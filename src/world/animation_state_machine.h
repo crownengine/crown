@@ -49,29 +49,29 @@ struct AnimationStateMachine
 	///
 	~AnimationStateMachine();
 
-	///
-	u32 create(UnitId unit, const AnimationStateMachineDesc& desc);
+	/// Creates a new state machine instance for the @a unit.
+	StateMachineInstance create(UnitId unit, const AnimationStateMachineDesc& desc);
 
-	///
-	void destroy(UnitId unit);
+	/// Destroys the @a state_machine.
+	void destroy(StateMachineInstance state_machine);
 
-	///
-	u32 instances(UnitId unit);
+	/// Returns the ID of the state machine owned by the *unit*.
+	StateMachineInstance instance(UnitId unit);
 
-	///
+	/// Returns whether the @a unit has the state machine.
 	bool has(UnitId unit);
 
-	///
-	u32 variable_id(UnitId unit, StringId32 name);
+	/// Returns the ID of the variable @a name in the @a state_machine.
+	u32 variable_id(StateMachineInstance state_machine, StringId32 name);
 
-	///
-	f32 variable(UnitId unit, u32 variable_id);
+	/// Returns the value of the @a variable_id in the @a state_machine.
+	f32 variable(StateMachineInstance state_machine, u32 variable_id);
 
-	///
-	void set_variable(UnitId unit, u32 variable_id, f32 value);
+	/// Sets the @a value of the @a variable_id in the @a state_machine.
+	void set_variable(StateMachineInstance state_machine, u32 variable_id, f32 value);
 
-	///
-	void trigger(UnitId unit, StringId32 event);
+	// Triggers the @a event in the @a state_machine.
+	void trigger(StateMachineInstance state_machine, StringId32 event);
 
 	///
 	void update(float dt);

@@ -24,6 +24,11 @@ static void unit_destroyed_callback_bridge(UnitId id, void* user_ptr)
 	((AnimationStateMachine*)user_ptr)->unit_destroyed_callback(id);
 }
 
+static StateMachineInstance make_instance(u32 i)
+{
+	StateMachineInstance inst = { i }; return inst;
+}
+
 AnimationStateMachine::AnimationStateMachine(Allocator& a, ResourceManager& rm, UnitManager& um)
 	: _marker(ANIMATION_STATE_MACHINE_MARKER)
 	, _resource_manager(&rm)
@@ -45,7 +50,7 @@ AnimationStateMachine::~AnimationStateMachine()
 	_marker = 0;
 }
 
-u32 AnimationStateMachine::create(UnitId unit, const AnimationStateMachineDesc& desc)
+StateMachineInstance AnimationStateMachine::create(UnitId unit, const AnimationStateMachineDesc& desc)
 {
 	CE_ASSERT(!hash_map::has(_map, unit), "Unit already has a state machine component");
 
@@ -68,26 +73,27 @@ u32 AnimationStateMachine::create(UnitId unit, const AnimationStateMachineDesc& 
 	u32 last = array::size(_animations);
 	array::push_back(_animations, anim);
 	hash_map::set(_map, unit, last);
-	return 0;
+
+	return make_instance(last);
 }
 
-void AnimationStateMachine::destroy(UnitId unit)
+void AnimationStateMachine::destroy(StateMachineInstance state_machine)
 {
-	const u32 i = hash_map::get(_map, unit, UINT32_MAX);
 	const u32 last_i = array::size(_animations) - 1;
+	const UnitId u = _animations[state_machine.i].unit;
 	const UnitId last_u = _animations[last_i].unit;
 
-	default_allocator().deallocate(_animations[i].variables);
-	_animations[i] = _animations[last_i];
+	default_allocator().deallocate(_animations[state_machine.i].variables);
+	_animations[state_machine.i] = _animations[last_i];
 
 	array::pop_back(_animations);
-	hash_map::set(_map, last_u, i);
-	hash_map::remove(_map, unit);
+	hash_map::set(_map, last_u, state_machine.i);
+	hash_map::remove(_map, u);
 }
 
-u32 AnimationStateMachine::instances(UnitId unit)
+StateMachineInstance AnimationStateMachine::instance(UnitId unit)
 {
-	return hash_map::get(_map, unit, UINT32_MAX);
+	return make_instance(hash_map::get(_map, unit, UINT32_MAX));
 }
 
 bool AnimationStateMachine::has(UnitId unit)
@@ -95,34 +101,29 @@ bool AnimationStateMachine::has(UnitId unit)
 	return hash_map::has(_map, unit);
 }
 
-u32 AnimationStateMachine::variable_id(UnitId unit, StringId32 name)
+u32 AnimationStateMachine::variable_id(StateMachineInstance state_machine, StringId32 name)
 {
-	const u32 i = hash_map::get(_map, unit, UINT32_MAX);
-	const u32 index = state_machine::variable_index(_animations[i].state_machine, name);
+	const u32 index = state_machine::variable_index(_animations[state_machine.i].state_machine, name);
 	return index;
 }
 
-f32 AnimationStateMachine::variable(UnitId unit, u32 variable_id)
+f32 AnimationStateMachine::variable(StateMachineInstance state_machine, u32 variable_id)
 {
-	const u32 i = hash_map::get(_map, unit, UINT32_MAX);
 	CE_ENSURE(variable_id != UINT32_MAX);
-	return _animations[i].variables[variable_id];
+	return _animations[state_machine.i].variables[variable_id];
 }
 
-void AnimationStateMachine::set_variable(UnitId unit, u32 variable_id, f32 value)
+void AnimationStateMachine::set_variable(StateMachineInstance state_machine, u32 variable_id, f32 value)
 {
-	const u32 i = hash_map::get(_map, unit, UINT32_MAX);
 	CE_ENSURE(variable_id != UINT32_MAX);
-	_animations[i].variables[variable_id] = value;
+	_animations[state_machine.i].variables[variable_id] = value;
 }
 
-void AnimationStateMachine::trigger(UnitId unit, StringId32 event)
+void AnimationStateMachine::trigger(StateMachineInstance state_machine, StringId32 event)
 {
-	const u32 i = hash_map::get(_map, unit, UINT32_MAX);
-
 	const Transition* transition;
-	const State* s = state_machine::trigger(_animations[i].state_machine
-		, _animations[i].state
+	const State* s = state_machine::trigger(_animations[state_machine.i].state_machine
+		, _animations[state_machine.i].state
 		, event
 		, &transition
 		);
@@ -131,9 +132,9 @@ void AnimationStateMachine::trigger(UnitId unit, StringId32 event)
 		return;
 
 	if (transition->mode == TransitionMode::IMMEDIATE)
-		_animations[i].state = s;
+		_animations[state_machine.i].state = s;
 	else if (transition->mode == TransitionMode::WAIT_UNTIL_END)
-		_animations[i].state_next = s;
+		_animations[state_machine.i].state_next = s;
 	else
 		CE_FATAL("Unknown transition mode");
 }
@@ -235,8 +236,9 @@ void AnimationStateMachine::update(float dt)
 
 void AnimationStateMachine::unit_destroyed_callback(UnitId unit)
 {
-	if (has(unit))
-		destroy(unit);
+	StateMachineInstance inst = instance(unit);
+	if (is_valid(inst))
+		destroy(inst);
 }
 
 } // namespace crown

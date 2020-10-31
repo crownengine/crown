@@ -21,7 +21,8 @@ function Game.level_loaded()
 
 	-- Spawn camera
 	local camera_unit = World.spawn_unit(GameBase.world, "core/units/camera")
-	SceneGraph.set_local_position(Game.sg, camera_unit, Vector3(0, 6.5, -30))
+	local tr = SceneGraph.instance(Game.sg, camera_unit);
+	SceneGraph.set_local_position(Game.sg, tr, Vector3(0, 6.5, -30))
 
 	GameBase.game_camera = camera_unit
 
@@ -50,18 +51,20 @@ function Game.update(dt)
 
 	-- Spawn a sphere when left mouse button is pressed
 	if Mouse.pressed(Mouse.button_id("left")) then
-		local pos = SceneGraph.local_position(Game.sg, Game.camera:unit())
-		local dir = Matrix4x4.z(SceneGraph.local_pose(Game.sg, Game.camera:unit()))
+		local tr = SceneGraph.instance(Game.sg, Game.camera:unit())
+		local pos = SceneGraph.local_position(Game.sg, tr)
+		local dir = Matrix4x4.z(SceneGraph.local_pose(Game.sg, tr))
 		local u1 = World.spawn_unit(GameBase.world, "units/sphere", pos)
-		local a1 = PhysicsWorld.actor_instances(Game.pw, u1)
+		local a1 = PhysicsWorld.actor_instance(Game.pw, u1)
 		Vector3.normalize(dir)
 		PhysicsWorld.actor_add_impulse(Game.pw, a1, dir * 500.0)
 	end
 
 	-- Perform a raycast when middle mouse button is pressed
 	if Mouse.pressed(Mouse.button_id("middle")) then
-		local pos = SceneGraph.local_position(Game.sg, Game.camera:unit())
-		local dir = Matrix4x4.z(SceneGraph.local_pose(Game.sg, Game.camera:unit()))
+		local tr = SceneGraph.instance(Game.sg, Game.camera:unit())
+		local pos = SceneGraph.local_position(Game.sg, tr)
+		local dir = Matrix4x4.z(SceneGraph.local_pose(Game.sg, tr))
 		local hit, pos, normal, time, unit, actor = PhysicsWorld.cast_ray(Game.pw, pos, dir, 100)
 		if hit then
 			PhysicsWorld.actor_add_impulse(Game.pw, actor, dir * 400.0)

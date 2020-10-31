@@ -18,9 +18,9 @@ function UnitPreview:update(dt)
 	World.update(self._world, dt)
 
 	if self._unit_id then
-		local mesh_component = RenderWorld.mesh_instances(self._rw, self._unit_id)
-		local tm, hext = mesh_component
-			and RenderWorld.mesh_obb(self._rw, mesh_component)
+		local mesh = RenderWorld.mesh_instance(self._rw, self._unit_id)
+		local tm, hext = mesh
+			and RenderWorld.mesh_obb(self._rw, mesh)
 			or Matrix4x4.identity(), Vector3(1, 1, 1)
 
 		local radius = Vector3.length(hext)
@@ -32,8 +32,9 @@ function UnitPreview:update(dt)
 		local pos = Vector3(radius, radius, -radius) * 2
 		local camera_pos = Matrix4x4.translation(tm) + pos
 		local target_pos = Matrix4x4.translation(tm)
-		SceneGraph.set_local_rotation(self._sg, camera_unit, Quaternion.look(Vector3.normalize(target_pos - camera_pos)))
-		SceneGraph.set_local_position(self._sg, camera_unit, camera_pos)
+		local tr = SceneGraph.instance(self._sg, camera_unit)
+		SceneGraph.set_local_rotation(self._sg, tr, Quaternion.look(Vector3.normalize(target_pos - camera_pos)))
+		SceneGraph.set_local_position(self._sg, tr, camera_pos)
 	end
 
 	self._camera:update(dt, 0, 0, {})
@@ -68,7 +69,7 @@ function UnitPreview:set_preview_resource(type, name)
 	self._unit_name = unit
 	self._unit_id = World.spawn_unit(self._world, unit)
 
-	local actor = PhysicsWorld.actor_instances(self._pw, self._unit_id)
+	local actor = PhysicsWorld.actor_instance(self._pw, self._unit_id)
 	if actor then
 		PhysicsWorld.actor_set_kinematic(self._pw, actor, true)
 	end

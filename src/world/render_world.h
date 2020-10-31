@@ -27,113 +27,113 @@ struct RenderWorld
 	~RenderWorld();
 
 	/// Creates a new mesh instance.
-	MeshInstance mesh_create(UnitId id, const MeshRendererDesc& mrd, const Matrix4x4& tr);
+	MeshInstance mesh_create(UnitId unit, const MeshRendererDesc& mrd, const Matrix4x4& tr);
 
-	/// Destroys the mesh @a i.
-	void mesh_destroy(MeshInstance i);
+	/// Destroys the @a mesh.
+	void mesh_destroy(MeshInstance mesh);
 
-	/// Returns the mesh instances of the unit @a id.
-	MeshInstance mesh_instances(UnitId id);
+	/// Returns the ID of the mesh owned by the *unit*.
+	MeshInstance mesh_instance(UnitId unit);
 
-	/// Returns the material of the mesh @a i.
-	Material* mesh_material(MeshInstance i);
+	/// Returns the material of the @a mesh.
+	Material* mesh_material(MeshInstance mesh);
 
-	/// Sets the material @a id of the mesh @a i.
-	void mesh_set_material(MeshInstance i, StringId64 id);
+	/// Sets the material @a id of the @a mesh.
+	void mesh_set_material(MeshInstance mesh, StringId64 id);
 
-	/// Sets whether the mesh @a i is @a visible.
-	void mesh_set_visible(MeshInstance i, bool visible);
+	/// Sets whether the @a mesh is @a visible.
+	void mesh_set_visible(MeshInstance mesh, bool visible);
 
-	/// Returns the OBB of the mesh @a i.
-	OBB mesh_obb(MeshInstance i);
+	/// Returns the OBB of the @a mesh.
+	OBB mesh_obb(MeshInstance mesh);
 
-	/// Returns the distance along ray (from, dir) to intersection point with mesh @a i
+	/// Returns the distance along ray (from, dir) to intersection point with @a mesh
 	/// or -1.0 if no intersection.
-	f32 mesh_cast_ray(MeshInstance i, const Vector3& from, const Vector3& dir);
+	f32 mesh_cast_ray(MeshInstance mesh, const Vector3& from, const Vector3& dir);
 
 	/// Creates a new sprite instance.
-	SpriteInstance sprite_create(UnitId id, const SpriteRendererDesc& srd, const Matrix4x4& tr);
+	SpriteInstance sprite_create(UnitId unit, const SpriteRendererDesc& srd, const Matrix4x4& tr);
 
-	/// Destroys the sprite of the @a unit.
-	void sprite_destroy(UnitId unit, SpriteInstance i);
+	/// Destroys the sprite @a i.
+	void sprite_destroy(SpriteInstance sprite);
 
-	/// Returns the sprite instances of the @a unit.
-	SpriteInstance sprite_instances(UnitId unit);
+	/// Returns the ID of the sprite owned by the *unit*.
+	SpriteInstance sprite_instance(UnitId unit);
 
-	/// Returns the material of the sprite.
-	Material* sprite_material(UnitId unit);
+	/// Returns the material of the @a sprite.
+	Material* sprite_material(SpriteInstance sprite);
 
-	/// Sets the material @a id of the sprite.
-	void sprite_set_material(UnitId unit, StringId64 id);
+	/// Sets the material @a id of the @a sprite.
+	void sprite_set_material(SpriteInstance sprite, StringId64 id);
 
-	/// Sets the frame @a index of the sprite.
+	/// Sets the frame @a index of the @a sprite.
 	/// The @a index automatically wraps if it greater than
-	/// the total number of frames in the sprite.
-	void sprite_set_frame(UnitId unit, u32 index);
+	/// the total number of frames in the @a sprite.
+	void sprite_set_frame(SpriteInstance sprite, u32 index);
 
-	/// Sets whether the sprite is @a visible.
-	void sprite_set_visible(UnitId unit, bool visible);
+	/// Sets whether the @a sprite is @a visible.
+	void sprite_set_visible(SpriteInstance sprite, bool visible);
 
-	/// Sets whether to flip the sprite on the x-axis.
-	void sprite_flip_x(UnitId unit, bool flip);
+	/// Sets whether to flip the @a sprite on the x-axis.
+	void sprite_flip_x(SpriteInstance sprite, bool flip);
 
-	/// Sets whether to flip the sprite on the y-axis.
-	void sprite_flip_y(UnitId unit, bool flip);
+	/// Sets whether to flip the @a sprite on the y-axis.
+	void sprite_flip_y(SpriteInstance sprite, bool flip);
 
-	/// Sets the layer of the sprite.
-	void sprite_set_layer(UnitId unit, u32 layer);
+	/// Sets the layer of the @a sprite.
+	void sprite_set_layer(SpriteInstance sprite, u32 layer);
 
-	/// Sets the depth of the sprite.
-	void sprite_set_depth(UnitId unit, u32 depth);
+	/// Sets the depth of the @a sprite.
+	void sprite_set_depth(SpriteInstance sprite, u32 depth);
 
-	/// Returns the OBB of the sprite.
-	OBB sprite_obb(UnitId unit);
+	/// Returns the OBB of the @a sprite.
+	OBB sprite_obb(SpriteInstance sprite);
 
-	/// Returns the distance along ray (from, dir) to intersection point with sprite
-	/// or -1.0 if no intersection.
-	f32 sprite_cast_ray(UnitId unit, const Vector3& from, const Vector3& dir, u32& layer, u32& depth);
+	/// Returns the distance along ray (from, dir) to intersection point with
+	/// @a sprite or -1.0 if no intersection.
+	f32 sprite_cast_ray(SpriteInstance sprite, const Vector3& from, const Vector3& dir, u32& layer, u32& depth);
 
 	/// Creates a new light instance.
 	LightInstance light_create(UnitId unit, const LightDesc& ld, const Matrix4x4& tr);
 
-	/// Destroys the light.
-	void light_destroy(UnitId unit, LightInstance i);
+	/// Destroys the @a light.
+	void light_destroy(LightInstance light);
 
-	/// Returns the light of the @a unit.
-	LightInstance light_instances(UnitId unit);
+	/// Returns the ID of the light owned by the *unit*.
+	LightInstance light_instance(UnitId unit);
 
-	/// Returns the type of the light.
-	LightType::Enum light_type(UnitId unit);
+	/// Returns the type of the @a light.
+	LightType::Enum light_type(LightInstance light);
 
-	/// Returns the color of the light.
-	Color4 light_color(UnitId unit);
+	/// Returns the color of the @a light.
+	Color4 light_color(LightInstance light);
 
-	/// Returns the range of the light.
-	f32 light_range(UnitId unit);
+	/// Returns the range of the @a light.
+	f32 light_range(LightInstance light);
 
-	/// Returns the intensity of the light.
-	f32 light_intensity(UnitId unit);
+	/// Returns the intensity of the @a light.
+	f32 light_intensity(LightInstance light);
 
-	/// Returns the spot angle of the light.
-	f32 light_spot_angle(UnitId unit);
+	/// Returns the spot angle of the @a light.
+	f32 light_spot_angle(LightInstance light);
 
-	/// Sets the @a type of the light.
-	void light_set_type(UnitId unit, LightType::Enum type);
+	/// Sets the @a type of the @a light.
+	void light_set_type(LightInstance light, LightType::Enum type);
 
-	/// Sets the @a color of the light.
-	void light_set_color(UnitId unit, const Color4& color);
+	/// Sets the @a color of the @a light.
+	void light_set_color(LightInstance light, const Color4& color);
 
-	/// Sets the @a range of the light.
-	void light_set_range(UnitId unit, f32 range);
+	/// Sets the @a range of the @a light.
+	void light_set_range(LightInstance light, f32 range);
 
-	/// Sets the @a intensity of the light.
-	void light_set_intensity(UnitId unit, f32 intensity);
+	/// Sets the @a intensity of the @a light.
+	void light_set_intensity(LightInstance light, f32 intensity);
 
-	/// Sets the spot @a angle of the light.
-	void light_set_spot_angle(UnitId unit, f32 angle);
+	/// Sets the spot @a angle of the @a light.
+	void light_set_spot_angle(LightInstance light, f32 angle);
 
-	/// Fills @a dl with debug lines from the light.
-	void light_debug_draw(UnitId unit, DebugLine& dl);
+	/// Fills @a dl with debug lines from the @a light.
+	void light_debug_draw(LightInstance light, DebugLine& dl);
 
 	void update_transforms(const UnitId* begin, const UnitId* end, const Matrix4x4* world);
 
@@ -145,7 +145,7 @@ struct RenderWorld
 	/// Fills @a dl with debug lines
 	void debug_draw(DebugLine& dl);
 
-	void unit_destroyed_callback(UnitId id);
+	void unit_destroyed_callback(UnitId unit);
 
 	struct MeshManager
 	{
@@ -185,11 +185,11 @@ struct RenderWorld
 
 		void allocate(u32 num);
 		void grow();
-		MeshInstance create(UnitId id, const MeshResource* mr, const MeshGeometry* mg, StringId64 material, const Matrix4x4& tr);
-		void destroy(MeshInstance i);
-		bool has(UnitId id);
-		void set_visible(MeshInstance i, bool visible);
-		MeshInstance mesh(UnitId id);
+		MeshInstance create(UnitId unit, const MeshResource* mr, const MeshGeometry* mg, StringId64 material, const Matrix4x4& tr);
+		void destroy(MeshInstance mesh);
+		bool has(UnitId unit);
+		void set_visible(MeshInstance mesh, bool visible);
+		MeshInstance mesh(UnitId unit);
 		void destroy();
 
 		MeshInstance make_instance(u32 i) { MeshInstance inst = { i }; return inst; }
@@ -228,11 +228,11 @@ struct RenderWorld
 			memset(&_data, 0, sizeof(_data));
 		}
 
-		SpriteInstance create(UnitId id, const SpriteResource* sr, StringId64 material, u32 layer, u32 depth, const Matrix4x4& tr);
-		void destroy(SpriteInstance i);
-		bool has(UnitId id);
-		void set_visible(SpriteInstance i, bool visible);
-		SpriteInstance sprite(UnitId id);
+		SpriteInstance create(UnitId unit, const SpriteResource* sr, StringId64 material, u32 layer, u32 depth, const Matrix4x4& tr);
+		void destroy(SpriteInstance sprite);
+		bool has(UnitId unit);
+		void set_visible(SpriteInstance sprite, bool visible);
+		SpriteInstance sprite(UnitId unit);
 		void allocate(u32 num);
 		void grow();
 		void destroy();
@@ -268,10 +268,10 @@ struct RenderWorld
 			memset(&_data, 0, sizeof(_data));
 		}
 
-		LightInstance create(UnitId id, const LightDesc& ld, const Matrix4x4& tr);
-		void destroy(LightInstance i);
-		bool has(UnitId id);
-		LightInstance light(UnitId id);
+		LightInstance create(UnitId unit, const LightDesc& ld, const Matrix4x4& tr);
+		void destroy(LightInstance light);
+		bool has(UnitId unit);
+		LightInstance light(UnitId unit);
 		void debug_draw(u32 start_index, u32 num, DebugLine& dl);
 
 		void allocate(u32 num);

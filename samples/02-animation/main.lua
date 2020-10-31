@@ -23,10 +23,12 @@ function Game.level_loaded()
 
 	-- Spawn camera
 	local camera_unit = World.spawn_unit(GameBase.world, "core/units/camera")
-	World.camera_set_orthographic_size(GameBase.world, camera_unit, 540/2/32)
-	World.camera_set_projection_type(GameBase.world, camera_unit, "orthographic")
-	SceneGraph.set_local_position(Game.sg, camera_unit, Vector3(0, 8, 0))
-	SceneGraph.set_local_rotation(Game.sg, camera_unit, Quaternion.from_axis_angle(Vector3.right(), 90*(math.pi/180.0)))
+	local camera = World.camera_instance(GameBase.world, camera_unit)
+	World.camera_set_orthographic_size(GameBase.world, camera, 540/2/32)
+	World.camera_set_projection_type(GameBase.world, camera, "orthographic")
+	local tr = SceneGraph.instance(Game.sg, camera_unit)
+	SceneGraph.set_local_position(Game.sg, tr, Vector3(0, 8, 0))
+	SceneGraph.set_local_rotation(Game.sg, tr, Quaternion.from_axis_angle(Vector3.right(), 90*(math.pi/180.0)))
 
 	GameBase.game_camera = camera_unit
 
@@ -50,7 +52,8 @@ function Game.update(dt)
 
 	-- Cycle through characters
 	if Pad1.pressed(Pad1.button_id("shoulder_right")) or Keyboard.pressed(Keyboard.button_id("j")) then
-		AnimationStateMachine.trigger(Game.sm, Game.player, "idle")
+		local asm = AnimationStateMachine.instance(Game.sm, Game.player);
+		AnimationStateMachine.trigger(Game.sm, asm, "idle")
 		Game.player_i = Game.player_i % #Game.players + 1
 		Game.player = Game.players[Game.player_i]
 	end
@@ -69,26 +72,31 @@ function Game.update(dt)
 	end
 	-- Compute new player position
 	local player_speed = 4
-	local player_position = SceneGraph.local_position(Game.sg, Game.player)
-	SceneGraph.set_local_position(Game.sg, Game.player, player_position + swap_yz(pad_dir)*player_speed*dt)
+	local player_tr = SceneGraph.instance(Game.sg, Game.player)
+	local player_position = SceneGraph.local_position(Game.sg, player_tr)
+	SceneGraph.set_local_position(Game.sg, player_tr, player_position + swap_yz(pad_dir)*player_speed*dt)
 
 	-- Sprite depth is proportional to its Z position
 	for i=1, #Game.players do
-		local pos = SceneGraph.local_position(Game.sg, Game.players[i])
+		local tr = SceneGraph.instance(Game.sg, Game.players[i])
+		local pos = SceneGraph.local_position(Game.sg, tr)
 		local depth = math.floor(1000 + (1000 - 32*pos.z))
-		RenderWorld.sprite_set_depth(Game.rw, Game.players[i], depth)
+		local sprite = RenderWorld.sprite_instance(Game.rw, Game.players[i])
+		RenderWorld.sprite_set_depth(Game.rw, sprite, depth)
 	end
 
+	local asm = AnimationStateMachine.instance(Game.sm, Game.player);
 	if pad_dir.x ~= 0.0 or pad_dir.y ~= 0.0 then
-		local speed_x = AnimationStateMachine.variable_id(Game.sm, Game.player, "speed_x")
-		local speed_y = AnimationStateMachine.variable_id(Game.sm, Game.player, "speed_y")
-		local speed   = AnimationStateMachine.variable_id(Game.sm, Game.player, "speed")
-		AnimationStateMachine.set_variable(Game.sm, Game.player, speed_x, pad_dir.x)
-		AnimationStateMachine.set_variable(Game.sm, Game.player, speed_y, pad_dir.y)
-		AnimationStateMachine.set_variable(Game.sm, Game.player, speed, math.max(0.2, Vector3.length(pad_dir)))
-		AnimationStateMachine.trigger(Game.sm, Game.player, "run")
+		local asm = AnimationStateMachine.instance(Game.sm, Game.player);
+		local speed_x = AnimationStateMachine.variable_id(Game.sm, asm, "speed_x")
+		local speed_y = AnimationStateMachine.variable_id(Game.sm, asm, "speed_y")
+		local speed   = AnimationStateMachine.variable_id(Game.sm, asm, "speed")
+		AnimationStateMachine.set_variable(Game.sm, asm, speed_x, pad_dir.x)
+		AnimationStateMachine.set_variable(Game.sm, asm, speed_y, pad_dir.y)
+		AnimationStateMachine.set_variable(Game.sm, asm, speed, math.max(0.2, Vector3.length(pad_dir)))
+		AnimationStateMachine.trigger(Game.sm, asm, "run")
 	else
-		AnimationStateMachine.trigger(Game.sm, Game.player, "idle")
+		AnimationStateMachine.trigger(Game.sm, asm, "idle")
 	end
 end
 

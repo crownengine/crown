@@ -39,177 +39,177 @@ struct PhysicsWorldImpl
 	{
 	}
 
-	ColliderInstance collider_create(UnitId /*id*/, const ColliderDesc* /*sd*/, const Vector3& /*scl*/)
+	ColliderInstance collider_create(UnitId /*unit*/, const ColliderDesc* /*sd*/, const Vector3& /*scl*/)
 	{
 		return make_collider_instance(UINT32_MAX);
 	}
 
-	void collider_destroy(ColliderInstance /*i*/)
+	void collider_destroy(ColliderInstance /*collider*/)
 	{
 	}
 
-	ColliderInstance collider_first(UnitId /*id*/)
-	{
-		return make_collider_instance(UINT32_MAX);
-	}
-
-	ColliderInstance collider_next(ColliderInstance /*i*/)
+	ColliderInstance collider_first(UnitId /*unit*/)
 	{
 		return make_collider_instance(UINT32_MAX);
 	}
 
-	ActorInstance actor_create(UnitId /*id*/, const ActorResource* /*ar*/, const Matrix4x4& /*tm*/)
+	ColliderInstance collider_next(ColliderInstance /*collider*/)
+	{
+		return make_collider_instance(UINT32_MAX);
+	}
+
+	ActorInstance actor_create(UnitId /*unit*/, const ActorResource* /*ar*/, const Matrix4x4& /*tm*/)
 	{
 		return make_actor_instance(UINT32_MAX);
 	}
 
-	void actor_destroy(ActorInstance /*i*/)
+	void actor_destroy(ActorInstance /*actor*/)
 	{
 	}
 
-	ActorInstance actor(UnitId /*id*/)
+	ActorInstance actor(UnitId /*unit*/)
 	{
 		return make_actor_instance(UINT32_MAX);
 	}
 
-	Vector3 actor_world_position(ActorInstance /*i*/) const
+	Vector3 actor_world_position(ActorInstance /*actor*/) const
 	{
 		return VECTOR3_ZERO;
 	}
 
-	Quaternion actor_world_rotation(ActorInstance /*i*/) const
+	Quaternion actor_world_rotation(ActorInstance /*actor*/) const
 	{
 		return QUATERNION_IDENTITY;
 	}
 
-	Matrix4x4 actor_world_pose(ActorInstance /*i*/) const
+	Matrix4x4 actor_world_pose(ActorInstance /*actor*/) const
 	{
 		return MATRIX4X4_IDENTITY;
 	}
 
-	void actor_teleport_world_position(ActorInstance /*i*/, const Vector3& /*p*/)
+	void actor_teleport_world_position(ActorInstance /*actor*/, const Vector3& /*p*/)
 	{
 	}
 
-	void actor_teleport_world_rotation(ActorInstance /*i*/, const Quaternion& /*r*/)
+	void actor_teleport_world_rotation(ActorInstance /*actor*/, const Quaternion& /*r*/)
 	{
 	}
 
-	void actor_teleport_world_pose(ActorInstance /*i*/, const Matrix4x4& /*m*/)
+	void actor_teleport_world_pose(ActorInstance /*actor*/, const Matrix4x4& /*m*/)
 	{
 	}
 
-	Vector3 actor_center_of_mass(ActorInstance /*i*/) const
+	Vector3 actor_center_of_mass(ActorInstance /*actor*/) const
 	{
 		return VECTOR3_ZERO;
 	}
 
-	void actor_enable_gravity(ActorInstance /*i*/)
+	void actor_enable_gravity(ActorInstance /*actor*/)
 	{
 	}
 
-	void actor_disable_gravity(ActorInstance /*i*/)
+	void actor_disable_gravity(ActorInstance /*actor*/)
 	{
 	}
 
-	void actor_enable_collision(ActorInstance /*i*/)
+	void actor_enable_collision(ActorInstance /*actor*/)
 	{
 	}
 
-	void actor_disable_collision(ActorInstance /*i*/)
+	void actor_disable_collision(ActorInstance /*actor*/)
 	{
 	}
 
-	void actor_set_collision_filter(ActorInstance /*i*/, StringId32 /*filter*/)
+	void actor_set_collision_filter(ActorInstance /*actor*/, StringId32 /*filter*/)
 	{
 	}
 
-	void actor_set_kinematic(ActorInstance /*i*/, bool /*kinematic*/)
+	void actor_set_kinematic(ActorInstance /*actor*/, bool /*kinematic*/)
 	{
 	}
 
-	bool actor_is_static(ActorInstance /*i*/) const
-	{
-		return false;
-	}
-
-	bool actor_is_dynamic(ActorInstance /*i*/) const
+	bool actor_is_static(ActorInstance /*actor*/) const
 	{
 		return false;
 	}
 
-	bool actor_is_kinematic(ActorInstance /*i*/) const
+	bool actor_is_dynamic(ActorInstance /*actor*/) const
 	{
 		return false;
 	}
 
-	bool actor_is_nonkinematic(ActorInstance /*i*/) const
+	bool actor_is_kinematic(ActorInstance /*actor*/) const
 	{
 		return false;
 	}
 
-	f32 actor_linear_damping(ActorInstance /*i*/) const
+	bool actor_is_nonkinematic(ActorInstance /*actor*/) const
+	{
+		return false;
+	}
+
+	f32 actor_linear_damping(ActorInstance /*actor*/) const
 	{
 		return 0.0f;
 	}
 
-	void actor_set_linear_damping(ActorInstance /*i*/, f32 /*rate*/)
+	void actor_set_linear_damping(ActorInstance /*actor*/, f32 /*rate*/)
 	{
 	}
 
-	f32 actor_angular_damping(ActorInstance /*i*/) const
+	f32 actor_angular_damping(ActorInstance /*actor*/) const
 	{
 		return 0.0f;
 	}
 
-	void actor_set_angular_damping(ActorInstance /*i*/, f32 /*rate*/)
+	void actor_set_angular_damping(ActorInstance /*actor*/, f32 /*rate*/)
 	{
 	}
 
-	Vector3 actor_linear_velocity(ActorInstance /*i*/) const
-	{
-		return VECTOR3_ZERO;
-	}
-
-	void actor_set_linear_velocity(ActorInstance /*i*/, const Vector3& /*vel*/)
-	{
-	}
-
-	Vector3 actor_angular_velocity(ActorInstance /*i*/) const
+	Vector3 actor_linear_velocity(ActorInstance /*actor*/) const
 	{
 		return VECTOR3_ZERO;
 	}
 
-	void actor_set_angular_velocity(ActorInstance /*i*/, const Vector3& /*vel*/)
+	void actor_set_linear_velocity(ActorInstance /*actor*/, const Vector3& /*vel*/)
 	{
 	}
 
-	void actor_add_impulse(ActorInstance /*i*/, const Vector3& /*impulse*/)
+	Vector3 actor_angular_velocity(ActorInstance /*actor*/) const
+	{
+		return VECTOR3_ZERO;
+	}
+
+	void actor_set_angular_velocity(ActorInstance /*actor*/, const Vector3& /*vel*/)
 	{
 	}
 
-	void actor_add_impulse_at(ActorInstance /*i*/, const Vector3& /*impulse*/, const Vector3& /*pos*/)
+	void actor_add_impulse(ActorInstance /*actor*/, const Vector3& /*impulse*/)
 	{
 	}
 
-	void actor_add_torque_impulse(ActorInstance /*i*/, const Vector3& /*imp*/)
+	void actor_add_impulse_at(ActorInstance /*actor*/, const Vector3& /*impulse*/, const Vector3& /*pos*/)
 	{
 	}
 
-	void actor_push(ActorInstance /*i*/, const Vector3& /*vel*/, f32 /*mass*/)
+	void actor_add_torque_impulse(ActorInstance /*actor*/, const Vector3& /*imp*/)
 	{
 	}
 
-	void actor_push_at(ActorInstance /*i*/, const Vector3& /*vel*/, f32 /*mass*/, const Vector3& /*pos*/)
+	void actor_push(ActorInstance /*actor*/, const Vector3& /*vel*/, f32 /*mass*/)
 	{
 	}
 
-	bool actor_is_sleeping(ActorInstance /*i*/)
+	void actor_push_at(ActorInstance /*actor*/, const Vector3& /*vel*/, f32 /*mass*/, const Vector3& /*pos*/)
+	{
+	}
+
+	bool actor_is_sleeping(ActorInstance /*actor*/)
 	{
 		return false;
 	}
 
-	void actor_wake_up(ActorInstance /*i*/)
+	void actor_wake_up(ActorInstance /*actor*/)
 	{
 	}
 
@@ -218,7 +218,7 @@ struct PhysicsWorldImpl
 		return make_joint_instance(UINT32_MAX);
 	}
 
-	void joint_destroy(JointInstance /*i*/)
+	void joint_destroy(JointInstance /*joint*/)
 	{
 	}
 
@@ -291,9 +291,9 @@ PhysicsWorld::~PhysicsWorld()
 	_marker = 0;
 }
 
-ColliderInstance PhysicsWorld::collider_create(UnitId id, const ColliderDesc* sd, const Vector3& scl)
+ColliderInstance PhysicsWorld::collider_create(UnitId unit, const ColliderDesc* sd, const Vector3& scl)
 {
-	return _impl->collider_create(id, sd, scl);
+	return _impl->collider_create(unit, sd, scl);
 }
 
 void PhysicsWorld::collider_destroy(ColliderInstance i)
@@ -301,9 +301,9 @@ void PhysicsWorld::collider_destroy(ColliderInstance i)
 	_impl->collider_destroy(i);
 }
 
-ColliderInstance PhysicsWorld::collider_first(UnitId id)
+ColliderInstance PhysicsWorld::collider_first(UnitId unit)
 {
-	return _impl->collider_first(id);
+	return _impl->collider_first(unit);
 }
 
 ColliderInstance PhysicsWorld::collider_next(ColliderInstance i)
@@ -311,179 +311,179 @@ ColliderInstance PhysicsWorld::collider_next(ColliderInstance i)
 	return _impl->collider_next(i);
 }
 
-ActorInstance PhysicsWorld::actor_create(UnitId id, const ActorResource* ar, const Matrix4x4& tm)
+ActorInstance PhysicsWorld::actor_create(UnitId unit, const ActorResource* ar, const Matrix4x4& tm)
 {
-	return _impl->actor_create(id, ar, tm);
+	return _impl->actor_create(unit, ar, tm);
 }
 
-void PhysicsWorld::actor_destroy(ActorInstance i)
+void PhysicsWorld::actor_destroy(ActorInstance actor)
 {
-	_impl->actor_destroy(i);
+	_impl->actor_destroy(actor);
 }
 
-ActorInstance PhysicsWorld::actor(UnitId id)
+ActorInstance PhysicsWorld::actor(UnitId unit)
 {
-	return _impl->actor(id);
+	return _impl->actor(unit);
 }
 
-Vector3 PhysicsWorld::actor_world_position(ActorInstance i) const
+Vector3 PhysicsWorld::actor_world_position(ActorInstance actor) const
 {
-	return _impl->actor_world_position(i);
+	return _impl->actor_world_position(actor);
 }
 
-Quaternion PhysicsWorld::actor_world_rotation(ActorInstance i) const
+Quaternion PhysicsWorld::actor_world_rotation(ActorInstance actor) const
 {
-	return _impl->actor_world_rotation(i);
+	return _impl->actor_world_rotation(actor);
 }
 
-Matrix4x4 PhysicsWorld::actor_world_pose(ActorInstance i) const
+Matrix4x4 PhysicsWorld::actor_world_pose(ActorInstance actor) const
 {
-	return _impl->actor_world_pose(i);
+	return _impl->actor_world_pose(actor);
 }
 
-void PhysicsWorld::actor_teleport_world_position(ActorInstance i, const Vector3& p)
+void PhysicsWorld::actor_teleport_world_position(ActorInstance actor, const Vector3& p)
 {
-	_impl->actor_teleport_world_position(i, p);
+	_impl->actor_teleport_world_position(actor, p);
 }
 
-void PhysicsWorld::actor_teleport_world_rotation(ActorInstance i, const Quaternion& r)
+void PhysicsWorld::actor_teleport_world_rotation(ActorInstance actor, const Quaternion& r)
 {
-	_impl->actor_teleport_world_rotation(i, r);
+	_impl->actor_teleport_world_rotation(actor, r);
 }
 
-void PhysicsWorld::actor_teleport_world_pose(ActorInstance i, const Matrix4x4& m)
+void PhysicsWorld::actor_teleport_world_pose(ActorInstance actor, const Matrix4x4& m)
 {
-	_impl->actor_teleport_world_pose(i, m);
+	_impl->actor_teleport_world_pose(actor, m);
 }
 
-Vector3 PhysicsWorld::actor_center_of_mass(ActorInstance i) const
+Vector3 PhysicsWorld::actor_center_of_mass(ActorInstance actor) const
 {
-	return _impl->actor_center_of_mass(i);
+	return _impl->actor_center_of_mass(actor);
 }
 
-void PhysicsWorld::actor_enable_gravity(ActorInstance i)
+void PhysicsWorld::actor_enable_gravity(ActorInstance actor)
 {
-	_impl->actor_enable_gravity(i);
+	_impl->actor_enable_gravity(actor);
 }
 
-void PhysicsWorld::actor_disable_gravity(ActorInstance i)
+void PhysicsWorld::actor_disable_gravity(ActorInstance actor)
 {
-	_impl->actor_disable_gravity(i);
+	_impl->actor_disable_gravity(actor);
 }
 
-void PhysicsWorld::actor_enable_collision(ActorInstance i)
+void PhysicsWorld::actor_enable_collision(ActorInstance actor)
 {
-	_impl->actor_enable_collision(i);
+	_impl->actor_enable_collision(actor);
 }
 
-void PhysicsWorld::actor_disable_collision(ActorInstance i)
+void PhysicsWorld::actor_disable_collision(ActorInstance actor)
 {
-	_impl->actor_disable_collision(i);
+	_impl->actor_disable_collision(actor);
 }
 
-void PhysicsWorld::actor_set_collision_filter(ActorInstance i, StringId32 filter)
+void PhysicsWorld::actor_set_collision_filter(ActorInstance actor, StringId32 filter)
 {
-	_impl->actor_set_collision_filter(i, filter);
+	_impl->actor_set_collision_filter(actor, filter);
 }
 
-void PhysicsWorld::actor_set_kinematic(ActorInstance i, bool kinematic)
+void PhysicsWorld::actor_set_kinematic(ActorInstance actor, bool kinematic)
 {
-	_impl->actor_set_kinematic(i, kinematic);
+	_impl->actor_set_kinematic(actor, kinematic);
 }
 
-bool PhysicsWorld::actor_is_static(ActorInstance i) const
+bool PhysicsWorld::actor_is_static(ActorInstance actor) const
 {
-	return _impl->actor_is_static(i);
+	return _impl->actor_is_static(actor);
 }
 
-bool PhysicsWorld::actor_is_dynamic(ActorInstance i) const
+bool PhysicsWorld::actor_is_dynamic(ActorInstance actor) const
 {
-	return _impl->actor_is_dynamic(i);
+	return _impl->actor_is_dynamic(actor);
 }
 
-bool PhysicsWorld::actor_is_kinematic(ActorInstance i) const
+bool PhysicsWorld::actor_is_kinematic(ActorInstance actor) const
 {
-	return _impl->actor_is_kinematic(i);
+	return _impl->actor_is_kinematic(actor);
 }
 
-bool PhysicsWorld::actor_is_nonkinematic(ActorInstance i) const
+bool PhysicsWorld::actor_is_nonkinematic(ActorInstance actor) const
 {
-	return _impl->actor_is_nonkinematic(i);
+	return _impl->actor_is_nonkinematic(actor);
 }
 
-f32 PhysicsWorld::actor_linear_damping(ActorInstance i) const
+f32 PhysicsWorld::actor_linear_damping(ActorInstance actor) const
 {
-	return _impl->actor_linear_damping(i);
+	return _impl->actor_linear_damping(actor);
 }
 
-void PhysicsWorld::actor_set_linear_damping(ActorInstance i, f32 rate)
+void PhysicsWorld::actor_set_linear_damping(ActorInstance actor, f32 rate)
 {
-	_impl->actor_set_linear_damping(i, rate);
+	_impl->actor_set_linear_damping(actor, rate);
 }
 
-f32 PhysicsWorld::actor_angular_damping(ActorInstance i) const
+f32 PhysicsWorld::actor_angular_damping(ActorInstance actor) const
 {
-	return _impl->actor_angular_damping(i);
+	return _impl->actor_angular_damping(actor);
 }
 
-void PhysicsWorld::actor_set_angular_damping(ActorInstance i, f32 rate)
+void PhysicsWorld::actor_set_angular_damping(ActorInstance actor, f32 rate)
 {
-	_impl->actor_set_angular_damping(i, rate);
+	_impl->actor_set_angular_damping(actor, rate);
 }
 
-Vector3 PhysicsWorld::actor_linear_velocity(ActorInstance i) const
+Vector3 PhysicsWorld::actor_linear_velocity(ActorInstance actor) const
 {
-	return _impl->actor_linear_velocity(i);
+	return _impl->actor_linear_velocity(actor);
 }
 
-void PhysicsWorld::actor_set_linear_velocity(ActorInstance i, const Vector3& vel)
+void PhysicsWorld::actor_set_linear_velocity(ActorInstance actor, const Vector3& vel)
 {
-	_impl->actor_set_linear_velocity(i, vel);
+	_impl->actor_set_linear_velocity(actor, vel);
 }
 
-Vector3 PhysicsWorld::actor_angular_velocity(ActorInstance i) const
+Vector3 PhysicsWorld::actor_angular_velocity(ActorInstance actor) const
 {
-	return _impl->actor_angular_velocity(i);
+	return _impl->actor_angular_velocity(actor);
 }
 
-void PhysicsWorld::actor_set_angular_velocity(ActorInstance i, const Vector3& vel)
+void PhysicsWorld::actor_set_angular_velocity(ActorInstance actor, const Vector3& vel)
 {
-	_impl->actor_set_angular_velocity(i, vel);
+	_impl->actor_set_angular_velocity(actor, vel);
 }
 
-void PhysicsWorld::actor_add_impulse(ActorInstance i, const Vector3& impulse)
+void PhysicsWorld::actor_add_impulse(ActorInstance actor, const Vector3& impulse)
 {
-	_impl->actor_add_impulse(i, impulse);
+	_impl->actor_add_impulse(actor, impulse);
 }
 
-void PhysicsWorld::actor_add_impulse_at(ActorInstance i, const Vector3& impulse, const Vector3& pos)
+void PhysicsWorld::actor_add_impulse_at(ActorInstance actor, const Vector3& impulse, const Vector3& pos)
 {
-	_impl->actor_add_impulse_at(i, impulse, pos);
+	_impl->actor_add_impulse_at(actor, impulse, pos);
 }
 
-void PhysicsWorld::actor_add_torque_impulse(ActorInstance i, const Vector3& imp)
+void PhysicsWorld::actor_add_torque_impulse(ActorInstance actor, const Vector3& imp)
 {
-	_impl->actor_add_torque_impulse(i, imp);
+	_impl->actor_add_torque_impulse(actor, imp);
 }
 
-void PhysicsWorld::actor_push(ActorInstance i, const Vector3& vel, f32 mass)
+void PhysicsWorld::actor_push(ActorInstance actor, const Vector3& vel, f32 mass)
 {
-	_impl->actor_push(i, vel, mass);
+	_impl->actor_push(actor, vel, mass);
 }
 
-void PhysicsWorld::actor_push_at(ActorInstance i, const Vector3& vel, f32 mass, const Vector3& pos)
+void PhysicsWorld::actor_push_at(ActorInstance actor, const Vector3& vel, f32 mass, const Vector3& pos)
 {
-	_impl->actor_push_at(i, vel, mass, pos);
+	_impl->actor_push_at(actor, vel, mass, pos);
 }
 
-bool PhysicsWorld::actor_is_sleeping(ActorInstance i)
+bool PhysicsWorld::actor_is_sleeping(ActorInstance actor)
 {
-	return _impl->actor_is_sleeping(i);
+	return _impl->actor_is_sleeping(actor);
 }
 
-void PhysicsWorld::actor_wake_up(ActorInstance i)
+void PhysicsWorld::actor_wake_up(ActorInstance actor)
 {
-	_impl->actor_wake_up(i);
+	_impl->actor_wake_up(actor);
 }
 
 JointInstance PhysicsWorld::joint_create(ActorInstance a0, ActorInstance a1, const JointDesc& jd)

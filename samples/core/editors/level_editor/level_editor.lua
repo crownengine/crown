@@ -100,13 +100,14 @@ function draw_world_origin_grid(lines, size, step)
 end
 
 function draw_mesh_obb(render_world, unit_id, lines)
-	local mesh_component = RenderWorld.mesh_instances(render_world, unit_id)
-	local tm, hext = RenderWorld.mesh_obb(render_world, mesh_component)
+	local mesh = RenderWorld.mesh_instance(render_world, unit_id)
+	local tm, hext = RenderWorld.mesh_obb(render_world, mesh)
 	DebugLine.add_obb(lines, tm, hext, Color4(0, 170, 0, 150))
 end
 
 function draw_sprite_obb(render_world, unit_id, lines)
-	local tm, hext = RenderWorld.sprite_obb(render_world, unit_id)
+	local sprite = RenderWorld.sprite_instance(render_world, unit_id)
+	local tm, hext = RenderWorld.sprite_obb(render_world, sprite)
 	DebugLine.add_obb(lines, tm, hext, Color4(0, 170, 0, 150))
 end
 
@@ -255,7 +256,7 @@ function UnitBox:init(world, id, unit_id, prefab)
 
 	local pw = World.physics_world(world)
 
-	local actor = PhysicsWorld.actor_instances(pw, unit_id)
+	local actor = PhysicsWorld.actor_instance(pw, unit_id)
 	if actor then
 		PhysicsWorld.actor_set_kinematic(pw, actor, true)
 	end
@@ -278,27 +279,33 @@ function UnitBox:destroy()
 end
 
 function UnitBox:local_position()
-	return SceneGraph.instances(self._sg, self._unit_id) and SceneGraph.local_position(self._sg, self._unit_id) or Vector3.zero()
+	local tr = SceneGraph.instance(self._sg, self._unit_id)
+	return tr and SceneGraph.local_position(self._sg, tr) or Vector3.zero()
 end
 
 function UnitBox:local_rotation()
-	return SceneGraph.instances(self._sg, self._unit_id) and SceneGraph.local_rotation(self._sg, self._unit_id) or Quaternion.identity()
+	local tr = SceneGraph.instance(self._sg, self._unit_id)
+	return tr and SceneGraph.local_rotation(self._sg, tr) or Quaternion.identity()
 end
 
 function UnitBox:local_scale()
-	return SceneGraph.instances(self._sg, self._unit_id) and SceneGraph.local_scale(self._sg, self._unit_id) or Vector3(1, 1, 1)
+	local tr = SceneGraph.instance(self._sg, self._unit_id)
+	return tr and SceneGraph.local_scale(self._sg, tr) or Vector3(1, 1, 1)
 end
 
 function UnitBox:local_pose()
-	return SceneGraph.instances(self._sg, self._unit_id) and SceneGraph.local_pose(self._sg, self._unit_id) or Matrix4x4.identity()
+	local tr = SceneGraph.instance(self._sg, self._unit_id)
+	return tr and SceneGraph.local_pose(self._sg, tr) or Matrix4x4.identity()
 end
 
 function UnitBox:world_position()
-	return SceneGraph.instances(self._sg, self._unit_id) and SceneGraph.world_position(self._sg, self._unit_id) or Vector3.zero()
+	local tr = SceneGraph.instance(self._sg, self._unit_id)
+	return tr and SceneGraph.world_position(self._sg, tr) or Vector3.zero()
 end
 
 function UnitBox:world_rotation()
-	return SceneGraph.instances(self._sg, self._unit_id) and SceneGraph.world_rotation(self._sg, self._unit_id) or Quaternion.identity()
+	local tr = SceneGraph.instance(self._sg, self._unit_id)
+	return tr and SceneGraph.world_rotation(self._sg, tr) or Quaternion.identity()
 end
 
 function UnitBox:world_scale()
@@ -312,19 +319,23 @@ function UnitBox:world_pose()
 end
 
 function UnitBox:set_local_position(pos)
-	if SceneGraph.instances(self._sg, self._unit_id) then SceneGraph.set_local_position(self._sg, self._unit_id, pos) end
+	local tr = SceneGraph.instance(self._sg, self._unit_id)
+	if tr then SceneGraph.set_local_position(self._sg, tr, pos) end
 end
 
 function UnitBox:set_local_rotation(rot)
-	if SceneGraph.instances(self._sg, self._unit_id) then SceneGraph.set_local_rotation(self._sg, self._unit_id, rot) end
+	local tr = SceneGraph.instance(self._sg, self._unit_id)
+	if tr then SceneGraph.set_local_rotation(self._sg, tr, rot) end
 end
 
 function UnitBox:set_local_scale(scale)
-	if SceneGraph.instances(self._sg, self._unit_id) then SceneGraph.set_local_scale(self._sg, self._unit_id, scale) end
+	local tr = SceneGraph.instance(self._sg, self._unit_id)
+	if tr then SceneGraph.set_local_scale(self._sg, tr, scale) end
 end
 
 function UnitBox:set_local_pose(pose)
-	if SceneGraph.instances(self._sg, self._unit_id) then SceneGraph.set_local_pose(self._sg, self._unit_id, pose) end
+	local tr = SceneGraph.instance(self._sg, self._unit_id)
+	if tr then SceneGraph.set_local_pose(self._sg, tr, pose) end
 end
 
 function UnitBox:on_selected(selected)
@@ -333,14 +344,14 @@ end
 
 function UnitBox:raycast(pos, dir)
 	local rw = LevelEditor._rw
-	local mesh_component = RenderWorld.mesh_instances(rw, self._unit_id)
-	if mesh_component then
-		return RenderWorld.mesh_cast_ray(rw, mesh_component, pos, dir)
+	local mesh = RenderWorld.mesh_instance(rw, self._unit_id)
+	if mesh then
+		return RenderWorld.mesh_cast_ray(rw, mesh, pos, dir)
 	end
 
-	local sprite_component = RenderWorld.sprite_instances(rw, self._unit_id)
-	if sprite_component then
-		return RenderWorld.sprite_cast_ray(rw, self._unit_id, pos, dir)
+	local sprite = RenderWorld.sprite_instance(rw, self._unit_id)
+	if sprite then
+		return RenderWorld.sprite_cast_ray(rw, sprite, pos, dir)
 	end
 
 	return -1.0
@@ -348,18 +359,17 @@ end
 
 function UnitBox:draw()
 	if self._selected then
-		-- Draw lights
-		local lights = RenderWorld.light_instances(LevelEditor._rw, self._unit_id)
-		if lights ~= nil then
-			RenderWorld.light_debug_draw(LevelEditor._rw, self._unit_id, LevelEditor._lines)
+		local light = RenderWorld.light_instance(LevelEditor._rw, self._unit_id)
+		if light then
+			RenderWorld.light_debug_draw(LevelEditor._rw, light, LevelEditor._lines)
 		end
 
-		local mesh_component = RenderWorld.mesh_instances(LevelEditor._rw, self._unit_id)
-		if mesh_component then
+		local mesh = RenderWorld.mesh_instance(LevelEditor._rw, self._unit_id)
+		if mesh then
 			draw_mesh_obb(LevelEditor._rw, self._unit_id, LevelEditor._lines)
 		end
 
-		local sprite = RenderWorld.sprite_instances(LevelEditor._rw, self._unit_id)
+		local sprite = RenderWorld.sprite_instance(LevelEditor._rw, self._unit_id)
 		if sprite then
 			draw_sprite_obb(LevelEditor._rw, self._unit_id, LevelEditor._lines)
 		end
@@ -367,31 +377,34 @@ function UnitBox:draw()
 end
 
 function UnitBox:set_light(type, range, intensity, angle, color)
-	RenderWorld.light_set_type(LevelEditor._rw, self._unit_id, type)
-	RenderWorld.light_set_color(LevelEditor._rw, self._unit_id, color)
-	RenderWorld.light_set_range(LevelEditor._rw, self._unit_id, range)
-	RenderWorld.light_set_intensity(LevelEditor._rw, self._unit_id, intensity)
-	RenderWorld.light_set_spot_angle(LevelEditor._rw, self._unit_id, angle)
+	local light = RenderWorld.light_instance(LevelEditor._rw, self._unit_id)
+	RenderWorld.light_set_type(LevelEditor._rw, light, type)
+	RenderWorld.light_set_color(LevelEditor._rw, light, color)
+	RenderWorld.light_set_range(LevelEditor._rw, light, range)
+	RenderWorld.light_set_intensity(LevelEditor._rw, light, intensity)
+	RenderWorld.light_set_spot_angle(LevelEditor._rw, light, angle)
 end
 
 function UnitBox:set_mesh(instance_id, material, visible)
-	local mesh_component = RenderWorld.mesh_instances(LevelEditor._rw, self._unit_id)
-	RenderWorld.mesh_set_material(LevelEditor._rw, mesh_component, material)
-	RenderWorld.mesh_set_visible(LevelEditor._rw, mesh_component, visible)
+	local mesh = RenderWorld.mesh_instance(LevelEditor._rw, self._unit_id)
+	RenderWorld.mesh_set_material(LevelEditor._rw, mesh, material)
+	RenderWorld.mesh_set_visible(LevelEditor._rw, mesh, visible)
 end
 
 function UnitBox:set_sprite(material, layer, depth, visible)
-	RenderWorld.sprite_set_material(LevelEditor._rw, self._unit_id, material)
-	RenderWorld.sprite_set_layer(LevelEditor._rw, self._unit_id, layer)
-	RenderWorld.sprite_set_depth(LevelEditor._rw, self._unit_id, depth)
-	RenderWorld.sprite_set_visible(LevelEditor._rw, self._unit_id, visible)
+	local sprite = RenderWorld.sprite_instance(LevelEditor._rw, self._unit_id)
+	RenderWorld.sprite_set_material(LevelEditor._rw, sprite, material)
+	RenderWorld.sprite_set_layer(LevelEditor._rw, sprite, layer)
+	RenderWorld.sprite_set_depth(LevelEditor._rw, sprite, depth)
+	RenderWorld.sprite_set_visible(LevelEditor._rw, sprite, visible)
 end
 
 function UnitBox:set_camera(projection, fov, near_range, far_range)
-	World.camera_set_projection_type(LevelEditor._world, self._unit_id, projection)
-	World.camera_set_fov(LevelEditor._world, self._unit_id, fov)
-	World.camera_set_near_clip_distance(LevelEditor._world, self._unit_id, near_range)
-	World.camera_set_far_clip_distance(LevelEditor._world, self._unit_id, far_range)
+	local camera = World.camera_instance(LevelEditor._rw, self._unit_id)
+	World.camera_set_projection_type(LevelEditor._world, camera, projection)
+	World.camera_set_fov(LevelEditor._world, camera, fov)
+	World.camera_set_near_clip_distance(LevelEditor._world, camera, near_range)
+	World.camera_set_far_clip_distance(LevelEditor._world, camera, far_range)
 end
 
 SoundObject = class(SoundObject)
@@ -425,27 +438,33 @@ function SoundObject:name()
 end
 
 function SoundObject:local_position()
-	return SceneGraph.instances(self._sg, self._unit_id) and SceneGraph.local_position(self._sg, self._unit_id) or Vector3.zero()
+	local tr = SceneGraph.instance(self._sg, self._unit_id)
+	return tr and SceneGraph.local_position(self._sg, tr) or Vector3.zero()
 end
 
 function SoundObject:local_rotation()
-	return SceneGraph.instances(self._sg, self._unit_id) and SceneGraph.local_rotation(self._sg, self._unit_id) or Quaternion.identity()
+	local tr = SceneGraph.instance(self._sg, self._unit_id)
+	return tr and SceneGraph.local_rotation(self._sg, tr) or Quaternion.identity()
 end
 
 function SoundObject:local_scale()
-	return SceneGraph.instances(self._sg, self._unit_id) and SceneGraph.local_scale(self._sg, self._unit_id) or Vector3(1, 1, 1)
+	local tr = SceneGraph.instance(self._sg, self._unit_id)
+	return tr and SceneGraph.local_scale(self._sg, tr) or Vector3(1, 1, 1)
 end
 
 function SoundObject:local_pose()
-	return SceneGraph.instances(self._sg, self._unit_id) and SceneGraph.local_pose(self._sg, self._unit_id) or Matrix4x4.identity()
+	local tr = SceneGraph.instance(self._sg, self._unit_id)
+	return tr and SceneGraph.local_pose(self._sg, tr) or Matrix4x4.identity()
 end
 
 function SoundObject:world_position()
-	return SceneGraph.instances(self._sg, self._unit_id) and SceneGraph.world_position(self._sg, self._unit_id) or Vector3.zero()
+	local tr = SceneGraph.instance(self._sg, self._unit_id)
+	return tr and SceneGraph.world_position(self._sg, tr) or Vector3.zero()
 end
 
 function SoundObject:world_rotation()
-	return SceneGraph.instances(self._sg, self._unit_id) and SceneGraph.world_rotation(self._sg, self._unit_id) or Quaternion.identity()
+	local tr = SceneGraph.instance(self._sg, self._unit_id)
+	return tr and SceneGraph.world_rotation(self._sg, tr) or Quaternion.identity()
 end
 
 function SoundObject:world_scale()
@@ -453,23 +472,28 @@ function SoundObject:world_scale()
 end
 
 function SoundObject:world_pose()
-	return SceneGraph.instances(self._sg, self._unit_id) and SceneGraph.world_pose(self._sg, self._unit_id) or Matrix4x4.identity()
+	local tr = SceneGraph.instance(self._sg, self._unit_id)
+	return tr and SceneGraph.world_pose(self._sg, tr) or Matrix4x4.identity()
 end
 
 function SoundObject:set_local_position(pos)
-	if SceneGraph.instances(self._sg, self._unit_id) then SceneGraph.set_local_position(self._sg, self._unit_id, pos) end
+	local tr = SceneGraph.instance(self._sg, self._unit_id)
+	if tr then SceneGraph.set_local_position(self._sg, tr, pos) end
 end
 
 function SoundObject:set_local_rotation(rot)
-	if SceneGraph.instances(self._sg, self._unit_id) then SceneGraph.set_local_rotation(self._sg, self._unit_id, rot) end
+	local tr = SceneGraph.instance(self._sg, self._unit_id)
+	if tr then SceneGraph.set_local_rotation(self._sg, tr, rot) end
 end
 
 function SoundObject:set_local_scale(scale)
-	if SceneGraph.instances(self._sg, self._unit_id) then SceneGraph.set_local_scale(self._sg, self._unit_id, scale) end
+	local tr = SceneGraph.instance(self._sg, self._unit_id)
+	if tr then SceneGraph.set_local_scale(self._sg, tr, scale) end
 end
 
 function SoundObject:set_local_pose(pose)
-	if SceneGraph.instances(self._sg, self._unit_id) then SceneGraph.set_local_pose(self._sg, self._unit_id, pose) end
+	local tr = SceneGraph.instance(self._sg, self._unit_id)
+	if tr then SceneGraph.set_local_pose(self._sg, tr, pose) end
 end
 
 function SoundObject:on_selected(selected)
@@ -478,9 +502,9 @@ end
 
 function SoundObject:raycast(pos, dir)
 	local rw = LevelEditor._rw
-	local mesh_component = RenderWorld.mesh_instances(rw, self._unit_id)
-	local tm, hext = RenderWorld.mesh_obb(rw, mesh_component)
-	return RenderWorld.mesh_cast_ray(rw, mesh_component, pos, dir)
+	local mesh = RenderWorld.mesh_instance(rw, self._unit_id)
+	local tm, hext = RenderWorld.mesh_obb(rw, mesh)
+	return RenderWorld.mesh_cast_ray(rw, mesh, pos, dir)
 end
 
 function SoundObject:draw()
@@ -1353,8 +1377,9 @@ function LevelEditor:init()
 	local len = math.abs(Vector3.length(zero_pos))
 	local dir = Vector3.normalize(zero_pos)
 	self._camera._target_distance = len
-	SceneGraph.set_local_rotation(self._sg, self._camera:unit(), Quaternion.look(dir))
-	SceneGraph.set_local_position(self._sg, self._camera:unit(), pos)
+	local tr = SceneGraph.instance(self._sg, self._camera:unit())
+	SceneGraph.set_local_rotation(self._sg, tr, Quaternion.look(dir))
+	SceneGraph.set_local_position(self._sg, tr, pos)
 end
 
 function LevelEditor:update(dt)

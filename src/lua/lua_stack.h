@@ -170,6 +170,9 @@ struct LuaStack
 	LightInstance get_light_instance(int i);
 
 	///
+	StateMachineInstance get_state_machine_instance(int i);
+
+	///
 	Material* get_material(int i);
 
 	///
@@ -317,6 +320,9 @@ struct LuaStack
 
 	///
 	void push_light_instance(LightInstance i);
+
+	///
+	void push_state_machine_instance(StateMachineInstance i);
 
 	///
 	void push_material(Material* material);

@@ -28,7 +28,8 @@ local function camera_tumble(self, x, y)
 	pose = Matrix4x4.multiply(pose, rotate_original)
 	pose = Matrix4x4.multiply(pose, rotate_delta)
 	pose = Matrix4x4.multiply(pose, move_to_target)
-	SceneGraph.set_local_pose(self._sg, self._unit, pose)
+	local tr = SceneGraph.instance(self._sg, self._unit)
+	SceneGraph.set_local_pose(self._sg, tr, pose)
 end
 
 local function camera_track(self, x, y)
@@ -43,8 +44,9 @@ local function camera_track(self, x, y)
 
 	if self:is_orthographic() then
 		-- Measure how many pixels is 1 unit
-		local a = World.camera_world_to_screen(self._world, self._unit, Vector3.zero())
-		local b = World.camera_world_to_screen(self._world, self._unit, camera_right)
+		local camera = self:camera()
+		local a = World.camera_world_to_screen(self._world, camera, Vector3.zero())
+		local b = World.camera_world_to_screen(self._world, camera, camera_right)
 		local pixels_per_unit = Vector3.length(a - b)
 		pan_speed = 1 / pixels_per_unit
 	else
@@ -54,7 +56,8 @@ local function camera_track(self, x, y)
 
 	local delta = (drag_delta.y * pan_speed) * camera_up
 				- (drag_delta.x * pan_speed) * camera_right
-	SceneGraph.set_local_position(self._sg, self._unit, camera_position + delta)
+	local tr = SceneGraph.instance(self._sg, self._unit)
+	SceneGraph.set_local_position(self._sg, tr, camera_position + delta)
 end
 
 local function camera_dolly(self, x, y)
@@ -66,7 +69,7 @@ local function camera_dolly(self, x, y)
 		local zoom_delta = drag_delta.y * zoom_speed
 		self._orthographic_size = math.max(1, self._drag_start_orthographic_size + zoom_delta)
 
-		World.camera_set_orthographic_size(self._world, self._unit, self._orthographic_size)
+		World.camera_set_orthographic_size(self._world, self:camera(), self._orthographic_size)
 	else
 		-- Speed is proportional to initial distance from target
 		local move_speed  = self._drag_start_target_distance / 400
@@ -78,7 +81,8 @@ local function camera_dolly(self, x, y)
 		local camera_pose     = self._drag_start_camera_pose:unbox()
 		local camera_position = Matrix4x4.translation(camera_pose)
 		local camera_forward  = Matrix4x4.z(camera_pose);
-		SceneGraph.set_local_position(self._sg, self._unit, camera_position - camera_forward*move_delta)
+		local tr = SceneGraph.instance(self._sg, self._unit)
+		SceneGraph.set_local_position(self._sg, tr, camera_position - camera_forward*move_delta)
 	end
 end
 
@@ -107,15 +111,16 @@ function Camera:unit()
 end
 
 function Camera:camera()
-	return World.camera_instances(self._world, self._unit)
+	return World.camera_instance(self._world, self._unit)
 end
 
 function Camera:local_pose()
-	return SceneGraph.local_pose(self._sg, self._unit)
+	local tr = SceneGraph.instance(self._sg, self._unit)
+	return SceneGraph.local_pose(self._sg, tr)
 end
 
 function Camera:is_orthographic()
-	return World.camera_projection_type(self._world, self._unit) == "orthographic"
+	return World.camera_projection_type(self._world, self:camera()) == "orthographic"
 end
 
 function Camera:mouse_wheel(delta)
@@ -123,9 +128,10 @@ function Camera:mouse_wheel(delta)
 end
 
 function Camera:camera_ray(x, y)
-	local near = World.camera_screen_to_world(self._world, self._unit, Vector3(x, y, 0))
-	local far = World.camera_screen_to_world(self._world, self._unit, Vector3(x, y, 1))
-	local dir = World.camera_projection_type(self._world, self._unit) == "orthographic"
+	local camera = self:camera()
+	local near = World.camera_screen_to_world(self._world, camera, Vector3(x, y, 0))
+	local far = World.camera_screen_to_world(self._world, camera, Vector3(x, y, 1))
+	local dir = World.camera_projection_type(self._world, camera) == "orthographic"
 		and Matrix4x4.z(self:local_pose())
 		or Vector3.normalize(far - near)
 	return near, dir
@@ -136,8 +142,9 @@ function Camera:set_perspective()
 		return
 	end
 
-	SceneGraph.set_local_pose(self._sg, self._unit, self._perspective_local_pose:unbox())
-	World.camera_set_projection_type(self._world, self._unit, "perspective")
+	local tr = SceneGraph.instance(self._sg, self._unit)
+	SceneGraph.set_local_pose(self._sg, tr, self._perspective_local_pose:unbox())
+	World.camera_set_projection_type(self._world, self:camera(), "perspective")
 end
 
 function Camera:set_orthographic(world_center, world_radius, dir, up)
@@ -145,16 +152,19 @@ function Camera:set_orthographic(world_center, world_radius, dir, up)
 		self._perspective_local_pose:store(self:local_pose())
 	end
 
-	SceneGraph.set_local_rotation(self._sg, self._unit, Quaternion.look(dir, up))
-	SceneGraph.set_local_position(self._sg, self._unit, world_center - dir * math.abs(Vector3.dot(dir, world_radius)) * 100) -- FIXME
-	World.camera_set_orthographic_size(self._world, self._unit, self._orthographic_size)
-	World.camera_set_projection_type(self._world, self._unit, "orthographic")
+	local tr = SceneGraph.instance(self._sg, self._unit)
+	SceneGraph.set_local_rotation(self._sg, tr, Quaternion.look(dir, up))
+	SceneGraph.set_local_position(self._sg, tr, world_center - dir * math.abs(Vector3.dot(dir, world_radius)) * 100) -- FIXME
+	local camera = self:camera()
+	World.camera_set_orthographic_size(self._world, camera, self._orthographic_size)
+	World.camera_set_projection_type(self._world, camera, "orthographic")
 end
 
 function Camera:screen_length_to_world_length(position, length)
+	local camera = self:camera()
 	local right = Matrix4x4.x(self:local_pose())
-	local a = World.camera_world_to_screen(self._world, self._unit, position)
-	local b = World.camera_world_to_screen(self._world, self._unit, position + right)
+	local a = World.camera_world_to_screen(self._world, camera, position)
+	local b = World.camera_world_to_screen(self._world, camera, position + right)
 	return length / Vector3.distance(a, b)
 end
 

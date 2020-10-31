@@ -5,6 +5,22 @@ Changelog
 ------
 *DD MMM YYYY*
 
+**Runtime**
+
+* Removed support for multiple components per Unit.
+
+**Lua API**
+
+* All component managers accessors have been uniformed to accept a component instance ID (instead of a UnitId or both):
+	- All ``AnimationStateMachine.*``, except ``AnimationStateMachine.create()``
+	- All ``RenderWorld.light_*``, except ``RenderWorld.light_create()``
+	- All ``RenderWorld.sprite_*``, except ``RenderWorld.sprite_create()``
+	- All ``SceneGraph.*``, except ``SceneGraph.create()``
+	- All ``World.camera_*``, except ``World.camera_create()``
+	- ``PhysicsWorld.actor_instances()``
+* Added AnimationStateMachine.instance()
+* ``RenderWorld.set_mesh_visible()`` will now work as expected
+
 0.39.0
 ------
 *24 Oct 2020*

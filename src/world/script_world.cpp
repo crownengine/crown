@@ -127,7 +127,7 @@ namespace script_world
 		array::pop_back(sw._data);
 	}
 
-	ScriptInstance instances(ScriptWorld& sw, UnitId unit)
+	ScriptInstance instance(ScriptWorld& sw, UnitId unit)
 	{
 		return script_world_internal::make_instance(hash_map::get(sw._map, unit, UINT32_MAX));
 	}

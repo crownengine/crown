@@ -99,59 +99,59 @@ struct World
 	UnitId unit_by_name(StringId32 name);
 
 	/// Creates a new camera.
-	CameraInstance camera_create(UnitId id, const CameraDesc& cd, const Matrix4x4& tr);
+	CameraInstance camera_create(UnitId unit, const CameraDesc& cd, const Matrix4x4& tr);
 
-	/// Destroys the camera @a id.
-	void camera_destroy(UnitId unit, CameraInstance ci);
+	/// Destroys the camera instance @a i.
+	void camera_destroy(CameraInstance camera);
 
-	/// Returns the camera owned by unit @a id.
-	CameraInstance camera_instances(UnitId id);
+	/// Returns the ID of the camera owned by the *unit*.
+	CameraInstance camera_instance(UnitId unit);
 
-	/// Sets the projection type of the camera.
-	void camera_set_projection_type(UnitId unit, ProjectionType::Enum type);
+	/// Sets the projection type of the @a camera.
+	void camera_set_projection_type(CameraInstance camera, ProjectionType::Enum type);
 
-	/// Returns the projection type of the camera.
-	ProjectionType::Enum camera_projection_type(UnitId unit);
+	/// Returns the projection type of the @a camera.
+	ProjectionType::Enum camera_projection_type(CameraInstance camera);
 
-	/// Returns the projection matrix of the camera.
-	Matrix4x4 camera_projection_matrix(UnitId unit);
+	/// Returns the projection matrix of the @a camera.
+	Matrix4x4 camera_projection_matrix(CameraInstance camera);
 
-	/// Returns the view matrix of the camera.
-	Matrix4x4 camera_view_matrix(UnitId unit);
+	/// Returns the view matrix of the @a camera.
+	Matrix4x4 camera_view_matrix(CameraInstance camera);
 
-	/// Returns the field-of-view of the camera in degrees.
-	f32 camera_fov(UnitId unit);
+	/// Returns the field-of-view of the @a camera in degrees.
+	f32 camera_fov(CameraInstance camera);
 
-	/// Sets the field-of-view of the camera in degrees.
-	void camera_set_fov(UnitId unit, f32 fov);
+	/// Sets the field-of-view of the @a camera in degrees.
+	void camera_set_fov(CameraInstance camera, f32 fov);
 
-	/// Sets the aspect ratio of the camera. (Perspective projection only.)
-	void camera_set_aspect(UnitId unit, f32 aspect);
+	/// Sets the aspect ratio of the @a camera. (Perspective projection only.)
+	void camera_set_aspect(CameraInstance camera, f32 aspect);
 
-	/// Returns the near clip distance of the camera.
-	f32 camera_near_clip_distance(UnitId unit);
+	/// Returns the near clip distance of the @a camera.
+	f32 camera_near_clip_distance(CameraInstance camera);
 
-	/// Sets the near clip distance of the camera.
-	void camera_set_near_clip_distance(UnitId unit, f32 near);
+	/// Sets the near clip distance of the @a camera.
+	void camera_set_near_clip_distance(CameraInstance camera, f32 near);
 
-	/// Returns the far clip distance of the camera.
-	f32 camera_far_clip_distance(UnitId unit);
+	/// Returns the far clip distance of the @a camera.
+	f32 camera_far_clip_distance(CameraInstance camera);
 
-	/// Sets the far clip distance of the camera.
-	void camera_set_far_clip_distance(UnitId unit, f32 far);
+	/// Sets the far clip distance of the @a camera.
+	void camera_set_far_clip_distance(CameraInstance camera, f32 far);
 
 	/// Sets the vertical *half_size* of the orthographic view volume.
 	/// The horizontal size is proportional to the viewport's aspect ratio.
-	void camera_set_orthographic_size(UnitId unit, f32 half_size);
+	void camera_set_orthographic_size(CameraInstance camera, f32 half_size);
 
-	/// Sets the coordinates for the camera viewport in pixels.
-	void camera_set_viewport_metrics(UnitId unit, u16 x, u16 y, u16 width, u16 height);
+	/// Sets the coordinates for the @a camera viewport in pixels.
+	void camera_set_viewport_metrics(CameraInstance camera, u16 x, u16 y, u16 width, u16 height);
 
 	/// Returns @a pos from screen-space to world-space coordinates.
-	Vector3 camera_screen_to_world(UnitId unit, const Vector3& pos);
+	Vector3 camera_screen_to_world(CameraInstance camera, const Vector3& pos);
 
 	/// Returns @a pos from world-space to screen-space coordinates.
-	Vector3 camera_world_to_screen(UnitId unit, const Vector3& pos);
+	Vector3 camera_world_to_screen(CameraInstance camera, const Vector3& pos);
 
 	/// Update all animations with @a dt.
 	void update_animations(f32 dt);

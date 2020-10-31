@@ -5,17 +5,20 @@ Lua API reference
 AnimationStateMachine
 =====================
 
-**variable_id** (state_machine, unit, name) : Id
+**instance** (asm, unit) : Id
+	Returns the ID of the state machine owned by the *unit*, or ``nil``.
+
+**variable_id** (asm, state_machine, name) : Id
 	Returns the ID of the variable *name* in the *state_machine*.
 
-**variable** (state_machine, unit, variable_id) : number
+**variable** (asm, state_machine, variable_id) : number
 	Returns the value of the *variable_id* in the *state_machine*.
 
-**set_variable** (state_machine, unit, variable_id, value)
+**set_variable** (asm, state_machine, variable_id, value)
 	Sets the *value* of the *variable_id* in the *state_machine*.
 
-**trigger** (state_machine, unit, name)
-	Triggers the event *name* in the *state_machine*.
+**trigger** (asm, state_machine, event)
+	Triggers the *event* in the *state_machine*.
 
 DebugLine
 =========
@@ -842,128 +845,128 @@ Actor
 -----
 
 **actor_destroy** (pw, actor)
-	Destroys the *actor* of the *unit*.
+	Destroys the *actor* instance.
 
-**actor_instances** (pw, unit) : Id
-	Returns the IDs for all the actors of the *unit*.
+**actor_instance** (pw, unit) : Id
+	Returns the ID of the actor owned by the *unit*, or ``nil``.
 
 **actor_world_position** (pw, actor) : Vector3
-	Returns the world position of the actor.
+	Returns the world position of the *actor*.
 
 **actor_world_rotation** (pw, actor) : Quaternion
-	Returns the world rotation of the actor.
+	Returns the world rotation of the *actor*.
 
 **actor_world_pose** (pw, actor) : Matrix4x4
-	Returns the world pose of the actor.
+	Returns the world pose of the *actor*.
 
 **actor_teleport_world_position** (pw, actor, position)
-	Teleports the actor to the given world position.
+	Teleports the *actor* to the given world *position*.
 
 **actor_teleport_world_rotation** (pw, actor, rotation)
-	Teleports the actor to the given world rotation.
+	Teleports the *actor* to the given world *rotation*.
 
 **actor_teleport_world_pose** (pw, actor, pose)
-	Teleports the actor to the given world pose.
+	Teleports the *actor* to the given world *pose*.
 
 **actor_center_of_mass** (pw, actor) : Vector3
-	Returns the center of mass of the actor.
+	Returns the center of mass of the *actor*.
 
 **actor_enable_gravity** (pw, actor)
-	Enables gravity for the actor.
+	Enables gravity for the *actor*.
 
 **actor_disable_gravity** (pw, actor)
-	Disables gravity for the actor.
+	Disables gravity for the *actor*.
 
 **actor_enable_collision** (pw, actor)
-	Enables collision detection for the actor.
+	Enables collision detection for the *actor*.
 
 **actor_disable_collision** (pw, actor)
-	Disables collision detection for the actor.
+	Disables collision detection for the *actor*.
 
 **actor_set_collision_filter** (pw, actor, name)
-	Sets the collision filter of the actor.
+	Sets the collision filter of the *actor*.
 
 **actor_set_kinematic** (pw, actor, kinematic)
-	Sets whether the actor is kinematic or not.
+	Sets whether the *actor* is *kinematic* or not.
 
 	.. note::
 		This call has no effect on static actors.
 
 **actor_is_static** (pw, actor) : bool
-	Returns whether the actor is static.
+	Returns whether the *actor* is static.
 
 **actor_is_dynamic** (pw, actor) bool
-	Returns whether the actor is dynamic.
+	Returns whether the *actor* is dynamic.
 
 **actor_is_kinematic** (pw, actor) : bool
-	Returns whether the actor is kinematic (keyframed).
+	Returns whether the *actor* is kinematic (keyframed).
 
 **actor_is_nonkinematic** (pw, actor) : bool
-	Returns whether the actor is nonkinematic (i.e. dynamic and not kinematic).
+	Returns whether the *actor* is nonkinematic (i.e. dynamic and not kinematic).
 
 **actor_linear_damping** (pw, actor) : float
-	Returns the linear damping of the actor.
+	Returns the linear damping of the *actor*.
 
 **actor_set_linear_damping** (pw, actor, damping)
-	Sets the linear damping of the actor.
+	Sets the linear *damping* of the *actor*.
 
 **actor_angular_damping** (pw, actor) : float
-	Returns the angular damping of the actor.
+	Returns the angular damping rate of the *actor*.
 
 **actor_set_angular_damping** (pw, actor, rate)
-	Sets the angular damping of the actor.
+	Sets the angular damping *rate* of the *actor*.
 
 **actor_linear_velocity** (pw, actor) : Vector3
-	Returns the linear velocity of the actor.
+	Returns the linear velocity of the *actor*.
 
 **actor_set_linear_velocity** (pw, actor, velocity)
-	Sets the linear velocity of the actor.
+	Sets the linear *velocity* of the *actor*.
 
 	.. note::
 		This call only affects nonkinematic actors.
 
 **actor_angular_velocity** (pw, actor) : Vector3
-	Returns the angular velocity of the actor.
+	Returns the angular velocity of the *actor*.
 
 **actor_set_angular_velocity** (pw, actor, velocity)
-	Sets the angular velocity of the actor.
+	Sets the angular *velocity* of the *actor*.
 
 	.. note::
 		This call only affects nonkinematic actors.
 
 **actor_add_impulse** (pw, actor, impulse)
-	Adds a linear impulse (acting along the center of mass) to the actor.
+	Adds a linear *impulse* (acting along the center of mass) to the *actor*.
 
 	.. note::
 		This call only affects nonkinematic actors.
 
 **actor_add_impulse_at** (pw, actor, impulse, position)
-	Adds a linear impulse (acting along the world position *pos*) to the actor.
+	Adds a linear *impulse* (acting along the world position *pos*) to the *actor*.
 
 	.. note::
 		This call only affects nonkinematic actors.
 
 **actor_add_torque_impulse** (pw, actor, impulse)
-	Adds a torque impulse to the actor.
+	Adds a torque *impulse* to the *actor*.
 
 **actor_push** (pw, actor, velocity, mass)
-	Pushes the actor as if it was hit by a point object with the given *mass*
+	Pushes the *actor* as if it was hit by a point object with the given *mass*
 	travelling at the given *velocity*.
 
 	.. note::
 		This call only affects nonkinematic actors.
 
 **actor_push_at** (pw, actor, velocity, mass, position)
-	Like push() but applies the force at the world position *pos*.
+	Like push() but applies the force at the world *position*.
 
 	.. note::
 		This call only affects nonkinematic actors.
 
 **actor_is_sleeping** (pw, actor) : bool
-	Returns whether the actor is sleeping.
+	Returns whether the *actor* is sleeping.
 
 **actor_wake_up** (pw, actor)
-	Wakes the actor up.
+	Wakes the *actor* up.
 
 Profiler
 ========
@@ -989,26 +992,26 @@ Mesh
 **mesh_create** (rw, unit, mesh_resource, geometry_name, material_resource, visible, pose) : Id
 	Creates a new mesh instance for *unit* and returns its id.
 
-**mesh_destroy** (rw, id)
-	Destroys the mesh *id*.
+**mesh_destroy** (rw, mesh)
+	Destroys the *mesh* instance.
 
-**mesh_instances** (rw, unit) : Id
-	Returns the IDs for all the meshes of the *unit*.
+**mesh_instance** (rw, unit) : Id
+	Returns the ID of the mesh owned by the *unit*, or ``nil``.
 
-**mesh_material** (rw, id) : Material
-	Returns the material of the mesh *id*.
+**mesh_material** (rw, mesh) : Material
+	Returns the material of the *mesh*.
 
-**mesh_set_material** (rw, id, material)
-	Sets the *material* of the mesh *id*.
+**mesh_set_material** (rw, mesh, material)
+	Sets the *material* of the *mesh*.
 
-**mesh_set_visible** (rw, id, visible)
-	Sets whether the mesh *id* is *visible*.
+**mesh_set_visible** (rw, mesh, visible)
+	Sets whether the *mesh* is *visible*.
 
-**mesh_obb** (rw, id) : Matrix4x4, Vector3
-	Returns the OBB of the mesh *id* as (pose, half_extents).
+**mesh_obb** (rw, mesh) : Matrix4x4, Vector3
+	Returns the Oriented-Bounding-Box of the *mesh* as (pose, half_extents).
 
-**mesh_cast_ray** (rw, id, from, dir) : float
-	Returns the distance along ray (from, dir) to intersection point with the mesh *id* or -1.0 if no intersection.
+**mesh_cast_ray** (rw, mesh, from, dir) : float
+	Returns the distance along ray (from, dir) to intersection point with the *mesh* or -1.0 if no intersection.
 
 Sprite
 ------
@@ -1016,44 +1019,44 @@ Sprite
 **sprite_create** (rw, unit, sprite_resource, material_resource, visible, pose) : Id
 	Creates a new sprite instance for the *unit* and returns its id.
 
-**sprite_destroy** (rw, unit)
-	Destroys the sprite of the *unit*.
+**sprite_destroy** (rw, sprite)
+	Destroys the *sprite* instance.
 
-**sprite_instances** (rw, unit) : Id
-	Returns the IDs for all the sprites of the *unit*.
+**sprite_instance** (rw, unit) : Id
+	Returns the ID of the sprite owned by the *unit*, or ``nil``.
 
-**sprite_material** (rw, unit) : Material
-	Returns the material of the sprite.
+**sprite_material** (rw, sprite) : Material
+	Returns the material of the *sprite*.
 
-**sprite_set_material** (rw, unit, material)
-	Sets the *material* of the sprite.
+**sprite_set_material** (rw, sprite, material)
+	Sets the *material* of the *sprite*.
 
-**sprite_set_frame** (rw, unit, index)
-	Sets the frame *index* of the sprite.
-	The *index* automatically wraps if it greater than
-	the total number of frames in the sprite.
+**sprite_set_frame** (rw, sprite, index)
+	Sets the frame *index* of the *sprite*.
+	The *index* automatically wraps if it greater than the total number of
+	frames in the sprite.
 
-**sprite_set_visible** (rw, unit, visible)
-	Sets whether the sprite is *visible*.
+**sprite_set_visible** (rw, sprite, visible)
+	Sets whether the *sprite* is *visible*.
 
-**sprite_flip_x** (rw, unit, flip)
-	Sets whether to flip the sprite on the x-axis.
+**sprite_flip_x** (rw, sprite, flip)
+	Sets whether to flip the *sprite* on the x-axis.
 
-**sprite_flip_y** (rw, unit, flip)
-	Sets whether to flip the sprite on the y-axis.
+**sprite_flip_y** (rw, sprite, flip)
+	Sets whether to flip the *sprite* on the y-axis.
 
-**sprite_set_layer** (rw, unit, layer)
-	Sets the layer of the sprite.
+**sprite_set_layer** (rw, sprite, layer)
+	Sets the rendering *layer* of the *sprite*.
 
-**sprite_set_depth** (rw, unit, depth)
-	Sets the depth of the sprite.
+**sprite_set_depth** (rw, sprite, depth)
+	Sets the rendering *depth* of the *sprite*.
 
-**sprite_obb** (rw, unit) : Matrix4x4, Vector3
-	Returns the OBB of the sprite as (pose, half_extents).
+**sprite_obb** (rw, sprite) : Matrix4x4, Vector3
+	Returns the Oriented-Bounding-Box of the *sprite* as (pose, half_extents).
 
-**sprite_cast_ray** (rw, unit, from, dir) : float, int, int
+**sprite_cast_ray** (rw, sprite, from, dir) : float, int, int
 	Returns (t, layer, depth), where *t* is the distance along ray (from, dir) to
-	intersection point with the sprite or -1.0 if no intersection.
+	intersection point with the *sprite* or -1.0 if no intersection.
 
 Light
 -----
@@ -1062,45 +1065,45 @@ Light
 	Creates a new light for the *unit* and returns its id.
 	Type can be either ``directional``, ``omni`` or ``spot``.
 
-**light_destroy** (rw, unit)
-	Destroys the light of the *unit*.
+**light_destroy** (rw, light)
+	Destroys the *light* instance.
 
-**light_instances** (rw, unit) : Id
-	Returns the IDs for all the lights of the *unit*.
+**light_instance** (rw, unit) : Id
+	Returns the ID of the light owned by the *unit*, or ``nil``.
 
-**light_type** (rw, unit) : string
-	Returns the type of the light of the *unit*.
+**light_type** (rw, light) : string
+	Returns the type of the *light*.
 	It can be either ``directional``, ``omni`` or ``spot``.
 
-**light_color** (rw, unit) : Color4
-	Returns the color of the light.
+**light_color** (rw, light) : Color4
+	Returns the color of the *light*.
 
-**light_range** (rw, unit) : float
-	Returns the range of the light.
+**light_range** (rw, light) : float
+	Returns the range of the *light*.
 
-**light_intensity** (rw, unit) : float
-	Returns the intensity of the light.
+**light_intensity** (rw, light) : float
+	Returns the intensity of the *light*.
 
-**light_spot_angle** (rw, unit) : float
-	Returns the spot angle of the light.
+**light_spot_angle** (rw, light) : float
+	Returns the spot angle of the *light*.
 
-**light_set_type** (rw, unit, type)
-	Sets the *type* of the light.
+**light_set_type** (rw, light, type)
+	Sets the *type* of the *light*.
 
-**light_set_color** (rw, unit, color)
-	Sets the *color* of the light.
+**light_set_color** (rw, light, color)
+	Sets the *color* of the *light*.
 
-**light_set_range** (rw, unit, range)
-	Sets the *range* of the light.
+**light_set_range** (rw, light, range)
+	Sets the *range* of the *light*.
 
-**light_set_intensity** (rw, unit, intensity)
-	Sets the *intensity* of the light.
+**light_set_intensity** (rw, light, intensity)
+	Sets the *intensity* of the *light*.
 
-**light_set_spot_angle** (rw, unit, angle)
-	Sets the spot *angle* of the light.
+**light_set_spot_angle** (rw, light, angle)
+	Sets the spot *angle* of the *light*.
 
-**light_debug_draw** (rw, unit, debug_line)
-	Fills *debug_line* with debug lines from the light.
+**light_debug_draw** (rw, light, debug_line)
+	Fills *debug_line* with debug lines from the *light*.
 
 ResourcePackage
 ===============
@@ -1127,51 +1130,52 @@ SceneGraph
 **create** (sg, unit, position, rotation, scale) : Id
 	Creates the transform for the *unit* and returns its ID.
 
-**destroy** (sg, unit, id)
-	Destroys the transform for the *unit*. The transform *id* is ignored.
+**destroy** (sg, transform)
+	Destroys the *transform* instance.
 
-**instances** (sg, unit) : Id
-	Returns the IDs for all the transforms of the *unit*.
+**instance** (sg, unit) : Id
+	Returns the ID of the transform owned by the *unit*, or ``nil``.
 
-**local_position** (sg, unit) : Vector3
-	Returns the local position of the *unit*.
+**local_position** (sg, transform) : Vector3
+	Returns the local position of the *transform*.
 
-**local_rotation** (sg, unit) : Quaternion
-	Returns the local rotation of the *unit*.
+**local_rotation** (sg, transform) : Quaternion
+	Returns the local rotation of the *transform*.
 
-**local_scale** (sg, unit) : Vector3
-	Returns the local scale of the *unit*.
+**local_scale** (sg, transform) : Vector3
+	Returns the local scale of the *transform*.
 
-**local_pose** (sg, unit) : Matrix4x4
-	Returns the local pose of the *unit*.
+**local_pose** (sg, transform) : Matrix4x4
+	Returns the local pose of the *transform*.
 
-**world_position** (sg, unit) : Vector3
-	Returns the world position of the *unit*.
+**world_position** (sg, transform) : Vector3
+	Returns the world position of the *transform*.
 
-**world_rotation** (sg, unit) : Quaternion
-	Returns the world rotation of the *unit*.
+**world_rotation** (sg, transform) : Quaternion
+	Returns the world rotation of the *transform*.
 
-**world_pose** (sg, unit) : Matrix4x4
-	Returns the world pose of the *unit*.
+**world_pose** (sg, transform) : Matrix4x4
+	Returns the world pose of the *transform*.
 
-**set_local_position** (sg, unit, position)
-	Sets the local *position* of the *unit*.
+**set_local_position** (sg, transform, position)
+	Sets the local *position* of the *transform*.
 
-**set_local_rotation** (sg, unit, rotation)
-	Sets the local *rotation* of the *unit*.
+**set_local_rotation** (sg, transform, rotation)
+	Sets the local *rotation* of the *transform*.
 
-**set_local_scale** (sg, unit, scale)
-	Sets the local *scale* of the *unit*.
+**set_local_scale** (sg, transform, scale)
+	Sets the local *scale* of the *transform*.
 
-**set_local_pose** (sg, unit, pose)
-	Sets the local *pose* of the *unit*.
+**set_local_pose** (sg, transform, pose)
+	Sets the local *pose* of the *transform*.
 
 **link** (sg, child, parent)
-	Links the unit *child* to the unit *parent*.
+	Links the transform *child* to the transform *parent*.
 
-**unlink** (sg, unit)
-	Unlinks the *unit* from its parent if it has any.
-	After unlinking, the @a unit's local pose is set to its previous world pose.
+**unlink** (sg, transform)
+	Unlinks the *transform* from its parent if it has any.
+	After unlinking, the local pose of the *transform* is set to its previous
+	world pose.
 
 SoundWorld
 ===========
@@ -1307,43 +1311,43 @@ Camera
 	Creates a new camera for *unit* and returns its id.
 	Projection can be either ``orthographic`` or ``perspective``.
 
-**camera_instances** (world, unit) : Id
-	Returns the IDs for all the cameras of the *unit*.
+**camera_instance** (world, unit) : Id
+	Returns the ID of the camera owned by the *unit*, or ``nil``.
 
-**camera_set_projection_type** (world, unit, projection)
-	Sets the projection type of the camera.
+**camera_set_projection_type** (world, camera, projection)
+	Sets the projection type of the *camera*.
 	Projection can be either ``orthographic`` or ``perspective``.
 
-**camera_projection_type** (world, unit) : string
-	Returns the projection type of the camera.
+**camera_projection_type** (world, camera) : string
+	Returns the projection type of the *camera*.
 	It can be either ``orthographic`` or ``perspective``.
 
-**camera_fov** (world, unit) : float
-	Returns the field-of-view of the camera in degrees.
+**camera_fov** (world, camera) : float
+	Returns the field-of-view of the *camera* in degrees.
 
-**camera_set_fov** (world, unit, fov)
-	Sets the field-of-view of the camera in degrees.
+**camera_set_fov** (world, camera, fov)
+	Sets the field-of-view of the *camera* in degrees.
 
-**camera_near_clip_distance** (world, unit) : float
-	Returns the near clip distance of the camera.
+**camera_near_clip_distance** (world, camera) : float
+	Returns the near clip distance of the *camera*.
 
-**camera_set_near_clip_distance** (world, unit, near)
-	Sets the near clip distance of the camera.
+**camera_set_near_clip_distance** (world, camera, near)
+	Sets the near clip distance of the *camera*.
 
-**camera_far_clip_distance** (world, unit) : float
-	Returns the far clip distance of the camera.
+**camera_far_clip_distance** (world, camera) : float
+	Returns the far clip distance of the *camera*.
 
-**camera_set_far_clip_distance** (world, unit, far)
-	Sets the far clip distance of the camera.
+**camera_set_far_clip_distance** (world, camera, far)
+	Sets the far clip distance of the *camera*.
 
-**camera_set_orthographic_size** (world, unit, half_size)
+**camera_set_orthographic_size** (world, camera, half_size)
 	Sets the vertical *half_size* of the orthographic view volume.
 	The horizontal size is proportional to the viewport's aspect ratio.
 
-**camera_screen_to_world** (world, unit, pos) : Vector3
+**camera_screen_to_world** (world, camera, pos) : Vector3
 	Returns *pos* from screen-space to world-space coordinates.
 
-**camera_world_to_screen** (world, unit, pos) : Vector3
+**camera_world_to_screen** (world, camera, pos) : Vector3
 	Returns *pos* from world-space to screen-space coordinates.
 
 Sound

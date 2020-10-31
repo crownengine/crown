@@ -21,7 +21,8 @@ function GameBase.init()
 	-- Create default camera
 	local camera_unit = World.spawn_unit(GameBase.world, "core/units/camera")
 	local scene_graph = World.scene_graph(GameBase.world)
-	SceneGraph.set_local_position(scene_graph, camera_unit, Vector3(0, 6.5, -30))
+	local tr = SceneGraph.instance(scene_graph, camera_unit)
+	SceneGraph.set_local_position(scene_graph, tr, Vector3(0, 6.5, -30))
 	GameBase.camera = FPSCamera(GameBase.world, camera_unit)
 
 	-- Load test level if launched from Level Editor.

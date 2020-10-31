@@ -20,7 +20,7 @@ function FPSCamera:unit()
 end
 
 function FPSCamera:camera()
-	return World.camera_instances(self._world, self._unit)
+	return World.camera_instance(self._world, self._unit)
 end
 
 function FPSCamera:update(dt, dx, dy)
@@ -34,7 +34,8 @@ function FPSCamera:update(dt, dx, dy)
 	if Keyboard.released(Keyboard.button_id("d")) then dkey = false end
 
 	local camera = self:camera()
-	local camera_local_pose = SceneGraph.local_pose(self._sg, self._unit)
+	local tr = SceneGraph.instance(self._sg, self._unit)
+	local camera_local_pose = SceneGraph.local_pose(self._sg, tr)
 	local camera_right_vector = Matrix4x4.x(camera_local_pose)
 	local camera_position = Matrix4x4.translation(camera_local_pose)
 	local camera_rotation = Matrix4x4.rotation(camera_local_pose)
@@ -53,7 +54,7 @@ function FPSCamera:update(dt, dx, dy)
 		Matrix4x4.set_translation(new_rotation, camera_position)
 
 		-- Fixme
-		SceneGraph.set_local_pose(self._sg, self._unit, new_rotation)
+		SceneGraph.set_local_pose(self._sg, tr, new_rotation)
 	end
 
 	-- Translation
@@ -63,5 +64,5 @@ function FPSCamera:update(dt, dx, dy)
 	if akey then camera_position = camera_position - camera_right_vector * translation_speed end
 	if dkey then camera_position = camera_position + camera_right_vector * translation_speed end
 
-	SceneGraph.set_local_position(self._sg, self._unit, camera_position)
+	SceneGraph.set_local_position(self._sg, tr, camera_position)
 end

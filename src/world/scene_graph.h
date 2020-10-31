@@ -71,78 +71,79 @@ struct SceneGraph
 	///
 	~SceneGraph();
 
-	/// Creates a new transform instance for unit @a id.
-	TransformInstance create(UnitId id, const Matrix4x4& pose);
+	/// Creates a new transform instance for the @a unit.
+	TransformInstance create(UnitId unit, const Matrix4x4& pose);
 
-	/// Creates a new transform instance for unit @a id.
-	TransformInstance create(UnitId id, const Vector3& pos, const Quaternion& rot, const Vector3& scale);
+	/// Creates a new transform instance for the @a unit.
+	TransformInstance create(UnitId unit, const Vector3& pos, const Quaternion& rot, const Vector3& scale);
 
-	/// Destroys the transform for the @a unit. The transform is ignored.
-	void destroy(UnitId unit, TransformInstance id);
+	/// Destroys the @a transform.
+	void destroy(TransformInstance transform);
 
-	/// Returns the transform instance of unit @a id.
-	TransformInstance instances(UnitId id);
+	/// Returns the ID of the transform owned by the *unit*.
+	TransformInstance instance(UnitId unit);
 
 	/// Returns whether the @a unit has a transform.
 	bool has(UnitId unit);
 
-	/// Sets the local position, rotation, scale or pose of the given @a unit.
-	void set_local_position(UnitId unit, const Vector3& pos);
+	/// Sets the local position, rotation, scale or pose of the @a transform.
+	void set_local_position(TransformInstance transform, const Vector3& pos);
 
 	/// @copydoc SceneGraph::set_local_position()
-	void set_local_rotation(UnitId unit, const Quaternion& rot);
+	void set_local_rotation(TransformInstance transform, const Quaternion& rot);
 
 	/// @copydoc SceneGraph::set_local_position()
-	void set_local_scale(UnitId unit, const Vector3& scale);
+	void set_local_scale(TransformInstance transform, const Vector3& scale);
 
 	/// @copydoc SceneGraph::set_local_position()
-	void set_local_pose(UnitId unit, const Matrix4x4& pose);
+	void set_local_pose(TransformInstance transform, const Matrix4x4& pose);
 
-	/// Returns the local position, rotation or pose of the given @a unit.
-	Vector3 local_position(UnitId unit);
-
-	/// @copydoc SceneGraph::local_position()
-	Quaternion local_rotation(UnitId unit);
+	/// Returns the local position, rotation or pose of the @a transform.
+	Vector3 local_position(TransformInstance transform);
 
 	/// @copydoc SceneGraph::local_position()
-	Vector3 local_scale(UnitId unit);
+	Quaternion local_rotation(TransformInstance transform);
 
 	/// @copydoc SceneGraph::local_position()
-	Matrix4x4 local_pose(UnitId unit);
+	Vector3 local_scale(TransformInstance transform);
 
-	/// Returns the world position, rotation or pose of the given @a unit.
-	Vector3 world_position(UnitId unit);
+	/// @copydoc SceneGraph::local_position()
+	Matrix4x4 local_pose(TransformInstance transform);
+
+	/// Returns the world position, rotation or pose of the @a transform.
+	Vector3 world_position(TransformInstance transform);
 
 	/// @copydoc SceneGraph::world_position()
-	Quaternion world_rotation(UnitId unit);
+	Quaternion world_rotation(TransformInstance transform);
 
 	/// @copydoc SceneGraph::world_position()
-	Matrix4x4 world_pose(UnitId unit);
+	Matrix4x4 world_pose(TransformInstance transform);
 
 	///
-	void set_world_pose(TransformInstance i, const Matrix4x4& pose);
+	void set_world_pose(TransformInstance transform, const Matrix4x4& pose);
 
 	///
-	void set_world_pose_and_rescale(TransformInstance i, const Matrix4x4& pose);
+	void set_world_pose_and_rescale(TransformInstance transform, const Matrix4x4& pose);
 
 	/// Returns the number of nodes in the graph.
 	u32 num_nodes() const;
 
-	/// Links the unit @a child to the unit @a parent.
-	void link(UnitId child, UnitId parent);
+	/// Links the transform @a child to the transform @a parent.
+	void link(TransformInstance child, TransformInstance parent);
 
-	/// Unlinks the @a unit from its parent if it has any.
-	/// After unlinking, the @a unit's local pose is set to its previous world pose.
-	void unlink(UnitId unit);
+	/// Unlinks the transform @a child from its parent if it has any.
+	/// After unlinking, the local pose of the @a child is set to its previous
+	// world pose.
+	void unlink(TransformInstance child);
 
 	void clear_changed();
 	void get_changed(Array<UnitId>& units, Array<Matrix4x4>& world_poses);
-	void set_local(TransformInstance i);
-	void transform(const Matrix4x4& parent, TransformInstance i);
+	void set_local(TransformInstance transform);
+	void transform(const Matrix4x4& parent, TransformInstance transform);
 	void grow();
 	void allocate(u32 num);
 	TransformInstance make_instance(u32 i);
-	void unit_destroyed_callback(UnitId id);
+	void unit_destroyed_callback(UnitId unit);
 };
 
 } // namespace crown

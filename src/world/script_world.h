@@ -51,7 +51,7 @@ namespace script_world
 	void destroy(ScriptWorld& sw, UnitId unit, ScriptInstance i);
 
 	/// Returns the component id for the @a unit.
-	ScriptInstance instances(ScriptWorld& sw, UnitId unit);
+	ScriptInstance instance(ScriptWorld& sw, UnitId unit);
 
 	/// Calls the update function on all scripts.
 	void update(ScriptWorld& sw, f32 dt);

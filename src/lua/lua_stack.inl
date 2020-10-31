@@ -282,6 +282,12 @@ inline LightInstance LuaStack::get_light_instance(int i)
 	return inst;
 }
 
+inline StateMachineInstance LuaStack::get_state_machine_instance(int i)
+{
+	StateMachineInstance inst = { get_id(i) };
+	return inst;
+}
+
 inline Material* LuaStack::get_material(int i)
 {
 	return (Material*)get_pointer(i);
@@ -552,6 +558,11 @@ inline void LuaStack::push_sprite_instance(SpriteInstance i)
 }
 
 inline void LuaStack::push_light_instance(LightInstance i)
+{
+	push_id(i.i);
+}
+
+inline void LuaStack::push_state_machine_instance(StateMachineInstance i)
 {
 	push_id(i.i);
 }

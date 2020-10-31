@@ -24,9 +24,9 @@
 
 namespace crown
 {
-static void unit_destroyed_callback_bridge(UnitId id, void* user_ptr)
+static void unit_destroyed_callback_bridge(UnitId unit, void* user_ptr)
 {
-	((RenderWorld*)user_ptr)->unit_destroyed_callback(id);
+	((RenderWorld*)user_ptr)->unit_destroyed_callback(unit);
 }
 
 RenderWorld::RenderWorld(Allocator& a, ResourceManager& rm, ShaderManager& sm, MaterialManager& mm, UnitManager& um)
@@ -71,51 +71,51 @@ RenderWorld::~RenderWorld()
 	_marker = 0;
 }
 
-MeshInstance RenderWorld::mesh_create(UnitId id, const MeshRendererDesc& mrd, const Matrix4x4& tr)
+MeshInstance RenderWorld::mesh_create(UnitId unit, const MeshRendererDesc& mrd, const Matrix4x4& tr)
 {
 	const MeshResource* mr = (const MeshResource*)_resource_manager->get(RESOURCE_TYPE_MESH, mrd.mesh_resource);
 	const MeshGeometry* mg = mr->geometry(mrd.geometry_name);
 	_material_manager->create_material(mrd.material_resource);
 
-	return _mesh_manager.create(id, mr, mg, mrd.material_resource, tr);
+	return _mesh_manager.create(unit, mr, mg, mrd.material_resource, tr);
 }
 
-void RenderWorld::mesh_destroy(MeshInstance i)
+void RenderWorld::mesh_destroy(MeshInstance mesh)
 {
-	CE_ASSERT(i.i < _mesh_manager._data.size, "Index out of bounds");
-	_mesh_manager.destroy(i);
+	CE_ASSERT(mesh.i < _mesh_manager._data.size, "Index out of bounds");
+	_mesh_manager.destroy(mesh);
 }
 
-MeshInstance RenderWorld::mesh_instances(UnitId unit)
+MeshInstance RenderWorld::mesh_instance(UnitId unit)
 {
 	return _mesh_manager.mesh(unit);
 }
 
-Material* RenderWorld::mesh_material(MeshInstance i)
+Material* RenderWorld::mesh_material(MeshInstance mesh)
 {
-	CE_ASSERT(i.i < _mesh_manager._data.size, "Index out of bounds");
-	return _material_manager->get(_mesh_manager._data.material[i.i]);
+	CE_ASSERT(mesh.i < _mesh_manager._data.size, "Index out of bounds");
+	return _material_manager->get(_mesh_manager._data.material[mesh.i]);
 }
 
-void RenderWorld::mesh_set_material(MeshInstance i, StringId64 id)
+void RenderWorld::mesh_set_material(MeshInstance mesh, StringId64 id)
 {
-	CE_ASSERT(i.i < _mesh_manager._data.size, "Index out of bounds");
+	CE_ASSERT(mesh.i < _mesh_manager._data.size, "Index out of bounds");
 	_material_manager->create_material(id);
-	_mesh_manager._data.material[i.i] = id;
+	_mesh_manager._data.material[mesh.i] = id;
 }
 
-void RenderWorld::mesh_set_visible(MeshInstance i, bool visible)
+void RenderWorld::mesh_set_visible(MeshInstance mesh, bool visible)
 {
-	CE_ASSERT(i.i < _mesh_manager._data.size, "Index out of bounds");
-	_mesh_manager.set_visible(i, visible);
+	CE_ASSERT(mesh.i < _mesh_manager._data.size, "Index out of bounds");
+	_mesh_manager.set_visible(mesh, visible);
 }
 
-OBB RenderWorld::mesh_obb(MeshInstance i)
+OBB RenderWorld::mesh_obb(MeshInstance mesh)
 {
-	CE_ASSERT(i.i < _mesh_manager._data.size, "Index out of bounds");
+	CE_ASSERT(mesh.i < _mesh_manager._data.size, "Index out of bounds");
 
-	const Matrix4x4& world = _mesh_manager._data.world[i.i];
-	const OBB& obb = _mesh_manager._data.obb[i.i];
+	const Matrix4x4& world = _mesh_manager._data.world[mesh.i];
+	const OBB& obb = _mesh_manager._data.obb[mesh.i];
 
 	OBB o;
 	o.tm = obb.tm * world;
@@ -124,13 +124,13 @@ OBB RenderWorld::mesh_obb(MeshInstance i)
 	return o;
 }
 
-f32 RenderWorld::mesh_cast_ray(MeshInstance i, const Vector3& from, const Vector3& dir)
+f32 RenderWorld::mesh_cast_ray(MeshInstance mesh, const Vector3& from, const Vector3& dir)
 {
-	CE_ASSERT(i.i < _mesh_manager._data.size, "Index out of bounds");
-	const MeshGeometry* mg = _mesh_manager._data.geometry[i.i];
+	CE_ASSERT(mesh.i < _mesh_manager._data.size, "Index out of bounds");
+	const MeshGeometry* mg = _mesh_manager._data.geometry[mesh.i];
 	return ray_mesh_intersection(from
 		, dir
-		, _mesh_manager._data.world[i.i]
+		, _mesh_manager._data.world[mesh.i]
 		, mg->vertices.data
 		, mg->vertices.stride
 		, (u16*)mg->indices.data
@@ -152,82 +152,72 @@ SpriteInstance RenderWorld::sprite_create(UnitId unit, const SpriteRendererDesc&
 		);
 }
 
-void RenderWorld::sprite_destroy(UnitId unit, SpriteInstance /*i*/)
+void RenderWorld::sprite_destroy(SpriteInstance sprite)
 {
-	SpriteInstance i = _sprite_manager.sprite(unit);
-	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
-	_sprite_manager.destroy(i);
+	CE_ASSERT(sprite.i < _sprite_manager._data.size, "Index out of bounds");
+	_sprite_manager.destroy(sprite);
 }
 
-SpriteInstance RenderWorld::sprite_instances(UnitId unit)
+SpriteInstance RenderWorld::sprite_instance(UnitId unit)
 {
 	return _sprite_manager.sprite(unit);
 }
 
-Material* RenderWorld::sprite_material(UnitId unit)
+Material* RenderWorld::sprite_material(SpriteInstance sprite)
 {
-	SpriteInstance i = _sprite_manager.sprite(unit);
-	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
-	return _material_manager->get(_sprite_manager._data.material[i.i]);
+	CE_ASSERT(sprite.i < _sprite_manager._data.size, "Index out of bounds");
+	return _material_manager->get(_sprite_manager._data.material[sprite.i]);
 }
 
-void RenderWorld::sprite_set_material(UnitId unit, StringId64 id)
+void RenderWorld::sprite_set_material(SpriteInstance sprite, StringId64 id)
 {
-	SpriteInstance i = _sprite_manager.sprite(unit);
-	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
+	CE_ASSERT(sprite.i < _sprite_manager._data.size, "Index out of bounds");
 	_material_manager->create_material(id);
-	_sprite_manager._data.material[i.i] = id;
+	_sprite_manager._data.material[sprite.i] = id;
 }
 
-void RenderWorld::sprite_set_frame(UnitId unit, u32 index)
+void RenderWorld::sprite_set_frame(SpriteInstance sprite, u32 index)
 {
-	SpriteInstance i = _sprite_manager.sprite(unit);
-	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
-	_sprite_manager._data.frame[i.i] = index;
+	CE_ASSERT(sprite.i < _sprite_manager._data.size, "Index out of bounds");
+	_sprite_manager._data.frame[sprite.i] = index;
 }
 
-void RenderWorld::sprite_set_visible(UnitId unit, bool visible)
+void RenderWorld::sprite_set_visible(SpriteInstance sprite, bool visible)
 {
-	SpriteInstance i = _sprite_manager.sprite(unit);
-	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
-	_sprite_manager.set_visible(i, visible);
+	CE_ASSERT(sprite.i < _sprite_manager._data.size, "Index out of bounds");
+	_sprite_manager.set_visible(sprite, visible);
 }
 
-void RenderWorld::sprite_flip_x(UnitId unit, bool flip)
+void RenderWorld::sprite_flip_x(SpriteInstance sprite, bool flip)
 {
-	SpriteInstance i = _sprite_manager.sprite(unit);
-	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
-	_sprite_manager._data.flip_x[i.i] = flip;
+	CE_ASSERT(sprite.i < _sprite_manager._data.size, "Index out of bounds");
+	_sprite_manager._data.flip_x[sprite.i] = flip;
 }
 
-void RenderWorld::sprite_flip_y(UnitId unit, bool flip)
+void RenderWorld::sprite_flip_y(SpriteInstance sprite, bool flip)
 {
-	SpriteInstance i = _sprite_manager.sprite(unit);
-	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
-	_sprite_manager._data.flip_y[i.i] = flip;
+	CE_ASSERT(sprite.i < _sprite_manager._data.size, "Index out of bounds");
+	_sprite_manager._data.flip_y[sprite.i] = flip;
 }
 
-void RenderWorld::sprite_set_layer(UnitId unit, u32 layer)
+void RenderWorld::sprite_set_layer(SpriteInstance sprite, u32 layer)
 {
-	SpriteInstance i = _sprite_manager.sprite(unit);
-	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
-	_sprite_manager._data.layer[i.i] = layer;
+	CE_ASSERT(sprite.i < _sprite_manager._data.size, "Index out of bounds");
+	_sprite_manager._data.layer[sprite.i] = layer;
 }
 
-void RenderWorld::sprite_set_depth(UnitId unit, u32 depth)
+void RenderWorld::sprite_set_depth(SpriteInstance sprite, u32 depth)
 {
-	SpriteInstance i = _sprite_manager.sprite(unit);
-	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
-	_sprite_manager._data.depth[i.i] = depth;
+	CE_ASSERT(sprite.i < _sprite_manager._data.size, "Index out of bounds");
+	_sprite_manager._data.depth[sprite.i] = depth;
 }
 
-OBB RenderWorld::sprite_obb(UnitId unit)
+OBB RenderWorld::sprite_obb(SpriteInstance sprite)
 {
-	SpriteInstance i = _sprite_manager.sprite(unit);
-	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
+	CE_ASSERT(sprite.i < _sprite_manager._data.size, "Index out of bounds");
 
-	const OBB& obb = _sprite_manager._data.resource[i.i]->obb;
-	const Matrix4x4& world = _sprite_manager._data.world[i.i];
+	const OBB& obb = _sprite_manager._data.resource[sprite.i]->obb;
+	const Matrix4x4& world = _sprite_manager._data.world[sprite.i];
 
 	OBB o;
 	o.tm = obb.tm * world;
@@ -236,13 +226,12 @@ OBB RenderWorld::sprite_obb(UnitId unit)
 	return o;
 }
 
-f32 RenderWorld::sprite_cast_ray(UnitId unit, const Vector3& from, const Vector3& dir, u32& layer, u32& depth)
+f32 RenderWorld::sprite_cast_ray(SpriteInstance sprite, const Vector3& from, const Vector3& dir, u32& layer, u32& depth)
 {
-	SpriteInstance i = _sprite_manager.sprite(unit);
-	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
+	CE_ASSERT(sprite.i < _sprite_manager._data.size, "Index out of bounds");
 
 	const SpriteManager::SpriteInstanceData& sid = _sprite_manager._data;
-	const f32* frame = sprite_resource::frame_data(sid.resource[i.i], sid.frame[i.i]);
+	const f32* frame = sprite_resource::frame_data(sid.resource[sprite.i], sid.frame[sprite.i]);
 
 	const f32 vertices[] =
 	{
@@ -258,12 +247,12 @@ f32 RenderWorld::sprite_cast_ray(UnitId unit, const Vector3& from, const Vector3
 		0, 2, 3
 	};
 
-	layer = _sprite_manager._data.layer[i.i];
-	depth = _sprite_manager._data.depth[i.i];
+	layer = _sprite_manager._data.layer[sprite.i];
+	depth = _sprite_manager._data.depth[sprite.i];
 
 	return ray_mesh_intersection(from
 		, dir
-		, _sprite_manager._data.world[i.i]
+		, _sprite_manager._data.world[sprite.i]
 		, vertices
 		, sizeof(Vector3)
 		, indices
@@ -276,93 +265,81 @@ LightInstance RenderWorld::light_create(UnitId unit, const LightDesc& ld, const 
 	return _light_manager.create(unit, ld, tr);
 }
 
-void RenderWorld::light_destroy(UnitId unit, LightInstance /*i*/)
+void RenderWorld::light_destroy(LightInstance light)
 {
-	LightInstance i = _light_manager.light(unit);
-	CE_ASSERT(i.i < _light_manager._data.size, "Index out of bounds");
-	_light_manager.destroy(i);
+	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
+	_light_manager.destroy(light);
 }
 
-LightInstance RenderWorld::light_instances(UnitId unit)
+LightInstance RenderWorld::light_instance(UnitId unit)
 {
 	return _light_manager.light(unit);
 }
 
-Color4 RenderWorld::light_color(UnitId unit)
+Color4 RenderWorld::light_color(LightInstance light)
 {
-	LightInstance i = _light_manager.light(unit);
-	CE_ASSERT(i.i < _light_manager._data.size, "Index out of bounds");
-	return _light_manager._data.color[i.i];
+	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
+	return _light_manager._data.color[light.i];
 }
 
-LightType::Enum RenderWorld::light_type(UnitId unit)
+LightType::Enum RenderWorld::light_type(LightInstance light)
 {
-	LightInstance i = _light_manager.light(unit);
-	CE_ASSERT(i.i < _light_manager._data.size, "Index out of bounds");
-	return (LightType::Enum)_light_manager._data.type[i.i];
+	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
+	return (LightType::Enum)_light_manager._data.type[light.i];
 }
 
-f32 RenderWorld::light_range(UnitId unit)
+f32 RenderWorld::light_range(LightInstance light)
 {
-	LightInstance i = _light_manager.light(unit);
-	CE_ASSERT(i.i < _light_manager._data.size, "Index out of bounds");
-	return _light_manager._data.range[i.i];
+	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
+	return _light_manager._data.range[light.i];
 }
 
-f32 RenderWorld::light_intensity(UnitId unit)
+f32 RenderWorld::light_intensity(LightInstance light)
 {
-	LightInstance i = _light_manager.light(unit);
-	CE_ASSERT(i.i < _light_manager._data.size, "Index out of bounds");
-	return _light_manager._data.intensity[i.i];
+	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
+	return _light_manager._data.intensity[light.i];
 }
 
-f32 RenderWorld::light_spot_angle(UnitId unit)
+f32 RenderWorld::light_spot_angle(LightInstance light)
 {
-	LightInstance i = _light_manager.light(unit);
-	CE_ASSERT(i.i < _light_manager._data.size, "Index out of bounds");
-	return _light_manager._data.spot_angle[i.i];
+	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
+	return _light_manager._data.spot_angle[light.i];
 }
 
-void RenderWorld::light_set_color(UnitId unit, const Color4& col)
+void RenderWorld::light_set_color(LightInstance light, const Color4& col)
 {
-	LightInstance i = _light_manager.light(unit);
-	CE_ASSERT(i.i < _light_manager._data.size, "Index out of bounds");
-	_light_manager._data.color[i.i] = col;
+	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
+	_light_manager._data.color[light.i] = col;
 }
 
-void RenderWorld::light_set_type(UnitId unit, LightType::Enum type)
+void RenderWorld::light_set_type(LightInstance light, LightType::Enum type)
 {
-	LightInstance i = _light_manager.light(unit);
-	CE_ASSERT(i.i < _light_manager._data.size, "Index out of bounds");
-	_light_manager._data.type[i.i] = type;
+	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
+	_light_manager._data.type[light.i] = type;
 }
 
-void RenderWorld::light_set_range(UnitId unit, f32 range)
+void RenderWorld::light_set_range(LightInstance light, f32 range)
 {
-	LightInstance i = _light_manager.light(unit);
-	CE_ASSERT(i.i < _light_manager._data.size, "Index out of bounds");
-	_light_manager._data.range[i.i] = range;
+	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
+	_light_manager._data.range[light.i] = range;
 }
 
-void RenderWorld::light_set_intensity(UnitId unit, f32 intensity)
+void RenderWorld::light_set_intensity(LightInstance light, f32 intensity)
 {
-	LightInstance i = _light_manager.light(unit);
-	CE_ASSERT(i.i < _light_manager._data.size, "Index out of bounds");
-	_light_manager._data.intensity[i.i] = intensity;
+	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
+	_light_manager._data.intensity[light.i] = intensity;
 }
 
-void RenderWorld::light_set_spot_angle(UnitId unit, f32 angle)
+void RenderWorld::light_set_spot_angle(LightInstance light, f32 angle)
 {
-	LightInstance i = _light_manager.light(unit);
-	CE_ASSERT(i.i < _light_manager._data.size, "Index out of bounds");
-	_light_manager._data.spot_angle[i.i] = angle;
+	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
+	_light_manager._data.spot_angle[light.i] = angle;
 }
 
-void RenderWorld::light_debug_draw(UnitId unit, DebugLine& dl)
+void RenderWorld::light_debug_draw(LightInstance light, DebugLine& dl)
 {
-	LightInstance i = _light_manager.light(unit);
-	CE_ASSERT(i.i < _light_manager._data.size, "Index out of bounds");
-	_light_manager.debug_draw(i.i, 1, dl);
+	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
+	_light_manager.debug_draw(light.i, 1, dl);
 }
 
 void RenderWorld::update_transforms(const UnitId* begin, const UnitId* end, const Matrix4x4* world)
@@ -375,20 +352,20 @@ void RenderWorld::update_transforms(const UnitId* begin, const UnitId* end, cons
 	{
 		if (_mesh_manager.has(*begin))
 		{
-			MeshInstance inst = _mesh_manager.mesh(*begin);
-			mid.world[inst.i] = *world;
+			MeshInstance mesh = _mesh_manager.mesh(*begin);
+			mid.world[mesh.i] = *world;
 		}
 
 		if (_sprite_manager.has(*begin))
 		{
-			SpriteInstance inst = _sprite_manager.sprite(*begin);
-			sid.world[inst.i] = *world;
+			SpriteInstance sprite = _sprite_manager.sprite(*begin);
+			sid.world[sprite.i] = *world;
 		}
 
 		if (_light_manager.has(*begin))
 		{
-			LightInstance inst = _light_manager.light(*begin);
-			lid.world[inst.i] = *world;
+			LightInstance light = _light_manager.light(*begin);
+			lid.world[light.i] = *world;
 		}
 	}
 }
@@ -537,27 +514,27 @@ void RenderWorld::enable_debug_drawing(bool enable)
 	_debug_drawing = enable;
 }
 
-void RenderWorld::unit_destroyed_callback(UnitId id)
+void RenderWorld::unit_destroyed_callback(UnitId unit)
 {
 	{
-		MeshInstance first = mesh_instances(id);
+		MeshInstance first = mesh_instance(unit);
 
 		if (is_valid(first))
 			mesh_destroy(first);
 	}
 
 	{
-		SpriteInstance first = sprite_instances(id);
+		SpriteInstance first = sprite_instance(unit);
 
 		if (is_valid(first))
-			sprite_destroy(id, first);
+			sprite_destroy(first);
 	}
 
 	{
-		LightInstance first = light_instances(id);
+		LightInstance first = light_instance(unit);
 
 		if (is_valid(first))
-			light_destroy(id, first);
+			light_destroy(first);
 	}
 }
 
@@ -631,74 +608,74 @@ MeshInstance RenderWorld::MeshManager::create(UnitId unit, const MeshResource* m
 	return make_instance(last);
 }
 
-void RenderWorld::MeshManager::destroy(MeshInstance i)
+void RenderWorld::MeshManager::destroy(MeshInstance mesh)
 {
-	CE_ASSERT(i.i < _data.size, "Index out of bounds");
+	CE_ASSERT(mesh.i < _data.size, "Index out of bounds");
 
 	const u32 last      = _data.size - 1;
-	const UnitId u      = _data.unit[i.i];
+	const UnitId u      = _data.unit[mesh.i];
 	const UnitId last_u = _data.unit[last];
 
-	_data.unit[i.i]     = _data.unit[last];
-	_data.resource[i.i] = _data.resource[last];
-	_data.geometry[i.i] = _data.geometry[last];
-	_data.mesh[i.i].vbh = _data.mesh[last].vbh;
-	_data.mesh[i.i].ibh = _data.mesh[last].ibh;
-	_data.material[i.i] = _data.material[last];
-	_data.world[i.i]    = _data.world[last];
-	_data.obb[i.i]      = _data.obb[last];
+	_data.unit[mesh.i]     = _data.unit[last];
+	_data.resource[mesh.i] = _data.resource[last];
+	_data.geometry[mesh.i] = _data.geometry[last];
+	_data.mesh[mesh.i].vbh = _data.mesh[last].vbh;
+	_data.mesh[mesh.i].ibh = _data.mesh[last].ibh;
+	_data.material[mesh.i] = _data.material[last];
+	_data.world[mesh.i]    = _data.world[last];
+	_data.obb[mesh.i]      = _data.obb[last];
 
 	--_data.size;
 	--_data.first_hidden;
 
-	hash_map::set(_map, last_u, i.i);
+	hash_map::set(_map, last_u, mesh.i);
 	hash_map::remove(_map, u);
 }
 
-bool RenderWorld::MeshManager::has(UnitId id)
+bool RenderWorld::MeshManager::has(UnitId unit)
 {
-	return is_valid(mesh(id));
+	return is_valid(mesh(unit));
 }
 
-void RenderWorld::MeshManager::set_visible(MeshInstance i, bool visible)
+void RenderWorld::MeshManager::set_visible(MeshInstance mesh, bool visible)
 {
 	u32 swap_index = UINT32_MAX;
-	const UnitId unit = _data.unit[i.i];
+	const UnitId unit = _data.unit[mesh.i];
 
-	if (visible && i.i >= _data.first_hidden)
+	if (visible && mesh.i >= _data.first_hidden)
 	{
 		const u32 first_hidden = _data.first_hidden;
 		const UnitId first_hidden_unit = _data.unit[first_hidden];
 		hash_map::set(_map, unit, first_hidden);
-		hash_map::set(_map, first_hidden_unit, i.i);
+		hash_map::set(_map, first_hidden_unit, mesh.i);
 		swap_index = first_hidden;
 		++_data.first_hidden;
 	}
-	else if (!visible && i.i < _data.first_hidden)
+	else if (!visible && mesh.i < _data.first_hidden)
 	{
 		const u32 last_visible = _data.first_hidden - 1;
 		const UnitId last_visible_unit = _data.unit[last_visible];
 		hash_map::set(_map, unit, last_visible);
-		hash_map::set(_map, last_visible_unit, i.i);
+		hash_map::set(_map, last_visible_unit, mesh.i);
 		swap_index = last_visible;
 		--_data.first_hidden;
 	}
 
 	if (swap_index != UINT32_MAX)
 	{
-		exchange(_data.unit[i.i], _data.unit[swap_index]);
-		exchange(_data.resource[i.i], _data.resource[swap_index]);
-		exchange(_data.geometry[i.i], _data.geometry[swap_index]);
-		exchange(_data.mesh[i.i], _data.mesh[swap_index]);
-		exchange(_data.material[i.i], _data.material[swap_index]);
-		exchange(_data.world[i.i], _data.world[swap_index]);
-		exchange(_data.obb[i.i], _data.obb[swap_index]);
+		exchange(_data.unit[mesh.i], _data.unit[swap_index]);
+		exchange(_data.resource[mesh.i], _data.resource[swap_index]);
+		exchange(_data.geometry[mesh.i], _data.geometry[swap_index]);
+		exchange(_data.mesh[mesh.i], _data.mesh[swap_index]);
+		exchange(_data.material[mesh.i], _data.material[swap_index]);
+		exchange(_data.world[mesh.i], _data.world[swap_index]);
+		exchange(_data.obb[mesh.i], _data.obb[swap_index]);
 	}
 }
 
-MeshInstance RenderWorld::MeshManager::mesh(UnitId id)
+MeshInstance RenderWorld::MeshManager::mesh(UnitId unit)
 {
-	return make_instance(hash_map::get(_map, id, UINT32_MAX));
+	return make_instance(hash_map::get(_map, unit, UINT32_MAX));
 }
 
 void RenderWorld::MeshManager::destroy()
@@ -787,79 +764,79 @@ SpriteInstance RenderWorld::SpriteManager::create(UnitId unit, const SpriteResou
 	return make_instance(last);
 }
 
-void RenderWorld::SpriteManager::destroy(SpriteInstance i)
+void RenderWorld::SpriteManager::destroy(SpriteInstance sprite)
 {
-	CE_ASSERT(i.i < _data.size, "Index out of bounds");
+	CE_ASSERT(sprite.i < _data.size, "Index out of bounds");
 
 	const u32 last      = _data.size - 1;
-	const UnitId u      = _data.unit[i.i];
+	const UnitId u      = _data.unit[sprite.i];
 	const UnitId last_u = _data.unit[last];
 
-	_data.unit[i.i]     = _data.unit[last];
-	_data.resource[i.i] = _data.resource[last];
-	_data.material[i.i] = _data.material[last];
-	_data.frame[i.i]    = _data.frame[last];
-	_data.world[i.i]    = _data.world[last];
-	_data.aabb[i.i]     = _data.aabb[last];
-	_data.flip_x[i.i]   = _data.flip_x[last];
-	_data.flip_y[i.i]   = _data.flip_y[last];
-	_data.layer[i.i]    = _data.layer[last];
-	_data.depth[i.i]    = _data.depth[last];
+	_data.unit[sprite.i]     = _data.unit[last];
+	_data.resource[sprite.i] = _data.resource[last];
+	_data.material[sprite.i] = _data.material[last];
+	_data.frame[sprite.i]    = _data.frame[last];
+	_data.world[sprite.i]    = _data.world[last];
+	_data.aabb[sprite.i]     = _data.aabb[last];
+	_data.flip_x[sprite.i]   = _data.flip_x[last];
+	_data.flip_y[sprite.i]   = _data.flip_y[last];
+	_data.layer[sprite.i]    = _data.layer[last];
+	_data.depth[sprite.i]    = _data.depth[last];
 
 	--_data.size;
 	--_data.first_hidden;
 
-	hash_map::set(_map, last_u, i.i);
+	hash_map::set(_map, last_u, sprite.i);
 	hash_map::remove(_map, u);
 }
 
-bool RenderWorld::SpriteManager::has(UnitId id)
+bool RenderWorld::SpriteManager::has(UnitId unit)
 {
-	return is_valid(sprite(id));
+	return is_valid(sprite(unit));
 }
 
-void RenderWorld::SpriteManager::set_visible(SpriteInstance i, bool visible)
+void RenderWorld::SpriteManager::set_visible(SpriteInstance sprite, bool visible)
 {
 	u32 swap_index = UINT32_MAX;
-	const UnitId unit = _data.unit[i.i];
+	const UnitId unit = _data.unit[sprite.i];
 
-	if (visible && i.i >= _data.first_hidden)
+	if (visible && sprite.i >= _data.first_hidden)
 	{
 		const u32 first_hidden = _data.first_hidden;
 		const UnitId first_hidden_unit = _data.unit[first_hidden];
 		hash_map::set(_map, unit, first_hidden);
-		hash_map::set(_map, first_hidden_unit, i.i);
+		hash_map::set(_map, first_hidden_unit, sprite.i);
 		swap_index = first_hidden;
 		++_data.first_hidden;
 	}
-	else if (!visible && i.i < _data.first_hidden)
+	else if (!visible && sprite.i < _data.first_hidden)
 	{
 		const u32 last_visible = _data.first_hidden - 1;
 		const UnitId last_visible_unit = _data.unit[last_visible];
 		hash_map::set(_map, unit, last_visible);
-		hash_map::set(_map, last_visible_unit, i.i);
+		hash_map::set(_map, last_visible_unit, sprite.i);
 		swap_index = last_visible;
 		--_data.first_hidden;
 	}
 
 	if (swap_index != UINT32_MAX)
 	{
-		exchange(_data.unit[i.i], _data.unit[swap_index]);
-		exchange(_data.resource[i.i], _data.resource[swap_index]);
-		exchange(_data.material[i.i], _data.material[swap_index]);
-		exchange(_data.frame[i.i], _data.frame[swap_index]);
-		exchange(_data.world[i.i], _data.world[swap_index]);
-		exchange(_data.aabb[i.i], _data.aabb[swap_index]);
-		exchange(_data.flip_x[i.i], _data.flip_x[swap_index]);
-		exchange(_data.flip_y[i.i], _data.flip_y[swap_index]);
-		exchange(_data.layer[i.i], _data.layer[swap_index]);
-		exchange(_data.depth[i.i], _data.depth[swap_index]);
+		exchange(_data.unit[sprite.i], _data.unit[swap_index]);
+		exchange(_data.resource[sprite.i], _data.resource[swap_index]);
+		exchange(_data.material[sprite.i], _data.material[swap_index]);
+		exchange(_data.frame[sprite.i], _data.frame[swap_index]);
+		exchange(_data.world[sprite.i], _data.world[swap_index]);
+		exchange(_data.aabb[sprite.i], _data.aabb[swap_index]);
+		exchange(_data.flip_x[sprite.i], _data.flip_x[swap_index]);
+		exchange(_data.flip_y[sprite.i], _data.flip_y[swap_index]);
+		exchange(_data.layer[sprite.i], _data.layer[swap_index]);
+		exchange(_data.depth[sprite.i], _data.depth[swap_index]);
 	}
 }
 
-SpriteInstance RenderWorld::SpriteManager::sprite(UnitId id)
+SpriteInstance RenderWorld::SpriteManager::sprite(UnitId unit)
 {
-	return make_instance(hash_map::get(_map, id, UINT32_MAX));
+	return make_instance(hash_map::get(_map, unit, UINT32_MAX));
 }
 
 void RenderWorld::SpriteManager::destroy()
@@ -911,16 +888,16 @@ void RenderWorld::LightManager::grow()
 	allocate(_data.capacity * 2 + 1);
 }
 
-LightInstance RenderWorld::LightManager::create(UnitId id, const LightDesc& ld, const Matrix4x4& tr)
+LightInstance RenderWorld::LightManager::create(UnitId unit, const LightDesc& ld, const Matrix4x4& tr)
 {
-	CE_ASSERT(!hash_map::has(_map, id), "Unit already has a light component");
+	CE_ASSERT(!hash_map::has(_map, unit), "Unit already has a light component");
 
 	if (_data.size == _data.capacity)
 		grow();
 
 	const u32 last = _data.size;
 
-	_data.unit[last]       = id;
+	_data.unit[last]       = unit;
 	_data.world[last]      = tr;
 	_data.range[last]      = ld.range;
 	_data.intensity[last]  = ld.intensity;
@@ -930,40 +907,40 @@ LightInstance RenderWorld::LightManager::create(UnitId id, const LightDesc& ld, 
 
 	++_data.size;
 
-	hash_map::set(_map, id, last);
+	hash_map::set(_map, unit, last);
 	return make_instance(last);
 }
 
-void RenderWorld::LightManager::destroy(LightInstance i)
+void RenderWorld::LightManager::destroy(LightInstance light)
 {
-	CE_ASSERT(i.i < _data.size, "Index out of bounds");
+	CE_ASSERT(light.i < _data.size, "Index out of bounds");
 
 	const u32 last      = _data.size - 1;
-	const UnitId u      = _data.unit[i.i];
+	const UnitId u      = _data.unit[light.i];
 	const UnitId last_u = _data.unit[last];
 
-	_data.unit[i.i]       = _data.unit[last];
-	_data.world[i.i]      = _data.world[last];
-	_data.range[i.i]      = _data.range[last];
-	_data.intensity[i.i]  = _data.intensity[last];
-	_data.spot_angle[i.i] = _data.spot_angle[last];
-	_data.color[i.i]      = _data.color[last];
-	_data.type[i.i]       = _data.type[last];
+	_data.unit[light.i]       = _data.unit[last];
+	_data.world[light.i]      = _data.world[last];
+	_data.range[light.i]      = _data.range[last];
+	_data.intensity[light.i]  = _data.intensity[last];
+	_data.spot_angle[light.i] = _data.spot_angle[last];
+	_data.color[light.i]      = _data.color[last];
+	_data.type[light.i]       = _data.type[last];
 
 	--_data.size;
 
-	hash_map::set(_map, last_u, i.i);
+	hash_map::set(_map, last_u, light.i);
 	hash_map::remove(_map, u);
 }
 
-bool RenderWorld::LightManager::has(UnitId id)
+bool RenderWorld::LightManager::has(UnitId unit)
 {
-	return is_valid(light(id));
+	return is_valid(light(unit));
 }
 
-LightInstance RenderWorld::LightManager::light(UnitId id)
+LightInstance RenderWorld::LightManager::light(UnitId unit)
 {
-	return make_instance(hash_map::get(_map, id, UINT32_MAX));
+	return make_instance(hash_map::get(_map, unit, UINT32_MAX));
 }
 
 void RenderWorld::LightManager::destroy()

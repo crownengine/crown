@@ -285,6 +285,7 @@ INSTANCE_ID(ColliderInstance)
 INSTANCE_ID(ActorInstance)
 INSTANCE_ID(JointInstance)
 INSTANCE_ID(ScriptInstance)
+INSTANCE_ID(StateMachineInstance)
 
 #undef INSTANCE_ID
 
