@@ -19,9 +19,9 @@
 
 namespace crown
 {
-static void unit_destroyed_callback_bridge(UnitId id, void* user_ptr)
+static void unit_destroyed_callback_bridge(UnitId unit, void* user_ptr)
 {
-	((AnimationStateMachine*)user_ptr)->unit_destroyed_callback(id);
+	((AnimationStateMachine*)user_ptr)->unit_destroyed_callback(unit);
 }
 
 static StateMachineInstance make_instance(u32 i)

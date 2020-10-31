@@ -22,8 +22,8 @@ UnitManager::UnitManager(Allocator& a)
 
 UnitId UnitManager::make_unit(u32 idx, u8 gen)
 {
-	UnitId id = { 0 | idx | u32(gen) << UNIT_INDEX_BITS };
-	return id;
+	UnitId unit = { 0 | idx | u32(gen) << UNIT_INDEX_BITS };
+	return unit;
 }
 
 UnitId UnitManager::create()
@@ -50,18 +50,18 @@ UnitId UnitManager::create(World& world)
 	return world.spawn_empty_unit();
 }
 
-bool UnitManager::alive(UnitId id) const
+bool UnitManager::alive(UnitId unit) const
 {
-	return _generation[id.index()] == id.id();
+	return _generation[unit.index()] == unit.id();
 }
 
-void UnitManager::destroy(UnitId id)
+void UnitManager::destroy(UnitId unit)
 {
-	const u32 idx = id.index();
+	const u32 idx = unit.index();
 	++_generation[idx];
 	queue::push_back(_free_indices, idx);
 
-	trigger_destroy_callbacks(id);
+	trigger_destroy_callbacks(unit);
 }
 
 void UnitManager::register_destroy_callback(UnitDestroyCallback* udc)
@@ -74,13 +74,13 @@ void UnitManager::unregister_destroy_callback(UnitDestroyCallback* udc)
 	list::remove(udc->node);
 }
 
-void UnitManager::trigger_destroy_callbacks(UnitId id)
+void UnitManager::trigger_destroy_callbacks(UnitId unit)
 {
 	ListNode* cur;
 	list_for_each(cur, &_callbacks.node)
 	{
 		UnitDestroyCallback* udc = (UnitDestroyCallback*)container_of(cur, UnitDestroyCallback, node);
-		udc->destroy(id, udc->user_data);
+		udc->destroy(unit, udc->user_data);
 	}
 }
 

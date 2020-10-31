@@ -34,10 +34,10 @@ struct UnitManager
 	UnitId create(World& world);
 
 	/// Returns whether the unit @id is alive.
-	bool alive(UnitId id) const;
+	bool alive(UnitId unit) const;
 
 	/// Destroys the unit @a id.
-	void destroy(UnitId id);
+	void destroy(UnitId unit);
 
 	///
 	void register_destroy_callback(UnitDestroyCallback* udc);
@@ -46,7 +46,7 @@ struct UnitManager
 	void unregister_destroy_callback(UnitDestroyCallback* udc);
 
 	///
-	void trigger_destroy_callbacks(UnitId id);
+	void trigger_destroy_callbacks(UnitId unit);
 };
 
 } // namespace crown

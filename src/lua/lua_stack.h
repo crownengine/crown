@@ -304,7 +304,7 @@ struct LuaStack
 	void push_animation_state_machine(AnimationStateMachine* sm);
 
 	///
-	void push_unit(UnitId id);
+	void push_unit(UnitId unit);
 
 	///
 	void push_camera(CameraInstance i);

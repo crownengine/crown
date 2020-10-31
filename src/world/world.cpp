@@ -98,32 +98,32 @@ World::~World()
 UnitId World::spawn_unit(StringId64 name, const Vector3& pos, const Quaternion& rot, const Vector3& scl)
 {
 	const UnitResource* ur = (const UnitResource*)_resource_manager->get(RESOURCE_TYPE_UNIT, name);
-	UnitId id = _unit_manager->create();
-	spawn_units(*this, *ur, pos, rot, scl, &id);
-	return id;
+	UnitId unit = _unit_manager->create();
+	spawn_units(*this, *ur, pos, rot, scl, &unit);
+	return unit;
 }
 
 UnitId World::spawn_empty_unit()
 {
-	UnitId id = _unit_manager->create();
-	array::push_back(_units, id);
-	post_unit_spawned_event(id);
-	return id;
+	UnitId unit = _unit_manager->create();
+	array::push_back(_units, unit);
+	post_unit_spawned_event(unit);
+	return unit;
 }
 
-void World::destroy_unit(UnitId id)
+void World::destroy_unit(UnitId unit)
 {
-	_unit_manager->destroy(id);
+	_unit_manager->destroy(unit);
 	for (u32 i = 0, n = array::size(_units); i < n; ++i)
 	{
-		if (_units[i] == id)
+		if (_units[i] == unit)
 		{
 			_units[i] = _units[n - 1];
 			array::pop_back(_units);
 			break;
 		}
 	}
-	post_unit_destroyed_event(id);
+	post_unit_destroyed_event(unit);
 }
 
 u32 World::num_units() const
@@ -550,17 +550,17 @@ Level* World::load_level(StringId64 name, const Vector3& pos, const Quaternion& 
 	return level;
 }
 
-void World::post_unit_spawned_event(UnitId id)
+void World::post_unit_spawned_event(UnitId unit)
 {
 	UnitSpawnedEvent ev;
-	ev.unit = id;
+	ev.unit = unit;
 	event_stream::write(_events, EventType::UNIT_SPAWNED, ev);
 }
 
-void World::post_unit_destroyed_event(UnitId id)
+void World::post_unit_destroyed_event(UnitId unit)
 {
 	UnitDestroyedEvent ev;
-	ev.unit = id;
+	ev.unit = unit;
 	event_stream::write(_events, EventType::UNIT_DESTROYED, ev);
 }
 

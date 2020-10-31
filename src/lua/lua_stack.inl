@@ -247,9 +247,9 @@ inline UnitId LuaStack::get_unit(int i)
 		CE_UNREACHABLE();
 	}
 #endif // CROWN_DEBUG
-	UnitId id;
-	id._idx = u32((enc & LIGHTDATA_UNIT_ID_MASK) >> LIGHTDATA_UNIT_ID_SHIFT);
-	return id;
+	UnitId unit;
+	unit._idx = u32((enc & LIGHTDATA_UNIT_ID_MASK) >> LIGHTDATA_UNIT_ID_SHIFT);
+	return unit;
 }
 
 inline CameraInstance LuaStack::get_camera(int i)
@@ -531,9 +531,9 @@ inline void LuaStack::push_animation_state_machine(AnimationStateMachine* sm)
 	push_pointer(sm);
 }
 
-inline void LuaStack::push_unit(UnitId id)
+inline void LuaStack::push_unit(UnitId unit)
 {
-	uintptr_t enc = (uintptr_t(id._idx) << LIGHTDATA_UNIT_ID_SHIFT) | LIGHTDATA_UNIT_MARKER;
+	uintptr_t enc = (uintptr_t(unit._idx) << LIGHTDATA_UNIT_ID_SHIFT) | LIGHTDATA_UNIT_MARKER;
 	push_pointer((void*)enc);
 }
 

@@ -86,7 +86,7 @@ struct World
 	UnitId spawn_empty_unit();
 
 	/// Destroys the unit with the given @a id.
-	void destroy_unit(UnitId id);
+	void destroy_unit(UnitId unit);
 
 	/// Returns the number of units in the world.
 	u32 num_units() const;
@@ -206,8 +206,8 @@ struct World
 	/// Loads the level @a name into the world.
 	Level* load_level(StringId64 name, const Vector3& pos, const Quaternion& rot);
 
-	void post_unit_spawned_event(UnitId id);
-	void post_unit_destroyed_event(UnitId id);
+	void post_unit_spawned_event(UnitId unit);
+	void post_unit_destroyed_event(UnitId unit);
 	void post_level_loaded_event();
 };
 
