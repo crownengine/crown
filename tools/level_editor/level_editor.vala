@@ -204,7 +204,6 @@ public class LevelEditorApplication : Gtk.Application
 
 	// Command line options
 	private string? _source_dir = null;
-	private string _toolchain_dir = "";
 	private string _level_resource = "";
 	private User _user;
 
@@ -338,7 +337,7 @@ public class LevelEditorApplication : Gtk.Application
 		_data_compiler = new DataCompiler(_compiler);
 
 		_project = new Project(_data_compiler);
-		_project.set_toolchain_dir(_toolchain_dir);
+		_project.set_toolchain_dir(_toolchain_dir.get_path());
 
 		_database = new Database();
 
@@ -530,47 +529,6 @@ public class LevelEditorApplication : Gtk.Application
 		{
 			// Validation is done below after the Project object instantiation
 			_level_resource = args[2];
-		}
-
-		if (args.length > 3)
-		{
-			if (!GLib.FileUtils.test(args[3], FileTest.EXISTS) || !GLib.FileUtils.test(args[3], FileTest.IS_DIR))
-			{
-				loge("Toolchain directory does not exist or it is not a directory");
-				exit_status = 1;
-				return true;
-			}
-
-			_toolchain_dir = args[3];
-		}
-		else
-		{
-			/// More desirable paths come first
-			string toolchain_paths[] =
-			{
-				".",
-				"../..",
-				"../../../samples"
-			};
-
-			int ii = 0;
-			for (ii = 0; ii < toolchain_paths.length; ++ii)
-			{
-				string path = Path.build_filename(toolchain_paths[ii], "core");
-
-				// Try to locate the toolchain directory
-				if (GLib.FileUtils.test(path, FileTest.EXISTS) && GLib.FileUtils.test(path, FileTest.IS_DIR))
-					break;
-			}
-
-			if (ii == toolchain_paths.length)
-			{
-				loge("Unable to find the toolchain directory");
-				exit_status = 1;
-				return true;
-			}
-
-			_toolchain_dir = toolchain_paths[ii];
 		}
 
 		exit_status = 0;
@@ -2117,6 +2075,7 @@ public class LevelEditorApplication : Gtk.Application
 }
 
 // Global paths
+public static GLib.File _toolchain_dir;
 public static GLib.File _config_dir;
 public static GLib.File _logs_dir;
 public static GLib.File _documents_dir;
@@ -2227,6 +2186,29 @@ public static int main(string[] args)
 	_user_file = GLib.File.new_for_path(GLib.Path.build_filename(_config_dir.get_path(), "user.sjson"));
 
 	_log_stream = GLib.FileStream.open(_log_file.get_path(), "a");
+
+	// Find toolchain path, more desirable paths come first.
+	int ii = 0;
+	string toolchain_paths[] =
+	{
+		".",
+		"../..",
+		"../../../samples"
+	};
+	for (ii = 0; ii < toolchain_paths.length; ++ii)
+	{
+		string path = Path.build_filename(toolchain_paths[ii], "core");
+		if (GLib.FileUtils.test(path, FileTest.EXISTS) && GLib.FileUtils.test(path, FileTest.IS_DIR))
+		{
+			_toolchain_dir = File.new_for_path(path).get_parent();
+			break;
+		}
+	}
+	if (ii == toolchain_paths.length)
+	{
+		loge("Unable to find the toolchain directory");
+		return 1;
+	}
 
 	LevelEditorApplication app = new LevelEditorApplication();
 	return app.run(args);
