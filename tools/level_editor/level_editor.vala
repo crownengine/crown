@@ -832,10 +832,9 @@ public class LevelEditorApplication : Gtk.Application
 
 	public void restart_backend(string source_dir, string level_name)
 	{
+		string sd = source_dir.dup();
+		string ln = level_name.dup();
 		stop_backend();
-
-		string sd = source_dir;
-		string ln = level_name;
 
 		// Reset project state.
 		_placeable_type = "";
@@ -923,6 +922,9 @@ public class LevelEditorApplication : Gtk.Application
 		stop_game();
 		stop_editor();
 		stop_data_compiler();
+
+		_level.reset();
+		_project.reset();
 	}
 
 	private void stop_data_compiler()
