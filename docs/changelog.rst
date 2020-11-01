@@ -9,6 +9,10 @@ Changelog
 
 * Removed support for multiple components per Unit.
 
+**Tools**
+
+* Added the ability to select from a number of templates (samples) when creating new projects
+
 **Lua API**
 
 * All component managers accessors have been uniformed to accept a component instance ID (instead of a UnitId or both):

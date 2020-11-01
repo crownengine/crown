@@ -446,6 +446,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		_user = new User();
 		_panel_new_project = new PanelNewProject(this, _user, _project);
+		_panel_new_project.fill_templates_list(_templates_dir.get_path());
 
 		_panel_welcome = new PanelWelcome();
 		_panel_projects_list = new PanelProjectsList(this, _user);
@@ -2076,6 +2077,7 @@ public class LevelEditorApplication : Gtk.Application
 
 // Global paths
 public static GLib.File _toolchain_dir;
+public static GLib.File _templates_dir;
 public static GLib.File _config_dir;
 public static GLib.File _logs_dir;
 public static GLib.File _documents_dir;
@@ -2207,6 +2209,28 @@ public static int main(string[] args)
 	if (ii == toolchain_paths.length)
 	{
 		loge("Unable to find the toolchain directory");
+		return 1;
+	}
+
+	// Find templates path, more desirable paths come first.
+	string templates_path[] =
+	{
+		".",
+		"../..",
+		"../../.."
+	};
+	for (ii = 0; ii < templates_path.length; ++ii)
+	{
+		string path = Path.build_filename(templates_path[ii], "samples");
+		if (GLib.FileUtils.test(path, FileTest.EXISTS) && GLib.FileUtils.test(path, FileTest.IS_DIR))
+		{
+			_templates_dir = File.new_for_path(path);
+			break;
+		}
+	}
+	if (ii == templates_path.length)
+	{
+		loge("Unable to find the templates directory");
 		return 1;
 	}
 
