@@ -103,22 +103,22 @@ mingw-release64: build/projects/mingw build/mingw64/bin/luajit.exe
 mingw: mingw-debug64 mingw-development64 mingw-release64
 
 build/windows64/bin/texturec.exe:
-	devenv.com 3rdparty/bimg/.build/projects/vs2017/bimg.sln $(ARG_PREFIX)Build "Release|x64" $(ARG_PREFIX)Project texturec.vcxproj
-	cp -r 3rdparty/bimg/.build/win64_vs2017/bin/texturecRelease.exe $@
+	devenv.com 3rdparty/bimg/.build/projects/vs2019/bimg.sln $(ARG_PREFIX)Build "Release|x64" $(ARG_PREFIX)Project texturec.vcxproj
+	cp -r 3rdparty/bimg/.build/win64_vs2019/bin/texturecRelease.exe $@
 build/windows64/bin/shaderc.exe:
-	devenv.com 3rdparty/bgfx/.build/projects/vs2017/bgfx.sln $(ARG_PREFIX)Build "Release|x64" $(ARG_PREFIX)Project shaderc.vcxproj
-	cp -r 3rdparty/bgfx/.build/win64_vs2017/bin/shadercRelease.exe $@
+	devenv.com 3rdparty/bgfx/.build/projects/vs2019/bgfx.sln $(ARG_PREFIX)Build "Release|x64" $(ARG_PREFIX)Project shaderc.vcxproj
+	cp -r 3rdparty/bgfx/.build/win64_vs2019/bin/shadercRelease.exe $@
 
-build/projects/vs2017:
-	$(GENIE) --file=3rdparty/bgfx/scripts/genie.lua --with-tools vs2017
-	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools vs2017
-	$(GENIE) --gfxapi=d3d11 --with-luajit --with-tools --no-level-editor vs2017
-windows-debug64: build/projects/vs2017 build/windows64/bin/luajit.exe build/windows64/bin/texturec.exe build/windows64/bin/shaderc.exe
-	devenv.com build/projects/vs2017/crown.sln $(ARG_PREFIX)Build "debug|x64"
-windows-development64: build/projects/vs2017 build/windows64/bin/luajit.exe build/windows64/bin/texturec.exe build/windows64/bin/shaderc.exe
-	devenv.com build/projects/vs2017/crown.sln $(ARG_PREFIX)Build "development|x64"
-windows-release64: build/projects/vs2017 build/windows64/bin/luajit.exe
-	devenv.com build/projects/vs2017/crown.sln $(ARG_PREFIX)Build "release|x64"
+build/projects/vs2019:
+	$(GENIE) --file=3rdparty/bgfx/scripts/genie.lua --with-tools vs2019
+	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools vs2019
+	$(GENIE) --gfxapi=d3d11 --with-luajit --with-tools --no-level-editor vs2019
+windows-debug64: build/projects/vs2019 build/windows64/bin/luajit.exe build/windows64/bin/texturec.exe build/windows64/bin/shaderc.exe
+	devenv.com build/projects/vs2019/crown.sln $(ARG_PREFIX)Build "debug|x64"
+windows-development64: build/projects/vs2019 build/windows64/bin/luajit.exe build/windows64/bin/texturec.exe build/windows64/bin/shaderc.exe
+	devenv.com build/projects/vs2019/crown.sln $(ARG_PREFIX)Build "development|x64"
+windows-release64: build/projects/vs2019 build/windows64/bin/luajit.exe
+	devenv.com build/projects/vs2019/crown.sln $(ARG_PREFIX)Build "release|x64"
 
 .PHONY: rebuild-glib-resources
 rebuild-glib-resources:

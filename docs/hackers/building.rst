@@ -44,10 +44,10 @@ To build documentation you will also need:
 	sudo apt-get install python3-sphinx
 	sudo apt-get install doxygen
 
-Windows (VS 2017)
+Windows (VS 2019)
 -----------------
 
-Visual Studio 2017:
+Visual Studio 2019:
 
 	* https://visualstudio.microsoft.com/downloads
 
@@ -96,7 +96,7 @@ Linux
 Windows
 -------
 
-Open Visual Studio 2017 Command Prompt:
+Open Visual Studio 2019 Command Prompt:
 
 .. code::
 
