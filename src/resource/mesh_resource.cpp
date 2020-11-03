@@ -257,32 +257,6 @@ namespace mesh_resource_internal
 			_has_uv = false;
 		}
 
-		void parse_float_array(Array<f32>& output, const char* array_json)
-		{
-			TempAllocator4096 ta;
-			JsonArray arr(ta);
-			sjson::parse_array(arr, array_json);
-
-			array::resize(output, array::size(arr));
-			for (u32 i = 0; i < array::size(arr); ++i)
-			{
-				output[i] = sjson::parse_float(arr[i]);
-			}
-		}
-
-		void parse_index_array(Array<u16>& output, const char* array_json)
-		{
-			TempAllocator4096 ta;
-			JsonArray arr(ta);
-			sjson::parse_array(arr, array_json);
-
-			array::resize(output, array::size(arr));
-			for (u32 i = 0; i < array::size(arr); ++i)
-			{
-				output[i] = (u16)sjson::parse_int(arr[i]);
-			}
-		}
-
 		void parse_indices(const char* json)
 		{
 			TempAllocator4096 ta;
