@@ -15,7 +15,7 @@ namespace crown
 namespace memory
 {
 	/// Returns the pointer @a p aligned to the desired @a align byte
-	inline void* align_top(void* p, u32 align)
+	inline void* align_top(const void* p, u32 align)
 	{
 		CE_ASSERT(align >= 1, "Alignment must be > 1");
 		CE_ASSERT(align % 2 == 0 || align == 1, "Alignment must be a power of two");
