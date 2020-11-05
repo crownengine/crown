@@ -681,7 +681,7 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 		}
 
 		// Advance to next component type
-		component = (ComponentData*)memory::align_top(data + component->data_size, alignof(*component));
+		component = (ComponentData*)memory::align_top(data + component->data_size, alignof(ComponentData));
 	}
 
 	for (u32 i = 0; i < ur.num_units; ++i)
