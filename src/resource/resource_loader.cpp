@@ -128,7 +128,7 @@ s32 ResourceLoader::run()
 		else
 		{
 			const u32 size = file->size();
-			rr.data = rr.allocator->allocate(size);
+			rr.data = rr.allocator->allocate(size, 16);
 			file->read(rr.data, size);
 			CE_ASSERT(*(u32*)rr.data == RESOURCE_HEADER(rr.version), "Wrong version");
 		}
