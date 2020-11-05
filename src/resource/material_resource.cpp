@@ -15,7 +15,7 @@
 #include "core/strings/string_id.inl"
 #include "core/strings/string_view.inl"
 #include "device/device.h"
-#include "resource/compile_options.h"
+#include "resource/compile_options.inl"
 #include "resource/material_resource.h"
 #include "resource/resource_manager.h"
 #include "world/material_manager.h"

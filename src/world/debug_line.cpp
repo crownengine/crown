@@ -251,7 +251,7 @@ void DebugLine::add_unit(ResourceManager& rm, const Matrix4x4& tm, StringId64 na
 			}
 		}
 
-		component_data += component->size + sizeof(ComponentData);
+		component_data += component->data_size + sizeof(ComponentData);
 	}
 }
 

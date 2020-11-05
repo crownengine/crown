@@ -19,7 +19,7 @@
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string_id.inl"
 #include "device/log.h"
-#include "resource/compile_options.h"
+#include "resource/compile_options.inl"
 #include "resource/mesh_resource.h"
 #include "resource/resource_manager.h"
 

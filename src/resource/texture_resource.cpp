@@ -11,7 +11,7 @@
 #include "core/process.h"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string_stream.inl"
-#include "resource/compile_options.h"
+#include "resource/compile_options.inl"
 #include "resource/resource_manager.h"
 #include "resource/texture_resource.h"
 

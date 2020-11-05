@@ -11,7 +11,7 @@
 #include "core/memory/allocator.h"
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/dynamic_string.inl"
-#include "resource/compile_options.h"
+#include "resource/compile_options.inl"
 #include "resource/sound_resource.h"
 
 namespace crown

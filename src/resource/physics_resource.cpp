@@ -7,6 +7,7 @@
 #include "core/containers/array.inl"
 #include "core/containers/hash_map.inl"
 #include "core/filesystem/file.h"
+#include "core/filesystem/file_buffer.inl"
 #include "core/filesystem/filesystem.h"
 #include "core/json/json_object.inl"
 #include "core/json/sjson.h"
@@ -18,7 +19,7 @@
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string.inl"
 #include "core/strings/string_id.inl"
-#include "resource/compile_options.h"
+#include "resource/compile_options.inl"
 #include "resource/physics_resource.h"
 #include "world/types.h"
 
@@ -174,12 +175,17 @@ namespace physics_resource_internal
 		cd.type     = st;
 		cd.local_tm = MATRIX4X4_IDENTITY;
 		cd.size     = 0;
+
+		Array<Vector3> points(default_allocator());
+		Array<u16> point_indices(default_allocator());
+
 		DynamicString source(ta);
 		if (json_object::has(obj, "source"))
 			sjson::parse_string(source, obj["source"]);
 		bool explicit_collider = source == "mesh" || json_object::has(obj, "scene");
 
-		if (explicit_collider) {
+		if (explicit_collider)
+		{
 			// Parse .mesh
 			DynamicString scene(ta);
 			DynamicString name(ta);
@@ -223,7 +229,6 @@ namespace physics_resource_internal
 			sjson::parse_array(indices_data, indices["data"]);
 			sjson::parse_array(position_indices, indices_data[0]);
 
-			Array<Vector3> points(default_allocator());
 			for (u32 i = 0; i < array::size(positions); i += 3)
 			{
 				Vector3 p;
@@ -233,7 +238,6 @@ namespace physics_resource_internal
 				array::push_back(points, p);
 			}
 
-			Array<u16> point_indices(default_allocator());
 			for (u32 i = 0; i < array::size(position_indices); ++i)
 			{
 				array::push_back(point_indices, (u16)sjson::parse_int(position_indices[i]));
@@ -250,30 +254,9 @@ namespace physics_resource_internal
 				DATA_COMPILER_ASSERT(false, opts, "Not implemented yet");
 				break;
 			}
-
-			const u32 num_points  = array::size(points);
-			const u32 num_indices = array::size(point_indices);
-
-			const bool needs_points = cd.type == ColliderType::CONVEX_HULL
-				|| cd.type == ColliderType::MESH;
-
-			cd.size += (needs_points ? sizeof(u32) + sizeof(Vector3)*array::size(points) : 0);
-			cd.size += (cd.type == ColliderType::MESH ? sizeof(u32) + sizeof(u16)*array::size(point_indices) : 0);
-
-			array::push(output, (char*)&cd, sizeof(cd));
-
-			if (needs_points)
-			{
-				array::push(output, (char*)&num_points, sizeof(num_points));
-				array::push(output, (char*)array::begin(points), sizeof(Vector3)*array::size(points));
-			}
-			if (cd.type == ColliderType::MESH)
-			{
-				array::push(output, (char*)&num_indices, sizeof(num_indices));
-				array::push(output, (char*)array::begin(point_indices), sizeof(u16)*array::size(point_indices));
-			}
-
-		} else {
+		}
+		else
+		{
 			JsonObject collider_data(ta);
 			JsonArray org(ta);
 			DATA_COMPILER_ASSERT(json_object::has(obj, "collider_data")
@@ -289,17 +272,50 @@ namespace physics_resource_internal
 			if (cd.type == ColliderType::SPHERE) {
 				cd.sphere.radius = sjson::parse_float(collider_data["radius"]);
 			} else if (cd.type == ColliderType::BOX) {
-				JsonArray ext(ta);
-				sjson::parse_array(ext, collider_data["half_extents"]);
 				cd.box.half_size = sjson::parse_vector3(collider_data["half_extents"]);;
 			} else if (cd.type == ColliderType::CAPSULE) {
 				cd.capsule.radius = sjson::parse_float(collider_data["radius"]);
 				cd.capsule.height = sjson::parse_float(collider_data["height"]);
 			}
-
-			array::push(output, (char*)&cd, sizeof(cd));
 		}
 
+		const bool needs_points = cd.type == ColliderType::CONVEX_HULL
+			|| cd.type == ColliderType::MESH;
+		if (needs_points)
+		{
+			cd.size += sizeof(u32) + sizeof(Vector3)*array::size(points);
+			if (cd.type == ColliderType::MESH)
+				cd.size += sizeof(u32) + sizeof(u16)*array::size(point_indices);
+		}
+
+		FileBuffer fb(output);
+		BinaryWriter bw(fb);
+		bw.write(cd.type);
+		bw.write(cd.local_tm);
+		bw.write(cd.sphere.radius);
+		bw.write(cd.capsule.radius);
+		bw.write(cd.capsule.height);
+		bw.write(cd.box.half_size);
+		bw.write(cd.heightfield.width);
+		bw.write(cd.heightfield.length);
+		bw.write(cd.heightfield.height_scale);
+		bw.write(cd.heightfield.height_min);
+		bw.write(cd.heightfield.height_max);
+		bw.write(cd.size);
+
+		if (needs_points)
+		{
+			bw.write(array::size(points));
+			for (u32 ii = 0; ii < array::size(points); ++ii)
+				bw.write(points[ii]);
+
+			if (cd.type == ColliderType::MESH)
+			{
+				bw.write(array::size(point_indices));
+				for (u32 ii = 0; ii < array::size(point_indices); ++ii)
+					bw.write(point_indices[ii]);
+			}
+		}
 		return 0;
 	}
 
@@ -309,22 +325,28 @@ namespace physics_resource_internal
 		JsonObject obj(ta);
 		sjson::parse(obj, json);
 
+		u32 flags = 0;
+		flags |= (json_object::has(obj, "lock_translation_x") && sjson::parse_bool(obj["lock_translation_x"])) ? ActorFlags::LOCK_TRANSLATION_X : 0;
+		flags |= (json_object::has(obj, "lock_translation_y") && sjson::parse_bool(obj["lock_translation_y"])) ? ActorFlags::LOCK_TRANSLATION_Y : 0;
+		flags |= (json_object::has(obj, "lock_translation_z") && sjson::parse_bool(obj["lock_translation_z"])) ? ActorFlags::LOCK_TRANSLATION_Z : 0;
+		flags |= (json_object::has(obj, "lock_rotation_x") && sjson::parse_bool(obj["lock_rotation_x"])) ? ActorFlags::LOCK_ROTATION_X : 0;
+		flags |= (json_object::has(obj, "lock_rotation_y") && sjson::parse_bool(obj["lock_rotation_y"])) ? ActorFlags::LOCK_ROTATION_Y : 0;
+		flags |= (json_object::has(obj, "lock_rotation_z") && sjson::parse_bool(obj["lock_rotation_z"])) ? ActorFlags::LOCK_ROTATION_Z : 0;
+
 		ActorResource ar;
 		ar.actor_class      = sjson::parse_string_id(obj["class"]);
 		ar.mass             = sjson::parse_float    (obj["mass"]);
+		ar.flags            = flags;
 		ar.collision_filter = sjson::parse_string_id(obj["collision_filter"]);
 		ar.material         = sjson::parse_string_id(obj["material"]);
 
-		ar.flags = 0;
-		ar.flags |= (json_object::has(obj, "lock_translation_x") && sjson::parse_bool(obj["lock_translation_x"])) ? ActorFlags::LOCK_TRANSLATION_X : 0;
-		ar.flags |= (json_object::has(obj, "lock_translation_y") && sjson::parse_bool(obj["lock_translation_y"])) ? ActorFlags::LOCK_TRANSLATION_Y : 0;
-		ar.flags |= (json_object::has(obj, "lock_translation_z") && sjson::parse_bool(obj["lock_translation_z"])) ? ActorFlags::LOCK_TRANSLATION_Z : 0;
-		ar.flags |= (json_object::has(obj, "lock_rotation_x") && sjson::parse_bool(obj["lock_rotation_x"])) ? ActorFlags::LOCK_ROTATION_X : 0;
-		ar.flags |= (json_object::has(obj, "lock_rotation_y") && sjson::parse_bool(obj["lock_rotation_y"])) ? ActorFlags::LOCK_ROTATION_Y : 0;
-		ar.flags |= (json_object::has(obj, "lock_rotation_z") && sjson::parse_bool(obj["lock_rotation_z"])) ? ActorFlags::LOCK_ROTATION_Z : 0;
-
-		array::push(output, (char*)&ar, sizeof(ar));
-
+		FileBuffer fb(output);
+		BinaryWriter bw(fb);
+		bw.write(ar.actor_class);
+		bw.write(ar.mass);
+		bw.write(ar.flags);
+		bw.write(ar.collision_filter);
+		bw.write(ar.material);
 		return 0;
 	}
 
@@ -361,8 +383,25 @@ namespace physics_resource_internal
 			break;
 		}
 
-		array::push(output, (char*)&jd, sizeof(jd));
-
+		FileBuffer fb(output);
+		BinaryWriter bw(fb);
+		bw.write(jd.type);
+		bw.write(jd.anchor_0);
+		bw.write(jd.anchor_1);
+		bw.write(jd.breakable);
+		bw.write(jd._pad[0]);
+		bw.write(jd._pad[1]);
+		bw.write(jd._pad[2]);
+		bw.write(jd.break_force);
+		bw.write(jd.hinge);
+		bw.write(jd.hinge.axis);
+		bw.write(jd.hinge.use_motor);
+		bw.write(jd.hinge.target_velocity);
+		bw.write(jd.hinge.max_motor_impulse);
+		bw.write(jd.hinge.use_limits);
+		bw.write(jd.hinge.lower_limit);
+		bw.write(jd.hinge.upper_limit);
+		bw.write(jd.hinge.bounciness);
 		return 0;
 	}
 

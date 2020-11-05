@@ -6,7 +6,9 @@
 #include "config.h"
 #include "core/containers/array.inl"
 #include "core/memory/globals.h"
+#include "resource/compile_options.inl"
 #include "resource/unit_compiler.h"
+#include "resource/unit_resource.h"
 
 namespace crown
 {
@@ -27,5 +29,14 @@ namespace unit_resource_internal
 
 } // namespace unit_resource_internal
 #endif // CROWN_CAN_COMPILE
+
+namespace unit_resource
+{
+	const ComponentData* component_data(const UnitResource* ur)
+	{
+		return (ComponentData*)(&ur[1]);
+	}
+
+} // namespace unit_resource
 
 } // namespace crown

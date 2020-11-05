@@ -13,6 +13,7 @@
 #include "core/filesystem/file.h"
 #include "core/filesystem/filesystem.h"
 #include "core/filesystem/path.h"
+#include "core/filesystem/reader_writer.inl"
 #include "core/guid.h"
 #include "core/memory/temp_allocator.inl"
 #include "core/os.h"
@@ -20,12 +21,12 @@
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string_stream.h"
 #include "device/log.h"
-#include "resource/compile_options.h"
+#include "resource/compile_options.inl"
 #include "resource/data_compiler.h"
 
 namespace crown
 {
-CompileOptions::CompileOptions(Buffer& output
+CompileOptions::CompileOptions(File& output
 	, HashMap<DynamicString, u32>& new_dependencies
 	, HashMap<DynamicString, u32>& new_requirements
 	, DataCompiler& dc
@@ -34,7 +35,8 @@ CompileOptions::CompileOptions(Buffer& output
 	, const DynamicString& source_path
 	, const char* platform
 	)
-	: _output(output)
+	: _file(output)
+	, _binary_writer(_file)
 	, _new_dependencies(new_dependencies)
 	, _new_requirements(new_requirements)
 	, _data_compiler(dc)
@@ -184,14 +186,19 @@ DeleteResult CompileOptions::delete_file(const char* path)
 	return _data_filesystem.delete_file(path);
 }
 
+void CompileOptions::align(const u32 align)
+{
+	_binary_writer.align(align);
+}
+
 void CompileOptions::write(const void* data, u32 size)
 {
-	array::push(_output, (const char*)data, size);
+	_binary_writer.write(data, size);
 }
 
 void CompileOptions::write(const Buffer& data)
 {
-	array::push(_output, array::begin(data), array::size(data));
+	write(array::begin(data), array::size(data));
 }
 
 const char* CompileOptions::platform() const

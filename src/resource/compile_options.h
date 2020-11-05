@@ -10,6 +10,7 @@
 #if CROWN_CAN_COMPILE
 
 #include "core/containers/types.h"
+#include "core/filesystem/reader_writer.h"
 #include "core/filesystem/types.h"
 #include "core/os.h"
 #include "core/strings/dynamic_string.h"
@@ -61,7 +62,8 @@ namespace crown
 {
 struct CompileOptions
 {
-	Buffer& _output;
+	File& _file;
+	BinaryWriter _binary_writer;
 	HashMap<DynamicString, u32>& _new_dependencies;
 	HashMap<DynamicString, u32>& _new_requirements;
 	DataCompiler& _data_compiler;
@@ -71,7 +73,7 @@ struct CompileOptions
 	ResourceId _resource_id;
 
 	///
-	CompileOptions(Buffer& output
+	CompileOptions(File& output
 		, HashMap<DynamicString, u32>& new_dependencies
 		, HashMap<DynamicString, u32>& new_requirements
 		, DataCompiler& dc
@@ -135,14 +137,14 @@ struct CompileOptions
 	DeleteResult delete_file(const char* path);
 
 	///
+	void align(const u32 align);
+
+	///
 	void write(const void* data, u32 size);
 
 	///
 	template <typename T>
-	void write(const T& data)
-	{
-		write(&data, sizeof(data));
-	}
+	void write(const T& data);
 
 	///
 	void write(const Buffer& data);

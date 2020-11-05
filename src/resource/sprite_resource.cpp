@@ -14,7 +14,7 @@
 #include "core/math/vector4.inl"
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/string.inl"
-#include "resource/compile_options.h"
+#include "resource/compile_options.inl"
 #include "resource/resource_manager.h"
 #include "resource/sprite_resource.h"
 

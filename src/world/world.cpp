@@ -578,11 +578,12 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 	ScriptWorld* script_world = w._script_world;
 	AnimationStateMachine* animation_state_machine = w._animation_state_machine;
 
-	const ComponentData* component = (ComponentData*)(&ur + 1);
-	for (u32 cc = 0; cc < ur.num_component_types; ++cc, component = (ComponentData*)((char*)component + component->size + sizeof(*component)))
+	// Create components
+	const ComponentData* component = unit_resource::component_data(&ur);
+	for (u32 cc = 0; cc < ur.num_component_types; ++cc)
 	{
-		const u32* unit_index = (const u32*)(component + 1);
-		const char* data = (const char*)(unit_index + component->num_instances);
+		const u32* unit_index = (u32*)(component + 1);
+		const char* data = (char*)memory::align_top(unit_index + component->num_instances, 16);
 
 		if (component->type == COMPONENT_TYPE_TRANSFORM)
 		{
@@ -678,6 +679,9 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 		{
 			CE_FATAL("Unknown component type");
 		}
+
+		// Advance to next component type
+		component = (ComponentData*)memory::align_top(data + component->data_size, alignof(*component));
 	}
 
 	for (u32 i = 0; i < ur.num_units; ++i)

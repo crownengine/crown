@@ -11,6 +11,7 @@
 #include "core/containers/hash_set.inl"
 #include "core/containers/vector.inl"
 #include "core/filesystem/file.h"
+#include "core/filesystem/file_buffer.inl"
 #include "core/filesystem/filesystem_disk.h"
 #include "core/filesystem/path.h"
 #include "core/guid.inl"
@@ -26,7 +27,7 @@
 #include "device/console_server.h"
 #include "device/device_options.h"
 #include "device/log.h"
-#include "resource/compile_options.h"
+#include "resource/compile_options.inl"
 #include "resource/config_resource.h"
 #include "resource/data_compiler.h"
 #include "resource/font_resource.h"
@@ -1043,12 +1044,13 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 			// "foo.unit" from a package, you do not want the list of
 			// requirements to include "foo.unit" again the next time that
 			// package is compiled.
-			Buffer output(default_allocator());
 			HashMap<DynamicString, u32> new_dependencies(default_allocator());
 			HashMap<DynamicString, u32> new_requirements(default_allocator());
 
+			Buffer output(default_allocator());
+			FileBuffer file_buffer(output);
 			// Invoke compiler
-			CompileOptions opts(output
+			CompileOptions opts(file_buffer
 				, new_dependencies
 				, new_requirements
 				, *this

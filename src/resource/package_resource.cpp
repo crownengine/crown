@@ -16,7 +16,7 @@
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string_id.inl"
-#include "resource/compile_options.h"
+#include "resource/compile_options.inl"
 #include "resource/data_compiler.h"
 #include "resource/package_resource.h"
 #include "resource/resource_id.inl"

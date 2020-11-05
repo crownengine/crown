@@ -12,7 +12,7 @@
 #include "core/containers/types.h"
 #include "core/json/types.h"
 #include "core/strings/string_id.h"
-#include "resource/compile_options.h"
+#include "resource/types.h"
 
 namespace crown
 {

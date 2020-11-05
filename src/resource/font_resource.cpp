@@ -12,7 +12,7 @@
 #include "core/memory/allocator.h"
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/string.inl"
-#include "resource/compile_options.h"
+#include "resource/compile_options.inl"
 #include "resource/font_resource.h"
 #include "resource/types.h"
 #include <algorithm>

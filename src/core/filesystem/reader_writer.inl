@@ -15,6 +15,16 @@ inline BinaryWriter::BinaryWriter(File& file)
 {
 }
 
+inline void BinaryWriter::align(const u32 align)
+{
+	const u32 mask = align-1;
+	const u32 pos = (_file.position() + mask) & ~mask;
+	const u32 pad = pos - _file.position();
+	const char val = 0;
+	for (u32 ii = 0; ii < pad; ++ii)
+		_file.write(&val, 1);
+}
+
 inline void BinaryWriter::write(const void* data, u32 size)
 {
 	_file.write(data, size);
@@ -22,6 +32,13 @@ inline void BinaryWriter::write(const void* data, u32 size)
 
 template <typename T>
 inline void BinaryWriter::write(const T& data)
+{
+	align(alignof(T));
+	_file.write(&data, sizeof(T));
+}
+
+template <typename T>
+inline void BinaryWriter::write_unaligned(const T& data)
 {
 	_file.write(&data, sizeof(T));
 }
@@ -36,6 +53,14 @@ inline BinaryReader::BinaryReader(File& file)
 {
 }
 
+inline void BinaryReader::align(const u32 align)
+{
+	const u32 mask = align-1;
+	const u32 pos = (_file.position() + mask) & ~mask;
+	const u32 pad = pos - _file.position();
+	_file.skip(pad);
+}
+
 inline void BinaryReader::read(void* data, u32 size)
 {
 	_file.read(data, size);
@@ -43,6 +68,13 @@ inline void BinaryReader::read(void* data, u32 size)
 
 template <typename T>
 inline void BinaryReader::read(T& data)
+{
+	align(alignof(T));
+	_file.read(&data, sizeof(T));
+}
+
+template <typename T>
+inline void BinaryReader::read_unaligned(T& data)
 {
 	_file.read(&data, sizeof(T));
 }

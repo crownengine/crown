@@ -11,7 +11,7 @@
 #include "core/memory/globals.h"
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/dynamic_string.inl"
-#include "resource/compile_options.h"
+#include "resource/compile_options.inl"
 #include "resource/level_resource.h"
 #include "resource/unit_compiler.h"
 
@@ -93,10 +93,11 @@ namespace level_resource_internal
 		LevelResource lr;
 		lr.version           = RESOURCE_HEADER(RESOURCE_VERSION_LEVEL);
 		lr.num_units         = uc._num_units;
-		lr.unit_names_offset = sizeof(lr);
-		lr.units_offset      = lr.unit_names_offset + (lr.num_units * sizeof(StringId32));
 		lr.num_sounds        = array::size(sounds);
-		lr.sounds_offset     = lr.units_offset + array::size(unit_blob);
+		lr.sounds_offset     = sizeof(lr);
+		lr.unit_names_offset = lr.sounds_offset + sizeof(LevelSound) * lr.num_sounds;
+		lr.units_offset      = lr.unit_names_offset + sizeof(StringId32) * lr.num_units;
+		lr.units_offset      = (u32)(uintptr_t)memory::align_top((void*)(uintptr_t)lr.units_offset, 16);
 
 		opts.write(lr.version);
 		opts.write(lr.num_units);
@@ -104,14 +105,6 @@ namespace level_resource_internal
 		opts.write(lr.units_offset);
 		opts.write(lr.num_sounds);
 		opts.write(lr.sounds_offset);
-
-		// Write unit names
-		for (u32 i = 0; i < array::size(uc._unit_names); ++i)
-			opts.write(uc._unit_names[i]._id);
-
-		// Write units
-		opts.write(unit_blob);
-		// Alignment to sizeof(ComponentData) ensured by UnitCompiler
 
 		// Write level sounds
 		for (u32 i = 0; i < array::size(sounds); ++i)
@@ -123,6 +116,13 @@ namespace level_resource_internal
 			opts.write(sounds[i].loop);
 		}
 
+		// Write unit names
+		for (u32 i = 0; i < array::size(uc._unit_names); ++i)
+			opts.write(uc._unit_names[i]._id);
+
+		// Write units
+		opts.align(16);
+		opts.write(unit_blob);
 		return 0;
 	}
 

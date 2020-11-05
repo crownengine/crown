@@ -16,7 +16,7 @@
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string_id.inl"
-#include "resource/compile_options.h"
+#include "resource/compile_options.inl"
 #include "resource/expression_language.h"
 #include "resource/state_machine_resource.h"
 #include "resource/types.h"
@@ -76,7 +76,7 @@ namespace state_machine
 	const Animation* animation(const AnimationArray* aa, u32 index)
 	{
 		CE_ASSERT(index < aa->num, "Index out of bounds");
-		Animation* first = (Animation*)(&aa[1]);
+		Animation* first = (Animation*)(memory::align_top((void*)&aa[1], alignof(Animation)));
 		return &first[index];
 	}
 
@@ -146,13 +146,22 @@ namespace state_machine_internal
 		{
 		}
 
+		void align(u32 align)
+		{
+			_offset = (u32)(uintptr_t)memory::align_top((void*)(uintptr_t)_offset, align);
+		}
+
 		// Returns the offset of
 		u32 offset(u32 num_animations, u32 num_transitions)
 		{
 			const u32 offt = _offset;
+			align(alignof(State));
 			_offset += sizeof(State);
+			align(alignof(Transition));
 			_offset += sizeof(Transition) * num_transitions;
+			align(alignof(AnimationArray));
 			_offset += sizeof(AnimationArray);
+			align(alignof(Animation));
 			_offset += sizeof(Animation) * num_animations;
 			return offt;
 		}

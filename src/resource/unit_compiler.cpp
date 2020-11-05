@@ -9,6 +9,7 @@
 
 #include "core/containers/array.inl"
 #include "core/containers/hash_map.inl"
+#include "core/filesystem/file_buffer.inl"
 #include "core/guid.inl"
 #include "core/json/json_object.inl"
 #include "core/json/sjson.h"
@@ -16,7 +17,7 @@
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string_id.inl"
-#include "resource/compile_options.h"
+#include "resource/compile_options.inl"
 #include "resource/physics_resource.h"
 #include "resource/unit_compiler.h"
 #include "resource/unit_resource.h"
@@ -85,8 +86,11 @@ static s32 compile_transform(Buffer& output, const char* json, CompileOptions& /
 	td.rotation = sjson::parse_quaternion(obj["rotation"]);
 	td.scale    = sjson::parse_vector3   (obj["scale"]);
 
-	array::push(output, (char*)&td, sizeof(td));
-
+	FileBuffer fb(output);
+	BinaryWriter bw(fb);
+	bw.write(td.position);
+	bw.write(td.rotation);
+	bw.write(td.scale);
 	return 0;
 }
 
@@ -112,8 +116,12 @@ static s32 compile_camera(Buffer& output, const char* json, CompileOptions& opts
 	cd.near_range = sjson::parse_float(obj["near_range"]);
 	cd.far_range  = sjson::parse_float(obj["far_range"]);
 
-	array::push(output, (char*)&cd, sizeof(cd));
-
+	FileBuffer fb(output);
+	BinaryWriter bw(fb);
+	bw.write(cd.type);
+	bw.write(cd.fov);
+	bw.write(cd.near_range);
+	bw.write(cd.far_range);
 	return 0;
 }
 
@@ -141,15 +149,22 @@ static s32 compile_mesh_renderer(Buffer& output, const char* json, CompileOption
 
 	MeshRendererDesc mrd;
 	mrd.mesh_resource     = sjson::parse_resource_name(obj["mesh_resource"]);
-	mrd.geometry_name     = sjson::parse_string_id    (obj["geometry_name"]);
 	mrd.material_resource = sjson::parse_resource_name(obj["material"]);
+	mrd.geometry_name     = sjson::parse_string_id    (obj["geometry_name"]);
 	mrd.visible           = sjson::parse_bool         (obj["visible"]);
 	mrd._pad0[0]          = 0;
 	mrd._pad0[1]          = 0;
 	mrd._pad0[2]          = 0;
 
-	array::push(output, (char*)&mrd, sizeof(mrd));
-
+	FileBuffer fb(output);
+	BinaryWriter bw(fb);
+	bw.write(mrd.mesh_resource);
+	bw.write(mrd.material_resource);
+	bw.write(mrd.geometry_name);
+	bw.write(mrd.visible);
+	bw.write(mrd._pad0[0]);
+	bw.write(mrd._pad0[1]);
+	bw.write(mrd._pad0[2]);
 	return 0;
 }
 
@@ -189,8 +204,20 @@ static s32 compile_sprite_renderer(Buffer& output, const char* json, CompileOpti
 	srd._pad1[2]          = 0;
 	srd._pad1[3]          = 0;
 
-	array::push(output, (char*)&srd, sizeof(srd));
-
+	FileBuffer fb(output);
+	BinaryWriter bw(fb);
+	bw.write(srd.sprite_resource);
+	bw.write(srd.material_resource);
+	bw.write(srd.layer);
+	bw.write(srd.depth);
+	bw.write(srd.visible);
+	bw.write(srd._pad0[0]);
+	bw.write(srd._pad0[1]);
+	bw.write(srd._pad0[2]);
+	bw.write(srd._pad1[0]);
+	bw.write(srd._pad1[1]);
+	bw.write(srd._pad1[2]);
+	bw.write(srd._pad1[3]);
 	return 0;
 }
 
@@ -217,8 +244,13 @@ static s32 compile_light(Buffer& output, const char* json, CompileOptions& opts)
 	ld.spot_angle = sjson::parse_float  (obj["spot_angle"]);
 	ld.color      = sjson::parse_vector3(obj["color"]);
 
-	array::push(output, (char*)&ld, sizeof(ld));
-
+	FileBuffer fb(output);
+	BinaryWriter bw(fb);
+	bw.write(ld.type);
+	bw.write(ld.range);
+	bw.write(ld.intensity);
+	bw.write(ld.spot_angle);
+	bw.write(ld.color);
 	return 0;
 }
 
@@ -239,8 +271,9 @@ static s32 compile_script(Buffer& output, const char* json, CompileOptions& opts
 	ScriptDesc sd;
 	sd.script_resource = sjson::parse_resource_name(obj["script_resource"]);
 
-	array::push(output, (char*)&sd, sizeof(sd));
-
+	FileBuffer fb(output);
+	BinaryWriter bw(fb);
+	bw.write(sd.script_resource);
 	return 0;
 }
 
@@ -261,8 +294,9 @@ static s32 compile_animation_state_machine(Buffer& output, const char* json, Com
 	AnimationStateMachineDesc asmd;
 	asmd.state_machine_resource = sjson::parse_resource_name(obj["state_machine_resource"]);
 
-	array::push(output, (char*)&asmd, sizeof(asmd));
-
+	FileBuffer fb(output);
+	BinaryWriter bw(fb);
+	bw.write(asmd.state_machine_resource);
 	return 0;
 }
 
@@ -528,25 +562,31 @@ s32 UnitCompiler::compile_multiple_units(const char* json)
 
 Buffer UnitCompiler::blob()
 {
-	UnitResource ur;
-	ur.version = RESOURCE_HEADER(RESOURCE_VERSION_UNIT);
-	ur.num_units = _num_units;
-	ur.num_component_types = 0;
+	Buffer output(default_allocator());
+	FileBuffer fb(output);
+	BinaryWriter bw(fb);
 
+	// Count component types
+	u32 num_component_types = 0;
 	auto cur = hash_map::begin(_component_data);
 	auto end = hash_map::end(_component_data);
 	for (; cur != end; ++cur)
 	{
 		HASH_MAP_SKIP_HOLE(_component_data, cur);
 
-		const u32 num = cur->second._num;
-
-		if (num > 0)
-			++ur.num_component_types;
+		if (cur->second._num > 0)
+			++num_component_types;
 	}
 
-	Buffer buf(default_allocator());
-	array::push(buf, (char*)&ur, sizeof(ur));
+	// Write header
+	UnitResource ur;
+	ur.version = RESOURCE_HEADER(RESOURCE_VERSION_UNIT);
+	ur.num_units = _num_units;
+	ur.num_component_types = num_component_types;
+
+	bw.write(ur.version);
+	bw.write(ur.num_units);
+	bw.write(ur.num_component_types);
 
 	for (u32 ii = 0; ii < array::size(_component_info); ++ii)
 	{
@@ -557,27 +597,26 @@ Buffer UnitCompiler::blob()
 		const Array<u32>& unit_index = ctd._unit_index;
 		const u32 num                = ctd._num;
 
-		if (num > 0)
-		{
-			ComponentData cd;
-			cd.type = type;
-			cd.num_instances = num;
-			cd.size = array::size(data) + sizeof(u32)*array::size(unit_index);
+		if (num == 0)
+			continue;
 
-			const u32 pad = cd.size % alignof(cd);
-			cd.size += pad;
+		// Write component data
+		ComponentData cd;
+		cd.type = type;
+		cd.num_instances = num;
+		cd.data_size = array::size(data);
 
-			array::push(buf, (char*)&cd, sizeof(cd));
-			array::push(buf, (char*)array::begin(unit_index), sizeof(u32)*array::size(unit_index));
-			array::push(buf, array::begin(data), array::size(data));
-
-			// Insert padding
-			for (u32 jj = 0; jj < pad; ++jj)
-				array::push_back(buf, (char)0);
-		}
+		bw.align(alignof(cd));
+		bw.write(cd.type);
+		bw.write(cd.num_instances);
+		bw.write(cd.data_size);
+		for (u32 jj = 0; jj < array::size(unit_index); ++jj)
+			bw.write(unit_index[jj]);
+		bw.align(16);
+		bw.write(array::begin(data), array::size(data));
 	}
 
-	return buf;
+	return output;
 }
 
 void UnitCompiler::add_component_data(StringId32 type, const Buffer& data, u32 unit_index)

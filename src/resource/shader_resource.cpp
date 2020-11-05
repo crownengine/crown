@@ -14,7 +14,7 @@
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string_stream.inl"
 #include "device/device.h"
-#include "resource/compile_options.h"
+#include "resource/compile_options.inl"
 #include "resource/resource_manager.h"
 #include "resource/shader_resource.h"
 #include "world/shader_manager.h"
