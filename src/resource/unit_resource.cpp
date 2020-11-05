@@ -33,10 +33,6 @@ namespace unit_resource_internal
 
 namespace unit_resource
 {
-	const ComponentData* component_data(const UnitResource* ur)
-	{
-		return (ComponentData*)(&ur[1]);
-
 	const ComponentData* component_type_data(const UnitResource* ur, const ComponentData* component)
 	{
 		if (component == NULL)
