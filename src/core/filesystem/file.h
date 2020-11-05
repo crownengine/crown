@@ -15,7 +15,10 @@ namespace crown
 /// @ingroup Filesystem
 struct File
 {
+	///
 	File() {}
+
+	///
 	virtual ~File() {}
 
 	/// Opens the file at @a path with specified @a mode
