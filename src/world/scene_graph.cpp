@@ -379,6 +379,7 @@ void SceneGraph::set_local(TransformInstance transform)
 void SceneGraph::transform(const Matrix4x4& parent, TransformInstance transform)
 {
 	_data.world[transform.i] = local_pose(transform) * parent;
+	_data.changed[transform.i] = true;
 
 	TransformInstance child = _data.first_child[transform.i];
 	while (is_valid(child))
