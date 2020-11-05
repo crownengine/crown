@@ -6,6 +6,7 @@
 #include "config.h"
 #include "core/containers/array.inl"
 #include "core/memory/globals.h"
+#include "core/memory/memory.inl"
 #include "resource/compile_options.inl"
 #include "resource/unit_compiler.h"
 #include "resource/unit_resource.h"
@@ -35,6 +36,24 @@ namespace unit_resource
 	const ComponentData* component_data(const UnitResource* ur)
 	{
 		return (ComponentData*)(&ur[1]);
+
+	const ComponentData* component_type_data(const UnitResource* ur, const ComponentData* component)
+	{
+		if (component == NULL)
+			return (ComponentData*)(&ur[1]);
+		else
+			return (ComponentData*)memory::align_top(component_payload(component) + component->data_size, alignof(ComponentData));
+	}
+
+	const u32* component_unit_index(const ComponentData* component)
+	{
+		return (u32*)(&component[1]);
+	}
+
+	const char* component_payload(const ComponentData* component)
+	{
+		const u32* unit_index = component_unit_index(component);
+		return (char*)memory::align_top(unit_index + component->num_instances, 16);
 	}
 
 } // namespace unit_resource
