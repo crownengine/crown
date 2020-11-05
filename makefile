@@ -177,6 +177,10 @@ clean-samples:
 	-@rm -rf samples/01-physics_$(OS)
 	-@rm -rf samples/02-animation_$(OS)
 
+.PHONY: codespell
+codespell:
+	codespell docs src tools tools-imgui --skip "Doxyfile.doxygen,*.ttf.h,*.png"
+
 .PHONY: clean
 clean: clean-samples
 	@echo Cleaning...
