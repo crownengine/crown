@@ -1252,10 +1252,7 @@ namespace shader_resource_internal
 			_opts.write_temporary(_varying_path.c_str(), shader._varying.c_str(), shader._varying.length());
 
 			const char* shaderc = _opts.exe_path(shaderc_paths, countof(shaderc_paths));
-			DATA_COMPILER_ASSERT(shaderc != NULL
-				, _opts
-				, "shaderc not found"
-				);
+			DATA_COMPILER_ASSERT(shaderc != NULL, _opts, "shaderc not found");
 
 			// Invoke shaderc
 			Process pr_vert;
@@ -1317,7 +1314,8 @@ namespace shader_resource_internal
 				delete_temp_files();
 				DATA_COMPILER_ASSERT(false
 					, _opts
-					, "Failed to compile vertex shader:\n%s"
+					, "Failed to compile vertex shader `%s`:\n%s"
+					, bgfx_shader
 					, string_stream::c_str(output_vert)
 					);
 			}
@@ -1334,7 +1332,8 @@ namespace shader_resource_internal
 				delete_temp_files();
 				DATA_COMPILER_ASSERT(false
 					, _opts
-					, "Failed to compile fragment shader:\n%s"
+					, "Failed to compile fragment shader `%s`:\n%s"
+					, bgfx_shader
 					, string_stream::c_str(output_frag)
 					);
 			}
