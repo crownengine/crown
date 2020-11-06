@@ -40,6 +40,9 @@
 #include "core/time.h"
 #include <stdlib.h> // EXIT_SUCCESS, EXIT_FAILURE
 
+#undef CE_ASSERT
+#undef CE_ENSURE
+#undef CE_FATAL
 #define ENSURE(condition)                                \
 	do                                                   \
 	{                                                    \
@@ -1075,7 +1078,7 @@ static void test_guid()
 	{
 		Guid guid1 = guid::parse("8ec79062-c8fd-41b5-b044-cb545afc9976");
 		Guid guid2 = guid::parse("8f879a4e-e9dd-4981-8b9e-344bb917d7dc");
-		CE_ENSURE(guid1 < guid2);
+		ENSURE(guid1 < guid2);
 	}
 	guid_globals::shutdown();
 	memory_globals::shutdown();
