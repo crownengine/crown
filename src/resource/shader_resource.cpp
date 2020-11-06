@@ -1313,6 +1313,7 @@ namespace shader_resource_internal
 			ec = pr_vert.wait();
 			if (ec != 0)
 			{
+				pr_frag.wait();
 				delete_temp_files();
 				DATA_COMPILER_ASSERT(false
 					, _opts
