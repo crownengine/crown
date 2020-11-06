@@ -163,6 +163,9 @@ void ConsoleServer::log(LogSeverity::Enum sev, const char* system, const char* m
 	const char* severity_map[] = { "info", "warning", "error" };
 	CE_STATIC_ASSERT(countof(severity_map) == LogSeverity::COUNT);
 
+	if (vector::size(_clients) == 0)
+		return;
+
 	TempAllocator4096 ta;
 	StringStream ss(ta);
 
