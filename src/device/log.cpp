@@ -41,8 +41,7 @@ namespace log_internal
 		ScopedMutex sm(s_mutex);
 
 		char buf[2048];
-		int len = vsnprintf(buf, sizeof(buf), msg, args);
-		buf[len] = '\0';
+		vsnprintf(buf, sizeof(buf), msg, args);
 
 		stdout_log(sev, system, buf);
 
