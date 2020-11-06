@@ -87,13 +87,20 @@ bool CompileOptions::resource_exists(const char* type, const char* name)
 	return file_exists(path.c_str());
 }
 
+Buffer CompileOptions::read_all(File* file)
+{
+	const u32 size = file->size();
+	Buffer buf(default_allocator());
+	array::resize(buf, size);
+	if (size != 0)
+		file->read(array::begin(buf), size);
+	return buf;
+}
+
 Buffer CompileOptions::read_temporary(const char* path)
 {
 	File* file = _data_filesystem.open(path, FileOpenMode::READ);
-	u32 size = file->size();
-	Buffer buf(default_allocator());
-	array::resize(buf, size);
-	file->read(array::begin(buf), size);
+	Buffer buf = read_all(file);
 	_data_filesystem.close(*file);
 	return buf;
 }
@@ -110,12 +117,6 @@ void CompileOptions::write_temporary(const char* path, const Buffer& data)
 	write_temporary(path, array::begin(data), array::size(data));
 }
 
-///
-Buffer CompileOptions::read()
-{
-	return read(_source_path.c_str());
-}
-
 Buffer CompileOptions::read(const char* path)
 {
 	fake_read(path);
@@ -128,12 +129,14 @@ Buffer CompileOptions::read(const char* path)
 	source_filesystem.set_prefix(source_dir.c_str());
 
 	File* file = source_filesystem.open(path, FileOpenMode::READ);
-	const u32 size = file->size();
-	Buffer buf(default_allocator());
-	array::resize(buf, size);
-	file->read(array::begin(buf), size);
+	Buffer buf = read_all(file);
 	source_filesystem.close(*file);
 	return buf;
+}
+
+Buffer CompileOptions::read()
+{
+	return read(_source_path.c_str());
 }
 
 void CompileOptions::fake_read(const char* path)

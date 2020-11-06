@@ -5,6 +5,10 @@ Changelog
 ------
 *DD MMM YYYY*
 
+**Data Compiler**
+
+* Fixed an issue that caused the compiler to crash when reading empty source files
+
 **Runtime**
 
 * Removed support for multiple components per Unit.

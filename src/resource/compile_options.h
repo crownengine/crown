@@ -109,6 +109,9 @@ struct CompileOptions
 	bool resource_exists(const char* type, const char* name);
 
 	///
+	Buffer read_all(File* file);
+
+	///
 	Buffer read_temporary(const char* path);
 
 	///
@@ -117,13 +120,13 @@ struct CompileOptions
 	///
 	void write_temporary(const char* path, const Buffer& data);
 
-	/// Reads the source data and returns it.
-	/// It also registers the source path as a dependency.
-	Buffer read();
-
 	/// Reads the data at @a path and returns it.
 	/// It also registers @a path as a dependency.
 	Buffer read(const char* path);
+
+	/// Reads the source data and returns it.
+	/// It also registers the source path as a dependency.
+	Buffer read();
 
 	/// Registers @a path as dependency without reading anything.
 	void fake_read(const char* path);
