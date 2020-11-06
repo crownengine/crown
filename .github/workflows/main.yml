@@ -42,19 +42,19 @@ jobs:
             make linux-debug64 MAKE_JOBS=2
         - name: linux-test-debug64
           run: |
-            ./build/linux64/bin/crown-debug --run-unit-tests
+            cd ./build/linux64/bin && ./crown-debug --run-unit-tests
         - name: linux-make-development64
           run: |
             make linux-development64 MAKE_JOBS=2
         - name: linux-test-development64
           run: |
-            ./build/linux64/bin/crown-development --run-unit-tests
+            cd ./build/linux64/bin && ./crown-development --run-unit-tests
         - name: linux-make-release64
           run: |
             make linux-release64 MAKE_JOBS=2
         - name: linux-test-release64
           run: |
-            ./build/linux64/bin/crown-release --run-unit-tests
+            cd ./build/linux64/bin && ./crown-release --run-unit-tests
         - name: linux-make-level-editor-debug64
           run: |
             make level-editor-linux-debug64 MAKE_JOBS=2

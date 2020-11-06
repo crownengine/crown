@@ -1443,29 +1443,34 @@ static void test_thread()
 
 static void test_process()
 {
-#if CROWN_PLATFORM_POSIX
+#if CROWN_PLATFORM_LINUX
 	{
-		const char* argv[] = {"printf", "Hello,\\nworld.\\n", NULL};
-
-		Process pr;
-		if (pr.spawn(argv, ProcessFlags::STDOUT_PIPE) == 0)
-		{
-			char buf[128] = {0};
-			pr.fgets(buf, sizeof(buf));
-			ENSURE(strcmp(buf, "Hello,\n") == 0);
-			pr.fgets(buf, sizeof(buf));
-			ENSURE(strcmp(buf, "world.\n") == 0);
-			pr.wait();
-		}
-	}
-	{
-		const char* argv[] = {"false", NULL};
-
-		Process pr;
-		if (pr.spawn(argv) == 0)
-			ENSURE(pr.wait() == 1);
-	}
+#if CROWN_DEVELOPMENT
+		#define CROWN_SUFFIX "development"
+#elif CROWN_DEBUG
+		#define CROWN_SUFFIX "debug"
+#else
+		#define CROWN_SUFFIX "release"
 #endif
+		const char* argv[] =
+		{
+			EXE_PATH("crown-" CROWN_SUFFIX)
+			, "--version"
+			, NULL
+		};
+
+		Process pr;
+		s32 err = pr.spawn(argv, ProcessFlags::STDOUT_PIPE);
+		ENSURE(err == 0);
+		u32 nbr;
+		char buf[128] = {0};
+		pr.read(&nbr, buf, sizeof(buf));
+		const char* ver = "Crown " CROWN_VERSION;
+		ENSURE(strncmp(buf, ver, strlen32(ver)) == 0);
+		s32 ec = pr.wait();
+		ENSURE(ec == 0);
+	}
+#endif // CROWN_PLATFORM_LINUX
 }
 
 static void test_filesystem()

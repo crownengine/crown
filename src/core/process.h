@@ -7,6 +7,18 @@
 
 #include "core/strings/types.h"
 
+#if CROWN_PLATFORM_POSIX
+	#define EXE_PREFIX "./"
+	#define EXE_SUFFIX ""
+#elif CROWN_PLATFORM_WINDOWS
+	#define EXE_PREFIX ""
+	#define EXE_SUFFIX ".exe"
+#else
+	#error "Unknown platform"
+#endif // CROWN_PLATFORM_POSIX
+
+#define EXE_PATH(exe) EXE_PREFIX exe EXE_SUFFIX
+
 namespace crown
 {
 /// ProcessFlags
@@ -28,7 +40,7 @@ struct ProcessFlags
 struct Process
 {
 	struct Private* _priv;
-	CE_ALIGN_DECL(16, u8 _data[32]);
+	CE_ALIGN_DECL(16, u8 _data[48]);
 
 	///
 	Process();
@@ -51,8 +63,12 @@ struct Process
 	/// Waits synchronously for the process to terminate and returns its exit code.
 	s32 wait();
 
-	///
-	char* fgets(char* data, u32 len);
+	/// Reads at most @a len bytes from the process' output and returns the
+	/// pointer to the first byte read.
+	/// Returns NULL on EOF or when an error occurs. In case of error, it sets
+	/// @a num_bytes_read to UINT32_MAX, otherwise it sets it to the actual
+	/// number of bytes read.
+	char* read(u32* num_bytes_read, char* data, u32 len);
 };
 
 } // namespace crown

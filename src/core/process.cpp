@@ -24,6 +24,8 @@ struct Private
 	pid_t pid;
 #elif CROWN_PLATFORM_WINDOWS
 	PROCESS_INFORMATION process;
+	HANDLE stdout_rd;
+	HANDLE stdout_wr;
 #endif
 };
 
@@ -146,22 +148,50 @@ s32 Process::spawn(const char* const* argv, u32 flags)
 		path << ' ';
 	}
 
+	// https://docs.microsoft.com/it-it/windows/win32/procthread/creating-a-child-process-with-redirected-input-and-output
+	SECURITY_ATTRIBUTES sattr;
+	sattr.nLength = sizeof(sattr);
+	sattr.bInheritHandle = TRUE;
+	sattr.lpSecurityDescriptor = NULL;
+
+	if (flags & ProcessFlags::STDOUT_PIPE)
+	{
+		// Pipe for STDOUT of child process
+		BOOL ret;
+		ret = CreatePipe(&_priv->stdout_rd, &_priv->stdout_wr, &sattr, 0);
+		if (ret == 0)
+			return -1;
+
+		// Do not inherit read handle of STDOUT pipe
+		ret = SetHandleInformation(_priv->stdout_rd, HANDLE_FLAG_INHERIT, 0);
+		if (ret == 0)
+			return -1;
+	}
+
 	STARTUPINFO info;
 	memset(&info, 0, sizeof(info));
 	info.cb = sizeof(info);
+	info.hStdOutput = (flags & ProcessFlags::STDOUT_PIPE) ? _priv->stdout_wr : 0;
+	info.hStdError = (info.hStdOutput != 0) && (flags & ProcessFlags::STDERR_MERGE) ? _priv->stdout_wr : 0;
+	info.dwFlags |= (info.hStdOutput != 0 || info.hStdError != 0) ? STARTF_USESTDHANDLES : 0;
 
-	int err = CreateProcess(argv[0]
+	BOOL err = CreateProcess(argv[0]
 		, (LPSTR)string_stream::c_str(path)
 		, NULL
 		, NULL
-		, FALSE
+		, TRUE // Handles are inherited
 		, CREATE_NO_WINDOW
 		, NULL
 		, NULL
 		, &info
 		, &_priv->process
 		);
-	return (s32)(err != 0 ? 0 : -err);
+	if (err == 0)
+		return -1;
+
+	if (flags & ProcessFlags::STDOUT_PIPE)
+		CloseHandle(_priv->stdout_wr);
+	return 0;
 #endif
 }
 
@@ -216,15 +246,53 @@ s32 Process::wait()
 #endif
 }
 
-char* Process::fgets(char* data, u32 len)
+char* Process::read(u32* num_bytes_read, char* data, u32 len)
 {
 	CE_ENSURE(process_internal::is_open(_priv) == true);
 #if CROWN_PLATFORM_POSIX
 	CE_ENSURE(_priv->file != NULL);
-	char* ret = ::fgets(data, len, _priv->file);
-	return ret;
+	size_t read = fread(data, 1, len, _priv->file);
+	if (read != len)
+	{
+		if (feof(_priv->file) != 0)
+		{
+			if (read == 0)
+			{
+				*num_bytes_read = 0;
+				return NULL;
+			}
+		}
+		else if (ferror(_priv->file) != 0)
+		{
+			*num_bytes_read = UINT32_MAX;
+			return NULL;
+		}
+	}
+
+	*num_bytes_read = read;
+	return data;
 #elif CROWN_PLATFORM_WINDOWS
-	return NULL;
+	DWORD read;
+	BOOL success = FALSE;
+
+	success = ReadFile(_priv->stdout_rd, data, len, &read, NULL);
+	if (!success)
+	{
+		*num_bytes_read = UINT32_MAX;
+		return NULL;
+	}
+
+	if (read == 0)
+	{
+		// EOF
+		*num_bytes_read = 0;
+		return NULL;
+	}
+	else
+	{
+		*num_bytes_read = read;
+		return data;
+	}
 #endif
 }
 

@@ -222,9 +222,13 @@ const char* CompileOptions::exe_path(const char* const* paths, u32 num)
 
 void CompileOptions::read_output(StringStream& output, Process& pr)
 {
-	char err[512];
-	while (pr.fgets(err, sizeof(err)) != NULL)
-		output << err;
+	u32 nbr = 0;
+	char msg[512];
+	while (pr.read(&nbr, msg, sizeof(msg)-1) != NULL)
+	{
+		msg[nbr] = '\0';
+		output << msg;
+	}
 }
 
 } // namespace crown

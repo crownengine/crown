@@ -52,18 +52,6 @@
 		, name                                       \
 		)
 
-#if CROWN_PLATFORM_LINUX
-	#define EXE_PREFIX "./"
-	#define EXE_SUFFIX ""
-#elif CROWN_PLATFORM_WINDOWS
-	#define EXE_PREFIX ""
-	#define EXE_SUFFIX ".exe"
-#else
-	#error "Unknown platform"
-#endif // CROWN_PLATFORM_LINUX
-
-#define EXE_PATH(exe) EXE_PREFIX exe EXE_SUFFIX
-
 namespace crown
 {
 struct CompileOptions
