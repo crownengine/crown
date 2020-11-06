@@ -121,12 +121,7 @@ namespace texture_resource_internal
 			, argv[0]
 			);
 		StringStream output(ta);
-		// Read error messages if any
-		{
-			char err[512];
-			while (pr.fgets(err, sizeof(err)) != NULL)
-				output << err;
-		}
+		opts.read_output(output, pr);
 		s32 ec = pr.wait();
 		DATA_COMPILER_ASSERT(ec == 0
 			, opts

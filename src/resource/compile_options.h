@@ -13,7 +13,9 @@
 #include "core/filesystem/reader_writer.h"
 #include "core/filesystem/types.h"
 #include "core/os.h"
+#include "core/process.h"
 #include "core/strings/dynamic_string.h"
+#include "core/strings/string_stream.h"
 #include "core/strings/types.h"
 #include "resource/resource_id.h"
 #include "resource/types.h"
@@ -161,6 +163,9 @@ struct CompileOptions
 
 	/// Returns the first path with executable permissions or NULL if none found.
 	const char* exe_path(const char* const* paths, u32 num);
+
+	///
+	void read_output(StringStream& ss, Process& pr);
 };
 
 } // namespace crown

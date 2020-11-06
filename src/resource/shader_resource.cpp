@@ -1301,12 +1301,7 @@ namespace shader_resource_internal
 			StringStream output_vert(ta);
 			StringStream output_frag(ta);
 
-			// Read error messages if any
-			{
-				char err[512];
-				while (pr_vert.fgets(err, sizeof(err)) != NULL)
-					output_vert << err;
-			}
+			_opts.read_output(output_vert, pr_vert);
 			ec = pr_vert.wait();
 			if (ec != 0)
 			{
@@ -1320,12 +1315,7 @@ namespace shader_resource_internal
 					);
 			}
 
-			// Read error messages if any
-			{
-				char err[512];
-				while (pr_frag.fgets(err, sizeof(err)) != NULL)
-					output_frag << err;
-			}
+			_opts.read_output(output_frag, pr_frag);
 			ec = pr_frag.wait();
 			if (ec != 0)
 			{

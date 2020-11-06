@@ -19,7 +19,7 @@
 #include "core/os.h"
 #include "core/process.h"
 #include "core/strings/dynamic_string.inl"
-#include "core/strings/string_stream.h"
+#include "core/strings/string_stream.inl"
 #include "device/log.h"
 #include "resource/compile_options.inl"
 #include "resource/data_compiler.h"
@@ -218,6 +218,13 @@ const char* CompileOptions::exe_path(const char* const* paths, u32 num)
 	}
 
 	return NULL;
+}
+
+void CompileOptions::read_output(StringStream& output, Process& pr)
+{
+	char err[512];
+	while (pr.fgets(err, sizeof(err)) != NULL)
+		output << err;
 }
 
 } // namespace crown
