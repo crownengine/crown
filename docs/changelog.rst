@@ -18,6 +18,7 @@ Changelog
 
 * Added the ability to select from a number of templates (samples) when creating new projects
 * Fixed an issue that caused the Level Editor to ask multiple times whether save the level in some circumnstances
+* Level Editor now restores the Console's history from previous sessions
 
 **Lua API**
 

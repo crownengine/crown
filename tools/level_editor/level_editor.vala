@@ -460,6 +460,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		load_settings();
 		_user.load(_user_file.get_path());
+		_console_view._entry_history.load(_console_history_file.get_path());
 
 		if (_source_dir == null)
 		{
@@ -1384,6 +1385,7 @@ public class LevelEditorApplication : Gtk.Application
 		// Save editor settings.
 		_user.save(_user_file.get_path());
 		save_settings();
+		_console_view._entry_history.save(_console_history_file.get_path());
 
 		// Destroy widgets.
 		if (_resource_chooser != null)
@@ -2082,10 +2084,12 @@ public static GLib.File _toolchain_dir;
 public static GLib.File _templates_dir;
 public static GLib.File _config_dir;
 public static GLib.File _logs_dir;
+public static GLib.File _cache_dir;
 public static GLib.File _documents_dir;
 public static GLib.File _log_file;
 public static GLib.File _settings_file;
 public static GLib.File _user_file;
+public static GLib.File _console_history_file;
 
 public static GLib.FileStream _log_stream;
 public static ConsoleView _console_view;
@@ -2184,10 +2188,13 @@ public static int main(string[] args)
 	_logs_dir = GLib.File.new_for_path(GLib.Path.build_filename(_config_dir.get_path(), "logs"));
 	try { _logs_dir.make_directory(); } catch (Error e) { /* Nobody cares */ }
 	_documents_dir = GLib.File.new_for_path(GLib.Environment.get_user_special_dir(GLib.UserDirectory.DOCUMENTS));
+	_cache_dir = GLib.File.new_for_path(GLib.Path.build_filename(GLib.Environment.get_user_cache_dir(), "crown"));
+	try { _cache_dir.make_directory(); } catch (Error e) { /* Nobody cares */ }
 
 	_log_file = GLib.File.new_for_path(GLib.Path.build_filename(_logs_dir.get_path(), new GLib.DateTime.now_utc().format("%Y-%m-%d") + ".log"));
 	_settings_file = GLib.File.new_for_path(GLib.Path.build_filename(_config_dir.get_path(), "settings.sjson"));
 	_user_file = GLib.File.new_for_path(GLib.Path.build_filename(_config_dir.get_path(), "user.sjson"));
+	_console_history_file = GLib.File.new_for_path(GLib.Path.build_filename(_cache_dir.get_path(), "console_history.txt"));
 
 	_log_stream = GLib.FileStream.open(_log_file.get_path(), "a");
 

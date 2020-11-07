@@ -52,6 +52,28 @@ public class EntryHistory
 		else
 			return _data[_capacity - (distance - _index)];
 	}
+
+	public void save(string path)
+	{
+		FileStream fs = FileStream.open(path, "wb");
+		if (fs == null)
+			return;
+
+		uint first_entry = _index + (_capacity - _size);
+		for (uint ii = 0; ii < _size; ++ii)
+			fs.printf("%s\n", _data[(first_entry + ii) % _capacity]);
+	}
+
+	public void load(string path)
+	{
+		FileStream fs = FileStream.open(path, "rb");
+		if (fs == null)
+			return;
+
+		string? line = null;
+		while ((line = fs.read_line()) != null)
+			push(line);
+	}
 }
 
 public class ConsoleView : Gtk.Box
