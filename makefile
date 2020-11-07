@@ -125,9 +125,9 @@ rebuild-glib-resources:
 	$(MAKE) -j$(MAKE_JOBS) -R -C tools/level_editor/resources rebuild
 
 level-editor-linux-debug64:
-	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux level-editor config=debug64
+	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux level-editor config=debug
 level-editor-linux-release64:
-	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux level-editor config=release64
+	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux level-editor config=release
 
 tools-linux-debug64: linux-debug64 level-editor-linux-debug64
 tools-linux-release64: linux-development64 level-editor-linux-release64
@@ -136,9 +136,9 @@ tools-windows-debug64: windows-debug64
 tools-windows-release64: windows-development64
 
 level-editor-mingw-debug64: build/projects/mingw
-	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/mingw level-editor config=debug64
+	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/mingw level-editor config=debug
 level-editor-mingw-release64: build/projects/mingw
-	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/mingw level-editor config=release64
+	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/mingw level-editor config=release
 
 tools-mingw-debug64: level-editor-mingw-debug64
 tools-mingw-release64: level-editor-mingw-release64
