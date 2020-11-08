@@ -105,7 +105,6 @@ function toolchain(build_dir, lib_dir)
 		"NoExceptions",
 		"NoEditAndContinue",
 		"NoFramePointer",
-		"Symbols",
 	}
 
 	defines {
@@ -126,6 +125,11 @@ function toolchain(build_dir, lib_dir)
 	configuration { "development or release" }
 		flags {
 			"OptimizeSpeed"
+		}
+
+	configuration { "debug or development" }
+		flags {
+			"Symbols"
 		}
 
 	configuration { "debug or development", "linux-*" }
