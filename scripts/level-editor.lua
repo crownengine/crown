@@ -70,4 +70,6 @@ project "level-editor"
 		CROWN_DIR .. "tools/level_editor/resources/gresources.c",
 	}
 
+	strip()
+
 	configuration {}
