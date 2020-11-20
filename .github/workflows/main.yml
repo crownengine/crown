@@ -80,12 +80,12 @@ jobs:
           shell: cmd
           run: |
             call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-            3rdparty\bx\tools\bin\windows\genie --file=scripts\genie.lua --with-luajit --with-tools --no-level-editor vs2017
+            3rdparty\bx\tools\bin\windows\genie --file=scripts\genie.lua --with-luajit --with-tools --no-level-editor vs2019
         - name: windows-make-debug64
           shell: cmd
           run: |
             call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-            devenv build/projects/vs2017/crown.sln /Build "debug|x64"
+            devenv build/projects/vs2019/crown.sln /Build "debug|x64"
         - name: windows-test-debug64
           run: |
             ./build/windows64/bin/crown-debug --run-unit-tests
@@ -93,7 +93,7 @@ jobs:
           shell: cmd
           run: |
             call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-            devenv build/projects/vs2017/crown.sln /Build "development|x64"
+            devenv build/projects/vs2019/crown.sln /Build "development|x64"
         - name: windows-test-development64
           run: |
             ./build/windows64/bin/crown-development --run-unit-tests
@@ -101,7 +101,7 @@ jobs:
           shell: cmd
           run: |
             call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-            devenv build/projects/vs2017/crown.sln /Build "release|x64"
+            devenv build/projects/vs2019/crown.sln /Build "release|x64"
         - name: windows-test-release64
           run: |
             ./build/windows64/bin/crown-release --run-unit-tests
