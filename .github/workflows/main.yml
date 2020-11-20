@@ -3,105 +3,105 @@ name: build_and_test
 on: [push, pull_request]
 
 jobs:
-    android-arm:
-        runs-on: ubuntu-latest
-        steps:
-        - uses: actions/checkout@v1
-        - name: prepare
-          run: |
-            sudo apt-get update
-            sudo apt-get install libc6-dev-i386
-        - name: android-arm-make-debug
-          run: |
-            export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk-bundle
-            export ANDROID_NDK_ABI=23
-            make android-arm-debug MAKE_JOBS=2
-        - name: android-arm-make-development
-          run: |
-            export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk-bundle
-            export ANDROID_NDK_ABI=23
-            make android-arm-development MAKE_JOBS=2
-        - name: android-arm-make-release
-          run: |
-            export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk-bundle
-            export ANDROID_NDK_ABI=23
-            make android-arm-release MAKE_JOBS=2
-    linux:
-        runs-on: ubuntu-latest
-        steps:
-        - uses: actions/checkout@v1
-        - name: prepare
-          run: |
-            sudo apt-get update
-            sudo apt-get install mesa-common-dev libgl1-mesa-dev libpulse-dev libxrandr-dev
-            sudo apt-get install libgtk-3-dev
-            sudo add-apt-repository ppa:vala-team
-            sudo apt-get install valac libgee-0.8-dev
-        - name: linux-make-debug64
-          run: |
-            make linux-debug64 MAKE_JOBS=2
-        - name: linux-test-debug64
-          run: |
-            cd ./build/linux64/bin && ./crown-debug --run-unit-tests
-        - name: linux-make-development64
-          run: |
-            make linux-development64 MAKE_JOBS=2
-        - name: linux-test-development64
-          run: |
-            cd ./build/linux64/bin && ./crown-development --run-unit-tests
-        - name: linux-make-release64
-          run: |
-            make linux-release64 MAKE_JOBS=2
-        - name: linux-test-release64
-          run: |
-            cd ./build/linux64/bin && ./crown-release --run-unit-tests
-        - name: linux-make-level-editor-debug64
-          run: |
-            make level-editor-linux-debug64 MAKE_JOBS=2
-        - name: linux-make-level-editor-release64
-          run: |
-            make level-editor-linux-release64 MAKE_JOBS=2
-    windows:
-        runs-on: windows-latest
-        steps:
-        - uses: actions/checkout@v1
-        - name: luajit
-          shell: cmd
-          run: |
-            call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-            cd "3rdparty\luajit\src"
-            .\msvcbuild.bat
-        - name: luajit-copy-libs
-          shell: cmd
-          run: |
-            md "build\windows64\bin"
-            cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit.exe 3rdparty/luajit/src/lua51.dll 3rdparty/luajit/src/lua51.lib build/windows64/bin
-        - name: windows-generate-projects
-          shell: cmd
-          run: |
-            call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-            3rdparty\bx\tools\bin\windows\genie --file=scripts\genie.lua --with-luajit --with-tools --no-level-editor vs2019
-        - name: windows-make-debug64
-          shell: cmd
-          run: |
-            call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-            devenv build/projects/vs2019/crown.sln /Build "debug|x64"
-        - name: windows-test-debug64
-          run: |
-            ./build/windows64/bin/crown-debug --run-unit-tests
-        - name: windows-make-development64
-          shell: cmd
-          run: |
-            call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-            devenv build/projects/vs2019/crown.sln /Build "development|x64"
-        - name: windows-test-development64
-          run: |
-            ./build/windows64/bin/crown-development --run-unit-tests
-        - name: windows-make-release64
-          shell: cmd
-          run: |
-            call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-            devenv build/projects/vs2019/crown.sln /Build "release|x64"
-        - name: windows-test-release64
-          run: |
-            ./build/windows64/bin/crown-release --run-unit-tests
+  android-arm:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: prepare
+      run: |
+        sudo apt-get update
+        sudo apt-get install libc6-dev-i386
+    - name: android-arm-make-debug
+      run: |
+        export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk-bundle
+        export ANDROID_NDK_ABI=23
+        make android-arm-debug MAKE_JOBS=2
+    - name: android-arm-make-development
+      run: |
+        export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk-bundle
+        export ANDROID_NDK_ABI=23
+        make android-arm-development MAKE_JOBS=2
+    - name: android-arm-make-release
+      run: |
+        export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk-bundle
+        export ANDROID_NDK_ABI=23
+        make android-arm-release MAKE_JOBS=2
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: prepare
+      run: |
+        sudo apt-get update
+        sudo apt-get install mesa-common-dev libgl1-mesa-dev libpulse-dev libxrandr-dev
+        sudo apt-get install libgtk-3-dev
+        sudo add-apt-repository ppa:vala-team
+        sudo apt-get install valac libgee-0.8-dev
+    - name: linux-make-debug64
+      run: |
+        make linux-debug64 MAKE_JOBS=2
+    - name: linux-test-debug64
+      run: |
+        cd ./build/linux64/bin && ./crown-debug --run-unit-tests
+    - name: linux-make-development64
+      run: |
+        make linux-development64 MAKE_JOBS=2
+    - name: linux-test-development64
+      run: |
+        cd ./build/linux64/bin && ./crown-development --run-unit-tests
+    - name: linux-make-release64
+      run: |
+        make linux-release64 MAKE_JOBS=2
+    - name: linux-test-release64
+      run: |
+        cd ./build/linux64/bin && ./crown-release --run-unit-tests
+    - name: linux-make-level-editor-debug64
+      run: |
+        make level-editor-linux-debug64 MAKE_JOBS=2
+    - name: linux-make-level-editor-release64
+      run: |
+        make level-editor-linux-release64 MAKE_JOBS=2
+  windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: luajit
+      shell: cmd
+      run: |
+        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
+        cd "3rdparty\luajit\src"
+        .\msvcbuild.bat
+    - name: luajit-copy-libs
+      shell: cmd
+      run: |
+        md "build\windows64\bin"
+        cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit.exe 3rdparty/luajit/src/lua51.dll 3rdparty/luajit/src/lua51.lib build/windows64/bin
+    - name: windows-generate-projects
+      shell: cmd
+      run: |
+        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
+        3rdparty\bx\tools\bin\windows\genie --file=scripts\genie.lua --with-luajit --with-tools --no-level-editor vs2019
+    - name: windows-make-debug64
+      shell: cmd
+      run: |
+        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
+        devenv build/projects/vs2019/crown.sln /Build "debug|x64"
+    - name: windows-test-debug64
+      run: |
+        ./build/windows64/bin/crown-debug --run-unit-tests
+    - name: windows-make-development64
+      shell: cmd
+      run: |
+        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
+        devenv build/projects/vs2019/crown.sln /Build "development|x64"
+    - name: windows-test-development64
+      run: |
+        ./build/windows64/bin/crown-development --run-unit-tests
+    - name: windows-make-release64
+      shell: cmd
+      run: |
+        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
+        devenv build/projects/vs2019/crown.sln /Build "release|x64"
+    - name: windows-test-release64
+      run: |
+        ./build/windows64/bin/crown-release --run-unit-tests
