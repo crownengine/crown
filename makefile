@@ -85,11 +85,11 @@ build/projects/linux:
 	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools --gcc=linux-gcc gmake
 	$(GENIE) --gfxapi=gl32 --with-luajit --with-tools --compiler=linux-gcc gmake
 linux-debug64: build/projects/linux build/linux64/bin/luajit build/linux64/bin/texturec build/linux64/bin/shaderc
-	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux config=debug64
+	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux crown config=debug64
 linux-development64: build/projects/linux build/linux64/bin/luajit build/linux64/bin/texturec build/linux64/bin/shaderc
-	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux config=development64
+	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux crown config=development64
 linux-release64: build/projects/linux build/linux64/bin/luajit
-	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux config=release64
+	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux crown config=release64
 linux: linux-debug64 linux-development64 linux-release64
 
 build/projects/mingw:
@@ -120,14 +120,10 @@ windows-development64: build/projects/vs2019 build/windows64/bin/luajit.exe buil
 windows-release64: build/projects/vs2019 build/windows64/bin/luajit.exe
 	devenv.com build/projects/vs2019/crown.sln $(ARG_PREFIX)Build "release|x64"
 
-.PHONY: rebuild-glib-resources
-rebuild-glib-resources:
-	$(MAKE) -j$(MAKE_JOBS) -R -C tools/level_editor/resources rebuild
-
 level-editor-linux-debug64:
-	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux level-editor config=debug
+	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux level-editor config=debug64
 level-editor-linux-release64:
-	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux level-editor config=release
+	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux level-editor config=release64
 
 tools-linux-debug64: linux-debug64 level-editor-linux-debug64
 tools-linux-release64: linux-development64 level-editor-linux-release64

@@ -74,7 +74,6 @@ Set MINGW path:
 .. code::
 
 	export MINGW=/mingw64
-	export PATH=$PATH:$MINGW/bin
 
 Build
 =====
