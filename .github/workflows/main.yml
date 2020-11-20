@@ -1,4 +1,4 @@
-name: build_and_test
+: build_and_test
 
 on: [push, pull_request]
 
@@ -105,3 +105,18 @@ jobs:
     - name: windows-test-release64
       run: |
         ./build/windows64/bin/crown-release --run-unit-tests
+    - uses: msys2/setup-msys2@v2
+    - name: mingw-prepare
+      shell: msys2 {0}
+      run: |
+        pacman --noconfirm -S make mingw-w64-x86_64-gcc mingw-w64-x86_64-pkg-config mingw-w64-x86_64-gtk3 mingw-w64-x86_64-vala mingw-w64-x86_64-libgee
+    - name: mingw-make-level-editor-debug64
+      shell: msys2 {0}
+      run: |
+        export MINGW=/mingw64
+        make MAKE_JOBS=2 level-editor-mingw-debug64
+    - name: mingw-make-level-editor-release64
+      shell: msys2 {0}
+      run: |
+        export MINGW=/mingw64
+        make MAKE_JOBS=2 level-editor-mingw-release64
