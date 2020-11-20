@@ -125,7 +125,8 @@ function toolchain(build_dir, lib_dir)
 
 	configuration { "development or release" }
 		flags {
-			"OptimizeSpeed"
+			"NoBufferSecurityCheck",
+			"OptimizeSpeed",
 		}
 
 	configuration { "debug or development", "linux-*" }
