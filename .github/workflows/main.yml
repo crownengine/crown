@@ -15,17 +15,17 @@ jobs:
       run: |
         export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk-bundle
         export ANDROID_NDK_ABI=23
-        make android-arm-debug MAKE_JOBS=2
+        make MAKE_JOBS=2 android-arm-debug
     - name: android-arm-make-development
       run: |
         export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk-bundle
         export ANDROID_NDK_ABI=23
-        make android-arm-development MAKE_JOBS=2
+        make MAKE_JOBS=2 android-arm-development
     - name: android-arm-make-release
       run: |
         export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk-bundle
         export ANDROID_NDK_ABI=23
-        make android-arm-release MAKE_JOBS=2
+        make MAKE_JOBS=2 android-arm-release
   linux:
     runs-on: ubuntu-latest
     steps:
@@ -39,28 +39,28 @@ jobs:
         sudo apt-get install valac libgee-0.8-dev
     - name: linux-make-debug64
       run: |
-        make linux-debug64 MAKE_JOBS=2
+        make MAKE_JOBS=2 linux-debug64
     - name: linux-test-debug64
       run: |
         cd ./build/linux64/bin && ./crown-debug --run-unit-tests
     - name: linux-make-development64
       run: |
-        make linux-development64 MAKE_JOBS=2
+        make MAKE_JOBS=2 linux-development64
     - name: linux-test-development64
       run: |
         cd ./build/linux64/bin && ./crown-development --run-unit-tests
     - name: linux-make-release64
       run: |
-        make linux-release64 MAKE_JOBS=2
+        make MAKE_JOBS=2 linux-release64
     - name: linux-test-release64
       run: |
         cd ./build/linux64/bin && ./crown-release --run-unit-tests
     - name: linux-make-level-editor-debug64
       run: |
-        make level-editor-linux-debug64 MAKE_JOBS=2
+        make MAKE_JOBS=2 level-editor-linux-debug64
     - name: linux-make-level-editor-release64
       run: |
-        make level-editor-linux-release64 MAKE_JOBS=2
+        make MAKE_JOBS=2 level-editor-linux-release64
   windows:
     runs-on: windows-latest
     steps:
