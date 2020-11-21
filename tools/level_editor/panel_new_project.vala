@@ -88,7 +88,7 @@ public class PanelNewProject : Gtk.Viewport
 			else
 				copy_template_to_source_dir(source_dir, _combo_box_map_template.value);
 
-			_application.restart_backend(source_dir, LEVEL_NONE);
+			_application.restart_backend.begin(source_dir, LEVEL_NONE);
 		});
 	}
 

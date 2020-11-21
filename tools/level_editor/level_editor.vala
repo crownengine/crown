@@ -469,7 +469,7 @@ public class LevelEditorApplication : Gtk.Application
 		else
 		{
 			show_panel("main_vbox");
-			restart_backend(_source_dir, _level_resource);
+			restart_backend.begin(_source_dir, _level_resource);
 		}
 	}
 
@@ -802,9 +802,14 @@ public class LevelEditorApplication : Gtk.Application
 		return Gdk.EVENT_STOP;
 	}
 
-	Gtk.Widget starting_compiler_label()
+	Gtk.Widget compiling_data_label()
 	{
 		return new Gtk.Label("Compiling resources, please wait...");
+	}
+
+	Gtk.Widget connecting_to_data_compiler_label()
+	{
+		return new Gtk.Label("Connecting to Data Compiler...");
 	}
 
 	Gtk.Widget compiler_crashed_label()
@@ -812,7 +817,7 @@ public class LevelEditorApplication : Gtk.Application
 		Gtk.Label label = new Gtk.Label(null);
 		label.set_markup("Data Compiler disconnected.\rTry to <a href=\"restart\">restart</a> compiler to continue.");
 		label.activate_link.connect(() => {
-			restart_backend(_project.source_dir(), _level._name);
+			restart_backend.begin(_project.source_dir(), _level._name);
 			return true;
 		});
 
@@ -824,14 +829,14 @@ public class LevelEditorApplication : Gtk.Application
 		Gtk.Label label = new Gtk.Label(null);
 		label.set_markup("Data compilation failed.\rFix errors and <a href=\"restart\">restart</a> compiler to continue.");
 		label.activate_link.connect(() => {
-			restart_backend(_project.source_dir(), _level._name);
+			restart_backend.begin(_project.source_dir(), _level._name);
 			return true;
 		});
 
 		return label;
 	}
 
-	public void restart_backend(string source_dir, string level_name)
+	public async void restart_backend(string source_dir, string level_name)
 	{
 		string sd = source_dir.dup();
 		string ln = level_name.dup();
@@ -847,10 +852,6 @@ public class LevelEditorApplication : Gtk.Application
 			_level.load(ln);
 		else
 			_level.load_empty_level();
-
-		_project_slide.show_widget(starting_compiler_label());
-		_editor_slide.show_widget(starting_compiler_label());
-		_inspector_slide.show_widget(starting_compiler_label());
 
 		// Spawn the data compiler.
 		string args[] =
@@ -882,22 +883,24 @@ public class LevelEditorApplication : Gtk.Application
 		_compiler.disconnected.disconnect(on_compiler_disconnected);
 		_compiler.disconnected.connect(on_compiler_disconnected_unexpected);
 
-		// Try to connect to data compiler.
-		int tries;
-		for (tries = 0; tries < DATA_COMPILER_CONNECTION_TRIES; ++tries)
-		{
-			_compiler.connect("127.0.0.1", DATA_COMPILER_TCP_PORT);
+		_project_slide.show_widget(connecting_to_data_compiler_label());
+		_editor_slide.show_widget(connecting_to_data_compiler_label());
+		_inspector_slide.show_widget(connecting_to_data_compiler_label());
 
-			if (_compiler.is_connected())
-				break;
-
-			GLib.Thread.usleep(DATA_COMPILER_CONNECTION_INTERVAL*1000);
-		}
+		int tries = yield _compiler.connect_async("127.0.0.1"
+			, DATA_COMPILER_TCP_PORT
+			, DATA_COMPILER_CONNECTION_TRIES
+			, DATA_COMPILER_CONNECTION_INTERVAL
+			);
 		if (tries == DATA_COMPILER_CONNECTION_TRIES)
 		{
 			loge("Cannot connect to data_compiler");
 			return;
 		}
+
+		_project_slide.show_widget(compiling_data_label());
+		_editor_slide.show_widget(compiling_data_label());
+		_inspector_slide.show_widget(compiling_data_label());
 
 		// Compile data.
 		_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
@@ -953,7 +956,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void start_editor(uint window_xid)
+	private async void start_editor(uint window_xid)
 	{
 		if (window_xid == 0)
 			return;
@@ -987,16 +990,11 @@ public class LevelEditorApplication : Gtk.Application
 		_editor.disconnected.connect(on_editor_disconnected_unexpected);
 
 		// Try to connect to the level editor.
-		int tries;
-		for (tries = 0; tries < EDITOR_CONNECTION_TRIES; ++tries)
-		{
-			_editor.connect("127.0.0.1", EDITOR_TCP_PORT);
-
-			if (_editor.is_connected())
-				break;
-
-			GLib.Thread.usleep(EDITOR_CONNECTION_INTERVAL*1000);
-		}
+		int tries = yield _editor.connect_async("127.0.0.1"
+			, EDITOR_TCP_PORT
+			, EDITOR_CONNECTION_TRIES
+			, EDITOR_CONNECTION_INTERVAL
+			);
 		if (tries == EDITOR_CONNECTION_TRIES)
 		{
 			loge("Cannot connect to level_editor");
@@ -1059,59 +1057,52 @@ public class LevelEditorApplication : Gtk.Application
 		_resource_chooser.restart_editor();
 	}
 
-	private void start_game(StartGame sg)
+	private async void start_game(StartGame sg)
 	{
 		_project.dump_test_level(_database);
 
-		_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
-			if (_data_compiler.compile.end(res))
-			{
-				// Spawn the game.
-				string args[] =
-				{
-					ENGINE_EXE
-					, "--data-dir"
-					, _project.data_dir()
-					, "--console-port"
-					, GAME_TCP_PORT.to_string()
-					, "--wait-console"
-					, "--lua-string"
-					, sg == StartGame.TEST ? "TEST=true" : ""
-					, null
-				};
-				GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(subprocess_flags());
-				sl.set_cwd(ENGINE_DIR);
-				try
-				{
-					_game_process = sl.spawnv(args);
-				}
-				catch (Error e)
-				{
-					loge(e.message);
-				}
+		bool success = yield _data_compiler.compile(_project.data_dir(), _project.platform());
+		if (!success)
+		{
+			_toolbar_run.icon_name = "game-run";
+			return;
+		}
 
-				// Try to connect to the game.
-				int tries;
-				for (tries = 0; tries < GAME_CONNECTION_TRIES; ++tries)
-				{
-					_game.connect("127.0.0.1", GAME_TCP_PORT);
+		// Spawn the game.
+		string args[] =
+		{
+			ENGINE_EXE
+			, "--data-dir"
+			, _project.data_dir()
+			, "--console-port"
+			, GAME_TCP_PORT.to_string()
+			, "--wait-console"
+			, "--lua-string"
+			, sg == StartGame.TEST ? "TEST=true" : ""
+			, null
+		};
+		GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(subprocess_flags());
+		sl.set_cwd(ENGINE_DIR);
+		try
+		{
+			_game_process = sl.spawnv(args);
+		}
+		catch (Error e)
+		{
+			loge(e.message);
+		}
 
-					if (_game.is_connected())
-						break;
-
-					GLib.Thread.usleep(GAME_CONNECTION_INTERVAL*1000);
-				}
-				if (tries == GAME_CONNECTION_TRIES)
-				{
-					loge("Cannot connect to game");
-					return;
-				}
-			}
-			else
-			{
-				_toolbar_run.icon_name = "game-run";
-			}
-		});
+		// Try to connect to the game.
+		int tries = yield _game.connect_async("127.0.0.1"
+			, GAME_TCP_PORT
+			, GAME_CONNECTION_TRIES
+			, GAME_CONNECTION_INTERVAL
+			);
+		if (tries == GAME_CONNECTION_TRIES)
+		{
+			loge("Cannot connect to game");
+			return;
+		}
 	}
 
 	private void stop_game()
@@ -1198,9 +1189,9 @@ public class LevelEditorApplication : Gtk.Application
 		fcd.destroy();
 	}
 
-	private void on_editor_view_realized()
+	private async void on_editor_view_realized()
 	{
-		start_editor(_editor_view.window_id);
+		start_editor.begin(_editor_view.window_id);
 	}
 
 	private void on_tool_changed(GLib.SimpleAction action, GLib.Variant? param)
@@ -1531,7 +1522,7 @@ public class LevelEditorApplication : Gtk.Application
 				return;
 
 			logi("Loading project: `%s`...".printf(source_dir));
-			restart_backend(source_dir, LEVEL_NONE);
+			restart_backend.begin(source_dir, LEVEL_NONE);
 		}
 	}
 
@@ -1841,7 +1832,7 @@ public class LevelEditorApplication : Gtk.Application
 		{
 			// Always change icon state regardless of failures
 			_toolbar_run.icon_name = "game-stop";
-			start_game(action.name == "test-level" ? StartGame.TEST : StartGame.NORMAL);
+			start_game.begin(action.name == "test-level" ? StartGame.TEST : StartGame.NORMAL);
 		}
 	}
 

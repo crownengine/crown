@@ -191,7 +191,7 @@ public class ResourceChooser : Gtk.Box
 		_filter_entry.text = "";
 	}
 
-	private void start_editor(uint window_xid)
+	private async void start_editor(uint window_xid)
 	{
 		if (window_xid == 0)
 			return;
@@ -223,16 +223,11 @@ public class ResourceChooser : Gtk.Box
 		}
 
 		// Try to connect to unit_preview.
-		int tries;
-		for (tries = 0; tries < EDITOR_CONNECTION_TRIES; ++tries)
-		{
-			_console_client.connect("127.0.0.1", UNIT_PREVIEW_TCP_PORT);
-
-			if (_console_client.is_connected())
-				break;
-
-			GLib.Thread.usleep(EDITOR_CONNECTION_INTERVAL*1000);
-		}
+		int tries = yield _console_client.connect_async("127.0.0.1"
+			, UNIT_PREVIEW_TCP_PORT
+			, EDITOR_CONNECTION_TRIES
+			, EDITOR_CONNECTION_INTERVAL
+			);
 		if (tries == EDITOR_CONNECTION_TRIES)
 		{
 			loge("Cannot connect to unit_preview.");
@@ -303,7 +298,7 @@ public class ResourceChooser : Gtk.Box
 
 	private void on_editor_view_realized()
 	{
-		start_editor(((EditorView)_editor_view).window_id);
+		start_editor.begin(_editor_view.window_id);
 	}
 
 	private void on_filter_entry_text_changed()
