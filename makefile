@@ -175,7 +175,7 @@ clean-samples:
 
 .PHONY: codespell
 codespell:
-	codespell docs src tools tools-imgui --skip "Doxyfile.doxygen,*.ttf.h,*.png"
+	codespell docs src tools tools-imgui --skip "Doxyfile.doxygen,*.ttf.h,*.png,docs/_themes"
 
 .PHONY: clean
 clean: clean-samples
