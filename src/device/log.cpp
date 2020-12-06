@@ -20,7 +20,7 @@ namespace log_internal
 
 	static void stdout_log(LogSeverity::Enum sev, System system, const char* msg)
 	{
-		char buf[2048];
+		char buf[8192];
 #if CROWN_PLATFORM_POSIX
 		#define ANSI_RESET  "\x1b[0m"
 		#define ANSI_YELLOW "\x1b[33m"
@@ -40,7 +40,7 @@ namespace log_internal
 	{
 		ScopedMutex sm(s_mutex);
 
-		char buf[2048];
+		char buf[8192];
 		vsnprintf(buf, sizeof(buf), msg, args);
 
 		stdout_log(sev, system, buf);
