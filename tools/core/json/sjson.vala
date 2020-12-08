@@ -106,7 +106,8 @@ public class SJSON
 
 	static void write_new_line(StringBuilder builder, int indentation)
 	{
-		builder.append_c('\n');
+		if (builder.len > 0)
+			builder.append_c('\n');
 		for (int i = 0; i < indentation; ++i)
 			builder.append_c('\t');
 	}
