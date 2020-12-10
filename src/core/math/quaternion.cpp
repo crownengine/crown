@@ -12,68 +12,45 @@ namespace crown
 /// Returns the rotation portion of the matrix @a m as a Quaternion.
 Quaternion quaternion(const Matrix3x3& m)
 {
-	const f32 ww = m.x.x + m.y.y + m.z.z;
-	const f32 xx = m.x.x - m.y.y - m.z.z;
-	const f32 yy = m.y.y - m.x.x - m.z.z;
-	const f32 zz = m.z.z - m.x.x - m.y.y;
-	f32 max = ww;
-	u32 index = 0;
-
-	if (xx > max)
-	{
-		max = xx;
-		index = 1;
-	}
-
-	if (yy > max)
-	{
-		max = yy;
-		index = 2;
-	}
-
-	if (zz > max)
-	{
-		max = zz;
-		index = 3;
-	}
-
-	const f32 biggest = fsqrt(max + 1.0f) * 0.5f;
-	const f32 mult = 0.25f / biggest;
+	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/
+	const f32 tr = m.x.x + m.y.y + m.z.z;
 
 	Quaternion tmp;
-	switch (index)
+	if (tr > 0.0f)
 	{
-	case 0:
-		tmp.w = biggest;
-		tmp.x = (m.y.z - m.z.y) * mult;
-		tmp.y = (m.z.x - m.x.z) * mult;
-		tmp.z = (m.x.y - m.y.x) * mult;
-		break;
-
-	case 1:
-		tmp.x = biggest;
-		tmp.w = (m.y.z - m.z.y) * mult;
-		tmp.y = (m.x.y + m.y.x) * mult;
-		tmp.z = (m.z.x + m.x.z) * mult;
-		break;
-
-	case 2:
-		tmp.y = biggest;
-		tmp.w = (m.z.x - m.x.z) * mult;
-		tmp.x = (m.x.y + m.y.x) * mult;
-		tmp.z = (m.y.z + m.z.y) * mult;
-		break;
-
-	case 3:
-		tmp.z = biggest;
-		tmp.w = (m.x.y - m.y.x) * mult;
-		tmp.x = (m.z.x + m.x.z) * mult;
-		tmp.y = (m.y.z + m.z.y) * mult;
-		break;
-
-	default:
-		CE_FATAL("Fatal");
-		break;
+		const f32 sq = fsqrt(1.0f + tr) * 0.5f;
+		const f32 inv = 0.25f / sq;
+		tmp.w = sq;
+		tmp.x = (m.y.z - m.z.y) * inv;
+		tmp.y = (m.z.x - m.x.z) * inv;
+		tmp.z = (m.x.y - m.y.x) * inv;
+	}
+	else if ((m.x.x > m.y.y) && (m.x.x > m.z.z))
+	{
+		const f32 sq = fsqrt(1.0f + m.x.x - m.y.y - m.z.z) * 0.5f;
+		const f32 inv = 0.25f / sq;
+		tmp.x = sq;
+		tmp.w = (m.y.z - m.z.y) * inv;
+		tmp.y = (m.x.y + m.y.x) * inv;
+		tmp.z = (m.z.x + m.x.z) * inv;
+	}
+	else if (m.y.y > m.z.z)
+	{
+		const f32 sq = fsqrt(1.0f + m.y.y - m.x.x - m.z.z) * 0.5f;
+		const f32 inv = 0.25f / sq;
+		tmp.y = sq;
+		tmp.w = (m.z.x - m.x.z) * inv;
+		tmp.x = (m.x.y + m.y.x) * inv;
+		tmp.z = (m.y.z + m.z.y) * inv;
+	}
+	else
+	{
+		const f32 sq = fsqrt(1.0f + m.z.z - m.x.x - m.y.y) * 0.5f;
+		const f32 inv = 0.25f / sq;
+		tmp.z = sq;
+		tmp.w = (m.x.y - m.y.x) * inv;
+		tmp.x = (m.z.x + m.x.z) * inv;
+		tmp.y = (m.y.z + m.z.y) * inv;
 	}
 	return tmp;
 }
