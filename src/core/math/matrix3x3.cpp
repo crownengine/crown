@@ -35,18 +35,28 @@ Matrix3x3 from_axes(const Vector3& x, const Vector3& y, const Vector3& z)
 
 Matrix3x3 from_quaternion(const Quaternion& r)
 {
+	const float xx = r.x * r.x;
+	const float yy = r.y * r.y;
+	const float zz = r.z * r.z;
+	const float xy = r.x * r.y;
+	const float xz = r.x * r.z;
+	const float yz = r.y * r.z;
+	const float wx = r.w * r.x;
+	const float wy = r.w * r.y;
+	const float wz = r.w * r.z;
+
 	Matrix3x3 m;
-	m.x.x = 1.0f - 2.0f * r.y * r.y - 2.0f * r.z * r.z;
-	m.x.y = 2.0f * r.x * r.y + 2.0f * r.w * r.z;
-	m.x.z = 2.0f * r.x * r.z - 2.0f * r.w * r.y;
+	m.x.x = 1.0f - 2.0f * yy - 2.0f * zz;
+	m.x.y = 2.0f * xy + 2.0f * wz;
+	m.x.z = 2.0f * xz - 2.0f * wy;
 
-	m.y.x = 2.0f * r.x * r.y - 2.0f * r.w * r.z;
-	m.y.y = 1.0f - 2.0f * r.x * r.x - 2.0f * r.z * r.z;
-	m.y.z = 2.0f * r.y * r.z + 2.0f * r.w * r.x;
+	m.y.x = 2.0f * xy - 2.0f * wz;
+	m.y.y = 1.0f - 2.0f * xx - 2.0f * zz;
+	m.y.z = 2.0f * yz + 2.0f * wx;
 
-	m.z.x = 2.0f * r.x * r.z + 2.0f * r.w * r.y;
-	m.z.y = 2.0f * r.y * r.z - 2.0f * r.w * r.x;
-	m.z.z = 1.0f - 2.0f * r.x * r.x - 2.0f * r.y * r.y;
+	m.z.x = 2.0f * xz + 2.0f * wy;
+	m.z.y = 2.0f * yz - 2.0f * wx;
+	m.z.z = 1.0f - 2.0f * xx - 2.0f * yy;
 	return m;
 }
 
