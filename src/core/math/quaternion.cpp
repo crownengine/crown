@@ -75,8 +75,6 @@ Quaternion quaternion(const Matrix3x3& m)
 		CE_FATAL("Fatal");
 		break;
 	}
-
-	normalize(tmp);
 	return tmp;
 }
 
