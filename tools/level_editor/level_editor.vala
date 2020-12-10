@@ -459,6 +459,47 @@ public class LevelEditorApplication : Gtk.Application
 		_main_stack.add_named(_main_vbox, "main_vbox");
 
 		load_settings();
+
+		// Delete expired logs
+		if (_preferences_dialog._log_delete_after_days.value != 0)
+		{
+			try
+			{
+				FileEnumerator enumerator = _logs_dir.enumerate_children("standard::*"
+					, FileQueryInfoFlags.NOFOLLOW_SYMLINKS
+					);
+				GLib.FileInfo info = null;
+				while ((info = enumerator.next_file()) != null)
+				{
+					if (info.get_file_type() != GLib.FileType.REGULAR)
+						continue; // Skip anything but regular files
+
+					// Parse DateTime from log filename
+					int year = 1970;
+					int month = 1;
+					int day = 1;
+					if (info.get_name().scanf("%d-%d-%d.log", &year, &month, &day) != 3)
+						continue; // Skip malformed filenames
+
+					GLib.DateTime time_log = new GLib.DateTime.utc(year, month, day, 0, 0, 0.0);
+					if (time_log == null)
+						continue; // Skip invalid dates
+
+					GLib.DateTime time_now = new GLib.DateTime.now_utc();
+					if (time_now.difference(time_log) <= GLib.TimeSpan.DAY*_preferences_dialog._log_delete_after_days.value)
+						continue; // Skip if date is within range
+
+					// Delete
+					GLib.File log_file = _logs_dir.resolve_relative_path(info.get_name());
+					log_file.delete();
+				}
+			}
+			catch (GLib.Error e)
+			{
+				loge(e.message);
+			}
+		}
+
 		_user.load(_user_file.get_path());
 		_console_view._entry_history.load(_console_history_file.get_path());
 

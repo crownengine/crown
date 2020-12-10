@@ -12,32 +12,35 @@ namespace Crown
 public class PreferencesDialog : Gtk.Dialog
 {
 	// Data
-	LevelEditorApplication _application;
+	public LevelEditorApplication _application;
 
 	// Widgets
 	[GtkChild]
-	ColorButtonVector3 _grid_color_button;
+	public ColorButtonVector3 _grid_color_button;
 
 	[GtkChild]
-	ColorButtonVector3 _grid_disabled_color_button;
+	public ColorButtonVector3 _grid_disabled_color_button;
 
 	[GtkChild]
-	ColorButtonVector3 _axis_x_color_button;
+	public ColorButtonVector3 _axis_x_color_button;
 
 	[GtkChild]
-	ColorButtonVector3 _axis_y_color_button;
+	public ColorButtonVector3 _axis_y_color_button;
 
 	[GtkChild]
-	ColorButtonVector3 _axis_z_color_button;
+	public ColorButtonVector3 _axis_z_color_button;
 
 	[GtkChild]
-	ColorButtonVector3 _axis_selected_color_button;
+	public ColorButtonVector3 _axis_selected_color_button;
 
 	[GtkChild]
-	Gtk.SpinButton _gizmo_size_spin_button;
+	public Gtk.SpinButton _gizmo_size_spin_button;
 
 	[GtkChild]
-	Gtk.SpinButton _level_autosave_spin_button;
+	public Gtk.SpinButton _level_autosave_spin_button;
+
+	[GtkChild]
+	public Gtk.SpinButton _log_delete_after_days;
 
 	public PreferencesDialog(LevelEditorApplication app)
 	{
@@ -80,6 +83,7 @@ public class PreferencesDialog : Gtk.Dialog
 		_axis_selected_color_button.value = Vector3.from_array(preferences.has_key("axis_selected") ? (Gee.ArrayList<GLib.Value?>)preferences["axis_selected"] : _axis_selected_color_button.value.to_array());
 		_gizmo_size_spin_button.value     = preferences.has_key("gizmo_size") ? (double)preferences["gizmo_size"] : _gizmo_size_spin_button.value;
 		_level_autosave_spin_button.value = preferences.has_key("autosave_timer") ? (double)preferences["autosave_timer"] : _level_autosave_spin_button.value;
+		_log_delete_after_days.value      = preferences.has_key("log_expiration") ? (double)preferences["log_expiration"] : _log_delete_after_days.value;
 	}
 
 	public void save(Hashtable preferences)
@@ -92,6 +96,7 @@ public class PreferencesDialog : Gtk.Dialog
 		preferences["axis_selected"]  = _axis_selected_color_button.value.to_array();
 		preferences["gizmo_size"]     = _gizmo_size_spin_button.value;
 		preferences["autosave_timer"] = _level_autosave_spin_button.value;
+		preferences["log_expiration"] = _log_delete_after_days.value;
 	}
 
 	public void apply()
@@ -99,6 +104,7 @@ public class PreferencesDialog : Gtk.Dialog
 		GLib.Signal.emit_by_name(_grid_color_button, "color-set");
 		GLib.Signal.emit_by_name(_gizmo_size_spin_button, "value-changed");
 		GLib.Signal.emit_by_name(_level_autosave_spin_button, "value-changed");
+		GLib.Signal.emit_by_name(_log_delete_after_days, "value-changed");
 	}
 }
 
