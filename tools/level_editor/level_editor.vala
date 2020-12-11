@@ -228,6 +228,7 @@ public class LevelEditorApplication : Gtk.Application
 	private string[] _tool_move_accels;
 	private string[] _tool_rotate_accels;
 	private string[] _tool_scale_accels;
+	private string[] _delete_accels;
 	private string[] _camera_view_perspective_accels;
 	private string[] _camera_view_front_accels;
 	private string[] _camera_view_back_accels;
@@ -321,6 +322,7 @@ public class LevelEditorApplication : Gtk.Application
 		_tool_move_accels = this.get_accels_for_action("app.tool::move");
 		_tool_rotate_accels = this.get_accels_for_action("app.tool::rotate");
 		_tool_scale_accels = this.get_accels_for_action("app.tool::scale");
+		_delete_accels = this.get_accels_for_action("app.delete");
 		_camera_view_perspective_accels = this.get_accels_for_action("app.camera-view::perspective");
 		_camera_view_front_accels = this.get_accels_for_action("app.camera-view::front");
 		_camera_view_back_accels = this.get_accels_for_action("app.camera-view::back");
@@ -2014,6 +2016,7 @@ public class LevelEditorApplication : Gtk.Application
 			this.set_accels_for_action("app.tool::move", _tool_move_accels);
 			this.set_accels_for_action("app.tool::rotate", _tool_rotate_accels);
 			this.set_accels_for_action("app.tool::scale", _tool_scale_accels);
+			this.set_accels_for_action("app.delete", _delete_accels);
 			this.set_accels_for_action("app.camera-view::perspective", _camera_view_perspective_accels);
 			this.set_accels_for_action("app.camera-view::front", _camera_view_front_accels);
 			this.set_accels_for_action("app.camera-view::back", _camera_view_back_accels);
@@ -2028,6 +2031,7 @@ public class LevelEditorApplication : Gtk.Application
 			this.set_accels_for_action("app.tool::move", {});
 			this.set_accels_for_action("app.tool::rotate", {});
 			this.set_accels_for_action("app.tool::scale", {});
+			this.set_accels_for_action("app.delete", {});
 			this.set_accels_for_action("app.camera-view::perspective", {});
 			this.set_accels_for_action("app.camera-view::front", {});
 			this.set_accels_for_action("app.camera-view::back", {});

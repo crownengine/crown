@@ -91,7 +91,7 @@
         <item>
           <attribute name="label" translatable="yes">Delete</attribute>
           <attribute name="action">app.delete</attribute>
-          <attribute name="accel">&lt;Primary&gt;K</attribute>
+          <attribute name="accel">Delete</attribute>
         </item>
       </section>
       <section>
