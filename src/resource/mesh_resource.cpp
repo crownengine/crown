@@ -22,9 +22,61 @@
 #include "resource/compile_options.inl"
 #include "resource/mesh_resource.h"
 #include "resource/resource_manager.h"
+#include <bx/readerwriter.h>
+#include <bx/error.h>
+#include <vertexlayout.h> // bgfx::write, bgfx::read
 
 namespace crown
 {
+struct BgfxReader : public bx::ReaderI
+{
+	BinaryReader* _br;
+
+	///
+	BgfxReader(BinaryReader& br)
+		: _br(&br)
+	{
+	}
+
+	///
+	virtual ~BgfxReader()
+	{
+	}
+
+	///
+	virtual int32_t read(void* _data, int32_t _size, bx::Error* _err)
+	{
+		CE_UNUSED(_err);
+		_br->read(_data, _size);
+		return _size; // FIXME: return the actual number of bytes read
+	}
+};
+
+/// Writer interface.
+struct BgfxWriter : public bx::WriterI
+{
+	BinaryWriter* _bw;
+
+	///
+	BgfxWriter(BinaryWriter& bw)
+		: _bw(&bw)
+	{
+	}
+
+	///
+	virtual ~BgfxWriter()
+	{
+	}
+
+	///
+	virtual int32_t write(const void* _data, int32_t _size, bx::Error* _err)
+	{
+		CE_UNUSED(_err);
+		_bw->write(_data, _size);
+		return _size; // FIXME: return the actual number of bytes written
+	}
+};
+
 MeshResource::MeshResource(Allocator& a)
 	: geometry_names(a)
 	, geometries(a)
@@ -66,7 +118,8 @@ namespace mesh_resource_internal
 			br.read(name);
 
 			bgfx::VertexLayout layout;
-			br.read(layout);
+			BgfxReader reader(br);
+			bgfx::read(&reader, layout);
 
 			OBB obb;
 			br.read(obb);
@@ -366,13 +419,14 @@ namespace mesh_resource_internal
 				, array::begin(_positions)
 				);
 
-			_obb.tm = from_quaternion_translation(QUATERNION_IDENTITY, aabb::center(_aabb) * _matrix_local);
+			_obb.tm = from_quaternion_translation(QUATERNION_IDENTITY, aabb::center(_aabb));
 			_obb.half_extents = (_aabb.max - _aabb.min) * 0.5f;
 		}
 
 		void write()
 		{
-			_opts.write(_layout);
+			BgfxWriter writer(_opts._binary_writer);
+			bgfx::write(&writer, _layout);
 			_opts.write(_obb);
 
 			_opts.write(array::size(_vertex_buffer) / _vertex_stride);
