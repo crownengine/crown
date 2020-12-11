@@ -12,6 +12,7 @@ Changelog
 
 **Runtime**
 
+* Fixed ``Matrix4x4.rotation()`` to return the correct Quaternion even when the matrix has scaling applied
 * Removed support for multiple components per Unit.
 
 **Tools**
