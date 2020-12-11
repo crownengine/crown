@@ -384,7 +384,9 @@ public class LevelEditorApplication : Gtk.Application
 		_combo.append("game", "Game");
 		_combo.set_active_id("editor");
 
+		_log_mutex.lock();
 		_console_view = new ConsoleView(_project, _combo);
+		_log_mutex.unlock();
 		_project_browser = new ProjectBrowser(_project, _project_store);
 		_level_treeview = new LevelTreeView(_database, _level);
 		_level_layers_treeview = new LevelLayersTreeView(_database, _level);
@@ -2127,6 +2129,7 @@ public static GLib.File _settings_file;
 public static GLib.File _user_file;
 public static GLib.File _console_history_file;
 
+public static GLib.Mutex _log_mutex;
 public static GLib.FileStream _log_stream;
 public static ConsoleView _console_view;
 
@@ -2140,6 +2143,7 @@ public static void log(string system, string severity, string message)
 		, message
 		);
 
+	_log_mutex.lock();
 	if (_log_stream != null)
 	{
 		_log_stream.puts(line);
@@ -2148,6 +2152,7 @@ public static void log(string system, string severity, string message)
 
 	if (_console_view != null)
 		_console_view.log(severity, line);
+	_log_mutex.unlock();
 }
 
 public static void logi(string message)
@@ -2232,7 +2237,9 @@ public static int main(string[] args)
 	_user_file = GLib.File.new_for_path(GLib.Path.build_filename(_config_dir.get_path(), "user.sjson"));
 	_console_history_file = GLib.File.new_for_path(GLib.Path.build_filename(_cache_dir.get_path(), "console_history.txt"));
 
+	_log_mutex.lock();
 	_log_stream = GLib.FileStream.open(_log_file.get_path(), "a");
+	_log_mutex.unlock();
 
 	// Find toolchain path, more desirable paths come first.
 	int ii = 0;
