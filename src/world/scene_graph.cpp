@@ -215,7 +215,7 @@ Vector3 SceneGraph::local_position(TransformInstance transform)
 Quaternion SceneGraph::local_rotation(TransformInstance transform)
 {
 	CE_ASSERT(transform.i < _data.size, "Index out of bounds");
-	return quaternion(_data.local[transform.i].rotation);
+	return rotation(_data.local[transform.i].rotation);
 }
 
 Vector3 SceneGraph::local_scale(TransformInstance transform)
