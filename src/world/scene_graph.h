@@ -6,6 +6,7 @@
 #pragma once
 
 #include "core/containers/types.h"
+#include "core/math/constants.h"
 #include "core/math/types.h"
 #include "core/memory/types.h"
 #include "core/types.h"
@@ -128,12 +129,19 @@ struct SceneGraph
 	/// Returns the number of nodes in the graph.
 	u32 num_nodes() const;
 
-	/// Links the transform @a child to the transform @a parent.
-	void link(TransformInstance child, TransformInstance parent);
+	/// Links @a child to @a parent. After linking the child will follow its
+	/// parent. Set child_local_* to modify the child position after it has been
+	/// linked to the parent, otherwise che child will be positioned at the
+	/// location of its parent.
+	void link(TransformInstance parent
+		, TransformInstance child
+		, const Vector3& child_local_position = VECTOR3_ZERO
+		, const Quaternion& child_local_rotation = QUATERNION_IDENTITY
+		, const Vector3& child_local_scale = VECTOR3_ONE
+		);
 
-	/// Unlinks the transform @a child from its parent if it has any.
-	/// After unlinking, the local pose of the @a child is set to its previous
-	// world pose.
+	/// Unlinks @a child from its parent if it has any. After unlinking, the local
+	/// pose of the @a child is set to its previous world pose.
 	void unlink(TransformInstance child);
 
 	void clear_changed();

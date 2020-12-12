@@ -1845,7 +1845,15 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("SceneGraph", "link", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_scene_graph(1)->link(stack.get_transform_instance(2), stack.get_transform_instance(3));
+			const int nargs = stack.num_args();
+
+			const TransformInstance parent_ti = stack.get_transform_instance(2);
+			const TransformInstance child_ti  = stack.get_transform_instance(3);
+			const Vector3& pos                = nargs > 3 ? stack.get_vector3(4)    : VECTOR3_ZERO;
+			const Quaternion& rot             = nargs > 4 ? stack.get_quaternion(5) : QUATERNION_IDENTITY;
+			const Vector3& scl                = nargs > 5 ? stack.get_vector3(6)    : VECTOR3_ONE;
+
+			stack.get_scene_graph(1)->link(parent_ti, child_ti, pos, rot, scl);
 			return 0;
 		});
 	env.add_module_function("SceneGraph", "unlink", [](lua_State* L)

@@ -13,8 +13,7 @@ Changelog
 
 **Runtime**
 
-* Fixed ``Matrix4x4.rotation()`` to return the correct Quaternion even when the matrix has scaling applied
-* Fixed ``SceneGraph.rotation()`` to return the correct Quaternion even when the node has scaling applied
+* Fixed child nodes in the SceneGraph not being marked as changed when their parent was changed
 * Removed support for multiple components per Unit.
 
 **Tools**
@@ -36,6 +35,9 @@ Changelog
 	- ``PhysicsWorld.actor_instances()``
 * Added AnimationStateMachine.instance()
 * ``RenderWorld.set_mesh_visible()`` will now work as expected
+* Changed ``SceneGraph.link()`` behavior and added parameters to explicitly set the position, rotation and scale of the child transform after linking is done
+* Fixed ``Matrix4x4.rotation()`` to return the correct Quaternion even when the matrix has scaling applied
+* Fixed ``SceneGraph.*_rotation()`` to return the correct Quaternion even when the node has scaling applied
 
 0.39.0
 ------

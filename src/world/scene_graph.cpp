@@ -270,13 +270,19 @@ u32 SceneGraph::num_nodes() const
 	return _data.size;
 }
 
-void SceneGraph::link(TransformInstance child, TransformInstance parent)
+void SceneGraph::link(TransformInstance parent
+	, TransformInstance child
+	, const Vector3& child_local_position
+	, const Quaternion& child_local_rotation
+	, const Vector3& child_local_scale
+	)
 {
 	CE_ASSERT(child.i < _data.size, "Index out of bounds");
 	CE_ASSERT(parent.i < _data.size, "Index out of bounds");
 
 	unlink(child);
 
+	// Append transform to the list of parent's children
 	if (!is_valid(_data.first_child[parent.i]))
 	{
 		_data.first_child[parent.i] = child;
@@ -299,32 +305,12 @@ void SceneGraph::link(TransformInstance child, TransformInstance parent)
 		_data.prev_sibling[child.i] = prev;
 	}
 
-	Matrix4x4 parent_tm = _data.world[parent.i];
-	Matrix4x4 child_tm = _data.world[child.i];
-	const Vector3 cs = scale(child_tm);
-
-	Vector3 px = x(parent_tm);
-	Vector3 py = y(parent_tm);
-	Vector3 pz = z(parent_tm);
-	Vector3 cx = x(child_tm);
-	Vector3 cy = y(child_tm);
-	Vector3 cz = z(child_tm);
-
-	set_x(parent_tm, normalize(px));
-	set_y(parent_tm, normalize(py));
-	set_z(parent_tm, normalize(pz));
-	set_x(child_tm, normalize(cx));
-	set_y(child_tm, normalize(cy));
-	set_z(child_tm, normalize(cz));
-
-	const Matrix4x4 rel_tr = child_tm * get_inverted(parent_tm);
-
-	_data.local[child.i].position = translation(rel_tr);
-	_data.local[child.i].rotation = to_matrix3x3(rel_tr);
-	_data.local[child.i].scale = cs;
+	_data.local[child.i].position = child_local_position;
+	_data.local[child.i].rotation = from_quaternion(child_local_rotation);
+	_data.local[child.i].scale    = child_local_scale;
 	_data.parent[child.i] = parent;
 
-	transform(parent_tm, child);
+	transform(_data.world[parent.i], child);
 }
 
 void SceneGraph::unlink(TransformInstance child)
