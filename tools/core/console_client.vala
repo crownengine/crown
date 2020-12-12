@@ -42,7 +42,7 @@ public class ConsoleClient : GLib.Object
 		SourceFunc callback = connect_async.callback;
 		int[] output = new int[1];
 
-		new Thread<bool>("thread-connection", () => {
+		// new Thread<bool>(null, () => {
 			// Try to connect to data compiler.
 			int tries;
 			for (tries = 0; tries < num_tries; ++tries)
@@ -54,11 +54,11 @@ public class ConsoleClient : GLib.Object
 				GLib.Thread.usleep(interval*1000);
 			}
 			output[0] = tries;
-		    Idle.add((owned) callback);
-		    return true;
-		});
+		//     Idle.add((owned) callback);
+		//     return true;
+		// });
 
-		yield;
+		// yield;
 		return output[0];
 	}
 
