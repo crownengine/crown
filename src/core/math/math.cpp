@@ -115,33 +115,34 @@ f32 catmull_rom(const f32 p0, const f32 p1, const f32 p2, const f32 p3, f32 t)
 
 const char* to_string(const Vector3& v, char* buf, u32 buf_len)
 {
-	snprintf(buf, buf_len, "%.4f %.4f %.4f", v.x, v.y, v.z);
+	snprintf(buf, buf_len, "( %.4f, %.4f, %.4f )", v.x, v.y, v.z);
 	return buf;
 }
 
 const char* to_string(const Vector4& v, char* buf, u32 buf_len)
 {
-	snprintf(buf, buf_len, "%.4f, %.4f, %.4f, %.4f", v.x, v.y, v.z, v.w);
+	snprintf(buf, buf_len, "( %.4f, %.4f, %.4f, %.4f )", v.x, v.y, v.z, v.w);
 	return buf;
 }
 
 const char* to_string(const Quaternion& q, char* buf, u32 buf_len)
 {
-	snprintf(buf, buf_len, "%.4f %.4f %.4f %.4f", q.x, q.y, q.z, q.w);
+	snprintf(buf, buf_len, "( %.4f, %.4f, %.4f, %.4f )", q.x, q.y, q.z, q.w);
 	return buf;
 }
 
 const char* to_string(const Matrix4x4& m, char* buf, u32 buf_len)
 {
+	char bufx[256];
+	char bufy[256];
+	char bufz[256];
+	char bufw[256];
 	snprintf(buf, buf_len,
-		"%.4f, %.4f, %.4f, %.4f\n"
-		"%.4f, %.4f, %.4f, %.4f\n"
-		"%.4f, %.4f, %.4f, %.4f\n"
-		"%.4f, %.4f, %.4f, %.4f"
-		, m.x.x, m.x.y, m.x.z, m.y.w
-		, m.y.x, m.y.y, m.y.z, m.y.w
-		, m.z.x, m.z.y, m.z.z, m.z.w
-		, m.t.x, m.t.y, m.t.z, m.t.w
+		"( %s, %s, %s, %s )"
+		, to_string(m.x, bufx, sizeof(bufx))
+		, to_string(m.y, bufy, sizeof(bufy))
+		, to_string(m.z, bufz, sizeof(bufz))
+		, to_string(m.t, bufw, sizeof(bufw))
 		);
 	return buf;
 }
