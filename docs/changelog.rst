@@ -7,6 +7,7 @@ Changelog
 
 **Data Compiler**
 
+* Fixed an issue that caused resources to not be compiled with the proper version in rare circumnstances
 * Fixed an issue that caused the compiler to crash when reading empty source files
 * Fixed an issue that prevented the output from external data compilers to not be read under Windows
 

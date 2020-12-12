@@ -1091,7 +1091,6 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 			if (!path_is_special(path.c_str()))
 			{
 				hash_map::set(_data_index, id, path);
-				hash_map::set(_data_versions, type_str, rtd.version);
 				hash_map::set(_data_mtimes, id, data_fs.last_modified_time(dest.c_str()));
 				hash_map::set(_data_revisions, id, _revision + 1);
 			}
@@ -1105,6 +1104,18 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 
 	if (success)
 	{
+		// Data versions are stored per-type, so, before updating _data_versions, we
+		// need to make sure *all* resource files with that type have been
+		// successfully compiled.
+		auto cur = hash_map::begin(_compilers);
+		auto end = hash_map::end(_compilers);
+		for (; cur != end; ++cur)
+		{
+			HASH_MAP_SKIP_HOLE(_compilers, cur);
+
+			hash_map::set(_data_versions, cur->first, cur->second.version);
+		}
+
 		if (vector::size(to_compile))
 		{
 			_revision++;
