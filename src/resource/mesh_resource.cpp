@@ -419,7 +419,7 @@ namespace mesh_resource_internal
 				, array::begin(_positions)
 				);
 
-			_obb.tm = from_quaternion_translation(QUATERNION_IDENTITY, aabb::center(_aabb));
+			_obb.tm = from_quaternion_translation(QUATERNION_IDENTITY, aabb::center(_aabb) * _matrix_local);
 			_obb.half_extents = (_aabb.max - _aabb.min) * 0.5f;
 		}
 
