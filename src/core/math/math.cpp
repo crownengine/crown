@@ -119,6 +119,12 @@ const char* to_string(const Vector3& v, char* buf, u32 buf_len)
 	return buf;
 }
 
+const char* to_string(const Vector4& v, char* buf, u32 buf_len)
+{
+	snprintf(buf, buf_len, "%.4f, %.4f, %.4f, %.4f", v.x, v.y, v.z, v.w);
+	return buf;
+}
+
 const char* to_string(const Quaternion& q, char* buf, u32 buf_len)
 {
 	snprintf(buf, buf_len, "%.4f %.4f %.4f %.4f", q.x, q.y, q.z, q.w);
