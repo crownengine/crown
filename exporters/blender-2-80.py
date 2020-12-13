@@ -43,8 +43,8 @@ def write_file(file
 	def veckey2d(v):
 		return round(v[0], 6), round(v[1], 6)
 
-	def fw(string):
-		file.write(bytes(string, 'UTF-8'))
+	def fw(string, indentation=0):
+		file.write(bytes(indentation * '	' + string, 'UTF-8'))
 
 	def write_mesh(ob, name):
 		try:
@@ -197,25 +197,37 @@ def write_file(file
 		fw("}\n")
 
 	def write_nodes(objects):
+		def write_node(o, parent, depth):
+			ml = o.matrix_local.copy()
+			ml.transpose()
+			ml[0][1], ml[0][2] = ml[0][2], ml[0][1]
+			ml[1][1], ml[1][2] = ml[1][2], ml[1][1]
+			ml[2][1], ml[2][2] = ml[2][2], ml[2][1]
+			ml[3][1], ml[3][2] = ml[3][2], ml[3][1]
+
+			fw('\"%s\" = {\n' % o.name, depth+1)
+			if o.parent:
+				fw('parent = \"%s\"\n' % o.parent.name, depth+2)
+			fw('matrix_local = [ ', depth+2)
+			fw('%f %f %f %f ' % ml[0][:])
+			fw('%f %f %f %f ' % ml[2][:])
+			fw('%f %f %f %f ' % ml[1][:])
+			fw('%f %f %f %f ' % ml[3][:])
+			fw(']\n')
+
+			if len(o.children) > 0:
+				fw('children = {\n', depth+2)
+				for child in o.children:
+					write_node(child, o, depth+2)
+				fw('}\n', depth+2)
+			fw('}\n', depth+1)
+
+		# Iterate over all root objects
+		root_objects = (o for o in objects if not o.parent)
 		fw("nodes = {\n")
-		for o in objects:
+		for o in root_objects:
 			if o.type == 'MESH':
-				ml = o.matrix_local.copy()
-				ml.transpose()
-
-				ml[0][1], ml[0][2] = ml[0][2], ml[0][1]
-				ml[1][1], ml[1][2] = ml[1][2], ml[1][1]
-				ml[2][1], ml[2][2] = ml[2][2], ml[2][1]
-				ml[3][1], ml[3][2] = ml[3][2], ml[3][1]
-
-				fw('    \"%s\" = {\n' % o.name)
-				fw ('        matrix_local = [ ')
-				fw ('%f %f %f %f ' % ml[0][:])
-				fw ('%f %f %f %f ' % ml[2][:])
-				fw ('%f %f %f %f ' % ml[1][:])
-				fw ('%f %f %f %f ' % ml[3][:])
-				fw (']\n')
-				fw('    }\n')
+				write_node(o, None, 0)
 		fw("}\n")
 
 	write_geometries(objects)

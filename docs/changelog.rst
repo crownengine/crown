@@ -16,6 +16,11 @@ Changelog
 * Fixed child nodes in the SceneGraph not being marked as changed when their parent was changed
 * Removed support for multiple components per Unit.
 
+**Exporters**
+
+* Added the ability to export full scene hierarchy to the Blender exporter
+* Removed support for Blender < 2.80
+
 **Tools**
 
 * Added logs expiration option to Preferences dialog
