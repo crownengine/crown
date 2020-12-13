@@ -1169,13 +1169,15 @@ SceneGraph
 **set_local_pose** (sg, transform, pose)
 	Sets the local *pose* of the *transform*.
 
-**link** (sg, child, parent)
-	Links the transform *child* to the transform *parent*.
+**link** (sg, parent, child, child_local_position, child_local_rotation, child_local_scale)
+	Links `child` to `parent`. After linking the child will follow its
+	parent. Set child_local_* to modify the child position after it has been
+	linked to the parent, otherwise che child will be positioned at the
+	location of its parent.
 
-**unlink** (sg, transform)
-	Unlinks the *transform* from its parent if it has any.
-	After unlinking, the local pose of the *transform* is set to its previous
-	world pose.
+**unlink** (sg, child)
+	Unlinks `child` from its parent if it has any. After unlinking, the local
+	pose of the @a child is set to its previous world pose.
 
 SoundWorld
 ===========
