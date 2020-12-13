@@ -313,9 +313,8 @@ function UnitBox:world_scale()
 end
 
 function UnitBox:world_pose()
-	local position = self:world_position()
-	local rotation = self:local_rotation() -- FIXME: this should compute world rotation from local rotations
-	return Matrix4x4.from_quaternion_translation(rotation, position)
+	local tr = SceneGraph.instance(self._sg, self._unit_id)
+	return tr and SceneGraph.world_pose(self._sg, tr) or Matrix4x4.identity()
 end
 
 function UnitBox:set_local_position(pos)
