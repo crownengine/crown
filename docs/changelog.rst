@@ -43,6 +43,7 @@ Changelog
 * Changed ``SceneGraph.link()`` behavior and added parameters to explicitly set the position, rotation and scale of the child transform after linking is done
 * Fixed ``Matrix4x4.rotation()`` to return the correct Quaternion even when the matrix has scaling applied
 * Fixed ``SceneGraph.*_rotation()`` to return the correct Quaternion even when the node has scaling applied
+* Fixed ``SceneGraph.unlink()`` to correctly set the local pose of the unlinked transform to its previous world pose
 
 0.39.0
 ------

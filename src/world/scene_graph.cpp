@@ -328,6 +328,9 @@ void SceneGraph::unlink(TransformInstance child)
 	if (is_valid(_data.next_sibling[child.i]))
 		_data.prev_sibling[_data.next_sibling[child.i].i] = _data.prev_sibling[child.i];
 
+	_data.local[child.i].position = translation(_data.world[child.i]);
+	_data.local[child.i].rotation = from_quaternion(rotation(_data.world[child.i]));
+	_data.local[child.i].scale = scale(_data.world[child.i]);
 	_data.parent[child.i].i = UINT32_MAX;
 	_data.next_sibling[child.i].i = UINT32_MAX;
 	_data.prev_sibling[child.i].i = UINT32_MAX;
