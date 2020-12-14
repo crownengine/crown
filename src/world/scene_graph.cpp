@@ -124,7 +124,7 @@ TransformInstance SceneGraph::create(UnitId unit, const Matrix4x4& pose)
 {
 	CE_ASSERT(!hash_map::has(_map, unit), "Unit already has a transform component");
 
-	if (_data.capacity == _data.size)
+	if (_data.capacity == 0 || _data.capacity-1 == _data.size)
 		grow();
 
 	const u32 last = _data.size;
@@ -145,24 +145,77 @@ TransformInstance SceneGraph::create(UnitId unit, const Matrix4x4& pose)
 	return make_instance(last);
 }
 
+/// Moves the node data from index @a src to index @a dst, while preserving
+/// internal links between nodes.
+static void scene_graph_move_data(const SceneGraph& sg, u32 dst, u32 src)
+{
+	// Any node can be referenced by its children.
+	TransformInstance cur = sg._data.first_child[src];
+	while (is_valid(cur))
+	{
+		sg._data.parent[cur.i].i = dst;
+		cur = sg._data.next_sibling[cur.i];
+	}
+
+	if (sg._data.parent[src].i != UINT32_MAX)
+	{
+		// Child node can also be referenced by its parent (if it is the parent's
+		// first child)...
+		if (sg._data.first_child[sg._data.parent[src].i].i == src)
+			sg._data.first_child[sg._data.parent[src].i].i = dst;
+
+		// ... and (at most) by its two closest siblings.
+		if (sg._data.next_sibling[src].i != UINT32_MAX)
+			sg._data.prev_sibling[sg._data.next_sibling[src].i].i = dst;
+		if (sg._data.prev_sibling[src].i != UINT32_MAX)
+			sg._data.next_sibling[sg._data.prev_sibling[src].i].i = dst;
+	}
+
+	sg._data.unit[dst]         = sg._data.unit[src];
+	sg._data.world[dst]        = sg._data.world[src];
+	sg._data.local[dst]        = sg._data.local[src];
+	sg._data.parent[dst]       = sg._data.parent[src];
+	sg._data.first_child[dst]  = sg._data.first_child[src];
+	sg._data.next_sibling[dst] = sg._data.next_sibling[src];
+	sg._data.prev_sibling[dst] = sg._data.prev_sibling[src];
+	sg._data.changed[dst]      = sg._data.changed[src];
+}
+
+/// Swaps the transforms @a aa and @a bb.
+static void scene_graph_swap(const SceneGraph& sg, TransformInstance aa, TransformInstance bb)
+{
+	// Index of the temporary storage slot. Memory access past size-1 is allowed
+	// because we allocate one extra slot in SceneGraph::grow().
+	const u32 tt = sg._data.size;
+
+	scene_graph_move_data(sg, tt, aa.i);
+	scene_graph_move_data(sg, aa.i, bb.i);
+	scene_graph_move_data(sg, bb.i, tt);
+}
+
 void SceneGraph::destroy(TransformInstance transform)
 {
 	CE_ASSERT(transform.i < _data.size, "Index out of bounds");
+
+	// Unlink all children.
+	TransformInstance cur = _data.first_child[transform.i];
+	while (is_valid(cur))
+	{
+		TransformInstance next_sibling = _data.next_sibling[cur.i];
+		unlink(cur);
+		cur = next_sibling;
+	}
+	unlink(transform);
 
 	const u32 last = _data.size - 1;
 	const UnitId u = _data.unit[transform.i];
 	const UnitId last_u = _data.unit[last];
 
-	_data.unit[transform.i]         = _data.unit[last];
-	_data.world[transform.i]        = _data.world[last];
-	_data.local[transform.i]        = _data.local[last];
-	_data.parent[transform.i]       = _data.parent[last];
-	_data.first_child[transform.i]  = _data.first_child[last];
-	_data.next_sibling[transform.i] = _data.next_sibling[last];
-	_data.prev_sibling[transform.i] = _data.prev_sibling[last];
-	_data.changed[transform.i]      = _data.changed[last];
-
-	hash_map::set(_map, last_u, transform.i);
+	if (last != transform.i)
+	{
+		scene_graph_swap(*this, transform, make_instance(last));
+		hash_map::set(_map, last_u, transform.i);
+	}
 	hash_map::remove(_map, u);
 
 	--_data.size;
@@ -380,7 +433,8 @@ void SceneGraph::transform(const Matrix4x4& parent, TransformInstance transform)
 
 void SceneGraph::grow()
 {
-	allocate(_data.capacity * 2 + 1);
+	// Allocate one extra slot to be used as a temporary storage.
+	allocate(2 + _data.capacity*2);
 }
 
 } // namespace crown

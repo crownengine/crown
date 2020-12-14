@@ -44,6 +44,7 @@ Changelog
 * Fixed ``Matrix4x4.rotation()`` to return the correct Quaternion even when the matrix has scaling applied
 * Fixed ``SceneGraph.*_rotation()`` to return the correct Quaternion even when the node has scaling applied
 * Fixed ``SceneGraph.unlink()`` to correctly set the local pose of the unlinked transform to its previous world pose
+* Fixed ``SceneGraph.destroy()`` to correctly update any linked transform before deleting the node
 
 0.39.0
 ------
