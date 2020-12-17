@@ -11,6 +11,7 @@ namespace Crown
 {
 const int WINDOW_DEFAULT_WIDTH = 1280;
 const int WINDOW_DEFAULT_HEIGHT = 720;
+const string LEVEL_EDITOR_WINDOW_TITLE = "Level Editor";
 
 public class LevelEditorWindow : Gtk.ApplicationWindow
 {
@@ -27,7 +28,7 @@ public class LevelEditorWindow : Gtk.ApplicationWindow
 
 		this.add_action_entries(action_entries, this);
 
-		this.title = "Level Editor";
+		this.title = LEVEL_EDITOR_WINDOW_TITLE;
 		this.key_press_event.connect(this.on_key_press);
 		this.key_release_event.connect(this.on_key_release);
 		this.window_state_event.connect(this.on_window_state_event);
@@ -342,6 +343,7 @@ public class LevelEditorApplication : Gtk.Application
 		_project.set_toolchain_dir(_toolchain_dir.get_path());
 
 		_database = new Database();
+		_database.key_changed.connect(() => { update_active_window_title(); });
 
 		_editor = new ConsoleClient();
 		_editor.connected.connect(on_editor_connected);
@@ -891,10 +893,6 @@ public class LevelEditorApplication : Gtk.Application
 
 		// Load project and level if any.
 		_project.load(sd);
-		if (ln != "")
-			_level.load(ln);
-		else
-			_level.load_empty_level();
 
 		// Spawn the data compiler.
 		string args[] =
@@ -949,6 +947,8 @@ public class LevelEditorApplication : Gtk.Application
 		_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
 			if (_data_compiler.compile.end(res))
 			{
+				load_level(ln);
+
 				// If successful, start the level editor.
 				restart_editor();
 
@@ -972,6 +972,8 @@ public class LevelEditorApplication : Gtk.Application
 
 		_level.reset();
 		_project.reset();
+
+		this.active_window.title = LEVEL_EDITOR_WINDOW_TITLE;
 	}
 
 	private void stop_data_compiler()
@@ -1304,14 +1306,40 @@ public class LevelEditorApplication : Gtk.Application
 		_level.send_level();
 	}
 
+	private void update_active_window_title()
+	{
+		string title = "";
+
+		if (_level._name != null)
+		{
+			title += (_level._name == LEVEL_EMPTY) ? "untitled" : _level._name;
+
+			if (_database.changed())
+				title += " • ";
+
+			title += " - ";
+		}
+
+		title += LEVEL_EDITOR_WINDOW_TITLE;
+
+		if (this.active_window.title != title)
+			this.active_window.title = title;
+	}
+
 	private void load_level(string name)
 	{
 		if (name == _level._name)
 			return;
 
-		_level.load(name);
+		if (name != "")
+			_level.load(name);
+		else
+			_level.load_empty_level();
+
 		_level.send_level();
 		send_state();
+
+		update_active_window_title();
 	}
 
 	private bool save_as(string? filename)
@@ -1392,6 +1420,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		_level.save(resource_name);
 		_statusbar.set_temporary_message("Saved %s".printf(_level._path));
+		update_active_window_title();
 		return true;
 	}
 

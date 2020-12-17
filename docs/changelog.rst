@@ -28,6 +28,7 @@ Changelog
 * Changed the default accelerator for deleting objects from Ctrl+K to Delete
 * Fixed an issue that caused the Level Editor to ask multiple times whether save the level in some circumnstances
 * Level Editor now restores the Console's history from previous sessions
+* Improved the title of the Level Editor window to include the name of the current opened level and an indication of whether it has been modified since the last save to disk
 
 **Lua API**
 

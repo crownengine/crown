@@ -81,7 +81,7 @@ public class Level
 	{
 		reset();
 
-		string name = "core/editors/levels/empty";
+		string name = LEVEL_EMPTY;
 		string path = Path.build_filename(_project.toolchain_dir(), name + ".level");
 
 		_db.load(path);

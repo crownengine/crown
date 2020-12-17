@@ -43,5 +43,6 @@ const int GAME_CONNECTION_INTERVAL = 125;
 const string LEVEL_EDITOR_BOOT_DIR = "core/editors/level_editor";
 const string UNIT_PREVIEW_BOOT_DIR = "core/editors/unit_preview";
 const string LEVEL_NONE = "";
+const string LEVEL_EMPTY = "core/editors/levels/empty";
 
 }
