@@ -99,8 +99,9 @@ public class ConsoleClient : GLib.Object
 			for (var i = 0; i < 4; ++i)
 				header[i] = ptr[i];
 
-			_connection.output_stream.write(header);
-			_connection.output_stream.write(json.data);
+			size_t bytes_read;
+			_connection.output_stream.write_all(header, out bytes_read);
+			_connection.output_stream.write_all(json.data, out bytes_read);
 		}
 		catch (Error e)
 		{
