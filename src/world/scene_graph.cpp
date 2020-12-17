@@ -373,7 +373,7 @@ void SceneGraph::unlink(TransformInstance child)
 	if (!is_valid(_data.parent[child.i]))
 		return;
 
-	if (!is_valid(_data.prev_sibling[child.i]))
+	if (_data.first_child[_data.parent[child.i].i].i == child.i)
 		_data.first_child[_data.parent[child.i].i] = _data.next_sibling[child.i];
 	else
 		_data.next_sibling[_data.prev_sibling[child.i].i] = _data.next_sibling[child.i];
