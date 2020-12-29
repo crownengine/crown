@@ -91,3 +91,11 @@ stb (Public domain)
 -------------------
 
 single-file public domain (or MIT licensed) libraries for C/C++.
+
+Crown Manual
+============
+
+The Crown Manual is licensed under a `Creative Commons Attribution-ShareAlike
+4.0 International License <https://creativecommons.org/licenses/by-sa/4.0/>`__
+or any later version. Used logos, trademarks, icons, source code and Lua scripts
+are *excluded* from CC-BY-SA.

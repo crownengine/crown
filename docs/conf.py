@@ -45,8 +45,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'Crown'
-copyright = '2012-2020 Daniele Bartolini and individual contributors'
+project = 'Crown Manual'
+copyright = 'Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License'
 author = 'Daniele Bartolini'
 
 # The version info for the project you're documenting, acts as replacement for
