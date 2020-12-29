@@ -1,6 +1,6 @@
 /*
- * Copyright(c) 2012-2015 Daniele Bartolini and individual contributors.
- * License: https://github.com/dbartolini/crown/blob/master/LICENSE-GPLv2
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
+ * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
 using Gtk;
