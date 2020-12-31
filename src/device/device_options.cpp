@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2021 Daniele Bartolini et al.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
@@ -16,7 +16,7 @@ static void help(const char* msg = NULL)
 {
 	printf(
 		"The Flexible Game Engine\n"
-		"Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.\n"
+		"Copyright (c) 2012-2021 Daniele Bartolini et al.\n"
 		"License: https://github.com/dbartolini/crown/blob/master/LICENSE\n"
 		"\n"
 		"Usage:\n"
