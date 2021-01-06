@@ -37,6 +37,38 @@ public struct Vector3
 		return arr;
 	}
 
+	public double dot(Vector3 b)
+	{
+		return this.x * b.x + this.y * b.y + this.z * b.z;
+	}
+
+	public double length_squared()
+	{
+		return dot(this);
+	}
+
+	public double length()
+	{
+		return Math.sqrt(length_squared());
+	}
+
+	public void normalize()
+	{
+		double len = length();
+		double inv_len = 1.0 / len;
+		this.x *= inv_len;
+		this.y *= inv_len;
+		this.z *= inv_len;
+	}
+
+	public void set_length(double len)
+	{
+		normalize();
+		this.x *= len;
+		this.y *= len;
+		this.z *= len;
+	}
+
 	public string to_string()
 	{
 		return "%f, %f, %f".printf(x, y, z);
