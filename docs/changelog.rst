@@ -15,6 +15,7 @@ Changelog
 
 * Fixed child nodes in the SceneGraph not being marked as changed when their parent was changed
 * Removed support for multiple components per Unit.
+* Added ability to express unit's parent-child relationship from within .unit and .level files
 
 **Exporters**
 

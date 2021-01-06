@@ -98,9 +98,16 @@ World::~World()
 UnitId World::spawn_unit(StringId64 name, const Vector3& pos, const Quaternion& rot, const Vector3& scl)
 {
 	const UnitResource* ur = (const UnitResource*)_resource_manager->get(RESOURCE_TYPE_UNIT, name);
-	UnitId unit = _unit_manager->create();
-	spawn_units(*this, *ur, pos, rot, scl, &unit);
-	return unit;
+
+	UnitId* unit_lookup = (UnitId*)default_scratch_allocator().allocate(sizeof(*unit_lookup) * ur->num_units);
+	for (u32 i = 0; i < ur->num_units; ++i)
+		unit_lookup[i] = _unit_manager->create();
+
+	spawn_units(*this, ur, pos, rot, scl, unit_lookup);
+
+	UnitId root_unit = unit_lookup[0];
+	default_scratch_allocator().deallocate(unit_lookup);
+	return root_unit;
 }
 
 UnitId World::spawn_empty_unit()
@@ -570,7 +577,7 @@ void World::post_level_loaded_event()
 	event_stream::write(_events, EventType::LEVEL_LOADED, ev);
 }
 
-void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Quaternion& rot, const Vector3& scl, const UnitId* unit_lookup)
+void spawn_units(World& w, const UnitResource* ur, const Vector3& pos, const Quaternion& rot, const Vector3& scl, const UnitId* unit_lookup)
 {
 	SceneGraph* scene_graph = w._scene_graph;
 	RenderWorld* render_world = w._render_world;
@@ -578,9 +585,11 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 	ScriptWorld* script_world = w._script_world;
 	AnimationStateMachine* animation_state_machine = w._animation_state_machine;
 
+	const u32* unit_parents = unit_resource::parents(ur);
+
 	// Create components
-	const ComponentData* component = unit_resource::component_type_data(&ur, NULL);
-	for (u32 cc = 0; cc < ur.num_component_types; ++cc)
+	const ComponentData* component = unit_resource::component_type_data(ur, NULL);
+	for (u32 cc = 0; cc < ur->num_component_types; ++cc)
 	{
 		const u32* unit_index = unit_resource::component_unit_index(component);
 		const char* data = unit_resource::component_payload(component);
@@ -590,14 +599,28 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 			const TransformDesc* td = (const TransformDesc*)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++td)
 			{
-				Matrix4x4 matrix = from_quaternion_translation(rot, pos);
-				Matrix4x4 matrix_res = from_quaternion_translation(td->rotation, td->position);
-				Vector3 scale;
-				scale.x = td->scale.x * scl.x;
-				scale.y = td->scale.y * scl.y;
-				scale.z = td->scale.z * scl.z;
-				set_scale(matrix_res, scale);
-				scene_graph->create(unit_lookup[unit_index[i]], matrix_res*matrix);
+				// FIXME: add SceneGraph::allocate() to reserve an instance
+				// without initializing it.
+				const TransformInstance ti = scene_graph->create(unit_lookup[unit_index[i]]
+					, td->position
+					, td->rotation
+					, td->scale
+					);
+				if (unit_parents[unit_index[i]] != UINT32_MAX)
+				{
+					TransformInstance parent_ti = scene_graph->instance(unit_lookup[unit_parents[unit_index[i]]]);
+					scene_graph->link(parent_ti, ti, td->position, td->rotation, td->scale);
+				}
+				else
+				{
+					const Vector3 scale = vector3(td->scale.x * scl.x
+						, td->scale.y * scl.y
+						, td->scale.z * scl.z
+						);
+					Matrix4x4 tr = from_quaternion_translation(rot, pos);
+					scene_graph->set_local_pose(ti, scene_graph->local_pose(ti) * tr);
+					scene_graph->set_local_scale(ti, scale);
+				}
 			}
 		}
 		else if (component->type == COMPONENT_TYPE_CAMERA)
@@ -680,14 +703,14 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 			CE_FATAL("Unknown component type");
 		}
 
-		component = unit_resource::component_type_data(&ur, component);
+		component = unit_resource::component_type_data(ur, component);
 	}
 
-	for (u32 i = 0; i < ur.num_units; ++i)
+	for (u32 i = 0; i < ur->num_units; ++i)
 		array::push_back(w._units, unit_lookup[i]);
 
 	// Post events
-	for (u32 i = 0; i < ur.num_units; ++i)
+	for (u32 i = 0; i < ur->num_units; ++i)
 		w.post_unit_spawned_event(unit_lookup[i]);
 }
 

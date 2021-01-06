@@ -17,6 +17,7 @@ struct UnitResource
 	u32 version;
 	u32 num_units;
 	u32 num_component_types;
+//	u32 parents[num_units]
 //	ComponentData data[num_component_types]
 };
 
@@ -38,6 +39,9 @@ namespace unit_resource_internal
 
 namespace unit_resource
 {
+	/// Returns the array of parents in the unit resource @ur.
+	const u32* parents(const UnitResource* ur);
+
 	/// Returns the first component type data in the unit resource @a ur, or, if
 	/// @a component is != NULL, it returns the next component type data after
 	/// it.

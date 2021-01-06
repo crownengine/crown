@@ -211,6 +211,6 @@ struct World
 	void post_level_loaded_event();
 };
 
-void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Quaternion& rot, const Vector3& scl, const UnitId* unit_lookup);
+void spawn_units(World& w, const UnitResource* ur, const Vector3& pos, const Quaternion& rot, const Vector3& scl, const UnitId* unit_lookup);
 
 } // namespace crown

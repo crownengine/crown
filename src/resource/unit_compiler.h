@@ -54,11 +54,16 @@ struct UnitCompiler
 	HashMap<StringId32, ComponentTypeData> _component_data;
 	Array<ComponentTypeInfo> _component_info;
 	Array<StringId32> _unit_names;
+	Array<u32> _unit_parents;
 
+	///
 	void register_component_compiler(const char* type, CompileFunction fn, f32 spawn_order);
+
+	///
 	void register_component_compiler(StringId32 type, CompileFunction fn, f32 spawn_order);
+
+	///
 	s32 compile_component(Buffer& output, StringId32 type, const char* json);
-	void add_component_data(StringId32 type, const Buffer& data, u32 unit_index);
 
 	///
 	UnitCompiler(CompileOptions& opts);
@@ -66,11 +71,26 @@ struct UnitCompiler
 	///
 	~UnitCompiler();
 
+
+	///
 	Buffer read_unit(const char* name);
+
+	///
 	s32 compile_unit(const char* path);
-	s32 compile_unit_from_json(const char* json);
-	s32 compile_multiple_units(const char* json);
+
+	///
+	s32 compile_unit_from_json(const char* json, const u32 parent);
+
+	///
+	s32 compile_units_array(const JsonArray& units, const u32 parent);
+
+	///
+	s32 compile_units_array(const char* json, const u32 parent);
+
+	///
 	s32 collect_units(Buffer& data, Array<u32>& prefabs, const char* json);
+
+	///
 	Buffer blob();
 };
 

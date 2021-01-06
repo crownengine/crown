@@ -306,6 +306,7 @@ UnitCompiler::UnitCompiler(CompileOptions& opts)
 	, _component_data(default_allocator())
 	, _component_info(default_allocator())
 	, _unit_names(default_allocator())
+	, _unit_parents(default_allocator())
 {
 	register_component_compiler("transform",               &compile_transform,                           0.0f);
 	register_component_compiler("camera",                  &compile_camera,                              1.0f);
@@ -332,16 +333,16 @@ Buffer UnitCompiler::read_unit(const char* path)
 
 s32 UnitCompiler::compile_unit(const char* path)
 {
-	return compile_unit_from_json(array::begin(read_unit(path)));
+	return compile_unit_from_json(array::begin(read_unit(path)), UINT32_MAX);
 }
 
-u32 component_index(const JsonArray& components, const Guid& id)
+u32 object_index_from_id(const JsonArray& objects, const Guid& id)
 {
-	for (u32 i = 0; i < array::size(components); ++i)
+	for (u32 i = 0; i < array::size(objects); ++i)
 	{
 		TempAllocator512 ta;
 		JsonObject obj(ta);
-		sjson::parse(obj, components[i]);
+		sjson::parse(obj, objects[i]);
 		if (sjson::parse_guid(obj["id"]) == id)
 			return i;
 	}
@@ -378,7 +379,7 @@ s32 UnitCompiler::collect_units(Buffer& data, Array<u32>& prefabs, const char* j
 	return 1;
 }
 
-s32 UnitCompiler::compile_unit_from_json(const char* json)
+s32 UnitCompiler::compile_unit_from_json(const char* json, const u32 parent)
 {
 	Buffer data(default_allocator());
 	Array<u32> offsets(default_allocator()); // Offsets to JSON objects into data
@@ -394,6 +395,7 @@ s32 UnitCompiler::compile_unit_from_json(const char* json)
 	TempAllocator4096 ta;
 	JsonArray merged_components(ta);
 	JsonArray merged_components_data(ta);
+	JsonArray merged_children(ta);
 	u32 num_prefabs = array::size(offsets);
 
 	// Merge components of all prefabs from the root unit up to the unit that
@@ -439,7 +441,7 @@ s32 UnitCompiler::compile_unit_from_json(const char* json)
 				guid[36] = '\0';
 				Guid component_id = guid::parse(guid);
 
-				u32 comp_idx = component_index(merged_components, component_id);
+				u32 comp_idx = object_index_from_id(merged_components, component_id);
 				if (comp_idx != UINT32_MAX)
 				{
 					u32 comp_last = array::size(merged_components) - 1;
@@ -482,7 +484,7 @@ s32 UnitCompiler::compile_unit_from_json(const char* json)
 				Guid component_id = guid::parse(guid);
 
 				// Patch component "data" key
-				u32 comp_idx = component_index(merged_components, component_id);
+				u32 comp_idx = object_index_from_id(merged_components, component_id);
 				if (comp_idx != UINT32_MAX)
 				{
 					JsonObject modified_component(ta);
@@ -497,6 +499,47 @@ s32 UnitCompiler::compile_unit_from_json(const char* json)
 						, _opts
 						, "Modification of unexisting component ID: %s\n"
 						, guid::to_string(buf, sizeof(buf), component_id)
+						);
+				}
+			}
+		}
+
+		if (json_object::has(prefab, "children"))
+		{
+			JsonArray children(ta);
+			sjson::parse_array(children, prefab["children"]);
+			for (u32 cc = 0; cc < array::size(children); ++cc)
+			{
+				array::push_back(merged_children, children[cc]);
+			}
+		}
+
+		if (json_object::has(prefab, "deleted_children"))
+		{
+			JsonArray deleted_children(ta);
+			sjson::parse_array(deleted_children, prefab["deleted_children"]);
+
+			// Delete components
+			for (u32 ii = 0; ii < array::size(deleted_children); ++ii)
+			{
+				JsonObject obj(ta);
+				sjson::parse_object(obj, deleted_children[ii]);
+				Guid id = sjson::parse_guid(obj["id"]);
+
+				u32 child_index = object_index_from_id(merged_children, id);
+				if (child_index != UINT32_MAX)
+				{
+					u32 child_last = array::size(merged_children) - 1;
+					merged_children[child_index] = merged_children[child_last];
+					array::pop_back(merged_children);
+				}
+				else
+				{
+					char buf[GUID_BUF_LEN];
+					DATA_COMPILER_ASSERT(false
+						, _opts
+						, "Deletion of unexisting child ID: %s\n"
+						, guid::to_string(buf, sizeof(buf), id)
 						);
 				}
 			}
@@ -521,43 +564,66 @@ s32 UnitCompiler::compile_unit_from_json(const char* json)
 		}
 	}
 
-	if (array::size(merged_components) > 0)
+	// Compile component data for each component type found in the chain of units.
+	for (u32 cc = 0; cc < array::size(merged_components); ++cc)
 	{
-		for (u32 cc = 0; cc < array::size(merged_components); ++cc)
+		const char* val = merged_components[cc];
+
+		TempAllocator512 ta;
+		JsonObject component(ta);
+		sjson::parse(component, val);
+
+		const StringId32 type = sjson::parse_string_id(component["type"]);
+
+		Buffer component_data(default_allocator());
+		err = compile_component(component_data, type, merged_components_data[cc]);
+		DATA_COMPILER_ENSURE(err == 0, _opts);
+
+		// Append data to the component data for the given type.
+		ComponentTypeData component_types_deffault(default_allocator());
+		ComponentTypeData& ctd = const_cast<ComponentTypeData&>(hash_map::get(_component_data, type, component_types_deffault));
+
+		// One component per unit max.
+		auto cur = array::begin(ctd._unit_index);
+		auto end = array::end(ctd._unit_index);
+		if (std::find(cur, end, _num_units) != end)
 		{
-			const char* val = merged_components[cc];
-
-			TempAllocator512 ta;
-			JsonObject component(ta);
-			sjson::parse(component, val);
-
-			const StringId32 type = sjson::parse_string_id(component["type"]);
-
-			Buffer output(default_allocator());
-			err = compile_component(output, type, merged_components_data[cc]);
-			DATA_COMPILER_ENSURE(err == 0, _opts);
-
-			add_component_data(type, output, _num_units);
+			char buf[STRING_ID32_BUF_LEN];
+			DATA_COMPILER_ASSERT(false
+				, _opts
+				, "Unit already has a component of type: %s"
+				, type.to_string(buf, sizeof(buf))
+				);
 		}
-	}
 
+		array::push(ctd._data, array::begin(component_data), array::size(component_data));
+		array::push_back(ctd._unit_index, _num_units);
+		++ctd._num;
+	}
+	array::push_back(_unit_parents, parent);
 	++_num_units;
+
+	err = compile_units_array(merged_children, _num_units-1);
+	DATA_COMPILER_ENSURE(err == 0, _opts);
 	return 0;
 }
 
-s32 UnitCompiler::compile_multiple_units(const char* json)
+s32 UnitCompiler::compile_units_array(const JsonArray& units, const u32 parent)
+{
+	for (u32 i = 0; i < array::size(units); ++i)
+	{
+		s32 err = compile_unit_from_json(units[i], parent);
+		DATA_COMPILER_ENSURE(err == 0, _opts);
+	}
+	return 0;
+}
+
+s32 UnitCompiler::compile_units_array(const char* json, const u32 parent)
 {
 	TempAllocator4096 ta;
 	JsonArray units(ta);
 	sjson::parse_array(units, json);
-
-	for (u32 i = 0; i < array::size(units); ++i)
-	{
-		s32 err = compile_unit_from_json(units[i]);
-		DATA_COMPILER_ENSURE(err == 0, _opts);
-	}
-
-	return 0;
+	return compile_units_array(units, parent);
 }
 
 Buffer UnitCompiler::blob()
@@ -588,6 +654,10 @@ Buffer UnitCompiler::blob()
 	bw.write(ur.num_units);
 	bw.write(ur.num_component_types);
 
+	// Write parents
+	for (u32 ii = 0; ii < _num_units; ++ii)
+		bw.write(_unit_parents[ii]);
+
 	for (u32 ii = 0; ii < array::size(_component_info); ++ii)
 	{
 		const StringId32 type        = _component_info[ii]._type;
@@ -617,16 +687,6 @@ Buffer UnitCompiler::blob()
 	}
 
 	return output;
-}
-
-void UnitCompiler::add_component_data(StringId32 type, const Buffer& data, u32 unit_index)
-{
-	ComponentTypeData component_types_deffault(default_allocator());
-	ComponentTypeData& ctd = const_cast<ComponentTypeData&>(hash_map::get(_component_data, type, component_types_deffault));
-
-	array::push(ctd._data, array::begin(data), array::size(data));
-	array::push_back(ctd._unit_index, unit_index);
-	++ctd._num;
 }
 
 void UnitCompiler::register_component_compiler(const char* type, CompileFunction fn, f32 spawn_order)
