@@ -249,8 +249,6 @@ namespace mesh_resource_internal
 		Array<u16> _tangent_indices;
 		Array<u16> _binormal_indices;
 
-		Matrix4x4 _matrix_local;
-
 		u32 _vertex_stride;
 		Array<char> _vertex_buffer;
 		Array<u16> _index_buffer;
@@ -275,7 +273,6 @@ namespace mesh_resource_internal
 			, _uv_indices(default_allocator())
 			, _tangent_indices(default_allocator())
 			, _binormal_indices(default_allocator())
-			, _matrix_local(MATRIX4X4_IDENTITY)
 			, _vertex_stride(0)
 			, _vertex_buffer(default_allocator())
 			, _index_buffer(default_allocator())
@@ -331,13 +328,11 @@ namespace mesh_resource_internal
 			}
 		}
 
-		void parse(const char* geometry, const char* node)
+		void parse(const char* geometry)
 		{
 			TempAllocator4096 ta;
 			JsonObject obj(ta);
-			JsonObject obj_node(ta);
 			sjson::parse(obj, geometry);
-			sjson::parse(obj_node, node);
 
 			_has_normal = json_object::has(obj, "normal");
 			_has_uv     = json_object::has(obj, "texcoord");
@@ -354,8 +349,6 @@ namespace mesh_resource_internal
 			}
 
 			parse_indices(obj["indices"]);
-
-			_matrix_local = sjson::parse_matrix4x4(obj_node["matrix_local"]);
 
 			_vertex_stride = 0;
 			_vertex_stride += 3 * sizeof(f32);
@@ -375,7 +368,6 @@ namespace mesh_resource_internal
 				xyz.x = _positions[p_idx + 0];
 				xyz.y = _positions[p_idx + 1];
 				xyz.z = _positions[p_idx + 2];
-				xyz = xyz * _matrix_local;
 				array::push(_vertex_buffer, (char*)&xyz, sizeof(xyz));
 
 				if (_has_normal)
@@ -419,7 +411,7 @@ namespace mesh_resource_internal
 				, array::begin(_positions)
 				);
 
-			_obb.tm = from_quaternion_translation(QUATERNION_IDENTITY, aabb::center(_aabb) * _matrix_local);
+			_obb.tm = from_quaternion_translation(QUATERNION_IDENTITY, aabb::center(_aabb));
 			_obb.half_extents = (_aabb.max - _aabb.min) * 0.5f;
 		}
 
@@ -437,6 +429,42 @@ namespace mesh_resource_internal
 			_opts.write(array::begin(_index_buffer), array::size(_index_buffer) * sizeof(u16));
 		}
 	};
+
+	s32 compile_node(MeshCompiler& mc, CompileOptions& opts, const JsonObject& geometries, const HashMap<StringView, const char*>::Entry* entry)
+	{
+		TempAllocator4096 ta;
+		const StringView key = entry->first;
+		const char* node = entry->second;
+		const char* geometry = geometries[key];
+
+		const StringId32 node_name(key.data(), key.length());
+		opts.write(node_name._id);
+
+		JsonObject obj_node(ta);
+		sjson::parse(obj_node, node);
+
+		mc.reset();
+		mc.parse(geometry);
+		mc.write();
+
+		if (json_object::has(obj_node, "children"))
+		{
+			JsonObject children(ta);
+			sjson::parse_object(children, obj_node["children"]);
+
+			auto cur = json_object::begin(children);
+			auto end = json_object::end(children);
+			for (; cur != end; ++cur)
+			{
+				JSON_OBJECT_SKIP_HOLE(children, cur);
+
+				s32 err = compile_node(mc, opts, geometries, cur);
+				DATA_COMPILER_ENSURE(err == 0, opts);
+			}
+		}
+
+		return 0;
+	}
 
 	s32 compile(CompileOptions& opts)
 	{
@@ -456,22 +484,14 @@ namespace mesh_resource_internal
 
 		MeshCompiler mc(opts);
 
-		auto cur = json_object::begin(geometries);
-		auto end = json_object::end(geometries);
+		auto cur = json_object::begin(nodes);
+		auto end = json_object::end(nodes);
 		for (; cur != end; ++cur)
 		{
-			JSON_OBJECT_SKIP_HOLE(geometries, cur);
+			JSON_OBJECT_SKIP_HOLE(nodes, cur);
 
-			const StringView key = cur->first;
-			const char* geometry = cur->second;
-			const char* node = nodes[key];
-
-			const StringId32 name(key.data(), key.length());
-			opts.write(name._id);
-
-			mc.reset();
-			mc.parse(geometry, node);
-			mc.write();
+			s32 err = compile_node(mc, opts, geometries, cur);
+			DATA_COMPILER_ENSURE(err == 0, opts);
 		}
 
 		return 0;

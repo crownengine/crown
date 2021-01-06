@@ -154,6 +154,31 @@ namespace physics_resource_internal
 		sd.box.half_size = (aabb.max - aabb.min) * 0.5f;
 	}
 
+	const char* find_node_by_name(const JsonObject& nodes, const char* name)
+	{
+		auto cur = json_object::begin(nodes);
+		auto end = json_object::end(nodes);
+		for (; cur != end; ++cur)
+		{
+			JSON_OBJECT_SKIP_HOLE(nodes, cur);
+
+			if (cur->first == name)
+				return cur->second;
+
+			TempAllocator512 ta;
+			JsonObject node(ta);
+			JsonObject children(ta);
+			sjson::parse_object(node, cur->second);
+			if (json_object::has(node, "children"))
+			{
+				sjson::parse_object(children, node["children"]);
+				return find_node_by_name(children, name);
+			}
+		}
+
+		return NULL;
+	}
+
 	s32 compile_collider(Buffer& output, const char* json, CompileOptions& opts)
 	{
 		TempAllocator4096 ta;
@@ -208,13 +233,16 @@ namespace physics_resource_internal
 				, name.c_str()
 				);
 			sjson::parse(geometry, geometries[name.c_str()]);
+
+			// Find node
 			sjson::parse(nodes, json_mesh["nodes"]);
-			DATA_COMPILER_ASSERT(json_object::has(nodes, name.c_str())
+			const char* node_data = find_node_by_name(nodes, name.c_str());
+			DATA_COMPILER_ASSERT(node_data != NULL
 				, opts
 				, "Node '%s' does not exist"
 				, name.c_str()
 				);
-			sjson::parse(node, nodes[name.c_str()]);
+			sjson::parse(node, node_data);
 
 			Matrix4x4 matrix_local = sjson::parse_matrix4x4(node["matrix_local"]);
 			cd.local_tm = matrix_local;
