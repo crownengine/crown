@@ -1,14 +1,13 @@
-
 components = [
 	{
 		data = {
+			class = "dynamic"
+			collision_filter = "default"
+			mass = 10
 			material = "default"
-			name = "Cube"
-			scene = "units/cube"
-			shape = "box"
 		}
-		id = "a122f56c-be01-46da-9459-c84bc7381221"
-		type = "collider"
+		id = "171eb351-61a4-4f6d-a069-f52ca7b0dc55"
+		type = "actor"
 	}
 	{
 		data = {
@@ -22,13 +21,13 @@ components = [
 	}
 	{
 		data = {
-			class = "dynamic"
-			collision_filter = "default"
-			mass = 10
 			material = "default"
+			name = "Cube"
+			scene = "units/cube"
+			shape = "box"
 		}
-		id = "171eb351-61a4-4f6d-a069-f52ca7b0dc55"
-		type = "actor"
+		id = "a122f56c-be01-46da-9459-c84bc7381221"
+		type = "collider"
 	}
 	{
 		data = {

@@ -1,5 +1,26 @@
-
 components = [
+	{
+		data = {
+			position = [
+				0
+				0
+				0
+			]
+			rotation = [
+				0
+				0
+				0
+				1
+			]
+			scale = [
+				1
+				1
+				1
+			]
+		}
+		id = "637b5db3-1074-4852-a9f2-59c2eea2c2a5"
+		type = "transform"
+	}
 	{
 		data = {
 			geometry_name = "Sphere"
@@ -29,27 +50,5 @@ components = [
 		}
 		id = "cff93999-e1aa-4b23-bc10-d2897e061c26"
 		type = "actor"
-	}
-	{
-		data = {
-			position = [
-				0
-				0
-				0
-			]
-			rotation = [
-				0
-				0
-				0
-				1
-			]
-			scale = [
-				1
-				1
-				1
-			]
-		}
-		id = "637b5db3-1074-4852-a9f2-59c2eea2c2a5"
-		type = "transform"
 	}
 ]

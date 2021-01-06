@@ -1,15 +1,4 @@
-
 components = [
-	{
-		data = {
-			geometry_name = "Cube"
-			material = "units/grid"
-			mesh_resource = "units/ramp"
-			visible = true
-		}
-		id = "e8d9961f-d868-4b26-a4d7-7d2891cead99"
-		type = "mesh_renderer"
-	}
 	{
 		data = {
 			position = [
@@ -24,9 +13,9 @@ components = [
 				1
 			]
 			scale = [
+				8
 				1
-				1
-				1
+				8
 			]
 		}
 		id = "1089a8ef-c51f-417d-9160-3716b5b441d7"
@@ -51,5 +40,15 @@ components = [
 		}
 		id = "d79ef8c9-b2c1-4a67-adc9-07154f7352d7"
 		type = "collider"
+	}
+	{
+		data = {
+			geometry_name = "Cube"
+			material = "units/grid"
+			mesh_resource = "units/ramp"
+			visible = true
+		}
+		id = "e8d9961f-d868-4b26-a4d7-7d2891cead99"
+		type = "mesh_renderer"
 	}
 ]

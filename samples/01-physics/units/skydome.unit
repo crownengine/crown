@@ -1,5 +1,26 @@
-
 components = [
+	{
+		data = {
+			position = [
+				0
+				30
+				0
+			]
+			rotation = [
+				0
+				0.99999999999999833
+				0
+				5.8555627846454029e-08
+			]
+			scale = [
+				512.00000000000193
+				512
+				512.00000000000193
+			]
+		}
+		id = "6ef7e034-8519-4189-9527-04dfe17aebca"
+		type = "transform"
+	}
 	{
 		data = {
 			geometry_name = "Sphere"
@@ -9,27 +30,5 @@ components = [
 		}
 		id = "cc39f446-7e04-40f1-9770-2b44c3f41b0f"
 		type = "mesh_renderer"
-	}
-	{
-		data = {
-			position = [
-				0
-				0
-				0
-			]
-			rotation = [
-				0
-				0
-				0
-				1
-			]
-			scale = [
-				1
-				1
-				1
-			]
-		}
-		id = "6ef7e034-8519-4189-9527-04dfe17aebca"
-		type = "transform"
 	}
 ]

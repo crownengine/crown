@@ -1,27 +1,4 @@
-
 components = [
-	{
-		data = {
-			position = [
-				0
-				0
-				0
-			]
-			rotation = [
-				0
-				0
-				0
-				1
-			]
-			scale = [
-				1
-				1
-				1
-			]
-		}
-		id = "805e9323-578b-4d22-8414-b15b1a5ff7bc"
-		type = "transform"
-	}
 	{
 		data = {
 			material = "default"
@@ -46,10 +23,32 @@ components = [
 		data = {
 			class = "static"
 			collision_filter = "default"
-			mass = 50
+			mass = 10
 			material = "default"
 		}
 		id = "52cec360-697d-4493-a369-1674bcb1d236"
 		type = "actor"
+	}
+	{
+		data = {
+			position = [
+				0
+				0
+				0
+			]
+			rotation = [
+				0
+				0
+				0
+				1
+			]
+			scale = [
+				1
+				1
+				1
+			]
+		}
+		id = "805e9323-578b-4d22-8414-b15b1a5ff7bc"
+		type = "transform"
 	}
 ]
