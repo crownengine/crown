@@ -99,3 +99,13 @@ The Crown Manual is licensed under a `Creative Commons Attribution-ShareAlike
 4.0 International License <https://creativecommons.org/licenses/by-sa/4.0/>`__
 or any later version. Used logos, trademarks, icons, source code and Lua scripts
 are *excluded* from CC-BY-SA.
+
+Your Game or Application
+========================
+
+What you create with Crown is your sole property. All the data (textures,
+models, materials, levels etc.) and code you produce (including data and code
+that Crown outputs) is free for you to use as you like.
+
+This means that Crown can be used by individuals or organizations - no matter
+how big - to make commercial games and applications without any restriction.
