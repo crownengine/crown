@@ -141,8 +141,8 @@ tools-mingw-release64: level-editor-mingw-release64
 
 .PHONY: docs
 docs:
-	$(MAKE) -C docs/ html
 	doxygen docs/doxygen/Doxyfile.doxygen
+	$(MAKE) -C docs/ html
 
 .PHONY: 00-empty
 00-empty: $(OS)-development64
