@@ -5,6 +5,10 @@ Changelog
 ------
 *DD MMM YYYY*
 
+**Manual**
+
+* Improved the Introduction and added Features section
+
 0.40.0
 ------
 *06 Jan 2021*
