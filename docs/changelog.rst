@@ -8,6 +8,7 @@ Changelog
 **Manual**
 
 * Improved the Introduction and added Features section
+* Added Glossary
 
 0.40.0
 ------

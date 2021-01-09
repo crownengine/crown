@@ -10,6 +10,7 @@ The Flexible Game Engine
    lua_api
    boot_config
    command_line
+   glossary
    copyright
 
 Hackers
