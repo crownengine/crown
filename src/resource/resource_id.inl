@@ -5,10 +5,21 @@
 
 #pragma once
 
+#include "core/filesystem/path.h"
 #include "resource/resource_id.h"
 
 namespace crown
 {
+inline const char* resource_type(const char* path)
+{
+	return path::extension(path);
+}
+
+inline u32 resource_name_length(const char* type, const char* path)
+{
+	return u32(type - path - 1);
+}
+
 inline ResourceId resource_id(StringId64 type, StringId64 name)
 {
 	ResourceId id { type._id ^ name._id };

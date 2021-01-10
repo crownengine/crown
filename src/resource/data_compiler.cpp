@@ -37,7 +37,7 @@
 #include "resource/mesh_resource.h"
 #include "resource/package_resource.h"
 #include "resource/physics_resource.h"
-#include "resource/resource_id.h"
+#include "resource/resource_id.inl"
 #include "resource/shader_resource.h"
 #include "resource/sound_resource.h"
 #include "resource/sprite_resource.h"
@@ -870,7 +870,7 @@ bool DataCompiler::dependency_changed(const DynamicString& path, ResourceId id, 
 
 bool DataCompiler::version_changed(const DynamicString& path, ResourceId id)
 {
-	const char* type = path::extension(path.c_str());
+	const char* type = resource_type(path.c_str());
 	if (data_version_stored(type) != data_version(type))
 		return true;
 
@@ -941,7 +941,7 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 			if (path_matches_ignore_glob(path.c_str()))
 				continue;
 
-			if (path::extension(path.c_str()) == NULL)
+			if (resource_type(path.c_str()) == NULL)
 				continue;
 
 			const ResourceId id = resource_id(path.c_str());
@@ -976,7 +976,7 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 
 		// If it does not have extension it cannot be a resource so it cannot be
 		// in tracking structures nor in the data folder.
-		if (path::extension(to_remove[i].c_str()) == NULL)
+		if (resource_type(to_remove[i].c_str()) == NULL)
 			continue;
 
 		// Remove from tracking structures
@@ -1015,7 +1015,7 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 		const DynamicString& path = to_compile[i];
 		logi(DATA_COMPILER, "%s", path.c_str());
 
-		const char* type = path::extension(path.c_str());
+		const char* type = resource_type(path.c_str());
 		if (type == NULL || !can_compile(type))
 		{
 			loge(DATA_COMPILER, "Unknown resource file: '%s'", path.c_str());

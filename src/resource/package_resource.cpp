@@ -9,7 +9,6 @@
 #include "core/containers/hash_set.inl"
 #include "core/filesystem/file.h"
 #include "core/filesystem/filesystem.h"
-#include "core/filesystem/path.h"
 #include "core/filesystem/reader_writer.inl"
 #include "core/json/json_object.inl"
 #include "core/json/sjson.h"
@@ -101,8 +100,8 @@ namespace package_resource_internal
 			HASH_MAP_SKIP_HOLE(reqs, cur);
 
 			const char* req_filename = cur->first.c_str();
-			const char* req_type = path::extension(req_filename);
-			const u32 req_name_len = u32(req_type - req_filename - 1);
+			const char* req_type = resource_type(req_filename);
+			const u32 req_name_len = resource_name_length(req_type, req_filename);
 
 			const StringId64 req_type_hash(req_type);
 			const StringId64 req_name_hash(req_filename, req_name_len);

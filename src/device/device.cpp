@@ -9,7 +9,6 @@
 #include "core/filesystem/filesystem.h"
 #include "core/filesystem/filesystem_apk.h"
 #include "core/filesystem/filesystem_disk.h"
-#include "core/filesystem/path.h"
 #include "core/json/json_object.inl"
 #include "core/json/sjson.h"
 #include "core/list.inl"
@@ -733,8 +732,8 @@ void Device::refresh()
 				sjson::parse_string(resource, list[i]);
 				logi(DEVICE, "%s", resource.c_str());
 
-				const char* type = path::extension(resource.c_str());
-				const u32 len = u32(type - resource.c_str() - 1);
+				const char* type = resource_type(resource.c_str());
+				const u32 len = resource_name_length(type, resource.c_str());
 
 				StringId64 resource_type(type);
 				StringId64 resource_name(resource.c_str(), len);
