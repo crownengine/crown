@@ -9,6 +9,7 @@ Changelog
 
 * Improved the Introduction and added Features section
 * Added Glossary
+* Added license statement about "Your Game or Application"
 
 0.40.0
 ------
