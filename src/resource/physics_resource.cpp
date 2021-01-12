@@ -124,32 +124,37 @@ namespace physics_resource_internal
 		return JointType::COUNT;
 	}
 
-	void compile_sphere(const Array<Vector3>& points, ColliderDesc& sd)
-	{
-		Sphere sphere;
-		sphere::reset(sphere);
-		sphere::add_points(sphere, array::size(points), array::begin(points));
-
-		sd.sphere.radius = sphere.r;
-	}
-
-	void compile_capsule(const Array<Vector3>& points, ColliderDesc& sd)
+	void compile_sphere(ColliderDesc& sd, const Array<Vector3>& points)
 	{
 		AABB aabb;
 		aabb::from_points(aabb, array::size(points), array::begin(points));
 
-		const Vector3 origin = aabb::center(aabb) * sd.local_tm;
+		const Vector3 origin = aabb::center(aabb);
+		sd.local_tm.t = vector4(origin.x, origin.y, origin.z, 1.0f);
+
+		sd.sphere.radius = max(            0.0f, aabb.max.x - aabb.min.x);
+		sd.sphere.radius = max(sd.sphere.radius, aabb.max.y - aabb.min.y);
+		sd.sphere.radius = max(sd.sphere.radius, aabb.max.z - aabb.min.z);
+		sd.sphere.radius *= 0.5f;
+	}
+
+	void compile_capsule(ColliderDesc& sd, const Array<Vector3>& points)
+	{
+		AABB aabb;
+		aabb::from_points(aabb, array::size(points), array::begin(points));
+
+		const Vector3 origin = aabb::center(aabb);
 		sd.local_tm.t = vector4(origin.x, origin.y, origin.z, 1.0f);
 		sd.capsule.radius = aabb::radius(aabb) / 2.0f;
 		sd.capsule.height = (aabb.max.y - aabb.min.y) / 2.0f;
 	}
 
-	void compile_box(const Array<Vector3>& points, ColliderDesc& sd)
+	void compile_box(ColliderDesc& sd, const Array<Vector3>& points)
 	{
 		AABB aabb;
 		aabb::from_points(aabb, array::size(points), array::begin(points));
 
-		const Vector3 origin = aabb::center(aabb) * sd.local_tm;
+		const Vector3 origin = aabb::center(aabb);
 		sd.local_tm.t = vector4(origin.x, origin.y, origin.z, 1.0f);
 		sd.box.half_size = (aabb.max - aabb.min) * 0.5f;
 	}
@@ -244,9 +249,6 @@ namespace physics_resource_internal
 				);
 			sjson::parse(node, node_data);
 
-			Matrix4x4 matrix_local = sjson::parse_matrix4x4(node["matrix_local"]);
-			cd.local_tm = matrix_local;
-
 			JsonArray positions(ta);
 			sjson::parse_array(positions, geometry["position"]);
 
@@ -273,9 +275,9 @@ namespace physics_resource_internal
 
 			switch (cd.type)
 			{
-			case ColliderType::SPHERE:      compile_sphere(points, cd); break;
-			case ColliderType::CAPSULE:     compile_capsule(points, cd); break;
-			case ColliderType::BOX:         compile_box(points, cd); break;
+			case ColliderType::SPHERE:      compile_sphere(cd, points); break;
+			case ColliderType::CAPSULE:     compile_capsule(cd, points); break;
+			case ColliderType::BOX:         compile_box(cd, points); break;
 			case ColliderType::CONVEX_HULL: break;
 			case ColliderType::MESH:        break;
 			case ColliderType::HEIGHTFIELD:

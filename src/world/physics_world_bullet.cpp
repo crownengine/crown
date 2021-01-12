@@ -355,7 +355,7 @@ struct PhysicsWorldImpl
 
 		ColliderInstanceData cid;
 		cid.unit         = unit;
-		cid.local_tm     = MATRIX4X4_IDENTITY;
+		cid.local_tm     = sd->local_tm;
 		cid.vertex_array = vertex_array;
 		cid.shape        = child_shape;
 		cid.next.i       = UINT32_MAX;

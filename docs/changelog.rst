@@ -11,6 +11,14 @@ Changelog
 * Added Glossary
 * Added license statement about "Your Game or Application"
 
+**Data Compiler**
+
+* Fixed compilation of collider volumes
+
+**Runtime**
+
+* Fixed loading of collider volumes
+
 0.40.0
 ------
 *06 Jan 2021*
