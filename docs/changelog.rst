@@ -19,6 +19,10 @@ Changelog
 
 * Fixed loading of collider volumes
 
+**Tools**
+
+* The Editor View now will use the actual unit being placed as a preview instead of its wireframe
+
 0.40.0
 ------
 *06 Jan 2021*

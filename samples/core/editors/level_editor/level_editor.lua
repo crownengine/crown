@@ -244,6 +244,16 @@ function Selection:send_move_objects()
 		}
 end
 
+UnitUtils = UnitUtils or {}
+
+function UnitUtils.freeze(world, unit_id)
+	local pw = World.physics_world(world)
+	local actor = PhysicsWorld.actor_instance(pw, unit_id)
+	if (actor ~= nil) then
+		PhysicsWorld.actor_set_kinematic(pw, actor, true)
+	end
+end
+
 UnitBox = class(UnitBox)
 
 function UnitBox:init(world, id, unit_id, prefab)
@@ -254,12 +264,7 @@ function UnitBox:init(world, id, unit_id, prefab)
 	self._sg = World.scene_graph(world)
 	self._selected = false
 
-	local pw = World.physics_world(world)
-
-	local actor = PhysicsWorld.actor_instance(pw, unit_id)
-	if actor then
-		PhysicsWorld.actor_set_kinematic(pw, actor, true)
-	end
+	UnitUtils.freeze(world, unit_id)
 end
 
 function UnitBox:id()
@@ -563,7 +568,8 @@ function PlaceTool:init()
 	-- Data
 	self._position       = Vector3Box(Vector3.zero())
 	self._placeable_type = nil
-	self._placeable      = nil
+	self._placeable_name = nil
+	self._placeable_id   = nil
 
 	self:set_state("idle")
 end
@@ -590,22 +596,41 @@ function PlaceTool:set_position(pos)
 end
 
 function PlaceTool:set_placeable(placeable_type, name)
-	assert(placeable_type == "unit" or placeable_type == "sound")
+	assert(placeable_type == nil or placeable_type == "unit" or placeable_type == "sound")
 	self._placeable_type = placeable_type
-	self._placeable = name
+	self._placeable_name = name
+
+	if (self._placeable_id ~= nil) then
+		World.destroy_unit(LevelEditor._world, self._placeable_id)
+		self._placeable_id = nil
+	end
 end
 
 function PlaceTool:update(dt, x, y)
+	if self._placeable_type == nil then
+		return
+	end
+
 	local pos = self:position()
 	LevelEditor:draw_grid(Matrix4x4.from_translation(pos), self:position(), LevelEditor._grid.size, "z")
 
-	if self._placeable ~= nil then
-		local lines = LevelEditor._lines
-		local tm = Matrix4x4.from_translation(pos)
+	-- Create placeable preview if it does not exist yet
+	if self._placeable_id == nil then
 		if self._placeable_type == "unit" then
-			DebugLine.add_unit(lines, tm, self._placeable, Color4.green())
+			self._placeable_id = World.spawn_unit(LevelEditor._world, self._placeable_name, pos)
 		elseif self._placeable_type == "sound" then
-			DebugLine.add_unit(lines, tm, "core/units/sound", Color4.green())
+			self._placeable_id = World.spawn_unit(LevelEditor._world, "core/units/sound", pos)
+		end
+
+		UnitUtils.freeze(LevelEditor._world, self._placeable_id)
+	end
+
+	-- Update placeable position
+	if (self._placeable_id ~= nil) then
+		local sg = World.scene_graph(LevelEditor._world)
+		local tr = SceneGraph.instance(sg, self._placeable_id)
+		if tr ~= nil then
+			SceneGraph.set_local_position(sg, tr, pos)
 		end
 	end
 end
@@ -637,15 +662,15 @@ end
 function PlaceTool:mouse_up(x, y)
 	self:set_state("idle")
 
-	if self._placeable == nil then
+	if self._placeable_name == nil then
 		return
 	end
 
 	local level_object = nil
 	if self._placeable_type == "unit" then
 		local guid = Device.guid()
-		local unit = World.spawn_unit(LevelEditor._world, self._placeable, self:position())
-		level_object = UnitBox(LevelEditor._world, guid, unit, self._placeable)
+		local unit = World.spawn_unit(LevelEditor._world, self._placeable_name, self:position())
+		level_object = UnitBox(LevelEditor._world, guid, unit, self._placeable_name)
 
 		Device.console_send { type = "unit_spawned"
 			, id = guid
@@ -658,7 +683,7 @@ function PlaceTool:mouse_up(x, y)
 		LevelEditor._objects[guid] = level_object
 	elseif self._placeable_type == "sound" then
 		local guid = Device.guid()
-		level_object = SoundObject(LevelEditor._world, guid, self._placeable, 10.0, 1.0, false)
+		level_object = SoundObject(LevelEditor._world, guid, self._placeable_name, 10.0, 1.0, false)
 		level_object:set_local_position(self:position())
 		level_object:set_local_rotation(Quaternion.identity())
 
@@ -679,6 +704,13 @@ function PlaceTool:mouse_up(x, y)
 	LevelEditor._selection:clear()
 	LevelEditor._selection:add(level_object:id())
 	LevelEditor._selection:send()
+end
+
+function PlaceTool:on_leave()
+	if self._placeable_id ~= nil then
+		World.destroy_unit(LevelEditor._world, self._placeable_id)
+		self._placeable_id = nil
+	end
 end
 
 MoveTool = class(MoveTool)
@@ -1481,7 +1513,19 @@ function LevelEditor:camera()
 end
 
 function LevelEditor:set_tool(tool)
+	if self.tool == tool then
+		return
+	end
+
+	if self.tool.on_leave ~= nil then
+		self.tool:on_leave()
+	end
+
 	self.tool = tool
+
+	if self.tool.on_enter ~= nil then
+		self.tool:on_enter()
+	end
 end
 
 function LevelEditor:multiple_selection_enabled()
