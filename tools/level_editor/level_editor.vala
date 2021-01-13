@@ -341,6 +341,10 @@ public class LevelEditorApplication : Gtk.Application
 
 		_project = new Project(_data_compiler);
 		_project.set_toolchain_dir(_toolchain_dir.get_path());
+		_project.register_importer("Sprite", { "png" }, _project.import_sprites, 0.0);
+		_project.register_importer("Mesh", { "mesh" }, _project.import_meshes, 1.0);
+		_project.register_importer("Sound", { "wav" }, _project.import_sounds, 2.0);
+		_project.register_importer("Texture", { "png", "tga", "dds", "ktx", "pvr" }, _project.import_textures, 2.0);
 
 		_database = new Database();
 		_database.key_changed.connect(() => { update_active_window_title(); });

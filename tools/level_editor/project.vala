@@ -8,9 +8,28 @@ using Gee;
 
 namespace Crown
 {
+public delegate int ImporterDelegate(SList<string> filenames, string destination_dir);
+
 public class Project
 {
 	public const string LEVEL_EDITOR_TEST_NAME = "_level_editor_test";
+
+	[Compact]
+	public struct ImporterData
+	{
+		public unowned ImporterDelegate delegate;
+		public Gee.ArrayList<string> extensions;
+		public double order;
+		public Gtk.FileFilter _filter;
+
+		ImporterData()
+		{
+			delegate = null;
+			extensions = new Gee.ArrayList<string>();
+			order = 0.0;
+			_filter = new Gtk.FileFilter();
+		}
+	}
 
 	// Data
 	public File _source_dir;
@@ -21,6 +40,8 @@ public class Project
 	public string _platform;
 	public Database _files;
 	public HashMap<string, Guid?> _map;
+	public ImporterData _all_extensions_importer_data;
+	public Gee.ArrayList<ImporterData?> _importers;
 	public DataCompiler _data_compiler;
 
 	public signal void file_added(string type, string name);
@@ -39,6 +60,9 @@ public class Project
 #endif // CROWN_PLATFORM_LINUX
 		_files = new Database();
 		_map = new HashMap<string, Guid?>();
+		_all_extensions_importer_data = ImporterData();
+		_all_extensions_importer_data.delegate = import_all_extensions;
+		_importers = new Gee.ArrayList<ImporterData?>();
 		_data_compiler = dc;
 	}
 
@@ -1082,28 +1106,116 @@ public class Project
 		return 0;
 	}
 
+	public int import_all_extensions(SList<string> filenames, string destination_dir)
+	{
+		Gee.ArrayList<string> paths = new Gee.ArrayList<string>();
+		foreach (var item in filenames)
+			paths.add(item);
+
+		paths.sort((a, b) => {
+			int ext_a = a.last_index_of_char('.');
+			int ext_b = b.last_index_of_char('.');
+			return strcmp(a[ext_a:], b[ext_b:]);
+		});
+
+		int success = 0;
+		while (paths.size != 0 && success == 0)
+		{
+			// Find importer for the first file in the list of selected filenames.
+			ImporterData? importer = find_importer_for_path(paths[0]);
+			if (importer == null)
+				return -1;
+
+			// Create the list of all filenames importable by importer.
+			Gee.ArrayList<string> importables = new Gee.ArrayList<string>();
+			var cur = paths.list_iterator();
+			for (var has_next = cur.next(); has_next; has_next = cur.next())
+			{
+				string path = paths[cur.index()];
+
+				foreach (var ext in importer.extensions)
+				{
+					if (path.has_suffix("." + ext))
+					{
+						importables.add(path);
+						cur.remove();
+					}
+				}
+			}
+
+			// If importables is empty, filenames must have been filled with
+			// un-importable filenames...
+			if (importables.size == 0)
+				return -1;
+
+			// Convert importables to SList<string> to be used as delegate param.
+			SList<string> importables_list = new SList<string>();
+			foreach (var item in importables)
+				importables_list.append(item);
+
+			success = importer.delegate(importables_list, destination_dir);
+		}
+
+		return success;
+	}
+
+	// Returns a Gtk.FileFilter based on file @a extensions list.
+	public Gtk.FileFilter create_gtk_file_filter(string name, ArrayList<string> extensions)
+	{
+		Gtk.FileFilter filter = new Gtk.FileFilter();
+
+		string extensions_comma_separated = "";
+		foreach (var ext in extensions)
+		{
+			extensions_comma_separated += "*.%s, ".printf(ext);
+			filter.add_pattern("*.%s".printf(ext));
+		}
+		filter.set_filter_name(name + " (%s)".printf(extensions_comma_separated[:-2]));
+
+		return filter;
+	}
+
+	public void register_importer_internal(string name, ref ImporterData data)
+	{
+		data._filter = create_gtk_file_filter(name, data.extensions);
+		_importers.add(data);
+		_importers.sort((a, b) => { return (a.order < b.order ? -1 : 1); });
+
+		_all_extensions_importer_data.extensions.add_all(data.extensions);
+		_all_extensions_importer_data._filter = create_gtk_file_filter("All", _all_extensions_importer_data.extensions);
+	}
+
+	// Registers an @a importer for importing source data with the given @a
+	// extensions. @a order is used to establish precedence when distinct importers
+	// support similar extensions; lower values have higher precedence.
+	public void register_importer(string name, string[] extensions, ImporterDelegate importer, double order)
+	{
+		ImporterData data = ImporterData();
+		data.delegate = importer;
+		data.extensions.add_all_array(extensions);
+		data.order = order;
+
+		register_importer_internal(name, ref data);
+	}
+
+	// Returns the preferable importer (lowest order values) which can import files
+	// with the given @a extension.
+	public ImporterData? find_importer_for_path(string path)
+	{
+		foreach (var imp in _importers)
+		{
+			foreach (var ext in imp.extensions)
+			{
+				if (path.has_suffix("." + ext))
+					return imp;
+			}
+		}
+
+		return null;
+	}
+
 	public void import(string? destination_dir, Gtk.Window? parent_window = null)
 	{
-		Gtk.FileFilter sprite_filter = new Gtk.FileFilter();
-		sprite_filter.set_filter_name("Sprite (*.png)");
-		sprite_filter.add_pattern("*.png");
-
-		Gtk.FileFilter mesh_filter = new Gtk.FileFilter();
-		mesh_filter.set_filter_name("Mesh (*.mesh)");
-		mesh_filter.add_pattern("*.mesh");
-
-		Gtk.FileFilter sound_filter = new Gtk.FileFilter();
-		sound_filter.set_filter_name("Sound (*.wav)");
-		sound_filter.add_pattern("*.wav");
-
-		Gtk.FileFilter texture_filter = new Gtk.FileFilter();
-		texture_filter.set_filter_name("Texture (*.png, *.tga, *.dds, *.ktx, *.pvr)");
-		texture_filter.add_pattern("*.png");
-		texture_filter.add_pattern("*.tga");
-		texture_filter.add_pattern("*.dds");
-		texture_filter.add_pattern("*.ktx");
-		texture_filter.add_pattern("*.pvr");
-
 		Gtk.FileChooserDialog src = new Gtk.FileChooserDialog("Import..."
 			, parent_window
 			, FileChooserAction.OPEN
@@ -1113,10 +1225,10 @@ public class Project
 			, ResponseType.ACCEPT
 			);
 		src.select_multiple = true;
-		src.add_filter(sprite_filter);
-		src.add_filter(mesh_filter);
-		src.add_filter(sound_filter);
-		src.add_filter(texture_filter);
+		foreach (var importer in _importers)
+			src.add_filter(importer._filter);
+		src.add_filter(_all_extensions_importer_data._filter);
+		src.set_filter(_all_extensions_importer_data._filter);
 
 		if (src.run() != (int)ResponseType.ACCEPT)
 		{
@@ -1155,20 +1267,22 @@ public class Project
 		Gtk.FileFilter? current_filter = src.get_filter();
 		GLib.SList<string> filenames = src.get_filenames();
 
-		int success = 1;
-		if (current_filter != null)
+		// Find importer callback
+		ImporterDelegate? importer = null;
+		foreach (var imp in _importers)
 		{
-			if (current_filter == sprite_filter)
-				success = this.import_sprites(filenames, out_dir);
-			else if (current_filter == mesh_filter)
-				success = this.import_meshes(filenames, out_dir);
-			else if (current_filter == sound_filter)
-				success = this.import_sounds(filenames, out_dir);
-			else if (current_filter == texture_filter)
-				success = this.import_textures(filenames, out_dir);
+			if (imp._filter == current_filter)
+			{
+				importer = imp.delegate;
+				break;
+			}
 		}
+		// Fallback if no importer found
+		if (importer == null)
+			importer = _all_extensions_importer_data.delegate;
 
-		if (success == 0)
+		// Import
+		if (importer(filenames, out_dir) == 0)
 		{
 			_data_compiler.compile.begin(this.data_dir(), this.platform(), (obj, res) => {
 				_data_compiler.compile.end(res);

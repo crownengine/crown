@@ -23,6 +23,7 @@ Changelog
 
 * The Editor View now will use the actual unit being placed as a preview instead of its wireframe
 * Fixed an issue that caused textures with supported extension types to be skipped by the importer
+* Added the ability select distinct resource types in the Import dialog
 
 0.40.0
 ------
