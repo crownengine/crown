@@ -506,9 +506,6 @@ public class Project
 
 		foreach (unowned string filename_i in filenames)
 		{
-			if (!filename_i.has_suffix(".png"))
-				continue;
-
 			GLib.File file_src = File.new_for_path(filename_i);
 			GLib.File file_dst = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
 
@@ -920,9 +917,6 @@ public class Project
 	{
 		foreach (unowned string filename_i in filenames)
 		{
-			if (!filename_i.has_suffix(".mesh"))
-				continue;
-
 			GLib.File file_src = File.new_for_path(filename_i);
 			GLib.File file_dst = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
 
@@ -1034,9 +1028,6 @@ public class Project
 	{
 		foreach (unowned string filename_i in filenames)
 		{
-			if (!filename_i.has_suffix(".wav"))
-				continue;
-
 			GLib.File file_src = File.new_for_path(filename_i);
 			GLib.File file_dst = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
 
@@ -1065,9 +1056,6 @@ public class Project
 	{
 		foreach (unowned string filename_i in filenames)
 		{
-			if (!filename_i.has_suffix(".png"))
-				continue;
-
 			GLib.File file_src = File.new_for_path(filename_i);
 			GLib.File file_dst = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
 

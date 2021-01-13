@@ -22,6 +22,7 @@ Changelog
 **Tools**
 
 * The Editor View now will use the actual unit being placed as a preview instead of its wireframe
+* Fixed an issue that caused textures with supported extension types to be skipped by the importer
 
 0.40.0
 ------
