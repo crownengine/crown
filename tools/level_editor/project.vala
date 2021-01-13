@@ -1115,7 +1115,7 @@ public class Project
 		paths.sort((a, b) => {
 			int ext_a = a.last_index_of_char('.');
 			int ext_b = b.last_index_of_char('.');
-			return strcmp(a[ext_a:], b[ext_b:]);
+			return strcmp(a[ext_a:a.length], b[ext_b:b.length]);
 		});
 
 		int success = 0;
@@ -1170,7 +1170,7 @@ public class Project
 			extensions_comma_separated += "*.%s, ".printf(ext);
 			filter.add_pattern("*.%s".printf(ext));
 		}
-		filter.set_filter_name(name + " (%s)".printf(extensions_comma_separated[:-2]));
+		filter.set_filter_name(name + " (%s)".printf(extensions_comma_separated[0:-2]));
 
 		return filter;
 	}
