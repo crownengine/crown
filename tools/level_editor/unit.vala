@@ -323,6 +323,13 @@ public class Unit
 		return has_prefab()
 			&& _db.get_property_string(_unit, "prefab") == "core/units/light";
 	}
+
+	/// Returns whether the unit is a camera unit.
+	public bool is_camera()
+	{
+		return has_prefab()
+			&& _db.get_property_string(_unit, "prefab") == "core/units/camera";
+	}
 }
 
 }

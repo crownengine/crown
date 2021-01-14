@@ -355,10 +355,8 @@ public class LevelTreeView : Gtk.Box
 		_tree_view.model = null;
 		_tree_store.clear();
 
-		Gtk.TreeIter unit_iter;
-		Gtk.TreeIter light_iter;
-		Gtk.TreeIter sound_iter;
-		_tree_store.insert_with_values(out unit_iter
+		Gtk.TreeIter units_iter;
+		_tree_store.insert_with_values(out units_iter
 			, null
 			, -1
 			, Column.TYPE
@@ -369,7 +367,8 @@ public class LevelTreeView : Gtk.Box
 			, "Units"
 			, -1
 			);
-		_tree_store.insert_with_values(out light_iter
+		Gtk.TreeIter lights_iter;
+		_tree_store.insert_with_values(out lights_iter
 			, null
 			, -1
 			, Column.TYPE
@@ -380,7 +379,8 @@ public class LevelTreeView : Gtk.Box
 			, "Lights"
 			, -1
 			);
-		_tree_store.insert_with_values(out sound_iter
+		Gtk.TreeIter sounds_iter;
+		_tree_store.insert_with_values(out sounds_iter
 			, null
 			, -1
 			, Column.TYPE
@@ -391,6 +391,18 @@ public class LevelTreeView : Gtk.Box
 			, "Sounds"
 			, -1
 			);
+		Gtk.TreeIter cameras_iter;
+		_tree_store.insert_with_values(out cameras_iter
+			, null
+			, -1
+			, Column.TYPE
+			, ItemType.FOLDER
+			, Column.GUID
+			, GUID_ZERO
+			, Column.NAME
+			, "Cameras"
+			, -1
+			);
 
 		HashSet<Guid?> units  = _db.get_property_set(GUID_ZERO, "units", new HashSet<Guid?>());
 		HashSet<Guid?> sounds = _db.get_property_set(GUID_ZERO, "sounds", new HashSet<Guid?>());
@@ -398,9 +410,16 @@ public class LevelTreeView : Gtk.Box
 		foreach (Guid unit in units)
 		{
 			Unit u = new Unit(_level._db, unit, _level._prefabs);
+
+			Gtk.TreeIter tree_iter = units_iter;
+			if (u.is_light())
+				tree_iter = lights_iter;
+			else if (u.is_camera())
+				tree_iter = cameras_iter;
+
 			Gtk.TreeIter iter;
 			_tree_store.insert_with_values(out iter
-				, u.is_light() ? light_iter : unit_iter
+				, tree_iter
 				, -1
 				, Column.TYPE
 				, ItemType.UNIT
@@ -415,7 +434,7 @@ public class LevelTreeView : Gtk.Box
 		{
 			Gtk.TreeIter iter;
 			_tree_store.insert_with_values(out iter
-				, sound_iter
+				, sounds_iter
 				, -1
 				, Column.TYPE
 				, ItemType.SOUND
