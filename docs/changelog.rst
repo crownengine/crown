@@ -25,6 +25,7 @@ Changelog
 * Fixed an issue that caused textures with supported extension types to be skipped by the importer
 * Added the ability select distinct resource types in the Import dialog
 * Fixed Lua error when setting camera parameters
+* The Project Browser will now show every file type except those used only internally by the Editor
 
 0.40.0
 ------

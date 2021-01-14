@@ -12,13 +12,7 @@ namespace Crown
 private bool row_should_be_hidden(string type, string name)
 {
 	return type == "<folder>" && name == "core"
-		|| type == "dds"
 		|| type == "importer_settings"
-		|| type == "ktx"
-		|| type == "ogg"
-		|| type == "png"
-		|| type == "pvr"
-		|| type == "wav"
 		|| name == Project.LEVEL_EDITOR_TEST_NAME
 		;
 }
