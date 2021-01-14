@@ -32,4 +32,14 @@ components = [
 		id = "2c75ed10-6fe9-4f4c-b28d-80ebca2ef66f"
 		type = "camera"
 	}
+	{
+		data = {
+			geometry_name = "Camera"
+			material = "core/units/camera"
+			mesh_resource = "core/units/camera"
+			visible = true
+		}
+		id = "a02e02a1-9ce4-4e20-885a-badbf6197d7a"
+		type = "mesh_renderer"
+	}
 ]
