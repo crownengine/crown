@@ -404,7 +404,7 @@ function UnitBox:set_sprite(material, layer, depth, visible)
 end
 
 function UnitBox:set_camera(projection, fov, near_range, far_range)
-	local camera = World.camera_instance(LevelEditor._rw, self._unit_id)
+	local camera = World.camera_instance(LevelEditor._world, self._unit_id)
 	World.camera_set_projection_type(LevelEditor._world, camera, projection)
 	World.camera_set_fov(LevelEditor._world, camera, fov)
 	World.camera_set_near_clip_distance(LevelEditor._world, camera, near_range)
