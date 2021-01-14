@@ -1,14 +1,9 @@
 require "core/game/camera"
 
-GameBase = GameBase or {}
-
-GameBase.data = {
-	move = false,
-
+GameBase = GameBase or {
 	world       = nil, -- Default world
-	camera      = nil, -- Default camera
+	camera_unit = nil, -- Default camera
 	game        = nil, -- User Game
-	game_camera = nil,
 	game_level  = nil,
 
 	_test_package = nil,
@@ -19,11 +14,10 @@ function GameBase.init()
 	GameBase.world = Device.create_world()
 
 	-- Create default camera
-	local camera_unit = World.spawn_unit(GameBase.world, "core/units/camera")
+	GameBase.camera_unit = World.spawn_unit(GameBase.world, "core/units/camera")
 	local scene_graph = World.scene_graph(GameBase.world)
-	local tr = SceneGraph.instance(scene_graph, camera_unit)
-	SceneGraph.set_local_position(scene_graph, tr, Vector3(0, 6.5, -30))
-	GameBase.camera = FPSCamera(GameBase.world, camera_unit)
+	local camera_transform = SceneGraph.instance(scene_graph, GameBase.camera_unit)
+	SceneGraph.set_local_position(scene_graph, camera_transform, Vector3(0, 6.5, -30))
 
 	-- Load test level if launched from Level Editor.
 	if TEST then
@@ -53,14 +47,6 @@ function GameBase.update(dt)
 		end
 	end
 
-	if not GameBase.game_camera then
-		local delta = Vector3.zero()
-		if Mouse.pressed(Mouse.button_id("right")) then move = true end
-		if Mouse.released(Mouse.button_id("right")) then move = false end
-		if move then delta = Mouse.axis(Mouse.axis_id("cursor_delta")) end
-		GameBase.camera:update(dt, delta.x, delta.y)
-	end
-
 	if GameBase.game and GameBase.game.update then
 		GameBase.game.update(dt)
 	end
@@ -71,7 +57,7 @@ function GameBase.render(dt)
 		GameBase.game.render(dt)
 	end
 
-	Device.render(GameBase.world, GameBase.game_camera or GameBase.camera:unit())
+	Device.render(GameBase.world, GameBase.camera_unit)
 end
 
 function GameBase.shutdown()

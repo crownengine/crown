@@ -26,6 +26,7 @@ Changelog
 * Added the ability select distinct resource types in the Import dialog
 * Fixed Lua error when setting camera parameters
 * The Project Browser will now show every file type except those used only internally by the Editor
+* Removed the default "FPSCamera" camera from the core game framework
 
 0.40.0
 ------

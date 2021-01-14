@@ -21,16 +21,13 @@ function Game.level_loaded()
 	Game.sg = World.scene_graph(GameBase.world)
 	Game.sm = World.animation_state_machine(GameBase.world)
 
-	-- Spawn camera
-	local camera_unit = World.spawn_unit(GameBase.world, "core/units/camera")
-	local camera = World.camera_instance(GameBase.world, camera_unit)
+	-- Setup camera
+	local camera = World.camera_instance(GameBase.world, GameBase.camera_unit)
 	World.camera_set_orthographic_size(GameBase.world, camera, 540/2/32)
 	World.camera_set_projection_type(GameBase.world, camera, "orthographic")
-	local tr = SceneGraph.instance(Game.sg, camera_unit)
-	SceneGraph.set_local_position(Game.sg, tr, Vector3(0, 8, 0))
-	SceneGraph.set_local_rotation(Game.sg, tr, Quaternion.from_axis_angle(Vector3.right(), 90*(math.pi/180.0)))
-
-	GameBase.game_camera = camera_unit
+	local camera_transform = SceneGraph.instance(Game.sg, GameBase.camera_unit)
+	SceneGraph.set_local_position(Game.sg, camera_transform, Vector3(0, 8, 0))
+	SceneGraph.set_local_rotation(Game.sg, camera_transform, Quaternion.from_axis_angle(Vector3.right(), 90*(math.pi/180.0)))
 
 	-- Spawn characters
 	Game.players[1] = World.spawn_unit(GameBase.world, "units/soldier", Vector3(-2, 0, 0))

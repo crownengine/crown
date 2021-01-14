@@ -18,15 +18,7 @@ function Game.level_loaded()
 	Game.pw = World.physics_world(GameBase.world)
 	Game.rw = World.render_world(GameBase.world)
 	Game.sg = World.scene_graph(GameBase.world)
-
-	-- Spawn camera
-	local camera_unit = World.spawn_unit(GameBase.world, "core/units/camera")
-	local tr = SceneGraph.instance(Game.sg, camera_unit);
-	SceneGraph.set_local_position(Game.sg, tr, Vector3(0, 6.5, -30))
-
-	GameBase.game_camera = camera_unit
-
-	Game.camera = FPSCamera(GameBase.world, camera_unit)
+	Game.camera = FPSCamera(GameBase.world, GameBase.camera_unit)
 
 	-- Debug
 	PhysicsWorld.enable_debug_drawing(Game.pw, debug_physics)
