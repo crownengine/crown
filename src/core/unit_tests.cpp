@@ -188,6 +188,12 @@ static void test_hash_set()
 		for (s32 i = 0; i < 100; ++i)
 			ENSURE(!hash_set::has(m, i*i));
 	}
+	{
+		HashSet<s32> ma(a);
+		HashSet<s32> mb(a);
+		hash_set::insert(ma, 0);
+		ma = mb;
+	}
 	memory_globals::shutdown();
 }
 
