@@ -11,7 +11,7 @@ namespace Crown
 {
 const int WINDOW_DEFAULT_WIDTH = 1280;
 const int WINDOW_DEFAULT_HEIGHT = 720;
-const string LEVEL_EDITOR_WINDOW_TITLE = "Level Editor";
+const string LEVEL_EDITOR_WINDOW_TITLE = "Crown Editor";
 
 public class LevelEditorWindow : Gtk.ApplicationWindow
 {
@@ -1985,7 +1985,7 @@ public class LevelEditorApplication : Gtk.Application
 		dlg.set_modal(true);
 		dlg.set_logo_icon_name("pepper");
 
-		dlg.program_name = "Crown Game Engine";
+		dlg.program_name = LEVEL_EDITOR_WINDOW_TITLE;
 		dlg.version = CROWN_VERSION;
 		dlg.website = "https://github.com/dbartolini/crown";
 		dlg.copyright = "Copyright (c) 2012-2021 Daniele Bartolini et al.";
