@@ -344,9 +344,9 @@ HashMap<TKey, TValue, Hash, KeyEqual>::HashMap(const HashMap<TKey, TValue, Hash,
 	_size = other._size;
 	_mask = other._mask;
 
-	_allocator->deallocate(_buffer);
 	if (other._capacity > 0)
 	{
+		_allocator->deallocate(_buffer);
 		const u32 size = other._capacity * (sizeof(Index) + sizeof(Entry)) + alignof(Index) + alignof(Entry);
 		_buffer = (char*)_allocator->allocate(size);
 		_index = (Index*)memory::align_top(_buffer, alignof(Index));
@@ -381,9 +381,9 @@ HashMap<TKey, TValue, Hash, KeyEqual>& HashMap<TKey, TValue, Hash, KeyEqual>::op
 	_size = other._size;
 	_mask = other._mask;
 
-	_allocator->deallocate(_buffer);
 	if (other._capacity > 0)
 	{
+		_allocator->deallocate(_buffer);
 		const u32 size = other._capacity * (sizeof(Index) + sizeof(Entry)) + alignof(Index) + alignof(Entry);
 		_buffer = (char*)_allocator->allocate(size);
 		_index = (Index*)memory::align_top(_buffer, alignof(Index));

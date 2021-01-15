@@ -150,6 +150,12 @@ static void test_hash_map()
 			hash_map::remove(m, i);
 		}
 	}
+	{
+		HashMap<s32, s32> ma(a);
+		HashMap<s32, s32> mb(a);
+		hash_map::set(ma, 0, 0);
+		ma = mb;
+	}
 	memory_globals::shutdown();
 }
 

@@ -319,9 +319,9 @@ HashSet<TKey, Hash, KeyEqual>::HashSet(const HashSet& other)
 	_size = other._size;
 	_mask = other._mask;
 
-	_allocator->deallocate(_buffer);
 	if (other._capacity > 0)
 	{
+		_allocator->deallocate(_buffer);
 		const u32 size = other._capacity * (sizeof(Index) + sizeof(TKey)) + alignof(Index) + alignof(TKey);
 		_buffer = (char*)_allocator->allocate(size);
 		_index = (Index*)memory::align_top(_buffer, alignof(Index));
@@ -356,9 +356,9 @@ HashSet<TKey, Hash, KeyEqual>& HashSet<TKey, Hash, KeyEqual>::operator=(const Ha
 	_size = other._size;
 	_mask = other._mask;
 
-	_allocator->deallocate(_buffer);
 	if (other._capacity > 0)
 	{
+		_allocator->deallocate(_buffer);
 		const u32 size = other._capacity * (sizeof(Index) + sizeof(TKey)) + alignof(Index) + alignof(TKey);
 		_buffer = (char*)_allocator->allocate(size);
 		_index = (Index*)memory::align_top(_buffer, alignof(Index));
