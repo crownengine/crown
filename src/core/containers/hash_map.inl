@@ -395,7 +395,7 @@ HashMap<TKey, TValue, Hash, KeyEqual>& HashMap<TKey, TValue, Hash, KeyEqual>::op
 			const u32 index = other._index[i].index;
 			if (index != hash_map_internal::FREE && !hash_map_internal::is_deleted(index))
 			{
-				new (&_data[i]) PAIR(TKey, TValue)(*_allocator);
+				new (&_data[i]) Entry(*_allocator);
 				_data[i] = other._data[i];
 			}
 		}
