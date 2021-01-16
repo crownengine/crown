@@ -3,7 +3,7 @@ Changelog
 
 0.41.0
 ------
-*DD MMM YYYY*
+*16 Jan 2021*
 
 **Manual**
 
