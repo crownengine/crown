@@ -94,7 +94,7 @@ Supported platforms
 -------------------
 
 * Runtime
-	* Android 7.0+ (ARMv7+)
+	* Android 7.0+ (ARMv7-a, ARMv8-a)
 	* Ubuntu 12.04+ (x86_64)
 	* Windows 7, 8, 10 (x86_64)
 

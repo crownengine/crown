@@ -26,6 +26,21 @@ jobs:
         export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk-bundle
         export ANDROID_NDK_ABI=23
         make MAKE_JOBS=2 android-arm-release
+    - name: android-arm64-make-debug
+      run: |
+        export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk-bundle
+        export ANDROID_NDK_ABI=23
+        make MAKE_JOBS=2 android-arm64-debug
+    - name: android-arm64-make-development
+      run: |
+        export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk-bundle
+        export ANDROID_NDK_ABI=23
+        make MAKE_JOBS=2 android-arm64-development
+    - name: android-arm64-make-release
+      run: |
+        export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk-bundle
+        export ANDROID_NDK_ABI=23
+        make MAKE_JOBS=2 android-arm64-release
   linux:
     runs-on: ubuntu-18.04
     steps:

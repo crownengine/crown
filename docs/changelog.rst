@@ -5,6 +5,11 @@ Changelog
 ------
 *DD MMM YYYY*
 
+**Runtime**
+
+* Upgraded to LuaJIT 2.1
+* Added support to 64-bits Android (ARMv8-a)
+
 0.41.0
 ------
 *16 Jan 2021*

@@ -27,16 +27,25 @@ endif
 GENIE=3rdparty/bx/tools/bin/$(OS)/genie
 MAKE_JOBS=1
 
+# LuaJIT
 NDKABI=$(ANDROID_NDK_ABI)
 NDKDIR=$(ANDROID_NDK_ROOT)
 NDKBIN=$(NDKDIR)/toolchains/llvm/prebuilt/linux-x86_64/bin
 NDKCROSS=$(NDKBIN)/arm-linux-androideabi-
 NDKCC=$(NDKBIN)/armv7a-linux-androideabi$(NDKABI)-clang
+NDKCROSS64=$(NDKBIN)/aarch64-linux-android-
+NDKCC64=$(NDKBIN)/aarch64-linux-android$(NDKABI)-clang
 
 build/android-arm/bin/libluajit.a:
 	$(MAKE) -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src HOST_CC="gcc -m32" CROSS=$(NDKCROSS) STATIC_CC=$(NDKCC) DYNAMIC_CC="$(NDKCC) -fPIC" TARGET_LD=$(NDKCC)
 	mkdir -p build/android-arm/bin
 	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/libluajit.a build/android-arm/bin
+	$(MAKE) -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
+
+build/android-arm64/bin/libluajit.a:
+	$(MAKE) -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src CROSS=$(NDKCROSS64) STATIC_CC=$(NDKCC64) DYNAMIC_CC="$(NDKCC64) -fPIC" TARGET_LD=$(NDKCC64)
+	mkdir -p build/android-arm64/bin
+	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/libluajit.a build/android-arm64/bin
 	$(MAKE) -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
 
 build/linux64/bin/luajit:
@@ -72,6 +81,16 @@ android-arm-development: build/projects/android-arm build/android-arm/bin/liblua
 android-arm-release: build/projects/android-arm build/android-arm/bin/libluajit.a
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/android-arm config=release
 android-arm: android-arm-debug android-arm-development android-arm-release
+
+build/projects/android-arm64:
+	$(GENIE) --file=scripts/genie.lua --with-luajit --compiler=android-arm64 gmake
+android-arm64-debug: build/projects/android-arm64 build/android-arm64/bin/libluajit.a
+	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/android-arm64 config=debug
+android-arm64-development: build/projects/android-arm64 build/android-arm64/bin/libluajit.a
+	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/android-arm64 config=development
+android-arm64-release: build/projects/android-arm64 build/android-arm64/bin/libluajit.a
+	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/android-arm64 config=release
+android-arm64: android-arm64-debug android-arm64-development android-arm64-release
 
 build/linux64/bin/texturec:
 	$(MAKE) -j$(MAKE_JOBS) -R -C 3rdparty/bimg/.build/projects/gmake-linux config=release64 texturec
