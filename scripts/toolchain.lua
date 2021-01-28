@@ -255,6 +255,8 @@ function toolchain(build_dir, lib_dir)
 			"--target=armv7-none-linux-androideabi$(ANDROID_NDK_ABI)",
 			"--gcc-toolchain=$(ANDROID_NDK_ROOT)/toolchains/llvm/prebuilt/linux-x86_64",
 			"--sysroot=$(ANDROID_NDK_ROOT)/toolchains/llvm/prebuilt/linux-x86_64/sysroot",
+			"$(ANDROID_NDK_ROOT)/platforms/android-$(ANDROID_NDK_ABI)/arch-arm/usr/lib/crtbegin_so.o",
+			"$(ANDROID_NDK_ROOT)/platforms/android-$(ANDROID_NDK_ABI)/arch-arm/usr/lib/crtend_so.o",
 			"-march=armv7-a",
 			"-Wl,--fix-cortex-a8",
 		}
