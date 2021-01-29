@@ -79,6 +79,28 @@ function draw_grid(lines, tm, center, size, axis, color)
 	Device.set_temp_count(nv, nq, nm)
 end
 
+-- From Bitsquid's math.lua
+function line_line(line_a_pt1, line_a_pt2, line_b_pt1, line_b_pt2)
+	local line_a_vector = line_a_pt2 - line_a_pt1
+	local line_b_vector = line_b_pt2 - line_b_pt1
+	local a = Vector3.dot(line_a_vector, line_a_vector)
+	local e = Vector3.dot(line_b_vector, line_b_vector)
+	local b = Vector3.dot(line_a_vector, line_b_vector)
+	local d = a * e - b * b
+
+	if d < 0.001 then
+		-- The lines are parallel. There is no intersection.
+		return nil, nil
+	end
+
+	local r = line_a_pt1 - line_b_pt1
+	local c = Vector3.dot(line_a_vector, r)
+	local f = Vector3.dot(line_b_vector, r)
+	local normalized_distance_along_line_a = (b * f - c * e) / d
+	local normalized_distance_along_line_b = (a * f - b * c) / d
+	return normalized_distance_along_line_a, normalized_distance_along_line_b
+end
+
 function draw_world_origin_grid(lines, size, step)
 	local nv, nq, nm = Device.temp_count()
 
@@ -867,28 +889,6 @@ function MoveTool:update(dt, x, y)
 end
 
 function MoveTool:drag_offset(x, y)
-	-- From Bitsquid's math.lua
-	function line_line(line_a_pt1, line_a_pt2, line_b_pt1, line_b_pt2)
-		local line_a_vector = line_a_pt2 - line_a_pt1
-		local line_b_vector = line_b_pt2 - line_b_pt1
-		local a = Vector3.dot(line_a_vector, line_a_vector)
-		local e = Vector3.dot(line_b_vector, line_b_vector)
-		local b = Vector3.dot(line_a_vector, line_b_vector)
-		local d = a * e - b * b
-
-		if d < 0.001 then
-			-- The lines are parallel. There is no intersection.
-			return nil, nil
-		end
-
-		local r = line_a_pt1 - line_b_pt1
-		local c = Vector3.dot(line_a_vector, r)
-		local f = Vector3.dot(line_b_vector, r)
-		local normalized_distance_along_line_a = (b * f - c * e) / d
-		local normalized_distance_along_line_b = (a * f - b * c) / d
-		return normalized_distance_along_line_a, normalized_distance_along_line_b
-	end
-
 	local pos, dir = LevelEditor:camera():camera_ray(x, y)
 	local drag_axis = self:drag_axis()
 	local drag_plane = self:drag_plane()
@@ -1181,7 +1181,9 @@ function ScaleTool:init()
 	self._position    = Vector3Box(Vector3.zero())
 	self._drag_start  = Vector3Box(Vector3.zero())
 	self._drag_offset = Vector3Box(Vector3.zero())
+	self._scale_start = Vector3Box(Vector3.zero())
 	self._selected    = nil
+	self.SCALE_MIN    = 0.01
 	-- States
 	self._state = "idle"
 end
@@ -1237,6 +1239,10 @@ function ScaleTool:is_idle()
 	return self._state == "idle"
 end
 
+function ScaleTool:is_scaling()
+	return self._state == "scaling"
+end
+
 function ScaleTool:set_state(state)
 	assert(state == "idle" or state == "scaling")
 	self._state = state
@@ -1265,18 +1271,15 @@ function ScaleTool:update(dt, x, y)
 
 	local l = LevelEditor:camera():screen_length_to_world_length(self:position(), Gizmo.size)
 
-	-- Select axis
 	if self:is_idle() then
-		local tm = self:world_pose()
-
 		-- Select axis
-		local pos, dir = LevelEditor:camera():camera_ray(x, y)
-
 		self._selected = "none"
-		if Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(1, 0, 0)), l * Vector3(0.1, 0.1, 0.1)) ~= -1.0 then self._selected = "x" end
-		if Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0, 1, 0)), l * Vector3(0.1, 0.1, 0.1)) ~= -1.0 then self._selected = "y" end
-		if Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0, 0, 1)), l * Vector3(0.1, 0.1, 0.1)) ~= -1.0 then self._selected = "z" end
-		if Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3.zero()), l * Vector3(0.1, 0.1, 0.1)) ~= -1.0 then self._selected = "xyz" end
+		local tm = self:world_pose()
+		local pos, dir = LevelEditor:camera():camera_ray(x, y)
+		if Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(1, 0, 0)), l * Vector3(0.05, 0.05, 0.05)) ~= -1.0 then self._selected = "x" end
+		if Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0, 1, 0)), l * Vector3(0.05, 0.05, 0.05)) ~= -1.0 then self._selected = "y" end
+		if Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0, 0, 1)), l * Vector3(0.05, 0.05, 0.05)) ~= -1.0 then self._selected = "z" end
+		if Math.ray_disc_intersection(pos, dir, Matrix4x4.translation(tm), l * 0.5, Matrix4x4.z(LevelEditor:camera():local_pose())) ~= -1.0 then self._selected = "xyz" end
 	end
 
 	-- Drawing
@@ -1288,38 +1291,37 @@ function ScaleTool:update(dt, x, y)
 	DebugLine.add_line(lines, p, p + l * Matrix4x4.y(tm), self._selected == "y" and Colors.axis_selected() or Colors.axis_y())
 	DebugLine.add_line(lines, p, p + l * Matrix4x4.z(tm), self._selected == "z" and Colors.axis_selected() or Colors.axis_z())
 
-	DebugLine.add_obb(lines, transform(tm, l * Vector3(1, 0, 0)), l * Vector3(0.1, 0.1, 0.1), self._selected == "x" and Colors.axis_selected() or Colors.axis_x())
-	DebugLine.add_obb(lines, transform(tm, l * Vector3(0, 1, 0)), l * Vector3(0.1, 0.1, 0.1), self._selected == "y" and Colors.axis_selected() or Colors.axis_y())
-	DebugLine.add_obb(lines, transform(tm, l * Vector3(0, 0, 1)), l * Vector3(0.1, 0.1, 0.1), self._selected == "z" and Colors.axis_selected() or Colors.axis_z())
-	DebugLine.add_obb(lines, transform(tm, l * Vector3.zero()), l * Vector3(0.1, 0.1, 0.1), self._selected == "xyz" and Colors.axis_selected() or Colors.axis_z())
+	DebugLine.add_obb(lines, transform(tm, l * Vector3(1, 0, 0)), l * Vector3(0.05, 0.05, 0.05), self._selected == "x" and Colors.axis_selected() or Colors.axis_x())
+	DebugLine.add_obb(lines, transform(tm, l * Vector3(0, 1, 0)), l * Vector3(0.05, 0.05, 0.05), self._selected == "y" and Colors.axis_selected() or Colors.axis_y())
+	DebugLine.add_obb(lines, transform(tm, l * Vector3(0, 0, 1)), l * Vector3(0.05, 0.05, 0.05), self._selected == "z" and Colors.axis_selected() or Colors.axis_z())
+	DebugLine.add_circle(lines, p, l * 0.5, Matrix4x4.z(LevelEditor:camera():local_pose()), self._selected == "xyz" and Colors.axis_selected() or Colors.grid())
 end
 
 function ScaleTool:mouse_move(x, y)
-	if self:is_idle() then return end
+	if self:is_idle() then
+		return
+	elseif self:axis_selected() then
+		local delta = self:drag_offset(x, y) - self._drag_offset:unbox()
+		local delta_vector = Vector3.zero()
 
-	if self:axis_selected() then
-			local delta = self:drag_offset(x, y) - self._drag_offset:unbox()
-			local drag_vector = Vector3.zero()
-
-			for _, a in ipairs{"x", "y", "z"} do
-				local axis = Vector3.zero()
-
-				if self:is_axis_selected(a) then
-					if a == "x" then axis = Vector3.right() end
-					if a == "y" then axis = Vector3.up() end
-					if a == "z" then axis = Vector3.forward() end
-				end
-
-				local contribution = Vector3.dot(axis, delta)
-				drag_vector = drag_vector + axis*contribution
+		for _, a in ipairs{"x", "y", "z"} do
+			if self:is_axis_selected(a) then
+				if a == "x" then delta_vector.x = delta.x end
+				if a == "y" then delta_vector.y = delta.y end
+				if a == "z" then delta_vector.z = delta.z end
 			end
+		end
 
-			local selected = LevelEditor._selection:last_selected_object()
-			local pos = Vector3(1, 1, 1) + drag_vector
-			-- print(Vector3.to_string(self:drag_start()))
-			-- print(Vector3.to_string(pos))
-			-- print(Matrix4x4.to_string(selected:world_pose()) .. "\n")
-			-- selected:set_local_scale(LevelEditor:snap(self:world_pose(), pos) or pos)
+		local axis_length = LevelEditor:camera():screen_length_to_world_length(self:position(), Gizmo.size)
+		local scale_percent = delta_vector * (1 / axis_length)
+
+		local local_scale = self._scale_start:unbox()
+		local_scale.x = math.max(self.SCALE_MIN, local_scale.x + (local_scale.x * scale_percent.x))
+		local_scale.y = math.max(self.SCALE_MIN, local_scale.y + (local_scale.y * scale_percent.y))
+		local_scale.z = math.max(self.SCALE_MIN, local_scale.z + (local_scale.z * scale_percent.z))
+
+		local selected = LevelEditor._selection:last_selected_object()
+		selected:set_local_scale(LevelEditor:snap(self:world_pose(), local_scale) or local_scale)
 	end
 end
 
@@ -1328,45 +1330,63 @@ function ScaleTool:mouse_down(x, y)
 		self:set_state("scaling")
 		self._drag_start:store(self:position())
 		self._drag_offset:store(self:drag_offset(x, y))
+		self._scale_start:store(LevelEditor._selection:last_selected_object():local_scale())
 	else
 		LevelEditor.select_tool:mouse_down(x, y)
 	end
 end
 
 function ScaleTool:mouse_up(x, y)
-	self:set_state("idle")
+	if self:is_scaling() then
+		LevelEditor._selection:send_move_objects()
+	end
 
 	if self:axis_selected() then
 		self._drag_start:store(Vector3.zero())
 		self._drag_offset:store(Vector3(1, 1, 1))
+		self._scale_start:store(Vector3.zero())
 	else
 		LevelEditor.select_tool:mouse_up(x, y)
 	end
+
+	self:set_state("idle")
 end
 
 function ScaleTool:is_axis_selected(axis)
 	return string.find(self._selected, axis)
 end
 
+function ScaleTool:drag_axis()
+	if self._selected == "x" then return self:x_axis()
+	elseif self._selected == "y" then return self:y_axis()
+	elseif self._selected == "z" then return self:z_axis()
+	else return nil end
+end
+
 function ScaleTool:drag_plane()
-	if self._selected == "x"   then return self:position(), self:y_axis() end
-	if self._selected == "y"   then return self:position(), self:x_axis() end
-	if self._selected == "z"   then return self:position(), self:y_axis() end
-	if self._selected == "xyz" then return self:position(), self:x_axis() end
-	return nil
+	local camera_dir = Matrix4x4.z(LevelEditor:camera():local_pose())
+	if self._selected == "xyz" then return self:position(), -camera_dir
+	else return nil end
 end
 
 function ScaleTool:drag_offset(x, y)
+	local drag_axis = self:drag_axis()
 	local drag_plane = self:drag_plane()
 
-	if (drag_plane ~= nil) then
+	if drag_axis ~= nil then
+		local pos, dir = LevelEditor:camera():camera_ray(x, y)
+		local _, delta = line_line(pos, pos + dir, self:drag_start(), self:drag_start() + drag_axis)
+		if delta ~= nil then
+			return Vector3(delta, delta, delta)
+		end
+	elseif drag_plane ~= nil then
 		local pos, dir = LevelEditor:camera():camera_ray(x, y)
 		local t = Math.ray_plane_intersection(pos, dir, self:drag_plane())
 
 		if t ~= -1.0 then
 			local point_on_plane = pos + dir*t
-			local offset = point_on_plane - self:drag_start()
-			return offset;
+			local distance = Vector3.distance(point_on_plane, self:drag_start())
+			return Vector3(1, 1, 1) * distance
 		end
 	end
 

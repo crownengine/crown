@@ -7,8 +7,12 @@ Changelog
 
 **Runtime**
 
-* Upgraded to LuaJIT 2.1
-* Added support to 64-bits Android (ARMv8-a)
+* Upgraded to LuaJIT 2.1.
+* Added support to 64-bits Android (ARMv8-a).
+
+**Tools**
+
+* The Scale Tool will now work as expected.
 
 0.41.0
 ------
