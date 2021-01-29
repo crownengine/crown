@@ -724,6 +724,23 @@ static void test_matrix4x4()
 		ENSURE(fequal(b.t.z, -9.2f, 0.00001f));
 		ENSURE(fequal(b.t.w,  4.9f, 0.00001f));
 	}
+	{
+		Matrix4x4 m;
+		Quaternion q;
+
+		m = MATRIX4X4_IDENTITY;
+		m.x.x = 0.0f;
+		q = rotation(m);
+		ENSURE(memcmp(&q, &QUATERNION_IDENTITY, sizeof(q)) == 0);
+		m = MATRIX4X4_IDENTITY;
+		m.y.y = 0.0f;
+		q = rotation(m);
+		ENSURE(memcmp(&q, &QUATERNION_IDENTITY, sizeof(q)) == 0);
+		m = MATRIX4X4_IDENTITY;
+		m.z.z = 0.0f;
+		q = rotation(m);
+		ENSURE(memcmp(&q, &QUATERNION_IDENTITY, sizeof(q)) == 0);
+	}
 }
 
 static void test_aabb()

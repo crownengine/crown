@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "core/math/constants.h"
 #include "core/math/math.h"
 #include "core/math/matrix3x3.inl"
 #include "core/math/quaternion.inl"
@@ -329,10 +330,17 @@ inline Matrix3x3 to_matrix3x3(const Matrix4x4& m)
 /// Returns the rotation portion of the matrix @a m as a Quaternion.
 inline Quaternion rotation(const Matrix3x3& m)
 {
+	const f32 lx = length(m.x);
+	const f32 ly = length(m.y);
+	const f32 lz = length(m.z);
+
+	if (CE_UNLIKELY(fequal(lx, 0.0f) || fequal(ly, 0.0f) || fequal(lz, 0.0f)))
+		return QUATERNION_IDENTITY;
+
 	Matrix3x3 rot = m;
-	set_length(rot.x, 1.0f);
-	set_length(rot.y, 1.0f);
-	set_length(rot.z, 1.0f);
+	rot.x *= 1.0f / lx;
+	rot.y *= 1.0f / ly;
+	rot.z *= 1.0f / lz;
 	Quaternion q = quaternion(rot);
 	normalize(q);
 	return q;

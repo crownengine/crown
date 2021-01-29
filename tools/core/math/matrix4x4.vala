@@ -56,10 +56,17 @@ public struct Matrix4x4
 
 	public Quaternion rotation()
 	{
+		double lx = this.x.length();
+		double ly = this.y.length();
+		double lz = this.z.length();
+
+		if (MathUtils.equal(lx, 0.0f) || MathUtils.equal(ly, 0.0f) || MathUtils.equal(lz, 0.0f))
+			return QUATERNION_IDENTITY;
+
 		Matrix4x4 rot = this;
-		rot.x.set_length(1.0);
-		rot.y.set_length(1.0);
-		rot.z.set_length(1.0);
+		rot.x.normalize();
+		rot.y.normalize();
+		rot.z.normalize();
 		Quaternion q = Quaternion.from_matrix(rot);
 		q.normalize();
 		return q;
