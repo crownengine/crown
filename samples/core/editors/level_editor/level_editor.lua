@@ -1243,36 +1243,51 @@ function ScaleTool:update(dt, x, y)
 	end
 
 	local selected = LevelEditor._selection:last_selected_object()
-	if not selected then return end
+	if selected then
+		self:set_pose(selected:world_pose())
+	end
 
-	self:set_pose(selected:world_pose())
+	local axis_len = LevelEditor:camera():screen_length_to_world_length(self:position(), Gizmo.size)
+	local camera_z = Matrix4x4.z(LevelEditor:camera():local_pose())
+	local tm = self:world_pose()
 
-	local l = LevelEditor:camera():screen_length_to_world_length(self:position(), Gizmo.size)
-
-	if self:is_idle() then
+	if self:is_idle() and selected then
 		-- Select axis
-		self._selected = "none"
-		local tm = self:world_pose()
 		local pos, dir = LevelEditor:camera():camera_ray(x, y)
-		if Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(1, 0, 0)), l * Vector3(0.05, 0.05, 0.05)) ~= -1.0 then self._selected = "x" end
-		if Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0, 1, 0)), l * Vector3(0.05, 0.05, 0.05)) ~= -1.0 then self._selected = "y" end
-		if Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0, 0, 1)), l * Vector3(0.05, 0.05, 0.05)) ~= -1.0 then self._selected = "z" end
-		if Math.ray_disc_intersection(pos, dir, Matrix4x4.translation(tm), l * 0.5, Matrix4x4.z(LevelEditor:camera():local_pose())) ~= -1.0 then self._selected = "xyz" end
+
+		local axis = {
+			Math.ray_obb_intersection(pos, dir, transform(tm, axis_len * Vector3(0.5, 0.0, 0.0)), axis_len * Vector3(0.50, 0.07, 0.07)),
+			Math.ray_obb_intersection(pos, dir, transform(tm, axis_len * Vector3(0.0, 0.5, 0.0)), axis_len * Vector3(0.07, 0.50, 0.07)),
+			Math.ray_obb_intersection(pos, dir, transform(tm, axis_len * Vector3(0.0, 0.0, 0.5)), axis_len * Vector3(0.07, 0.07, 0.50)),
+			Math.ray_disc_intersection(pos, dir, Matrix4x4.translation(tm), axis_len * 0.5, camera_z)
+		}
+
+		local nearest = nil
+		local dist = math.huge
+		local axis_names = { "x", "y", "z", "xyz" }
+		for ii, name in ipairs(axis_names) do
+			if axis[ii] ~= -1.0 and axis[ii] < dist then
+				nearest = ii
+				dist = axis[ii]
+			end
+		end
+		self._selected = nearest and axis_names[nearest] or nil
 	end
 
 	-- Drawing
-	local tm = self:world_pose()
-	local p = self:position()
+	if selected then
+		local p = self:position()
+		local lines = LevelEditor._lines_no_depth
+		DebugLine.add_line(lines, p, p + axis_len * Matrix4x4.x(tm), self._selected == "x" and Colors.axis_selected() or Colors.axis_x())
+		DebugLine.add_line(lines, p, p + axis_len * Matrix4x4.y(tm), self._selected == "y" and Colors.axis_selected() or Colors.axis_y())
+		DebugLine.add_line(lines, p, p + axis_len * Matrix4x4.z(tm), self._selected == "z" and Colors.axis_selected() or Colors.axis_z())
 
-	local lines = LevelEditor._lines_no_depth
-	DebugLine.add_line(lines, p, p + l * Matrix4x4.x(tm), self._selected == "x" and Colors.axis_selected() or Colors.axis_x())
-	DebugLine.add_line(lines, p, p + l * Matrix4x4.y(tm), self._selected == "y" and Colors.axis_selected() or Colors.axis_y())
-	DebugLine.add_line(lines, p, p + l * Matrix4x4.z(tm), self._selected == "z" and Colors.axis_selected() or Colors.axis_z())
-
-	DebugLine.add_obb(lines, transform(tm, l * Vector3(1, 0, 0)), l * Vector3(0.05, 0.05, 0.05), self._selected == "x" and Colors.axis_selected() or Colors.axis_x())
-	DebugLine.add_obb(lines, transform(tm, l * Vector3(0, 1, 0)), l * Vector3(0.05, 0.05, 0.05), self._selected == "y" and Colors.axis_selected() or Colors.axis_y())
-	DebugLine.add_obb(lines, transform(tm, l * Vector3(0, 0, 1)), l * Vector3(0.05, 0.05, 0.05), self._selected == "z" and Colors.axis_selected() or Colors.axis_z())
-	DebugLine.add_circle(lines, p, l * 0.5, Matrix4x4.z(LevelEditor:camera():local_pose()), self._selected == "xyz" and Colors.axis_selected() or Colors.grid())
+		local hs = 0.05 -- Handle half-size
+		DebugLine.add_obb(lines, transform(tm, axis_len * Vector3(1-hs, 0   , 0   )), axis_len * Vector3(hs, hs, hs), self._selected == "x" and Colors.axis_selected() or Colors.axis_x())
+		DebugLine.add_obb(lines, transform(tm, axis_len * Vector3(0   , 1-hs, 0   )), axis_len * Vector3(hs, hs, hs), self._selected == "y" and Colors.axis_selected() or Colors.axis_y())
+		DebugLine.add_obb(lines, transform(tm, axis_len * Vector3(0   , 0   , 1-hs)), axis_len * Vector3(hs, hs, hs), self._selected == "z" and Colors.axis_selected() or Colors.axis_z())
+		DebugLine.add_circle(lines, p, axis_len * 0.5, camera_z, self._selected == "xyz" and Colors.axis_selected() or Colors.grid())
+	end
 end
 
 function ScaleTool:mouse_move(x, y)
