@@ -849,9 +849,9 @@ function MoveTool:update(dt, x, y)
 		local pos, dir = LevelEditor:camera():camera_ray(x, y)
 
 		local axis = {
-			Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0.5, 0.0, 0.0)), l * Vector3(0.50, 0.07, 0.07)),
-			Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0.0, 0.5, 0.0)), l * Vector3(0.07, 0.50, 0.07)),
-			Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0.0, 0.0, 0.5)), l * Vector3(0.07, 0.07, 0.50)),
+			Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0.55, 0   , 0   )), l * Vector3(0.55, 0.07, 0.07)),
+			Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0   , 0.55, 0   )), l * Vector3(0.07, 0.55, 0.07)),
+			Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0   , 0   , 0.55)), l * Vector3(0.07, 0.07, 0.55)),
 			Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0.4, 0.4, 0.0)), l * Vector3(0.1, 0.1, 0.0)),
 			Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0.0, 0.4, 0.4)), l * Vector3(0.0, 0.1, 0.1)),
 			Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0.4, 0.0, 0.4)), l * Vector3(0.1, 0.0, 0.1))
@@ -875,6 +875,9 @@ function MoveTool:update(dt, x, y)
 		DebugLine.add_line(lines, p, p + l * Matrix4x4.x(tm), self:is_axis_selected("x") and Colors.axis_selected() or Colors.axis_x())
 		DebugLine.add_line(lines, p, p + l * Matrix4x4.y(tm), self:is_axis_selected("y") and Colors.axis_selected() or Colors.axis_y())
 		DebugLine.add_line(lines, p, p + l * Matrix4x4.z(tm), self:is_axis_selected("z") and Colors.axis_selected() or Colors.axis_z())
+		DebugLine.add_cone(lines, p + Matrix4x4.x(tm) * l * 0.9, p + Matrix4x4.x(tm) * l * 1.1, l * 0.05, self:is_axis_selected("x") and Colors.axis_selected() or Colors.axis_x())
+		DebugLine.add_cone(lines, p + Matrix4x4.y(tm) * l * 0.9, p + Matrix4x4.y(tm) * l * 1.1, l * 0.05, self:is_axis_selected("y") and Colors.axis_selected() or Colors.axis_y())
+		DebugLine.add_cone(lines, p + Matrix4x4.z(tm) * l * 0.9, p + Matrix4x4.z(tm) * l * 1.1, l * 0.05, self:is_axis_selected("z") and Colors.axis_selected() or Colors.axis_z())
 		DebugLine.add_obb(lines, transform(tm, l * Vector3(0.4, 0.4, 0.0)), l * Vector3(0.1, 0.1, 0.0), self:is_axis_selected("xy") and Colors.axis_selected() or Colors.axis_x())
 		DebugLine.add_obb(lines, transform(tm, l * Vector3(0.0, 0.4, 0.4)), l * Vector3(0.0, 0.1, 0.1), self:is_axis_selected("yz") and Colors.axis_selected() or Colors.axis_y())
 		DebugLine.add_obb(lines, transform(tm, l * Vector3(0.4, 0.0, 0.4)), l * Vector3(0.1, 0.0, 0.1), self:is_axis_selected("xz") and Colors.axis_selected() or Colors.axis_z())
