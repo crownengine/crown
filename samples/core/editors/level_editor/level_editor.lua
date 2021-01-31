@@ -1433,6 +1433,7 @@ function LevelEditor:init()
 	self.rotate_tool = RotateTool()
 	self.scale_tool = ScaleTool()
 	self.tool = self.place_tool
+	self.debug = false
 
 	-- Spawn camera
 	local pos = Vector3(20, 20, -20)
@@ -1631,7 +1632,21 @@ function LevelEditor:find_spawn_point(x, y)
 	local normal = Vector3.up()
 	local t = Math.ray_plane_intersection(pos, dir, point, normal)
 	local target = t == -1.0 and point or pos + dir * t
-	return LevelEditor:snap(Matrix4x4.identity(), target) or target
+	local result = LevelEditor:snap(Matrix4x4.identity(), target) or target
+	if self.debug then
+		-- Debug
+		DebugLine.add_sphere(self._lines_no_depth
+			, target
+			, 0.1
+			, Color4.green()
+			)
+		DebugLine.add_sphere(self._lines_no_depth
+			, result
+			, 0.1
+			, Color4.red()
+			)
+	end
+	return result
 end
 
 function LevelEditor:draw_grid(tm, center, size, axis)
