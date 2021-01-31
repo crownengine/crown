@@ -860,12 +860,12 @@ function MoveTool:update(dt, x, y)
 		}
 
 		local nearest = nil
-		local t = math.huge
+		local dist = math.huge
 		local axis_names = { "x", "y", "z", "xy", "yz", "xz" }
-		for i, name in ipairs(axis_names) do
-			if axis[i] ~= -1.0 and axis[i] < t then
-				nearest = i
-				t = axis[i]
+		for ii, name in ipairs(axis_names) do
+			if axis[ii] ~= -1.0 and axis[ii] < dist then
+				nearest = ii
+				dist = axis[ii]
 			end
 		end
 		self._selected = nearest and axis_names[nearest] or nil
@@ -1056,12 +1056,12 @@ function RotateTool:update(dt, x, y)
 		}
 
 		local nearest = nil
-		local t = math.huge
+		local dist = math.huge
 		local axis_names = { "x", "y", "z" }
-		for i, name in ipairs(axis_names) do
-			if axis[i] ~= -1.0 and axis[i] < t then
-				nearest = i
-				t = axis[i]
+		for ii, name in ipairs(axis_names) do
+			if axis[ii] ~= -1.0 and axis[ii] < dist then
+				nearest = ii
+				dist = axis[ii]
 			end
 		end
 		self._selected = nearest and axis_names[nearest] or nil
