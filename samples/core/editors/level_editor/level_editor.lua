@@ -661,9 +661,7 @@ function PlaceTool:mouse_move(x, y)
 	if self:is_idle() then
 		local target = LevelEditor:find_spawn_point(x, y)
 		self:set_position(target)
-	end
-
-	if self:is_placing() then
+	elseif self:is_placing() then
 		local pos, dir = LevelEditor:camera():camera_ray(x, y)
 		local point = self:position()
 		local normal = Vector3.up()
@@ -926,9 +924,7 @@ end
 function MoveTool:mouse_up(x, y)
 	if self:is_idle() then
 		LevelEditor.select_tool:mouse_up(x, y)
-	end
-
-	if self:is_moving() then
+	elseif self:is_moving() then
 		LevelEditor._selection:send_move_objects()
 	end
 
@@ -942,9 +938,7 @@ end
 function MoveTool:mouse_move(x, y)
 	if self:is_idle() then
 		LevelEditor.select_tool:mouse_move(x, y)
-	end
-
-	if self:is_moving() then
+	elseif self:is_moving() then
 		local delta = self:drag_offset(x, y) - self._drag_offset:unbox()
 		local drag_vector = Vector3.zero()
 
@@ -1110,9 +1104,7 @@ end
 function RotateTool:mouse_up(x, y)
 	if self:is_idle() then
 		LevelEditor.select_tool:mouse_up(x, y)
-	end
-
-	if self:is_rotating() then
+	elseif self:is_rotating() then
 		LevelEditor._selection:send_move_objects()
 	end
 
@@ -1126,9 +1118,7 @@ end
 function RotateTool:mouse_move(x, y)
 	if self:is_idle() then
 		LevelEditor.select_tool:mouse_move(x, y)
-	end
-
-	if self:is_rotating() then
+	elseif self:is_rotating() then
 		local point_on_plane = self:drag_offset(x, y)
 		local drag_start = self:drag_start()
 		local drag_handle = Vector3.normalize(point_on_plane - self:position())
