@@ -1279,13 +1279,13 @@ function ScaleTool:update(dt, x, y)
 
 	-- Drawing
 	if selected then
+		local hs = 0.05 -- Handle half-size
 		local p = self:position()
 		local lines = LevelEditor._lines_no_depth
-		DebugLine.add_line(lines, p, p + axis_len * Matrix4x4.x(tm), self._selected == "x" and Colors.axis_selected() or Colors.axis_x())
-		DebugLine.add_line(lines, p, p + axis_len * Matrix4x4.y(tm), self._selected == "y" and Colors.axis_selected() or Colors.axis_y())
-		DebugLine.add_line(lines, p, p + axis_len * Matrix4x4.z(tm), self._selected == "z" and Colors.axis_selected() or Colors.axis_z())
+		DebugLine.add_line(lines, p, p + Matrix4x4.x(tm) * axis_len * (1-2*hs), self._selected == "x" and Colors.axis_selected() or Colors.axis_x())
+		DebugLine.add_line(lines, p, p + Matrix4x4.y(tm) * axis_len * (1-2*hs), self._selected == "y" and Colors.axis_selected() or Colors.axis_y())
+		DebugLine.add_line(lines, p, p + Matrix4x4.z(tm) * axis_len * (1-2*hs), self._selected == "z" and Colors.axis_selected() or Colors.axis_z())
 
-		local hs = 0.05 -- Handle half-size
 		DebugLine.add_obb(lines, transform(tm, axis_len * Vector3(1-hs, 0   , 0   )), axis_len * Vector3(hs, hs, hs), self._selected == "x" and Colors.axis_selected() or Colors.axis_x())
 		DebugLine.add_obb(lines, transform(tm, axis_len * Vector3(0   , 1-hs, 0   )), axis_len * Vector3(hs, hs, hs), self._selected == "y" and Colors.axis_selected() or Colors.axis_y())
 		DebugLine.add_obb(lines, transform(tm, axis_len * Vector3(0   , 0   , 1-hs)), axis_len * Vector3(hs, hs, hs), self._selected == "z" and Colors.axis_selected() or Colors.axis_z())
