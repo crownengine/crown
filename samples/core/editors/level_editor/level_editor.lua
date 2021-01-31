@@ -1167,13 +1167,13 @@ ScaleTool = class(ScaleTool)
 
 function ScaleTool:init()
 	-- Data
-	self._rotation    = QuaternionBox(Quaternion.identity())
-	self._position    = Vector3Box(Vector3.zero())
-	self._drag_start  = Vector3Box(Vector3.zero())
+	self._rotation    = QuaternionBox(Quaternion.identity()) -- Rotation of the gizmo.
+	self._position    = Vector3Box(Vector3.zero())           -- Position of the gizmo.
 	self._drag_offset = Vector3Box(Vector3.zero())
-	self._scale_start = Vector3Box(Vector3.zero())
-	self._selected    = nil
-	self.SCALE_MIN    = 0.01
+	self._start_positions = {} -- Initial positions of all selected objects.
+	self._start_scales = {}    -- Initial scales of all selected objects.
+	self._selected    = nil    -- Set of axes that have been selected.
+	self.SCALE_MIN    = 0.01   -- Minimum absolute scale value for any given object.
 	-- States
 	self._state = "idle"
 end
@@ -1206,23 +1206,11 @@ function ScaleTool:z_axis()
 	return Quaternion.forward(self:rotation())
 end
 
-function ScaleTool:drag_start()
-	return self._drag_start:unbox()
-end
-
 function ScaleTool:axis_selected()
 	return self._selected == "x"
 		or self._selected == "y"
 		or self._selected == "z"
 		or self._selected == "xyz"
-end
-
-function ScaleTool:selected_axis()
-	if self._selected == "x"   then return Quaternion.right(self._rotation) end
-	if self._selected == "y"   then return Quaternion.up(self._selected) end
-	if self._selected == "z"   then return Quaternion.forward(self._selected) end
-	if self._selected == "xyz" then return Quaternion.righ(self._selected) end
-	return nil
 end
 
 function ScaleTool:is_idle()
@@ -1290,51 +1278,66 @@ end
 function ScaleTool:mouse_move(x, y)
 	if self:is_idle() then
 		return
-	elseif self:axis_selected() then
-		local delta = self:drag_offset(x, y) - self._drag_offset:unbox()
-		local delta_vector = Vector3.zero()
+	end
 
-		for _, a in ipairs{"x", "y", "z"} do
-			if self:is_axis_selected(a) then
-				if a == "x" then delta_vector.x = delta.x end
-				if a == "y" then delta_vector.y = delta.y end
-				if a == "z" then delta_vector.z = delta.z end
-			end
+	if self:axis_selected() then
+		local end_scale = self:drag_offset(x, y)
+		local start_scale = self._drag_offset:unbox()
+		local scale_ratio = Vector3(end_scale.x/start_scale.x
+			, end_scale.y/start_scale.y
+			, end_scale.z/start_scale.z
+			)
+
+		-- Apply transformation to all selected objects.
+		local selection = LevelEditor._selection:objects()
+		for ii, obj in pairs(selection) do
+			-- Apply scale.
+			local obj_scale = self._start_scales[ii]:unbox()
+			obj_scale.x = math.max(self.SCALE_MIN, obj_scale.x * scale_ratio.x)
+			obj_scale.y = math.max(self.SCALE_MIN, obj_scale.y * scale_ratio.y)
+			obj_scale.z = math.max(self.SCALE_MIN, obj_scale.z * scale_ratio.z)
+			obj:set_local_scale(LevelEditor:snap(self:world_pose(), obj_scale) or obj_scale)
+
+			-- Apply translation. Selected objects new positions are proportional to
+			-- their distance from the gizmo times the scale factor.
+			local obj_position = self._start_positions[ii]:unbox()
+			local gizmo_position = self:position()
+			local gizmo_obj_distance = obj_position - gizmo_position
+			gizmo_obj_distance.x = gizmo_obj_distance.x * scale_ratio.x
+			gizmo_obj_distance.y = gizmo_obj_distance.y * scale_ratio.y
+			gizmo_obj_distance.z = gizmo_obj_distance.z * scale_ratio.z
+			local obj_new_position = gizmo_position + gizmo_obj_distance
+			obj:set_local_position(LevelEditor:snap(self:world_pose(), obj_new_position) or obj_new_position)
 		end
-
-		local axis_length = LevelEditor:camera():screen_length_to_world_length(self:position(), Gizmo.size)
-		local scale_percent = delta_vector * (1 / axis_length)
-
-		local local_scale = self._scale_start:unbox()
-		local_scale.x = math.max(self.SCALE_MIN, local_scale.x + (local_scale.x * scale_percent.x))
-		local_scale.y = math.max(self.SCALE_MIN, local_scale.y + (local_scale.y * scale_percent.y))
-		local_scale.z = math.max(self.SCALE_MIN, local_scale.z + (local_scale.z * scale_percent.z))
-
-		local selected = LevelEditor._selection:last_selected_object()
-		selected:set_local_scale(LevelEditor:snap(self:world_pose(), local_scale) or local_scale)
 	end
 end
 
 function ScaleTool:mouse_down(x, y)
-	if self:axis_selected() then
-		self:set_state("scaling")
-		self._drag_start:store(self:position())
-		self._drag_offset:store(self:drag_offset(x, y))
-		self._scale_start:store(LevelEditor._selection:last_selected_object():local_scale())
-	else
-		LevelEditor.select_tool:mouse_down(x, y)
+	if self:is_idle() then
+		if self:axis_selected() and LevelEditor._selection:last_selected_object() then
+			self._drag_offset:store(self:drag_offset(x, y))
+
+			-- Store initial positions and scales for all selected objects.
+			local selection = LevelEditor._selection:objects()
+			for _, obj in pairs(selection) do
+				self._start_positions[#self._start_positions + 1] = Vector3Box(obj:local_position())
+				self._start_scales[#self._start_scales + 1] = Vector3Box(obj:local_scale())
+			end
+
+			self:set_state("scaling")
+		else
+			LevelEditor.select_tool:mouse_down(x, y)
+		end
 	end
 end
 
 function ScaleTool:mouse_up(x, y)
 	if self:is_scaling() then
 		LevelEditor._selection:send_move_objects()
-	end
 
-	if self:axis_selected() then
-		self._drag_start:store(Vector3.zero())
 		self._drag_offset:store(Vector3(1, 1, 1))
-		self._scale_start:store(Vector3.zero())
+		self._start_positions = {}
+		self._start_scales = {}
 	else
 		LevelEditor.select_tool:mouse_up(x, y)
 	end
@@ -1362,25 +1365,29 @@ end
 function ScaleTool:drag_offset(x, y)
 	local drag_axis = self:drag_axis()
 	local drag_plane = self:drag_plane()
+	local pos, dir = LevelEditor:camera():camera_ray(x, y)
+	local distance = 1
 
 	if drag_axis ~= nil then
-		local pos, dir = LevelEditor:camera():camera_ray(x, y)
-		local _, delta = line_line(pos, pos + dir, self:drag_start(), self:drag_start() + drag_axis)
-		if delta ~= nil then
-			return Vector3(delta, delta, delta)
-		end
+		local _, dist = line_line(pos, pos + dir, self:position(), self:position() + drag_axis)
+		distance = dist and math.max(0, dist) or 1
 	elseif drag_plane ~= nil then
-		local pos, dir = LevelEditor:camera():camera_ray(x, y)
-		local t = Math.ray_plane_intersection(pos, dir, self:drag_plane())
-
-		if t ~= -1.0 then
-			local point_on_plane = pos + dir*t
-			local distance = Vector3.distance(point_on_plane, self:drag_start())
-			return Vector3(1, 1, 1) * distance
+		local dist = Math.ray_plane_intersection(pos, dir, self:drag_plane())
+		if dist ~= -1.0 then
+			local point_on_plane = pos + dir*dist
+			distance = Vector3.distance(point_on_plane, self:position())
 		end
 	end
 
-	return Vector3.zero()
+	local scale = Vector3(1, 1, 1)
+	for _, a in ipairs{"x", "y", "z"} do
+		if self:is_axis_selected(a) then
+			if a == "x" then scale.x = distance end
+			if a == "y" then scale.y = distance end
+			if a == "z" then scale.z = distance end
+		end
+	end
+	return scale
 end
 
 LevelEditor = LevelEditor or {}
