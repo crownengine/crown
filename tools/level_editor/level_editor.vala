@@ -866,7 +866,7 @@ public class LevelEditorApplication : Gtk.Application
 		Gtk.Label label = new Gtk.Label(null);
 		label.set_markup("Data Compiler disconnected.\rTry to <a href=\"restart\">restart</a> compiler to continue.");
 		label.activate_link.connect(() => {
-			restart_backend.begin(_project.source_dir(), _level._name);
+			restart_backend.begin(_project.source_dir(), _level._name != null ? _level._name : "");
 			return true;
 		});
 
@@ -878,7 +878,7 @@ public class LevelEditorApplication : Gtk.Application
 		Gtk.Label label = new Gtk.Label(null);
 		label.set_markup("Data compilation failed.\rFix errors and <a href=\"restart\">restart</a> compiler to continue.");
 		label.activate_link.connect(() => {
-			restart_backend.begin(_project.source_dir(), _level._name);
+			restart_backend.begin(_project.source_dir(), _level._name != null ? _level._name : "");
 			return true;
 		});
 
