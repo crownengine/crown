@@ -12,7 +12,83 @@ Colors = Colors or {
 
 Gizmo = Gizmo or {
 	size = 85,
+	axis_fadeout_threshold  = 1.38,
+	axis_hidden_threshold   = 1.52,
+	plane_fadeout_threshold = 1.03,
+	plane_hidden_threshold  = 1.17
 }
+
+function Color4.lerp_alpha(color, alpha)
+	local cr, cg, cb, ca = Quaternion.elements(color)
+	local color_transparent = Quaternion.from_elements(cr, cg, cb, 0)
+	return Color4.lerp(color_transparent, color, alpha)
+end
+
+function dot_alpha(dot, fadeout_threshold, hidden_threshold)
+	local f0 = math.cos(fadeout_threshold)
+	local h0 = math.cos(hidden_threshold)
+	assert(f0 <= 1 and f0 >= 0)
+	assert(h0 <= 1 and h0 >= 0)
+	assert(f0 > h0)
+
+	--           f0
+	--      h0   |
+	--      |    |
+	-- 00000fffff11111
+	--
+	if dot < h0 then -- The axis is parallel to the viewer.
+		return 0
+	elseif dot < f0 then -- The axis is starting to get perpendicular to the viewer.
+		return (dot - h0) / (f0 - h0)
+	end
+
+	-- The axis is perpendicular to the viewer.
+	return 1
+end
+
+function axis_alpha(axis, camera_dir, fadeout_threshold, hidden_threshold)
+	return dot_alpha(1-math.abs(Vector3.dot(axis, camera_dir)), fadeout_threshold, hidden_threshold)
+end
+
+function plane_alpha(axis, camera_dir, fadeout_threshold, hidden_threshold)
+	return dot_alpha(math.abs(Vector3.dot(axis, camera_dir)), fadeout_threshold, hidden_threshold)
+end
+
+function axis_enabled(axis, camera_dir)
+	local alpha = axis_alpha(axis
+		, camera_dir
+		, Gizmo.axis_fadeout_threshold
+		, Gizmo.axis_hidden_threshold
+		)
+	return alpha ~= 0
+end
+
+function axis_color(axis, camera_dir, color)
+	local alpha = axis_alpha(axis
+		, camera_dir
+		, Gizmo.axis_fadeout_threshold
+		, Gizmo.axis_hidden_threshold
+		)
+	return Color4.lerp_alpha(color, alpha)
+end
+
+function plane_enabled(axis, camera_dir)
+	local alpha = plane_alpha(axis
+		, camera_dir
+		, Gizmo.plane_fadeout_threshold
+		, Gizmo.plane_hidden_threshold
+		)
+	return alpha ~= 0
+end
+
+function plane_color(axis, camera_dir, color)
+	local alpha = plane_alpha(axis
+		, camera_dir
+		, Gizmo.plane_fadeout_threshold
+		, Gizmo.plane_hidden_threshold
+		)
+	return Color4.lerp_alpha(color, alpha)
+end
 
 -- From Bitsquid's grid_plane.lua
 function snap_vector(tm, vector, size)
@@ -837,6 +913,8 @@ function MoveTool:update(dt, x, y)
 	local tm = self:pose()
 	local p  = self:position()
 	local l  = LevelEditor:camera():screen_length_to_world_length(self:position(), Gizmo.size)
+	local cam_z = Matrix4x4.z(LevelEditor:camera():local_pose())
+	local cam_to_gizmo = Vector3.normalize(p-Matrix4x4.translation(LevelEditor:camera():local_pose()))
 
 	local function transform(tm, offset)
 		local m = Matrix4x4.copy(tm)
@@ -849,12 +927,12 @@ function MoveTool:update(dt, x, y)
 		local pos, dir = LevelEditor:camera():camera_ray(x, y)
 
 		local axis = {
-			Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0.55, 0   , 0   )), l * Vector3(0.55, 0.07, 0.07)),
-			Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0   , 0.55, 0   )), l * Vector3(0.07, 0.55, 0.07)),
-			Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0   , 0   , 0.55)), l * Vector3(0.07, 0.07, 0.55)),
-			Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0.4, 0.4, 0.0)), l * Vector3(0.1, 0.1, 0.0)),
-			Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0.0, 0.4, 0.4)), l * Vector3(0.0, 0.1, 0.1)),
-			Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0.4, 0.0, 0.4)), l * Vector3(0.1, 0.0, 0.1))
+			axis_enabled(self:x_axis(), cam_to_gizmo) and Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0.30+(1.1-0.30)/2, 0   , 0   )), l * Vector3((1.1-0.30)/2, 0.07, 0.07)) or -1,
+			axis_enabled(self:y_axis(), cam_to_gizmo) and Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0   , 0.30+(1.1-0.30)/2, 0   )), l * Vector3(0.07, (1.1-0.30)/2, 0.07)) or -1,
+			axis_enabled(self:z_axis(), cam_to_gizmo) and Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0   , 0   , 0.30+(1.1-0.30)/2)), l * Vector3(0.07, 0.07, (1.1-0.30)/2)) or -1,
+			plane_enabled(self:z_axis(), cam_to_gizmo) and Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0.4, 0.4, 0.0)), l * Vector3(0.1, 0.1, 0.0)) or -1,
+			plane_enabled(self:x_axis(), cam_to_gizmo) and Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0.0, 0.4, 0.4)), l * Vector3(0.0, 0.1, 0.1)) or -1,
+			plane_enabled(self:y_axis(), cam_to_gizmo) and Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0.4, 0.0, 0.4)), l * Vector3(0.1, 0.0, 0.1)) or -1,
 		}
 
 		local nearest = nil
@@ -872,18 +950,20 @@ function MoveTool:update(dt, x, y)
 	-- Drawing
 	if selected then
 		local lines = LevelEditor._lines_no_depth
-		DebugLine.add_line(lines, p, p + l * Matrix4x4.x(tm), self:is_axis_selected("x") and Colors.axis_selected() or Colors.axis_x())
-		DebugLine.add_line(lines, p, p + l * Matrix4x4.y(tm), self:is_axis_selected("y") and Colors.axis_selected() or Colors.axis_y())
-		DebugLine.add_line(lines, p, p + l * Matrix4x4.z(tm), self:is_axis_selected("z") and Colors.axis_selected() or Colors.axis_z())
-		DebugLine.add_cone(lines, p + Matrix4x4.x(tm) * l * 0.9, p + Matrix4x4.x(tm) * l * 1.1, l * 0.05, self:is_axis_selected("x") and Colors.axis_selected() or Colors.axis_x())
-		DebugLine.add_cone(lines, p + Matrix4x4.y(tm) * l * 0.9, p + Matrix4x4.y(tm) * l * 1.1, l * 0.05, self:is_axis_selected("y") and Colors.axis_selected() or Colors.axis_y())
-		DebugLine.add_cone(lines, p + Matrix4x4.z(tm) * l * 0.9, p + Matrix4x4.z(tm) * l * 1.1, l * 0.05, self:is_axis_selected("z") and Colors.axis_selected() or Colors.axis_z())
-		DebugLine.add_obb(lines, transform(tm, l * Vector3(0.4, 0.4, 0.0)), l * Vector3(0.1, 0.1, 0.0), self:is_axis_selected("xy") and Colors.axis_selected() or Colors.axis_x())
-		DebugLine.add_obb(lines, transform(tm, l * Vector3(0.0, 0.4, 0.4)), l * Vector3(0.0, 0.1, 0.1), self:is_axis_selected("yz") and Colors.axis_selected() or Colors.axis_y())
-		DebugLine.add_obb(lines, transform(tm, l * Vector3(0.4, 0.0, 0.4)), l * Vector3(0.1, 0.0, 0.1), self:is_axis_selected("xz") and Colors.axis_selected() or Colors.axis_z())
+		-- Draw axes.
+		DebugLine.add_line(lines, p + 0.30*l*Matrix4x4.x(tm), p + l*Matrix4x4.x(tm), axis_color(self:x_axis(), cam_to_gizmo, self:is_axis_selected("x") and Colors.axis_selected() or Colors.axis_x()))
+		DebugLine.add_line(lines, p + 0.30*l*Matrix4x4.y(tm), p + l*Matrix4x4.y(tm), axis_color(self:y_axis(), cam_to_gizmo, self:is_axis_selected("y") and Colors.axis_selected() or Colors.axis_y()))
+		DebugLine.add_line(lines, p + 0.30*l*Matrix4x4.z(tm), p + l*Matrix4x4.z(tm), axis_color(self:z_axis(), cam_to_gizmo, self:is_axis_selected("z") and Colors.axis_selected() or Colors.axis_z()))
+		-- Draw axis tips.
+		DebugLine.add_cone(lines, p + Matrix4x4.x(tm) * l * 0.9, p + Matrix4x4.x(tm) * l * 1.1, l * 0.05, axis_color(self:x_axis(), cam_to_gizmo, self:is_axis_selected("x") and Colors.axis_selected() or Colors.axis_x()))
+		DebugLine.add_cone(lines, p + Matrix4x4.y(tm) * l * 0.9, p + Matrix4x4.y(tm) * l * 1.1, l * 0.05, axis_color(self:y_axis(), cam_to_gizmo, self:is_axis_selected("y") and Colors.axis_selected() or Colors.axis_y()))
+		DebugLine.add_cone(lines, p + Matrix4x4.z(tm) * l * 0.9, p + Matrix4x4.z(tm) * l * 1.1, l * 0.05, axis_color(self:z_axis(), cam_to_gizmo, self:is_axis_selected("z") and Colors.axis_selected() or Colors.axis_z()))
+		-- Draw plane handles.
+		DebugLine.add_obb(lines, transform(tm, l * Vector3(0.4, 0.4, 0.0)), l * Vector3(0.1, 0.1, 0.0), plane_color(self:z_axis(), cam_to_gizmo, self._selected == "xy" and Colors.axis_selected() or Colors.axis_x()))
+		DebugLine.add_obb(lines, transform(tm, l * Vector3(0.0, 0.4, 0.4)), l * Vector3(0.0, 0.1, 0.1), plane_color(self:x_axis(), cam_to_gizmo, self._selected == "yz" and Colors.axis_selected() or Colors.axis_y()))
+		DebugLine.add_obb(lines, transform(tm, l * Vector3(0.4, 0.0, 0.4)), l * Vector3(0.1, 0.0, 0.1), plane_color(self:y_axis(), cam_to_gizmo, self._selected == "xz" and Colors.axis_selected() or Colors.axis_z()))
 
 		if self:axis_selected() then
-			DebugLine.add_sphere(lines, self:drag_start(), 0.05, Color4.green())
 			LevelEditor:draw_grid(LevelEditor:grid_pose(self:pose()), self:position(), LevelEditor._grid.size, self._selected)
 		end
 	end
@@ -1041,6 +1121,7 @@ function RotateTool:update(dt, x, y)
 	local tm = self:pose()
 	local p  = self:position()
 	local l  = LevelEditor:camera():screen_length_to_world_length(self:position(), Gizmo.size)
+	local cam_z = Matrix4x4.z(LevelEditor:camera():local_pose())
 
 	-- Select axis
 	if self:is_idle() and selected then
@@ -1067,9 +1148,9 @@ function RotateTool:update(dt, x, y)
 	-- Drawing
 	if selected then
 		local lines = LevelEditor._lines_no_depth
-		DebugLine.add_circle(lines, p, l, Matrix4x4.x(tm), self._selected == "x" and Colors.axis_selected() or Colors.axis_x())
-		DebugLine.add_circle(lines, p, l, Matrix4x4.y(tm), self._selected == "y" and Colors.axis_selected() or Colors.axis_y())
-		DebugLine.add_circle(lines, p, l, Matrix4x4.z(tm), self._selected == "z" and Colors.axis_selected() or Colors.axis_z())
+		DebugLine.add_circle(lines, p, l, Matrix4x4.x(tm), self._selected == "x" and Colors.axis_selected() or plane_color(Matrix4x4.x(tm), cam_z, Colors.axis_x()))
+		DebugLine.add_circle(lines, p, l, Matrix4x4.y(tm), self._selected == "y" and Colors.axis_selected() or plane_color(Matrix4x4.y(tm), cam_z, Colors.axis_y()))
+		DebugLine.add_circle(lines, p, l, Matrix4x4.z(tm), self._selected == "z" and Colors.axis_selected() or plane_color(Matrix4x4.z(tm), cam_z, Colors.axis_z()))
 	end
 end
 
@@ -1250,19 +1331,21 @@ function ScaleTool:update(dt, x, y)
 		self:set_pose(selected:world_pose())
 	end
 
-	local axis_len = LevelEditor:camera():screen_length_to_world_length(self:position(), Gizmo.size)
-	local camera_z = Matrix4x4.z(LevelEditor:camera():local_pose())
 	local tm = self:world_pose()
+	local p = self:position()
+	local axis_len = LevelEditor:camera():screen_length_to_world_length(self:position(), Gizmo.size)
+	local cam_z = Matrix4x4.z(LevelEditor:camera():local_pose())
+	local cam_to_gizmo = Vector3.normalize(p-Matrix4x4.translation(LevelEditor:camera():local_pose()))
 
 	if self:is_idle() and selected then
 		-- Select axis
 		local pos, dir = LevelEditor:camera():camera_ray(x, y)
 
 		local axis = {
-			Math.ray_obb_intersection(pos, dir, transform(tm, axis_len * Vector3(0.5, 0.0, 0.0)), axis_len * Vector3(0.50, 0.07, 0.07)),
-			Math.ray_obb_intersection(pos, dir, transform(tm, axis_len * Vector3(0.0, 0.5, 0.0)), axis_len * Vector3(0.07, 0.50, 0.07)),
-			Math.ray_obb_intersection(pos, dir, transform(tm, axis_len * Vector3(0.0, 0.0, 0.5)), axis_len * Vector3(0.07, 0.07, 0.50)),
-			Math.ray_disc_intersection(pos, dir, Matrix4x4.translation(tm), axis_len * 0.5, camera_z)
+			axis_enabled(self:x_axis(), cam_to_gizmo) and Math.ray_obb_intersection(pos, dir, transform(tm, axis_len * Vector3(0.5, 0.0, 0.0)), axis_len * Vector3(0.50, 0.07, 0.07)) or -1,
+			axis_enabled(self:y_axis(), cam_to_gizmo) and Math.ray_obb_intersection(pos, dir, transform(tm, axis_len * Vector3(0.0, 0.5, 0.0)), axis_len * Vector3(0.07, 0.50, 0.07)) or -1,
+			axis_enabled(self:z_axis(), cam_to_gizmo) and Math.ray_obb_intersection(pos, dir, transform(tm, axis_len * Vector3(0.0, 0.0, 0.5)), axis_len * Vector3(0.07, 0.07, 0.50)) or -1,
+			Math.ray_disc_intersection(pos, dir, Matrix4x4.translation(tm), axis_len * 0.5, cam_z)
 		}
 
 		local nearest = nil
@@ -1279,17 +1362,18 @@ function ScaleTool:update(dt, x, y)
 
 	-- Drawing
 	if selected then
-		local hs = 0.05 -- Handle half-size
-		local p = self:position()
+		local hs = 0.05 -- Axis handle half-size
 		local lines = LevelEditor._lines_no_depth
-		DebugLine.add_line(lines, p, p + Matrix4x4.x(tm) * axis_len * (1-2*hs), self._selected == "x" and Colors.axis_selected() or Colors.axis_x())
-		DebugLine.add_line(lines, p, p + Matrix4x4.y(tm) * axis_len * (1-2*hs), self._selected == "y" and Colors.axis_selected() or Colors.axis_y())
-		DebugLine.add_line(lines, p, p + Matrix4x4.z(tm) * axis_len * (1-2*hs), self._selected == "z" and Colors.axis_selected() or Colors.axis_z())
-
-		DebugLine.add_obb(lines, transform(tm, axis_len * Vector3(1-hs, 0   , 0   )), axis_len * Vector3(hs, hs, hs), self._selected == "x" and Colors.axis_selected() or Colors.axis_x())
-		DebugLine.add_obb(lines, transform(tm, axis_len * Vector3(0   , 1-hs, 0   )), axis_len * Vector3(hs, hs, hs), self._selected == "y" and Colors.axis_selected() or Colors.axis_y())
-		DebugLine.add_obb(lines, transform(tm, axis_len * Vector3(0   , 0   , 1-hs)), axis_len * Vector3(hs, hs, hs), self._selected == "z" and Colors.axis_selected() or Colors.axis_z())
-		DebugLine.add_circle(lines, p, axis_len * 0.5, camera_z, self._selected == "xyz" and Colors.axis_selected() or Colors.grid())
+		-- Draw axes.
+		DebugLine.add_line(lines, p, p + Matrix4x4.x(tm) * axis_len * (1-2*hs), axis_color(self:x_axis(), cam_to_gizmo, self._selected == "x" and Colors.axis_selected() or Colors.axis_x()))
+		DebugLine.add_line(lines, p, p + Matrix4x4.y(tm) * axis_len * (1-2*hs), axis_color(self:y_axis(), cam_to_gizmo, self._selected == "y" and Colors.axis_selected() or Colors.axis_y()))
+		DebugLine.add_line(lines, p, p + Matrix4x4.z(tm) * axis_len * (1-2*hs), axis_color(self:z_axis(), cam_to_gizmo, self._selected == "z" and Colors.axis_selected() or Colors.axis_z()))
+		-- Draw axis handles.
+		DebugLine.add_obb(lines, transform(tm, axis_len * Vector3(1-hs, 0   , 0   )), axis_len * Vector3(hs, hs, hs), axis_color(self:x_axis(), cam_to_gizmo, self._selected == "x" and Colors.axis_selected() or Colors.axis_x()))
+		DebugLine.add_obb(lines, transform(tm, axis_len * Vector3(0   , 1-hs, 0   )), axis_len * Vector3(hs, hs, hs), axis_color(self:y_axis(), cam_to_gizmo, self._selected == "y" and Colors.axis_selected() or Colors.axis_y()))
+		DebugLine.add_obb(lines, transform(tm, axis_len * Vector3(0   , 0   , 1-hs)), axis_len * Vector3(hs, hs, hs), axis_color(self:z_axis(), cam_to_gizmo, self._selected == "z" and Colors.axis_selected() or Colors.axis_z()))
+		-- Draw camera plane handle.
+		DebugLine.add_circle(lines, p, axis_len * 0.5, cam_z, self._selected == "xyz" and Colors.axis_selected() or Colors.grid())
 	end
 end
 
