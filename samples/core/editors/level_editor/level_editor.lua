@@ -1350,22 +1350,24 @@ function ScaleTool:update(dt, x, y)
 		local pos, dir = LevelEditor:camera():camera_ray(x, y)
 
 		local axis = {
-			axis_enabled(self:x_axis(), cam_to_gizmo) and Math.ray_obb_intersection(pos, dir, transform(tm, axis_len*Vector3(0.5, 0.0, 0.0)), axis_len*Vector3(0.50, 0.07, 0.07)) or -1,
-			axis_enabled(self:y_axis(), cam_to_gizmo) and Math.ray_obb_intersection(pos, dir, transform(tm, axis_len*Vector3(0.0, 0.5, 0.0)), axis_len*Vector3(0.07, 0.50, 0.07)) or -1,
-			axis_enabled(self:z_axis(), cam_to_gizmo) and Math.ray_obb_intersection(pos, dir, transform(tm, axis_len*Vector3(0.0, 0.0, 0.5)), axis_len*Vector3(0.07, 0.07, 0.50)) or -1,
-			plane_enabled(self:z_axis(), cam_to_gizmo) and Math.ray_obb_intersection(pos, dir, transform(tm, axis_len*Vector3(0.25, 0.25, 0   )), axis_len*Vector3(0.25, 0.25, 0.07)) or -1,
-			plane_enabled(self:x_axis(), cam_to_gizmo) and Math.ray_obb_intersection(pos, dir, transform(tm, axis_len*Vector3(0   , 0.25, 0.25)), axis_len*Vector3(0.07, 0.25, 0.25)) or -1,
-			plane_enabled(self:y_axis(), cam_to_gizmo) and Math.ray_obb_intersection(pos, dir, transform(tm, axis_len*Vector3(0.25, 0   , 0.25)), axis_len*Vector3(0.25, 0.07, 0.25)) or -1,
-			Math.ray_disc_intersection(pos, dir, Matrix4x4.translation(tm), axis_len*1.25, cam_z)
+			{ axis_enabled(self:x_axis(), cam_to_gizmo) , 1, Math.ray_obb_intersection(pos, dir, transform(tm, axis_len*Vector3(0.5, 0.0, 0.0)), axis_len*Vector3(0.50, 0.07, 0.07))    },
+			{ axis_enabled(self:y_axis(), cam_to_gizmo) , 1, Math.ray_obb_intersection(pos, dir, transform(tm, axis_len*Vector3(0.0, 0.5, 0.0)), axis_len*Vector3(0.07, 0.50, 0.07))    },
+			{ axis_enabled(self:z_axis(), cam_to_gizmo) , 1, Math.ray_obb_intersection(pos, dir, transform(tm, axis_len*Vector3(0.0, 0.0, 0.5)), axis_len*Vector3(0.07, 0.07, 0.50))    },
+			{ plane_enabled(self:z_axis(), cam_to_gizmo), 1, Math.ray_obb_intersection(pos, dir, transform(tm, axis_len*Vector3(0.25, 0.25, 0   )), axis_len*Vector3(0.25, 0.25, 0.07)) },
+			{ plane_enabled(self:x_axis(), cam_to_gizmo), 1, Math.ray_obb_intersection(pos, dir, transform(tm, axis_len*Vector3(0   , 0.25, 0.25)), axis_len*Vector3(0.07, 0.25, 0.25)) },
+			{ plane_enabled(self:y_axis(), cam_to_gizmo), 1, Math.ray_obb_intersection(pos, dir, transform(tm, axis_len*Vector3(0.25, 0   , 0.25)), axis_len*Vector3(0.25, 0.07, 0.25)) },
+			{ 1                                         , 2, Math.ray_disc_intersection(pos, dir, Matrix4x4.translation(tm), axis_len*1.25, cam_z)                                      }
 		}
 
 		local nearest = nil
 		local dist = math.huge
+		local prio = math.huge
 		local axis_names = { "x", "y", "z", "xy", "yz", "xz", "xyz" }
 		for ii, name in ipairs(axis_names) do
-			if axis[ii] ~= -1.0 and axis[ii] < dist then
+			if axis[ii][1] and axis[ii][2] <= prio and axis[ii][3] ~= -1.0 and axis[ii][3] < dist then
 				nearest = ii
-				dist = axis[ii]
+				dist = axis[ii][3]
+				prio = axis[ii][2]
 			end
 		end
 		self._selected = nearest and axis_names[nearest] or nil
