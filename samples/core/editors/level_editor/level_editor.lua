@@ -882,6 +882,7 @@ function MoveTool:axis_selected()
 		or self._selected == "xy"
 		or self._selected == "yz"
 		or self._selected == "xz"
+		or self._selected == "xyz"
 end
 
 function MoveTool:drag_start()
@@ -896,9 +897,10 @@ function MoveTool:drag_axis()
 end
 
 function MoveTool:drag_plane()
-	if self._selected == "xy" then return self:position(),  Vector3.cross(self:x_axis(), self:y_axis()) end
-	if self._selected == "yz" then return self:position(),  Vector3.cross(self:y_axis(), self:z_axis()) end
-	if self._selected == "xz" then return self:position(), -Vector3.cross(self:x_axis(), self:z_axis()) end
+	if self._selected == "xy" then return self:drag_start(),  Vector3.cross(self:x_axis(), self:y_axis()) end
+	if self._selected == "yz" then return self:drag_start(),  Vector3.cross(self:y_axis(), self:z_axis()) end
+	if self._selected == "xz" then return self:drag_start(), -Vector3.cross(self:x_axis(), self:z_axis()) end
+	if self._selected == "xyz" then return self:drag_start(), -Matrix4x4.z(LevelEditor:camera():local_pose()) end
 	return nil, nil
 end
 
@@ -933,11 +935,12 @@ function MoveTool:update(dt, x, y)
 			plane_enabled(self:z_axis(), cam_to_gizmo) and Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0.4, 0.4, 0.0)), l * Vector3(0.1, 0.1, 0.0)) or -1,
 			plane_enabled(self:x_axis(), cam_to_gizmo) and Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0.0, 0.4, 0.4)), l * Vector3(0.0, 0.1, 0.1)) or -1,
 			plane_enabled(self:y_axis(), cam_to_gizmo) and Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0.4, 0.0, 0.4)), l * Vector3(0.1, 0.0, 0.1)) or -1,
+			Math.ray_disc_intersection(pos, dir, self:position(), l * 2*0.07, -cam_z)
 		}
 
 		local nearest = nil
 		local dist = math.huge
-		local axis_names = { "x", "y", "z", "xy", "yz", "xz" }
+		local axis_names = { "x", "y", "z", "xy", "yz", "xz", "xyz" }
 		for ii, name in ipairs(axis_names) do
 			if axis[ii] ~= -1.0 and axis[ii] < dist then
 				nearest = ii
@@ -962,6 +965,8 @@ function MoveTool:update(dt, x, y)
 		DebugLine.add_obb(lines, transform(tm, l * Vector3(0.4, 0.4, 0.0)), l * Vector3(0.1, 0.1, 0.0), plane_color(self:z_axis(), cam_to_gizmo, self._selected == "xy" and Colors.axis_selected() or Colors.axis_x()))
 		DebugLine.add_obb(lines, transform(tm, l * Vector3(0.0, 0.4, 0.4)), l * Vector3(0.0, 0.1, 0.1), plane_color(self:x_axis(), cam_to_gizmo, self._selected == "yz" and Colors.axis_selected() or Colors.axis_y()))
 		DebugLine.add_obb(lines, transform(tm, l * Vector3(0.4, 0.0, 0.4)), l * Vector3(0.1, 0.0, 0.1), plane_color(self:y_axis(), cam_to_gizmo, self._selected == "xz" and Colors.axis_selected() or Colors.axis_z()))
+		-- Draw camera plane handle.
+		DebugLine.add_circle(lines, p, l * 2*0.07, -cam_z, self:is_axis_selected("xyz") and Colors.axis_selected() or Colors.grid())
 
 		if self:axis_selected() then
 			LevelEditor:draw_grid(LevelEditor:grid_pose(self:pose()), self:position(), LevelEditor._grid.size, self._selected)
