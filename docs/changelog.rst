@@ -5,14 +5,18 @@ Changelog
 ------
 *DD MMM YYYY*
 
+**Editor**
+
+* Improved the visibility and picking of the handles of every gizmo.
+* Added camera-plane translation to the Move tool.
+* Added camera-plane rotation to the Rotate tool.
+* Added axis-, plane- and uniform-scaling to the Scale tool.
+* Fixed an issue that prevented the Editor View to be restarted in some circumnstances.
+
 **Runtime**
 
 * Upgraded to LuaJIT 2.1.
 * Added support to 64-bits Android (ARMv8-a).
-
-**Tools**
-
-* The Scale Tool will now work as expected.
 
 0.41.0
 ------
