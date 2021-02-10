@@ -12,6 +12,7 @@ Changelog
 * Added camera-plane rotation to the Rotate tool.
 * Added axis-, plane- and uniform-scaling to the Scale tool.
 * Fixed an issue that prevented the Editor View to be restarted in some circumnstances.
+* Fixed the translation of multiple unaligned objects when snapping was enabled.
 
 **Runtime**
 

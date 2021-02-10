@@ -1045,11 +1045,14 @@ function MoveTool:mouse_move(x, y)
 			drag_vector = drag_vector + axis*contribution
 		end
 
-		-- FIXME Move selected objects
+		-- Apply translation to selected objects.
 		local objects = LevelEditor._selection:objects()
-		for k, v in pairs(objects) do
-			local pos = Matrix4x4.translation(self._poses_start[k]:unbox()) + drag_vector
-			v:set_local_position(LevelEditor:snap(self:pose(), pos) or pos)
+		for ii, obj in pairs(objects) do
+			local obj_position = Matrix4x4.translation(self._poses_start[ii]:unbox())
+			local gizmo_position = self:position()
+			local gizmo_obj_distance = obj_position - gizmo_position
+			local new_gizmo_position = gizmo_position + drag_vector
+			obj:set_local_position((LevelEditor:snap(self:pose(), new_gizmo_position) or new_gizmo_position) + gizmo_obj_distance)
 		end
 	end
 end
