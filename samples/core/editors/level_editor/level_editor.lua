@@ -129,9 +129,12 @@ function draw_grid(lines, tm, center, size, axis, color)
 	elseif axis == "z" then
 		x = Matrix4x4.x(tm)
 		y = Matrix4x4.z(tm)
-	else
+	elseif axis == "xy" then
 		x = Matrix4x4.x(tm)
 		y = Matrix4x4.y(tm)
+	else
+		x = Matrix4x4.x(tm)
+		y = Matrix4x4.z(tm)
 	end
 
 	local cr, cg, cb, ca = Quaternion.elements(color)
