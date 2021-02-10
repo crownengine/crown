@@ -1102,6 +1102,7 @@ function RotateTool:axis_selected()
 	return self._selected == "x"
 		or self._selected == "y"
 		or self._selected == "z"
+		or self._selected == "xyz"
 end
 
 function RotateTool:drag_start()
@@ -1112,16 +1113,18 @@ function RotateTool:rotate_normal()
 	if self._selected == "x" then return Quaternion.right(self:rotation()) end
 	if self._selected == "y" then return Quaternion.up(self:rotation()) end
 	if self._selected == "z" then return Quaternion.forward(self:rotation()) end
+	if self._selected == "xyz" then return -Matrix4x4.z(LevelEditor:camera():local_pose()) end
 	return nil
 end
 
 function RotateTool:update(dt, x, y)
 	local selected = LevelEditor._selection:last_selected_object()
+	if not selected then
+		return
+	end
 
 	-- Update gizmo pose
-	if selected then
-		self:set_pose(LevelEditor._reference_system == "world" and Matrix4x4.from_translation(selected:local_position()) or selected:world_pose())
-	end
+	self:set_pose(LevelEditor._reference_system == "world" and Matrix4x4.from_translation(selected:local_position()) or selected:world_pose())
 
 	local tm = self:pose()
 	local p  = self:position()
@@ -1129,18 +1132,19 @@ function RotateTool:update(dt, x, y)
 	local cam_z = Matrix4x4.z(LevelEditor:camera():local_pose())
 
 	-- Select axis
-	if self:is_idle() and selected then
+	if self:is_idle() then
 		local pos, dir = LevelEditor:camera():camera_ray(x, y)
 
 		local axis = {
 			Math.ray_disc_intersection(pos, dir, p, l, Matrix4x4.x(tm)),
 			Math.ray_disc_intersection(pos, dir, p, l, Matrix4x4.y(tm)),
-			Math.ray_disc_intersection(pos, dir, p, l, Matrix4x4.z(tm))
+			Math.ray_disc_intersection(pos, dir, p, l, Matrix4x4.z(tm)),
+			Math.ray_disc_intersection(pos, dir, p, l*1.25, -cam_z)
 		}
 
 		local nearest = nil
 		local dist = math.huge
-		local axis_names = { "x", "y", "z" }
+		local axis_names = { "x", "y", "z", "xyz" }
 		for ii, name in ipairs(axis_names) do
 			if axis[ii] ~= -1.0 and axis[ii] < dist then
 				nearest = ii
@@ -1150,12 +1154,52 @@ function RotateTool:update(dt, x, y)
 		self._selected = nearest and axis_names[nearest] or nil
 	end
 
+	function DebugLine.add_arc(lines, center, radius, normal, color, segments)
+		if not segments then
+			segments = 36
+		end
+
+		-- Pick a right axis.
+		local right = Vector3(normal.z, normal.z , -normal.x-normal.y)
+		if normal.z ~= 0 and -normal.x ~= normal.y then
+			 right = Vector3(-normal.y-normal.z, normal.x, normal.x)
+		end
+		Vector3.normalize(right)
+
+		local x = right * radius
+		local y = Vector3.cross(right, normal) * radius
+		local step = (2*math.pi) / (segments > 3 and segments or 3)
+		local from = center - y
+
+		local cam_to_center = Vector3.normalize(center-Matrix4x4.translation(LevelEditor:camera():local_pose()))
+
+		for i=0,segments+1 do
+			local t = step * i - (math.pi/2)
+			local to = center + x*math.cos(t) + y*math.sin(t)
+
+			local center_to_vertex = Vector3.normalize(to - center)
+			local ctc_dot_ctv = Vector3.dot(center_to_vertex, cam_to_center)
+			if ctc_dot_ctv <= 0 then
+				DebugLine.add_line(lines, from, to, color)
+			end
+			from = to
+		end
+	end
+
 	-- Drawing
-	if selected then
-		local lines = LevelEditor._lines_no_depth
-		DebugLine.add_circle(lines, p, l, Matrix4x4.x(tm), self._selected == "x" and Colors.axis_selected() or plane_color(Matrix4x4.x(tm), cam_z, Colors.axis_x()))
-		DebugLine.add_circle(lines, p, l, Matrix4x4.y(tm), self._selected == "y" and Colors.axis_selected() or plane_color(Matrix4x4.y(tm), cam_z, Colors.axis_y()))
-		DebugLine.add_circle(lines, p, l, Matrix4x4.z(tm), self._selected == "z" and Colors.axis_selected() or plane_color(Matrix4x4.z(tm), cam_z, Colors.axis_z()))
+	local lines = LevelEditor._lines_no_depth
+	-- Draw major planes handles.
+	DebugLine.add_arc(lines, p, l, Matrix4x4.x(tm), self._selected == "x" and Colors.axis_selected() or Colors.axis_x())
+	DebugLine.add_arc(lines, p, l, Matrix4x4.y(tm), self._selected == "y" and Colors.axis_selected() or Colors.axis_y())
+	DebugLine.add_arc(lines, p, l, Matrix4x4.z(tm), self._selected == "z" and Colors.axis_selected() or Colors.axis_z())
+	-- Draw camera plane handle.
+	DebugLine.add_circle(lines, p, l*1.25, cam_z, self._selected == "xyz" and Colors.axis_selected() or Colors.grid())
+
+
+	if self:is_rotating() then
+		local radius = self._selected == "xyz" and l*1.25 or l
+		DebugLine.add_line(lines, self:position(), self:position() - radius*Vector3.normalize(self:position() - self:drag_start()), Colors.axis_selected())
+		DebugLine.add_line(lines, self:position(), self:position() - radius*Vector3.normalize(self:position() - self:drag_offset(x, y)), Colors.axis_selected())
 	end
 end
 
@@ -1243,12 +1287,6 @@ function RotateTool:mouse_move(x, y)
 			v:set_local_position(Matrix4x4.translation(new_pose))
 			v:set_local_rotation(Matrix4x4.rotation(new_pose))
 		end
-
-		-- Drawing
-		local lines = LevelEditor._lines_no_depth
-		DebugLine.add_sphere(lines, point_on_plane, 0.1, Color4.green())
-		DebugLine.add_line(lines, self:position(), self:position() + Vector3.normalize(drag_start - self:position()), Color4.yellow())
-		DebugLine.add_line(lines, self:position(), self:position() + Vector3.normalize(point_on_plane - self:position()), Color4.yellow())
 	end
 end
 
