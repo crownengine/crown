@@ -25,6 +25,11 @@
     <file>icons/16x16/actions/tool-place.png</file>
     <file>icons/16x16/actions/tool-rotate.png</file>
     <file>icons/16x16/actions/tool-scale.png</file>
+    <file>icons/16x16/emblems/level-object-camera.png</file>
+    <file>icons/16x16/emblems/level-object-light.png</file>
+    <file>icons/16x16/emblems/level-object-sound.png</file>
+    <file>icons/16x16/emblems/level-object-unit.png</file>
+    <file>icons/16x16/emblems/level-object-unknown.png</file>
     <file>icons/256x256/apps/crown.png</file>
     <file>icons/32x32/apps/crown.png</file>
     <file>icons/48x48/apps/crown.png</file>

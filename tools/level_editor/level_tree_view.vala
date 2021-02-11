@@ -14,7 +14,9 @@ public class LevelTreeView : Gtk.Box
 	{
 		FOLDER,
 		UNIT,
-		SOUND
+		SOUND,
+		LIGHT,
+		CAMERA
 	}
 
 	private enum Column
@@ -98,14 +100,36 @@ public class LevelTreeView : Gtk.Box
 			return strcmp((string)id_a, (string)id_b);
 		});
 
+		Gtk.TreeViewColumn column = new Gtk.TreeViewColumn();
+		Gtk.CellRendererPixbuf cell_pixbuf = new Gtk.CellRendererPixbuf();
+		Gtk.CellRendererText cell_text = new Gtk.CellRendererText();
+		column.pack_start(cell_pixbuf, false);
+		column.pack_start(cell_text, true);
+		column.set_cell_data_func(cell_pixbuf, (cell_layout, cell, model, iter) => {
+			Value type;
+			model.get_value(iter, LevelTreeView.Column.TYPE, out type);
+
+			if ((int)type == LevelTreeView.ItemType.FOLDER)
+				cell.set_property("icon-name", "folder-symbolic");
+			else if ((int)type == LevelTreeView.ItemType.UNIT)
+				cell.set_property("icon-name", "level-object-unit");
+			else if ((int)type == LevelTreeView.ItemType.SOUND)
+				cell.set_property("icon-name", "level-object-sound");
+			else if ((int)type == LevelTreeView.ItemType.LIGHT)
+				cell.set_property("icon-name", "level-object-light");
+			else if ((int)type == LevelTreeView.ItemType.CAMERA)
+				cell.set_property("icon-name", "level-object-camera");
+			else
+				cell.set_property("icon-name", "level-object-unknown");
+		});
+		column.set_cell_data_func(cell_text, (cell_layout, cell, model, iter) => {
+			Value name;
+			model.get_value(iter, LevelTreeView.Column.NAME, out name);
+
+			cell.set_property("text", (string)name);
+		});
 		_tree_view = new Gtk.TreeView();
-		_tree_view.insert_column_with_attributes(-1
-			, "Names"
-			, new Gtk.CellRendererText()
-			, "text"
-			, Column.NAME
-			, null
-			);
+		_tree_view.append_column(column);
 /*
 		// Debug
 		_tree_view.insert_column_with_attributes(-1
@@ -411,18 +435,25 @@ public class LevelTreeView : Gtk.Box
 		{
 			Unit u = new Unit(_level._db, unit, _level._prefabs);
 
+			int item_type = LevelTreeView.ItemType.UNIT;
 			Gtk.TreeIter tree_iter = units_iter;
 			if (u.is_light())
+			{
+				item_type = LevelTreeView.ItemType.LIGHT;
 				tree_iter = lights_iter;
+			}
 			else if (u.is_camera())
+			{
+				item_type = LevelTreeView.ItemType.CAMERA;
 				tree_iter = cameras_iter;
+			}
 
 			Gtk.TreeIter iter;
 			_tree_store.insert_with_values(out iter
 				, tree_iter
 				, -1
 				, Column.TYPE
-				, ItemType.UNIT
+				, item_type
 				, Column.GUID
 				, unit
 				, Column.NAME
