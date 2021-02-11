@@ -65,7 +65,8 @@ Daniele Bartolini ([@dbartolini](https://github.com/dbartolini))
 Simone Boscaratto ([@Xed89](https://github.com/Xed89))  
 Michele Rossi ([@mikymod](https://github.com/mikymod))  
 Michela Iacchelli - Pepper logo.  
-Raphael de Vasconcelos Nascimento ([@vasconssa](https://github.com/vasconssa))
+Raphael de Vasconcelos Nascimento ([@vasconssa](https://github.com/vasconssa))  
+Giulia Gazzoli - Crown logo.
 
 License
 -------

@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
@@ -14,13 +12,61 @@
    viewBox="0 0 16 16"
    id="svg4213"
    version="1.1"
-   inkscape:version="0.92.2 2405546, 2018-03-11"
-   inkscape:export-filename="/home/dani/git/crown/tools/level_editor/icons/tool-place.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90"
+   inkscape:version="1.0.2 (e86c870879, 2021-01-15)"
+   inkscape:export-filename="/home/dani/git/crown/tools/level_editor/resources/icons/16x16/emblems/level-object-camera.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
    sodipodi:docname="theme.svg">
   <defs
      id="defs4215">
+    <inkscape:path-effect
+       effect="skeletal"
+       id="path-effect2612"
+       is_visible="true"
+       lpeversion="1"
+       pattern="M 0,5 C 0,2.24 2.24,0 5,0 7.76,0 10,2.24 10,5 10,7.76 7.76,10 5,10 2.24,10 0,7.76 0,5 Z"
+       copytype="single_stretched"
+       prop_scale="1"
+       scale_y_rel="false"
+       spacing="0"
+       normal_offset="0"
+       tang_offset="0"
+       prop_units="false"
+       vertical_pattern="false"
+       hide_knot="false"
+       fuse_tolerance="0" />
+    <inkscape:path-effect
+       effect="skeletal"
+       id="path-effect2608"
+       is_visible="true"
+       lpeversion="1"
+       pattern="M 0,5 C 0,2.24 2.24,0 5,0 7.76,0 10,2.24 10,5 10,7.76 7.76,10 5,10 2.24,10 0,7.76 0,5 Z"
+       copytype="single_stretched"
+       prop_scale="1"
+       scale_y_rel="false"
+       spacing="0"
+       normal_offset="0"
+       tang_offset="0"
+       prop_units="false"
+       vertical_pattern="false"
+       hide_knot="false"
+       fuse_tolerance="0" />
+    <inkscape:path-effect
+       effect="skeletal"
+       id="path-effect2584"
+       is_visible="true"
+       lpeversion="1"
+       pattern="M 0,5 C 0,2.24 2.24,0 5,0 7.76,0 10,2.24 10,5 10,7.76 7.76,10 5,10 2.24,10 0,7.76 0,5 Z"
+       copytype="single_stretched"
+       prop_scale="1"
+       scale_y_rel="false"
+       spacing="0"
+       normal_offset="0"
+       tang_offset="0"
+       prop_units="false"
+       vertical_pattern="false"
+       hide_knot="false"
+       fuse_tolerance="0" />
     <marker
        inkscape:stockid="Arrow2Mend"
        orient="auto"
@@ -44,20 +90,24 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="4"
-     inkscape:cx="155.21221"
-     inkscape:cy="-22.381398"
+     inkscape:zoom="11.313709"
+     inkscape:cx="73.344956"
+     inkscape:cy="34.927175"
      inkscape:document-units="px"
      inkscape:current-layer="g6039"
      showgrid="true"
      units="px"
      inkscape:window-width="1920"
      inkscape:window-height="1016"
-     inkscape:window-x="0"
+     inkscape:window-x="1920"
      inkscape:window-y="27"
      inkscape:window-maximized="1"
      inkscape:snap-bbox="true"
-     inkscape:bbox-nodes="true">
+     inkscape:bbox-nodes="true"
+     inkscape:document-rotation="0"
+     inkscape:pagecheckerboard="false"
+     showguides="true"
+     inkscape:snap-global="false">
     <inkscape:grid
        type="xygrid"
        id="grid4761"
@@ -582,10 +632,10 @@
         </g>
         <g
            id="g4445"
-           style="opacity:1"
            inkscape:export-xdpi="90"
            inkscape:export-ydpi="90"
-           inkscape:label="level-layers">
+           inkscape:label="level-layers"
+           style="opacity:1">
           <rect
              y="311.3577"
              x="642.66327"
@@ -723,6 +773,240 @@
               </g>
             </g>
           </g>
+        </g>
+        <g
+           transform="matrix(2.216479,0,0,2.2164966,155.03789,-1941.4056)"
+           id="g10207-3"
+           inkscape:label="unit"
+           style="display:inline"
+           inkscape:export-filename="/home/dani/git/crown/tools/level_editor/resources/icons/16x16/objects/unit.png"
+           inkscape:export-xdpi="96"
+           inkscape:export-ydpi="96">
+          <path
+             id="path5439-6"
+             style="fill:#bebebe;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+             d="m 1,1037.3622 v 14 h 14 v -14 z m 2.4222006,2.7298 h 3.3291015 v 5.7445 c 0,0.4956 0.1024719,0.8825 0.3053386,1.1598 0.2086634,0.2772 0.5038436,0.4147 0.8863933,0.4147 0.4405118,0 0.8811028,-0.1001 1.3216146,-0.3008 v -6.223 l -0.7473959,-0.2119 v -0.5833 h 3.2607413 v 7.5241 l 0.799806,0.2119 v 0.5834 H 9.403646 l -0.1207683,-0.7247 -0.5924479,0.3099 c -0.8114691,0.4249 -1.5406036,0.6357 -2.1897786,0.6357 -1.5070139,0 -2.2604168,-0.8172 -2.2604167,-2.4518 v -5.2933 l -0.8180339,-0.2119 z" />
+          <rect
+             y="1036.3622"
+             x="0"
+             height="16"
+             width="16"
+             id="rect10205-1"
+             style="opacity:1;fill:none;fill-opacity:1;stroke:none;stroke-width:1;stroke-linejoin:miter;stroke-miterlimit:4.1;stroke-dasharray:none;stroke-dashoffset:0.9;stroke-opacity:1" />
+        </g>
+        <g
+           id="g2133"
+           transform="translate(4.3593672,0.39188926)"
+           inkscape:label="level-object-light"
+           inkscape:export-filename="/home/dani/git/crown/tools/level_editor/resources/icons/16x16/emblems/level-object-light.png"
+           inkscape:export-xdpi="96"
+           inkscape:export-ydpi="96">
+          <g
+             transform="matrix(2.216479,0,0,2.2164966,195.0081,-1941.7975)"
+             id="g10207-3-5"
+             inkscape:label="game-stop"
+             style="display:inline">
+            <rect
+               y="1036.3622"
+               x="0"
+               height="16"
+               width="16"
+               id="rect10205-1-5"
+               style="opacity:1;fill:none;fill-opacity:1;stroke:none;stroke-width:1;stroke-linejoin:miter;stroke-miterlimit:4.1;stroke-dasharray:none;stroke-dashoffset:0.9;stroke-opacity:1" />
+          </g>
+          <g
+             id="g2125"
+             style="fill:#bebebe;fill-opacity:1;stroke-width:1"
+             transform="translate(-2.1434627,0.46212486)">
+            <g
+               id="g2292">
+              <rect
+                 style="fill:#bebebe;fill-opacity:1;stroke:none;stroke-width:2.21995;stroke-miterlimit:4;stroke-dasharray:none"
+                 id="rect2066"
+                 width="13.298874"
+                 height="2.2164967"
+                 x="208.23396"
+                 y="381.43158" />
+              <g
+                 id="g2285"
+                 transform="matrix(1.5,0,0,1,-110.76641,0)"
+                 style="stroke-width:0.816497">
+                <rect
+                   style="fill:#bebebe;fill-opacity:1;stroke:none;stroke-width:1.81258;stroke-miterlimit:4;stroke-dasharray:none"
+                   id="rect2165"
+                   width="8.8659163"
+                   height="2.2164967"
+                   x="212.66692"
+                   y="385.86456" />
+                <rect
+                   style="display:inline;fill:#bebebe;fill-opacity:1;stroke:none;stroke-width:1.81258;stroke-miterlimit:4;stroke-dasharray:none"
+                   id="rect2165-9"
+                   width="2.9553053"
+                   height="2.2164967"
+                   x="215.62222"
+                   y="388.08109" />
+              </g>
+            </g>
+            <path
+               id="path2301"
+               style="fill:#bebebe;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:2.21648px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+               d="m 214.8692,357.06177 c -3.56108,-0.1752 -6.9897,1.64008 -9.29314,4.33262 -2.16475,2.44463 -3.09061,5.83177 -2.84465,9.08093 0.14501,2.78113 1.42294,5.49426 3.59341,7.22203 0.66183,0.52959 1.34946,1.2197 2.11698,1.51566 4.341,-0.009 8.71631,0.0174 13.03589,-0.0132 2.78154,-1.71786 5.19556,-4.52191 5.48236,-7.93743 0.48582,-3.78244 -0.56776,-7.9175 -3.42135,-10.52672 -2.22639,-2.38652 -5.41968,-3.80407 -8.6695,-3.67402 z" />
+          </g>
+        </g>
+        <g
+           id="g2578"
+           inkscape:export-filename="/home/dani/git/crown/tools/level_editor/resources/icons/16x16/emblems/level-object-sound.png"
+           inkscape:export-xdpi="96"
+           inkscape:export-ydpi="96"
+           inkscape:label="level-object-sound">
+          <g
+             transform="matrix(2.216479,0,0,2.2164966,288.02663,-1941.4056)"
+             id="g2322"
+             inkscape:label="sound"
+             style="display:inline">
+            <rect
+               y="1036.3622"
+               x="0"
+               height="16"
+               width="16"
+               id="rect2320"
+               style="opacity:1;fill:none;fill-opacity:1;stroke:none;stroke-width:1;stroke-linejoin:miter;stroke-miterlimit:4.1;stroke-dasharray:none;stroke-dashoffset:0.9;stroke-opacity:1" />
+          </g>
+          <g
+             id="g2566"
+             transform="translate(-2.2164779)">
+            <g
+               id="g2539">
+              <rect
+                 style="fill:#bebebe;fill-opacity:1;stroke:none;stroke-width:2.95457"
+                 id="rect2326"
+                 width="2.2164791"
+                 height="13.29898"
+                 x="290.2431"
+                 y="366.77014" />
+              <path
+                 id="rect2328"
+                 style="fill:#bebebe;fill-opacity:1;stroke:none;stroke-width:2.95458"
+                 d="m 305.75845,360.12064 -8.86591,6.64948 h -2.21648 v 13.29898 h 2.21648 l 8.86591,6.64949 z"
+                 sodipodi:nodetypes="ccccccc" />
+            </g>
+            <g
+               id="g2535"
+               transform="translate(0,-0.032825)">
+              <path
+                 id="path2385"
+                 style="fill:#bebebe;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:2.21649px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+                 d="m 307.97494,363.45717 v 3.38218 a 9.9951864,9.9952668 0 0 1 2.4988,6.61309 9.9951864,9.9952668 0 0 1 -2.4988,6.61308 v 3.38218 a 12.493984,12.494083 0 0 0 4.9976,-9.99526 12.493984,12.494083 0 0 0 -4.9976,-9.99527 z" />
+              <path
+                 id="ellipse2395"
+                 style="fill:#bebebe;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:2.21649px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+                 d="m 316.84085,359.09888 v 3.17721 a 14.992782,14.992899 0 0 1 4.99759,11.17635 14.992782,14.992899 0 0 1 -4.99759,11.17635 v 3.17721 a 17.491578,17.491717 0 0 0 7.4964,-14.35356 17.491578,17.491717 0 0 0 -7.4964,-14.35356 z" />
+              <path
+                 id="ellipse2399"
+                 style="fill:#bebebe;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:2.21649px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+                 d="m 312.40789,361.28047 v 3.25529 a 12.493984,12.494083 0 0 1 3.7482,8.92156 12.493984,12.494083 0 0 1 -3.7482,8.91667 v 3.25042 a 14.992781,14.9929 0 0 0 6.24699,-12.16709 14.992781,14.9929 0 0 0 -6.24699,-12.17685 z" />
+            </g>
+          </g>
+        </g>
+        <g
+           id="g2649"
+           inkscape:export-filename="/home/dani/git/crown/tools/level_editor/resources/icons/16x16/emblems/level-object-camera.png"
+           inkscape:export-xdpi="96"
+           inkscape:export-ydpi="96"
+           inkscape:label="level-object-camera">
+          <g
+             transform="matrix(2.216479,0,0,2.2164966,243.69705,-1941.4056)"
+             id="g10207-3-5-4"
+             inkscape:label="camera"
+             style="display:inline"
+             inkscape:export-filename="/home/dani/git/crown/tools/level_editor/resources/icons/16x16/emblems/level-object-camera.png"
+             inkscape:export-xdpi="96"
+             inkscape:export-ydpi="96">
+            <rect
+               y="1036.3622"
+               x="0"
+               height="16"
+               width="16"
+               id="rect10205-1-5-0"
+               style="opacity:1;fill:none;fill-opacity:1;stroke:none;stroke-width:1;stroke-linejoin:miter;stroke-miterlimit:4.1;stroke-dasharray:none;stroke-dashoffset:0.9;stroke-opacity:1" />
+          </g>
+          <g
+             id="g2638"
+             transform="translate(3.3247249)">
+            <g
+               id="g2630"
+               transform="matrix(1,0,0,0.99737964,-1.1082527,2.1244988)"
+               style="stroke-width:1.00131">
+              <rect
+                 style="opacity:0.997;fill:#bebebe;fill-opacity:1;stroke:none;stroke-width:2.95845;stroke-opacity:1"
+                 id="rect2580"
+                 width="19.948311"
+                 height="11.082483"
+                 x="245.91353"
+                 y="376.71524"
+                 ry="1.2668183" />
+              <path
+                 style="opacity:1;vector-effect:none;fill:#bebebe;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.22194;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+                 d="m 276.94423,376.71523 -8.86591,4.44465 v 2.22232 l 8.86591,4.44463 z"
+                 id="path2616"
+                 sodipodi:nodetypes="ccccc" />
+              <path
+                 style="opacity:1;vector-effect:none;fill:#bebebe;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.22194;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+                 d="m 241.48057,376.71524 4.43296,2.22232 v 0 l -4.43296,2.22232 z"
+                 id="path2651"
+                 sodipodi:nodetypes="ccccc" />
+            </g>
+            <g
+               id="g2626"
+               transform="matrix(1,0,0,1.0204101,-3.3247189,-8.4357288)"
+               style="stroke-width:0.989949">
+              <path
+                 id="path2618"
+                 style="fill:#bebebe;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:2.19423px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+                 d="m 266.03915,359.01239 a 8.6885979,8.6564411 0 0 0 -8.36375,6.32254 7.4473696,7.4198066 0 0 0 -6.531,-3.84977 7.4473696,7.4198066 0 0 0 -7.44736,7.41834 7.4473696,7.4198066 0 0 0 7.44736,7.42319 v 0.063 h 14.89475 v -0.063 a 8.6885979,8.6564411 0 0 0 8.68859,-8.65957 8.6885979,8.6564411 0 0 0 -8.68859,-8.65473 z" />
+            </g>
+          </g>
+        </g>
+        <g
+           transform="matrix(2.216479,0,0,2.2164966,155.03789,-1941.4056)"
+           id="g2670"
+           inkscape:label="level-object-unit"
+           style="display:inline"
+           inkscape:export-filename="/home/dani/git/crown/tools/level_editor/resources/icons/16x16/objects/unit.png"
+           inkscape:export-xdpi="96"
+           inkscape:export-ydpi="96">
+          <path
+             id="path2666"
+             style="fill:#bebebe;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+             d="m 1,1037.3622 v 14 h 14 v -14 z m 2.4222006,2.7298 h 3.3291015 v 5.7445 c 0,0.4956 0.1024719,0.8825 0.3053386,1.1598 0.2086634,0.2772 0.5038436,0.4147 0.8863933,0.4147 0.4405118,0 0.8811028,-0.1001 1.3216146,-0.3008 v -6.223 l -0.7473959,-0.2119 v -0.5833 h 3.2607413 v 7.5241 l 0.799806,0.2119 v 0.5834 H 9.403646 l -0.1207683,-0.7247 -0.5924479,0.3099 c -0.8114691,0.4249 -1.5406036,0.6357 -2.1897786,0.6357 -1.5070139,0 -2.2604168,-0.8172 -2.2604167,-2.4518 v -5.2933 l -0.8180339,-0.2119 z" />
+          <rect
+             y="1036.3622"
+             x="0"
+             height="16"
+             width="16"
+             id="rect2668"
+             style="opacity:1;fill:none;fill-opacity:1;stroke:none;stroke-width:1;stroke-linejoin:miter;stroke-miterlimit:4.1;stroke-dasharray:none;stroke-dashoffset:0.9;stroke-opacity:1" />
+        </g>
+        <g
+           transform="matrix(2.216479,0,0,2.2164966,332.35621,-1941.4056)"
+           id="g2902"
+           inkscape:label="level-object-unknown"
+           style="display:inline"
+           inkscape:export-filename="/home/dani/git/crown/tools/level_editor/resources/icons/16x16/emblems/level-object-unknown.png"
+           inkscape:export-xdpi="96"
+           inkscape:export-ydpi="96">
+          <path
+             id="path2898"
+             style="fill:#bebebe;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+             d="M 81 21 L 81 35 L 95 35 L 95 21 L 81 21 z M 88.080078 23.021484 C 89.180338 23.021484 90.043191 23.272053 90.669922 23.773438 C 91.301295 24.270179 91.617187 24.956562 91.617188 25.833984 C 91.617188 26.284302 91.514815 26.689407 91.310547 27.046875 C 91.110922 27.404343 90.736045 27.77922 90.183594 28.173828 L 89.654297 28.556641 C 89.33861 28.784121 89.101203 29.013971 88.943359 29.246094 C 88.790159 29.478216 88.707287 29.733172 88.693359 30.011719 L 86.833984 30.011719 C 86.861839 29.538189 86.993704 29.115536 87.230469 28.744141 C 87.471876 28.372745 87.824818 28.026143 88.289062 27.701172 C 88.785804 27.357631 89.135576 27.054899 89.339844 26.794922 C 89.544111 26.530302 89.646484 26.238298 89.646484 25.917969 C 89.646484 25.509433 89.511449 25.185984 89.242188 24.949219 C 88.977568 24.712454 88.599521 24.595703 88.107422 24.595703 C 87.638535 24.595703 87.244157 24.731955 86.923828 25.005859 C 86.608142 25.279764 86.422897 25.641479 86.367188 26.091797 L 84.382812 26.007812 C 84.508159 25.065396 84.894979 24.33319 85.544922 23.808594 C 86.194865 23.283997 87.04017 23.021484 88.080078 23.021484 z M 86.777344 31.099609 L 88.791016 31.099609 L 88.791016 32.978516 L 86.777344 32.978516 L 86.777344 31.099609 z "
+             transform="translate(-80.000002,1016.3622)" />
+          <rect
+             y="1036.3622"
+             x="0"
+             height="16"
+             width="16"
+             id="rect2900"
+             style="opacity:1;fill:none;fill-opacity:1;stroke:none;stroke-width:1;stroke-linejoin:miter;stroke-miterlimit:4.1;stroke-dasharray:none;stroke-dashoffset:0.9;stroke-opacity:1" />
         </g>
       </g>
     </g>

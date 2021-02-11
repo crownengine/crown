@@ -8,8 +8,8 @@
     <file compressed="true" preprocess="xml-stripblanks">ui/toolbar.ui</file>
     <file compressed="true">css/style.css</file>
 
-    <file>icons/128x128/apps/pepper.png</file>
-
+    <file>icons/1024x1024/apps/crown.png</file>
+    <file>icons/128x128/apps/crown.png</file>
     <file>icons/16x16/actions/axis-local.png</file>
     <file>icons/16x16/actions/axis-world.png</file>
     <file>icons/16x16/actions/game-run.png</file>
@@ -25,15 +25,11 @@
     <file>icons/16x16/actions/tool-place.png</file>
     <file>icons/16x16/actions/tool-rotate.png</file>
     <file>icons/16x16/actions/tool-scale.png</file>
-    <file>icons/16x16/apps/pepper.png</file>
-
-    <file>icons/24x24/apps/pepper.png</file>
-
-    <file>icons/256x256/apps/pepper.png</file>
-
-    <file>icons/32x32/apps/pepper.png</file>
-
-    <file>icons/64x64/apps/pepper.png</file>
+    <file>icons/256x256/apps/crown.png</file>
+    <file>icons/32x32/apps/crown.png</file>
+    <file>icons/48x48/apps/crown.png</file>
+    <file>icons/512x512/apps/crown.png</file>
+    <file>icons/64x64/apps/crown.png</file>
 
   </gresource>
 </gresources>
