@@ -15,6 +15,7 @@ Changelog
 * Fixed the translation of multiple unaligned objects when snapping was enabled.
 * Added new Crown logo.
 * Added icons to the Level Tree View.
+* Updated the meshes for Sound, Camera and Light units.
 
 **Runtime**
 
