@@ -16,6 +16,7 @@ Changelog
 * Added new Crown logo.
 * Added icons to the Level Tree View.
 * Updated the meshes for Sound, Camera and Light units.
+* Added a button to the Resource Chooser to "reveal" the selected resource in the Project Browser.
 
 **Runtime**
 

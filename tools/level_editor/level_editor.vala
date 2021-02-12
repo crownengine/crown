@@ -392,7 +392,7 @@ public class LevelEditorApplication : Gtk.Application
 		_combo.set_active_id("editor");
 
 		_console_view = new ConsoleView(_project, _combo);
-		_project_browser = new ProjectBrowser(_project, _project_store);
+		_project_browser = new ProjectBrowser(this, _project, _project_store);
 		_level_treeview = new LevelTreeView(_database, _level);
 		_level_layers_treeview = new LevelLayersTreeView(_database, _level);
 		_properties_view = new PropertiesView(_level, _project_store);

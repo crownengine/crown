@@ -21,7 +21,7 @@ public class ProjectBrowser : Gtk.Box
 {
 	// Data
 	public Project _project;
-	public Gtk.TreeStore _tree_store;
+	public ProjectStore _project_store;
 
 	// Widgets
 	public Gtk.TreeModelFilter _tree_filter;
@@ -33,27 +33,27 @@ public class ProjectBrowser : Gtk.Box
 	// Signals
 	public signal void resource_selected(string type, string name);
 
-	public static string basename(string type, string name)
+	public static string join(string type, string name)
 	{
 		return type == "" ? name : name + "." + type;
 	}
 
 	public static string filename(Project project, string type, string name)
 	{
-		string bn = ProjectBrowser.basename(type, name);
+		string bn = ProjectBrowser.join(type, name);
 		return Path.build_filename(project.source_dir(), bn);
 	}
 
-	public ProjectBrowser(Project? project, ProjectStore project_store)
+	public ProjectBrowser(Gtk.Application app, Project? project, ProjectStore project_store)
 	{
 		Object(orientation: Gtk.Orientation.VERTICAL, spacing: 0);
 
 		// Data
 		_project = project;
-		_tree_store = project_store._tree_store;
+		_project_store = project_store;
 
 		// Widgets
-		_tree_filter = new Gtk.TreeModelFilter(_tree_store, null);
+		_tree_filter = new Gtk.TreeModelFilter(_project_store._tree_store, null);
 		_tree_filter.set_visible_func((model, iter) => {
 			_tree_view.expand_row(new Gtk.TreePath.first(), false);
 
@@ -147,7 +147,7 @@ public class ProjectBrowser : Gtk.Box
 			if ((string)type == "<folder>")
 				cell.set_property("text", (string)segment);
 			else
-				cell.set_property("text", ProjectBrowser.basename((string)type, (string)segment));
+				cell.set_property("text", ProjectBrowser.join((string)type, (string)segment));
 		});
 		_tree_view = new Gtk.TreeView();
 		_tree_view.append_column(column);
@@ -188,6 +188,36 @@ public class ProjectBrowser : Gtk.Box
 		_scrolled_window.add(_tree_view);
 
 		this.pack_start(_scrolled_window, true, true, 0);
+
+		// Actions.
+		GLib.ActionEntry[] action_entries =
+		{
+			{ "project-browser-reveal", on_reveal, "s", null }
+		};
+		app.add_action_entries(action_entries, this);
+	}
+
+	private void on_reveal(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string resource_path = param.get_string();
+		string? type = resource_type(resource_path);
+		string? name = resource_name(type, resource_path);
+		if (type == null || name == null)
+			return;
+
+		Gtk.TreePath store_path;
+		if (_project_store.path_for_resource_type_name(out store_path, type, name))
+		{
+			Gtk.TreePath filter_path = _tree_filter.convert_child_path_to_path(store_path);
+			if (filter_path == null) // Either the path is not valid or points to a non-visible row in the model.
+				return;
+			Gtk.TreePath sort_path = _tree_sort.convert_child_path_to_path(filter_path);
+			if (sort_path == null) // The path is not valid.
+				return;
+
+			_tree_view.expand_to_path(sort_path);
+			_tree_view.get_selection().select_path(sort_path);
+		}
 	}
 
 	private bool on_button_pressed(Gdk.EventButton ev)

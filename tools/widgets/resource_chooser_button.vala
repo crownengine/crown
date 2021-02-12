@@ -10,13 +10,14 @@ namespace Crown
 public class ResourceChooserButton : Gtk.Box
 {
 	// Data
-	private bool _stop_emit;
-	private string _type;
+	public bool _stop_emit;
+	public string _type;
 
 	// Widgets
-	private EntryText _name;
-	private Gtk.Button _selector;
-	private ProjectStore _project_store;
+	public EntryText _name;
+	public Gtk.Button _selector;
+	public Gtk.Button _revealer;
+	public ProjectStore _project_store;
 
 	public string value
 	{
@@ -48,12 +49,17 @@ public class ResourceChooserButton : Gtk.Box
 		_name.sensitive = false;
 		_name.hexpand = true;
 		_name.changed.connect(on_value_changed);
+		this.pack_start(_name, true, true);
+
+		_revealer = new Gtk.Button.from_icon_name("go-jump-symbolic");
+		_revealer.clicked.connect(on_revealer_clicked);
+		this.pack_end(_revealer, false);
+
 		_selector = new Gtk.Button.from_icon_name("document-open-symbolic");
 		_selector.clicked.connect(on_selector_clicked);
-		_project_store = store;
-
-		this.pack_start(_name, true, true);
 		this.pack_end(_selector, false);
+
+		_project_store = store;
 	}
 
 	private void on_value_changed()
@@ -79,6 +85,12 @@ public class ResourceChooserButton : Gtk.Box
 		dg.show_all();
 		dg.run();
 		dg.destroy();
+	}
+
+	private void on_revealer_clicked()
+	{
+		Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
+		app.activate_action("project-browser-reveal", new GLib.Variant.string(_name.text + "." + _type));
 	}
 
 	private bool type_filter(string type, string name)

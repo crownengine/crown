@@ -76,6 +76,41 @@ public class ProjectStore
 		return name.substring(last_slash + 1);
 	}
 
+	public bool path_for_resource_type_name(out Gtk.TreePath path, string type, string name)
+	{
+		string f = folder(name);
+		if (_folders.has_key(f))
+		{
+			// Find the name inside the folder.
+			Gtk.TreeIter parent_iter;
+			_tree_store.get_iter(out parent_iter, _folders[f].get_path());
+
+			Gtk.TreeIter child;
+			if (_tree_store.iter_children(out child, parent_iter))
+			{
+				Value iter_name;
+				Value iter_type;
+
+				while (true)
+				{
+					_tree_store.get_value(child, Column.NAME, out iter_name);
+					_tree_store.get_value(child, Column.TYPE, out iter_type);
+					if ((string)iter_name == name && (string)iter_type == type)
+					{
+						path = _tree_store.get_path(child);
+						return true;
+					}
+
+					if (!_tree_store.iter_next(ref child))
+						break;
+				}
+			}
+		}
+
+		path = _folders[ROOT_FOLDER].get_path();
+		return false;
+	}
+
 	private Gtk.TreeIter make_tree_internal(string folder, int start_index, Gtk.TreeRowReference parent)
 	{
 		// Folder can be:
@@ -247,7 +282,7 @@ public class ProjectStore
 		var it = _folders.map_iterator();
 		for (var has_next = it.next(); has_next; has_next = it.next())
 		{
-		    string ff = it.get_key();
+			string ff = it.get_key();
 			if (ff.has_prefix(name + "/"))
 				it.unset();
 		}
