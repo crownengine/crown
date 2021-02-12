@@ -548,26 +548,26 @@ public class UnitView : ComponentView
 	Level _level;
 
 	// Widgets
-	private EntryText _unit_name;
+	private ResourceChooserButton _prefab;
 
-	public UnitView(Level level)
+	public UnitView(Level level, ProjectStore store)
 	{
 		// Data
 		_level = level;
 
 		// Widgets
-		_unit_name = new EntryText();
-		_unit_name.sensitive = false;
+		_prefab = new ResourceChooserButton(store, "unit");
+		_prefab._selector.sensitive = false;
 
-		add_row("Name", _unit_name);
+		add_row("Prefab", _prefab);
 	}
 
 	public override void update()
 	{
 		if (_level._db.has_property(_id, "prefab"))
-			_unit_name.text = _level._db.get_property_string(_id, "prefab");
+			_prefab.value = _level._db.get_property_string(_id, "prefab");
 		else
-			_unit_name.text = "<none>";
+			_prefab.value = "<none>";
 	}
 }
 
@@ -702,7 +702,7 @@ public class PropertiesView : Gtk.Bin
 		_components_vbox.margin_bottom = 18;
 
 		// Unit
-		add_component_view("Unit",                    "name",                    0, new UnitView(_level));
+		add_component_view("Unit",                    "name",                    0, new UnitView(_level, store));
 		add_component_view("Transform",               "transform",               0, new TransformComponentView(_level));
 		add_component_view("Light",                   "light",                   1, new LightComponentView(_level));
 		add_component_view("Camera",                  "camera",                  2, new CameraComponentView(_level));
