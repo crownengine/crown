@@ -17,6 +17,8 @@ public class EntryVector2 : Gtk.Box
 	public EntryDouble _y;
 	public Gtk.Label _x_label;
 	public Gtk.Label _y_label;
+	public Gtk.Box _x_box;
+	public Gtk.Box _y_box;
 
 	public Vector2 value
 	{
@@ -39,7 +41,7 @@ public class EntryVector2 : Gtk.Box
 
 	public EntryVector2(Vector2 xyz, Vector2 min, Vector2 max)
 	{
-		Object(orientation: Gtk.Orientation.HORIZONTAL, spacing: 0);
+		Object(orientation: Gtk.Orientation.HORIZONTAL, spacing: 4);
 
 		// Data
 		_stop_emit = false;
@@ -58,10 +60,16 @@ public class EntryVector2 : Gtk.Box
 		_y_label.get_style_context().add_class("axis");
 		_y_label.get_style_context().add_class("y");
 
-		this.pack_start(_x_label, false);
-		this.pack_start(_x, true, true);
-		this.pack_start(_y_label, false);
-		this.pack_start(_y, true, true);
+		_x_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		_x_box.pack_start(_x_label, false);
+		_x_box.pack_start(_x, true);
+
+		_y_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		_y_box.pack_start(_y_label, false);
+		_y_box.pack_start(_y, true);
+
+		this.pack_start(_x_box, true);
+		this.pack_start(_y_box, true);
 	}
 
 	private void on_value_changed()

@@ -19,6 +19,9 @@ public class EntryVector3 : Gtk.Box
 	public Gtk.Label _x_label;
 	public Gtk.Label _y_label;
 	public Gtk.Label _z_label;
+	public Gtk.Box _x_box;
+	public Gtk.Box _y_box;
+	public Gtk.Box _z_box;
 
 	public Vector3 value
 	{
@@ -42,7 +45,7 @@ public class EntryVector3 : Gtk.Box
 
 	public EntryVector3(Vector3 xyz, Vector3 min, Vector3 max, string fmt)
 	{
-		Object(orientation: Gtk.Orientation.HORIZONTAL, spacing: 0);
+		Object(orientation: Gtk.Orientation.HORIZONTAL, spacing: 4);
 
 		// Data
 		_stop_emit = false;
@@ -66,12 +69,21 @@ public class EntryVector3 : Gtk.Box
 		_z_label.get_style_context().add_class("axis");
 		_z_label.get_style_context().add_class("z");
 
-		this.pack_start(_x_label, false);
-		this.pack_start(_x, true, true);
-		this.pack_start(_y_label, false);
-		this.pack_start(_y, true, true);
-		this.pack_start(_z_label, false);
-		this.pack_start(_z, true, true);
+		_x_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		_x_box.pack_start(_x_label, false);
+		_x_box.pack_start(_x, true);
+
+		_y_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		_y_box.pack_start(_y_label, false);
+		_y_box.pack_start(_y, true);
+
+		_z_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		_z_box.pack_start(_z_label, false);
+		_z_box.pack_start(_z, true);
+
+		this.pack_start(_x_box, true);
+		this.pack_start(_y_box, true);
+		this.pack_start(_z_box, true);
 	}
 
 	private void on_value_changed()

@@ -21,6 +21,10 @@ public class EntryVector4 : Gtk.Box
 	public Gtk.Label _y_label;
 	public Gtk.Label _z_label;
 	public Gtk.Label _w_label;
+	public Gtk.Box _x_box;
+	public Gtk.Box _y_box;
+	public Gtk.Box _z_box;
+	public Gtk.Box _w_box;
 
 	public Vector4 value
 	{
@@ -45,7 +49,7 @@ public class EntryVector4 : Gtk.Box
 
 	public EntryVector4(Vector4 xyz, Vector4 min, Vector4 max)
 	{
-		Object(orientation: Gtk.Orientation.HORIZONTAL, spacing: 0);
+		Object(orientation: Gtk.Orientation.HORIZONTAL, spacing: 4);
 
 		// Data
 		_stop_emit = false;
@@ -74,14 +78,26 @@ public class EntryVector4 : Gtk.Box
 		_w_label.get_style_context().add_class("axis");
 		_w_label.get_style_context().add_class("w");
 
-		this.pack_start(_x_label, false);
-		this.pack_start(_x, true, true);
-		this.pack_start(_y_label, false);
-		this.pack_start(_y, true, true);
-		this.pack_start(_z_label, false);
-		this.pack_start(_z, true, true);
-		this.pack_start(_w_label, false);
-		this.pack_start(_w, true, true);
+		_x_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		_x_box.pack_start(_x_label, false);
+		_x_box.pack_start(_x, true);
+
+		_y_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		_y_box.pack_start(_y_label, false);
+		_y_box.pack_start(_y, true);
+
+		_z_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		_z_box.pack_start(_z_label, false);
+		_z_box.pack_start(_z, true);
+
+		_w_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		_w_box.pack_start(_w_label, false);
+		_w_box.pack_start(_w, true);
+
+		this.pack_start(_x_box, true);
+		this.pack_start(_y_box, true);
+		this.pack_start(_z_box, true);
+		this.pack_start(_w_box, true);
 	}
 
 	private void on_value_changed()
