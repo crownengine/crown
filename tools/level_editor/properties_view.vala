@@ -698,8 +698,8 @@ public class PropertiesView : Gtk.Bin
 	private Gtk.Label _nothing_to_show;
 	private Gtk.Viewport _viewport;
 	private Gtk.ScrolledWindow _scrolled_window;
-	private Gtk.Widget _current_widget;
 	private PropertyGridSet _object_view;
+	private Gtk.Stack _stack;
 
 	public PropertiesView(Level level, ProjectStore store)
 	{
@@ -739,10 +739,12 @@ public class PropertiesView : Gtk.Bin
 		_scrolled_window = new Gtk.ScrolledWindow(null, null);
 		_scrolled_window.add(_viewport);
 
-		_current_widget = null;
+		_stack = new Gtk.Stack();
+		_stack.add(_nothing_to_show);
+		_stack.add(_scrolled_window);
 
+		this.add(_stack);
 		this.get_style_context().add_class("properties-view");
-		this.set_current_widget(_nothing_to_show);
 	}
 
 	private void register_object_type(string label, string object_type, int position, PropertyGrid cv)
@@ -753,27 +755,11 @@ public class PropertiesView : Gtk.Bin
 		_entries.add({ object_type, position });
 	}
 
-	private void set_current_widget(Gtk.Widget w)
-	{
-		if (_current_widget == w)
-			return;
-
-		if (_current_widget != null)
-		{
-			_current_widget.hide();
-			remove(_current_widget);
-		}
-
-		_current_widget = w;
-		_current_widget.show_all();
-		add(_current_widget);
-	}
-
 	private void on_selection_changed(Gee.ArrayList<Guid?> selection)
 	{
 		if (selection.size != 1)
 		{
-			set_current_widget(_nothing_to_show);
+			_stack.set_visible_child(_nothing_to_show);
 			return;
 		}
 
@@ -781,7 +767,7 @@ public class PropertiesView : Gtk.Bin
 
 		if (_level.is_unit(id))
 		{
-			set_current_widget(_scrolled_window);
+			_stack.set_visible_child(_scrolled_window);
 
 			foreach (var entry in _entries)
 			{
@@ -805,7 +791,7 @@ public class PropertiesView : Gtk.Bin
 		}
 		else if (_level.is_sound(id))
 		{
-			set_current_widget(_scrolled_window);
+			_stack.set_visible_child(_scrolled_window);
 
 			foreach (var entry in _entries)
 			{
@@ -826,7 +812,7 @@ public class PropertiesView : Gtk.Bin
 		}
 		else
 		{
-			set_current_widget(_nothing_to_show);
+			_stack.set_visible_child(_nothing_to_show);
 		}
 	}
 }
