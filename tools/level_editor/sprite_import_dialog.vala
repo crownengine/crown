@@ -89,13 +89,6 @@ Vector2 sprite_cell_pivot_xy(int cell_w, int cell_h, int pivot)
 	return Vector2(pivot_x, pivot_y);
 }
 
-Gtk.Label label_with_alignment(string text, Gtk.Align align = Gtk.Align.END)
-{
-	var l = new Label(text);
-	l.halign = align;
-	return l;
-}
-
 public class SpriteImportDialog : Gtk.Dialog
 {
 	public Cairo.Surface _checker;
@@ -135,7 +128,7 @@ public class SpriteImportDialog : Gtk.Dialog
 	// Widgets
 	public SpriteImportDialog(string png)
 	{
-		this.border_width = 18;
+		this.border_width = 4;
 		this.title = "Import Sprite...";
 
 		try
@@ -435,92 +428,71 @@ public class SpriteImportDialog : Gtk.Dialog
 		layer = new EntryDouble(0.0, 0.0, 7.0);
 		depth = new EntryDouble(0.0, 0.0, 9999.0);
 
-		Gtk.Grid grid = new Gtk.Grid();
-		grid.attach(label_with_alignment("Resolution"),    0,  0, 1, 1);
-		grid.attach(label_with_alignment("Cells"),         0,  1, 1, 1);
-		grid.attach(label_with_alignment("Auto Size"),     0,  2, 1, 1);
-		grid.attach(label_with_alignment("Cell"),          0,  3, 1, 1);
-		grid.attach(label_with_alignment("Offset"),        0,  4, 1, 1);
-		grid.attach(label_with_alignment("Spacing"),       0,  5, 1, 1);
-		grid.attach(label_with_alignment("Pivot"),         0,  6, 1, 1);
-		grid.attach(label_with_alignment("Layer"),         0,  7, 1, 1);
-		grid.attach(label_with_alignment("Depth"),         0,  8, 1, 1);
-		grid.attach(label_with_alignment("Collision"),     0,  9, 1, 1);
-		grid.attach(label_with_alignment("Class"),         0, 10, 1, 1);
-		grid.attach(label_with_alignment("Mass"),          0, 11, 1, 1);
-		grid.attach(label_with_alignment("Lock Rotation"), 0, 12, 1, 1);
+		PropertyGridSet sprite_set = new PropertyGridSet();
+		sprite_set.border_width = 6;
 
-		grid.attach(resolution,        1,  0, 1, 1);
-		grid.attach(cells,             1,  1, 1, 1);
-		grid.attach(cell_wh_auto,      1,  2, 1, 1);
-		grid.attach(cell,              1,  3, 1, 1);
-		grid.attach(offset,            1,  4, 1, 1);
-		grid.attach(spacing,           1,  5, 1, 1);
-		grid.attach(pivot,             1,  6, 1, 1);
-		grid.attach(layer,             1,  7, 1, 1);
-		grid.attach(depth,             1,  8, 1, 1);
-		grid.attach(collision_enabled, 1,  9, 1, 1);
-		grid.attach(actor_class,       1, 10, 1, 1);
-		grid.attach(mass,              1, 11, 1, 1);
-		grid.attach(lock_rotation_y,   1, 12, 1, 1);
+		PropertyGrid cv;
+		cv = new PropertyGrid();
+		cv.add_row("Resolution", resolution);
+		cv.add_row("Cells", cells);
+		cv.add_row("Auto Size", cell_wh_auto);
+		cv.add_row("Cell", cell);
+		cv.add_row("Offset", offset);
+		cv.add_row("Spacing", spacing);
+		cv.add_row("Pivot", pivot);
+		sprite_set.add_property_grid(cv, "Image");
 
-		Gtk.Grid square_grid = new Gtk.Grid();
-		square_grid.attach(label_with_alignment("Origin"), 0, 0, 1, 1);
-		square_grid.attach(label_with_alignment("Size"),   0, 1, 1, 1);
-		square_grid.attach(collision_xy,                   1, 0, 1, 1);
-		square_grid.attach(collision_wh,                   1, 1, 1, 1);
-		collision_xy.hexpand = true;
-		collision_wh.hexpand = true;
-		square_grid.row_spacing = 6;
-		square_grid.column_spacing = 12;
+		cv = new PropertyGrid();
+		cv.add_row("Layer", layer);
+		cv.add_row("Depth", depth);
+		sprite_set.add_property_grid(cv, "Sprite Renderer");
 
-		Gtk.Grid circle_grid = new Gtk.Grid();
-		circle_grid.attach(label_with_alignment("Origin"), 0, 0, 1, 1);
-		circle_grid.attach(label_with_alignment("Radius"), 0, 1, 1, 1);
-		circle_grid.attach(circle_collision_center,        1, 0, 1, 1);
-		circle_grid.attach(circle_collision_radius,        1, 1, 1, 1);
-		circle_collision_center.hexpand = true;
-		circle_collision_radius.hexpand = true;
-		circle_grid.row_spacing = 6;
-		circle_grid.column_spacing = 12;
-
-		Gtk.Grid capsule_grid = new Gtk.Grid();
-		capsule_grid.attach(label_with_alignment("Origin"), 0, 0, 1, 1);
-		capsule_grid.attach(label_with_alignment("Radius"), 0, 1, 1, 1);
-		capsule_grid.attach(label_with_alignment("Height"), 0, 2, 1, 1);
-		capsule_grid.attach(capsule_collision_center,       1, 0, 1, 1);
-		capsule_grid.attach(capsule_collision_radius,       1, 1, 1, 1);
-		capsule_grid.attach(capsule_collision_height,       1, 2, 1, 1);
-		capsule_collision_center.hexpand = true;
-		capsule_collision_radius.hexpand = true;
-		capsule_collision_height.hexpand = true;
-		capsule_grid.row_spacing = 6;
-		capsule_grid.column_spacing = 12;
+		cv = new PropertyGrid();
+		cv.add_row("Collision", collision_enabled);
+		cv.add_row("Class", actor_class);
+		cv.add_row("Mass", mass);
+		cv.add_row("Lock Rotation", lock_rotation_y);
+		sprite_set.add_property_grid(cv, "Actor");
 
 		shape = new Gtk.Stack();
-		shape.add_titled(square_grid, "square_collider", "Square");
-		shape.add_titled(circle_grid, "circle_collider", "Circle");
-		shape.add_titled(capsule_grid, "capsule_collider", "Capsule");
+		shape.notify["visible-child"].connect(() => { _preview.queue_draw(); });
+
+		cv = new PropertyGrid();
+		cv.add_row("Origin", collision_xy);
+		cv.add_row("Size", collision_wh);
+		shape.add_titled(cv, "square_collider", "Square");
+
+		cv = new PropertyGrid();
+		cv.add_row("Origin", circle_collision_center);
+		cv.add_row("Radius", circle_collision_radius);
+		shape.add_titled(cv, "circle_collider", "Circle");
+
+		cv = new PropertyGrid();
+		cv.add_row("Origin", capsule_collision_center);
+		cv.add_row("Radius", capsule_collision_radius);
+		cv.add_row("Height", capsule_collision_height);
+		shape.add_titled(cv, "capsule_collider", "Capsule");
+
 		shape_switcher = new Gtk.StackSwitcher();
 		shape_switcher.set_stack(shape);
 
-		grid.attach(label_with_alignment("Collider"), 0, 13, 1, 1);
-		grid.attach(shape_switcher,                   1, 13, 1, 1);
-		grid.attach(shape,                            1, 14, 1, 1);
-		grid.row_spacing = 6;
-		grid.column_spacing = 12;
+		cv = new PropertyGrid();
+		cv.add_row("Shape Type", shape_switcher);
+		cv.add_row("Shape Data", shape);
+		sprite_set.add_property_grid(cv, "Collider");
 
-		Gtk.Box box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 12);
+		Gtk.Box box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
 		box.pack_start(_scrolled_window, true, true);
 		box.pack_start(_preview, true, true);
-		box.pack_end(grid, false, false);
-		box.margin_bottom = 18;
 
-		get_content_area().pack_start(box);
+		Gtk.Paned pane;
+		pane = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
+		pane.pack1(box, false, false);
+		pane.pack2(sprite_set, true, false);
 
-		add_button("Cancel", Gtk.ResponseType.CANCEL);
-		add_button("OK", Gtk.ResponseType.OK);
-
+		this.get_content_area().add(pane);
+		this.add_button("Cancel", Gtk.ResponseType.CANCEL);
+		this.add_button("OK", Gtk.ResponseType.OK);
 		this.response.connect(on_response);
 	}
 

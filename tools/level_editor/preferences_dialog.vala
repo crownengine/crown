@@ -8,49 +8,110 @@ using Gee;
 
 namespace Crown
 {
-[GtkTemplate (ui = "/org/crown/level_editor/ui/preferences_dialog.ui")]
 public class PreferencesDialog : Gtk.Dialog
 {
 	// Data
 	public LevelEditorApplication _application;
 
 	// Widgets
-	[GtkChild]
 	public ColorButtonVector3 _grid_color_button;
-
-	[GtkChild]
 	public ColorButtonVector3 _grid_disabled_color_button;
-
-	[GtkChild]
 	public ColorButtonVector3 _axis_x_color_button;
-
-	[GtkChild]
 	public ColorButtonVector3 _axis_y_color_button;
-
-	[GtkChild]
 	public ColorButtonVector3 _axis_z_color_button;
-
-	[GtkChild]
 	public ColorButtonVector3 _axis_selected_color_button;
+	public EntryDouble _gizmo_size_spin_button;
+	public Grid _document_grid;
 
-	[GtkChild]
-	public Gtk.SpinButton _gizmo_size_spin_button;
+	public EntryDouble _level_autosave_spin_button;
+	public Grid _viewport_grid;
 
-	[GtkChild]
-	public Gtk.SpinButton _level_autosave_spin_button;
+	public EntryDouble _log_delete_after_days;
+	public Grid _system_grid;
 
-	[GtkChild]
-	public Gtk.SpinButton _log_delete_after_days;
+	public PropertyGridSet _document_set;
+	public PropertyGridSet _viewport_set;
+	public PropertyGridSet _system_set;
+	public Gtk.Notebook _notebook;
 
 	public PreferencesDialog(LevelEditorApplication app)
 	{
+		this.title = "Preferences";
+		this.border_width = 0;
+
 		// Data
 		_application = app;
 
-		this.title = "Preferences";
+		// Widgets
+		_document_set = new PropertyGridSet();
+		_document_set.border_width = 12;
+		_viewport_set = new PropertyGridSet();
+		_viewport_set.border_width = 12;
+		_system_set = new PropertyGridSet();
+		_system_set.border_width = 12;
+
+		_grid_color_button = new ColorButtonVector3();
+		_grid_color_button.value = Vector3(102.0/255.0, 102.0/255.0, 102.0/255.0);
+		_grid_color_button.value_changed.connect(on_color_set);
+		_grid_disabled_color_button = new ColorButtonVector3();
+		_grid_disabled_color_button.value = Vector3(102.0/255.0, 102.0/255.0, 102.0/255.0);
+		_grid_disabled_color_button.value_changed.connect(on_color_set);
+		_axis_x_color_button = new ColorButtonVector3();
+		_axis_x_color_button.value = Vector3(217.0/255.0, 0.0/255.0, 0.0/255.0);
+		_axis_x_color_button.value_changed.connect(on_color_set);
+		_axis_y_color_button = new ColorButtonVector3();
+		_axis_y_color_button.value = Vector3(0.0/255.0, 217.0/255.0, 0.0/255.0);
+		_axis_y_color_button.value_changed.connect(on_color_set);
+		_axis_z_color_button = new ColorButtonVector3();
+		_axis_z_color_button.value = Vector3(0.0/255.0, 0.0/255.0, 217.0/255.0);
+		_axis_z_color_button.value_changed.connect(on_color_set);
+		_axis_selected_color_button = new ColorButtonVector3();
+		_axis_selected_color_button.value = Vector3(217.0/255.0, 217.0/255.0, 0.0/255.0);
+		_axis_selected_color_button.value_changed.connect(on_color_set);
+
+		PropertyGrid cv;
+		cv = new PropertyGrid();
+		cv.add_row(           "Grid", _grid_color_button);
+		cv.add_row("Grid (Disabled)", _grid_disabled_color_button);
+		_document_set.add_property_grid(cv, "Grid");
+
+		cv = new PropertyGrid();
+		cv.add_row(  "X Axis", _axis_x_color_button);
+		cv.add_row(  "Y Axis", _axis_y_color_button);
+		cv.add_row(  "Z Axis", _axis_z_color_button);
+		cv.add_row("Selected", _axis_selected_color_button);
+		_document_set.add_property_grid(cv, "Axes");
+
+		_gizmo_size_spin_button = new EntryDouble(85, 10, 200);
+		_gizmo_size_spin_button.value_changed.connect(on_gizmo_size_value_changed);
+
+		cv = new PropertyGrid();
+		cv.add_row("Size", _gizmo_size_spin_button);
+		_document_set.add_property_grid(cv, "Gizmo");
+
+		_level_autosave_spin_button = new EntryDouble(5, 1, 60);
+		_level_autosave_spin_button.value_changed.connect(on_level_autosave_value_changed);
+
+		cv = new PropertyGrid();
+		cv.add_row("Autosave (mins)", _level_autosave_spin_button);
+		_viewport_set.add_property_grid(cv, "Level");
+
+		_log_delete_after_days = new EntryDouble(10, 0, 90);
+		cv = new PropertyGrid();
+		cv.add_row("Delete logs older than (days)", _log_delete_after_days);
+		_system_set.add_property_grid(cv, "Memory and Limits");
+
+		_notebook = new Gtk.Notebook();
+		_notebook.append_page(_document_set, new Gtk.Label("Document"));
+		_notebook.append_page(_viewport_set, new Gtk.Label("Viewport"));
+		_notebook.append_page(_system_set, new Gtk.Label("System"));
+		_notebook.vexpand = true;
+		_notebook.show_border = false;
+
+		this.get_content_area().border_width = 0;
+		this.get_content_area().add(_notebook);
 	}
 
-	[GtkCallback]
 	private void on_color_set()
 	{
 		_application._editor.send_script(LevelEditorApi.set_color("grid", _grid_color_button.value));
@@ -61,13 +122,11 @@ public class PreferencesDialog : Gtk.Dialog
 		_application._editor.send_script(LevelEditorApi.set_color("axis_selected", _axis_selected_color_button.value));
 	}
 
-	[GtkCallback]
 	private void on_gizmo_size_value_changed()
 	{
 		_application._editor.send_script("Gizmo.size = %f".printf(_gizmo_size_spin_button.value));
 	}
 
-	[GtkCallback]
 	private void on_level_autosave_value_changed()
 	{
 		_application.set_autosave_timer((uint)_level_autosave_spin_button.value);
