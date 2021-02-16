@@ -671,6 +671,8 @@ function PlaceTool:init()
 	self._placeable_type = nil
 	self._placeable_name = nil
 	self._placeable_id   = nil
+	self._spawn_height       = 0 -- The spawn height at the time of "idle" -> "placing" transition.
+	self._spawn_point_height = 0 -- The spawn point height at the time of "idle" -> "placing" transition.
 
 	self:set_state("idle")
 end
@@ -738,18 +740,29 @@ end
 
 function PlaceTool:mouse_move(x, y)
 	if self:is_idle() then
-		local target = LevelEditor:find_spawn_point(x, y)
-		self:set_position(target)
+		local spawn_point = LevelEditor:find_spawn_point(x, y)
+		self._spawn_height = LevelEditor._spawn_height
+		self._spawn_point_height = spawn_point.y
+		self:set_position(spawn_point)
 	elseif self:is_placing() then
 		local pos, dir = LevelEditor:camera():camera_ray(x, y)
-		local point = self:position()
+		local gizmo_pos = self:position()
+		local point = Vector3(gizmo_pos.x, self._spawn_height, gizmo_pos.y)
 		local normal = Vector3.up()
 
 		local t = Math.ray_plane_intersection(pos, dir, point, normal)
 		if t ~= -1.0 then
-			local target = pos + dir * t
-			target = LevelEditor:snap(Matrix4x4.identity(), target) or target
-			self:set_position(target)
+			local spawn_point = pos + dir * t
+			spawn_point = LevelEditor:snap(Matrix4x4.identity(), spawn_point) or spawn_point
+			spawn_point.y = self._spawn_point_height
+			if LevelEditor.debug then
+				DebugLine.add_sphere(LevelEditor._lines_no_depth
+					, spawn_point
+					, 0.1
+					, Color4.blue()
+					)
+			end
+			self:set_position(spawn_point)
 		end
 	end
 end
