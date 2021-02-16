@@ -1109,7 +1109,15 @@ public class LevelEditorApplication : Gtk.Application
 
 	private async void start_game(StartGame sg)
 	{
-		_project.dump_test_level(_database);
+		// Save test level to file
+		_database.dump(_project._level_editor_test_level.get_path(), _level._id);
+
+		// Save temporary package to reference test level
+		ArrayList<Value?> level = new ArrayList<Value?>();
+		level.add("_level_editor_test");
+		Hashtable package = new Hashtable();
+		package["level"] = level;
+		SJSON.save(package, _project._level_editor_test_package.get_path());
 
 		bool success = yield _data_compiler.compile(_project.data_dir(), _project.platform());
 		if (!success)
@@ -1309,6 +1317,9 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		_level.load_empty_level();
 		_level.send_level();
+
+		// FIXME: hack to keep update_active_windo_title() working.
+		_database.key_changed(_level._id, "");
 	}
 
 	private void update_active_window_title()

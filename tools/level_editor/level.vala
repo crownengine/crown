@@ -17,7 +17,6 @@ public class Level
 
 	// Data
 	public Database _db;
-	public Database _prefabs;
 	public Gee.HashSet<string> _loaded_prefabs;
 	public Gee.ArrayList<Guid?> _selection;
 
@@ -26,6 +25,7 @@ public class Level
 
 	public string _name;
 	public string _path;
+	public Guid _id;
 
 	// Signals
 	public signal void selection_changed(Gee.ArrayList<Guid?> selection);
@@ -42,7 +42,6 @@ public class Level
 		_db = db;
 		_db.undo_redo.connect(undo_redo_action);
 
-		_prefabs = new Database();
 		_loaded_prefabs = new Gee.HashSet<string>();
 		_selection = new Gee.ArrayList<Guid?>();
 
@@ -53,7 +52,6 @@ public class Level
 	public void reset()
 	{
 		_db.reset();
-		_prefabs.reset();
 		_loaded_prefabs.clear();
 
 		_selection.clear();
@@ -64,17 +62,22 @@ public class Level
 
 		_name = null;
 		_path = null;
+		_id = GUID_ZERO;
 	}
 
 	public void load(string name)
 	{
 		reset();
 
-		string path = Path.build_filename(_project.source_dir(), name + ".level");
+		string resource_path = name + ".level";
+		string path = Path.build_filename(_project.source_dir(), resource_path);
 
-		_db.load(path);
+		_id = _db.load(path, resource_path);
 		_name = name;
 		_path = path;
+
+		// FIXME: hack to keep the LevelTreeView working.
+		_db.key_changed(_id, "units");
 	}
 
 	public void load_empty_level()
@@ -82,18 +85,22 @@ public class Level
 		reset();
 
 		string name = LEVEL_EMPTY;
-		string path = Path.build_filename(_project.toolchain_dir(), name + ".level");
+		string resource_path = name + ".level";
+		string path = Path.build_filename(_project.toolchain_dir(), resource_path);
 
-		_db.load(path);
+		_id = _db.load(path, resource_path);
 		_name = name;
 		_path = null;
+
+		// FIXME: hack to keep the LevelTreeView working.
+		_db.key_changed(_id, "units");
 	}
 
 	public void save(string name)
 	{
 		string path = Path.build_filename(_project.source_dir(), name + ".level");
 
-		_db.save(path);
+		_db.save(path, _id);
 		_path = path;
 		_name = name;
 	}
@@ -122,7 +129,7 @@ public class Level
 			_db.add_restore_point((int)ActionType.DESTROY_UNIT, units);
 			foreach (Guid id in units)
 			{
-				_db.remove_from_set(GUID_ZERO, "units", id);
+				_db.remove_from_set(_id, "units", id);
 				_db.destroy(id);
 			}
 		}
@@ -132,7 +139,7 @@ public class Level
 			_db.add_restore_point((int)ActionType.DESTROY_SOUND, sounds);
 			foreach (Guid id in sounds)
 			{
-				_db.remove_from_set(GUID_ZERO, "sounds", id);
+				_db.remove_from_set(_id, "sounds", id);
 				_db.destroy(id);
 			}
 		}
@@ -193,11 +200,11 @@ public class Level
 
 			if (is_unit(ids[i]))
 			{
-				_db.add_to_set(GUID_ZERO, "units", new_ids[i]);
+				_db.add_to_set(_id, "units", new_ids[i]);
 			}
 			else if (is_sound(ids[i]))
 			{
-				_db.add_to_set(GUID_ZERO, "sounds", new_ids[i]);
+				_db.add_to_set(_id, "sounds", new_ids[i]);
 			}
 		}
 		send_spawn_objects(new_ids);
@@ -213,7 +220,7 @@ public class Level
 		_db.set_property_string(id, "editor.name", "unit_%04u".printf(_num_units++));
 		_db.set_property_string(id, "prefab", name);
 
-		Unit unit = new Unit(_db, id, _prefabs);
+		Unit unit = new Unit(_db, id);
 		Guid component_id;
 		if (unit.has_component(out component_id, "transform"))
 		{
@@ -228,7 +235,7 @@ public class Level
 			_db.set_property_quaternion(id, "rotation", rot);
 			_db.set_property_vector3   (id, "scale", scl);
 		}
-		_db.add_to_set(GUID_ZERO, "units", id);
+		_db.add_to_set(_id, "units", id);
 	}
 
 	public void on_sound_spawned(Guid id, string name, Vector3 pos, Quaternion rot, Vector3 scl, double range, double volume, bool loop)
@@ -242,7 +249,7 @@ public class Level
 		_db.set_property_double    (id, "range", range);
 		_db.set_property_double    (id, "volume", volume);
 		_db.set_property_bool      (id, "loop", loop);
-		_db.add_to_set(GUID_ZERO, "sounds", id);
+		_db.add_to_set(_id, "sounds", id);
 	}
 
 	public void on_move_objects(Guid[] ids, Vector3[] positions, Quaternion[] rotations, Vector3[] scales)
@@ -258,7 +265,7 @@ public class Level
 
 			if (is_unit(id))
 			{
-				Unit unit = new Unit(_db, id, _prefabs);
+				Unit unit = new Unit(_db, id);
 				Guid component_id;
 				if (unit.has_component(out component_id, "transform"))
 				{
@@ -306,7 +313,7 @@ public class Level
 	{
 		_db.add_restore_point((int)ActionType.SET_LIGHT, new Guid[] { unit_id });
 
-		Unit unit = new Unit(_db, unit_id, _prefabs);
+		Unit unit = new Unit(_db, unit_id);
 		unit.set_component_property_string (component_id, "data.type",       type);
 		unit.set_component_property_double (component_id, "data.range",      range);
 		unit.set_component_property_double (component_id, "data.intensity",  intensity);
@@ -321,7 +328,7 @@ public class Level
 	{
 		_db.add_restore_point((int)ActionType.SET_MESH, new Guid[] { unit_id });
 
-		Unit unit = new Unit(_db, unit_id, _prefabs);
+		Unit unit = new Unit(_db, unit_id);
 		unit.set_component_property_string(component_id, "data.mesh_resource", mesh_resource);
 		unit.set_component_property_string(component_id, "data.geometry_name", geometry);
 		unit.set_component_property_string(component_id, "data.material", material);
@@ -335,7 +342,7 @@ public class Level
 	{
 		_db.add_restore_point((int)ActionType.SET_SPRITE, new Guid[] { unit_id });
 
-		Unit unit = new Unit(_db, unit_id, _prefabs);
+		Unit unit = new Unit(_db, unit_id);
 		unit.set_component_property_double(component_id, "data.layer", layer);
 		unit.set_component_property_double(component_id, "data.depth", depth);
 		unit.set_component_property_string(component_id, "data.material", material);
@@ -350,7 +357,7 @@ public class Level
 	{
 		_db.add_restore_point((int)ActionType.SET_CAMERA, new Guid[] { unit_id });
 
-		Unit unit = new Unit(_db, unit_id, _prefabs);
+		Unit unit = new Unit(_db, unit_id);
 		unit.set_component_property_string(component_id, "data.projection", projection);
 		unit.set_component_property_double(component_id, "data.fov", fov);
 		unit.set_component_property_double(component_id, "data.near_range", near_range);
@@ -364,7 +371,7 @@ public class Level
 	{
 		_db.add_restore_point((int)ActionType.SET_COLLIDER, new Guid[] { unit_id });
 
-		Unit unit = new Unit(_db, unit_id, _prefabs);
+		Unit unit = new Unit(_db, unit_id);
 		unit.set_component_property_string(component_id, "data.shape", shape);
 		unit.set_component_property_string(component_id, "data.scene", scene);
 		unit.set_component_property_string(component_id, "data.name", name);
@@ -377,7 +384,7 @@ public class Level
 	{
 		_db.add_restore_point((int)ActionType.SET_ACTOR, new Guid[] { unit_id });
 
-		Unit unit = new Unit(_db, unit_id, _prefabs);
+		Unit unit = new Unit(_db, unit_id);
 		unit.set_component_property_string(component_id, "data.class", class);
 		unit.set_component_property_string(component_id, "data.collision_filter", collision_filter);
 		unit.set_component_property_string(component_id, "data.material", material);
@@ -397,7 +404,7 @@ public class Level
 	{
 		_db.add_restore_point((int)ActionType.SET_SCRIPT, new Guid[] { unit_id });
 
-		Unit unit = new Unit(_db, unit_id, _prefabs);
+		Unit unit = new Unit(_db, unit_id);
 		unit.set_component_property_string(component_id, "data.script_resource", script_resource);
 		unit.set_component_property_string(component_id, "type", "script");
 	}
@@ -406,7 +413,7 @@ public class Level
 	{
 		_db.add_restore_point((int)ActionType.SET_ANIMATION_STATE_MACHINE, new Guid[] { unit_id });
 
-		Unit unit = new Unit(_db, unit_id, _prefabs);
+		Unit unit = new Unit(_db, unit_id);
 		unit.set_component_property_string(component_id, "data.state_machine_resource", state_machine_resource);
 		unit.set_component_property_string(component_id, "type", "animation_state_machine");
 	}
@@ -490,8 +497,8 @@ public class Level
 
 	public void send_level()
 	{
-		HashSet<Guid?> units  = _db.get_property_set(GUID_ZERO, "units", new HashSet<Guid?>());
-		HashSet<Guid?> sounds = _db.get_property_set(GUID_ZERO, "sounds", new HashSet<Guid?>());
+		HashSet<Guid?> units  = _db.get_property_set(_id, "units", new HashSet<Guid?>());
+		HashSet<Guid?> sounds = _db.get_property_set(_id, "sounds", new HashSet<Guid?>());
 
 		Guid[] unit_ids = new Guid[units.size];
 		Guid[] sound_ids = new Guid[sounds.size];
@@ -524,21 +531,19 @@ public class Level
 		if (_loaded_prefabs.contains(name))
 			return;
 
-		Database prefab_db = new Database();
+		// Try to load from toolchain directory first.
+		string resource_path = name + ".unit";
+		string path = Path.build_filename(_project.toolchain_dir(), resource_path);
+		if (!File.new_for_path(path).query_exists())
+			path = Path.build_filename(_project.source_dir(), resource_path);
 
-		// Try to load from toolchain directory first
-		File file = File.new_for_path(Path.build_filename(_project.toolchain_dir(), name + ".unit"));
-		if (file.query_exists())
-			prefab_db.load(file.get_path());
-		else
-			prefab_db.load(Path.build_filename(_project.source_dir(), name + ".unit"));
+		Guid prefab_id = _db.load_more(path, resource_path);
 
 		// Recursively load all sub-prefabs
-		Value? prefab = prefab_db.get_property(GUID_ZERO, "prefab");
+		Value? prefab = _db.get_property(prefab_id, "prefab");
 		if (prefab != null)
 			load_prefab((string)prefab);
 
-		prefab_db.copy_to(_prefabs, name);
 		_loaded_prefabs.add(name);
 	}
 
@@ -546,7 +551,7 @@ public class Level
 	{
 		foreach (Guid unit_id in unit_ids)
 		{
-			Unit unit = new Unit(_db, unit_id, _prefabs);
+			Unit unit = new Unit(_db, unit_id);
 
 			if (unit.has_prefab())
 				load_prefab(_db.get_property_string(unit_id, "prefab"));
@@ -683,7 +688,7 @@ public class Level
 					{
 						Guid unit_id = ids[i];
 
-						Unit unit = new Unit(_db, unit_id, _prefabs);
+						Unit unit = new Unit(_db, unit_id);
 						Guid component_id;
 						if (unit.has_component(out component_id, "transform"))
 						{
@@ -735,7 +740,7 @@ public class Level
 			{
 				Guid unit_id = data[0];
 
-				Unit unit = new Unit(_db, unit_id, _prefabs);
+				Unit unit = new Unit(_db, unit_id);
 				Guid component_id;
 				unit.has_component(out component_id, "light");
 
@@ -755,7 +760,7 @@ public class Level
 			{
 				Guid unit_id = data[0];
 
-				Unit unit = new Unit(_db, unit_id, _prefabs);
+				Unit unit = new Unit(_db, unit_id);
 				Guid component_id;
 				unit.has_component(out component_id, "mesh_renderer");
 
@@ -773,7 +778,7 @@ public class Level
 			{
 				Guid unit_id = data[0];
 
-				Unit unit = new Unit(_db, unit_id, _prefabs);
+				Unit unit = new Unit(_db, unit_id);
 				Guid component_id;
 				unit.has_component(out component_id, "sprite_renderer");
 
@@ -792,7 +797,7 @@ public class Level
 			{
 				Guid unit_id = data[0];
 
-				Unit unit = new Unit(_db, unit_id, _prefabs);
+				Unit unit = new Unit(_db, unit_id);
 				Guid component_id;
 				unit.has_component(out component_id, "camera");
 
@@ -835,12 +840,12 @@ public class Level
 
 	public bool is_unit(Guid id)
 	{
-		return _db.get_property_set(GUID_ZERO, "units", new HashSet<Guid?>()).contains(id);
+		return _db.get_property_set(_id, "units", new HashSet<Guid?>()).contains(id);
 	}
 
 	public bool is_sound(Guid id)
 	{
-		return _db.get_property_set(GUID_ZERO, "sounds", new HashSet<Guid?>()).contains(id);
+		return _db.get_property_set(_id, "sounds", new HashSet<Guid?>()).contains(id);
 	}
 }
 

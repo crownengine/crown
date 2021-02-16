@@ -81,8 +81,6 @@ public class TransformPropertyGrid : PropertyGrid
 	{
 		// Data
 		_level = level;
-		_id = GUID_ZERO;
-		_component_id = GUID_ZERO;
 
 		// Widgets
 		_position = new EntryPosition();
@@ -107,7 +105,7 @@ public class TransformPropertyGrid : PropertyGrid
 
 	public override void update()
 	{
-		Unit unit = new Unit(_level._db, _id, _level._prefabs);
+		Unit unit = new Unit(_level._db, _id);
 		_position.value = unit.get_component_property_vector3   (_component_id, "data.position");
 		_rotation.value = unit.get_component_property_quaternion(_component_id, "data.rotation");
 		_scale.value    = unit.get_component_property_vector3   (_component_id, "data.scale");
@@ -159,7 +157,7 @@ public class MeshRendererPropertyGrid : PropertyGrid
 
 	public override void update()
 	{
-		Unit unit = new Unit(_level._db, _id, _level._prefabs);
+		Unit unit = new Unit(_level._db, _id);
 		_mesh_resource.value = unit.get_component_property_string(_component_id, "data.mesh_resource");
 		_geometry.text       = unit.get_component_property_string(_component_id, "data.geometry_name");
 		_material.value      = unit.get_component_property_string(_component_id, "data.material");
@@ -217,7 +215,7 @@ public class SpriteRendererPropertyGrid : PropertyGrid
 
 	public override void update()
 	{
-		Unit unit = new Unit(_level._db, _id, _level._prefabs);
+		Unit unit = new Unit(_level._db, _id);
 		_sprite_resource.value = unit.get_component_property_string(_component_id, "data.sprite_resource");
 		_material.value        = unit.get_component_property_string(_component_id, "data.material");
 		_layer.value           = unit.get_component_property_double(_component_id, "data.layer");
@@ -279,7 +277,7 @@ public class LightPropertyGrid : PropertyGrid
 
 	public override void update()
 	{
-		Unit unit = new Unit(_level._db, _id, _level._prefabs);
+		Unit unit = new Unit(_level._db, _id);
 		string type       = unit.get_component_property_string (_component_id, "data.type");
 		double range      = unit.get_component_property_double (_component_id, "data.range");
 		double intensity  = unit.get_component_property_double (_component_id, "data.intensity");
@@ -341,7 +339,7 @@ public class CameraPropertyGrid : PropertyGrid
 
 	public override void update()
 	{
-		Unit unit = new Unit(_level._db, _id, _level._prefabs);
+		Unit unit = new Unit(_level._db, _id);
 
 		_projection.value = unit.get_component_property_string(_component_id, "data.projection");
 		_fov.value        = unit.get_component_property_double(_component_id, "data.fov") * (180.0/Math.PI);
@@ -399,7 +397,7 @@ public class ColliderPropertyGrid : PropertyGrid
 
 	public override void update()
 	{
-		Unit unit = new Unit(_level._db, _id, _level._prefabs);
+		Unit unit = new Unit(_level._db, _id);
 
 		Value? source = unit.get_component_property(_component_id, "data.source");
 		if (source != null)
@@ -478,7 +476,7 @@ public class ActorPropertyGrid : PropertyGrid
 
 	public override void update()
 	{
-		Unit unit = new Unit(_level._db, _id, _level._prefabs);
+		Unit unit = new Unit(_level._db, _id);
 		_class.value           = unit.get_component_property_string(_component_id, "data.class");
 		_collision_filter.text = unit.get_component_property_string(_component_id, "data.collision_filter");
 		_material.text         = unit.get_component_property_string(_component_id, "data.material");
@@ -516,7 +514,7 @@ public class ScriptPropertyGrid : PropertyGrid
 
 	public override void update()
 	{
-		Unit unit = new Unit(_level._db, _id, _level._prefabs);
+		Unit unit = new Unit(_level._db, _id);
 		_script_resource.value = unit.get_component_property_string(_component_id, "data.script_resource");
 	}
 }
@@ -551,7 +549,7 @@ public class AnimationStateMachine : PropertyGrid
 
 	public override void update()
 	{
-		Unit unit = new Unit(_level._db, _id, _level._prefabs);
+		Unit unit = new Unit(_level._db, _id);
 		_state_machine_resource.value = unit.get_component_property_string(_component_id, "data.state_machine_resource");
 	}
 }
@@ -598,7 +596,6 @@ public class SoundTransformView : PropertyGrid
 	{
 		// Data
 		_level = level;
-		_id = GUID_ZERO;
 
 		// Widgets
 		_position = new EntryPosition();
@@ -773,7 +770,7 @@ public class PropertiesView : Gtk.Bin
 			{
 				Gtk.Expander expander = _expanders[entry.type];
 
-				Unit unit = new Unit(_level._db, id, _level._prefabs);
+				Unit unit = new Unit(_level._db, id);
 				Guid component_id;
 				if (unit.has_component(out component_id, entry.type) || entry.type == "name")
 				{

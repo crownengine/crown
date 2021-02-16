@@ -342,19 +342,6 @@ public class Project
 		return file.has_prefix(_source_dir);
 	}
 
-	public void dump_test_level(Database db)
-	{
-		// Save test level to file
-		db.dump(_level_editor_test_level.get_path());
-
-		// Save temporary package to reference test level
-		ArrayList<Value?> level = new ArrayList<Value?>();
-		level.add("_level_editor_test");
-		Hashtable package = new Hashtable();
-		package["level"] = level;
-		SJSON.save(package, _level_editor_test_package.get_path());
-	}
-
 	public void delete_garbage()
 	{
 		try

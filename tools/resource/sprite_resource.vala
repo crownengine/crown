@@ -156,13 +156,16 @@ public class SpriteResource
 
 			// Generate .unit
 			Database db = new Database();
+			Guid unit_id = Guid.new_guid();
 
 			// Do not overwrite existing .unit
 			string unit_name = Path.build_filename(project.source_dir(), resource_path) + ".unit";
 			if (File.new_for_path(unit_name).query_exists())
-				db.load(unit_name);
+				unit_id = db.load(unit_name, resource_path + ".unit");
+			else
+				db.create(unit_id);
 
-			Unit unit = new Unit(db, GUID_ZERO, null);
+			Unit unit = new Unit(db, unit_id);
 
 			// Create transform
 			{
@@ -183,7 +186,7 @@ public class SpriteResource
 					db.set_property_vector3   (component_id, "data.scale", VECTOR3_ONE);
 					db.set_property_string    (component_id, "type", "transform");
 
-					db.add_to_set(GUID_ZERO, "components", component_id);
+					db.add_to_set(unit_id, "components", component_id);
 				}
 			}
 
@@ -210,7 +213,7 @@ public class SpriteResource
 					db.set_property_bool  (component_id, "data.visible", true);
 					db.set_property_string(component_id, "type", "sprite_renderer");
 
-					db.add_to_set(GUID_ZERO, "components", component_id);
+					db.add_to_set(unit_id, "components", component_id);
 				}
 			}
 
@@ -304,7 +307,7 @@ public class SpriteResource
 						}
 						db.set_property_string(component_id, "type", "collider");
 
-						db.add_to_set(GUID_ZERO, "components", component_id);
+						db.add_to_set(unit_id, "components", component_id);
 					}
 				}
 
@@ -341,7 +344,7 @@ public class SpriteResource
 						db.set_property_string(component_id, "data.material", "default");
 						db.set_property_string(component_id, "type", "actor");
 
-						db.add_to_set(GUID_ZERO, "components", component_id);
+						db.add_to_set(unit_id, "components", component_id);
 					}
 				}
 			}
@@ -351,17 +354,17 @@ public class SpriteResource
 				Guid component_id;
 				if (unit.has_component(out component_id, "collider"))
 				{
-					db.remove_from_set(GUID_ZERO, "components", component_id);
+					db.remove_from_set(unit_id, "components", component_id);
 					db.destroy(component_id);
 				}
 				if (unit.has_component(out component_id, "actor"))
 				{
-					db.remove_from_set(GUID_ZERO, "components", component_id);
+					db.remove_from_set(unit_id, "components", component_id);
 					db.destroy(component_id);
 				}
 			}
 
-			db.save(unit_name);
+			db.save(unit_name, unit_id);
 		}
 
 		return 0;

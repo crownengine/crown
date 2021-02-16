@@ -338,30 +338,48 @@ public class Database
 	}
 
 	/// Saves database to path without marking it as not changed.
-	public void dump(string path)
+	public void dump(string path, Guid id)
 	{
-		Hashtable json = encode();
+		Hashtable json = encode(id);
 		SJSON.save(json, path);
 	}
 
 	/// Saves database to path.
-	public void save(string path)
+	public void save(string path, Guid id)
 	{
-		dump(path);
+		dump(path, id);
 		_distance_from_last_sync = 0;
 	}
 
-	/// Loads database from path.
-	public void load(string path)
+	// Loads the database with the object stored at @a path, without resetting the
+	// database. This makes it possible to load multiple objects from distinct
+	// paths in the same database. @a resource_path is used as a key in the
+	// database to refer to the object that has been loaded. This is useful when
+	// you do not have the object ID but only its path, as it is often the case
+	// since resources use paths and not IDs to reference each other.
+	public Guid load_more(string path, string resource_path)
 	{
 		Hashtable json = SJSON.load(path);
-		decode(json);
+		Guid id = decode(json);
+
+		// Create a mapping between the path and the object it has been loaded into.
+		set_property_internal(1, GUID_ZERO, resource_path, id);
+
 		_distance_from_last_sync = 0;
+		return id;
 	}
 
-	private Hashtable encode()
+	/// Loads the database with the object stored at @a path.
+	public Guid load(string path, string resource_path)
 	{
-		return encode_object(GUID_ZERO, _data);
+		reset();
+		return load_more(path, resource_path);
+	}
+
+	/// Encodes the object @a id into SJSON object.
+	private Hashtable encode(Guid id)
+	{
+		return encode_object(id, get_data(id));
 	}
 
 	private static bool is_valid_value(Value? value)
@@ -409,10 +427,18 @@ public class Database
 	}
 #endif // CROWN_DEBUG
 
-	public void decode(Hashtable json)
+	// Decodes the @a json data inside the database object @a id.
+	public Guid decode(Hashtable json)
 	{
-		reset();
-		decode_object(GUID_ZERO, "", json);
+		Guid id;
+		if (json.has_key("id"))
+			id = Guid.parse((string)json["id"]);
+		else
+			id = Guid.new_guid();
+
+		create_internal(1, id);
+		decode_object(id, "", json);
+		return id;
 	}
 
 	private void decode_object(Guid id, string db_key, Hashtable json)
@@ -574,8 +600,7 @@ public class Database
 			ArrayList<Value?> arr = new Gee.ArrayList<Value?>();
 			foreach (Guid id in hs)
 			{
-				HashMap<string, Value?> objs = (HashMap<string, Value?>)_data["_objects"];
-				arr.add(encode_object(id, (HashMap<string, Value?>)objs[id.to_string()]));
+				arr.add(encode_object(id, get_data(id)));
 			}
 			return arr;
 		}
@@ -589,7 +614,8 @@ public class Database
 	{
 		assert(has_object(id));
 
-		return (HashMap<string, Value?>)(id == GUID_ZERO ? _data : ((HashMap<string, Value?>)_data["_objects"])[id.to_string()]);
+		HashMap<string, Value?> objects = (HashMap<string, Value?>)_data["_objects"];
+		return (HashMap<string, Value?>)(id == GUID_ZERO ? _data : objects[id.to_string()]);
 	}
 
 	private void create_internal(int dir, Guid id)

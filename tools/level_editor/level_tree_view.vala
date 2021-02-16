@@ -369,7 +369,7 @@ public class LevelTreeView : Gtk.Box
 
 	private void on_database_key_changed(Guid id, string key)
 	{
-		if (id != GUID_ZERO)
+		if (id != _level._id)
 			return;
 
 		if (key != "units" && key != "sounds")
@@ -428,12 +428,12 @@ public class LevelTreeView : Gtk.Box
 			, -1
 			);
 
-		HashSet<Guid?> units  = _db.get_property_set(GUID_ZERO, "units", new HashSet<Guid?>());
-		HashSet<Guid?> sounds = _db.get_property_set(GUID_ZERO, "sounds", new HashSet<Guid?>());
+		HashSet<Guid?> units  = _db.get_property_set(_level._id, "units", new HashSet<Guid?>());
+		HashSet<Guid?> sounds = _db.get_property_set(_level._id, "sounds", new HashSet<Guid?>());
 
 		foreach (Guid unit in units)
 		{
-			Unit u = new Unit(_level._db, unit, _level._prefabs);
+			Unit u = new Unit(_level._db, unit);
 
 			int item_type = LevelTreeView.ItemType.UNIT;
 			Gtk.TreeIter tree_iter = units_iter;
