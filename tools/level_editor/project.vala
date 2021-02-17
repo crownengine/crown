@@ -95,12 +95,13 @@ public class Project
 	/// Loads the unit @a name and all its prefabs recursively into the database.
 	public void load_unit(string name)
 	{
+		string resource_path = name + ".unit";
+
 		// If the unit is already loaded.
-		if (_database.has_property(GUID_ZERO, name))
+		if (_database.has_property(GUID_ZERO, resource_path))
 			return;
 
 		// Try to load from toolchain directory first.
-		string resource_path = name + ".unit";
 		string path = Path.build_filename(toolchain_dir(), resource_path);
 		if (!File.new_for_path(path).query_exists())
 			path = Path.build_filename(source_dir(), resource_path);
