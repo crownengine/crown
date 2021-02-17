@@ -155,15 +155,21 @@ public class SpriteResource
 			SJSON.save(sprite, Path.build_filename(project.source_dir(), resource_path) + ".sprite");
 
 			// Generate .unit
-			Database db = new Database();
-			Guid unit_id = Guid.new_guid();
+			project.load_unit(resource_name);
 
-			// Do not overwrite existing .unit
-			string unit_name = Path.build_filename(project.source_dir(), resource_path) + ".unit";
-			if (File.new_for_path(unit_name).query_exists())
-				unit_id = db.load(unit_name, resource_path + ".unit");
+			Guid unit_id;
+			Database db = project._database;
+
+			if (db.has_property(GUID_ZERO, resource_name + ".unit"))
+			{
+				unit_id = db.get_property_guid(GUID_ZERO, resource_name + ".unit");
+			}
 			else
+			{
+				db = new Database();
+				unit_id = Guid.new_guid();
 				db.create(unit_id);
+			}
 
 			Unit unit = new Unit(db, unit_id);
 
@@ -294,7 +300,7 @@ public class SpriteResource
 				}
 			}
 
-			db.save(unit_name, unit_id);
+			db.save(Path.build_filename(project.source_dir(), resource_path + ".unit"), unit_id);
 		}
 
 		return 0;

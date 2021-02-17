@@ -210,7 +210,7 @@ public class Level
 
 	public void on_unit_spawned(Guid id, string name, Vector3 pos, Quaternion rot, Vector3 scl)
 	{
-		load_unit(name);
+		_project.load_unit(name);
 
 		_db.add_restore_point((int)ActionType.SPAWN_UNIT, new Guid[] { id });
 		_db.create(id);
@@ -520,27 +520,6 @@ public class Level
 		_client.send_script(sb.str);
 	}
 
-	/// Loads the unit @a name and all its prefabs recursively into the database.
-	private void load_unit(string name)
-	{
-		// If the unit is already loaded.
-		if (_db.has_property(GUID_ZERO, name))
-			return;
-
-		// Try to load from toolchain directory first.
-		string resource_path = name + ".unit";
-		string path = Path.build_filename(_project.toolchain_dir(), resource_path);
-		if (!File.new_for_path(path).query_exists())
-			path = Path.build_filename(_project.source_dir(), resource_path);
-
-		Guid prefab_id = _db.load_more(path, resource_path);
-
-		// Load all prefabs recursively, if any.
-		Value? prefab = _db.get_property(prefab_id, "prefab");
-		if (prefab != null)
-			load_unit((string)prefab);
-	}
-
 	private void generate_spawn_unit_commands(Guid[] unit_ids, StringBuilder sb)
 	{
 		foreach (Guid unit_id in unit_ids)
@@ -548,7 +527,7 @@ public class Level
 			Unit unit = new Unit(_db, unit_id);
 
 			if (unit.has_prefab())
-				load_unit(_db.get_property_string(unit_id, "prefab"));
+				_project.load_unit(_db.get_property_string(unit_id, "prefab"));
 
 			sb.append(LevelEditorApi.spawn_empty_unit(unit_id));
 

@@ -340,15 +340,15 @@ public class LevelEditorApplication : Gtk.Application
 
 		_data_compiler = new DataCompiler(_compiler);
 
-		_project = new Project(_data_compiler);
+		_database = new Database();
+		_database.key_changed.connect(() => { update_active_window_title(); });
+
+		_project = new Project(_database, _data_compiler);
 		_project.set_toolchain_dir(_toolchain_dir.get_path());
 		_project.register_importer("Sprite", { "png" }, SpriteResource.import, 0.0);
 		_project.register_importer("Mesh", { "mesh" }, MeshResource.import, 1.0);
 		_project.register_importer("Sound", { "wav" }, SoundResource.import, 2.0);
 		_project.register_importer("Texture", { "png", "tga", "dds", "ktx", "pvr" }, TextureResource.import, 2.0);
-
-		_database = new Database();
-		_database.key_changed.connect(() => { update_active_window_title(); });
 
 		_editor = new ConsoleClient();
 		_editor.connected.connect(on_editor_connected);
