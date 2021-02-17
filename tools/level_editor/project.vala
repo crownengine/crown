@@ -598,7 +598,7 @@ public class Project
 		}
 		else
 		{
-			out_dir = destination_dir;
+			out_dir = GLib.File.new_for_path(GLib.Path.build_filename(source_dir(), destination_dir)).get_path();
 		}
 
 		Gtk.FileFilter? current_filter = src.get_filter();

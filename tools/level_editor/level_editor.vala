@@ -125,7 +125,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "open-project", on_open_project, null, null },
 		{ "save",         on_save,         null, null },
 		{ "save-as",      on_save_as,      null, null },
-		{ "import",       on_import,       null, null },
+		{ "import",       on_import,       "s",  null },
 		{ "preferences",  on_preferences,  null, null },
 		{ "deploy",       on_deploy,       null, null },
 		{ "close",        on_close,        null, null },
@@ -1640,7 +1640,8 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_import(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		_project.import(null, this.active_window);
+		string destination_dir = param.get_string();
+		_project.import(destination_dir != "" ? destination_dir : null, this.active_window);
 	}
 
 	private void on_preferences(GLib.SimpleAction action, GLib.Variant? param)

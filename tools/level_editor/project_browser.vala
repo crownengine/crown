@@ -242,8 +242,8 @@ public class ProjectBrowser : Gtk.Box
 
 					mi = new Gtk.MenuItem.with_label("Import...");
 					mi.activate.connect(() => {
-						GLib.File file = GLib.File.new_for_path(GLib.Path.build_filename(_project.source_dir(), (string)name));
-						_project.import(file.get_path(), (Gtk.Window)this.get_toplevel());
+						Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
+						app.activate_action("import", new GLib.Variant.string((string)name));
 					});
 					menu.add(mi);
 
