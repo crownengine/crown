@@ -17,7 +17,6 @@ public class Level
 
 	// Data
 	public Database _db;
-	public Gee.HashSet<string> _loaded_prefabs;
 	public Gee.ArrayList<Guid?> _selection;
 
 	public uint _num_units;
@@ -42,7 +41,6 @@ public class Level
 		_db = db;
 		_db.undo_redo.connect(undo_redo_action);
 
-		_loaded_prefabs = new Gee.HashSet<string>();
 		_selection = new Gee.ArrayList<Guid?>();
 
 		reset();
@@ -52,7 +50,6 @@ public class Level
 	public void reset()
 	{
 		_db.reset();
-		_loaded_prefabs.clear();
 
 		_selection.clear();
 		selection_changed(_selection);
@@ -528,7 +525,7 @@ public class Level
 	/// </summary>
 	private void load_prefab(string name)
 	{
-		if (_loaded_prefabs.contains(name))
+		if (_db.has_property(GUID_ZERO, name))
 			return;
 
 		// Try to load from toolchain directory first.
@@ -543,8 +540,6 @@ public class Level
 		Value? prefab = _db.get_property(prefab_id, "prefab");
 		if (prefab != null)
 			load_prefab((string)prefab);
-
-		_loaded_prefabs.add(name);
 	}
 
 	private void generate_spawn_unit_commands(Guid[] unit_ids, StringBuilder sb)
