@@ -170,51 +170,35 @@ public class SpriteResource
 			// Create transform
 			{
 				Guid component_id;
-				if (unit.has_component(out component_id, "transform"))
-				{
-					unit.set_component_property_vector3   (component_id, "data.position", VECTOR3_ZERO);
-					unit.set_component_property_quaternion(component_id, "data.rotation", QUATERNION_IDENTITY);
-					unit.set_component_property_vector3   (component_id, "data.scale", VECTOR3_ONE);
-					unit.set_component_property_string    (component_id, "type", "transform");
-				}
-				else
+				if (!unit.has_component(out component_id, "transform"))
 				{
 					component_id = Guid.new_guid();
 					db.create(component_id);
-					db.set_property_vector3   (component_id, "data.position", VECTOR3_ZERO);
-					db.set_property_quaternion(component_id, "data.rotation", QUATERNION_IDENTITY);
-					db.set_property_vector3   (component_id, "data.scale", VECTOR3_ONE);
-					db.set_property_string    (component_id, "type", "transform");
-
 					db.add_to_set(unit_id, "components", component_id);
 				}
+
+				unit.set_component_property_vector3   (component_id, "data.position", VECTOR3_ZERO);
+				unit.set_component_property_quaternion(component_id, "data.rotation", QUATERNION_IDENTITY);
+				unit.set_component_property_vector3   (component_id, "data.scale", VECTOR3_ONE);
+				unit.set_component_property_string    (component_id, "type", "transform");
 			}
 
 			// Create sprite_renderer
 			{
 				Guid component_id;
-				if (unit.has_component(out component_id, "sprite_renderer"))
-				{
-					unit.set_component_property_string(component_id, "data.material", resource_name);
-					unit.set_component_property_string(component_id, "data.sprite_resource", resource_name);
-					unit.set_component_property_double(component_id, "data.layer", layer);
-					unit.set_component_property_double(component_id, "data.depth", depth);
-					unit.set_component_property_bool  (component_id, "data.visible", true);
-					unit.set_component_property_string(component_id, "type", "sprite_renderer");
-				}
-				else
+				if (!unit.has_component(out component_id, "sprite_renderer"))
 				{
 					component_id = Guid.new_guid();
 					db.create(component_id);
-					db.set_property_string(component_id, "data.material", resource_name);
-					db.set_property_string(component_id, "data.sprite_resource", resource_name);
-					db.set_property_double(component_id, "data.layer", layer);
-					db.set_property_double(component_id, "data.depth", depth);
-					db.set_property_bool  (component_id, "data.visible", true);
-					db.set_property_string(component_id, "type", "sprite_renderer");
-
 					db.add_to_set(unit_id, "components", component_id);
 				}
+
+				unit.set_component_property_string(component_id, "data.material", resource_name);
+				unit.set_component_property_string(component_id, "data.sprite_resource", resource_name);
+				unit.set_component_property_double(component_id, "data.layer", layer);
+				unit.set_component_property_double(component_id, "data.depth", depth);
+				unit.set_component_property_bool  (component_id, "data.visible", true);
+				unit.set_component_property_string(component_id, "type", "sprite_renderer");
 			}
 
 			if (collision_enabled)
@@ -225,127 +209,73 @@ public class SpriteResource
 					Quaternion rotation = QUATERNION_IDENTITY;
 
 					Guid component_id;
-					if (unit.has_component(out component_id, "collider"))
-					{
-						unit.set_component_property_string(component_id, "data.source", "inline");
-						if (shape_active_name == "square_collider")
-						{
-							double pos_x =  (collision_x + collision_w/2.0 - pivot_xy.x) / PIXELS_PER_METER;
-							double pos_y = -(collision_y + collision_h/2.0 - pivot_xy.y) / PIXELS_PER_METER;
-							Vector3 position = Vector3(pos_x, 0, pos_y);
-							Vector3 half_extents = Vector3(collision_w/2/PIXELS_PER_METER, 0.5/PIXELS_PER_METER, collision_h/2/PIXELS_PER_METER);
-							unit.set_component_property_vector3   (component_id, "data.collider_data.position", position);
-							unit.set_component_property_quaternion(component_id, "data.collider_data.rotation", rotation);
-							unit.set_component_property_string    (component_id, "data.shape", "box");
-							unit.set_component_property_vector3   (component_id, "data.collider_data.half_extents", half_extents);
-						}
-						else if (shape_active_name == "circle_collider")
-						{
-							double pos_x =  (circle_collision_center_x - pivot_xy.x) / PIXELS_PER_METER;
-							double pos_y = -(circle_collision_center_y - pivot_xy.y) / PIXELS_PER_METER;
-							Vector3 position = Vector3(pos_x, 0, pos_y);
-							double radius = circle_collision_radius / PIXELS_PER_METER;
-							unit.set_component_property_vector3   (component_id, "data.collider_data.position", position);
-							unit.set_component_property_quaternion(component_id, "data.collider_data.rotation", rotation);
-							unit.set_component_property_string    (component_id, "data.shape", "sphere");
-							unit.set_component_property_double    (component_id, "data.collider_data.radius", radius);
-						}
-						else if (shape_active_name == "capsule_collider")
-						{
-							double pos_x =  (capsule_collision_center_x - pivot_xy.x) / PIXELS_PER_METER;
-							double pos_y = -(capsule_collision_center_y - pivot_xy.y) / PIXELS_PER_METER;
-							Vector3 position = Vector3(pos_x, 0, pos_y);
-							double radius = capsule_collision_radius / PIXELS_PER_METER;
-							double capsule_height = (capsule_collision_height - 2*capsule_collision_radius) / PIXELS_PER_METER;
-							unit.set_component_property_vector3   (component_id, "data.collider_data.position", position);
-							unit.set_component_property_quaternion(component_id, "data.collider_data.rotation", Quaternion.from_axis_angle(Vector3(0, 0, 1), (float)Math.PI/2));
-							unit.set_component_property_string    (component_id, "data.shape", "capsule");
-							unit.set_component_property_double    (component_id, "data.collider_data.radius", radius);
-							unit.set_component_property_double    (component_id, "data.collider_data.height", capsule_height);
-						}
-						unit.set_component_property_string(component_id, "type", "collider");
-					}
-					else
+					if (!unit.has_component(out component_id, "collider"))
 					{
 						component_id = Guid.new_guid();
 						db.create(component_id);
-						db.set_property_string(component_id, "data.source", "inline");
-						if (shape_active_name == "square_collider")
-						{
-							double pos_x =  (collision_x + collision_w/2.0 - pivot_xy.x) / PIXELS_PER_METER;
-							double pos_y = -(collision_y + collision_h/2.0 - pivot_xy.y) / PIXELS_PER_METER;
-							Vector3 position = Vector3(pos_x, 0, pos_y);
-							Vector3 half_extents = Vector3(collision_w/2/PIXELS_PER_METER, 0.5/PIXELS_PER_METER, collision_h/2/PIXELS_PER_METER);
-							db.set_property_vector3   (component_id, "data.collider_data.position", position);
-							db.set_property_string    (component_id, "data.shape", "box");
-							db.set_property_quaternion(component_id, "data.collider_data.rotation", rotation);
-							db.set_property_vector3   (component_id, "data.collider_data.half_extents", half_extents);
-						}
-						else if (shape_active_name == "circle_collider")
-						{
-							double pos_x =  (circle_collision_center_x - pivot_xy.x) / PIXELS_PER_METER;
-							double pos_y = -(circle_collision_center_y - pivot_xy.y) / PIXELS_PER_METER;
-							Vector3 position = Vector3(pos_x, 0, pos_y);
-							double radius = circle_collision_radius / PIXELS_PER_METER;
-							db.set_property_vector3   (component_id, "data.collider_data.position", position);
-							db.set_property_string    (component_id, "data.shape", "sphere");
-							db.set_property_quaternion(component_id, "data.collider_data.rotation", rotation);
-							db.set_property_double    (component_id, "data.collider_data.radius", radius);
-						}
-						else if (shape_active_name == "capsule_collider")
-						{
-							double pos_x =  (capsule_collision_center_x - pivot_xy.x) / PIXELS_PER_METER;
-							double pos_y = -(capsule_collision_center_y - pivot_xy.y) / PIXELS_PER_METER;
-							Vector3 position = Vector3(pos_x, 0, pos_y);
-							double radius = capsule_collision_radius / PIXELS_PER_METER;
-							double capsule_height = (capsule_collision_height - 2*capsule_collision_radius) / PIXELS_PER_METER;
-							db.set_property_vector3   (component_id, "data.collider_data.position", position);
-							db.set_property_string    (component_id, "data.shape", "capsule");
-							db.set_property_quaternion(component_id, "data.collider_data.rotation", Quaternion.from_axis_angle(Vector3(0, 0, 1), (float)Math.PI/2));
-							db.set_property_double    (component_id, "data.collider_data.radius", radius);
-							db.set_property_double    (component_id, "data.collider_data.height", capsule_height);
-						}
-						db.set_property_string(component_id, "type", "collider");
-
 						db.add_to_set(unit_id, "components", component_id);
 					}
+
+					unit.set_component_property_string(component_id, "data.source", "inline");
+					if (shape_active_name == "square_collider")
+					{
+						double pos_x =  (collision_x + collision_w/2.0 - pivot_xy.x) / PIXELS_PER_METER;
+						double pos_y = -(collision_y + collision_h/2.0 - pivot_xy.y) / PIXELS_PER_METER;
+						Vector3 position = Vector3(pos_x, 0, pos_y);
+						Vector3 half_extents = Vector3(collision_w/2/PIXELS_PER_METER, 0.5/PIXELS_PER_METER, collision_h/2/PIXELS_PER_METER);
+						unit.set_component_property_vector3   (component_id, "data.collider_data.position", position);
+						unit.set_component_property_quaternion(component_id, "data.collider_data.rotation", rotation);
+						unit.set_component_property_string    (component_id, "data.shape", "box");
+						unit.set_component_property_vector3   (component_id, "data.collider_data.half_extents", half_extents);
+					}
+					else if (shape_active_name == "circle_collider")
+					{
+						double pos_x =  (circle_collision_center_x - pivot_xy.x) / PIXELS_PER_METER;
+						double pos_y = -(circle_collision_center_y - pivot_xy.y) / PIXELS_PER_METER;
+						Vector3 position = Vector3(pos_x, 0, pos_y);
+						double radius = circle_collision_radius / PIXELS_PER_METER;
+						unit.set_component_property_vector3   (component_id, "data.collider_data.position", position);
+						unit.set_component_property_quaternion(component_id, "data.collider_data.rotation", rotation);
+						unit.set_component_property_string    (component_id, "data.shape", "sphere");
+						unit.set_component_property_double    (component_id, "data.collider_data.radius", radius);
+					}
+					else if (shape_active_name == "capsule_collider")
+					{
+						double pos_x =  (capsule_collision_center_x - pivot_xy.x) / PIXELS_PER_METER;
+						double pos_y = -(capsule_collision_center_y - pivot_xy.y) / PIXELS_PER_METER;
+						Vector3 position = Vector3(pos_x, 0, pos_y);
+						double radius = capsule_collision_radius / PIXELS_PER_METER;
+						double capsule_height = (capsule_collision_height - 2*capsule_collision_radius) / PIXELS_PER_METER;
+						unit.set_component_property_vector3   (component_id, "data.collider_data.position", position);
+						unit.set_component_property_quaternion(component_id, "data.collider_data.rotation", Quaternion.from_axis_angle(Vector3(0, 0, 1), (float)Math.PI/2));
+						unit.set_component_property_string    (component_id, "data.shape", "capsule");
+						unit.set_component_property_double    (component_id, "data.collider_data.radius", radius);
+						unit.set_component_property_double    (component_id, "data.collider_data.height", capsule_height);
+					}
+					unit.set_component_property_string(component_id, "type", "collider");
 				}
 
 				// Create actor
 				{
 					Guid component_id;
-					if (unit.has_component(out component_id, "actor"))
-					{
-						unit.set_component_property_string(component_id, "data.class", actor_class);
-						unit.set_component_property_string(component_id, "data.collision_filter", "default");
-						unit.set_component_property_bool  (component_id, "data.lock_rotation_x", true);
-						unit.set_component_property_bool  (component_id, "data.lock_rotation_y", lock_rotation_y);
-						unit.set_component_property_bool  (component_id, "data.lock_rotation_z", true);
-						unit.set_component_property_bool  (component_id, "data.lock_translation_x", false);
-						unit.set_component_property_bool  (component_id, "data.lock_translation_y", true);
-						unit.set_component_property_bool  (component_id, "data.lock_translation_z", false);
-						unit.set_component_property_double(component_id, "data.mass", mass);
-						unit.set_component_property_string(component_id, "data.material", "default");
-						unit.set_component_property_string(component_id, "type", "actor");
-					}
-					else
+					if (!unit.has_component(out component_id, "actor"))
 					{
 						component_id = Guid.new_guid();
 						db.create(component_id);
-						db.set_property_string(component_id, "data.class", actor_class);
-						db.set_property_string(component_id, "data.collision_filter", "default");
-						db.set_property_bool  (component_id, "data.lock_rotation_x", true);
-						db.set_property_bool  (component_id, "data.lock_rotation_y", lock_rotation_y);
-						db.set_property_bool  (component_id, "data.lock_rotation_z", true);
-						db.set_property_bool  (component_id, "data.lock_translation_x", false);
-						db.set_property_bool  (component_id, "data.lock_translation_y", true);
-						db.set_property_bool  (component_id, "data.lock_translation_z", false);
-						db.set_property_double(component_id, "data.mass", mass);
-						db.set_property_string(component_id, "data.material", "default");
-						db.set_property_string(component_id, "type", "actor");
-
 						db.add_to_set(unit_id, "components", component_id);
 					}
+
+					unit.set_component_property_string(component_id, "data.class", actor_class);
+					unit.set_component_property_string(component_id, "data.collision_filter", "default");
+					unit.set_component_property_bool  (component_id, "data.lock_rotation_x", true);
+					unit.set_component_property_bool  (component_id, "data.lock_rotation_y", lock_rotation_y);
+					unit.set_component_property_bool  (component_id, "data.lock_rotation_z", true);
+					unit.set_component_property_bool  (component_id, "data.lock_translation_x", false);
+					unit.set_component_property_bool  (component_id, "data.lock_translation_y", true);
+					unit.set_component_property_bool  (component_id, "data.lock_translation_z", false);
+					unit.set_component_property_double(component_id, "data.mass", mass);
+					unit.set_component_property_string(component_id, "data.material", "default");
+					unit.set_component_property_string(component_id, "type", "actor");
 				}
 			}
 			else /* if (collision_enabled) */
