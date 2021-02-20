@@ -185,12 +185,13 @@ struct RenderWorld
 
 		void allocate(u32 num);
 		void grow();
-		MeshInstance create(UnitId unit, const MeshResource* mr, const MeshGeometry* mg, StringId64 material, const Matrix4x4& tr);
+		MeshInstance create(UnitId unit, const MeshResource* mr, const MeshRendererDesc& mrd, const Matrix4x4& tr);
 		void destroy(MeshInstance mesh);
 		bool has(UnitId unit);
 		void set_visible(MeshInstance mesh, bool visible);
 		MeshInstance mesh(UnitId unit);
 		void destroy();
+		void swap(u32 inst_a, u32 inst_b);
 
 		MeshInstance make_instance(u32 i) { MeshInstance inst = { i }; return inst; }
 	};
@@ -228,7 +229,7 @@ struct RenderWorld
 			memset(&_data, 0, sizeof(_data));
 		}
 
-		SpriteInstance create(UnitId unit, const SpriteResource* sr, StringId64 material, u32 layer, u32 depth, const Matrix4x4& tr);
+		SpriteInstance create(UnitId unit, const SpriteResource* sr, const SpriteRendererDesc& srd, const Matrix4x4& tr);
 		void destroy(SpriteInstance sprite);
 		bool has(UnitId unit);
 		void set_visible(SpriteInstance sprite, bool visible);
@@ -236,6 +237,7 @@ struct RenderWorld
 		void allocate(u32 num);
 		void grow();
 		void destroy();
+		void swap(u32 inst_a, u32 inst_b);
 
 		SpriteInstance make_instance(u32 i) { SpriteInstance inst = { i }; return inst; }
 	};

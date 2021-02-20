@@ -23,6 +23,7 @@ Changelog
 
 * Upgraded to LuaJIT 2.1.
 * Added support to 64-bits Android (ARMv8-a).
+* Fixed changing Mesh and Sprite visibility.
 
 0.41.0
 ------

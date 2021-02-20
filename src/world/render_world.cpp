@@ -74,10 +74,8 @@ RenderWorld::~RenderWorld()
 MeshInstance RenderWorld::mesh_create(UnitId unit, const MeshRendererDesc& mrd, const Matrix4x4& tr)
 {
 	const MeshResource* mr = (const MeshResource*)_resource_manager->get(RESOURCE_TYPE_MESH, mrd.mesh_resource);
-	const MeshGeometry* mg = mr->geometry(mrd.geometry_name);
 	_material_manager->create_material(mrd.material_resource);
-
-	return _mesh_manager.create(unit, mr, mg, mrd.material_resource, tr);
+	return _mesh_manager.create(unit, mr, mrd, tr);
 }
 
 void RenderWorld::mesh_destroy(MeshInstance mesh)
@@ -142,14 +140,7 @@ SpriteInstance RenderWorld::sprite_create(UnitId unit, const SpriteRendererDesc&
 {
 	const SpriteResource* sr = (const SpriteResource*)_resource_manager->get(RESOURCE_TYPE_SPRITE, srd.sprite_resource);
 	_material_manager->create_material(srd.material_resource);
-
-	return _sprite_manager.create(unit
-		, sr
-		, srd.material_resource
-		, srd.layer
-		, srd.depth
-		, tr
-		);
+	return _sprite_manager.create(unit, sr, srd, tr);
 }
 
 void RenderWorld::sprite_destroy(SpriteInstance sprite)
@@ -583,7 +574,7 @@ void RenderWorld::MeshManager::grow()
 	allocate(_data.capacity * 2 + 1);
 }
 
-MeshInstance RenderWorld::MeshManager::create(UnitId unit, const MeshResource* mr, const MeshGeometry* mg, StringId64 mat, const Matrix4x4& tr)
+MeshInstance RenderWorld::MeshManager::create(UnitId unit, const MeshResource* mr, const MeshRendererDesc& mrd, const Matrix4x4& tr)
 {
 	CE_ASSERT(!hash_map::has(_map, unit), "Unit already has a mesh component");
 
@@ -592,44 +583,86 @@ MeshInstance RenderWorld::MeshManager::create(UnitId unit, const MeshResource* m
 
 	const u32 last = _data.size;
 
-	_data.unit[last]          = unit;
-	_data.resource[last]      = mr;
-	_data.geometry[last]      = mg;
-	_data.mesh[last].vbh      = mg->vertex_buffer;
-	_data.mesh[last].ibh      = mg->index_buffer;
-	_data.material[last]      = mat;
-	_data.world[last]         = tr;
-	_data.obb[last]           = mg->obb;
+	const MeshGeometry* mg = mr->geometry(mrd.geometry_name);
 
-	++_data.size;
-	++_data.first_hidden;
+	_data.unit[last]     = unit;
+	_data.resource[last] = mr;
+	_data.geometry[last] = mg;
+	_data.mesh[last].vbh = mg->vertex_buffer;
+	_data.mesh[last].ibh = mg->index_buffer;
+	_data.material[last] = mrd.material_resource;
+	_data.world[last]    = tr;
+	_data.obb[last]      = mg->obb;
 
 	hash_map::set(_map, unit, last);
+	++_data.size;
+
+	if (mrd.visible)
+	{
+		if (last >= _data.first_hidden)
+		{
+			// _data now contains a visible item in its hidden partition.
+			swap(last, _data.first_hidden);
+			++_data.first_hidden;
+			return make_instance(_data.first_hidden-1);
+		}
+		++_data.first_hidden;
+	}
+
+	CE_ENSURE(last >= _data.first_hidden);
 	return make_instance(last);
 }
 
-void RenderWorld::MeshManager::destroy(MeshInstance mesh)
+void RenderWorld::MeshManager::destroy(MeshInstance inst)
 {
-	CE_ASSERT(mesh.i < _data.size, "Index out of bounds");
+	CE_ASSERT(inst.i < _data.size, "Index out of bounds");
 
 	const u32 last      = _data.size - 1;
-	const UnitId u      = _data.unit[mesh.i];
+	const UnitId u      = _data.unit[inst.i];
 	const UnitId last_u = _data.unit[last];
 
-	_data.unit[mesh.i]     = _data.unit[last];
-	_data.resource[mesh.i] = _data.resource[last];
-	_data.geometry[mesh.i] = _data.geometry[last];
-	_data.mesh[mesh.i].vbh = _data.mesh[last].vbh;
-	_data.mesh[mesh.i].ibh = _data.mesh[last].ibh;
-	_data.material[mesh.i] = _data.material[last];
-	_data.world[mesh.i]    = _data.world[last];
-	_data.obb[mesh.i]      = _data.obb[last];
+	_data.unit[inst.i]     = _data.unit[last];
+	_data.resource[inst.i] = _data.resource[last];
+	_data.geometry[inst.i] = _data.geometry[last];
+	_data.mesh[inst.i].vbh = _data.mesh[last].vbh;
+	_data.mesh[inst.i].ibh = _data.mesh[last].ibh;
+	_data.material[inst.i] = _data.material[last];
+	_data.world[inst.i]    = _data.world[last];
+	_data.obb[inst.i]      = _data.obb[last];
 
-	--_data.size;
-	--_data.first_hidden;
-
-	hash_map::set(_map, last_u, mesh.i);
+	hash_map::set(_map, last_u, inst.i);
 	hash_map::remove(_map, u);
+	--_data.size;
+
+	// If item was hidden.
+	if (inst.i >= _data.first_hidden)
+		return;
+
+	// If item was visible *and* last item was hidden.
+	if (last >= _data.first_hidden)
+		swap(inst.i, _data.first_hidden-1);
+
+	--_data.first_hidden;
+}
+
+void RenderWorld::MeshManager::swap(u32 inst_a, u32 inst_b)
+{
+	if (inst_a == inst_b)
+		return;
+
+	const UnitId unit_a = _data.unit[inst_a];
+	const UnitId unit_b = _data.unit[inst_b];
+
+	exchange(_data.unit[inst_a],     _data.unit[inst_b]);
+	exchange(_data.resource[inst_a], _data.resource[inst_b]);
+	exchange(_data.geometry[inst_a], _data.geometry[inst_b]);
+	exchange(_data.mesh[inst_a],     _data.mesh[inst_b]);
+	exchange(_data.material[inst_a], _data.material[inst_b]);
+	exchange(_data.world[inst_a],    _data.world[inst_b]);
+	exchange(_data.obb[inst_a],      _data.obb[inst_b]);
+
+	hash_map::set(_map, unit_a, inst_b);
+	hash_map::set(_map, unit_b, inst_a);
 }
 
 bool RenderWorld::MeshManager::has(UnitId unit)
@@ -637,39 +670,23 @@ bool RenderWorld::MeshManager::has(UnitId unit)
 	return is_valid(mesh(unit));
 }
 
-void RenderWorld::MeshManager::set_visible(MeshInstance mesh, bool visible)
+void RenderWorld::MeshManager::set_visible(MeshInstance inst, bool visible)
 {
-	u32 swap_index = UINT32_MAX;
-	const UnitId unit = _data.unit[mesh.i];
-
-	if (visible && mesh.i >= _data.first_hidden)
+	if (visible)
 	{
-		const u32 first_hidden = _data.first_hidden;
-		const UnitId first_hidden_unit = _data.unit[first_hidden];
-		hash_map::set(_map, unit, first_hidden);
-		hash_map::set(_map, first_hidden_unit, mesh.i);
-		swap_index = first_hidden;
+		if (inst.i < _data.first_hidden)
+			return; // Already visible.
+
+		swap(inst.i, _data.first_hidden);
 		++_data.first_hidden;
 	}
-	else if (!visible && mesh.i < _data.first_hidden)
+	else
 	{
-		const u32 last_visible = _data.first_hidden - 1;
-		const UnitId last_visible_unit = _data.unit[last_visible];
-		hash_map::set(_map, unit, last_visible);
-		hash_map::set(_map, last_visible_unit, mesh.i);
-		swap_index = last_visible;
-		--_data.first_hidden;
-	}
+		if (inst.i >= _data.first_hidden)
+			return; // Already hidden.
 
-	if (swap_index != UINT32_MAX)
-	{
-		exchange(_data.unit[mesh.i], _data.unit[swap_index]);
-		exchange(_data.resource[mesh.i], _data.resource[swap_index]);
-		exchange(_data.geometry[mesh.i], _data.geometry[swap_index]);
-		exchange(_data.mesh[mesh.i], _data.mesh[swap_index]);
-		exchange(_data.material[mesh.i], _data.material[swap_index]);
-		exchange(_data.world[mesh.i], _data.world[swap_index]);
-		exchange(_data.obb[mesh.i], _data.obb[swap_index]);
+		swap(inst.i, _data.first_hidden-1);
+		--_data.first_hidden;
 	}
 }
 
@@ -737,7 +754,7 @@ void RenderWorld::SpriteManager::grow()
 	allocate(_data.capacity * 2 + 1);
 }
 
-SpriteInstance RenderWorld::SpriteManager::create(UnitId unit, const SpriteResource* sr, StringId64 mat, u32 layer, u32 depth, const Matrix4x4& tr)
+SpriteInstance RenderWorld::SpriteManager::create(UnitId unit, const SpriteResource* sr, const SpriteRendererDesc& srd, const Matrix4x4& tr)
 {
 	CE_ASSERT(!hash_map::has(_map, unit), "Unit already has a sprite component");
 
@@ -748,46 +765,89 @@ SpriteInstance RenderWorld::SpriteManager::create(UnitId unit, const SpriteResou
 
 	_data.unit[last]     = unit;
 	_data.resource[last] = sr;
-	_data.material[last] = mat;
+	_data.material[last] = srd.material_resource;
 	_data.frame[last]    = 0;
 	_data.world[last]    = tr;
 	_data.aabb[last]     = AABB();
 	_data.flip_x[last]   = false;
 	_data.flip_y[last]   = false;
-	_data.layer[last]    = layer;
-	_data.depth[last]    = depth;
-
-	++_data.size;
-	++_data.first_hidden;
+	_data.layer[last]    = srd.layer;
+	_data.depth[last]    = srd.depth;
 
 	hash_map::set(_map, unit, last);
+	++_data.size;
+
+	if (srd.visible)
+	{
+		if (last >= _data.first_hidden)
+		{
+			// _data now contains a visible item in its hidden partition.
+			swap(last, _data.first_hidden);
+			++_data.first_hidden;
+			return make_instance(_data.first_hidden-1);
+		}
+		++_data.first_hidden;
+	}
+
+	CE_ENSURE(last >= _data.first_hidden);
 	return make_instance(last);
 }
 
-void RenderWorld::SpriteManager::destroy(SpriteInstance sprite)
+void RenderWorld::SpriteManager::destroy(SpriteInstance inst)
 {
-	CE_ASSERT(sprite.i < _data.size, "Index out of bounds");
+	CE_ASSERT(inst.i < _data.size, "Index out of bounds");
 
 	const u32 last      = _data.size - 1;
-	const UnitId u      = _data.unit[sprite.i];
+	const UnitId u      = _data.unit[inst.i];
 	const UnitId last_u = _data.unit[last];
 
-	_data.unit[sprite.i]     = _data.unit[last];
-	_data.resource[sprite.i] = _data.resource[last];
-	_data.material[sprite.i] = _data.material[last];
-	_data.frame[sprite.i]    = _data.frame[last];
-	_data.world[sprite.i]    = _data.world[last];
-	_data.aabb[sprite.i]     = _data.aabb[last];
-	_data.flip_x[sprite.i]   = _data.flip_x[last];
-	_data.flip_y[sprite.i]   = _data.flip_y[last];
-	_data.layer[sprite.i]    = _data.layer[last];
-	_data.depth[sprite.i]    = _data.depth[last];
+	_data.unit[inst.i]     = _data.unit[last];
+	_data.resource[inst.i] = _data.resource[last];
+	_data.material[inst.i] = _data.material[last];
+	_data.frame[inst.i]    = _data.frame[last];
+	_data.world[inst.i]    = _data.world[last];
+	_data.aabb[inst.i]     = _data.aabb[last];
+	_data.flip_x[inst.i]   = _data.flip_x[last];
+	_data.flip_y[inst.i]   = _data.flip_y[last];
+	_data.layer[inst.i]    = _data.layer[last];
+	_data.depth[inst.i]    = _data.depth[last];
 
-	--_data.size;
-	--_data.first_hidden;
-
-	hash_map::set(_map, last_u, sprite.i);
+	hash_map::set(_map, last_u, inst.i);
 	hash_map::remove(_map, u);
+	--_data.size;
+
+	// If item was hidden.
+	if (inst.i >= _data.first_hidden)
+		return;
+
+	// If item was visible *and* last item was hidden.
+	if (last >= _data.first_hidden)
+		swap(inst.i, _data.first_hidden-1);
+
+	--_data.first_hidden;
+}
+
+void RenderWorld::SpriteManager::swap(u32 inst_a, u32 inst_b)
+{
+	if (inst_a == inst_b)
+		return;
+
+	const UnitId unit_a = _data.unit[inst_a];
+	const UnitId unit_b = _data.unit[inst_b];
+
+	exchange(_data.unit[inst_a],     _data.unit[inst_b]);
+	exchange(_data.resource[inst_a], _data.resource[inst_b]);
+	exchange(_data.material[inst_a], _data.material[inst_b]);
+	exchange(_data.frame[inst_a],    _data.frame[inst_b]);
+	exchange(_data.world[inst_a],    _data.world[inst_b]);
+	exchange(_data.aabb[inst_a],     _data.aabb[inst_b]);
+	exchange(_data.flip_x[inst_a],   _data.flip_x[inst_b]);
+	exchange(_data.flip_y[inst_a],   _data.flip_y[inst_b]);
+	exchange(_data.layer[inst_a],    _data.layer[inst_b]);
+	exchange(_data.depth[inst_a],    _data.depth[inst_b]);
+
+	hash_map::set(_map, unit_a, inst_b);
+	hash_map::set(_map, unit_b, inst_a);
 }
 
 bool RenderWorld::SpriteManager::has(UnitId unit)
@@ -795,42 +855,23 @@ bool RenderWorld::SpriteManager::has(UnitId unit)
 	return is_valid(sprite(unit));
 }
 
-void RenderWorld::SpriteManager::set_visible(SpriteInstance sprite, bool visible)
+void RenderWorld::SpriteManager::set_visible(SpriteInstance inst, bool visible)
 {
-	u32 swap_index = UINT32_MAX;
-	const UnitId unit = _data.unit[sprite.i];
-
-	if (visible && sprite.i >= _data.first_hidden)
+	if (visible)
 	{
-		const u32 first_hidden = _data.first_hidden;
-		const UnitId first_hidden_unit = _data.unit[first_hidden];
-		hash_map::set(_map, unit, first_hidden);
-		hash_map::set(_map, first_hidden_unit, sprite.i);
-		swap_index = first_hidden;
+		if (inst.i < _data.first_hidden)
+			return; // Already visible.
+
+		swap(inst.i, _data.first_hidden);
 		++_data.first_hidden;
 	}
-	else if (!visible && sprite.i < _data.first_hidden)
+	else
 	{
-		const u32 last_visible = _data.first_hidden - 1;
-		const UnitId last_visible_unit = _data.unit[last_visible];
-		hash_map::set(_map, unit, last_visible);
-		hash_map::set(_map, last_visible_unit, sprite.i);
-		swap_index = last_visible;
-		--_data.first_hidden;
-	}
+		if (inst.i >= _data.first_hidden)
+			return; // Already hidden.
 
-	if (swap_index != UINT32_MAX)
-	{
-		exchange(_data.unit[sprite.i], _data.unit[swap_index]);
-		exchange(_data.resource[sprite.i], _data.resource[swap_index]);
-		exchange(_data.material[sprite.i], _data.material[swap_index]);
-		exchange(_data.frame[sprite.i], _data.frame[swap_index]);
-		exchange(_data.world[sprite.i], _data.world[swap_index]);
-		exchange(_data.aabb[sprite.i], _data.aabb[swap_index]);
-		exchange(_data.flip_x[sprite.i], _data.flip_x[swap_index]);
-		exchange(_data.flip_y[sprite.i], _data.flip_y[swap_index]);
-		exchange(_data.layer[sprite.i], _data.layer[swap_index]);
-		exchange(_data.depth[sprite.i], _data.depth[swap_index]);
+		swap(inst.i, _data.first_hidden-1);
+		--_data.first_hidden;
 	}
 }
 
