@@ -1646,6 +1646,8 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_preferences(GLib.SimpleAction action, GLib.Variant? param)
 	{
+		_preferences_dialog.set_transient_for(this.active_window);
+		_preferences_dialog.set_position(Gtk.WindowPosition.CENTER_ON_PARENT);
 		_preferences_dialog.show_all();
 	}
 
