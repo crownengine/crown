@@ -413,7 +413,7 @@ public class LevelEditorApplication : Gtk.Application
 		_resource_popover.modal = true;
 
 		_preferences_dialog = new PreferencesDialog(this);
-		_preferences_dialog.set_transient_for(this.active_window);
+		_preferences_dialog.set_icon_name(CROWN_ICON_NAME);
 		_preferences_dialog.delete_event.connect(() => { _preferences_dialog.hide(); return Gdk.EVENT_STOP; });
 
 		_resource_chooser = new ResourceChooser(_project, _project_store, true);
