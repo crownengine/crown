@@ -112,7 +112,7 @@ public class ProjectBrowser : Gtk.Box
 			else if ((string)type == "font")
 				cell.set_property("icon-name", "font-x-generic-symbolic");
 			else if ((string)type == "unit")
-				cell.set_property("icon-name", "text-x-generic-symbolic");
+				cell.set_property("icon-name", "level-object-unit");
 			else if ((string)type == "level")
 				cell.set_property("icon-name", "text-x-generic-symbolic");
 			else if ((string)type == "material")
