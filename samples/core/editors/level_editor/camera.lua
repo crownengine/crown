@@ -104,6 +104,11 @@ function Camera:init(world, unit)
 	self._drag_start_camera_pose = Matrix4x4Box()
 	self._drag_start_orthographic_size = self._orthographic_size
 	self._drag_start_target_distance = self._target_distance
+
+	-- Hide camera mesh.
+	local render_world = World.render_world(self._world)
+	local camera_mesh = RenderWorld.mesh_instance(render_world, self._unit)
+	RenderWorld.mesh_set_visible(render_world, camera_mesh, false)
 end
 
 function Camera:unit()

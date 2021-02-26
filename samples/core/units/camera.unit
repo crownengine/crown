@@ -42,4 +42,11 @@ components = [
 		id = "a02e02a1-9ce4-4e20-885a-badbf6197d7a"
 		type = "mesh_renderer"
 	}
+	{
+		data = {
+			script_resource = "core/units/camera"
+		}
+		id = "eee01696-8523-4d3f-b49a-59821238f270"
+		type = "script"
+	}
 ]

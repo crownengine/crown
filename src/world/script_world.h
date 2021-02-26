@@ -37,8 +37,12 @@ struct ScriptWorld
 	LuaEnvironment* _lua_environment;
 	World* _world;
 	UnitDestroyCallback _unit_destroy_callback;
+	bool _disable_callbacks;
 
+	///
 	ScriptWorld(Allocator& a, UnitManager& um, ResourceManager& rm, LuaEnvironment& le, World& w);
+
+	///
 	~ScriptWorld();
 };
 

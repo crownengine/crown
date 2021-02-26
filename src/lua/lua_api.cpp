@@ -1738,6 +1738,12 @@ void load_api(LuaEnvironment& env)
 			stack.push_animation_state_machine(stack.get_world(1)->_animation_state_machine);
 			return 1;
 		});
+	env.add_module_function("World", "disable_unit_callbacks", [](lua_State* L)
+		{
+			LuaStack stack(L);
+			stack.get_world(1)->disable_unit_callbacks();
+			return 0;
+		});
 	env.add_module_metafunction("World", "__tostring", [](lua_State* L)
 		{
 			LuaStack stack(L);

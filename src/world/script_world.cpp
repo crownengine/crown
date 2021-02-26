@@ -78,21 +78,24 @@ namespace script_world
 		array::push_back(sw._data, data);
 		hash_map::set(sw._map, unit, instance_i);
 
-		LuaStack stack(sw._lua_environment->L);
-		lua_rawgeti(stack.L, LUA_REGISTRYINDEX, sd.module_ref);
-		lua_getfield(stack.L, -1, "spawned");
-		stack.push_world(sw._world);
-		stack.push_table(1);
-		stack.push_key_begin(1);
-		stack.push_unit(unit);
-		stack.push_key_end();
-		int status = sw._lua_environment->call(2, 0);
-		if (status != LUA_OK)
+		if (!sw._disable_callbacks)
 		{
-			report(stack.L, status);
-			device()->pause();
+			LuaStack stack(sw._lua_environment->L);
+			lua_rawgeti(stack.L, LUA_REGISTRYINDEX, sd.module_ref);
+			lua_getfield(stack.L, -1, "spawned");
+			stack.push_world(sw._world);
+			stack.push_table(1);
+			stack.push_key_begin(1);
+			stack.push_unit(unit);
+			stack.push_key_end();
+			int status = sw._lua_environment->call(2, 0);
+			if (status != LUA_OK)
+			{
+				report(stack.L, status);
+				device()->pause();
+			}
+			stack.pop(1);
 		}
-		stack.pop(1);
 
 		return script_world_internal::make_instance(instance_i);
 	}
@@ -106,21 +109,24 @@ namespace script_world
 		const UnitId last_u = sw._data[last_i].unit;
 		const u32 script_i  = sw._data[unit_i].script_i;
 
-		LuaStack stack(sw._lua_environment->L);
-		lua_rawgeti(stack.L, LUA_REGISTRYINDEX, sw._script[script_i].module_ref);
-		lua_getfield(stack.L, -1, "unspawned");
-		stack.push_world(sw._world);
-		stack.push_table(1);
-		stack.push_key_begin(1);
-		stack.push_unit(unit);
-		stack.push_key_end();
-		int status = sw._lua_environment->call(2, 0);
-		if (status != LUA_OK)
+		if (!sw._disable_callbacks)
 		{
-			report(stack.L, status);
-			device()->pause();
+			LuaStack stack(sw._lua_environment->L);
+			lua_rawgeti(stack.L, LUA_REGISTRYINDEX, sw._script[script_i].module_ref);
+			lua_getfield(stack.L, -1, "unspawned");
+			stack.push_world(sw._world);
+			stack.push_table(1);
+			stack.push_key_begin(1);
+			stack.push_unit(unit);
+			stack.push_key_end();
+			int status = sw._lua_environment->call(2, 0);
+			if (status != LUA_OK)
+			{
+				report(stack.L, status);
+				device()->pause();
+			}
+			stack.pop(1);
 		}
-		stack.pop(1);
 
 		sw._data[unit_i] = sw._data[last_i];
 		hash_map::set(sw._map, last_u, unit_i);
@@ -134,6 +140,9 @@ namespace script_world
 
 	void update(ScriptWorld& sw, f32 dt)
 	{
+		if (sw._disable_callbacks)
+			return;
+
 		LuaStack stack(sw._lua_environment->L);
 
 		for (u32 i = 0; i < array::size(sw._script); ++i)
@@ -154,6 +163,9 @@ namespace script_world
 
 	void collision(ScriptWorld& sw, const PhysicsCollisionEvent& ev)
 	{
+		if (sw._disable_callbacks)
+			return;
+
 		for (u32 i = 0; i < array::size(sw._data); ++i)
 		{
 			if (sw._data[i].unit == ev.units[0] || sw._data[i].unit == ev.units[1])
@@ -226,6 +238,7 @@ ScriptWorld::ScriptWorld(Allocator& a, UnitManager& um, ResourceManager& rm, Lua
 	, _resource_manager(&rm)
 	, _lua_environment(&le)
 	, _world(&w)
+	, _disable_callbacks(false)
 {
 	_unit_destroy_callback.destroy = script_world_internal::unit_destroyed_callback_bridge;
 	_unit_destroy_callback.user_data = this;

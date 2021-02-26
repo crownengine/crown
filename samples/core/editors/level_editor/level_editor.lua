@@ -1575,6 +1575,7 @@ LevelEditor = LevelEditor or {}
 
 function LevelEditor:init()
 	self._world = Device.create_world()
+	World.disable_unit_callbacks(self._world)
 	self._pw = World.physics_world(self._world)
 	self._rw = World.render_world(self._world)
 	self._sg = World.scene_graph(self._world)
