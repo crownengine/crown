@@ -215,12 +215,10 @@ struct World
 	///
 	void post_level_loaded_event();
 
-#if CROWN_DEVELOPMENT
 	/// After this call, units will no longer receive spawned(), unspawned() or any
 	/// other callback. This is used only by the editor to prevent user logic to
 	/// interfere with editor's assumptions.
 	void disable_unit_callbacks();
-#endif
 };
 
 void spawn_units(World& w, const UnitResource* ur, const Vector3& pos, const Quaternion& rot, const Vector3& scl, const UnitId* unit_lookup);
