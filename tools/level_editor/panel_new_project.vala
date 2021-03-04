@@ -18,22 +18,22 @@ public class PanelNewProject : Gtk.Viewport
 
 	// Widgets
 	[GtkChild]
-	Gtk.Button _button_back;
+	unowned Gtk.Button _button_back;
 
 	[GtkChild]
-	Gtk.Button _button_create;
+	unowned Gtk.Button _button_create;
 
 	[GtkChild]
-	EntryText _entry_name;
+	unowned EntryText _entry_name;
 
 	[GtkChild]
-	Gtk.FileChooserButton _file_chooser_button_location;
+	unowned Gtk.FileChooserButton _file_chooser_button_location;
 
 	[GtkChild]
-	ComboBoxMap _combo_box_map_template;
+	unowned ComboBoxMap _combo_box_map_template;
 
 	[GtkChild]
-	Gtk.Label _label_message;
+	unowned Gtk.Label _label_message;
 
 	public PanelNewProject(LevelEditorApplication app, User user, Project project)
 	{

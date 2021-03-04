@@ -17,13 +17,13 @@ public class PanelProjectsList : Gtk.ScrolledWindow
 
 	// Widgets
 	[GtkChild]
-	Gtk.ListBox _list_projects;
+	unowned Gtk.ListBox _list_projects;
 
 	[GtkChild]
-	Gtk.Button _button_new_project;
+	unowned Gtk.Button _button_new_project;
 
 	[GtkChild]
-	Gtk.Button _button_import_project;
+	unowned Gtk.Button _button_import_project;
 
 	public PanelProjectsList(LevelEditorApplication app, User user)
 	{
