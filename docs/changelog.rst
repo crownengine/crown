@@ -3,7 +3,7 @@ Changelog
 
 0.42.0
 ------
-*DD MMM YYYY*
+*05 Mar 2021*
 
 **Editor**
 
