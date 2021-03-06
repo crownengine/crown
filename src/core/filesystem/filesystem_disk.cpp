@@ -55,7 +55,7 @@ struct FileDisk : public File
 			, (mode == FileOpenMode::READ) ? GENERIC_READ : GENERIC_WRITE
 			, 0
 			, NULL
-			, OPEN_ALWAYS
+			, (mode == FileOpenMode::READ) ? OPEN_EXISTING : CREATE_ALWAYS
 			, FILE_ATTRIBUTE_NORMAL
 			, NULL
 			);

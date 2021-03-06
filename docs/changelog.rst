@@ -5,6 +5,10 @@ Changelog
 ------
 *DD MMM YYYY*
 
+**Data Compiler**
+
+* Windows: fixed garbage data written past EOF in some circumnstances.
+
 0.42.0
 ------
 *05 Mar 2021*
