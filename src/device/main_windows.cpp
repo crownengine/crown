@@ -663,12 +663,13 @@ struct WindowWin : public Window
 		_width = width;
 		_height = height;
 
+		DWORD style = GetWindowLongA(s_wdvc._hwnd, GWL_STYLE);
 		RECT rect;
 		rect.left   = 0;
 		rect.top    = 0;
 		rect.right  = _width;
 		rect.bottom = _height;
-		AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
+		AdjustWindowRect(&rect, style, FALSE);
 
 		MoveWindow(s_wdvc._hwnd
 			, _x

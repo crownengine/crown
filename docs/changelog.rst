@@ -9,6 +9,10 @@ Changelog
 
 * Windows: fixed garbage data written past EOF in some circumnstances.
 
+**Tools**
+
+* Windows: fixed wrong Editor View window size.
+
 0.42.0
 ------
 *05 Mar 2021*
