@@ -268,24 +268,20 @@ static Buffer read(FilesystemDisk& data_fs, const char* filename)
 {
 	Buffer buffer(default_allocator());
 
-	// FIXME: better return NULL in Filesystem::open().
-	if (data_fs.exists(filename))
+	File* file = data_fs.open(filename, FileOpenMode::READ);
+	if (file->is_open())
 	{
-		File* file = data_fs.open(filename, FileOpenMode::READ);
-		if (file)
+		u32 size = file->size();
+		if (size == 0)
 		{
-			u32 size = file->size();
-			if (size == 0)
-			{
-				data_fs.close(*file);
-				return buffer;
-			}
-
-			array::resize(buffer, size);
-			file->read(array::begin(buffer), size);
 			data_fs.close(*file);
+			return buffer;
 		}
+
+		array::resize(buffer, size);
+		file->read(array::begin(buffer), size);
 	}
+	data_fs.close(*file);
 
 	return buffer;
 }
@@ -455,7 +451,7 @@ static void write_data_index(FilesystemDisk& data_fs, const char* filename, cons
 	StringStream ss(default_allocator());
 
 	File* file = data_fs.open(filename, FileOpenMode::WRITE);
-	if (file)
+	if (file->is_open())
 	{
 		auto cur = hash_map::begin(index);
 		auto end = hash_map::end(index);
@@ -470,8 +466,8 @@ static void write_data_index(FilesystemDisk& data_fs, const char* filename, cons
 		}
 
 		file->write(string_stream::c_str(ss), strlen32(string_stream::c_str(ss)));
-		data_fs.close(*file);
 	}
+	data_fs.close(*file);
 }
 
 static void write_data_versions(FilesystemDisk& data_fs, const char* filename, const HashMap<DynamicString, u32>& versions)
@@ -479,7 +475,7 @@ static void write_data_versions(FilesystemDisk& data_fs, const char* filename, c
 	StringStream ss(default_allocator());
 
 	File* file = data_fs.open(filename, FileOpenMode::WRITE);
-	if (file)
+	if (file->is_open())
 	{
 
 		auto cur = hash_map::begin(versions);
@@ -492,8 +488,8 @@ static void write_data_versions(FilesystemDisk& data_fs, const char* filename, c
 		}
 
 		file->write(string_stream::c_str(ss), strlen32(string_stream::c_str(ss)));
-		data_fs.close(*file);
 	}
+	data_fs.close(*file);
 }
 
 static void write_data_mtimes(FilesystemDisk& data_fs, const char* filename, const HashMap<StringId64, u64>& mtimes)
@@ -501,7 +497,7 @@ static void write_data_mtimes(FilesystemDisk& data_fs, const char* filename, con
 	StringStream ss(default_allocator());
 
 	File* file = data_fs.open(filename, FileOpenMode::WRITE);
-	if (file)
+	if (file->is_open())
 	{
 
 		auto cur = hash_map::begin(mtimes);
@@ -517,8 +513,8 @@ static void write_data_mtimes(FilesystemDisk& data_fs, const char* filename, con
 		}
 
 		file->write(string_stream::c_str(ss), strlen32(string_stream::c_str(ss)));
-		data_fs.close(*file);
 	}
+	data_fs.close(*file);
 }
 
 static void write_data_dependencies(FilesystemDisk& data_fs, const char* filename, const HashMap<StringId64, DynamicString>& index, const HashMap<StringId64, HashMap<DynamicString, u32> >& dependencies, const HashMap<StringId64, HashMap<DynamicString, u32> >& requirements)
@@ -526,7 +522,7 @@ static void write_data_dependencies(FilesystemDisk& data_fs, const char* filenam
 	StringStream ss(default_allocator());
 
 	File* file = data_fs.open(filename, FileOpenMode::WRITE);
-	if (file)
+	if (file->is_open())
 	{
 		auto cur = hash_map::begin(index);
 		auto end = hash_map::end(index);
@@ -572,8 +568,8 @@ static void write_data_dependencies(FilesystemDisk& data_fs, const char* filenam
 		}
 
 		file->write(string_stream::c_str(ss), strlen32(string_stream::c_str(ss)));
-		data_fs.close(*file);
 	}
+	data_fs.close(*file);
 }
 
 DataCompiler::DataCompiler(const DeviceOptions& opts, ConsoleServer& cs)
@@ -763,14 +759,13 @@ void DataCompiler::scan_and_restore(const char* data_dir)
 
 		_source_fs.set_prefix(prefix.c_str());
 
-		if (_source_fs.exists(CROWN_DATAIGNORE))
+		File* file = _source_fs.open(CROWN_DATAIGNORE, FileOpenMode::READ);
+		if (file->is_open())
 		{
-			File& file = *_source_fs.open(CROWN_DATAIGNORE, FileOpenMode::READ);
-			const u32 size = file.size();
+			const u32 size = file->size();
 			char* data = (char*)default_allocator().allocate(size + 1);
-			file.read(data, size);
+			file->read(data, size);
 			data[size] = '\0';
-			_source_fs.close(file);
 
 			LineReader lr(data);
 
@@ -790,6 +785,7 @@ void DataCompiler::scan_and_restore(const char* data_dir)
 
 			default_allocator().deallocate(data);
 		}
+		_source_fs.close(*file);
 	}
 
 	_source_index.scan(_source_dirs);

@@ -99,8 +99,10 @@ Buffer CompileOptions::read_all(File* file)
 
 Buffer CompileOptions::read_temporary(const char* path)
 {
+	Buffer buf(default_allocator());
 	File* file = _data_filesystem.open(path, FileOpenMode::READ);
-	Buffer buf = read_all(file);
+	if (file->is_open())
+		buf = read_all(file);
 	_data_filesystem.close(*file);
 	return buf;
 }
@@ -108,7 +110,8 @@ Buffer CompileOptions::read_temporary(const char* path)
 void CompileOptions::write_temporary(const char* path, const char* data, u32 size)
 {
 	File* file = _data_filesystem.open(path, FileOpenMode::WRITE);
-	file->write(data, size);
+	if (file->is_open())
+		file->write(data, size);
 	_data_filesystem.close(*file);
 }
 
@@ -128,8 +131,10 @@ Buffer CompileOptions::read(const char* path)
 	FilesystemDisk source_filesystem(ta);
 	source_filesystem.set_prefix(source_dir.c_str());
 
+	Buffer buf(default_allocator());
 	File* file = source_filesystem.open(path, FileOpenMode::READ);
-	Buffer buf = read_all(file);
+	if (file->is_open())
+		buf = read_all(file);
 	source_filesystem.close(*file);
 	return buf;
 }
