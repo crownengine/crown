@@ -794,7 +794,7 @@ void DataCompiler::scan_and_restore(const char* data_dir)
 
 	_source_index.scan(_source_dirs);
 
-	logi(DATA_COMPILER, "Scanned data in %.2fs", time::seconds(time::now() - time_start));
+	logi(DATA_COMPILER, "Scanned data in " TIME_FMT, time::seconds(time::now() - time_start));
 
 	// Restore state from previous run
 	time_start = time::now();
@@ -806,7 +806,7 @@ void DataCompiler::scan_and_restore(const char* data_dir)
 	read_data_mtimes(_data_mtimes, data_fs, CROWN_DATA_MTIMES, _data_index);
 	read_data_dependencies(*this, data_fs, CROWN_DATA_DEPENDENCIES, _data_index);
 	read_data_versions(_data_versions, data_fs, CROWN_DATA_VERSIONS);
-	logi(DATA_COMPILER, "Restored state in %.2fs", time::seconds(time::now() - time_start));
+	logi(DATA_COMPILER, "Restored state in " TIME_FMT, time::seconds(time::now() - time_start));
 
 	if (_options->_server)
 	{
@@ -818,7 +818,7 @@ void DataCompiler::scan_and_restore(const char* data_dir)
 			, file_monitor_callback
 			, this
 			);
-		logi(DATA_COMPILER, "Started file monitor in %.2fs", time::seconds(time::now() - time_start));
+		logi(DATA_COMPILER, "Started file monitor in " TIME_FMT, time::seconds(time::now() - time_start));
 	}
 
 	// Cleanup
@@ -837,7 +837,7 @@ void DataCompiler::save(const char* data_dir)
 	write_data_mtimes(data_fs, CROWN_DATA_MTIMES, _data_mtimes);
 	write_data_dependencies(data_fs, CROWN_DATA_DEPENDENCIES, _data_index, _data_dependencies, _data_requirements);
 	write_data_versions(data_fs, CROWN_DATA_VERSIONS, _data_versions);
-	logi(DATA_COMPILER, "Saved state in %.2fs", time::seconds(time::now() - time_start));
+	logi(DATA_COMPILER, "Saved state in " TIME_FMT, time::seconds(time::now() - time_start));
 }
 
 bool DataCompiler::dependency_changed(const DynamicString& path, ResourceId id, u64 dst_mtime)
@@ -1119,7 +1119,7 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 		if (vector::size(to_compile))
 		{
 			_revision++;
-			logi(DATA_COMPILER, "Compiled data (rev %u) in %.2fs", _revision, time::seconds(time::now() - time_start));
+			logi(DATA_COMPILER, "Compiled data (rev %u) in " TIME_FMT, _revision, time::seconds(time::now() - time_start));
 		}
 		else
 		{

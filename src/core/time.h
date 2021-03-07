@@ -7,6 +7,8 @@
 
 #include "core/types.h"
 
+#define TIME_FMT "%.3fs"
+
 namespace crown
 {
 namespace time

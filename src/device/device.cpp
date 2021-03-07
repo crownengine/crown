@@ -424,7 +424,7 @@ void Device::run()
 	tool_init();
 #endif
 
-	logi(DEVICE, "Initialized in %.2fs", time::seconds(time::now() - run_t0));
+	logi(DEVICE, "Initialized in " TIME_FMT, time::seconds(time::now() - run_t0));
 
 	_lua_environment->call_global("init");
 
