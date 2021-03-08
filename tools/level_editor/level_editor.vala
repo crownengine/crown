@@ -2193,6 +2193,7 @@ public static GLib.File _console_history_file;
 
 public static GLib.FileStream _log_stream;
 public static ConsoleView _console_view;
+public static bool _console_view_valid = false;
 
 public static void log(string system, string severity, string message)
 {
@@ -2210,7 +2211,7 @@ public static void log(string system, string severity, string message)
 		_log_stream.flush();
 	}
 
-	if (_console_view != null)
+	if (_console_view_valid)
 		_console_view.log(severity, line);
 }
 

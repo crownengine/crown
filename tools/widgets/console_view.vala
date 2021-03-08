@@ -131,8 +131,11 @@ public class ConsoleView : Gtk.Box
 		this.pack_start(_entry_hbox, false, true, 0);
 
 		this.show.connect(on_show);
+		this.destroy.connect(on_destroy);
 
 		this.get_style_context().add_class("console-view");
+
+		_console_view_valid = true;
 	}
 
 	private void on_entry_activated()
@@ -202,6 +205,11 @@ public class ConsoleView : Gtk.Box
 	private void on_show()
 	{
 		_entry.grab_focus_without_selecting();
+	}
+
+	private void on_destroy()
+	{
+		_console_view_valid = false;
 	}
 
 	public void log(string severity, string message)
