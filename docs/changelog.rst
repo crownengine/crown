@@ -12,6 +12,7 @@ Changelog
 **Tools**
 
 * Windows: fixed wrong Editor View window size.
+* Added a setting to limit the number of lines displayed by the Console.
 
 0.42.0
 ------

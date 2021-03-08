@@ -82,6 +82,7 @@ public class ConsoleView : Gtk.Box
 	public EntryHistory _entry_history;
 	public uint _distance;
 	public Project _project;
+	public PreferencesDialog _preferences_dialog;
 
 	// Widgets
 	public Gtk.ScrolledWindow _scrolled_window;
@@ -89,7 +90,7 @@ public class ConsoleView : Gtk.Box
 	public EntryText _entry;
 	public Gtk.Box _entry_hbox;
 
-	public ConsoleView(Project project, Gtk.ComboBoxText combo)
+	public ConsoleView(Project project, Gtk.ComboBoxText combo, PreferencesDialog preferences_dialog)
 	{
 		Object(orientation: Gtk.Orientation.VERTICAL, spacing: 0);
 
@@ -97,6 +98,7 @@ public class ConsoleView : Gtk.Box
 		_entry_history = new EntryHistory(256);
 		_distance = 0;
 		_project = project;
+		_preferences_dialog = preferences_dialog;
 
 		// Widgets
 		_text_view = new Gtk.TextView();
@@ -216,7 +218,7 @@ public class ConsoleView : Gtk.Box
 	{
 		string line = message;
 
-		// Replace IDs with human-readable names
+		// Replace IDs with human-readable names.
 		int id_index = message.index_of("#ID(");
 		if (id_index != -1)
 		{
@@ -226,6 +228,19 @@ public class ConsoleView : Gtk.Box
 		}
 
 		Gtk.TextBuffer buffer = _text_view.buffer;
+
+		// Limit number of lines recorded.
+		int max_lines = (int)_preferences_dialog._console_max_lines.value;
+		if (buffer.get_line_count()-1 >= max_lines)
+		{
+			Gtk.TextIter start_of_first_line;
+			buffer.get_iter_at_line(out start_of_first_line, 0);
+			Gtk.TextIter end_of_first_line = start_of_first_line;
+			start_of_first_line.forward_line();
+			buffer.delete(ref start_of_first_line, ref end_of_first_line);
+		}
+
+		// Append line.
 		Gtk.TextIter end_iter;
 		buffer.get_end_iter(out end_iter);
 		buffer.insert(ref end_iter, line, line.length);

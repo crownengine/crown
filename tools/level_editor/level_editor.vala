@@ -386,12 +386,16 @@ public class LevelEditorApplication : Gtk.Application
 		_project_store = new ProjectStore(_project);
 
 		// Widgets
+		_preferences_dialog = new PreferencesDialog(this);
+		_preferences_dialog.set_icon_name(CROWN_ICON_NAME);
+		_preferences_dialog.delete_event.connect(() => { _preferences_dialog.hide(); return Gdk.EVENT_STOP; });
+
 		_combo = new Gtk.ComboBoxText();
 		_combo.append("editor", "Editor");
 		_combo.append("game", "Game");
 		_combo.set_active_id("editor");
 
-		_console_view = new ConsoleView(_project, _combo);
+		_console_view = new ConsoleView(_project, _combo, _preferences_dialog);
 		_project_browser = new ProjectBrowser(this, _project, _project_store);
 		_level_treeview = new LevelTreeView(_database, _level);
 		_level_layers_treeview = new LevelLayersTreeView(_database, _level);
@@ -411,10 +415,6 @@ public class LevelEditorApplication : Gtk.Application
 		_resource_popover = new Gtk.Popover(_toolbar);
 		_resource_popover.delete_event.connect(() => { _resource_popover.hide(); return Gdk.EVENT_STOP; });
 		_resource_popover.modal = true;
-
-		_preferences_dialog = new PreferencesDialog(this);
-		_preferences_dialog.set_icon_name(CROWN_ICON_NAME);
-		_preferences_dialog.delete_event.connect(() => { _preferences_dialog.hide(); return Gdk.EVENT_STOP; });
 
 		_resource_chooser = new ResourceChooser(_project, _project_store, true);
 		_resource_chooser.resource_selected.connect(on_resource_browser_resource_selected);

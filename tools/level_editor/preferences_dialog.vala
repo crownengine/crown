@@ -27,6 +27,7 @@ public class PreferencesDialog : Gtk.Dialog
 	public Grid _viewport_grid;
 
 	public EntryDouble _log_delete_after_days;
+	public EntryDouble _console_max_lines;
 	public Grid _system_grid;
 
 	public PropertyGridSet _document_set;
@@ -97,8 +98,10 @@ public class PreferencesDialog : Gtk.Dialog
 		_viewport_set.add_property_grid(cv, "Level");
 
 		_log_delete_after_days = new EntryDouble(10, 0, 90);
+		_console_max_lines = new EntryDouble(256, 10, 1024);
 		cv = new PropertyGrid();
 		cv.add_row("Delete logs older than (days)", _log_delete_after_days);
+		cv.add_row("Console max lines", _console_max_lines);
 		_system_set.add_property_grid(cv, "Memory and Limits");
 
 		_notebook = new Gtk.Notebook();
@@ -143,6 +146,7 @@ public class PreferencesDialog : Gtk.Dialog
 		_gizmo_size_spin_button.value     = preferences.has_key("gizmo_size") ? (double)preferences["gizmo_size"] : _gizmo_size_spin_button.value;
 		_level_autosave_spin_button.value = preferences.has_key("autosave_timer") ? (double)preferences["autosave_timer"] : _level_autosave_spin_button.value;
 		_log_delete_after_days.value      = preferences.has_key("log_expiration") ? (double)preferences["log_expiration"] : _log_delete_after_days.value;
+		_console_max_lines.value          = preferences.has_key("console_max_lines") ? (double)preferences["console_max_lines"] : _console_max_lines.value;
 	}
 
 	public void save(Hashtable preferences)
@@ -156,6 +160,7 @@ public class PreferencesDialog : Gtk.Dialog
 		preferences["gizmo_size"]     = _gizmo_size_spin_button.value;
 		preferences["autosave_timer"] = _level_autosave_spin_button.value;
 		preferences["log_expiration"] = _log_delete_after_days.value;
+		preferences["console_max_lines"] = _console_max_lines.value;
 	}
 
 	public void apply()
