@@ -115,21 +115,22 @@ public class LevelEditorApplication : Gtk.Application
 	// Constants
 	private const GLib.ActionEntry[] action_entries_file =
 	{
-		//                                 parameter type
-		// name           activate()       |     state
-		// |              |                |     |
-		{ "menu-file",    null,            null, null },
-		{ "new-level",    on_new_level,    null, null },
-		{ "open-level",   on_open_level,   "s",  null },
-		{ "new-project",  on_new_project,  null, null },
-		{ "open-project", on_open_project, null, null },
-		{ "save",         on_save,         null, null },
-		{ "save-as",      on_save_as,      null, null },
-		{ "import",       on_import,       "s",  null },
-		{ "preferences",  on_preferences,  null, null },
-		{ "deploy",       on_deploy,       null, null },
-		{ "close",        on_close,        null, null },
-		{ "quit",         on_quit,         null, null }
+		//                                   parameter type
+		// name            activate()        |     state
+		// |               |                 |     |
+		{ "menu-file",     null,             null, null },
+		{ "new-level",     on_new_level,     null, null },
+		{ "open-level",    on_open_level,    "s",  null },
+		{ "new-project",   on_new_project,   null, null },
+		{ "open-project",  on_open_project,  null, null },
+		{ "save",          on_save,          null, null },
+		{ "save-as",       on_save_as,       null, null },
+		{ "import",        on_import,        "s",  null },
+		{ "preferences",   on_preferences,   null, null },
+		{ "deploy",        on_deploy,        null, null },
+		{ "close",         on_close,         null, null },
+		{ "quit",          on_quit,          null, null },
+		{ "open-resource", on_open_resource, "s",  null }
 	};
 
 	private const GLib.ActionEntry[] action_entries_edit =
@@ -1706,6 +1707,34 @@ public class LevelEditorApplication : Gtk.Application
 	private void on_quit(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		this.active_window.close();
+	}
+
+	private void on_open_resource(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string resource_name = param.get_string();
+
+		string? type = Crown.resource_type(resource_name);
+		if (type != null && type == "level")
+		{
+			string? name = Crown.resource_name(type, resource_name);
+			if (name != null)
+				activate_action("open-level", name);
+		}
+		else
+		{
+			try
+			{
+				GLib.File file = GLib.File.new_for_path(Path.build_filename(_project.source_dir(), resource_name));
+				GLib.AppInfo? app = file.query_default_handler();
+				GLib.List<GLib.File> files = new GLib.List<GLib.File>();
+				files.append(file);
+				app.launch(files, null);
+			}
+			catch (Error e)
+			{
+				loge(e.message);
+			}
+		}
 	}
 
 	private void on_show_grid(GLib.SimpleAction action, GLib.Variant? param)

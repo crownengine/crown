@@ -487,26 +487,8 @@ public class ProjectBrowser : Gtk.Box
 					Value name;
 					_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
 
-					if (type == "level")
-					{
-						Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
-						app.activate_action("open-level", (string)name);
-					}
-					else
-					{
-						try
-						{
-							GLib.File file = GLib.File.new_for_path(ProjectBrowser.filename(_project, (string)type, (string)name));
-							GLib.AppInfo? app = file.query_default_handler();
-							GLib.List<GLib.File> files = new GLib.List<GLib.File>();
-							files.append(file);
-							app.launch(files, null);
-						}
-						catch (Error e)
-						{
-							loge(e.message);
-						}
-					}
+					Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
+					app.activate_action("open-resource", ProjectBrowser.join((string)type, (string)name));
 				}
 			}
 		}
