@@ -381,11 +381,21 @@ public class Project
 		}
 	}
 
-	public string id_to_name(string id)
+	/// Converts the @a resource_id to its corresponding human-readable @a
+	/// resource_name. It returns true if the conversion is successful, otherwise
+	/// it returns false and sets @a resource_name to the value of @a resource_id.
+	public bool resource_id_to_name(out string resource_name, string resource_id)
 	{
 		Hashtable index = SJSON.load(Path.build_filename(_data_dir.get_path(), "data_index.sjson"));
-		Value? name = index[id];
-		return name != null ? (string)name : id;
+		Value? name = index[resource_id];
+		if (name != null)
+		{
+			resource_name = (string)name;
+			return true;
+		}
+
+		resource_name = resource_id;
+		return false;
 	}
 
 	public Database files()
