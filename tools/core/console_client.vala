@@ -39,7 +39,7 @@ public class ConsoleClient : GLib.Object
 	// it succeeded or @a num_tries if failed.
 	public async int connect_async(string addr, int port, int num_tries, int interval)
 	{
-		SourceFunc callback = connect_async.callback;
+		// SourceFunc callback = connect_async.callback;
 		int[] output = new int[1];
 
 		// new Thread<bool>(null, () => {
