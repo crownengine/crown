@@ -21,7 +21,8 @@ public class ResourceChooser : Gtk.Box
 	// Data
 	public Project _project;
 	public GLib.Subprocess _editor_process;
-	public ConsoleClient _console_client;
+	public ConsoleClient _editor;
+	private GLib.SourceFunc _stop_editor_callback = null;
 	public Gtk.ListStore _list_store;
 	public bool _preview;
 	public unowned UserFilter _user_filter;
@@ -48,10 +49,9 @@ public class ResourceChooser : Gtk.Box
 		// Data
 		_project = project;
 
-		_console_client = new ConsoleClient();
-		_console_client.connected.connect(on_client_connected);
-		_console_client.disconnected.connect(on_client_disconnected);
-		_console_client.message_received.connect(on_client_message_received);
+		_editor = new ConsoleClient();
+		_editor.connected.connect(on_editor_connected);
+		_editor.message_received.connect(on_editor_message_received);
 
 		_list_store = project_store._list_store;
 		_preview = preview;
@@ -134,7 +134,9 @@ public class ResourceChooser : Gtk.Box
 		this.destroy.connect(on_destroy);
 		this.unmap.connect(on_unmap);
 
-		restart_editor();
+		restart_editor.begin((obj, res) => {
+			restart_editor.end(res);
+		});
 	}
 
 	private void on_row_activated(Gtk.TreePath path, TreeViewColumn column)
@@ -183,7 +185,9 @@ public class ResourceChooser : Gtk.Box
 
 	private void on_destroy()
 	{
-		stop_editor();
+		stop_editor.begin((obj, res) => {
+			stop_editor.end(res);
+		});
 	}
 
 	private void on_unmap()
@@ -222,8 +226,12 @@ public class ResourceChooser : Gtk.Box
 			loge(e.message);
 		}
 
+		// It is an error if the unit_preview disconnects after here.
+		_editor.disconnected.disconnect(on_editor_disconnected);
+		_editor.disconnected.connect(on_editor_disconnected_unexpected);
+
 		// Try to connect to unit_preview.
-		int tries = yield _console_client.connect_async("127.0.0.1"
+		int tries = yield _editor.connect_async(UNIT_PREVIEW_ADDRESS
 			, UNIT_PREVIEW_TCP_PORT
 			, EDITOR_CONNECTION_TRIES
 			, EDITOR_CONNECTION_INTERVAL
@@ -237,63 +245,92 @@ public class ResourceChooser : Gtk.Box
 		_tree_view.set_cursor(new Gtk.TreePath.first(), null, false);
 	}
 
-	public void stop_editor()
+	public async void stop_editor()
 	{
 		if (!_preview)
 			return;
 
-		if (_console_client != null && _console_client.is_connected())
+		if (_editor != null)
 		{
-			_console_client.send_script("Device.quit()");
-			_console_client.close();
+			// Reset "disconnected" signal.
+			_editor.disconnected.disconnect(on_editor_disconnected);
+			_editor.disconnected.disconnect(on_editor_disconnected_unexpected);
+
+			// Explicit call to this function should not produce error messages.
+			_editor.disconnected.connect(on_editor_disconnected);
+
+			if (_editor.is_connected())
+			{
+				_stop_editor_callback = stop_editor.callback;
+				_editor.send_script("Device.quit()");
+				yield; // Wait for ConsoleClient to disconnect.
+				_stop_editor_callback = null;
+				_editor_slide.show_widget(new Gtk.Label("Disconnected."));
+			}
 		}
 
-		if (_editor_process != null)
-		{
-			try
-			{
-				_editor_process.wait();
-			}
-			catch (Error e)
-			{
-				loge(e.message);
-			}
-		}
+		int exit_status;
+		wait_process(out exit_status, _editor_process);
+		_editor_process = null;
 	}
 
-	public void restart_editor()
+	public async void restart_editor()
 	{
 		if (!_preview)
 			return;
 
-		stop_editor();
+		yield stop_editor();
 
 		if (_editor_view != null)
 		{
 			_editor_view = null;
 		}
 
-		_editor_view = new EditorView(_console_client, false);
+		_editor_view = new EditorView(_editor, false);
 		_editor_view.set_size_request(300, 300);
 		_editor_view.realized.connect(on_editor_view_realized);
 
 		_editor_slide.show_widget(_editor_view);
 	}
 
-	private void on_client_connected(string address, int port)
+	private void on_editor_connected(string address, int port)
 	{
-		_console_client.receive_async();
+		logi("Connected to preview@%s:%d".printf(address, port));
+
+		// Start receiving data from the editor view.
+		_editor.receive_async();
 	}
 
-	private void on_client_disconnected()
+	private void on_editor_disconnected()
 	{
-		// Do nothing.
+		logi("Disconnected from preview");
+
+		if (_stop_editor_callback != null)
+			_stop_editor_callback();
 	}
 
-	private void on_client_message_received(ConsoleClient client, uint8[] json)
+	private void on_editor_disconnected_unexpected()
+	{
+		logw("Disconnected from preview unexpectedly");
+		int exit_status;
+		wait_process(out exit_status, _editor_process);
+		_editor_process = null;
+
+		Gtk.Label label = new Gtk.Label(null);
+		label.set_markup("Something went wrong.\rTry to <a href=\"restart\">restart</a> this view.");
+		label.activate_link.connect(() => {
+			restart_editor.begin((obj, res) => {
+				restart_editor.end(res);
+			});
+			return true;
+		});
+		_editor_slide.show_widget(label);
+	}
+
+	private void on_editor_message_received(ConsoleClient client, uint8[] json)
 	{
 		// Ignore the message content.
-		_console_client.receive_async();
+		client.receive_async();
 	}
 
 	private void on_editor_view_realized()
@@ -365,7 +402,7 @@ public class ResourceChooser : Gtk.Box
 				Value type;
 				model.get_value(iter, ProjectStore.Column.NAME, out name);
 				model.get_value(iter, ProjectStore.Column.TYPE, out type);
-				_console_client.send_script(UnitPreviewApi.set_preview_resource((string)type, (string)name));
+				_editor.send_script(UnitPreviewApi.set_preview_resource((string)type, (string)name));
 			}
 		}
 	}

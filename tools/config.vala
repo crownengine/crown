@@ -26,9 +26,16 @@ const string ENGINE_EXE = EXE_PREFIX
 const string DEPLOY_DEFAULT_NAME = "crown-release";
 const string DEPLOY_EXE = EXE_PREFIX + DEPLOY_DEFAULT_NAME + EXE_SUFFIX;
 
+const string DATA_COMPILER_ADDRESS = "127.0.0.1";
 const uint16 DATA_COMPILER_TCP_PORT = 10618;
+
+const string EDITOR_ADDRESS = "127.0.0.1";
 const uint16 EDITOR_TCP_PORT = 10001;
+
+const string UNIT_PREVIEW_ADDRESS = "127.0.0.1";
 const uint16 UNIT_PREVIEW_TCP_PORT = 10002;
+
+const string GAME_ADDRESS = "127.0.0.1";
 const uint16 GAME_TCP_PORT = 12345;
 
 const int DATA_COMPILER_CONNECTION_TRIES = 10;

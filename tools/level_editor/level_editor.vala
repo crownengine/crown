@@ -84,13 +84,11 @@ public class LevelEditorWindow : Gtk.ApplicationWindow
 	private bool on_delete_event()
 	{
 		LevelEditorApplication app = (LevelEditorApplication)application;
-		if (app.should_quit())
-		{
-			app.close_all();
-			return Gdk.EVENT_PROPAGATE; // Quit application
-		}
 
-		return Gdk.EVENT_STOP; // Keep alive
+		if (app.should_quit())
+			app.stop_backend_and_quit();
+
+		return Gdk.EVENT_STOP; // Keep window alive.
 	}
 
 	private bool on_focus_out(Gdk.EventFocus ev)
@@ -244,6 +242,9 @@ public class LevelEditorApplication : Gtk.Application
 	private GLib.Subprocess _compiler_process;
 	private GLib.Subprocess _editor_process;
 	private GLib.Subprocess _game_process;
+	private GLib.SourceFunc _stop_data_compiler_callback = null;
+	private GLib.SourceFunc _stop_editor_callback = null;
+	private GLib.SourceFunc _stop_game_callback = null;
 	private ConsoleClient _compiler;
 	public ConsoleClient _editor;
 	private ConsoleClient _game;
@@ -335,8 +336,7 @@ public class LevelEditorApplication : Gtk.Application
 		_camera_view_bottom_accels = this.get_accels_for_action("app.camera-view::bottom");
 
 		_compiler = new ConsoleClient();
-		_compiler.connected.connect(on_compiler_connected);
-		_compiler.disconnected.connect(on_compiler_disconnected_unexpected);
+		_compiler.connected.connect(on_data_compiler_connected);
 		_compiler.message_received.connect(on_message_received);
 
 		_data_compiler = new DataCompiler(_compiler);
@@ -353,12 +353,10 @@ public class LevelEditorApplication : Gtk.Application
 
 		_editor = new ConsoleClient();
 		_editor.connected.connect(on_editor_connected);
-		_editor.disconnected.connect(on_editor_disconnected_unexpected);
 		_editor.message_received.connect(on_message_received);
 
 		_game = new ConsoleClient();
 		_game.connected.connect(on_game_connected);
-		_game.disconnected.connect(on_game_disconnected);
 		_game.message_received.connect(on_message_received);
 
 		_level = new Level(_database, _editor, _project);
@@ -610,23 +608,28 @@ public class LevelEditorApplication : Gtk.Application
 		activate_action("tool", new GLib.Variant.string("place"));
 	}
 
-	private void on_compiler_connected(string address, int port)
+	private void on_data_compiler_connected(string address, int port)
 	{
 		logi("Connected to data_compiler@%s:%d".printf(address, port));
 		_compiler.receive_async();
 	}
 
-	private void on_compiler_disconnected()
+	private void on_data_compiler_disconnected()
 	{
 		logi("Disconnected from data_compiler");
+
+		if (_stop_data_compiler_callback != null)
+			_stop_data_compiler_callback();
 	}
 
-	private void on_compiler_disconnected_unexpected()
+	private async void on_data_compiler_disconnected_unexpected()
 	{
-		on_compiler_disconnected();
+		logw("Disconnected from data_compiler unexpectedly");
+		int exit_status;
+		wait_process(out exit_status, _compiler_process);
+		_compiler_process = null;
 
-		stop_game();
-		stop_editor();
+		yield stop_heads();
 
 		// Reset the callback
 		_data_compiler.finished(false);
@@ -639,17 +642,30 @@ public class LevelEditorApplication : Gtk.Application
 	private void on_editor_connected(string address, int port)
 	{
 		logi("Connected to level_editor@%s:%d".printf(address, port));
+
+		// Start receiving data from the editor view.
 		_editor.receive_async();
+
+		// Update editor view with current editor state.
+		_level.send_level();
+		send_state();
+		_preferences_dialog.apply();
 	}
 
 	private void on_editor_disconnected()
 	{
 		logi("Disconnected from editor");
+
+		if (_stop_editor_callback != null)
+			_stop_editor_callback();
 	}
 
 	private void on_editor_disconnected_unexpected()
 	{
-		on_editor_disconnected();
+		logw("Disconnected from editor unexpectedly");
+		int exit_status;
+		wait_process(out exit_status, _editor_process);
+		_editor_process = null;
 
 		Gtk.Label label = new Gtk.Label(null);
 		label.set_markup("Something went wrong.\rTry to <a href=\"restart\">restart</a> this view.");
@@ -670,9 +686,21 @@ public class LevelEditorApplication : Gtk.Application
 	private void on_game_disconnected()
 	{
 		logi("Disconnected from game");
+
 		_project.delete_garbage();
 		_combo.set_active_id("editor");
 		_toolbar_run.icon_name = "game-run";
+
+		if (_stop_game_callback != null)
+			_stop_game_callback();
+	}
+
+	private void on_game_disconnected_externally()
+	{
+		on_game_disconnected();
+		int exit_status;
+		wait_process(out exit_status, _game_process);
+		_game_process = null;
 	}
 
 	private void on_message_received(ConsoleClient client, uint8[] json)
@@ -891,13 +919,14 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		string sd = source_dir.dup();
 		string ln = level_name.dup();
-		stop_backend();
+		yield stop_backend();
 
 		// Reset project state.
 		_placeable_type = "";
 		_placeable_name = "";
 
 		// Load project and level if any.
+		logi("Loading project: `%s`...".printf(sd));
 		_project.load(sd);
 
 		// Spawn the data compiler.
@@ -927,14 +956,14 @@ public class LevelEditorApplication : Gtk.Application
 		}
 
 		// It is an error if the data compiler. disconnects after here.
-		_compiler.disconnected.disconnect(on_compiler_disconnected);
-		_compiler.disconnected.connect(on_compiler_disconnected_unexpected);
+		_compiler.disconnected.disconnect(on_data_compiler_disconnected);
+		_compiler.disconnected.connect(on_data_compiler_disconnected_unexpected);
 
 		_project_slide.show_widget(connecting_to_data_compiler_label());
 		_editor_slide.show_widget(connecting_to_data_compiler_label());
 		_inspector_slide.show_widget(connecting_to_data_compiler_label());
 
-		int tries = yield _compiler.connect_async("127.0.0.1"
+		int tries = yield _compiler.connect_async(DATA_COMPILER_ADDRESS
 			, DATA_COMPILER_TCP_PORT
 			, DATA_COMPILER_CONNECTION_TRIES
 			, DATA_COMPILER_CONNECTION_INTERVAL
@@ -956,10 +985,12 @@ public class LevelEditorApplication : Gtk.Application
 				load_level(ln);
 
 				// If successful, start the level editor.
-				restart_editor();
+				restart_editor.begin((obj, res) => {
+					restart_editor.end(res);
 
-				_project_slide.show_widget(_project_browser);
-				_inspector_slide.show_widget(_inspector_pane);
+					_project_slide.show_widget(_project_browser);
+					_inspector_slide.show_widget(_inspector_pane);
+				});
 			}
 			else
 			{
@@ -970,11 +1001,16 @@ public class LevelEditorApplication : Gtk.Application
 		});
 	}
 
-	private void stop_backend()
+	public async void stop_heads()
 	{
-		stop_game();
-		stop_editor();
-		stop_data_compiler();
+		yield stop_game();
+		yield stop_editor();
+	}
+
+	public async void stop_backend()
+	{
+		yield stop_heads();
+		yield stop_data_compiler();
 
 		_level.reset();
 		_project.reset();
@@ -982,29 +1018,29 @@ public class LevelEditorApplication : Gtk.Application
 		this.active_window.title = LEVEL_EDITOR_WINDOW_TITLE;
 	}
 
-	private void stop_data_compiler()
+	private async void stop_data_compiler()
 	{
-		if (_compiler != null && _compiler.is_connected())
+		if (_compiler != null)
 		{
+			// Reset "disconnected" signal.
+			_compiler.disconnected.disconnect(on_data_compiler_disconnected);
+			_compiler.disconnected.disconnect(on_data_compiler_disconnected_unexpected);
+
 			// Explicit call to this function should not produce error messages.
-			_compiler.disconnected.disconnect(on_compiler_disconnected_unexpected);
-			_compiler.disconnected.connect(on_compiler_disconnected);
+			_compiler.disconnected.connect(on_data_compiler_disconnected);
 
-			_compiler.send(DataCompilerApi.quit());
-			_compiler.close();
-		}
-
-		if (_compiler_process != null)
-		{
-			try
+			if (_compiler.is_connected())
 			{
-				_compiler_process.wait();
-			}
-			catch (Error e)
-			{
-				loge(e.message);
+				_stop_data_compiler_callback = stop_data_compiler.callback;
+				_compiler.send(DataCompilerApi.quit());
+				yield; // Wait for ConsoleClient to disconnect.
+				_stop_data_compiler_callback = null;
 			}
 		}
+
+		int exit_status;
+		wait_process(out exit_status, _compiler_process);
+		_compiler_process = null;
 	}
 
 	private async void start_editor(uint window_xid)
@@ -1041,7 +1077,7 @@ public class LevelEditorApplication : Gtk.Application
 		_editor.disconnected.connect(on_editor_disconnected_unexpected);
 
 		// Try to connect to the level editor.
-		int tries = yield _editor.connect_async("127.0.0.1"
+		int tries = yield _editor.connect_async(EDITOR_ADDRESS
 			, EDITOR_TCP_PORT
 			, EDITOR_CONNECTION_TRIES
 			, EDITOR_CONNECTION_INTERVAL
@@ -1051,45 +1087,39 @@ public class LevelEditorApplication : Gtk.Application
 			loge("Cannot connect to level_editor");
 			return;
 		}
-
-		// Update the editor state.
-		_level.send_level();
-		send_state();
-		_preferences_dialog.apply();
 	}
 
-	private void stop_editor()
+	private async void stop_editor()
 	{
-		_resource_chooser.stop_editor();
+		yield _resource_chooser.stop_editor();
 
-		if (_editor != null && _editor.is_connected())
+		if (_editor != null)
 		{
-			// Explicit call to this function should not produce error messages.
+			// Reset "disconnected" signal.
+			_editor.disconnected.disconnect(on_editor_disconnected);
 			_editor.disconnected.disconnect(on_editor_disconnected_unexpected);
+
+			// Explicit call to this function should not produce error messages.
 			_editor.disconnected.connect(on_editor_disconnected);
 
-			_editor.send_script("Device.quit()");
-			_editor.close();
-		}
-
-		if (_editor_process != null)
-		{
-			try
+			if (_editor.is_connected())
 			{
-				_editor_process.wait();
-			}
-			catch (Error e)
-			{
-				loge(e.message);
+				_stop_editor_callback = stop_editor.callback;
+				_editor.send_script("Device.quit()");
+				yield; // Wait for ConsoleClient to disconnect.
+				_stop_editor_callback = null;
+				_editor_slide.show_widget(new Gtk.Label("Disconnected."));
 			}
 		}
 
-		_editor_slide.show_widget(new Gtk.Label("Disconnected."));
+		int exit_status;
+		wait_process(out exit_status, _editor_process);
+		_editor_process = null;
 	}
 
-	private void restart_editor()
+	private async void restart_editor()
 	{
-		stop_editor();
+		yield stop_editor();
 
 		if (_editor_view != null)
 		{
@@ -1105,7 +1135,7 @@ public class LevelEditorApplication : Gtk.Application
 		_editor_view_overlay.add(_editor_view);
 		_editor_slide.show_widget(_editor_view_overlay);
 
-		_resource_chooser.restart_editor();
+		yield _resource_chooser.restart_editor();
 	}
 
 	private async void start_game(StartGame sg)
@@ -1152,7 +1182,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 
 		// Try to connect to the game.
-		int tries = yield _game.connect_async("127.0.0.1"
+		int tries = yield _game.connect_async(GAME_ADDRESS
 			, GAME_TCP_PORT
 			, GAME_CONNECTION_TRIES
 			, GAME_CONNECTION_INTERVAL
@@ -1164,25 +1194,29 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void stop_game()
+	private async void stop_game()
 	{
-		if (_game != null && _game.is_connected())
+		if (_game != null)
 		{
-			_game.send_script("Device.quit()");
-			_game.close();
+			// Reset "disconnected" signal.
+			_game.disconnected.disconnect(on_game_disconnected);
+			_game.disconnected.disconnect(on_game_disconnected_externally);
+
+			// Explicit call to this function should not produce error messages.
+			_game.disconnected.connect(on_game_disconnected);
+
+			if (_game.is_connected())
+			{
+				_stop_game_callback = stop_game.callback;
+				_game.send_script("Device.quit()");
+				yield; // Wait for SocketClient to disconnect.
+				_stop_game_callback = null;
+			}
 		}
 
-		if (_game_process != null)
-		{
-			try
-			{
-				_game_process.wait();
-			}
-			catch (Error e)
-			{
-				loge(e.message);
-			}
-		}
+		int exit_status;
+		wait_process(out exit_status, _game_process);
+		_game_process = null;
 	}
 
 	private void deploy_game()
@@ -1353,8 +1387,12 @@ public class LevelEditorApplication : Gtk.Application
 		else
 			_level.load_empty_level();
 
-		_level.send_level();
-		send_state();
+
+		if (_editor.is_connected())
+		{
+			_level.send_level();
+			send_state();
+		}
 
 		update_active_window_title();
 	}
@@ -1454,13 +1492,11 @@ public class LevelEditorApplication : Gtk.Application
 		return true;
 	}
 
-	public void close_all()
+	protected override void shutdown()
 	{
 		// Disable auto-save.
 		if (_save_timer_id > 0)
 			GLib.Source.remove(_save_timer_id);
-
-		stop_backend();
 
 		// Save editor settings.
 		_user.save(_user_file.get_path());
@@ -1473,10 +1509,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		if (_preferences_dialog != null)
 			_preferences_dialog.destroy();
-	}
 
-	protected override void shutdown()
-	{
 		base.shutdown();
 	}
 
@@ -1610,7 +1643,6 @@ public class LevelEditorApplication : Gtk.Application
 			if (_project.source_dir() == source_dir)
 				return;
 
-			logi("Loading project: `%s`...".printf(source_dir));
 			restart_backend.begin(source_dir, LEVEL_NONE);
 		}
 	}
@@ -1624,8 +1656,10 @@ public class LevelEditorApplication : Gtk.Application
 
 		if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
 		{
-			stop_backend();
-			show_panel("panel_new_project");
+			stop_backend.begin((obj, res) => {
+				stop_backend.end(res);
+				show_panel("panel_new_project");
+			});
 		}
 	}
 
@@ -1699,14 +1733,24 @@ public class LevelEditorApplication : Gtk.Application
 
 		if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
 		{
-			stop_backend();
-			show_panel("panel_welcome");
+			stop_backend.begin((obj, res) => {
+				stop_backend.end(res);
+				show_panel("panel_welcome");
+			});
 		}
+	}
+
+	public void stop_backend_and_quit()
+	{
+		stop_backend.begin((obj, res) => {
+			stop_backend.end(res);
+			this.quit();
+		});
 	}
 
 	private void on_quit(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		this.active_window.close();
+		stop_backend_and_quit();
 	}
 
 	private void on_open_resource(GLib.SimpleAction action, GLib.Variant? param)
@@ -1900,7 +1944,9 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_restart_editor_view(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		restart_editor();
+		restart_editor.begin((obj, res) => {
+			restart_editor.end(res);
+		});
 	}
 
 	private void on_build_data(GLib.SimpleAction action, GLib.Variant? param)
@@ -1944,16 +1990,23 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_run_game(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		if (_game.is_connected())
-		{
-			stop_game();
-		}
-		else
-		{
-			// Always change icon state regardless of failures
-			_toolbar_run.icon_name = "game-stop";
-			start_game.begin(action.name == "test-level" ? StartGame.TEST : StartGame.NORMAL);
-		}
+		string icon_name_displayed = _toolbar_run.icon_name;
+
+		stop_game.begin((obj, res) => {
+			stop_game.end(res);
+
+			if (icon_name_displayed == "game-run")
+			{
+				// Always change icon state regardless of failures
+				_toolbar_run.icon_name = "game-stop";
+
+				//
+				_game.disconnected.disconnect(on_game_disconnected);
+				_game.disconnected.connect(on_game_disconnected_externally);
+
+				start_game.begin(action.name == "test-level" ? StartGame.TEST : StartGame.NORMAL);
+			}
+		});
 	}
 
 	private void on_undo(GLib.SimpleAction action, GLib.Variant? param)
@@ -2308,6 +2361,37 @@ public static bool is_directory_empty(string path)
 	}
 
 	return false;
+}
+
+/// Waits for @a process to terminate and returns true if success, false
+/// otherwise. If the function succeeds, it also returns the @a process' @a
+/// exit_status.
+public static int wait_process(out int exit_status, GLib.Subprocess? process)
+{
+	exit_status = int.MAX;
+
+	if (process == null)
+		return 1;
+
+	try
+	{
+		if (!process.wait())
+			return 1;
+
+		if (process.get_if_exited())
+		{
+			exit_status = process.get_exit_status();
+			return 0;
+		}
+
+		// Process exited abnormally.
+		return 1;
+	}
+	catch (Error e)
+	{
+		loge(e.message);
+		return 1;
+	}
 }
 
 public static int main(string[] args)

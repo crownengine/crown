@@ -37,7 +37,7 @@ public class ConsoleClient : GLib.Object
 
 	// Tries to connect to the @a client. Return the number of tries after
 	// it succeeded or @a num_tries if failed.
-	public async int connect_async(string addr, int port, int num_tries, int interval)
+	public async int connect_async(string address, int port, int num_tries, int interval)
 	{
 		// SourceFunc callback = connect_async.callback;
 		int[] output = new int[1];
@@ -47,7 +47,7 @@ public class ConsoleClient : GLib.Object
 			int tries;
 			for (tries = 0; tries < num_tries; ++tries)
 			{
-				this.connect(addr, port);
+				this.connect(address, port);
 				if (this.is_connected())
 					break;
 
@@ -87,7 +87,7 @@ public class ConsoleClient : GLib.Object
 	// Sends the JSON-encoded data to the target
 	public void send(string json)
 	{
-		if (_connection == null)
+		if (!is_connected())
 			return;
 
 		try
@@ -149,9 +149,8 @@ public class ConsoleClient : GLib.Object
 		}
 		catch (Error e)
 		{
-			loge(e.message);
 			if (e.code == 44) // An existing connection was forcibly closed by the remote host.
-				disconnected();
+				close();
 		}
 	}
 }
