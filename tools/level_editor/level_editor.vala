@@ -1350,11 +1350,8 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void new_level()
 	{
-		_level.load_empty_level();
+		_level.load(LEVEL_EMPTY);
 		_level.send_level();
-
-		// FIXME: hack to keep update_active_windo_title() working.
-		_database.key_changed(_level._id, "");
 	}
 
 	private void update_active_window_title()
@@ -1382,10 +1379,7 @@ public class LevelEditorApplication : Gtk.Application
 		if (name == _level._name)
 			return;
 
-		if (name != "")
-			_level.load(name);
-		else
-			_level.load_empty_level();
+		_level.load(name != "" ? name : LEVEL_EMPTY);
 
 
 		if (_editor.is_connected())
@@ -1431,7 +1425,7 @@ public class LevelEditorApplication : Gtk.Application
 					path += ".level";
 
 				// Check if the file is within the source directory
-				if (!_project.path_is_within_dir(path, _project.source_dir()))
+				if (!_project.path_is_within_source_dir(path))
 				{
 					Gtk.MessageDialog md = new Gtk.MessageDialog(fcd
 						, DialogFlags.MODAL
@@ -1575,7 +1569,7 @@ public class LevelEditorApplication : Gtk.Application
 			if (!path.has_suffix(".level"))
 				path += ".level";
 
-			if (!_project.path_is_within_dir(path, _project.source_dir()))
+			if (!_project.path_is_within_source_dir(path))
 			{
 				Gtk.MessageDialog md = new Gtk.MessageDialog(fcd
 					, DialogFlags.MODAL
@@ -1755,12 +1749,12 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_open_resource(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		string resource_name = param.get_string();
+		string resource_path = param.get_string();
 
-		string? type = Crown.resource_type(resource_name);
+		string? type = Crown.resource_type(resource_path);
 		if (type != null && type == "level")
 		{
-			string? name = Crown.resource_name(type, resource_name);
+			string? name = Crown.resource_name(type, resource_path);
 			if (name != null)
 				activate_action("open-level", name);
 		}
@@ -1768,7 +1762,7 @@ public class LevelEditorApplication : Gtk.Application
 		{
 			try
 			{
-				GLib.File file = GLib.File.new_for_path(Path.build_filename(_project.source_dir(), resource_name));
+				GLib.File file = GLib.File.new_for_path(_project.resource_path_to_absolute_path(resource_path));
 				GLib.AppInfo? app = file.query_default_handler();
 				GLib.List<GLib.File> files = new GLib.List<GLib.File>();
 				files.append(file);

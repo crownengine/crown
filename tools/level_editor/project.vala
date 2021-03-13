@@ -101,13 +101,10 @@ public class Project
 		if (_database.has_property(GUID_ZERO, resource_path))
 			return;
 
-		// Try to load from toolchain directory first.
-		string path = Path.build_filename(toolchain_dir(), resource_path);
-		if (!File.new_for_path(path).query_exists())
-			path = Path.build_filename(source_dir(), resource_path);
+		// Load the unit.
+		string path = resource_path_to_absolute_path(resource_path);
 		if (!File.new_for_path(path).query_exists())
 			return; // Caller can query the database to check for error.
-
 		Guid prefab_id = _database.load_more(path, resource_path);
 
 		// Load all prefabs recursively, if any.
@@ -362,7 +359,7 @@ public class Project
 		return sd.substring(sd.last_index_of_char(GLib.Path.DIR_SEPARATOR) + 1);
 	}
 
-	public bool path_is_within_dir(string path, string dir)
+	public bool path_is_within_source_dir(string path)
 	{
 		GLib.File file = GLib.File.new_for_path(path);
 		return file.has_prefix(_source_dir);
@@ -475,8 +472,22 @@ public class Project
 
 	public string absolute_path_to_resource_filename(string path)
 	{
-		assert(path.has_prefix(_source_dir.get_path()));
-		return _source_dir.get_relative_path(File.new_for_path(path));
+		string prefix = _source_dir.get_path();
+
+		if (path.has_prefix(_toolchain_dir.get_path() + "/core"))
+			prefix = _toolchain_dir.get_path() + "/core";
+
+		return File.new_for_path(prefix).get_relative_path(File.new_for_path(path));
+	}
+
+	public string resource_path_to_absolute_path(string resource_path)
+	{
+		string prefix = _source_dir.get_path();
+
+		if (resource_path.has_prefix("core/"))
+			prefix = _toolchain_dir.get_path();
+
+		return Path.build_filename(prefix, resource_path);
 	}
 
 	public static int import_all_extensions(Project project, string destination_dir, SList<string> filenames)

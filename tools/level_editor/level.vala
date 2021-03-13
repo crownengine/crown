@@ -67,27 +67,19 @@ public class Level
 		reset();
 
 		string resource_path = name + ".level";
-		string path = Path.build_filename(_project.source_dir(), resource_path);
+		string path = _project.resource_path_to_absolute_path(resource_path);
 
 		_id = _db.load(path, resource_path);
 		_name = name;
 		_path = path;
 
-		// FIXME: hack to keep the LevelTreeView working.
-		_db.key_changed(_id, "units");
-	}
-
-	public void load_empty_level()
-	{
-		reset();
-
-		string name = LEVEL_EMPTY;
-		string resource_path = name + ".level";
-		string path = Path.build_filename(_project.toolchain_dir(), resource_path);
-
-		_id = _db.load(path, resource_path);
-		_name = name;
-		_path = null;
+		// Level files loaded from outside the source directory can be visualized and
+		// modified in-memory, but never overwritten on disk, because they might be
+		// shared with other projects (e.g. toolchain). Ensure that _path is null to
+		// force save functions to choose a different path (inside the source
+		// directory).
+		if (!_project.path_is_within_source_dir(path))
+			_path = null;
 
 		// FIXME: hack to keep the LevelTreeView working.
 		_db.key_changed(_id, "units");
