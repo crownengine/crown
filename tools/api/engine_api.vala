@@ -350,7 +350,7 @@ namespace LevelEditorApi
 		return "LevelEditor:set_placeable(\"%s\", \"%s\")".printf(type, name);
 	}
 
-	public string selection_set(Guid[] ids)
+	public string selection_set(Guid?[] ids)
 	{
 		StringBuilder sb = new StringBuilder();
 		sb.append("LevelEditor._selection:set({");

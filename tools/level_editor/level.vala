@@ -293,9 +293,15 @@ public class Level
 		_selection.clear();
 		for (int i = 0; i < ids.length; ++i)
 			_selection.add(ids[i]);
-		_client.send_script(LevelEditorApi.selection_set(ids));
+
+		send_selection();
 
 		selection_changed(_selection);
+	}
+
+	public void send_selection()
+	{
+		_client.send_script(LevelEditorApi.selection_set(_selection.to_array()));
 	}
 
 	public void set_light(Guid unit_id, Guid component_id, string type, double range, double intensity, double spot_angle, Vector3 color)
@@ -510,6 +516,8 @@ public class Level
 		generate_spawn_unit_commands(unit_ids, sb);
 		generate_spawn_sound_commands(sound_ids, sb);
 		_client.send_script(sb.str);
+
+		send_selection();
 	}
 
 	private void generate_spawn_unit_commands(Guid[] unit_ids, StringBuilder sb)

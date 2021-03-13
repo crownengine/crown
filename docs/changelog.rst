@@ -14,6 +14,7 @@ Changelog
 * Windows: fixed wrong Editor View window size.
 * Added a setting to limit the number of lines displayed by the Console.
 * Added hyperlinks to resource paths in the Console.
+* Selection is now correctly restored after Editor View restarts.
 
 0.42.0
 ------
