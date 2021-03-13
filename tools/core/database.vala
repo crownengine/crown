@@ -365,7 +365,11 @@ public class Database
 		// Create a mapping between the path and the object it has been loaded into.
 		set_property_internal(1, GUID_ZERO, resource_path, id);
 
+		// Reset _distance_from_last_sync and emit a key_changed event to allow
+		// listeners to call changed() and get the correct result.
 		_distance_from_last_sync = 0;
+		key_changed(GUID_ZERO, "");
+
 		return id;
 	}
 
