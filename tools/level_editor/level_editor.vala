@@ -1744,7 +1744,8 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_quit(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		stop_backend_and_quit();
+		if (should_quit())
+			stop_backend_and_quit();
 	}
 
 	private void on_open_resource(GLib.SimpleAction action, GLib.Variant? param)
