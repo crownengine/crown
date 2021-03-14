@@ -9,6 +9,9 @@ namespace Crown
 {
 public class Database
 {
+	private static bool _debug = false;
+	private static bool _debug_getters = false;
+
 	private enum Action
 	{
 		CREATE,
@@ -424,7 +427,6 @@ public class Database
 			;
 	}
 
-#if 0
 	private static string value_to_string(Value? value)
 	{
 		if (value == null)
@@ -446,7 +448,6 @@ public class Database
 
 		return "<invalid>";
 	}
-#endif // CROWN_DEBUG
 
 	// Decodes the @a json data inside the database object @a id.
 	public Guid decode(Hashtable json)
@@ -642,9 +643,10 @@ public class Database
 	private void create_internal(int dir, Guid id)
 	{
 		assert(id != GUID_ZERO);
-#if 0
-		stdout.printf("create %s\n", id.to_string());
-#endif // CROWN_DEBUG
+
+		if (_debug)
+			logi("create %s".printf(id.to_string()));
+
 		((HashMap<string, Value?>)_data["_objects"]).set(id.to_string(), new HashMap<string, Value?>());
 
 		_distance_from_last_sync += dir;
@@ -655,9 +657,10 @@ public class Database
 	{
 		assert(id != GUID_ZERO);
 		assert(has_object(id));
-#if 0
-		stdout.printf("destroy %s\n", id.to_string());
-#endif // CROWN_DEBUG
+
+		if (_debug)
+			logi("destroy %s".printf(id.to_string()));
+
 		((HashMap<string, Value?>)_data["_objects"]).unset(id.to_string());
 
 		_distance_from_last_sync += dir;
@@ -669,13 +672,10 @@ public class Database
 		assert(has_object(id));
 		assert(is_valid_key(key));
 		assert(is_valid_value(value));
-#if 0
-		stdout.printf("set_property %s %s %s\n"
-			, id.to_string()
-			, key
-			, (value == null) ? "null" : value_to_string(value)
-			);
-#endif // CROWN_DEBUG
+
+		if (_debug)
+			logi("set_property %s %s %s".printf(id.to_string(), key, (value == null) ? "null" : value_to_string(value)));
+
 		HashMap<string, Value?> ob = get_data(id);
 		ob[key] = value;
 
@@ -700,13 +700,10 @@ public class Database
 		assert(is_valid_key(key));
 		assert(item_id != GUID_ZERO);
 		assert(has_object(item_id));
-#if 0
-		stdout.printf("add_to_set %s %s %s\n"
-			, id.to_string()
-			, key
-			, item_id.to_string()
-			);
-#endif // CROWN_DEBUG
+
+		if (_debug)
+			logi("add_to_set %s %s %s".printf(id.to_string(), key, item_id.to_string()));
+
 		HashMap<string, Value?> ob = get_data(id);
 
 		if (!ob.has_key(key))
@@ -729,13 +726,10 @@ public class Database
 		assert(has_object(id));
 		assert(is_valid_key(key));
 		assert(item_id != GUID_ZERO);
-#if 0
-		stdout.printf("remove_from_set %s %s %s\n"
-			, id.to_string()
-			, key
-			, item_id.to_string()
-			);
-#endif // CROWN_DEBUG
+
+		if (_debug)
+			logi("remove_from_set %s %s %s".printf(id.to_string(), key, item_id.to_string()));
+
 		HashMap<string, Value?> ob = get_data(id);
 		((HashSet<Guid?>)ob[key]).remove(item_id);
 
@@ -975,13 +969,10 @@ public class Database
 
 		HashMap<string, Value?> ob = get_data(id);
 		Value? value = (ob.has_key(key) ? ob[key] : null);
-#if 0
-		stdout.printf("get_property %s %s %s\n"
-			, id.to_string()
-			, key
-			, (value == null) ? "null" : value_to_string(value)
-			);
-#endif // CROWN_DEBUG
+
+		if (_debug_getters)
+			logi("get_property %s %s %s".printf(id.to_string(), key, (value == null) ? "null" : value_to_string(value)));
+
 		return value;
 	}
 
@@ -1021,17 +1012,16 @@ public class Database
 		assert(is_valid_key(key));
 
 		HashMap<string, Value?> ob = get_data(id);
+		HashSet<Guid?> value;
 		if (ob.has_key(key))
-			return ob[key] as HashSet<Guid?>;
+			value = ob[key] as HashSet<Guid?>;
 		else
-			return deffault;
-#if 0
-		// stdout.printf("get_property %s %s %s\n"
-		// 	, id.to_string()
-		// 	, key
-		// 	, (value == null) ? "null" : value_to_string(value)
-		// 	);
-#endif // CROWN_DEBUG
+			value = deffault;
+
+		if (_debug_getters)
+			logi("get_property %s %s %s".printf(id.to_string(), key, (value == null) ? "null" : value_to_string(value)));
+
+		return value;
 	}
 
 	public HashMap<string, Value?> get_object(Guid id)
@@ -1047,9 +1037,9 @@ public class Database
 
 	public void add_restore_point(int id, Guid[] data)
 	{
-#if 0
-		stdout.printf("add_restore_point %d, undo size = %u\n", id, _undo.size());
-#endif // CROWN_DEBUG
+		if (_debug)
+			logi("add_restore_point %d, undo size = %u".printf(id, _undo.size()));
+
 		_undo_points.write_restore_point(id, _undo.size(), data);
 
 		_redo.clear();
