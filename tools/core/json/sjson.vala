@@ -53,9 +53,8 @@ public class SJSON
 	/// <summary>
 	/// Convenience function for loading a file.
 	/// </summary>
-	public static Hashtable load(string path)
+	public static Hashtable load_from_file(GLib.FileStream? fs)
 	{
-		FileStream fs = FileStream.open(path, "rb");
 		if (fs == null)
 			return new Hashtable();
 
@@ -73,6 +72,15 @@ public class SJSON
 			return new Hashtable();
 
 		return decode(bytes) as Hashtable;
+	}
+
+	/// <summary>
+	/// Convenience function for loading a file.
+	/// </summary>
+	public static Hashtable load_from_path(string path)
+	{
+		FileStream fs = FileStream.open(path, "rb");
+		return load_from_file(fs);
 	}
 
 	/// <summary>

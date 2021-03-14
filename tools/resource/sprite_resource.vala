@@ -28,7 +28,7 @@ public class SpriteResource
 
 		if (File.new_for_path(importer_settings_path).query_exists())
 		{
-			importer_settings = SJSON.load(importer_settings_path);
+			importer_settings = SJSON.load_from_path(importer_settings_path);
 			sid.load(importer_settings);
 		}
 		else

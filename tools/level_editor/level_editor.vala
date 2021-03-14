@@ -524,7 +524,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	public void load_settings()
 	{
-		Hashtable settings = SJSON.load(_settings_file.get_path());
+		Hashtable settings = SJSON.load_from_path(_settings_file.get_path());
 
 		_preferences_dialog.load(settings.has_key("preferences") ? (Hashtable)settings["preferences"] : new Hashtable());
 	}
@@ -1350,7 +1350,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void new_level()
 	{
-		_level.load(LEVEL_EMPTY);
+		_level.load_from_path(LEVEL_EMPTY);
 		_level.send_level();
 	}
 
@@ -1379,8 +1379,12 @@ public class LevelEditorApplication : Gtk.Application
 		if (name == _level._name)
 			return;
 
-		_level.load(name != "" ? name : LEVEL_EMPTY);
-
+		string resource_name = name != "" ? name : LEVEL_EMPTY;
+		if (_level.load_from_path(resource_name) != 0)
+		{
+			loge("Unable to load level %s".printf(resource_name));
+			return;
+		}
 
 		if (_editor.is_connected())
 		{

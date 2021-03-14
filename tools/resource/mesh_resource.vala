@@ -170,7 +170,7 @@ public class MeshResource
 				db.create(unit_id);
 			}
 
-			Hashtable mesh = SJSON.load(filename_i);
+			Hashtable mesh = SJSON.load_from_path(filename_i);
 			Hashtable mesh_nodes = (Hashtable)mesh["nodes"];
 
 			if (mesh_nodes.size > 1)

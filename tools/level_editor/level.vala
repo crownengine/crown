@@ -62,14 +62,20 @@ public class Level
 		_id = GUID_ZERO;
 	}
 
-	public void load(string name)
+	public int load_from_path(string name)
 	{
-		reset();
-
 		string resource_path = name + ".level";
 		string path = _project.resource_path_to_absolute_path(resource_path);
 
-		_id = _db.load(path, resource_path);
+		FileStream fs = FileStream.open(path, "rb");
+		if (fs == null)
+			return 1;
+
+		reset();
+		int ret = _db.load_from_file(ref _id, fs, resource_path);
+		if (ret != 0)
+			return ret;
+
 		_name = name;
 		_path = path;
 
@@ -83,6 +89,8 @@ public class Level
 
 		// FIXME: hack to keep the LevelTreeView working.
 		_db.key_changed(_id, "units");
+
+		return 0;
 	}
 
 	public void save(string name)

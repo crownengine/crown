@@ -351,33 +351,50 @@ public class Database
 		_distance_from_last_sync = 0;
 	}
 
-	// Loads the database with the object stored at @a path, without resetting the
-	// database. This makes it possible to load multiple objects from distinct
-	// paths in the same database. @a resource_path is used as a key in the
-	// database to refer to the object that has been loaded. This is useful when
-	// you do not have the object ID but only its path, as it is often the case
-	// since resources use paths and not IDs to reference each other.
-	public Guid load_more(string path, string resource_path)
+	// See: load_more_from_path().
+	public int load_more_from_file(ref Guid object_id, FileStream? fs, string resource_path)
 	{
-		Hashtable json = SJSON.load(path);
-		Guid id = decode(json);
+		Hashtable json = SJSON.load_from_file(fs);
+		object_id = decode(json);
 
 		// Create a mapping between the path and the object it has been loaded into.
-		set_property_internal(1, GUID_ZERO, resource_path, id);
+		set_property_internal(1, GUID_ZERO, resource_path, object_id);
 
 		// Reset _distance_from_last_sync and emit a key_changed event to allow
 		// listeners to call changed() and get the correct result.
 		_distance_from_last_sync = 0;
 		key_changed(GUID_ZERO, "");
 
-		return id;
+		return 0;
+	}
+
+	// Loads the database with the object stored at @a path, without resetting the
+	// database. This makes it possible to load multiple objects from distinct
+	// paths in the same database. @a resource_path is used as a key in the
+	// database to refer to the object that has been loaded. This is useful when
+	// you do not have the object ID but only its path, as it is often the case
+	// since resources use paths and not IDs to reference each other.
+	public int load_more_from_path(ref Guid object_id, string path, string resource_path)
+	{
+		FileStream fs = FileStream.open(path, "rb");
+		if (fs == null)
+			return 1;
+
+		return load_more_from_file(ref object_id, fs, resource_path);
 	}
 
 	/// Loads the database with the object stored at @a path.
-	public Guid load(string path, string resource_path)
+	public int load_from_file(ref Guid object_id, FileStream fs, string resource_path)
 	{
 		reset();
-		return load_more(path, resource_path);
+		return load_more_from_file(ref object_id, fs, resource_path);
+	}
+
+	/// Loads the database with the object stored at @a path.
+	public int load_from_path(ref Guid object_id, string path, string resource_path)
+	{
+		reset();
+		return load_more_from_path(ref object_id, path, resource_path);
 	}
 
 	/// Encodes the object @a id into SJSON object.

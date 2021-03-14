@@ -54,7 +54,7 @@ public class User
 
 	public void load(string path)
 	{
-		Hashtable sjson = SJSON.load(path);
+		Hashtable sjson = SJSON.load_from_path(path);
 		decode(sjson);
 	}
 

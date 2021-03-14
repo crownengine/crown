@@ -103,9 +103,11 @@ public class Project
 
 		// Load the unit.
 		string path = resource_path_to_absolute_path(resource_path);
-		if (!File.new_for_path(path).query_exists())
+
+		Guid prefab_id = GUID_ZERO;
+		if (_database.load_more_from_path(ref prefab_id, path, resource_path) != 0)
 			return; // Caller can query the database to check for error.
-		Guid prefab_id = _database.load_more(path, resource_path);
+		assert(prefab_id != GUID_ZERO);
 
 		// Load all prefabs recursively, if any.
 		Value? prefab = _database.get_property(prefab_id, "prefab");
@@ -383,7 +385,8 @@ public class Project
 	/// it returns false and sets @a resource_name to the value of @a resource_id.
 	public bool resource_id_to_name(out string resource_name, string resource_id)
 	{
-		Hashtable index = SJSON.load(Path.build_filename(_data_dir.get_path(), "data_index.sjson"));
+		string index_path = Path.build_filename(_data_dir.get_path(), "data_index.sjson");
+		Hashtable index = SJSON.load_from_path(index_path);
 		Value? name = index[resource_id];
 		if (name != null)
 		{
