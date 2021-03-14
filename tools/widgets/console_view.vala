@@ -125,6 +125,10 @@ public class ConsoleView : Gtk.Box
 		tb.tag_table.add(tag_warning);
 		tb.tag_table.add(tag_error);
 
+		Gtk.TextIter end_iter;
+		tb.get_end_iter(out end_iter);
+		tb.create_mark("scroll", end_iter, true);
+
 		_scrolled_window = new Gtk.ScrolledWindow(null, null);
 		_scrolled_window.vscrollbar_policy = Gtk.PolicyType.ALWAYS;
 		_scrolled_window.add(_text_view);
@@ -385,8 +389,11 @@ public class ConsoleView : Gtk.Box
 		while (id_index++ >= 0);
 
 		// Scroll to bottom.
-		buffer.get_end_iter(out end_iter);
-		_text_view.scroll_to_mark(buffer.create_mark("bottom", end_iter, false), 0, true, 0.0, 1.0);
+		// See: gtk3-demo "Automatic Scrolling".
+		end_iter.set_line_offset(0);
+		Gtk.TextMark mark = buffer.get_mark("scroll");
+		buffer.move_mark(mark, end_iter);
+		_text_view.scroll_mark_onscreen(mark);
 	}
 }
 
