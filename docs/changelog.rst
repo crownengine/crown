@@ -15,6 +15,7 @@ Changelog
 * Added a setting to limit the number of lines displayed by the Console.
 * Added hyperlinks to resource paths in the Console.
 * Selection is now correctly restored after Editor View restarts.
+* Fix Editor window title showing incorrect level-changed state.
 
 0.42.0
 ------

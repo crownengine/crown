@@ -361,12 +361,7 @@ public class Database
 		object_id = decode(json);
 
 		// Create a mapping between the path and the object it has been loaded into.
-		set_property_internal(1, GUID_ZERO, resource_path, object_id);
-
-		// Reset _distance_from_last_sync and emit a key_changed event to allow
-		// listeners to call changed() and get the correct result.
-		_distance_from_last_sync = 0;
-		key_changed(GUID_ZERO, "");
+		set_property_internal(0, GUID_ZERO, resource_path, object_id);
 
 		return 0;
 	}
@@ -458,7 +453,7 @@ public class Database
 		else
 			id = Guid.new_guid();
 
-		create_internal(1, id);
+		create_internal(0, id);
 		decode_object(id, "", json);
 		return id;
 	}
@@ -488,13 +483,13 @@ public class Database
 			{
 				ArrayList<Value?> arr = (ArrayList<Value?>)val;
 				if (arr.size > 0 && arr[0].holds(typeof(double)))
-					set_property_internal(1, id, k, decode_value(val));
+					set_property_internal(0, id, k, decode_value(val));
 				else
 					decode_set(id, key, arr);
 			}
 			else
 			{
-				set_property_internal(1, id, k, decode_value(val));
+				set_property_internal(0, id, k, decode_value(val));
 			}
 
 			k = old_db;
@@ -504,15 +499,15 @@ public class Database
 	private void decode_set(Guid id, string key, ArrayList<Value?> json)
 	{
 		// Set should be created even if it is empty.
-		create_empty_set(1, id, key);
+		create_empty_set(0, id, key);
 
 		for (int i = 0; i < json.size; ++i)
 		{
 			Hashtable obj = (Hashtable)json[i];
 			Guid item_id = Guid.parse((string)obj["id"]);
-			create_internal(1, item_id);
+			create_internal(0, item_id);
 			decode_object(item_id, "", obj);
-			add_to_set_internal(1, id, key, item_id);
+			add_to_set_internal(0, id, key, item_id);
 		}
 	}
 
