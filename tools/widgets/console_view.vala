@@ -126,6 +126,7 @@ public class ConsoleView : Gtk.Box
 		tb.tag_table.add(tag_error);
 
 		_scrolled_window = new Gtk.ScrolledWindow(null, null);
+		_scrolled_window.vscrollbar_policy = Gtk.PolicyType.ALWAYS;
 		_scrolled_window.add(_text_view);
 
 		_entry = new EntryText();
