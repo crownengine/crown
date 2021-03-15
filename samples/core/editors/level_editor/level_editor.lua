@@ -1455,10 +1455,8 @@ end
 
 function ScaleTool:mouse_move(x, y)
 	if self:is_idle() then
-		return
-	end
-
-	if self:axis_selected() then
+		LevelEditor.select_tool:mouse_move(x, y)
+	elseif self:axis_selected() then
 		local end_scale = self:drag_offset(x, y)
 		local start_scale = self._drag_offset:unbox()
 		local scale_ratio = Vector3(end_scale.x/start_scale.x
