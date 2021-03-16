@@ -35,8 +35,10 @@ public class ResourceChooser : Gtk.Box
 	public Gtk.TreeView _tree_view;
 	public Gtk.TreeSelection _tree_selection;
 	public Gtk.ScrolledWindow _scrolled_window;
-
-	public Slide _editor_slide;
+	public Gtk.Label _no_preview_label;
+	public Gtk.Label _disconnected_label;
+	public Gtk.Label _oops_label;
+	public Gtk.Stack _editor_stack;
 	public EditorView _editor_view;
 
 	// Signals
@@ -121,15 +123,26 @@ public class ResourceChooser : Gtk.Box
 		_scrolled_window.add(_tree_view);
 		_scrolled_window.set_size_request(300, 400);
 
-		_editor_slide = new Slide();
+		_editor_stack = new Gtk.Stack();
 
 		this.pack_start(_filter_entry, false, true, 0);
-		this.pack_start(_editor_slide, true, true, 0);
+		this.pack_start(_editor_stack, true, true, 0);
 		this.pack_start(_scrolled_window, true, true, 0);
 
-		Gtk.Label label = new Gtk.Label("No Preview");
-		label.set_size_request(300, 300);
-		_editor_slide.show_widget(label);
+		_no_preview_label = new Gtk.Label("No Preview");
+		_no_preview_label.set_size_request(300, 300);
+		_editor_stack.add(_no_preview_label);
+		_disconnected_label = new Gtk.Label("Disconnected");
+		_editor_stack.add(_disconnected_label);
+		_oops_label = new Gtk.Label(null);
+		_oops_label.set_markup("Something went wrong.\rTry to <a href=\"restart\">restart</a> this view.");
+		_oops_label.activate_link.connect(() => {
+			restart_editor.begin((obj, res) => {
+				restart_editor.end(res);
+			});
+			return true;
+		});
+		_editor_stack.add(_oops_label);
 
 		this.destroy.connect(on_destroy);
 		this.unmap.connect(on_unmap);
@@ -265,7 +278,7 @@ public class ResourceChooser : Gtk.Box
 				_editor.send_script("Device.quit()");
 				yield; // Wait for ConsoleClient to disconnect.
 				_stop_editor_callback = null;
-				_editor_slide.show_widget(new Gtk.Label("Disconnected."));
+				_editor_stack.set_visible_child(_disconnected_label);
 			}
 		}
 
@@ -283,14 +296,17 @@ public class ResourceChooser : Gtk.Box
 
 		if (_editor_view != null)
 		{
+			_editor_stack.remove(_editor_view);
 			_editor_view = null;
 		}
 
 		_editor_view = new EditorView(_editor, false);
 		_editor_view.set_size_request(300, 300);
 		_editor_view.realized.connect(on_editor_view_realized);
+		_editor_view.show_all();
 
-		_editor_slide.show_widget(_editor_view);
+		_editor_stack.add(_editor_view);
+		_editor_stack.set_visible_child(_editor_view);
 	}
 
 	private void on_editor_connected(string address, int port)
@@ -316,15 +332,7 @@ public class ResourceChooser : Gtk.Box
 		wait_process(out exit_status, _editor_process);
 		_editor_process = null;
 
-		Gtk.Label label = new Gtk.Label(null);
-		label.set_markup("Something went wrong.\rTry to <a href=\"restart\">restart</a> this view.");
-		label.activate_link.connect(() => {
-			restart_editor.begin((obj, res) => {
-				restart_editor.end(res);
-			});
-			return true;
-		});
-		_editor_slide.show_widget(label);
+		_editor_stack.set_visible_child(_oops_label);
 	}
 
 	private void on_editor_message_received(ConsoleClient client, uint8[] json)
