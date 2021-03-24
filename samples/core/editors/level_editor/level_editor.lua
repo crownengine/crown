@@ -1614,9 +1614,6 @@ end
 function LevelEditor:update(dt)
 	World.update(self._world, dt)
 
-	DebugLine.reset(self._lines)
-	DebugLine.reset(self._lines_no_depth)
-
 	if self._show_grid then
 		draw_world_origin_grid(self._lines, 10, self._grid.size)
 	end
@@ -1646,13 +1643,15 @@ function LevelEditor:update(dt)
 	for k, v in pairs(self._objects) do
 		self._objects[k]:draw()
 	end
-
-	DebugLine.submit(self._lines)
-	DebugLine.submit(self._lines_no_depth)
 end
 
 function LevelEditor:render(dt)
 	Device.render(self._world, self._camera:unit())
+
+	DebugLine.submit(self._lines)
+	DebugLine.reset(self._lines)
+	DebugLine.submit(self._lines_no_depth)
+	DebugLine.reset(self._lines_no_depth)
 end
 
 function LevelEditor:shutdown()
