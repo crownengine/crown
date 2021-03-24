@@ -482,6 +482,8 @@ void Device::run()
 
 #if CROWN_TOOLS
 		tool_update(dt);
+#else
+		_pipeline->render(*_shader_manager, STRING_ID_32("blit", 0xc04ce9f7), VIEW_BLIT, _width, _height);
 #endif
 
 		bgfx::frame();
@@ -627,12 +629,9 @@ void Device::render(World& world, UnitId camera_unit)
 	bgfx::touch(VIEW_DEBUG);
 	bgfx::touch(VIEW_GUI);
 	bgfx::touch(VIEW_GRAPH);
+	bgfx::touch(VIEW_BLIT);
 
 	world.render(view);
-
-#if !CROWN_TOOLS
-	_pipeline->render(*_shader_manager, STRING_ID_32("blit", 0xc04ce9f7), 0, _width, _height);
-#endif // CROWN_TOOLS
 }
 
 World* Device::create_world()

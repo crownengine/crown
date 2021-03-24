@@ -20,6 +20,7 @@
 #define VIEW_DEBUG     17
 #define VIEW_GUI      128
 #define VIEW_GRAPH    129
+#define VIEW_BLIT     254
 #define VIEW_IMGUI    255
 
 namespace crown
