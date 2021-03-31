@@ -360,6 +360,7 @@ function toolchain(build_dir, lib_dir)
 		}
 		buildoptions {
 			"/Ob2", -- The Inline Function Expansion
+			"/we4715", -- Not all control paths return a value
 		}
 		linkoptions {
 			"/ignore:4199", -- LNK4199: /DELAYLOAD:*.dll ignored; no imports found from *.dll
