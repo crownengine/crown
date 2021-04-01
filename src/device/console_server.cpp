@@ -159,7 +159,7 @@ void ConsoleServer::error(TCPSocket& client, const char* msg)
 	send(client, string_stream::c_str(ss));
 }
 
-void ConsoleServer::send(const char* json)
+void ConsoleServer::broadcast(const char* json)
 {
 	for (u32 i = 0; i < vector::size(_clients); ++i)
 		send(_clients[i].socket, json);

@@ -69,7 +69,7 @@ static void notify_add_file(const char* path)
 	TempAllocator512 ta;
 	StringStream ss(ta);
 	ss << "{\"type\":\"add_file\",\"path\":\"" << path << "\"}";
-	console_server()->send(string_stream::c_str(ss));
+	console_server()->broadcast(string_stream::c_str(ss));
 }
 
 static void notify_remove_file(const char* path)
@@ -77,7 +77,7 @@ static void notify_remove_file(const char* path)
 	TempAllocator512 ta;
 	StringStream ss(ta);
 	ss << "{\"type\":\"remove_file\",\"path\":\"" << path << "\"}";
-	console_server()->send(string_stream::c_str(ss));
+	console_server()->broadcast(string_stream::c_str(ss));
 }
 
 static void notify_add_tree(const char* path)
@@ -85,7 +85,7 @@ static void notify_add_tree(const char* path)
 	TempAllocator512 ta;
 	StringStream ss(ta);
 	ss << "{\"type\":\"add_tree\",\"path\":\"" << path << "\"}";
-	console_server()->send(string_stream::c_str(ss));
+	console_server()->broadcast(string_stream::c_str(ss));
 }
 
 static void notify_remove_tree(const char* path)
@@ -93,7 +93,7 @@ static void notify_remove_tree(const char* path)
 	TempAllocator512 ta;
 	StringStream ss(ta);
 	ss << "{\"type\":\"remove_tree\",\"path\":\"" << path << "\"}";
-	console_server()->send(string_stream::c_str(ss));
+	console_server()->broadcast(string_stream::c_str(ss));
 }
 
 SourceIndex::SourceIndex()

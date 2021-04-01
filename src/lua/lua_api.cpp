@@ -2712,7 +2712,7 @@ void load_api(LuaEnvironment& env)
 			StringStream json(alloc);
 			lua_dump_table(L, 1, json);
 
-			console_server()->send(string_stream::c_str(json));
+			console_server()->broadcast(string_stream::c_str(json));
 			return 0;
 		});
 	env.add_module_function("Device", "can_get", [](lua_State* L)

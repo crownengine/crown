@@ -58,14 +58,14 @@ struct ConsoleServer
 	/// Collects requests from clients and processes them all.
 	void update();
 
-	/// Sends the given JSON-encoded string to all clients.
-	void send(const char* json);
-
 	/// Sends the given JSON-encoded string to @a client.
 	void send(TCPSocket& client, const char* json);
 
 	/// Sends an error message to @a client.
 	void error(TCPSocket& client, const char* msg);
+
+	/// Sends the given JSON-encoded string to all clients.
+	void broadcast(const char* json);
 
 	// Registers the command @a type.
 	void register_command_name(const char* name, const char* brief, CommandTypeFunction cmd, void* user_data);

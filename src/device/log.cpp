@@ -64,7 +64,7 @@ namespace log_internal
 		}
 		ss << "\"}";
 
-		console_server()->send(string_stream::c_str(ss));
+		console_server()->broadcast(string_stream::c_str(ss));
 	}
 
 	void vlogx(LogSeverity::Enum sev, System system, const char* msg, va_list args)
