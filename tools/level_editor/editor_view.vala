@@ -18,6 +18,9 @@ public class EditorView : Gtk.EventBox
 	// Data
 	private ConsoleClient _client;
 
+	private Gtk.Allocation _allocation;
+	private uint _resize_timer_id;
+
 	private int _mouse_curr_x;
 	private int _mouse_curr_y;
 
@@ -73,6 +76,9 @@ public class EditorView : Gtk.EventBox
 	{
 		_client = client;
 
+		_allocation = { 0, 0, 0, 0 };
+		_resize_timer_id = 0;
+
 		_mouse_curr_x = 0;
 		_mouse_curr_y = 0;
 
@@ -91,13 +97,6 @@ public class EditorView : Gtk.EventBox
 		_keys[Gdk.Key.Alt_R] = false;
 
 		// Widgets
-#if CROWN_PLATFORM_LINUX
-		_socket = new Gtk.Socket();
-		_socket.set_visual(Gdk.Screen.get_default().get_system_visual());
-		_socket.realize.connect(on_socket_realized);
-		_socket.plug_removed.connect(on_socket_plug_removed);
-		_socket.set_size_request(128, 128);
-#endif
 		this.can_focus = true;
 		this.events |= Gdk.EventMask.POINTER_MOTION_MASK
 			| Gdk.EventMask.KEY_PRESS_MASK
@@ -106,10 +105,7 @@ public class EditorView : Gtk.EventBox
 			| Gdk.EventMask.SCROLL_MASK
 			;
 		this.focus_out_event.connect(on_event_box_focus_out_event);
-#if CROWN_PLATFORM_WINDOWS
-		this.realize.connect(on_event_box_realized);
 		this.size_allocate.connect(on_size_allocate);
-#endif
 
 		if (input_enabled)
 		{
@@ -122,7 +118,14 @@ public class EditorView : Gtk.EventBox
 		}
 
 #if CROWN_PLATFORM_LINUX
+		_socket = new Gtk.Socket();
+		_socket.set_visual(Gdk.Screen.get_default().get_system_visual());
+		_socket.realize.connect(on_socket_realized);
+		_socket.plug_removed.connect(on_socket_plug_removed);
+		_socket.set_size_request(128, 128);
 		this.add(_socket);
+#elif CROWN_PLATFORM_WINDOWS
+		this.realize.connect(on_event_box_realized);
 #endif
 	}
 
@@ -260,6 +263,24 @@ public class EditorView : Gtk.EventBox
 		return Gdk.EVENT_PROPAGATE;
 	}
 
+	private void on_size_allocate(Gtk.Allocation ev)
+	{
+		if (_allocation.equal(ev))
+			return;
+
+		_allocation = ev;
+
+		// Resize the view once every 200 milliseconds.
+		if (_resize_timer_id == 0)
+		{
+			_resize_timer_id = GLib.Timeout.add_full(GLib.Priority.DEFAULT, 200, () => {
+				_client.send(DeviceApi.resize(_allocation.width, _allocation.height));
+				_resize_timer_id = 0;
+				return false; // Destroy the timeout.
+			});
+		}
+	}
+
 #if CROWN_PLATFORM_LINUX
 	private void on_socket_realized()
 	{
@@ -280,11 +301,6 @@ public class EditorView : Gtk.EventBox
 		this.get_window().ensure_native();
 		_window_id = gdk_win32_window_get_handle(this.get_window());
 		realized();
-	}
-
-	private void on_size_allocate(Gtk.Allocation ev)
-	{
-		_client.send(DeviceApi.resize(ev.width, ev.height));
 	}
 #endif
 }
