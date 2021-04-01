@@ -458,7 +458,7 @@ void Device::run()
 			_pipeline->reset(_width, _height);
 		}
 
-		if (!_paused)
+		if (CE_LIKELY(!_paused))
 		{
 			_resource_manager->complete_requests();
 
