@@ -327,4 +327,115 @@ WriteResult TCPSocket::write_nonblock(const void* data, u32 size)
 	return socket_internal::write(_priv->socket, data, size);
 }
 
+bool operator==(const TCPSocket& aa, const TCPSocket& bb)
+{
+	return aa._priv->socket == bb._priv->socket;
+}
+
+struct SocketSetPrivate
+{
+	fd_set fdset;
+#if CROWN_PLATFORM_POSIX
+	SOCKET maxfd;
+#endif
+};
+
+SocketSet::SocketSet()
+{
+	CE_STATIC_ASSERT(sizeof(_data) >= sizeof(*_priv));
+	_priv = new (_data) SocketSetPrivate();
+
+	FD_ZERO(&_priv->fdset);
+#if CROWN_PLATFORM_POSIX
+	_priv->maxfd = INVALID_SOCKET;
+#endif
+}
+
+SocketSet& SocketSet::operator=(const SocketSet& other)
+{
+	_priv->fdset = other._priv->fdset;
+#if CROWN_PLATFORM_POSIX
+	_priv->maxfd = other._priv->maxfd;
+#endif
+	return *this;
+}
+
+void SocketSet::set(TCPSocket* socket)
+{
+	FD_SET(socket->_priv->socket, &_priv->fdset);
+#if CROWN_PLATFORM_POSIX
+	if (_priv->maxfd < socket->_priv->socket)
+		_priv->maxfd = socket->_priv->socket;
+#endif
+}
+
+void SocketSet::clr(TCPSocket* socket)
+{
+	FD_CLR(socket->_priv->socket, &_priv->fdset);
+}
+
+bool SocketSet::isset(TCPSocket* socket)
+{
+	return FD_ISSET(socket->_priv->socket, &_priv->fdset) != 0;
+}
+
+u32 SocketSet::num()
+{
+#if CROWN_PLATFORM_POSIX
+	return _priv->maxfd + 1;
+#elif CROWN_PLATFORM_WINDOWS
+	return _priv->fdset.fd_count;
+#endif
+}
+
+TCPSocket SocketSet::get(u32 index)
+{
+	TCPSocket socket;
+#if CROWN_PLATFORM_POSIX
+	CE_ENSURE((int)index < FD_SETSIZE);
+	socket._priv->socket = (int)index;
+#elif CROWN_PLATFORM_WINDOWS
+	CE_ENSURE(index < _priv->fdset.fd_count);
+	socket._priv->socket = _priv->fdset.fd_array[index];
+#endif
+	return socket;
+}
+
+SelectResult SocketSet::select(u32 timeout_ms)
+{
+	struct timeval tv;
+	tv.tv_sec  = timeout_ms / 1000;
+	tv.tv_usec = timeout_ms % 1000 * 1000;
+
+	SelectResult sr;
+	sr.num_ready = 0;
+	int ret = ::select(
+#if CROWN_PLATFORM_POSIX
+		_priv->maxfd + 1
+#elif CROWN_PLATFORM_WINDOWS
+		0 // Ignored: https://docs.microsoft.com/en-us/windows/win32/api/winsock2/nf-winsock2-select
+#endif
+		, &_priv->fdset
+		, NULL
+		, NULL
+		, (timeout_ms == UINT32_MAX) ? NULL : &tv
+		);
+
+	if (ret == SOCKET_ERROR)
+	{
+		sr.error = SelectResult::GENERIC_ERROR;
+	}
+	else if (ret == 0)
+	{
+		sr.error = SelectResult::TIMEOUT;
+	}
+	else
+	{
+		sr.error = SelectResult::SUCCESS;
+		sr.num_ready = ret;
+	}
+
+	return sr;
+}
+
 } // namespace crown
