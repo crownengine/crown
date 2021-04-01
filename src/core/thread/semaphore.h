@@ -34,6 +34,9 @@ struct Semaphore
 
 	///
 	void wait();
+
+	///
+	bool try_wait();
 };
 
 } // namespace crown

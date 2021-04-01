@@ -102,4 +102,34 @@ void Semaphore::wait()
 #endif
 }
 
+bool Semaphore::try_wait()
+{
+#if CROWN_PLATFORM_POSIX
+	pthread_mutex_lock(&_priv->mutex);
+	if (_priv->count == 0)
+	{
+		pthread_mutex_unlock(&_priv->mutex);
+		return false;
+	}
+
+	while (_priv->count <= 0)
+	{
+		int err = pthread_cond_wait(&_priv->cond, &_priv->mutex);
+		CE_ASSERT(err == 0, "pthread_cond_wait: errno = %d", err);
+		CE_UNUSED(err);
+	}
+	_priv->count--;
+	pthread_mutex_unlock(&_priv->mutex);
+	return true;
+#elif CROWN_PLATFORM_WINDOWS
+	DWORD err = WaitForSingleObject(_priv->handle, 0u);
+	if (err == WAIT_OBJECT_0)
+		return true;
+	else if (err == WAIT_TIMEOUT)
+		return false;
+	CE_FATAL("WaitForSingleObject: GetLastError = %d", GetLastError());
+	return false;
+#endif
+}
+
 } // namespace crown
