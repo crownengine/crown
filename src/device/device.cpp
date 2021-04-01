@@ -219,6 +219,7 @@ Device::Device(const DeviceOptions& opts, ConsoleServer& cs)
 	, _height(0)
 	, _quit(false)
 	, _paused(false)
+	, _needs_draw(true)
 {
 	list::init_head(_worlds);
 }
@@ -432,6 +433,8 @@ void Device::run()
 	u16 old_height = _height;
 	s64 time_last = time::now();
 
+	_needs_draw = !_options._pumped;
+
 	while (!process_events(_boot_config.vsync) && !_quit)
 	{
 		const s64 time = time::now();
@@ -440,6 +443,10 @@ void Device::run()
 
 		profiler_globals::clear();
 		_console_server->update();
+
+		if (CE_UNLIKELY(!_needs_draw))
+			continue;
+		_needs_draw = !_options._pumped;
 
 		RECORD_FLOAT("device.dt", dt);
 		RECORD_FLOAT("device.fps", 1.0f/dt);

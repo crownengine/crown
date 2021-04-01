@@ -39,6 +39,7 @@ static void help(const char* msg = NULL)
 		"  --wait-console                  Wait for a console connection before booting the engine.\n"
 		"  --parent-window <handle>        Set the parent window <handle> of the main window.\n"
 		"  --server                        Run the engine in server mode.\n"
+		"  --pumped                        Do not advance the renderer unless explicitly requested via console.\n"
 		"\n"
 		"Complete documentation available at https://dbartolini.github.io/crown/html/v" CROWN_VERSION "\n"
 	);
@@ -61,6 +62,7 @@ DeviceOptions::DeviceOptions(Allocator& a, int argc, const char** argv)
 	, _do_compile(false)
 	, _do_continue(false)
 	, _server(false)
+	, _pumped(false)
 	, _parent_window(0)
 	, _console_port(CROWN_DEFAULT_CONSOLE_PORT)
 	, _window_x(0)
@@ -148,6 +150,8 @@ int DeviceOptions::parse(bool* quit)
 			return EXIT_FAILURE;
 		}
 	}
+
+	_pumped = cl.has_option("pumped");
 
 	if (!_data_dir.empty())
 	{

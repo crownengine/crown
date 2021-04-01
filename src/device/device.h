@@ -61,6 +61,7 @@ struct Device
 
 	bool _quit;
 	bool _paused;
+	bool _needs_draw;
 
 	bool process_events(bool vsync);
 
