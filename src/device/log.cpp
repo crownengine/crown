@@ -7,7 +7,7 @@
 #include "core/os.h"
 #include "core/platform.h"
 #include "core/strings/string.inl"
-#include "core/strings/string_stream.h"
+#include "core/strings/string_stream.inl"
 #include "core/thread/scoped_mutex.inl"
 #include "device/console_server.h"
 #include "device/log.h"
@@ -36,6 +36,37 @@ namespace log_internal
 		os::log(buf);
 	}
 
+	/// Sends a log message to all clients.
+	static void console_log(LogSeverity::Enum sev, System system, const char* msg)
+	{
+		if (!console_server())
+			return;
+
+		const char* severity_map[] = { "info", "warning", "error" };
+		CE_STATIC_ASSERT(countof(severity_map) == LogSeverity::COUNT);
+
+		TempAllocator4096 ta;
+		StringStream ss(ta);
+
+		ss << "{\"type\":\"message\",\"severity\":\"";
+		ss << severity_map[sev];
+		ss << "\",\"system\":\"";
+		ss << system.name;
+		ss << "\",\"message\":\"";
+
+		// Sanitize msg
+		const char* ch = msg;
+		for (; *ch; ch++)
+		{
+			if (*ch == '"' || *ch == '\\')
+				ss << "\\";
+			ss << *ch;
+		}
+		ss << "\"}";
+
+		console_server()->send(string_stream::c_str(ss));
+	}
+
 	void vlogx(LogSeverity::Enum sev, System system, const char* msg, va_list args)
 	{
 		ScopedMutex sm(s_mutex);
@@ -44,9 +75,7 @@ namespace log_internal
 		vsnprintf(buf, sizeof(buf), msg, args);
 
 		stdout_log(sev, system, buf);
-
-		if (console_server())
-			console_server()->log(sev, system.name, buf);
+		console_log(sev, system, buf);
 	}
 
 	void logx(LogSeverity::Enum sev, System system, const char* msg, ...)
