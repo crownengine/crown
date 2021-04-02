@@ -465,12 +465,52 @@ public class LevelEditorApplication : Gtk.Application
 		_editor_view_overlay.add_overlay(_toolbar);
 
 		_resource_popover = new Gtk.Popover(_toolbar);
-		_resource_popover.delete_event.connect(() => { _resource_popover.hide(); return Gdk.EVENT_STOP; });
+		_resource_popover.key_press_event.connect((ev) => {
+			if (ev.keyval == Gdk.Key.Escape)
+			{
+				// Do not transition-animate (i.e. call hide() instead of popdown()).
+				_resource_popover.hide();
+				return Gdk.EVENT_STOP;
+			}
+
+			return Gdk.EVENT_PROPAGATE;
+		});
+		_resource_popover.button_press_event.connect((ev) => {
+			// Do not transition-animate (i.e. call hide() instead of popdown()).
+			// See: https://gitlab.gnome.org/GNOME/gtk/-/blob/3.22.30/gtk/gtkpopover.c
+			Gtk.Widget child = _resource_popover.get_child();
+			Gtk.Widget event_widget = Gtk.get_event_widget(ev);
+
+			if (child != null && ev.window == event_widget.get_window())
+			{
+				Gtk.Allocation child_alloc;
+				child.get_allocation(out child_alloc);
+
+				if ((int)ev.x < child_alloc.x
+					|| (int)ev.x > child_alloc.x + child_alloc.width
+					|| (int)ev.y < child_alloc.y
+					|| (int)ev.y > child_alloc.y + child_alloc.height
+					)
+				{
+					_resource_popover.hide();
+				}
+			}
+			else if (!event_widget.is_ancestor(_resource_popover))
+			{
+				_resource_popover.hide();
+			}
+
+			return Gdk.EVENT_PROPAGATE;
+		});
+		_resource_popover.delete_event.connect(() => {
+			// Do not destroy the widget.
+			_resource_popover.hide();
+			return Gdk.EVENT_STOP;
+		});
 		_resource_popover.modal = true;
 
 		_resource_chooser = new ResourceChooser(_project, _project_store, true);
 		_resource_chooser.resource_selected.connect(on_resource_browser_resource_selected);
-		_resource_chooser.resource_selected.connect(() => { _resource_popover.hide(); });
 		_resource_popover.add(_resource_chooser);
 
 		_level_tree_view_notebook = new Notebook();
