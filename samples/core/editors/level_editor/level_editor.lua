@@ -1678,11 +1678,15 @@ function LevelEditor:mouse_wheel(delta)
 end
 
 function LevelEditor:mouse_down(x, y)
-	self.tool:mouse_down(x, y)
+	if self._camera:is_idle() then
+		self.tool:mouse_down(x, y)
+	end
 end
 
 function LevelEditor:mouse_up(x, y)
-	self.tool:mouse_up(x, y)
+	if self._camera:is_idle() then
+		self.tool:mouse_up(x, y)
+	end
 end
 
 function LevelEditor:key_down(key)

@@ -142,15 +142,13 @@ public class EditorView : Gtk.EventBox
 			, _mouse_right
 			);
 
+		if (ev.button == Gdk.BUTTON_PRIMARY)
+			s += LevelEditorApi.mouse_up((int)ev.x, (int)ev.y);
+
 		if (camera_modifier_pressed())
 		{
 			if (!_mouse_left || !_mouse_middle || !_mouse_right)
 				s += "LevelEditor:camera_drag_start('idle')";
-		}
-		else
-		{
-			if (ev.button == Gdk.BUTTON_PRIMARY)
-				s += LevelEditorApi.mouse_up((int)ev.x, (int)ev.y);
 		}
 
 		_client.send_script(s);
@@ -182,11 +180,9 @@ public class EditorView : Gtk.EventBox
 			if (_mouse_right)
 				s += "LevelEditor:camera_drag_start('dolly')";
 		}
-		else
-		{
-			if (ev.button == Gdk.BUTTON_PRIMARY)
-				s += LevelEditorApi.mouse_down((int)ev.x, (int)ev.y);
-		}
+
+		if (ev.button == Gdk.BUTTON_PRIMARY)
+			s += LevelEditorApi.mouse_down((int)ev.x, (int)ev.y);
 
 		_client.send_script(s);
 		return Gdk.EVENT_PROPAGATE;
