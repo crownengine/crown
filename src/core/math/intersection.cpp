@@ -9,6 +9,7 @@
 #include "core/math/plane3.inl"
 #include "core/math/sphere.inl"
 #include "core/math/vector3.inl"
+#include <float.h> // FLT_MAX
 
 namespace crown
 {
@@ -56,7 +57,7 @@ f32 ray_sphere_intersection(const Vector3& from, const Vector3& dir, const Spher
 f32 ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x4& tm, const Vector3& half_extents)
 {
 	f32 tmin = 0.0f;
-	f32 tmax = 999999999.9f;
+	f32 tmax = FLT_MAX;
 
 	const Vector3 obb_pos = vector3(tm.t.x, tm.t.y, tm.t.z);
 	const Vector3 delta = obb_pos - from;
@@ -71,8 +72,8 @@ f32 ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x
 			f32 t1 = (e-half_extents.x)/f;
 			f32 t2 = (e+half_extents.x)/f;
 
-			if (t1 > t2) { f32 w=t1;t1=t2;t2=w; }
-
+			if (t1 > t2)
+				exchange(t1, t2);
 			if (t2 < tmax)
 				tmax = t2;
 			if (t1 > tmin)
@@ -99,8 +100,8 @@ f32 ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x
 			f32 t1 = (e-half_extents.y)/f;
 			f32 t2 = (e+half_extents.y)/f;
 
-			if (t1 > t2) { f32 w=t1;t1=t2;t2=w; }
-
+			if (t1 > t2)
+				exchange(t1, t2);
 			if (t2 < tmax)
 				tmax = t2;
 			if (t1 > tmin)
@@ -126,8 +127,8 @@ f32 ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x
 			f32 t1 = (e-half_extents.z)/f;
 			f32 t2 = (e+half_extents.z)/f;
 
-			if (t1 > t2) { f32 w=t1;t1=t2;t2=w; }
-
+			if (t1 > t2)
+				exchange(t1, t2);
 			if (t2 < tmax)
 				tmax = t2;
 			if (t1 > tmin)
@@ -157,7 +158,7 @@ f32 ray_triangle_intersection(const Vector3& from, const Vector3& dir, const Vec
 f32 ray_mesh_intersection(const Vector3& from, const Vector3& dir, const Matrix4x4& tm, const void* vertices, u32 stride, const u16* indices, u32 num)
 {
 	bool hit = false;
-	f32 tmin = 999999999.9f;
+	f32 tmin = FLT_MAX;
 
 	for (u32 i = 0; i < num; i += 3)
 	{
