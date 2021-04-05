@@ -15,7 +15,7 @@ namespace plane3
 	{
 		Plane3 p;
 		p.n = normal;
-		p.d = -dot(normal, point);
+		p.d = dot(normal, point);
 		return p;
 	}
 
@@ -36,7 +36,7 @@ namespace plane3
 
 	inline f32 distance_to_point(const Plane3& p, const Vector3& point)
 	{
-		return dot(p.n, point) + p.d;
+		return dot(p.n, point) - p.d;
 	}
 
 } // namespace plane3

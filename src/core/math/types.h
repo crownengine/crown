@@ -61,7 +61,7 @@ struct OBB
 
 /// 3D Plane.
 /// The form is ax + by + cz + d = 0
-/// where: d = -vector3::dot(n, p)
+/// where: d = vector3::dot(n, p)
 struct Plane3
 {
 	Vector3 n;

@@ -21,7 +21,7 @@ f32 ray_plane_intersection(const Vector3& from, const Vector3& dir, const Plane3
 	if (fequal(den, 0.0f))
 		return -1.0f;
 
-	return (-p.d - num) / den;
+	return (p.d - num) / den;
 }
 
 f32 ray_disc_intersection(const Vector3& from, const Vector3& dir, const Vector3& center, f32 radius, const Vector3& normal)
@@ -224,7 +224,7 @@ bool plane_3_intersection(const Plane3& a, const Plane3& b, const Plane3& c, Vec
 	const Vector3 na = a.n;
 	const Vector3 nb = b.n;
 	const Vector3 nc = c.n;
-	const f32 den    = -dot(cross(na, nb), nc);
+	const f32 den    = dot(cross(na, nb), nc);
 
 	if (fequal(den, 0.0f))
 		return false;
