@@ -17,6 +17,10 @@ Changelog
 * Selection is now correctly restored after Editor View restarts.
 * Fix Editor window title showing incorrect level-changed state.
 
+**Lua API**
+
+* Added ``Math.obb_intersects_frustum()``
+
 0.42.0
 ------
 *05 Mar 2021*

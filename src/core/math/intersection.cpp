@@ -252,4 +252,91 @@ bool sphere_intersects_frustum(const Sphere& s, const Frustum& f)
 	return true;
 }
 
+bool obb_intersects_frustum(const OBB& obb, const Frustum& f)
+{
+	const Vector3 obb_x = vector3(obb.tm.x.x, obb.tm.x.y, obb.tm.x.z);
+	const Vector3 obb_y = vector3(obb.tm.y.x, obb.tm.y.y, obb.tm.y.z);
+	const Vector3 obb_z = vector3(obb.tm.z.x, obb.tm.z.y, obb.tm.z.z);
+	const Vector3 obb_p = vector3(obb.tm.t.x, obb.tm.t.y, obb.tm.t.z);
+
+	const Vector3 bx = obb_x * obb.half_extents.x;
+	const Vector3 by = obb_y * obb.half_extents.y;
+	const Vector3 bz = obb_z * obb.half_extents.z;
+
+	// p3 ---- p2  Front face.
+	//  |      |
+	//  |      |
+	// p0 ---- p1
+	const Vector3 p0 = obb_p - bx - by - bz; // This is min in OBB space.
+	const Vector3 p1 = obb_p + bx - by - bz;
+	const Vector3 p2 = obb_p + bx + by - bz;
+	const Vector3 p3 = obb_p - bx + by - bz;
+
+	// p7 ---- p6  Back face.
+	//  |      |
+	//  |      |
+	// p4 ---- p5
+	const Vector3 p4 = obb_p - bx - by + bz;
+	const Vector3 p5 = obb_p + bx - by + bz;
+	const Vector3 p6 = obb_p + bx + by + bz;
+	const Vector3 p7 = obb_p - bx + by + bz; // This is max in OBB space.
+
+	for (u32 ii = 0; ii < 6; ++ii)
+	{
+		u32 out = 0;
+		if (plane3::distance_to_point(f.planes[ii], p0) < 0.0f)
+			++out;
+		if (plane3::distance_to_point(f.planes[ii], p1) < 0.0f)
+			++out;
+		if (plane3::distance_to_point(f.planes[ii], p2) < 0.0f)
+			++out;
+		if (plane3::distance_to_point(f.planes[ii], p3) < 0.0f)
+			++out;
+		if (plane3::distance_to_point(f.planes[ii], p4) < 0.0f)
+			++out;
+		if (plane3::distance_to_point(f.planes[ii], p5) < 0.0f)
+			++out;
+		if (plane3::distance_to_point(f.planes[ii], p6) < 0.0f)
+			++out;
+		if (plane3::distance_to_point(f.planes[ii], p7) < 0.0f)
+			++out;
+
+		if (out == 8)
+			return false;
+	}
+
+	// Check for false positives.
+	// Compute OBB volume planes. Normals point inside the volume.
+	Plane3 obb_planes[] =
+	{
+		plane3::from_point_and_normal(p0,  obb_z), // Front.
+		plane3::from_point_and_normal(p1, -obb_x), // Right.
+		plane3::from_point_and_normal(p2, -obb_y), // Top.
+		plane3::from_point_and_normal(p3,  obb_x), // Left.
+		plane3::from_point_and_normal(p0,  obb_y), // Bottom.
+		plane3::from_point_and_normal(p4, -obb_z)  // Back.
+	};
+
+	Vector3 frustum_points[8];
+	frustum::vertices(frustum_points, f);
+
+	// For each OBB plane.
+	for (u32 jj = 0; jj < 6; ++jj)
+	{
+		// For each frustum vertex.
+		u32 out = 0;
+		for (u32 ii = 0; ii < 8; ++ii)
+		{
+			if (plane3::distance_to_point(obb_planes[jj], frustum_points[ii]) < 0.0f)
+				++out;
+		}
+
+		if (out == 8)
+			return false;
+	}
+
+	// Inside the frustum.
+	return true;
+}
+
 } // namespace crown

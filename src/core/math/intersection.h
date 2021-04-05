@@ -42,8 +42,8 @@ bool plane_3_intersection(Vector3& ip, const Plane3& a, const Plane3& b, const P
 /// Returns whether the frustum @a f and the sphere @a s intersects.
 bool sphere_intersects_frustum(const Sphere& s, const Frustum& f);
 
-/// Returns whether the frustum @a f and the AABB @a b intersects.
-bool frustum_box_intersection(const Frustum& f, const AABB& b);
+/// Returns whether the OBB @a obb intersects the frustum @a f.
+bool obb_intersects_frustum(const OBB& obb, const Frustum& f);
 
 /// @}
 

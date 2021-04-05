@@ -552,6 +552,26 @@ void load_api(LuaEnvironment& env)
 			stack.push_float(t);
 			return 1;
 		});
+	env.add_module_function("Math", "obb_intersects_frustum", [](lua_State* L)
+		{
+			LuaStack stack(L);
+
+			u32 param_i = 1;
+
+			OBB obb;
+			obb.tm = stack.get_matrix4x4(param_i++);
+			obb.half_extents = stack.get_vector3(param_i++);
+
+			Frustum f;
+			for (u32 ii = 0; ii < countof(f.planes); ++ii)
+			{
+				f.planes[ii].n = stack.get_vector3(param_i++);
+				f.planes[ii].d = stack.get_float(param_i++);
+			}
+
+			stack.push_bool(obb_intersects_frustum(obb, f));
+			return 1;
+		});
 
 	env.add_module_function("Vector3", "x", [](lua_State* L)
 		{

@@ -796,6 +796,11 @@ Math
 	Returns the distance along ray (from, dir) to intersection point with the triangle
 	(v0, v1, v2) or -1.0 if no intersection.
 
+**obb_intersects_frustum** (obb_tm, obb_half_extents, n0, d0, n1, d1, n2, d2, n3, d3, n4, d4, n4, d5) : bool
+	Returns whether the oriented bounding box (obb_tm, obb_half_extents) intersects
+	the frustum defined by the planes ((n0, d0), (n1, d1), ..., (n5, d5)). The
+	planes be given in BRTLNF order, where B = bottom plane, R = right plane etc.
+
 PhysicsWorld
 =============
 
