@@ -143,14 +143,7 @@ void DebugLine::add_frustum(const Matrix4x4& mvp, const Color4& color)
 	frustum::from_matrix(f, mvp);
 
 	Vector3 pt[8];
-	plane_3_intersection(f.plane_near, f.plane_left,   f.plane_top,    pt[0]);
-	plane_3_intersection(f.plane_near, f.plane_top,    f.plane_right,  pt[1]);
-	plane_3_intersection(f.plane_near, f.plane_right,  f.plane_bottom, pt[2]);
-	plane_3_intersection(f.plane_near, f.plane_bottom, f.plane_left,   pt[3]);
-	plane_3_intersection(f.plane_far,  f.plane_left,   f.plane_top,    pt[4]);
-	plane_3_intersection(f.plane_far,  f.plane_top,    f.plane_right,  pt[5]);
-	plane_3_intersection(f.plane_far,  f.plane_right,  f.plane_bottom, pt[6]);
-	plane_3_intersection(f.plane_far,  f.plane_bottom, f.plane_left,   pt[7]);
+	frustum::vertices(pt, f);
 
 	add_line(pt[0], pt[1], color);
 	add_line(pt[1], pt[2], color);

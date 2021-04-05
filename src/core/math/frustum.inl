@@ -22,9 +22,8 @@ namespace frustum
 	/// Returns whether the frustum @a f contains the point @a p.
 	bool contains_point(const Frustum& f, const Vector3& p);
 
-	/// Returns the corner @a index of the frustum @a f.
+	/// Returns the @a vertices of the frustum @a f.
 	/// @note
-	/// Index to corner table:
 	/// 0 = Near bottom left
 	/// 1 = Near bottom right
 	/// 2 = Near top right
@@ -33,7 +32,7 @@ namespace frustum
 	/// 5 = Far bottom right
 	/// 6 = Far top right
 	/// 7 = Far top left
-	Vector3 vertex(const Frustum& f, u32 index);
+	void vertices(Vector3 vertices[8], const Frustum& f);
 
 	/// Returns the AABB enclosing the frustum @a f.
 	AABB to_aabb(const Frustum& f);
@@ -44,66 +43,79 @@ namespace frustum
 {
 	inline void from_matrix(Frustum& f, const Matrix4x4& m)
 	{
-		f.plane_left.n.x   = m.x.w + m.x.x;
-		f.plane_left.n.y   = m.y.w + m.y.x;
-		f.plane_left.n.z   = m.z.w + m.z.x;
-		f.plane_left.d     = m.t.w + m.t.x;
+		f.planes[0].n.x = m.x.w + m.x.y;
+		f.planes[0].n.y = m.y.w + m.y.y;
+		f.planes[0].n.z = m.z.w + m.z.y;
+		f.planes[0].d   = m.t.w + m.t.y;
+		plane3::normalize(f.planes[0]);
 
-		f.plane_right.n.x  = m.x.w - m.x.x;
-		f.plane_right.n.y  = m.y.w - m.y.x;
-		f.plane_right.n.z  = m.z.w - m.z.x;
-		f.plane_right.d    = m.t.w - m.t.x;
+		f.planes[1].n.x = m.x.w - m.x.x;
+		f.planes[1].n.y = m.y.w - m.y.x;
+		f.planes[1].n.z = m.z.w - m.z.x;
+		f.planes[1].d   = m.t.w - m.t.x;
+		plane3::normalize(f.planes[1]);
 
-		f.plane_bottom.n.x = m.x.w + m.x.y;
-		f.plane_bottom.n.y = m.y.w + m.y.y;
-		f.plane_bottom.n.z = m.z.w + m.z.y;
-		f.plane_bottom.d   = m.t.w + m.t.y;
+		f.planes[2].n.x = m.x.w - m.x.y;
+		f.planes[2].n.y = m.y.w - m.y.y;
+		f.planes[2].n.z = m.z.w - m.z.y;
+		f.planes[2].d   = m.t.w - m.t.y;
+		plane3::normalize(f.planes[2]);
 
-		f.plane_top.n.x    = m.x.w - m.x.y;
-		f.plane_top.n.y    = m.y.w - m.y.y;
-		f.plane_top.n.z    = m.z.w - m.z.y;
-		f.plane_top.d      = m.t.w - m.t.y;
+		f.planes[3].n.x = m.x.w + m.x.x;
+		f.planes[3].n.y = m.y.w + m.y.x;
+		f.planes[3].n.z = m.z.w + m.z.x;
+		f.planes[3].d   = m.t.w + m.t.x;
+		plane3::normalize(f.planes[3]);
 
-		f.plane_near.n.x   = m.x.z;
-		f.plane_near.n.y   = m.y.z;
-		f.plane_near.n.z   = m.z.z;
-		f.plane_near.d     = m.t.z;
+		f.planes[4].n.x = m.x.z;
+		f.planes[4].n.y = m.y.z;
+		f.planes[4].n.z = m.z.z;
+		f.planes[4].d   = m.t.z;
+		plane3::normalize(f.planes[4]);
 
-		f.plane_far.n.x    = m.x.w - m.x.z;
-		f.plane_far.n.y    = m.y.w - m.y.z;
-		f.plane_far.n.z    = m.z.w - m.z.z;
-		f.plane_far.d      = m.t.w - m.t.z;
-
-		plane3::normalize(f.plane_left);
-		plane3::normalize(f.plane_right);
-		plane3::normalize(f.plane_bottom);
-		plane3::normalize(f.plane_top);
-		plane3::normalize(f.plane_near);
-		plane3::normalize(f.plane_far);
+		f.planes[5].n.x = m.x.w - m.x.z;
+		f.planes[5].n.y = m.y.w - m.y.z;
+		f.planes[5].n.z = m.z.w - m.z.z;
+		f.planes[5].d   = m.t.w - m.t.z;
+		plane3::normalize(f.planes[5]);
 	}
 
 	inline bool contains_point(const Frustum& f, const Vector3& p)
 	{
-		return !(plane3::distance_to_point(f.plane_left, p) < 0.0f
-			|| plane3::distance_to_point(f.plane_right, p) < 0.0f
-			|| plane3::distance_to_point(f.plane_bottom, p) < 0.0f
-			|| plane3::distance_to_point(f.plane_top, p) < 0.0f
-			|| plane3::distance_to_point(f.plane_near, p) < 0.0f
-			|| plane3::distance_to_point(f.plane_far, p) < 0.0f
+		return !(plane3::distance_to_point(f.planes[3], p) < 0.0f
+			|| plane3::distance_to_point(f.planes[1], p) < 0.0f
+			|| plane3::distance_to_point(f.planes[0], p) < 0.0f
+			|| plane3::distance_to_point(f.planes[2], p) < 0.0f
+			|| plane3::distance_to_point(f.planes[4], p) < 0.0f
+			|| plane3::distance_to_point(f.planes[5], p) < 0.0f
 			);
+	}
+
+	inline void vertices(Vector3 vertices[8], const Frustum& f)
+	{
+		// p3 ---- p2  Front face.
+		//  |      |
+		//  |      |
+		// p0 ---- p1
+		plane_3_intersection(vertices[0], f.planes[4], f.planes[0], f.planes[3]);
+		plane_3_intersection(vertices[1], f.planes[4], f.planes[0], f.planes[1]);
+		plane_3_intersection(vertices[2], f.planes[4], f.planes[2], f.planes[1]);
+		plane_3_intersection(vertices[3], f.planes[4], f.planes[2], f.planes[3]);
+
+		// p7 ---- p6  Back face.
+		//  |      |
+		//  |      |
+		// p4 ---- p5
+		plane_3_intersection(vertices[4], f.planes[5], f.planes[0], f.planes[3]);
+		plane_3_intersection(vertices[5], f.planes[5], f.planes[0], f.planes[1]);
+		plane_3_intersection(vertices[6], f.planes[5], f.planes[2], f.planes[1]);
+		plane_3_intersection(vertices[7], f.planes[5], f.planes[2], f.planes[3]);
 	}
 
 	inline AABB to_aabb(const Frustum& f)
 	{
 		Vector3 vertices[8];
-		vertices[0] = vertex(f, 0);
-		vertices[1] = vertex(f, 1);
-		vertices[2] = vertex(f, 2);
-		vertices[3] = vertex(f, 3);
-		vertices[4] = vertex(f, 4);
-		vertices[5] = vertex(f, 5);
-		vertices[6] = vertex(f, 6);
-		vertices[7] = vertex(f, 7);
+		frustum::vertices(vertices, f);
 
 		AABB r;
 		aabb::from_points(r, countof(vertices), vertices);

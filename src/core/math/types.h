@@ -70,12 +70,7 @@ struct Plane3
 
 struct Frustum
 {
-	Plane3 plane_left;
-	Plane3 plane_right;
-	Plane3 plane_bottom;
-	Plane3 plane_top;
-	Plane3 plane_near;
-	Plane3 plane_far;
+	Plane3 planes[6];
 };
 
 struct Sphere

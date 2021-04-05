@@ -37,10 +37,10 @@ f32 ray_triangle_intersection(const Vector3& from, const Vector3& dir, const Vec
 f32 ray_mesh_intersection(const Vector3& from, const Vector3& dir, const Matrix4x4& tm, const void* vertices, u32 stride, const u16* indices, u32 num);
 
 /// Returns whether the planes @a a, @a b and @a c intersects and if so fills @a ip with the intersection point.
-bool plane_3_intersection(const Plane3& a, const Plane3& b, const Plane3& c, Vector3& ip);
+bool plane_3_intersection(Vector3& ip, const Plane3& a, const Plane3& b, const Plane3& c);
 
 /// Returns whether the frustum @a f and the sphere @a s intersects.
-bool frustum_sphere_intersection(const Frustum& f, const Sphere& s);
+bool sphere_intersects_frustum(const Sphere& s, const Frustum& f);
 
 /// Returns whether the frustum @a f and the AABB @a b intersects.
 bool frustum_box_intersection(const Frustum& f, const AABB& b);
