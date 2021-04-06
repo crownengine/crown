@@ -82,13 +82,13 @@ namespace frustum
 
 	inline bool contains_point(const Frustum& f, const Vector3& p)
 	{
-		return !(plane3::distance_to_point(f.planes[3], p) < 0.0f
-			|| plane3::distance_to_point(f.planes[1], p) < 0.0f
-			|| plane3::distance_to_point(f.planes[0], p) < 0.0f
-			|| plane3::distance_to_point(f.planes[2], p) < 0.0f
-			|| plane3::distance_to_point(f.planes[4], p) < 0.0f
-			|| plane3::distance_to_point(f.planes[5], p) < 0.0f
-			);
+		for (u32 ii = 0; ii < 6; ++ii)
+		{
+			if (plane3::distance_to_point(f.planes[ii], p) < 0.0f)
+				return false;
+		}
+
+		return true;
 	}
 
 	inline void vertices(Vector3 vertices[8], const Frustum& f)
