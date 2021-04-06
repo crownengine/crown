@@ -51,12 +51,20 @@ public class LevelEditorWindow : Gtk.ApplicationWindow
 	{
 		LevelEditorApplication app = (LevelEditorApplication)application;
 
+		string str = "";
+
 		if (ev.keyval == Gdk.Key.Control_L)
-			app._editor.send_script(LevelEditorApi.key_down("ctrl_left"));
+			str += LevelEditorApi.key_down("ctrl_left");
 		else if (ev.keyval == Gdk.Key.Shift_L)
-			app._editor.send_script(LevelEditorApi.key_down("shift_left"));
+			str += LevelEditorApi.key_down("shift_left");
 		else if (ev.keyval == Gdk.Key.Alt_L)
-			app._editor.send_script(LevelEditorApi.key_down("alt_left"));
+			str += LevelEditorApi.key_down("alt_left");
+
+		if (str.length != 0)
+		{
+			app._editor.send_script(str);
+			app._editor.send(DeviceApi.frame());
+		}
 
 		return Gdk.EVENT_PROPAGATE;
 	}
@@ -65,12 +73,20 @@ public class LevelEditorWindow : Gtk.ApplicationWindow
 	{
 		LevelEditorApplication app = (LevelEditorApplication)application;
 
+		string str = "";
+
 		if (ev.keyval == Gdk.Key.Control_L)
-			app._editor.send_script(LevelEditorApi.key_up("ctrl_left"));
+			str += LevelEditorApi.key_up("ctrl_left");
 		else if (ev.keyval == Gdk.Key.Shift_L)
-			app._editor.send_script(LevelEditorApi.key_up("shift_left"));
+			str += LevelEditorApi.key_up("shift_left");
 		else if (ev.keyval == Gdk.Key.Alt_L)
-			app._editor.send_script(LevelEditorApi.key_up("alt_left"));
+			str += LevelEditorApi.key_up("alt_left");
+
+		if (str.length != 0)
+		{
+			app._editor.send_script(str);
+			app._editor.send(DeviceApi.frame());
+		}
 
 		return Gdk.EVENT_PROPAGATE;
 	}
@@ -500,6 +516,12 @@ public class LevelEditorApplication : Gtk.Application
 				_resource_popover.hide();
 			}
 
+			return Gdk.EVENT_PROPAGATE;
+		});
+		_resource_popover.events |= Gdk.EventMask.STRUCTURE_MASK; // unmap_event
+		_resource_popover.unmap_event.connect(() => {
+			// Redraw the editor view when the popover is not on-screen anymore.
+			_editor.send(DeviceApi.frame());
 			return Gdk.EVENT_PROPAGATE;
 		});
 		_resource_popover.delete_event.connect(() => {
@@ -957,6 +979,7 @@ public class LevelEditorApplication : Gtk.Application
 		append_editor_state(sb);
 		append_project_state(sb);
 		_editor.send_script(sb.str);
+		_editor.send(DeviceApi.frame());
 	}
 
 	private bool on_button_press(Gdk.EventButton ev)
@@ -1147,6 +1170,7 @@ public class LevelEditorApplication : Gtk.Application
 			, "--parent-window"
 			, window_xid.to_string()
 			, "--wait-console"
+			, "--pumped"
 			, null
 		};
 		GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(subprocess_flags());
@@ -1974,6 +1998,7 @@ public class LevelEditorApplication : Gtk.Application
 		else if (name == "bottom")
 			_editor.send_script("LevelEditor:camera_view_bottom()");
 
+		_editor.send(DeviceApi.frame());
 		action.set_state(param);
 	}
 
@@ -2053,7 +2078,9 @@ public class LevelEditorApplication : Gtk.Application
 			if (_data_compiler.compile.end(res))
 			{
 				_editor.send(DeviceApi.refresh());
+				_editor.send(DeviceApi.frame());
 				_game.send(DeviceApi.refresh());
+				_game.send(DeviceApi.frame());
 			}
 		});
 	}

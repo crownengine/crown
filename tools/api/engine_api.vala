@@ -86,6 +86,11 @@ namespace DeviceApi
 		return "{\"type\":\"resize\",\"width\":%d,\"height\":%d}".printf(width, height);
 	}
 
+	public string frame()
+	{
+		return "{\"type\":\"frame\"}";
+	}
+
 }
 
 namespace LevelEditorApi

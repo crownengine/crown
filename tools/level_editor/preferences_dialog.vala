@@ -123,11 +123,13 @@ public class PreferencesDialog : Gtk.Dialog
 		_application._editor.send_script(LevelEditorApi.set_color("axis_y", _axis_y_color_button.value));
 		_application._editor.send_script(LevelEditorApi.set_color("axis_z", _axis_z_color_button.value));
 		_application._editor.send_script(LevelEditorApi.set_color("axis_selected", _axis_selected_color_button.value));
+		_application._editor.send(DeviceApi.frame());
 	}
 
 	private void on_gizmo_size_value_changed()
 	{
 		_application._editor.send_script("Gizmo.size = %f".printf(_gizmo_size_spin_button.value));
+		_application._editor.send(DeviceApi.frame());
 	}
 
 	private void on_level_autosave_value_changed()

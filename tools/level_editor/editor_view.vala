@@ -123,10 +123,35 @@ public class EditorView : Gtk.EventBox
 		_socket.realize.connect(on_socket_realized);
 		_socket.plug_removed.connect(on_socket_plug_removed);
 		_socket.set_size_request(128, 128);
+		_socket.events |= Gdk.EventMask.STRUCTURE_MASK;
+		_socket.map_event.connect(() => {
+			device_frame_delayed(16, _client);
+			return Gdk.EVENT_PROPAGATE;
+		});
+		_socket.unmap_event.connect(() => {
+			LevelEditorApplication app = (LevelEditorApplication)((Gtk.Window)this.get_toplevel()).application;
+			device_frame_delayed(16, app._editor);
+			return Gdk.EVENT_PROPAGATE;
+		});
 		this.add(_socket);
 #elif CROWN_PLATFORM_WINDOWS
 		this.realize.connect(on_event_box_realized);
+		this.events |= Gdk.EventMask.STRUCTURE_MASK; // map_event
+		this.map_event.connect(() => {
+			device_frame_delayed(16, _client);
+			return Gdk.EVENT_PROPAGATE;
+		});
 #endif
+	}
+
+	private void device_frame_delayed(uint delay_ms, ConsoleClient client)
+	{
+		// FIXME: find a way to time exactly when it is effective to queue a redraw.
+		// See: https://blogs.gnome.org/jnelson/2010/10/13/those-realize-map-widget-signals/
+		GLib.Timeout.add_full(GLib.Priority.DEFAULT, delay_ms, () => {
+			client.send(DeviceApi.frame());
+			return false;
+		});
 	}
 
 	private bool on_button_release(Gdk.EventButton ev)
@@ -135,7 +160,7 @@ public class EditorView : Gtk.EventBox
 		_mouse_middle = ev.button == Gdk.BUTTON_MIDDLE    ? false : _mouse_middle;
 		_mouse_right  = ev.button == Gdk.BUTTON_SECONDARY ? false : _mouse_right;
 
-		string s = LevelEditorApi.set_mouse_state(_mouse_curr_x
+		string str = LevelEditorApi.set_mouse_state(_mouse_curr_x
 			, _mouse_curr_y
 			, _mouse_left
 			, _mouse_middle
@@ -143,15 +168,19 @@ public class EditorView : Gtk.EventBox
 			);
 
 		if (ev.button == Gdk.BUTTON_PRIMARY)
-			s += LevelEditorApi.mouse_up((int)ev.x, (int)ev.y);
+			str += LevelEditorApi.mouse_up((int)ev.x, (int)ev.y);
 
 		if (camera_modifier_pressed())
 		{
 			if (!_mouse_left || !_mouse_middle || !_mouse_right)
-				s += "LevelEditor:camera_drag_start('idle')";
+				str += "LevelEditor:camera_drag_start('idle')";
 		}
 
-		_client.send_script(s);
+		if (str.length != 0)
+		{
+			_client.send_script(str);
+			_client.send(DeviceApi.frame());
+		}
 		return Gdk.EVENT_PROPAGATE;
 	}
 
@@ -164,7 +193,7 @@ public class EditorView : Gtk.EventBox
 		_mouse_middle = ev.button == Gdk.BUTTON_MIDDLE    ? true : _mouse_middle;
 		_mouse_right  = ev.button == Gdk.BUTTON_SECONDARY ? true : _mouse_right;
 
-		string s = LevelEditorApi.set_mouse_state(_mouse_curr_x
+		string str = LevelEditorApi.set_mouse_state(_mouse_curr_x
 			, _mouse_curr_y
 			, _mouse_left
 			, _mouse_middle
@@ -174,22 +203,28 @@ public class EditorView : Gtk.EventBox
 		if (camera_modifier_pressed())
 		{
 			if (_mouse_left)
-				s += "LevelEditor:camera_drag_start('tumble')";
+				str += "LevelEditor:camera_drag_start('tumble')";
 			if (_mouse_middle)
-				s += "LevelEditor:camera_drag_start('track')";
+				str += "LevelEditor:camera_drag_start('track')";
 			if (_mouse_right)
-				s += "LevelEditor:camera_drag_start('dolly')";
+				str += "LevelEditor:camera_drag_start('dolly')";
 		}
 
 		if (ev.button == Gdk.BUTTON_PRIMARY)
-			s += LevelEditorApi.mouse_down((int)ev.x, (int)ev.y);
+			str += LevelEditorApi.mouse_down((int)ev.x, (int)ev.y);
 
-		_client.send_script(s);
+		if (str.length != 0)
+		{
+			_client.send_script(str);
+			_client.send(DeviceApi.frame());
+		}
 		return Gdk.EVENT_PROPAGATE;
 	}
 
 	private bool on_key_press(Gdk.EventKey ev)
 	{
+		string str = "";
+
 		if (ev.keyval == Gdk.Key.Escape)
 		{
 			LevelEditorApplication app = (LevelEditorApplication)((Gtk.Window)this.get_toplevel()).application;
@@ -197,38 +232,50 @@ public class EditorView : Gtk.EventBox
 		}
 
 		if (ev.keyval == Gdk.Key.Up)
-			_client.send_script("LevelEditor:key_down(\"move_up\")");
+			str += "LevelEditor:key_down(\"move_up\")";
 		if (ev.keyval == Gdk.Key.Down)
-			_client.send_script("LevelEditor:key_down(\"move_down\")");
+			str += "LevelEditor:key_down(\"move_down\")";
 		if (ev.keyval == Gdk.Key.Right)
-			_client.send_script("LevelEditor:key_down(\"move_right\")");
+			str += "LevelEditor:key_down(\"move_right\")";
 		if (ev.keyval == Gdk.Key.Left)
-			_client.send_script("LevelEditor:key_down(\"move_left\")");
+			str += "LevelEditor:key_down(\"move_left\")";
 
 		if (_keys.has_key(ev.keyval))
 		{
 			if (!_keys[ev.keyval])
-				_client.send_script(LevelEditorApi.key_down(key_to_string(ev.keyval)));
+				str += LevelEditorApi.key_down(key_to_string(ev.keyval));
 
 			_keys[ev.keyval] = true;
 		}
 
+		if (str.length != 0)
+		{
+			_client.send_script(str);
+			_client.send(DeviceApi.frame());
+		}
 		return Gdk.EVENT_PROPAGATE;
 	}
 
 	private bool on_key_release(Gdk.EventKey ev)
 	{
+		string str = "";
+
 		if ((ev.keyval == Gdk.Key.Alt_L || ev.keyval == Gdk.Key.Alt_R))
-			_client.send_script("LevelEditor:camera_drag_start('idle')");
+			str += "LevelEditor:camera_drag_start('idle')";
 
 		if (_keys.has_key(ev.keyval))
 		{
 			if (_keys[ev.keyval])
-				_client.send_script(LevelEditorApi.key_up(key_to_string(ev.keyval)));
+				str += LevelEditorApi.key_up(key_to_string(ev.keyval));
 
 			_keys[ev.keyval] = false;
 		}
 
+		if (str.length != 0)
+		{
+			_client.send_script(str);
+			_client.send(DeviceApi.frame());
+		}
 		return Gdk.EVENT_PROPAGATE;
 	}
 
@@ -244,6 +291,7 @@ public class EditorView : Gtk.EventBox
 			, _mouse_right
 			));
 
+		_client.send(DeviceApi.frame());
 		return Gdk.EVENT_PROPAGATE;
 	}
 
@@ -271,6 +319,7 @@ public class EditorView : Gtk.EventBox
 		{
 			_resize_timer_id = GLib.Timeout.add_full(GLib.Priority.DEFAULT, 200, () => {
 				_client.send(DeviceApi.resize(_allocation.width, _allocation.height));
+				_client.send(DeviceApi.frame());
 				_resize_timer_id = 0;
 				return false; // Destroy the timeout.
 			});

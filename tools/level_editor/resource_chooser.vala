@@ -226,6 +226,7 @@ public class ResourceChooser : Gtk.Box
 			, "--console-port"
 			, UNIT_PREVIEW_TCP_PORT.to_string()
 			, "--wait-console"
+			, "--pumped"
 			, null
 		};
 		GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(SubprocessFlags.NONE);
@@ -411,6 +412,7 @@ public class ResourceChooser : Gtk.Box
 				model.get_value(iter, ProjectStore.Column.NAME, out name);
 				model.get_value(iter, ProjectStore.Column.TYPE, out type);
 				_editor.send_script(UnitPreviewApi.set_preview_resource((string)type, (string)name));
+				_editor.send(DeviceApi.frame());
 			}
 		}
 	}

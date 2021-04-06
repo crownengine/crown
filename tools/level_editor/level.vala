@@ -310,6 +310,7 @@ public class Level
 	public void send_selection()
 	{
 		_client.send_script(LevelEditorApi.selection_set(_selection.to_array()));
+		_client.send(DeviceApi.frame());
 	}
 
 	public void set_light(Guid unit_id, Guid component_id, string type, double range, double intensity, double spot_angle, Vector3 color)
@@ -325,6 +326,7 @@ public class Level
 		unit.set_component_property_string (component_id, "type", "light");
 
 		_client.send_script(LevelEditorApi.set_light(unit_id, type, range, intensity, spot_angle, color));
+		_client.send(DeviceApi.frame());
 	}
 
 	public void set_mesh(Guid unit_id, Guid component_id, string mesh_resource, string geometry, string material, bool visible)
@@ -339,6 +341,7 @@ public class Level
 		unit.set_component_property_string(component_id, "type", "mesh_renderer");
 
 		_client.send_script(LevelEditorApi.set_mesh(unit_id, 0 /*instance_id*/, material, visible));
+		_client.send(DeviceApi.frame());
 	}
 
 	public void set_sprite(Guid unit_id, Guid component_id, double layer, double depth, string material, string sprite_resource, bool visible)
@@ -354,6 +357,7 @@ public class Level
 		unit.set_component_property_string(component_id, "type", "sprite_renderer");
 
 		_client.send_script(LevelEditorApi.set_sprite(unit_id, material, layer, depth, visible));
+		_client.send(DeviceApi.frame());
 	}
 
 	public void set_camera(Guid unit_id, Guid component_id, string projection, double fov, double near_range, double far_range)
@@ -368,6 +372,7 @@ public class Level
 		unit.set_component_property_string(component_id, "type", "camera");
 
 		_client.send_script(LevelEditorApi.set_camera(unit_id, projection, fov, near_range, far_range));
+		_client.send(DeviceApi.frame());
 	}
 
 	public void set_collider(Guid unit_id, Guid component_id, string shape, string scene, string name)
@@ -380,7 +385,7 @@ public class Level
 		unit.set_component_property_string(component_id, "data.name", name);
 		unit.set_component_property_string(component_id, "type", "collider");
 
-		// No synchronization
+		// No synchronization.
 	}
 
 	public void set_actor(Guid unit_id, Guid component_id, string class, string collision_filter, string material, double mass)
@@ -400,7 +405,7 @@ public class Level
 		unit.set_component_property_bool  (component_id, "data.lock_translation_z", (bool)unit.get_component_property_bool(component_id, "data.lock_translation_z"));
 		unit.set_component_property_string(component_id, "type", "actor");
 
-		// No synchronization
+		// No synchronization.
 	}
 
 	public void set_script(Guid unit_id, Guid component_id, string script_resource)
@@ -410,6 +415,8 @@ public class Level
 		Unit unit = new Unit(_db, unit_id);
 		unit.set_component_property_string(component_id, "data.script_resource", script_resource);
 		unit.set_component_property_string(component_id, "type", "script");
+
+		// No synchronization.
 	}
 
 	public void set_animation_state_machine(Guid unit_id, Guid component_id, string state_machine_resource)
@@ -419,6 +426,8 @@ public class Level
 		Unit unit = new Unit(_db, unit_id);
 		unit.set_component_property_string(component_id, "data.state_machine_resource", state_machine_resource);
 		unit.set_component_property_string(component_id, "type", "animation_state_machine");
+
+		// No synchronization.
 	}
 
 	public void set_sound(Guid sound_id, string name, double range, double volume, bool loop)
@@ -431,6 +440,7 @@ public class Level
 		_db.set_property_bool  (sound_id, "loop", loop);
 
 		_client.send_script(LevelEditorApi.set_sound_range(sound_id, range));
+		_client.send(DeviceApi.frame());
 	}
 
 	public string object_editor_name(Guid object_id)
@@ -454,6 +464,7 @@ public class Level
 		StringBuilder sb = new StringBuilder();
 		generate_spawn_unit_commands(ids, sb);
 		_client.send_script(sb.str);
+		_client.send(DeviceApi.frame());
 	}
 
 	private void send_spawn_sounds(Guid[] ids)
@@ -461,6 +472,7 @@ public class Level
 		StringBuilder sb = new StringBuilder();
 		generate_spawn_sound_commands(ids, sb);
 		_client.send_script(sb.str);
+		_client.send(DeviceApi.frame());
 	}
 
 	private void send_spawn_objects(Guid[] ids)
@@ -478,6 +490,7 @@ public class Level
 			}
 		}
 		_client.send_script(sb.str);
+		_client.send(DeviceApi.frame());
 	}
 
 	private void send_destroy_objects(Guid[] ids)
@@ -487,6 +500,7 @@ public class Level
 			sb.append(LevelEditorApi.destroy(id));
 
 		_client.send_script(sb.str);
+		_client.send(DeviceApi.frame());
 	}
 
 	private void send_move_objects(Guid[] ids, Vector3[] positions, Quaternion[] rotations, Vector3[] scales)
@@ -496,6 +510,7 @@ public class Level
 			sb.append(LevelEditorApi.move_object(ids[i], positions[i], rotations[i], scales[i]));
 
 		_client.send_script(sb.str);
+		_client.send(DeviceApi.frame());
 	}
 
 	public void send_level()
@@ -526,6 +541,7 @@ public class Level
 		_client.send_script(sb.str);
 
 		send_selection();
+		_client.send(DeviceApi.frame());
 	}
 
 	private void generate_spawn_unit_commands(Guid[] unit_ids, StringBuilder sb)

@@ -197,6 +197,11 @@ static void device_message_resize(ConsoleServer& /*cs*/, u32 /*client_id*/, cons
 	device()->_window->resize((u16)width, (u16)height);
 }
 
+static void device_message_frame(ConsoleServer& /*cs*/, u32 /*client_id*/, const char* /*json*/, void* user_data)
+{
+	((Device*)user_data)->_needs_draw = true;
+}
+
 Device::Device(const DeviceOptions& opts, ConsoleServer& cs)
 	: _allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP)
 	, _options(opts)
@@ -285,6 +290,7 @@ void Device::run()
 	_console_server->register_command_name("unpause", "Resume the engine", device_command_unpause, this);
 	_console_server->register_command_name("refresh", "Reload all changed resources", device_command_refresh, this);
 	_console_server->register_message_type("resize", device_message_resize, this);
+	_console_server->register_message_type("frame", device_message_frame, this);
 
 	_console_server->listen(_options._console_port, _options._wait_console);
 

@@ -9,6 +9,10 @@ Changelog
 
 * Windows: fixed garbage data written past EOF in some circumnstances.
 
+**Runtime**
+
+* Added --pumped mode to skip rendering of frames unless explicitly requested.
+
 **Tools**
 
 * Windows: fixed wrong Editor View window size.
@@ -16,6 +20,7 @@ Changelog
 * Added hyperlinks to resource paths in the Console.
 * Selection is now correctly restored after Editor View restarts.
 * Fix Editor window title showing incorrect level-changed state.
+* Reduced CPU & GPU usage by launching Editor Views with --pumped runtime.
 
 **Lua API**
 
