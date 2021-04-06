@@ -46,37 +46,37 @@ namespace frustum
 		f.planes[0].n.x = m.x.w + m.x.y;
 		f.planes[0].n.y = m.y.w + m.y.y;
 		f.planes[0].n.z = m.z.w + m.z.y;
-		f.planes[0].d   = m.t.w + m.t.y;
+		f.planes[0].d = -(m.t.w + m.t.y);
 		plane3::normalize(f.planes[0]);
 
 		f.planes[1].n.x = m.x.w - m.x.x;
 		f.planes[1].n.y = m.y.w - m.y.x;
 		f.planes[1].n.z = m.z.w - m.z.x;
-		f.planes[1].d   = m.t.w - m.t.x;
+		f.planes[1].d = -(m.t.w - m.t.x);
 		plane3::normalize(f.planes[1]);
 
 		f.planes[2].n.x = m.x.w - m.x.y;
 		f.planes[2].n.y = m.y.w - m.y.y;
 		f.planes[2].n.z = m.z.w - m.z.y;
-		f.planes[2].d   = m.t.w - m.t.y;
+		f.planes[2].d = -(m.t.w - m.t.y);
 		plane3::normalize(f.planes[2]);
 
 		f.planes[3].n.x = m.x.w + m.x.x;
 		f.planes[3].n.y = m.y.w + m.y.x;
 		f.planes[3].n.z = m.z.w + m.z.x;
-		f.planes[3].d   = m.t.w + m.t.x;
+		f.planes[3].d = -(m.t.w + m.t.x);
 		plane3::normalize(f.planes[3]);
 
 		f.planes[4].n.x = m.x.z;
 		f.planes[4].n.y = m.y.z;
 		f.planes[4].n.z = m.z.z;
-		f.planes[4].d   = m.t.z;
+		f.planes[4].d = -(m.t.z);
 		plane3::normalize(f.planes[4]);
 
 		f.planes[5].n.x = m.x.w - m.x.z;
 		f.planes[5].n.y = m.y.w - m.y.z;
 		f.planes[5].n.z = m.z.w - m.z.z;
-		f.planes[5].d   = m.t.w - m.t.z;
+		f.planes[5].d = -(m.t.w - m.t.z);
 		plane3::normalize(f.planes[5]);
 	}
 
