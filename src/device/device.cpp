@@ -168,22 +168,22 @@ struct BgfxAllocator : public bx::AllocatorI
 	}
 };
 
-static void device_command_pause(ConsoleServer& /*cs*/, TCPSocket& /*client*/, JsonArray& /*args*/, void* /*user_data*/)
+static void device_command_pause(ConsoleServer& /*cs*/, u32 /*client_id*/, JsonArray& /*args*/, void* /*user_data*/)
 {
 	device()->pause();
 }
 
-static void device_command_unpause(ConsoleServer& /*cs*/, TCPSocket& /*client*/, JsonArray& /*args*/, void* /*user_data*/)
+static void device_command_unpause(ConsoleServer& /*cs*/, u32 /*client_id*/, JsonArray& /*args*/, void* /*user_data*/)
 {
 	device()->unpause();
 }
 
-static void device_command_refresh(ConsoleServer& /*cs*/, TCPSocket& /*client*/, JsonArray& /*args*/, void* /*user_data*/)
+static void device_command_refresh(ConsoleServer& /*cs*/, u32 /*client_id*/, JsonArray& /*args*/, void* /*user_data*/)
 {
 	device()->refresh();
 }
 
-static void device_message_resize(ConsoleServer& /*cs*/, TCPSocket& /*client*/, const char* json, void* /*user_data*/)
+static void device_message_resize(ConsoleServer& /*cs*/, u32 /*client_id*/, const char* json, void* /*user_data*/)
 {
 	TempAllocator256 ta;
 	JsonObject obj(ta);
@@ -442,7 +442,7 @@ void Device::run()
 		time_last = time;
 
 		profiler_globals::clear();
-		_console_server->update();
+		_console_server->execute_message_handlers(_options._pumped);
 
 		if (CE_UNLIKELY(!_needs_draw))
 			continue;
