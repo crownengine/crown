@@ -12,6 +12,7 @@ Changelog
 **Runtime**
 
 * Added --pumped mode to skip rendering of frames unless explicitly requested.
+* Fixed the creation of uniforms with ``matrix4x4`` type.
 
 **Tools**
 

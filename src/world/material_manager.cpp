@@ -14,6 +14,16 @@
 
 namespace crown
 {
+static const bgfx::UniformType::Enum s_bgfx_uniform_type[] =
+{
+	bgfx::UniformType::Vec4, // UniformType::FLOAT
+	bgfx::UniformType::Vec4, // UniformType::VECTOR2
+	bgfx::UniformType::Vec4, // UniformType::VECTOR3
+	bgfx::UniformType::Vec4, // UniformType::VECTOR4
+	bgfx::UniformType::Mat4  // UniformType::MATRIX4X4
+};
+CE_STATIC_ASSERT(countof(s_bgfx_uniform_type) == UniformType::COUNT);
+
 MaterialManager::MaterialManager(Allocator& a, ResourceManager& rm)
 	: _allocator(&a)
 	, _resource_manager(&rm)
@@ -61,7 +71,7 @@ void MaterialManager::online(StringId64 id, ResourceManager& rm)
 	{
 		UniformData* ud    = uniform_data(mr, i);
 		UniformHandle* uh  = uniform_handle(mr, i, base);
-		uh->uniform_handle = bgfx::createUniform(uniform_name(mr, ud), bgfx::UniformType::Vec4).idx;
+		uh->uniform_handle = bgfx::createUniform(uniform_name(mr, ud), s_bgfx_uniform_type[ud->type]).idx;
 	}
 }
 
