@@ -110,16 +110,15 @@ namespace material_resource_internal
 	{
 		const char* name;
 		UniformType::Enum type;
-		u8 size;
 	};
 
 	static const UniformTypeInfo s_uniform_type_info[] =
 	{
-		{ "float",     UniformType::FLOAT,      4 },
-		{ "vector2",   UniformType::VECTOR2,    8 },
-		{ "vector3",   UniformType::VECTOR3,   12 },
-		{ "vector4",   UniformType::VECTOR4,   16 },
-		{ "matrix4x4", UniformType::MATRIX4X4, 64 }
+		{ "float",     UniformType::FLOAT     },
+		{ "vector2",   UniformType::VECTOR2   },
+		{ "vector3",   UniformType::VECTOR3   },
+		{ "vector4",   UniformType::VECTOR4   },
+		{ "matrix4x4", UniformType::MATRIX4X4 }
 	};
 	CE_STATIC_ASSERT(countof(s_uniform_type_info) == UniformType::COUNT);
 
@@ -153,7 +152,7 @@ namespace material_resource_internal
 	static u32 reserve_dynamic_data(Array<char>& dynamic, T data)
 	{
 		u32 offt = array::size(dynamic);
-		array::push(dynamic, (char*) &data, sizeof(data));
+		array::push(dynamic, (char*)&data, sizeof(data));
 		return offt;
 	}
 
@@ -242,15 +241,39 @@ namespace material_resource_internal
 			switch (ud.type)
 			{
 			case UniformType::FLOAT:
-				reserve_dynamic_data(dynamic, sjson::parse_float(uniform["value"]));
+				{
+					const f32 value = sjson::parse_float(uniform["value"]);
+					Vector4 data;
+					data.x = value;
+					data.y = 0.0f;
+					data.z = 0.0f;
+					data.w = 0.0f;
+					reserve_dynamic_data(dynamic, data);
+				}
 				break;
 
 			case UniformType::VECTOR2:
-				reserve_dynamic_data(dynamic, sjson::parse_vector2(uniform["value"]));
+				{
+					const Vector2 value = sjson::parse_vector2(uniform["value"]);
+					Vector4 data;
+					data.x = value.x;
+					data.y = value.y;
+					data.z = 0.0f;
+					data.w = 0.0f;
+					reserve_dynamic_data(dynamic, data);
+				}
 				break;
 
 			case UniformType::VECTOR3:
-				reserve_dynamic_data(dynamic, sjson::parse_vector3(uniform["value"]));
+				{
+					const Vector3 value = sjson::parse_vector3(uniform["value"]);
+					Vector4 data;
+					data.x = value.x;
+					data.y = value.y;
+					data.z = value.z;
+					data.w = 0.0f;
+					reserve_dynamic_data(dynamic, data);
+				}
 				break;
 
 			case UniformType::VECTOR4:

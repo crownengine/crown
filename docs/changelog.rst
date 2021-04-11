@@ -8,6 +8,7 @@ Changelog
 **Data Compiler**
 
 * Windows: fixed garbage data written past EOF in some circumnstances.
+* Fixed uniform data compilation in materials.
 
 **Runtime**
 
