@@ -197,3 +197,13 @@ end
 function Camera:is_idle()
 	return self._move_callback == nil
 end
+
+function Camera:near_clip_distance()
+	local camera = self:camera()
+	return World.camera_near_clip_distance(self._world, camera)
+end
+
+function Camera:far_clip_distance()
+	local camera = self:camera()
+	return World.camera_far_clip_distance(self._world, camera)
+end

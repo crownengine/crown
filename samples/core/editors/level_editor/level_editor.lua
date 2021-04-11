@@ -447,6 +447,23 @@ function UnitBox:on_selected(selected)
 	self._selected = selected
 end
 
+-- Returns the Oriented Bounding-Box of the unit.
+function UnitBox:obb()
+	local rw = LevelEditor._rw
+
+	local mesh = RenderWorld.mesh_instance(rw, self._unit_id)
+	if mesh then
+		return RenderWorld.mesh_obb(rw, mesh)
+	end
+
+	local sprite = RenderWorld.sprite_instance(rw, self._unit_id)
+	if sprite then
+		return RenderWorld.sprite_obb(rw, sprite)
+	end
+
+	return Matrix4x4.identity(), Vector3(1, 1, 1)
+end
+
 function UnitBox:raycast(pos, dir)
 	local rw = LevelEditor._rw
 	local mesh = RenderWorld.mesh_instance(rw, self._unit_id)
@@ -605,6 +622,11 @@ function SoundObject:on_selected(selected)
 	self._selected = selected
 end
 
+function SoundObject:obb()
+	local rw = LevelEditor._rw
+	return RenderWorld.mesh_obb(rw, RenderWorld.mesh_instance(rw, self._unit_id))
+end
+
 function SoundObject:raycast(pos, dir)
 	local rw = LevelEditor._rw
 	local mesh = RenderWorld.mesh_instance(rw, self._unit_id)
@@ -630,6 +652,9 @@ end
 SelectTool = class(SelectTool)
 
 function SelectTool:init()
+	self._cursor_start = Vector3Box(Vector3.zero())
+	self._selected_ids_start = {}
+	self._state = "idle"
 end
 
 function SelectTool:update(dt, x, y)
@@ -639,28 +664,184 @@ function SelectTool:mouse_move(x, y)
 end
 
 function SelectTool:mouse_down(x, y)
+	self._cursor_start:store(Vector3(x, y, 0))
+
 	local pos, dir = LevelEditor:camera():camera_ray(x, y)
+	local obj, _ = raycast(LevelEditor._objects, pos, dir)
 
-	local selected_object, t = raycast(LevelEditor._objects, pos, dir)
-
-	if selected_object ~= nil then
+	-- If clicked on empty space.
+	if obj == nil then
 		if not LevelEditor:multiple_selection_enabled() then
 			LevelEditor._selection:clear()
+			LevelEditor._selection:send()
 		end
-		if LevelEditor._selection:has(selected_object:id()) then
-			LevelEditor._selection:remove(selected_object:id())
-		else
-			LevelEditor._selection:add(selected_object:id())
-		end
-		LevelEditor._selection:send()
-	else
-		LevelEditor._selection:clear()
-		LevelEditor._selection:send()
 	end
+
+	-- Store a copy of the current selection.
+	self._selected_ids_start = {}
+	for k, v in pairs(LevelEditor._selection._ids) do
+		self._selected_ids_start[v] = 1
+	end
+
+	-- Always start with "ray" selection.
+	self._state = "ray"
 end
 
 function SelectTool:mouse_up(x, y)
+	if self._state == "ray" then
+		local pos, dir = LevelEditor:camera():camera_ray(x, y)
+		local obj, _ = raycast(LevelEditor._objects, pos, dir)
+
+		-- If an object intersected.
+		if obj ~= nil then
+			if LevelEditor:multiple_selection_enabled() then
+				-- If the object was not selected at mouse_down() time.
+				if self._selected_ids_start[obj:id()] == nil then
+					LevelEditor._selection:add(obj:id())
+				else
+					LevelEditor._selection:remove(obj:id())
+				end
+			else
+				LevelEditor._selection:clear()
+				LevelEditor._selection:add(obj:id())
+			end
+		end
+	end
+
+	self._state = "idle"
 	LevelEditor._selection:send()
+end
+
+function SelectTool:mouse_move(x, y)
+	local cursor_start = self._cursor_start:unbox()
+	local cursor_end   = Vector3(x, y, 0)
+
+	if self._state == "ray" then
+		-- Safety margin to exclude accidental movements.
+		if Vector3.distance(cursor_end, cursor_start) > 6 then
+			self._state = "box"
+		end
+	elseif self._state == "box" then
+		local rect_start = Vector3.min(cursor_start, cursor_end)
+		local rect_end   = Vector3.max(cursor_start, cursor_end) + Vector3(1, 1, 0)
+		local rect_size  = rect_end - rect_start
+
+		-- Tests which objects intersect the frusum (n0, d0), ... (n5, d5) and
+		-- adds/removes them to/from the selection.
+		local function objects_in_frustum(n0, d0, n1, d1, n2, d2, n3, d3, n4, d4, n5, d5)
+			for k, obj in pairs(LevelEditor._objects) do
+				local obb_tm, obb_he = obj:obb()
+				local obj_intersects = Math.obb_intersects_frustum(obb_tm, obb_he, n0, d0, n1, d1, n2, d2, n3, d3, n4, d4, n5, d5)
+
+				if obj_intersects then
+					if LevelEditor:multiple_selection_enabled() then
+						-- If the object was not selected at mouse_down() time.
+						if self._selected_ids_start[obj:id()] == nil then
+							LevelEditor._selection:add(obj:id())
+						else
+							LevelEditor._selection:remove(obj:id())
+						end
+					else
+						LevelEditor._selection:add(obj:id())
+					end
+				else
+					if LevelEditor:multiple_selection_enabled() then
+						-- If the object was not selected at mouse_down() time.
+						if self._selected_ids_start[obj:id()] == nil then
+							LevelEditor._selection:remove(obj:id())
+						else
+							LevelEditor._selection:add(obj:id())
+						end
+					else
+						LevelEditor._selection:remove(obj:id())
+					end
+				end
+			end
+		end
+
+		-- Compute the sub-frustum.
+		--
+		-- p3 ---- p2
+		--  |       |
+		--  |       |
+		-- p0 ---- p1
+		local p0, rd0 = LevelEditor:camera():camera_ray(rect_start.x, rect_end.y)
+		local p1, rd1 = LevelEditor:camera():camera_ray(rect_end.x  , rect_end.y)
+		local p2, rd2 = LevelEditor:camera():camera_ray(rect_end.x  , rect_start.y)
+		local p3, rd3 = LevelEditor:camera():camera_ray(rect_start.x, rect_start.y)
+
+		local camera_near = LevelEditor:camera():near_clip_distance()
+		local camera_far = LevelEditor:camera():far_clip_distance()
+
+		-- Compute volume planes. Normals point inside the volume.
+		if LevelEditor:camera():is_orthographic() then
+			local camera_pose = LevelEditor:camera():local_pose()
+			local camera_xaxis = Matrix4x4.x(camera_pose)
+			local camera_yaxis = Matrix4x4.y(camera_pose)
+
+			local n0 = camera_yaxis
+			local d0 = Vector3.dot(n0, p0)
+			local n1 = -camera_xaxis
+			local d1 = Vector3.dot(n1, p1)
+			local n2 = -camera_yaxis
+			local d2 = Vector3.dot(n2, p2)
+			local n3 = camera_xaxis
+			local d3 = Vector3.dot(n3, p3)
+			local n4 = Matrix4x4.z(LevelEditor:camera():local_pose())
+			local d4 = Vector3.dot(n4, p0)
+			local n5 = -Matrix4x4.z(LevelEditor:camera():local_pose())
+			local d5 = Vector3.dot(n5, p0 + rd0 * camera_far)
+
+			objects_in_frustum(n0, d0, n1, d1, n2, d2, n3, d3, n4, d4, n5, d5)
+		else
+			local n0 = Vector3.normalize(Vector3.cross(rd0, rd1))
+			local d0 = Vector3.dot(n0, p0)
+			local n1 = Vector3.normalize(Vector3.cross(rd1, rd2))
+			local d1 = Vector3.dot(n1, p1)
+			local n2 = Vector3.normalize(Vector3.cross(rd2, rd3))
+			local d2 = Vector3.dot(n2, p2)
+			local n3 = Vector3.normalize(Vector3.cross(rd3, rd0))
+			local d3 = Vector3.dot(n3, p3)
+			local n4 = Matrix4x4.z(LevelEditor:camera():local_pose())
+			local d4 = Vector3.dot(n4, p0)
+			local n5 = -Matrix4x4.z(LevelEditor:camera():local_pose())
+			local d5 = Vector3.dot(n5, p0 + rd0 * (camera_far-camera_near))
+
+			objects_in_frustum(n0, d0, n1, d1, n2, d2, n3, d3, n4, d4, n5, d5)
+		end
+
+		-- Draw the selection rectangle.
+		local fill_color = Color4(50, 180, 10, 50)
+		local border_color = Color4(50, 180, 10, 200)
+		-- Invert y-coord due to Gui having origin at bottom-left corner.
+		local resol_x, resol_y = Device.resolution()
+		local gui_rect_start = Vector3(rect_start.x, resol_y - rect_start.y - rect_size.y, 0)
+		Gui.rect(LevelEditor._screen_gui
+			, gui_rect_start
+			, rect_size
+			, fill_color
+			)
+		Gui.rect(LevelEditor._screen_gui
+			, gui_rect_start
+			, Vector3(rect_size.x, 1, 0)
+			, border_color
+			)
+		Gui.rect(LevelEditor._screen_gui
+			, gui_rect_start + Vector3(rect_size.x, 0, 0)
+			, Vector3(1, rect_size.y, 0)
+			, border_color
+			)
+		Gui.rect(LevelEditor._screen_gui
+			, gui_rect_start + Vector3(0, rect_size.y, 0)
+			, Vector3(rect_size.x, 1, 0)
+			, border_color
+			)
+		Gui.rect(LevelEditor._screen_gui
+			, gui_rect_start
+			, Vector3(1, rect_size.y, 0)
+			, border_color
+			)
+	end
 end
 
 PlaceTool = class(PlaceTool)
@@ -1591,6 +1772,7 @@ function LevelEditor:init()
 	self._snap_mode = "relative"
 	self._reference_system = "local"
 	self._spawn_height = 0.0
+	self._screen_gui = World.create_screen_gui(self._world)
 
 	self.select_tool = SelectTool()
 	self.place_tool = PlaceTool()
@@ -1600,7 +1782,7 @@ function LevelEditor:init()
 	self.tool = self.place_tool
 	self.debug = false
 
-	-- Spawn camera
+	-- Adjust camera position and orientation.
 	local pos = Vector3(20, 20, -20)
 	local zero_pos = Vector3.zero() - pos
 	local len = math.abs(Vector3.length(zero_pos))
@@ -1655,6 +1837,7 @@ function LevelEditor:render(dt)
 end
 
 function LevelEditor:shutdown()
+	World.destroy_gui(self._world, self._screen_gui)
 	World.destroy_debug_line(self._world, self._lines)
 	World.destroy_debug_line(self._world, self._lines_no_depth)
 	Device.destroy_world(self._world)

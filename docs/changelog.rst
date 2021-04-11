@@ -23,6 +23,7 @@ Changelog
 * Selection is now correctly restored after Editor View restarts.
 * Fix Editor window title showing incorrect level-changed state.
 * Reduced CPU & GPU usage by launching Editor Views with --pumped runtime.
+* Added multi-selection support.
 
 **Lua API**
 
