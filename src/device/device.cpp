@@ -629,6 +629,7 @@ void Device::render(World& world, UnitId camera_unit)
 	bgfx::setViewFrameBuffer(VIEW_DEBUG, _pipeline->_frame_buffer);
 	bgfx::setViewFrameBuffer(VIEW_GUI, _pipeline->_frame_buffer);
 	bgfx::setViewFrameBuffer(VIEW_GRAPH, _pipeline->_frame_buffer);
+	bgfx::setViewFrameBuffer(VIEW_BLIT, BGFX_INVALID_HANDLE);
 
 	bgfx::touch(VIEW_SPRITE_0);
 	bgfx::touch(VIEW_SPRITE_1);

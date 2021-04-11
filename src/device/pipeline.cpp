@@ -50,8 +50,8 @@ void screenSpaceQuad(float _textureWidth, float _textureHeight, float _texelHalf
 
 		const float minx = -_width;
 		const float maxx =  _width;
-		const float miny = 0.0f;
-		const float maxy = _height*2.0f;
+		const float miny =  _height;
+		const float maxy = -_height;
 
 		const float texelHalfW = _texelHalf/_textureWidth;
 		const float texelHalfH = _texelHalf/_textureHeight;
@@ -73,11 +73,11 @@ void screenSpaceQuad(float _textureWidth, float _textureHeight, float _texelHalf
 			maxv -= 1.0f;
 		}
 
-		vertex[0].m_x = minx;
-		vertex[0].m_y = miny;
+		vertex[0].m_x = maxx;
+		vertex[0].m_y = maxy;
 		vertex[0].m_z = zz;
-		vertex[0].m_u = minu;
-		vertex[0].m_v = minv;
+		vertex[0].m_u = maxu;
+		vertex[0].m_v = maxv;
 
 		vertex[1].m_x = maxx;
 		vertex[1].m_y = miny;
@@ -85,11 +85,11 @@ void screenSpaceQuad(float _textureWidth, float _textureHeight, float _texelHalf
 		vertex[1].m_u = maxu;
 		vertex[1].m_v = minv;
 
-		vertex[2].m_x = maxx;
-		vertex[2].m_y = maxy;
+		vertex[2].m_x = minx;
+		vertex[2].m_y = miny;
 		vertex[2].m_z = zz;
-		vertex[2].m_u = maxu;
-		vertex[2].m_v = maxv;
+		vertex[2].m_u = minu;
+		vertex[2].m_v = minv;
 
 		bgfx::setVertexBuffer(0, &tvb);
 	}
@@ -152,16 +152,8 @@ void Pipeline::render(ShaderManager& sm, StringId32 program, uint8_t view, uint1
 	const bgfx::Caps* caps = bgfx::getCaps();
 
 	f32 ortho[16];
-	bx::mtxOrtho(ortho, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 100.0f, 0.0f, caps->homogeneousDepth);
+	bx::mtxOrtho(ortho, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 100.0f, 0.0f, caps->homogeneousDepth);
 
-	bgfx::setViewClear(view
-		, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH | BGFX_CLEAR_STENCIL
-		, 0x353839ff
-		, 1.0f
-		, 0
-		);
-
-	bgfx::setViewFrameBuffer(view, BGFX_INVALID_HANDLE);
 	bgfx::setViewRect(view, 0, 0, width, height);
 	bgfx::setViewTransform(view, NULL, ortho);
 
@@ -174,7 +166,7 @@ void Pipeline::render(ShaderManager& sm, StringId32 program, uint8_t view, uint1
 		;
 	bgfx::setTexture(0, _tex_color, _buffers[0], samplerFlags);
 	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
-	sm.submit(program, view, 0, BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A);
+	sm.submit(program, view, 0, UINT64_MAX);
 }
 
 } // namespace crown

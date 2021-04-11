@@ -39,6 +39,16 @@ render_states = {
 		cull_mode = "cw"
 	}
 
+	gui_noblend = {
+		rgb_write_enable = true
+		alpha_write_enable = true
+		depth_write_enable = false
+		depth_enable = false
+		depth_func = "lequal"
+		blend_enable = false
+		cull_mode = "cw"
+	}
+
 	sprite = {
 		rgb_write_enable = true
 		alpha_write_enable = true
@@ -470,7 +480,7 @@ shaders = {
 
 	blit = {
 		bgfx_shader = "blit"
-		render_state = "gui"
+		render_state = "gui_noblend"
 	}
 
 	fallback = {
