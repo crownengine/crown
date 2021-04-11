@@ -2899,16 +2899,6 @@ void load_api(LuaEnvironment& env)
 				);
 			return 0;
 		});
-	env.add_module_function("DebugLine", "add_unit", [](lua_State* L)
-		{
-			LuaStack stack(L);
-			stack.get_debug_line(1)->add_unit(*device()->_resource_manager
-				, stack.get_matrix4x4(2)
-				, stack.get_resource_name(3)
-				, stack.get_color4(4)
-				);
-			return 0;
-		});
 	env.add_module_function("DebugLine", "reset", [](lua_State* L)
 		{
 			LuaStack stack(L);

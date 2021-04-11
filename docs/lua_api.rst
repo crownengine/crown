@@ -48,9 +48,6 @@ DebugLine
 **add_frustum** (debug_line, mvp, color)
 	Adds a frustum defined by *mvp*.
 
-**add_unit** (debug_line, tm, name, color)
-	Adds the meshes from the unit *name*.
-
 **reset** (debug_line)
 	Resets all the lines.
 

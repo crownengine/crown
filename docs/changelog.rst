@@ -28,6 +28,7 @@ Changelog
 **Lua API**
 
 * Added ``Math.obb_intersects_frustum()``
+* Removed ``DebugLine.add_unit()``
 
 0.42.0
 ------

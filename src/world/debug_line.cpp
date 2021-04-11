@@ -201,51 +201,6 @@ void DebugLine::add_mesh(const Matrix4x4& tm, const void* vertices, u32 stride, 
 	}
 }
 
-void DebugLine::add_unit(ResourceManager& rm, const Matrix4x4& tm, StringId64 name, const Color4& color)
-{
-	const UnitResource& ur = *(const UnitResource*)rm.get(RESOURCE_TYPE_UNIT, name);
-
-	const ComponentData* component = unit_resource::component_type_data(&ur, NULL);
-	for (u32 cc = 0; cc < ur.num_component_types; ++cc)
-	{
-		const u32* unit_index = unit_resource::component_unit_index(component);
-		const char* data = unit_resource::component_payload(component);
-
-		if (component->type == COMPONENT_TYPE_MESH_RENDERER)
-		{
-			const MeshRendererDesc* mrd = (const MeshRendererDesc*)data;
-			for (u32 i = 0; i < component->num_instances; ++i, ++mrd)
-			{
-				const MeshResource* mr = (const MeshResource*)rm.get(RESOURCE_TYPE_MESH, mrd->mesh_resource);
-				const MeshGeometry* mg = mr->geometry(mrd->geometry_name);
-
-				add_mesh(tm
-					, mg->vertices.data
-					, mg->vertices.stride
-					, (u16*)mg->indices.data
-					, mg->indices.num
-					, color
-					);
-			}
-		}
-		else if (component->type == COMPONENT_TYPE_SPRITE_RENDERER)
-		{
-			const SpriteRendererDesc* srd = (const SpriteRendererDesc*)data;
-			for (u32 i = 0; i < component->num_instances; ++i, ++srd)
-			{
-				const SpriteResource* sr = (const SpriteResource*)rm.get(RESOURCE_TYPE_SPRITE, srd->sprite_resource);
-
-				add_obb(sr->obb.tm*tm
-					, sr->obb.half_extents
-					, color
-					);
-			}
-		}
-
-		component = unit_resource::component_type_data(&ur, component);
-	}
-}
-
 void DebugLine::reset()
 {
 	_num = 0;
