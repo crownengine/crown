@@ -256,18 +256,19 @@ bgfx_shaders = {
 				vec3 l = u_light_direction.xyz;
 
 				float nl = max(0.0, dot(n, l));
-				vec4 light_diffuse = nl * toLinearAccurate(u_light_color) * u_light_intensity.x;
+				vec3 light_diffuse = nl * toLinearAccurate(u_light_color.rgb) * u_light_intensity.x;
 
-				vec4 color = max(u_diffuse * light_diffuse, u_ambient);
+				vec3 color = max(u_diffuse.rgb * light_diffuse, u_ambient.rgb);
 		#else
-				vec4 color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+				vec3 color = vec3(1.0f, 1.0f, 1.0f);
 		#endif // !defined(NO_LIGHT)
 
 		#ifdef DIFFUSE_MAP
-				gl_FragColor = color * texture2D(u_albedo, v_texcoord0);
+				gl_FragColor.rgb = color * texture2D(u_albedo, v_texcoord0).rgb;
 		#else
-				gl_FragColor = color;
+				gl_FragColor.rgb = color;
 		#endif // DIFFUSE_MAP
+				gl_FragColor.a = 1.0;
 			}
 		"""
 	}
