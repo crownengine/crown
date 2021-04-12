@@ -6,6 +6,7 @@
 #pragma once
 
 #include "core/containers/types.h"
+#include "core/functional.inl"
 #include "core/memory/memory.inl"
 #include <string.h> // memcpy
 
