@@ -29,6 +29,7 @@ Changelog
 
 * Added ``Math.obb_intersects_frustum()``
 * Removed ``DebugLine.add_unit()``
+* Fixed ``World.camera_screen_to_world()`` returning incorrect z-axis values on Windows/D3D.
 
 0.42.0
 ------

@@ -436,10 +436,15 @@ Vector3 World::camera_screen_to_world(CameraInstance camera, const Vector3& pos)
 	Matrix4x4 mvp = world_inv * projection;
 	invert(mvp);
 
+	const bgfx::Caps* caps = bgfx::getCaps();
+
 	Vector4 ndc;
 	ndc.x = (2.0f * (pos.x - 0.0f)) / _camera[camera.i].view_width - 1.0f;
 	ndc.y = (2.0f * (_camera[camera.i].view_height - pos.y)) / _camera[camera.i].view_height - 1.0f;
-	ndc.z = (2.0f * pos.z) - 1.0f;
+	ndc.z = caps->homogeneousDepth
+		? (2.0f * pos.z) - 1.0f
+		: pos.z
+		;
 	ndc.w = 1.0f;
 
 	Vector4 tmp = ndc * mvp;
