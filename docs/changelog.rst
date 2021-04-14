@@ -30,6 +30,7 @@ Changelog
 * Added ``Math.obb_intersects_frustum()``
 * Removed ``DebugLine.add_unit()``
 * Fixed ``World.camera_screen_to_world()`` returning incorrect z-axis values on Windows/D3D.
+* ``print()`` will now try to detect the type of the lightuserdata and print it accordingly.
 
 0.42.0
 ------

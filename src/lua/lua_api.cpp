@@ -186,7 +186,7 @@ static int quaternion_to_string(lua_State* L)
 {
 	LuaStack stack(L);
 	char buf[256];
-	stack.push_string(to_string(stack.get_quaternion(1), buf, sizeof(buf)));
+	stack.push_string(to_string(buf, sizeof(buf), stack.get_quaternion(1)));
 	return 1;
 }
 
@@ -760,7 +760,7 @@ void load_api(LuaEnvironment& env)
 		{
 			LuaStack stack(L);
 			char buf[256];
-			stack.push_string(to_string(stack.get_vector3(1), buf, sizeof(buf)));
+			stack.push_string(to_string(buf, sizeof(buf), stack.get_vector3(1)));
 			return 1;
 		});
 	env.add_module_metafunction("Vector3", "__call", [](lua_State* L)
@@ -962,7 +962,7 @@ void load_api(LuaEnvironment& env)
 		{
 			LuaStack stack(L);
 			char buf[1024];
-			stack.push_string(to_string(stack.get_matrix4x4(1), buf, sizeof(buf)));
+			stack.push_string(to_string(buf, sizeof(buf), stack.get_matrix4x4(1)));
 			return 1;
 		});
 	env.add_module_metafunction("Matrix4x4", "__call", [](lua_State* L)
@@ -1292,6 +1292,63 @@ void load_api(LuaEnvironment& env)
 			}
 
 			return 0;
+		});
+	env.add_module_metafunction("Lightuserdata_mt", "__tostring", [](lua_State* L)
+		{
+			LuaStack stack(L);
+			if (stack.is_vector3(1))
+			{
+				char buf[256];
+				to_string(buf, sizeof(buf), stack.get_vector3(1));
+				stack.push_fstring("Vector3: %s", buf);
+			}
+			else if (stack.is_quaternion(1))
+			{
+				char buf[256];
+				to_string(buf, sizeof(buf), stack.get_quaternion(1));
+				stack.push_fstring("Quaternion: %s", buf);
+			}
+			else if (stack.is_matrix4x4(1))
+			{
+				char buf[1024];
+				to_string(buf, sizeof(buf), stack.get_matrix4x4(1));
+				stack.push_fstring("Matrix4x4: %s", buf);
+			}
+			else if (stack.is_unit(1))
+			{
+				stack.push_fstring("UnitId: %u", stack.get_unit(1)._idx);
+			}
+			else
+			{
+				const void* ptr = stack.get_pointer(1);
+				const u32 marker = *(u32*)ptr;
+
+				if (marker == DEBUG_LINE_MARKER)
+					stack.push_fstring("DebugLine: %p", ptr);
+				else if (marker == DEBUG_GUI_MARKER)
+					stack.push_fstring("DebugGui: %p", ptr);
+				else if (marker == LEVEL_MARKER)
+					stack.push_fstring("Level: %p", ptr);
+				else if (marker == RENDER_WORLD_MARKER)
+					stack.push_fstring("RenderWorld: %p", ptr);
+				else if (marker == RESOURCE_PACKAGE_MARKER)
+					stack.push_fstring("ResourcePackage: %p", ptr);
+				else if (marker == SCENE_GRAPH_MARKER)
+					stack.push_fstring("SceneGraph: %p", ptr);
+				else if (marker == WORLD_MARKER)
+					stack.push_fstring("World: %p", ptr);
+				else if (marker == SCRIPT_WORLD_MARKER)
+					stack.push_fstring("ScriptWorld: %p", ptr);
+				else if (marker == SOUND_WORLD_MARKER)
+					stack.push_fstring("SoundWorld: %p", ptr);
+				else if (marker == PHYSICS_WORLD_MARKER)
+					stack.push_fstring("PhysicsWorld: %p", ptr);
+				else if (marker == ANIMATION_STATE_MACHINE_MARKER)
+					stack.push_fstring("AnimationStateMachine: %p", ptr);
+				else
+					stack.push_fstring("lightuserdata: %p", ptr);
+			}
+			return 1;
 		});
 
 #define KEYBOARD(name)                                                          \

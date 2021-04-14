@@ -212,7 +212,7 @@ inline Quaternion lerp(const Quaternion& a, const Quaternion& b, f32 t)
 /// Returns a string representing the quaternion @q.
 /// @note This function is for debugging purposes only and doesn't
 /// output round-trip safe ASCII conversions. Do not use in production.
-const char* to_string(const Quaternion& q, char* buf, u32 buf_len);
+const char* to_string(char* buf, u32 buf_len, const Quaternion& q);
 
 // @}
 

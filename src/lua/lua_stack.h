@@ -152,6 +152,9 @@ struct LuaStack
 	AnimationStateMachine* get_animation_state_machine(int i);
 
 	///
+	bool is_unit(int i);
+
+	///
 	UnitId get_unit(int i);
 
 	///

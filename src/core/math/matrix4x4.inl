@@ -410,7 +410,7 @@ inline const f32* to_float_ptr(const Matrix4x4& m)
 /// Returns a string representing the matrix @m.
 /// @note This function is for debugging purposes only and doesn't
 /// output round-trip safe ASCII conversions. Do not use in production.
-const char* to_string(const Matrix4x4& m, char* buf, u32 buf_len);
+const char* to_string(char* buf, u32 buf_len, const Matrix4x4& m);
 
 /// @}
 

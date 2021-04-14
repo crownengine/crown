@@ -219,7 +219,7 @@ inline Vector3 to_vector3(const Vector4& a)
 /// Returns a string representing the vector @v.
 /// @note This function is for debugging purposes only and doesn't
 /// output round-trip safe ASCII conversions. Do not use in production.
-const char* to_string(const Vector4& v, char* buf, u32 buf_len);
+const char* to_string(char* buf, u32 buf_len, const Vector4& v);
 
 /// @}
 

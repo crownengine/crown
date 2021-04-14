@@ -237,6 +237,12 @@ inline AnimationStateMachine* LuaStack::get_animation_state_machine(int i)
 	return p;
 }
 
+inline bool LuaStack::is_unit(int i)
+{
+	uintptr_t enc = (uintptr_t)get_pointer(i);
+	return (enc & LIGHTDATA_TYPE_MASK) == LIGHTDATA_UNIT_MARKER;
+}
+
 inline UnitId LuaStack::get_unit(int i)
 {
 	uintptr_t enc = (uintptr_t)get_pointer(i);
