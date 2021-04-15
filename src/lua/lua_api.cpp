@@ -3,6 +3,7 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
+#include "core/containers/hash_set.inl"
 #include "core/guid.h"
 #include "core/math/color4.inl"
 #include "core/math/constants.h"
@@ -2256,6 +2257,17 @@ void load_api(LuaEnvironment& env)
 		{
 			LuaStack stack(L);
 			stack.get_render_world(1)->enable_debug_drawing(stack.get_bool(2));
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "selection", [](lua_State* L)
+		{
+			LuaStack stack(L);
+			RenderWorld* rw = stack.get_render_world(1);
+			UnitId unit = stack.get_unit(2);
+			if (stack.get_bool(3))
+				hash_set::insert(rw->_selection, unit);
+			else
+				hash_set::remove(rw->_selection, unit);
 			return 0;
 		});
 

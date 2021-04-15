@@ -25,6 +25,7 @@ Changelog
 * Fix Editor window title showing incorrect level-changed state.
 * Reduced CPU & GPU usage by launching Editor Views with --pumped runtime.
 * Added multi-selection support.
+* Improved the rendering of the outlines of selected objects.
 
 **Lua API**
 

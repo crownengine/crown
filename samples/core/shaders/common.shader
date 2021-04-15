@@ -150,11 +150,13 @@ bgfx_shaders = {
 
 			struct BgfxISampler2D
 			{
+				SamplerState m_sampler;
 				Texture2D<ivec4> m_texture;
 			};
 
 			struct BgfxUSampler2D
 			{
+				SamplerState m_sampler;
 				Texture2D<uvec4> m_texture;
 			};
 
@@ -338,6 +340,20 @@ bgfx_shaders = {
 				return result;
 			}
 
+			vec2 bgfxTextureSize(BgfxISampler2D _sampler, int _lod)
+			{
+				vec2 result;
+				_sampler.m_texture.GetDimensions(result.x, result.y);
+				return result;
+			}
+
+			vec2 bgfxTextureSize(BgfxUSampler2D _sampler, int _lod)
+			{
+				vec2 result;
+				_sampler.m_texture.GetDimensions(result.x, result.y);
+				return result;
+			}
+
 			vec4 bgfxTextureGather(BgfxSampler2D _sampler, vec2 _coord)
 			{
 				return _sampler.m_texture.GatherRed(_sampler.m_sampler, _coord );
@@ -388,11 +404,13 @@ bgfx_shaders = {
 						uniform Texture2D _name ## Texture : REGISTER(t, _reg); \
 						static BgfxSampler2D _name = { _name ## Sampler, _name ## Texture }
 			#		define ISAMPLER2D(_name, _reg) \
+						uniform SamplerState _name ## Sampler : REGISTER(s, _reg); \
 						uniform Texture2D<ivec4> _name ## Texture : REGISTER(t, _reg); \
-						static BgfxISampler2D _name = { _name ## Texture }
+						static BgfxISampler2D _name = { _name ## Sampler, _name ## Texture }
 			#		define USAMPLER2D(_name, _reg) \
+						uniform SamplerState _name ## Sampler : REGISTER(s, _reg); \
 						uniform Texture2D<uvec4> _name ## Texture : REGISTER(t, _reg); \
-						static BgfxUSampler2D _name = { _name ## Texture }
+						static BgfxUSampler2D _name = { _name ## Sampler, _name ## Texture }
 			#		define sampler2D BgfxSampler2D
 			#		define texture2D(_sampler, _coord) bgfxTexture2D(_sampler, _coord)
 			#		define texture2DBias(_sampler, _coord, _bias) bgfxTexture2DBias(_sampler, _coord, _bias)

@@ -5,6 +5,7 @@
 
 #include "core/containers/array.inl"
 #include "core/containers/hash_map.inl"
+#include "core/containers/hash_set.inl"
 #include "core/list.inl"
 #include "core/math/aabb.h"
 #include "core/math/color4.inl"
@@ -19,6 +20,7 @@
 #include "world/material.h"
 #include "world/material_manager.h"
 #include "world/render_world.h"
+#include "world/shader_manager.h"
 #include "world/unit_manager.h"
 #include <bgfx/bgfx.h>
 
@@ -29,17 +31,36 @@ static void unit_destroyed_callback_bridge(UnitId unit, void* user_ptr)
 	((RenderWorld*)user_ptr)->unit_destroyed_callback(unit);
 }
 
+static void selection_draw_override(UnitId unit_id, RenderWorld* rw)
+{
+	// FIXME: add support to multi-pass shaders and remove this function.
+	if (!hash_set::has(rw->_selection, unit_id))
+	{
+		bgfx::discard();
+		return;
+	}
+
+	Vector4 data;
+	data.x = f32(unit_id._idx);
+	data.y = 0.0f;
+	data.z = 0.0f;
+	data.w = 0.0f;
+	bgfx::setUniform(rw->_u_unit_id, &data);
+
+	rw->_shader_manager->submit(STRING_ID_32("selection", UINT32_C(0xfcb44ca9)), VIEW_SELECTION);
+}
+
 RenderWorld::RenderWorld(Allocator& a, ResourceManager& rm, ShaderManager& sm, MaterialManager& mm, UnitManager& um)
 	: _marker(RENDER_WORLD_MARKER)
-	, _allocator(&a)
 	, _resource_manager(&rm)
 	, _shader_manager(&sm)
 	, _material_manager(&mm)
 	, _unit_manager(&um)
 	, _debug_drawing(false)
-	, _mesh_manager(a)
-	, _sprite_manager(a)
+	, _mesh_manager(a, this)
+	, _sprite_manager(a, this)
 	, _light_manager(a)
+	, _selection(a)
 {
 	_unit_destroy_callback.destroy = unit_destroyed_callback_bridge;
 	_unit_destroy_callback.user_data = this;
@@ -52,17 +73,22 @@ RenderWorld::RenderWorld(Allocator& a, ResourceManager& rm, ShaderManager& sm, M
 	_u_light_color     = bgfx::createUniform("u_light_color", bgfx::UniformType::Vec4);
 	_u_light_range     = bgfx::createUniform("u_light_range", bgfx::UniformType::Vec4);
 	_u_light_intensity = bgfx::createUniform("u_light_intensity", bgfx::UniformType::Vec4);
+
+	// Selection.
+	_u_unit_id = bgfx::createUniform("u_unit_id", bgfx::UniformType::Vec4);
 }
 
 RenderWorld::~RenderWorld()
 {
-	_unit_manager->unregister_destroy_callback(&_unit_destroy_callback);
+	bgfx::destroy(_u_unit_id);
 
 	bgfx::destroy(_u_light_intensity);
 	bgfx::destroy(_u_light_range);
 	bgfx::destroy(_u_light_color);
 	bgfx::destroy(_u_light_direction);
 	bgfx::destroy(_u_light_position);
+
+	_unit_manager->unregister_destroy_callback(&_unit_destroy_callback);
 
 	_mesh_manager.destroy();
 	_sprite_manager.destroy();
@@ -363,8 +389,6 @@ void RenderWorld::update_transforms(const UnitId* begin, const UnitId* end, cons
 
 void RenderWorld::render(const Matrix4x4& view)
 {
-	MeshManager::MeshInstanceData& mid = _mesh_manager._data;
-	SpriteManager::SpriteInstanceData& sid = _sprite_manager._data;
 	LightManager::LightInstanceData& lid = _light_manager._data;
 
 	for (u32 ll = 0; ll < lid.size; ++ll)
@@ -378,109 +402,32 @@ void RenderWorld::render(const Matrix4x4& view)
 		bgfx::setUniform(_u_light_range, &lid.range[ll]);
 		bgfx::setUniform(_u_light_intensity, &lid.intensity[ll]);
 
-		// Render meshes
-		for (u32 i = 0; i < mid.first_hidden; ++i)
-		{
-			bgfx::setTransform(to_float_ptr(mid.world[i]));
-			bgfx::setVertexBuffer(0, mid.mesh[i].vbh);
-			bgfx::setIndexBuffer(mid.mesh[i].ibh);
-
-			_material_manager->get(mid.material[i])->bind(*_resource_manager, *_shader_manager, VIEW_MESH);
-		}
+		_mesh_manager.draw(VIEW_MESH
+			, _resource_manager
+			, _shader_manager
+			, _material_manager
+			);
 	}
 
-	// Render sprites
-	if (sid.first_hidden)
-	{
-		bgfx::VertexLayout layout;
-		layout.begin()
-			.add(bgfx::Attrib::Position,  3, bgfx::AttribType::Float)
-			.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float, false)
-			.end()
-			;
-		bgfx::TransientVertexBuffer tvb;
-		bgfx::allocTransientVertexBuffer(&tvb, 4*sid.first_hidden, layout);
-		bgfx::TransientIndexBuffer tib;
-		bgfx::allocTransientIndexBuffer(&tib, 6*sid.first_hidden);
+	_sprite_manager.draw(VIEW_SPRITE_0
+		, _resource_manager
+		, _shader_manager
+		, _material_manager
+		);
 
-		f32* vdata = (f32*)tvb.data;
-		u16* idata = (u16*)tib.data;
-
-		// Render sprites
-		for (u32 i = 0; i < sid.first_hidden; ++i)
-		{
-			const f32* frame = sprite_resource::frame_data(sid.resource[i], sid.frame[i] % sid.resource[i]->num_frames);
-
-			f32 u0 = frame[ 3]; // u
-			f32 v0 = frame[ 4]; // v
-
-			f32 u1 = frame[ 8]; // u
-			f32 v1 = frame[ 9]; // v
-
-			f32 u2 = frame[13]; // u
-			f32 v2 = frame[14]; // v
-
-			f32 u3 = frame[18]; // u
-			f32 v3 = frame[19]; // v
-
-			if (sid.flip_x[i])
-			{
-				f32 u;
-				u = u0; u0 = u1; u1 = u;
-				u = u2; u2 = u3; u3 = u;
-			}
-
-			if (sid.flip_y[i])
-			{
-				f32 v;
-				v = v0; v0 = v2; v2 = v;
-				v = v1; v1 = v3; v3 = v;
-			}
-
-			vdata[ 0] = frame[ 0]; // x
-			vdata[ 1] = frame[ 1]; // y
-			vdata[ 2] = frame[ 2]; // z
-			vdata[ 3] = u0;
-			vdata[ 4] = v0;
-
-			vdata[ 5] = frame[ 5]; // x
-			vdata[ 6] = frame[ 6]; // y
-			vdata[ 7] = frame[ 7]; // z
-			vdata[ 8] = u1;
-			vdata[ 9] = v1;
-
-			vdata[10] = frame[10]; // x
-			vdata[11] = frame[11]; // y
-			vdata[12] = frame[12]; // z
-			vdata[13] = u2;
-			vdata[14] = v2;
-
-			vdata[15] = frame[15]; // x
-			vdata[16] = frame[16]; // y
-			vdata[17] = frame[17]; // z
-			vdata[18] = u3;
-			vdata[19] = v3;
-
-			vdata += 20;
-
-			*idata++ = i*4+0;
-			*idata++ = i*4+1;
-			*idata++ = i*4+2;
-			*idata++ = i*4+0;
-			*idata++ = i*4+2;
-			*idata++ = i*4+3;
-
-			bgfx::setTransform(to_float_ptr(sid.world[i]));
-			bgfx::setVertexBuffer(0, &tvb);
-			bgfx::setIndexBuffer(&tib, i*6, 6);
-
-			_material_manager->get(sid.material[i])->bind(*_resource_manager
-				, *_shader_manager
-				, sid.layer[i] + VIEW_SPRITE_0
-				, sid.depth[i]
-				);
-		}
-	}
+	// Render outlines.
+	_mesh_manager.draw(VIEW_SELECTION
+		, _resource_manager
+		, _shader_manager
+		, _material_manager
+		, selection_draw_override
+		);
+	_sprite_manager.draw(VIEW_SELECTION
+		, _resource_manager
+		, _shader_manager
+		, _material_manager
+		, selection_draw_override
+		);
 }
 
 void RenderWorld::debug_draw(DebugLine& dl)
@@ -700,6 +647,21 @@ void RenderWorld::MeshManager::destroy()
 	_allocator->deallocate(_data.buffer);
 }
 
+void RenderWorld::MeshManager::draw(u8 view, ResourceManager* rm, ShaderManager* sm, MaterialManager* mm, DrawOverride draw_override)
+{
+	for (u32 ii = 0; ii < _data.first_hidden; ++ii)
+	{
+		bgfx::setTransform(to_float_ptr(_data.world[ii]));
+		bgfx::setVertexBuffer(0, _data.mesh[ii].vbh);
+		bgfx::setIndexBuffer(_data.mesh[ii].ibh);
+
+		if (draw_override)
+			draw_override(_data.unit[ii], _render_world);
+		else
+			mm->get(_data.material[ii])->bind(*rm, *sm, view);
+	}
+}
+
 void RenderWorld::SpriteManager::allocate(u32 num)
 {
 	CE_ENSURE(num > _data.size);
@@ -883,6 +845,107 @@ SpriteInstance RenderWorld::SpriteManager::sprite(UnitId unit)
 void RenderWorld::SpriteManager::destroy()
 {
 	_allocator->deallocate(_data.buffer);
+}
+
+void RenderWorld::SpriteManager::draw(u8 view, ResourceManager* rm, ShaderManager* sm, MaterialManager* mm, DrawOverride draw_override)
+{
+	bgfx::VertexLayout layout;
+	bgfx::TransientVertexBuffer tvb;
+	bgfx::TransientIndexBuffer tib;
+	f32* vdata;
+	u16* idata;
+
+	// Allocate vertex and index buffers.
+	if (_data.first_hidden)
+	{
+		layout.begin()
+			.add(bgfx::Attrib::Position,  3, bgfx::AttribType::Float)
+			.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float, false)
+			.end()
+			;
+		bgfx::allocTransientVertexBuffer(&tvb, 4*_data.first_hidden, layout);
+		bgfx::allocTransientIndexBuffer(&tib, 6*_data.first_hidden);
+
+		vdata = (f32*)tvb.data;
+		idata = (u16*)tib.data;
+
+	}
+
+	// Render all sprites.
+	for (u32 ii = 0; ii < _data.first_hidden; ++ii)
+	{
+		const f32* frame = sprite_resource::frame_data(_data.resource[ii]
+			, _data.frame[ii] % _data.resource[ii]->num_frames
+			);
+
+		f32 u0 = frame[ 3]; // u
+		f32 v0 = frame[ 4]; // v
+
+		f32 u1 = frame[ 8]; // u
+		f32 v1 = frame[ 9]; // v
+
+		f32 u2 = frame[13]; // u
+		f32 v2 = frame[14]; // v
+
+		f32 u3 = frame[18]; // u
+		f32 v3 = frame[19]; // v
+
+		if (_data.flip_x[ii])
+		{
+			f32 u;
+			u = u0; u0 = u1; u1 = u;
+			u = u2; u2 = u3; u3 = u;
+		}
+
+		if (_data.flip_y[ii])
+		{
+			f32 v;
+			v = v0; v0 = v2; v2 = v;
+			v = v1; v1 = v3; v3 = v;
+		}
+
+		vdata[ 0] = frame[ 0]; // x
+		vdata[ 1] = frame[ 1]; // y
+		vdata[ 2] = frame[ 2]; // z
+		vdata[ 3] = u0;
+		vdata[ 4] = v0;
+
+		vdata[ 5] = frame[ 5]; // x
+		vdata[ 6] = frame[ 6]; // y
+		vdata[ 7] = frame[ 7]; // z
+		vdata[ 8] = u1;
+		vdata[ 9] = v1;
+
+		vdata[10] = frame[10]; // x
+		vdata[11] = frame[11]; // y
+		vdata[12] = frame[12]; // z
+		vdata[13] = u2;
+		vdata[14] = v2;
+
+		vdata[15] = frame[15]; // x
+		vdata[16] = frame[16]; // y
+		vdata[17] = frame[17]; // z
+		vdata[18] = u3;
+		vdata[19] = v3;
+
+		vdata += 20;
+
+		*idata++ = ii*4+0;
+		*idata++ = ii*4+1;
+		*idata++ = ii*4+2;
+		*idata++ = ii*4+0;
+		*idata++ = ii*4+2;
+		*idata++ = ii*4+3;
+
+		bgfx::setTransform(to_float_ptr(_data.world[ii]));
+		bgfx::setVertexBuffer(0, &tvb);
+		bgfx::setIndexBuffer(&tib, ii*6, 6);
+
+		if (draw_override)
+			draw_override(_data.unit[ii], _render_world);
+		else
+			mm->get(_data.material[ii])->bind(*rm, *sm, _data.layer[ii] + view, _data.depth[ii]);
+	}
 }
 
 void RenderWorld::LightManager::allocate(u32 num)

@@ -96,58 +96,114 @@ void screenSpaceQuad(float _textureWidth, float _textureHeight, float _texelHalf
 }
 
 Pipeline::Pipeline()
-	: _frame_buffer(BGFX_INVALID_HANDLE)
+	: _main_color_texture(BGFX_INVALID_HANDLE)
+	, _main_depth_texture(BGFX_INVALID_HANDLE)
+	, _main_frame_buffer(BGFX_INVALID_HANDLE)
+	, _main_color_texture_sampler(BGFX_INVALID_HANDLE)
+	, _main_depth_texture_sampler(BGFX_INVALID_HANDLE)
+	, _selection_texture(BGFX_INVALID_HANDLE)
+	, _selection_depth_texture(BGFX_INVALID_HANDLE)
+	, _selection_frame_buffer(BGFX_INVALID_HANDLE)
+	, _selection_texture_sampler(BGFX_INVALID_HANDLE)
+	, _selection_depth_texture_sampler(BGFX_INVALID_HANDLE)
+	, _outline_color_uniform(BGFX_INVALID_HANDLE)
 {
-	for (u32 i = 0; i < countof(_buffers); ++i)
-		_buffers[i] = BGFX_INVALID_HANDLE;
 }
 
 void Pipeline::create(uint16_t width, uint16_t height)
 {
-	PosTexCoord0Vertex::init();
-	_tex_color = bgfx::createUniform("s_texColor", bgfx::UniformType::Sampler);
-
 	reset(width, height);
+
+	_main_color_texture_sampler = bgfx::createUniform("s_color", bgfx::UniformType::Sampler);
+	_main_depth_texture_sampler = bgfx::createUniform("s_main_depth", bgfx::UniformType::Sampler);
+
+	_selection_texture_sampler = bgfx::createUniform("s_selection", bgfx::UniformType::Sampler);
+	_selection_depth_texture_sampler = bgfx::createUniform("s_selection_depth", bgfx::UniformType::Sampler);
+
+	_outline_color_uniform = bgfx::createUniform("u_outline_color", bgfx::UniformType::Vec4);
+
+	PosTexCoord0Vertex::init();
 }
 
 void Pipeline::destroy()
 {
-	bgfx::destroy(_frame_buffer);
-	bgfx::destroy(_buffers[1]);
-	bgfx::destroy(_buffers[0]);
-	bgfx::destroy(_tex_color);
+	bgfx::destroy(_outline_color_uniform);
+
+	bgfx::destroy(_selection_depth_texture_sampler);
+	bgfx::destroy(_selection_texture_sampler);
+
+	bgfx::destroy(_main_depth_texture_sampler);
+	bgfx::destroy(_main_color_texture_sampler);
+
+	bgfx::destroy(_selection_frame_buffer);
+	bgfx::destroy(_selection_depth_texture);
+	bgfx::destroy(_selection_texture);
+
+	bgfx::destroy(_main_frame_buffer);
+	bgfx::destroy(_main_depth_texture);
+	bgfx::destroy(_main_color_texture);
 }
 
 void Pipeline::reset(u16 width, u16 height)
 {
-	for (u32 i = 0; i < countof(_buffers); ++i)
-	{
-		if (bgfx::isValid(_buffers[i]))
-			bgfx::destroy(_buffers[i]);
-	}
-
-	_buffers[0] = bgfx::createTexture2D(width
+	// Create main frame buffer.
+	if (bgfx::isValid(_main_color_texture))
+		bgfx::destroy(_main_color_texture);
+	_main_color_texture = bgfx::createTexture2D(width
 		, height
 		, false
 		, 1
 		, bgfx::TextureFormat::BGRA8
 		, BGFX_TEXTURE_RT
 		);
-	_buffers[1] = bgfx::createTexture2D(width
+	if (bgfx::isValid(_main_depth_texture))
+		bgfx::destroy(_main_depth_texture);
+	_main_depth_texture = bgfx::createTexture2D(width
 		, height
 		, false
 		, 1
 		, bgfx::TextureFormat::D24S8
 		, BGFX_TEXTURE_RT
 		);
+	const bgfx::TextureHandle _main_frame_buffer_attachments[] =
+	{
+		_main_color_texture,
+		_main_depth_texture
+	};
+	if (bgfx::isValid(_main_frame_buffer))
+		bgfx::destroy(_main_frame_buffer);
+	_main_frame_buffer = bgfx::createFrameBuffer(countof(_main_frame_buffer_attachments), _main_frame_buffer_attachments);
 
-	if (bgfx::isValid(_frame_buffer))
-		bgfx::destroy(_frame_buffer);
-
-	_frame_buffer = bgfx::createFrameBuffer(countof(_buffers), _buffers);
+	// Create outline frame buffer.
+	if (bgfx::isValid(_selection_texture))
+		bgfx::destroy(_selection_texture);
+	_selection_texture = bgfx::createTexture2D(width
+		, height
+		, false
+		, 1
+		, bgfx::TextureFormat::R32U
+		, BGFX_TEXTURE_RT
+		);
+	if (bgfx::isValid(_selection_depth_texture))
+		bgfx::destroy(_selection_depth_texture);
+	_selection_depth_texture = bgfx::createTexture2D(width
+		, height
+		, false
+		, 1
+		, bgfx::TextureFormat::D24
+		, BGFX_TEXTURE_RT
+		);
+	const bgfx::TextureHandle _selection_frame_buffer_attachments[] =
+	{
+		_selection_texture,
+		_selection_depth_texture
+	};
+	if (bgfx::isValid(_selection_frame_buffer))
+		bgfx::destroy(_selection_frame_buffer);
+	_selection_frame_buffer = bgfx::createFrameBuffer(countof(_selection_frame_buffer_attachments), _selection_frame_buffer_attachments);
 }
 
-void Pipeline::render(ShaderManager& sm, StringId32 program, uint8_t view, uint16_t width, uint16_t height)
+void Pipeline::render(ShaderManager& sm, StringId32 program, u8 view, u16 width, u16 height)
 {
 	const bgfx::Caps* caps = bgfx::getCaps();
 
@@ -164,9 +220,18 @@ void Pipeline::render(ShaderManager& sm, StringId32 program, uint8_t view, uint1
 		| BGFX_SAMPLER_U_CLAMP
 		| BGFX_SAMPLER_V_CLAMP
 		;
-	bgfx::setTexture(0, _tex_color, _buffers[0], samplerFlags);
+
+	bgfx::setTexture(0, _main_color_texture_sampler, _main_color_texture, samplerFlags);
 	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
 	sm.submit(program, view, 0, UINT64_MAX);
+
+	bgfx::setTexture(0, _selection_texture_sampler, _selection_texture, samplerFlags);
+	bgfx::setTexture(1, _selection_depth_texture_sampler, _selection_depth_texture, samplerFlags);
+	bgfx::setTexture(2, _main_depth_texture_sampler, _main_depth_texture, samplerFlags);
+	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
+	const f32 outline_color[] = { 1.0f, 0.37f, 0.05f, 1.0f };
+	bgfx::setUniform(_outline_color_uniform, outline_color);
+	sm.submit(STRING_ID_32("outline", UINT32_C(0x57fddcc9)), view, 0, UINT64_MAX);
 }
 
 } // namespace crown

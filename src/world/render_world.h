@@ -145,8 +145,13 @@ struct RenderWorld
 	/// Fills @a dl with debug lines
 	void debug_draw(DebugLine& dl);
 
+	///
 	void unit_destroyed_callback(UnitId unit);
 
+	/// Callback to customize drawing of objects.
+	typedef void (*DrawOverride)(UnitId unit_id, RenderWorld* rw);
+
+	/// List of meshes to be rendered.
 	struct MeshManager
 	{
 		struct MeshData
@@ -173,29 +178,59 @@ struct RenderWorld
 		};
 
 		Allocator* _allocator;
+		RenderWorld* _render_world;
 		HashMap<UnitId, u32> _map;
 		MeshInstanceData _data;
 
-		MeshManager(Allocator& a)
+		///
+		MeshManager(Allocator& a, RenderWorld* rw)
 			: _allocator(&a)
+			, _render_world(rw)
 			, _map(a)
 		{
 			memset(&_data, 0, sizeof(_data));
 		}
 
+		///
 		void allocate(u32 num);
+
+		///
 		void grow();
+
+		///
 		MeshInstance create(UnitId unit, const MeshResource* mr, const MeshRendererDesc& mrd, const Matrix4x4& tr);
+
+		///
 		void destroy(MeshInstance mesh);
+
+		///
 		bool has(UnitId unit);
+
+		///
 		void set_visible(MeshInstance mesh, bool visible);
+
+		///
 		MeshInstance mesh(UnitId unit);
+
+		///
 		void destroy();
+
+		///
 		void swap(u32 inst_a, u32 inst_b);
 
+		///
+		void draw(u8 view
+			, ResourceManager* rm
+			, ShaderManager* sm
+			, MaterialManager* mm
+			, DrawOverride draw_override = NULL
+			);
+
+		///
 		MeshInstance make_instance(u32 i) { MeshInstance inst = { i }; return inst; }
 	};
 
+	/// List of meshes to be rendered.
 	struct SpriteManager
 	{
 		struct SpriteInstanceData
@@ -219,26 +254,55 @@ struct RenderWorld
 		};
 
 		Allocator* _allocator;
+		RenderWorld* _render_world;
 		HashMap<UnitId, u32> _map;
 		SpriteInstanceData _data;
 
-		SpriteManager(Allocator& a)
+		///
+		SpriteManager(Allocator& a, RenderWorld* rw)
 			: _allocator(&a)
+			, _render_world(rw)
 			, _map(a)
 		{
 			memset(&_data, 0, sizeof(_data));
 		}
 
+		///
 		SpriteInstance create(UnitId unit, const SpriteResource* sr, const SpriteRendererDesc& srd, const Matrix4x4& tr);
+
+		///
 		void destroy(SpriteInstance sprite);
+
+		///
 		bool has(UnitId unit);
+
+		///
 		void set_visible(SpriteInstance sprite, bool visible);
+
+		///
 		SpriteInstance sprite(UnitId unit);
+
+		///
 		void allocate(u32 num);
+
+		///
 		void grow();
+
+		///
 		void destroy();
+
+		///
 		void swap(u32 inst_a, u32 inst_b);
 
+		///
+		void draw(u8 view
+			, ResourceManager* rm
+			, ShaderManager* sm
+			, MaterialManager* mm
+			, DrawOverride draw_override = NULL
+			);
+
+		///
 		SpriteInstance make_instance(u32 i) { SpriteInstance inst = { i }; return inst; }
 	};
 
@@ -263,6 +327,7 @@ struct RenderWorld
 		HashMap<UnitId, u32> _map;
 		LightInstanceData _data;
 
+		///
 		LightManager(Allocator& a)
 			: _allocator(&a)
 			, _map(a)
@@ -270,16 +335,31 @@ struct RenderWorld
 			memset(&_data, 0, sizeof(_data));
 		}
 
+		///
 		LightInstance create(UnitId unit, const LightDesc& ld, const Matrix4x4& tr);
+
+		///
 		void destroy(LightInstance light);
+
+		///
 		bool has(UnitId unit);
+
+		///
 		LightInstance light(UnitId unit);
+
+		///
 		void debug_draw(u32 start_index, u32 num, DebugLine& dl);
 
+		///
 		void allocate(u32 num);
+
+		///
 		void grow();
+
+		///
 		void destroy();
 
+		///
 		LightInstance make_instance(u32 i) { LightInstance inst = { i }; return inst; }
 	};
 
@@ -302,6 +382,9 @@ struct RenderWorld
 	LightManager _light_manager;
 
 	UnitDestroyCallback _unit_destroy_callback;
+
+	HashSet<UnitId> _selection;
+	bgfx::UniformHandle _u_unit_id;
 };
 
 } // namespace crown

@@ -200,18 +200,6 @@ function draw_world_origin_grid(lines, size, step)
 	Device.set_temp_count(nv, nq, nm)
 end
 
-function draw_mesh_obb(render_world, unit_id, lines)
-	local mesh = RenderWorld.mesh_instance(render_world, unit_id)
-	local tm, hext = RenderWorld.mesh_obb(render_world, mesh)
-	DebugLine.add_obb(lines, tm, hext, Color4(0, 170, 0, 150))
-end
-
-function draw_sprite_obb(render_world, unit_id, lines)
-	local sprite = RenderWorld.sprite_instance(render_world, unit_id)
-	local tm, hext = RenderWorld.sprite_obb(render_world, sprite)
-	DebugLine.add_obb(lines, tm, hext, Color4(0, 170, 0, 150))
-end
-
 function raycast(objects, pos, dir)
 	local object = nil
 	local nearest = math.huge
@@ -445,6 +433,7 @@ end
 
 function UnitBox:on_selected(selected)
 	self._selected = selected
+	RenderWorld.selection(LevelEditor._rw, self._unit_id, selected);
 end
 
 -- Returns the Oriented Bounding-Box of the unit.
@@ -484,16 +473,6 @@ function UnitBox:draw()
 		local light = RenderWorld.light_instance(LevelEditor._rw, self._unit_id)
 		if light then
 			RenderWorld.light_debug_draw(LevelEditor._rw, light, LevelEditor._lines)
-		end
-
-		local mesh = RenderWorld.mesh_instance(LevelEditor._rw, self._unit_id)
-		if mesh then
-			draw_mesh_obb(LevelEditor._rw, self._unit_id, LevelEditor._lines)
-		end
-
-		local sprite = RenderWorld.sprite_instance(LevelEditor._rw, self._unit_id)
-		if sprite then
-			draw_sprite_obb(LevelEditor._rw, self._unit_id, LevelEditor._lines)
 		end
 	end
 end
@@ -620,6 +599,7 @@ end
 
 function SoundObject:on_selected(selected)
 	self._selected = selected
+	RenderWorld.selection(LevelEditor._rw, self._unit_id, selected);
 end
 
 function SoundObject:obb()
@@ -636,7 +616,6 @@ end
 
 function SoundObject:draw()
 	if self._selected then
-		draw_mesh_obb(LevelEditor._rw, self._unit_id, LevelEditor._lines)
 		DebugLine.add_sphere(LevelEditor._lines
 			, self:local_position()
 			, self._range
