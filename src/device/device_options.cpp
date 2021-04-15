@@ -226,6 +226,50 @@ int DeviceOptions::parse(bool* quit)
 	if (ls)
 		_lua_string = ls;
 
+	if (cl.has_option("string-id"))
+	{
+		const char* string_id_bits = cl.get_parameter(0, "string-id");
+		const char* string_id_utf8 = cl.get_parameter(1, "string-id");
+		if (string_id_bits == NULL || string_id_utf8 == NULL)
+		{
+			help("Usage: string-id <bits> <utf8>");
+			*quit = true;
+			return EXIT_FAILURE;
+		}
+		else
+		{
+			u32 bits;
+			if (sscanf(string_id_bits, "%u", &bits) != 1 || (bits != 32 && bits != 64))
+			{
+				help("string-id: bits must be 32 or 64.");
+				*quit = true;
+				return EXIT_FAILURE;
+			}
+
+			char buf[STRING_ID64_BUF_LEN];
+			if (bits == 32)
+			{
+				StringId32 id(string_id_utf8);
+				printf("STRING_ID_32(\"%s\", UINT32_C(0x%s))\n"
+					, string_id_utf8
+					, id.to_string(buf, sizeof(buf))
+					);
+				*quit = true;
+				return EXIT_SUCCESS;
+			}
+			else
+			{
+				StringId64 id(string_id_utf8);
+				printf("STRING_ID_64(\"%s\", UINT64_C(0x%s))\n"
+					, string_id_utf8
+					, id.to_string(buf, sizeof(buf))
+					);
+				*quit = true;
+				return EXIT_SUCCESS;
+			}
+		}
+	}
+
 	return EXIT_SUCCESS;
 }
 
