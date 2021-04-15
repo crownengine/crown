@@ -26,6 +26,9 @@ struct ProxyAllocator : public Allocator
 	/// @copydoc Allocator::deallocate()
 	void deallocate(void* data);
 
+	/// @copydoc Allocator::reallocate().
+	virtual void* reallocate(void* data, u32 size, u32 align = DEFAULT_ALIGN);
+
 	/// @copydoc Allocator::allocated_size()
 	u32 allocated_size(const void* ptr) { return _allocator.allocated_size(ptr); }
 

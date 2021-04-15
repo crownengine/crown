@@ -9,6 +9,7 @@
 #include "core/memory/memory.inl"
 #include "core/thread/scoped_mutex.inl"
 #include <stdlib.h> // malloc
+#include <string.h> // memcpy
 
 // void* operator new(size_t) throw (std::bad_alloc)
 // {
@@ -36,6 +37,15 @@
 
 namespace crown
 {
+void* Allocator::reallocate(void* data, u32 size, u32 align)
+{
+	CE_UNUSED(data);
+	CE_UNUSED(size);
+	CE_UNUSED(align);
+	CE_FATAL("reallocate() not supported.");
+	return NULL;
+}
+
 namespace memory
 {
 	// Header stored at the beginning of a memory allocation to indicate the
@@ -146,6 +156,29 @@ namespace memory
 			_allocation_count--;
 
 			free(h);
+		}
+
+		void* reallocate(void* data, u32 size, u32 align)
+		{
+			if (!data)
+				return allocate((u32)size, (u32)align == 0 ? 16 : (u32)align);
+
+			if (size == 0)
+			{
+				deallocate(data);
+				return NULL;
+			}
+
+			// Figure out the size of data.
+			const Header* data_header = header(data);
+			const char* data_end      = (char*)data_header + data_header->size;
+			const u32 data_size       = u32(data_end - (char*)data);
+
+			// Simulate realloc().
+			void* p = allocate((u32)size, (u32)align == 0 ? 16 : (u32)align);
+			memcpy(p, data, min(data_size, size));
+			deallocate(data);
+			return p;
 		}
 
 		/// @copydoc Allocator::allocated_size()

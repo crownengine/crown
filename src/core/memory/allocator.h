@@ -37,6 +37,9 @@ struct Allocator
 	/// Deallocates a previously allocated block of memory pointed by @a data.
 	virtual void deallocate(void* data) = 0;
 
+	/// See: realloc().
+	virtual void* reallocate(void* data, u32 size, u32 align = DEFAULT_ALIGN);
+
 	/// Returns the size of the memory block pointed by @a ptr or SIZE_NOT_TRACKED
 	/// if the allocator does not support memory tracking.
 	/// @a ptr must be a pointer returned by Allocator::allocate().
