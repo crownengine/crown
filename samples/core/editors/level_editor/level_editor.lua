@@ -790,8 +790,8 @@ function SelectTool:mouse_move(x, y)
 		end
 
 		-- Draw the selection rectangle.
-		local fill_color = Color4(50, 180, 10, 50)
-		local border_color = Color4(50, 180, 10, 200)
+		local fill_color = Color4(140, 140, 140, 20)
+		local border_color = Color4(180, 180, 180, 200)
 		-- Invert y-coord due to Gui having origin at bottom-left corner.
 		local resol_x, resol_y = Device.resolution()
 		local gui_rect_start = Vector3(rect_start.x, resol_y - rect_start.y - rect_size.y, 0)
