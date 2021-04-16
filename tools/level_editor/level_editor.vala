@@ -521,7 +521,7 @@ public class LevelEditorApplication : Gtk.Application
 		_resource_popover.events |= Gdk.EventMask.STRUCTURE_MASK; // unmap_event
 		_resource_popover.unmap_event.connect(() => {
 			// Redraw the editor view when the popover is not on-screen anymore.
-			_editor.send(DeviceApi.frame());
+			device_frame_delayed(16, _editor);
 			return Gdk.EVENT_PROPAGATE;
 		});
 		_resource_popover.delete_event.connect(() => {
@@ -2510,6 +2510,16 @@ public static int wait_process(out int exit_status, GLib.Subprocess? process)
 		loge(e.message);
 		return 1;
 	}
+}
+
+private void device_frame_delayed(uint delay_ms, ConsoleClient client)
+{
+	// FIXME: find a way to time exactly when it is effective to queue a redraw.
+	// See: https://blogs.gnome.org/jnelson/2010/10/13/those-realize-map-widget-signals/
+	GLib.Timeout.add_full(GLib.Priority.DEFAULT, delay_ms, () => {
+		client.send(DeviceApi.frame());
+		return false;
+	});
 }
 
 public static int main(string[] args)

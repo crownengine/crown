@@ -128,11 +128,6 @@ public class EditorView : Gtk.EventBox
 			device_frame_delayed(16, _client);
 			return Gdk.EVENT_PROPAGATE;
 		});
-		_socket.unmap_event.connect(() => {
-			LevelEditorApplication app = (LevelEditorApplication)((Gtk.Window)this.get_toplevel()).application;
-			device_frame_delayed(16, app._editor);
-			return Gdk.EVENT_PROPAGATE;
-		});
 		this.add(_socket);
 #elif CROWN_PLATFORM_WINDOWS
 		this.realize.connect(on_event_box_realized);
@@ -142,16 +137,6 @@ public class EditorView : Gtk.EventBox
 			return Gdk.EVENT_PROPAGATE;
 		});
 #endif
-	}
-
-	private void device_frame_delayed(uint delay_ms, ConsoleClient client)
-	{
-		// FIXME: find a way to time exactly when it is effective to queue a redraw.
-		// See: https://blogs.gnome.org/jnelson/2010/10/13/those-realize-map-widget-signals/
-		GLib.Timeout.add_full(GLib.Priority.DEFAULT, delay_ms, () => {
-			client.send(DeviceApi.frame());
-			return false;
-		});
 	}
 
 	private bool on_button_release(Gdk.EventButton ev)
