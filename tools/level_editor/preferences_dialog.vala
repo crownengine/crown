@@ -39,6 +39,7 @@ public class PreferencesDialog : Gtk.Dialog
 	{
 		this.title = "Preferences";
 		this.border_width = 0;
+		this.set_icon_name(CROWN_ICON_NAME);
 
 		// Data
 		_application = app;

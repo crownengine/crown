@@ -419,7 +419,6 @@ public class LevelEditorApplication : Gtk.Application
 
 		// Widgets
 		_preferences_dialog = new PreferencesDialog(this);
-		_preferences_dialog.set_icon_name(CROWN_ICON_NAME);
 		_preferences_dialog.delete_event.connect(() => { _preferences_dialog.hide(); return Gdk.EVENT_STOP; });
 
 		_combo = new Gtk.ComboBoxText();

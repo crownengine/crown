@@ -130,6 +130,7 @@ public class SpriteImportDialog : Gtk.Dialog
 	{
 		this.border_width = 4;
 		this.title = "Import Sprite...";
+		this.set_icon_name(CROWN_ICON_NAME);
 
 		try
 		{
