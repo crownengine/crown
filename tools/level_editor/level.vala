@@ -748,6 +748,7 @@ public class Level
 					, unit.get_component_property_double (component_id, "data.spot_angle")
 					, unit.get_component_property_vector3(component_id, "data.color")
 					));
+				_client.send(DeviceApi.frame());
 				// FIXME: Hack to force update the properties view
 				selection_changed(_selection);
 			}
@@ -766,6 +767,7 @@ public class Level
 					, unit.get_component_property_string(component_id, "data.material")
 					, unit.get_component_property_bool  (component_id, "data.visible")
 					));
+				_client.send(DeviceApi.frame());
 				// FIXME: Hack to force update the properties view
 				selection_changed(_selection);
 			}
@@ -785,6 +787,7 @@ public class Level
 					, unit.get_component_property_double(component_id, "data.depth")
 					, unit.get_component_property_bool  (component_id, "data.visible")
 					));
+				_client.send(DeviceApi.frame());
 				// FIXME: Hack to force update the properties view
 				selection_changed(_selection);
 			}
@@ -804,6 +807,7 @@ public class Level
 					, unit.get_component_property_double(component_id, "data.near_range")
 					, unit.get_component_property_double(component_id, "data.far_range")
 					));
+				_client.send(DeviceApi.frame());
 				// FIXME: Hack to force update the properties view
 				selection_changed(_selection);
 			}
@@ -824,6 +828,7 @@ public class Level
 				_client.send_script(LevelEditorApi.set_sound_range(sound_id
 					, _db.get_property_double(sound_id, "range")
 					));
+				_client.send(DeviceApi.frame());
 				// FIXME: Hack to force update the properties view
 				selection_changed(_selection);
 			}
