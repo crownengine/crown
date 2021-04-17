@@ -88,12 +88,36 @@ std::unique_ptr<Instruction> InstrumentPass::NewLabel(uint32_t label_id) {
   return newLabel;
 }
 
+uint32_t InstrumentPass::Gen32BitCvtCode(uint32_t val_id,
+                                         InstructionBuilder* builder) {
+  // Convert integer value to 32-bit if necessary
+  analysis::TypeManager* type_mgr = context()->get_type_mgr();
+  uint32_t val_ty_id = get_def_use_mgr()->GetDef(val_id)->type_id();
+  analysis::Integer* val_ty = type_mgr->GetType(val_ty_id)->AsInteger();
+  if (val_ty->width() == 32) return val_id;
+  bool is_signed = val_ty->IsSigned();
+  analysis::Integer val_32b_ty(32, is_signed);
+  analysis::Type* val_32b_reg_ty = type_mgr->GetRegisteredType(&val_32b_ty);
+  uint32_t val_32b_reg_ty_id = type_mgr->GetId(val_32b_reg_ty);
+  if (is_signed)
+    return builder->AddUnaryOp(val_32b_reg_ty_id, SpvOpSConvert, val_id)
+        ->result_id();
+  else
+    return builder->AddUnaryOp(val_32b_reg_ty_id, SpvOpUConvert, val_id)
+        ->result_id();
+}
+
 uint32_t InstrumentPass::GenUintCastCode(uint32_t val_id,
                                          InstructionBuilder* builder) {
-  // Cast value to 32-bit unsigned if necessary
-  if (get_def_use_mgr()->GetDef(val_id)->type_id() == GetUintId())
-    return val_id;
-  return builder->AddUnaryOp(GetUintId(), SpvOpBitcast, val_id)->result_id();
+  // Convert value to 32-bit if necessary
+  uint32_t val_32b_id = Gen32BitCvtCode(val_id, builder);
+  // Cast value to unsigned if necessary
+  analysis::TypeManager* type_mgr = context()->get_type_mgr();
+  uint32_t val_ty_id = get_def_use_mgr()->GetDef(val_32b_id)->type_id();
+  analysis::Integer* val_ty = type_mgr->GetType(val_ty_id)->AsInteger();
+  if (!val_ty->IsSigned()) return val_32b_id;
+  return builder->AddUnaryOp(GetUintId(), SpvOpBitcast, val_32b_id)
+      ->result_id();
 }
 
 void InstrumentPass::GenDebugOutputFieldCode(uint32_t base_offset_id,
@@ -734,7 +758,6 @@ uint32_t InstrumentPass::GetStreamWriteFunctionId(uint32_t stage_idx,
                                        write_blk_id, merge_blk_id, merge_blk_id,
                                        SpvSelectionControlMaskNone);
     // Close safety test block and gen write block
-    new_blk_ptr->SetParent(&*output_func);
     output_func->AddBasicBlock(std::move(new_blk_ptr));
     new_blk_ptr = MakeUnique<BasicBlock>(std::move(write_label));
     builder.SetInsertPoint(&*new_blk_ptr);
@@ -749,13 +772,11 @@ uint32_t InstrumentPass::GetStreamWriteFunctionId(uint32_t stage_idx,
     }
     // Close write block and gen merge block
     (void)builder.AddBranch(merge_blk_id);
-    new_blk_ptr->SetParent(&*output_func);
     output_func->AddBasicBlock(std::move(new_blk_ptr));
     new_blk_ptr = MakeUnique<BasicBlock>(std::move(merge_label));
     builder.SetInsertPoint(&*new_blk_ptr);
     // Close merge block and function and add function to module
     (void)builder.AddNullaryOp(0, SpvOpReturn);
-    new_blk_ptr->SetParent(&*output_func);
     output_func->AddBasicBlock(std::move(new_blk_ptr));
     std::unique_ptr<Instruction> func_end_inst(
         new Instruction(get_module()->context(), SpvOpFunctionEnd, 0, 0, {}));
@@ -836,7 +857,6 @@ uint32_t InstrumentPass::GetDirectReadFunctionId(uint32_t param_cnt) {
       context(), SpvOpReturnValue, 0, 0,
       std::initializer_list<Operand>{{SPV_OPERAND_TYPE_ID, {last_value_id}}}));
   // Close block and function and add function to module
-  new_blk_ptr->SetParent(&*input_func);
   input_func->AddBasicBlock(std::move(new_blk_ptr));
   std::unique_ptr<Instruction> func_end_inst(
       new Instruction(get_module()->context(), SpvOpFunctionEnd, 0, 0, {}));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2021 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
@@ -342,6 +342,11 @@ namespace bx
 	inline BX_CONSTEXPR_FUNC float smoothStep(float _a)
 	{
 		return square(_a)*(3.0f - 2.0f*_a);
+	}
+
+	inline BX_CONST_FUNC float invSmoothStep(float _a)
+	{
+		return 0.5f - sin(asin(1.0f - 2.0f * _a) / 3.0f);
 	}
 
 	inline BX_CONSTEXPR_FUNC float bias(float _time, float _bias)

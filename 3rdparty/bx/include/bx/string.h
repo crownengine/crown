@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2021 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
@@ -251,8 +251,14 @@ namespace bx
 	/// Returns string view with characters _chars trimmed from right.
 	StringView strRTrim(const StringView& _str, const StringView& _chars);
 
+	/// Returns string view with whitespace characters trimmed from right.
+	StringView strRTrimSpace(const StringView& _str);
+
 	/// Returns string view with characters _chars trimmed from left and right.
 	StringView strTrim(const StringView& _str, const StringView& _chars);
+
+	/// Returns string view with whitespace characters trimmed from left and right.
+	StringView strTrimSpace(const StringView& _str);
 
 	/// Find new line. Returns pointer after new line terminator.
 	StringView strFindNl(const StringView& _str);

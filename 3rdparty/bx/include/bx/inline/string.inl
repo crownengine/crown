@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2021 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
@@ -276,7 +276,7 @@ namespace bx
 
 			StringView line(curr.getPtr(), m_curr.getPtr() );
 
-			return strRTrim(line, "\n\r");
+			return strRTrim(strRTrim(line, "\n"), "\r");
 		}
 
 		return m_curr;

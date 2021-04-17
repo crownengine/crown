@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2020 Arm Limited
+ * Copyright 2015-2021 Arm Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,6 +12,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ */
+
+/*
+ * At your option, you may choose to accept this material under either:
+ *  1. The Apache License, Version 2.0, found at <http://www.apache.org/licenses/LICENSE-2.0>, or
+ *  2. The MIT License, found at <http://opensource.org/licenses/MIT>.
+ * SPDX-License-Identifier: Apache-2.0 OR MIT.
  */
 
 #ifndef SPIRV_CROSS_GLSL_HPP
@@ -243,7 +250,6 @@ public:
 	// - Images which are statically used at least once with Dref opcodes.
 	bool variable_is_depth_or_compare(VariableID id) const;
 
-
 protected:
 	struct ShaderSubgroupSupportHelper
 	{
@@ -269,22 +275,22 @@ protected:
 
 		enum Feature
 		{
-			SubgroupMask,
-			SubgroupSize,
-			SubgroupInvocationID,
-			SubgroupID,
-			NumSubgroups,
-			SubgroupBrodcast_First,
-			SubgroupBallotFindLSB_MSB,
-			SubgroupAll_Any_AllEqualBool,
-			SubgroupAllEqualT,
-			SubgroupElect,
-			SubgroupBarrier,
-			SubgroupMemBarrier,
-			SubgroupBallot,
-			SubgroupInverseBallot_InclBitCount_ExclBitCout,
-			SubgroupBallotBitExtract,
-			SubgroupBallotBitCount,
+			SubgroupMask = 0,
+			SubgroupSize = 1,
+			SubgroupInvocationID = 2,
+			SubgroupID = 3,
+			NumSubgroups = 4,
+			SubgroupBroadcast_First = 5,
+			SubgroupBallotFindLSB_MSB = 6,
+			SubgroupAll_Any_AllEqualBool = 7,
+			SubgroupAllEqualT = 8,
+			SubgroupElect = 9,
+			SubgroupBarrier = 10,
+			SubgroupMemBarrier = 11,
+			SubgroupBallot = 12,
+			SubgroupInverseBallot_InclBitCount_ExclBitCout = 13,
+			SubgroupBallotBitExtract = 14,
+			SubgroupBallotBitCount = 15,
 
 			FeatureCount
 		};
@@ -399,6 +405,7 @@ protected:
 		uint32_t coord = 0, coord_components = 0, dref = 0;
 		uint32_t grad_x = 0, grad_y = 0, lod = 0, coffset = 0, offset = 0;
 		uint32_t bias = 0, component = 0, sample = 0, sparse_texel = 0, min_lod = 0;
+		bool nonuniform_expression = false;
 	};
 	virtual std::string to_function_args(const TextureFunctionArguments &args, bool *p_forward);
 
@@ -560,6 +567,8 @@ protected:
 		bool support_small_type_sampling_result = false;
 		bool support_case_fallthrough = true;
 		bool use_array_constructor = false;
+		bool needs_row_major_load_workaround = false;
+		bool support_pointer_to_pointer = false;
 	} backend;
 
 	void emit_struct(SPIRType &type);
@@ -693,6 +702,8 @@ protected:
 	std::string to_pointer_expression(uint32_t id, bool register_expression_read = true);
 	std::string to_enclosed_pointer_expression(uint32_t id, bool register_expression_read = true);
 	std::string to_extract_component_expression(uint32_t id, uint32_t index);
+	std::string to_extract_constant_composite_expression(uint32_t result_type, const SPIRConstant &c,
+	                                                     const uint32_t *chain, uint32_t length);
 	std::string enclose_expression(const std::string &expr);
 	std::string dereference_expression(const SPIRType &expression_type, const std::string &expr);
 	std::string address_of_expression(const std::string &expr);
@@ -703,6 +714,8 @@ protected:
 	std::string type_to_glsl_constructor(const SPIRType &type);
 	std::string argument_decl(const SPIRFunction::Parameter &arg);
 	virtual std::string to_qualifiers_glsl(uint32_t id);
+	void fixup_io_block_patch_qualifiers(const SPIRVariable &var);
+	void emit_output_variable_initializer(const SPIRVariable &var);
 	const char *to_precision_qualifiers_glsl(uint32_t id);
 	virtual const char *to_storage_qualifiers_glsl(const SPIRVariable &var);
 	const char *flags_to_qualifiers_glsl(const SPIRType &type, const Bitset &flags);
@@ -749,8 +762,7 @@ protected:
 
 	void replace_fragment_output(SPIRVariable &var);
 	void replace_fragment_outputs();
-	bool check_explicit_lod_allowed(uint32_t lod);
-	std::string legacy_tex_op(const std::string &op, const SPIRType &imgtype, uint32_t lod, uint32_t id);
+	std::string legacy_tex_op(const std::string &op, const SPIRType &imgtype, uint32_t id);
 
 	uint32_t indent = 0;
 
@@ -784,6 +796,10 @@ protected:
 	// Currently used by NMin/Max/Clamp implementations.
 	std::unordered_map<uint32_t, uint32_t> extra_sub_expressions;
 
+	SmallVector<TypeID> workaround_ubo_load_overload_types;
+	void request_workaround_wrapper_overload(TypeID id);
+	void rewrite_load_for_wrapped_row_major(std::string &expr, TypeID loaded_type, ID ptr);
+
 	uint32_t statement_count = 0;
 
 	inline bool is_legacy() const
@@ -800,6 +816,12 @@ protected:
 	{
 		return !options.es && options.version < 130;
 	}
+
+	bool requires_transpose_2x2 = false;
+	bool requires_transpose_3x3 = false;
+	bool requires_transpose_4x4 = false;
+	bool ray_tracing_is_khr = false;
+	void ray_tracing_khr_fixup_locations();
 
 	bool args_will_forward(uint32_t id, const uint32_t *args, uint32_t num_args, bool pure);
 	void register_call_out_argument(uint32_t id);
@@ -858,6 +880,7 @@ protected:
 	virtual void cast_to_builtin_store(uint32_t target_id, std::string &expr, const SPIRType &expr_type);
 	virtual void cast_from_builtin_load(uint32_t source_id, std::string &expr, const SPIRType &expr_type);
 	void unroll_array_from_complex_load(uint32_t target_id, uint32_t source_id, std::string &expr);
+	bool unroll_array_to_complex_store(uint32_t target_id, uint32_t source_id);
 	void convert_non_uniform_expression(const SPIRType &type, std::string &expr);
 
 	void handle_store_to_invariant_variable(uint32_t store_id, uint32_t value_id);

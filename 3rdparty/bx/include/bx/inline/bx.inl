@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2021 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
@@ -31,6 +31,16 @@ namespace bx
 	inline constexpr bool isTriviallyCopyable()
 	{
 		return __is_trivially_copyable(Ty);
+	}
+
+	template<class Ty>
+	inline Ty* addressOf(Ty& _a)
+	{
+		return reinterpret_cast<Ty*>(
+				&const_cast<char&>(
+					reinterpret_cast<const volatile char&>(_a)
+				)
+			);
 	}
 
 	template<typename Ty>

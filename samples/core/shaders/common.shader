@@ -36,7 +36,7 @@ bgfx_shaders = {
 	common = {
 		code = """
 			/*
-			 * Copyright 2011-2020 Branimir Karadzic. All rights reserved.
+			 * Copyright 2011-2021 Branimir Karadzic. All rights reserved.
 			 * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
 			 */
 
@@ -49,7 +49,7 @@ bgfx_shaders = {
 
 			#ifndef __cplusplus
 
-			#if BGFX_SHADER_LANGUAGE_HLSL > 3
+			#if BGFX_SHADER_LANGUAGE_HLSL > 300
 			#	define BRANCH [branch]
 			#	define LOOP   [loop]
 			#	define UNROLL [unroll]
@@ -57,13 +57,13 @@ bgfx_shaders = {
 			#	define BRANCH
 			#	define LOOP
 			#	define UNROLL
-			#endif // BGFX_SHADER_LANGUAGE_HLSL > 3
+			#endif // BGFX_SHADER_LANGUAGE_HLSL > 300
 
-			#if BGFX_SHADER_LANGUAGE_HLSL > 3 && BGFX_SHADER_TYPE_FRAGMENT
+			#if BGFX_SHADER_LANGUAGE_HLSL > 300 && BGFX_SHADER_TYPE_FRAGMENT
 			#	define EARLY_DEPTH_STENCIL [earlydepthstencil]
 			#else
 			#	define EARLY_DEPTH_STENCIL
-			#endif // BGFX_SHADER_LANGUAGE_HLSL > 3 && BGFX_SHADER_TYPE_FRAGMENT
+			#endif // BGFX_SHADER_LANGUAGE_HLSL > 300 && BGFX_SHADER_TYPE_FRAGMENT
 
 			#if BGFX_SHADER_LANGUAGE_GLSL
 			#	define ARRAY_BEGIN(_type, _name, _count) _type _name[_count] = _type[](
@@ -89,19 +89,19 @@ bgfx_shaders = {
 
 			// To be able to patch the uav registers on the DXBC SPDB Chunk (D3D11 renderer) the whitespaces around
 			// '_type[_reg]' are necessary. This only affects shaders with debug info (i.e., those that have the SPDB Chunk).
-			#	if BGFX_SHADER_LANGUAGE_HLSL > 4
+			#	if BGFX_SHADER_LANGUAGE_HLSL > 400
 			#		define REGISTER(_type, _reg) register( _type[_reg] )
 			#	else
 			#		define REGISTER(_type, _reg) register(_type ## _reg)
 			#	endif // BGFX_SHADER_LANGUAGE_HLSL
 
-			#	if BGFX_SHADER_LANGUAGE_HLSL > 3 || BGFX_SHADER_LANGUAGE_PSSL || BGFX_SHADER_LANGUAGE_SPIRV || BGFX_SHADER_LANGUAGE_METAL
-			#		if BGFX_SHADER_LANGUAGE_HLSL > 4 || BGFX_SHADER_LANGUAGE_PSSL || BGFX_SHADER_LANGUAGE_SPIRV || BGFX_SHADER_LANGUAGE_METAL
+			#	if BGFX_SHADER_LANGUAGE_HLSL > 300 || BGFX_SHADER_LANGUAGE_PSSL || BGFX_SHADER_LANGUAGE_SPIRV || BGFX_SHADER_LANGUAGE_METAL
+			#		if BGFX_SHADER_LANGUAGE_HLSL > 400 || BGFX_SHADER_LANGUAGE_PSSL || BGFX_SHADER_LANGUAGE_SPIRV || BGFX_SHADER_LANGUAGE_METAL
 			#			define dFdxCoarse(_x) ddx_coarse(_x)
 			#			define dFdxFine(_x)   ddx_fine(_x)
 			#			define dFdyCoarse(_y) ddy_coarse(-_y)
 			#			define dFdyFine(_y)   ddy_fine(-_y)
-			#		endif // BGFX_SHADER_LANGUAGE_HLSL > 4
+			#		endif // BGFX_SHADER_LANGUAGE_HLSL > 400
 
 			#		if BGFX_SHADER_LANGUAGE_HLSL || BGFX_SHADER_LANGUAGE_SPIRV || BGFX_SHADER_LANGUAGE_METAL
 			float intBitsToFloat(int   _x) { return asfloat(_x); }
@@ -533,19 +533,12 @@ bgfx_shaders = {
 			#		define SAMPLERCUBE(_name, _reg) uniform samplerCUBE _name : REGISTER(s, _reg)
 			#		define textureCube(_sampler, _coord) texCUBE(_sampler, _coord)
 
-			#		if BGFX_SHADER_LANGUAGE_HLSL == 2
-			#			define texture2DLod(_sampler, _coord, _level) tex2D(_sampler, (_coord).xy)
-			#			define texture2DGrad(_sampler, _coord, _dPdx, _dPdy) tex2D(_sampler, _coord)
-			#			define texture3DLod(_sampler, _coord, _level) tex3D(_sampler, (_coord).xyz)
-			#			define textureCubeLod(_sampler, _coord, _level) texCUBE(_sampler, (_coord).xyz)
-			#		else
-			#			define texture2DLod(_sampler, _coord, _level) tex2Dlod(_sampler, vec4( (_coord).xy, 0.0, _level) )
-			#			define texture2DGrad(_sampler, _coord, _dPdx, _dPdy) tex2Dgrad(_sampler, _coord, _dPdx, _dPdy)
-			#			define texture3DLod(_sampler, _coord, _level) tex3Dlod(_sampler, vec4( (_coord).xyz, _level) )
-			#			define textureCubeLod(_sampler, _coord, _level) texCUBElod(_sampler, vec4( (_coord).xyz, _level) )
-			#		endif // BGFX_SHADER_LANGUAGE_HLSL == 2
+			#		define texture2DLod(_sampler, _coord, _level) tex2Dlod(_sampler, vec4( (_coord).xy, 0.0, _level) )
+			#		define texture2DGrad(_sampler, _coord, _dPdx, _dPdy) tex2Dgrad(_sampler, _coord, _dPdx, _dPdy)
+			#		define texture3DLod(_sampler, _coord, _level) tex3Dlod(_sampler, vec4( (_coord).xyz, _level) )
+			#		define textureCubeLod(_sampler, _coord, _level) texCUBElod(_sampler, vec4( (_coord).xyz, _level) )
 
-			#	endif // BGFX_SHADER_LANGUAGE_HLSL > 3
+			#	endif // BGFX_SHADER_LANGUAGE_HLSL > 300
 
 			vec3 instMul(vec3 _vec, mat3 _mtx) { return mul(_mtx, _vec); }
 			vec3 instMul(mat3 _mtx, vec3 _vec) { return mul(_vec, _mtx); }
@@ -614,6 +607,8 @@ bgfx_shaders = {
 			#		define texture2D(_sampler, _coord)      texture(_sampler, _coord)
 			#		define texture2DArray(_sampler, _coord) texture(_sampler, _coord)
 			#		define texture3D(_sampler, _coord)      texture(_sampler, _coord)
+			#		define texture2DLod(_sampler, _coord, _lod)                textureLod(_sampler, _coord, _lod)
+			#		define texture2DLodOffset(_sampler, _coord, _lod, _offset) textureLodOffset(_sampler, _coord, _lod, _offset)
 			#	endif // BGFX_SHADER_LANGUAGE_GLSL >= 130
 
 			vec3 instMul(vec3 _vec, mat3 _mtx) { return mul(_vec, _mtx); }
@@ -700,7 +695,7 @@ bgfx_shaders = {
 
 			#endif // BGFX_SHADER_H_HEADER_GUARD
 			/*
-			 * Copyright 2011-2020 Branimir Karadzic. All rights reserved.
+			 * Copyright 2011-2021 Branimir Karadzic. All rights reserved.
 			 * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
 			 */
 
@@ -1088,7 +1083,7 @@ bgfx_shaders = {
 
 			vec2 texture2DBc5(sampler2D _sampler, vec2 _uv)
 			{
-			#if BGFX_SHADER_LANGUAGE_HLSL && BGFX_SHADER_LANGUAGE_HLSL <= 3
+			#if BGFX_SHADER_LANGUAGE_HLSL && BGFX_SHADER_LANGUAGE_HLSL <= 300
 				return texture2D(_sampler, _uv).yx;
 			#else
 				return texture2D(_sampler, _uv).xy;
@@ -1112,6 +1107,21 @@ bgfx_shaders = {
 					_m[0][2]*_m[1][0]-_m[0][0]*_m[1][2],
 					_m[0][0]*_m[1][1]-_m[0][1]*_m[1][0]
 					);
+			}
+
+			float toClipSpaceDepth(float _depthTextureZ)
+			{
+			#if BGFX_SHADER_LANGUAGE_GLSL
+				return _depthTextureZ * 2.0 - 1.0;
+			#else
+				return _depthTextureZ;
+			#endif // BGFX_SHADER_LANGUAGE_GLSL
+			}
+
+			vec3 clipToWorld(mat4 _invViewProj, vec3 _clipPos)
+			{
+				vec4 wpos = mul(_invViewProj, vec4(_clipPos, 1.0) );
+				return wpos.xyz / wpos.w;
 			}
 
 			#endif // __SHADERLIB_SH__

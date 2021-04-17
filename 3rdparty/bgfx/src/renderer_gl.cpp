@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2021 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
  */
 
@@ -525,6 +525,7 @@ namespace bgfx { namespace gl
 			ARB_occlusion_query,
 			ARB_occlusion_query2,
 			ARB_program_interface_query,
+			ARB_provoking_vertex,
 			ARB_sampler_objects,
 			ARB_seamless_cube_map,
 			ARB_shader_bit_encoding,
@@ -635,6 +636,7 @@ namespace bgfx { namespace gl
 			OES_depth_texture,
 			OES_element_index_uint,
 			OES_fragment_precision_high,
+			OES_fbo_render_mipmap,
 			OES_get_program_binary,
 			OES_required_internalformat,
 			OES_packed_depth_stencil,
@@ -737,6 +739,7 @@ namespace bgfx { namespace gl
 		{ "ARB_occlusion_query",                      BGFX_CONFIG_RENDERER_OPENGL >= 33, true  },
 		{ "ARB_occlusion_query2",                     BGFX_CONFIG_RENDERER_OPENGL >= 33, true  },
 		{ "ARB_program_interface_query",              BGFX_CONFIG_RENDERER_OPENGL >= 43, true  },
+		{ "ARB_provoking_vertex",                     BGFX_CONFIG_RENDERER_OPENGL >= 32, true  },
 		{ "ARB_sampler_objects",                      BGFX_CONFIG_RENDERER_OPENGL >= 33, true  },
 		{ "ARB_seamless_cube_map",                    BGFX_CONFIG_RENDERER_OPENGL >= 32, true  },
 		{ "ARB_shader_bit_encoding",                  BGFX_CONFIG_RENDERER_OPENGL >= 33, true  },
@@ -847,6 +850,7 @@ namespace bgfx { namespace gl
 		{ "OES_depth_texture",                        false,                             true  },
 		{ "OES_element_index_uint",                   false,                             true  },
 		{ "OES_fragment_precision_high",              false,                             true  },
+		{ "OES_fbo_render_mipmap",                    false,                             true  },
 		{ "OES_get_program_binary",                   false,                             true  },
 		{ "OES_required_internalformat",              false,                             true  },
 		{ "OES_packed_depth_stencil",                 false,                             true  },
@@ -2088,8 +2092,13 @@ namespace bgfx { namespace gl
 			{
 				if (0 == bx::strCmp(ext, extension.m_name) )
 				{
-					extension.m_supported = true;
+#if BX_PLATFORM_EMSCRIPTEN
+					EMSCRIPTEN_WEBGL_CONTEXT_HANDLE ctx = emscripten_webgl_get_current_context();
+					supported = emscripten_webgl_enable_extension(ctx, extension.m_name);
+#else
 					supported = true;
+#endif
+					extension.m_supported = supported;
 					break;
 				}
 			}
@@ -2757,7 +2766,7 @@ namespace bgfx { namespace gl
 					: 0
 					;
 
-				g_caps.supported |= m_readBackSupported
+				g_caps.supported |= (m_readBackSupported || BX_ENABLED(BGFX_GL_CONFIG_TEXTURE_READ_BACK_EMULATION))
 					? BGFX_CAPS_TEXTURE_READ_BACK
 					: 0
 					;
@@ -2795,10 +2804,10 @@ namespace bgfx { namespace gl
 				||  s_extension[Extension::WEBGL_draw_buffers].m_supported)
 				{
 					g_caps.limits.maxFBAttachments = uint8_t(bx::uint32_clamp(
-							  glGet(GL_MAX_DRAW_BUFFERS)
-							, 1
-							, BGFX_CONFIG_MAX_FRAME_BUFFER_ATTACHMENTS)
-							);
+						  glGet(GL_MAX_DRAW_BUFFERS)
+						, 1
+						, BGFX_CONFIG_MAX_FRAME_BUFFER_ATTACHMENTS)
+						);
 				}
 
 //				if (s_extension[Extension::ARB_clip_control].m_supported)
@@ -2994,6 +3003,12 @@ namespace bgfx { namespace gl
 				if (s_extension[Extension::ARB_seamless_cube_map].m_supported)
 				{
 					GL_CHECK(glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS) );
+				}
+
+				if (NULL != glProvokingVertex
+				&&  s_extension[Extension::ARB_provoking_vertex].m_supported)
+				{
+					GL_CHECK(glProvokingVertex(GL_FIRST_VERTEX_CONVENTION) );
 				}
 
 				if (NULL == glInsertEventMarker
@@ -3256,7 +3271,7 @@ namespace bgfx { namespace gl
 
 				GL_CHECK(glBindTexture(texture.m_target, 0) );
 			}
-			else
+			else if (BX_ENABLED(BGFX_GL_CONFIG_TEXTURE_READ_BACK_EMULATION))
 			{
 				const TextureGL& texture = m_textures[_handle.idx];
 				const bool compressed    = bimg::isCompressed(bimg::TextureFormat::Enum(texture.m_textureFormat) );
@@ -5623,7 +5638,10 @@ namespace bgfx { namespace gl
 				bimg::imageCopy(temp, width, height, 1, bpp, srcpitch, data);
 				data = temp;
 			}
-
+			const GLenum internalFmt = (0 != (m_flags & BGFX_TEXTURE_SRGB))
+				? s_textureFormat[m_textureFormat].m_internalFmtSrgb
+				: s_textureFormat[m_textureFormat].m_internalFmt
+				;
 			GL_CHECK(compressedTexSubImage(target+_side
 				, _mip
 				, _rect.m_x
@@ -5632,7 +5650,7 @@ namespace bgfx { namespace gl
 				, _rect.m_width
 				, _rect.m_height
 				, _depth
-				, m_fmt
+				, internalFmt
 				, _mem->size
 				, data
 				) );
@@ -6469,11 +6487,10 @@ namespace bgfx { namespace gl
 				GLsizei len;
 				char log[1024];
 				GL_CHECK(glGetShaderInfoLog(m_id, sizeof(log), &len, log) );
-				BX_TRACE("Failed to compile shader. %d: %s", compiled, log);
 
 				GL_CHECK(glDeleteShader(m_id) );
 				m_id = 0;
-				BGFX_FATAL(false, bgfx::Fatal::InvalidShader, "Failed to compile shader.");
+				BGFX_FATAL(false, bgfx::Fatal::InvalidShader, "Failed to compile shader. %d: %s", compiled, log);
 			}
 			else if (BX_ENABLED(BGFX_CONFIG_DEBUG)
 				 &&  s_extension[Extension::ANGLE_translated_shader_source].m_supported
@@ -7805,9 +7822,6 @@ namespace bgfx { namespace gl
 					}
 
 					{
-						bool diffStreamHandles = false;
-						bool diffIndexBuffer = false;
-
 						for (uint32_t idx = 0, streamMask = draw.m_streamMask
 							; 0 != streamMask
 							; streamMask >>= 1, idx += 1
@@ -7819,8 +7833,14 @@ namespace bgfx { namespace gl
 
 							if (currentState.m_stream[idx].m_handle.idx != draw.m_stream[idx].m_handle.idx)
 							{
-								diffStreamHandles = true;
-								break;
+								currentState.m_stream[idx].m_handle = draw.m_stream[idx].m_handle;
+								bindAttribs = true;
+							}
+
+							if (currentState.m_stream[idx].m_startVertex != draw.m_stream[idx].m_startVertex)
+							{
+								currentState.m_stream[idx].m_startVertex = draw.m_stream[idx].m_startVertex;
+								bindAttribs = true;
 							}
 						}
 
@@ -7828,25 +7848,12 @@ namespace bgfx { namespace gl
 						||  currentState.m_streamMask             != draw.m_streamMask
 						||  currentState.m_instanceDataBuffer.idx != draw.m_instanceDataBuffer.idx
 						||  currentState.m_instanceDataOffset     != draw.m_instanceDataOffset
-						||  currentState.m_instanceDataStride     != draw.m_instanceDataStride
-						||  diffStreamHandles)
+						||  currentState.m_instanceDataStride     != draw.m_instanceDataStride)
 						{
-							currentState.m_streamMask             = draw.m_streamMask;
-							currentState.m_instanceDataBuffer.idx = draw.m_instanceDataBuffer.idx;
-							currentState.m_instanceDataOffset     = draw.m_instanceDataOffset;
-							currentState.m_instanceDataStride     = draw.m_instanceDataStride;
-
-							for (uint32_t idx = 0, streamMask = draw.m_streamMask
-								; 0 != streamMask
-								; streamMask >>= 1, idx += 1
-								)
-							{
-								const uint32_t ntz = bx::uint32_cnttz(streamMask);
-								streamMask >>= ntz;
-								idx         += ntz;
-
-								currentState.m_stream[idx].m_handle = draw.m_stream[idx].m_handle;
-							}
+							currentState.m_streamMask         = draw.m_streamMask;
+							currentState.m_instanceDataBuffer = draw.m_instanceDataBuffer;
+							currentState.m_instanceDataOffset = draw.m_instanceDataOffset;
+							currentState.m_instanceDataStride = draw.m_instanceDataStride;
 
 							bindAttribs = true;
 						}
@@ -7855,51 +7862,30 @@ namespace bgfx { namespace gl
 						{
 							currentState.m_indexBuffer = draw.m_indexBuffer;
 
-							uint16_t handle = draw.m_indexBuffer.idx;
-							if (kInvalidHandle != handle)
+							if (isValid(draw.m_indexBuffer) )
 							{
-								IndexBufferGL& ib = m_indexBuffers[handle];
+								IndexBufferGL& ib = m_indexBuffers[draw.m_indexBuffer.idx];
 								GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib.m_id) );
 							}
 							else
 							{
 								GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0) );
 							}
-
-							diffIndexBuffer = true;
 						}
 
 						if (currentState.m_startIndex != draw.m_startIndex)
 						{
 							currentState.m_startIndex = draw.m_startIndex;
-							diffIndexBuffer = true;
 						}
 
 						if (0 != currentState.m_streamMask)
 						{
-							bool diffStartVertex = false;
-							for (uint32_t idx = 0, streamMask = draw.m_streamMask
-								; 0 != streamMask
-								; streamMask >>= 1, idx += 1
-								)
-							{
-								const uint32_t ntz = bx::uint32_cnttz(streamMask);
-								streamMask >>= ntz;
-								idx         += ntz;
-
-								if (currentState.m_stream[idx].m_startVertex != draw.m_stream[idx].m_startVertex)
-								{
-									diffStartVertex = true;
-									break;
-								}
-							}
-
-							if (bindAttribs || diffStartVertex)
+							if (bindAttribs)
 							{
 								if (isValid(boundProgram) )
 								{
 									m_program[boundProgram.idx].unbindAttributes();
-									boundProgram = BGFX_INVALID_HANDLE;
+									m_program[boundProgram.idx].unbindInstanceData();
 								}
 
 								boundProgram = currentProgram;
@@ -7917,8 +7903,6 @@ namespace bgfx { namespace gl
 										streamMask >>= ntz;
 										idx         += ntz;
 
-										currentState.m_stream[idx].m_startVertex = draw.m_stream[idx].m_startVertex;
-
 										const VertexBufferGL& vb = m_vertexBuffers[draw.m_stream[idx].m_handle.idx];
 										const uint16_t decl = isValid(draw.m_stream[idx].m_layoutHandle)
 											? draw.m_stream[idx].m_layoutHandle.idx
@@ -7929,10 +7913,7 @@ namespace bgfx { namespace gl
 								}
 
 								program.bindAttributesEnd();
-							}
 
-							if (bindAttribs || diffStartVertex || diffIndexBuffer)
-							{
 								if (isValid(draw.m_instanceDataBuffer) )
 								{
 									GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffers[draw.m_instanceDataBuffer.idx].m_id) );
@@ -8030,10 +8011,10 @@ namespace bgfx { namespace gl
 
 							if (isValid(draw.m_indexBuffer) )
 							{
-								const IndexBufferGL& ib = m_indexBuffers[draw.m_indexBuffer.idx];
-								const bool hasIndex16 = 0 == (ib.m_flags & BGFX_BUFFER_INDEX32);
-								const uint32_t indexSize = hasIndex16 ? 2 : 4;
-								const GLenum indexFormat = hasIndex16
+								const IndexBufferGL& ib  = m_indexBuffers[draw.m_indexBuffer.idx];
+								const bool isIndex16     = draw.isIndex16();
+								const uint32_t indexSize = isIndex16 ? 2 : 4;
+								const GLenum indexFormat = isIndex16
 									? GL_UNSIGNED_SHORT
 									: GL_UNSIGNED_INT
 									;
@@ -8054,10 +8035,10 @@ namespace bgfx { namespace gl
 								}
 								else if (prim.m_min <= draw.m_numIndices)
 								{
-									numIndices = draw.m_numIndices;
+									numIndices        = draw.m_numIndices;
 									numPrimsSubmitted = numIndices/prim.m_div - prim.m_sub;
-									numInstances = draw.m_numInstances;
-									numPrimsRendered = numPrimsSubmitted*draw.m_numInstances;
+									numInstances      = draw.m_numInstances;
+									numPrimsRendered  = numPrimsSubmitted*draw.m_numInstances;
 
 									GL_CHECK(glDrawElementsInstanced(prim.m_type
 										, numIndices
@@ -8070,8 +8051,8 @@ namespace bgfx { namespace gl
 							else
 							{
 								numPrimsSubmitted = numVertices/prim.m_div - prim.m_sub;
-								numInstances = draw.m_numInstances;
-								numPrimsRendered = numPrimsSubmitted*draw.m_numInstances;
+								numInstances      = draw.m_numInstances;
+								numPrimsRendered  = numPrimsSubmitted*draw.m_numInstances;
 
 								GL_CHECK(glDrawArraysInstanced(prim.m_type
 									, 0
@@ -8084,11 +8065,6 @@ namespace bgfx { namespace gl
 						if (hasOcclusionQuery)
 						{
 							m_occlusionQuery.end();
-						}
-
-						if (isValid(draw.m_instanceDataBuffer) )
-						{
-							program.unbindInstanceData();
 						}
 
 						statsNumPrimsSubmitted[primIndex] += numPrimsSubmitted;

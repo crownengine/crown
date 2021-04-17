@@ -24,6 +24,7 @@
 #include "DebugInfo.h"
 #include "OpenCLDebugInfo100.h"
 #include "source/macro.h"
+#include "source/opcode.h"
 #include "source/spirv_constant.h"
 #include "source/spirv_target_env.h"
 
@@ -208,6 +209,8 @@ const char* spvOperandTypeStr(spv_operand_type_t type) {
     case SPV_OPERAND_TYPE_MEMORY_ACCESS:
     case SPV_OPERAND_TYPE_OPTIONAL_MEMORY_ACCESS:
       return "memory access";
+    case SPV_OPERAND_TYPE_FRAGMENT_SHADING_RATE:
+      return "shading rate";
     case SPV_OPERAND_TYPE_SCOPE_ID:
       return "scope ID";
     case SPV_OPERAND_TYPE_GROUP_OPERATION:
@@ -261,6 +264,11 @@ const char* spvOperandTypeStr(spv_operand_type_t type) {
       return "image channel order";
     case SPV_OPERAND_TYPE_IMAGE_CHANNEL_DATA_TYPE:
       return "image channel data type";
+
+    case SPV_OPERAND_TYPE_FPDENORM_MODE:
+      return "FP denorm mode";
+    case SPV_OPERAND_TYPE_FPOPERATION_MODE:
+      return "FP operation mode";
 
     case SPV_OPERAND_TYPE_NONE:
       return "NONE";
@@ -345,6 +353,8 @@ bool spvOperandIsConcrete(spv_operand_type_t type) {
     case SPV_OPERAND_TYPE_CLDEBUG100_DEBUG_TYPE_QUALIFIER:
     case SPV_OPERAND_TYPE_CLDEBUG100_DEBUG_OPERATION:
     case SPV_OPERAND_TYPE_CLDEBUG100_DEBUG_IMPORTED_ENTITY:
+    case SPV_OPERAND_TYPE_FPDENORM_MODE:
+    case SPV_OPERAND_TYPE_FPOPERATION_MODE:
       return true;
     default:
       break;
@@ -360,6 +370,7 @@ bool spvOperandIsConcreteMask(spv_operand_type_t type) {
     case SPV_OPERAND_TYPE_LOOP_CONTROL:
     case SPV_OPERAND_TYPE_FUNCTION_CONTROL:
     case SPV_OPERAND_TYPE_MEMORY_ACCESS:
+    case SPV_OPERAND_TYPE_FRAGMENT_SHADING_RATE:
     case SPV_OPERAND_TYPE_DEBUG_INFO_FLAGS:
     case SPV_OPERAND_TYPE_CLDEBUG100_DEBUG_INFO_FLAGS:
       return true;
@@ -488,6 +499,11 @@ bool spvIsInIdType(spv_operand_type_t type) {
 std::function<bool(unsigned)> spvOperandCanBeForwardDeclaredFunction(
     SpvOp opcode) {
   std::function<bool(unsigned index)> out;
+  if (spvOpcodeGeneratesType(opcode)) {
+    // All types can use forward pointers.
+    out = [](unsigned) { return true; };
+    return out;
+  }
   switch (opcode) {
     case SpvOpExecutionMode:
     case SpvOpExecutionModeId:
@@ -500,7 +516,6 @@ std::function<bool(unsigned)> spvOperandCanBeForwardDeclaredFunction(
     case SpvOpDecorateId:
     case SpvOpDecorateStringGOOGLE:
     case SpvOpMemberDecorateStringGOOGLE:
-    case SpvOpTypeStruct:
     case SpvOpBranch:
     case SpvOpLoopMerge:
       out = [](unsigned) { return true; };

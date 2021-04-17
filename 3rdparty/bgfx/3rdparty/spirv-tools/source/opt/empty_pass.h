@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Google LLC.
+// Copyright (c) 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,28 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "source/opt/legalize_vector_shuffle_pass.h"
+#ifndef SOURCE_OPT_EMPTY_PASS_H_
+#define SOURCE_OPT_EMPTY_PASS_H_
 
-#include "source/opt/ir_context.h"
+#include "source/opt/pass.h"
 
 namespace spvtools {
 namespace opt {
 
-Pass::Status LegalizeVectorShufflePass::Process() {
-  bool changed = false;
-  context()->module()->ForEachInst([&changed](Instruction* inst) {
-    if (inst->opcode() != SpvOpVectorShuffle) return;
+// Documented in optimizer.hpp
+class EmptyPass : public Pass {
+ public:
+  EmptyPass() {}
 
-    for (uint32_t idx = 2; idx < inst->NumInOperands(); ++idx) {
-      auto literal = inst->GetSingleWordInOperand(idx);
-      if (literal != 0xFFFFFFFF) continue;
-      changed = true;
-      inst->SetInOperand(idx, {0});
-    }
-  });
+  const char* name() const override { return "empty-pass"; }
 
-  return changed ? Status::SuccessWithChange : Status::SuccessWithoutChange;
-}
+  Status Process() override { return Status::SuccessWithoutChange; }
+};
 
 }  // namespace opt
 }  // namespace spvtools
+
+#endif  // SOURCE_OPT_EMPTY_PASS_H_
