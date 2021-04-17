@@ -294,7 +294,11 @@ public class EditorView : Gtk.EventBox
 
 	private void on_size_allocate(Gtk.Allocation ev)
 	{
-		if (_allocation.equal(ev))
+		if (_allocation.x == ev.x
+			&& _allocation.y == ev.y
+			&& _allocation.width == ev.width
+			&& _allocation.height == ev.height
+			)
 			return;
 
 		_allocation = ev;
