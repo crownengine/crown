@@ -2397,21 +2397,32 @@ public static bool _console_view_valid = false;
 public static void log(string system, string severity, string message)
 {
 	GLib.DateTime now = new GLib.DateTime.now_utc();
-	string line = "%s.%06d  %.4s %s: %s\n".printf(now.format("%H:%M:%S")
-		, now.get_microsecond()
-		, severity.ascii_up()
-		, system
-		, message
-		);
+	int now_us = now.get_microsecond();
+	string now_str = now.format("%H:%M:%S");
 
 	if (_log_stream != null)
 	{
+		string line = "%s.%06d  %.4s %s: %s\n".printf(now_str
+			, now_us
+			, severity.ascii_up()
+			, system
+			, message
+			);
+
 		_log_stream.puts(line);
 		_log_stream.flush();
 	}
 
 	if (_console_view_valid)
+	{
+		string line = "%s.%06d  %s: %s\n".printf(now_str
+			, now_us
+			, system
+			, message
+			);
+
 		_console_view.log(severity, line);
+	}
 }
 
 public static void logi(string message)

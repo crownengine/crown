@@ -8,6 +8,7 @@ Changelog
 **Tools**
 
 * Fixed Engine View not redrawing when a command was sent from the Console.
+* Various fixes and improvements to the Console.
 
 0.43.0
 ------
