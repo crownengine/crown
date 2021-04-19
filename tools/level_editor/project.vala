@@ -380,6 +380,25 @@ public class Project
 		}
 	}
 
+	public string filename(string type, string name)
+	{
+		string resource_path = resource_path(type, name);
+		return Path.build_filename(source_dir(), resource_path);
+	}
+
+	public void delete_resource(string type, string name)
+	{
+		GLib.File file = GLib.File.new_for_path(filename(type, name));
+		try
+		{
+			file.delete();
+		}
+		catch (Error e)
+		{
+			loge(e.message);
+		}
+	}
+
 	/// Converts the @a resource_id to its corresponding human-readable @a
 	/// resource_name. It returns true if the conversion is successful, otherwise
 	/// it returns false and sets @a resource_name to the value of @a resource_id.

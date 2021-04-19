@@ -219,6 +219,11 @@ public class LevelEditorApplication : Gtk.Application
 		{ "about",        on_about,        null, null }
 	};
 
+	private const GLib.ActionEntry[] action_entries_project =
+	{
+		{ "delete-file", on_delete_file, "s", null }
+	};
+
 	// Command line options
 	private string? _source_dir = null;
 	private string _level_resource = "";
@@ -354,6 +359,7 @@ public class LevelEditorApplication : Gtk.Application
 		this.add_action_entries(action_entries_view, this);
 		this.add_action_entries(action_entries_debug, this);
 		this.add_action_entries(action_entries_help, this);
+		this.add_action_entries(action_entries_project, this);
 
 		_tool_place_accels = this.get_accels_for_action("app.tool::place");
 		_tool_move_accels = this.get_accels_for_action("app.tool::move");
@@ -2238,6 +2244,38 @@ public class LevelEditorApplication : Gtk.Application
 			};
 		dlg.run();
 		dlg.destroy();
+	}
+
+	private void on_delete_file(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		if (param == null)
+			return;
+
+		string resource_path = param.get_string();
+		string? type = Crown.resource_type(resource_path);
+		string? name = Crown.resource_name(type, resource_path);
+		if (type == null || name == null)
+			return;
+
+		if (name == _level._name)
+		{
+			int rt = ResponseType.YES;
+
+			if (_database.changed())
+				rt = run_level_changed_dialog(this.active_window);
+
+			if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
+			{
+				new_level();
+				send_state();
+
+				_project.delete_resource(type, name);
+			}
+		}
+		else
+		{
+			_project.delete_resource(type, name);
+		}
 	}
 
 	public void set_autosave_timer(uint minutes)
