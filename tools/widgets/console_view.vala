@@ -183,6 +183,7 @@ public class ConsoleView : Gtk.Box
 			{
 				if (client != null)
 				{
+					logi("> %s".printf(text));
 					client.send_script(text);
 					client.send(DeviceApi.frame());
 				}
