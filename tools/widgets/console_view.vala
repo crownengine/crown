@@ -173,13 +173,19 @@ public class ConsoleView : Gtk.Box
 				if (args.length > 0)
 				{
 					if (client != null)
+					{
 						client.send(DeviceApi.command(args));
+						client.send(DeviceApi.frame());
+					}
 				}
 			}
 			else
 			{
 				if (client != null)
+				{
 					client.send_script(text);
+					client.send(DeviceApi.frame());
+				}
 			}
 		}
 

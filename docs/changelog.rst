@@ -5,6 +5,10 @@ Changelog
 ------
 *DD MMM YYYY*
 
+**Tools**
+
+* Fixed Engine View not redrawing when a command was sent from the Console.
+
 0.43.0
 ------
 *17 Apr 2021*
