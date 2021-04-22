@@ -228,6 +228,7 @@ public class LevelEditorApplication : Gtk.Application
 	private string? _source_dir = null;
 	private string _level_resource = "";
 	private User _user;
+	private Hashtable _settings;
 
 	// Editor state
 	private double _grid_size;
@@ -587,7 +588,8 @@ public class LevelEditorApplication : Gtk.Application
 		_main_stack.add_named(_panel_new_project, "panel_new_project");
 		_main_stack.add_named(_main_vbox, "main_vbox");
 
-		load_settings();
+		_settings = SJSON.load_from_path(_settings_file.get_path());
+		_preferences_dialog.decode(_settings);
 
 		// Delete expired logs
 		if (_preferences_dialog._log_delete_after_days.value != 0)
@@ -641,24 +643,6 @@ public class LevelEditorApplication : Gtk.Application
 			show_panel("main_vbox");
 			restart_backend.begin(_source_dir, _level_resource);
 		}
-	}
-
-	public void load_settings()
-	{
-		Hashtable settings = SJSON.load_from_path(_settings_file.get_path());
-
-		_preferences_dialog.load(settings.has_key("preferences") ? (Hashtable)settings["preferences"] : new Hashtable());
-	}
-
-	public void save_settings()
-	{
-		Hashtable preferences = new Hashtable();
-		_preferences_dialog.save(preferences);
-
-		Hashtable settings = new Hashtable();
-		settings["preferences"] = preferences;
-
-		SJSON.save(settings, _settings_file.get_path());
 	}
 
 	protected override void activate()
@@ -1619,7 +1603,8 @@ public class LevelEditorApplication : Gtk.Application
 
 		// Save editor settings.
 		_user.save(_user_file.get_path());
-		save_settings();
+		_preferences_dialog.encode(_settings);
+		SJSON.save(_settings, _settings_file.get_path());
 		_console_view._entry_history.save(_console_history_file.get_path());
 
 		// Destroy widgets.

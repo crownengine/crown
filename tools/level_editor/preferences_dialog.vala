@@ -167,8 +167,13 @@ public class PreferencesDialog : Gtk.Dialog
 		_application.set_autosave_timer((uint)_level_autosave_spin_button.value);
 	}
 
-	public void load(Hashtable preferences)
+	public void decode(Hashtable settings)
 	{
+		Hashtable preferences = settings.has_key("preferences")
+			? (Hashtable)settings["preferences"]
+			: new Hashtable()
+			;
+
 		_grid_color_button.value          = Vector3.from_array(preferences.has_key("grid") ? (Gee.ArrayList<GLib.Value?>)preferences["grid"] : _grid_color_button.value.to_array());
 		_grid_disabled_color_button.value = Vector3.from_array(preferences.has_key("grid_disabled") ? (Gee.ArrayList<GLib.Value?>)preferences["grid_disabled"] : _grid_disabled_color_button.value.to_array());
 		_axis_x_color_button.value        = Vector3.from_array(preferences.has_key("axis_x") ? (Gee.ArrayList<GLib.Value?>)preferences["axis_x"] : _axis_x_color_button.value.to_array());
@@ -221,8 +226,14 @@ public class PreferencesDialog : Gtk.Dialog
 		_image_external_tool_button.set_app(app, app_id);
 	}
 
-	public void save(Hashtable preferences)
+	public void encode(Hashtable settings)
 	{
+		Hashtable preferences = settings.has_key("preferences")
+			? (Hashtable)settings["preferences"]
+			: new Hashtable()
+			;
+		settings["preferences"] = preferences;
+
 		preferences["grid"]           = _grid_color_button.value.to_array();
 		preferences["grid_disabled"]  = _grid_disabled_color_button.value.to_array();
 		preferences["axis_x"]         = _axis_x_color_button.value.to_array();
@@ -237,20 +248,34 @@ public class PreferencesDialog : Gtk.Dialog
 		// External tools.
 		string app;
 		string? app_id;
-		Hashtable lua_editor = new Hashtable();
+
+		// FIXME: make proper interface so that we can have
+		// for example: set(settings, "preferences.foo.bar", 42);
+		Hashtable external_tools = preferences.has_key("external_tools")
+			? (Hashtable)preferences["external_tools"]
+			: new Hashtable()
+			;
+		preferences["external_tools"] = external_tools;
+
+		Hashtable lua_editor = external_tools.has_key("lua_editor")
+			? (Hashtable)external_tools["lua_editor"]
+			: new Hashtable()
+			;
+		external_tools["lua_editor"] = lua_editor;
+
 		app = _lua_external_tool_button.selected_app(out app_id);
 		lua_editor["app"] = app;
 		lua_editor["app_id"] = app_id != null ? app_id : "";
 
-		Hashtable image_editor = new Hashtable();
+		Hashtable image_editor = external_tools.has_key("image_editor")
+			? (Hashtable)external_tools["image_editor"]
+			: new Hashtable()
+			;
+		external_tools["image_editor"] = image_editor;
+
 		app = _image_external_tool_button.selected_app(out app_id);
 		image_editor["app"] = app;
 		image_editor["app_id"] = app_id != null ? app_id : "";
-
-		Hashtable external_tools = new Hashtable();
-		external_tools["lua_editor"] = lua_editor;
-		external_tools["image_editor"] = image_editor;
-		preferences["external_tools"] = external_tools;
 	}
 
 	public void apply()
