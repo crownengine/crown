@@ -10,6 +10,7 @@ Changelog
 * Fixed Engine View not redrawing when a command was sent from the Console.
 * Various fixes and improvements to the Console.
 * The Editor will now check whether the file being edited is deleted from the Project Browser to ask user for confirmation.
+* Added the ability to set in the Preferences the external editors to use when opening Lua and image files.
 
 0.43.0
 ------

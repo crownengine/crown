@@ -1873,31 +1873,54 @@ public class LevelEditorApplication : Gtk.Application
 			stop_backend_and_quit();
 	}
 
+	public static bool is_image_file(string path)
+	{
+		return path.has_suffix(".png")
+			|| path.has_suffix(".tga")
+			;
+	}
+
 	private void on_open_resource(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		string resource_path = param.get_string();
+		if (param == null)
+			return;
 
+		string resource_path = param.get_string();
 		string? type = Crown.resource_type(resource_path);
-		if (type != null && type == "level")
+		string? name = Crown.resource_name(type, resource_path);
+		if (type == null || name == null)
+			return;
+
+		if (type == "level")
 		{
-			string? name = Crown.resource_name(type, resource_path);
-			if (name != null)
-				activate_action("open-level", name);
+			activate_action("open-level", name);
+			return;
 		}
-		else
+
+		GLib.AppInfo? app = null;
+
+		if (type == "lua")
 		{
-			try
-			{
-				GLib.File file = GLib.File.new_for_path(_project.resource_path_to_absolute_path(resource_path));
-				GLib.AppInfo? app = file.query_default_handler();
-				GLib.List<GLib.File> files = new GLib.List<GLib.File>();
-				files.append(file);
-				app.launch(files, null);
-			}
-			catch (Error e)
-			{
-				loge(e.message);
-			}
+			app = _preferences_dialog._lua_external_tool_button.get_app_info();
+		}
+		else if (is_image_file(resource_path))
+		{
+			app = _preferences_dialog._image_external_tool_button.get_app_info();
+		}
+
+		try
+		{
+			GLib.File file = GLib.File.new_for_path(_project.resource_path_to_absolute_path(resource_path));
+			if (app == null)
+				app = file.query_default_handler();
+
+			GLib.List<GLib.File> files = new GLib.List<GLib.File>();
+			files.append(file);
+			app.launch(files, null);
+		}
+		catch (Error e)
+		{
+			loge(e.message);
 		}
 	}
 
