@@ -482,7 +482,7 @@ namespace shader_resource_internal
 		if (strcmp(platform, "android") == 0)
 		{
 			argv[11] = "--profile";
-			argv[12] = "1"; // GLES2
+			argv[12] = "100_es"; // GLES2
 		}
 		else if (strcmp(platform, "linux") == 0)
 		{
