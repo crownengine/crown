@@ -19,6 +19,9 @@ namespace aabb
 
 	void from_points(AABB& b, u32 num, u32 stride, const void* points)
 	{
+		CE_ENSURE(num > 0);
+		CE_ENSURE(points != NULL);
+
 		const char* pts = (const char*)points;
 		const f32* point = (f32*)pts;
 
@@ -42,6 +45,9 @@ namespace aabb
 
 	void from_boxes(AABB& b, u32 num, const AABB* boxes)
 	{
+		CE_ENSURE(num > 0);
+		CE_ENSURE(boxes != NULL);
+
 		b.min.x = boxes[0].min.x;
 		b.min.y = boxes[0].min.y;
 		b.min.z = boxes[0].min.z;
