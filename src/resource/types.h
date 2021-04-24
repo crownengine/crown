@@ -57,7 +57,7 @@ struct UnitResource;
 
 #define RESOURCE_FULL_REBUILD_COUNT       u32(0) //!< How many times we required a full asset rebuild?
 #define RESOURCE_VERSION(ver)             (RESOURCE_FULL_REBUILD_COUNT + ver)
-#define RESOURCE_VERSION_STATE_MACHINE    RESOURCE_VERSION(3)
+#define RESOURCE_VERSION_STATE_MACHINE    RESOURCE_VERSION(4)
 #define RESOURCE_VERSION_CONFIG           RESOURCE_VERSION(1)
 #define RESOURCE_VERSION_FONT             RESOURCE_VERSION(1)
 #define RESOURCE_VERSION_UNIT             RESOURCE_VERSION(8)

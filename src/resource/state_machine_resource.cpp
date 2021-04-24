@@ -316,8 +316,11 @@ namespace state_machine_internal
 				sjson::parse_string(si.speed, state["speed"]);
 				si.loop = sjson::parse_bool(state["loop"]);
 
-				parse_transitions(si, transitions);
-				parse_animations(si, animations);
+				s32 err = 0;
+				err = parse_transitions(si, transitions);
+				DATA_COMPILER_ENSURE(err == 0, _opts);
+				err = parse_animations(si, animations);
+				DATA_COMPILER_ENSURE(err == 0, _opts);
 
 				Guid guid = sjson::parse_guid(state["id"]);
 				DATA_COMPILER_ASSERT(!hash_map::has(_states, guid)
