@@ -1,5 +1,5 @@
 /*************************** Check and Radio buttons * */
-* { padding: 0; -GtkToolButton-icon-spacing: 4; -GtkTextView-error-underline-color: #cc0000; -GtkScrolledWindow-scrollbar-spacing: 0; -GtkToolItemGroup-expander-size: 11; -GtkWidget-text-handle-width: 20; -GtkWidget-text-handle-height: 24; -GtkDialog-button-spacing: 4; -GtkDialog-action-area-border: 0; outline-color: alpha(currentColor,0.3); outline-style: dashed; outline-offset: -3px; outline-width: 1px; -gtk-outline-radius: 3px; -gtk-secondary-caret-color: #15539e; }
+* { padding: 0; -GtkToolButton-icon-spacing: 4; -GtkTextView-error-underline-color: #cc0000; -GtkScrolledWindow-scrollbar-spacing: 0; -GtkToolItemGroup-expander-size: 11; -GtkWidget-text-handle-width: 20; -GtkWidget-text-handle-height: 24; -GtkDialog-button-spacing: 4; -GtkDialog-action-area-border: 0; outline-color: alpha(currentColor,0.3); outline-style: dashed; outline-offset: -3px; outline-width: 1px; -gtk-outline-radius: 1px; -gtk-secondary-caret-color: #15539e; font: 12px "Cantarell"; }
 
 /*************** Base States * */
 .background { color: #eeeeec; background-color: #353535; }
@@ -110,7 +110,7 @@ spinner:checked:disabled { opacity: 0.5; }
 .caption { font-weight: 400; font-size: 9pt; }
 
 /**************** Text Entries * */
-spinbutton:not(.vertical), entry { min-height: 32px; padding-left: 8px; padding-right: 8px; border: 1px solid; border-radius: 5px; transition: all 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94); color: white; border-color: #1b1b1b; background-color: #2d2d2d; box-shadow: inset 0 0 0 1px rgba(21, 83, 158, 0); }
+spinbutton:not(.vertical), entry { min-height: 22px; padding-left: 4px; padding-right: 4px; border: 1px solid; border-radius: 3px; transition: all 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94); color: white; border-color: #1b1b1b; background-color: #2d2d2d; box-shadow: inset 0 0 0 1px rgba(21, 83, 158, 0); }
 
 spinbutton:not(.vertical) image.left, entry image.left { margin-right: 6px; }
 
@@ -212,7 +212,7 @@ treeview entry.flat:focus, treeview entry:focus { border-color: #15539e; }
 @keyframes needs_attention { from { background-image: -gtk-gradient(radial, center center, 0, center center, 0.01, to(#1f76e1), to(transparent)); }
   to { background-image: -gtk-gradient(radial, center center, 0, center center, 0.5, to(#15539e), to(transparent)); } }
 
-button.titlebutton, notebook > header > tabs > arrow, button { min-height: 24px; min-width: 16px; padding: 4px 9px; border: 1px solid; border-radius: 5px; transition: all 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94); color: #eeeeec; outline-color: rgba(238, 238, 236, 0.3); border-color: #1b1b1b; border-bottom-color: #070707; background-image: linear-gradient(to top, #323232 2px, #353535); text-shadow: 0 -1px rgba(0, 0, 0, 0.834353); -gtk-icon-shadow: 0 -1px rgba(0, 0, 0, 0.834353); box-shadow: inset 0 1px rgba(255, 255, 255, 0.02), 0 1px 2px rgba(0, 0, 0, 0.07); }
+button.titlebutton, notebook > header > tabs > arrow, button { min-height: 22px; min-width: 16px; padding: 0px 6px; border: 1px solid; border-radius: 3px; transition: all 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94); color: #eeeeec; outline-color: rgba(238, 238, 236, 0.3); border-color: #1b1b1b; border-bottom-color: #070707; background-image: linear-gradient(to top, #323232 2px, #353535); text-shadow: 0 -1px rgba(0, 0, 0, 0.834353); -gtk-icon-shadow: 0 -1px rgba(0, 0, 0, 0.834353); box-shadow: inset 0 1px rgba(255, 255, 255, 0.02), 0 1px 2px rgba(0, 0, 0, 0.07); }
 
 button.titlebutton, button.sidebar-button, notebook > header > tabs > arrow, notebook > header > tabs > arrow.flat, button.flat { border-color: transparent; background-color: transparent; background-image: none; box-shadow: inset 0 1px rgba(255, 255, 255, 0); text-shadow: none; -gtk-icon-shadow: none; transition: none; }
 
@@ -238,7 +238,7 @@ notebook > header > tabs > arrow:disabled, button:disabled { color: #919190; bor
 
 notebook > header > tabs > arrow:disabled:active, notebook > header > tabs > arrow:disabled:checked, button:disabled:active, button:disabled:checked { color: #919190; border-color: #1b1b1b; background-image: image(#252525); box-shadow: inset 0 1px rgba(255, 255, 255, 0); }
 
-notebook > header > tabs > arrow.image-button, button.image-button { min-width: 24px; padding-left: 5px; padding-right: 5px; }
+notebook > header > tabs > arrow.image-button, button.image-button { min-width: 22px; padding-left: 0px; padding-right: 0px; }
 
 notebook > header > tabs > arrow.text-button, button.text-button { padding-left: 16px; padding-right: 16px; }
 
@@ -366,7 +366,7 @@ button.font > box > box > label { font-weight: bold; }
 
 .primary-toolbar button { -gtk-icon-shadow: none; }
 
-button.circular { border-radius: 9999px; -gtk-outline-radius: 9999px; padding: 4px; /* circles instead of ellipses */ background-origin: padding-box, border-box; background-clip: padding-box, border-box; }
+button.circular { border-radius: 9999px; -gtk-outline-radius: 9999px; padding: 2px; /* circles instead of ellipses */ background-origin: padding-box, border-box; background-clip: padding-box, border-box; }
 
 button.circular label { padding: 0; }
 
@@ -400,24 +400,24 @@ stacksidebar row.needs-attention > label:dir(rtl), .stack-switcher > button.need
 
 .linked:not(.vertical) > combobox > box > button.combo, filechooser .path-bar.linked > button, .linked:not(.vertical) > spinbutton:not(.vertical), .linked:not(.vertical) > entry, .inline-toolbar button, .linked > button, toolbar.inline-toolbar toolbutton > button.flat { border-right-style: none; border-radius: 0; -gtk-outline-radius: 0; }
 
-.linked:not(.vertical) > combobox:first-child > box > button.combo, combobox.linked button:nth-child(2):dir(rtl), filechooser .path-bar.linked > button:dir(rtl):last-child, filechooser .path-bar.linked > button:dir(ltr):first-child, .linked:not(.vertical) > spinbutton:first-child:not(.vertical), .linked:not(.vertical) > entry:first-child, .inline-toolbar button:first-child, .linked > button:first-child, toolbar.inline-toolbar toolbutton:first-child > button.flat { border-top-left-radius: 5px; border-bottom-left-radius: 5px; -gtk-outline-top-left-radius: 5px; -gtk-outline-bottom-left-radius: 5px; }
+.linked:not(.vertical) > combobox:first-child > box > button.combo, combobox.linked button:nth-child(2):dir(rtl), filechooser .path-bar.linked > button:dir(rtl):last-child, filechooser .path-bar.linked > button:dir(ltr):first-child, .linked:not(.vertical) > spinbutton:first-child:not(.vertical), .linked:not(.vertical) > entry:first-child, .inline-toolbar button:first-child, .linked > button:first-child, toolbar.inline-toolbar toolbutton:first-child > button.flat { border-top-left-radius: 3px; border-bottom-left-radius: 3px; -gtk-outline-top-left-radius: 3px; -gtk-outline-bottom-left-radius: 3px; }
 
-.linked:not(.vertical) > combobox:last-child > box > button.combo, combobox.linked button:nth-child(2):dir(ltr), filechooser .path-bar.linked > button:dir(rtl):first-child, filechooser .path-bar.linked > button:dir(ltr):last-child, .linked:not(.vertical) > spinbutton:last-child:not(.vertical), .linked:not(.vertical) > entry:last-child, .inline-toolbar button:last-child, .linked > button:last-child, toolbar.inline-toolbar toolbutton:last-child > button.flat { border-right-style: solid; border-top-right-radius: 5px; border-bottom-right-radius: 5px; -gtk-outline-top-right-radius: 5px; -gtk-outline-bottom-right-radius: 5px; }
+.linked:not(.vertical) > combobox:last-child > box > button.combo, combobox.linked button:nth-child(2):dir(ltr), filechooser .path-bar.linked > button:dir(rtl):first-child, filechooser .path-bar.linked > button:dir(ltr):last-child, .linked:not(.vertical) > spinbutton:last-child:not(.vertical), .linked:not(.vertical) > entry:last-child, .inline-toolbar button:last-child, .linked > button:last-child, toolbar.inline-toolbar toolbutton:last-child > button.flat { border-right-style: solid; border-top-right-radius: 3px; border-bottom-right-radius: 3px; -gtk-outline-top-right-radius: 3px; -gtk-outline-bottom-right-radius: 3px; }
 
-.linked:not(.vertical) > combobox:only-child > box > button.combo, filechooser .path-bar.linked > button:only-child, .linked:not(.vertical) > spinbutton:only-child:not(.vertical), .linked:not(.vertical) > entry:only-child, .inline-toolbar button:only-child, .linked > button:only-child, toolbar.inline-toolbar toolbutton:only-child > button.flat { border-style: solid; border-radius: 5px; -gtk-outline-radius: 5px; }
+.linked:not(.vertical) > combobox:only-child > box > button.combo, filechooser .path-bar.linked > button:only-child, .linked:not(.vertical) > spinbutton:only-child:not(.vertical), .linked:not(.vertical) > entry:only-child, .inline-toolbar button:only-child, .linked > button:only-child, toolbar.inline-toolbar toolbutton:only-child > button.flat { border-style: solid; border-radius: 3px; -gtk-outline-radius: 3px; }
 
 .linked.vertical > combobox > box > button.combo, .linked.vertical > spinbutton:not(.vertical), .linked.vertical > entry, .linked.vertical > button { border-style: solid solid none solid; border-radius: 0; -gtk-outline-radius: 0; }
 
-.linked.vertical > combobox:first-child > box > button.combo, .linked.vertical > spinbutton:first-child:not(.vertical), .linked.vertical > entry:first-child, .linked.vertical > button:first-child { border-top-left-radius: 5px; border-top-right-radius: 5px; -gtk-outline-top-left-radius: 5px; -gtk-outline-top-right-radius: 5px; }
+.linked.vertical > combobox:first-child > box > button.combo, .linked.vertical > spinbutton:first-child:not(.vertical), .linked.vertical > entry:first-child, .linked.vertical > button:first-child { border-top-left-radius: 3px; border-top-right-radius: 3px; -gtk-outline-top-left-radius: 3px; -gtk-outline-top-right-radius: 3px; }
 
-.linked.vertical > combobox:last-child > box > button.combo, .linked.vertical > spinbutton:last-child:not(.vertical), .linked.vertical > entry:last-child, .linked.vertical > button:last-child { border-bottom-style: solid; border-bottom-left-radius: 5px; border-bottom-right-radius: 5px; -gtk-outline-bottom-left-radius: 5px; -gtk-outline-bottom-right-radius: 5px; }
+.linked.vertical > combobox:last-child > box > button.combo, .linked.vertical > spinbutton:last-child:not(.vertical), .linked.vertical > entry:last-child, .linked.vertical > button:last-child { border-bottom-style: solid; border-bottom-left-radius: 3px; border-bottom-right-radius: 3px; -gtk-outline-bottom-left-radius: 3px; -gtk-outline-bottom-right-radius: 3px; }
 
-.linked.vertical > combobox:only-child > box > button.combo, .linked.vertical > spinbutton:only-child:not(.vertical), .linked.vertical > entry:only-child, .linked.vertical > button:only-child { border-style: solid; border-radius: 5px; -gtk-outline-radius: 5px; }
+.linked.vertical > combobox:only-child > box > button.combo, .linked.vertical > spinbutton:only-child:not(.vertical), .linked.vertical > entry:only-child, .linked.vertical > button:only-child { border-style: solid; border-radius: 3px; -gtk-outline-radius: 3px; }
 
 .scale-popup button:backdrop:hover, .scale-popup button:backdrop:disabled, .scale-popup button:backdrop, .scale-popup button:hover, calendar.button, button:link:hover, button:link:active, button:link:checked, button:visited:hover, button:visited:active, button:visited:checked, button:link, button:visited, list row button.image-button:not(.flat), modelbutton.flat:backdrop, modelbutton.flat:backdrop:hover, modelbutton.flat, .menuitem.button.flat { background-color: transparent; background-image: none; border-color: transparent; box-shadow: inset 0 1px rgba(255, 255, 255, 0), 0 1px rgba(255, 255, 255, 0); text-shadow: none; -gtk-icon-shadow: none; }
 
 /* menu buttons */
-modelbutton.flat, .menuitem.button.flat { min-height: 26px; padding-left: 5px; padding-right: 5px; border-radius: 5px; outline-offset: -2px; }
+modelbutton.flat, .menuitem.button.flat { min-height: 26px; padding-left: 5px; padding-right: 5px; border-radius: 3px; outline-offset: -2px; }
 
 modelbutton.flat:hover, .menuitem.button.flat:hover { background-color: #424242; }
 
@@ -429,7 +429,7 @@ modelbutton.flat arrow.left { -gtk-icon-source: -gtk-icontheme("pan-start-symbol
 
 modelbutton.flat arrow.right { -gtk-icon-source: -gtk-icontheme("pan-end-symbolic"); }
 
-button.color { padding: 4px; }
+button.color { padding: 0px; }
 
 button.color colorswatch:only-child, button.color colorswatch:only-child overlay { border-radius: 0; }
 
@@ -493,9 +493,9 @@ spinbutton:not(.vertical) button:backdrop:disabled { color: rgba(91, 91, 91, 0.3
 
 spinbutton:not(.vertical) button:backdrop:disabled:dir(rtl) { border-style: none solid none none; }
 
-spinbutton:not(.vertical) button:dir(ltr):last-child { border-radius: 0 5px 5px 0; }
+spinbutton:not(.vertical) button:dir(ltr):last-child { border-radius: 0 3px 3px 0; }
 
-spinbutton:not(.vertical) button:dir(rtl):first-child { border-radius: 5px 0 0 5px; }
+spinbutton:not(.vertical) button:dir(rtl):first-child { border-radius: 3px 0 0 3px; }
 
 .osd spinbutton:not(.vertical) button { border-color: transparent; background-color: transparent; background-image: none; box-shadow: inset 0 1px rgba(255, 255, 255, 0); text-shadow: none; -gtk-icon-shadow: none; color: #eeeeec; border-style: none none none solid; border-color: rgba(0, 0, 0, 0.4); border-radius: 0; box-shadow: none; -gtk-icon-shadow: 0 1px black; }
 
@@ -507,9 +507,9 @@ spinbutton:not(.vertical) button:dir(rtl):first-child { border-radius: 5px 0 0 5
 
 .osd spinbutton:not(.vertical) button:disabled { border-color: transparent; background-color: transparent; background-image: none; box-shadow: inset 0 1px rgba(255, 255, 255, 0); text-shadow: none; -gtk-icon-shadow: none; color: #8a8a89; border-color: rgba(0, 0, 0, 0.5); -gtk-icon-shadow: none; box-shadow: none; }
 
-.osd spinbutton:not(.vertical) button:dir(ltr):last-child { border-radius: 0 5px 5px 0; }
+.osd spinbutton:not(.vertical) button:dir(ltr):last-child { border-radius: 0 3px 3px 0; }
 
-.osd spinbutton:not(.vertical) button:dir(rtl):first-child { border-radius: 5px 0 0 5px; }
+.osd spinbutton:not(.vertical) button:dir(rtl):first-child { border-radius: 3px 0 0 3px; }
 
 spinbutton.vertical:disabled { color: #919190; }
 
@@ -521,9 +521,9 @@ spinbutton.vertical entry { min-height: 32px; min-width: 32px; padding: 0; borde
 
 spinbutton.vertical button { min-height: 32px; min-width: 32px; padding: 0; }
 
-spinbutton.vertical button.up { border-radius: 5px 5px 0 0; border-style: solid solid none solid; }
+spinbutton.vertical button.up { border-radius: 3px 3px 0 0; border-style: solid solid none solid; }
 
-spinbutton.vertical button.down { border-radius: 0 0 5px 5px; border-style: none solid solid solid; }
+spinbutton.vertical button.down { border-radius: 0 0 3px 3px; border-style: none solid solid solid; }
 
 .osd spinbutton.vertical button:first-child { color: #eeeeec; border-color: rgba(0, 0, 0, 0.7); background-color: transparent; background-image: image(rgba(38, 38, 38, 0.9)); background-clip: padding-box; box-shadow: inset 0 1px rgba(255, 255, 255, 0.1); text-shadow: 0 1px black; -gtk-icon-shadow: 0 1px black; outline-color: rgba(238, 238, 236, 0.3); }
 
@@ -572,7 +572,7 @@ searchbar > revealer > box { margin: -6px; padding: 6px; }
 .inline-toolbar:backdrop, searchbar > revealer > box:backdrop, .location-bar:backdrop { border-color: #202020; background-color: #2e2e2e; box-shadow: none; transition: 200ms ease-out; }
 
 /*************** Header bars * */
-.titlebar:not(headerbar), headerbar { padding: 0 6px; min-height: 46px; border-width: 0 0 1px; border-style: solid; border-color: #070707; border-radius: 0; background: #1b1b1b linear-gradient(to top, #262626, #2b2b2b); box-shadow: inset 0 1px rgba(238, 238, 236, 0.07); /* Darken switchbuttons for headerbars. issue #1588 */ /* hide the close button separator */ }
+.titlebar:not(headerbar), headerbar { padding: 0 6px; min-height: 40px; border-width: 0 0 1px; border-style: solid; border-color: #070707; border-radius: 0; background: #1b1b1b linear-gradient(to top, #262626, #2b2b2b); box-shadow: inset 0 1px rgba(238, 238, 236, 0.07); /* Darken switchbuttons for headerbars. issue #1588 */ /* hide the close button separator */ }
 
 .titlebar:backdrop:not(headerbar), headerbar:backdrop { border-color: #202020; background-color: #353535; background-image: none; box-shadow: inset 0 1px rgba(238, 238, 236, 0.07); transition: 200ms ease-out; }
 
@@ -624,7 +624,7 @@ searchbar > revealer > box { margin: -6px; padding: 6px; }
 
 .selection-mode .titlebar:not(headerbar) button.suggested-action:backdrop:disabled, .selection-mode.titlebar:not(headerbar) button.suggested-action:backdrop:disabled, .selection-mode headerbar button.suggested-action:backdrop:disabled, headerbar.selection-mode button.suggested-action:backdrop:disabled { color: #5b5b5b; border-color: #202020; background-image: image(#323232); text-shadow: none; -gtk-icon-shadow: none; box-shadow: inset 0 1px rgba(255, 255, 255, 0); border-color: #030c17; }
 
-.selection-mode .titlebar:not(headerbar) .selection-menu, .selection-mode.titlebar:not(headerbar) .selection-menu, .selection-mode headerbar .selection-menu:backdrop, .selection-mode headerbar .selection-menu, headerbar.selection-mode .selection-menu:backdrop, headerbar.selection-mode .selection-menu { border-color: rgba(21, 83, 158, 0); background-color: rgba(21, 83, 158, 0); background-image: none; box-shadow: none; min-height: 20px; padding: 6px 10px; }
+.selection-mode .titlebar:not(headerbar) .selection-menu, .selection-mode.titlebar:not(headerbar) .selection-menu, .selection-mode headerbar .selection-menu:backdrop, .selection-mode headerbar .selection-menu, headerbar.selection-mode .selection-menu:backdrop, headerbar.selection-mode .selection-menu { border-color: rgba(21, 83, 158, 0); background-color: rgba(21, 83, 158, 0); background-image: none; box-shadow: none; min-height: 20px; padding: 4px 10px; }
 
 .selection-mode .titlebar:not(headerbar) .selection-menu arrow, .selection-mode.titlebar:not(headerbar) .selection-menu arrow, .selection-mode headerbar .selection-menu:backdrop arrow, .selection-mode headerbar .selection-menu arrow, headerbar.selection-mode .selection-menu:backdrop arrow, headerbar.selection-mode .selection-menu arrow { -GtkArrow-arrow-scaling: 1; }
 
@@ -640,13 +640,13 @@ searchbar > revealer > box { margin: -6px; padding: 6px; }
 
 .solid-csd .titlebar:dir(rtl):not(headerbar), .solid-csd .titlebar:dir(ltr):not(headerbar), .solid-csd headerbar:backdrop:dir(rtl), .solid-csd headerbar:backdrop:dir(ltr), .solid-csd headerbar:dir(rtl), .solid-csd headerbar:dir(ltr) { margin-left: -1px; margin-right: -1px; margin-top: -1px; border-radius: 0; box-shadow: none; }
 
-headerbar entry, headerbar spinbutton, headerbar separator:not(.sidebar), headerbar button { margin-top: 6px; margin-bottom: 6px; }
+headerbar entry, headerbar spinbutton, headerbar separator:not(.sidebar), headerbar button { margin-top: 5px; margin-bottom: 5px; }
 
-headerbar switch { margin-top: 10px; margin-bottom: 10px; }
+headerbar switch { margin-top: 7px; margin-bottom: 7px; }
 
 headerbar.titlebar headerbar:not(.titlebar) { background: none; box-shadow: none; }
 
-.background .titlebar:backdrop, .background .titlebar { border-top-left-radius: 8px; border-top-right-radius: 8px; }
+.background .titlebar:backdrop, .background .titlebar { border-top-left-radius: 6px; border-top-right-radius: 6px; }
 
 .background.tiled .titlebar:backdrop, .background.tiled .titlebar, .background.tiled-top .titlebar:backdrop, .background.tiled-top .titlebar, .background.tiled-right .titlebar:backdrop, .background.tiled-right .titlebar, .background.tiled-bottom .titlebar:backdrop, .background.tiled-bottom .titlebar, .background.tiled-left .titlebar:backdrop, .background.tiled-left .titlebar, .background.maximized .titlebar:backdrop, .background.maximized .titlebar, .background.solid-csd .titlebar:backdrop, .background.solid-csd .titlebar { border-top-left-radius: 0; border-top-right-radius: 0; }
 
@@ -820,7 +820,7 @@ menuitem check:dir(rtl), menuitem radio:dir(rtl) { margin-left: 7px; }
 /*************** Popovers   * */
 popover.background { padding: 2px; background-color: #353535; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); }
 
-.csd popover.background, popover.background { border: 1px solid #1b1b1b; border-radius: 9px; }
+.csd popover.background, popover.background { border: 1px solid #1b1b1b; border-radius: 7px; }
 
 .csd popover.background { background-clip: padding-box; border-color: rgba(0, 0, 0, 0.75); }
 
@@ -1600,13 +1600,13 @@ calendar:indeterminate { color: alpha(currentColor,0.1); }
 /*********** Dialogs * */
 messagedialog .titlebar { min-height: 20px; background-image: none; background-color: #353535; border-style: none; border-top-left-radius: 7px; border-top-right-radius: 7px; }
 
-messagedialog.csd.background { border-bottom-left-radius: 9px; border-bottom-right-radius: 9px; }
+messagedialog.csd.background { border-bottom-left-radius: 7px; border-bottom-right-radius: 7px; }
 
 messagedialog.csd .dialog-action-area button { padding: 10px 14px; border-right-style: none; border-bottom-style: none; border-radius: 0; -gtk-outline-radius: 0; }
 
-messagedialog.csd .dialog-action-area button:first-child { border-left-style: none; border-bottom-left-radius: 7px; -gtk-outline-bottom-left-radius: 7px; }
+messagedialog.csd .dialog-action-area button:first-child { border-left-style: none; border-bottom-left-radius: 5px; -gtk-outline-bottom-left-radius: 5px; }
 
-messagedialog.csd .dialog-action-area button:last-child { border-bottom-right-radius: 7px; -gtk-outline-bottom-right-radius: 7px; }
+messagedialog.csd .dialog-action-area button:last-child { border-bottom-right-radius: 5px; -gtk-outline-bottom-right-radius: 5px; }
 
 filechooser .dialog-action-box { border-top: 1px solid #1b1b1b; }
 
@@ -1834,7 +1834,7 @@ colorchooser .popover.osd { border-radius: 5px; }
 .scale-popup button:hover { background-color: rgba(238, 238, 236, 0.1); border-radius: 5px; }
 
 /********************** Window Decorations * */
-decoration { border-radius: 8px 8px 0 0; border-width: 0px; box-shadow: 0 3px 9px 1px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 0, 0, 0.75); margin: 10px; }
+decoration { border-radius: 6px 6px 0 0; border-width: 0px; box-shadow: 0 3px 9px 1px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 0, 0, 0.75); margin: 10px; }
 
 decoration:backdrop { box-shadow: 0 3px 9px 1px transparent, 0 2px 6px 2px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.75); transition: 200ms ease-out; }
 
@@ -1854,7 +1854,7 @@ decoration:backdrop { box-shadow: 0 3px 9px 1px transparent, 0 2px 6px 2px rgba(
 
 tooltip.csd decoration { border-radius: 5px; box-shadow: none; }
 
-messagedialog.csd decoration { border-radius: 8px; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.65); }
+messagedialog.csd decoration { border-radius: 6px; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.65); }
 
 .solid-csd decoration { margin: 0; padding: 4px; background-color: #1b1b1b; border: solid 1px #1b1b1b; border-radius: 0; box-shadow: inset 0 0 0 3px #2d2d2d, inset 0 1px rgba(238, 238, 236, 0.07); }
 
@@ -1862,7 +1862,7 @@ messagedialog.csd decoration { border-radius: 8px; box-shadow: 0 1px 2px rgba(0,
 
 button.titlebutton { text-shadow: 0 -1px rgba(0, 0, 0, 0.834353); -gtk-icon-shadow: 0 -1px rgba(0, 0, 0, 0.834353); }
 
-button.titlebutton:not(.appmenu) { border-radius: 9999px; padding: 6px; margin: 0 2px; min-width: 0; min-height: 0; }
+button.titlebutton:not(.appmenu) { border-radius: 9999px; padding: 5px; margin: 0 2px; min-width: 0; min-height: 0; }
 
 button.titlebutton:backdrop { -gtk-icon-shadow: none; }
 
@@ -1954,6 +1954,23 @@ popover.emoji-completion arrow { border: none; background: none; }
 popover.emoji-completion contents row box { padding: 2px 10px; }
 
 popover.emoji-completion .emoji:hover { background: #424242; }
+
+/* Crown Editor classes */
+.color { min-height: 22px; padding: 0px; }
+
+.console-view textview, .console-view entry { font: 12px "Monospace"; }
+
+.statusbar { background-color: #4c4c4c; font-size: 10px; min-height: 22px; padding-left: 12px; }
+
+.axis { min-width: 22px; font-weight: bold; border-radius: 4px 0px 0px 4px; }
+
+.axis.x { background: rgba(120, 0, 0, 0.8); }
+
+.axis.y { background: rgba(0, 120, 0, 0.8); }
+
+.axis.z { background: rgba(0, 0, 120, 0.8); }
+
+.axis.w { background: rgba(120, 120, 120, 0.8); }
 
 /* GTK NAMED COLORS ---------------- use responsibly! */
 /*

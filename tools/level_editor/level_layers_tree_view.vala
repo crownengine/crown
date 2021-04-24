@@ -76,8 +76,6 @@ public class LevelLayersTreeView : Gtk.Box
 
 		this.pack_start(_filter_entry, false, true, 0);
 		this.pack_start(_scrolled_window, true, true, 0);
-
-		this.get_style_context().add_class("level-layers-view");
 	}
 
 	private bool on_button_pressed(Gdk.EventButton ev)

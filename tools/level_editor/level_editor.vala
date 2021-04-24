@@ -345,7 +345,7 @@ public class LevelEditorApplication : Gtk.Application
 		Gtk.CssProvider provider = new Gtk.CssProvider();
 		Gdk.Screen screen = Gdk.Display.get_default().get_default_screen();
 		Gtk.StyleContext.add_provider_for_screen(screen, provider, STYLE_PROVIDER_PRIORITY_APPLICATION);
-		provider.load_from_resource("/org/crown/level_editor/css/style.css");
+		provider.load_from_resource("/org/crown/level_editor/theme/Adwaita/gtk-dark.css");
 
 		// HACK: register CrownClamp type within GObject's type system to
 		// make GtkBuilder able to find it when creating the widget from

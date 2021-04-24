@@ -139,6 +139,10 @@ windows-development64: build/projects/vs2019 build/windows64/bin/luajit.exe buil
 windows-release64: build/projects/vs2019 build/windows64/bin/luajit.exe
 	devenv.com build/projects/vs2019/crown.sln $(ARG_PREFIX)Build "release|x64"
 
+level-editor-theme:
+	cd tools/level_editor/resources/theme/Adwaita && ./parse-sass.sh
+	cd tools/level_editor/resources && ./generate-resources.sh > resources.gresource.xml
+
 level-editor-linux-debug64:
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux level-editor config=debug64
 level-editor-linux-release64:
