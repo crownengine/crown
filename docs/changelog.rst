@@ -12,6 +12,7 @@ Changelog
 * The Editor will now check whether the file being edited is deleted from the Project Browser to ask user for confirmation.
 * Added the ability to set in the Preferences the external editors to use when opening Lua and image files.
 * Custom theme improvements.
+* Fixed duplicated entries in the Resource Chooser.
 
 0.43.0
 ------

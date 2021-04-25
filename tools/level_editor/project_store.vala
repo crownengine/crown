@@ -230,7 +230,7 @@ public class ProjectStore
 				if ((string)iter_name == name && (string)iter_type == type)
 				{
 					_tree_store.remove(ref child);
-					return;
+					break;
 				}
 
 				if (!_tree_store.iter_next(ref child))
@@ -251,7 +251,7 @@ public class ProjectStore
 				if ((string)iter_name == name && (string)iter_type == type)
 				{
 					_list_store.remove(ref child);
-					return;
+					break;
 				}
 
 				if (!_list_store.iter_next(ref child))
