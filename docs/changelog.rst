@@ -5,6 +5,10 @@ Changelog
 ------
 *DD MMM YYYY*
 
+**Data Compiler**
+
+* Fixed undetected file changes in some circumnstances.
+
 **Tools**
 
 * Fixed Engine View not redrawing when a command was sent from the Console.

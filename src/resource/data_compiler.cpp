@@ -611,24 +611,22 @@ void DataCompiler::add_file(const char* path)
 	DynamicString str(ta);
 	str.set(path, strlen32(path));
 
-	// Due to limitations in the OS-level file monitor APIs, we may receive
-	// more than a single add_file() for the same path. Check if the path
-	// is already tracked and, if so, ignore it.
 	Stat deff_st;
 	deff_st.file_type = Stat::NO_ENTRY;
 	deff_st.size = 0;
 	deff_st.mtime = 0;
-	if (hash_map::get(_source_index._paths, str, deff_st).file_type != Stat::NO_ENTRY)
-		return;
+	Stat prev_st = hash_map::get(_source_index._paths, str, deff_st);
 
-	// Get file status
+	// Get file status.
 	FilesystemDisk fs(default_allocator());
 	fs.set_prefix(source_dir.c_str());
 	Stat st;
 	st = fs.stat(path);
 	hash_map::set(_source_index._paths, str, st);
 
-	notify_add_file(path);
+	// Avoid sending spurious add_file() notifications for already known paths.
+	if (prev_st.file_type == Stat::NO_ENTRY)
+		notify_add_file(path);
 }
 
 void DataCompiler::remove_file(const char* path)
@@ -1225,6 +1223,8 @@ void DataCompiler::file_monitor_callback(FileMonitorEvent::Enum fme, bool is_dir
 		CE_STATIC_ASSERT(countof(fme_to_name) == FileMonitorEvent::COUNT);
 		logi(DATA_COMPILER, "file_monitor_callback: event: %s %s", fme_to_name[fme], is_dir ? "dir" : "file");
 		logi(DATA_COMPILER, "  path         : %s", path);
+		if (fme == FileMonitorEvent::RENAMED)
+			logi(DATA_COMPILER, "  path_renamed : %s", path_renamed);
 		logi(DATA_COMPILER, "  source_dir   : %s", source_dir.c_str());
 		logi(DATA_COMPILER, "  resource_path: %s", resource_path.c_str());
 		logi(DATA_COMPILER, "  resource_name: %s", resource_name.c_str());
