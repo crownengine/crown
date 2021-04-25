@@ -306,19 +306,23 @@ struct FileMonitorImpl
 				p += sizeof(inotify_event) + ev->len;
 			}
 
-			// Unpaired IN_MOVE_TO
+			// Unpaired IN_MOVED_TO or IN_MOVE_FROM with missing IN_MOVED_TO (rename from outside
+			// watched directory).
 			if (cookie != 0)
 			{
-				_function(_user_data
-					, FileMonitorEvent::DELETED
-					, cookie_mask & IN_ISDIR
-					, cookie_path.c_str()
-					, NULL
-					);
+				if (cookie_mask & IN_MOVED_TO)
+				{
+					_function(_user_data
+						, FileMonitorEvent::DELETED
+						, cookie_mask & IN_ISDIR
+						, cookie_path.c_str()
+						, NULL
+						);
 
-				u32 wd = hash_map::get(_watches_reverse, cookie_path, INT32_MAX);
-				hash_map::remove(_watches_reverse, cookie_path);
-				inotify_rm_watch(_fd, wd);
+					u32 wd = hash_map::get(_watches_reverse, cookie_path, INT32_MAX);
+					hash_map::remove(_watches_reverse, cookie_path);
+					inotify_rm_watch(_fd, wd);
+				}
 
 				cookie = 0;
 				cookie_mask = 0;
