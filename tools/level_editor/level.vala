@@ -340,7 +340,7 @@ public class Level
 		unit.set_component_property_bool  (component_id, "data.visible", visible);
 		unit.set_component_property_string(component_id, "type", "mesh_renderer");
 
-		_client.send_script(LevelEditorApi.set_mesh(unit_id, 0 /*instance_id*/, material, visible));
+		_client.send_script(LevelEditorApi.set_mesh(unit_id, material, visible));
 		_client.send(DeviceApi.frame());
 	}
 
@@ -763,7 +763,6 @@ public class Level
 				unit.has_component(out component_id, "mesh_renderer");
 
 				_client.send_script(LevelEditorApi.set_mesh(unit_id
-					, 0/*instance_id*/
 					, unit.get_component_property_string(component_id, "data.material")
 					, unit.get_component_property_bool  (component_id, "data.visible")
 					));

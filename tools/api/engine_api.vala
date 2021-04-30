@@ -321,10 +321,9 @@ namespace LevelEditorApi
 			);
 	}
 
-	public string set_mesh(Guid id, double instance_id, string material, bool visible)
+	public string set_mesh(Guid id, string material, bool visible)
 	{
-		return @"LevelEditor._objects[\"%s\"]:set_mesh(%.17g, \"%s\", %s)".printf(id.to_string()
-			, instance_id
+		return @"LevelEditor._objects[\"%s\"]:set_mesh(\"%s\", %s)".printf(id.to_string()
 			, material
 			, Lua.bool(visible)
 			);
