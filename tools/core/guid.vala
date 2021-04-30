@@ -101,6 +101,6 @@ public struct Guid
 	}
 }
 
-const Guid GUID_ZERO = { 0, 0, 0, 0 };
+public const Guid GUID_ZERO = { 0, 0, 0, 0 };
 
 }
