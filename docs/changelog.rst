@@ -19,6 +19,7 @@ Changelog
 * Fixed duplicated entries in the Resource Chooser.
 * Changing the sprite in the Sprite Renderer component is now reflected to the Runtime.
 * Added noop resources in ``core/components/noop.*``.
+* Changed the fallback shader to output Color4(255, 0, 255, 255).
 
 **Lua API**
 
