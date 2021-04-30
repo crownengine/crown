@@ -1,0 +1,17 @@
+frames = [
+	{
+		name = "frame_0"
+		pivot = [
+			16
+			16
+		]
+		region = [
+			0
+			0
+			32
+			32
+		]
+	}
+]
+height = 32
+width = 32

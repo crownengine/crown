@@ -1,0 +1,7 @@
+shader = "noop"
+
+textures = {
+}
+
+uniforms = {
+}

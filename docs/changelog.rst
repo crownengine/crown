@@ -18,6 +18,7 @@ Changelog
 * Custom theme improvements.
 * Fixed duplicated entries in the Resource Chooser.
 * Changing the sprite in the Sprite Renderer component is now reflected to the Runtime.
+* Added noop resources in ``core/components/noop.*``.
 
 **Lua API**
 

@@ -81,6 +81,14 @@ render_states = {
 		blend_enable = false
 		cull_mode = "cw"
 	}
+
+	noop = {
+		rgb_write_enable = false
+		alpha_write_enable = false
+		depth_write_enable = false
+		depth_enable = false
+		blend_enable = false
+	}
 }
 
 bgfx_shaders = {
@@ -568,6 +576,29 @@ bgfx_shaders = {
 		"""
 	}
 
+	noop = {
+		varying = """
+		"""
+
+		vs_input_output = """
+		"""
+
+		vs_code = """
+			void main()
+			{
+			}
+		"""
+
+		fs_input_output = """
+		"""
+
+		fs_code = """
+			void main()
+			{
+			}
+		"""
+	}
+
 }
 
 shaders = {
@@ -626,6 +657,11 @@ shaders = {
 		render_state = "mesh"
 	}
 
+	noop = {
+		bgfx_shader = "noop"
+		render_state = "noop"
+	}
+
 }
 
 static_compile = [
@@ -643,5 +679,6 @@ static_compile = [
 	{ shader = "imgui_image" defines = [] }
 	{ shader = "blit" defines = [] }
 	{ shader = "fallback" defines = [] }
+	{ shader = "noop" defines = [] }
 
 ]
