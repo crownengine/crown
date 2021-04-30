@@ -1580,6 +1580,12 @@ void load_api(LuaEnvironment& env)
 			stack.push_camera(world->camera_create(unit, cd, pose));
 			return 1;
 		});
+	env.add_module_function("World", "camera_destroy", [](lua_State* L)
+		{
+			LuaStack stack(L);
+			stack.get_world(1)->camera_destroy(stack.get_camera_instance(2));
+			return 0;
+		});
 	env.add_module_function("World", "camera_instance", [](lua_State* L)
 		{
 			LuaStack stack(L);

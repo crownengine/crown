@@ -1315,6 +1315,9 @@ Camera
 	Creates a new camera for *unit* and returns its id.
 	Projection can be either ``orthographic`` or ``perspective``.
 
+**camera_destroy** (world, camera)
+	Destroys the *camera* instance.
+
 **camera_instance** (world, unit) : Id
 	Returns the ID of the camera owned by the *unit*, or ``nil``.
 

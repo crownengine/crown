@@ -19,6 +19,10 @@ Changelog
 * Fixed duplicated entries in the Resource Chooser.
 * Changing the sprite in the Sprite Renderer component is now reflected to the Runtime.
 
+**Lua API**
+
+* Added ``World.camera_destroy()``.
+
 0.43.0
 ------
 *17 Apr 2021*
