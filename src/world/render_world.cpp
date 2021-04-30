@@ -180,6 +180,13 @@ SpriteInstance RenderWorld::sprite_instance(UnitId unit)
 	return _sprite_manager.sprite(unit);
 }
 
+void RenderWorld::sprite_set_sprite(SpriteInstance sprite, StringId64 sprite_resource_name)
+{
+	CE_ASSERT(sprite.i < _sprite_manager._data.size, "Index out of bounds");
+	const SpriteResource* resource = (SpriteResource*)_resource_manager->get(RESOURCE_TYPE_SPRITE, sprite_resource_name);
+	_sprite_manager._data.resource[sprite.i] = resource;
+}
+
 Material* RenderWorld::sprite_material(SpriteInstance sprite)
 {
 	CE_ASSERT(sprite.i < _sprite_manager._data.size, "Index out of bounds");

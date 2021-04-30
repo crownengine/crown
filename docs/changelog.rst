@@ -17,6 +17,7 @@ Changelog
 * Added the ability to set in the Preferences the external editors to use when opening Lua and image files.
 * Custom theme improvements.
 * Fixed duplicated entries in the Resource Chooser.
+* Changing the sprite in the Sprite Renderer component is now reflected to the Runtime.
 
 0.43.0
 ------

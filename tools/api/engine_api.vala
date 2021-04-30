@@ -330,9 +330,10 @@ namespace LevelEditorApi
 			);
 	}
 
-	public string set_sprite(Guid id, string material, double layer, double depth, bool visible)
+	public string set_sprite(Guid id, string sprite_resource_name, string material, double layer, double depth, bool visible)
 	{
-		return @"LevelEditor._objects[\"%s\"]:set_sprite(\"%s\", %.17g, %.17g, %s)".printf(id.to_string()
+		return @"LevelEditor._objects[\"%s\"]:set_sprite(\"%s\", \"%s\", %.17g, %.17g, %s)".printf(id.to_string()
+			, sprite_resource_name
 			, material
 			, layer
 			, depth

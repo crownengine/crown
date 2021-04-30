@@ -2071,6 +2071,12 @@ void load_api(LuaEnvironment& env)
 				stack.push_nil();
 			return 1;
 		});
+	env.add_module_function("RenderWorld", "sprite_set_sprite", [](lua_State* L)
+		{
+			LuaStack stack(L);
+			stack.get_render_world(1)->sprite_set_sprite(stack.get_sprite_instance(2), stack.get_string_id_64(3));
+			return 0;
+		});
 	env.add_module_function("RenderWorld", "sprite_material", [](lua_State* L)
 		{
 			LuaStack stack(L);

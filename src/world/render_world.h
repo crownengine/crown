@@ -60,6 +60,9 @@ struct RenderWorld
 	/// Returns the ID of the sprite owned by the *unit*.
 	SpriteInstance sprite_instance(UnitId unit);
 
+	/// Sets the @a sprite_resource of the @a sprite.
+	void sprite_set_sprite(SpriteInstance sprite, StringId64 sprite_resource_name);
+
 	/// Returns the material of the @a sprite.
 	Material* sprite_material(SpriteInstance sprite);
 

@@ -492,8 +492,9 @@ function UnitBox:set_mesh(instance_id, material, visible)
 	RenderWorld.mesh_set_visible(LevelEditor._rw, mesh, visible)
 end
 
-function UnitBox:set_sprite(material, layer, depth, visible)
+function UnitBox:set_sprite(sprite_resource_name, material, layer, depth, visible)
 	local sprite = RenderWorld.sprite_instance(LevelEditor._rw, self._unit_id)
+	RenderWorld.sprite_set_sprite(LevelEditor._rw, sprite, sprite_resource_name)
 	RenderWorld.sprite_set_material(LevelEditor._rw, sprite, material)
 	RenderWorld.sprite_set_layer(LevelEditor._rw, sprite, layer)
 	RenderWorld.sprite_set_depth(LevelEditor._rw, sprite, depth)

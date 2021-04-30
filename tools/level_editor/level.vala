@@ -356,7 +356,7 @@ public class Level
 		unit.set_component_property_bool  (component_id, "data.visible", visible);
 		unit.set_component_property_string(component_id, "type", "sprite_renderer");
 
-		_client.send_script(LevelEditorApi.set_sprite(unit_id, material, layer, depth, visible));
+		_client.send_script(LevelEditorApi.set_sprite(unit_id, sprite_resource, material, layer, depth, visible));
 		_client.send(DeviceApi.frame());
 	}
 
@@ -782,6 +782,7 @@ public class Level
 				unit.has_component(out component_id, "sprite_renderer");
 
 				_client.send_script(LevelEditorApi.set_sprite(unit_id
+					, unit.get_component_property_string(component_id, "data.sprite_resource")
 					, unit.get_component_property_string(component_id, "data.material")
 					, unit.get_component_property_double(component_id, "data.layer")
 					, unit.get_component_property_double(component_id, "data.depth")
