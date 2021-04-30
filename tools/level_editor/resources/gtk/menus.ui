@@ -287,6 +287,12 @@
           <attribute name="action">app.sound-source</attribute>
         </item>
       </section>
+        <item>
+          <attribute name="label" translatable="yes">Empty Unit</attribute>
+          <attribute name="action">app.unit-empty</attribute>
+        </item>
+      <section>
+      </section>
     </submenu>
     <submenu>
       <attribute name="label" translatable="yes">Camera</attribute>

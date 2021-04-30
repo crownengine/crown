@@ -102,10 +102,15 @@ public class Level
 		_name = name;
 	}
 
-	public void spawn_unit(Guid id, string name, Vector3 pos, Quaternion rot, Vector3 scl)
+	public void spawn_empty_unit()
 	{
-		on_unit_spawned(id, name, pos, rot, scl);
-		send_spawn_units(new Guid[] { id });
+		StringBuilder sb = new StringBuilder();
+		Guid id = Guid.new_guid();
+		on_unit_spawned(id, null, VECTOR3_ZERO, QUATERNION_IDENTITY, VECTOR3_ONE);
+		generate_spawn_unit_commands(new Guid[] { id }, sb);
+		_client.send_script(sb.str);
+		_client.send(DeviceApi.frame());
+		selection_set(new Guid[] { id });
 	}
 
 	public void destroy_objects(Guid[] ids)
@@ -208,14 +213,17 @@ public class Level
 		selection_set(ids);
 	}
 
-	public void on_unit_spawned(Guid id, string name, Vector3 pos, Quaternion rot, Vector3 scl)
+	public void on_unit_spawned(Guid id, string? name, Vector3 pos, Quaternion rot, Vector3 scl)
 	{
-		_project.load_unit(name);
-
 		_db.add_restore_point((int)ActionType.SPAWN_UNIT, new Guid[] { id });
 		_db.create(id);
 		_db.set_property_string(id, "editor.name", "unit_%04u".printf(_num_units++));
-		_db.set_property_string(id, "prefab", name);
+
+		if (name != null)
+		{
+			_project.load_unit(name);
+			_db.set_property_string(id, "prefab", name);
+		}
 
 		Unit unit = new Unit(_db, id);
 		Guid component_id;

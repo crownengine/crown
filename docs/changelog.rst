@@ -20,6 +20,7 @@ Changelog
 * Changing the sprite in the Sprite Renderer component is now reflected to the Runtime.
 * Added noop resources in ``core/components/noop.*``.
 * Changed the fallback shader to output Color4(255, 0, 255, 255).
+* Added the ability to spawn emtpy units.
 
 **Lua API**
 

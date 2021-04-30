@@ -178,7 +178,8 @@ public class LevelEditorApplication : Gtk.Application
 		{ "primitive-plane",    on_create_primitive, null, null },
 		{ "camera",             on_create_primitive, null, null },
 		{ "light",              on_create_primitive, null, null },
-		{ "sound-source",       on_create_primitive, null, null }
+		{ "sound-source",       on_create_primitive, null, null },
+		{ "unit-empty",         on_create_unit,      null, null }
 	};
 
 	private const GLib.ActionEntry[] action_entries_camera =
@@ -1990,6 +1991,11 @@ public class LevelEditorApplication : Gtk.Application
 			set_placeable("sound", "");
 
 		activate_action("tool", new GLib.Variant.string("place"));
+	}
+
+	private void on_create_unit(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		_level.spawn_empty_unit();
 	}
 
 	private void on_camera_view(GLib.SimpleAction action, GLib.Variant? param)
