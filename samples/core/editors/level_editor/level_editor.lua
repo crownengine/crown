@@ -1985,9 +1985,9 @@ function LevelEditor:draw_grid(tm, center, size, axis)
 	draw_grid(self._lines, tm, center, size, axis, color)
 end
 
-function LevelEditor:spawn_unit(id, type, pos, rot, scale)
-	local unit = World.spawn_unit(self._world, type, pos, rot)
-	local unit_box = UnitBox(self._world, id, unit, type)
+function LevelEditor:spawn_unit(id, name, pos, rot, scale)
+	local unit = World.spawn_unit(self._world, name, pos, rot, scale)
+	local unit_box = UnitBox(self._world, id, unit, name)
 	self._objects[id] = unit_box
 end
 
