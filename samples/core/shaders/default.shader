@@ -577,6 +577,8 @@ bgfx_shaders = {
 	}
 
 	noop = {
+		includes = "common"
+
 		varying = """
 		"""
 
@@ -586,6 +588,7 @@ bgfx_shaders = {
 		vs_code = """
 			void main()
 			{
+				gl_Position = vec4_splat(0);
 			}
 		"""
 
