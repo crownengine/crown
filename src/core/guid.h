@@ -16,10 +16,8 @@ namespace crown
 /// @ingroup Core
 struct Guid
 {
-	u32 data1;
-	u16 data2;
-	u16 data3;
-	u64 data4;
+	u64 data1;
+	u64 data2;
 };
 
 namespace guid_globals
@@ -60,6 +58,6 @@ bool operator==(const Guid& a, const Guid& b);
 /// Returns whether Guid @a is lesser than @b.
 bool operator<(const Guid& a, const Guid& b);
 
-static const Guid GUID_ZERO = { 0u, 0u, 0u, 0u };
+static const Guid GUID_ZERO = { 0u, 0u };
 
 } // namespace crown

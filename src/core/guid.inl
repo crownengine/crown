@@ -11,8 +11,6 @@ inline bool operator==(const Guid& a, const Guid& b)
 {
 	return a.data1 == b.data1
 		&& a.data2 == b.data2
-		&& a.data3 == b.data3
-		&& a.data4 == b.data4
 		;
 }
 
@@ -22,10 +20,6 @@ inline bool operator<(const Guid& a, const Guid& b)
 		return a.data1 < b.data1;
 	if (a.data2 != b.data2)
 		return a.data2 < b.data2;
-	if (a.data3 != b.data3)
-		return a.data3 < b.data3;
-	if (a.data4 != b.data4)
-		return a.data4 < b.data4;
 
 	return false;
 }
