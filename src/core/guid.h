@@ -60,15 +60,6 @@ bool operator==(const Guid& a, const Guid& b);
 /// Returns whether Guid @a is lesser than @b.
 bool operator<(const Guid& a, const Guid& b);
 
-template <typename T>
-struct hash;
-
-template<>
-struct hash<Guid>
-{
-	u32 operator()(const Guid& id) const;
-};
-
 static const Guid GUID_ZERO = { 0u, 0u, 0u, 0u };
 
 } // namespace crown

@@ -30,9 +30,13 @@ inline bool operator<(const Guid& a, const Guid& b)
 	return false;
 }
 
-inline u32 hash<Guid>::operator()(const Guid& id) const
+template<>
+struct hash<Guid>
 {
-	return id.data1;
-}
+	u32 operator()(const Guid& id) const
+	{
+		return u32(id.data1 ^ id.data2);
+	}
+};
 
 } // namespace crown
