@@ -2,31 +2,34 @@
 <gresources>
   <gresource prefix="/org/crown/level_editor">
     <file compressed="true">theme/Adwaita/gtk-contained-dark.css</file>
+    <file compressed="true">theme/Adwaita/gtk-contained.css</file>
     <file compressed="true">theme/Adwaita/gtk-dark.css</file>
+    <file compressed="true">theme/Adwaita/gtk.css</file>
     <file compressed="true" preprocess="xml-stripblanks">gtk/menus.ui</file>
     <file compressed="true" preprocess="xml-stripblanks">ui/panel_projects_list.ui</file>
     <file compressed="true" preprocess="xml-stripblanks">ui/panel_new_project.ui</file>
     <file compressed="true" preprocess="xml-stripblanks">ui/toolbar.ui</file>
-    <file>icons/16x16/emblems/level-object-unknown.png</file>
-    <file>icons/16x16/emblems/level-object-unit.png</file>
-    <file>icons/16x16/emblems/level-object-sound.png</file>
-    <file>icons/16x16/emblems/level-object-light.png</file>
-    <file>icons/16x16/emblems/level-object-camera.png</file>
-    <file>icons/16x16/actions/axis-world.png</file>
-    <file>icons/16x16/actions/game-stop.png</file>
-    <file>icons/16x16/actions/tool-move.png</file>
-    <file>icons/16x16/actions/snap-to-grid.png</file>
-    <file>icons/16x16/actions/layer-visible.png</file>
-    <file>icons/16x16/actions/layer-locked.png</file>
-    <file>icons/16x16/actions/level-layers.png</file>
-    <file>icons/16x16/actions/game-run.png</file>
-    <file>icons/16x16/actions/tool-place.png</file>
-    <file>icons/16x16/actions/tool-rotate.png</file>
-    <file>icons/16x16/actions/axis-local.png</file>
-    <file>icons/16x16/actions/tool-scale.png</file>
-    <file>icons/16x16/actions/level-tree.png</file>
-    <file>icons/16x16/actions/reference-world.png</file>
-    <file>icons/16x16/actions/reference-local.png</file>
+    <file>icons/16x16/emblems/layer-locked-symbolic.symbolic.png</file>
+    <file>icons/16x16/emblems/tool-rotate-symbolic.symbolic.png</file>
+    <file>icons/16x16/emblems/snap-to-grid-symbolic.symbolic.png</file>
+    <file>icons/16x16/emblems/axis-local-symbolic.symbolic.png</file>
+    <file>icons/16x16/emblems/level-tree-symbolic.symbolic.png</file>
+    <file>icons/16x16/emblems/level-object-light-symbolic.png</file>
+    <file>icons/16x16/emblems/level-layers-symbolic.symbolic.png</file>
+    <file>icons/16x16/emblems/level-object-unit-symbolic.symbolic.png</file>
+    <file>icons/16x16/emblems/level-object-sound-symbolic.symbolic.png</file>
+    <file>icons/16x16/emblems/game-run-symbolic.symbolic.png</file>
+    <file>icons/16x16/emblems/tool-place-symbolic.symbolic.png</file>
+    <file>icons/16x16/emblems/layer-visible-symbolic.symbolic.png</file>
+    <file>icons/16x16/emblems/level-object-light-symbolic.symbolic.png</file>
+    <file>icons/16x16/emblems/axis-world-symbolic.symbolic.png</file>
+    <file>icons/16x16/emblems/reference-world-symbolic.symbolic.png</file>
+    <file>icons/16x16/emblems/reference-local-symbolic.symbolic.png</file>
+    <file>icons/16x16/emblems/level-object-camera-symbolic.symbolic.png</file>
+    <file>icons/16x16/emblems/tool-move-symbolic.symbolic.png</file>
+    <file>icons/16x16/emblems/tool-scale-symbolic.symbolic.png</file>
+    <file>icons/16x16/emblems/game-stop-symbolic.symbolic.png</file>
+    <file>icons/16x16/emblems/level-object-unknown-symbolic.symbolic.png</file>
     <file>icons/16x16/apps/crown-black.png</file>
     <file>icons/16x16/apps/crown.png</file>
     <file>icons/16x16/apps/crown-white.png</file>
