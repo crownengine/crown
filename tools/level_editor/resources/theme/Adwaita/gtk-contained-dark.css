@@ -1,5 +1,5 @@
 /*************************** Check and Radio buttons * */
-* { padding: 0; -GtkToolButton-icon-spacing: 4; -GtkTextView-error-underline-color: #cc0000; -GtkScrolledWindow-scrollbar-spacing: 0; -GtkToolItemGroup-expander-size: 11; -GtkWidget-text-handle-width: 20; -GtkWidget-text-handle-height: 24; -GtkDialog-button-spacing: 4; -GtkDialog-action-area-border: 0; outline-color: alpha(currentColor,0.3); outline-style: dashed; outline-offset: -3px; outline-width: 1px; -gtk-outline-radius: 1px; -gtk-secondary-caret-color: #15539e; font: 12px "Cantarell"; }
+* { padding: 0; -GtkToolButton-icon-spacing: 4; -GtkTextView-error-underline-color: #cc0000; -GtkScrolledWindow-scrollbar-spacing: 0; -GtkToolItemGroup-expander-size: 11; -GtkWidget-text-handle-width: 20; -GtkWidget-text-handle-height: 24; -GtkDialog-button-spacing: 4; -GtkDialog-action-area-border: 0; outline-color: alpha(currentColor,0.3); outline-style: dashed; outline-offset: -3px; outline-width: 1px; -gtk-outline-radius: 1px; -gtk-secondary-caret-color: #15539e; font-size: 12px; }
 
 /*************** Base States * */
 .background { color: #eeeeec; background-color: #353535; }
