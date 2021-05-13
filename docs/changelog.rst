@@ -3,7 +3,7 @@ Changelog
 
 0.44.0
 ------
-*DD MMM YYYY*
+*13 May 2021*
 
 **Data Compiler**
 
