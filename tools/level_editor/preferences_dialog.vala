@@ -136,10 +136,11 @@ public class PreferencesDialog : Gtk.Dialog
 
 		// External tools page.
 		_lua_external_tool_button = new AppChooserButton("text/plain");
-		_lua_external_tool_button.show_dialog_item = true;
 		_image_external_tool_button = new AppChooserButton("image/*");
+#if CROWN_PLATFORM_LINUX
+		_lua_external_tool_button.show_dialog_item = true;
 		_image_external_tool_button.show_dialog_item = true;
-
+#endif // CROWN_PLATFORM_LINUX
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
 		cv.add_row("External Lua editor", _lua_external_tool_button);
@@ -202,6 +203,7 @@ public class PreferencesDialog : Gtk.Dialog
 		if (preferences.has_key("theme"))
 			_theme_combo.value = (string)preferences["theme"];
 
+#if CROWN_PLATFORM_LINUX
 		// External tools.
 		Hashtable external_tools = preferences.has_key("external_tools")
 			? (Hashtable)preferences["external_tools"]
@@ -241,6 +243,10 @@ public class PreferencesDialog : Gtk.Dialog
 		else
 			app_id = null;
 		_image_external_tool_button.set_app(app, app_id);
+#else
+		_lua_external_tool_button.set_app(AppChooserButton.APP_DEFAULT, null);
+		_image_external_tool_button.set_app(AppChooserButton.APP_DEFAULT, null);
+#endif // CROWN_PLATFORM_LINUX
 	}
 
 	public void encode(Hashtable settings)
