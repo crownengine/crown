@@ -1976,7 +1976,7 @@ popover.emoji-completion .emoji:hover { background: white; }
 
 .console-view textview, .console-view entry { font: 12px "Monospace"; }
 
-.statusbar { background-color: #4c4c4c; font-size: 10px; min-height: 22px; padding-left: 12px; }
+.statusbar { font-size: 10px; min-height: 22px; padding-left: 12px; }
 
 .axis { min-width: 22px; font-weight: bold; border-radius: 4px 0px 0px 4px; }
 
