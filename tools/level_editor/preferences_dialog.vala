@@ -21,6 +21,7 @@ public class PreferencesDialog : Gtk.Dialog
 	public ColorButtonVector3 _axis_z_color_button;
 	public ColorButtonVector3 _axis_selected_color_button;
 	public EntryDouble _gizmo_size_spin_button;
+	public ComboBoxMap _theme_combo;
 	public PropertyGridSet _document_set;
 
 	// Viewport page.
@@ -96,10 +97,23 @@ public class PreferencesDialog : Gtk.Dialog
 		_gizmo_size_spin_button = new EntryDouble(85, 10, 200);
 		_gizmo_size_spin_button.value_changed.connect(on_gizmo_size_value_changed);
 
+		_theme_combo = new ComboBoxMap(Theme.DARK
+			, new string[] { "Dark", "Light" }
+			, new string[] { "dark", "light" }
+			);
+		_theme_combo.value_changed.connect(() => {
+			_application.set_theme_from_name(_theme_combo.value);
+		});
+
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
 		cv.add_row("Size", _gizmo_size_spin_button);
 		_document_set.add_property_grid(cv, "Gizmo");
+
+		cv = new PropertyGrid();
+		cv.column_homogeneous = true;
+		cv.add_row("Theme", _theme_combo);
+		_document_set.add_property_grid(cv, "UI");
 
 		// Level page.
 		_level_autosave_spin_button = new EntryDouble(5, 1, 60);
@@ -185,6 +199,9 @@ public class PreferencesDialog : Gtk.Dialog
 		_log_delete_after_days.value      = preferences.has_key("log_expiration") ? (double)preferences["log_expiration"] : _log_delete_after_days.value;
 		_console_max_lines.value          = preferences.has_key("console_max_lines") ? (double)preferences["console_max_lines"] : _console_max_lines.value;
 
+		if (preferences.has_key("theme"))
+			_theme_combo.value = (string)preferences["theme"];
+
 		// External tools.
 		Hashtable external_tools = preferences.has_key("external_tools")
 			? (Hashtable)preferences["external_tools"]
@@ -244,6 +261,7 @@ public class PreferencesDialog : Gtk.Dialog
 		preferences["autosave_timer"] = _level_autosave_spin_button.value;
 		preferences["log_expiration"] = _log_delete_after_days.value;
 		preferences["console_max_lines"] = _console_max_lines.value;
+		preferences["theme"]          = _theme_combo.value;
 
 		// External tools.
 		string app;

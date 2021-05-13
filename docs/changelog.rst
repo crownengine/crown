@@ -21,6 +21,7 @@ Changelog
 * Added noop resources in ``core/components/noop.*``.
 * Changed the fallback shader to output Color4(255, 0, 255, 255).
 * Added the ability to spawn emtpy units.
+* Added the ability to choose between "Light" and "Dark" theme for the editor UI.
 
 **Lua API**
 

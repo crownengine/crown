@@ -14,6 +14,14 @@ const int WINDOW_DEFAULT_HEIGHT = 720;
 const string LEVEL_EDITOR_WINDOW_TITLE = "Crown Editor";
 const string CROWN_ICON_NAME = "crown";
 
+public enum Theme
+{
+	DARK,
+	LIGHT,
+
+	COUNT
+}
+
 public class LevelEditorWindow : Gtk.ApplicationWindow
 {
 	private const GLib.ActionEntry[] action_entries =
@@ -280,6 +288,7 @@ public class LevelEditorApplication : Gtk.Application
 	private DataCompiler _data_compiler;
 
 	// Widgets
+	private Gtk.CssProvider _css_provider;
 	private ProjectBrowser _project_browser;
 	private EditorView _editor_view;
 	private LevelTreeView _level_treeview;
@@ -335,18 +344,54 @@ public class LevelEditorApplication : Gtk.Application
 			);
 	}
 
+	public Theme theme_name_to_enum(string theme)
+	{
+		if (theme == "dark")
+			return Theme.DARK;
+		else if (theme == "light")
+			return Theme.LIGHT;
+		else
+			return Theme.COUNT;
+	}
+
+	public void set_theme_from_name(string theme_name)
+	{
+		Theme theme = theme_name_to_enum(theme_name);
+		set_theme(theme);
+	}
+
+	public void set_theme(Theme theme)
+	{
+		if (theme == Theme.COUNT)
+			return;
+
+		string css = "/org/crown/level_editor/theme/Adwaita/gtk%s.css".printf(theme == Theme.DARK ? "-dark" : "");
+		_css_provider.load_from_resource(css);
+	}
+
 	protected override void startup()
 	{
 		base.startup();
 
 		Intl.setlocale(LocaleCategory.ALL, "C");
-		Gtk.Settings.get_default().gtk_theme_name = "Adwaita";
-		Gtk.Settings.get_default().gtk_application_prefer_dark_theme = true;
 
-		Gtk.CssProvider provider = new Gtk.CssProvider();
-		Gdk.Screen screen = Gdk.Display.get_default().get_default_screen();
-		Gtk.StyleContext.add_provider_for_screen(screen, provider, STYLE_PROVIDER_PRIORITY_APPLICATION);
-		provider.load_from_resource("/org/crown/level_editor/theme/Adwaita/gtk-dark.css");
+		_css_provider = new Gtk.CssProvider();
+		var default_screen = Gdk.Display.get_default().get_default_screen();
+		Gtk.StyleContext.add_provider_for_screen(default_screen
+			, _css_provider
+			, STYLE_PROVIDER_PRIORITY_APPLICATION
+			);
+
+		_settings = SJSON.load_from_path(_settings_file.get_path());
+
+		// Set theme.
+		set_theme(Theme.DARK);
+		if (_settings.has_key("preferences"))
+		{
+			Hashtable preferences = (Hashtable)_settings["preferences"];
+			if (preferences.has_key("theme"))
+				set_theme_from_name((string)preferences["theme"]);
+		}
 
 		// HACK: register CrownClamp type within GObject's type system to
 		// make GtkBuilder able to find it when creating the widget from
@@ -589,7 +634,6 @@ public class LevelEditorApplication : Gtk.Application
 		_main_stack.add_named(_panel_new_project, "panel_new_project");
 		_main_stack.add_named(_main_vbox, "main_vbox");
 
-		_settings = SJSON.load_from_path(_settings_file.get_path());
 		_preferences_dialog.decode(_settings);
 
 		// Delete expired logs

@@ -15,7 +15,7 @@ public class ComboBoxMap : Gtk.ComboBoxText
 	// Signals
 	public signal void value_changed();
 
-	public string value
+	public string? value
 	{
 		get
 		{
@@ -29,10 +29,21 @@ public class ComboBoxMap : Gtk.ComboBoxText
 		}
 	}
 
-	public ComboBoxMap()
+	public ComboBoxMap(int default_id = 0, string[]? labels = null, string[]? ids = null)
 	{
 		// Data
-		_stop_emit = true;
+		_stop_emit = false;
+
+		if (labels != null)
+		{
+			for (int ii = 0; ii < ids.length; ++ii)
+			{
+				unowned string? id = ids != null ? ids[ii] : null;
+				this.append(id, labels[ii]);
+			}
+			if (ids != null && default_id < ids.length)
+				this.value = ids[default_id];
+		}
 
 		// Widgets
 		this.changed.connect(on_changed);
