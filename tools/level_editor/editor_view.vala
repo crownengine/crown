@@ -7,7 +7,9 @@ using Gdk;
 using Gee;
 using Gtk;
 
-#if CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_LINUX
+extern uint gdk_x11_window_get_xid (Gdk.Window window);
+#elif CROWN_PLATFORM_WINDOWS
 extern uint gdk_win32_window_get_handle (Gdk.Window window);
 #endif
 
@@ -36,11 +38,6 @@ public class EditorView : Gtk.EventBox
 	}
 
 	private HashMap<uint, bool> _keys;
-
-	// Widgets
-#if CROWN_PLATFORM_LINUX
-	private Gtk.Socket _socket;
-#endif
 
 	// Signals
 	public signal void realized();
@@ -117,26 +114,14 @@ public class EditorView : Gtk.EventBox
 			this.scroll_event.connect(on_scroll);
 		}
 
-#if CROWN_PLATFORM_LINUX
-		_socket = new Gtk.Socket();
-		_socket.set_visual(Gdk.Screen.get_default().get_system_visual());
-		_socket.realize.connect(on_socket_realized);
-		_socket.plug_removed.connect(on_socket_plug_removed);
-		_socket.set_size_request(128, 128);
-		_socket.events |= Gdk.EventMask.STRUCTURE_MASK;
-		_socket.map_event.connect(() => {
-			device_frame_delayed(16, _client);
-			return Gdk.EVENT_PROPAGATE;
-		});
-		this.add(_socket);
-#elif CROWN_PLATFORM_WINDOWS
 		this.realize.connect(on_event_box_realized);
+		this.set_visual(Gdk.Screen.get_default().get_system_visual());
+		this.set_size_request(128, 128);
 		this.events |= Gdk.EventMask.STRUCTURE_MASK; // map_event
 		this.map_event.connect(() => {
 			device_frame_delayed(16, _client);
 			return Gdk.EVENT_PROPAGATE;
 		});
-#endif
 	}
 
 	private bool on_button_release(Gdk.EventButton ev)
@@ -302,12 +287,12 @@ public class EditorView : Gtk.EventBox
 			return;
 
 		_allocation = ev;
+		_client.send(DeviceApi.resize(_allocation.width, _allocation.height));
 
-		// Resize the view once every 200 milliseconds.
+		// Ensure there is some delay between the last resize() and the last frame().
 		if (_resize_timer_id == 0)
 		{
 			_resize_timer_id = GLib.Timeout.add_full(GLib.Priority.DEFAULT, 200, () => {
-				_client.send(DeviceApi.resize(_allocation.width, _allocation.height));
 				_client.send(DeviceApi.frame());
 				_resize_timer_id = 0;
 				return false; // Destroy the timeout.
@@ -315,28 +300,17 @@ public class EditorView : Gtk.EventBox
 		}
 	}
 
-#if CROWN_PLATFORM_LINUX
-	private void on_socket_realized()
-	{
-		// We do not have window XID until socket is realized...
-		_window_id = (uint)_socket.get_id();
-		realized();
-	}
-
-	private bool on_socket_plug_removed()
-	{
-		// Prevent the default handler from destroying the Socket.
-		return Gdk.EVENT_STOP;
-	}
-
-#elif CROWN_PLATFORM_WINDOWS
 	private void on_event_box_realized()
 	{
 		this.get_window().ensure_native();
+#if CROWN_PLATFORM_LINUX
+		this.get_display().sync();
+		_window_id = gdk_x11_window_get_xid(this.get_window());
+#elif CROWN_PLATFORM_WINDOWS
 		_window_id = gdk_win32_window_get_handle(this.get_window());
+#endif
 		realized();
 	}
-#endif
 }
 
 }

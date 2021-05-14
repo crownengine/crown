@@ -727,6 +727,7 @@ struct WindowX11 : public Window
 	void resize(u16 width, u16 height)
 	{
 		XResizeWindow(s_ldvc._x11_display, s_ldvc._x11_window, width, height);
+		XFlush(s_ldvc._x11_display);
 	}
 
 	void move(u16 x, u16 y)

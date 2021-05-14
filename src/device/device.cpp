@@ -431,30 +431,38 @@ void Device::run()
 	u16 old_height = _height;
 	s64 time_last = time::now();
 
-	_needs_draw = !_options._pumped;
-
 	while (!process_events(_boot_config.vsync) && !_quit)
 	{
 		const s64 time = time::now();
 		const f32 dt   = f32(time::seconds(time - time_last));
 		time_last = time;
-
-		profiler_globals::clear();
-		_console_server->execute_message_handlers(_options._pumped);
-
-		if (CE_UNLIKELY(!_needs_draw))
-			continue;
 		_needs_draw = !_options._pumped;
 
-		RECORD_FLOAT("device.dt", dt);
-		RECORD_FLOAT("device.fps", 1.0f/dt);
+		profiler_globals::clear();
 
 		if (_width != old_width || _height != old_height)
 		{
 			old_width = _width;
 			old_height = _height;
 			_pipeline->reset(_width, _height);
+
+			// Force pipeline reset in one cycle.
+			bgfx::frame();
+			bgfx::frame();
+
+			// Force redraw.
+			_needs_draw = true;
 		}
+
+		// Only block if redraw is not needed.
+		const bool sync = !_needs_draw;
+		_console_server->execute_message_handlers(sync);
+
+		RECORD_FLOAT("device.dt", dt);
+		RECORD_FLOAT("device.fps", 1.0f/dt);
+
+		if (CE_UNLIKELY(!_needs_draw))
+			continue;
 
 		if (CE_LIKELY(!_paused))
 		{
