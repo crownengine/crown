@@ -47,10 +47,11 @@ public class PanelProjectsList : Gtk.ScrolledWindow
 			if (rt != ResponseType.ACCEPT)
 				return;
 
-			_user.add_recent_project(source_dir, source_dir);
+			_user.add_or_touch_recent_project(source_dir, source_dir);
 		});
 
 		_user.recent_project_added.connect(on_recent_project_added);
+		_user.recent_project_touched.connect(on_recent_project_touched);
 		// _user.recent_project_removed.connect(on_recent_project_remove);
 	}
 
@@ -117,12 +118,7 @@ public class PanelProjectsList : Gtk.ScrolledWindow
 		button_open.set_valign(Gtk.Align.CENTER);
 		// button_open.set_margin_end(12);
 		button_open.clicked.connect(() => {
-			string mtime = new GLib.DateTime.now_utc().to_unix().to_string();
-			row.set_data("mtime", mtime);
-			_list_projects.invalidate_sort();
-			_user.touch_recent_project(row.get_data("source_dir"), mtime);
-			_application.show_panel("main_vbox", Gtk.StackTransitionType.NONE);
-			_application.restart_backend.begin(source_dir, LEVEL_NONE);
+			_application.activate_action("open-project", new GLib.Variant.string(source_dir));
 		});
 		hbox.pack_end(button_open, false, false, 0);
 
@@ -132,6 +128,19 @@ public class PanelProjectsList : Gtk.ScrolledWindow
 
 		if (!GLib.FileUtils.test(source_dir, FileTest.EXISTS))
 			button_open.sensitive = false;
+	}
+
+	public void on_recent_project_touched(string source_dir, string mtime)
+	{
+		_list_projects.foreach((row) => {
+			if (row.get_data<string>("source_dir") == source_dir)
+			{
+				row.set_data("mtime", mtime);
+				return;
+			}
+		});
+
+		_list_projects.invalidate_sort();
 	}
 }
 

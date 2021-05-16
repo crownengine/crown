@@ -32,7 +32,7 @@ public class Project
 	}
 
 	// Data
-	public File _source_dir;
+	public File? _source_dir;
 	public File _toolchain_dir;
 	public File _data_dir;
 	public File _level_editor_test_level;
@@ -70,6 +70,8 @@ public class Project
 
 	public void reset()
 	{
+		_source_dir = null;
+
 		_files.reset();
 		_map.clear();
 
@@ -335,7 +337,10 @@ public class Project
 	// Returns the absolute path to the source directory.
 	public string source_dir()
 	{
-		return _source_dir.get_path();
+		if (_source_dir == null)
+			return "";
+		else
+			return _source_dir.get_path();
 	}
 
 	// Returns the absolute path to the toolchain directory.

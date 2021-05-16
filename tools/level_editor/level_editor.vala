@@ -144,7 +144,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "new-level",     on_new_level,     null, null },
 		{ "open-level",    on_open_level,    "s",  null },
 		{ "new-project",   on_new_project,   null, null },
-		{ "open-project",  on_open_project,  null, null },
+		{ "open-project",  on_open_project,  "s",  null },
 		{ "save",          on_save,          null, null },
 		{ "save-as",       on_save_as,       null, null },
 		{ "import",        on_import,        "s",  null },
@@ -1785,13 +1785,20 @@ public class LevelEditorApplication : Gtk.Application
 		if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
 		{
 			string source_dir;
-			rt = run_open_project_dialog(out source_dir, this.active_window);
-			if (rt != ResponseType.ACCEPT)
-				return;
+			source_dir = param.get_string();
+			if (source_dir == "")
+			{
+				// Project opened from menubar.
+				rt = run_open_project_dialog(out source_dir, this.active_window);
+				if (rt != ResponseType.ACCEPT)
+					return;
+			}
 
 			if (_project.source_dir() == source_dir)
 				return;
 
+			this.show_panel("main_vbox", Gtk.StackTransitionType.NONE);
+			_user.add_or_touch_recent_project(source_dir, source_dir);
 			restart_backend.begin(source_dir, LEVEL_NONE);
 		}
 	}

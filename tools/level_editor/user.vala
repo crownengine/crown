@@ -14,6 +14,7 @@ public class User
 
 	// Signals
 	public signal void recent_project_added(string source_dir, string name, string time);
+	public signal void recent_project_touched(string source_dir, string time);
 	public signal void recent_project_removed(string source_dir);
 
 	public User()
@@ -63,10 +64,10 @@ public class User
 		SJSON.save(encode(), path);
 	}
 
-	public void add_recent_project(string source_dir, string name)
+	public void add_or_touch_recent_project(string source_dir, string name)
 	{
 		Gee.ArrayList<Value?> recent_projects = null;
-		bool duplicate = false;
+		Hashtable? project = null;
 
 		_data.foreach ((ee) => {
 			if (ee.key == "recent_projects")
@@ -78,7 +79,7 @@ public class User
 
 					if ((string)rp["source_dir"] == source_dir)
 					{
-						duplicate = true;
+						project = rp;
 						return false; // break
 					}
 				}
@@ -93,16 +94,21 @@ public class User
 			_data["recent_projects"] = recent_projects;
 		}
 
-		if (!duplicate)
-		{
-			string mtime = new GLib.DateTime.now_utc().to_unix().to_string();
-			var new_rp = new Hashtable();
-			new_rp["name"]       = source_dir; // FIXME: store project name somewhere inside project directory
-			new_rp["source_dir"] = source_dir;
-			new_rp["mtime"]      = mtime;
-			recent_projects.add(new_rp);
+		string mtime = new GLib.DateTime.now_utc().to_unix().to_string();
 
+		if (project == null)
+		{
+			project = new Hashtable();
+			project["name"]       = source_dir; // FIXME: store project name somewhere inside project directory
+			project["source_dir"] = source_dir;
+			project["mtime"]      = mtime;
+			recent_projects.add(project);
 			recent_project_added(source_dir, source_dir, mtime);
+		}
+		else
+		{
+			project["mtime"] = mtime;
+			recent_project_touched(source_dir, mtime);
 		}
 	}
 
@@ -120,28 +126,6 @@ public class User
 					{
 						it.remove();
 						recent_project_removed(source_dir);
-						return false; // break
-					}
-				}
-			}
-
-			return true;
-		});
-	}
-
-	public void touch_recent_project(string source_dir, string time)
-	{
-		_data.foreach((ee) => {
-			if (ee.key == "recent_projects")
-			{
-				var recent_projects = ee.value as ArrayList<Value?>;
-				var it = recent_projects.iterator();
-				for (var has_next = it.next(); has_next; has_next = it.next())
-				{
-					Hashtable rp = it.get() as Hashtable;
-					if ((string)rp["source_dir"] == source_dir)
-					{
-						rp["mtime"] = time;
 						return false; // break
 					}
 				}

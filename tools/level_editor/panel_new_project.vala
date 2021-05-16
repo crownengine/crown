@@ -80,7 +80,7 @@ public class PanelNewProject : Gtk.Viewport
 
 			_label_message.label = "";
 
-			_user.add_recent_project(source_dir, _entry_name.text);
+			_user.add_or_touch_recent_project(source_dir, _entry_name.text);
 			_application.show_panel("main_vbox");
 
 			if (_combo_box_map_template.value == "")
