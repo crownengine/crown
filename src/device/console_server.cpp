@@ -164,8 +164,11 @@ ConsoleServer::ConsoleServer(Allocator& a)
 
 void ConsoleServer::listen(u16 port, bool wait)
 {
+	const BindResult br = _server.bind(port);
+	if (br.error != BindResult::SUCCESS)
+		return;
+
 	_port = port;
-	_server.bind(port);
 	_server.listen(5);
 	_active_socket_set.set(&_server);
 

@@ -5,10 +5,15 @@ Changelog
 ------
 *DD MMM YYYY*
 
+**Data Compiler**
+
+* Fixed standalone compiler never exiting when another compiler instance was running in server mode.
+
 **Tools**
 
 * Fixed opening projects from the menubar when in the welcome panel.
 * Fixed projects opened from the menubar not being added to the recent projects list.
+* Fixed deploy getting stuck.
 
 0.44.0
 ------
