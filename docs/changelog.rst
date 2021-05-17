@@ -14,6 +14,7 @@ Changelog
 * Fixed opening projects from the menubar when in the welcome panel.
 * Fixed projects opened from the menubar not being added to the recent projects list.
 * Fixed deploy getting stuck.
+* Linux: fixed launching editor under Wayland.
 
 0.44.0
 ------

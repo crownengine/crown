@@ -2698,6 +2698,9 @@ public static int main(string[] args)
 		return 1;
 	}
 
+#if CROWN_PLATFORM_LINUX
+	Gdk.set_allowed_backends("x11");
+#endif
 	LevelEditorApplication app = new LevelEditorApplication();
 	return app.run(args);
 }
