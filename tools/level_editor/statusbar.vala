@@ -24,7 +24,7 @@ public class Statusbar : Gtk.Box
 		_timer_id = 0;
 
 		// Widgets
-		_status = new Gtk.Label("Done");
+		_status = new Gtk.Label("Idle");
 		_temporary_message = new Gtk.Label("");
 
 		this.pack_start(_status, false, false, 0);
