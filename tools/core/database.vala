@@ -293,7 +293,7 @@ public class Database
 	}
 
 	// Data
-	private HashMap<string, Value?> _data;
+	private HashMap<Guid?, HashMap<string, Value?>> _data;
 	private Stack _undo;
 	private Stack _redo;
 	private Stack _undo_points;
@@ -306,11 +306,13 @@ public class Database
 
 	// Signals
 	public signal void key_changed(Guid id, string key);
+	public signal void object_created(Guid id);
+	public signal void object_destroyed(Guid id);
 	public signal void undo_redo(bool undo, int id, Guid[] data);
 
 	public Database()
 	{
-		_data = new HashMap<string, Value?>();
+		_data = new HashMap<Guid?, HashMap<string, Value?>>(Guid.hash_func, Guid.equal_func);
 		_undo = new Stack();
 		_redo = new Stack();
 		_undo_points = new Stack();
@@ -331,7 +333,7 @@ public class Database
 		_distance_from_last_sync = 0;
 
 		// This is a special field which stores all objects
-		_data.set("_objects", new HashMap<string, Value?>());
+		_data[GUID_ZERO] = new HashMap<string, Value?>();
 	}
 
 	/// Returns whether the database has been changed since last call to Save().
@@ -416,7 +418,6 @@ public class Database
 	private static bool is_valid_key(string key)
 	{
 		return key.length > 0
-			&& key != "_objects"
 			&& !key.has_prefix(".")
 			&& !key.has_suffix(".")
 			;
@@ -466,7 +467,6 @@ public class Database
 		string[] keys = json.keys.to_array();
 		foreach (string key in keys)
 		{
-			assert(key != "_objects");
 			if (key == "id")
 				continue;
 
@@ -551,9 +551,6 @@ public class Database
 		string[] keys = db.keys.to_array();
 		foreach (string key in keys)
 		{
-			if (key == "_objects")
-				continue;
-
 			// Since null-key is equivalent to non-existent key, skip serialization.
 			if (db[key] == null)
 				continue;
@@ -631,8 +628,7 @@ public class Database
 	{
 		assert(has_object(id));
 
-		HashMap<string, Value?> objects = (HashMap<string, Value?>)_data["_objects"];
-		return (HashMap<string, Value?>)(id == GUID_ZERO ? _data : objects[id.to_string()]);
+		return _data[id];
 	}
 
 	private void create_internal(int dir, Guid id)
@@ -642,10 +638,10 @@ public class Database
 		if (_debug)
 			logi("create %s".printf(id.to_string()));
 
-		((HashMap<string, Value?>)_data["_objects"]).set(id.to_string(), new HashMap<string, Value?>());
+		_data[id] = new HashMap<string, Value?>();
 
 		_distance_from_last_sync += dir;
-		key_changed(id, "_objects");
+		object_created(id);
 	}
 
 	private void destroy_internal(int dir, Guid id)
@@ -656,10 +652,10 @@ public class Database
 		if (_debug)
 			logi("destroy %s".printf(id.to_string()));
 
-		((HashMap<string, Value?>)_data["_objects"]).unset(id.to_string());
-
+		object_destroyed(id);
 		_distance_from_last_sync += dir;
-		key_changed(id, "_objects");
+
+		_data.unset(id);
 	}
 
 	private void set_property_internal(int dir, Guid id, string key, Value? value)
@@ -949,7 +945,7 @@ public class Database
 
 	public bool has_object(Guid id)
 	{
-		return id == GUID_ZERO || ((HashMap<string, Value?>)_data["_objects"]).has_key(id.to_string());
+		return id == GUID_ZERO || _data.has_key(id);
 	}
 
 	public bool has_property(Guid id, string key)
@@ -1101,9 +1097,6 @@ public class Database
 		string[] keys = ob.keys.to_array();
 		foreach (string key in keys)
 		{
-			if (key == "_objects")
-				continue;
-
 			Value? value = ob[key];
 			if (value.holds(typeof(HashSet)))
 			{
