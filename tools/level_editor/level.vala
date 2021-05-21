@@ -72,7 +72,7 @@ public class Level
 			return 1;
 
 		reset();
-		int ret = _db.load_from_file(ref _id, fs, resource_path);
+		int ret = _db.load_from_file(out _id, fs, resource_path);
 		if (ret != 0)
 			return ret;
 

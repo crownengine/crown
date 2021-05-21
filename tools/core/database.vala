@@ -9,7 +9,7 @@ namespace Crown
 {
 public class Database
 {
-	private static bool _debug = false;
+	private static bool _debug = true;
 	private static bool _debug_getters = false;
 
 	private enum Action
@@ -357,10 +357,19 @@ public class Database
 	}
 
 	// See: load_more_from_path().
-	public int load_more_from_file(ref Guid object_id, FileStream? fs, string resource_path)
+	public int load_more_from_file(out Guid object_id, FileStream? fs, string resource_path)
 	{
 		Hashtable json = SJSON.load_from_file(fs);
-		object_id = decode(json);
+
+		if (json.has_key("id"))
+			object_id = Guid.parse((string)json["id"]);
+		else
+			object_id = Guid.new_guid();
+
+		create_internal(0, object_id);
+		set_object_type(object_id, resource_type(resource_path));
+
+		decode_object(object_id, "", json);
 
 		// Create a mapping between the path and the object it has been loaded into.
 		set_property_internal(0, GUID_ZERO, resource_path, object_id);
@@ -374,27 +383,29 @@ public class Database
 	// database to refer to the object that has been loaded. This is useful when
 	// you do not have the object ID but only its path, as it is often the case
 	// since resources use paths and not IDs to reference each other.
-	public int load_more_from_path(ref Guid object_id, string path, string resource_path)
+	public int load_more_from_path(out Guid object_id, string path, string resource_path)
 	{
+		object_id = GUID_ZERO;
+
 		FileStream fs = FileStream.open(path, "rb");
 		if (fs == null)
 			return 1;
 
-		return load_more_from_file(ref object_id, fs, resource_path);
+		return load_more_from_file(out object_id, fs, resource_path);
 	}
 
 	/// Loads the database with the object stored at @a path.
-	public int load_from_file(ref Guid object_id, FileStream fs, string resource_path)
+	public int load_from_file(out Guid object_id, FileStream fs, string resource_path)
 	{
 		reset();
-		return load_more_from_file(ref object_id, fs, resource_path);
+		return load_more_from_file(out object_id, fs, resource_path);
 	}
 
 	/// Loads the database with the object stored at @a path.
-	public int load_from_path(ref Guid object_id, string path, string resource_path)
+	public int load_from_path(out Guid object_id, string path, string resource_path)
 	{
 		reset();
-		return load_more_from_path(ref object_id, path, resource_path);
+		return load_more_from_path(out object_id, path, resource_path);
 	}
 
 	/// Encodes the object @a id into SJSON object.
@@ -445,24 +456,18 @@ public class Database
 		return "<invalid>";
 	}
 
-	// Decodes the @a json data inside the database object @a id.
-	public Guid decode(Hashtable json)
-	{
-		Guid id;
-		if (json.has_key("id"))
-			id = Guid.parse((string)json["id"]);
-		else
-			id = Guid.new_guid();
-
-		create_internal(0, id);
-		decode_object(id, "", json);
-		return id;
-	}
-
 	private void decode_object(Guid id, string db_key, Hashtable json)
 	{
 		string old_db = db_key;
 		string k = db_key;
+
+		if (k == "" && json.has_key("type"))
+		{
+			// The "type" key defines object type only if it appears
+			// in the root of a JSON object (k == "").
+			if (!has_property(id, "type"))
+				set_object_type(id, (string)json["type"]);
+		}
 
 		string[] keys = json.keys.to_array();
 		foreach (string key in keys)
@@ -496,18 +501,18 @@ public class Database
 		}
 	}
 
-	private void decode_set(Guid id, string key, ArrayList<Value?> json)
+	private void decode_set(Guid owner_id, string key, ArrayList<Value?> json)
 	{
 		// Set should be created even if it is empty.
-		create_empty_set(0, id, key);
+		create_empty_set(0, owner_id, key);
 
 		for (int i = 0; i < json.size; ++i)
 		{
 			Hashtable obj = (Hashtable)json[i];
-			Guid item_id = Guid.parse((string)obj["id"]);
-			create_internal(0, item_id);
-			decode_object(item_id, "", obj);
-			add_to_set_internal(0, id, key, item_id);
+			Guid obj_id = Guid.parse((string)obj["id"]);
+			create_internal(0, obj_id);
+			decode_object(obj_id, "", obj);
+			add_to_set_internal(0, owner_id, key, obj_id);
 		}
 	}
 
@@ -725,7 +730,22 @@ public class Database
 		((HashSet<Guid?>)ob[key]).remove(item_id);
 
 		_distance_from_last_sync += dir;
-		key_changed(id, key);
+	}
+
+	public string object_type(Guid id)
+	{
+		assert(has_object(id));
+		return (string)get_data(id)["type"];
+	}
+
+	// Sets the @a type of the object @a id.
+	// This is called automatically when loading data or when new objects are created via create().
+	// It can occasionally be called manually after loading legacy data with no type information
+	// stored inside objects.
+	public void set_object_type(Guid id, string type)
+	{
+		assert(has_object(id));
+		get_data(id)["type"] = type;
 	}
 
 	public void create(Guid id)

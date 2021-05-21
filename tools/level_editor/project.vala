@@ -107,7 +107,7 @@ public class Project
 		string path = resource_path_to_absolute_path(resource_path);
 
 		Guid prefab_id = GUID_ZERO;
-		if (_database.load_more_from_path(ref prefab_id, path, resource_path) != 0)
+		if (_database.load_more_from_path(out prefab_id, path, resource_path) != 0)
 			return; // Caller can query the database to check for error.
 		assert(prefab_id != GUID_ZERO);
 
