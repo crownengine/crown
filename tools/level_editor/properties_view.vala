@@ -687,12 +687,14 @@ public class PropertiesView : Gtk.Bin
 
 	// Data
 	private Level _level;
+	private Database _db;
 	private HashMap<string, Gtk.Expander> _expanders;
 	private HashMap<string, PropertyGrid> _objects;
 	private ArrayList<ComponentEntry?> _entries;
 
 	// Widgets
 	private Gtk.Label _nothing_to_show;
+	private Gtk.Label _unknown_object_type;
 	private Gtk.Viewport _viewport;
 	private Gtk.ScrolledWindow _scrolled_window;
 	private PropertyGridSet _object_view;
@@ -703,6 +705,7 @@ public class PropertiesView : Gtk.Bin
 		// Data
 		_level = level;
 		_level.selection_changed.connect(on_selection_changed);
+		_db = level._db;
 
 		_expanders = new HashMap<string, Gtk.Expander>();
 		_objects = new HashMap<string, PropertyGrid>();
@@ -729,6 +732,7 @@ public class PropertiesView : Gtk.Bin
 		register_object_type("Sound",     "sound_properties", 1, new SoundView(_level, store));
 
 		_nothing_to_show = new Gtk.Label("Nothing to show");
+		_unknown_object_type = new Gtk.Label("Unknown object type");
 
 		_viewport = new Gtk.Viewport(null, null);
 		_viewport.add(_object_view);
@@ -752,7 +756,54 @@ public class PropertiesView : Gtk.Bin
 		_entries.add({ object_type, position });
 	}
 
-	private void on_selection_changed(Gee.ArrayList<Guid?> selection)
+	public void show_unit(Guid id)
+	{
+		_stack.set_visible_child(_scrolled_window);
+
+		foreach (var entry in _entries)
+		{
+			Gtk.Expander expander = _expanders[entry.type];
+
+			Unit unit = new Unit(_db, id);
+			Guid component_id;
+			if (unit.has_component(out component_id, entry.type) || entry.type == "name")
+			{
+				PropertyGrid cv = _objects[entry.type];
+				cv._id = id;
+				cv._component_id = component_id;
+				cv.update();
+				expander.show_all();
+			}
+			else
+			{
+				expander.hide();
+			}
+		}
+	}
+
+	public void show_sound_source(Guid id)
+	{
+		_stack.set_visible_child(_scrolled_window);
+
+		foreach (var entry in _entries)
+		{
+			Gtk.Expander expander = _expanders[entry.type];
+
+			if (entry.type == "sound_transform" || entry.type == "sound_properties")
+			{
+				PropertyGrid cv = _objects[entry.type];
+				cv._id = id;
+				cv.update();
+				expander.show_all();
+			}
+			else
+			{
+				expander.hide();
+			}
+		}
+	}
+
+	public void on_selection_changed(Gee.ArrayList<Guid?> selection)
 	{
 		if (selection.size != 1)
 		{
@@ -761,56 +812,15 @@ public class PropertiesView : Gtk.Bin
 		}
 
 		Guid id = selection[selection.size - 1];
+		if (!_db.has_object(id))
+			return;
 
-		if (_level.is_unit(id))
-		{
-			_stack.set_visible_child(_scrolled_window);
-
-			foreach (var entry in _entries)
-			{
-				Gtk.Expander expander = _expanders[entry.type];
-
-				Unit unit = new Unit(_level._db, id);
-				Guid component_id;
-				if (unit.has_component(out component_id, entry.type) || entry.type == "name")
-				{
-					PropertyGrid cv = _objects[entry.type];
-					cv._id = id;
-					cv._component_id = component_id;
-					cv.update();
-					expander.show_all();
-				}
-				else
-				{
-					expander.hide();
-				}
-			}
-		}
-		else if (_level.is_sound(id))
-		{
-			_stack.set_visible_child(_scrolled_window);
-
-			foreach (var entry in _entries)
-			{
-				Gtk.Expander expander = _expanders[entry.type];
-
-				if (entry.type == "sound_transform" || entry.type == "sound_properties")
-				{
-					PropertyGrid cv = _objects[entry.type];
-					cv._id = id;
-					cv.update();
-					expander.show_all();
-				}
-				else
-				{
-					expander.hide();
-				}
-			}
-		}
+		if (_db.object_type(id) == "unit")
+			show_unit(id);
+		else if (_db.object_type(id) == "sound_source")
+			show_sound_source(id);
 		else
-		{
-			_stack.set_visible_child(_nothing_to_show);
-		}
+			_stack.set_visible_child(_unknown_object_type);
 	}
 }
 

@@ -122,9 +122,9 @@ public class Level
 
 		foreach (Guid id in ids)
 		{
-			if (is_unit(id))
+			if (_db.object_type(id) == "unit")
 				units += id;
-			else if (is_sound(id))
+			else if (_db.object_type(id) == "sound_source")
 				sounds += id;
 		}
 
@@ -202,11 +202,11 @@ public class Level
 		{
 			_db.duplicate(ids[i], new_ids[i]);
 
-			if (is_unit(ids[i]))
+			if (_db.object_type(ids[i]) == "unit")
 			{
 				_db.add_to_set(_id, "units", new_ids[i]);
 			}
-			else if (is_sound(ids[i]))
+			else if (_db.object_type(ids[i]) == "sound_source")
 			{
 				_db.add_to_set(_id, "sounds", new_ids[i]);
 			}
@@ -270,7 +270,7 @@ public class Level
 			Quaternion rot = rotations[i];
 			Vector3 scl = scales[i];
 
-			if (is_unit(id))
+			if (_db.object_type(id) == "unit")
 			{
 				Unit unit = new Unit(_db, id);
 				Guid component_id;
@@ -287,7 +287,7 @@ public class Level
 					_db.set_property_vector3   (id, "scale", scl);
 				}
 			}
-			else if (is_sound(id))
+			else if (_db.object_type(id) == "sound_source")
 			{
 				_db.set_property_vector3   (id, "position", pos);
 				_db.set_property_quaternion(id, "rotation", rot);
@@ -490,11 +490,11 @@ public class Level
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < ids.length; ++i)
 		{
-			if (is_unit(ids[i]))
+			if (_db.object_type(ids[i]) == "unit")
 			{
 				generate_spawn_unit_commands(new Guid[] { ids[i] }, sb);
 			}
-			else if (is_sound(ids[i]))
+			else if (_db.object_type(ids[i]) == "sound_source")
 			{
 				generate_spawn_sound_commands(new Guid[] { ids[i] }, sb);
 			}
@@ -691,7 +691,7 @@ public class Level
 
 				for (int i = 0; i < ids.length; ++i)
 				{
-					if (is_unit(ids[i]))
+					if (_db.object_type(ids[i]) == "unit")
 					{
 						Guid unit_id = ids[i];
 
@@ -710,7 +710,7 @@ public class Level
 							scales[i]    = _db.get_property_vector3   (unit_id, "scale");
 						}
 					}
-					else if (is_sound(ids[i]))
+					else if (_db.object_type(ids[i]) == "sound_source")
 					{
 						Guid sound_id = ids[i];
 						positions[i] = _db.get_property_vector3   (sound_id, "position");
@@ -848,16 +848,6 @@ public class Level
 			loge("Unknown undo/redo action: %d".printf(id));
 			break;
 		}
-	}
-
-	public bool is_unit(Guid id)
-	{
-		return _db.get_property_set(_id, "units", new HashSet<Guid?>()).contains(id);
-	}
-
-	public bool is_sound(Guid id)
-	{
-		return _db.get_property_set(_id, "sounds", new HashSet<Guid?>()).contains(id);
 	}
 
 	private void fix_objects_types()
