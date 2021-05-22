@@ -96,7 +96,9 @@ struct Window
 	/// Sets whether the window is @a fullscreen.
 	virtual void set_fullscreen(bool fullscreen) = 0;
 
-	/// Sets the mouse @a cursor on this window.
+	/// Sets the mouse @a cursor on this window. Setting the mode to
+	/// CursorMode::DISABLED hides the cursor and automatically re-centers it
+	/// every time is moved.
 	virtual void set_cursor(MouseCursor::Enum cursor) = 0;
 
 	/// Sets the mouse cursor @a mode on this window
