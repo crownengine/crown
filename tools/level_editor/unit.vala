@@ -158,11 +158,16 @@ public class Unit
 		_db.set_property_quaternion(_id, "modified_components.#" + component_id.to_string() + "." + key, val);
 	}
 
-	public static bool has_component_static(out Guid component_id, string component_type, Database db, Guid unit_id)
+	/// Returns whether the @a unit_id has a component of type @a component_type.
+	public static bool has_component_static(out Guid component_id, out Guid owner_id, string component_type, Database db, Guid unit_id)
 	{
 		Value? val;
+		component_id = GUID_ZERO;
+		owner_id = GUID_ZERO;
+		bool prefab_has_component = false;
 
-		// Search in components
+		// If the component type is found inside the "components" array, the unit has the component
+		// and it owns it.
 		val = db.get_property(unit_id, "components");
 		if (val != null)
 		{
@@ -171,40 +176,13 @@ public class Unit
 				if((string)db.get_property(id, "type") == component_type)
 				{
 					component_id = id;
+					owner_id = unit_id;
 					return true;
 				}
 			}
 		}
 
-		// Search in modified_components
-		string[] keys = db.get_keys(unit_id);
-		foreach (string key in keys)
-		{
-			if (!key.has_prefix("modified_components.#"))
-				continue;
-
-			// 0                   21                                   58  62
-			// |                    |                                    |   |
-			// modified_components.#f56420ad-7f9c-4cca-aca5-350f366e0dc0.type
-			int aa = 21;
-			int bb = 57;
-			int cc = 58;
-			int dd = 62;
-			string id = key[aa:bb];
-			string suffix = key[cc:dd];
-
-			if (!suffix.has_prefix("type"))
-				continue;
-
-			Value? type = db.get_property(unit_id, key);
-			if (type != null && (string)type == component_type)
-			{
-				component_id = Guid.parse(id);
-				return true;
-			}
-		}
-
-		// Search in prefab
+		// Otherwise, search if any prefab has the component.
 		val = db.get_property(unit_id, "prefab");
 		if (val != null)
 		{
@@ -212,21 +190,27 @@ public class Unit
 			string prefab = (string)val;
 			Guid prefab_id = db.get_property_guid(GUID_ZERO, prefab + ".unit");
 
-			return has_component_static(out component_id
+			prefab_has_component = has_component_static(out component_id
+				, out owner_id
 				, component_type
 				, db
 				, prefab_id
 				);
 		}
 
+		if (prefab_has_component)
+			return db.get_property(unit_id, "deleted_components.#" + component_id.to_string()) == null;
+
 		component_id = GUID_ZERO;
+		owner_id = GUID_ZERO;
 		return false;
 	}
 
 	/// Returns whether the unit has the component_type.
 	public bool has_component(out Guid component_id, string component_type)
 	{
-		return Unit.has_component_static(out component_id, component_type, _db, _id);
+		Guid owner_id;
+		return Unit.has_component_static(out component_id, out owner_id, component_type, _db, _id);
 	}
 
 	public void remove_component(Guid component_id)
