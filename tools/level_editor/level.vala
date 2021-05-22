@@ -87,6 +87,8 @@ public class Level
 		if (!_project.path_is_within_source_dir(path))
 			_path = null;
 
+		fix_objects_types();
+
 		// FIXME: hack to keep the LevelTreeView working.
 		_db.key_changed(_id, "units");
 
@@ -216,7 +218,7 @@ public class Level
 	public void on_unit_spawned(Guid id, string? name, Vector3 pos, Quaternion rot, Vector3 scl)
 	{
 		_db.add_restore_point((int)ActionType.SPAWN_UNIT, new Guid[] { id });
-		_db.create(id);
+		_db.create(id, "unit");
 		_db.set_property_string(id, "editor.name", "unit_%04u".printf(_num_units++));
 
 		if (name != null)
@@ -246,7 +248,7 @@ public class Level
 	public void on_sound_spawned(Guid id, string name, Vector3 pos, Quaternion rot, Vector3 scl, double range, double volume, bool loop)
 	{
 		_db.add_restore_point((int)ActionType.SPAWN_SOUND, new Guid[] { id });
-		_db.create(id);
+		_db.create(id, "sound_source");
 		_db.set_property_string    (id, "editor.name", "sound_%04u".printf(_num_sounds++));
 		_db.set_property_vector3   (id, "position", pos);
 		_db.set_property_quaternion(id, "rotation", rot);
@@ -856,6 +858,17 @@ public class Level
 	public bool is_sound(Guid id)
 	{
 		return _db.get_property_set(_id, "sounds", new HashSet<Guid?>()).contains(id);
+	}
+
+	private void fix_objects_types()
+	{
+		HashSet<Guid?> units = _db.get_property_set(_id, "units", new HashSet<Guid?>());
+		foreach (var id in units)
+			_db.set_object_type(id, "unit");
+
+		HashSet<Guid?> sounds = _db.get_property_set(_id, "sounds", new HashSet<Guid?>());
+		foreach (var id in sounds)
+			_db.set_object_type(id, "sound_source");
 	}
 }
 

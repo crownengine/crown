@@ -25,14 +25,13 @@ public class MeshResource
 			if (!unit.has_component(out component_id, "transform"))
 			{
 				component_id = Guid.new_guid();
-				db.create(component_id);
+				db.create(component_id, "transform");
 				db.add_to_set(unit_id, "components", component_id);
 			}
 
 			unit.set_component_property_vector3   (component_id, "data.position", position);
 			unit.set_component_property_quaternion(component_id, "data.rotation", rotation);
 			unit.set_component_property_vector3   (component_id, "data.scale", scale);
-			unit.set_component_property_string    (component_id, "type", "transform");
 		}
 
 		// Create mesh_renderer
@@ -41,7 +40,7 @@ public class MeshResource
 			if (!unit.has_component(out component_id, "mesh_renderer"))
 			{
 				component_id = Guid.new_guid();
-				db.create(component_id);
+				db.create(component_id, "mesh_renderer");
 				db.add_to_set(unit_id, "components", component_id);
 			}
 
@@ -49,7 +48,6 @@ public class MeshResource
 			unit.set_component_property_string(component_id, "data.material", material_name);
 			unit.set_component_property_string(component_id, "data.mesh_resource", resource_name);
 			unit.set_component_property_bool  (component_id, "data.visible", true);
-			unit.set_component_property_string(component_id, "type", "mesh_renderer");
 		}
 
 		// Create collider
@@ -58,14 +56,13 @@ public class MeshResource
 			if (!unit.has_component(out component_id, "collider"))
 			{
 				component_id = Guid.new_guid();
-				db.create(component_id);
+				db.create(component_id, "collider");
 				db.add_to_set(unit_id, "components", component_id);
 			}
 
 			unit.set_component_property_string(component_id, "data.shape", "mesh");
 			unit.set_component_property_string(component_id, "data.scene", resource_name);
 			unit.set_component_property_string(component_id, "data.name", node_name);
-			unit.set_component_property_string(component_id, "type", "collider");
 		}
 
 		// Create actor
@@ -74,7 +71,7 @@ public class MeshResource
 			if (!unit.has_component(out component_id, "actor"))
 			{
 				component_id = Guid.new_guid();
-				db.create(component_id);
+				db.create(component_id, "actor");
 				db.add_to_set(unit_id, "components", component_id);
 			}
 
@@ -82,7 +79,6 @@ public class MeshResource
 			unit.set_component_property_string(component_id, "data.collision_filter", "default");
 			unit.set_component_property_double(component_id, "data.mass", 10);
 			unit.set_component_property_string(component_id, "data.material", "default");
-			unit.set_component_property_string(component_id, "type", "actor");
 		}
 
 		if (parent_unit_id != unit_id)
@@ -94,7 +90,7 @@ public class MeshResource
 			foreach (var child in children.entries)
 			{
 				Guid new_unit_id = Guid.new_guid();
-				db.create(new_unit_id);
+				db.create(new_unit_id, "unit");
 				create_components(db, unit_id, new_unit_id, material_name, resource_name, child.key,(Hashtable)child.value);
 			}
 		}
@@ -167,7 +163,7 @@ public class MeshResource
 			{
 				db = new Database();
 				unit_id = Guid.new_guid();
-				db.create(unit_id);
+				db.create(unit_id, "unit");
 			}
 
 			Hashtable mesh = SJSON.load_from_path(filename_i);
@@ -184,14 +180,13 @@ public class MeshResource
 				if (!unit.has_component(out component_id, "transform"))
 				{
 					component_id = Guid.new_guid();
-					db.create(component_id);
+					db.create(component_id, "transform");
 					db.add_to_set(unit_id, "components", component_id);
 				}
 
 				unit.set_component_property_vector3   (component_id, "data.position", VECTOR3_ZERO);
 				unit.set_component_property_quaternion(component_id, "data.rotation", QUATERNION_IDENTITY);
 				unit.set_component_property_vector3   (component_id, "data.scale", VECTOR3_ONE);
-				unit.set_component_property_string    (component_id, "type", "transform");
 			}
 
 			Guid new_unit_id = unit_id;
@@ -202,7 +197,7 @@ public class MeshResource
 					// If the mesh contains multiple root objects, create a new unit for each
 					// one of those, otherwise put the components inside the base unit.
 					new_unit_id = Guid.new_guid();
-					db.create(new_unit_id);
+					db.create(new_unit_id, "unit");
 				}
 				create_components(db, unit_id, new_unit_id, material_name, resource_name, entry.key, (Hashtable)entry.value);
 			}

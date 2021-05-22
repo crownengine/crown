@@ -732,6 +732,7 @@ public class Database
 		_distance_from_last_sync += dir;
 	}
 
+	// Returns the type of the object @a id.
 	public string object_type(Guid id)
 	{
 		assert(has_object(id));
@@ -748,7 +749,7 @@ public class Database
 		get_data(id)["type"] = type;
 	}
 
-	public void create(Guid id)
+	public void create(Guid id, string type)
 	{
 		assert(id != GUID_ZERO);
 		assert(!has_object(id));
@@ -758,6 +759,8 @@ public class Database
 		_redo_points.clear();
 
 		create_internal(1, id);
+		set_object_type(id, type);
+		object_created(id);
 	}
 
 	public void destroy(Guid id)
@@ -1065,7 +1068,7 @@ public class Database
 		assert(id != new_id);
 		assert(has_object(id));
 
-		create(new_id);
+		create(new_id, object_type(id));
 
 		HashMap<string, Value?> ob = get_data(id);
 		string[] keys = ob.keys.to_array();
@@ -1123,7 +1126,7 @@ public class Database
 				HashSet<Guid?> hs = (HashSet<Guid?>)value;
 				foreach (Guid j in hs)
 				{
-					db.create(j);
+					db.create(j, object_type(j));
 					copy_deep(db, j, "");
 					db.add_to_set(id, new_key + (new_key == "" ? "" : ".") + key, j);
 				}

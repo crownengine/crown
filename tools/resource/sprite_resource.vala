@@ -168,7 +168,7 @@ public class SpriteResource
 			{
 				db = new Database();
 				unit_id = Guid.new_guid();
-				db.create(unit_id);
+				db.create(unit_id, "unit");
 			}
 
 			Unit unit = new Unit(db, unit_id);
@@ -179,14 +179,13 @@ public class SpriteResource
 				if (!unit.has_component(out component_id, "transform"))
 				{
 					component_id = Guid.new_guid();
-					db.create(component_id);
+					db.create(component_id, "transform");
 					db.add_to_set(unit_id, "components", component_id);
 				}
 
 				unit.set_component_property_vector3   (component_id, "data.position", VECTOR3_ZERO);
 				unit.set_component_property_quaternion(component_id, "data.rotation", QUATERNION_IDENTITY);
 				unit.set_component_property_vector3   (component_id, "data.scale", VECTOR3_ONE);
-				unit.set_component_property_string    (component_id, "type", "transform");
 			}
 
 			// Create sprite_renderer
@@ -195,7 +194,7 @@ public class SpriteResource
 				if (!unit.has_component(out component_id, "sprite_renderer"))
 				{
 					component_id = Guid.new_guid();
-					db.create(component_id);
+					db.create(component_id, "sprite_renderer");
 					db.add_to_set(unit_id, "components", component_id);
 				}
 
@@ -204,7 +203,6 @@ public class SpriteResource
 				unit.set_component_property_double(component_id, "data.layer", layer);
 				unit.set_component_property_double(component_id, "data.depth", depth);
 				unit.set_component_property_bool  (component_id, "data.visible", true);
-				unit.set_component_property_string(component_id, "type", "sprite_renderer");
 			}
 
 			if (collision_enabled)
@@ -218,7 +216,7 @@ public class SpriteResource
 					if (!unit.has_component(out component_id, "collider"))
 					{
 						component_id = Guid.new_guid();
-						db.create(component_id);
+						db.create(component_id, "collider");
 						db.add_to_set(unit_id, "components", component_id);
 					}
 
@@ -258,7 +256,6 @@ public class SpriteResource
 						unit.set_component_property_double    (component_id, "data.collider_data.radius", radius);
 						unit.set_component_property_double    (component_id, "data.collider_data.height", capsule_height);
 					}
-					unit.set_component_property_string(component_id, "type", "collider");
 				}
 
 				// Create actor
@@ -267,7 +264,7 @@ public class SpriteResource
 					if (!unit.has_component(out component_id, "actor"))
 					{
 						component_id = Guid.new_guid();
-						db.create(component_id);
+						db.create(component_id, "actor");
 						db.add_to_set(unit_id, "components", component_id);
 					}
 
@@ -281,7 +278,6 @@ public class SpriteResource
 					unit.set_component_property_bool  (component_id, "data.lock_translation_z", false);
 					unit.set_component_property_double(component_id, "data.mass", mass);
 					unit.set_component_property_string(component_id, "data.material", "default");
-					unit.set_component_property_string(component_id, "type", "actor");
 				}
 			}
 			else /* if (collision_enabled) */

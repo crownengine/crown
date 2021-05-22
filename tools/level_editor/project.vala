@@ -446,7 +446,7 @@ public class Project
 		string name = type == "" ? path : path.substring(0, path.last_index_of("."));
 
 		Guid id = Guid.new_guid();
-		_files.create(id);
+		_files.create(id, "file");
 		_files.set_property_string(id, "path", path);
 		_files.set_property_string(id, "type", type);
 		_files.set_property_string(id, "name", name);
