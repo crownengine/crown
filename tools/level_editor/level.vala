@@ -574,9 +574,20 @@ public class Level
 					);
 				sb.append(s);
 			}
+			if (unit.has_component(out component_id, "camera"))
+			{
+				string s = LevelEditorApi.add_camera_component(unit_id
+					, component_id
+					, unit.get_component_property_string(component_id, "data.projection")
+					, unit.get_component_property_double(component_id, "data.fov")
+					, unit.get_component_property_double(component_id, "data.far_range")
+					, unit.get_component_property_double(component_id, "data.near_range")
+					);
+				sb.append(s);
+			}
 			if (unit.has_component(out component_id, "mesh_renderer"))
 			{
-				string s = LevelEditorApi.add_mesh_component(unit_id
+				string s = LevelEditorApi.add_mesh_renderer_component(unit_id
 					, component_id
 					, unit.get_component_property_string(component_id, "data.mesh_resource")
 					, unit.get_component_property_string(component_id, "data.geometry_name")
@@ -587,7 +598,7 @@ public class Level
 			}
 			if (unit.has_component(out component_id, "sprite_renderer"))
 			{
-				string s = LevelEditorApi.add_sprite_component(unit_id
+				string s = LevelEditorApi.add_sprite_renderer_component(unit_id
 					, component_id
 					, unit.get_component_property_string(component_id, "data.sprite_resource")
 					, unit.get_component_property_string(component_id, "data.material")
@@ -606,17 +617,6 @@ public class Level
 					, unit.get_component_property_double (component_id, "data.intensity")
 					, unit.get_component_property_double (component_id, "data.spot_angle")
 					, unit.get_component_property_vector3(component_id, "data.color")
-					);
-				sb.append(s);
-			}
-			if (unit.has_component(out component_id, "camera"))
-			{
-				string s = LevelEditorApi.add_camera_component(unit_id
-					, component_id
-					, unit.get_component_property_string(component_id, "data.projection")
-					, unit.get_component_property_double(component_id, "data.fov")
-					, unit.get_component_property_double(component_id, "data.far_range")
-					, unit.get_component_property_double(component_id, "data.near_range")
 					);
 				sb.append(s);
 			}

@@ -248,7 +248,18 @@ namespace LevelEditorApi
 			);
 	}
 
-	public string add_mesh_component(Guid id, Guid component_id, string mesh_resource, string geometry_name, string material_resource, bool visible)
+	public string add_camera_component(Guid id, Guid component_id, string projection, double fov, double far_range, double near_range)
+	{
+		return "LevelEditor:add_camera_component(\"%s\", \"%s\", \"%s\", %.17g, %.17g, %.17g)".printf(id.to_string()
+			, component_id.to_string()
+			, projection
+			, fov
+			, far_range
+			, near_range
+			);
+	}
+
+	public string add_mesh_renderer_component(Guid id, Guid component_id, string mesh_resource, string geometry_name, string material_resource, bool visible)
 	{
 		return "LevelEditor:add_mesh_component(\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", %s)".printf(id.to_string()
 			, component_id.to_string()
@@ -259,7 +270,7 @@ namespace LevelEditorApi
 			);
 	}
 
-	public string add_sprite_component(Guid id, Guid component_id, string sprite_resource, string material_resource, double layer, double depth, bool visible)
+	public string add_sprite_renderer_component(Guid id, Guid component_id, string sprite_resource, string material_resource, double layer, double depth, bool visible)
 	{
 		return "LevelEditor:add_sprite_component(\"%s\", \"%s\", \"%s\", \"%s\", %.17g, %.17g, %s)".printf(id.to_string()
 			, component_id.to_string()
@@ -268,17 +279,6 @@ namespace LevelEditorApi
 			, layer
 			, depth
 			, Lua.bool(visible)
-			);
-	}
-
-	public string add_camera_component(Guid id, Guid component_id, string projection, double fov, double far_range, double near_range)
-	{
-		return "LevelEditor:add_camera_component(\"%s\", \"%s\", \"%s\", %.17g, %.17g, %.17g)".printf(id.to_string()
-			, component_id.to_string()
-			, projection
-			, fov
-			, far_range
-			, near_range
 			);
 	}
 
