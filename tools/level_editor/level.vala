@@ -625,15 +625,15 @@ public class Level
 
 	private void generate_spawn_sound_commands(Guid[] sound_ids, StringBuilder sb)
 	{
-		foreach (Guid sound_id in sound_ids)
+		foreach (Guid id in sound_ids)
 		{
-			string s = LevelEditorApi.spawn_sound(sound_id
-				, _db.get_property_string    (sound_id, "name")
-				, _db.get_property_vector3   (sound_id, "position")
-				, _db.get_property_quaternion(sound_id, "rotation")
-				, _db.get_property_double    (sound_id, "range")
-				, _db.get_property_double    (sound_id, "volume")
-				, _db.get_property_bool      (sound_id, "loop")
+			string s = LevelEditorApi.spawn_sound(id
+				, _db.get_property_string    (id, "name")
+				, _db.get_property_vector3   (id, "position")
+				, _db.get_property_quaternion(id, "rotation")
+				, _db.get_property_double    (id, "range")
+				, _db.get_property_double    (id, "volume")
+				, _db.get_property_bool      (id, "loop")
 				);
 			sb.append(s);
 		}
