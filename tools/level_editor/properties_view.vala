@@ -743,6 +743,7 @@ public class PropertiesView : Gtk.Bin
 		_stack = new Gtk.Stack();
 		_stack.add(_nothing_to_show);
 		_stack.add(_scrolled_window);
+		_stack.add(_unknown_object_type);
 
 		this.add(_stack);
 		this.get_style_context().add_class("properties-view");
