@@ -168,7 +168,7 @@ public class SpriteResource
 			{
 				db = new Database();
 				unit_id = Guid.new_guid();
-				db.create(unit_id, "unit");
+				db.create(unit_id, OBJECT_TYPE_UNIT);
 			}
 
 			Unit unit = new Unit(db, unit_id);
@@ -176,10 +176,10 @@ public class SpriteResource
 			// Create transform
 			{
 				Guid component_id;
-				if (!unit.has_component(out component_id, "transform"))
+				if (!unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM))
 				{
 					component_id = Guid.new_guid();
-					db.create(component_id, "transform");
+					db.create(component_id, OBJECT_TYPE_TRANSFORM);
 					db.add_to_set(unit_id, "components", component_id);
 				}
 
@@ -191,10 +191,10 @@ public class SpriteResource
 			// Create sprite_renderer
 			{
 				Guid component_id;
-				if (!unit.has_component(out component_id, "sprite_renderer"))
+				if (!unit.has_component(out component_id, OBJECT_TYPE_SPRITE_RENDERER))
 				{
 					component_id = Guid.new_guid();
-					db.create(component_id, "sprite_renderer");
+					db.create(component_id, OBJECT_TYPE_SPRITE_RENDERER);
 					db.add_to_set(unit_id, "components", component_id);
 				}
 
@@ -213,10 +213,10 @@ public class SpriteResource
 					Quaternion rotation = QUATERNION_IDENTITY;
 
 					Guid component_id;
-					if (!unit.has_component(out component_id, "collider"))
+					if (!unit.has_component(out component_id, OBJECT_TYPE_COLLIDER))
 					{
 						component_id = Guid.new_guid();
-						db.create(component_id, "collider");
+						db.create(component_id, OBJECT_TYPE_COLLIDER);
 						db.add_to_set(unit_id, "components", component_id);
 					}
 
@@ -261,10 +261,10 @@ public class SpriteResource
 				// Create actor
 				{
 					Guid component_id;
-					if (!unit.has_component(out component_id, "actor"))
+					if (!unit.has_component(out component_id, OBJECT_TYPE_ACTOR))
 					{
 						component_id = Guid.new_guid();
-						db.create(component_id, "actor");
+						db.create(component_id, OBJECT_TYPE_ACTOR);
 						db.add_to_set(unit_id, "components", component_id);
 					}
 
@@ -284,12 +284,12 @@ public class SpriteResource
 			{
 				// Destroy collider and actor if any
 				Guid component_id;
-				if (unit.has_component(out component_id, "collider"))
+				if (unit.has_component(out component_id, OBJECT_TYPE_COLLIDER))
 				{
 					db.remove_from_set(unit_id, "components", component_id);
 					db.destroy(component_id);
 				}
-				if (unit.has_component(out component_id, "actor"))
+				if (unit.has_component(out component_id, OBJECT_TYPE_ACTOR))
 				{
 					db.remove_from_set(unit_id, "components", component_id);
 					db.destroy(component_id);

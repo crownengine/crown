@@ -815,9 +815,9 @@ public class PropertiesView : Gtk.Bin
 		if (!_db.has_object(id))
 			return;
 
-		if (_db.object_type(id) == "unit")
+		if (_db.object_type(id) == OBJECT_TYPE_UNIT)
 			show_unit(id);
-		else if (_db.object_type(id) == "sound_source")
+		else if (_db.object_type(id) == OBJECT_TYPE_SOUND_SOURCE)
 			show_sound_source(id);
 		else
 			_stack.set_visible_child(_unknown_object_type);

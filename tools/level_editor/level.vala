@@ -218,7 +218,7 @@ public class Level
 	public void on_unit_spawned(Guid id, string? name, Vector3 pos, Quaternion rot, Vector3 scl)
 	{
 		_db.add_restore_point((int)ActionType.SPAWN_UNIT, new Guid[] { id });
-		_db.create(id, "unit");
+		_db.create(id, OBJECT_TYPE_UNIT);
 		_db.set_property_string(id, "editor.name", "unit_%04u".printf(_num_units++));
 
 		if (name != null)
@@ -229,12 +229,12 @@ public class Level
 
 		Unit unit = new Unit(_db, id);
 		Guid component_id;
-		if (unit.has_component(out component_id, "transform"))
+		if (unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM))
 		{
 			unit.set_component_property_vector3   (component_id, "data.position", pos);
 			unit.set_component_property_quaternion(component_id, "data.rotation", rot);
 			unit.set_component_property_vector3   (component_id, "data.scale", scl);
-			unit.set_component_property_string    (component_id, "type", "transform");
+			unit.set_component_property_string    (component_id, "type", OBJECT_TYPE_TRANSFORM);
 		}
 		else
 		{
@@ -248,7 +248,7 @@ public class Level
 	public void on_sound_spawned(Guid id, string name, Vector3 pos, Quaternion rot, Vector3 scl, double range, double volume, bool loop)
 	{
 		_db.add_restore_point((int)ActionType.SPAWN_SOUND, new Guid[] { id });
-		_db.create(id, "sound_source");
+		_db.create(id, OBJECT_TYPE_SOUND_SOURCE);
 		_db.set_property_string    (id, "editor.name", "sound_%04u".printf(_num_sounds++));
 		_db.set_property_vector3   (id, "position", pos);
 		_db.set_property_quaternion(id, "rotation", rot);
@@ -274,7 +274,7 @@ public class Level
 			{
 				Unit unit = new Unit(_db, id);
 				Guid component_id;
-				if (unit.has_component(out component_id, "transform"))
+				if (unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM))
 				{
 					unit.set_component_property_vector3   (component_id, "data.position", pos);
 					unit.set_component_property_quaternion(component_id, "data.rotation", rot);
@@ -333,7 +333,7 @@ public class Level
 		unit.set_component_property_double (component_id, "data.intensity",  intensity);
 		unit.set_component_property_double (component_id, "data.spot_angle", spot_angle);
 		unit.set_component_property_vector3(component_id, "data.color",      color);
-		unit.set_component_property_string (component_id, "type", "light");
+		unit.set_component_property_string (component_id, "type", OBJECT_TYPE_LIGHT);
 
 		_client.send_script(LevelEditorApi.set_light(unit_id, type, range, intensity, spot_angle, color));
 		_client.send(DeviceApi.frame());
@@ -348,7 +348,7 @@ public class Level
 		unit.set_component_property_string(component_id, "data.geometry_name", geometry);
 		unit.set_component_property_string(component_id, "data.material", material);
 		unit.set_component_property_bool  (component_id, "data.visible", visible);
-		unit.set_component_property_string(component_id, "type", "mesh_renderer");
+		unit.set_component_property_string(component_id, "type", OBJECT_TYPE_MESH_RENDERER);
 
 		_client.send_script(LevelEditorApi.set_mesh(unit_id, material, visible));
 		_client.send(DeviceApi.frame());
@@ -364,7 +364,7 @@ public class Level
 		unit.set_component_property_string(component_id, "data.material", material);
 		unit.set_component_property_string(component_id, "data.sprite_resource", sprite_resource);
 		unit.set_component_property_bool  (component_id, "data.visible", visible);
-		unit.set_component_property_string(component_id, "type", "sprite_renderer");
+		unit.set_component_property_string(component_id, "type", OBJECT_TYPE_SPRITE_RENDERER);
 
 		_client.send_script(LevelEditorApi.set_sprite(unit_id, sprite_resource, material, layer, depth, visible));
 		_client.send(DeviceApi.frame());
@@ -379,7 +379,7 @@ public class Level
 		unit.set_component_property_double(component_id, "data.fov", fov);
 		unit.set_component_property_double(component_id, "data.near_range", near_range);
 		unit.set_component_property_double(component_id, "data.far_range", far_range);
-		unit.set_component_property_string(component_id, "type", "camera");
+		unit.set_component_property_string(component_id, "type", OBJECT_TYPE_CAMERA);
 
 		_client.send_script(LevelEditorApi.set_camera(unit_id, projection, fov, near_range, far_range));
 		_client.send(DeviceApi.frame());
@@ -393,7 +393,7 @@ public class Level
 		unit.set_component_property_string(component_id, "data.shape", shape);
 		unit.set_component_property_string(component_id, "data.scene", scene);
 		unit.set_component_property_string(component_id, "data.name", name);
-		unit.set_component_property_string(component_id, "type", "collider");
+		unit.set_component_property_string(component_id, "type", OBJECT_TYPE_COLLIDER);
 
 		// No synchronization.
 	}
@@ -413,7 +413,7 @@ public class Level
 		unit.set_component_property_bool  (component_id, "data.lock_translation_x", (bool)unit.get_component_property_bool(component_id, "data.lock_translation_x"));
 		unit.set_component_property_bool  (component_id, "data.lock_translation_y", (bool)unit.get_component_property_bool(component_id, "data.lock_translation_y"));
 		unit.set_component_property_bool  (component_id, "data.lock_translation_z", (bool)unit.get_component_property_bool(component_id, "data.lock_translation_z"));
-		unit.set_component_property_string(component_id, "type", "actor");
+		unit.set_component_property_string(component_id, "type", OBJECT_TYPE_ACTOR);
 
 		// No synchronization.
 	}
@@ -424,7 +424,7 @@ public class Level
 
 		Unit unit = new Unit(_db, unit_id);
 		unit.set_component_property_string(component_id, "data.script_resource", script_resource);
-		unit.set_component_property_string(component_id, "type", "script");
+		unit.set_component_property_string(component_id, "type", OBJECT_TYPE_SCRIPT);
 
 		// No synchronization.
 	}
@@ -435,7 +435,7 @@ public class Level
 
 		Unit unit = new Unit(_db, unit_id);
 		unit.set_component_property_string(component_id, "data.state_machine_resource", state_machine_resource);
-		unit.set_component_property_string(component_id, "type", "animation_state_machine");
+		unit.set_component_property_string(component_id, "type", OBJECT_TYPE_ANIMATION_STATE_MACHINE);
 
 		// No synchronization.
 	}
@@ -697,7 +697,7 @@ public class Level
 
 						Unit unit = new Unit(_db, unit_id);
 						Guid component_id;
-						if (unit.has_component(out component_id, "transform"))
+						if (unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM))
 						{
 							positions[i] = unit.get_component_property_vector3   (component_id, "data.position");
 							rotations[i] = unit.get_component_property_quaternion(component_id, "data.rotation");
@@ -749,7 +749,7 @@ public class Level
 
 				Unit unit = new Unit(_db, unit_id);
 				Guid component_id;
-				unit.has_component(out component_id, "light");
+				unit.has_component(out component_id, OBJECT_TYPE_LIGHT);
 
 				_client.send_script(LevelEditorApi.set_light(unit_id
 					, unit.get_component_property_string (component_id, "data.type")
@@ -770,7 +770,7 @@ public class Level
 
 				Unit unit = new Unit(_db, unit_id);
 				Guid component_id;
-				unit.has_component(out component_id, "mesh_renderer");
+				unit.has_component(out component_id, OBJECT_TYPE_MESH_RENDERER);
 
 				_client.send_script(LevelEditorApi.set_mesh(unit_id
 					, unit.get_component_property_string(component_id, "data.material")
@@ -788,7 +788,7 @@ public class Level
 
 				Unit unit = new Unit(_db, unit_id);
 				Guid component_id;
-				unit.has_component(out component_id, "sprite_renderer");
+				unit.has_component(out component_id, OBJECT_TYPE_SPRITE_RENDERER);
 
 				_client.send_script(LevelEditorApi.set_sprite(unit_id
 					, unit.get_component_property_string(component_id, "data.sprite_resource")
@@ -809,7 +809,7 @@ public class Level
 
 				Unit unit = new Unit(_db, unit_id);
 				Guid component_id;
-				unit.has_component(out component_id, "camera");
+				unit.has_component(out component_id, OBJECT_TYPE_CAMERA);
 
 				_client.send_script(LevelEditorApi.set_camera(unit_id
 					, unit.get_component_property_string(component_id, "data.projection")

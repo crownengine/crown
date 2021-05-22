@@ -22,10 +22,10 @@ public class MeshResource
 		// Create transform
 		{
 			Guid component_id;
-			if (!unit.has_component(out component_id, "transform"))
+			if (!unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM))
 			{
 				component_id = Guid.new_guid();
-				db.create(component_id, "transform");
+				db.create(component_id, OBJECT_TYPE_TRANSFORM);
 				db.add_to_set(unit_id, "components", component_id);
 			}
 
@@ -37,10 +37,10 @@ public class MeshResource
 		// Create mesh_renderer
 		{
 			Guid component_id;
-			if (!unit.has_component(out component_id, "mesh_renderer"))
+			if (!unit.has_component(out component_id, OBJECT_TYPE_MESH_RENDERER))
 			{
 				component_id = Guid.new_guid();
-				db.create(component_id, "mesh_renderer");
+				db.create(component_id, OBJECT_TYPE_MESH_RENDERER);
 				db.add_to_set(unit_id, "components", component_id);
 			}
 
@@ -53,10 +53,10 @@ public class MeshResource
 		// Create collider
 		{
 			Guid component_id;
-			if (!unit.has_component(out component_id, "collider"))
+			if (!unit.has_component(out component_id, OBJECT_TYPE_COLLIDER))
 			{
 				component_id = Guid.new_guid();
-				db.create(component_id, "collider");
+				db.create(component_id, OBJECT_TYPE_COLLIDER);
 				db.add_to_set(unit_id, "components", component_id);
 			}
 
@@ -68,10 +68,10 @@ public class MeshResource
 		// Create actor
 		{
 			Guid component_id;
-			if (!unit.has_component(out component_id, "actor"))
+			if (!unit.has_component(out component_id, OBJECT_TYPE_ACTOR))
 			{
 				component_id = Guid.new_guid();
-				db.create(component_id, "actor");
+				db.create(component_id, OBJECT_TYPE_ACTOR);
 				db.add_to_set(unit_id, "components", component_id);
 			}
 
@@ -90,7 +90,7 @@ public class MeshResource
 			foreach (var child in children.entries)
 			{
 				Guid new_unit_id = Guid.new_guid();
-				db.create(new_unit_id, "unit");
+				db.create(new_unit_id, OBJECT_TYPE_UNIT);
 				create_components(db, unit_id, new_unit_id, material_name, resource_name, child.key,(Hashtable)child.value);
 			}
 		}
@@ -163,7 +163,7 @@ public class MeshResource
 			{
 				db = new Database();
 				unit_id = Guid.new_guid();
-				db.create(unit_id, "unit");
+				db.create(unit_id, OBJECT_TYPE_UNIT);
 			}
 
 			Hashtable mesh = SJSON.load_from_path(filename_i);
@@ -177,10 +177,10 @@ public class MeshResource
 				Unit unit = new Unit(db, unit_id);
 
 				Guid component_id;
-				if (!unit.has_component(out component_id, "transform"))
+				if (!unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM))
 				{
 					component_id = Guid.new_guid();
-					db.create(component_id, "transform");
+					db.create(component_id, OBJECT_TYPE_TRANSFORM);
 					db.add_to_set(unit_id, "components", component_id);
 				}
 
@@ -197,7 +197,7 @@ public class MeshResource
 					// If the mesh contains multiple root objects, create a new unit for each
 					// one of those, otherwise put the components inside the base unit.
 					new_unit_id = Guid.new_guid();
-					db.create(new_unit_id, "unit");
+					db.create(new_unit_id, OBJECT_TYPE_UNIT);
 				}
 				create_components(db, unit_id, new_unit_id, material_name, resource_name, entry.key, (Hashtable)entry.value);
 			}
