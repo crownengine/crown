@@ -9,7 +9,7 @@ namespace Crown
 {
 public class Database
 {
-	private static bool _debug = true;
+	private static bool _debug = false;
 	private static bool _debug_getters = false;
 
 	private enum Action
@@ -730,6 +730,7 @@ public class Database
 		((HashSet<Guid?>)ob[key]).remove(item_id);
 
 		_distance_from_last_sync += dir;
+		key_changed(id, key);
 	}
 
 	// Returns the type of the object @a id.
