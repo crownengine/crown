@@ -31,6 +31,7 @@ public class Statusbar : Gtk.Box
 
 		this.pack_start(_status, false, false, 0);
 		this.pack_start(_temporary_message, false, false, 0);
+		this.pack_end(new Gtk.Label(CROWN_VERSION), false, false, 0);
 		this.get_style_context().add_class("statusbar");
 	}
 
