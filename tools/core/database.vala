@@ -178,14 +178,16 @@ public class Database
 			return (string)str;
 		}
 
-		public void write_create_action(Guid id)
+		public void write_create_action(Guid id, string type)
 		{
+			write_string(type);
 			write_guid(id);
 			write_action(Action.CREATE);
 		}
 
-		public void write_destroy_action(Guid id)
+		public void write_destroy_action(Guid id, string type)
 		{
+			write_string(type);
 			write_guid(id);
 			write_action(Action.DESTROY);
 		}
@@ -755,7 +757,7 @@ public class Database
 		assert(id != GUID_ZERO);
 		assert(!has_object(id));
 
-		_undo.write_destroy_action(id);
+		_undo.write_destroy_action(id, type);
 		_redo.clear();
 		_redo_points.clear();
 
@@ -769,6 +771,7 @@ public class Database
 		assert(id != GUID_ZERO);
 		assert(has_object(id));
 
+		string obj_type = object_type(id);
 
 		HashMap<string, Value?> o = get_data(id);
 		string[] keys = o.keys.to_array();
@@ -792,7 +795,7 @@ public class Database
 			}
 		}
 
-		_undo.write_create_action(id);
+		_undo.write_create_action(id, obj_type);
 		_redo.clear();
 		_redo_points.clear();
 
@@ -1205,9 +1208,11 @@ public class Database
 				assert(t == Action.CREATE);
 
 				Guid id = undo.read_guid();
+				string obj_type = undo.read_string();
 
-				redo.write_destroy_action(id);
+				redo.write_destroy_action(id, obj_type);
 				create_internal(dir, id);
+				set_object_type(id, obj_type);
 			}
 			else if (type == Action.DESTROY)
 			{
@@ -1215,8 +1220,9 @@ public class Database
 				assert(t == Action.DESTROY);
 
 				Guid id = undo.read_guid();
+				string obj_type = undo.read_string();
 
-				redo.write_create_action(id);
+				redo.write_create_action(id, obj_type);
 				destroy_internal(dir, id);
 			}
 			else if (type == Action.SET_PROPERTY_NULL)
