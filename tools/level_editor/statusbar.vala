@@ -19,6 +19,8 @@ public class Statusbar : Gtk.Box
 	public Statusbar()
 	{
 		Object(orientation: Gtk.Orientation.HORIZONTAL, spacing: 0);
+		this.margin_start = 8;
+		this.margin_end   = 8;
 
 		// Data
 		_timer_id = 0;
