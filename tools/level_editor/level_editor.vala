@@ -657,11 +657,11 @@ public class LevelEditorApplication : Gtk.Application
 					if (info.get_name().scanf("%d-%d-%d.log", &year, &month, &day) != 3)
 						continue; // Skip malformed filenames
 
-					GLib.DateTime time_log = new GLib.DateTime.utc(year, month, day, 0, 0, 0.0);
+					GLib.DateTime time_log = new GLib.DateTime.local(year, month, day, 0, 0, 0.0);
 					if (time_log == null)
 						continue; // Skip invalid dates
 
-					GLib.DateTime time_now = new GLib.DateTime.now_utc();
+					GLib.DateTime time_now = new GLib.DateTime.now_local();
 					if (time_now.difference(time_log) <= GLib.TimeSpan.DAY*_preferences_dialog._log_delete_after_days.value)
 						continue; // Skip if date is within range
 
@@ -2499,7 +2499,7 @@ public static bool _console_view_valid = false;
 
 public static void log(string system, string severity, string message)
 {
-	GLib.DateTime now = new GLib.DateTime.now_utc();
+	GLib.DateTime now = new GLib.DateTime.now_local();
 	int now_us = now.get_microsecond();
 	string now_str = now.format("%H:%M:%S");
 
@@ -2646,7 +2646,7 @@ public static int main(string[] args)
 	_cache_dir = GLib.File.new_for_path(GLib.Path.build_filename(GLib.Environment.get_user_cache_dir(), "crown"));
 	try { _cache_dir.make_directory(); } catch (Error e) { /* Nobody cares */ }
 
-	_log_file = GLib.File.new_for_path(GLib.Path.build_filename(_logs_dir.get_path(), new GLib.DateTime.now_utc().format("%Y-%m-%d") + ".log"));
+	_log_file = GLib.File.new_for_path(GLib.Path.build_filename(_logs_dir.get_path(), new GLib.DateTime.now_local().format("%Y-%m-%d") + ".log"));
 	_settings_file = GLib.File.new_for_path(GLib.Path.build_filename(_config_dir.get_path(), "settings.sjson"));
 	_user_file = GLib.File.new_for_path(GLib.Path.build_filename(_config_dir.get_path(), "user.sjson"));
 	_console_history_file = GLib.File.new_for_path(GLib.Path.build_filename(_cache_dir.get_path(), "console_history.txt"));
