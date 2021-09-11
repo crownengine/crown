@@ -10,13 +10,13 @@ of generic primitives and facilities to help you create a wide gamut of
 interactive 2D and 3D products.
 
 Check out the
-[Introduction](https://dbartolini.github.io/crown/html/latest/introduction.html)
+[Introduction](https://crownengine.github.io/crown/html/latest/introduction.html)
 for more info.
 
 ## Download
 ### Binaries
 
-  * [Changelog](https://dbartolini.github.io/crown/html/latest/changelog.html)
+  * [Changelog](https://crownengine.github.io/crown/html/latest/changelog.html)
   * [Crown v0.45.0 for Linux 64-bits](https://github.com/dbartolini/crown/releases/download/v0.45.0/crown-0.45.0-linux-x64.tar.gz)
   * [Crown v0.45.0 for Windows 64-bits](https://github.com/dbartolini/crown/releases/download/v0.45.0/crown-0.45.0-windows-x64.zip)
   * [Crown v0.45.0 all releases](https://github.com/dbartolini/crown/releases/tag/v0.45.0)
@@ -26,9 +26,9 @@ for more info.
   
 ## Documentation
 
-  * [User Manual](https://dbartolini.github.io/crown/html/latest)
-  * [Lua API](https://dbartolini.github.io/crown/html/latest/lua_api.html)
-  * [Building](https://dbartolini.github.io/crown/html/latest/hackers/building.html)
+  * [User Manual](https://crownengine.github.io/crown/html/latest)
+  * [Lua API](https://crownengine.github.io/crown/html/latest/lua_api.html)
+  * [Building](https://crownengine.github.io/crown/html/latest/hackers/building.html)
 
 ## Community Support & Development
 

@@ -2225,7 +2225,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		try
 		{
-			AppInfo.launch_default_for_uri("https://dbartolini.github.io/crown/html/v" + CROWN_VERSION, null);
+			AppInfo.launch_default_for_uri("https://crownengine.github.io/crown/html/v" + CROWN_VERSION, null);
 		}
 		catch (Error e)
 		{
@@ -2254,7 +2254,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		try
 		{
-			AppInfo.launch_default_for_uri("https://dbartolini.github.io/crown/html/v" + CROWN_VERSION + "/changelog.html", null);
+			AppInfo.launch_default_for_uri("https://crownengine.github.io/crown/html/v" + CROWN_VERSION + "/changelog.html", null);
 		}
 		catch (Error e)
 		{

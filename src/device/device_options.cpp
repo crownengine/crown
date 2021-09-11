@@ -41,7 +41,7 @@ static void help(const char* msg = NULL)
 		"  --server                        Run the engine in server mode.\n"
 		"  --pumped                        Do not advance the renderer unless explicitly requested via console.\n"
 		"\n"
-		"Complete documentation available at https://dbartolini.github.io/crown/html/v" CROWN_VERSION "\n"
+		"Complete documentation available at https://crownengine.github.io/crown/html/v" CROWN_VERSION "\n"
 	);
 
 	if (msg)
