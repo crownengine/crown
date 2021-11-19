@@ -17,9 +17,9 @@ for more info.
 ### Binaries
 
   * [Changelog](https://crownengine.github.io/crown/html/latest/changelog.html)
-  * [Crown v0.45.0 for Linux 64-bits](https://github.com/dbartolini/crown/releases/download/v0.45.0/crown-0.45.0-linux-x64.tar.gz)
-  * [Crown v0.45.0 for Windows 64-bits](https://github.com/dbartolini/crown/releases/download/v0.45.0/crown-0.45.0-windows-x64.zip)
-  * [Crown v0.45.0 all releases](https://github.com/dbartolini/crown/releases/tag/v0.45.0)
+  * [Crown v0.46.0 for Linux 64-bits](https://github.com/dbartolini/crown/releases/download/v0.46.0/crown-0.46.0-linux-x64.tar.gz)
+  * [Crown v0.46.0 for Windows 64-bits](https://github.com/dbartolini/crown/releases/download/v0.46.0/crown-0.46.0-windows-x64.zip)
+  * [Crown v0.46.0 all releases](https://github.com/dbartolini/crown/releases/tag/v0.46.0)
   
 ### Arch Linux ([AUR](https://aur.archlinux.org/packages/crown/))
     yay -S crown
