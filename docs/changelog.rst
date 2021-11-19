@@ -17,7 +17,6 @@ Changelog
 **Tools**
 
 * The Console will now use local time for log output.
-*
 
 0.45.0
 ------
