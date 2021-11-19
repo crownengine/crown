@@ -5,6 +5,16 @@ Changelog
 ------
 *DD MMM YYYY*
 
+**General**
+
+* Updated various external web links to docs, website etc.
+* Windows: fixed handling of spaces in filenames when spawning external processes.
+
+**Tools**
+
+* The Console will now use local time for log output.
+*
+
 0.45.0
 ------
 *30 Jul 2021*
