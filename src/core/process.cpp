@@ -6,6 +6,7 @@
 #include "core/memory/temp_allocator.inl"
 #include "core/process.h"
 #include "core/strings/string_stream.inl"
+#include "device/log.h"
 
 #if CROWN_PLATFORM_POSIX
 	#include <unistd.h>   // fork, execvp
@@ -17,6 +18,8 @@
 
 namespace crown
 {
+LOG_SYSTEM(PROCESS, "process")
+
 struct Private
 {
 #if CROWN_PLATFORM_POSIX
@@ -142,9 +145,17 @@ s32 Process::spawn(const char* const* argv, u32 flags)
 		for (; *arg; ++arg)
 		{
 			if (*arg == ' ')
-				path << '\\';
-			path << *arg;
+				break;
 		}
+
+		if (*arg)
+			path << '"';
+
+		path << argv[i];
+
+		if (*arg)
+			path << '"';
+
 		path << ' ';
 	}
 
@@ -175,6 +186,7 @@ s32 Process::spawn(const char* const* argv, u32 flags)
 	info.hStdError = (info.hStdOutput != 0) && (flags & ProcessFlags::STDERR_MERGE) ? _priv->stdout_wr : 0;
 	info.dwFlags |= (info.hStdOutput != 0 || info.hStdError != 0) ? STARTF_USESTDHANDLES : 0;
 
+	logi(PROCESS, "%s", string_stream::c_str(path));
 	BOOL err = CreateProcess(argv[0]
 		, (LPSTR)string_stream::c_str(path)
 		, NULL
