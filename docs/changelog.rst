@@ -3,7 +3,7 @@ Changelog
 
 0.46.0
 ------
-*DD MMM YYYY*
+*19 Nov 2021*
 
 **General**
 
