@@ -99,7 +99,7 @@ Open Visual Studio 2019 Command Prompt:
 
 .. code::
 
-	make tools-linux-release64
+	make tools-windows-release64
 
 To build tools, open MSYS2 MSYS:
 
