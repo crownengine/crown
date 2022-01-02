@@ -16,6 +16,9 @@
 	#include <errno.h>
 #elif CROWN_PLATFORM_WINDOWS
 	#include <tchar.h>
+	#ifndef WIN32_LEAN_AND_MEAN
+		#define WIN32_LEAN_AND_MEAN
+	#endif
 	#include <windows.h>
 #endif
 

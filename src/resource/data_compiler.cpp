@@ -48,9 +48,12 @@
 #include <algorithm>
 #include <inttypes.h>
 #if CROWN_PLATFORM_POSIX
-#include <signal.h>
+	#include <signal.h>
 #elif CROWN_PLATFORM_WINDOWS
-#include <windows.h>
+	#ifndef WIN32_LEAN_AND_MEAN
+		#define WIN32_LEAN_AND_MEAN
+	#endif
+	#include <windows.h>
 #endif // CROWN_PLATFORM_LINUX
 
 LOG_SYSTEM(DATA_COMPILER, "data_compiler")

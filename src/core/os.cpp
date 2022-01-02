@@ -26,6 +26,9 @@
 #elif CROWN_PLATFORM_WINDOWS
 	#include <io.h>       // _access
 	#include <stdio.h>
+	#ifndef WIN32_LEAN_AND_MEAN
+		#define WIN32_LEAN_AND_MEAN
+	#endif
 	#include <windows.h>
 #endif
 #if CROWN_PLATFORM_ANDROID

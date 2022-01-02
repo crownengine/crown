@@ -14,6 +14,9 @@
 #include "core/os.h"
 #include "core/strings/dynamic_string.inl"
 #include "core/thread/thread.h"
+#ifndef WIN32_LEAN_AND_MEAN
+	#define WIN32_LEAN_AND_MEAN
+#endif
 #include <windows.h>
 
 namespace crown
