@@ -15,7 +15,7 @@
 #ifndef BGFX_DEFINES_H_HEADER_GUARD
 #define BGFX_DEFINES_H_HEADER_GUARD
 
-#define BGFX_API_VERSION UINT32_C(112)
+#define BGFX_API_VERSION UINT32_C(115)
 
 /**
  * Color RGB/alpha/depth write. When it's not specified write will be disabled.
@@ -275,7 +275,7 @@
 #define BGFX_DEBUG_IFH                            UINT32_C(0x00000002)
 #define BGFX_DEBUG_STATS                          UINT32_C(0x00000004) //!< Enable statistics display.
 #define BGFX_DEBUG_TEXT                           UINT32_C(0x00000008) //!< Enable debug text display.
-#define BGFX_DEBUG_PROFILER                       UINT32_C(0x00000010) //!< Enable profiler.
+#define BGFX_DEBUG_PROFILER                       UINT32_C(0x00000010) //!< Enable profiler. This causes per-view statistics to be collected, available through `bgfx::Stats::ViewStats`. This is unrelated to the profiler functions in `bgfx::CallbackI`.
 
 #define BGFX_BUFFER_COMPUTE_FORMAT_8X1            UINT16_C(0x0001) //!< 1 8-bit value
 #define BGFX_BUFFER_COMPUTE_FORMAT_8X2            UINT16_C(0x0002) //!< 2 8-bit values
@@ -520,8 +520,10 @@
 #define BGFX_PCI_ID_NONE                          UINT16_C(0x0000) //!< Autoselect adapter.
 #define BGFX_PCI_ID_SOFTWARE_RASTERIZER           UINT16_C(0x0001) //!< Software rasterizer.
 #define BGFX_PCI_ID_AMD                           UINT16_C(0x1002) //!< AMD adapter.
+#define BGFX_PCI_ID_APPLE                         UINT16_C(0x106b) //!< Apple adapter.
 #define BGFX_PCI_ID_INTEL                         UINT16_C(0x8086) //!< Intel adapter.
 #define BGFX_PCI_ID_NVIDIA                        UINT16_C(0x10de) //!< nVidia adapter.
+#define BGFX_PCI_ID_MICROSOFT                     UINT16_C(0x1414) //!< Microsoft adapter.
 
 #define BGFX_CUBE_MAP_POSITIVE_X                  UINT8_C(0x00) //!< Cubemap +x.
 #define BGFX_CUBE_MAP_NEGATIVE_X                  UINT8_C(0x01) //!< Cubemap -x.

@@ -4,6 +4,7 @@
  */
 
 #include "allocator.cpp"
+#include "bounds.cpp"
 #include "bx.cpp"
 #include "commandline.cpp"
 #include "crtnone.cpp"

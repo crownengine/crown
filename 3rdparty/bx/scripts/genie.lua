@@ -51,7 +51,6 @@ project "bx.test"
 	}
 
 	includedirs {
-		path.join(BX_DIR, "include"),
 		BX_THIRD_PARTY_DIR,
 	}
 
@@ -61,9 +60,7 @@ project "bx.test"
 		path.join(BX_DIR, "tests/dbg.*"),
 	}
 
-	links {
-		"bx",
-	}
+	using_bx()
 
 	configuration { "vs* or mingw*" }
 		links {
@@ -129,6 +126,16 @@ project "bx.bench"
 	configuration { "osx*" }
 		links {
 			"Cocoa.framework",
+		}
+
+	configuration { "Debug" }
+		defines {
+			"BX_CONFIG_DEBUG=1",
+		}
+
+	configuration { "Release" }
+		defines {
+			"BX_CONFIG_DEBUG=0",
 		}
 
 	configuration {}

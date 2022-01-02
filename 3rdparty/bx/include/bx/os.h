@@ -6,7 +6,6 @@
 #ifndef BX_OS_H_HEADER_GUARD
 #define BX_OS_H_HEADER_GUARD
 
-#include "debug.h"
 #include "filepath.h"
 
 #if BX_PLATFORM_OSX
@@ -55,6 +54,9 @@ namespace bx
 
 	///
 	void* exec(const char* const* _argv);
+
+	///
+	BX_NO_RETURN void exit(int32_t _exitCode);
 
 } // namespace bx
 

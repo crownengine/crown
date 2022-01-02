@@ -19,6 +19,7 @@
 #include "ir_builder.h"
 #include "ir_context.h"
 #include "iterator.h"
+#include "source/util/string_utils.h"
 
 namespace spvtools {
 namespace opt {
@@ -184,8 +185,8 @@ bool LocalAccessChainConvertPass::IsConstantIndexAccessChain(
 bool LocalAccessChainConvertPass::HasOnlySupportedRefs(uint32_t ptrId) {
   if (supported_ref_ptrs_.find(ptrId) != supported_ref_ptrs_.end()) return true;
   if (get_def_use_mgr()->WhileEachUser(ptrId, [this](Instruction* user) {
-        if (user->GetOpenCL100DebugOpcode() == OpenCLDebugInfo100DebugValue ||
-            user->GetOpenCL100DebugOpcode() == OpenCLDebugInfo100DebugDeclare) {
+        if (user->GetCommonDebugOpcode() == CommonDebugInfoDebugValue ||
+            user->GetCommonDebugOpcode() == CommonDebugInfoDebugDeclare) {
           return true;
         }
         SpvOp op = user->opcode();
@@ -328,10 +329,21 @@ bool LocalAccessChainConvertPass::AllExtensionsSupported() const {
     return false;
   // If any extension not in allowlist, return false
   for (auto& ei : get_module()->extensions()) {
-    const char* extName =
-        reinterpret_cast<const char*>(&ei.GetInOperand(0).words[0]);
+    const std::string extName = ei.GetInOperand(0).AsString();
     if (extensions_allowlist_.find(extName) == extensions_allowlist_.end())
       return false;
+  }
+  // only allow NonSemantic.Shader.DebugInfo.100, we cannot safely optimise
+  // around unknown extended
+  // instruction sets even if they are non-semantic
+  for (auto& inst : context()->module()->ext_inst_imports()) {
+    assert(inst.opcode() == SpvOpExtInstImport &&
+           "Expecting an import of an extension's instruction set.");
+    const std::string extension_name = inst.GetInOperand(0).AsString();
+    if (spvtools::utils::starts_with(extension_name, "NonSemantic.") &&
+        extension_name != "NonSemantic.Shader.DebugInfo.100") {
+      return false;
+    }
   }
   return true;
 }
@@ -418,6 +430,10 @@ void LocalAccessChainConvertPass::InitExtensions() {
       "SPV_KHR_ray_query",
       "SPV_EXT_fragment_invocation_density",
       "SPV_KHR_terminate_invocation",
+      "SPV_KHR_subgroup_uniform_control_flow",
+      "SPV_KHR_integer_dot_product",
+      "SPV_EXT_shader_image_int64",
+      "SPV_KHR_non_semantic_info",
   });
 }
 

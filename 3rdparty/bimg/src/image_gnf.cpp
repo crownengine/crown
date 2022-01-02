@@ -21,7 +21,7 @@ namespace bimg
 		bx::MemoryReader reader(_src, _size);
 
 		uint32_t magic;
-		bx::read(&reader, magic);
+		bx::read(&reader, magic, bx::ErrorIgnore{});
 
 		ImageContainer imageContainer;
 		if (BIMG_CHUNK_MAGIC_GNF != magic

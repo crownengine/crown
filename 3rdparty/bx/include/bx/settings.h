@@ -51,10 +51,10 @@ namespace bx
 	};
 
 	///
-	int32_t read(ReaderSeekerI* _reader, Settings& _settings, Error* _err = NULL);
+	int32_t read(ReaderSeekerI* _reader, Settings& _settings, Error* _err);
 
 	///
-	int32_t write(WriterI* _writer, const Settings& _settings, Error* _err = NULL);
+	int32_t write(WriterI* _writer, const Settings& _settings, Error* _err);
 
 } // namespace bx
 

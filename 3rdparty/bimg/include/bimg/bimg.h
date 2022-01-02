@@ -195,6 +195,7 @@ namespace bimg
 		bool     m_cubeMap;
 		bool     m_ktx;
 		bool     m_ktxLE;
+		bool     m_pvr3;
 		bool     m_srgb;
 	};
 

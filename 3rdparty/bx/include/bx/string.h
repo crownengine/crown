@@ -91,15 +91,19 @@ namespace bx
 		///
 		const char* getTerm() const;
 
-		///
+		/// Returns `true` if string is empty.
 		bool isEmpty() const;
 
-		///
+		/// Returns string length.
 		int32_t getLength() const;
+
+		/// Returns `true` if string is zero terminated.
+		bool is0Terminated() const;
 
 	protected:
 		const char* m_ptr;
 		int32_t     m_len;
+		bool        m_0terminated;
 	};
 
 	/// ASCII string
@@ -114,13 +118,13 @@ namespace bx
 		StringT(const StringT<AllocatorT>& _rhs);
 
 		///
-		StringT<AllocatorT>& operator=(const StringT<AllocatorT>& _rhs);
-
-		///
 		StringT(const StringView& _rhs);
 
 		///
 		~StringT();
+
+		///
+		StringT<AllocatorT>& operator=(const StringT<AllocatorT>& _rhs);
 
 		///
 		void set(const StringView& _str);
@@ -137,6 +141,9 @@ namespace bx
 		/// Returns zero-terminated C string pointer.
 		///
 		const char* getCPtr() const;
+
+	protected:
+		int32_t m_capacity;
 	};
 
 	/// Retruns true if character is part of space set.
@@ -227,6 +234,12 @@ namespace bx
 	/// Concatinate string.
 	int32_t strCat(char* _dst, int32_t _dstSize, const StringView& _str, int32_t _num = INT32_MAX);
 
+	/// Test whether the string _str begins with prefix.
+	bool hasPrefix(const StringView& _str, const StringView& _prefix);
+
+	/// Test whether the string _str ends with suffix.
+	bool hasSuffix(const StringView& _str, const StringView& _suffix);
+
 	/// Find character in string. Limit search to _max characters.
 	StringView strFind(const StringView& _str, char _ch);
 
@@ -259,6 +272,12 @@ namespace bx
 
 	/// Returns string view with whitespace characters trimmed from left and right.
 	StringView strTrimSpace(const StringView& _str);
+
+	/// Returns string view with prefix trimmed.
+	StringView strTrimPrefix(const StringView& _str, const StringView& _prefix);
+
+	/// Returns string view with suffix trimmed.
+	StringView strTrimSuffix(const StringView& _str, const StringView& _suffix);
 
 	/// Find new line. Returns pointer after new line terminator.
 	StringView strFindNl(const StringView& _str);
@@ -353,7 +372,7 @@ namespace bx
 	{
 	public:
 		///
-		LineReader(const bx::StringView& _str);
+		LineReader(const StringView& _str);
 
 		///
 		void reset();
@@ -368,8 +387,8 @@ namespace bx
 		uint32_t getLine() const;
 
 	private:
-		const bx::StringView m_str;
-		bx::StringView m_curr;
+		const StringView m_str;
+		StringView m_curr;
 		uint32_t m_line;
 	};
 

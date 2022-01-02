@@ -7,11 +7,11 @@ project "bimg_encode"
 	kind "StaticLib"
 
 	includedirs {
-		path.join(BX_DIR, "include"),
 		path.join(BIMG_DIR, "include"),
 		path.join(BIMG_DIR, "3rdparty"),
 		path.join(BIMG_DIR, "3rdparty/nvtt"),
 		path.join(BIMG_DIR, "3rdparty/iqa/include"),
+		path.join(BIMG_DIR, "3rdparty/tinyexr/deps/miniz"),
 	}
 
 	files {
@@ -36,6 +36,8 @@ project "bimg_encode"
 		path.join(BIMG_DIR, "3rdparty/iqa/include/**.h"),
 		path.join(BIMG_DIR, "3rdparty/iqa/source/**.c"),
 	}
+
+	using_bx()
 
 	configuration { "linux-*" }
 		buildoptions {

@@ -43,6 +43,7 @@
 #include "source/opt/type_manager.h"
 #include "source/opt/value_number_table.h"
 #include "source/util/make_unique.h"
+#include "source/util/string_utils.h"
 
 namespace spvtools {
 namespace opt {
@@ -98,6 +99,7 @@ class IRContext {
         module_(new Module()),
         consumer_(std::move(c)),
         def_use_mgr_(nullptr),
+        feature_mgr_(nullptr),
         valid_analyses_(kAnalysisNone),
         constant_mgr_(nullptr),
         type_mgr_(nullptr),
@@ -116,6 +118,7 @@ class IRContext {
         module_(std::move(m)),
         consumer_(std::move(c)),
         def_use_mgr_(nullptr),
+        feature_mgr_(nullptr),
         valid_analyses_(kAnalysisNone),
         type_mgr_(nullptr),
         id_to_name_(nullptr),
@@ -190,8 +193,8 @@ class IRContext {
   inline IteratorRange<Module::const_inst_iterator> debugs3() const;
 
   // Iterators for debug info instructions (excluding OpLine & OpNoLine)
-  // contained in this module.  These are OpExtInst for OpenCL.DebugInfo.100
-  // or DebugInfo extension placed between section 9 and 10.
+  // contained in this module.  These are OpExtInst for DebugInfo extension
+  // placed between section 9 and 10.
   inline Module::inst_iterator ext_inst_debuginfo_begin();
   inline Module::inst_iterator ext_inst_debuginfo_end();
   inline IteratorRange<Module::inst_iterator> ext_inst_debuginfo();
@@ -403,8 +406,10 @@ class IRContext {
   // instruction exists.
   Instruction* KillInst(Instruction* inst);
 
-  // Removes the non-semantic instruction tree that uses |inst|'s result id.
-  void KillNonSemanticInfo(Instruction* inst);
+  // Collects the non-semantic instruction tree that uses |inst|'s result id
+  // to be killed later.
+  void CollectNonSemanticTree(Instruction* inst,
+                              std::unordered_set<Instruction*>* to_kill);
 
   // Returns true if all of the given analyses are valid.
   bool AreAnalysesValid(Analysis set) { return (set & valid_analyses_) == set; }
@@ -514,6 +519,18 @@ class IRContext {
         std::string message = "ID overflow. Try running compact-ids.";
         consumer()(SPV_MSG_ERROR, "", {0, 0, 0}, message.c_str());
       }
+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+      // If TakeNextId returns 0, it is very likely that execution will
+      // subsequently fail. Such failures are false alarms from a fuzzing point
+      // of view: they are due to the fact that too many ids were used, rather
+      // than being due to an actual bug. Thus, during a fuzzing build, it is
+      // preferable to bail out when ID overflow occurs.
+      //
+      // A zero exit code is returned here because a non-zero code would cause
+      // ClusterFuzz/OSS-Fuzz to regard the termination as a crash, and spurious
+      // crash reports is what this guard aims to avoid.
+      exit(0);
+#endif
     }
     return next_id;
   }
@@ -596,9 +613,13 @@ class IRContext {
   bool ProcessCallTreeFromRoots(ProcessFunction& pfn,
                                 std::queue<uint32_t>* roots);
 
-  // Emmits a error message to the message consumer indicating the error
+  // Emits a error message to the message consumer indicating the error
   // described by |message| occurred in |inst|.
   void EmitErrorMessage(std::string message, Instruction* inst);
+
+  // Returns true if and only if there is a path to |bb| from the entry block of
+  // the function that contains |bb|.
+  bool IsReachable(const opt::BasicBlock& bb);
 
  private:
   // Builds the def-use manager from scratch, even if it was already valid.
@@ -763,6 +784,8 @@ class IRContext {
 
   // The instruction decoration manager for |module_|.
   std::unique_ptr<analysis::DecorationManager> decoration_mgr_;
+
+  // The feature manager for |module_|.
   std::unique_ptr<FeatureManager> feature_mgr_;
 
   // A map from instructions to the basic block they belong to. This mapping is
@@ -1010,11 +1033,7 @@ void IRContext::AddCapability(std::unique_ptr<Instruction>&& c) {
 }
 
 void IRContext::AddExtension(const std::string& ext_name) {
-  const auto num_chars = ext_name.size();
-  // Compute num words, accommodate the terminating null character.
-  const auto num_words = (num_chars + 1 + 3) / 4;
-  std::vector<uint32_t> ext_words(num_words, 0u);
-  std::memcpy(ext_words.data(), ext_name.data(), num_chars);
+  std::vector<uint32_t> ext_words = spvtools::utils::MakeVector(ext_name);
   AddExtension(std::unique_ptr<Instruction>(
       new Instruction(this, SpvOpExtension, 0u, 0u,
                       {{SPV_OPERAND_TYPE_LITERAL_STRING, ext_words}})));
@@ -1031,11 +1050,7 @@ void IRContext::AddExtension(std::unique_ptr<Instruction>&& e) {
 }
 
 void IRContext::AddExtInstImport(const std::string& name) {
-  const auto num_chars = name.size();
-  // Compute num words, accommodate the terminating null character.
-  const auto num_words = (num_chars + 1 + 3) / 4;
-  std::vector<uint32_t> ext_words(num_words, 0u);
-  std::memcpy(ext_words.data(), name.data(), num_chars);
+  std::vector<uint32_t> ext_words = spvtools::utils::MakeVector(name);
   AddExtInstImport(std::unique_ptr<Instruction>(
       new Instruction(this, SpvOpExtInstImport, 0u, TakeNextId(),
                       {{SPV_OPERAND_TYPE_LITERAL_STRING, ext_words}})));

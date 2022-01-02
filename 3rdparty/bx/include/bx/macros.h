@@ -229,16 +229,50 @@
 #endif // BX_COMPILER_MSVC
 
 #ifndef BX_ASSERT
-#	define BX_ASSERT(_condition, ...) BX_NOOP()
+#	if BX_CONFIG_DEBUG
+#		define BX_ASSERT _BX_ASSERT
+#	else
+#		define BX_ASSERT(_condition, ...) BX_NOOP()
+#	endif // BX_CONFIG_DEBUG
 #endif // BX_ASSERT
 
 #ifndef BX_TRACE
-#	define BX_TRACE(...) BX_NOOP()
+#	if BX_CONFIG_DEBUG
+#		define BX_TRACE _BX_TRACE
+#	else
+#		define BX_TRACE(...) BX_NOOP()
+#	endif // BX_CONFIG_DEBUG
 #endif // BX_TRACE
 
 #ifndef BX_WARN
-#	define BX_WARN(_condition, ...) BX_NOOP()
+#	if BX_CONFIG_DEBUG
+#		define BX_WARN _BX_WARN
+#	else
+#		define BX_WARN(_condition, ...) BX_NOOP()
+#	endif // BX_CONFIG_DEBUG
 #endif // BX_ASSERT
+
+#define _BX_TRACE(_format, ...)                                                                    \
+	BX_MACRO_BLOCK_BEGIN                                                                           \
+		bx::debugPrintf(__FILE__ "(" BX_STRINGIZE(__LINE__) "): BX " _format "\n", ##__VA_ARGS__); \
+	BX_MACRO_BLOCK_END
+
+#define _BX_WARN(_condition, _format, ...)            \
+	BX_MACRO_BLOCK_BEGIN                              \
+		if (!BX_IGNORE_C4127(_condition) )            \
+		{                                             \
+			BX_TRACE("WARN " _format, ##__VA_ARGS__); \
+		}                                             \
+	BX_MACRO_BLOCK_END
+
+#define _BX_ASSERT(_condition, _format, ...)            \
+	BX_MACRO_BLOCK_BEGIN                                \
+		if (!BX_IGNORE_C4127(_condition) )              \
+		{                                               \
+			BX_TRACE("ASSERT " _format, ##__VA_ARGS__); \
+			bx::debugBreak();                           \
+		}                                               \
+	BX_MACRO_BLOCK_END
 
 // static_assert sometimes causes unused-local-typedef...
 BX_PRAGMA_DIAGNOSTIC_IGNORED_CLANG("-Wunused-local-typedef")

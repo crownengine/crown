@@ -48,6 +48,11 @@ function crown_project(_name, _kind, _defines)
 			configuration {}
 		end
 
+		configuration { "debug" }
+			defines {
+				"BX_CONFIG_DEBUG=1",
+			}
+
 		configuration { "debug or development" }
 			defines {
 				"CROWN_DEBUG=1"
@@ -56,6 +61,11 @@ function crown_project(_name, _kind, _defines)
 		configuration { "development" }
 			defines {
 				"CROWN_DEVELOPMENT=1"
+			}
+
+		configuration { "release or development" }
+			defines {
+				"BX_CONFIG_DEBUG=0",
 			}
 
 		configuration { "android*" }

@@ -3,7 +3,6 @@
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
-#include "bx_p.h"
 #include <bx/cpu.h>
 #include <bx/math.h>
 #include <bx/string.h>
@@ -1120,7 +1119,7 @@ namespace bx
 
 	bool fromString(int32_t* _out, const StringView& _str)
 	{
-		StringView str = bx::strLTrimSpace(_str);
+		StringView str = strLTrimSpace(_str);
 
 		const char* ptr  = str.getPtr();
 		const char* term = str.getTerm();

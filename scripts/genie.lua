@@ -63,8 +63,12 @@ group "engine"
 crown_project("", "WindowedApp", {})
 
 group "libs"
-dofile (BGFX_DIR .. "scripts/bgfx.lua")
+dofile (BX_DIR .. "scripts/bx.lua")
+dofile (BIMG_DIR .. "scripts/bimg.lua")
+dofile (BIMG_DIR .. "scripts/bimg_encode.lua")
+dofile (BIMG_DIR .. "scripts/bimg_decode.lua")
 
+dofile (BGFX_DIR .. "scripts/bgfx.lua")
 if _OPTIONS["gfxapi"] == "gl32" then
 	bgfxProject("", "StaticLib", "BGFX_CONFIG_RENDERER_OPENGL=32")
 elseif _OPTIONS["gfxapi"] == "gles2" then
@@ -74,11 +78,6 @@ elseif _OPTIONS["gfxapi"] == "d3d11" then
 else
 	bgfxProject("", "StaticLib")
 end
-
-dofile (BX_DIR .. "scripts/bx.lua")
-dofile (BIMG_DIR .. "scripts/bimg.lua")
-dofile (BIMG_DIR .. "scripts/bimg_encode.lua")
-dofile (BIMG_DIR .. "scripts/bimg_decode.lua")
 
 dofile ("openal.lua")
 openal_project(os.is("windows") and "SharedLib" or "StaticLib")

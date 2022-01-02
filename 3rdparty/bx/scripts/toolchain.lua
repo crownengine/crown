@@ -407,6 +407,7 @@ function toolchain(_buildDir, _libDir)
 		or _ACTION == "vs2015"
 		or _ACTION == "vs2017"
 		or _ACTION == "vs2019"
+		or _ACTION == "vs2022"
 		then
 
 		local action = premake.action.current()

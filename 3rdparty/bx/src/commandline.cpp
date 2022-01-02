@@ -3,7 +3,6 @@
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
-#include "bx_p.h"
 #include <bx/commandline.h>
 #include <bx/string.h>
 

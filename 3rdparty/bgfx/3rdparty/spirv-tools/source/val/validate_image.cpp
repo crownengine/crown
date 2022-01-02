@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Google Inc.
+﻿// Copyright (c) 2017 Google Inc.
 // Modifications Copyright (C) 2020 Advanced Micro Devices, Inc. All rights
 // reserved.
 //
@@ -20,6 +20,7 @@
 
 #include "source/diagnostic.h"
 #include "source/opcode.h"
+#include "source/spirv_constant.h"
 #include "source/spirv_target_env.h"
 #include "source/util/bitutils.h"
 #include "source/val/instruction.h"
@@ -66,6 +67,12 @@ bool CheckAllImageOperandsHandled() {
     case SpvImageOperandsVolatileTexelKHRMask:
     case SpvImageOperandsSignExtendMask:
     case SpvImageOperandsZeroExtendMask:
+    // TODO(jaebaek): Move this line properly after handling image offsets
+    //                operand. This line temporarily fixes CI failure that
+    //                blocks other PRs.
+    // https://github.com/KhronosGroup/SPIRV-Tools/issues/4565
+    case SpvImageOperandsOffsetsMask:
+    case SpvImageOperandsNontemporalMask:
       return true;
   }
   return false;
@@ -281,13 +288,14 @@ spv_result_t ValidateImageOperands(ValidationState_t& _,
   // the module to be invalid.
   if (mask == 0) return SPV_SUCCESS;
 
-  if (spvtools::utils::CountSetBits(
-          mask & (SpvImageOperandsOffsetMask | SpvImageOperandsConstOffsetMask |
-                  SpvImageOperandsConstOffsetsMask)) > 1) {
+  if (spvtools::utils::CountSetBits(mask & (SpvImageOperandsOffsetMask |
+                                            SpvImageOperandsConstOffsetMask |
+                                            SpvImageOperandsConstOffsetsMask |
+                                            SpvImageOperandsOffsetsMask)) > 1) {
     return _.diag(SPV_ERROR_INVALID_DATA, inst)
            << _.VkErrorID(4662)
-           << "Image Operands Offset, ConstOffset, ConstOffsets cannot be used "
-           << "together";
+           << "Image Operands Offset, ConstOffset, ConstOffsets, Offsets "
+              "cannot be used together";
   }
 
   const bool is_implicit_lod = IsImplicitLod(opcode);
@@ -442,7 +450,8 @@ spv_result_t ValidateImageOperands(ValidationState_t& _,
              << " components, but given " << offset_size;
     }
 
-    if (spvIsVulkanEnv(_.context()->target_env)) {
+    if (!_.options()->before_hlsl_legalization &&
+        spvIsVulkanEnv(_.context()->target_env)) {
       if (opcode != SpvOpImageGather && opcode != SpvOpImageDrefGather &&
           opcode != SpvOpImageSparseGather &&
           opcode != SpvOpImageSparseDrefGather) {
@@ -617,6 +626,14 @@ spv_result_t ValidateImageOperands(ValidationState_t& _,
     // void, and the Format is Unknown.
     // In Vulkan, the texel type is only known in all cases by the pipeline
     // setup.
+  }
+
+  if (mask & SpvImageOperandsOffsetsMask) {
+    // TODO: add validation
+  }
+
+  if (mask & SpvImageOperandsNontemporalMask) {
+    // Checked elsewhere: SPIR-V 1.6 version or later.
   }
 
   return SPV_SUCCESS;
@@ -902,6 +919,13 @@ spv_result_t ValidateTypeSampledImage(ValidationState_t& _,
            << _.VkErrorID(4657)
            << "Sampled image type requires an image type with \"Sampled\" "
               "operand set to 0 or 1";
+  }
+
+  // This covers both OpTypeSampledImage and OpSampledImage.
+  if (_.version() >= SPV_SPIRV_VERSION_WORD(1, 6) && info.dim == SpvDimBuffer) {
+    return _.diag(SPV_ERROR_INVALID_ID, inst)
+           << "In SPIR-V 1.6 or later, sampled image dimension must not be "
+              "Buffer";
   }
 
   return SPV_SUCCESS;
@@ -1509,8 +1533,8 @@ spv_result_t ValidateImageRead(ValidationState_t& _, const Instruction* inst) {
   if (spvIsVulkanEnv(target_env)) {
     if (_.GetDimension(actual_result_type) != 4) {
       return _.diag(SPV_ERROR_INVALID_DATA, inst)
-             << "Expected " << GetActualResultTypeStr(opcode)
-             << " to have 4 components";
+             << _.VkErrorID(4780) << "Expected "
+             << GetActualResultTypeStr(opcode) << " to have 4 components";
     }
   }  // Check OpenCL below, after we get the image info.
 
@@ -2057,11 +2081,13 @@ spv_result_t ImagePass(ValidationState_t& _, const Instruction* inst) {
                                       std::string* message) {
           const auto* models = state.GetExecutionModels(entry_point->id());
           const auto* modes = state.GetExecutionModes(entry_point->id());
-          if (models->find(SpvExecutionModelGLCompute) != models->end() &&
-              modes->find(SpvExecutionModeDerivativeGroupLinearNV) ==
-                  modes->end() &&
-              modes->find(SpvExecutionModeDerivativeGroupQuadsNV) ==
-                  modes->end()) {
+          if (models &&
+              models->find(SpvExecutionModelGLCompute) != models->end() &&
+              (!modes ||
+               (modes->find(SpvExecutionModeDerivativeGroupLinearNV) ==
+                    modes->end() &&
+                modes->find(SpvExecutionModeDerivativeGroupQuadsNV) ==
+                    modes->end()))) {
             if (message) {
               *message =
                   std::string(

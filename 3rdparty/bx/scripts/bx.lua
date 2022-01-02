@@ -15,6 +15,28 @@ local function userdefines()
 	return defines
 end
 
+function using_bx()
+	includedirs {
+		path.join(BX_DIR, "include"),
+	}
+
+	links {
+		"bx",
+	}
+
+	configuration { "Debug" }
+		defines {
+			"BX_CONFIG_DEBUG=1",
+		}
+
+	configuration { "Release or development" }
+		defines {
+			"BX_CONFIG_DEBUG=0",
+		}
+
+	configuration {}
+end
+
 project "bx"
 	kind "StaticLib"
 
@@ -32,11 +54,6 @@ project "bx"
 
 	defines (userdefines())
 
-	configuration { "Debug" }
-		defines {
-			"BX_CONFIG_DEBUG=1",
-		}
-
 	configuration { "linux-*" }
 		buildoptions {
 			"-fPIC",
@@ -47,6 +64,7 @@ project "bx"
 	if _OPTIONS["with-amalgamated"] then
 		excludes {
 			path.join(BX_DIR, "src/allocator.cpp"),
+			path.join(BX_DIR, "src/bounds.cpp"),
 			path.join(BX_DIR, "src/bx.cpp"),
 			path.join(BX_DIR, "src/commandline.cpp"),
 			path.join(BX_DIR, "src/crtnone.cpp"),
@@ -73,5 +91,15 @@ project "bx"
 			path.join(BX_DIR, "src/amalgamated.**"),
 		}
 	end
+
+	configuration { "Debug" }
+		defines {
+			"BX_CONFIG_DEBUG=1",
+		}
+
+	configuration { "Release or development" }
+		defines {
+			"BX_CONFIG_DEBUG=0",
+		}
 
 	configuration {}

@@ -7,6 +7,8 @@
 #	error "Must be included from bx/error!"
 #endif // BX_ERROR_H_HEADER_GUARD
 
+#include <bx/debug.h>
+
 namespace bx
 {
 	inline Error::Error()
@@ -59,15 +61,71 @@ namespace bx
 		return _rhs.code != m_code;
 	}
 
-	inline ErrorScope::ErrorScope(Error* _err)
+	inline ErrorIgnore::operator Error*()
+	{
+		return this;
+	}
+
+	inline ErrorAssert::~ErrorAssert()
+	{
+		BX_ASSERT(isOk(), "Error: 0x%08x `%S`"
+			, get().code
+			, &getMessage()
+			);
+	}
+
+	inline ErrorFatal::operator Error*()
+	{
+		return this;
+	}
+
+	inline ErrorFatal::~ErrorFatal()
+	{
+		if (!isOk() )
+		{
+			printf("Error: 0x%08x `%S`"
+				, get().code
+				, &getMessage()
+				);
+
+			exit(kExitFailure);
+		}
+	}
+
+	inline ErrorAssert::operator Error*()
+	{
+		return this;
+	}
+
+	inline ErrorScope::ErrorScope(Error* _err, const StringView& _name)
 		: m_err(_err)
+		, m_name(_name)
 	{
 		BX_ASSERT(NULL != _err, "_err can't be NULL");
 	}
 
 	inline ErrorScope::~ErrorScope()
 	{
-		BX_ASSERT(m_err->isOk(), "Error: %d", m_err->get().code);
+		if (m_name.isEmpty() )
+		{
+			BX_ASSERT(m_err->isOk(), "Error: 0x%08x `%S`"
+				, m_err->get().code
+				, &m_err->getMessage()
+				);
+		}
+		else
+		{
+			BX_ASSERT(m_err->isOk(), "Error: %S - 0x%08x `%S`"
+				, &m_name
+				, m_err->get().code
+				, &m_err->getMessage()
+				);
+		}
+	}
+
+	inline const StringView& ErrorScope::getName() const
+	{
+		return m_name;
 	}
 
 } // namespace bx

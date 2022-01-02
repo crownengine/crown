@@ -3,7 +3,6 @@
  * License: https://github.com/bkaradzic/bnet#license-bsd-2-clause
  */
 
-#include "bx_p.h"
 #include <bx/url.h>
 
 namespace bx

@@ -62,7 +62,7 @@ const char* spvTargetEnvDescription(spv_target_env env) {
     case SPV_ENV_VULKAN_1_1:
       return "SPIR-V 1.3 (under Vulkan 1.1 semantics)";
     case SPV_ENV_WEBGPU_0:
-      assert(false);
+      assert(false && "Deprecated target environment value.");
       break;
     case SPV_ENV_UNIVERSAL_1_4:
       return "SPIR-V 1.4";
@@ -72,6 +72,11 @@ const char* spvTargetEnvDescription(spv_target_env env) {
       return "SPIR-V 1.5";
     case SPV_ENV_VULKAN_1_2:
       return "SPIR-V 1.5 (under Vulkan 1.2 semantics)";
+    case SPV_ENV_UNIVERSAL_1_6:
+      return "SPIR-V 1.6";
+    case SPV_ENV_MAX:
+      assert(false && "Invalid target environment value.");
+      break;
   }
   return "";
 }
@@ -102,7 +107,7 @@ uint32_t spvVersionForTargetEnv(spv_target_env env) {
     case SPV_ENV_VULKAN_1_1:
       return SPV_SPIRV_VERSION_WORD(1, 3);
     case SPV_ENV_WEBGPU_0:
-      assert(false);
+      assert(false && "Deprecated target environment value.");
       break;
     case SPV_ENV_UNIVERSAL_1_4:
     case SPV_ENV_VULKAN_1_1_SPIRV_1_4:
@@ -110,6 +115,11 @@ uint32_t spvVersionForTargetEnv(spv_target_env env) {
     case SPV_ENV_UNIVERSAL_1_5:
     case SPV_ENV_VULKAN_1_2:
       return SPV_SPIRV_VERSION_WORD(1, 5);
+    case SPV_ENV_UNIVERSAL_1_6:
+      return SPV_SPIRV_VERSION_WORD(1, 6);
+    case SPV_ENV_MAX:
+      assert(false && "Invalid target environment value.");
+      break;
   }
   return SPV_SPIRV_VERSION_WORD(0, 0);
 }
@@ -125,6 +135,7 @@ static const std::pair<const char*, spv_target_env> spvTargetEnvNameMap[] = {
     {"spv1.3", SPV_ENV_UNIVERSAL_1_3},
     {"spv1.4", SPV_ENV_UNIVERSAL_1_4},
     {"spv1.5", SPV_ENV_UNIVERSAL_1_5},
+    {"spv1.6", SPV_ENV_UNIVERSAL_1_6},
     {"opencl1.2embedded", SPV_ENV_OPENCL_EMBEDDED_1_2},
     {"opencl1.2", SPV_ENV_OPENCL_1_2},
     {"opencl2.0embedded", SPV_ENV_OPENCL_EMBEDDED_2_0},
@@ -205,6 +216,7 @@ bool spvIsVulkanEnv(spv_target_env env) {
     case SPV_ENV_UNIVERSAL_1_3:
     case SPV_ENV_UNIVERSAL_1_4:
     case SPV_ENV_UNIVERSAL_1_5:
+    case SPV_ENV_UNIVERSAL_1_6:
       return false;
     case SPV_ENV_VULKAN_1_0:
     case SPV_ENV_VULKAN_1_1:
@@ -212,7 +224,10 @@ bool spvIsVulkanEnv(spv_target_env env) {
     case SPV_ENV_VULKAN_1_2:
       return true;
     case SPV_ENV_WEBGPU_0:
-      assert(false);
+      assert(false && "Deprecated target environment value.");
+      break;
+    case SPV_ENV_MAX:
+      assert(false && "Invalid target environment value.");
       break;
   }
   return false;
@@ -235,6 +250,7 @@ bool spvIsOpenCLEnv(spv_target_env env) {
     case SPV_ENV_VULKAN_1_1_SPIRV_1_4:
     case SPV_ENV_UNIVERSAL_1_5:
     case SPV_ENV_VULKAN_1_2:
+    case SPV_ENV_UNIVERSAL_1_6:
       return false;
     case SPV_ENV_OPENCL_1_2:
     case SPV_ENV_OPENCL_EMBEDDED_1_2:
@@ -246,7 +262,10 @@ bool spvIsOpenCLEnv(spv_target_env env) {
     case SPV_ENV_OPENCL_2_2:
       return true;
     case SPV_ENV_WEBGPU_0:
-      assert(false);
+      assert(false && "Deprecated target environment value.");
+      break;
+    case SPV_ENV_MAX:
+      assert(false && "Invalid target environment value.");
       break;
   }
   return false;
@@ -272,6 +291,7 @@ bool spvIsOpenGLEnv(spv_target_env env) {
     case SPV_ENV_VULKAN_1_1_SPIRV_1_4:
     case SPV_ENV_UNIVERSAL_1_5:
     case SPV_ENV_VULKAN_1_2:
+    case SPV_ENV_UNIVERSAL_1_6:
       return false;
     case SPV_ENV_OPENGL_4_0:
     case SPV_ENV_OPENGL_4_1:
@@ -280,7 +300,44 @@ bool spvIsOpenGLEnv(spv_target_env env) {
     case SPV_ENV_OPENGL_4_5:
       return true;
     case SPV_ENV_WEBGPU_0:
-      assert(false);
+      assert(false && "Deprecated target environment value.");
+      break;
+    case SPV_ENV_MAX:
+      assert(false && "Invalid target environment value.");
+      break;
+  }
+  return false;
+}
+
+bool spvIsValidEnv(spv_target_env env) {
+  switch (env) {
+    case SPV_ENV_UNIVERSAL_1_0:
+    case SPV_ENV_VULKAN_1_0:
+    case SPV_ENV_UNIVERSAL_1_1:
+    case SPV_ENV_UNIVERSAL_1_2:
+    case SPV_ENV_UNIVERSAL_1_3:
+    case SPV_ENV_VULKAN_1_1:
+    case SPV_ENV_OPENCL_1_2:
+    case SPV_ENV_OPENCL_EMBEDDED_1_2:
+    case SPV_ENV_OPENCL_2_0:
+    case SPV_ENV_OPENCL_EMBEDDED_2_0:
+    case SPV_ENV_OPENCL_EMBEDDED_2_1:
+    case SPV_ENV_OPENCL_EMBEDDED_2_2:
+    case SPV_ENV_OPENCL_2_1:
+    case SPV_ENV_OPENCL_2_2:
+    case SPV_ENV_UNIVERSAL_1_4:
+    case SPV_ENV_VULKAN_1_1_SPIRV_1_4:
+    case SPV_ENV_UNIVERSAL_1_5:
+    case SPV_ENV_VULKAN_1_2:
+    case SPV_ENV_UNIVERSAL_1_6:
+    case SPV_ENV_OPENGL_4_0:
+    case SPV_ENV_OPENGL_4_1:
+    case SPV_ENV_OPENGL_4_2:
+    case SPV_ENV_OPENGL_4_3:
+    case SPV_ENV_OPENGL_4_5:
+      return true;
+    case SPV_ENV_WEBGPU_0:
+    case SPV_ENV_MAX:
       break;
   }
   return false;
@@ -307,20 +364,24 @@ std::string spvLogStringForEnv(spv_target_env env) {
     }
     case SPV_ENV_VULKAN_1_0:
     case SPV_ENV_VULKAN_1_1:
-    case SPV_ENV_VULKAN_1_1_SPIRV_1_4: {
-      case SPV_ENV_VULKAN_1_2:
-        return "Vulkan";
+    case SPV_ENV_VULKAN_1_1_SPIRV_1_4:
+    case SPV_ENV_VULKAN_1_2: {
+      return "Vulkan";
     }
     case SPV_ENV_UNIVERSAL_1_0:
     case SPV_ENV_UNIVERSAL_1_1:
     case SPV_ENV_UNIVERSAL_1_2:
     case SPV_ENV_UNIVERSAL_1_3:
     case SPV_ENV_UNIVERSAL_1_4:
-    case SPV_ENV_UNIVERSAL_1_5: {
+    case SPV_ENV_UNIVERSAL_1_5:
+    case SPV_ENV_UNIVERSAL_1_6: {
       return "Universal";
     }
     case SPV_ENV_WEBGPU_0:
-      assert(false);
+      assert(false && "Deprecated target environment value.");
+      break;
+    case SPV_ENV_MAX:
+      assert(false && "Invalid target environment value.");
       break;
   }
   return "Unknown";

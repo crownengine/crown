@@ -43,6 +43,16 @@ namespace bx
 			);
 	}
 
+	template<class Ty>
+	inline const Ty* addressOf(const Ty& _a)
+	{
+		return reinterpret_cast<const Ty*>(
+				&const_cast<char&>(
+					reinterpret_cast<const volatile char&>(_a)
+				)
+			);
+	}
+
 	template<typename Ty>
 	inline void swap(Ty& _a, Ty& _b)
 	{
@@ -61,22 +71,22 @@ namespace bx
 		return _a > _b ? _a : _b;
 	}
 
-	template<typename Ty>
-	inline constexpr Ty min(const Ty& _a, const Ty& _b, const Ty& _c)
+	template<typename Ty, typename... Args>
+	inline constexpr Ty min(const Ty& _a, const Ty& _b, const Args&... _args)
 	{
-		return min(min(_a, _b), _c);
+		return min(min(_a, _b), _args...);
 	}
 
-	template<typename Ty>
-	inline constexpr Ty max(const Ty& _a, const Ty& _b, const Ty& _c)
+	template<typename Ty, typename... Args>
+	inline constexpr Ty max(const Ty& _a, const Ty& _b, const Args&... _args)
 	{
-		return max(max(_a, _b), _c);
+		return max(max(_a, _b), _args...);
 	}
 
-	template<typename Ty>
-	inline constexpr Ty mid(const Ty& _a, const Ty& _b, const Ty& _c)
+	template<typename Ty, typename... Args>
+	inline constexpr Ty mid(const Ty& _a, const Ty& _b, const Args&... _args)
 	{
-		return max(min(_a, _b), min(max(_a, _b), _c) );
+		return max(min(_a, _b), min(max(_a, _b), _args...) );
 	}
 
 	template<typename Ty>
