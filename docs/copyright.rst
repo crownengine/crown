@@ -9,7 +9,7 @@ Crown is released under the MIT License:
 
 .. code::
 
-	Copyright (c) 2012-2021 Daniele Bartolini et al.
+	Copyright (c) 2012-2022 Daniele Bartolini et al.
 
 	Permission is hereby granted, free of charge, to any person
 	obtaining a copy of this software and associated documentation
