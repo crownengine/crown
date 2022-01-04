@@ -2595,7 +2595,7 @@ public static bool is_directory_empty(string path)
 }
 
 /// Waits for @a process to terminate and returns true if success, false
-/// otherwise. If the function succeeds, it also returns the @a process' @a
+/// otherwise. If the function succeeds, it also returns the @a process's @a
 /// exit_status.
 public static int wait_process(out int exit_status, GLib.Subprocess? process)
 {

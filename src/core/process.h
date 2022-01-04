@@ -63,7 +63,7 @@ struct Process
 	/// Waits synchronously for the process to terminate and returns its exit code.
 	s32 wait();
 
-	/// Reads at most @a len bytes from the process' output and returns the
+	/// Reads at most @a len bytes from the process's output and returns the
 	/// pointer to the first byte read.
 	/// Returns NULL on EOF or when an error occurs. In case of error, it sets
 	/// @a num_bytes_read to UINT32_MAX, otherwise it sets it to the actual

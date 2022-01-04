@@ -52,7 +52,7 @@ Changelog
 * Changing the sprite in the Sprite Renderer component is now reflected to the Runtime.
 * Added noop resources in ``core/components/noop.*``.
 * Changed the fallback shader to output Color4(255, 0, 255, 255).
-* Added the ability to spawn emtpy units.
+* Added the ability to spawn empty units.
 * Added the ability to choose between "Light" and "Dark" theme for the editor UI.
 
 **Lua API**
@@ -208,8 +208,8 @@ Changelog
 
 **Tools**
 
-* Added ability to crate new scripts from Project Browser
-* Added ability to crate new units from Project Browser
+* Added ability to create new scripts from Project Browser
+* Added ability to create new units from Project Browser
 * Added Debug > Build Data
 * Added QWER accelerators to place, move, rotate and scale object actions
 * Added support for Windows
