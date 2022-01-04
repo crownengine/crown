@@ -200,7 +200,8 @@ clean-samples:
 codespell:
 	@codespell docs src tools tools-imgui \
 		--ignore-words=scripts/codespell-dictionary.txt \
-		--skip "Doxyfile.doxygen,*.ttf.h,*.png,docs/_themes,tools/level_editor/resources/theme/Adwaita"
+		--skip "Doxyfile.doxygen,*.ttf.h,*.png,docs/_themes,tools/level_editor/resources/theme/Adwaita" \
+		-q4 # 4: omit warnings about automatic fixes that were disabled in the dictionary.
 
 .PHONY: clean
 clean: clean-samples
