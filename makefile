@@ -198,7 +198,9 @@ clean-samples:
 
 .PHONY: codespell
 codespell:
-	codespell docs src tools tools-imgui --skip "Doxyfile.doxygen,*.ttf.h,*.png,docs/_themes"
+	@codespell docs src tools tools-imgui \
+		--ignore-words=scripts/codespell-dictionary.txt \
+		--skip "Doxyfile.doxygen,*.ttf.h,*.png,docs/_themes,tools/level_editor/resources/theme/Adwaita"
 
 .PHONY: clean
 clean: clean-samples
