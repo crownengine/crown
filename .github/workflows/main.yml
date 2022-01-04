@@ -3,6 +3,22 @@ name: build_and_test
 on: [push, pull_request]
 
 jobs:
+  docs:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: prepare
+      run: |
+        sudo apt-get update
+        sudo apt-get install codespell
+        sudo apt-get install python3-sphinx
+        sudo apt-get install doxygen
+    - name: spellcheck
+      run: |
+        make codespell
+    - name: docs
+      run: |
+        make docs
   android-arm:
     runs-on: ubuntu-18.04
     steps:
