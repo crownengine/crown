@@ -2096,7 +2096,7 @@ public class LevelEditorApplication : Gtk.Application
 			if (_console_view._entry.has_focus)
 				_console_view.hide();
 			else
-				_console_view._entry.grab_focus();
+				_console_view._entry.grab_focus_without_selecting();
 		}
 		else
 		{

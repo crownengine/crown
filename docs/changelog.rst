@@ -5,6 +5,10 @@ Changelog
 ------
 *DD MMM YYYY*
 
+**Tools**
+
+* Fixed minor issues when toggling the Console.
+
 0.46.0
 ------
 *19 Nov 2021*
