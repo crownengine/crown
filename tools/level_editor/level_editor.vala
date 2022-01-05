@@ -2101,6 +2101,7 @@ public class LevelEditorApplication : Gtk.Application
 		else
 		{
 			_console_view.show_all();
+			_console_view._entry.grab_focus_without_selecting();
 		}
 	}
 

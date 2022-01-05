@@ -144,7 +144,6 @@ public class ConsoleView : Gtk.Box
 		this.pack_start(_scrolled_window, true, true, 0);
 		this.pack_start(_entry_hbox, false, true, 0);
 
-		this.show.connect(on_show);
 		this.destroy.connect(on_destroy);
 		this.button_release_event.connect(on_button_released);
 		this.motion_notify_event.connect(on_motion_notify);
@@ -223,11 +222,6 @@ public class ConsoleView : Gtk.Box
 		}
 
 		return Gdk.EVENT_PROPAGATE;
-	}
-
-	private void on_show()
-	{
-		_entry.grab_focus_without_selecting();
 	}
 
 	private void on_destroy()
