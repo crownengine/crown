@@ -8,6 +8,7 @@ Changelog
 **Tools**
 
 * Fixed minor issues when toggling the Console.
+* Fixed the Project Browser not being able to obtain keyboard focus.
 
 0.46.0
 ------

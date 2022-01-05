@@ -166,7 +166,6 @@ public class ProjectBrowser : Gtk.Box
 */
 		_tree_view.model = _tree_sort;
 		_tree_view.headers_visible = false;
-		_tree_view.can_focus = false;
 		_tree_view.button_press_event.connect(on_button_pressed);
 		_tree_view.button_release_event.connect(on_button_released);
 
