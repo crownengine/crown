@@ -111,6 +111,7 @@ function toolchain(build_dir, lib_dir)
 		local winKitVer = os.getenv("WindowsSDKVersion")
 		if not winKitVer then
 			print("Run vcvarsall.bat as part of your Visual Studio installation to set the environment variable 'WindowsSDKVersion'.")
+			os.exit(1)
 		end
 		winKitVer = string.gsub(winKitVer, "\\", "")
 		local action = premake.action.current()
