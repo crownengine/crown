@@ -108,10 +108,14 @@ function toolchain(build_dir, lib_dir)
 			print("Action not valid in current OS.")
 		end
 
-		local windowsPlatform = string.gsub(os.getenv("WindowsSDKVersion") or "8.1", "\\", "")
+		local winKitVer = os.getenv("WindowsSDKVersion")
+		if not winKitVer then
+			print("Run vcvarsall.bat as part of your Visual Studio installation to set the environment variable 'WindowsSDKVersion'.")
+		end
+		winKitVer = string.gsub(winKitVer, "\\", "")
 		local action = premake.action.current()
-		action.vstudio.windowsTargetPlatformVersion    = windowsPlatform
-		action.vstudio.windowsTargetPlatformMinVersion = windowsPlatform
+		action.vstudio.windowsTargetPlatformVersion    = winKitVer
+		action.vstudio.windowsTargetPlatformMinVersion = winKitVer
 
 		location(build_dir .. "projects/" .. _ACTION)
 	end
