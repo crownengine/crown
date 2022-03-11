@@ -26,7 +26,7 @@ struct Stat
 	} file_type;
 
 	u64 size;  ///< Size in bytes.
-	u64 mtime; ///< Last modified time.
+	u64 mtime; ///< Last modified time in nanoseconds (actual precision depends on underlying filesystem).
 };
 
 /// Result from os::delete_file() or os::delete_directory().

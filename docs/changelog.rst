@@ -5,6 +5,10 @@ Changelog
 ------
 *DD MMM YYYY*
 
+**Data Compiler**
+
+* Fixed file changes not detected sometimes.
+
 **Tools**
 
 * Fixed minor issues when toggling the Console.

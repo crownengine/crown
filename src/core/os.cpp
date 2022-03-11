@@ -106,15 +106,15 @@ namespace os
 		else if (S_ISDIR(buf.st_mode) == 1)
 			info.file_type = Stat::DIRECTORY;
 
-		info.size = buf.st_size;
-		info.mtime = buf.st_mtime;
+		info.size  = buf.st_size;
+		info.mtime = buf.st_mtim.tv_sec * s64(1000000000) + buf.st_mtim.tv_nsec;
 	}
 #endif
 
 	void stat(Stat& info, const char* path)
 	{
 		info.file_type = Stat::NO_ENTRY;
-		info.size = 0;
+		info.size  = 0;
 		info.mtime = 0;
 
 #if CROWN_PLATFORM_POSIX
@@ -128,20 +128,31 @@ namespace os
 			info.file_type = Stat::REGULAR;
 		else if (S_ISDIR(buf.st_mode) == 1)
 			info.file_type = Stat::DIRECTORY;
+
+		info.size  = buf.st_size;
+		info.mtime = buf.st_mtim.tv_sec * s64(1000000000) + buf.st_mtim.tv_nsec;
 #elif CROWN_PLATFORM_WINDOWS
-		struct _stat64 buf;
-		int err = ::_stat64(path, &buf);
-		if (err != 0)
+		WIN32_FIND_DATAA wfd;
+		HANDLE fh = FindFirstFileA(path, &wfd);
+		if (fh == INVALID_HANDLE_VALUE)
 			return;
+		FindClose(fh);
 
-		if ((buf.st_mode & _S_IFREG) != 0)
-			info.file_type = Stat::REGULAR;
-		else if ((buf.st_mode & _S_IFDIR) != 0)
+		if ((wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
 			info.file_type = Stat::DIRECTORY;
-#endif
+		else // Assume regular file.
+			info.file_type = Stat::REGULAR;
 
-		info.size = buf.st_size;
-		info.mtime = buf.st_mtime;
+		ULARGE_INTEGER large_int = {};
+
+		large_int.LowPart  = wfd.nFileSizeLow;
+		large_int.HighPart = wfd.nFileSizeHigh;
+		info.size = large_int.QuadPart;
+
+		large_int.LowPart  = wfd.ftLastWriteTime.dwLowDateTime;
+		large_int.HighPart = wfd.ftLastWriteTime.dwHighDateTime;
+		info.mtime = large_int.QuadPart * u64(100); // See https://docs.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-filetime
+#endif
 	}
 
 	DeleteResult delete_file(const char* path)
