@@ -93,7 +93,7 @@ jobs:
       run: |
         make MAKE_JOBS=2 level-editor-linux-release64
   windows:
-    runs-on: windows-latest
+    runs-on: windows-2019
     steps:
     - uses: actions/checkout@v2
     - name: luajit
