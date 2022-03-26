@@ -27,6 +27,8 @@ public class PanelProjectsList : Gtk.ScrolledWindow
 
 	public PanelProjectsList(LevelEditorApplication app, User user)
 	{
+		this.shadow_type = Gtk.ShadowType.NONE;
+
 		// Data
 		_application = app;
 		_user = user;

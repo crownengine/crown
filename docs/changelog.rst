@@ -13,6 +13,7 @@ Changelog
 
 * Fixed minor issues when toggling the Console.
 * Fixed the Project Browser not being able to obtain keyboard focus.
+* Fixed minor aesthetic issues.
 
 0.46.0
 ------

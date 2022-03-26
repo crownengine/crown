@@ -37,6 +37,8 @@ public class PanelNewProject : Gtk.Viewport
 
 	public PanelNewProject(LevelEditorApplication app, User user, Project project)
 	{
+		this.shadow_type = Gtk.ShadowType.NONE;
+
 		// Data
 		_application = app;
 		_user = user;
