@@ -30,10 +30,16 @@ struct ProxyAllocator : public Allocator
 	virtual void* reallocate(void* data, u32 size, u32 align = DEFAULT_ALIGN);
 
 	/// @copydoc Allocator::allocated_size()
-	u32 allocated_size(const void* ptr) { return _allocator.allocated_size(ptr); }
+	u32 allocated_size(const void* ptr)
+	{
+		return _allocator.allocated_size(ptr);
+	}
 
 	/// @copydoc Allocator::total_allocated()
-	u32 total_allocated() { return _allocator.total_allocated(); }
+	u32 total_allocated()
+	{
+		return _allocator.total_allocated();
+	}
 
 	/// Returns the name of the proxy allocator
 	const char* name() const;

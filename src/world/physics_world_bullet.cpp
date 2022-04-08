@@ -289,7 +289,7 @@ struct PhysicsWorldImpl
 		btTriangleIndexVertexArray* vertex_array = NULL;
 		btCollisionShape* child_shape = NULL;
 
-		switch(sd->type)
+		switch (sd->type)
 		{
 		case ColliderType::SPHERE:
 			child_shape = CE_NEW(*_allocator, btSphereShape)(sd->sphere.radius);
@@ -333,8 +333,8 @@ struct PhysicsWorldImpl
 			vertex_array = CE_NEW(*_allocator, btTriangleIndexVertexArray)();
 			vertex_array->addIndexedMesh(part, PHY_SHORT);
 
-			const btVector3 aabb_min(-1000.0f,-1000.0f,-1000.0f);
-			const btVector3 aabb_max(1000.0f,1000.0f,1000.0f);
+			const btVector3 aabb_min(-1000.0f, -1000.0f, -1000.0f);
+			const btVector3 aabb_max(1000.0f, 1000.0f, 1000.0f);
 			child_shape = CE_NEW(*_allocator, btBvhTriangleMeshShape)(vertex_array, false, aabb_min, aabb_max);
 			break;
 		}
@@ -777,7 +777,7 @@ struct PhysicsWorldImpl
 		btRigidBody* body_1 = is_valid(a1) ? _actor[a1.i].body : NULL;
 
 		btTypedConstraint* joint = NULL;
-		switch(jd.type)
+		switch (jd.type)
 		{
 		case JointType::FIXED:
 		{
@@ -1100,9 +1100,20 @@ struct PhysicsWorldImpl
 		static_cast<PhysicsWorldImpl*>(user_ptr)->unit_destroyed_callback(unit);
 	}
 
-	static ColliderInstance make_collider_instance(u32 i) { ColliderInstance inst = { i }; return inst; }
-	static ActorInstance make_actor_instance(u32 i) { ActorInstance inst = { i }; return inst; }
-	static JointInstance make_joint_instance(u32 i) { JointInstance inst = { i }; return inst; }
+	static ColliderInstance make_collider_instance(u32 i)
+	{
+		ColliderInstance inst = { i }; return inst;
+	}
+
+	static ActorInstance make_actor_instance(u32 i)
+	{
+		ActorInstance inst = { i }; return inst;
+	}
+
+	static JointInstance make_joint_instance(u32 i)
+	{
+		JointInstance inst = { i }; return inst;
+	}
 };
 
 PhysicsWorld::PhysicsWorld(Allocator& a, ResourceManager& rm, UnitManager& um, DebugLine& dl)

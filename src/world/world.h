@@ -71,7 +71,10 @@ struct World
 
 	ListNode _node;
 
-	CameraInstance camera_make_instance(u32 i) { CameraInstance inst = { i }; return inst; }
+	CameraInstance camera_make_instance(u32 i)
+	{
+		CameraInstance inst = { i }; return inst;
+	}
 
 	///
 	World(Allocator& a, ResourceManager& rm, ShaderManager& sm, MaterialManager& mm, UnitManager& um, LuaEnvironment& env);

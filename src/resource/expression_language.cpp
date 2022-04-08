@@ -22,10 +22,16 @@ namespace expression_language
 	enum ByteCode {BC_FUNCTION = 0x7f800000, BC_PUSH_VAR = 0x7f900000, BC_END = 0x7fa00000};
 
 	/// Returns the byte code operation part of the byte code word.
-	static inline unsigned bc_mask(unsigned i) {return i & 0xfff00000;}
+	static inline unsigned bc_mask(unsigned i)
+	{
+		return i & 0xfff00000;
+	}
 
 	/// Returns the id part of the byte code word.
-	static inline unsigned id_mask(unsigned i) {return i & 0x000fffff;}
+	static inline unsigned id_mask(unsigned i)
+	{
+		return i & 0x000fffff;
+	}
 
 	/// Opcodes for functions
 	enum OpCode
@@ -43,8 +49,17 @@ namespace expression_language
 		OP_MATCH_2D
 	};
 
-	static inline float pop(Stack &stack) 			{CE_ASSERT(stack.size > 0, "Stack underflow"); return stack.data[--stack.size];}
-	static inline void push(Stack &stack, float f)	{CE_ASSERT(stack.size < stack.capacity, "Stack overflow"); stack.data[stack.size++] = f;}
+	static inline float pop(Stack &stack)
+	{
+		CE_ASSERT(stack.size > 0, "Stack underflow");
+		return stack.data[--stack.size];
+	}
+
+	static inline void push(Stack &stack, float f)
+	{
+		CE_ASSERT(stack.size < stack.capacity, "Stack overflow");
+		stack.data[stack.size++] = f;
+	}
 
 	inline float fmax(float a, float b)
 	{
@@ -101,7 +116,12 @@ namespace expression_language
 		unsigned u;
 	};
 
-	static inline float unsigned_to_float(unsigned u)	{FloatAndUnsigned fu; fu.u = u; return fu.f;}
+	static inline float unsigned_to_float(unsigned u)
+	{
+		FloatAndUnsigned fu;
+		fu.u = u;
+		return fu.f;
+	}
 
 	bool run(const unsigned *byte_code, const float *variables, Stack &stack)
 	{
@@ -133,10 +153,18 @@ namespace expression_language
 #if CROWN_CAN_COMPILE
 namespace expression_language
 {
-	static inline unsigned float_to_unsigned(float f)	{FloatAndUnsigned fu; fu.f = f; return fu.u;}
+	static inline unsigned float_to_unsigned(float f)
+	{
+		FloatAndUnsigned fu;
+		fu.f = f;
+		return fu.u;
+	}
 
 #ifdef WIN32
-		float strtof(const char *nptr, char **endptr) {return (float)strtod(nptr, endptr);}
+	float strtof(const char *nptr, char **endptr)
+	{
+		return (float)strtod(nptr, endptr);
+	}
 #endif
 
 	/// Represents a token in the expression language. The tokens are used
@@ -413,15 +441,37 @@ namespace expression_language
 		{
 		}
 
-		inline int cmp(const FunctionStackItem &f) const {
+		inline int cmp(const FunctionStackItem &f) const
+		{
 			if (par_level != f.par_level) return par_level - f.par_level;
 			return precedence - f.precedence;
 		}
-		inline bool operator<(const FunctionStackItem &other) const {return cmp(other) < 0;}
-		inline bool operator<=(const FunctionStackItem &other) const {return cmp(other) <= 0;}
-		inline bool operator==(const FunctionStackItem &other) const {return cmp(other) == 0;}
-		inline bool operator>=(const FunctionStackItem &other) const {return cmp(other) >= 0;}
-		inline bool operator>(const FunctionStackItem &other) const {return cmp(other) > 0;}
+
+		inline bool operator<(const FunctionStackItem &other) const
+		{
+			return cmp(other) < 0;
+		}
+
+		inline bool operator<=(const FunctionStackItem &other) const
+		{
+			return cmp(other) <= 0;
+		}
+
+		inline bool operator==(const FunctionStackItem &other) const
+		{
+			return cmp(other) == 0;
+		}
+
+		inline bool operator>=(const FunctionStackItem &other) const
+		{
+			return cmp(other) >= 0;
+		}
+
+		inline bool operator>(const FunctionStackItem &other) const
+		{
+			return cmp(other) > 0;
+		}
+
 		Token token;
 		int precedence;
 		int par_level;

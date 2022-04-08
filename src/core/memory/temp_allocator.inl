@@ -42,13 +42,21 @@ struct TempAllocator : public Allocator
 
 	/// Deallocation is a NOP for the TempAllocator. The memory is automatically
 	/// deallocated when the TempAllocator is destroyed.
-	virtual void deallocate(void *) {}
+	virtual void deallocate(void *)
+	{
+	}
 
 	/// Returns SIZE_NOT_TRACKED.
-	virtual u32 allocated_size(const void*) {return SIZE_NOT_TRACKED;}
+	virtual u32 allocated_size(const void*)
+	{
+		return SIZE_NOT_TRACKED;
+	}
 
 	/// Returns SIZE_NOT_TRACKED.
-	virtual u32 total_allocated() {return SIZE_NOT_TRACKED;}
+	virtual u32 total_allocated()
+	{
+		return SIZE_NOT_TRACKED;
+	}
 };
 
 // If possible, use one of these predefined sizes for the TempAllocator to avoid

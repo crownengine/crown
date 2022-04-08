@@ -40,7 +40,10 @@ struct StackAllocator : public Allocator
 	void deallocate(void* data);
 
 	/// @copydoc Allocator::allocated_size()
-	u32 allocated_size(const void* /*ptr*/) { return SIZE_NOT_TRACKED; }
+	u32 allocated_size(const void* /*ptr*/)
+	{
+		return SIZE_NOT_TRACKED;
+	}
 
 	/// @copydoc Allocator::total_allocated()
 	u32 total_allocated();

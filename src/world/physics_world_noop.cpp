@@ -271,9 +271,20 @@ struct PhysicsWorldImpl
 	{
 	}
 
-	ColliderInstance make_collider_instance(u32 i) { ColliderInstance inst = { i }; return inst; }
-	ActorInstance make_actor_instance(u32 i) { ActorInstance inst = { i }; return inst; }
-	JointInstance make_joint_instance(u32 i) { JointInstance inst = { i }; return inst; }
+	ColliderInstance make_collider_instance(u32 i)
+	{
+		ColliderInstance inst = { i }; return inst;
+	}
+
+	ActorInstance make_actor_instance(u32 i)
+	{
+		ActorInstance inst = { i }; return inst;
+	}
+
+	JointInstance make_joint_instance(u32 i)
+	{
+		JointInstance inst = { i }; return inst;
+	}
 };
 
 PhysicsWorld::PhysicsWorld(Allocator& a, ResourceManager& /*rm*/, UnitManager& /*um*/, DebugLine& /*dl*/)

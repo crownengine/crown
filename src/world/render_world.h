@@ -230,7 +230,10 @@ struct RenderWorld
 			);
 
 		///
-		MeshInstance make_instance(u32 i) { MeshInstance inst = { i }; return inst; }
+		MeshInstance make_instance(u32 i)
+		{
+			MeshInstance inst = { i }; return inst;
+		}
 	};
 
 	/// List of meshes to be rendered.
@@ -306,7 +309,10 @@ struct RenderWorld
 			);
 
 		///
-		SpriteInstance make_instance(u32 i) { SpriteInstance inst = { i }; return inst; }
+		SpriteInstance make_instance(u32 i)
+		{
+			SpriteInstance inst = { i }; return inst;
+		}
 	};
 
 	struct LightManager
@@ -363,7 +369,10 @@ struct RenderWorld
 		void destroy();
 
 		///
-		LightInstance make_instance(u32 i) { LightInstance inst = { i }; return inst; }
+		LightInstance make_instance(u32 i)
+		{
+			LightInstance inst = { i }; return inst;
+		}
 	};
 
 	u32 _marker;
