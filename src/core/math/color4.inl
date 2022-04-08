@@ -60,7 +60,7 @@ inline Color4 from_rgba(u32 rgba)
 inline u32 to_rgb(const Color4& c)
 {
 	u32 rgba;
-	rgba =	(u32)(255.0f * c.x) << 24;
+	rgba  = (u32)(255.0f * c.x) << 24;
 	rgba |= (u32)(255.0f * c.y) << 16;
 	rgba |= (u32)(255.0f * c.z) << 8;
 	rgba |= 255;
@@ -71,7 +71,7 @@ inline u32 to_rgb(const Color4& c)
 inline u32 to_bgr(const Color4& c)
 {
 	u32 abgr;
-	abgr =	255 << 24;
+	abgr  = 255 << 24;
 	abgr |= (u32)(255.0f * c.z) << 16;
 	abgr |= (u32)(255.0f * c.y) << 8;
 	abgr |= (u32)(255.0f * c.x);
@@ -82,7 +82,7 @@ inline u32 to_bgr(const Color4& c)
 inline u32 to_rgba(const Color4& c)
 {
 	u32 rgba;
-	rgba =	(u32)(255.0f * c.x) << 24;
+	rgba  = (u32)(255.0f * c.x) << 24;
 	rgba |= (u32)(255.0f * c.y) << 16;
 	rgba |= (u32)(255.0f * c.z) << 8;
 	rgba |= (u32)(255.0f * c.w);
@@ -93,7 +93,7 @@ inline u32 to_rgba(const Color4& c)
 inline u32 to_abgr(const Color4& c)
 {
 	u32 abgr;
-	abgr =	(u32)(255.0f * c.w) << 24;
+	abgr  = (u32)(255.0f * c.w) << 24;
 	abgr |= (u32)(255.0f * c.z) << 16;
 	abgr |= (u32)(255.0f * c.y) << 8;
 	abgr |= (u32)(255.0f * c.x);
