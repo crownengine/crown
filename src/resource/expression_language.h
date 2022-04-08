@@ -76,6 +76,7 @@ namespace expression_language
 		, unsigned *byte_code
 		, unsigned byte_code_capacity
 		);
+
 } // namespace expression_language
 #endif
 

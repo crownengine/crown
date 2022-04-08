@@ -43,7 +43,8 @@ namespace process_internal
 		return priv->process.hProcess != 0;
 #endif
 	}
-}
+
+} // namespace process_internal
 
 Process::Process()
 {

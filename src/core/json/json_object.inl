@@ -74,6 +74,6 @@ inline const char* JsonObject::operator[](const StringView& key) const
 	return hash_map::get(_map, key, (const char*)NULL);
 }
 
-}
+} // namespace crown
 
 #define JSON_OBJECT_SKIP_HOLE(jo, cur) HASH_MAP_SKIP_HOLE(jo._map, cur)

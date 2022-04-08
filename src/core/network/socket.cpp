@@ -42,7 +42,7 @@ namespace
 #endif
 	}
 
-}
+} // namespace
 
 struct Private
 {
