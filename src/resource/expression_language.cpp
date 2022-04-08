@@ -170,7 +170,8 @@ namespace expression_language
 		}
 
 		TokenType type; ///< Identifies the type of the token.
-		union {
+		union
+		{
 			unsigned id; ///< Id for FUNCTION and VARIABLE tokens.
 			float value; ///< Numeric value for NUMBER tokens.
 		};
