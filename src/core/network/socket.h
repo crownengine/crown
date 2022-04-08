@@ -139,7 +139,7 @@ struct SelectResult
 struct SocketSet
 {
 	struct SocketSetPrivate* _priv;
-	CE_ALIGN_DECL(16, u8 _data[512+16]);
+	CE_ALIGN_DECL(16, u8 _data[512 + 16]);
 
 	///
 	SocketSet();

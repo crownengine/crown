@@ -558,7 +558,7 @@ MeshInstance RenderWorld::MeshManager::create(UnitId unit, const MeshResource* m
 			// _data now contains a visible item in its hidden partition.
 			swap(last, _data.first_hidden);
 			++_data.first_hidden;
-			return make_instance(_data.first_hidden-1);
+			return make_instance(_data.first_hidden - 1);
 		}
 		++_data.first_hidden;
 	}
@@ -594,7 +594,7 @@ void RenderWorld::MeshManager::destroy(MeshInstance inst)
 
 	// If item was visible *and* last item was hidden.
 	if (last >= _data.first_hidden)
-		swap(inst.i, _data.first_hidden-1);
+		swap(inst.i, _data.first_hidden - 1);
 
 	--_data.first_hidden;
 }
@@ -639,7 +639,7 @@ void RenderWorld::MeshManager::set_visible(MeshInstance inst, bool visible)
 		if (inst.i >= _data.first_hidden)
 			return; // Already hidden.
 
-		swap(inst.i, _data.first_hidden-1);
+		swap(inst.i, _data.first_hidden - 1);
 		--_data.first_hidden;
 	}
 }
@@ -753,7 +753,7 @@ SpriteInstance RenderWorld::SpriteManager::create(UnitId unit, const SpriteResou
 			// _data now contains a visible item in its hidden partition.
 			swap(last, _data.first_hidden);
 			++_data.first_hidden;
-			return make_instance(_data.first_hidden-1);
+			return make_instance(_data.first_hidden - 1);
 		}
 		++_data.first_hidden;
 	}
@@ -791,7 +791,7 @@ void RenderWorld::SpriteManager::destroy(SpriteInstance inst)
 
 	// If item was visible *and* last item was hidden.
 	if (last >= _data.first_hidden)
-		swap(inst.i, _data.first_hidden-1);
+		swap(inst.i, _data.first_hidden - 1);
 
 	--_data.first_hidden;
 }
@@ -839,7 +839,7 @@ void RenderWorld::SpriteManager::set_visible(SpriteInstance inst, bool visible)
 		if (inst.i >= _data.first_hidden)
 			return; // Already hidden.
 
-		swap(inst.i, _data.first_hidden-1);
+		swap(inst.i, _data.first_hidden - 1);
 		--_data.first_hidden;
 	}
 }
@@ -936,12 +936,12 @@ void RenderWorld::SpriteManager::draw(u8 view, ResourceManager* rm, ShaderManage
 
 		vdata += 20;
 
-		*idata++ = ii*4+0;
-		*idata++ = ii*4+1;
-		*idata++ = ii*4+2;
-		*idata++ = ii*4+0;
-		*idata++ = ii*4+2;
-		*idata++ = ii*4+3;
+		*idata++ = ii*4 + 0;
+		*idata++ = ii*4 + 1;
+		*idata++ = ii*4 + 2;
+		*idata++ = ii*4 + 0;
+		*idata++ = ii*4 + 2;
+		*idata++ = ii*4 + 3;
 
 		bgfx::setTransform(to_float_ptr(_data.world[ii]));
 		bgfx::setVertexBuffer(0, &tvb);

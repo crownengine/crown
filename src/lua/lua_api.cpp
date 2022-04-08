@@ -1252,7 +1252,7 @@ void load_api(LuaEnvironment& env)
 		{
 			LuaStack stack(L);
 			const int i = stack.is_number(1) ? 1 : 2;
-			stack.push_vector3(stack.get_float(i) * stack.get_vector3(3-i));
+			stack.push_vector3(stack.get_float(i) * stack.get_vector3(3 - i));
 			return 1;
 		});
 	env.add_module_metafunction("Lightuserdata_mt", "__unm", [](lua_State* L)
@@ -2558,7 +2558,7 @@ void load_api(LuaEnvironment& env)
 				stack.push_table(num_hits);
 				for (u32 i = 0; i < num_hits; ++i)
 				{
-					stack.push_key_begin(i+1);
+					stack.push_key_begin(i + 1);
 					stack.push_table();
 					{
 						stack.push_key_begin(1);
@@ -3131,7 +3131,7 @@ void load_api(LuaEnvironment& env)
 			stack.push_table(array::size(modes));
 			for (u32 i = 0; i < array::size(modes); ++i)
 			{
-				stack.push_key_begin(i+1);
+				stack.push_key_begin(i + 1);
 				stack.push_table(3);
 				{
 					stack.push_key_begin("id");

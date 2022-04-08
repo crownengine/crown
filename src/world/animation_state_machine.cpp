@@ -163,7 +163,7 @@ void AnimationStateMachine::update(float dt)
 
 			stack.size = 0;
 			expression_language::run(&byte_code[animation->bytecode_entry], variables, stack);
-			const f32 cur = stack.size > 0 ? stack_data[stack.size-1] : 0.0f;
+			const f32 cur = stack.size > 0 ? stack_data[stack.size - 1] : 0.0f;
 			if (cur > max_v || max_i == UINT32_MAX)
 			{
 				max_v = cur;
@@ -175,7 +175,7 @@ void AnimationStateMachine::update(float dt)
 		// Evaluate animation speed
 		stack.size = 0;
 		expression_language::run(&byte_code[anim_i.state->speed_bytecode], variables, stack);
-		const f32 speed = stack.size > 0 ? stack_data[stack.size-1] : 1.0f;
+		const f32 speed = stack.size > 0 ? stack_data[stack.size - 1] : 1.0f;
 
 		// Advance animation
 		const SpriteAnimationResource* sar = (SpriteAnimationResource*)_resource_manager->get(RESOURCE_TYPE_SPRITE_ANIMATION, name);
@@ -193,7 +193,7 @@ void AnimationStateMachine::update(float dt)
 
 		const f32 frame_ratio     = anim_i.time / anim_i.time_total;
 		const u32 frame_unclamped = u32(frame_ratio * f32(anim_i.num_frames));
-		const u32 frame_index     = min(frame_unclamped, anim_i.num_frames-1);
+		const u32 frame_index     = min(frame_unclamped, anim_i.num_frames - 1);
 
 		anim_i.time += dt*speed;
 

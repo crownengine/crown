@@ -180,7 +180,7 @@ namespace script_world
 					lua_getfield(stack.L, -1, "collision_begin");
 					if (!lua_isnil(stack.L, -1))
 					{
-						stack.push_unit (ev.units[1-unit_index]);
+						stack.push_unit (ev.units[1 - unit_index]);
 						stack.push_unit (ev.units[unit_index]);
 						stack.push_actor(ev.actors[unit_index]);
 						stack.push_vector3(ev.position);
@@ -200,7 +200,7 @@ namespace script_world
 					lua_getfield(stack.L, -1, "collision");
 					if (!lua_isnil(stack.L, -1))
 					{
-						stack.push_unit (ev.units[1-unit_index]);
+						stack.push_unit (ev.units[1 - unit_index]);
 						stack.push_unit (ev.units[unit_index]);
 						stack.push_actor(ev.actors[unit_index]);
 						stack.push_vector3(ev.position);

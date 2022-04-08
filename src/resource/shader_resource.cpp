@@ -339,8 +339,8 @@ namespace shader_resource_internal
 
 	static const u32 _bgfx_sampler_filter_min_map[] =
 	{
-		BGFX_SAMPLER_MIN_POINT,       // SamplerFilter::POINT
-		BGFX_SAMPLER_MIN_ANISOTROPIC  // SamplerFilter::ANISOTROPIC
+		BGFX_SAMPLER_MIN_POINT,      // SamplerFilter::POINT
+		BGFX_SAMPLER_MIN_ANISOTROPIC // SamplerFilter::ANISOTROPIC
 	};
 	CE_STATIC_ASSERT(countof(_bgfx_sampler_filter_min_map) == SamplerFilter::COUNT);
 

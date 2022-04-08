@@ -43,7 +43,7 @@ inline bool str_has_suffix(const char* str, const char* suffix)
 	CE_ENSURE(NULL != suffix);
 	const u32 ml = strlen32(str);
 	const u32 sl = strlen32(suffix);
-	return sl <= ml && strncmp(&str[ml-sl], suffix, sl) == 0;
+	return sl <= ml && strncmp(&str[ml - sl], suffix, sl) == 0;
 }
 
 } // namespace crown

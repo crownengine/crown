@@ -93,8 +93,8 @@ struct BgfxCallback : public bgfx::CallbackI
 	virtual void traceVargs(const char* /*_filePath*/, u16 /*_line*/, const char* _format, va_list _argList)
 	{
 		char buf[2048];
-		strncpy(buf, _format, sizeof(buf)-1);
-		buf[strlen32(buf)-1] = '\0'; // Remove trailing newline
+		strncpy(buf, _format, sizeof(buf) - 1);
+		buf[strlen32(buf) - 1] = '\0'; // Remove trailing newline
 		vlogi(DEVICE, buf, _argList);
 	}
 

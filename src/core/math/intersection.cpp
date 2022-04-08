@@ -70,8 +70,8 @@ f32 ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x
 
 		if (fabs(f) > 0.001f)
 		{
-			f32 t1 = (e-half_extents.x)/f;
-			f32 t2 = (e+half_extents.x)/f;
+			f32 t1 = (e - half_extents.x)/f;
+			f32 t2 = (e + half_extents.x)/f;
 
 			if (t1 > t2)
 				exchange(t1, t2);
@@ -85,7 +85,7 @@ f32 ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x
 		}
 		else
 		{
-			if (-e-half_extents.x > 0.0f || -e+half_extents.x < 0.0f)
+			if (-e - half_extents.x > 0.0f || -e + half_extents.x < 0.0f)
 				return -1.0f;
 		}
 	}
@@ -97,8 +97,8 @@ f32 ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x
 
 		if (fabs(f) > 0.001f)
 		{
-			f32 t1 = (e-half_extents.y)/f;
-			f32 t2 = (e+half_extents.y)/f;
+			f32 t1 = (e - half_extents.y)/f;
+			f32 t2 = (e + half_extents.y)/f;
 
 			if (t1 > t2)
 				exchange(t1, t2);
@@ -112,7 +112,7 @@ f32 ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x
 		}
 		else
 		{
-			if (-e-half_extents.y > 0.0f || -e+half_extents.y < 0.0f)
+			if (-e - half_extents.y > 0.0f || -e + half_extents.y < 0.0f)
 				return -1.0f;
 		}
 	}
@@ -124,8 +124,8 @@ f32 ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x
 
 		if (fabs(f) > 0.001f)
 		{
-			f32 t1 = (e-half_extents.z)/f;
-			f32 t2 = (e+half_extents.z)/f;
+			f32 t1 = (e - half_extents.z)/f;
+			f32 t2 = (e + half_extents.z)/f;
 
 			if (t1 > t2)
 				exchange(t1, t2);
@@ -139,7 +139,7 @@ f32 ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x
 		}
 		else
 		{
-			if (-e-half_extents.z > 0.0f || -e+half_extents.z < 0.0f)
+			if (-e - half_extents.z > 0.0f || -e + half_extents.z < 0.0f)
 				return -1.0f;
 		}
 	}

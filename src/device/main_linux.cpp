@@ -770,7 +770,7 @@ struct WindowX11 : public Window
 		memset(buf, 0, sizeof(buf));
 		char* name;
 		XFetchName(s_ldvc._x11_display, s_ldvc._x11_window, &name);
-		strncpy(buf, name, sizeof(buf)-1);
+		strncpy(buf, name, sizeof(buf) - 1);
 		XFree(name);
 		return buf;
 	}

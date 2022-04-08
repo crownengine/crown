@@ -402,7 +402,7 @@ s32 UnitCompiler::compile_unit_from_json(const char* json, const u32 parent)
 	for (u32 ii = 0; ii < num_prefabs; ++ii)
 	{
 		JsonObject prefab(ta);
-		sjson::parse(prefab, array::begin(data) + offsets[num_prefabs-1 - ii]);
+		sjson::parse(prefab, array::begin(data) + offsets[num_prefabs - 1 - ii]);
 
 		if (json_object::has(prefab, "components"))
 		{
@@ -602,7 +602,7 @@ s32 UnitCompiler::compile_unit_from_json(const char* json, const u32 parent)
 	array::push_back(_unit_parents, parent);
 	++_num_units;
 
-	err = compile_units_array(merged_children, _num_units-1);
+	err = compile_units_array(merged_children, _num_units - 1);
 	DATA_COMPILER_ENSURE(err == 0, _opts);
 	return 0;
 }

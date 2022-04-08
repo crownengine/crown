@@ -228,7 +228,7 @@ void CompileOptions::read_output(StringStream& output, Process& pr)
 {
 	u32 nbr = 0;
 	char msg[512];
-	while (pr.read(&nbr, msg, sizeof(msg)-1) != NULL)
+	while (pr.read(&nbr, msg, sizeof(msg) - 1) != NULL)
 	{
 		msg[nbr] = '\0';
 		output << msg;

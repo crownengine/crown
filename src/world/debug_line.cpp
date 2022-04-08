@@ -81,8 +81,8 @@ void DebugLine::add_circle(const Vector3& center, f32 radius, const Vector3& nor
 {
 	const Vector3 arr[] =
 	{
-		{ normal.z, normal.z, -normal.x -normal.y },
-		{ -normal.y -normal.z, normal.x, normal.x }
+		{ normal.z,             normal.z, -normal.x - normal.y },
+		{ -normal.y - normal.z, normal.x, normal.x             }
 	};
 	const int idx = ((normal.z != 0.0f) && (-normal.x != normal.y));
 	Vector3 right = arr[idx];
@@ -108,8 +108,8 @@ void DebugLine::add_cone(const Vector3& base_center, const Vector3& tip, f32 rad
 	normalize(normal);
 	const Vector3 arr[] =
 	{
-		{ normal.z, normal.z, -normal.x -normal.y },
-		{ -normal.y -normal.z, normal.x, normal.x }
+		{ normal.z,             normal.z, -normal.x - normal.y },
+		{ -normal.y - normal.z, normal.x, normal.x             }
 	};
 	const int idx = ((normal.z != 0.0f) && (-normal.x != normal.y));
 	Vector3 right = arr[idx];

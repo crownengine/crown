@@ -17,7 +17,7 @@ inline BinaryWriter::BinaryWriter(File& file)
 
 inline void BinaryWriter::align(const u32 align)
 {
-	const u32 mask = align-1;
+	const u32 mask = align - 1;
 	const u32 pos = (_file.position() + mask) & ~mask;
 	const u32 pad = pos - _file.position();
 	const char val = 0;
@@ -55,7 +55,7 @@ inline BinaryReader::BinaryReader(File& file)
 
 inline void BinaryReader::align(const u32 align)
 {
-	const u32 mask = align-1;
+	const u32 mask = align - 1;
 	const u32 pos = (_file.position() + mask) & ~mask;
 	const u32 pad = pos - _file.position();
 	_file.skip(pad);

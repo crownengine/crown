@@ -20,7 +20,7 @@ namespace memory
 		CE_ASSERT(align >= 1, "Alignment must be > 1");
 		CE_ASSERT(align % 2 == 0 || align == 1, "Alignment must be a power of two");
 
-		const uintptr_t mask = align-1;
+		const uintptr_t mask = align - 1;
 		uintptr_t ptr = (uintptr_t)p;
 		ptr = (ptr + mask) & ~mask;
 		return (void*)ptr;

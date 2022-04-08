@@ -313,8 +313,8 @@ void ConsoleServer::register_command_name(const char* name, const char* brief, C
 	CommandData cmd;
 	cmd.command_function = function;
 	cmd.user_data = user_data;
-	strncpy(cmd.name, name, sizeof(cmd.name)-1);
-	strncpy(cmd.brief, brief, sizeof(cmd.brief)-1);
+	strncpy(cmd.name,  name,  sizeof(cmd.name) - 1);
+	strncpy(cmd.brief, brief, sizeof(cmd.brief) - 1);
 	hash_map::set(_commands, StringId32(name), cmd);
 }
 
@@ -466,7 +466,7 @@ s32 ConsoleServer::run_output_thread()
 			if (console_server_internal::get_socket_by_id(&socket, *this, client_id) != true)
 				continue;
 
-			socket.write(msg-4, msg_len+4);
+			socket.write(msg - 4, msg_len + 4);
 		}
 
 		array::clear(*_output_read);

@@ -817,7 +817,7 @@ void DataCompiler::scan_and_restore(const char* data_dir)
 
 	// Cleanup
 	for (u32 i = 0, n = array::size(directories); i < n; ++i)
-		default_allocator().deallocate((void*)directories[n-1-i]);
+		default_allocator().deallocate((void*)directories[n - 1 - i]);
 }
 
 void DataCompiler::save(const char* data_dir)
@@ -1214,7 +1214,7 @@ void DataCompiler::file_monitor_callback(FileMonitorEvent::Enum fme, bool is_dir
 	{
 		// All events received must refer to directories
 		// mapped with map_source_dir().
-		const char* filename = &path[source_dir.length()+1];
+		const char* filename = &path[source_dir.length() + 1];
 		path::join(resource_path, cur->first.c_str(), filename);
 		resource_path_to_resource_name(resource_name, resource_path);
 
@@ -1247,7 +1247,7 @@ void DataCompiler::file_monitor_callback(FileMonitorEvent::Enum fme, bool is_dir
 		{
 			DynamicString resource_path_renamed(ta); // See resource_path
 			DynamicString resource_name_renamed(ta);
-			path::join(resource_path_renamed, cur->first.c_str(), &path_renamed[source_dir.length()+1]);
+			path::join(resource_path_renamed, cur->first.c_str(), &path_renamed[source_dir.length() + 1]);
 			resource_path_to_resource_name(resource_name_renamed, resource_path_renamed);
 
 			if (!is_dir)
