@@ -193,10 +193,10 @@ inline Quaternion lerp(const Quaternion& a, const Quaternion& b, f32 t)
 
 	if (dot(a, b) < 0.0f)
 	{
-		r.x = t1*a.x + t*-b.x;
-		r.y = t1*a.y + t*-b.y;
-		r.z = t1*a.z + t*-b.z;
-		r.w = t1*a.w + t*-b.w;
+		r.x = t1*a.x - t*b.x;
+		r.y = t1*a.y - t*b.y;
+		r.z = t1*a.z - t*b.z;
+		r.w = t1*a.w - t*b.w;
 	}
 	else
 	{
