@@ -64,9 +64,12 @@ namespace hash_map
 
 namespace hash_map_internal
 {
-	const u32 END_OF_LIST = 0xffffffffu;
-	const u32 DELETED = 0x80000000u;
-	const u32 FREE = 0x00000000u;
+	enum : u32
+	{
+		END_OF_LIST = 0xffffffffu,
+		DELETED     = 0x80000000u,
+		FREE        = 0x00000000u
+	};
 
 	template <typename TKey, typename Hash>
 	inline u32 key_hash(const TKey& key)
