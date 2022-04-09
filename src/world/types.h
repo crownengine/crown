@@ -330,7 +330,7 @@ struct LightDesc
 {
 	u32 type;       ///< LightType::Enum
 	f32 range;      ///< In meters.
-	f32 intensity;
+	f32 intensity;  ///<
 	f32 spot_angle; ///< In radians.
 	Vector3 color;  ///< Color of the light.
 };
@@ -405,10 +405,10 @@ struct ColliderDesc
 {
 	u32 type;                     ///< ShapeType::Enum
 	Matrix4x4 local_tm;           ///< In actor-space
-	SphereShape sphere;
-	CapsuleShape capsule;
-	BoxShape box;
-	HeightfieldShape heightfield;
+	SphereShape sphere;           ///<
+	CapsuleShape capsule;         ///<
+	BoxShape box;                 ///<
+	HeightfieldShape heightfield; ///<
 	u32 size;                     ///< Size of additional data.
 //	char data[size]               ///< Convex Hull, Mesh, Heightfield data.
 };
@@ -430,14 +430,14 @@ struct HingeJoint
 struct JointDesc
 {
 	u32 type;         ///< JointType::Enum
-	Vector3 anchor_0;
-	Vector3 anchor_1;
+	Vector3 anchor_0; ///<
+	Vector3 anchor_1; ///<
 
-	bool breakable;
-	char _pad[3];
-	f32 break_force;
+	bool breakable;   ///<
+	char _pad[3];     ///<
+	f32 break_force;  ///<
 
-	HingeJoint hinge;
+	HingeJoint hinge; ///<
 };
 
 struct RaycastHit
@@ -466,8 +466,8 @@ struct LevelLoadedEvent
 struct PhysicsCollisionEvent
 {
 	enum Type { TOUCH_BEGIN, TOUCHING, TOUCH_END } type;
-	UnitId units[2];
-	ActorInstance actors[2];
+	UnitId units[2];         ///<
+	ActorInstance actors[2]; ///<
 	Vector3 position;        ///< In world-space.
 	Vector3 normal;          ///< In world-space.
 	float distance;          ///< Separation distance
