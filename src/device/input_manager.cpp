@@ -301,7 +301,9 @@ void InputManager::read(const OsEvent& event)
 				_has_delta_axis_event = true;
 			}
 			else
+			{
 				_mouse->set_axis(ev.axis_num, ev.axis_x, ev.axis_y, ev.axis_z);
+			}
 
 			break;
 

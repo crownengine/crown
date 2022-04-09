@@ -99,7 +99,9 @@ namespace sjson
 				json = next(json, '/');
 			}
 			else
+			{
 				CE_FATAL("Bad comment");
+			}
 		}
 
 		return json;
@@ -111,9 +113,12 @@ namespace sjson
 
 		while (*json)
 		{
-			if (*json == '/') json = skip_comments(json);
-			else if (isspace(*json) || *json == ',') ++json;
-			else break;
+			if (*json == '/')
+				json = skip_comments(json);
+			else if (isspace(*json) || *json == ',')
+				++json;
+			else
+				break;
 		}
 
 		return json;

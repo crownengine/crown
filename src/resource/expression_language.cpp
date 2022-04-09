@@ -252,11 +252,17 @@ namespace expression_language
 		{
 			unsigned i;
 			if ( (i=find_string(identifier, len, num_variables, variable_names)) != UINT_MAX)
+			{
 				return Token(Token::VARIABLE, i);
+			}
 			else if ( (i=find_string(identifier, len, num_constants, constant_names)) != UINT_MAX)
+			{
 				return Token(Token::NUMBER, constant_values[i]);
+			}
 			else if ( (i=find_string(identifier, len, num_functions, function_names)) != UINT_MAX)
+			{
 				return Token(Token::FUNCTION, i);
+			}
 			else {
 				CE_FATAL("Unknown identifier: %s", identifier);
 				return Token();
@@ -320,8 +326,9 @@ namespace expression_language
 					if (s2[1] && env.has_function(s2)) {
 						token = env.token_for_identifier(s2);
 						++p;
-					} else
+					} else {
 						token = env.token_for_identifier(s1);
+					}
 
 					binary = false;
 					break;

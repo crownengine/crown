@@ -160,18 +160,30 @@ namespace package_resource_internal
 		Buffer buf = opts.read();
 		sjson::parse(obj, buf);
 
-		if (json_object::has(obj, "texture"))          sjson::parse_array(texture, obj["texture"]);
-		if (json_object::has(obj, "lua"))              sjson::parse_array(script, obj["lua"]);
-		if (json_object::has(obj, "sound"))            sjson::parse_array(sound, obj["sound"]);
-		if (json_object::has(obj, "mesh"))             sjson::parse_array(mesh, obj["mesh"]);
-		if (json_object::has(obj, "unit"))             sjson::parse_array(unit, obj["unit"]);
-		if (json_object::has(obj, "sprite"))           sjson::parse_array(sprite, obj["sprite"]);
-		if (json_object::has(obj, "material"))         sjson::parse_array(material, obj["material"]);
-		if (json_object::has(obj, "font"))             sjson::parse_array(font, obj["font"]);
-		if (json_object::has(obj, "level"))            sjson::parse_array(level, obj["level"]);
-		if (json_object::has(obj, "physics_config"))   sjson::parse_array(phyconf, obj["physics_config"]);
-		if (json_object::has(obj, "shader"))           sjson::parse_array(shader, obj["shader"]);
-		if (json_object::has(obj, "sprite_animation")) sjson::parse_array(sprite_animation, obj["sprite_animation"]);
+		if (json_object::has(obj, "texture"))
+			sjson::parse_array(texture, obj["texture"]);
+		if (json_object::has(obj, "lua"))
+			sjson::parse_array(script, obj["lua"]);
+		if (json_object::has(obj, "sound"))
+			sjson::parse_array(sound, obj["sound"]);
+		if (json_object::has(obj, "mesh"))
+			sjson::parse_array(mesh, obj["mesh"]);
+		if (json_object::has(obj, "unit"))
+			sjson::parse_array(unit, obj["unit"]);
+		if (json_object::has(obj, "sprite"))
+			sjson::parse_array(sprite, obj["sprite"]);
+		if (json_object::has(obj, "material"))
+			sjson::parse_array(material, obj["material"]);
+		if (json_object::has(obj, "font"))
+			sjson::parse_array(font, obj["font"]);
+		if (json_object::has(obj, "level"))
+			sjson::parse_array(level, obj["level"]);
+		if (json_object::has(obj, "physics_config"))
+			sjson::parse_array(phyconf, obj["physics_config"]);
+		if (json_object::has(obj, "shader"))
+			sjson::parse_array(shader, obj["shader"]);
+		if (json_object::has(obj, "sprite_animation"))
+			sjson::parse_array(sprite_animation, obj["sprite_animation"]);
 
 		s32 err = 0;
 		err = compile_resources(resources_set, opts, "texture", texture);

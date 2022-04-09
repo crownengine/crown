@@ -13,13 +13,14 @@ const char* skip_block(const char* str, char a, char b)
 
 	for (char ch = *str++; ch != '\0'; ch = *str++)
 	{
-		if (ch == a) ++num;
+		if (ch == a)
+		{
+			++num;
+		}
 		else if (ch == b)
 		{
 			if (--num == 0)
-			{
 				return str;
-			}
 		}
 	}
 
