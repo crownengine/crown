@@ -177,7 +177,7 @@ struct SoundInstance
 	{
 		ALint state;
 		AL_CHECK(alGetSourcei(_source, AL_SOURCE_STATE, &state));
-		return (state != AL_PLAYING && state != AL_PAUSED);
+		return state != AL_PLAYING && state != AL_PAUSED;
 	}
 
 	Vector3 position()
