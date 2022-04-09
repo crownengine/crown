@@ -206,7 +206,7 @@ struct FileMonitorImpl
 			DWORD last_action = -1;
 			DynamicString path_old_name(default_allocator());
 			char* cur = (char*)wh->_buffer;
-			for(;;)
+			for (;;)
 			{
 				const FILE_NOTIFY_INFORMATION* fni = (const FILE_NOTIFY_INFORMATION*)cur;
 

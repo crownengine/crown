@@ -169,10 +169,10 @@ namespace expression_language
 		{
 		}
 
-		TokenType type;		///< Identifies the type of the token
+		TokenType type; ///< Identifies the type of the token.
 		union {
-			unsigned id;		///< Id for FUNCTION and VARIABLE tokens
-			float value;		///< Numeric value for NUMBER tokens
+			unsigned id; ///< Id for FUNCTION and VARIABLE tokens.
+			float value; ///< Numeric value for NUMBER tokens.
 		};
 	};
 
@@ -190,9 +190,9 @@ namespace expression_language
 		{
 		}
 
-		OpCode 		op_code;	///< The opcode of the function
-		unsigned 	precedence;	///< The precedence of the function operator.
-		unsigned 	arity;		///< The number of arguments that the function takes.
+		OpCode op_code;      ///< The opcode of the function.
+		unsigned precedence; ///< The precedence of the function operator.
+		unsigned arity;      ///< The number of arguments that the function takes.
 	};
 
 	/// Represents the environment in which we are compiling -- the available variables,
@@ -268,14 +268,14 @@ namespace expression_language
 				token = Token(Token::NUMBER, strtof(p, &out));
 				p = out;
 				binary = true;
-			// Identifiers
-			} else if ( (*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || (*p == '_') ) {
+				// Identifiers
+			} else if ( (*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || (*p == '_')) {
 				const char *identifier = p;
 				while ( (*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || (*p == '_') || (*p >= '0' && *p <= '9'))
 					p++;
 				token = env.token_for_identifier(identifier, u32(p-identifier));
 				binary = true;
-			// Operators
+				// Operators
 			} else {
 				switch (*p) {
 				case '(': token = Token(Token::LEFT_PARENTHESIS); binary = false; break;

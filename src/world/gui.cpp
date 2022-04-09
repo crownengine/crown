@@ -297,7 +297,7 @@ void Gui::text_3d(const Vector3& pos, u32 font_size, const char* str, StringId64
 			// Position coords
 			const f32 x0 = (pen_x + pen_advance_x);
 			const f32 y0 = (pen_y + pen_advance_y);
-			const f32 x1 = (pen_x + pen_advance_x + scale*glyph->width );
+			const f32 x1 = (pen_x + pen_advance_x + scale*glyph->width);
 			const f32 y1 = (pen_y + pen_advance_y + scale*glyph->height);
 
 			// Texture coords

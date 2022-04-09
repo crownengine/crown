@@ -41,7 +41,7 @@ namespace memory
 
 /// Convert integer to type.
 template<int v>
-struct Int2Type { enum {value=v}; };
+struct Int2Type { enum { value = v }; };
 
 template<typename T>
 inline T &construct(void *p, Allocator& a, Int2Type<true>)

@@ -15,7 +15,7 @@ namespace crown
 /// @ingroup Memory
 struct PoolAllocator : public Allocator
 {
-	Allocator&	_backing;
+	Allocator& _backing;
 
 	void* _start;
 	void* _freelist;

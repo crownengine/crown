@@ -87,7 +87,7 @@ struct Window
 	virtual const char* title() = 0;
 
 	/// Sets the title of the window.
-	virtual void set_title (const char* title) = 0;
+	virtual void set_title(const char* title) = 0;
 
 	/// Returns the native window handle.
 	virtual void* handle() = 0;

@@ -42,7 +42,7 @@ DebugLine::~DebugLine()
 void DebugLine::add_line(const Vector3& start, const Vector3& end, const Color4& color)
 {
 	if (_num >= MAX_LINES)
-		 return;
+		return;
 
 	_lines[_num].p0 = start;
 	_lines[_num].c0 = to_abgr(color);

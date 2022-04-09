@@ -28,7 +28,7 @@
 			opts.error(msg, ## __VA_ARGS__);            \
 			return -1;                                  \
 		}                                               \
-	} while(0)
+	} while (0)
 
 #define DATA_COMPILER_ENSURE(condition, opts)             \
 	DATA_COMPILER_ASSERT(condition                        \

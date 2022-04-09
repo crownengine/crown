@@ -202,7 +202,7 @@ f32 ray_mesh_intersection(const Vector3& from, const Vector3& dir, const Matrix4
 		const f32 v = dot(dir, Q) * inv_det;
 
 		// The intersection lies outside of the triangle
-		if (v < 0.0f || u + v  > 1.0f)
+		if (v < 0.0f || u + v > 1.0f)
 			continue;
 
 		const f32 t = dot(e2, Q) * inv_det;

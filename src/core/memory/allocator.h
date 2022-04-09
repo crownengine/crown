@@ -20,7 +20,7 @@ struct Allocator
 	}
 
 	///
-	virtual	~Allocator()
+	virtual ~Allocator()
 	{
 	}
 

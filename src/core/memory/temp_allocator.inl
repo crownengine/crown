@@ -27,12 +27,12 @@ namespace crown
 template<int BUFFER_SIZE>
 struct TempAllocator : public Allocator
 {
-	char _buffer[BUFFER_SIZE];	//< Local stack buffer for allocations.
-	Allocator &_backing;		//< Backing allocator if local memory is exhausted.
-	char *_start;				//< Start of current allocation region
-	char *_p;					//< Current allocation pointer.
-	char *_end;					//< End of current allocation region
-	unsigned _chunk_size;		//< Chunks to allocate from backing allocator
+	char _buffer[BUFFER_SIZE]; ///< Local stack buffer for allocations.
+	Allocator &_backing;       ///< Backing allocator if local memory is exhausted.
+	char *_start;              ///< Start of current allocation region.
+	char *_p;                  ///< Current allocation pointer.
+	char *_end;                ///< End of current allocation region.
+	unsigned _chunk_size;      ///< Chunks to allocate from backing allocator.
 
 	/// Creates a new temporary allocator using the specified backing allocator.
 	TempAllocator(Allocator &backing = default_scratch_allocator());

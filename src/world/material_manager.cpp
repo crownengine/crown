@@ -56,7 +56,7 @@ void MaterialManager::online(StringId64 id, ResourceManager& rm)
 {
 	using namespace material_resource;
 
-	MaterialResource* mr = (MaterialResource*) rm.get(RESOURCE_TYPE_MATERIAL, id);
+	MaterialResource* mr = (MaterialResource*)rm.get(RESOURCE_TYPE_MATERIAL, id);
 
 	char* base = (char*)mr + mr->dynamic_data_offset;
 
@@ -79,9 +79,9 @@ void MaterialManager::offline(StringId64 id, ResourceManager& rm)
 {
 	using namespace material_resource;
 
-	MaterialResource* mr = (MaterialResource*) rm.get(RESOURCE_TYPE_MATERIAL, id);
+	MaterialResource* mr = (MaterialResource*)rm.get(RESOURCE_TYPE_MATERIAL, id);
 
-	char* base = (char*) mr + mr->dynamic_data_offset;
+	char* base = (char*)mr + mr->dynamic_data_offset;
 
 	for (u32 i = 0; i < mr->num_textures; ++i)
 	{
