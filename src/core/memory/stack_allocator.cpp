@@ -42,7 +42,7 @@ void* StackAllocator::allocate(u32 size, u32 align)
 	// Align user data only, ignore header alignment
 	_top = (char*)memory::align_top(_top + sizeof(Header), align) - sizeof(Header);
 
-	Header* header = (Header*) _top;
+	Header* header = (Header*)_top;
 	header->offset = offset;
 	header->alloc_id = _allocation_count;
 
