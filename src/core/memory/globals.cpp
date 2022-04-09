@@ -237,7 +237,8 @@ namespace memory
 		/// that don't fit in the ring buffer.
 		///
 		/// size specifies the size of the ring buffer.
-		ScratchAllocator(Allocator &backing, u32 size) : _backing(backing)
+		ScratchAllocator(Allocator &backing, u32 size)
+			: _backing(backing)
 		{
 			_begin = (char*)_backing.allocate(size);
 			_end = _begin + size;

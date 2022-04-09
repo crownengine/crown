@@ -19,10 +19,14 @@ namespace crown
 struct Filesystem
 {
 	///
-	Filesystem() {};
+	Filesystem()
+	{
+	};
 
 	///
-	virtual ~Filesystem() {};
+	virtual ~Filesystem()
+	{
+	};
 
 	///
 	Filesystem(const Filesystem&) = delete;

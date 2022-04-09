@@ -16,10 +16,14 @@ namespace crown
 struct File
 {
 	///
-	File() {}
+	File()
+	{
+	}
 
 	///
-	virtual ~File() {}
+	virtual ~File()
+	{
+	}
 
 	/// Opens the file at @a path with specified @a mode
 	virtual void open(const char* path, FileOpenMode::Enum mode) = 0;

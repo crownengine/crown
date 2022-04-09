@@ -146,10 +146,28 @@ namespace expression_language
 	{
 		enum TokenType {EMPTY, NUMBER, FUNCTION, VARIABLE, LEFT_PARENTHESIS, RIGHT_PARENTHESIS};
 
-		Token() : type(EMPTY), id(0) {}
-		explicit Token(TokenType type) : type(type) {}
-		Token(TokenType type, unsigned id) : type(type), id(id) {}
-		Token(TokenType type, float value) : type(type), value(value) {}
+		Token()
+			: type(EMPTY)
+			, id(0)
+		{
+		}
+
+		explicit Token(TokenType type)
+			: type(type)
+		{
+		}
+
+		Token(TokenType type, unsigned id)
+			: type(type)
+			, id(id)
+		{
+		}
+
+		Token(TokenType type, float value)
+			: type(type)
+			, value(value)
+		{
+		}
 
 		TokenType type;		///< Identifies the type of the token
 		union {
@@ -161,8 +179,16 @@ namespace expression_language
 	/// Describes a function.
 	struct Function
 	{
-		Function() {}
-		Function(OpCode op_code, unsigned precedence, unsigned arity) : op_code(op_code), precedence(precedence), arity(arity) {}
+		Function()
+		{
+		}
+
+		Function(OpCode op_code, unsigned precedence, unsigned arity)
+			: op_code(op_code)
+			, precedence(precedence)
+			, arity(arity)
+		{
+		}
 
 		OpCode 		op_code;	///< The opcode of the function
 		unsigned 	precedence;	///< The precedence of the function operator.
@@ -375,8 +401,17 @@ namespace expression_language
 	/// before others.
 	struct FunctionStackItem
 	{
-		FunctionStackItem() {}
-		FunctionStackItem(Token t, int p, int pl) : token(t), precedence(p), par_level(pl) {}
+		FunctionStackItem()
+		{
+		}
+
+		FunctionStackItem(Token t, int p, int pl)
+			: token(t)
+			, precedence(p)
+			, par_level(pl)
+		{
+		}
+
 		inline int cmp(const FunctionStackItem &f) const {
 			if (par_level != f.par_level) return par_level - f.par_level;
 			return precedence - f.precedence;

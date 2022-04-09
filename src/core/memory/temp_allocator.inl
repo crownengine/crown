@@ -66,7 +66,9 @@ typedef TempAllocator<4096> TempAllocator4096;
 // ---------------------------------------------------------------
 
 template<int BUFFER_SIZE>
-TempAllocator<BUFFER_SIZE>::TempAllocator(Allocator &backing) : _backing(backing), _chunk_size(4*1024)
+TempAllocator<BUFFER_SIZE>::TempAllocator(Allocator &backing)
+	: _backing(backing)
+	, _chunk_size(4*1024)
 {
 	_p = _start = _buffer;
 	_end = _start + BUFFER_SIZE;
