@@ -16,7 +16,7 @@
 	#include <netinet/in.h> // htons, htonl, ...
 	#include <sys/socket.h>
 	#include <unistd.h>     // close
-	typedef int SOCKET;
+	#define SOCKET int
 	#define INVALID_SOCKET (-1)
 	#define SOCKET_ERROR (-1)
 	#define closesocket close
