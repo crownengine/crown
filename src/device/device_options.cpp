@@ -44,7 +44,7 @@ static void help(const char* msg = NULL)
 		"  --pumped                        Do not advance the renderer unless explicitly requested via console.\n"
 		"\n"
 		"Complete documentation available at https://crownengine.github.io/crown/html/v" CROWN_VERSION "\n"
-	);
+		);
 
 	if (msg)
 		printf("Error: %s\n", msg);

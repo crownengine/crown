@@ -448,9 +448,15 @@ namespace expression_language
 		return NUM_DEFAULT_FUNCTIONS;
 	}
 
-	unsigned compile(const char *source, unsigned num_variables, const char **variables,
-				 unsigned num_constants, const char **constant_names, const float *constant_values,
-				 unsigned *byte_code, unsigned capacity)
+	unsigned compile(const char *source
+		, unsigned num_variables
+		, const char **variables
+		, unsigned num_constants
+		, const char **constant_names
+		, const float *constant_values
+		, unsigned *byte_code
+		, unsigned capacity
+		)
 	{
 		const char *function_names[NUM_DEFAULT_FUNCTIONS];
 		Function functions[NUM_DEFAULT_FUNCTIONS];

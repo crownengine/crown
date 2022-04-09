@@ -224,7 +224,7 @@ struct FileMonitorImpl
 						, st.file_type == Stat::FileType::DIRECTORY
 						, path.c_str()
 						, NULL
-					);
+						);
 
 					if (st.file_type == Stat::FileType::DIRECTORY)
 						scan_subdirectories(path.c_str());
@@ -236,7 +236,7 @@ struct FileMonitorImpl
 						, false // FIXME: add "unknown" type or always assume file and let client handle that?
 						, path.c_str()
 						, NULL
-					);
+						);
 				}
 				else if (fni->Action == FILE_ACTION_MODIFIED)
 				{

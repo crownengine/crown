@@ -60,7 +60,7 @@ static int msghandler(lua_State* L) {
 			return 1;  /* that is the message */
 		else
 			msg = lua_pushfstring(L, "(error object is a %s value)",
-								 luaL_typename(L, 1));
+				luaL_typename(L, 1));
 	}
 	luaL_traceback(L, L, msg, 1);  /* append a standard traceback */
 	return 1;  /* return the traceback */

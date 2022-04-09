@@ -64,15 +64,15 @@ namespace error
 
 		UINT num = 0;
 		while (StackWalk64(mtype
-				, GetCurrentProcess()
-				, GetCurrentThread()
-				, &stack
-				, &ctx
-				, NULL
-				, SymFunctionTableAccess64
-				, SymGetModuleBase64
-				, NULL
-				))
+			, GetCurrentProcess()
+			, GetCurrentThread()
+			, &stack
+			, &ctx
+			, NULL
+			, SymFunctionTableAccess64
+			, SymGetModuleBase64
+			, NULL
+			))
 		{
 			if (stack.AddrPC.Offset == 0)
 				break;
@@ -80,10 +80,10 @@ namespace error
 			++num;
 
 			BOOL res = SymGetLineFromAddr64(GetCurrentProcess()
-						, stack.AddrPC.Offset
-						, &ldsp
-						, &line
-						);
+				, stack.AddrPC.Offset
+				, &ldsp
+				, &line
+				);
 			res = res && SymFromAddr(GetCurrentProcess(), stack.AddrPC.Offset, 0, sym);
 
 			char str[512];
