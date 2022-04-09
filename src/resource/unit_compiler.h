@@ -8,7 +8,6 @@
 #include "config.h"
 
 #if CROWN_CAN_COMPILE
-
 #include "core/containers/types.h"
 #include "core/json/types.h"
 #include "core/strings/string_id.h"
@@ -70,7 +69,6 @@ struct UnitCompiler
 
 	///
 	~UnitCompiler();
-
 
 	///
 	Buffer read_unit(const char* name);

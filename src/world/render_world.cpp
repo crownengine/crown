@@ -875,7 +875,6 @@ void RenderWorld::SpriteManager::draw(u8 view, ResourceManager* rm, ShaderManage
 
 		vdata = (f32*)tvb.data;
 		idata = (u16*)tib.data;
-
 	}
 
 	// Render all sprites.

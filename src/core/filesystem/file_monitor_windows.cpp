@@ -6,7 +6,6 @@
 #include "core/platform.h"
 
 #if CROWN_PLATFORM_WINDOWS
-
 #include "core/containers/hash_map.inl"
 #include "core/filesystem/file_monitor.h"
 #include "core/filesystem/path.h"
@@ -313,7 +312,6 @@ struct FileMonitorImpl
 			filename += (char)name[ii];
 		path::join(path, path_base.c_str(), filename.c_str());
 	}
-
 };
 
 FileMonitor::FileMonitor(Allocator& a)

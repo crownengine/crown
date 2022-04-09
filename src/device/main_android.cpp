@@ -6,7 +6,6 @@
 #include "config.h"
 
 #if CROWN_PLATFORM_ANDROID
-
 #include "core/error/error.inl"
 #include "core/guid.h"
 #include "core/memory/globals.h"

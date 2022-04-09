@@ -6,7 +6,6 @@
 #include "core/platform.h"
 
 #if !CROWN_PLATFORM_LINUX && !CROWN_PLATFORM_WINDOWS
-
 #include "core/filesystem/file_monitor.h"
 
 namespace crown

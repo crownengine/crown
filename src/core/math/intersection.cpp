@@ -82,7 +82,6 @@ f32 ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x
 
 			if (tmax < tmin)
 				return -1.0f;
-
 		}
 		else
 		{
@@ -137,7 +136,6 @@ f32 ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x
 
 			if (tmin > tmax)
 				return -1.0f;
-
 		}
 		else
 		{

@@ -6,7 +6,6 @@
 #include "config.h"
 
 #if CROWN_CAN_COMPILE
-
 #include "core/containers/array.inl"
 #include "core/containers/hash_map.inl"
 #include "core/filesystem/file_buffer.inl"

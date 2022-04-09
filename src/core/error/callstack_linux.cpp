@@ -6,7 +6,6 @@
 #include "core/platform.h"
 
 #if CROWN_PLATFORM_LINUX && (CROWN_COMPILER_GCC || CROWN_COMPILER_CLANG)
-
 #include "core/strings/string.inl"
 #include "core/strings/string_stream.inl"
 #include <cxxabi.h>

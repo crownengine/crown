@@ -6,7 +6,6 @@
 #include "config.h"
 
 #if CROWN_PLATFORM_LINUX
-
 #include "core/command_line.h"
 #include "core/containers/array.inl"
 #include "core/guid.h"
@@ -640,7 +639,6 @@ static LinuxDevice s_ldvc;
 
 struct WindowX11 : public Window
 {
-
 	WindowX11()
 	{
 	}

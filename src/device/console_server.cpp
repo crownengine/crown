@@ -273,7 +273,6 @@ void ConsoleServer::execute_message_handlers(bool sync)
 		const char* msg = array::begin(*_input_read) + fb.position();
 		br.skip(msg_len);
 
-
 		// Process message.
 		JsonObject obj(default_allocator());
 		sjson::parse(obj, msg);

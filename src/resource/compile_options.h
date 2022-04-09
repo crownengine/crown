@@ -8,7 +8,6 @@
 #include "config.h"
 
 #if CROWN_CAN_COMPILE
-
 #include "core/containers/types.h"
 #include "core/filesystem/reader_writer.h"
 #include "core/filesystem/types.h"

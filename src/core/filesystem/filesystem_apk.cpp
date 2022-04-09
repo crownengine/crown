@@ -6,7 +6,6 @@
 #include "core/platform.h"
 
 #if CROWN_PLATFORM_ANDROID
-
 #include "core/containers/vector.inl"
 #include "core/filesystem/file.h"
 #include "core/filesystem/filesystem_apk.h"

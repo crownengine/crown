@@ -6,7 +6,6 @@
 #include "config.h"
 
 #if CROWN_PHYSICS_BULLET
-
 #include "core/containers/array.inl"
 #include "core/containers/hash_map.inl"
 #include "core/math/color4.inl"

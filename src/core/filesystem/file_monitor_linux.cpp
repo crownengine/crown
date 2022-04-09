@@ -6,7 +6,6 @@
 #include "core/platform.h"
 
 #if CROWN_PLATFORM_LINUX
-
 #include "core/containers/hash_map.inl"
 #include "core/filesystem/file_monitor.h"
 #include "core/filesystem/path.h"
@@ -339,7 +338,6 @@ struct FileMonitorImpl
 		path_base = hash_map::get(_watches, wd, path_base);
 		path::join(path, path_base.c_str(), name);
 	}
-
 };
 
 FileMonitor::FileMonitor(Allocator& a)

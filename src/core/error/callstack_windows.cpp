@@ -6,7 +6,6 @@
 #include "core/platform.h"
 
 #if CROWN_PLATFORM_WINDOWS
-
 #include "core/strings/string_stream.inl"
 #ifndef WIN32_LEAN_AND_MEAN
 	#define WIN32_LEAN_AND_MEAN

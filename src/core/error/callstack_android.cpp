@@ -6,7 +6,6 @@
 #include "core/platform.h"
 
 #if CROWN_PLATFORM_ANDROID
-
 #include "core/strings/string_stream.inl"
 
 namespace crown

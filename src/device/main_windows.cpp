@@ -6,7 +6,6 @@
 #include "config.h"
 
 #if CROWN_PLATFORM_WINDOWS
-
 #include "core/command_line.h"
 #include "core/containers/array.inl"
 #include "core/guid.h"
@@ -501,7 +500,6 @@ struct WindowsDevice
 						SetCursorPos(mouse_pos.x, mouse_pos.y);
 						_mouse_last_x = (s16)width/2;
 						_mouse_last_y = (s16)height/2;
-
 					}
 				}
 				else if (_cursor_mode == CursorMode::NORMAL)

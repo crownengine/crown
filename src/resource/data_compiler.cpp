@@ -6,7 +6,6 @@
 #include "config.h"
 
 #if CROWN_CAN_COMPILE
-
 #include "core/containers/hash_map.inl"
 #include "core/containers/hash_set.inl"
 #include "core/containers/vector.inl"
@@ -480,7 +479,6 @@ static void write_data_versions(FilesystemDisk& data_fs, const char* filename, c
 	File* file = data_fs.open(filename, FileOpenMode::WRITE);
 	if (file->is_open())
 	{
-
 		auto cur = hash_map::begin(versions);
 		auto end = hash_map::end(versions);
 		for (; cur != end; ++cur)
@@ -502,7 +500,6 @@ static void write_data_mtimes(FilesystemDisk& data_fs, const char* filename, con
 	File* file = data_fs.open(filename, FileOpenMode::WRITE);
 	if (file->is_open())
 	{
-
 		auto cur = hash_map::begin(mtimes);
 		auto end = hash_map::end(mtimes);
 		for (; cur != end; ++cur)

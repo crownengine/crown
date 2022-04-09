@@ -6,7 +6,6 @@
 #include "config.h"
 
 #if CROWN_PHYSICS_NOOP
-
 #include "core/containers/array.inl"
 #include "core/math/constants.h"
 #include "core/memory/memory.inl"

@@ -6,7 +6,6 @@
 #include "config.h"
 
 #if CROWN_SOUND_NOOP
-
 #include "core/memory/allocator.h"
 #include "core/memory/memory.inl"
 #include "world/audio.h"

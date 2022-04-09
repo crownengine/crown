@@ -170,7 +170,6 @@ namespace expression_language
 		unsigned 	arity;		///< The number of arguments that the function takes.
 	};
 
-
 	/// Represents the environment in which we are compiling -- the available variables,
 	/// constants and functions.
 	struct CompileEnvironment

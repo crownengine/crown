@@ -6,7 +6,6 @@
 #include "config.h"
 
 #if CROWN_BUILD_UNIT_TESTS
-
 #include "core/command_line.h"
 #include "core/containers/array.inl"
 #include "core/containers/hash_map.inl"
