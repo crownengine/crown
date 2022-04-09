@@ -517,16 +517,15 @@ struct PhysicsWorldImpl
 		if (is_kinematic)
 			body->setActivationState(DISABLE_DEACTIVATION);
 
-		body->setLinearFactor(btVector3(
-			(ar->flags & ActorFlags::LOCK_TRANSLATION_X) ? 0.0f : 1.0f,
-			(ar->flags & ActorFlags::LOCK_TRANSLATION_Y) ? 0.0f : 1.0f,
-			(ar->flags & ActorFlags::LOCK_TRANSLATION_Z) ? 0.0f : 1.0f)
-		);
-		body->setAngularFactor(btVector3(
-			(ar->flags & ActorFlags::LOCK_ROTATION_X) ? 0.0f : 1.0f,
-			(ar->flags & ActorFlags::LOCK_ROTATION_Y) ? 0.0f : 1.0f,
-			(ar->flags & ActorFlags::LOCK_ROTATION_Z) ? 0.0f : 1.0f)
-		);
+		body->setLinearFactor(btVector3((ar->flags & ActorFlags::LOCK_TRANSLATION_X) ? 0.0f : 1.0f
+			, (ar->flags & ActorFlags::LOCK_TRANSLATION_Y) ? 0.0f : 1.0f
+			, (ar->flags & ActorFlags::LOCK_TRANSLATION_Z) ? 0.0f : 1.0f
+			));
+
+		body->setAngularFactor(btVector3((ar->flags & ActorFlags::LOCK_ROTATION_X) ? 0.0f : 1.0f
+			, (ar->flags & ActorFlags::LOCK_ROTATION_Y) ? 0.0f : 1.0f
+			, (ar->flags & ActorFlags::LOCK_ROTATION_Z) ? 0.0f : 1.0f
+			));
 
 		const u32 last = array::size(_actor);
 		body->setUserPointer((void*)(uintptr_t)last);
