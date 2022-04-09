@@ -76,6 +76,7 @@ inline StringStream& operator<<(StringStream& s, const char* str)
 	array::push(s, str, strlen32(str));
 	return s;
 }
+
 /// @}
 
 namespace string_stream
