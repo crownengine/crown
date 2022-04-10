@@ -10,6 +10,7 @@
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string.inl"
+#include "core/strings/string.h"
 
 namespace crown
 {

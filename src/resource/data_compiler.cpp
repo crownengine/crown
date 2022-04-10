@@ -23,6 +23,7 @@
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string_id.inl"
 #include "core/strings/string_stream.inl"
+#include "core/strings/string.h"
 #include "core/time.h"
 #include "device/console_server.h"
 #include "device/device_options.h"
