@@ -117,20 +117,9 @@ inline Matrix3x3 operator*(Matrix3x3 a, const Matrix3x3& b)
 /// Transposes the matrix @a m and returns the result.
 inline Matrix3x3& transpose(Matrix3x3& m)
 {
-	f32 tmp;
-
-	tmp = m.x.y;
-	m.x.y = m.y.x;
-	m.y.x = tmp;
-
-	tmp = m.x.z;
-	m.x.z = m.z.x;
-	m.z.x = tmp;
-
-	tmp = m.y.z;
-	m.y.z = m.z.y;
-	m.z.y = tmp;
-
+	exchange(m.x.y, m.y.x);
+	exchange(m.x.z, m.z.x);
+	exchange(m.y.z, m.z.y);
 	return m;
 }
 

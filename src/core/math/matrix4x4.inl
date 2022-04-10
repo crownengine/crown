@@ -167,32 +167,12 @@ inline bool operator==(const Matrix4x4& a, const Matrix4x4& b)
 /// Transposes the matrix @a m and returns the result.
 inline Matrix4x4& transpose(Matrix4x4& m)
 {
-	f32 tmp;
-
-	tmp = m.x.y;
-	m.x.y = m.y.x;
-	m.y.x = tmp;
-
-	tmp = m.x.z;
-	m.x.z = m.z.x;
-	m.z.x = tmp;
-
-	tmp = m.x.w;
-	m.x.w = m.t.x;
-	m.t.x = tmp;
-
-	tmp = m.y.z;
-	m.y.z = m.z.y;
-	m.z.y = tmp;
-
-	tmp = m.y.w;
-	m.y.w = m.t.y;
-	m.t.y = tmp;
-
-	tmp = m.z.w;
-	m.z.w = m.t.z;
-	m.t.z = tmp;
-
+	exchange(m.x.y, m.y.x);
+	exchange(m.x.z, m.z.x);
+	exchange(m.x.w, m.t.x);
+	exchange(m.y.z, m.z.y);
+	exchange(m.y.w, m.t.y);
+	exchange(m.z.w, m.t.z);
 	return m;
 }
 
