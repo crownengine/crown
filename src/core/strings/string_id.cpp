@@ -7,7 +7,9 @@
 #include "core/murmur.h"
 #include "core/strings/string.inl"
 #include "core/strings/string_id.h"
+#include <errno.h>
 #include <inttypes.h> // PRIx64
+#include <stdlib.h>   // strto*
 
 namespace crown
 {
@@ -30,9 +32,9 @@ void StringId32::hash(const char* str, u32 len)
 void StringId32::parse(const char* str)
 {
 	CE_ENSURE(NULL != str);
-	int num = sscanf(str, "%8x", &_id);
-	CE_ENSURE(num == 1);
-	CE_UNUSED(num);
+	errno = 0;
+	_id = strtoul(str, NULL, 16);
+	CE_ENSURE(errno != ERANGE && errno != EINVAL);
 }
 
 const char* StringId32::to_string(char* buf, u32 len) const
@@ -59,13 +61,10 @@ void StringId64::hash(const char* str, u32 len)
 
 void StringId64::parse(const char* str)
 {
-	u32 id[2];
 	CE_ENSURE(NULL != str);
-	int num = sscanf(str, "%8x%8x", &id[0], &id[1]);
-	_id =  u64(id[0]) << 32;
-	_id |= u64(id[1]) <<  0;
-	CE_ENSURE(num == 2);
-	CE_UNUSED(num);
+	errno = 0;
+	_id = strtoull(str, NULL, 16);
+	CE_ENSURE(errno != ERANGE && errno != EINVAL);
 }
 
 const char* StringId64::to_string(char* buf, u32 len) const

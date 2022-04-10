@@ -8,7 +8,8 @@
 #include "core/filesystem/path.h"
 #include "core/strings/dynamic_string.inl"
 #include "device/device_options.h"
-#include <stdlib.h>
+#include <errno.h>
+#include <stdlib.h> // strto*
 
 namespace crown
 {
@@ -205,7 +206,9 @@ int DeviceOptions::parse(bool* quit)
 	const char* parent = cl.get_parameter(0, "parent-window");
 	if (parent)
 	{
-		if (sscanf(parent, "%u", &_parent_window) != 1)
+		errno = 0;
+		_parent_window = strtoul(parent, NULL, 10);
+		if (errno == ERANGE || errno == EINVAL)
 		{
 			help("Parent window is invalid.");
 			return EXIT_FAILURE;
@@ -215,7 +218,9 @@ int DeviceOptions::parse(bool* quit)
 	const char* port = cl.get_parameter(0, "console-port");
 	if (port)
 	{
-		if (sscanf(port, "%hu", &_console_port) != 1)
+		errno = 0;
+		_console_port = strtoul(port, NULL, 10);
+		if (errno == ERANGE || errno == EINVAL)
 		{
 			help("Console port is invalid.");
 			return EXIT_FAILURE;
@@ -238,8 +243,9 @@ int DeviceOptions::parse(bool* quit)
 		}
 		else
 		{
-			u32 bits;
-			if (sscanf(string_id_bits, "%u", &bits) != 1 || (bits != 32 && bits != 64))
+			errno = 0;
+			u32 bits = strtoul(string_id_bits, NULL, 10);
+			if (errno == ERANGE || errno == EINVAL || (bits != 32 && bits != 64))
 			{
 				help("string-id: bits must be 32 or 64.");
 				*quit = true;

@@ -11,6 +11,8 @@
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string.h"
 #include "core/strings/string.inl"
+#include <errno.h>
+#include <stdlib.h> // strtod
 
 namespace crown
 {
@@ -123,10 +125,9 @@ namespace json
 
 		array::push_back(number, '\0');
 
-		f64 val;
-		int ok = sscanf(array::begin(number), "%lf", &val);
-		CE_ASSERT(ok == 1, "Failed to parse f64: %s", array::begin(number));
-		CE_UNUSED(ok);
+		errno = 0;
+		f64 val = strtod(array::begin(number), NULL);
+		CE_ASSERT(errno != ERANGE && errno != EINVAL, "Failed to parse f64: %s", array::begin(number));
 		return val;
 	}
 

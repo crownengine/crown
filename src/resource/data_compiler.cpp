@@ -370,8 +370,7 @@ static void parse_data_mtimes(HashMap<StringId64, u64>& mtimes, const JsonObject
 		DynamicString mtime_json(ta);
 		sjson::parse_string(mtime_json, cur->second);
 
-		u64 mtime;
-		sscanf(mtime_json.c_str(), "%" SCNu64, &mtime);
+		u64 mtime = strtoull(mtime_json.c_str(), NULL, 10);
 		hash_map::set(mtimes, id, mtime);
 	}
 }
