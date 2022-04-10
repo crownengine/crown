@@ -6,7 +6,8 @@
 #include "core/error/error.inl"
 #include "core/guid.h"
 #include "core/platform.h"
-#include <stdio.h>  // sscanf
+#include <stdio.h> // sscanf
+#include <stb_sprintf.h>
 
 #if CROWN_PLATFORM_POSIX
 	#include <fcntl.h>
@@ -85,7 +86,7 @@ namespace guid
 
 	const char* to_string(char* buf, u32 len, const Guid& guid)
 	{
-		snprintf(buf, len, "%.8x-%.4x-%.4x-%.4x-%.4x%.8x"
+		stbsp_snprintf(buf, len, "%.8x-%.4x-%.4x-%.4x-%.4x%.8x"
 			, (u32)((guid.data1 & 0xffffffff00000000u) >> 32)
 			, (u16)((guid.data1 & 0x00000000ffff0000u) >> 16)
 			, (u16)((guid.data1 & 0x000000000000ffffu) >>  0)

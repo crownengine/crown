@@ -10,6 +10,7 @@
 #include "device/log.h"
 #include <stdarg.h>
 #include <stdlib.h> // exit
+#include <stb_sprintf.h>
 
 LOG_SYSTEM(ERROR, "error")
 
@@ -20,7 +21,7 @@ namespace error
 	static void abort(const char* format, va_list args)
 	{
 		char buf[1024];
-		vsnprintf(buf, sizeof(buf), format, args);
+		stbsp_vsnprintf(buf, sizeof(buf), format, args);
 
 		TempAllocator4096 ta;
 		StringStream ss(ta);

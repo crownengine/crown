@@ -14,6 +14,8 @@
 #include <stdlib.h>
 #include <string.h> // strchr
 #include <unistd.h> // getpid
+#include <stdio.h>  // popen
+#include <stb_sprintf.h>
 
 namespace crown
 {
@@ -22,7 +24,7 @@ namespace error
 	static const char* addr2line(const char* addr, char* line, int len)
 	{
 		char buf[256];
-		snprintf(buf, sizeof(buf), "addr2line -s -e /proc/%u/exe %s", getpid(), addr);
+		stbsp_snprintf(buf, sizeof(buf), "addr2line -s -e /proc/%u/exe %s", getpid(), addr);
 		FILE* f = popen(buf, "r");
 		if (f)
 		{
@@ -67,7 +69,7 @@ namespace error
 				char line[256];
 				memset(line, 0, sizeof(line));
 
-				snprintf(buf
+				stbsp_snprintf(buf
 					, sizeof(buf)
 					, "    [%2d] %s: (%s)+%s in %s\n"
 					, i
@@ -81,7 +83,7 @@ namespace error
 			}
 			else
 			{
-				snprintf(buf, sizeof(buf), "    [%2d] %s\n", i, msg);
+				stbsp_snprintf(buf, sizeof(buf), "    [%2d] %s\n", i, msg);
 			}
 
 			ss << buf;

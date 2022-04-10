@@ -22,6 +22,8 @@
 #include <winsock2.h>
 #include <windowsx.h> // GET_X_LPARAM, GET_Y_LPARAM
 #include <xinput.h>
+#define STB_SPRINTF_IMPLEMENTATION
+#include <stb_sprintf.h>
 
 namespace crown
 {

@@ -9,7 +9,8 @@
 #include "core/strings/dynamic_string.inl"
 #include "device/device_options.h"
 #include <errno.h>
-#include <stdlib.h> // strto*
+#include <stdio.h>  // printf
+#include <stdlib.h> // EXIT_SUCCESS, strto* etc.
 
 namespace crown
 {

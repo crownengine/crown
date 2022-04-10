@@ -17,6 +17,7 @@
 #include <dbghelp.h>
 #pragma warning(pop)
 #include <new>
+#include <stb_sprintf.h>
 
 namespace crown
 {
@@ -90,7 +91,7 @@ namespace error
 
 			if (res == TRUE)
 			{
-				snprintf(str
+				stbsp_snprintf(str
 					, sizeof(str)
 					, "    [%2i] %s in %s:%d\n"
 					, num
@@ -101,7 +102,7 @@ namespace error
 			}
 			else
 			{
-				snprintf(str
+				stbsp_snprintf(str
 					, sizeof(str)
 					, "    [%2i] 0x%p\n"
 					, num

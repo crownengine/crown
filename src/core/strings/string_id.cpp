@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <inttypes.h> // PRIx64
 #include <stdlib.h>   // strto*
+#include <stb_sprintf.h>
 
 namespace crown
 {
@@ -39,7 +40,7 @@ void StringId32::parse(const char* str)
 
 const char* StringId32::to_string(char* buf, u32 len) const
 {
-	snprintf(buf, len, "%.8x", _id);
+	stbsp_snprintf(buf, len, "%.8x", _id);
 	return buf;
 }
 
@@ -69,7 +70,7 @@ void StringId64::parse(const char* str)
 
 const char* StringId64::to_string(char* buf, u32 len) const
 {
-	snprintf(buf, len, "%.16" PRIx64, _id);
+	stbsp_snprintf(buf, len, "%.16" PRIx64, _id);
 	return buf;
 }
 

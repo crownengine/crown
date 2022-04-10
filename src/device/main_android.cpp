@@ -19,6 +19,8 @@
 #include <bgfx/platform.h>
 #include <jni.h>
 #include <stdlib.h>
+#define STB_SPRINTF_IMPLEMENTATION
+#include <stb_sprintf.h>
 
 extern "C"
 {

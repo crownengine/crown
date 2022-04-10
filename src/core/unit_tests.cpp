@@ -39,6 +39,7 @@
 #include "core/thread/thread.h"
 #include "core/time.h"
 #include <stdlib.h> // EXIT_SUCCESS, EXIT_FAILURE
+#include <stdio.h>  // printf
 
 #undef CE_ASSERT
 #undef CE_ENSURE

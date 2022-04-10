@@ -6,6 +6,7 @@
 #include "core/memory/temp_allocator.inl"
 #include "core/process.h"
 #include "core/strings/string_stream.inl"
+#include <stdio.h> // fdopen etc.
 
 #if CROWN_PLATFORM_POSIX
 	#include <unistd.h>   // fork, execvp

@@ -8,6 +8,7 @@
 #include "core/containers/array.inl"
 #include "core/strings/string.inl"
 #include "core/strings/string_stream.h"
+#include <stb_sprintf.h>
 
 namespace crown
 {
@@ -90,7 +91,7 @@ namespace string_stream
 	inline StringStream& stream_printf(StringStream& s, const char* format, T& val)
 	{
 		char buf[32];
-		snprintf(buf, sizeof(buf), format, val);
+		stbsp_snprintf(buf, sizeof(buf), format, val);
 		return s << buf;
 	}
 

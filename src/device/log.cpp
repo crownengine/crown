@@ -11,6 +11,7 @@
 #include "core/thread/scoped_mutex.inl"
 #include "device/console_server.h"
 #include "device/log.h"
+#include <stb_sprintf.h>
 
 namespace crown
 {
@@ -29,9 +30,9 @@ namespace log_internal
 		const char* stt[] = { ANSI_RESET, ANSI_YELLOW, ANSI_RED };
 		CE_STATIC_ASSERT(countof(stt) == LogSeverity::COUNT);
 
-		snprintf(buf, sizeof(buf), "%s%s: %s\n" ANSI_RESET, stt[sev], system.name, msg);
+		stbsp_snprintf(buf, sizeof(buf), "%s%s: %s\n" ANSI_RESET, stt[sev], system.name, msg);
 #else
-		snprintf(buf, sizeof(buf), "%s: %s\n", system.name, msg);
+		stbsp_snprintf(buf, sizeof(buf), "%s: %s\n", system.name, msg);
 #endif
 		os::log(buf);
 	}
@@ -72,7 +73,7 @@ namespace log_internal
 		ScopedMutex sm(s_mutex);
 
 		char buf[8192];
-		vsnprintf(buf, sizeof(buf), msg, args);
+		stbsp_vsnprintf(buf, sizeof(buf), msg, args);
 
 		stdout_log(sev, system, buf);
 		console_log(sev, system, buf);

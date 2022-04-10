@@ -7,7 +7,7 @@
 #include "core/math/types.h"
 #include "core/types.h"
 #include <math.h>
-#include <stdio.h> // snprintf
+#include <stb_sprintf.h>
 
 namespace crown
 {
@@ -115,19 +115,19 @@ f32 catmull_rom(const f32 p0, const f32 p1, const f32 p2, const f32 p3, f32 t)
 
 const char* to_string(char* buf, u32 buf_len, const Vector3& v)
 {
-	snprintf(buf, buf_len, "( %.4f, %.4f, %.4f )", v.x, v.y, v.z);
+	stbsp_snprintf(buf, buf_len, "( %.4f, %.4f, %.4f )", v.x, v.y, v.z);
 	return buf;
 }
 
 const char* to_string(char* buf, u32 buf_len, const Vector4& v)
 {
-	snprintf(buf, buf_len, "( %.4f, %.4f, %.4f, %.4f )", v.x, v.y, v.z, v.w);
+	stbsp_snprintf(buf, buf_len, "( %.4f, %.4f, %.4f, %.4f )", v.x, v.y, v.z, v.w);
 	return buf;
 }
 
 const char* to_string(char* buf, u32 buf_len, const Quaternion& q)
 {
-	snprintf(buf, buf_len, "( %.4f, %.4f, %.4f, %.4f )", q.x, q.y, q.z, q.w);
+	stbsp_snprintf(buf, buf_len, "( %.4f, %.4f, %.4f, %.4f )", q.x, q.y, q.z, q.w);
 	return buf;
 }
 
@@ -137,7 +137,7 @@ const char* to_string(char* buf, u32 buf_len, const Matrix4x4& m)
 	char bufy[256];
 	char bufz[256];
 	char bufw[256];
-	snprintf(buf, buf_len,
+	stbsp_snprintf(buf, buf_len,
 		"( %s, %s, %s, %s )"
 		, to_string(bufx, sizeof(bufx), m.x)
 		, to_string(bufy, sizeof(bufy), m.y)

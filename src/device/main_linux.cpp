@@ -31,6 +31,8 @@
 #include <X11/XKBlib.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#define STB_SPRINTF_IMPLEMENTATION
+#include <stb_sprintf.h>
 
 namespace crown
 {
