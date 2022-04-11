@@ -12,7 +12,6 @@ jobs:
         sudo apt-get update
         sudo apt-get install codespell
         sudo apt-get install python3-sphinx
-        sudo apt-get install doxygen
     - name: spellcheck
       run: |
         make codespell

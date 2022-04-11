@@ -165,7 +165,6 @@ tools-mingw-release64: level-editor-mingw-release64
 .PHONY: docs
 docs:
 	$(MAKE) -C docs/ html
-	doxygen docs/doxygen/Doxyfile.doxygen
 
 .PHONY: 00-empty
 00-empty: $(OS)-development64
@@ -200,7 +199,7 @@ clean-samples:
 codespell:
 	@codespell docs src tools tools-imgui \
 		--ignore-words=scripts/codespell-dictionary.txt \
-		--skip "Doxyfile.doxygen,*.ttf.h,*.png,docs/_themes,tools/level_editor/resources/theme/Adwaita" \
+		--skip "*.ttf.h,*.png,docs/_themes,tools/level_editor/resources/theme/Adwaita" \
 		-q4 # 4: omit warnings about automatic fixes that were disabled in the dictionary.
 
 .PHONY: clean

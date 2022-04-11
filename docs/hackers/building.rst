@@ -42,7 +42,6 @@ To build documentation you will also need:
 .. code::
 
 	sudo apt-get install python3-sphinx
-	sudo apt-get install doxygen
 
 Windows (VS 2019)
 -----------------
