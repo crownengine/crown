@@ -503,13 +503,13 @@ void RenderWorld::MeshManager::allocate(u32 num)
 	new_data.buffer = _allocator->allocate(bytes);
 	new_data.first_hidden = _data.first_hidden;
 
-	new_data.unit          = (UnitId*             )memory::align_top(new_data.buffer,         alignof(UnitId       ));
+	new_data.unit          = (UnitId*             )memory::align_top(new_data.buffer,         alignof(UnitId));
 	new_data.resource      = (const MeshResource**)memory::align_top(new_data.unit + num,     alignof(MeshResource*));
 	new_data.geometry      = (const MeshGeometry**)memory::align_top(new_data.resource + num, alignof(MeshGeometry*));
-	new_data.mesh          = (MeshData*           )memory::align_top(new_data.geometry + num, alignof(MeshData     ));
-	new_data.material      = (StringId64*         )memory::align_top(new_data.mesh + num,     alignof(StringId64   ));
-	new_data.world         = (Matrix4x4*          )memory::align_top(new_data.material + num, alignof(Matrix4x4    ));
-	new_data.obb           = (OBB*                )memory::align_top(new_data.world + num,    alignof(OBB          ));
+	new_data.mesh          = (MeshData*           )memory::align_top(new_data.geometry + num, alignof(MeshData));
+	new_data.material      = (StringId64*         )memory::align_top(new_data.mesh + num,     alignof(StringId64));
+	new_data.world         = (Matrix4x4*          )memory::align_top(new_data.material + num, alignof(Matrix4x4));
+	new_data.obb           = (OBB*                )memory::align_top(new_data.world + num,    alignof(OBB));
 
 	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
 	memcpy(new_data.resource, _data.resource, _data.size * sizeof(MeshResource*));
@@ -692,16 +692,16 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 	new_data.buffer = _allocator->allocate(bytes);
 	new_data.first_hidden = _data.first_hidden;
 
-	new_data.unit     = (UnitId*               )memory::align_top(new_data.buffer,         alignof(UnitId         ));
+	new_data.unit     = (UnitId*               )memory::align_top(new_data.buffer,         alignof(UnitId));
 	new_data.resource = (const SpriteResource**)memory::align_top(new_data.unit + num,     alignof(SpriteResource*));
-	new_data.material = (StringId64*           )memory::align_top(new_data.resource + num, alignof(StringId64     ));
-	new_data.frame    = (u32*                  )memory::align_top(new_data.material + num, alignof(u32            ));
-	new_data.world    = (Matrix4x4*            )memory::align_top(new_data.frame + num,    alignof(Matrix4x4      ));
-	new_data.aabb     = (AABB*                 )memory::align_top(new_data.world + num,    alignof(AABB           ));
-	new_data.flip_x   = (bool*                 )memory::align_top(new_data.aabb + num,     alignof(bool           ));
-	new_data.flip_y   = (bool*                 )memory::align_top(new_data.flip_x + num,   alignof(bool           ));
-	new_data.layer    = (u32*                  )memory::align_top(new_data.flip_y + num,   alignof(u32            ));
-	new_data.depth    = (u32*                  )memory::align_top(new_data.layer + num,    alignof(u32            ));
+	new_data.material = (StringId64*           )memory::align_top(new_data.resource + num, alignof(StringId64));
+	new_data.frame    = (u32*                  )memory::align_top(new_data.material + num, alignof(u32));
+	new_data.world    = (Matrix4x4*            )memory::align_top(new_data.frame + num,    alignof(Matrix4x4));
+	new_data.aabb     = (AABB*                 )memory::align_top(new_data.world + num,    alignof(AABB));
+	new_data.flip_x   = (bool*                 )memory::align_top(new_data.aabb + num,     alignof(bool));
+	new_data.flip_y   = (bool*                 )memory::align_top(new_data.flip_x + num,   alignof(bool));
+	new_data.layer    = (u32*                  )memory::align_top(new_data.flip_y + num,   alignof(u32));
+	new_data.depth    = (u32*                  )memory::align_top(new_data.layer + num,    alignof(u32));
 
 	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
 	memcpy(new_data.resource, _data.resource, _data.size * sizeof(SpriteResource**));
@@ -973,13 +973,13 @@ void RenderWorld::LightManager::allocate(u32 num)
 	new_data.capacity = num;
 	new_data.buffer = _allocator->allocate(bytes);
 
-	new_data.unit       = (UnitId*   )memory::align_top(new_data.buffer,           alignof(UnitId   ));
+	new_data.unit       = (UnitId*   )memory::align_top(new_data.buffer,           alignof(UnitId));
 	new_data.world      = (Matrix4x4*)memory::align_top(new_data.unit + num,       alignof(Matrix4x4));
-	new_data.range      = (f32*      )memory::align_top(new_data.world + num,      alignof(f32      ));
-	new_data.intensity  = (f32*      )memory::align_top(new_data.range + num,      alignof(f32      ));
-	new_data.spot_angle = (f32*      )memory::align_top(new_data.intensity + num,  alignof(f32      ));
-	new_data.color      = (Color4*   )memory::align_top(new_data.spot_angle + num, alignof(Color4   ));
-	new_data.type       = (u32*      )memory::align_top(new_data.color + num,      alignof(u32      ));
+	new_data.range      = (f32*      )memory::align_top(new_data.world + num,      alignof(f32));
+	new_data.intensity  = (f32*      )memory::align_top(new_data.range + num,      alignof(f32));
+	new_data.spot_angle = (f32*      )memory::align_top(new_data.intensity + num,  alignof(f32));
+	new_data.color      = (Color4*   )memory::align_top(new_data.spot_angle + num, alignof(Color4));
+	new_data.type       = (u32*      )memory::align_top(new_data.color + num,      alignof(u32));
 
 	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
 	memcpy(new_data.world, _data.world, _data.size * sizeof(Matrix4x4));

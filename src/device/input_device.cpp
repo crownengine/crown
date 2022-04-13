@@ -221,13 +221,13 @@ namespace input_device
 		id->_axis_name       = axis_names;
 
 		id->_last_state    = (u8*         )&id[1];
-		id->_state         = (u8*         )memory::align_top(id->_last_state + num_buttons,  alignof(u8         ));
-		id->_axis          = (Vector3*    )memory::align_top(id->_state + num_buttons,       alignof(Vector3    ));
-		id->_deadzone_mode = (u32*        )memory::align_top(id->_axis + num_axes,           alignof(u32        ));
-		id->_deadzone_size = (f32*        )memory::align_top(id->_deadzone_mode + num_axes,  alignof(f32        ));
-		id->_button_hash   = (StringId32* )memory::align_top(id->_deadzone_size + num_axes,  alignof(StringId32 ));
-		id->_axis_hash     = (StringId32* )memory::align_top(id->_button_hash + num_buttons, alignof(StringId32 ));
-		id->_name          = (char*       )memory::align_top(id->_axis_hash + num_axes,      alignof(char       ));
+		id->_state         = (u8*         )memory::align_top(id->_last_state + num_buttons,  alignof(u8));
+		id->_axis          = (Vector3*    )memory::align_top(id->_state + num_buttons,       alignof(Vector3));
+		id->_deadzone_mode = (u32*        )memory::align_top(id->_axis + num_axes,           alignof(u32));
+		id->_deadzone_size = (f32*        )memory::align_top(id->_deadzone_mode + num_axes,  alignof(f32));
+		id->_button_hash   = (StringId32* )memory::align_top(id->_deadzone_size + num_axes,  alignof(StringId32));
+		id->_axis_hash     = (StringId32* )memory::align_top(id->_button_hash + num_buttons, alignof(StringId32));
+		id->_name          = (char*       )memory::align_top(id->_axis_hash + num_axes,      alignof(char));
 
 		memset(id->_last_state, 0, sizeof(u8)*num_buttons);
 		memset(id->_state, 0, sizeof(u8)*num_buttons);
