@@ -68,7 +68,7 @@
 	#undef CROWN_PLATFORM_OSX
 	#define CROWN_PLATFORM_OSX 1
 #else
-#	error "CROWN_PLATFORM_* is not defined!"
+	#error "CROWN_PLATFORM_* is not defined!"
 #endif
 
 #define CROWN_PLATFORM_POSIX (CROWN_PLATFORM_ANDROID \
