@@ -16,15 +16,6 @@ struct lua_State;
 
 namespace crown
 {
-int report (lua_State *L, int status);
-
-/// Wraps a subset of Lua functions and provides utilities for extending Lua.
-///
-/// @ingroup Lua
-struct LuaEnvironment
-{
-	lua_State* L;
-
 #define LUA_MAX_VECTOR3 (CROWN_LUA_MAX_VECTOR3_SIZE / sizeof(Vector3))
 CE_STATIC_ASSERT(CROWN_LUA_MAX_VECTOR3_SIZE % sizeof(Vector3) == 0);
 
@@ -33,6 +24,15 @@ CE_STATIC_ASSERT(CROWN_LUA_MAX_QUATERNION_SIZE % sizeof(Quaternion) == 0);
 
 #define LUA_MAX_MATRIX4X4 (CROWN_LUA_MAX_MATRIX4X4_SIZE / sizeof(Matrix4x4))
 CE_STATIC_ASSERT(CROWN_LUA_MAX_MATRIX4X4_SIZE % sizeof(Matrix4x4) == 0);
+
+int report(lua_State* L, int status);
+
+/// Wraps a subset of Lua functions and provides utilities for extending Lua.
+///
+/// @ingroup Lua
+struct LuaEnvironment
+{
+	lua_State* L;
 
 	u32 _num_vec3;
 	CE_ALIGN_DECL(4, Vector3 _vec3[LUA_MAX_VECTOR3]);
