@@ -1490,7 +1490,7 @@ static void test_process()
 		};
 
 		Process pr;
-		s32 err = pr.spawn(argv, ProcessFlags::STDOUT_PIPE);
+		s32 err = pr.spawn(argv, CROWN_PROCESS_STDOUT_PIPE);
 		ENSURE(err == 0);
 		u32 nbr;
 		char buf[128] = {0};

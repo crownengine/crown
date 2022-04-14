@@ -19,21 +19,12 @@
 
 #define EXE_PATH(exe) EXE_PREFIX exe EXE_SUFFIX
 
+#define CROWN_PROCESS_STDIN_PIPE   UINT32_C(0x1) ///< Create stdin pipe.
+#define CROWN_PROCESS_STDOUT_PIPE  UINT32_C(0x2) ///< Create stdout pipe.
+#define CROWN_PROCESS_STDERR_MERGE UINT32_C(0x4) ///< Merge stderr with stdout.
+
 namespace crown
 {
-/// ProcessFlags
-///
-/// @ingroup Core
-struct ProcessFlags
-{
-	enum Enum
-	{
-		STDIN_PIPE   = 1 << 0, ///< Create stdin pipe.
-		STDOUT_PIPE  = 1 << 1, ///< Create stdout pipe.
-		STDERR_MERGE = 1 << 2  ///< Merge stderr with stdout.
-	};
-};
-
 /// Process.
 ///
 /// @ingroup Core

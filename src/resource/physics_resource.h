@@ -49,16 +49,13 @@ struct PhysicsCollisionFilter
 	u32 mask;
 };
 
+#define CROWN_PHYSICS_ACTOR_DYNAMIC         UINT32_C(0x1)
+#define CROWN_PHYSICS_ACTOR_KINEMATIC       UINT32_C(0x2)
+#define CROWN_PHYSICS_ACTOR_DISABLE_GRAVITY UINT32_C(0x4)
+#define CROWN_PHYSICS_ACTOR_TRIGGER         UINT32_C(0x8)
+
 struct PhysicsActor
 {
-	enum
-	{
-		DYNAMIC         = 1 << 0,
-		KINEMATIC       = 1 << 1,
-		DISABLE_GRAVITY = 1 << 2,
-		TRIGGER         = 1 << 3
-	};
-
 	StringId32 name;
 	f32 linear_damping;
 	f32 angular_damping;

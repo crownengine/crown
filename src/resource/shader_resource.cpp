@@ -499,7 +499,7 @@ namespace shader_resource_internal
 			return -1;
 		}
 
-		return pr.spawn(argv, ProcessFlags::STDOUT_PIPE | ProcessFlags::STDERR_MERGE);
+		return pr.spawn(argv, CROWN_PROCESS_STDOUT_PIPE | CROWN_PROCESS_STDERR_MERGE);
 	}
 
 	struct RenderState

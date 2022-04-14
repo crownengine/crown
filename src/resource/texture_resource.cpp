@@ -114,7 +114,7 @@ namespace texture_resource_internal
 			NULL
 		};
 		Process pr;
-		s32 sc = pr.spawn(argv, ProcessFlags::STDOUT_PIPE | ProcessFlags::STDERR_MERGE);
+		s32 sc = pr.spawn(argv, CROWN_PROCESS_STDOUT_PIPE | CROWN_PROCESS_STDERR_MERGE);
 		DATA_COMPILER_ASSERT(sc == 0
 			, opts
 			, "Failed to spawn `%s`"

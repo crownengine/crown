@@ -72,7 +72,7 @@ s32 Process::spawn(const char* const* argv, u32 flags)
 	int fildes[2];
 	pid_t pid;
 
-	if (flags & ProcessFlags::STDIN_PIPE || flags & ProcessFlags::STDOUT_PIPE)
+	if (flags & CROWN_PROCESS_STDIN_PIPE || flags & CROWN_PROCESS_STDOUT_PIPE)
 	{
 		if (pipe(fildes) < 0)
 			return -1;
@@ -87,7 +87,7 @@ s32 Process::spawn(const char* const* argv, u32 flags)
 	}
 	else if (pid == 0) // Child
 	{
-		if (flags & ProcessFlags::STDOUT_PIPE)
+		if (flags & CROWN_PROCESS_STDOUT_PIPE)
 		{
 			if (fildes[1] != STDOUT_FILENO)
 			{
@@ -97,12 +97,12 @@ s32 Process::spawn(const char* const* argv, u32 flags)
 			}
 			close(fildes[0]);
 
-			if (flags & ProcessFlags::STDERR_MERGE)
+			if (flags & CROWN_PROCESS_STDERR_MERGE)
 			{
 				dup2(fildes[1], 2);
 			}
 		}
-		else if (flags & ProcessFlags::STDIN_PIPE)
+		else if (flags & CROWN_PROCESS_STDIN_PIPE)
 		{
 			if (fildes[0] != STDIN_FILENO)
 			{
@@ -119,12 +119,12 @@ s32 Process::spawn(const char* const* argv, u32 flags)
 	}
 
 	// Parent
-	if (flags & ProcessFlags::STDOUT_PIPE)
+	if (flags & CROWN_PROCESS_STDOUT_PIPE)
 	{
 		_priv->file = fdopen(fildes[0], "r");
 		close(fildes[1]);
 	}
-	else if (flags & ProcessFlags::STDIN_PIPE)
+	else if (flags & CROWN_PROCESS_STDIN_PIPE)
 	{
 		_priv->file = fdopen(fildes[1], "w");
 		close(fildes[0]);
@@ -166,7 +166,7 @@ s32 Process::spawn(const char* const* argv, u32 flags)
 	sattr.bInheritHandle = TRUE;
 	sattr.lpSecurityDescriptor = NULL;
 
-	if (flags & ProcessFlags::STDOUT_PIPE)
+	if (flags & CROWN_PROCESS_STDOUT_PIPE)
 	{
 		// Pipe for STDOUT of child process
 		BOOL ret;
@@ -183,8 +183,8 @@ s32 Process::spawn(const char* const* argv, u32 flags)
 	STARTUPINFO info;
 	memset(&info, 0, sizeof(info));
 	info.cb = sizeof(info);
-	info.hStdOutput = (flags & ProcessFlags::STDOUT_PIPE) ? _priv->stdout_wr : 0;
-	info.hStdError = (info.hStdOutput != 0) && (flags & ProcessFlags::STDERR_MERGE) ? _priv->stdout_wr : 0;
+	info.hStdOutput = (flags & CROWN_PROCESS_STDOUT_PIPE) ? _priv->stdout_wr : 0;
+	info.hStdError = (info.hStdOutput != 0) && (flags & CROWN_PROCESS_STDERR_MERGE) ? _priv->stdout_wr : 0;
 	info.dwFlags |= (info.hStdOutput != 0 || info.hStdError != 0) ? STARTF_USESTDHANDLES : 0;
 
 	BOOL err = CreateProcess(argv[0]
@@ -201,7 +201,7 @@ s32 Process::spawn(const char* const* argv, u32 flags)
 	if (err == 0)
 		return -1;
 
-	if (flags & ProcessFlags::STDOUT_PIPE)
+	if (flags & CROWN_PROCESS_STDOUT_PIPE)
 		CloseHandle(_priv->stdout_wr);
 	return 0;
 #endif

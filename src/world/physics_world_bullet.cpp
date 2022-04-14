@@ -469,10 +469,10 @@ struct PhysicsWorldImpl
 		const PhysicsActor* actor_class = physics_config_resource::actor(_config_resource, ar->actor_class);
 		const PhysicsMaterial* material = physics_config_resource::material(_config_resource, ar->material);
 
-		const bool is_kinematic = (actor_class->flags & PhysicsActor::KINEMATIC) != 0;
-		const bool is_dynamic   = (actor_class->flags & PhysicsActor::DYNAMIC) != 0;
+		const bool is_kinematic = (actor_class->flags & CROWN_PHYSICS_ACTOR_KINEMATIC) != 0;
+		const bool is_dynamic   = (actor_class->flags & CROWN_PHYSICS_ACTOR_DYNAMIC) != 0;
 		const bool is_static    = !is_kinematic && !is_dynamic;
-		const bool is_trigger   = (actor_class->flags & PhysicsActor::TRIGGER) != 0;
+		const bool is_trigger   = (actor_class->flags & CROWN_PHYSICS_ACTOR_TRIGGER) != 0;
 
 		const f32 mass = is_dynamic ? ar->mass : 0.0f;
 

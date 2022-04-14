@@ -503,13 +503,13 @@ namespace physics_config_resource_internal
 
 			pa.flags = 0;
 			if (json_object::has(actor, "dynamic") && sjson::parse_bool(actor["dynamic"]))
-				pa.flags |= PhysicsActor::DYNAMIC;
+				pa.flags |= CROWN_PHYSICS_ACTOR_DYNAMIC;
 			if (json_object::has(actor, "kinematic") && sjson::parse_bool(actor["kinematic"]))
-				pa.flags |= PhysicsActor::KINEMATIC;
+				pa.flags |= CROWN_PHYSICS_ACTOR_KINEMATIC;
 			if (json_object::has(actor, "disable_gravity") && sjson::parse_bool(actor["disable_gravity"]))
-				pa.flags |= PhysicsActor::DISABLE_GRAVITY;
+				pa.flags |= CROWN_PHYSICS_ACTOR_DISABLE_GRAVITY;
 			if (json_object::has(actor, "trigger") && sjson::parse_bool(actor["trigger"]))
-				pa.flags |= PhysicsActor::TRIGGER;
+				pa.flags |= CROWN_PHYSICS_ACTOR_TRIGGER;
 
 			array::push_back(objects, pa);
 		}
