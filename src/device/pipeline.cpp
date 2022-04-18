@@ -24,11 +24,10 @@ struct PosTexCoord0Vertex
 
 	static void init()
 	{
-		ms_layout
-			.begin()
-			.add(bgfx::Attrib::Position,  3, bgfx::AttribType::Float)
-			.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float)
-			.end();
+		ms_layout.begin();
+		ms_layout.add(bgfx::Attrib::Position,  3, bgfx::AttribType::Float);
+		ms_layout.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float);
+		ms_layout.end();
 	}
 
 	static bgfx::VertexLayout ms_layout;

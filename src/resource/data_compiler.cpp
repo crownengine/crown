@@ -990,12 +990,13 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 	}
 
 	// Sort to_compile so that ".package" resources get compiled last
-	std::sort(vector::begin(to_compile), vector::end(to_compile), [](const DynamicString& resource_a, const DynamicString& resource_b)
-		{
+	std::sort(vector::begin(to_compile)
+		, vector::end(to_compile)
+		, [](const DynamicString& resource_a, const DynamicString& resource_b) {
 #define PACKAGE ".package"
-			if ( resource_a.has_suffix(PACKAGE) && !resource_b.has_suffix(PACKAGE))
+			if (resource_a.has_suffix(PACKAGE) && !resource_b.has_suffix(PACKAGE))
 				return false;
-			if (!resource_a.has_suffix(PACKAGE) &&  resource_b.has_suffix(PACKAGE))
+			if (!resource_a.has_suffix(PACKAGE) && resource_b.has_suffix(PACKAGE))
 				return true;
 			return resource_a < resource_b;
 #undef PACKAGE

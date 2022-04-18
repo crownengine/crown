@@ -40,12 +40,11 @@ void* GuiBuffer::index_buffer_end()
 
 void GuiBuffer::create()
 {
-	_pos_tex_col.begin()
-		.add(bgfx::Attrib::Position,  3, bgfx::AttribType::Float)
-		.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float, true)
-		.add(bgfx::Attrib::Color0,    4, bgfx::AttribType::Uint8, true)
-		.end()
-		;
+	_pos_tex_col.begin();
+	_pos_tex_col.add(bgfx::Attrib::Position,  3, bgfx::AttribType::Float);
+	_pos_tex_col.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float, true);
+	_pos_tex_col.add(bgfx::Attrib::Color0,    4, bgfx::AttribType::Uint8, true);
+	_pos_tex_col.end();
 }
 
 void GuiBuffer::reset()

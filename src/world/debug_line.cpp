@@ -28,10 +28,10 @@ DebugLine::DebugLine(ShaderManager& sm, bool depth_test)
 	, _shader(depth_test ? "debug_line" : "debug_line_noz")
 	, _num(0)
 {
-	_vertex_layout.begin()
-		.add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
-		.add(bgfx::Attrib::Color0,   4, bgfx::AttribType::Uint8, true)
-		.end();
+	_vertex_layout.begin();
+	_vertex_layout.add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float);
+	_vertex_layout.add(bgfx::Attrib::Color0,   4, bgfx::AttribType::Uint8, true);
+	_vertex_layout.end();
 }
 
 DebugLine::~DebugLine()

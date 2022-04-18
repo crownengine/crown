@@ -33,8 +33,7 @@
 #if defined(_MSC_VER)
 	#undef CROWN_COMPILER_MSVC
 	#define CROWN_COMPILER_MSVC 1
-#elif defined(__clang__)
-	// clang defines __GNUC__
+#elif defined(__clang__) // clang defines __GNUC__
 	#undef CROWN_COMPILER_CLANG
 	#define CROWN_COMPILER_CLANG 1
 #elif defined(__GNUC__)

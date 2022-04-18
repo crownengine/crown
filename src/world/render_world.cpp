@@ -865,11 +865,11 @@ void RenderWorld::SpriteManager::draw(u8 view, ResourceManager* rm, ShaderManage
 	// Allocate vertex and index buffers.
 	if (_data.first_hidden)
 	{
-		layout.begin()
-			.add(bgfx::Attrib::Position,  3, bgfx::AttribType::Float)
-			.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float, false)
-			.end()
-			;
+		layout.begin();
+		layout.add(bgfx::Attrib::Position,  3, bgfx::AttribType::Float);
+		layout.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float, false);
+		layout.end();
+
 		bgfx::allocTransientVertexBuffer(&tvb, 4*_data.first_hidden, layout);
 		bgfx::allocTransientIndexBuffer(&tib, 6*_data.first_hidden);
 

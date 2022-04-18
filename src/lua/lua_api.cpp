@@ -431,49 +431,46 @@ static void lua_dump_table(lua_State* L, int i, StringStream& json)
 		else if (stack.is_vector3(i + 2))
 		{
 			const Vector3 v = stack.get_vector3(i + 2);
-			json << "["
-				 << v.x << ","
-				 << v.y << ","
-				 << v.z
-				 << "]"
-				 ;
+			json << "[";
+			json << v.x << ",";
+			json << v.y << ",";
+			json << v.z;
+			json << "]";
 		}
 		else if (stack.is_quaternion(i + 2))
 		{
 			const Quaternion q = stack.get_quaternion(i + 2);
-			json << "["
-				 << q.x << ","
-				 << q.y << ","
-				 << q.z << ","
-				 << q.w
-				 << "]"
-				 ;
+			json << "[";
+			json << q.x << ",";
+			json << q.y << ",";
+			json << q.z << ",";
+			json << q.w;
+			json << "]";
 		}
 		else if (stack.is_matrix4x4(i + 2))
 		{
 			const Matrix4x4 m = stack.get_matrix4x4(i + 2);
-			json << "["
-				 << m.x.x << ","
-				 << m.x.y << ","
-				 << m.x.z << ","
-				 << m.x.w << ","
+			json << "[";
+			json << m.x.x << ",";
+			json << m.x.y << ",";
+			json << m.x.z << ",";
+			json << m.x.w << ",";
 
-				 << m.y.x << ","
-				 << m.y.y << ","
-				 << m.y.z << ","
-				 << m.y.w << ","
+			json << m.y.x << ",";
+			json << m.y.y << ",";
+			json << m.y.z << ",";
+			json << m.y.w << ",";
 
-				 << m.z.x << ","
-				 << m.z.y << ","
-				 << m.z.z << ","
-				 << m.z.w << ","
+			json << m.z.x << ",";
+			json << m.z.y << ",";
+			json << m.z.z << ",";
+			json << m.z.w << ",";
 
-				 << m.t.x << ","
-				 << m.t.y << ","
-				 << m.t.z << ","
-				 << m.t.w
-				 << "]"
-				 ;
+			json << m.t.x << ",";
+			json << m.t.y << ",";
+			json << m.t.z << ",";
+			json << m.t.w;
+			json << "]";
 		}
 		else if (stack.is_table(i + 2))
 		{

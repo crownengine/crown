@@ -678,7 +678,7 @@ struct PhysicsWorldImpl
 	bool actor_is_kinematic(ActorInstance actor) const
 	{
 		const int flags = _actor[actor.i].body->getCollisionFlags();
-		return (flags & btCollisionObject::CF_KINEMATIC_OBJECT) != 0;
+		return (flags & (btCollisionObject::CF_KINEMATIC_OBJECT)) != 0;
 	}
 
 	bool actor_is_nonkinematic(ActorInstance actor) const
