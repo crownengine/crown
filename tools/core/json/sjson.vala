@@ -303,7 +303,6 @@ public class SJSON
 			GLib.assert(false);
 			return null;
 		}
-
 	}
 
 	static uint8 next(uint8 [] json, ref int index)
