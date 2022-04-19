@@ -12,12 +12,12 @@ namespace crown
 struct Allocator;
 
 /// Determines if a type is allocator aware.
-template <typename T>
+template<typename T>
 struct is_allocator_aware {
-	template <typename C>
+	template<typename C>
 	static char test_fun(typename C::allocator_aware *);
 
-	template <typename C>
+	template<typename C>
 	static int test_fun(...);
 
 	enum {

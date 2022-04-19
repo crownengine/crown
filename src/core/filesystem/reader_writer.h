@@ -27,11 +27,11 @@ struct BinaryWriter
 	void write(const void* data, u32 size);
 
 	///
-	template <typename T>
+	template<typename T>
 	void write(const T& data);
 
 	///
-	template <typename T>
+	template<typename T>
 	void write_unaligned(const T& data);
 
 	///
@@ -55,11 +55,11 @@ struct BinaryReader
 	void read(void* data, u32 size);
 
 	///
-	template <typename T>
+	template<typename T>
 	void read(T& data);
 
 	///
-	template <typename T>
+	template<typename T>
 	void read_unaligned(T& data);
 
 	///

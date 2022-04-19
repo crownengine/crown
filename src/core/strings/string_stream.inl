@@ -88,7 +88,7 @@ namespace string_stream
 		return array::begin(s);
 	}
 
-	template <typename T>
+	template<typename T>
 	inline StringStream& stream_printf(StringStream& s, const char* format, T& val)
 	{
 		char buf[32];

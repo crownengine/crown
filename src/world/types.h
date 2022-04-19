@@ -248,7 +248,7 @@ inline bool operator!=(const UnitId& a, const UnitId& b)
 
 const UnitId UNIT_INVALID = { UINT32_MAX };
 
-template <>
+template<>
 struct hash<UnitId>
 {
 	u32 operator()(const UnitId& id) const

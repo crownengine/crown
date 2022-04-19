@@ -385,7 +385,7 @@ static void read_data_mtimes(HashMap<StringId64, u64>& mtimes, FilesystemDisk& d
 	parse_data_mtimes(mtimes, obj, data_index);
 }
 
-static void add_dependency_internal(HashMap<StringId64, HashMap<DynamicString, u32> >& dependencies, ResourceId id, const DynamicString& dependency)
+static void add_dependency_internal(HashMap<StringId64, HashMap<DynamicString, u32>>& dependencies, ResourceId id, const DynamicString& dependency)
 {
 	HashMap<DynamicString, u32> deps_deffault(default_allocator());
 	HashMap<DynamicString, u32>& deps = hash_map::get(dependencies, id, deps_deffault);
@@ -396,7 +396,7 @@ static void add_dependency_internal(HashMap<StringId64, HashMap<DynamicString, u
 		hash_map::set(dependencies, id, deps);
 }
 
-static void add_dependency_internal(HashMap<StringId64, HashMap<DynamicString, u32> >& dependencies, ResourceId id, const char* dependency)
+static void add_dependency_internal(HashMap<StringId64, HashMap<DynamicString, u32>>& dependencies, ResourceId id, const char* dependency)
 {
 	TempAllocator512 ta;
 	DynamicString dependency_str(ta);
@@ -517,7 +517,7 @@ static void write_data_mtimes(FilesystemDisk& data_fs, const char* filename, con
 	data_fs.close(*file);
 }
 
-static void write_data_dependencies(FilesystemDisk& data_fs, const char* filename, const HashMap<StringId64, DynamicString>& index, const HashMap<StringId64, HashMap<DynamicString, u32> >& dependencies, const HashMap<StringId64, HashMap<DynamicString, u32> >& requirements)
+static void write_data_dependencies(FilesystemDisk& data_fs, const char* filename, const HashMap<StringId64, DynamicString>& index, const HashMap<StringId64, HashMap<DynamicString, u32>>& dependencies, const HashMap<StringId64, HashMap<DynamicString, u32>>& requirements)
 {
 	StringStream ss(default_allocator());
 

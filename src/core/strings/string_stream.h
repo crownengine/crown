@@ -23,7 +23,7 @@ namespace string_stream
 	const char* c_str(StringStream& s);
 
 	///
-	template <typename T> StringStream& stream_printf(StringStream& s, const char* format, T& val);
+	template<typename T> StringStream& stream_printf(StringStream& s, const char* format, T& val);
 
 } // namespace string_stream
 

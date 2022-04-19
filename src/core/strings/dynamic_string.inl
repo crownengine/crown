@@ -171,7 +171,7 @@ inline const char* DynamicString::c_str() const
 	return array::begin(_data);
 }
 
-template <>
+template<>
 struct hash<DynamicString>
 {
 	u32 operator()(const DynamicString& val) const

@@ -139,7 +139,7 @@ struct CompileOptions
 	void write(const void* data, u32 size);
 
 	///
-	template <typename T>
+	template<typename T>
 	void write(const T& data);
 
 	///

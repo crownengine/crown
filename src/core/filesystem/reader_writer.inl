@@ -30,14 +30,14 @@ inline void BinaryWriter::write(const void* data, u32 size)
 	_file.write(data, size);
 }
 
-template <typename T>
+template<typename T>
 inline void BinaryWriter::write(const T& data)
 {
 	align(alignof(T));
 	_file.write(&data, sizeof(T));
 }
 
-template <typename T>
+template<typename T>
 inline void BinaryWriter::write_unaligned(const T& data)
 {
 	_file.write(&data, sizeof(T));
@@ -66,14 +66,14 @@ inline void BinaryReader::read(void* data, u32 size)
 	_file.read(data, size);
 }
 
-template <typename T>
+template<typename T>
 inline void BinaryReader::read(T& data)
 {
 	align(alignof(T));
 	_file.read(&data, sizeof(T));
 }
 
-template <typename T>
+template<typename T>
 inline void BinaryReader::read_unaligned(T& data)
 {
 	_file.read(&data, sizeof(T));

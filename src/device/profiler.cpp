@@ -55,7 +55,7 @@ namespace profiler
 		_thread_buffer_size = 0;
 	}
 
-	template <typename T>
+	template<typename T>
 	static void push(ProfilerEventType::Enum type, const T& ev)
 	{
 		if (_thread_buffer_size + 2*sizeof(u32) + sizeof(ev) >= THREAD_BUFFER_SIZE)

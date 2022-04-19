@@ -36,7 +36,7 @@ namespace event_stream
 	}
 
 	/// Appends the @a event of the given @a type to the stream @a s
-	template <typename T>
+	template<typename T>
 	inline void write(EventStream& s, u32 type, const T& event)
 	{
 		event_stream::write(s, type, sizeof(T), &event);

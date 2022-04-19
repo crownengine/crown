@@ -21,7 +21,7 @@ struct not_equal_to
 	bool operator()(const T& a, const T& b) const;
 };
 
-template <typename T>
+template<typename T>
 struct greater
 {
 	bool operator()(const T& a, const T& b) const;
@@ -45,7 +45,7 @@ struct less_equal
 	bool operator()(const T& a, const T& b) const;
 };
 
-template <typename T>
+template<typename T>
 struct hash;
 
 template<>

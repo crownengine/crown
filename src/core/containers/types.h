@@ -21,7 +21,7 @@ namespace crown
 /// memcpy to move stuff around.
 ///
 /// @ingroup Containers
-template <typename T>
+template<typename T>
 struct Array
 {
 	ALLOCATOR_AWARE;
@@ -48,7 +48,7 @@ typedef Array<char> Buffer;
 /// If your data is POD, use Array<T> instead.
 ///
 /// @ingroup Containers
-template <typename T>
+template<typename T>
 struct Vector
 {
 	ALLOCATOR_AWARE;
@@ -69,7 +69,7 @@ struct Vector
 /// Circular buffer double-ended queue of POD items.
 ///
 /// @ingroup Containers
-template <typename T>
+template<typename T>
 struct Queue
 {
 	ALLOCATOR_AWARE;
@@ -86,7 +86,7 @@ struct Queue
 /// Hash map.
 ///
 /// @ingroup Containers
-template <typename TKey, typename TValue, typename Hash = hash<TKey>, typename KeyEqual = equal_to<TKey> >
+template<typename TKey, typename TValue, typename Hash = hash<TKey>, typename KeyEqual = equal_to<TKey>>
 struct HashMap
 {
 	ALLOCATOR_AWARE;
@@ -116,7 +116,7 @@ struct HashMap
 /// Hash set.
 ///
 /// @ingroup Containers
-template <typename TKey, typename Hash = hash<TKey>, typename KeyEqual = equal_to<TKey> >
+template<typename TKey, typename Hash = hash<TKey>, typename KeyEqual = equal_to<TKey>>
 struct HashSet
 {
 	ALLOCATOR_AWARE;

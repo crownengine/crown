@@ -27,7 +27,7 @@ namespace memory
 	}
 
 	/// Respects standard behaviour when calling on NULL @a ptr
-	template <typename T>
+	template<typename T>
 	inline void call_destructor_and_deallocate(Allocator& a, T* ptr)
 	{
 		if (!ptr)
@@ -40,22 +40,22 @@ namespace memory
 } // namespace memory
 
 /// Convert integer to type.
-template <int v>
+template<int v>
 struct Int2Type { enum {value=v}; };
 
-template <typename T>
+template<typename T>
 inline T &construct(void *p, Allocator& a, Int2Type<true>)
 {
 	return *(T*)new (p) T(a);
 }
 
-template <typename T>
+template<typename T>
 inline T &construct(void *p, Allocator& /*a*/, Int2Type<false>)
 {
 	return *(T*)new (p) T();
 }
 
-template <typename T>
+template<typename T>
 inline T &construct(void *p, Allocator& a)
 {
 	return construct<T>(p, a, IS_ALLOCATOR_AWARE_TYPE(T)());

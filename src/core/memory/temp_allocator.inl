@@ -24,7 +24,7 @@ namespace crown
 /// automatically deallocated when the TempAllocator is destroyed.
 ///
 /// @ingroup Memory
-template <int BUFFER_SIZE>
+template<int BUFFER_SIZE>
 struct TempAllocator : public Allocator
 {
 	char _buffer[BUFFER_SIZE];	//< Local stack buffer for allocations.
@@ -65,7 +65,7 @@ typedef TempAllocator<4096> TempAllocator4096;
 // Inline function implementations
 // ---------------------------------------------------------------
 
-template <int BUFFER_SIZE>
+template<int BUFFER_SIZE>
 TempAllocator<BUFFER_SIZE>::TempAllocator(Allocator &backing) : _backing(backing), _chunk_size(4*1024)
 {
 	_p = _start = _buffer;
@@ -74,7 +74,7 @@ TempAllocator<BUFFER_SIZE>::TempAllocator(Allocator &backing) : _backing(backing
 	_p += sizeof(void *);
 }
 
-template <int BUFFER_SIZE>
+template<int BUFFER_SIZE>
 TempAllocator<BUFFER_SIZE>::~TempAllocator()
 {
 	char* start = _buffer;
@@ -86,7 +86,7 @@ TempAllocator<BUFFER_SIZE>::~TempAllocator()
 	}
 }
 
-template <int BUFFER_SIZE>
+template<int BUFFER_SIZE>
 void *TempAllocator<BUFFER_SIZE>::allocate(u32 size, u32 align)
 {
 	_p = (char *)memory::align_top(_p, align);

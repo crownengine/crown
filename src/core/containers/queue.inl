@@ -78,25 +78,25 @@ namespace queue
 
 namespace queue
 {
-	template <typename T>
+	template<typename T>
 	inline bool empty(const Queue<T>& q)
 	{
 		return q._size == 0;
 	}
 
-	template <typename T>
+	template<typename T>
 	inline u32 size(const Queue<T>& q)
 	{
 		return q._size;
 	}
 
-	template <typename T>
+	template<typename T>
 	inline u32 space(const Queue<T>& q)
 	{
 		return array::size(q._queue) - q._size;
 	}
 
-	template <typename T>
+	template<typename T>
 	inline void increase_capacity(Queue<T>& q, u32 capacity)
 	{
 		u32 old_size = array::size(q._queue);
@@ -110,7 +110,7 @@ namespace queue
 		}
 	}
 
-	template <typename T>
+	template<typename T>
 	inline void grow(Queue<T>& q, u32 min_capacity)
 	{
 		u32 new_capacity = array::size(q._queue) * 2 + 1;
@@ -121,7 +121,7 @@ namespace queue
 		increase_capacity(q, new_capacity);
 	}
 
-	template <typename T>
+	template<typename T>
 	inline void push_back(Queue<T>& q, const T& item)
 	{
 		if (space(q) == 0)
@@ -132,14 +132,14 @@ namespace queue
 		++q._size;
 	}
 
-	template <typename T>
+	template<typename T>
 	inline void pop_back(Queue<T>& q)
 	{
 		CE_ASSERT(q._size > 0, "The queue is empty");
 		--q._size;
 	}
 
-	template <typename T>
+	template<typename T>
 	inline void push_front(Queue<T>& q, const T& item)
 	{
 		if (space(q) == 0)
@@ -152,7 +152,7 @@ namespace queue
 		++q._size;
 	}
 
-	template <typename T>
+	template<typename T>
 	inline void pop_front(Queue<T>& q)
 	{
 		CE_ASSERT(q._size > 0, "The queue is empty");
@@ -161,7 +161,7 @@ namespace queue
 		--q._size;
 	}
 
-	template <typename T>
+	template<typename T>
 	inline void push(Queue<T>& q, const T *items, u32 n)
 	{
 		if (q.space() < n)
@@ -184,7 +184,7 @@ namespace queue
 		q._size += n;
 	}
 
-	template <typename T>
+	template<typename T>
 	inline void pop(Queue<T>& q, u32 n)
 	{
 		CE_ASSERT(q._size > 0, "The queue is empty");
@@ -193,61 +193,61 @@ namespace queue
 		q._size -= n;
 	}
 
-	template <typename T>
+	template<typename T>
 	inline void clear(Queue<T>& q)
 	{
 		q._read = 0;
 		q._size = 0;
 	}
 
-	template <typename T>
+	template<typename T>
 	inline T* begin(Queue<T>& q)
 	{
 		return array::begin(q._queue) + q._read;
 	}
 
-	template <typename T>
+	template<typename T>
 	inline const T* begin(const Queue<T>& q)
 	{
 		return array::begin(q._queue) + q._read;
 	}
 
-	template <typename T>
+	template<typename T>
 	inline T* end(Queue<T>& q)
 	{
 		const u32 end = q._read + q._size;
 		return end >= array::size(q._queue) ? array::end(q._queue) : array::begin(q._queue) + end;
 	}
 
-	template <typename T>
+	template<typename T>
 	inline const T* end(const Queue<T>& q)
 	{
 		const u32 end = q._read + q._size;
 		return end >= array::size(q._queue) ? array::end(q._queue) : array::begin(q._queue) + end;
 	}
 
-	template <typename T>
+	template<typename T>
 	inline T& front(Queue<T>& q)
 	{
 		CE_ASSERT(q._size > 0, "The queue is empty");
 		return q._queue[q._read];
 	}
 
-	template <typename T>
+	template<typename T>
 	inline const T& front(const Queue<T>& q)
 	{
 		CE_ASSERT(q._size > 0, "The queue is empty");
 		return q._queue[q._read];
 	}
 
-	template <typename T>
+	template<typename T>
 	inline T& back(Queue<T>& q)
 	{
 		CE_ASSERT(q._size > 0, "The queue is empty");
 		return q[q._size - 1];
 	}
 
-	template <typename T>
+	template<typename T>
 	inline const T& back(const Queue<T>& q)
 	{
 		CE_ASSERT(q._size > 0, "The queue is empty");
@@ -256,7 +256,7 @@ namespace queue
 
 } // namespace queue
 
-template <typename T>
+template<typename T>
 inline Queue<T>::Queue(Allocator& a)
 	: _read(0)
 	, _size(0)
@@ -264,13 +264,13 @@ inline Queue<T>::Queue(Allocator& a)
 {
 }
 
-template <typename T>
+template<typename T>
 inline T& Queue<T>::operator[](u32 index)
 {
 	return _queue[(_read + index) % array::size(_queue)];
 }
 
-template <typename T>
+template<typename T>
 inline const T& Queue<T>::operator[](u32 index) const
 {
 	return _queue[(_read + index) % array::size(_queue)];

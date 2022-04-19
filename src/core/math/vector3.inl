@@ -161,7 +161,7 @@ inline f32 angle(const Vector3& a, const Vector3& b)
 }
 
 /// Returns a vector that contains the largest value for each element from @a a and @a b.
-template <>
+template<>
 inline Vector3 max<Vector3>(const Vector3& a, const Vector3& b)
 {
 	Vector3 v;
@@ -172,7 +172,7 @@ inline Vector3 max<Vector3>(const Vector3& a, const Vector3& b)
 }
 
 /// Returns a vector that contains the smallest value for each element from @a a and @a b.
-template <>
+template<>
 inline Vector3 min<Vector3>(const Vector3& a, const Vector3& b)
 {
 	Vector3 v;

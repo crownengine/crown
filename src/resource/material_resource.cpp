@@ -148,7 +148,7 @@ namespace material_resource_internal
 	};
 
 	// Returns offset to start of data
-	template <typename T>
+	template<typename T>
 	static u32 reserve_dynamic_data(Array<char>& dynamic, T data)
 	{
 		u32 offt = array::size(dynamic);
