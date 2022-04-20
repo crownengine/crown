@@ -23,6 +23,7 @@ namespace MathUtils
 	{
 		return rad * 180.0 / Math.PI;
 	}
-}
 
-}
+} /* namespace MathUtils */
+
+} /* namespace Crown */

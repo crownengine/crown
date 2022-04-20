@@ -15,4 +15,4 @@ public class EntryPosition : EntryVector3
 	}
 }
 
-}
+} /* namespace Crown */

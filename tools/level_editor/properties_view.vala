@@ -825,4 +825,4 @@ public class PropertiesView : Gtk.Bin
 	}
 }
 
-}
+} /* namespace Crown */

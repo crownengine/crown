@@ -63,4 +63,4 @@ public class ComboBoxMap : Gtk.ComboBoxText
 	}
 }
 
-}
+} /* namespace Crown */

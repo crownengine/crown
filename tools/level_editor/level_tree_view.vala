@@ -489,4 +489,4 @@ public class LevelTreeView : Gtk.Box
 	}
 }
 
-}
+} /* namespace Crown */

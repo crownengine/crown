@@ -42,4 +42,4 @@ public struct Vector2
 public const Vector2 VECTOR2_ZERO = { 0.0, 0.0 };
 public const Vector2 VECTOR2_ONE  = { 1.0, 1.0 };
 
-}
+} /* namespace Crown */

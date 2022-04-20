@@ -104,4 +104,4 @@ public class LevelLayersTreeView : Gtk.Box
 	}
 }
 
-}
+} /* namespace Crown */

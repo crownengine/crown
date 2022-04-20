@@ -93,4 +93,4 @@ public class EntryVector3 : Gtk.Box
 	}
 }
 
-}
+} /* namespace Crown */

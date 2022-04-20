@@ -15,4 +15,4 @@ public class PanelWelcome : Gtk.Box
 	}
 }
 
-}
+} /* namespace Crown */

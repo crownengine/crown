@@ -60,4 +60,4 @@ public class Statusbar : Gtk.Box
 	}
 }
 
-}
+} /* namespace Crown */

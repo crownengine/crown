@@ -36,4 +36,4 @@ public class EntryText : Gtk.Entry
 	}
 }
 
-}
+} /* namespace Crown */

@@ -303,4 +303,4 @@ public class SpriteResource
 	}
 }
 
-}
+} /* namespace Crown */

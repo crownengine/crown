@@ -177,4 +177,4 @@ public struct Quaternion
 
 public const Quaternion QUATERNION_IDENTITY = { 0.0, 0.0, 0.0, 1.0 };
 
-}
+} /* namespace Crown */

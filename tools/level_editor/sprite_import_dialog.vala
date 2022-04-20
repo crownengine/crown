@@ -569,4 +569,4 @@ public class SpriteImportDialog : Gtk.Dialog
 	}
 }
 
-}
+} /* namespace Crown */

@@ -44,4 +44,4 @@ public class DataCompiler
 	}
 }
 
-}
+} /* namespace Crown */

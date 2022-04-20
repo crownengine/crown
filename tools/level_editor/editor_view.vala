@@ -313,4 +313,4 @@ public class EditorView : Gtk.EventBox
 	}
 }
 
-}
+} /* namespace Crown */

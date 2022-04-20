@@ -89,4 +89,4 @@ public struct Vector4
 public const Vector4 VECTOR4_ZERO = { 0.0, 0.0, 0.0, 0.0 };
 public const Vector4 VECTOR4_ONE  = { 1.0, 1.0, 1.0, 1.0 };
 
-}
+} /* namespace Crown */

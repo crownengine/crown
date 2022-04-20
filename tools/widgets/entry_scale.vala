@@ -15,4 +15,4 @@ public class EntryScale : EntryVector3
 	}
 }
 
-}
+} /* namespace Crown */

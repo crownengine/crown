@@ -155,4 +155,4 @@ public class PanelNewProject : Gtk.Viewport
 	}
 }
 
-}
+} /* namespace Crown */

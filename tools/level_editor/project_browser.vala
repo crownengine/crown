@@ -505,4 +505,4 @@ public class ProjectBrowser : Gtk.Box
 	}
 }
 
-}
+} /* namespace Crown */

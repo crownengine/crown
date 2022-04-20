@@ -36,4 +36,4 @@ public class EntrySearch : Gtk.SearchEntry
 	}
 }
 
-}
+} /* namespace Crown */

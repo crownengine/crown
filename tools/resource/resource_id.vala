@@ -36,4 +36,4 @@ static string resource_path(string type, string name)
 	return type == "" ? name : name + "." + type;
 }
 
-}
+} /* namespace Crown */

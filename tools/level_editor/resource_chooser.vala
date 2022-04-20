@@ -424,4 +424,4 @@ public class ResourceChooser : Gtk.Box
 	}
 }
 
-}
+} /* namespace Crown */

@@ -35,4 +35,4 @@ public class EntryRotation : EntryVector3
 	}
 }
 
-}
+} /* namespace Crown */

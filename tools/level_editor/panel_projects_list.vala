@@ -146,4 +146,4 @@ public class PanelProjectsList : Gtk.ScrolledWindow
 	}
 }
 
-}
+} /* namespace Crown */

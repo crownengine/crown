@@ -33,4 +33,4 @@ public class Clamp : Gtk.Bin
 	}
 }
 
-}
+} /* namespace Crown */

@@ -80,4 +80,4 @@ public const Vector3 VECTOR3_ONE  = { 1.0, 1.0, 1.0 };
 public const Vector3 VECTOR3_MIN  = {-double.MAX, -double.MAX, -double.MAX };
 public const Vector3 VECTOR3_MAX  = { double.MAX,  double.MAX,  double.MAX };
 
-}
+} /* namespace Crown */

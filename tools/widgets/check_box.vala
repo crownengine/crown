@@ -44,4 +44,4 @@ public class CheckBox : Gtk.CheckButton
 	}
 }
 
-}
+} /* namespace Crown */

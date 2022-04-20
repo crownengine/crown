@@ -45,4 +45,4 @@ public const string ActionNames[] =
 	"Set Sound Parameter"
 };
 
-}
+} /* namespace Crown */

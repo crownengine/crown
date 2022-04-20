@@ -129,4 +129,4 @@ public class EntryDouble : Gtk.Entry
 	}
 }
 
-}
+} /* namespace Crown */

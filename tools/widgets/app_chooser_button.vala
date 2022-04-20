@@ -95,4 +95,4 @@ public class AppChooserButton : Gtk.AppChooserButton
 	}
 }
 
-}
+} /* namespace Crown */

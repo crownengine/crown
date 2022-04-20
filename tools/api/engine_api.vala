@@ -28,7 +28,7 @@ namespace Lua
 		return "Quaternion.from_elements(%.17g, %.17g, %.17g, %.17g)".printf(q.x, q.y, q.z, q.w);
 	}
 
-}
+} /* namespace Lua */
 
 namespace DataCompilerApi
 {
@@ -45,7 +45,7 @@ namespace DataCompilerApi
 		return "{\"type\":\"quit\"}";
 	}
 
-}
+} /* namespace DataCompilerApi */
 
 namespace DeviceApi
 {
@@ -91,7 +91,7 @@ namespace DeviceApi
 		return "{\"type\":\"frame\"}";
 	}
 
-}
+} /* namespace DeviceApi */
 
 namespace LevelEditorApi
 {
@@ -376,7 +376,7 @@ namespace LevelEditorApi
 		return "Colors.%s = function() return %s end".printf(name, Lua.quaternion(c));
 	}
 
-}
+} /* namespace LevelEditorApi */
 
 namespace UnitPreviewApi
 {
@@ -385,6 +385,6 @@ namespace UnitPreviewApi
 		return "UnitPreview:set_preview_resource(\"%s\", \"%s\")".printf(placeable_type, name);
 	}
 
-}
+} /* namespace UnitPreviewApi */
 
-}
+} /* namespace Crown */

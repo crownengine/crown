@@ -52,4 +52,4 @@ public class ColorButtonVector3 : Gtk.ColorButton
 	}
 }
 
-}
+} /* namespace Crown */

@@ -97,4 +97,4 @@ public struct Guid
 
 public const Guid GUID_ZERO = { 0u, 0u };
 
-}
+} /* namespace Crown */

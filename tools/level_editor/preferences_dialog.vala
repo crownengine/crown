@@ -311,4 +311,4 @@ public class PreferencesDialog : Gtk.Dialog
 	}
 }
 
-}
+} /* namespace Crown */

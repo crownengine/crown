@@ -398,4 +398,4 @@ public class ConsoleView : Gtk.Box
 	}
 }
 
-}
+} /* namespace Crown */

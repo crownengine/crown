@@ -38,4 +38,4 @@ public class SoundResource
 	}
 }
 
-}
+} /* namespace Crown */
