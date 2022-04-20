@@ -34,23 +34,23 @@ public class PanelProjectsList : Gtk.ScrolledWindow
 		_user = user;
 
 		_list_projects.set_sort_func((row1, row2) => {
-			int64 mtime1 = int64.parse(row1.get_data("mtime"));
-			int64 mtime2 = int64.parse(row2.get_data("mtime"));
-			return mtime1 > mtime2 ? -1 : 1; // LRU
-		});
+				int64 mtime1 = int64.parse(row1.get_data("mtime"));
+				int64 mtime2 = int64.parse(row2.get_data("mtime"));
+				return mtime1 > mtime2 ? -1 : 1; // LRU
+			});
 
 		_button_new_project.clicked.connect(() => {
-			_application.show_panel("panel_new_project", Gtk.StackTransitionType.SLIDE_DOWN);
-		});
+				_application.show_panel("panel_new_project", Gtk.StackTransitionType.SLIDE_DOWN);
+			});
 
 		_button_import_project.clicked.connect(() => {
-			string source_dir;
-			int rt = _application.run_open_project_dialog(out source_dir, (Gtk.Window)this.get_toplevel());
-			if (rt != ResponseType.ACCEPT)
-				return;
+				string source_dir;
+				int rt = _application.run_open_project_dialog(out source_dir, (Gtk.Window)this.get_toplevel());
+				if (rt != ResponseType.ACCEPT)
+					return;
 
-			_user.add_or_touch_recent_project(source_dir, source_dir);
-		});
+				_user.add_or_touch_recent_project(source_dir, source_dir);
+			});
 
 		_user.recent_project_added.connect(on_recent_project_added);
 		_user.recent_project_touched.connect(on_recent_project_touched);
@@ -94,24 +94,24 @@ public class PanelProjectsList : Gtk.ScrolledWindow
 		remove_button.set_valign(Gtk.Align.CENTER);
 		remove_button.set_margin_end(12);
 		remove_button.clicked.connect(() => {
-			Gtk.MessageDialog md = new Gtk.MessageDialog((Gtk.Window)this.get_toplevel()
-				, Gtk.DialogFlags.MODAL
-				, Gtk.MessageType.WARNING
-				, Gtk.ButtonsType.NONE
-				, "Remove \"%s\" from the list?\n\nThis action removes the project from the list only, files on disk will not be deleted.".printf(source_dir)
-				);
-			md.add_button("_Cancel", ResponseType.CANCEL);
-			md.add_button("_Remove", ResponseType.YES);
-			md.set_default_response(ResponseType.CANCEL);
-			int rt = md.run();
-			md.destroy();
+				Gtk.MessageDialog md = new Gtk.MessageDialog((Gtk.Window)this.get_toplevel()
+					, Gtk.DialogFlags.MODAL
+					, Gtk.MessageType.WARNING
+					, Gtk.ButtonsType.NONE
+					, "Remove \"%s\" from the list?\n\nThis action removes the project from the list only, files on disk will not be deleted.".printf(source_dir)
+					);
+				md.add_button("_Cancel", ResponseType.CANCEL);
+				md.add_button("_Remove", ResponseType.YES);
+				md.set_default_response(ResponseType.CANCEL);
+				int rt = md.run();
+				md.destroy();
 
-			if (rt == ResponseType.CANCEL)
-				return;
+				if (rt == ResponseType.CANCEL)
+					return;
 
-			_user.remove_recent_project(row.get_data("source_dir"));
-			_list_projects.remove(row);
-		});
+				_user.remove_recent_project(row.get_data("source_dir"));
+				_list_projects.remove(row);
+			});
 		hbox.pack_end(remove_button, false, false, 0);
 
 		Gtk.Button button_open = new Gtk.Button.with_label("Open");
@@ -120,8 +120,8 @@ public class PanelProjectsList : Gtk.ScrolledWindow
 		button_open.set_valign(Gtk.Align.CENTER);
 		// button_open.set_margin_end(12);
 		button_open.clicked.connect(() => {
-			_application.activate_action("open-project", new GLib.Variant.string(source_dir));
-		});
+				_application.activate_action("open-project", new GLib.Variant.string(source_dir));
+			});
 		hbox.pack_end(button_open, false, false, 0);
 
 		row.add(hbox);
@@ -135,12 +135,12 @@ public class PanelProjectsList : Gtk.ScrolledWindow
 	public void on_recent_project_touched(string source_dir, string mtime)
 	{
 		_list_projects.foreach((row) => {
-			if (row.get_data<string>("source_dir") == source_dir)
-			{
-				row.set_data("mtime", mtime);
-				return;
-			}
-		});
+				if (row.get_data<string>("source_dir") == source_dir)
+				{
+					row.set_data("mtime", mtime);
+					return;
+				}
+			});
 
 		_list_projects.invalidate_sort();
 	}

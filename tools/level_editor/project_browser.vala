@@ -44,43 +44,43 @@ public class ProjectBrowser : Gtk.Box
 		// Widgets
 		_tree_filter = new Gtk.TreeModelFilter(_project_store._tree_store, null);
 		_tree_filter.set_visible_func((model, iter) => {
-			_tree_view.expand_row(new Gtk.TreePath.first(), false);
+				_tree_view.expand_row(new Gtk.TreePath.first(), false);
 
-			Value type;
-			Value name;
-			model.get_value(iter, ProjectStore.Column.TYPE, out type);
-			model.get_value(iter, ProjectStore.Column.NAME, out name);
+				Value type;
+				Value name;
+				model.get_value(iter, ProjectStore.Column.TYPE, out type);
+				model.get_value(iter, ProjectStore.Column.NAME, out name);
 
-			return (string)type != null
-				&& (string)name != null
-				&& !row_should_be_hidden((string)type, (string)name)
-				;
-		});
+				return (string)type != null
+					&& (string)name != null
+					&& !row_should_be_hidden((string)type, (string)name)
+					;
+			});
 
 		_tree_sort = new Gtk.TreeModelSort.with_model(_tree_filter);
 		_tree_sort.set_default_sort_func((model, iter_a, iter_b) => {
-			Value type_a;
-			Value type_b;
-			model.get_value(iter_a, ProjectStore.Column.TYPE, out type_a);
-			model.get_value(iter_b, ProjectStore.Column.TYPE, out type_b);
+				Value type_a;
+				Value type_b;
+				model.get_value(iter_a, ProjectStore.Column.TYPE, out type_a);
+				model.get_value(iter_b, ProjectStore.Column.TYPE, out type_b);
 
-			if ((string)type_a == "<folder>")
-			{
-				if ((string)type_b != "<folder>")
-					return -1;
-			}
-			else if ((string)type_b == "<folder>")
-			{
-				if ((string)type_a != "<folder>")
-					return 1;
-			}
+				if ((string)type_a == "<folder>")
+				{
+					if ((string)type_b != "<folder>")
+						return -1;
+				}
+				else if ((string)type_b == "<folder>")
+				{
+					if ((string)type_a != "<folder>")
+						return 1;
+				}
 
-			Value id_a;
-			Value id_b;
-			model.get_value(iter_a, ProjectStore.Column.SEGMENT, out id_a);
-			model.get_value(iter_b, ProjectStore.Column.SEGMENT, out id_b);
-			return strcmp((string)id_a, (string)id_b);
-		});
+				Value id_a;
+				Value id_b;
+				model.get_value(iter_a, ProjectStore.Column.SEGMENT, out id_a);
+				model.get_value(iter_b, ProjectStore.Column.SEGMENT, out id_b);
+				return strcmp((string)id_a, (string)id_b);
+			});
 
 		Gtk.TreeViewColumn column = new Gtk.TreeViewColumn();
 		Gtk.CellRendererPixbuf cell_pixbuf = new Gtk.CellRendererPixbuf();
@@ -88,56 +88,56 @@ public class ProjectBrowser : Gtk.Box
 		column.pack_start(cell_pixbuf, false);
 		column.pack_start(cell_text, true);
 		column.set_cell_data_func(cell_pixbuf, (cell_layout, cell, model, iter) => {
-			Value type;
-			model.get_value(iter, ProjectStore.Column.TYPE, out type);
+				Value type;
+				model.get_value(iter, ProjectStore.Column.TYPE, out type);
 
-			// https://specifications.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html
-			if ((string)type == "<folder>")
-				cell.set_property("icon-name", "folder-symbolic");
-			else if ((string)type == "state_machine")
-				cell.set_property("icon-name", "text-x-generic-symbolic");
-			else if ((string)type == "config")
-				cell.set_property("icon-name", "text-x-generic-symbolic");
-			else if ((string)type == "font")
-				cell.set_property("icon-name", "font-x-generic-symbolic");
-			else if ((string)type == "unit")
-				cell.set_property("icon-name", "level-object-unit");
-			else if ((string)type == "level")
-				cell.set_property("icon-name", "text-x-generic-symbolic");
-			else if ((string)type == "material")
-				cell.set_property("icon-name", "text-x-generic-symbolic");
-			else if ((string)type == "mesh")
-				cell.set_property("icon-name", "text-x-generic-symbolic");
-			else if ((string)type == "package")
-				cell.set_property("icon-name", "package-x-generic-symbolic");
-			else if ((string)type == "physics_config")
-				cell.set_property("icon-name", "text-x-generic-symbolic");
-			else if ((string)type == "lua")
-				cell.set_property("icon-name", "x-office-document-symbolic");
-			else if ((string)type == "shader")
-				cell.set_property("icon-name", "text-x-script-symbolic");
-			else if ((string)type == "sound")
-				cell.set_property("icon-name", "audio-x-generic-symbolic");
-			else if ((string)type == "sprite_animation")
-				cell.set_property("icon-name", "text-x-generic-symbolic");
-			else if ((string)type == "sprite")
-				cell.set_property("icon-name", "text-x-generic-symbolic");
-			else if ((string)type == "texture")
-				cell.set_property("icon-name", "image-x-generic-symbolic");
-			else
-				cell.set_property("icon-name", "text-x-generic-symbolic");
-		});
+				// https://specifications.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html
+				if ((string)type == "<folder>")
+					cell.set_property("icon-name", "folder-symbolic");
+				else if ((string)type == "state_machine")
+					cell.set_property("icon-name", "text-x-generic-symbolic");
+				else if ((string)type == "config")
+					cell.set_property("icon-name", "text-x-generic-symbolic");
+				else if ((string)type == "font")
+					cell.set_property("icon-name", "font-x-generic-symbolic");
+				else if ((string)type == "unit")
+					cell.set_property("icon-name", "level-object-unit");
+				else if ((string)type == "level")
+					cell.set_property("icon-name", "text-x-generic-symbolic");
+				else if ((string)type == "material")
+					cell.set_property("icon-name", "text-x-generic-symbolic");
+				else if ((string)type == "mesh")
+					cell.set_property("icon-name", "text-x-generic-symbolic");
+				else if ((string)type == "package")
+					cell.set_property("icon-name", "package-x-generic-symbolic");
+				else if ((string)type == "physics_config")
+					cell.set_property("icon-name", "text-x-generic-symbolic");
+				else if ((string)type == "lua")
+					cell.set_property("icon-name", "x-office-document-symbolic");
+				else if ((string)type == "shader")
+					cell.set_property("icon-name", "text-x-script-symbolic");
+				else if ((string)type == "sound")
+					cell.set_property("icon-name", "audio-x-generic-symbolic");
+				else if ((string)type == "sprite_animation")
+					cell.set_property("icon-name", "text-x-generic-symbolic");
+				else if ((string)type == "sprite")
+					cell.set_property("icon-name", "text-x-generic-symbolic");
+				else if ((string)type == "texture")
+					cell.set_property("icon-name", "image-x-generic-symbolic");
+				else
+					cell.set_property("icon-name", "text-x-generic-symbolic");
+			});
 		column.set_cell_data_func(cell_text, (cell_layout, cell, model, iter) => {
-			Value segment;
-			Value type;
-			model.get_value(iter, ProjectStore.Column.SEGMENT, out segment);
-			model.get_value(iter, ProjectStore.Column.TYPE, out type);
+				Value segment;
+				Value type;
+				model.get_value(iter, ProjectStore.Column.SEGMENT, out segment);
+				model.get_value(iter, ProjectStore.Column.TYPE, out type);
 
-			if ((string)type == "<folder>")
-				cell.set_property("text", (string)segment);
-			else
-				cell.set_property("text", resource_path((string)type, (string)segment));
-		});
+				if ((string)type == "<folder>")
+					cell.set_property("text", (string)segment);
+				else
+					cell.set_property("text", resource_path((string)type, (string)segment));
+			});
 		_tree_view = new Gtk.TreeView();
 		_tree_view.append_column(column);
 #if 0
@@ -230,9 +230,9 @@ public class ProjectBrowser : Gtk.Box
 
 					mi = new Gtk.MenuItem.with_label("Import...");
 					mi.activate.connect(() => {
-						Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
-						app.activate_action("import", new GLib.Variant.string((string)name));
-					});
+							Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
+							app.activate_action("import", new GLib.Variant.string((string)name));
+						});
 					menu.add(mi);
 
 					mi = new Gtk.SeparatorMenuItem();
@@ -240,68 +240,68 @@ public class ProjectBrowser : Gtk.Box
 
 					mi = new Gtk.MenuItem.with_label("New Script...");
 					mi.activate.connect(() => {
-						Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Script Name"
-							, (Gtk.Window)this.get_toplevel()
-							, DialogFlags.MODAL
-							, "Cancel"
-							, ResponseType.CANCEL
-							, "Ok"
-							, ResponseType.OK
-							, null
-							);
+							Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Script Name"
+								, (Gtk.Window)this.get_toplevel()
+								, DialogFlags.MODAL
+								, "Cancel"
+								, ResponseType.CANCEL
+								, "Ok"
+								, ResponseType.OK
+								, null
+								);
 
-						EntryText sb = new EntryText();
-						sb.activate.connect(() => { dg.response(ResponseType.OK); });
-						dg.get_content_area().add(sb);
-						dg.skip_taskbar_hint = true;
-						dg.show_all();
+							EntryText sb = new EntryText();
+							sb.activate.connect(() => { dg.response(ResponseType.OK); });
+							dg.get_content_area().add(sb);
+							dg.skip_taskbar_hint = true;
+							dg.show_all();
 
-						if (dg.run() == (int)ResponseType.OK)
-						{
-							if (sb.text.strip() == "")
+							if (dg.run() == (int)ResponseType.OK)
 							{
-								dg.destroy();
-								return;
+								if (sb.text.strip() == "")
+								{
+									dg.destroy();
+									return;
+								}
+
+								_project.create_script((string)name, sb.text, true);
 							}
 
-							_project.create_script((string)name, sb.text, true);
-						}
-
-						dg.destroy();
-					});
+							dg.destroy();
+						});
 					menu.add(mi);
 
 					mi = new Gtk.MenuItem.with_label("New Script (Unit)...");
 					mi.activate.connect(() => {
-						Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Script Name"
-							, (Gtk.Window)this.get_toplevel()
-							, DialogFlags.MODAL
-							, "Cancel"
-							, ResponseType.CANCEL
-							, "Ok"
-							, ResponseType.OK
-							, null
-							);
+							Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Script Name"
+								, (Gtk.Window)this.get_toplevel()
+								, DialogFlags.MODAL
+								, "Cancel"
+								, ResponseType.CANCEL
+								, "Ok"
+								, ResponseType.OK
+								, null
+								);
 
-						EntryText sb = new EntryText();
-						sb.activate.connect(() => { dg.response(ResponseType.OK); });
-						dg.get_content_area().add(sb);
-						dg.skip_taskbar_hint = true;
-						dg.show_all();
+							EntryText sb = new EntryText();
+							sb.activate.connect(() => { dg.response(ResponseType.OK); });
+							dg.get_content_area().add(sb);
+							dg.skip_taskbar_hint = true;
+							dg.show_all();
 
-						if (dg.run() == (int)ResponseType.OK)
-						{
-							if (sb.text.strip() == "")
+							if (dg.run() == (int)ResponseType.OK)
 							{
-								dg.destroy();
-								return;
+								if (sb.text.strip() == "")
+								{
+									dg.destroy();
+									return;
+								}
+
+								_project.create_script((string)name, sb.text, false);
 							}
 
-							_project.create_script((string)name, sb.text, false);
-						}
-
-						dg.destroy();
-					});
+							dg.destroy();
+						});
 					menu.add(mi);
 
 					mi = new Gtk.SeparatorMenuItem();
@@ -309,35 +309,35 @@ public class ProjectBrowser : Gtk.Box
 
 					mi = new Gtk.MenuItem.with_label("New Unit...");
 					mi.activate.connect(() => {
-						Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Unit Name"
-							, (Gtk.Window)this.get_toplevel()
-							, DialogFlags.MODAL
-							, "Cancel"
-							, ResponseType.CANCEL
-							, "Ok"
-							, ResponseType.OK
-							, null
-							);
+							Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Unit Name"
+								, (Gtk.Window)this.get_toplevel()
+								, DialogFlags.MODAL
+								, "Cancel"
+								, ResponseType.CANCEL
+								, "Ok"
+								, ResponseType.OK
+								, null
+								);
 
-						EntryText sb = new EntryText();
-						sb.activate.connect(() => { dg.response(ResponseType.OK); });
-						dg.get_content_area().add(sb);
-						dg.skip_taskbar_hint = true;
-						dg.show_all();
+							EntryText sb = new EntryText();
+							sb.activate.connect(() => { dg.response(ResponseType.OK); });
+							dg.get_content_area().add(sb);
+							dg.skip_taskbar_hint = true;
+							dg.show_all();
 
-						if (dg.run() == (int)ResponseType.OK)
-						{
-							if (sb.text.strip() == "")
+							if (dg.run() == (int)ResponseType.OK)
 							{
-								dg.destroy();
-								return;
+								if (sb.text.strip() == "")
+								{
+									dg.destroy();
+									return;
+								}
+
+								_project.create_unit((string)name, sb.text);
 							}
 
-							_project.create_unit((string)name, sb.text);
-						}
-
-						dg.destroy();
-					});
+							dg.destroy();
+						});
 					menu.add(mi);
 
 					mi = new Gtk.SeparatorMenuItem();
@@ -345,74 +345,74 @@ public class ProjectBrowser : Gtk.Box
 
 					mi = new Gtk.MenuItem.with_label("New Folder...");
 					mi.activate.connect(() => {
-						Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Folder Name"
-							, (Gtk.Window)this.get_toplevel()
-							, DialogFlags.MODAL
-							, "Cancel"
-							, ResponseType.CANCEL
-							, "Ok"
-							, ResponseType.OK
-							, null
-							);
+							Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Folder Name"
+								, (Gtk.Window)this.get_toplevel()
+								, DialogFlags.MODAL
+								, "Cancel"
+								, ResponseType.CANCEL
+								, "Ok"
+								, ResponseType.OK
+								, null
+								);
 
-						EntryText sb = new EntryText();
-						sb.activate.connect(() => { dg.response(ResponseType.OK); });
-						dg.get_content_area().add(sb);
-						dg.skip_taskbar_hint = true;
-						dg.show_all();
+							EntryText sb = new EntryText();
+							sb.activate.connect(() => { dg.response(ResponseType.OK); });
+							dg.get_content_area().add(sb);
+							dg.skip_taskbar_hint = true;
+							dg.show_all();
 
-						if (dg.run() == (int)ResponseType.OK)
-						{
-							if (sb.text.strip() == "")
+							if (dg.run() == (int)ResponseType.OK)
 							{
-								dg.destroy();
-								return;
+								if (sb.text.strip() == "")
+								{
+									dg.destroy();
+									return;
+								}
+
+								GLib.File file = GLib.File.new_for_path(GLib.Path.build_filename(_project.source_dir(), (string)name, sb.text));
+								try
+								{
+									file.make_directory();
+								}
+								catch (Error e)
+								{
+									loge(e.message);
+								}
 							}
 
-							GLib.File file = GLib.File.new_for_path(GLib.Path.build_filename(_project.source_dir(), (string)name, sb.text));
-							try
-							{
-								file.make_directory();
-							}
-							catch (Error e)
-							{
-								loge(e.message);
-							}
-						}
-
-						dg.destroy();
-					});
+							dg.destroy();
+						});
 					menu.add(mi);
 
 					if ((string)name != ProjectStore.ROOT_FOLDER)
 					{
 						mi = new Gtk.MenuItem.with_label("Delete Folder");
 						mi.activate.connect(() => {
-							Gtk.MessageDialog md = new Gtk.MessageDialog((Gtk.Window)this.get_toplevel()
-								, Gtk.DialogFlags.MODAL
-								, Gtk.MessageType.WARNING
-								, Gtk.ButtonsType.NONE
-								, "Delete Folder " + (string)name + "?"
-								);
-							md.add_button("_Cancel", ResponseType.CANCEL);
-							md.add_button("_Delete", ResponseType.YES);
-							md.set_default_response(ResponseType.CANCEL);
-							int rt = md.run();
-							md.destroy();
+								Gtk.MessageDialog md = new Gtk.MessageDialog((Gtk.Window)this.get_toplevel()
+									, Gtk.DialogFlags.MODAL
+									, Gtk.MessageType.WARNING
+									, Gtk.ButtonsType.NONE
+									, "Delete Folder " + (string)name + "?"
+									);
+								md.add_button("_Cancel", ResponseType.CANCEL);
+								md.add_button("_Delete", ResponseType.YES);
+								md.set_default_response(ResponseType.CANCEL);
+								int rt = md.run();
+								md.destroy();
 
-							if (rt == (int)ResponseType.CANCEL)
-								return;
+								if (rt == (int)ResponseType.CANCEL)
+									return;
 
-							GLib.File file = GLib.File.new_for_path(GLib.Path.build_filename(_project.source_dir(), (string)name));
-							try
-							{
-								_project.delete_tree(file);
-							}
-							catch (Error e)
-							{
-								loge(e.message);
-							}
-						});
+								GLib.File file = GLib.File.new_for_path(GLib.Path.build_filename(_project.source_dir(), (string)name));
+								try
+								{
+									_project.delete_tree(file);
+								}
+								catch (Error e)
+								{
+									loge(e.message);
+								}
+							});
 						menu.add(mi);
 					}
 
@@ -426,23 +426,23 @@ public class ProjectBrowser : Gtk.Box
 
 					mi = new Gtk.MenuItem.with_label("Delete File");
 					mi.activate.connect(() => {
-						Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
-						app.activate_action("delete-file", new GLib.Variant.string(resource_path((string)type, (string)name)));
-					});
+							Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
+							app.activate_action("delete-file", new GLib.Variant.string(resource_path((string)type, (string)name)));
+						});
 					menu.add(mi);
 
 					mi = new Gtk.MenuItem.with_label("Open Containing Folder...");
 					mi.activate.connect(() => {
-						Gtk.TreeIter parent;
-						if (_tree_view.model.iter_parent(out parent, iter))
-						{
-							Value parent_name;
-							_tree_view.model.get_value(parent, ProjectStore.Column.NAME, out parent_name);
+							Gtk.TreeIter parent;
+							if (_tree_view.model.iter_parent(out parent, iter))
+							{
+								Value parent_name;
+								_tree_view.model.get_value(parent, ProjectStore.Column.NAME, out parent_name);
 
-							GLib.File file = GLib.File.new_for_path(GLib.Path.build_filename(_project.source_dir(), (string)parent_name));
-							open_directory(file.get_path());
-						}
-					});
+								GLib.File file = GLib.File.new_for_path(GLib.Path.build_filename(_project.source_dir(), (string)parent_name));
+								open_directory(file.get_path());
+							}
+						});
 					menu.add(mi);
 
 					menu.show_all();

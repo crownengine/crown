@@ -50,48 +50,48 @@ public class PanelNewProject : Gtk.Viewport
 		_combo_box_map_template.value = "";
 
 		_button_back.clicked.connect(() => {
-			_application.show_panel("panel_welcome", StackTransitionType.SLIDE_UP);
-		});
+				_application.show_panel("panel_welcome", StackTransitionType.SLIDE_UP);
+			});
 
 		_button_create.clicked.connect(() => {
-			if (_entry_name.text == "")
-			{
-				_label_message.label = "Choose project name";
-				return;
-			}
+				if (_entry_name.text == "")
+				{
+					_label_message.label = "Choose project name";
+					return;
+				}
 
-			GLib.File location = _file_chooser_button_location.get_file();
-			string? source_dir = location.get_path();
+				GLib.File location = _file_chooser_button_location.get_file();
+				string? source_dir = location.get_path();
 
-			if (source_dir == null)
-			{
-				_label_message.label = "Location is not valid";
-				return;
-			}
-			if (GLib.FileUtils.test(source_dir, FileTest.IS_REGULAR))
-			{
-				_label_message.label = "Location must be an empty directory";
-				return;
-			}
+				if (source_dir == null)
+				{
+					_label_message.label = "Location is not valid";
+					return;
+				}
+				if (GLib.FileUtils.test(source_dir, FileTest.IS_REGULAR))
+				{
+					_label_message.label = "Location must be an empty directory";
+					return;
+				}
 
-			if (!is_directory_empty(source_dir))
-			{
-				_label_message.label = "Location must be an empty directory";
-				return;
-			}
+				if (!is_directory_empty(source_dir))
+				{
+					_label_message.label = "Location must be an empty directory";
+					return;
+				}
 
-			_label_message.label = "";
+				_label_message.label = "";
 
-			_user.add_or_touch_recent_project(source_dir, _entry_name.text);
-			_application.show_panel("main_vbox");
+				_user.add_or_touch_recent_project(source_dir, _entry_name.text);
+				_application.show_panel("main_vbox");
 
-			if (_combo_box_map_template.value == "")
-				_project.create_initial_files(source_dir);
-			else
-				copy_template_to_source_dir(source_dir, _combo_box_map_template.value);
+				if (_combo_box_map_template.value == "")
+					_project.create_initial_files(source_dir);
+				else
+					copy_template_to_source_dir(source_dir, _combo_box_map_template.value);
 
-			_application.restart_backend.begin(source_dir, LEVEL_NONE);
-		});
+				_application.restart_backend.begin(source_dir, LEVEL_NONE);
+			});
 	}
 
 	public void fill_templates_list(string path)

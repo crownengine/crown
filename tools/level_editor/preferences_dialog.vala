@@ -102,8 +102,8 @@ public class PreferencesDialog : Gtk.Dialog
 			, new string[] { "dark", "light" }
 			);
 		_theme_combo.value_changed.connect(() => {
-			_application.set_theme_from_name(_theme_combo.value);
-		});
+				_application.set_theme_from_name(_theme_combo.value);
+			});
 
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;

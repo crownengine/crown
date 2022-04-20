@@ -313,8 +313,8 @@ public class Project
 			}
 
 			_data_compiler.compile.begin(this.data_dir(), this.platform(), (obj, res) => {
-				_data_compiler.compile.end(res);
-			});
+					_data_compiler.compile.end(res);
+				});
 		}
 	}
 
@@ -329,8 +329,8 @@ public class Project
 			fs.puts("\n");
 
 			_data_compiler.compile.begin(this.data_dir(), this.platform(), (obj, res) => {
-				_data_compiler.compile.end(res);
-			});
+					_data_compiler.compile.end(res);
+				});
 		}
 	}
 
@@ -524,10 +524,10 @@ public class Project
 			paths.add(item);
 
 		paths.sort((a, b) => {
-			int ext_a = a.last_index_of_char('.');
-			int ext_b = b.last_index_of_char('.');
-			return strcmp(a[ext_a:a.length], b[ext_b:b.length]);
-		});
+				int ext_a = a.last_index_of_char('.');
+				int ext_b = b.last_index_of_char('.');
+				return strcmp(a[ext_a:a.length], b[ext_b:b.length]);
+			});
 
 		int success = 0;
 		while (paths.size != 0 && success == 0)
@@ -696,8 +696,8 @@ public class Project
 		if (importer(this, out_dir, filenames) == 0)
 		{
 			_data_compiler.compile.begin(this.data_dir(), this.platform(), (obj, res) => {
-				_data_compiler.compile.end(res);
-			});
+					_data_compiler.compile.end(res);
+				});
 		}
 
 		src.destroy();

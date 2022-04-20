@@ -160,75 +160,75 @@ public class SpriteImportDialog : Gtk.Dialog
 		_drawing_area.set_size_request(_pixbuf.width, _pixbuf.height);
 
 		_drawing_area.draw.connect((cr) => {
-			cr.set_source_rgb(0.1, 0.1, 0.1);
-			cr.paint();
+				cr.set_source_rgb(0.1, 0.1, 0.1);
+				cr.paint();
 
-			cr.save();
-			cr.set_source_surface(_checker, 0, 0);
-			Cairo.Pattern pattern = cr.get_source();
-			pattern.set_filter(Cairo.Filter.NEAREST);
-			pattern.set_extend(Cairo.Extend.REPEAT);
-			cr.rectangle(0, 0, _pixbuf.width, _pixbuf.height);
-			cr.clip();
-			cr.paint();
-			cr.restore();
+				cr.save();
+				cr.set_source_surface(_checker, 0, 0);
+				Cairo.Pattern pattern = cr.get_source();
+				pattern.set_filter(Cairo.Filter.NEAREST);
+				pattern.set_extend(Cairo.Extend.REPEAT);
+				cr.rectangle(0, 0, _pixbuf.width, _pixbuf.height);
+				cr.clip();
+				cr.paint();
+				cr.restore();
 
-			Gdk.cairo_set_source_pixbuf(cr, _pixbuf, 0, 0);
-			cr.paint();
+				Gdk.cairo_set_source_pixbuf(cr, _pixbuf, 0, 0);
+				cr.paint();
 
-			// Pivot is relative to the top-left corner of the cell
-			Vector2 pivot = sprite_cell_pivot_xy((int)cell.value.x
-				, (int)cell.value.y
-				, (int)pivot.active
-				);
+				// Pivot is relative to the top-left corner of the cell
+				Vector2 pivot = sprite_cell_pivot_xy((int)cell.value.x
+					, (int)cell.value.y
+					, (int)pivot.active
+					);
 
-			int num_v = (int)cells.value.y;
-			int num_h = (int)cells.value.x;
+				int num_v = (int)cells.value.y;
+				int num_h = (int)cells.value.x;
 
-			for (int h = 0; h < num_v; ++h)
-			{
-				for (int w = 0; w < num_h; ++w)
+				for (int h = 0; h < num_v; ++h)
 				{
-					Vector2 sc = sprite_cell_xy(h
-						, w
-						, (int)offset.value.x
-						, (int)offset.value.y
-						, (int)cell.value.x
-						, (int)cell.value.y
-						, (int)spacing.value.x
-						, (int)spacing.value.y
-						);
+					for (int w = 0; w < num_h; ++w)
+					{
+						Vector2 sc = sprite_cell_xy(h
+							, w
+							, (int)offset.value.x
+							, (int)offset.value.y
+							, (int)cell.value.x
+							, (int)cell.value.y
+							, (int)spacing.value.x
+							, (int)spacing.value.y
+							);
 
-					int x0 = (int)sc.x;
-					int y0 = (int)sc.y;
-					int x1 = x0+(int)cell.value.x;
-					int y1 = y0;
-					int x2 = x1;
-					int y2 = y0+(int)cell.value.y;
-					int x3 = x0;
-					int y3 = y2;
-					// https://www.cairographics.org/FAQ/#sharp_lines
-					cr.move_to((double)x0,       (double)y0 + 0.5);
-					cr.line_to((double)x1,       (double)y1 + 0.5);
-					cr.move_to((double)x1 + 0.5, (double)y1      );
-					cr.line_to((double)x2 + 0.5, (double)y2      );
-					cr.move_to((double)x2,       (double)y2 + 0.5);
-					cr.line_to((double)x3,       (double)y3 + 0.5);
-					cr.move_to((double)x3 + 0.5, (double)y3      );
-					cr.line_to((double)x0 + 0.5, (double)y0      );
+						int x0 = (int)sc.x;
+						int y0 = (int)sc.y;
+						int x1 = x0+(int)cell.value.x;
+						int y1 = y0;
+						int x2 = x1;
+						int y2 = y0+(int)cell.value.y;
+						int x3 = x0;
+						int y3 = y2;
+						// https://www.cairographics.org/FAQ/#sharp_lines
+						cr.move_to((double)x0,       (double)y0 + 0.5);
+						cr.line_to((double)x1,       (double)y1 + 0.5);
+						cr.move_to((double)x1 + 0.5, (double)y1      );
+						cr.line_to((double)x2 + 0.5, (double)y2      );
+						cr.move_to((double)x2,       (double)y2 + 0.5);
+						cr.line_to((double)x3,       (double)y3 + 0.5);
+						cr.move_to((double)x3 + 0.5, (double)y3      );
+						cr.line_to((double)x0 + 0.5, (double)y0      );
 
-					cr.set_line_width(1);
-					cr.set_source_rgba(0.9, 0.1, 0.1, 0.9);
-					cr.stroke();
+						cr.set_line_width(1);
+						cr.set_source_rgba(0.9, 0.1, 0.1, 0.9);
+						cr.stroke();
 
-					cr.arc(x0 + pivot.x, y0 + pivot.y, 5.0, 0, 2*Math.PI);
-					cr.set_source_rgba(0.1, 0.1, 0.9, 0.6);
-					cr.fill();
+						cr.arc(x0 + pivot.x, y0 + pivot.y, 5.0, 0, 2*Math.PI);
+						cr.set_source_rgba(0.1, 0.1, 0.9, 0.6);
+						cr.fill();
+					}
 				}
-			}
 
-			return Gdk.EVENT_STOP;
-		});
+				return Gdk.EVENT_STOP;
+			});
 
 		_scrolled_window = new Gtk.ScrolledWindow(null, null);
 		_scrolled_window.min_content_width = 640;
@@ -239,68 +239,68 @@ public class SpriteImportDialog : Gtk.Dialog
 		_preview.set_size_request(128, 128);
 
 		_preview.draw.connect((cr) => {
-			cr.set_source_rgb(0.1, 0.1, 0.1);
-			cr.paint();
+				cr.set_source_rgb(0.1, 0.1, 0.1);
+				cr.paint();
 
-			Vector2 sc = sprite_cell_xy(0
-				, 0
-				, (int)offset.value.x
-				, (int)offset.value.y
-				, (int)cell.value.x
-				, (int)cell.value.y
-				, (int)spacing.value.x
-				, (int)spacing.value.y
-				);
+				Vector2 sc = sprite_cell_xy(0
+					, 0
+					, (int)offset.value.x
+					, (int)offset.value.y
+					, (int)cell.value.x
+					, (int)cell.value.y
+					, (int)spacing.value.x
+					, (int)spacing.value.y
+					);
 
-			int x0 = (int)sc.x;
-			int y0 = (int)sc.y;
-			int x1 = x0+(int)cell.value.x;
-			int y2 = y0+(int)cell.value.y;
+				int x0 = (int)sc.x;
+				int y0 = (int)sc.y;
+				int x1 = x0+(int)cell.value.x;
+				int y2 = y0+(int)cell.value.y;
 
-			// Draw checkered background
-			cr.save();
-			cr.set_source_surface(_checker, 0, 0);
-			Cairo.Pattern pattern = cr.get_source();
-			pattern.set_filter(Cairo.Filter.NEAREST);
-			pattern.set_extend(Cairo.Extend.REPEAT);
-			cr.rectangle(x0, y0, x1, y2);
-			cr.clip();
-			cr.new_path(); // path not consumed by clip()
-			cr.paint();
-			cr.restore();
+				// Draw checkered background
+				cr.save();
+				cr.set_source_surface(_checker, 0, 0);
+				Cairo.Pattern pattern = cr.get_source();
+				pattern.set_filter(Cairo.Filter.NEAREST);
+				pattern.set_extend(Cairo.Extend.REPEAT);
+				cr.rectangle(x0, y0, x1, y2);
+				cr.clip();
+				cr.new_path(); // path not consumed by clip()
+				cr.paint();
+				cr.restore();
 
-			// Draw sprite
-			cr.save();
-			Gdk.cairo_set_source_pixbuf(cr, _pixbuf, 0, 0);
-			cr.rectangle(x0, y0, x1, y2);
-			cr.clip();
-			cr.new_path(); // path not consumed by clip()
-			cr.paint();
-			cr.restore();
+				// Draw sprite
+				cr.save();
+				Gdk.cairo_set_source_pixbuf(cr, _pixbuf, 0, 0);
+				cr.rectangle(x0, y0, x1, y2);
+				cr.clip();
+				cr.new_path(); // path not consumed by clip()
+				cr.paint();
+				cr.restore();
 
-			// Draw collision
-			if (shape.visible_child_name == "square_collider") {
-				cr.rectangle(collision_xy.value.x, collision_xy.value.y, collision_wh.value.x, collision_wh.value.y);
-				cr.set_source_rgba(0.3, 0.3, 0.3, 0.6);
-				cr.fill();
-			} else if (shape.visible_child_name == "circle_collider") {
-				cr.arc(circle_collision_center.value.x, circle_collision_center.value.y, circle_collision_radius.value, 0, 2*Math.PI);
-				cr.set_source_rgba(0.3, 0.3, 0.3, 0.6);
-				cr.fill();
-			} else if (shape.visible_child_name == "capsule_collider") {
-				double x = capsule_collision_center.value.x;
-				double y = capsule_collision_center.value.y;
-				double radius = capsule_collision_radius.value;
-				double height = capsule_collision_height.value - 2*radius;
-				cr.arc(x - height/2, y, radius, Math.PI/2, 3*Math.PI/2);
-				cr.rectangle(x - height/2, y - radius, height, 2*radius);
-				cr.arc(x + height/2, y, radius, 3*Math.PI/2, Math.PI/2);
-				cr.set_source_rgba(0.3, 0.3, 0.3, 0.6);
-				cr.fill();
-			}
+				// Draw collision
+				if (shape.visible_child_name == "square_collider") {
+					cr.rectangle(collision_xy.value.x, collision_xy.value.y, collision_wh.value.x, collision_wh.value.y);
+					cr.set_source_rgba(0.3, 0.3, 0.3, 0.6);
+					cr.fill();
+				} else if (shape.visible_child_name == "circle_collider") {
+					cr.arc(circle_collision_center.value.x, circle_collision_center.value.y, circle_collision_radius.value, 0, 2*Math.PI);
+					cr.set_source_rgba(0.3, 0.3, 0.3, 0.6);
+					cr.fill();
+				} else if (shape.visible_child_name == "capsule_collider") {
+					double x = capsule_collision_center.value.x;
+					double y = capsule_collision_center.value.y;
+					double radius = capsule_collision_radius.value;
+					double height = capsule_collision_height.value - 2*radius;
+					cr.arc(x - height/2, y, radius, Math.PI/2, 3*Math.PI/2);
+					cr.rectangle(x - height/2, y - radius, height, 2*radius);
+					cr.arc(x + height/2, y, radius, 3*Math.PI/2, Math.PI/2);
+					cr.set_source_rgba(0.3, 0.3, 0.3, 0.6);
+					cr.fill();
+				}
 
-			return Gdk.EVENT_STOP;
-		});
+				return Gdk.EVENT_STOP;
+			});
 
 		resolution = new Gtk.Label(_pixbuf.width.to_string() + " × " + _pixbuf.height.to_string());
 		resolution.halign = Gtk.Align.START;
@@ -335,79 +335,79 @@ public class SpriteImportDialog : Gtk.Dialog
 		capsule_collision_height = new EntryDouble(64.0, 0.0, double.MAX);
 
 		cells.value_changed.connect (() => {
-			if (cell_wh_auto.active)
-				cell.value = Vector2(_pixbuf.width / cells.value.x, _pixbuf.height / cells.value.y);
+				if (cell_wh_auto.active)
+					cell.value = Vector2(_pixbuf.width / cells.value.x, _pixbuf.height / cells.value.y);
 
-			_drawing_area.queue_draw();
-			_preview.queue_draw();
-		});
+				_drawing_area.queue_draw();
+				_preview.queue_draw();
+			});
 
 		cell_wh_auto.toggled.connect(() => {
-			cell.sensitive = !cell_wh_auto.active;
-			cell.value = Vector2(_pixbuf.width / cells.value.x, _pixbuf.height / cells.value.y);
+				cell.sensitive = !cell_wh_auto.active;
+				cell.value = Vector2(_pixbuf.width / cells.value.x, _pixbuf.height / cells.value.y);
 
-			_drawing_area.queue_draw();
-			_preview.queue_draw();
-		});
+				_drawing_area.queue_draw();
+				_preview.queue_draw();
+			});
 
 		cell.value_changed.connect (() => {
-			circle_collision_center.value = Vector2(cell.value.x/2.0, cell.value.y/2.0);
-			capsule_collision_center.value = Vector2(cell.value.x/2.0, cell.value.y/2.0);
-			_drawing_area.queue_draw();
-			_preview.queue_draw();
-		});
+				circle_collision_center.value = Vector2(cell.value.x/2.0, cell.value.y/2.0);
+				capsule_collision_center.value = Vector2(cell.value.x/2.0, cell.value.y/2.0);
+				_drawing_area.queue_draw();
+				_preview.queue_draw();
+			});
 
 		offset.value_changed.connect(() => {
-			_drawing_area.queue_draw();
-			_preview.queue_draw();
-		});
+				_drawing_area.queue_draw();
+				_preview.queue_draw();
+			});
 
 		spacing.value_changed.connect(() => {
-			_drawing_area.queue_draw();
-			_preview.queue_draw();
-		});
+				_drawing_area.queue_draw();
+				_preview.queue_draw();
+			});
 
 		collision_enabled.toggled.connect(() => {
-			collision_xy.sensitive = !collision_xy.sensitive;
-			collision_wh.sensitive = !collision_wh.sensitive;
-			shape_switcher.sensitive = !shape_switcher.sensitive;
-			circle_collision_center.sensitive = !circle_collision_center.sensitive;
-			circle_collision_radius.sensitive = !circle_collision_radius.sensitive;
-			capsule_collision_center.sensitive = !capsule_collision_center.sensitive;
-			capsule_collision_radius.sensitive = !capsule_collision_radius.sensitive;
-			capsule_collision_height.sensitive = !capsule_collision_height.sensitive;
-			actor_class.sensitive = !actor_class.sensitive;
-			mass.sensitive = !mass.sensitive;
-			lock_rotation_y.sensitive = !lock_rotation_y.sensitive;
-		});
+					collision_xy.sensitive = !collision_xy.sensitive;
+					collision_wh.sensitive = !collision_wh.sensitive;
+					shape_switcher.sensitive = !shape_switcher.sensitive;
+					circle_collision_center.sensitive = !circle_collision_center.sensitive;
+					circle_collision_radius.sensitive = !circle_collision_radius.sensitive;
+					capsule_collision_center.sensitive = !capsule_collision_center.sensitive;
+					capsule_collision_radius.sensitive = !capsule_collision_radius.sensitive;
+					capsule_collision_height.sensitive = !capsule_collision_height.sensitive;
+					actor_class.sensitive = !actor_class.sensitive;
+					mass.sensitive = !mass.sensitive;
+					lock_rotation_y.sensitive = !lock_rotation_y.sensitive;
+				});
 
-		collision_xy.value_changed.connect(() => {
-			_preview.queue_draw();
-		});
+			collision_xy.value_changed.connect(() => {
+				_preview.queue_draw();
+			});
 
 		collision_wh.value_changed.connect(() => {
-			_preview.queue_draw();
-		});
+				_preview.queue_draw();
+			});
 
 		circle_collision_center.value_changed.connect(() => {
-			_preview.queue_draw();
-		});
+				_preview.queue_draw();
+			});
 
 		circle_collision_radius.value_changed.connect(() => {
-			_preview.queue_draw();
-		});
+				_preview.queue_draw();
+			});
 
 		capsule_collision_center.value_changed.connect(() => {
-			_preview.queue_draw();
-		});
+				_preview.queue_draw();
+			});
 
 		capsule_collision_radius.value_changed.connect(() => {
-			_preview.queue_draw();
-		});
+				_preview.queue_draw();
+			});
 
 		capsule_collision_height.value_changed.connect(() => {
-			_preview.queue_draw();
-		});
+				_preview.queue_draw();
+			});
 
 		pivot = new Gtk.ComboBoxText();
 		pivot.append_text("Top left");      // TOP_LEFT
@@ -422,9 +422,9 @@ public class SpriteImportDialog : Gtk.Dialog
 		pivot.active = Pivot.CENTER;
 
 		pivot.changed.connect(() => {
-			_drawing_area.queue_draw();
-			_preview.queue_draw();
-		});
+				_drawing_area.queue_draw();
+				_preview.queue_draw();
+			});
 
 		layer = new EntryDouble(0.0, 0.0, 7.0);
 		depth = new EntryDouble(0.0, 0.0, 9999.0);

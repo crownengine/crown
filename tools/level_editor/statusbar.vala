@@ -53,10 +53,10 @@ public class Statusbar : Gtk.Box
 		}
 
 		_timer_id = GLib.Timeout.add_seconds(4, () => {
-			_temporary_message.set_label("");
-			_timer_id = 0;
-			return false; // Remove the source
-		});
+				_temporary_message.set_label("");
+				_timer_id = 0;
+				return false; // Remove the source
+			});
 	}
 }
 

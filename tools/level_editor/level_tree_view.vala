@@ -66,39 +66,39 @@ public class LevelTreeView : Gtk.Box
 
 		_tree_filter = new Gtk.TreeModelFilter(_tree_store, null);
 		_tree_filter.set_visible_func((model, iter) => {
-			_tree_view.expand_all();
+				_tree_view.expand_all();
 
-			Value type;
-			Value name;
-			model.get_value(iter, Column.TYPE, out type);
-			model.get_value(iter, Column.NAME, out name);
+				Value type;
+				Value name;
+				model.get_value(iter, Column.TYPE, out type);
+				model.get_value(iter, Column.NAME, out name);
 
-			if ((int)type == ItemType.FOLDER)
-				return true;
+				if ((int)type == ItemType.FOLDER)
+					return true;
 
-			string name_str = (string)name;
-			string filter_text = _filter_entry.text.down();
+				string name_str = (string)name;
+				string filter_text = _filter_entry.text.down();
 
-			return name_str != null
-				&& (filter_text == "" || name_str.down().index_of(filter_text) > -1)
-				;
-		});
+				return name_str != null
+					&& (filter_text == "" || name_str.down().index_of(filter_text) > -1)
+					;
+			});
 
 		_tree_sort = new Gtk.TreeModelSort.with_model(_tree_filter);
 		_tree_sort.set_default_sort_func((model, iter_a, iter_b) => {
-			Value type_a;
-			Value type_b;
-			model.get_value(iter_a, Column.TYPE, out type_a);
-			model.get_value(iter_b, Column.TYPE, out type_b);
-			if ((int)type_a == ItemType.FOLDER || (int)type_b == ItemType.FOLDER)
-				return -1;
+				Value type_a;
+				Value type_b;
+				model.get_value(iter_a, Column.TYPE, out type_a);
+				model.get_value(iter_b, Column.TYPE, out type_b);
+				if ((int)type_a == ItemType.FOLDER || (int)type_b == ItemType.FOLDER)
+					return -1;
 
-			Value id_a;
-			Value id_b;
-			model.get_value(iter_a, Column.NAME, out id_a);
-			model.get_value(iter_b, Column.NAME, out id_b);
-			return strcmp((string)id_a, (string)id_b);
-		});
+				Value id_a;
+				Value id_b;
+				model.get_value(iter_a, Column.NAME, out id_a);
+				model.get_value(iter_b, Column.NAME, out id_b);
+				return strcmp((string)id_a, (string)id_b);
+			});
 
 		Gtk.TreeViewColumn column = new Gtk.TreeViewColumn();
 		Gtk.CellRendererPixbuf cell_pixbuf = new Gtk.CellRendererPixbuf();
@@ -106,28 +106,28 @@ public class LevelTreeView : Gtk.Box
 		column.pack_start(cell_pixbuf, false);
 		column.pack_start(cell_text, true);
 		column.set_cell_data_func(cell_pixbuf, (cell_layout, cell, model, iter) => {
-			Value type;
-			model.get_value(iter, LevelTreeView.Column.TYPE, out type);
+				Value type;
+				model.get_value(iter, LevelTreeView.Column.TYPE, out type);
 
-			if ((int)type == LevelTreeView.ItemType.FOLDER)
-				cell.set_property("icon-name", "folder-symbolic");
-			else if ((int)type == LevelTreeView.ItemType.UNIT)
-				cell.set_property("icon-name", "level-object-unit");
-			else if ((int)type == LevelTreeView.ItemType.SOUND)
-				cell.set_property("icon-name", "level-object-sound");
-			else if ((int)type == LevelTreeView.ItemType.LIGHT)
-				cell.set_property("icon-name", "level-object-light");
-			else if ((int)type == LevelTreeView.ItemType.CAMERA)
-				cell.set_property("icon-name", "level-object-camera");
-			else
-				cell.set_property("icon-name", "level-object-unknown");
-		});
+				if ((int)type == LevelTreeView.ItemType.FOLDER)
+					cell.set_property("icon-name", "folder-symbolic");
+				else if ((int)type == LevelTreeView.ItemType.UNIT)
+					cell.set_property("icon-name", "level-object-unit");
+				else if ((int)type == LevelTreeView.ItemType.SOUND)
+					cell.set_property("icon-name", "level-object-sound");
+				else if ((int)type == LevelTreeView.ItemType.LIGHT)
+					cell.set_property("icon-name", "level-object-light");
+				else if ((int)type == LevelTreeView.ItemType.CAMERA)
+					cell.set_property("icon-name", "level-object-camera");
+				else
+					cell.set_property("icon-name", "level-object-unknown");
+			});
 		column.set_cell_data_func(cell_text, (cell_layout, cell, model, iter) => {
-			Value name;
-			model.get_value(iter, LevelTreeView.Column.NAME, out name);
+				Value name;
+				model.get_value(iter, LevelTreeView.Column.NAME, out name);
 
-			cell.set_property("text", (string)name);
-		});
+				cell.set_property("text", (string)name);
+			});
 		_tree_view = new Gtk.TreeView();
 		_tree_view.append_column(column);
 #if 0
@@ -181,72 +181,72 @@ public class LevelTreeView : Gtk.Box
 
 			mi = new Gtk.MenuItem.with_label("Rename...");
 			mi.activate.connect(() => {
-				Gtk.Dialog dg = new Gtk.Dialog.with_buttons("New Name"
-					, (Gtk.Window)this.get_toplevel()
-					, DialogFlags.MODAL
-					, "Cancel"
-					, ResponseType.CANCEL
-					, "Ok"
-					, ResponseType.OK
-					, null
-					);
+					Gtk.Dialog dg = new Gtk.Dialog.with_buttons("New Name"
+						, (Gtk.Window)this.get_toplevel()
+						, DialogFlags.MODAL
+						, "Cancel"
+						, ResponseType.CANCEL
+						, "Ok"
+						, ResponseType.OK
+						, null
+						);
 
-				EntryText sb = new EntryText();
-				_tree_selection.selected_foreach((model, path, iter) => {
-					Value name;
-					model.get_value(iter, Column.NAME, out name);
-					sb.text = (string)name;
-					return;
-				});
-				sb.activate.connect(() => { dg.response(ResponseType.OK); });
-				dg.get_content_area().add(sb);
-				dg.skip_taskbar_hint = true;
-				dg.show_all();
-
-				if (dg.run() == (int)ResponseType.OK)
-				{
-					string cur_name = "";
-					string new_name = "";
-					Guid object_id = GUID_ZERO;
-
+					EntryText sb = new EntryText();
 					_tree_selection.selected_foreach((model, path, iter) => {
-						Value type;
-						model.get_value(iter, Column.TYPE, out type);
-						if ((int)type == ItemType.FOLDER)
+							Value name;
+							model.get_value(iter, Column.NAME, out name);
+							sb.text = (string)name;
 							return;
+						});
+					sb.activate.connect(() => { dg.response(ResponseType.OK); });
+					dg.get_content_area().add(sb);
+					dg.skip_taskbar_hint = true;
+					dg.show_all();
 
-						Value name;
-						model.get_value(iter, Column.NAME, out name);
-						cur_name = (string)name;
+					if (dg.run() == (int)ResponseType.OK)
+					{
+						string cur_name = "";
+						string new_name = "";
+						Guid object_id = GUID_ZERO;
 
-						Value guid;
-						model.get_value(iter, Column.GUID, out guid);
-						object_id = (Guid)guid;
+						_tree_selection.selected_foreach((model, path, iter) => {
+								Value type;
+								model.get_value(iter, Column.TYPE, out type);
+								if ((int)type == ItemType.FOLDER)
+									return;
 
-						new_name = sb.text.strip();
-					});
+								Value name;
+								model.get_value(iter, Column.NAME, out name);
+								cur_name = (string)name;
 
-					if (new_name != "" && new_name != cur_name)
-						_level.object_set_editor_name(object_id, new_name);
-				}
+								Value guid;
+								model.get_value(iter, Column.GUID, out guid);
+								object_id = (Guid)guid;
 
-				dg.destroy();
-			});
+								new_name = sb.text.strip();
+							});
+
+						if (new_name != "" && new_name != cur_name)
+							_level.object_set_editor_name(object_id, new_name);
+					}
+
+					dg.destroy();
+				});
 			if (_tree_selection.count_selected_rows() == 1)
 				menu.add(mi);
 
 			mi = new Gtk.MenuItem.with_label("Duplicate");
 			mi.activate.connect(() => {
-				Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
-				app.activate_action("duplicate", null);
-			});
+					Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
+					app.activate_action("duplicate", null);
+				});
 			menu.add(mi);
 
 			mi = new Gtk.MenuItem.with_label("Delete");
 			mi.activate.connect(() => {
-				Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
-				app.activate_action("delete", null);
-			});
+					Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
+					app.activate_action("delete", null);
+				});
 			menu.add(mi);
 
 			menu.show_all();
@@ -290,15 +290,15 @@ public class LevelTreeView : Gtk.Box
 
 		Guid[] ids = {};
 		_tree_selection.selected_foreach((model, path, iter) => {
-			Value type;
-			model.get_value(iter, Column.TYPE, out type);
-			if ((int)type == ItemType.FOLDER)
-				return;
+				Value type;
+				model.get_value(iter, Column.TYPE, out type);
+				if ((int)type == ItemType.FOLDER)
+					return;
 
-			Value id;
-			model.get_value(iter, Column.GUID, out id);
-			ids += (Guid)id;
-		});
+				Value id;
+				model.get_value(iter, Column.GUID, out id);
+				ids += (Guid)id;
+			});
 
 		_level.selection_set(ids);
 		_level.selection_changed.connect(on_level_selection_changed);
@@ -310,25 +310,25 @@ public class LevelTreeView : Gtk.Box
 		_tree_selection.unselect_all();
 
 		_tree_sort.foreach ((model, path, iter) => {
-			Value type;
-			model.get_value(iter, Column.TYPE, out type);
-			if ((int)type == ItemType.FOLDER)
-				return false;
-
-			Value id;
-			model.get_value(iter, Column.GUID, out id);
-
-			foreach (Guid? guid in selection)
-			{
-				if ((Guid)id == guid)
-				{
-					_tree_selection.select_iter(iter);
+				Value type;
+				model.get_value(iter, Column.TYPE, out type);
+				if ((int)type == ItemType.FOLDER)
 					return false;
-				}
-			}
 
-			return false;
-		});
+				Value id;
+				model.get_value(iter, Column.GUID, out id);
+
+				foreach (Guid? guid in selection)
+				{
+					if ((Guid)id == guid)
+					{
+						_tree_selection.select_iter(iter);
+						return false;
+					}
+				}
+
+				return false;
+			});
 
 		_tree_selection.changed.connect(on_tree_selection_changed);
 	}
@@ -336,33 +336,33 @@ public class LevelTreeView : Gtk.Box
 	private void on_object_editor_name_changed(Guid object_id, string name)
 	{
 		_tree_sort.foreach ((model, path, iter) => {
-			Value type;
-			model.get_value(iter, Column.TYPE, out type);
-			if ((int)type == ItemType.FOLDER)
+				Value type;
+				model.get_value(iter, Column.TYPE, out type);
+				if ((int)type == ItemType.FOLDER)
+					return false;
+
+				Value guid;
+				model.get_value(iter, Column.GUID, out guid);
+				Guid guid_model = (Guid)guid;
+
+				if (guid_model == object_id)
+				{
+					Gtk.TreeIter iter_filter;
+					Gtk.TreeIter iter_model;
+					_tree_sort.convert_iter_to_child_iter(out iter_filter, iter);
+					_tree_filter.convert_iter_to_child_iter(out iter_model, iter_filter);
+
+					_tree_store.set(iter_model
+						, Column.NAME
+						, name
+						, -1
+						);
+
+					return true;
+				}
+
 				return false;
-
-			Value guid;
-			model.get_value(iter, Column.GUID, out guid);
-			Guid guid_model = (Guid)guid;
-
-			if (guid_model == object_id)
-			{
-				Gtk.TreeIter iter_filter;
-				Gtk.TreeIter iter_model;
-				_tree_sort.convert_iter_to_child_iter(out iter_filter, iter);
-				_tree_filter.convert_iter_to_child_iter(out iter_model, iter_filter);
-
-				_tree_store.set(iter_model
-					, Column.NAME
-					, name
-					, -1
-					);
-
-				return true;
-			}
-
-			return false;
-		});
+			});
 	}
 
 	private void on_database_key_changed(Guid id, string key)

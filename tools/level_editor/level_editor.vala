@@ -510,9 +510,9 @@ public class LevelEditorApplication : Gtk.Application
 		_editor_stack_oops_label = new Gtk.Label(null);
 		_editor_stack_oops_label.set_markup("Something went wrong.\rTry to <a href=\"restart\">restart</a> this view.");
 		_editor_stack_oops_label.activate_link.connect(() => {
-			activate_action("restart-editor-view", null);
-			return true;
-		});
+				activate_action("restart-editor-view", null);
+				return true;
+			});
 		_editor_stack.add(_editor_stack_oops_label);
 
 		_inspector_stack = new Gtk.Stack();
@@ -534,53 +534,53 @@ public class LevelEditorApplication : Gtk.Application
 
 		_resource_popover = new Gtk.Popover(_toolbar);
 		_resource_popover.key_press_event.connect((ev) => {
-			if (ev.keyval == Gdk.Key.Escape)
-			{
-				// Do not transition-animate (i.e. call hide() instead of popdown()).
-				_resource_popover.hide();
-				return Gdk.EVENT_STOP;
-			}
+				if (ev.keyval == Gdk.Key.Escape)
+				{
+					// Do not transition-animate (i.e. call hide() instead of popdown()).
+					_resource_popover.hide();
+					return Gdk.EVENT_STOP;
+				}
 
-			return Gdk.EVENT_PROPAGATE;
-		});
+				return Gdk.EVENT_PROPAGATE;
+			});
 		_resource_popover.button_press_event.connect((ev) => {
-			// Do not transition-animate (i.e. call hide() instead of popdown()).
-			// See: https://gitlab.gnome.org/GNOME/gtk/-/blob/3.22.30/gtk/gtkpopover.c
-			Gtk.Widget child = _resource_popover.get_child();
-			Gtk.Widget event_widget = Gtk.get_event_widget(ev);
+				// Do not transition-animate (i.e. call hide() instead of popdown()).
+				// See: https://gitlab.gnome.org/GNOME/gtk/-/blob/3.22.30/gtk/gtkpopover.c
+				Gtk.Widget child = _resource_popover.get_child();
+				Gtk.Widget event_widget = Gtk.get_event_widget(ev);
 
-			if (child != null && ev.window == event_widget.get_window())
-			{
-				Gtk.Allocation child_alloc;
-				child.get_allocation(out child_alloc);
+				if (child != null && ev.window == event_widget.get_window())
+				{
+					Gtk.Allocation child_alloc;
+					child.get_allocation(out child_alloc);
 
-				if ((int)ev.x < child_alloc.x
-					|| (int)ev.x > child_alloc.x + child_alloc.width
-					|| (int)ev.y < child_alloc.y
-					|| (int)ev.y > child_alloc.y + child_alloc.height
-					)
+					if ((int)ev.x < child_alloc.x
+						|| (int)ev.x > child_alloc.x + child_alloc.width
+						|| (int)ev.y < child_alloc.y
+						|| (int)ev.y > child_alloc.y + child_alloc.height
+						)
+					{
+						_resource_popover.hide();
+					}
+				}
+				else if (!event_widget.is_ancestor(_resource_popover))
 				{
 					_resource_popover.hide();
 				}
-			}
-			else if (!event_widget.is_ancestor(_resource_popover))
-			{
-				_resource_popover.hide();
-			}
 
-			return Gdk.EVENT_PROPAGATE;
-		});
+				return Gdk.EVENT_PROPAGATE;
+			});
 		_resource_popover.events |= Gdk.EventMask.STRUCTURE_MASK; // unmap_event
 		_resource_popover.unmap_event.connect(() => {
-			// Redraw the editor view when the popover is not on-screen anymore.
-			device_frame_delayed(16, _editor);
-			return Gdk.EVENT_PROPAGATE;
-		});
+				// Redraw the editor view when the popover is not on-screen anymore.
+				device_frame_delayed(16, _editor);
+				return Gdk.EVENT_PROPAGATE;
+			});
 		_resource_popover.delete_event.connect(() => {
-			// Do not destroy the widget.
-			_resource_popover.hide();
-			return Gdk.EVENT_STOP;
-		});
+				// Do not destroy the widget.
+				_resource_popover.hide();
+				return Gdk.EVENT_STOP;
+			});
 		_resource_popover.modal = true;
 
 		_resource_chooser = new ResourceChooser(_project, _project_store, true);
@@ -1041,9 +1041,9 @@ public class LevelEditorApplication : Gtk.Application
 		Gtk.Label label = new Gtk.Label(null);
 		label.set_markup("Data Compiler disconnected.\rTry to <a href=\"restart\">restart</a> compiler to continue.");
 		label.activate_link.connect(() => {
-			restart_backend.begin(_project.source_dir(), _level._name != null ? _level._name : "");
-			return true;
-		});
+				restart_backend.begin(_project.source_dir(), _level._name != null ? _level._name : "");
+				return true;
+			});
 
 		return label;
 	}
@@ -1053,9 +1053,9 @@ public class LevelEditorApplication : Gtk.Application
 		Gtk.Label label = new Gtk.Label(null);
 		label.set_markup("Data compilation failed.\rFix errors and <a href=\"restart\">restart</a> compiler to continue.");
 		label.activate_link.connect(() => {
-			restart_backend.begin(_project.source_dir(), _level._name != null ? _level._name : "");
-			return true;
-		});
+				restart_backend.begin(_project.source_dir(), _level._name != null ? _level._name : "");
+				return true;
+			});
 
 		return label;
 	}
@@ -1125,25 +1125,25 @@ public class LevelEditorApplication : Gtk.Application
 
 		// Compile data.
 		_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
-			if (_data_compiler.compile.end(res))
-			{
-				load_level(ln);
+				if (_data_compiler.compile.end(res))
+				{
+					load_level(ln);
 
-				// If successful, start the level editor.
-				restart_editor.begin((obj, res) => {
-					restart_editor.end(res);
+					// If successful, start the level editor.
+					restart_editor.begin((obj, res) => {
+							restart_editor.end(res);
 
-					_project_stack.set_visible_child(_project_browser);
-					_inspector_stack.set_visible_child(_inspector_pane);
-				});
-			}
-			else
-			{
-				_project_stack.set_visible_child(_project_stack_compiler_failed_compilation_label);
-				_editor_stack.set_visible_child(_editor_stack_compiler_failed_compilation_label);
-				_inspector_stack.set_visible_child(_inspector_stack_compiler_failed_compilation_label);
-			}
-		});
+							_project_stack.set_visible_child(_project_browser);
+							_inspector_stack.set_visible_child(_inspector_pane);
+						});
+				}
+				else
+				{
+					_project_stack.set_visible_child(_project_stack_compiler_failed_compilation_label);
+					_editor_stack.set_visible_child(_editor_stack_compiler_failed_compilation_label);
+					_inspector_stack.set_visible_child(_inspector_stack_compiler_failed_compilation_label);
+				}
+			});
 	}
 
 	public async void stop_heads()
@@ -1813,9 +1813,9 @@ public class LevelEditorApplication : Gtk.Application
 		if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
 		{
 			stop_backend.begin((obj, res) => {
-				stop_backend.end(res);
-				show_panel("panel_new_project");
-			});
+					stop_backend.end(res);
+					show_panel("panel_new_project");
+				});
 		}
 	}
 
@@ -1890,18 +1890,18 @@ public class LevelEditorApplication : Gtk.Application
 		if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
 		{
 			stop_backend.begin((obj, res) => {
-				stop_backend.end(res);
-				show_panel("panel_welcome");
-			});
+					stop_backend.end(res);
+					show_panel("panel_welcome");
+				});
 		}
 	}
 
 	public void stop_backend_and_quit()
 	{
 		stop_backend.begin((obj, res) => {
-			stop_backend.end(res);
-			this.quit();
-		});
+				stop_backend.end(res);
+				this.quit();
+			});
 	}
 
 	private void on_quit(GLib.SimpleAction action, GLib.Variant? param)
@@ -2132,28 +2132,28 @@ public class LevelEditorApplication : Gtk.Application
 	private void on_restart_editor_view(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		restart_editor.begin((obj, res) => {
-			restart_editor.end(res);
-		});
+				restart_editor.end(res);
+			});
 	}
 
 	private void on_build_data(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
-			_data_compiler.compile.end(res);
-		});
+				_data_compiler.compile.end(res);
+			});
 	}
 
 	private void on_refresh_lua(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
-			if (_data_compiler.compile.end(res))
-			{
-				_editor.send(DeviceApi.refresh());
-				_editor.send(DeviceApi.frame());
-				_game.send(DeviceApi.refresh());
-				_game.send(DeviceApi.frame());
-			}
-		});
+				if (_data_compiler.compile.end(res))
+				{
+					_editor.send(DeviceApi.refresh());
+					_editor.send(DeviceApi.frame());
+					_game.send(DeviceApi.refresh());
+					_game.send(DeviceApi.frame());
+				}
+			});
 	}
 
 	private void on_snap_to_grid(GLib.SimpleAction action, GLib.Variant? param)
@@ -2182,20 +2182,20 @@ public class LevelEditorApplication : Gtk.Application
 		string icon_name_displayed = _toolbar_run.icon_name;
 
 		stop_game.begin((obj, res) => {
-			stop_game.end(res);
+				stop_game.end(res);
 
-			if (icon_name_displayed == "game-run")
-			{
-				// Always change icon state regardless of failures
-				_toolbar_run.icon_name = "game-stop";
+				if (icon_name_displayed == "game-run")
+				{
+					// Always change icon state regardless of failures
+					_toolbar_run.icon_name = "game-stop";
 
-				//
-				_game.disconnected.disconnect(on_game_disconnected);
-				_game.disconnected.connect(on_game_disconnected_externally);
+					//
+					_game.disconnected.disconnect(on_game_disconnected);
+					_game.disconnected.connect(on_game_disconnected_externally);
 
-				start_game.begin(action.name == "test-level" ? StartGame.TEST : StartGame.NORMAL);
-			}
-		});
+					start_game.begin(action.name == "test-level" ? StartGame.TEST : StartGame.NORMAL);
+				}
+			});
 	}
 
 	private void on_undo(GLib.SimpleAction action, GLib.Variant? param)
@@ -2636,9 +2636,9 @@ private void device_frame_delayed(uint delay_ms, ConsoleClient client)
 	// FIXME: find a way to time exactly when it is effective to queue a redraw.
 	// See: https://blogs.gnome.org/jnelson/2010/10/13/those-realize-map-widget-signals/
 	GLib.Timeout.add_full(GLib.Priority.DEFAULT, delay_ms, () => {
-		client.send(DeviceApi.frame());
-		return false;
-	});
+			client.send(DeviceApi.frame());
+			return false;
+		});
 }
 
 public static int main(string[] args)

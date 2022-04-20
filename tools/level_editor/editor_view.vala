@@ -119,9 +119,9 @@ public class EditorView : Gtk.EventBox
 		this.set_size_request(128, 128);
 		this.events |= Gdk.EventMask.STRUCTURE_MASK; // map_event
 		this.map_event.connect(() => {
-			device_frame_delayed(16, _client);
-			return Gdk.EVENT_PROPAGATE;
-		});
+				device_frame_delayed(16, _client);
+				return Gdk.EVENT_PROPAGATE;
+			});
 	}
 
 	private bool on_button_release(Gdk.EventButton ev)
@@ -293,10 +293,10 @@ public class EditorView : Gtk.EventBox
 		if (_resize_timer_id == 0)
 		{
 			_resize_timer_id = GLib.Timeout.add_full(GLib.Priority.DEFAULT, 200, () => {
-				_client.send(DeviceApi.frame());
-				_resize_timer_id = 0;
-				return false; // Destroy the timeout.
-			});
+					_client.send(DeviceApi.frame());
+					_resize_timer_id = 0;
+					return false; // Destroy the timeout.
+				});
 		}
 	}
 

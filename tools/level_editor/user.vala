@@ -26,26 +26,26 @@ public class User
 		_data = sjson;
 
 		_data.foreach((ee) => {
-			if (ee.key == "recent_projects")
-			{
-				var recent_projects = ee.value as ArrayList<Value?>;
-				for (int ii = 0; ii < recent_projects.size; ++ii)
+				if (ee.key == "recent_projects")
 				{
-					Hashtable rp = recent_projects[ii] as Hashtable;
+					var recent_projects = ee.value as ArrayList<Value?>;
+					for (int ii = 0; ii < recent_projects.size; ++ii)
+					{
+						Hashtable rp = recent_projects[ii] as Hashtable;
 
-					recent_project_added((string)rp["source_dir"]
-						, (string)rp["name"]
-						, (string)rp["mtime"]
-						);
+						recent_project_added((string)rp["source_dir"]
+							, (string)rp["name"]
+							, (string)rp["mtime"]
+							);
+					}
 				}
-			}
-			else
-			{
-				logw("Unknown key: `%s`".printf(ee.key));
-			}
+				else
+				{
+					logw("Unknown key: `%s`".printf(ee.key));
+				}
 
-			return true;
-		});
+				return true;
+			});
 	}
 
 	public Hashtable encode()
@@ -70,23 +70,23 @@ public class User
 		Hashtable? project = null;
 
 		_data.foreach ((ee) => {
-			if (ee.key == "recent_projects")
-			{
-				recent_projects = ee.value as ArrayList<Value?>;
-				for (int ii = 0; ii < recent_projects.size; ++ii)
+				if (ee.key == "recent_projects")
 				{
-					Hashtable rp = recent_projects[ii] as Hashtable;
-
-					if ((string)rp["source_dir"] == source_dir)
+					recent_projects = ee.value as ArrayList<Value?>;
+					for (int ii = 0; ii < recent_projects.size; ++ii)
 					{
-						project = rp;
-						return false; // break
+						Hashtable rp = recent_projects[ii] as Hashtable;
+
+						if ((string)rp["source_dir"] == source_dir)
+						{
+							project = rp;
+							return false; // break
+						}
 					}
 				}
-			}
 
-			return true;
-		});
+				return true;
+			});
 
 		if (recent_projects == null)
 		{
@@ -115,24 +115,24 @@ public class User
 	public void remove_recent_project(string source_dir)
 	{
 		_data.foreach((ee) => {
-			if (ee.key == "recent_projects")
-			{
-				var recent_projects = ee.value as ArrayList<Value?>;
-				var it = recent_projects.iterator();
-				for (var has_next = it.next(); has_next; has_next = it.next())
+				if (ee.key == "recent_projects")
 				{
-					Hashtable rp = it.get() as Hashtable;
-					if ((string)rp["source_dir"] == source_dir)
+					var recent_projects = ee.value as ArrayList<Value?>;
+					var it = recent_projects.iterator();
+					for (var has_next = it.next(); has_next; has_next = it.next())
 					{
-						it.remove();
-						recent_project_removed(source_dir);
-						return false; // break
+						Hashtable rp = it.get() as Hashtable;
+						if ((string)rp["source_dir"] == source_dir)
+						{
+							it.remove();
+							recent_project_removed(source_dir);
+							return false; // break
+						}
 					}
 				}
-			}
 
-			return true;
-		});
+				return true;
+			});
 	}
 }
 

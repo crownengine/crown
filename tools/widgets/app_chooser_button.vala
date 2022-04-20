@@ -48,18 +48,18 @@ public class AppChooserButton : Gtk.AppChooserButton
 		}
 
 		this.model.foreach((model, path, iter) => {
-			Value val;
-			model.get_value(iter, ModelColumn.APP_INFO, out val);
+				Value val;
+				model.get_value(iter, ModelColumn.APP_INFO, out val);
 
-			GLib.AppInfo app_info = (GLib.AppInfo)val;
-			if (app_info != null && app_info.get_id() == app_id)
-			{
-				this.set_active_iter(iter);
-				return true;
-			}
+				GLib.AppInfo app_info = (GLib.AppInfo)val;
+				if (app_info != null && app_info.get_id() == app_id)
+				{
+					this.set_active_iter(iter);
+					return true;
+				}
 
-			return false;
-		});
+				return false;
+			});
 	}
 
 	/// Returns the item name of the selected application. If the application is predefined,

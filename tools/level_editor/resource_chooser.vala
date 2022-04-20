@@ -67,29 +67,29 @@ public class ResourceChooser : Gtk.Box
 
 		_tree_filter = new Gtk.TreeModelFilter(_list_store, null);
 		_tree_filter.set_visible_func((model, iter) => {
-			Value type;
-			Value name;
-			model.get_value(iter, ProjectStore.Column.TYPE, out type);
-			model.get_value(iter, ProjectStore.Column.NAME, out name);
+				Value type;
+				Value name;
+				model.get_value(iter, ProjectStore.Column.TYPE, out type);
+				model.get_value(iter, ProjectStore.Column.NAME, out name);
 
-			string type_str = (string)type;
-			string name_str = (string)name;
+				string type_str = (string)type;
+				string name_str = (string)name;
 
-			return type_str != null
-				&& name_str != null
-				&& _user_filter(type_str, name_str)
-				&& (_filter_entry.text.length == 0 || name_str.index_of(_filter_entry.text) > -1)
-				;
-		});
+				return type_str != null
+					&& name_str != null
+					&& _user_filter(type_str, name_str)
+					&& (_filter_entry.text.length == 0 || name_str.index_of(_filter_entry.text) > -1)
+					;
+			});
 
 		_tree_sort = new Gtk.TreeModelSort.with_model(_tree_filter);
 		_tree_sort.set_default_sort_func((model, iter_a, iter_b) => {
-			Value id_a;
-			Value id_b;
-			model.get_value(iter_a, ProjectStore.Column.NAME, out id_a);
-			model.get_value(iter_b, ProjectStore.Column.NAME, out id_b);
-			return strcmp((string)id_a, (string)id_b);
-		});
+				Value id_a;
+				Value id_b;
+				model.get_value(iter_a, ProjectStore.Column.NAME, out id_a);
+				model.get_value(iter_b, ProjectStore.Column.NAME, out id_b);
+				return strcmp((string)id_a, (string)id_b);
+			});
 
 		_tree_view = new Gtk.TreeView();
 		_tree_view.insert_column_with_attributes(-1
@@ -137,19 +137,19 @@ public class ResourceChooser : Gtk.Box
 		_oops_label = new Gtk.Label(null);
 		_oops_label.set_markup("Something went wrong.\rTry to <a href=\"restart\">restart</a> this view.");
 		_oops_label.activate_link.connect(() => {
-			restart_editor.begin((obj, res) => {
-				restart_editor.end(res);
+				restart_editor.begin((obj, res) => {
+						restart_editor.end(res);
+					});
+				return true;
 			});
-			return true;
-		});
 		_editor_stack.add(_oops_label);
 
 		this.destroy.connect(on_destroy);
 		this.unmap.connect(on_unmap);
 
 		restart_editor.begin((obj, res) => {
-			restart_editor.end(res);
-		});
+				restart_editor.end(res);
+			});
 	}
 
 	private void on_row_activated(Gtk.TreePath path, TreeViewColumn column)
@@ -199,8 +199,8 @@ public class ResourceChooser : Gtk.Box
 	private void on_destroy()
 	{
 		stop_editor.begin((obj, res) => {
-			stop_editor.end(res);
-		});
+				stop_editor.end(res);
+			});
 	}
 
 	private void on_unmap()
