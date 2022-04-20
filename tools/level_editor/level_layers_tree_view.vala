@@ -13,7 +13,7 @@ public class LevelLayersTreeView : Gtk.Box
 	private enum ItemFlags
 	{
 		VISIBLE = 1,
-		LOCKED = 2
+		LOCKED  = 2
 	}
 
 	// Data

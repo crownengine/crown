@@ -82,15 +82,15 @@ public class PreferencesDialog : Gtk.Dialog
 		PropertyGrid cv;
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row(           "Grid", _grid_color_button);
+		cv.add_row("Grid", _grid_color_button);
 		cv.add_row("Grid (Disabled)", _grid_disabled_color_button);
 		_document_set.add_property_grid(cv, "Grid");
 
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row(  "X Axis", _axis_x_color_button);
-		cv.add_row(  "Y Axis", _axis_y_color_button);
-		cv.add_row(  "Z Axis", _axis_z_color_button);
+		cv.add_row("X Axis", _axis_x_color_button);
+		cv.add_row("Y Axis", _axis_y_color_button);
+		cv.add_row("Z Axis", _axis_z_color_button);
 		cv.add_row("Selected", _axis_selected_color_button);
 		_document_set.add_property_grid(cv, "Axes");
 

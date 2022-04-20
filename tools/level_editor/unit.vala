@@ -173,7 +173,7 @@ public class Unit
 		{
 			foreach (Guid id in (HashSet<Guid?>)val)
 			{
-				if((string)db.get_property(id, "type") == component_type)
+				if ((string)db.get_property(id, "type") == component_type)
 				{
 					component_id = id;
 					owner_id = unit_id;

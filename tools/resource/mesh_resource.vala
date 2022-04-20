@@ -91,7 +91,7 @@ public class MeshResource
 			{
 				Guid new_unit_id = Guid.new_guid();
 				db.create(new_unit_id, OBJECT_TYPE_UNIT);
-				create_components(db, unit_id, new_unit_id, material_name, resource_name, child.key,(Hashtable)child.value);
+				create_components(db, unit_id, new_unit_id, material_name, resource_name, child.key, (Hashtable)child.value);
 			}
 		}
 	}

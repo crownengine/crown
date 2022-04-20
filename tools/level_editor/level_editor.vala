@@ -895,8 +895,8 @@ public class LevelEditorApplication : Gtk.Application
 		}
 		else if (msg_type == "unit_spawned")
 		{
-			string id             = (string)           msg["id"];
-			string name           = (string)           msg["name"];
+			string id             = (string)msg["id"];
+			string name           = (string)msg["name"];
 			ArrayList<Value?> pos = (ArrayList<Value?>)msg["position"];
 			ArrayList<Value?> rot = (ArrayList<Value?>)msg["rotation"];
 			ArrayList<Value?> scl = (ArrayList<Value?>)msg["scale"];
@@ -910,14 +910,14 @@ public class LevelEditorApplication : Gtk.Application
 		}
 		else if (msg_type == "sound_spawned")
 		{
-			string id             = (string)           msg["id"];
-			string name           = (string)           msg["name"];
+			string id             = (string)msg["id"];
+			string name           = (string)msg["name"];
 			ArrayList<Value?> pos = (ArrayList<Value?>)msg["position"];
 			ArrayList<Value?> rot = (ArrayList<Value?>)msg["rotation"];
 			ArrayList<Value?> scl = (ArrayList<Value?>)msg["scale"];
-			double range          = (double)           msg["range"];
-			double volume         = (double)           msg["volume"];
-			bool loop             = (bool)             msg["loop"];
+			double range          = (double)msg["range"];
+			double volume         = (double)msg["volume"];
+			bool loop             = (bool)msg["loop"];
 
 			_level.on_sound_spawned(Guid.parse(id)
 				, name
@@ -2464,7 +2464,7 @@ public class LevelEditorApplication : Gtk.Application
 			menu_set_enabled(false, action_entries_camera);
 			menu_set_enabled(false, action_entries_view);
 			menu_set_enabled(false, action_entries_debug);
-			menu_set_enabled( true, action_entries_help);
+			menu_set_enabled(true, action_entries_help);
 		}
 	}
 

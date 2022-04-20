@@ -149,7 +149,7 @@ public class SJSON
 	static void write_string(string s, StringBuilder builder)
 	{
 		builder.append_c('"');
-		for (int i=0; i<s.length; ++i) {
+		for (int i = 0; i < s.length; ++i) {
 			char c = s[i];
 			if (c == '"' || c == '\\')
 				builder.append_c('\\');
@@ -266,7 +266,7 @@ public class SJSON
 	static void consume(uint8 [] json, ref int index, string consume)
 	{
 		skip_whitespace(json, ref index);
-		for (int i=0; i<consume.length; ++i) {
+		for (int i = 0; i < consume.length; ++i) {
 			if (json[index] != consume[i])
 				GLib.assert(false);
 			++index;

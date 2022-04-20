@@ -275,7 +275,7 @@ public class LevelTreeView : Gtk.Box
 				if (_tree_view.is_row_expanded(path))
 					_tree_view.collapse_row(path);
 				else
-					_tree_view.expand_row(path, /*open_all = */false);
+					_tree_view.expand_row(path, /*open_all = */ false);
 
 				return Gdk.EVENT_STOP;
 			}

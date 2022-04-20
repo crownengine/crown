@@ -8,9 +8,9 @@ using Gee;
 using Gtk;
 
 #if CROWN_PLATFORM_LINUX
-extern uint gdk_x11_window_get_xid (Gdk.Window window);
+extern uint gdk_x11_window_get_xid(Gdk.Window window);
 #elif CROWN_PLATFORM_WINDOWS
-extern uint gdk_win32_window_get_handle (Gdk.Window window);
+extern uint gdk_win32_window_get_handle(Gdk.Window window);
 #endif
 
 namespace Crown

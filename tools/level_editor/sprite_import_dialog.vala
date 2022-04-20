@@ -210,12 +210,12 @@ public class SpriteImportDialog : Gtk.Dialog
 						// https://www.cairographics.org/FAQ/#sharp_lines
 						cr.move_to((double)x0,       (double)y0 + 0.5);
 						cr.line_to((double)x1,       (double)y1 + 0.5);
-						cr.move_to((double)x1 + 0.5, (double)y1      );
-						cr.line_to((double)x2 + 0.5, (double)y2      );
+						cr.move_to((double)x1 + 0.5, (double)y1);
+						cr.line_to((double)x2 + 0.5, (double)y2);
 						cr.move_to((double)x2,       (double)y2 + 0.5);
 						cr.line_to((double)x3,       (double)y3 + 0.5);
-						cr.move_to((double)x3 + 0.5, (double)y3      );
-						cr.line_to((double)x0 + 0.5, (double)y0      );
+						cr.move_to((double)x3 + 0.5, (double)y3);
+						cr.line_to((double)x0 + 0.5, (double)y0);
 
 						cr.set_line_width(1);
 						cr.set_source_rgba(0.9, 0.1, 0.1, 0.9);
