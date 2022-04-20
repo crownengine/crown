@@ -314,7 +314,7 @@ public class ConsoleView : Gtk.Box
 
 		// Limit number of lines recorded.
 		int max_lines = (int)_preferences_dialog._console_max_lines.value;
-		if (buffer.get_line_count()-1 >= max_lines)
+		if (buffer.get_line_count() - 1 >= max_lines)
 		{
 			Gtk.TextIter start_of_first_line;
 			buffer.get_iter_at_line(out start_of_first_line, 0);
@@ -336,7 +336,7 @@ public class ConsoleView : Gtk.Box
 			if (id_index != -1)
 			{
 				// If an occurrenct is found, insert the preceding text as usual.
-				string line_chunk = message.substring(id_index_orig, id_index-id_index_orig);
+				string line_chunk = message.substring(id_index_orig, id_index - id_index_orig);
 				buffer.insert_with_tags(ref end_iter
 					, line_chunk
 					, line_chunk.length
@@ -345,7 +345,7 @@ public class ConsoleView : Gtk.Box
 					);
 
 				// Try to extract the ID from the ID string.
-				int id_closing_parentheses = message.index_of(")", id_index+4);
+				int id_closing_parentheses = message.index_of(")", id_index + 4);
 				if (id_closing_parentheses == -1)
 				{
 					// If the ID is malformed, insert the whole line as-is.
@@ -360,7 +360,7 @@ public class ConsoleView : Gtk.Box
 
 				// Convert the resource ID to human-readable resource name.
 				string resource_name;
-				string resource_id = message.substring(id_index+4, id_closing_parentheses-(id_index+4));
+				string resource_id = message.substring(id_index + 4, id_closing_parentheses - (id_index + 4));
 				_project.resource_id_to_name(out resource_name, resource_id);
 				// Create a tag for hyperlink.
 				Gtk.TextTag hyperlink = null;

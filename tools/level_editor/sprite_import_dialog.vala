@@ -201,10 +201,10 @@ public class SpriteImportDialog : Gtk.Dialog
 
 						int x0 = (int)sc.x;
 						int y0 = (int)sc.y;
-						int x1 = x0+(int)cell.value.x;
+						int x1 = x0 + (int)cell.value.x;
 						int y1 = y0;
 						int x2 = x1;
-						int y2 = y0+(int)cell.value.y;
+						int y2 = y0 + (int)cell.value.y;
 						int x3 = x0;
 						int y3 = y2;
 						// https://www.cairographics.org/FAQ/#sharp_lines
@@ -254,8 +254,8 @@ public class SpriteImportDialog : Gtk.Dialog
 
 				int x0 = (int)sc.x;
 				int y0 = (int)sc.y;
-				int x1 = x0+(int)cell.value.x;
-				int y2 = y0+(int)cell.value.y;
+				int x1 = x0 + (int)cell.value.x;
+				int y2 = y0 + (int)cell.value.y;
 
 				// Draw checkered background
 				cr.save();

@@ -8,7 +8,7 @@ namespace Crown
 static string basename(string path)
 {
 	int ls = path.last_index_of_char('/');
-	return ls == -1 ? path : path.substring(ls+1);
+	return ls == -1 ? path : path.substring(ls + 1);
 }
 
 /// Returns the extension of @a path or null if the path has no extension.
@@ -16,7 +16,7 @@ static string? extension(string path)
 {
 	string bn = basename(path);
 	int ld = bn.last_index_of_char('.');
-	return (ld == -1 || bn.substring(ld) == bn) ? null : bn.substring(ld+1);
+	return (ld == -1 || bn.substring(ld) == bn) ? null : bn.substring(ld + 1);
 }
 
 /// Returns the type of the resource @a path or null if the path has not type.

@@ -73,7 +73,7 @@ namespace expression_language
 
 	inline float match(float a, float b)
 	{
-		return fmax(1.0f-length(a, b), 0.0f);
+		return fmax(1.0f - length(a, b), 0.0f);
 	}
 
 	inline float match2d(float a, float b, float c, float d)
@@ -302,7 +302,7 @@ namespace expression_language
 				const char *identifier = p;
 				while ((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || (*p == '_') || (*p >= '0' && *p <= '9'))
 					p++;
-				token = env.token_for_identifier(identifier, u32(p-identifier));
+				token = env.token_for_identifier(identifier, u32(p - identifier));
 				binary = true;
 				// Operators
 			} else {
@@ -315,7 +315,7 @@ namespace expression_language
 
 				default: {
 					char s1[2] = {*p, 0};
-					char s2[3] = {*p, *(p+1), 0};
+					char s2[3] = {*p, *(p + 1), 0};
 
 					if (s2[1] && env.has_function(s2)) {
 						token = env.token_for_identifier(s2);
@@ -363,8 +363,8 @@ namespace expression_language
 			CE_ASSERT(i >= arity, "Too few arguments to function");
 			unsigned arg_start = i - arity;
 			for (unsigned j = 0; j < arity && constant_arguments; ++j) {
-				constant_arguments = constant_arguments && rpl[i-j-1].type == Token::NUMBER;
-				stack.data[j] = rpl[arg_start+j].value;
+				constant_arguments = constant_arguments && rpl[i - j - 1].type == Token::NUMBER;
+				stack.data[j] = rpl[arg_start + j].value;
 			}
 			if (!constant_arguments)
 				continue;
@@ -374,7 +374,7 @@ namespace expression_language
 			unsigned results = stack.size;
 			int to_remove = int(arity + 1) - int(results);
 			if (to_remove > 0) {
-				memmove(&rpl[arg_start], &rpl[arg_start+to_remove], sizeof(Token)*(num_tokens-arg_start-to_remove));
+				memmove(&rpl[arg_start], &rpl[arg_start + to_remove], sizeof(Token)*(num_tokens - arg_start - to_remove));
 				num_tokens -= to_remove;
 			}
 			for (unsigned res = 0; res < stack.size; ++res)
@@ -552,7 +552,7 @@ namespace expression_language
 				break;
 			case Token::FUNCTION: {
 				FunctionStackItem f(token, env.function_values[token.id].precedence, par_level);
-				while (num_function_stack > 0 && function_stack[num_function_stack-1] >= f)
+				while (num_function_stack > 0 && function_stack[num_function_stack - 1] >= f)
 					rpl[num_rpl++] = function_stack[--num_function_stack].token;
 				function_stack[num_function_stack++] = f;
 				break;

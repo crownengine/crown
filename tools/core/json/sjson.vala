@@ -177,8 +177,8 @@ public class SJSON
 
 		builder.append_c('[');
 		foreach (Value? item in a_sorted) {
-			write_new_line(builder, indentation+1);
-			write(item, builder, indentation+1);
+			write_new_line(builder, indentation + 1);
+			write(item, builder, indentation + 1);
 		}
 		write_new_line(builder, indentation);
 		builder.append_c(']');
@@ -187,7 +187,7 @@ public class SJSON
 	static void write_object(Hashtable t, StringBuilder builder, int indentation)
 	{
 		builder.append_c('{');
-		write_object_fields(t, builder, indentation+1);
+		write_object_fields(t, builder, indentation + 1);
 		write_new_line(builder, indentation);
 		builder.append_c('}');
 	}

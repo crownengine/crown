@@ -144,9 +144,9 @@ public class SpriteResource
 					int y = (int)cell_xy.y;
 
 					Hashtable data = new Hashtable();
-					data["name"]   = "sprite_%d".printf(c+num_h*r);
+					data["name"]   = "sprite_%d".printf(c + num_h*r);
 					data["region"] = Vector4(x, y, cell_w, cell_h).to_array();
-					data["pivot"]  = Vector2(x+pivot_xy.x, y+pivot_xy.y).to_array();
+					data["pivot"]  = Vector2(x + pivot_xy.x, y + pivot_xy.y).to_array();
 					frames.add(data);
 				}
 			}

@@ -581,7 +581,7 @@ public class Database
 					x = y;
 				}
 			}
-			x.set(foo[foo.length-1], encode_value(db[key]));
+			x.set(foo[foo.length - 1], encode_value(db[key]));
 		}
 
 		return obj;
