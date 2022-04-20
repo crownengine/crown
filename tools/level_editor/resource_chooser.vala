@@ -99,8 +99,8 @@ public class ResourceChooser : Gtk.Box
 			, ProjectStore.Column.NAME
 			, null
 			);
-/*
-		// Debug
+#if 0
+		// For debugging.
 		_tree_view.insert_column_with_attributes(-1
 			, "Type"
 			, new Gtk.CellRendererText()
@@ -108,7 +108,7 @@ public class ResourceChooser : Gtk.Box
 			, ProjectStore.Column.TYPE
 			, null
 			);
-*/
+#endif
 		_tree_view.model = _tree_sort;
 		_tree_view.headers_visible = false;
 		_tree_view.can_focus = false;

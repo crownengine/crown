@@ -130,8 +130,8 @@ public class LevelTreeView : Gtk.Box
 		});
 		_tree_view = new Gtk.TreeView();
 		_tree_view.append_column(column);
-/*
-		// Debug
+#if 0
+		// For debugging.
 		_tree_view.insert_column_with_attributes(-1
 			, "Guids"
 			, new gtk.CellRendererText()
@@ -139,7 +139,7 @@ public class LevelTreeView : Gtk.Box
 			, Column.GUID
 			, null
 			);
-*/
+#endif
 		_tree_view.headers_clickable = false;
 		_tree_view.headers_visible = false;
 		_tree_view.model = _tree_sort;
