@@ -132,7 +132,7 @@ public struct Quaternion
 
 	public ArrayList<Value?> to_array()
 	{
-		ArrayList<Value?> arr = new	ArrayList<Value?>();
+		ArrayList<Value?> arr = new ArrayList<Value?>();
 		arr.add(this.x);
 		arr.add(this.y);
 		arr.add(this.z);

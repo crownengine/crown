@@ -97,7 +97,7 @@ public class SJSON
 
 	static void write_root_object(Hashtable t, StringBuilder builder)
 	{
-	   write_object_fields(t, builder, 0);
+		write_object_fields(t, builder, 0);
 	}
 
 	static void write_object_fields(Hashtable t, StringBuilder builder, int indentation)

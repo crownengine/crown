@@ -565,7 +565,7 @@ public class SpriteImportDialog : Gtk.Dialog
 		importer_settings["shape_active_name"]          = shape.visible_child_name;
 		importer_settings["actor_class"]                = actor_class.value;
 		importer_settings["lock_rotation_y"]            = lock_rotation_y.active;
-		importer_settings["mass"]						= mass.value;
+		importer_settings["mass"]                       = mass.value;
 	}
 }
 
