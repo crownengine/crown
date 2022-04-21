@@ -63,8 +63,7 @@ public struct Guid
 
 	public string to_string()
 	{
-		return "%.8x-%.4x-%.4x-%.4x-%.4x%.8x".printf(
-			  (uint32)((data1 & 0xffffffff00000000u) >> 32)
+		return "%.8x-%.4x-%.4x-%.4x-%.4x%.8x".printf((uint32)((data1 & 0xffffffff00000000u) >> 32)
 			, (uint16)((data1 & 0x00000000ffff0000u) >> 16)
 			, (uint16)((data1 & 0x000000000000ffffu) >>  0)
 			, (uint16)((data2 & 0xffff000000000000u) >> 48)

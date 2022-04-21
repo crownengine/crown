@@ -39,27 +39,16 @@ public class ConsoleClient : GLib.Object
 	// it succeeded or @a num_tries if failed.
 	public async int connect_async(string address, int port, int num_tries, int interval)
 	{
-		// SourceFunc callback = connect_async.callback;
-		int[] output = new int[1];
+		int tries;
+		for (tries = 0; tries < num_tries; ++tries)
+		{
+			this.connect(address, port);
+			if (this.is_connected())
+				break;
 
-		// new Thread<bool>(null, () => {
-			// Try to connect to data compiler.
-			int tries;
-			for (tries = 0; tries < num_tries; ++tries)
-			{
-				this.connect(address, port);
-				if (this.is_connected())
-					break;
-
-				GLib.Thread.usleep(interval*1000);
-			}
-			output[0] = tries;
-		//     Idle.add((owned) callback);
-		//     return true;
-		// });
-
-		// yield;
-		return output[0];
+			GLib.Thread.usleep(interval*1000);
+		}
+		return tries;
 	}
 
 	public void close()
