@@ -452,7 +452,7 @@ public class ProjectBrowser : Gtk.Box
 		}
 		else if (ev.button == Gdk.BUTTON_PRIMARY)
 		{
-			if (ev.type == Gdk.EventType.2BUTTON_PRESS)
+			if (ev.type == Gdk.EventType.@2BUTTON_PRESS)
 			{
 				Gtk.TreePath path;
 				if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, null, null, null))
