@@ -473,7 +473,8 @@ struct PhysicsWorldImpl
 		const bool is_dynamic   = (actor_class->flags & PhysicsActor::DYNAMIC) != 0;
 		const bool is_static    = !is_kinematic && !is_dynamic;
 		const bool is_trigger   = (actor_class->flags & PhysicsActor::TRIGGER) != 0;
-		const f32  mass         = is_dynamic ? ar->mass : 0.0f;
+
+		const f32 mass = is_dynamic ? ar->mass : 0.0f;
 
 		// Create compound shape
 		btCompoundShape* shape = CE_NEW(*_allocator, btCompoundShape)(true);

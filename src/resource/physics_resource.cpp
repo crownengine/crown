@@ -356,12 +356,18 @@ namespace physics_resource_internal
 		sjson::parse(obj, json);
 
 		u32 flags = 0;
-		flags |= (json_object::has(obj, "lock_translation_x") && sjson::parse_bool(obj["lock_translation_x"])) ? ActorFlags::LOCK_TRANSLATION_X : 0;
-		flags |= (json_object::has(obj, "lock_translation_y") && sjson::parse_bool(obj["lock_translation_y"])) ? ActorFlags::LOCK_TRANSLATION_Y : 0;
-		flags |= (json_object::has(obj, "lock_translation_z") && sjson::parse_bool(obj["lock_translation_z"])) ? ActorFlags::LOCK_TRANSLATION_Z : 0;
-		flags |= (json_object::has(obj, "lock_rotation_x") && sjson::parse_bool(obj["lock_rotation_x"])) ? ActorFlags::LOCK_ROTATION_X : 0;
-		flags |= (json_object::has(obj, "lock_rotation_y") && sjson::parse_bool(obj["lock_rotation_y"])) ? ActorFlags::LOCK_ROTATION_Y : 0;
-		flags |= (json_object::has(obj, "lock_rotation_z") && sjson::parse_bool(obj["lock_rotation_z"])) ? ActorFlags::LOCK_ROTATION_Z : 0;
+		if (json_object::has(obj, "lock_translation_x") && sjson::parse_bool(obj["lock_translation_x"]))
+			flags |= ActorFlags::LOCK_TRANSLATION_X;
+		if (json_object::has(obj, "lock_translation_y") && sjson::parse_bool(obj["lock_translation_y"]))
+			flags |= ActorFlags::LOCK_TRANSLATION_Y;
+		if (json_object::has(obj, "lock_translation_z") && sjson::parse_bool(obj["lock_translation_z"]))
+			flags |= ActorFlags::LOCK_TRANSLATION_Z;
+		if (json_object::has(obj, "lock_rotation_x") && sjson::parse_bool(obj["lock_rotation_x"]))
+			flags |= ActorFlags::LOCK_ROTATION_X;
+		if (json_object::has(obj, "lock_rotation_y") && sjson::parse_bool(obj["lock_rotation_y"]))
+			flags |= ActorFlags::LOCK_ROTATION_Y;
+		if (json_object::has(obj, "lock_rotation_z") && sjson::parse_bool(obj["lock_rotation_z"]))
+			flags |= ActorFlags::LOCK_ROTATION_Z;
 
 		ActorResource ar;
 		ar.actor_class      = sjson::parse_string_id(obj["class"]);
@@ -496,10 +502,14 @@ namespace physics_config_resource_internal
 				pa.angular_damping = sjson::parse_float(actor["angular_damping"]);
 
 			pa.flags = 0;
-			pa.flags |= (json_object::has(actor, "dynamic")         && sjson::parse_bool(actor["dynamic"])        ) ? PhysicsActor::DYNAMIC         : 0;
-			pa.flags |= (json_object::has(actor, "kinematic")       && sjson::parse_bool(actor["kinematic"])      ) ? PhysicsActor::KINEMATIC       : 0;
-			pa.flags |= (json_object::has(actor, "disable_gravity") && sjson::parse_bool(actor["disable_gravity"])) ? PhysicsActor::DISABLE_GRAVITY : 0;
-			pa.flags |= (json_object::has(actor, "trigger")         && sjson::parse_bool(actor["trigger"])        ) ? PhysicsActor::TRIGGER         : 0;
+			if (json_object::has(actor, "dynamic") && sjson::parse_bool(actor["dynamic"]))
+				pa.flags |= PhysicsActor::DYNAMIC;
+			if (json_object::has(actor, "kinematic") && sjson::parse_bool(actor["kinematic"]))
+				pa.flags |= PhysicsActor::KINEMATIC;
+			if (json_object::has(actor, "disable_gravity") && sjson::parse_bool(actor["disable_gravity"]))
+				pa.flags |= PhysicsActor::DISABLE_GRAVITY;
+			if (json_object::has(actor, "trigger") && sjson::parse_bool(actor["trigger"]))
+				pa.flags |= PhysicsActor::TRIGGER;
 
 			array::push_back(objects, pa);
 		}
