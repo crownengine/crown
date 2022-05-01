@@ -95,8 +95,7 @@ namespace hash_set_internal
 
 		const u32 hash = key_hash<TKey, Hash>(key);
 		u32 hash_i = hash & m._mask;
-		u32 dist = 0;
-		for(;;)
+		for (u32 dist = 0;;)
 		{
 			if (m._index[hash_i].index == FREE)
 				return END_OF_LIST;
@@ -118,8 +117,7 @@ namespace hash_set_internal
 		*(TKey*)new_item = key;
 
 		u32 hash_i = hash & m._mask;
-		u32 dist = 0;
-		for(;;)
+		for (u32 dist = 0;;)
 		{
 			if (m._index[hash_i].index == FREE)
 				goto INSERT_AND_RETURN;
