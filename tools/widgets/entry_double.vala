@@ -63,8 +63,7 @@ public class EntryDouble : Gtk.Entry
 
 	private bool on_button_release(Gdk.EventButton ev)
 	{
-		if (ev.button == Gdk.BUTTON_PRIMARY && this.has_focus)
-		{
+		if (ev.button == Gdk.BUTTON_PRIMARY && this.has_focus) {
 			this.text = _edit_fmt.printf(_value);
 			this.set_position(-1);
 			this.select_region(0, -1);
@@ -113,8 +112,7 @@ public class EntryDouble : Gtk.Entry
 		this.text = _preview_fmt.printf(clamped);
 
 		// Notify value changed
-		if (_value != clamped)
-		{
+		if (_value != clamped) {
 			_value = clamped;
 			if (!_stop_emit)
 				value_changed();

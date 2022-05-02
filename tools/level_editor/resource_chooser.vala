@@ -157,8 +157,7 @@ public class ResourceChooser : Gtk.Box
 		Gtk.TreePath filter_path = _tree_sort.convert_path_to_child_path(path);
 		Gtk.TreePath child_path = _tree_filter.convert_path_to_child_path(filter_path);
 		Gtk.TreeIter iter;
-		if (_list_store.get_iter(out iter, child_path))
-		{
+		if (_list_store.get_iter(out iter, child_path)) {
 			Value name;
 			Value type;
 			_list_store.get_value(iter, ProjectStore.Column.NAME, out name);
@@ -170,18 +169,14 @@ public class ResourceChooser : Gtk.Box
 
 	private bool on_button_released(Gdk.EventButton ev)
 	{
-		if (ev.button == Gdk.BUTTON_PRIMARY)
-		{
+		if (ev.button == Gdk.BUTTON_PRIMARY) {
 			Gtk.TreePath path;
-			if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, null, null, null))
-			{
-				if (_tree_view.get_selection().path_is_selected(path))
-				{
+			if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, null, null, null)) {
+				if (_tree_view.get_selection().path_is_selected(path)) {
 					Gtk.TreePath filter_path = _tree_sort.convert_path_to_child_path(path);
 					Gtk.TreePath child_path = _tree_filter.convert_path_to_child_path(filter_path);
 					Gtk.TreeIter iter;
-					if (_list_store.get_iter(out iter, child_path))
-					{
+					if (_list_store.get_iter(out iter, child_path)) {
 						Value name;
 						Value type;
 						_list_store.get_value(iter, ProjectStore.Column.NAME, out name);
@@ -231,12 +226,10 @@ public class ResourceChooser : Gtk.Box
 		};
 		GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(SubprocessFlags.NONE);
 		sl.set_cwd(ENGINE_DIR);
-		try
-		{
+		try {
 			_editor_process = sl.spawnv(args);
 		}
-		catch (Error e)
-		{
+		catch (Error e) {
 			loge(e.message);
 		}
 
@@ -250,8 +243,7 @@ public class ResourceChooser : Gtk.Box
 			, EDITOR_CONNECTION_TRIES
 			, EDITOR_CONNECTION_INTERVAL
 			);
-		if (tries == EDITOR_CONNECTION_TRIES)
-		{
+		if (tries == EDITOR_CONNECTION_TRIES) {
 			loge("Cannot connect to unit_preview.");
 			return;
 		}
@@ -264,8 +256,7 @@ public class ResourceChooser : Gtk.Box
 		if (!_preview)
 			return;
 
-		if (_editor != null)
-		{
+		if (_editor != null) {
 			// Reset "disconnected" signal.
 			_editor.disconnected.disconnect(on_editor_disconnected);
 			_editor.disconnected.disconnect(on_editor_disconnected_unexpected);
@@ -273,8 +264,7 @@ public class ResourceChooser : Gtk.Box
 			// Explicit call to this function should not produce error messages.
 			_editor.disconnected.connect(on_editor_disconnected);
 
-			if (_editor.is_connected())
-			{
+			if (_editor.is_connected()) {
 				_stop_editor_callback = stop_editor.callback;
 				_editor.send_script("Device.quit()");
 				yield; // Wait for ConsoleClient to disconnect.
@@ -295,8 +285,7 @@ public class ResourceChooser : Gtk.Box
 
 		yield stop_editor();
 
-		if (_editor_view != null)
-		{
+		if (_editor_view != null) {
 			_editor_stack.remove(_editor_view);
 			_editor_view = null;
 		}
@@ -361,30 +350,22 @@ public class ResourceChooser : Gtk.Box
 		Gtk.TreeIter iter;
 		bool selected = _tree_selection.get_selected(out model, out iter);
 
-		if (ev.keyval == Gdk.Key.Down)
-		{
-			if (selected && model.iter_next(ref iter))
-			{
+		if (ev.keyval == Gdk.Key.Down) {
+			if (selected && model.iter_next(ref iter)) {
 				_tree_selection.select_iter(iter);
 				_tree_view.scroll_to_cell(model.get_path(iter), null, true, 1.0f, 0.0f);
 			}
 
 			return Gdk.EVENT_STOP;
-		}
-		else if (ev.keyval == Gdk.Key.Up)
-		{
-			if (selected && model.iter_previous(ref iter))
-			{
+		} else if (ev.keyval == Gdk.Key.Up) {
+			if (selected && model.iter_previous(ref iter)) {
 				_tree_selection.select_iter(iter);
 				_tree_view.scroll_to_cell(model.get_path(iter), null, true, 1.0f, 0.0f);
 			}
 
 			return Gdk.EVENT_STOP;
-		}
-		else if (ev.keyval == Gdk.Key.Return)
-		{
-			if (selected)
-			{
+		} else if (ev.keyval == Gdk.Key.Return) {
+			if (selected) {
 				Value name;
 				Value type;
 				model.get_value(iter, ProjectStore.Column.NAME, out name);
@@ -401,12 +382,10 @@ public class ResourceChooser : Gtk.Box
 
 	private void on_tree_selection_changed()
 	{
-		if (_preview)
-		{
+		if (_preview) {
 			Gtk.TreeModel model;
 			Gtk.TreeIter iter;
-			if (_tree_selection.get_selected(out model, out iter))
-			{
+			if (_tree_selection.get_selected(out model, out iter)) {
 				Value name;
 				Value type;
 				model.get_value(iter, ProjectStore.Column.NAME, out name);

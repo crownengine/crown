@@ -34,8 +34,7 @@ Vector2 sprite_cell_pivot_xy(int cell_w, int cell_h, int pivot)
 	int pivot_x = 0;
 	int pivot_y = 0;
 
-	switch (pivot)
-	{
+	switch (pivot) {
 	case Pivot.TOP_LEFT:
 		pivot_x = 0;
 		pivot_y = 0;
@@ -132,12 +131,10 @@ public class SpriteImportDialog : Gtk.Dialog
 		this.title = "Import Sprite...";
 		this.set_icon_name(CROWN_ICON_NAME);
 
-		try
-		{
+		try {
 			_pixbuf = new Gdk.Pixbuf.from_file(png);
 		}
-		catch (GLib.Error e)
-		{
+		catch (GLib.Error e) {
 			loge(e.message);
 		}
 
@@ -185,10 +182,8 @@ public class SpriteImportDialog : Gtk.Dialog
 				int num_v = (int)cells.value.y;
 				int num_h = (int)cells.value.x;
 
-				for (int h = 0; h < num_v; ++h)
-				{
-					for (int w = 0; w < num_h; ++w)
-					{
+				for (int h = 0; h < num_v; ++h) {
+					for (int w = 0; w < num_h; ++w) {
 						Vector2 sc = sprite_cell_xy(h
 							, w
 							, (int)offset.value.x
@@ -499,8 +494,7 @@ public class SpriteImportDialog : Gtk.Dialog
 
 	private void on_response(Gtk.Dialog source, int response_id)
 	{
-		switch (response_id)
-		{
+		switch (response_id) {
 		case Gtk.ResponseType.OK:
 			break;
 

@@ -70,35 +70,28 @@ public struct Quaternion
 		// http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/
 		double tr = m.x.x + m.y.y + m.z.z;
 
-		if (tr > 0.0)
-		{
+		if (tr > 0.0) {
 			double sq = Math.sqrt(1.0 + tr) * 0.5;
 			double inv = 0.25 / sq;
 			this.w = sq;
 			this.x = (m.y.z - m.z.y) * inv;
 			this.y = (m.z.x - m.x.z) * inv;
 			this.z = (m.x.y - m.y.x) * inv;
-		}
-		else if ((m.x.x > m.y.y) && (m.x.x > m.z.z))
-		{
+		} else if ((m.x.x > m.y.y) && (m.x.x > m.z.z)) {
 			double sq = Math.sqrt(1.0 + m.x.x - m.y.y - m.z.z) * 0.5;
 			double inv = 0.25 / sq;
 			this.x = sq;
 			this.w = (m.y.z - m.z.y) * inv;
 			this.y = (m.x.y + m.y.x) * inv;
 			this.z = (m.z.x + m.x.z) * inv;
-		}
-		else if (m.y.y > m.z.z)
-		{
+		} else if (m.y.y > m.z.z) {
 			double sq = Math.sqrt(1.0 + m.y.y - m.x.x - m.z.z) * 0.5;
 			double inv = 0.25 / sq;
 			this.y = sq;
 			this.w = (m.z.x - m.x.z) * inv;
 			this.x = (m.x.y + m.y.x) * inv;
 			this.z = (m.y.z + m.z.y) * inv;
-		}
-		else
-		{
+		} else {
 			double sq = Math.sqrt(1.0 + m.z.z - m.x.x - m.y.y) * 0.5;
 			double inv = 0.25 / sq;
 			this.z = sq;
@@ -144,15 +137,13 @@ public struct Quaternion
 	{
 		// http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
 		double test = x*y + z*w;
-		if (test > 0.499)
-		{ // singularity at north pole
+		if (test > 0.499) { // singularity at north pole
 			double rx = 0.0;
 			double ry = 2.0 * Math.atan2(x, w);
 			double rz = Math.PI*0.5;
 			return Vector3(rx, ry, rz);
 		}
-		if (test < -0.499)
-		{ // singularity at south pole
+		if (test < -0.499) { // singularity at south pole
 			double rx = +0.0;
 			double ry = -2.0 * Math.atan2(x, w);
 			double rz = -Math.PI*0.5;

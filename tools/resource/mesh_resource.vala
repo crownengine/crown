@@ -22,8 +22,7 @@ public class MeshResource
 		// Create transform
 		{
 			Guid component_id;
-			if (!unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM))
-			{
+			if (!unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM)) {
 				component_id = Guid.new_guid();
 				db.create(component_id, OBJECT_TYPE_TRANSFORM);
 				db.add_to_set(unit_id, "components", component_id);
@@ -37,8 +36,7 @@ public class MeshResource
 		// Create mesh_renderer
 		{
 			Guid component_id;
-			if (!unit.has_component(out component_id, OBJECT_TYPE_MESH_RENDERER))
-			{
+			if (!unit.has_component(out component_id, OBJECT_TYPE_MESH_RENDERER)) {
 				component_id = Guid.new_guid();
 				db.create(component_id, OBJECT_TYPE_MESH_RENDERER);
 				db.add_to_set(unit_id, "components", component_id);
@@ -53,8 +51,7 @@ public class MeshResource
 		// Create collider
 		{
 			Guid component_id;
-			if (!unit.has_component(out component_id, OBJECT_TYPE_COLLIDER))
-			{
+			if (!unit.has_component(out component_id, OBJECT_TYPE_COLLIDER)) {
 				component_id = Guid.new_guid();
 				db.create(component_id, OBJECT_TYPE_COLLIDER);
 				db.add_to_set(unit_id, "components", component_id);
@@ -68,8 +65,7 @@ public class MeshResource
 		// Create actor
 		{
 			Guid component_id;
-			if (!unit.has_component(out component_id, OBJECT_TYPE_ACTOR))
-			{
+			if (!unit.has_component(out component_id, OBJECT_TYPE_ACTOR)) {
 				component_id = Guid.new_guid();
 				db.create(component_id, OBJECT_TYPE_ACTOR);
 				db.add_to_set(unit_id, "components", component_id);
@@ -84,11 +80,9 @@ public class MeshResource
 		if (parent_unit_id != unit_id)
 			db.add_to_set(parent_unit_id, "children", unit_id);
 
-		if (node.has_key("children"))
-		{
+		if (node.has_key("children")) {
 			Hashtable children = (Hashtable)node["children"];
-			foreach (var child in children.entries)
-			{
+			foreach (var child in children.entries) {
 				Guid new_unit_id = Guid.new_guid();
 				db.create(new_unit_id, OBJECT_TYPE_UNIT);
 				create_components(db, unit_id, new_unit_id, material_name, resource_name, child.key, (Hashtable)child.value);
@@ -98,8 +92,7 @@ public class MeshResource
 
 	public static int import(Project project, string destination_dir, SList<string> filenames)
 	{
-		foreach (unowned string filename_i in filenames)
-		{
+		foreach (unowned string filename_i in filenames) {
 			GLib.File file_src = File.new_for_path(filename_i);
 			GLib.File file_dst = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
 
@@ -124,13 +117,10 @@ public class MeshResource
 			mtl.add_filter(fltr);
 
 			string material_path = resource_path;
-			if (mtl.run() == (int)ResponseType.ACCEPT)
-			{
+			if (mtl.run() == (int)ResponseType.ACCEPT) {
 				material_path = project._source_dir.get_relative_path(File.new_for_path(mtl.get_filename()));
 				material_path = material_path.substring(0, material_path.last_index_of_char('.'));
-			}
-			else
-			{
+			} else {
 				Hashtable material = new Hashtable();
 				material["shader"]   = "mesh+DIFFUSE_MAP";
 				material["textures"] = new Hashtable();
@@ -140,12 +130,10 @@ public class MeshResource
 			mtl.destroy();
 			string material_name = project.resource_path_to_resource_name(material_path);
 
-			try
-			{
+			try {
 				file_src.copy(file_dst, FileCopyFlags.OVERWRITE);
 			}
-			catch (Error e)
-			{
+			catch (Error e) {
 				loge(e.message);
 			}
 
@@ -155,12 +143,9 @@ public class MeshResource
 			Guid unit_id;
 			Database db = project._database;
 
-			if (db.has_property(GUID_ZERO, resource_name + ".unit"))
-			{
+			if (db.has_property(GUID_ZERO, resource_name + ".unit")) {
 				unit_id = db.get_property_guid(GUID_ZERO, resource_name + ".unit");
-			}
-			else
-			{
+			} else {
 				db = new Database();
 				unit_id = Guid.new_guid();
 				db.create(unit_id, OBJECT_TYPE_UNIT);
@@ -169,16 +154,14 @@ public class MeshResource
 			Hashtable mesh = SJSON.load_from_path(filename_i);
 			Hashtable mesh_nodes = (Hashtable)mesh["nodes"];
 
-			if (mesh_nodes.size > 1)
-			{
+			if (mesh_nodes.size > 1) {
 				// Create an extra "root" unit to accommodate multiple root objects. This
 				// "root" unit will only have a transform centered at origin to allow other
 				// objects to be linked to it via the SceneGraph.
 				Unit unit = new Unit(db, unit_id);
 
 				Guid component_id;
-				if (!unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM))
-				{
+				if (!unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM)) {
 					component_id = Guid.new_guid();
 					db.create(component_id, OBJECT_TYPE_TRANSFORM);
 					db.add_to_set(unit_id, "components", component_id);
@@ -190,10 +173,8 @@ public class MeshResource
 			}
 
 			Guid new_unit_id = unit_id;
-			foreach (var entry in mesh_nodes.entries)
-			{
-				if (mesh_nodes.size > 1)
-				{
+			foreach (var entry in mesh_nodes.entries) {
+				if (mesh_nodes.size > 1) {
 					// If the mesh contains multiple root objects, create a new unit for each
 					// one of those, otherwise put the components inside the base unit.
 					new_unit_id = Guid.new_guid();

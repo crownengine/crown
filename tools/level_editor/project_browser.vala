@@ -64,13 +64,10 @@ public class ProjectBrowser : Gtk.Box
 				model.get_value(iter_a, ProjectStore.Column.TYPE, out type_a);
 				model.get_value(iter_b, ProjectStore.Column.TYPE, out type_b);
 
-				if ((string)type_a == "<folder>")
-				{
+				if ((string)type_a == "<folder>") {
 					if ((string)type_b != "<folder>")
 						return -1;
-				}
-				else if ((string)type_b == "<folder>")
-				{
+				} else if ((string)type_b == "<folder>") {
 					if ((string)type_a != "<folder>")
 						return 1;
 				}
@@ -194,8 +191,7 @@ public class ProjectBrowser : Gtk.Box
 			return;
 
 		Gtk.TreePath store_path;
-		if (_project_store.path_for_resource_type_name(out store_path, type, name))
-		{
+		if (_project_store.path_for_resource_type_name(out store_path, type, name)) {
 			Gtk.TreePath filter_path = _tree_filter.convert_child_path_to_path(store_path);
 			if (filter_path == null) // Either the path is not valid or points to a non-visible row in the model.
 				return;
@@ -210,11 +206,9 @@ public class ProjectBrowser : Gtk.Box
 
 	private bool on_button_pressed(Gdk.EventButton ev)
 	{
-		if (ev.button == Gdk.BUTTON_SECONDARY)
-		{
+		if (ev.button == Gdk.BUTTON_SECONDARY) {
 			Gtk.TreePath path;
-			if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, null, null, null))
-			{
+			if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, null, null, null)) {
 				Gtk.TreeIter iter;
 				_tree_view.model.get_iter(out iter, path);
 
@@ -223,8 +217,7 @@ public class ProjectBrowser : Gtk.Box
 				_tree_view.model.get_value(iter, ProjectStore.Column.TYPE, out type);
 				_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
 
-				if (type == "<folder>")
-				{
+				if (type == "<folder>") {
 					Gtk.Menu menu = new Gtk.Menu();
 					Gtk.MenuItem mi;
 
@@ -256,10 +249,8 @@ public class ProjectBrowser : Gtk.Box
 							dg.skip_taskbar_hint = true;
 							dg.show_all();
 
-							if (dg.run() == (int)ResponseType.OK)
-							{
-								if (sb.text.strip() == "")
-								{
+							if (dg.run() == (int)ResponseType.OK) {
+								if (sb.text.strip() == "") {
 									dg.destroy();
 									return;
 								}
@@ -289,10 +280,8 @@ public class ProjectBrowser : Gtk.Box
 							dg.skip_taskbar_hint = true;
 							dg.show_all();
 
-							if (dg.run() == (int)ResponseType.OK)
-							{
-								if (sb.text.strip() == "")
-								{
+							if (dg.run() == (int)ResponseType.OK) {
+								if (sb.text.strip() == "") {
 									dg.destroy();
 									return;
 								}
@@ -325,10 +314,8 @@ public class ProjectBrowser : Gtk.Box
 							dg.skip_taskbar_hint = true;
 							dg.show_all();
 
-							if (dg.run() == (int)ResponseType.OK)
-							{
-								if (sb.text.strip() == "")
-								{
+							if (dg.run() == (int)ResponseType.OK) {
+								if (sb.text.strip() == "") {
 									dg.destroy();
 									return;
 								}
@@ -361,21 +348,17 @@ public class ProjectBrowser : Gtk.Box
 							dg.skip_taskbar_hint = true;
 							dg.show_all();
 
-							if (dg.run() == (int)ResponseType.OK)
-							{
-								if (sb.text.strip() == "")
-								{
+							if (dg.run() == (int)ResponseType.OK) {
+								if (sb.text.strip() == "") {
 									dg.destroy();
 									return;
 								}
 
 								GLib.File file = GLib.File.new_for_path(GLib.Path.build_filename(_project.source_dir(), (string)name, sb.text));
-								try
-								{
+								try {
 									file.make_directory();
 								}
-								catch (Error e)
-								{
+								catch (Error e) {
 									loge(e.message);
 								}
 							}
@@ -384,8 +367,7 @@ public class ProjectBrowser : Gtk.Box
 						});
 					menu.add(mi);
 
-					if ((string)name != ProjectStore.ROOT_FOLDER)
-					{
+					if ((string)name != ProjectStore.ROOT_FOLDER) {
 						mi = new Gtk.MenuItem.with_label("Delete Folder");
 						mi.activate.connect(() => {
 								Gtk.MessageDialog md = new Gtk.MessageDialog((Gtk.Window)this.get_toplevel()
@@ -404,12 +386,10 @@ public class ProjectBrowser : Gtk.Box
 									return;
 
 								GLib.File file = GLib.File.new_for_path(GLib.Path.build_filename(_project.source_dir(), (string)name));
-								try
-								{
+								try {
 									_project.delete_tree(file);
 								}
-								catch (Error e)
-								{
+								catch (Error e) {
 									loge(e.message);
 								}
 							});
@@ -418,9 +398,7 @@ public class ProjectBrowser : Gtk.Box
 
 					menu.show_all();
 					menu.popup(null, null, null, ev.button, ev.time);
-				}
-				else // If file
-				{
+				} else { // If file
 					Gtk.Menu menu = new Gtk.Menu();
 					Gtk.MenuItem mi;
 
@@ -434,8 +412,7 @@ public class ProjectBrowser : Gtk.Box
 					mi = new Gtk.MenuItem.with_label("Open Containing Folder...");
 					mi.activate.connect(() => {
 							Gtk.TreeIter parent;
-							if (_tree_view.model.iter_parent(out parent, iter))
-							{
+							if (_tree_view.model.iter_parent(out parent, iter)) {
 								Value parent_name;
 								_tree_view.model.get_value(parent, ProjectStore.Column.NAME, out parent_name);
 
@@ -449,14 +426,10 @@ public class ProjectBrowser : Gtk.Box
 					menu.popup(null, null, null, ev.button, ev.time);
 				}
 			}
-		}
-		else if (ev.button == Gdk.BUTTON_PRIMARY)
-		{
-			if (ev.type == Gdk.EventType.@2BUTTON_PRESS)
-			{
+		} else if (ev.button == Gdk.BUTTON_PRIMARY) {
+			if (ev.type == Gdk.EventType.@2BUTTON_PRESS) {
 				Gtk.TreePath path;
-				if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, null, null, null))
-				{
+				if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, null, null, null)) {
 					Gtk.TreeIter iter;
 					_tree_view.model.get_iter(out iter, path);
 
@@ -479,11 +452,9 @@ public class ProjectBrowser : Gtk.Box
 
 	private bool on_button_released(Gdk.EventButton ev)
 	{
-		if (ev.button == Gdk.BUTTON_PRIMARY)
-		{
+		if (ev.button == Gdk.BUTTON_PRIMARY) {
 			Gtk.TreePath path;
-			if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, null, null, null))
-			{
+			if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, null, null, null)) {
 				Gtk.TreeIter iter;
 				_tree_view.model.get_iter(out iter, path);
 

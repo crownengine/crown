@@ -68,8 +68,7 @@ public class LevelEditorWindow : Gtk.ApplicationWindow
 		else if (ev.keyval == Gdk.Key.Alt_L)
 			str += LevelEditorApi.key_down("alt_left");
 
-		if (str.length != 0)
-		{
+		if (str.length != 0) {
 			app._editor.send_script(str);
 			app._editor.send(DeviceApi.frame());
 		}
@@ -90,8 +89,7 @@ public class LevelEditorWindow : Gtk.ApplicationWindow
 		else if (ev.keyval == Gdk.Key.Alt_L)
 			str += LevelEditorApi.key_up("alt_left");
 
-		if (str.length != 0)
-		{
+		if (str.length != 0) {
 			app._editor.send_script(str);
 			app._editor.send(DeviceApi.frame());
 		}
@@ -386,8 +384,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		// Set theme.
 		set_theme(Theme.DARK);
-		if (_settings.has_key("preferences"))
-		{
+		if (_settings.has_key("preferences")) {
 			Hashtable preferences = (Hashtable)_settings["preferences"];
 			if (preferences.has_key("theme"))
 				set_theme_from_name((string)preferences["theme"]);
@@ -534,8 +531,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		_resource_popover = new Gtk.Popover(_toolbar);
 		_resource_popover.key_press_event.connect((ev) => {
-				if (ev.keyval == Gdk.Key.Escape)
-				{
+				if (ev.keyval == Gdk.Key.Escape) {
 					// Do not transition-animate (i.e. call hide() instead of popdown()).
 					_resource_popover.hide();
 					return Gdk.EVENT_STOP;
@@ -549,8 +545,7 @@ public class LevelEditorApplication : Gtk.Application
 				Gtk.Widget child = _resource_popover.get_child();
 				Gtk.Widget event_widget = Gtk.get_event_widget(ev);
 
-				if (child != null && ev.window == event_widget.get_window())
-				{
+				if (child != null && ev.window == event_widget.get_window()) {
 					Gtk.Allocation child_alloc;
 					child.get_allocation(out child_alloc);
 
@@ -558,13 +553,10 @@ public class LevelEditorApplication : Gtk.Application
 						|| (int)ev.x > child_alloc.x + child_alloc.width
 						|| (int)ev.y < child_alloc.y
 						|| (int)ev.y > child_alloc.y + child_alloc.height
-						)
-					{
+					) {
 						_resource_popover.hide();
 					}
-				}
-				else if (!event_widget.is_ancestor(_resource_popover))
-				{
+				} else if (!event_widget.is_ancestor(_resource_popover)) {
 					_resource_popover.hide();
 				}
 
@@ -637,16 +629,13 @@ public class LevelEditorApplication : Gtk.Application
 		_preferences_dialog.decode(_settings);
 
 		// Delete expired logs
-		if (_preferences_dialog._log_delete_after_days.value != 0)
-		{
-			try
-			{
+		if (_preferences_dialog._log_delete_after_days.value != 0) {
+			try {
 				FileEnumerator enumerator = _logs_dir.enumerate_children("standard::*"
 					, FileQueryInfoFlags.NOFOLLOW_SYMLINKS
 					);
 				GLib.FileInfo info = null;
-				while ((info = enumerator.next_file()) != null)
-				{
+				while ((info = enumerator.next_file()) != null) {
 					if (info.get_file_type() != GLib.FileType.REGULAR)
 						continue; // Skip anything but regular files
 
@@ -670,8 +659,7 @@ public class LevelEditorApplication : Gtk.Application
 					log_file.delete();
 				}
 			}
-			catch (GLib.Error e)
-			{
+			catch (GLib.Error e) {
 				loge(e.message);
 			}
 		}
@@ -679,12 +667,9 @@ public class LevelEditorApplication : Gtk.Application
 		_user.load(_user_file.get_path());
 		_console_view._entry_history.load(_console_history_file.get_path());
 
-		if (_source_dir == null)
-		{
+		if (_source_dir == null) {
 			show_panel("panel_welcome");
-		}
-		else
-		{
+		} else {
 			show_panel("main_vbox");
 			restart_backend.begin(_source_dir, _level_resource);
 		}
@@ -692,18 +677,15 @@ public class LevelEditorApplication : Gtk.Application
 
 	protected override void activate()
 	{
-		if (this.active_window == null)
-		{
+		if (this.active_window == null) {
 			LevelEditorWindow win = new LevelEditorWindow(this);
 			win.set_default_size(WINDOW_DEFAULT_WIDTH, WINDOW_DEFAULT_HEIGHT);
 			win.add(_main_stack);
 
-			try
-			{
+			try {
 				win.icon = IconTheme.get_default().load_icon(CROWN_ICON_NAME, 256, 0);
 			}
-			catch (Error e)
-			{
+			catch (Error e) {
 				loge(e.message);
 			}
 		}
@@ -714,10 +696,8 @@ public class LevelEditorApplication : Gtk.Application
 
 	protected override bool local_command_line(ref unowned string[] args, out int exit_status)
 	{
-		if (args.length > 1)
-		{
-			if (!GLib.FileUtils.test(args[1], FileTest.EXISTS) || !GLib.FileUtils.test(args[1], FileTest.IS_DIR))
-			{
+		if (args.length > 1) {
+			if (!GLib.FileUtils.test(args[1], FileTest.EXISTS) || !GLib.FileUtils.test(args[1], FileTest.IS_DIR)) {
 				loge("Source directory does not exist or it is not a directory");
 				exit_status = 1;
 				return true;
@@ -726,8 +706,7 @@ public class LevelEditorApplication : Gtk.Application
 			_source_dir = args[1];
 		}
 
-		if (args.length > 2)
-		{
+		if (args.length > 2) {
 			// Validation is done below after the Project object instantiation
 			_level_resource = args[2];
 		}
@@ -852,49 +831,33 @@ public class LevelEditorApplication : Gtk.Application
 		Hashtable msg = JSON.decode(json) as Hashtable;
 		string msg_type = msg["type"] as string;
 
-		if (msg_type == "message")
-		{
+		if (msg_type == "message") {
 			log((string)msg["system"], (string)msg["severity"], (string)msg["message"]);
-		}
-		else if (msg_type == "add_file")
-		{
+		} else if (msg_type == "add_file") {
 			string path = (string)msg["path"];
 
 			_project.add_file(path);
-		}
-		else if (msg_type == "remove_file")
-		{
+		} else if (msg_type == "remove_file") {
 			string path = (string)msg["path"];
 
 			_project.remove_file(path);
-		}
-		else if (msg_type == "add_tree")
-		{
+		} else if (msg_type == "add_tree") {
 			string path = (string)msg["path"];
 
 			_project.add_tree(path);
-		}
-		else if (msg_type == "remove_tree")
-		{
+		} else if (msg_type == "remove_tree") {
 			string path = (string)msg["path"];
 
 			_project.remove_tree(path);
-		}
-		else if (msg_type == "compile")
-		{
+		} else if (msg_type == "compile") {
 			// Guid id = Guid.parse((string)msg["id"]);
 
-			if (msg.has_key("start"))
-			{
+			if (msg.has_key("start")) {
 				// FIXME
-			}
-			else if (msg.has_key("success"))
-			{
+			} else if (msg.has_key("success")) {
 				_data_compiler.finished((bool)msg["success"]);
 			}
-		}
-		else if (msg_type == "unit_spawned")
-		{
+		} else if (msg_type == "unit_spawned") {
 			string id             = (string)msg["id"];
 			string name           = (string)msg["name"];
 			ArrayList<Value?> pos = (ArrayList<Value?>)msg["position"];
@@ -907,9 +870,7 @@ public class LevelEditorApplication : Gtk.Application
 				, Quaternion.from_array(rot)
 				, Vector3.from_array(scl)
 				);
-		}
-		else if (msg_type == "sound_spawned")
-		{
+		} else if (msg_type == "sound_spawned") {
 			string id             = (string)msg["id"];
 			string name           = (string)msg["name"];
 			ArrayList<Value?> pos = (ArrayList<Value?>)msg["position"];
@@ -928,9 +889,7 @@ public class LevelEditorApplication : Gtk.Application
 				, volume
 				, loop
 				);
-		}
-		else if (msg_type == "move_objects")
-		{
+		} else if (msg_type == "move_objects") {
 			Hashtable ids           = (Hashtable)msg["ids"];
 			Hashtable new_positions = (Hashtable)msg["new_positions"];
 			Hashtable new_rotations = (Hashtable)msg["new_rotations"];
@@ -944,8 +903,7 @@ public class LevelEditorApplication : Gtk.Application
 			Quaternion[] n_rotations = new Quaternion[keys.size];
 			Vector3[] n_scales       = new Vector3[keys.size];
 
-			for (int i = 0; i < keys.size; ++i)
-			{
+			for (int i = 0; i < keys.size; ++i) {
 				string k = keys[i];
 
 				n_ids[i]       = Guid.parse((string)ids[k]);
@@ -955,9 +913,7 @@ public class LevelEditorApplication : Gtk.Application
 			}
 
 			_level.on_move_objects(n_ids, n_positions, n_rotations, n_scales);
-		}
-		else if (msg_type == "selection")
-		{
+		} else if (msg_type == "selection") {
 			Hashtable objects = (Hashtable)msg["objects"];
 
 			ArrayList<string> keys = new ArrayList<string>.wrap(objects.keys.to_array());
@@ -965,20 +921,15 @@ public class LevelEditorApplication : Gtk.Application
 
 			Guid[] ids = new Guid[keys.size];
 
-			for (int i = 0; i < keys.size; ++i)
-			{
+			for (int i = 0; i < keys.size; ++i) {
 				string k = keys[i];
 				ids[i] = Guid.parse((string)objects[k]);
 			}
 
 			_level.on_selection(ids);
-		}
-		else if (msg_type == "error")
-		{
+		} else if (msg_type == "error") {
 			loge((string)msg["message"]);
-		}
-		else
-		{
+		} else {
 			loge("Unknown message type: " + msg_type);
 		}
 
@@ -1091,12 +1042,10 @@ public class LevelEditorApplication : Gtk.Application
 		};
 		GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(subprocess_flags());
 		sl.set_cwd(ENGINE_DIR);
-		try
-		{
+		try {
 			_compiler_process = sl.spawnv(args);
 		}
-		catch (Error e)
-		{
+		catch (Error e) {
 			loge(e.message);
 		}
 
@@ -1113,8 +1062,7 @@ public class LevelEditorApplication : Gtk.Application
 			, DATA_COMPILER_CONNECTION_TRIES
 			, DATA_COMPILER_CONNECTION_INTERVAL
 			);
-		if (tries == DATA_COMPILER_CONNECTION_TRIES)
-		{
+		if (tries == DATA_COMPILER_CONNECTION_TRIES) {
 			loge("Cannot connect to data_compiler");
 			return;
 		}
@@ -1125,8 +1073,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		// Compile data.
 		_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
-				if (_data_compiler.compile.end(res))
-				{
+				if (_data_compiler.compile.end(res)) {
 					load_level(ln);
 
 					// If successful, start the level editor.
@@ -1136,9 +1083,7 @@ public class LevelEditorApplication : Gtk.Application
 							_project_stack.set_visible_child(_project_browser);
 							_inspector_stack.set_visible_child(_inspector_pane);
 						});
-				}
-				else
-				{
+				} else {
 					_project_stack.set_visible_child(_project_stack_compiler_failed_compilation_label);
 					_editor_stack.set_visible_child(_editor_stack_compiler_failed_compilation_label);
 					_inspector_stack.set_visible_child(_inspector_stack_compiler_failed_compilation_label);
@@ -1165,8 +1110,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	private async void stop_data_compiler()
 	{
-		if (_compiler != null)
-		{
+		if (_compiler != null) {
 			// Reset "disconnected" signal.
 			_compiler.disconnected.disconnect(on_data_compiler_disconnected);
 			_compiler.disconnected.disconnect(on_data_compiler_disconnected_unexpected);
@@ -1174,8 +1118,7 @@ public class LevelEditorApplication : Gtk.Application
 			// Explicit call to this function should not produce error messages.
 			_compiler.disconnected.connect(on_data_compiler_disconnected);
 
-			if (_compiler.is_connected())
-			{
+			if (_compiler.is_connected()) {
 				_stop_data_compiler_callback = stop_data_compiler.callback;
 				_compiler.send(DataCompilerApi.quit());
 				yield; // Wait for ConsoleClient to disconnect.
@@ -1209,12 +1152,10 @@ public class LevelEditorApplication : Gtk.Application
 		};
 		GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(subprocess_flags());
 		sl.set_cwd(ENGINE_DIR);
-		try
-		{
+		try {
 			_editor_process = sl.spawnv(args);
 		}
-		catch (Error e)
-		{
+		catch (Error e) {
 			loge(e.message);
 		}
 
@@ -1228,8 +1169,7 @@ public class LevelEditorApplication : Gtk.Application
 			, EDITOR_CONNECTION_TRIES
 			, EDITOR_CONNECTION_INTERVAL
 			);
-		if (tries == EDITOR_CONNECTION_TRIES)
-		{
+		if (tries == EDITOR_CONNECTION_TRIES) {
 			loge("Cannot connect to level_editor");
 			return;
 		}
@@ -1239,8 +1179,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		yield _resource_chooser.stop_editor();
 
-		if (_editor != null)
-		{
+		if (_editor != null) {
 			// Reset "disconnected" signal.
 			_editor.disconnected.disconnect(on_editor_disconnected);
 			_editor.disconnected.disconnect(on_editor_disconnected_unexpected);
@@ -1248,8 +1187,7 @@ public class LevelEditorApplication : Gtk.Application
 			// Explicit call to this function should not produce error messages.
 			_editor.disconnected.connect(on_editor_disconnected);
 
-			if (_editor.is_connected())
-			{
+			if (_editor.is_connected()) {
 				_stop_editor_callback = stop_editor.callback;
 				_editor.send_script("Device.quit()");
 				yield; // Wait for ConsoleClient to disconnect.
@@ -1267,8 +1205,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		yield stop_editor();
 
-		if (_editor_view != null)
-		{
+		if (_editor_view != null) {
 			_editor_view_overlay.remove(_editor_view);
 			_editor_stack.remove(_editor_view_overlay);
 			_editor_view = null;
@@ -1301,8 +1238,7 @@ public class LevelEditorApplication : Gtk.Application
 		SJSON.save(package, _project._level_editor_test_package.get_path());
 
 		bool success = yield _data_compiler.compile(_project.data_dir(), _project.platform());
-		if (!success)
-		{
+		if (!success) {
 			_toolbar_run.icon_name = "game-run";
 			return;
 		}
@@ -1322,12 +1258,10 @@ public class LevelEditorApplication : Gtk.Application
 		};
 		GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(subprocess_flags());
 		sl.set_cwd(ENGINE_DIR);
-		try
-		{
+		try {
 			_game_process = sl.spawnv(args);
 		}
-		catch (Error e)
-		{
+		catch (Error e) {
 			loge(e.message);
 		}
 
@@ -1337,8 +1271,7 @@ public class LevelEditorApplication : Gtk.Application
 			, GAME_CONNECTION_TRIES
 			, GAME_CONNECTION_INTERVAL
 			);
-		if (tries == GAME_CONNECTION_TRIES)
-		{
+		if (tries == GAME_CONNECTION_TRIES) {
 			loge("Cannot connect to game");
 			return;
 		}
@@ -1346,8 +1279,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	private async void stop_game()
 	{
-		if (_game != null)
-		{
+		if (_game != null) {
 			// Reset "disconnected" signal.
 			_game.disconnected.disconnect(on_game_disconnected);
 			_game.disconnected.disconnect(on_game_disconnected_externally);
@@ -1355,8 +1287,7 @@ public class LevelEditorApplication : Gtk.Application
 			// Explicit call to this function should not produce error messages.
 			_game.disconnected.connect(on_game_disconnected);
 
-			if (_game.is_connected())
-			{
+			if (_game.is_connected()) {
 				_stop_game_callback = stop_game.callback;
 				_game.send_script("Device.quit()");
 				yield; // Wait for SocketClient to disconnect.
@@ -1380,8 +1311,7 @@ public class LevelEditorApplication : Gtk.Application
 			, ResponseType.ACCEPT
 			);
 
-		if (fcd.run() == ResponseType.ACCEPT)
-		{
+		if (fcd.run() == ResponseType.ACCEPT) {
 			GLib.File data_dir = File.new_for_path(fcd.get_filename());
 
 			string args[] =
@@ -1396,12 +1326,10 @@ public class LevelEditorApplication : Gtk.Application
 
 			GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(subprocess_flags());
 			sl.set_cwd(ENGINE_DIR);
-			try
-			{
+			try {
 				GLib.Subprocess compiler = sl.spawnv(args);
 				compiler.wait();
-				if (compiler.get_exit_status() == 0)
-				{
+				if (compiler.get_exit_status() == 0) {
 					string game_name = DEPLOY_DEFAULT_NAME;
 					GLib.File engine_exe_src = File.new_for_path(DEPLOY_EXE);
 					GLib.File engine_exe_dst = File.new_for_path(Path.build_filename(data_dir.get_path(), game_name + EXE_SUFFIX));
@@ -1422,8 +1350,7 @@ public class LevelEditorApplication : Gtk.Application
 					logi("Project deployed to `%s`".printf(data_dir.get_path()));
 				}
 			}
-			catch (Error e)
-			{
+			catch (Error e) {
 				logi("%s".printf(e.message));
 				logi("Failed to deploy project");
 			}
@@ -1440,24 +1367,17 @@ public class LevelEditorApplication : Gtk.Application
 	private void on_tool_changed(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		string name = param.get_string();
-		if (name == "place")
-		{
+		if (name == "place") {
 			// Store previous tool for it to be restored later.
 			if (_tool_type != LevelEditorApi.ToolType.PLACE)
 				_tool_type_prev = _tool_type;
 
 			_tool_type = LevelEditorApi.ToolType.PLACE;
-		}
-		else if (name == "move")
-		{
+		} else if (name == "move") {
 			_tool_type = LevelEditorApi.ToolType.MOVE;
-		}
-		else if (name == "rotate")
-		{
+		} else if (name == "rotate") {
 			_tool_type = LevelEditorApi.ToolType.ROTATE;
-		}
-		else if (name == "scale")
-		{
+		} else if (name == "scale") {
 			_tool_type = LevelEditorApi.ToolType.SCALE;
 		}
 
@@ -1514,8 +1434,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		string title = "";
 
-		if (_level._name != null)
-		{
+		if (_level._name != null) {
 			title += (_level._name == LEVEL_EMPTY) ? "untitled" : _level._name;
 
 			if (_database.changed())
@@ -1536,14 +1455,12 @@ public class LevelEditorApplication : Gtk.Application
 			return;
 
 		string resource_name = name != "" ? name : LEVEL_EMPTY;
-		if (_level.load_from_path(resource_name) != 0)
-		{
+		if (_level.load_from_path(resource_name) != 0) {
 			loge("Unable to load level %s".printf(resource_name));
 			return;
 		}
 
-		if (_editor.is_connected())
-		{
+		if (_editor.is_connected()) {
 			_level.send_level();
 			send_state();
 		}
@@ -1555,8 +1472,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		string path = filename;
 
-		if (path == null)
-		{
+		if (path == null) {
 			Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Save As..."
 				, this.active_window
 				, FileChooserAction.SAVE
@@ -1569,12 +1485,10 @@ public class LevelEditorApplication : Gtk.Application
 			fcd.set_current_folder(_project.source_dir());
 
 			int rt = ResponseType.CANCEL;
-			do
-			{
+			do {
 				// Select the file
 				rt = fcd.run();
-				if (rt != ResponseType.ACCEPT)
-				{
+				if (rt != ResponseType.ACCEPT) {
 					fcd.destroy();
 					return false;
 				}
@@ -1585,8 +1499,7 @@ public class LevelEditorApplication : Gtk.Application
 					path += ".level";
 
 				// Check if the file is within the source directory
-				if (!_project.path_is_within_source_dir(path))
-				{
+				if (!_project.path_is_within_source_dir(path)) {
 					Gtk.MessageDialog md = new Gtk.MessageDialog(fcd
 						, DialogFlags.MODAL
 						, MessageType.WARNING
@@ -1603,8 +1516,7 @@ public class LevelEditorApplication : Gtk.Application
 
 				// Check if the file already exists
 				rt = ResponseType.YES;
-				if (GLib.FileUtils.test(path, FileTest.EXISTS))
-				{
+				if (GLib.FileUtils.test(path, FileTest.EXISTS)) {
 					Gtk.MessageDialog md = new Gtk.MessageDialog(fcd
 						, DialogFlags.MODAL
 						, MessageType.QUESTION
@@ -1616,8 +1528,7 @@ public class LevelEditorApplication : Gtk.Application
 					rt = md.run();
 					md.destroy();
 				}
-			}
-			while (rt != ResponseType.YES);
+			} while (rt != ResponseType.YES);
 
 			fcd.destroy();
 		}
@@ -1690,8 +1601,7 @@ public class LevelEditorApplication : Gtk.Application
 		if (_database.changed())
 			rt = run_level_changed_dialog(this.active_window);
 
-		if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
-		{
+		if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO) {
 			new_level();
 			send_state();
 		}
@@ -1714,12 +1624,10 @@ public class LevelEditorApplication : Gtk.Application
 
 		int err = 1;
 		int rt = ResponseType.CANCEL;
-		do
-		{
+		do {
 			// Select the file
 			rt = fcd.run();
-			if (rt != ResponseType.ACCEPT)
-			{
+			if (rt != ResponseType.ACCEPT) {
 				fcd.destroy();
 				return;
 			}
@@ -1730,8 +1638,7 @@ public class LevelEditorApplication : Gtk.Application
 			if (!path.has_suffix(".level"))
 				path += ".level";
 
-			if (!_project.path_is_within_source_dir(path))
-			{
+			if (!_project.path_is_within_source_dir(path)) {
 				Gtk.MessageDialog md = new Gtk.MessageDialog(fcd
 					, DialogFlags.MODAL
 					, MessageType.WARNING
@@ -1746,8 +1653,7 @@ public class LevelEditorApplication : Gtk.Application
 				err = 1;
 				continue;
 			}
-		}
-		while (err != 0);
+		} while (err != 0);
 
 		fcd.destroy();
 
@@ -1772,8 +1678,7 @@ public class LevelEditorApplication : Gtk.Application
 		if (_database.changed())
 			rt = run_level_changed_dialog(this.active_window);
 
-		if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
-		{
+		if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO) {
 			if (level_name != "")
 				load_level(level_name);
 			else // Action invoked from menubar File > Open Level...
@@ -1788,12 +1693,10 @@ public class LevelEditorApplication : Gtk.Application
 		if (_database.changed())
 			rt = run_level_changed_dialog(this.active_window);
 
-		if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
-		{
+		if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO) {
 			string source_dir;
 			source_dir = param.get_string();
-			if (source_dir == "")
-			{
+			if (source_dir == "") {
 				// Project opened from menubar.
 				rt = run_open_project_dialog(out source_dir, this.active_window);
 				if (rt != ResponseType.ACCEPT)
@@ -1816,8 +1719,7 @@ public class LevelEditorApplication : Gtk.Application
 		if (_database.changed())
 			rt = run_level_changed_dialog(this.active_window);
 
-		if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
-		{
+		if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO) {
 			stop_backend.begin((obj, res) => {
 					stop_backend.end(res);
 					show_panel("panel_new_project");
@@ -1893,8 +1795,7 @@ public class LevelEditorApplication : Gtk.Application
 		if (_database.changed())
 			rt = run_level_changed_dialog(this.active_window);
 
-		if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
-		{
+		if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO) {
 			stop_backend.begin((obj, res) => {
 					stop_backend.end(res);
 					show_panel("panel_welcome");
@@ -1934,25 +1835,20 @@ public class LevelEditorApplication : Gtk.Application
 		if (type == null || name == null)
 			return;
 
-		if (type == "level")
-		{
+		if (type == "level") {
 			activate_action("open-level", name);
 			return;
 		}
 
 		GLib.AppInfo? app = null;
 
-		if (type == "lua")
-		{
+		if (type == "lua") {
 			app = _preferences_dialog._lua_external_tool_button.get_app_info();
-		}
-		else if (is_image_file(resource_path))
-		{
+		} else if (is_image_file(resource_path)) {
 			app = _preferences_dialog._image_external_tool_button.get_app_info();
 		}
 
-		try
-		{
+		try {
 			GLib.File file = GLib.File.new_for_path(_project.resource_path_to_absolute_path(resource_path));
 			if (app == null)
 				app = file.query_default_handler();
@@ -1961,8 +1857,7 @@ public class LevelEditorApplication : Gtk.Application
 			files.append(file);
 			app.launch(files, null);
 		}
-		catch (Error e)
-		{
+		catch (Error e) {
 			loge(e.message);
 		}
 	}
@@ -1992,8 +1887,7 @@ public class LevelEditorApplication : Gtk.Application
 		dg.skip_taskbar_hint = true;
 		dg.show_all();
 
-		if (dg.run() == ResponseType.OK)
-		{
+		if (dg.run() == ResponseType.OK) {
 			_grid_size = sb.value;
 			send_state();
 		}
@@ -2019,8 +1913,7 @@ public class LevelEditorApplication : Gtk.Application
 		dg.skip_taskbar_hint = true;
 		dg.show_all();
 
-		if (dg.run() == ResponseType.OK)
-		{
+		if (dg.run() == ResponseType.OK) {
 			_rotation_snap = sb.value;
 			send_state();
 		}
@@ -2085,27 +1978,21 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_project_browser(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		if (_project_stack.is_visible())
-		{
+		if (_project_stack.is_visible()) {
 			_project_stack.hide();
-		}
-		else
-		{
+		} else {
 			_project_stack.show_all();
 		}
 	}
 
 	private void on_console(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		if (_console_view.is_visible())
-		{
+		if (_console_view.is_visible()) {
 			if (_console_view._entry.has_focus)
 				_console_view.hide();
 			else
 				_console_view._entry.grab_focus_without_selecting();
-		}
-		else
-		{
+		} else {
 			_console_view.show_all();
 			_console_view._entry.grab_focus_without_selecting();
 		}
@@ -2113,24 +2000,18 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_statusbar(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		if (_statusbar.is_visible())
-		{
+		if (_statusbar.is_visible()) {
 			_statusbar.hide();
-		}
-		else
-		{
+		} else {
 			_statusbar.show_all();
 		}
 	}
 
 	private void on_inspector(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		if (_inspector_stack.is_visible())
-		{
+		if (_inspector_stack.is_visible()) {
 			_inspector_stack.hide();
-		}
-		else
-		{
+		} else {
 			_inspector_stack.show_all();
 		}
 	}
@@ -2152,8 +2033,7 @@ public class LevelEditorApplication : Gtk.Application
 	private void on_refresh_lua(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
-				if (_data_compiler.compile.end(res))
-				{
+				if (_data_compiler.compile.end(res)) {
 					_editor.send(DeviceApi.refresh());
 					_editor.send(DeviceApi.frame());
 					_game.send(DeviceApi.refresh());
@@ -2190,8 +2070,7 @@ public class LevelEditorApplication : Gtk.Application
 		stop_game.begin((obj, res) => {
 				stop_game.end(res);
 
-				if (icon_name_displayed == "game-run")
-				{
+				if (icon_name_displayed == "game-run") {
 					// Always change icon state regardless of failures
 					_toolbar_run.icon_name = "game-stop";
 
@@ -2230,24 +2109,20 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_manual(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		try
-		{
+		try {
 			AppInfo.launch_default_for_uri("https://crownengine.github.io/crown/html/v" + CROWN_VERSION, null);
 		}
-		catch (Error e)
-		{
+		catch (Error e) {
 			loge(e.message);
 		}
 	}
 
 	private void on_report_issue(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		try
-		{
+		try {
 			AppInfo.launch_default_for_uri("https://github.com/dbartolini/crown/issues", null);
 		}
-		catch (Error e)
-		{
+		catch (Error e) {
 			loge(e.message);
 		}
 	}
@@ -2259,12 +2134,10 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_changelog(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		try
-		{
+		try {
 			AppInfo.launch_default_for_uri("https://crownengine.github.io/crown/html/v" + CROWN_VERSION + "/changelog.html", null);
 		}
-		catch (Error e)
-		{
+		catch (Error e) {
 			loge(e.message);
 		}
 	}
@@ -2334,23 +2207,19 @@ public class LevelEditorApplication : Gtk.Application
 		if (type == null || name == null)
 			return;
 
-		if (name == _level._name)
-		{
+		if (name == _level._name) {
 			int rt = ResponseType.YES;
 
 			if (_database.changed())
 				rt = run_level_changed_dialog(this.active_window);
 
-			if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
-			{
+			if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO) {
 				new_level();
 				send_state();
 
 				_project.delete_resource(type, name);
 			}
-		}
-		else
-		{
+		} else {
 			_project.delete_resource(type, name);
 		}
 	}
@@ -2365,20 +2234,16 @@ public class LevelEditorApplication : Gtk.Application
 
 	public void menu_set_enabled(bool enabled, GLib.ActionEntry[] entries, string[]? whitelist = null)
 	{
-		for (int ii = 0; ii < entries.length; ++ii)
-		{
+		for (int ii = 0; ii < entries.length; ++ii) {
 			string action_name = entries[ii].name;
 			int jj = 0;
-			if (whitelist != null)
-			{
-				for (; jj < whitelist.length; ++jj)
-				{
+			if (whitelist != null) {
+				for (; jj < whitelist.length; ++jj) {
 					if (action_name == whitelist[jj])
 						break;
 				}
 			}
-			if (whitelist == null || whitelist != null && jj == whitelist.length)
-			{
+			if (whitelist == null || whitelist != null && jj == whitelist.length) {
 				GLib.SimpleAction sa = this.lookup_action(action_name) as GLib.SimpleAction;
 				if (sa != null)
 					sa.set_enabled(enabled);
@@ -2388,8 +2253,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void set_conflicting_accels(bool on)
 	{
-		if (on)
-		{
+		if (on) {
 			this.set_accels_for_action("app.tool::place", _tool_place_accels);
 			this.set_accels_for_action("app.tool::move", _tool_move_accels);
 			this.set_accels_for_action("app.tool::rotate", _tool_rotate_accels);
@@ -2402,9 +2266,7 @@ public class LevelEditorApplication : Gtk.Application
 			this.set_accels_for_action("app.camera-view::left", _camera_view_left_accels);
 			this.set_accels_for_action("app.camera-view::top", _camera_view_top_accels);
 			this.set_accels_for_action("app.camera-view::bottom", _camera_view_bottom_accels);
-		}
-		else
-		{
+		} else {
 			this.set_accels_for_action("app.tool::place", {});
 			this.set_accels_for_action("app.tool::move", {});
 			this.set_accels_for_action("app.tool::rotate", {});
@@ -2434,8 +2296,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		_main_stack.set_visible_child_full(name, stt);
 
-		if (name == "main_vbox")
-		{
+		if (name == "main_vbox") {
 			// FIXME: save/restore last known window state
 			int win_w;
 			int win_h;
@@ -2452,12 +2313,10 @@ public class LevelEditorApplication : Gtk.Application
 			menu_set_enabled(true, action_entries_view);
 			menu_set_enabled(true, action_entries_debug);
 			menu_set_enabled(true, action_entries_help);
-		}
-		else if (name == "panel_welcome"
+		} else if (name == "panel_welcome"
 			|| name == "panel_new_project"
 			|| name == "panel_projects_list"
-			)
-		{
+			) {
 			menu_set_enabled(false, action_entries_file, {"new-project", "open-project", "quit"});
 			menu_set_enabled(false, action_entries_edit);
 			menu_set_enabled(false, action_entries_create);
@@ -2515,8 +2374,7 @@ public static void log(string system, string severity, string message)
 	int now_us = now.get_microsecond();
 	string now_str = now.format("%H:%M:%S");
 
-	if (_log_stream != null)
-	{
+	if (_log_stream != null) {
 		string line = "%s.%06d  %.4s %s: %s\n".printf(now_str
 			, now_us
 			, severity.ascii_up()
@@ -2528,8 +2386,7 @@ public static void log(string system, string severity, string message)
 		_log_stream.flush();
 	}
 
-	if (_console_view_valid)
-	{
+	if (_console_view_valid) {
 		string line = "%s.%06d  %s: %s\n".printf(now_str
 			, now_us
 			, system
@@ -2558,22 +2415,18 @@ public static void loge(string message)
 public void open_directory(string directory)
 {
 #if CROWN_PLATFORM_LINUX
-	try
-	{
+	try {
 		GLib.AppInfo.launch_default_for_uri("file://" + directory, null);
 	}
-	catch (Error e)
-	{
+	catch (Error e) {
 		loge(e.message);
 	}
 #else
 	GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(subprocess_flags());
-	try
-	{
+	try {
 		sl.spawnv({ "explorer.exe", directory, null });
 	}
-	catch (Error e)
-	{
+	catch (Error e) {
 		loge(e.message);
 	}
 #endif
@@ -2591,15 +2444,13 @@ public static GLib.SubprocessFlags subprocess_flags()
 public static bool is_directory_empty(string path)
 {
 	GLib.File file = GLib.File.new_for_path(path);
-	try
-	{
+	try {
 		FileEnumerator enumerator = file.enumerate_children("standard::*"
 			, FileQueryInfoFlags.NOFOLLOW_SYMLINKS
 			);
 		return enumerator.next_file() == null;
 	}
-	catch (GLib.Error e)
-	{
+	catch (GLib.Error e) {
 		loge(e.message);
 	}
 
@@ -2616,13 +2467,11 @@ public static int wait_process(out int exit_status, GLib.Subprocess? process)
 	if (process == null)
 		return 1;
 
-	try
-	{
+	try {
 		if (!process.wait())
 			return 1;
 
-		if (process.get_if_exited())
-		{
+		if (process.get_if_exited()) {
 			exit_status = process.get_exit_status();
 			return 0;
 		}
@@ -2630,8 +2479,7 @@ public static int wait_process(out int exit_status, GLib.Subprocess? process)
 		// Process exited abnormally.
 		return 1;
 	}
-	catch (Error e)
-	{
+	catch (Error e) {
 		loge(e.message);
 		return 1;
 	}
@@ -2651,12 +2499,24 @@ public static int main(string[] args)
 {
 	// Global paths
 	_config_dir = GLib.File.new_for_path(GLib.Path.build_filename(GLib.Environment.get_user_config_dir(), "crown"));
-	try { _config_dir.make_directory(); } catch (Error e) { /* Nobody cares */ }
+	try {
+		_config_dir.make_directory();
+	} catch (Error e) {
+		/* Nobody cares */
+	}
 	_logs_dir = GLib.File.new_for_path(GLib.Path.build_filename(_config_dir.get_path(), "logs"));
-	try { _logs_dir.make_directory(); } catch (Error e) { /* Nobody cares */ }
+	try {
+		_logs_dir.make_directory();
+	} catch (Error e) {
+		/* Nobody cares */
+	}
 	_documents_dir = GLib.File.new_for_path(GLib.Environment.get_user_special_dir(GLib.UserDirectory.DOCUMENTS));
 	_cache_dir = GLib.File.new_for_path(GLib.Path.build_filename(GLib.Environment.get_user_cache_dir(), "crown"));
-	try { _cache_dir.make_directory(); } catch (Error e) { /* Nobody cares */ }
+	try {
+		_cache_dir.make_directory();
+	} catch (Error e) {
+		/* Nobody cares */
+	}
 
 	_log_file = GLib.File.new_for_path(GLib.Path.build_filename(_logs_dir.get_path(), new GLib.DateTime.now_local().format("%Y-%m-%d") + ".log"));
 	_settings_file = GLib.File.new_for_path(GLib.Path.build_filename(_config_dir.get_path(), "settings.sjson"));
@@ -2673,17 +2533,14 @@ public static int main(string[] args)
 		"../..",
 		"../../../samples"
 	};
-	for (ii = 0; ii < toolchain_paths.length; ++ii)
-	{
+	for (ii = 0; ii < toolchain_paths.length; ++ii) {
 		string path = Path.build_filename(toolchain_paths[ii], "core");
-		if (GLib.FileUtils.test(path, FileTest.EXISTS) && GLib.FileUtils.test(path, FileTest.IS_DIR))
-		{
+		if (GLib.FileUtils.test(path, FileTest.EXISTS) && GLib.FileUtils.test(path, FileTest.IS_DIR)) {
 			_toolchain_dir = File.new_for_path(path).get_parent();
 			break;
 		}
 	}
-	if (ii == toolchain_paths.length)
-	{
+	if (ii == toolchain_paths.length) {
 		loge("Unable to find the toolchain directory");
 		return 1;
 	}
@@ -2695,17 +2552,14 @@ public static int main(string[] args)
 		"../..",
 		"../../.."
 	};
-	for (ii = 0; ii < templates_path.length; ++ii)
-	{
+	for (ii = 0; ii < templates_path.length; ++ii) {
 		string path = Path.build_filename(templates_path[ii], "samples");
-		if (GLib.FileUtils.test(path, FileTest.EXISTS) && GLib.FileUtils.test(path, FileTest.IS_DIR))
-		{
+		if (GLib.FileUtils.test(path, FileTest.EXISTS) && GLib.FileUtils.test(path, FileTest.IS_DIR)) {
 			_templates_dir = File.new_for_path(path);
 			break;
 		}
 	}
-	if (ii == templates_path.length)
-	{
+	if (ii == templates_path.length) {
 		loge("Unable to find the templates directory");
 		return 1;
 	}

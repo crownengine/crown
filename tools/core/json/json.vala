@@ -114,21 +114,15 @@ public class JSON
 	static void write_string(string s, StringBuilder builder)
 	{
 		builder.append_c('"');
-		for (int i = 0; i < s.length; ++i)
-		{
+		for (int i = 0; i < s.length; ++i) {
 			uint8 c = s[i];
-			if (c == '"' || c == '\\')
-			{
+			if (c == '"' || c == '\\') {
 				builder.append_c('\\');
 				builder.append_c((char)c);
-			}
-			else if (c == '\n')
-			{
+			} else if (c == '\n') {
 				builder.append_c('\\');
 				builder.append_c('n');
-			}
-			else
-			{
+			} else {
 				builder.append_c((char)c);
 			}
 		}
@@ -139,8 +133,7 @@ public class JSON
 	{
 		bool write_comma = false;
 		builder.append("[ ");
-		foreach (Value? item in a)
-		{
+		foreach (Value? item in a) {
 			if (write_comma)
 				builder.append(", ");
 			write(item, builder, indentation + 1);
@@ -153,8 +146,7 @@ public class JSON
 	{
 		builder.append_c('{');
 		bool write_comma = false;
-		foreach (var de in t.entries)
-		{
+		foreach (var de in t.entries) {
 			if (write_comma)
 				builder.append(", ");
 			write_new_line(builder, indentation);
@@ -169,8 +161,7 @@ public class JSON
 
 	static void skip_whitespace(uint8[] json, ref int index)
 	{
-		while (index < json.length)
-		{
+		while (index < json.length) {
 			uint8 c = json[index];
 			if (c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == ',')
 				++index;
@@ -182,8 +173,7 @@ public class JSON
 	static void consume(uint8[] json, ref int index, string consume)
 	{
 		skip_whitespace(json, ref index);
-		for (int i = 0; i < consume.length; ++i)
-		{
+		for (int i = 0; i < consume.length; ++i) {
 			if (json[index] != consume[i])
 				assert(false);
 			++index;
@@ -194,39 +184,24 @@ public class JSON
 	{
 		uint8 c = next(json, ref index);
 
-		if (c == '{')
-		{
+		if (c == '{') {
 			return parse_object(json, ref index);
-		}
-		else if (c == '[')
-		{
+		} else if (c == '[') {
 			return parse_array(json, ref index);
-		}
-		else if (c == '"')
-		{
+		} else if (c == '"') {
 			return parse_string(json, ref index);
-		}
-		else if (c == '-' || c >= '0' && c <= '9')
-		{
+		} else if (c == '-' || c >= '0' && c <= '9') {
 			return parse_number(json, ref index);
-		}
-		else if (c == 't')
-		{
+		} else if (c == 't') {
 			consume(json, ref index, "true");
 			return true;
-		}
-		else if (c == 'f')
-		{
+		} else if (c == 'f') {
 			consume(json, ref index, "false");
 			return false;
-		}
-		else if (c == 'n')
-		{
+		} else if (c == 'n') {
 			consume(json, ref index, "null");
 			return null;
-		}
-		else
-		{
+		} else {
 			assert(false);
 			return null;
 		}
@@ -244,8 +219,7 @@ public class JSON
 		consume(json, ref index, "{");
 		skip_whitespace(json, ref index);
 
-		while (next(json, ref index) != '}')
-		{
+		while (next(json, ref index) != '}') {
 			string key = parse_string(json, ref index);
 			consume(json, ref index, ":");
 			if (key.has_suffix("_binary"))
@@ -261,8 +235,7 @@ public class JSON
 	{
 		ArrayList<Value?> a = new ArrayList<Value?>();
 		consume(json, ref index, "[");
-		while (next(json, ref index) != ']')
-		{
+		while (next(json, ref index) != ']') {
 			Value? value = parse(json, ref index);
 			a.add(value);
 		}
@@ -275,20 +248,14 @@ public class JSON
 		ArrayList<uint8> s = new ArrayList<uint8>();
 
 		consume(json, ref index, "\"");
-		while (true)
-		{
+		while (true) {
 			uint8 c = json[index];
 			++index;
-			if (c == '"')
-			{
+			if (c == '"') {
 				break;
-			}
-			else if (c != '\\')
-			{
+			} else if (c != '\\') {
 				s.add(c);
-			}
-			else
-			{
+			} else {
 				uint8 q = json[index];
 				++index;
 				if (q == '"' || q == '\\' || q == '/')

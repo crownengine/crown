@@ -34,10 +34,8 @@ public class ComboBoxMap : Gtk.ComboBoxText
 		// Data
 		_stop_emit = false;
 
-		if (labels != null)
-		{
-			for (int ii = 0; ii < ids.length; ++ii)
-			{
+		if (labels != null) {
+			for (int ii = 0; ii < ids.length; ++ii) {
 				unowned string? id = ids != null ? ids[ii] : null;
 				this.append(id, labels[ii]);
 			}

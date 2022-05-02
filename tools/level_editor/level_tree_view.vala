@@ -159,20 +159,15 @@ public class LevelTreeView : Gtk.Box
 
 	private bool on_button_pressed(Gdk.EventButton ev)
 	{
-		if (ev.button == Gdk.BUTTON_SECONDARY)
-		{
+		if (ev.button == Gdk.BUTTON_SECONDARY) {
 			Gtk.TreePath path;
 			Gtk.TreeViewColumn column;
-			if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, out column, null, null))
-			{
-				if (!_tree_selection.path_is_selected(path))
-				{
+			if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, out column, null, null)) {
+				if (!_tree_selection.path_is_selected(path)) {
 					_tree_selection.unselect_all();
 					_tree_selection.select_path(path);
 				}
-			}
-			else // Clicked on empty space.
-			{
+			} else { // Clicked on empty space.
 				return Gdk.EVENT_PROPAGATE;
 			}
 
@@ -203,8 +198,7 @@ public class LevelTreeView : Gtk.Box
 					dg.skip_taskbar_hint = true;
 					dg.show_all();
 
-					if (dg.run() == (int)ResponseType.OK)
-					{
+					if (dg.run() == (int)ResponseType.OK) {
 						string cur_name = "";
 						string new_name = "";
 						Guid object_id = GUID_ZERO;
@@ -259,11 +253,9 @@ public class LevelTreeView : Gtk.Box
 
 	private bool on_button_released(Gdk.EventButton ev)
 	{
-		if (ev.button == Gdk.BUTTON_PRIMARY)
-		{
+		if (ev.button == Gdk.BUTTON_PRIMARY) {
 			Gtk.TreePath path;
-			if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, null, null, null))
-			{
+			if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, null, null, null)) {
 				Gtk.TreeIter iter;
 				_tree_view.model.get_iter(out iter, path);
 
@@ -318,10 +310,8 @@ public class LevelTreeView : Gtk.Box
 				Value id;
 				model.get_value(iter, Column.GUID, out id);
 
-				foreach (Guid? guid in selection)
-				{
-					if ((Guid)id == guid)
-					{
+				foreach (Guid? guid in selection) {
+					if ((Guid)id == guid) {
 						_tree_selection.select_iter(iter);
 						return false;
 					}
@@ -345,8 +335,7 @@ public class LevelTreeView : Gtk.Box
 				model.get_value(iter, Column.GUID, out guid);
 				Guid guid_model = (Guid)guid;
 
-				if (guid_model == object_id)
-				{
+				if (guid_model == object_id) {
 					Gtk.TreeIter iter_filter;
 					Gtk.TreeIter iter_model;
 					_tree_sort.convert_iter_to_child_iter(out iter_filter, iter);
@@ -429,19 +418,15 @@ public class LevelTreeView : Gtk.Box
 		HashSet<Guid?> units  = _db.get_property_set(_level._id, "units", new HashSet<Guid?>());
 		HashSet<Guid?> sounds = _db.get_property_set(_level._id, "sounds", new HashSet<Guid?>());
 
-		foreach (Guid unit in units)
-		{
+		foreach (Guid unit in units) {
 			Unit u = new Unit(_level._db, unit);
 
 			int item_type = LevelTreeView.ItemType.UNIT;
 			Gtk.TreeIter tree_iter = units_iter;
-			if (u.is_light())
-			{
+			if (u.is_light()) {
 				item_type = LevelTreeView.ItemType.LIGHT;
 				tree_iter = lights_iter;
-			}
-			else if (u.is_camera())
-			{
+			} else if (u.is_camera()) {
 				item_type = LevelTreeView.ItemType.CAMERA;
 				tree_iter = cameras_iter;
 			}
@@ -459,8 +444,7 @@ public class LevelTreeView : Gtk.Box
 				, -1
 				);
 		}
-		foreach (Guid sound in sounds)
-		{
+		foreach (Guid sound in sounds) {
 			Gtk.TreeIter iter;
 			_tree_store.insert_with_values(out iter
 				, sounds_iter

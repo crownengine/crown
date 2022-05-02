@@ -384,8 +384,7 @@ public class ColliderPropertyGrid : PropertyGrid
 
 	private void on_value_changed()
 	{
-		if (_source.text == "mesh")
-		{
+		if (_source.text == "mesh") {
 			_level.set_collider(_id
 				, _component_id
 				, _shape.text
@@ -400,25 +399,19 @@ public class ColliderPropertyGrid : PropertyGrid
 		Unit unit = new Unit(_level._db, _id);
 
 		Value? source = unit.get_component_property(_component_id, "data.source");
-		if (source != null)
-		{
-			if ((string)source == "inline")
-			{
+		if (source != null) {
+			if ((string)source == "inline") {
 				_source.text = "inline";
 				_shape.text  = "";
 				_scene.value = "";
 				_name.text   = "";
-			}
-			else
-			{
+			} else {
 				_source.text = "mesh";
 				_shape.text  = unit.get_component_property_string(_component_id, "data.shape");
 				_scene.value = unit.get_component_property_string(_component_id, "data.scene");
 				_name.text   = unit.get_component_property_string(_component_id, "data.name");
 			}
-		}
-		else
-		{
+		} else {
 			_source.text = "mesh";
 			_shape.text  = unit.get_component_property_string(_component_id, "data.shape");
 			_scene.value = unit.get_component_property_string(_component_id, "data.scene");
@@ -761,22 +754,18 @@ public class PropertiesView : Gtk.Bin
 	{
 		_stack.set_visible_child(_scrolled_window);
 
-		foreach (var entry in _entries)
-		{
+		foreach (var entry in _entries) {
 			Gtk.Expander expander = _expanders[entry.type];
 
 			Unit unit = new Unit(_db, id);
 			Guid component_id;
-			if (unit.has_component(out component_id, entry.type) || entry.type == "name")
-			{
+			if (unit.has_component(out component_id, entry.type) || entry.type == "name") {
 				PropertyGrid cv = _objects[entry.type];
 				cv._id = id;
 				cv._component_id = component_id;
 				cv.update();
 				expander.show_all();
-			}
-			else
-			{
+			} else {
 				expander.hide();
 			}
 		}
@@ -786,19 +775,15 @@ public class PropertiesView : Gtk.Bin
 	{
 		_stack.set_visible_child(_scrolled_window);
 
-		foreach (var entry in _entries)
-		{
+		foreach (var entry in _entries) {
 			Gtk.Expander expander = _expanders[entry.type];
 
-			if (entry.type == "sound_transform" || entry.type == "sound_properties")
-			{
+			if (entry.type == "sound_transform" || entry.type == "sound_properties") {
 				PropertyGrid cv = _objects[entry.type];
 				cv._id = id;
 				cv.update();
 				expander.show_all();
-			}
-			else
-			{
+			} else {
 				expander.hide();
 			}
 		}
@@ -806,8 +791,7 @@ public class PropertiesView : Gtk.Bin
 
 	public void on_selection_changed(Gee.ArrayList<Guid?> selection)
 	{
-		if (selection.size != 1)
-		{
+		if (selection.size != 1) {
 			_stack.set_visible_child(_nothing_to_show);
 			return;
 		}

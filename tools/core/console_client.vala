@@ -22,15 +22,13 @@ public class ConsoleClient : GLib.Object
 
 	public new void connect(string address, int port)
 	{
-		try
-		{
+		try {
 			GLib.SocketClient client = new GLib.SocketClient();
 			_connection = client.connect(new InetSocketAddress.from_string(address, port), null);
 			if (_connection != null)
 				connected(address, port);
 		}
-		catch (Error e)
-		{
+		catch (Error e) {
 			// Ignore
 		}
 	}
@@ -40,8 +38,7 @@ public class ConsoleClient : GLib.Object
 	public async int connect_async(string address, int port, int num_tries, int interval)
 	{
 		int tries;
-		for (tries = 0; tries < num_tries; ++tries)
-		{
+		for (tries = 0; tries < num_tries; ++tries) {
 			this.connect(address, port);
 			if (this.is_connected())
 				break;
@@ -53,17 +50,14 @@ public class ConsoleClient : GLib.Object
 
 	public void close()
 	{
-		try
-		{
-			if (_connection != null)
-			{
+		try {
+			if (_connection != null) {
 				_connection.close();
 				_connection = null;
 				disconnected();
 			}
 		}
-		catch (Error e)
-		{
+		catch (Error e) {
 			loge(e.message);
 		}
 	}
@@ -79,8 +73,7 @@ public class ConsoleClient : GLib.Object
 		if (!is_connected())
 			return;
 
-		try
-		{
+		try {
 			// FIXME: Add bit conversion utils
 			uint32 len = json.length;
 			uint8* ptr = (uint8*)(&len);
@@ -92,8 +85,7 @@ public class ConsoleClient : GLib.Object
 			_connection.output_stream.write_all(header, out bytes_read);
 			_connection.output_stream.write_all(json.data, out bytes_read);
 		}
-		catch (Error e)
-		{
+		catch (Error e) {
 			loge(e.message);
 		}
 	}
@@ -111,14 +103,12 @@ public class ConsoleClient : GLib.Object
 
 	private void on_read(Object? obj, AsyncResult ar)
 	{
-		try
-		{
+		try {
 			InputStream input_stream = (InputStream)obj;
 			uint8[] header = input_stream.read_bytes_async.end(ar).get_data();
 
 			// Connection closed gracefully
-			if (header.length == 0)
-			{
+			if (header.length == 0) {
 				close();
 				return;
 			}
@@ -136,8 +126,7 @@ public class ConsoleClient : GLib.Object
 			if (input_stream.read_all(data, out bytes_read))
 				message_received(this, data);
 		}
-		catch (Error e)
-		{
+		catch (Error e) {
 			if (e.code == 44) // An existing connection was forcibly closed by the remote host.
 				close();
 		}

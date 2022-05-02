@@ -135,8 +135,7 @@ public class PanelProjectsList : Gtk.ScrolledWindow
 	public void on_recent_project_touched(string source_dir, string mtime)
 	{
 		_list_projects.foreach((row) => {
-				if (row.get_data<string>("source_dir") == source_dir)
-				{
+				if (row.get_data<string>("source_dir") == source_dir) {
 					row.set_data("mtime", mtime);
 					return;
 				}

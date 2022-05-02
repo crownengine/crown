@@ -46,8 +46,7 @@ public class Statusbar : Gtk.Box
 	{
 		_temporary_message.set_label("; " + message);
 
-		if (_timer_id > 0)
-		{
+		if (_timer_id > 0) {
 			GLib.Source.remove(_timer_id);
 			_timer_id = 0;
 		}

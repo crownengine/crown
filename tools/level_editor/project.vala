@@ -265,14 +265,10 @@ public class Project
 	{
 		string path = Path.build_filename(_source_dir.get_path(), directory + "/" + name + ".lua");
 		FileStream fs = FileStream.open(path, "wb");
-		if (fs != null)
-		{
-			if (empty)
-			{
+		if (fs != null) {
+			if (empty) {
 				fs.puts("\n");
-			}
-			else
-			{
+			} else {
 				string text = "local Behavior = Behavior or {}"
 					+ "\nlocal Data = Data or {}"
 					+ "\n"
@@ -322,8 +318,7 @@ public class Project
 	{
 		string path = Path.build_filename(_source_dir.get_path(), directory + "/" + name + ".unit");
 		FileStream fs = FileStream.open(path, "wb");
-		if (fs != null)
-		{
+		if (fs != null) {
 			fs.puts("\ncomponents = [");
 			fs.puts("\n]");
 			fs.puts("\n");
@@ -374,13 +369,11 @@ public class Project
 
 	public void delete_garbage()
 	{
-		try
-		{
+		try {
 			_level_editor_test_level.delete();
 			_level_editor_test_package.delete();
 		}
-		catch (GLib.Error e)
-		{
+		catch (GLib.Error e) {
 			// Ignored
 		}
 	}
@@ -394,12 +387,10 @@ public class Project
 	public void delete_resource(string type, string name)
 	{
 		GLib.File file = GLib.File.new_for_path(filename(type, name));
-		try
-		{
+		try {
 			file.delete();
 		}
-		catch (Error e)
-		{
+		catch (Error e) {
 			loge(e.message);
 		}
 	}
@@ -412,8 +403,7 @@ public class Project
 		string index_path = Path.build_filename(_data_dir.get_path(), "data_index.sjson");
 		Hashtable index = SJSON.load_from_path(index_path);
 		Value? name = index[resource_id];
-		if (name != null)
-		{
+		if (name != null) {
 			resource_name = (string)name;
 			return true;
 		}
@@ -459,8 +449,7 @@ public class Project
 
 	public void remove_file(string path)
 	{
-		if (!_map.has_key(path))
-		{
+		if (!_map.has_key(path)) {
 			logw("remove_file: map does not contain path: %s".printf(path));
 			return;
 		}
@@ -530,8 +519,7 @@ public class Project
 			});
 
 		int success = 0;
-		while (paths.size != 0 && success == 0)
-		{
+		while (paths.size != 0 && success == 0) {
 			// Find importer for the first file in the list of selected filenames.
 			ImporterData? importer = project.find_importer_for_path(paths[0]);
 			if (importer == null)
@@ -540,14 +528,11 @@ public class Project
 			// Create the list of all filenames importable by importer.
 			Gee.ArrayList<string> importables = new Gee.ArrayList<string>();
 			var cur = paths.list_iterator();
-			for (var has_next = cur.next(); has_next; has_next = cur.next())
-			{
+			for (var has_next = cur.next(); has_next; has_next = cur.next()) {
 				string path = paths[cur.index()];
 
-				foreach (var ext in importer.extensions)
-				{
-					if (path.has_suffix("." + ext))
-					{
+				foreach (var ext in importer.extensions) {
+					if (path.has_suffix("." + ext)) {
 						importables.add(path);
 						cur.remove();
 					}
@@ -576,8 +561,7 @@ public class Project
 		Gtk.FileFilter filter = new Gtk.FileFilter();
 
 		string extensions_comma_separated = "";
-		foreach (var ext in extensions)
-		{
+		foreach (var ext in extensions) {
 			extensions_comma_separated += "*.%s, ".printf(ext);
 			filter.add_pattern("*.%s".printf(ext));
 		}
@@ -613,10 +597,8 @@ public class Project
 	// with the given @a extension.
 	public ImporterData? find_importer_for_path(string path)
 	{
-		foreach (var imp in _importers)
-		{
-			foreach (var ext in imp.extensions)
-			{
+		foreach (var imp in _importers) {
+			foreach (var ext in imp.extensions) {
 				if (path.has_suffix("." + ext))
 					return imp;
 			}
@@ -641,15 +623,13 @@ public class Project
 		src.add_filter(_all_extensions_importer_data._filter);
 		src.set_filter(_all_extensions_importer_data._filter);
 
-		if (src.run() != (int)ResponseType.ACCEPT)
-		{
+		if (src.run() != (int)ResponseType.ACCEPT) {
 			src.destroy();
 			return;
 		}
 
 		string out_dir = "";
-		if (destination_dir == null)
-		{
+		if (destination_dir == null) {
 			Gtk.FileChooserDialog dst = new Gtk.FileChooserDialog("Select destination folder..."
 				, parent_window
 				, FileChooserAction.SELECT_FOLDER
@@ -660,8 +640,7 @@ public class Project
 				);
 			dst.set_current_folder(this.source_dir());
 
-			if (dst.run() != (int)ResponseType.ACCEPT)
-			{
+			if (dst.run() != (int)ResponseType.ACCEPT) {
 				dst.destroy();
 				src.destroy();
 				return;
@@ -669,9 +648,7 @@ public class Project
 
 			out_dir = dst.get_filename();
 			dst.destroy();
-		}
-		else
-		{
+		} else {
 			out_dir = GLib.File.new_for_path(GLib.Path.build_filename(source_dir(), destination_dir)).get_path();
 		}
 
@@ -680,10 +657,8 @@ public class Project
 
 		// Find importer callback
 		unowned ImporterDelegate? importer = null;
-		foreach (var imp in _importers)
-		{
-			if (imp._filter == current_filter)
-			{
+		foreach (var imp in _importers) {
+			if (imp._filter == current_filter) {
 				importer = imp.delegate;
 				break;
 			}
@@ -693,8 +668,7 @@ public class Project
 			importer = _all_extensions_importer_data.delegate;
 
 		// Import
-		if (importer(this, out_dir, filenames) == 0)
-		{
+		if (importer(this, out_dir, filenames) == 0) {
 			_data_compiler.compile.begin(this.data_dir(), this.platform(), (obj, res) => {
 					_data_compiler.compile.end(res);
 				});
@@ -710,8 +684,7 @@ public class Project
 			);
 
 		GLib.FileInfo info = null;
-		while ((info = fe.next_file()) != null)
-		{
+		while ((info = fe.next_file()) != null) {
 			GLib.File subfile = file.resolve_relative_path(info.get_name());
 
 			if (info.get_file_type() == GLib.FileType.DIRECTORY)

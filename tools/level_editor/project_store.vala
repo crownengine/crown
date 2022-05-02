@@ -79,24 +79,20 @@ public class ProjectStore
 	public bool path_for_resource_type_name(out Gtk.TreePath path, string type, string name)
 	{
 		string f = folder(name);
-		if (_folders.has_key(f))
-		{
+		if (_folders.has_key(f)) {
 			// Find the name inside the folder.
 			Gtk.TreeIter parent_iter;
 			_tree_store.get_iter(out parent_iter, _folders[f].get_path());
 
 			Gtk.TreeIter child;
-			if (_tree_store.iter_children(out child, parent_iter))
-			{
+			if (_tree_store.iter_children(out child, parent_iter)) {
 				Value iter_name;
 				Value iter_type;
 
-				while (true)
-				{
+				while (true) {
 					_tree_store.get_value(child, Column.NAME, out iter_name);
 					_tree_store.get_value(child, Column.TYPE, out iter_type);
-					if ((string)iter_name == name && (string)iter_type == type)
-					{
+					if ((string)iter_name == name && (string)iter_type == type) {
 						path = _tree_store.get_path(child);
 						return true;
 					}
@@ -118,8 +114,7 @@ public class ProjectStore
 		// "folder", one word
 		// "folder/another_folder", any number of words concatenated by '/'
 		int first_slash = folder.index_of_char('/', start_index);
-		if (first_slash == -1)
-		{
+		if (first_slash == -1) {
 			Gtk.TreeIter parent_iter;
 			_tree_store.get_iter(out parent_iter, parent.get_path());
 			Gtk.TreeIter iter;
@@ -137,15 +132,10 @@ public class ProjectStore
 
 			_folders[folder] = new Gtk.TreeRowReference(_tree_store, _tree_store.get_path(iter));
 			return iter;
-		}
-		else
-		{
-			if (_folders.has_key(folder.substring(0, first_slash)))
-			{
+		} else {
+			if (_folders.has_key(folder.substring(0, first_slash))) {
 				return make_tree_internal(folder, first_slash + 1, _folders[folder.substring(0, first_slash)]);
-			}
-			else
-			{
+			} else {
 				Gtk.TreeIter parent_iter;
 				_tree_store.get_iter(out parent_iter, parent.get_path());
 				Gtk.TreeIter iter;
@@ -171,8 +161,7 @@ public class ProjectStore
 
 	private Gtk.TreeIter make_tree(string folder)
 	{
-		if (_folders.has_key(folder))
-		{
+		if (_folders.has_key(folder)) {
 			Gtk.TreeIter iter;
 			_tree_store.get_iter(out iter, _folders[folder].get_path());
 			return iter;
@@ -218,17 +207,14 @@ public class ProjectStore
 		Gtk.TreeIter parent_iter;
 		_tree_store.get_iter(out parent_iter, _folders[f].get_path());
 		Gtk.TreeIter child;
-		if (_tree_store.iter_children(out child, parent_iter))
-		{
+		if (_tree_store.iter_children(out child, parent_iter)) {
 			Value iter_name;
 			Value iter_type;
 
-			while (true)
-			{
+			while (true) {
 				_tree_store.get_value(child, Column.NAME, out iter_name);
 				_tree_store.get_value(child, Column.TYPE, out iter_type);
-				if ((string)iter_name == name && (string)iter_type == type)
-				{
+				if ((string)iter_name == name && (string)iter_type == type) {
 					_tree_store.remove(ref child);
 					break;
 				}
@@ -239,17 +225,14 @@ public class ProjectStore
 		}
 
 		// Remove from list store
-		if (_list_store.iter_children(out child, null))
-		{
+		if (_list_store.iter_children(out child, null)) {
 			Value iter_name;
 			Value iter_type;
 
-			while (true)
-			{
+			while (true) {
 				_list_store.get_value(child, Column.NAME, out iter_name);
 				_list_store.get_value(child, Column.TYPE, out iter_type);
-				if ((string)iter_name == name && (string)iter_type == type)
-				{
+				if ((string)iter_name == name && (string)iter_type == type) {
 					_list_store.remove(ref child);
 					break;
 				}
@@ -280,8 +263,7 @@ public class ProjectStore
 
 		// Remove any stale TreeRowRerefence
 		var it = _folders.map_iterator();
-		for (var has_next = it.next(); has_next; has_next = it.next())
-		{
+		for (var has_next = it.next(); has_next; has_next = it.next()) {
 			string ff = it.get_key();
 			if (ff.has_prefix(name + "/"))
 				it.unset();

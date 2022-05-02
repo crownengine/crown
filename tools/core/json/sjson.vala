@@ -226,20 +226,15 @@ public class SJSON
 	static void skip_comment(uint8 [] json, ref int index)
 	{
 		uint8 next = json[index + 1];
-		if (next == '/')
-		{
+		if (next == '/') {
 			while (index + 1 < json.length && json[index] != '\n')
 				++index;
 			++index;
-		}
-		else if (next == '*')
-		{
+		} else if (next == '*') {
 			while (index + 2 < json.length && (json[index] != '*' || json[index + 1] != '/'))
 				++index;
 			index += 2;
-		}
-		else
-		{
+		} else {
 			GLib.assert(false);
 		}
 	}
@@ -277,39 +272,24 @@ public class SJSON
 	{
 		uint8 c = next(json, ref index);
 
-		if (c == '{')
-		{
+		if (c == '{') {
 			return parse_object(json, ref index);
-		}
-		else if (c == '[')
-		{
+		} else if (c == '[') {
 			return parse_array(json, ref index);
-		}
-		else if (c == '"')
-		{
+		} else if (c == '"') {
 			return parse_string(json, ref index);
-		}
-		else if (c == '-' || c >= '0' && c <= '9')
-		{
+		} else if (c == '-' || c >= '0' && c <= '9') {
 			return parse_number(json, ref index);
-		}
-		else if (c == 't')
-		{
+		} else if (c == 't') {
 			consume(json, ref index, "true");
 			return true;
-		}
-		else if (c == 'f')
-		{
+		} else if (c == 'f') {
 			consume(json, ref index, "false");
 			return false;
-		}
-		else if (c == 'n')
-		{
+		} else if (c == 'n') {
 			consume(json, ref index, "null");
 			return null;
-		}
-		else
-		{
+		} else {
 			GLib.assert(false);
 			return null;
 		}
@@ -357,16 +337,11 @@ public class SJSON
 		while (true) {
 			uint8 c = json[index];
 			++index;
-			if (c == '"')
-			{
+			if (c == '"') {
 				break;
-			}
-			else if (c != '\\')
-			{
+			} else if (c != '\\') {
 				s.add(c);
-			}
-			else
-			{
+			} else {
 				uint8 q = json[index];
 				++index;
 				if (q == '"' || q == '\\' || q == '/')

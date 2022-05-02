@@ -120,29 +120,24 @@ public class Level
 		Guid[] units = {};
 		Guid[] sounds = {};
 
-		foreach (Guid id in ids)
-		{
+		foreach (Guid id in ids) {
 			if (_db.object_type(id) == OBJECT_TYPE_UNIT)
 				units += id;
 			else if (_db.object_type(id) == OBJECT_TYPE_SOUND_SOURCE)
 				sounds += id;
 		}
 
-		if (units.length > 0)
-		{
+		if (units.length > 0) {
 			_db.add_restore_point((int)ActionType.DESTROY_UNIT, units);
-			foreach (Guid id in units)
-			{
+			foreach (Guid id in units) {
 				_db.remove_from_set(_id, "units", id);
 				_db.destroy(id);
 			}
 		}
 
-		if (sounds.length > 0)
-		{
+		if (sounds.length > 0) {
 			_db.add_restore_point((int)ActionType.DESTROY_SOUND, sounds);
-			foreach (Guid id in sounds)
-			{
+			foreach (Guid id in sounds) {
 				_db.remove_from_set(_id, "sounds", id);
 				_db.destroy(id);
 			}
@@ -163,8 +158,7 @@ public class Level
 
 	public void duplicate_selected_objects()
 	{
-		if (_selection.size > 0)
-		{
+		if (_selection.size > 0) {
 			Guid[] ids = new Guid[_selection.size];
 			// FIXME
 			{
@@ -198,16 +192,12 @@ public class Level
 	public void duplicate_objects(Guid[] ids, Guid[] new_ids)
 	{
 		_db.add_restore_point((int)ActionType.DUPLICATE_OBJECTS, new_ids);
-		for (int i = 0; i < ids.length; ++i)
-		{
+		for (int i = 0; i < ids.length; ++i) {
 			_db.duplicate(ids[i], new_ids[i]);
 
-			if (_db.object_type(ids[i]) == OBJECT_TYPE_UNIT)
-			{
+			if (_db.object_type(ids[i]) == OBJECT_TYPE_UNIT) {
 				_db.add_to_set(_id, "units", new_ids[i]);
-			}
-			else if (_db.object_type(ids[i]) == OBJECT_TYPE_SOUND_SOURCE)
-			{
+			} else if (_db.object_type(ids[i]) == OBJECT_TYPE_SOUND_SOURCE) {
 				_db.add_to_set(_id, "sounds", new_ids[i]);
 			}
 		}
@@ -221,23 +211,19 @@ public class Level
 		_db.create(id, OBJECT_TYPE_UNIT);
 		_db.set_property_string(id, "editor.name", "unit_%04u".printf(_num_units++));
 
-		if (name != null)
-		{
+		if (name != null) {
 			_project.load_unit(name);
 			_db.set_property_string(id, "prefab", name);
 		}
 
 		Unit unit = new Unit(_db, id);
 		Guid component_id;
-		if (unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM))
-		{
+		if (unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM)) {
 			unit.set_component_property_vector3   (component_id, "data.position", pos);
 			unit.set_component_property_quaternion(component_id, "data.rotation", rot);
 			unit.set_component_property_vector3   (component_id, "data.scale", scl);
 			unit.set_component_property_string    (component_id, "type", OBJECT_TYPE_TRANSFORM);
-		}
-		else
-		{
+		} else {
 			_db.set_property_vector3   (id, "position", pos);
 			_db.set_property_quaternion(id, "rotation", rot);
 			_db.set_property_vector3   (id, "scale", scl);
@@ -263,32 +249,25 @@ public class Level
 	{
 		_db.add_restore_point((int)ActionType.MOVE_OBJECTS, ids);
 
-		for (int i = 0; i < ids.length; ++i)
-		{
+		for (int i = 0; i < ids.length; ++i) {
 			Guid id = ids[i];
 			Vector3 pos = positions[i];
 			Quaternion rot = rotations[i];
 			Vector3 scl = scales[i];
 
-			if (_db.object_type(id) == OBJECT_TYPE_UNIT)
-			{
+			if (_db.object_type(id) == OBJECT_TYPE_UNIT) {
 				Unit unit = new Unit(_db, id);
 				Guid component_id;
-				if (unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM))
-				{
+				if (unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM)) {
 					unit.set_component_property_vector3   (component_id, "data.position", pos);
 					unit.set_component_property_quaternion(component_id, "data.rotation", rot);
 					unit.set_component_property_vector3   (component_id, "data.scale", scl);
-				}
-				else
-				{
+				} else {
 					_db.set_property_vector3   (id, "position", pos);
 					_db.set_property_quaternion(id, "rotation", rot);
 					_db.set_property_vector3   (id, "scale", scl);
 				}
-			}
-			else if (_db.object_type(id) == OBJECT_TYPE_SOUND_SOURCE)
-			{
+			} else if (_db.object_type(id) == OBJECT_TYPE_SOUND_SOURCE) {
 				_db.set_property_vector3   (id, "position", pos);
 				_db.set_property_quaternion(id, "rotation", rot);
 			}
@@ -488,14 +467,10 @@ public class Level
 	private void send_spawn_objects(Guid[] ids)
 	{
 		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < ids.length; ++i)
-		{
-			if (_db.object_type(ids[i]) == OBJECT_TYPE_UNIT)
-			{
+		for (int i = 0; i < ids.length; ++i) {
+			if (_db.object_type(ids[i]) == OBJECT_TYPE_UNIT) {
 				generate_spawn_unit_commands(new Guid[] { ids[i] }, sb);
-			}
-			else if (_db.object_type(ids[i]) == OBJECT_TYPE_SOUND_SOURCE)
-			{
+			} else if (_db.object_type(ids[i]) == OBJECT_TYPE_SOUND_SOURCE) {
 				generate_spawn_sound_commands(new Guid[] { ids[i] }, sb);
 			}
 		}
@@ -556,8 +531,7 @@ public class Level
 
 	private void generate_spawn_unit_commands(Guid[] unit_ids, StringBuilder sb)
 	{
-		foreach (Guid unit_id in unit_ids)
-		{
+		foreach (Guid unit_id in unit_ids) {
 			Unit unit = new Unit(_db, unit_id);
 
 			if (unit.has_prefab())
@@ -566,8 +540,7 @@ public class Level
 			sb.append(LevelEditorApi.spawn_empty_unit(unit_id));
 
 			Guid component_id;
-			if (unit.has_component(out component_id, "transform"))
-			{
+			if (unit.has_component(out component_id, "transform")) {
 				string s = LevelEditorApi.add_tranform_component(unit_id
 					, component_id
 					, unit.get_component_property_vector3   (component_id, "data.position")
@@ -576,8 +549,7 @@ public class Level
 					);
 				sb.append(s);
 			}
-			if (unit.has_component(out component_id, "camera"))
-			{
+			if (unit.has_component(out component_id, "camera")) {
 				string s = LevelEditorApi.add_camera_component(unit_id
 					, component_id
 					, unit.get_component_property_string(component_id, "data.projection")
@@ -587,8 +559,7 @@ public class Level
 					);
 				sb.append(s);
 			}
-			if (unit.has_component(out component_id, "mesh_renderer"))
-			{
+			if (unit.has_component(out component_id, "mesh_renderer")) {
 				string s = LevelEditorApi.add_mesh_renderer_component(unit_id
 					, component_id
 					, unit.get_component_property_string(component_id, "data.mesh_resource")
@@ -598,8 +569,7 @@ public class Level
 					);
 				sb.append(s);
 			}
-			if (unit.has_component(out component_id, "sprite_renderer"))
-			{
+			if (unit.has_component(out component_id, "sprite_renderer")) {
 				string s = LevelEditorApi.add_sprite_renderer_component(unit_id
 					, component_id
 					, unit.get_component_property_string(component_id, "data.sprite_resource")
@@ -610,8 +580,7 @@ public class Level
 					);
 				sb.append(s);
 			}
-			if (unit.has_component(out component_id, "light"))
-			{
+			if (unit.has_component(out component_id, "light")) {
 				string s = LevelEditorApi.add_light_component(unit_id
 					, component_id
 					, unit.get_component_property_string (component_id, "data.type")
@@ -627,8 +596,7 @@ public class Level
 
 	private void generate_spawn_sound_commands(Guid[] sound_ids, StringBuilder sb)
 	{
-		foreach (Guid id in sound_ids)
-		{
+		foreach (Guid id in sound_ids) {
 			string s = LevelEditorApi.spawn_sound(id
 				, _db.get_property_string    (id, "name")
 				, _db.get_property_vector3   (id, "position")
@@ -643,8 +611,7 @@ public class Level
 
 	private void undo_redo_action(bool undo, int id, Guid[] data)
 	{
-		switch (id)
-		{
+		switch (id) {
 		case (int)ActionType.SPAWN_UNIT:
 			if (undo)
 				send_destroy_objects(data);
@@ -673,44 +640,34 @@ public class Level
 				send_destroy_objects(data);
 			break;
 
-		case (int)ActionType.MOVE_OBJECTS:
-		{
+		case (int)ActionType.MOVE_OBJECTS: {
 			Guid[] ids = data;
 
 			Vector3[] positions = new Vector3[ids.length];
 			Quaternion[] rotations = new Quaternion[ids.length];
 			Vector3[] scales = new Vector3[ids.length];
 
-			for (int i = 0; i < ids.length; ++i)
-			{
-				if (_db.object_type(ids[i]) == OBJECT_TYPE_UNIT)
-				{
+			for (int i = 0; i < ids.length; ++i) {
+				if (_db.object_type(ids[i]) == OBJECT_TYPE_UNIT) {
 					Guid unit_id = ids[i];
 
 					Unit unit = new Unit(_db, unit_id);
 					Guid component_id;
-					if (unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM))
-					{
+					if (unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM)) {
 						positions[i] = unit.get_component_property_vector3   (component_id, "data.position");
 						rotations[i] = unit.get_component_property_quaternion(component_id, "data.rotation");
 						scales[i]    = unit.get_component_property_vector3   (component_id, "data.scale");
-					}
-					else
-					{
+					} else {
 						positions[i] = _db.get_property_vector3   (unit_id, "position");
 						rotations[i] = _db.get_property_quaternion(unit_id, "rotation");
 						scales[i]    = _db.get_property_vector3   (unit_id, "scale");
 					}
-				}
-				else if (_db.object_type(ids[i]) == OBJECT_TYPE_SOUND_SOURCE)
-				{
+				} else if (_db.object_type(ids[i]) == OBJECT_TYPE_SOUND_SOURCE) {
 					Guid sound_id = ids[i];
 					positions[i] = _db.get_property_vector3   (sound_id, "position");
 					rotations[i] = _db.get_property_quaternion(sound_id, "rotation");
 					scales[i]    = Vector3(1.0, 1.0, 1.0);
-				}
-				else
-				{
+				} else {
 					assert(false);
 				}
 			}
@@ -721,8 +678,7 @@ public class Level
 			break;
 		}
 
-		case (int)ActionType.DUPLICATE_OBJECTS:
-		{
+		case (int)ActionType.DUPLICATE_OBJECTS: {
 			Guid[] new_ids = data;
 			if (undo)
 				send_destroy_objects(new_ids);
@@ -735,8 +691,7 @@ public class Level
 			object_editor_name_changed(data[0], object_editor_name(data[0]));
 			break;
 
-		case (int)ActionType.SET_LIGHT:
-		{
+		case (int)ActionType.SET_LIGHT: {
 			Guid unit_id = data[0];
 
 			Unit unit = new Unit(_db, unit_id);
@@ -756,8 +711,7 @@ public class Level
 			break;
 		}
 
-		case (int)ActionType.SET_MESH:
-		{
+		case (int)ActionType.SET_MESH: {
 			Guid unit_id = data[0];
 
 			Unit unit = new Unit(_db, unit_id);
@@ -774,8 +728,7 @@ public class Level
 			break;
 		}
 
-		case (int)ActionType.SET_SPRITE:
-		{
+		case (int)ActionType.SET_SPRITE: {
 			Guid unit_id = data[0];
 
 			Unit unit = new Unit(_db, unit_id);
@@ -795,8 +748,7 @@ public class Level
 			break;
 		}
 
-		case (int)ActionType.SET_CAMERA:
-		{
+		case (int)ActionType.SET_CAMERA: {
 			Guid unit_id = data[0];
 
 			Unit unit = new Unit(_db, unit_id);
@@ -823,8 +775,7 @@ public class Level
 			selection_changed(_selection);
 			break;
 
-		case (int)ActionType.SET_SOUND:
-		{
+		case (int)ActionType.SET_SOUND: {
 			Guid sound_id = data[0];
 
 			_client.send_script(LevelEditorApi.set_sound_range(sound_id

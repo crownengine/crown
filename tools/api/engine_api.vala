@@ -52,8 +52,7 @@ namespace DeviceApi
 	public string command(string[] args)
 	{
 		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < args.length; ++i)
-		{
+		for (int i = 0; i < args.length; ++i) {
 			string arg = args[i].replace("\\", "\\\\").replace("\"", "\\\"");
 			sb.append("\"%s\",".printf(arg));
 		}

@@ -35,14 +35,12 @@ public class AppChooserButton : Gtk.AppChooserButton
 	/// to set the predefined app based @a app_id.
 	public void set_app(string app_name, string? app_id)
 	{
-		if (app_name != APP_PREDEFINED)
-		{
+		if (app_name != APP_PREDEFINED) {
 			this.set_active_custom_item(app_name);
 			return;
 		}
 
-		if (app_id == null)
-		{
+		if (app_id == null) {
 			this.set_active_custom_item(APP_DEFAULT);
 			return;
 		}
@@ -52,8 +50,7 @@ public class AppChooserButton : Gtk.AppChooserButton
 				model.get_value(iter, ModelColumn.APP_INFO, out val);
 
 				GLib.AppInfo app_info = (GLib.AppInfo)val;
-				if (app_info != null && app_info.get_id() == app_id)
-				{
+				if (app_info != null && app_info.get_id() == app_id) {
 					this.set_active_iter(iter);
 					return true;
 				}
@@ -69,8 +66,7 @@ public class AppChooserButton : Gtk.AppChooserButton
 		app_id = null;
 
 		Gtk.TreeIter iter;
-		if (this.get_active_iter(out iter))
-		{
+		if (this.get_active_iter(out iter)) {
 			Value val;
 			this.model.get_value(iter, ModelColumn.NAME, out val);
 			string name = (string)val;
@@ -78,8 +74,7 @@ public class AppChooserButton : Gtk.AppChooserButton
 				return name;
 
 			GLib.AppInfo app_info = this.get_app_info();
-			if (app_info != null)
-			{
+			if (app_info != null) {
 				app_id = app_info.get_id();
 				return AppChooserButton.APP_PREDEFINED;
 			}

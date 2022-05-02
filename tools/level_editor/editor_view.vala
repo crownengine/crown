@@ -44,8 +44,7 @@ public class EditorView : Gtk.EventBox
 
 	private string key_to_string(uint k)
 	{
-		switch (k)
-		{
+		switch (k) {
 		case Gdk.Key.w:     return "w";
 		case Gdk.Key.a:     return "a";
 		case Gdk.Key.s:     return "s";
@@ -104,8 +103,7 @@ public class EditorView : Gtk.EventBox
 		this.focus_out_event.connect(on_event_box_focus_out_event);
 		this.size_allocate.connect(on_size_allocate);
 
-		if (input_enabled)
-		{
+		if (input_enabled) {
 			this.button_release_event.connect(on_button_release);
 			this.button_press_event.connect(on_button_press);
 			this.key_press_event.connect(on_key_press);
@@ -140,14 +138,12 @@ public class EditorView : Gtk.EventBox
 		if (ev.button == Gdk.BUTTON_PRIMARY)
 			str += LevelEditorApi.mouse_up((int)ev.x, (int)ev.y);
 
-		if (camera_modifier_pressed())
-		{
+		if (camera_modifier_pressed()) {
 			if (!_mouse_left || !_mouse_middle || !_mouse_right)
 				str += "LevelEditor:camera_drag_start('idle')";
 		}
 
-		if (str.length != 0)
-		{
+		if (str.length != 0) {
 			_client.send_script(str);
 			_client.send(DeviceApi.frame());
 		}
@@ -170,8 +166,7 @@ public class EditorView : Gtk.EventBox
 			, _mouse_right
 			);
 
-		if (camera_modifier_pressed())
-		{
+		if (camera_modifier_pressed()) {
 			if (_mouse_left)
 				str += "LevelEditor:camera_drag_start('tumble')";
 			if (_mouse_middle)
@@ -183,8 +178,7 @@ public class EditorView : Gtk.EventBox
 		if (ev.button == Gdk.BUTTON_PRIMARY)
 			str += LevelEditorApi.mouse_down((int)ev.x, (int)ev.y);
 
-		if (str.length != 0)
-		{
+		if (str.length != 0) {
 			_client.send_script(str);
 			_client.send(DeviceApi.frame());
 		}
@@ -195,8 +189,7 @@ public class EditorView : Gtk.EventBox
 	{
 		string str = "";
 
-		if (ev.keyval == Gdk.Key.Escape)
-		{
+		if (ev.keyval == Gdk.Key.Escape) {
 			LevelEditorApplication app = (LevelEditorApplication)((Gtk.Window)this.get_toplevel()).application;
 			app.activate_last_tool_before_place();
 		}
@@ -210,16 +203,14 @@ public class EditorView : Gtk.EventBox
 		if (ev.keyval == Gdk.Key.Left)
 			str += "LevelEditor:key_down(\"move_left\")";
 
-		if (_keys.has_key(ev.keyval))
-		{
+		if (_keys.has_key(ev.keyval)) {
 			if (!_keys[ev.keyval])
 				str += LevelEditorApi.key_down(key_to_string(ev.keyval));
 
 			_keys[ev.keyval] = true;
 		}
 
-		if (str.length != 0)
-		{
+		if (str.length != 0) {
 			_client.send_script(str);
 			_client.send(DeviceApi.frame());
 		}
@@ -233,16 +224,14 @@ public class EditorView : Gtk.EventBox
 		if ((ev.keyval == Gdk.Key.Alt_L || ev.keyval == Gdk.Key.Alt_R))
 			str += "LevelEditor:camera_drag_start('idle')";
 
-		if (_keys.has_key(ev.keyval))
-		{
+		if (_keys.has_key(ev.keyval)) {
 			if (_keys[ev.keyval])
 				str += LevelEditorApi.key_up(key_to_string(ev.keyval));
 
 			_keys[ev.keyval] = false;
 		}
 
-		if (str.length != 0)
-		{
+		if (str.length != 0) {
 			_client.send_script(str);
 			_client.send(DeviceApi.frame());
 		}
@@ -290,8 +279,7 @@ public class EditorView : Gtk.EventBox
 		_client.send(DeviceApi.resize(_allocation.width, _allocation.height));
 
 		// Ensure there is some delay between the last resize() and the last frame().
-		if (_resize_timer_id == 0)
-		{
+		if (_resize_timer_id == 0) {
 			_resize_timer_id = GLib.Timeout.add_full(GLib.Priority.DEFAULT, 200, () => {
 					_client.send(DeviceApi.frame());
 					_resize_timer_id = 0;

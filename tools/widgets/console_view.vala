@@ -158,30 +158,23 @@ public class ConsoleView : Gtk.Box
 		string text = _entry.text;
 		text = text.strip();
 
-		if (text.length > 0)
-		{
+		if (text.length > 0) {
 			_entry_history.push(text);
 			_distance = 0;
 
 			Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
 			ConsoleClient? client = ((LevelEditorApplication)app).current_selected_client();
 
-			if (text[0] == ':')
-			{
-				string[] args = text[1:text.length].split(" ");
-				if (args.length > 0)
-				{
-					if (client != null)
-					{
+			if (text[0] == ':') {
+				string[] args = text[1 : text.length].split(" ");
+				if (args.length > 0) {
+					if (client != null) {
 						client.send(DeviceApi.command(args));
 						client.send(DeviceApi.frame());
 					}
 				}
-			}
-			else
-			{
-				if (client != null)
-				{
+			} else {
+				if (client != null) {
 					logi("> %s".printf(text));
 					client.send_script(text);
 					client.send(DeviceApi.frame());
@@ -194,25 +187,18 @@ public class ConsoleView : Gtk.Box
 
 	private bool on_entry_key_pressed(Gdk.EventKey ev)
 	{
-		if (ev.keyval == Gdk.Key.Down)
-		{
-			if (_distance > 1)
-			{
+		if (ev.keyval == Gdk.Key.Down) {
+			if (_distance > 1) {
 				--_distance;
 				_entry.text = _entry_history.element(_distance);
-			}
-			else
-			{
+			} else {
 				_entry.text = "";
 			}
 
 			_entry.set_position(_entry.text.length);
 			return Gdk.EVENT_STOP;
-		}
-		else if (ev.keyval == Gdk.Key.Up)
-		{
-			if (_distance < _entry_history._size)
-			{
+		} else if (ev.keyval == Gdk.Key.Up) {
+			if (_distance < _entry_history._size) {
 				++_distance;
 				_entry.text = _entry_history.element(_distance);
 			}
@@ -231,8 +217,7 @@ public class ConsoleView : Gtk.Box
 
 	private bool on_button_released(Gdk.EventButton ev)
 	{
-		if (ev.button == Gdk.BUTTON_PRIMARY)
-		{
+		if (ev.button == Gdk.BUTTON_PRIMARY) {
 			// Do not handle click if some text is selected.
 			Gtk.TextIter dummy_iter;
 			if (_text_view.buffer.get_selection_bounds(out dummy_iter, out dummy_iter))
@@ -248,15 +233,12 @@ public class ConsoleView : Gtk.Box
 				);
 
 			Gtk.TextIter iter;
-			if (_text_view.get_iter_at_location(out iter, buffer_x, buffer_y))
-			{
+			if (_text_view.get_iter_at_location(out iter, buffer_x, buffer_y)) {
 				// Check whether the text under the mouse pointer has a link tag.
 				GLib.SList<unowned TextTag> tags = iter.get_tags();
-				foreach (var item in tags)
-				{
+				foreach (var item in tags) {
 					string resource_name = item.get_data<string>("resource_name");
-					if (resource_name != null)
-					{
+					if (resource_name != null) {
 						Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
 						app.activate_action("open-resource", new GLib.Variant.string(resource_name));
 					}
@@ -281,22 +263,18 @@ public class ConsoleView : Gtk.Box
 			);
 
 		Gtk.TextIter iter;
-		if (_text_view.get_iter_at_location(out iter, buffer_x, buffer_y))
-		{
+		if (_text_view.get_iter_at_location(out iter, buffer_x, buffer_y)) {
 			// Check whether the text under the mouse pointer has a link tag.
 			GLib.SList<unowned TextTag> tags = iter.get_tags();
-			foreach (var item in tags)
-			{
+			foreach (var item in tags) {
 				string resource_name = item.get_data<string>("resource_name");
-				if (resource_name != null)
-				{
+				if (resource_name != null) {
 					hovering = true;
 				}
 			}
 		}
 
-		if (_cursor_is_hovering_link != hovering)
-		{
+		if (_cursor_is_hovering_link != hovering) {
 			_cursor_is_hovering_link = hovering;
 
 			if (_cursor_is_hovering_link)
@@ -314,8 +292,7 @@ public class ConsoleView : Gtk.Box
 
 		// Limit number of lines recorded.
 		int max_lines = (int)_preferences_dialog._console_max_lines.value;
-		if (buffer.get_line_count() - 1 >= max_lines)
-		{
+		if (buffer.get_line_count() - 1 >= max_lines) {
 			Gtk.TextIter start_of_first_line;
 			buffer.get_iter_at_line(out start_of_first_line, 0);
 			Gtk.TextIter end_of_first_line = start_of_first_line;
@@ -328,13 +305,11 @@ public class ConsoleView : Gtk.Box
 
 		// Replace all IDs with corresponding human-readable names.
 		int id_index = 0;
-		do
-		{
+		do {
 			// Search for occurrences of the ID string.
 			int id_index_orig = id_index;
 			id_index = message.index_of("#ID(", id_index);
-			if (id_index != -1)
-			{
+			if (id_index != -1) {
 				// If an occurrenct is found, insert the preceding text as usual.
 				string line_chunk = message.substring(id_index_orig, id_index - id_index_orig);
 				buffer.insert_with_tags(ref end_iter
@@ -346,8 +321,7 @@ public class ConsoleView : Gtk.Box
 
 				// Try to extract the ID from the ID string.
 				int id_closing_parentheses = message.index_of(")", id_index + 4);
-				if (id_closing_parentheses == -1)
-				{
+				if (id_closing_parentheses == -1) {
 					// If the ID is malformed, insert the whole line as-is.
 					buffer.insert_with_tags(ref end_iter
 						, message.substring(id_index)
@@ -376,9 +350,7 @@ public class ConsoleView : Gtk.Box
 					);
 				id_index += 4 + resource_id.length;
 				continue;
-			}
-			else
-			{
+			} else {
 				buffer.insert_with_tags(ref end_iter
 					, message.substring(id_index_orig)
 					, -1
@@ -386,8 +358,7 @@ public class ConsoleView : Gtk.Box
 					, null
 					);
 			}
-		}
-		while (id_index++ >= 0);
+		} while (id_index++ >= 0);
 
 		// Scroll to bottom.
 		// See: gtk3-demo "Automatic Scrolling".

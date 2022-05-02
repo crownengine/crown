@@ -24,8 +24,7 @@ public class Unit
 
 		// Search in components
 		val = _db.get_property(_id, "components");
-		if (val != null)
-		{
+		if (val != null) {
 			if (((HashSet<Guid?>)val).contains(component_id))
 				return _db.get_property(component_id, key);
 		}
@@ -37,8 +36,7 @@ public class Unit
 
 		// Search in prefab
 		val = _db.get_property(_id, "prefab");
-		if (val != null)
-		{
+		if (val != null) {
 			// Convert prefab path to object ID.
 			string prefab = (string)val;
 			Guid prefab_id = _db.get_property_guid(GUID_ZERO, prefab + ".unit");
@@ -84,8 +82,7 @@ public class Unit
 	{
 		// Search in components
 		Value? components = _db.get_property(_id, "components");
-		if (components != null && ((HashSet<Guid?>)components).contains(component_id))
-		{
+		if (components != null && ((HashSet<Guid?>)components).contains(component_id)) {
 			_db.set_property_bool(component_id, key, val);
 			return;
 		}
@@ -97,8 +94,7 @@ public class Unit
 	{
 		// Search in components
 		Value? components = _db.get_property(_id, "components");
-		if (components != null && ((HashSet<Guid?>)components).contains(component_id))
-		{
+		if (components != null && ((HashSet<Guid?>)components).contains(component_id)) {
 			_db.set_property_double(component_id, key, val);
 			return;
 		}
@@ -110,8 +106,7 @@ public class Unit
 	{
 		// Search in components
 		Value? components = _db.get_property(_id, "components");
-		if (components != null && ((HashSet<Guid?>)components).contains(component_id))
-		{
+		if (components != null && ((HashSet<Guid?>)components).contains(component_id)) {
 			_db.set_property_string(component_id, key, val);
 			return;
 		}
@@ -123,8 +118,7 @@ public class Unit
 	{
 		// Search in components
 		Value? components = _db.get_property(_id, "components");
-		if (components != null && ((HashSet<Guid?>)components).contains(component_id))
-		{
+		if (components != null && ((HashSet<Guid?>)components).contains(component_id)) {
 			_db.set_property_guid(component_id, key, val);
 			return;
 		}
@@ -136,8 +130,7 @@ public class Unit
 	{
 		// Search in components
 		Value? components = _db.get_property(_id, "components");
-		if (components != null && ((HashSet<Guid?>)components).contains(component_id))
-		{
+		if (components != null && ((HashSet<Guid?>)components).contains(component_id)) {
 			_db.set_property_vector3(component_id, key, val);
 			return;
 		}
@@ -149,8 +142,7 @@ public class Unit
 	{
 		// Search in components
 		Value? components = _db.get_property(_id, "components");
-		if (components != null && ((HashSet<Guid?>)components).contains(component_id))
-		{
+		if (components != null && ((HashSet<Guid?>)components).contains(component_id)) {
 			_db.set_property_quaternion(component_id, key, val);
 			return;
 		}
@@ -169,12 +161,9 @@ public class Unit
 		// If the component type is found inside the "components" array, the unit has the component
 		// and it owns it.
 		val = db.get_property(unit_id, "components");
-		if (val != null)
-		{
-			foreach (Guid id in (HashSet<Guid?>)val)
-			{
-				if ((string)db.get_property(id, "type") == component_type)
-				{
+		if (val != null) {
+			foreach (Guid id in (HashSet<Guid?>)val) {
+				if ((string)db.get_property(id, "type") == component_type) {
 					component_id = id;
 					owner_id = unit_id;
 					return true;
@@ -184,8 +173,7 @@ public class Unit
 
 		// Otherwise, search if any prefab has the component.
 		val = db.get_property(unit_id, "prefab");
-		if (val != null)
-		{
+		if (val != null) {
 			// Convert prefab path to object ID.
 			string prefab = (string)val;
 			Guid prefab_id = db.get_property_guid(GUID_ZERO, prefab + ".unit");

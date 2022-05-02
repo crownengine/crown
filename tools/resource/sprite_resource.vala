@@ -26,18 +26,14 @@ public class SpriteResource
 		SpriteImportDialog sid = new SpriteImportDialog(filenames.nth_data(0));
 		sid.show_all();
 
-		if (File.new_for_path(importer_settings_path).query_exists())
-		{
+		if (File.new_for_path(importer_settings_path).query_exists()) {
 			importer_settings = SJSON.load_from_path(importer_settings_path);
 			sid.load(importer_settings);
-		}
-		else
-		{
+		} else {
 			importer_settings = new Hashtable();
 		}
 
-		if (sid.run() != Gtk.ResponseType.OK)
-		{
+		if (sid.run() != Gtk.ResponseType.OK) {
 			sid.destroy();
 			return 1;
 		}
@@ -78,8 +74,7 @@ public class SpriteResource
 
 		sid.destroy();
 
-		foreach (unowned string filename_i in filenames)
-		{
+		foreach (unowned string filename_i in filenames) {
 			GLib.File file_src = File.new_for_path(filename_i);
 			GLib.File file_dst = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
 
@@ -105,12 +100,10 @@ public class SpriteResource
 			material["uniforms"] = uniforms;
 			SJSON.save(material, Path.build_filename(project.source_dir(), resource_path) + ".material");
 
-			try
-			{
+			try {
 				file_src.copy(file_dst, FileCopyFlags.OVERWRITE);
 			}
-			catch (Error e)
-			{
+			catch (Error e) {
 				loge(e.message);
 			}
 
@@ -125,10 +118,8 @@ public class SpriteResource
 			sprite["height"] = height;
 
 			ArrayList<Value?> frames = new ArrayList<Value?>();
-			for (int r = 0; r < num_v; ++r)
-			{
-				for (int c = 0; c < num_h; ++c)
-				{
+			for (int r = 0; r < num_v; ++r) {
+				for (int c = 0; c < num_h; ++c) {
 					Vector2 cell_xy = sprite_cell_xy(r
 						, c
 						, offset_x
@@ -160,12 +151,9 @@ public class SpriteResource
 			Guid unit_id;
 			Database db = project._database;
 
-			if (db.has_property(GUID_ZERO, resource_name + ".unit"))
-			{
+			if (db.has_property(GUID_ZERO, resource_name + ".unit")) {
 				unit_id = db.get_property_guid(GUID_ZERO, resource_name + ".unit");
-			}
-			else
-			{
+			} else {
 				db = new Database();
 				unit_id = Guid.new_guid();
 				db.create(unit_id, OBJECT_TYPE_UNIT);
@@ -176,8 +164,7 @@ public class SpriteResource
 			// Create transform
 			{
 				Guid component_id;
-				if (!unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM))
-				{
+				if (!unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM)) {
 					component_id = Guid.new_guid();
 					db.create(component_id, OBJECT_TYPE_TRANSFORM);
 					db.add_to_set(unit_id, "components", component_id);
@@ -191,8 +178,7 @@ public class SpriteResource
 			// Create sprite_renderer
 			{
 				Guid component_id;
-				if (!unit.has_component(out component_id, OBJECT_TYPE_SPRITE_RENDERER))
-				{
+				if (!unit.has_component(out component_id, OBJECT_TYPE_SPRITE_RENDERER)) {
 					component_id = Guid.new_guid();
 					db.create(component_id, OBJECT_TYPE_SPRITE_RENDERER);
 					db.add_to_set(unit_id, "components", component_id);
@@ -205,24 +191,21 @@ public class SpriteResource
 				unit.set_component_property_bool  (component_id, "data.visible", true);
 			}
 
-			if (collision_enabled)
-			{
+			if (collision_enabled) {
 				// Create collider
 				double PIXELS_PER_METER = 32.0;
 				{
 					Quaternion rotation = QUATERNION_IDENTITY;
 
 					Guid component_id;
-					if (!unit.has_component(out component_id, OBJECT_TYPE_COLLIDER))
-					{
+					if (!unit.has_component(out component_id, OBJECT_TYPE_COLLIDER)) {
 						component_id = Guid.new_guid();
 						db.create(component_id, OBJECT_TYPE_COLLIDER);
 						db.add_to_set(unit_id, "components", component_id);
 					}
 
 					unit.set_component_property_string(component_id, "data.source", "inline");
-					if (shape_active_name == "square_collider")
-					{
+					if (shape_active_name == "square_collider") {
 						double pos_x =  (collision_x + collision_w/2.0 - pivot_xy.x) / PIXELS_PER_METER;
 						double pos_y = -(collision_y + collision_h/2.0 - pivot_xy.y) / PIXELS_PER_METER;
 						Vector3 position = Vector3(pos_x, 0, pos_y);
@@ -231,9 +214,7 @@ public class SpriteResource
 						unit.set_component_property_quaternion(component_id, "data.collider_data.rotation", rotation);
 						unit.set_component_property_string    (component_id, "data.shape", "box");
 						unit.set_component_property_vector3   (component_id, "data.collider_data.half_extents", half_extents);
-					}
-					else if (shape_active_name == "circle_collider")
-					{
+					} else if (shape_active_name == "circle_collider") {
 						double pos_x =  (circle_collision_center_x - pivot_xy.x) / PIXELS_PER_METER;
 						double pos_y = -(circle_collision_center_y - pivot_xy.y) / PIXELS_PER_METER;
 						Vector3 position = Vector3(pos_x, 0, pos_y);
@@ -242,9 +223,7 @@ public class SpriteResource
 						unit.set_component_property_quaternion(component_id, "data.collider_data.rotation", rotation);
 						unit.set_component_property_string    (component_id, "data.shape", "sphere");
 						unit.set_component_property_double    (component_id, "data.collider_data.radius", radius);
-					}
-					else if (shape_active_name == "capsule_collider")
-					{
+					} else if (shape_active_name == "capsule_collider") {
 						double pos_x =  (capsule_collision_center_x - pivot_xy.x) / PIXELS_PER_METER;
 						double pos_y = -(capsule_collision_center_y - pivot_xy.y) / PIXELS_PER_METER;
 						Vector3 position = Vector3(pos_x, 0, pos_y);
@@ -261,8 +240,7 @@ public class SpriteResource
 				// Create actor
 				{
 					Guid component_id;
-					if (!unit.has_component(out component_id, OBJECT_TYPE_ACTOR))
-					{
+					if (!unit.has_component(out component_id, OBJECT_TYPE_ACTOR)) {
 						component_id = Guid.new_guid();
 						db.create(component_id, OBJECT_TYPE_ACTOR);
 						db.add_to_set(unit_id, "components", component_id);
@@ -279,18 +257,14 @@ public class SpriteResource
 					unit.set_component_property_double(component_id, "data.mass", mass);
 					unit.set_component_property_string(component_id, "data.material", "default");
 				}
-			}
-			else /* if (collision_enabled) */
-			{
+			} else { /* if (collision_enabled) */
 				// Destroy collider and actor if any
 				Guid component_id;
-				if (unit.has_component(out component_id, OBJECT_TYPE_COLLIDER))
-				{
+				if (unit.has_component(out component_id, OBJECT_TYPE_COLLIDER)) {
 					db.remove_from_set(unit_id, "components", component_id);
 					db.destroy(component_id);
 				}
-				if (unit.has_component(out component_id, OBJECT_TYPE_ACTOR))
-				{
+				if (unit.has_component(out component_id, OBJECT_TYPE_ACTOR)) {
 					db.remove_from_set(unit_id, "components", component_id);
 					db.destroy(component_id);
 				}

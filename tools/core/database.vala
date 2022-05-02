@@ -463,8 +463,7 @@ public class Database
 		string old_db = db_key;
 		string k = db_key;
 
-		if (k == "" && json.has_key("type"))
-		{
+		if (k == "" && json.has_key("type")) {
 			// The "type" key defines object type only if it appears
 			// in the root of a JSON object (k == "").
 			if (!has_property(id, "type"))
@@ -472,8 +471,7 @@ public class Database
 		}
 
 		string[] keys = json.keys.to_array();
-		foreach (string key in keys)
-		{
+		foreach (string key in keys) {
 			if (key == "id")
 				continue;
 
@@ -481,21 +479,16 @@ public class Database
 
 			k += k == "" ? key : ("." + key);
 
-			if (val.holds(typeof(Hashtable)))
-			{
+			if (val.holds(typeof(Hashtable))) {
 				Hashtable ht = (Hashtable)val;
 				decode_object(id, k, ht);
-			}
-			else if (val.holds(typeof(ArrayList)))
-			{
+			} else if (val.holds(typeof(ArrayList))) {
 				ArrayList<Value?> arr = (ArrayList<Value?>)val;
 				if (arr.size > 0 && arr[0].holds(typeof(double)))
 					set_property_internal(0, id, k, decode_value(val));
 				else
 					decode_set(id, key, arr);
-			}
-			else
-			{
+			} else {
 				set_property_internal(0, id, k, decode_value(val));
 			}
 
@@ -508,8 +501,7 @@ public class Database
 		// Set should be created even if it is empty.
 		create_empty_set(0, owner_id, key);
 
-		for (int i = 0; i < json.size; ++i)
-		{
+		for (int i = 0; i < json.size; ++i) {
 			Hashtable obj = (Hashtable)json[i];
 			Guid obj_id = Guid.parse((string)obj["id"]);
 			create_internal(0, obj_id);
@@ -520,8 +512,7 @@ public class Database
 
 	private Value? decode_value(Value? value)
 	{
-		if (value.holds(typeof(ArrayList)))
-		{
+		if (value.holds(typeof(ArrayList))) {
 			ArrayList<Value?> al = (ArrayList<Value?>)value;
 			if (al.size == 3)
 				return Vector3((double)al[0], (double)al[1], (double)al[2]);
@@ -529,20 +520,14 @@ public class Database
 				return Quaternion((double)al[0], (double)al[1], (double)al[2], (double)al[3]);
 			else
 				assert(false);
-		}
-		else if (value.holds(typeof(string)))
-		{
+		} else if (value.holds(typeof(string))) {
 			Guid id;
 			if (Guid.try_parse((string)value, out id))
 				return id;
 			return value;
-		}
-		else if (value == null || value.holds(typeof(bool)) || value.holds(typeof(double)))
-		{
+		} else if (value == null || value.holds(typeof(bool)) || value.holds(typeof(double))) {
 			return value;
-		}
-		else
-		{
+		} else {
 			assert(false);
 		}
 
@@ -556,22 +541,18 @@ public class Database
 			obj["id"] = id.to_string();
 
 		string[] keys = db.keys.to_array();
-		foreach (string key in keys)
-		{
+		foreach (string key in keys) {
 			// Since null-key is equivalent to non-existent key, skip serialization.
 			if (db[key] == null)
 				continue;
 
 			string[] foo = key.split(".");
 			Hashtable x = obj;
-			if (foo.length > 1)
-			{
-				for (int i = 0; i < foo.length - 1; ++i)
-				{
+			if (foo.length > 1) {
+				for (int i = 0; i < foo.length - 1; ++i) {
 					string f = foo[i];
 
-					if (x.has_key(f))
-					{
+					if (x.has_key(f)) {
 						x = (Hashtable)x[f];
 						continue;
 					}
@@ -591,17 +572,14 @@ public class Database
 	{
 		assert(is_valid_value(value) || value.holds(typeof(HashSet)));
 
-		if (value.holds(typeof(Vector3)))
-		{
+		if (value.holds(typeof(Vector3))) {
 			Vector3 v = (Vector3)value;
 			ArrayList<Value?> arr = new Gee.ArrayList<Value?>();
 			arr.add(v.x);
 			arr.add(v.y);
 			arr.add(v.z);
 			return arr;
-		}
-		else if (value.holds(typeof(Quaternion)))
-		{
+		} else if (value.holds(typeof(Quaternion))) {
 			Quaternion q = (Quaternion)value;
 			ArrayList<Value?> arr = new Gee.ArrayList<Value?>();
 			arr.add(q.x);
@@ -609,24 +587,17 @@ public class Database
 			arr.add(q.z);
 			arr.add(q.w);
 			return arr;
-		}
-		else if (value.holds(typeof(Guid)))
-		{
+		} else if (value.holds(typeof(Guid))) {
 			Guid id = (Guid)value;
 			return id.to_string();
-		}
-		else if (value.holds(typeof(HashSet)))
-		{
+		} else if (value.holds(typeof(HashSet))) {
 			HashSet<Guid?> hs = (HashSet<Guid?>)value;
 			ArrayList<Value?> arr = new Gee.ArrayList<Value?>();
-			foreach (Guid id in hs)
-			{
+			foreach (Guid id in hs) {
 				arr.add(encode_object(id, get_data(id)));
 			}
 			return arr;
-		}
-		else
-		{
+		} else {
 			return value;
 		}
 	}
@@ -704,14 +675,11 @@ public class Database
 
 		HashMap<string, Value?> ob = get_data(id);
 
-		if (!ob.has_key(key))
-		{
+		if (!ob.has_key(key)) {
 			HashSet<Guid?> hs = new HashSet<Guid?>(Guid.hash_func, Guid.equal_func);
 			hs.add(item_id);
 			ob[key] = hs;
-		}
-		else
-		{
+		} else {
 			((HashSet<Guid?>)ob[key]).add(item_id);
 		}
 
@@ -776,21 +744,16 @@ public class Database
 		HashMap<string, Value?> o = get_data(id);
 		string[] keys = o.keys.to_array();
 
-		foreach (string key in keys)
-		{
+		foreach (string key in keys) {
 			Value? value = o[key];
-			if (value.holds(typeof(HashSet)))
-			{
+			if (value.holds(typeof(HashSet))) {
 				HashSet<Guid?> hs = (HashSet<Guid?>)value;
 				Guid?[] ids = hs.to_array();
-				foreach (Guid item_id in ids)
-				{
+				foreach (Guid item_id in ids) {
 					remove_from_set(id, key, item_id);
 					destroy(item_id);
 				}
-			}
-			else
-			{
+			} else {
 				set_property_null(id, key);
 			}
 		}
@@ -809,8 +772,7 @@ public class Database
 		assert(is_valid_value(null));
 
 		HashMap<string, Value?> ob = get_data(id);
-		if (ob.has_key(key) && ob[key] != null)
-		{
+		if (ob.has_key(key) && ob[key] != null) {
 			if (ob[key].holds(typeof(bool)))
 				_undo.write_set_property_bool_action(id, key, (bool)ob[key]);
 			if (ob[key].holds(typeof(double)))
@@ -823,9 +785,7 @@ public class Database
 				_undo.write_set_property_vector3_action(id, key, (Vector3)ob[key]);
 			if (ob[key].holds(typeof(Quaternion)))
 				_undo.write_set_property_quaternion_action(id, key, (Quaternion)ob[key]);
-		}
-		else
-		{
+		} else {
 			_undo.write_set_property_null_action(id, key);
 		}
 
@@ -1076,21 +1036,16 @@ public class Database
 
 		HashMap<string, Value?> ob = get_data(id);
 		string[] keys = ob.keys.to_array();
-		foreach (string key in keys)
-		{
+		foreach (string key in keys) {
 			Value? val = ob[key];
-			if (val.holds(typeof(HashSet)))
-			{
+			if (val.holds(typeof(HashSet))) {
 				HashSet<Guid?> hs = (HashSet<Guid?>)val;
-				foreach (Guid j in hs)
-				{
+				foreach (Guid j in hs) {
 					Guid x = Guid.new_guid();
 					duplicate(j, x);
 					add_to_set(new_id, key, x);
 				}
-			}
-			else
-			{
+			} else {
 				if (ob[key] == null)
 					set_property_null(new_id, key);
 				if (ob[key].holds(typeof(bool)))
@@ -1122,21 +1077,16 @@ public class Database
 	{
 		HashMap<string, Value?> ob = get_data(id);
 		string[] keys = ob.keys.to_array();
-		foreach (string key in keys)
-		{
+		foreach (string key in keys) {
 			Value? value = ob[key];
-			if (value.holds(typeof(HashSet)))
-			{
+			if (value.holds(typeof(HashSet))) {
 				HashSet<Guid?> hs = (HashSet<Guid?>)value;
-				foreach (Guid j in hs)
-				{
+				foreach (Guid j in hs) {
 					db.create(j, object_type(j));
 					copy_deep(db, j, "");
 					db.add_to_set(id, new_key + (new_key == "" ? "" : ".") + key, j);
 				}
-			}
-			else
-			{
+			} else {
 				string kk = new_key + (new_key == "" ? "" : ".") + key;
 
 				if (ob[key] == null)
@@ -1199,11 +1149,9 @@ public class Database
 	{
 		int dir = undo == _undo ? -1 : 1;
 
-		while (undo.size() != size)
-		{
+		while (undo.size() != size) {
 			uint32 type = undo.peek_type();
-			if (type == Action.CREATE)
-			{
+			if (type == Action.CREATE) {
 				Action t = undo.read_action();
 				assert(t == Action.CREATE);
 
@@ -1213,9 +1161,7 @@ public class Database
 				redo.write_destroy_action(id, obj_type);
 				create_internal(dir, id);
 				set_object_type(id, obj_type);
-			}
-			else if (type == Action.DESTROY)
-			{
+			} else if (type == Action.DESTROY) {
 				Action t = undo.read_action();
 				assert(t == Action.DESTROY);
 
@@ -1224,17 +1170,14 @@ public class Database
 
 				redo.write_create_action(id, obj_type);
 				destroy_internal(dir, id);
-			}
-			else if (type == Action.SET_PROPERTY_NULL)
-			{
+			} else if (type == Action.SET_PROPERTY_NULL) {
 				Action t = undo.read_action();
 				assert(t == Action.SET_PROPERTY_NULL);
 
 				Guid id = undo.read_guid();
 				string key = undo.read_string();
 
-				if (has_property(id, key))
-				{
+				if (has_property(id, key)) {
 					if (get_data(id)[key].holds(typeof(bool)))
 						redo.write_set_property_bool_action(id, key, get_property_bool(id, key));
 					if (get_data(id)[key].holds(typeof(double)))
@@ -1247,15 +1190,11 @@ public class Database
 						redo.write_set_property_vector3_action(id, key, get_property_vector3(id, key));
 					if (get_data(id)[key].holds(typeof(Quaternion)))
 						redo.write_set_property_quaternion_action(id, key, get_property_quaternion(id, key));
-				}
-				else
-				{
+				} else {
 					redo.write_set_property_null_action(id, key);
 				}
 				set_property_internal(dir, id, key, null);
-			}
-			else if (type == Action.SET_PROPERTY_BOOL)
-			{
+			} else if (type == Action.SET_PROPERTY_BOOL) {
 				Action t = undo.read_action();
 				assert(t == Action.SET_PROPERTY_BOOL);
 
@@ -1268,9 +1207,7 @@ public class Database
 				else
 					redo.write_set_property_null_action(id, key);
 				set_property_internal(dir, id, key, val);
-			}
-			else if (type == Action.SET_PROPERTY_DOUBLE)
-			{
+			} else if (type == Action.SET_PROPERTY_DOUBLE) {
 				Action t = undo.read_action();
 				assert(t == Action.SET_PROPERTY_DOUBLE);
 
@@ -1283,9 +1220,7 @@ public class Database
 				else
 					redo.write_set_property_null_action(id, key);
 				set_property_internal(dir, id, key, val);
-			}
-			else if (type == Action.SET_PROPERTY_STRING)
-			{
+			} else if (type == Action.SET_PROPERTY_STRING) {
 				Action t = undo.read_action();
 				assert(t == Action.SET_PROPERTY_STRING);
 
@@ -1298,9 +1233,7 @@ public class Database
 				else
 					redo.write_set_property_null_action(id, key);
 				set_property_internal(dir, id, key, val);
-			}
-			else if (type == Action.SET_PROPERTY_GUID)
-			{
+			} else if (type == Action.SET_PROPERTY_GUID) {
 				Action t = undo.read_action();
 				assert(t == Action.SET_PROPERTY_GUID);
 
@@ -1313,9 +1246,7 @@ public class Database
 				else
 					redo.write_set_property_null_action(id, key);
 				set_property_internal(dir, id, key, val);
-			}
-			else if (type == Action.SET_PROPERTY_VECTOR3)
-			{
+			} else if (type == Action.SET_PROPERTY_VECTOR3) {
 				Action t = undo.read_action();
 				assert(t == Action.SET_PROPERTY_VECTOR3);
 
@@ -1328,9 +1259,7 @@ public class Database
 				else
 					redo.write_set_property_null_action(id, key);
 				set_property_internal(dir, id, key, val);
-			}
-			else if (type == Action.SET_PROPERTY_QUATERNION)
-			{
+			} else if (type == Action.SET_PROPERTY_QUATERNION) {
 				Action t = undo.read_action();
 				assert(t == Action.SET_PROPERTY_QUATERNION);
 
@@ -1343,9 +1272,7 @@ public class Database
 				else
 					redo.write_set_property_null_action(id, key);
 				set_property_internal(dir, id, key, val);
-			}
-			else if (type == Action.ADD_TO_SET)
-			{
+			} else if (type == Action.ADD_TO_SET) {
 				Action t = undo.read_action();
 				assert(t == Action.ADD_TO_SET);
 
@@ -1355,9 +1282,7 @@ public class Database
 
 				redo.write_remove_from_set_action(id, key, item_id);
 				add_to_set_internal(dir, id, key, item_id);
-			}
-			else if (type == Action.REMOVE_FROM_SET)
-			{
+			} else if (type == Action.REMOVE_FROM_SET) {
 				Action t = undo.read_action();
 				assert(t == Action.REMOVE_FROM_SET);
 

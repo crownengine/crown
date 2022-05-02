@@ -26,11 +26,9 @@ public class User
 		_data = sjson;
 
 		_data.foreach((ee) => {
-				if (ee.key == "recent_projects")
-				{
+				if (ee.key == "recent_projects") {
 					var recent_projects = ee.value as ArrayList<Value?>;
-					for (int ii = 0; ii < recent_projects.size; ++ii)
-					{
+					for (int ii = 0; ii < recent_projects.size; ++ii) {
 						Hashtable rp = recent_projects[ii] as Hashtable;
 
 						recent_project_added((string)rp["source_dir"]
@@ -38,9 +36,7 @@ public class User
 							, (string)rp["mtime"]
 							);
 					}
-				}
-				else
-				{
+				} else {
 					logw("Unknown key: `%s`".printf(ee.key));
 				}
 
@@ -70,15 +66,12 @@ public class User
 		Hashtable? project = null;
 
 		_data.foreach ((ee) => {
-				if (ee.key == "recent_projects")
-				{
+				if (ee.key == "recent_projects") {
 					recent_projects = ee.value as ArrayList<Value?>;
-					for (int ii = 0; ii < recent_projects.size; ++ii)
-					{
+					for (int ii = 0; ii < recent_projects.size; ++ii) {
 						Hashtable rp = recent_projects[ii] as Hashtable;
 
-						if ((string)rp["source_dir"] == source_dir)
-						{
+						if ((string)rp["source_dir"] == source_dir) {
 							project = rp;
 							return false; // break
 						}
@@ -88,25 +81,21 @@ public class User
 				return true;
 			});
 
-		if (recent_projects == null)
-		{
+		if (recent_projects == null) {
 			recent_projects = new ArrayList<Value?>();
 			_data["recent_projects"] = recent_projects;
 		}
 
 		string mtime = new GLib.DateTime.now_utc().to_unix().to_string();
 
-		if (project == null)
-		{
+		if (project == null) {
 			project = new Hashtable();
 			project["name"]       = source_dir; // FIXME: store project name somewhere inside project directory
 			project["source_dir"] = source_dir;
 			project["mtime"]      = mtime;
 			recent_projects.add(project);
 			recent_project_added(source_dir, source_dir, mtime);
-		}
-		else
-		{
+		} else {
 			project["mtime"] = mtime;
 			recent_project_touched(source_dir, mtime);
 		}
@@ -115,15 +104,12 @@ public class User
 	public void remove_recent_project(string source_dir)
 	{
 		_data.foreach((ee) => {
-				if (ee.key == "recent_projects")
-				{
+				if (ee.key == "recent_projects") {
 					var recent_projects = ee.value as ArrayList<Value?>;
 					var it = recent_projects.iterator();
-					for (var has_next = it.next(); has_next; has_next = it.next())
-					{
+					for (var has_next = it.next(); has_next; has_next = it.next()) {
 						Hashtable rp = it.get() as Hashtable;
-						if ((string)rp["source_dir"] == source_dir)
-						{
+						if ((string)rp["source_dir"] == source_dir) {
 							it.remove();
 							recent_project_removed(source_dir);
 							return false; // break
