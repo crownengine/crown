@@ -91,7 +91,9 @@ html_logo = '../tools/level_editor/resources/icons/crown-logo-white.svg'
 # documentation.
 #
 html_theme_options = {
-	'logo_only': True
+	'logo_only': True,
+	'analytics_id': 'G-XNVGCMNDZH',
+	'analytics_anonymize_ip': True
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
