@@ -128,7 +128,9 @@ public class JSON
 				builder.append_c('n');
 			}
 			else
+			{
 				builder.append_c((char)c);
+			}
 		}
 		builder.append_c('"');
 	}
@@ -193,13 +195,21 @@ public class JSON
 		uint8 c = next(json, ref index);
 
 		if (c == '{')
+		{
 			return parse_object(json, ref index);
+		}
 		else if (c == '[')
+		{
 			return parse_array(json, ref index);
+		}
 		else if (c == '"')
+		{
 			return parse_string(json, ref index);
+		}
 		else if (c == '-' || c >= '0' && c <= '9')
+		{
 			return parse_number(json, ref index);
+		}
 		else if (c == 't')
 		{
 			consume(json, ref index, "true");
@@ -270,28 +280,33 @@ public class JSON
 			uint8 c = json[index];
 			++index;
 			if (c == '"')
+			{
 				break;
+			}
 			else if (c != '\\')
+			{
 				s.add(c);
+			}
 			else
 			{
 				uint8 q = json[index];
 				++index;
 				if (q == '"' || q == '\\' || q == '/')
 					s.add(q);
-				else if (q == 'b') s.add('\b');
-				else if (q == 'f') s.add('\f');
-				else if (q == 'n') s.add('\n');
-				else if (q == 'r') s.add('\r');
-				else if (q == 't') s.add('\t');
+				else if (q == 'b')
+					s.add('\b');
+				else if (q == 'f')
+					s.add('\f');
+				else if (q == 'n')
+					s.add('\n');
+				else if (q == 'r')
+					s.add('\r');
+				else if (q == 't')
+					s.add('\t');
 				else if (q == 'u')
-				{
 					assert(false);
-				}
 				else
-				{
 					assert(false);
-				}
 			}
 		}
 		s.add('\0');

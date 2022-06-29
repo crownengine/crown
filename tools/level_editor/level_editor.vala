@@ -1449,11 +1449,17 @@ public class LevelEditorApplication : Gtk.Application
 			_tool_type = LevelEditorApi.ToolType.PLACE;
 		}
 		else if (name == "move")
+		{
 			_tool_type = LevelEditorApi.ToolType.MOVE;
+		}
 		else if (name == "rotate")
+		{
 			_tool_type = LevelEditorApi.ToolType.ROTATE;
+		}
 		else if (name == "scale")
+		{
 			_tool_type = LevelEditorApi.ToolType.SCALE;
+		}
 
 		_editor_view.grab_focus();
 		send_state();
