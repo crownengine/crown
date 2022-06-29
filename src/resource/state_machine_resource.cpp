@@ -388,7 +388,7 @@ namespace state_machine_internal
 
 				for (u32 i = 0; i < vector::size(si.animations); ++i)
 				{
-					const u32 num = skinny::expression_language::compile(si.animations[i].weight.c_str()
+					const u32 num = expression_language::compile(si.animations[i].weight.c_str()
 						, num_variables
 						, variables
 						, num_constants
@@ -402,7 +402,7 @@ namespace state_machine_internal
 					written += num;
 				}
 
-				const u32 num = skinny::expression_language::compile(si.speed.c_str()
+				const u32 num = expression_language::compile(si.speed.c_str()
 					, num_variables
 					, variables
 					, num_constants

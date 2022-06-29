@@ -142,7 +142,7 @@ void AnimationStateMachine::trigger(StateMachineInstance state_machine, StringId
 void AnimationStateMachine::update(float dt)
 {
 	f32 stack_data[32];
-	skinny::expression_language::Stack stack(stack_data, countof(stack_data));
+	expression_language::Stack stack(stack_data, countof(stack_data));
 
 	for (u32 ii = 0; ii < array::size(_animations); ++ii)
 	{
@@ -162,7 +162,7 @@ void AnimationStateMachine::update(float dt)
 			const crown::Animation* animation = state_machine::animation(aa, jj);
 
 			stack.size = 0;
-			skinny::expression_language::run(&byte_code[animation->bytecode_entry], variables, stack);
+			expression_language::run(&byte_code[animation->bytecode_entry], variables, stack);
 			const f32 cur = stack.size > 0 ? stack_data[stack.size-1] : 0.0f;
 			if (cur > max_v || max_i == UINT32_MAX)
 			{
@@ -174,7 +174,7 @@ void AnimationStateMachine::update(float dt)
 
 		// Evaluate animation speed
 		stack.size = 0;
-		skinny::expression_language::run(&byte_code[anim_i.state->speed_bytecode], variables, stack);
+		expression_language::run(&byte_code[anim_i.state->speed_bytecode], variables, stack);
 		const f32 speed = stack.size > 0 ? stack_data[stack.size-1] : 1.0f;
 
 		// Advance animation

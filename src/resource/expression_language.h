@@ -28,8 +28,6 @@
 
 namespace crown
 {
-namespace skinny
-{
 namespace expression_language
 {
 	/// Represents the working stack.
@@ -80,7 +78,5 @@ namespace expression_language
 		);
 } // namespace expression_language
 #endif
-
-} // namespace skinny
 
 } // namespace crown

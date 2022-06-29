@@ -9,8 +9,6 @@
 
 namespace crown
 {
-namespace skinny
-{
 namespace expression_language
 {
 	/// Byte code constants.
@@ -483,7 +481,5 @@ namespace expression_language
 
 } // namespace expression_language
 #endif // CROWN_CAN_COMPILE
-
-} // namespace skinny
 
 } // namespace crown
