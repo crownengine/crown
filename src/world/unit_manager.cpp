@@ -30,13 +30,10 @@ UnitId UnitManager::create()
 {
 	u32 idx;
 
-	if (queue::size(_free_indices) > MINIMUM_FREE_INDICES)
-	{
+	if (queue::size(_free_indices) > MINIMUM_FREE_INDICES) {
 		idx = queue::front(_free_indices);
 		queue::pop_front(_free_indices);
-	}
-	else
-	{
+	} else {
 		array::push_back(_generation, u8(0));
 		idx = array::size(_generation) - 1;
 		CE_ASSERT(idx < (1 << UNIT_INDEX_BITS), "Indices out of bounds");

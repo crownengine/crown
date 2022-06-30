@@ -125,8 +125,7 @@ inline const char* LuaStack::get_string(int i)
 inline void* LuaStack::get_pointer(int i)
 {
 #if CROWN_DEBUG
-	if (CE_UNLIKELY(lua_isuserdata(L, i) == 0))
-	{
+	if (CE_UNLIKELY(lua_isuserdata(L, i) == 0)) {
 		luaL_typerror(L, i, "userdata");
 		CE_UNREACHABLE();
 	}
@@ -247,8 +246,7 @@ inline UnitId LuaStack::get_unit(int i)
 {
 	uintptr_t enc = (uintptr_t)get_pointer(i);
 #if CROWN_DEBUG
-	if ((enc & LIGHTDATA_TYPE_MASK) != LIGHTDATA_UNIT_MARKER)
-	{
+	if ((enc & LIGHTDATA_TYPE_MASK) != LIGHTDATA_UNIT_MARKER) {
 		luaL_typerror(L, i, "UnitId");
 		CE_UNREACHABLE();
 	}
@@ -657,8 +655,7 @@ inline void LuaStack::call(int nresults)
 #if CROWN_DEBUG
 inline void LuaStack::check_marker(int i, const void* p, u32 type_marker, const char* type_name)
 {
-	if (CE_UNLIKELY(!is_pointer(i) || *(u32*)p != type_marker))
-	{
+	if (CE_UNLIKELY(!is_pointer(i) || *(u32*)p != type_marker)) {
 		luaL_typerror(L, i, type_name);
 		CE_UNREACHABLE();
 	}

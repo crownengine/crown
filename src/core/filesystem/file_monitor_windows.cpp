@@ -119,10 +119,8 @@ struct FileMonitorImpl
 
 		WIN32_FIND_DATA ffd;
 		HANDLE file = FindFirstFile(dir.c_str(), &ffd);
-		if (file != INVALID_HANDLE_VALUE)
-		{
-			do
-			{
+		if (file != INVALID_HANDLE_VALUE) {
+			do {
 				if (!strcmp(ffd.cFileName, ".") || !strcmp(ffd.cFileName, ".."))
 					continue;
 
@@ -139,8 +137,7 @@ struct FileMonitorImpl
 
 				if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 					scan_subdirectories(str.c_str());
-			}
-			while (FindNextFile(file, &ffd) != 0);
+			} while (FindNextFile(file, &ffd) != 0);
 
 			FindClose(file);
 		}
@@ -170,8 +167,7 @@ struct FileMonitorImpl
 		// Release all handles
 		auto cur = hash_map::begin(_watches);
 		auto end = hash_map::end(_watches);
-		for (; cur != end; ++cur)
-		{
+		for (; cur != end; ++cur) {
 			HASH_MAP_SKIP_HOLE(_watches, cur);
 
 			CE_DELETE(*_allocator, cur->second);
@@ -182,8 +178,7 @@ struct FileMonitorImpl
 
 	int watch()
 	{
-		while (!_exit)
-		{
+		while (!_exit) {
 			DWORD bytes_transferred;
 			ULONG_PTR key;
 			OVERLAPPED* ov;
@@ -206,16 +201,14 @@ struct FileMonitorImpl
 			DWORD last_action = -1;
 			DynamicString path_old_name(default_allocator());
 			char* cur = (char*)wh->_buffer;
-			for (;;)
-			{
+			for (;;) {
 				const FILE_NOTIFY_INFORMATION* fni = (const FILE_NOTIFY_INFORMATION*)cur;
 
 				TempAllocator512 ta;
 				DynamicString path(ta);
 				full_path(path, (u32)(uintptr_t)key, fni->FileName, fni->FileNameLength);
 
-				if (fni->Action == FILE_ACTION_ADDED)
-				{
+				if (fni->Action == FILE_ACTION_ADDED) {
 					Stat st;
 					os::stat(st, path.c_str());
 
@@ -228,18 +221,14 @@ struct FileMonitorImpl
 
 					if (st.file_type == Stat::FileType::DIRECTORY)
 						scan_subdirectories(path.c_str());
-				}
-				else if (fni->Action == FILE_ACTION_REMOVED)
-				{
+				} else if (fni->Action == FILE_ACTION_REMOVED) {
 					_function(_user_data
 						, FileMonitorEvent::DELETED
 						, false // FIXME: add "unknown" type or always assume file and let client handle that?
 						, path.c_str()
 						, NULL
 						);
-				}
-				else if (fni->Action == FILE_ACTION_MODIFIED)
-				{
+				} else if (fni->Action == FILE_ACTION_MODIFIED) {
 					Stat st;
 					os::stat(st, path.c_str());
 
@@ -249,16 +238,11 @@ struct FileMonitorImpl
 						, path.c_str()
 						, NULL
 						);
-				}
-				else if (fni->Action == FILE_ACTION_RENAMED_OLD_NAME)
-				{
+				} else if (fni->Action == FILE_ACTION_RENAMED_OLD_NAME) {
 					last_action = fni->Action;
 					full_path(path_old_name, (u32)(uintptr_t)key, fni->FileName, fni->FileNameLength);
-				}
-				else if (fni->Action == FILE_ACTION_RENAMED_NEW_NAME)
-				{
-					if (last_action == FILE_ACTION_RENAMED_OLD_NAME)
-					{
+				} else if (fni->Action == FILE_ACTION_RENAMED_NEW_NAME) {
+					if (last_action == FILE_ACTION_RENAMED_OLD_NAME) {
 						last_action = -1;
 
 						Stat st;

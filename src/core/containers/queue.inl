@@ -103,8 +103,7 @@ namespace queue
 
 		array::resize(q._queue, capacity);
 
-		if (q._read + q._size > old_size)
-		{
+		if (q._read + q._size > old_size) {
 			memmove(array::begin(q._queue) + capacity - (old_size - q._read), array::begin(q._queue) + q._read, (old_size - q._read) * sizeof(T));
 			q._read += (capacity - old_size);
 		}

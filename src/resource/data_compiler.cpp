@@ -109,23 +109,19 @@ void SourceIndex::scan_directory(FilesystemDisk& fs, const char* prefix, const c
 	Vector<DynamicString> files(default_allocator());
 	fs.list_files(directory != NULL ? directory : "", files);
 
-	for (u32 i = 0; i < vector::size(files); ++i)
-	{
+	for (u32 i = 0; i < vector::size(files); ++i) {
 		TempAllocator512 ta;
 		DynamicString file_i(ta);
 
-		if (directory != NULL)
-		{
+		if (directory != NULL) {
 			file_i += directory;
 			file_i += '/';
 		}
 		file_i += files[i];
 
-		if (fs.is_directory(file_i.c_str()))
-		{
+		if (fs.is_directory(file_i.c_str())) {
 			DynamicString directory_name(ta);
-			if (strcmp(prefix, "") != 0)
-			{
+			if (strcmp(prefix, "") != 0) {
 				directory_name += prefix;
 				directory_name += '/';
 			}
@@ -133,12 +129,9 @@ void SourceIndex::scan_directory(FilesystemDisk& fs, const char* prefix, const c
 			notify_add_tree(directory_name.c_str());
 
 			scan_directory(fs, prefix, file_i.c_str());
-		}
-		else // Assume a regular file
-		{
+		} else { // Assume a regular file
 			DynamicString resource_name(ta);
-			if (strcmp(prefix, "") != 0)
-			{
+			if (strcmp(prefix, "") != 0) {
 				resource_name += prefix;
 				resource_name += '/';
 			}
@@ -157,8 +150,7 @@ void SourceIndex::scan(const HashMap<DynamicString, DynamicString>& source_dirs)
 {
 	auto cur = hash_map::begin(source_dirs);
 	auto end = hash_map::end(source_dirs);
-	for (; cur != end; ++cur)
-	{
+	for (; cur != end; ++cur) {
 		HASH_MAP_SKIP_HOLE(source_dirs, cur);
 
 		TempAllocator512 ta;
@@ -244,8 +236,7 @@ static void console_command_refresh_list(ConsoleServer& cs, u32 client_id, const
 	ss << "{\"type\":\"refresh_list\",\"list\":[";
 	auto cur = hash_map::begin(dc->_data_revisions);
 	auto end = hash_map::end(dc->_data_revisions);
-	for (; cur != end; ++cur)
-	{
+	for (; cur != end; ++cur) {
 		HASH_MAP_SKIP_HOLE(dc->_data_revisions, cur);
 
 		DynamicString deffault(ta);
@@ -272,11 +263,9 @@ static Buffer read(FilesystemDisk& data_fs, const char* filename)
 	Buffer buffer(default_allocator());
 
 	File* file = data_fs.open(filename, FileOpenMode::READ);
-	if (file->is_open())
-	{
+	if (file->is_open()) {
 		u32 size = file->size();
-		if (size == 0)
-		{
+		if (size == 0) {
 			data_fs.close(*file);
 			return buffer;
 		}
@@ -293,8 +282,7 @@ static void parse_data_versions(HashMap<DynamicString, u32>& versions, const Jso
 {
 	auto cur = json_object::begin(obj);
 	auto end = json_object::end(obj);
-	for (; cur != end; ++cur)
-	{
+	for (; cur != end; ++cur) {
 		JSON_OBJECT_SKIP_HOLE(obj, cur);
 
 		TempAllocator256 ta;
@@ -320,8 +308,7 @@ static void parse_data_index(HashMap<StringId64, DynamicString>& index, const Js
 {
 	auto cur = json_object::begin(obj);
 	auto end = json_object::end(obj);
-	for (; cur != end; ++cur)
-	{
+	for (; cur != end; ++cur) {
 		JSON_OBJECT_SKIP_HOLE(obj, cur);
 
 		TempAllocator256 ta;
@@ -354,8 +341,7 @@ static void parse_data_mtimes(HashMap<StringId64, u64>& mtimes, const JsonObject
 {
 	auto cur = json_object::begin(obj);
 	auto end = json_object::end(obj);
-	for (; cur != end; ++cur)
-	{
+	for (; cur != end; ++cur) {
 		JSON_OBJECT_SKIP_HOLE(obj, cur);
 
 		StringId64 id;
@@ -415,8 +401,7 @@ static void read_data_dependencies(DataCompiler& dc, FilesystemDisk& data_fs, co
 
 	auto cur = json_object::begin(obj);
 	auto end = json_object::end(obj);
-	for (; cur != end; ++cur)
-	{
+	for (; cur != end; ++cur) {
 		JSON_OBJECT_SKIP_HOLE(obj, cur);
 
 		StringId64 id;
@@ -428,20 +413,14 @@ static void read_data_dependencies(DataCompiler& dc, FilesystemDisk& data_fs, co
 
 		JsonArray dependency_array(ta);
 		sjson::parse_array(dependency_array, cur->second);
-		for (u32 i = 0; i < array::size(dependency_array); ++i)
-		{
+		for (u32 i = 0; i < array::size(dependency_array); ++i) {
 			DynamicString path(ta);
 			sjson::parse_string(path, dependency_array[i]);
-			if (path.has_prefix("//r "))
-			{
+			if (path.has_prefix("//r ")) {
 				add_dependency_internal(dc._data_requirements, id, path.c_str() + 4);
-			}
-			else if (path.has_prefix("//- "))
-			{
+			} else if (path.has_prefix("//- ")) {
 				add_dependency_internal(dc._data_dependencies, id, path.c_str() + 4);
-			}
-			else // Assume regular dependency
-			{
+			} else { // Assume regular dependency
 				add_dependency_internal(dc._data_dependencies, id, path.c_str());
 			}
 		}
@@ -453,12 +432,10 @@ static void write_data_index(FilesystemDisk& data_fs, const char* filename, cons
 	StringStream ss(default_allocator());
 
 	File* file = data_fs.open(filename, FileOpenMode::WRITE);
-	if (file->is_open())
-	{
+	if (file->is_open()) {
 		auto cur = hash_map::begin(index);
 		auto end = hash_map::end(index);
-		for (; cur != end; ++cur)
-		{
+		for (; cur != end; ++cur) {
 			HASH_MAP_SKIP_HOLE(index, cur);
 
 			TempAllocator256 ta;
@@ -477,12 +454,10 @@ static void write_data_versions(FilesystemDisk& data_fs, const char* filename, c
 	StringStream ss(default_allocator());
 
 	File* file = data_fs.open(filename, FileOpenMode::WRITE);
-	if (file->is_open())
-	{
+	if (file->is_open()) {
 		auto cur = hash_map::begin(versions);
 		auto end = hash_map::end(versions);
-		for (; cur != end; ++cur)
-		{
+		for (; cur != end; ++cur) {
 			HASH_MAP_SKIP_HOLE(versions, cur);
 
 			ss << cur->first.c_str() << " = " << cur->second << "\n";
@@ -498,12 +473,10 @@ static void write_data_mtimes(FilesystemDisk& data_fs, const char* filename, con
 	StringStream ss(default_allocator());
 
 	File* file = data_fs.open(filename, FileOpenMode::WRITE);
-	if (file->is_open())
-	{
+	if (file->is_open()) {
 		auto cur = hash_map::begin(mtimes);
 		auto end = hash_map::end(mtimes);
-		for (; cur != end; ++cur)
-		{
+		for (; cur != end; ++cur) {
 			HASH_MAP_SKIP_HOLE(mtimes, cur);
 
 			TempAllocator64 ta;
@@ -522,12 +495,10 @@ static void write_data_dependencies(FilesystemDisk& data_fs, const char* filenam
 	StringStream ss(default_allocator());
 
 	File* file = data_fs.open(filename, FileOpenMode::WRITE);
-	if (file->is_open())
-	{
+	if (file->is_open()) {
 		auto cur = hash_map::begin(index);
 		auto end = hash_map::end(index);
-		for (; cur != end; ++cur)
-		{
+		for (; cur != end; ++cur) {
 			HASH_MAP_SKIP_HOLE(index, cur);
 
 			HashMap<DynamicString, u32> deps_deffault(default_allocator());
@@ -547,8 +518,7 @@ static void write_data_dependencies(FilesystemDisk& data_fs, const char* filenam
 			// Write all dependencies
 			auto deps_cur = hash_map::begin(deps);
 			auto deps_end = hash_map::end(deps);
-			for (; deps_cur != deps_end; ++deps_cur)
-			{
+			for (; deps_cur != deps_end; ++deps_cur) {
 				HASH_MAP_SKIP_HOLE(deps, deps_cur);
 
 				ss << "    \"//- " << deps_cur->first.c_str() << "\"\n";
@@ -557,8 +527,7 @@ static void write_data_dependencies(FilesystemDisk& data_fs, const char* filenam
 			// Write all requirements
 			auto reqs_cur = hash_map::begin(reqs);
 			auto reqs_end = hash_map::end(reqs);
-			for (; reqs_cur != reqs_end; ++reqs_cur)
-			{
+			for (; reqs_cur != reqs_end; ++reqs_cur) {
 				HASH_MAP_SKIP_HOLE(reqs, reqs_cur);
 
 				ss << "    \"//r " << reqs_cur->first.c_str() << "\"\n";
@@ -663,8 +632,7 @@ void DataCompiler::remove_tree(const char* path)
 
 	auto cur = hash_map::begin(_source_index._paths);
 	auto end = hash_map::end(_source_index._paths);
-	for (; cur != end; ++cur)
-	{
+	for (; cur != end; ++cur) {
 		HASH_MAP_SKIP_HOLE(_source_index._paths, cur);
 
 		// Skip if it is not a sub-path
@@ -744,8 +712,7 @@ void DataCompiler::scan_and_restore(const char* data_dir)
 
 	auto cur = hash_map::begin(_source_dirs);
 	auto end = hash_map::end(_source_dirs);
-	for (; cur != end; ++cur)
-	{
+	for (; cur != end; ++cur) {
 		HASH_MAP_SKIP_HOLE(_source_dirs, cur);
 
 		DynamicString prefix(default_allocator());
@@ -758,8 +725,7 @@ void DataCompiler::scan_and_restore(const char* data_dir)
 		_source_fs.set_prefix(prefix.c_str());
 
 		File* file = _source_fs.open(CROWN_DATAIGNORE, FileOpenMode::READ);
-		if (file->is_open())
-		{
+		if (file->is_open()) {
 			const u32 size = file->size();
 			char* data = (char*)default_allocator().allocate(size + 1);
 			file->read(data, size);
@@ -767,8 +733,7 @@ void DataCompiler::scan_and_restore(const char* data_dir)
 
 			LineReader lr(data);
 
-			while (!lr.eof())
-			{
+			while (!lr.eof()) {
 				TempAllocator512 ta;
 				DynamicString line(ta);
 				lr.read_line(line);
@@ -802,8 +767,7 @@ void DataCompiler::scan_and_restore(const char* data_dir)
 	read_data_versions(_data_versions, data_fs, CROWN_DATA_VERSIONS);
 	logi(DATA_COMPILER, "Restored state in " TIME_FMT, time::seconds(time::now() - time_start));
 
-	if (_options->_server)
-	{
+	if (_options->_server) {
 		// Start file monitor
 		time_start = time::now();
 		_file_monitor.start(array::size(directories)
@@ -848,8 +812,7 @@ bool DataCompiler::dependency_changed(const DynamicString& path, ResourceId id, 
 	const HashMap<DynamicString, u32>& deps = hash_map::get(_data_dependencies, id, deffault);
 	auto cur = hash_map::begin(deps);
 	auto end = hash_map::end(deps);
-	for (; cur != end; ++cur)
-	{
+	for (; cur != end; ++cur) {
 		HASH_MAP_SKIP_HOLE(deps, cur);
 
 		if (path == cur->first)
@@ -872,8 +835,7 @@ bool DataCompiler::version_changed(const DynamicString& path, ResourceId id)
 	const HashMap<DynamicString, u32>& deps = hash_map::get(_data_dependencies, id, deffault);
 	auto cur = hash_map::begin(deps);
 	auto end = hash_map::end(deps);
-	for (; cur != end; ++cur)
-	{
+	for (; cur != end; ++cur) {
 		HASH_MAP_SKIP_HOLE(deps, cur);
 
 		if (path == cur->first)
@@ -888,8 +850,7 @@ bool DataCompiler::version_changed(const DynamicString& path, ResourceId id)
 
 bool DataCompiler::path_matches_ignore_glob(const char* path)
 {
-	for (u32 ii = 0, nn = vector::size(_globs); ii < nn; ++ii)
-	{
+	for (u32 ii = 0, nn = vector::size(_globs); ii < nn; ++ii) {
 		if (wildcmp(_globs[ii].c_str(), path))
 			return true;
 	}
@@ -920,18 +881,14 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 
 	auto cur = hash_map::begin(_source_index._paths);
 	auto end = hash_map::end(_source_index._paths);
-	for (; cur != end; ++cur)
-	{
+	for (; cur != end; ++cur) {
 		HASH_MAP_SKIP_HOLE(_source_index._paths, cur);
 
 		const DynamicString& path = cur->first;
 
-		if (cur->second.file_type == Stat::NO_ENTRY)
-		{
+		if (cur->second.file_type == Stat::NO_ENTRY) {
 			vector::push_back(to_remove, path);
-		}
-		else
-		{
+		} else {
 			if (path_matches_ignore_glob(path.c_str()))
 				continue;
 
@@ -950,8 +907,7 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 			if (source_never_compiled_before
 				|| source_dependency_changed
 				|| data_version_dependency_changed
-				)
-			{
+				) {
 				vector::push_back(to_compile, path);
 			}
 		}
@@ -963,8 +919,7 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 #endif
 
 	// Remove all deleted resources
-	for (u32 i = 0; i < vector::size(to_remove); ++i)
-	{
+	for (u32 i = 0; i < vector::size(to_remove); ++i) {
 		// Remove from source index
 		hash_map::remove(_source_index._paths, to_remove[i]);
 
@@ -1005,14 +960,12 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 	bool success = true;
 
 	// Compile all changed resources
-	for (u32 i = 0; i < vector::size(to_compile); ++i)
-	{
+	for (u32 i = 0; i < vector::size(to_compile); ++i) {
 		const DynamicString& path = to_compile[i];
 		logi(DATA_COMPILER, _options->_server ? RESOURCE_ID_FMT_STR : "%s", path.c_str());
 
 		const char* type = resource_type(path.c_str());
-		if (type == NULL || !can_compile(type))
-		{
+		if (type == NULL || !can_compile(type)) {
 			loge(DATA_COMPILER, "Unknown resource file: '%s'", path.c_str());
 			loge(DATA_COMPILER, "Append matching pattern to " CROWN_DATAIGNORE " to ignore it");
 			continue;
@@ -1056,8 +1009,7 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 				);
 			success = rtd.compiler(opts) == 0;
 
-			if (success)
-			{
+			if (success) {
 				// Update dependencies and requirements only if compiler(opts)
 				// succeeded. If the compilation fails due to a missing
 				// dependency and you update the dependency database with new
@@ -1080,44 +1032,35 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 			}
 		}
 
-		if (success)
-		{
+		if (success) {
 			// Do not include special paths in content tracking structures.
-			if (!path_is_special(path.c_str()))
-			{
+			if (!path_is_special(path.c_str())) {
 				hash_map::set(_data_index, id, path);
 				hash_map::set(_data_mtimes, id, data_fs.last_modified_time(dest.c_str()));
 				hash_map::set(_data_revisions, id, _revision + 1);
 			}
-		}
-		else
-		{
+		} else {
 			loge(DATA_COMPILER, "Failed to compile data");
 			break;
 		}
 	}
 
-	if (success)
-	{
+	if (success) {
 		// Data versions are stored per-type, so, before updating _data_versions, we
 		// need to make sure *all* resource files with that type have been
 		// successfully compiled.
 		auto cur = hash_map::begin(_compilers);
 		auto end = hash_map::end(_compilers);
-		for (; cur != end; ++cur)
-		{
+		for (; cur != end; ++cur) {
 			HASH_MAP_SKIP_HOLE(_compilers, cur);
 
 			hash_map::set(_data_versions, cur->first, cur->second.version);
 		}
 
-		if (vector::size(to_compile))
-		{
+		if (vector::size(to_compile)) {
 			_revision++;
 			logi(DATA_COMPILER, "Compiled data (rev %u) in " TIME_FMT, _revision, time::seconds(time::now() - time_start));
-		}
-		else
-		{
+		} else {
 			logi(DATA_COMPILER, "Data is up to date");
 		}
 	}
@@ -1182,8 +1125,7 @@ void DataCompiler::error(const char* msg, va_list args)
 /// backslashes are converted to slashes.
 static void resource_path_to_resource_name(DynamicString& resource_name, const DynamicString& path)
 {
-	for (u32 i = 0, n = path.length(); i < n; ++i)
-	{
+	for (u32 i = 0, n = path.length(); i < n; ++i) {
 		if (path._data[i] == '\\')
 			resource_name += '/';
 		else
@@ -1202,8 +1144,7 @@ void DataCompiler::file_monitor_callback(FileMonitorEvent::Enum fme, bool is_dir
 	// directory prefix with `path`.
 	auto cur = hash_map::begin(_source_dirs);
 	auto end = hash_map::end(_source_dirs);
-	for (; cur != end; ++cur)
-	{
+	for (; cur != end; ++cur) {
 		HASH_MAP_SKIP_HOLE(_source_dirs, cur);
 
 		path::join(source_dir, cur->second.c_str(), cur->first.c_str());
@@ -1211,8 +1152,7 @@ void DataCompiler::file_monitor_callback(FileMonitorEvent::Enum fme, bool is_dir
 			break;
 	}
 
-	if (cur != end)
-	{
+	if (cur != end) {
 		// All events received must refer to directories
 		// mapped with map_source_dir().
 		const char* filename = &path[source_dir.length() + 1];
@@ -1231,8 +1171,7 @@ void DataCompiler::file_monitor_callback(FileMonitorEvent::Enum fme, bool is_dir
 		logi(DATA_COMPILER, "  resource_name: %s", resource_name.c_str());
 #endif
 
-		switch (fme)
-		{
+		switch (fme) {
 		case FileMonitorEvent::CREATED:
 			if (!is_dir)
 				add_file(resource_name.c_str());
@@ -1244,20 +1183,16 @@ void DataCompiler::file_monitor_callback(FileMonitorEvent::Enum fme, bool is_dir
 			remove_file_or_tree(resource_name.c_str());
 			break;
 
-		case FileMonitorEvent::RENAMED:
-		{
+		case FileMonitorEvent::RENAMED: {
 			DynamicString resource_path_renamed(ta); // See resource_path
 			DynamicString resource_name_renamed(ta);
 			path::join(resource_path_renamed, cur->first.c_str(), &path_renamed[source_dir.length() + 1]);
 			resource_path_to_resource_name(resource_name_renamed, resource_path_renamed);
 
-			if (!is_dir)
-			{
+			if (!is_dir) {
 				remove_file(resource_name.c_str());
 				add_file(resource_name_renamed.c_str());
-			}
-			else
-			{
+			} else {
 				remove_tree(resource_name.c_str());
 				add_tree(resource_name_renamed.c_str());
 			}
@@ -1265,8 +1200,7 @@ void DataCompiler::file_monitor_callback(FileMonitorEvent::Enum fme, bool is_dir
 		}
 
 		case FileMonitorEvent::CHANGED:
-			if (!is_dir)
-			{
+			if (!is_dir) {
 				FilesystemDisk fs(default_allocator());
 				fs.set_prefix(source_dir.c_str());
 
@@ -1300,8 +1234,7 @@ int main_data_compiler(const DeviceOptions& opts)
 	sigaction(SIGINT, &act, NULL);
 #elif CROWN_PLATFORM_WINDOWS
 	PHANDLER_ROUTINE signal_handler = [](DWORD dwCtrlType) {
-		switch (dwCtrlType)
-		{
+		switch (dwCtrlType) {
 		case CTRL_C_EVENT:
 			_quit = true;
 			return TRUE;
@@ -1369,8 +1302,7 @@ int main_data_compiler(const DeviceOptions& opts)
 
 	dc->map_source_dir("", opts._source_dir.c_str());
 
-	if (opts._map_source_dir_name)
-	{
+	if (opts._map_source_dir_name) {
 		dc->map_source_dir(opts._map_source_dir_name
 			, opts._map_source_dir_prefix.c_str()
 			);
@@ -1380,15 +1312,11 @@ int main_data_compiler(const DeviceOptions& opts)
 
 	bool success = true;
 
-	if (opts._server)
-	{
-		while (!_quit)
-		{
+	if (opts._server) {
+		while (!_quit) {
 			console_server()->execute_message_handlers(true);
 		}
-	}
-	else
-	{
+	} else {
 		success = dc->compile(opts._data_dir.c_str(), opts._platform);
 	}
 

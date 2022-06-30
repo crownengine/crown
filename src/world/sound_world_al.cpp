@@ -25,8 +25,7 @@ namespace crown
 #if CROWN_DEBUG
 static const char* al_error_to_string(ALenum error)
 {
-	switch (error)
-	{
+	switch (error) {
 	case AL_INVALID_ENUM: return "AL_INVALID_ENUM";
 	case AL_INVALID_VALUE: return "AL_INVALID_VALUE";
 	case AL_INVALID_OPERATION: return "AL_INVALID_OPERATION";
@@ -107,8 +106,7 @@ struct SoundInstance
 		CE_ASSERT(alIsBuffer(_buffer), "alGenBuffers: error");
 
 		ALenum fmt = AL_INVALID_ENUM;
-		switch (sr.bits_ps)
-		{
+		switch (sr.bits_ps) {
 		case  8: fmt = sr.channels > 1 ? AL_FORMAT_STEREO8  : AL_FORMAT_MONO8; break;
 		case 16: fmt = sr.channels > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16; break;
 		default: CE_FATAL("Number of bits per sample not supported."); break;
@@ -158,8 +156,7 @@ struct SoundInstance
 		ALint processed;
 		AL_CHECK(alGetSourcei(_source, AL_BUFFERS_PROCESSED, &processed));
 
-		if (processed > 0)
-		{
+		if (processed > 0) {
 			ALuint removed;
 			AL_CHECK(alSourceUnqueueBuffers(_source, 1, &removed));
 		}
@@ -267,8 +264,7 @@ struct SoundWorldImpl
 	SoundWorldImpl()
 	{
 		_num_objects = 0;
-		for (u32 i = 0; i < MAX_OBJECTS; ++i)
-		{
+		for (u32 i = 0; i < MAX_OBJECTS; ++i) {
 			_indices[i].id = i;
 			_indices[i].next = i + 1;
 		}
@@ -301,58 +297,50 @@ struct SoundWorldImpl
 
 	void stop_all()
 	{
-		for (u32 i = 0; i < _num_objects; ++i)
-		{
+		for (u32 i = 0; i < _num_objects; ++i) {
 			_playing_sounds[i].stop();
 		}
 	}
 
 	void pause_all()
 	{
-		for (u32 i = 0; i < _num_objects; ++i)
-		{
+		for (u32 i = 0; i < _num_objects; ++i) {
 			_playing_sounds[i].pause();
 		}
 	}
 
 	void resume_all()
 	{
-		for (u32 i = 0; i < _num_objects; ++i)
-		{
+		for (u32 i = 0; i < _num_objects; ++i) {
 			_playing_sounds[i].resume();
 		}
 	}
 
 	void set_sound_positions(u32 num, const SoundInstanceId* ids, const Vector3* positions)
 	{
-		for (u32 i = 0; i < num; ++i)
-		{
+		for (u32 i = 0; i < num; ++i) {
 			lookup(ids[i]).set_position(positions[i]);
 		}
 	}
 
 	void set_sound_ranges(u32 num, const SoundInstanceId* ids, const f32* ranges)
 	{
-		for (u32 i = 0; i < num; ++i)
-		{
+		for (u32 i = 0; i < num; ++i) {
 			lookup(ids[i]).set_range(ranges[i]);
 		}
 	}
 
 	void set_sound_volumes(u32 num, const SoundInstanceId* ids, const f32* volumes)
 	{
-		for (u32 i = 0; i < num; i++)
-		{
+		for (u32 i = 0; i < num; i++) {
 			lookup(ids[i]).set_volume(volumes[i]);
 		}
 	}
 
 	void reload_sounds(const SoundResource& old_sr, const SoundResource& new_sr)
 	{
-		for (u32 i = 0; i < _num_objects; ++i)
-		{
-			if (_playing_sounds[i]._resource == &old_sr)
-			{
+		for (u32 i = 0; i < _num_objects; ++i) {
+			if (_playing_sounds[i]._resource == &old_sr) {
 				_playing_sounds[i].reload(new_sr);
 			}
 		}
@@ -378,18 +366,15 @@ struct SoundWorldImpl
 		Array<SoundInstanceId> to_delete(alloc);
 
 		// Check what sounds finished playing
-		for (u32 i = 0; i < _num_objects; ++i)
-		{
+		for (u32 i = 0; i < _num_objects; ++i) {
 			SoundInstance& instance = _playing_sounds[i];
-			if (instance.finished())
-			{
+			if (instance.finished()) {
 				array::push_back(to_delete, instance._id);
 			}
 		}
 
 		// Destroy instances which finished playing
-		for (u32 i = 0; i < array::size(to_delete); ++i)
-		{
+		for (u32 i = 0; i < array::size(to_delete); ++i) {
 			stop(to_delete[i]);
 		}
 	}

@@ -151,14 +151,12 @@ static void scene_graph_move_data(const SceneGraph& sg, u32 dst, u32 src)
 {
 	// Any node can be referenced by its children.
 	TransformInstance cur = sg._data.first_child[src];
-	while (is_valid(cur))
-	{
+	while (is_valid(cur)) {
 		sg._data.parent[cur.i].i = dst;
 		cur = sg._data.next_sibling[cur.i];
 	}
 
-	if (sg._data.parent[src].i != UINT32_MAX)
-	{
+	if (sg._data.parent[src].i != UINT32_MAX) {
 		// Child node can also be referenced by its parent (if it is the parent's
 		// first child)...
 		if (sg._data.first_child[sg._data.parent[src].i].i == src)
@@ -199,8 +197,7 @@ void SceneGraph::destroy(TransformInstance transform)
 
 	// Unlink all children.
 	TransformInstance cur = _data.first_child[transform.i];
-	while (is_valid(cur))
-	{
+	while (is_valid(cur)) {
 		TransformInstance next_sibling = _data.next_sibling[cur.i];
 		unlink(cur);
 		cur = next_sibling;
@@ -211,8 +208,7 @@ void SceneGraph::destroy(TransformInstance transform)
 	const UnitId u = _data.unit[transform.i];
 	const UnitId last_u = _data.unit[last];
 
-	if (last != transform.i)
-	{
+	if (last != transform.i) {
 		scene_graph_swap(*this, transform, make_instance(last));
 		hash_map::set(_map, last_u, transform.i);
 	}
@@ -336,17 +332,13 @@ void SceneGraph::link(TransformInstance parent
 	unlink(child);
 
 	// Append transform to the list of parent's children
-	if (!is_valid(_data.first_child[parent.i]))
-	{
+	if (!is_valid(_data.first_child[parent.i])) {
 		_data.first_child[parent.i] = child;
 		_data.parent[child.i] = parent;
-	}
-	else
-	{
+	} else {
 		TransformInstance prev = { UINT32_MAX };
 		TransformInstance node = _data.first_child[parent.i];
-		while (is_valid(node))
-		{
+		while (is_valid(node)) {
 			prev = node;
 			node = _data.next_sibling[node.i];
 		}
@@ -391,18 +383,15 @@ void SceneGraph::unlink(TransformInstance child)
 
 void SceneGraph::clear_changed()
 {
-	for (u32 i = 0; i < _data.size; ++i)
-	{
+	for (u32 i = 0; i < _data.size; ++i) {
 		_data.changed[i] = false;
 	}
 }
 
 void SceneGraph::get_changed(Array<UnitId>& units, Array<Matrix4x4>& world_poses)
 {
-	for (u32 i = 0; i < _data.size; ++i)
-	{
-		if (_data.changed[i])
-		{
+	for (u32 i = 0; i < _data.size; ++i) {
+		if (_data.changed[i]) {
 			array::push_back(units, _data.unit[i]);
 			array::push_back(world_poses, _data.world[i]);
 		}
@@ -424,8 +413,7 @@ void SceneGraph::transform(const Matrix4x4& parent, TransformInstance transform)
 	_data.changed[transform.i] = true;
 
 	TransformInstance child = _data.first_child[transform.i];
-	while (is_valid(child))
-	{
+	while (is_valid(child)) {
 		SceneGraph::transform(_data.world[transform.i], child);
 		child = _data.next_sibling[child.i];
 	}

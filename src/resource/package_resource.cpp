@@ -95,8 +95,7 @@ namespace package_resource_internal
 
 		auto cur = hash_map::begin(reqs);
 		auto end = hash_map::end(reqs);
-		for (; cur != end; ++cur)
-		{
+		for (; cur != end; ++cur) {
 			HASH_MAP_SKIP_HOLE(reqs, cur);
 
 			const char* req_filename = cur->first.c_str();
@@ -117,8 +116,7 @@ namespace package_resource_internal
 	{
 		const StringId64 type_hash = StringId64(type);
 
-		for (u32 i = 0; i < array::size(names); ++i)
-		{
+		for (u32 i = 0; i < array::size(names); ++i) {
 			TempAllocator256 ta;
 			DynamicString name(ta);
 			sjson::parse_string(name, names[i]);
@@ -214,8 +212,7 @@ namespace package_resource_internal
 		// Generate resource list
 		auto cur = hash_set::begin(resources_set);
 		auto end = hash_set::end(resources_set);
-		for (; cur != end; ++cur)
-		{
+		for (; cur != end; ++cur) {
 			HASH_SET_SKIP_HOLE(resources_set, cur);
 
 			array::push_back(resources, *cur);
@@ -225,8 +222,7 @@ namespace package_resource_internal
 		opts.write(RESOURCE_HEADER(RESOURCE_VERSION_PACKAGE));
 		opts.write(array::size(resources));
 
-		for (u32 i = 0; i < array::size(resources); ++i)
-		{
+		for (u32 i = 0; i < array::size(resources); ++i) {
 			opts.write(resources[i].type);
 			opts.write(resources[i].name);
 		}

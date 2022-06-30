@@ -67,8 +67,7 @@ struct FileDisk : public File
 
 	void close()
 	{
-		if (is_open())
-		{
+		if (is_open()) {
 #if CROWN_PLATFORM_POSIX
 			fclose(_file);
 			_file = NULL;
@@ -336,8 +335,7 @@ void FilesystemDisk::list_files(const char* path, Vector<DynamicString>& files)
 
 void FilesystemDisk::absolute_path(DynamicString& os_path, const char* path)
 {
-	if (path::is_absolute(path))
-	{
+	if (path::is_absolute(path)) {
 		os_path = path;
 		return;
 	}

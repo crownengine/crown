@@ -132,8 +132,7 @@ namespace vector
 		if (capacity < v._size)
 			resize(v, capacity);
 
-		if (capacity > 0)
-		{
+		if (capacity > 0) {
 			T* tmp = v._data;
 			v._capacity = capacity;
 			v._data = (T*)v._allocator->allocate(capacity * sizeof(T), alignof(T));
@@ -314,8 +313,7 @@ inline const Vector<T>& Vector<T>::operator=(const Vector<T>& other)
 	const u32 size = vector::size(other);
 	vector::resize(*this, size);
 
-	for (u32 i = 0; i < size; ++i)
-	{
+	for (u32 i = 0; i < size; ++i) {
 		construct<T>(_data + i, *_allocator, IS_ALLOCATOR_AWARE_TYPE(T)());
 		_data[i] = other._data[i];
 	}

@@ -34,8 +34,7 @@ static void unit_destroyed_callback_bridge(UnitId unit, void* user_ptr)
 static void selection_draw_override(UnitId unit_id, RenderWorld* rw)
 {
 	// FIXME: add support to multi-pass shaders and remove this function.
-	if (!hash_set::has(rw->_selection, unit_id))
-	{
+	if (!hash_set::has(rw->_selection, unit_id)) {
 		bgfx::discard();
 		return;
 	}
@@ -372,22 +371,18 @@ void RenderWorld::update_transforms(const UnitId* begin, const UnitId* end, cons
 	SpriteManager::SpriteInstanceData& sid = _sprite_manager._data;
 	LightManager::LightInstanceData& lid = _light_manager._data;
 
-	for (; begin != end; ++begin, ++world)
-	{
-		if (_mesh_manager.has(*begin))
-		{
+	for (; begin != end; ++begin, ++world) {
+		if (_mesh_manager.has(*begin)) {
 			MeshInstance mesh = _mesh_manager.mesh(*begin);
 			mid.world[mesh.i] = *world;
 		}
 
-		if (_sprite_manager.has(*begin))
-		{
+		if (_sprite_manager.has(*begin)) {
 			SpriteInstance sprite = _sprite_manager.sprite(*begin);
 			sid.world[sprite.i] = *world;
 		}
 
-		if (_light_manager.has(*begin))
-		{
+		if (_light_manager.has(*begin)) {
 			LightInstance light = _light_manager.light(*begin);
 			lid.world[light.i] = *world;
 		}
@@ -398,8 +393,7 @@ void RenderWorld::render(const Matrix4x4& view)
 {
 	LightManager::LightInstanceData& lid = _light_manager._data;
 
-	for (u32 ll = 0; ll < lid.size; ++ll)
-	{
+	for (u32 ll = 0; ll < lid.size; ++ll) {
 		const Vector4 ldir = normalize(lid.world[ll].z) * view;
 		const Vector3 lpos = translation(lid.world[ll]);
 
@@ -444,8 +438,7 @@ void RenderWorld::debug_draw(DebugLine& dl)
 
 	MeshManager::MeshInstanceData& mid = _mesh_manager._data;
 
-	for (u32 i = 0; i < mid.size; ++i)
-	{
+	for (u32 i = 0; i < mid.size; ++i) {
 		const OBB& obb = mid.obb[i];
 		const Matrix4x4& world = mid.world[i];
 		dl.add_obb(obb.tm * world, obb.half_extents, COLOR4_RED);
@@ -551,10 +544,8 @@ MeshInstance RenderWorld::MeshManager::create(UnitId unit, const MeshResource* m
 	hash_map::set(_map, unit, last);
 	++_data.size;
 
-	if (mrd.visible)
-	{
-		if (last >= _data.first_hidden)
-		{
+	if (mrd.visible) {
+		if (last >= _data.first_hidden) {
 			// _data now contains a visible item in its hidden partition.
 			swap(last, _data.first_hidden);
 			++_data.first_hidden;
@@ -626,16 +617,13 @@ bool RenderWorld::MeshManager::has(UnitId unit)
 
 void RenderWorld::MeshManager::set_visible(MeshInstance inst, bool visible)
 {
-	if (visible)
-	{
+	if (visible) {
 		if (inst.i < _data.first_hidden)
 			return; // Already visible.
 
 		swap(inst.i, _data.first_hidden);
 		++_data.first_hidden;
-	}
-	else
-	{
+	} else {
 		if (inst.i >= _data.first_hidden)
 			return; // Already hidden.
 
@@ -656,8 +644,7 @@ void RenderWorld::MeshManager::destroy()
 
 void RenderWorld::MeshManager::draw(u8 view, ResourceManager* rm, ShaderManager* sm, MaterialManager* mm, DrawOverride draw_override)
 {
-	for (u32 ii = 0; ii < _data.first_hidden; ++ii)
-	{
+	for (u32 ii = 0; ii < _data.first_hidden; ++ii) {
 		bgfx::setTransform(to_float_ptr(_data.world[ii]));
 		bgfx::setVertexBuffer(0, _data.mesh[ii].vbh);
 		bgfx::setIndexBuffer(_data.mesh[ii].ibh);
@@ -746,10 +733,8 @@ SpriteInstance RenderWorld::SpriteManager::create(UnitId unit, const SpriteResou
 	hash_map::set(_map, unit, last);
 	++_data.size;
 
-	if (srd.visible)
-	{
-		if (last >= _data.first_hidden)
-		{
+	if (srd.visible) {
+		if (last >= _data.first_hidden) {
 			// _data now contains a visible item in its hidden partition.
 			swap(last, _data.first_hidden);
 			++_data.first_hidden;
@@ -826,16 +811,13 @@ bool RenderWorld::SpriteManager::has(UnitId unit)
 
 void RenderWorld::SpriteManager::set_visible(SpriteInstance inst, bool visible)
 {
-	if (visible)
-	{
+	if (visible) {
 		if (inst.i < _data.first_hidden)
 			return; // Already visible.
 
 		swap(inst.i, _data.first_hidden);
 		++_data.first_hidden;
-	}
-	else
-	{
+	} else {
 		if (inst.i >= _data.first_hidden)
 			return; // Already hidden.
 
@@ -863,8 +845,7 @@ void RenderWorld::SpriteManager::draw(u8 view, ResourceManager* rm, ShaderManage
 	u16* idata;
 
 	// Allocate vertex and index buffers.
-	if (_data.first_hidden)
-	{
+	if (_data.first_hidden) {
 		layout.begin();
 		layout.add(bgfx::Attrib::Position,  3, bgfx::AttribType::Float);
 		layout.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float, false);
@@ -878,8 +859,7 @@ void RenderWorld::SpriteManager::draw(u8 view, ResourceManager* rm, ShaderManage
 	}
 
 	// Render all sprites.
-	for (u32 ii = 0; ii < _data.first_hidden; ++ii)
-	{
+	for (u32 ii = 0; ii < _data.first_hidden; ++ii) {
 		const f32* frame = sprite_resource::frame_data(_data.resource[ii]
 			, _data.frame[ii] % _data.resource[ii]->num_frames
 			);
@@ -896,15 +876,13 @@ void RenderWorld::SpriteManager::draw(u8 view, ResourceManager* rm, ShaderManage
 		f32 u3 = frame[18]; // u
 		f32 v3 = frame[19]; // v
 
-		if (_data.flip_x[ii])
-		{
+		if (_data.flip_x[ii]) {
 			f32 u;
 			u = u0; u0 = u1; u1 = u;
 			u = u2; u2 = u3; u3 = u;
 		}
 
-		if (_data.flip_y[ii])
-		{
+		if (_data.flip_y[ii]) {
 			f32 v;
 			v = v0; v0 = v2; v2 = v;
 			v = v1; v1 = v3; v3 = v;
@@ -1060,15 +1038,12 @@ void RenderWorld::LightManager::destroy()
 
 void RenderWorld::LightManager::debug_draw(u32 start_index, u32 num, DebugLine& dl)
 {
-	for (u32 i = start_index; i < start_index + num; ++i)
-	{
+	for (u32 i = start_index; i < start_index + num; ++i) {
 		const Vector3 pos = translation(_data.world[i]);
 		const Vector3 dir = -z(_data.world[i]);
 
-		switch (_data.type[i])
-		{
-		case LightType::DIRECTIONAL:
-		{
+		switch (_data.type[i]) {
+		case LightType::DIRECTIONAL: {
 			const Vector3 end = pos + dir*3.0f;
 			dl.add_line(pos, end, COLOR4_YELLOW);
 			dl.add_cone(pos + dir*2.8f, end, 0.1f, COLOR4_YELLOW);
@@ -1079,8 +1054,7 @@ void RenderWorld::LightManager::debug_draw(u32 start_index, u32 num, DebugLine& 
 			dl.add_sphere(pos, _data.range[i], COLOR4_YELLOW);
 			break;
 
-		case LightType::SPOT:
-		{
+		case LightType::SPOT: {
 			const f32 angle  = _data.spot_angle[i];
 			const f32 range  = _data.range[i];
 			const f32 radius = ftan(angle)*range;

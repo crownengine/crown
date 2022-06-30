@@ -70,8 +70,7 @@ void Semaphore::post(u32 count)
 {
 #if CROWN_PLATFORM_POSIX
 	pthread_mutex_lock(&_priv->mutex);
-	for (u32 i = 0; i < count; ++i)
-	{
+	for (u32 i = 0; i < count; ++i) {
 		int err = pthread_cond_signal(&_priv->cond);
 		CE_ASSERT(err == 0, "pthread_cond_signal: errno = %d", err);
 		CE_UNUSED(err);
@@ -90,8 +89,7 @@ void Semaphore::wait()
 {
 #if CROWN_PLATFORM_POSIX
 	pthread_mutex_lock(&_priv->mutex);
-	while (_priv->count <= 0)
-	{
+	while (_priv->count <= 0) {
 		int err = pthread_cond_wait(&_priv->cond, &_priv->mutex);
 		CE_ASSERT(err == 0, "pthread_cond_wait: errno = %d", err);
 		CE_UNUSED(err);
@@ -109,14 +107,12 @@ bool Semaphore::try_wait()
 {
 #if CROWN_PLATFORM_POSIX
 	pthread_mutex_lock(&_priv->mutex);
-	if (_priv->count == 0)
-	{
+	if (_priv->count == 0) {
 		pthread_mutex_unlock(&_priv->mutex);
 		return false;
 	}
 
-	while (_priv->count <= 0)
-	{
+	while (_priv->count <= 0) {
 		int err = pthread_cond_wait(&_priv->cond, &_priv->mutex);
 		CE_ASSERT(err == 0, "pthread_cond_wait: errno = %d", err);
 		CE_UNUSED(err);

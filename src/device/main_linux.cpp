@@ -37,8 +37,7 @@ namespace crown
 {
 static KeyboardButton::Enum x11_translate_key(KeySym x11_key)
 {
-	switch (x11_key)
-	{
+	switch (x11_key) {
 	case XK_BackSpace:    return KeyboardButton::BACKSPACE;
 	case XK_Tab:          return KeyboardButton::TAB;
 	case XK_space:        return KeyboardButton::SPACE;
@@ -197,8 +196,7 @@ struct Joypad
 		char jspath[] = "/dev/input/jsX";
 		char* num = strchr(jspath, 'X');
 
-		for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i)
-		{
+		for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i) {
 			*num = '0' + i;
 			_fd[i] = ::open(jspath, O_RDONLY | O_NONBLOCK);
 		}
@@ -209,8 +207,7 @@ struct Joypad
 
 	void close()
 	{
-		for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i)
-		{
+		for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i) {
 			if (_fd[i] != -1)
 				::close(_fd[i]);
 		}
@@ -221,8 +218,7 @@ struct Joypad
 		JoypadEvent ev;
 		memset(&ev, 0, sizeof(ev));
 
-		for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i)
-		{
+		for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i) {
 			const int fd = _fd[i];
 			const bool connected = fd != -1;
 
@@ -234,14 +230,11 @@ struct Joypad
 			if (!connected)
 				continue;
 
-			while (read(fd, &ev, sizeof(ev)) != -1)
-			{
+			while (read(fd, &ev, sizeof(ev)) != -1) {
 				s16 val = ev.value;
 
-				switch (ev.type &= ~JS_EVENT_INIT)
-				{
-				case JS_EVENT_AXIS:
-				{
+				switch (ev.type &= ~JS_EVENT_INIT) {
+				case JS_EVENT_AXIS: {
 					// Indices into axis.left/right respectively
 					const u8 axis_idx[] = { 0, 1, 2, 0, 1, 2 };
 					const u8 axis_map[] =
@@ -261,8 +254,7 @@ struct Joypad
 					s16* values = ev.number > 2 ? _axis[i].right : _axis[i].left;
 					values[axis_idx[ev.number]] = val;
 
-					if (ev.number == 2 || ev.number == 5)
-					{
+					if (ev.number == 2 || ev.number == 5) {
 						queue.push_axis_event(InputDeviceType::JOYPAD
 							, i
 							, axis_map[ev.number]
@@ -270,9 +262,7 @@ struct Joypad
 							, 0
 							, values[2]
 							);
-					}
-					else if (ev.number < countof(axis_map))
-					{
+					} else if (ev.number < countof(axis_map)) {
 						queue.push_axis_event(InputDeviceType::JOYPAD
 							, i
 							, axis_map[ev.number]
@@ -285,8 +275,7 @@ struct Joypad
 				}
 
 				case JS_EVENT_BUTTON:
-					if (ev.number < countof(s_button))
-					{
+					if (ev.number < countof(s_button)) {
 						queue.push_button_event(InputDeviceType::JOYPAD
 							, i
 							, s_button[ev.number]
@@ -416,22 +405,17 @@ struct LinuxDevice
 
 		_joypad.open();
 
-		while (!s_exit)
-		{
+		while (!s_exit) {
 			_joypad.update(_queue);
 			int pending = XPending(_x11_display);
 
-			if (!pending)
-			{
+			if (!pending) {
 				os::sleep(8);
-			}
-			else
-			{
+			} else {
 				XEvent event;
 				XNextEvent(_x11_display, &event);
 
-				switch (event.type)
-				{
+				switch (event.type) {
 				case EnterNotify:
 					_mouse_last_x = (s16)event.xcrossing.x;
 					_mouse_last_y = (s16)event.xcrossing.y;
@@ -456,10 +440,8 @@ struct LinuxDevice
 					break;
 
 				case ButtonPress:
-				case ButtonRelease:
-				{
-					if (event.xbutton.button == Button4 || event.xbutton.button == Button5)
-					{
+				case ButtonRelease: {
+					if (event.xbutton.button == Button4 || event.xbutton.button == Button5) {
 						_queue.push_axis_event(InputDeviceType::MOUSE
 							, 0
 							, MouseAxis::WHEEL
@@ -471,40 +453,34 @@ struct LinuxDevice
 					}
 
 					MouseButton::Enum mb;
-					switch (event.xbutton.button)
-					{
+					switch (event.xbutton.button) {
 					case Button1: mb = MouseButton::LEFT; break;
 					case Button2: mb = MouseButton::MIDDLE; break;
 					case Button3: mb = MouseButton::RIGHT; break;
 					default: mb = MouseButton::COUNT; break;
 					}
 
-					if (mb != MouseButton::COUNT)
-					{
+					if (mb != MouseButton::COUNT) {
 						_queue.push_button_event(InputDeviceType::MOUSE
 							, 0
 							, mb
 							, event.type == ButtonPress
 							);
 					}
-
 					break;
 				}
 
-				case MotionNotify:
-				{
+				case MotionNotify: {
 					const s32 mx = event.xmotion.x;
 					const s32 my = event.xmotion.y;
 					s16 deltax = mx - _mouse_last_x;
 					s16 deltay = my - _mouse_last_y;
-					if (_cursor_mode == CursorMode::DISABLED)
-					{
+					if (_cursor_mode == CursorMode::DISABLED) {
 						XWindowAttributes window_attribs;
 						XGetWindowAttributes(_x11_display, _x11_window, &window_attribs);
 						unsigned width = window_attribs.width;
 						unsigned height = window_attribs.height;
-						if (mx != (s32)width/2 || my != (s32)height/2)
-						{
+						if (mx != (s32)width/2 || my != (s32)height/2) {
 							_queue.push_axis_event(InputDeviceType::MOUSE
 								, 0
 								, MouseAxis::CURSOR_DELTA
@@ -524,9 +500,7 @@ struct LinuxDevice
 								);
 							XFlush(_x11_display);
 						}
-					}
-					else if (_cursor_mode == CursorMode::NORMAL)
-					{
+					} else if (_cursor_mode == CursorMode::NORMAL) {
 						_queue.push_axis_event(InputDeviceType::MOUSE
 							, 0
 							, MouseAxis::CURSOR_DELTA
@@ -548,13 +522,11 @@ struct LinuxDevice
 				}
 
 				case KeyPress:
-				case KeyRelease:
-				{
+				case KeyRelease: {
 					KeySym keysym = XLookupKeysym(&event.xkey, 0);
 
 					KeyboardButton::Enum kb = x11_translate_key(keysym);
-					if (kb != KeyboardButton::COUNT)
-					{
+					if (kb != KeyboardButton::COUNT) {
 						_queue.push_button_event(InputDeviceType::KEYBOARD
 							, 0
 							, kb
@@ -562,8 +534,7 @@ struct LinuxDevice
 							);
 					}
 
-					if (event.type == KeyPress)
-					{
+					if (event.type == KeyPress) {
 						Status status = 0;
 						u8 utf8[4] = { 0 };
 						int len = Xutf8LookupString(ic
@@ -574,8 +545,7 @@ struct LinuxDevice
 							, &status
 							);
 
-						if (status == XLookupChars || status == XLookupBoth)
-						{
+						if (status == XLookupChars || status == XLookupBoth) {
 							if (len)
 								_queue.push_text_event(len, utf8);
 						}
@@ -619,8 +589,7 @@ struct LinuxDevice
 		Rotation rr_rot;
 		const SizeID rr_sizeid = XRRConfigCurrentConfiguration(_screen_config, &rr_rot);
 
-		if (rr_rot != rr_old_rot || rr_sizeid != rr_old_sizeid)
-		{
+		if (rr_rot != rr_old_rot || rr_sizeid != rr_old_sizeid) {
 			XRRSetScreenConfig(_x11_display
 				, _screen_config
 				, root_window
@@ -661,8 +630,7 @@ struct WindowX11 : public Window
 			| StructureNotifyMask
 			;
 
-		if (!parent)
-		{
+		if (!parent) {
 			win_attribs.event_mask |= KeyPressMask
 				| KeyReleaseMask
 				| ButtonPressMask
@@ -670,9 +638,7 @@ struct WindowX11 : public Window
 				| PointerMotionMask
 				| EnterWindowMask
 				;
-		}
-		else
-		{
+		} else {
 			XWindowAttributes parent_attrs;
 			XGetWindowAttributes(s_ldvc._x11_display, parent_window, &parent_attrs);
 			depth = parent_attrs.depth;
@@ -817,8 +783,7 @@ struct WindowX11 : public Window
 
 		s_ldvc._cursor_mode = mode;
 
-		if (mode == CursorMode::DISABLED)
-		{
+		if (mode == CursorMode::DISABLED) {
 			XWindowAttributes window_attribs;
 			XGetWindowAttributes(s_ldvc._x11_display, s_ldvc._x11_window, &window_attribs);
 			unsigned width = window_attribs.width;
@@ -847,9 +812,7 @@ struct WindowX11 : public Window
 				, CurrentTime
 				);
 			XFlush(s_ldvc._x11_display);
-		}
-		else if (mode == CursorMode::NORMAL)
-		{
+		} else if (mode == CursorMode::NORMAL) {
 			XUngrabPointer(s_ldvc._x11_display, CurrentTime);
 			XFlush(s_ldvc._x11_display);
 		}
@@ -880,8 +843,7 @@ struct DisplayXRandr : public Display
 		if (!sizes)
 			return;
 
-		for (int i = 0; i < num; ++i)
-		{
+		for (int i = 0; i < num; ++i) {
 			DisplayMode dm;
 			dm.id     = (u32)i;
 			dm.width  = sizes[i].width;
@@ -949,8 +911,7 @@ int main(int argc, char** argv)
 	using namespace crown;
 #if CROWN_BUILD_UNIT_TESTS
 	CommandLine cl(argc, (const char**)argv);
-	if (cl.has_option("run-unit-tests"))
-	{
+	if (cl.has_option("run-unit-tests")) {
 		return main_unit_tests();
 	}
 #endif // CROWN_BUILD_UNIT_TESTS
@@ -966,8 +927,7 @@ int main(int argc, char** argv)
 		return ec;
 
 #if CROWN_CAN_COMPILE
-	if (ec == EXIT_SUCCESS && (opts._do_compile || opts._server))
-	{
+	if (ec == EXIT_SUCCESS && (opts._do_compile || opts._server)) {
 		ec = main_data_compiler(opts);
 		if (!opts._do_continue)
 			return ec;

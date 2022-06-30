@@ -48,8 +48,7 @@ namespace console_server_internal
 
 	static void command_help(ConsoleServer& cs, u32 client_id, JsonArray& args, void* /*user_data*/)
 	{
-		if (array::size(args) != 1)
-		{
+		if (array::size(args) != 1) {
 			cs.error(client_id, "Usage: help");
 			return;
 		}
@@ -58,8 +57,7 @@ namespace console_server_internal
 
 		auto cur = hash_map::begin(cs._commands);
 		auto end = hash_map::end(cs._commands);
-		for (; cur != end; ++cur)
-		{
+		for (; cur != end; ++cur) {
 			HASH_MAP_SKIP_HOLE(cs._commands, cur);
 
 			if (longest < strlen32(cur->second.name))
@@ -68,8 +66,7 @@ namespace console_server_internal
 
 		cur = hash_map::begin(cs._commands);
 		end = hash_map::end(cs._commands);
-		for (; cur != end; ++cur)
-		{
+		for (; cur != end; ++cur) {
 			HASH_MAP_SKIP_HOLE(cs._commands, cur);
 
 			logi(CONSOLE_SERVER, "%s%*s%s"
@@ -98,10 +95,8 @@ namespace console_server_internal
 		ScopedMutex scoped_mutex(cs._clients_mutex);
 
 		const u32 last = vector::size(cs._clients) - 1;
-		for (u32 cc = 0; cc < vector::size(cs._clients); ++cc)
-		{
-			if (cs._clients[cc].socket == socket)
-			{
+		for (u32 cc = 0; cc < vector::size(cs._clients); ++cc) {
+			if (cs._clients[cc].socket == socket) {
 				cs._clients[cc] = cs._clients[last];
 				vector::pop_back(cs._clients);
 				return;
@@ -114,8 +109,7 @@ namespace console_server_internal
 		ScopedMutex scoped_mutex(cs._clients_mutex);
 
 		const u32 num_clients = vector::size(cs._clients);
-		for (u32 cc = 0; cc < num_clients; ++cc)
-		{
+		for (u32 cc = 0; cc < num_clients; ++cc) {
 			if (cs._clients[cc].socket == socket)
 				return cs._clients[cc].id;
 		}
@@ -128,10 +122,8 @@ namespace console_server_internal
 		ScopedMutex scoped_mutex(cs._clients_mutex);
 
 		const u32 num_clients = vector::size(cs._clients);
-		for (u32 cc = 0; cc < num_clients; ++cc)
-		{
-			if (cs._clients[cc].id == id)
-			{
+		for (u32 cc = 0; cc < num_clients; ++cc) {
+			if (cs._clients[cc].id == id) {
 				*socket = cs._clients[cc].socket;
 				return true;
 			}
@@ -183,8 +175,7 @@ void ConsoleServer::shutdown()
 {
 	_thread_exit = true;
 
-	if (_input_thread.is_running())
-	{
+	if (_input_thread.is_running()) {
 		// Unlock input thread if it is stuck waiting for _handlers_semaphore.
 		execute_message_handlers(false);
 
@@ -263,8 +254,7 @@ void ConsoleServer::execute_message_handlers(bool sync)
 
 	FileBuffer fb(*_input_read);
 	BinaryReader br(fb);
-	while (!fb.end_of_file())
-	{
+	while (!fb.end_of_file()) {
 		// Read client, message size and message.
 		u32 client_id;
 		u32 msg_len;
@@ -277,8 +267,7 @@ void ConsoleServer::execute_message_handlers(bool sync)
 		JsonObject obj(default_allocator());
 		sjson::parse(obj, msg);
 
-		if (!json_object::has(obj, "type"))
-		{
+		if (!json_object::has(obj, "type")) {
 			error(client_id, "Missing command type");
 			continue;
 		}
@@ -291,8 +280,7 @@ void ConsoleServer::execute_message_handlers(bool sync)
 			, sjson::parse_string_id(obj["type"])
 			, cmd
 			);
-		if (!cmd.message_function)
-		{
+		if (!cmd.message_function) {
 			error(client_id, "Unknown command type");
 			continue;
 		}
@@ -331,17 +319,13 @@ void ConsoleServer::register_message_type(const char* type, MessageTypeFunction 
 
 s32 ConsoleServer::run_input_thread()
 {
-	while (!_thread_exit)
-	{
+	while (!_thread_exit) {
 		// Wait for input from one of the sockets in _active_socket_set.
 		_read_socket_set = _active_socket_set;
 		SelectResult ret = _read_socket_set.select(UINT32_MAX);
-		if (ret.error == SelectResult::GENERIC_ERROR)
-		{
+		if (ret.error == SelectResult::GENERIC_ERROR) {
 			return -1;
-		}
-		else if (ret.error == SelectResult::TIMEOUT)
-		{
+		} else if (ret.error == SelectResult::TIMEOUT) {
 			continue;
 		}
 
@@ -349,8 +333,7 @@ s32 ConsoleServer::run_input_thread()
 		BinaryWriter bw(fb);
 		// Read data from all clients that are ready.
 		const u32 num_sockets = _read_socket_set.num();
-		for (u32 ii = 0; ii < num_sockets; ++ii)
-		{
+		for (u32 ii = 0; ii < num_sockets; ++ii) {
 			TCPSocket cur_socket = _read_socket_set.get(ii);
 
 			// Skip if socket is not ready for reading.
@@ -358,28 +341,23 @@ s32 ConsoleServer::run_input_thread()
 				continue;
 
 			// If ready socket is the one listening for incoming connections.
-			if (cur_socket == _server)
-			{
+			if (cur_socket == _server) {
 				if (_thread_exit)
 					break;
 
 				// Accept the incoming connection.
 				TCPSocket client;
 				AcceptResult ar = _server.accept_nonblock(client);
-				if (ar.error == AcceptResult::SUCCESS)
-				{
+				if (ar.error == AcceptResult::SUCCESS) {
 					console_server_internal::add_client(*this, client);
 					_active_socket_set.set(&client);
 					_client_connected.post();
 				}
-			}
-			else // Check if any other socket is ready for reading.
-			{
+			} else { // Check if any other socket is ready for reading.
 				u32 msg_len = 0;
 				ReadResult rr = cur_socket.read(&msg_len, 4);
 
-				if (rr.error != ReadResult::SUCCESS)
-				{
+				if (rr.error != ReadResult::SUCCESS) {
 					console_server_internal::remove_client_by_socket(*this, cur_socket);
 					_active_socket_set.clr(&cur_socket);
 					cur_socket.close();
@@ -394,13 +372,11 @@ s32 ConsoleServer::run_input_thread()
 
 				// Read message.
 				u32 num_read;
-				for (num_read = 0; num_read < msg_len;)
-				{
+				for (num_read = 0; num_read < msg_len;) {
 					char buf[4096];
 					const u32 num_pending = min(u32(sizeof(buf)), msg_len - num_read);
 					rr = cur_socket.read(buf, num_pending);
-					if (rr.error != ReadResult::SUCCESS)
-					{
+					if (rr.error != ReadResult::SUCCESS) {
 						console_server_internal::remove_client_by_socket(*this, cur_socket);
 						_active_socket_set.clr(&cur_socket);
 						cur_socket.close();
@@ -411,8 +387,7 @@ s32 ConsoleServer::run_input_thread()
 					num_read += rr.bytes_read;
 				}
 
-				if (num_read != msg_len)
-				{
+				if (num_read != msg_len) {
 					// Remove partial data that has been written to the input buffer.
 					for (u32 cc = 0; cc < 4 + 4 + num_read; ++cc)
 						array::pop_back(*_input_write);
@@ -420,8 +395,7 @@ s32 ConsoleServer::run_input_thread()
 			}
 		}
 
-		if (array::size(*_input_write) > 0)
-		{
+		if (array::size(*_input_write) > 0) {
 			_input_semaphore.post();
 			_handlers_semaphore.wait();
 		}
@@ -432,14 +406,12 @@ s32 ConsoleServer::run_input_thread()
 
 s32 ConsoleServer::run_output_thread()
 {
-	while (1)
-	{
+	while (1) {
 		_output_mutex.lock();
 		while (array::size(*_output_write) == 0 && !_thread_exit)
 			_output_condition.wait(_output_mutex);
 
-		if (_thread_exit)
-		{
+		if (_thread_exit) {
 			_output_mutex.unlock();
 			break;
 		}
@@ -451,8 +423,7 @@ s32 ConsoleServer::run_output_thread()
 
 		FileBuffer fb(*_output_read);
 		BinaryReader br(fb);
-		while (!fb.end_of_file())
-		{
+		while (!fb.end_of_file()) {
 			// Read client, message size and message.
 			u32 client_id;
 			u32 msg_len;

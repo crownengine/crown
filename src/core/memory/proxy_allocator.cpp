@@ -31,15 +31,13 @@ void ProxyAllocator::deallocate(void* data)
 
 void* ProxyAllocator::reallocate(void* data, u32 size, u32 align)
 {
-	if (!data)
-	{
+	if (!data) {
 		void* ptr = _allocator.reallocate(data, size, align);
 		ALLOCATE_MEMORY(_name, _allocator.allocated_size(ptr));
 		return ptr;
 	}
 
-	if (size == 0)
-	{
+	if (size == 0) {
 		DEALLOCATE_MEMORY(_name, _allocator.allocated_size(data));
 		return _allocator.reallocate(data, size, align);
 	}

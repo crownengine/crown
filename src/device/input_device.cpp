@@ -76,8 +76,7 @@ Vector3 InputDevice::axis(u8 id) const
 		return VECTOR3_ZERO;
 
 	Vector3 axis = _axis[id];
-	switch (_deadzone_mode[id])
-	{
+	switch (_deadzone_mode[id]) {
 	case DeadzoneMode::RAW:
 		// No deadzone
 		break;
@@ -89,12 +88,9 @@ Vector3 InputDevice::axis(u8 id) const
 		break;
 
 	case DeadzoneMode::CIRCULAR:
-		if (length(axis) < _deadzone_size[id])
-		{
+		if (length(axis) < _deadzone_size[id]) {
 			axis = VECTOR3_ZERO;
-		}
-		else
-		{
+		} else {
 			const f32 size = 1.0f - _deadzone_size[id];
 			const f32 size_inv = 1.0f / size;
 			const f32 axis_len = length(axis);
@@ -128,8 +124,7 @@ const char* InputDevice::axis_name(u8 id)
 
 u8 InputDevice::button_id(StringId32 name)
 {
-	for (u32 i = 0; i < _num_buttons; ++i)
-	{
+	for (u32 i = 0; i < _num_buttons; ++i) {
 		if (_button_hash[i] == name)
 			return i;
 	}
@@ -139,8 +134,7 @@ u8 InputDevice::button_id(StringId32 name)
 
 u8 InputDevice::axis_id(StringId32 name)
 {
-	for (u32 i = 0; i < _num_axes; ++i)
-	{
+	for (u32 i = 0; i < _num_axes; ++i) {
 		if (_axis_hash[i] == name)
 			return i;
 	}
@@ -150,13 +144,10 @@ u8 InputDevice::axis_id(StringId32 name)
 
 f32 InputDevice::deadzone(u8 id, DeadzoneMode::Enum* deadzone_mode)
 {
-	if (id < _num_axes)
-	{
+	if (id < _num_axes) {
 		*deadzone_mode = (DeadzoneMode::Enum)_deadzone_mode[id];
 		return _deadzone_size[id];
-	}
-	else
-	{
+	} else {
 		*deadzone_mode = DeadzoneMode::COUNT;
 		return 0.0f;
 	}
@@ -164,8 +155,7 @@ f32 InputDevice::deadzone(u8 id, DeadzoneMode::Enum* deadzone_mode)
 
 void InputDevice::set_deadzone(u8 id, DeadzoneMode::Enum deadzone_mode, f32 deadzone_size)
 {
-	if (id < _num_axes)
-	{
+	if (id < _num_axes) {
 		_deadzone_mode[id] = deadzone_mode;
 		_deadzone_size[id] = deadzone_size;
 	}

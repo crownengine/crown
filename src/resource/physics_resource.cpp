@@ -30,8 +30,7 @@ namespace physics_config_resource
 	const PhysicsMaterial* material(const PhysicsConfigResource* pcr, StringId32 name)
 	{
 		const PhysicsMaterial* begin = (PhysicsMaterial*)((const char*)pcr + pcr->materials_offset);
-		for (u32 i = 0; i < pcr->num_materials; ++i)
-		{
+		for (u32 i = 0; i < pcr->num_materials; ++i) {
 			if (begin[i].name == name)
 				return &begin[i];
 		}
@@ -43,8 +42,7 @@ namespace physics_config_resource
 	const PhysicsActor* actor(const PhysicsConfigResource* pcr, StringId32 name)
 	{
 		const PhysicsActor* begin = (PhysicsActor*)((const char*)pcr + pcr->actors_offset);
-		for (u32 i = 0; i < pcr->num_actors; ++i)
-		{
+		for (u32 i = 0; i < pcr->num_actors; ++i) {
 			if (begin[i].name == name)
 				return &begin[i];
 		}
@@ -56,8 +54,7 @@ namespace physics_config_resource
 	const PhysicsCollisionFilter* filter(const PhysicsConfigResource* pcr, StringId32 name)
 	{
 		const PhysicsCollisionFilter* begin = (PhysicsCollisionFilter*)((const char*)pcr + pcr->filters_offset);
-		for (u32 i = 0; i < pcr->num_filters; ++i)
-		{
+		for (u32 i = 0; i < pcr->num_filters; ++i) {
 			if (begin[i].name == name)
 				return &begin[i];
 		}
@@ -104,8 +101,7 @@ namespace physics_resource_internal
 
 	static ColliderType::Enum shape_type_to_enum(const char* type)
 	{
-		for (u32 i = 0; i < countof(s_collider); ++i)
-		{
+		for (u32 i = 0; i < countof(s_collider); ++i) {
 			if (strcmp(type, s_collider[i].name) == 0)
 				return s_collider[i].type;
 		}
@@ -115,8 +111,7 @@ namespace physics_resource_internal
 
 	static JointType::Enum joint_type_to_enum(const char* type)
 	{
-		for (u32 i = 0; i < countof(s_joint); ++i)
-		{
+		for (u32 i = 0; i < countof(s_joint); ++i) {
 			if (strcmp(type, s_joint[i].name) == 0)
 				return s_joint[i].type;
 		}
@@ -163,8 +158,7 @@ namespace physics_resource_internal
 	{
 		auto cur = json_object::begin(nodes);
 		auto end = json_object::end(nodes);
-		for (; cur != end; ++cur)
-		{
+		for (; cur != end; ++cur) {
 			JSON_OBJECT_SKIP_HOLE(nodes, cur);
 
 			if (cur->first == name)
@@ -174,8 +168,7 @@ namespace physics_resource_internal
 			JsonObject node(ta);
 			JsonObject children(ta);
 			sjson::parse_object(node, cur->second);
-			if (json_object::has(node, "children"))
-			{
+			if (json_object::has(node, "children")) {
 				sjson::parse_object(children, node["children"]);
 				return find_node_by_name(children, name);
 			}
@@ -214,8 +207,7 @@ namespace physics_resource_internal
 			sjson::parse_string(source, obj["source"]);
 		bool explicit_collider = source == "mesh" || json_object::has(obj, "scene");
 
-		if (explicit_collider)
-		{
+		if (explicit_collider) {
 			// Parse .mesh
 			DynamicString scene(ta);
 			DynamicString name(ta);
@@ -259,8 +251,7 @@ namespace physics_resource_internal
 			sjson::parse_array(indices_data, indices["data"]);
 			sjson::parse_array(position_indices, indices_data[0]);
 
-			for (u32 i = 0; i < array::size(positions); i += 3)
-			{
+			for (u32 i = 0; i < array::size(positions); i += 3) {
 				Vector3 p;
 				p.x = sjson::parse_float(positions[i + 0]);
 				p.y = sjson::parse_float(positions[i + 1]);
@@ -268,13 +259,11 @@ namespace physics_resource_internal
 				array::push_back(points, p);
 			}
 
-			for (u32 i = 0; i < array::size(position_indices); ++i)
-			{
+			for (u32 i = 0; i < array::size(position_indices); ++i) {
 				array::push_back(point_indices, (u16)sjson::parse_int(position_indices[i]));
 			}
 
-			switch (cd.type)
-			{
+			switch (cd.type) {
 			case ColliderType::SPHERE:      compile_sphere(cd, points); break;
 			case ColliderType::CAPSULE:     compile_capsule(cd, points); break;
 			case ColliderType::BOX:         compile_box(cd, points); break;
@@ -284,9 +273,7 @@ namespace physics_resource_internal
 				DATA_COMPILER_ASSERT(false, opts, "Not implemented yet");
 				break;
 			}
-		}
-		else
-		{
+		} else {
 			JsonObject collider_data(ta);
 			JsonArray org(ta);
 			DATA_COMPILER_ASSERT(json_object::has(obj, "collider_data")
@@ -311,8 +298,7 @@ namespace physics_resource_internal
 
 		const bool needs_points = cd.type == ColliderType::CONVEX_HULL
 			|| cd.type == ColliderType::MESH;
-		if (needs_points)
-		{
+		if (needs_points) {
 			cd.size += sizeof(u32) + sizeof(Vector3)*array::size(points);
 			if (cd.type == ColliderType::MESH)
 				cd.size += sizeof(u32) + sizeof(u16)*array::size(point_indices);
@@ -333,14 +319,12 @@ namespace physics_resource_internal
 		bw.write(cd.heightfield.height_max);
 		bw.write(cd.size);
 
-		if (needs_points)
-		{
+		if (needs_points) {
 			bw.write(array::size(points));
 			for (u32 ii = 0; ii < array::size(points); ++ii)
 				bw.write(points[ii]);
 
-			if (cd.type == ColliderType::MESH)
-			{
+			if (cd.type == ColliderType::MESH) {
 				bw.write(array::size(point_indices));
 				for (u32 ii = 0; ii < array::size(point_indices); ++ii)
 					bw.write(point_indices[ii]);
@@ -407,8 +391,7 @@ namespace physics_resource_internal
 		jd.anchor_0 = sjson::parse_vector3(obj["anchor_0"]);
 		jd.anchor_1 = sjson::parse_vector3(obj["anchor_1"]);
 
-		switch (jd.type)
-		{
+		switch (jd.type) {
 		case JointType::HINGE:
 			jd.hinge.use_motor         = sjson::parse_bool (obj["use_motor"]);
 			jd.hinge.target_velocity   = sjson::parse_float(obj["target_velocity"]);
@@ -453,8 +436,7 @@ namespace physics_config_resource_internal
 
 		auto cur = json_object::begin(obj);
 		auto end = json_object::end(obj);
-		for (; cur != end; ++cur)
-		{
+		for (; cur != end; ++cur) {
 			JSON_OBJECT_SKIP_HOLE(obj, cur);
 
 			const StringView key = cur->first;
@@ -481,8 +463,7 @@ namespace physics_config_resource_internal
 
 		auto cur = json_object::begin(obj);
 		auto end = json_object::end(obj);
-		for (; cur != end; ++cur)
-		{
+		for (; cur != end; ++cur) {
 			JSON_OBJECT_SKIP_HOLE(obj, cur);
 
 			const StringView key = cur->first;
@@ -538,8 +519,7 @@ namespace physics_config_resource_internal
 
 			auto cur = json_object::begin(obj);
 			auto end = json_object::end(obj);
-			for (; cur != end; ++cur)
-			{
+			for (; cur != end; ++cur) {
 				JSON_OBJECT_SKIP_HOLE(obj, cur);
 
 				const StringView key = cur->first;
@@ -550,8 +530,7 @@ namespace physics_config_resource_internal
 
 			cur = json_object::begin(obj);
 			end = json_object::end(obj);
-			for (; cur != end; ++cur)
-			{
+			for (; cur != end; ++cur) {
 				JSON_OBJECT_SKIP_HOLE(obj, cur);
 
 				const StringView key = cur->first;
@@ -566,8 +545,7 @@ namespace physics_config_resource_internal
 				sjson::parse_array(collides_with, filter["collides_with"]);
 
 				u32 mask = 0;
-				for (u32 i = 0; i < array::size(collides_with); ++i)
-				{
+				for (u32 i = 0; i < array::size(collides_with); ++i) {
 					const StringId32 fi = sjson::parse_string_id(collides_with[i]);
 					mask |= filter_to_mask(fi);
 				}
@@ -650,8 +628,7 @@ namespace physics_config_resource_internal
 		opts.write(pcr.filters_offset);
 
 		// Write materials
-		for (u32 i = 0; i < pcr.num_materials; ++i)
-		{
+		for (u32 i = 0; i < pcr.num_materials; ++i) {
 			opts.write(materials[i].name._id);
 			opts.write(materials[i].friction);
 			opts.write(materials[i].rolling_friction);
@@ -659,8 +636,7 @@ namespace physics_config_resource_internal
 		}
 
 		// Write actors
-		for (u32 i = 0; i < pcr.num_actors; ++i)
-		{
+		for (u32 i = 0; i < pcr.num_actors; ++i) {
 			opts.write(actors[i].name._id);
 			opts.write(actors[i].linear_damping);
 			opts.write(actors[i].angular_damping);
@@ -668,8 +644,7 @@ namespace physics_config_resource_internal
 		}
 
 		// Write collision filters
-		for (u32 i = 0; i < array::size(cfc._filters); ++i)
-		{
+		for (u32 i = 0; i < array::size(cfc._filters); ++i) {
 			opts.write(cfc._filters[i].name._id);
 			opts.write(cfc._filters[i].me);
 			opts.write(cfc._filters[i].mask);

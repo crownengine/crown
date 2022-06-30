@@ -30,8 +30,7 @@ namespace aabb
 		b.min.z = b.max.z = point[2];
 		pts += stride;
 
-		for (u32 i = 1; i < num; ++i, pts += stride)
-		{
+		for (u32 i = 1; i < num; ++i, pts += stride) {
 			point = (f32*)pts;
 
 			b.min.x = min(b.min.x, point[0]);
@@ -55,8 +54,7 @@ namespace aabb
 		b.max.y = boxes[0].max.y;
 		b.max.z = boxes[0].max.z;
 
-		for (u32 i = 1; i < num; ++i)
-		{
+		for (u32 i = 1; i < num; ++i) {
 			b.min.x = min(b.min.x, boxes[i].min.x);
 			b.min.y = min(b.min.y, boxes[i].min.y);
 			b.min.z = min(b.min.z, boxes[i].min.z);
@@ -70,8 +68,7 @@ namespace aabb
 	{
 		CE_ASSERT(index < 8, "Index out of bounds");
 
-		switch (index)
-		{
+		switch (index) {
 		case 0: return vector3(b.min.x, b.min.y, b.min.z);
 		case 1: return vector3(b.max.x, b.min.y, b.min.z);
 		case 2: return vector3(b.max.x, b.min.y, b.max.z);

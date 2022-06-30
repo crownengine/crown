@@ -95,8 +95,7 @@ namespace hash_set_internal
 
 		const u32 hash = key_hash<TKey, Hash>(key);
 		u32 hash_i = hash & m._mask;
-		for (u32 dist = 0;;)
-		{
+		for (u32 dist = 0;;) {
 			if (m._index[hash_i].index == FREE)
 				return END_OF_LIST;
 			else if (dist > probe_distance(m, m._index[hash_i].hash, hash_i))
@@ -117,16 +116,14 @@ namespace hash_set_internal
 		*(TKey*)new_item = key;
 
 		u32 hash_i = hash & m._mask;
-		for (u32 dist = 0;;)
-		{
+		for (u32 dist = 0;;) {
 			if (m._index[hash_i].index == FREE)
 				goto INSERT_AND_RETURN;
 
 			// If the existing elem has probed less than us, then swap places with existing
 			// elem, and keep going to find another slot for that elem.
 			u32 existing_elem_probe_dist = probe_distance(m, m._index[hash_i].hash, hash_i);
-			if (is_deleted(m._index[hash_i].index) || existing_elem_probe_dist < dist)
-			{
+			if (is_deleted(m._index[hash_i].index) || existing_elem_probe_dist < dist) {
 				if (is_deleted(m._index[hash_i].index))
 					goto INSERT_AND_RETURN;
 
@@ -170,8 +167,7 @@ namespace hash_set_internal
 		nm._data = (TKey*)memory::align_top(nm._index + new_capacity, alignof(TKey));
 
 		// Flag all elements as free
-		for (u32 i = 0; i < new_capacity; ++i)
-		{
+		for (u32 i = 0; i < new_capacity; ++i) {
 			nm._index[i].hash = 0;
 			nm._index[i].index = FREE;
 		}
@@ -180,8 +176,7 @@ namespace hash_set_internal
 		nm._size = m._size;
 		nm._mask = new_capacity - 1;
 
-		for (u32 i = 0; i < m._capacity; ++i)
-		{
+		for (u32 i = 0; i < m._capacity; ++i) {
 			TKey& e = m._data[i];
 			const u32 hash = m._index[i].hash;
 			const u32 index = m._index[i].index;
@@ -239,8 +234,7 @@ namespace hash_set
 
 		// Find or make
 		const u32 i = hash_set_internal::find(m, key);
-		if (i == hash_set_internal::END_OF_LIST)
-		{
+		if (i == hash_set_internal::END_OF_LIST) {
 			hash_set_internal::insert(m, hash_set_internal::key_hash<TKey, Hash>(key), key);
 			++m._size;
 		}
@@ -263,8 +257,7 @@ namespace hash_set
 	template<typename TKey, typename Hash, typename KeyEqual>
 	void clear(HashSet<TKey, Hash, KeyEqual>& m)
 	{
-		for (u32 i = 0; i < m._capacity; ++i)
-		{
+		for (u32 i = 0; i < m._capacity; ++i) {
 			if (m._index[i].index == 0x0123abcd)
 				m._data[i].~TKey();
 			m._index[i].index = hash_set_internal::FREE;
@@ -322,8 +315,7 @@ HashSet<TKey, Hash, KeyEqual>::HashSet(const HashSet& other)
 	_size = other._size;
 	_mask = other._mask;
 
-	if (other._capacity > 0)
-	{
+	if (other._capacity > 0) {
 		_allocator->deallocate(_buffer);
 		const u32 size = other._capacity * (sizeof(Index) + sizeof(TKey)) + alignof(Index) + alignof(TKey);
 		_buffer = (char*)_allocator->allocate(size);
@@ -331,8 +323,7 @@ HashSet<TKey, Hash, KeyEqual>::HashSet(const HashSet& other)
 		_data = (TKey*)memory::align_top(_index + _capacity, alignof(TKey));
 
 		memcpy(_index, other._index, sizeof(Index)*other._capacity);
-		for (u32 i = 0; i < other._capacity; ++i)
-		{
+		for (u32 i = 0; i < other._capacity; ++i) {
 			const u32 index = other._index[i].index;
 			if (index != hash_set_internal::FREE && !hash_set_internal::is_deleted(index))
 				new (&_data[i]) TKey(other._data[i]);
@@ -343,8 +334,7 @@ HashSet<TKey, Hash, KeyEqual>::HashSet(const HashSet& other)
 template<typename TKey, typename Hash, typename KeyEqual>
 inline HashSet<TKey, Hash, KeyEqual>::~HashSet()
 {
-	for (u32 i = 0; i < _capacity; ++i)
-	{
+	for (u32 i = 0; i < _capacity; ++i) {
 		if (_index[i].index == 0x0123abcd)
 			_data[i].~TKey();
 	}
@@ -359,8 +349,7 @@ HashSet<TKey, Hash, KeyEqual>& HashSet<TKey, Hash, KeyEqual>::operator=(const Ha
 	_size = other._size;
 	_mask = other._mask;
 
-	if (other._capacity > 0)
-	{
+	if (other._capacity > 0) {
 		_allocator->deallocate(_buffer);
 		const u32 size = other._capacity * (sizeof(Index) + sizeof(TKey)) + alignof(Index) + alignof(TKey);
 		_buffer = (char*)_allocator->allocate(size);
@@ -368,11 +357,9 @@ HashSet<TKey, Hash, KeyEqual>& HashSet<TKey, Hash, KeyEqual>::operator=(const Ha
 		_data = (TKey*)memory::align_top(_index + _capacity, alignof(TKey));
 
 		memcpy(_index, other._index, sizeof(Index)*other._capacity);
-		for (u32 i = 0; i < other._capacity; ++i)
-		{
+		for (u32 i = 0; i < other._capacity; ++i) {
 			const u32 index = other._index[i].index;
-			if (index != hash_set_internal::FREE && !hash_set_internal::is_deleted(index))
-			{
+			if (index != hash_set_internal::FREE && !hash_set_internal::is_deleted(index)) {
 				construct<TKey>(_data + i, *_allocator, IS_ALLOCATOR_AWARE_TYPE(TKey)());
 				_data[i] = other._data[i];
 			}

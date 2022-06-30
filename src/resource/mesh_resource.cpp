@@ -85,8 +85,7 @@ MeshResource::MeshResource(Allocator& a)
 
 const MeshGeometry* MeshResource::geometry(StringId32 name) const
 {
-	for (u32 i = 0; i < array::size(geometry_names); ++i)
-	{
+	for (u32 i = 0; i < array::size(geometry_names); ++i) {
 		if (geometry_names[i] == name)
 			return geometries[i];
 	}
@@ -112,8 +111,7 @@ namespace mesh_resource_internal
 		array::resize(mr->geometry_names, num_geoms);
 		array::resize(mr->geometries, num_geoms);
 
-		for (u32 i = 0; i < num_geoms; ++i)
-		{
+		for (u32 i = 0; i < num_geoms; ++i) {
 			StringId32 name;
 			br.read(name);
 
@@ -163,8 +161,7 @@ namespace mesh_resource_internal
 	{
 		MeshResource* mr = (MeshResource*)rm.get(RESOURCE_TYPE_MESH, id);
 
-		for (u32 i = 0; i < array::size(mr->geometries); ++i)
-		{
+		for (u32 i = 0; i < array::size(mr->geometries); ++i) {
 			MeshGeometry& mg = *mr->geometries[i];
 
 			const u32 vsize = mg.vertices.num * mg.vertices.stride;
@@ -187,8 +184,7 @@ namespace mesh_resource_internal
 	{
 		MeshResource* mr = (MeshResource*)rm.get(RESOURCE_TYPE_MESH, id);
 
-		for (u32 i = 0; i < array::size(mr->geometries); ++i)
-		{
+		for (u32 i = 0; i < array::size(mr->geometries); ++i) {
 			MeshGeometry& mg = *mr->geometries[i];
 			bgfx::destroy(mg.vertex_buffer);
 			bgfx::destroy(mg.index_buffer);
@@ -199,8 +195,7 @@ namespace mesh_resource_internal
 	{
 		MeshResource* mr = (MeshResource*)res;
 
-		for (u32 i = 0; i < array::size(mr->geometries); ++i)
-		{
+		for (u32 i = 0; i < array::size(mr->geometries); ++i) {
 			a.deallocate(mr->geometries[i]);
 		}
 		CE_DELETE(a, (MeshResource*)res);
@@ -318,12 +313,10 @@ namespace mesh_resource_internal
 
 			parse_index_array(_position_indices, data_json[0]);
 
-			if (_has_normal)
-			{
+			if (_has_normal) {
 				parse_index_array(_normal_indices, data_json[1]);
 			}
-			if (_has_uv)
-			{
+			if (_has_uv) {
 				parse_index_array(_uv_indices, data_json[2]);
 			}
 		}
@@ -339,12 +332,10 @@ namespace mesh_resource_internal
 
 			parse_float_array(_positions, obj["position"]);
 
-			if (_has_normal)
-			{
+			if (_has_normal) {
 				parse_float_array(_normals, obj["normal"]);
 			}
-			if (_has_uv)
-			{
+			if (_has_uv) {
 				parse_float_array(_uvs, obj["texcoord"]);
 			}
 
@@ -359,8 +350,7 @@ namespace mesh_resource_internal
 			array::resize(_index_buffer, array::size(_position_indices));
 
 			u16 index = 0;
-			for (u32 i = 0; i < array::size(_position_indices); ++i)
-			{
+			for (u32 i = 0; i < array::size(_position_indices); ++i) {
 				_index_buffer[i] = index++;
 
 				const u16 p_idx = _position_indices[i] * 3;
@@ -370,8 +360,7 @@ namespace mesh_resource_internal
 				xyz.z = _positions[p_idx + 2];
 				array::push(_vertex_buffer, (char*)&xyz, sizeof(xyz));
 
-				if (_has_normal)
-				{
+				if (_has_normal) {
 					const u16 n_idx = _normal_indices[i] * 3;
 					Vector3 n;
 					n.x = _normals[n_idx + 0];
@@ -379,8 +368,7 @@ namespace mesh_resource_internal
 					n.z = _normals[n_idx + 2];
 					array::push(_vertex_buffer, (char*)&n, sizeof(n));
 				}
-				if (_has_uv)
-				{
+				if (_has_uv) {
 					const u16 t_idx = _uv_indices[i] * 2;
 					Vector2 uv;
 					uv.x = _uvs[t_idx + 0];
@@ -393,12 +381,10 @@ namespace mesh_resource_internal
 			_layout.begin();
 			_layout.add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float);
 
-			if (_has_normal)
-			{
+			if (_has_normal) {
 				_layout.add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float, true);
 			}
-			if (_has_uv)
-			{
+			if (_has_uv) {
 				_layout.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float);
 			}
 
@@ -447,15 +433,13 @@ namespace mesh_resource_internal
 		mc.parse(geometry);
 		mc.write();
 
-		if (json_object::has(obj_node, "children"))
-		{
+		if (json_object::has(obj_node, "children")) {
 			JsonObject children(ta);
 			sjson::parse_object(children, obj_node["children"]);
 
 			auto cur = json_object::begin(children);
 			auto end = json_object::end(children);
-			for (; cur != end; ++cur)
-			{
+			for (; cur != end; ++cur) {
 				JSON_OBJECT_SKIP_HOLE(children, cur);
 
 				s32 err = compile_node(mc, opts, geometries, cur);
@@ -486,8 +470,7 @@ namespace mesh_resource_internal
 
 		auto cur = json_object::begin(nodes);
 		auto end = json_object::end(nodes);
-		for (; cur != end; ++cur)
-		{
+		for (; cur != end; ++cur) {
 			JSON_OBJECT_SKIP_HOLE(nodes, cur);
 
 			s32 err = compile_node(mc, opts, geometries, cur);

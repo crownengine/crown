@@ -133,8 +133,7 @@ namespace array
 		if (capacity < a._size)
 			resize(a, capacity);
 
-		if (capacity > 0)
-		{
+		if (capacity > 0) {
 			T* tmp = a._data;
 			a._capacity = capacity;
 			a._data = (T*)a._allocator->allocate(capacity * sizeof(T), alignof(T));

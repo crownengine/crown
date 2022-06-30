@@ -58,8 +58,7 @@ namespace level_resource_internal
 			JsonArray sounds_json(ta);
 			sjson::parse_array(sounds_json, obj["sounds"]);
 
-			for (u32 i = 0; i < array::size(sounds_json); ++i)
-			{
+			for (u32 i = 0; i < array::size(sounds_json); ++i) {
 				JsonObject sound(ta);
 				sjson::parse_object(sound, sounds_json[i]);
 
@@ -107,8 +106,7 @@ namespace level_resource_internal
 		opts.write(lr.sounds_offset);
 
 		// Write level sounds
-		for (u32 i = 0; i < array::size(sounds); ++i)
-		{
+		for (u32 i = 0; i < array::size(sounds); ++i) {
 			opts.write(sounds[i].name);
 			opts.write(sounds[i].position);
 			opts.write(sounds[i].volume);

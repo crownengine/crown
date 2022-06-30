@@ -106,8 +106,7 @@ namespace hash_map_internal
 
 		const u32 hash = key_hash<TKey, Hash>(key);
 		u32 hash_i = hash & m._mask;
-		for (u32 dist = 0;;)
-		{
+		for (u32 dist = 0;;) {
 			if (m._index[hash_i].index == FREE)
 				return END_OF_LIST;
 			else if (dist > probe_distance(m, m._index[hash_i].hash, hash_i))
@@ -128,16 +127,14 @@ namespace hash_map_internal
 		new_item.second = value;
 
 		u32 hash_i = hash & m._mask;
-		for (u32 dist = 0;;)
-		{
+		for (u32 dist = 0;;) {
 			if (m._index[hash_i].index == FREE)
 				goto INSERT_AND_RETURN;
 
 			// If the existing elem has probed less than us, then swap places with existing
 			// elem, and keep going to find another slot for that elem.
 			u32 existing_elem_probe_dist = probe_distance(m, m._index[hash_i].hash, hash_i);
-			if (is_deleted(m._index[hash_i].index) || existing_elem_probe_dist < dist)
-			{
+			if (is_deleted(m._index[hash_i].index) || existing_elem_probe_dist < dist) {
 				if (is_deleted(m._index[hash_i].index))
 					goto INSERT_AND_RETURN;
 
@@ -173,8 +170,7 @@ namespace hash_map_internal
 		nm._data = (Entry*)memory::align_top(nm._index + new_capacity, alignof(Entry));
 
 		// Flag all elements as free
-		for (u32 i = 0; i < new_capacity; ++i)
-		{
+		for (u32 i = 0; i < new_capacity; ++i) {
 			nm._index[i].hash = 0;
 			nm._index[i].index = FREE;
 		}
@@ -183,8 +179,7 @@ namespace hash_map_internal
 		nm._size = m._size;
 		nm._mask = new_capacity - 1;
 
-		for (u32 i = 0; i < m._capacity; ++i)
-		{
+		for (u32 i = 0; i < m._capacity; ++i) {
 			typename HashMap<TKey, TValue, Hash, KeyEqual>::Entry& e = m._data[i];
 			const u32 hash = m._index[i].hash;
 			const u32 index = m._index[i].index;
@@ -258,13 +253,10 @@ namespace hash_map
 
 		// Find or make
 		const u32 i = hash_map_internal::find(m, key);
-		if (i == hash_map_internal::END_OF_LIST)
-		{
+		if (i == hash_map_internal::END_OF_LIST) {
 			hash_map_internal::insert(m, hash_map_internal::key_hash<TKey, Hash>(key), key, value);
 			++m._size;
-		}
-		else
-		{
+		} else {
 			m._data[i].second = value;
 		}
 		if (hash_map_internal::full(m))
@@ -286,8 +278,7 @@ namespace hash_map
 	template<typename TKey, typename TValue, typename Hash, typename KeyEqual>
 	void clear(HashMap<TKey, TValue, Hash, KeyEqual>& m)
 	{
-		for (u32 i = 0; i < m._capacity; ++i)
-		{
+		for (u32 i = 0; i < m._capacity; ++i) {
 			if (m._index[i].index == 0x0123abcd)
 				m._data[i].~Pair();
 			m._index[i].index = hash_map_internal::FREE;
@@ -345,8 +336,7 @@ HashMap<TKey, TValue, Hash, KeyEqual>::HashMap(const HashMap<TKey, TValue, Hash,
 	_size = other._size;
 	_mask = other._mask;
 
-	if (other._capacity > 0)
-	{
+	if (other._capacity > 0) {
 		_allocator->deallocate(_buffer);
 		const u32 size = other._capacity * (sizeof(Index) + sizeof(Entry)) + alignof(Index) + alignof(Entry);
 		_buffer = (char*)_allocator->allocate(size);
@@ -354,8 +344,7 @@ HashMap<TKey, TValue, Hash, KeyEqual>::HashMap(const HashMap<TKey, TValue, Hash,
 		_data = (Entry*)memory::align_top(_index + _capacity, alignof(Entry));
 
 		memcpy(_index, other._index, sizeof(Index)*other._capacity);
-		for (u32 i = 0; i < other._capacity; ++i)
-		{
+		for (u32 i = 0; i < other._capacity; ++i) {
 			const u32 index = other._index[i].index;
 			if (index != hash_map_internal::FREE && !hash_map_internal::is_deleted(index))
 				new (&_data[i]) Entry(other._data[i]);
@@ -366,8 +355,7 @@ HashMap<TKey, TValue, Hash, KeyEqual>::HashMap(const HashMap<TKey, TValue, Hash,
 template<typename TKey, typename TValue, typename Hash, typename KeyEqual>
 inline HashMap<TKey, TValue, Hash, KeyEqual>::~HashMap()
 {
-	for (u32 i = 0; i < _capacity; ++i)
-	{
+	for (u32 i = 0; i < _capacity; ++i) {
 		if (_index[i].index == 0x0123abcd)
 			_data[i].~Pair();
 	}
@@ -382,8 +370,7 @@ HashMap<TKey, TValue, Hash, KeyEqual>& HashMap<TKey, TValue, Hash, KeyEqual>::op
 	_size = other._size;
 	_mask = other._mask;
 
-	if (other._capacity > 0)
-	{
+	if (other._capacity > 0) {
 		_allocator->deallocate(_buffer);
 		const u32 size = other._capacity * (sizeof(Index) + sizeof(Entry)) + alignof(Index) + alignof(Entry);
 		_buffer = (char*)_allocator->allocate(size);
@@ -391,11 +378,9 @@ HashMap<TKey, TValue, Hash, KeyEqual>& HashMap<TKey, TValue, Hash, KeyEqual>::op
 		_data = (Entry*)memory::align_top(_index + _capacity, alignof(Entry));
 
 		memcpy(_index, other._index, sizeof(Index)*other._capacity);
-		for (u32 i = 0; i < other._capacity; ++i)
-		{
+		for (u32 i = 0; i < other._capacity; ++i) {
 			const u32 index = other._index[i].index;
-			if (index != hash_map_internal::FREE && !hash_map_internal::is_deleted(index))
-			{
+			if (index != hash_map_internal::FREE && !hash_map_internal::is_deleted(index)) {
 				new (&_data[i]) Entry(*_allocator);
 				_data[i] = other._data[i];
 			}

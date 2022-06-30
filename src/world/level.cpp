@@ -46,8 +46,7 @@ void Level::load(const Vector3& pos, const Quaternion& rot)
 
 	// Play sounds
 	const u32 num_sounds = level_resource::num_sounds(_resource);
-	for (u32 i = 0; i < num_sounds; ++i)
-	{
+	for (u32 i = 0; i < num_sounds; ++i) {
 		const LevelSound* ls = level_resource::get_sound(_resource, i);
 		_world->play_sound(ls->name
 			, ls->loop
@@ -61,8 +60,7 @@ void Level::load(const Vector3& pos, const Quaternion& rot)
 UnitId Level::unit_by_name(StringId32 name)
 {
 	const StringId32* unit_names = level_resource::unit_names(_resource);
-	for (u32 i = 0; i < _resource->num_units; ++i)
-	{
+	for (u32 i = 0; i < _resource->num_units; ++i) {
 		if (unit_names[i] == name)
 			return _unit_lookup[i];
 	}

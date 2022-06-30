@@ -46,8 +46,7 @@ struct AndroidDevice
 			, 0
 			);
 
-		while (app->destroyRequested == 0)
-		{
+		while (app->destroyRequested == 0) {
 			s32 num;
 			android_poll_source* source;
 			ALooper_pollAll(-1, NULL, &num, (void**)&source);
@@ -61,13 +60,11 @@ struct AndroidDevice
 
 	void process_command(struct android_app* app, s32 cmd)
 	{
-		switch (cmd)
-		{
+		switch (cmd) {
 		case APP_CMD_SAVE_STATE:
 			break;
 
-		case APP_CMD_INIT_WINDOW:
-		{
+		case APP_CMD_INIT_WINDOW: {
 			CE_ASSERT(app->window != NULL, "Android window is NULL");
 
 			bgfx::PlatformData pd;
@@ -83,8 +80,7 @@ struct AndroidDevice
 			const s32 height = ANativeWindow_getHeight(app->window);
 			_queue.push_resolution_event(width, height);
 
-			if (!_main_thread.is_running())
-			{
+			if (!_main_thread.is_running()) {
 				_main_thread.start([](void* user_data) {
 						crown::run(*((DeviceOptions*)user_data));
 						return EXIT_SUCCESS;
@@ -117,8 +113,7 @@ struct AndroidDevice
 
 	s32 process_input(struct android_app* app, AInputEvent* event)
 	{
-		if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION)
-		{
+		if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) {
 			const s32 action = AMotionEvent_getAction(event);
 			const s32 pointer_index = (action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
 			const s32 pointer_count = AMotionEvent_getPointerCount(event);
@@ -129,8 +124,7 @@ struct AndroidDevice
 
 			const s32 actionMasked = (action & AMOTION_EVENT_ACTION_MASK);
 
-			switch (actionMasked)
-			{
+			switch (actionMasked) {
 			case AMOTION_EVENT_ACTION_DOWN:
 			case AMOTION_EVENT_ACTION_POINTER_DOWN:
 				_queue.push_button_event(InputDeviceType::TOUCHSCREEN
@@ -159,8 +153,7 @@ struct AndroidDevice
 				break;
 
 			case AMOTION_EVENT_ACTION_MOVE:
-				for (int index = 0; index < pointer_count; index++)
-				{
+				for (int index = 0; index < pointer_count; index++) {
 					const f32 xx = AMotionEvent_getX(event, index);
 					const f32 yy = AMotionEvent_getY(event, index);
 					const s32 id = AMotionEvent_getPointerId(event, index);
@@ -176,14 +169,11 @@ struct AndroidDevice
 			}
 
 			return 1;
-		}
-		else if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_KEY)
-		{
+		} else if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_KEY) {
 			const s32 keycode   = AKeyEvent_getKeyCode(event);
 			const s32 keyaction = AKeyEvent_getAction(event);
 
-			if (keycode == AKEYCODE_BACK)
-			{
+			if (keycode == AKEYCODE_BACK) {
 				_queue.push_button_event(InputDeviceType::KEYBOARD
 					, 0
 					, KeyboardButton::ESCAPE

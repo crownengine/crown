@@ -39,18 +39,15 @@ bool BootConfig::parse(const char* json)
 		sjson::parse_string(window_title, cfg["window_title"]);
 
 	// Platform-specific configs
-	if (json_object::has(cfg, CROWN_PLATFORM_NAME))
-	{
+	if (json_object::has(cfg, CROWN_PLATFORM_NAME)) {
 		JsonObject platform(ta);
 		sjson::parse(platform, cfg[CROWN_PLATFORM_NAME]);
 
-		if (json_object::has(platform, "renderer"))
-		{
+		if (json_object::has(platform, "renderer")) {
 			JsonObject renderer(ta);
 			sjson::parse(renderer, platform["renderer"]);
 
-			if (json_object::has(renderer, "resolution"))
-			{
+			if (json_object::has(renderer, "resolution")) {
 				JsonArray resolution(ta);
 				sjson::parse_array(resolution, renderer["resolution"]);
 				window_w = sjson::parse_int(resolution[0]);

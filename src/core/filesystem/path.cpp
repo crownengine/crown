@@ -100,8 +100,7 @@ namespace path
 		clean += cc;
 		++path;
 
-		for (; *path; ++path)
-		{
+		for (; *path; ++path) {
 			if (cc == PATH_SEPARATOR && any_separator(*path))
 				continue;
 

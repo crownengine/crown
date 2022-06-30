@@ -22,8 +22,7 @@ namespace json
 	{
 		CE_ENSURE(NULL != json);
 
-		if (c && c != *json)
-		{
+		if (c && c != *json) {
 			CE_ASSERT(false, "Expected '%c' got '%c'", c, *json);
 		}
 
@@ -34,15 +33,11 @@ namespace json
 	{
 		CE_ENSURE(NULL != json);
 
-		while (*++json)
-		{
-			if (*json == '"')
-			{
+		while (*++json) {
+			if (*json == '"') {
 				++json;
 				return json;
-			}
-			else if (*json == '\\')
-			{
+			} else if (*json == '\\') {
 				++json;
 			}
 		}
@@ -54,8 +49,7 @@ namespace json
 	{
 		CE_ENSURE(NULL != json);
 
-		switch (*json)
-		{
+		switch (*json) {
 		case '"': json = skip_string(json); break;
 		case '[': json = skip_block(json, '[', ']'); break;
 		case '{': json = skip_block(json, '{', '}'); break;
@@ -69,8 +63,7 @@ namespace json
 	{
 		CE_ENSURE(NULL != json);
 
-		switch (*json)
-		{
+		switch (*json) {
 		case '"': return JsonValueType::STRING;
 		case '{': return JsonValueType::OBJECT;
 		case '[': return JsonValueType::ARRAY;
@@ -86,38 +79,31 @@ namespace json
 		TempAllocator512 alloc;
 		Array<char> number(alloc);
 
-		if (*json == '-')
-		{
+		if (*json == '-') {
 			array::push_back(number, '-');
 			++json;
 		}
-		while (isdigit(*json))
-		{
+		while (isdigit(*json)) {
 			array::push_back(number, *json);
 			++json;
 		}
 
-		if (*json == '.')
-		{
+		if (*json == '.') {
 			array::push_back(number, '.');
-			while (*++json && isdigit(*json))
-			{
+			while (*++json && isdigit(*json)) {
 				array::push_back(number, *json);
 			}
 		}
 
-		if (*json == 'e' || *json == 'E')
-		{
+		if (*json == 'e' || *json == 'E') {
 			array::push_back(number, *json);
 			++json;
 
-			if (*json == '-' || *json == '+')
-			{
+			if (*json == '-' || *json == '+') {
 				array::push_back(number, *json);
 				++json;
 			}
-			while (isdigit(*json))
-			{
+			while (isdigit(*json)) {
 				array::push_back(number, *json);
 				++json;
 			}
@@ -145,8 +131,7 @@ namespace json
 	{
 		CE_ENSURE(NULL != json);
 
-		switch (*json)
-		{
+		switch (*json) {
 		case 't':
 			json = next(json, 't');
 			json = next(json, 'r');
@@ -172,19 +157,15 @@ namespace json
 	{
 		CE_ENSURE(NULL != json);
 
-		if (*json == '"')
-		{
-			while (*++json)
-			{
+		if (*json == '"') {
+			while (*++json) {
 				if (*json == '"')
 					return;
 
-				if (*json == '\\')
-				{
+				if (*json == '\\') {
 					++json;
 
-					switch (*json)
-					{
+					switch (*json) {
 					case '"': str += '"'; break;
 					case '\\': str += '\\'; break;
 					case '/': str += '/'; break;
@@ -195,9 +176,7 @@ namespace json
 					case 't': str += '\t'; break;
 					default: CE_FATAL("Bad escape character"); break;
 					}
-				}
-				else
-				{
+				} else {
 					str += *json;
 				}
 			}
@@ -210,15 +189,13 @@ namespace json
 	{
 		CE_ENSURE(NULL != json);
 
-		if (*json == '[')
-		{
+		if (*json == '[') {
 			json = skip_spaces(++json);
 
 			if (*json == ']')
 				return;
 
-			while (*json)
-			{
+			while (*json) {
 				array::push_back(arr, json);
 
 				json = skip_value(json);
@@ -239,15 +216,13 @@ namespace json
 	{
 		CE_ENSURE(NULL != json);
 
-		if (*json == '{')
-		{
+		if (*json == '{') {
 			json = skip_spaces(++json);
 
 			if (*json == '}')
 				return;
 
-			while (*json)
-			{
+			while (*json) {
 				const char* key_begin = *json == '"' ? (json + 1) : json;
 
 				TempAllocator256 ta;

@@ -32,8 +32,7 @@ namespace material_resource
 
 	UniformData* uniform_data_by_name(const MaterialResource* mr, StringId32 name)
 	{
-		for (u32 i = 0, n = mr->num_uniforms; i < n; ++i)
-		{
+		for (u32 i = 0, n = mr->num_uniforms; i < n; ++i) {
 			UniformData* data = uniform_data(mr, i);
 			if (data->name == name)
 				return data;
@@ -124,8 +123,7 @@ namespace material_resource_internal
 
 	static UniformType::Enum name_to_uniform_type(const char* name)
 	{
-		for (u32 i = 0; i < countof(s_uniform_type_info); ++i)
-		{
+		for (u32 i = 0; i < countof(s_uniform_type_info); ++i) {
 			if (strcmp(s_uniform_type_info[i].name, name) == 0)
 				return s_uniform_type_info[i].type;
 		}
@@ -164,8 +162,7 @@ namespace material_resource_internal
 
 		auto cur = json_object::begin(obj);
 		auto end = json_object::end(obj);
-		for (; cur != end; ++cur)
-		{
+		for (; cur != end; ++cur) {
 			JSON_OBJECT_SKIP_HOLE(obj, cur);
 
 			const StringView key = cur->first;
@@ -205,8 +202,7 @@ namespace material_resource_internal
 
 		auto cur = json_object::begin(obj);
 		auto end = json_object::end(obj);
-		for (; cur != end; ++cur)
-		{
+		for (; cur != end; ++cur) {
 			JSON_OBJECT_SKIP_HOLE(obj, cur);
 
 			const StringView key = cur->first;
@@ -238,10 +234,8 @@ namespace material_resource_internal
 			ud.name_offset = name_offset;
 			ud.data_offset = reserve_dynamic_data(dynamic, uh);
 
-			switch (ud.type)
-			{
-			case UniformType::FLOAT:
-			{
+			switch (ud.type) {
+			case UniformType::FLOAT: {
 				const f32 value = sjson::parse_float(uniform["value"]);
 				Vector4 data;
 				data.x = value;
@@ -252,8 +246,7 @@ namespace material_resource_internal
 				break;
 			}
 
-			case UniformType::VECTOR2:
-			{
+			case UniformType::VECTOR2: {
 				const Vector2 value = sjson::parse_vector2(uniform["value"]);
 				Vector4 data;
 				data.x = value.x;
@@ -264,8 +257,7 @@ namespace material_resource_internal
 				break;
 			}
 
-			case UniformType::VECTOR3:
-			{
+			case UniformType::VECTOR3: {
 				const Vector3 value = sjson::parse_vector3(uniform["value"]);
 				Vector4 data;
 				data.x = value.x;
@@ -310,13 +302,11 @@ namespace material_resource_internal
 		DynamicString shader(ta);
 		sjson::parse_string(shader, obj["shader"]);
 
-		if (json_object::has(obj, "textures"))
-		{
+		if (json_object::has(obj, "textures")) {
 			s32 err = parse_textures(obj["textures"], texdata, names, dynblob, opts);
 			DATA_COMPILER_ENSURE(err == 0, opts);
 		}
-		if (json_object::has(obj, "uniforms"))
-		{
+		if (json_object::has(obj, "uniforms")) {
 			s32 err = parse_uniforms(obj["uniforms"], unidata, names, dynblob, opts);
 			DATA_COMPILER_ENSURE(err == 0, opts);
 		}
@@ -341,8 +331,7 @@ namespace material_resource_internal
 		opts.write(mr.dynamic_data_size);
 		opts.write(mr.dynamic_data_offset);
 
-		for (u32 i = 0; i < array::size(texdata); i++)
-		{
+		for (u32 i = 0; i < array::size(texdata); i++) {
 			opts.write(texdata[i].sampler_name_offset);
 			opts.write(texdata[i].name._id);
 			opts.write(texdata[i].id);
@@ -350,8 +339,7 @@ namespace material_resource_internal
 			opts.write(texdata[i]._pad1);
 		}
 
-		for (u32 i = 0; i < array::size(unidata); i++)
-		{
+		for (u32 i = 0; i < array::size(unidata); i++) {
 			opts.write(unidata[i].type);
 			opts.write(unidata[i].name);
 			opts.write(unidata[i].name_offset);

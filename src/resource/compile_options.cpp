@@ -215,8 +215,7 @@ const char* CompileOptions::platform() const
 
 const char* CompileOptions::exe_path(const char* const* paths, u32 num)
 {
-	for (u32 ii = 0; ii < num; ++ii)
-	{
+	for (u32 ii = 0; ii < num; ++ii) {
 		if (os::access(paths[ii], AccessFlags::EXECUTE) == 0)
 			return paths[ii];
 	}
@@ -228,8 +227,7 @@ void CompileOptions::read_output(StringStream& output, Process& pr)
 {
 	u32 nbr = 0;
 	char msg[512];
-	while (pr.read(&nbr, msg, sizeof(msg) - 1) != NULL)
-	{
+	while (pr.read(&nbr, msg, sizeof(msg) - 1) != NULL) {
 		msg[nbr] = '\0';
 		output << msg;
 	}

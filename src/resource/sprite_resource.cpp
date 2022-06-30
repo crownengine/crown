@@ -68,8 +68,7 @@ namespace sprite_resource_internal
 		const u32 num_frames = array::size(frames);
 
 		Array<f32> vertices(default_allocator());
-		for (u32 i = 0; i < num_frames; ++i)
-		{
+		for (u32 i = 0; i < num_frames; ++i) {
 			SpriteFrame sf;
 			parse_frame(sf, frames[i]);
 

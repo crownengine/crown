@@ -141,8 +141,7 @@ static void test_hash_map()
 
 		hash_map::set(m, 1, 1);
 
-		for (s32 i = 2; i < 150; ++i)
-		{
+		for (s32 i = 2; i < 150; ++i) {
 			hash_map::set(m, i, 2);
 			ENSURE(hash_map::has(m, 0));
 			ENSURE(hash_map::has(m, 1));

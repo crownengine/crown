@@ -121,10 +121,8 @@ UnitId World::spawn_empty_unit()
 void World::destroy_unit(UnitId unit)
 {
 	_unit_manager->destroy(unit);
-	for (u32 i = 0, n = array::size(_units); i < n; ++i)
-	{
-		if (_units[i] == unit)
-		{
+	for (u32 i = 0, n = array::size(_units); i < n; ++i) {
+		if (_units[i] == unit) {
 			_units[i] = _units[n - 1];
 			array::pop_back(_units);
 			break;
@@ -171,17 +169,14 @@ void World::update_scene(f32 dt)
 		EventStream& events = _animation_state_machine->_events;
 		const u32 size = array::size(events);
 		u32 read = 0;
-		while (read < size)
-		{
+		while (read < size) {
 			const EventHeader* eh = (EventHeader*)&events[read];
 			const char* data = (char*)&eh[1];
 
 			read += sizeof(*eh) + eh->size;
 
-			switch (eh->type)
-			{
-			case 0:
-			{
+			switch (eh->type) {
+			case 0: {
 				const SpriteFrameChangeEvent& ptev = *(SpriteFrameChangeEvent*)data;
 				const SpriteInstance si = _render_world->sprite_instance(ptev.unit);
 				_render_world->sprite_set_frame(si, ptev.frame_num);
@@ -214,17 +209,14 @@ void World::update_scene(f32 dt)
 		EventStream& events = _physics_world->events();
 		const u32 size = array::size(events);
 		u32 read = 0;
-		while (read < size)
-		{
+		while (read < size) {
 			const EventHeader* eh = (EventHeader*)&events[read];
 			const char* data = (char*)&eh[1];
 
 			read += sizeof(*eh) + eh->size;
 
-			switch (eh->type)
-			{
-			case EventType::PHYSICS_TRANSFORM:
-			{
+			switch (eh->type) {
+			case EventType::PHYSICS_TRANSFORM: {
 				const PhysicsTransformEvent& ptev = *(PhysicsTransformEvent*)data;
 				const TransformInstance ti = _scene_graph->instance(ptev.unit_id);
 				if (is_valid(ti)) // User code may have destroyed the actor
@@ -232,8 +224,7 @@ void World::update_scene(f32 dt)
 				break;
 			}
 
-			case EventType::PHYSICS_COLLISION:
-			{
+			case EventType::PHYSICS_COLLISION: {
 				const PhysicsCollisionEvent& pcev = *(PhysicsCollisionEvent*)data;
 				script_world::collision(*_script_world, pcev);
 				break;
@@ -337,8 +328,7 @@ Matrix4x4 World::camera_projection_matrix(CameraInstance camera)
 
 	const bgfx::Caps* caps = bgfx::getCaps();
 	f32 bx_proj[16];
-	switch (cam.projection_type)
-	{
+	switch (cam.projection_type) {
 	case ProjectionType::ORTHOGRAPHIC:
 		bx::mtxOrtho(bx_proj
 			, -cam.half_size * cam.aspect
@@ -605,16 +595,13 @@ void spawn_units(World& w, const UnitResource* ur, const Vector3& pos, const Qua
 
 	// Create components
 	const ComponentData* component = unit_resource::component_type_data(ur, NULL);
-	for (u32 cc = 0; cc < ur->num_component_types; ++cc)
-	{
+	for (u32 cc = 0; cc < ur->num_component_types; ++cc) {
 		const u32* unit_index = unit_resource::component_unit_index(component);
 		const char* data = unit_resource::component_payload(component);
 
-		if (component->type == COMPONENT_TYPE_TRANSFORM)
-		{
+		if (component->type == COMPONENT_TYPE_TRANSFORM) {
 			const TransformDesc* td = (const TransformDesc*)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++td)
-			{
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++td) {
 				// FIXME: add SceneGraph::allocate() to reserve an instance
 				// without initializing it.
 				const TransformInstance ti = scene_graph->create(unit_lookup[unit_index[i]]
@@ -622,13 +609,10 @@ void spawn_units(World& w, const UnitResource* ur, const Vector3& pos, const Qua
 					, td->rotation
 					, td->scale
 					);
-				if (unit_parents[unit_index[i]] != UINT32_MAX)
-				{
+				if (unit_parents[unit_index[i]] != UINT32_MAX) {
 					TransformInstance parent_ti = scene_graph->instance(unit_lookup[unit_parents[unit_index[i]]]);
 					scene_graph->link(parent_ti, ti, td->position, td->rotation, td->scale);
-				}
-				else
-				{
+				} else {
 					const Vector3 scale = vector3(td->scale.x * scl.x
 						, td->scale.y * scl.y
 						, td->scale.z * scl.z
@@ -638,84 +622,58 @@ void spawn_units(World& w, const UnitResource* ur, const Vector3& pos, const Qua
 					scene_graph->set_local_scale(ti, scale);
 				}
 			}
-		}
-		else if (component->type == COMPONENT_TYPE_CAMERA)
-		{
+		} else if (component->type == COMPONENT_TYPE_CAMERA) {
 			const CameraDesc* cd = (const CameraDesc*)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++cd)
-			{
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++cd) {
 				w.camera_create(unit_lookup[unit_index[i]], *cd, MATRIX4X4_IDENTITY);
 			}
-		}
-		else if (component->type == COMPONENT_TYPE_COLLIDER)
-		{
+		} else if (component->type == COMPONENT_TYPE_COLLIDER) {
 			const ColliderDesc* cd = (const ColliderDesc*)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i)
-			{
+			for (u32 i = 0, n = component->num_instances; i < n; ++i) {
 				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
 				Matrix4x4 tm = scene_graph->world_pose(ti);
 				physics_world->collider_create(unit_lookup[unit_index[i]], cd, scale(tm));
 				cd = (ColliderDesc*)((char*)(cd + 1) + cd->size);
 			}
-		}
-		else if (component->type == COMPONENT_TYPE_ACTOR)
-		{
+		} else if (component->type == COMPONENT_TYPE_ACTOR) {
 			const ActorResource* ar = (const ActorResource*)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++ar)
-			{
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++ar) {
 				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
 				Matrix4x4 tm = scene_graph->world_pose(ti);
 				physics_world->actor_create(unit_lookup[unit_index[i]], ar, from_quaternion_translation(rotation(tm), translation(tm)));
 			}
-		}
-		else if (component->type == COMPONENT_TYPE_MESH_RENDERER)
-		{
+		} else if (component->type == COMPONENT_TYPE_MESH_RENDERER) {
 			const MeshRendererDesc* mrd = (const MeshRendererDesc*)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++mrd)
-			{
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++mrd) {
 				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
 				Matrix4x4 tm = scene_graph->world_pose(ti);
 				render_world->mesh_create(unit_lookup[unit_index[i]], *mrd, tm);
 			}
-		}
-		else if (component->type == COMPONENT_TYPE_SPRITE_RENDERER)
-		{
+		} else if (component->type == COMPONENT_TYPE_SPRITE_RENDERER) {
 			const SpriteRendererDesc* srd = (const SpriteRendererDesc*)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++srd)
-			{
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++srd) {
 				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
 				Matrix4x4 tm = scene_graph->world_pose(ti);
 				render_world->sprite_create(unit_lookup[unit_index[i]], *srd, tm);
 			}
-		}
-		else if (component->type == COMPONENT_TYPE_LIGHT)
-		{
+		} else if (component->type == COMPONENT_TYPE_LIGHT) {
 			const LightDesc* ld = (const LightDesc*)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++ld)
-			{
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++ld) {
 				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
 				Matrix4x4 tm = scene_graph->world_pose(ti);
 				render_world->light_create(unit_lookup[unit_index[i]], *ld, tm);
 			}
-		}
-		else if (component->type == COMPONENT_TYPE_SCRIPT)
-		{
+		} else if (component->type == COMPONENT_TYPE_SCRIPT) {
 			const ScriptDesc* sd = (const ScriptDesc*)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++sd)
-			{
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++sd) {
 				script_world::create(*script_world, unit_lookup[unit_index[i]], *sd);
 			}
-		}
-		else if (component->type == COMPONENT_TYPE_ANIMATION_STATE_MACHINE)
-		{
+		} else if (component->type == COMPONENT_TYPE_ANIMATION_STATE_MACHINE) {
 			const AnimationStateMachineDesc* asmd = (const AnimationStateMachineDesc*)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++asmd)
-			{
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++asmd) {
 				animation_state_machine->create(unit_lookup[unit_index[i]], *asmd);
 			}
-		}
-		else
-		{
+		} else {
 			CE_FATAL("Unknown component type");
 		}
 

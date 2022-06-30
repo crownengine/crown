@@ -79,10 +79,8 @@ struct FileMonitorImpl
 		struct dirent *entry;
 
 		DIR *dir = opendir(path);
-		if (dir != NULL)
-		{
-			while ((entry = readdir(dir)))
-			{
+		if (dir != NULL) {
+			while ((entry = readdir(dir))) {
 				const char* dname = entry->d_name;
 
 				if (!strcmp(dname, ".") || !strcmp(dname, ".."))
@@ -92,8 +90,7 @@ struct FileMonitorImpl
 				DynamicString str(ta);
 				path::join(str, path, dname);
 
-				if (generate_create_event)
-				{
+				if (generate_create_event) {
 					_function(_user_data
 						, FileMonitorEvent::CREATED
 						, entry->d_type == DT_DIR // FIXME: some filesystems do not support DT_DIR.
@@ -137,8 +134,7 @@ struct FileMonitorImpl
 
 	int watch()
 	{
-		while (!_exit)
-		{
+		while (!_exit) {
 			TempAllocator512 ta;
 
 			fd_set set;
@@ -166,19 +162,16 @@ struct FileMonitorImpl
 			if (len == -1)
 				return -1;
 
-			for (char* p = buf; p < buf + len;)
-			{
+			for (char* p = buf; p < buf + len;) {
 				inotify_event* ev = (inotify_event*)p;
 
-				if (ev->mask & IN_IGNORED)
-				{
+				if (ev->mask & IN_IGNORED) {
 					// Watch was removed explicitly (inotify_rm_watch(2)) or
 					// automatically (file was deleted, or filesystem was
 					// unmounted).
 					hash_map::remove(_watches, ev->wd);
 				}
-				if (ev->mask & IN_CREATE)
-				{
+				if (ev->mask & IN_CREATE) {
 					DynamicString path(ta);
 					full_path(path, ev->wd, ev->name);
 
@@ -201,8 +194,7 @@ struct FileMonitorImpl
 					if (ev->mask & IN_ISDIR)
 						add_watch(path.c_str(), _recursive, true);
 				}
-				if (ev->mask & IN_DELETE)
-				{
+				if (ev->mask & IN_DELETE) {
 					DynamicString path(ta);
 					full_path(path, ev->wd, ev->name);
 
@@ -213,8 +205,7 @@ struct FileMonitorImpl
 						, NULL
 						);
 				}
-				if (ev->mask & IN_MODIFY || ev->mask & IN_ATTRIB)
-				{
+				if (ev->mask & IN_MODIFY || ev->mask & IN_ATTRIB) {
 					DynamicString path(ta);
 					full_path(path, ev->wd, ev->name);
 
@@ -225,11 +216,9 @@ struct FileMonitorImpl
 						, NULL
 						);
 				}
-				if (ev->mask & IN_MOVED_FROM)
-				{
+				if (ev->mask & IN_MOVED_FROM) {
 					// Two consecutive IN_MOVED_FROM
-					if (cookie != 0)
-					{
+					if (cookie != 0) {
 						_function(_user_data
 							, FileMonitorEvent::DELETED
 							, cookie_mask & IN_ISDIR
@@ -243,9 +232,7 @@ struct FileMonitorImpl
 
 						cookie = 0;
 						cookie_mask = 0;
-					}
-					else
-					{
+					} else {
 						DynamicString path(ta);
 						full_path(path, ev->wd, ev->name);
 
@@ -254,10 +241,8 @@ struct FileMonitorImpl
 						cookie_path = path;
 					}
 				}
-				if (ev->mask & IN_MOVED_TO)
-				{
-					if (cookie == ev->cookie)
-					{
+				if (ev->mask & IN_MOVED_TO) {
+					if (cookie == ev->cookie) {
 						// File or directory has been renamed
 						DynamicString path(ta);
 						full_path(path, ev->wd, ev->name);
@@ -272,17 +257,14 @@ struct FileMonitorImpl
 						cookie = 0;
 						cookie_mask = 0;
 
-						if (ev->mask & IN_ISDIR)
-						{
+						if (ev->mask & IN_ISDIR) {
 							u32 wd = hash_map::get(_watches_reverse, cookie_path, INT32_MAX);
 							hash_map::remove(_watches_reverse, cookie_path);
 							inotify_rm_watch(_fd, wd);
 
 							add_watch(path.c_str(), _recursive, true);
 						}
-					}
-					else
-					{
+					} else {
 						// File or directory was moved to this folder
 						DynamicString path(ta);
 						full_path(path, ev->wd, ev->name);
@@ -307,10 +289,8 @@ struct FileMonitorImpl
 
 			// Unpaired IN_MOVED_TO or IN_MOVE_FROM with missing IN_MOVED_TO (rename from outside
 			// watched directory).
-			if (cookie != 0)
-			{
-				if (cookie_mask & IN_MOVED_TO)
-				{
+			if (cookie != 0) {
+				if (cookie_mask & IN_MOVED_TO) {
 					_function(_user_data
 						, FileMonitorEvent::DELETED
 						, cookie_mask & IN_ISDIR

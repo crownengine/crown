@@ -248,10 +248,8 @@ namespace os
 		struct dirent *entry;
 
 		DIR *dir = opendir(path);
-		if (dir != NULL)
-		{
-			while ((entry = readdir(dir)))
-			{
+		if (dir != NULL) {
+			while ((entry = readdir(dir))) {
 				const char* dname = entry->d_name;
 
 				if (!strcmp(dname, ".") || !strcmp(dname, ".."))
@@ -273,10 +271,8 @@ namespace os
 
 		WIN32_FIND_DATA ffd;
 		HANDLE file = FindFirstFile(cur_path.c_str(), &ffd);
-		if (file != INVALID_HANDLE_VALUE)
-		{
-			do
-			{
+		if (file != INVALID_HANDLE_VALUE) {
+			do {
 				const char* dname = ffd.cFileName;
 
 				if (!strcmp(dname, ".") || !strcmp(dname, ".."))
@@ -286,8 +282,7 @@ namespace os
 				DynamicString fname(ta);
 				fname.set(dname, strlen32(dname));
 				vector::push_back(files, fname);
-			}
-			while (FindNextFile(file, &ffd) != 0);
+			} while (FindNextFile(file, &ffd) != 0);
 
 			FindClose(file);
 		}

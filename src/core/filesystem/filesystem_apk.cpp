@@ -38,8 +38,7 @@ struct FileApk : public File
 
 	void close()
 	{
-		if (_asset)
-		{
+		if (_asset) {
 			AAsset_close(_asset);
 			_asset = NULL;
 		}
@@ -193,8 +192,7 @@ void FilesystemApk::list_files(const char* path, Vector<DynamicString>& files)
 	CE_ASSERT(root_dir != NULL, "Failed to open Android assets folder");
 
 	const char* filename = NULL;
-	while ((filename = AAssetDir_getNextFileName(root_dir)) != NULL)
-	{
+	while ((filename = AAssetDir_getNextFileName(root_dir)) != NULL) {
 		TempAllocator512 ta;
 		DynamicString name(ta);
 		name = filename;

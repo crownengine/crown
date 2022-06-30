@@ -31,8 +31,7 @@ void* StackAllocator::allocate(u32 size, u32 align)
 	const u32 actual_size = sizeof(Header) + size + align;
 
 	// Memory exhausted
-	if (_top + actual_size > _begin + _total_size)
-	{
+	if (_top + actual_size > _begin + _total_size) {
 		return NULL;
 	}
 

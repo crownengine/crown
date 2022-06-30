@@ -25,8 +25,7 @@ namespace error
 		char buf[256];
 		stbsp_snprintf(buf, sizeof(buf), "addr2line -s -e /proc/%u/exe %s", getpid(), addr);
 		FILE* f = popen(buf, "r");
-		if (f)
-		{
+		if (f) {
 			char* ret = fgets(line, len, f);
 			CE_UNUSED(ret);
 			line[strlen32(line) - 1] = '\0';
@@ -43,8 +42,7 @@ namespace error
 		char** messages = backtrace_symbols(array, size);
 
 		// skip first stack frame (points here)
-		for (int i = 1; i < size && messages != NULL; ++i)
-		{
+		for (int i = 1; i < size && messages != NULL; ++i) {
 			char* msg = messages[i];
 			char* mangled_name = strchr(msg, '(');
 			char* offset_begin = strchr(msg, '+');
@@ -55,8 +53,7 @@ namespace error
 			char buf[512];
 
 			// Attempt to demangle the symbol
-			if (mangled_name && offset_begin && offset_end && mangled_name < offset_begin)
-			{
+			if (mangled_name && offset_begin && offset_end && mangled_name < offset_begin) {
 				*mangled_name++ = '\0';
 				*offset_begin++ = '\0';
 				*offset_end++   = '\0';
@@ -79,9 +76,7 @@ namespace error
 					);
 
 				free(real_name);
-			}
-			else
-			{
+			} else {
 				stbsp_snprintf(buf, sizeof(buf), "    [%2d] %s\n", i, msg);
 			}
 

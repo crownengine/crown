@@ -60,7 +60,8 @@ namespace memory
 	const u32 HEADER_PAD_VALUE = 0xffffffffu;
 
 	// Given a pointer to the header, returns a pointer to the data that follows it.
-	inline void *data_pointer(Header* header, u32 align) {
+	inline void* data_pointer(Header* header, u32 align)
+	{
 		void *p = header + 1;
 		return memory::align_top(p, align);
 	}
@@ -93,8 +94,7 @@ namespace memory
 	{
 		u32* p = (u32*)(header + 1);
 
-		while (p != data)
-		{
+		while (p != data) {
 			*p = HEADER_PAD_VALUE;
 			p++;
 		}
@@ -163,8 +163,7 @@ namespace memory
 			if (!data)
 				return allocate((u32)size, (u32)align == 0 ? 16 : (u32)align);
 
-			if (size == 0)
-			{
+			if (size == 0) {
 				deallocate(data);
 				return NULL;
 			}

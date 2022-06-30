@@ -267,10 +267,8 @@ void Gui::text_3d(const Vector3& pos, u32 font_size, const char* str, StringId64
 	const u32 len = strlen32(str);
 	u32 num_vertices = 0;
 	u32 num_indices = 0;
-	for (u32 i = 0; i < len; ++i)
-	{
-		switch (str[i])
-		{
+	for (u32 i = 0; i < len; ++i) {
+		switch (str[i]) {
 		case '\n':
 			pen_advance_x = 0.0f;
 			pen_advance_y -= scale*fr->font_size;
@@ -283,8 +281,7 @@ void Gui::text_3d(const Vector3& pos, u32 font_size, const char* str, StringId64
 
 		u32 state = 0;
 		u32 code_point = 0;
-		if (utf8::decode(&state, &code_point, str[i]) == UTF8_ACCEPT)
-		{
+		if (utf8::decode(&state, &code_point, str[i]) == UTF8_ACCEPT) {
 			const GlyphData* glyph = font_resource::glyph(fr, code_point);
 
 			const f32 baseline = glyph->height - glyph->y_offset;

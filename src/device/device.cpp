@@ -231,10 +231,8 @@ bool Device::process_events(bool vsync)
 	bool reset = false;
 
 	OsEvent event;
-	while (next_event(event))
-	{
-		switch (event.type)
-		{
+	while (next_event(event)) {
+		switch (event.type) {
 		case OsEventType::BUTTON:
 		case OsEventType::AXIS:
 		case OsEventType::STATUS:
@@ -347,8 +345,7 @@ void Device::run()
 	{
 		TempAllocator512 ta;
 		DynamicString boot_dir(ta);
-		if (_options._boot_dir != NULL)
-		{
+		if (_options._boot_dir != NULL) {
 			boot_dir += _options._boot_dir;
 			boot_dir += '/';
 		}
@@ -432,8 +429,7 @@ void Device::run()
 	u16 old_height = _height;
 	s64 time_last = time::now();
 
-	while (!process_events(_boot_config.vsync) && !_quit)
-	{
+	while (!process_events(_boot_config.vsync) && !_quit) {
 		const s64 time = time::now();
 		const f32 dt   = f32(time::seconds(time - time_last));
 		time_last = time;
@@ -441,8 +437,7 @@ void Device::run()
 
 		profiler_globals::clear();
 
-		if (_width != old_width || _height != old_height)
-		{
+		if (_width != old_width || _height != old_height) {
 			old_width = _width;
 			old_height = _height;
 			_pipeline->reset(_width, _height);
@@ -465,8 +460,7 @@ void Device::run()
 		if (CE_UNLIKELY(!_needs_draw))
 			continue;
 
-		if (CE_LIKELY(!_paused))
-		{
+		if (CE_LIKELY(!_paused)) {
 			_resource_manager->complete_requests();
 
 			{
@@ -694,8 +688,7 @@ void Device::refresh()
 
 	TCPSocket dc;
 	ConnectResult cr = dc.connect(IP_ADDRESS_LOOPBACK, CROWN_DEFAULT_COMPILER_PORT);
-	if (cr.error == ConnectResult::SUCCESS)
-	{
+	if (cr.error == ConnectResult::SUCCESS) {
 		WriteResult wr;
 		static Guid client_id = guid::new_guid();
 		char buf[GUID_BUF_LEN];
@@ -711,13 +704,10 @@ void Device::refresh()
 
 		ReadResult rr;
 		rr.error = ReadResult::UNKNOWN;
-		if (wr.error == WriteResult::SUCCESS)
-		{
-			do
-			{
+		if (wr.error == WriteResult::SUCCESS) {
+			do {
 				rr = dc.read(&msg_len, 4);
-				if (rr.error == ReadResult::SUCCESS)
-				{
+				if (rr.error == ReadResult::SUCCESS) {
 					array::resize(msg, msg_len + 1);
 					rr = dc.read(array::begin(msg), msg_len);
 					msg[msg_len] = '\0';
@@ -725,29 +715,25 @@ void Device::refresh()
 
 				if (rr.error != ReadResult::SUCCESS)
 					break;
-			}
-			while (strstr(array::begin(msg), "refresh_list") == NULL);
+			} while (strstr(array::begin(msg), "refresh_list") == NULL);
 
 			dc.close();
 		}
 
-		if (rr.error == ReadResult::SUCCESS)
-		{
+		if (rr.error == ReadResult::SUCCESS) {
 			JsonObject obj(ta);
 			JsonArray list(ta);
 			DynamicString type(ta);
 			sjson::parse(obj, array::begin(msg));
 			sjson::parse_string(type, obj["type"]);
-			if (type != "refresh_list")
-			{
+			if (type != "refresh_list") {
 				loge(DEVICE, "Unexpected response type: '%s'", type.c_str());
 				return;
 			}
 
 			bool refresh_lua = false;
 			sjson::parse_array(list, obj["list"]);
-			for (u32 i = 0; i < array::size(list); ++i)
-			{
+			for (u32 i = 0; i < array::size(list); ++i) {
 				DynamicString resource(ta);
 				sjson::parse_string(resource, list[i]);
 				logi(DEVICE, "%s", resource.c_str());
@@ -758,19 +744,15 @@ void Device::refresh()
 				StringId64 resource_type(type);
 				StringId64 resource_name(resource.c_str(), len);
 
-				if (resource_type == RESOURCE_TYPE_SCRIPT)
-				{
+				if (resource_type == RESOURCE_TYPE_SCRIPT) {
 					refresh_lua = true;
 					_resource_manager->reload(resource_type, resource_name);
 				}
 			}
 
-			if (!array::size(list))
-			{
+			if (!array::size(list)) {
 				logi(DEVICE, "Nothing to refresh");
-			}
-			else
-			{
+			} else {
 				if (refresh_lua)
 					_lua_environment->reload();
 			}

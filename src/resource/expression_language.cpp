@@ -251,19 +251,13 @@ namespace expression_language
 		Token token_for_identifier(const char *identifier, unsigned len) const
 		{
 			unsigned i;
-			if ((i = find_string(identifier, len, num_variables, variable_names)) != UINT_MAX)
-			{
+			if ((i = find_string(identifier, len, num_variables, variable_names)) != UINT_MAX) {
 				return Token(Token::VARIABLE, i);
-			}
-			else if ((i = find_string(identifier, len, num_constants, constant_names)) != UINT_MAX)
-			{
+			} else if ((i = find_string(identifier, len, num_constants, constant_names)) != UINT_MAX) {
 				return Token(Token::NUMBER, constant_values[i]);
-			}
-			else if ((i = find_string(identifier, len, num_functions, function_names)) != UINT_MAX)
-			{
+			} else if ((i = find_string(identifier, len, num_functions, function_names)) != UINT_MAX) {
 				return Token(Token::FUNCTION, i);
-			}
-			else {
+			} else {
 				CE_FATAL("Unknown identifier: %s", identifier);
 				return Token();
 			}

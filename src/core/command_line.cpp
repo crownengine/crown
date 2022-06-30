@@ -29,8 +29,7 @@ static bool is_longopt(const char* arg, const char* longopt)
 
 static int find_option(int argc, const char** argv, const char* longopt, char shortopt)
 {
-	for (int i = 0; i < argc; ++i)
-	{
+	for (int i = 0; i < argc; ++i) {
 		if (is_longopt(argv[i], longopt) || is_shortopt(argv[i], shortopt))
 			return i;
 	}

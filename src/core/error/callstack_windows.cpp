@@ -72,8 +72,7 @@ namespace error
 			, SymFunctionTableAccess64
 			, SymGetModuleBase64
 			, NULL
-			))
-		{
+			)) {
 			if (stack.AddrPC.Offset == 0)
 				break;
 
@@ -88,8 +87,7 @@ namespace error
 
 			char str[512];
 
-			if (res == TRUE)
-			{
+			if (res == TRUE) {
 				stbsp_snprintf(str
 					, sizeof(str)
 					, "    [%2i] %s in %s:%d\n"
@@ -98,9 +96,7 @@ namespace error
 					, line.FileName
 					, line.LineNumber
 					);
-			}
-			else
-			{
+			} else {
 				stbsp_snprintf(str
 					, sizeof(str)
 					, "    [%2i] 0x%p\n"

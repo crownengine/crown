@@ -131,8 +131,7 @@ inline Quaternion inverse(const Quaternion& q)
 /// Returns the quaternion @a q raised to the power of @a exp.
 inline Quaternion power(const Quaternion& q, f32 exp)
 {
-	if (fabs(q.w) < 0.9999)
-	{
+	if (fabs(q.w) < 0.9999) {
 		const f32 alpha = facos(q.w); // alpha = theta/2
 		const f32 new_alpha = alpha * exp;
 		const f32 mult = fsin(new_alpha) / fsin(alpha);
@@ -191,15 +190,12 @@ inline Quaternion lerp(const Quaternion& a, const Quaternion& b, f32 t)
 
 	Quaternion r;
 
-	if (dot(a, b) < 0.0f)
-	{
+	if (dot(a, b) < 0.0f) {
 		r.x = t1*a.x - t*b.x;
 		r.y = t1*a.y - t*b.y;
 		r.z = t1*a.z - t*b.z;
 		r.w = t1*a.w - t*b.w;
-	}
-	else
-	{
+	} else {
 		r.x = t1*a.x + t*b.x;
 		r.y = t1*a.y + t*b.y;
 		r.z = t1*a.z + t*b.z;

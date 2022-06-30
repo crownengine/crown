@@ -68,8 +68,7 @@ void DebugLine::add_arc(const Vector3& center, f32 radius, const Vector3& plane_
 	const f32 step = PI / (f32)(segments > 3 ? segments : 3);
 	Vector3 from = center - y;
 
-	for (u32 i = 0; i <= segments; ++i)
-	{
+	for (u32 i = 0; i <= segments; ++i) {
 		const f32 t = step * i - PI_HALF;
 		const Vector3 to = center + x*fcos(t) + y*fsin(t);
 		add_line(from, to, color);
@@ -93,8 +92,7 @@ void DebugLine::add_circle(const Vector3& center, f32 radius, const Vector3& nor
 	const f32 step = PI_TWO / (f32)(segments > 3 ? segments : 3);
 	Vector3 from = center - y;
 
-	for (u32 i = 0; i <= segments; ++i)
-	{
+	for (u32 i = 0; i <= segments; ++i) {
 		const f32 t = step * i - PI_HALF;
 		const Vector3 to = center + x*fcos(t) + y*fsin(t);
 		add_line(from, to, color);
@@ -120,8 +118,7 @@ void DebugLine::add_cone(const Vector3& base_center, const Vector3& tip, f32 rad
 	const f32 step = PI_TWO / (f32)(segments > 3 ? segments : 3);
 	Vector3 from = base_center - y;
 
-	for (u32 i = 0; i <= segments; ++i)
-	{
+	for (u32 i = 0; i <= segments; ++i) {
 		const f32 t = step * i - PI_HALF;
 		const Vector3 to = base_center + x*fcos(t) + y*fsin(t);
 		add_line(from, to, color);
@@ -185,8 +182,7 @@ void DebugLine::add_obb(const Matrix4x4& tm, const Vector3& half_extents, const 
 
 void DebugLine::add_mesh(const Matrix4x4& tm, const void* vertices, u32 stride, const u16* indices, u32 num, const Color4& color)
 {
-	for (u32 i = 0; i < num; i += 3)
-	{
+	for (u32 i = 0; i < num; i += 3) {
 		const u32 i0 = indices[i + 0];
 		const u32 i1 = indices[i + 1];
 		const u32 i2 = indices[i + 2];

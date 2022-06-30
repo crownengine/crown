@@ -88,8 +88,7 @@ void Thread::start(ThreadFunction func, void* user_data, u32 stack_size)
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 	CE_ASSERT(err == 0, "pthread_attr_init: errno = %d", err);
 
-	if (stack_size != 0)
-	{
+	if (stack_size != 0) {
 		err = pthread_attr_setstacksize(&attr, stack_size);
 		CE_ASSERT(err == 0, "pthread_attr_setstacksize: errno = %d", err);
 	}

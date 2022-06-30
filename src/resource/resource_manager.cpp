@@ -59,8 +59,7 @@ ResourceManager::~ResourceManager()
 {
 	auto cur = hash_map::begin(_rm);
 	auto end = hash_map::end(_rm);
-	for (; cur != end; ++cur)
-	{
+	for (; cur != end; ++cur) {
 		HASH_MAP_SKIP_HOLE(_rm, cur);
 
 		const StringId64 type = cur->first.type;
@@ -75,8 +74,7 @@ void ResourceManager::load(StringId64 type, StringId64 name)
 	ResourcePair id = { type, name };
 	ResourceEntry& entry = hash_map::get(_rm, id, ResourceEntry::NOT_FOUND);
 
-	if (entry == ResourceEntry::NOT_FOUND)
-	{
+	if (entry == ResourceEntry::NOT_FOUND) {
 		ResourceTypeData rtd;
 		rtd.version = UINT32_MAX;
 		rtd.load = NULL;
@@ -107,8 +105,7 @@ void ResourceManager::unload(StringId64 type, StringId64 name)
 	ResourcePair id = { type, name };
 	ResourceEntry& entry = hash_map::get(_rm, id, ResourceEntry::NOT_FOUND);
 
-	if (--entry.references == 0)
-	{
+	if (--entry.references == 0) {
 		on_offline(type, name);
 		on_unload(type, entry.data);
 
@@ -147,8 +144,7 @@ const void* ResourceManager::get(StringId64 type, StringId64 name)
 
 	CE_ASSERT(can_get(type, name), "Resource not loaded: " RESOURCE_ID_FMT, res_id._id);
 
-	if (_autoload && !hash_map::has(_rm, id))
-	{
+	if (_autoload && !hash_map::has(_rm, id)) {
 		load(type, name);
 		flush();
 	}

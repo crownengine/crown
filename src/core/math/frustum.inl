@@ -82,8 +82,7 @@ namespace frustum
 
 	inline bool contains_point(const Frustum& f, const Vector3& p)
 	{
-		for (u32 ii = 0; ii < 6; ++ii)
-		{
+		for (u32 ii = 0; ii < 6; ++ii) {
 			if (plane3::distance_to_point(f.planes[ii], p) < 0.0f)
 				return false;
 		}

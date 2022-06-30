@@ -82,15 +82,13 @@ int DeviceOptions::parse(bool* quit)
 {
 	CommandLine cl(_argc, _argv);
 
-	if (cl.has_option("help", 'h'))
-	{
+	if (cl.has_option("help", 'h')) {
 		help();
 		*quit = true;
 		return EXIT_SUCCESS;
 	}
 
-	if (cl.has_option("version", 'v'))
-	{
+	if (cl.has_option("version", 'v')) {
 		printf("Crown " CROWN_VERSION "\n");
 		*quit = true;
 		return EXIT_SUCCESS;
@@ -100,19 +98,16 @@ int DeviceOptions::parse(bool* quit)
 	path::reduce(_data_dir, cl.get_parameter(0, "data-dir"));
 
 	_map_source_dir_name = cl.get_parameter(0, "map-source-dir");
-	if (_map_source_dir_name)
-	{
+	if (_map_source_dir_name) {
 		path::reduce(_map_source_dir_prefix, cl.get_parameter(1, "map-source-dir"));
-		if (_map_source_dir_prefix.empty())
-		{
+		if (_map_source_dir_prefix.empty()) {
 			help("Mapped source directory must be specified.");
 			return EXIT_FAILURE;
 		}
 	}
 
 	_do_compile = cl.has_option("compile");
-	if (_do_compile)
-	{
+	if (_do_compile) {
 		_platform = cl.get_parameter(0, "platform");
 
 		// Compile for platform the executable is built for.
@@ -123,20 +118,17 @@ int DeviceOptions::parse(bool* quit)
 			&& strcmp(_platform, "android") != 0
 			&& strcmp(_platform, "linux") != 0
 			&& strcmp(_platform, "windows") != 0
-			)
-		{
+			) {
 			help("Cannot compile for the given platform.");
 			return EXIT_FAILURE;
 		}
 
-		if (_source_dir.empty())
-		{
+		if (_source_dir.empty()) {
 			help("Source dir must be specified.");
 			return EXIT_FAILURE;
 		}
 
-		if (_data_dir.empty())
-		{
+		if (_data_dir.empty()) {
 			_data_dir += _source_dir;
 			_data_dir += '_';
 			_data_dir += _platform;
@@ -144,10 +136,8 @@ int DeviceOptions::parse(bool* quit)
 	}
 
 	_server = cl.has_option("server");
-	if (_server)
-	{
-		if (_source_dir.empty())
-		{
+	if (_server) {
+		if (_source_dir.empty()) {
 			help("Source dir must be specified.");
 			return EXIT_FAILURE;
 		}
@@ -155,48 +145,38 @@ int DeviceOptions::parse(bool* quit)
 
 	_pumped = cl.has_option("pumped");
 
-	if (!_data_dir.empty())
-	{
-		if (!path::is_absolute(_data_dir.c_str()))
-		{
+	if (!_data_dir.empty()) {
+		if (!path::is_absolute(_data_dir.c_str())) {
 			help("Data dir must be absolute.");
 			return EXIT_FAILURE;
 		}
 	}
 
-	if (!_source_dir.empty())
-	{
-		if (!path::is_absolute(_source_dir.c_str()))
-		{
+	if (!_source_dir.empty()) {
+		if (!path::is_absolute(_source_dir.c_str())) {
 			help("Source dir must be absolute.");
 			return EXIT_FAILURE;
 		}
 	}
 
-	if (!_map_source_dir_prefix.empty())
-	{
-		if (!path::is_absolute(_map_source_dir_prefix.c_str()))
-		{
+	if (!_map_source_dir_prefix.empty()) {
+		if (!path::is_absolute(_map_source_dir_prefix.c_str())) {
 			help("Mapped source dir must be absolute.");
 			return EXIT_FAILURE;
 		}
 	}
 
 	_do_continue = cl.has_option("continue");
-	if (_do_continue)
-	{
-		if (strcmp(_platform, CROWN_PLATFORM_NAME) != 0)
-		{
+	if (_do_continue) {
+		if (strcmp(_platform, CROWN_PLATFORM_NAME) != 0) {
 			help("Host platform can not run from the compiled data. Consider removing --continue option.");
 			return EXIT_FAILURE;
 		}
 	}
 
 	_boot_dir = cl.get_parameter(0, "boot-dir");
-	if (_boot_dir)
-	{
-		if (!path::is_relative(_boot_dir))
-		{
+	if (_boot_dir) {
+		if (!path::is_relative(_boot_dir)) {
 			help("Boot dir must be relative.");
 			return EXIT_FAILURE;
 		}
@@ -205,24 +185,20 @@ int DeviceOptions::parse(bool* quit)
 	_wait_console = cl.has_option("wait-console");
 
 	const char* parent = cl.get_parameter(0, "parent-window");
-	if (parent)
-	{
+	if (parent) {
 		errno = 0;
 		_parent_window = strtoul(parent, NULL, 10);
-		if (errno == ERANGE || errno == EINVAL)
-		{
+		if (errno == ERANGE || errno == EINVAL) {
 			help("Parent window is invalid.");
 			return EXIT_FAILURE;
 		}
 	}
 
 	const char* port = cl.get_parameter(0, "console-port");
-	if (port)
-	{
+	if (port) {
 		errno = 0;
 		_console_port = strtoul(port, NULL, 10);
-		if (errno == ERANGE || errno == EINVAL)
-		{
+		if (errno == ERANGE || errno == EINVAL) {
 			help("Console port is invalid.");
 			return EXIT_FAILURE;
 		}
@@ -232,30 +208,24 @@ int DeviceOptions::parse(bool* quit)
 	if (ls)
 		_lua_string = ls;
 
-	if (cl.has_option("string-id"))
-	{
+	if (cl.has_option("string-id")) {
 		const char* string_id_bits = cl.get_parameter(0, "string-id");
 		const char* string_id_utf8 = cl.get_parameter(1, "string-id");
-		if (string_id_bits == NULL || string_id_utf8 == NULL)
-		{
+		if (string_id_bits == NULL || string_id_utf8 == NULL) {
 			help("Usage: string-id <bits> <utf8>");
 			*quit = true;
 			return EXIT_FAILURE;
-		}
-		else
-		{
+		} else {
 			errno = 0;
 			u32 bits = strtoul(string_id_bits, NULL, 10);
-			if (errno == ERANGE || errno == EINVAL || (bits != 32 && bits != 64))
-			{
+			if (errno == ERANGE || errno == EINVAL || (bits != 32 && bits != 64)) {
 				help("string-id: bits must be 32 or 64.");
 				*quit = true;
 				return EXIT_FAILURE;
 			}
 
 			char buf[STRING_ID64_BUF_LEN];
-			if (bits == 32)
-			{
+			if (bits == 32) {
 				StringId32 id(string_id_utf8);
 				printf("STRING_ID_32(\"%s\", UINT32_C(0x%s))\n"
 					, string_id_utf8
@@ -263,9 +233,7 @@ int DeviceOptions::parse(bool* quit)
 					);
 				*quit = true;
 				return EXIT_SUCCESS;
-			}
-			else
-			{
+			} else {
 				StringId64 id(string_id_utf8);
 				printf("STRING_ID_64(\"%s\", UINT64_C(0x%s))\n"
 					, string_id_utf8

@@ -200,8 +200,7 @@ InputManager::InputManager(Allocator& a)
 		, s_touch_axis_names
 		);
 
-	for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i)
-	{
+	for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i) {
 		_joypad[i] = input_device::create(*_allocator
 			, "Joypad"
 			, JoypadButton::COUNT
@@ -258,13 +257,10 @@ InputDevice* InputManager::joypad(u8 i)
 
 void InputManager::read(const OsEvent& event)
 {
-	switch (event.type)
-	{
-	case OsEventType::BUTTON:
-	{
+	switch (event.type) {
+	case OsEventType::BUTTON: {
 		const ButtonEvent ev = event.button;
-		switch (ev.device_id)
-		{
+		switch (ev.device_id) {
 		case InputDeviceType::KEYBOARD:
 			_keyboard->set_button(ev.button_num, ev.pressed);
 			break;
@@ -284,14 +280,11 @@ void InputManager::read(const OsEvent& event)
 		break;
 	}
 
-	case OsEventType::AXIS:
-	{
+	case OsEventType::AXIS: {
 		const AxisEvent ev = event.axis;
-		switch (ev.device_id)
-		{
+		switch (ev.device_id) {
 		case InputDeviceType::MOUSE:
-			if (ev.axis_num == MouseAxis::CURSOR_DELTA)
-			{
+			if (ev.axis_num == MouseAxis::CURSOR_DELTA) {
 				const Vector3 delta = _has_delta_axis_event ? _mouse->axis(MouseAxis::CURSOR_DELTA) : vector3(0, 0, 0);
 				_mouse->set_axis(MouseAxis::CURSOR_DELTA
 					, delta.x + ev.axis_x
@@ -299,9 +292,7 @@ void InputManager::read(const OsEvent& event)
 					, 0
 					);
 				_has_delta_axis_event = true;
-			}
-			else
-			{
+			} else {
 				_mouse->set_axis(ev.axis_num, ev.axis_x, ev.axis_y, ev.axis_z);
 			}
 
@@ -318,11 +309,9 @@ void InputManager::read(const OsEvent& event)
 		break;
 	}
 
-	case OsEventType::STATUS:
-	{
+	case OsEventType::STATUS: {
 		const StatusEvent ev = event.status;
-		switch (ev.device_id)
-		{
+		switch (ev.device_id) {
 		case InputDeviceType::JOYPAD:
 			_joypad[ev.device_num]->_connected = ev.connected;
 			break;
@@ -340,8 +329,7 @@ void InputManager::update()
 {
 	_keyboard->update();
 
-	if (!_has_delta_axis_event)
-	{
+	if (!_has_delta_axis_event) {
 		_mouse->set_axis(MouseAxis::CURSOR_DELTA
 			, 0
 			, 0

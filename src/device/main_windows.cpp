@@ -28,8 +28,7 @@ namespace crown
 {
 static KeyboardButton::Enum win_translate_key(s32 winkey)
 {
-	switch (winkey)
-	{
+	switch (winkey) {
 	case VK_BACK:     return KeyboardButton::BACKSPACE;
 	case VK_TAB:      return KeyboardButton::TAB;
 	case VK_SPACE:    return KeyboardButton::SPACE;
@@ -168,8 +167,7 @@ struct Joypad
 
 	void update(DeviceEventQueue& queue)
 	{
-		for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i)
-		{
+		for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i) {
 			XINPUT_STATE state;
 			memset(&state, 0, sizeof(state));
 
@@ -188,13 +186,10 @@ struct Joypad
 
 			const WORD diff = state.Gamepad.wButtons ^ gamepad.wButtons;
 			const WORD curr = state.Gamepad.wButtons;
-			if (diff != 0)
-			{
-				for (u8 bb = 0; bb < countof(s_xinput_to_joypad); ++bb)
-				{
+			if (diff != 0) {
+				for (u8 bb = 0; bb < countof(s_xinput_to_joypad); ++bb) {
 					WORD bit = s_xinput_to_joypad[bb].bit;
-					if (bit & diff)
-					{
+					if (bit & diff) {
 						queue.push_button_event(InputDeviceType::JOYPAD
 							, i
 							, s_xinput_to_joypad[bb].button
@@ -205,8 +200,7 @@ struct Joypad
 				}
 			}
 
-			if (state.Gamepad.sThumbLX != gamepad.sThumbLX)
-			{
+			if (state.Gamepad.sThumbLX != gamepad.sThumbLX) {
 				_axis[i].lx = state.Gamepad.sThumbLX;
 				queue.push_axis_event(InputDeviceType::JOYPAD
 					, i
@@ -218,8 +212,7 @@ struct Joypad
 
 				gamepad.sThumbLX = state.Gamepad.sThumbLX;
 			}
-			if (state.Gamepad.sThumbLY != gamepad.sThumbLY)
-			{
+			if (state.Gamepad.sThumbLY != gamepad.sThumbLY) {
 				_axis[i].ly = state.Gamepad.sThumbLY;
 				queue.push_axis_event(InputDeviceType::JOYPAD
 					, i
@@ -231,8 +224,7 @@ struct Joypad
 
 				gamepad.sThumbLY = state.Gamepad.sThumbLY;
 			}
-			if (state.Gamepad.sThumbRX != gamepad.sThumbRX)
-			{
+			if (state.Gamepad.sThumbRX != gamepad.sThumbRX) {
 				_axis[i].rx = state.Gamepad.sThumbRX;
 				queue.push_axis_event(InputDeviceType::JOYPAD
 					, i
@@ -244,8 +236,7 @@ struct Joypad
 
 				gamepad.sThumbRX = state.Gamepad.sThumbRX;
 			}
-			if (state.Gamepad.sThumbRY != gamepad.sThumbRY)
-			{
+			if (state.Gamepad.sThumbRY != gamepad.sThumbRY) {
 				_axis[i].ry = state.Gamepad.sThumbRY;
 				queue.push_axis_event(InputDeviceType::JOYPAD
 					, i
@@ -257,8 +248,7 @@ struct Joypad
 
 				gamepad.sThumbRY = state.Gamepad.sThumbRY;
 			}
-			if (state.Gamepad.bLeftTrigger != gamepad.bLeftTrigger)
-			{
+			if (state.Gamepad.bLeftTrigger != gamepad.bLeftTrigger) {
 				_axis[i].lz = state.Gamepad.bLeftTrigger;
 				queue.push_axis_event(InputDeviceType::JOYPAD
 					, i
@@ -270,8 +260,7 @@ struct Joypad
 
 				gamepad.bLeftTrigger = state.Gamepad.bLeftTrigger;
 			}
-			if (state.Gamepad.bRightTrigger != gamepad.bRightTrigger)
-			{
+			if (state.Gamepad.bRightTrigger != gamepad.bRightTrigger) {
 				_axis[i].rz = state.Gamepad.bRightTrigger;
 				queue.push_axis_event(InputDeviceType::JOYPAD
 					, i
@@ -326,12 +315,9 @@ struct WindowsDevice
 
 		DWORD style = WS_VISIBLE;
 		DWORD exstyle = 0;
-		if (opts->_parent_window == 0)
-		{
+		if (opts->_parent_window == 0) {
 			style |= WS_OVERLAPPEDWINDOW;
-		}
-		else
-		{
+		} else {
 			style |= WS_POPUP;
 			exstyle |= WS_EX_TRANSPARENT | WS_EX_LAYERED | WS_EX_NOACTIVATE;
 		}
@@ -387,12 +373,10 @@ struct WindowsDevice
 		MSG msg;
 		msg.message = WM_NULL;
 
-		while (!s_exit)
-		{
+		while (!s_exit) {
 			_joypad.update(_queue);
 
-			while (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE) != 0)
-			{
+			while (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE) != 0) {
 				TranslateMessage(&msg);
 				DispatchMessage(&msg);
 			}
@@ -419,8 +403,7 @@ struct WindowsDevice
 
 	LRESULT pump_events(HWND hwnd, UINT id, WPARAM wparam, LPARAM lparam)
 	{
-		switch (id)
-		{
+		switch (id) {
 		case WM_DESTROY:
 			break;
 
@@ -430,12 +413,10 @@ struct WindowsDevice
 			_queue.push_exit_event();
 			return 0;
 
-		case WM_SIZE:
-		{
+		case WM_SIZE: {
 			u32 width  = GET_X_LPARAM(lparam);
 			u32 height = GET_Y_LPARAM(lparam);
-			if (_cursor_mode == CursorMode::DISABLED)
-			{
+			if (_cursor_mode == CursorMode::DISABLED) {
 				RECT clipRect;
 				GetWindowRect(_hwnd, &clipRect);
 				ClipCursor(&clipRect);
@@ -445,14 +426,11 @@ struct WindowsDevice
 		}
 
 		case WM_SYSCOMMAND:
-			switch (wparam)
-			{
+			switch (wparam) {
 			case SC_MINIMIZE:
-			case SC_RESTORE:
-			{
+			case SC_RESTORE: {
 				HWND parent = GetWindow(hwnd, GW_OWNER);
-				if (parent != NULL)
-				{
+				if (parent != NULL) {
 					PostMessage(parent, id, wparam, lparam);
 				}
 				break;
@@ -460,8 +438,7 @@ struct WindowsDevice
 			}
 			break;
 
-		case WM_MOUSEWHEEL:
-		{
+		case WM_MOUSEWHEEL: {
 			short delta = GET_WHEEL_DELTA_WPARAM(wparam);
 			_queue.push_axis_event(InputDeviceType::MOUSE
 				, 0
@@ -473,21 +450,18 @@ struct WindowsDevice
 			break;
 		}
 
-		case WM_MOUSEMOVE:
-		{
+		case WM_MOUSEMOVE: {
 			s32 mx = GET_X_LPARAM(lparam);
 			s32 my = GET_Y_LPARAM(lparam);
 			s16 deltax = mx - (_mouse_last_x == INT16_MAX ? mx : _mouse_last_x);
 			s16 deltay = my - (_mouse_last_y == INT16_MAX ? my : _mouse_last_y);
-			if (_cursor_mode == CursorMode::DISABLED)
-			{
+			if (_cursor_mode == CursorMode::DISABLED) {
 				RECT clipRect;
 				GetWindowRect(_hwnd, &clipRect);
 				unsigned width = clipRect.right - clipRect.left;
 				unsigned height = clipRect.bottom - clipRect.top;
 
-				if (mx != (s32)width/2 || my != (s32)height/2)
-				{
+				if (mx != (s32)width/2 || my != (s32)height/2) {
 					_queue.push_axis_event(InputDeviceType::MOUSE
 						, 0
 						, MouseAxis::CURSOR_DELTA
@@ -500,9 +474,7 @@ struct WindowsDevice
 					SetCursorPos(mouse_pos.x, mouse_pos.y);
 					_mouse_last_x = (s16)width/2;
 					_mouse_last_y = (s16)height/2;
-				}
-				else if (_cursor_mode == CursorMode::NORMAL)
-				{
+				} else if (_cursor_mode == CursorMode::NORMAL) {
 					_queue.push_axis_event(InputDeviceType::MOUSE
 						, 0
 						, MouseAxis::CURSOR_DELTA
@@ -516,9 +488,7 @@ struct WindowsDevice
 					_mouse_last_x = (s16)width/2;
 					_mouse_last_y = (s16)height/2;
 				}
-			}
-			else if (_cursor_mode == CursorMode::NORMAL)
-			{
+			} else if (_cursor_mode == CursorMode::NORMAL) {
 				_queue.push_axis_event(InputDeviceType::MOUSE
 					, 0
 					, MouseAxis::CURSOR_DELTA
@@ -544,14 +514,13 @@ struct WindowsDevice
 		case WM_RBUTTONDOWN:
 		case WM_RBUTTONUP:
 		case WM_MBUTTONDOWN:
-		case WM_MBUTTONUP:
-		{
+		case WM_MBUTTONUP: {
 			MouseButton::Enum mb;
 			if (id == WM_LBUTTONDOWN || id == WM_LBUTTONUP)
 				mb = MouseButton::LEFT;
 			else if (id == WM_RBUTTONDOWN || id == WM_RBUTTONUP)
 				mb = MouseButton::RIGHT;
-			else     /* if  (id == WM_MBUTTONDOWN || id == WM_MBUTTONUP) */
+			else /* if  (id == WM_MBUTTONDOWN || id == WM_MBUTTONUP) */
 				mb = MouseButton::MIDDLE;
 
 			bool down = id == WM_LBUTTONDOWN
@@ -570,12 +539,10 @@ struct WindowsDevice
 		case WM_KEYDOWN:
 		case WM_SYSKEYDOWN:
 		case WM_KEYUP:
-		case WM_SYSKEYUP:
-		{
+		case WM_SYSKEYUP: {
 			KeyboardButton::Enum kb = win_translate_key(wparam & 0xff);
 
-			if (kb != KeyboardButton::COUNT)
-			{
+			if (kb != KeyboardButton::COUNT) {
 				_queue.push_button_event(InputDeviceType::KEYBOARD
 					, 0
 					, kb
@@ -585,8 +552,7 @@ struct WindowsDevice
 			break;
 		}
 
-		case WM_CHAR:
-		{
+		case WM_CHAR: {
 			uint8_t utf8[4] = { 0 };
 			uint8_t len = (uint8_t)WideCharToMultiByte(CP_UTF8
 				, 0
@@ -604,8 +570,7 @@ struct WindowsDevice
 		}
 
 		case WM_SETCURSOR:
-			if (LOWORD(lparam) == HTCLIENT)
-			{
+			if (LOWORD(lparam) == HTCLIENT) {
 				if (_hcursor != NULL)
 					SetCursor(_hcursor);
 				else
@@ -752,8 +717,7 @@ struct WindowWin : public Window
 			return;
 		s_wdvc._cursor_mode = mode;
 
-		if (mode == CursorMode::DISABLED)
-		{
+		if (mode == CursorMode::DISABLED) {
 			RECT clipRect;
 			GetWindowRect(s_wdvc._hwnd, &clipRect);
 			unsigned width = clipRect.right - clipRect.left;
@@ -767,9 +731,7 @@ struct WindowWin : public Window
 
 			show_cursor(false);
 			ClipCursor(&clipRect);
-		}
-		else if (mode == CursorMode::NORMAL)
-		{
+		} else if (mode == CursorMode::NORMAL) {
 			show_cursor(true);
 			ClipCursor(NULL);
 		}
@@ -846,8 +808,7 @@ int main(int argc, char** argv)
 {
 	using namespace crown;
 
-	if (AttachConsole(ATTACH_PARENT_PROCESS) != 0)
-	{
+	if (AttachConsole(ATTACH_PARENT_PROCESS) != 0) {
 		freopen("CONIN$", "r", stdin);
 		freopen("CONOUT$", "w", stdout);
 		freopen("CONOUT$", "w", stderr);
@@ -861,8 +822,7 @@ int main(int argc, char** argv)
 
 #if CROWN_BUILD_UNIT_TESTS
 	CommandLine cl(argc, (const char**)argv);
-	if (cl.has_option("run-unit-tests"))
-	{
+	if (cl.has_option("run-unit-tests")) {
 		return main_unit_tests();
 	}
 #endif // CROWN_BUILD_UNIT_TESTS
@@ -878,8 +838,7 @@ int main(int argc, char** argv)
 		return ec;
 
 #if CROWN_CAN_COMPILE
-	if (ec == EXIT_SUCCESS && (opts._do_compile || opts._server))
-	{
+	if (ec == EXIT_SUCCESS && (opts._do_compile || opts._server)) {
 		ec = main_data_compiler(opts);
 		if (!opts._do_continue)
 			return ec;

@@ -72,8 +72,7 @@ void ResourceLoader::get_loaded(Array<ResourceRequest>& loaded)
 	const u32 num = queue::size(_loaded);
 	array::reserve(loaded, num);
 
-	for (u32 i = 0; i < num; ++i)
-	{
+	for (u32 i = 0; i < num; ++i) {
 		array::push_back(loaded, queue::front(_loaded));
 		queue::pop_front(_loaded);
 	}
@@ -86,8 +85,7 @@ void ResourceLoader::register_fallback(StringId64 type, StringId64 name)
 
 s32 ResourceLoader::run()
 {
-	while (1)
-	{
+	while (1) {
 		_mutex.lock();
 		while (queue::empty(_requests) && !_exit)
 			_requests_condition.wait(_mutex);
@@ -105,8 +103,7 @@ s32 ResourceLoader::run()
 		destination_path(path, res_id);
 
 		File* file = _data_filesystem.open(path.c_str(), FileOpenMode::READ);
-		if (!file->is_open())
-		{
+		if (!file->is_open()) {
 			logw(RESOURCE_LOADER, "Can't load resource: " RESOURCE_ID_FMT ". Falling back...", res_id._id);
 
 			StringId64 fallback_name;
@@ -121,12 +118,9 @@ s32 ResourceLoader::run()
 		}
 		CE_ASSERT(file->is_open(), "Can't load fallback resource: " RESOURCE_ID_FMT, res_id._id);
 
-		if (rr.load_function)
-		{
+		if (rr.load_function) {
 			rr.data = rr.load_function(*file, *rr.allocator);
-		}
-		else
-		{
+		} else {
 			const u32 size = file->size();
 			rr.data = rr.allocator->allocate(size, 16);
 			file->read(rr.data, size);

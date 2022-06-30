@@ -377,8 +377,7 @@ namespace shader_resource_internal
 
 	static DepthFunction::Enum name_to_depth_func(const char* name)
 	{
-		for (u32 i = 0; i < countof(_depth_test_map); ++i)
-		{
+		for (u32 i = 0; i < countof(_depth_test_map); ++i) {
 			if (strcmp(name, _depth_test_map[i].name) == 0)
 				return _depth_test_map[i].value;
 		}
@@ -388,8 +387,7 @@ namespace shader_resource_internal
 
 	static BlendFunction::Enum name_to_blend_function(const char* name)
 	{
-		for (u32 i = 0; i < countof(_blend_func_map); ++i)
-		{
+		for (u32 i = 0; i < countof(_blend_func_map); ++i) {
 			if (strcmp(name, _blend_func_map[i].name) == 0)
 				return _blend_func_map[i].value;
 		}
@@ -399,8 +397,7 @@ namespace shader_resource_internal
 
 	static BlendEquation::Enum name_to_blend_equation(const char* name)
 	{
-		for (u32 i = 0; i < countof(_blend_equation_map); ++i)
-		{
+		for (u32 i = 0; i < countof(_blend_equation_map); ++i) {
 			if (strcmp(name, _blend_equation_map[i].name) == 0)
 				return _blend_equation_map[i].value;
 		}
@@ -410,8 +407,7 @@ namespace shader_resource_internal
 
 	static CullMode::Enum name_to_cull_mode(const char* name)
 	{
-		for (u32 i = 0; i < countof(_cull_mode_map); ++i)
-		{
+		for (u32 i = 0; i < countof(_cull_mode_map); ++i) {
 			if (strcmp(name, _cull_mode_map[i].name) == 0)
 				return _cull_mode_map[i].value;
 		}
@@ -421,8 +417,7 @@ namespace shader_resource_internal
 
 	static PrimitiveType::Enum name_to_primitive_type(const char* name)
 	{
-		for (u32 i = 0; i < countof(_primitive_type_map); ++i)
-		{
+		for (u32 i = 0; i < countof(_primitive_type_map); ++i) {
 			if (strcmp(name, _primitive_type_map[i].name) == 0)
 				return _primitive_type_map[i].value;
 		}
@@ -432,8 +427,7 @@ namespace shader_resource_internal
 
 	static SamplerFilter::Enum name_to_sampler_filter(const char* name)
 	{
-		for (u32 i = 0; i < countof(_sampler_filter_map); ++i)
-		{
+		for (u32 i = 0; i < countof(_sampler_filter_map); ++i) {
 			if (strcmp(name, _sampler_filter_map[i].name) == 0)
 				return _sampler_filter_map[i].value;
 		}
@@ -443,8 +437,7 @@ namespace shader_resource_internal
 
 	static SamplerWrap::Enum name_to_sampler_wrap(const char* name)
 	{
-		for (u32 i = 0; i < countof(_sampler_wrap_map); ++i)
-		{
+		for (u32 i = 0; i < countof(_sampler_wrap_map); ++i) {
 			if (strcmp(name, _sampler_wrap_map[i].name) == 0)
 				return _sampler_wrap_map[i].value;
 		}
@@ -479,23 +472,16 @@ namespace shader_resource_internal
 			NULL,
 		};
 
-		if (strcmp(platform, "android") == 0)
-		{
+		if (strcmp(platform, "android") == 0) {
 			argv[11] = "--profile";
 			argv[12] = "100_es"; // GLES2
-		}
-		else if (strcmp(platform, "linux") == 0)
-		{
+		} else if (strcmp(platform, "linux") == 0) {
 			argv[11] = "--profile";
 			argv[12] = "150"; // OpenGL 3.2+
-		}
-		else if (strcmp(platform, "windows") == 0)
-		{
+		} else if (strcmp(platform, "windows") == 0) {
 			argv[11] = "--profile";
 			argv[12] = ((strcmp(type, "vertex") == 0) ? "vs_4_0" : "ps_4_0");
-		}
-		else
-		{
+		} else {
 			return -1;
 		}
 
@@ -707,45 +693,38 @@ namespace shader_resource_internal
 			JsonObject obj(ta);
 			sjson::parse(obj, buf);
 
-			if (json_object::has(obj, "include"))
-			{
+			if (json_object::has(obj, "include")) {
 				JsonArray arr(ta);
 				sjson::parse_array(arr, obj["include"]);
 
-				for (u32 i = 0; i < array::size(arr); ++i)
-				{
+				for (u32 i = 0; i < array::size(arr); ++i) {
 					DynamicString path(ta);
 					sjson::parse_string(path, arr[i]);
 					parse(path.c_str());
 				}
 			}
 
-			if (json_object::has(obj, "render_states"))
-			{
+			if (json_object::has(obj, "render_states")) {
 				s32 err = parse_render_states(obj["render_states"]);
 				DATA_COMPILER_ENSURE(err == 0, _opts);
 			}
 
-			if (json_object::has(obj, "sampler_states"))
-			{
+			if (json_object::has(obj, "sampler_states")) {
 				s32 err = parse_sampler_states(obj["sampler_states"]);
 				DATA_COMPILER_ENSURE(err == 0, _opts);
 			}
 
-			if (json_object::has(obj, "bgfx_shaders"))
-			{
+			if (json_object::has(obj, "bgfx_shaders")) {
 				s32 err = parse_bgfx_shaders(obj["bgfx_shaders"]);
 				DATA_COMPILER_ENSURE(err == 0, _opts);
 			}
 
-			if (json_object::has(obj, "shaders"))
-			{
+			if (json_object::has(obj, "shaders")) {
 				s32 err = parse_shaders(obj["shaders"]);
 				DATA_COMPILER_ENSURE(err == 0, _opts);
 			}
 
-			if (json_object::has(obj, "static_compile"))
-			{
+			if (json_object::has(obj, "static_compile")) {
 				s32 err = parse_static_compile(obj["static_compile"]);
 				DATA_COMPILER_ENSURE(err == 0, _opts);
 			}
@@ -761,8 +740,7 @@ namespace shader_resource_internal
 
 			auto cur = json_object::begin(render_states);
 			auto end = json_object::end(render_states);
-			for (; cur != end; ++cur)
-			{
+			for (; cur != end; ++cur) {
 				JSON_OBJECT_SKIP_HOLE(render_states, cur);
 
 				JsonObject obj(ta);
@@ -796,8 +774,7 @@ namespace shader_resource_internal
 				DynamicString cull_mode(ta);
 				DynamicString primitive_type(ta);
 
-				if (has_depth_func)
-				{
+				if (has_depth_func) {
 					sjson::parse_string(depth_func, obj["depth_func"]);
 					rs._depth_func = name_to_depth_func(depth_func.c_str());
 					DATA_COMPILER_ASSERT(rs._depth_func != DepthFunction::COUNT
@@ -807,8 +784,7 @@ namespace shader_resource_internal
 						);
 				}
 
-				if (has_blend_src)
-				{
+				if (has_blend_src) {
 					sjson::parse_string(blend_src, obj["blend_src"]);
 					rs._blend_src = name_to_blend_function(blend_src.c_str());
 					DATA_COMPILER_ASSERT(rs._blend_src != BlendFunction::COUNT
@@ -818,8 +794,7 @@ namespace shader_resource_internal
 						);
 				}
 
-				if (has_blend_dst)
-				{
+				if (has_blend_dst) {
 					sjson::parse_string(blend_dst, obj["blend_dst"]);
 					rs._blend_dst = name_to_blend_function(blend_dst.c_str());
 					DATA_COMPILER_ASSERT(rs._blend_dst != BlendFunction::COUNT
@@ -829,8 +804,7 @@ namespace shader_resource_internal
 						);
 				}
 
-				if (has_blend_equation)
-				{
+				if (has_blend_equation) {
 					sjson::parse_string(blend_equation, obj["blend_equation"]);
 					rs._blend_equation = name_to_blend_equation(blend_equation.c_str());
 					DATA_COMPILER_ASSERT(rs._blend_equation != BlendEquation::COUNT
@@ -840,8 +814,7 @@ namespace shader_resource_internal
 						);
 				}
 
-				if (has_cull_mode)
-				{
+				if (has_cull_mode) {
 					sjson::parse_string(cull_mode, obj["cull_mode"]);
 					rs._cull_mode = name_to_cull_mode(cull_mode.c_str());
 					DATA_COMPILER_ASSERT(rs._cull_mode != CullMode::COUNT
@@ -851,8 +824,7 @@ namespace shader_resource_internal
 						);
 				}
 
-				if (has_primitive_type)
-				{
+				if (has_primitive_type) {
 					sjson::parse_string(primitive_type, obj["primitive_type"]);
 					rs._primitive_type = name_to_primitive_type(primitive_type.c_str());
 					DATA_COMPILER_ASSERT(rs._primitive_type != PrimitiveType::COUNT
@@ -884,8 +856,7 @@ namespace shader_resource_internal
 
 			auto cur = json_object::begin(sampler_states);
 			auto end = json_object::end(sampler_states);
-			for (; cur != end; ++cur)
-			{
+			for (; cur != end; ++cur) {
 				JSON_OBJECT_SKIP_HOLE(sampler_states, cur);
 
 				JsonObject obj(ta);
@@ -906,8 +877,7 @@ namespace shader_resource_internal
 				DynamicString wrap_v(ta);
 				DynamicString wrap_w(ta);
 
-				if (has_filter_min)
-				{
+				if (has_filter_min) {
 					sjson::parse_string(filter_min, obj["filter_min"]);
 					ss._filter_min = name_to_sampler_filter(filter_min.c_str());
 					DATA_COMPILER_ASSERT(ss._filter_min != SamplerFilter::COUNT
@@ -917,8 +887,7 @@ namespace shader_resource_internal
 						);
 				}
 
-				if (has_filter_mag)
-				{
+				if (has_filter_mag) {
 					sjson::parse_string(filter_mag, obj["filter_mag"]);
 					ss._filter_mag = name_to_sampler_filter(filter_mag.c_str());
 					DATA_COMPILER_ASSERT(ss._filter_mag != SamplerFilter::COUNT
@@ -928,8 +897,7 @@ namespace shader_resource_internal
 						);
 				}
 
-				if (has_wrap_u)
-				{
+				if (has_wrap_u) {
 					sjson::parse_string(wrap_u, obj["wrap_u"]);
 					ss._wrap_u = name_to_sampler_wrap(wrap_u.c_str());
 					DATA_COMPILER_ASSERT(ss._wrap_u != SamplerWrap::COUNT
@@ -939,8 +907,7 @@ namespace shader_resource_internal
 						);
 				}
 
-				if (has_wrap_v)
-				{
+				if (has_wrap_v) {
 					sjson::parse_string(wrap_v, obj["wrap_v"]);
 					ss._wrap_v = name_to_sampler_wrap(wrap_v.c_str());
 					DATA_COMPILER_ASSERT(ss._wrap_v != SamplerWrap::COUNT
@@ -950,8 +917,7 @@ namespace shader_resource_internal
 						);
 				}
 
-				if (has_wrap_w)
-				{
+				if (has_wrap_w) {
 					sjson::parse_string(wrap_w, obj["wrap_w"]);
 					ss._wrap_w = name_to_sampler_wrap(wrap_w.c_str());
 					DATA_COMPILER_ASSERT(ss._wrap_w != SamplerWrap::COUNT
@@ -983,8 +949,7 @@ namespace shader_resource_internal
 
 			auto cur = json_object::begin(bgfx_shaders);
 			auto end = json_object::end(bgfx_shaders);
-			for (; cur != end; ++cur)
-			{
+			for (; cur != end; ++cur) {
 				JSON_OBJECT_SKIP_HOLE(bgfx_shaders, cur);
 
 				JsonObject shader(ta);
@@ -1030,8 +995,7 @@ namespace shader_resource_internal
 
 			auto cur = json_object::begin(bgfx_samplers);
 			auto end = json_object::end(bgfx_samplers);
-			for (; cur != end; ++cur)
-			{
+			for (; cur != end; ++cur) {
 				JSON_OBJECT_SKIP_HOLE(bgfx_samplers, cur);
 
 				JsonObject sampler(ta);
@@ -1068,8 +1032,7 @@ namespace shader_resource_internal
 
 			auto cur = json_object::begin(shaders);
 			auto end = json_object::end(shaders);
-			for (; cur != end; ++cur)
-			{
+			for (; cur != end; ++cur) {
 				JSON_OBJECT_SKIP_HOLE(shaders, cur);
 
 				JsonObject obj(ta);
@@ -1099,8 +1062,7 @@ namespace shader_resource_internal
 			JsonArray static_compile(ta);
 			sjson::parse_array(static_compile, json);
 
-			for (u32 ii = 0; ii < array::size(static_compile); ++ii)
-			{
+			for (u32 ii = 0; ii < array::size(static_compile); ++ii) {
 				JsonObject obj(ta);
 				sjson::parse_object(obj, static_compile[ii]);
 
@@ -1109,8 +1071,7 @@ namespace shader_resource_internal
 
 				JsonArray defines(ta);
 				sjson::parse_array(defines, obj["defines"]);
-				for (u32 jj = 0; jj < array::size(defines); ++jj)
-				{
+				for (u32 jj = 0; jj < array::size(defines); ++jj) {
 					DynamicString def(ta);
 					sjson::parse_string(def, defines[jj]);
 					vector::push_back(sc._defines, def);
@@ -1136,8 +1097,7 @@ namespace shader_resource_internal
 			_opts.write(RESOURCE_HEADER(RESOURCE_VERSION_SHADER));
 			_opts.write(vector::size(_static_compile));
 
-			for (u32 ii = 0; ii < vector::size(_static_compile); ++ii)
-			{
+			for (u32 ii = 0; ii < vector::size(_static_compile); ++ii) {
 				const StaticCompile& sc              = _static_compile[ii];
 				const DynamicString& shader          = sc._shader;
 				const Vector<DynamicString>& defines = sc._defines;
@@ -1145,8 +1105,7 @@ namespace shader_resource_internal
 				TempAllocator1024 ta;
 				DynamicString str(ta);
 				str = shader;
-				for (u32 jj = 0; jj < vector::size(defines); ++jj)
-				{
+				for (u32 jj = 0; jj < vector::size(defines); ++jj) {
 					str += "+";
 					str += defines[jj];
 				}
@@ -1198,8 +1157,7 @@ namespace shader_resource_internal
 
 			auto cur = hash_map::begin(shader._samplers);
 			auto end = hash_map::end(shader._samplers);
-			for (; cur != end; ++cur)
-			{
+			for (; cur != end; ++cur) {
 				HASH_MAP_SKIP_HOLE(shader._samplers, cur);
 
 				const DynamicString& name = cur->first;
@@ -1221,8 +1179,7 @@ namespace shader_resource_internal
 			const BgfxShader& shader = hash_map::get(_bgfx_shaders, key, shader_default);
 
 			DynamicString included_code(default_allocator());
-			if (!(shader._includes == ""))
-			{
+			if (!(shader._includes == "")) {
 				const BgfxShader included_default(default_allocator());
 				const BgfxShader& included = hash_map::get(_bgfx_shaders, shader._includes, included_default);
 				included_code = included._code;
@@ -1231,16 +1188,14 @@ namespace shader_resource_internal
 			StringStream vs_code(default_allocator());
 			StringStream fs_code(default_allocator());
 			vs_code << shader._vs_input_output.c_str();
-			for (u32 i = 0; i < vector::size(defines); ++i)
-			{
+			for (u32 i = 0; i < vector::size(defines); ++i) {
 				vs_code << "#define " << defines[i].c_str() << "\n";
 			}
 			vs_code << included_code.c_str();
 			vs_code << shader._code.c_str();
 			vs_code << shader._vs_code.c_str();
 			fs_code << shader._fs_input_output.c_str();
-			for (u32 i = 0; i < vector::size(defines); ++i)
-			{
+			for (u32 i = 0; i < vector::size(defines); ++i) {
 				fs_code << "#define " << defines[i].c_str() << "\n";
 			}
 			fs_code << included_code.c_str();
@@ -1267,8 +1222,7 @@ namespace shader_resource_internal
 				, "vertex"
 				, _opts.platform()
 				);
-			if (sc != 0)
-			{
+			if (sc != 0) {
 				delete_temp_files();
 				DATA_COMPILER_ASSERT(sc == 0
 					, _opts
@@ -1285,8 +1239,7 @@ namespace shader_resource_internal
 				, "fragment"
 				, _opts.platform()
 				);
-			if (sc != 0)
-			{
+			if (sc != 0) {
 				delete_temp_files();
 				DATA_COMPILER_ASSERT(sc == 0
 					, _opts
@@ -1303,8 +1256,7 @@ namespace shader_resource_internal
 
 			_opts.read_output(output_vert, pr_vert);
 			ec = pr_vert.wait();
-			if (ec != 0)
-			{
+			if (ec != 0) {
 				pr_frag.wait();
 				delete_temp_files();
 				DATA_COMPILER_ASSERT(false
@@ -1317,8 +1269,7 @@ namespace shader_resource_internal
 
 			_opts.read_output(output_frag, pr_frag);
 			ec = pr_frag.wait();
-			if (ec != 0)
-			{
+			if (ec != 0) {
 				delete_temp_files();
 				DATA_COMPILER_ASSERT(false
 					, _opts

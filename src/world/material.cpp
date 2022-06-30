@@ -17,8 +17,7 @@ void Material::bind(ResourceManager& rm, ShaderManager& sm, u8 view, s32 depth) 
 	using namespace material_resource;
 
 	// Set samplers
-	for (u32 i = 0; i < _resource->num_textures; ++i)
-	{
+	for (u32 i = 0; i < _resource->num_textures; ++i) {
 		const TextureData* td   = texture_data(_resource, i);
 		const TextureHandle* th = texture_handle(_resource, i, _data);
 
@@ -37,8 +36,7 @@ void Material::bind(ResourceManager& rm, ShaderManager& sm, u8 view, s32 depth) 
 	}
 
 	// Set uniforms
-	for (u32 i = 0; i < _resource->num_uniforms; ++i)
-	{
+	for (u32 i = 0; i < _resource->num_uniforms; ++i) {
 		const UniformHandle* uh = uniform_handle(_resource, i, _data);
 
 		bgfx::UniformHandle buh;

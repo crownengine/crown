@@ -28,8 +28,7 @@ bool LuaStack::is_matrix4x4(int i)
 Vector3* LuaStack::check_temporary(int i, const Vector3* ptr)
 {
 	LuaEnvironment* env = device()->_lua_environment;
-	if (CE_UNLIKELY(!env->is_vector3(ptr)))
-	{
+	if (CE_UNLIKELY(!env->is_vector3(ptr))) {
 		luaL_typerror(L, i, "Vector3");
 		CE_UNREACHABLE();
 	}
@@ -40,8 +39,7 @@ Vector3* LuaStack::check_temporary(int i, const Vector3* ptr)
 Quaternion* LuaStack::check_temporary(int i, const Quaternion* ptr)
 {
 	LuaEnvironment* env = device()->_lua_environment;
-	if (CE_UNLIKELY(!env->is_quaternion(ptr)))
-	{
+	if (CE_UNLIKELY(!env->is_quaternion(ptr))) {
 		luaL_typerror(L, i, "Quaternion");
 		CE_UNREACHABLE();
 	}
@@ -52,8 +50,7 @@ Quaternion* LuaStack::check_temporary(int i, const Quaternion* ptr)
 Matrix4x4* LuaStack::check_temporary(int i, const Matrix4x4* ptr)
 {
 	LuaEnvironment* env = device()->_lua_environment;
-	if (CE_UNLIKELY(!env->is_matrix4x4(ptr)))
-	{
+	if (CE_UNLIKELY(!env->is_matrix4x4(ptr))) {
 		luaL_typerror(L, i, "Matrix4x4");
 		CE_UNREACHABLE();
 	}

@@ -39,12 +39,10 @@ namespace state_machine
 	{
 		const TransitionArray* ta = state_transitions(s);
 
-		for (u32 i = 0; i < ta->num; ++i)
-		{
+		for (u32 i = 0; i < ta->num; ++i) {
 			const Transition* transition_i = transition(ta, i);
 
-			if (transition_i->event == event)
-			{
+			if (transition_i->event == event) {
 				*transition_out = transition_i;
 				return state(smr, transition_i);
 			}
@@ -94,8 +92,7 @@ namespace state_machine
 	u32 variable_index(const StateMachineResource* smr, StringId32 name)
 	{
 		const StringId32* names = variables_names(smr);
-		for (u32 i = 0; i < smr->num_variables; ++i)
-		{
+		for (u32 i = 0; i < smr->num_variables; ++i) {
 			if (names[i] == name)
 				return i;
 		}
@@ -128,8 +125,7 @@ namespace state_machine_internal
 
 	static TransitionMode::Enum name_to_transition_mode(const char* name)
 	{
-		for (u32 i = 0; i < countof(_transition_mode_map); ++i)
-		{
+		for (u32 i = 0; i < countof(_transition_mode_map); ++i) {
 			if (strcmp(name, _transition_mode_map[i].name) == 0)
 				return _transition_mode_map[i].mode;
 		}
@@ -243,8 +239,7 @@ namespace state_machine_internal
 
 		s32 parse_animations(StateInfo& si, const JsonArray& animations)
 		{
-			for (u32 i = 0; i < array::size(animations); ++i)
-			{
+			for (u32 i = 0; i < array::size(animations); ++i) {
 				TempAllocator4096 ta;
 				JsonObject animation(ta);
 				sjson::parse_object(animation, animations[i]);
@@ -273,8 +268,7 @@ namespace state_machine_internal
 
 		s32 parse_transitions(StateInfo& si, const JsonArray& transitions)
 		{
-			for (u32 i = 0; i < array::size(transitions); ++i)
-			{
+			for (u32 i = 0; i < array::size(transitions); ++i) {
 				TempAllocator4096 ta;
 				JsonObject transition(ta);
 				sjson::parse_object(transition, transitions[i]);
@@ -302,8 +296,7 @@ namespace state_machine_internal
 
 		s32 parse_states(const JsonArray& states)
 		{
-			for (u32 i = 0; i < array::size(states); ++i)
-			{
+			for (u32 i = 0; i < array::size(states); ++i) {
 				TempAllocator4096 ta;
 				JsonObject state(ta);
 				JsonArray animations(ta);
@@ -335,8 +328,7 @@ namespace state_machine_internal
 
 		s32 parse_variables(const JsonArray& variables)
 		{
-			for (u32 i = 0; i < array::size(variables); ++i)
-			{
+			for (u32 i = 0; i < array::size(variables); ++i) {
 				TempAllocator4096 ta;
 				JsonObject variable(ta);
 				sjson::parse_object(variable, variables[i]);
@@ -376,8 +368,7 @@ namespace state_machine_internal
 
 			auto cur = hash_map::begin(_states);
 			auto end = hash_map::end(_states);
-			for (; cur != end; ++cur)
-			{
+			for (; cur != end; ++cur) {
 				HASH_MAP_SKIP_HOLE(_states, cur);
 
 				const Guid& guid    = cur->first;
@@ -386,8 +377,7 @@ namespace state_machine_internal
 				const u32 offset = _offset_accumulator.offset(vector::size(si.animations), vector::size(si.transitions));
 				hash_map::set(_offsets, guid, offset);
 
-				for (u32 i = 0; i < vector::size(si.animations); ++i)
-				{
+				for (u32 i = 0; i < vector::size(si.animations); ++i) {
 					const u32 num = expression_language::compile(si.animations[i].weight.c_str()
 						, num_variables
 						, variables
@@ -477,8 +467,7 @@ namespace state_machine_internal
 			// Write states
 			auto cur = hash_map::begin(_states);
 			auto end = hash_map::end(_states);
-			for (; cur != end; ++cur)
-			{
+			for (; cur != end; ++cur) {
 				HASH_MAP_SKIP_HOLE(_states, cur);
 
 				const StateInfo& si = cur->second;
@@ -495,8 +484,7 @@ namespace state_machine_internal
 				TransitionArray ta;
 				ta.num = num_transitions;
 				_opts.write(ta.num);
-				for (u32 i = 0; i < num_transitions; ++i)
-				{
+				for (u32 i = 0; i < num_transitions; ++i) {
 					Transition t = si.transitions[i].transition;
 					t.state_offset = hash_map::get(_offsets, si.transitions[i].state, UINT32_MAX);
 
@@ -509,8 +497,7 @@ namespace state_machine_internal
 				AnimationArray aa;
 				aa.num = num_animations;
 				_opts.write(aa.num);
-				for (u32 i = 0; i < num_animations; ++i)
-				{
+				for (u32 i = 0; i < num_animations; ++i) {
 					Animation a;
 					a.name = si.animations[i].name;
 					a.bytecode_entry = si.animations[i].bytecode_entry;

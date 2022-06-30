@@ -65,15 +65,12 @@ namespace socket_internal
 		AcceptResult ar;
 		ar.error = AcceptResult::SUCCESS;
 
-		if (err == INVALID_SOCKET)
-		{
+		if (err == INVALID_SOCKET) {
 			if (last_error() == WSAEWOULDBLOCK)
 				ar.error = AcceptResult::NO_CONNECTION;
 			else
 				ar.error = AcceptResult::UNKNOWN;
-		}
-		else
-		{
+		} else {
 			c._priv->socket = (SOCKET)err;
 		}
 
@@ -88,16 +85,14 @@ namespace socket_internal
 
 		u32 to_read = size;
 
-		while (to_read > 0)
-		{
+		while (to_read > 0) {
 			int bytes_read = ::recv(socket
 				, (char*)data + rr.bytes_read
 				, to_read
 				, 0
 				);
 
-			if (bytes_read == SOCKET_ERROR)
-			{
+			if (bytes_read == SOCKET_ERROR) {
 				if (last_error() == WSAEWOULDBLOCK)
 					rr.error = ReadResult::WOULDBLOCK;
 				else if (last_error() == WSAETIMEDOUT)
@@ -105,9 +100,7 @@ namespace socket_internal
 				else
 					rr.error = ReadResult::UNKNOWN;
 				return rr;
-			}
-			else if (bytes_read == 0)
-			{
+			} else if (bytes_read == 0) {
 				rr.error = ReadResult::REMOTE_CLOSED;
 				return rr;
 			}
@@ -127,16 +120,14 @@ namespace socket_internal
 
 		u32 to_write = size;
 
-		while (to_write > 0)
-		{
+		while (to_write > 0) {
 			int bytes_wrote = ::send(socket
 				, (char*)data + wr.bytes_wrote
 				, to_write
 				, MSG_NOSIGNAL // Don't generate SIGPIPE, return EPIPE instead.
 				);
 
-			if (bytes_wrote == SOCKET_ERROR)
-			{
+			if (bytes_wrote == SOCKET_ERROR) {
 				if (last_error() == WSAEWOULDBLOCK)
 					wr.error = WriteResult::WOULDBLOCK;
 				else if (last_error() == WSAETIMEDOUT)
@@ -146,9 +137,7 @@ namespace socket_internal
 				else
 					wr.error = WriteResult::UNKNOWN;
 				return wr;
-			}
-			else if (bytes_wrote == 0)
-			{
+			} else if (bytes_wrote == 0) {
 				wr.error = WriteResult::REMOTE_CLOSED;
 				return wr;
 			}
@@ -222,8 +211,7 @@ TCPSocket::~TCPSocket()
 
 void TCPSocket::close()
 {
-	if (_priv->socket != INVALID_SOCKET)
-	{
+	if (_priv->socket != INVALID_SOCKET) {
 		::closesocket(_priv->socket);
 		_priv->socket = INVALID_SOCKET;
 	}
@@ -244,8 +232,7 @@ ConnectResult TCPSocket::connect(const IPAddress& ip, u16 port)
 	ConnectResult cr;
 	cr.error = ConnectResult::SUCCESS;
 
-	if (err == SOCKET_ERROR)
-	{
+	if (err == SOCKET_ERROR) {
 		if (last_error() == WSAECONNREFUSED)
 			cr.error = ConnectResult::REFUSED;
 		else if (last_error() == WSAETIMEDOUT)
@@ -273,8 +260,7 @@ BindResult TCPSocket::bind(u16 port)
 	BindResult br;
 	br.error = BindResult::SUCCESS;
 
-	if (err == SOCKET_ERROR)
-	{
+	if (err == SOCKET_ERROR) {
 		if (last_error() == WSAEADDRINUSE)
 			br.error = BindResult::ADDRESS_IN_USE;
 		else
@@ -421,16 +407,11 @@ SelectResult SocketSet::select(u32 timeout_ms)
 		, (timeout_ms == UINT32_MAX) ? NULL : &tv
 		);
 
-	if (ret == SOCKET_ERROR)
-	{
+	if (ret == SOCKET_ERROR) {
 		sr.error = SelectResult::GENERIC_ERROR;
-	}
-	else if (ret == 0)
-	{
+	} else if (ret == 0) {
 		sr.error = SelectResult::TIMEOUT;
-	}
-	else
-	{
+	} else {
 		sr.error = SelectResult::SUCCESS;
 		sr.num_ready = ret;
 	}

@@ -68,8 +68,7 @@ f32 ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x
 		const f32 e = dot(xaxis, delta);
 		const f32 f = dot(dir, xaxis);
 
-		if (fabs(f) > 0.001f)
-		{
+		if (fabs(f) > 0.001f) {
 			f32 t1 = (e - half_extents.x)/f;
 			f32 t2 = (e + half_extents.x)/f;
 
@@ -82,9 +81,7 @@ f32 ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x
 
 			if (tmax < tmin)
 				return -1.0f;
-		}
-		else
-		{
+		} else {
 			if (-e - half_extents.x > 0.0f || -e + half_extents.x < 0.0f)
 				return -1.0f;
 		}
@@ -95,8 +92,7 @@ f32 ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x
 		const f32 e = dot(yaxis, delta);
 		const f32 f = dot(dir, yaxis);
 
-		if (fabs(f) > 0.001f)
-		{
+		if (fabs(f) > 0.001f) {
 			f32 t1 = (e - half_extents.y)/f;
 			f32 t2 = (e + half_extents.y)/f;
 
@@ -109,9 +105,7 @@ f32 ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x
 
 			if (tmin > tmax)
 				return -1.0f;
-		}
-		else
-		{
+		} else {
 			if (-e - half_extents.y > 0.0f || -e + half_extents.y < 0.0f)
 				return -1.0f;
 		}
@@ -122,8 +116,7 @@ f32 ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x
 		const f32 e = dot(zaxis, delta);
 		const f32 f = dot(dir, zaxis);
 
-		if (fabs(f) > 0.001f)
-		{
+		if (fabs(f) > 0.001f) {
 			f32 t1 = (e - half_extents.z)/f;
 			f32 t2 = (e + half_extents.z)/f;
 
@@ -136,9 +129,7 @@ f32 ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x
 
 			if (tmin > tmax)
 				return -1.0f;
-		}
-		else
-		{
+		} else {
 			if (-e - half_extents.z > 0.0f || -e + half_extents.z < 0.0f)
 				return -1.0f;
 		}
@@ -159,8 +150,7 @@ f32 ray_mesh_intersection(const Vector3& from, const Vector3& dir, const Matrix4
 	bool hit = false;
 	f32 tmin = FLT_MAX;
 
-	for (u32 i = 0; i < num; i += 3)
-	{
+	for (u32 i = 0; i < num; i += 3) {
 		const u32 i0 = indices[i + 0];
 		const u32 i1 = indices[i + 1];
 		const u32 i2 = indices[i + 2];
@@ -208,8 +198,7 @@ f32 ray_mesh_intersection(const Vector3& from, const Vector3& dir, const Matrix4
 		const f32 t = dot(e2, Q) * inv_det;
 
 		// Ray intersection
-		if (t > FLOAT_EPSILON)
-		{
+		if (t > FLOAT_EPSILON) {
 			hit = true;
 			tmin = min(t, tmin);
 		}
@@ -241,8 +230,7 @@ bool plane_3_intersection(Vector3& ip, const Plane3& a, const Plane3& b, const P
 
 bool sphere_intersects_frustum(const Sphere& s, const Frustum& f)
 {
-	for (u32 ii = 0; ii < countof(f.planes); ++ii)
-	{
+	for (u32 ii = 0; ii < countof(f.planes); ++ii) {
 		if (plane3::distance_to_point(f.planes[ii], s.c) < -s.r)
 			return false;
 	}
@@ -279,8 +267,7 @@ bool obb_intersects_frustum(const OBB& obb, const Frustum& f)
 	const Vector3 p6 = obb_p + bx + by + bz;
 	const Vector3 p7 = obb_p - bx + by + bz; // This is max in OBB space.
 
-	for (u32 ii = 0; ii < 6; ++ii)
-	{
+	for (u32 ii = 0; ii < 6; ++ii) {
 		u32 out = 0;
 		if (plane3::distance_to_point(f.planes[ii], p0) < 0.0f)
 			++out;
@@ -319,12 +306,10 @@ bool obb_intersects_frustum(const OBB& obb, const Frustum& f)
 	frustum::vertices(frustum_points, f);
 
 	// For each OBB plane.
-	for (u32 jj = 0; jj < 6; ++jj)
-	{
+	for (u32 jj = 0; jj < 6; ++jj) {
 		// For each frustum vertex.
 		u32 out = 0;
-		for (u32 ii = 0; ii < 8; ++ii)
-		{
+		for (u32 ii = 0; ii < 8; ++ii) {
 			if (plane3::distance_to_point(obb_planes[jj], frustum_points[ii]) < 0.0f)
 				++out;
 		}

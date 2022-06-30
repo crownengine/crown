@@ -29,8 +29,7 @@ namespace font_resource
 		const GlyphData* data = (GlyphData*)(pts + fr->num_glyphs);
 
 		// FIXME: Can do binary search
-		for (u32 i = 0; i < fr->num_glyphs; ++i)
-		{
+		for (u32 i = 0; i < fr->num_glyphs; ++i) {
 			if (pts[i] == cp)
 				return &data[i];
 		}
@@ -57,8 +56,7 @@ namespace font_resource_internal
 
 	s32 parse_glyphs(Array<GlyphInfo>& _glyphs, const JsonArray& glyphs)
 	{
-		for (u32 i = 0; i < array::size(glyphs); ++i)
-		{
+		for (u32 i = 0; i < array::size(glyphs); ++i) {
 			TempAllocator512 ta;
 			JsonObject obj(ta);
 			sjson::parse(obj, glyphs[i]);
@@ -111,8 +109,7 @@ namespace font_resource_internal
 		for (u32 i = 0; i < array::size(_glyphs); ++i)
 			opts.write(_glyphs[i].cp);
 
-		for (u32 i = 0; i < array::size(_glyphs); ++i)
-		{
+		for (u32 i = 0; i < array::size(_glyphs); ++i) {
 			opts.write(_glyphs[i].gd.x);
 			opts.write(_glyphs[i].gd.y);
 			opts.write(_glyphs[i].gd.width);

@@ -28,8 +28,7 @@ PoolAllocator::PoolAllocator(Allocator& backing, u32 num_blocks, u32 block_size,
 
 	// Initialize intrusive freelist
 	char* cur = mem;
-	for (u32 bb = 0; bb < num_blocks - 1; bb++)
-	{
+	for (u32 bb = 0; bb < num_blocks - 1; bb++) {
 		uintptr_t* next = (uintptr_t*)cur;
 		*next = (uintptr_t)cur + actual_block_size;
 		cur += actual_block_size;

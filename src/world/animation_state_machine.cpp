@@ -144,8 +144,7 @@ void AnimationStateMachine::update(float dt)
 	f32 stack_data[32];
 	expression_language::Stack stack(stack_data, countof(stack_data));
 
-	for (u32 ii = 0; ii < array::size(_animations); ++ii)
-	{
+	for (u32 ii = 0; ii < array::size(_animations); ++ii) {
 		Animation& anim_i = _animations[ii];
 
 		const f32* variables = anim_i.variables;
@@ -157,15 +156,13 @@ void AnimationStateMachine::update(float dt)
 		StringId64 name;
 
 		const AnimationArray* aa = state_machine::state_animations(anim_i.state);
-		for (u32 jj = 0; jj < aa->num; ++jj)
-		{
+		for (u32 jj = 0; jj < aa->num; ++jj) {
 			const crown::Animation* animation = state_machine::animation(aa, jj);
 
 			stack.size = 0;
 			expression_language::run(&byte_code[animation->bytecode_entry], variables, stack);
 			const f32 cur = stack.size > 0 ? stack_data[stack.size - 1] : 0.0f;
-			if (cur > max_v || max_i == UINT32_MAX)
-			{
+			if (cur > max_v || max_i == UINT32_MAX) {
 				max_v = cur;
 				max_i = jj;
 				name = animation->name;
@@ -179,8 +176,7 @@ void AnimationStateMachine::update(float dt)
 
 		// Advance animation
 		const SpriteAnimationResource* sar = (SpriteAnimationResource*)_resource_manager->get(RESOURCE_TYPE_SPRITE_ANIMATION, name);
-		if (anim_i.resource != sar)
-		{
+		if (anim_i.resource != sar) {
 			anim_i.time       = 0.0f;
 			anim_i.time_total = sar->total_time;
 			anim_i.num_frames = sar->num_frames;
@@ -198,22 +194,15 @@ void AnimationStateMachine::update(float dt)
 		anim_i.time += dt*speed;
 
 		// If animation finished playing
-		if (anim_i.time > anim_i.time_total)
-		{
-			if (anim_i.state_next)
-			{
+		if (anim_i.time > anim_i.time_total) {
+			if (anim_i.state_next) {
 				anim_i.state = anim_i.state_next;
 				anim_i.state_next = NULL;
 				anim_i.time = 0.0f;
-			}
-			else
-			{
-				if (!!anim_i.state->loop)
-				{
+			} else {
+				if (!!anim_i.state->loop) {
 					anim_i.time = anim_i.time - anim_i.time_total;
-				}
-				else
-				{
+				} else {
 					const Transition* dummy;
 					const State* s = state_machine::trigger(anim_i.state_machine
 						, anim_i.state

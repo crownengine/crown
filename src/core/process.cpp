@@ -73,40 +73,30 @@ s32 Process::spawn(const char* const* argv, u32 flags)
 	int fildes[2];
 	pid_t pid;
 
-	if (flags & CROWN_PROCESS_STDIN_PIPE || flags & CROWN_PROCESS_STDOUT_PIPE)
-	{
+	if (flags & CROWN_PROCESS_STDIN_PIPE || flags & CROWN_PROCESS_STDOUT_PIPE) {
 		if (pipe(fildes) < 0)
 			return -1;
 	}
 
 	pid = fork();
-	if (pid == -1) // Error, cleanup and return
-	{
+	if (pid == -1) { // Error, cleanup and return
 		close(fildes[0]);
 		close(fildes[1]);
 		return -1;
-	}
-	else if (pid == 0) // Child
-	{
-		if (flags & CROWN_PROCESS_STDOUT_PIPE)
-		{
-			if (fildes[1] != STDOUT_FILENO)
-			{
+	} else if (pid == 0) { // Child
+		if (flags & CROWN_PROCESS_STDOUT_PIPE) {
+			if (fildes[1] != STDOUT_FILENO) {
 				dup2(fildes[1], STDOUT_FILENO);
 				close(fildes[1]);
 				fildes[1] = STDOUT_FILENO;
 			}
 			close(fildes[0]);
 
-			if (flags & CROWN_PROCESS_STDERR_MERGE)
-			{
+			if (flags & CROWN_PROCESS_STDERR_MERGE) {
 				dup2(fildes[1], 2);
 			}
-		}
-		else if (flags & CROWN_PROCESS_STDIN_PIPE)
-		{
-			if (fildes[0] != STDIN_FILENO)
-			{
+		} else if (flags & CROWN_PROCESS_STDIN_PIPE) {
+			if (fildes[0] != STDIN_FILENO) {
 				dup2(fildes[0], STDIN_FILENO);
 				close(fildes[0]);
 				fildes[0] = STDIN_FILENO;
@@ -120,18 +110,13 @@ s32 Process::spawn(const char* const* argv, u32 flags)
 	}
 
 	// Parent
-	if (flags & CROWN_PROCESS_STDOUT_PIPE)
-	{
+	if (flags & CROWN_PROCESS_STDOUT_PIPE) {
 		_priv->file = fdopen(fildes[0], "r");
 		close(fildes[1]);
-	}
-	else if (flags & CROWN_PROCESS_STDIN_PIPE)
-	{
+	} else if (flags & CROWN_PROCESS_STDIN_PIPE) {
 		_priv->file = fdopen(fildes[1], "w");
 		close(fildes[0]);
-	}
-	else
-	{
+	} else {
 		_priv->file = NULL;
 	}
 
@@ -141,11 +126,9 @@ s32 Process::spawn(const char* const* argv, u32 flags)
 	TempAllocator512 ta;
 	StringStream path(ta);
 
-	for (s32 i = 0; argv[i] != NULL; ++i)
-	{
+	for (s32 i = 0; argv[i] != NULL; ++i) {
 		const char* arg = argv[i];
-		for (; *arg; ++arg)
-		{
+		for (; *arg; ++arg) {
 			if (*arg == ' ')
 				break;
 		}
@@ -167,8 +150,7 @@ s32 Process::spawn(const char* const* argv, u32 flags)
 	sattr.bInheritHandle = TRUE;
 	sattr.lpSecurityDescriptor = NULL;
 
-	if (flags & CROWN_PROCESS_STDOUT_PIPE)
-	{
+	if (flags & CROWN_PROCESS_STDOUT_PIPE) {
 		// Pipe for STDOUT of child process
 		BOOL ret;
 		ret = CreatePipe(&_priv->stdout_rd, &_priv->stdout_wr, &sattr, 0);
@@ -234,17 +216,14 @@ s32 Process::wait()
 	pid_t pid;
 	int wstatus;
 
-	if (_priv->file != NULL)
-	{
+	if (_priv->file != NULL) {
 		fclose(_priv->file);
 		_priv->file = NULL;
 	}
 
-	do
-	{
+	do {
 		pid = waitpid(_priv->pid, &wstatus, 0);
-	}
-	while (pid == -1 && errno == EINTR);
+	} while (pid == -1 && errno == EINTR);
 
 	_priv->pid = -1;
 	return WIFEXITED(wstatus) ? (s32)WEXITSTATUS(wstatus) : -1;
@@ -265,18 +244,13 @@ char* Process::read(u32* num_bytes_read, char* data, u32 len)
 #if CROWN_PLATFORM_POSIX
 	CE_ENSURE(_priv->file != NULL);
 	size_t read = fread(data, 1, len, _priv->file);
-	if (read != len)
-	{
-		if (feof(_priv->file) != 0)
-		{
-			if (read == 0)
-			{
+	if (read != len) {
+		if (feof(_priv->file) != 0) {
+			if (read == 0) {
 				*num_bytes_read = 0;
 				return NULL;
 			}
-		}
-		else if (ferror(_priv->file) != 0)
-		{
+		} else if (ferror(_priv->file) != 0) {
 			*num_bytes_read = UINT32_MAX;
 			return NULL;
 		}
@@ -289,20 +263,16 @@ char* Process::read(u32* num_bytes_read, char* data, u32 len)
 	BOOL success = FALSE;
 
 	success = ReadFile(_priv->stdout_rd, data, len, &read, NULL);
-	if (!success)
-	{
+	if (!success) {
 		*num_bytes_read = UINT32_MAX;
 		return NULL;
 	}
 
-	if (read == 0)
-	{
+	if (read == 0) {
 		// EOF
 		*num_bytes_read = 0;
 		return NULL;
-	}
-	else
-	{
+	} else {
 		*num_bytes_read = read;
 		return data;
 	}

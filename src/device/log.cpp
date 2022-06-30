@@ -57,8 +57,7 @@ namespace log_internal
 
 		// Sanitize msg
 		const char* ch = msg;
-		for (; *ch; ch++)
-		{
+		for (; *ch; ch++) {
 			if (*ch == '"' || *ch == '\\')
 				ss << "\\";
 			ss << *ch;

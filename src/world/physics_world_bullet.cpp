@@ -265,8 +265,7 @@ struct PhysicsWorldImpl
 	{
 		_unit_manager->unregister_destroy_callback(&_unit_destroy_callback);
 
-		for (u32 i = 0; i < array::size(_actor); ++i)
-		{
+		for (u32 i = 0; i < array::size(_actor); ++i) {
 			btRigidBody* body = _actor[i].body;
 
 			_dynamics_world->removeRigidBody(body);
@@ -275,8 +274,7 @@ struct PhysicsWorldImpl
 			CE_DELETE(*_allocator, body);
 		}
 
-		for (u32 i = 0; i < array::size(_collider); ++i)
-		{
+		for (u32 i = 0; i < array::size(_collider); ++i) {
 			CE_DELETE(*_allocator, _collider[i].vertex_array);
 			CE_DELETE(*_allocator, _collider[i].shape);
 		}
@@ -289,8 +287,7 @@ struct PhysicsWorldImpl
 		btTriangleIndexVertexArray* vertex_array = NULL;
 		btCollisionShape* child_shape = NULL;
 
-		switch (sd->type)
-		{
+		switch (sd->type) {
 		case ColliderType::SPHERE:
 			child_shape = CE_NEW(*_allocator, btSphereShape)(sd->sphere.radius);
 			break;
@@ -303,8 +300,7 @@ struct PhysicsWorldImpl
 			child_shape = CE_NEW(*_allocator, btBoxShape)(to_btVector3(sd->box.half_size));
 			break;
 
-		case ColliderType::CONVEX_HULL:
-		{
+		case ColliderType::CONVEX_HULL: {
 			const char* data       = (char*)&sd[1];
 			const u32 num          = *(u32*)data;
 			const btScalar* points = (btScalar*)(data + sizeof(u32));
@@ -313,8 +309,7 @@ struct PhysicsWorldImpl
 			break;
 		}
 
-		case ColliderType::MESH:
-		{
+		case ColliderType::MESH: {
 			const char* data      = (char*)&sd[1];
 			const u32 num_points  = *(u32*)data;
 			const char* points    = data + sizeof(u32);
@@ -399,15 +394,12 @@ struct PhysicsWorldImpl
 
 		const UnitId u = _collider[first.i].unit;
 
-		if (collider.i == first.i)
-		{
+		if (collider.i == first.i) {
 			if (!is_valid(collider_next(collider)))
 				hash_map::remove(_collider_map, u);
 			else
 				hash_map::set(_collider_map, u, collider_next(collider).i);
-		}
-		else
-		{
+		} else {
 			ColliderInstance prev = collider_previous(collider);
 			_collider[prev.i].next = collider_next(collider);
 		}
@@ -421,12 +413,9 @@ struct PhysicsWorldImpl
 		const UnitId u = _collider[a.i].unit;
 		const ColliderInstance first_i = collider_first(u);
 
-		if (a.i == first_i.i)
-		{
+		if (a.i == first_i.i) {
 			hash_map::set(_collider_map, u, b.i);
-		}
-		else
-		{
+		} else {
 			const ColliderInstance prev_a = collider_previous(a);
 			CE_ENSURE(prev_a.i != a.i);
 			_collider[prev_a.i].next = b;
@@ -452,8 +441,7 @@ struct PhysicsWorldImpl
 		ColliderInstance curr = collider_first(u);
 		ColliderInstance prev = { UINT32_MAX };
 
-		while (curr.i != collider.i)
-		{
+		while (curr.i != collider.i) {
 			prev = curr;
 			curr = collider_next(curr);
 		}
@@ -478,8 +466,7 @@ struct PhysicsWorldImpl
 		// Create compound shape
 		btCompoundShape* shape = CE_NEW(*_allocator, btCompoundShape)(true);
 		ColliderInstance ci = collider_first(unit);
-		while (is_valid(ci))
-		{
+		while (is_valid(ci)) {
 			shape->addChildShape(to_btTransform(_collider[ci.i].local_tm), _collider[ci.i].shape);
 			ci = collider_next(ci);
 		}
@@ -650,13 +637,10 @@ struct PhysicsWorldImpl
 		btRigidBody* body = _actor[actor.i].body;
 		int flags = body->getCollisionFlags();
 
-		if (kinematic)
-		{
+		if (kinematic) {
 			body->setCollisionFlags(flags | btCollisionObject::CF_KINEMATIC_OBJECT);
 			body->setActivationState(DISABLE_DEACTIVATION);
-		}
-		else
-		{
+		} else {
 			body->setCollisionFlags(flags & ~btCollisionObject::CF_KINEMATIC_OBJECT);
 			body->setActivationState(ACTIVE_TAG);
 		}
@@ -777,10 +761,8 @@ struct PhysicsWorldImpl
 		btRigidBody* body_1 = is_valid(a1) ? _actor[a1.i].body : NULL;
 
 		btTypedConstraint* joint = NULL;
-		switch (jd.type)
-		{
-		case JointType::FIXED:
-		{
+		switch (jd.type) {
+		case JointType::FIXED: {
 			const btTransform frame_0 = btTransform(btQuaternion::getIdentity(), anchor_0);
 			const btTransform frame_1 = btTransform(btQuaternion::getIdentity(), anchor_1);
 			joint = CE_NEW(*_allocator, btFixedConstraint)(*body_0
@@ -799,8 +781,7 @@ struct PhysicsWorldImpl
 				);
 			break;
 
-		case JointType::HINGE:
-		{
+		case JointType::HINGE: {
 			btHingeConstraint* hinge = CE_NEW(*_allocator, btHingeConstraint)(*body_0
 				, *body_1
 				, anchor_0
@@ -851,8 +832,7 @@ struct PhysicsWorldImpl
 
 		_dynamics_world->rayTest(aa, bb, cb);
 
-		if (cb.hasHit())
-		{
+		if (cb.hasHit()) {
 			const u32 actor_i = (u32)(uintptr_t)btRigidBody::upcast(cb.m_collisionObject)->getUserPointer();
 
 			hit.position = to_vector3(cb.m_hitPointWorld);
@@ -878,13 +858,11 @@ struct PhysicsWorldImpl
 
 		_dynamics_world->rayTest(aa, bb, cb);
 
-		if (cb.hasHit())
-		{
+		if (cb.hasHit()) {
 			const int num = cb.m_hitPointWorld.size();
 			array::resize(hits, num);
 
-			for (int i = 0; i < num; ++i)
-			{
+			for (int i = 0; i < num; ++i) {
 				const u32 actor_i = (u32)(uintptr_t)btRigidBody::upcast(cb.m_collisionObjects[i])->getUserPointer();
 
 				hits[i].position = to_vector3(cb.m_hitPointWorld[i]);
@@ -911,8 +889,7 @@ struct PhysicsWorldImpl
 		cb.m_collisionFilterMask = -1;
 		_dynamics_world->convexSweepTest(shape, aa, bb, cb);
 
-		if (cb.hasHit())
-		{
+		if (cb.hasHit()) {
 			const u32 actor_i = (u32)(uintptr_t)btRigidBody::upcast(cb.m_hitCollisionObject)->getUserPointer();
 
 			hit.position = to_vector3(cb.m_hitPointWorld);
@@ -950,8 +927,7 @@ struct PhysicsWorldImpl
 
 	void update_actor_world_poses(const UnitId* begin, const UnitId* end, const Matrix4x4* begin_world)
 	{
-		for (; begin != end; ++begin, ++begin_world)
-		{
+		for (; begin != end; ++begin, ++begin_world) {
 			const u32 ai = hash_map::get(_actor_map, *begin, UINT32_MAX);
 			if (ai == UINT32_MAX)
 				continue;
@@ -973,8 +949,7 @@ struct PhysicsWorldImpl
 		const int num = _dynamics_world->getNumCollisionObjects();
 		const btCollisionObjectArray& collision_array = _dynamics_world->getCollisionObjectArray();
 		// Update actors
-		for (int i = 0; i < num; ++i)
-		{
+		for (int i = 0; i < num; ++i) {
 			if ((uintptr_t)collision_array[i]->getUserPointer() == (uintptr_t)UINT32_MAX)
 				continue;
 
@@ -982,8 +957,7 @@ struct PhysicsWorldImpl
 			if (body
 				&& body->getMotionState()
 				&& body->isActive()
-				)
-			{
+				) {
 				const UnitId unit_id = _actor[(u32)(uintptr_t)body->getUserPointer()].unit;
 
 				btTransform tr;
@@ -1023,8 +997,7 @@ struct PhysicsWorldImpl
 	void tick_callback(btDynamicsWorld* world, btScalar /*dt*/)
 	{
 		// Limit bodies velocity
-		for (u32 i = 0; i < array::size(_actor); ++i)
-		{
+		for (u32 i = 0; i < array::size(_actor); ++i) {
 			CE_ENSURE(NULL != _actor[i].body);
 			const btVector3 velocity = _actor[i].body->getLinearVelocity();
 			const btScalar speed = velocity.length();
@@ -1035,8 +1008,7 @@ struct PhysicsWorldImpl
 
 		// Check collisions
 		int num_manifolds = world->getDispatcher()->getNumManifolds();
-		for (int i = 0; i < num_manifolds; ++i)
-		{
+		for (int i = 0; i < num_manifolds; ++i) {
 			const btPersistentManifold* manifold = world->getDispatcher()->getManifoldByIndexInternal(i);
 
 			const btCollisionObject* obj_a = manifold->getBody0();
@@ -1047,11 +1019,9 @@ struct PhysicsWorldImpl
 			const UnitId u1 = _actor[a1.i].unit;
 
 			int num_contacts = manifold->getNumContacts();
-			for (int j = 0; j < num_contacts; ++j)
-			{
+			for (int j = 0; j < num_contacts; ++j) {
 				const btManifoldPoint& pt = manifold->getContactPoint(j);
-				if (pt.m_distance1 < 0.0f)
-				{
+				if (pt.m_distance1 < 0.0f) {
 					// Post collision event
 					PhysicsCollisionEvent ev;
 					ev.type = pt.m_lifeTime == 1 ? PhysicsCollisionEvent::TOUCH_BEGIN : PhysicsCollisionEvent::TOUCHING;
@@ -1080,8 +1050,7 @@ struct PhysicsWorldImpl
 			ColliderInstance curr = collider_first(unit);
 			ColliderInstance next;
 
-			while (is_valid(curr))
-			{
+			while (is_valid(curr)) {
 				next = collider_next(curr);
 				collider_destroy(curr);
 				curr = next;

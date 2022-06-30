@@ -32,8 +32,7 @@ void* ShaderManager::load(File& file, Allocator& a)
 	ShaderResource* sr = CE_NEW(a, ShaderResource)(a);
 	array::resize(sr->_data, num);
 
-	for (u32 i = 0; i < num; ++i)
-	{
+	for (u32 i = 0; i < num; ++i) {
 		u32 shader_name;
 		br.read(shader_name);
 
@@ -44,8 +43,7 @@ void* ShaderManager::load(File& file, Allocator& a)
 		br.read(num_samplers);
 		CE_ENSURE(num_samplers < countof(sr->_data[i].samplers));
 
-		for (u32 s = 0; s < num_samplers; ++s)
-		{
+		for (u32 s = 0; s < num_samplers; ++s) {
 			u32 sampler_name;
 			br.read(sampler_name);
 
@@ -79,8 +77,7 @@ void ShaderManager::online(StringId64 id, ResourceManager& rm)
 {
 	const ShaderResource* shader = (ShaderResource*)rm.get(RESOURCE_TYPE_SHADER, id);
 
-	for (u32 i = 0; i < array::size(shader->_data); ++i)
-	{
+	for (u32 i = 0; i < array::size(shader->_data); ++i) {
 		const ShaderResource::Data& data = shader->_data[i];
 
 		bgfx::ShaderHandle vs = bgfx::createShader(data.vsmem);
@@ -98,8 +95,7 @@ void ShaderManager::offline(StringId64 id, ResourceManager& rm)
 {
 	const ShaderResource* shader = (ShaderResource*)rm.get(RESOURCE_TYPE_SHADER, id);
 
-	for (u32 i = 0; i < array::size(shader->_data); ++i)
-	{
+	for (u32 i = 0; i < array::size(shader->_data); ++i) {
 		const ShaderResource::Data& data = shader->_data[i];
 
 		ShaderData sd;
@@ -135,8 +131,7 @@ u32 ShaderManager::sampler_state(StringId32 shader_id, StringId32 sampler_name)
 	sd.program = BGFX_INVALID_HANDLE;
 	sd = hash_map::get(_shader_map, shader_id, sd);
 
-	for (u32 i = 0; i < countof(sd.samplers); ++i)
-	{
+	for (u32 i = 0; i < countof(sd.samplers); ++i) {
 		if (sd.samplers[i].name == sampler_name._id)
 			return sd.samplers[i].state;
 	}
