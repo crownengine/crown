@@ -9,6 +9,8 @@ namespace crown
 {
 namespace utf8
 {
+	// code-format off
+
 	// Copyright (c) 2008-2009 Bjoern Hoehrmann <bjoern@hoehrmann.de>
 	// See http://bjoern.hoehrmann.de/utf-8/decoder/dfa/ for details.
 	static const uint8_t utf8d[] =
@@ -28,6 +30,8 @@ namespace utf8
 		1,2,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,3,1,3,1,1,1,1,1,1, // s5..s6
 		1,3,1,1,1,1,1,3,1,3,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1, // s7..s8
 	};
+
+	// code-format on
 
 	u32 decode(u32* state, u32* codep, u32 byte)
 	{
