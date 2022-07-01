@@ -2300,14 +2300,19 @@ public class LevelEditorApplication : Gtk.Application
 			+ "\nOTHER DEALINGS IN THE SOFTWARE."
 			+ "\n"
 			;
-		dlg.authors = { "Daniele Bartolini"
-			, "Simone Boscaratto"
-			, "Michele Rossi"
-			, "Raphael de Vasconcelos Nascimento"
-			};
-		dlg.artists = { "Michela Iacchelli - Pepper logo"
-			, "Giulia Gazzoli - Crown logo"
-			};
+		dlg.authors =
+		{
+			"Daniele Bartolini",
+			"Simone Boscaratto",
+			"Michele Rossi",
+			"Raphael de Vasconcelos Nascimento"
+		};
+		dlg.artists =
+		{
+			"Michela Iacchelli - Pepper logo",
+			"Giulia Gazzoli - Crown logo"
+		};
+
 		dlg.run();
 		dlg.destroy();
 	}
