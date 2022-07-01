@@ -25,10 +25,14 @@ for more info.
     yay -S crown
   
 ## Documentation
-
+### Unstable (master)
+  * [User Manual](https://crownengine.github.io/crown/html/master)
+  * [Lua API](https://crownengine.github.io/crown/html/master/lua_api.html)
+  * [Building](https://crownengine.github.io/crown/html/master/hackers/building.html)
+  
+### Latest Stable (v0.46.0)
   * [User Manual](https://crownengine.github.io/crown/html/latest)
   * [Lua API](https://crownengine.github.io/crown/html/latest/lua_api.html)
-  * [Building](https://crownengine.github.io/crown/html/latest/hackers/building.html)
 
 ## Community Support & Development
 
