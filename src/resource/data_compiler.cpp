@@ -1260,8 +1260,8 @@ void DataCompiler::file_monitor_callback(FileMonitorEvent::Enum fme, bool is_dir
 					remove_tree(resource_name.c_str());
 					add_tree(resource_name_renamed.c_str());
 				}
+				break;
 			}
-			break;
 
 		case FileMonitorEvent::CHANGED:
 			if (!is_dir)

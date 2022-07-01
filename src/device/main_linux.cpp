@@ -281,8 +281,8 @@ struct Joypad
 								, 0
 								);
 						}
+						break;
 					}
-					break;
 
 				case JS_EVENT_BUTTON:
 					if (ev.number < countof(s_button))
@@ -487,8 +487,8 @@ struct LinuxDevice
 								, event.type == ButtonPress
 								);
 						}
+						break;
 					}
-					break;
 
 				case MotionNotify:
 					{
@@ -543,8 +543,8 @@ struct LinuxDevice
 							);
 						_mouse_last_x = (s16)mx;
 						_mouse_last_y = (s16)my;
+						break;
 					}
-					break;
 
 				case KeyPress:
 				case KeyRelease:
@@ -579,8 +579,8 @@ struct LinuxDevice
 									_queue.push_text_event(len, utf8);
 							}
 						}
+						break;
 					}
-					break;
 				case KeymapNotify:
 					XRefreshKeyboardMapping(&event.xmapping);
 					break;

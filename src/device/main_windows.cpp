@@ -441,8 +441,8 @@ struct WindowsDevice
 					ClipCursor(&clipRect);
 				}
 				_queue.push_resolution_event(width, height);
+				break;
 			}
-			break;
 
 		case WM_SYSCOMMAND:
 			switch (wparam)
@@ -455,8 +455,8 @@ struct WindowsDevice
 					{
 						PostMessage(parent, id, wparam, lparam);
 					}
+					break;
 				}
-				break;
 			}
 			break;
 
@@ -470,8 +470,8 @@ struct WindowsDevice
 					, delta / WHEEL_DELTA
 					, 0
 					);
+				break;
 			}
-			break;
 
 		case WM_MOUSEMOVE:
 			{
@@ -521,8 +521,8 @@ struct WindowsDevice
 					, (s16)my
 					, 0
 					);
+				break;
 			}
-			break;
 
 		case WM_LBUTTONDOWN:
 		case WM_LBUTTONUP:
@@ -549,8 +549,8 @@ struct WindowsDevice
 					, mb
 					, down
 					);
+				break;
 			}
-			break;
 
 		case WM_KEYDOWN:
 		case WM_SYSKEYDOWN:
@@ -567,8 +567,8 @@ struct WindowsDevice
 						, (id == WM_KEYDOWN || id == WM_SYSKEYDOWN)
 						);
 				}
+				break;
 			}
-			break;
 
 		case WM_CHAR:
 			{
@@ -585,8 +585,8 @@ struct WindowsDevice
 
 				if (len)
 					_queue.push_text_event(len, utf8);
+				break;
 			}
-			break;
 
 		case WM_SETCURSOR:
 			if (LOWORD(lparam) == HTCLIENT)

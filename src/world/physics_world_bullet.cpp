@@ -310,8 +310,8 @@ struct PhysicsWorldImpl
 				const btScalar* points = (btScalar*)(data + sizeof(u32));
 
 				child_shape = CE_NEW(*_allocator, btConvexHullShape)(points, (int)num, sizeof(Vector3));
+				break;
 			}
-			break;
 
 		case ColliderType::MESH:
 			{
@@ -336,8 +336,8 @@ struct PhysicsWorldImpl
 				const btVector3 aabb_min(-1000.0f,-1000.0f,-1000.0f);
 				const btVector3 aabb_max(1000.0f,1000.0f,1000.0f);
 				child_shape = CE_NEW(*_allocator, btBvhTriangleMeshShape)(vertex_array, false, aabb_min, aabb_max);
+				break;
 			}
-			break;
 
 		case ColliderType::HEIGHTFIELD:
 			CE_FATAL("Not implemented");
@@ -788,8 +788,8 @@ struct PhysicsWorldImpl
 					, frame_0
 					, frame_1
 					);
+				break;
 			}
-			break;
 
 		case JointType::SPRING:
 			joint = CE_NEW(*_allocator, btPoint2PointConstraint)(*body_0
@@ -820,8 +820,8 @@ struct PhysicsWorldImpl
 					);
 
 				joint = hinge;
+				break;
 			}
-			break;
 
 		default:
 			CE_FATAL("Unknown joint type");

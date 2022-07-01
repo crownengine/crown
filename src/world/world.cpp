@@ -185,8 +185,8 @@ void World::update_scene(f32 dt)
 					const SpriteFrameChangeEvent& ptev = *(SpriteFrameChangeEvent*)data;
 					const SpriteInstance si = _render_world->sprite_instance(ptev.unit);
 					_render_world->sprite_set_frame(si, ptev.frame_num);
+					break;
 				}
-				break;
 
 			default:
 				CE_FATAL("Unknown event type");
@@ -229,15 +229,15 @@ void World::update_scene(f32 dt)
 					const TransformInstance ti = _scene_graph->instance(ptev.unit_id);
 					if (is_valid(ti)) // User code may have destroyed the actor
 						_scene_graph->set_world_pose_and_rescale(ti, ptev.world);
+					break;
 				}
-				break;
 
 			case EventType::PHYSICS_COLLISION:
 				{
 					const PhysicsCollisionEvent& pcev = *(PhysicsCollisionEvent*)data;
 					script_world::collision(*_script_world, pcev);
+					break;
 				}
-				break;
 
 			case EventType::PHYSICS_TRIGGER:
 				break;

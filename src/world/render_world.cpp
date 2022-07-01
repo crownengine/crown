@@ -1072,8 +1072,8 @@ void RenderWorld::LightManager::debug_draw(u32 start_index, u32 num, DebugLine& 
 				const Vector3 end = pos + dir*3.0f;
 				dl.add_line(pos, end, COLOR4_YELLOW);
 				dl.add_cone(pos + dir*2.8f, end, 0.1f, COLOR4_YELLOW);
+				break;
 			}
-			break;
 
 		case LightType::OMNI:
 			dl.add_sphere(pos, _data.range[i], COLOR4_YELLOW);
@@ -1085,8 +1085,8 @@ void RenderWorld::LightManager::debug_draw(u32 start_index, u32 num, DebugLine& 
 				const f32 range  = _data.range[i];
 				const f32 radius = ftan(angle)*range;
 				dl.add_cone(pos + range*dir, pos, radius, COLOR4_YELLOW);
+				break;
 			}
-			break;
 
 		default:
 			CE_FATAL("Unknown light type");

@@ -249,8 +249,8 @@ namespace material_resource_internal
 					data.z = 0.0f;
 					data.w = 0.0f;
 					reserve_dynamic_data(dynamic, data);
+					break;
 				}
-				break;
 
 			case UniformType::VECTOR2:
 				{
@@ -261,8 +261,8 @@ namespace material_resource_internal
 					data.z = 0.0f;
 					data.w = 0.0f;
 					reserve_dynamic_data(dynamic, data);
+					break;
 				}
-				break;
 
 			case UniformType::VECTOR3:
 				{
@@ -273,8 +273,8 @@ namespace material_resource_internal
 					data.z = value.z;
 					data.w = 0.0f;
 					reserve_dynamic_data(dynamic, data);
+					break;
 				}
-				break;
 
 			case UniformType::VECTOR4:
 				reserve_dynamic_data(dynamic, sjson::parse_vector4(uniform["value"]));

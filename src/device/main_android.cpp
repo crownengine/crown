@@ -92,8 +92,8 @@ struct AndroidDevice
 						, _opts
 						);
 				}
+				break;
 			}
-			break;
 
 		case APP_CMD_TERM_WINDOW:
 			// The window is being hidden or closed, clean it up.

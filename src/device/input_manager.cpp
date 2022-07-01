@@ -281,8 +281,8 @@ void InputManager::read(const OsEvent& event)
 				_joypad[ev.device_num]->set_button(ev.button_num, ev.pressed);
 				break;
 			}
+			break;
 		}
-		break;
 
 	case OsEventType::AXIS:
 		{
@@ -313,8 +313,8 @@ void InputManager::read(const OsEvent& event)
 					);
 				break;
 			}
+			break;
 		}
-		break;
 
 	case OsEventType::STATUS:
 		{
@@ -325,8 +325,8 @@ void InputManager::read(const OsEvent& event)
 				_joypad[ev.device_num]->_connected = ev.connected;
 				break;
 			}
+			break;
 		}
-		break;
 
 	default:
 		CE_FATAL("Unknown input event type");
