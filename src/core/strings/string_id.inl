@@ -73,17 +73,17 @@ struct hash<StringId64>
 };
 
 #if CROWN_DEBUG && !CROWN_DEVELOPMENT
-	inline u32 STRING_ID_32(const char* str, const u32 id)
-	{
-		CE_ASSERT(murmur32(str, strlen32(str), 0) == id, "Hash mismatch");
-		return id;
-	}
+inline u32 STRING_ID_32(const char* str, const u32 id)
+{
+	CE_ASSERT(murmur32(str, strlen32(str), 0) == id, "Hash mismatch");
+	return id;
+}
 
-	inline u64 STRING_ID_64(const char* str, const u64 id)
-	{
-		CE_ASSERT(murmur64(str, strlen32(str), 0) == id, "Hash mismatch");
-		return id;
-	}
+inline u64 STRING_ID_64(const char* str, const u64 id)
+{
+	CE_ASSERT(murmur64(str, strlen32(str), 0) == id, "Hash mismatch");
+	return id;
+}
 #endif
 /// @}
 

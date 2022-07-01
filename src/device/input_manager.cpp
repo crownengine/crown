@@ -261,72 +261,72 @@ void InputManager::read(const OsEvent& event)
 	switch (event.type)
 	{
 	case OsEventType::BUTTON:
+	{
+		const ButtonEvent ev = event.button;
+		switch (ev.device_id)
 		{
-			const ButtonEvent ev = event.button;
-			switch (ev.device_id)
-			{
-			case InputDeviceType::KEYBOARD:
-				_keyboard->set_button(ev.button_num, ev.pressed);
-				break;
+		case InputDeviceType::KEYBOARD:
+			_keyboard->set_button(ev.button_num, ev.pressed);
+			break;
 
-			case InputDeviceType::MOUSE:
-				_mouse->set_button(ev.button_num, ev.pressed);
-				break;
+		case InputDeviceType::MOUSE:
+			_mouse->set_button(ev.button_num, ev.pressed);
+			break;
 
-			case InputDeviceType::TOUCHSCREEN:
-				_touch->set_button(ev.button_num, ev.pressed);
-				break;
+		case InputDeviceType::TOUCHSCREEN:
+			_touch->set_button(ev.button_num, ev.pressed);
+			break;
 
-			case InputDeviceType::JOYPAD:
-				_joypad[ev.device_num]->set_button(ev.button_num, ev.pressed);
-				break;
-			}
+		case InputDeviceType::JOYPAD:
+			_joypad[ev.device_num]->set_button(ev.button_num, ev.pressed);
 			break;
 		}
+		break;
+	}
 
 	case OsEventType::AXIS:
+	{
+		const AxisEvent ev = event.axis;
+		switch (ev.device_id)
 		{
-			const AxisEvent ev = event.axis;
-			switch (ev.device_id)
+		case InputDeviceType::MOUSE:
+			if (ev.axis_num == MouseAxis::CURSOR_DELTA)
 			{
-			case InputDeviceType::MOUSE:
-				if (ev.axis_num == MouseAxis::CURSOR_DELTA)
-				{
-					const Vector3 delta = _has_delta_axis_event ? _mouse->axis(MouseAxis::CURSOR_DELTA) : vector3(0, 0, 0);
-					_mouse->set_axis(MouseAxis::CURSOR_DELTA
-						, delta.x + ev.axis_x
-						, delta.y + ev.axis_y
-						, 0
-						);
-					_has_delta_axis_event = true;
-				}
-				else
-					_mouse->set_axis(ev.axis_num, ev.axis_x, ev.axis_y, ev.axis_z);
-
-				break;
-
-			case InputDeviceType::JOYPAD:
-				_joypad[ev.device_num]->set_axis(ev.axis_num
-					, (f32)ev.axis_x / (f32)INT16_MAX
-					, (f32)ev.axis_y / (f32)INT16_MAX
-					, (f32)ev.axis_z / (f32)INT16_MAX
+				const Vector3 delta = _has_delta_axis_event ? _mouse->axis(MouseAxis::CURSOR_DELTA) : vector3(0, 0, 0);
+				_mouse->set_axis(MouseAxis::CURSOR_DELTA
+					, delta.x + ev.axis_x
+					, delta.y + ev.axis_y
+					, 0
 					);
-				break;
+				_has_delta_axis_event = true;
 			}
+			else
+				_mouse->set_axis(ev.axis_num, ev.axis_x, ev.axis_y, ev.axis_z);
+
+			break;
+
+		case InputDeviceType::JOYPAD:
+			_joypad[ev.device_num]->set_axis(ev.axis_num
+				, (f32)ev.axis_x / (f32)INT16_MAX
+				, (f32)ev.axis_y / (f32)INT16_MAX
+				, (f32)ev.axis_z / (f32)INT16_MAX
+				);
 			break;
 		}
+		break;
+	}
 
 	case OsEventType::STATUS:
+	{
+		const StatusEvent ev = event.status;
+		switch (ev.device_id)
 		{
-			const StatusEvent ev = event.status;
-			switch (ev.device_id)
-			{
-			case InputDeviceType::JOYPAD:
-				_joypad[ev.device_num]->_connected = ev.connected;
-				break;
-			}
+		case InputDeviceType::JOYPAD:
+			_joypad[ev.device_num]->_connected = ev.connected;
 			break;
 		}
+		break;
+	}
 
 	default:
 		CE_FATAL("Unknown input event type");

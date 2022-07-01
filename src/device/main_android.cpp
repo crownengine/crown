@@ -67,33 +67,33 @@ struct AndroidDevice
 			break;
 
 		case APP_CMD_INIT_WINDOW:
+		{
+			CE_ASSERT(app->window != NULL, "Android window is NULL");
+
+			bgfx::PlatformData pd;
+			pd.ndt          = NULL;
+			pd.nwh          = app->window;
+			pd.context      = NULL;
+			pd.backBuffer   = NULL;
+			pd.backBufferDS = NULL;
+			bgfx::setPlatformData(pd);
+
+			// Push metrics here since Android does not trigger APP_CMD_WINDOW_RESIZED
+			const s32 width  = ANativeWindow_getWidth(app->window);
+			const s32 height = ANativeWindow_getHeight(app->window);
+			_queue.push_resolution_event(width, height);
+
+			if (!_main_thread.is_running())
 			{
-				CE_ASSERT(app->window != NULL, "Android window is NULL");
-
-				bgfx::PlatformData pd;
-				pd.ndt          = NULL;
-				pd.nwh          = app->window;
-				pd.context      = NULL;
-				pd.backBuffer   = NULL;
-				pd.backBufferDS = NULL;
-				bgfx::setPlatformData(pd);
-
-				// Push metrics here since Android does not trigger APP_CMD_WINDOW_RESIZED
-				const s32 width  = ANativeWindow_getWidth(app->window);
-				const s32 height = ANativeWindow_getHeight(app->window);
-				_queue.push_resolution_event(width, height);
-
-				if (!_main_thread.is_running())
-				{
-					_main_thread.start([](void* user_data) {
-							crown::run(*((DeviceOptions*)user_data));
-							return EXIT_SUCCESS;
-						}
-						, _opts
-						);
-				}
-				break;
+				_main_thread.start([](void* user_data) {
+						crown::run(*((DeviceOptions*)user_data));
+						return EXIT_SUCCESS;
+					}
+					, _opts
+					);
 			}
+			break;
+		}
 
 		case APP_CMD_TERM_WINDOW:
 			// The window is being hidden or closed, clean it up.

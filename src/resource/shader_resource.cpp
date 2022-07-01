@@ -51,13 +51,13 @@ namespace shader_resource_internal
 	static const char* shaderc_paths[] =
 	{
 		EXE_PATH("shaderc"),
-	#if CROWN_DEBUG
+#if CROWN_DEBUG
 		EXE_PATH("shaderc-debug")
-	#elif CROWN_DEVELOPMENT
+#elif CROWN_DEVELOPMENT
 		EXE_PATH("shaderc-development")
-	#else
+#else
 		EXE_PATH("shaderc-release")
-	#endif
+#endif
 	};
 
 	struct DepthFunction

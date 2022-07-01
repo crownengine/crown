@@ -1522,7 +1522,7 @@ static void test_filesystem()
 		os::delete_directory(dir);
 		CreateResult cr = os::create_directory(dir);
 		ENSURE(cr.error == CreateResult::SUCCESS);
-		             cr = os::create_directory(dir);
+					 cr = os::create_directory(dir);
 		ENSURE(cr.error == CreateResult::ALREADY_EXISTS);
 		DeleteResult dr = os::delete_directory(dir);
 		ENSURE(dr.error == DeleteResult::SUCCESS);

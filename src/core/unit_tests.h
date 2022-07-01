@@ -7,7 +7,7 @@
 
 namespace crown
 {
-	/// Runs all the unit tests.
-	int main_unit_tests();
+/// Runs all the unit tests.
+int main_unit_tests();
 
 } // namespace crown

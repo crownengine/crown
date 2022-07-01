@@ -84,7 +84,7 @@ namespace json
 		CE_ENSURE(NULL != json);
 
 		TempAllocator512 alloc;
-	 	Array<char> number(alloc);
+		Array<char> number(alloc);
 
 		if (*json == '-')
 		{

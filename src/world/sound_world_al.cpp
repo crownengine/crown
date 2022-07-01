@@ -23,17 +23,17 @@ LOG_SYSTEM(SOUND, "sound")
 namespace crown
 {
 #if CROWN_DEBUG
-	static const char* al_error_to_string(ALenum error)
+static const char* al_error_to_string(ALenum error)
+{
+	switch (error)
 	{
-		switch (error)
-		{
-		case AL_INVALID_ENUM: return "AL_INVALID_ENUM";
-		case AL_INVALID_VALUE: return "AL_INVALID_VALUE";
-		case AL_INVALID_OPERATION: return "AL_INVALID_OPERATION";
-		case AL_OUT_OF_MEMORY: return "AL_OUT_OF_MEMORY";
-		default: return "UNKNOWN_AL_ERROR";
-		}
+	case AL_INVALID_ENUM: return "AL_INVALID_ENUM";
+	case AL_INVALID_VALUE: return "AL_INVALID_VALUE";
+	case AL_INVALID_OPERATION: return "AL_INVALID_OPERATION";
+	case AL_OUT_OF_MEMORY: return "AL_OUT_OF_MEMORY";
+	default: return "UNKNOWN_AL_ERROR";
 	}
+}
 
 	#define AL_CHECK(function)                              \
 		function;                                           \
@@ -79,7 +79,7 @@ namespace audio_globals
 	void shutdown()
 	{
 		alcDestroyContext(s_al_context);
-	    alcCloseDevice(s_al_device);
+		alcCloseDevice(s_al_device);
 	}
 
 } // namespace audio_globals

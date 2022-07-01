@@ -304,40 +304,40 @@ struct PhysicsWorldImpl
 			break;
 
 		case ColliderType::CONVEX_HULL:
-			{
-				const char* data       = (char*)&sd[1];
-				const u32 num          = *(u32*)data;
-				const btScalar* points = (btScalar*)(data + sizeof(u32));
+		{
+			const char* data       = (char*)&sd[1];
+			const u32 num          = *(u32*)data;
+			const btScalar* points = (btScalar*)(data + sizeof(u32));
 
-				child_shape = CE_NEW(*_allocator, btConvexHullShape)(points, (int)num, sizeof(Vector3));
-				break;
-			}
+			child_shape = CE_NEW(*_allocator, btConvexHullShape)(points, (int)num, sizeof(Vector3));
+			break;
+		}
 
 		case ColliderType::MESH:
-			{
-				const char* data      = (char*)&sd[1];
-				const u32 num_points  = *(u32*)data;
-				const char* points    = data + sizeof(u32);
-				const u32 num_indices = *(u32*)(points + num_points*sizeof(Vector3));
-				const char* indices   = points + sizeof(u32) + num_points*sizeof(Vector3);
+		{
+			const char* data      = (char*)&sd[1];
+			const u32 num_points  = *(u32*)data;
+			const char* points    = data + sizeof(u32);
+			const u32 num_indices = *(u32*)(points + num_points*sizeof(Vector3));
+			const char* indices   = points + sizeof(u32) + num_points*sizeof(Vector3);
 
-				btIndexedMesh part;
-				part.m_vertexBase          = (const unsigned char*)points;
-				part.m_vertexStride        = sizeof(Vector3);
-				part.m_numVertices         = num_points;
-				part.m_triangleIndexBase   = (const unsigned char*)indices;
-				part.m_triangleIndexStride = sizeof(u16)*3;
-				part.m_numTriangles        = num_indices/3;
-				part.m_indexType           = PHY_SHORT;
+			btIndexedMesh part;
+			part.m_vertexBase          = (const unsigned char*)points;
+			part.m_vertexStride        = sizeof(Vector3);
+			part.m_numVertices         = num_points;
+			part.m_triangleIndexBase   = (const unsigned char*)indices;
+			part.m_triangleIndexStride = sizeof(u16)*3;
+			part.m_numTriangles        = num_indices/3;
+			part.m_indexType           = PHY_SHORT;
 
-				vertex_array = CE_NEW(*_allocator, btTriangleIndexVertexArray)();
-				vertex_array->addIndexedMesh(part, PHY_SHORT);
+			vertex_array = CE_NEW(*_allocator, btTriangleIndexVertexArray)();
+			vertex_array->addIndexedMesh(part, PHY_SHORT);
 
-				const btVector3 aabb_min(-1000.0f,-1000.0f,-1000.0f);
-				const btVector3 aabb_max(1000.0f,1000.0f,1000.0f);
-				child_shape = CE_NEW(*_allocator, btBvhTriangleMeshShape)(vertex_array, false, aabb_min, aabb_max);
-				break;
-			}
+			const btVector3 aabb_min(-1000.0f,-1000.0f,-1000.0f);
+			const btVector3 aabb_max(1000.0f,1000.0f,1000.0f);
+			child_shape = CE_NEW(*_allocator, btBvhTriangleMeshShape)(vertex_array, false, aabb_min, aabb_max);
+			break;
+		}
 
 		case ColliderType::HEIGHTFIELD:
 			CE_FATAL("Not implemented");
@@ -780,16 +780,16 @@ struct PhysicsWorldImpl
 		switch(jd.type)
 		{
 		case JointType::FIXED:
-			{
-				const btTransform frame_0 = btTransform(btQuaternion::getIdentity(), anchor_0);
-				const btTransform frame_1 = btTransform(btQuaternion::getIdentity(), anchor_1);
-				joint = CE_NEW(*_allocator, btFixedConstraint)(*body_0
-					, *body_1
-					, frame_0
-					, frame_1
-					);
-				break;
-			}
+		{
+			const btTransform frame_0 = btTransform(btQuaternion::getIdentity(), anchor_0);
+			const btTransform frame_1 = btTransform(btQuaternion::getIdentity(), anchor_1);
+			joint = CE_NEW(*_allocator, btFixedConstraint)(*body_0
+				, *body_1
+				, frame_0
+				, frame_1
+				);
+			break;
+		}
 
 		case JointType::SPRING:
 			joint = CE_NEW(*_allocator, btPoint2PointConstraint)(*body_0
@@ -800,28 +800,28 @@ struct PhysicsWorldImpl
 			break;
 
 		case JointType::HINGE:
-			{
-				btHingeConstraint* hinge = CE_NEW(*_allocator, btHingeConstraint)(*body_0
-					, *body_1
-					, anchor_0
-					, anchor_1
-					, to_btVector3(jd.hinge.axis)
-					, to_btVector3(jd.hinge.axis)
-					);
+		{
+			btHingeConstraint* hinge = CE_NEW(*_allocator, btHingeConstraint)(*body_0
+				, *body_1
+				, anchor_0
+				, anchor_1
+				, to_btVector3(jd.hinge.axis)
+				, to_btVector3(jd.hinge.axis)
+				);
 
-				hinge->enableAngularMotor(jd.hinge.use_motor
-					, jd.hinge.target_velocity
-					, jd.hinge.max_motor_impulse
-					);
+			hinge->enableAngularMotor(jd.hinge.use_motor
+				, jd.hinge.target_velocity
+				, jd.hinge.max_motor_impulse
+				);
 
-				hinge->setLimit(jd.hinge.lower_limit
-					, jd.hinge.upper_limit
-					, jd.hinge.bounciness
-					);
+			hinge->setLimit(jd.hinge.lower_limit
+				, jd.hinge.upper_limit
+				, jd.hinge.bounciness
+				);
 
-				joint = hinge;
-				break;
-			}
+			joint = hinge;
+			break;
+		}
 
 		default:
 			CE_FATAL("Unknown joint type");

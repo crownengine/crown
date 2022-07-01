@@ -241,40 +241,40 @@ namespace material_resource_internal
 			switch (ud.type)
 			{
 			case UniformType::FLOAT:
-				{
-					const f32 value = sjson::parse_float(uniform["value"]);
-					Vector4 data;
-					data.x = value;
-					data.y = 0.0f;
-					data.z = 0.0f;
-					data.w = 0.0f;
-					reserve_dynamic_data(dynamic, data);
-					break;
-				}
+			{
+				const f32 value = sjson::parse_float(uniform["value"]);
+				Vector4 data;
+				data.x = value;
+				data.y = 0.0f;
+				data.z = 0.0f;
+				data.w = 0.0f;
+				reserve_dynamic_data(dynamic, data);
+				break;
+			}
 
 			case UniformType::VECTOR2:
-				{
-					const Vector2 value = sjson::parse_vector2(uniform["value"]);
-					Vector4 data;
-					data.x = value.x;
-					data.y = value.y;
-					data.z = 0.0f;
-					data.w = 0.0f;
-					reserve_dynamic_data(dynamic, data);
-					break;
-				}
+			{
+				const Vector2 value = sjson::parse_vector2(uniform["value"]);
+				Vector4 data;
+				data.x = value.x;
+				data.y = value.y;
+				data.z = 0.0f;
+				data.w = 0.0f;
+				reserve_dynamic_data(dynamic, data);
+				break;
+			}
 
 			case UniformType::VECTOR3:
-				{
-					const Vector3 value = sjson::parse_vector3(uniform["value"]);
-					Vector4 data;
-					data.x = value.x;
-					data.y = value.y;
-					data.z = value.z;
-					data.w = 0.0f;
-					reserve_dynamic_data(dynamic, data);
-					break;
-				}
+			{
+				const Vector3 value = sjson::parse_vector3(uniform["value"]);
+				Vector4 data;
+				data.x = value.x;
+				data.y = value.y;
+				data.z = value.z;
+				data.w = 0.0f;
+				reserve_dynamic_data(dynamic, data);
+				break;
+			}
 
 			case UniformType::VECTOR4:
 				reserve_dynamic_data(dynamic, sjson::parse_vector4(uniform["value"]));

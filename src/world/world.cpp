@@ -181,12 +181,12 @@ void World::update_scene(f32 dt)
 			switch (eh->type)
 			{
 			case 0:
-				{
-					const SpriteFrameChangeEvent& ptev = *(SpriteFrameChangeEvent*)data;
-					const SpriteInstance si = _render_world->sprite_instance(ptev.unit);
-					_render_world->sprite_set_frame(si, ptev.frame_num);
-					break;
-				}
+			{
+				const SpriteFrameChangeEvent& ptev = *(SpriteFrameChangeEvent*)data;
+				const SpriteInstance si = _render_world->sprite_instance(ptev.unit);
+				_render_world->sprite_set_frame(si, ptev.frame_num);
+				break;
+			}
 
 			default:
 				CE_FATAL("Unknown event type");
@@ -224,20 +224,20 @@ void World::update_scene(f32 dt)
 			switch (eh->type)
 			{
 			case EventType::PHYSICS_TRANSFORM:
-				{
-					const PhysicsTransformEvent& ptev = *(PhysicsTransformEvent*)data;
-					const TransformInstance ti = _scene_graph->instance(ptev.unit_id);
-					if (is_valid(ti)) // User code may have destroyed the actor
-						_scene_graph->set_world_pose_and_rescale(ti, ptev.world);
-					break;
-				}
+			{
+				const PhysicsTransformEvent& ptev = *(PhysicsTransformEvent*)data;
+				const TransformInstance ti = _scene_graph->instance(ptev.unit_id);
+				if (is_valid(ti)) // User code may have destroyed the actor
+					_scene_graph->set_world_pose_and_rescale(ti, ptev.world);
+				break;
+			}
 
 			case EventType::PHYSICS_COLLISION:
-				{
-					const PhysicsCollisionEvent& pcev = *(PhysicsCollisionEvent*)data;
-					script_world::collision(*_script_world, pcev);
-					break;
-				}
+			{
+				const PhysicsCollisionEvent& pcev = *(PhysicsCollisionEvent*)data;
+				script_world::collision(*_script_world, pcev);
+				break;
+			}
 
 			case EventType::PHYSICS_TRIGGER:
 				break;

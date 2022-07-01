@@ -431,78 +431,62 @@ struct WindowsDevice
 			return 0;
 
 		case WM_SIZE:
+		{
+			u32 width  = GET_X_LPARAM(lparam);
+			u32 height = GET_Y_LPARAM(lparam);
+			if (_cursor_mode == CursorMode::DISABLED)
 			{
-				u32 width  = GET_X_LPARAM(lparam);
-				u32 height = GET_Y_LPARAM(lparam);
-				if (_cursor_mode == CursorMode::DISABLED)
-				{
-					RECT clipRect;
-					GetWindowRect(_hwnd, &clipRect);
-					ClipCursor(&clipRect);
-				}
-				_queue.push_resolution_event(width, height);
-				break;
+				RECT clipRect;
+				GetWindowRect(_hwnd, &clipRect);
+				ClipCursor(&clipRect);
 			}
+			_queue.push_resolution_event(width, height);
+			break;
+		}
 
 		case WM_SYSCOMMAND:
 			switch (wparam)
 			{
 			case SC_MINIMIZE:
 			case SC_RESTORE:
+			{
+				HWND parent = GetWindow(hwnd, GW_OWNER);
+				if (parent != NULL)
 				{
-					HWND parent = GetWindow(hwnd, GW_OWNER);
-					if (parent != NULL)
-					{
-						PostMessage(parent, id, wparam, lparam);
-					}
-					break;
+					PostMessage(parent, id, wparam, lparam);
 				}
+				break;
+			}
 			}
 			break;
 
 		case WM_MOUSEWHEEL:
-			{
-				short delta = GET_WHEEL_DELTA_WPARAM(wparam);
-				_queue.push_axis_event(InputDeviceType::MOUSE
-					, 0
-					, MouseAxis::WHEEL
-					, 0
-					, delta / WHEEL_DELTA
-					, 0
-					);
-				break;
-			}
+		{
+			short delta = GET_WHEEL_DELTA_WPARAM(wparam);
+			_queue.push_axis_event(InputDeviceType::MOUSE
+				, 0
+				, MouseAxis::WHEEL
+				, 0
+				, delta / WHEEL_DELTA
+				, 0
+				);
+			break;
+		}
 
 		case WM_MOUSEMOVE:
+		{
+			s32 mx = GET_X_LPARAM(lparam);
+			s32 my = GET_Y_LPARAM(lparam);
+			s16 deltax = mx - (_mouse_last_x == INT16_MAX ? mx : _mouse_last_x);
+			s16 deltay = my - (_mouse_last_y == INT16_MAX ? my : _mouse_last_y);
+			if (_cursor_mode == CursorMode::DISABLED)
 			{
-				s32 mx = GET_X_LPARAM(lparam);
-				s32 my = GET_Y_LPARAM(lparam);
-				s16 deltax = mx - (_mouse_last_x == INT16_MAX ? mx : _mouse_last_x);
-				s16 deltay = my - (_mouse_last_y == INT16_MAX ? my : _mouse_last_y);
-				if (_cursor_mode == CursorMode::DISABLED)
-				{
-					RECT clipRect;
-					GetWindowRect(_hwnd, &clipRect);
-					unsigned width = clipRect.right - clipRect.left;
-					unsigned height = clipRect.bottom - clipRect.top;
+				RECT clipRect;
+				GetWindowRect(_hwnd, &clipRect);
+				unsigned width = clipRect.right - clipRect.left;
+				unsigned height = clipRect.bottom - clipRect.top;
 
-					if (mx != (s32)width/2 || my != (s32)height/2)
-					{
-						_queue.push_axis_event(InputDeviceType::MOUSE
-							, 0
-							, MouseAxis::CURSOR_DELTA
-							, deltax
-							, deltay
-							, 0
-							);
-						POINT mouse_pos = {(long)width/2, (long)height/2};
-						ClientToScreen(_hwnd, &mouse_pos);
-						SetCursorPos(mouse_pos.x, mouse_pos.y);
-						_mouse_last_x = (s16)width/2;
-						_mouse_last_y = (s16)height/2;
-					}
-				}
-				else if (_cursor_mode == CursorMode::NORMAL)
+				if (mx != (s32)width/2 || my != (s32)height/2)
 				{
 					_queue.push_axis_event(InputDeviceType::MOUSE
 						, 0
@@ -511,18 +495,34 @@ struct WindowsDevice
 						, deltay
 						, 0
 						);
-					_mouse_last_x = (s16)mx;
-					_mouse_last_y = (s16)my;
+					POINT mouse_pos = {(long)width/2, (long)height/2};
+					ClientToScreen(_hwnd, &mouse_pos);
+					SetCursorPos(mouse_pos.x, mouse_pos.y);
+					_mouse_last_x = (s16)width/2;
+					_mouse_last_y = (s16)height/2;
 				}
+			}
+			else if (_cursor_mode == CursorMode::NORMAL)
+			{
 				_queue.push_axis_event(InputDeviceType::MOUSE
 					, 0
-					, MouseAxis::CURSOR
-					, (s16)mx
-					, (s16)my
+					, MouseAxis::CURSOR_DELTA
+					, deltax
+					, deltay
 					, 0
 					);
-				break;
+				_mouse_last_x = (s16)mx;
+				_mouse_last_y = (s16)my;
 			}
+			_queue.push_axis_event(InputDeviceType::MOUSE
+				, 0
+				, MouseAxis::CURSOR
+				, (s16)mx
+				, (s16)my
+				, 0
+				);
+			break;
+		}
 
 		case WM_LBUTTONDOWN:
 		case WM_LBUTTONUP:
@@ -530,63 +530,63 @@ struct WindowsDevice
 		case WM_RBUTTONUP:
 		case WM_MBUTTONDOWN:
 		case WM_MBUTTONUP:
-			{
-				MouseButton::Enum mb;
-				if (id == WM_LBUTTONDOWN || id == WM_LBUTTONUP)
-					mb = MouseButton::LEFT;
-				else if (id == WM_RBUTTONDOWN || id == WM_RBUTTONUP)
-					mb = MouseButton::RIGHT;
-				else /* if  (id == WM_MBUTTONDOWN || id == WM_MBUTTONUP) */
-					mb = MouseButton::MIDDLE;
+		{
+			MouseButton::Enum mb;
+			if (id == WM_LBUTTONDOWN || id == WM_LBUTTONUP)
+				mb = MouseButton::LEFT;
+			else if (id == WM_RBUTTONDOWN || id == WM_RBUTTONUP)
+				mb = MouseButton::RIGHT;
+			else     /* if  (id == WM_MBUTTONDOWN || id == WM_MBUTTONUP) */
+				mb = MouseButton::MIDDLE;
 
-				bool down = id == WM_LBUTTONDOWN
-					|| id == WM_RBUTTONDOWN
-					|| id == WM_MBUTTONDOWN
-					;
+			bool down = id == WM_LBUTTONDOWN
+				|| id == WM_RBUTTONDOWN
+				|| id == WM_MBUTTONDOWN
+				;
 
-				_queue.push_button_event(InputDeviceType::MOUSE
-					, 0
-					, mb
-					, down
-					);
-				break;
-			}
+			_queue.push_button_event(InputDeviceType::MOUSE
+				, 0
+				, mb
+				, down
+				);
+			break;
+		}
 
 		case WM_KEYDOWN:
 		case WM_SYSKEYDOWN:
 		case WM_KEYUP:
 		case WM_SYSKEYUP:
-			{
-				KeyboardButton::Enum kb = win_translate_key(wparam & 0xff);
+		{
+			KeyboardButton::Enum kb = win_translate_key(wparam & 0xff);
 
-				if (kb != KeyboardButton::COUNT)
-				{
-					_queue.push_button_event(InputDeviceType::KEYBOARD
-						, 0
-						, kb
-						, (id == WM_KEYDOWN || id == WM_SYSKEYDOWN)
-						);
-				}
-				break;
+			if (kb != KeyboardButton::COUNT)
+			{
+				_queue.push_button_event(InputDeviceType::KEYBOARD
+					, 0
+					, kb
+					, (id == WM_KEYDOWN || id == WM_SYSKEYDOWN)
+					);
 			}
+			break;
+		}
 
 		case WM_CHAR:
-			{
-				uint8_t utf8[4] = { 0 };
-				uint8_t len = (uint8_t)WideCharToMultiByte(CP_UTF8
-					, 0
-					, (LPCWSTR)&wparam
-					, 1
-					, (LPSTR)utf8
-					, sizeof(utf8)
-					, NULL
-					, NULL
-					);
+		{
+			uint8_t utf8[4] = { 0 };
+			uint8_t len = (uint8_t)WideCharToMultiByte(CP_UTF8
+				, 0
+				, (LPCWSTR)&wparam
+				, 1
+				, (LPSTR)utf8
+				, sizeof(utf8)
+				, NULL
+				, NULL
+				);
 
-				if (len)
-					_queue.push_text_event(len, utf8);
-				break;
-			}
+			if (len)
+				_queue.push_text_event(len, utf8);
+			break;
+		}
 
 		case WM_SETCURSOR:
 			if (LOWORD(lparam) == HTCLIENT)

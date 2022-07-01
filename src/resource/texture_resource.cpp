@@ -66,13 +66,13 @@ namespace texture_resource_internal
 	static const char* texturec_paths[] =
 	{
 		EXE_PATH("texturec"),
-	#if CROWN_DEBUG
+#if CROWN_DEBUG
 		EXE_PATH("texturec-debug")
-	#elif CROWN_DEVELOPMENT
+#elif CROWN_DEVELOPMENT
 		EXE_PATH("texturec-development")
-	#else
+#else
 		EXE_PATH("texturec-release")
-	#endif
+#endif
 	};
 
 	s32 compile(CompileOptions& opts)

@@ -69,29 +69,29 @@ namespace expression_language
 	/// Computes the function specified by @a op_code on the @a stack.
 	static inline void compute_function(OpCode op_code, Stack &stack)
 	{
-		#define POP() pop(stack)
-		#define PUSH(f) push(stack, f)
+#define POP() pop(stack)
+#define PUSH(f) push(stack, f)
 
 		float a,b,c,d;
 
 		switch(op_code) {
-			case OP_ADD: b=POP(); a=POP(); PUSH(a+b); break;
-			case OP_SUB: b=POP(); a=POP(); PUSH(a-b); break;
-			case OP_MUL: b=POP(); a=POP(); PUSH(a*b); break;
-			case OP_DIV: b=POP(); a=POP(); PUSH(a/b); break;
-			case OP_UNARY_MINUS: PUSH(-POP()); break;
-			case OP_SIN: PUSH(fsin(POP())); break;
-			case OP_COS: PUSH(fcos(POP())); break;
-			case OP_ABS: a = POP(); PUSH(fabs(a)); break;
-			case OP_MATCH: b=POP(); a=POP(); PUSH(match(a, b)); break;
-			case OP_MATCH_2D: d=POP(); c=POP(); b=POP(); a=POP(); PUSH(match2d(a,b,c,d)); break;
-			case OP_NOP: break;
-			default:
-				CE_FATAL("Unknown opcode");
+		case OP_ADD: b=POP(); a=POP(); PUSH(a+b); break;
+		case OP_SUB: b=POP(); a=POP(); PUSH(a-b); break;
+		case OP_MUL: b=POP(); a=POP(); PUSH(a*b); break;
+		case OP_DIV: b=POP(); a=POP(); PUSH(a/b); break;
+		case OP_UNARY_MINUS: PUSH(-POP()); break;
+		case OP_SIN: PUSH(fsin(POP())); break;
+		case OP_COS: PUSH(fcos(POP())); break;
+		case OP_ABS: a = POP(); PUSH(fabs(a)); break;
+		case OP_MATCH: b=POP(); a=POP(); PUSH(match(a, b)); break;
+		case OP_MATCH_2D: d=POP(); c=POP(); b=POP(); a=POP(); PUSH(match2d(a,b,c,d)); break;
+		case OP_NOP: break;
+		default:
+			CE_FATAL("Unknown opcode");
 		}
 
-		#undef POP
-		#undef PUSH
+#undef POP
+#undef PUSH
 	}
 
 	/// Union to cast through to convert between float and unsigned.
@@ -111,20 +111,19 @@ namespace expression_language
 			unsigned op = bc_mask(bc);
 			unsigned id = id_mask(bc);
 			switch (op) {
-				case BC_PUSH_VAR:
-					if (stack.size == stack.capacity) return false;
-					stack.data[stack.size++] = variables[id];
-					break;
-				case BC_FUNCTION:
-					compute_function((OpCode)id, stack);
-					break;
-				case BC_END:
-					return true;
-				default: // BC_PUSH_FLOAT
-					if (stack.size == stack.capacity) return false;
-					stack.data[stack.size++] = unsigned_to_float(bc);
-					break;
-
+			case BC_PUSH_VAR:
+				if (stack.size == stack.capacity) return false;
+				stack.data[stack.size++] = variables[id];
+				break;
+			case BC_FUNCTION:
+				compute_function((OpCode)id, stack);
+				break;
+			case BC_END:
+				return true;
+			default: // BC_PUSH_FLOAT
+				if (stack.size == stack.capacity) return false;
+				stack.data[stack.size++] = unsigned_to_float(bc);
+				break;
 			}
 		}
 	}
@@ -136,9 +135,9 @@ namespace expression_language
 {
 	static inline unsigned float_to_unsigned(float f)	{FloatAndUnsigned fu; fu.f = f; return fu.u;}
 
-	#ifdef WIN32
+#ifdef WIN32
 		float strtof(const char *nptr, char **endptr) {return (float)strtod(nptr, endptr);}
-	#endif
+#endif
 
 	/// Represents a token in the expression language. The tokens are used
 	/// both during the tokenization phase and as a representation of the
@@ -253,25 +252,25 @@ namespace expression_language
 			// Operators
 			} else {
 				switch (*p) {
-					case '(': token = Token(Token::LEFT_PARENTHESIS); binary = false; break;
-					case ')': token = Token(Token::RIGHT_PARENTHESIS); binary = true; break;
-					case ' ': case '\t': case '\n': case '\r': break;
-					case '-': token = env.token_for_identifier(binary ? "-" : "u-"); binary = false; break;
-					case '+': token = env.token_for_identifier(binary ? "+" : "u+"); binary = false; break;
+				case '(': token = Token(Token::LEFT_PARENTHESIS); binary = false; break;
+				case ')': token = Token(Token::RIGHT_PARENTHESIS); binary = true; break;
+				case ' ': case '\t': case '\n': case '\r': break;
+				case '-': token = env.token_for_identifier(binary ? "-" : "u-"); binary = false; break;
+				case '+': token = env.token_for_identifier(binary ? "+" : "u+"); binary = false; break;
 
-					default: {
-						char s1[2] = {*p,0};
-						char s2[3] = {*p, *(p+1), 0};
+				default: {
+					char s1[2] = {*p,0};
+					char s2[3] = {*p, *(p+1), 0};
 
-						if (s2[1] && env.has_function(s2)) {
-							token = env.token_for_identifier(s2);
-							++p;
-						} else
-							token = env.token_for_identifier(s1);
+					if (s2[1] && env.has_function(s2)) {
+						token = env.token_for_identifier(s2);
+						++p;
+					} else
+						token = env.token_for_identifier(s1);
 
-						binary = false;
-						break;
-					}
+					binary = false;
+					break;
+				}
 				}
 				++p;
 			}
@@ -341,20 +340,20 @@ namespace expression_language
 			Token t = rpl[i];
 			unsigned op;
 			switch (t.type) {
-				case Token::NUMBER:
-					op = float_to_unsigned(t.value);
-					break;
-				case Token::VARIABLE:
-					op = BC_PUSH_VAR + t.id;
-					break;
-				case Token::FUNCTION:
-					f = env.function_values[t.id];
-					op = BC_FUNCTION + f.op_code;
-					break;
-				default:
-					op = 0xdeadbeef;
-					CE_FATAL("Unknown token");
-					break;
+			case Token::NUMBER:
+				op = float_to_unsigned(t.value);
+				break;
+			case Token::VARIABLE:
+				op = BC_PUSH_VAR + t.id;
+				break;
+			case Token::FUNCTION:
+				f = env.function_values[t.id];
+				op = BC_FUNCTION + f.op_code;
+				break;
+			default:
+				op = 0xdeadbeef;
+				CE_FATAL("Unknown token");
+				break;
 			}
 			if (size < capacity)
 				byte_code[size++] = op;
@@ -448,26 +447,26 @@ namespace expression_language
 		for (unsigned i=0; i<num_tokens; ++i) {
 			Token &token = tokens[i];
 			switch (token.type) {
-				case Token::NUMBER:
-				case Token::VARIABLE:
-					rpl[num_rpl++] = token;
-					break;
-				case Token::LEFT_PARENTHESIS:
-					++par_level;
-					break;
-				case Token::RIGHT_PARENTHESIS:
-					--par_level;
-					break;
-				case Token::FUNCTION: {
-					FunctionStackItem f(token, env.function_values[token.id].precedence, par_level);
-					while (num_function_stack>0 && function_stack[num_function_stack-1] >= f)
-						rpl[num_rpl++] = function_stack[--num_function_stack].token;
-					function_stack[num_function_stack++] = f;
-					break;
-				}
-				default:
-					CE_FATAL("Unknown token");
-					break;
+			case Token::NUMBER:
+			case Token::VARIABLE:
+				rpl[num_rpl++] = token;
+				break;
+			case Token::LEFT_PARENTHESIS:
+				++par_level;
+				break;
+			case Token::RIGHT_PARENTHESIS:
+				--par_level;
+				break;
+			case Token::FUNCTION: {
+				FunctionStackItem f(token, env.function_values[token.id].precedence, par_level);
+				while (num_function_stack>0 && function_stack[num_function_stack-1] >= f)
+					rpl[num_rpl++] = function_stack[--num_function_stack].token;
+				function_stack[num_function_stack++] = f;
+				break;
+			}
+			default:
+				CE_FATAL("Unknown token");
+				break;
 			}
 		}
 
