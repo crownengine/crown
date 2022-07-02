@@ -259,7 +259,7 @@ struct WindowAndroid : public Window
 		return NULL;
 	}
 
-	void set_title (const char* /*title*/)
+	void set_title(const char* /*title*/)
 	{
 	}
 

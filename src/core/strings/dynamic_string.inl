@@ -165,7 +165,7 @@ inline StringId32 DynamicString::to_string_id() const
 
 inline const char* DynamicString::c_str() const
 {
-	Array<char>& data = const_cast<Array<char>& >(_data);
+	Array<char>& data = const_cast<Array<char>&>(_data);
 	array::push_back(data, '\0');
 	array::pop_back(data);
 	return array::begin(_data);

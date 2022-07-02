@@ -74,16 +74,16 @@ namespace sprite_resource_internal
 			parse_frame(sf, frames[i]);
 
 			// Generate UV coords
-			const f32 u0 = (              sf.region.x) / width;
+			const f32 u0 = (sf.region.x) / width;
 			const f32 v0 = (sf.region.w + sf.region.y) / height;
 			const f32 u1 = (sf.region.z + sf.region.x) / width;
-			const f32 v1 = (              sf.region.y) / height;
+			const f32 v1 = (sf.region.y) / height;
 
 			// Generate positions
-			f32 x0 = (              sf.region.x - sf.pivot.x) / CROWN_DEFAULT_PIXELS_PER_METER;
+			f32 x0 = (sf.region.x - sf.pivot.x) / CROWN_DEFAULT_PIXELS_PER_METER;
 			f32 y0 = (sf.region.w + sf.region.y - sf.pivot.y) / CROWN_DEFAULT_PIXELS_PER_METER;
 			f32 x1 = (sf.region.z + sf.region.x - sf.pivot.x) / CROWN_DEFAULT_PIXELS_PER_METER;
-			f32 y1 = (              sf.region.y - sf.pivot.y) / CROWN_DEFAULT_PIXELS_PER_METER;
+			f32 y1 = (sf.region.y - sf.pivot.y) / CROWN_DEFAULT_PIXELS_PER_METER;
 
 			// Invert Y axis
 			y0 = y0 == 0.0f ? y0 : -y0;
@@ -175,7 +175,7 @@ namespace sprite_animation_resource_internal
 
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
-		JsonArray  object_frames(ta);
+		JsonArray object_frames(ta);
 
 		Array<u32> frames(default_allocator());
 		float total_time = 0.0f;

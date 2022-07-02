@@ -23,16 +23,16 @@ namespace crown
 {
 /// @addtogroup Core
 /// @{
-typedef int8_t   s8;
-typedef uint8_t  u8;
-typedef int16_t  s16;
+typedef int8_t s8;
+typedef uint8_t u8;
+typedef int16_t s16;
 typedef uint16_t u16;
-typedef int32_t  s32;
+typedef int32_t s32;
 typedef uint32_t u32;
-typedef int64_t  s64;
+typedef int64_t s64;
 typedef uint64_t u64;
-typedef float    f32;
-typedef double   f64;
+typedef float f32;
+typedef double f64;
 /// @}
 
 template<typename T>
@@ -97,13 +97,13 @@ u64 STRING_ID_64(const char* str, const u64 id);
 	#define CE_LIKELY(x) __builtin_expect((x), 1)
 	#define CE_UNLIKELY(x) __builtin_expect((x), 0)
 	#define CE_UNREACHABLE() __builtin_unreachable()
-	#define CE_ALIGN_DECL(align, decl) decl __attribute__ ((aligned (align)))
+	#define CE_ALIGN_DECL(align, decl) decl __attribute__ ((aligned(align)))
 	#define CE_THREAD __thread
 #elif CROWN_COMPILER_MSVC
 	#define CE_LIKELY(x) (x)
 	#define CE_UNLIKELY(x) (x)
 	#define CE_UNREACHABLE() __assume(0)
-	#define CE_ALIGN_DECL(align_, decl) __declspec (align(align_)) decl
+	#define CE_ALIGN_DECL(align_, decl) __declspec(align(align_)) decl
 	#define CE_THREAD __declspec(thread)
 #else
 	#error "Unknown compiler"

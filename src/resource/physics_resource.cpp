@@ -132,7 +132,7 @@ namespace physics_resource_internal
 		const Vector3 origin = aabb::center(aabb);
 		sd.local_tm.t = vector4(origin.x, origin.y, origin.z, 1.0f);
 
-		sd.sphere.radius = max(            0.0f, aabb.max.x - aabb.min.x);
+		sd.sphere.radius = max(0.0f, aabb.max.x - aabb.min.x);
 		sd.sphere.radius = max(sd.sphere.radius, aabb.max.y - aabb.min.y);
 		sd.sphere.radius = max(sd.sphere.radius, aabb.max.z - aabb.min.z);
 		sd.sphere.radius *= 0.5f;

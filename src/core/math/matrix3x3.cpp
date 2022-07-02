@@ -79,17 +79,17 @@ Matrix3x3& invert(Matrix3x3& m)
 
 	const f32 inv_det = 1.0f / det;
 
-	m.x.x = + (yy*zz - zy*yz) * inv_det;
-	m.x.y = - (xy*zz - zy*xz) * inv_det;
-	m.x.z = + (xy*yz - yy*xz) * inv_det;
+	m.x.x = +(yy*zz - zy*yz) * inv_det;
+	m.x.y = -(xy*zz - zy*xz) * inv_det;
+	m.x.z = +(xy*yz - yy*xz) * inv_det;
 
-	m.y.x = - (yx*zz - zx*yz) * inv_det;
-	m.y.y = + (xx*zz - zx*xz) * inv_det;
-	m.y.z = - (xx*yz - yx*xz) * inv_det;
+	m.y.x = -(yx*zz - zx*yz) * inv_det;
+	m.y.y = +(xx*zz - zx*xz) * inv_det;
+	m.y.z = -(xx*yz - yx*xz) * inv_det;
 
-	m.z.x = + (yx*zy - zx*yy) * inv_det;
-	m.z.y = - (xx*zy - zx*xy) * inv_det;
-	m.z.z = + (xx*yy - yx*xy) * inv_det;
+	m.z.x = +(yx*zy - zx*yy) * inv_det;
+	m.z.y = -(xx*zy - zx*xy) * inv_det;
+	m.z.z = +(xx*yy - yx*xy) * inv_det;
 
 	return m;
 }

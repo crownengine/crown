@@ -76,16 +76,16 @@ struct MouseCursorInfo
 
 static const MouseCursorInfo s_cursor[] =
 {
-	{ "arrow",              MouseCursor::ARROW               },
-	{ "hand",               MouseCursor::HAND                },
-	{ "text_input",         MouseCursor::TEXT_INPUT          },
-	{ "corner_top_left",    MouseCursor::CORNER_TOP_LEFT     },
-	{ "corner_top_right",   MouseCursor::CORNER_TOP_RIGHT    },
-	{ "corner_bottom_left", MouseCursor::CORNER_BOTTOM_LEFT  },
-	{ "corner_bottom_right",MouseCursor::CORNER_BOTTOM_RIGHT },
-	{ "size_horizontal",    MouseCursor::SIZE_HORIZONTAL     },
-	{ "size_vertical",      MouseCursor::SIZE_VERTICAL       },
-	{ "wait",               MouseCursor::WAIT                }
+	{ "arrow",               MouseCursor::ARROW               },
+	{ "hand",                MouseCursor::HAND                },
+	{ "text_input",          MouseCursor::TEXT_INPUT          },
+	{ "corner_top_left",     MouseCursor::CORNER_TOP_LEFT     },
+	{ "corner_top_right",    MouseCursor::CORNER_TOP_RIGHT    },
+	{ "corner_bottom_left",  MouseCursor::CORNER_BOTTOM_LEFT  },
+	{ "corner_bottom_right", MouseCursor::CORNER_BOTTOM_RIGHT },
+	{ "size_horizontal",     MouseCursor::SIZE_HORIZONTAL     },
+	{ "size_vertical",       MouseCursor::SIZE_VERTICAL       },
+	{ "wait",                MouseCursor::WAIT                }
 };
 CE_STATIC_ASSERT(countof(s_cursor) == MouseCursor::COUNT);
 
@@ -970,15 +970,15 @@ void load_api(LuaEnvironment& env)
 		{
 			LuaStack stack(L);
 			Matrix4x4 m;
-			m.x.x = stack.get_float( 1 + 1);
-			m.x.y = stack.get_float( 2 + 1);
-			m.x.z = stack.get_float( 3 + 1);
-			m.x.w = stack.get_float( 4 + 1);
-			m.y.x = stack.get_float( 5 + 1);
-			m.y.y = stack.get_float( 6 + 1);
-			m.y.z = stack.get_float( 7 + 1);
-			m.y.w = stack.get_float( 8 + 1);
-			m.z.x = stack.get_float( 9 + 1);
+			m.x.x = stack.get_float(1 + 1);
+			m.x.y = stack.get_float(2 + 1);
+			m.x.z = stack.get_float(3 + 1);
+			m.x.w = stack.get_float(4 + 1);
+			m.y.x = stack.get_float(5 + 1);
+			m.y.y = stack.get_float(6 + 1);
+			m.y.z = stack.get_float(7 + 1);
+			m.y.w = stack.get_float(8 + 1);
+			m.z.x = stack.get_float(9 + 1);
 			m.z.y = stack.get_float(10 + 1);
 			m.z.z = stack.get_float(11 + 1);
 			m.z.w = stack.get_float(12 + 1);

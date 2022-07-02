@@ -234,7 +234,7 @@ struct Joypad
 			if (!connected)
 				continue;
 
-			while(read(fd, &ev, sizeof(ev)) != -1)
+			while (read(fd, &ev, sizeof(ev)) != -1)
 			{
 				s16 val = ev.value;
 
@@ -775,7 +775,7 @@ struct WindowX11 : public Window
 		return buf;
 	}
 
-	void set_title (const char* title)
+	void set_title(const char* title)
 	{
 		XStoreName(s_ldvc._x11_display, s_ldvc._x11_window, title);
 	}

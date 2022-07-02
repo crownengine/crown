@@ -465,7 +465,7 @@ static void test_color4()
 		ENSURE(fequal(a.x, 0.24705f, 0.00001f));
 		ENSURE(fequal(a.y, 0.90588f, 0.00001f));
 		ENSURE(fequal(a.z, 0.04705f, 0.00001f));
-		ENSURE(fequal(a.w, 1.0f    , 0.00001f));
+		ENSURE(fequal(a.w, 1.0f, 0.00001f));
 	}
 	{
 		const Color4 a = from_rgba(0x3fe70c62);
@@ -754,7 +754,7 @@ static void test_aabb()
 	{
 		AABB a;
 		a.min = vector3(-2.3f, 1.2f, -4.5f);
-		a.max = vector3( 3.7f, 5.3f, -2.9f);
+		a.max = vector3(3.7f, 5.3f, -2.9f);
 		const Vector3 c = aabb::center(a);
 		ENSURE(fequal(c.x,  0.70f, 0.00001f));
 		ENSURE(fequal(c.y,  3.25f, 0.00001f));
@@ -763,7 +763,7 @@ static void test_aabb()
 	{
 		AABB a;
 		a.min = vector3(-2.3f, 1.2f, -4.5f);
-		a.max = vector3( 3.7f, 5.3f, -2.9f);
+		a.max = vector3(3.7f, 5.3f, -2.9f);
 		const float c = aabb::volume(a);
 		ENSURE(fequal(c, 39.36f, 0.00001f));
 	}
@@ -815,8 +815,8 @@ static void test_aabb()
 	{
 		AABB a;
 		a.min = vector3(-2.3f, 1.2f, -4.5f);
-		a.max = vector3( 3.7f, 5.3f, -2.9f);
-		ENSURE( aabb::contains_point(a, vector3(1.2f,  3.0f, -4.4f)));
+		a.max = vector3(3.7f, 5.3f, -2.9f);
+		ENSURE(aabb::contains_point(a, vector3(1.2f,  3.0f, -4.4f)));
 		ENSURE(!aabb::contains_point(a, vector3(3.8f,  3.0f, -4.4f)));
 		ENSURE(!aabb::contains_point(a, vector3(1.2f, -1.0f, -4.4f)));
 		ENSURE(!aabb::contains_point(a, vector3(1.2f,  3.0f, -4.6f)));
@@ -887,7 +887,7 @@ static void test_sphere()
 		Sphere a;
 		a.c = vector3(-2.3f, 1.2f, -4.5f);
 		a.r = 1.0f;
-		ENSURE( sphere::contains_point(a, vector3(-2.9f, 1.6f, -4.0f)));
+		ENSURE(sphere::contains_point(a, vector3(-2.9f, 1.6f, -4.0f)));
 		ENSURE(!sphere::contains_point(a, vector3(-3.9f, 1.6f, -4.0f)));
 		ENSURE(!sphere::contains_point(a, vector3(-2.9f, 2.6f, -4.0f)));
 		ENSURE(!sphere::contains_point(a, vector3(-2.9f, 1.6f, -6.0f)));
@@ -993,10 +993,10 @@ static void test_dynamic_string()
 		DynamicString str(ta);
 		str.set("Hello everyone!", 15);
 
-		ENSURE( str.has_prefix("Hello"));
+		ENSURE(str.has_prefix("Hello"));
 		ENSURE(!str.has_prefix("Helloo"));
 
-		ENSURE( str.has_suffix("one!"));
+		ENSURE(str.has_suffix("one!"));
 		ENSURE(!str.has_suffix("one"));
 
 		ENSURE(!str.has_prefix("Hello everyone!!!"));
@@ -1522,7 +1522,7 @@ static void test_filesystem()
 		os::delete_directory(dir);
 		CreateResult cr = os::create_directory(dir);
 		ENSURE(cr.error == CreateResult::SUCCESS);
-					 cr = os::create_directory(dir);
+		cr = os::create_directory(dir);
 		ENSURE(cr.error == CreateResult::ALREADY_EXISTS);
 		DeleteResult dr = os::delete_directory(dir);
 		ENSURE(dr.error == DeleteResult::SUCCESS);

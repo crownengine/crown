@@ -59,7 +59,7 @@ namespace json
 		case '"': json = skip_string(json); break;
 		case '[': json = skip_block(json, '[', ']'); break;
 		case '{': json = skip_block(json, '{', '}'); break;
-		default: for (; *json != ',' && *json != '}' && *json != ']'; ++json) ; break;
+		default: for (; *json != ',' && *json != '}' && *json != ']'; ++json); break;
 		}
 
 		return json;

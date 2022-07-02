@@ -46,8 +46,8 @@ int wildcmp(const char *wild, const char *str)
 		{
 			if (!*++wild)
 				return 1;
-		  mp = wild;
-		  cp = str + 1;
+			mp = wild;
+			cp = str + 1;
 		}
 		else if (*wild == *str || *wild == '?')
 		{

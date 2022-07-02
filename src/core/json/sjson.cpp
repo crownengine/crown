@@ -71,7 +71,7 @@ namespace sjson
 
 		case '[': json = skip_block(json, '[', ']'); break;
 		case '{': json = skip_block(json, '{', '}'); break;
-		default: for (; *json != '\0' && *json != ',' && *json != '\n' && *json != ' ' && *json != '}' && *json != ']'; ++json) ; break;
+		default: for (; *json != '\0' && *json != ',' && *json != '\n' && *json != ' ' && *json != '}' && *json != ']'; ++json); break;
 		}
 
 		return json;

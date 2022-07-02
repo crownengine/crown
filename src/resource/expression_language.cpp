@@ -19,7 +19,7 @@ namespace expression_language
 	/// floats), the operation will instead be the one matching.
 	///
 	/// The remaining 20 bits of the byte code are used for the id of functions and variables.
-	enum ByteCode {BC_FUNCTION = 0x7f800000, BC_PUSH_VAR = 0x7f900000, BC_END = 0x7fa00000};
+	enum ByteCode { BC_FUNCTION = 0x7f800000, BC_PUSH_VAR = 0x7f900000, BC_END = 0x7fa00000 };
 
 	/// Returns the byte code operation part of the byte code word.
 	static inline unsigned bc_mask(unsigned i)
@@ -87,19 +87,19 @@ namespace expression_language
 #define POP() pop(stack)
 #define PUSH(f) push(stack, f)
 
-		float a,b,c,d;
+		float a, b, c, d;
 
-		switch(op_code) {
-		case OP_ADD: b=POP(); a=POP(); PUSH(a+b); break;
-		case OP_SUB: b=POP(); a=POP(); PUSH(a-b); break;
-		case OP_MUL: b=POP(); a=POP(); PUSH(a*b); break;
-		case OP_DIV: b=POP(); a=POP(); PUSH(a/b); break;
+		switch (op_code) {
+		case OP_ADD: b = POP(); a = POP(); PUSH(a + b); break;
+		case OP_SUB: b = POP(); a = POP(); PUSH(a - b); break;
+		case OP_MUL: b = POP(); a = POP(); PUSH(a * b); break;
+		case OP_DIV: b = POP(); a = POP(); PUSH(a / b); break;
 		case OP_UNARY_MINUS: PUSH(-POP()); break;
 		case OP_SIN: PUSH(fsin(POP())); break;
 		case OP_COS: PUSH(fcos(POP())); break;
 		case OP_ABS: a = POP(); PUSH(fabs(a)); break;
-		case OP_MATCH: b=POP(); a=POP(); PUSH(match(a, b)); break;
-		case OP_MATCH_2D: d=POP(); c=POP(); b=POP(); a=POP(); PUSH(match2d(a,b,c,d)); break;
+		case OP_MATCH: b = POP(); a = POP(); PUSH(match(a, b)); break;
+		case OP_MATCH_2D: d = POP(); c = POP(); b = POP(); a = POP(); PUSH(match2d(a, b, c, d)); break;
 		case OP_NOP: break;
 		default:
 			CE_FATAL("Unknown opcode");
@@ -172,7 +172,7 @@ namespace expression_language
 	/// program. (A list of tokens in reverse polish notation form.)
 	struct Token
 	{
-		enum TokenType {EMPTY, NUMBER, FUNCTION, VARIABLE, LEFT_PARENTHESIS, RIGHT_PARENTHESIS};
+		enum TokenType { EMPTY, NUMBER, FUNCTION, VARIABLE, LEFT_PARENTHESIS, RIGHT_PARENTHESIS };
 
 		Token()
 			: type(EMPTY)
@@ -241,7 +241,7 @@ namespace expression_language
 		/// Returns UINT_MAX if no such string is found.
 		static unsigned find_string(const char *s, unsigned len, unsigned num_strings, const char **strings)
 		{
-			for (unsigned i=0; i<num_strings; ++i)
+			for (unsigned i = 0; i < num_strings; ++i)
 				if (strncmp(s, strings[i], len) == 0 && strlen32(strings[i]) == len)
 					return i;
 			return UINT_MAX;
@@ -251,15 +251,15 @@ namespace expression_language
 		Token token_for_identifier(const char *identifier, unsigned len) const
 		{
 			unsigned i;
-			if ( (i=find_string(identifier, len, num_variables, variable_names)) != UINT_MAX)
+			if ((i = find_string(identifier, len, num_variables, variable_names)) != UINT_MAX)
 			{
 				return Token(Token::VARIABLE, i);
 			}
-			else if ( (i=find_string(identifier, len, num_constants, constant_names)) != UINT_MAX)
+			else if ((i = find_string(identifier, len, num_constants, constant_names)) != UINT_MAX)
 			{
 				return Token(Token::NUMBER, constant_values[i]);
 			}
-			else if ( (i=find_string(identifier, len, num_functions, function_names)) != UINT_MAX)
+			else if ((i = find_string(identifier, len, num_functions, function_names)) != UINT_MAX)
 			{
 				return Token(Token::FUNCTION, i);
 			}
@@ -304,9 +304,9 @@ namespace expression_language
 				p = out;
 				binary = true;
 				// Identifiers
-			} else if ( (*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || (*p == '_')) {
+			} else if ((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || (*p == '_')) {
 				const char *identifier = p;
-				while ( (*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || (*p == '_') || (*p >= '0' && *p <= '9'))
+				while ((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || (*p == '_') || (*p >= '0' && *p <= '9'))
 					p++;
 				token = env.token_for_identifier(identifier, u32(p-identifier));
 				binary = true;
@@ -320,7 +320,7 @@ namespace expression_language
 				case '+': token = env.token_for_identifier(binary ? "+" : "u+"); binary = false; break;
 
 				default: {
-					char s1[2] = {*p,0};
+					char s1[2] = {*p, 0};
 					char s2[3] = {*p, *(p+1), 0};
 
 					if (s2[1] && env.has_function(s2)) {
@@ -357,7 +357,7 @@ namespace expression_language
 		static const int MAX_ARITY = 4;
 		float stack_data[MAX_ARITY];
 
-		for (unsigned i=0; i<num_tokens; ++i) {
+		for (unsigned i = 0; i < num_tokens; ++i) {
 			if (rpl[i].type != Token::FUNCTION)
 				continue;
 
@@ -368,7 +368,7 @@ namespace expression_language
 			CE_ASSERT(arity <= MAX_ARITY, "MAX_ARITY too small");
 			CE_ASSERT(i >= arity, "Too few arguments to function");
 			unsigned arg_start = i - arity;
-			for (unsigned j=0; j<arity && constant_arguments; ++j) {
+			for (unsigned j = 0; j < arity && constant_arguments; ++j) {
 				constant_arguments = constant_arguments && rpl[i-j-1].type == Token::NUMBER;
 				stack.data[j] = rpl[arg_start+j].value;
 			}
@@ -383,7 +383,7 @@ namespace expression_language
 				memmove(&rpl[arg_start], &rpl[arg_start+to_remove], sizeof(Token)*(num_tokens-arg_start-to_remove));
 				num_tokens -= to_remove;
 			}
-			for (unsigned res = 0; res<stack.size; ++res)
+			for (unsigned res = 0; res < stack.size; ++res)
 				rpl[arg_start + res] = Token(Token::NUMBER, stack.data[res]);
 			i = arg_start - 1;
 		}
@@ -397,7 +397,7 @@ namespace expression_language
 		unsigned size = 0;
 		unsigned overflow = 0;
 
-		for (unsigned i=0; i<num_tokens; ++i) {
+		for (unsigned i = 0; i < num_tokens; ++i) {
 			Function f;
 			Token t = rpl[i];
 			unsigned op;
@@ -543,7 +543,7 @@ namespace expression_language
 		unsigned num_function_stack = 0;
 
 		int par_level = 0;
-		for (unsigned i=0; i<num_tokens; ++i) {
+		for (unsigned i = 0; i < num_tokens; ++i) {
 			Token &token = tokens[i];
 			switch (token.type) {
 			case Token::NUMBER:
@@ -558,7 +558,7 @@ namespace expression_language
 				break;
 			case Token::FUNCTION: {
 				FunctionStackItem f(token, env.function_values[token.id].precedence, par_level);
-				while (num_function_stack>0 && function_stack[num_function_stack-1] >= f)
+				while (num_function_stack > 0 && function_stack[num_function_stack-1] >= f)
 					rpl[num_rpl++] = function_stack[--num_function_stack].token;
 				function_stack[num_function_stack++] = f;
 				break;
@@ -569,7 +569,7 @@ namespace expression_language
 			}
 		}
 
-		while (num_function_stack>0)
+		while (num_function_stack > 0)
 			rpl[num_rpl++] = function_stack[--num_function_stack].token;
 
 		fold_constants(rpl, num_rpl, env);

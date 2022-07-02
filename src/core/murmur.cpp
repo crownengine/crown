@@ -33,7 +33,7 @@ u32 murmur32(const void* key, u32 len, u32 seed)
 	// Mix 4 bytes at a time into the hash
 	const unsigned char * data = (const unsigned char *)key;
 
-	while(len >= 4)
+	while (len >= 4)
 	{
 		unsigned int k = *(unsigned int *)data;
 
@@ -49,7 +49,7 @@ u32 murmur32(const void* key, u32 len, u32 seed)
 	}
 
 	// Handle the last few bytes of the input array
-	switch(len)
+	switch (len)
 	{
 	case 3: h ^= data[2] << 16; // Fallthrough
 	case 2: h ^= data[1] << 8;  // Fallthrough
@@ -76,7 +76,7 @@ u64 murmur64(const void* key, u32 len, u64 seed)
 	const u64 * data = (const u64 *)key;
 	const u64 * end = data + (len/8);
 
-	while(data != end)
+	while (data != end)
 	{
 		u64 k = *data++;
 
@@ -90,7 +90,7 @@ u64 murmur64(const void* key, u32 len, u64 seed)
 
 	const unsigned char * data2 = (const unsigned char*)data;
 
-	switch(len & 7)
+	switch (len & 7)
 	{
 	case 7: h ^= u64(data2[6]) << 48; // Fallthrough
 	case 6: h ^= u64(data2[5]) << 40; // Fallthrough
