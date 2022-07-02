@@ -651,8 +651,8 @@ public class Level
 					send_destroy_objects(data);
 				else
 					send_spawn_units(data);
+				break;
 			}
-			break;
 
 		case (int)ActionType.DESTROY_UNIT:
 			{
@@ -660,8 +660,8 @@ public class Level
 					send_spawn_units(data);
 				else
 					send_destroy_objects(data);
+				break;
 			}
-			break;
 
 		case (int)ActionType.SPAWN_SOUND:
 			{
@@ -669,8 +669,8 @@ public class Level
 					send_destroy_objects(data);
 				else
 					send_spawn_sounds(data);
+				break;
 			}
-			break;
 
 		case (int)ActionType.DESTROY_SOUND:
 			{
@@ -678,8 +678,8 @@ public class Level
 					send_spawn_sounds(data);
 				else
 					send_destroy_objects(data);
+				break;
 			}
-			break;
 
 		case (int)ActionType.MOVE_OBJECTS:
 			{
@@ -726,8 +726,8 @@ public class Level
 				send_move_objects(ids, positions, rotations, scales);
 				// FIXME: Hack to force update the properties view
 				selection_changed(_selection);
+				break;
 			}
-			break;
 
 		case (int)ActionType.DUPLICATE_OBJECTS:
 			{
@@ -736,8 +736,8 @@ public class Level
 					send_destroy_objects(new_ids);
 				else
 					send_spawn_objects(new_ids);
+				break;
 			}
-			break;
 
 		case (int)ActionType.OBJECT_SET_EDITOR_NAME:
 			object_editor_name_changed(data[0], object_editor_name(data[0]));
@@ -761,8 +761,8 @@ public class Level
 				_client.send(DeviceApi.frame());
 				// FIXME: Hack to force update the properties view
 				selection_changed(_selection);
+				break;
 			}
-			break;
 
 		case (int)ActionType.SET_MESH:
 			{
@@ -779,8 +779,8 @@ public class Level
 				_client.send(DeviceApi.frame());
 				// FIXME: Hack to force update the properties view
 				selection_changed(_selection);
+				break;
 			}
-			break;
 
 		case (int)ActionType.SET_SPRITE:
 			{
@@ -800,8 +800,8 @@ public class Level
 				_client.send(DeviceApi.frame());
 				// FIXME: Hack to force update the properties view
 				selection_changed(_selection);
+				break;
 			}
-			break;
 
 		case (int)ActionType.SET_CAMERA:
 			{
@@ -820,8 +820,8 @@ public class Level
 				_client.send(DeviceApi.frame());
 				// FIXME: Hack to force update the properties view
 				selection_changed(_selection);
+				break;
 			}
-			break;
 
 		case (int)ActionType.SET_COLLIDER:
 		case (int)ActionType.SET_ACTOR:
@@ -841,8 +841,8 @@ public class Level
 				_client.send(DeviceApi.frame());
 				// FIXME: Hack to force update the properties view
 				selection_changed(_selection);
+				break;
 			}
-			break;
 
 		default:
 			loge("Unknown undo/redo action: %d".printf(id));
