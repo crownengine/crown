@@ -296,7 +296,7 @@ namespace LevelEditorApi
 
 	public string move_object(Guid id, Vector3 pos, Quaternion rot, Vector3 scl)
 	{
-		return @"LevelEditor:move_object(\"%s\", %s, %s, %s)".printf(id.to_string()
+		return "LevelEditor:move_object(\"%s\", %s, %s, %s)".printf(id.to_string()
 			, Lua.vector3(pos)
 			, Lua.quaternion(rot)
 			, Lua.vector3(scl)
@@ -305,7 +305,7 @@ namespace LevelEditorApi
 
 	public string set_light(Guid id, string type, double range, double intensity, double spot_angle, Vector3 color)
 	{
-		return @"LevelEditor._objects[\"%s\"]:set_light(\"%s\", %.17g, %.17g, %.17g, %s)".printf(id.to_string()
+		return "LevelEditor._objects[\"%s\"]:set_light(\"%s\", %.17g, %.17g, %.17g, %s)".printf(id.to_string()
 			, type
 			, range
 			, intensity
@@ -316,14 +316,14 @@ namespace LevelEditorApi
 
 	public string set_sound_range(Guid id, double range)
 	{
-		return @"LevelEditor._objects[\"%s\"]:set_range(%.17g)".printf(id.to_string()
+		return "LevelEditor._objects[\"%s\"]:set_range(%.17g)".printf(id.to_string()
 			, range
 			);
 	}
 
 	public string set_mesh(Guid id, string material, bool visible)
 	{
-		return @"LevelEditor._objects[\"%s\"]:set_mesh(\"%s\", %s)".printf(id.to_string()
+		return "LevelEditor._objects[\"%s\"]:set_mesh(\"%s\", %s)".printf(id.to_string()
 			, material
 			, Lua.bool(visible)
 			);
@@ -331,7 +331,7 @@ namespace LevelEditorApi
 
 	public string set_sprite(Guid id, string sprite_resource_name, string material, double layer, double depth, bool visible)
 	{
-		return @"LevelEditor._objects[\"%s\"]:set_sprite(\"%s\", \"%s\", %.17g, %.17g, %s)".printf(id.to_string()
+		return "LevelEditor._objects[\"%s\"]:set_sprite(\"%s\", \"%s\", %.17g, %.17g, %s)".printf(id.to_string()
 			, sprite_resource_name
 			, material
 			, layer
@@ -342,7 +342,7 @@ namespace LevelEditorApi
 
 	public string set_camera(Guid id, string projection, double fov, double near_range, double far_range)
 	{
-		return @"LevelEditor._objects[\"%s\"]:set_camera(\"%s\", %.17g, %.17g, %.17g)".printf(id.to_string()
+		return "LevelEditor._objects[\"%s\"]:set_camera(\"%s\", %.17g, %.17g, %.17g)".printf(id.to_string()
 			, projection
 			, fov
 			, near_range
@@ -367,13 +367,13 @@ namespace LevelEditorApi
 
 	public string destroy(Guid id)
 	{
-		return @"LevelEditor:destroy(\"%s\")".printf(id.to_string());
+		return "LevelEditor:destroy(\"%s\")".printf(id.to_string());
 	}
 
 	public string set_color(string name, Vector3 color)
 	{
 		Quaternion c = Quaternion(color.x, color.y, color.z, 1.0);
-		return @"Colors.%s = function() return %s end".printf(name, Lua.quaternion(c));
+		return "Colors.%s = function() return %s end".printf(name, Lua.quaternion(c));
 	}
 
 }
