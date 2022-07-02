@@ -207,7 +207,7 @@ public class SJSON
 	static bool at_end(uint8 [] json, ref int index)
 	{
 		skip_whitespace(json, ref index);
-		return (index >= json.length);
+		return index >= json.length;
 	}
 
 	static void skip_whitespace(uint8 [] json, ref int index)

@@ -646,40 +646,32 @@ public class Level
 		switch (id)
 		{
 		case (int)ActionType.SPAWN_UNIT:
-		{
 			if (undo)
 				send_destroy_objects(data);
 			else
 				send_spawn_units(data);
 			break;
-		}
 
 		case (int)ActionType.DESTROY_UNIT:
-		{
 			if (undo)
 				send_spawn_units(data);
 			else
 				send_destroy_objects(data);
 			break;
-		}
 
 		case (int)ActionType.SPAWN_SOUND:
-		{
 			if (undo)
 				send_destroy_objects(data);
 			else
 				send_spawn_sounds(data);
 			break;
-		}
 
 		case (int)ActionType.DESTROY_SOUND:
-		{
 			if (undo)
 				send_spawn_sounds(data);
 			else
 				send_destroy_objects(data);
 			break;
-		}
 
 		case (int)ActionType.MOVE_OBJECTS:
 		{

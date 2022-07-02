@@ -590,7 +590,7 @@ public class Project
 	{
 		data._filter = create_gtk_file_filter(name, data.extensions);
 		_importers.add(data);
-		_importers.sort((a, b) => { return (a.order < b.order ? -1 : 1); });
+		_importers.sort((a, b) => { return a.order < b.order ? -1 : 1; });
 
 		_all_extensions_importer_data.extensions.add_all(data.extensions);
 		_all_extensions_importer_data._filter = create_gtk_file_filter("All", _all_extensions_importer_data.extensions);
