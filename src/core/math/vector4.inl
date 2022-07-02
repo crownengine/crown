@@ -25,7 +25,7 @@ inline Vector4 vector4(f32 x, f32 y, f32 z, f32 w)
 }
 
 /// Adds the vector @a a to @a b and returns the result.
-inline Vector4& operator+=(Vector4& a, const Vector4& b)
+inline Vector4 &operator+=(Vector4 &a, const Vector4 &b)
 {
 	a.x += b.x;
 	a.y += b.y;
@@ -35,7 +35,7 @@ inline Vector4& operator+=(Vector4& a, const Vector4& b)
 }
 
 /// Subtracts the vector @a b from @a a and returns the result.
-inline Vector4& operator-=(Vector4& a, const Vector4& b)
+inline Vector4 &operator-=(Vector4 &a, const Vector4 &b)
 {
 	a.x -= b.x;
 	a.y -= b.y;
@@ -45,7 +45,7 @@ inline Vector4& operator-=(Vector4& a, const Vector4& b)
 }
 
 /// Multiplies the vector @a a by the scalar @a k and returns the result.
-inline Vector4& operator*=(Vector4& a, f32 k)
+inline Vector4 &operator*=(Vector4 &a, f32 k)
 {
 	a.x *= k;
 	a.y *= k;
@@ -55,7 +55,7 @@ inline Vector4& operator*=(Vector4& a, f32 k)
 }
 
 /// Negates @a a and returns the result.
-inline Vector4 operator-(const Vector4& a)
+inline Vector4 operator-(const Vector4 &a)
 {
 	Vector4 v;
 	v.x = -a.x;
@@ -66,14 +66,14 @@ inline Vector4 operator-(const Vector4& a)
 }
 
 /// Adds the vector @a a to @a b and returns the result.
-inline Vector4 operator+(Vector4 a, const Vector4& b)
+inline Vector4 operator+(Vector4 a, const Vector4 &b)
 {
 	a += b;
 	return a;
 }
 
 /// Subtracts the vector @a b from @a a and returns the result.
-inline Vector4 operator-(Vector4 a, const Vector4& b)
+inline Vector4 operator-(Vector4 a, const Vector4 &b)
 {
 	a -= b;
 	return a;
@@ -94,7 +94,7 @@ inline Vector4 operator*(f32 k, Vector4 a)
 }
 
 /// Returns true whether the vectors @a a and @a b are equal.
-inline bool operator==(const Vector4& a, const Vector4& b)
+inline bool operator==(const Vector4 &a, const Vector4 &b)
 {
 	return fequal(a.x, b.x)
 		&& fequal(a.y, b.y)
@@ -104,25 +104,25 @@ inline bool operator==(const Vector4& a, const Vector4& b)
 }
 
 /// Returns the dot product between the vectors @a a and @a b.
-inline f32 dot(const Vector4& a, const Vector4& b)
+inline f32 dot(const Vector4 &a, const Vector4 &b)
 {
 	return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 }
 
 /// Returns the squared length of @a a.
-inline f32 length_squared(const Vector4& a)
+inline f32 length_squared(const Vector4 &a)
 {
 	return dot(a, a);
 }
 
 /// Returns the length of @a a.
-inline f32 length(const Vector4& a)
+inline f32 length(const Vector4 &a)
 {
 	return fsqrt(length_squared(a));
 }
 
 /// Normalizes @a a and returns the result.
-inline Vector4 normalize(Vector4& a)
+inline Vector4 normalize(Vector4 &a)
 {
 	const f32 len = length(a);
 	const f32 inv_len = 1.0f / len;
@@ -134,7 +134,7 @@ inline Vector4 normalize(Vector4& a)
 }
 
 /// Sets the length of @a a to @a len.
-inline void set_length(Vector4& a, f32 len)
+inline void set_length(Vector4 &a, f32 len)
 {
 	normalize(a);
 	a.x *= len;
@@ -144,25 +144,25 @@ inline void set_length(Vector4& a, f32 len)
 }
 
 /// Returns the squared distance between the points @a a and @a b.
-inline f32 distance_squared(const Vector4& a, const Vector4& b)
+inline f32 distance_squared(const Vector4 &a, const Vector4 &b)
 {
 	return length_squared(b - a);
 }
 
 /// Returns the distance between the points @a a and @a b.
-inline f32 distance(const Vector4& a, const Vector4& b)
+inline f32 distance(const Vector4 &a, const Vector4 &b)
 {
 	return length(b - a);
 }
 
 /// Returns the angle between the vectors @a a and @a b.
-inline f32 angle(const Vector4& a, const Vector4& b)
+inline f32 angle(const Vector4 &a, const Vector4 &b)
 {
 	return facos(dot(a, b) / (length(a) * length(b)));
 }
 
 /// Returns a vector that contains the largest value for each element from @a a and @a b.
-inline Vector4 max(const Vector4& a, const Vector4& b)
+inline Vector4 max(const Vector4 &a, const Vector4 &b)
 {
 	Vector4 v;
 	v.x = max(a.x, b.x);
@@ -173,7 +173,7 @@ inline Vector4 max(const Vector4& a, const Vector4& b)
 }
 
 /// Returns a vector that contains the smallest value for each element from @a a and @a b.
-inline Vector4 min(const Vector4& a, const Vector4& b)
+inline Vector4 min(const Vector4 &a, const Vector4 &b)
 {
 	Vector4 v;
 	v.x = min(a.x, b.x);
@@ -184,7 +184,7 @@ inline Vector4 min(const Vector4& a, const Vector4& b)
 }
 
 /// Returns the linearly interpolated vector between @a a and @a b at time @a t in [0, 1].
-inline Vector4 lerp(const Vector4& a, const Vector4& b, f32 t)
+inline Vector4 lerp(const Vector4 &a, const Vector4 &b, f32 t)
 {
 	Vector4 v;
 	v.x = lerp(a.x, b.x, t);
@@ -195,19 +195,19 @@ inline Vector4 lerp(const Vector4& a, const Vector4& b, f32 t)
 }
 
 /// Returns the pointer to the data of @a a.
-inline f32* to_float_ptr(Vector4& a)
+inline f32 *to_float_ptr(Vector4 &a)
 {
 	return &a.x;
 }
 
 /// Returns the pointer to the data of @a a.
-inline const f32* to_float_ptr(const Vector4& a)
+inline const f32 *to_float_ptr(const Vector4 &a)
 {
 	return &a.x;
 }
 
 /// Returns the Vector3 portion of @a a. (i.e. truncates w)
-inline Vector3 to_vector3(const Vector4& a)
+inline Vector3 to_vector3(const Vector4 &a)
 {
 	Vector3 v;
 	v.x = a.x;
@@ -219,7 +219,7 @@ inline Vector3 to_vector3(const Vector4& a)
 /// Returns a string representing the vector @v.
 /// @note This function is for debugging purposes only and doesn't
 /// output round-trip safe ASCII conversions. Do not use in production.
-const char* to_string(char* buf, u32 buf_len, const Vector4& v);
+const char *to_string(char *buf, u32 buf_len, const Vector4 &v);
 
 /// @}
 

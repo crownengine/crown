@@ -70,39 +70,39 @@ struct UniformHandle
 
 namespace material_resource_internal
 {
-	s32 compile(CompileOptions& opts);
-	void* load(File& file, Allocator& a);
-	void online(StringId64 id, ResourceManager& rm);
-	void offline(StringId64 id, ResourceManager& rm);
-	void unload(Allocator& a, void* res);
+	s32 compile(CompileOptions &opts);
+	void *load(File &file, Allocator &a);
+	void online(StringId64 id, ResourceManager &rm);
+	void offline(StringId64 id, ResourceManager &rm);
+	void unload(Allocator &a, void *res);
 
 } // namespace material_resource_internal
 
 namespace material_resource
 {
 	///
-	UniformData* uniform_data(const MaterialResource* mr, u32 i);
+	UniformData *uniform_data(const MaterialResource *mr, u32 i);
 
 	///
-	UniformData* uniform_data_by_name(const MaterialResource* mr, StringId32 name);
+	UniformData *uniform_data_by_name(const MaterialResource *mr, StringId32 name);
 
 	///
-	const char* uniform_name(const MaterialResource* mr, const UniformData* ud);
+	const char *uniform_name(const MaterialResource *mr, const UniformData *ud);
 
 	///
-	TextureData* texture_data(const MaterialResource* mr, u32 i);
+	TextureData *texture_data(const MaterialResource *mr, u32 i);
 
 	///
-	const char* texture_name(const MaterialResource* mr, const TextureData* td);
+	const char *texture_name(const MaterialResource *mr, const TextureData *td);
 
 	///
-	UniformHandle* uniform_handle(const MaterialResource* mr, u32 i, char* dynamic);
+	UniformHandle *uniform_handle(const MaterialResource *mr, u32 i, char *dynamic);
 
 	///
-	UniformHandle* uniform_handle_by_name(const MaterialResource* mr, StringId32 name, char* dynamic);
+	UniformHandle *uniform_handle_by_name(const MaterialResource *mr, StringId32 name, char *dynamic);
 
 	///
-	TextureHandle* texture_handle(const MaterialResource* mr, u32 i, char* dynamic);
+	TextureHandle *texture_handle(const MaterialResource *mr, u32 i, char *dynamic);
 
 } // namespace material_resource
 

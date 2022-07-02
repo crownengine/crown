@@ -18,36 +18,36 @@ namespace crown
 namespace hash_set
 {
 	/// Returns the number of items in the set @a m.
-	template<typename TKey, typename Hash, typename KeyEqual> u32 size(const HashSet<TKey, Hash, KeyEqual>& m);
+	template<typename TKey, typename Hash, typename KeyEqual> u32 size(const HashSet<TKey, Hash, KeyEqual> &m);
 
 	/// Returns the maximum number of items the set @a m can hold.
-	template<typename TKey, typename Hash, typename KeyEqual> u32 capacity(const HashSet<TKey, Hash, KeyEqual>& m);
+	template<typename TKey, typename Hash, typename KeyEqual> u32 capacity(const HashSet<TKey, Hash, KeyEqual> &m);
 
 	/// Returns whether the given @a key exists in the set @a m.
-	template<typename TKey, typename Hash, typename KeyEqual> bool has(const HashSet<TKey, Hash, KeyEqual>& m, const TKey& key);
+	template<typename TKey, typename Hash, typename KeyEqual> bool has(const HashSet<TKey, Hash, KeyEqual> &m, const TKey &key);
 
 	/// Inserts the @a key in the set if it does not exist.
-	template<typename TKey, typename Hash, typename KeyEqual> void insert(HashSet<TKey, Hash, KeyEqual>& m, const TKey& key);
+	template<typename TKey, typename Hash, typename KeyEqual> void insert(HashSet<TKey, Hash, KeyEqual> &m, const TKey &key);
 
 	/// Removes the @a key from the set if it exists.
-	template<typename TKey, typename Hash, typename KeyEqual> void remove(HashSet<TKey, Hash, KeyEqual>& m, const TKey& key);
+	template<typename TKey, typename Hash, typename KeyEqual> void remove(HashSet<TKey, Hash, KeyEqual> &m, const TKey &key);
 
 	/// Removes all the items in the set.
 	///
 	/// @note
 	/// Calls destructor on the items.
-	template<typename TKey, typename Hash, typename KeyEqual> void clear(HashSet<TKey, Hash, KeyEqual>& m);
+	template<typename TKey, typename Hash, typename KeyEqual> void clear(HashSet<TKey, Hash, KeyEqual> &m);
 
 	/// Returns whether the @a entry in the set @a m contains data or is a hole.
 	/// If the entry is a hole you should not touch data in the entry.
-	template<typename TKey, typename Hash, typename KeyEqual> bool is_hole(const HashSet<TKey, Hash, KeyEqual>& m, const TKey* entry);
+	template<typename TKey, typename Hash, typename KeyEqual> bool is_hole(const HashSet<TKey, Hash, KeyEqual> &m, const TKey *entry);
 
 	/// Returns a pointer to the first item in the set, can be used to
 	/// efficiently iterate over the elements (in random order).
 	/// @note
 	/// You should skip invalid items with HASH_SET_SKIP_HOLE().
-	template<typename TKey, typename Hash, typename KeyEqual> const TKey* begin(const HashSet<TKey, Hash, KeyEqual>& m);
-	template<typename TKey, typename Hash, typename KeyEqual> const TKey* end(const HashSet<TKey, Hash, KeyEqual>& m);
+	template<typename TKey, typename Hash, typename KeyEqual> const TKey *begin(const HashSet<TKey, Hash, KeyEqual> &m);
+	template<typename TKey, typename Hash, typename KeyEqual> const TKey *end(const HashSet<TKey, Hash, KeyEqual> &m);
 
 } // namespace hash_set
 
@@ -61,14 +61,14 @@ namespace hash_set_internal
 	};
 
 	template<typename TKey, typename Hash>
-	inline u32 key_hash(const TKey& key)
+	inline u32 key_hash(const TKey &key)
 	{
 		const Hash hash;
 		return hash(key);
 	}
 
 	template<typename TKey, typename KeyEqual>
-	inline bool key_equals(const TKey& key_a, const TKey& key_b)
+	inline bool key_equals(const TKey &key_a, const TKey &key_b)
 	{
 		const KeyEqual equal;
 		return equal(key_a, key_b);
@@ -81,14 +81,14 @@ namespace hash_set_internal
 	}
 
 	template<typename TKey, typename Hash, typename KeyEqual>
-	inline u32 probe_distance(const HashSet<TKey, Hash, KeyEqual>& m, u32 hash, u32 slot_index)
+	inline u32 probe_distance(const HashSet<TKey, Hash, KeyEqual> &m, u32 hash, u32 slot_index)
 	{
 		const u32 hash_i = hash & m._mask;
 		return (slot_index + m._capacity - hash_i) & m._mask;
 	}
 
 	template<typename TKey, typename Hash, typename KeyEqual>
-	u32 find(const HashSet<TKey, Hash, KeyEqual>& m, const TKey& key)
+	u32 find(const HashSet<TKey, Hash, KeyEqual> &m, const TKey &key)
 	{
 		if (m._size == 0)
 			return END_OF_LIST;
@@ -109,11 +109,11 @@ namespace hash_set_internal
 	}
 
 	template<typename TKey, typename Hash, typename KeyEqual>
-	void insert(HashSet<TKey, Hash, KeyEqual>& m, u32 hash, const TKey& key)
+	void insert(HashSet<TKey, Hash, KeyEqual> &m, u32 hash, const TKey &key)
 	{
 		char new_item[sizeof(TKey)];
 		construct<TKey>(new_item, *m._allocator, IS_ALLOCATOR_AWARE_TYPE(TKey)());
-		*(TKey*)new_item = key;
+		*(TKey *)new_item = key;
 
 		u32 hash_i = hash & m._mask;
 		for (u32 dist = 0;;) {
@@ -132,9 +132,9 @@ namespace hash_set_internal
 				// swap
 				{
 					char c[sizeof(TKey)];
-					memcpy((void*)&c,               (void*)new_item,         sizeof(TKey));
-					memcpy((void*)new_item,         (void*)&m._data[hash_i], sizeof(TKey));
-					memcpy((void*)&m._data[hash_i], (void*)&c,               sizeof(TKey));
+					memcpy((void *)&c,               (void *)new_item,         sizeof(TKey));
+					memcpy((void *)new_item,         (void *)&m._data[hash_i], sizeof(TKey));
+					memcpy((void *)&m._data[hash_i], (void *)&c,               sizeof(TKey));
 				}
 
 				dist = existing_elem_probe_dist;
@@ -145,26 +145,26 @@ namespace hash_set_internal
 		}
 
 	INSERT_AND_RETURN:
-		memcpy((void*)(m._data + hash_i), &new_item, sizeof(new_item));
+		memcpy((void *)(m._data + hash_i), &new_item, sizeof(new_item));
 		m._index[hash_i].hash = hash;
 		m._index[hash_i].index = 0x0123abcd;
 		char empty[sizeof(TKey)];
 		construct<TKey>(empty, *m._allocator, IS_ALLOCATOR_AWARE_TYPE(TKey)());
-		memcpy((void*)&new_item, &empty, sizeof(new_item));
-		((TKey*)new_item)->~TKey();
+		memcpy((void *)&new_item, &empty, sizeof(new_item));
+		((TKey *)new_item)->~TKey();
 		return;
 	}
 
 	template<typename TKey, typename Hash, typename KeyEqual>
-	void rehash(HashSet<TKey, Hash, KeyEqual>& m, u32 new_capacity)
+	void rehash(HashSet<TKey, Hash, KeyEqual> &m, u32 new_capacity)
 	{
 		typedef typename HashSet<TKey, Hash, KeyEqual>::Index Index;
 
 		HashSet<TKey, Hash, KeyEqual> nm(*m._allocator);
 		const u32 size = new_capacity * (sizeof(Index) + sizeof(TKey)) + alignof(Index) + alignof(TKey);
-		nm._buffer = (char*)nm._allocator->allocate(size);
-		nm._index = (Index*)memory::align_top(nm._buffer, alignof(Index));
-		nm._data = (TKey*)memory::align_top(nm._index + new_capacity, alignof(TKey));
+		nm._buffer = (char *)nm._allocator->allocate(size);
+		nm._index = (Index *)memory::align_top(nm._buffer, alignof(Index));
+		nm._data = (TKey *)memory::align_top(nm._index + new_capacity, alignof(TKey));
 
 		// Flag all elements as free
 		for (u32 i = 0; i < new_capacity; ++i) {
@@ -177,7 +177,7 @@ namespace hash_set_internal
 		nm._mask = new_capacity - 1;
 
 		for (u32 i = 0; i < m._capacity; ++i) {
-			TKey& e = m._data[i];
+			TKey &e = m._data[i];
 			const u32 hash = m._index[i].hash;
 			const u32 index = m._index[i].index;
 
@@ -187,19 +187,19 @@ namespace hash_set_internal
 
 		HashSet<TKey, Hash, KeyEqual> empty(*m._allocator);
 		m.~HashSet<TKey, Hash, KeyEqual>();
-		memcpy((void*)&m, (void*)&nm, sizeof(HashSet<TKey, Hash, KeyEqual>));
-		memcpy((void*)&nm, (void*)&empty, sizeof(HashSet<TKey, Hash, KeyEqual>));
+		memcpy((void *)&m, (void *)&nm, sizeof(HashSet<TKey, Hash, KeyEqual>));
+		memcpy((void *)&nm, (void *)&empty, sizeof(HashSet<TKey, Hash, KeyEqual>));
 	}
 
 	template<typename TKey, typename Hash, typename KeyEqual>
-	void grow(HashSet<TKey, Hash, KeyEqual>& m)
+	void grow(HashSet<TKey, Hash, KeyEqual> &m)
 	{
 		const u32 new_capacity = (m._capacity == 0 ? 16 : m._capacity * 2);
 		rehash(m, new_capacity);
 	}
 
 	template<typename TKey, typename Hash, typename KeyEqual>
-	bool full(const HashSet<TKey, Hash, KeyEqual>& m)
+	bool full(const HashSet<TKey, Hash, KeyEqual> &m)
 	{
 		return m._size >= m._capacity * 0.9f;
 	}
@@ -209,25 +209,25 @@ namespace hash_set_internal
 namespace hash_set
 {
 	template<typename TKey, typename Hash, typename KeyEqual>
-	u32 size(const HashSet<TKey, Hash, KeyEqual>& m)
+	u32 size(const HashSet<TKey, Hash, KeyEqual> &m)
 	{
 		return m._size;
 	}
 
 	template<typename TKey, typename Hash, typename KeyEqual>
-	u32 capacity(const HashSet<TKey, Hash, KeyEqual>& m)
+	u32 capacity(const HashSet<TKey, Hash, KeyEqual> &m)
 	{
 		return m._capacity;
 	}
 
 	template<typename TKey, typename Hash, typename KeyEqual>
-	bool has(const HashSet<TKey, Hash, KeyEqual>& m, const TKey& key)
+	bool has(const HashSet<TKey, Hash, KeyEqual> &m, const TKey &key)
 	{
 		return hash_set_internal::find(m, key) != hash_set_internal::END_OF_LIST;
 	}
 
 	template<typename TKey, typename Hash, typename KeyEqual>
-	void insert(HashSet<TKey, Hash, KeyEqual>& m, const TKey& key)
+	void insert(HashSet<TKey, Hash, KeyEqual> &m, const TKey &key)
 	{
 		if (m._capacity == 0)
 			hash_set_internal::grow(m);
@@ -243,7 +243,7 @@ namespace hash_set
 	}
 
 	template<typename TKey, typename Hash, typename KeyEqual>
-	void remove(HashSet<TKey, Hash, KeyEqual>& m, const TKey& key)
+	void remove(HashSet<TKey, Hash, KeyEqual> &m, const TKey &key)
 	{
 		const u32 i = hash_set_internal::find(m, key);
 		if (i == hash_set_internal::END_OF_LIST)
@@ -255,7 +255,7 @@ namespace hash_set
 	}
 
 	template<typename TKey, typename Hash, typename KeyEqual>
-	void clear(HashSet<TKey, Hash, KeyEqual>& m)
+	void clear(HashSet<TKey, Hash, KeyEqual> &m)
 	{
 		for (u32 i = 0; i < m._capacity; ++i) {
 			if (m._index[i].index == 0x0123abcd)
@@ -267,7 +267,7 @@ namespace hash_set
 	}
 
 	template<typename TKey, typename Hash, typename KeyEqual>
-	bool is_hole(const HashSet<TKey, Hash, KeyEqual>& m, const TKey* entry)
+	bool is_hole(const HashSet<TKey, Hash, KeyEqual> &m, const TKey *entry)
 	{
 		const u32 ii = u32(entry - m._data);
 		const u32 index = m._index[ii].index;
@@ -276,13 +276,13 @@ namespace hash_set
 	}
 
 	template<typename TKey, typename Hash, typename KeyEqual>
-	inline const TKey* begin(const HashSet<TKey, Hash, KeyEqual>& m)
+	inline const TKey *begin(const HashSet<TKey, Hash, KeyEqual> &m)
 	{
 		return m._data;
 	}
 
 	template<typename TKey, typename Hash, typename KeyEqual>
-	inline const TKey* end(const HashSet<TKey, Hash, KeyEqual>& m)
+	inline const TKey *end(const HashSet<TKey, Hash, KeyEqual> &m)
 	{
 		return m._data + m._capacity;
 	}
@@ -290,7 +290,7 @@ namespace hash_set
 } // namespace hash_set
 
 template<typename TKey, typename Hash, typename KeyEqual>
-inline HashSet<TKey, Hash, KeyEqual>::HashSet(Allocator& a)
+inline HashSet<TKey, Hash, KeyEqual>::HashSet(Allocator &a)
 	: _allocator(&a)
 	, _capacity(0)
 	, _size(0)
@@ -302,7 +302,7 @@ inline HashSet<TKey, Hash, KeyEqual>::HashSet(Allocator& a)
 }
 
 template<typename TKey, typename Hash, typename KeyEqual>
-HashSet<TKey, Hash, KeyEqual>::HashSet(const HashSet& other)
+HashSet<TKey, Hash, KeyEqual>::HashSet(const HashSet &other)
 	: _allocator(other._allocator)
 	, _capacity(0)
 	, _size(0)
@@ -318,9 +318,9 @@ HashSet<TKey, Hash, KeyEqual>::HashSet(const HashSet& other)
 	if (other._capacity > 0) {
 		_allocator->deallocate(_buffer);
 		const u32 size = other._capacity * (sizeof(Index) + sizeof(TKey)) + alignof(Index) + alignof(TKey);
-		_buffer = (char*)_allocator->allocate(size);
-		_index = (Index*)memory::align_top(_buffer, alignof(Index));
-		_data = (TKey*)memory::align_top(_index + _capacity, alignof(TKey));
+		_buffer = (char *)_allocator->allocate(size);
+		_index = (Index *)memory::align_top(_buffer, alignof(Index));
+		_data = (TKey *)memory::align_top(_index + _capacity, alignof(TKey));
 
 		memcpy(_index, other._index, sizeof(Index)*other._capacity);
 		for (u32 i = 0; i < other._capacity; ++i) {
@@ -343,7 +343,7 @@ inline HashSet<TKey, Hash, KeyEqual>::~HashSet()
 }
 
 template<typename TKey, typename Hash, typename KeyEqual>
-HashSet<TKey, Hash, KeyEqual>& HashSet<TKey, Hash, KeyEqual>::operator=(const HashSet<TKey, Hash, KeyEqual>& other)
+HashSet<TKey, Hash, KeyEqual> &HashSet<TKey, Hash, KeyEqual>::operator=(const HashSet<TKey, Hash, KeyEqual> &other)
 {
 	_capacity = other._capacity;
 	_size = other._size;
@@ -352,9 +352,9 @@ HashSet<TKey, Hash, KeyEqual>& HashSet<TKey, Hash, KeyEqual>::operator=(const Ha
 	if (other._capacity > 0) {
 		_allocator->deallocate(_buffer);
 		const u32 size = other._capacity * (sizeof(Index) + sizeof(TKey)) + alignof(Index) + alignof(TKey);
-		_buffer = (char*)_allocator->allocate(size);
-		_index = (Index*)memory::align_top(_buffer, alignof(Index));
-		_data = (TKey*)memory::align_top(_index + _capacity, alignof(TKey));
+		_buffer = (char *)_allocator->allocate(size);
+		_index = (Index *)memory::align_top(_buffer, alignof(Index));
+		_data = (TKey *)memory::align_top(_index + _capacity, alignof(TKey));
 
 		memcpy(_index, other._index, sizeof(Index)*other._capacity);
 		for (u32 i = 0; i < other._capacity; ++i) {

@@ -38,23 +38,23 @@ struct LevelSound
 
 namespace level_resource_internal
 {
-	s32 compile(CompileOptions& opts);
+	s32 compile(CompileOptions &opts);
 
 } // namespace level_resource_internal
 
 namespace level_resource
 {
 	/// Returns the unit names in the level.
-	const StringId32* unit_names(const LevelResource* lr);
+	const StringId32 *unit_names(const LevelResource *lr);
 
 	/// Returns the unit resource in the level.
-	const UnitResource* unit_resource(const LevelResource* lr);
+	const UnitResource *unit_resource(const LevelResource *lr);
 
 	/// Returns the number of sounds in the level resource.
-	u32 num_sounds(const LevelResource* lr);
+	u32 num_sounds(const LevelResource *lr);
 
 	/// Returns the sound @a i.
-	const LevelSound* get_sound(const LevelResource* lr, u32 i);
+	const LevelSound *get_sound(const LevelResource *lr, u32 i);
 
 } // namespace level_resource
 

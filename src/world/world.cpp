@@ -31,7 +31,7 @@
 
 namespace crown
 {
-World::World(Allocator& a, ResourceManager& rm, ShaderManager& sm, MaterialManager& mm, UnitManager& um, LuaEnvironment& env)
+World::World(Allocator &a, ResourceManager &rm, ShaderManager &sm, MaterialManager &mm, UnitManager &um, LuaEnvironment &env)
 	: _marker(WORLD_MARKER)
 	, _allocator(&a)
 	, _resource_manager(&rm)
@@ -71,11 +71,11 @@ World::World(Allocator& a, ResourceManager& rm, ShaderManager& sm, MaterialManag
 World::~World()
 {
 	// Destroy loaded levels
-	ListNode* cur;
-	ListNode* tmp;
+	ListNode *cur;
+	ListNode *tmp;
 	list_for_each_safe(cur, tmp, &_levels)
 	{
-		Level* level = (Level*)container_of(cur, Level, _node);
+		Level *level = (Level *)container_of(cur, Level, _node);
 		CE_DELETE(*_allocator, level);
 	}
 
@@ -95,11 +95,11 @@ World::~World()
 	_marker = 0;
 }
 
-UnitId World::spawn_unit(StringId64 name, const Vector3& pos, const Quaternion& rot, const Vector3& scl)
+UnitId World::spawn_unit(StringId64 name, const Vector3 &pos, const Quaternion &rot, const Vector3 &scl)
 {
-	const UnitResource* ur = (const UnitResource*)_resource_manager->get(RESOURCE_TYPE_UNIT, name);
+	const UnitResource *ur = (const UnitResource *)_resource_manager->get(RESOURCE_TYPE_UNIT, name);
 
-	UnitId* unit_lookup = (UnitId*)default_scratch_allocator().allocate(sizeof(*unit_lookup) * ur->num_units);
+	UnitId *unit_lookup = (UnitId *)default_scratch_allocator().allocate(sizeof(*unit_lookup) * ur->num_units);
 	for (u32 i = 0; i < ur->num_units; ++i)
 		unit_lookup[i] = _unit_manager->create();
 
@@ -136,7 +136,7 @@ u32 World::num_units() const
 	return array::size(_units);
 }
 
-void World::units(Array<UnitId>& units) const
+void World::units(Array<UnitId> &units) const
 {
 	array::reserve(units, array::size(_units));
 	array::push(units, array::begin(_units), array::size(_units));
@@ -144,10 +144,10 @@ void World::units(Array<UnitId>& units) const
 
 UnitId World::unit_by_name(StringId32 name)
 {
-	ListNode* cur;
+	ListNode *cur;
 	list_for_each(cur, &_levels)
 	{
-		Level* level = (Level*)container_of(cur, Level, _node);
+		Level *level = (Level *)container_of(cur, Level, _node);
 		UnitId unit = level->unit_by_name(name);
 
 		if (unit != UNIT_INVALID)
@@ -166,18 +166,18 @@ void World::update_scene(f32 dt)
 {
 	// Process animation events
 	{
-		EventStream& events = _animation_state_machine->_events;
+		EventStream &events = _animation_state_machine->_events;
 		const u32 size = array::size(events);
 		u32 read = 0;
 		while (read < size) {
-			const EventHeader* eh = (EventHeader*)&events[read];
-			const char* data = (char*)&eh[1];
+			const EventHeader *eh = (EventHeader *)&events[read];
+			const char *data = (char *)&eh[1];
 
 			read += sizeof(*eh) + eh->size;
 
 			switch (eh->type) {
 			case 0: {
-				const SpriteFrameChangeEvent& ptev = *(SpriteFrameChangeEvent*)data;
+				const SpriteFrameChangeEvent &ptev = *(SpriteFrameChangeEvent *)data;
 				const SpriteInstance si = _render_world->sprite_instance(ptev.unit);
 				_render_world->sprite_set_frame(si, ptev.frame_num);
 				break;
@@ -206,18 +206,18 @@ void World::update_scene(f32 dt)
 
 	// Process physics events
 	{
-		EventStream& events = _physics_world->events();
+		EventStream &events = _physics_world->events();
 		const u32 size = array::size(events);
 		u32 read = 0;
 		while (read < size) {
-			const EventHeader* eh = (EventHeader*)&events[read];
-			const char* data = (char*)&eh[1];
+			const EventHeader *eh = (EventHeader *)&events[read];
+			const char *data = (char *)&eh[1];
 
 			read += sizeof(*eh) + eh->size;
 
 			switch (eh->type) {
 			case EventType::PHYSICS_TRANSFORM: {
-				const PhysicsTransformEvent& ptev = *(PhysicsTransformEvent*)data;
+				const PhysicsTransformEvent &ptev = *(PhysicsTransformEvent *)data;
 				const TransformInstance ti = _scene_graph->instance(ptev.unit_id);
 				if (is_valid(ti)) // User code may have destroyed the actor
 					_scene_graph->set_world_pose_and_rescale(ti, ptev.world);
@@ -225,7 +225,7 @@ void World::update_scene(f32 dt)
 			}
 
 			case EventType::PHYSICS_COLLISION: {
-				const PhysicsCollisionEvent& pcev = *(PhysicsCollisionEvent*)data;
+				const PhysicsCollisionEvent &pcev = *(PhysicsCollisionEvent *)data;
 				script_world::collision(*_script_world, pcev);
 				break;
 			}
@@ -266,7 +266,7 @@ void World::update(f32 dt)
 	update_scene(dt);
 }
 
-void World::render(const Matrix4x4& view)
+void World::render(const Matrix4x4 &view)
 {
 	_render_world->render(view);
 
@@ -277,7 +277,7 @@ void World::render(const Matrix4x4& view)
 	_lines->reset();
 }
 
-CameraInstance World::camera_create(UnitId unit, const CameraDesc& cd, const Matrix4x4& /*tr*/)
+CameraInstance World::camera_create(UnitId unit, const CameraDesc &cd, const Matrix4x4 & /*tr*/)
 {
 	CE_ASSERT(!hash_map::has(_camera_map, unit), "Unit already has a camera component");
 
@@ -324,9 +324,9 @@ ProjectionType::Enum World::camera_projection_type(CameraInstance camera)
 
 Matrix4x4 World::camera_projection_matrix(CameraInstance camera)
 {
-	Camera& cam = _camera[camera.i];
+	Camera &cam = _camera[camera.i];
 
-	const bgfx::Caps* caps = bgfx::getCaps();
+	const bgfx::Caps *caps = bgfx::getCaps();
 	f32 bx_proj[16];
 	switch (cam.projection_type) {
 	case ProjectionType::ORTHOGRAPHIC:
@@ -416,7 +416,7 @@ void World::camera_set_viewport_metrics(CameraInstance camera, u16 x, u16 y, u16
 	_camera[camera.i].view_height = height;
 }
 
-Vector3 World::camera_screen_to_world(CameraInstance camera, const Vector3& pos)
+Vector3 World::camera_screen_to_world(CameraInstance camera, const Vector3 &pos)
 {
 	TransformInstance ti = _scene_graph->instance(_camera[camera.i].unit);
 
@@ -426,7 +426,7 @@ Vector3 World::camera_screen_to_world(CameraInstance camera, const Vector3& pos)
 	Matrix4x4 mvp = world_inv * projection;
 	invert(mvp);
 
-	const bgfx::Caps* caps = bgfx::getCaps();
+	const bgfx::Caps *caps = bgfx::getCaps();
 
 	Vector4 ndc;
 	ndc.x = (2.0f * (pos.x - 0.0f)) / _camera[camera.i].view_width - 1.0f;
@@ -443,7 +443,7 @@ Vector3 World::camera_screen_to_world(CameraInstance camera, const Vector3& pos)
 	return vector3(tmp.x, tmp.y, tmp.z);
 }
 
-Vector3 World::camera_world_to_screen(CameraInstance camera, const Vector3& pos)
+Vector3 World::camera_world_to_screen(CameraInstance camera, const Vector3 &pos)
 {
 	TransformInstance ti = _scene_graph->instance(_camera[camera.i].unit);
 
@@ -471,14 +471,14 @@ Vector3 World::camera_world_to_screen(CameraInstance camera, const Vector3& pos)
 	return screen;
 }
 
-SoundInstanceId World::play_sound(const SoundResource& sr, const bool loop, const f32 volume, const Vector3& pos, const f32 range)
+SoundInstanceId World::play_sound(const SoundResource &sr, const bool loop, const f32 volume, const Vector3 &pos, const f32 range)
 {
 	return _sound_world->play(sr, loop, volume, range, pos);
 }
 
-SoundInstanceId World::play_sound(StringId64 name, const bool loop, const f32 volume, const Vector3& pos, const f32 range)
+SoundInstanceId World::play_sound(StringId64 name, const bool loop, const f32 volume, const Vector3 &pos, const f32 range)
 {
-	const SoundResource* sr = (const SoundResource*)_resource_manager->get(RESOURCE_TYPE_SOUND, name);
+	const SoundResource *sr = (const SoundResource *)_resource_manager->get(RESOURCE_TYPE_SOUND, name);
 	return play_sound(*sr, loop, volume, pos, range);
 }
 
@@ -492,12 +492,12 @@ void World::link_sound(SoundInstanceId /*id*/, UnitId /*unit*/, s32 /*node*/)
 	CE_FATAL("Not implemented yet");
 }
 
-void World::set_listener_pose(const Matrix4x4& pose)
+void World::set_listener_pose(const Matrix4x4 &pose)
 {
 	_sound_world->set_listener_pose(pose);
 }
 
-void World::set_sound_position(SoundInstanceId id, const Vector3& pos)
+void World::set_sound_position(SoundInstanceId id, const Vector3 &pos)
 {
 	_sound_world->set_sound_positions(1, &id, &pos);
 }
@@ -512,19 +512,19 @@ void World::set_sound_volume(SoundInstanceId id, f32 vol)
 	_sound_world->set_sound_volumes(1, &id, &vol);
 }
 
-DebugLine* World::create_debug_line(bool depth_test)
+DebugLine *World::create_debug_line(bool depth_test)
 {
 	return CE_NEW(*_allocator, DebugLine)(*_shader_manager, depth_test);
 }
 
-void World::destroy_debug_line(DebugLine& line)
+void World::destroy_debug_line(DebugLine &line)
 {
 	CE_DELETE(*_allocator, &line);
 }
 
-Gui* World::create_screen_gui()
+Gui *World::create_screen_gui()
 {
-	Gui* gui = CE_NEW(*_allocator, Gui)(_gui_buffer, *_resource_manager
+	Gui *gui = CE_NEW(*_allocator, Gui)(_gui_buffer, *_resource_manager
 		, *_shader_manager
 		, *_material_manager
 		);
@@ -533,17 +533,17 @@ Gui* World::create_screen_gui()
 	return gui;
 }
 
-void World::destroy_gui(Gui& gui)
+void World::destroy_gui(Gui &gui)
 {
 	list::remove(gui._node);
 	CE_DELETE(*_allocator, &gui);
 }
 
-Level* World::load_level(StringId64 name, const Vector3& pos, const Quaternion& rot)
+Level *World::load_level(StringId64 name, const Vector3 &pos, const Quaternion &rot)
 {
-	const LevelResource* lr = (const LevelResource*)_resource_manager->get(RESOURCE_TYPE_LEVEL, name);
+	const LevelResource *lr = (const LevelResource *)_resource_manager->get(RESOURCE_TYPE_LEVEL, name);
 
-	Level* level = CE_NEW(*_allocator, Level)(*_allocator, *_unit_manager, *this, *lr);
+	Level *level = CE_NEW(*_allocator, Level)(*_allocator, *_unit_manager, *this, *lr);
 	level->load(pos, rot);
 
 	list::add(level->_node, _levels);
@@ -583,24 +583,24 @@ void World::disable_unit_callbacks()
 }
 #endif
 
-void spawn_units(World& w, const UnitResource* ur, const Vector3& pos, const Quaternion& rot, const Vector3& scl, const UnitId* unit_lookup)
+void spawn_units(World &w, const UnitResource *ur, const Vector3 &pos, const Quaternion &rot, const Vector3 &scl, const UnitId *unit_lookup)
 {
-	SceneGraph* scene_graph = w._scene_graph;
-	RenderWorld* render_world = w._render_world;
-	PhysicsWorld* physics_world = w._physics_world;
-	ScriptWorld* script_world = w._script_world;
-	AnimationStateMachine* animation_state_machine = w._animation_state_machine;
+	SceneGraph *scene_graph = w._scene_graph;
+	RenderWorld *render_world = w._render_world;
+	PhysicsWorld *physics_world = w._physics_world;
+	ScriptWorld *script_world = w._script_world;
+	AnimationStateMachine *animation_state_machine = w._animation_state_machine;
 
-	const u32* unit_parents = unit_resource::parents(ur);
+	const u32 *unit_parents = unit_resource::parents(ur);
 
 	// Create components
-	const ComponentData* component = unit_resource::component_type_data(ur, NULL);
+	const ComponentData *component = unit_resource::component_type_data(ur, NULL);
 	for (u32 cc = 0; cc < ur->num_component_types; ++cc) {
-		const u32* unit_index = unit_resource::component_unit_index(component);
-		const char* data = unit_resource::component_payload(component);
+		const u32 *unit_index = unit_resource::component_unit_index(component);
+		const char *data = unit_resource::component_payload(component);
 
 		if (component->type == COMPONENT_TYPE_TRANSFORM) {
-			const TransformDesc* td = (const TransformDesc*)data;
+			const TransformDesc *td = (const TransformDesc *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++td) {
 				// FIXME: add SceneGraph::allocate() to reserve an instance
 				// without initializing it.
@@ -623,53 +623,53 @@ void spawn_units(World& w, const UnitResource* ur, const Vector3& pos, const Qua
 				}
 			}
 		} else if (component->type == COMPONENT_TYPE_CAMERA) {
-			const CameraDesc* cd = (const CameraDesc*)data;
+			const CameraDesc *cd = (const CameraDesc *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++cd) {
 				w.camera_create(unit_lookup[unit_index[i]], *cd, MATRIX4X4_IDENTITY);
 			}
 		} else if (component->type == COMPONENT_TYPE_COLLIDER) {
-			const ColliderDesc* cd = (const ColliderDesc*)data;
+			const ColliderDesc *cd = (const ColliderDesc *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i) {
 				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
 				Matrix4x4 tm = scene_graph->world_pose(ti);
 				physics_world->collider_create(unit_lookup[unit_index[i]], cd, scale(tm));
-				cd = (ColliderDesc*)((char*)(cd + 1) + cd->size);
+				cd = (ColliderDesc *)((char *)(cd + 1) + cd->size);
 			}
 		} else if (component->type == COMPONENT_TYPE_ACTOR) {
-			const ActorResource* ar = (const ActorResource*)data;
+			const ActorResource *ar = (const ActorResource *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++ar) {
 				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
 				Matrix4x4 tm = scene_graph->world_pose(ti);
 				physics_world->actor_create(unit_lookup[unit_index[i]], ar, from_quaternion_translation(rotation(tm), translation(tm)));
 			}
 		} else if (component->type == COMPONENT_TYPE_MESH_RENDERER) {
-			const MeshRendererDesc* mrd = (const MeshRendererDesc*)data;
+			const MeshRendererDesc *mrd = (const MeshRendererDesc *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++mrd) {
 				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
 				Matrix4x4 tm = scene_graph->world_pose(ti);
 				render_world->mesh_create(unit_lookup[unit_index[i]], *mrd, tm);
 			}
 		} else if (component->type == COMPONENT_TYPE_SPRITE_RENDERER) {
-			const SpriteRendererDesc* srd = (const SpriteRendererDesc*)data;
+			const SpriteRendererDesc *srd = (const SpriteRendererDesc *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++srd) {
 				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
 				Matrix4x4 tm = scene_graph->world_pose(ti);
 				render_world->sprite_create(unit_lookup[unit_index[i]], *srd, tm);
 			}
 		} else if (component->type == COMPONENT_TYPE_LIGHT) {
-			const LightDesc* ld = (const LightDesc*)data;
+			const LightDesc *ld = (const LightDesc *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++ld) {
 				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
 				Matrix4x4 tm = scene_graph->world_pose(ti);
 				render_world->light_create(unit_lookup[unit_index[i]], *ld, tm);
 			}
 		} else if (component->type == COMPONENT_TYPE_SCRIPT) {
-			const ScriptDesc* sd = (const ScriptDesc*)data;
+			const ScriptDesc *sd = (const ScriptDesc *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++sd) {
 				script_world::create(*script_world, unit_lookup[unit_index[i]], *sd);
 			}
 		} else if (component->type == COMPONENT_TYPE_ANIMATION_STATE_MACHINE) {
-			const AnimationStateMachineDesc* asmd = (const AnimationStateMachineDesc*)data;
+			const AnimationStateMachineDesc *asmd = (const AnimationStateMachineDesc *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++asmd) {
 				animation_state_machine->create(unit_lookup[unit_index[i]], *asmd);
 			}

@@ -14,7 +14,7 @@ namespace crown
 /// @ingroup Thread.
 struct Semaphore
 {
-	struct Private* _priv;
+	struct Private *_priv;
 	CE_ALIGN_DECL(16, u8 _data[128]);
 
 	///
@@ -24,10 +24,10 @@ struct Semaphore
 	~Semaphore();
 
 	///
-	Semaphore(const Semaphore&) = delete;
+	Semaphore(const Semaphore &) = delete;
 
 	///
-	Semaphore& operator=(const Semaphore&) = delete;
+	Semaphore &operator=(const Semaphore &) = delete;
 
 	///
 	void post(u32 count = 1);

@@ -21,14 +21,14 @@ struct LuaResource
 
 namespace lua_resource_internal
 {
-	s32 compile(CompileOptions& opts);
+	s32 compile(CompileOptions &opts);
 
 } // namespace lua_resource_internal
 
 namespace lua_resource
 {
 	/// Returns the lua program.
-	const char* program(const LuaResource* lr);
+	const char *program(const LuaResource *lr);
 
 } // namespace lua_resource
 

@@ -23,7 +23,7 @@ namespace crown
 {
 struct FileMonitorImpl
 {
-	Allocator* _allocator;
+	Allocator *_allocator;
 	int _fd;
 	HashMap<int, DynamicString> _watches;
 	HashMap<DynamicString, int> _watches_reverse;
@@ -31,9 +31,9 @@ struct FileMonitorImpl
 	bool _exit;
 	bool _recursive;
 	FileMonitorFunction _function;
-	void* _user_data;
+	void *_user_data;
 
-	explicit FileMonitorImpl(Allocator& a)
+	explicit FileMonitorImpl(Allocator &a)
 		: _allocator(&a)
 		, _fd(0)
 		, _watches(a)
@@ -45,7 +45,7 @@ struct FileMonitorImpl
 	{
 	}
 
-	void add_watch(const char* path, bool recursive, bool generate_create_event = false)
+	void add_watch(const char *path, bool recursive, bool generate_create_event = false)
 	{
 		CE_ENSURE(path != NULL);
 		CE_ASSERT(!path::has_trailing_separator(path), "Malformed path");
@@ -74,14 +74,14 @@ struct FileMonitorImpl
 			add_subdirectories(path, generate_create_event);
 	}
 
-	void add_subdirectories(const char* path, bool generate_create_event)
+	void add_subdirectories(const char *path, bool generate_create_event)
 	{
 		struct dirent *entry;
 
 		DIR *dir = opendir(path);
 		if (dir != NULL) {
 			while ((entry = readdir(dir))) {
-				const char* dname = entry->d_name;
+				const char *dname = entry->d_name;
 
 				if (!strcmp(dname, ".") || !strcmp(dname, ".."))
 					continue;
@@ -107,7 +107,7 @@ struct FileMonitorImpl
 		}
 	}
 
-	void start(u32 num, const char** paths, bool recursive, FileMonitorFunction fmf, void* user_data)
+	void start(u32 num, const char **paths, bool recursive, FileMonitorFunction fmf, void *user_data)
 	{
 		CE_ENSURE(NULL != fmf);
 
@@ -121,7 +121,7 @@ struct FileMonitorImpl
 		for (u32 i = 0; i < num; ++i)
 			add_watch(paths[i], recursive);
 
-		_thread.start([](void* thiz) { return static_cast<FileMonitorImpl*>(thiz)->watch(); }, this);
+		_thread.start([](void *thiz) { return static_cast<FileMonitorImpl *>(thiz)->watch(); }, this);
 	}
 
 	void stop()
@@ -162,8 +162,8 @@ struct FileMonitorImpl
 			if (len == -1)
 				return -1;
 
-			for (char* p = buf; p < buf + len;) {
-				inotify_event* ev = (inotify_event*)p;
+			for (char *p = buf; p < buf + len;) {
+				inotify_event *ev = (inotify_event *)p;
 
 				if (ev->mask & IN_IGNORED) {
 					// Watch was removed explicitly (inotify_rm_watch(2)) or
@@ -311,7 +311,7 @@ struct FileMonitorImpl
 		return 0;
 	}
 
-	void full_path(DynamicString& path, int wd, const char* name)
+	void full_path(DynamicString &path, int wd, const char *name)
 	{
 		TempAllocator512 ta;
 		DynamicString path_base(ta);
@@ -320,7 +320,7 @@ struct FileMonitorImpl
 	}
 };
 
-FileMonitor::FileMonitor(Allocator& a)
+FileMonitor::FileMonitor(Allocator &a)
 {
 	_impl = CE_NEW(a, FileMonitorImpl)(a);
 }
@@ -330,7 +330,7 @@ FileMonitor::~FileMonitor()
 	CE_DELETE(*_impl->_allocator, _impl);
 }
 
-void FileMonitor::start(u32 num, const char** paths, bool recursive, FileMonitorFunction fmf, void* user_data)
+void FileMonitor::start(u32 num, const char **paths, bool recursive, FileMonitorFunction fmf, void *user_data)
 {
 	_impl->start(num, paths, recursive, fmf, user_data);
 }

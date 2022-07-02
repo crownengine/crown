@@ -84,13 +84,13 @@ struct Window
 	virtual void restore() = 0;
 
 	/// Returns the title of the window.
-	virtual const char* title() = 0;
+	virtual const char *title() = 0;
 
 	/// Sets the title of the window.
-	virtual void set_title(const char* title) = 0;
+	virtual void set_title(const char *title) = 0;
 
 	/// Returns the native window handle.
-	virtual void* handle() = 0;
+	virtual void *handle() = 0;
 
 	/// Sets whether to @a show the cursor.
 	virtual void show_cursor(bool show) = 0;
@@ -115,10 +115,10 @@ struct Window
 namespace window
 {
 	/// Creates a new window.
-	Window* create(Allocator& a);
+	Window *create(Allocator &a);
 
 	/// Destroys the window @a w.
-	void destroy(Allocator& a, Window& w);
+	void destroy(Allocator &a, Window &w);
 
 } // namespace window
 

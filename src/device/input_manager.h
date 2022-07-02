@@ -18,38 +18,38 @@ namespace crown
 /// @ingroup Input
 struct InputManager
 {
-	Allocator* _allocator;
-	InputDevice* _keyboard;
-	InputDevice* _mouse;
-	InputDevice* _touch;
-	InputDevice* _joypad[CROWN_MAX_JOYPADS];
+	Allocator *_allocator;
+	InputDevice *_keyboard;
+	InputDevice *_mouse;
+	InputDevice *_touch;
+	InputDevice *_joypad[CROWN_MAX_JOYPADS];
 	s16 _mouse_last_x;
 	s16 _mouse_last_y;
 	bool _has_delta_axis_event;
 
 	/// Constructor.
-	InputManager(Allocator& a);
+	InputManager(Allocator &a);
 
 	/// Destructor.
 	~InputManager();
 
 	/// Returns the default keyboard input device.
-	InputDevice* keyboard();
+	InputDevice *keyboard();
 
 	/// Returns the default mouse input device.
-	InputDevice* mouse();
+	InputDevice *mouse();
 
 	/// Returns the default touch input device.
-	InputDevice* touch();
+	InputDevice *touch();
 
 	/// Returns the number of joypads.
 	u8 num_joypads();
 
 	/// Returns the joypad @a i.
-	InputDevice* joypad(u8 i);
+	InputDevice *joypad(u8 i);
 
 	///
-	void read(const OsEvent& ev);
+	void read(const OsEvent &ev);
 
 	/// Updates the input devices.
 	void update();

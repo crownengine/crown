@@ -26,17 +26,17 @@ struct Array
 {
 	ALLOCATOR_AWARE;
 
-	Allocator* _allocator;
+	Allocator *_allocator;
 	u32 _capacity;
 	u32 _size;
-	T* _data;
+	T *_data;
 
-	Array(Allocator& a);
-	Array(const Array<T>& other);
+	Array(Allocator &a);
+	Array(const Array<T> &other);
 	~Array();
-	T& operator[](u32 index);
-	const T& operator[](u32 index) const;
-	Array<T>& operator=(const Array<T>& other);
+	T &operator[](u32 index);
+	const T &operator[](u32 index) const;
+	Array<T> &operator=(const Array<T> &other);
 };
 
 typedef Array<char> Buffer;
@@ -53,17 +53,17 @@ struct Vector
 {
 	ALLOCATOR_AWARE;
 
-	Allocator* _allocator;
+	Allocator *_allocator;
 	u32 _capacity;
 	u32 _size;
-	T* _data;
+	T *_data;
 
-	Vector(Allocator& a);
-	Vector(const Vector<T>& other);
+	Vector(Allocator &a);
+	Vector(const Vector<T> &other);
 	~Vector();
-	T& operator[](u32 index);
-	const T& operator[](u32 index) const;
-	const Vector<T>& operator=(const Vector<T>& other);
+	T &operator[](u32 index);
+	const T &operator[](u32 index) const;
+	const Vector<T> &operator=(const Vector<T> &other);
 };
 
 /// Circular buffer double-ended queue of POD items.
@@ -78,9 +78,9 @@ struct Queue
 	u32 _size;
 	Array<T> _queue;
 
-	Queue(Allocator& a);
-	T& operator[](u32 index);
-	const T& operator[](u32 index) const;
+	Queue(Allocator &a);
+	T &operator[](u32 index);
+	const T &operator[](u32 index) const;
 };
 
 /// Hash map.
@@ -99,18 +99,18 @@ struct HashMap
 		u32 index;
 	};
 
-	Allocator* _allocator;
+	Allocator *_allocator;
 	u32 _capacity;
 	u32 _size;
 	u32 _mask;
-	Index* _index;
-	Entry* _data;
-	char* _buffer;
+	Index *_index;
+	Entry *_data;
+	char *_buffer;
 
-	HashMap(Allocator& a);
-	HashMap(const HashMap& other);
+	HashMap(Allocator &a);
+	HashMap(const HashMap &other);
 	~HashMap();
-	HashMap<TKey, TValue, Hash, KeyEqual>& operator=(const HashMap<TKey, TValue, Hash, KeyEqual>& other);
+	HashMap<TKey, TValue, Hash, KeyEqual> &operator=(const HashMap<TKey, TValue, Hash, KeyEqual> &other);
 };
 
 /// Hash set.
@@ -127,18 +127,18 @@ struct HashSet
 		u32 index;
 	};
 
-	Allocator* _allocator;
+	Allocator *_allocator;
 	u32 _capacity;
 	u32 _size;
 	u32 _mask;
-	Index* _index;
-	TKey* _data;
-	char* _buffer;
+	Index *_index;
+	TKey *_data;
+	char *_buffer;
 
-	HashSet(Allocator& a);
-	HashSet(const HashSet& other);
+	HashSet(Allocator &a);
+	HashSet(const HashSet &other);
 	~HashSet();
-	HashSet<TKey, Hash, KeyEqual>& operator=(const HashSet<TKey, Hash, KeyEqual>& other);
+	HashSet<TKey, Hash, KeyEqual> &operator=(const HashSet<TKey, Hash, KeyEqual> &other);
 };
 
 } // namespace crown

@@ -20,7 +20,7 @@ const char PATH_SEPARATOR = '\\';
 
 namespace path
 {
-	bool is_absolute(const char* path)
+	bool is_absolute(const char *path)
 	{
 		CE_ENSURE(NULL != path);
 #if CROWN_PLATFORM_POSIX
@@ -36,13 +36,13 @@ namespace path
 #endif
 	}
 
-	bool is_relative(const char* path)
+	bool is_relative(const char *path)
 	{
 		CE_ENSURE(NULL != path);
 		return !is_absolute(path);
 	}
 
-	bool is_root(const char* path)
+	bool is_root(const char *path)
 	{
 		CE_ENSURE(NULL != path);
 #if CROWN_PLATFORM_POSIX
@@ -52,7 +52,7 @@ namespace path
 #endif
 	}
 
-	void join(DynamicString& path, const char* path_a, const char* path_b)
+	void join(DynamicString &path, const char *path_a, const char *path_b)
 	{
 		CE_ENSURE(NULL != path_a);
 		CE_ENSURE(NULL != path_b);
@@ -65,22 +65,22 @@ namespace path
 		path += path_b;
 	}
 
-	const char* basename(const char* path)
+	const char *basename(const char *path)
 	{
 		CE_ENSURE(NULL != path);
-		const char* ls = strrchr(path, '/');
+		const char *ls = strrchr(path, '/');
 		return ls == NULL ? path : ls + 1;
 	}
 
-	const char* extension(const char* path)
+	const char *extension(const char *path)
 	{
 		CE_ENSURE(NULL != path);
-		const char* bn = basename(path);
-		const char* ld = strrchr(bn, '.');
+		const char *bn = basename(path);
+		const char *ld = strrchr(bn, '.');
 		return (ld == NULL || ld == bn) ? NULL : ld + 1;
 	}
 
-	bool has_trailing_separator(const char* path)
+	bool has_trailing_separator(const char *path)
 	{
 		CE_ENSURE(NULL != path);
 		return path[strlen32(path) - 1] == PATH_SEPARATOR;
@@ -91,7 +91,7 @@ namespace path
 		return c == '/' || c == '\\';
 	}
 
-	void reduce(DynamicString& clean, const char* path)
+	void reduce(DynamicString &clean, const char *path)
 	{
 		if (path == NULL)
 			return;

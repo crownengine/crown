@@ -30,19 +30,19 @@ struct ProfilerEventType
 
 struct RecordFloat
 {
-	const char* name;
+	const char *name;
 	f32 value;
 };
 
 struct RecordVector3
 {
-	const char* name;
+	const char *name;
 	Vector3 value;
 };
 
 struct EnterProfileScope
 {
-	const char* name;
+	const char *name;
 	s64 time;
 };
 
@@ -53,13 +53,13 @@ struct LeaveProfileScope
 
 struct AllocateMemory
 {
-	const char* name;
+	const char *name;
 	u32 size;
 };
 
 struct DeallocateMemory
 {
-	const char* name;
+	const char *name;
 	u32 size;
 };
 
@@ -74,22 +74,22 @@ struct DeallocateMemory
 namespace profiler
 {
 	/// Starts a new profile scope with the given @a name.
-	void enter_profile_scope(const char* name);
+	void enter_profile_scope(const char *name);
 
 	/// Ends the last profile scope.
 	void leave_profile_scope();
 
 	/// Records the f32 @a value with the given @a name.
-	void record_float(const char* name, f32 value);
+	void record_float(const char *name, f32 value);
 
 	/// Records the vector3 @a value with the given @a name.
-	void record_vector3(const char* name, const Vector3& value);
+	void record_vector3(const char *name, const Vector3 &value);
 
 	/// Records a memory allocation of @a size with the given @a name.
-	void allocate_memory(const char* name, u32 size);
+	void allocate_memory(const char *name, u32 size);
 
 	/// Records a memory deallocation of @a size with the given @a name.
-	void deallocate_memory(const char* name, u32 size);
+	void deallocate_memory(const char *name, u32 size);
 
 } // namespace profiler
 
@@ -98,8 +98,8 @@ namespace profiler_globals
 	void init();
 	void shutdown();
 
-	const char* buffer_begin();
-	const char* buffer_end();
+	const char *buffer_begin();
+	const char *buffer_end();
 	void flush();
 	void clear();
 

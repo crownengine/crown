@@ -11,14 +11,14 @@
 
 namespace crown
 {
-ResourceId resource_id(const char* path)
+ResourceId resource_id(const char *path)
 {
-	const char* type = resource_type(path);
+	const char *type = resource_type(path);
 	const u32 name_len = resource_name_length(type, path);
 	return resource_id(type, strlen32(type), path, name_len);
 }
 
-void destination_path(DynamicString& path, ResourceId id)
+void destination_path(DynamicString &path, ResourceId id)
 {
 	TempAllocator128 ta;
 	DynamicString id_hex(ta);

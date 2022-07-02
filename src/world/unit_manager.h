@@ -22,7 +22,7 @@ struct UnitManager
 	UnitDestroyCallback _callbacks;
 
 	///
-	UnitManager(Allocator& a);
+	UnitManager(Allocator &a);
 
 	///
 	UnitId make_unit(u32 idx, u8 gen);
@@ -31,7 +31,7 @@ struct UnitManager
 	UnitId create();
 
 	/// Creates a new empty unit in the given @a world.
-	UnitId create(World& world);
+	UnitId create(World &world);
 
 	/// Returns whether the unit @id is alive.
 	bool alive(UnitId unit) const;
@@ -40,10 +40,10 @@ struct UnitManager
 	void destroy(UnitId unit);
 
 	///
-	void register_destroy_callback(UnitDestroyCallback* udc);
+	void register_destroy_callback(UnitDestroyCallback *udc);
 
 	///
-	void unregister_destroy_callback(UnitDestroyCallback* udc);
+	void unregister_destroy_callback(UnitDestroyCallback *udc);
 
 	///
 	void trigger_destroy_callbacks(UnitId unit);

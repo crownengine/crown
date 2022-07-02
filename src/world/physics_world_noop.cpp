@@ -15,11 +15,11 @@ namespace crown
 {
 namespace physics_globals
 {
-	void init(Allocator& /*a*/)
+	void init(Allocator & /*a*/)
 	{
 	}
 
-	void shutdown(Allocator& /*a*/)
+	void shutdown(Allocator & /*a*/)
 	{
 	}
 
@@ -29,7 +29,7 @@ struct PhysicsWorldImpl
 {
 	EventStream _events;
 
-	explicit PhysicsWorldImpl(Allocator& a)
+	explicit PhysicsWorldImpl(Allocator &a)
 		: _events(a)
 	{
 	}
@@ -38,7 +38,7 @@ struct PhysicsWorldImpl
 	{
 	}
 
-	ColliderInstance collider_create(UnitId /*unit*/, const ColliderDesc* /*sd*/, const Vector3& /*scl*/)
+	ColliderInstance collider_create(UnitId /*unit*/, const ColliderDesc * /*sd*/, const Vector3 & /*scl*/)
 	{
 		return make_collider_instance(UINT32_MAX);
 	}
@@ -57,7 +57,7 @@ struct PhysicsWorldImpl
 		return make_collider_instance(UINT32_MAX);
 	}
 
-	ActorInstance actor_create(UnitId /*unit*/, const ActorResource* /*ar*/, const Matrix4x4& /*tm*/)
+	ActorInstance actor_create(UnitId /*unit*/, const ActorResource * /*ar*/, const Matrix4x4 & /*tm*/)
 	{
 		return make_actor_instance(UINT32_MAX);
 	}
@@ -86,15 +86,15 @@ struct PhysicsWorldImpl
 		return MATRIX4X4_IDENTITY;
 	}
 
-	void actor_teleport_world_position(ActorInstance /*actor*/, const Vector3& /*p*/)
+	void actor_teleport_world_position(ActorInstance /*actor*/, const Vector3 & /*p*/)
 	{
 	}
 
-	void actor_teleport_world_rotation(ActorInstance /*actor*/, const Quaternion& /*r*/)
+	void actor_teleport_world_rotation(ActorInstance /*actor*/, const Quaternion & /*r*/)
 	{
 	}
 
-	void actor_teleport_world_pose(ActorInstance /*actor*/, const Matrix4x4& /*m*/)
+	void actor_teleport_world_pose(ActorInstance /*actor*/, const Matrix4x4 & /*m*/)
 	{
 	}
 
@@ -170,7 +170,7 @@ struct PhysicsWorldImpl
 		return VECTOR3_ZERO;
 	}
 
-	void actor_set_linear_velocity(ActorInstance /*actor*/, const Vector3& /*vel*/)
+	void actor_set_linear_velocity(ActorInstance /*actor*/, const Vector3 & /*vel*/)
 	{
 	}
 
@@ -179,27 +179,27 @@ struct PhysicsWorldImpl
 		return VECTOR3_ZERO;
 	}
 
-	void actor_set_angular_velocity(ActorInstance /*actor*/, const Vector3& /*vel*/)
+	void actor_set_angular_velocity(ActorInstance /*actor*/, const Vector3 & /*vel*/)
 	{
 	}
 
-	void actor_add_impulse(ActorInstance /*actor*/, const Vector3& /*impulse*/)
+	void actor_add_impulse(ActorInstance /*actor*/, const Vector3 & /*impulse*/)
 	{
 	}
 
-	void actor_add_impulse_at(ActorInstance /*actor*/, const Vector3& /*impulse*/, const Vector3& /*pos*/)
+	void actor_add_impulse_at(ActorInstance /*actor*/, const Vector3 & /*impulse*/, const Vector3 & /*pos*/)
 	{
 	}
 
-	void actor_add_torque_impulse(ActorInstance /*actor*/, const Vector3& /*imp*/)
+	void actor_add_torque_impulse(ActorInstance /*actor*/, const Vector3 & /*imp*/)
 	{
 	}
 
-	void actor_push(ActorInstance /*actor*/, const Vector3& /*vel*/, f32 /*mass*/)
+	void actor_push(ActorInstance /*actor*/, const Vector3 & /*vel*/, f32 /*mass*/)
 	{
 	}
 
-	void actor_push_at(ActorInstance /*actor*/, const Vector3& /*vel*/, f32 /*mass*/, const Vector3& /*pos*/)
+	void actor_push_at(ActorInstance /*actor*/, const Vector3 & /*vel*/, f32 /*mass*/, const Vector3 & /*pos*/)
 	{
 	}
 
@@ -212,7 +212,7 @@ struct PhysicsWorldImpl
 	{
 	}
 
-	JointInstance joint_create(ActorInstance /*a0*/, ActorInstance /*a1*/, const JointDesc& /*jd*/)
+	JointInstance joint_create(ActorInstance /*a0*/, ActorInstance /*a1*/, const JointDesc & /*jd*/)
 	{
 		return make_joint_instance(UINT32_MAX);
 	}
@@ -221,22 +221,22 @@ struct PhysicsWorldImpl
 	{
 	}
 
-	bool cast_ray(RaycastHit& /*hit*/, const Vector3& /*from*/, const Vector3& /*dir*/, f32 /*len*/)
+	bool cast_ray(RaycastHit & /*hit*/, const Vector3 & /*from*/, const Vector3 & /*dir*/, f32 /*len*/)
 	{
 		return false;
 	}
 
-	bool cast_ray_all(Array<RaycastHit>& /*hits*/, const Vector3& /*from*/, const Vector3& /*dir*/, f32 /*len*/)
+	bool cast_ray_all(Array<RaycastHit> & /*hits*/, const Vector3 & /*from*/, const Vector3 & /*dir*/, f32 /*len*/)
 	{
 		return false;
 	}
 
-	bool cast_sphere(RaycastHit& /*hit*/, const Vector3& /*from*/, f32 /*radius*/, const Vector3& /*dir*/, f32 /*len*/)
+	bool cast_sphere(RaycastHit & /*hit*/, const Vector3 & /*from*/, f32 /*radius*/, const Vector3 & /*dir*/, f32 /*len*/)
 	{
 		return false;
 	}
 
-	bool cast_box(RaycastHit& /*hit*/, const Vector3& /*from*/, const Vector3& /*half_extents*/, const Vector3& /*dir*/, f32 /*len*/)
+	bool cast_box(RaycastHit & /*hit*/, const Vector3 & /*from*/, const Vector3 & /*half_extents*/, const Vector3 & /*dir*/, f32 /*len*/)
 	{
 		return false;
 	}
@@ -246,11 +246,11 @@ struct PhysicsWorldImpl
 		return VECTOR3_ZERO;
 	}
 
-	void set_gravity(const Vector3& /*g*/)
+	void set_gravity(const Vector3 & /*g*/)
 	{
 	}
 
-	void update_actor_world_poses(const UnitId* /*begin*/, const UnitId* /*end*/, const Matrix4x4* /*begin_world*/)
+	void update_actor_world_poses(const UnitId * /*begin*/, const UnitId * /*end*/, const Matrix4x4 * /*begin_world*/)
 	{
 	}
 
@@ -258,7 +258,7 @@ struct PhysicsWorldImpl
 	{
 	}
 
-	EventStream& events()
+	EventStream &events()
 	{
 		return _events;
 	}
@@ -287,7 +287,7 @@ struct PhysicsWorldImpl
 	}
 };
 
-PhysicsWorld::PhysicsWorld(Allocator& a, ResourceManager& /*rm*/, UnitManager& /*um*/, DebugLine& /*dl*/)
+PhysicsWorld::PhysicsWorld(Allocator &a, ResourceManager & /*rm*/, UnitManager & /*um*/, DebugLine & /*dl*/)
 	: _marker(PHYSICS_WORLD_MARKER)
 	, _allocator(&a)
 	, _impl(NULL)
@@ -301,7 +301,7 @@ PhysicsWorld::~PhysicsWorld()
 	_marker = 0;
 }
 
-ColliderInstance PhysicsWorld::collider_create(UnitId unit, const ColliderDesc* sd, const Vector3& scl)
+ColliderInstance PhysicsWorld::collider_create(UnitId unit, const ColliderDesc *sd, const Vector3 &scl)
 {
 	return _impl->collider_create(unit, sd, scl);
 }
@@ -321,7 +321,7 @@ ColliderInstance PhysicsWorld::collider_next(ColliderInstance i)
 	return _impl->collider_next(i);
 }
 
-ActorInstance PhysicsWorld::actor_create(UnitId unit, const ActorResource* ar, const Matrix4x4& tm)
+ActorInstance PhysicsWorld::actor_create(UnitId unit, const ActorResource *ar, const Matrix4x4 &tm)
 {
 	return _impl->actor_create(unit, ar, tm);
 }
@@ -351,17 +351,17 @@ Matrix4x4 PhysicsWorld::actor_world_pose(ActorInstance actor) const
 	return _impl->actor_world_pose(actor);
 }
 
-void PhysicsWorld::actor_teleport_world_position(ActorInstance actor, const Vector3& p)
+void PhysicsWorld::actor_teleport_world_position(ActorInstance actor, const Vector3 &p)
 {
 	_impl->actor_teleport_world_position(actor, p);
 }
 
-void PhysicsWorld::actor_teleport_world_rotation(ActorInstance actor, const Quaternion& r)
+void PhysicsWorld::actor_teleport_world_rotation(ActorInstance actor, const Quaternion &r)
 {
 	_impl->actor_teleport_world_rotation(actor, r);
 }
 
-void PhysicsWorld::actor_teleport_world_pose(ActorInstance actor, const Matrix4x4& m)
+void PhysicsWorld::actor_teleport_world_pose(ActorInstance actor, const Matrix4x4 &m)
 {
 	_impl->actor_teleport_world_pose(actor, m);
 }
@@ -446,7 +446,7 @@ Vector3 PhysicsWorld::actor_linear_velocity(ActorInstance actor) const
 	return _impl->actor_linear_velocity(actor);
 }
 
-void PhysicsWorld::actor_set_linear_velocity(ActorInstance actor, const Vector3& vel)
+void PhysicsWorld::actor_set_linear_velocity(ActorInstance actor, const Vector3 &vel)
 {
 	_impl->actor_set_linear_velocity(actor, vel);
 }
@@ -456,32 +456,32 @@ Vector3 PhysicsWorld::actor_angular_velocity(ActorInstance actor) const
 	return _impl->actor_angular_velocity(actor);
 }
 
-void PhysicsWorld::actor_set_angular_velocity(ActorInstance actor, const Vector3& vel)
+void PhysicsWorld::actor_set_angular_velocity(ActorInstance actor, const Vector3 &vel)
 {
 	_impl->actor_set_angular_velocity(actor, vel);
 }
 
-void PhysicsWorld::actor_add_impulse(ActorInstance actor, const Vector3& impulse)
+void PhysicsWorld::actor_add_impulse(ActorInstance actor, const Vector3 &impulse)
 {
 	_impl->actor_add_impulse(actor, impulse);
 }
 
-void PhysicsWorld::actor_add_impulse_at(ActorInstance actor, const Vector3& impulse, const Vector3& pos)
+void PhysicsWorld::actor_add_impulse_at(ActorInstance actor, const Vector3 &impulse, const Vector3 &pos)
 {
 	_impl->actor_add_impulse_at(actor, impulse, pos);
 }
 
-void PhysicsWorld::actor_add_torque_impulse(ActorInstance actor, const Vector3& imp)
+void PhysicsWorld::actor_add_torque_impulse(ActorInstance actor, const Vector3 &imp)
 {
 	_impl->actor_add_torque_impulse(actor, imp);
 }
 
-void PhysicsWorld::actor_push(ActorInstance actor, const Vector3& vel, f32 mass)
+void PhysicsWorld::actor_push(ActorInstance actor, const Vector3 &vel, f32 mass)
 {
 	_impl->actor_push(actor, vel, mass);
 }
 
-void PhysicsWorld::actor_push_at(ActorInstance actor, const Vector3& vel, f32 mass, const Vector3& pos)
+void PhysicsWorld::actor_push_at(ActorInstance actor, const Vector3 &vel, f32 mass, const Vector3 &pos)
 {
 	_impl->actor_push_at(actor, vel, mass, pos);
 }
@@ -496,7 +496,7 @@ void PhysicsWorld::actor_wake_up(ActorInstance actor)
 	_impl->actor_wake_up(actor);
 }
 
-JointInstance PhysicsWorld::joint_create(ActorInstance a0, ActorInstance a1, const JointDesc& jd)
+JointInstance PhysicsWorld::joint_create(ActorInstance a0, ActorInstance a1, const JointDesc &jd)
 {
 	return _impl->joint_create(a0, a1, jd);
 }
@@ -506,22 +506,22 @@ void PhysicsWorld::joint_destroy(JointInstance i)
 	_impl->joint_destroy(i);
 }
 
-bool PhysicsWorld::cast_ray(RaycastHit& hit, const Vector3& from, const Vector3& dir, f32 len)
+bool PhysicsWorld::cast_ray(RaycastHit &hit, const Vector3 &from, const Vector3 &dir, f32 len)
 {
 	return _impl->cast_ray(hit, from, dir, len);
 }
 
-bool PhysicsWorld::cast_ray_all(Array<RaycastHit>& hits, const Vector3& from, const Vector3& dir, f32 len)
+bool PhysicsWorld::cast_ray_all(Array<RaycastHit> &hits, const Vector3 &from, const Vector3 &dir, f32 len)
 {
 	return _impl->cast_ray_all(hits, from, dir, len);
 }
 
-bool PhysicsWorld::cast_sphere(RaycastHit& hit, const Vector3& from, f32 radius, const Vector3& dir, f32 len)
+bool PhysicsWorld::cast_sphere(RaycastHit &hit, const Vector3 &from, f32 radius, const Vector3 &dir, f32 len)
 {
 	return _impl->cast_sphere(hit, from, radius, dir, len);
 }
 
-bool PhysicsWorld::cast_box(RaycastHit& hit, const Vector3& from, const Vector3& half_extents, const Vector3& dir, f32 len)
+bool PhysicsWorld::cast_box(RaycastHit &hit, const Vector3 &from, const Vector3 &half_extents, const Vector3 &dir, f32 len)
 {
 	return _impl->cast_box(hit, from, half_extents, dir, len);
 }
@@ -531,12 +531,12 @@ Vector3 PhysicsWorld::gravity() const
 	return _impl->gravity();
 }
 
-void PhysicsWorld::set_gravity(const Vector3& g)
+void PhysicsWorld::set_gravity(const Vector3 &g)
 {
 	_impl->set_gravity(g);
 }
 
-void PhysicsWorld::update_actor_world_poses(const UnitId* begin, const UnitId* end, const Matrix4x4* begin_world)
+void PhysicsWorld::update_actor_world_poses(const UnitId *begin, const UnitId *end, const Matrix4x4 *begin_world)
 {
 	_impl->update_actor_world_poses(begin, end, begin_world);
 }
@@ -546,7 +546,7 @@ void PhysicsWorld::update(f32 dt)
 	_impl->update(dt);
 }
 
-EventStream& PhysicsWorld::events()
+EventStream &PhysicsWorld::events()
 {
 	return _impl->events();
 }

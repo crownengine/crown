@@ -16,26 +16,26 @@ namespace crown
 /// @ingroup World
 struct Material
 {
-	const MaterialResource* _resource;
-	char* _data;
+	const MaterialResource *_resource;
+	char *_data;
 
 	///
-	void bind(ResourceManager& rm, ShaderManager& sm, u8 view, s32 depth = 0) const;
+	void bind(ResourceManager &rm, ShaderManager &sm, u8 view, s32 depth = 0) const;
 
 	/// Sets the @a value of the variable @a name.
 	void set_float(StringId32 name, f32 value);
 
 	/// Sets the @a value of the variable @a name.
-	void set_vector2(StringId32 name, const Vector2& value);
+	void set_vector2(StringId32 name, const Vector2 &value);
 
 	/// Sets the @a value of the variable @a name.
-	void set_vector3(StringId32 name, const Vector3& value);
+	void set_vector3(StringId32 name, const Vector3 &value);
 
 	/// Sets the @a value of the variable @a name.
-	void set_vector4(StringId32 name, const Vector4& value);
+	void set_vector4(StringId32 name, const Vector4 &value);
 
 	/// Sets the @a value of the variable @a name.
-	void set_matrix4x4(StringId32 name, const Matrix4x4& value);
+	void set_matrix4x4(StringId32 name, const Matrix4x4 &value);
 };
 
 } // namespace crown

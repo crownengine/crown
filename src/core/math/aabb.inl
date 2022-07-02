@@ -13,27 +13,27 @@ namespace crown
 {
 namespace aabb
 {
-	inline void from_points(AABB& b, u32 num, const Vector3* points)
+	inline void from_points(AABB &b, u32 num, const Vector3 *points)
 	{
 		aabb::from_points(b, num, sizeof(Vector3), points);
 	}
 
-	inline Vector3 center(const AABB& b)
+	inline Vector3 center(const AABB &b)
 	{
 		return (b.min + b.max) * 0.5f;
 	}
 
-	inline f32 radius(const AABB& b)
+	inline f32 radius(const AABB &b)
 	{
 		return length(b.max - (b.min + b.max) * 0.5f);
 	}
 
-	inline f32 volume(const AABB& b)
+	inline f32 volume(const AABB &b)
 	{
 		return (b.max.x - b.min.x) * (b.max.y - b.min.y) * (b.max.z - b.min.z);
 	}
 
-	inline bool contains_point(const AABB& b, const Vector3& p)
+	inline bool contains_point(const AABB &b, const Vector3 &p)
 	{
 		return p.x > b.min.x
 			&& p.y > b.min.y
@@ -44,7 +44,7 @@ namespace aabb
 			;
 	}
 
-	inline AABB transformed(const AABB& b, const Matrix4x4& m)
+	inline AABB transformed(const AABB &b, const Matrix4x4 &m)
 	{
 		Vector3 vertices[8];
 		to_vertices(b, vertices);
@@ -63,7 +63,7 @@ namespace aabb
 		return r;
 	}
 
-	inline void to_vertices(const AABB& b, Vector3 v[8])
+	inline void to_vertices(const AABB &b, Vector3 v[8])
 	{
 		// 7 ---- 6
 		// |      |
@@ -107,7 +107,7 @@ namespace aabb
 		v[7].z = b.min.z;
 	}
 
-	inline Sphere to_sphere(const AABB& b)
+	inline Sphere to_sphere(const AABB &b)
 	{
 		Sphere s;
 		s.c = aabb::center(b);

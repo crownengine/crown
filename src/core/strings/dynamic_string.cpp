@@ -10,21 +10,21 @@
 
 namespace crown
 {
-void DynamicString::from_guid(const Guid& guid)
+void DynamicString::from_guid(const Guid &guid)
 {
 	array::resize(_data, GUID_BUF_LEN);
 	guid::to_string(array::begin(_data), GUID_BUF_LEN, guid);
 	array::pop_back(_data);
 }
 
-void DynamicString::from_string_id(const StringId32& id)
+void DynamicString::from_string_id(const StringId32 &id)
 {
 	array::resize(_data, STRING_ID32_BUF_LEN);
 	id.to_string(array::begin(_data), STRING_ID32_BUF_LEN);
 	array::pop_back(_data);
 }
 
-void DynamicString::from_string_id(const StringId64& id)
+void DynamicString::from_string_id(const StringId64 &id)
 {
 	array::resize(_data, STRING_ID64_BUF_LEN);
 	id.to_string(array::begin(_data), STRING_ID64_BUF_LEN);

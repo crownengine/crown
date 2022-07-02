@@ -59,7 +59,7 @@ struct Pipeline
 	void reset(u16 width, u16 height);
 
 	///
-	void render(ShaderManager& sm, StringId32 program, u8 view, u16 width, u16 height);
+	void render(ShaderManager &sm, StringId32 program, u8 view, u16 width, u16 height);
 };
 
 } // namespace crown

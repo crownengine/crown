@@ -11,13 +11,13 @@ namespace crown
 {
 namespace list
 {
-	inline void init_head(ListNode& head)
+	inline void init_head(ListNode &head)
 	{
 		head.next = &head;
 		head.prev = &head;
 	}
 
-	inline void insert(ListNode& node, ListNode& prev, ListNode& next)
+	inline void insert(ListNode &node, ListNode &prev, ListNode &next)
 	{
 		// Kernel
 		next.prev = &node;
@@ -26,12 +26,12 @@ namespace list
 		prev.next = &node;
 	}
 
-	inline void add(ListNode& node, ListNode& head)
+	inline void add(ListNode &node, ListNode &head)
 	{
 		insert(node, head, *head.next);
 	}
 
-	inline void remove(ListNode& node)
+	inline void remove(ListNode &node)
 	{
 		node.prev->next = node.next;
 		node.next->prev = node.prev;

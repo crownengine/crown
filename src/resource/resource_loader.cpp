@@ -24,14 +24,14 @@ LOG_SYSTEM(RESOURCE_LOADER, "resource_loader")
 
 namespace crown
 {
-ResourceLoader::ResourceLoader(Filesystem& data_filesystem)
+ResourceLoader::ResourceLoader(Filesystem &data_filesystem)
 	: _data_filesystem(data_filesystem)
 	, _requests(default_allocator())
 	, _loaded(default_allocator())
 	, _fallback(default_allocator())
 	, _exit(false)
 {
-	_thread.start([](void* thiz) { return ((ResourceLoader*)thiz)->run(); }, this);
+	_thread.start([](void *thiz) { return ((ResourceLoader *)thiz)->run(); }, this);
 }
 
 ResourceLoader::~ResourceLoader()
@@ -41,7 +41,7 @@ ResourceLoader::~ResourceLoader()
 	_thread.stop();
 }
 
-void ResourceLoader::add_request(const ResourceRequest& rr)
+void ResourceLoader::add_request(const ResourceRequest &rr)
 {
 	ScopedMutex sm(_mutex);
 	queue::push_back(_requests, rr);
@@ -65,7 +65,7 @@ void ResourceLoader::add_loaded(ResourceRequest rr)
 	queue::push_back(_loaded, rr);
 }
 
-void ResourceLoader::get_loaded(Array<ResourceRequest>& loaded)
+void ResourceLoader::get_loaded(Array<ResourceRequest> &loaded)
 {
 	ScopedMutex sm(_loaded_mutex);
 
@@ -102,7 +102,7 @@ s32 ResourceLoader::run()
 		DynamicString path(ta);
 		destination_path(path, res_id);
 
-		File* file = _data_filesystem.open(path.c_str(), FileOpenMode::READ);
+		File *file = _data_filesystem.open(path.c_str(), FileOpenMode::READ);
 		if (!file->is_open()) {
 			logw(RESOURCE_LOADER, "Can't load resource: " RESOURCE_ID_FMT ". Falling back...", res_id._id);
 
@@ -124,7 +124,7 @@ s32 ResourceLoader::run()
 			const u32 size = file->size();
 			rr.data = rr.allocator->allocate(size, 16);
 			file->read(rr.data, size);
-			CE_ASSERT(*(u32*)rr.data == RESOURCE_HEADER(rr.version), "Wrong version");
+			CE_ASSERT(*(u32 *)rr.data == RESOURCE_HEADER(rr.version), "Wrong version");
 		}
 
 		_data_filesystem.close(*file);

@@ -30,10 +30,10 @@ namespace crown
 {
 struct BgfxReader : public bx::ReaderI
 {
-	BinaryReader* _br;
+	BinaryReader *_br;
 
 	///
-	BgfxReader(BinaryReader& br)
+	BgfxReader(BinaryReader &br)
 		: _br(&br)
 	{
 	}
@@ -44,7 +44,7 @@ struct BgfxReader : public bx::ReaderI
 	}
 
 	///
-	virtual int32_t read(void* _data, int32_t _size, bx::Error* _err)
+	virtual int32_t read(void *_data, int32_t _size, bx::Error *_err)
 	{
 		CE_UNUSED(_err);
 		_br->read(_data, _size);
@@ -55,10 +55,10 @@ struct BgfxReader : public bx::ReaderI
 /// Writer interface.
 struct BgfxWriter : public bx::WriterI
 {
-	BinaryWriter* _bw;
+	BinaryWriter *_bw;
 
 	///
-	BgfxWriter(BinaryWriter& bw)
+	BgfxWriter(BinaryWriter &bw)
 		: _bw(&bw)
 	{
 	}
@@ -69,7 +69,7 @@ struct BgfxWriter : public bx::WriterI
 	}
 
 	///
-	virtual int32_t write(const void* _data, int32_t _size, bx::Error* _err)
+	virtual int32_t write(const void *_data, int32_t _size, bx::Error *_err)
 	{
 		CE_UNUSED(_err);
 		_bw->write(_data, _size);
@@ -77,13 +77,13 @@ struct BgfxWriter : public bx::WriterI
 	}
 };
 
-MeshResource::MeshResource(Allocator& a)
+MeshResource::MeshResource(Allocator &a)
 	: geometry_names(a)
 	, geometries(a)
 {
 }
 
-const MeshGeometry* MeshResource::geometry(StringId32 name) const
+const MeshGeometry *MeshResource::geometry(StringId32 name) const
 {
 	for (u32 i = 0; i < array::size(geometry_names); ++i) {
 		if (geometry_names[i] == name)
@@ -96,7 +96,7 @@ const MeshGeometry* MeshResource::geometry(StringId32 name) const
 
 namespace mesh_resource_internal
 {
-	void* load(File& file, Allocator& a)
+	void *load(File &file, Allocator &a)
 	{
 		BinaryReader br(file);
 
@@ -107,7 +107,7 @@ namespace mesh_resource_internal
 		u32 num_geoms;
 		br.read(num_geoms);
 
-		MeshResource* mr = CE_NEW(a, MeshResource)(a);
+		MeshResource *mr = CE_NEW(a, MeshResource)(a);
 		array::resize(mr->geometry_names, num_geoms);
 		array::resize(mr->geometries, num_geoms);
 
@@ -136,14 +136,14 @@ namespace mesh_resource_internal
 
 			const u32 size = sizeof(MeshGeometry) + vsize + isize;
 
-			MeshGeometry* mg = (MeshGeometry*)a.allocate(size);
+			MeshGeometry *mg = (MeshGeometry *)a.allocate(size);
 			mg->obb             = obb;
 			mg->layout          = layout;
 			mg->vertex_buffer   = BGFX_INVALID_HANDLE;
 			mg->index_buffer    = BGFX_INVALID_HANDLE;
 			mg->vertices.num    = num_verts;
 			mg->vertices.stride = stride;
-			mg->vertices.data   = (char*)&mg[1];
+			mg->vertices.data   = (char *)&mg[1];
 			mg->indices.num     = num_inds;
 			mg->indices.data    = mg->vertices.data + vsize;
 
@@ -157,18 +157,18 @@ namespace mesh_resource_internal
 		return mr;
 	}
 
-	void online(StringId64 id, ResourceManager& rm)
+	void online(StringId64 id, ResourceManager &rm)
 	{
-		MeshResource* mr = (MeshResource*)rm.get(RESOURCE_TYPE_MESH, id);
+		MeshResource *mr = (MeshResource *)rm.get(RESOURCE_TYPE_MESH, id);
 
 		for (u32 i = 0; i < array::size(mr->geometries); ++i) {
-			MeshGeometry& mg = *mr->geometries[i];
+			MeshGeometry &mg = *mr->geometries[i];
 
 			const u32 vsize = mg.vertices.num * mg.vertices.stride;
 			const u32 isize = mg.indices.num * sizeof(u16);
 
-			const bgfx::Memory* vmem = bgfx::makeRef(mg.vertices.data, vsize);
-			const bgfx::Memory* imem = bgfx::makeRef(mg.indices.data, isize);
+			const bgfx::Memory *vmem = bgfx::makeRef(mg.vertices.data, vsize);
+			const bgfx::Memory *imem = bgfx::makeRef(mg.indices.data, isize);
 
 			bgfx::VertexBufferHandle vbh = bgfx::createVertexBuffer(vmem, mg.layout);
 			bgfx::IndexBufferHandle ibh  = bgfx::createIndexBuffer(imem);
@@ -180,25 +180,25 @@ namespace mesh_resource_internal
 		}
 	}
 
-	void offline(StringId64 id, ResourceManager& rm)
+	void offline(StringId64 id, ResourceManager &rm)
 	{
-		MeshResource* mr = (MeshResource*)rm.get(RESOURCE_TYPE_MESH, id);
+		MeshResource *mr = (MeshResource *)rm.get(RESOURCE_TYPE_MESH, id);
 
 		for (u32 i = 0; i < array::size(mr->geometries); ++i) {
-			MeshGeometry& mg = *mr->geometries[i];
+			MeshGeometry &mg = *mr->geometries[i];
 			bgfx::destroy(mg.vertex_buffer);
 			bgfx::destroy(mg.index_buffer);
 		}
 	}
 
-	void unload(Allocator& a, void* res)
+	void unload(Allocator &a, void *res)
 	{
-		MeshResource* mr = (MeshResource*)res;
+		MeshResource *mr = (MeshResource *)res;
 
 		for (u32 i = 0; i < array::size(mr->geometries); ++i) {
 			a.deallocate(mr->geometries[i]);
 		}
-		CE_DELETE(a, (MeshResource*)res);
+		CE_DELETE(a, (MeshResource *)res);
 	}
 
 } // namespace mesh_resource_internal
@@ -206,7 +206,7 @@ namespace mesh_resource_internal
 #if CROWN_CAN_COMPILE
 namespace mesh_resource_internal
 {
-	static void parse_float_array(Array<f32>& output, const char* json)
+	static void parse_float_array(Array<f32> &output, const char *json)
 	{
 		TempAllocator4096 ta;
 		JsonArray floats(ta);
@@ -217,7 +217,7 @@ namespace mesh_resource_internal
 			output[i] = sjson::parse_float(floats[i]);
 	}
 
-	static void parse_index_array(Array<u16>& output, const char* json)
+	static void parse_index_array(Array<u16> &output, const char *json)
 	{
 		TempAllocator4096 ta;
 		JsonArray indices(ta);
@@ -230,7 +230,7 @@ namespace mesh_resource_internal
 
 	struct MeshCompiler
 	{
-		CompileOptions& _opts;
+		CompileOptions &_opts;
 
 		Array<f32> _positions;
 		Array<f32> _normals;
@@ -256,7 +256,7 @@ namespace mesh_resource_internal
 		bool _has_normal;
 		bool _has_uv;
 
-		explicit MeshCompiler(CompileOptions& opts)
+		explicit MeshCompiler(CompileOptions &opts)
 			: _opts(opts)
 			, _positions(default_allocator())
 			, _normals(default_allocator())
@@ -296,13 +296,13 @@ namespace mesh_resource_internal
 
 			aabb::reset(_aabb);
 			memset(&_obb, 0, sizeof(_obb));
-			memset((void*)&_layout, 0, sizeof(_layout));
+			memset((void *)&_layout, 0, sizeof(_layout));
 
 			_has_normal = false;
 			_has_uv = false;
 		}
 
-		void parse_indices(const char* json)
+		void parse_indices(const char *json)
 		{
 			TempAllocator4096 ta;
 			JsonObject obj(ta);
@@ -321,7 +321,7 @@ namespace mesh_resource_internal
 			}
 		}
 
-		void parse(const char* geometry)
+		void parse(const char *geometry)
 		{
 			TempAllocator4096 ta;
 			JsonObject obj(ta);
@@ -358,7 +358,7 @@ namespace mesh_resource_internal
 				xyz.x = _positions[p_idx + 0];
 				xyz.y = _positions[p_idx + 1];
 				xyz.z = _positions[p_idx + 2];
-				array::push(_vertex_buffer, (char*)&xyz, sizeof(xyz));
+				array::push(_vertex_buffer, (char *)&xyz, sizeof(xyz));
 
 				if (_has_normal) {
 					const u16 n_idx = _normal_indices[i] * 3;
@@ -366,14 +366,14 @@ namespace mesh_resource_internal
 					n.x = _normals[n_idx + 0];
 					n.y = _normals[n_idx + 1];
 					n.z = _normals[n_idx + 2];
-					array::push(_vertex_buffer, (char*)&n, sizeof(n));
+					array::push(_vertex_buffer, (char *)&n, sizeof(n));
 				}
 				if (_has_uv) {
 					const u16 t_idx = _uv_indices[i] * 2;
 					Vector2 uv;
 					uv.x = _uvs[t_idx + 0];
 					uv.y = _uvs[t_idx + 1];
-					array::push(_vertex_buffer, (char*)&uv, sizeof(uv));
+					array::push(_vertex_buffer, (char *)&uv, sizeof(uv));
 				}
 			}
 
@@ -416,12 +416,12 @@ namespace mesh_resource_internal
 		}
 	};
 
-	s32 compile_node(MeshCompiler& mc, CompileOptions& opts, const JsonObject& geometries, const HashMap<StringView, const char*>::Entry* entry)
+	s32 compile_node(MeshCompiler &mc, CompileOptions &opts, const JsonObject &geometries, const HashMap<StringView, const char *>::Entry *entry)
 	{
 		TempAllocator4096 ta;
 		const StringView key = entry->first;
-		const char* node = entry->second;
-		const char* geometry = geometries[key];
+		const char *node = entry->second;
+		const char *geometry = geometries[key];
 
 		const StringId32 node_name(key.data(), key.length());
 		opts.write(node_name._id);
@@ -450,7 +450,7 @@ namespace mesh_resource_internal
 		return 0;
 	}
 
-	s32 compile(CompileOptions& opts)
+	s32 compile(CompileOptions &opts)
 	{
 		Buffer buf = opts.read();
 

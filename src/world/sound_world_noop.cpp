@@ -35,7 +35,7 @@ struct SoundWorldImpl
 	{
 	}
 
-	SoundInstanceId play(const SoundResource& /*sr*/, bool /*loop*/, f32 /*volume*/, f32 /*range*/, const Vector3& /*pos*/)
+	SoundInstanceId play(const SoundResource & /*sr*/, bool /*loop*/, f32 /*volume*/, f32 /*range*/, const Vector3 & /*pos*/)
 	{
 		return 0;
 	}
@@ -61,23 +61,23 @@ struct SoundWorldImpl
 	{
 	}
 
-	void set_sound_positions(u32 /*num*/, const SoundInstanceId* /*ids*/, const Vector3* /*positions*/)
+	void set_sound_positions(u32 /*num*/, const SoundInstanceId * /*ids*/, const Vector3 * /*positions*/)
 	{
 	}
 
-	void set_sound_ranges(u32 /*num*/, const SoundInstanceId* /*ids*/, const f32* /*ranges*/)
+	void set_sound_ranges(u32 /*num*/, const SoundInstanceId * /*ids*/, const f32 * /*ranges*/)
 	{
 	}
 
-	void set_sound_volumes(u32 /*num*/, const SoundInstanceId* /*ids*/, const f32* /*volumes*/)
+	void set_sound_volumes(u32 /*num*/, const SoundInstanceId * /*ids*/, const f32 * /*volumes*/)
 	{
 	}
 
-	void reload_sounds(const SoundResource& /*old_sr*/, const SoundResource& /*new_sr*/)
+	void reload_sounds(const SoundResource & /*old_sr*/, const SoundResource & /*new_sr*/)
 	{
 	}
 
-	void set_listener_pose(const Matrix4x4& /*pose*/)
+	void set_listener_pose(const Matrix4x4 & /*pose*/)
 	{
 	}
 
@@ -86,7 +86,7 @@ struct SoundWorldImpl
 	}
 };
 
-SoundWorld::SoundWorld(Allocator& a)
+SoundWorld::SoundWorld(Allocator &a)
 	: _marker(SOUND_WORLD_MARKER)
 	, _allocator(&a)
 	, _impl(NULL)
@@ -100,7 +100,7 @@ SoundWorld::~SoundWorld()
 	_marker = 0;
 }
 
-SoundInstanceId SoundWorld::play(const SoundResource& sr, bool loop, f32 volume, f32 range, const Vector3& pos)
+SoundInstanceId SoundWorld::play(const SoundResource &sr, bool loop, f32 volume, f32 range, const Vector3 &pos)
 {
 	return _impl->play(sr, loop, volume, range, pos);
 }
@@ -130,27 +130,27 @@ void SoundWorld::resume_all()
 	_impl->resume_all();
 }
 
-void SoundWorld::set_sound_positions(u32 num, const SoundInstanceId* ids, const Vector3* positions)
+void SoundWorld::set_sound_positions(u32 num, const SoundInstanceId *ids, const Vector3 *positions)
 {
 	_impl->set_sound_positions(num, ids, positions);
 }
 
-void SoundWorld::set_sound_ranges(u32 num, const SoundInstanceId* ids, const f32* ranges)
+void SoundWorld::set_sound_ranges(u32 num, const SoundInstanceId *ids, const f32 *ranges)
 {
 	_impl->set_sound_ranges(num, ids, ranges);
 }
 
-void SoundWorld::set_sound_volumes(u32 num, const SoundInstanceId* ids, const f32* volumes)
+void SoundWorld::set_sound_volumes(u32 num, const SoundInstanceId *ids, const f32 *volumes)
 {
 	_impl->set_sound_volumes(num, ids, volumes);
 }
 
-void SoundWorld::reload_sounds(const SoundResource& old_sr, const SoundResource& new_sr)
+void SoundWorld::reload_sounds(const SoundResource &old_sr, const SoundResource &new_sr)
 {
 	_impl->reload_sounds(old_sr, new_sr);
 }
 
-void SoundWorld::set_listener_pose(const Matrix4x4& pose)
+void SoundWorld::set_listener_pose(const Matrix4x4 &pose)
 {
 	_impl->set_listener_pose(pose);
 }

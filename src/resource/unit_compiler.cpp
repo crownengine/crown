@@ -27,7 +27,7 @@ namespace crown
 {
 struct ProjectionInfo
 {
-	const char* name;
+	const char *name;
 	ProjectionType::Enum type;
 };
 
@@ -40,7 +40,7 @@ CE_STATIC_ASSERT(countof(s_projection) == ProjectionType::COUNT);
 
 struct LightInfo
 {
-	const char* name;
+	const char *name;
 	LightType::Enum type;
 };
 
@@ -52,7 +52,7 @@ static const LightInfo s_light[] =
 };
 CE_STATIC_ASSERT(countof(s_light) == LightType::COUNT);
 
-static ProjectionType::Enum projection_name_to_enum(const char* name)
+static ProjectionType::Enum projection_name_to_enum(const char *name)
 {
 	for (u32 i = 0; i < countof(s_projection); ++i) {
 		if (strcmp(name, s_projection[i].name) == 0)
@@ -62,7 +62,7 @@ static ProjectionType::Enum projection_name_to_enum(const char* name)
 	return ProjectionType::COUNT;
 }
 
-static LightType::Enum light_name_to_enum(const char* name)
+static LightType::Enum light_name_to_enum(const char *name)
 {
 	for (u32 i = 0; i < countof(s_light); ++i) {
 		if (strcmp(name, s_light[i].name) == 0)
@@ -72,7 +72,7 @@ static LightType::Enum light_name_to_enum(const char* name)
 	return LightType::COUNT;
 }
 
-static s32 compile_transform(Buffer& output, const char* json, CompileOptions& /*opts*/)
+static s32 compile_transform(Buffer &output, const char *json, CompileOptions & /*opts*/)
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
@@ -91,7 +91,7 @@ static s32 compile_transform(Buffer& output, const char* json, CompileOptions& /
 	return 0;
 }
 
-static s32 compile_camera(Buffer& output, const char* json, CompileOptions& opts)
+static s32 compile_camera(Buffer &output, const char *json, CompileOptions &opts)
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
@@ -122,7 +122,7 @@ static s32 compile_camera(Buffer& output, const char* json, CompileOptions& opts
 	return 0;
 }
 
-static s32 compile_mesh_renderer(Buffer& output, const char* json, CompileOptions& opts)
+static s32 compile_mesh_renderer(Buffer &output, const char *json, CompileOptions &opts)
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
@@ -165,7 +165,7 @@ static s32 compile_mesh_renderer(Buffer& output, const char* json, CompileOption
 	return 0;
 }
 
-static s32 compile_sprite_renderer(Buffer& output, const char* json, CompileOptions& opts)
+static s32 compile_sprite_renderer(Buffer &output, const char *json, CompileOptions &opts)
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
@@ -218,7 +218,7 @@ static s32 compile_sprite_renderer(Buffer& output, const char* json, CompileOpti
 	return 0;
 }
 
-static s32 compile_light(Buffer& output, const char* json, CompileOptions& opts)
+static s32 compile_light(Buffer &output, const char *json, CompileOptions &opts)
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
@@ -251,7 +251,7 @@ static s32 compile_light(Buffer& output, const char* json, CompileOptions& opts)
 	return 0;
 }
 
-static s32 compile_script(Buffer& output, const char* json, CompileOptions& opts)
+static s32 compile_script(Buffer &output, const char *json, CompileOptions &opts)
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
@@ -274,7 +274,7 @@ static s32 compile_script(Buffer& output, const char* json, CompileOptions& opts
 	return 0;
 }
 
-static s32 compile_animation_state_machine(Buffer& output, const char* json, CompileOptions& opts)
+static s32 compile_animation_state_machine(Buffer &output, const char *json, CompileOptions &opts)
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
@@ -297,7 +297,7 @@ static s32 compile_animation_state_machine(Buffer& output, const char* json, Com
 	return 0;
 }
 
-UnitCompiler::UnitCompiler(CompileOptions& opts)
+UnitCompiler::UnitCompiler(CompileOptions &opts)
 	: _opts(opts)
 	, _num_units(0)
 	, _component_data(default_allocator())
@@ -321,19 +321,19 @@ UnitCompiler::~UnitCompiler()
 {
 }
 
-Buffer UnitCompiler::read_unit(const char* path)
+Buffer UnitCompiler::read_unit(const char *path)
 {
 	Buffer buf = _opts.read(path);
 	array::push_back(buf, '\0');
 	return buf;
 }
 
-s32 UnitCompiler::compile_unit(const char* path)
+s32 UnitCompiler::compile_unit(const char *path)
 {
 	return compile_unit_from_json(array::begin(read_unit(path)), UINT32_MAX);
 }
 
-u32 object_index_from_id(const JsonArray& objects, const Guid& id)
+u32 object_index_from_id(const JsonArray &objects, const Guid &id)
 {
 	for (u32 i = 0; i < array::size(objects); ++i) {
 		TempAllocator512 ta;
@@ -346,7 +346,7 @@ u32 object_index_from_id(const JsonArray& objects, const Guid& id)
 	return UINT32_MAX;
 }
 
-s32 UnitCompiler::collect_units(Buffer& data, Array<u32>& prefabs, const char* json)
+s32 UnitCompiler::collect_units(Buffer &data, Array<u32> &prefabs, const char *json)
 {
 	u32 prefab_offt = array::size(data);
 	array::push(data, json, strlen32(json));
@@ -374,7 +374,7 @@ s32 UnitCompiler::collect_units(Buffer& data, Array<u32>& prefabs, const char* j
 	return 1;
 }
 
-s32 UnitCompiler::compile_unit_from_json(const char* json, const u32 parent)
+s32 UnitCompiler::compile_unit_from_json(const char *json, const u32 parent)
 {
 	Buffer data(default_allocator());
 	Array<u32> offsets(default_allocator()); // Offsets to JSON objects into data
@@ -539,7 +539,7 @@ s32 UnitCompiler::compile_unit_from_json(const char* json, const u32 parent)
 
 	// Compile component data for each component type found in the chain of units.
 	for (u32 cc = 0; cc < array::size(merged_components); ++cc) {
-		const char* val = merged_components[cc];
+		const char *val = merged_components[cc];
 
 		TempAllocator512 ta;
 		JsonObject component(ta);
@@ -553,7 +553,7 @@ s32 UnitCompiler::compile_unit_from_json(const char* json, const u32 parent)
 
 		// Append data to the component data for the given type.
 		ComponentTypeData component_types_deffault(default_allocator());
-		ComponentTypeData& ctd = const_cast<ComponentTypeData&>(hash_map::get(_component_data, type, component_types_deffault));
+		ComponentTypeData &ctd = const_cast<ComponentTypeData &>(hash_map::get(_component_data, type, component_types_deffault));
 
 		// One component per unit max.
 		auto cur = array::begin(ctd._unit_index);
@@ -579,7 +579,7 @@ s32 UnitCompiler::compile_unit_from_json(const char* json, const u32 parent)
 	return 0;
 }
 
-s32 UnitCompiler::compile_units_array(const JsonArray& units, const u32 parent)
+s32 UnitCompiler::compile_units_array(const JsonArray &units, const u32 parent)
 {
 	for (u32 i = 0; i < array::size(units); ++i) {
 		s32 err = compile_unit_from_json(units[i], parent);
@@ -588,7 +588,7 @@ s32 UnitCompiler::compile_units_array(const JsonArray& units, const u32 parent)
 	return 0;
 }
 
-s32 UnitCompiler::compile_units_array(const char* json, const u32 parent)
+s32 UnitCompiler::compile_units_array(const char *json, const u32 parent)
 {
 	TempAllocator4096 ta;
 	JsonArray units(ta);
@@ -629,10 +629,10 @@ Buffer UnitCompiler::blob()
 
 	for (u32 ii = 0; ii < array::size(_component_info); ++ii) {
 		const StringId32 type        = _component_info[ii]._type;
-		const ComponentTypeData& ctd = hash_map::get(_component_data, type, ComponentTypeData(default_allocator()));
+		const ComponentTypeData &ctd = hash_map::get(_component_data, type, ComponentTypeData(default_allocator()));
 
-		const Buffer& data           = ctd._data;
-		const Array<u32>& unit_index = ctd._unit_index;
+		const Buffer &data           = ctd._data;
+		const Array<u32> &unit_index = ctd._unit_index;
 		const u32 num                = ctd._num;
 
 		if (num == 0)
@@ -657,7 +657,7 @@ Buffer UnitCompiler::blob()
 	return output;
 }
 
-void UnitCompiler::register_component_compiler(const char* type, CompileFunction fn, f32 spawn_order)
+void UnitCompiler::register_component_compiler(const char *type, CompileFunction fn, f32 spawn_order)
 {
 	register_component_compiler(StringId32(type), fn, spawn_order);
 }
@@ -677,7 +677,7 @@ void UnitCompiler::register_component_compiler(StringId32 type, CompileFunction 
 	std::sort(array::begin(_component_info), array::end(_component_info));
 }
 
-s32 UnitCompiler::compile_component(Buffer& output, StringId32 type, const char* json)
+s32 UnitCompiler::compile_component(Buffer &output, StringId32 type, const char *json)
 {
 	DATA_COMPILER_ASSERT(hash_map::has(_component_data, type), _opts, "Unknown component");
 

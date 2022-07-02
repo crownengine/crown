@@ -55,14 +55,14 @@ ConditionVariable::~ConditionVariable()
 	_priv->~Private();
 }
 
-void ConditionVariable::wait(Mutex& mutex)
+void ConditionVariable::wait(Mutex &mutex)
 {
 #if CROWN_PLATFORM_POSIX
-	int err = pthread_cond_wait(&_priv->cond, (pthread_mutex_t*)mutex.native_handle());
+	int err = pthread_cond_wait(&_priv->cond, (pthread_mutex_t *)mutex.native_handle());
 	CE_ASSERT(err == 0, "pthread_cond_wait: errno = %d", err);
 	CE_UNUSED(err);
 #elif CROWN_PLATFORM_WINDOWS
-	SleepConditionVariableCS(&_priv->cv, (CRITICAL_SECTION*)mutex.native_handle(), INFINITE);
+	SleepConditionVariableCS(&_priv->cv, (CRITICAL_SECTION *)mutex.native_handle(), INFINITE);
 #endif
 }
 

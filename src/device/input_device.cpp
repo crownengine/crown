@@ -16,7 +16,7 @@
 
 namespace crown
 {
-const char* InputDevice::name() const
+const char *InputDevice::name() const
 {
 	return _name;
 }
@@ -106,7 +106,7 @@ Vector3 InputDevice::axis(u8 id) const
 	return axis;
 }
 
-const char* InputDevice::button_name(u8 id)
+const char *InputDevice::button_name(u8 id)
 {
 	return id < _num_buttons
 		? _button_name[id]
@@ -114,7 +114,7 @@ const char* InputDevice::button_name(u8 id)
 		;
 }
 
-const char* InputDevice::axis_name(u8 id)
+const char *InputDevice::axis_name(u8 id)
 {
 	return id < _num_axes
 		? _axis_name[id]
@@ -142,7 +142,7 @@ u8 InputDevice::axis_id(StringId32 name)
 	return UINT8_MAX;
 }
 
-f32 InputDevice::deadzone(u8 id, DeadzoneMode::Enum* deadzone_mode)
+f32 InputDevice::deadzone(u8 id, DeadzoneMode::Enum *deadzone_mode)
 {
 	if (id < _num_axes) {
 		*deadzone_mode = (DeadzoneMode::Enum)_deadzone_mode[id];
@@ -187,7 +187,7 @@ void InputDevice::update()
 
 namespace input_device
 {
-	InputDevice* create(Allocator& a, const char* name, u8 num_buttons, u8 num_axes, const char** button_names, const char** axis_names)
+	InputDevice *create(Allocator &a, const char *name, u8 num_buttons, u8 num_axes, const char **button_names, const char **axis_names)
 	{
 		const u32 size = 0
 			+ sizeof(InputDevice) + alignof(InputDevice)
@@ -200,7 +200,7 @@ namespace input_device
 			+ strlen32(name) + 1 + alignof(char)
 			;
 
-		InputDevice* id = (InputDevice*)a.allocate(size);
+		InputDevice *id = (InputDevice *)a.allocate(size);
 
 		id->_connected       = false;
 		id->_num_buttons     = num_buttons;
@@ -210,14 +210,14 @@ namespace input_device
 		id->_button_name     = button_names;
 		id->_axis_name       = axis_names;
 
-		id->_last_state    = (u8*         )&id[1];
-		id->_state         = (u8*         )memory::align_top(id->_last_state + num_buttons,  alignof(u8));
-		id->_axis          = (Vector3*    )memory::align_top(id->_state + num_buttons,       alignof(Vector3));
-		id->_deadzone_mode = (u32*        )memory::align_top(id->_axis + num_axes,           alignof(u32));
-		id->_deadzone_size = (f32*        )memory::align_top(id->_deadzone_mode + num_axes,  alignof(f32));
-		id->_button_hash   = (StringId32* )memory::align_top(id->_deadzone_size + num_axes,  alignof(StringId32));
-		id->_axis_hash     = (StringId32* )memory::align_top(id->_button_hash + num_buttons, alignof(StringId32));
-		id->_name          = (char*       )memory::align_top(id->_axis_hash + num_axes,      alignof(char));
+		id->_last_state    = (u8 *        )&id[1];
+		id->_state         = (u8 *        )memory::align_top(id->_last_state + num_buttons,  alignof(u8));
+		id->_axis          = (Vector3 *   )memory::align_top(id->_state + num_buttons,       alignof(Vector3));
+		id->_deadzone_mode = (u32 *       )memory::align_top(id->_axis + num_axes,           alignof(u32));
+		id->_deadzone_size = (f32 *       )memory::align_top(id->_deadzone_mode + num_axes,  alignof(f32));
+		id->_button_hash   = (StringId32 *)memory::align_top(id->_deadzone_size + num_axes,  alignof(StringId32));
+		id->_axis_hash     = (StringId32 *)memory::align_top(id->_button_hash + num_buttons, alignof(StringId32));
+		id->_name          = (char *      )memory::align_top(id->_axis_hash + num_axes,      alignof(char));
 
 		memset(id->_last_state, 0, sizeof(u8)*num_buttons);
 		memset(id->_state, 0, sizeof(u8)*num_buttons);
@@ -236,7 +236,7 @@ namespace input_device
 		return id;
 	}
 
-	void destroy(Allocator& a, InputDevice& id)
+	void destroy(Allocator &a, InputDevice &id)
 	{
 		a.deallocate(&id);
 	}

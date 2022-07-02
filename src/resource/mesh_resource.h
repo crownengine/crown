@@ -20,13 +20,13 @@ struct VertexData
 {
 	u32 num;
 	u32 stride;
-	char* data;
+	char *data;
 };
 
 struct IndexData
 {
 	u32 num;
-	char* data; // size = num*sizeof(u16)
+	char *data; // size = num*sizeof(u16)
 };
 
 struct MeshGeometry
@@ -42,22 +42,22 @@ struct MeshGeometry
 struct MeshResource
 {
 	Array<StringId32> geometry_names;
-	Array<MeshGeometry*> geometries;
+	Array<MeshGeometry *> geometries;
 
 	///
-	MeshResource(Allocator& a);
+	MeshResource(Allocator &a);
 
 	///
-	const MeshGeometry* geometry(StringId32 name) const;
+	const MeshGeometry *geometry(StringId32 name) const;
 };
 
 namespace mesh_resource_internal
 {
-	s32 compile(CompileOptions& opts);
-	void* load(File& file, Allocator& a);
-	void online(StringId64 /*id*/, ResourceManager& /*rm*/);
-	void offline(StringId64 /*id*/, ResourceManager& /*rm*/);
-	void unload(Allocator& a, void* res);
+	s32 compile(CompileOptions &opts);
+	void *load(File &file, Allocator &a);
+	void online(StringId64 /*id*/, ResourceManager & /*rm*/);
+	void offline(StringId64 /*id*/, ResourceManager & /*rm*/);
+	void unload(Allocator &a, void *res);
 
 } // namespace mesh_resource_internal
 

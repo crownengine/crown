@@ -27,7 +27,7 @@ namespace crown
 struct FileDisk : public File
 {
 #if CROWN_PLATFORM_POSIX
-	FILE* _file;
+	FILE *_file;
 #elif CROWN_PLATFORM_WINDOWS
 	HANDLE _file;
 	bool _eof;
@@ -49,7 +49,7 @@ struct FileDisk : public File
 		close();
 	}
 
-	void open(const char* path, FileOpenMode::Enum mode)
+	void open(const char *path, FileOpenMode::Enum mode)
 	{
 #if CROWN_PLATFORM_POSIX
 		_file = fopen(path, (mode == FileOpenMode::READ) ? "rb" : "wb");
@@ -174,7 +174,7 @@ struct FileDisk : public File
 		CE_UNUSED(err);
 	}
 
-	u32 read(void* data, u32 size)
+	u32 read(void *data, u32 size)
 	{
 		CE_ASSERT(is_open(), "File is not open");
 		CE_ASSERT(data != NULL, "Data must be != NULL");
@@ -191,7 +191,7 @@ struct FileDisk : public File
 #endif
 	}
 
-	u32 write(const void* data, u32 size)
+	u32 write(const void *data, u32 size)
 	{
 		CE_ASSERT(is_open(), "File is not open");
 		CE_ASSERT(data != NULL, "Data must be != NULL");
@@ -227,18 +227,18 @@ struct FileDisk : public File
 	}
 };
 
-FilesystemDisk::FilesystemDisk(Allocator& a)
+FilesystemDisk::FilesystemDisk(Allocator &a)
 	: _allocator(&a)
 	, _prefix(a)
 {
 }
 
-void FilesystemDisk::set_prefix(const char* prefix)
+void FilesystemDisk::set_prefix(const char *prefix)
 {
 	_prefix.set(prefix, strlen32(prefix));
 }
 
-File* FilesystemDisk::open(const char* path, FileOpenMode::Enum mode)
+File *FilesystemDisk::open(const char *path, FileOpenMode::Enum mode)
 {
 	CE_ENSURE(NULL != path);
 
@@ -246,17 +246,17 @@ File* FilesystemDisk::open(const char* path, FileOpenMode::Enum mode)
 	DynamicString abs_path(ta);
 	absolute_path(abs_path, path);
 
-	FileDisk* file = CE_NEW(*_allocator, FileDisk)();
+	FileDisk *file = CE_NEW(*_allocator, FileDisk)();
 	file->open(abs_path.c_str(), mode);
 	return file;
 }
 
-void FilesystemDisk::close(File& file)
+void FilesystemDisk::close(File &file)
 {
 	CE_DELETE(*_allocator, &file);
 }
 
-Stat FilesystemDisk::stat(const char* path)
+Stat FilesystemDisk::stat(const char *path)
 {
 	CE_ENSURE(NULL != path);
 
@@ -269,27 +269,27 @@ Stat FilesystemDisk::stat(const char* path)
 	return info;
 }
 
-bool FilesystemDisk::exists(const char* path)
+bool FilesystemDisk::exists(const char *path)
 {
 	return stat(path).file_type != Stat::NO_ENTRY;
 }
 
-bool FilesystemDisk::is_directory(const char* path)
+bool FilesystemDisk::is_directory(const char *path)
 {
 	return stat(path).file_type == Stat::DIRECTORY;
 }
 
-bool FilesystemDisk::is_file(const char* path)
+bool FilesystemDisk::is_file(const char *path)
 {
 	return stat(path).file_type == Stat::REGULAR;
 }
 
-u64 FilesystemDisk::last_modified_time(const char* path)
+u64 FilesystemDisk::last_modified_time(const char *path)
 {
 	return stat(path).mtime;
 }
 
-CreateResult FilesystemDisk::create_directory(const char* path)
+CreateResult FilesystemDisk::create_directory(const char *path)
 {
 	CE_ENSURE(NULL != path);
 
@@ -300,7 +300,7 @@ CreateResult FilesystemDisk::create_directory(const char* path)
 	return os::create_directory(abs_path.c_str());
 }
 
-DeleteResult FilesystemDisk::delete_directory(const char* path)
+DeleteResult FilesystemDisk::delete_directory(const char *path)
 {
 	CE_ENSURE(NULL != path);
 
@@ -311,7 +311,7 @@ DeleteResult FilesystemDisk::delete_directory(const char* path)
 	return os::delete_directory(abs_path.c_str());
 }
 
-DeleteResult FilesystemDisk::delete_file(const char* path)
+DeleteResult FilesystemDisk::delete_file(const char *path)
 {
 	CE_ENSURE(NULL != path);
 
@@ -322,7 +322,7 @@ DeleteResult FilesystemDisk::delete_file(const char* path)
 	return os::delete_file(abs_path.c_str());
 }
 
-void FilesystemDisk::list_files(const char* path, Vector<DynamicString>& files)
+void FilesystemDisk::list_files(const char *path, Vector<DynamicString> &files)
 {
 	CE_ENSURE(NULL != path);
 
@@ -333,7 +333,7 @@ void FilesystemDisk::list_files(const char* path, Vector<DynamicString>& files)
 	os::list_files(abs_path.c_str(), files);
 }
 
-void FilesystemDisk::absolute_path(DynamicString& os_path, const char* path)
+void FilesystemDisk::absolute_path(DynamicString &os_path, const char *path)
 {
 	if (path::is_absolute(path)) {
 		os_path = path;

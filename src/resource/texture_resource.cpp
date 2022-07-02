@@ -19,7 +19,7 @@ namespace crown
 {
 namespace texture_resource_internal
 {
-	void* load(File& file, Allocator& a)
+	void *load(File &file, Allocator &a)
 	{
 		BinaryReader br(file);
 
@@ -30,9 +30,9 @@ namespace texture_resource_internal
 		u32 size;
 		br.read(size);
 
-		TextureResource* tr = (TextureResource*)a.allocate(sizeof(TextureResource) + size);
+		TextureResource *tr = (TextureResource *)a.allocate(sizeof(TextureResource) + size);
 
-		void* data = &tr[1];
+		void *data = &tr[1];
 		br.read(data, size);
 
 		tr->mem        = bgfx::makeRef(data, size);
@@ -41,19 +41,19 @@ namespace texture_resource_internal
 		return tr;
 	}
 
-	void online(StringId64 id, ResourceManager& rm)
+	void online(StringId64 id, ResourceManager &rm)
 	{
-		TextureResource* tr = (TextureResource*)rm.get(RESOURCE_TYPE_TEXTURE, id);
+		TextureResource *tr = (TextureResource *)rm.get(RESOURCE_TYPE_TEXTURE, id);
 		tr->handle = bgfx::createTexture(tr->mem);
 	}
 
-	void offline(StringId64 id, ResourceManager& rm)
+	void offline(StringId64 id, ResourceManager &rm)
 	{
-		TextureResource* tr = (TextureResource*)rm.get(RESOURCE_TYPE_TEXTURE, id);
+		TextureResource *tr = (TextureResource *)rm.get(RESOURCE_TYPE_TEXTURE, id);
 		bgfx::destroy(tr->handle);
 	}
 
-	void unload(Allocator& a, void* resource)
+	void unload(Allocator &a, void *resource)
 	{
 		a.deallocate(resource);
 	}
@@ -63,7 +63,7 @@ namespace texture_resource_internal
 #if CROWN_CAN_COMPILE
 namespace texture_resource_internal
 {
-	static const char* texturec_paths[] =
+	static const char *texturec_paths[] =
 	{
 		EXE_PATH("texturec"),
 #if CROWN_DEBUG
@@ -75,7 +75,7 @@ namespace texture_resource_internal
 #endif
 	};
 
-	s32 compile(CompileOptions& opts)
+	s32 compile(CompileOptions &opts)
 	{
 		Buffer buf = opts.read();
 
@@ -96,13 +96,13 @@ namespace texture_resource_internal
 		opts.absolute_path(tex_src, name.c_str());
 		opts.temporary_path(tex_out, "ktx");
 
-		const char* texturec = opts.exe_path(texturec_paths, countof(texturec_paths));
+		const char *texturec = opts.exe_path(texturec_paths, countof(texturec_paths));
 		DATA_COMPILER_ASSERT(texturec != NULL
 			, opts
 			, "texturec not found"
 			);
 
-		const char* argv[] =
+		const char *argv[] =
 		{
 			texturec,
 			"-f",

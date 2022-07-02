@@ -7,7 +7,7 @@
 
 namespace crown
 {
-const char* skip_block(const char* str, char a, char b)
+const char *skip_block(const char *str, char a, char b)
 {
 	u32 num = 0;
 

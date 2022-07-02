@@ -26,14 +26,14 @@ struct SpriteResource
 
 namespace sprite_resource_internal
 {
-	s32 compile(CompileOptions& opts);
+	s32 compile(CompileOptions &opts);
 
 } // namespace sprite_resource_internal
 
 namespace sprite_resource
 {
 	/// Returns the frame data for the frame @a i.
-	const f32* frame_data(const SpriteResource* sr, u32 i);
+	const f32 *frame_data(const SpriteResource *sr, u32 i);
 
 } // namespace sprite_resource
 
@@ -46,14 +46,14 @@ struct SpriteAnimationResource
 
 namespace sprite_animation_resource_internal
 {
-	s32 compile(CompileOptions& opts);
+	s32 compile(CompileOptions &opts);
 
 } // namespace sprite_animation_resource_internal
 
 namespace sprite_animation_resource
 {
 	/// Returns the frames of the sprite animation @a sar.
-	const u32* frames(const SpriteAnimationResource* sar);
+	const u32 *frames(const SpriteAnimationResource *sar);
 
 } // namespace sprite_animation_resource
 

@@ -14,7 +14,7 @@ namespace crown
 /// @ingroup Thread
 struct ConditionVariable
 {
-	struct Private* _priv;
+	struct Private *_priv;
 	CE_ALIGN_DECL(16, u8 _data[64]);
 
 	///
@@ -24,13 +24,13 @@ struct ConditionVariable
 	~ConditionVariable();
 
 	///
-	ConditionVariable(const ConditionVariable&) = delete;
+	ConditionVariable(const ConditionVariable &) = delete;
 
 	///
-	ConditionVariable& operator=(const ConditionVariable&) = delete;
+	ConditionVariable &operator=(const ConditionVariable &) = delete;
 
 	///
-	void wait(Mutex& mutex);
+	void wait(Mutex &mutex);
 
 	///
 	void signal();

@@ -13,7 +13,7 @@
 
 namespace crown
 {
-UnitManager::UnitManager(Allocator& a)
+UnitManager::UnitManager(Allocator &a)
 	: _generation(a)
 	, _free_indices(a)
 {
@@ -42,7 +42,7 @@ UnitId UnitManager::create()
 	return make_unit(idx, _generation[idx]);
 }
 
-UnitId UnitManager::create(World& world)
+UnitId UnitManager::create(World &world)
 {
 	return world.spawn_empty_unit();
 }
@@ -61,22 +61,22 @@ void UnitManager::destroy(UnitId unit)
 	trigger_destroy_callbacks(unit);
 }
 
-void UnitManager::register_destroy_callback(UnitDestroyCallback* udc)
+void UnitManager::register_destroy_callback(UnitDestroyCallback *udc)
 {
 	list::add(udc->node, _callbacks.node);
 }
 
-void UnitManager::unregister_destroy_callback(UnitDestroyCallback* udc)
+void UnitManager::unregister_destroy_callback(UnitDestroyCallback *udc)
 {
 	list::remove(udc->node);
 }
 
 void UnitManager::trigger_destroy_callbacks(UnitId unit)
 {
-	ListNode* cur;
+	ListNode *cur;
 	list_for_each(cur, &_callbacks.node)
 	{
-		UnitDestroyCallback* udc = (UnitDestroyCallback*)container_of(cur, UnitDestroyCallback, node);
+		UnitDestroyCallback *udc = (UnitDestroyCallback *)container_of(cur, UnitDestroyCallback, node);
 		udc->destroy(unit, udc->user_data);
 	}
 }

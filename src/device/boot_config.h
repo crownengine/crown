@@ -25,8 +25,8 @@ struct BootConfig
 	bool vsync;
 	bool fullscreen;
 
-	BootConfig(Allocator& a);
-	bool parse(const char* json);
+	BootConfig(Allocator &a);
+	bool parse(const char *json);
 };
 
 } // namespace crown

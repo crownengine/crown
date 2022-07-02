@@ -21,10 +21,10 @@ namespace crown
 /// @ingroup Resource
 struct ResourceManager
 {
-	typedef void* (*LoadFunction)(File& file, Allocator& a);
-	typedef void (*OnlineFunction)(StringId64 name, ResourceManager& rm);
-	typedef void (*OfflineFunction)(StringId64 name, ResourceManager& rm);
-	typedef void (*UnloadFunction)(Allocator& allocator, void* resource);
+	typedef void * (*LoadFunction)(File &file, Allocator &a);
+	typedef void (*OnlineFunction)(StringId64 name, ResourceManager &rm);
+	typedef void (*OfflineFunction)(StringId64 name, ResourceManager &rm);
+	typedef void (*UnloadFunction)(Allocator &allocator, void *resource);
 
 	struct ResourcePair
 	{
@@ -35,7 +35,7 @@ struct ResourceManager
 	struct ResourceEntry
 	{
 		u32 references;
-		void* data;
+		void *data;
 
 		static const ResourceEntry NOT_FOUND;
 	};
@@ -53,18 +53,18 @@ struct ResourceManager
 	typedef HashMap<ResourcePair, ResourceEntry> ResourceMap;
 
 	ProxyAllocator _resource_heap;
-	ResourceLoader* _loader;
+	ResourceLoader *_loader;
 	TypeMap _type_data;
 	ResourceMap _rm;
 	bool _autoload;
 
 	void on_online(StringId64 type, StringId64 name);
 	void on_offline(StringId64 type, StringId64 name);
-	void on_unload(StringId64 type, void* data);
-	void complete_request(StringId64 type, StringId64 name, void* data);
+	void on_unload(StringId64 type, void *data);
+	void complete_request(StringId64 type, StringId64 name, void *data);
 
 	/// Uses @a rl to load resources.
-	ResourceManager(ResourceLoader& rl);
+	ResourceManager(ResourceLoader &rl);
 
 	///
 	~ResourceManager();
@@ -84,7 +84,7 @@ struct ResourceManager
 	bool can_get(StringId64 type, StringId64 name);
 
 	/// Returns the data of the resource (@a type, @a name).
-	const void* get(StringId64 type, StringId64 name);
+	const void *get(StringId64 type, StringId64 name);
 
 	/// Sets whether resources should be automatically loaded when accessed.
 	void enable_autoload(bool enable);

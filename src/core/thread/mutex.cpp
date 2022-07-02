@@ -83,7 +83,7 @@ void Mutex::unlock()
 #endif
 }
 
-void* Mutex::native_handle()
+void *Mutex::native_handle()
 {
 #if CROWN_PLATFORM_POSIX
 	return &_priv->mutex;

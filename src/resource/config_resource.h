@@ -14,9 +14,9 @@ namespace crown
 {
 namespace config_resource_internal
 {
-	s32 compile(CompileOptions& opts);
-	void* load(File& file, Allocator& a);
-	void unload(Allocator& allocator, void* resource);
+	s32 compile(CompileOptions &opts);
+	void *load(File &file, Allocator &a);
+	void unload(Allocator &allocator, void *resource);
 
 } // namespace config_resource_internal
 

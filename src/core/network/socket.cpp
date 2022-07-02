@@ -58,7 +58,7 @@ namespace socket_internal
 		return socket;
 	}
 
-	AcceptResult accept(SOCKET socket, TCPSocket& c)
+	AcceptResult accept(SOCKET socket, TCPSocket &c)
 	{
 		SOCKET err = ::accept(socket, NULL, NULL);
 
@@ -77,7 +77,7 @@ namespace socket_internal
 		return ar;
 	}
 
-	ReadResult read(SOCKET socket, void* data, u32 size)
+	ReadResult read(SOCKET socket, void *data, u32 size)
 	{
 		ReadResult rr;
 		rr.error = ReadResult::SUCCESS;
@@ -87,7 +87,7 @@ namespace socket_internal
 
 		while (to_read > 0) {
 			int bytes_read = ::recv(socket
-				, (char*)data + rr.bytes_read
+				, (char *)data + rr.bytes_read
 				, to_read
 				, 0
 				);
@@ -112,7 +112,7 @@ namespace socket_internal
 		return rr;
 	}
 
-	WriteResult write(SOCKET socket, const void* data, u32 size)
+	WriteResult write(SOCKET socket, const void *data, u32 size)
 	{
 		WriteResult wr;
 		wr.error = WriteResult::SUCCESS;
@@ -122,7 +122,7 @@ namespace socket_internal
 
 		while (to_write > 0) {
 			int bytes_wrote = ::send(socket
-				, (char*)data + wr.bytes_wrote
+				, (char *)data + wr.bytes_wrote
 				, to_write
 				, MSG_NOSIGNAL // Don't generate SIGPIPE, return EPIPE instead.
 				);
@@ -164,7 +164,7 @@ namespace socket_internal
 	void set_reuse_address(SOCKET socket, bool reuse)
 	{
 		int optval = (int)reuse;
-		int err = setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, (const char*)&optval, sizeof(optval));
+		int err = setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, (const char *)&optval, sizeof(optval));
 		CE_ASSERT(err == 0, "setsockopt: last_error() = %d", last_error());
 		CE_UNUSED(err);
 	}
@@ -175,9 +175,9 @@ namespace socket_internal
 		tv.tv_sec  = ms / 1000;
 		tv.tv_usec = ms % 1000 * 1000;
 
-		int err = setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof(tv));
+		int err = setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, (const char *)&tv, sizeof(tv));
 		CE_ASSERT(err == 0, "setsockopt: last_error(): %d", last_error());
-		err = setsockopt(socket, SOL_SOCKET, SO_SNDTIMEO, (const char*)&tv, sizeof(tv));
+		err = setsockopt(socket, SOL_SOCKET, SO_SNDTIMEO, (const char *)&tv, sizeof(tv));
 		CE_ASSERT(err == 0, "setsockopt: last_error(): %d", last_error());
 		CE_UNUSED(err);
 	}
@@ -191,13 +191,13 @@ TCPSocket::TCPSocket()
 	_priv->socket = INVALID_SOCKET;
 }
 
-TCPSocket::TCPSocket(const TCPSocket& other)
+TCPSocket::TCPSocket(const TCPSocket &other)
 {
 	_priv = new (_data) Private();
 	memcpy(_data, other._data, sizeof(_data));
 }
 
-TCPSocket& TCPSocket::operator=(const TCPSocket& other)
+TCPSocket &TCPSocket::operator=(const TCPSocket &other)
 {
 	_priv = new (_data) Private();
 	memcpy(_data, other._data, sizeof(_data));
@@ -217,7 +217,7 @@ void TCPSocket::close()
 	}
 }
 
-ConnectResult TCPSocket::connect(const IPAddress& ip, u16 port)
+ConnectResult TCPSocket::connect(const IPAddress &ip, u16 port)
 {
 	close();
 	_priv->socket = socket_internal::open();
@@ -227,7 +227,7 @@ ConnectResult TCPSocket::connect(const IPAddress& ip, u16 port)
 	addr_in.sin_addr.s_addr = htonl(ip.address());
 	addr_in.sin_port = htons(port);
 
-	int err = ::connect(_priv->socket, (const sockaddr*)&addr_in, sizeof(sockaddr_in));
+	int err = ::connect(_priv->socket, (const sockaddr *)&addr_in, sizeof(sockaddr_in));
 
 	ConnectResult cr;
 	cr.error = ConnectResult::SUCCESS;
@@ -255,7 +255,7 @@ BindResult TCPSocket::bind(u16 port)
 	address.sin_addr.s_addr = htonl(INADDR_ANY);
 	address.sin_port = htons(port);
 
-	int err = ::bind(_priv->socket, (const sockaddr*)&address, sizeof(sockaddr_in));
+	int err = ::bind(_priv->socket, (const sockaddr *)&address, sizeof(sockaddr_in));
 
 	BindResult br;
 	br.error = BindResult::SUCCESS;
@@ -277,43 +277,43 @@ void TCPSocket::listen(u32 max)
 	CE_UNUSED(err);
 }
 
-AcceptResult TCPSocket::accept(TCPSocket& c)
+AcceptResult TCPSocket::accept(TCPSocket &c)
 {
 	socket_internal::set_blocking(_priv->socket, true);
 	return socket_internal::accept(_priv->socket, c);
 }
 
-AcceptResult TCPSocket::accept_nonblock(TCPSocket& c)
+AcceptResult TCPSocket::accept_nonblock(TCPSocket &c)
 {
 	socket_internal::set_blocking(_priv->socket, false);
 	return socket_internal::accept(_priv->socket, c);
 }
 
-ReadResult TCPSocket::read(void* data, u32 size)
+ReadResult TCPSocket::read(void *data, u32 size)
 {
 	socket_internal::set_blocking(_priv->socket, true);
 	return socket_internal::read(_priv->socket, data, size);
 }
 
-ReadResult TCPSocket::read_nonblock(void* data, u32 size)
+ReadResult TCPSocket::read_nonblock(void *data, u32 size)
 {
 	socket_internal::set_blocking(_priv->socket, false);
 	return socket_internal::read(_priv->socket, data, size);
 }
 
-WriteResult TCPSocket::write(const void* data, u32 size)
+WriteResult TCPSocket::write(const void *data, u32 size)
 {
 	socket_internal::set_blocking(_priv->socket, true);
 	return socket_internal::write(_priv->socket, data, size);
 }
 
-WriteResult TCPSocket::write_nonblock(const void* data, u32 size)
+WriteResult TCPSocket::write_nonblock(const void *data, u32 size)
 {
 	socket_internal::set_blocking(_priv->socket, false);
 	return socket_internal::write(_priv->socket, data, size);
 }
 
-bool operator==(const TCPSocket& aa, const TCPSocket& bb)
+bool operator==(const TCPSocket &aa, const TCPSocket &bb)
 {
 	return aa._priv->socket == bb._priv->socket;
 }
@@ -337,7 +337,7 @@ SocketSet::SocketSet()
 #endif
 }
 
-SocketSet& SocketSet::operator=(const SocketSet& other)
+SocketSet &SocketSet::operator=(const SocketSet &other)
 {
 	_priv->fdset = other._priv->fdset;
 #if CROWN_PLATFORM_POSIX
@@ -346,7 +346,7 @@ SocketSet& SocketSet::operator=(const SocketSet& other)
 	return *this;
 }
 
-void SocketSet::set(TCPSocket* socket)
+void SocketSet::set(TCPSocket *socket)
 {
 	FD_SET(socket->_priv->socket, &_priv->fdset);
 #if CROWN_PLATFORM_POSIX
@@ -355,12 +355,12 @@ void SocketSet::set(TCPSocket* socket)
 #endif
 }
 
-void SocketSet::clr(TCPSocket* socket)
+void SocketSet::clr(TCPSocket *socket)
 {
 	FD_CLR(socket->_priv->socket, &_priv->fdset);
 }
 
-bool SocketSet::isset(TCPSocket* socket)
+bool SocketSet::isset(TCPSocket *socket)
 {
 	return FD_ISSET(socket->_priv->socket, &_priv->fdset) != 0;
 }

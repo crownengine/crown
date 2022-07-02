@@ -22,31 +22,31 @@ struct DynamicString
 	Array<char> _data;
 
 	///
-	DynamicString(Allocator& a);
+	DynamicString(Allocator &a);
 
 	///
 	~DynamicString();
 
 	///
-	DynamicString& operator=(const char* str);
+	DynamicString &operator=(const char *str);
 
 	///
-	DynamicString& operator=(const char c);
+	DynamicString &operator=(const char c);
 
 	///
-	DynamicString& operator=(const StringView& fs);
+	DynamicString &operator=(const StringView &fs);
 
 	/// Sets the string to @a str.
-	void set(const char* str, u32 len);
+	void set(const char *str, u32 len);
 
 	///
-	void from_guid(const Guid& guid);
+	void from_guid(const Guid &guid);
 
 	///
-	void from_string_id(const StringId32& id);
+	void from_string_id(const StringId32 &id);
 
 	///
-	void from_string_id(const StringId64& id);
+	void from_string_id(const StringId64 &id);
 
 	/// Reserves space for at least @a n characters.
 	void reserve(u32 n);
@@ -67,16 +67,16 @@ struct DynamicString
 	void trim();
 
 	/// Returns whether the string starts with @a prefix.
-	bool has_prefix(const char* prefix) const;
+	bool has_prefix(const char *prefix) const;
 
 	/// Returns wheterh the string ends with @a suffix.
-	bool has_suffix(const char* suffix) const;
+	bool has_suffix(const char *suffix) const;
 
 	/// Returns the StringId32 of the string.
 	StringId32 to_string_id() const;
 
 	/// Returns the string as a NULL-terminated string.
-	const char* c_str() const;
+	const char *c_str() const;
 };
 
 } // namespace crown

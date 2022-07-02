@@ -11,7 +11,7 @@
 
 namespace crown
 {
-ResourcePackage::ResourcePackage(StringId64 id, ResourceManager& resman)
+ResourcePackage::ResourcePackage(StringId64 id, ResourceManager &resman)
 	: _marker(RESOURCE_PACKAGE_MARKER)
 	, _resource_manager(&resman)
 	, _package_id(id)
@@ -29,7 +29,7 @@ void ResourcePackage::load()
 {
 	_resource_manager->load(RESOURCE_TYPE_PACKAGE, _package_id);
 	_resource_manager->flush();
-	_package = (const PackageResource*)_resource_manager->get(RESOURCE_TYPE_PACKAGE, _package_id);
+	_package = (const PackageResource *)_resource_manager->get(RESOURCE_TYPE_PACKAGE, _package_id);
 
 	for (u32 i = 0; i < array::size(_package->resources); ++i) {
 		_resource_manager->load(_package->resources[i].type, _package->resources[i].name);

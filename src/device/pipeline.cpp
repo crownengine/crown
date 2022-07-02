@@ -44,7 +44,7 @@ void screenSpaceQuad(float _textureWidth, float _textureHeight, float _texelHalf
 	if (3 == bgfx::getAvailTransientVertexBuffer(3, PosTexCoord0Vertex::ms_layout)) {
 		bgfx::TransientVertexBuffer tvb;
 		bgfx::allocTransientVertexBuffer(&tvb, 3, PosTexCoord0Vertex::ms_layout);
-		PosTexCoord0Vertex* vertex = (PosTexCoord0Vertex*)tvb.data;
+		PosTexCoord0Vertex *vertex = (PosTexCoord0Vertex *)tvb.data;
 
 		const float minx = -_width;
 		const float maxx =  _width;
@@ -200,9 +200,9 @@ void Pipeline::reset(u16 width, u16 height)
 	_selection_frame_buffer = bgfx::createFrameBuffer(countof(_selection_frame_buffer_attachments), _selection_frame_buffer_attachments);
 }
 
-void Pipeline::render(ShaderManager& sm, StringId32 program, u8 view, u16 width, u16 height)
+void Pipeline::render(ShaderManager &sm, StringId32 program, u8 view, u16 width, u16 height)
 {
-	const bgfx::Caps* caps = bgfx::getCaps();
+	const bgfx::Caps *caps = bgfx::getCaps();
 
 	f32 ortho[16];
 	bx::mtxOrtho(ortho, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 100.0f, 0.0f, caps->homogeneousDepth);

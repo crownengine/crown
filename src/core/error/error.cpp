@@ -18,7 +18,7 @@ namespace crown
 {
 namespace error
 {
-	static void abort(const char* format, va_list args)
+	static void abort(const char *format, va_list args)
 	{
 		char buf[1024];
 		stbsp_vsnprintf(buf, sizeof(buf), format, args);
@@ -33,7 +33,7 @@ namespace error
 		exit(EXIT_FAILURE);
 	}
 
-	void abort(const char* format, ...)
+	void abort(const char *format, ...)
 	{
 		va_list args;
 		va_start(args, format);

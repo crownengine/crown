@@ -36,7 +36,7 @@ typedef double f64;
 /// @}
 
 template<typename T>
-inline void exchange(T& a, T& b)
+inline void exchange(T &a, T &b)
 {
 	T c = a;
 	a = b;
@@ -44,13 +44,13 @@ inline void exchange(T& a, T& b)
 }
 
 template<typename T>
-inline T min(const T& a, const T& b)
+inline T min(const T &a, const T &b)
 {
 	return a < b ? a : b;
 }
 
 template<typename T>
-inline T max(const T& a, const T& b)
+inline T max(const T &a, const T &b)
 {
 	return a > b ? a : b;
 }
@@ -62,8 +62,8 @@ inline T clamp(T val, T mmin, T mmax)
 }
 
 #if CROWN_DEBUG && !CROWN_DEVELOPMENT
-u32 STRING_ID_32(const char* str, const u32 id);
-u64 STRING_ID_64(const char* str, const u64 id);
+u32 STRING_ID_32(const char *str, const u32 id);
+u64 STRING_ID_64(const char *str, const u64 id);
 #else
 	#define STRING_ID_32(str, id) u32(id)
 	#define STRING_ID_64(str, id) u64(id)

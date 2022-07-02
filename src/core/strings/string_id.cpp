@@ -14,23 +14,23 @@
 
 namespace crown
 {
-StringId32::StringId32(const char* str)
+StringId32::StringId32(const char *str)
 {
 	hash(str, strlen32(str));
 }
 
-StringId32::StringId32(const char* str, u32 len)
+StringId32::StringId32(const char *str, u32 len)
 {
 	hash(str, len);
 }
 
-void StringId32::hash(const char* str, u32 len)
+void StringId32::hash(const char *str, u32 len)
 {
 	CE_ENSURE(NULL != str);
 	_id = murmur32(str, len, 0);
 }
 
-void StringId32::parse(const char* str)
+void StringId32::parse(const char *str)
 {
 	CE_ENSURE(NULL != str);
 	errno = 0;
@@ -38,29 +38,29 @@ void StringId32::parse(const char* str)
 	CE_ENSURE(errno != ERANGE && errno != EINVAL);
 }
 
-const char* StringId32::to_string(char* buf, u32 len) const
+const char *StringId32::to_string(char *buf, u32 len) const
 {
 	stbsp_snprintf(buf, len, "%.8x", _id);
 	return buf;
 }
 
-StringId64::StringId64(const char* str)
+StringId64::StringId64(const char *str)
 {
 	hash(str, strlen32(str));
 }
 
-StringId64::StringId64(const char* str, u32 len)
+StringId64::StringId64(const char *str, u32 len)
 {
 	hash(str, len);
 }
 
-void StringId64::hash(const char* str, u32 len)
+void StringId64::hash(const char *str, u32 len)
 {
 	CE_ENSURE(NULL != str);
 	_id = murmur64(str, len, 0);
 }
 
-void StringId64::parse(const char* str)
+void StringId64::parse(const char *str)
 {
 	CE_ENSURE(NULL != str);
 	errno = 0;
@@ -68,7 +68,7 @@ void StringId64::parse(const char* str)
 	CE_ENSURE(errno != ERANGE && errno != EINVAL);
 }
 
-const char* StringId64::to_string(char* buf, u32 len) const
+const char *StringId64::to_string(char *buf, u32 len) const
 {
 	stbsp_snprintf(buf, len, "%.16" PRIx64, _id);
 	return buf;

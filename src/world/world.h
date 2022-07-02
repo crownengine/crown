@@ -44,20 +44,20 @@ struct World
 	};
 
 	u32 _marker;
-	Allocator* _allocator;
-	ResourceManager* _resource_manager;
-	ShaderManager* _shader_manager;
-	MaterialManager* _material_manager;
-	LuaEnvironment* _lua_environment;
-	UnitManager* _unit_manager;
+	Allocator *_allocator;
+	ResourceManager *_resource_manager;
+	ShaderManager *_shader_manager;
+	MaterialManager *_material_manager;
+	LuaEnvironment *_lua_environment;
+	UnitManager *_unit_manager;
 
-	DebugLine* _lines;
-	SceneGraph* _scene_graph;
-	RenderWorld* _render_world;
-	PhysicsWorld* _physics_world;
-	SoundWorld* _sound_world;
-	ScriptWorld* _script_world;
-	AnimationStateMachine* _animation_state_machine;
+	DebugLine *_lines;
+	SceneGraph *_scene_graph;
+	RenderWorld *_render_world;
+	PhysicsWorld *_physics_world;
+	SoundWorld *_sound_world;
+	ScriptWorld *_script_world;
+	AnimationStateMachine *_animation_state_machine;
 
 	Array<UnitId> _units;
 	Array<Camera> _camera;
@@ -77,13 +77,13 @@ struct World
 	}
 
 	///
-	World(Allocator& a, ResourceManager& rm, ShaderManager& sm, MaterialManager& mm, UnitManager& um, LuaEnvironment& env);
+	World(Allocator &a, ResourceManager &rm, ShaderManager &sm, MaterialManager &mm, UnitManager &um, LuaEnvironment &env);
 
 	///
 	~World();
 
 	/// Spawns a new instance of the unit @a name at the given @a position, @a rotation and @a scale.
-	UnitId spawn_unit(StringId64 name, const Vector3& pos = VECTOR3_ZERO, const Quaternion& rot = QUATERNION_IDENTITY, const Vector3& scl = VECTOR3_ONE);
+	UnitId spawn_unit(StringId64 name, const Vector3 &pos = VECTOR3_ZERO, const Quaternion &rot = QUATERNION_IDENTITY, const Vector3 &scl = VECTOR3_ONE);
 
 	/// Spawns a new empty unit and returns its id.
 	UnitId spawn_empty_unit();
@@ -95,14 +95,14 @@ struct World
 	u32 num_units() const;
 
 	/// Returns all the the units in the world.
-	void units(Array<UnitId>& units) const;
+	void units(Array<UnitId> &units) const;
 
 	/// Returns the unit with the given Level Editor @a name or UNIT_INVALID if no such unit exists.
 	/// If there are multiple units with the same name, a random one will be returned.
 	UnitId unit_by_name(StringId32 name);
 
 	/// Creates a new camera.
-	CameraInstance camera_create(UnitId unit, const CameraDesc& cd, const Matrix4x4& tr);
+	CameraInstance camera_create(UnitId unit, const CameraDesc &cd, const Matrix4x4 &tr);
 
 	/// Destroys the camera instance @a i.
 	void camera_destroy(CameraInstance camera);
@@ -151,10 +151,10 @@ struct World
 	void camera_set_viewport_metrics(CameraInstance camera, u16 x, u16 y, u16 width, u16 height);
 
 	/// Returns @a pos from screen-space to world-space coordinates.
-	Vector3 camera_screen_to_world(CameraInstance camera, const Vector3& pos);
+	Vector3 camera_screen_to_world(CameraInstance camera, const Vector3 &pos);
 
 	/// Returns @a pos from world-space to screen-space coordinates.
-	Vector3 camera_world_to_screen(CameraInstance camera, const Vector3& pos);
+	Vector3 camera_world_to_screen(CameraInstance camera, const Vector3 &pos);
 
 	/// Update all animations with @a dt.
 	void update_animations(f32 dt);
@@ -166,13 +166,13 @@ struct World
 	void update(f32 dt);
 
 	/// Renders the world using @a view.
-	void render(const Matrix4x4& view);
+	void render(const Matrix4x4 &view);
 
-	SoundInstanceId play_sound(const SoundResource& sr, bool loop = false, f32 volume = 1.0f, const Vector3& position = VECTOR3_ZERO, f32 range = 50.0f);
+	SoundInstanceId play_sound(const SoundResource &sr, bool loop = false, f32 volume = 1.0f, const Vector3 &position = VECTOR3_ZERO, f32 range = 50.0f);
 
 	/// Plays the sound with the given @a name at the given @a position, with the given
 	/// @a volume and @a range. @a loop controls whether the sound must loop or not.
-	SoundInstanceId play_sound(StringId64 name, const bool loop, const f32 volume, const Vector3& pos, const f32 range);
+	SoundInstanceId play_sound(StringId64 name, const bool loop, const f32 volume, const Vector3 &pos, const f32 range);
 
 	/// Stops the sound with the given @a id.
 	void stop_sound(SoundInstanceId id);
@@ -182,10 +182,10 @@ struct World
 	void link_sound(SoundInstanceId id, UnitId unit, s32 node);
 
 	/// Sets the @a pose of the listener.
-	void set_listener_pose(const Matrix4x4& pose);
+	void set_listener_pose(const Matrix4x4 &pose);
 
 	/// Sets the @a position of the sound @a id.
-	void set_sound_position(SoundInstanceId id, const Vector3& position);
+	void set_sound_position(SoundInstanceId id, const Vector3 &position);
 
 	/// Sets the @a range of the sound @a id.
 	void set_sound_range(SoundInstanceId id, f32 range);
@@ -195,19 +195,19 @@ struct World
 
 	/// Creates a new DebugLine. @a depth_test controls whether to
 	/// enable depth test when rendering the lines.
-	DebugLine* create_debug_line(bool depth_test);
+	DebugLine *create_debug_line(bool depth_test);
 
 	/// Destroys the debug @a line.
-	void destroy_debug_line(DebugLine& line);
+	void destroy_debug_line(DebugLine &line);
 
 	/// Creates a new screen-space Gui.
-	Gui* create_screen_gui();
+	Gui *create_screen_gui();
 
 	/// Destroys the @a gui.
-	void destroy_gui(Gui& gui);
+	void destroy_gui(Gui &gui);
 
 	/// Loads the level @a name into the world.
-	Level* load_level(StringId64 name, const Vector3& pos, const Quaternion& rot);
+	Level *load_level(StringId64 name, const Vector3 &pos, const Quaternion &rot);
 
 	///
 	void post_unit_spawned_event(UnitId unit);
@@ -224,6 +224,6 @@ struct World
 	void disable_unit_callbacks();
 };
 
-void spawn_units(World& w, const UnitResource* ur, const Vector3& pos, const Quaternion& rot, const Vector3& scl, const UnitId* unit_lookup);
+void spawn_units(World &w, const UnitResource *ur, const Vector3 &pos, const Quaternion &rot, const Vector3 &scl, const UnitId *unit_lookup);
 
 } // namespace crown

@@ -9,8 +9,8 @@
 
 namespace crown
 {
-Allocator& default_allocator();
-Allocator& default_scratch_allocator();
+Allocator &default_allocator();
+Allocator &default_scratch_allocator();
 
 namespace memory_globals
 {

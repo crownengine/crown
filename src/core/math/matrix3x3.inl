@@ -17,13 +17,13 @@ namespace crown
 Matrix3x3 from_elements(f32 xx, f32 xy, f32 xz, f32 yx, f32 yy, f32 yz, f32 zx, f32 zy, f32 zz);
 
 /// Returns a new matrix from axes @a x, @a y and @a z.
-Matrix3x3 from_axes(const Vector3& x, const Vector3& y, const Vector3& z);
+Matrix3x3 from_axes(const Vector3 &x, const Vector3 &y, const Vector3 &z);
 
 /// Returns a new matrix from rotation @a r.
-Matrix3x3 from_quaternion(const Quaternion& r);
+Matrix3x3 from_quaternion(const Quaternion &r);
 
 /// Adds the matrix @a a to @a b and returns the result.
-inline Matrix3x3& operator+=(Matrix3x3& a, const Matrix3x3& b)
+inline Matrix3x3 &operator+=(Matrix3x3 &a, const Matrix3x3 &b)
 {
 	a.x += b.x;
 	a.y += b.y;
@@ -32,7 +32,7 @@ inline Matrix3x3& operator+=(Matrix3x3& a, const Matrix3x3& b)
 }
 
 /// Subtracts the matrix @a b from @a a and returns the result.
-inline Matrix3x3& operator-=(Matrix3x3& a, const Matrix3x3& b)
+inline Matrix3x3 &operator-=(Matrix3x3 &a, const Matrix3x3 &b)
 {
 	a.x -= b.x;
 	a.y -= b.y;
@@ -41,7 +41,7 @@ inline Matrix3x3& operator-=(Matrix3x3& a, const Matrix3x3& b)
 }
 
 /// Multiplies the matrix @a a by the scalar @a k and returns the result.
-inline Matrix3x3& operator*=(Matrix3x3& a, f32 k)
+inline Matrix3x3 &operator*=(Matrix3x3 &a, f32 k)
 {
 	a.x *= k;
 	a.y *= k;
@@ -50,7 +50,7 @@ inline Matrix3x3& operator*=(Matrix3x3& a, f32 k)
 }
 
 /// Multiplies the matrix @a a by @a b and returns the result. (i.e. transforms first by @a a then by @a b)
-inline Matrix3x3& operator*=(Matrix3x3& a, const Matrix3x3& b)
+inline Matrix3x3 &operator*=(Matrix3x3 &a, const Matrix3x3 &b)
 {
 	Matrix3x3 tmp;
 	tmp.x.x = a.x.x*b.x.x + a.x.y*b.y.x + a.x.z*b.z.x;
@@ -70,14 +70,14 @@ inline Matrix3x3& operator*=(Matrix3x3& a, const Matrix3x3& b)
 }
 
 /// Adds the matrix @a a to @a b and returns the result.
-inline Matrix3x3 operator+(Matrix3x3 a, const Matrix3x3& b)
+inline Matrix3x3 operator+(Matrix3x3 a, const Matrix3x3 &b)
 {
 	a += b;
 	return a;
 }
 
 /// Subtracts the matrix @a b from @a a and returns the result.
-inline Matrix3x3 operator-(Matrix3x3 a, const Matrix3x3& b)
+inline Matrix3x3 operator-(Matrix3x3 a, const Matrix3x3 &b)
 {
 	a -= b;
 	return a;
@@ -98,7 +98,7 @@ inline Matrix3x3 operator*(f32 k, Matrix3x3 a)
 }
 
 /// Multiplies the matrix @a a by the vector @a v and returns the result.
-inline Vector3 operator*(const Vector3& v, const Matrix3x3& a)
+inline Vector3 operator*(const Vector3 &v, const Matrix3x3 &a)
 {
 	Vector3 r;
 	r.x = v.x*a.x.x + v.y*a.y.x + v.z*a.z.x;
@@ -108,14 +108,14 @@ inline Vector3 operator*(const Vector3& v, const Matrix3x3& a)
 }
 
 /// Multiplies the matrix @a a by @a b and returns the result. (i.e. transforms first by @a a then by @a b)
-inline Matrix3x3 operator*(Matrix3x3 a, const Matrix3x3& b)
+inline Matrix3x3 operator*(Matrix3x3 a, const Matrix3x3 &b)
 {
 	a *= b;
 	return a;
 }
 
 /// Transposes the matrix @a m and returns the result.
-inline Matrix3x3& transpose(Matrix3x3& m)
+inline Matrix3x3 &transpose(Matrix3x3 &m)
 {
 	exchange(m.x.y, m.y.x);
 	exchange(m.x.z, m.z.x);
@@ -131,7 +131,7 @@ inline Matrix3x3 get_transposed(Matrix3x3 m)
 }
 
 /// Inverts the matrix @a m and returns the result.
-Matrix3x3& invert(Matrix3x3& m);
+Matrix3x3 &invert(Matrix3x3 &m);
 
 /// Returns the inverse of the matrix @a m.
 inline Matrix3x3 get_inverted(Matrix3x3 m)
@@ -141,7 +141,7 @@ inline Matrix3x3 get_inverted(Matrix3x3 m)
 }
 
 /// Sets the matrix @a m to identity.
-inline void set_identity(Matrix3x3& m)
+inline void set_identity(Matrix3x3 &m)
 {
 	m.x.x = 1.0f;
 	m.x.y = 0.0f;
@@ -157,7 +157,7 @@ inline void set_identity(Matrix3x3& m)
 }
 
 /// Returns the scale of the matrix @a m.
-inline Vector3 scale(const Matrix3x3& m)
+inline Vector3 scale(const Matrix3x3 &m)
 {
 	const f32 sx = length(m.x);
 	const f32 sy = length(m.y);
@@ -170,7 +170,7 @@ inline Vector3 scale(const Matrix3x3& m)
 }
 
 /// Sets the scale of the matrix @a m.
-inline void set_scale(Matrix3x3& m, const Vector3& s)
+inline void set_scale(Matrix3x3 &m, const Vector3 &s)
 {
 	set_length(m.x, s.x);
 	set_length(m.y, s.y);
@@ -178,13 +178,13 @@ inline void set_scale(Matrix3x3& m, const Vector3& s)
 }
 
 /// Returns the pointer to the matrix's data
-inline f32* to_float_ptr(Matrix3x3& m)
+inline f32 *to_float_ptr(Matrix3x3 &m)
 {
 	return &m.x.x;
 }
 
 /// Returns the pointer to the matrix's data
-inline const f32* to_float_ptr(const Matrix3x3& m)
+inline const f32 *to_float_ptr(const Matrix3x3 &m)
 {
 	return &m.x.x;
 }

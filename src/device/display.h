@@ -31,7 +31,7 @@ struct Display
 	};
 
 	/// Fills @a modes with all available display modes.
-	virtual void modes(Array<DisplayMode>& modes) = 0;
+	virtual void modes(Array<DisplayMode> &modes) = 0;
 
 	/// Sets the mode @a id.
 	///
@@ -46,10 +46,10 @@ struct Display
 namespace display
 {
 	/// Creates a new display.
-	Display* create(Allocator& a);
+	Display *create(Allocator &a);
 
 	/// Destroys the display @a d.
-	void destroy(Allocator& a, Display& d);
+	void destroy(Allocator &a, Display &d);
 
 } // namespace display
 

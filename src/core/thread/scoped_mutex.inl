@@ -14,10 +14,10 @@ namespace crown
 /// @ingroup Thread
 struct ScopedMutex
 {
-	Mutex& _mutex;
+	Mutex &_mutex;
 
 	/// Locks the mutex @a m.
-	ScopedMutex(Mutex& m)
+	ScopedMutex(Mutex &m)
 		: _mutex(m)
 	{
 		_mutex.lock();
@@ -30,10 +30,10 @@ struct ScopedMutex
 	}
 
 	///
-	ScopedMutex(const ScopedMutex&) = delete;
+	ScopedMutex(const ScopedMutex &) = delete;
 
 	///
-	ScopedMutex& operator=(const ScopedMutex&) = delete;
+	ScopedMutex &operator=(const ScopedMutex &) = delete;
 };
 
 } // namespace crown

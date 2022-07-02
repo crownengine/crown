@@ -18,7 +18,7 @@ namespace crown
 {
 struct GuiBuffer
 {
-	ShaderManager* _shader_manager;
+	ShaderManager *_shader_manager;
 	u32 _num_vertices;
 	u32 _num_indices;
 	bgfx::VertexLayout _pos_tex_col;
@@ -26,13 +26,13 @@ struct GuiBuffer
 	bgfx::TransientIndexBuffer tib;
 
 	///
-	GuiBuffer(ShaderManager& sm);
+	GuiBuffer(ShaderManager &sm);
 
 	///
-	void* vertex_buffer_end();
+	void *vertex_buffer_end();
 
 	///
-	void* index_buffer_end();
+	void *index_buffer_end();
 
 	///
 	void create();
@@ -41,10 +41,10 @@ struct GuiBuffer
 	void reset();
 
 	///
-	void submit(u32 num_vertices, u32 num_indices, const Matrix4x4& world);
+	void submit(u32 num_vertices, u32 num_indices, const Matrix4x4 &world);
 
 	///
-	void submit_with_material(u32 num_vertices, u32 num_indices, const Matrix4x4& world, ResourceManager& rm, Material* material);
+	void submit_with_material(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, ResourceManager &rm, Material *material);
 };
 
 /// Immediate mode Gui.
@@ -66,51 +66,51 @@ struct Gui
 	};
 
 	u32 _marker;
-	GuiBuffer* _buffer;
-	ResourceManager* _resource_manager;
-	ShaderManager* _shader_manager;
-	MaterialManager* _material_manager;
+	GuiBuffer *_buffer;
+	ResourceManager *_resource_manager;
+	ShaderManager *_shader_manager;
+	MaterialManager *_material_manager;
 	Matrix4x4 _world;
 	ListNode _node;
 
 	///
-	Gui(GuiBuffer& gb, ResourceManager& rm, ShaderManager& sm, MaterialManager& mm);
+	Gui(GuiBuffer &gb, ResourceManager &rm, ShaderManager &sm, MaterialManager &mm);
 
 	///
 	~Gui();
 
 	///
-	void move(const Vector2& pos);
+	void move(const Vector2 &pos);
 
 	///
-	void triangle_3d(const Vector3& a, const Vector3& b, const Vector3& c, const Color4& color);
+	void triangle_3d(const Vector3 &a, const Vector3 &b, const Vector3 &c, const Color4 &color);
 
 	///
-	void triangle(const Vector2& a, const Vector2& b, const Vector2& c, const Color4& color);
+	void triangle(const Vector2 &a, const Vector2 &b, const Vector2 &c, const Color4 &color);
 
 	///
-	void rect_3d(const Vector3& pos, const Vector2& size, const Color4& color);
+	void rect_3d(const Vector3 &pos, const Vector2 &size, const Color4 &color);
 
 	///
-	void rect(const Vector2& pos, const Vector2& size, const Color4& color);
+	void rect(const Vector2 &pos, const Vector2 &size, const Color4 &color);
 
 	///
-	void image_3d(const Vector3& pos, const Vector2& size, StringId64 material, const Color4& color);
+	void image_3d(const Vector3 &pos, const Vector2 &size, StringId64 material, const Color4 &color);
 
 	///
-	void image(const Vector2& pos, const Vector2& size, StringId64 material, const Color4& color);
+	void image(const Vector2 &pos, const Vector2 &size, StringId64 material, const Color4 &color);
 
 	///
-	void image_uv_3d(const Vector3& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, StringId64 material, const Color4& color);
+	void image_uv_3d(const Vector3 &pos, const Vector2 &size, const Vector2 &uv0, const Vector2 &uv1, StringId64 material, const Color4 &color);
 
 	///
-	void image_uv(const Vector2& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, StringId64 material, const Color4& color);
+	void image_uv(const Vector2 &pos, const Vector2 &size, const Vector2 &uv0, const Vector2 &uv1, StringId64 material, const Color4 &color);
 
 	///
-	void text_3d(const Vector3& pos, u32 font_size, const char* str, StringId64 font, StringId64 material, const Color4& color);
+	void text_3d(const Vector3 &pos, u32 font_size, const char *str, StringId64 font, StringId64 material, const Color4 &color);
 
 	///
-	void text(const Vector2& pos, u32 font_size, const char* str, StringId64 font, StringId64 material, const Color4& color);
+	void text(const Vector2 &pos, u32 font_size, const char *str, StringId64 font, StringId64 material, const Color4 &color);
 };
 
 } // namespace crown

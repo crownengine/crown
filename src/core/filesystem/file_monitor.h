@@ -26,7 +26,7 @@ struct FileMonitorEvent
 	};
 };
 
-typedef void (*FileMonitorFunction)(void* user_data, FileMonitorEvent::Enum fme, bool is_dir, const char* path, const char* path_modified);
+typedef void (*FileMonitorFunction)(void *user_data, FileMonitorEvent::Enum fme, bool is_dir, const char *path, const char *path_modified);
 
 struct FileMonitorImpl;
 
@@ -35,16 +35,16 @@ struct FileMonitorImpl;
 /// @ingroup Filesystem
 struct FileMonitor
 {
-	FileMonitorImpl* _impl;
+	FileMonitorImpl *_impl;
 
 	///
-	FileMonitor(Allocator& a);
+	FileMonitor(Allocator &a);
 
 	///
 	~FileMonitor();
 
 	/// Starts monitoring the @a paths.
-	void start(u32 num, const char** paths, bool recursive, FileMonitorFunction fmf, void* user_data);
+	void start(u32 num, const char **paths, bool recursive, FileMonitorFunction fmf, void *user_data);
 
 	/// Stops monitoring.
 	void stop();

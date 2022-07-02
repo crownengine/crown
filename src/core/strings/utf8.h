@@ -18,7 +18,7 @@ namespace crown
 namespace utf8
 {
 	/// See http://bjoern.hoehrmann.de/utf-8/decoder/dfa/ for details.
-	u32 decode(u32* state, u32* codep, u32 byte);
+	u32 decode(u32 *state, u32 *codep, u32 byte);
 
 } // namespace utf8
 

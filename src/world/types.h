@@ -236,12 +236,12 @@ struct UnitId
 	}
 };
 
-inline bool operator==(const UnitId& a, const UnitId& b)
+inline bool operator==(const UnitId &a, const UnitId &b)
 {
 	return a._idx == b._idx;
 }
 
-inline bool operator!=(const UnitId& a, const UnitId& b)
+inline bool operator!=(const UnitId &a, const UnitId &b)
 {
 	return a._idx != b._idx;
 }
@@ -251,18 +251,18 @@ const UnitId UNIT_INVALID = { UINT32_MAX };
 template<>
 struct hash<UnitId>
 {
-	u32 operator()(const UnitId& id) const
+	u32 operator()(const UnitId &id) const
 	{
 		return id._idx;
 	}
 };
 
-typedef void (*UnitDestroyFunction)(UnitId unit, void* user_data);
+typedef void (*UnitDestroyFunction)(UnitId unit, void *user_data);
 
 struct UnitDestroyCallback
 {
 	UnitDestroyFunction destroy;
-	void* user_data;
+	void *user_data;
 	ListNode node;
 };
 

@@ -47,7 +47,7 @@ struct TempAllocator : public Allocator
 	}
 
 	/// Returns SIZE_NOT_TRACKED.
-	virtual u32 allocated_size(const void*)
+	virtual u32 allocated_size(const void *)
 	{
 		return SIZE_NOT_TRACKED;
 	}
@@ -87,7 +87,7 @@ TempAllocator<BUFFER_SIZE>::TempAllocator(Allocator &backing)
 template<int BUFFER_SIZE>
 TempAllocator<BUFFER_SIZE>::~TempAllocator()
 {
-	char* start = _buffer;
+	char *start = _buffer;
 	void *p = *(void **)start;
 	while (p) {
 		void *next = *(void **)p;

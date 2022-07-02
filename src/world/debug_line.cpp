@@ -22,7 +22,7 @@
 
 namespace crown
 {
-DebugLine::DebugLine(ShaderManager& sm, bool depth_test)
+DebugLine::DebugLine(ShaderManager &sm, bool depth_test)
 	: _marker(DEBUG_LINE_MARKER)
 	, _shader_manager(&sm)
 	, _shader(depth_test ? "debug_line" : "debug_line_noz")
@@ -39,7 +39,7 @@ DebugLine::~DebugLine()
 	_marker = 0;
 }
 
-void DebugLine::add_line(const Vector3& start, const Vector3& end, const Color4& color)
+void DebugLine::add_line(const Vector3 &start, const Vector3 &end, const Color4 &color)
 {
 	if (_num >= MAX_LINES)
 		return;
@@ -52,7 +52,7 @@ void DebugLine::add_line(const Vector3& start, const Vector3& end, const Color4&
 	++_num;
 }
 
-void DebugLine::add_axes(const Matrix4x4& m, f32 length)
+void DebugLine::add_axes(const Matrix4x4 &m, f32 length)
 {
 	const Vector3 pos = translation(m);
 	add_line(pos, pos + x(m)*length, COLOR4_RED);
@@ -60,7 +60,7 @@ void DebugLine::add_axes(const Matrix4x4& m, f32 length)
 	add_line(pos, pos + z(m)*length, COLOR4_BLUE);
 }
 
-void DebugLine::add_arc(const Vector3& center, f32 radius, const Vector3& plane_normal, const Vector3& midpoint_normal, const Color4& color, u32 circle_segments)
+void DebugLine::add_arc(const Vector3 &center, f32 radius, const Vector3 &plane_normal, const Vector3 &midpoint_normal, const Color4 &color, u32 circle_segments)
 {
 	const Vector3 x = midpoint_normal * radius;
 	const Vector3 y = cross(midpoint_normal, plane_normal) * radius;
@@ -76,7 +76,7 @@ void DebugLine::add_arc(const Vector3& center, f32 radius, const Vector3& plane_
 	}
 }
 
-void DebugLine::add_circle(const Vector3& center, f32 radius, const Vector3& normal, const Color4& color, u32 segments)
+void DebugLine::add_circle(const Vector3 &center, f32 radius, const Vector3 &normal, const Color4 &color, u32 segments)
 {
 	const Vector3 arr[] =
 	{
@@ -100,7 +100,7 @@ void DebugLine::add_circle(const Vector3& center, f32 radius, const Vector3& nor
 	}
 }
 
-void DebugLine::add_cone(const Vector3& base_center, const Vector3& tip, f32 radius, const Color4& color, u32 segments)
+void DebugLine::add_cone(const Vector3 &base_center, const Vector3 &tip, f32 radius, const Color4 &color, u32 segments)
 {
 	Vector3 normal = tip - base_center;
 	normalize(normal);
@@ -127,14 +127,14 @@ void DebugLine::add_cone(const Vector3& base_center, const Vector3& tip, f32 rad
 	}
 }
 
-void DebugLine::add_sphere(const Vector3& center, const f32 radius, const Color4& color, u32 segments)
+void DebugLine::add_sphere(const Vector3 &center, const f32 radius, const Color4 &color, u32 segments)
 {
 	add_circle(center, radius, VECTOR3_XAXIS, color, segments);
 	add_circle(center, radius, VECTOR3_YAXIS, color, segments);
 	add_circle(center, radius, VECTOR3_ZAXIS, color, segments);
 }
 
-void DebugLine::add_frustum(const Matrix4x4& mvp, const Color4& color)
+void DebugLine::add_frustum(const Matrix4x4 &mvp, const Color4 &color)
 {
 	Frustum f;
 	frustum::from_matrix(f, mvp);
@@ -156,7 +156,7 @@ void DebugLine::add_frustum(const Matrix4x4& mvp, const Color4& color)
 	add_line(pt[3], pt[7], color);
 }
 
-void DebugLine::add_obb(const Matrix4x4& tm, const Vector3& half_extents, const Color4& color)
+void DebugLine::add_obb(const Matrix4x4 &tm, const Vector3 &half_extents, const Color4 &color)
 {
 	const Vector3 o = vector3(tm.t.x, tm.t.y, tm.t.z);
 	const Vector3 x = vector3(tm.x.x, tm.x.y, tm.x.z) * half_extents.x;
@@ -180,16 +180,16 @@ void DebugLine::add_obb(const Matrix4x4& tm, const Vector3& half_extents, const 
 	add_line(o - x + y - z, o - x + y + z, color);
 }
 
-void DebugLine::add_mesh(const Matrix4x4& tm, const void* vertices, u32 stride, const u16* indices, u32 num, const Color4& color)
+void DebugLine::add_mesh(const Matrix4x4 &tm, const void *vertices, u32 stride, const u16 *indices, u32 num, const Color4 &color)
 {
 	for (u32 i = 0; i < num; i += 3) {
 		const u32 i0 = indices[i + 0];
 		const u32 i1 = indices[i + 1];
 		const u32 i2 = indices[i + 2];
 
-		const Vector3& v0 = *(const Vector3*)((const char*)vertices + i0*stride) * tm;
-		const Vector3& v1 = *(const Vector3*)((const char*)vertices + i1*stride) * tm;
-		const Vector3& v2 = *(const Vector3*)((const char*)vertices + i2*stride) * tm;
+		const Vector3 &v0 = *(const Vector3 *)((const char *)vertices + i0*stride) * tm;
+		const Vector3 &v1 = *(const Vector3 *)((const char *)vertices + i1*stride) * tm;
+		const Vector3 &v2 = *(const Vector3 *)((const char *)vertices + i2*stride) * tm;
 
 		add_line(v0, v1, color);
 		add_line(v1, v2, color);

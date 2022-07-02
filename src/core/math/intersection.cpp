@@ -14,7 +14,7 @@
 
 namespace crown
 {
-f32 ray_plane_intersection(const Vector3& from, const Vector3& dir, const Plane3& p)
+f32 ray_plane_intersection(const Vector3 &from, const Vector3 &dir, const Plane3 &p)
 {
 	const f32 num = dot(from, p.n);
 	const f32 den = dot(dir, p.n);
@@ -25,7 +25,7 @@ f32 ray_plane_intersection(const Vector3& from, const Vector3& dir, const Plane3
 	return (p.d - num) / den;
 }
 
-f32 ray_disc_intersection(const Vector3& from, const Vector3& dir, const Vector3& center, f32 radius, const Vector3& normal)
+f32 ray_disc_intersection(const Vector3 &from, const Vector3 &dir, const Vector3 &center, f32 radius, const Vector3 &normal)
 {
 	const Plane3 p = plane3::from_point_and_normal(center, normal);
 	const f32 t = ray_plane_intersection(from, dir, p);
@@ -40,7 +40,7 @@ f32 ray_disc_intersection(const Vector3& from, const Vector3& dir, const Vector3
 	return -1.0f;
 }
 
-f32 ray_sphere_intersection(const Vector3& from, const Vector3& dir, const Sphere& s)
+f32 ray_sphere_intersection(const Vector3 &from, const Vector3 &dir, const Sphere &s)
 {
 	const Vector3 v = s.c - from;
 	const f32 b   = dot(v, dir);
@@ -55,7 +55,7 @@ f32 ray_sphere_intersection(const Vector3& from, const Vector3& dir, const Spher
 }
 
 // http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-custom-ray-obb-function/
-f32 ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x4& tm, const Vector3& half_extents)
+f32 ray_obb_intersection(const Vector3 &from, const Vector3 &dir, const Matrix4x4 &tm, const Vector3 &half_extents)
 {
 	f32 tmin = 0.0f;
 	f32 tmax = FLT_MAX;
@@ -138,14 +138,14 @@ f32 ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x
 	return tmin;
 }
 
-f32 ray_triangle_intersection(const Vector3& from, const Vector3& dir, const Vector3& v0, const Vector3& v1, const Vector3& v2)
+f32 ray_triangle_intersection(const Vector3 &from, const Vector3 &dir, const Vector3 &v0, const Vector3 &v1, const Vector3 &v2)
 {
 	const Vector3 verts[] = { v0, v1, v2 };
 	const u16 inds[] = { 0, 1, 2 };
 	return ray_mesh_intersection(from, dir, MATRIX4X4_IDENTITY, verts, sizeof(Vector3), inds, 3);
 }
 
-f32 ray_mesh_intersection(const Vector3& from, const Vector3& dir, const Matrix4x4& tm, const void* vertices, u32 stride, const u16* indices, u32 num)
+f32 ray_mesh_intersection(const Vector3 &from, const Vector3 &dir, const Matrix4x4 &tm, const void *vertices, u32 stride, const u16 *indices, u32 num)
 {
 	bool hit = false;
 	f32 tmin = FLT_MAX;
@@ -155,9 +155,9 @@ f32 ray_mesh_intersection(const Vector3& from, const Vector3& dir, const Matrix4
 		const u32 i1 = indices[i + 1];
 		const u32 i2 = indices[i + 2];
 
-		const Vector3& v0 = *(const Vector3*)((const char*)vertices + i0*stride) * tm;
-		const Vector3& v1 = *(const Vector3*)((const char*)vertices + i1*stride) * tm;
-		const Vector3& v2 = *(const Vector3*)((const char*)vertices + i2*stride) * tm;
+		const Vector3 &v0 = *(const Vector3 *)((const char *)vertices + i0*stride) * tm;
+		const Vector3 &v1 = *(const Vector3 *)((const char *)vertices + i1*stride) * tm;
+		const Vector3 &v2 = *(const Vector3 *)((const char *)vertices + i2*stride) * tm;
 
 		// https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
 
@@ -207,7 +207,7 @@ f32 ray_mesh_intersection(const Vector3& from, const Vector3& dir, const Matrix4
 	return hit ? tmin : -1.0f;
 }
 
-bool plane_3_intersection(Vector3& ip, const Plane3& a, const Plane3& b, const Plane3& c)
+bool plane_3_intersection(Vector3 &ip, const Plane3 &a, const Plane3 &b, const Plane3 &c)
 {
 	const Vector3 na = a.n;
 	const Vector3 nb = b.n;
@@ -228,7 +228,7 @@ bool plane_3_intersection(Vector3& ip, const Plane3& a, const Plane3& b, const P
 	return true;
 }
 
-bool sphere_intersects_frustum(const Sphere& s, const Frustum& f)
+bool sphere_intersects_frustum(const Sphere &s, const Frustum &f)
 {
 	for (u32 ii = 0; ii < countof(f.planes); ++ii) {
 		if (plane3::distance_to_point(f.planes[ii], s.c) < -s.r)
@@ -238,7 +238,7 @@ bool sphere_intersects_frustum(const Sphere& s, const Frustum& f)
 	return true;
 }
 
-bool obb_intersects_frustum(const OBB& obb, const Frustum& f)
+bool obb_intersects_frustum(const OBB &obb, const Frustum &f)
 {
 	const Vector3 obb_x = vector3(obb.tm.x.x, obb.tm.x.y, obb.tm.x.z);
 	const Vector3 obb_y = vector3(obb.tm.y.x, obb.tm.y.y, obb.tm.y.z);

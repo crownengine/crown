@@ -21,12 +21,12 @@ namespace crown
 {
 namespace font_resource
 {
-	const GlyphData* glyph(const FontResource* fr, CodePoint cp)
+	const GlyphData *glyph(const FontResource *fr, CodePoint cp)
 	{
 		CE_ASSERT(cp < fr->num_glyphs, "Index out of bounds");
 
-		const CodePoint* pts  = (CodePoint*)&fr[1];
-		const GlyphData* data = (GlyphData*)(pts + fr->num_glyphs);
+		const CodePoint *pts  = (CodePoint *)&fr[1];
+		const GlyphData *data = (GlyphData *)(pts + fr->num_glyphs);
 
 		// FIXME: Can do binary search
 		for (u32 i = 0; i < fr->num_glyphs; ++i) {
@@ -48,13 +48,13 @@ namespace font_resource_internal
 		CodePoint cp;
 		GlyphData gd;
 
-		bool operator<(const GlyphInfo& a) const
+		bool operator<(const GlyphInfo &a) const
 		{
 			return cp < a.cp;
 		}
 	};
 
-	s32 parse_glyphs(Array<GlyphInfo>& _glyphs, const JsonArray& glyphs)
+	s32 parse_glyphs(Array<GlyphInfo> &_glyphs, const JsonArray &glyphs)
 	{
 		for (u32 i = 0; i < array::size(glyphs); ++i) {
 			TempAllocator512 ta;
@@ -77,7 +77,7 @@ namespace font_resource_internal
 		return 0;
 	}
 
-	s32 compile(CompileOptions& opts)
+	s32 compile(CompileOptions &opts)
 	{
 		Buffer buf = opts.read();
 

@@ -7,14 +7,14 @@
 
 namespace crown
 {
-inline bool operator==(const Guid& a, const Guid& b)
+inline bool operator==(const Guid &a, const Guid &b)
 {
 	return a.data1 == b.data1
 		&& a.data2 == b.data2
 		;
 }
 
-inline bool operator<(const Guid& a, const Guid& b)
+inline bool operator<(const Guid &a, const Guid &b)
 {
 	if (a.data1 != b.data1)
 		return a.data1 < b.data1;
@@ -27,7 +27,7 @@ inline bool operator<(const Guid& a, const Guid& b)
 template<>
 struct hash<Guid>
 {
-	u32 operator()(const Guid& id) const
+	u32 operator()(const Guid &id) const
 	{
 		return u32(id.data1 ^ id.data2);
 	}

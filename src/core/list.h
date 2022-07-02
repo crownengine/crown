@@ -12,8 +12,8 @@ namespace crown
 /// @ingroup Containers
 struct ListNode
 {
-	ListNode* next;
-	ListNode* prev;
+	ListNode *next;
+	ListNode *prev;
 };
 
 } // namespace crown

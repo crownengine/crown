@@ -12,32 +12,32 @@
 
 namespace crown
 {
-inline u32 strlen32(const char* str)
+inline u32 strlen32(const char *str)
 {
 	return (u32)strlen(str);
 }
 
-inline const char* skip_spaces(const char* str)
+inline const char *skip_spaces(const char *str)
 {
 	while (isspace(*str)) ++str;
 	return str;
 }
 
 /// Returns pointer after EOL.
-inline const char* strnl(const char* str)
+inline const char *strnl(const char *str)
 {
-	const char* eol = strchr(str, '\n');
+	const char *eol = strchr(str, '\n');
 	return eol ? eol + 1 : str + strlen(str);
 }
 
-inline bool str_has_prefix(const char* str, const char* prefix)
+inline bool str_has_prefix(const char *str, const char *prefix)
 {
 	CE_ENSURE(NULL != str);
 	CE_ENSURE(NULL != prefix);
 	return strncmp(&str[0], prefix, strlen32(prefix)) == 0;
 }
 
-inline bool str_has_suffix(const char* str, const char* suffix)
+inline bool str_has_suffix(const char *str, const char *suffix)
 {
 	CE_ENSURE(NULL != str);
 	CE_ENSURE(NULL != suffix);

@@ -19,25 +19,25 @@ namespace crown
 {
 namespace level_resource
 {
-	const StringId32* unit_names(const LevelResource* lr)
+	const StringId32 *unit_names(const LevelResource *lr)
 	{
-		return (const StringId32*)((char*)lr + lr->unit_names_offset);
+		return (const StringId32 *)((char *)lr + lr->unit_names_offset);
 	}
 
-	const UnitResource* unit_resource(const LevelResource* lr)
+	const UnitResource *unit_resource(const LevelResource *lr)
 	{
-		return (const UnitResource*)((char*)lr + lr->units_offset);
+		return (const UnitResource *)((char *)lr + lr->units_offset);
 	}
 
-	u32 num_sounds(const LevelResource* lr)
+	u32 num_sounds(const LevelResource *lr)
 	{
 		return lr->num_sounds;
 	}
 
-	const LevelSound* get_sound(const LevelResource* lr, u32 i)
+	const LevelSound *get_sound(const LevelResource *lr, u32 i)
 	{
 		CE_ASSERT(i < num_sounds(lr), "Index out of bounds");
-		const LevelSound* begin = (LevelSound*)((char*)lr + lr->sounds_offset);
+		const LevelSound *begin = (LevelSound *)((char *)lr + lr->sounds_offset);
 		return &begin[i];
 	}
 
@@ -46,7 +46,7 @@ namespace level_resource
 #if CROWN_CAN_COMPILE
 namespace level_resource_internal
 {
-	s32 compile(CompileOptions& opts)
+	s32 compile(CompileOptions &opts)
 	{
 		Buffer buf = opts.read();
 		TempAllocator4096 ta;
@@ -96,7 +96,7 @@ namespace level_resource_internal
 		lr.sounds_offset     = sizeof(lr);
 		lr.unit_names_offset = lr.sounds_offset + sizeof(LevelSound) * lr.num_sounds;
 		lr.units_offset      = lr.unit_names_offset + sizeof(StringId32) * lr.num_units;
-		lr.units_offset      = (u32)(uintptr_t)memory::align_top((void*)(uintptr_t)lr.units_offset, 16);
+		lr.units_offset      = (u32)(uintptr_t)memory::align_top((void *)(uintptr_t)lr.units_offset, 16);
 
 		opts.write(lr.version);
 		opts.write(lr.num_units);

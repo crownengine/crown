@@ -94,7 +94,7 @@ struct DeviceEventQueue
 		push_event(ev);
 	}
 
-	bool push_event(const OsEvent& ev)
+	bool push_event(const OsEvent &ev)
 	{
 		const int tail = _tail.load(std::memory_order_relaxed);
 		const int head = _head.load(std::memory_order_acquire);
@@ -108,7 +108,7 @@ struct DeviceEventQueue
 		return true;
 	}
 
-	bool pop_event(OsEvent& ev)
+	bool pop_event(OsEvent &ev)
 	{
 		const int head = _head.load(std::memory_order_relaxed);
 		const int tail = _tail.load(std::memory_order_acquire);

@@ -25,25 +25,25 @@ struct Allocator
 	}
 
 	///
-	Allocator(const Allocator&) = delete;
+	Allocator(const Allocator &) = delete;
 
 	///
-	Allocator& operator=(const Allocator&) = delete;
+	Allocator &operator=(const Allocator &) = delete;
 
 	/// Allocates @a size bytes of memory aligned to the specified
 	/// @a align byte and returns a pointer to the first allocated byte.
-	virtual void* allocate(u32 size, u32 align = DEFAULT_ALIGN) = 0;
+	virtual void *allocate(u32 size, u32 align = DEFAULT_ALIGN) = 0;
 
 	/// Deallocates a previously allocated block of memory pointed by @a data.
-	virtual void deallocate(void* data) = 0;
+	virtual void deallocate(void *data) = 0;
 
 	/// See: realloc().
-	virtual void* reallocate(void* data, u32 size, u32 align = DEFAULT_ALIGN);
+	virtual void *reallocate(void *data, u32 size, u32 align = DEFAULT_ALIGN);
 
 	/// Returns the size of the memory block pointed by @a ptr or SIZE_NOT_TRACKED
 	/// if the allocator does not support memory tracking.
 	/// @a ptr must be a pointer returned by Allocator::allocate().
-	virtual u32 allocated_size(const void* ptr) = 0;
+	virtual u32 allocated_size(const void *ptr) = 0;
 
 	/// Returns the total number of bytes allocated.
 	virtual u32 total_allocated() = 0;

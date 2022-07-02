@@ -29,7 +29,7 @@
 
 namespace crown
 {
-inline LuaStack::LuaStack(lua_State* L)
+inline LuaStack::LuaStack(lua_State *L)
 	: L(L)
 {
 }
@@ -113,7 +113,7 @@ inline f32 LuaStack::get_float(int i)
 #endif
 }
 
-inline const char* LuaStack::get_string(int i)
+inline const char *LuaStack::get_string(int i)
 {
 #if CROWN_DEBUG
 	return luaL_checkstring(L, i);
@@ -122,7 +122,7 @@ inline const char* LuaStack::get_string(int i)
 #endif
 }
 
-inline void* LuaStack::get_pointer(int i)
+inline void *LuaStack::get_pointer(int i)
 {
 #if CROWN_DEBUG
 	if (CE_UNLIKELY(lua_isuserdata(L, i) == 0)) {
@@ -130,7 +130,7 @@ inline void* LuaStack::get_pointer(int i)
 		CE_UNREACHABLE();
 	}
 #endif
-	void* p = lua_touserdata(L, i);
+	void *p = lua_touserdata(L, i);
 	CE_ENSURE(p != NULL); // NULL iff object is not userdata
 	return p;
 }
@@ -159,79 +159,79 @@ inline StringId64 LuaStack::get_resource_name(int i)
 	return get_string_id_64(i);
 }
 
-inline Gui* LuaStack::get_gui(int i)
+inline Gui *LuaStack::get_gui(int i)
 {
-	Gui* p = (Gui*)get_pointer(i);
+	Gui *p = (Gui *)get_pointer(i);
 	check_marker(i, p, DEBUG_GUI_MARKER, "Gui");
 	return p;
 }
 
-inline DebugLine* LuaStack::get_debug_line(int i)
+inline DebugLine *LuaStack::get_debug_line(int i)
 {
-	DebugLine* p = (DebugLine*)get_pointer(i);
+	DebugLine *p = (DebugLine *)get_pointer(i);
 	check_marker(i, p, DEBUG_LINE_MARKER, "DebugLine");
 	return p;
 }
 
-inline ResourcePackage* LuaStack::get_resource_package(int i)
+inline ResourcePackage *LuaStack::get_resource_package(int i)
 {
-	ResourcePackage* p = (ResourcePackage*)get_pointer(i);
+	ResourcePackage *p = (ResourcePackage *)get_pointer(i);
 	check_marker(i, p, RESOURCE_PACKAGE_MARKER, "ResourcePackage");
 	return p;
 }
 
-inline World* LuaStack::get_world(int i)
+inline World *LuaStack::get_world(int i)
 {
-	World* p = (World*)get_pointer(i);
+	World *p = (World *)get_pointer(i);
 	check_marker(i, p, WORLD_MARKER, "World");
 	return p;
 }
 
-inline SceneGraph* LuaStack::get_scene_graph(int i)
+inline SceneGraph *LuaStack::get_scene_graph(int i)
 {
-	SceneGraph* p = (SceneGraph*)get_pointer(i);
+	SceneGraph *p = (SceneGraph *)get_pointer(i);
 	check_marker(i, p, SCENE_GRAPH_MARKER, "SceneGraph");
 	return p;
 }
 
-inline Level* LuaStack::get_level(int i)
+inline Level *LuaStack::get_level(int i)
 {
-	Level* p = (Level*)get_pointer(i);
+	Level *p = (Level *)get_pointer(i);
 	check_marker(i, p, LEVEL_MARKER, "Level");
 	return p;
 }
 
-inline RenderWorld* LuaStack::get_render_world(int i)
+inline RenderWorld *LuaStack::get_render_world(int i)
 {
-	RenderWorld* p = (RenderWorld*)get_pointer(i);
+	RenderWorld *p = (RenderWorld *)get_pointer(i);
 	check_marker(i, p, RENDER_WORLD_MARKER, "RenderWorld");
 	return p;
 }
 
-inline PhysicsWorld* LuaStack::get_physics_world(int i)
+inline PhysicsWorld *LuaStack::get_physics_world(int i)
 {
-	PhysicsWorld* p = (PhysicsWorld*)get_pointer(i);
+	PhysicsWorld *p = (PhysicsWorld *)get_pointer(i);
 	check_marker(i, p, PHYSICS_WORLD_MARKER, "PhysicsWorld");
 	return p;
 }
 
-inline SoundWorld* LuaStack::get_sound_world(int i)
+inline SoundWorld *LuaStack::get_sound_world(int i)
 {
-	SoundWorld* p = (SoundWorld*)get_pointer(i);
+	SoundWorld *p = (SoundWorld *)get_pointer(i);
 	check_marker(i, p, SOUND_WORLD_MARKER, "SoundWorld");
 	return p;
 }
 
-inline ScriptWorld* LuaStack::get_script_world(int i)
+inline ScriptWorld *LuaStack::get_script_world(int i)
 {
-	ScriptWorld* p = (ScriptWorld*)get_pointer(i);
+	ScriptWorld *p = (ScriptWorld *)get_pointer(i);
 	check_marker(i, p, SCRIPT_WORLD_MARKER, "ScriptWorld");
 	return p;
 }
 
-inline AnimationStateMachine* LuaStack::get_animation_state_machine(int i)
+inline AnimationStateMachine *LuaStack::get_animation_state_machine(int i)
 {
-	AnimationStateMachine* p = (AnimationStateMachine*)get_pointer(i);
+	AnimationStateMachine *p = (AnimationStateMachine *)get_pointer(i);
 	check_marker(i, p, ANIMATION_STATE_MACHINE_MARKER, "AnimationStateMachine");
 	return p;
 }
@@ -292,9 +292,9 @@ inline StateMachineInstance LuaStack::get_state_machine_instance(int i)
 	return inst;
 }
 
-inline Material* LuaStack::get_material(int i)
+inline Material *LuaStack::get_material(int i)
 {
-	return (Material*)get_pointer(i);
+	return (Material *)get_pointer(i);
 }
 
 inline ActorInstance LuaStack::get_actor_instance(int i)
@@ -323,12 +323,12 @@ inline Vector2 LuaStack::get_vector2(int i)
 	return a;
 }
 
-inline Vector3& LuaStack::get_vector3(int i)
+inline Vector3 &LuaStack::get_vector3(int i)
 {
 #if CROWN_DEBUG
-	return *check_temporary(i, (Vector3*)get_pointer(i));
+	return *check_temporary(i, (Vector3 *)get_pointer(i));
 #else
-	return *(Vector3*)get_pointer(i);
+	return *(Vector3 *)get_pointer(i);
 #endif
 }
 
@@ -343,21 +343,21 @@ inline Vector4 LuaStack::get_vector4(int i)
 	return a;
 }
 
-inline Quaternion& LuaStack::get_quaternion(int i)
+inline Quaternion &LuaStack::get_quaternion(int i)
 {
 #if CROWN_DEBUG
-	return *check_temporary(i, (Quaternion*)get_pointer(i));
+	return *check_temporary(i, (Quaternion *)get_pointer(i));
 #else
-	return *(Quaternion*)get_pointer(i);
+	return *(Quaternion *)get_pointer(i);
 #endif
 }
 
-inline Matrix4x4& LuaStack::get_matrix4x4(int i)
+inline Matrix4x4 &LuaStack::get_matrix4x4(int i)
 {
 #if CROWN_DEBUG
-	return *check_temporary(i, (Matrix4x4*)get_pointer(i));
+	return *check_temporary(i, (Matrix4x4 *)get_pointer(i));
 #else
-	return *(Matrix4x4*)get_pointer(i);
+	return *(Matrix4x4 *)get_pointer(i);
 #endif
 }
 
@@ -372,27 +372,27 @@ inline Color4 LuaStack::get_color4(int i)
 	return c;
 }
 
-inline Vector2& LuaStack::get_vector2box(int i)
+inline Vector2 &LuaStack::get_vector2box(int i)
 {
-	Vector2* v = (Vector2*)luaL_checkudata(L, i, "Vector2Box");
+	Vector2 *v = (Vector2 *)luaL_checkudata(L, i, "Vector2Box");
 	return *v;
 }
 
-inline Vector3& LuaStack::get_vector3box(int i)
+inline Vector3 &LuaStack::get_vector3box(int i)
 {
-	Vector3* v = (Vector3*)luaL_checkudata(L, i, "Vector3Box");
+	Vector3 *v = (Vector3 *)luaL_checkudata(L, i, "Vector3Box");
 	return *v;
 }
 
-inline Quaternion& LuaStack::get_quaternionbox(int i)
+inline Quaternion &LuaStack::get_quaternionbox(int i)
 {
-	Quaternion* q = (Quaternion*)luaL_checkudata(L, i, "QuaternionBox");
+	Quaternion *q = (Quaternion *)luaL_checkudata(L, i, "QuaternionBox");
 	return *q;
 }
 
-inline Matrix4x4& LuaStack::get_matrix4x4box(int i)
+inline Matrix4x4 &LuaStack::get_matrix4x4box(int i)
 {
-	Matrix4x4* m = (Matrix4x4*)luaL_checkudata(L, i, "Matrix4x4Box");
+	Matrix4x4 *m = (Matrix4x4 *)luaL_checkudata(L, i, "Matrix4x4Box");
 	return *m;
 }
 
@@ -416,12 +416,12 @@ inline void LuaStack::push_float(f32 value)
 	lua_pushnumber(L, value);
 }
 
-inline void LuaStack::push_string(const char* s)
+inline void LuaStack::push_string(const char *s)
 {
 	lua_pushstring(L, s);
 }
 
-inline void LuaStack::push_fstring(const char* fmt, ...)
+inline void LuaStack::push_fstring(const char *fmt, ...)
 {
 	va_list vl;
 	va_start(vl, fmt);
@@ -429,7 +429,7 @@ inline void LuaStack::push_fstring(const char* fmt, ...)
 	va_end(vl);
 }
 
-inline void LuaStack::push_lstring(const char* s, u32 len)
+inline void LuaStack::push_lstring(const char *s, u32 len)
 {
 	lua_pushlstring(L, s, len);
 }
@@ -439,7 +439,7 @@ inline void LuaStack::push_string_id(StringId32 value)
 	lua_pushnumber(L, value._id);
 }
 
-inline void LuaStack::push_pointer(void* p)
+inline void LuaStack::push_pointer(void *p)
 {
 	CE_ENSURE(NULL != p);
 	lua_pushlightuserdata(L, p);
@@ -460,7 +460,7 @@ inline void LuaStack::push_table(int narr, int nrec)
 	lua_createtable(L, narr, nrec);
 }
 
-inline void LuaStack::push_key_begin(const char* key)
+inline void LuaStack::push_key_begin(const char *key)
 {
 	lua_pushstring(L, key);
 }
@@ -480,57 +480,57 @@ inline int LuaStack::next(int i)
 	return lua_next(L, i);
 }
 
-inline void LuaStack::push_gui(Gui* dg)
+inline void LuaStack::push_gui(Gui *dg)
 {
 	push_pointer(dg);
 }
 
-inline void LuaStack::push_debug_line(DebugLine* line)
+inline void LuaStack::push_debug_line(DebugLine *line)
 {
 	push_pointer(line);
 }
 
-inline void LuaStack::push_resource_package(ResourcePackage* package)
+inline void LuaStack::push_resource_package(ResourcePackage *package)
 {
 	push_pointer(package);
 }
 
-inline void LuaStack::push_world(World* world)
+inline void LuaStack::push_world(World *world)
 {
 	push_pointer(world);
 }
 
-inline void LuaStack::push_scene_graph(SceneGraph* sg)
+inline void LuaStack::push_scene_graph(SceneGraph *sg)
 {
 	push_pointer(sg);
 }
 
-inline void LuaStack::push_level(Level* level)
+inline void LuaStack::push_level(Level *level)
 {
 	push_pointer(level);
 }
 
-inline void LuaStack::push_render_world(RenderWorld* world)
+inline void LuaStack::push_render_world(RenderWorld *world)
 {
 	push_pointer(world);
 }
 
-inline void LuaStack::push_physics_world(PhysicsWorld* world)
+inline void LuaStack::push_physics_world(PhysicsWorld *world)
 {
 	push_pointer(world);
 }
 
-inline void LuaStack::push_sound_world(SoundWorld* world)
+inline void LuaStack::push_sound_world(SoundWorld *world)
 {
 	push_pointer(world);
 }
 
-inline void LuaStack::push_script_world(ScriptWorld* world)
+inline void LuaStack::push_script_world(ScriptWorld *world)
 {
 	push_pointer(world);
 }
 
-inline void LuaStack::push_animation_state_machine(AnimationStateMachine* sm)
+inline void LuaStack::push_animation_state_machine(AnimationStateMachine *sm)
 {
 	push_pointer(sm);
 }
@@ -538,7 +538,7 @@ inline void LuaStack::push_animation_state_machine(AnimationStateMachine* sm)
 inline void LuaStack::push_unit(UnitId unit)
 {
 	uintptr_t enc = (uintptr_t(unit._idx) << LIGHTDATA_UNIT_ID_SHIFT) | LIGHTDATA_UNIT_MARKER;
-	push_pointer((void*)enc);
+	push_pointer((void *)enc);
 }
 
 inline void LuaStack::push_camera(CameraInstance i)
@@ -571,7 +571,7 @@ inline void LuaStack::push_state_machine_instance(StateMachineInstance i)
 	push_id(i.i);
 }
 
-inline void LuaStack::push_material(Material* material)
+inline void LuaStack::push_material(Material *material)
 {
 	push_pointer(material);
 }
@@ -591,7 +591,7 @@ inline void LuaStack::push_script_instance(ScriptInstance i)
 	push_id(i.i);
 }
 
-inline void LuaStack::push_vector2(const Vector2& v)
+inline void LuaStack::push_vector2(const Vector2 &v)
 {
 	Vector3 a;
 	a.x = v.x;
@@ -600,7 +600,7 @@ inline void LuaStack::push_vector2(const Vector2& v)
 	push_vector3(a);
 }
 
-inline void LuaStack::push_color4(const Color4& c)
+inline void LuaStack::push_color4(const Color4 &c)
 {
 	Quaternion q;
 	q.x = c.x;
@@ -610,33 +610,33 @@ inline void LuaStack::push_color4(const Color4& c)
 	push_quaternion(q);
 }
 
-inline void LuaStack::push_vector2box(const Vector2& v)
+inline void LuaStack::push_vector2box(const Vector2 &v)
 {
-	Vector2* vec = (Vector2*)lua_newuserdata(L, sizeof(Vector2));
+	Vector2 *vec = (Vector2 *)lua_newuserdata(L, sizeof(Vector2));
 	luaL_getmetatable(L, "Vector2Box");
 	lua_setmetatable(L, -2);
 	*vec = v;
 }
 
-inline void LuaStack::push_vector3box(const Vector3& v)
+inline void LuaStack::push_vector3box(const Vector3 &v)
 {
-	Vector3* vec = (Vector3*)lua_newuserdata(L, sizeof(Vector3));
+	Vector3 *vec = (Vector3 *)lua_newuserdata(L, sizeof(Vector3));
 	luaL_getmetatable(L, "Vector3Box");
 	lua_setmetatable(L, -2);
 	*vec = v;
 }
 
-inline void LuaStack::push_quaternionbox(const Quaternion& q)
+inline void LuaStack::push_quaternionbox(const Quaternion &q)
 {
-	Quaternion* quat = (Quaternion*)lua_newuserdata(L, sizeof(Quaternion));
+	Quaternion *quat = (Quaternion *)lua_newuserdata(L, sizeof(Quaternion));
 	luaL_getmetatable(L, "QuaternionBox");
 	lua_setmetatable(L, -2);
 	*quat = q;
 }
 
-inline void LuaStack::push_matrix4x4box(const Matrix4x4& m)
+inline void LuaStack::push_matrix4x4box(const Matrix4x4 &m)
 {
-	Matrix4x4* mat = (Matrix4x4*)lua_newuserdata(L, sizeof(Matrix4x4));
+	Matrix4x4 *mat = (Matrix4x4 *)lua_newuserdata(L, sizeof(Matrix4x4));
 	luaL_getmetatable(L, "Matrix4x4Box");
 	lua_setmetatable(L, -2);
 	*mat = m;
@@ -653,15 +653,15 @@ inline void LuaStack::call(int nresults)
 }
 
 #if CROWN_DEBUG
-inline void LuaStack::check_marker(int i, const void* p, u32 type_marker, const char* type_name)
+inline void LuaStack::check_marker(int i, const void *p, u32 type_marker, const char *type_name)
 {
-	if (CE_UNLIKELY(!is_pointer(i) || *(u32*)p != type_marker)) {
+	if (CE_UNLIKELY(!is_pointer(i) || *(u32 *)p != type_marker)) {
 		luaL_typerror(L, i, type_name);
 		CE_UNREACHABLE();
 	}
 }
 #else
-inline void LuaStack::check_marker(int /*i*/, const void* /*p*/, u32 /*type_marker*/, const char* /*type_name*/)
+inline void LuaStack::check_marker(int /*i*/, const void * /*p*/, u32 /*type_marker*/, const char * /*type_name*/)
 {
 }
 #endif // CROWN_DEBUG

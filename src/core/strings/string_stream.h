@@ -20,10 +20,10 @@ typedef Array<char> StringStream;
 namespace string_stream
 {
 	/// Returns the stream as a NUL-terminated string.
-	const char* c_str(StringStream& s);
+	const char *c_str(StringStream &s);
 
 	///
-	template<typename T> StringStream& stream_printf(StringStream& s, const char* format, T& val);
+	template<typename T> StringStream &stream_printf(StringStream &s, const char *format, T &val);
 
 } // namespace string_stream
 

@@ -25,22 +25,22 @@ namespace crown
 {
 namespace state_machine
 {
-	const State* initial_state(const StateMachineResource* smr)
+	const State *initial_state(const StateMachineResource *smr)
 	{
-		return (State*)((char*)smr + smr->initial_state_offset);
+		return (State *)((char *)smr + smr->initial_state_offset);
 	}
 
-	const State* state(const StateMachineResource* smr, const Transition* t)
+	const State *state(const StateMachineResource *smr, const Transition *t)
 	{
-		return (State*)((char*)smr + t->state_offset);
+		return (State *)((char *)smr + t->state_offset);
 	}
 
-	const State* trigger(const StateMachineResource* smr, const State* s, StringId32 event, const Transition** transition_out)
+	const State *trigger(const StateMachineResource *smr, const State *s, StringId32 event, const Transition **transition_out)
 	{
-		const TransitionArray* ta = state_transitions(s);
+		const TransitionArray *ta = state_transitions(s);
 
 		for (u32 i = 0; i < ta->num; ++i) {
-			const Transition* transition_i = transition(ta, i);
+			const Transition *transition_i = transition(ta, i);
 
 			if (transition_i->event == event) {
 				*transition_out = transition_i;
@@ -52,46 +52,46 @@ namespace state_machine
 		return s;
 	}
 
-	const TransitionArray* state_transitions(const State* s)
+	const TransitionArray *state_transitions(const State *s)
 	{
 		return &s->ta;
 	}
 
-	const Transition* transition(const TransitionArray* ta, u32 index)
+	const Transition *transition(const TransitionArray *ta, u32 index)
 	{
 		CE_ASSERT(index < ta->num, "Index out of bounds");
-		const Transition* first = (Transition*)(&ta[1]);
+		const Transition *first = (Transition *)(&ta[1]);
 		return &first[index];
 	}
 
-	const AnimationArray* state_animations(const State* s)
+	const AnimationArray *state_animations(const State *s)
 	{
-		const TransitionArray* ta = state_transitions(s);
-		const Transition* first = (Transition*)(&ta[1]);
-		return (AnimationArray*)(first + ta->num);
+		const TransitionArray *ta = state_transitions(s);
+		const Transition *first = (Transition *)(&ta[1]);
+		return (AnimationArray *)(first + ta->num);
 	}
 
-	const Animation* animation(const AnimationArray* aa, u32 index)
+	const Animation *animation(const AnimationArray *aa, u32 index)
 	{
 		CE_ASSERT(index < aa->num, "Index out of bounds");
-		Animation* first = (Animation*)(memory::align_top((void*)&aa[1], alignof(Animation)));
+		Animation *first = (Animation *)(memory::align_top((void *)&aa[1], alignof(Animation)));
 		return &first[index];
 	}
 
-	static inline const StringId32* variables_names(const StateMachineResource* smr)
+	static inline const StringId32 *variables_names(const StateMachineResource *smr)
 	{
-		return (StringId32*)((char*)smr + smr->variables_offset);
+		return (StringId32 *)((char *)smr + smr->variables_offset);
 	}
 
-	const f32* variables(const StateMachineResource* smr)
+	const f32 *variables(const StateMachineResource *smr)
 	{
-		const StringId32* names = variables_names(smr);
-		return (f32*)(names + smr->num_variables);
+		const StringId32 *names = variables_names(smr);
+		return (f32 *)(names + smr->num_variables);
 	}
 
-	u32 variable_index(const StateMachineResource* smr, StringId32 name)
+	u32 variable_index(const StateMachineResource *smr, StringId32 name)
 	{
-		const StringId32* names = variables_names(smr);
+		const StringId32 *names = variables_names(smr);
 		for (u32 i = 0; i < smr->num_variables; ++i) {
 			if (names[i] == name)
 				return i;
@@ -100,9 +100,9 @@ namespace state_machine
 		return UINT32_MAX;
 	}
 
-	const u32* byte_code(const StateMachineResource* smr)
+	const u32 *byte_code(const StateMachineResource *smr)
 	{
-		return (u32*)((char*)smr + smr->bytecode_offset);
+		return (u32 *)((char *)smr + smr->bytecode_offset);
 	}
 
 } // namespace state_machine
@@ -112,7 +112,7 @@ namespace state_machine_internal
 {
 	struct TransitionModeInfo
 	{
-		const char* name;
+		const char *name;
 		TransitionMode::Enum mode;
 	};
 
@@ -123,7 +123,7 @@ namespace state_machine_internal
 	};
 	CE_STATIC_ASSERT(countof(_transition_mode_map) == TransitionMode::COUNT);
 
-	static TransitionMode::Enum name_to_transition_mode(const char* name)
+	static TransitionMode::Enum name_to_transition_mode(const char *name)
 	{
 		for (u32 i = 0; i < countof(_transition_mode_map); ++i) {
 			if (strcmp(name, _transition_mode_map[i].name) == 0)
@@ -144,7 +144,7 @@ namespace state_machine_internal
 
 		void align(u32 align)
 		{
-			_offset = (u32)(uintptr_t)memory::align_top((void*)(uintptr_t)_offset, align);
+			_offset = (u32)(uintptr_t)memory::align_top((void *)(uintptr_t)_offset, align);
 		}
 
 		// Returns the offset of
@@ -171,7 +171,7 @@ namespace state_machine_internal
 		DynamicString weight;
 		u32 bytecode_entry;
 
-		explicit AnimationInfo(Allocator& a)
+		explicit AnimationInfo(Allocator &a)
 			: weight(a)
 		{
 		}
@@ -193,7 +193,7 @@ namespace state_machine_internal
 		u32 speed_bytecode;
 		u32 loop;
 
-		explicit StateInfo(Allocator& a)
+		explicit StateInfo(Allocator &a)
 			: animations(a)
 			, transitions(a)
 			, speed(a)
@@ -211,7 +211,7 @@ namespace state_machine_internal
 		StringId32 name;
 		float value;
 
-		explicit VariableInfo(Allocator& a)
+		explicit VariableInfo(Allocator &a)
 			: name_string(a)
 			, value(0.0f)
 		{
@@ -220,7 +220,7 @@ namespace state_machine_internal
 
 	struct StateMachineCompiler
 	{
-		CompileOptions& _opts;
+		CompileOptions &_opts;
 		Guid _initial_state;
 		HashMap<Guid, StateInfo> _states;
 		OffsetAccumulator _offset_accumulator;
@@ -228,7 +228,7 @@ namespace state_machine_internal
 		Vector<VariableInfo> _variables;
 		Array<u32> _byte_code;
 
-		explicit StateMachineCompiler(CompileOptions& opts)
+		explicit StateMachineCompiler(CompileOptions &opts)
 			: _opts(opts)
 			, _states(default_allocator())
 			, _offsets(default_allocator())
@@ -237,7 +237,7 @@ namespace state_machine_internal
 		{
 		}
 
-		s32 parse_animations(StateInfo& si, const JsonArray& animations)
+		s32 parse_animations(StateInfo &si, const JsonArray &animations)
 		{
 			for (u32 i = 0; i < array::size(animations); ++i) {
 				TempAllocator4096 ta;
@@ -266,7 +266,7 @@ namespace state_machine_internal
 			return 0;
 		}
 
-		s32 parse_transitions(StateInfo& si, const JsonArray& transitions)
+		s32 parse_transitions(StateInfo &si, const JsonArray &transitions)
 		{
 			for (u32 i = 0; i < array::size(transitions); ++i) {
 				TempAllocator4096 ta;
@@ -294,7 +294,7 @@ namespace state_machine_internal
 			return 0;
 		}
 
-		s32 parse_states(const JsonArray& states)
+		s32 parse_states(const JsonArray &states)
 		{
 			for (u32 i = 0; i < array::size(states); ++i) {
 				TempAllocator4096 ta;
@@ -326,7 +326,7 @@ namespace state_machine_internal
 			return 0;
 		}
 
-		s32 parse_variables(const JsonArray& variables)
+		s32 parse_variables(const JsonArray &variables)
 		{
 			for (u32 i = 0; i < array::size(variables); ++i) {
 				TempAllocator4096 ta;
@@ -351,13 +351,13 @@ namespace state_machine_internal
 			u32 written = 0;
 
 			const u32 num_variables = vector::size(_variables);
-			const char** variables = (const char**)default_allocator().allocate(num_variables*sizeof(char*));
+			const char **variables = (const char **)default_allocator().allocate(num_variables*sizeof(char *));
 
 			for (u32 i = 0; i < num_variables; ++i)
 				variables[i] = _variables[i].name_string.c_str();
 
 			const u32 num_constants = 1;
-			const char* constants[] =
+			const char *constants[] =
 			{
 				"PI"
 			};
@@ -371,8 +371,8 @@ namespace state_machine_internal
 			for (; cur != end; ++cur) {
 				HASH_MAP_SKIP_HOLE(_states, cur);
 
-				const Guid& guid    = cur->first;
-				const StateInfo& si = cur->second;
+				const Guid &guid    = cur->first;
+				const StateInfo &si = cur->second;
 
 				const u32 offset = _offset_accumulator.offset(vector::size(si.animations), vector::size(si.transitions));
 				hash_map::set(_offsets, guid, offset);
@@ -388,7 +388,7 @@ namespace state_machine_internal
 						, array::size(_byte_code)
 						);
 
-					const_cast<AnimationInfo&>(si.animations[i]).bytecode_entry = num > 0 ? written : UINT32_MAX;
+					const_cast<AnimationInfo &>(si.animations[i]).bytecode_entry = num > 0 ? written : UINT32_MAX;
 					written += num;
 				}
 
@@ -402,7 +402,7 @@ namespace state_machine_internal
 					, array::size(_byte_code)
 					);
 
-				const_cast<StateInfo&>(si).speed_bytecode = num > 0 ? written : UINT32_MAX;
+				const_cast<StateInfo &>(si).speed_bytecode = num > 0 ? written : UINT32_MAX;
 				written += num;
 			}
 
@@ -414,7 +414,7 @@ namespace state_machine_internal
 			return 0;
 		}
 
-		s32 parse(Buffer& buf)
+		s32 parse(Buffer &buf)
 		{
 			TempAllocator4096 ta;
 			JsonObject obj(ta);
@@ -470,7 +470,7 @@ namespace state_machine_internal
 			for (; cur != end; ++cur) {
 				HASH_MAP_SKIP_HOLE(_states, cur);
 
-				const StateInfo& si = cur->second;
+				const StateInfo &si = cur->second;
 				const u32 num_animations  = vector::size(si.animations);
 				const u32 num_transitions = vector::size(si.transitions);
 
@@ -523,7 +523,7 @@ namespace state_machine_internal
 		}
 	};
 
-	s32 compile(CompileOptions& opts)
+	s32 compile(CompileOptions &opts)
 	{
 		Buffer buf = opts.read();
 

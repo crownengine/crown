@@ -270,7 +270,7 @@ namespace expression_language
 		}
 
 		/// True if there is a function matching the specified identifier.
-		bool has_function(char * identifier) const
+		bool has_function(char *identifier) const
 		{
 			return find_string(identifier, strlen32(identifier), num_functions, function_names) != UINT_MAX;
 		}

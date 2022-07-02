@@ -17,9 +17,9 @@ namespace crown
 {
 namespace physics_resource_internal
 {
-	s32 compile_collider(Buffer& output, const char* json, CompileOptions& opts);
-	s32 compile_actor(Buffer& output, const char* json, CompileOptions& opts);
-	s32 compile_joint(Buffer& output, const char* json, CompileOptions& opts);
+	s32 compile_collider(Buffer &output, const char *json, CompileOptions &opts);
+	s32 compile_actor(Buffer &output, const char *json, CompileOptions &opts);
+	s32 compile_joint(Buffer &output, const char *json, CompileOptions &opts);
 
 } // namespace physics_resource_internal
 
@@ -64,20 +64,20 @@ struct PhysicsActor
 
 namespace physics_config_resource_internal
 {
-	s32 compile(CompileOptions& opts);
+	s32 compile(CompileOptions &opts);
 
 } // namespace physics_config_resource_internal
 
 namespace physics_config_resource
 {
 	/// Returns the material @a name.
-	const PhysicsMaterial* material(const PhysicsConfigResource* pcr, StringId32 name);
+	const PhysicsMaterial *material(const PhysicsConfigResource *pcr, StringId32 name);
 
 	/// Returns the actor @a name.
-	const PhysicsActor* actor(const PhysicsConfigResource* pcr, StringId32 name);
+	const PhysicsActor *actor(const PhysicsConfigResource *pcr, StringId32 name);
 
 	/// Returns the collision filter @a name.
-	const PhysicsCollisionFilter* filter(const PhysicsConfigResource* pcr, StringId32 name);
+	const PhysicsCollisionFilter *filter(const PhysicsConfigResource *pcr, StringId32 name);
 
 } // namespace physics_config_resource
 

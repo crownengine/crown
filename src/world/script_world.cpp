@@ -23,21 +23,21 @@ namespace script_world_internal
 		return inst;
 	}
 
-	static void unit_destroyed_callback(ScriptWorld& sw, UnitId unit, ScriptInstance i)
+	static void unit_destroyed_callback(ScriptWorld &sw, UnitId unit, ScriptInstance i)
 	{
 		if (hash_map::has(sw._map, unit))
 			script_world::destroy(sw, unit, i);
 	}
 
-	static void unit_destroyed_callback_bridge(UnitId unit, void* user_ptr)
+	static void unit_destroyed_callback_bridge(UnitId unit, void *user_ptr)
 	{
-		unit_destroyed_callback(*((ScriptWorld*)user_ptr), unit, make_instance(UINT32_MAX));
+		unit_destroyed_callback(*((ScriptWorld *)user_ptr), unit, make_instance(UINT32_MAX));
 	}
 } // script_world_internal
 
 namespace script_world
 {
-	ScriptInstance create(ScriptWorld& sw, UnitId unit, const ScriptDesc& desc)
+	ScriptInstance create(ScriptWorld &sw, UnitId unit, const ScriptDesc &desc)
 	{
 		CE_ASSERT(!hash_map::has(sw._map, unit), "Unit already has a script component");
 
@@ -56,7 +56,7 @@ namespace script_world
 
 			sw._resource_manager->load(RESOURCE_TYPE_SCRIPT, desc.script_resource);
 			sw._resource_manager->flush();
-			const LuaResource* lr = (LuaResource*)sw._resource_manager->get(RESOURCE_TYPE_SCRIPT, desc.script_resource);
+			const LuaResource *lr = (LuaResource *)sw._resource_manager->get(RESOURCE_TYPE_SCRIPT, desc.script_resource);
 
 			LuaStack stack = sw._lua_environment->execute(lr, 1);
 			stack.push_value(0);
@@ -95,7 +95,7 @@ namespace script_world
 		return script_world_internal::make_instance(instance_i);
 	}
 
-	void destroy(ScriptWorld& sw, UnitId unit, ScriptInstance /*i*/)
+	void destroy(ScriptWorld &sw, UnitId unit, ScriptInstance /*i*/)
 	{
 		CE_ASSERT(hash_map::has(sw._map, unit), "Unit does not have script component");
 
@@ -126,12 +126,12 @@ namespace script_world
 		array::pop_back(sw._data);
 	}
 
-	ScriptInstance instance(ScriptWorld& sw, UnitId unit)
+	ScriptInstance instance(ScriptWorld &sw, UnitId unit)
 	{
 		return script_world_internal::make_instance(hash_map::get(sw._map, unit, UINT32_MAX));
 	}
 
-	void update(ScriptWorld& sw, f32 dt)
+	void update(ScriptWorld &sw, f32 dt)
 	{
 		if (sw._disable_callbacks)
 			return;
@@ -152,7 +152,7 @@ namespace script_world
 		}
 	}
 
-	void collision(ScriptWorld& sw, const PhysicsCollisionEvent& ev)
+	void collision(ScriptWorld &sw, const PhysicsCollisionEvent &ev)
 	{
 		if (sw._disable_callbacks)
 			return;
@@ -212,7 +212,7 @@ namespace script_world
 
 } // namespace script_world
 
-ScriptWorld::ScriptWorld(Allocator& a, UnitManager& um, ResourceManager& rm, LuaEnvironment& le, World& w)
+ScriptWorld::ScriptWorld(Allocator &a, UnitManager &um, ResourceManager &rm, LuaEnvironment &le, World &w)
 	: _marker(SCRIPT_WORLD_MARKER)
 	, _script(a)
 	, _data(a)

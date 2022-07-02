@@ -55,104 +55,104 @@ namespace crown
 {
 struct CompileOptions
 {
-	File& _file;
+	File &_file;
 	BinaryWriter _binary_writer;
-	HashMap<DynamicString, u32>& _new_dependencies;
-	HashMap<DynamicString, u32>& _new_requirements;
-	DataCompiler& _data_compiler;
-	Filesystem& _data_filesystem;
+	HashMap<DynamicString, u32> &_new_dependencies;
+	HashMap<DynamicString, u32> &_new_requirements;
+	DataCompiler &_data_compiler;
+	Filesystem &_data_filesystem;
 	DynamicString _source_path;
-	const char* _platform;
+	const char *_platform;
 	ResourceId _resource_id;
 
 	///
-	CompileOptions(File& output
-		, HashMap<DynamicString, u32>& new_dependencies
-		, HashMap<DynamicString, u32>& new_requirements
-		, DataCompiler& dc
-		, Filesystem& data_filesystem
+	CompileOptions(File &output
+		, HashMap<DynamicString, u32> &new_dependencies
+		, HashMap<DynamicString, u32> &new_requirements
+		, DataCompiler &dc
+		, Filesystem &data_filesystem
 		, ResourceId res_id
-		, const DynamicString& source_path
-		, const char* platform
+		, const DynamicString &source_path
+		, const char *platform
 		);
 
 	///
-	CompileOptions(const CompileOptions&) = delete;
+	CompileOptions(const CompileOptions &) = delete;
 
 	///
-	CompileOptions& operator=(const CompileOptions&) = delete;
+	CompileOptions &operator=(const CompileOptions &) = delete;
 
 	///
-	void error(const char* msg, va_list args);
+	void error(const char *msg, va_list args);
 
 	///
-	void error(const char* msg, ...);
+	void error(const char *msg, ...);
 
 	///
-	const char* source_path();
+	const char *source_path();
 
 	///
-	bool file_exists(const char* path);
+	bool file_exists(const char *path);
 
 	///
-	bool resource_exists(const char* type, const char* name);
+	bool resource_exists(const char *type, const char *name);
 
 	///
-	Buffer read_all(File* file);
+	Buffer read_all(File *file);
 
 	///
-	Buffer read_temporary(const char* path);
+	Buffer read_temporary(const char *path);
 
 	///
-	void write_temporary(const char* path, const char* data, u32 size);
+	void write_temporary(const char *path, const char *data, u32 size);
 
 	///
-	void write_temporary(const char* path, const Buffer& data);
+	void write_temporary(const char *path, const Buffer &data);
 
 	/// Reads the data at @a path and returns it.
 	/// It also registers @a path as a dependency.
-	Buffer read(const char* path);
+	Buffer read(const char *path);
 
 	/// Reads the source data and returns it.
 	/// It also registers the source path as a dependency.
 	Buffer read();
 
 	/// Registers @a path as dependency without reading anything.
-	void fake_read(const char* path);
+	void fake_read(const char *path);
 
 	///
-	void add_requirement(const char* type, const char* name);
+	void add_requirement(const char *type, const char *name);
 
 	///
-	void absolute_path(DynamicString& abs, const char* path);
+	void absolute_path(DynamicString &abs, const char *path);
 
 	///
-	void temporary_path(DynamicString& abs, const char* suffix);
+	void temporary_path(DynamicString &abs, const char *suffix);
 
 	///
-	DeleteResult delete_file(const char* path);
+	DeleteResult delete_file(const char *path);
 
 	///
 	void align(const u32 align);
 
 	///
-	void write(const void* data, u32 size);
+	void write(const void *data, u32 size);
 
 	///
 	template<typename T>
-	void write(const T& data);
+	void write(const T &data);
 
 	///
-	void write(const Buffer& data);
+	void write(const Buffer &data);
 
 	///
-	const char* platform() const;
+	const char *platform() const;
 
 	/// Returns the first path with executable permissions or NULL if none found.
-	const char* exe_path(const char* const* paths, u32 num);
+	const char *exe_path(const char * const *paths, u32 num);
 
 	///
-	void read_output(StringStream& ss, Process& pr);
+	void read_output(StringStream &ss, Process &pr);
 };
 
 } // namespace crown

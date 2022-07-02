@@ -194,7 +194,7 @@ struct Joypad
 	void open()
 	{
 		char jspath[] = "/dev/input/jsX";
-		char* num = strchr(jspath, 'X');
+		char *num = strchr(jspath, 'X');
 
 		for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i) {
 			*num = '0' + i;
@@ -213,7 +213,7 @@ struct Joypad
 		}
 	}
 
-	void update(DeviceEventQueue& queue)
+	void update(DeviceEventQueue &queue)
 	{
 		JoypadEvent ev;
 		memset(&ev, 0, sizeof(ev));
@@ -251,7 +251,7 @@ struct Joypad
 					if (ev.number == 2 || ev.number == 5)
 						val = (val + INT16_MAX) >> 1;
 
-					s16* values = ev.number > 2 ? _axis[i].right : _axis[i].left;
+					s16 *values = ev.number > 2 ? _axis[i].right : _axis[i].left;
 					values[axis_idx[ev.number]] = val;
 
 					if (ev.number == 2 || ev.number == 5) {
@@ -297,7 +297,7 @@ static Cursor _x11_cursors[MouseCursor::COUNT];
 
 struct LinuxDevice
 {
-	::Display* _x11_display;
+	::Display *_x11_display;
 	Atom _wm_delete_window;
 	Atom _net_wm_state;
 	Atom _net_wm_state_maximized_horz;
@@ -305,7 +305,7 @@ struct LinuxDevice
 	Atom _net_wm_state_fullscreen;
 	Cursor _x11_hidden_cursor;
 	bool _x11_detectable_autorepeat;
-	XRRScreenConfiguration* _screen_config;
+	XRRScreenConfiguration *_screen_config;
 	DeviceEventQueue _queue;
 	Joypad _joypad;
 	::Window _x11_window;
@@ -330,7 +330,7 @@ struct LinuxDevice
 	{
 	}
 
-	int run(DeviceOptions* opts)
+	int run(DeviceOptions *opts)
 	{
 		// http://tronche.com/gui/x/xlib/display/XInitThreads.html
 		Status xs = XInitThreads();
@@ -395,8 +395,8 @@ struct LinuxDevice
 
 		// Start main thread
 		Thread main_thread;
-		main_thread.start([](void* user_data) {
-				crown::run(*((DeviceOptions*)user_data));
+		main_thread.start([](void *user_data) {
+				crown::run(*((DeviceOptions *)user_data));
 				s_exit = true;
 				return EXIT_SUCCESS;
 			}
@@ -539,7 +539,7 @@ struct LinuxDevice
 						u8 utf8[4] = { 0 };
 						int len = Xutf8LookupString(ic
 							, &event.xkey
-							, (char*)utf8
+							, (char *)utf8
 							, sizeof(utf8)
 							, NULL
 							, &status
@@ -617,7 +617,7 @@ struct WindowX11 : public Window
 	{
 		int screen = DefaultScreen(s_ldvc._x11_display);
 		int depth = DefaultDepth(s_ldvc._x11_display, screen);
-		Visual* visual = DefaultVisual(s_ldvc._x11_display, screen);
+		Visual *visual = DefaultVisual(s_ldvc._x11_display, screen);
 
 		::Window root_window = RootWindow(s_ldvc._x11_display, screen);
 		::Window parent_window = (parent == 0) ? root_window : (::Window)parent;
@@ -674,7 +674,7 @@ struct WindowX11 : public Window
 	{
 		bgfx::PlatformData pd;
 		pd.ndt          = s_ldvc._x11_display;
-		pd.nwh          = (void*)(uintptr_t)s_ldvc._x11_window;
+		pd.nwh          = (void *)(uintptr_t)s_ldvc._x11_window;
 		pd.context      = NULL;
 		pd.backBuffer   = NULL;
 		pd.backBufferDS = NULL;
@@ -730,25 +730,25 @@ struct WindowX11 : public Window
 		maximize_or_restore(false);
 	}
 
-	const char* title()
+	const char *title()
 	{
 		static char buf[512];
 		memset(buf, 0, sizeof(buf));
-		char* name;
+		char *name;
 		XFetchName(s_ldvc._x11_display, s_ldvc._x11_window, &name);
 		strncpy(buf, name, sizeof(buf) - 1);
 		XFree(name);
 		return buf;
 	}
 
-	void set_title(const char* title)
+	void set_title(const char *title)
 	{
 		XStoreName(s_ldvc._x11_display, s_ldvc._x11_window, title);
 	}
 
-	void* handle()
+	void *handle()
 	{
-		return (void*)(uintptr_t)s_ldvc._x11_window;
+		return (void *)(uintptr_t)s_ldvc._x11_window;
 	}
 
 	void show_cursor(bool show)
@@ -821,12 +821,12 @@ struct WindowX11 : public Window
 
 namespace window
 {
-	Window* create(Allocator& a)
+	Window *create(Allocator &a)
 	{
 		return CE_NEW(a, WindowX11)();
 	}
 
-	void destroy(Allocator& a, Window& w)
+	void destroy(Allocator &a, Window &w)
 	{
 		CE_DELETE(a, &w);
 	}
@@ -835,10 +835,10 @@ namespace window
 
 struct DisplayXRandr : public Display
 {
-	void modes(Array<DisplayMode>& modes)
+	void modes(Array<DisplayMode> &modes)
 	{
 		int num = 0;
-		XRRScreenSize* sizes = XRRConfigSizes(s_ldvc._screen_config, &num);
+		XRRScreenSize *sizes = XRRConfigSizes(s_ldvc._screen_config, &num);
 
 		if (!sizes)
 			return;
@@ -855,7 +855,7 @@ struct DisplayXRandr : public Display
 	void set_mode(u32 id)
 	{
 		int num = 0;
-		XRRScreenSize* sizes = XRRConfigSizes(s_ldvc._screen_config, &num);
+		XRRScreenSize *sizes = XRRConfigSizes(s_ldvc._screen_config, &num);
 
 		if (!sizes || (int)id >= num)
 			return;
@@ -872,19 +872,19 @@ struct DisplayXRandr : public Display
 
 namespace display
 {
-	Display* create(Allocator& a)
+	Display *create(Allocator &a)
 	{
 		return CE_NEW(a, DisplayXRandr)();
 	}
 
-	void destroy(Allocator& a, Display& d)
+	void destroy(Allocator &a, Display &d)
 	{
 		CE_DELETE(a, &d);
 	}
 
 } // namespace display
 
-bool next_event(OsEvent& ev)
+bool next_event(OsEvent &ev)
 {
 	return s_ldvc._queue.pop_event(ev);
 }
@@ -906,11 +906,11 @@ struct InitGlobals
 	}
 };
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
 	using namespace crown;
 #if CROWN_BUILD_UNIT_TESTS
-	CommandLine cl(argc, (const char**)argv);
+	CommandLine cl(argc, (const char **)argv);
 	if (cl.has_option("run-unit-tests")) {
 		return main_unit_tests();
 	}
@@ -919,7 +919,7 @@ int main(int argc, char** argv)
 	InitGlobals m;
 	CE_UNUSED(m);
 
-	DeviceOptions opts(default_allocator(), argc, (const char**)argv);
+	DeviceOptions opts(default_allocator(), argc, (const char **)argv);
 	bool quit = false;
 	int ec = opts.parse(&quit);
 

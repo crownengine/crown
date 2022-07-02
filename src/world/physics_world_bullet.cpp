@@ -53,12 +53,12 @@ namespace crown
 {
 namespace physics_globals
 {
-	static btDefaultCollisionConfiguration* _bt_configuration;
-	static btCollisionDispatcher* _bt_dispatcher;
-	static btBroadphaseInterface* _bt_interface;
-	static btSequentialImpulseConstraintSolver* _bt_solver;
+	static btDefaultCollisionConfiguration *_bt_configuration;
+	static btCollisionDispatcher *_bt_dispatcher;
+	static btBroadphaseInterface *_bt_interface;
+	static btSequentialImpulseConstraintSolver *_bt_solver;
 
-	void init(Allocator& a)
+	void init(Allocator &a)
 	{
 		_bt_configuration = CE_NEW(a, btDefaultCollisionConfiguration);
 		_bt_dispatcher    = CE_NEW(a, btCollisionDispatcher)(_bt_configuration);
@@ -66,7 +66,7 @@ namespace physics_globals
 		_bt_solver        = CE_NEW(a, btSequentialImpulseConstraintSolver);
 	}
 
-	void shutdown(Allocator& a)
+	void shutdown(Allocator &a)
 	{
 		CE_DELETE(a, _bt_solver);
 		CE_DELETE(a, _bt_interface);
@@ -76,17 +76,17 @@ namespace physics_globals
 
 } // namespace physics_globals
 
-static inline btVector3 to_btVector3(const Vector3& v)
+static inline btVector3 to_btVector3(const Vector3 &v)
 {
 	return btVector3(v.x, v.y, v.z);
 }
 
-static inline btQuaternion to_btQuaternion(const Quaternion& q)
+static inline btQuaternion to_btQuaternion(const Quaternion &q)
 {
 	return btQuaternion(q.x, q.y, q.z, q.w);
 }
 
-static inline btTransform to_btTransform(const Matrix4x4& m)
+static inline btTransform to_btTransform(const Matrix4x4 &m)
 {
 	btMatrix3x3 basis(m.x.x, m.y.x, m.z.x
 		, m.x.y, m.y.y, m.z.y
@@ -96,17 +96,17 @@ static inline btTransform to_btTransform(const Matrix4x4& m)
 	return btTransform(basis, pos);
 }
 
-static inline Vector3 to_vector3(const btVector3& v)
+static inline Vector3 to_vector3(const btVector3 &v)
 {
 	return vector3(v.x(), v.y(), v.z());
 }
 
-static inline Quaternion to_quaternion(const btQuaternion& q)
+static inline Quaternion to_quaternion(const btQuaternion &q)
 {
 	return from_elements(q.x(), q.y(), q.z(), q.w());
 }
 
-static inline Matrix4x4 to_matrix4x4(const btTransform& t)
+static inline Matrix4x4 to_matrix4x4(const btTransform &t)
 {
 	const btVector3 x = t.getBasis().getRow(0);
 	const btVector3 y = t.getBasis().getRow(1);
@@ -139,32 +139,32 @@ static inline Matrix4x4 to_matrix4x4(const btTransform& t)
 
 struct MyDebugDrawer : public btIDebugDraw
 {
-	DebugLine* _lines;
+	DebugLine *_lines;
 
-	explicit MyDebugDrawer(DebugLine& dl)
+	explicit MyDebugDrawer(DebugLine &dl)
 		: _lines(&dl)
 	{
 	}
 
-	void drawLine(const btVector3& from, const btVector3& to, const btVector3& /*color*/)
+	void drawLine(const btVector3 &from, const btVector3 &to, const btVector3 & /*color*/)
 	{
 		const Vector3 start = to_vector3(from);
 		const Vector3 end = to_vector3(to);
 		_lines->add_line(start, end, COLOR4_ORANGE);
 	}
 
-	void drawContactPoint(const btVector3& pointOnB, const btVector3& /*normalOnB*/, btScalar /*distance*/, int /*lifeTime*/, const btVector3& /*color*/)
+	void drawContactPoint(const btVector3 &pointOnB, const btVector3 & /*normalOnB*/, btScalar /*distance*/, int /*lifeTime*/, const btVector3 & /*color*/)
 	{
 		const Vector3 from = to_vector3(pointOnB);
 		_lines->add_sphere(from, 0.1f, COLOR4_WHITE);
 	}
 
-	void reportErrorWarning(const char* warningString)
+	void reportErrorWarning(const char *warningString)
 	{
 		logw(PHYSICS, warningString);
 	}
 
-	void draw3dText(const btVector3& /*location*/, const char* /*textString*/)
+	void draw3dText(const btVector3 & /*location*/, const char * /*textString*/)
 	{
 	}
 
@@ -184,7 +184,7 @@ struct MyDebugDrawer : public btIDebugDraw
 
 struct MyFilterCallback : public btOverlapFilterCallback
 {
-	bool needBroadphaseCollision(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1) const
+	bool needBroadphaseCollision(btBroadphaseProxy *proxy0, btBroadphaseProxy *proxy1) const
 	{
 		bool collides = (proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask) != 0;
 		collides = collides && (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask);
@@ -199,37 +199,37 @@ struct PhysicsWorldImpl
 	{
 		UnitId unit;
 		Matrix4x4 local_tm;
-		btTriangleIndexVertexArray* vertex_array;
-		btCollisionShape* shape;
+		btTriangleIndexVertexArray *vertex_array;
+		btCollisionShape *shape;
 		ColliderInstance next;
 	};
 
 	struct ActorInstanceData
 	{
 		UnitId unit;
-		btRigidBody* body;
+		btRigidBody *body;
 	};
 
-	Allocator* _allocator;
-	UnitManager* _unit_manager;
+	Allocator *_allocator;
+	UnitManager *_unit_manager;
 
 	HashMap<UnitId, u32> _collider_map;
 	HashMap<UnitId, u32> _actor_map;
 	Array<ColliderInstanceData> _collider;
 	Array<ActorInstanceData> _actor;
-	Array<btTypedConstraint*> _joints;
+	Array<btTypedConstraint *> _joints;
 
 	MyFilterCallback _filter_callback;
-	btDiscreteDynamicsWorld* _dynamics_world;
+	btDiscreteDynamicsWorld *_dynamics_world;
 	MyDebugDrawer _debug_drawer;
 
 	EventStream _events;
 	UnitDestroyCallback _unit_destroy_callback;
 
-	const PhysicsConfigResource* _config_resource;
+	const PhysicsConfigResource *_config_resource;
 	bool _debug_drawing;
 
-	PhysicsWorldImpl(Allocator& a, ResourceManager& rm, UnitManager& um, DebugLine& dl)
+	PhysicsWorldImpl(Allocator &a, ResourceManager &rm, UnitManager &um, DebugLine &dl)
 		: _allocator(&a)
 		, _unit_manager(&um)
 		, _collider_map(a)
@@ -252,7 +252,7 @@ struct PhysicsWorldImpl
 		_dynamics_world->setInternalTickCallback(tick_cb, this);
 		_dynamics_world->getPairCache()->setOverlapFilterCallback(&_filter_callback);
 
-		_config_resource = (PhysicsConfigResource*)rm.get(RESOURCE_TYPE_PHYSICS_CONFIG, STRING_ID_64("global", 0x0b2f08fe66e395c0));
+		_config_resource = (PhysicsConfigResource *)rm.get(RESOURCE_TYPE_PHYSICS_CONFIG, STRING_ID_64("global", 0x0b2f08fe66e395c0));
 
 		_unit_destroy_callback.destroy = PhysicsWorldImpl::unit_destroyed_callback;
 		_unit_destroy_callback.user_data = this;
@@ -266,7 +266,7 @@ struct PhysicsWorldImpl
 		_unit_manager->unregister_destroy_callback(&_unit_destroy_callback);
 
 		for (u32 i = 0; i < array::size(_actor); ++i) {
-			btRigidBody* body = _actor[i].body;
+			btRigidBody *body = _actor[i].body;
 
 			_dynamics_world->removeRigidBody(body);
 			CE_DELETE(*_allocator, body->getMotionState());
@@ -282,10 +282,10 @@ struct PhysicsWorldImpl
 		CE_DELETE(*_allocator, _dynamics_world);
 	}
 
-	ColliderInstance collider_create(UnitId unit, const ColliderDesc* sd, const Vector3& scale)
+	ColliderInstance collider_create(UnitId unit, const ColliderDesc *sd, const Vector3 &scale)
 	{
-		btTriangleIndexVertexArray* vertex_array = NULL;
-		btCollisionShape* child_shape = NULL;
+		btTriangleIndexVertexArray *vertex_array = NULL;
+		btCollisionShape *child_shape = NULL;
 
 		switch (sd->type) {
 		case ColliderType::SPHERE:
@@ -301,26 +301,26 @@ struct PhysicsWorldImpl
 			break;
 
 		case ColliderType::CONVEX_HULL: {
-			const char* data       = (char*)&sd[1];
-			const u32 num          = *(u32*)data;
-			const btScalar* points = (btScalar*)(data + sizeof(u32));
+			const char *data       = (char *)&sd[1];
+			const u32 num          = *(u32 *)data;
+			const btScalar *points = (btScalar *)(data + sizeof(u32));
 
 			child_shape = CE_NEW(*_allocator, btConvexHullShape)(points, (int)num, sizeof(Vector3));
 			break;
 		}
 
 		case ColliderType::MESH: {
-			const char* data      = (char*)&sd[1];
-			const u32 num_points  = *(u32*)data;
-			const char* points    = data + sizeof(u32);
-			const u32 num_indices = *(u32*)(points + num_points*sizeof(Vector3));
-			const char* indices   = points + sizeof(u32) + num_points*sizeof(Vector3);
+			const char *data      = (char *)&sd[1];
+			const u32 num_points  = *(u32 *)data;
+			const char *points    = data + sizeof(u32);
+			const u32 num_indices = *(u32 *)(points + num_points*sizeof(Vector3));
+			const char *indices   = points + sizeof(u32) + num_points*sizeof(Vector3);
 
 			btIndexedMesh part;
-			part.m_vertexBase          = (const unsigned char*)points;
+			part.m_vertexBase          = (const unsigned char *)points;
 			part.m_vertexStride        = sizeof(Vector3);
 			part.m_numVertices         = num_points;
-			part.m_triangleIndexBase   = (const unsigned char*)indices;
+			part.m_triangleIndexBase   = (const unsigned char *)indices;
 			part.m_triangleIndexStride = sizeof(u16)*3;
 			part.m_numTriangles        = num_indices/3;
 			part.m_indexType           = PHY_SHORT;
@@ -449,12 +449,12 @@ struct PhysicsWorldImpl
 		return prev;
 	}
 
-	ActorInstance actor_create(UnitId unit, const ActorResource* ar, const Matrix4x4& tm)
+	ActorInstance actor_create(UnitId unit, const ActorResource *ar, const Matrix4x4 &tm)
 	{
 		CE_ASSERT(!hash_map::has(_actor_map, unit), "Unit already has an actor component");
 
-		const PhysicsActor* actor_class = physics_config_resource::actor(_config_resource, ar->actor_class);
-		const PhysicsMaterial* material = physics_config_resource::material(_config_resource, ar->material);
+		const PhysicsActor *actor_class = physics_config_resource::actor(_config_resource, ar->actor_class);
+		const PhysicsMaterial *material = physics_config_resource::material(_config_resource, ar->material);
 
 		const bool is_kinematic = (actor_class->flags & CROWN_PHYSICS_ACTOR_KINEMATIC) != 0;
 		const bool is_dynamic   = (actor_class->flags & CROWN_PHYSICS_ACTOR_DYNAMIC) != 0;
@@ -464,7 +464,7 @@ struct PhysicsWorldImpl
 		const f32 mass = is_dynamic ? ar->mass : 0.0f;
 
 		// Create compound shape
-		btCompoundShape* shape = CE_NEW(*_allocator, btCompoundShape)(true);
+		btCompoundShape *shape = CE_NEW(*_allocator, btCompoundShape)(true);
 		ColliderInstance ci = collider_first(unit);
 		while (is_valid(ci)) {
 			shape->addChildShape(to_btTransform(_collider[ci.i].local_tm), _collider[ci.i].shape);
@@ -473,7 +473,7 @@ struct PhysicsWorldImpl
 
 		// Create motion state
 		const btTransform tr = to_btTransform(tm);
-		btDefaultMotionState* ms = is_static
+		btDefaultMotionState *ms = is_static
 			? NULL
 			: CE_NEW(*_allocator, btDefaultMotionState)(tr)
 			;
@@ -494,7 +494,7 @@ struct PhysicsWorldImpl
 		rbinfo.m_angularSleepingThreshold = 0.7f; // FIXME
 
 		// Create rigid body
-		btRigidBody* body = CE_NEW(*_allocator, btRigidBody)(rbinfo);
+		btRigidBody *body = CE_NEW(*_allocator, btRigidBody)(rbinfo);
 
 		int cflags = body->getCollisionFlags();
 		cflags |= is_kinematic ? btCollisionObject::CF_KINEMATIC_OBJECT    : 0;
@@ -515,7 +515,7 @@ struct PhysicsWorldImpl
 			));
 
 		const u32 last = array::size(_actor);
-		body->setUserPointer((void*)(uintptr_t)last);
+		body->setUserPointer((void *)(uintptr_t)last);
 
 		// Set collision filters
 		const u32 me   = physics_config_resource::filter(_config_resource, ar->collision_filter)->me;
@@ -545,7 +545,7 @@ struct PhysicsWorldImpl
 		CE_DELETE(*_allocator, _actor[actor.i].body);
 
 		_actor[actor.i] = _actor[last];
-		_actor[actor.i].body->setUserPointer((void*)(uintptr_t)actor.i);
+		_actor[actor.i].body->setUserPointer((void *)(uintptr_t)actor.i);
 
 		array::pop_back(_actor);
 
@@ -573,21 +573,21 @@ struct PhysicsWorldImpl
 		return to_matrix4x4(_actor[actor.i].body->getCenterOfMassTransform());
 	}
 
-	void actor_teleport_world_position(ActorInstance actor, const Vector3& p)
+	void actor_teleport_world_position(ActorInstance actor, const Vector3 &p)
 	{
 		btTransform pose = _actor[actor.i].body->getCenterOfMassTransform();
 		pose.setOrigin(to_btVector3(p));
 		_actor[actor.i].body->setCenterOfMassTransform(pose);
 	}
 
-	void actor_teleport_world_rotation(ActorInstance actor, const Quaternion& r)
+	void actor_teleport_world_rotation(ActorInstance actor, const Quaternion &r)
 	{
 		btTransform pose = _actor[actor.i].body->getCenterOfMassTransform();
 		pose.setRotation(to_btQuaternion(r));
 		_actor[actor.i].body->setCenterOfMassTransform(pose);
 	}
 
-	void actor_teleport_world_pose(ActorInstance actor, const Matrix4x4& m)
+	void actor_teleport_world_pose(ActorInstance actor, const Matrix4x4 &m)
 	{
 		const Quaternion rot = rotation(m);
 		const Vector3 pos = translation(m);
@@ -605,14 +605,14 @@ struct PhysicsWorldImpl
 
 	void actor_enable_gravity(ActorInstance actor)
 	{
-		btRigidBody* body = _actor[actor.i].body;
+		btRigidBody *body = _actor[actor.i].body;
 		body->setFlags(body->getFlags() & ~BT_DISABLE_WORLD_GRAVITY);
 		body->setGravity(_dynamics_world->getGravity());
 	}
 
 	void actor_disable_gravity(ActorInstance actor)
 	{
-		btRigidBody* body = _actor[actor.i].body;
+		btRigidBody *body = _actor[actor.i].body;
 		body->setFlags(body->getFlags() | BT_DISABLE_WORLD_GRAVITY);
 		body->setGravity(btVector3(0.0f, 0.0f, 0.0f));
 	}
@@ -634,7 +634,7 @@ struct PhysicsWorldImpl
 
 	void actor_set_kinematic(ActorInstance actor, bool kinematic)
 	{
-		btRigidBody* body = _actor[actor.i].body;
+		btRigidBody *body = _actor[actor.i].body;
 		int flags = body->getCollisionFlags();
 
 		if (kinematic) {
@@ -696,7 +696,7 @@ struct PhysicsWorldImpl
 		return to_vector3(v);
 	}
 
-	void actor_set_linear_velocity(ActorInstance actor, const Vector3& vel)
+	void actor_set_linear_velocity(ActorInstance actor, const Vector3 &vel)
 	{
 		_actor[actor.i].body->activate();
 		_actor[actor.i].body->setLinearVelocity(to_btVector3(vel));
@@ -708,36 +708,36 @@ struct PhysicsWorldImpl
 		return to_vector3(v);
 	}
 
-	void actor_set_angular_velocity(ActorInstance actor, const Vector3& vel)
+	void actor_set_angular_velocity(ActorInstance actor, const Vector3 &vel)
 	{
 		_actor[actor.i].body->activate();
 		_actor[actor.i].body->setAngularVelocity(to_btVector3(vel));
 	}
 
-	void actor_add_impulse(ActorInstance actor, const Vector3& impulse)
+	void actor_add_impulse(ActorInstance actor, const Vector3 &impulse)
 	{
 		_actor[actor.i].body->activate();
 		_actor[actor.i].body->applyCentralImpulse(to_btVector3(impulse));
 	}
 
-	void actor_add_impulse_at(ActorInstance actor, const Vector3& impulse, const Vector3& pos)
+	void actor_add_impulse_at(ActorInstance actor, const Vector3 &impulse, const Vector3 &pos)
 	{
 		_actor[actor.i].body->activate();
 		_actor[actor.i].body->applyImpulse(to_btVector3(impulse), to_btVector3(pos));
 	}
 
-	void actor_add_torque_impulse(ActorInstance actor, const Vector3& imp)
+	void actor_add_torque_impulse(ActorInstance actor, const Vector3 &imp)
 	{
 		_actor[actor.i].body->applyTorqueImpulse(to_btVector3(imp));
 	}
 
-	void actor_push(ActorInstance actor, const Vector3& vel, f32 mass)
+	void actor_push(ActorInstance actor, const Vector3 &vel, f32 mass)
 	{
 		const Vector3 f = vel * mass;
 		_actor[actor.i].body->applyCentralForce(to_btVector3(f));
 	}
 
-	void actor_push_at(ActorInstance actor, const Vector3& vel, f32 mass, const Vector3& pos)
+	void actor_push_at(ActorInstance actor, const Vector3 &vel, f32 mass, const Vector3 &pos)
 	{
 		const Vector3 f = vel * mass;
 		_actor[actor.i].body->applyForce(to_btVector3(f), to_btVector3(pos));
@@ -753,14 +753,14 @@ struct PhysicsWorldImpl
 		_actor[actor.i].body->activate(true);
 	}
 
-	JointInstance joint_create(ActorInstance a0, ActorInstance a1, const JointDesc& jd)
+	JointInstance joint_create(ActorInstance a0, ActorInstance a1, const JointDesc &jd)
 	{
 		const btVector3 anchor_0 = to_btVector3(jd.anchor_0);
 		const btVector3 anchor_1 = to_btVector3(jd.anchor_1);
-		btRigidBody* body_0 = _actor[a0.i].body;
-		btRigidBody* body_1 = is_valid(a1) ? _actor[a1.i].body : NULL;
+		btRigidBody *body_0 = _actor[a0.i].body;
+		btRigidBody *body_1 = is_valid(a1) ? _actor[a1.i].body : NULL;
 
-		btTypedConstraint* joint = NULL;
+		btTypedConstraint *joint = NULL;
 		switch (jd.type) {
 		case JointType::FIXED: {
 			const btTransform frame_0 = btTransform(btQuaternion::getIdentity(), anchor_0);
@@ -782,7 +782,7 @@ struct PhysicsWorldImpl
 			break;
 
 		case JointType::HINGE: {
-			btHingeConstraint* hinge = CE_NEW(*_allocator, btHingeConstraint)(*body_0
+			btHingeConstraint *hinge = CE_NEW(*_allocator, btHingeConstraint)(*body_0
 				, *body_1
 				, anchor_0
 				, anchor_1
@@ -820,7 +820,7 @@ struct PhysicsWorldImpl
 		CE_FATAL("Not implemented yet");
 	}
 
-	bool cast_ray(RaycastHit& hit, const Vector3& from, const Vector3& dir, f32 len)
+	bool cast_ray(RaycastHit &hit, const Vector3 &from, const Vector3 &dir, f32 len)
 	{
 		const btVector3 aa = to_btVector3(from);
 		const btVector3 bb = to_btVector3(from + dir*len);
@@ -846,7 +846,7 @@ struct PhysicsWorldImpl
 		return false;
 	}
 
-	bool cast_ray_all(Array<RaycastHit>& hits, const Vector3& from, const Vector3& dir, f32 len)
+	bool cast_ray_all(Array<RaycastHit> &hits, const Vector3 &from, const Vector3 &dir, f32 len)
 	{
 		const btVector3 aa = to_btVector3(from);
 		const btVector3 bb = to_btVector3(from + dir*len);
@@ -878,7 +878,7 @@ struct PhysicsWorldImpl
 		return false;
 	}
 
-	bool cast(RaycastHit& hit, const btConvexShape* shape, const Vector3& from, const Vector3& dir, f32 len)
+	bool cast(RaycastHit &hit, const btConvexShape *shape, const Vector3 &from, const Vector3 &dir, f32 len)
 	{
 		const btTransform aa(btQuaternion::getIdentity(), to_btVector3(from));
 		const btTransform bb(btQuaternion::getIdentity(), to_btVector3(from + dir*len));
@@ -903,13 +903,13 @@ struct PhysicsWorldImpl
 		return false;
 	}
 
-	bool cast_sphere(RaycastHit& hit, const Vector3& from, f32 radius, const Vector3& dir, f32 len)
+	bool cast_sphere(RaycastHit &hit, const Vector3 &from, f32 radius, const Vector3 &dir, f32 len)
 	{
 		btSphereShape shape(radius);
 		return cast(hit, &shape, from, dir, len);
 	}
 
-	bool cast_box(RaycastHit& hit, const Vector3& from, const Vector3& half_extents, const Vector3& dir, f32 len)
+	bool cast_box(RaycastHit &hit, const Vector3 &from, const Vector3 &half_extents, const Vector3 &dir, f32 len)
 	{
 		btBoxShape shape(to_btVector3(half_extents));
 		return cast(hit, &shape, from, dir, len);
@@ -920,12 +920,12 @@ struct PhysicsWorldImpl
 		return to_vector3(_dynamics_world->getGravity());
 	}
 
-	void set_gravity(const Vector3& g)
+	void set_gravity(const Vector3 &g)
 	{
 		_dynamics_world->setGravity(to_btVector3(g));
 	}
 
-	void update_actor_world_poses(const UnitId* begin, const UnitId* end, const Matrix4x4* begin_world)
+	void update_actor_world_poses(const UnitId *begin, const UnitId *end, const Matrix4x4 *begin_world)
 	{
 		for (; begin != end; ++begin, ++begin_world) {
 			const u32 ai = hash_map::get(_actor_map, *begin, UINT32_MAX);
@@ -935,7 +935,7 @@ struct PhysicsWorldImpl
 			const Quaternion rot = rotation(*begin_world);
 			const Vector3 pos = translation(*begin_world);
 			// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/MotionStates
-			btMotionState* ms = _actor[ai].body->getMotionState();
+			btMotionState *ms = _actor[ai].body->getMotionState();
 			if (ms)
 				ms->setWorldTransform(btTransform(to_btQuaternion(rot), to_btVector3(pos)));
 		}
@@ -947,13 +947,13 @@ struct PhysicsWorldImpl
 		_dynamics_world->stepSimulation(dt, 7, 1.0f/60.0f);
 
 		const int num = _dynamics_world->getNumCollisionObjects();
-		const btCollisionObjectArray& collision_array = _dynamics_world->getCollisionObjectArray();
+		const btCollisionObjectArray &collision_array = _dynamics_world->getCollisionObjectArray();
 		// Update actors
 		for (int i = 0; i < num; ++i) {
 			if ((uintptr_t)collision_array[i]->getUserPointer() == (uintptr_t)UINT32_MAX)
 				continue;
 
-			btRigidBody* body = btRigidBody::upcast(collision_array[i]);
+			btRigidBody *body = btRigidBody::upcast(collision_array[i]);
 			if (body
 				&& body->getMotionState()
 				&& body->isActive()
@@ -974,7 +974,7 @@ struct PhysicsWorldImpl
 		}
 	}
 
-	EventStream& events()
+	EventStream &events()
 	{
 		return _events;
 	}
@@ -994,7 +994,7 @@ struct PhysicsWorldImpl
 		_debug_drawing = enable;
 	}
 
-	void tick_callback(btDynamicsWorld* world, btScalar /*dt*/)
+	void tick_callback(btDynamicsWorld *world, btScalar /*dt*/)
 	{
 		// Limit bodies velocity
 		for (u32 i = 0; i < array::size(_actor); ++i) {
@@ -1009,10 +1009,10 @@ struct PhysicsWorldImpl
 		// Check collisions
 		int num_manifolds = world->getDispatcher()->getNumManifolds();
 		for (int i = 0; i < num_manifolds; ++i) {
-			const btPersistentManifold* manifold = world->getDispatcher()->getManifoldByIndexInternal(i);
+			const btPersistentManifold *manifold = world->getDispatcher()->getManifoldByIndexInternal(i);
 
-			const btCollisionObject* obj_a = manifold->getBody0();
-			const btCollisionObject* obj_b = manifold->getBody1();
+			const btCollisionObject *obj_a = manifold->getBody0();
+			const btCollisionObject *obj_b = manifold->getBody1();
 			const ActorInstance a0 = make_actor_instance((u32)(uintptr_t)obj_a->getUserPointer());
 			const ActorInstance a1 = make_actor_instance((u32)(uintptr_t)obj_b->getUserPointer());
 			const UnitId u0 = _actor[a0.i].unit;
@@ -1020,7 +1020,7 @@ struct PhysicsWorldImpl
 
 			int num_contacts = manifold->getNumContacts();
 			for (int j = 0; j < num_contacts; ++j) {
-				const btManifoldPoint& pt = manifold->getContactPoint(j);
+				const btManifoldPoint &pt = manifold->getContactPoint(j);
 				if (pt.m_distance1 < 0.0f) {
 					// Post collision event
 					PhysicsCollisionEvent ev;
@@ -1058,15 +1058,15 @@ struct PhysicsWorldImpl
 		}
 	}
 
-	static void tick_cb(btDynamicsWorld* world, btScalar dt)
+	static void tick_cb(btDynamicsWorld *world, btScalar dt)
 	{
-		PhysicsWorldImpl* bw = static_cast<PhysicsWorldImpl*>(world->getWorldUserInfo());
+		PhysicsWorldImpl *bw = static_cast<PhysicsWorldImpl *>(world->getWorldUserInfo());
 		bw->tick_callback(world, dt);
 	}
 
-	static void unit_destroyed_callback(UnitId unit, void* user_ptr)
+	static void unit_destroyed_callback(UnitId unit, void *user_ptr)
 	{
-		static_cast<PhysicsWorldImpl*>(user_ptr)->unit_destroyed_callback(unit);
+		static_cast<PhysicsWorldImpl *>(user_ptr)->unit_destroyed_callback(unit);
 	}
 
 	static ColliderInstance make_collider_instance(u32 i)
@@ -1085,7 +1085,7 @@ struct PhysicsWorldImpl
 	}
 };
 
-PhysicsWorld::PhysicsWorld(Allocator& a, ResourceManager& rm, UnitManager& um, DebugLine& dl)
+PhysicsWorld::PhysicsWorld(Allocator &a, ResourceManager &rm, UnitManager &um, DebugLine &dl)
 	: _marker(PHYSICS_WORLD_MARKER)
 	, _allocator(&a)
 	, _impl(NULL)
@@ -1099,7 +1099,7 @@ PhysicsWorld::~PhysicsWorld()
 	_marker = 0;
 }
 
-ColliderInstance PhysicsWorld::collider_create(UnitId unit, const ColliderDesc* sd, const Vector3& scl)
+ColliderInstance PhysicsWorld::collider_create(UnitId unit, const ColliderDesc *sd, const Vector3 &scl)
 {
 	return _impl->collider_create(unit, sd, scl);
 }
@@ -1119,7 +1119,7 @@ ColliderInstance PhysicsWorld::collider_next(ColliderInstance collider)
 	return _impl->collider_next(collider);
 }
 
-ActorInstance PhysicsWorld::actor_create(UnitId unit, const ActorResource* ar, const Matrix4x4& tm)
+ActorInstance PhysicsWorld::actor_create(UnitId unit, const ActorResource *ar, const Matrix4x4 &tm)
 {
 	return _impl->actor_create(unit, ar, tm);
 }
@@ -1149,17 +1149,17 @@ Matrix4x4 PhysicsWorld::actor_world_pose(ActorInstance actor) const
 	return _impl->actor_world_pose(actor);
 }
 
-void PhysicsWorld::actor_teleport_world_position(ActorInstance actor, const Vector3& p)
+void PhysicsWorld::actor_teleport_world_position(ActorInstance actor, const Vector3 &p)
 {
 	_impl->actor_teleport_world_position(actor, p);
 }
 
-void PhysicsWorld::actor_teleport_world_rotation(ActorInstance actor, const Quaternion& r)
+void PhysicsWorld::actor_teleport_world_rotation(ActorInstance actor, const Quaternion &r)
 {
 	_impl->actor_teleport_world_rotation(actor, r);
 }
 
-void PhysicsWorld::actor_teleport_world_pose(ActorInstance actor, const Matrix4x4& m)
+void PhysicsWorld::actor_teleport_world_pose(ActorInstance actor, const Matrix4x4 &m)
 {
 	_impl->actor_teleport_world_pose(actor, m);
 }
@@ -1244,7 +1244,7 @@ Vector3 PhysicsWorld::actor_linear_velocity(ActorInstance actor) const
 	return _impl->actor_linear_velocity(actor);
 }
 
-void PhysicsWorld::actor_set_linear_velocity(ActorInstance actor, const Vector3& vel)
+void PhysicsWorld::actor_set_linear_velocity(ActorInstance actor, const Vector3 &vel)
 {
 	_impl->actor_set_linear_velocity(actor, vel);
 }
@@ -1254,32 +1254,32 @@ Vector3 PhysicsWorld::actor_angular_velocity(ActorInstance actor) const
 	return _impl->actor_angular_velocity(actor);
 }
 
-void PhysicsWorld::actor_set_angular_velocity(ActorInstance actor, const Vector3& vel)
+void PhysicsWorld::actor_set_angular_velocity(ActorInstance actor, const Vector3 &vel)
 {
 	_impl->actor_set_angular_velocity(actor, vel);
 }
 
-void PhysicsWorld::actor_add_impulse(ActorInstance actor, const Vector3& impulse)
+void PhysicsWorld::actor_add_impulse(ActorInstance actor, const Vector3 &impulse)
 {
 	_impl->actor_add_impulse(actor, impulse);
 }
 
-void PhysicsWorld::actor_add_impulse_at(ActorInstance actor, const Vector3& impulse, const Vector3& pos)
+void PhysicsWorld::actor_add_impulse_at(ActorInstance actor, const Vector3 &impulse, const Vector3 &pos)
 {
 	_impl->actor_add_impulse_at(actor, impulse, pos);
 }
 
-void PhysicsWorld::actor_add_torque_impulse(ActorInstance actor, const Vector3& imp)
+void PhysicsWorld::actor_add_torque_impulse(ActorInstance actor, const Vector3 &imp)
 {
 	_impl->actor_add_torque_impulse(actor, imp);
 }
 
-void PhysicsWorld::actor_push(ActorInstance actor, const Vector3& vel, f32 mass)
+void PhysicsWorld::actor_push(ActorInstance actor, const Vector3 &vel, f32 mass)
 {
 	_impl->actor_push(actor, vel, mass);
 }
 
-void PhysicsWorld::actor_push_at(ActorInstance actor, const Vector3& vel, f32 mass, const Vector3& pos)
+void PhysicsWorld::actor_push_at(ActorInstance actor, const Vector3 &vel, f32 mass, const Vector3 &pos)
 {
 	_impl->actor_push_at(actor, vel, mass, pos);
 }
@@ -1294,7 +1294,7 @@ void PhysicsWorld::actor_wake_up(ActorInstance actor)
 	_impl->actor_wake_up(actor);
 }
 
-JointInstance PhysicsWorld::joint_create(ActorInstance a0, ActorInstance a1, const JointDesc& jd)
+JointInstance PhysicsWorld::joint_create(ActorInstance a0, ActorInstance a1, const JointDesc &jd)
 {
 	return _impl->joint_create(a0, a1, jd);
 }
@@ -1304,22 +1304,22 @@ void PhysicsWorld::joint_destroy(JointInstance i)
 	_impl->joint_destroy(i);
 }
 
-bool PhysicsWorld::cast_ray(RaycastHit& hit, const Vector3& from, const Vector3& dir, f32 len)
+bool PhysicsWorld::cast_ray(RaycastHit &hit, const Vector3 &from, const Vector3 &dir, f32 len)
 {
 	return _impl->cast_ray(hit, from, dir, len);
 }
 
-bool PhysicsWorld::cast_ray_all(Array<RaycastHit>& hits, const Vector3& from, const Vector3& dir, f32 len)
+bool PhysicsWorld::cast_ray_all(Array<RaycastHit> &hits, const Vector3 &from, const Vector3 &dir, f32 len)
 {
 	return _impl->cast_ray_all(hits, from, dir, len);
 }
 
-bool PhysicsWorld::cast_sphere(RaycastHit& hit, const Vector3& from, f32 radius, const Vector3& dir, f32 len)
+bool PhysicsWorld::cast_sphere(RaycastHit &hit, const Vector3 &from, f32 radius, const Vector3 &dir, f32 len)
 {
 	return _impl->cast_sphere(hit, from, radius, dir, len);
 }
 
-bool PhysicsWorld::cast_box(RaycastHit& hit, const Vector3& from, const Vector3& half_extents, const Vector3& dir, f32 len)
+bool PhysicsWorld::cast_box(RaycastHit &hit, const Vector3 &from, const Vector3 &half_extents, const Vector3 &dir, f32 len)
 {
 	return _impl->cast_box(hit, from, half_extents, dir, len);
 }
@@ -1329,12 +1329,12 @@ Vector3 PhysicsWorld::gravity() const
 	return _impl->gravity();
 }
 
-void PhysicsWorld::set_gravity(const Vector3& g)
+void PhysicsWorld::set_gravity(const Vector3 &g)
 {
 	_impl->set_gravity(g);
 }
 
-void PhysicsWorld::update_actor_world_poses(const UnitId* begin, const UnitId* end, const Matrix4x4* begin_world)
+void PhysicsWorld::update_actor_world_poses(const UnitId *begin, const UnitId *end, const Matrix4x4 *begin_world)
 {
 	_impl->update_actor_world_poses(begin, end, begin_world);
 }
@@ -1344,7 +1344,7 @@ void PhysicsWorld::update(f32 dt)
 	_impl->update(dt);
 }
 
-EventStream& PhysicsWorld::events()
+EventStream &PhysicsWorld::events()
 {
 	return _impl->events();
 }

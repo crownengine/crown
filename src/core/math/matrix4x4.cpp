@@ -61,7 +61,7 @@ Matrix4x4 from_array(const f32 a[16])
 	return m;
 }
 
-Matrix4x4 from_axes(const Vector3& x, const Vector3& y, const Vector3& z, const Vector3& t)
+Matrix4x4 from_axes(const Vector3 &x, const Vector3 &y, const Vector3 &z, const Vector3 &t)
 {
 	Matrix4x4 m;
 	m.x.x = x.x;
@@ -86,7 +86,7 @@ Matrix4x4 from_axes(const Vector3& x, const Vector3& y, const Vector3& z, const 
 	return m;
 }
 
-Matrix4x4 from_quaternion_translation(const Quaternion& r, const Vector3& t)
+Matrix4x4 from_quaternion_translation(const Quaternion &r, const Vector3 &t)
 {
 	const Matrix3x3 rot = from_quaternion(r);
 
@@ -113,7 +113,7 @@ Matrix4x4 from_quaternion_translation(const Quaternion& r, const Vector3& t)
 	return m;
 }
 
-Matrix4x4 from_translation(const Vector3& t)
+Matrix4x4 from_translation(const Vector3 &t)
 {
 	Matrix4x4 m;
 	m.x.x = 1.0f;
@@ -138,7 +138,7 @@ Matrix4x4 from_translation(const Vector3& t)
 	return m;
 }
 
-Matrix4x4 from_matrix3x3(const Matrix3x3& r)
+Matrix4x4 from_matrix3x3(const Matrix3x3 &r)
 {
 	Matrix4x4 m;
 	m.x.x = r.x.x;
@@ -163,7 +163,7 @@ Matrix4x4 from_matrix3x3(const Matrix3x3& r)
 	return m;
 }
 
-Matrix4x4& invert(Matrix4x4& m)
+Matrix4x4 &invert(Matrix4x4 &m)
 {
 	const f32 xx = m.x.x;
 	const f32 xy = m.x.y;

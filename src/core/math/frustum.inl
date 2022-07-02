@@ -17,10 +17,10 @@ namespace crown
 namespace frustum
 {
 	/// Builds the frustum @a f from the view matrix @a m.
-	void from_matrix(Frustum& f, const Matrix4x4& m);
+	void from_matrix(Frustum &f, const Matrix4x4 &m);
 
 	/// Returns whether the frustum @a f contains the point @a p.
-	bool contains_point(const Frustum& f, const Vector3& p);
+	bool contains_point(const Frustum &f, const Vector3 &p);
 
 	/// Returns the @a vertices of the frustum @a f.
 	/// @note
@@ -32,16 +32,16 @@ namespace frustum
 	/// 5 = Far bottom right
 	/// 6 = Far top right
 	/// 7 = Far top left
-	void vertices(Vector3 vertices[8], const Frustum& f);
+	void vertices(Vector3 vertices[8], const Frustum &f);
 
 	/// Returns the AABB enclosing the frustum @a f.
-	AABB to_aabb(const Frustum& f);
+	AABB to_aabb(const Frustum &f);
 
 } // namespace frustum
 
 namespace frustum
 {
-	inline void from_matrix(Frustum& f, const Matrix4x4& m)
+	inline void from_matrix(Frustum &f, const Matrix4x4 &m)
 	{
 		f.planes[0].n.x = m.x.w + m.x.y;
 		f.planes[0].n.y = m.y.w + m.y.y;
@@ -80,7 +80,7 @@ namespace frustum
 		plane3::normalize(f.planes[5]);
 	}
 
-	inline bool contains_point(const Frustum& f, const Vector3& p)
+	inline bool contains_point(const Frustum &f, const Vector3 &p)
 	{
 		for (u32 ii = 0; ii < 6; ++ii) {
 			if (plane3::distance_to_point(f.planes[ii], p) < 0.0f)
@@ -90,7 +90,7 @@ namespace frustum
 		return true;
 	}
 
-	inline void vertices(Vector3 vertices[8], const Frustum& f)
+	inline void vertices(Vector3 vertices[8], const Frustum &f)
 	{
 		// p3 ---- p2  Front face.
 		//  |      |
@@ -111,7 +111,7 @@ namespace frustum
 		plane_3_intersection(vertices[7], f.planes[5], f.planes[2], f.planes[3]);
 	}
 
-	inline AABB to_aabb(const Frustum& f)
+	inline AABB to_aabb(const Frustum &f)
 	{
 		Vector3 vertices[8];
 		frustum::vertices(vertices, f);

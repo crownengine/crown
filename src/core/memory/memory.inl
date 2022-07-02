@@ -15,7 +15,7 @@ namespace crown
 namespace memory
 {
 	/// Returns the pointer @a p aligned to the desired @a align byte
-	inline void* align_top(const void* p, u32 align)
+	inline void *align_top(const void *p, u32 align)
 	{
 		CE_ASSERT(align >= 1, "Alignment must be > 1");
 		CE_ASSERT(align % 2 == 0 || align == 1, "Alignment must be a power of two");
@@ -23,12 +23,12 @@ namespace memory
 		const uintptr_t mask = align - 1;
 		uintptr_t ptr = (uintptr_t)p;
 		ptr = (ptr + mask) & ~mask;
-		return (void*)ptr;
+		return (void *)ptr;
 	}
 
 	/// Respects standard behaviour when calling on NULL @a ptr
 	template<typename T>
-	inline void call_destructor_and_deallocate(Allocator& a, T* ptr)
+	inline void call_destructor_and_deallocate(Allocator &a, T *ptr)
 	{
 		if (!ptr)
 			return;
@@ -44,19 +44,19 @@ template<int v>
 struct Int2Type { enum { value = v }; };
 
 template<typename T>
-inline T &construct(void *p, Allocator& a, Int2Type<true>)
+inline T &construct(void *p, Allocator &a, Int2Type<true>)
 {
-	return *(T*)new (p) T(a);
+	return *(T *)new (p) T(a);
 }
 
 template<typename T>
-inline T &construct(void *p, Allocator& /*a*/, Int2Type<false>)
+inline T &construct(void *p, Allocator & /*a*/, Int2Type<false>)
 {
-	return *(T*)new (p) T();
+	return *(T *)new (p) T();
 }
 
 template<typename T>
-inline T &construct(void *p, Allocator& a)
+inline T &construct(void *p, Allocator &a)
 {
 	return construct<T>(p, a, IS_ALLOCATOR_AWARE_TYPE(T)());
 }

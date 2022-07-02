@@ -14,23 +14,23 @@ namespace crown
 /// @ingroup Memory
 struct ProxyAllocator : public Allocator
 {
-	Allocator& _allocator;
-	const char* _name;
+	Allocator &_allocator;
+	const char *_name;
 
 	/// Tag all allocations made with @a allocator by the given @a name
-	ProxyAllocator(Allocator& allocator, const char* name);
+	ProxyAllocator(Allocator &allocator, const char *name);
 
 	/// @copydoc Allocator::allocate()
-	void* allocate(u32 size, u32 align = Allocator::DEFAULT_ALIGN);
+	void *allocate(u32 size, u32 align = Allocator::DEFAULT_ALIGN);
 
 	/// @copydoc Allocator::deallocate()
-	void deallocate(void* data);
+	void deallocate(void *data);
 
 	/// @copydoc Allocator::reallocate().
-	virtual void* reallocate(void* data, u32 size, u32 align = DEFAULT_ALIGN);
+	virtual void *reallocate(void *data, u32 size, u32 align = DEFAULT_ALIGN);
 
 	/// @copydoc Allocator::allocated_size()
-	u32 allocated_size(const void* ptr)
+	u32 allocated_size(const void *ptr)
 	{
 		return _allocator.allocated_size(ptr);
 	}
@@ -42,7 +42,7 @@ struct ProxyAllocator : public Allocator
 	}
 
 	/// Returns the name of the proxy allocator
-	const char* name() const;
+	const char *name() const;
 };
 
 } // namespace crown

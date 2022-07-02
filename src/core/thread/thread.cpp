@@ -24,7 +24,7 @@ namespace crown
 struct Private
 {
 	ThreadFunction _function;
-	void* _user_data;
+	void *_user_data;
 	Semaphore _sem;
 	bool _is_running;
 	s32 _exit_code;
@@ -36,16 +36,16 @@ struct Private
 };
 
 #if CROWN_PLATFORM_POSIX
-static void* thread_proc(void* arg)
+static void *thread_proc(void *arg)
 {
-	Thread* thread = (Thread*)arg;
+	Thread *thread = (Thread *)arg;
 	thread->_priv->_sem.post();
-	return (void*)(uintptr_t)thread->_priv->_function(thread->_priv->_user_data);
+	return (void *)(uintptr_t)thread->_priv->_function(thread->_priv->_user_data);
 }
 #elif CROWN_PLATFORM_WINDOWS
-static DWORD WINAPI thread_proc(void* arg)
+static DWORD WINAPI thread_proc(void *arg)
 {
-	Thread* thread = (Thread*)arg;
+	Thread *thread = (Thread *)arg;
 	thread->_priv->_sem.post();
 	return thread->_priv->_function(thread->_priv->_user_data);
 }
@@ -75,7 +75,7 @@ Thread::~Thread()
 	_priv->~Private();
 }
 
-void Thread::start(ThreadFunction func, void* user_data, u32 stack_size)
+void Thread::start(ThreadFunction func, void *user_data, u32 stack_size)
 {
 	CE_ASSERT(!_priv->_is_running, "Thread is already running");
 	CE_ASSERT(func != NULL, "Function must be != NULL");
@@ -113,7 +113,7 @@ void Thread::stop()
 	CE_ASSERT(_priv->_is_running, "Thread is not running");
 
 #if CROWN_PLATFORM_POSIX
-	void* retval;
+	void *retval;
 	int err = pthread_join(_priv->handle, &retval);
 	CE_ASSERT(err == 0, "pthread_join: errno = %d", err);
 	CE_UNUSED(err);
@@ -121,7 +121,7 @@ void Thread::stop()
 	_priv->handle = 0;
 #elif CROWN_PLATFORM_WINDOWS
 	WaitForSingleObject(_priv->handle, INFINITE);
-	GetExitCodeThread(_priv->handle, (DWORD*)&_priv->_exit_code);
+	GetExitCodeThread(_priv->handle, (DWORD *)&_priv->_exit_code);
 	CloseHandle(_priv->handle);
 	_priv->handle = INVALID_HANDLE_VALUE;
 #endif

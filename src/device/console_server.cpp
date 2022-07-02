@@ -25,7 +25,7 @@ namespace crown
 {
 namespace console_server_internal
 {
-	static void message_command(ConsoleServer& cs, u32 client_id, const char* json, void* /*user_data*/)
+	static void message_command(ConsoleServer &cs, u32 client_id, const char *json, void * /*user_data*/)
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
@@ -46,7 +46,7 @@ namespace console_server_internal
 			cmd.command_function(cs, client_id, args, cmd.user_data);
 	}
 
-	static void command_help(ConsoleServer& cs, u32 client_id, JsonArray& args, void* /*user_data*/)
+	static void command_help(ConsoleServer &cs, u32 client_id, JsonArray &args, void * /*user_data*/)
 	{
 		if (array::size(args) != 1) {
 			cs.error(client_id, "Usage: help");
@@ -78,7 +78,7 @@ namespace console_server_internal
 		}
 	}
 
-	static u32 add_client(ConsoleServer& cs, const TCPSocket& socket)
+	static u32 add_client(ConsoleServer &cs, const TCPSocket &socket)
 	{
 		ScopedMutex scoped_mutex(cs._clients_mutex);
 
@@ -90,7 +90,7 @@ namespace console_server_internal
 		return client.id;
 	}
 
-	static void remove_client_by_socket(ConsoleServer& cs, const TCPSocket& socket)
+	static void remove_client_by_socket(ConsoleServer &cs, const TCPSocket &socket)
 	{
 		ScopedMutex scoped_mutex(cs._clients_mutex);
 
@@ -104,7 +104,7 @@ namespace console_server_internal
 		}
 	}
 
-	static u32 get_client_id(ConsoleServer& cs, const TCPSocket& socket)
+	static u32 get_client_id(ConsoleServer &cs, const TCPSocket &socket)
 	{
 		ScopedMutex scoped_mutex(cs._clients_mutex);
 
@@ -117,7 +117,7 @@ namespace console_server_internal
 		return UINT32_MAX;
 	}
 
-	static bool get_socket_by_id(TCPSocket* socket, ConsoleServer& cs, u32 id)
+	static bool get_socket_by_id(TCPSocket *socket, ConsoleServer &cs, u32 id)
 	{
 		ScopedMutex scoped_mutex(cs._clients_mutex);
 
@@ -134,7 +134,7 @@ namespace console_server_internal
 
 } // namespace console_server_internal
 
-ConsoleServer::ConsoleServer(Allocator& a)
+ConsoleServer::ConsoleServer(Allocator &a)
 	: _port(UINT16_MAX)
 	, _next_client_id(0)
 	, _clients(a)
@@ -164,8 +164,8 @@ void ConsoleServer::listen(u16 port, bool wait)
 	_server.listen(5);
 	_active_socket_set.set(&_server);
 
-	_input_thread.start([](void* thiz) { return ((ConsoleServer*)thiz)->run_input_thread(); }, this);
-	_output_thread.start([](void* thiz) { return ((ConsoleServer*)thiz)->run_output_thread(); }, this);
+	_input_thread.start([](void *thiz) { return ((ConsoleServer *)thiz)->run_input_thread(); }, this);
+	_output_thread.start([](void *thiz) { return ((ConsoleServer *)thiz)->run_output_thread(); }, this);
 
 	if (wait)
 		_client_connected.wait();
@@ -198,7 +198,7 @@ void ConsoleServer::shutdown()
 	_server.close();
 }
 
-void ConsoleServer::send(u32 client_id, const char* json)
+void ConsoleServer::send(u32 client_id, const char *json)
 {
 	TCPSocket socket;
 	if (!console_server_internal::get_socket_by_id(&socket, *this, client_id))
@@ -217,7 +217,7 @@ void ConsoleServer::send(u32 client_id, const char* json)
 	_output_mutex.unlock();
 }
 
-void ConsoleServer::error(u32 client_id, const char* msg)
+void ConsoleServer::error(u32 client_id, const char *msg)
 {
 	TempAllocator4096 ta;
 	StringStream ss(ta);
@@ -225,7 +225,7 @@ void ConsoleServer::error(u32 client_id, const char* msg)
 	send(client_id, string_stream::c_str(ss));
 }
 
-void ConsoleServer::broadcast(const char* json)
+void ConsoleServer::broadcast(const char *json)
 {
 	for (u32 i = 0; i < vector::size(_clients); ++i)
 		send(_clients[i].id, json);
@@ -242,7 +242,7 @@ void ConsoleServer::execute_message_handlers(bool sync)
 	if (!locked)
 		return;
 
-	Buffer* temp = _input_read;
+	Buffer *temp = _input_read;
 	_input_read = _input_write;
 	_input_write = temp;
 	_handlers_semaphore.post();
@@ -260,7 +260,7 @@ void ConsoleServer::execute_message_handlers(bool sync)
 		u32 msg_len;
 		br.read(client_id);
 		br.read(msg_len);
-		const char* msg = array::begin(*_input_read) + fb.position();
+		const char *msg = array::begin(*_input_read) + fb.position();
 		br.skip(msg_len);
 
 		// Process message.
@@ -292,7 +292,7 @@ void ConsoleServer::execute_message_handlers(bool sync)
 	array::clear(*_input_read);
 }
 
-void ConsoleServer::register_command_name(const char* name, const char* brief, CommandTypeFunction function, void* user_data)
+void ConsoleServer::register_command_name(const char *name, const char *brief, CommandTypeFunction function, void *user_data)
 {
 	CE_ENSURE(NULL != name);
 	CE_ENSURE(NULL != brief);
@@ -306,7 +306,7 @@ void ConsoleServer::register_command_name(const char* name, const char* brief, C
 	hash_map::set(_commands, StringId32(name), cmd);
 }
 
-void ConsoleServer::register_message_type(const char* type, MessageTypeFunction function, void* user_data)
+void ConsoleServer::register_message_type(const char *type, MessageTypeFunction function, void *user_data)
 {
 	CE_ENSURE(NULL != type);
 	CE_ENSURE(NULL != function);
@@ -416,7 +416,7 @@ s32 ConsoleServer::run_output_thread()
 			break;
 		}
 
-		Buffer* temp = _output_read;
+		Buffer *temp = _output_read;
 		_output_read = _output_write;
 		_output_write = temp;
 		_output_mutex.unlock();
@@ -429,7 +429,7 @@ s32 ConsoleServer::run_output_thread()
 			u32 msg_len;
 			br.read(client_id);
 			br.read(msg_len);
-			const char* msg = array::begin(*_output_read) + fb.position();
+			const char *msg = array::begin(*_output_read) + fb.position();
 			br.skip(msg_len);
 
 			// Lookup socket by its ID.
@@ -448,7 +448,7 @@ s32 ConsoleServer::run_output_thread()
 
 namespace console_server_globals
 {
-	ConsoleServer* _console_server = NULL;
+	ConsoleServer *_console_server = NULL;
 
 	void init()
 	{
@@ -464,7 +464,7 @@ namespace console_server_globals
 
 } // namespace console_server_globals
 
-ConsoleServer* console_server()
+ConsoleServer *console_server()
 {
 	return console_server_globals::_console_server;
 }

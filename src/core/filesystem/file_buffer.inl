@@ -15,10 +15,10 @@ namespace crown
 /// @ingroup Filesystem
 struct FileBuffer : public File
 {
-	Buffer* _buffer;
+	Buffer *_buffer;
 	u32 _position;
 
-	explicit FileBuffer(Buffer& buffer)
+	explicit FileBuffer(Buffer &buffer)
 		: _buffer(&buffer)
 		, _position(0)
 	{
@@ -29,7 +29,7 @@ struct FileBuffer : public File
 		CE_NOOP();
 	}
 
-	virtual void open(const char* path, FileOpenMode::Enum mode)
+	virtual void open(const char *path, FileOpenMode::Enum mode)
 	{
 		CE_UNUSED(path);
 		CE_UNUSED(mode);
@@ -77,7 +77,7 @@ struct FileBuffer : public File
 		seek(_position + bytes);
 	}
 
-	virtual u32 read(void* data, u32 size)
+	virtual u32 read(void *data, u32 size)
 	{
 		const u32 rest = array::size(*_buffer) - _position;
 		const u32 num = min(size, rest);
@@ -86,10 +86,10 @@ struct FileBuffer : public File
 		return num;
 	}
 
-	virtual u32 write(const void* data, u32 size)
+	virtual u32 write(const void *data, u32 size)
 	{
 		_buffer->_size = _position;
-		array::push(*_buffer, (const char*)data, size);
+		array::push(*_buffer, (const char *)data, size);
 		_position += size;
 		return size;
 	}

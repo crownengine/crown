@@ -21,8 +21,8 @@ namespace crown
 /// @ingroup Device
 struct ConsoleServer
 {
-	typedef void (*CommandTypeFunction)(ConsoleServer& cs, u32 client_id, JsonArray& args, void* user_data);
-	typedef void (*MessageTypeFunction)(ConsoleServer& cs, u32 client_id, const char* json, void* user_data);
+	typedef void (*CommandTypeFunction)(ConsoleServer &cs, u32 client_id, JsonArray &args, void *user_data);
+	typedef void (*MessageTypeFunction)(ConsoleServer &cs, u32 client_id, const char *json, void *user_data);
 
 	struct CommandData
 	{
@@ -32,7 +32,7 @@ struct ConsoleServer
 			MessageTypeFunction message_function;
 		};
 
-		void* user_data;
+		void *user_data;
 		char name[32];
 		char brief[128];
 	};
@@ -56,8 +56,8 @@ struct ConsoleServer
 	Thread _input_thread;
 	Buffer _input_0;
 	Buffer _input_1;
-	Buffer* _input_write;
-	Buffer* _input_read;
+	Buffer *_input_write;
+	Buffer *_input_read;
 	Semaphore _input_semaphore;
 	Semaphore _handlers_semaphore;
 
@@ -66,15 +66,15 @@ struct ConsoleServer
 	ConditionVariable _output_condition;
 	Buffer _output_0;
 	Buffer _output_1;
-	Buffer* _output_write;
-	Buffer* _output_read;
+	Buffer *_output_write;
+	Buffer *_output_read;
 
 	SocketSet _read_socket_set;
 	SocketSet _active_socket_set;
 	Semaphore _client_connected;
 
 	///
-	ConsoleServer(Allocator& a);
+	ConsoleServer(Allocator &a);
 
 	/// Listens on the given @a port. If @a wait is true, this function
 	/// blocks until a client is connected.
@@ -84,19 +84,19 @@ struct ConsoleServer
 	void shutdown();
 
 	/// Sends the given JSON-encoded string to @a client_id.
-	void send(u32 client_id, const char* json);
+	void send(u32 client_id, const char *json);
 
 	/// Sends an error message to @a client.
-	void error(u32 client_id, const char* msg);
+	void error(u32 client_id, const char *msg);
 
 	/// Sends the given JSON-encoded string to all clients.
-	void broadcast(const char* json);
+	void broadcast(const char *json);
 
 	// Registers the command @a type.
-	void register_command_name(const char* name, const char* brief, CommandTypeFunction cmd, void* user_data);
+	void register_command_name(const char *name, const char *brief, CommandTypeFunction cmd, void *user_data);
 
 	/// Registers the message @a type.
-	void register_message_type(const char* type, MessageTypeFunction cmd, void* user_data);
+	void register_message_type(const char *type, MessageTypeFunction cmd, void *user_data);
 
 	/// Executes the message handlers for all the messages successfully received by
 	/// the console so far. If @a sync is true, this function blocks until there is
@@ -122,6 +122,6 @@ namespace console_server_globals
 
 } // namespace console_server_globals
 
-ConsoleServer* console_server();
+ConsoleServer *console_server();
 
 } // namespace crown

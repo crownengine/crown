@@ -40,10 +40,10 @@ namespace crown
 /// @ingroup Lua
 struct LuaStack
 {
-	lua_State* L;
+	lua_State *L;
 
 	///
-	LuaStack(lua_State* L);
+	LuaStack(lua_State *L);
 
 	/// Returns the number of elements in the stack.
 	/// When called inside a function, it can be used to count
@@ -101,10 +101,10 @@ struct LuaStack
 	f32 get_float(int i);
 
 	///
-	const char* get_string(int i);
+	const char *get_string(int i);
 
 	///
-	void* get_pointer(int i);
+	void *get_pointer(int i);
 
 	///
 	u32 get_id(int i);
@@ -119,37 +119,37 @@ struct LuaStack
 	StringId64 get_resource_name(int i);
 
 	///
-	Gui* get_gui(int i);
+	Gui *get_gui(int i);
 
 	///
-	DebugLine* get_debug_line(int i);
+	DebugLine *get_debug_line(int i);
 
 	///
-	ResourcePackage* get_resource_package(int i);
+	ResourcePackage *get_resource_package(int i);
 
 	///
-	World* get_world(int i);
+	World *get_world(int i);
 
 	///
-	SceneGraph* get_scene_graph(int i);
+	SceneGraph *get_scene_graph(int i);
 
 	///
-	Level* get_level(int i);
+	Level *get_level(int i);
 
 	///
-	RenderWorld* get_render_world(int i);
+	RenderWorld *get_render_world(int i);
 
 	///
-	PhysicsWorld* get_physics_world(int i);
+	PhysicsWorld *get_physics_world(int i);
 
 	///
-	SoundWorld* get_sound_world(int i);
+	SoundWorld *get_sound_world(int i);
 
 	///
-	ScriptWorld* get_script_world(int i);
+	ScriptWorld *get_script_world(int i);
 
 	///
-	AnimationStateMachine* get_animation_state_machine(int i);
+	AnimationStateMachine *get_animation_state_machine(int i);
 
 	///
 	bool is_unit(int i);
@@ -176,7 +176,7 @@ struct LuaStack
 	StateMachineInstance get_state_machine_instance(int i);
 
 	///
-	Material* get_material(int i);
+	Material *get_material(int i);
 
 	///
 	ActorInstance get_actor_instance(int i);
@@ -191,31 +191,31 @@ struct LuaStack
 	Vector2 get_vector2(int i);
 
 	///
-	Vector3& get_vector3(int i);
+	Vector3 &get_vector3(int i);
 
 	///
 	Vector4 get_vector4(int i);
 
 	///
-	Quaternion& get_quaternion(int i);
+	Quaternion &get_quaternion(int i);
 
 	///
-	Matrix4x4& get_matrix4x4(int i);
+	Matrix4x4 &get_matrix4x4(int i);
 
 	///
 	Color4 get_color4(int i);
 
 	///
-	Vector2& get_vector2box(int i);
+	Vector2 &get_vector2box(int i);
 
 	///
-	Vector3& get_vector3box(int i);
+	Vector3 &get_vector3box(int i);
 
 	///
-	Quaternion& get_quaternionbox(int i);
+	Quaternion &get_quaternionbox(int i);
 
 	///
-	Matrix4x4& get_matrix4x4box(int i);
+	Matrix4x4 &get_matrix4x4box(int i);
 
 	///
 	void push_nil();
@@ -230,19 +230,19 @@ struct LuaStack
 	void push_float(f32 value);
 
 	///
-	void push_string(const char* s);
+	void push_string(const char *s);
 
 	///
-	void push_fstring(const char* fmt, ...);
+	void push_fstring(const char *fmt, ...);
 
 	///
-	void push_lstring(const char* s, u32 len);
+	void push_lstring(const char *s, u32 len);
 
 	///
 	void push_string_id(StringId32 value);
 
 	///
-	void push_pointer(void* p);
+	void push_pointer(void *p);
 
 	///
 	void push_function(lua_CFunction f);
@@ -262,7 +262,7 @@ struct LuaStack
 	void push_table(int narr = 0, int nrec = 0);
 
 	/// See Stack::push_table()
-	void push_key_begin(const char* key);
+	void push_key_begin(const char *key);
 
 	/// See Stack::push_table()
 	void push_key_begin(int i);
@@ -274,37 +274,37 @@ struct LuaStack
 	int next(int i);
 
 	///
-	void push_gui(Gui* dg);
+	void push_gui(Gui *dg);
 
 	///
-	void push_debug_line(DebugLine* line);
+	void push_debug_line(DebugLine *line);
 
 	///
-	void push_resource_package(ResourcePackage* package);
+	void push_resource_package(ResourcePackage *package);
 
 	///
-	void push_world(World* world);
+	void push_world(World *world);
 
 	///
-	void push_scene_graph(SceneGraph* sg);
+	void push_scene_graph(SceneGraph *sg);
 
 	///
-	void push_level(Level* level);
+	void push_level(Level *level);
 
 	///
-	void push_render_world(RenderWorld* world);
+	void push_render_world(RenderWorld *world);
 
 	///
-	void push_physics_world(PhysicsWorld* world);
+	void push_physics_world(PhysicsWorld *world);
 
 	///
-	void push_sound_world(SoundWorld* world);
+	void push_sound_world(SoundWorld *world);
 
 	///
-	void push_script_world(ScriptWorld* world);
+	void push_script_world(ScriptWorld *world);
 
 	///
-	void push_animation_state_machine(AnimationStateMachine* sm);
+	void push_animation_state_machine(AnimationStateMachine *sm);
 
 	///
 	void push_unit(UnitId unit);
@@ -328,7 +328,7 @@ struct LuaStack
 	void push_state_machine_instance(StateMachineInstance i);
 
 	///
-	void push_material(Material* material);
+	void push_material(Material *material);
 
 	///
 	void push_actor(ActorInstance i);
@@ -340,31 +340,31 @@ struct LuaStack
 	void push_script_instance(ScriptInstance i);
 
 	///
-	void push_vector2(const Vector2& v);
+	void push_vector2(const Vector2 &v);
 
 	///
-	void push_vector3(const Vector3& v);
+	void push_vector3(const Vector3 &v);
 
 	///
-	void push_matrix4x4(const Matrix4x4& m);
+	void push_matrix4x4(const Matrix4x4 &m);
 
 	///
-	void push_quaternion(const Quaternion& q);
+	void push_quaternion(const Quaternion &q);
 
 	///
-	void push_color4(const Color4& c);
+	void push_color4(const Color4 &c);
 
 	///
-	void push_vector2box(const Vector2& v);
+	void push_vector2box(const Vector2 &v);
 
 	///
-	void push_vector3box(const Vector3& v);
+	void push_vector3box(const Vector3 &v);
 
 	///
-	void push_quaternionbox(const Quaternion& q);
+	void push_quaternionbox(const Quaternion &q);
 
 	///
-	void push_matrix4x4box(const Matrix4x4& m);
+	void push_matrix4x4box(const Matrix4x4 &m);
 
 	///
 	void push_value(int i);
@@ -373,16 +373,16 @@ struct LuaStack
 	void call(int nresults);
 
 	///
-	Vector3* check_temporary(int i, const Vector3* p);
+	Vector3 *check_temporary(int i, const Vector3 *p);
 
 	///
-	Quaternion* check_temporary(int i, const Quaternion* p);
+	Quaternion *check_temporary(int i, const Quaternion *p);
 
 	///
-	Matrix4x4* check_temporary(int i, const Matrix4x4* p);
+	Matrix4x4 *check_temporary(int i, const Matrix4x4 *p);
 
 	///
-	void check_marker(int i, const void* p, u32 type_marker, const char* type_name);
+	void check_marker(int i, const void *p, u32 type_marker, const char *type_name);
 };
 
 } // namespace crown

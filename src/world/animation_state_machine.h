@@ -27,30 +27,30 @@ struct AnimationStateMachine
 		f32 time_total;
 		f32 time;
 		u32 num_frames;
-		const u32* frames;
-		const SpriteAnimationResource* resource;
-		const State* state;
-		const State* state_next;
-		const StateMachineResource* state_machine;
-		f32* variables;
+		const u32 *frames;
+		const SpriteAnimationResource *resource;
+		const State *state;
+		const State *state_next;
+		const StateMachineResource *state_machine;
+		f32 *variables;
 	};
 
 	u32 _marker;
-	ResourceManager* _resource_manager;
-	UnitManager* _unit_manager;
+	ResourceManager *_resource_manager;
+	UnitManager *_unit_manager;
 	HashMap<UnitId, u32> _map;
 	Array<Animation> _animations;
 	EventStream _events;
 	UnitDestroyCallback _unit_destroy_callback;
 
 	///
-	AnimationStateMachine(Allocator& a, ResourceManager& rm, UnitManager& um);
+	AnimationStateMachine(Allocator &a, ResourceManager &rm, UnitManager &um);
 
 	///
 	~AnimationStateMachine();
 
 	/// Creates a new state machine instance for the @a unit.
-	StateMachineInstance create(UnitId unit, const AnimationStateMachineDesc& desc);
+	StateMachineInstance create(UnitId unit, const AnimationStateMachineDesc &desc);
 
 	/// Destroys the @a state_machine.
 	void destroy(StateMachineInstance state_machine);

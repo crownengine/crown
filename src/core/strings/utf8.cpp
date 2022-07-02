@@ -33,7 +33,7 @@ namespace utf8
 
 	// code-format on
 
-	u32 decode(u32* state, u32* codep, u32 byte)
+	u32 decode(u32 *state, u32 *codep, u32 byte)
 	{
 		u32 type = utf8d[byte];
 

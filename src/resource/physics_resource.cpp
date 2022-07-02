@@ -27,9 +27,9 @@ namespace crown
 {
 namespace physics_config_resource
 {
-	const PhysicsMaterial* material(const PhysicsConfigResource* pcr, StringId32 name)
+	const PhysicsMaterial *material(const PhysicsConfigResource *pcr, StringId32 name)
 	{
-		const PhysicsMaterial* begin = (PhysicsMaterial*)((const char*)pcr + pcr->materials_offset);
+		const PhysicsMaterial *begin = (PhysicsMaterial *)((const char *)pcr + pcr->materials_offset);
 		for (u32 i = 0; i < pcr->num_materials; ++i) {
 			if (begin[i].name == name)
 				return &begin[i];
@@ -39,9 +39,9 @@ namespace physics_config_resource
 		return NULL;
 	}
 
-	const PhysicsActor* actor(const PhysicsConfigResource* pcr, StringId32 name)
+	const PhysicsActor *actor(const PhysicsConfigResource *pcr, StringId32 name)
 	{
-		const PhysicsActor* begin = (PhysicsActor*)((const char*)pcr + pcr->actors_offset);
+		const PhysicsActor *begin = (PhysicsActor *)((const char *)pcr + pcr->actors_offset);
 		for (u32 i = 0; i < pcr->num_actors; ++i) {
 			if (begin[i].name == name)
 				return &begin[i];
@@ -51,9 +51,9 @@ namespace physics_config_resource
 		return NULL;
 	}
 
-	const PhysicsCollisionFilter* filter(const PhysicsConfigResource* pcr, StringId32 name)
+	const PhysicsCollisionFilter *filter(const PhysicsConfigResource *pcr, StringId32 name)
 	{
-		const PhysicsCollisionFilter* begin = (PhysicsCollisionFilter*)((const char*)pcr + pcr->filters_offset);
+		const PhysicsCollisionFilter *begin = (PhysicsCollisionFilter *)((const char *)pcr + pcr->filters_offset);
 		for (u32 i = 0; i < pcr->num_filters; ++i) {
 			if (begin[i].name == name)
 				return &begin[i];
@@ -70,7 +70,7 @@ namespace physics_resource_internal
 {
 	struct ColliderInfo
 	{
-		const char* name;
+		const char *name;
 		ColliderType::Enum type;
 	};
 
@@ -87,7 +87,7 @@ namespace physics_resource_internal
 
 	struct JointInfo
 	{
-		const char* name;
+		const char *name;
 		JointType::Enum type;
 	};
 
@@ -99,7 +99,7 @@ namespace physics_resource_internal
 	};
 	CE_STATIC_ASSERT(countof(s_joint) == JointType::COUNT);
 
-	static ColliderType::Enum shape_type_to_enum(const char* type)
+	static ColliderType::Enum shape_type_to_enum(const char *type)
 	{
 		for (u32 i = 0; i < countof(s_collider); ++i) {
 			if (strcmp(type, s_collider[i].name) == 0)
@@ -109,7 +109,7 @@ namespace physics_resource_internal
 		return ColliderType::COUNT;
 	}
 
-	static JointType::Enum joint_type_to_enum(const char* type)
+	static JointType::Enum joint_type_to_enum(const char *type)
 	{
 		for (u32 i = 0; i < countof(s_joint); ++i) {
 			if (strcmp(type, s_joint[i].name) == 0)
@@ -119,7 +119,7 @@ namespace physics_resource_internal
 		return JointType::COUNT;
 	}
 
-	void compile_sphere(ColliderDesc& sd, const Array<Vector3>& points)
+	void compile_sphere(ColliderDesc &sd, const Array<Vector3> &points)
 	{
 		AABB aabb;
 		aabb::from_points(aabb, array::size(points), array::begin(points));
@@ -133,7 +133,7 @@ namespace physics_resource_internal
 		sd.sphere.radius *= 0.5f;
 	}
 
-	void compile_capsule(ColliderDesc& sd, const Array<Vector3>& points)
+	void compile_capsule(ColliderDesc &sd, const Array<Vector3> &points)
 	{
 		AABB aabb;
 		aabb::from_points(aabb, array::size(points), array::begin(points));
@@ -144,7 +144,7 @@ namespace physics_resource_internal
 		sd.capsule.height = (aabb.max.y - aabb.min.y) / 2.0f;
 	}
 
-	void compile_box(ColliderDesc& sd, const Array<Vector3>& points)
+	void compile_box(ColliderDesc &sd, const Array<Vector3> &points)
 	{
 		AABB aabb;
 		aabb::from_points(aabb, array::size(points), array::begin(points));
@@ -154,7 +154,7 @@ namespace physics_resource_internal
 		sd.box.half_size = (aabb.max - aabb.min) * 0.5f;
 	}
 
-	const char* find_node_by_name(const JsonObject& nodes, const char* name)
+	const char *find_node_by_name(const JsonObject &nodes, const char *name)
 	{
 		auto cur = json_object::begin(nodes);
 		auto end = json_object::end(nodes);
@@ -177,7 +177,7 @@ namespace physics_resource_internal
 		return NULL;
 	}
 
-	s32 compile_collider(Buffer& output, const char* json, CompileOptions& opts)
+	s32 compile_collider(Buffer &output, const char *json, CompileOptions &opts)
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
@@ -194,7 +194,7 @@ namespace physics_resource_internal
 			);
 
 		ColliderDesc cd;
-		memset((void*)&cd, 0, sizeof(cd));
+		memset((void *)&cd, 0, sizeof(cd));
 		cd.type     = st;
 		cd.local_tm = MATRIX4X4_IDENTITY;
 		cd.size     = 0;
@@ -233,7 +233,7 @@ namespace physics_resource_internal
 
 			// Find node
 			sjson::parse(nodes, json_mesh["nodes"]);
-			const char* node_data = find_node_by_name(nodes, name.c_str());
+			const char *node_data = find_node_by_name(nodes, name.c_str());
 			DATA_COMPILER_ASSERT(node_data != NULL
 				, opts
 				, "Node '%s' does not exist"
@@ -333,7 +333,7 @@ namespace physics_resource_internal
 		return 0;
 	}
 
-	s32 compile_actor(Buffer& output, const char* json, CompileOptions& /*opts*/)
+	s32 compile_actor(Buffer &output, const char *json, CompileOptions & /*opts*/)
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
@@ -370,7 +370,7 @@ namespace physics_resource_internal
 		return 0;
 	}
 
-	s32 compile_joint(Buffer& output, const char* json, CompileOptions& opts)
+	s32 compile_joint(Buffer &output, const char *json, CompileOptions &opts)
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
@@ -428,7 +428,7 @@ namespace physics_resource_internal
 
 namespace physics_config_resource_internal
 {
-	void parse_materials(const char* json, Array<PhysicsMaterial>& objects)
+	void parse_materials(const char *json, Array<PhysicsMaterial> &objects)
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
@@ -440,7 +440,7 @@ namespace physics_config_resource_internal
 			JSON_OBJECT_SKIP_HOLE(obj, cur);
 
 			const StringView key = cur->first;
-			const char* value    = cur->second;
+			const char *value    = cur->second;
 
 			JsonObject material(ta);
 			sjson::parse_object(material, value);
@@ -455,7 +455,7 @@ namespace physics_config_resource_internal
 		}
 	}
 
-	void parse_actors(const char* json, Array<PhysicsActor>& objects)
+	void parse_actors(const char *json, Array<PhysicsActor> &objects)
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
@@ -467,7 +467,7 @@ namespace physics_config_resource_internal
 			JSON_OBJECT_SKIP_HOLE(obj, cur);
 
 			const StringView key = cur->first;
-			const char* value    = cur->second;
+			const char *value    = cur->second;
 
 			JsonObject actor(ta);
 			sjson::parse_object(actor, value);
@@ -498,12 +498,12 @@ namespace physics_config_resource_internal
 
 	struct CollisionFilterCompiler
 	{
-		CompileOptions& _opts;
+		CompileOptions &_opts;
 		HashMap<StringId32, u32> _filter_map;
 		Array<PhysicsCollisionFilter> _filters;
 		u32 _filter;
 
-		explicit CollisionFilterCompiler(CompileOptions& opts)
+		explicit CollisionFilterCompiler(CompileOptions &opts)
 			: _opts(opts)
 			, _filter_map(default_allocator())
 			, _filters(default_allocator())
@@ -511,7 +511,7 @@ namespace physics_config_resource_internal
 		{
 		}
 
-		void parse(const char* json)
+		void parse(const char *json)
 		{
 			TempAllocator4096 ta;
 			JsonObject obj(ta);
@@ -534,7 +534,7 @@ namespace physics_config_resource_internal
 				JSON_OBJECT_SKIP_HOLE(obj, cur);
 
 				const StringView key = cur->first;
-				const char* value    = cur->second;
+				const char *value    = cur->second;
 				const StringId32 id  = StringId32(key.data(), key.length());
 
 				TempAllocator4096 ta;
@@ -583,7 +583,7 @@ namespace physics_config_resource_internal
 		}
 	};
 
-	s32 compile(CompileOptions& opts)
+	s32 compile(CompileOptions &opts)
 	{
 		Buffer buf = opts.read();
 		TempAllocator4096 ta;

@@ -16,7 +16,7 @@ namespace crown
 namespace profiler_globals
 {
 	char _mem[sizeof(Buffer)];
-	Buffer* _buffer = NULL;
+	Buffer *_buffer = NULL;
 
 	void init()
 	{
@@ -29,12 +29,12 @@ namespace profiler_globals
 		_buffer = NULL;
 	}
 
-	const char* buffer_begin()
+	const char *buffer_begin()
 	{
 		return array::begin(*_buffer);
 	}
 
-	const char* buffer_end()
+	const char *buffer_end()
 	{
 		return array::end(*_buffer);
 	}
@@ -56,22 +56,22 @@ namespace profiler
 	}
 
 	template<typename T>
-	static void push(ProfilerEventType::Enum type, const T& ev)
+	static void push(ProfilerEventType::Enum type, const T &ev)
 	{
 		if (_thread_buffer_size + 2*sizeof(u32) + sizeof(ev) >= THREAD_BUFFER_SIZE)
 			flush_local_buffer();
 
-		char* p = _thread_buffer + _thread_buffer_size;
-		*(u32*)p = type;
+		char *p = _thread_buffer + _thread_buffer_size;
+		*(u32 *)p = type;
 		p += sizeof(u32);
-		*(u32*)p = sizeof(ev);
+		*(u32 *)p = sizeof(ev);
 		p += sizeof(u32);
-		*(T*)p = ev;
+		*(T *)p = ev;
 
 		_thread_buffer_size += 2*sizeof(u32) + sizeof(ev);
 	}
 
-	void enter_profile_scope(const char* name)
+	void enter_profile_scope(const char *name)
 	{
 		EnterProfileScope ev;
 		ev.name = name;
@@ -88,7 +88,7 @@ namespace profiler
 		push(ProfilerEventType::LEAVE_PROFILE_SCOPE, ev);
 	}
 
-	void record_float(const char* name, f32 value)
+	void record_float(const char *name, f32 value)
 	{
 		RecordFloat ev;
 		ev.name = name;
@@ -97,7 +97,7 @@ namespace profiler
 		push(ProfilerEventType::RECORD_FLOAT, ev);
 	}
 
-	void record_vector3(const char* name, const Vector3& value)
+	void record_vector3(const char *name, const Vector3 &value)
 	{
 		RecordVector3 ev;
 		ev.name = name;
@@ -106,7 +106,7 @@ namespace profiler
 		push(ProfilerEventType::RECORD_VECTOR3, ev);
 	}
 
-	void allocate_memory(const char* name, u32 size)
+	void allocate_memory(const char *name, u32 size)
 	{
 		AllocateMemory ev;
 		ev.name = name;
@@ -115,7 +115,7 @@ namespace profiler
 		push(ProfilerEventType::ALLOCATE_MEMORY, ev);
 	}
 
-	void deallocate_memory(const char* name, u32 size)
+	void deallocate_memory(const char *name, u32 size)
 	{
 		DeallocateMemory ev;
 		ev.name = name;
@@ -132,7 +132,7 @@ namespace profiler_globals
 	{
 		profiler::flush_local_buffer();
 		u32 end = ProfilerEventType::COUNT;
-		array::push(*_buffer, (const char*)&end, (u32)sizeof(end));
+		array::push(*_buffer, (const char *)&end, (u32)sizeof(end));
 	}
 
 	void clear()

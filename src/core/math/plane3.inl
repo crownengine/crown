@@ -11,7 +11,7 @@ namespace crown
 {
 namespace plane3
 {
-	inline Plane3 from_point_and_normal(const Vector3& point, const Vector3& normal)
+	inline Plane3 from_point_and_normal(const Vector3 &point, const Vector3 &normal)
 	{
 		Plane3 p;
 		p.n = normal;
@@ -19,7 +19,7 @@ namespace plane3
 		return p;
 	}
 
-	inline Plane3& normalize(Plane3& p)
+	inline Plane3 &normalize(Plane3 &p)
 	{
 		const f32 len = length(p.n);
 
@@ -34,7 +34,7 @@ namespace plane3
 		return p;
 	}
 
-	inline f32 distance_to_point(const Plane3& p, const Vector3& point)
+	inline f32 distance_to_point(const Plane3 &p, const Vector3 &point)
 	{
 		return dot(p.n, point) - p.d;
 	}

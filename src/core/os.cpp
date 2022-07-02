@@ -48,16 +48,16 @@ namespace os
 #endif
 	}
 
-	void* library_open(const char* path)
+	void *library_open(const char *path)
 	{
 #if CROWN_PLATFORM_POSIX
 		return ::dlopen(path, RTLD_LAZY);
 #elif CROWN_PLATFORM_WINDOWS
-		return (void*)LoadLibraryA(path);
+		return (void *)LoadLibraryA(path);
 #endif
 	}
 
-	void library_close(void* library)
+	void library_close(void *library)
 	{
 #if CROWN_PLATFORM_POSIX
 		dlclose(library);
@@ -66,16 +66,16 @@ namespace os
 #endif
 	}
 
-	void* library_symbol(void* library, const char* name)
+	void *library_symbol(void *library, const char *name)
 	{
 #if CROWN_PLATFORM_POSIX
 		return ::dlsym(library, name);
 #elif CROWN_PLATFORM_WINDOWS
-		return (void*)GetProcAddress((HMODULE)library, name);
+		return (void *)GetProcAddress((HMODULE)library, name);
 #endif
 	}
 
-	void log(const char* msg)
+	void log(const char *msg)
 	{
 #if CROWN_PLATFORM_ANDROID
 		__android_log_write(ANDROID_LOG_DEBUG, "crown", msg);
@@ -89,7 +89,7 @@ namespace os
 	}
 
 #if CROWN_PLATFORM_POSIX
-	void stat(Stat& info, int fd)
+	void stat(Stat &info, int fd)
 	{
 		info.file_type = Stat::NO_ENTRY;
 		info.size = 0;
@@ -111,7 +111,7 @@ namespace os
 	}
 #endif
 
-	void stat(Stat& info, const char* path)
+	void stat(Stat &info, const char *path)
 	{
 		info.file_type = Stat::NO_ENTRY;
 		info.size  = 0;
@@ -155,7 +155,7 @@ namespace os
 #endif
 	}
 
-	DeleteResult delete_file(const char* path)
+	DeleteResult delete_file(const char *path)
 	{
 		DeleteResult dr;
 #if CROWN_PLATFORM_POSIX
@@ -178,7 +178,7 @@ namespace os
 		return dr;
 	}
 
-	CreateResult create_directory(const char* path)
+	CreateResult create_directory(const char *path)
 	{
 		CreateResult cr;
 #if CROWN_PLATFORM_POSIX
@@ -199,7 +199,7 @@ namespace os
 		return cr;
 	}
 
-	DeleteResult delete_directory(const char* path)
+	DeleteResult delete_directory(const char *path)
 	{
 		DeleteResult dr;
 #if CROWN_PLATFORM_POSIX
@@ -222,7 +222,7 @@ namespace os
 		return dr;
 	}
 
-	const char* getcwd(char* buf, u32 size)
+	const char *getcwd(char *buf, u32 size)
 	{
 #if CROWN_PLATFORM_POSIX
 		return ::getcwd(buf, size);
@@ -232,7 +232,7 @@ namespace os
 #endif
 	}
 
-	const char* getenv(const char* name)
+	const char *getenv(const char *name)
 	{
 #if CROWN_PLATFORM_POSIX
 		return ::getenv(name);
@@ -242,7 +242,7 @@ namespace os
 #endif
 	}
 
-	void list_files(const char* path, Vector<DynamicString>& files)
+	void list_files(const char *path, Vector<DynamicString> &files)
 	{
 #if CROWN_PLATFORM_POSIX
 		struct dirent *entry;
@@ -250,7 +250,7 @@ namespace os
 		DIR *dir = opendir(path);
 		if (dir != NULL) {
 			while ((entry = readdir(dir))) {
-				const char* dname = entry->d_name;
+				const char *dname = entry->d_name;
 
 				if (!strcmp(dname, ".") || !strcmp(dname, ".."))
 					continue;
@@ -273,7 +273,7 @@ namespace os
 		HANDLE file = FindFirstFile(cur_path.c_str(), &ffd);
 		if (file != INVALID_HANDLE_VALUE) {
 			do {
-				const char* dname = ffd.cFileName;
+				const char *dname = ffd.cFileName;
 
 				if (!strcmp(dname, ".") || !strcmp(dname, ".."))
 					continue;
@@ -290,7 +290,7 @@ namespace os
 	}
 
 	///
-	s32 access(const char* path, u32 flags)
+	s32 access(const char *path, u32 flags)
 	{
 #if CROWN_PLATFORM_POSIX
 		return ::access(path, flags);

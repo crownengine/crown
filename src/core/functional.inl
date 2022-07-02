@@ -11,37 +11,37 @@
 namespace crown
 {
 template<typename T>
-inline bool equal_to<T>::operator()(const T& a, const T& b) const
+inline bool equal_to<T>::operator()(const T &a, const T &b) const
 {
 	return a == b;
 }
 
 template<typename T>
-inline bool not_equal_to<T>::operator()(const T& a, const T& b) const
+inline bool not_equal_to<T>::operator()(const T &a, const T &b) const
 {
 	return a != b;
 }
 
 template<typename T>
-inline bool greater<T>::operator()(const T& a, const T& b) const
+inline bool greater<T>::operator()(const T &a, const T &b) const
 {
 	return a > b;
 }
 
 template<typename T>
-inline bool less<T>::operator()(const T& a, const T& b) const
+inline bool less<T>::operator()(const T &a, const T &b) const
 {
 	return a < b;
 }
 
 template<typename T>
-inline bool greater_equal<T>::operator()(const T& a, const T& b) const
+inline bool greater_equal<T>::operator()(const T &a, const T &b) const
 {
 	return a >= b;
 }
 
 template<typename T>
-inline bool less_equal<T>::operator()(const T& a, const T& b) const
+inline bool less_equal<T>::operator()(const T &a, const T &b) const
 {
 	return a <= b;
 }

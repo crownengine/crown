@@ -22,10 +22,10 @@ namespace crown
 {
 namespace sprite_resource
 {
-	const f32* frame_data(const SpriteResource* sr, u32 i)
+	const f32 *frame_data(const SpriteResource *sr, u32 i)
 	{
 		CE_ENSURE(i < sr->num_frames);
-		return ((f32*)&sr[1]) + 20*i;
+		return ((f32 *)&sr[1]) + 20*i;
 	}
 
 } // namespace sprite_resource
@@ -40,7 +40,7 @@ namespace sprite_resource_internal
 		Vector2 pivot;  // [x, y]
 	};
 
-	void parse_frame(SpriteFrame& sf, const char* json)
+	void parse_frame(SpriteFrame &sf, const char *json)
 	{
 		TempAllocator512 ta;
 		JsonObject obj(ta);
@@ -51,7 +51,7 @@ namespace sprite_resource_internal
 		sf.pivot  = sjson::parse_vector2(obj["pivot"]);
 	}
 
-	s32 compile(CompileOptions& opts)
+	s32 compile(CompileOptions &opts)
 	{
 		Buffer buf = opts.read();
 
@@ -158,9 +158,9 @@ namespace sprite_resource_internal
 
 namespace sprite_animation_resource
 {
-	const u32* frames(const SpriteAnimationResource* sar)
+	const u32 *frames(const SpriteAnimationResource *sar)
 	{
-		return (u32*)&sar[1];
+		return (u32 *)&sar[1];
 	}
 
 } // namespace sprite_animation_resource
@@ -168,7 +168,7 @@ namespace sprite_animation_resource
 #if CROWN_CAN_COMPILE
 namespace sprite_animation_resource_internal
 {
-	s32 compile(CompileOptions& opts)
+	s32 compile(CompileOptions &opts)
 	{
 		Buffer buf = opts.read();
 

@@ -19,9 +19,9 @@
 
 namespace crown
 {
-static void unit_destroyed_callback_bridge(UnitId unit, void* user_ptr)
+static void unit_destroyed_callback_bridge(UnitId unit, void *user_ptr)
 {
-	((AnimationStateMachine*)user_ptr)->unit_destroyed_callback(unit);
+	((AnimationStateMachine *)user_ptr)->unit_destroyed_callback(unit);
 }
 
 static StateMachineInstance make_instance(u32 i)
@@ -29,7 +29,7 @@ static StateMachineInstance make_instance(u32 i)
 	StateMachineInstance inst = { i }; return inst;
 }
 
-AnimationStateMachine::AnimationStateMachine(Allocator& a, ResourceManager& rm, UnitManager& um)
+AnimationStateMachine::AnimationStateMachine(Allocator &a, ResourceManager &rm, UnitManager &um)
 	: _marker(ANIMATION_STATE_MACHINE_MARKER)
 	, _resource_manager(&rm)
 	, _unit_manager(&um)
@@ -50,11 +50,11 @@ AnimationStateMachine::~AnimationStateMachine()
 	_marker = 0;
 }
 
-StateMachineInstance AnimationStateMachine::create(UnitId unit, const AnimationStateMachineDesc& desc)
+StateMachineInstance AnimationStateMachine::create(UnitId unit, const AnimationStateMachineDesc &desc)
 {
 	CE_ASSERT(!hash_map::has(_map, unit), "Unit already has a state machine component");
 
-	const StateMachineResource* smr = (StateMachineResource*)_resource_manager->get(RESOURCE_TYPE_STATE_MACHINE, desc.state_machine_resource);
+	const StateMachineResource *smr = (StateMachineResource *)_resource_manager->get(RESOURCE_TYPE_STATE_MACHINE, desc.state_machine_resource);
 
 	Animation anim;
 	anim.unit          = unit;
@@ -66,7 +66,7 @@ StateMachineInstance AnimationStateMachine::create(UnitId unit, const AnimationS
 	anim.state         = state_machine::initial_state(smr);
 	anim.state_next    = NULL;
 	anim.state_machine = smr;
-	anim.variables     = (f32*)default_allocator().allocate(sizeof(*anim.variables)*smr->num_variables);
+	anim.variables     = (f32 *)default_allocator().allocate(sizeof(*anim.variables)*smr->num_variables);
 
 	memcpy(anim.variables, state_machine::variables(smr), sizeof(*anim.variables)*smr->num_variables);
 
@@ -121,8 +121,8 @@ void AnimationStateMachine::set_variable(StateMachineInstance state_machine, u32
 
 void AnimationStateMachine::trigger(StateMachineInstance state_machine, StringId32 event)
 {
-	const Transition* transition;
-	const State* s = state_machine::trigger(_animations[state_machine.i].state_machine
+	const Transition *transition;
+	const State *s = state_machine::trigger(_animations[state_machine.i].state_machine
 		, _animations[state_machine.i].state
 		, event
 		, &transition
@@ -145,19 +145,19 @@ void AnimationStateMachine::update(float dt)
 	expression_language::Stack stack(stack_data, countof(stack_data));
 
 	for (u32 ii = 0; ii < array::size(_animations); ++ii) {
-		Animation& anim_i = _animations[ii];
+		Animation &anim_i = _animations[ii];
 
-		const f32* variables = anim_i.variables;
-		const u32* byte_code = state_machine::byte_code(anim_i.state_machine);
+		const f32 *variables = anim_i.variables;
+		const u32 *byte_code = state_machine::byte_code(anim_i.state_machine);
 
 		// Evaluate animation weights
 		f32 max_v = 0.0f;
 		u32 max_i = UINT32_MAX;
 		StringId64 name;
 
-		const AnimationArray* aa = state_machine::state_animations(anim_i.state);
+		const AnimationArray *aa = state_machine::state_animations(anim_i.state);
 		for (u32 jj = 0; jj < aa->num; ++jj) {
-			const crown::Animation* animation = state_machine::animation(aa, jj);
+			const crown::Animation *animation = state_machine::animation(aa, jj);
 
 			stack.size = 0;
 			expression_language::run(&byte_code[animation->bytecode_entry], variables, stack);
@@ -175,7 +175,7 @@ void AnimationStateMachine::update(float dt)
 		const f32 speed = stack.size > 0 ? stack_data[stack.size - 1] : 1.0f;
 
 		// Advance animation
-		const SpriteAnimationResource* sar = (SpriteAnimationResource*)_resource_manager->get(RESOURCE_TYPE_SPRITE_ANIMATION, name);
+		const SpriteAnimationResource *sar = (SpriteAnimationResource *)_resource_manager->get(RESOURCE_TYPE_SPRITE_ANIMATION, name);
 		if (anim_i.resource != sar) {
 			anim_i.time       = 0.0f;
 			anim_i.time_total = sar->total_time;
@@ -203,8 +203,8 @@ void AnimationStateMachine::update(float dt)
 				if (!!anim_i.state->loop) {
 					anim_i.time = anim_i.time - anim_i.time_total;
 				} else {
-					const Transition* dummy;
-					const State* s = state_machine::trigger(anim_i.state_machine
+					const Transition *dummy;
+					const State *s = state_machine::trigger(anim_i.state_machine
 						, anim_i.state
 						, STRING_ID_32("animation_end", 0xfe14d50b)
 						, &dummy

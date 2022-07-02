@@ -11,19 +11,19 @@ namespace crown
 {
 namespace aabb
 {
-	void reset(AABB& b)
+	void reset(AABB &b)
 	{
 		b.min = VECTOR3_ZERO;
 		b.max = VECTOR3_ZERO;
 	}
 
-	void from_points(AABB& b, u32 num, u32 stride, const void* points)
+	void from_points(AABB &b, u32 num, u32 stride, const void *points)
 	{
 		CE_ENSURE(num > 0);
 		CE_ENSURE(points != NULL);
 
-		const char* pts = (const char*)points;
-		const f32* point = (f32*)pts;
+		const char *pts = (const char *)points;
+		const f32 *point = (f32 *)pts;
 
 		b.min.x = b.max.x = point[0];
 		b.min.y = b.max.y = point[1];
@@ -31,7 +31,7 @@ namespace aabb
 		pts += stride;
 
 		for (u32 i = 1; i < num; ++i, pts += stride) {
-			point = (f32*)pts;
+			point = (f32 *)pts;
 
 			b.min.x = min(b.min.x, point[0]);
 			b.min.y = min(b.min.y, point[1]);
@@ -42,7 +42,7 @@ namespace aabb
 		}
 	}
 
-	void from_boxes(AABB& b, u32 num, const AABB* boxes)
+	void from_boxes(AABB &b, u32 num, const AABB *boxes)
 	{
 		CE_ENSURE(num > 0);
 		CE_ENSURE(boxes != NULL);
@@ -64,7 +64,7 @@ namespace aabb
 		}
 	}
 
-	Vector3 vertex(const AABB& b, u32 index)
+	Vector3 vertex(const AABB &b, u32 index)
 	{
 		CE_ASSERT(index < 8, "Index out of bounds");
 

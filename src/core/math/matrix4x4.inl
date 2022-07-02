@@ -28,19 +28,19 @@ Matrix4x4 from_elements(f32 xx, f32 xy, f32 xz, f32 xw
 Matrix4x4 from_array(const f32 a[16]);
 
 /// Returns a new matrix from axes @a x, @a y and @a z and translation @a t.
-Matrix4x4 from_axes(const Vector3& x, const Vector3& y, const Vector3& z, const Vector3& t);
+Matrix4x4 from_axes(const Vector3 &x, const Vector3 &y, const Vector3 &z, const Vector3 &t);
 
 /// Returns a new matrix from rotation @a r and translation @a t.
-Matrix4x4 from_quaternion_translation(const Quaternion& r, const Vector3& t);
+Matrix4x4 from_quaternion_translation(const Quaternion &r, const Vector3 &t);
 
 /// Returns a new matrix from translation @a t.
-Matrix4x4 from_translation(const Vector3& t);
+Matrix4x4 from_translation(const Vector3 &t);
 
 /// Returns a new matrix from rotation matrix @a r.
-Matrix4x4 from_matrix3x3(const Matrix3x3& r);
+Matrix4x4 from_matrix3x3(const Matrix3x3 &r);
 
 /// Adds the matrix @a a to @a b and returns the result.
-inline Matrix4x4& operator+=(Matrix4x4& a, const Matrix4x4& b)
+inline Matrix4x4 &operator+=(Matrix4x4 &a, const Matrix4x4 &b)
 {
 	a.x += b.x;
 	a.y += b.y;
@@ -50,7 +50,7 @@ inline Matrix4x4& operator+=(Matrix4x4& a, const Matrix4x4& b)
 }
 
 /// Subtracts the matrix @a b from @a a and returns the result.
-inline Matrix4x4& operator-=(Matrix4x4& a, const Matrix4x4& b)
+inline Matrix4x4 &operator-=(Matrix4x4 &a, const Matrix4x4 &b)
 {
 	a.x -= b.x;
 	a.y -= b.y;
@@ -60,7 +60,7 @@ inline Matrix4x4& operator-=(Matrix4x4& a, const Matrix4x4& b)
 }
 
 /// Multiplies the matrix @a a by the scalar @a k and returns the result.
-inline Matrix4x4& operator*=(Matrix4x4& a, f32 k)
+inline Matrix4x4 &operator*=(Matrix4x4 &a, f32 k)
 {
 	a.x *= k;
 	a.y *= k;
@@ -70,7 +70,7 @@ inline Matrix4x4& operator*=(Matrix4x4& a, f32 k)
 }
 
 /// Multiplies the matrix @a a by @a b and returns the result. (i.e. transforms first by @a a then by @a b)
-inline Matrix4x4& operator*=(Matrix4x4& a, const Matrix4x4& b)
+inline Matrix4x4 &operator*=(Matrix4x4 &a, const Matrix4x4 &b)
 {
 	Matrix4x4 tmp;
 
@@ -99,14 +99,14 @@ inline Matrix4x4& operator*=(Matrix4x4& a, const Matrix4x4& b)
 }
 
 /// Adds the matrix @a a to @a b and returns the result.
-inline Matrix4x4 operator+(Matrix4x4 a, const Matrix4x4& b)
+inline Matrix4x4 operator+(Matrix4x4 a, const Matrix4x4 &b)
 {
 	a += b;
 	return a;
 }
 
 /// Subtracts the matrix @a b from @a a and returns the result.
-inline Matrix4x4 operator-(Matrix4x4 a, const Matrix4x4& b)
+inline Matrix4x4 operator-(Matrix4x4 a, const Matrix4x4 &b)
 {
 	a -= b;
 	return a;
@@ -127,7 +127,7 @@ inline Matrix4x4 operator*(f32 k, Matrix4x4 a)
 }
 
 /// Multiplies the matrix @a a by the vector @a v and returns the result.
-inline Vector3 operator*(const Vector3& v, const Matrix4x4& a)
+inline Vector3 operator*(const Vector3 &v, const Matrix4x4 &a)
 {
 	Vector3 r;
 	r.x = v.x*a.x.x + v.y*a.y.x + v.z*a.z.x + a.t.x;
@@ -137,7 +137,7 @@ inline Vector3 operator*(const Vector3& v, const Matrix4x4& a)
 }
 
 /// Multiplies the matrix @a by the vector @a v and returns the result.
-inline Vector4 operator*(const Vector4& v, const Matrix4x4& a)
+inline Vector4 operator*(const Vector4 &v, const Matrix4x4 &a)
 {
 	Vector4 r;
 	r.x = v.x*a.x.x + v.y*a.y.x + v.z*a.z.x + v.w*a.t.x;
@@ -148,14 +148,14 @@ inline Vector4 operator*(const Vector4& v, const Matrix4x4& a)
 }
 
 /// Multiplies the matrix @a a by @a b and returns the result. (i.e. transforms first by @a a then by @a b)
-inline Matrix4x4 operator*(Matrix4x4 a, const Matrix4x4& b)
+inline Matrix4x4 operator*(Matrix4x4 a, const Matrix4x4 &b)
 {
 	a *= b;
 	return a;
 }
 
 /// Returns true whether the matrices @a a and @a b are equal.
-inline bool operator==(const Matrix4x4& a, const Matrix4x4& b)
+inline bool operator==(const Matrix4x4 &a, const Matrix4x4 &b)
 {
 	return a.x == b.x
 		&& a.y == b.y
@@ -165,7 +165,7 @@ inline bool operator==(const Matrix4x4& a, const Matrix4x4& b)
 }
 
 /// Transposes the matrix @a m and returns the result.
-inline Matrix4x4& transpose(Matrix4x4& m)
+inline Matrix4x4 &transpose(Matrix4x4 &m)
 {
 	exchange(m.x.y, m.y.x);
 	exchange(m.x.z, m.z.x);
@@ -184,7 +184,7 @@ inline Matrix4x4 get_transposed(Matrix4x4 m)
 }
 
 /// Inverts the matrix @a m and returns the result.
-Matrix4x4& invert(Matrix4x4& m);
+Matrix4x4 &invert(Matrix4x4 &m);
 
 /// Returns the inverse of the matrix @a m.
 inline Matrix4x4 get_inverted(Matrix4x4 m)
@@ -194,7 +194,7 @@ inline Matrix4x4 get_inverted(Matrix4x4 m)
 }
 
 /// Sets the matrix @a m to identity.
-inline void set_identity(Matrix4x4& m)
+inline void set_identity(Matrix4x4 &m)
 {
 	m.x.x = 1.0f;
 	m.x.y = 0.0f;
@@ -218,7 +218,7 @@ inline void set_identity(Matrix4x4& m)
 }
 
 /// Returns the x axis of the matrix @a m.
-inline Vector3 x(const Matrix4x4& m)
+inline Vector3 x(const Matrix4x4 &m)
 {
 	Vector3 v;
 	v.x = m.x.x;
@@ -228,7 +228,7 @@ inline Vector3 x(const Matrix4x4& m)
 }
 
 /// Returns the y axis of the matrix @a m.
-inline Vector3 y(const Matrix4x4& m)
+inline Vector3 y(const Matrix4x4 &m)
 {
 	Vector3 v;
 	v.x = m.y.x;
@@ -238,7 +238,7 @@ inline Vector3 y(const Matrix4x4& m)
 }
 
 /// Returns the z axis of the matrix @a m.
-inline Vector3 z(const Matrix4x4& m)
+inline Vector3 z(const Matrix4x4 &m)
 {
 	Vector3 v;
 	v.x = m.z.x;
@@ -248,7 +248,7 @@ inline Vector3 z(const Matrix4x4& m)
 }
 
 /// Sets the x axis of the matrix @a m.
-inline void set_x(Matrix4x4& m, const Vector3& x)
+inline void set_x(Matrix4x4 &m, const Vector3 &x)
 {
 	m.x.x = x.x;
 	m.x.y = x.y;
@@ -256,7 +256,7 @@ inline void set_x(Matrix4x4& m, const Vector3& x)
 }
 
 /// Sets the y axis of the matrix @a m.
-inline void set_y(Matrix4x4& m, const Vector3& y)
+inline void set_y(Matrix4x4 &m, const Vector3 &y)
 {
 	m.y.x = y.x;
 	m.y.y = y.y;
@@ -264,7 +264,7 @@ inline void set_y(Matrix4x4& m, const Vector3& y)
 }
 
 /// Sets the z axis of the matrix @a m.
-inline void set_z(Matrix4x4& m, const Vector3& z)
+inline void set_z(Matrix4x4 &m, const Vector3 &z)
 {
 	m.z.x = z.x;
 	m.z.y = z.y;
@@ -272,7 +272,7 @@ inline void set_z(Matrix4x4& m, const Vector3& z)
 }
 
 /// Returns the translation portion of the matrix @a m.
-inline Vector3 translation(const Matrix4x4& m)
+inline Vector3 translation(const Matrix4x4 &m)
 {
 	Vector3 v;
 	v.x = m.t.x;
@@ -282,7 +282,7 @@ inline Vector3 translation(const Matrix4x4& m)
 }
 
 /// Sets the translation portion of the matrix @a m.
-inline void set_translation(Matrix4x4& m, const Vector3& trans)
+inline void set_translation(Matrix4x4 &m, const Vector3 &trans)
 {
 	m.t.x = trans.x;
 	m.t.y = trans.y;
@@ -290,7 +290,7 @@ inline void set_translation(Matrix4x4& m, const Vector3& trans)
 }
 
 /// Returns the rotation portion of the matrix @a m as a Matrix3x3.
-inline Matrix3x3 to_matrix3x3(const Matrix4x4& m)
+inline Matrix3x3 to_matrix3x3(const Matrix4x4 &m)
 {
 	Matrix3x3 res;
 	res.x.x = m.x.x;
@@ -308,7 +308,7 @@ inline Matrix3x3 to_matrix3x3(const Matrix4x4& m)
 }
 
 /// Returns the rotation portion of the matrix @a m as a Quaternion.
-inline Quaternion rotation(const Matrix3x3& m)
+inline Quaternion rotation(const Matrix3x3 &m)
 {
 	const f32 lx = length(m.x);
 	const f32 ly = length(m.y);
@@ -327,13 +327,13 @@ inline Quaternion rotation(const Matrix3x3& m)
 }
 
 /// Returns the rotation portion of the matrix @a m as a Quaternion.
-inline Quaternion rotation(const Matrix4x4& m)
+inline Quaternion rotation(const Matrix4x4 &m)
 {
 	return rotation(to_matrix3x3(m));
 }
 
 /// Sets the rotation portion of the matrix @a m.
-inline void set_rotation(Matrix4x4& m, const Matrix3x3& rot)
+inline void set_rotation(Matrix4x4 &m, const Matrix3x3 &rot)
 {
 	m.x.x = rot.x.x;
 	m.x.y = rot.x.y;
@@ -349,13 +349,13 @@ inline void set_rotation(Matrix4x4& m, const Matrix3x3& rot)
 }
 
 /// Sets the rotation portion of the matrix @a m.
-inline void set_rotation(Matrix4x4& m, const Quaternion& rot)
+inline void set_rotation(Matrix4x4 &m, const Quaternion &rot)
 {
 	set_rotation(m, from_quaternion(rot));
 }
 
 /// Returns the scale of the matrix @a m.
-inline Vector3 scale(const Matrix4x4& m)
+inline Vector3 scale(const Matrix4x4 &m)
 {
 	const f32 sx = length(to_vector3(m.x));
 	const f32 sy = length(to_vector3(m.y));
@@ -368,7 +368,7 @@ inline Vector3 scale(const Matrix4x4& m)
 }
 
 /// Sets the scale of the matrix @a m.
-inline void set_scale(Matrix4x4& m, const Vector3& s)
+inline void set_scale(Matrix4x4 &m, const Vector3 &s)
 {
 	Matrix3x3 rot = to_matrix3x3(m);
 	set_scale(rot, s);
@@ -376,13 +376,13 @@ inline void set_scale(Matrix4x4& m, const Vector3& s)
 }
 
 /// Returns the pointer to the matrix's data
-inline f32* to_float_ptr(Matrix4x4& m)
+inline f32 *to_float_ptr(Matrix4x4 &m)
 {
 	return to_float_ptr(m.x);
 }
 
 /// Returns the pointer to the matrix's data
-inline const f32* to_float_ptr(const Matrix4x4& m)
+inline const f32 *to_float_ptr(const Matrix4x4 &m)
 {
 	return to_float_ptr(m.x);
 }
@@ -390,7 +390,7 @@ inline const f32* to_float_ptr(const Matrix4x4& m)
 /// Returns a string representing the matrix @m.
 /// @note This function is for debugging purposes only and doesn't
 /// output round-trip safe ASCII conversions. Do not use in production.
-const char* to_string(char* buf, u32 buf_len, const Matrix4x4& m);
+const char *to_string(char *buf, u32 buf_len, const Matrix4x4 &m);
 
 /// @}
 

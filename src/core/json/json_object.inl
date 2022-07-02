@@ -15,7 +15,7 @@ namespace crown
 template<>
 struct hash<StringView>
 {
-	u32 operator()(const StringView& val) const
+	u32 operator()(const StringView &val) const
 	{
 		return (u32)murmur32(val._data, val._length, 0);
 	}
@@ -27,51 +27,51 @@ struct hash<StringView>
 namespace json_object
 {
 	/// Returns the number of keys in the object @a jo.
-	inline u32 size(const JsonObject& jo)
+	inline u32 size(const JsonObject &jo)
 	{
 		return hash_map::size(jo._map);
 	}
 
 	/// Returns whether the object @a jo has the @a key.
-	inline bool has(const JsonObject& jo, const char* key)
+	inline bool has(const JsonObject &jo, const char *key)
 	{
 		return hash_map::has(jo._map, StringView(key));
 	}
 
-	inline bool is_hole(const JsonObject& jo, const HashMap<StringView, const char*>::Entry* entry)
+	inline bool is_hole(const JsonObject &jo, const HashMap<StringView, const char *>::Entry *entry)
 	{
 		return hash_map::is_hole(jo._map, entry);
 	}
 
 	/// Returns a pointer to the first item in the object @a jo.
-	inline const HashMap<StringView, const char*>::Entry* begin(const JsonObject& jo)
+	inline const HashMap<StringView, const char *>::Entry *begin(const JsonObject &jo)
 	{
 		return hash_map::begin(jo._map);
 	}
 
 	/// Returns a pointer to the item following the last item in the object @a jo.
-	inline const HashMap<StringView, const char*>::Entry* end(const JsonObject& jo)
+	inline const HashMap<StringView, const char *>::Entry *end(const JsonObject &jo)
 	{
 		return hash_map::end(jo._map);
 	}
 
 } // namespace json_object
 
-inline JsonObject::JsonObject(Allocator& a)
+inline JsonObject::JsonObject(Allocator &a)
 	: _map(a)
 {
 }
 
 /// Returns the value of the @a key or NULL.
-inline const char* JsonObject::operator[](const char* key) const
+inline const char *JsonObject::operator[](const char *key) const
 {
-	return hash_map::get(_map, StringView(key), (const char*)NULL);
+	return hash_map::get(_map, StringView(key), (const char *)NULL);
 }
 
 /// Returns the value of the @a key or NULL.
-inline const char* JsonObject::operator[](const StringView& key) const
+inline const char *JsonObject::operator[](const StringView &key) const
 {
-	return hash_map::get(_map, key, (const char*)NULL);
+	return hash_map::get(_map, key, (const char *)NULL);
 }
 
 } // namespace crown

@@ -23,10 +23,10 @@ struct Pair<T1, T2, 0, 0>
 	T2 second;
 
 	///
-	Pair(T1& f, T2& s);
+	Pair(T1 &f, T2 &s);
 
 	///
-	Pair(Allocator& /*a*/);
+	Pair(Allocator & /*a*/);
 };
 
 template<typename T1, typename T2>
@@ -38,10 +38,10 @@ struct Pair<T1, T2, 1, 0>
 	T2 second;
 
 	///
-	Pair(T1& f, T2& s);
+	Pair(T1 &f, T2 &s);
 
 	///
-	Pair(Allocator& a);
+	Pair(Allocator &a);
 };
 
 template<typename T1, typename T2>
@@ -53,10 +53,10 @@ struct Pair<T1, T2, 0, 1>
 	T2 second;
 
 	///
-	Pair(T1& f, T2& s);
+	Pair(T1 &f, T2 &s);
 
 	///
-	Pair(Allocator& a);
+	Pair(Allocator &a);
 };
 
 template<typename T1, typename T2>
@@ -68,10 +68,10 @@ struct Pair<T1, T2, 1, 1>
 	T2 second;
 
 	///
-	Pair(T1& f, T2& s);
+	Pair(T1 &f, T2 &s);
 
 	///
-	Pair(Allocator& a);
+	Pair(Allocator &a);
 };
 
 #define PAIR(first, second) Pair<first, second, IS_ALLOCATOR_AWARE(first), IS_ALLOCATOR_AWARE(second)>

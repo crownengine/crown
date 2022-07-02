@@ -73,17 +73,17 @@ struct WriteResult
 /// @ingroup Network
 struct TCPSocket
 {
-	struct Private* _priv;
+	struct Private *_priv;
 	CE_ALIGN_DECL(16, u8 _data[8]);
 
 	///
 	TCPSocket();
 
 	///
-	TCPSocket(const TCPSocket& other);
+	TCPSocket(const TCPSocket &other);
 
 	///
-	TCPSocket& operator=(const TCPSocket& other);
+	TCPSocket &operator=(const TCPSocket &other);
 
 	///
 	~TCPSocket();
@@ -92,7 +92,7 @@ struct TCPSocket
 	void close();
 
 	/// Connects to the @a ip address and @a port and returns the result.
-	ConnectResult connect(const IPAddress& ip, u16 port);
+	ConnectResult connect(const IPAddress &ip, u16 port);
 
 	/// Binds the socket to @a port and returns the result.
 	BindResult bind(u16 port);
@@ -101,26 +101,26 @@ struct TCPSocket
 	void listen(u32 max);
 
 	/// Accepts a new connection @a c.
-	AcceptResult accept(TCPSocket& c);
+	AcceptResult accept(TCPSocket &c);
 
 	/// Accepts a new connection @a c.
-	AcceptResult accept_nonblock(TCPSocket& c);
+	AcceptResult accept_nonblock(TCPSocket &c);
 
 	/// Reads @a size bytes and returns the result.
-	ReadResult read(void* data, u32 size);
+	ReadResult read(void *data, u32 size);
 
 	/// Reads @a size bytes and returns the result.
-	ReadResult read_nonblock(void* data, u32 size);
+	ReadResult read_nonblock(void *data, u32 size);
 
 	/// Writes @a size bytes and returns the result.
-	WriteResult write(const void* data, u32 size);
+	WriteResult write(const void *data, u32 size);
 
 	/// Writes @a size bytes and returns the result.
-	WriteResult write_nonblock(const void* data, u32 size);
+	WriteResult write_nonblock(const void *data, u32 size);
 };
 
 /// Returns whether the sockets @a aa and @a bb represent the same socket.
-bool operator==(const TCPSocket& aa, const TCPSocket& bb);
+bool operator==(const TCPSocket &aa, const TCPSocket &bb);
 
 struct SelectResult
 {
@@ -138,23 +138,23 @@ struct SelectResult
 /// @ingroup Network
 struct SocketSet
 {
-	struct SocketSetPrivate* _priv;
+	struct SocketSetPrivate *_priv;
 	CE_ALIGN_DECL(16, u8 _data[512 + 16]);
 
 	///
 	SocketSet();
 
 	///
-	SocketSet& operator=(const SocketSet& other);
+	SocketSet &operator=(const SocketSet &other);
 
 	///
-	void set(TCPSocket* socket);
+	void set(TCPSocket *socket);
 
 	///
-	void clr(TCPSocket* socket);
+	void clr(TCPSocket *socket);
 
 	///
-	bool isset(TCPSocket* socket);
+	bool isset(TCPSocket *socket);
 
 	/// Returns the number of sockets in the set.
 	u32 num();

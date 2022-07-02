@@ -12,7 +12,7 @@ namespace crown
 {
 namespace error
 {
-	void callstack(StringStream& ss)
+	void callstack(StringStream &ss)
 	{
 		ss << "Not supported";
 	}

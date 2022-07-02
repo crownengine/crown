@@ -165,7 +165,7 @@ struct Joypad
 		memset(&_connected, 0, sizeof(_connected));
 	}
 
-	void update(DeviceEventQueue& queue)
+	void update(DeviceEventQueue &queue)
 	{
 		for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i) {
 			XINPUT_STATE state;
@@ -182,7 +182,7 @@ struct Joypad
 			if (!connected || state.dwPacketNumber == _state[i].dwPacketNumber)
 				continue;
 
-			XINPUT_GAMEPAD& gamepad = _state[i].Gamepad;
+			XINPUT_GAMEPAD &gamepad = _state[i].Gamepad;
 
 			const WORD diff = state.Gamepad.wButtons ^ gamepad.wButtons;
 			const WORD curr = state.Gamepad.wButtons;
@@ -298,7 +298,7 @@ struct WindowsDevice
 	{
 	}
 
-	int run(DeviceOptions* opts)
+	int run(DeviceOptions *opts)
 	{
 		HINSTANCE instance = (HINSTANCE)GetModuleHandle(NULL);
 		WNDCLASSEX wnd;
@@ -362,8 +362,8 @@ struct WindowsDevice
 		_win_cursors[MouseCursor::WAIT]                = LoadCursorA(NULL, IDC_WAIT);
 
 		Thread main_thread;
-		main_thread.start([](void* user_data) {
-				crown::run(*((DeviceOptions*)user_data));
+		main_thread.start([](void *user_data) {
+				crown::run(*((DeviceOptions *)user_data));
 				s_exit = true;
 				return EXIT_SUCCESS;
 			}
@@ -682,7 +682,7 @@ struct WindowWin : public Window
 		ShowWindow(s_wdvc._hwnd, SW_RESTORE);
 	}
 
-	const char* title()
+	const char *title()
 	{
 		static char buf[512];
 		memset(buf, 0, sizeof(buf));
@@ -690,7 +690,7 @@ struct WindowWin : public Window
 		return buf;
 	}
 
-	void set_title(const char* title)
+	void set_title(const char *title)
 	{
 		SetWindowText(s_wdvc._hwnd, title);
 	}
@@ -737,20 +737,20 @@ struct WindowWin : public Window
 		}
 	}
 
-	void* handle()
+	void *handle()
 	{
-		return (void*)(uintptr_t)s_wdvc._hwnd;
+		return (void *)(uintptr_t)s_wdvc._hwnd;
 	}
 };
 
 namespace window
 {
-	Window* create(Allocator& a)
+	Window *create(Allocator &a)
 	{
 		return CE_NEW(a, WindowWin)();
 	}
 
-	void destroy(Allocator& a, Window& w)
+	void destroy(Allocator &a, Window &w)
 	{
 		CE_DELETE(a, &w);
 	}
@@ -759,7 +759,7 @@ namespace window
 
 struct DisplayWin : public Display
 {
-	void modes(Array<DisplayMode>& /*modes*/)
+	void modes(Array<DisplayMode> & /*modes*/)
 	{
 	}
 
@@ -770,19 +770,19 @@ struct DisplayWin : public Display
 
 namespace display
 {
-	Display* create(Allocator& a)
+	Display *create(Allocator &a)
 	{
 		return CE_NEW(a, DisplayWin)();
 	}
 
-	void destroy(Allocator& a, Display& d)
+	void destroy(Allocator &a, Display &d)
 	{
 		CE_DELETE(a, &d);
 	}
 
 } // namespace display
 
-bool next_event(OsEvent& ev)
+bool next_event(OsEvent &ev)
 {
 	return s_wdvc._queue.pop_event(ev);
 }
@@ -804,7 +804,7 @@ struct InitGlobals
 	}
 };
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
 	using namespace crown;
 
@@ -821,7 +821,7 @@ int main(int argc, char** argv)
 	CE_UNUSED(err);
 
 #if CROWN_BUILD_UNIT_TESTS
-	CommandLine cl(argc, (const char**)argv);
+	CommandLine cl(argc, (const char **)argv);
 	if (cl.has_option("run-unit-tests")) {
 		return main_unit_tests();
 	}
@@ -830,7 +830,7 @@ int main(int argc, char** argv)
 	InitGlobals m;
 	CE_UNUSED(m);
 
-	DeviceOptions opts(default_allocator(), argc, (const char**)argv);
+	DeviceOptions opts(default_allocator(), argc, (const char **)argv);
 	bool quit = false;
 	int ec = opts.parse(&quit);
 

@@ -18,7 +18,7 @@ namespace crown
 {
 namespace sjson
 {
-	static const char* next(const char* json, const char c = 0)
+	static const char *next(const char *json, const char c = 0)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -29,7 +29,7 @@ namespace sjson
 		return ++json;
 	}
 
-	static const char* skip_string(const char* json)
+	static const char *skip_string(const char *json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -45,7 +45,7 @@ namespace sjson
 		return json;
 	}
 
-	static const char* skip_value(const char* json)
+	static const char *skip_value(const char *json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -70,7 +70,7 @@ namespace sjson
 		return json;
 	}
 
-	static const char* skip_comments(const char* json)
+	static const char *skip_comments(const char *json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -94,7 +94,7 @@ namespace sjson
 		return json;
 	}
 
-	static const char* skip_spaces(const char* json)
+	static const char *skip_spaces(const char *json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -110,7 +110,7 @@ namespace sjson
 		return json;
 	}
 
-	JsonValueType::Enum type(const char* json)
+	JsonValueType::Enum type(const char *json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -123,7 +123,7 @@ namespace sjson
 		}
 	}
 
-	static const char* parse_key(const char* json, DynamicString& key)
+	static const char *parse_key(const char *json, DynamicString &key)
 	{
 		CE_ENSURE(NULL != json);
 		if (*json == '"') {
@@ -142,7 +142,7 @@ namespace sjson
 		return NULL;
 	}
 
-	static f64 parse_number(const char* json)
+	static f64 parse_number(const char *json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -187,17 +187,17 @@ namespace sjson
 		return val;
 	}
 
-	s32 parse_int(const char* json)
+	s32 parse_int(const char *json)
 	{
 		return (s32)parse_number(json);
 	}
 
-	f32 parse_float(const char* json)
+	f32 parse_float(const char *json)
 	{
 		return (f32)parse_number(json);
 	}
 
-	bool parse_bool(const char* json)
+	bool parse_bool(const char *json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -223,7 +223,7 @@ namespace sjson
 		}
 	}
 
-	void parse_string(DynamicString& str, const char* json)
+	void parse_string(DynamicString &str, const char *json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -255,7 +255,7 @@ namespace sjson
 		CE_FATAL("Bad string");
 	}
 
-	void parse_array(JsonArray& arr, const char* json)
+	void parse_array(JsonArray &arr, const char *json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -281,12 +281,12 @@ namespace sjson
 		CE_FATAL("Bad array");
 	}
 
-	static void parse_root_object(JsonObject& obj, const char* json)
+	static void parse_root_object(JsonObject &obj, const char *json)
 	{
 		CE_ENSURE(NULL != json);
 
 		while (*json) {
-			const char* key_begin = *json == '"' ? (json + 1) : json;
+			const char *key_begin = *json == '"' ? (json + 1) : json;
 
 			TempAllocator256 ta;
 			DynamicString key(ta);
@@ -305,7 +305,7 @@ namespace sjson
 		}
 	}
 
-	void parse_object(JsonObject& obj, const char* json)
+	void parse_object(JsonObject &obj, const char *json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -316,7 +316,7 @@ namespace sjson
 				return;
 
 			while (*json) {
-				const char* key_begin = *json == '"' ? (json + 1) : json;
+				const char *key_begin = *json == '"' ? (json + 1) : json;
 
 				TempAllocator256 ta;
 				DynamicString key(ta);
@@ -343,7 +343,7 @@ namespace sjson
 		CE_FATAL("Bad object");
 	}
 
-	void parse(JsonObject& obj, const char* json)
+	void parse(JsonObject &obj, const char *json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -355,7 +355,7 @@ namespace sjson
 			parse_root_object(obj, json);
 	}
 
-	void parse(JsonObject& obj, Buffer& json)
+	void parse(JsonObject &obj, Buffer &json)
 	{
 		array::push_back(json, '\0');
 		array::pop_back(json);
@@ -366,7 +366,7 @@ namespace sjson
 
 namespace sjson
 {
-	Vector2 parse_vector2(const char* json)
+	Vector2 parse_vector2(const char *json)
 	{
 		TempAllocator64 ta;
 		JsonArray arr(ta);
@@ -378,7 +378,7 @@ namespace sjson
 		return v;
 	}
 
-	Vector3 parse_vector3(const char* json)
+	Vector3 parse_vector3(const char *json)
 	{
 		TempAllocator64 ta;
 		JsonArray arr(ta);
@@ -391,7 +391,7 @@ namespace sjson
 		return v;
 	}
 
-	Vector4 parse_vector4(const char* json)
+	Vector4 parse_vector4(const char *json)
 	{
 		TempAllocator64 ta;
 		JsonArray arr(ta);
@@ -405,7 +405,7 @@ namespace sjson
 		return v;
 	}
 
-	Quaternion parse_quaternion(const char* json)
+	Quaternion parse_quaternion(const char *json)
 	{
 		TempAllocator64 ta;
 		JsonArray arr(ta);
@@ -419,7 +419,7 @@ namespace sjson
 		return q;
 	}
 
-	Matrix4x4 parse_matrix4x4(const char* json)
+	Matrix4x4 parse_matrix4x4(const char *json)
 	{
 		TempAllocator256 ta;
 		JsonArray arr(ta);
@@ -448,7 +448,7 @@ namespace sjson
 		return m;
 	}
 
-	StringId32 parse_string_id(const char* json)
+	StringId32 parse_string_id(const char *json)
 	{
 		TempAllocator256 ta;
 		DynamicString str(ta);
@@ -456,7 +456,7 @@ namespace sjson
 		return str.to_string_id();
 	}
 
-	StringId64 parse_resource_name(const char* json)
+	StringId64 parse_resource_name(const char *json)
 	{
 		TempAllocator256 ta;
 		DynamicString str(ta);
@@ -464,7 +464,7 @@ namespace sjson
 		return StringId64(str.c_str());
 	}
 
-	Guid parse_guid(const char* json)
+	Guid parse_guid(const char *json)
 	{
 		TempAllocator64 ta;
 		DynamicString str(ta);
@@ -472,7 +472,7 @@ namespace sjson
 		return guid::parse(str.c_str());
 	}
 
-	void parse_verbatim(DynamicString& str, const char* json)
+	void parse_verbatim(DynamicString &str, const char *json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -480,7 +480,7 @@ namespace sjson
 		json = next(json, '"');
 		json = next(json, '"');
 
-		const char* end = strstr(json, "\"\"\"");
+		const char *end = strstr(json, "\"\"\"");
 		CE_ASSERT(end, "Bad verbatim string");
 
 		str.set(json, u32(end - json));

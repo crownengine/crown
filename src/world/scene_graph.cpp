@@ -18,12 +18,12 @@
 
 namespace crown
 {
-static void unit_destroyed_callback_bridge(UnitId unit, void* user_ptr)
+static void unit_destroyed_callback_bridge(UnitId unit, void *user_ptr)
 {
-	((SceneGraph*)user_ptr)->unit_destroyed_callback(unit);
+	((SceneGraph *)user_ptr)->unit_destroyed_callback(unit);
 }
 
-SceneGraph::Pose& SceneGraph::Pose::operator=(const Matrix4x4& m)
+SceneGraph::Pose &SceneGraph::Pose::operator=(const Matrix4x4 &m)
 {
 	Matrix3x3 rotm = to_matrix3x3(m);
 	normalize(rotm.x);
@@ -36,7 +36,7 @@ SceneGraph::Pose& SceneGraph::Pose::operator=(const Matrix4x4& m)
 	return *this;
 }
 
-SceneGraph::SceneGraph(Allocator& a, UnitManager& um)
+SceneGraph::SceneGraph(Allocator &a, UnitManager &um)
 	: _marker(SCENE_GRAPH_MARKER)
 	, _allocator(&a)
 	, _unit_manager(&um)
@@ -80,14 +80,14 @@ void SceneGraph::allocate(u32 num)
 	new_data.capacity = num;
 	new_data.buffer = _allocator->allocate(bytes);
 
-	new_data.unit         = (UnitId*           )memory::align_top(new_data.buffer,             alignof(UnitId));
-	new_data.world        = (Matrix4x4*        )memory::align_top(new_data.unit + num,         alignof(Matrix4x4));
-	new_data.local        = (Pose*             )memory::align_top(new_data.world + num,        alignof(Pose));
-	new_data.parent       = (TransformInstance*)memory::align_top(new_data.local + num,        alignof(TransformInstance));
-	new_data.first_child  = (TransformInstance*)memory::align_top(new_data.parent + num,       alignof(TransformInstance));
-	new_data.next_sibling = (TransformInstance*)memory::align_top(new_data.first_child + num,  alignof(TransformInstance));
-	new_data.prev_sibling = (TransformInstance*)memory::align_top(new_data.next_sibling + num, alignof(TransformInstance));
-	new_data.changed      = (bool*             )memory::align_top(new_data.prev_sibling + num, alignof(bool));
+	new_data.unit         = (UnitId *           )memory::align_top(new_data.buffer,             alignof(UnitId));
+	new_data.world        = (Matrix4x4 *        )memory::align_top(new_data.unit + num,         alignof(Matrix4x4));
+	new_data.local        = (Pose *             )memory::align_top(new_data.world + num,        alignof(Pose));
+	new_data.parent       = (TransformInstance *)memory::align_top(new_data.local + num,        alignof(TransformInstance));
+	new_data.first_child  = (TransformInstance *)memory::align_top(new_data.parent + num,       alignof(TransformInstance));
+	new_data.next_sibling = (TransformInstance *)memory::align_top(new_data.first_child + num,  alignof(TransformInstance));
+	new_data.prev_sibling = (TransformInstance *)memory::align_top(new_data.next_sibling + num, alignof(TransformInstance));
+	new_data.changed      = (bool *             )memory::align_top(new_data.prev_sibling + num, alignof(bool));
 
 	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
 	memcpy(new_data.world, _data.world, _data.size * sizeof(Matrix4x4));
@@ -109,7 +109,7 @@ void SceneGraph::unit_destroyed_callback(UnitId unit)
 		destroy(inst);
 }
 
-TransformInstance SceneGraph::create(UnitId unit, const Vector3& pos, const Quaternion& rot, const Vector3& scale)
+TransformInstance SceneGraph::create(UnitId unit, const Vector3 &pos, const Quaternion &rot, const Vector3 &scale)
 {
 	Matrix4x4 pose;
 	set_identity(pose);
@@ -120,7 +120,7 @@ TransformInstance SceneGraph::create(UnitId unit, const Vector3& pos, const Quat
 	return create(unit, pose);
 }
 
-TransformInstance SceneGraph::create(UnitId unit, const Matrix4x4& pose)
+TransformInstance SceneGraph::create(UnitId unit, const Matrix4x4 &pose)
 {
 	CE_ASSERT(!hash_map::has(_map, unit), "Unit already has a transform component");
 
@@ -147,7 +147,7 @@ TransformInstance SceneGraph::create(UnitId unit, const Matrix4x4& pose)
 
 /// Moves the node data from index @a src to index @a dst, while preserving
 /// internal links between nodes.
-static void scene_graph_move_data(const SceneGraph& sg, u32 dst, u32 src)
+static void scene_graph_move_data(const SceneGraph &sg, u32 dst, u32 src)
 {
 	// Any node can be referenced by its children.
 	TransformInstance cur = sg._data.first_child[src];
@@ -180,7 +180,7 @@ static void scene_graph_move_data(const SceneGraph& sg, u32 dst, u32 src)
 }
 
 /// Swaps the transforms @a aa and @a bb.
-static void scene_graph_swap(const SceneGraph& sg, TransformInstance aa, TransformInstance bb)
+static void scene_graph_swap(const SceneGraph &sg, TransformInstance aa, TransformInstance bb)
 {
 	// Index of the temporary storage slot. Memory access past size-1 is allowed
 	// because we allocate one extra slot in SceneGraph::grow().
@@ -227,28 +227,28 @@ bool SceneGraph::has(UnitId unit)
 	return hash_map::has(_map, unit);
 }
 
-void SceneGraph::set_local_position(TransformInstance transform, const Vector3& pos)
+void SceneGraph::set_local_position(TransformInstance transform, const Vector3 &pos)
 {
 	CE_ASSERT(transform.i < _data.size, "Index out of bounds");
 	_data.local[transform.i].position = pos;
 	set_local(transform);
 }
 
-void SceneGraph::set_local_rotation(TransformInstance transform, const Quaternion& rot)
+void SceneGraph::set_local_rotation(TransformInstance transform, const Quaternion &rot)
 {
 	CE_ASSERT(transform.i < _data.size, "Index out of bounds");
 	_data.local[transform.i].rotation = from_quaternion(rot);
 	set_local(transform);
 }
 
-void SceneGraph::set_local_scale(TransformInstance transform, const Vector3& scale)
+void SceneGraph::set_local_scale(TransformInstance transform, const Vector3 &scale)
 {
 	CE_ASSERT(transform.i < _data.size, "Index out of bounds");
 	_data.local[transform.i].scale = scale;
 	set_local(transform);
 }
 
-void SceneGraph::set_local_pose(TransformInstance transform, const Matrix4x4& pose)
+void SceneGraph::set_local_pose(TransformInstance transform, const Matrix4x4 &pose)
 {
 	CE_ASSERT(transform.i < _data.size, "Index out of bounds");
 	_data.local[transform.i] = pose;
@@ -299,14 +299,14 @@ Matrix4x4 SceneGraph::world_pose(TransformInstance transform)
 	return _data.world[transform.i];
 }
 
-void SceneGraph::set_world_pose(TransformInstance transform, const Matrix4x4& pose)
+void SceneGraph::set_world_pose(TransformInstance transform, const Matrix4x4 &pose)
 {
 	CE_ASSERT(transform.i < _data.size, "Index out of bounds");
 	_data.world[transform.i] = pose;
 	_data.changed[transform.i] = true;
 }
 
-void SceneGraph::set_world_pose_and_rescale(TransformInstance transform, const Matrix4x4& pose)
+void SceneGraph::set_world_pose_and_rescale(TransformInstance transform, const Matrix4x4 &pose)
 {
 	CE_ASSERT(transform.i < _data.size, "Index out of bounds");
 	_data.world[transform.i] = pose;
@@ -321,9 +321,9 @@ u32 SceneGraph::num_nodes() const
 
 void SceneGraph::link(TransformInstance parent
 	, TransformInstance child
-	, const Vector3& child_local_position
-	, const Quaternion& child_local_rotation
-	, const Vector3& child_local_scale
+	, const Vector3 &child_local_position
+	, const Quaternion &child_local_rotation
+	, const Vector3 &child_local_scale
 	)
 {
 	CE_ASSERT(child.i < _data.size, "Index out of bounds");
@@ -388,7 +388,7 @@ void SceneGraph::clear_changed()
 	}
 }
 
-void SceneGraph::get_changed(Array<UnitId>& units, Array<Matrix4x4>& world_poses)
+void SceneGraph::get_changed(Array<UnitId> &units, Array<Matrix4x4> &world_poses)
 {
 	for (u32 i = 0; i < _data.size; ++i) {
 		if (_data.changed[i]) {
@@ -407,7 +407,7 @@ void SceneGraph::set_local(TransformInstance transform)
 	_data.changed[transform.i] = true;
 }
 
-void SceneGraph::transform(const Matrix4x4& parent, TransformInstance transform)
+void SceneGraph::transform(const Matrix4x4 &parent, TransformInstance transform)
 {
 	_data.world[transform.i] = local_pose(transform) * parent;
 	_data.changed[transform.i] = true;

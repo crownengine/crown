@@ -14,7 +14,7 @@
 
 namespace crown
 {
-static void help(const char* msg = NULL)
+static void help(const char *msg = NULL)
 {
 	printf(
 		"The Flexible Game Engine\n"
@@ -50,7 +50,7 @@ static void help(const char* msg = NULL)
 		printf("Error: %s\n", msg);
 }
 
-DeviceOptions::DeviceOptions(Allocator& a, int argc, const char** argv)
+DeviceOptions::DeviceOptions(Allocator &a, int argc, const char **argv)
 	: _argc(argc)
 	, _argv(argv)
 	, _source_dir(a)
@@ -78,7 +78,7 @@ DeviceOptions::~DeviceOptions()
 {
 }
 
-int DeviceOptions::parse(bool* quit)
+int DeviceOptions::parse(bool *quit)
 {
 	CommandLine cl(_argc, _argv);
 
@@ -184,7 +184,7 @@ int DeviceOptions::parse(bool* quit)
 
 	_wait_console = cl.has_option("wait-console");
 
-	const char* parent = cl.get_parameter(0, "parent-window");
+	const char *parent = cl.get_parameter(0, "parent-window");
 	if (parent) {
 		errno = 0;
 		_parent_window = strtoul(parent, NULL, 10);
@@ -194,7 +194,7 @@ int DeviceOptions::parse(bool* quit)
 		}
 	}
 
-	const char* port = cl.get_parameter(0, "console-port");
+	const char *port = cl.get_parameter(0, "console-port");
 	if (port) {
 		errno = 0;
 		_console_port = strtoul(port, NULL, 10);
@@ -204,13 +204,13 @@ int DeviceOptions::parse(bool* quit)
 		}
 	}
 
-	const char* ls = cl.get_parameter(0, "lua-string");
+	const char *ls = cl.get_parameter(0, "lua-string");
 	if (ls)
 		_lua_string = ls;
 
 	if (cl.has_option("string-id")) {
-		const char* string_id_bits = cl.get_parameter(0, "string-id");
-		const char* string_id_utf8 = cl.get_parameter(1, "string-id");
+		const char *string_id_bits = cl.get_parameter(0, "string-id");
+		const char *string_id_utf8 = cl.get_parameter(1, "string-id");
 		if (string_id_bits == NULL || string_id_utf8 == NULL) {
 			help("Usage: string-id <bits> <utf8>");
 			*quit = true;

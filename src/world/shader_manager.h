@@ -31,19 +31,19 @@ struct ShaderManager
 	ShaderMap _shader_map;
 
 	///
-	ShaderManager(Allocator& a);
+	ShaderManager(Allocator &a);
 
 	///
-	void* load(File& file, Allocator& a);
+	void *load(File &file, Allocator &a);
 
 	///
-	void online(StringId64 id, ResourceManager& rm);
+	void online(StringId64 id, ResourceManager &rm);
 
 	///
-	void offline(StringId64 id, ResourceManager& rm);
+	void offline(StringId64 id, ResourceManager &rm);
 
 	///
-	void unload(Allocator& a, void* res);
+	void unload(Allocator &a, void *res);
 
 	///
 	void add_shader(StringId32 name, u64 state, const ShaderResource::Sampler samplers[4], bgfx::ProgramHandle program);

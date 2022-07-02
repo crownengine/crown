@@ -14,21 +14,21 @@
 
 namespace crown
 {
-bool operator<(const ResourceManager::ResourcePair& a, const ResourceManager::ResourcePair& b)
+bool operator<(const ResourceManager::ResourcePair &a, const ResourceManager::ResourcePair &b)
 {
 	return a.type < b.type
 		|| (a.type == b.type && a.name < b.name)
 		;
 }
 
-bool operator==(const ResourceManager::ResourcePair& a, const ResourceManager::ResourcePair& b)
+bool operator==(const ResourceManager::ResourcePair &a, const ResourceManager::ResourcePair &b)
 {
 	return a.type == b.type
 		&& a.name == b.name
 		;
 }
 
-bool operator==(const ResourceManager::ResourceEntry& a, const ResourceManager::ResourceEntry& b)
+bool operator==(const ResourceManager::ResourceEntry &a, const ResourceManager::ResourceEntry &b)
 {
 	return a.references == b.references
 		&& a.data == b.data
@@ -40,13 +40,13 @@ const ResourceManager::ResourceEntry ResourceManager::ResourceEntry::NOT_FOUND =
 template<>
 struct hash<ResourceManager::ResourcePair>
 {
-	u32 operator()(const ResourceManager::ResourcePair& val) const
+	u32 operator()(const ResourceManager::ResourcePair &val) const
 	{
 		return u32(resource_id(val.type, val.name)._id);
 	}
 };
 
-ResourceManager::ResourceManager(ResourceLoader& rl)
+ResourceManager::ResourceManager(ResourceLoader &rl)
 	: _resource_heap(default_allocator(), "resource")
 	, _loader(&rl)
 	, _type_data(default_allocator())
@@ -72,7 +72,7 @@ ResourceManager::~ResourceManager()
 void ResourceManager::load(StringId64 type, StringId64 name)
 {
 	ResourcePair id = { type, name };
-	ResourceEntry& entry = hash_map::get(_rm, id, ResourceEntry::NOT_FOUND);
+	ResourceEntry &entry = hash_map::get(_rm, id, ResourceEntry::NOT_FOUND);
 
 	if (entry == ResourceEntry::NOT_FOUND) {
 		ResourceTypeData rtd;
@@ -103,7 +103,7 @@ void ResourceManager::unload(StringId64 type, StringId64 name)
 	flush();
 
 	ResourcePair id = { type, name };
-	ResourceEntry& entry = hash_map::get(_rm, id, ResourceEntry::NOT_FOUND);
+	ResourceEntry &entry = hash_map::get(_rm, id, ResourceEntry::NOT_FOUND);
 
 	if (--entry.references == 0) {
 		on_offline(type, name);
@@ -116,7 +116,7 @@ void ResourceManager::unload(StringId64 type, StringId64 name)
 void ResourceManager::reload(StringId64 type, StringId64 name)
 {
 	const ResourcePair id = { type, name };
-	const ResourceEntry& entry = hash_map::get(_rm, id, ResourceEntry::NOT_FOUND);
+	const ResourceEntry &entry = hash_map::get(_rm, id, ResourceEntry::NOT_FOUND);
 	const u32 old_refs = entry.references;
 
 	if (entry == ResourceEntry::NOT_FOUND)
@@ -126,7 +126,7 @@ void ResourceManager::reload(StringId64 type, StringId64 name)
 	load(type, name);
 	flush();
 
-	ResourceEntry& new_entry = hash_map::get(_rm, id, ResourceEntry::NOT_FOUND);
+	ResourceEntry &new_entry = hash_map::get(_rm, id, ResourceEntry::NOT_FOUND);
 	new_entry.references = old_refs;
 }
 
@@ -136,7 +136,7 @@ bool ResourceManager::can_get(StringId64 type, StringId64 name)
 	return _autoload ? true : hash_map::has(_rm, id);
 }
 
-const void* ResourceManager::get(StringId64 type, StringId64 name)
+const void *ResourceManager::get(StringId64 type, StringId64 name)
 {
 	const ResourcePair id = { type, name };
 
@@ -149,7 +149,7 @@ const void* ResourceManager::get(StringId64 type, StringId64 name)
 		flush();
 	}
 
-	const ResourceEntry& entry = hash_map::get(_rm, id, ResourceEntry::NOT_FOUND);
+	const ResourceEntry &entry = hash_map::get(_rm, id, ResourceEntry::NOT_FOUND);
 	return entry.data;
 }
 
@@ -174,7 +174,7 @@ void ResourceManager::complete_requests()
 		complete_request(loaded[i].type, loaded[i].name, loaded[i].data);
 }
 
-void ResourceManager::complete_request(StringId64 type, StringId64 name, void* data)
+void ResourceManager::complete_request(StringId64 type, StringId64 name, void *data)
 {
 	ResourceEntry entry;
 	entry.references = 1;
@@ -215,7 +215,7 @@ void ResourceManager::on_offline(StringId64 type, StringId64 name)
 		func(name, *this);
 }
 
-void ResourceManager::on_unload(StringId64 type, void* data)
+void ResourceManager::on_unload(StringId64 type, void *data)
 {
 	UnloadFunction func = hash_map::get(_type_data, type, ResourceTypeData()).unload;
 

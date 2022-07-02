@@ -18,9 +18,9 @@ namespace crown
 {
 namespace sound_resource
 {
-	const char* data(const SoundResource* sr)
+	const char *data(const SoundResource *sr)
 	{
-		return (char*)&sr[1];
+		return (char *)&sr[1];
 	}
 
 } // namespace sound_resource
@@ -45,7 +45,7 @@ namespace sound_resource_internal
 		s32 data_size;       // Data dimension
 	};
 
-	s32 compile(CompileOptions& opts)
+	s32 compile(CompileOptions &opts)
 	{
 		Buffer buf = opts.read();
 
@@ -57,8 +57,8 @@ namespace sound_resource_internal
 		sjson::parse_string(name, obj["source"]);
 
 		Buffer sound = opts.read(name.c_str());
-		const WAVHeader* wav = (const WAVHeader*)array::begin(sound);
-		const char* wavdata = (const char*)&wav[1];
+		const WAVHeader *wav = (const WAVHeader *)array::begin(sound);
+		const char *wavdata = (const char *)&wav[1];
 
 		// Write
 		SoundResource sr;

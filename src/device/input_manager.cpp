@@ -10,7 +10,7 @@
 
 namespace crown
 {
-static const char* s_keyboard_button_names[] =
+static const char *s_keyboard_button_names[] =
 {
 	"tab",          // KeyboardButton::TAB
 	"enter",        // KeyboardButton::ENTER
@@ -104,7 +104,7 @@ static const char* s_keyboard_button_names[] =
 };
 CE_STATIC_ASSERT(countof(s_keyboard_button_names) == KeyboardButton::COUNT);
 
-static const char* s_mouse_button_names[] =
+static const char *s_mouse_button_names[] =
 {
 	"left",    // MouseButton::LEFT
 	"middle",  // MouseButton::MIDDLE
@@ -114,7 +114,7 @@ static const char* s_mouse_button_names[] =
 };
 CE_STATIC_ASSERT(countof(s_mouse_button_names) == MouseButton::COUNT);
 
-static const char* s_mouse_axis_names[] =
+static const char *s_mouse_axis_names[] =
 {
 	"cursor",       // MouseAxis::CURSOR
 	"cursor_delta", // MouseAxis::CURSOR_DELTA
@@ -122,7 +122,7 @@ static const char* s_mouse_axis_names[] =
 };
 CE_STATIC_ASSERT(countof(s_mouse_axis_names) == MouseAxis::COUNT);
 
-static const char* s_touch_button_names[] =
+static const char *s_touch_button_names[] =
 {
 	"pointer_0", // TouchButton::POINTER_0
 	"pointer_1", // TouchButton::POINTER_1
@@ -131,7 +131,7 @@ static const char* s_touch_button_names[] =
 };
 CE_STATIC_ASSERT(countof(s_touch_button_names) == TouchButton::COUNT);
 
-static const char* s_touch_axis_names[] =
+static const char *s_touch_axis_names[] =
 {
 	"pointer_0", // TouchAxis::POINTER_0
 	"pointer_1", // TouchAxis::POINTER_1
@@ -140,7 +140,7 @@ static const char* s_touch_axis_names[] =
 };
 CE_STATIC_ASSERT(countof(s_touch_axis_names) == TouchAxis::COUNT);
 
-static const char* s_pad_button_names[] =
+static const char *s_pad_button_names[] =
 {
 	"up",             // JoypadButton::UP
 	"down",           // JoypadButton::DOWN
@@ -160,7 +160,7 @@ static const char* s_pad_button_names[] =
 };
 CE_STATIC_ASSERT(countof(s_pad_button_names) == JoypadButton::COUNT);
 
-static const char* s_pad_axis_names[] =
+static const char *s_pad_axis_names[] =
 {
 	"left",         // JoypadAxis::LEFT
 	"right",        // JoypadAxis::RIGHT
@@ -169,7 +169,7 @@ static const char* s_pad_axis_names[] =
 };
 CE_STATIC_ASSERT(countof(s_pad_axis_names) == JoypadAxis::COUNT);
 
-InputManager::InputManager(Allocator& a)
+InputManager::InputManager(Allocator &a)
 	: _allocator(&a)
 	, _keyboard(NULL)
 	, _mouse(NULL)
@@ -229,17 +229,17 @@ InputManager::~InputManager()
 	input_device::destroy(*_allocator, *_keyboard);
 }
 
-InputDevice* InputManager::keyboard()
+InputDevice *InputManager::keyboard()
 {
 	return _keyboard;
 }
 
-InputDevice* InputManager::mouse()
+InputDevice *InputManager::mouse()
 {
 	return _mouse;
 }
 
-InputDevice* InputManager::touch()
+InputDevice *InputManager::touch()
 {
 	return _touch;
 }
@@ -249,13 +249,13 @@ u8 InputManager::num_joypads()
 	return countof(_joypad);
 }
 
-InputDevice* InputManager::joypad(u8 i)
+InputDevice *InputManager::joypad(u8 i)
 {
 	CE_ASSERT(i < CROWN_MAX_JOYPADS, "Index out of bounds");
 	return _joypad[i];
 }
 
-void InputManager::read(const OsEvent& event)
+void InputManager::read(const OsEvent &event)
 {
 	switch (event.type) {
 	case OsEventType::BUTTON: {

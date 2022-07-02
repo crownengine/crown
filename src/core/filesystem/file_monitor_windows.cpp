@@ -31,7 +31,7 @@ struct FileMonitorImpl
 		char _buffer[4096];
 		OVERLAPPED _overlapped;
 
-		explicit Watch(Allocator& a)
+		explicit Watch(Allocator &a)
 			: _path(a)
 		{
 			memset(&_buffer, 0, sizeof(_buffer));
@@ -44,17 +44,17 @@ struct FileMonitorImpl
 		}
 	};
 
-	Allocator* _allocator;
+	Allocator *_allocator;
 	HANDLE _iocp;
-	HashMap<u32, Watch*> _watches;
+	HashMap<u32, Watch *> _watches;
 	Thread _thread;
 	bool _exit;
 	bool _recursive;
 	FileMonitorFunction _function;
-	void* _user_data;
+	void *_user_data;
 	u32 _key;
 
-	explicit FileMonitorImpl(Allocator& a)
+	explicit FileMonitorImpl(Allocator &a)
 		: _allocator(&a)
 		, _iocp(0)
 		, _watches(a)
@@ -66,7 +66,7 @@ struct FileMonitorImpl
 	{
 	}
 
-	void add_watch(const char* path, bool recursive)
+	void add_watch(const char *path, bool recursive)
 	{
 		CE_ENSURE(path != NULL);
 		CE_ASSERT(!path::has_trailing_separator(path), "Malformed path");
@@ -88,7 +88,7 @@ struct FileMonitorImpl
 		_iocp = CreateIoCompletionPort(fh, _iocp, _key, 0);
 		CE_ASSERT(_iocp != NULL, "CreateIoCompletionPort: GetLastError: %d", GetLastError());
 
-		Watch* wh = CE_NEW(*_allocator, Watch)(*_allocator);
+		Watch *wh = CE_NEW(*_allocator, Watch)(*_allocator);
 		wh->_path = path;
 		wh->_handle = fh;
 
@@ -110,7 +110,7 @@ struct FileMonitorImpl
 		++_key;
 	}
 
-	void scan_subdirectories(const char* path)
+	void scan_subdirectories(const char *path)
 	{
 		TempAllocator256 dir_ta;
 		DynamicString dir(dir_ta);
@@ -143,7 +143,7 @@ struct FileMonitorImpl
 		}
 	}
 
-	void start(u32 num, const char** paths, bool recursive, FileMonitorFunction fmf, void* user_data)
+	void start(u32 num, const char **paths, bool recursive, FileMonitorFunction fmf, void *user_data)
 	{
 		CE_ENSURE(NULL != fmf);
 
@@ -154,7 +154,7 @@ struct FileMonitorImpl
 		for (u32 i = 0; i < num; ++i)
 			add_watch(paths[i], recursive);
 
-		_thread.start([](void* thiz) { return static_cast<FileMonitorImpl*>(thiz)->watch(); }, this);
+		_thread.start([](void *thiz) { return static_cast<FileMonitorImpl *>(thiz)->watch(); }, this);
 	}
 
 	void stop()
@@ -181,7 +181,7 @@ struct FileMonitorImpl
 		while (!_exit) {
 			DWORD bytes_transferred;
 			ULONG_PTR key;
-			OVERLAPPED* ov;
+			OVERLAPPED *ov;
 			BOOL ret = GetQueuedCompletionStatus(_iocp
 				, &bytes_transferred
 				, &key
@@ -195,14 +195,14 @@ struct FileMonitorImpl
 			if (bytes_transferred == 0)
 				continue;
 
-			Watch* wh = hash_map::get(_watches, (u32)(uintptr_t)key, (Watch*)NULL);
+			Watch *wh = hash_map::get(_watches, (u32)(uintptr_t)key, (Watch *)NULL);
 
 			// Read packets
 			DWORD last_action = -1;
 			DynamicString path_old_name(default_allocator());
-			char* cur = (char*)wh->_buffer;
+			char *cur = (char *)wh->_buffer;
 			for (;;) {
-				const FILE_NOTIFY_INFORMATION* fni = (const FILE_NOTIFY_INFORMATION*)cur;
+				const FILE_NOTIFY_INFORMATION *fni = (const FILE_NOTIFY_INFORMATION *)cur;
 
 				TempAllocator512 ta;
 				DynamicString path(ta);
@@ -284,9 +284,9 @@ struct FileMonitorImpl
 		return 0;
 	}
 
-	void full_path(DynamicString& path, u32 key, const WCHAR* name, u32 name_len)
+	void full_path(DynamicString &path, u32 key, const WCHAR *name, u32 name_len)
 	{
-		Watch* wh = hash_map::get(_watches, key, (Watch*)NULL);
+		Watch *wh = hash_map::get(_watches, key, (Watch *)NULL);
 
 		TempAllocator512 ta;
 		DynamicString path_base(ta);
@@ -298,7 +298,7 @@ struct FileMonitorImpl
 	}
 };
 
-FileMonitor::FileMonitor(Allocator& a)
+FileMonitor::FileMonitor(Allocator &a)
 {
 	_impl = CE_NEW(a, FileMonitorImpl)(a);
 }
@@ -308,7 +308,7 @@ FileMonitor::~FileMonitor()
 	CE_DELETE(*_impl->_allocator, _impl);
 }
 
-void FileMonitor::start(u32 num, const char** paths, bool recursive, FileMonitorFunction fmf, void* user_data)
+void FileMonitor::start(u32 num, const char **paths, bool recursive, FileMonitorFunction fmf, void *user_data)
 {
 	_impl->start(num, paths, recursive, fmf, user_data);
 }

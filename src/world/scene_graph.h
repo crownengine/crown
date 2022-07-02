@@ -25,7 +25,7 @@ struct SceneGraph
 		Matrix3x3 rotation;
 		Vector3 scale;
 
-		Pose& operator=(const Matrix4x4& m);
+		Pose &operator=(const Matrix4x4 &m);
 	};
 
 	struct InstanceData
@@ -47,36 +47,36 @@ struct SceneGraph
 
 		u32 size;
 		u32 capacity;
-		void* buffer;
+		void *buffer;
 
-		UnitId* unit;
-		Matrix4x4* world;
-		Pose* local;
-		TransformInstance* parent;
-		TransformInstance* first_child;
-		TransformInstance* next_sibling;
-		TransformInstance* prev_sibling;
-		bool* changed;
+		UnitId *unit;
+		Matrix4x4 *world;
+		Pose *local;
+		TransformInstance *parent;
+		TransformInstance *first_child;
+		TransformInstance *next_sibling;
+		TransformInstance *prev_sibling;
+		bool *changed;
 	};
 
 	u32 _marker;
-	Allocator* _allocator;
-	UnitManager* _unit_manager;
+	Allocator *_allocator;
+	UnitManager *_unit_manager;
 	InstanceData _data;
 	HashMap<UnitId, u32> _map;
 	UnitDestroyCallback _unit_destroy_callback;
 
 	///
-	SceneGraph(Allocator& a, UnitManager& um);
+	SceneGraph(Allocator &a, UnitManager &um);
 
 	///
 	~SceneGraph();
 
 	/// Creates a new transform instance for the @a unit.
-	TransformInstance create(UnitId unit, const Matrix4x4& pose);
+	TransformInstance create(UnitId unit, const Matrix4x4 &pose);
 
 	/// Creates a new transform instance for the @a unit.
-	TransformInstance create(UnitId unit, const Vector3& pos, const Quaternion& rot, const Vector3& scale);
+	TransformInstance create(UnitId unit, const Vector3 &pos, const Quaternion &rot, const Vector3 &scale);
 
 	/// Destroys the @a transform.
 	void destroy(TransformInstance transform);
@@ -88,16 +88,16 @@ struct SceneGraph
 	bool has(UnitId unit);
 
 	/// Sets the local position, rotation, scale or pose of the @a transform.
-	void set_local_position(TransformInstance transform, const Vector3& pos);
+	void set_local_position(TransformInstance transform, const Vector3 &pos);
 
 	/// @copydoc SceneGraph::set_local_position()
-	void set_local_rotation(TransformInstance transform, const Quaternion& rot);
+	void set_local_rotation(TransformInstance transform, const Quaternion &rot);
 
 	/// @copydoc SceneGraph::set_local_position()
-	void set_local_scale(TransformInstance transform, const Vector3& scale);
+	void set_local_scale(TransformInstance transform, const Vector3 &scale);
 
 	/// @copydoc SceneGraph::set_local_position()
-	void set_local_pose(TransformInstance transform, const Matrix4x4& pose);
+	void set_local_pose(TransformInstance transform, const Matrix4x4 &pose);
 
 	/// Returns the local position, rotation or pose of the @a transform.
 	Vector3 local_position(TransformInstance transform);
@@ -121,10 +121,10 @@ struct SceneGraph
 	Matrix4x4 world_pose(TransformInstance transform);
 
 	///
-	void set_world_pose(TransformInstance transform, const Matrix4x4& pose);
+	void set_world_pose(TransformInstance transform, const Matrix4x4 &pose);
 
 	///
-	void set_world_pose_and_rescale(TransformInstance transform, const Matrix4x4& pose);
+	void set_world_pose_and_rescale(TransformInstance transform, const Matrix4x4 &pose);
 
 	/// Returns the number of nodes in the graph.
 	u32 num_nodes() const;
@@ -135,9 +135,9 @@ struct SceneGraph
 	/// location of its parent.
 	void link(TransformInstance parent
 		, TransformInstance child
-		, const Vector3& child_local_position = VECTOR3_ZERO
-		, const Quaternion& child_local_rotation = QUATERNION_IDENTITY
-		, const Vector3& child_local_scale = VECTOR3_ONE
+		, const Vector3 &child_local_position = VECTOR3_ZERO
+		, const Quaternion &child_local_rotation = QUATERNION_IDENTITY
+		, const Vector3 &child_local_scale = VECTOR3_ONE
 		);
 
 	/// Unlinks @a child from its parent if it has any. After unlinking, the local
@@ -145,9 +145,9 @@ struct SceneGraph
 	void unlink(TransformInstance child);
 
 	void clear_changed();
-	void get_changed(Array<UnitId>& units, Array<Matrix4x4>& world_poses);
+	void get_changed(Array<UnitId> &units, Array<Matrix4x4> &world_poses);
 	void set_local(TransformInstance transform);
-	void transform(const Matrix4x4& parent, TransformInstance transform);
+	void transform(const Matrix4x4 &parent, TransformInstance transform);
 	void grow();
 	void allocate(u32 num);
 	TransformInstance make_instance(u32 i);

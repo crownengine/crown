@@ -18,7 +18,7 @@ namespace error
 {
 	/// Aborts the program execution logging an error message and the stacktrace if
 	/// the platform supports it.
-	void abort(const char* format, ...);
+	void abort(const char *format, ...);
 
 } // namespace error
 

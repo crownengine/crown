@@ -24,7 +24,7 @@ Matrix3x3 from_elements(f32 xx, f32 xy, f32 xz, f32 yx, f32 yy, f32 yz, f32 zx, 
 	return m;
 }
 
-Matrix3x3 from_axes(const Vector3& x, const Vector3& y, const Vector3& z)
+Matrix3x3 from_axes(const Vector3 &x, const Vector3 &y, const Vector3 &z)
 {
 	Matrix3x3 m;
 	m.x = x;
@@ -33,7 +33,7 @@ Matrix3x3 from_axes(const Vector3& x, const Vector3& y, const Vector3& z)
 	return m;
 }
 
-Matrix3x3 from_quaternion(const Quaternion& r)
+Matrix3x3 from_quaternion(const Quaternion &r)
 {
 	const float xx = r.x * r.x;
 	const float yy = r.y * r.y;
@@ -60,7 +60,7 @@ Matrix3x3 from_quaternion(const Quaternion& r)
 	return m;
 }
 
-Matrix3x3& invert(Matrix3x3& m)
+Matrix3x3 &invert(Matrix3x3 &m)
 {
 	const f32 xx = m.x.x;
 	const f32 xy = m.x.y;

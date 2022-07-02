@@ -13,7 +13,7 @@
 
 namespace crown
 {
-BootConfig::BootConfig(Allocator& a)
+BootConfig::BootConfig(Allocator &a)
 	: boot_script_name(a)
 	, boot_package_name(u64(0))
 	, window_title(a)
@@ -25,7 +25,7 @@ BootConfig::BootConfig(Allocator& a)
 {
 }
 
-bool BootConfig::parse(const char* json)
+bool BootConfig::parse(const char *json)
 {
 	TempAllocator4096 ta;
 	JsonObject cfg(ta);

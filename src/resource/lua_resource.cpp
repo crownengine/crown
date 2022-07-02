@@ -23,9 +23,9 @@ namespace crown
 {
 namespace lua_resource
 {
-	const char* program(const LuaResource* lr)
+	const char *program(const LuaResource *lr)
 	{
-		return (char*)&lr[1];
+		return (char *)&lr[1];
 	}
 
 } // namespace lua_resource
@@ -33,7 +33,7 @@ namespace lua_resource
 #if CROWN_CAN_COMPILE
 namespace lua_resource_internal
 {
-	s32 compile(CompileOptions& opts)
+	s32 compile(CompileOptions &opts)
 	{
 		TempAllocator1024 ta;
 		DynamicString lua_src(ta);
@@ -41,7 +41,7 @@ namespace lua_resource_internal
 		opts.absolute_path(lua_src, opts.source_path());
 		opts.temporary_path(lua_out, "lua");
 
-		const char* argv[] =
+		const char *argv[] =
 		{
 			EXE_PATH("luajit"),
 			LUAJIT_FLAGS,

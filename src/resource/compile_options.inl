@@ -13,7 +13,7 @@ namespace crown
 {
 ///
 template<typename T>
-void CompileOptions::write(const T& data)
+void CompileOptions::write(const T &data)
 {
 	_binary_writer.write(data);
 }

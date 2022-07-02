@@ -10,7 +10,7 @@
 namespace crown
 {
 /// Returns the rotation portion of the matrix @a m as a Quaternion.
-Quaternion quaternion(const Matrix3x3& m)
+Quaternion quaternion(const Matrix3x3 &m)
 {
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/
 	const f32 tr = m.x.x + m.y.y + m.z.z;

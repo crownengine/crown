@@ -33,25 +33,25 @@ struct ComponentData
 
 namespace unit_resource_internal
 {
-	s32 compile(CompileOptions& opts);
+	s32 compile(CompileOptions &opts);
 
 } // namespace unit_resource_internal
 
 namespace unit_resource
 {
 	/// Returns the array of parents in the unit resource @ur.
-	const u32* parents(const UnitResource* ur);
+	const u32 *parents(const UnitResource *ur);
 
 	/// Returns the first component type data in the unit resource @a ur, or, if
 	/// @a component is != NULL, it returns the next component type data after
 	/// it.
-	const ComponentData* component_type_data(const UnitResource* ur, const ComponentData* component);
+	const ComponentData *component_type_data(const UnitResource *ur, const ComponentData *component);
 
 	/// Returns the payload data (the actual component data) for the @a component.
-	const char* component_payload(const ComponentData* component);
+	const char *component_payload(const ComponentData *component);
 
 	/// Returns the unit index of the @a component.
-	const u32* component_unit_index(const ComponentData* component);
+	const u32 *component_unit_index(const ComponentData *component);
 
 } // namespace unit_resource
 

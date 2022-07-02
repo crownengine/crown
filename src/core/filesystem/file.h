@@ -26,7 +26,7 @@ struct File
 	}
 
 	/// Opens the file at @a path with specified @a mode
-	virtual void open(const char* path, FileOpenMode::Enum mode) = 0;
+	virtual void open(const char *path, FileOpenMode::Enum mode) = 0;
 
 	/// Closes the file.
 	virtual void close() = 0;
@@ -54,10 +54,10 @@ struct File
 	virtual void skip(u32 bytes) = 0;
 
 	/// Reads @a size bytes from file.
-	virtual u32 read(void* data, u32 size) = 0;
+	virtual u32 read(void *data, u32 size) = 0;
 
 	/// Writes @a size bytes to file.
-	virtual u32 write(const void* data, u32 size) = 0;
+	virtual u32 write(const void *data, u32 size) = 0;
 
 	/// Forces the previouses write operations to complete.
 	virtual void flush() = 0;

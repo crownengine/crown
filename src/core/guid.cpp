@@ -56,21 +56,21 @@ namespace guid
 		guid.data1 = (guid.data1 & 0xffffffffffff4fffu) | 0x4000u;
 		guid.data2 = (guid.data2 & 0x3fffffffffffffffu) | 0x8000000000000000u;
 #elif CROWN_PLATFORM_WINDOWS
-		HRESULT hr = CoCreateGuid((GUID*)&guid);
+		HRESULT hr = CoCreateGuid((GUID *)&guid);
 		CE_ASSERT(hr == S_OK, "CoCreateGuid: error");
 		CE_UNUSED(hr);
 #endif // CROWN_PLATFORM_POSIX
 		return guid;
 	}
 
-	Guid parse(const char* str)
+	Guid parse(const char *str)
 	{
 		Guid guid;
 		try_parse(guid, str);
 		return guid;
 	}
 
-	bool try_parse(Guid& guid, const char* str)
+	bool try_parse(Guid &guid, const char *str)
 	{
 		CE_ENSURE(NULL != str);
 		u32 a, b, c, d, e, f;
@@ -84,7 +84,7 @@ namespace guid
 		return num == 6;
 	}
 
-	const char* to_string(char* buf, u32 len, const Guid& guid)
+	const char *to_string(char *buf, u32 len, const Guid &guid)
 	{
 		stbsp_snprintf(buf, len, "%.8x-%.4x-%.4x-%.4x-%.4x%.8x"
 			, (u32)((guid.data1 & 0xffffffff00000000u) >> 32)

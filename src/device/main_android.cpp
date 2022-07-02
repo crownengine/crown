@@ -32,9 +32,9 @@ struct AndroidDevice
 {
 	DeviceEventQueue _queue;
 	Thread _main_thread;
-	DeviceOptions* _opts;
+	DeviceOptions *_opts;
 
-	void run(struct android_app* app, DeviceOptions& opts)
+	void run(struct android_app *app, DeviceOptions &opts)
 	{
 		_opts = &opts;
 
@@ -48,8 +48,8 @@ struct AndroidDevice
 
 		while (app->destroyRequested == 0) {
 			s32 num;
-			android_poll_source* source;
-			ALooper_pollAll(-1, NULL, &num, (void**)&source);
+			android_poll_source *source;
+			ALooper_pollAll(-1, NULL, &num, (void **)&source);
 
 			if (source != NULL)
 				source->process(app, source);
@@ -58,7 +58,7 @@ struct AndroidDevice
 		_main_thread.stop();
 	}
 
-	void process_command(struct android_app* app, s32 cmd)
+	void process_command(struct android_app *app, s32 cmd)
 	{
 		switch (cmd) {
 		case APP_CMD_SAVE_STATE:
@@ -81,8 +81,8 @@ struct AndroidDevice
 			_queue.push_resolution_event(width, height);
 
 			if (!_main_thread.is_running()) {
-				_main_thread.start([](void* user_data) {
-						crown::run(*((DeviceOptions*)user_data));
+				_main_thread.start([](void *user_data) {
+						crown::run(*((DeviceOptions *)user_data));
 						return EXIT_SUCCESS;
 					}
 					, _opts
@@ -111,7 +111,7 @@ struct AndroidDevice
 		}
 	}
 
-	s32 process_input(struct android_app* app, AInputEvent* event)
+	s32 process_input(struct android_app *app, AInputEvent *event)
 	{
 		if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) {
 			const s32 action = AMotionEvent_getAction(event);
@@ -187,14 +187,14 @@ struct AndroidDevice
 		return 0;
 	}
 
-	static s32 on_input_event(struct android_app* app, AInputEvent* event)
+	static s32 on_input_event(struct android_app *app, AInputEvent *event)
 	{
-		return static_cast<AndroidDevice*>(app->userData)->process_input(app, event);
+		return static_cast<AndroidDevice *>(app->userData)->process_input(app, event);
 	}
 
-	static void on_app_cmd(struct android_app* app, s32 cmd)
+	static void on_app_cmd(struct android_app *app, s32 cmd)
 	{
-		static_cast<AndroidDevice*>(app->userData)->process_command(app, cmd);
+		static_cast<AndroidDevice *>(app->userData)->process_command(app, cmd);
 	}
 };
 
@@ -244,12 +244,12 @@ struct WindowAndroid : public Window
 	{
 	}
 
-	const char* title()
+	const char *title()
 	{
 		return NULL;
 	}
 
-	void set_title(const char* /*title*/)
+	void set_title(const char * /*title*/)
 	{
 	}
 
@@ -269,7 +269,7 @@ struct WindowAndroid : public Window
 	{
 	}
 
-	void* handle()
+	void *handle()
 	{
 		return NULL;
 	}
@@ -277,12 +277,12 @@ struct WindowAndroid : public Window
 
 namespace window
 {
-	Window* create(Allocator& a)
+	Window *create(Allocator &a)
 	{
 		return CE_NEW(a, WindowAndroid)();
 	}
 
-	void destroy(Allocator& a, Window& w)
+	void destroy(Allocator &a, Window &w)
 	{
 		CE_DELETE(a, &w);
 	}
@@ -291,7 +291,7 @@ namespace window
 
 struct DisplayAndroid : public Display
 {
-	void modes(Array<DisplayMode>& /*modes*/)
+	void modes(Array<DisplayMode> & /*modes*/)
 	{
 	}
 
@@ -302,12 +302,12 @@ struct DisplayAndroid : public Display
 
 namespace display
 {
-	Display* create(Allocator& a)
+	Display *create(Allocator &a)
 	{
 		return CE_NEW(a, DisplayAndroid)();
 	}
 
-	void destroy(Allocator& a, Display& d)
+	void destroy(Allocator &a, Display &d)
 	{
 		CE_DELETE(a, &d);
 	}
@@ -316,14 +316,14 @@ namespace display
 
 static AndroidDevice s_advc;
 
-bool next_event(OsEvent& ev)
+bool next_event(OsEvent &ev)
 {
 	return s_advc._queue.pop_event(ev);
 }
 
 } // namespace crown
 
-void android_main(struct android_app* app)
+void android_main(struct android_app *app)
 {
 	using namespace crown;
 

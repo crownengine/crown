@@ -18,7 +18,7 @@ namespace crown
 {
 struct ShaderResource
 {
-	ShaderResource(Allocator& a)
+	ShaderResource(Allocator &a)
 		: _data(a)
 	{
 	}
@@ -34,8 +34,8 @@ struct ShaderResource
 		StringId32 name;
 		u64 state;
 		Sampler samplers[4];
-		const bgfx::Memory* vsmem;
-		const bgfx::Memory* fsmem;
+		const bgfx::Memory *vsmem;
+		const bgfx::Memory *fsmem;
 	};
 
 	Array<Data> _data;
@@ -43,11 +43,11 @@ struct ShaderResource
 
 namespace shader_resource_internal
 {
-	s32 compile(CompileOptions& opts);
-	void* load(File& file, Allocator& a);
-	void online(StringId64 id, ResourceManager& rm);
-	void offline(StringId64 id, ResourceManager& rm);
-	void unload(Allocator& a, void* res);
+	s32 compile(CompileOptions &opts);
+	void *load(File &file, Allocator &a);
+	void online(StringId64 id, ResourceManager &rm);
+	void offline(StringId64 id, ResourceManager &rm);
+	void unload(Allocator &a, void *res);
 
 } // namespace shader_resource_internal
 

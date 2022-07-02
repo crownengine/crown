@@ -38,22 +38,22 @@ struct Device
 {
 	LinearAllocator _allocator;
 
-	const DeviceOptions& _options;
+	const DeviceOptions &_options;
 	BootConfig _boot_config;
-	ConsoleServer* _console_server;
-	Filesystem* _data_filesystem;
-	ResourceLoader* _resource_loader;
-	ResourceManager* _resource_manager;
-	BgfxAllocator* _bgfx_allocator;
-	BgfxCallback* _bgfx_callback;
-	ShaderManager* _shader_manager;
-	MaterialManager* _material_manager;
-	InputManager* _input_manager;
-	UnitManager* _unit_manager;
-	LuaEnvironment* _lua_environment;
-	Pipeline* _pipeline;
-	Display* _display;
-	Window* _window;
+	ConsoleServer *_console_server;
+	Filesystem *_data_filesystem;
+	ResourceLoader *_resource_loader;
+	ResourceManager *_resource_manager;
+	BgfxAllocator *_bgfx_allocator;
+	BgfxCallback *_bgfx_callback;
+	ShaderManager *_shader_manager;
+	MaterialManager *_material_manager;
+	InputManager *_input_manager;
+	UnitManager *_unit_manager;
+	LuaEnvironment *_lua_environment;
+	Pipeline *_pipeline;
+	Display *_display;
+	Window *_window;
 	ListNode _worlds;
 
 	u16 _width;
@@ -66,13 +66,13 @@ struct Device
 	bool process_events(bool vsync);
 
 	///
-	Device(const DeviceOptions& opts, ConsoleServer& cs);
+	Device(const DeviceOptions &opts, ConsoleServer &cs);
 
 	///
-	Device(const Device&) = delete;
+	Device(const Device &) = delete;
 
 	///
-	Device& operator=(const Device&) = delete;
+	Device &operator=(const Device &) = delete;
 
 	/// Runs the engine.
 	void run();
@@ -84,9 +84,9 @@ struct Device
 	}
 
 	/// Returns command line parameters.
-	const char** argv() const
+	const char **argv() const
 	{
-		return (const char**)_options._argv;
+		return (const char **)_options._argv;
 	}
 
 	/// Quits the application.
@@ -99,25 +99,25 @@ struct Device
 	void unpause();
 
 	/// Returns the main window resolution.
-	void resolution(u16& width, u16& height);
+	void resolution(u16 &width, u16 &height);
 
 	/// Renders @a world using @a camera.
-	void render(World& world, UnitId camera_unit);
+	void render(World &world, UnitId camera_unit);
 
 	/// Creates a new world.
-	World* create_world();
+	World *create_world();
 
 	/// Destroys the @a world.
-	void destroy_world(World& world);
+	void destroy_world(World &world);
 
 	/// Returns the resource package @a id.
-	ResourcePackage* create_resource_package(StringId64 id);
+	ResourcePackage *create_resource_package(StringId64 id);
 
 	/// Destroys the resource package @a rp.
 	/// @note
 	/// Resources are not automatically unloaded.
 	/// You have to call ResourcePackage::unload() before destroying a package.
-	void destroy_resource_package(ResourcePackage& rp);
+	void destroy_resource_package(ResourcePackage &rp);
 
 	/// Reloads all the resources that have changed since the
 	/// last call to this function.
@@ -125,9 +125,9 @@ struct Device
 };
 
 /// Runs the engine.
-void run(const DeviceOptions& opts);
+void run(const DeviceOptions &opts);
 
 /// Returns the device.
-Device* device();
+Device *device();
 
 } // namespace crown

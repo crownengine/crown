@@ -24,16 +24,16 @@ namespace crown
 {
 namespace material_resource
 {
-	UniformData* uniform_data(const MaterialResource* mr, u32 i)
+	UniformData *uniform_data(const MaterialResource *mr, u32 i)
 	{
-		UniformData* base = (UniformData*)((char*)mr + mr->uniform_data_offset);
+		UniformData *base = (UniformData *)((char *)mr + mr->uniform_data_offset);
 		return &base[i];
 	}
 
-	UniformData* uniform_data_by_name(const MaterialResource* mr, StringId32 name)
+	UniformData *uniform_data_by_name(const MaterialResource *mr, StringId32 name)
 	{
 		for (u32 i = 0, n = mr->num_uniforms; i < n; ++i) {
-			UniformData* data = uniform_data(mr, i);
+			UniformData *data = uniform_data(mr, i);
 			if (data->name == name)
 				return data;
 		}
@@ -42,60 +42,60 @@ namespace material_resource
 		return NULL;
 	}
 
-	const char* uniform_name(const MaterialResource* mr, const UniformData* ud)
+	const char *uniform_name(const MaterialResource *mr, const UniformData *ud)
 	{
-		return (const char*)mr + mr->dynamic_data_offset + mr->dynamic_data_size + ud->name_offset;
+		return (const char *)mr + mr->dynamic_data_offset + mr->dynamic_data_size + ud->name_offset;
 	}
 
-	TextureData* texture_data(const MaterialResource* mr, u32 i)
+	TextureData *texture_data(const MaterialResource *mr, u32 i)
 	{
-		TextureData* base = (TextureData*)((char*)mr + mr->texture_data_offset);
+		TextureData *base = (TextureData *)((char *)mr + mr->texture_data_offset);
 		return &base[i];
 	}
 
-	const char* texture_name(const MaterialResource* mr, const TextureData* td)
+	const char *texture_name(const MaterialResource *mr, const TextureData *td)
 	{
-		return (const char*)mr + mr->dynamic_data_offset + mr->dynamic_data_size + td->sampler_name_offset;
+		return (const char *)mr + mr->dynamic_data_offset + mr->dynamic_data_size + td->sampler_name_offset;
 	}
 
-	UniformHandle* uniform_handle(const MaterialResource* mr, u32 i, char* dynamic)
+	UniformHandle *uniform_handle(const MaterialResource *mr, u32 i, char *dynamic)
 	{
-		UniformData* ud = uniform_data(mr, i);
-		return (UniformHandle*)(dynamic + ud->data_offset);
+		UniformData *ud = uniform_data(mr, i);
+		return (UniformHandle *)(dynamic + ud->data_offset);
 	}
 
-	UniformHandle* uniform_handle_by_name(const MaterialResource* mr, StringId32 name, char* dynamic)
+	UniformHandle *uniform_handle_by_name(const MaterialResource *mr, StringId32 name, char *dynamic)
 	{
-		UniformData* ud = uniform_data_by_name(mr, name);
-		return (UniformHandle*)(dynamic + ud->data_offset);
+		UniformData *ud = uniform_data_by_name(mr, name);
+		return (UniformHandle *)(dynamic + ud->data_offset);
 	}
 
-	TextureHandle* texture_handle(const MaterialResource* mr, u32 i, char* dynamic)
+	TextureHandle *texture_handle(const MaterialResource *mr, u32 i, char *dynamic)
 	{
-		TextureData* td = texture_data(mr, i);
-		return (TextureHandle*)(dynamic + td->data_offset);
+		TextureData *td = texture_data(mr, i);
+		return (TextureHandle *)(dynamic + td->data_offset);
 	}
 
 } // namespace material_resource
 
 namespace material_resource_internal
 {
-	void* load(File& file, Allocator& a)
+	void *load(File &file, Allocator &a)
 	{
 		return device()->_material_manager->load(file, a);
 	}
 
-	void online(StringId64 id, ResourceManager& rm)
+	void online(StringId64 id, ResourceManager &rm)
 	{
 		device()->_material_manager->online(id, rm);
 	}
 
-	void offline(StringId64 id, ResourceManager& rm)
+	void offline(StringId64 id, ResourceManager &rm)
 	{
 		device()->_material_manager->offline(id, rm);
 	}
 
-	void unload(Allocator& a, void* res)
+	void unload(Allocator &a, void *res)
 	{
 		device()->_material_manager->unload(a, res);
 	}
@@ -107,7 +107,7 @@ namespace material_resource_internal
 {
 	struct UniformTypeInfo
 	{
-		const char* name;
+		const char *name;
 		UniformType::Enum type;
 	};
 
@@ -121,7 +121,7 @@ namespace material_resource_internal
 	};
 	CE_STATIC_ASSERT(countof(s_uniform_type_info) == UniformType::COUNT);
 
-	static UniformType::Enum name_to_uniform_type(const char* name)
+	static UniformType::Enum name_to_uniform_type(const char *name)
 	{
 		for (u32 i = 0; i < countof(s_uniform_type_info); ++i) {
 			if (strcmp(s_uniform_type_info[i].name, name) == 0)
@@ -147,14 +147,14 @@ namespace material_resource_internal
 
 	// Returns offset to start of data
 	template<typename T>
-	static u32 reserve_dynamic_data(Array<char>& dynamic, T data)
+	static u32 reserve_dynamic_data(Array<char> &dynamic, T data)
 	{
 		u32 offt = array::size(dynamic);
-		array::push(dynamic, (char*)&data, sizeof(data));
+		array::push(dynamic, (char *)&data, sizeof(data));
 		return offt;
 	}
 
-	static s32 parse_textures(const char* json, Array<TextureData>& textures, Array<char>& names, Array<char>& dynamic, CompileOptions& opts)
+	static s32 parse_textures(const char *json, Array<TextureData> &textures, Array<char> &names, Array<char> &dynamic, CompileOptions &opts)
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
@@ -166,7 +166,7 @@ namespace material_resource_internal
 			JSON_OBJECT_SKIP_HOLE(obj, cur);
 
 			const StringView key = cur->first;
-			const char* value    = cur->second;
+			const char *value    = cur->second;
 
 			DynamicString texture(ta);
 			sjson::parse_string(texture, value);
@@ -194,7 +194,7 @@ namespace material_resource_internal
 		return 0;
 	}
 
-	static s32 parse_uniforms(const char* json, Array<UniformData>& uniforms, Array<char>& names, Array<char>& dynamic, CompileOptions& opts)
+	static s32 parse_uniforms(const char *json, Array<UniformData> &uniforms, Array<char> &names, Array<char> &dynamic, CompileOptions &opts)
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
@@ -206,7 +206,7 @@ namespace material_resource_internal
 			JSON_OBJECT_SKIP_HOLE(obj, cur);
 
 			const StringView key = cur->first;
-			const char* value    = cur->second;
+			const char *value    = cur->second;
 
 			UniformHandle uh;
 			uh.uniform_handle = 0;
@@ -287,7 +287,7 @@ namespace material_resource_internal
 		return 0;
 	}
 
-	s32 compile(CompileOptions& opts)
+	s32 compile(CompileOptions &opts)
 	{
 		Buffer buf = opts.read();
 		TempAllocator4096 ta;

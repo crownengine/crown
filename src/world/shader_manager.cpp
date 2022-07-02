@@ -14,12 +14,12 @@
 
 namespace crown
 {
-ShaderManager::ShaderManager(Allocator& a)
+ShaderManager::ShaderManager(Allocator &a)
 	: _shader_map(a)
 {
 }
 
-void* ShaderManager::load(File& file, Allocator& a)
+void *ShaderManager::load(File &file, Allocator &a)
 {
 	BinaryReader br(file);
 	u32 version;
@@ -29,7 +29,7 @@ void* ShaderManager::load(File& file, Allocator& a)
 	u32 num;
 	br.read(num);
 
-	ShaderResource* sr = CE_NEW(a, ShaderResource)(a);
+	ShaderResource *sr = CE_NEW(a, ShaderResource)(a);
 	array::resize(sr->_data, num);
 
 	for (u32 i = 0; i < num; ++i) {
@@ -56,12 +56,12 @@ void* ShaderManager::load(File& file, Allocator& a)
 
 		u32 vs_code_size;
 		br.read(vs_code_size);
-		const bgfx::Memory* vsmem = bgfx::alloc(vs_code_size);
+		const bgfx::Memory *vsmem = bgfx::alloc(vs_code_size);
 		br.read(vsmem->data, vs_code_size);
 
 		u32 fs_code_size;
 		br.read(fs_code_size);
-		const bgfx::Memory* fsmem = bgfx::alloc(fs_code_size);
+		const bgfx::Memory *fsmem = bgfx::alloc(fs_code_size);
 		br.read(fsmem->data, fs_code_size);
 
 		sr->_data[i].name._id = shader_name;
@@ -73,12 +73,12 @@ void* ShaderManager::load(File& file, Allocator& a)
 	return sr;
 }
 
-void ShaderManager::online(StringId64 id, ResourceManager& rm)
+void ShaderManager::online(StringId64 id, ResourceManager &rm)
 {
-	const ShaderResource* shader = (ShaderResource*)rm.get(RESOURCE_TYPE_SHADER, id);
+	const ShaderResource *shader = (ShaderResource *)rm.get(RESOURCE_TYPE_SHADER, id);
 
 	for (u32 i = 0; i < array::size(shader->_data); ++i) {
-		const ShaderResource::Data& data = shader->_data[i];
+		const ShaderResource::Data &data = shader->_data[i];
 
 		bgfx::ShaderHandle vs = bgfx::createShader(data.vsmem);
 		CE_ASSERT(bgfx::isValid(vs), "Failed to create vertex shader");
@@ -91,12 +91,12 @@ void ShaderManager::online(StringId64 id, ResourceManager& rm)
 	}
 }
 
-void ShaderManager::offline(StringId64 id, ResourceManager& rm)
+void ShaderManager::offline(StringId64 id, ResourceManager &rm)
 {
-	const ShaderResource* shader = (ShaderResource*)rm.get(RESOURCE_TYPE_SHADER, id);
+	const ShaderResource *shader = (ShaderResource *)rm.get(RESOURCE_TYPE_SHADER, id);
 
 	for (u32 i = 0; i < array::size(shader->_data); ++i) {
-		const ShaderResource::Data& data = shader->_data[i];
+		const ShaderResource::Data &data = shader->_data[i];
 
 		ShaderData sd;
 		sd.state = BGFX_STATE_DEFAULT;
@@ -109,9 +109,9 @@ void ShaderManager::offline(StringId64 id, ResourceManager& rm)
 	}
 }
 
-void ShaderManager::unload(Allocator& a, void* res)
+void ShaderManager::unload(Allocator &a, void *res)
 {
-	CE_DELETE(a, (ShaderResource*)res);
+	CE_DELETE(a, (ShaderResource *)res);
 }
 
 void ShaderManager::add_shader(StringId32 name, u64 state, const ShaderResource::Sampler samplers[4], bgfx::ProgramHandle program)

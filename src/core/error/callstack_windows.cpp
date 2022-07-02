@@ -22,7 +22,7 @@ namespace crown
 {
 namespace error
 {
-	void callstack(StringStream& ss)
+	void callstack(StringStream &ss)
 	{
 		SymInitialize(GetCurrentProcess(), NULL, TRUE);
 		SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_UNDNAME);
@@ -58,7 +58,7 @@ namespace error
 		line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
 
 		char buf[sizeof(SYMBOL_INFO) + (MAX_SYM_NAME - 1) * sizeof(TCHAR)];
-		SYMBOL_INFO* sym = new (buf) SYMBOL_INFO();
+		SYMBOL_INFO *sym = new (buf) SYMBOL_INFO();
 		sym->SizeOfStruct = sizeof(SYMBOL_INFO);
 		sym->MaxNameLen = MAX_SYM_NAME;
 

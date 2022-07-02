@@ -10,7 +10,7 @@
 
 namespace crown
 {
-inline BinaryWriter::BinaryWriter(File& file)
+inline BinaryWriter::BinaryWriter(File &file)
 	: _file(file)
 {
 }
@@ -25,20 +25,20 @@ inline void BinaryWriter::align(const u32 align)
 		_file.write(&val, 1);
 }
 
-inline void BinaryWriter::write(const void* data, u32 size)
+inline void BinaryWriter::write(const void *data, u32 size)
 {
 	_file.write(data, size);
 }
 
 template<typename T>
-inline void BinaryWriter::write(const T& data)
+inline void BinaryWriter::write(const T &data)
 {
 	align(alignof(T));
 	_file.write(&data, sizeof(T));
 }
 
 template<typename T>
-inline void BinaryWriter::write_unaligned(const T& data)
+inline void BinaryWriter::write_unaligned(const T &data)
 {
 	_file.write(&data, sizeof(T));
 }
@@ -48,7 +48,7 @@ inline void BinaryWriter::skip(u32 bytes)
 	_file.skip(bytes);
 }
 
-inline BinaryReader::BinaryReader(File& file)
+inline BinaryReader::BinaryReader(File &file)
 	: _file(file)
 {
 }
@@ -61,20 +61,20 @@ inline void BinaryReader::align(const u32 align)
 	_file.skip(pad);
 }
 
-inline void BinaryReader::read(void* data, u32 size)
+inline void BinaryReader::read(void *data, u32 size)
 {
 	_file.read(data, size);
 }
 
 template<typename T>
-inline void BinaryReader::read(T& data)
+inline void BinaryReader::read(T &data)
 {
 	align(alignof(T));
 	_file.read(&data, sizeof(T));
 }
 
 template<typename T>
-inline void BinaryReader::read_unaligned(T& data)
+inline void BinaryReader::read_unaligned(T &data)
 {
 	_file.read(&data, sizeof(T));
 }

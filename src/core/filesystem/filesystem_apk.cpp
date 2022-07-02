@@ -17,10 +17,10 @@ namespace crown
 {
 struct FileApk : public File
 {
-	AAssetManager* _asset_manager;
-	AAsset* _asset;
+	AAssetManager *_asset_manager;
+	AAsset *_asset;
 
-	explicit FileApk(AAssetManager* asset_manager)
+	explicit FileApk(AAssetManager *asset_manager)
 		: _asset_manager(asset_manager)
 		, _asset(NULL)
 	{
@@ -31,7 +31,7 @@ struct FileApk : public File
 		close();
 	}
 
-	void open(const char* path, FileOpenMode::Enum /*mode*/)
+	void open(const char *path, FileOpenMode::Enum /*mode*/)
 	{
 		_asset = AAssetManager_open(_asset_manager, path, AASSET_MODE_RANDOM);
 	}
@@ -91,14 +91,14 @@ struct FileApk : public File
 		CE_UNUSED(seek_result);
 	}
 
-	u32 read(void* data, u32 size)
+	u32 read(void *data, u32 size)
 	{
 		CE_ASSERT(is_open(), "File is not open");
 		CE_ENSURE(NULL != data);
 		return (u32)AAsset_read(_asset, data, size);
 	}
 
-	u32 write(const void* /*data*/, u32 /*size*/)
+	u32 write(const void * /*data*/, u32 /*size*/)
 	{
 		CE_ASSERT(is_open(), "File is not open");
 		CE_FATAL("Apk files are read only!");
@@ -111,27 +111,27 @@ struct FileApk : public File
 	}
 };
 
-FilesystemApk::FilesystemApk(Allocator& a, AAssetManager* asset_manager)
+FilesystemApk::FilesystemApk(Allocator &a, AAssetManager *asset_manager)
 	: _allocator(&a)
 	, _asset_manager(asset_manager)
 {
 }
 
-File* FilesystemApk::open(const char* path, FileOpenMode::Enum mode)
+File *FilesystemApk::open(const char *path, FileOpenMode::Enum mode)
 {
 	CE_ENSURE(NULL != path);
 	CE_ASSERT(mode == FileOpenMode::READ, "Cannot open for writing in Android assets folder");
-	FileApk* file = CE_NEW(*_allocator, FileApk)(_asset_manager);
+	FileApk *file = CE_NEW(*_allocator, FileApk)(_asset_manager);
 	file->open(path, mode);
 	return file;
 }
 
-void FilesystemApk::close(File& file)
+void FilesystemApk::close(File &file)
 {
 	CE_DELETE(*_allocator, &file);
 }
 
-Stat FilesystemApk::stat(const char* /*path*/)
+Stat FilesystemApk::stat(const char * /*path*/)
 {
 	Stat info;
 	info.file_type = Stat::REGULAR;
@@ -140,27 +140,27 @@ Stat FilesystemApk::stat(const char* /*path*/)
 	return info;
 }
 
-bool FilesystemApk::exists(const char* /*path*/)
+bool FilesystemApk::exists(const char * /*path*/)
 {
 	return true;
 }
 
-bool FilesystemApk::is_directory(const char* path)
+bool FilesystemApk::is_directory(const char *path)
 {
 	return true;
 }
 
-bool FilesystemApk::is_file(const char* path)
+bool FilesystemApk::is_file(const char *path)
 {
 	return true;
 }
 
-u64 FilesystemApk::last_modified_time(const char* path)
+u64 FilesystemApk::last_modified_time(const char *path)
 {
 	return 0;
 }
 
-CreateResult FilesystemApk::create_directory(const char* /*path*/)
+CreateResult FilesystemApk::create_directory(const char * /*path*/)
 {
 	CE_FATAL("Cannot create directory in Android assets folder");
 	CreateResult cr;
@@ -168,7 +168,7 @@ CreateResult FilesystemApk::create_directory(const char* /*path*/)
 	return cr;
 }
 
-DeleteResult FilesystemApk::delete_directory(const char* /*path*/)
+DeleteResult FilesystemApk::delete_directory(const char * /*path*/)
 {
 	CE_FATAL("Cannot delete directory in Android assets folder");
 	DeleteResult dr;
@@ -176,7 +176,7 @@ DeleteResult FilesystemApk::delete_directory(const char* /*path*/)
 	return dr;
 }
 
-DeleteResult FilesystemApk::delete_file(const char* /*path*/)
+DeleteResult FilesystemApk::delete_file(const char * /*path*/)
 {
 	CE_FATAL("Cannot delete file in Android assets folder");
 	DeleteResult dr;
@@ -184,14 +184,14 @@ DeleteResult FilesystemApk::delete_file(const char* /*path*/)
 	return dr;
 }
 
-void FilesystemApk::list_files(const char* path, Vector<DynamicString>& files)
+void FilesystemApk::list_files(const char *path, Vector<DynamicString> &files)
 {
 	CE_ENSURE(NULL != path);
 
-	AAssetDir* root_dir = AAssetManager_openDir(_asset_manager, path);
+	AAssetDir *root_dir = AAssetManager_openDir(_asset_manager, path);
 	CE_ASSERT(root_dir != NULL, "Failed to open Android assets folder");
 
-	const char* filename = NULL;
+	const char *filename = NULL;
 	while ((filename = AAssetDir_getNextFileName(root_dir)) != NULL) {
 		TempAllocator512 ta;
 		DynamicString name(ta);
@@ -202,7 +202,7 @@ void FilesystemApk::list_files(const char* path, Vector<DynamicString>& files)
 	AAssetDir_close(root_dir);
 }
 
-void FilesystemApk::absolute_path(DynamicString& os_path, const char* path)
+void FilesystemApk::absolute_path(DynamicString &os_path, const char *path)
 {
 	os_path = path;
 }

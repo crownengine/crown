@@ -25,7 +25,7 @@ namespace crown
 template<>
 struct hash<PackageResource::Resource>
 {
-	u32 operator()(const PackageResource::Resource& val) const
+	u32 operator()(const PackageResource::Resource &val) const
 	{
 		return (u32)resource_id(val.type, val.name)._id;
 	}
@@ -41,26 +41,26 @@ PackageResource::Resource::Resource(StringId64 t, StringId64 n)
 {
 }
 
-bool operator<(const PackageResource::Resource& a, const PackageResource::Resource& b)
+bool operator<(const PackageResource::Resource &a, const PackageResource::Resource &b)
 {
 	return a.type < b.type;
 }
 
-bool operator==(const PackageResource::Resource& a, const PackageResource::Resource& b)
+bool operator==(const PackageResource::Resource &a, const PackageResource::Resource &b)
 {
 	return a.type == b.type
 		&& a.name == b.name
 		;
 }
 
-PackageResource::PackageResource(Allocator& a)
+PackageResource::PackageResource(Allocator &a)
 	: resources(a)
 {
 }
 
 namespace package_resource_internal
 {
-	void* load(File& file, Allocator& a)
+	void *load(File &file, Allocator &a)
 	{
 		BinaryReader br(file);
 
@@ -71,16 +71,16 @@ namespace package_resource_internal
 		u32 num_resources;
 		br.read(num_resources);
 
-		PackageResource* pr = CE_NEW(a, PackageResource)(a);
+		PackageResource *pr = CE_NEW(a, PackageResource)(a);
 		array::resize(pr->resources, num_resources);
 		br.read(array::begin(pr->resources), sizeof(PackageResource::Resource)*num_resources);
 
 		return pr;
 	}
 
-	void unload(Allocator& a, void* resource)
+	void unload(Allocator &a, void *resource)
 	{
-		CE_DELETE(a, (PackageResource*)resource);
+		CE_DELETE(a, (PackageResource *)resource);
 	}
 
 } // namespace package_resource_internal
@@ -88,18 +88,18 @@ namespace package_resource_internal
 #if CROWN_CAN_COMPILE
 namespace package_resource_internal
 {
-	s32 bring_in_requirements(HashSet<PackageResource::Resource>& output, CompileOptions& opts, ResourceId res_id)
+	s32 bring_in_requirements(HashSet<PackageResource::Resource> &output, CompileOptions &opts, ResourceId res_id)
 	{
 		HashMap<DynamicString, u32> reqs_deffault(default_allocator());
-		HashMap<DynamicString, u32>& reqs = hash_map::get(opts._data_compiler._data_requirements, res_id, reqs_deffault);
+		HashMap<DynamicString, u32> &reqs = hash_map::get(opts._data_compiler._data_requirements, res_id, reqs_deffault);
 
 		auto cur = hash_map::begin(reqs);
 		auto end = hash_map::end(reqs);
 		for (; cur != end; ++cur) {
 			HASH_MAP_SKIP_HOLE(reqs, cur);
 
-			const char* req_filename = cur->first.c_str();
-			const char* req_type = resource_type(req_filename);
+			const char *req_filename = cur->first.c_str();
+			const char *req_type = resource_type(req_filename);
 			const u32 req_name_len = resource_name_length(req_type, req_filename);
 
 			const StringId64 req_type_hash(req_type);
@@ -112,7 +112,7 @@ namespace package_resource_internal
 		return 0;
 	}
 
-	s32 compile_resources(HashSet<PackageResource::Resource>& output, CompileOptions& opts, const char* type, const JsonArray& names)
+	s32 compile_resources(HashSet<PackageResource::Resource> &output, CompileOptions &opts, const char *type, const JsonArray &names)
 	{
 		const StringId64 type_hash = StringId64(type);
 
@@ -135,7 +135,7 @@ namespace package_resource_internal
 		return 0;
 	}
 
-	s32 compile(CompileOptions& opts)
+	s32 compile(CompileOptions &opts)
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);

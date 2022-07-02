@@ -16,62 +16,62 @@ namespace crown
 /// @{
 
 /// Appends @a val to the stream @a s using appropriate formatting.
-inline StringStream& operator<<(StringStream& s, char val)
+inline StringStream &operator<<(StringStream &s, char val)
 {
 	array::push_back(s, val);
 	return s;
 }
 
 /// Appends @a val to the stream @a s using appropriate formatting.
-inline StringStream& operator<<(StringStream& s, s16 val)
+inline StringStream &operator<<(StringStream &s, s16 val)
 {
 	return string_stream::stream_printf(s, "%hd", val);
 }
 
 /// Appends @a val to the stream @a s using appropriate formatting.
-inline StringStream& operator<<(StringStream& s, u16 val)
+inline StringStream &operator<<(StringStream &s, u16 val)
 {
 	return string_stream::stream_printf(s, "%hu", val);
 }
 
 /// Appends @a val to the stream @a s using appropriate formatting.
-inline StringStream& operator<<(StringStream& s, s32 val)
+inline StringStream &operator<<(StringStream &s, s32 val)
 {
 	return string_stream::stream_printf(s, "%d", val);
 }
 
 /// Appends @a val to the stream @a s using appropriate formatting.
-inline StringStream& operator<<(StringStream& s, u32 val)
+inline StringStream &operator<<(StringStream &s, u32 val)
 {
 	return string_stream::stream_printf(s, "%u", val);
 }
 
 /// Appends @a val to the stream @a s using appropriate formatting.
-inline StringStream& operator<<(StringStream& s, s64 val)
+inline StringStream &operator<<(StringStream &s, s64 val)
 {
 	return string_stream::stream_printf(s, "%lld", val);
 }
 
 /// Appends @a val to the stream @a s using appropriate formatting.
-inline StringStream& operator<<(StringStream& s, u64 val)
+inline StringStream &operator<<(StringStream &s, u64 val)
 {
 	return string_stream::stream_printf(s, "%llu", val);
 }
 
 /// Appends @a val to the stream @a s using appropriate formatting.
-inline StringStream& operator<<(StringStream& s, f32 val)
+inline StringStream &operator<<(StringStream &s, f32 val)
 {
 	return string_stream::stream_printf(s, "%.9g", val);
 }
 
 /// Appends @a val to the stream @a s using appropriate formatting.
-inline StringStream& operator<<(StringStream& s, f64 val)
+inline StringStream &operator<<(StringStream &s, f64 val)
 {
 	return string_stream::stream_printf(s, "%.17g", val);
 }
 
 /// Appends the string @a str to the stream @a s.
-inline StringStream& operator<<(StringStream& s, const char* str)
+inline StringStream &operator<<(StringStream &s, const char *str)
 {
 	array::push(s, str, strlen32(str));
 	return s;
@@ -81,7 +81,7 @@ inline StringStream& operator<<(StringStream& s, const char* str)
 
 namespace string_stream
 {
-	inline const char* c_str(StringStream& s)
+	inline const char *c_str(StringStream &s)
 	{
 		array::push_back(s, '\0');
 		array::pop_back(s);
@@ -89,7 +89,7 @@ namespace string_stream
 	}
 
 	template<typename T>
-	inline StringStream& stream_printf(StringStream& s, const char* format, T& val)
+	inline StringStream &stream_printf(StringStream &s, const char *format, T &val)
 	{
 		char buf[32];
 		stbsp_snprintf(buf, sizeof(buf), format, val);

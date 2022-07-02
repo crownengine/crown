@@ -26,12 +26,12 @@
 
 namespace crown
 {
-static void unit_destroyed_callback_bridge(UnitId unit, void* user_ptr)
+static void unit_destroyed_callback_bridge(UnitId unit, void *user_ptr)
 {
-	((RenderWorld*)user_ptr)->unit_destroyed_callback(unit);
+	((RenderWorld *)user_ptr)->unit_destroyed_callback(unit);
 }
 
-static void selection_draw_override(UnitId unit_id, RenderWorld* rw)
+static void selection_draw_override(UnitId unit_id, RenderWorld *rw)
 {
 	// FIXME: add support to multi-pass shaders and remove this function.
 	if (!hash_set::has(rw->_selection, unit_id)) {
@@ -49,7 +49,7 @@ static void selection_draw_override(UnitId unit_id, RenderWorld* rw)
 	rw->_shader_manager->submit(STRING_ID_32("selection", UINT32_C(0xfcb44ca9)), VIEW_SELECTION);
 }
 
-RenderWorld::RenderWorld(Allocator& a, ResourceManager& rm, ShaderManager& sm, MaterialManager& mm, UnitManager& um)
+RenderWorld::RenderWorld(Allocator &a, ResourceManager &rm, ShaderManager &sm, MaterialManager &mm, UnitManager &um)
 	: _marker(RENDER_WORLD_MARKER)
 	, _resource_manager(&rm)
 	, _shader_manager(&sm)
@@ -96,9 +96,9 @@ RenderWorld::~RenderWorld()
 	_marker = 0;
 }
 
-MeshInstance RenderWorld::mesh_create(UnitId unit, const MeshRendererDesc& mrd, const Matrix4x4& tr)
+MeshInstance RenderWorld::mesh_create(UnitId unit, const MeshRendererDesc &mrd, const Matrix4x4 &tr)
 {
-	const MeshResource* mr = (const MeshResource*)_resource_manager->get(RESOURCE_TYPE_MESH, mrd.mesh_resource);
+	const MeshResource *mr = (const MeshResource *)_resource_manager->get(RESOURCE_TYPE_MESH, mrd.mesh_resource);
 	_material_manager->create_material(mrd.material_resource);
 	return _mesh_manager.create(unit, mr, mrd, tr);
 }
@@ -114,7 +114,7 @@ MeshInstance RenderWorld::mesh_instance(UnitId unit)
 	return _mesh_manager.mesh(unit);
 }
 
-Material* RenderWorld::mesh_material(MeshInstance mesh)
+Material *RenderWorld::mesh_material(MeshInstance mesh)
 {
 	CE_ASSERT(mesh.i < _mesh_manager._data.size, "Index out of bounds");
 	return _material_manager->get(_mesh_manager._data.material[mesh.i]);
@@ -137,8 +137,8 @@ OBB RenderWorld::mesh_obb(MeshInstance mesh)
 {
 	CE_ASSERT(mesh.i < _mesh_manager._data.size, "Index out of bounds");
 
-	const Matrix4x4& world = _mesh_manager._data.world[mesh.i];
-	const OBB& obb = _mesh_manager._data.obb[mesh.i];
+	const Matrix4x4 &world = _mesh_manager._data.world[mesh.i];
+	const OBB &obb = _mesh_manager._data.obb[mesh.i];
 
 	OBB o;
 	o.tm = obb.tm * world;
@@ -147,23 +147,23 @@ OBB RenderWorld::mesh_obb(MeshInstance mesh)
 	return o;
 }
 
-f32 RenderWorld::mesh_cast_ray(MeshInstance mesh, const Vector3& from, const Vector3& dir)
+f32 RenderWorld::mesh_cast_ray(MeshInstance mesh, const Vector3 &from, const Vector3 &dir)
 {
 	CE_ASSERT(mesh.i < _mesh_manager._data.size, "Index out of bounds");
-	const MeshGeometry* mg = _mesh_manager._data.geometry[mesh.i];
+	const MeshGeometry *mg = _mesh_manager._data.geometry[mesh.i];
 	return ray_mesh_intersection(from
 		, dir
 		, _mesh_manager._data.world[mesh.i]
 		, mg->vertices.data
 		, mg->vertices.stride
-		, (u16*)mg->indices.data
+		, (u16 *)mg->indices.data
 		, mg->indices.num
 		);
 }
 
-SpriteInstance RenderWorld::sprite_create(UnitId unit, const SpriteRendererDesc& srd, const Matrix4x4& tr)
+SpriteInstance RenderWorld::sprite_create(UnitId unit, const SpriteRendererDesc &srd, const Matrix4x4 &tr)
 {
-	const SpriteResource* sr = (const SpriteResource*)_resource_manager->get(RESOURCE_TYPE_SPRITE, srd.sprite_resource);
+	const SpriteResource *sr = (const SpriteResource *)_resource_manager->get(RESOURCE_TYPE_SPRITE, srd.sprite_resource);
 	_material_manager->create_material(srd.material_resource);
 	return _sprite_manager.create(unit, sr, srd, tr);
 }
@@ -182,11 +182,11 @@ SpriteInstance RenderWorld::sprite_instance(UnitId unit)
 void RenderWorld::sprite_set_sprite(SpriteInstance sprite, StringId64 sprite_resource_name)
 {
 	CE_ASSERT(sprite.i < _sprite_manager._data.size, "Index out of bounds");
-	const SpriteResource* resource = (SpriteResource*)_resource_manager->get(RESOURCE_TYPE_SPRITE, sprite_resource_name);
+	const SpriteResource *resource = (SpriteResource *)_resource_manager->get(RESOURCE_TYPE_SPRITE, sprite_resource_name);
 	_sprite_manager._data.resource[sprite.i] = resource;
 }
 
-Material* RenderWorld::sprite_material(SpriteInstance sprite)
+Material *RenderWorld::sprite_material(SpriteInstance sprite)
 {
 	CE_ASSERT(sprite.i < _sprite_manager._data.size, "Index out of bounds");
 	return _material_manager->get(_sprite_manager._data.material[sprite.i]);
@@ -239,8 +239,8 @@ OBB RenderWorld::sprite_obb(SpriteInstance sprite)
 {
 	CE_ASSERT(sprite.i < _sprite_manager._data.size, "Index out of bounds");
 
-	const OBB& obb = _sprite_manager._data.resource[sprite.i]->obb;
-	const Matrix4x4& world = _sprite_manager._data.world[sprite.i];
+	const OBB &obb = _sprite_manager._data.resource[sprite.i]->obb;
+	const Matrix4x4 &world = _sprite_manager._data.world[sprite.i];
 
 	OBB o;
 	o.tm = obb.tm * world;
@@ -249,12 +249,12 @@ OBB RenderWorld::sprite_obb(SpriteInstance sprite)
 	return o;
 }
 
-f32 RenderWorld::sprite_cast_ray(SpriteInstance sprite, const Vector3& from, const Vector3& dir, u32& layer, u32& depth)
+f32 RenderWorld::sprite_cast_ray(SpriteInstance sprite, const Vector3 &from, const Vector3 &dir, u32 &layer, u32 &depth)
 {
 	CE_ASSERT(sprite.i < _sprite_manager._data.size, "Index out of bounds");
 
-	const SpriteManager::SpriteInstanceData& sid = _sprite_manager._data;
-	const f32* frame = sprite_resource::frame_data(sid.resource[sprite.i], sid.frame[sprite.i]);
+	const SpriteManager::SpriteInstanceData &sid = _sprite_manager._data;
+	const f32 *frame = sprite_resource::frame_data(sid.resource[sprite.i], sid.frame[sprite.i]);
 
 	const f32 vertices[] =
 	{
@@ -283,7 +283,7 @@ f32 RenderWorld::sprite_cast_ray(SpriteInstance sprite, const Vector3& from, con
 		);
 }
 
-LightInstance RenderWorld::light_create(UnitId unit, const LightDesc& ld, const Matrix4x4& tr)
+LightInstance RenderWorld::light_create(UnitId unit, const LightDesc &ld, const Matrix4x4 &tr)
 {
 	return _light_manager.create(unit, ld, tr);
 }
@@ -329,7 +329,7 @@ f32 RenderWorld::light_spot_angle(LightInstance light)
 	return _light_manager._data.spot_angle[light.i];
 }
 
-void RenderWorld::light_set_color(LightInstance light, const Color4& col)
+void RenderWorld::light_set_color(LightInstance light, const Color4 &col)
 {
 	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
 	_light_manager._data.color[light.i] = col;
@@ -359,17 +359,17 @@ void RenderWorld::light_set_spot_angle(LightInstance light, f32 angle)
 	_light_manager._data.spot_angle[light.i] = angle;
 }
 
-void RenderWorld::light_debug_draw(LightInstance light, DebugLine& dl)
+void RenderWorld::light_debug_draw(LightInstance light, DebugLine &dl)
 {
 	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
 	_light_manager.debug_draw(light.i, 1, dl);
 }
 
-void RenderWorld::update_transforms(const UnitId* begin, const UnitId* end, const Matrix4x4* world)
+void RenderWorld::update_transforms(const UnitId *begin, const UnitId *end, const Matrix4x4 *world)
 {
-	MeshManager::MeshInstanceData& mid = _mesh_manager._data;
-	SpriteManager::SpriteInstanceData& sid = _sprite_manager._data;
-	LightManager::LightInstanceData& lid = _light_manager._data;
+	MeshManager::MeshInstanceData &mid = _mesh_manager._data;
+	SpriteManager::SpriteInstanceData &sid = _sprite_manager._data;
+	LightManager::LightInstanceData &lid = _light_manager._data;
 
 	for (; begin != end; ++begin, ++world) {
 		if (_mesh_manager.has(*begin)) {
@@ -389,9 +389,9 @@ void RenderWorld::update_transforms(const UnitId* begin, const UnitId* end, cons
 	}
 }
 
-void RenderWorld::render(const Matrix4x4& view)
+void RenderWorld::render(const Matrix4x4 &view)
 {
-	LightManager::LightInstanceData& lid = _light_manager._data;
+	LightManager::LightInstanceData &lid = _light_manager._data;
 
 	for (u32 ll = 0; ll < lid.size; ++ll) {
 		const Vector4 ldir = normalize(lid.world[ll].z) * view;
@@ -431,16 +431,16 @@ void RenderWorld::render(const Matrix4x4& view)
 		);
 }
 
-void RenderWorld::debug_draw(DebugLine& dl)
+void RenderWorld::debug_draw(DebugLine &dl)
 {
 	if (!_debug_drawing)
 		return;
 
-	MeshManager::MeshInstanceData& mid = _mesh_manager._data;
+	MeshManager::MeshInstanceData &mid = _mesh_manager._data;
 
 	for (u32 i = 0; i < mid.size; ++i) {
-		const OBB& obb = mid.obb[i];
-		const Matrix4x4& world = mid.world[i];
+		const OBB &obb = mid.obb[i];
+		const Matrix4x4 &world = mid.world[i];
 		dl.add_obb(obb.tm * world, obb.half_extents, COLOR4_RED);
 	}
 
@@ -482,8 +482,8 @@ void RenderWorld::MeshManager::allocate(u32 num)
 
 	const u32 bytes = 0
 		+ num*sizeof(UnitId) + alignof(UnitId)
-		+ num*sizeof(MeshResource*) + alignof(MeshResource*)
-		+ num*sizeof(MeshGeometry*) + alignof(MeshGeometry*)
+		+ num*sizeof(MeshResource *) + alignof(MeshResource *)
+		+ num*sizeof(MeshGeometry *) + alignof(MeshGeometry *)
 		+ num*sizeof(MeshData) + alignof(MeshData)
 		+ num*sizeof(StringId64) + alignof(StringId64)
 		+ num*sizeof(Matrix4x4) + alignof(Matrix4x4)
@@ -496,17 +496,17 @@ void RenderWorld::MeshManager::allocate(u32 num)
 	new_data.buffer = _allocator->allocate(bytes);
 	new_data.first_hidden = _data.first_hidden;
 
-	new_data.unit          = (UnitId*             )memory::align_top(new_data.buffer,         alignof(UnitId));
-	new_data.resource      = (const MeshResource**)memory::align_top(new_data.unit + num,     alignof(MeshResource*));
-	new_data.geometry      = (const MeshGeometry**)memory::align_top(new_data.resource + num, alignof(MeshGeometry*));
-	new_data.mesh          = (MeshData*           )memory::align_top(new_data.geometry + num, alignof(MeshData));
-	new_data.material      = (StringId64*         )memory::align_top(new_data.mesh + num,     alignof(StringId64));
-	new_data.world         = (Matrix4x4*          )memory::align_top(new_data.material + num, alignof(Matrix4x4));
-	new_data.obb           = (OBB*                )memory::align_top(new_data.world + num,    alignof(OBB));
+	new_data.unit          = (UnitId *             )memory::align_top(new_data.buffer,         alignof(UnitId));
+	new_data.resource      = (const MeshResource **)memory::align_top(new_data.unit + num,     alignof(MeshResource *));
+	new_data.geometry      = (const MeshGeometry **)memory::align_top(new_data.resource + num, alignof(MeshGeometry *));
+	new_data.mesh          = (MeshData *           )memory::align_top(new_data.geometry + num, alignof(MeshData));
+	new_data.material      = (StringId64 *         )memory::align_top(new_data.mesh + num,     alignof(StringId64));
+	new_data.world         = (Matrix4x4 *          )memory::align_top(new_data.material + num, alignof(Matrix4x4));
+	new_data.obb           = (OBB *                )memory::align_top(new_data.world + num,    alignof(OBB));
 
 	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
-	memcpy(new_data.resource, _data.resource, _data.size * sizeof(MeshResource*));
-	memcpy(new_data.geometry, _data.geometry, _data.size * sizeof(MeshGeometry*));
+	memcpy(new_data.resource, _data.resource, _data.size * sizeof(MeshResource *));
+	memcpy(new_data.geometry, _data.geometry, _data.size * sizeof(MeshGeometry *));
 	memcpy(new_data.mesh, _data.mesh, _data.size * sizeof(MeshData));
 	memcpy(new_data.material, _data.material, _data.size * sizeof(StringId64));
 	memcpy(new_data.world, _data.world, _data.size * sizeof(Matrix4x4));
@@ -521,7 +521,7 @@ void RenderWorld::MeshManager::grow()
 	allocate(_data.capacity * 2 + 1);
 }
 
-MeshInstance RenderWorld::MeshManager::create(UnitId unit, const MeshResource* mr, const MeshRendererDesc& mrd, const Matrix4x4& tr)
+MeshInstance RenderWorld::MeshManager::create(UnitId unit, const MeshResource *mr, const MeshRendererDesc &mrd, const Matrix4x4 &tr)
 {
 	CE_ASSERT(!hash_map::has(_map, unit), "Unit already has a mesh component");
 
@@ -530,7 +530,7 @@ MeshInstance RenderWorld::MeshManager::create(UnitId unit, const MeshResource* m
 
 	const u32 last = _data.size;
 
-	const MeshGeometry* mg = mr->geometry(mrd.geometry_name);
+	const MeshGeometry *mg = mr->geometry(mrd.geometry_name);
 
 	_data.unit[last]     = unit;
 	_data.resource[last] = mr;
@@ -642,7 +642,7 @@ void RenderWorld::MeshManager::destroy()
 	_allocator->deallocate(_data.buffer);
 }
 
-void RenderWorld::MeshManager::draw(u8 view, ResourceManager* rm, ShaderManager* sm, MaterialManager* mm, DrawOverride draw_override)
+void RenderWorld::MeshManager::draw(u8 view, ResourceManager *rm, ShaderManager *sm, MaterialManager *mm, DrawOverride draw_override)
 {
 	for (u32 ii = 0; ii < _data.first_hidden; ++ii) {
 		bgfx::setTransform(to_float_ptr(_data.world[ii]));
@@ -662,7 +662,7 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 
 	const u32 bytes = 0
 		+ num*sizeof(UnitId) + alignof(UnitId)
-		+ num*sizeof(SpriteResource**) + alignof(SpriteResource*)
+		+ num*sizeof(SpriteResource **) + alignof(SpriteResource *)
 		+ num*sizeof(StringId64) + alignof(StringId64)
 		+ num*sizeof(u32) + alignof(u32)
 		+ num*sizeof(Matrix4x4) + alignof(Matrix4x4)
@@ -679,16 +679,16 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 	new_data.buffer = _allocator->allocate(bytes);
 	new_data.first_hidden = _data.first_hidden;
 
-	new_data.unit     = (UnitId*               )memory::align_top(new_data.buffer,         alignof(UnitId));
-	new_data.resource = (const SpriteResource**)memory::align_top(new_data.unit + num,     alignof(SpriteResource*));
-	new_data.material = (StringId64*           )memory::align_top(new_data.resource + num, alignof(StringId64));
-	new_data.frame    = (u32*                  )memory::align_top(new_data.material + num, alignof(u32));
-	new_data.world    = (Matrix4x4*            )memory::align_top(new_data.frame + num,    alignof(Matrix4x4));
-	new_data.aabb     = (AABB*                 )memory::align_top(new_data.world + num,    alignof(AABB));
-	new_data.flip_x   = (bool*                 )memory::align_top(new_data.aabb + num,     alignof(bool));
-	new_data.flip_y   = (bool*                 )memory::align_top(new_data.flip_x + num,   alignof(bool));
-	new_data.layer    = (u32*                  )memory::align_top(new_data.flip_y + num,   alignof(u32));
-	new_data.depth    = (u32*                  )memory::align_top(new_data.layer + num,    alignof(u32));
+	new_data.unit     = (UnitId *               )memory::align_top(new_data.buffer,         alignof(UnitId));
+	new_data.resource = (const SpriteResource **)memory::align_top(new_data.unit + num,     alignof(SpriteResource *));
+	new_data.material = (StringId64 *           )memory::align_top(new_data.resource + num, alignof(StringId64));
+	new_data.frame    = (u32 *                  )memory::align_top(new_data.material + num, alignof(u32));
+	new_data.world    = (Matrix4x4 *            )memory::align_top(new_data.frame + num,    alignof(Matrix4x4));
+	new_data.aabb     = (AABB *                 )memory::align_top(new_data.world + num,    alignof(AABB));
+	new_data.flip_x   = (bool *                 )memory::align_top(new_data.aabb + num,     alignof(bool));
+	new_data.flip_y   = (bool *                 )memory::align_top(new_data.flip_x + num,   alignof(bool));
+	new_data.layer    = (u32 *                  )memory::align_top(new_data.flip_y + num,   alignof(u32));
+	new_data.depth    = (u32 *                  )memory::align_top(new_data.layer + num,    alignof(u32));
 
 	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
 	memcpy(new_data.resource, _data.resource, _data.size * sizeof(SpriteResource**));
@@ -710,7 +710,7 @@ void RenderWorld::SpriteManager::grow()
 	allocate(_data.capacity * 2 + 1);
 }
 
-SpriteInstance RenderWorld::SpriteManager::create(UnitId unit, const SpriteResource* sr, const SpriteRendererDesc& srd, const Matrix4x4& tr)
+SpriteInstance RenderWorld::SpriteManager::create(UnitId unit, const SpriteResource *sr, const SpriteRendererDesc &srd, const Matrix4x4 &tr)
 {
 	CE_ASSERT(!hash_map::has(_map, unit), "Unit already has a sprite component");
 
@@ -836,13 +836,13 @@ void RenderWorld::SpriteManager::destroy()
 	_allocator->deallocate(_data.buffer);
 }
 
-void RenderWorld::SpriteManager::draw(u8 view, ResourceManager* rm, ShaderManager* sm, MaterialManager* mm, DrawOverride draw_override)
+void RenderWorld::SpriteManager::draw(u8 view, ResourceManager *rm, ShaderManager *sm, MaterialManager *mm, DrawOverride draw_override)
 {
 	bgfx::VertexLayout layout;
 	bgfx::TransientVertexBuffer tvb;
 	bgfx::TransientIndexBuffer tib;
-	f32* vdata;
-	u16* idata;
+	f32 *vdata;
+	u16 *idata;
 
 	// Allocate vertex and index buffers.
 	if (_data.first_hidden) {
@@ -854,13 +854,13 @@ void RenderWorld::SpriteManager::draw(u8 view, ResourceManager* rm, ShaderManage
 		bgfx::allocTransientVertexBuffer(&tvb, 4*_data.first_hidden, layout);
 		bgfx::allocTransientIndexBuffer(&tib, 6*_data.first_hidden);
 
-		vdata = (f32*)tvb.data;
-		idata = (u16*)tib.data;
+		vdata = (f32 *)tvb.data;
+		idata = (u16 *)tib.data;
 	}
 
 	// Render all sprites.
 	for (u32 ii = 0; ii < _data.first_hidden; ++ii) {
-		const f32* frame = sprite_resource::frame_data(_data.resource[ii]
+		const f32 *frame = sprite_resource::frame_data(_data.resource[ii]
 			, _data.frame[ii] % _data.resource[ii]->num_frames
 			);
 
@@ -951,13 +951,13 @@ void RenderWorld::LightManager::allocate(u32 num)
 	new_data.capacity = num;
 	new_data.buffer = _allocator->allocate(bytes);
 
-	new_data.unit       = (UnitId*   )memory::align_top(new_data.buffer,           alignof(UnitId));
-	new_data.world      = (Matrix4x4*)memory::align_top(new_data.unit + num,       alignof(Matrix4x4));
-	new_data.range      = (f32*      )memory::align_top(new_data.world + num,      alignof(f32));
-	new_data.intensity  = (f32*      )memory::align_top(new_data.range + num,      alignof(f32));
-	new_data.spot_angle = (f32*      )memory::align_top(new_data.intensity + num,  alignof(f32));
-	new_data.color      = (Color4*   )memory::align_top(new_data.spot_angle + num, alignof(Color4));
-	new_data.type       = (u32*      )memory::align_top(new_data.color + num,      alignof(u32));
+	new_data.unit       = (UnitId *   )memory::align_top(new_data.buffer,           alignof(UnitId));
+	new_data.world      = (Matrix4x4 *)memory::align_top(new_data.unit + num,       alignof(Matrix4x4));
+	new_data.range      = (f32 *      )memory::align_top(new_data.world + num,      alignof(f32));
+	new_data.intensity  = (f32 *      )memory::align_top(new_data.range + num,      alignof(f32));
+	new_data.spot_angle = (f32 *      )memory::align_top(new_data.intensity + num,  alignof(f32));
+	new_data.color      = (Color4 *   )memory::align_top(new_data.spot_angle + num, alignof(Color4));
+	new_data.type       = (u32 *      )memory::align_top(new_data.color + num,      alignof(u32));
 
 	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
 	memcpy(new_data.world, _data.world, _data.size * sizeof(Matrix4x4));
@@ -976,7 +976,7 @@ void RenderWorld::LightManager::grow()
 	allocate(_data.capacity * 2 + 1);
 }
 
-LightInstance RenderWorld::LightManager::create(UnitId unit, const LightDesc& ld, const Matrix4x4& tr)
+LightInstance RenderWorld::LightManager::create(UnitId unit, const LightDesc &ld, const Matrix4x4 &tr)
 {
 	CE_ASSERT(!hash_map::has(_map, unit), "Unit already has a light component");
 
@@ -1036,7 +1036,7 @@ void RenderWorld::LightManager::destroy()
 	_allocator->deallocate(_data.buffer);
 }
 
-void RenderWorld::LightManager::debug_draw(u32 start_index, u32 num, DebugLine& dl)
+void RenderWorld::LightManager::debug_draw(u32 start_index, u32 num, DebugLine &dl)
 {
 	for (u32 i = start_index; i < start_index + num; ++i) {
 		const Vector3 pos = translation(_data.world[i]);

@@ -23,22 +23,22 @@ namespace crown
 {
 namespace shader_resource_internal
 {
-	void* load(File& file, Allocator& a)
+	void *load(File &file, Allocator &a)
 	{
 		return device()->_shader_manager->load(file, a);
 	}
 
-	void online(StringId64 id, ResourceManager& rm)
+	void online(StringId64 id, ResourceManager &rm)
 	{
 		device()->_shader_manager->online(id, rm);
 	}
 
-	void offline(StringId64 id, ResourceManager& rm)
+	void offline(StringId64 id, ResourceManager &rm)
 	{
 		device()->_shader_manager->offline(id, rm);
 	}
 
-	void unload(Allocator& a, void* res)
+	void unload(Allocator &a, void *res)
 	{
 		device()->_shader_manager->unload(a, res);
 	}
@@ -48,7 +48,7 @@ namespace shader_resource_internal
 #if CROWN_CAN_COMPILE
 namespace shader_resource_internal
 {
-	static const char* shaderc_paths[] =
+	static const char *shaderc_paths[] =
 	{
 		EXE_PATH("shaderc"),
 #if CROWN_DEBUG
@@ -164,7 +164,7 @@ namespace shader_resource_internal
 
 	struct DepthTestInfo
 	{
-		const char* name;
+		const char *name;
 		DepthFunction::Enum value;
 	};
 
@@ -183,7 +183,7 @@ namespace shader_resource_internal
 
 	struct BlendFunctionInfo
 	{
-		const char* name;
+		const char *name;
 		BlendFunction::Enum value;
 	};
 
@@ -207,7 +207,7 @@ namespace shader_resource_internal
 
 	struct BlendEquationInfo
 	{
-		const char* name;
+		const char *name;
 		BlendEquation::Enum value;
 	};
 
@@ -223,7 +223,7 @@ namespace shader_resource_internal
 
 	struct CullModeInfo
 	{
-		const char* name;
+		const char *name;
 		CullMode::Enum value;
 	};
 
@@ -237,7 +237,7 @@ namespace shader_resource_internal
 
 	struct PrimitiveTypeInfo
 	{
-		const char* name;
+		const char *name;
 		PrimitiveType::Enum value;
 	};
 
@@ -253,7 +253,7 @@ namespace shader_resource_internal
 
 	struct SamplerFilterInfo
 	{
-		const char* name;
+		const char *name;
 		SamplerFilter::Enum value;
 	};
 
@@ -266,7 +266,7 @@ namespace shader_resource_internal
 
 	struct SamplerWrapInfo
 	{
-		const char* name;
+		const char *name;
 		SamplerWrap::Enum value;
 	};
 
@@ -375,7 +375,7 @@ namespace shader_resource_internal
 	};
 	CE_STATIC_ASSERT(countof(_bgfx_sampler_wrap_w_map) == SamplerWrap::COUNT);
 
-	static DepthFunction::Enum name_to_depth_func(const char* name)
+	static DepthFunction::Enum name_to_depth_func(const char *name)
 	{
 		for (u32 i = 0; i < countof(_depth_test_map); ++i) {
 			if (strcmp(name, _depth_test_map[i].name) == 0)
@@ -385,7 +385,7 @@ namespace shader_resource_internal
 		return DepthFunction::COUNT;
 	}
 
-	static BlendFunction::Enum name_to_blend_function(const char* name)
+	static BlendFunction::Enum name_to_blend_function(const char *name)
 	{
 		for (u32 i = 0; i < countof(_blend_func_map); ++i) {
 			if (strcmp(name, _blend_func_map[i].name) == 0)
@@ -395,7 +395,7 @@ namespace shader_resource_internal
 		return BlendFunction::COUNT;
 	}
 
-	static BlendEquation::Enum name_to_blend_equation(const char* name)
+	static BlendEquation::Enum name_to_blend_equation(const char *name)
 	{
 		for (u32 i = 0; i < countof(_blend_equation_map); ++i) {
 			if (strcmp(name, _blend_equation_map[i].name) == 0)
@@ -405,7 +405,7 @@ namespace shader_resource_internal
 		return BlendEquation::COUNT;
 	}
 
-	static CullMode::Enum name_to_cull_mode(const char* name)
+	static CullMode::Enum name_to_cull_mode(const char *name)
 	{
 		for (u32 i = 0; i < countof(_cull_mode_map); ++i) {
 			if (strcmp(name, _cull_mode_map[i].name) == 0)
@@ -415,7 +415,7 @@ namespace shader_resource_internal
 		return CullMode::COUNT;
 	}
 
-	static PrimitiveType::Enum name_to_primitive_type(const char* name)
+	static PrimitiveType::Enum name_to_primitive_type(const char *name)
 	{
 		for (u32 i = 0; i < countof(_primitive_type_map); ++i) {
 			if (strcmp(name, _primitive_type_map[i].name) == 0)
@@ -425,7 +425,7 @@ namespace shader_resource_internal
 		return PrimitiveType::COUNT;
 	}
 
-	static SamplerFilter::Enum name_to_sampler_filter(const char* name)
+	static SamplerFilter::Enum name_to_sampler_filter(const char *name)
 	{
 		for (u32 i = 0; i < countof(_sampler_filter_map); ++i) {
 			if (strcmp(name, _sampler_filter_map[i].name) == 0)
@@ -435,7 +435,7 @@ namespace shader_resource_internal
 		return SamplerFilter::COUNT;
 	}
 
-	static SamplerWrap::Enum name_to_sampler_wrap(const char* name)
+	static SamplerWrap::Enum name_to_sampler_wrap(const char *name)
 	{
 		for (u32 i = 0; i < countof(_sampler_wrap_map); ++i) {
 			if (strcmp(name, _sampler_wrap_map[i].name) == 0)
@@ -445,16 +445,16 @@ namespace shader_resource_internal
 		return SamplerWrap::COUNT;
 	}
 
-	static s32 run_external_compiler(Process& pr
-		, const char* shaderc
-		, const char* infile
-		, const char* outfile
-		, const char* varying
-		, const char* type
-		, const char* platform
+	static s32 run_external_compiler(Process &pr
+		, const char *shaderc
+		, const char *infile
+		, const char *outfile
+		, const char *varying
+		, const char *type
+		, const char *platform
 		)
 	{
-		const char* argv[] =
+		const char *argv[] =
 		{
 			shaderc,
 			"-f",
@@ -606,7 +606,7 @@ namespace shader_resource_internal
 		DynamicString _fs_input_output;
 		HashMap<DynamicString, DynamicString> _samplers;
 
-		explicit BgfxShader(Allocator& a)
+		explicit BgfxShader(Allocator &a)
 			: _includes(a)
 			, _code(a)
 			, _vs_code(a)
@@ -626,7 +626,7 @@ namespace shader_resource_internal
 		DynamicString _bgfx_shader;
 		DynamicString _render_state;
 
-		explicit ShaderPermutation(Allocator& a)
+		explicit ShaderPermutation(Allocator &a)
 			: _bgfx_shader(a)
 			, _render_state(a)
 		{
@@ -640,7 +640,7 @@ namespace shader_resource_internal
 		DynamicString _shader;
 		Vector<DynamicString> _defines;
 
-		explicit StaticCompile(Allocator& a)
+		explicit StaticCompile(Allocator &a)
 			: _shader(a)
 			, _defines(a)
 		{
@@ -649,7 +649,7 @@ namespace shader_resource_internal
 
 	struct ShaderCompiler
 	{
-		CompileOptions& _opts;
+		CompileOptions &_opts;
 		HashMap<DynamicString, RenderState> _render_states;
 		HashMap<DynamicString, SamplerState> _sampler_states;
 		HashMap<DynamicString, BgfxShader> _bgfx_shaders;
@@ -662,7 +662,7 @@ namespace shader_resource_internal
 		DynamicString _vs_out_path;
 		DynamicString _fs_out_path;
 
-		explicit ShaderCompiler(CompileOptions& opts)
+		explicit ShaderCompiler(CompileOptions &opts)
 			: _opts(opts)
 			, _render_states(default_allocator())
 			, _sampler_states(default_allocator())
@@ -682,7 +682,7 @@ namespace shader_resource_internal
 			_opts.temporary_path(_fs_out_path, "fs_out.bin");
 		}
 
-		s32 parse(const char* path)
+		s32 parse(const char *path)
 		{
 			return parse(_opts.read(path));
 		}
@@ -732,7 +732,7 @@ namespace shader_resource_internal
 			return 0;
 		}
 
-		s32 parse_render_states(const char* json)
+		s32 parse_render_states(const char *json)
 		{
 			TempAllocator4096 ta;
 			JsonObject render_states(ta);
@@ -848,7 +848,7 @@ namespace shader_resource_internal
 			return 0;
 		}
 
-		s32 parse_sampler_states(const char* json)
+		s32 parse_sampler_states(const char *json)
 		{
 			TempAllocator4096 ta;
 			JsonObject sampler_states(ta);
@@ -941,7 +941,7 @@ namespace shader_resource_internal
 			return 0;
 		}
 
-		s32 parse_bgfx_shaders(const char* json)
+		s32 parse_bgfx_shaders(const char *json)
 		{
 			TempAllocator4096 ta;
 			JsonObject bgfx_shaders(ta);
@@ -987,7 +987,7 @@ namespace shader_resource_internal
 			return 0;
 		}
 
-		s32 parse_bgfx_samplers(BgfxShader& bgfxshader, const char* json)
+		s32 parse_bgfx_samplers(BgfxShader &bgfxshader, const char *json)
 		{
 			TempAllocator4096 ta;
 			JsonObject bgfx_samplers(ta);
@@ -1024,7 +1024,7 @@ namespace shader_resource_internal
 			return 0;
 		}
 
-		s32 parse_shaders(const char* json)
+		s32 parse_shaders(const char *json)
 		{
 			TempAllocator4096 ta;
 			JsonObject shaders(ta);
@@ -1056,7 +1056,7 @@ namespace shader_resource_internal
 			return 0;
 		}
 
-		s32 parse_static_compile(const char* json)
+		s32 parse_static_compile(const char *json)
 		{
 			TempAllocator4096 ta;
 			JsonArray static_compile(ta);
@@ -1098,9 +1098,9 @@ namespace shader_resource_internal
 			_opts.write(vector::size(_static_compile));
 
 			for (u32 ii = 0; ii < vector::size(_static_compile); ++ii) {
-				const StaticCompile& sc              = _static_compile[ii];
-				const DynamicString& shader          = sc._shader;
-				const Vector<DynamicString>& defines = sc._defines;
+				const StaticCompile &sc              = _static_compile[ii];
+				const DynamicString &shader          = sc._shader;
+				const Vector<DynamicString> &defines = sc._defines;
 
 				TempAllocator1024 ta;
 				DynamicString str(ta);
@@ -1117,9 +1117,9 @@ namespace shader_resource_internal
 					, shader.c_str()
 					);
 				const ShaderPermutation sp_default(default_allocator());
-				const ShaderPermutation& sp       = hash_map::get(_shaders, shader, sp_default);
-				const DynamicString& bgfx_shader  = sp._bgfx_shader;
-				const DynamicString& render_state = sp._render_state;
+				const ShaderPermutation &sp       = hash_map::get(_shaders, shader, sp_default);
+				const DynamicString &bgfx_shader  = sp._bgfx_shader;
+				const DynamicString &render_state = sp._render_state;
 
 				DATA_COMPILER_ASSERT(hash_map::has(_bgfx_shaders, sp._bgfx_shader)
 					, _opts
@@ -1133,7 +1133,7 @@ namespace shader_resource_internal
 					);
 
 				const RenderState rs_default;
-				const RenderState& rs = hash_map::get(_render_states, render_state, rs_default);
+				const RenderState &rs = hash_map::get(_render_states, render_state, rs_default);
 
 				_opts.write(shader_name._id);                                // Shader name
 				_opts.write(rs.encode());                                    // Render state
@@ -1145,13 +1145,13 @@ namespace shader_resource_internal
 			return 0;
 		}
 
-		void compile_sampler_states(const char* bgfx_shader)
+		void compile_sampler_states(const char *bgfx_shader)
 		{
 			TempAllocator512 ta;
 			DynamicString key(ta);
 			key = bgfx_shader;
 			const BgfxShader shader_default(default_allocator());
-			const BgfxShader& shader = hash_map::get(_bgfx_shaders, key, shader_default);
+			const BgfxShader &shader = hash_map::get(_bgfx_shaders, key, shader_default);
 
 			_opts.write(hash_map::size(shader._samplers));
 
@@ -1160,28 +1160,28 @@ namespace shader_resource_internal
 			for (; cur != end; ++cur) {
 				HASH_MAP_SKIP_HOLE(shader._samplers, cur);
 
-				const DynamicString& name = cur->first;
-				const DynamicString& sampler_state = cur->second;
+				const DynamicString &name = cur->first;
+				const DynamicString &sampler_state = cur->second;
 				const SamplerState ss_default;
-				const SamplerState& ss = hash_map::get(_sampler_states, sampler_state, ss_default);
+				const SamplerState &ss = hash_map::get(_sampler_states, sampler_state, ss_default);
 
 				_opts.write(name.to_string_id());
 				_opts.write(ss.encode());
 			}
 		}
 
-		s32 compile_bgfx_shader(const char* bgfx_shader, const Vector<DynamicString>& defines)
+		s32 compile_bgfx_shader(const char *bgfx_shader, const Vector<DynamicString> &defines)
 		{
 			TempAllocator512 taa;
 			DynamicString key(taa);
 			key = bgfx_shader;
 			const BgfxShader shader_default(default_allocator());
-			const BgfxShader& shader = hash_map::get(_bgfx_shaders, key, shader_default);
+			const BgfxShader &shader = hash_map::get(_bgfx_shaders, key, shader_default);
 
 			DynamicString included_code(default_allocator());
 			if (!(shader._includes == "")) {
 				const BgfxShader included_default(default_allocator());
-				const BgfxShader& included = hash_map::get(_bgfx_shaders, shader._includes, included_default);
+				const BgfxShader &included = hash_map::get(_bgfx_shaders, shader._includes, included_default);
 				included_code = included._code;
 			}
 
@@ -1206,7 +1206,7 @@ namespace shader_resource_internal
 			_opts.write_temporary(_fs_src_path.c_str(), fs_code);
 			_opts.write_temporary(_varying_path.c_str(), shader._varying.c_str(), shader._varying.length());
 
-			const char* shaderc = _opts.exe_path(shaderc_paths, countof(shaderc_paths));
+			const char *shaderc = _opts.exe_path(shaderc_paths, countof(shaderc_paths));
 			DATA_COMPILER_ASSERT(shaderc != NULL, _opts, "shaderc not found");
 
 			// Invoke shaderc
@@ -1293,7 +1293,7 @@ namespace shader_resource_internal
 		}
 	};
 
-	s32 compile(CompileOptions& opts)
+	s32 compile(CompileOptions &opts)
 	{
 		ShaderCompiler sc(opts);
 		s32 err = sc.parse(opts.source_path());

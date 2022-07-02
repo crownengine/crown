@@ -67,7 +67,7 @@ namespace crown
 {
 static volatile bool _quit = false;
 
-static void notify_add_file(const char* path)
+static void notify_add_file(const char *path)
 {
 	TempAllocator512 ta;
 	StringStream ss(ta);
@@ -75,7 +75,7 @@ static void notify_add_file(const char* path)
 	console_server()->broadcast(string_stream::c_str(ss));
 }
 
-static void notify_remove_file(const char* path)
+static void notify_remove_file(const char *path)
 {
 	TempAllocator512 ta;
 	StringStream ss(ta);
@@ -83,7 +83,7 @@ static void notify_remove_file(const char* path)
 	console_server()->broadcast(string_stream::c_str(ss));
 }
 
-static void notify_add_tree(const char* path)
+static void notify_add_tree(const char *path)
 {
 	TempAllocator512 ta;
 	StringStream ss(ta);
@@ -91,7 +91,7 @@ static void notify_add_tree(const char* path)
 	console_server()->broadcast(string_stream::c_str(ss));
 }
 
-static void notify_remove_tree(const char* path)
+static void notify_remove_tree(const char *path)
 {
 	TempAllocator512 ta;
 	StringStream ss(ta);
@@ -104,7 +104,7 @@ SourceIndex::SourceIndex()
 {
 }
 
-void SourceIndex::scan_directory(FilesystemDisk& fs, const char* prefix, const char* directory)
+void SourceIndex::scan_directory(FilesystemDisk &fs, const char *prefix, const char *directory)
 {
 	Vector<DynamicString> files(default_allocator());
 	fs.list_files(directory != NULL ? directory : "", files);
@@ -146,7 +146,7 @@ void SourceIndex::scan_directory(FilesystemDisk& fs, const char* prefix, const c
 	}
 }
 
-void SourceIndex::scan(const HashMap<DynamicString, DynamicString>& source_dirs)
+void SourceIndex::scan(const HashMap<DynamicString, DynamicString> &source_dirs)
 {
 	auto cur = hash_map::begin(source_dirs);
 	auto end = hash_map::end(source_dirs);
@@ -165,21 +165,21 @@ void SourceIndex::scan(const HashMap<DynamicString, DynamicString>& source_dirs)
 
 struct LineReader
 {
-	const char* _str;
+	const char *_str;
 	const u32 _len;
 	u32 _pos;
 
-	explicit LineReader(const char* str)
+	explicit LineReader(const char *str)
 		: _str(str)
 		, _len(strlen32(str))
 		, _pos(0)
 	{
 	}
 
-	void read_line(DynamicString& line)
+	void read_line(DynamicString &line)
 	{
-		const char* s  = &_str[_pos];
-		const char* nl = strnl(s);
+		const char *s  = &_str[_pos];
+		const char *nl = strnl(s);
 		_pos += u32(nl - s);
 		line.set(s, u32(nl - s));
 	}
@@ -190,7 +190,7 @@ struct LineReader
 	}
 };
 
-static void console_command_compile(ConsoleServer& cs, u32 client_id, const char* json, void* user_data)
+static void console_command_compile(ConsoleServer &cs, u32 client_id, const char *json, void *user_data)
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
@@ -209,7 +209,7 @@ static void console_command_compile(ConsoleServer& cs, u32 client_id, const char
 		cs.send(client_id, string_stream::c_str(ss));
 	}
 
-	bool succ = ((DataCompiler*)user_data)->compile(data_dir.c_str(), platform.c_str());
+	bool succ = ((DataCompiler *)user_data)->compile(data_dir.c_str(), platform.c_str());
 
 	{
 		StringStream ss(ta);
@@ -218,14 +218,14 @@ static void console_command_compile(ConsoleServer& cs, u32 client_id, const char
 	}
 }
 
-static void console_command_quit(ConsoleServer& /*cs*/, u32 /*client_id*/, const char* /*json*/, void* /*user_data*/)
+static void console_command_quit(ConsoleServer & /*cs*/, u32 /*client_id*/, const char * /*json*/, void * /*user_data*/)
 {
 	_quit = true;
 }
 
-static void console_command_refresh_list(ConsoleServer& cs, u32 client_id, const char* json, void* user_data)
+static void console_command_refresh_list(ConsoleServer &cs, u32 client_id, const char *json, void *user_data)
 {
-	DataCompiler* dc = (DataCompiler*)user_data;
+	DataCompiler *dc = (DataCompiler *)user_data;
 
 	TempAllocator4096 ta;
 	StringStream ss(ta);
@@ -258,11 +258,11 @@ static void console_command_refresh_list(ConsoleServer& cs, u32 client_id, const
 	hash_map::set(dc->_client_revisions, client_guid, dc->_revision);
 }
 
-static Buffer read(FilesystemDisk& data_fs, const char* filename)
+static Buffer read(FilesystemDisk &data_fs, const char *filename)
 {
 	Buffer buffer(default_allocator());
 
-	File* file = data_fs.open(filename, FileOpenMode::READ);
+	File *file = data_fs.open(filename, FileOpenMode::READ);
 	if (file->is_open()) {
 		u32 size = file->size();
 		if (size == 0) {
@@ -278,7 +278,7 @@ static Buffer read(FilesystemDisk& data_fs, const char* filename)
 	return buffer;
 }
 
-static void parse_data_versions(HashMap<DynamicString, u32>& versions, const JsonObject& obj)
+static void parse_data_versions(HashMap<DynamicString, u32> &versions, const JsonObject &obj)
 {
 	auto cur = json_object::begin(obj);
 	auto end = json_object::end(obj);
@@ -293,7 +293,7 @@ static void parse_data_versions(HashMap<DynamicString, u32>& versions, const Jso
 	}
 }
 
-static void read_data_versions(HashMap<DynamicString, u32>& versions, FilesystemDisk& data_fs, const char* filename)
+static void read_data_versions(HashMap<DynamicString, u32> &versions, FilesystemDisk &data_fs, const char *filename)
 {
 	Buffer json = read(data_fs, filename);
 
@@ -304,7 +304,7 @@ static void read_data_versions(HashMap<DynamicString, u32>& versions, Filesystem
 	parse_data_versions(versions, obj);
 }
 
-static void parse_data_index(HashMap<StringId64, DynamicString>& index, const JsonObject& obj, const SourceIndex& sources)
+static void parse_data_index(HashMap<StringId64, DynamicString> &index, const JsonObject &obj, const SourceIndex &sources)
 {
 	auto cur = json_object::begin(obj);
 	auto end = json_object::end(obj);
@@ -326,7 +326,7 @@ static void parse_data_index(HashMap<StringId64, DynamicString>& index, const Js
 	}
 }
 
-static void read_data_index(HashMap<StringId64, DynamicString>& index, FilesystemDisk& data_fs, const char* filename, const SourceIndex& sources)
+static void read_data_index(HashMap<StringId64, DynamicString> &index, FilesystemDisk &data_fs, const char *filename, const SourceIndex &sources)
 {
 	Buffer json = read(data_fs, filename);
 
@@ -337,7 +337,7 @@ static void read_data_index(HashMap<StringId64, DynamicString>& index, Filesyste
 	parse_data_index(index, obj, sources);
 }
 
-static void parse_data_mtimes(HashMap<StringId64, u64>& mtimes, const JsonObject& obj, const HashMap<StringId64, DynamicString>& data_index)
+static void parse_data_mtimes(HashMap<StringId64, u64> &mtimes, const JsonObject &obj, const HashMap<StringId64, DynamicString> &data_index)
 {
 	auto cur = json_object::begin(obj);
 	auto end = json_object::end(obj);
@@ -360,7 +360,7 @@ static void parse_data_mtimes(HashMap<StringId64, u64>& mtimes, const JsonObject
 	}
 }
 
-static void read_data_mtimes(HashMap<StringId64, u64>& mtimes, FilesystemDisk& data_fs, const char* filename, const HashMap<StringId64, DynamicString>& data_index)
+static void read_data_mtimes(HashMap<StringId64, u64> &mtimes, FilesystemDisk &data_fs, const char *filename, const HashMap<StringId64, DynamicString> &data_index)
 {
 	Buffer json = read(data_fs, filename);
 
@@ -371,10 +371,10 @@ static void read_data_mtimes(HashMap<StringId64, u64>& mtimes, FilesystemDisk& d
 	parse_data_mtimes(mtimes, obj, data_index);
 }
 
-static void add_dependency_internal(HashMap<StringId64, HashMap<DynamicString, u32>>& dependencies, ResourceId id, const DynamicString& dependency)
+static void add_dependency_internal(HashMap<StringId64, HashMap<DynamicString, u32>> &dependencies, ResourceId id, const DynamicString &dependency)
 {
 	HashMap<DynamicString, u32> deps_deffault(default_allocator());
-	HashMap<DynamicString, u32>& deps = hash_map::get(dependencies, id, deps_deffault);
+	HashMap<DynamicString, u32> &deps = hash_map::get(dependencies, id, deps_deffault);
 
 	hash_map::set(deps, dependency, 0u);
 
@@ -382,7 +382,7 @@ static void add_dependency_internal(HashMap<StringId64, HashMap<DynamicString, u
 		hash_map::set(dependencies, id, deps);
 }
 
-static void add_dependency_internal(HashMap<StringId64, HashMap<DynamicString, u32>>& dependencies, ResourceId id, const char* dependency)
+static void add_dependency_internal(HashMap<StringId64, HashMap<DynamicString, u32>> &dependencies, ResourceId id, const char *dependency)
 {
 	TempAllocator512 ta;
 	DynamicString dependency_str(ta);
@@ -391,7 +391,7 @@ static void add_dependency_internal(HashMap<StringId64, HashMap<DynamicString, u
 	add_dependency_internal(dependencies, id, dependency_str);
 }
 
-static void read_data_dependencies(DataCompiler& dc, FilesystemDisk& data_fs, const char* filename, const HashMap<StringId64, DynamicString>& data_index)
+static void read_data_dependencies(DataCompiler &dc, FilesystemDisk &data_fs, const char *filename, const HashMap<StringId64, DynamicString> &data_index)
 {
 	Buffer json = read(data_fs, filename);
 
@@ -427,11 +427,11 @@ static void read_data_dependencies(DataCompiler& dc, FilesystemDisk& data_fs, co
 	}
 }
 
-static void write_data_index(FilesystemDisk& data_fs, const char* filename, const HashMap<StringId64, DynamicString>& index)
+static void write_data_index(FilesystemDisk &data_fs, const char *filename, const HashMap<StringId64, DynamicString> &index)
 {
 	StringStream ss(default_allocator());
 
-	File* file = data_fs.open(filename, FileOpenMode::WRITE);
+	File *file = data_fs.open(filename, FileOpenMode::WRITE);
 	if (file->is_open()) {
 		auto cur = hash_map::begin(index);
 		auto end = hash_map::end(index);
@@ -449,11 +449,11 @@ static void write_data_index(FilesystemDisk& data_fs, const char* filename, cons
 	data_fs.close(*file);
 }
 
-static void write_data_versions(FilesystemDisk& data_fs, const char* filename, const HashMap<DynamicString, u32>& versions)
+static void write_data_versions(FilesystemDisk &data_fs, const char *filename, const HashMap<DynamicString, u32> &versions)
 {
 	StringStream ss(default_allocator());
 
-	File* file = data_fs.open(filename, FileOpenMode::WRITE);
+	File *file = data_fs.open(filename, FileOpenMode::WRITE);
 	if (file->is_open()) {
 		auto cur = hash_map::begin(versions);
 		auto end = hash_map::end(versions);
@@ -468,11 +468,11 @@ static void write_data_versions(FilesystemDisk& data_fs, const char* filename, c
 	data_fs.close(*file);
 }
 
-static void write_data_mtimes(FilesystemDisk& data_fs, const char* filename, const HashMap<StringId64, u64>& mtimes)
+static void write_data_mtimes(FilesystemDisk &data_fs, const char *filename, const HashMap<StringId64, u64> &mtimes)
 {
 	StringStream ss(default_allocator());
 
-	File* file = data_fs.open(filename, FileOpenMode::WRITE);
+	File *file = data_fs.open(filename, FileOpenMode::WRITE);
 	if (file->is_open()) {
 		auto cur = hash_map::begin(mtimes);
 		auto end = hash_map::end(mtimes);
@@ -490,11 +490,11 @@ static void write_data_mtimes(FilesystemDisk& data_fs, const char* filename, con
 	data_fs.close(*file);
 }
 
-static void write_data_dependencies(FilesystemDisk& data_fs, const char* filename, const HashMap<StringId64, DynamicString>& index, const HashMap<StringId64, HashMap<DynamicString, u32>>& dependencies, const HashMap<StringId64, HashMap<DynamicString, u32>>& requirements)
+static void write_data_dependencies(FilesystemDisk &data_fs, const char *filename, const HashMap<StringId64, DynamicString> &index, const HashMap<StringId64, HashMap<DynamicString, u32>> &dependencies, const HashMap<StringId64, HashMap<DynamicString, u32>> &requirements)
 {
 	StringStream ss(default_allocator());
 
-	File* file = data_fs.open(filename, FileOpenMode::WRITE);
+	File *file = data_fs.open(filename, FileOpenMode::WRITE);
 	if (file->is_open()) {
 		auto cur = hash_map::begin(index);
 		auto end = hash_map::end(index);
@@ -502,9 +502,9 @@ static void write_data_dependencies(FilesystemDisk& data_fs, const char* filenam
 			HASH_MAP_SKIP_HOLE(index, cur);
 
 			HashMap<DynamicString, u32> deps_deffault(default_allocator());
-			const HashMap<DynamicString, u32>& deps = hash_map::get(dependencies, cur->first, deps_deffault);
+			const HashMap<DynamicString, u32> &deps = hash_map::get(dependencies, cur->first, deps_deffault);
 			HashMap<DynamicString, u32> reqs_deffault(default_allocator());
-			const HashMap<DynamicString, u32>& reqs = hash_map::get(requirements, cur->first, reqs_deffault);
+			const HashMap<DynamicString, u32> &reqs = hash_map::get(requirements, cur->first, reqs_deffault);
 
 			// Skip if data has no dependencies
 			if (hash_map::size(deps) == 0 && hash_map::size(reqs) == 0)
@@ -541,7 +541,7 @@ static void write_data_dependencies(FilesystemDisk& data_fs, const char* filenam
 	data_fs.close(*file);
 }
 
-DataCompiler::DataCompiler(const DeviceOptions& opts, ConsoleServer& cs)
+DataCompiler::DataCompiler(const DeviceOptions &opts, ConsoleServer &cs)
 	: _options(&opts)
 	, _console_server(&cs)
 	, _source_fs(default_allocator())
@@ -569,7 +569,7 @@ DataCompiler::~DataCompiler()
 		_file_monitor.stop();
 }
 
-void DataCompiler::add_file(const char* path)
+void DataCompiler::add_file(const char *path)
 {
 	// Get source directory prefix
 	TempAllocator512 ta;
@@ -598,7 +598,7 @@ void DataCompiler::add_file(const char* path)
 		notify_add_file(path);
 }
 
-void DataCompiler::remove_file(const char* path)
+void DataCompiler::remove_file(const char *path)
 {
 	TempAllocator512 ta;
 	DynamicString path_str(ta);
@@ -616,12 +616,12 @@ void DataCompiler::remove_file(const char* path)
 	notify_remove_file(path);
 }
 
-void DataCompiler::add_tree(const char* path)
+void DataCompiler::add_tree(const char *path)
 {
 	notify_add_tree(path);
 }
 
-void DataCompiler::remove_tree(const char* path)
+void DataCompiler::remove_tree(const char *path)
 {
 	TempAllocator512 ta;
 	DynamicString tree_path(ta);
@@ -652,7 +652,7 @@ void DataCompiler::remove_tree(const char* path)
 	notify_remove_tree(path);
 }
 
-void DataCompiler::remove_file_or_tree(const char* path)
+void DataCompiler::remove_file_or_tree(const char *path)
 {
 	TempAllocator512 ta;
 	DynamicString path_str(ta);
@@ -664,7 +664,7 @@ void DataCompiler::remove_file_or_tree(const char* path)
 		remove_tree(path);
 }
 
-void DataCompiler::map_source_dir(const char* name, const char* source_dir)
+void DataCompiler::map_source_dir(const char *name, const char *source_dir)
 {
 	TempAllocator256 ta;
 	DynamicString sname(ta);
@@ -674,9 +674,9 @@ void DataCompiler::map_source_dir(const char* name, const char* source_dir)
 	hash_map::set(_source_dirs, sname, sdir);
 }
 
-void DataCompiler::source_dir(const char* resource_name, DynamicString& source_dir)
+void DataCompiler::source_dir(const char *resource_name, DynamicString &source_dir)
 {
-	const char* slash = strchr(resource_name, '/');
+	const char *slash = strchr(resource_name, '/');
 
 	TempAllocator256 ta;
 	DynamicString source_name(ta);
@@ -694,7 +694,7 @@ void DataCompiler::source_dir(const char* resource_name, DynamicString& source_d
 	source_dir = hash_map::get(_source_dirs, source_name, deffault);
 }
 
-void DataCompiler::add_ignore_glob(const char* glob)
+void DataCompiler::add_ignore_glob(const char *glob)
 {
 	TempAllocator64 ta;
 	DynamicString str(ta);
@@ -702,13 +702,13 @@ void DataCompiler::add_ignore_glob(const char* glob)
 	vector::push_back(_globs, str);
 }
 
-void DataCompiler::scan_and_restore(const char* data_dir)
+void DataCompiler::scan_and_restore(const char *data_dir)
 {
 	// Scan all source directories
 	s64 time_start = time::now();
 
 	// FIXME: refactor this whole garbage
-	Array<const char*> directories(default_allocator());
+	Array<const char *> directories(default_allocator());
 
 	auto cur = hash_map::begin(_source_dirs);
 	auto end = hash_map::end(_source_dirs);
@@ -718,16 +718,16 @@ void DataCompiler::scan_and_restore(const char* data_dir)
 		DynamicString prefix(default_allocator());
 		path::join(prefix, cur->second.c_str(), cur->first.c_str());
 
-		char* str = (char*)default_allocator().allocate(prefix.length() + 1);
+		char *str = (char *)default_allocator().allocate(prefix.length() + 1);
 		strcpy(str, prefix.c_str());
-		array::push_back(directories, (const char*)str);
+		array::push_back(directories, (const char *)str);
 
 		_source_fs.set_prefix(prefix.c_str());
 
-		File* file = _source_fs.open(CROWN_DATAIGNORE, FileOpenMode::READ);
+		File *file = _source_fs.open(CROWN_DATAIGNORE, FileOpenMode::READ);
 		if (file->is_open()) {
 			const u32 size = file->size();
-			char* data = (char*)default_allocator().allocate(size + 1);
+			char *data = (char *)default_allocator().allocate(size + 1);
 			file->read(data, size);
 			data[size] = '\0';
 
@@ -781,10 +781,10 @@ void DataCompiler::scan_and_restore(const char* data_dir)
 
 	// Cleanup
 	for (u32 i = 0, n = array::size(directories); i < n; ++i)
-		default_allocator().deallocate((void*)directories[n - 1 - i]);
+		default_allocator().deallocate((void *)directories[n - 1 - i]);
 }
 
-void DataCompiler::save(const char* data_dir)
+void DataCompiler::save(const char *data_dir)
 {
 	s64 time_start = time::now();
 
@@ -798,7 +798,7 @@ void DataCompiler::save(const char* data_dir)
 	logi(DATA_COMPILER, "Saved state in " TIME_FMT, time::seconds(time::now() - time_start));
 }
 
-bool DataCompiler::dependency_changed(const DynamicString& path, ResourceId id, u64 dst_mtime)
+bool DataCompiler::dependency_changed(const DynamicString &path, ResourceId id, u64 dst_mtime)
 {
 	Stat stat;
 	stat.file_type = Stat::FileType::NO_ENTRY;
@@ -809,7 +809,7 @@ bool DataCompiler::dependency_changed(const DynamicString& path, ResourceId id, 
 		return true;
 
 	const HashMap<DynamicString, u32> deffault(default_allocator());
-	const HashMap<DynamicString, u32>& deps = hash_map::get(_data_dependencies, id, deffault);
+	const HashMap<DynamicString, u32> &deps = hash_map::get(_data_dependencies, id, deffault);
 	auto cur = hash_map::begin(deps);
 	auto end = hash_map::end(deps);
 	for (; cur != end; ++cur) {
@@ -825,14 +825,14 @@ bool DataCompiler::dependency_changed(const DynamicString& path, ResourceId id, 
 	return false;
 }
 
-bool DataCompiler::version_changed(const DynamicString& path, ResourceId id)
+bool DataCompiler::version_changed(const DynamicString &path, ResourceId id)
 {
-	const char* type = resource_type(path.c_str());
+	const char *type = resource_type(path.c_str());
 	if (data_version_stored(type) != data_version(type))
 		return true;
 
 	const HashMap<DynamicString, u32> deffault(default_allocator());
-	const HashMap<DynamicString, u32>& deps = hash_map::get(_data_dependencies, id, deffault);
+	const HashMap<DynamicString, u32> &deps = hash_map::get(_data_dependencies, id, deffault);
 	auto cur = hash_map::begin(deps);
 	auto end = hash_map::end(deps);
 	for (; cur != end; ++cur) {
@@ -848,7 +848,7 @@ bool DataCompiler::version_changed(const DynamicString& path, ResourceId id)
 	return false;
 }
 
-bool DataCompiler::path_matches_ignore_glob(const char* path)
+bool DataCompiler::path_matches_ignore_glob(const char *path)
 {
 	for (u32 ii = 0, nn = vector::size(_globs); ii < nn; ++ii) {
 		if (wildcmp(_globs[ii].c_str(), path))
@@ -858,14 +858,14 @@ bool DataCompiler::path_matches_ignore_glob(const char* path)
 	return false;
 }
 
-bool DataCompiler::path_is_special(const char* path)
+bool DataCompiler::path_is_special(const char *path)
 {
 	return strcmp(path, "_level_editor_test.level") == 0
 		|| strcmp(path, "_level_editor_test.package") == 0
 		;
 }
 
-bool DataCompiler::compile(const char* data_dir, const char* platform)
+bool DataCompiler::compile(const char *data_dir, const char *platform)
 {
 	const s64 time_start = time::now();
 
@@ -884,7 +884,7 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 	for (; cur != end; ++cur) {
 		HASH_MAP_SKIP_HOLE(_source_index._paths, cur);
 
-		const DynamicString& path = cur->first;
+		const DynamicString &path = cur->first;
 
 		if (cur->second.file_type == Stat::NO_ENTRY) {
 			vector::push_back(to_remove, path);
@@ -947,7 +947,7 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 	// Sort to_compile so that ".package" resources get compiled last
 	std::sort(vector::begin(to_compile)
 		, vector::end(to_compile)
-		, [](const DynamicString& resource_a, const DynamicString& resource_b) {
+		, [](const DynamicString &resource_a, const DynamicString &resource_b) {
 #define PACKAGE ".package"
 			if (resource_a.has_suffix(PACKAGE) && !resource_b.has_suffix(PACKAGE))
 				return false;
@@ -961,10 +961,10 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 
 	// Compile all changed resources
 	for (u32 i = 0; i < vector::size(to_compile); ++i) {
-		const DynamicString& path = to_compile[i];
+		const DynamicString &path = to_compile[i];
 		logi(DATA_COMPILER, _options->_server ? RESOURCE_ID_FMT_STR : "%s", path.c_str());
 
-		const char* type = resource_type(path.c_str());
+		const char *type = resource_type(path.c_str());
 		if (type == NULL || !can_compile(type)) {
 			loge(DATA_COMPILER, "Unknown resource file: '%s'", path.c_str());
 			loge(DATA_COMPILER, "Append matching pattern to " CROWN_DATAIGNORE " to ignore it");
@@ -1023,7 +1023,7 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 				hash_map::set(_data_requirements, id, new_requirements);
 
 				// Write output to disk
-				File* outf = data_fs.open(dest.c_str(), FileOpenMode::WRITE);
+				File *outf = data_fs.open(dest.c_str(), FileOpenMode::WRITE);
 				u32 size = array::size(output);
 				u32 written = outf->write(array::begin(output), size);
 				data_fs.close(*outf);
@@ -1068,7 +1068,7 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 	return success;
 }
 
-void DataCompiler::register_compiler(const char* type, u32 version, CompileFunction compiler)
+void DataCompiler::register_compiler(const char *type, u32 version, CompileFunction compiler)
 {
 	TempAllocator64 ta;
 	DynamicString type_str(ta);
@@ -1084,7 +1084,7 @@ void DataCompiler::register_compiler(const char* type, u32 version, CompileFunct
 	hash_map::set(_compilers, type_str, rtd);
 }
 
-u32 DataCompiler::data_version(const char* type)
+u32 DataCompiler::data_version(const char *type)
 {
 	TempAllocator64 ta;
 	DynamicString type_str(ta);
@@ -1096,7 +1096,7 @@ u32 DataCompiler::data_version(const char* type)
 	return hash_map::get(_compilers, type_str, rtd).version;
 }
 
-u32 DataCompiler::data_version_stored(const char* type)
+u32 DataCompiler::data_version_stored(const char *type)
 {
 	TempAllocator256 ta;
 	DynamicString ds(ta);
@@ -1106,7 +1106,7 @@ u32 DataCompiler::data_version_stored(const char* type)
 	return hash_map::get(_data_versions, ds, version);
 }
 
-bool DataCompiler::can_compile(const char* type)
+bool DataCompiler::can_compile(const char *type)
 {
 	TempAllocator64 ta;
 	DynamicString type_str(ta);
@@ -1115,7 +1115,7 @@ bool DataCompiler::can_compile(const char* type)
 	return hash_map::has(_compilers, type_str);
 }
 
-void DataCompiler::error(const char* msg, va_list args)
+void DataCompiler::error(const char *msg, va_list args)
 {
 	vloge(DATA_COMPILER, msg, args);
 }
@@ -1123,7 +1123,7 @@ void DataCompiler::error(const char* msg, va_list args)
 /// Converts @a path to the corresponding resource name.
 /// On Linux, no transformation is needed. On Windows,
 /// backslashes are converted to slashes.
-static void resource_path_to_resource_name(DynamicString& resource_name, const DynamicString& path)
+static void resource_path_to_resource_name(DynamicString &resource_name, const DynamicString &path)
 {
 	for (u32 i = 0, n = path.length(); i < n; ++i) {
 		if (path._data[i] == '\\')
@@ -1133,7 +1133,7 @@ static void resource_path_to_resource_name(DynamicString& resource_name, const D
 	}
 }
 
-void DataCompiler::file_monitor_callback(FileMonitorEvent::Enum fme, bool is_dir, const char* path, const char* path_renamed)
+void DataCompiler::file_monitor_callback(FileMonitorEvent::Enum fme, bool is_dir, const char *path, const char *path_renamed)
 {
 	TempAllocator512 ta;
 	DynamicString source_dir(ta);
@@ -1155,12 +1155,12 @@ void DataCompiler::file_monitor_callback(FileMonitorEvent::Enum fme, bool is_dir
 	if (cur != end) {
 		// All events received must refer to directories
 		// mapped with map_source_dir().
-		const char* filename = &path[source_dir.length() + 1];
+		const char *filename = &path[source_dir.length() + 1];
 		path::join(resource_path, cur->first.c_str(), filename);
 		resource_path_to_resource_name(resource_name, resource_path);
 
 #if 0
-		static const char* fme_to_name[] = { "CREATED", "DELETED", "RENAMED", "CHANGED" };
+		static const char *fme_to_name[] = { "CREATED", "DELETED", "RENAMED", "CHANGED" };
 		CE_STATIC_ASSERT(countof(fme_to_name) == FileMonitorEvent::COUNT);
 		logi(DATA_COMPILER, "file_monitor_callback: event: %s %s", fme_to_name[fme], is_dir ? "dir" : "file");
 		logi(DATA_COMPILER, "  path         : %s", path);
@@ -1217,12 +1217,12 @@ void DataCompiler::file_monitor_callback(FileMonitorEvent::Enum fme, bool is_dir
 	}
 }
 
-void DataCompiler::file_monitor_callback(void* thiz, FileMonitorEvent::Enum fme, bool is_dir, const char* path_original, const char* path_modified)
+void DataCompiler::file_monitor_callback(void *thiz, FileMonitorEvent::Enum fme, bool is_dir, const char *path_original, const char *path_modified)
 {
-	((DataCompiler*)thiz)->file_monitor_callback(fme, is_dir, path_original, path_modified);
+	((DataCompiler *)thiz)->file_monitor_callback(fme, is_dir, path_original, path_modified);
 }
 
-int main_data_compiler(const DeviceOptions& opts)
+int main_data_compiler(const DeviceOptions &opts)
 {
 #if CROWN_PLATFORM_POSIX
 	struct sigaction old_SIGINT;
@@ -1266,7 +1266,7 @@ int main_data_compiler(const DeviceOptions& opts)
 	namespace txr = texture_resource_internal;
 	namespace utr = unit_resource_internal;
 
-	DataCompiler* dc = CE_NEW(default_allocator(), DataCompiler)(opts, *console_server());
+	DataCompiler *dc = CE_NEW(default_allocator(), DataCompiler)(opts, *console_server());
 	dc->register_compiler("config",           RESOURCE_VERSION_CONFIG,           cor::compile);
 	dc->register_compiler("font",             RESOURCE_VERSION_FONT,             ftr::compile);
 	dc->register_compiler("level",            RESOURCE_VERSION_LEVEL,            lvr::compile);

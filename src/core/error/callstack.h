@@ -13,7 +13,7 @@ namespace crown
 namespace error
 {
 	/// Fills @a ss with the current call stack.
-	void callstack(StringStream& ss);
+	void callstack(StringStream &ss);
 
 } // namespace error
 

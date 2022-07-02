@@ -28,11 +28,11 @@ namespace log_internal
 {
 	struct System
 	{
-		const char* name;
+		const char *name;
 	};
 
-	void vlogx(LogSeverity::Enum sev, System system, const char* msg, va_list args);
-	void logx(LogSeverity::Enum sev, System system, const char* msg, ...);
+	void vlogx(LogSeverity::Enum sev, System system, const char *msg, va_list args);
+	void logx(LogSeverity::Enum sev, System system, const char *msg, ...);
 
 } // namespace log_internal
 

@@ -23,9 +23,9 @@ LOG_SYSTEM(LUA, "lua")
 
 namespace crown
 {
-extern void load_api(LuaEnvironment& env);
+extern void load_api(LuaEnvironment &env);
 
-static int luaB_print(lua_State* L)
+static int luaB_print(lua_State *L)
 {
 	TempAllocator2048 ta;
 	StringStream ss(ta);
@@ -51,7 +51,7 @@ static int luaB_print(lua_State* L)
 	return 0;
 }
 
-static int msghandler(lua_State* L)
+static int msghandler(lua_State *L)
 {
 	const char *msg = lua_tostring(L, 1);
 	if (msg == NULL) {  /* is error object not a string? */
@@ -132,12 +132,12 @@ int report(lua_State *L, int status)
 	return status;
 }
 
-static int loader(lua_State* L)
+static int loader(lua_State *L)
 {
 	LuaStack stack(L);
 	int status;
 
-	const LuaResource* lr = (LuaResource*)device()->_resource_manager->get(RESOURCE_TYPE_SCRIPT, stack.get_resource_name(1));
+	const LuaResource *lr = (LuaResource *)device()->_resource_manager->get(RESOURCE_TYPE_SCRIPT, stack.get_resource_name(1));
 	status = luaL_loadbuffer(L, lua_resource::program(lr), lr->size, "");
 	if (status != LUA_OK) {
 		report(L, status);
@@ -147,9 +147,9 @@ static int loader(lua_State* L)
 }
 
 #if CROWN_DEBUG
-static int require_internal(lua_State* L)
+static int require_internal(lua_State *L)
 {
-	const char* module_name = lua_tostring(L, 1);
+	const char *module_name = lua_tostring(L, 1);
 	bool already_loaded = false;
 
 	lua_getfield(L, LUA_REGISTRYINDEX, "_LOADED");
@@ -277,21 +277,21 @@ void LuaEnvironment::load_libs()
 	lua_gc(L, LUA_GCRESTART, 0);
 }
 
-void LuaEnvironment::do_file(const char* name)
+void LuaEnvironment::do_file(const char *name)
 {
 	lua_getglobal(L, "dofile");
 	lua_pushstring(L, name);
 	this->call(1, 0);
 }
 
-void LuaEnvironment::require(const char* name)
+void LuaEnvironment::require(const char *name)
 {
 	lua_getglobal(L, "require");
 	lua_pushstring(L, name);
 	this->call(1, 0);
 }
 
-LuaStack LuaEnvironment::execute(const LuaResource* lr, int nres)
+LuaStack LuaEnvironment::execute(const LuaResource *lr, int nres)
 {
 	LuaStack stack(L);
 	int status;
@@ -307,7 +307,7 @@ LuaStack LuaEnvironment::execute(const LuaResource* lr, int nres)
 	return stack;
 }
 
-LuaStack LuaEnvironment::execute_string(const char* s)
+LuaStack LuaEnvironment::execute_string(const char *s)
 {
 	LuaStack stack(L);
 	int status;
@@ -324,7 +324,7 @@ LuaStack LuaEnvironment::execute_string(const char* s)
 	return stack;
 }
 
-void LuaEnvironment::add_module_function(const char* module, const char* name, const lua_CFunction func)
+void LuaEnvironment::add_module_function(const char *module, const char *name, const lua_CFunction func)
 {
 	luaL_Reg entry[2];
 	entry[0].name = name;
@@ -336,7 +336,7 @@ void LuaEnvironment::add_module_function(const char* module, const char* name, c
 	lua_pop(L, 1);
 }
 
-void LuaEnvironment::add_module_function(const char* module, const char* name, const char* func)
+void LuaEnvironment::add_module_function(const char *module, const char *name, const char *func)
 {
 	// Create module if it does not exist
 	luaL_Reg entry;
@@ -351,7 +351,7 @@ void LuaEnvironment::add_module_function(const char* module, const char* name, c
 	lua_setglobal(L, module);
 }
 
-void LuaEnvironment::add_module_metafunction(const char* module, const char* name, const lua_CFunction func)
+void LuaEnvironment::add_module_metafunction(const char *module, const char *name, const lua_CFunction func)
 {
 	// Create module if it does not exist
 	luaL_Reg entry[2];
@@ -390,7 +390,7 @@ int LuaEnvironment::call(int narg, int nres)
 	return status;
 }
 
-void LuaEnvironment::call_global(const char* func, int narg, int nres)
+void LuaEnvironment::call_global(const char *func, int narg, int nres)
 {
 	int status;
 	CE_ENSURE(NULL != func);
@@ -406,69 +406,69 @@ void LuaEnvironment::call_global(const char* func, int narg, int nres)
 	CE_ASSERT(lua_gettop(L) == 0, "Stack not clean");
 }
 
-LuaStack LuaEnvironment::get_global(const char* global)
+LuaStack LuaEnvironment::get_global(const char *global)
 {
 	LuaStack stack(L);
 	lua_getglobal(L, global);
 	return stack;
 }
 
-Vector3* LuaEnvironment::next_vector3(const Vector3& v)
+Vector3 *LuaEnvironment::next_vector3(const Vector3 &v)
 {
 	CE_ASSERT(_num_vec3 < LUA_MAX_VECTOR3, "Maximum number of Vector3 reached");
 
-	Vector3* vec3 = &(_vec3[_num_vec3++] = v);
-	uintptr_t ptr = (uintptr_t)(void*)vec3;
+	Vector3 *vec3 = &(_vec3[_num_vec3++] = v);
+	uintptr_t ptr = (uintptr_t)(void *)vec3;
 #if CROWN_DEBUG
 	ptr |= _vec3_marker;
 #endif
-	return (Vector3*)ptr;
+	return (Vector3 *)ptr;
 }
 
-Quaternion* LuaEnvironment::next_quaternion(const Quaternion& q)
+Quaternion *LuaEnvironment::next_quaternion(const Quaternion &q)
 {
 	CE_ASSERT(_num_quat < LUA_MAX_QUATERNION, "Maximum number of Quaternion reached");
 
-	Quaternion* quat = &(_quat[_num_quat++] = q);
-	uintptr_t ptr = (uintptr_t)(void*)quat;
+	Quaternion *quat = &(_quat[_num_quat++] = q);
+	uintptr_t ptr = (uintptr_t)(void *)quat;
 #if CROWN_DEBUG
 	ptr |= _quat_marker;
 #endif
-	return (Quaternion*)ptr;
+	return (Quaternion *)ptr;
 }
 
-Matrix4x4* LuaEnvironment::next_matrix4x4(const Matrix4x4& m)
+Matrix4x4 *LuaEnvironment::next_matrix4x4(const Matrix4x4 &m)
 {
 	CE_ASSERT(_num_mat4 < LUA_MAX_MATRIX4X4, "Maximum number of Matrix4x4 reached");
 
-	Matrix4x4* mat4 = &(_mat4[_num_mat4++] = m);
-	uintptr_t ptr = (uintptr_t)(void*)mat4;
+	Matrix4x4 *mat4 = &(_mat4[_num_mat4++] = m);
+	uintptr_t ptr = (uintptr_t)(void *)mat4;
 #if CROWN_DEBUG
 	ptr |= _mat4_marker;
 #endif
-	return (Matrix4x4*)ptr;
+	return (Matrix4x4 *)ptr;
 }
 
-bool LuaEnvironment::is_vector3(const void* ptr)
+bool LuaEnvironment::is_vector3(const void *ptr)
 {
 	return ptr >= &_vec3[0]
 		&& ptr <= &_vec3[LUA_MAX_VECTOR3 - 1];
 }
 
-bool LuaEnvironment::is_quaternion(const void* ptr)
+bool LuaEnvironment::is_quaternion(const void *ptr)
 {
 	return ptr >= &_quat[0]
 		&& ptr <= &_quat[LUA_MAX_QUATERNION - 1];
 }
 
-bool LuaEnvironment::is_matrix4x4(const void* ptr)
+bool LuaEnvironment::is_matrix4x4(const void *ptr)
 {
 	return ptr >= &_mat4[0]
 		&& ptr <= &_mat4[LUA_MAX_MATRIX4X4 - 1];
 }
 
 #if CROWN_DEBUG
-Vector3* LuaEnvironment::check_valid(const Vector3* ptr)
+Vector3 *LuaEnvironment::check_valid(const Vector3 *ptr)
 {
 	LUA_ASSERT(((uintptr_t)ptr & LUA_VECTOR3_MARKER_MASK) >> LUA_VECTOR3_MARKER_SHIFT == _vec3_marker
 		, LuaStack(L)
@@ -476,10 +476,10 @@ Vector3* LuaEnvironment::check_valid(const Vector3* ptr)
 		, ptr
 		, _vec3_marker
 		);
-	return (Vector3*)(uintptr_t(ptr) & ~LUA_VECTOR3_MARKER_MASK);
+	return (Vector3 *)(uintptr_t(ptr) & ~LUA_VECTOR3_MARKER_MASK);
 }
 
-Quaternion* LuaEnvironment::check_valid(const Quaternion* ptr)
+Quaternion *LuaEnvironment::check_valid(const Quaternion *ptr)
 {
 	LUA_ASSERT(((uintptr_t)ptr & LUA_QUATERNION_MARKER_MASK) >> LUA_QUATERNION_MARKER_SHIFT == _quat_marker
 		, LuaStack(L)
@@ -487,10 +487,10 @@ Quaternion* LuaEnvironment::check_valid(const Quaternion* ptr)
 		, ptr
 		, _quat_marker
 		);
-	return (Quaternion*)(uintptr_t(ptr) & ~LUA_QUATERNION_MARKER_MASK);
+	return (Quaternion *)(uintptr_t(ptr) & ~LUA_QUATERNION_MARKER_MASK);
 }
 
-Matrix4x4* LuaEnvironment::check_valid(const Matrix4x4* ptr)
+Matrix4x4 *LuaEnvironment::check_valid(const Matrix4x4 *ptr)
 {
 	LUA_ASSERT(((uintptr_t)ptr & LUA_MATRIX4X4_MARKER_MASK) >> LUA_MATRIX4X4_MARKER_SHIFT == _mat4_marker
 		, LuaStack(L)
@@ -498,7 +498,7 @@ Matrix4x4* LuaEnvironment::check_valid(const Matrix4x4* ptr)
 		, ptr
 		, _mat4_marker
 		);
-	return (Matrix4x4*)(uintptr_t(ptr) & ~LUA_MATRIX4X4_MARKER_MASK);
+	return (Matrix4x4 *)(uintptr_t(ptr) & ~LUA_MATRIX4X4_MARKER_MASK);
 }
 #endif // CROWN_DEBUG
 
@@ -512,14 +512,14 @@ void LuaEnvironment::reload()
 
 		LuaStack stack(L);
 		StringId64 name = stack.get_resource_name(-1);
-		this->execute((const LuaResource*)device()->_resource_manager->get(RESOURCE_TYPE_SCRIPT, name), 0);
+		this->execute((const LuaResource *)device()->_resource_manager->get(RESOURCE_TYPE_SCRIPT, name), 0);
 
 		lua_pop(L, 1);
 	}
 	lua_pop(L, 2);
 }
 
-void LuaEnvironment::temp_count(u32& num_vec3, u32& num_quat, u32& num_mat4)
+void LuaEnvironment::temp_count(u32 &num_vec3, u32 &num_quat, u32 &num_mat4)
 {
 	num_vec3 = _num_vec3;
 	num_quat = _num_quat;
@@ -546,7 +546,7 @@ void LuaEnvironment::reset_temporaries()
 #endif
 }
 
-static void console_command_script(ConsoleServer& /*cs*/, u32 /*client_id*/, const char* json, void* user_data)
+static void console_command_script(ConsoleServer & /*cs*/, u32 /*client_id*/, const char *json, void *user_data)
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
@@ -555,12 +555,12 @@ static void console_command_script(ConsoleServer& /*cs*/, u32 /*client_id*/, con
 	sjson::parse(obj, json);
 	sjson::parse_string(script, obj["script"]);
 
-	((LuaEnvironment*)user_data)->execute_string(script.c_str());
+	((LuaEnvironment *)user_data)->execute_string(script.c_str());
 }
 
-static void do_REPL(LuaEnvironment* env, const char* lua)
+static void do_REPL(LuaEnvironment *env, const char *lua)
 {
-	lua_State* L = env->L;
+	lua_State *L = env->L;
 	int status;
 
 	lua_settop(L, 0);
@@ -578,7 +578,7 @@ static void do_REPL(LuaEnvironment* env, const char* lua)
 	return;
 }
 
-static void console_command_REPL(ConsoleServer& /*cs*/, u32 /*client_id*/, const char* json, void* user_data)
+static void console_command_REPL(ConsoleServer & /*cs*/, u32 /*client_id*/, const char *json, void *user_data)
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
@@ -587,10 +587,10 @@ static void console_command_REPL(ConsoleServer& /*cs*/, u32 /*client_id*/, const
 	sjson::parse(obj, json);
 	sjson::parse_string(script, obj["repl"]);
 
-	do_REPL((LuaEnvironment*)user_data, script.c_str());
+	do_REPL((LuaEnvironment *)user_data, script.c_str());
 }
 
-void LuaEnvironment::register_console_commands(ConsoleServer& cs)
+void LuaEnvironment::register_console_commands(ConsoleServer &cs)
 {
 	cs.register_message_type("script", console_command_script, this);
 	cs.register_message_type("repl", console_command_REPL, this);

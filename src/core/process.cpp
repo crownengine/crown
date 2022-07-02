@@ -24,7 +24,7 @@ namespace crown
 struct Private
 {
 #if CROWN_PLATFORM_POSIX
-	FILE* file;
+	FILE *file;
 	pid_t pid;
 #elif CROWN_PLATFORM_WINDOWS
 	PROCESS_INFORMATION process;
@@ -35,7 +35,7 @@ struct Private
 
 namespace process_internal
 {
-	bool is_open(Private* priv)
+	bool is_open(Private *priv)
 	{
 #if CROWN_PLATFORM_POSIX
 		return priv->pid != -1;
@@ -64,7 +64,7 @@ Process::~Process()
 	_priv->~Private();
 }
 
-s32 Process::spawn(const char* const* argv, u32 flags)
+s32 Process::spawn(const char * const *argv, u32 flags)
 {
 	CE_ENSURE(process_internal::is_open(_priv) == false);
 
@@ -104,7 +104,7 @@ s32 Process::spawn(const char* const* argv, u32 flags)
 			close(fildes[1]);
 		}
 
-		execvp(argv[0], (char* const*)argv);
+		execvp(argv[0], (char * const *)argv);
 		// exec returned error
 		return -1;
 	}
@@ -127,7 +127,7 @@ s32 Process::spawn(const char* const* argv, u32 flags)
 	StringStream path(ta);
 
 	for (s32 i = 0; argv[i] != NULL; ++i) {
-		const char* arg = argv[i];
+		const char *arg = argv[i];
 		for (; *arg; ++arg) {
 			if (*arg == ' ')
 				break;
@@ -238,7 +238,7 @@ s32 Process::wait()
 #endif
 }
 
-char* Process::read(u32* num_bytes_read, char* data, u32 len)
+char *Process::read(u32 *num_bytes_read, char *data, u32 len)
 {
 	CE_ENSURE(process_internal::is_open(_priv) == true);
 #if CROWN_PLATFORM_POSIX

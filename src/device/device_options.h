@@ -17,13 +17,13 @@ namespace crown
 struct DeviceOptions
 {
 	int _argc;
-	const char** _argv;
+	const char **_argv;
 	DynamicString _source_dir;
-	const char* _map_source_dir_name;
+	const char *_map_source_dir_name;
 	DynamicString _map_source_dir_prefix;
 	DynamicString _data_dir;
-	const char* _boot_dir;
-	const char* _platform;
+	const char *_boot_dir;
+	const char *_platform;
 	DynamicString _lua_string;
 	bool _wait_console;
 	bool _do_compile;
@@ -38,18 +38,18 @@ struct DeviceOptions
 	u16 _window_height;
 
 #if CROWN_PLATFORM_ANDROID
-	void* _asset_manager;
+	void *_asset_manager;
 #endif // CROWN_PLATFORM_ANDROID
 
 	///
-	DeviceOptions(Allocator& a, int argc, const char** argv);
+	DeviceOptions(Allocator &a, int argc, const char **argv);
 
 	///
 	~DeviceOptions();
 
 	/// Parses the command line and returns
 	/// EXIT_SUCCESS if no error is found.
-	int parse(bool* quit);
+	int parse(bool *quit);
 };
 
 } // namespace crown

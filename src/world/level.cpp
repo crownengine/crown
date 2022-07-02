@@ -14,7 +14,7 @@
 
 namespace crown
 {
-Level::Level(Allocator& a, UnitManager& um, World& w, const LevelResource& lr)
+Level::Level(Allocator &a, UnitManager &um, World &w, const LevelResource &lr)
 	: _marker(LEVEL_MARKER)
 	, _allocator(&a)
 	, _unit_manager(&um)
@@ -32,10 +32,10 @@ Level::~Level()
 	_node.prev = NULL;
 }
 
-void Level::load(const Vector3& pos, const Quaternion& rot)
+void Level::load(const Vector3 &pos, const Quaternion &rot)
 {
 	// Spawn units
-	const UnitResource* ur = level_resource::unit_resource(_resource);
+	const UnitResource *ur = level_resource::unit_resource(_resource);
 
 	// Spawn units
 	array::resize(_unit_lookup, ur->num_units);
@@ -47,7 +47,7 @@ void Level::load(const Vector3& pos, const Quaternion& rot)
 	// Play sounds
 	const u32 num_sounds = level_resource::num_sounds(_resource);
 	for (u32 i = 0; i < num_sounds; ++i) {
-		const LevelSound* ls = level_resource::get_sound(_resource, i);
+		const LevelSound *ls = level_resource::get_sound(_resource, i);
 		_world->play_sound(ls->name
 			, ls->loop
 			, ls->volume
@@ -59,7 +59,7 @@ void Level::load(const Vector3& pos, const Quaternion& rot)
 
 UnitId Level::unit_by_name(StringId32 name)
 {
-	const StringId32* unit_names = level_resource::unit_names(_resource);
+	const StringId32 *unit_names = level_resource::unit_names(_resource);
 	for (u32 i = 0; i < _resource->num_units; ++i) {
 		if (unit_names[i] == name)
 			return _unit_lookup[i];

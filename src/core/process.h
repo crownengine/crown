@@ -30,7 +30,7 @@ namespace crown
 /// @ingroup Core
 struct Process
 {
-	struct Private* _priv;
+	struct Private *_priv;
 	CE_ALIGN_DECL(16, u8 _data[48]);
 
 	///
@@ -41,7 +41,7 @@ struct Process
 
 	/// Spawns the process described by @a argv with the given @a flags.
 	/// Returns 0 on success, non-zero otherwise.
-	s32 spawn(const char* const* argv, u32 flags = 0);
+	s32 spawn(const char * const *argv, u32 flags = 0);
 
 	/// Returns whether the process has been spawned
 	/// due to a previous successful call to spawn().
@@ -59,7 +59,7 @@ struct Process
 	/// Returns NULL on EOF or when an error occurs. In case of error, it sets
 	/// @a num_bytes_read to UINT32_MAX, otherwise it sets it to the actual
 	/// number of bytes read.
-	char* read(u32* num_bytes_read, char* data, u32 len);
+	char *read(u32 *num_bytes_read, char *data, u32 len);
 };
 
 } // namespace crown

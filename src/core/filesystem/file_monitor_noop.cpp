@@ -10,7 +10,7 @@
 
 namespace crown
 {
-FileMonitor::FileMonitor(Allocator& /*a*/)
+FileMonitor::FileMonitor(Allocator & /*a*/)
 	: _impl(NULL)
 {
 }
@@ -19,7 +19,7 @@ FileMonitor::~FileMonitor()
 {
 }
 
-void FileMonitor::start(u32 /*num*/, const char** /*path*/, bool /*recursive*/, FileMonitorFunction /*fmf*/, void* /*user_data*/)
+void FileMonitor::start(u32 /*num*/, const char ** /*path*/, bool /*recursive*/, FileMonitorFunction /*fmf*/, void * /*user_data*/)
 {
 }
 

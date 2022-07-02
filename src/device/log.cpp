@@ -19,7 +19,7 @@ namespace log_internal
 {
 	static Mutex s_mutex;
 
-	static void stdout_log(LogSeverity::Enum sev, System system, const char* msg)
+	static void stdout_log(LogSeverity::Enum sev, System system, const char *msg)
 	{
 		char buf[8192];
 #if CROWN_PLATFORM_POSIX
@@ -27,7 +27,7 @@ namespace log_internal
 	#define ANSI_YELLOW "\x1b[33m"
 	#define ANSI_RED    "\x1b[31m"
 
-		const char* stt[] = { ANSI_RESET, ANSI_YELLOW, ANSI_RED };
+		const char *stt[] = { ANSI_RESET, ANSI_YELLOW, ANSI_RED };
 		CE_STATIC_ASSERT(countof(stt) == LogSeverity::COUNT);
 
 		stbsp_snprintf(buf, sizeof(buf), "%s%s: %s\n" ANSI_RESET, stt[sev], system.name, msg);
@@ -38,12 +38,12 @@ namespace log_internal
 	}
 
 	/// Sends a log message to all clients.
-	static void console_log(LogSeverity::Enum sev, System system, const char* msg)
+	static void console_log(LogSeverity::Enum sev, System system, const char *msg)
 	{
 		if (!console_server())
 			return;
 
-		const char* severity_map[] = { "info", "warning", "error" };
+		const char *severity_map[] = { "info", "warning", "error" };
 		CE_STATIC_ASSERT(countof(severity_map) == LogSeverity::COUNT);
 
 		TempAllocator4096 ta;
@@ -56,7 +56,7 @@ namespace log_internal
 		ss << "\",\"message\":\"";
 
 		// Sanitize msg
-		const char* ch = msg;
+		const char *ch = msg;
 		for (; *ch; ch++) {
 			if (*ch == '"' || *ch == '\\')
 				ss << "\\";
@@ -67,7 +67,7 @@ namespace log_internal
 		console_server()->broadcast(string_stream::c_str(ss));
 	}
 
-	void vlogx(LogSeverity::Enum sev, System system, const char* msg, va_list args)
+	void vlogx(LogSeverity::Enum sev, System system, const char *msg, va_list args)
 	{
 		ScopedMutex sm(s_mutex);
 
@@ -78,7 +78,7 @@ namespace log_internal
 		console_log(sev, system, buf);
 	}
 
-	void logx(LogSeverity::Enum sev, System system, const char* msg, ...)
+	void logx(LogSeverity::Enum sev, System system, const char *msg, ...)
 	{
 		va_list args;
 		va_start(args, msg);

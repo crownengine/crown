@@ -20,13 +20,13 @@ namespace crown
 {
 namespace error
 {
-	static const char* addr2line(const char* addr, char* line, int len)
+	static const char *addr2line(const char *addr, char *line, int len)
 	{
 		char buf[256];
 		stbsp_snprintf(buf, sizeof(buf), "addr2line -s -e /proc/%u/exe %s", getpid(), addr);
-		FILE* f = popen(buf, "r");
+		FILE *f = popen(buf, "r");
 		if (f) {
-			char* ret = fgets(line, len, f);
+			char *ret = fgets(line, len, f);
 			CE_UNUSED(ret);
 			line[strlen32(line) - 1] = '\0';
 			pclose(f);
@@ -35,20 +35,20 @@ namespace error
 		return "<addr2line missing>";
 	}
 
-	void callstack(StringStream& ss)
+	void callstack(StringStream &ss)
 	{
-		void* array[64];
+		void *array[64];
 		int size = backtrace(array, countof(array));
-		char** messages = backtrace_symbols(array, size);
+		char **messages = backtrace_symbols(array, size);
 
 		// skip first stack frame (points here)
 		for (int i = 1; i < size && messages != NULL; ++i) {
-			char* msg = messages[i];
-			char* mangled_name = strchr(msg, '(');
-			char* offset_begin = strchr(msg, '+');
-			char* offset_end   = strchr(msg, ')');
-			char* addr_begin   = strchr(msg, '[');
-			char* addr_end     = strchr(msg, ']');
+			char *msg = messages[i];
+			char *mangled_name = strchr(msg, '(');
+			char *offset_begin = strchr(msg, '+');
+			char *offset_end   = strchr(msg, ')');
+			char *addr_begin   = strchr(msg, '[');
+			char *addr_end     = strchr(msg, ']');
 
 			char buf[512];
 
@@ -61,7 +61,7 @@ namespace error
 				*addr_end++     = '\0';
 
 				int demangle_ok;
-				char* real_name = abi::__cxa_demangle(mangled_name, 0, 0, &demangle_ok);
+				char *real_name = abi::__cxa_demangle(mangled_name, 0, 0, &demangle_ok);
 				char line[256];
 				memset(line, 0, sizeof(line));
 

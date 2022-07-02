@@ -10,19 +10,19 @@ namespace crown
 {
 namespace sphere
 {
-	void reset(Sphere& s)
+	void reset(Sphere &s)
 	{
 		s.c = VECTOR3_ZERO;
 		s.r = 0.0f;
 	}
 
-	void add_points(Sphere& s, u32 num, u32 stride, const void* points)
+	void add_points(Sphere &s, u32 num, u32 stride, const void *points)
 	{
 		float rr = s.r*s.r;
 
-		const char* pts = (const char*)points;
+		const char *pts = (const char *)points;
 		for (u32 i = 0; i < num; ++i, pts += stride) {
-			const Vector3& pi = *(const Vector3*)pts;
+			const Vector3 &pi = *(const Vector3 *)pts;
 
 			rr = max(rr, length_squared(pi - s.c));
 		}
@@ -30,10 +30,10 @@ namespace sphere
 		s.r = fsqrt(rr);
 	}
 
-	void add_spheres(Sphere& s, u32 num, const Sphere* spheres)
+	void add_spheres(Sphere &s, u32 num, const Sphere *spheres)
 	{
 		for (u32 i = 0; i < num; ++i) {
-			const Sphere& si = spheres[i];
+			const Sphere &si = spheres[i];
 			const f32 dist = length_squared(si.c - s.c);
 
 			if (dist < (si.r + s.r) * (si.r + s.r)) {

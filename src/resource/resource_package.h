@@ -15,12 +15,12 @@ namespace crown
 struct ResourcePackage
 {
 	u32 _marker;
-	ResourceManager* _resource_manager;
+	ResourceManager *_resource_manager;
 	StringId64 _package_id;
-	const PackageResource* _package;
+	const PackageResource *_package;
 
 	///
-	ResourcePackage(StringId64 id, ResourceManager& resman);
+	ResourcePackage(StringId64 id, ResourceManager &resman);
 
 	///
 	~ResourcePackage();

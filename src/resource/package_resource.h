@@ -32,14 +32,14 @@ struct PackageResource
 	Array<Resource> resources;
 
 	///
-	PackageResource(Allocator& a);
+	PackageResource(Allocator &a);
 };
 
 namespace package_resource_internal
 {
-	s32 compile(CompileOptions& opts);
-	void* load(File& file, Allocator& a);
-	void unload(Allocator& allocator, void* resource);
+	s32 compile(CompileOptions &opts);
+	void *load(File &file, Allocator &a);
+	void unload(Allocator &allocator, void *resource);
 
 } // namespace package_resource_internal
 

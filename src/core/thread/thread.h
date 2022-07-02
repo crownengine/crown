@@ -11,14 +11,14 @@
 /// @ingroup Core
 namespace crown
 {
-typedef s32 (*ThreadFunction)(void* data);
+typedef s32 (*ThreadFunction)(void *data);
 
 /// Thread.
 ///
 /// @ingroup Thread.
 struct Thread
 {
-	struct Private* _priv;
+	struct Private *_priv;
 	CE_ALIGN_DECL(16, u8 _data[256]);
 
 	///
@@ -28,13 +28,13 @@ struct Thread
 	~Thread();
 
 	///
-	Thread(const Thread&) = delete;
+	Thread(const Thread &) = delete;
 
 	///
-	Thread& operator=(const Thread&) = delete;
+	Thread &operator=(const Thread &) = delete;
 
 	///
-	void start(ThreadFunction func, void* user_data = NULL, u32 stack_size = 0);
+	void start(ThreadFunction func, void *user_data = NULL, u32 stack_size = 0);
 
 	///
 	void stop();

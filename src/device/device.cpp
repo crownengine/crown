@@ -77,11 +77,11 @@ extern void tool_shutdown(void);
 extern bool tool_process_events();
 #endif
 
-extern bool next_event(OsEvent& ev);
+extern bool next_event(OsEvent &ev);
 
 struct BgfxCallback : public bgfx::CallbackI
 {
-	virtual void fatal(const char* _filePath, uint16_t _line, bgfx::Fatal::Enum _code, const char* _str)
+	virtual void fatal(const char *_filePath, uint16_t _line, bgfx::Fatal::Enum _code, const char *_str)
 	{
 		CE_ASSERT(false, "Fatal error: 0x%08x: %s", _code, _str);
 		CE_UNUSED(_filePath);
@@ -90,7 +90,7 @@ struct BgfxCallback : public bgfx::CallbackI
 		CE_UNUSED(_str);
 	}
 
-	virtual void traceVargs(const char* /*_filePath*/, u16 /*_line*/, const char* _format, va_list _argList)
+	virtual void traceVargs(const char * /*_filePath*/, u16 /*_line*/, const char *_format, va_list _argList)
 	{
 		char buf[2048];
 		strncpy(buf, _format, sizeof(buf) - 1);
@@ -98,11 +98,11 @@ struct BgfxCallback : public bgfx::CallbackI
 		vlogi(DEVICE, buf, _argList);
 	}
 
-	virtual void profilerBegin(const char* /*_name*/, uint32_t /*_abgr*/, const char* /*_filePath*/, uint16_t /*_line*/)
+	virtual void profilerBegin(const char * /*_name*/, uint32_t /*_abgr*/, const char * /*_filePath*/, uint16_t /*_line*/)
 	{
 	}
 
-	virtual void profilerBeginLiteral(const char* /*_name*/, uint32_t /*_abgr*/, const char* /*_filePath*/, uint16_t /*_line*/)
+	virtual void profilerBeginLiteral(const char * /*_name*/, uint32_t /*_abgr*/, const char * /*_filePath*/, uint16_t /*_line*/)
 	{
 	}
 
@@ -115,16 +115,16 @@ struct BgfxCallback : public bgfx::CallbackI
 		return 0;
 	}
 
-	virtual bool cacheRead(u64 /*_id*/, void* /*_data*/, u32 /*_size*/)
+	virtual bool cacheRead(u64 /*_id*/, void * /*_data*/, u32 /*_size*/)
 	{
 		return false;
 	}
 
-	virtual void cacheWrite(u64 /*_id*/, const void* /*_data*/, u32 /*_size*/)
+	virtual void cacheWrite(u64 /*_id*/, const void * /*_data*/, u32 /*_size*/)
 	{
 	}
 
-	virtual void screenShot(const char* /*_filePath*/, u32 /*_width*/, u32 /*_height*/, u32 /*_pitch*/, const void* /*_data*/, u32 /*_size*/, bool /*_yflip*/)
+	virtual void screenShot(const char * /*_filePath*/, u32 /*_width*/, u32 /*_height*/, u32 /*_pitch*/, const void * /*_data*/, u32 /*_size*/, bool /*_yflip*/)
 	{
 	}
 
@@ -136,7 +136,7 @@ struct BgfxCallback : public bgfx::CallbackI
 	{
 	}
 
-	virtual void captureFrame(const void* /*_data*/, u32 /*_size*/)
+	virtual void captureFrame(const void * /*_data*/, u32 /*_size*/)
 	{
 	}
 };
@@ -145,7 +145,7 @@ struct BgfxAllocator : public bx::AllocatorI
 {
 	ProxyAllocator _allocator;
 
-	explicit BgfxAllocator(Allocator& a)
+	explicit BgfxAllocator(Allocator &a)
 		: _allocator(a, "bgfx")
 	{
 	}
@@ -154,28 +154,28 @@ struct BgfxAllocator : public bx::AllocatorI
 	{
 	}
 
-	virtual void* realloc(void* _ptr, size_t _size, size_t _align, const char* /*_file*/, u32 /*_line*/)
+	virtual void *realloc(void *_ptr, size_t _size, size_t _align, const char * /*_file*/, u32 /*_line*/)
 	{
 		return _allocator.reallocate(_ptr, _size, _align);
 	}
 };
 
-static void device_command_pause(ConsoleServer& /*cs*/, u32 /*client_id*/, JsonArray& /*args*/, void* /*user_data*/)
+static void device_command_pause(ConsoleServer & /*cs*/, u32 /*client_id*/, JsonArray & /*args*/, void * /*user_data*/)
 {
 	device()->pause();
 }
 
-static void device_command_unpause(ConsoleServer& /*cs*/, u32 /*client_id*/, JsonArray& /*args*/, void* /*user_data*/)
+static void device_command_unpause(ConsoleServer & /*cs*/, u32 /*client_id*/, JsonArray & /*args*/, void * /*user_data*/)
 {
 	device()->unpause();
 }
 
-static void device_command_refresh(ConsoleServer& /*cs*/, u32 /*client_id*/, JsonArray& /*args*/, void* /*user_data*/)
+static void device_command_refresh(ConsoleServer & /*cs*/, u32 /*client_id*/, JsonArray & /*args*/, void * /*user_data*/)
 {
 	device()->refresh();
 }
 
-static void device_message_resize(ConsoleServer& /*cs*/, u32 /*client_id*/, const char* json, void* /*user_data*/)
+static void device_message_resize(ConsoleServer & /*cs*/, u32 /*client_id*/, const char *json, void * /*user_data*/)
 {
 	TempAllocator256 ta;
 	JsonObject obj(ta);
@@ -189,12 +189,12 @@ static void device_message_resize(ConsoleServer& /*cs*/, u32 /*client_id*/, cons
 	device()->_window->resize((u16)width, (u16)height);
 }
 
-static void device_message_frame(ConsoleServer& /*cs*/, u32 /*client_id*/, const char* /*json*/, void* user_data)
+static void device_message_frame(ConsoleServer & /*cs*/, u32 /*client_id*/, const char * /*json*/, void *user_data)
 {
-	((Device*)user_data)->_needs_draw = true;
+	((Device *)user_data)->_needs_draw = true;
 }
 
-Device::Device(const DeviceOptions& opts, ConsoleServer& cs)
+Device::Device(const DeviceOptions &opts, ConsoleServer &cs)
 	: _allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP)
 	, _options(opts)
 	, _boot_config(default_allocator())
@@ -286,16 +286,16 @@ void Device::run()
 	_console_server->listen(_options._console_port, _options._wait_console);
 
 #if CROWN_PLATFORM_ANDROID
-	_data_filesystem = CE_NEW(_allocator, FilesystemApk)(default_allocator(), const_cast<AAssetManager*>((AAssetManager*)_options._asset_manager));
+	_data_filesystem = CE_NEW(_allocator, FilesystemApk)(default_allocator(), const_cast<AAssetManager *>((AAssetManager *)_options._asset_manager));
 #else
 	_data_filesystem = CE_NEW(_allocator, FilesystemDisk)(default_allocator());
 	{
 		char cwd[1024];
-		const char* data_dir = !_options._data_dir.empty()
+		const char *data_dir = !_options._data_dir.empty()
 			? _options._data_dir.c_str()
 			: os::getcwd(cwd, sizeof(cwd))
 			;
-		((FilesystemDisk*)_data_filesystem)->set_prefix(data_dir);
+		((FilesystemDisk *)_data_filesystem)->set_prefix(data_dir);
 	}
 #endif // CROWN_PLATFORM_ANDROID
 
@@ -354,7 +354,7 @@ void Device::run()
 		const StringId64 config_name(boot_dir.c_str());
 		_resource_manager->load(RESOURCE_TYPE_CONFIG, config_name);
 		_resource_manager->flush();
-		_boot_config.parse((const char*)_resource_manager->get(RESOURCE_TYPE_CONFIG, config_name));
+		_boot_config.parse((const char *)_resource_manager->get(RESOURCE_TYPE_CONFIG, config_name));
 		_resource_manager->unload(RESOURCE_TYPE_CONFIG, config_name);
 	}
 
@@ -406,7 +406,7 @@ void Device::run()
 	audio_globals::init();
 	physics_globals::init(_allocator);
 
-	ResourcePackage* boot_package = create_resource_package(_boot_config.boot_package_name);
+	ResourcePackage *boot_package = create_resource_package(_boot_config.boot_package_name);
 	boot_package->load();
 	boot_package->flush();
 
@@ -482,7 +482,7 @@ void Device::run()
 		_lua_environment->reset_temporaries();
 		_input_manager->update();
 
-		const bgfx::Stats* stats = bgfx::getStats();
+		const bgfx::Stats *stats = bgfx::getStats();
 		RECORD_FLOAT("bgfx.gpu_time", f32(f64(stats->gpuTimeEnd - stats->gpuTimeBegin)/stats->gpuTimerFreq));
 		RECORD_FLOAT("bgfx.cpu_time", f32(f64(stats->cpuTimeEnd - stats->cpuTimeBegin)/stats->cpuTimerFreq));
 
@@ -551,13 +551,13 @@ void Device::unpause()
 	logi(DEVICE, "Unpaused");
 }
 
-void Device::resolution(u16& width, u16& height)
+void Device::resolution(u16 &width, u16 &height)
 {
 	width = _width;
 	height = _height;
 }
 
-void Device::render(World& world, UnitId camera_unit)
+void Device::render(World &world, UnitId camera_unit)
 {
 	const f32 aspect_ratio = (_boot_config.aspect_ratio == -1.0f
 		? (f32)_width/(f32)_height
@@ -570,7 +570,7 @@ void Device::render(World& world, UnitId camera_unit)
 	const Matrix4x4 view = world.camera_view_matrix(camera);
 	const Matrix4x4 proj = world.camera_projection_matrix(camera);
 
-	const bgfx::Caps* caps = bgfx::getCaps();
+	const bgfx::Caps *caps = bgfx::getCaps();
 	f32 bx_ortho[16];
 	bx::mtxOrtho(bx_ortho, 0, _width, 0, _height, 0.0f, 1.0f, 0.0f, caps->homogeneousDepth);
 	Matrix4x4 ortho_proj = from_array(bx_ortho);
@@ -649,9 +649,9 @@ void Device::render(World& world, UnitId camera_unit)
 	world.render(view);
 }
 
-World* Device::create_world()
+World *Device::create_world()
 {
-	World* world = CE_NEW(default_allocator(), World)(default_allocator()
+	World *world = CE_NEW(default_allocator(), World)(default_allocator()
 		, *_resource_manager
 		, *_shader_manager
 		, *_material_manager
@@ -663,18 +663,18 @@ World* Device::create_world()
 	return world;
 }
 
-void Device::destroy_world(World& world)
+void Device::destroy_world(World &world)
 {
 	list::remove(world._node);
 	CE_DELETE(default_allocator(), &world);
 }
 
-ResourcePackage* Device::create_resource_package(StringId64 id)
+ResourcePackage *Device::create_resource_package(StringId64 id)
 {
 	return CE_NEW(default_allocator(), ResourcePackage)(id, *_resource_manager);
 }
 
-void Device::destroy_resource_package(ResourcePackage& rp)
+void Device::destroy_resource_package(ResourcePackage &rp)
 {
 	CE_DELETE(default_allocator(), &rp);
 }
@@ -696,7 +696,7 @@ void Device::refresh()
 		ss << "\"client_id\":\"";
 		ss << guid::to_string(buf, sizeof(buf), client_id);
 		ss << "\"}";
-		const char* refresh_list = string_stream::c_str(ss);
+		const char *refresh_list = string_stream::c_str(ss);
 		u32 msg_len = strlen32(refresh_list);
 		wr = dc.write(&msg_len, sizeof(msg_len));
 		if (wr.error == WriteResult::SUCCESS)
@@ -738,7 +738,7 @@ void Device::refresh()
 				sjson::parse_string(resource, list[i]);
 				logi(DEVICE, "%s", resource.c_str());
 
-				const char* type = resource_type(resource.c_str());
+				const char *type = resource_type(resource.c_str());
 				const u32 len = resource_name_length(type, resource.c_str());
 
 				StringId64 resource_type(type);
@@ -770,9 +770,9 @@ void Device::refresh()
 #endif
 
 char _buffer[sizeof(Device)];
-Device* _device = NULL;
+Device *_device = NULL;
 
-void run(const DeviceOptions& opts)
+void run(const DeviceOptions &opts)
 {
 	CE_ASSERT(_device == NULL, "Crown already initialized");
 	console_server_globals::init();
@@ -783,7 +783,7 @@ void run(const DeviceOptions& opts)
 	console_server_globals::shutdown();
 }
 
-Device* device()
+Device *device()
 {
 	return crown::_device;
 }

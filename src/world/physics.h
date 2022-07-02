@@ -16,10 +16,10 @@ namespace physics_globals
 {
 	/// Initializes the physics system.
 	/// This is the place where to create and initialize per-application objects.
-	void init(Allocator& a);
+	void init(Allocator &a);
 
 	/// It should reverse the actions performed by physics_globals::init().
-	void shutdown(Allocator& a);
+	void shutdown(Allocator &a);
 
 } // namespace physics_globals
 

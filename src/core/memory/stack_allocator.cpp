@@ -9,7 +9,7 @@
 
 namespace crown
 {
-StackAllocator::StackAllocator(char* begin, u32 size)
+StackAllocator::StackAllocator(char *begin, u32 size)
 	: _begin(begin)
 	, _top(begin)
 	, _total_size(size)
@@ -26,7 +26,7 @@ StackAllocator::~StackAllocator()
 		);
 }
 
-void* StackAllocator::allocate(u32 size, u32 align)
+void *StackAllocator::allocate(u32 size, u32 align)
 {
 	const u32 actual_size = sizeof(Header) + size + align;
 
@@ -39,13 +39,13 @@ void* StackAllocator::allocate(u32 size, u32 align)
 	u32 offset = u32(_top - _begin);
 
 	// Align user data only, ignore header alignment
-	_top = (char*)memory::align_top(_top + sizeof(Header), align) - sizeof(Header);
+	_top = (char *)memory::align_top(_top + sizeof(Header), align) - sizeof(Header);
 
-	Header* header = (Header*)_top;
+	Header *header = (Header *)_top;
 	header->offset = offset;
 	header->alloc_id = _allocation_count;
 
-	void* user_ptr = _top + sizeof(Header);
+	void *user_ptr = _top + sizeof(Header);
 	_top = _top + actual_size;
 
 	_allocation_count++;
@@ -53,12 +53,12 @@ void* StackAllocator::allocate(u32 size, u32 align)
 	return user_ptr;
 }
 
-void StackAllocator::deallocate(void* data)
+void StackAllocator::deallocate(void *data)
 {
 	if (!data)
 		return;
 
-	Header* data_header = (Header*)((char*)data - sizeof(Header));
+	Header *data_header = (Header *)((char *)data - sizeof(Header));
 
 	CE_ASSERT(data_header->alloc_id == _allocation_count - 1
 		, "Deallocations must occur in LIFO order"

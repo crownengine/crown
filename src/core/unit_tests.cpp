@@ -63,9 +63,9 @@ namespace crown
 static void test_memory()
 {
 	memory_globals::init();
-	Allocator& a = default_allocator();
+	Allocator &a = default_allocator();
 
-	void* p = a.allocate(32);
+	void *p = a.allocate(32);
 	ENSURE(a.allocated_size(p) >= 32);
 	a.deallocate(p);
 
@@ -75,7 +75,7 @@ static void test_memory()
 static void test_array()
 {
 	memory_globals::init();
-	Allocator& a = default_allocator();
+	Allocator &a = default_allocator();
 	{
 		Array<int> v(a);
 
@@ -90,7 +90,7 @@ static void test_array()
 static void test_vector()
 {
 	memory_globals::init();
-	Allocator& a = default_allocator();
+	Allocator &a = default_allocator();
 	{
 		Vector<int> v(a);
 
@@ -105,7 +105,7 @@ static void test_vector()
 static void test_hash_map()
 {
 	memory_globals::init();
-	Allocator& a = default_allocator();
+	Allocator &a = default_allocator();
 	{
 		HashMap<s32, s32> m(a);
 
@@ -161,7 +161,7 @@ static void test_hash_map()
 static void test_hash_set()
 {
 	memory_globals::init();
-	Allocator& a = default_allocator();
+	Allocator &a = default_allocator();
 	{
 		HashSet<s32> m(a);
 
@@ -1059,7 +1059,7 @@ static void test_string_view()
 {
 	memory_globals::init();
 	{
-		const char* str = "foo";
+		const char *str = "foo";
 		StringView sv(str);
 		ENSURE(sv._length == 3);
 		ENSURE(sv._data == &str[0]);
@@ -1368,43 +1368,43 @@ static void test_path()
 	}
 #endif // CROWN_PLATFORM_POSIX
 	{
-		const char* p = path::basename("");
+		const char *p = path::basename("");
 		ENSURE(strcmp(p, "") == 0);
 	}
 	{
-		const char* q = path::basename("/");
+		const char *q = path::basename("/");
 		ENSURE(strcmp(q, "") == 0);
 	}
 	{
-		const char* p = path::basename("boot.config");
+		const char *p = path::basename("boot.config");
 		ENSURE(strcmp(p, "boot.config") == 0);
 	}
 	{
-		const char* p = path::basename("foo/boot.config");
+		const char *p = path::basename("foo/boot.config");
 		ENSURE(strcmp(p, "boot.config") == 0);
 	}
 	{
-		const char* p = path::basename("/foo/boot.config");
+		const char *p = path::basename("/foo/boot.config");
 		ENSURE(strcmp(p, "boot.config") == 0);
 	}
 	{
-		const char* p = path::extension("");
+		const char *p = path::extension("");
 		ENSURE(p == NULL);
 	}
 	{
-		const char* p = path::extension("boot");
+		const char *p = path::extension("boot");
 		ENSURE(p == NULL);
 	}
 	{
-		const char* p = path::extension("boot.bar.config");
+		const char *p = path::extension("boot.bar.config");
 		ENSURE(strcmp(p, "config") == 0);
 	}
 	{
-		const char* p = path::extension(".bar");
+		const char *p = path::extension(".bar");
 		ENSURE(p == NULL);
 	}
 	{
-		const char* p = path::extension("foo/.bar");
+		const char *p = path::extension("foo/.bar");
 		ENSURE(p == NULL);
 	}
 	{
@@ -1444,7 +1444,7 @@ static void test_path()
 
 static void test_command_line()
 {
-	const char* argv[] =
+	const char *argv[] =
 	{
 		"args",
 		"-s",
@@ -1455,7 +1455,7 @@ static void test_command_line()
 
 	CommandLine cl(countof(argv), argv);
 	ENSURE(cl.has_option("switch", 's'));
-	const char* orange = cl.get_parameter(0, "argument");
+	const char *orange = cl.get_parameter(0, "argument");
 	ENSURE(orange != NULL && strcmp(orange, "orange") == 0);
 }
 
@@ -1464,7 +1464,7 @@ static void test_thread()
 	Thread thread;
 	ENSURE(!thread.is_running());
 
-	thread.start([](void*) { return 0xbadc0d3; }, NULL);
+	thread.start([](void *) { return 0xbadc0d3; }, NULL);
 	thread.stop();
 	ENSURE(thread.exit_code() == 0xbadc0d3);
 }
@@ -1480,7 +1480,7 @@ static void test_process()
 #else
 		#define CROWN_SUFFIX "release"
 #endif
-		const char* argv[] =
+		const char *argv[] =
 		{
 			EXE_PATH("crown-" CROWN_SUFFIX)
 			, "--version"
@@ -1493,7 +1493,7 @@ static void test_process()
 		u32 nbr;
 		char buf[128] = {0};
 		pr.read(&nbr, buf, sizeof(buf));
-		const char* ver = "Crown " CROWN_VERSION;
+		const char *ver = "Crown " CROWN_VERSION;
 		ENSURE(strncmp(buf, ver, strlen32(ver)) == 0);
 		s32 ec = pr.wait();
 		ENSURE(ec == 0);

@@ -18,16 +18,16 @@ namespace crown
 {
 namespace config_resource_internal
 {
-	void* load(File& file, Allocator& a)
+	void *load(File &file, Allocator &a)
 	{
 		const u32 size = file.size();
-		char* res = (char*)a.allocate(size + 1);
+		char *res = (char *)a.allocate(size + 1);
 		file.read(res, size);
 		res[size] = '\0';
 		return res;
 	}
 
-	void unload(Allocator& a, void* resource)
+	void unload(Allocator &a, void *resource)
 	{
 		a.deallocate(resource);
 	}
@@ -37,7 +37,7 @@ namespace config_resource_internal
 #if CROWN_CAN_COMPILE
 namespace config_resource_internal
 {
-	s32 compile(CompileOptions& opts)
+	s32 compile(CompileOptions &opts)
 	{
 		Buffer buf = opts.read();
 
@@ -45,8 +45,8 @@ namespace config_resource_internal
 		JsonObject boot(ta);
 		sjson::parse(boot, buf);
 
-		const char* boot_script_json  = boot["boot_script"];
-		const char* boot_package_json = boot["boot_package"];
+		const char *boot_script_json  = boot["boot_script"];
+		const char *boot_package_json = boot["boot_package"];
 		DATA_COMPILER_ASSERT(boot_script_json != NULL, opts, "'boot_script' must be specified.");
 		DATA_COMPILER_ASSERT(boot_package_json != NULL, opts, "'boot_package' must be specified.");
 

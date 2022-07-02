@@ -18,7 +18,7 @@ namespace crown
 {
 namespace json
 {
-	static const char* next(const char* json, const char c = 0)
+	static const char *next(const char *json, const char c = 0)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -29,7 +29,7 @@ namespace json
 		return ++json;
 	}
 
-	static const char* skip_string(const char* json)
+	static const char *skip_string(const char *json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -45,7 +45,7 @@ namespace json
 		return json;
 	}
 
-	static const char* skip_value(const char* json)
+	static const char *skip_value(const char *json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -59,7 +59,7 @@ namespace json
 		return json;
 	}
 
-	JsonValueType::Enum type(const char* json)
+	JsonValueType::Enum type(const char *json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -72,7 +72,7 @@ namespace json
 		}
 	}
 
-	static f64 parse_number(const char* json)
+	static f64 parse_number(const char *json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -117,17 +117,17 @@ namespace json
 		return val;
 	}
 
-	s32 parse_int(const char* json)
+	s32 parse_int(const char *json)
 	{
 		return (s32)parse_number(json);
 	}
 
-	f32 parse_float(const char* json)
+	f32 parse_float(const char *json)
 	{
 		return (f32)parse_number(json);
 	}
 
-	bool parse_bool(const char* json)
+	bool parse_bool(const char *json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -153,7 +153,7 @@ namespace json
 		}
 	}
 
-	void parse_string(DynamicString& str, const char* json)
+	void parse_string(DynamicString &str, const char *json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -185,7 +185,7 @@ namespace json
 		CE_FATAL("Bad string");
 	}
 
-	void parse_array(JsonArray& arr, const char* json)
+	void parse_array(JsonArray &arr, const char *json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -212,7 +212,7 @@ namespace json
 		CE_FATAL("Bad array");
 	}
 
-	void parse_object(JsonObject& obj, const char* json)
+	void parse_object(JsonObject &obj, const char *json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -223,7 +223,7 @@ namespace json
 				return;
 
 			while (*json) {
-				const char* key_begin = *json == '"' ? (json + 1) : json;
+				const char *key_begin = *json == '"' ? (json + 1) : json;
 
 				TempAllocator256 ta;
 				DynamicString key(ta);
@@ -252,13 +252,13 @@ namespace json
 		CE_FATAL("Bad object");
 	}
 
-	void parse(JsonObject& obj, const char* json)
+	void parse(JsonObject &obj, const char *json)
 	{
 		CE_ENSURE(NULL != json);
 		parse_object(obj, json);
 	}
 
-	void parse(JsonObject& obj, Buffer& json)
+	void parse(JsonObject &obj, Buffer &json)
 	{
 		array::push_back(json, '\0');
 		array::pop_back(json);

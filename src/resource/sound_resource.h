@@ -37,14 +37,14 @@ struct SoundResource
 
 namespace sound_resource_internal
 {
-	s32 compile(CompileOptions& opts);
+	s32 compile(CompileOptions &opts);
 
 } // namespace	sound_resource_internal
 
 namespace sound_resource
 {
 	/// Returns the sound data.
-	const char* data(const SoundResource* sr);
+	const char *data(const SoundResource *sr);
 
 } // namespace sound_resource
 

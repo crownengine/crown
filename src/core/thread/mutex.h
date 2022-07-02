@@ -14,7 +14,7 @@ namespace crown
 /// @ingroup Thread
 struct Mutex
 {
-	struct Private* _priv;
+	struct Private *_priv;
 	CE_ALIGN_DECL(16, u8 _data[64]);
 
 	///
@@ -24,10 +24,10 @@ struct Mutex
 	~Mutex();
 
 	///
-	Mutex(const Mutex&) = delete;
+	Mutex(const Mutex &) = delete;
 
 	///
-	Mutex& operator=(const Mutex&) = delete;
+	Mutex &operator=(const Mutex &) = delete;
 
 	/// Locks the mutex.
 	void lock();
@@ -36,7 +36,7 @@ struct Mutex
 	void unlock();
 
 	/// Returns the native mutex handle.
-	void* native_handle();
+	void *native_handle();
 };
 
 } // namespace crown
