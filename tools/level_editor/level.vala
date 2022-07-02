@@ -646,182 +646,182 @@ public class Level
 		switch (id)
 		{
 		case (int)ActionType.SPAWN_UNIT:
-			{
-				if (undo)
-					send_destroy_objects(data);
-				else
-					send_spawn_units(data);
-				break;
-			}
+		{
+			if (undo)
+				send_destroy_objects(data);
+			else
+				send_spawn_units(data);
+			break;
+		}
 
 		case (int)ActionType.DESTROY_UNIT:
-			{
-				if (undo)
-					send_spawn_units(data);
-				else
-					send_destroy_objects(data);
-				break;
-			}
+		{
+			if (undo)
+				send_spawn_units(data);
+			else
+				send_destroy_objects(data);
+			break;
+		}
 
 		case (int)ActionType.SPAWN_SOUND:
-			{
-				if (undo)
-					send_destroy_objects(data);
-				else
-					send_spawn_sounds(data);
-				break;
-			}
+		{
+			if (undo)
+				send_destroy_objects(data);
+			else
+				send_spawn_sounds(data);
+			break;
+		}
 
 		case (int)ActionType.DESTROY_SOUND:
-			{
-				if (undo)
-					send_spawn_sounds(data);
-				else
-					send_destroy_objects(data);
-				break;
-			}
+		{
+			if (undo)
+				send_spawn_sounds(data);
+			else
+				send_destroy_objects(data);
+			break;
+		}
 
 		case (int)ActionType.MOVE_OBJECTS:
+		{
+			Guid[] ids = data;
+
+			Vector3[] positions = new Vector3[ids.length];
+			Quaternion[] rotations = new Quaternion[ids.length];
+			Vector3[] scales = new Vector3[ids.length];
+
+			for (int i = 0; i < ids.length; ++i)
 			{
-				Guid[] ids = data;
-
-				Vector3[] positions = new Vector3[ids.length];
-				Quaternion[] rotations = new Quaternion[ids.length];
-				Vector3[] scales = new Vector3[ids.length];
-
-				for (int i = 0; i < ids.length; ++i)
+				if (_db.object_type(ids[i]) == OBJECT_TYPE_UNIT)
 				{
-					if (_db.object_type(ids[i]) == OBJECT_TYPE_UNIT)
-					{
-						Guid unit_id = ids[i];
+					Guid unit_id = ids[i];
 
-						Unit unit = new Unit(_db, unit_id);
-						Guid component_id;
-						if (unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM))
-						{
-							positions[i] = unit.get_component_property_vector3   (component_id, "data.position");
-							rotations[i] = unit.get_component_property_quaternion(component_id, "data.rotation");
-							scales[i]    = unit.get_component_property_vector3   (component_id, "data.scale");
-						}
-						else
-						{
-							positions[i] = _db.get_property_vector3   (unit_id, "position");
-							rotations[i] = _db.get_property_quaternion(unit_id, "rotation");
-							scales[i]    = _db.get_property_vector3   (unit_id, "scale");
-						}
-					}
-					else if (_db.object_type(ids[i]) == OBJECT_TYPE_SOUND_SOURCE)
+					Unit unit = new Unit(_db, unit_id);
+					Guid component_id;
+					if (unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM))
 					{
-						Guid sound_id = ids[i];
-						positions[i] = _db.get_property_vector3   (sound_id, "position");
-						rotations[i] = _db.get_property_quaternion(sound_id, "rotation");
-						scales[i]    = Vector3(1.0, 1.0, 1.0);
+						positions[i] = unit.get_component_property_vector3   (component_id, "data.position");
+						rotations[i] = unit.get_component_property_quaternion(component_id, "data.rotation");
+						scales[i]    = unit.get_component_property_vector3   (component_id, "data.scale");
 					}
 					else
 					{
-						assert(false);
+						positions[i] = _db.get_property_vector3   (unit_id, "position");
+						rotations[i] = _db.get_property_quaternion(unit_id, "rotation");
+						scales[i]    = _db.get_property_vector3   (unit_id, "scale");
 					}
 				}
-
-				send_move_objects(ids, positions, rotations, scales);
-				// FIXME: Hack to force update the properties view
-				selection_changed(_selection);
-				break;
+				else if (_db.object_type(ids[i]) == OBJECT_TYPE_SOUND_SOURCE)
+				{
+					Guid sound_id = ids[i];
+					positions[i] = _db.get_property_vector3   (sound_id, "position");
+					rotations[i] = _db.get_property_quaternion(sound_id, "rotation");
+					scales[i]    = Vector3(1.0, 1.0, 1.0);
+				}
+				else
+				{
+					assert(false);
+				}
 			}
+
+			send_move_objects(ids, positions, rotations, scales);
+			// FIXME: Hack to force update the properties view
+			selection_changed(_selection);
+			break;
+		}
 
 		case (int)ActionType.DUPLICATE_OBJECTS:
-			{
-				Guid[] new_ids = data;
-				if (undo)
-					send_destroy_objects(new_ids);
-				else
-					send_spawn_objects(new_ids);
-				break;
-			}
+		{
+			Guid[] new_ids = data;
+			if (undo)
+				send_destroy_objects(new_ids);
+			else
+				send_spawn_objects(new_ids);
+			break;
+		}
 
 		case (int)ActionType.OBJECT_SET_EDITOR_NAME:
 			object_editor_name_changed(data[0], object_editor_name(data[0]));
 			break;
 
 		case (int)ActionType.SET_LIGHT:
-			{
-				Guid unit_id = data[0];
+		{
+			Guid unit_id = data[0];
 
-				Unit unit = new Unit(_db, unit_id);
-				Guid component_id;
-				unit.has_component(out component_id, OBJECT_TYPE_LIGHT);
+			Unit unit = new Unit(_db, unit_id);
+			Guid component_id;
+			unit.has_component(out component_id, OBJECT_TYPE_LIGHT);
 
-				_client.send_script(LevelEditorApi.set_light(unit_id
-					, unit.get_component_property_string (component_id, "data.type")
-					, unit.get_component_property_double (component_id, "data.range")
-					, unit.get_component_property_double (component_id, "data.intensity")
-					, unit.get_component_property_double (component_id, "data.spot_angle")
-					, unit.get_component_property_vector3(component_id, "data.color")
-					));
-				_client.send(DeviceApi.frame());
-				// FIXME: Hack to force update the properties view
-				selection_changed(_selection);
-				break;
-			}
+			_client.send_script(LevelEditorApi.set_light(unit_id
+				, unit.get_component_property_string (component_id, "data.type")
+				, unit.get_component_property_double (component_id, "data.range")
+				, unit.get_component_property_double (component_id, "data.intensity")
+				, unit.get_component_property_double (component_id, "data.spot_angle")
+				, unit.get_component_property_vector3(component_id, "data.color")
+				));
+			_client.send(DeviceApi.frame());
+			// FIXME: Hack to force update the properties view
+			selection_changed(_selection);
+			break;
+		}
 
 		case (int)ActionType.SET_MESH:
-			{
-				Guid unit_id = data[0];
+		{
+			Guid unit_id = data[0];
 
-				Unit unit = new Unit(_db, unit_id);
-				Guid component_id;
-				unit.has_component(out component_id, OBJECT_TYPE_MESH_RENDERER);
+			Unit unit = new Unit(_db, unit_id);
+			Guid component_id;
+			unit.has_component(out component_id, OBJECT_TYPE_MESH_RENDERER);
 
-				_client.send_script(LevelEditorApi.set_mesh(unit_id
-					, unit.get_component_property_string(component_id, "data.material")
-					, unit.get_component_property_bool  (component_id, "data.visible")
-					));
-				_client.send(DeviceApi.frame());
-				// FIXME: Hack to force update the properties view
-				selection_changed(_selection);
-				break;
-			}
+			_client.send_script(LevelEditorApi.set_mesh(unit_id
+				, unit.get_component_property_string(component_id, "data.material")
+				, unit.get_component_property_bool  (component_id, "data.visible")
+				));
+			_client.send(DeviceApi.frame());
+			// FIXME: Hack to force update the properties view
+			selection_changed(_selection);
+			break;
+		}
 
 		case (int)ActionType.SET_SPRITE:
-			{
-				Guid unit_id = data[0];
+		{
+			Guid unit_id = data[0];
 
-				Unit unit = new Unit(_db, unit_id);
-				Guid component_id;
-				unit.has_component(out component_id, OBJECT_TYPE_SPRITE_RENDERER);
+			Unit unit = new Unit(_db, unit_id);
+			Guid component_id;
+			unit.has_component(out component_id, OBJECT_TYPE_SPRITE_RENDERER);
 
-				_client.send_script(LevelEditorApi.set_sprite(unit_id
-					, unit.get_component_property_string(component_id, "data.sprite_resource")
-					, unit.get_component_property_string(component_id, "data.material")
-					, unit.get_component_property_double(component_id, "data.layer")
-					, unit.get_component_property_double(component_id, "data.depth")
-					, unit.get_component_property_bool  (component_id, "data.visible")
-					));
-				_client.send(DeviceApi.frame());
-				// FIXME: Hack to force update the properties view
-				selection_changed(_selection);
-				break;
-			}
+			_client.send_script(LevelEditorApi.set_sprite(unit_id
+				, unit.get_component_property_string(component_id, "data.sprite_resource")
+				, unit.get_component_property_string(component_id, "data.material")
+				, unit.get_component_property_double(component_id, "data.layer")
+				, unit.get_component_property_double(component_id, "data.depth")
+				, unit.get_component_property_bool  (component_id, "data.visible")
+				));
+			_client.send(DeviceApi.frame());
+			// FIXME: Hack to force update the properties view
+			selection_changed(_selection);
+			break;
+		}
 
 		case (int)ActionType.SET_CAMERA:
-			{
-				Guid unit_id = data[0];
+		{
+			Guid unit_id = data[0];
 
-				Unit unit = new Unit(_db, unit_id);
-				Guid component_id;
-				unit.has_component(out component_id, OBJECT_TYPE_CAMERA);
+			Unit unit = new Unit(_db, unit_id);
+			Guid component_id;
+			unit.has_component(out component_id, OBJECT_TYPE_CAMERA);
 
-				_client.send_script(LevelEditorApi.set_camera(unit_id
-					, unit.get_component_property_string(component_id, "data.projection")
-					, unit.get_component_property_double(component_id, "data.fov")
-					, unit.get_component_property_double(component_id, "data.near_range")
-					, unit.get_component_property_double(component_id, "data.far_range")
-					));
-				_client.send(DeviceApi.frame());
-				// FIXME: Hack to force update the properties view
-				selection_changed(_selection);
-				break;
-			}
+			_client.send_script(LevelEditorApi.set_camera(unit_id
+				, unit.get_component_property_string(component_id, "data.projection")
+				, unit.get_component_property_double(component_id, "data.fov")
+				, unit.get_component_property_double(component_id, "data.near_range")
+				, unit.get_component_property_double(component_id, "data.far_range")
+				));
+			_client.send(DeviceApi.frame());
+			// FIXME: Hack to force update the properties view
+			selection_changed(_selection);
+			break;
+		}
 
 		case (int)ActionType.SET_COLLIDER:
 		case (int)ActionType.SET_ACTOR:
@@ -832,17 +832,17 @@ public class Level
 			break;
 
 		case (int)ActionType.SET_SOUND:
-			{
-				Guid sound_id = data[0];
+		{
+			Guid sound_id = data[0];
 
-				_client.send_script(LevelEditorApi.set_sound_range(sound_id
-					, _db.get_property_double(sound_id, "range")
-					));
-				_client.send(DeviceApi.frame());
-				// FIXME: Hack to force update the properties view
-				selection_changed(_selection);
-				break;
-			}
+			_client.send_script(LevelEditorApi.set_sound_range(sound_id
+				, _db.get_property_double(sound_id, "range")
+				));
+			_client.send(DeviceApi.frame());
+			// FIXME: Hack to force update the properties view
+			selection_changed(_selection);
+			break;
+		}
 
 		default:
 			loge("Unknown undo/redo action: %d".printf(id));
