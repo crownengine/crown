@@ -463,6 +463,7 @@ static void lua_dump_table(lua_State *L, int i, StringStream &json)
 
 void load_api(LuaEnvironment &env)
 {
+	// code-format off
 	env.add_module_function("Math", "ray_plane_intersection", [](lua_State *L) {
 			LuaStack stack(L);
 			const Plane3 p = plane3::from_point_and_normal(stack.get_vector3(3)
@@ -2861,6 +2862,7 @@ void load_api(LuaEnvironment &env)
 			device()->_window->set_cursor_mode(cm);
 			return 0;
 		});
+	// code-format on
 }
 
 } // namespace crown

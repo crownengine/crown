@@ -1233,6 +1233,7 @@ int main_data_compiler(const DeviceOptions &opts)
 	sigaction(SIGINT, NULL, &old_SIGINT);
 	sigaction(SIGINT, &act, NULL);
 #elif CROWN_PLATFORM_WINDOWS
+	// code-format off
 	PHANDLER_ROUTINE signal_handler = [](DWORD dwCtrlType) {
 		switch (dwCtrlType) {
 		case CTRL_C_EVENT:
@@ -1243,6 +1244,7 @@ int main_data_compiler(const DeviceOptions &opts)
 			return FALSE;
 		}
 	};
+	// code-format on
 	SetConsoleCtrlHandler(signal_handler, TRUE);
 #endif // CROWN_PLATFORM_POSIX
 
