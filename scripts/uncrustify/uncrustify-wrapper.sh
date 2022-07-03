@@ -1,9 +1,4 @@
-#! /bin/bash
-
-# Usage:
-# find src/ -iname *.h -o -iname *.inl -o -iname *.cpp | tr '\n' '\0' | xargs -0 -n1 ./code-format.sh 2> /dev/null
-
-UNCRUSTIFY_CFG=$1
+#!/bin/sh
 
 # Convert leading spaces to tabs.
 fix_indentation_char () {
@@ -46,14 +41,9 @@ fix_semicolon_indentation () {
 }
 
 # Do uncrustify.
-uncrustify () {
-	../uncrustify/build/uncrustify               \
-		-c $UNCRUSTIFY_CFG                       \
-		-l $(basename -s '.cfg' $UNCRUSTIFY_CFG) \
-		-q
-}
-
-uncrustify                                         \
-	| fix_indentation_char                         \
-	| add_newline_before_namespace_closing_bracket \
-	| fix_semicolon_indentation
+../uncrustify/build/uncrustify -q -c "$1" -l "$2" -f "$3" \
+	| fix_indentation_char                                \
+	| add_newline_before_namespace_closing_bracket        \
+	| fix_semicolon_indentation                           \
+	> $3.new                                              \
+	&& mv $3.new $3
