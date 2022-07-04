@@ -13,6 +13,7 @@ format_tools () {
 }
 
 NUM_JOBS=1
+ENABLE_TOOLS=0
 
 while [ $# -gt 0 ]; do
 	case $1 in
@@ -27,6 +28,10 @@ while [ $# -gt 0 ]; do
 		[ $NUM_JOBS -eq $NUM_JOBS 2>/dev/null ] || exit 1
 		[ $NUM_JOBS -gt 0 ] || exit 1
 		;;
+	--enable-tools)
+		ENABLE_TOOLS=1
+		shift
+		;;
 	-*|--*)
 		echo "Unknown option $1"
 		exit 1
@@ -38,4 +43,6 @@ done
 
 # Format all.
 format_src $NUM_JOBS
-format_tools $NUM_JOBS
+if [ $ENABLE_TOOLS -eq 1 ]; then
+	format_tools $NUM_JOBS
+fi
