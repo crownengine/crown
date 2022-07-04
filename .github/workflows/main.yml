@@ -18,6 +18,16 @@ jobs:
     - name: docs
       run: |
         make docs
+  code-style:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: format
+      run: |
+        ./scripts/uncrustify/format-all.sh -j 2
+    - name: check-diff
+      run: |
+        exit `git diff --shortstat | wc -l`
   android-arm:
     runs-on: ubuntu-18.04
     steps:
