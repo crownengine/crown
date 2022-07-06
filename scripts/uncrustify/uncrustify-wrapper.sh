@@ -40,18 +40,18 @@ fix_semicolon_indentation () {
 	'
 }
 
-if [ "$OSTYPE" = "linux-gnu" ]; then
+if [ "${OSTYPE}" = "linux-gnu" ]; then
 	OS="linux"
-elif [ "$OSTYPE" = "msys" ]; then
+elif [ "${OSTYPE}" = "msys" ]; then
 	OS="windows"
 else
 	OS="linux"
 fi
 
 # Do uncrustify.
-./scripts/uncrustify/bin/$OS/uncrustify -q -c "$1" -l "$2" -f "$3" \
-	| fix_indentation_char                                         \
-	| add_newline_before_namespace_closing_bracket                 \
-	| fix_semicolon_indentation                                    \
-	> $3.new                                                       \
-	&& mv $3.new $3
+./scripts/uncrustify/bin/"${OS}"/uncrustify -q -c "$1" -l "$2" -f "$3" \
+	| fix_indentation_char                                             \
+	| add_newline_before_namespace_closing_bracket                     \
+	| fix_semicolon_indentation                                        \
+	> "$3".new                                                         \
+	&& mv "$3".new "$3"
