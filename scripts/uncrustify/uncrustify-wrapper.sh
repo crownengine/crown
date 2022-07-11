@@ -53,6 +53,7 @@ if [ -z "${UNCRUSTIFY}" ]; then
 fi
 
 # Do uncrustify.
+echo "$3"
 ${UNCRUSTIFY} -q -c "$1" -l "$2" -f "$3"           \
 	| fix_indentation_char                         \
 	| add_newline_before_namespace_closing_bracket \
