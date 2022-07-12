@@ -289,7 +289,7 @@ namespace physics_resource_internal
 			if (cd.type == ColliderType::SPHERE) {
 				cd.sphere.radius = sjson::parse_float(collider_data["radius"]);
 			} else if (cd.type == ColliderType::BOX) {
-				cd.box.half_size = sjson::parse_vector3(collider_data["half_extents"]);;
+				cd.box.half_size = sjson::parse_vector3(collider_data["half_extents"]);
 			} else if (cd.type == ColliderType::CAPSULE) {
 				cd.capsule.radius = sjson::parse_float(collider_data["radius"]);
 				cd.capsule.height = sjson::parse_float(collider_data["height"]);

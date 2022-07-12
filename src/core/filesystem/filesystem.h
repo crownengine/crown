@@ -21,12 +21,12 @@ struct Filesystem
 	///
 	Filesystem()
 	{
-	};
+	}
 
 	///
 	virtual ~Filesystem()
 	{
-	};
+	}
 
 	///
 	Filesystem(const Filesystem &) = delete;
