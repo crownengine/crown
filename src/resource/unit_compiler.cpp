@@ -628,8 +628,10 @@ Buffer UnitCompiler::blob()
 		bw.write(_unit_parents[ii]);
 
 	for (u32 ii = 0; ii < array::size(_component_info); ++ii) {
+		const ComponentTypeData deffault_ctd(default_allocator());
+
 		const StringId32 type        = _component_info[ii]._type;
-		const ComponentTypeData &ctd = hash_map::get(_component_data, type, ComponentTypeData(default_allocator()));
+		const ComponentTypeData &ctd = hash_map::get(_component_data, type, deffault_ctd);
 
 		const Buffer &data           = ctd._data;
 		const Array<u32> &unit_index = ctd._unit_index;
