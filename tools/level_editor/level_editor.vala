@@ -553,7 +553,7 @@ public class LevelEditorApplication : Gtk.Application
 						|| (int)ev.x > child_alloc.x + child_alloc.width
 						|| (int)ev.y < child_alloc.y
 						|| (int)ev.y > child_alloc.y + child_alloc.height
-					) {
+						) {
 						_resource_popover.hide();
 					}
 				} else if (!event_widget.is_ancestor(_resource_popover)) {
