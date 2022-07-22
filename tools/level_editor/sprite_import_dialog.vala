@@ -363,20 +363,20 @@ public class SpriteImportDialog : Gtk.Dialog
 			});
 
 		collision_enabled.toggled.connect(() => {
-					collision_xy.sensitive = !collision_xy.sensitive;
-					collision_wh.sensitive = !collision_wh.sensitive;
-					shape_switcher.sensitive = !shape_switcher.sensitive;
-					circle_collision_center.sensitive = !circle_collision_center.sensitive;
-					circle_collision_radius.sensitive = !circle_collision_radius.sensitive;
-					capsule_collision_center.sensitive = !capsule_collision_center.sensitive;
-					capsule_collision_radius.sensitive = !capsule_collision_radius.sensitive;
-					capsule_collision_height.sensitive = !capsule_collision_height.sensitive;
-					actor_class.sensitive = !actor_class.sensitive;
-					mass.sensitive = !mass.sensitive;
-					lock_rotation_y.sensitive = !lock_rotation_y.sensitive;
-				});
+				collision_xy.sensitive = !collision_xy.sensitive;
+				collision_wh.sensitive = !collision_wh.sensitive;
+				shape_switcher.sensitive = !shape_switcher.sensitive;
+				circle_collision_center.sensitive = !circle_collision_center.sensitive;
+				circle_collision_radius.sensitive = !circle_collision_radius.sensitive;
+				capsule_collision_center.sensitive = !capsule_collision_center.sensitive;
+				capsule_collision_radius.sensitive = !capsule_collision_radius.sensitive;
+				capsule_collision_height.sensitive = !capsule_collision_height.sensitive;
+				actor_class.sensitive = !actor_class.sensitive;
+				mass.sensitive = !mass.sensitive;
+				lock_rotation_y.sensitive = !lock_rotation_y.sensitive;
+			});
 
-			collision_xy.value_changed.connect(() => {
+		collision_xy.value_changed.connect(() => {
 				_preview.queue_draw();
 			});
 
