@@ -18,16 +18,6 @@ jobs:
     - name: docs
       run: |
         make docs
-  code-style:
-    runs-on: ubuntu-20.04
-    steps:
-    - uses: actions/checkout@v2
-    - name: format
-      run: |
-        ./scripts/uncrustify/format-all.sh -j 2
-    - name: check-diff
-      run: |
-        exit `git diff --shortstat | wc -l`
   android-arm:
     runs-on: ubuntu-18.04
     steps:
@@ -160,3 +150,14 @@ jobs:
       run: |
         export MINGW=/mingw64
         make MAKE_JOBS=2 level-editor-mingw-release64
+  code-style:
+    runs-on: ubuntu-20.04
+    needs: [android-arm, linux, windows]
+    steps:
+    - uses: actions/checkout@v2
+    - name: format
+      run: |
+        ./scripts/uncrustify/format-all.sh -j 2
+    - name: check-diff
+      run: |
+        exit `git diff --shortstat | wc -l`
