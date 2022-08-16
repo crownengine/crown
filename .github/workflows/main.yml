@@ -26,6 +26,10 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install libc6-dev-i386
+        ANDROID_ROOT=/usr/local/lib/android
+        ANDROID_SDK_ROOT=${ANDROID_ROOT}/sdk
+        SDKMANAGER=${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager
+        echo "y" | $SDKMANAGER "ndk;21.4.7075529"
     - name: android-arm-make-debug
       run: |
         export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/21.4.7075529
