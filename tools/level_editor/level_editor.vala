@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2012-2022 Daniele Bartolini et al.
- * License: https://github.com/dbartolini/crown/blob/master/LICENSE
+ * License: https://github.com/crownengine/crown/blob/master/LICENSE
  */
 
 using Gdk; // Pixbuf
@@ -2120,7 +2120,7 @@ public class LevelEditorApplication : Gtk.Application
 	private void on_report_issue(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		try {
-			AppInfo.launch_default_for_uri("https://github.com/dbartolini/crown/issues", null);
+			AppInfo.launch_default_for_uri("https://github.com/crownengine/crown/issues", null);
 		}
 		catch (Error e) {
 			loge(e.message);

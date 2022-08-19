@@ -1,4 +1,4 @@
-The flexible game engine. [![Build Status](https://github.com/dbartolini/crown/workflows/build_and_test/badge.svg)](https://github.com/dbartolini/crown/actions)
+The flexible game engine. [![Build Status](https://github.com/crownengine/crown/workflows/build_and_test/badge.svg)](https://github.com/crownengine/crown/actions)
 =====================================
 
 Crown is a general purpose and data-driven game engine, written in [orthodox
@@ -17,9 +17,9 @@ for more info.
 ### Binaries
 
   * [Changelog](https://crownengine.github.io/crown/html/latest/changelog.html)
-  * [Crown v0.46.0 for Linux 64-bits](https://github.com/dbartolini/crown/releases/download/v0.46.0/crown-0.46.0-linux-x64.tar.gz)
-  * [Crown v0.46.0 for Windows 64-bits](https://github.com/dbartolini/crown/releases/download/v0.46.0/crown-0.46.0-windows-x64.zip)
-  * [Crown v0.46.0 all releases](https://github.com/dbartolini/crown/releases/tag/v0.46.0)
+  * [Crown v0.46.0 for Linux 64-bits](https://github.com/crownengine/crown/releases/download/v0.46.0/crown-0.46.0-linux-x64.tar.gz)
+  * [Crown v0.46.0 for Windows 64-bits](https://github.com/crownengine/crown/releases/download/v0.46.0/crown-0.46.0-windows-x64.zip)
+  * [Crown v0.46.0 all releases](https://github.com/crownengine/crown/releases/tag/v0.46.0)
   
 ### Arch Linux ([AUR](https://aur.archlinux.org/packages/crown/))
     yay -S crown
@@ -41,25 +41,25 @@ for more info.
 
 ## Screenshots
 
-### [Level Editor](https://github.com/dbartolini/crown/tree/master/tools/level_editor)
+### [Level Editor](https://github.com/crownengine/crown/tree/master/tools/level_editor)
 
-![level-editor](https://raw.githubusercontent.com/dbartolini/crown/master/docs/shots/level-editor.png)
+![level-editor](https://raw.githubusercontent.com/crownengine/crown/master/docs/shots/level-editor.png)
 
-### [00-empty](https://github.com/dbartolini/crown/tree/master/samples/00-empty)
+### [00-empty](https://github.com/crownengine/crown/tree/master/samples/00-empty)
 
 Engine initialization and shutdown.
 
-### [01-physics](https://github.com/dbartolini/crown/tree/master/samples/01-physics)
-![01-physics](https://raw.githubusercontent.com/dbartolini/crown/master/docs/shots/01-physics.png)
+### [01-physics](https://github.com/crownengine/crown/tree/master/samples/01-physics)
+![01-physics](https://raw.githubusercontent.com/crownengine/crown/master/docs/shots/01-physics.png)
 
-### [02-animation](https://github.com/dbartolini/crown/tree/master/samples/02-animation)
-![02-animation](https://raw.githubusercontent.com/dbartolini/crown/master/docs/shots/02-animation.png)
+### [02-animation](https://github.com/crownengine/crown/tree/master/samples/02-animation)
+![02-animation](https://raw.githubusercontent.com/crownengine/crown/master/docs/shots/02-animation.png)
 
 Contact
 -------
 
 Daniele Bartolini ([@aa_dani_bart](https://twitter.com/aa_dani_bart))  
-Project page: https://github.com/dbartolini/crown
+Project page: https://github.com/crownengine/crown
 
 Contributors
 ------------

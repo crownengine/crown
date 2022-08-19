@@ -7,7 +7,7 @@ Getting Source
 
 .. code::
 
-	git clone https://github.com/dbartolini/crown.git
+	git clone https://github.com/crownengine/crown.git
 
 Prerequisites
 =============

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2012-2022 Daniele Bartolini et al.
- * License: https://github.com/dbartolini/crown/blob/master/LICENSE
+ * License: https://github.com/crownengine/crown/blob/master/LICENSE
  */
 
 // Adapted from Branimir Karadžić's platform.h (https://github.com/bkaradzic/bx)
