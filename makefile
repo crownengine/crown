@@ -202,6 +202,13 @@ codespell:
 		--skip "*.ttf.h,*.png,docs/_themes,tools/level_editor/resources/theme/Adwaita" \
 		-q4 # 4: omit warnings about automatic fixes that were disabled in the dictionary.
 
+.PHONY: cppcheck
+cppcheck:
+	@cppcheck src \
+		--enable=all \
+		--suppress=cstyleCast \
+		--suppress=allocaCalled
+
 .PHONY: clean
 clean: clean-samples
 	@echo Cleaning...
