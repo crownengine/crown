@@ -11,35 +11,35 @@
 #include "core/os.h"
 #include "core/strings/dynamic_string.inl"
 
-#if CROWN_PLATFORM_POSIX
-	#include <stdio.h>
-	#include <errno.h>
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 	#include <tchar.h>
 	#ifndef WIN32_LEAN_AND_MEAN
 		#define WIN32_LEAN_AND_MEAN
 	#endif
 	#include <windows.h>
+#else
+	#include <stdio.h>
+	#include <errno.h>
 #endif
 
 namespace crown
 {
 struct FileDisk : public File
 {
-#if CROWN_PLATFORM_POSIX
-	FILE *_file;
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 	HANDLE _file;
 	bool _eof;
+#else
+	FILE *_file;
 #endif
 
 	/// Opens the file located at @a path with the given @a mode.
 	FileDisk()
-#if CROWN_PLATFORM_POSIX
-		: _file(NULL)
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 		: _file(INVALID_HANDLE_VALUE)
 		, _eof(false)
+#else
+		: _file(NULL)
 #endif
 	{
 	}
@@ -51,9 +51,7 @@ struct FileDisk : public File
 
 	void open(const char *path, FileOpenMode::Enum mode)
 	{
-#if CROWN_PLATFORM_POSIX
-		_file = fopen(path, (mode == FileOpenMode::READ) ? "rb" : "wb");
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 		_file = CreateFile(path
 			, (mode == FileOpenMode::READ) ? GENERIC_READ : GENERIC_WRITE
 			, 0
@@ -62,56 +60,58 @@ struct FileDisk : public File
 			, FILE_ATTRIBUTE_NORMAL
 			, NULL
 			);
+#else
+		_file = fopen(path, (mode == FileOpenMode::READ) ? "rb" : "wb");
 #endif
 	}
 
 	void close()
 	{
 		if (is_open()) {
-#if CROWN_PLATFORM_POSIX
-			fclose(_file);
-			_file = NULL;
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 			CloseHandle(_file);
 			_file = INVALID_HANDLE_VALUE;
+#else
+			fclose(_file);
+			_file = NULL;
 #endif
 		}
 	}
 
 	bool is_open()
 	{
-#if CROWN_PLATFORM_POSIX
-		return _file != NULL;
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 		return _file != INVALID_HANDLE_VALUE;
+#else
+		return _file != NULL;
 #endif
 	}
 
 	u32 size()
 	{
 		CE_ASSERT(is_open(), "File is not open");
-#if CROWN_PLATFORM_POSIX
+#if CROWN_PLATFORM_WINDOWS
+		return GetFileSize(_file, NULL);
+#else
 		Stat stat;
 		os::stat(stat, fileno(_file));
 		return (u32)stat.size;
-#elif CROWN_PLATFORM_WINDOWS
-		return GetFileSize(_file, NULL);
 #endif
 	}
 
 	u32 position()
 	{
 		CE_ASSERT(is_open(), "File is not open");
-#if CROWN_PLATFORM_POSIX
-		long pos = ftell(_file);
-		CE_ASSERT(pos != -1, "ftell: errno = %d", errno);
-		return (u32)pos;
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 		DWORD pos = SetFilePointer(_file, 0, NULL, FILE_CURRENT);
 		CE_ASSERT(pos != INVALID_SET_FILE_POINTER
 			, "SetFilePointer: GetLastError = %d"
 			, GetLastError()
 			);
+		return (u32)pos;
+#else
+		long pos = ftell(_file);
+		CE_ASSERT(pos != -1, "ftell: errno = %d", errno);
 		return (u32)pos;
 #endif
 	}
@@ -119,25 +119,25 @@ struct FileDisk : public File
 	bool end_of_file()
 	{
 		CE_ASSERT(is_open(), "File is not open");
-#if CROWN_PLATFORM_POSIX
-		return feof(_file) != 0;
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 		return _eof;
+#else
+		return feof(_file) != 0;
 #endif
 	}
 
 	void seek(u32 position)
 	{
 		CE_ASSERT(is_open(), "File is not open");
-#if CROWN_PLATFORM_POSIX
-		int err = fseek(_file, (long)position, SEEK_SET);
-		CE_ASSERT(err == 0, "fseek: errno = %d", errno);
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 		DWORD err = SetFilePointer(_file, position, NULL, FILE_BEGIN);
 		CE_ASSERT(err != INVALID_SET_FILE_POINTER
 			, "SetFilePointer: GetLastError = %d"
 			, GetLastError()
 			);
+#else
+		int err = fseek(_file, (long)position, SEEK_SET);
+		CE_ASSERT(err == 0, "fseek: errno = %d", errno);
 #endif
 		CE_UNUSED(err);
 	}
@@ -145,15 +145,15 @@ struct FileDisk : public File
 	void seek_to_end()
 	{
 		CE_ASSERT(is_open(), "File is not open");
-#if CROWN_PLATFORM_POSIX
-		int err = fseek(_file, 0, SEEK_END);
-		CE_ASSERT(err == 0, "fseek: errno = %d", errno);
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 		DWORD err = SetFilePointer(_file, 0, NULL, FILE_END);
 		CE_ASSERT(err != INVALID_SET_FILE_POINTER
 			, "SetFilePointer: GetLastError = %d"
 			, GetLastError()
 			);
+#else
+		int err = fseek(_file, 0, SEEK_END);
+		CE_ASSERT(err == 0, "fseek: errno = %d", errno);
 #endif
 		CE_UNUSED(err);
 	}
@@ -161,15 +161,15 @@ struct FileDisk : public File
 	void skip(u32 bytes)
 	{
 		CE_ASSERT(is_open(), "File is not open");
-#if CROWN_PLATFORM_POSIX
-		int err = fseek(_file, bytes, SEEK_CUR);
-		CE_ASSERT(err == 0, "fseek: errno = %d", errno);
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 		DWORD err = SetFilePointer(_file, bytes, NULL, FILE_CURRENT);
 		CE_ASSERT(err != INVALID_SET_FILE_POINTER
 			, "SetFilePointer: GetLastError = %d"
 			, GetLastError()
 			);
+#else
+		int err = fseek(_file, bytes, SEEK_CUR);
+		CE_ASSERT(err == 0, "fseek: errno = %d", errno);
 #endif
 		CE_UNUSED(err);
 	}
@@ -178,16 +178,16 @@ struct FileDisk : public File
 	{
 		CE_ASSERT(is_open(), "File is not open");
 		CE_ASSERT(data != NULL, "Data must be != NULL");
-#if CROWN_PLATFORM_POSIX
-		size_t bytes_read = fread(data, 1, size, _file);
-		CE_ASSERT(ferror(_file) == 0, "fread error");
-		return (u32)bytes_read;
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 		DWORD bytes_read;
 		BOOL err = ReadFile(_file, data, size, &bytes_read, NULL);
 		CE_ASSERT(err == TRUE, "ReadFile: GetLastError = %d", GetLastError());
 		_eof = err && bytes_read == 0;
 		return bytes_read;
+#else
+		size_t bytes_read = fread(data, 1, size, _file);
+		CE_ASSERT(ferror(_file) == 0, "fread error");
+		return (u32)bytes_read;
 #endif
 	}
 
@@ -195,11 +195,7 @@ struct FileDisk : public File
 	{
 		CE_ASSERT(is_open(), "File is not open");
 		CE_ASSERT(data != NULL, "Data must be != NULL");
-#if CROWN_PLATFORM_POSIX
-		size_t bytes_written = fwrite(data, 1, size, _file);
-		CE_ASSERT(ferror(_file) == 0, "fwrite error");
-		return (u32)bytes_written;
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 		DWORD bytes_written;
 		WriteFile(_file, data, size, &bytes_written, NULL);
 		CE_ASSERT(size == bytes_written
@@ -207,21 +203,25 @@ struct FileDisk : public File
 			, GetLastError()
 			);
 		return bytes_written;
+#else
+		size_t bytes_written = fwrite(data, 1, size, _file);
+		CE_ASSERT(ferror(_file) == 0, "fwrite error");
+		return (u32)bytes_written;
 #endif
 	}
 
 	void flush()
 	{
 		CE_ASSERT(is_open(), "File is not open");
-#if CROWN_PLATFORM_POSIX
-		int err = fflush(_file);
-		CE_ASSERT(err == 0, "fflush: errno = %d", errno);
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 		BOOL err = FlushFileBuffers(_file);
 		CE_ASSERT(err != 0
 			, "FlushFileBuffers: GetLastError = %d"
 			, GetLastError()
 			);
+#else
+		int err = fflush(_file);
+		CE_ASSERT(err == 0, "fflush: errno = %d", errno);
 #endif
 		CE_UNUSED(err);
 	}

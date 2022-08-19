@@ -5,13 +5,15 @@
 
 #include "core/time.h"
 
-#if CROWN_PLATFORM_POSIX
-	#include <time.h> // clock_gettime
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 	#ifndef WIN32_LEAN_AND_MEAN
 		#define WIN32_LEAN_AND_MEAN
 	#endif
 	#include <windows.h>
+#elif CROWN_PLATFORM_OSX
+	#include <sys/time.h> // gettimeofday
+#else
+	#include <time.h> // clock_gettime
 #endif
 
 namespace crown
@@ -20,31 +22,31 @@ namespace time
 {
 	s64 now()
 	{
-#if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_ANDROID
-		timespec now;
-		clock_gettime(CLOCK_MONOTONIC, &now);
-		return now.tv_sec * s64(1000000000) + now.tv_nsec;
+#if CROWN_PLATFORM_WINDOWS
+		LARGE_INTEGER ttime;
+		QueryPerformanceCounter(&ttime);
+		return (s64)ttime.QuadPart;
 #elif CROWN_PLATFORM_OSX
 		struct timeval now;
 		gettimeofday(&now, NULL);
 		return now.tv_sec * s64(1000000) + now.tv_usec;
-#elif CROWN_PLATFORM_WINDOWS
-		LARGE_INTEGER ttime;
-		QueryPerformanceCounter(&ttime);
-		return (s64)ttime.QuadPart;
+#else
+		timespec now;
+		clock_gettime(CLOCK_MONOTONIC, &now);
+		return now.tv_sec * s64(1000000000) + now.tv_nsec;
 #endif
 	}
 
 	inline s64 frequency()
 	{
-#if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_ANDROID
-		return s64(1000000000);
-#elif CROWN_PLATFORM_OSX
-		return s64(1000000);
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 		LARGE_INTEGER freq;
 		QueryPerformanceFrequency(&freq);
 		return (s64)freq.QuadPart;
+#elif CROWN_PLATFORM_OSX
+		return s64(1000000);
+#else
+		return s64(1000000000);
 #endif
 	}
 

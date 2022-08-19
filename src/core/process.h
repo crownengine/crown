@@ -7,14 +7,12 @@
 
 #include "core/strings/types.h"
 
-#if CROWN_PLATFORM_POSIX
-	#define EXE_PREFIX "./"
-	#define EXE_SUFFIX ""
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 	#define EXE_PREFIX ""
 	#define EXE_SUFFIX ".exe"
 #else
-	#error "Unknown platform"
+	#define EXE_PREFIX "./"
+	#define EXE_SUFFIX ""
 #endif // CROWN_PLATFORM_POSIX
 
 #define EXE_PATH(exe) EXE_PREFIX exe EXE_SUFFIX

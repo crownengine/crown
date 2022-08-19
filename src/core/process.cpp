@@ -8,28 +8,28 @@
 #include "core/strings/string_stream.inl"
 #include <stdio.h> // fdopen etc.
 
-#if CROWN_PLATFORM_POSIX
-	#include <unistd.h>   // fork, execvp
-	#include <sys/wait.h> // waitpid
-	#include <errno.h>
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 	#ifndef WIN32_LEAN_AND_MEAN
 		#define WIN32_LEAN_AND_MEAN
 	#endif
 	#include <windows.h>
+#else
+	#include <unistd.h>   // fork, execvp
+	#include <sys/wait.h> // waitpid
+	#include <errno.h>
 #endif
 
 namespace crown
 {
 struct Private
 {
-#if CROWN_PLATFORM_POSIX
-	FILE *file;
-	pid_t pid;
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 	PROCESS_INFORMATION process;
 	HANDLE stdout_rd;
 	HANDLE stdout_wr;
+#else
+	FILE *file;
+	pid_t pid;
 #endif
 };
 
@@ -37,10 +37,10 @@ namespace process_internal
 {
 	bool is_open(Private *priv)
 	{
-#if CROWN_PLATFORM_POSIX
-		return priv->pid != -1;
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 		return priv->process.hProcess != 0;
+#else
+		return priv->pid != -1;
 #endif
 	}
 
@@ -51,10 +51,10 @@ Process::Process()
 	CE_STATIC_ASSERT(sizeof(_data) >= sizeof(*_priv));
 	_priv = new (_data) Private();
 
-#if CROWN_PLATFORM_POSIX
-	_priv->pid = -1;
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 	memset(&_priv->process, 0, sizeof(_priv->process));
+#else
+	_priv->pid = -1;
 #endif
 }
 
@@ -68,61 +68,7 @@ s32 Process::spawn(const char * const *argv, u32 flags)
 {
 	CE_ENSURE(process_internal::is_open(_priv) == false);
 
-#if CROWN_PLATFORM_POSIX
-	// https://opensource.apple.com/source/Libc/Libc-167/gen.subproj/popen.c.auto.html
-	int fildes[2];
-	pid_t pid;
-
-	if (flags & CROWN_PROCESS_STDIN_PIPE || flags & CROWN_PROCESS_STDOUT_PIPE) {
-		if (pipe(fildes) < 0)
-			return -1;
-	}
-
-	pid = fork();
-	if (pid == -1) { // Error, cleanup and return
-		close(fildes[0]);
-		close(fildes[1]);
-		return -1;
-	} else if (pid == 0) { // Child
-		if (flags & CROWN_PROCESS_STDOUT_PIPE) {
-			if (fildes[1] != STDOUT_FILENO) {
-				dup2(fildes[1], STDOUT_FILENO);
-				close(fildes[1]);
-				fildes[1] = STDOUT_FILENO;
-			}
-			close(fildes[0]);
-
-			if (flags & CROWN_PROCESS_STDERR_MERGE) {
-				dup2(fildes[1], 2);
-			}
-		} else if (flags & CROWN_PROCESS_STDIN_PIPE) {
-			if (fildes[0] != STDIN_FILENO) {
-				dup2(fildes[0], STDIN_FILENO);
-				close(fildes[0]);
-				fildes[0] = STDIN_FILENO;
-			}
-			close(fildes[1]);
-		}
-
-		execvp(argv[0], (char * const *)argv);
-		// exec returned error
-		return -1;
-	}
-
-	// Parent
-	if (flags & CROWN_PROCESS_STDOUT_PIPE) {
-		_priv->file = fdopen(fildes[0], "r");
-		close(fildes[1]);
-	} else if (flags & CROWN_PROCESS_STDIN_PIPE) {
-		_priv->file = fdopen(fildes[1], "w");
-		close(fildes[0]);
-	} else {
-		_priv->file = NULL;
-	}
-
-	_priv->pid = pid;
-	return 0;
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 	TempAllocator512 ta;
 	StringStream path(ta);
 
@@ -187,24 +133,78 @@ s32 Process::spawn(const char * const *argv, u32 flags)
 	if (flags & CROWN_PROCESS_STDOUT_PIPE)
 		CloseHandle(_priv->stdout_wr);
 	return 0;
+#else
+	// https://opensource.apple.com/source/Libc/Libc-167/gen.subproj/popen.c.auto.html
+	int fildes[2];
+	pid_t pid;
+
+	if (flags & CROWN_PROCESS_STDIN_PIPE || flags & CROWN_PROCESS_STDOUT_PIPE) {
+		if (pipe(fildes) < 0)
+			return -1;
+	}
+
+	pid = fork();
+	if (pid == -1) { // Error, cleanup and return
+		close(fildes[0]);
+		close(fildes[1]);
+		return -1;
+	} else if (pid == 0) { // Child
+		if (flags & CROWN_PROCESS_STDOUT_PIPE) {
+			if (fildes[1] != STDOUT_FILENO) {
+				dup2(fildes[1], STDOUT_FILENO);
+				close(fildes[1]);
+				fildes[1] = STDOUT_FILENO;
+			}
+			close(fildes[0]);
+
+			if (flags & CROWN_PROCESS_STDERR_MERGE) {
+				dup2(fildes[1], 2);
+			}
+		} else if (flags & CROWN_PROCESS_STDIN_PIPE) {
+			if (fildes[0] != STDIN_FILENO) {
+				dup2(fildes[0], STDIN_FILENO);
+				close(fildes[0]);
+				fildes[0] = STDIN_FILENO;
+			}
+			close(fildes[1]);
+		}
+
+		execvp(argv[0], (char * const *)argv);
+		// exec returned error
+		return -1;
+	}
+
+	// Parent
+	if (flags & CROWN_PROCESS_STDOUT_PIPE) {
+		_priv->file = fdopen(fildes[0], "r");
+		close(fildes[1]);
+	} else if (flags & CROWN_PROCESS_STDIN_PIPE) {
+		_priv->file = fdopen(fildes[1], "w");
+		close(fildes[0]);
+	} else {
+		_priv->file = NULL;
+	}
+
+	_priv->pid = pid;
+	return 0;
 #endif
 }
 
 bool Process::spawned()
 {
-#if CROWN_PLATFORM_POSIX
-	return _priv->pid != -1;
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 	return _priv->process.hProcess != 0;
+#else
+	return _priv->pid != -1;
 #endif
 }
 
 void Process::force_exit()
 {
 	CE_ENSURE(process_internal::is_open(_priv) == true);
-#if CROWN_PLATFORM_POSIX
+#if CROWN_PLATFORM_WINDOWS
+#else
 	kill(_priv->pid, SIGKILL);
-#elif CROWN_PLATFORM_WINDOWS
 #endif
 }
 
@@ -212,7 +212,15 @@ s32 Process::wait()
 {
 	CE_ENSURE(process_internal::is_open(_priv) == true);
 
-#if CROWN_PLATFORM_POSIX
+#if CROWN_PLATFORM_WINDOWS
+	DWORD exitcode = 1;
+	::WaitForSingleObject(_priv->process.hProcess, INFINITE);
+	GetExitCodeProcess(_priv->process.hProcess, &exitcode);
+	CloseHandle(_priv->process.hProcess);
+	CloseHandle(_priv->process.hThread);
+	memset(&_priv->process, 0, sizeof(_priv->process));
+	return (s32)exitcode;
+#else
 	pid_t pid;
 	int wstatus;
 
@@ -227,38 +235,13 @@ s32 Process::wait()
 
 	_priv->pid = -1;
 	return WIFEXITED(wstatus) ? (s32)WEXITSTATUS(wstatus) : -1;
-#elif CROWN_PLATFORM_WINDOWS
-	DWORD exitcode = 1;
-	::WaitForSingleObject(_priv->process.hProcess, INFINITE);
-	GetExitCodeProcess(_priv->process.hProcess, &exitcode);
-	CloseHandle(_priv->process.hProcess);
-	CloseHandle(_priv->process.hThread);
-	memset(&_priv->process, 0, sizeof(_priv->process));
-	return (s32)exitcode;
 #endif
 }
 
 char *Process::read(u32 *num_bytes_read, char *data, u32 len)
 {
 	CE_ENSURE(process_internal::is_open(_priv) == true);
-#if CROWN_PLATFORM_POSIX
-	CE_ENSURE(_priv->file != NULL);
-	size_t read = fread(data, 1, len, _priv->file);
-	if (read != len) {
-		if (feof(_priv->file) != 0) {
-			if (read == 0) {
-				*num_bytes_read = 0;
-				return NULL;
-			}
-		} else if (ferror(_priv->file) != 0) {
-			*num_bytes_read = UINT32_MAX;
-			return NULL;
-		}
-	}
-
-	*num_bytes_read = read;
-	return data;
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 	DWORD read;
 	BOOL success = FALSE;
 
@@ -276,6 +259,23 @@ char *Process::read(u32 *num_bytes_read, char *data, u32 len)
 		*num_bytes_read = read;
 		return data;
 	}
+#else
+	CE_ENSURE(_priv->file != NULL);
+	size_t read = fread(data, 1, len, _priv->file);
+	if (read != len) {
+		if (feof(_priv->file) != 0) {
+			if (read == 0) {
+				*num_bytes_read = 0;
+				return NULL;
+			}
+		} else if (ferror(_priv->file) != 0) {
+			*num_bytes_read = UINT32_MAX;
+			return NULL;
+		}
+	}
+
+	*num_bytes_read = read;
+	return data;
 #endif
 }
 

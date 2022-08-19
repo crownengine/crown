@@ -12,10 +12,10 @@
 
 namespace crown
 {
-#if CROWN_PLATFORM_POSIX
-const char PATH_SEPARATOR = '/';
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 const char PATH_SEPARATOR = '\\';
+#else
+const char PATH_SEPARATOR = '/';
 #endif // CROWN_PLATFORM_POSIX
 
 namespace path
@@ -23,15 +23,15 @@ namespace path
 	bool is_absolute(const char *path)
 	{
 		CE_ENSURE(NULL != path);
-#if CROWN_PLATFORM_POSIX
-		return strlen32(path) > 0
-			&& path[0] == PATH_SEPARATOR
-			;
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 		return strlen32(path) > 2
 			&& isalpha(path[0])
 			&& path[1] == ':'
 			&& path[2] == PATH_SEPARATOR
+			;
+#else
+		return strlen32(path) > 0
+			&& path[0] == PATH_SEPARATOR
 			;
 #endif
 	}
@@ -45,10 +45,10 @@ namespace path
 	bool is_root(const char *path)
 	{
 		CE_ENSURE(NULL != path);
-#if CROWN_PLATFORM_POSIX
-		return is_absolute(path) && strlen32(path) == 1;
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 		return is_absolute(path) && strlen32(path) == 3;
+#else
+		return is_absolute(path) && strlen32(path) == 1;
 #endif
 	}
 

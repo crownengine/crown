@@ -54,10 +54,10 @@ public class Project
 
 	public Project(Database db, DataCompiler dc)
 	{
-#if CROWN_PLATFORM_LINUX
-		_platform = "linux";
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 		_platform = "windows";
+#else
+		_platform = "linux";
 #endif // CROWN_PLATFORM_LINUX
 		_database = db;
 		_files = new Database();

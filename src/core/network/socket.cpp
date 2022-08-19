@@ -10,7 +10,10 @@
 #include <new>
 #include <string.h> // memcpy
 
-#if CROWN_PLATFORM_POSIX
+#if CROWN_PLATFORM_WINDOWS
+	#include <winsock2.h>
+	#define MSG_NOSIGNAL 0
+#else
 	#include <errno.h>
 	#include <fcntl.h>      // fcntl
 	#include <netinet/in.h> // htons, htonl, ...
@@ -24,9 +27,6 @@
 	#define WSAECONNREFUSED ECONNREFUSED
 	#define WSAETIMEDOUT ETIMEDOUT
 	#define WSAEWOULDBLOCK EWOULDBLOCK
-#elif CROWN_PLATFORM_WINDOWS
-	#include <winsock2.h>
-	#define MSG_NOSIGNAL 0
 #endif // CROWN_PLATFORM_POSIX
 
 namespace crown
@@ -35,10 +35,10 @@ namespace
 {
 	inline int last_error()
 	{
-#if CROWN_PLATFORM_POSIX
-		return errno;
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 		return WSAGetLastError();
+#else
+		return errno;
 #endif
 	}
 
@@ -150,14 +150,14 @@ namespace socket_internal
 
 	void set_blocking(SOCKET socket, bool blocking)
 	{
-#if CROWN_PLATFORM_POSIX
-		int flags = fcntl(socket, F_GETFL, 0);
-		fcntl(socket, F_SETFL, blocking ? (flags & ~O_NONBLOCK) : O_NONBLOCK);
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 		u_long non_blocking = blocking ? 0 : 1;
 		int err = ioctlsocket(socket, FIONBIO, &non_blocking);
 		CE_ASSERT(err == 0, "ioctlsocket: last_error() = %d", last_error());
 		CE_UNUSED(err);
+#else
+		int flags = fcntl(socket, F_GETFL, 0);
+		fcntl(socket, F_SETFL, blocking ? (flags & ~O_NONBLOCK) : O_NONBLOCK);
 #endif
 	}
 
@@ -367,22 +367,22 @@ bool SocketSet::isset(TCPSocket *socket)
 
 u32 SocketSet::num()
 {
-#if CROWN_PLATFORM_POSIX
-	return _priv->maxfd + 1;
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 	return _priv->fdset.fd_count;
+#else
+	return _priv->maxfd + 1;
 #endif
 }
 
 TCPSocket SocketSet::get(u32 index)
 {
 	TCPSocket socket;
-#if CROWN_PLATFORM_POSIX
-	CE_ENSURE((int)index < FD_SETSIZE);
-	socket._priv->socket = (int)index;
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 	CE_ENSURE(index < _priv->fdset.fd_count);
 	socket._priv->socket = _priv->fdset.fd_array[index];
+#else
+	CE_ENSURE((int)index < FD_SETSIZE);
+	socket._priv->socket = (int)index;
 #endif
 	return socket;
 }
@@ -396,10 +396,10 @@ SelectResult SocketSet::select(u32 timeout_ms)
 	SelectResult sr;
 	sr.num_ready = 0;
 	int ret = ::select(
-#if CROWN_PLATFORM_POSIX
-		_priv->maxfd + 1
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 		0 // Ignored: https://docs.microsoft.com/en-us/windows/win32/api/winsock2/nf-winsock2-select
+#else
+		_priv->maxfd + 1
 #endif
 		, &_priv->fdset
 		, NULL

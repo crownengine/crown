@@ -47,13 +47,13 @@
 #include "resource/unit_resource.h"
 #include <algorithm>
 #include <inttypes.h>
-#if CROWN_PLATFORM_POSIX
-	#include <signal.h>
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 	#ifndef WIN32_LEAN_AND_MEAN
 		#define WIN32_LEAN_AND_MEAN
 	#endif
 	#include <windows.h>
+#else
+	#include <signal.h>
 #endif // CROWN_PLATFORM_LINUX
 
 LOG_SYSTEM(DATA_COMPILER, "data_compiler")
@@ -1224,15 +1224,7 @@ void DataCompiler::file_monitor_callback(void *thiz, FileMonitorEvent::Enum fme,
 
 int main_data_compiler(const DeviceOptions &opts)
 {
-#if CROWN_PLATFORM_POSIX
-	struct sigaction old_SIGINT;
-	struct sigaction act;
-	act.sa_handler = [](int /*signum*/) { _quit = true; };
-	sigemptyset(&act.sa_mask);
-	act.sa_flags = 0;
-	sigaction(SIGINT, NULL, &old_SIGINT);
-	sigaction(SIGINT, &act, NULL);
-#elif CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 	// code-format off
 	PHANDLER_ROUTINE signal_handler = [](DWORD dwCtrlType) {
 		switch (dwCtrlType) {
@@ -1246,6 +1238,14 @@ int main_data_compiler(const DeviceOptions &opts)
 	};
 	// code-format on
 	SetConsoleCtrlHandler(signal_handler, TRUE);
+#else
+	struct sigaction old_SIGINT;
+	struct sigaction act;
+	act.sa_handler = [](int /*signum*/) { _quit = true; };
+	sigemptyset(&act.sa_mask);
+	act.sa_flags = 0;
+	sigaction(SIGINT, NULL, &old_SIGINT);
+	sigaction(SIGINT, &act, NULL);
 #endif // CROWN_PLATFORM_POSIX
 
 	console_server_globals::init();

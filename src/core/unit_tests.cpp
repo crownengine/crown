@@ -1296,42 +1296,7 @@ static void test_sjson()
 
 static void test_path()
 {
-#if CROWN_PLATFORM_POSIX
-	{
-		const bool a = path::is_absolute("/home/foo");
-		ENSURE(a == true);
-		const bool b = path::is_absolute("home/foo");
-		ENSURE(b == false);
-	}
-	{
-		const bool a = path::is_relative("/home/foo");
-		ENSURE(a == false);
-		const bool b = path::is_relative("home/foo");
-		ENSURE(b == true);
-	}
-	{
-		const bool a = path::is_root("/");
-		ENSURE(a == true);
-		const bool b = path::is_root("/home");
-		ENSURE(b == false);
-	}
-	{
-		ENSURE(path::has_trailing_separator("/home/foo/"));
-		ENSURE(!path::has_trailing_separator("/home/foo"));
-	}
-	{
-		TempAllocator128 ta;
-		DynamicString clean(ta);
-		path::reduce(clean, "/home//foo/");
-		ENSURE(clean == "/home/foo");
-	}
-	{
-		TempAllocator128 ta;
-		DynamicString clean(ta);
-		path::reduce(clean, "\\home\\\\foo\\");
-		ENSURE(clean == "/home/foo");
-	}
-#else
+#if CROWN_PLATFORM_WINDOWS
 	{
 		const bool a = path::is_absolute("C:\\Users\\foo");
 		ENSURE(a == true);
@@ -1365,6 +1330,41 @@ static void test_path()
 		DynamicString clean(ta);
 		path::reduce(clean, "C:/Users//foo/");
 		ENSURE(clean == "C:\\Users\\foo");
+	}
+#else
+	{
+		const bool a = path::is_absolute("/home/foo");
+		ENSURE(a == true);
+		const bool b = path::is_absolute("home/foo");
+		ENSURE(b == false);
+	}
+	{
+		const bool a = path::is_relative("/home/foo");
+		ENSURE(a == false);
+		const bool b = path::is_relative("home/foo");
+		ENSURE(b == true);
+	}
+	{
+		const bool a = path::is_root("/");
+		ENSURE(a == true);
+		const bool b = path::is_root("/home");
+		ENSURE(b == false);
+	}
+	{
+		ENSURE(path::has_trailing_separator("/home/foo/"));
+		ENSURE(!path::has_trailing_separator("/home/foo"));
+	}
+	{
+		TempAllocator128 ta;
+		DynamicString clean(ta);
+		path::reduce(clean, "/home//foo/");
+		ENSURE(clean == "/home/foo");
+	}
+	{
+		TempAllocator128 ta;
+		DynamicString clean(ta);
+		path::reduce(clean, "\\home\\\\foo\\");
+		ENSURE(clean == "/home/foo");
 	}
 #endif // CROWN_PLATFORM_POSIX
 	{
@@ -1425,19 +1425,19 @@ static void test_path()
 		path::join(path, "", "bar");
 		ENSURE(path == "bar");
 	}
-#if CROWN_PLATFORM_POSIX
-	{
-		TempAllocator128 ta;
-		DynamicString path(ta);
-		path::join(path, "foo", "bar");
-		ENSURE(path == "foo/bar");
-	}
-#else
+#if CROWN_PLATFORM_WINDOWS
 	{
 		TempAllocator128 ta;
 		DynamicString path(ta);
 		path::join(path, "C:\\foo", "bar");
 		ENSURE(path == "C:\\foo\\bar");
+	}
+#else
+	{
+		TempAllocator128 ta;
+		DynamicString path(ta);
+		path::join(path, "foo", "bar");
+		ENSURE(path == "foo/bar");
 	}
 #endif // CROWN_PLATFORM_POSIX
 }

@@ -9,12 +9,12 @@
 #include <stdio.h> // sscanf
 #include <stb_sprintf.h>
 
-#if CROWN_PLATFORM_POSIX
+#if CROWN_PLATFORM_WINDOWS
+	#include <objbase.h>
+#else
 	#include <fcntl.h>
 	#include <unistd.h>
 	#include <errno.h>
-#elif CROWN_PLATFORM_WINDOWS
-	#include <objbase.h>
 #endif // CROWN_PLATFORM_POSIX
 
 namespace crown
@@ -48,17 +48,17 @@ namespace guid
 	Guid new_guid()
 	{
 		Guid guid;
-#if CROWN_PLATFORM_POSIX
+#if CROWN_PLATFORM_WINDOWS
+		HRESULT hr = CoCreateGuid((GUID *)&guid);
+		CE_ASSERT(hr == S_OK, "CoCreateGuid: error");
+		CE_UNUSED(hr);
+#else
 		CE_ASSERT(guid_globals::_fd != -1, "new_guid: library uninitialized");
 		ssize_t rb = read(guid_globals::_fd, &guid, sizeof(guid));
 		CE_ENSURE(rb == sizeof(guid));
 		CE_UNUSED(rb);
 		guid.data1 = (guid.data1 & 0xffffffffffff4fffu) | 0x4000u;
 		guid.data2 = (guid.data2 & 0x3fffffffffffffffu) | 0x8000000000000000u;
-#elif CROWN_PLATFORM_WINDOWS
-		HRESULT hr = CoCreateGuid((GUID *)&guid);
-		CE_ASSERT(hr == S_OK, "CoCreateGuid: error");
-		CE_UNUSED(hr);
 #endif // CROWN_PLATFORM_POSIX
 		return guid;
 	}
