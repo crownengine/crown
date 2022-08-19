@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Flexible Game Engine &mdash; Crown Manual 0.47.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="copyright" title="Copyright" href="copyright.html" />
+    <link rel="next" title="Changelog" href="changelog.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="#">
+            <img src="_static/crown-logo-white.svg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                0.47.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Basic concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lua_api.html">Lua API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boot_config.html">boot.config reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_line.html">Command line reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="copyright.html">License</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hackers/index.html">Hackers</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">Crown Manual</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
+      <li>The Flexible Game Engine</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="the-flexible-game-engine">
+<h1>The Flexible Game Engine<a class="headerlink" href="#the-flexible-game-engine" title="Permalink to this heading">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id1">0.47.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id2">0.46.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id3">0.45.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id4">0.44.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id5">0.43.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id6">0.42.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id7">0.41.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id8">0.40.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id9">0.39.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id10">0.38.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id11">0.37.0</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#what-is-it">What is it?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#features">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#supported-platforms">Supported platforms</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Basic concepts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="basics.html#the-source-directory">The source directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basics.html#the-boot-directory-and-the-boot-config-file">The boot directory and the boot.config file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basics.html#the-data-directory">The data directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basics.html#the-dataignore-file">The .dataignore file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basics.html#units-of-measurement">Units of measurement</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lua_api.html">Lua API reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lua_api.html#animationstatemachine">AnimationStateMachine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lua_api.html#debugline">DebugLine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lua_api.html#device">Device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lua_api.html#display">Display</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lua_api.html#gui">Gui</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lua_api.html#input">Input</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lua_api.html#material">Material</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lua_api.html#math">Math</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lua_api.html#physicsworld">PhysicsWorld</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lua_api.html#profiler">Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lua_api.html#renderworld">RenderWorld</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lua_api.html#resourcepackage">ResourcePackage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lua_api.html#scenegraph">SceneGraph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lua_api.html#soundworld">SoundWorld</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lua_api.html#unitmanager">UnitManager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lua_api.html#window">Window</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lua_api.html#world">World</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="boot_config.html">boot.config reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="boot_config.html#generic-configurations">Generic configurations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="boot_config.html#platform-specific-configurations">Platform-specific configurations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="command_line.html">Command line reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="command_line.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="command_line.html#options">Options</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="copyright.html">License</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="copyright.html#crown">Crown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="copyright.html#third-party-libraries">Third-party libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="copyright.html#crown-manual">Crown Manual</a></li>
+<li class="toctree-l2"><a class="reference internal" href="copyright.html#your-game-or-application">Your Game or Application</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="hackers">
+<h1>Hackers<a class="headerlink" href="#hackers" title="Permalink to this heading">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hackers/index.html">Hackers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hackers/building.html">Building</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hackers/console_api.html">Console API</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="changelog.html" class="btn btn-neutral float-right" title="Changelog" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XNVGCMNDZH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-XNVGCMNDZH', {
+          'anonymize_ip': true,
+      });
+    </script> 
+
+</body>
+</html>

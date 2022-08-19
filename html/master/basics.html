@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Basic concepts &mdash; Crown Manual 0.47.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="copyright" title="Copyright" href="copyright.html" />
+    <link rel="next" title="Lua API reference" href="lua_api.html" />
+    <link rel="prev" title="Introduction" href="introduction.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html">
+            <img src="_static/crown-logo-white.svg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                0.47.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Basic concepts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#the-source-directory">The source directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-boot-directory-and-the-boot-config-file">The boot directory and the boot.config file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-data-directory">The data directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-dataignore-file">The .dataignore file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#units-of-measurement">Units of measurement</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lua_api.html">Lua API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boot_config.html">boot.config reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_line.html">Command line reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="copyright.html">License</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hackers/index.html">Hackers</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Crown Manual</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Basic concepts</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/basics.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="basic-concepts">
+<h1>Basic concepts<a class="headerlink" href="#basic-concepts" title="Permalink to this heading">¶</a></h1>
+<section id="the-source-directory">
+<h2>The source directory<a class="headerlink" href="#the-source-directory" title="Permalink to this heading">¶</a></h2>
+<p>The source directory contains all the files that make up an application.</p>
+<p>There is no fixed structure for the files and folders in the source directory, you can organize
+your content as you see fit. You can for example decide to put all the textures and sounds in the
+“textures” and “sounds” folders, or maybe sort the content on a per-object basis by putting all the
+assets for an enemy in the “units/enemy” folder.</p>
+<p>There is, however, a small number of required files which are needed for the engine to start-up
+correctly:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>.
+├── boot.config            &lt;- First file loaded by the engine
+├── boot.package           &lt;- Package to load on boot
+├── boot.lua               &lt;- Lua script to launch on boot
+└── global.physics_config  &lt;- Global physics-related configurations
+</pre></div>
+</div>
+</section>
+<section id="the-boot-directory-and-the-boot-config-file">
+<h2>The boot directory and the boot.config file<a class="headerlink" href="#the-boot-directory-and-the-boot-config-file" title="Permalink to this heading">¶</a></h2>
+<p>Any directory within <a class="reference internal" href="#the-source-directory">the source directory</a> containing the file named <code class="docutils literal notranslate"><span class="pre">boot.config</span></code> is a boot
+directory.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">boot.config</span></code> is the first file read by Crown; it specifies the package to load and the lua
+script to execute on boot and various other boot-time settings.
+See boot.config reference for details.</p>
+<p>Normally there is a single <code class="docutils literal notranslate"><span class="pre">boot.config</span></code> file, placed at the top of the source directory. This is
+the file which Crown looks at by default.</p>
+<p>In some circumstances is desirable to have multiple <code class="docutils literal notranslate"><span class="pre">boot.config</span></code> files.
+You can set which boot directory Crown should use with the switch <code class="docutils literal notranslate"><span class="pre">--boot-dir</span></code>.</p>
+<p>In the example below, a minimal <code class="docutils literal notranslate"><span class="pre">boot.config</span></code> file tells the engine to load the package <code class="docutils literal notranslate"><span class="pre">boot</span></code>
+and run the Lua script <code class="docutils literal notranslate"><span class="pre">lua/game</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cat</span> <span class="n">boot</span><span class="o">.</span><span class="n">config</span>
+<span class="n">boot_package</span> <span class="o">=</span> <span class="s2">&quot;boot&quot;</span>      <span class="o">//</span> <span class="n">Package</span> <span class="n">to</span> <span class="n">load</span> <span class="n">on</span> <span class="n">boot</span>
+<span class="n">boot_script</span>  <span class="o">=</span> <span class="s2">&quot;lua/game&quot;</span>  <span class="o">//</span> <span class="n">Lua</span> <span class="n">script</span> <span class="n">to</span> <span class="n">execute</span> <span class="n">on</span> <span class="n">boot</span>
+</pre></div>
+</div>
+</section>
+<section id="the-data-directory">
+<h2>The data directory<a class="headerlink" href="#the-data-directory" title="Permalink to this heading">¶</a></h2>
+<p>Crown reads source data from <a class="reference internal" href="#the-source-directory">the source directory</a> and compiles it into efficient binary
+representation. The result of the compilation process is stored in the data directory.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>.
+├── data                &lt;- Contains compiled data files
+|   ├── a14e8dfa2cd...  &lt;- Compiled file
+|   ├── 72e3cc03787...  &lt;- Another compiled file
+|   └── ...
+├── data_index.sjson    &lt;- Used to convert resource IDs to human-readable names
+├── last.log            &lt;- Text log from the last engine execution
+└── temp                &lt;- Temporary files from data compilers
+</pre></div>
+</div>
+</section>
+<section id="the-dataignore-file">
+<h2>The .dataignore file<a class="headerlink" href="#the-dataignore-file" title="Permalink to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">.dataignore</span></code> file specifies files that Crown should ignore when compiling data.</p>
+<p>When Crown bumps into unknown files in the source directory, it reports an error and quits the
+compilation.
+This is often desired behavior, since you do not want non-essential data in your source directory.</p>
+<p>In all other cases, you should create a <code class="docutils literal notranslate"><span class="pre">.dataignore</span></code> in the source directory.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cat</span> <span class="o">.</span><span class="n">dataignore</span>
+<span class="c1"># This is a comment.</span>
+
+<span class="c1"># Blank lines are ignored.</span>
+<span class="c1"># Everything else is simple glob pattern (*, ?).</span>
+<span class="o">*.</span><span class="n">txt</span>
+</pre></div>
+</div>
+</section>
+<section id="units-of-measurement">
+<h2>Units of measurement<a class="headerlink" href="#units-of-measurement" title="Permalink to this heading">¶</a></h2>
+<p>Crown uses MKS (meters, kilograms and seconds) units and radians for angles.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="introduction.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="lua_api.html" class="btn btn-neutral float-right" title="Lua API reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XNVGCMNDZH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-XNVGCMNDZH', {
+          'anonymize_ip': true,
+      });
+    </script> 
+
+</body>
+</html>
