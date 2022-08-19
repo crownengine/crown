@@ -33,7 +33,7 @@ struct BgfxReader : public bx::ReaderI
 	BinaryReader *_br;
 
 	///
-	BgfxReader(BinaryReader &br)
+	explicit BgfxReader(BinaryReader &br)
 		: _br(&br)
 	{
 	}
@@ -58,7 +58,7 @@ struct BgfxWriter : public bx::WriterI
 	BinaryWriter *_bw;
 
 	///
-	BgfxWriter(BinaryWriter &bw)
+	explicit BgfxWriter(BinaryWriter &bw)
 		: _bw(&bw)
 	{
 	}
