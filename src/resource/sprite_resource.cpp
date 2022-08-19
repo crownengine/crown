@@ -154,7 +154,7 @@ namespace sprite_resource_internal
 	}
 
 } // namespace sprite_resource_internal
-#endif // CROWN_CAN_COMPILE
+#endif // if CROWN_CAN_COMPILE
 
 namespace sprite_animation_resource
 {
@@ -205,6 +205,6 @@ namespace sprite_animation_resource_internal
 	}
 
 } // namespace sprite_animation_resource_internal
-#endif // CROWN_CAN_COMPILE
+#endif // if CROWN_CAN_COMPILE
 
 } // namespace crown

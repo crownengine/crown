@@ -30,7 +30,7 @@
 	#include <sys/wait.h> // wait
 	#include <time.h>     // clock_gettime
 	#include <unistd.h>   // unlink, rmdir, getcwd, access
-#endif
+#endif // if CROWN_PLATFORM_WINDOWS
 #if CROWN_PLATFORM_ANDROID
 	#include <android/log.h>
 #endif
@@ -109,7 +109,7 @@ namespace os
 		info.size  = buf.st_size;
 		info.mtime = buf.st_mtim.tv_sec * s64(1000000000) + buf.st_mtim.tv_nsec;
 	}
-#endif
+#endif // if CROWN_PLATFORM_POSIX
 
 	void stat(Stat &info, const char *path)
 	{
@@ -152,7 +152,7 @@ namespace os
 
 		info.size  = buf.st_size;
 		info.mtime = buf.st_mtim.tv_sec * s64(1000000000) + buf.st_mtim.tv_nsec;
-#endif
+#endif // if CROWN_PLATFORM_WINDOWS
 	}
 
 	DeleteResult delete_file(const char *path)
@@ -286,7 +286,7 @@ namespace os
 
 			closedir(dir);
 		}
-#endif
+#endif // if CROWN_PLATFORM_WINDOWS
 	}
 
 	///

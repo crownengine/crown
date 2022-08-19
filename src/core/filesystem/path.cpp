@@ -16,7 +16,7 @@ namespace crown
 const char PATH_SEPARATOR = '\\';
 #else
 const char PATH_SEPARATOR = '/';
-#endif // CROWN_PLATFORM_POSIX
+#endif
 
 namespace path
 {

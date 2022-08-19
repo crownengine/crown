@@ -11,11 +11,11 @@
 
 #ifndef CROWN_DEBUG
 	#define CROWN_DEBUG 0
-#endif // CROWN_DEBUG
+#endif
 
 #ifndef CROWN_DEVELOPMENT
 	#define CROWN_DEVELOPMENT 0
-#endif // CROWN_DEVELOPMENT
+#endif
 
 /// @defgroup Core Core
 

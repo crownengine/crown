@@ -13,7 +13,7 @@
 #else
 	#define EXE_PREFIX "./"
 	#define EXE_SUFFIX ""
-#endif // CROWN_PLATFORM_POSIX
+#endif
 
 #define EXE_PATH(exe) EXE_PREFIX exe EXE_SUFFIX
 

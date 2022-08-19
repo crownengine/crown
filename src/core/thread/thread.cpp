@@ -102,7 +102,7 @@ void Thread::start(ThreadFunction func, void *user_data, u32 stack_size)
 	err = pthread_attr_destroy(&attr);
 	CE_ASSERT(err == 0, "pthread_attr_destroy: errno = %d", err);
 	CE_UNUSED(err);
-#endif
+#endif // if CROWN_PLATFORM_WINDOWS
 
 	_priv->_is_running = true;
 	_priv->_sem.wait();

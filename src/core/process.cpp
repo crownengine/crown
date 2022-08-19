@@ -187,7 +187,7 @@ s32 Process::spawn(const char * const *argv, u32 flags)
 
 	_priv->pid = pid;
 	return 0;
-#endif
+#endif // if CROWN_PLATFORM_WINDOWS
 }
 
 bool Process::spawned()
@@ -235,7 +235,7 @@ s32 Process::wait()
 
 	_priv->pid = -1;
 	return WIFEXITED(wstatus) ? (s32)WEXITSTATUS(wstatus) : -1;
-#endif
+#endif // if CROWN_PLATFORM_WINDOWS
 }
 
 char *Process::read(u32 *num_bytes_read, char *data, u32 len)
@@ -276,7 +276,7 @@ char *Process::read(u32 *num_bytes_read, char *data, u32 len)
 
 	*num_bytes_read = read;
 	return data;
-#endif
+#endif // if CROWN_PLATFORM_WINDOWS
 }
 
 } // namespace crown

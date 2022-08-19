@@ -571,6 +571,6 @@ namespace expression_language
 	}
 
 } // namespace expression_language
-#endif // CROWN_CAN_COMPILE
+#endif // if CROWN_CAN_COMPILE
 
 } // namespace crown

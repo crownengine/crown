@@ -21,4 +21,4 @@ namespace error
 
 } // namespace crown
 
-#endif // CROWN_PLATFORM_ANDROID
+#endif

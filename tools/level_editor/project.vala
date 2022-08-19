@@ -58,7 +58,7 @@ public class Project
 		_platform = "windows";
 #else
 		_platform = "linux";
-#endif // CROWN_PLATFORM_LINUX
+#endif
 		_database = db;
 		_files = new Database();
 		_map = new HashMap<string, Guid?>();

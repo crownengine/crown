@@ -338,4 +338,4 @@ void android_main(struct android_app *app)
 	memory_globals::shutdown();
 }
 
-#endif // CROWN_PLATFORM_ANDROID
+#endif // if CROWN_PLATFORM_ANDROID

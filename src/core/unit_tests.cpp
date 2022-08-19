@@ -1366,7 +1366,7 @@ static void test_path()
 		path::reduce(clean, "\\home\\\\foo\\");
 		ENSURE(clean == "/home/foo");
 	}
-#endif // CROWN_PLATFORM_POSIX
+#endif // if CROWN_PLATFORM_WINDOWS
 	{
 		const char *p = path::basename("");
 		ENSURE(strcmp(p, "") == 0);
@@ -1439,7 +1439,7 @@ static void test_path()
 		path::join(path, "foo", "bar");
 		ENSURE(path == "foo/bar");
 	}
-#endif // CROWN_PLATFORM_POSIX
+#endif
 }
 
 static void test_command_line()
@@ -1498,7 +1498,7 @@ static void test_process()
 		s32 ec = pr.wait();
 		ENSURE(ec == 0);
 	}
-#endif // CROWN_PLATFORM_LINUX
+#endif // if CROWN_PLATFORM_LINUX
 }
 
 static void test_filesystem()
@@ -1527,7 +1527,7 @@ static void test_filesystem()
 		ENSURE(dr.error == DeleteResult::SUCCESS);
 	}
 	guid_globals::shutdown();
-#endif // CROWN_PLATFORM_POSIX
+#endif // if CROWN_PLATFORM_POSIX
 }
 
 #define RUN_TEST(name)      \
@@ -1570,4 +1570,4 @@ int main_unit_tests()
 
 } // namespace crown
 
-#endif // CROWN_BUILD_UNIT_TESTS
+#endif // if CROWN_BUILD_UNIT_TESTS

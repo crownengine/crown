@@ -121,4 +121,4 @@ namespace profiler_globals
 	#define RECORD_VECTOR3(name, value) CE_NOOP()
 	#define ALLOCATE_MEMORY(name, size) CE_NOOP()
 	#define DEALLOCATE_MEMORY(name, size) CE_NOOP()
-#endif // CROWN_DEBUG
+#endif

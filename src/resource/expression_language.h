@@ -78,6 +78,6 @@ namespace expression_language
 		);
 
 } // namespace expression_language
-#endif
+#endif // if CROWN_CAN_COMPILE
 
 } // namespace crown

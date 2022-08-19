@@ -17,7 +17,7 @@
 	#define LUAJIT_FLAGS "-bg" // Keep debug info
 #else
 	#define LUAJIT_FLAGS "-b"
-#endif // CROWN_DEBUG
+#endif
 
 namespace crown
 {
@@ -80,6 +80,6 @@ namespace lua_resource_internal
 	}
 
 } // namespace lua_resource_internal
-#endif // CROWN_CAN_COMPILE
+#endif // if CROWN_CAN_COMPILE
 
 } // namespace crown

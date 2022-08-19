@@ -914,7 +914,7 @@ int main(int argc, char **argv)
 	if (cl.has_option("run-unit-tests")) {
 		return main_unit_tests();
 	}
-#endif // CROWN_BUILD_UNIT_TESTS
+#endif
 
 	InitGlobals m;
 	CE_UNUSED(m);
@@ -940,4 +940,4 @@ int main(int argc, char **argv)
 	return ec;
 }
 
-#endif // CROWN_PLATFORM_LINUX
+#endif // if CROWN_PLATFORM_LINUX

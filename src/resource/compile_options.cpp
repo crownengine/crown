@@ -235,4 +235,4 @@ void CompileOptions::read_output(StringStream &output, Process &pr)
 
 } // namespace crown
 
-#endif // CROWN_CAN_COMPILE
+#endif // if CROWN_CAN_COMPILE

@@ -29,7 +29,7 @@ namespace unit_resource_internal
 	}
 
 } // namespace unit_resource_internal
-#endif // CROWN_CAN_COMPILE
+#endif
 
 namespace unit_resource
 {

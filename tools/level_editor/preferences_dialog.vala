@@ -140,7 +140,7 @@ public class PreferencesDialog : Gtk.Dialog
 #if CROWN_PLATFORM_LINUX
 		_lua_external_tool_button.show_dialog_item = true;
 		_image_external_tool_button.show_dialog_item = true;
-#endif // CROWN_PLATFORM_LINUX
+#endif
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
 		cv.add_row("External Lua editor", _lua_external_tool_button);
@@ -246,7 +246,7 @@ public class PreferencesDialog : Gtk.Dialog
 		else
 			app_id = null;
 		_image_external_tool_button.set_app(app, app_id);
-#endif // CROWN_PLATFORM_LINUX
+#endif /* if CROWN_PLATFORM_WINDOWS */
 	}
 
 	public void encode(Hashtable settings)

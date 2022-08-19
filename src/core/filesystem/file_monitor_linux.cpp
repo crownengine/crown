@@ -342,4 +342,4 @@ void FileMonitor::stop()
 
 } // namespace crown
 
-#endif // CROWN_PLATFORM_LINUX
+#endif // if CROWN_PLATFORM_LINUX

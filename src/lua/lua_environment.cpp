@@ -175,7 +175,7 @@ static int require_internal(lua_State *L)
 
 	return 1;
 }
-#endif
+#endif // if CROWN_DEBUG
 
 LuaEnvironment::LuaEnvironment()
 	: L(NULL)
@@ -500,7 +500,7 @@ Matrix4x4 *LuaEnvironment::check_valid(const Matrix4x4 *ptr)
 		);
 	return (Matrix4x4 *)(uintptr_t(ptr) & ~LUA_MATRIX4X4_MARKER_MASK);
 }
-#endif // CROWN_DEBUG
+#endif // if CROWN_DEBUG
 
 void LuaEnvironment::reload()
 {

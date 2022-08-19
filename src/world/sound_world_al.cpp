@@ -46,7 +46,7 @@ static const char *al_error_to_string(ALenum error)
 		} while (0)
 #else
 	#define AL_CHECK(function) function
-#endif // CROWN_DEBUG
+#endif // if CROWN_DEBUG
 
 /// Global audio-related functions
 namespace audio_globals
@@ -456,4 +456,4 @@ void SoundWorld::update()
 
 } // namespace crown
 
-#endif // CROWN_SOUND_OPENAL
+#endif // if CROWN_SOUND_OPENAL

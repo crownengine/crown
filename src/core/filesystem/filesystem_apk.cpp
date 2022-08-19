@@ -209,4 +209,4 @@ void FilesystemApk::absolute_path(DynamicString &os_path, const char *path)
 
 } // namespace crown
 
-#endif // CROWN_PLATFORM_ANDROID
+#endif // if CROWN_PLATFORM_ANDROID

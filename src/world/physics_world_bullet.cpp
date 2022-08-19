@@ -1361,4 +1361,4 @@ void PhysicsWorld::enable_debug_drawing(bool enable)
 
 } // namespace crown
 
-#endif // CROWN_PHYSICS_BULLET
+#endif // if CROWN_PHYSICS_BULLET

@@ -57,7 +57,7 @@ Matrix4x4 *LuaStack::check_temporary(int i, const Matrix4x4 *ptr)
 
 	return env->check_valid(ptr);
 }
-#endif // CROWN_DEBUG
+#endif // if CROWN_DEBUG
 
 void LuaStack::push_vector3(const Vector3 &v)
 {

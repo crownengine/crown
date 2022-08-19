@@ -15,7 +15,7 @@
 	#include <fcntl.h>
 	#include <unistd.h>
 	#include <errno.h>
-#endif // CROWN_PLATFORM_POSIX
+#endif
 
 namespace crown
 {
@@ -30,7 +30,7 @@ namespace guid_globals
 #if CROWN_PLATFORM_POSIX
 		_fd = ::open("/dev/urandom", O_RDONLY);
 		CE_ASSERT(_fd != -1, "open: errno = %d", errno);
-#endif // CROWN_PLATFORM_POSIX
+#endif
 	}
 
 	void shutdown()
@@ -38,7 +38,7 @@ namespace guid_globals
 #if CROWN_PLATFORM_POSIX
 		::close(_fd);
 		_fd = -1;
-#endif // CROWN_PLATFORM_POSIX
+#endif
 	}
 
 } // namespace guid_globals
@@ -59,7 +59,7 @@ namespace guid
 		CE_UNUSED(rb);
 		guid.data1 = (guid.data1 & 0xffffffffffff4fffu) | 0x4000u;
 		guid.data2 = (guid.data2 & 0x3fffffffffffffffu) | 0x8000000000000000u;
-#endif // CROWN_PLATFORM_POSIX
+#endif
 		return guid;
 	}
 

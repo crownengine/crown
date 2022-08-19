@@ -51,7 +51,7 @@
 // Windows 7 and above
 		#define WINVER 0x0601
 		#define _WIN32_WINNT 0x0601
-	#endif // !defined(WINVER) && !defined(_WIN32_WINNT)
+	#endif
 	#define CROWN_PLATFORM_WINDOWS 1
 #elif defined(__ANDROID__)
 // Android compiler defines __linux__
@@ -68,7 +68,7 @@
 	#define CROWN_PLATFORM_OSX 1
 #else
 	#error "CROWN_PLATFORM_* is not defined!"
-#endif
+#endif // if defined(_WIN32) || defined(_WIN64)
 
 #define CROWN_PLATFORM_POSIX (CROWN_PLATFORM_ANDROID \
 						|| CROWN_PLATFORM_IOS \
@@ -96,7 +96,7 @@
 	#undef CROWN_CPU_JIT
 	#define CROWN_CPU_JIT 1
 	#define CROWN_CACHE_LINE_SIZE 64
-#endif //
+#endif // if defined(__arm__)
 
 #if defined(__x86_64__) || defined(_M_X64) || defined(__64BIT__) || defined(__powerpc64__) || defined(__ppc64__)
 	#undef CROWN_ARCH_64BIT
@@ -104,7 +104,7 @@
 #else
 	#undef CROWN_ARCH_32BIT
 	#define CROWN_ARCH_32BIT 32
-#endif //
+#endif
 
 #if CROWN_CPU_PPC
 	#undef CROWN_CPU_ENDIAN_BIG
@@ -130,7 +130,7 @@
 	#define CROWN_PLATFORM_NAME "osx"
 #elif CROWN_PLATFORM_WINDOWS
 	#define CROWN_PLATFORM_NAME "windows"
-#endif // CROWN_PLATFORM_
+#endif
 
 #if CROWN_CPU_ARM
 	#define CROWN_CPU_NAME "ARM"
@@ -142,10 +142,10 @@
 	#define CROWN_CPU_NAME "JIT-VM"
 #elif CROWN_CPU_X86
 	#define CROWN_CPU_NAME "x86"
-#endif // CROWN_CPU_
+#endif
 
 #if CROWN_ARCH_32BIT
 	#define CROWN_ARCH_NAME "32-bit"
 #elif CROWN_ARCH_64BIT
 	#define CROWN_ARCH_NAME "64-bit"
-#endif // CROWN_ARCH_
+#endif

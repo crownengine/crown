@@ -64,4 +64,4 @@ struct FilesystemApk : public Filesystem
 
 } // namespace crown
 
-#endif // CROWN_PLATFORM_ANDROID
+#endif // if CROWN_PLATFORM_ANDROID

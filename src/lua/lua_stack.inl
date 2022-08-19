@@ -25,7 +25,7 @@
 		while (0)
 #else
 	#define LUA_ASSERT(...) CE_NOOP()
-#endif // CROWN_DEBUG
+#endif // if CROWN_DEBUG
 
 namespace crown
 {
@@ -250,7 +250,7 @@ inline UnitId LuaStack::get_unit(int i)
 		luaL_typerror(L, i, "UnitId");
 		CE_UNREACHABLE();
 	}
-#endif // CROWN_DEBUG
+#endif
 	UnitId unit;
 	unit._idx = u32((enc & LIGHTDATA_UNIT_ID_MASK) >> LIGHTDATA_UNIT_ID_SHIFT);
 	return unit;
@@ -664,6 +664,6 @@ inline void LuaStack::check_marker(int i, const void *p, u32 type_marker, const 
 inline void LuaStack::check_marker(int /*i*/, const void * /*p*/, u32 /*type_marker*/, const char * /*type_name*/)
 {
 }
-#endif // CROWN_DEBUG
+#endif
 
 } // namespace crown

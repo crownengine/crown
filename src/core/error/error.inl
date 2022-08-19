@@ -26,7 +26,7 @@
 		} while (0)
 #else
 	#define CE_ASSERT(...) CE_NOOP()
-#endif // CROWN_DEBUG
+#endif // if CROWN_DEBUG
 
 #define CE_FATAL(msg, ...) CE_ASSERT(false, msg, ## __VA_ARGS__)
 #define CE_ENSURE(condition) CE_ASSERT(condition, "")

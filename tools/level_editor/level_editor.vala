@@ -1345,7 +1345,7 @@ public class LevelEditorApplication : Gtk.Application
 					GLib.File openal_dll_src = File.new_for_path(openal_name);
 					GLib.File openal_dll_dst = File.new_for_path(Path.build_filename(data_dir.get_path(), openal_name));
 					openal_dll_src.copy(openal_dll_dst, FileCopyFlags.OVERWRITE);
-#endif // CROWN_PLATFORM_WINDOWS
+#endif
 
 					logi("Project deployed to `%s`".printf(data_dir.get_path()));
 				}

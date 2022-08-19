@@ -63,6 +63,6 @@ namespace config_resource_internal
 	}
 
 } // namespace config_resource_internal
-#endif // CROWN_CAN_COMPILE
+#endif // if CROWN_CAN_COMPILE
 
 } // namespace crown

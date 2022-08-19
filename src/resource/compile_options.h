@@ -157,4 +157,4 @@ struct CompileOptions
 
 } // namespace crown
 
-#endif // CROWN_CAN_COMPILE
+#endif // if CROWN_CAN_COMPILE

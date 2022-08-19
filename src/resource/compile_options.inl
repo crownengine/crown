@@ -20,4 +20,4 @@ void CompileOptions::write(const T &data)
 
 } // namespace crown
 
-#endif // CROWN_CAN_COMPILE
+#endif

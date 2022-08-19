@@ -297,7 +297,7 @@ void Device::run()
 			;
 		((FilesystemDisk *)_data_filesystem)->set_prefix(data_dir);
 	}
-#endif // CROWN_PLATFORM_ANDROID
+#endif
 
 	logi(DEVICE, "Crown %s %s %s", CROWN_VERSION, CROWN_PLATFORM_NAME, CROWN_ARCH_NAME);
 
@@ -767,7 +767,7 @@ void Device::refresh()
 {
 	// Do nothing
 }
-#endif
+#endif // if CROWN_DEBUG
 
 char _buffer[sizeof(Device)];
 Device *_device = NULL;

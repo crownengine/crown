@@ -688,4 +688,4 @@ s32 UnitCompiler::compile_component(Buffer &output, StringId32 type, const char 
 
 } // namespace crown
 
-#endif // CROWN_CAN_COMPILE
+#endif // if CROWN_CAN_COMPILE

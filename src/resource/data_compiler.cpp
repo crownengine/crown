@@ -54,7 +54,7 @@
 	#include <windows.h>
 #else
 	#include <signal.h>
-#endif // CROWN_PLATFORM_LINUX
+#endif
 
 LOG_SYSTEM(DATA_COMPILER, "data_compiler")
 
@@ -1246,7 +1246,7 @@ int main_data_compiler(const DeviceOptions &opts)
 	act.sa_flags = 0;
 	sigaction(SIGINT, NULL, &old_SIGINT);
 	sigaction(SIGINT, &act, NULL);
-#endif // CROWN_PLATFORM_POSIX
+#endif // if CROWN_PLATFORM_WINDOWS
 
 	console_server_globals::init();
 	console_server()->listen(CROWN_DEFAULT_COMPILER_PORT, opts._wait_console);
@@ -1333,11 +1333,11 @@ int main_data_compiler(const DeviceOptions &opts)
 #elif CROWN_PLATFORM_WINDOWS
 	// Restore original handler
 	SetConsoleCtrlHandler(signal_handler, FALSE);
-#endif // CROWN_PLATFORM_POSIX
+#endif
 
 	return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 } // namespace crown
 
-#endif // CROWN_CAN_COMPILE
+#endif // if CROWN_CAN_COMPILE

@@ -39,7 +39,7 @@ struct DeviceOptions
 
 #if CROWN_PLATFORM_ANDROID
 	void *_asset_manager;
-#endif // CROWN_PLATFORM_ANDROID
+#endif
 
 	///
 	DeviceOptions(Allocator &a, int argc, const char **argv);

@@ -128,7 +128,7 @@ bool Semaphore::try_wait()
 	_priv->count--;
 	pthread_mutex_unlock(&_priv->mutex);
 	return true;
-#endif
+#endif // if CROWN_PLATFORM_WINDOWS
 }
 
 } // namespace crown

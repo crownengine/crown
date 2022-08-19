@@ -50,7 +50,7 @@ namespace error
 		stack.AddrFrame.Mode = AddrModeFlat;
 		stack.AddrStack.Offset = ctx.Rsp;
 		stack.AddrStack.Mode = AddrModeFlat;
-#endif
+#endif // if defined(_M_IX86)
 
 		DWORD ldsp = 0;
 		IMAGEHLP_LINE64 line;
@@ -115,4 +115,4 @@ namespace error
 
 } // namespace crown
 
-#endif // CROWN_PLATFORM_WINDOWS
+#endif // if CROWN_PLATFORM_WINDOWS

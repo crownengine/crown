@@ -89,4 +89,4 @@ namespace error
 
 } // namespace crown
 
-#endif // CROWN_PLATFORM_LINUX && (CROWN_COMPILER_GCC || CROWN_COMPILER_CLANG)
+#endif // if CROWN_PLATFORM_LINUX && (CROWN_COMPILER_GCC || CROWN_COMPILER_CLANG)

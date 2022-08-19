@@ -162,4 +162,4 @@ void SoundWorld::update()
 
 } // namespace crown
 
-#endif // CROWN_SOUND_NOOP
+#endif // if CROWN_SOUND_NOOP
