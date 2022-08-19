@@ -77,7 +77,7 @@ namespace memory
 
 	// Stores the size in the header and pads with HEADER_PAD_VALUE up to the
 	// data pointer.
-	inline void fill(Header *header, void *data, u32 size)
+	inline void fill(Header *header, const void *data, u32 size)
 	{
 		header->size = size;
 		u32 *p = (u32 *)(header + 1);
@@ -90,7 +90,7 @@ namespace memory
 		return size + align + sizeof(Header);
 	}
 
-	inline void pad(Header *header, void *data)
+	inline void pad(Header *header, const void *data)
 	{
 		u32 *p = (u32 *)(header + 1);
 

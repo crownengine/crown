@@ -346,7 +346,7 @@ namespace expression_language
 	/// sequence of tokens in reverse polish notation. Any function found in the
 	/// token stream which only takes constant arguments is replaced by the
 	/// result of evaluating the function over the constant arguments.
-	static void fold_constants(Token *rpl, unsigned &num_tokens, CompileEnvironment &env)
+	static void fold_constants(Token *rpl, unsigned &num_tokens, const CompileEnvironment &env)
 	{
 		static const int MAX_ARITY = 4;
 		float stack_data[MAX_ARITY];
@@ -386,7 +386,7 @@ namespace expression_language
 	/// Generates bytecode from a program in RPL token stream form.
 	/// Returns the number of byte_code tokens generated. If the returned number is > capacity, only the first
 	/// capacity items are generated.
-	static unsigned generate_bytecode(Token *rpl, unsigned num_tokens, const CompileEnvironment &env, unsigned *byte_code, unsigned capacity)
+	static unsigned generate_bytecode(const Token *rpl, unsigned num_tokens, const CompileEnvironment &env, unsigned *byte_code, unsigned capacity)
 	{
 		unsigned size = 0;
 		unsigned overflow = 0;
