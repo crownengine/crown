@@ -129,15 +129,15 @@ namespace os
 		else // Assume regular file.
 			info.file_type = Stat::REGULAR;
 
-		ULARGE_INTEGER large_int = {};
+		ULARGE_INTEGER fs = {};
+		fs.LowPart  = wfd.nFileSizeLow;
+		fs.HighPart = wfd.nFileSizeHigh;
+		info.size = fs.QuadPart;
 
-		large_int.LowPart  = wfd.nFileSizeLow;
-		large_int.HighPart = wfd.nFileSizeHigh;
-		info.size = large_int.QuadPart;
-
-		large_int.LowPart  = wfd.ftLastWriteTime.dwLowDateTime;
-		large_int.HighPart = wfd.ftLastWriteTime.dwHighDateTime;
-		info.mtime = large_int.QuadPart * u64(100); // See https://docs.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-filetime
+		ULARGE_INTEGER lwt = {};
+		lwt.LowPart  = wfd.ftLastWriteTime.dwLowDateTime;
+		lwt.HighPart = wfd.ftLastWriteTime.dwHighDateTime;
+		info.mtime = lwt.QuadPart * u64(100); // See https://docs.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-filetime
 #else
 		struct stat buf;
 		memset(&buf, 0, sizeof(buf));
