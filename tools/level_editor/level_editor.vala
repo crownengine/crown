@@ -2110,7 +2110,7 @@ public class LevelEditorApplication : Gtk.Application
 	private void on_manual(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		try {
-			AppInfo.launch_default_for_uri("https://crownengine.github.io/crown/html/v" + CROWN_VERSION, null);
+			AppInfo.launch_default_for_uri("https://docs.crownengine.org/html/v" + CROWN_VERSION, null);
 		}
 		catch (Error e) {
 			loge(e.message);
@@ -2135,7 +2135,7 @@ public class LevelEditorApplication : Gtk.Application
 	private void on_changelog(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		try {
-			AppInfo.launch_default_for_uri("https://crownengine.github.io/crown/html/v" + CROWN_VERSION + "/changelog.html", null);
+			AppInfo.launch_default_for_uri("https://docs.crownengine.org/html/v" + CROWN_VERSION + "/changelog.html", null);
 		}
 		catch (Error e) {
 			loge(e.message);

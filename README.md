@@ -10,13 +10,13 @@ of generic primitives and facilities to help you create a wide gamut of
 interactive 2D and 3D products.
 
 Check out the
-[Introduction](https://crownengine.github.io/crown/html/latest/introduction.html)
+[Introduction](https://docs.crownengine.org/html/latest/introduction.html)
 for more info.
 
 ## Download
 ### Binaries
 
-  * [Changelog](https://crownengine.github.io/crown/html/latest/changelog.html)
+  * [Changelog](https://docs.crownengine.org/html/latest/changelog.html)
   * [Crown v0.46.0 for Linux 64-bits](https://github.com/crownengine/crown/releases/download/v0.46.0/crown-0.46.0-linux-x64.tar.gz)
   * [Crown v0.46.0 for Windows 64-bits](https://github.com/crownengine/crown/releases/download/v0.46.0/crown-0.46.0-windows-x64.zip)
   * [Crown v0.46.0 all releases](https://github.com/crownengine/crown/releases/tag/v0.46.0)
@@ -26,13 +26,13 @@ for more info.
   
 ## Documentation
 ### Unstable (master)
-  * [User Manual](https://crownengine.github.io/crown/html/master)
-  * [Lua API](https://crownengine.github.io/crown/html/master/lua_api.html)
-  * [Building](https://crownengine.github.io/crown/html/master/hackers/building.html)
+  * [User Manual](https://docs.crownengine.org/html/master)
+  * [Lua API](https://docs.crownengine.org/html/master/lua_api.html)
+  * [Building](https://docs.crownengine.org/html/master/hackers/building.html)
   
 ### Latest Stable (v0.46.0)
-  * [User Manual](https://crownengine.github.io/crown/html/latest)
-  * [Lua API](https://crownengine.github.io/crown/html/latest/lua_api.html)
+  * [User Manual](https://docs.crownengine.org/html/latest)
+  * [Lua API](https://docs.crownengine.org/html/latest/lua_api.html)
 
 ## Community Support & Development
 
