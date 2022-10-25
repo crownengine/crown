@@ -16,6 +16,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -60,14 +61,15 @@
 <li class="toctree-l3"><a class="reference internal" href="#prerequisites">Prerequisites</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#android">Android</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#linux-ubuntu-16-04">Linux (Ubuntu &gt;= 16.04)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#windows-vs-2019">Windows (VS 2019)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#windows-vs-2019-or-vs-code">Windows (VS 2019 or VS Code)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#windows-mingw">Windows (MinGW)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#build">Build</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#id1">Android</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#linux">Linux</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#windows">Windows</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#windows-vs-2019">Windows (VS 2019)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#windows-vs-code">Windows (VS Code)</a></li>
 </ul>
 </li>
 </ul>
@@ -140,12 +142,18 @@
 </pre></div>
 </div>
 </section>
-<section id="windows-vs-2019">
-<h3>Windows (VS 2019)<a class="headerlink" href="#windows-vs-2019" title="Permalink to this heading">¶</a></h3>
+<section id="windows-vs-2019-or-vs-code">
+<h3>Windows (VS 2019 or VS Code)<a class="headerlink" href="#windows-vs-2019-or-vs-code" title="Permalink to this heading">¶</a></h3>
 <p>Visual Studio 2019:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p><a class="reference external" href="https://visualstudio.microsoft.com/downloads">https://visualstudio.microsoft.com/downloads</a></p></li>
+</ul>
+</div></blockquote>
+<p>or Visual Studio Code:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference external" href="https://code.visualstudio.com">https://code.visualstudio.com</a></p></li>
 </ul>
 </div></blockquote>
 <p>GnuWin32 utilities:</p>
@@ -189,13 +197,30 @@
 </pre></div>
 </div>
 </section>
-<section id="windows">
-<h3>Windows<a class="headerlink" href="#windows" title="Permalink to this heading">¶</a></h3>
+<section id="windows-vs-2019">
+<h3>Windows (VS 2019)<a class="headerlink" href="#windows-vs-2019" title="Permalink to this heading">¶</a></h3>
 <p>Open Visual Studio 2019 Command Prompt:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">tools</span><span class="o">-</span><span class="n">windows</span><span class="o">-</span><span class="n">release64</span>
 </pre></div>
 </div>
 <p>To build tools, open MSYS2 MSYS:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">tools</span><span class="o">-</span><span class="n">mingw</span><span class="o">-</span><span class="n">release64</span>
+</pre></div>
+</div>
+</section>
+<section id="windows-vs-code">
+<h3>Windows (VS Code)<a class="headerlink" href="#windows-vs-code" title="Permalink to this heading">¶</a></h3>
+<p>Add the MinGW compile to your path:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference external" href="https://code.visualstudio.com/docs/languages/cpp#_add-the-mingw-compiler-to-your-path">https://code.visualstudio.com/docs/languages/cpp#_add-the-mingw-compiler-to-your-path</a></p></li>
+</ul>
+</div></blockquote>
+<p>Open Visual Studio Code Shell and set MINGW path:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$env:MINGW = &quot;C:\msys64\mingw64&quot;
+</pre></div>
+</div>
+<p>To build tools:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">tools</span><span class="o">-</span><span class="n">mingw</span><span class="o">-</span><span class="n">release64</span>
 </pre></div>
 </div>
