@@ -113,7 +113,7 @@ To build tools, open MSYS2 MSYS:
 Windows (VS Code)
 -----------------
 
-Add the MinGW compile to your path:
+Add the MinGW compiler to your path:
 
 	* https://code.visualstudio.com/docs/languages/cpp#_add-the-mingw-compiler-to-your-path
 
