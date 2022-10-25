@@ -49,7 +49,6 @@ project "level-editor"
 	}
 
 	buildoptions {
-		"`pkg-config --cflags gdk-3.0 gee-0.8 gio-2.0 glib-2.0 gtk+-3.0`",
 		"-Wno-deprecated-declarations",
 		"-Wno-incompatible-pointer-types",
 		"-Wno-discarded-qualifiers",
@@ -64,7 +63,6 @@ project "level-editor"
 	}
 
 	linkoptions {
-		"`pkg-config --libs gdk-3.0 gee-0.8 gio-2.0 glib-2.0 gtk+-3.0`",
 		"-lm"
 	}
 
