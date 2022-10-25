@@ -43,12 +43,16 @@ To build documentation you will also need:
 
 	sudo apt-get install python3-sphinx
 
-Windows (VS 2019)
------------------
+Windows (VS 2019 or VS Code)
+----------------------------
 
 Visual Studio 2019:
 
 	* https://visualstudio.microsoft.com/downloads
+
+or Visual Studio Code:
+
+	* https://code.visualstudio.com
 
 GnuWin32 utilities:
 
@@ -91,8 +95,8 @@ Linux
 
 	make tools-linux-release64
 
-Windows
--------
+Windows (VS 2019)
+-----------------
 
 Open Visual Studio 2019 Command Prompt:
 
@@ -101,6 +105,25 @@ Open Visual Studio 2019 Command Prompt:
 	make tools-windows-release64
 
 To build tools, open MSYS2 MSYS:
+
+.. code::
+
+	make tools-mingw-release64
+
+Windows (VS Code)
+-----------------
+
+Add the MinGW compile to your path:
+
+	* https://code.visualstudio.com/docs/languages/cpp#_add-the-mingw-compiler-to-your-path
+
+Open Visual Studio Code Shell and set MINGW path:
+
+.. code::
+
+	$env:MINGW = "C:\msys64\mingw64"
+
+To build tools:
 
 .. code::
 
