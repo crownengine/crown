@@ -199,7 +199,7 @@ struct Joypad
 
 		for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i) {
 			*num = '0' + i;
-			_fd[i] = ::open(jspath, O_RDONLY | O_NONBLOCK);
+			_fd[i] = ::open(jspath, O_RDONLY);
 		}
 
 		memset(_connected, 0, sizeof(_connected));
@@ -214,7 +214,7 @@ struct Joypad
 		}
 	}
 
-	void update(DeviceEventQueue &queue)
+	void update(DeviceEventQueue &queue, fd_set *fdset)
 	{
 		JoypadEvent ev;
 		memset(&ev, 0, sizeof(ev));
@@ -231,69 +231,72 @@ struct Joypad
 			if (!connected)
 				continue;
 
-			while (read(fd, &ev, sizeof(ev)) != -1) {
-				s16 val = ev.value;
+			if (!FD_ISSET(fd, fdset))
+				continue;
 
-				switch (ev.type &= ~JS_EVENT_INIT) {
-				case JS_EVENT_AXIS: {
-					// Indices into axis.left/right respectively
-					const u8 axis_idx[] = { 0, 1, 2, 0, 1, 2 };
-					const u8 axis_map[] =
-					{
-						JoypadAxis::LEFT,
-						JoypadAxis::LEFT,
-						JoypadAxis::TRIGGER_LEFT,
-						JoypadAxis::RIGHT,
-						JoypadAxis::RIGHT,
-						JoypadAxis::TRIGGER_RIGHT
-					};
+			read(fd, &ev, sizeof(ev));
+			s16 val = ev.value;
 
-					// Remap triggers to [0, INT16_MAX]
-					if (ev.number == 2 || ev.number == 5)
-						val = (val + INT16_MAX) >> 1;
+			switch (ev.type &= ~JS_EVENT_INIT) {
+			case JS_EVENT_AXIS: {
+				// Indices into axis.left/right respectively
+				const u8 axis_idx[] = { 0, 1, 2, 0, 1, 2 };
+				const u8 axis_map[] =
+				{
+					JoypadAxis::LEFT,
+					JoypadAxis::LEFT,
+					JoypadAxis::TRIGGER_LEFT,
+					JoypadAxis::RIGHT,
+					JoypadAxis::RIGHT,
+					JoypadAxis::TRIGGER_RIGHT
+				};
 
-					s16 *values = ev.number > 2 ? _axis[i].right : _axis[i].left;
-					values[axis_idx[ev.number]] = val;
+				// Remap triggers to [0, INT16_MAX]
+				if (ev.number == 2 || ev.number == 5)
+					val = (val + INT16_MAX) >> 1;
 
-					if (ev.number == 2 || ev.number == 5) {
-						queue.push_axis_event(InputDeviceType::JOYPAD
-							, i
-							, axis_map[ev.number]
-							, 0
-							, 0
-							, values[2]
-							);
-					} else if (ev.number < countof(axis_map)) {
-						queue.push_axis_event(InputDeviceType::JOYPAD
-							, i
-							, axis_map[ev.number]
-							, values[0]
-							, -values[1]
-							, 0
-							);
-					}
-					break;
+				s16 *values = ev.number > 2 ? _axis[i].right : _axis[i].left;
+				values[axis_idx[ev.number]] = val;
+
+				if (ev.number == 2 || ev.number == 5) {
+					queue.push_axis_event(InputDeviceType::JOYPAD
+						, i
+						, axis_map[ev.number]
+						, 0
+						, 0
+						, values[2]
+						);
+				} else if (ev.number < countof(axis_map)) {
+					queue.push_axis_event(InputDeviceType::JOYPAD
+						, i
+						, axis_map[ev.number]
+						, values[0]
+						, -values[1]
+						, 0
+						);
 				}
+				break;
+			}
 
-				case JS_EVENT_BUTTON:
-					if (ev.number < countof(s_button)) {
-						queue.push_button_event(InputDeviceType::JOYPAD
-							, i
-							, s_button[ev.number]
-							, val == 1
-							);
-					}
-					break;
-
-				default:
-					break;
+			case JS_EVENT_BUTTON:
+				if (ev.number < countof(s_button)) {
+					queue.push_button_event(InputDeviceType::JOYPAD
+						, i
+						, s_button[ev.number]
+						, val == 1
+						);
 				}
+				break;
+
+			default:
+				break;
 			}
 		}
 	}
 };
 
 static bool s_exit = false;
+static int exit_pipe[2];
 static Cursor _x11_cursors[MouseCursor::COUNT];
 static bool push_event(const OsEvent &ev);
 
@@ -398,11 +401,17 @@ struct LinuxDevice
 		_x11_cursors[MouseCursor::SIZE_VERTICAL]       = XCreateFontCursor(_x11_display, XC_sb_v_double_arrow);
 		_x11_cursors[MouseCursor::WAIT]                = XCreateFontCursor(_x11_display, XC_watch);
 
+		pipe(exit_pipe);
+
 		// Start main thread
 		Thread main_thread;
 		main_thread.start([](void *user_data) {
 				crown::run(*((DeviceOptions *)user_data));
 				s_exit = true;
+
+				// Write something just to unlock the listening select().
+				write(exit_pipe[1], &s_exit, sizeof(s_exit));
+				close(exit_pipe[1]);
 				return EXIT_SUCCESS;
 			}
 			, opts
@@ -410,82 +419,120 @@ struct LinuxDevice
 
 		_joypad.open();
 
+		// Input events loop.
+		fd_set fdset;
+		int x11_fd = ConnectionNumber(_x11_display);
+
 		while (!s_exit) {
-			_joypad.update(_queue);
-			int pending = XPending(_x11_display);
+			FD_ZERO(&fdset);
+			FD_SET(x11_fd, &fdset);
+			FD_SET(exit_pipe[0], &fdset);
+			int maxfd = max(x11_fd, exit_pipe[0]);
 
-			if (!pending) {
-				os::sleep(8);
-			} else {
-				XEvent event;
-				XNextEvent(_x11_display, &event);
+			for (int i = 0; i < CROWN_MAX_JOYPADS; ++i) {
+				if (_joypad._fd[i] != -1) {
+					FD_SET(_joypad._fd[i], &fdset);
+					maxfd = max(maxfd, _joypad._fd[i]);
+				}
+			}
 
-				switch (event.type) {
-				case EnterNotify:
-					_mouse_last_x = (s16)event.xcrossing.x;
-					_mouse_last_y = (s16)event.xcrossing.y;
-					_queue.push_axis_event(InputDeviceType::MOUSE
-						, 0
-						, MouseAxis::CURSOR
-						, event.xcrossing.x
-						, event.xcrossing.y
-						, 0
-						);
-					break;
+			if (select(maxfd + 1, &fdset, NULL, NULL, NULL) <= 0)
+				continue;
 
-				case ClientMessage:
-					if ((Atom)event.xclient.data.l[0] == _wm_delete_window)
-						_queue.push_exit_event();
-					break;
+			if (FD_ISSET(exit_pipe[0], &fdset)) {
+				break;
+			}
+			else if (FD_ISSET(x11_fd, &fdset)) {
+				while (XEventsQueued(_x11_display, QueuedAfterFlush) > 0) {
+					XEvent event;
+					XNextEvent(_x11_display, &event);
 
-				case ConfigureNotify:
-					_queue.push_resolution_event(event.xconfigure.width
-						, event.xconfigure.height
-						);
-					break;
-
-				case ButtonPress:
-				case ButtonRelease: {
-					if (event.xbutton.button == Button4 || event.xbutton.button == Button5) {
+					switch (event.type) {
+					case EnterNotify:
+						_mouse_last_x = (s16)event.xcrossing.x;
+						_mouse_last_y = (s16)event.xcrossing.y;
 						_queue.push_axis_event(InputDeviceType::MOUSE
 							, 0
-							, MouseAxis::WHEEL
-							, 0
-							, event.xbutton.button == Button4 ? 1 : -1
+							, MouseAxis::CURSOR
+							, event.xcrossing.x
+							, event.xcrossing.y
 							, 0
 							);
 						break;
-					}
 
-					MouseButton::Enum mb;
-					switch (event.xbutton.button) {
-					case Button1: mb = MouseButton::LEFT; break;
-					case Button2: mb = MouseButton::MIDDLE; break;
-					case Button3: mb = MouseButton::RIGHT; break;
-					default: mb = MouseButton::COUNT; break;
-					}
+					case ClientMessage:
+						if ((Atom)event.xclient.data.l[0] == _wm_delete_window)
+							_queue.push_exit_event();
+						break;
 
-					if (mb != MouseButton::COUNT) {
-						_queue.push_button_event(InputDeviceType::MOUSE
-							, 0
-							, mb
-							, event.type == ButtonPress
+					case ConfigureNotify:
+						_queue.push_resolution_event(event.xconfigure.width
+							, event.xconfigure.height
 							);
-					}
-					break;
-				}
+						break;
 
-				case MotionNotify: {
-					const s32 mx = event.xmotion.x;
-					const s32 my = event.xmotion.y;
-					s16 deltax = mx - _mouse_last_x;
-					s16 deltay = my - _mouse_last_y;
-					if (_cursor_mode == CursorMode::DISABLED) {
-						XWindowAttributes window_attribs;
-						XGetWindowAttributes(_x11_display, _x11_window, &window_attribs);
-						unsigned width = window_attribs.width;
-						unsigned height = window_attribs.height;
-						if (mx != (s32)width/2 || my != (s32)height/2) {
+					case ButtonPress:
+					case ButtonRelease: {
+						if (event.xbutton.button == Button4 || event.xbutton.button == Button5) {
+							_queue.push_axis_event(InputDeviceType::MOUSE
+								, 0
+								, MouseAxis::WHEEL
+								, 0
+								, event.xbutton.button == Button4 ? 1 : -1
+								, 0
+								);
+							break;
+						}
+
+						MouseButton::Enum mb;
+						switch (event.xbutton.button) {
+						case Button1: mb = MouseButton::LEFT; break;
+						case Button2: mb = MouseButton::MIDDLE; break;
+						case Button3: mb = MouseButton::RIGHT; break;
+						default: mb = MouseButton::COUNT; break;
+						}
+
+						if (mb != MouseButton::COUNT) {
+							_queue.push_button_event(InputDeviceType::MOUSE
+								, 0
+								, mb
+								, event.type == ButtonPress
+								);
+						}
+						break;
+					}
+
+					case MotionNotify: {
+						const s32 mx = event.xmotion.x;
+						const s32 my = event.xmotion.y;
+						s16 deltax = mx - _mouse_last_x;
+						s16 deltay = my - _mouse_last_y;
+						if (_cursor_mode == CursorMode::DISABLED) {
+							XWindowAttributes window_attribs;
+							XGetWindowAttributes(_x11_display, _x11_window, &window_attribs);
+							unsigned width = window_attribs.width;
+							unsigned height = window_attribs.height;
+							if (mx != (s32)width/2 || my != (s32)height/2) {
+								_queue.push_axis_event(InputDeviceType::MOUSE
+									, 0
+									, MouseAxis::CURSOR_DELTA
+									, deltax
+									, deltay
+									, 0
+									);
+								XWarpPointer(_x11_display
+									, None
+									, _x11_window
+									, 0
+									, 0
+									, 0
+									, 0
+									, width/2
+									, height/2
+									);
+								XFlush(_x11_display);
+							}
+						} else if (_cursor_mode == CursorMode::NORMAL) {
 							_queue.push_axis_event(InputDeviceType::MOUSE
 								, 0
 								, MouseAxis::CURSOR_DELTA
@@ -493,82 +540,67 @@ struct LinuxDevice
 								, deltay
 								, 0
 								);
-							XWarpPointer(_x11_display
-								, None
-								, _x11_window
-								, 0
-								, 0
-								, 0
-								, 0
-								, width/2
-								, height/2
-								);
-							XFlush(_x11_display);
 						}
-					} else if (_cursor_mode == CursorMode::NORMAL) {
 						_queue.push_axis_event(InputDeviceType::MOUSE
 							, 0
-							, MouseAxis::CURSOR_DELTA
-							, deltax
-							, deltay
+							, MouseAxis::CURSOR
+							, (s16)mx
+							, (s16)my
 							, 0
 							);
-					}
-					_queue.push_axis_event(InputDeviceType::MOUSE
-						, 0
-						, MouseAxis::CURSOR
-						, (s16)mx
-						, (s16)my
-						, 0
-						);
-					_mouse_last_x = (s16)mx;
-					_mouse_last_y = (s16)my;
-					break;
-				}
-
-				case KeyPress:
-				case KeyRelease: {
-					KeySym keysym = XLookupKeysym(&event.xkey, 0);
-
-					KeyboardButton::Enum kb = x11_translate_key(keysym);
-					if (kb != KeyboardButton::COUNT) {
-						_queue.push_button_event(InputDeviceType::KEYBOARD
-							, 0
-							, kb
-							, event.type == KeyPress
-							);
+						_mouse_last_x = (s16)mx;
+						_mouse_last_y = (s16)my;
+						break;
 					}
 
-					if (event.type == KeyPress) {
-						Status status = 0;
-						u8 utf8[4] = { 0 };
-						int len = Xutf8LookupString(ic
-							, &event.xkey
-							, (char *)utf8
-							, sizeof(utf8)
-							, NULL
-							, &status
-							);
+					case KeyPress:
+					case KeyRelease: {
+						KeySym keysym = XLookupKeysym(&event.xkey, 0);
 
-						if (status == XLookupChars || status == XLookupBoth) {
-							if (len)
-								_queue.push_text_event(len, utf8);
+						KeyboardButton::Enum kb = x11_translate_key(keysym);
+						if (kb != KeyboardButton::COUNT) {
+							_queue.push_button_event(InputDeviceType::KEYBOARD
+								, 0
+								, kb
+								, event.type == KeyPress
+								);
 						}
-					}
-					break;
-				}
-				case KeymapNotify:
-					XRefreshKeyboardMapping(&event.xmapping);
-					break;
 
-				default:
-					break;
+						if (event.type == KeyPress) {
+							Status status = 0;
+							u8 utf8[4] = { 0 };
+							int len = Xutf8LookupString(ic
+								, &event.xkey
+								, (char *)utf8
+								, sizeof(utf8)
+								, NULL
+								, &status
+								);
+
+							if (status == XLookupChars || status == XLookupBoth) {
+								if (len)
+									_queue.push_text_event(len, utf8);
+							}
+						}
+						break;
+					}
+					case KeymapNotify:
+						XRefreshKeyboardMapping(&event.xmapping);
+						break;
+
+					default:
+						break;
+					}
 				}
+			}
+			else {
+				_joypad.update(_queue, &fdset);
 			}
 		}
 
 		_joypad.close();
 
+		close(exit_pipe[0]);
 		main_thread.stop();
 
 		// Free standard cursors
