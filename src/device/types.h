@@ -31,7 +31,7 @@ struct OsEventType
 
 struct ButtonEvent
 {
-	u16 type;
+	u16 type       : 4;
 	u16 device_id  : 3;
 	u16 device_num : 2;
 	u16 button_num : 8;
@@ -40,7 +40,7 @@ struct ButtonEvent
 
 struct AxisEvent
 {
-	u16 type;
+	u16 type       : 4;
 	u16 device_id  : 3;
 	u16 device_num : 2;
 	u16 axis_num   : 4;
@@ -51,7 +51,7 @@ struct AxisEvent
 
 struct StatusEvent
 {
-	u16 type;
+	u16 type       : 4;
 	u16 device_id  : 3;
 	u16 device_num : 2;
 	u16 connected  : 1;
@@ -59,21 +59,21 @@ struct StatusEvent
 
 struct ResolutionEvent
 {
-	u16 type;
+	u16 type : 4;
 	u16 width;
 	u16 height;
 };
 
 struct TextEvent
 {
-	u16 type;
+	u16 type : 4;
 	u8 len;
 	u8 utf8[4];
 };
 
 union OsEvent
 {
-	u16 type;
+	u16 type : 4;
 	ButtonEvent button;
 	AxisEvent axis;
 	StatusEvent status;
