@@ -313,7 +313,7 @@ struct LinuxDevice
 	s16 _mouse_last_y;
 	CursorMode::Enum _cursor_mode;
 
-	LinuxDevice()
+	LinuxDevice(Allocator &a)
 		: _x11_display(NULL)
 		, _wm_delete_window(None)
 		, _net_wm_state(None)
@@ -323,6 +323,7 @@ struct LinuxDevice
 		, _x11_hidden_cursor(None)
 		, _x11_detectable_autorepeat(false)
 		, _screen_config(NULL)
+		, _queue(a)
 		, _x11_window(None)
 		, _mouse_last_x(INT16_MAX)
 		, _mouse_last_y(INT16_MAX)
@@ -605,7 +606,7 @@ struct LinuxDevice
 	}
 };
 
-static LinuxDevice s_ldvc;
+static LinuxDevice *s_linux_device;
 
 struct WindowX11 : public Window
 {
@@ -615,11 +616,11 @@ struct WindowX11 : public Window
 
 	void open(u16 x, u16 y, u16 width, u16 height, u32 parent)
 	{
-		int screen = DefaultScreen(s_ldvc._x11_display);
-		int depth = DefaultDepth(s_ldvc._x11_display, screen);
-		Visual *visual = DefaultVisual(s_ldvc._x11_display, screen);
+		int screen = DefaultScreen(s_linux_device->_x11_display);
+		int depth = DefaultDepth(s_linux_device->_x11_display, screen);
+		Visual *visual = DefaultVisual(s_linux_device->_x11_display, screen);
 
-		::Window root_window = RootWindow(s_ldvc._x11_display, screen);
+		::Window root_window = RootWindow(s_linux_device->_x11_display, screen);
 		::Window parent_window = (parent == 0) ? root_window : (::Window)parent;
 
 		// Create main window
@@ -640,12 +641,12 @@ struct WindowX11 : public Window
 				;
 		} else {
 			XWindowAttributes parent_attrs;
-			XGetWindowAttributes(s_ldvc._x11_display, parent_window, &parent_attrs);
+			XGetWindowAttributes(s_linux_device->_x11_display, parent_window, &parent_attrs);
 			depth = parent_attrs.depth;
 			visual = parent_attrs.visual;
 		}
 
-		s_ldvc._x11_window = XCreateWindow(s_ldvc._x11_display
+		s_linux_device->_x11_window = XCreateWindow(s_linux_device->_x11_display
 			, parent_window
 			, x
 			, y
@@ -658,23 +659,23 @@ struct WindowX11 : public Window
 			, CWBorderPixel | CWEventMask
 			, &win_attribs
 			);
-		CE_ASSERT(s_ldvc._x11_window != None, "XCreateWindow: error");
+		CE_ASSERT(s_linux_device->_x11_window != None, "XCreateWindow: error");
 
-		XSetWMProtocols(s_ldvc._x11_display, s_ldvc._x11_window, &s_ldvc._wm_delete_window, 1);
+		XSetWMProtocols(s_linux_device->_x11_display, s_linux_device->_x11_window, &s_linux_device->_wm_delete_window, 1);
 
-		XMapRaised(s_ldvc._x11_display, s_ldvc._x11_window);
+		XMapRaised(s_linux_device->_x11_display, s_linux_device->_x11_window);
 	}
 
 	void close()
 	{
-		XDestroyWindow(s_ldvc._x11_display, s_ldvc._x11_window);
+		XDestroyWindow(s_linux_device->_x11_display, s_linux_device->_x11_window);
 	}
 
 	void bgfx_setup()
 	{
 		bgfx::PlatformData pd;
-		pd.ndt          = s_ldvc._x11_display;
-		pd.nwh          = (void *)(uintptr_t)s_ldvc._x11_window;
+		pd.ndt          = s_linux_device->_x11_display;
+		pd.nwh          = (void *)(uintptr_t)s_linux_device->_x11_window;
 		pd.context      = NULL;
 		pd.backBuffer   = NULL;
 		pd.backBufferDS = NULL;
@@ -683,41 +684,41 @@ struct WindowX11 : public Window
 
 	void show()
 	{
-		XMapRaised(s_ldvc._x11_display, s_ldvc._x11_window);
+		XMapRaised(s_linux_device->_x11_display, s_linux_device->_x11_window);
 	}
 
 	void hide()
 	{
-		XUnmapWindow(s_ldvc._x11_display, s_ldvc._x11_window);
+		XUnmapWindow(s_linux_device->_x11_display, s_linux_device->_x11_window);
 	}
 
 	void resize(u16 width, u16 height)
 	{
-		XResizeWindow(s_ldvc._x11_display, s_ldvc._x11_window, width, height);
-		XFlush(s_ldvc._x11_display);
+		XResizeWindow(s_linux_device->_x11_display, s_linux_device->_x11_window, width, height);
+		XFlush(s_linux_device->_x11_display);
 	}
 
 	void move(u16 x, u16 y)
 	{
-		XMoveWindow(s_ldvc._x11_display, s_ldvc._x11_window, x, y);
+		XMoveWindow(s_linux_device->_x11_display, s_linux_device->_x11_window, x, y);
 	}
 
 	void maximize_or_restore(bool maximize)
 	{
 		XEvent xev;
 		xev.type = ClientMessage;
-		xev.xclient.window = s_ldvc._x11_window;
-		xev.xclient.message_type = s_ldvc._net_wm_state;
+		xev.xclient.window = s_linux_device->_x11_window;
+		xev.xclient.message_type = s_linux_device->_net_wm_state;
 		xev.xclient.format = 32;
 		xev.xclient.data.l[0] = maximize ? 1 : 0; // 0 = remove property, 1 = set property
-		xev.xclient.data.l[1] = s_ldvc._net_wm_state_maximized_horz;
-		xev.xclient.data.l[2] = s_ldvc._net_wm_state_maximized_vert;
-		XSendEvent(s_ldvc._x11_display, DefaultRootWindow(s_ldvc._x11_display), False, SubstructureNotifyMask | SubstructureRedirectMask, &xev);
+		xev.xclient.data.l[1] = s_linux_device->_net_wm_state_maximized_horz;
+		xev.xclient.data.l[2] = s_linux_device->_net_wm_state_maximized_vert;
+		XSendEvent(s_linux_device->_x11_display, DefaultRootWindow(s_linux_device->_x11_display), False, SubstructureNotifyMask | SubstructureRedirectMask, &xev);
 	}
 
 	void minimize()
 	{
-		XIconifyWindow(s_ldvc._x11_display, s_ldvc._x11_window, DefaultScreen(s_ldvc._x11_display));
+		XIconifyWindow(s_linux_device->_x11_display, s_linux_device->_x11_window, DefaultScreen(s_linux_device->_x11_display));
 	}
 
 	void maximize()
@@ -735,7 +736,7 @@ struct WindowX11 : public Window
 		static char buf[512];
 		memset(buf, 0, sizeof(buf));
 		char *name;
-		XFetchName(s_ldvc._x11_display, s_ldvc._x11_window, &name);
+		XFetchName(s_linux_device->_x11_display, s_linux_device->_x11_window, &name);
 		strncpy(buf, name, sizeof(buf) - 1);
 		XFree(name);
 		return buf;
@@ -743,19 +744,19 @@ struct WindowX11 : public Window
 
 	void set_title(const char *title)
 	{
-		XStoreName(s_ldvc._x11_display, s_ldvc._x11_window, title);
+		XStoreName(s_linux_device->_x11_display, s_linux_device->_x11_window, title);
 	}
 
 	void *handle()
 	{
-		return (void *)(uintptr_t)s_ldvc._x11_window;
+		return (void *)(uintptr_t)s_linux_device->_x11_window;
 	}
 
 	void show_cursor(bool show)
 	{
-		XDefineCursor(s_ldvc._x11_display
-			, s_ldvc._x11_window
-			, show ? None : s_ldvc._x11_hidden_cursor
+		XDefineCursor(s_linux_device->_x11_display
+			, s_linux_device->_x11_window
+			, show ? None : s_linux_device->_x11_hidden_cursor
 			);
 	}
 
@@ -763,37 +764,37 @@ struct WindowX11 : public Window
 	{
 		XEvent xev;
 		xev.xclient.type = ClientMessage;
-		xev.xclient.window = s_ldvc._x11_window;
-		xev.xclient.message_type = s_ldvc._net_wm_state;
+		xev.xclient.window = s_linux_device->_x11_window;
+		xev.xclient.message_type = s_linux_device->_net_wm_state;
 		xev.xclient.format = 32;
 		xev.xclient.data.l[0] = full ? 1 : 0;
-		xev.xclient.data.l[1] = s_ldvc._net_wm_state_fullscreen;
-		XSendEvent(s_ldvc._x11_display, DefaultRootWindow(s_ldvc._x11_display), False, SubstructureNotifyMask | SubstructureRedirectMask, &xev);
+		xev.xclient.data.l[1] = s_linux_device->_net_wm_state_fullscreen;
+		XSendEvent(s_linux_device->_x11_display, DefaultRootWindow(s_linux_device->_x11_display), False, SubstructureNotifyMask | SubstructureRedirectMask, &xev);
 	}
 
 	void set_cursor(MouseCursor::Enum cursor)
 	{
-		XDefineCursor(s_ldvc._x11_display, s_ldvc._x11_window, _x11_cursors[cursor]);
+		XDefineCursor(s_linux_device->_x11_display, s_linux_device->_x11_window, _x11_cursors[cursor]);
 	}
 
 	void set_cursor_mode(CursorMode::Enum mode)
 	{
-		if (mode == s_ldvc._cursor_mode)
+		if (mode == s_linux_device->_cursor_mode)
 			return;
 
-		s_ldvc._cursor_mode = mode;
+		s_linux_device->_cursor_mode = mode;
 
 		if (mode == CursorMode::DISABLED) {
 			XWindowAttributes window_attribs;
-			XGetWindowAttributes(s_ldvc._x11_display, s_ldvc._x11_window, &window_attribs);
+			XGetWindowAttributes(s_linux_device->_x11_display, s_linux_device->_x11_window, &window_attribs);
 			unsigned width = window_attribs.width;
 			unsigned height = window_attribs.height;
-			s_ldvc._mouse_last_x = width/2;
-			s_ldvc._mouse_last_y = height/2;
+			s_linux_device->_mouse_last_x = width/2;
+			s_linux_device->_mouse_last_y = height/2;
 
-			XWarpPointer(s_ldvc._x11_display
+			XWarpPointer(s_linux_device->_x11_display
 				, None
-				, s_ldvc._x11_window
+				, s_linux_device->_x11_window
 				, 0
 				, 0
 				, 0
@@ -801,20 +802,20 @@ struct WindowX11 : public Window
 				, width/2
 				, height/2
 				);
-			XGrabPointer(s_ldvc._x11_display
-				, s_ldvc._x11_window
+			XGrabPointer(s_linux_device->_x11_display
+				, s_linux_device->_x11_window
 				, True
 				, ButtonPressMask | ButtonReleaseMask | PointerMotionMask
 				, GrabModeAsync
 				, GrabModeAsync
-				, s_ldvc._x11_window
-				, s_ldvc._x11_hidden_cursor
+				, s_linux_device->_x11_window
+				, s_linux_device->_x11_hidden_cursor
 				, CurrentTime
 				);
-			XFlush(s_ldvc._x11_display);
+			XFlush(s_linux_device->_x11_display);
 		} else if (mode == CursorMode::NORMAL) {
-			XUngrabPointer(s_ldvc._x11_display, CurrentTime);
-			XFlush(s_ldvc._x11_display);
+			XUngrabPointer(s_linux_device->_x11_display, CurrentTime);
+			XFlush(s_linux_device->_x11_display);
 		}
 	}
 };
@@ -838,7 +839,7 @@ struct DisplayXRandr : public Display
 	void modes(Array<DisplayMode> &modes)
 	{
 		int num = 0;
-		XRRScreenSize *sizes = XRRConfigSizes(s_ldvc._screen_config, &num);
+		XRRScreenSize *sizes = XRRConfigSizes(s_linux_device->_screen_config, &num);
 
 		if (!sizes)
 			return;
@@ -855,14 +856,14 @@ struct DisplayXRandr : public Display
 	void set_mode(u32 id)
 	{
 		int num = 0;
-		XRRScreenSize *sizes = XRRConfigSizes(s_ldvc._screen_config, &num);
+		XRRScreenSize *sizes = XRRConfigSizes(s_linux_device->_screen_config, &num);
 
 		if (!sizes || (int)id >= num)
 			return;
 
-		XRRSetScreenConfig(s_ldvc._x11_display
-			, s_ldvc._screen_config
-			, RootWindow(s_ldvc._x11_display, DefaultScreen(s_ldvc._x11_display))
+		XRRSetScreenConfig(s_linux_device->_x11_display
+			, s_linux_device->_screen_config
+			, RootWindow(s_linux_device->_x11_display, DefaultScreen(s_linux_device->_x11_display))
 			, (int)id
 			, RR_Rotate_0
 			, CurrentTime
@@ -886,7 +887,7 @@ namespace display
 
 bool next_event(OsEvent &ev)
 {
-	return s_ldvc._queue.pop_event(ev);
+	return s_linux_device->_queue.pop_event(ev);
 }
 
 } // namespace crown
@@ -934,8 +935,11 @@ int main(int argc, char **argv)
 	}
 #endif
 
-	if (ec == EXIT_SUCCESS)
-		ec = s_ldvc.run(&opts);
+	if (ec == EXIT_SUCCESS) {
+		s_linux_device = CE_NEW(default_allocator(), LinuxDevice)(default_allocator());
+		ec = s_linux_device->run(&opts);
+		CE_DELETE(default_allocator(), s_linux_device);
+	}
 
 	return ec;
 }

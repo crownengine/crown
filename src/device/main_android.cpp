@@ -34,6 +34,12 @@ struct AndroidDevice
 	Thread _main_thread;
 	DeviceOptions *_opts;
 
+	AndroidDevice(Allocator &a)
+		: _queue(a)
+		, _opts(NULL)
+	{
+	}
+
 	void run(struct android_app *app, DeviceOptions &opts)
 	{
 		_opts = &opts;
@@ -314,11 +320,11 @@ namespace display
 
 } // namespace display
 
-static AndroidDevice s_advc;
+static AndroidDevice *s_android_device;
 
 bool next_event(OsEvent &ev)
 {
-	return s_advc._queue.pop_event(ev);
+	return s_android_device->_queue.pop_event(ev);
 }
 
 } // namespace crown
@@ -333,7 +339,10 @@ void android_main(struct android_app *app)
 	DeviceOptions opts(default_allocator(), 0, NULL);
 	opts._asset_manager = app->activity->assetManager;
 
-	crown::s_advc.run(app, opts);
+	s_android_device = CE_NEW(default_allocator(), AndroidDevice)(default_allocator());
+	s_android_device->run(app, opts);
+	CE_DELETE(default_allocator(), s_android_device);
+
 	guid_globals::shutdown();
 	memory_globals::shutdown();
 }

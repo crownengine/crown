@@ -6,7 +6,7 @@
 #pragma once
 
 #include "device/types.h"
-#include <atomic>
+#include "core/thread/spsc_queue.inl"
 #include <string.h> // memcpy
 
 namespace crown
@@ -18,14 +18,12 @@ namespace crown
 /// @ingroup Device
 struct DeviceEventQueue
 {
-	CE_ALIGN_DECL(CROWN_CACHE_LINE_SIZE, std::atomic_int _tail);
-	CE_ALIGN_DECL(CROWN_CACHE_LINE_SIZE, std::atomic_int _head);
 #define MAX_OS_EVENTS 128
-	OsEvent _queue[MAX_OS_EVENTS];
+	SPSCQueue<OsEvent, MAX_OS_EVENTS> _queue;
 
-	DeviceEventQueue()
-		: _tail(0)
-		, _head(0)
+	///
+	DeviceEventQueue(Allocator &a)
+		: _queue(a)
 	{
 	}
 
@@ -96,30 +94,12 @@ struct DeviceEventQueue
 
 	bool push_event(const OsEvent &ev)
 	{
-		const int tail = _tail.load(std::memory_order_relaxed);
-		const int head = _head.load(std::memory_order_acquire);
-		const int tail_next = (tail + 1) % MAX_OS_EVENTS;
-
-		if (CE_UNLIKELY(tail_next == head))
-			return false;
-
-		_queue[tail] = ev;
-		_tail.store(tail_next, std::memory_order_release);
-		return true;
+		return _queue.push(ev);
 	}
 
 	bool pop_event(OsEvent &ev)
 	{
-		const int head = _head.load(std::memory_order_relaxed);
-		const int tail = _tail.load(std::memory_order_acquire);
-		const int head_next = (head + 1) % MAX_OS_EVENTS;
-
-		if (CE_UNLIKELY(head == tail))
-			return false;
-
-		ev = _queue[head];
-		_head.store(head_next, std::memory_order_release);
-		return true;
+		return _queue.pop(ev);
 	}
 };
 

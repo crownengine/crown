@@ -289,9 +289,10 @@ struct WindowsDevice
 	s16 _mouse_last_y;
 	CursorMode::Enum _cursor_mode;
 
-	WindowsDevice()
+	WindowsDevice(Allocator &a)
 		: _hwnd(NULL)
 		, _hcursor(NULL)
+		, _queue(a)
 		, _mouse_last_x(INT16_MAX)
 		, _mouse_last_y(INT16_MAX)
 		, _cursor_mode(CursorMode::NORMAL)
@@ -588,11 +589,11 @@ struct WindowsDevice
 	static LRESULT CALLBACK window_proc(HWND hwnd, UINT id, WPARAM wparam, LPARAM lparam);
 };
 
-static WindowsDevice s_wdvc;
+static WindowsDevice *s_windows_device;
 
 LRESULT CALLBACK WindowsDevice::window_proc(HWND hwnd, UINT id, WPARAM wparam, LPARAM lparam)
 {
-	return s_wdvc.pump_events(hwnd, id, wparam, lparam);
+	return s_windows_device->pump_events(hwnd, id, wparam, lparam);
 }
 
 struct WindowWin : public Window
@@ -624,18 +625,18 @@ struct WindowWin : public Window
 	{
 		bgfx::PlatformData pd;
 		memset(&pd, 0, sizeof(pd));
-		pd.nwh = s_wdvc._hwnd;
+		pd.nwh = s_windows_device->_hwnd;
 		bgfx::setPlatformData(pd);
 	}
 
 	void show()
 	{
-		ShowWindow(s_wdvc._hwnd, SW_SHOW);
+		ShowWindow(s_windows_device->_hwnd, SW_SHOW);
 	}
 
 	void hide()
 	{
-		ShowWindow(s_wdvc._hwnd, SW_HIDE);
+		ShowWindow(s_windows_device->_hwnd, SW_HIDE);
 	}
 
 	void resize(u16 width, u16 height)
@@ -643,7 +644,7 @@ struct WindowWin : public Window
 		_width = width;
 		_height = height;
 
-		DWORD style = GetWindowLongA(s_wdvc._hwnd, GWL_STYLE);
+		DWORD style = GetWindowLongA(s_windows_device->_hwnd, GWL_STYLE);
 		RECT rect;
 		rect.left   = 0;
 		rect.top    = 0;
@@ -651,7 +652,7 @@ struct WindowWin : public Window
 		rect.bottom = _height;
 		AdjustWindowRect(&rect, style, FALSE);
 
-		MoveWindow(s_wdvc._hwnd
+		MoveWindow(s_windows_device->_hwnd
 			, _x
 			, _y
 			, rect.right - rect.left
@@ -669,36 +670,36 @@ struct WindowWin : public Window
 
 	void minimize()
 	{
-		ShowWindow(s_wdvc._hwnd, SW_MINIMIZE);
+		ShowWindow(s_windows_device->_hwnd, SW_MINIMIZE);
 	}
 
 	void maximize()
 	{
-		ShowWindow(s_wdvc._hwnd, SW_MAXIMIZE);
+		ShowWindow(s_windows_device->_hwnd, SW_MAXIMIZE);
 	}
 
 	void restore()
 	{
-		ShowWindow(s_wdvc._hwnd, SW_RESTORE);
+		ShowWindow(s_windows_device->_hwnd, SW_RESTORE);
 	}
 
 	const char *title()
 	{
 		static char buf[512];
 		memset(buf, 0, sizeof(buf));
-		GetWindowText(s_wdvc._hwnd, buf, sizeof(buf));
+		GetWindowText(s_windows_device->_hwnd, buf, sizeof(buf));
 		return buf;
 	}
 
 	void set_title(const char *title)
 	{
-		SetWindowText(s_wdvc._hwnd, title);
+		SetWindowText(s_windows_device->_hwnd, title);
 	}
 
 	void show_cursor(bool show)
 	{
-		s_wdvc._hcursor = show ? LoadCursorA(NULL, IDC_ARROW) : NULL;
-		SetCursor(s_wdvc._hcursor);
+		s_windows_device->_hcursor = show ? LoadCursorA(NULL, IDC_ARROW) : NULL;
+		SetCursor(s_windows_device->_hcursor);
 	}
 
 	void set_fullscreen(bool /*fullscreen*/)
@@ -707,26 +708,26 @@ struct WindowWin : public Window
 
 	void set_cursor(MouseCursor::Enum cursor)
 	{
-		s_wdvc._hcursor = _win_cursors[cursor];
-		SetCursor(s_wdvc._hcursor);
+		s_windows_device->_hcursor = _win_cursors[cursor];
+		SetCursor(s_windows_device->_hcursor);
 	}
 
 	void set_cursor_mode(CursorMode::Enum mode)
 	{
-		if (mode == s_wdvc._cursor_mode)
+		if (mode == s_windows_device->_cursor_mode)
 			return;
-		s_wdvc._cursor_mode = mode;
+		s_windows_device->_cursor_mode = mode;
 
 		if (mode == CursorMode::DISABLED) {
 			RECT clipRect;
-			GetWindowRect(s_wdvc._hwnd, &clipRect);
+			GetWindowRect(s_windows_device->_hwnd, &clipRect);
 			unsigned width = clipRect.right - clipRect.left;
 			unsigned height = clipRect.bottom - clipRect.top;
 
-			s_wdvc._mouse_last_x = width/2;
-			s_wdvc._mouse_last_y = height/2;
+			s_windows_device->_mouse_last_x = width/2;
+			s_windows_device->_mouse_last_y = height/2;
 			POINT mouse_pos = { (long)width/2, (long)height/2 };
-			ClientToScreen(s_wdvc._hwnd, &mouse_pos);
+			ClientToScreen(s_windows_device->_hwnd, &mouse_pos);
 			SetCursorPos(mouse_pos.x, mouse_pos.y);
 
 			show_cursor(false);
@@ -739,7 +740,7 @@ struct WindowWin : public Window
 
 	void *handle()
 	{
-		return (void *)(uintptr_t)s_wdvc._hwnd;
+		return (void *)(uintptr_t)s_windows_device->_hwnd;
 	}
 };
 
@@ -784,7 +785,7 @@ namespace display
 
 bool next_event(OsEvent &ev)
 {
-	return s_wdvc._queue.pop_event(ev);
+	return s_windows_device->_queue.pop_event(ev);
 }
 
 } // namespace crown
@@ -845,8 +846,11 @@ int main(int argc, char **argv)
 	}
 #endif
 
-	if (ec == EXIT_SUCCESS)
-		ec = s_wdvc.run(&opts);
+	if (ec == EXIT_SUCCESS) {
+		s_windows_device = CE_NEW(default_allocator(), WindowsDevice)(default_allocator());
+		ec = s_windows_device->run(&opts);
+		CE_DELETE(default_allocator(), s_windows_device);
+	}
 
 	FreeConsole();
 	WSACleanup();
