@@ -11,6 +11,7 @@
 #include "core/guid.h"
 #include "core/memory/globals.h"
 #include "core/memory/memory.inl"
+#include "core/thread/spsc_queue.inl"
 #include "core/thread/thread.h"
 #include "core/unit_tests.h"
 #include "device/device.h"
@@ -278,11 +279,13 @@ struct Joypad
 
 static bool s_exit = false;
 static HCURSOR _win_cursors[MouseCursor::COUNT];
+static bool push_event(const OsEvent &ev);
 
 struct WindowsDevice
 {
 	HWND _hwnd;
 	HCURSOR _hcursor;
+	SPSCQueue<OsEvent, CROWN_MAX_OS_EVENTS> _events;
 	DeviceEventQueue _queue;
 	Joypad _joypad;
 	s16 _mouse_last_x;
@@ -292,7 +295,8 @@ struct WindowsDevice
 	WindowsDevice(Allocator &a)
 		: _hwnd(NULL)
 		, _hcursor(NULL)
-		, _queue(a)
+		, _events(a)
+		, _queue(push_event)
 		, _mouse_last_x(INT16_MAX)
 		, _mouse_last_y(INT16_MAX)
 		, _cursor_mode(CursorMode::NORMAL)
@@ -783,9 +787,14 @@ namespace display
 
 } // namespace display
 
+static bool push_event(const OsEvent &ev)
+{
+	return s_windows_device->_events.push(ev);
+}
+
 bool next_event(OsEvent &ev)
 {
-	return s_windows_device->_queue.pop_event(ev);
+	return s_windows_device->_events.pop(ev);
 }
 
 } // namespace crown

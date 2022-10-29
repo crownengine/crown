@@ -12,6 +12,7 @@
 #include "core/memory/globals.h"
 #include "core/memory/memory.inl"
 #include "core/os.h"
+#include "core/thread/spsc_queue.inl"
 #include "core/thread/thread.h"
 #include "core/unit_tests.h"
 #include "device/device.h"
@@ -294,6 +295,7 @@ struct Joypad
 
 static bool s_exit = false;
 static Cursor _x11_cursors[MouseCursor::COUNT];
+static bool push_event(const OsEvent &ev);
 
 struct LinuxDevice
 {
@@ -306,6 +308,7 @@ struct LinuxDevice
 	Cursor _x11_hidden_cursor;
 	bool _x11_detectable_autorepeat;
 	XRRScreenConfiguration *_screen_config;
+	SPSCQueue<OsEvent, CROWN_MAX_OS_EVENTS> _events;
 	DeviceEventQueue _queue;
 	Joypad _joypad;
 	::Window _x11_window;
@@ -323,7 +326,8 @@ struct LinuxDevice
 		, _x11_hidden_cursor(None)
 		, _x11_detectable_autorepeat(false)
 		, _screen_config(NULL)
-		, _queue(a)
+		, _events(a)
+		, _queue(push_event)
 		, _x11_window(None)
 		, _mouse_last_x(INT16_MAX)
 		, _mouse_last_y(INT16_MAX)
@@ -885,9 +889,14 @@ namespace display
 
 } // namespace display
 
+static bool push_event(const OsEvent &ev)
+{
+	return s_linux_device->_events.push(ev);
+}
+
 bool next_event(OsEvent &ev)
 {
-	return s_linux_device->_queue.pop_event(ev);
+	return s_linux_device->_events.pop(ev);
 }
 
 } // namespace crown

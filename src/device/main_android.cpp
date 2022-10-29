@@ -10,6 +10,7 @@
 #include "core/guid.h"
 #include "core/memory/globals.h"
 #include "core/memory/memory.inl"
+#include "core/thread/spsc_queue.inl"
 #include "core/thread/thread.h"
 #include "device/device.h"
 #include "device/device_event_queue.inl"
@@ -28,14 +29,18 @@ extern "C"
 
 namespace crown
 {
+static bool push_event(const OsEvent &ev);
+
 struct AndroidDevice
 {
+	SPSCQueue<OsEvent, CROWN_MAX_OS_EVENTS> _events;
 	DeviceEventQueue _queue;
 	Thread _main_thread;
 	DeviceOptions *_opts;
 
 	AndroidDevice(Allocator &a)
-		: _queue(a)
+		: _events(a)
+		, _queue(push_event)
 		, _opts(NULL)
 	{
 	}
@@ -322,9 +327,14 @@ namespace display
 
 static AndroidDevice *s_android_device;
 
+static bool push_event(const OsEvent &ev)
+{
+	return s_android_device->_events.push(ev);
+}
+
 bool next_event(OsEvent &ev)
 {
-	return s_android_device->_queue.pop_event(ev);
+	return s_android_device->_events.pop(ev);
 }
 
 } // namespace crown
