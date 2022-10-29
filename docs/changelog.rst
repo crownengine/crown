@@ -9,6 +9,10 @@ Changelog
 
 * Fixed file changes not detected sometimes.
 
+**Runtime**
+
+* Windows: reduced CPU usage by polling joypads' status in a background thread.
+
 **Tools**
 
 * Fixed minor issues when toggling the Console.

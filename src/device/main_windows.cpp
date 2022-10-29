@@ -11,7 +11,7 @@
 #include "core/guid.h"
 #include "core/memory/globals.h"
 #include "core/memory/memory.inl"
-#include "core/thread/spsc_queue.inl"
+#include "core/thread/mpsc_queue.inl"
 #include "core/thread/thread.h"
 #include "core/unit_tests.h"
 #include "device/device.h"
@@ -285,14 +285,15 @@ struct WindowsDevice
 {
 	HWND _hwnd;
 	HCURSOR _hcursor;
-	SPSCQueue<OsEvent, CROWN_MAX_OS_EVENTS> _events;
+	MPSCQueue<OsEvent, CROWN_MAX_OS_EVENTS> _events;
 	DeviceEventQueue _queue;
 	Joypad _joypad;
 	s16 _mouse_last_x;
 	s16 _mouse_last_y;
 	CursorMode::Enum _cursor_mode;
+	DeviceOptions *_options;
 
-	WindowsDevice(Allocator &a)
+	WindowsDevice(Allocator &a, DeviceOptions &opts)
 		: _hwnd(NULL)
 		, _hcursor(NULL)
 		, _events(a)
@@ -300,10 +301,11 @@ struct WindowsDevice
 		, _mouse_last_x(INT16_MAX)
 		, _mouse_last_y(INT16_MAX)
 		, _cursor_mode(CursorMode::NORMAL)
+		, _options(&opts)
 	{
 	}
 
-	int run(DeviceOptions *opts)
+	int run()
 	{
 		HINSTANCE instance = (HINSTANCE)GetModuleHandle(NULL);
 		WNDCLASSEX wnd;
@@ -320,7 +322,7 @@ struct WindowsDevice
 
 		DWORD style = WS_VISIBLE;
 		DWORD exstyle = 0;
-		if (opts->_parent_window == 0) {
+		if (_options->_parent_window == 0) {
 			style |= WS_OVERLAPPEDWINDOW;
 		} else {
 			style |= WS_POPUP;
@@ -330,16 +332,16 @@ struct WindowsDevice
 		RECT rect;
 		rect.left   = 0;
 		rect.top    = 0;
-		rect.right  = opts->_window_width;
-		rect.bottom = opts->_window_height;
+		rect.right  = _options->_window_width;
+		rect.bottom = _options->_window_height;
 		AdjustWindowRect(&rect, style, FALSE);
 
 		_hwnd = CreateWindowExA(exstyle
 			, "crown"
 			, "Crown"
 			, style
-			, opts->_window_x
-			, opts->_window_y
+			, _options->_window_x
+			, _options->_window_y
 			, rect.right - rect.left
 			, rect.bottom - rect.top
 			, 0
@@ -349,8 +351,8 @@ struct WindowsDevice
 			);
 		CE_ASSERT(_hwnd != NULL, "CreateWindowA: GetLastError = %d", GetLastError());
 
-		if (opts->_parent_window != 0)
-			SetParent(_hwnd, (HWND)(UINT_PTR)opts->_parent_window);
+		if (_options->_parent_window != 0)
+			SetParent(_hwnd, (HWND)(UINT_PTR)_options->_parent_window);
 
 		_hcursor = LoadCursorA(NULL, IDC_ARROW);
 
@@ -368,25 +370,36 @@ struct WindowsDevice
 
 		Thread main_thread;
 		main_thread.start([](void *user_data) {
-				crown::run(*((DeviceOptions *)user_data));
+				WindowsDevice *win = (WindowsDevice *)user_data;
+				crown::run(*win->_options);
 				s_exit = true;
+				PostMessageA(win->_hwnd, WM_USER + 1, 0, 0);
 				return EXIT_SUCCESS;
 			}
-			, opts
+			, this
 			);
 
+		Thread joypad_thread;
+		joypad_thread.start([](void *user_data) {
+				WindowsDevice *win = (WindowsDevice *)user_data;
+				while (!s_exit) {
+					win->_joypad.update(win->_queue);
+					os::sleep(4);
+				}
+				return EXIT_SUCCESS;
+			}
+			, this
+			);
+
+		// Windows event loop.
 		MSG msg;
 		msg.message = WM_NULL;
-
-		while (!s_exit) {
-			_joypad.update(_queue);
-
-			while (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE) != 0) {
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
+		while (GetMessage(&msg, NULL, 0U, 0U) != 0) {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
 		}
 
+		joypad_thread.stop();
 		main_thread.stop();
 
 		// Destroy standard cursors
@@ -410,9 +423,10 @@ struct WindowsDevice
 	{
 		switch (id) {
 		case WM_DESTROY:
-			break;
+		case WM_USER + 1:
+			PostQuitMessage(0);
+			return 0;
 
-		case WM_QUIT:
 		case WM_CLOSE:
 			s_exit = true;
 			_queue.push_exit_event();
@@ -856,8 +870,8 @@ int main(int argc, char **argv)
 #endif
 
 	if (ec == EXIT_SUCCESS) {
-		s_windows_device = CE_NEW(default_allocator(), WindowsDevice)(default_allocator());
-		ec = s_windows_device->run(&opts);
+		s_windows_device = CE_NEW(default_allocator(), WindowsDevice)(default_allocator(), opts);
+		ec = s_windows_device->run();
 		CE_DELETE(default_allocator(), s_windows_device);
 	}
 
