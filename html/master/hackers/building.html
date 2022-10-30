@@ -62,7 +62,6 @@
 <li class="toctree-l4"><a class="reference internal" href="#android">Android</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#linux-ubuntu-16-04">Linux (Ubuntu &gt;= 16.04)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#windows-vs-2019-or-vs-code">Windows (VS 2019 or VS Code)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#windows-mingw">Windows (MinGW)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#build">Build</a><ul>
@@ -144,7 +143,7 @@
 </section>
 <section id="windows-vs-2019-or-vs-code">
 <h3>Windows (VS 2019 or VS Code)<a class="headerlink" href="#windows-vs-2019-or-vs-code" title="Permalink to this heading">¶</a></h3>
-<p>Visual Studio 2019:</p>
+<p>Install either Visual Studio 2019:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p><a class="reference external" href="https://visualstudio.microsoft.com/downloads">https://visualstudio.microsoft.com/downloads</a></p></li>
@@ -156,29 +155,18 @@
 <li><p><a class="reference external" href="https://code.visualstudio.com">https://code.visualstudio.com</a></p></li>
 </ul>
 </div></blockquote>
-<p>GnuWin32 utilities:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p><a class="reference external" href="http://gnuwin32.sourceforge.net/packages/make.htm">http://gnuwin32.sourceforge.net/packages/make.htm</a></p></li>
-<li><p><a class="reference external" href="http://gnuwin32.sourceforge.net/packages/coreutils.htm">http://gnuwin32.sourceforge.net/packages/coreutils.htm</a></p></li>
-<li><p><a class="reference external" href="http://gnuwin32.sourceforge.net/packages/libiconv.htm">http://gnuwin32.sourceforge.net/packages/libiconv.htm</a></p></li>
-<li><p><a class="reference external" href="http://gnuwin32.sourceforge.net/packages/libintl.htm">http://gnuwin32.sourceforge.net/packages/libintl.htm</a></p></li>
-</ul>
-</div></blockquote>
-</section>
-<section id="windows-mingw">
-<h3>Windows (MinGW)<a class="headerlink" href="#windows-mingw" title="Permalink to this heading">¶</a></h3>
-<p>MSYS2:</p>
+<p>Install MSYS2:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p><a class="reference external" href="https://www.msys2.org/">https://www.msys2.org/</a></p></li>
 </ul>
 </div></blockquote>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pacman</span> <span class="o">-</span><span class="n">S</span> <span class="n">make</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">gcc</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">pkg</span><span class="o">-</span><span class="n">config</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">gtk3</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">vala</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">libgee</span>
+<p>Add MSYS2 bin to your PATH; for a default install this would be:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">C</span><span class="p">:</span>\<span class="n">msys2</span>\<span class="n">usr</span>\<span class="nb">bin</span>
 </pre></div>
 </div>
-<p>Set MINGW path:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">MINGW</span><span class="o">=/</span><span class="n">mingw64</span>
+<p>Open MSYS2 shell and type:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pacman</span> <span class="o">-</span><span class="n">S</span> <span class="n">make</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">gcc</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">pkg</span><span class="o">-</span><span class="n">config</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">gtk3</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">vala</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">libgee</span>
 </pre></div>
 </div>
 </section>
@@ -204,7 +192,8 @@
 </pre></div>
 </div>
 <p>To build tools, open MSYS2 MSYS:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">tools</span><span class="o">-</span><span class="n">mingw</span><span class="o">-</span><span class="n">release64</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">MINGW</span><span class="o">=/</span><span class="n">mingw64</span>
+<span class="n">make</span> <span class="n">tools</span><span class="o">-</span><span class="n">mingw</span><span class="o">-</span><span class="n">release64</span>
 </pre></div>
 </div>
 </section>
@@ -218,10 +207,7 @@
 </div></blockquote>
 <p>Open Visual Studio Code Shell and set MINGW path:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$env:MINGW = &quot;C:\msys64\mingw64&quot;
-</pre></div>
-</div>
-<p>To build tools:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">tools</span><span class="o">-</span><span class="n">mingw</span><span class="o">-</span><span class="n">release64</span>
+make tools-mingw-release64
 </pre></div>
 </div>
 </section>
