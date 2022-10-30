@@ -441,8 +441,7 @@ struct LinuxDevice
 
 			if (FD_ISSET(exit_pipe[0], &fdset)) {
 				break;
-			}
-			else if (FD_ISSET(x11_fd, &fdset)) {
+			} else if (FD_ISSET(x11_fd, &fdset)) {
 				while (XEventsQueued(_x11_display, QueuedAfterFlush) > 0) {
 					XEvent event;
 					XNextEvent(_x11_display, &event);
@@ -592,8 +591,7 @@ struct LinuxDevice
 						break;
 					}
 				}
-			}
-			else {
+			} else {
 				_joypad.update(_queue, &fdset);
 			}
 		}
