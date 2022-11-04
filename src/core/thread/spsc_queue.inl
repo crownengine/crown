@@ -18,6 +18,8 @@ namespace crown
 template<typename T, int MAX_NUM_ITEMS>
 struct SPSCQueue
 {
+	CE_STATIC_ASSERT(is_power_of_2(MAX_NUM_ITEMS));
+
 	CE_ALIGN_DECL(CROWN_CACHE_LINE_SIZE, std::atomic_int _tail);
 	CE_ALIGN_DECL(CROWN_CACHE_LINE_SIZE, std::atomic_int _head);
 	Allocator *_allocator;
@@ -50,7 +52,7 @@ struct SPSCQueue
 	{
 		const int tail = _tail.load(std::memory_order_relaxed);
 		const int head = _head.load(std::memory_order_acquire);
-		const int tail_next = (tail + 1) % MAX_NUM_ITEMS;
+		const int tail_next = (tail + 1) & (MAX_NUM_ITEMS - 1);
 
 		if (CE_UNLIKELY(tail_next == head))
 			return false;
@@ -65,7 +67,7 @@ struct SPSCQueue
 	{
 		const int head = _head.load(std::memory_order_relaxed);
 		const int tail = _tail.load(std::memory_order_acquire);
-		const int head_next = (head + 1) % MAX_NUM_ITEMS;
+		const int head_next = (head + 1) & (MAX_NUM_ITEMS - 1);
 
 		if (CE_UNLIKELY(head == tail))
 			return false;

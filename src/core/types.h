@@ -61,6 +61,11 @@ inline T clamp(T val, T mmin, T mmax)
 	return min(max(mmin, val), mmax);
 }
 
+inline bool constexpr is_power_of_2(u32 x)
+{
+	return x && (!(x & (x - 1)));
+}
+
 #if CROWN_DEBUG && !CROWN_DEVELOPMENT
 u32 STRING_ID_32(const char *str, const u32 id);
 u64 STRING_ID_64(const char *str, const u64 id);
