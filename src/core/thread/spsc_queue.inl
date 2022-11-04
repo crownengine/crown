@@ -40,6 +40,12 @@ struct SPSCQueue
 	}
 
 	///
+	SPSCQueue(const SPSCQueue &) = delete;
+
+	///
+	SPSCQueue &operator=(const SPSCQueue &) = delete;
+
+	///
 	bool push(const T &ev)
 	{
 		const int tail = _tail.load(std::memory_order_relaxed);

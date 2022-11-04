@@ -27,6 +27,12 @@ struct MPSCQueue
 	}
 
 	///
+	MPSCQueue(const MPSCQueue &) = delete;
+
+	///
+	MPSCQueue &operator=(const MPSCQueue &) = delete;
+
+	///
 	bool push(const T &ev)
 	{
 		ScopedMutex sm(_mutex);
