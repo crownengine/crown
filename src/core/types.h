@@ -91,6 +91,8 @@ u64 STRING_ID_64(const char *str, const u64 id);
 
 #define CE_NOOP(...) do { (void)0; } while (0)
 #define CE_UNUSED(x) do { (void)(x); } while (0)
+#define CE_UNUSED_2(a, b) CE_UNUSED(a); CE_UNUSED(b)
+#define CE_UNUSED_3(a, b, c) CE_UNUSED_2(a, b); CE_UNUSED(c)
 #define CE_STATIC_ASSERT(condition, ...) static_assert(condition, "" # __VA_ARGS__)
 
 #if CROWN_COMPILER_GCC || CROWN_COMPILER_CLANG
