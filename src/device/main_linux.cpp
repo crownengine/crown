@@ -181,14 +181,14 @@ struct Joypad
 		s16 right[3];
 	};
 
+	DeviceEventQueue *_queue;
 	int _fd[CROWN_MAX_JOYPADS];
-	bool _connected[CROWN_MAX_JOYPADS];
 	AxisData _axis[CROWN_MAX_JOYPADS];
 
-	Joypad()
+	Joypad(DeviceEventQueue &queue)
+		: _queue(&queue)
 	{
 		memset(&_fd, 0, sizeof(_fd));
-		memset(&_connected, 0, sizeof(_connected));
 		memset(&_axis, 0, sizeof(_axis));
 	}
 
@@ -197,45 +197,28 @@ struct Joypad
 		char jspath[] = "/dev/input/jsX";
 		char *num = strchr(jspath, 'X');
 
-		for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i) {
-			*num = '0' + i;
-			_fd[i] = ::open(jspath, O_RDONLY);
+		for (u32 ii = 0; ii < CROWN_MAX_JOYPADS; ++ii) {
+			*num = '0' + ii;
+			_fd[ii] = ::open(jspath, O_RDONLY);
+			_queue->push_status_event(InputDeviceType::JOYPAD, ii, _fd[ii] >= 0);
 		}
-
-		memset(_connected, 0, sizeof(_connected));
-		memset(_axis, 0, sizeof(_axis));
 	}
 
 	void close()
 	{
-		for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i) {
-			if (_fd[i] != -1)
-				::close(_fd[i]);
+		for (u32 ii = 0; ii < CROWN_MAX_JOYPADS; ++ii) {
+			if (_fd[ii] != -1) {
+				::close(_fd[ii]);
+				_fd[ii] = -1;
+				_queue->push_status_event(InputDeviceType::JOYPAD, ii, false);
+			}
 		}
 	}
 
-	void update(DeviceEventQueue &queue, fd_set *fdset)
+	void process_events(u32 joypad_id, const JoypadEvent *events, u32 num_events)
 	{
-		JoypadEvent ev;
-		memset(&ev, 0, sizeof(ev));
-
-		for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i) {
-			const int fd = _fd[i];
-			const bool connected = fd != -1;
-
-			if (connected != _connected[i])
-				queue.push_status_event(InputDeviceType::JOYPAD, i, connected);
-
-			_connected[i] = connected;
-
-			if (!connected)
-				continue;
-
-			if (!FD_ISSET(fd, fdset))
-				continue;
-
-			read(fd, &ev, sizeof(ev));
-			s16 val = ev.value;
+		for (u32 ii = 0; ii < num_events; ++ii) {
+			JoypadEvent ev = events[ii];
 
 			switch (ev.type &= ~JS_EVENT_INIT) {
 			case JS_EVENT_AXIS: {
@@ -252,23 +235,24 @@ struct Joypad
 				};
 
 				// Remap triggers to [0, INT16_MAX]
+				s16 value = ev.value;
 				if (ev.number == 2 || ev.number == 5)
-					val = (val + INT16_MAX) >> 1;
+					value = (ev.value + INT16_MAX) >> 1;
 
-				s16 *values = ev.number > 2 ? _axis[i].right : _axis[i].left;
-				values[axis_idx[ev.number]] = val;
+				s16 *values = ev.number > 2 ? _axis[joypad_id].right : _axis[joypad_id].left;
+				values[axis_idx[ev.number]] = value;
 
 				if (ev.number == 2 || ev.number == 5) {
-					queue.push_axis_event(InputDeviceType::JOYPAD
-						, i
+					_queue->push_axis_event(InputDeviceType::JOYPAD
+						, joypad_id
 						, axis_map[ev.number]
 						, 0
 						, 0
 						, values[2]
 						);
 				} else if (ev.number < countof(axis_map)) {
-					queue.push_axis_event(InputDeviceType::JOYPAD
-						, i
+					_queue->push_axis_event(InputDeviceType::JOYPAD
+						, joypad_id
 						, axis_map[ev.number]
 						, values[0]
 						, -values[1]
@@ -280,16 +264,36 @@ struct Joypad
 
 			case JS_EVENT_BUTTON:
 				if (ev.number < countof(s_button)) {
-					queue.push_button_event(InputDeviceType::JOYPAD
-						, i
+					_queue->push_button_event(InputDeviceType::JOYPAD
+						, joypad_id
 						, s_button[ev.number]
-						, val == 1
+						, ev.value == 1
 						);
 				}
 				break;
 
 			default:
 				break;
+			}
+		}
+	}
+
+	void update(fd_set *fdset)
+	{
+		for (u8 ii = 0; ii < CROWN_MAX_JOYPADS; ++ii) {
+			if (_fd[ii] == -1 || !FD_ISSET(_fd[ii], fdset))
+				continue;
+
+			// Read all events.
+			JoypadEvent events[64];
+			ssize_t num_bytes = read(_fd[ii], &events, sizeof(events));
+
+			if (num_bytes > 0) {
+				process_events(ii, events, num_bytes/ssize_t(sizeof(events[0])));
+			} else {
+				::close(_fd[ii]);
+				_fd[ii] = -1;
+				_queue->push_status_event(InputDeviceType::JOYPAD, ii, false);
 			}
 		}
 	}
@@ -331,6 +335,7 @@ struct LinuxDevice
 		, _screen_config(NULL)
 		, _events(a)
 		, _queue(push_event)
+		, _joypad(_queue)
 		, _x11_window(None)
 		, _mouse_last_x(INT16_MAX)
 		, _mouse_last_y(INT16_MAX)
@@ -592,7 +597,7 @@ struct LinuxDevice
 					}
 				}
 			} else {
-				_joypad.update(_queue, &fdset);
+				_joypad.update(&fdset);
 			}
 		}
 
