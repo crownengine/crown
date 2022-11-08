@@ -2660,6 +2660,46 @@ private void device_frame_delayed(uint delay_ms, ConsoleClient client)
 
 public static int main(string[] args)
 {
+	// Redirect GLib logs to internal log*().
+	GLib.set_print_handler((msg) => { logi(msg); });
+	GLib.set_printerr_handler((msg) => { loge(msg); });
+
+	GLib.Log.set_writer_func((log_level, fields) => {
+			foreach (var field in fields) {
+				if (field.key == "MESSAGE") {
+					switch (log_level) {
+					case LEVEL_DEBUG:
+#if CROWN_DEBUG
+						logi((string)field.value);
+#endif
+						break;
+
+					case LEVEL_INFO:
+					case LEVEL_MESSAGE:
+						logi((string)field.value);
+						break;
+
+					case LEVEL_CRITICAL:
+					case LEVEL_WARNING:
+						logw((string)field.value);
+						break;
+
+					case LEVEL_ERROR:
+						loge((string)field.value);
+						break;
+
+					default:
+						logw((string)field.value);
+						break;
+					}
+
+					return GLib.LogWriterOutput.HANDLED;
+				}
+			}
+
+			return GLib.LogWriterOutput.UNHANDLED;
+		});
+
 	// If args does not contain --child, spawn the launcher.
 	int ii;
 	for (ii = 0; ii < args.length; ++ii) {
