@@ -283,7 +283,7 @@ public class EditorView : Gtk.EventBox
 			_resize_timer_id = GLib.Timeout.add_full(GLib.Priority.DEFAULT, 200, () => {
 					_client.send(DeviceApi.frame());
 					_resize_timer_id = 0;
-					return false; // Destroy the timeout.
+					return GLib.Source.REMOVE;
 				});
 		}
 	}

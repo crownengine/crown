@@ -1744,7 +1744,7 @@ public class LevelEditorApplication : Gtk.Application
 		if (_level._path != null)
 			save();
 
-		return true;
+		return GLib.Source.CONTINUE;
 	}
 
 	protected override void shutdown()
@@ -2654,7 +2654,7 @@ private void device_frame_delayed(uint delay_ms, ConsoleClient client)
 	// See: https://blogs.gnome.org/jnelson/2010/10/13/those-realize-map-widget-signals/
 	GLib.Timeout.add_full(GLib.Priority.DEFAULT, delay_ms, () => {
 			client.send(DeviceApi.frame());
-			return false;
+			return GLib.Source.REMOVE;
 		});
 }
 
