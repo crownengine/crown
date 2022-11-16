@@ -524,7 +524,7 @@ public class LevelEditorApplication : Gtk.Application
 		_editor_stack_disconnected_label = new Gtk.Label("Disconnected.");
 		_editor_stack.add(_editor_stack_disconnected_label);
 		_editor_stack_oops_label = new Gtk.Label(null);
-		_editor_stack_oops_label.set_markup("Something went wrong.\rTry to <a href=\"restart\">restart</a> this view.");
+		_editor_stack_oops_label.set_markup("Something went wrong.\rTry to <a href=\"restart\">restart this view</a>.");
 		_editor_stack_oops_label.activate_link.connect(() => {
 				activate_action("restart-editor-view", null);
 				return true;
@@ -538,7 +538,7 @@ public class LevelEditorApplication : Gtk.Application
 		_resource_preview_disconnected_label = new Gtk.Label("Disconnected");
 		_resource_preview_stack.add(_resource_preview_disconnected_label);
 		_resource_preview_oops_label = new Gtk.Label(null);
-		_resource_preview_oops_label.set_markup("Something went wrong.\rTry to <a href=\"restart\">restart</a> this view.");
+		_resource_preview_oops_label.set_markup("Something went wrong.\rTry to <a href=\"restart\">restart this view</a>.");
 		_resource_preview_oops_label.activate_link.connect(() => {
 				restart_resource_preview.begin((obj, res) => {
 						restart_resource_preview.end(res);
@@ -1079,7 +1079,7 @@ public class LevelEditorApplication : Gtk.Application
 	Gtk.Label compiler_crashed_label()
 	{
 		Gtk.Label label = new Gtk.Label(null);
-		label.set_markup("Data Compiler disconnected.\rTry to <a href=\"restart\">restart</a> compiler to continue.");
+		label.set_markup("Data Compiler disconnected.\rTry to <a href=\"restart\">restart the compiler</a> to continue.");
 		label.activate_link.connect(() => {
 				restart_backend.begin(_project.source_dir(), _level._name != null ? _level._name : "");
 				return true;
@@ -1091,7 +1091,7 @@ public class LevelEditorApplication : Gtk.Application
 	Gtk.Label compiler_failed_compilation_label()
 	{
 		Gtk.Label label = new Gtk.Label(null);
-		label.set_markup("Data compilation failed.\rFix errors and <a href=\"restart\">restart</a> compiler to continue.");
+		label.set_markup("Data compilation failed.\rFix errors and <a href=\"restart\">restart the compiler</a> to continue.");
 		label.activate_link.connect(() => {
 				restart_backend.begin(_project.source_dir(), _level._name != null ? _level._name : "");
 				return true;
