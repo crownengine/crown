@@ -142,7 +142,7 @@ public static int launcher_main(string[] args)
 	subprocesses = new Gee.ArrayList<GLib.Subprocess?>();
 	GLib.Pid child_pid = 0;
 
-#if 0 && CROWN_PLATFORM_LINUX
+#if CROWN_PLATFORM_LINUX
 	// Signal handlers.
 	GLib.Unix.signal_add(Posix.Signal.INT, () => {
 			if (child_pid != 0)
