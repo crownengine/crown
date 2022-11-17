@@ -408,11 +408,10 @@ public class Database
 	public signal void object_destroyed(Guid id);
 	public signal void undo_redo(bool undo, uint32 id, Guid[] data);
 
-	public Database()
+	public Database(UndoRedo? undo_redo = null)
 	{
 		_data = new HashMap<Guid?, HashMap<string, Value?>>(Guid.hash_func, Guid.equal_func);
-
-		_undo_redo = new UndoRedo();
+		_undo_redo = undo_redo;
 
 		reset();
 	}

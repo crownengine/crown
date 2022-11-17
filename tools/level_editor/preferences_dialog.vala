@@ -29,6 +29,7 @@ public class PreferencesDialog : Gtk.Dialog
 	public PropertyGridSet _viewport_set;
 
 	// System page.
+	public EntryDouble _undo_redo_max_size;
 	public EntryDouble _log_delete_after_days;
 	public EntryDouble _console_max_lines;
 	public PropertyGridSet _system_set;
@@ -125,11 +126,13 @@ public class PreferencesDialog : Gtk.Dialog
 		_viewport_set.add_property_grid(cv, "Level");
 
 		// Memory and limits page.
+		_undo_redo_max_size = new EntryDouble(8, 1, 2048);
 		_log_delete_after_days = new EntryDouble(10, 0, 90);
 		_console_max_lines = new EntryDouble(256, 10, 1024);
 
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
+		cv.add_row("Undo/Redo max size (MiB)", _undo_redo_max_size);
 		cv.add_row("Delete logs older than (days)", _log_delete_after_days);
 		cv.add_row("Console max lines", _console_max_lines);
 		_system_set.add_property_grid(cv, "Memory and Limits");
@@ -197,6 +200,7 @@ public class PreferencesDialog : Gtk.Dialog
 		_axis_selected_color_button.value = Vector3.from_array(preferences.has_key("axis_selected") ? (Gee.ArrayList<GLib.Value?>)preferences["axis_selected"] : _axis_selected_color_button.value.to_array());
 		_gizmo_size_spin_button.value     = preferences.has_key("gizmo_size") ? (double)preferences["gizmo_size"] : _gizmo_size_spin_button.value;
 		_level_autosave_spin_button.value = preferences.has_key("autosave_timer") ? (double)preferences["autosave_timer"] : _level_autosave_spin_button.value;
+		_undo_redo_max_size.value         = (preferences.has_key("undo_redo_max_size") ? (double)preferences["undo_redo_max_size"] : _undo_redo_max_size.value);
 		_log_delete_after_days.value      = preferences.has_key("log_expiration") ? (double)preferences["log_expiration"] : _log_delete_after_days.value;
 		_console_max_lines.value          = preferences.has_key("console_max_lines") ? (double)preferences["console_max_lines"] : _console_max_lines.value;
 
@@ -265,6 +269,7 @@ public class PreferencesDialog : Gtk.Dialog
 		preferences["axis_selected"]  = _axis_selected_color_button.value.to_array();
 		preferences["gizmo_size"]     = _gizmo_size_spin_button.value;
 		preferences["autosave_timer"] = _level_autosave_spin_button.value;
+		preferences["undo_redo_max_size"] = _undo_redo_max_size.value;
 		preferences["log_expiration"] = _log_delete_after_days.value;
 		preferences["console_max_lines"] = _console_max_lines.value;
 		preferences["theme"]          = _theme_combo.value;

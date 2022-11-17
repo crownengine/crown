@@ -16,6 +16,7 @@ Changelog
 
 **Tools**
 
+* Added the ability to set a limit to the memory used by the undo/redo system.
 * The editor now uses an external service to launch subprocesses and clean them up effectively after crashes.
 * Fixed crashes in the undo/redo system.
 * Fixed minor issues when toggling the Console.

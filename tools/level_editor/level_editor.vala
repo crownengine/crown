@@ -285,6 +285,7 @@ public class LevelEditorApplication : Gtk.Application
 	private ConsoleClient _game;
 
 	// Level data
+	private UndoRedo _undo_redo;
 	private Database _database;
 	private Project _project;
 	private ProjectStore _project_store;
@@ -438,7 +439,14 @@ public class LevelEditorApplication : Gtk.Application
 
 		_data_compiler = new DataCompiler(_compiler);
 
-		_database = new Database();
+		uint32 undo_redo_size = DEFAULT_UNDO_REDO_MAX_SIZE;
+		if (_settings.has_key("preferences")) {
+			Hashtable preferences = (Hashtable)_settings["preferences"];
+			if (preferences.has_key("undo_redo_max_size"))
+				undo_redo_size = (uint32)(double)preferences["undo_redo_max_size"];
+		}
+		_undo_redo = new UndoRedo(undo_redo_size*1024*1024);
+		_database = new Database(_undo_redo);
 		_database.key_changed.connect(() => { update_active_window_title(); });
 
 		_project = new Project(_database, _data_compiler);
