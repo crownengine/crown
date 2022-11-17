@@ -7,6 +7,372 @@ using Gee;
 
 namespace Crown
 {
+public enum UndoRedoAction
+{
+	RESTORE_POINT = int.MAX;
+}
+
+public struct RestorePointHeader
+{
+	public uint32 id;
+	public uint32 size;
+	public uint32 num_guids;
+}
+
+public struct RestorePoint
+{
+	public RestorePointHeader header;
+	public Guid[] data;
+}
+
+public class Stack
+{
+	public uint32 _capacity;
+
+	public uint8[] _data;
+	public uint32 _read; // Position of the read/write head.
+	public uint32 _size; // Size of the data written in the stack.
+	public uint32 _last_write_restore_point_size; // Size when write_restore_point() was last called.
+
+	///
+	public Stack(uint32 capacity)
+	{
+		assert(capacity > 0);
+
+		_capacity = capacity;
+		_data = new uint8[_capacity];
+
+		clear();
+	}
+
+	///
+	public uint32 size()
+	{
+		return _size;
+	}
+
+	///
+	public void clear()
+	{
+		_read = 0;
+		_size = 0;
+		_last_write_restore_point_size = 0;
+	}
+
+	// Copies @a data into @a destination.
+	public void copy_data(uint8* destination, void* data, ulong len)
+	{
+		uint8* source = (uint8*)data;
+		for (ulong ii = 0; ii < len; ++ii)
+			destination[ii] = source[ii];
+	}
+
+	// Writes @a data into the current page.
+	public void write_data_internal(uint8* data, uint32 len)
+	{
+		assert(data != null);
+
+		uint32 bytes_left = len;
+		uint32 bytes_avail;
+
+		// Write the data that wraps around.
+		while (bytes_left > (bytes_avail = _capacity - _read)) {
+			copy_data(&_data[_read]
+				, ((uint8*)data) + (len - bytes_left)
+				, bytes_avail
+				);
+			_read = (_read + bytes_avail) % _capacity;
+			_size = uint32.min(_capacity, _size + bytes_avail);
+
+			bytes_left -= bytes_avail;
+		}
+
+		// Write the remaining data.
+		copy_data(&_data[_read]
+			, ((uint8*)data) + (len - bytes_left)
+			, bytes_left
+			);
+		_read += bytes_left;
+		_size = uint32.min(_capacity, _size + bytes_left);
+
+		_last_write_restore_point_size += len;
+	}
+
+	// Wrapper to avoid casting sizeof() manually.
+	public void write_data(void* data, ulong len)
+	{
+		write_data_internal((uint8*)data, (uint32)len);
+	}
+
+	public void read_data_internal(uint8* data, uint32 len)
+	{
+		assert(data != null);
+
+		uint32 bytes_left = len;
+
+		// Read the data that wraps around.
+		while (bytes_left > _read) {
+			copy_data(data + bytes_left - _read
+				, &_data[0]
+				, _read
+				);
+			bytes_left -= _read;
+			_size -= _read;
+			assert(_size <= _capacity);
+
+			_read = _capacity;
+		}
+
+		// Read the remaining data.
+		copy_data(data
+			, &_data[_read - bytes_left]
+			, bytes_left
+			);
+		_read -= bytes_left;
+		_size -= bytes_left;
+		assert(_size <= _capacity);
+	}
+
+	// Wrapper to avoid casting sizeof() manually.
+	public void read_data(void* data, ulong size)
+	{
+		read_data_internal((uint8*)data, (uint32)size);
+	}
+
+	public void write_bool(bool a)
+	{
+		write_data(&a, sizeof(bool));
+	}
+
+	public void write_uint32(uint32 a)
+	{
+		write_data(&a, sizeof(uint32));
+	}
+
+	public void write_double(double a)
+	{
+		write_data(&a, sizeof(double));
+	}
+
+	public void write_string(string str)
+	{
+		uint32 len = str.length;
+		write_data(&str.data[0], len);
+		write_data(&len, sizeof(uint32));
+	}
+
+	public void write_guid(Guid a)
+	{
+		write_data(&a, sizeof(Guid));
+	}
+
+	public void write_vector3(Vector3 a)
+	{
+		write_data(&a, sizeof(Vector3));
+	}
+
+	public void write_quaternion(Quaternion a)
+	{
+		write_data(&a, sizeof(Quaternion));
+	}
+
+	public bool read_bool()
+	{
+		bool a = false;
+		read_data(&a, sizeof(bool));
+		return a;
+	}
+
+	public int read_int()
+	{
+		int a = 0;
+		read_data(&a, sizeof(int));
+		return a;
+	}
+
+	public uint32 read_uint32()
+	{
+		uint32 a = 0;
+		read_data(&a, sizeof(uint32));
+		return a;
+	}
+
+	public double read_double()
+	{
+		double a = 0;
+		read_data(&a, sizeof(double));
+		return a;
+	}
+
+	public Guid read_guid()
+	{
+		Guid a = GUID_ZERO;
+		read_data(&a, sizeof(Guid));
+		return a;
+	}
+
+	public Vector3 read_vector3()
+	{
+		Vector3 a = VECTOR3_ZERO;
+		read_data(&a, sizeof(Vector3));
+		return a;
+	}
+
+	public Quaternion read_quaternion()
+	{
+		Quaternion a = QUATERNION_IDENTITY;
+		read_data(&a, sizeof(Quaternion));
+		return a;
+	}
+
+	public string read_string()
+	{
+		uint32 len = 0;
+		read_data(&len, sizeof(uint32));
+		uint8[] str = new uint8[len + 1];
+		read_data(str, len);
+		str[len] = '\0';
+		return (string)str;
+	}
+
+	public void write_create_action(uint32 action, Guid id, string type)
+	{
+		write_string(type);
+		write_guid(id);
+		write_uint32(action);
+	}
+
+	public void write_destroy_action(uint32 action, Guid id, string type)
+	{
+		write_string(type);
+		write_guid(id);
+		write_uint32(action);
+	}
+
+	public void write_set_property_null_action(uint32 action, Guid id, string key)
+	{
+		// No value to push
+		write_string(key);
+		write_guid(id);
+		write_uint32(action);
+	}
+
+	public void write_set_property_bool_action(uint32 action, Guid id, string key, bool val)
+	{
+		write_bool(val);
+		write_string(key);
+		write_guid(id);
+		write_uint32(action);
+	}
+
+	public void write_set_property_double_action(uint32 action, Guid id, string key, double val)
+	{
+		write_double(val);
+		write_string(key);
+		write_guid(id);
+		write_uint32(action);
+	}
+
+	public void write_set_property_string_action(uint32 action, Guid id, string key, string val)
+	{
+		write_string(val);
+		write_string(key);
+		write_guid(id);
+		write_uint32(action);
+	}
+
+	public void write_set_property_guid_action(uint32 action, Guid id, string key, Guid val)
+	{
+		write_guid(val);
+		write_string(key);
+		write_guid(id);
+		write_uint32(action);
+	}
+
+	public void write_set_property_vector3_action(uint32 action, Guid id, string key, Vector3 val)
+	{
+		write_vector3(val);
+		write_string(key);
+		write_guid(id);
+		write_uint32(action);
+	}
+
+	public void write_set_property_quaternion_action(uint32 action, Guid id, string key, Quaternion val)
+	{
+		write_quaternion(val);
+		write_string(key);
+		write_guid(id);
+		write_uint32(action);
+	}
+
+	public void write_add_to_set_action(uint32 action, Guid id, string key, Guid item_id)
+	{
+		write_guid(item_id);
+		write_string(key);
+		write_guid(id);
+		write_uint32(action);
+	}
+
+	public void write_remove_from_set_action(uint32 action, Guid id, string key, Guid item_id)
+	{
+		write_guid(item_id);
+		write_string(key);
+		write_guid(id);
+		write_uint32(action);
+	}
+
+	public void write_restore_point(uint32 id, Guid[] data)
+	{
+		uint32 size = _last_write_restore_point_size;
+
+		uint32 num_guids = data.length;
+		for (uint32 i = 0; i < num_guids; ++i)
+			write_guid(data[i]);
+		write_uint32(num_guids);
+		write_uint32(size);
+		write_uint32(id);
+		write_uint32(UndoRedoAction.RESTORE_POINT);
+
+		_last_write_restore_point_size = 0;
+	}
+
+	public RestorePoint read_restore_point()
+	{
+		uint32 t = read_uint32();
+		assert(t == UndoRedoAction.RESTORE_POINT);
+
+		uint32 id = read_uint32();
+		uint32 size = read_uint32();
+		uint32 num_guids = read_uint32();
+		Guid[] ids = new Guid[num_guids];
+		for (uint32 i = 0; i < num_guids; ++i)
+			ids[i] = read_guid();
+
+		RestorePointHeader rph = { id, size, num_guids };
+		return { rph, ids };
+	}
+}
+
+public class UndoRedo
+{
+	public Stack _undo;
+	public Stack _redo;
+
+	///
+	public UndoRedo(uint32 undo_redo_size = 0)
+	{
+		uint32 size = uint32.max(1024, undo_redo_size);
+		_undo = new Stack(size);
+		_redo = new Stack(size);
+	}
+
+	public void reset()
+	{
+		_undo.clear();
+		_redo.clear();
+	}
+}
+
 public class Database
 {
 	private static bool _debug = false;
@@ -24,367 +390,12 @@ public class Database
 		SET_PROPERTY_VECTOR3,
 		SET_PROPERTY_QUATERNION,
 		ADD_TO_SET,
-		REMOVE_FROM_SET,
-		RESTORE_POINT
-	}
-
-	private struct RestorePointHeader
-	{
-		public uint32 id;
-		public uint32 size;
-		public uint32 num_guids;
-	}
-
-	private struct RestorePoint
-	{
-		public RestorePointHeader header;
-		public Guid[] data;
-	}
-
-	private class Stack
-	{
-		public uint32 _capacity;
-
-		public uint8[] _data;
-		public uint32 _read; // Position of the read/write head.
-		public uint32 _size; // Size of the data written in the stack.
-		public uint32 _last_write_restore_point_size; // Size when write_restore_point() was last called.
-
-		///
-		public Stack(uint32 capacity)
-		{
-			assert(capacity > 0);
-
-			_capacity = capacity;
-			_data = new uint8[_capacity];
-
-			clear();
-		}
-
-		///
-		public uint32 size()
-		{
-			return _size;
-		}
-
-		///
-		public void clear()
-		{
-			_read = 0;
-			_size = 0;
-			_last_write_restore_point_size = 0;
-		}
-
-		// Copies @a data into @a destination.
-		public void copy_data(uint8* destination, void* data, ulong len)
-		{
-			uint8* source = (uint8*)data;
-			for (ulong ii = 0; ii < len; ++ii)
-				destination[ii] = source[ii];
-		}
-
-		// Writes @a data into the current page.
-		public void write_data_internal(uint8* data, uint32 len)
-		{
-			assert(data != null);
-
-			uint32 bytes_left = len;
-			uint32 bytes_avail;
-
-			// Write the data that wraps around.
-			while (bytes_left > (bytes_avail = _capacity - _read)) {
-				copy_data(&_data[_read]
-					, ((uint8*)data) + (len - bytes_left)
-					, bytes_avail
-					);
-				_read = (_read + bytes_avail) % _capacity;
-				_size = uint32.min(_capacity, _size + bytes_avail);
-
-				bytes_left -= bytes_avail;
-			}
-
-			// Write the remaining data.
-			copy_data(&_data[_read]
-				, ((uint8*)data) + (len - bytes_left)
-				, bytes_left
-				);
-			_read += bytes_left;
-			_size = uint32.min(_capacity, _size + bytes_left);
-
-			_last_write_restore_point_size += len;
-		}
-
-		// Wrapper to avoid casting sizeof() manually.
-		public void write_data(void* data, ulong len)
-		{
-			write_data_internal((uint8*)data, (uint32)len);
-		}
-
-		public void read_data_internal(uint8* data, uint32 len)
-		{
-			assert(data != null);
-
-			uint32 bytes_left = len;
-
-			// Read the data that wraps around.
-			while (bytes_left > _read) {
-				copy_data(data + bytes_left - _read
-					, &_data[0]
-					, _read
-					);
-				bytes_left -= _read;
-				_size -= _read;
-				assert(_size <= _capacity);
-
-				_read = _capacity;
-			}
-
-			// Read the remaining data.
-			copy_data(data
-				, &_data[_read - bytes_left]
-				, bytes_left
-				);
-			_read -= bytes_left;
-			_size -= bytes_left;
-			assert(_size <= _capacity);
-		}
-
-		// Wrapper to avoid casting sizeof() manually.
-		public void read_data(void* data, ulong size)
-		{
-			read_data_internal((uint8*)data, (uint32)size);
-		}
-
-		public void write_bool(bool a)
-		{
-			write_data(&a, sizeof(bool));
-		}
-
-		public void write_uint32(uint32 a)
-		{
-			write_data(&a, sizeof(uint32));
-		}
-
-		public void write_double(double a)
-		{
-			write_data(&a, sizeof(double));
-		}
-
-		public void write_string(string str)
-		{
-			uint32 len = str.length;
-			write_data(&str.data[0], len);
-			write_data(&len, sizeof(uint32));
-		}
-
-		public void write_guid(Guid a)
-		{
-			write_data(&a, sizeof(Guid));
-		}
-
-		public void write_vector3(Vector3 a)
-		{
-			write_data(&a, sizeof(Vector3));
-		}
-
-		public void write_quaternion(Quaternion a)
-		{
-			write_data(&a, sizeof(Quaternion));
-		}
-
-		public void write_action(Action t)
-		{
-			write_uint32((uint32)t);
-		}
-
-		public Action read_action()
-		{
-			uint32 a = 0;
-			read_data(&a, sizeof(uint32));
-			return (Action)a;
-		}
-
-		public bool read_bool()
-		{
-			bool a = false;
-			read_data(&a, sizeof(bool));
-			return a;
-		}
-
-		public int read_int()
-		{
-			int a = 0;
-			read_data(&a, sizeof(int));
-			return a;
-		}
-
-		public uint32 read_uint32()
-		{
-			uint32 a = 0;
-			read_data(&a, sizeof(uint32));
-			return a;
-		}
-
-		public double read_double()
-		{
-			double a = 0;
-			read_data(&a, sizeof(double));
-			return a;
-		}
-
-		public Guid read_guid()
-		{
-			Guid a = GUID_ZERO;
-			read_data(&a, sizeof(Guid));
-			return a;
-		}
-
-		public Vector3 read_vector3()
-		{
-			Vector3 a = VECTOR3_ZERO;
-			read_data(&a, sizeof(Vector3));
-			return a;
-		}
-
-		public Quaternion read_quaternion()
-		{
-			Quaternion a = QUATERNION_IDENTITY;
-			read_data(&a, sizeof(Quaternion));
-			return a;
-		}
-
-		public string read_string()
-		{
-			uint32 len = 0;
-			read_data(&len, sizeof(uint32));
-			uint8[] str = new uint8[len + 1];
-			read_data(str, len);
-			str[len] = '\0';
-			return (string)str;
-		}
-
-		public void write_create_action(Guid id, string type)
-		{
-			write_string(type);
-			write_guid(id);
-			write_action(Action.CREATE);
-		}
-
-		public void write_destroy_action(Guid id, string type)
-		{
-			write_string(type);
-			write_guid(id);
-			write_action(Action.DESTROY);
-		}
-
-		public void write_set_property_null_action(Guid id, string key)
-		{
-			// No value to push
-			write_string(key);
-			write_guid(id);
-			write_action(Action.SET_PROPERTY_NULL);
-		}
-
-		public void write_set_property_bool_action(Guid id, string key, bool val)
-		{
-			write_bool(val);
-			write_string(key);
-			write_guid(id);
-			write_action(Action.SET_PROPERTY_BOOL);
-		}
-
-		public void write_set_property_double_action(Guid id, string key, double val)
-		{
-			write_double(val);
-			write_string(key);
-			write_guid(id);
-			write_action(Action.SET_PROPERTY_DOUBLE);
-		}
-
-		public void write_set_property_string_action(Guid id, string key, string val)
-		{
-			write_string(val);
-			write_string(key);
-			write_guid(id);
-			write_action(Action.SET_PROPERTY_STRING);
-		}
-
-		public void write_set_property_guid_action(Guid id, string key, Guid val)
-		{
-			write_guid(val);
-			write_string(key);
-			write_guid(id);
-			write_action(Action.SET_PROPERTY_GUID);
-		}
-
-		public void write_set_property_vector3_action(Guid id, string key, Vector3 val)
-		{
-			write_vector3(val);
-			write_string(key);
-			write_guid(id);
-			write_action(Action.SET_PROPERTY_VECTOR3);
-		}
-
-		public void write_set_property_quaternion_action(Guid id, string key, Quaternion val)
-		{
-			write_quaternion(val);
-			write_string(key);
-			write_guid(id);
-			write_action(Action.SET_PROPERTY_QUATERNION);
-		}
-
-		public void write_add_to_set_action(Guid id, string key, Guid item_id)
-		{
-			write_guid(item_id);
-			write_string(key);
-			write_guid(id);
-			write_action(Action.ADD_TO_SET);
-		}
-
-		public void write_remove_from_set_action(Guid id, string key, Guid item_id)
-		{
-			write_guid(item_id);
-			write_string(key);
-			write_guid(id);
-			write_action(Action.REMOVE_FROM_SET);
-		}
-
-		public void write_restore_point(uint32 id, Guid[] data)
-		{
-			uint32 size = _last_write_restore_point_size;
-
-			uint32 num_guids = data.length;
-			for (uint32 i = 0; i < num_guids; ++i)
-				write_guid(data[i]);
-			write_uint32(num_guids);
-			write_uint32(size);
-			write_uint32(id);
-			write_action(Action.RESTORE_POINT);
-
-			_last_write_restore_point_size = 0;
-		}
-
-		public RestorePoint read_restore_point()
-		{
-			Action t = read_action();
-			assert(t == Action.RESTORE_POINT);
-
-			uint32 id = read_uint32();
-			uint32 size = read_uint32();
-			uint32 num_guids = read_uint32();
-			Guid[] ids = new Guid[num_guids];
-			for (uint32 i = 0; i < num_guids; ++i)
-				ids[i] = read_guid();
-
-			RestorePointHeader rph = { id, size, num_guids };
-			return { rph, ids };
-		}
+		REMOVE_FROM_SET
 	}
 
 	// Data
 	private HashMap<Guid?, HashMap<string, Value?>> _data;
-	private Stack _undo;
-	private Stack _redo;
+	private UndoRedo? _undo_redo;
 	// The number of changes to the database since the last successful state
 	// synchronization (load(), save() etc.). If it is less than 0, the changes
 	// came from undo(), otherwise they came from redo() or from regular calls to
@@ -401,9 +412,7 @@ public class Database
 	{
 		_data = new HashMap<Guid?, HashMap<string, Value?>>(Guid.hash_func, Guid.equal_func);
 
-		const uint32 undo_redo_size = 1 * 1024;
-		_undo = new Stack(undo_redo_size);
-		_redo = new Stack(undo_redo_size);
+		_undo_redo = new UndoRedo();
 
 		reset();
 	}
@@ -412,8 +421,9 @@ public class Database
 	public void reset()
 	{
 		_data.clear();
-		_undo.clear();
-		_redo.clear();
+
+		if (_undo_redo != null)
+			_undo_redo.reset();
 
 		_distance_from_last_sync = 0;
 
@@ -808,8 +818,10 @@ public class Database
 		assert(id != GUID_ZERO);
 		assert(!has_object(id));
 
-		_undo.write_destroy_action(id, type);
-		_redo.clear();
+		if (_undo_redo != null) {
+			_undo_redo._undo.write_destroy_action(Action.DESTROY, id, type);
+			_undo_redo._redo.clear();
+		}
 
 		create_internal(1, id);
 		set_object_type(id, type);
@@ -840,8 +852,10 @@ public class Database
 			}
 		}
 
-		_undo.write_create_action(id, obj_type);
-		_redo.clear();
+		if (_undo_redo != null) {
+			_undo_redo._undo.write_create_action(Action.CREATE, id, obj_type);
+			_undo_redo._redo.clear();
+		}
 
 		destroy_internal(1, id);
 	}
@@ -852,25 +866,27 @@ public class Database
 		assert(is_valid_key(key));
 		assert(is_valid_value(null));
 
-		HashMap<string, Value?> ob = get_data(id);
-		if (ob.has_key(key) && ob[key] != null) {
-			if (ob[key].holds(typeof(bool)))
-				_undo.write_set_property_bool_action(id, key, (bool)ob[key]);
-			if (ob[key].holds(typeof(double)))
-				_undo.write_set_property_double_action(id, key, (double)ob[key]);
-			if (ob[key].holds(typeof(string)))
-				_undo.write_set_property_string_action(id, key, (string)ob[key]);
-			if (ob[key].holds(typeof(Guid)))
-				_undo.write_set_property_guid_action(id, key, (Guid)ob[key]);
-			if (ob[key].holds(typeof(Vector3)))
-				_undo.write_set_property_vector3_action(id, key, (Vector3)ob[key]);
-			if (ob[key].holds(typeof(Quaternion)))
-				_undo.write_set_property_quaternion_action(id, key, (Quaternion)ob[key]);
-		} else {
-			_undo.write_set_property_null_action(id, key);
-		}
+		if (_undo_redo != null) {
+			HashMap<string, Value?> ob = get_data(id);
+			if (ob.has_key(key) && ob[key] != null) {
+				if (ob[key].holds(typeof(bool)))
+					_undo_redo._undo.write_set_property_bool_action(Action.SET_PROPERTY_BOOL, id, key, (bool)ob[key]);
+				if (ob[key].holds(typeof(double)))
+					_undo_redo._undo.write_set_property_double_action(Action.SET_PROPERTY_DOUBLE, id, key, (double)ob[key]);
+				if (ob[key].holds(typeof(string)))
+					_undo_redo._undo.write_set_property_string_action(Action.SET_PROPERTY_STRING, id, key, (string)ob[key]);
+				if (ob[key].holds(typeof(Guid)))
+					_undo_redo._undo.write_set_property_guid_action(Action.SET_PROPERTY_GUID, id, key, (Guid)ob[key]);
+				if (ob[key].holds(typeof(Vector3)))
+					_undo_redo._undo.write_set_property_vector3_action(Action.SET_PROPERTY_VECTOR3, id, key, (Vector3)ob[key]);
+				if (ob[key].holds(typeof(Quaternion)))
+					_undo_redo._undo.write_set_property_quaternion_action(Action.SET_PROPERTY_QUATERNION, id, key, (Quaternion)ob[key]);
+			} else {
+				_undo_redo._undo.write_set_property_null_action(Action.SET_PROPERTY_NULL, id, key);
+			}
 
-		_redo.clear();
+			_undo_redo._redo.clear();
+		}
 
 		set_property_internal(1, id, key, null);
 	}
@@ -881,13 +897,15 @@ public class Database
 		assert(is_valid_key(key));
 		assert(is_valid_value(val));
 
-		HashMap<string, Value?> ob = get_data(id);
-		if (ob.has_key(key) && ob[key] != null)
-			_undo.write_set_property_bool_action(id, key, (bool)ob[key]);
-		else
-			_undo.write_set_property_null_action(id, key);
+		if (_undo_redo != null) {
+			HashMap<string, Value?> ob = get_data(id);
+			if (ob.has_key(key) && ob[key] != null)
+				_undo_redo._undo.write_set_property_bool_action(Action.SET_PROPERTY_BOOL, id, key, (bool)ob[key]);
+			else
+				_undo_redo._undo.write_set_property_null_action(Action.SET_PROPERTY_NULL, id, key);
 
-		_redo.clear();
+			_undo_redo._redo.clear();
+		}
 
 		set_property_internal(1, id, key, val);
 	}
@@ -898,13 +916,15 @@ public class Database
 		assert(is_valid_key(key));
 		assert(is_valid_value(val));
 
-		HashMap<string, Value?> ob = get_data(id);
-		if (ob.has_key(key) && ob[key] != null)
-			_undo.write_set_property_double_action(id, key, (double)ob[key]);
-		else
-			_undo.write_set_property_null_action(id, key);
+		if (_undo_redo != null) {
+			HashMap<string, Value?> ob = get_data(id);
+			if (ob.has_key(key) && ob[key] != null)
+				_undo_redo._undo.write_set_property_double_action(Action.SET_PROPERTY_DOUBLE, id, key, (double)ob[key]);
+			else
+				_undo_redo._undo.write_set_property_null_action(Action.SET_PROPERTY_NULL, id, key);
 
-		_redo.clear();
+			_undo_redo._redo.clear();
+		}
 
 		set_property_internal(1, id, key, val);
 	}
@@ -915,13 +935,15 @@ public class Database
 		assert(is_valid_key(key));
 		assert(is_valid_value(val));
 
-		HashMap<string, Value?> ob = get_data(id);
-		if (ob.has_key(key) && ob[key] != null)
-			_undo.write_set_property_string_action(id, key, (string)ob[key]);
-		else
-			_undo.write_set_property_null_action(id, key);
+		if (_undo_redo != null) {
+			HashMap<string, Value?> ob = get_data(id);
+			if (ob.has_key(key) && ob[key] != null)
+				_undo_redo._undo.write_set_property_string_action(Action.SET_PROPERTY_STRING, id, key, (string)ob[key]);
+			else
+				_undo_redo._undo.write_set_property_null_action(Action.SET_PROPERTY_NULL, id, key);
 
-		_redo.clear();
+			_undo_redo._redo.clear();
+		}
 
 		set_property_internal(1, id, key, val);
 	}
@@ -932,13 +954,15 @@ public class Database
 		assert(is_valid_key(key));
 		assert(is_valid_value(val));
 
-		HashMap<string, Value?> ob = get_data(id);
-		if (ob.has_key(key) && ob[key] != null)
-			_undo.write_set_property_guid_action(id, key, (Guid)ob[key]);
-		else
-			_undo.write_set_property_null_action(id, key);
+		if (_undo_redo != null) {
+			HashMap<string, Value?> ob = get_data(id);
+			if (ob.has_key(key) && ob[key] != null)
+				_undo_redo._undo.write_set_property_guid_action(Action.SET_PROPERTY_GUID, id, key, (Guid)ob[key]);
+			else
+				_undo_redo._undo.write_set_property_null_action(Action.SET_PROPERTY_NULL, id, key);
 
-		_redo.clear();
+			_undo_redo._redo.clear();
+		}
 
 		set_property_internal(1, id, key, val);
 	}
@@ -949,13 +973,15 @@ public class Database
 		assert(is_valid_key(key));
 		assert(is_valid_value(val));
 
-		HashMap<string, Value?> ob = get_data(id);
-		if (ob.has_key(key) && ob[key] != null)
-			_undo.write_set_property_vector3_action(id, key, (Vector3)ob[key]);
-		else
-			_undo.write_set_property_null_action(id, key);
+		if (_undo_redo != null) {
+			HashMap<string, Value?> ob = get_data(id);
+			if (ob.has_key(key) && ob[key] != null)
+				_undo_redo._undo.write_set_property_vector3_action(Action.SET_PROPERTY_VECTOR3, id, key, (Vector3)ob[key]);
+			else
+				_undo_redo._undo.write_set_property_null_action(Action.SET_PROPERTY_NULL, id, key);
 
-		_redo.clear();
+			_undo_redo._redo.clear();
+		}
 
 		set_property_internal(1, id, key, val);
 	}
@@ -966,13 +992,15 @@ public class Database
 		assert(is_valid_key(key));
 		assert(is_valid_value(val));
 
-		HashMap<string, Value?> ob = get_data(id);
-		if (ob.has_key(key) && ob[key] != null)
-			_undo.write_set_property_quaternion_action(id, key, (Quaternion)ob[key]);
-		else
-			_undo.write_set_property_null_action(id, key);
+		if (_undo_redo != null) {
+			HashMap<string, Value?> ob = get_data(id);
+			if (ob.has_key(key) && ob[key] != null)
+				_undo_redo._undo.write_set_property_quaternion_action(Action.SET_PROPERTY_QUATERNION, id, key, (Quaternion)ob[key]);
+			else
+				_undo_redo._undo.write_set_property_null_action(Action.SET_PROPERTY_NULL, id, key);
 
-		_redo.clear();
+			_undo_redo._redo.clear();
+		}
 
 		set_property_internal(1, id, key, val);
 	}
@@ -984,8 +1012,10 @@ public class Database
 		assert(item_id != GUID_ZERO);
 		assert(has_object(item_id));
 
-		_undo.write_remove_from_set_action(id, key, item_id);
-		_redo.clear();
+		if (_undo_redo != null) {
+			_undo_redo._undo.write_remove_from_set_action(Action.REMOVE_FROM_SET, id, key, item_id);
+			_undo_redo._redo.clear();
+		}
 
 		add_to_set_internal(1, id, key, item_id);
 	}
@@ -996,8 +1026,10 @@ public class Database
 		assert(is_valid_key(key));
 		assert(item_id != GUID_ZERO);
 
-		_undo.write_add_to_set_action(id, key, item_id);
-		_redo.clear();
+		if (_undo_redo != null) {
+			_undo_redo._undo.write_add_to_set_action(Action.ADD_TO_SET, id, key, item_id);
+			_undo_redo._redo.clear();
+		}
 
 		remove_from_set_internal(1, id, key, item_id);
 	}
@@ -1088,11 +1120,12 @@ public class Database
 	public void add_restore_point(int id, Guid[] data)
 	{
 		if (_debug)
-			logi("add_restore_point %d, undo size = %u".printf(id, _undo.size()));
+			logi("add_restore_point %d, undo size = %u".printf(id, _undo_redo._undo.size()));
 
-		_undo.write_restore_point(id, data);
-
-		_redo.clear();
+		if (_undo_redo != null) {
+			_undo_redo._undo.write_restore_point(id, data);
+			_undo_redo._redo.clear();
+		}
 	}
 
 	/// Duplicates the object specified by id and assign new_id to the duplicated object.
@@ -1188,6 +1221,7 @@ public class Database
 		rp = stack.read_restore_point();
 
 		if (stack.size() < rp.header.size) {
+			// The restore point has been overwritten.
 			stack.clear();
 			return -1;
 		}
@@ -1199,13 +1233,17 @@ public class Database
 	// action to undo.
 	public int undo()
 	{
-		RestorePoint rp;
-		if (try_read_restore_point(out rp, _undo) != 0)
+		if (_undo_redo == null)
 			return -1;
 
-		undo_or_redo(_undo, _redo, rp.header.size);
+		RestorePoint rp;
+		if (try_read_restore_point(out rp, _undo_redo._undo) != 0)
+			return -1;
+
+		undo_or_redo(_undo_redo._undo, _undo_redo._redo, rp.header.size);
+
 		undo_redo(true, rp.header.id, rp.data);
-		_redo.write_restore_point(rp.header.id, rp.data);
+		_undo_redo._redo.write_restore_point(rp.header.id, rp.data);
 
 		return (int)rp.header.id;
 	}
@@ -1214,13 +1252,17 @@ public class Database
 	// action to redo.
 	public int redo()
 	{
-		RestorePoint rp;
-		if (try_read_restore_point(out rp, _redo) != 0)
+		if (_undo_redo == null)
 			return -1;
 
-		undo_or_redo(_redo, _undo, rp.header.size);
+		RestorePoint rp;
+		if (try_read_restore_point(out rp, _undo_redo._redo) != 0)
+			return -1;
+
+		undo_or_redo(_undo_redo._redo, _undo_redo._undo, rp.header.size);
+
 		undo_redo(false, rp.header.id, rp.data);
-		_undo.write_restore_point(rp.header.id, rp.data);
+		_undo_redo._undo.write_restore_point(rp.header.id, rp.data);
 
 		return (int)rp.header.id;
 	}
@@ -1229,24 +1271,24 @@ public class Database
 	{
 		assert(undo.size() >= restore_point_size);
 
-		int dir = undo == _undo ? -1 : 1;
+		int dir = undo == _undo_redo._undo ? -1 : 1;
 
 		// Read up to restore_point_size bytes.
 		uint32 undo_size_start = undo.size();
 		while (undo_size_start - undo.size() < restore_point_size) {
-			Action action = undo.read_action();
+			Action action = undo.read_uint32();
 			if (action == Action.CREATE) {
 				Guid id = undo.read_guid();
 				string obj_type = undo.read_string();
 
-				redo.write_destroy_action(id, obj_type);
+				redo.write_destroy_action(Action.DESTROY, id, obj_type);
 				create_internal(dir, id);
 				set_object_type(id, obj_type);
 			} else if (action == Action.DESTROY) {
 				Guid id = undo.read_guid();
 				string obj_type = undo.read_string();
 
-				redo.write_create_action(id, obj_type);
+				redo.write_create_action(Action.CREATE, id, obj_type);
 				destroy_internal(dir, id);
 			} else if (action == Action.SET_PROPERTY_NULL) {
 				Guid id = undo.read_guid();
@@ -1254,19 +1296,19 @@ public class Database
 
 				if (has_property(id, key)) {
 					if (get_data(id)[key].holds(typeof(bool)))
-						redo.write_set_property_bool_action(id, key, get_property_bool(id, key));
+						redo.write_set_property_bool_action(Action.SET_PROPERTY_BOOL, id, key, get_property_bool(id, key));
 					if (get_data(id)[key].holds(typeof(double)))
-						redo.write_set_property_double_action(id, key, get_property_double(id, key));
+						redo.write_set_property_double_action(Action.SET_PROPERTY_DOUBLE, id, key, get_property_double(id, key));
 					if (get_data(id)[key].holds(typeof(string)))
-						redo.write_set_property_string_action(id, key, get_property_string(id, key));
+						redo.write_set_property_string_action(Action.SET_PROPERTY_STRING, id, key, get_property_string(id, key));
 					if (get_data(id)[key].holds(typeof(Guid)))
-						redo.write_set_property_guid_action(id, key, get_property_guid(id, key));
+						redo.write_set_property_guid_action(Action.SET_PROPERTY_GUID, id, key, get_property_guid(id, key));
 					if (get_data(id)[key].holds(typeof(Vector3)))
-						redo.write_set_property_vector3_action(id, key, get_property_vector3(id, key));
+						redo.write_set_property_vector3_action(Action.SET_PROPERTY_VECTOR3, id, key, get_property_vector3(id, key));
 					if (get_data(id)[key].holds(typeof(Quaternion)))
-						redo.write_set_property_quaternion_action(id, key, get_property_quaternion(id, key));
+						redo.write_set_property_quaternion_action(Action.SET_PROPERTY_QUATERNION, id, key, get_property_quaternion(id, key));
 				} else {
-					redo.write_set_property_null_action(id, key);
+					redo.write_set_property_null_action(Action.SET_PROPERTY_NULL, id, key);
 				}
 				set_property_internal(dir, id, key, null);
 			} else if (action == Action.SET_PROPERTY_BOOL) {
@@ -1275,9 +1317,9 @@ public class Database
 				bool val = undo.read_bool();
 
 				if (has_property(id, key))
-					redo.write_set_property_bool_action(id, key, get_property_bool(id, key));
+					redo.write_set_property_bool_action(Action.SET_PROPERTY_BOOL, id, key, get_property_bool(id, key));
 				else
-					redo.write_set_property_null_action(id, key);
+					redo.write_set_property_null_action(Action.SET_PROPERTY_NULL, id, key);
 				set_property_internal(dir, id, key, val);
 			} else if (action == Action.SET_PROPERTY_DOUBLE) {
 				Guid id = undo.read_guid();
@@ -1285,9 +1327,9 @@ public class Database
 				double val = undo.read_double();
 
 				if (has_property(id, key))
-					redo.write_set_property_double_action(id, key, get_property_double(id, key));
+					redo.write_set_property_double_action(Action.SET_PROPERTY_DOUBLE, id, key, get_property_double(id, key));
 				else
-					redo.write_set_property_null_action(id, key);
+					redo.write_set_property_null_action(Action.SET_PROPERTY_NULL, id, key);
 				set_property_internal(dir, id, key, val);
 			} else if (action == Action.SET_PROPERTY_STRING) {
 				Guid id = undo.read_guid();
@@ -1295,9 +1337,9 @@ public class Database
 				string val = undo.read_string();
 
 				if (has_property(id, key))
-					redo.write_set_property_string_action(id, key, get_property_string(id, key));
+					redo.write_set_property_string_action(Action.SET_PROPERTY_STRING, id, key, get_property_string(id, key));
 				else
-					redo.write_set_property_null_action(id, key);
+					redo.write_set_property_null_action(Action.SET_PROPERTY_NULL, id, key);
 				set_property_internal(dir, id, key, val);
 			} else if (action == Action.SET_PROPERTY_GUID) {
 				Guid id = undo.read_guid();
@@ -1305,9 +1347,9 @@ public class Database
 				Guid val = undo.read_guid();
 
 				if (has_property(id, key))
-					redo.write_set_property_guid_action(id, key, get_property_guid(id, key));
+					redo.write_set_property_guid_action(Action.SET_PROPERTY_GUID, id, key, get_property_guid(id, key));
 				else
-					redo.write_set_property_null_action(id, key);
+					redo.write_set_property_null_action(Action.SET_PROPERTY_NULL, id, key);
 				set_property_internal(dir, id, key, val);
 			} else if (action == Action.SET_PROPERTY_VECTOR3) {
 				Guid id = undo.read_guid();
@@ -1315,9 +1357,9 @@ public class Database
 				Vector3 val = undo.read_vector3();
 
 				if (has_property(id, key))
-					redo.write_set_property_vector3_action(id, key, get_property_vector3(id, key));
+					redo.write_set_property_vector3_action(Action.SET_PROPERTY_VECTOR3, id, key, get_property_vector3(id, key));
 				else
-					redo.write_set_property_null_action(id, key);
+					redo.write_set_property_null_action(Action.SET_PROPERTY_NULL, id, key);
 				set_property_internal(dir, id, key, val);
 			} else if (action == Action.SET_PROPERTY_QUATERNION) {
 				Guid id = undo.read_guid();
@@ -1325,23 +1367,23 @@ public class Database
 				Quaternion val = undo.read_quaternion();
 
 				if (has_property(id, key))
-					redo.write_set_property_quaternion_action(id, key, get_property_quaternion(id, key));
+					redo.write_set_property_quaternion_action(Action.SET_PROPERTY_QUATERNION, id, key, get_property_quaternion(id, key));
 				else
-					redo.write_set_property_null_action(id, key);
+					redo.write_set_property_null_action(Action.SET_PROPERTY_NULL, id, key);
 				set_property_internal(dir, id, key, val);
 			} else if (action == Action.ADD_TO_SET) {
 				Guid id = undo.read_guid();
 				string key = undo.read_string();
 				Guid item_id = undo.read_guid();
 
-				redo.write_remove_from_set_action(id, key, item_id);
+				redo.write_remove_from_set_action(Action.REMOVE_FROM_SET, id, key, item_id);
 				add_to_set_internal(dir, id, key, item_id);
 			} else if (action == Action.REMOVE_FROM_SET) {
 				Guid id = undo.read_guid();
 				string key = undo.read_string();
 				Guid item_id = undo.read_guid();
 
-				redo.write_add_to_set_action(id, key, item_id);
+				redo.write_add_to_set_action(Action.ADD_TO_SET, id, key, item_id);
 				remove_from_set_internal(dir, id, key, item_id);
 			}
 		}
