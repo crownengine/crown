@@ -270,30 +270,32 @@ void ConsoleServer::execute_message_handlers(bool sync)
 		const char *msg = array::begin(*_input_read) + fb.position();
 		br.skip(msg_len);
 
-		// Process message.
-		JsonObject obj(default_allocator());
-		sjson::parse(obj, msg);
+		if (msg_len > 0) {
+			// Process the message if any.
+			JsonObject obj(default_allocator());
+			sjson::parse(obj, msg);
 
-		if (!json_object::has(obj, "type")) {
-			error(client_id, "Missing command type");
-			continue;
+			if (!json_object::has(obj, "type")) {
+				error(client_id, "Missing command type");
+				continue;
+			}
+
+			// Find handler for the message type.
+			CommandData cmd;
+			cmd.message_function = NULL;
+			cmd.user_data = NULL;
+			cmd = hash_map::get(_messages
+				, sjson::parse_string_id(obj["type"])
+				, cmd
+				);
+			if (!cmd.message_function) {
+				error(client_id, "Unknown command type");
+				continue;
+			}
+
+			// Call the handler.
+			cmd.message_function(*this, client_id, msg, cmd.user_data);
 		}
-
-		// Find handler for the message type.
-		CommandData cmd;
-		cmd.message_function = NULL;
-		cmd.user_data = NULL;
-		cmd = hash_map::get(_messages
-			, sjson::parse_string_id(obj["type"])
-			, cmd
-			);
-		if (!cmd.message_function) {
-			error(client_id, "Unknown command type");
-			continue;
-		}
-
-		// Call the handler.
-		cmd.message_function(*this, client_id, msg, cmd.user_data);
 	}
 
 	array::clear(*_input_read);
