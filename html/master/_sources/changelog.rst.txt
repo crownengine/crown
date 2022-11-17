@@ -8,9 +8,17 @@ Changelog
 **Data Compiler**
 
 * Fixed file changes not detected sometimes.
+* Fixed Ctrl+C/SIGTERM/SIGINT not being honored when launched with --server.
+
+**Runtime**
+
+* Windows: reduced CPU usage by polling joypads' status in a background thread.
 
 **Tools**
 
+* Added the ability to set a limit to the memory used by the undo/redo system.
+* The editor now uses an external service to launch subprocesses and clean them up effectively after crashes.
+* Fixed crashes in the undo/redo system.
 * Fixed minor issues when toggling the Console.
 * Fixed the Project Browser not being able to obtain keyboard focus.
 * Fixed minor aesthetic issues.
