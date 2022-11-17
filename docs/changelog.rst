@@ -17,6 +17,7 @@ Changelog
 **Tools**
 
 * The editor now uses an external service to launch subprocesses and clean them up effectively after crashes.
+* Fixed crashes in the undo/redo system.
 * Fixed minor issues when toggling the Console.
 * Fixed the Project Browser not being able to obtain keyboard focus.
 * Fixed minor aesthetic issues.
