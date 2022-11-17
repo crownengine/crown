@@ -167,25 +167,32 @@ void ConsoleServer::listen(u16 port, bool wait)
 	_input_thread.start([](void *thiz) { return ((ConsoleServer *)thiz)->run_input_thread(); }, this);
 	_output_thread.start([](void *thiz) { return ((ConsoleServer *)thiz)->run_output_thread(); }, this);
 
+	// Connect a dummy client to the _server to
+	// unlock the input_thread later at exit.
+	_dummy_client.connect(IP_ADDRESS_LOOPBACK, _port);
+	_client_connected.wait();
+
+	// Wait for real clients to connect.
 	if (wait)
 		_client_connected.wait();
 }
 
-void ConsoleServer::shutdown()
+void ConsoleServer::close()
 {
 	_thread_exit = true;
 
-	if (_input_thread.is_running()) {
-		// Unlock input thread if it is stuck waiting for _handlers_semaphore.
-		execute_message_handlers(false);
+	// Unlock input thread if it is stuck inside the select().
+	u32 blank_header = 0;
+	_dummy_client.write(&blank_header, sizeof(blank_header));
+}
 
-		// Unlock input thread if it is stuck inside the select().
-		TCPSocket dummy;
-		dummy.connect(IP_ADDRESS_LOOPBACK, _port);
+void ConsoleServer::shutdown()
+{
+	close();
+	_dummy_client.close();
 
+	if (_input_thread.is_running())
 		_input_thread.stop();
-		dummy.close();
-	}
 
 	_output_condition.signal();
 	if (_output_thread.is_running())
@@ -397,7 +404,8 @@ s32 ConsoleServer::run_input_thread()
 
 		if (array::size(*_input_write) > 0) {
 			_input_semaphore.post();
-			_handlers_semaphore.wait();
+			if (!_thread_exit)
+				_handlers_semaphore.wait();
 		}
 	}
 

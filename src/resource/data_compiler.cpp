@@ -1227,25 +1227,43 @@ int main_data_compiler(const DeviceOptions &opts)
 #if CROWN_PLATFORM_WINDOWS
 	// code-format off
 	PHANDLER_ROUTINE signal_handler = [](DWORD dwCtrlType) {
-		switch (dwCtrlType) {
-		case CTRL_C_EVENT:
-			_quit = true;
-			return TRUE;
+			switch (dwCtrlType) {
+			case CTRL_C_EVENT:
+				_quit = true;
+				if (console_server())
+					console_server()->close();
+				return TRUE;
 
-		default:
-			return FALSE;
-		}
-	};
-	// code-format on
+			default:
+				return FALSE;
+			}
+		};
 	SetConsoleCtrlHandler(signal_handler, TRUE);
 #else
 	struct sigaction old_SIGINT;
+	struct sigaction old_SIGTERM;
 	struct sigaction act;
-	act.sa_handler = [](int /*signum*/) { _quit = true; };
+	act.sa_handler = [](int signum) {
+			switch (signum)
+			{
+			case SIGINT:
+			case SIGTERM:
+				_quit = true;
+				if (console_server())
+					console_server()->close();
+				break;
+
+			default:
+				break;
+			}
+		};
 	sigemptyset(&act.sa_mask);
 	act.sa_flags = 0;
 	sigaction(SIGINT, NULL, &old_SIGINT);
 	sigaction(SIGINT, &act, NULL);
+	sigaction(SIGTERM, NULL, &old_SIGTERM);
+	sigaction(SIGTERM, &act, NULL);
+	// code-format on
 #endif // if CROWN_PLATFORM_WINDOWS
 
 	console_server_globals::init();
@@ -1327,12 +1345,12 @@ int main_data_compiler(const DeviceOptions &opts)
 	CE_DELETE(default_allocator(), dc);
 	console_server_globals::shutdown();
 
-#if CROWN_PLATFORM_POSIX
-	// Restore original handler
-	sigaction(SIGINT, &old_SIGINT, NULL);
-#elif CROWN_PLATFORM_WINDOWS
-	// Restore original handler
+	// Restore original signal handlers.
+#if CROWN_PLATFORM_WINDOWS
 	SetConsoleCtrlHandler(signal_handler, FALSE);
+#else
+	sigaction(SIGINT, &old_SIGINT, NULL);
+	sigaction(SIGTERM, &old_SIGTERM, NULL);
 #endif
 
 	return success ? EXIT_SUCCESS : EXIT_FAILURE;

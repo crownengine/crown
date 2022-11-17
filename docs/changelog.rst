@@ -8,6 +8,7 @@ Changelog
 **Data Compiler**
 
 * Fixed file changes not detected sometimes.
+* Fixed Ctrl+C/SIGTERM/SIGINT not being honored when launched with --server.
 
 **Runtime**
 
