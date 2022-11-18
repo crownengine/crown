@@ -735,7 +735,7 @@ public class Database
 		assert(is_valid_value(value));
 
 		if (_debug)
-			logi("set_property %s %s %s".printf(id.to_string(), key, (value == null) ? "null" : value_to_string(value)));
+			logi("set_property %s %s %s".printf(id.to_string(), key, value_to_string(value)));
 
 		HashMap<string, Value?> ob = get_data(id);
 		ob[key] = value;
@@ -1052,7 +1052,7 @@ public class Database
 		Value? value = (ob.has_key(key) ? ob[key] : null);
 
 		if (_debug_getters)
-			logi("get_property %s %s %s".printf(id.to_string(), key, (value == null) ? "null" : value_to_string(value)));
+			logi("get_property %s %s %s".printf(id.to_string(), key, value_to_string(value)));
 
 		return value;
 	}
@@ -1100,7 +1100,7 @@ public class Database
 			value = deffault;
 
 		if (_debug_getters)
-			logi("get_property %s %s %s".printf(id.to_string(), key, (value == null) ? "null" : value_to_string(value)));
+			logi("get_property %s %s %s".printf(id.to_string(), key, value_to_string(value)));
 
 		return value;
 	}
