@@ -191,6 +191,7 @@ void ConsoleServer::shutdown()
 	close();
 	_dummy_client.close();
 
+	_handlers_semaphore.post();
 	if (_input_thread.is_running())
 		_input_thread.stop();
 
