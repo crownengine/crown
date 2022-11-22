@@ -28,24 +28,26 @@ struct PoolAllocator : public Allocator
 	/// Uses @a backing to allocate the memory pool for containing exactly
 	/// @a num_blocks blocks of @a block_size size each aligned to @a block_align.
 	PoolAllocator(Allocator &backing, u32 num_blocks, u32 block_size, u32 block_align = Allocator::DEFAULT_ALIGN);
+
+	///
 	~PoolAllocator();
 
 	/// Allocates a block of memory from the memory pool.
 	/// @note
 	/// The @a size and @a align must match those passed to PoolAllocator::PoolAllocator()
-	void *allocate(u32 size, u32 align = Allocator::DEFAULT_ALIGN);
+	void *allocate(u32 size, u32 align = Allocator::DEFAULT_ALIGN) override;
 
 	/// @copydoc Allocator::deallocate()
-	void deallocate(void *data);
+	void deallocate(void *data) override;
 
 	/// @copydoc Allocator::allocated_size()
-	u32 allocated_size(const void * /*ptr*/)
+	u32 allocated_size(const void * /*ptr*/) override
 	{
 		return SIZE_NOT_TRACKED;
 	}
 
 	/// @copydoc Allocator::total_allocated()
-	u32 total_allocated();
+	u32 total_allocated() override;
 };
 
 } // namespace crown

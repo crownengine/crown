@@ -123,7 +123,7 @@ namespace memory
 		}
 
 		/// @copydoc Allocator::allocate()
-		void *allocate(u32 size, u32 align = Allocator::DEFAULT_ALIGN)
+		void *allocate(u32 size, u32 align = Allocator::DEFAULT_ALIGN) override
 		{
 			ScopedMutex sm(_mutex);
 
@@ -143,7 +143,7 @@ namespace memory
 		}
 
 		/// @copydoc Allocator::deallocate()
-		void deallocate(void *data)
+		void deallocate(void *data) override
 		{
 			ScopedMutex sm(_mutex);
 
@@ -158,7 +158,7 @@ namespace memory
 			free(h);
 		}
 
-		void *reallocate(void *data, u32 size, u32 align)
+		void *reallocate(void *data, u32 size, u32 align) override
 		{
 			if (!data)
 				return allocate((u32)size, (u32)align == 0 ? 16 : (u32)align);
@@ -181,13 +181,13 @@ namespace memory
 		}
 
 		/// @copydoc Allocator::allocated_size()
-		u32 allocated_size(const void *ptr)
+		u32 allocated_size(const void *ptr) override
 		{
 			return get_size(ptr);
 		}
 
 		/// @copydoc Allocator::total_allocated()
-		u32 total_allocated()
+		u32 total_allocated() override
 		{
 			ScopedMutex sm(_mutex);
 			return _allocated_size;
@@ -260,7 +260,7 @@ namespace memory
 			return p >= _free || p < _allocate;
 		}
 
-		void *allocate(u32 size, u32 align)
+		void *allocate(u32 size, u32 align) override
 		{
 			ScopedMutex sm(_mutex);
 
@@ -291,7 +291,7 @@ namespace memory
 			return data;
 		}
 
-		void deallocate(void *p)
+		void deallocate(void *p) override
 		{
 			ScopedMutex sm(_mutex);
 
@@ -320,14 +320,14 @@ namespace memory
 			}
 		}
 
-		u32 allocated_size(const void *p)
+		u32 allocated_size(const void *p) override
 		{
 			ScopedMutex sm(_mutex);
 			Header *h = header(p);
 			return h->size - u32((char *)p - (char *)h);
 		}
 
-		u32 total_allocated()
+		u32 total_allocated() override
 		{
 			ScopedMutex sm(_mutex);
 			return u32(_end - _begin);

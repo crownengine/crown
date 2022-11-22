@@ -29,55 +29,55 @@ struct FileBuffer : public File
 		CE_NOOP();
 	}
 
-	virtual void open(const char *path, FileOpenMode::Enum mode)
+	virtual void open(const char *path, FileOpenMode::Enum mode) override
 	{
 		CE_UNUSED(path);
 		CE_UNUSED(mode);
 		CE_NOOP();
 	}
 
-	virtual void close()
+	virtual void close() override
 	{
 		_buffer = NULL;
 		_position = 0;
 	}
 
-	virtual bool is_open()
+	virtual bool is_open() override
 	{
 		return _buffer != NULL;
 	}
 
-	virtual u32 size()
+	virtual u32 size() override
 	{
 		return array::size(*_buffer);
 	}
 
-	virtual u32 position()
+	virtual u32 position() override
 	{
 		return _position;
 	}
 
-	virtual bool end_of_file()
+	virtual bool end_of_file() override
 	{
 		return _position == array::size(*_buffer);
 	}
 
-	virtual void seek(u32 position)
+	virtual void seek(u32 position) override
 	{
 		_position = min(array::size(*_buffer), position);
 	}
 
-	virtual void seek_to_end()
+	virtual void seek_to_end() override
 	{
 		_position = array::size(*_buffer);
 	}
 
-	virtual void skip(u32 bytes)
+	virtual void skip(u32 bytes) override
 	{
 		seek(_position + bytes);
 	}
 
-	virtual u32 read(void *data, u32 size)
+	virtual u32 read(void *data, u32 size) override
 	{
 		const u32 rest = array::size(*_buffer) - _position;
 		const u32 num = min(size, rest);
@@ -86,7 +86,7 @@ struct FileBuffer : public File
 		return num;
 	}
 
-	virtual u32 write(const void *data, u32 size)
+	virtual u32 write(const void *data, u32 size) override
 	{
 		_buffer->_size = _position;
 		array::push(*_buffer, (const char *)data, size);
@@ -94,7 +94,7 @@ struct FileBuffer : public File
 		return size;
 	}
 
-	virtual void flush()
+	virtual void flush() override
 	{
 		CE_NOOP();
 	}

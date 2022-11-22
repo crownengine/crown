@@ -27,26 +27,29 @@ struct StackAllocator : public Allocator
 	u32 _total_size;
 	u32 _allocation_count;
 
+	///
 	StackAllocator(char *begin, u32 size);
+
+	///
 	~StackAllocator();
 
 	/// @copydoc Allocator::allocate()
-	void *allocate(u32 size, u32 align = Allocator::DEFAULT_ALIGN);
+	void *allocate(u32 size, u32 align = Allocator::DEFAULT_ALIGN) override;
 
 	/// @copydoc Allocator::deallocate()
 	/// @note
 	/// Deallocations must occur in LIFO order i.e. the
 	/// last allocation must be freed for first.
-	void deallocate(void *data);
+	void deallocate(void *data) override;
 
 	/// @copydoc Allocator::allocated_size()
-	u32 allocated_size(const void * /*ptr*/)
+	u32 allocated_size(const void * /*ptr*/) override
 	{
 		return SIZE_NOT_TRACKED;
 	}
 
 	/// @copydoc Allocator::total_allocated()
-	u32 total_allocated();
+	u32 total_allocated() override;
 };
 
 } // namespace crown

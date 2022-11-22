@@ -629,17 +629,17 @@ struct WindowWin : public Window
 	{
 	}
 
-	void open(u16 x, u16 y, u16 width, u16 height, u32 /*parent*/)
+	void open(u16 x, u16 y, u16 width, u16 height, u32 /*parent*/) override
 	{
 		move(x, y);
 		resize(width, height);
 	}
 
-	void close()
+	void close() override
 	{
 	}
 
-	void bgfx_setup()
+	void bgfx_setup() override
 	{
 		bgfx::PlatformData pd;
 		memset(&pd, 0, sizeof(pd));
@@ -647,17 +647,17 @@ struct WindowWin : public Window
 		bgfx::setPlatformData(pd);
 	}
 
-	void show()
+	void show() override
 	{
 		ShowWindow(s_windows_device->_hwnd, SW_SHOW);
 	}
 
-	void hide()
+	void hide() override
 	{
 		ShowWindow(s_windows_device->_hwnd, SW_HIDE);
 	}
 
-	void resize(u16 width, u16 height)
+	void resize(u16 width, u16 height) override
 	{
 		_width = width;
 		_height = height;
@@ -679,29 +679,29 @@ struct WindowWin : public Window
 			);
 	}
 
-	void move(u16 x, u16 y)
+	void move(u16 x, u16 y) override
 	{
 		_x = x;
 		_y = y;
 		resize(_width, _height);
 	}
 
-	void minimize()
+	void minimize() override
 	{
 		ShowWindow(s_windows_device->_hwnd, SW_MINIMIZE);
 	}
 
-	void maximize()
+	void maximize() override
 	{
 		ShowWindow(s_windows_device->_hwnd, SW_MAXIMIZE);
 	}
 
-	void restore()
+	void restore() override
 	{
 		ShowWindow(s_windows_device->_hwnd, SW_RESTORE);
 	}
 
-	const char *title()
+	const char *title() override
 	{
 		static char buf[512];
 		memset(buf, 0, sizeof(buf));
@@ -709,28 +709,28 @@ struct WindowWin : public Window
 		return buf;
 	}
 
-	void set_title(const char *title)
+	void set_title(const char *title) override
 	{
 		SetWindowText(s_windows_device->_hwnd, title);
 	}
 
-	void show_cursor(bool show)
+	void show_cursor(bool show) override
 	{
 		s_windows_device->_hcursor = show ? LoadCursorA(NULL, IDC_ARROW) : NULL;
 		SetCursor(s_windows_device->_hcursor);
 	}
 
-	void set_fullscreen(bool /*fullscreen*/)
+	void set_fullscreen(bool /*fullscreen*/) override
 	{
 	}
 
-	void set_cursor(MouseCursor::Enum cursor)
+	void set_cursor(MouseCursor::Enum cursor) override
 	{
 		s_windows_device->_hcursor = _win_cursors[cursor];
 		SetCursor(s_windows_device->_hcursor);
 	}
 
-	void set_cursor_mode(CursorMode::Enum mode)
+	void set_cursor_mode(CursorMode::Enum mode) override
 	{
 		if (mode == s_windows_device->_cursor_mode)
 			return;
@@ -756,7 +756,7 @@ struct WindowWin : public Window
 		}
 	}
 
-	void *handle()
+	void *handle() override
 	{
 		return (void *)(uintptr_t)s_windows_device->_hwnd;
 	}
@@ -778,11 +778,11 @@ namespace window
 
 struct DisplayWin : public Display
 {
-	void modes(Array<DisplayMode> & /*modes*/)
+	void modes(Array<DisplayMode> & /*modes*/) override
 	{
 	}
 
-	void set_mode(u32 /*id*/)
+	void set_mode(u32 /*id*/) override
 	{
 	}
 };
