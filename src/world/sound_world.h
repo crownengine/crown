@@ -25,7 +25,7 @@ struct SoundWorld
 	SoundWorldImpl *_impl;
 
 	///
-	SoundWorld(Allocator &a);
+	explicit SoundWorld(Allocator &a);
 
 	///
 	~SoundWorld();

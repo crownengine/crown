@@ -17,7 +17,7 @@ struct Random
 	s32 _seed;
 
 	/// Initializes the generator with the given @a seed.
-	Random(s32 seed);
+	explicit Random(s32 seed);
 
 	/// Returns a pseudo-random integer in the range [0, 32767].
 	s32 integer();

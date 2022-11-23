@@ -23,7 +23,8 @@ struct FilesystemDisk : public Filesystem
 	Allocator *_allocator;
 	DynamicString _prefix;
 
-	FilesystemDisk(Allocator &a);
+	///
+	explicit FilesystemDisk(Allocator &a);
 
 	/// Sets the root path to the given @a prefix.
 	/// @note

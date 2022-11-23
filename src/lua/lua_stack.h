@@ -43,7 +43,7 @@ struct LuaStack
 	lua_State *L;
 
 	///
-	LuaStack(lua_State *L);
+	explicit LuaStack(lua_State *L);
 
 	/// Returns the number of elements in the stack.
 	/// When called inside a function, it can be used to count

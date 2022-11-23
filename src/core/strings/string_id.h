@@ -24,13 +24,13 @@ struct StringId32
 	{
 	}
 
-	StringId32(u32 idx)
+	explicit StringId32(u32 idx)
 		: _id(idx)
 	{
 	}
 
 	explicit StringId32(const char *str);
-	explicit StringId32(const char *str, u32 len);
+	StringId32(const char *str, u32 len);
 
 	void hash(const char *str, u32 len);
 
@@ -55,13 +55,13 @@ struct StringId64
 	{
 	}
 
-	StringId64(u64 idx)
+	explicit StringId64(u64 idx)
 		: _id(idx)
 	{
 	}
 
 	explicit StringId64(const char *str);
-	explicit StringId64(const char *str, u32 len);
+	StringId64(const char *str, u32 len);
 
 	void hash(const char *str, u32 len);
 

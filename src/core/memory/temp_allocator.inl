@@ -35,7 +35,9 @@ struct TempAllocator : public Allocator
 	unsigned _chunk_size;      ///< Chunks to allocate from backing allocator.
 
 	/// Creates a new temporary allocator using the specified backing allocator.
-	TempAllocator(Allocator &backing = default_scratch_allocator());
+	explicit TempAllocator(Allocator &backing = default_scratch_allocator());
+
+	///
 	virtual ~TempAllocator();
 
 	virtual void *allocate(u32 size, u32 align = DEFAULT_ALIGN);

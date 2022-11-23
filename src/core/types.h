@@ -70,8 +70,8 @@ inline bool constexpr is_power_of_2(u32 x)
 u32 STRING_ID_32(const char *str, const u32 id);
 u64 STRING_ID_64(const char *str, const u64 id);
 #else
-	#define STRING_ID_32(str, id) u32(id)
-	#define STRING_ID_64(str, id) u64(id)
+	#define STRING_ID_32(str, id) StringId32(id)
+	#define STRING_ID_64(str, id) StringId64(id)
 #endif
 
 } // namespace crown

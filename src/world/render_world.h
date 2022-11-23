@@ -337,7 +337,7 @@ struct RenderWorld
 		LightInstanceData _data;
 
 		///
-		LightManager(Allocator &a)
+		explicit LightManager(Allocator &a)
 			: _allocator(&a)
 			, _map(a)
 		{

@@ -64,7 +64,7 @@ struct ResourceManager
 	void complete_request(StringId64 type, StringId64 name, void *data);
 
 	/// Uses @a rl to load resources.
-	ResourceManager(ResourceLoader &rl);
+	explicit ResourceManager(ResourceLoader &rl);
 
 	///
 	~ResourceManager();

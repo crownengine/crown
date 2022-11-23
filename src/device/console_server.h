@@ -75,7 +75,7 @@ struct ConsoleServer
 	Semaphore _client_connected;
 
 	///
-	ConsoleServer(Allocator &a);
+	explicit ConsoleServer(Allocator &a);
 
 	/// Listens on the given @a port. If @a wait is true, this function
 	/// blocks until a client is connected.

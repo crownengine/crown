@@ -25,7 +25,10 @@ struct BootConfig
 	bool vsync;
 	bool fullscreen;
 
-	BootConfig(Allocator &a);
+	///
+	explicit BootConfig(Allocator &a);
+
+	///
 	bool parse(const char *json);
 };
 

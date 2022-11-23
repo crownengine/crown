@@ -17,7 +17,7 @@ struct ScopedMutex
 	Mutex &_mutex;
 
 	/// Locks the mutex @a m.
-	ScopedMutex(Mutex &m)
+	explicit ScopedMutex(Mutex &m)
 		: _mutex(m)
 	{
 		_mutex.lock();

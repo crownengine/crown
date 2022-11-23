@@ -45,7 +45,7 @@ struct MeshResource
 	Array<MeshGeometry *> geometries;
 
 	///
-	MeshResource(Allocator &a);
+	explicit MeshResource(Allocator &a);
 
 	///
 	const MeshGeometry *geometry(StringId32 name) const;

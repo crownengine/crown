@@ -32,7 +32,7 @@ struct PackageResource
 	Array<Resource> resources;
 
 	///
-	PackageResource(Allocator &a);
+	explicit PackageResource(Allocator &a);
 };
 
 namespace package_resource_internal

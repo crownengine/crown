@@ -40,7 +40,7 @@ struct JsonObject
 {
 	HashMap<StringView, const char *> _map;
 
-	JsonObject(Allocator &a);
+	explicit JsonObject(Allocator &a);
 
 	const char *operator[](const char *key) const;
 	const char *operator[](const StringView &key) const;
