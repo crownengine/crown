@@ -216,9 +216,13 @@ codespell:
 .PHONY: cppcheck
 cppcheck:
 	@cppcheck src \
+		--includes-file=scripts/cppcheck/includes.txt \
+		--suppressions-list=scripts/cppcheck/suppressions.txt \
 		--enable=all \
 		--suppress=cstyleCast \
-		--suppress=allocaCalled
+		--suppress=allocaCalled \
+		--quiet \
+		--force # Check all configurations.
 
 .PHONY: clean
 clean: clean-samples
