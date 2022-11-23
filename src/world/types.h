@@ -102,14 +102,14 @@ struct ActorType
 /// @ingroup World
 struct ActorFlags
 {
-	enum Enum
+	enum Enum : u32
 	{
-		LOCK_TRANSLATION_X = 1 << 0,
-		LOCK_TRANSLATION_Y = 1 << 1,
-		LOCK_TRANSLATION_Z = 1 << 2,
-		LOCK_ROTATION_X    = 1 << 3,
-		LOCK_ROTATION_Y    = 1 << 4,
-		LOCK_ROTATION_Z    = 1 << 5
+		LOCK_TRANSLATION_X = u32(1) << 0,
+		LOCK_TRANSLATION_Y = u32(1) << 1,
+		LOCK_TRANSLATION_Z = u32(1) << 2,
+		LOCK_ROTATION_X    = u32(1) << 3,
+		LOCK_ROTATION_Y    = u32(1) << 4,
+		LOCK_ROTATION_Z    = u32(1) << 5
 	};
 };
 
@@ -151,40 +151,40 @@ struct JointType
 /// @ingroup World
 struct CollisionGroup
 {
-	enum Enum
+	enum Enum : u32
 	{
-		GROUP_0  = 1 <<  0, // Reserved
-		GROUP_1  = 1 <<  1,
-		GROUP_2  = 1 <<  2,
-		GROUP_3  = 1 <<  3,
-		GROUP_4  = 1 <<  4,
-		GROUP_5  = 1 <<  5,
-		GROUP_6  = 1 <<  6,
-		GROUP_7  = 1 <<  7,
-		GROUP_8  = 1 <<  8,
-		GROUP_9  = 1 <<  9,
-		GROUP_10 = 1 << 10,
-		GROUP_11 = 1 << 11,
-		GROUP_12 = 1 << 12,
-		GROUP_13 = 1 << 13,
-		GROUP_14 = 1 << 14,
-		GROUP_15 = 1 << 15,
-		GROUP_16 = 1 << 16,
-		GROUP_17 = 1 << 17,
-		GROUP_18 = 1 << 18,
-		GROUP_19 = 1 << 19,
-		GROUP_20 = 1 << 20,
-		GROUP_21 = 1 << 21,
-		GROUP_22 = 1 << 22,
-		GROUP_23 = 1 << 23,
-		GROUP_24 = 1 << 24,
-		GROUP_25 = 1 << 25,
-		GROUP_26 = 1 << 26,
-		GROUP_27 = 1 << 27,
-		GROUP_28 = 1 << 28,
-		GROUP_29 = 1 << 29,
-		GROUP_30 = 1 << 30,
-		GROUP_31 = 1 << 31
+		GROUP_0  = u32(1) <<  0, // Reserved
+		GROUP_1  = u32(1) <<  1,
+		GROUP_2  = u32(1) <<  2,
+		GROUP_3  = u32(1) <<  3,
+		GROUP_4  = u32(1) <<  4,
+		GROUP_5  = u32(1) <<  5,
+		GROUP_6  = u32(1) <<  6,
+		GROUP_7  = u32(1) <<  7,
+		GROUP_8  = u32(1) <<  8,
+		GROUP_9  = u32(1) <<  9,
+		GROUP_10 = u32(1) << 10,
+		GROUP_11 = u32(1) << 11,
+		GROUP_12 = u32(1) << 12,
+		GROUP_13 = u32(1) << 13,
+		GROUP_14 = u32(1) << 14,
+		GROUP_15 = u32(1) << 15,
+		GROUP_16 = u32(1) << 16,
+		GROUP_17 = u32(1) << 17,
+		GROUP_18 = u32(1) << 18,
+		GROUP_19 = u32(1) << 19,
+		GROUP_20 = u32(1) << 20,
+		GROUP_21 = u32(1) << 21,
+		GROUP_22 = u32(1) << 22,
+		GROUP_23 = u32(1) << 23,
+		GROUP_24 = u32(1) << 24,
+		GROUP_25 = u32(1) << 25,
+		GROUP_26 = u32(1) << 26,
+		GROUP_27 = u32(1) << 27,
+		GROUP_28 = u32(1) << 28,
+		GROUP_29 = u32(1) << 29,
+		GROUP_30 = u32(1) << 30,
+		GROUP_31 = u32(1) << 31
 	};
 };
 
