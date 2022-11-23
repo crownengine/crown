@@ -71,19 +71,19 @@ struct InputDevice
 	Vector3 axis(u8 id) const;
 
 	/// Returns the name of the button @a id or NULL if no matching button is found.
-	const char *button_name(u8 id);
+	const char *button_name(u8 id) const;
 
 	/// Returns the name of the axis @a id of NULL if no matching axis is found.
-	const char *axis_name(u8 id);
+	const char *axis_name(u8 id) const;
 
 	/// Returns the id of the button @a name or UINT8_MAX if no matching button is found.
-	u8 button_id(StringId32 name);
+	u8 button_id(StringId32 name) const;
 
 	/// Returns the id of the axis @a name of UINT8_MAX if no matching axis is found.
-	u8 axis_id(StringId32 name);
+	u8 axis_id(StringId32 name) const;
 
 	/// Returns the deadzone size and the deadzone @a mode for the axis @a id.
-	f32 deadzone(u8 id, DeadzoneMode::Enum *deadzone_mode);
+	f32 deadzone(u8 id, DeadzoneMode::Enum *deadzone_mode) const;
 
 	/// Sets the @a deadzone_mode and @a deadzone_size for the axis @a id.
 	void set_deadzone(u8 id, DeadzoneMode::Enum deadzone_mode, f32 deadzone_size);

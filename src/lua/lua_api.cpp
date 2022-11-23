@@ -215,49 +215,49 @@ static int quaternionbox_unbox(lua_State *L)
 	return 1;
 }
 
-static int input_device_name(lua_State *L, InputDevice &dev)
+static int input_device_name(lua_State *L, const InputDevice &dev)
 {
 	LuaStack stack(L);
 	stack.push_string(dev.name());
 	return 1;
 }
 
-static int input_device_connected(lua_State *L, InputDevice &dev)
+static int input_device_connected(lua_State *L, const InputDevice &dev)
 {
 	LuaStack stack(L);
 	stack.push_bool(dev.connected());
 	return 1;
 }
 
-static int input_device_num_buttons(lua_State *L, InputDevice &dev)
+static int input_device_num_buttons(lua_State *L, const InputDevice &dev)
 {
 	LuaStack stack(L);
 	stack.push_int(dev.num_buttons());
 	return 1;
 }
 
-static int input_device_num_axes(lua_State *L, InputDevice &dev)
+static int input_device_num_axes(lua_State *L, const InputDevice &dev)
 {
 	LuaStack stack(L);
 	stack.push_int(dev.num_axes());
 	return 1;
 }
 
-static int input_device_pressed(lua_State *L, InputDevice &dev)
+static int input_device_pressed(lua_State *L, const InputDevice &dev)
 {
 	LuaStack stack(L);
 	stack.push_bool(dev.pressed(stack.get_int(1)));
 	return 1;
 }
 
-static int input_device_released(lua_State *L, InputDevice &dev)
+static int input_device_released(lua_State *L, const InputDevice &dev)
 {
 	LuaStack stack(L);
 	stack.push_bool(dev.released(stack.get_int(1)));
 	return 1;
 }
 
-static int input_device_any_pressed(lua_State *L, InputDevice &dev)
+static int input_device_any_pressed(lua_State *L, const InputDevice &dev)
 {
 	LuaStack stack(L);
 	const u8 button = dev.any_pressed();
@@ -268,7 +268,7 @@ static int input_device_any_pressed(lua_State *L, InputDevice &dev)
 	return 1;
 }
 
-static int input_device_any_released(lua_State *L, InputDevice &dev)
+static int input_device_any_released(lua_State *L, const InputDevice &dev)
 {
 	LuaStack stack(L);
 	const u8 button = dev.any_released();
@@ -279,21 +279,21 @@ static int input_device_any_released(lua_State *L, InputDevice &dev)
 	return 1;
 }
 
-static int input_device_button(lua_State *L, InputDevice &dev)
+static int input_device_button(lua_State *L, const InputDevice &dev)
 {
 	LuaStack stack(L);
 	stack.push_float(dev.button(stack.get_int(1)));
 	return 1;
 }
 
-static int input_device_axis(lua_State *L, InputDevice &dev)
+static int input_device_axis(lua_State *L, const InputDevice &dev)
 {
 	LuaStack stack(L);
 	stack.push_vector3(dev.axis(stack.get_int(1)));
 	return 1;
 }
 
-static int input_device_button_name(lua_State *L, InputDevice &dev)
+static int input_device_button_name(lua_State *L, const InputDevice &dev)
 {
 	LuaStack stack(L);
 	const char *name = dev.button_name(stack.get_int(1));
@@ -306,7 +306,7 @@ static int input_device_button_name(lua_State *L, InputDevice &dev)
 	return 1;
 }
 
-static int input_device_axis_name(lua_State *L, InputDevice &dev)
+static int input_device_axis_name(lua_State *L, const InputDevice &dev)
 {
 	LuaStack stack(L);
 	const char *name = dev.axis_name(stack.get_int(1));
@@ -319,7 +319,7 @@ static int input_device_axis_name(lua_State *L, InputDevice &dev)
 	return 1;
 }
 
-static int input_device_button_id(lua_State *L, InputDevice &dev)
+static int input_device_button_id(lua_State *L, const InputDevice &dev)
 {
 	LuaStack stack(L);
 	const u8 id = dev.button_id(stack.get_string_id_32(1));
@@ -332,7 +332,7 @@ static int input_device_button_id(lua_State *L, InputDevice &dev)
 	return 1;
 }
 
-static int input_device_axis_id(lua_State *L, InputDevice &dev)
+static int input_device_axis_id(lua_State *L, const InputDevice &dev)
 {
 	LuaStack stack(L);
 	const u8 id = dev.axis_id(stack.get_string_id_32(1));
@@ -345,7 +345,7 @@ static int input_device_axis_id(lua_State *L, InputDevice &dev)
 	return 1;
 }
 
-static int input_device_deadzone(lua_State *L, InputDevice &dev)
+static int input_device_deadzone(lua_State *L, const InputDevice &dev)
 {
 	LuaStack stack(L);
 	int axis_id = stack.get_int(1);
