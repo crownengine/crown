@@ -180,7 +180,7 @@ namespace hash_map_internal
 		nm._mask = new_capacity - 1;
 
 		for (u32 i = 0; i < m._capacity; ++i) {
-			typename HashMap<TKey, TValue, Hash, KeyEqual>::Entry &e = m._data[i];
+			const typename HashMap<TKey, TValue, Hash, KeyEqual>::Entry &e = m._data[i];
 			const u32 hash = m._index[i].hash;
 			const u32 index = m._index[i].index;
 
@@ -325,17 +325,13 @@ inline HashMap<TKey, TValue, Hash, KeyEqual>::HashMap(Allocator &a)
 template<typename TKey, typename TValue, typename Hash, typename KeyEqual>
 HashMap<TKey, TValue, Hash, KeyEqual>::HashMap(const HashMap<TKey, TValue, Hash, KeyEqual> &other)
 	: _allocator(other._allocator)
-	, _capacity(0)
-	, _size(0)
-	, _mask(0)
+	, _capacity(other._capacity)
+	, _size(other._size)
+	, _mask(other._mask)
 	, _index(NULL)
 	, _data(NULL)
 	, _buffer(NULL)
 {
-	_capacity = other._capacity;
-	_size = other._size;
-	_mask = other._mask;
-
 	if (other._capacity > 0) {
 		_allocator->deallocate(_buffer);
 		const u32 size = other._capacity * (sizeof(Index) + sizeof(Entry)) + alignof(Index) + alignof(Entry);

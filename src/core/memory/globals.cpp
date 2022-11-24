@@ -251,7 +251,7 @@ namespace memory
 			_backing.deallocate(_begin);
 		}
 
-		bool in_use(void *p)
+		bool in_use(const void *p)
 		{
 			if (_free == _allocate)
 				return false;

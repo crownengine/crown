@@ -177,12 +177,11 @@ namespace hash_set_internal
 		nm._mask = new_capacity - 1;
 
 		for (u32 i = 0; i < m._capacity; ++i) {
-			TKey &e = m._data[i];
 			const u32 hash = m._index[i].hash;
 			const u32 index = m._index[i].index;
 
 			if (index != FREE && !is_deleted(index))
-				hash_set_internal::insert(nm, hash, e);
+				hash_set_internal::insert(nm, hash, m._data[i]);
 		}
 
 		HashSet<TKey, Hash, KeyEqual> empty(*m._allocator);
@@ -304,17 +303,13 @@ inline HashSet<TKey, Hash, KeyEqual>::HashSet(Allocator &a)
 template<typename TKey, typename Hash, typename KeyEqual>
 HashSet<TKey, Hash, KeyEqual>::HashSet(const HashSet &other)
 	: _allocator(other._allocator)
-	, _capacity(0)
-	, _size(0)
-	, _mask(0)
+	, _capacity(other._capacity)
+	, _size(other._size)
+	, _mask(other._mask)
 	, _index(NULL)
 	, _data(NULL)
 	, _buffer(NULL)
 {
-	_capacity = other._capacity;
-	_size = other._size;
-	_mask = other._mask;
-
 	if (other._capacity > 0) {
 		_allocator->deallocate(_buffer);
 		const u32 size = other._capacity * (sizeof(Index) + sizeof(TKey)) + alignof(Index) + alignof(TKey);

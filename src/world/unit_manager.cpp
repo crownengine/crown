@@ -22,7 +22,7 @@ UnitManager::UnitManager(Allocator &a)
 
 UnitId UnitManager::make_unit(u32 idx, u8 gen)
 {
-	UnitId unit = { 0 | idx | u32(gen) << UNIT_INDEX_BITS };
+	UnitId unit = { idx | u32(gen) << UNIT_INDEX_BITS };
 	return unit;
 }
 

@@ -301,7 +301,7 @@ struct PhysicsWorldImpl
 			break;
 
 		case ColliderType::CONVEX_HULL: {
-			const char *data       = (char *)&sd[1];
+			const u8 *data         = (u8 *)&sd[1];
 			const u32 num          = *(u32 *)data;
 			const btScalar *points = (btScalar *)(data + sizeof(u32));
 

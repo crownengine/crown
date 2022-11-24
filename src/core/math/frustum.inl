@@ -113,11 +113,11 @@ namespace frustum
 
 	inline AABB to_aabb(const Frustum &f)
 	{
-		Vector3 vertices[8];
-		frustum::vertices(vertices, f);
+		Vector3 verts[8];
+		frustum::vertices(verts, f);
 
 		AABB r;
-		aabb::from_points(r, countof(vertices), vertices);
+		aabb::from_points(r, countof(verts), verts);
 		return r;
 	}
 
