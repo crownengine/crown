@@ -37,6 +37,12 @@ struct Process
 	///
 	~Process();
 
+	///
+	Process(const Process &) = delete;
+
+	///
+	Process &operator=(const Process &) = delete;
+
 	/// Spawns the process described by @a argv with the given @a flags.
 	/// Returns 0 on success, non-zero otherwise.
 	s32 spawn(const char * const *argv, u32 flags = 0);
