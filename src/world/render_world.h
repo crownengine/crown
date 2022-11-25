@@ -376,7 +376,6 @@ struct RenderWorld
 	};
 
 	u32 _marker;
-	Allocator *_allocator;
 	ResourceManager *_resource_manager;
 	ShaderManager *_shader_manager;
 	MaterialManager *_material_manager;
