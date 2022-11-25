@@ -199,6 +199,9 @@ TCPSocket::TCPSocket(const TCPSocket &other)
 
 TCPSocket &TCPSocket::operator=(const TCPSocket &other)
 {
+	if (CE_UNLIKELY(this == &other))
+		return *this;
+
 	_priv = new (_data) Private();
 	memcpy(_data, other._data, sizeof(_data));
 	return *this;
