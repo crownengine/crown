@@ -219,8 +219,6 @@ cppcheck:
 		--includes-file=scripts/cppcheck/includes.txt \
 		--suppressions-list=scripts/cppcheck/suppressions.txt \
 		--enable=all \
-		--suppress=cstyleCast \
-		--suppress=allocaCalled \
 		--quiet \
 		--force # Check all configurations.
 
