@@ -493,19 +493,6 @@ struct WindowsDevice
 					SetCursorPos(mouse_pos.x, mouse_pos.y);
 					_mouse_last_x = (s16)width/2;
 					_mouse_last_y = (s16)height/2;
-				} else if (_cursor_mode == CursorMode::NORMAL) {
-					_queue.push_axis_event(InputDeviceType::MOUSE
-						, 0
-						, MouseAxis::CURSOR_DELTA
-						, deltax
-						, deltay
-						, 0
-						);
-					POINT mouse_pos = {(long)width/2, (long)height/2};
-					ClientToScreen(_hwnd, &mouse_pos);
-					SetCursorPos(mouse_pos.x, mouse_pos.y);
-					_mouse_last_x = (s16)width/2;
-					_mouse_last_y = (s16)height/2;
 				}
 			} else if (_cursor_mode == CursorMode::NORMAL) {
 				_queue.push_axis_event(InputDeviceType::MOUSE
