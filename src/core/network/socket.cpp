@@ -337,6 +337,11 @@ SocketSet::SocketSet()
 #endif
 }
 
+SocketSet::~SocketSet()
+{
+	// Do nothing.
+}
+
 SocketSet &SocketSet::operator=(const SocketSet &other)
 {
 	_priv->fdset = other._priv->fdset;
