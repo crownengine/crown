@@ -228,7 +228,7 @@ struct SoundWorldImpl
 
 	bool has(SoundInstanceId id)
 	{
-		Index &in = _indices[id & INDEX_MASK];
+		const Index &in = _indices[id & INDEX_MASK];
 		return in.id == id && in.index != UINT16_MAX;
 	}
 

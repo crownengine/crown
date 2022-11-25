@@ -436,7 +436,7 @@ void RenderWorld::debug_draw(DebugLine &dl)
 	if (!_debug_drawing)
 		return;
 
-	MeshManager::MeshInstanceData &mid = _mesh_manager._data;
+	const MeshManager::MeshInstanceData &mid = _mesh_manager._data;
 
 	for (u32 i = 0; i < mid.size; ++i) {
 		const OBB &obb = mid.obb[i];

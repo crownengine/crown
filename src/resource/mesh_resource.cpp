@@ -185,7 +185,7 @@ namespace mesh_resource_internal
 		MeshResource *mr = (MeshResource *)rm.get(RESOURCE_TYPE_MESH, id);
 
 		for (u32 i = 0; i < array::size(mr->geometries); ++i) {
-			MeshGeometry &mg = *mr->geometries[i];
+			const MeshGeometry &mg = *mr->geometries[i];
 			bgfx::destroy(mg.vertex_buffer);
 			bgfx::destroy(mg.index_buffer);
 		}

@@ -209,7 +209,7 @@ static int quaternionbox_unbox(lua_State *L)
 {
 	LuaStack stack(L);
 
-	Quaternion &q = stack.get_quaternionbox(1);
+	const Quaternion &q = stack.get_quaternionbox(1);
 
 	stack.push_quaternion(q);
 	return 1;
@@ -571,7 +571,7 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("Vector3", "elements", [](lua_State *L) {
 			LuaStack stack(L);
-			Vector3 &a = stack.get_vector3(1);
+			const Vector3 &a = stack.get_vector3(1);
 			stack.push_float(a.x);
 			stack.push_float(a.y);
 			stack.push_float(a.z);
