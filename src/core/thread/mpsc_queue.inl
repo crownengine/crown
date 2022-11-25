@@ -21,7 +21,7 @@ struct MPSCQueue
 	Mutex _mutex;
 
 	///
-	MPSCQueue(Allocator &a)
+	explicit MPSCQueue(Allocator &a)
 		: _queue(a)
 	{
 	}

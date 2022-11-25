@@ -26,7 +26,7 @@ struct SPSCQueue
 	T *_queue;
 
 	///
-	SPSCQueue(Allocator &a)
+	explicit SPSCQueue(Allocator &a)
 		: _tail(0)
 		, _head(0)
 		, _allocator(&a)

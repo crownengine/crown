@@ -20,7 +20,7 @@ struct DeviceEventQueue
 	QueuePushFunction _queue_push_function;
 
 	///
-	DeviceEventQueue(QueuePushFunction fn)
+	explicit DeviceEventQueue(QueuePushFunction fn)
 		: _queue_push_function(fn)
 	{
 	}
