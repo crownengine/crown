@@ -146,33 +146,33 @@ struct MyDebugDrawer : public btIDebugDraw
 	{
 	}
 
-	void drawLine(const btVector3 &from, const btVector3 &to, const btVector3 & /*color*/)
+	void drawLine(const btVector3 &from, const btVector3 &to, const btVector3 & /*color*/) override
 	{
 		const Vector3 start = to_vector3(from);
 		const Vector3 end = to_vector3(to);
 		_lines->add_line(start, end, COLOR4_ORANGE);
 	}
 
-	void drawContactPoint(const btVector3 &pointOnB, const btVector3 & /*normalOnB*/, btScalar /*distance*/, int /*lifeTime*/, const btVector3 & /*color*/)
+	void drawContactPoint(const btVector3 &pointOnB, const btVector3 & /*normalOnB*/, btScalar /*distance*/, int /*lifeTime*/, const btVector3 & /*color*/) override
 	{
 		const Vector3 from = to_vector3(pointOnB);
 		_lines->add_sphere(from, 0.1f, COLOR4_WHITE);
 	}
 
-	void reportErrorWarning(const char *warningString)
+	void reportErrorWarning(const char *warningString) override
 	{
 		logw(PHYSICS, warningString);
 	}
 
-	void draw3dText(const btVector3 & /*location*/, const char * /*textString*/)
+	void draw3dText(const btVector3 & /*location*/, const char * /*textString*/) override
 	{
 	}
 
-	void setDebugMode(int /*debugMode*/)
+	void setDebugMode(int /*debugMode*/) override
 	{
 	}
 
-	int getDebugMode() const
+	int getDebugMode() const override
 	{
 		return DBG_DrawWireframe
 			| DBG_DrawConstraints
@@ -184,7 +184,7 @@ struct MyDebugDrawer : public btIDebugDraw
 
 struct MyFilterCallback : public btOverlapFilterCallback
 {
-	bool needBroadphaseCollision(btBroadphaseProxy *proxy0, btBroadphaseProxy *proxy1) const
+	bool needBroadphaseCollision(btBroadphaseProxy *proxy0, btBroadphaseProxy *proxy1) const override
 	{
 		bool collides = (proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask) != 0;
 		collides = collides && (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask);
