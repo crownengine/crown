@@ -30,6 +30,12 @@ struct PhysicsWorld
 	~PhysicsWorld();
 
 	///
+	PhysicsWorld(const PhysicsWorld &) = delete;
+
+	///
+	PhysicsWorld &operator=(const PhysicsWorld &) = delete;
+
+	///
 	ColliderInstance collider_create(UnitId unit, const ColliderDesc *sd, const Vector3 &scl);
 
 	///

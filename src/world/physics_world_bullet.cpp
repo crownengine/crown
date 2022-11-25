@@ -282,6 +282,10 @@ struct PhysicsWorldImpl
 		CE_DELETE(*_allocator, _dynamics_world);
 	}
 
+	PhysicsWorldImpl(const PhysicsWorldImpl &) = delete;
+
+	PhysicsWorldImpl &operator=(const PhysicsWorldImpl &) = delete;
+
 	ColliderInstance collider_create(UnitId unit, const ColliderDesc *sd, const Vector3 &scale)
 	{
 		btTriangleIndexVertexArray *vertex_array = NULL;

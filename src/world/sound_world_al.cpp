@@ -274,6 +274,10 @@ struct SoundWorldImpl
 		set_listener_pose(MATRIX4X4_IDENTITY);
 	}
 
+	SoundWorldImpl(const SoundWorldImpl &) = delete;
+
+	SoundWorldImpl &operator=(const SoundWorldImpl &) = delete;
+
 	SoundInstanceId play(const SoundResource &sr, bool loop, f32 volume, f32 range, const Vector3 &pos)
 	{
 		SoundInstanceId id = add();
