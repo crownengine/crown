@@ -21,7 +21,7 @@ namespace crown
 /// @ingroup Device
 struct ConsoleServer
 {
-	typedef void (*CommandTypeFunction)(ConsoleServer &cs, u32 client_id, JsonArray &args, void *user_data);
+	typedef void (*CommandTypeFunction)(ConsoleServer &cs, u32 client_id, const JsonArray &args, void *user_data);
 	typedef void (*MessageTypeFunction)(ConsoleServer &cs, u32 client_id, const char *json, void *user_data);
 
 	struct CommandData

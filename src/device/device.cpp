@@ -160,17 +160,17 @@ struct BgfxAllocator : public bx::AllocatorI
 	}
 };
 
-static void device_command_pause(ConsoleServer & /*cs*/, u32 /*client_id*/, JsonArray & /*args*/, void * /*user_data*/)
+static void device_command_pause(ConsoleServer & /*cs*/, u32 /*client_id*/, const JsonArray & /*args*/, void * /*user_data*/)
 {
 	device()->pause();
 }
 
-static void device_command_unpause(ConsoleServer & /*cs*/, u32 /*client_id*/, JsonArray & /*args*/, void * /*user_data*/)
+static void device_command_unpause(ConsoleServer & /*cs*/, u32 /*client_id*/, const JsonArray & /*args*/, void * /*user_data*/)
 {
 	device()->unpause();
 }
 
-static void device_command_refresh(ConsoleServer & /*cs*/, u32 /*client_id*/, JsonArray & /*args*/, void * /*user_data*/)
+static void device_command_refresh(ConsoleServer & /*cs*/, u32 /*client_id*/, const JsonArray & /*args*/, void * /*user_data*/)
 {
 	device()->refresh();
 }

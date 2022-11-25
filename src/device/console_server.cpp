@@ -46,7 +46,7 @@ namespace console_server_internal
 			cmd.command_function(cs, client_id, args, cmd.user_data);
 	}
 
-	static void command_help(ConsoleServer &cs, u32 client_id, JsonArray &args, void * /*user_data*/)
+	static void command_help(ConsoleServer &cs, u32 client_id, const JsonArray &args, void * /*user_data*/)
 	{
 		if (array::size(args) != 1) {
 			cs.error(client_id, "Usage: help");
