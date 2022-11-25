@@ -310,7 +310,7 @@ namespace memory
 
 			// Advance the free pointer past all free slots.
 			while (_free != _allocate) {
-				Header *h = (Header *)_free;
+				h = (Header *)_free;
 				if ((h->size & 0x80000000u) == 0)
 					break;
 
