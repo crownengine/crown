@@ -606,24 +606,28 @@ public class Database
 	{
 		if (value.holds(typeof(ArrayList))) {
 			ArrayList<Value?> al = (ArrayList<Value?>)value;
-			if (al.size == 3)
+			if (al.size == 1)
+				return Vector3((double)al[0], 0.0, 0.0);
+			else if (al.size == 2)
+				return Vector3((double)al[0], (double)al[1], 0.0);
+			else if (al.size == 3)
 				return Vector3((double)al[0], (double)al[1], (double)al[2]);
 			else if (al.size == 4)
 				return Quaternion((double)al[0], (double)al[1], (double)al[2], (double)al[3]);
 			else
-				assert(false);
+				return Vector3(0.0, 0.0, 0.0);
 		} else if (value.holds(typeof(string))) {
 			Guid id;
 			if (Guid.try_parse((string)value, out id))
 				return id;
 			return value;
-		} else if (value == null || value.holds(typeof(bool)) || value.holds(typeof(double))) {
+		} else if (value == null
+			|| value.holds(typeof(bool))
+			|| value.holds(typeof(double))) {
 			return value;
 		} else {
-			assert(false);
+			return null;
 		}
-
-		return null;
 	}
 
 	private Hashtable encode_object(Guid id, HashMap<string, Value?> db)
