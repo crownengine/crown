@@ -455,15 +455,18 @@ public class Database
 	{
 		Hashtable json = SJSON.load_from_file(fs);
 
+		// Parse the object's ID or generate a new one if none is found.
 		if (json.has_key("id"))
 			object_id = Guid.parse((string)json["id"]);
+		else if (json.has_key("_guid"))
+			object_id = Guid.parse((string)json["_guid"]);
 		else
 			object_id = Guid.new_guid();
 
 		create_internal(0, object_id);
 		set_object_type(object_id, resource_type(resource_path));
 
-		decode_object(object_id, "", json);
+		decode_object(object_id, GUID_ZERO, "", json);
 
 		// Create a mapping between the path and the object it has been loaded into.
 		set_property_internal(0, GUID_ZERO, resource_path, object_id);
@@ -550,22 +553,23 @@ public class Database
 		return "<invalid>";
 	}
 
-	private void decode_object(Guid id, string db_key, Hashtable json)
+	private void decode_object(Guid id, Guid owner_id, string db_key, Hashtable json)
 	{
 		string old_db = db_key;
 		string k = db_key;
 
-		if (k == "" && json.has_key("type")) {
-			// The "type" key defines object type only if it appears
-			// in the root of a JSON object (k == "").
-			if (!has_property(id, "type"))
-				set_object_type(id, (string)json["type"]);
-		}
-
 		string[] keys = json.keys.to_array();
 		foreach (string key in keys) {
-			if (key == "id")
+			// ID is filled by decode_set().
+			if (key == "id"	|| key == "_guid")
 				continue;
+
+			// The "type" key defines object type only if it appears
+			// in the root of a JSON object (k == "").
+			if (k == "") {
+				if (key == "type" || key == "_type")
+					set_object_type(id, (string)json[key]);
+			}
 
 			Value? val = json[key];
 
@@ -573,7 +577,7 @@ public class Database
 
 			if (val.holds(typeof(Hashtable))) {
 				Hashtable ht = (Hashtable)val;
-				decode_object(id, k, ht);
+				decode_object(id, owner_id, k, ht);
 			} else if (val.holds(typeof(ArrayList))) {
 				ArrayList<Value?> arr = (ArrayList<Value?>)val;
 				if (arr.size > 0 && arr[0].holds(typeof(double)))
@@ -595,9 +599,50 @@ public class Database
 
 		for (int i = 0; i < json.size; ++i) {
 			Hashtable obj = (Hashtable)json[i];
-			Guid obj_id = Guid.parse((string)obj["id"]);
+
+			// Decode object ID.
+			Guid obj_id;
+			if (obj.has_key("id"))
+				obj_id = Guid.parse((string)obj["id"]);
+			else if (obj.has_key("_guid"))
+				obj_id = Guid.parse((string)obj["_guid"]);
+			else
+				obj_id = Guid.new_guid();
+
 			create_internal(0, obj_id);
-			decode_object(obj_id, "", obj);
+
+			// Determine the object's type based on the type of its
+			// parent and other heuristics.
+			string owner_type = object_type(owner_id);
+			if (owner_type == "level") {
+				if (key == "units")
+					set_object_type(obj_id, "unit");
+				else if (key == "sounds")
+					set_object_type(obj_id, "level_sound");
+				else
+					set_object_type(obj_id, "undefined");
+			} else if (owner_type == "state_machine") {
+				if (key == "states")
+					set_object_type(obj_id, "state_machine_node");
+				else if (key == "variables")
+					set_object_type(obj_id, "state_machine_variable");
+				else
+					set_object_type(obj_id, "undefined");
+			} else if (owner_type == "state_machine_node") {
+				if (key == "animations")
+					set_object_type(obj_id, "node_animation");
+				else if (key == "transitions")
+					set_object_type(obj_id, "node_transition");
+			} else if (owner_type == "sprite") {
+				if (key == "frames") {
+					set_object_type(obj_id, "sprite_frame");
+					set_property_internal(0, obj_id, "index", (double)i);
+				}
+			}
+
+			decode_object(obj_id, owner_id, "", obj);
+			assert(has_property(obj_id, "_type"));
+
 			add_to_set_internal(0, owner_id, key, obj_id);
 		}
 	}
@@ -634,7 +679,7 @@ public class Database
 	{
 		Hashtable obj = new Hashtable();
 		if (id != GUID_ZERO)
-			obj["id"] = id.to_string();
+			obj["_guid"] = id.to_string();
 
 		string[] keys = db.keys.to_array();
 		foreach (string key in keys) {
@@ -803,7 +848,7 @@ public class Database
 	public string object_type(Guid id)
 	{
 		assert(has_object(id));
-		return (string)get_data(id)["type"];
+		return (string)get_data(id)["_type"];
 	}
 
 	// Sets the @a type of the object @a id.
@@ -813,7 +858,7 @@ public class Database
 	public void set_object_type(Guid id, string type)
 	{
 		assert(has_object(id));
-		get_data(id)["type"] = type;
+		get_data(id)["_type"] = type;
 	}
 
 	public void create(Guid id, string type)

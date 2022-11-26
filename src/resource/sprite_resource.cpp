@@ -17,6 +17,7 @@
 #include "resource/compile_options.inl"
 #include "resource/resource_manager.h"
 #include "resource/sprite_resource.h"
+#include <algorithm>
 
 namespace crown
 {
@@ -35,20 +36,38 @@ namespace sprite_resource_internal
 {
 	struct SpriteFrame
 	{
+		u32 index;
 		StringId32 name;
 		Vector4 region; // [x, y, w, h]
 		Vector2 pivot;  // [x, y]
 	};
 
-	void parse_frame(SpriteFrame &sf, const char *json)
+	void parse_frames(Array<SpriteFrame> &sprite_frames, const JsonArray &frames)
 	{
-		TempAllocator512 ta;
-		JsonObject obj(ta);
-		sjson::parse(obj, json);
+		for (u32 ii = 0; ii < array::size(frames); ++ii)
+		{
+			TempAllocator512 ta;
+			JsonObject obj(ta);
+			sjson::parse(obj, frames[ii]);
 
-		sf.name   = sjson::parse_string_id(obj["name"]);
-		sf.region = sjson::parse_vector4(obj["region"]);
-		sf.pivot  = sjson::parse_vector2(obj["pivot"]);
+			SpriteFrame sf;
+			sf.name   = sjson::parse_string_id(obj["name"]);
+			sf.region = sjson::parse_vector4(obj["region"]);
+			sf.pivot  = sjson::parse_vector2(obj["pivot"]);
+
+			if (json_object::has(obj, "index"))
+				sf.index = sjson::parse_int(obj["index"]);
+			else
+				sf.index = ii;
+
+			array::push_back(sprite_frames, sf);
+		}
+
+		std::sort(array::begin(sprite_frames)
+			, array::end(sprite_frames)
+			, [](const SpriteFrame &frame_a, const SpriteFrame &frame_b) {
+				return frame_a.index < frame_b.index;
+			});
 	}
 
 	s32 compile(CompileOptions &opts)
@@ -67,10 +86,14 @@ namespace sprite_resource_internal
 		const f32 height     = sjson::parse_float(obj["height"]);
 		const u32 num_frames = array::size(frames);
 
+		// Parse frames.
+		Array<SpriteFrame> sprite_frames(default_allocator());
+		parse_frames(sprite_frames, frames);
+
+		// Fill verices.
 		Array<f32> vertices(default_allocator());
-		for (u32 i = 0; i < num_frames; ++i) {
-			SpriteFrame sf;
-			parse_frame(sf, frames[i]);
+		for (u32 ii = 0; ii < num_frames; ++ii) {
+			const SpriteFrame &sf = sprite_frames[ii];
 
 			// Generate UV coords
 			const f32 u0 = (sf.region.x) / width;

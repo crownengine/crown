@@ -315,7 +315,13 @@ namespace state_machine_internal
 				err = parse_animations(si, animations);
 				DATA_COMPILER_ENSURE(err == 0, _opts);
 
-				Guid guid = sjson::parse_guid(state["id"]);
+				Guid guid;
+				if (json_object::has(state, "id")) {
+					guid = sjson::parse_guid(state["id"]);
+				} else {
+					guid = sjson::parse_guid(state["_guid"]);
+				}
+
 				DATA_COMPILER_ASSERT(!hash_map::has(_states, guid)
 					, _opts
 					, "State GUID duplicated"

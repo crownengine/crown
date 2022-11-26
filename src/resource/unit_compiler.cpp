@@ -339,8 +339,14 @@ u32 object_index_from_id(const JsonArray &objects, const Guid &id)
 		TempAllocator512 ta;
 		JsonObject obj(ta);
 		sjson::parse(obj, objects[i]);
-		if (sjson::parse_guid(obj["id"]) == id)
-			return i;
+
+		if (json_object::has(obj, "id")) {
+			if (sjson::parse_guid(obj["id"]) == id)
+				return i;
+		} else {
+			if (sjson::parse_guid(obj["_guid"]) == id)
+				return i;
+		}
 	}
 
 	return UINT32_MAX;
@@ -545,7 +551,12 @@ s32 UnitCompiler::compile_unit_from_json(const char *json, const u32 parent)
 		JsonObject component(ta);
 		sjson::parse(component, val);
 
-		const StringId32 type = sjson::parse_string_id(component["type"]);
+		StringId32 type;
+		if (json_object::has(component, "type")) {
+			type = sjson::parse_string_id(component["type"]);
+		} else {
+			type = sjson::parse_string_id(component["_type"]);
+		}
 
 		Buffer component_data(default_allocator());
 		err = compile_component(component_data, type, merged_components_data[cc]);

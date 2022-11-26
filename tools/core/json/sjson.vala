@@ -167,11 +167,25 @@ public class SJSON
 
 				Hashtable obj_a = a as Hashtable;
 				Hashtable obj_b = b as Hashtable;
-				if (!obj_a.has_key("id") || !obj_b.has_key("id"))
+				string guid_a_str;
+				string guid_b_str;
+
+				if (obj_a.has_key("id"))
+					guid_a_str = (string)obj_a["id"];
+				else if (obj_a.has_key("_guid"))
+					guid_a_str = (string)obj_a["_guid"];
+				else
 					return 0;
 
-				Guid guid_a = Guid.parse(obj_a["id"] as string);
-				Guid guid_b = Guid.parse(obj_b["id"] as string);
+				if (obj_b.has_key("id"))
+					guid_b_str = (string)obj_b["id"];
+				else if (obj_b.has_key("_guid"))
+					guid_b_str = (string)obj_b["_guid"];
+				else
+					return 0;
+
+				Guid guid_a = Guid.parse(guid_a_str);
+				Guid guid_b = Guid.parse(guid_b_str);
 				return Guid.compare_func(guid_a, guid_b);
 			});
 

@@ -163,7 +163,7 @@ public class Unit
 		val = db.get_property(unit_id, "components");
 		if (val != null) {
 			foreach (Guid id in (HashSet<Guid?>)val) {
-				if ((string)db.get_property(id, "type") == component_type) {
+				if ((string)db.object_type(id) == component_type) {
 					component_id = id;
 					owner_id = unit_id;
 					return true;
