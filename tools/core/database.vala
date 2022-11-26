@@ -1212,7 +1212,7 @@ public class Database
 
 	// Tries to read a restore point @a rp from the @a stack and returns
 	// 0 if successful.
-	private int try_read_restore_point(out RestorePoint rp, Stack stack)
+	private int try_read_restore_point(ref RestorePoint rp, Stack stack)
 	{
 		if (stack.size() < sizeof(Action) + sizeof(RestorePointHeader))
 			return -1;
@@ -1235,8 +1235,8 @@ public class Database
 		if (_undo_redo == null)
 			return -1;
 
-		RestorePoint rp;
-		if (try_read_restore_point(out rp, _undo_redo._undo) != 0)
+		RestorePoint rp = {};
+		if (try_read_restore_point(ref rp, _undo_redo._undo) != 0)
 			return -1;
 
 		undo_or_redo(_undo_redo._undo, _undo_redo._redo, rp.header.size);
@@ -1254,8 +1254,8 @@ public class Database
 		if (_undo_redo == null)
 			return -1;
 
-		RestorePoint rp;
-		if (try_read_restore_point(out rp, _undo_redo._redo) != 0)
+		RestorePoint rp = {};
+		if (try_read_restore_point(ref rp, _undo_redo._redo) != 0)
 			return -1;
 
 		undo_or_redo(_undo_redo._redo, _undo_redo._undo, rp.header.size);
@@ -1275,7 +1275,7 @@ public class Database
 		// Read up to restore_point_size bytes.
 		uint32 undo_size_start = undo.size();
 		while (undo_size_start - undo.size() < restore_point_size) {
-			Action action = undo.read_uint32();
+			Action action = (Action)undo.read_uint32();
 			if (action == Action.CREATE) {
 				Guid id = undo.read_guid();
 				string obj_type = undo.read_string();
