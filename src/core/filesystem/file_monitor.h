@@ -38,7 +38,7 @@ struct FileMonitor
 	FileMonitorImpl *_impl;
 
 	///
-	FileMonitor(Allocator &a);
+	explicit FileMonitor(Allocator &a);
 
 	///
 	~FileMonitor();

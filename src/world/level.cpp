@@ -4,6 +4,7 @@
  */
 
 #include "core/containers/array.inl"
+#include "core/list.inl"
 #include "core/math/constants.h"
 #include "core/strings/string_id.inl"
 #include "resource/level_resource.h"
@@ -22,6 +23,7 @@ Level::Level(Allocator &a, UnitManager &um, World &w, const LevelResource &lr)
 	, _resource(&lr)
 	, _unit_lookup(a)
 {
+	list::init_head(_node);
 }
 
 Level::~Level()

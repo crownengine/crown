@@ -228,7 +228,7 @@ struct SoundWorldImpl
 
 	bool has(SoundInstanceId id)
 	{
-		Index &in = _indices[id & INDEX_MASK];
+		const Index &in = _indices[id & INDEX_MASK];
 		return in.id == id && in.index != UINT16_MAX;
 	}
 
@@ -273,6 +273,10 @@ struct SoundWorldImpl
 
 		set_listener_pose(MATRIX4X4_IDENTITY);
 	}
+
+	SoundWorldImpl(const SoundWorldImpl &) = delete;
+
+	SoundWorldImpl &operator=(const SoundWorldImpl &) = delete;
 
 	SoundInstanceId play(const SoundResource &sr, bool loop, f32 volume, f32 range, const Vector3 &pos)
 	{

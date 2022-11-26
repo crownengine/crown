@@ -145,6 +145,12 @@ struct SocketSet
 	SocketSet();
 
 	///
+	~SocketSet();
+
+	///
+	SocketSet(const SocketSet &) = delete;
+
+	///
 	SocketSet &operator=(const SocketSet &other);
 
 	///

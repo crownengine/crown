@@ -18,7 +18,7 @@ namespace crown
 {
 struct ShaderResource
 {
-	ShaderResource(Allocator &a)
+	explicit ShaderResource(Allocator &a)
 		: _data(a)
 	{
 	}

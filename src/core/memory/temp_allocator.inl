@@ -35,25 +35,28 @@ struct TempAllocator : public Allocator
 	unsigned _chunk_size;      ///< Chunks to allocate from backing allocator.
 
 	/// Creates a new temporary allocator using the specified backing allocator.
-	TempAllocator(Allocator &backing = default_scratch_allocator());
+	explicit TempAllocator(Allocator &backing = default_scratch_allocator());
+
+	///
 	virtual ~TempAllocator();
 
-	virtual void *allocate(u32 size, u32 align = DEFAULT_ALIGN);
+	///
+	virtual void *allocate(u32 size, u32 align = DEFAULT_ALIGN) override;
 
 	/// Deallocation is a NOP for the TempAllocator. The memory is automatically
 	/// deallocated when the TempAllocator is destroyed.
-	virtual void deallocate(void *)
+	virtual void deallocate(void *) override
 	{
 	}
 
 	/// Returns SIZE_NOT_TRACKED.
-	virtual u32 allocated_size(const void *)
+	virtual u32 allocated_size(const void *) override
 	{
 		return SIZE_NOT_TRACKED;
 	}
 
 	/// Returns SIZE_NOT_TRACKED.
-	virtual u32 total_allocated()
+	virtual u32 total_allocated() override
 	{
 		return SIZE_NOT_TRACKED;
 	}

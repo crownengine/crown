@@ -128,19 +128,19 @@ public class Level
 		}
 
 		if (units.length > 0) {
-			_db.add_restore_point((int)ActionType.DESTROY_UNIT, units);
 			foreach (Guid id in units) {
 				_db.remove_from_set(_id, "units", id);
 				_db.destroy(id);
 			}
+			_db.add_restore_point((int)ActionType.DESTROY_UNIT, units);
 		}
 
 		if (sounds.length > 0) {
-			_db.add_restore_point((int)ActionType.DESTROY_SOUND, sounds);
 			foreach (Guid id in sounds) {
 				_db.remove_from_set(_id, "sounds", id);
 				_db.destroy(id);
 			}
+			_db.add_restore_point((int)ActionType.DESTROY_SOUND, sounds);
 		}
 
 		send_destroy_objects(ids);
@@ -191,7 +191,6 @@ public class Level
 
 	public void duplicate_objects(Guid[] ids, Guid[] new_ids)
 	{
-		_db.add_restore_point((int)ActionType.DUPLICATE_OBJECTS, new_ids);
 		for (int i = 0; i < ids.length; ++i) {
 			_db.duplicate(ids[i], new_ids[i]);
 
@@ -201,13 +200,14 @@ public class Level
 				_db.add_to_set(_id, "sounds", new_ids[i]);
 			}
 		}
+		_db.add_restore_point((int)ActionType.DUPLICATE_OBJECTS, new_ids);
+
 		send_spawn_objects(new_ids);
 		selection_set(ids);
 	}
 
 	public void on_unit_spawned(Guid id, string? name, Vector3 pos, Quaternion rot, Vector3 scl)
 	{
-		_db.add_restore_point((int)ActionType.SPAWN_UNIT, new Guid[] { id });
 		_db.create(id, OBJECT_TYPE_UNIT);
 		_db.set_property_string(id, "editor.name", "unit_%04u".printf(_num_units++));
 
@@ -229,11 +229,11 @@ public class Level
 			_db.set_property_vector3   (id, "scale", scl);
 		}
 		_db.add_to_set(_id, "units", id);
+		_db.add_restore_point((int)ActionType.SPAWN_UNIT, new Guid[] { id });
 	}
 
 	public void on_sound_spawned(Guid id, string name, Vector3 pos, Quaternion rot, Vector3 scl, double range, double volume, bool loop)
 	{
-		_db.add_restore_point((int)ActionType.SPAWN_SOUND, new Guid[] { id });
 		_db.create(id, OBJECT_TYPE_SOUND_SOURCE);
 		_db.set_property_string    (id, "editor.name", "sound_%04u".printf(_num_sounds++));
 		_db.set_property_vector3   (id, "position", pos);
@@ -243,12 +243,11 @@ public class Level
 		_db.set_property_double    (id, "volume", volume);
 		_db.set_property_bool      (id, "loop", loop);
 		_db.add_to_set(_id, "sounds", id);
+		_db.add_restore_point((int)ActionType.SPAWN_SOUND, new Guid[] { id });
 	}
 
 	public void on_move_objects(Guid[] ids, Vector3[] positions, Quaternion[] rotations, Vector3[] scales)
 	{
-		_db.add_restore_point((int)ActionType.MOVE_OBJECTS, ids);
-
 		for (int i = 0; i < ids.length; ++i) {
 			Guid id = ids[i];
 			Vector3 pos = positions[i];
@@ -272,6 +271,8 @@ public class Level
 				_db.set_property_quaternion(id, "rotation", rot);
 			}
 		}
+		_db.add_restore_point((int)ActionType.MOVE_OBJECTS, ids);
+
 		// FIXME: Hack to force update the properties view
 		selection_changed(_selection);
 	}
@@ -304,8 +305,6 @@ public class Level
 
 	public void set_light(Guid unit_id, Guid component_id, string type, double range, double intensity, double spot_angle, Vector3 color)
 	{
-		_db.add_restore_point((int)ActionType.SET_LIGHT, new Guid[] { unit_id });
-
 		Unit unit = new Unit(_db, unit_id);
 		unit.set_component_property_string (component_id, "data.type",       type);
 		unit.set_component_property_double (component_id, "data.range",      range);
@@ -313,6 +312,7 @@ public class Level
 		unit.set_component_property_double (component_id, "data.spot_angle", spot_angle);
 		unit.set_component_property_vector3(component_id, "data.color",      color);
 		unit.set_component_property_string (component_id, "type", OBJECT_TYPE_LIGHT);
+		_db.add_restore_point((int)ActionType.SET_LIGHT, new Guid[] { unit_id });
 
 		_client.send_script(LevelEditorApi.set_light(unit_id, type, range, intensity, spot_angle, color));
 		_client.send(DeviceApi.frame());
@@ -320,14 +320,13 @@ public class Level
 
 	public void set_mesh(Guid unit_id, Guid component_id, string mesh_resource, string geometry, string material, bool visible)
 	{
-		_db.add_restore_point((int)ActionType.SET_MESH, new Guid[] { unit_id });
-
 		Unit unit = new Unit(_db, unit_id);
 		unit.set_component_property_string(component_id, "data.mesh_resource", mesh_resource);
 		unit.set_component_property_string(component_id, "data.geometry_name", geometry);
 		unit.set_component_property_string(component_id, "data.material", material);
 		unit.set_component_property_bool  (component_id, "data.visible", visible);
 		unit.set_component_property_string(component_id, "type", OBJECT_TYPE_MESH_RENDERER);
+		_db.add_restore_point((int)ActionType.SET_MESH, new Guid[] { unit_id });
 
 		_client.send_script(LevelEditorApi.set_mesh(unit_id, material, visible));
 		_client.send(DeviceApi.frame());
@@ -335,8 +334,6 @@ public class Level
 
 	public void set_sprite(Guid unit_id, Guid component_id, double layer, double depth, string material, string sprite_resource, bool visible)
 	{
-		_db.add_restore_point((int)ActionType.SET_SPRITE, new Guid[] { unit_id });
-
 		Unit unit = new Unit(_db, unit_id);
 		unit.set_component_property_double(component_id, "data.layer", layer);
 		unit.set_component_property_double(component_id, "data.depth", depth);
@@ -344,6 +341,7 @@ public class Level
 		unit.set_component_property_string(component_id, "data.sprite_resource", sprite_resource);
 		unit.set_component_property_bool  (component_id, "data.visible", visible);
 		unit.set_component_property_string(component_id, "type", OBJECT_TYPE_SPRITE_RENDERER);
+		_db.add_restore_point((int)ActionType.SET_SPRITE, new Guid[] { unit_id });
 
 		_client.send_script(LevelEditorApi.set_sprite(unit_id, sprite_resource, material, layer, depth, visible));
 		_client.send(DeviceApi.frame());
@@ -351,14 +349,13 @@ public class Level
 
 	public void set_camera(Guid unit_id, Guid component_id, string projection, double fov, double near_range, double far_range)
 	{
-		_db.add_restore_point((int)ActionType.SET_CAMERA, new Guid[] { unit_id });
-
 		Unit unit = new Unit(_db, unit_id);
 		unit.set_component_property_string(component_id, "data.projection", projection);
 		unit.set_component_property_double(component_id, "data.fov", fov);
 		unit.set_component_property_double(component_id, "data.near_range", near_range);
 		unit.set_component_property_double(component_id, "data.far_range", far_range);
 		unit.set_component_property_string(component_id, "type", OBJECT_TYPE_CAMERA);
+		_db.add_restore_point((int)ActionType.SET_CAMERA, new Guid[] { unit_id });
 
 		_client.send_script(LevelEditorApi.set_camera(unit_id, projection, fov, near_range, far_range));
 		_client.send(DeviceApi.frame());
@@ -366,21 +363,18 @@ public class Level
 
 	public void set_collider(Guid unit_id, Guid component_id, string shape, string scene, string name)
 	{
-		_db.add_restore_point((int)ActionType.SET_COLLIDER, new Guid[] { unit_id });
-
 		Unit unit = new Unit(_db, unit_id);
 		unit.set_component_property_string(component_id, "data.shape", shape);
 		unit.set_component_property_string(component_id, "data.scene", scene);
 		unit.set_component_property_string(component_id, "data.name", name);
 		unit.set_component_property_string(component_id, "type", OBJECT_TYPE_COLLIDER);
+		_db.add_restore_point((int)ActionType.SET_COLLIDER, new Guid[] { unit_id });
 
 		// No synchronization.
 	}
 
 	public void set_actor(Guid unit_id, Guid component_id, string class, string collision_filter, string material, double mass)
 	{
-		_db.add_restore_point((int)ActionType.SET_ACTOR, new Guid[] { unit_id });
-
 		Unit unit = new Unit(_db, unit_id);
 		unit.set_component_property_string(component_id, "data.class", class);
 		unit.set_component_property_string(component_id, "data.collision_filter", collision_filter);
@@ -393,40 +387,38 @@ public class Level
 		unit.set_component_property_bool  (component_id, "data.lock_translation_y", (bool)unit.get_component_property_bool(component_id, "data.lock_translation_y"));
 		unit.set_component_property_bool  (component_id, "data.lock_translation_z", (bool)unit.get_component_property_bool(component_id, "data.lock_translation_z"));
 		unit.set_component_property_string(component_id, "type", OBJECT_TYPE_ACTOR);
+		_db.add_restore_point((int)ActionType.SET_ACTOR, new Guid[] { unit_id });
 
 		// No synchronization.
 	}
 
 	public void set_script(Guid unit_id, Guid component_id, string script_resource)
 	{
-		_db.add_restore_point((int)ActionType.SET_SCRIPT, new Guid[] { unit_id });
-
 		Unit unit = new Unit(_db, unit_id);
 		unit.set_component_property_string(component_id, "data.script_resource", script_resource);
 		unit.set_component_property_string(component_id, "type", OBJECT_TYPE_SCRIPT);
+		_db.add_restore_point((int)ActionType.SET_SCRIPT, new Guid[] { unit_id });
 
 		// No synchronization.
 	}
 
 	public void set_animation_state_machine(Guid unit_id, Guid component_id, string state_machine_resource)
 	{
-		_db.add_restore_point((int)ActionType.SET_ANIMATION_STATE_MACHINE, new Guid[] { unit_id });
-
 		Unit unit = new Unit(_db, unit_id);
 		unit.set_component_property_string(component_id, "data.state_machine_resource", state_machine_resource);
 		unit.set_component_property_string(component_id, "type", OBJECT_TYPE_ANIMATION_STATE_MACHINE);
+		_db.add_restore_point((int)ActionType.SET_ANIMATION_STATE_MACHINE, new Guid[] { unit_id });
 
 		// No synchronization.
 	}
 
 	public void set_sound(Guid sound_id, string name, double range, double volume, bool loop)
 	{
-		_db.add_restore_point((int)ActionType.SET_SOUND, new Guid[] { sound_id });
-
 		_db.set_property_string(sound_id, "name", name);
 		_db.set_property_double(sound_id, "range", range);
 		_db.set_property_double(sound_id, "volume", volume);
 		_db.set_property_bool  (sound_id, "loop", loop);
+		_db.add_restore_point((int)ActionType.SET_SOUND, new Guid[] { sound_id });
 
 		_client.send_script(LevelEditorApi.set_sound_range(sound_id, range));
 		_client.send(DeviceApi.frame());
@@ -442,8 +434,8 @@ public class Level
 
 	public void object_set_editor_name(Guid object_id, string name)
 	{
-		_db.add_restore_point((int)ActionType.OBJECT_SET_EDITOR_NAME, new Guid[] { object_id });
 		_db.set_property_string(object_id, "editor.name", name);
+		_db.add_restore_point((int)ActionType.OBJECT_SET_EDITOR_NAME, new Guid[] { object_id });
 
 		object_editor_name_changed(object_id, name);
 	}
@@ -609,7 +601,7 @@ public class Level
 		}
 	}
 
-	private void undo_redo_action(bool undo, int id, Guid[] data)
+	private void undo_redo_action(bool undo, uint32 id, Guid[] data)
 	{
 		switch (id) {
 		case (int)ActionType.SPAWN_UNIT:
@@ -788,7 +780,7 @@ public class Level
 		}
 
 		default:
-			loge("Unknown undo/redo action: %d".printf(id));
+			loge("Unknown undo/redo action: %u".printf(id));
 			break;
 		}
 	}

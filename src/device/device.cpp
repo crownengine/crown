@@ -98,15 +98,15 @@ struct BgfxCallback : public bgfx::CallbackI
 		vlogi(DEVICE, buf, _argList);
 	}
 
-	virtual void profilerBegin(const char * /*_name*/, uint32_t /*_abgr*/, const char * /*_filePath*/, uint16_t /*_line*/)
+	virtual void profilerBegin(const char * /*_name*/, uint32_t /*_abgr*/, const char * /*_filePath*/, uint16_t /*_line*/) override
 	{
 	}
 
-	virtual void profilerBeginLiteral(const char * /*_name*/, uint32_t /*_abgr*/, const char * /*_filePath*/, uint16_t /*_line*/)
+	virtual void profilerBeginLiteral(const char * /*_name*/, uint32_t /*_abgr*/, const char * /*_filePath*/, uint16_t /*_line*/) override
 	{
 	}
 
-	virtual void profilerEnd()
+	virtual void profilerEnd() override
 	{
 	}
 
@@ -132,7 +132,7 @@ struct BgfxCallback : public bgfx::CallbackI
 	{
 	}
 
-	virtual void captureEnd()
+	virtual void captureEnd() override
 	{
 	}
 
@@ -160,17 +160,17 @@ struct BgfxAllocator : public bx::AllocatorI
 	}
 };
 
-static void device_command_pause(ConsoleServer & /*cs*/, u32 /*client_id*/, JsonArray & /*args*/, void * /*user_data*/)
+static void device_command_pause(ConsoleServer & /*cs*/, u32 /*client_id*/, const JsonArray & /*args*/, void * /*user_data*/)
 {
 	device()->pause();
 }
 
-static void device_command_unpause(ConsoleServer & /*cs*/, u32 /*client_id*/, JsonArray & /*args*/, void * /*user_data*/)
+static void device_command_unpause(ConsoleServer & /*cs*/, u32 /*client_id*/, const JsonArray & /*args*/, void * /*user_data*/)
 {
 	device()->unpause();
 }
 
-static void device_command_refresh(ConsoleServer & /*cs*/, u32 /*client_id*/, JsonArray & /*args*/, void * /*user_data*/)
+static void device_command_refresh(ConsoleServer & /*cs*/, u32 /*client_id*/, const JsonArray & /*args*/, void * /*user_data*/)
 {
 	device()->refresh();
 }

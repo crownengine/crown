@@ -49,7 +49,7 @@ struct FileDisk : public File
 		close();
 	}
 
-	void open(const char *path, FileOpenMode::Enum mode)
+	void open(const char *path, FileOpenMode::Enum mode) override
 	{
 #if CROWN_PLATFORM_WINDOWS
 		_file = CreateFile(path
@@ -65,7 +65,7 @@ struct FileDisk : public File
 #endif
 	}
 
-	void close()
+	void close() override
 	{
 		if (is_open()) {
 #if CROWN_PLATFORM_WINDOWS
@@ -78,7 +78,7 @@ struct FileDisk : public File
 		}
 	}
 
-	bool is_open()
+	bool is_open() override
 	{
 #if CROWN_PLATFORM_WINDOWS
 		return _file != INVALID_HANDLE_VALUE;
@@ -87,7 +87,7 @@ struct FileDisk : public File
 #endif
 	}
 
-	u32 size()
+	u32 size() override
 	{
 		CE_ASSERT(is_open(), "File is not open");
 #if CROWN_PLATFORM_WINDOWS
@@ -99,7 +99,7 @@ struct FileDisk : public File
 #endif
 	}
 
-	u32 position()
+	u32 position() override
 	{
 		CE_ASSERT(is_open(), "File is not open");
 #if CROWN_PLATFORM_WINDOWS
@@ -116,7 +116,7 @@ struct FileDisk : public File
 #endif
 	}
 
-	bool end_of_file()
+	bool end_of_file() override
 	{
 		CE_ASSERT(is_open(), "File is not open");
 #if CROWN_PLATFORM_WINDOWS
@@ -126,7 +126,7 @@ struct FileDisk : public File
 #endif
 	}
 
-	void seek(u32 position)
+	void seek(u32 position) override
 	{
 		CE_ASSERT(is_open(), "File is not open");
 #if CROWN_PLATFORM_WINDOWS
@@ -142,7 +142,7 @@ struct FileDisk : public File
 		CE_UNUSED(err);
 	}
 
-	void seek_to_end()
+	void seek_to_end() override
 	{
 		CE_ASSERT(is_open(), "File is not open");
 #if CROWN_PLATFORM_WINDOWS
@@ -158,7 +158,7 @@ struct FileDisk : public File
 		CE_UNUSED(err);
 	}
 
-	void skip(u32 bytes)
+	void skip(u32 bytes) override
 	{
 		CE_ASSERT(is_open(), "File is not open");
 #if CROWN_PLATFORM_WINDOWS
@@ -174,7 +174,7 @@ struct FileDisk : public File
 		CE_UNUSED(err);
 	}
 
-	u32 read(void *data, u32 size)
+	u32 read(void *data, u32 size) override
 	{
 		CE_ASSERT(is_open(), "File is not open");
 		CE_ASSERT(data != NULL, "Data must be != NULL");
@@ -191,7 +191,7 @@ struct FileDisk : public File
 #endif
 	}
 
-	u32 write(const void *data, u32 size)
+	u32 write(const void *data, u32 size) override
 	{
 		CE_ASSERT(is_open(), "File is not open");
 		CE_ASSERT(data != NULL, "Data must be != NULL");
@@ -210,7 +210,7 @@ struct FileDisk : public File
 #endif
 	}
 
-	void flush()
+	void flush() override
 	{
 		CE_ASSERT(is_open(), "File is not open");
 #if CROWN_PLATFORM_WINDOWS

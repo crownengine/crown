@@ -106,7 +106,7 @@ Vector3 InputDevice::axis(u8 id) const
 	return axis;
 }
 
-const char *InputDevice::button_name(u8 id)
+const char *InputDevice::button_name(u8 id) const
 {
 	return id < _num_buttons
 		? _button_name[id]
@@ -114,7 +114,7 @@ const char *InputDevice::button_name(u8 id)
 		;
 }
 
-const char *InputDevice::axis_name(u8 id)
+const char *InputDevice::axis_name(u8 id) const
 {
 	return id < _num_axes
 		? _axis_name[id]
@@ -122,7 +122,7 @@ const char *InputDevice::axis_name(u8 id)
 		;
 }
 
-u8 InputDevice::button_id(StringId32 name)
+u8 InputDevice::button_id(StringId32 name) const
 {
 	for (u32 i = 0; i < _num_buttons; ++i) {
 		if (_button_hash[i] == name)
@@ -132,7 +132,7 @@ u8 InputDevice::button_id(StringId32 name)
 	return UINT8_MAX;
 }
 
-u8 InputDevice::axis_id(StringId32 name)
+u8 InputDevice::axis_id(StringId32 name) const
 {
 	for (u32 i = 0; i < _num_axes; ++i) {
 		if (_axis_hash[i] == name)
@@ -142,7 +142,7 @@ u8 InputDevice::axis_id(StringId32 name)
 	return UINT8_MAX;
 }
 
-f32 InputDevice::deadzone(u8 id, DeadzoneMode::Enum *deadzone_mode)
+f32 InputDevice::deadzone(u8 id, DeadzoneMode::Enum *deadzone_mode) const
 {
 	if (id < _num_axes) {
 		*deadzone_mode = (DeadzoneMode::Enum)_deadzone_mode[id];

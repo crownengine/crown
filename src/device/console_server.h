@@ -21,7 +21,7 @@ namespace crown
 /// @ingroup Device
 struct ConsoleServer
 {
-	typedef void (*CommandTypeFunction)(ConsoleServer &cs, u32 client_id, JsonArray &args, void *user_data);
+	typedef void (*CommandTypeFunction)(ConsoleServer &cs, u32 client_id, const JsonArray &args, void *user_data);
 	typedef void (*MessageTypeFunction)(ConsoleServer &cs, u32 client_id, const char *json, void *user_data);
 
 	struct CommandData
@@ -45,6 +45,7 @@ struct ConsoleServer
 
 	u16 _port;
 	TCPSocket _server;
+	TCPSocket _dummy_client;
 	u32 _next_client_id;
 	Mutex _clients_mutex;
 	Vector<Client> _clients;
@@ -74,11 +75,14 @@ struct ConsoleServer
 	Semaphore _client_connected;
 
 	///
-	ConsoleServer(Allocator &a);
+	explicit ConsoleServer(Allocator &a);
 
 	/// Listens on the given @a port. If @a wait is true, this function
 	/// blocks until a client is connected.
 	void listen(u16 port, bool wait);
+
+	/// Closes the server.
+	void close();
 
 	/// Shutdowns the server.
 	void shutdown();

@@ -11,6 +11,7 @@
 #include "core/guid.h"
 #include "core/memory/globals.h"
 #include "core/memory/memory.inl"
+#include "core/thread/mpsc_queue.inl"
 #include "core/thread/thread.h"
 #include "core/unit_tests.h"
 #include "device/device.h"
@@ -278,27 +279,33 @@ struct Joypad
 
 static bool s_exit = false;
 static HCURSOR _win_cursors[MouseCursor::COUNT];
+static bool push_event(const OsEvent &ev);
 
 struct WindowsDevice
 {
 	HWND _hwnd;
 	HCURSOR _hcursor;
+	MPSCQueue<OsEvent, CROWN_MAX_OS_EVENTS> _events;
 	DeviceEventQueue _queue;
 	Joypad _joypad;
 	s16 _mouse_last_x;
 	s16 _mouse_last_y;
 	CursorMode::Enum _cursor_mode;
+	DeviceOptions *_options;
 
-	WindowsDevice()
+	WindowsDevice(Allocator &a, DeviceOptions &opts)
 		: _hwnd(NULL)
 		, _hcursor(NULL)
+		, _events(a)
+		, _queue(push_event)
 		, _mouse_last_x(INT16_MAX)
 		, _mouse_last_y(INT16_MAX)
 		, _cursor_mode(CursorMode::NORMAL)
+		, _options(&opts)
 	{
 	}
 
-	int run(DeviceOptions *opts)
+	int run()
 	{
 		HINSTANCE instance = (HINSTANCE)GetModuleHandle(NULL);
 		WNDCLASSEX wnd;
@@ -315,7 +322,7 @@ struct WindowsDevice
 
 		DWORD style = WS_VISIBLE;
 		DWORD exstyle = 0;
-		if (opts->_parent_window == 0) {
+		if (_options->_parent_window == 0) {
 			style |= WS_OVERLAPPEDWINDOW;
 		} else {
 			style |= WS_POPUP;
@@ -325,16 +332,16 @@ struct WindowsDevice
 		RECT rect;
 		rect.left   = 0;
 		rect.top    = 0;
-		rect.right  = opts->_window_width;
-		rect.bottom = opts->_window_height;
+		rect.right  = _options->_window_width;
+		rect.bottom = _options->_window_height;
 		AdjustWindowRect(&rect, style, FALSE);
 
 		_hwnd = CreateWindowExA(exstyle
 			, "crown"
 			, "Crown"
 			, style
-			, opts->_window_x
-			, opts->_window_y
+			, _options->_window_x
+			, _options->_window_y
 			, rect.right - rect.left
 			, rect.bottom - rect.top
 			, 0
@@ -344,8 +351,8 @@ struct WindowsDevice
 			);
 		CE_ASSERT(_hwnd != NULL, "CreateWindowA: GetLastError = %d", GetLastError());
 
-		if (opts->_parent_window != 0)
-			SetParent(_hwnd, (HWND)(UINT_PTR)opts->_parent_window);
+		if (_options->_parent_window != 0)
+			SetParent(_hwnd, (HWND)(UINT_PTR)_options->_parent_window);
 
 		_hcursor = LoadCursorA(NULL, IDC_ARROW);
 
@@ -363,25 +370,36 @@ struct WindowsDevice
 
 		Thread main_thread;
 		main_thread.start([](void *user_data) {
-				crown::run(*((DeviceOptions *)user_data));
+				WindowsDevice *win = (WindowsDevice *)user_data;
+				crown::run(*win->_options);
 				s_exit = true;
+				PostMessageA(win->_hwnd, WM_USER + 1, 0, 0);
 				return EXIT_SUCCESS;
 			}
-			, opts
+			, this
 			);
 
+		Thread joypad_thread;
+		joypad_thread.start([](void *user_data) {
+				WindowsDevice *win = (WindowsDevice *)user_data;
+				while (!s_exit) {
+					win->_joypad.update(win->_queue);
+					os::sleep(4);
+				}
+				return EXIT_SUCCESS;
+			}
+			, this
+			);
+
+		// Windows event loop.
 		MSG msg;
 		msg.message = WM_NULL;
-
-		while (!s_exit) {
-			_joypad.update(_queue);
-
-			while (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE) != 0) {
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
+		while (GetMessage(&msg, NULL, 0U, 0U) != 0) {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
 		}
 
+		joypad_thread.stop();
 		main_thread.stop();
 
 		// Destroy standard cursors
@@ -405,9 +423,10 @@ struct WindowsDevice
 	{
 		switch (id) {
 		case WM_DESTROY:
-			break;
+		case WM_USER + 1:
+			PostQuitMessage(0);
+			return 0;
 
-		case WM_QUIT:
 		case WM_CLOSE:
 			s_exit = true;
 			_queue.push_exit_event();
@@ -470,19 +489,6 @@ struct WindowsDevice
 						, 0
 						);
 					POINT mouse_pos = { (long)width/2, (long)height/2 };
-					ClientToScreen(_hwnd, &mouse_pos);
-					SetCursorPos(mouse_pos.x, mouse_pos.y);
-					_mouse_last_x = (s16)width/2;
-					_mouse_last_y = (s16)height/2;
-				} else if (_cursor_mode == CursorMode::NORMAL) {
-					_queue.push_axis_event(InputDeviceType::MOUSE
-						, 0
-						, MouseAxis::CURSOR_DELTA
-						, deltax
-						, deltay
-						, 0
-						);
-					POINT mouse_pos = {(long)width/2, (long)height/2};
 					ClientToScreen(_hwnd, &mouse_pos);
 					SetCursorPos(mouse_pos.x, mouse_pos.y);
 					_mouse_last_x = (s16)width/2;
@@ -588,11 +594,11 @@ struct WindowsDevice
 	static LRESULT CALLBACK window_proc(HWND hwnd, UINT id, WPARAM wparam, LPARAM lparam);
 };
 
-static WindowsDevice s_wdvc;
+static WindowsDevice *s_windows_device;
 
 LRESULT CALLBACK WindowsDevice::window_proc(HWND hwnd, UINT id, WPARAM wparam, LPARAM lparam)
 {
-	return s_wdvc.pump_events(hwnd, id, wparam, lparam);
+	return s_windows_device->pump_events(hwnd, id, wparam, lparam);
 }
 
 struct WindowWin : public Window
@@ -610,40 +616,40 @@ struct WindowWin : public Window
 	{
 	}
 
-	void open(u16 x, u16 y, u16 width, u16 height, u32 /*parent*/)
+	void open(u16 x, u16 y, u16 width, u16 height, u32 /*parent*/) override
 	{
 		move(x, y);
 		resize(width, height);
 	}
 
-	void close()
+	void close() override
 	{
 	}
 
-	void bgfx_setup()
+	void bgfx_setup() override
 	{
 		bgfx::PlatformData pd;
 		memset(&pd, 0, sizeof(pd));
-		pd.nwh = s_wdvc._hwnd;
+		pd.nwh = s_windows_device->_hwnd;
 		bgfx::setPlatformData(pd);
 	}
 
-	void show()
+	void show() override
 	{
-		ShowWindow(s_wdvc._hwnd, SW_SHOW);
+		ShowWindow(s_windows_device->_hwnd, SW_SHOW);
 	}
 
-	void hide()
+	void hide() override
 	{
-		ShowWindow(s_wdvc._hwnd, SW_HIDE);
+		ShowWindow(s_windows_device->_hwnd, SW_HIDE);
 	}
 
-	void resize(u16 width, u16 height)
+	void resize(u16 width, u16 height) override
 	{
 		_width = width;
 		_height = height;
 
-		DWORD style = GetWindowLongA(s_wdvc._hwnd, GWL_STYLE);
+		DWORD style = GetWindowLongA(s_windows_device->_hwnd, GWL_STYLE);
 		RECT rect;
 		rect.left   = 0;
 		rect.top    = 0;
@@ -651,7 +657,7 @@ struct WindowWin : public Window
 		rect.bottom = _height;
 		AdjustWindowRect(&rect, style, FALSE);
 
-		MoveWindow(s_wdvc._hwnd
+		MoveWindow(s_windows_device->_hwnd
 			, _x
 			, _y
 			, rect.right - rect.left
@@ -660,73 +666,73 @@ struct WindowWin : public Window
 			);
 	}
 
-	void move(u16 x, u16 y)
+	void move(u16 x, u16 y) override
 	{
 		_x = x;
 		_y = y;
 		resize(_width, _height);
 	}
 
-	void minimize()
+	void minimize() override
 	{
-		ShowWindow(s_wdvc._hwnd, SW_MINIMIZE);
+		ShowWindow(s_windows_device->_hwnd, SW_MINIMIZE);
 	}
 
-	void maximize()
+	void maximize() override
 	{
-		ShowWindow(s_wdvc._hwnd, SW_MAXIMIZE);
+		ShowWindow(s_windows_device->_hwnd, SW_MAXIMIZE);
 	}
 
-	void restore()
+	void restore() override
 	{
-		ShowWindow(s_wdvc._hwnd, SW_RESTORE);
+		ShowWindow(s_windows_device->_hwnd, SW_RESTORE);
 	}
 
-	const char *title()
+	const char *title() override
 	{
 		static char buf[512];
 		memset(buf, 0, sizeof(buf));
-		GetWindowText(s_wdvc._hwnd, buf, sizeof(buf));
+		GetWindowText(s_windows_device->_hwnd, buf, sizeof(buf));
 		return buf;
 	}
 
-	void set_title(const char *title)
+	void set_title(const char *title) override
 	{
-		SetWindowText(s_wdvc._hwnd, title);
+		SetWindowText(s_windows_device->_hwnd, title);
 	}
 
-	void show_cursor(bool show)
+	void show_cursor(bool show) override
 	{
-		s_wdvc._hcursor = show ? LoadCursorA(NULL, IDC_ARROW) : NULL;
-		SetCursor(s_wdvc._hcursor);
+		s_windows_device->_hcursor = show ? LoadCursorA(NULL, IDC_ARROW) : NULL;
+		SetCursor(s_windows_device->_hcursor);
 	}
 
-	void set_fullscreen(bool /*fullscreen*/)
+	void set_fullscreen(bool /*fullscreen*/) override
 	{
 	}
 
-	void set_cursor(MouseCursor::Enum cursor)
+	void set_cursor(MouseCursor::Enum cursor) override
 	{
-		s_wdvc._hcursor = _win_cursors[cursor];
-		SetCursor(s_wdvc._hcursor);
+		s_windows_device->_hcursor = _win_cursors[cursor];
+		SetCursor(s_windows_device->_hcursor);
 	}
 
-	void set_cursor_mode(CursorMode::Enum mode)
+	void set_cursor_mode(CursorMode::Enum mode) override
 	{
-		if (mode == s_wdvc._cursor_mode)
+		if (mode == s_windows_device->_cursor_mode)
 			return;
-		s_wdvc._cursor_mode = mode;
+		s_windows_device->_cursor_mode = mode;
 
 		if (mode == CursorMode::DISABLED) {
 			RECT clipRect;
-			GetWindowRect(s_wdvc._hwnd, &clipRect);
+			GetWindowRect(s_windows_device->_hwnd, &clipRect);
 			unsigned width = clipRect.right - clipRect.left;
 			unsigned height = clipRect.bottom - clipRect.top;
 
-			s_wdvc._mouse_last_x = width/2;
-			s_wdvc._mouse_last_y = height/2;
+			s_windows_device->_mouse_last_x = width/2;
+			s_windows_device->_mouse_last_y = height/2;
 			POINT mouse_pos = { (long)width/2, (long)height/2 };
-			ClientToScreen(s_wdvc._hwnd, &mouse_pos);
+			ClientToScreen(s_windows_device->_hwnd, &mouse_pos);
 			SetCursorPos(mouse_pos.x, mouse_pos.y);
 
 			show_cursor(false);
@@ -737,9 +743,9 @@ struct WindowWin : public Window
 		}
 	}
 
-	void *handle()
+	void *handle() override
 	{
-		return (void *)(uintptr_t)s_wdvc._hwnd;
+		return (void *)(uintptr_t)s_windows_device->_hwnd;
 	}
 };
 
@@ -759,11 +765,11 @@ namespace window
 
 struct DisplayWin : public Display
 {
-	void modes(Array<DisplayMode> & /*modes*/)
+	void modes(Array<DisplayMode> & /*modes*/) override
 	{
 	}
 
-	void set_mode(u32 /*id*/)
+	void set_mode(u32 /*id*/) override
 	{
 	}
 };
@@ -782,9 +788,14 @@ namespace display
 
 } // namespace display
 
+static bool push_event(const OsEvent &ev)
+{
+	return s_windows_device->_events.push(ev);
+}
+
 bool next_event(OsEvent &ev)
 {
-	return s_wdvc._queue.pop_event(ev);
+	return s_windows_device->_events.pop(ev);
 }
 
 } // namespace crown
@@ -845,8 +856,11 @@ int main(int argc, char **argv)
 	}
 #endif
 
-	if (ec == EXIT_SUCCESS)
-		ec = s_wdvc.run(&opts);
+	if (ec == EXIT_SUCCESS) {
+		s_windows_device = CE_NEW(default_allocator(), WindowsDevice)(default_allocator(), opts);
+		ec = s_windows_device->run();
+		CE_DELETE(default_allocator(), s_windows_device);
+	}
 
 	FreeConsole();
 	WSACleanup();

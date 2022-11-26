@@ -46,7 +46,7 @@ namespace console_server_internal
 			cmd.command_function(cs, client_id, args, cmd.user_data);
 	}
 
-	static void command_help(ConsoleServer &cs, u32 client_id, JsonArray &args, void * /*user_data*/)
+	static void command_help(ConsoleServer &cs, u32 client_id, const JsonArray &args, void * /*user_data*/)
 	{
 		if (array::size(args) != 1) {
 			cs.error(client_id, "Usage: help");
@@ -167,25 +167,33 @@ void ConsoleServer::listen(u16 port, bool wait)
 	_input_thread.start([](void *thiz) { return ((ConsoleServer *)thiz)->run_input_thread(); }, this);
 	_output_thread.start([](void *thiz) { return ((ConsoleServer *)thiz)->run_output_thread(); }, this);
 
+	// Connect a dummy client to the _server to
+	// unlock the input_thread later at exit.
+	_dummy_client.connect(IP_ADDRESS_LOOPBACK, _port);
+	_client_connected.wait();
+
+	// Wait for real clients to connect.
 	if (wait)
 		_client_connected.wait();
 }
 
-void ConsoleServer::shutdown()
+void ConsoleServer::close()
 {
 	_thread_exit = true;
 
-	if (_input_thread.is_running()) {
-		// Unlock input thread if it is stuck waiting for _handlers_semaphore.
-		execute_message_handlers(false);
+	// Unlock input thread if it is stuck inside the select().
+	u32 blank_header = 0;
+	_dummy_client.write(&blank_header, sizeof(blank_header));
+}
 
-		// Unlock input thread if it is stuck inside the select().
-		TCPSocket dummy;
-		dummy.connect(IP_ADDRESS_LOOPBACK, _port);
+void ConsoleServer::shutdown()
+{
+	close();
+	_dummy_client.close();
 
+	_handlers_semaphore.post();
+	if (_input_thread.is_running())
 		_input_thread.stop();
-		dummy.close();
-	}
 
 	_output_condition.signal();
 	if (_output_thread.is_running())
@@ -263,30 +271,32 @@ void ConsoleServer::execute_message_handlers(bool sync)
 		const char *msg = array::begin(*_input_read) + fb.position();
 		br.skip(msg_len);
 
-		// Process message.
-		JsonObject obj(default_allocator());
-		sjson::parse(obj, msg);
+		if (msg_len > 0) {
+			// Process the message if any.
+			JsonObject obj(default_allocator());
+			sjson::parse(obj, msg);
 
-		if (!json_object::has(obj, "type")) {
-			error(client_id, "Missing command type");
-			continue;
+			if (!json_object::has(obj, "type")) {
+				error(client_id, "Missing command type");
+				continue;
+			}
+
+			// Find handler for the message type.
+			CommandData cmd;
+			cmd.message_function = NULL;
+			cmd.user_data = NULL;
+			cmd = hash_map::get(_messages
+				, sjson::parse_string_id(obj["type"])
+				, cmd
+				);
+			if (!cmd.message_function) {
+				error(client_id, "Unknown command type");
+				continue;
+			}
+
+			// Call the handler.
+			cmd.message_function(*this, client_id, msg, cmd.user_data);
 		}
-
-		// Find handler for the message type.
-		CommandData cmd;
-		cmd.message_function = NULL;
-		cmd.user_data = NULL;
-		cmd = hash_map::get(_messages
-			, sjson::parse_string_id(obj["type"])
-			, cmd
-			);
-		if (!cmd.message_function) {
-			error(client_id, "Unknown command type");
-			continue;
-		}
-
-		// Call the handler.
-		cmd.message_function(*this, client_id, msg, cmd.user_data);
 	}
 
 	array::clear(*_input_read);
@@ -397,7 +407,8 @@ s32 ConsoleServer::run_input_thread()
 
 		if (array::size(*_input_write) > 0) {
 			_input_semaphore.post();
-			_handlers_semaphore.wait();
+			if (!_thread_exit)
+				_handlers_semaphore.wait();
 		}
 	}
 

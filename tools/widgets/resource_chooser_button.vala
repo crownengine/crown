@@ -76,7 +76,7 @@ public class ResourceChooserButton : Gtk.Box
 			, null
 			);
 
-		var rb = new ResourceChooser(null, _project_store, false);
+		var rb = new ResourceChooser(null, _project_store);
 		rb.set_type_filter(type_filter);
 		rb.resource_selected.connect(() => { _name.text = rb._name; dg.response(ResponseType.OK); });
 

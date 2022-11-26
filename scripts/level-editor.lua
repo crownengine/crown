@@ -27,6 +27,7 @@ project "level-editor"
 	configuration { "linux-*" }
 		targetdir (CROWN_BUILD_DIR .. "linux64" .. "/bin")
 		objdir (CROWN_BUILD_DIR .. "linux64" .. "/obj")
+		buildoptions_vala { "--pkg posix" }
 
 	configuration { "mingw*" }
 		targetdir (CROWN_BUILD_DIR .. "mingw64" .. "/bin")

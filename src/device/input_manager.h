@@ -28,7 +28,7 @@ struct InputManager
 	bool _has_delta_axis_event;
 
 	/// Constructor.
-	InputManager(Allocator &a);
+	explicit InputManager(Allocator &a);
 
 	/// Destructor.
 	~InputManager();

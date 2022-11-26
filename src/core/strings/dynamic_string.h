@@ -22,7 +22,7 @@ struct DynamicString
 	Array<char> _data;
 
 	///
-	DynamicString(Allocator &a);
+	explicit DynamicString(Allocator &a);
 
 	///
 	~DynamicString();

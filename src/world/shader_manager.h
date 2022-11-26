@@ -31,7 +31,7 @@ struct ShaderManager
 	ShaderMap _shader_map;
 
 	///
-	ShaderManager(Allocator &a);
+	explicit ShaderManager(Allocator &a);
 
 	///
 	void *load(File &file, Allocator &a);

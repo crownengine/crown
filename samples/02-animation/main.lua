@@ -66,6 +66,9 @@ function Game.update(dt)
 	if pad_dir.x == 0.0 and pad_dir.y == 0.0 then
 		pad_dir.x = pad_dir.x + Keyboard.button(Keyboard.button_id("d")) - Keyboard.button(Keyboard.button_id("a"))
 		pad_dir.y = pad_dir.y + Keyboard.button(Keyboard.button_id("w")) - Keyboard.button(Keyboard.button_id("s"))
+		if Vector3.length(pad_dir) > 0.0001 then
+			Vector3.normalize(pad_dir)
+		end
 	end
 	-- Compute new player position
 	local player_speed = 4

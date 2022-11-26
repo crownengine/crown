@@ -22,7 +22,7 @@ struct UnitManager
 	UnitDestroyCallback _callbacks;
 
 	///
-	UnitManager(Allocator &a);
+	explicit UnitManager(Allocator &a);
 
 	///
 	UnitId make_unit(u32 idx, u8 gen);

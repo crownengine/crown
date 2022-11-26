@@ -23,7 +23,8 @@ struct FilesystemDisk : public Filesystem
 	Allocator *_allocator;
 	DynamicString _prefix;
 
-	FilesystemDisk(Allocator &a);
+	///
+	explicit FilesystemDisk(Allocator &a);
 
 	/// Sets the root path to the given @a prefix.
 	/// @note
@@ -31,40 +32,40 @@ struct FilesystemDisk : public Filesystem
 	void set_prefix(const char *prefix);
 
 	/// @copydoc Filesystem::open()
-	File *open(const char *path, FileOpenMode::Enum mode);
+	File *open(const char *path, FileOpenMode::Enum mode) override;
 
 	/// @copydoc Filesystem::close()
-	void close(File &file);
+	void close(File &file) override;
 
 	/// @copydoc Filesystem::stat()
-	Stat stat(const char *path);
+	Stat stat(const char *path) override;
 
 	/// @copydoc Filesystem::exists()
-	bool exists(const char *path);
+	bool exists(const char *path) override;
 
 	/// @copydoc Filesystem::is_directory()
-	bool is_directory(const char *path);
+	bool is_directory(const char *path) override;
 
 	/// @copydoc Filesystem::is_file()
-	bool is_file(const char *path);
+	bool is_file(const char *path) override;
 
 	/// @copydoc Filesystem::last_modified_time()
-	u64 last_modified_time(const char *path);
+	u64 last_modified_time(const char *path) override;
 
 	/// @copydoc Filesystem::create_directory()
-	CreateResult create_directory(const char *path);
+	CreateResult create_directory(const char *path) override;
 
 	/// @copydoc Filesystem::delete_directory()
-	DeleteResult delete_directory(const char *path);
+	DeleteResult delete_directory(const char *path) override;
 
 	/// @copydoc Filesystem::delete_file()
-	DeleteResult delete_file(const char *path);
+	DeleteResult delete_file(const char *path) override;
 
 	/// @copydoc Filesystem::list_files()
-	void list_files(const char *path, Vector<DynamicString> &files);
+	void list_files(const char *path, Vector<DynamicString> &files) override;
 
 	/// @copydoc Filesystem::absolute_path()
-	void absolute_path(DynamicString &os_path, const char *path);
+	void absolute_path(DynamicString &os_path, const char *path) override;
 };
 
 } // namespace crown

@@ -21,7 +21,7 @@ struct StringView
 	StringView();
 
 	///
-	StringView(const char *str);
+	explicit StringView(const char *str);
 
 	///
 	StringView(const char *str, u32 len);

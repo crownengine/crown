@@ -18,7 +18,7 @@ struct BinaryWriter
 	File &_file;
 
 	///
-	BinaryWriter(File &file);
+	explicit BinaryWriter(File &file);
 
 	///
 	void align(const u32 align);
@@ -46,7 +46,7 @@ struct BinaryReader
 	File &_file;
 
 	///
-	BinaryReader(File &file);
+	explicit BinaryReader(File &file);
 
 	///
 	void align(const u32 align);

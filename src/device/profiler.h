@@ -115,10 +115,10 @@ namespace profiler_globals
 	#define ALLOCATE_MEMORY(name, size) profiler::allocate_memory(name, size)
 	#define DEALLOCATE_MEMORY(name, size) profiler::deallocate_memory(name, size)
 #else
-	#define ENTER_PROFILE_SCOPE(name) CE_NOOP()
+	#define ENTER_PROFILE_SCOPE(name) CE_UNUSED(name)
 	#define LEAVE_PROFILE_SCOPE() CE_NOOP()
-	#define RECORD_FLOAT(name, value) CE_NOOP()
-	#define RECORD_VECTOR3(name, value) CE_NOOP()
-	#define ALLOCATE_MEMORY(name, size) CE_NOOP()
-	#define DEALLOCATE_MEMORY(name, size) CE_NOOP()
+	#define RECORD_FLOAT(name, value) CE_UNUSED_2(name, value)
+	#define RECORD_VECTOR3(name, value) CE_UNUSED_2(name, value)
+	#define ALLOCATE_MEMORY(name, size) CE_UNUSED_2(name, size)
+	#define DEALLOCATE_MEMORY(name, size) CE_UNUSED_2(name, size)
 #endif

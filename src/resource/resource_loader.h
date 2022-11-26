@@ -51,7 +51,7 @@ struct ResourceLoader
 	s32 run();
 
 	/// Read resources from @a data_filesystem.
-	ResourceLoader(Filesystem &data_filesystem);
+	explicit ResourceLoader(Filesystem &data_filesystem);
 
 	///
 	~ResourceLoader();

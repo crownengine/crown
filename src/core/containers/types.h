@@ -31,7 +31,7 @@ struct Array
 	u32 _size;
 	T *_data;
 
-	Array(Allocator &a);
+	explicit Array(Allocator &a);
 	Array(const Array<T> &other);
 	~Array();
 	T &operator[](u32 index);
@@ -58,7 +58,7 @@ struct Vector
 	u32 _size;
 	T *_data;
 
-	Vector(Allocator &a);
+	explicit Vector(Allocator &a);
 	Vector(const Vector<T> &other);
 	~Vector();
 	T &operator[](u32 index);
@@ -78,7 +78,7 @@ struct Queue
 	u32 _size;
 	Array<T> _queue;
 
-	Queue(Allocator &a);
+	explicit Queue(Allocator &a);
 	T &operator[](u32 index);
 	const T &operator[](u32 index) const;
 };
@@ -107,7 +107,7 @@ struct HashMap
 	Entry *_data;
 	char *_buffer;
 
-	HashMap(Allocator &a);
+	explicit HashMap(Allocator &a);
 	HashMap(const HashMap &other);
 	~HashMap();
 	HashMap<TKey, TValue, Hash, KeyEqual> &operator=(const HashMap<TKey, TValue, Hash, KeyEqual> &other);
@@ -135,7 +135,7 @@ struct HashSet
 	TKey *_data;
 	char *_buffer;
 
-	HashSet(Allocator &a);
+	explicit HashSet(Allocator &a);
 	HashSet(const HashSet &other);
 	~HashSet();
 	HashSet<TKey, Hash, KeyEqual> &operator=(const HashSet<TKey, Hash, KeyEqual> &other);

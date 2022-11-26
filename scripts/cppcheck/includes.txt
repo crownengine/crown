@@ -1,0 +1,9 @@
+src
+3rdparty/bx/include
+3rdparty/bgfx/include
+3rdparty/bgfx/src
+3rdparty/bimg/include
+3rdparty/bullet3/src
+3rdparty/openal/include
+3rdparty/luajit/src
+3rdparty/stb

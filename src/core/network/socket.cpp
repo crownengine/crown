@@ -199,6 +199,9 @@ TCPSocket::TCPSocket(const TCPSocket &other)
 
 TCPSocket &TCPSocket::operator=(const TCPSocket &other)
 {
+	if (CE_UNLIKELY(this == &other))
+		return *this;
+
 	_priv = new (_data) Private();
 	memcpy(_data, other._data, sizeof(_data));
 	return *this;
@@ -335,6 +338,11 @@ SocketSet::SocketSet()
 #if CROWN_PLATFORM_POSIX
 	_priv->maxfd = INVALID_SOCKET;
 #endif
+}
+
+SocketSet::~SocketSet()
+{
+	// Do nothing.
 }
 
 SocketSet &SocketSet::operator=(const SocketSet &other)

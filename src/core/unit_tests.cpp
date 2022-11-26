@@ -909,7 +909,7 @@ static void test_string_id()
 		ENSURE(a._id == 0x7c2365dbu);
 
 		StringId32 b("murmur32", 8);
-		ENSURE(a._id == 0x7c2365dbu);
+		ENSURE(b._id == 0x7c2365dbu);
 
 		char str[9];
 		a.to_string(str, sizeof(str));
@@ -920,7 +920,7 @@ static void test_string_id()
 		ENSURE(a._id == 0x90631502d1a3432bu);
 
 		StringId64 b("murmur64", 8);
-		ENSURE(a._id == 0x90631502d1a3432bu);
+		ENSURE(b._id == 0x90631502d1a3432bu);
 
 		char str[17];
 		a.to_string(str, sizeof(str));

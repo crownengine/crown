@@ -25,7 +25,7 @@ struct SoundWorld
 	SoundWorldImpl *_impl;
 
 	///
-	SoundWorld(Allocator &a);
+	explicit SoundWorld(Allocator &a);
 
 	///
 	~SoundWorld();
@@ -33,6 +33,12 @@ struct SoundWorld
 	/// Plays the sound @a sr at the given @a volume [0 .. 1].
 	/// If loop is true the sound will be played looping.
 	SoundInstanceId play(const SoundResource &sr, bool loop, f32 volume, f32 range, const Vector3 &pos);
+
+	///
+	SoundWorld(const SoundWorld &) = delete;
+
+	///
+	SoundWorld &operator=(const SoundWorld &) = delete;
 
 	/// Stops the sound with the given @a id.
 	/// After this call, the instance will be destroyed.

@@ -1,0 +1,7 @@
+*:3rdparty/*
+cstyleCast
+allocaCalled
+shadowFunction
+unusedFunction
+redundantAssignment
+redundantInitialization

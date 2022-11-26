@@ -12,6 +12,7 @@
 #include "core/memory/globals.h"
 #include "core/memory/memory.inl"
 #include "core/os.h"
+#include "core/thread/spsc_queue.inl"
 #include "core/thread/thread.h"
 #include "core/unit_tests.h"
 #include "device/device.h"
@@ -180,14 +181,14 @@ struct Joypad
 		s16 right[3];
 	};
 
+	DeviceEventQueue *_queue;
 	int _fd[CROWN_MAX_JOYPADS];
-	bool _connected[CROWN_MAX_JOYPADS];
 	AxisData _axis[CROWN_MAX_JOYPADS];
 
-	Joypad()
+	Joypad(DeviceEventQueue &queue)
+		: _queue(&queue)
 	{
 		memset(&_fd, 0, sizeof(_fd));
-		memset(&_connected, 0, sizeof(_connected));
 		memset(&_axis, 0, sizeof(_axis));
 	}
 
@@ -196,104 +197,112 @@ struct Joypad
 		char jspath[] = "/dev/input/jsX";
 		char *num = strchr(jspath, 'X');
 
-		for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i) {
-			*num = '0' + i;
-			_fd[i] = ::open(jspath, O_RDONLY | O_NONBLOCK);
+		for (u32 ii = 0; ii < CROWN_MAX_JOYPADS; ++ii) {
+			*num = '0' + ii;
+			_fd[ii] = ::open(jspath, O_RDONLY);
+			_queue->push_status_event(InputDeviceType::JOYPAD, ii, _fd[ii] >= 0);
 		}
-
-		memset(_connected, 0, sizeof(_connected));
-		memset(_axis, 0, sizeof(_axis));
 	}
 
 	void close()
 	{
-		for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i) {
-			if (_fd[i] != -1)
-				::close(_fd[i]);
+		for (u32 ii = 0; ii < CROWN_MAX_JOYPADS; ++ii) {
+			if (_fd[ii] != -1) {
+				::close(_fd[ii]);
+				_fd[ii] = -1;
+				_queue->push_status_event(InputDeviceType::JOYPAD, ii, false);
+			}
 		}
 	}
 
-	void update(DeviceEventQueue &queue)
+	void process_events(u32 joypad_id, const JoypadEvent *events, u32 num_events)
 	{
-		JoypadEvent ev;
-		memset(&ev, 0, sizeof(ev));
+		for (u32 ii = 0; ii < num_events; ++ii) {
+			JoypadEvent ev = events[ii];
 
-		for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i) {
-			const int fd = _fd[i];
-			const bool connected = fd != -1;
+			switch (ev.type &= ~JS_EVENT_INIT) {
+			case JS_EVENT_AXIS: {
+				// Indices into axis.left/right respectively
+				const u8 axis_idx[] = { 0, 1, 2, 0, 1, 2 };
+				const u8 axis_map[] =
+				{
+					JoypadAxis::LEFT,
+					JoypadAxis::LEFT,
+					JoypadAxis::TRIGGER_LEFT,
+					JoypadAxis::RIGHT,
+					JoypadAxis::RIGHT,
+					JoypadAxis::TRIGGER_RIGHT
+				};
 
-			if (connected != _connected[i])
-				queue.push_status_event(InputDeviceType::JOYPAD, i, connected);
+				// Remap triggers to [0, INT16_MAX]
+				s16 value = ev.value;
+				if (ev.number == 2 || ev.number == 5)
+					value = (ev.value + INT16_MAX) >> 1;
 
-			_connected[i] = connected;
+				s16 *values = ev.number > 2 ? _axis[joypad_id].right : _axis[joypad_id].left;
+				values[axis_idx[ev.number]] = value;
 
-			if (!connected)
+				if (ev.number == 2 || ev.number == 5) {
+					_queue->push_axis_event(InputDeviceType::JOYPAD
+						, joypad_id
+						, axis_map[ev.number]
+						, 0
+						, 0
+						, values[2]
+						);
+				} else if (ev.number < countof(axis_map)) {
+					_queue->push_axis_event(InputDeviceType::JOYPAD
+						, joypad_id
+						, axis_map[ev.number]
+						, values[0]
+						, -values[1]
+						, 0
+						);
+				}
+				break;
+			}
+
+			case JS_EVENT_BUTTON:
+				if (ev.number < countof(s_button)) {
+					_queue->push_button_event(InputDeviceType::JOYPAD
+						, joypad_id
+						, s_button[ev.number]
+						, ev.value == 1
+						);
+				}
+				break;
+
+			default:
+				break;
+			}
+		}
+	}
+
+	void update(fd_set *fdset)
+	{
+		for (u8 ii = 0; ii < CROWN_MAX_JOYPADS; ++ii) {
+			if (_fd[ii] == -1 || !FD_ISSET(_fd[ii], fdset))
 				continue;
 
-			while (read(fd, &ev, sizeof(ev)) != -1) {
-				s16 val = ev.value;
+			// Read all events.
+			JoypadEvent events[64];
+			ssize_t num_bytes = read(_fd[ii], &events, sizeof(events));
 
-				switch (ev.type &= ~JS_EVENT_INIT) {
-				case JS_EVENT_AXIS: {
-					// Indices into axis.left/right respectively
-					const u8 axis_idx[] = { 0, 1, 2, 0, 1, 2 };
-					const u8 axis_map[] =
-					{
-						JoypadAxis::LEFT,
-						JoypadAxis::LEFT,
-						JoypadAxis::TRIGGER_LEFT,
-						JoypadAxis::RIGHT,
-						JoypadAxis::RIGHT,
-						JoypadAxis::TRIGGER_RIGHT
-					};
-
-					// Remap triggers to [0, INT16_MAX]
-					if (ev.number == 2 || ev.number == 5)
-						val = (val + INT16_MAX) >> 1;
-
-					s16 *values = ev.number > 2 ? _axis[i].right : _axis[i].left;
-					values[axis_idx[ev.number]] = val;
-
-					if (ev.number == 2 || ev.number == 5) {
-						queue.push_axis_event(InputDeviceType::JOYPAD
-							, i
-							, axis_map[ev.number]
-							, 0
-							, 0
-							, values[2]
-							);
-					} else if (ev.number < countof(axis_map)) {
-						queue.push_axis_event(InputDeviceType::JOYPAD
-							, i
-							, axis_map[ev.number]
-							, values[0]
-							, -values[1]
-							, 0
-							);
-					}
-					break;
-				}
-
-				case JS_EVENT_BUTTON:
-					if (ev.number < countof(s_button)) {
-						queue.push_button_event(InputDeviceType::JOYPAD
-							, i
-							, s_button[ev.number]
-							, val == 1
-							);
-					}
-					break;
-
-				default:
-					break;
-				}
+			if (num_bytes > 0) {
+				process_events(ii, events, num_bytes/ssize_t(sizeof(events[0])));
+			} else {
+				::close(_fd[ii]);
+				_fd[ii] = -1;
+				_queue->push_status_event(InputDeviceType::JOYPAD, ii, false);
 			}
 		}
 	}
 };
 
 static bool s_exit = false;
+static int exit_pipe[2];
 static Cursor _x11_cursors[MouseCursor::COUNT];
+static bool push_event(const OsEvent &ev);
 
 struct LinuxDevice
 {
@@ -306,6 +315,7 @@ struct LinuxDevice
 	Cursor _x11_hidden_cursor;
 	bool _x11_detectable_autorepeat;
 	XRRScreenConfiguration *_screen_config;
+	SPSCQueue<OsEvent, CROWN_MAX_OS_EVENTS> _events;
 	DeviceEventQueue _queue;
 	Joypad _joypad;
 	::Window _x11_window;
@@ -313,7 +323,7 @@ struct LinuxDevice
 	s16 _mouse_last_y;
 	CursorMode::Enum _cursor_mode;
 
-	LinuxDevice()
+	LinuxDevice(Allocator &a)
 		: _x11_display(NULL)
 		, _wm_delete_window(None)
 		, _net_wm_state(None)
@@ -323,6 +333,9 @@ struct LinuxDevice
 		, _x11_hidden_cursor(None)
 		, _x11_detectable_autorepeat(false)
 		, _screen_config(NULL)
+		, _events(a)
+		, _queue(push_event)
+		, _joypad(_queue)
 		, _x11_window(None)
 		, _mouse_last_x(INT16_MAX)
 		, _mouse_last_y(INT16_MAX)
@@ -393,11 +406,17 @@ struct LinuxDevice
 		_x11_cursors[MouseCursor::SIZE_VERTICAL]       = XCreateFontCursor(_x11_display, XC_sb_v_double_arrow);
 		_x11_cursors[MouseCursor::WAIT]                = XCreateFontCursor(_x11_display, XC_watch);
 
+		pipe(exit_pipe);
+
 		// Start main thread
 		Thread main_thread;
 		main_thread.start([](void *user_data) {
 				crown::run(*((DeviceOptions *)user_data));
 				s_exit = true;
+
+				// Write something just to unlock the listening select().
+				write(exit_pipe[1], &s_exit, sizeof(s_exit));
+				close(exit_pipe[1]);
 				return EXIT_SUCCESS;
 			}
 			, opts
@@ -405,82 +424,119 @@ struct LinuxDevice
 
 		_joypad.open();
 
+		// Input events loop.
+		fd_set fdset;
+		int x11_fd = ConnectionNumber(_x11_display);
+
 		while (!s_exit) {
-			_joypad.update(_queue);
-			int pending = XPending(_x11_display);
+			FD_ZERO(&fdset);
+			FD_SET(x11_fd, &fdset);
+			FD_SET(exit_pipe[0], &fdset);
+			int maxfd = max(x11_fd, exit_pipe[0]);
 
-			if (!pending) {
-				os::sleep(8);
-			} else {
-				XEvent event;
-				XNextEvent(_x11_display, &event);
+			for (int i = 0; i < CROWN_MAX_JOYPADS; ++i) {
+				if (_joypad._fd[i] != -1) {
+					FD_SET(_joypad._fd[i], &fdset);
+					maxfd = max(maxfd, _joypad._fd[i]);
+				}
+			}
 
-				switch (event.type) {
-				case EnterNotify:
-					_mouse_last_x = (s16)event.xcrossing.x;
-					_mouse_last_y = (s16)event.xcrossing.y;
-					_queue.push_axis_event(InputDeviceType::MOUSE
-						, 0
-						, MouseAxis::CURSOR
-						, event.xcrossing.x
-						, event.xcrossing.y
-						, 0
-						);
-					break;
+			if (select(maxfd + 1, &fdset, NULL, NULL, NULL) <= 0)
+				continue;
 
-				case ClientMessage:
-					if ((Atom)event.xclient.data.l[0] == _wm_delete_window)
-						_queue.push_exit_event();
-					break;
+			if (FD_ISSET(exit_pipe[0], &fdset)) {
+				break;
+			} else if (FD_ISSET(x11_fd, &fdset)) {
+				while (XEventsQueued(_x11_display, QueuedAfterFlush) > 0) {
+					XEvent event;
+					XNextEvent(_x11_display, &event);
 
-				case ConfigureNotify:
-					_queue.push_resolution_event(event.xconfigure.width
-						, event.xconfigure.height
-						);
-					break;
-
-				case ButtonPress:
-				case ButtonRelease: {
-					if (event.xbutton.button == Button4 || event.xbutton.button == Button5) {
+					switch (event.type) {
+					case EnterNotify:
+						_mouse_last_x = (s16)event.xcrossing.x;
+						_mouse_last_y = (s16)event.xcrossing.y;
 						_queue.push_axis_event(InputDeviceType::MOUSE
 							, 0
-							, MouseAxis::WHEEL
-							, 0
-							, event.xbutton.button == Button4 ? 1 : -1
+							, MouseAxis::CURSOR
+							, event.xcrossing.x
+							, event.xcrossing.y
 							, 0
 							);
 						break;
-					}
 
-					MouseButton::Enum mb;
-					switch (event.xbutton.button) {
-					case Button1: mb = MouseButton::LEFT; break;
-					case Button2: mb = MouseButton::MIDDLE; break;
-					case Button3: mb = MouseButton::RIGHT; break;
-					default: mb = MouseButton::COUNT; break;
-					}
+					case ClientMessage:
+						if ((Atom)event.xclient.data.l[0] == _wm_delete_window)
+							_queue.push_exit_event();
+						break;
 
-					if (mb != MouseButton::COUNT) {
-						_queue.push_button_event(InputDeviceType::MOUSE
-							, 0
-							, mb
-							, event.type == ButtonPress
+					case ConfigureNotify:
+						_queue.push_resolution_event(event.xconfigure.width
+							, event.xconfigure.height
 							);
-					}
-					break;
-				}
+						break;
 
-				case MotionNotify: {
-					const s32 mx = event.xmotion.x;
-					const s32 my = event.xmotion.y;
-					s16 deltax = mx - _mouse_last_x;
-					s16 deltay = my - _mouse_last_y;
-					if (_cursor_mode == CursorMode::DISABLED) {
-						XWindowAttributes window_attribs;
-						XGetWindowAttributes(_x11_display, _x11_window, &window_attribs);
-						unsigned width = window_attribs.width;
-						unsigned height = window_attribs.height;
-						if (mx != (s32)width/2 || my != (s32)height/2) {
+					case ButtonPress:
+					case ButtonRelease: {
+						if (event.xbutton.button == Button4 || event.xbutton.button == Button5) {
+							_queue.push_axis_event(InputDeviceType::MOUSE
+								, 0
+								, MouseAxis::WHEEL
+								, 0
+								, event.xbutton.button == Button4 ? 1 : -1
+								, 0
+								);
+							break;
+						}
+
+						MouseButton::Enum mb;
+						switch (event.xbutton.button) {
+						case Button1: mb = MouseButton::LEFT; break;
+						case Button2: mb = MouseButton::MIDDLE; break;
+						case Button3: mb = MouseButton::RIGHT; break;
+						default: mb = MouseButton::COUNT; break;
+						}
+
+						if (mb != MouseButton::COUNT) {
+							_queue.push_button_event(InputDeviceType::MOUSE
+								, 0
+								, mb
+								, event.type == ButtonPress
+								);
+						}
+						break;
+					}
+
+					case MotionNotify: {
+						const s32 mx = event.xmotion.x;
+						const s32 my = event.xmotion.y;
+						s16 deltax = mx - _mouse_last_x;
+						s16 deltay = my - _mouse_last_y;
+						if (_cursor_mode == CursorMode::DISABLED) {
+							XWindowAttributes window_attribs;
+							XGetWindowAttributes(_x11_display, _x11_window, &window_attribs);
+							unsigned width = window_attribs.width;
+							unsigned height = window_attribs.height;
+							if (mx != (s32)width/2 || my != (s32)height/2) {
+								_queue.push_axis_event(InputDeviceType::MOUSE
+									, 0
+									, MouseAxis::CURSOR_DELTA
+									, deltax
+									, deltay
+									, 0
+									);
+								XWarpPointer(_x11_display
+									, None
+									, _x11_window
+									, 0
+									, 0
+									, 0
+									, 0
+									, width/2
+									, height/2
+									);
+								XFlush(_x11_display);
+							}
+						} else if (_cursor_mode == CursorMode::NORMAL) {
 							_queue.push_axis_event(InputDeviceType::MOUSE
 								, 0
 								, MouseAxis::CURSOR_DELTA
@@ -488,82 +544,66 @@ struct LinuxDevice
 								, deltay
 								, 0
 								);
-							XWarpPointer(_x11_display
-								, None
-								, _x11_window
-								, 0
-								, 0
-								, 0
-								, 0
-								, width/2
-								, height/2
-								);
-							XFlush(_x11_display);
 						}
-					} else if (_cursor_mode == CursorMode::NORMAL) {
 						_queue.push_axis_event(InputDeviceType::MOUSE
 							, 0
-							, MouseAxis::CURSOR_DELTA
-							, deltax
-							, deltay
+							, MouseAxis::CURSOR
+							, (s16)mx
+							, (s16)my
 							, 0
 							);
-					}
-					_queue.push_axis_event(InputDeviceType::MOUSE
-						, 0
-						, MouseAxis::CURSOR
-						, (s16)mx
-						, (s16)my
-						, 0
-						);
-					_mouse_last_x = (s16)mx;
-					_mouse_last_y = (s16)my;
-					break;
-				}
-
-				case KeyPress:
-				case KeyRelease: {
-					KeySym keysym = XLookupKeysym(&event.xkey, 0);
-
-					KeyboardButton::Enum kb = x11_translate_key(keysym);
-					if (kb != KeyboardButton::COUNT) {
-						_queue.push_button_event(InputDeviceType::KEYBOARD
-							, 0
-							, kb
-							, event.type == KeyPress
-							);
+						_mouse_last_x = (s16)mx;
+						_mouse_last_y = (s16)my;
+						break;
 					}
 
-					if (event.type == KeyPress) {
-						Status status = 0;
-						u8 utf8[4] = { 0 };
-						int len = Xutf8LookupString(ic
-							, &event.xkey
-							, (char *)utf8
-							, sizeof(utf8)
-							, NULL
-							, &status
-							);
+					case KeyPress:
+					case KeyRelease: {
+						KeySym keysym = XLookupKeysym(&event.xkey, 0);
 
-						if (status == XLookupChars || status == XLookupBoth) {
-							if (len)
-								_queue.push_text_event(len, utf8);
+						KeyboardButton::Enum kb = x11_translate_key(keysym);
+						if (kb != KeyboardButton::COUNT) {
+							_queue.push_button_event(InputDeviceType::KEYBOARD
+								, 0
+								, kb
+								, event.type == KeyPress
+								);
 						}
-					}
-					break;
-				}
-				case KeymapNotify:
-					XRefreshKeyboardMapping(&event.xmapping);
-					break;
 
-				default:
-					break;
+						if (event.type == KeyPress) {
+							Status status = 0;
+							u8 utf8[4] = { 0 };
+							int len = Xutf8LookupString(ic
+								, &event.xkey
+								, (char *)utf8
+								, sizeof(utf8)
+								, NULL
+								, &status
+								);
+
+							if (status == XLookupChars || status == XLookupBoth) {
+								if (len)
+									_queue.push_text_event(len, utf8);
+							}
+						}
+						break;
+					}
+					case KeymapNotify:
+						XRefreshKeyboardMapping(&event.xmapping);
+						break;
+
+					default:
+						break;
+					}
 				}
+			} else {
+				_joypad.update(&fdset);
 			}
 		}
 
 		_joypad.close();
 
+		close(exit_pipe[0]);
 		main_thread.stop();
 
 		// Free standard cursors
@@ -605,7 +645,7 @@ struct LinuxDevice
 	}
 };
 
-static LinuxDevice s_ldvc;
+static LinuxDevice *s_linux_device;
 
 struct WindowX11 : public Window
 {
@@ -615,11 +655,11 @@ struct WindowX11 : public Window
 
 	void open(u16 x, u16 y, u16 width, u16 height, u32 parent)
 	{
-		int screen = DefaultScreen(s_ldvc._x11_display);
-		int depth = DefaultDepth(s_ldvc._x11_display, screen);
-		Visual *visual = DefaultVisual(s_ldvc._x11_display, screen);
+		int screen = DefaultScreen(s_linux_device->_x11_display);
+		int depth = DefaultDepth(s_linux_device->_x11_display, screen);
+		Visual *visual = DefaultVisual(s_linux_device->_x11_display, screen);
 
-		::Window root_window = RootWindow(s_ldvc._x11_display, screen);
+		::Window root_window = RootWindow(s_linux_device->_x11_display, screen);
 		::Window parent_window = (parent == 0) ? root_window : (::Window)parent;
 
 		// Create main window
@@ -640,12 +680,12 @@ struct WindowX11 : public Window
 				;
 		} else {
 			XWindowAttributes parent_attrs;
-			XGetWindowAttributes(s_ldvc._x11_display, parent_window, &parent_attrs);
+			XGetWindowAttributes(s_linux_device->_x11_display, parent_window, &parent_attrs);
 			depth = parent_attrs.depth;
 			visual = parent_attrs.visual;
 		}
 
-		s_ldvc._x11_window = XCreateWindow(s_ldvc._x11_display
+		s_linux_device->_x11_window = XCreateWindow(s_linux_device->_x11_display
 			, parent_window
 			, x
 			, y
@@ -658,23 +698,23 @@ struct WindowX11 : public Window
 			, CWBorderPixel | CWEventMask
 			, &win_attribs
 			);
-		CE_ASSERT(s_ldvc._x11_window != None, "XCreateWindow: error");
+		CE_ASSERT(s_linux_device->_x11_window != None, "XCreateWindow: error");
 
-		XSetWMProtocols(s_ldvc._x11_display, s_ldvc._x11_window, &s_ldvc._wm_delete_window, 1);
+		XSetWMProtocols(s_linux_device->_x11_display, s_linux_device->_x11_window, &s_linux_device->_wm_delete_window, 1);
 
-		XMapRaised(s_ldvc._x11_display, s_ldvc._x11_window);
+		XMapRaised(s_linux_device->_x11_display, s_linux_device->_x11_window);
 	}
 
 	void close()
 	{
-		XDestroyWindow(s_ldvc._x11_display, s_ldvc._x11_window);
+		XDestroyWindow(s_linux_device->_x11_display, s_linux_device->_x11_window);
 	}
 
 	void bgfx_setup()
 	{
 		bgfx::PlatformData pd;
-		pd.ndt          = s_ldvc._x11_display;
-		pd.nwh          = (void *)(uintptr_t)s_ldvc._x11_window;
+		pd.ndt          = s_linux_device->_x11_display;
+		pd.nwh          = (void *)(uintptr_t)s_linux_device->_x11_window;
 		pd.context      = NULL;
 		pd.backBuffer   = NULL;
 		pd.backBufferDS = NULL;
@@ -683,41 +723,41 @@ struct WindowX11 : public Window
 
 	void show()
 	{
-		XMapRaised(s_ldvc._x11_display, s_ldvc._x11_window);
+		XMapRaised(s_linux_device->_x11_display, s_linux_device->_x11_window);
 	}
 
 	void hide()
 	{
-		XUnmapWindow(s_ldvc._x11_display, s_ldvc._x11_window);
+		XUnmapWindow(s_linux_device->_x11_display, s_linux_device->_x11_window);
 	}
 
 	void resize(u16 width, u16 height)
 	{
-		XResizeWindow(s_ldvc._x11_display, s_ldvc._x11_window, width, height);
-		XFlush(s_ldvc._x11_display);
+		XResizeWindow(s_linux_device->_x11_display, s_linux_device->_x11_window, width, height);
+		XFlush(s_linux_device->_x11_display);
 	}
 
 	void move(u16 x, u16 y)
 	{
-		XMoveWindow(s_ldvc._x11_display, s_ldvc._x11_window, x, y);
+		XMoveWindow(s_linux_device->_x11_display, s_linux_device->_x11_window, x, y);
 	}
 
 	void maximize_or_restore(bool maximize)
 	{
 		XEvent xev;
 		xev.type = ClientMessage;
-		xev.xclient.window = s_ldvc._x11_window;
-		xev.xclient.message_type = s_ldvc._net_wm_state;
+		xev.xclient.window = s_linux_device->_x11_window;
+		xev.xclient.message_type = s_linux_device->_net_wm_state;
 		xev.xclient.format = 32;
 		xev.xclient.data.l[0] = maximize ? 1 : 0; // 0 = remove property, 1 = set property
-		xev.xclient.data.l[1] = s_ldvc._net_wm_state_maximized_horz;
-		xev.xclient.data.l[2] = s_ldvc._net_wm_state_maximized_vert;
-		XSendEvent(s_ldvc._x11_display, DefaultRootWindow(s_ldvc._x11_display), False, SubstructureNotifyMask | SubstructureRedirectMask, &xev);
+		xev.xclient.data.l[1] = s_linux_device->_net_wm_state_maximized_horz;
+		xev.xclient.data.l[2] = s_linux_device->_net_wm_state_maximized_vert;
+		XSendEvent(s_linux_device->_x11_display, DefaultRootWindow(s_linux_device->_x11_display), False, SubstructureNotifyMask | SubstructureRedirectMask, &xev);
 	}
 
 	void minimize()
 	{
-		XIconifyWindow(s_ldvc._x11_display, s_ldvc._x11_window, DefaultScreen(s_ldvc._x11_display));
+		XIconifyWindow(s_linux_device->_x11_display, s_linux_device->_x11_window, DefaultScreen(s_linux_device->_x11_display));
 	}
 
 	void maximize()
@@ -735,7 +775,7 @@ struct WindowX11 : public Window
 		static char buf[512];
 		memset(buf, 0, sizeof(buf));
 		char *name;
-		XFetchName(s_ldvc._x11_display, s_ldvc._x11_window, &name);
+		XFetchName(s_linux_device->_x11_display, s_linux_device->_x11_window, &name);
 		strncpy(buf, name, sizeof(buf) - 1);
 		XFree(name);
 		return buf;
@@ -743,19 +783,19 @@ struct WindowX11 : public Window
 
 	void set_title(const char *title)
 	{
-		XStoreName(s_ldvc._x11_display, s_ldvc._x11_window, title);
+		XStoreName(s_linux_device->_x11_display, s_linux_device->_x11_window, title);
 	}
 
 	void *handle()
 	{
-		return (void *)(uintptr_t)s_ldvc._x11_window;
+		return (void *)(uintptr_t)s_linux_device->_x11_window;
 	}
 
 	void show_cursor(bool show)
 	{
-		XDefineCursor(s_ldvc._x11_display
-			, s_ldvc._x11_window
-			, show ? None : s_ldvc._x11_hidden_cursor
+		XDefineCursor(s_linux_device->_x11_display
+			, s_linux_device->_x11_window
+			, show ? None : s_linux_device->_x11_hidden_cursor
 			);
 	}
 
@@ -763,37 +803,37 @@ struct WindowX11 : public Window
 	{
 		XEvent xev;
 		xev.xclient.type = ClientMessage;
-		xev.xclient.window = s_ldvc._x11_window;
-		xev.xclient.message_type = s_ldvc._net_wm_state;
+		xev.xclient.window = s_linux_device->_x11_window;
+		xev.xclient.message_type = s_linux_device->_net_wm_state;
 		xev.xclient.format = 32;
 		xev.xclient.data.l[0] = full ? 1 : 0;
-		xev.xclient.data.l[1] = s_ldvc._net_wm_state_fullscreen;
-		XSendEvent(s_ldvc._x11_display, DefaultRootWindow(s_ldvc._x11_display), False, SubstructureNotifyMask | SubstructureRedirectMask, &xev);
+		xev.xclient.data.l[1] = s_linux_device->_net_wm_state_fullscreen;
+		XSendEvent(s_linux_device->_x11_display, DefaultRootWindow(s_linux_device->_x11_display), False, SubstructureNotifyMask | SubstructureRedirectMask, &xev);
 	}
 
 	void set_cursor(MouseCursor::Enum cursor)
 	{
-		XDefineCursor(s_ldvc._x11_display, s_ldvc._x11_window, _x11_cursors[cursor]);
+		XDefineCursor(s_linux_device->_x11_display, s_linux_device->_x11_window, _x11_cursors[cursor]);
 	}
 
 	void set_cursor_mode(CursorMode::Enum mode)
 	{
-		if (mode == s_ldvc._cursor_mode)
+		if (mode == s_linux_device->_cursor_mode)
 			return;
 
-		s_ldvc._cursor_mode = mode;
+		s_linux_device->_cursor_mode = mode;
 
 		if (mode == CursorMode::DISABLED) {
 			XWindowAttributes window_attribs;
-			XGetWindowAttributes(s_ldvc._x11_display, s_ldvc._x11_window, &window_attribs);
+			XGetWindowAttributes(s_linux_device->_x11_display, s_linux_device->_x11_window, &window_attribs);
 			unsigned width = window_attribs.width;
 			unsigned height = window_attribs.height;
-			s_ldvc._mouse_last_x = width/2;
-			s_ldvc._mouse_last_y = height/2;
+			s_linux_device->_mouse_last_x = width/2;
+			s_linux_device->_mouse_last_y = height/2;
 
-			XWarpPointer(s_ldvc._x11_display
+			XWarpPointer(s_linux_device->_x11_display
 				, None
-				, s_ldvc._x11_window
+				, s_linux_device->_x11_window
 				, 0
 				, 0
 				, 0
@@ -801,20 +841,20 @@ struct WindowX11 : public Window
 				, width/2
 				, height/2
 				);
-			XGrabPointer(s_ldvc._x11_display
-				, s_ldvc._x11_window
+			XGrabPointer(s_linux_device->_x11_display
+				, s_linux_device->_x11_window
 				, True
 				, ButtonPressMask | ButtonReleaseMask | PointerMotionMask
 				, GrabModeAsync
 				, GrabModeAsync
-				, s_ldvc._x11_window
-				, s_ldvc._x11_hidden_cursor
+				, s_linux_device->_x11_window
+				, s_linux_device->_x11_hidden_cursor
 				, CurrentTime
 				);
-			XFlush(s_ldvc._x11_display);
+			XFlush(s_linux_device->_x11_display);
 		} else if (mode == CursorMode::NORMAL) {
-			XUngrabPointer(s_ldvc._x11_display, CurrentTime);
-			XFlush(s_ldvc._x11_display);
+			XUngrabPointer(s_linux_device->_x11_display, CurrentTime);
+			XFlush(s_linux_device->_x11_display);
 		}
 	}
 };
@@ -838,7 +878,7 @@ struct DisplayXRandr : public Display
 	void modes(Array<DisplayMode> &modes)
 	{
 		int num = 0;
-		XRRScreenSize *sizes = XRRConfigSizes(s_ldvc._screen_config, &num);
+		XRRScreenSize *sizes = XRRConfigSizes(s_linux_device->_screen_config, &num);
 
 		if (!sizes)
 			return;
@@ -855,14 +895,14 @@ struct DisplayXRandr : public Display
 	void set_mode(u32 id)
 	{
 		int num = 0;
-		XRRScreenSize *sizes = XRRConfigSizes(s_ldvc._screen_config, &num);
+		XRRScreenSize *sizes = XRRConfigSizes(s_linux_device->_screen_config, &num);
 
 		if (!sizes || (int)id >= num)
 			return;
 
-		XRRSetScreenConfig(s_ldvc._x11_display
-			, s_ldvc._screen_config
-			, RootWindow(s_ldvc._x11_display, DefaultScreen(s_ldvc._x11_display))
+		XRRSetScreenConfig(s_linux_device->_x11_display
+			, s_linux_device->_screen_config
+			, RootWindow(s_linux_device->_x11_display, DefaultScreen(s_linux_device->_x11_display))
 			, (int)id
 			, RR_Rotate_0
 			, CurrentTime
@@ -884,9 +924,14 @@ namespace display
 
 } // namespace display
 
+static bool push_event(const OsEvent &ev)
+{
+	return s_linux_device->_events.push(ev);
+}
+
 bool next_event(OsEvent &ev)
 {
-	return s_ldvc._queue.pop_event(ev);
+	return s_linux_device->_events.pop(ev);
 }
 
 } // namespace crown
@@ -934,8 +979,11 @@ int main(int argc, char **argv)
 	}
 #endif
 
-	if (ec == EXIT_SUCCESS)
-		ec = s_ldvc.run(&opts);
+	if (ec == EXIT_SUCCESS) {
+		s_linux_device = CE_NEW(default_allocator(), LinuxDevice)(default_allocator());
+		ec = s_linux_device->run(&opts);
+		CE_DELETE(default_allocator(), s_linux_device);
+	}
 
 	return ec;
 }

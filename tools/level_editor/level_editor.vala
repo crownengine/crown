@@ -237,6 +237,9 @@ public class LevelEditorApplication : Gtk.Application
 	private User _user;
 	private Hashtable _settings;
 
+	// Subprocess launcher service.
+	private SubprocessLauncher _subprocess_launcher;
+
 	// Editor state
 	private double _grid_size;
 	private double _rotation_snap;
@@ -268,17 +271,21 @@ public class LevelEditorApplication : Gtk.Application
 	private string[] _camera_view_bottom_accels;
 
 	// Engine connections
-	private GLib.Subprocess _compiler_process;
-	private GLib.Subprocess _editor_process;
-	private GLib.Subprocess _game_process;
+	private uint32 _compiler_process;
+	private uint32 _editor_process;
+	private uint32 _resource_preview_process;
+	private uint32 _game_process;
 	private GLib.SourceFunc _stop_data_compiler_callback = null;
 	private GLib.SourceFunc _stop_editor_callback = null;
 	private GLib.SourceFunc _stop_game_callback = null;
+	private GLib.SourceFunc _stop_resource_preview_callback = null;
 	private ConsoleClient _compiler;
 	public ConsoleClient _editor;
+	private ConsoleClient _resource_preview;
 	private ConsoleClient _game;
 
 	// Level data
+	private UndoRedo _undo_redo;
 	private Database _database;
 	private Project _project;
 	private ProjectStore _project_store;
@@ -289,6 +296,7 @@ public class LevelEditorApplication : Gtk.Application
 	private Gtk.CssProvider _css_provider;
 	private ProjectBrowser _project_browser;
 	private EditorView _editor_view;
+	private EditorView _resource_preview_view;
 	private LevelTreeView _level_treeview;
 	private LevelLayersTreeView _level_layers_treeview;
 	private PropertiesView _properties_view;
@@ -310,6 +318,11 @@ public class LevelEditorApplication : Gtk.Application
 	private Gtk.Label _editor_stack_compiler_failed_compilation_label;
 	private Gtk.Label _editor_stack_disconnected_label;
 	private Gtk.Label _editor_stack_oops_label;
+
+	public Gtk.Stack _resource_preview_stack;
+	public Gtk.Label _resource_preview_disconnected_label;
+	public Gtk.Label _resource_preview_oops_label;
+	public Gtk.Label _resource_preview_no_preview_label;
 
 	private Gtk.Stack _inspector_stack;
 	private Gtk.Label _inspector_stack_compiling_data_label;
@@ -335,11 +348,13 @@ public class LevelEditorApplication : Gtk.Application
 
 	private uint _save_timer_id;
 
-	public LevelEditorApplication()
+	public LevelEditorApplication(SubprocessLauncher subprocess_launcher)
 	{
 		Object(application_id: "org.crown.level_editor"
 			, flags: GLib.ApplicationFlags.FLAGS_NONE
 			);
+
+		_subprocess_launcher = subprocess_launcher;
 	}
 
 	public Theme theme_name_to_enum(string theme)
@@ -424,7 +439,14 @@ public class LevelEditorApplication : Gtk.Application
 
 		_data_compiler = new DataCompiler(_compiler);
 
-		_database = new Database();
+		uint32 undo_redo_size = DEFAULT_UNDO_REDO_MAX_SIZE;
+		if (_settings.has_key("preferences")) {
+			Hashtable preferences = (Hashtable)_settings["preferences"];
+			if (preferences.has_key("undo_redo_max_size"))
+				undo_redo_size = (uint32)(double)preferences["undo_redo_max_size"];
+		}
+		_undo_redo = new UndoRedo(undo_redo_size*1024*1024);
+		_database = new Database(_undo_redo);
 		_database.key_changed.connect(() => { update_active_window_title(); });
 
 		_project = new Project(_database, _data_compiler);
@@ -437,6 +459,10 @@ public class LevelEditorApplication : Gtk.Application
 		_editor = new ConsoleClient();
 		_editor.connected.connect(on_editor_connected);
 		_editor.message_received.connect(on_message_received);
+
+		_resource_preview = new ConsoleClient();
+		_resource_preview.connected.connect(on_resource_preview_connected);
+		_resource_preview.message_received.connect(on_resource_preview_message_received);
 
 		_game = new ConsoleClient();
 		_game.connected.connect(on_game_connected);
@@ -461,9 +487,10 @@ public class LevelEditorApplication : Gtk.Application
 		_placeable_name = "";
 
 		// Engine connections
-		_compiler_process = null;
-		_editor_process = null;
-		_game_process = null;
+		_compiler_process = uint32.MAX;
+		_editor_process = uint32.MAX;
+		_resource_preview_process = uint32.MAX;
+		_game_process = uint32.MAX;
 
 		_project_store = new ProjectStore(_project);
 
@@ -505,12 +532,30 @@ public class LevelEditorApplication : Gtk.Application
 		_editor_stack_disconnected_label = new Gtk.Label("Disconnected.");
 		_editor_stack.add(_editor_stack_disconnected_label);
 		_editor_stack_oops_label = new Gtk.Label(null);
-		_editor_stack_oops_label.set_markup("Something went wrong.\rTry to <a href=\"restart\">restart</a> this view.");
+		_editor_stack_oops_label.track_visited_links = false;
+		_editor_stack_oops_label.set_markup("Something went wrong.\rTry to <a href=\"restart\">restart this view</a>.");
 		_editor_stack_oops_label.activate_link.connect(() => {
 				activate_action("restart-editor-view", null);
 				return true;
 			});
 		_editor_stack.add(_editor_stack_oops_label);
+
+		_resource_preview_stack = new Gtk.Stack();
+		_resource_preview_no_preview_label = new Gtk.Label("No Preview");
+		_resource_preview_no_preview_label.set_size_request(300, 300);
+		_resource_preview_stack.add(_resource_preview_no_preview_label);
+		_resource_preview_disconnected_label = new Gtk.Label("Disconnected");
+		_resource_preview_stack.add(_resource_preview_disconnected_label);
+		_resource_preview_oops_label = new Gtk.Label(null);
+		_resource_preview_oops_label.track_visited_links = false;
+		_resource_preview_oops_label.set_markup("Something went wrong.\rTry to <a href=\"restart\">restart this view</a>.");
+		_resource_preview_oops_label.activate_link.connect(() => {
+				restart_resource_preview.begin((obj, res) => {
+						restart_resource_preview.end(res);
+					});
+				return true;
+			});
+		_resource_preview_stack.add(_resource_preview_oops_label);
 
 		_inspector_stack = new Gtk.Stack();
 		_inspector_stack_compiling_data_label = compiling_data_label();
@@ -575,8 +620,14 @@ public class LevelEditorApplication : Gtk.Application
 			});
 		_resource_popover.modal = true;
 
-		_resource_chooser = new ResourceChooser(_project, _project_store, true);
+		_resource_chooser = new ResourceChooser(_project, _project_store, _resource_preview_stack, _resource_preview);
 		_resource_chooser.resource_selected.connect(on_resource_browser_resource_selected);
+		_resource_chooser.destroy.connect(() => {
+				stop_resource_preview.begin((obj, res) => {
+						stop_resource_preview.end(res);
+					});
+			});
+
 		_resource_popover.add(_resource_chooser);
 
 		_level_tree_view_notebook = new Notebook();
@@ -754,9 +805,13 @@ public class LevelEditorApplication : Gtk.Application
 	private async void on_data_compiler_disconnected_unexpected()
 	{
 		logw("Disconnected from data_compiler unexpectedly");
-		int exit_status;
-		wait_process(out exit_status, _compiler_process);
-		_compiler_process = null;
+		try {
+			if (_compiler_process != uint32.MAX)
+				_subprocess_launcher.wait(_compiler_process);
+			_compiler_process = uint32.MAX;
+		} catch (GLib.Error e) {
+			loge(e.message);
+		}
 
 		yield stop_heads();
 
@@ -792,11 +847,51 @@ public class LevelEditorApplication : Gtk.Application
 	private void on_editor_disconnected_unexpected()
 	{
 		logw("Disconnected from editor unexpectedly");
-		int exit_status;
-		wait_process(out exit_status, _editor_process);
-		_editor_process = null;
+		try {
+			if (_editor_process != uint32.MAX)
+				_subprocess_launcher.wait(_editor_process);
+			_editor_process = uint32.MAX;
+		} catch (GLib.Error e) {
+			loge(e.message);
+		}
 
 		_editor_stack.set_visible_child(_editor_stack_oops_label);
+	}
+
+	private void on_resource_preview_connected(string address, int port)
+	{
+		logi("Connected to preview@%s:%d".printf(address, port));
+
+		// Start receiving data from the editor view.
+		_resource_preview.receive_async();
+	}
+
+	private void on_resource_preview_disconnected()
+	{
+		logi("Disconnected from preview");
+
+		if (_stop_resource_preview_callback != null)
+			_stop_resource_preview_callback();
+	}
+
+	private void on_resource_preview_disconnected_unexpected()
+	{
+		logw("Disconnected from preview unexpectedly");
+		try {
+			if (_resource_preview_process != uint32.MAX)
+				_subprocess_launcher.wait(_resource_preview_process);
+			_resource_preview_process = uint32.MAX;
+		} catch (GLib.Error e) {
+			loge(e.message);
+		}
+
+		_resource_preview_stack.set_visible_child(_resource_preview_oops_label);
+	}
+
+	private void on_resource_preview_message_received(ConsoleClient client, uint8[] json)
+	{
+		// Ignore the message content.
+		client.receive_async();
 	}
 
 	private void on_game_connected(string address, int port)
@@ -821,9 +916,13 @@ public class LevelEditorApplication : Gtk.Application
 	private void on_game_disconnected_externally()
 	{
 		on_game_disconnected();
-		int exit_status;
-		wait_process(out exit_status, _game_process);
-		_game_process = null;
+		try {
+			if (_game_process != uint32.MAX)
+				_subprocess_launcher.wait(_game_process);
+			_game_process = uint32.MAX;
+		} catch (GLib.Error e) {
+			loge(e.message);
+		}
 	}
 
 	private void on_message_received(ConsoleClient client, uint8[] json)
@@ -990,7 +1089,8 @@ public class LevelEditorApplication : Gtk.Application
 	Gtk.Label compiler_crashed_label()
 	{
 		Gtk.Label label = new Gtk.Label(null);
-		label.set_markup("Data Compiler disconnected.\rTry to <a href=\"restart\">restart</a> compiler to continue.");
+		label.track_visited_links = false;
+		label.set_markup("Data Compiler disconnected.\rTry to <a href=\"restart\">restart the compiler</a> to continue.");
 		label.activate_link.connect(() => {
 				restart_backend.begin(_project.source_dir(), _level._name != null ? _level._name : "");
 				return true;
@@ -1002,7 +1102,8 @@ public class LevelEditorApplication : Gtk.Application
 	Gtk.Label compiler_failed_compilation_label()
 	{
 		Gtk.Label label = new Gtk.Label(null);
-		label.set_markup("Data compilation failed.\rFix errors and <a href=\"restart\">restart</a> compiler to continue.");
+		label.track_visited_links = false;
+		label.set_markup("Data compilation failed.\rFix errors and <a href=\"restart\">restart the compiler</a> to continue.");
 		label.activate_link.connect(() => {
 				restart_backend.begin(_project.source_dir(), _level._name != null ? _level._name : "");
 				return true;
@@ -1028,24 +1129,21 @@ public class LevelEditorApplication : Gtk.Application
 		// Spawn the data compiler.
 		string args[] =
 		{
-			ENGINE_EXE
-			, "--source-dir"
-			, _project.source_dir()
-			, "--data-dir"
-			, _project.data_dir()
-			, "--map-source-dir"
-			, "core"
-			, _project.toolchain_dir()
-			, "--server"
-			, "--wait-console"
-			, null
+			ENGINE_EXE,
+			"--source-dir",
+			_project.source_dir(),
+			"--data-dir",
+			_project.data_dir(),
+			"--map-source-dir",
+			"core",
+			_project.toolchain_dir(),
+			"--server",
+			"--wait-console"
 		};
-		GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(subprocess_flags());
-		sl.set_cwd(ENGINE_DIR);
+
 		try {
-			_compiler_process = sl.spawnv(args);
-		}
-		catch (Error e) {
+			_compiler_process = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
+		} catch (Error e) {
 			loge(e.message);
 		}
 
@@ -1126,9 +1224,13 @@ public class LevelEditorApplication : Gtk.Application
 			}
 		}
 
-		int exit_status;
-		wait_process(out exit_status, _compiler_process);
-		_compiler_process = null;
+		try {
+			if (_compiler_process != uint32.MAX)
+				_subprocess_launcher.wait(_compiler_process);
+			_compiler_process = uint32.MAX;
+		} catch (GLib.Error e) {
+			loge(e.message);
+		}
 	}
 
 	private async void start_editor(uint window_xid)
@@ -1139,23 +1241,20 @@ public class LevelEditorApplication : Gtk.Application
 		// Spawn the level editor.
 		string args[] =
 		{
-			ENGINE_EXE
-			, "--data-dir"
-			, _project.data_dir()
-			, "--boot-dir"
-			, LEVEL_EDITOR_BOOT_DIR
-			, "--parent-window"
-			, window_xid.to_string()
-			, "--wait-console"
-			, "--pumped"
-			, null
+			ENGINE_EXE,
+			"--data-dir",
+			_project.data_dir(),
+			"--boot-dir",
+			LEVEL_EDITOR_BOOT_DIR,
+			"--parent-window",
+			window_xid.to_string(),
+			"--wait-console",
+			"--pumped"
 		};
-		GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(subprocess_flags());
-		sl.set_cwd(ENGINE_DIR);
+
 		try {
-			_editor_process = sl.spawnv(args);
-		}
-		catch (Error e) {
+			_editor_process = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
+		} catch (Error e) {
 			loge(e.message);
 		}
 
@@ -1175,9 +1274,55 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
+	private async void start_resource_preview(uint window_xid)
+	{
+		if (window_xid == 0)
+			return;
+
+		// Spawn unit_preview.
+		string args[] =
+		{
+			ENGINE_EXE,
+			"--data-dir",
+			_project.data_dir(),
+			"--boot-dir",
+			UNIT_PREVIEW_BOOT_DIR,
+			"--parent-window",
+			window_xid.to_string(),
+			"--console-port",
+			UNIT_PREVIEW_TCP_PORT.to_string(),
+			"--wait-console",
+			"--pumped"
+		};
+
+		try {
+			_resource_preview_process = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
+		} catch (Error e) {
+			loge(e.message);
+		}
+
+		// It is an error if the unit_preview disconnects after here.
+		_resource_preview.disconnected.disconnect(on_resource_preview_disconnected);
+		_resource_preview.disconnected.connect(on_resource_preview_disconnected_unexpected);
+
+		// Try to connect to unit_preview.
+		int tries = yield _resource_preview.connect_async(UNIT_PREVIEW_ADDRESS
+			, UNIT_PREVIEW_TCP_PORT
+			, EDITOR_CONNECTION_TRIES
+			, EDITOR_CONNECTION_INTERVAL
+			);
+		if (tries == EDITOR_CONNECTION_TRIES) {
+			loge("Cannot connect to unit_preview.");
+			return;
+		}
+
+		// FIXME: This should be done in ResourceChooser.
+		_resource_chooser._tree_view.set_cursor(new Gtk.TreePath.first(), null, false);
+	}
+
 	private async void stop_editor()
 	{
-		yield _resource_chooser.stop_editor();
+		yield stop_resource_preview();
 
 		if (_editor != null) {
 			// Reset "disconnected" signal.
@@ -1196,9 +1341,41 @@ public class LevelEditorApplication : Gtk.Application
 			}
 		}
 
-		int exit_status;
-		wait_process(out exit_status, _editor_process);
-		_editor_process = null;
+		try {
+			if (_editor_process != uint32.MAX)
+				_subprocess_launcher.wait(_editor_process);
+			_editor_process = uint32.MAX;
+		} catch (GLib.Error e) {
+			loge(e.message);
+		}
+	}
+
+	public async void stop_resource_preview()
+	{
+		if (_resource_preview != null) {
+			// Reset "disconnected" signal.
+			_resource_preview.disconnected.disconnect(on_resource_preview_disconnected);
+			_resource_preview.disconnected.disconnect(on_resource_preview_disconnected_unexpected);
+
+			// Explicit call to this function should not produce error messages.
+			_resource_preview.disconnected.connect(on_resource_preview_disconnected);
+
+			if (_resource_preview.is_connected()) {
+				_stop_resource_preview_callback = stop_resource_preview.callback;
+				_resource_preview.send_script("Device.quit()");
+				yield; // Wait for ConsoleClient to disconnect.
+				_stop_resource_preview_callback = null;
+				_resource_preview_stack.set_visible_child(_resource_preview_disconnected_label);
+			}
+		}
+
+		try {
+			if (_resource_preview_process != uint32.MAX)
+				_subprocess_launcher.wait(_resource_preview_process);
+			_resource_preview_process = uint32.MAX;
+		} catch (GLib.Error e) {
+			loge(e.message);
+		}
 	}
 
 	private async void restart_editor()
@@ -1222,7 +1399,25 @@ public class LevelEditorApplication : Gtk.Application
 		_editor_stack.add(_editor_view_overlay);
 		_editor_stack.set_visible_child(_editor_view_overlay);
 
-		yield _resource_chooser.restart_editor();
+		yield restart_resource_preview();
+	}
+
+	private async void restart_resource_preview()
+	{
+		yield stop_resource_preview();
+
+		if (_resource_preview_view != null) {
+			_resource_preview_stack.remove(_resource_preview_view);
+			_resource_preview_view = null;
+		}
+
+		_resource_preview_view = new EditorView(_resource_preview, false);
+		_resource_preview_view.set_size_request(300, 300);
+		_resource_preview_view.realized.connect(on_resource_preview_view_realized);
+		_resource_preview_view.show_all();
+
+		_resource_preview_stack.add(_resource_preview_view);
+		_resource_preview_stack.set_visible_child(_resource_preview_view);
 	}
 
 	private async void start_game(StartGame sg)
@@ -1246,22 +1441,19 @@ public class LevelEditorApplication : Gtk.Application
 		// Spawn the game.
 		string args[] =
 		{
-			ENGINE_EXE
-			, "--data-dir"
-			, _project.data_dir()
-			, "--console-port"
-			, GAME_TCP_PORT.to_string()
-			, "--wait-console"
-			, "--lua-string"
-			, sg == StartGame.TEST ? "TEST=true" : ""
-			, null
+			ENGINE_EXE,
+			"--data-dir",
+			_project.data_dir(),
+			"--console-port",
+			GAME_TCP_PORT.to_string(),
+			"--wait-console",
+			"--lua-string",
+			sg == StartGame.TEST ? "TEST=true" : ""
 		};
-		GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(subprocess_flags());
-		sl.set_cwd(ENGINE_DIR);
+
 		try {
-			_game_process = sl.spawnv(args);
-		}
-		catch (Error e) {
+			_game_process = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
+		} catch (Error e) {
 			loge(e.message);
 		}
 
@@ -1295,9 +1487,13 @@ public class LevelEditorApplication : Gtk.Application
 			}
 		}
 
-		int exit_status;
-		wait_process(out exit_status, _game_process);
-		_game_process = null;
+		try {
+			if (_game_process != uint32.MAX)
+				_subprocess_launcher.wait(_game_process);
+			_game_process = uint32.MAX;
+		} catch (GLib.Error e) {
+			loge(e.message);
+		}
 	}
 
 	private void deploy_game()
@@ -1317,19 +1513,20 @@ public class LevelEditorApplication : Gtk.Application
 			string args[] =
 			{
 				ENGINE_EXE,
-				"--source-dir", _project.source_dir(),
-				"--map-source-dir", "core", _project.toolchain_dir(),
-				"--data-dir", data_dir.get_path(),
-				"--compile",
-				null
+				"--source-dir",
+				_project.source_dir(),
+				"--map-source-dir",
+				"core",
+				_project.toolchain_dir(),
+				"--data-dir",
+				data_dir.get_path(),
+				"--compile"
 			};
 
-			GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(subprocess_flags());
-			sl.set_cwd(ENGINE_DIR);
 			try {
-				GLib.Subprocess compiler = sl.spawnv(args);
-				compiler.wait();
-				if (compiler.get_exit_status() == 0) {
+				uint32 compiler = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
+				int exit_status = _subprocess_launcher.wait(compiler);
+				if (exit_status == 0) {
 					string game_name = DEPLOY_DEFAULT_NAME;
 					GLib.File engine_exe_src = File.new_for_path(DEPLOY_EXE);
 					GLib.File engine_exe_dst = File.new_for_path(Path.build_filename(data_dir.get_path(), game_name + EXE_SUFFIX));
@@ -1351,8 +1548,8 @@ public class LevelEditorApplication : Gtk.Application
 				}
 			}
 			catch (Error e) {
-				logi("%s".printf(e.message));
-				logi("Failed to deploy project");
+				loge("%s".printf(e.message));
+				loge("Failed to deploy project");
 			}
 		}
 
@@ -1362,6 +1559,11 @@ public class LevelEditorApplication : Gtk.Application
 	private async void on_editor_view_realized()
 	{
 		start_editor.begin(_editor_view.window_id);
+	}
+
+	private async void on_resource_preview_view_realized()
+	{
+		start_resource_preview.begin(_resource_preview_view.window_id);
 	}
 
 	private void on_tool_changed(GLib.SimpleAction action, GLib.Variant? param)
@@ -1554,7 +1756,7 @@ public class LevelEditorApplication : Gtk.Application
 		if (_level._path != null)
 			save();
 
-		return true;
+		return GLib.Source.CONTINUE;
 	}
 
 	protected override void shutdown()
@@ -2367,6 +2569,7 @@ public static GLib.File _console_history_file;
 public static GLib.FileStream _log_stream;
 public static ConsoleView _console_view;
 public static bool _console_view_valid = false;
+public static string _log_prefix;
 
 public static void log(string system, string severity, string message)
 {
@@ -2374,15 +2577,15 @@ public static void log(string system, string severity, string message)
 	int now_us = now.get_microsecond();
 	string now_str = now.format("%H:%M:%S");
 
-	if (_log_stream != null) {
-		string line = "%s.%06d  %.4s %s: %s\n".printf(now_str
-			, now_us
-			, severity.ascii_up()
-			, system
-			, message
-			);
+	string plain_text_line = "%s.%06d  %.4s %s: %s\n".printf(now_str
+		, now_us
+		, severity.ascii_up()
+		, system
+		, message
+		);
 
-		_log_stream.puts(line);
+	if (_log_stream != null) {
+		_log_stream.puts(plain_text_line);
 		_log_stream.flush();
 	}
 
@@ -2399,17 +2602,17 @@ public static void log(string system, string severity, string message)
 
 public static void logi(string message)
 {
-	log("editor", "info", message);
+	log(_log_prefix, "info", message);
 }
 
 public static void logw(string message)
 {
-	log("editor", "warning", message);
+	log(_log_prefix, "warning", message);
 }
 
 public static void loge(string message)
 {
-	log("editor", "error", message);
+	log(_log_prefix, "error", message);
 }
 
 public void open_directory(string directory)
@@ -2457,46 +2660,75 @@ public static bool is_directory_empty(string path)
 	return false;
 }
 
-/// Waits for @a process to terminate and returns true if success, false
-/// otherwise. If the function succeeds, it also returns the @a process's @a
-/// exit_status.
-public static int wait_process(out int exit_status, GLib.Subprocess? process)
-{
-	exit_status = int.MAX;
-
-	if (process == null)
-		return 1;
-
-	try {
-		if (!process.wait())
-			return 1;
-
-		if (process.get_if_exited()) {
-			exit_status = process.get_exit_status();
-			return 0;
-		}
-
-		// Process exited abnormally.
-		return 1;
-	}
-	catch (Error e) {
-		loge(e.message);
-		return 1;
-	}
-}
-
 private void device_frame_delayed(uint delay_ms, ConsoleClient client)
 {
 	// FIXME: find a way to time exactly when it is effective to queue a redraw.
 	// See: https://blogs.gnome.org/jnelson/2010/10/13/those-realize-map-widget-signals/
 	GLib.Timeout.add_full(GLib.Priority.DEFAULT, delay_ms, () => {
 			client.send(DeviceApi.frame());
-			return false;
+			return GLib.Source.REMOVE;
 		});
 }
 
 public static int main(string[] args)
 {
+	// Redirect GLib logs to internal log*().
+	GLib.set_print_handler((msg) => { logi(msg); });
+	GLib.set_printerr_handler((msg) => { loge(msg); });
+
+	GLib.Log.set_writer_func((log_level, fields) => {
+			foreach (var field in fields) {
+				if (field.key == "MESSAGE") {
+					switch (log_level) {
+					case LEVEL_DEBUG:
+#if CROWN_DEBUG
+						logi((string)field.value);
+#endif
+						break;
+
+					case LEVEL_INFO:
+					case LEVEL_MESSAGE:
+						logi((string)field.value);
+						break;
+
+					case LEVEL_CRITICAL:
+					case LEVEL_WARNING:
+						logw((string)field.value);
+						break;
+
+					case LEVEL_ERROR:
+						loge((string)field.value);
+						break;
+
+					default:
+						logw((string)field.value);
+						break;
+					}
+
+					return GLib.LogWriterOutput.HANDLED;
+				}
+			}
+
+			return GLib.LogWriterOutput.UNHANDLED;
+		});
+
+	// If args does not contain --child, spawn the launcher.
+	int ii;
+	for (ii = 0; ii < args.length; ++ii) {
+		if (args[ii] == "--child")
+			break;
+	}
+
+	if (ii == args.length) {
+		_log_prefix = "launcher";
+		return launcher_main(args);
+	}
+
+	_log_prefix = "editor";
+	// Remove --child from args for backward compatibility.
+	if (args.length > 1)
+		args = args[0 : args.length - 1];
+
 	// Global paths
 	_config_dir = GLib.File.new_for_path(GLib.Path.build_filename(GLib.Environment.get_user_config_dir(), "crown"));
 	try {
@@ -2525,8 +2757,20 @@ public static int main(string[] args)
 
 	_log_stream = GLib.FileStream.open(_log_file.get_path(), "a");
 
+	// Connect to SubprocessLauncher service.
+	SubprocessLauncher subprocess_launcher;
+	try {
+		subprocess_launcher = GLib.Bus.get_proxy_sync(GLib.BusType.SESSION
+			, "org.crownengine.SubprocessLauncher"
+			, "/org/crownengine/subprocess_launcher"
+			);
+	} catch (IOError e) {
+		loge(e.message);
+		return 1;
+	}
+
 	// Find toolchain path, more desirable paths come first.
-	int ii = 0;
+	ii = 0;
 	string toolchain_paths[] =
 	{
 		".",
@@ -2567,7 +2811,7 @@ public static int main(string[] args)
 #if CROWN_PLATFORM_LINUX
 	Gdk.set_allowed_backends("x11");
 #endif
-	LevelEditorApplication app = new LevelEditorApplication();
+	LevelEditorApplication app = new LevelEditorApplication(subprocess_launcher);
 	return app.run(args);
 }
 

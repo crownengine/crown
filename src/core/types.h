@@ -61,12 +61,17 @@ inline T clamp(T val, T mmin, T mmax)
 	return min(max(mmin, val), mmax);
 }
 
+inline bool constexpr is_power_of_2(u32 x)
+{
+	return x && (!(x & (x - 1)));
+}
+
 #if CROWN_DEBUG && !CROWN_DEVELOPMENT
-u32 STRING_ID_32(const char *str, const u32 id);
-u64 STRING_ID_64(const char *str, const u64 id);
+struct StringId32 STRING_ID_32(const char *str, const u32 id);
+struct StringId64 STRING_ID_64(const char *str, const u64 id);
 #else
-	#define STRING_ID_32(str, id) u32(id)
-	#define STRING_ID_64(str, id) u64(id)
+	#define STRING_ID_32(str, id) StringId32(id)
+	#define STRING_ID_64(str, id) StringId64(id)
 #endif
 
 } // namespace crown
@@ -91,6 +96,8 @@ u64 STRING_ID_64(const char *str, const u64 id);
 
 #define CE_NOOP(...) do { (void)0; } while (0)
 #define CE_UNUSED(x) do { (void)(x); } while (0)
+#define CE_UNUSED_2(a, b) CE_UNUSED(a); CE_UNUSED(b)
+#define CE_UNUSED_3(a, b, c) CE_UNUSED_2(a, b); CE_UNUSED(c)
 #define CE_STATIC_ASSERT(condition, ...) static_assert(condition, "" # __VA_ARGS__)
 
 #if CROWN_COMPILER_GCC || CROWN_COMPILER_CLANG

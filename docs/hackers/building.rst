@@ -46,7 +46,7 @@ To build documentation you will also need:
 Windows (VS 2019 or VS Code)
 ----------------------------
 
-Visual Studio 2019:
+Install either Visual Studio 2019:
 
 	* https://visualstudio.microsoft.com/downloads
 
@@ -54,29 +54,21 @@ or Visual Studio Code:
 
 	* https://code.visualstudio.com
 
-GnuWin32 utilities:
-
-	* http://gnuwin32.sourceforge.net/packages/make.htm
-	* http://gnuwin32.sourceforge.net/packages/coreutils.htm
-	* http://gnuwin32.sourceforge.net/packages/libiconv.htm
-	* http://gnuwin32.sourceforge.net/packages/libintl.htm
-
-Windows (MinGW)
----------------
-
-MSYS2:
+Install MSYS2:
 
 	* https://www.msys2.org/
+
+Add MSYS2 bin to your PATH; for a default install this would be:
+
+.. code::
+
+	C:\msys2\usr\bin
+
+Open MSYS2 shell and type:
 
 .. code::
 
 	pacman -S make mingw-w64-x86_64-gcc mingw-w64-x86_64-pkg-config mingw-w64-x86_64-gtk3 mingw-w64-x86_64-vala mingw-w64-x86_64-libgee
-
-Set MINGW path:
-
-.. code::
-
-	export MINGW=/mingw64
 
 Build
 =====
@@ -108,6 +100,7 @@ To build tools, open MSYS2 MSYS:
 
 .. code::
 
+	export MINGW=/mingw64
 	make tools-mingw-release64
 
 Windows (VS Code)
@@ -122,9 +115,4 @@ Open Visual Studio Code Shell and set MINGW path:
 .. code::
 
 	$env:MINGW = "C:\msys64\mingw64"
-
-To build tools:
-
-.. code::
-
 	make tools-mingw-release64

@@ -26,7 +26,7 @@ struct GuiBuffer
 	bgfx::TransientIndexBuffer tib;
 
 	///
-	GuiBuffer(ShaderManager &sm);
+	explicit GuiBuffer(ShaderManager &sm);
 
 	///
 	void *vertex_buffer_end();
