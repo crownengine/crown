@@ -44,8 +44,7 @@ namespace sprite_resource_internal
 
 	void parse_frames(Array<SpriteFrame> &sprite_frames, const JsonArray &frames)
 	{
-		for (u32 ii = 0; ii < array::size(frames); ++ii)
-		{
+		for (u32 ii = 0; ii < array::size(frames); ++ii) {
 			TempAllocator512 ta;
 			JsonObject obj(ta);
 			sjson::parse(obj, frames[ii]);
