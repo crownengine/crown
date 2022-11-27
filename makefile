@@ -226,6 +226,10 @@ cppcheck:
 format-sources:
 	@scripts/uncrustify/format-all.sh -j $(MAKE_JOBS)
 
+.PHONY: create-meson-build
+create-meson-build:
+	$(GENIE) create-meson-build
+
 .PHONY: clean
 clean: clean-samples
 	@echo Cleaning...
@@ -235,8 +239,3 @@ endif
 	-@rm -rf 3rdparty/bgfx/.build
 	-@rm -rf 3rdparty/bimg/.build
 	-@rm -rf build
-
-.PHONY: create-meson-build
-create-meson-build-mingw64: LUAJIT=build/mingw64/bin/luajit.exe
-create-meson-build-mingw64: 
-	$(LUAJIT) scripts/create-meson-build.lua

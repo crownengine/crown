@@ -1,34 +1,34 @@
 function fs_enumerate(directory)
-  local i, t, popen = 0, {}, io.popen
-  local pfile = popen('ls -p "'..directory..'"')
-  for filename in pfile:lines() do
-      i = i + 1
-      t[i] = filename
-  end
-  pfile:close()
-  return t
+	local i, t, popen = 0, {}, io.popen
+	local pfile = popen('cd .. && ls -p "'..directory..'"')
+	for filename in pfile:lines() do
+		i = i + 1
+		t[i] = filename
+	end
+	pfile:close()
+	return t
 end
 
 function output_source_files(dir, extension)
-  local files = fs_enumerate(dir)
-  for _, file in ipairs(files) do
-    if file:sub(-1) == '/' then
-      output_source_files(dir .. file, extension)
-    elseif file:sub(-#extension) == extension then
-      io.write('\'' .. dir .. file .. '\',\n')
-    end 
-  end
+	local files = fs_enumerate(dir)
+	for _, file in ipairs(files) do
+	if file:sub(-1) == '/' then
+		output_source_files(dir .. file, extension)
+	elseif file:sub(-#extension) == extension then
+		io.write('  \'' .. dir .. file .. '\',\n')
+	end
+	end
 end
 
-local OUTPUT_PATH = "meson.build"
+local OUTPUT_PATH = "../meson.build"
 io.output(OUTPUT_PATH)
 io.write('project(\'level_editor\', [\'vala\', \'c\'])\n')
 io.write('deps = [\n')
 io.write('  dependency(\'gdk-3.0\'),\n')
-io.write('	dependency(\'gee-0.8\'),\n')
-io.write('	dependency(\'gio-2.0\'),\n')
-io.write('	dependency(\'glib-2.0\'),\n')
-io.write('	dependency(\'gtk+-3.0\')\n')
+io.write('  dependency(\'gee-0.8\'),\n')
+io.write('  dependency(\'gio-2.0\'),\n')
+io.write('  dependency(\'glib-2.0\'),\n')
+io.write('  dependency(\'gtk+-3.0\')\n')
 io.write(']\n')
 io.write('src = files([\n')
 

@@ -38,6 +38,12 @@ newoption {
 	description = "BGFX renderer (gl32, gles2, d3d11)."
 }
 
+newaction {
+	trigger = "create-meson-build",
+	description = "Create meson.build.",
+	execute = function() dofile("scripts/create-meson-build.lua") end
+}
+
 solution "crown"
 	configurations {
 		"debug",
