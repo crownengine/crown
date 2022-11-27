@@ -161,7 +161,7 @@ jobs:
     - uses: actions/checkout@v3
     - name: format
       run: |
-        ./scripts/uncrustify/format-all.sh -j 2
+        make MAKE_JOBS=2 format-sources
     - name: check-diff
       run: |
         exit `git diff --shortstat | wc -l`

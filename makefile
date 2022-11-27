@@ -222,6 +222,10 @@ cppcheck:
 		--quiet \
 		--force # Check all configurations.
 
+.PHONY: format-sources
+format-sources:
+	@scripts/uncrustify/format-all.sh -j $(MAKE_JOBS)
+
 .PHONY: clean
 clean: clean-samples
 	@echo Cleaning...
