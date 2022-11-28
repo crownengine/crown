@@ -107,7 +107,7 @@ public class SpriteResource
 				loge(e.message);
 			}
 
-			Database db = new Database();
+			Database db = new Database(project);
 
 			Guid texture_id = Guid.new_guid();
 			db.create(texture_id, "texture");
@@ -155,12 +155,9 @@ public class SpriteResource
 			db.save(Path.build_filename(project.source_dir(), resource_path + ".sprite"), sprite_id);
 			db.reset();
 
+			// Generate or modify existing .unit.
 			Guid unit_id;
-
-			if (db.has_property(GUID_ZERO, resource_name + ".unit")) {
-				unit_id = db.get_property_guid(GUID_ZERO, resource_name + ".unit");
-			} else {
-				db = new Database();
+			if (db.load_more_from_resource_path(out unit_id, resource_name + ".unit") != 0) {
 				unit_id = Guid.new_guid();
 				db.create(unit_id, OBJECT_TYPE_UNIT);
 			}

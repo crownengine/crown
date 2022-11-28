@@ -137,16 +137,11 @@ public class MeshResource
 				loge(e.message);
 			}
 
-			// Generate .unit
-			project.load_unit(resource_name);
+			Database db = new Database(project);
 
+			// Generate or modify existing .unit.
 			Guid unit_id;
-			Database db = project._database;
-
-			if (db.has_property(GUID_ZERO, resource_name + ".unit")) {
-				unit_id = db.get_property_guid(GUID_ZERO, resource_name + ".unit");
-			} else {
-				db = new Database();
+			if (db.load_more_from_resource_path(out unit_id, resource_name + ".unit") != 0) {
 				unit_id = Guid.new_guid();
 				db.create(unit_id, OBJECT_TYPE_UNIT);
 			}

@@ -18,6 +18,17 @@ public class Unit
 		_id = id;
 	}
 
+	/// Loads the unit @a name.
+	public static void load_unit(Database db, string name)
+	{
+		string resource_path = name + ".unit";
+
+		Guid prefab_id = GUID_ZERO;
+		if (db.load_more_from_resource_path(out prefab_id, resource_path) != 0)
+			return; // Caller can query the database to check for error.
+		assert(prefab_id != GUID_ZERO);
+	}
+
 	public Value? get_component_property(Guid component_id, string key)
 	{
 		Value? val;
@@ -39,6 +50,7 @@ public class Unit
 		if (val != null) {
 			// Convert prefab path to object ID.
 			string prefab = (string)val;
+			Unit.load_unit(_db, prefab);
 			Guid prefab_id = _db.get_property_guid(GUID_ZERO, prefab + ".unit");
 
 			Unit unit = new Unit(_db, prefab_id);
@@ -176,6 +188,7 @@ public class Unit
 		if (val != null) {
 			// Convert prefab path to object ID.
 			string prefab = (string)val;
+			Unit.load_unit(db, prefab);
 			Guid prefab_id = db.get_property_guid(GUID_ZERO, prefab + ".unit");
 
 			prefab_has_component = has_component_static(out component_id

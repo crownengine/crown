@@ -439,6 +439,13 @@ public class LevelEditorApplication : Gtk.Application
 
 		_data_compiler = new DataCompiler(_compiler);
 
+		_project = new Project(_data_compiler);
+		_project.set_toolchain_dir(_toolchain_dir.get_path());
+		_project.register_importer("Sprite", { "png" }, SpriteResource.import, 0.0);
+		_project.register_importer("Mesh", { "mesh" }, MeshResource.import, 1.0);
+		_project.register_importer("Sound", { "wav" }, SoundResource.import, 2.0);
+		_project.register_importer("Texture", { "png", "tga", "dds", "ktx", "pvr" }, TextureResource.import, 2.0);
+
 		uint32 undo_redo_size = DEFAULT_UNDO_REDO_MAX_SIZE;
 		if (_settings.has_key("preferences")) {
 			Hashtable preferences = (Hashtable)_settings["preferences"];
@@ -446,15 +453,8 @@ public class LevelEditorApplication : Gtk.Application
 				undo_redo_size = (uint32)(double)preferences["undo_redo_max_size"];
 		}
 		_undo_redo = new UndoRedo(undo_redo_size*1024*1024);
-		_database = new Database(_undo_redo);
+		_database = new Database(_project, _undo_redo);
 		_database.key_changed.connect(() => { update_active_window_title(); });
-
-		_project = new Project(_database, _data_compiler);
-		_project.set_toolchain_dir(_toolchain_dir.get_path());
-		_project.register_importer("Sprite", { "png" }, SpriteResource.import, 0.0);
-		_project.register_importer("Mesh", { "mesh" }, MeshResource.import, 1.0);
-		_project.register_importer("Sound", { "wav" }, SoundResource.import, 2.0);
-		_project.register_importer("Texture", { "png", "tga", "dds", "ktx", "pvr" }, TextureResource.import, 2.0);
 
 		_editor = new ConsoleClient();
 		_editor.connected.connect(on_editor_connected);

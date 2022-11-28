@@ -396,6 +396,7 @@ public class Database
 	// Data
 	private HashMap<Guid?, HashMap<string, Value?>> _data;
 	private UndoRedo? _undo_redo;
+	private Project _project;
 	// The number of changes to the database since the last successful state
 	// synchronization (load(), save() etc.). If it is less than 0, the changes
 	// came from undo(), otherwise they came from redo() or from regular calls to
@@ -408,9 +409,10 @@ public class Database
 	public signal void object_destroyed(Guid id);
 	public signal void undo_redo(bool undo, uint32 id, Guid[] data);
 
-	public Database(UndoRedo? undo_redo = null)
+	public Database(Project project, UndoRedo? undo_redo = null)
 	{
 		_data = new HashMap<Guid?, HashMap<string, Value?>>(Guid.hash_func, Guid.equal_func);
+		_project = project;
 		_undo_redo = undo_redo;
 
 		reset();
@@ -489,6 +491,18 @@ public class Database
 			return 1;
 
 		return load_more_from_file(out object_id, fs, resource_path);
+	}
+
+	public int load_more_from_resource_path(out Guid object_id, string resource_path)
+	{
+		// If the resource is already loaded.
+		if (has_property(GUID_ZERO, resource_path)) {
+			object_id = get_property_guid(GUID_ZERO, resource_path);
+			return 0;
+		}
+
+		string path = _project.resource_path_to_absolute_path(resource_path);
+		return load_more_from_path(out object_id, path, resource_path);
 	}
 
 	/// Loads the database with the object stored at @a path.

@@ -25,7 +25,7 @@ public class TextureResource
 				loge(e.message);
 			}
 
-			Database db = new Database();
+			Database db = new Database(project);
 
 			Guid texture_id = Guid.new_guid();
 			db.create(texture_id, "texture");

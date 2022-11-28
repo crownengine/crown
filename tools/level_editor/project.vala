@@ -38,7 +38,6 @@ public class Project
 	public File _level_editor_test_level;
 	public File _level_editor_test_package;
 	public string _platform;
-	public Database _database;
 	public Database _files;
 	public HashMap<string, Guid?> _map;
 	public ImporterData _all_extensions_importer_data;
@@ -52,15 +51,14 @@ public class Project
 	public signal void project_reset();
 	public signal void project_loaded();
 
-	public Project(Database db, DataCompiler dc)
+	public Project(DataCompiler dc)
 	{
 #if CROWN_PLATFORM_WINDOWS
 		_platform = "windows";
 #else
 		_platform = "linux";
 #endif
-		_database = db;
-		_files = new Database();
+		_files = new Database(this);
 		_map = new HashMap<string, Guid?>();
 		_all_extensions_importer_data = ImporterData();
 		_all_extensions_importer_data.delegate = import_all_extensions;
@@ -92,29 +90,6 @@ public class Project
 		delete_garbage();
 
 		project_loaded();
-	}
-
-	/// Loads the unit @a name and all its prefabs recursively into the database.
-	public void load_unit(string name)
-	{
-		string resource_path = name + ".unit";
-
-		// If the unit is already loaded.
-		if (_database.has_property(GUID_ZERO, resource_path))
-			return;
-
-		// Load the unit.
-		string path = resource_path_to_absolute_path(resource_path);
-
-		Guid prefab_id = GUID_ZERO;
-		if (_database.load_more_from_path(out prefab_id, path, resource_path) != 0)
-			return; // Caller can query the database to check for error.
-		assert(prefab_id != GUID_ZERO);
-
-		// Load all prefabs recursively, if any.
-		Value? prefab = _database.get_property(prefab_id, "prefab");
-		if (prefab != null)
-			load_unit((string)prefab);
 	}
 
 	public void set_toolchain_dir(string toolchain_dir)

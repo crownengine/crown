@@ -212,7 +212,6 @@ public class Level
 		_db.set_property_string(id, "editor.name", "unit_%04u".printf(_num_units++));
 
 		if (name != null) {
-			_project.load_unit(name);
 			_db.set_property_string(id, "prefab", name);
 		}
 
@@ -525,9 +524,6 @@ public class Level
 	{
 		foreach (Guid unit_id in unit_ids) {
 			Unit unit = new Unit(_db, unit_id);
-
-			if (unit.has_prefab())
-				_project.load_unit(_db.get_property_string(unit_id, "prefab"));
 
 			sb.append(LevelEditorApi.spawn_empty_unit(unit_id));
 
