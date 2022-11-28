@@ -25,12 +25,15 @@ public class TextureResource
 				loge(e.message);
 			}
 
-			Hashtable texture = new Hashtable();
-			texture["source"]        = project.resource_path_to_resource_name(resource_filename);
-			texture["generate_mips"] = true;
-			texture["normal_map"]    = false;
+			Database db = new Database();
 
-			SJSON.save(texture, Path.build_filename(project.source_dir(), resource_path) + ".texture");
+			Guid texture_id = Guid.new_guid();
+			db.create(texture_id, "texture");
+			db.set_property_string(texture_id, "source", project.resource_path_to_resource_name(resource_filename));
+			db.set_property_bool  (texture_id, "generate_mips", true);
+			db.set_property_bool  (texture_id, "normal_map", false);
+
+			db.save(Path.build_filename(project.source_dir(), resource_path + ".texture"), texture_id);
 		}
 
 		return 0;

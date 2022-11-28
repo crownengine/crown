@@ -107,16 +107,23 @@ public class SpriteResource
 				loge(e.message);
 			}
 
-			Hashtable texture = new Hashtable();
-			texture["source"]        = project.resource_path_to_resource_name(resource_filename);
-			texture["generate_mips"] = false;
-			texture["normal_map"]    = false;
-			SJSON.save(texture, Path.build_filename(project.source_dir(), resource_path) + ".texture");
+			Database db = new Database();
 
-			Hashtable sprite = new Hashtable();
-			sprite["width"]  = width;
-			sprite["height"] = height;
+			Guid texture_id = Guid.new_guid();
+			db.create(texture_id, "texture");
+			db.set_property_string(texture_id, "source", project.resource_path_to_resource_name(resource_filename));
+			db.set_property_bool  (texture_id, "generate_mips", false);
+			db.set_property_bool  (texture_id, "normal_map", false);
 
+			db.save(Path.build_filename(project.source_dir(), resource_path + ".texture"), texture_id);
+			db.reset();
+
+			Guid sprite_id = Guid.new_guid();
+			db.create(sprite_id, "sprite");
+			db.set_property_double(sprite_id, "width", width);
+			db.set_property_double(sprite_id, "height", height);
+
+			double frame_index = 0.0;
 			ArrayList<Value?> frames = new ArrayList<Value?>();
 			for (int r = 0; r < num_v; ++r) {
 				for (int c = 0; c < num_h; ++c) {
@@ -134,22 +141,21 @@ public class SpriteResource
 					int x = (int)cell_xy.x;
 					int y = (int)cell_xy.y;
 
-					Hashtable data = new Hashtable();
-					data["name"]   = "sprite_%d".printf(c + num_h*r);
-					data["region"] = Vector4(x, y, cell_w, cell_h).to_array();
-					data["pivot"]  = Vector2(x + pivot_xy.x, y + pivot_xy.y).to_array();
-					frames.add(data);
+					Guid frame_id = Guid.new_guid();
+					db.create(frame_id, "sprite_frame");
+					db.set_property_string    (frame_id, "name", "sprite_%d".printf(c +	num_h*r));
+					db.set_property_quaternion(frame_id, "region", Quaternion(x, y, cell_w, cell_h));
+					db.set_property_vector3   (frame_id, "pivot", Vector3(x + pivot_xy.x, y + pivot_xy.y, 0.0));
+					db.set_property_double    (frame_id, "index", frame_index++);
+
+					db.add_to_set(sprite_id, "frames", frame_id);
 				}
 			}
-			sprite["frames"] = frames;
 
-			SJSON.save(sprite, Path.build_filename(project.source_dir(), resource_path) + ".sprite");
-
-			// Generate .unit
-			project.load_unit(resource_name);
+			db.save(Path.build_filename(project.source_dir(), resource_path + ".sprite"), sprite_id);
+			db.reset();
 
 			Guid unit_id;
-			Database db = project._database;
 
 			if (db.has_property(GUID_ZERO, resource_name + ".unit")) {
 				unit_id = db.get_property_guid(GUID_ZERO, resource_name + ".unit");
