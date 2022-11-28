@@ -25,17 +25,19 @@ GuiBuffer::GuiBuffer(ShaderManager &sm)
 	: _shader_manager(&sm)
 	, _num_vertices(0)
 	, _num_indices(0)
+	, _vertex_buffer()
+	, _index_buffer()
 {
 }
 
 void *GuiBuffer::vertex_buffer_end()
 {
-	return tvb.data + _num_vertices*24;
+	return _vertex_buffer.data + _num_vertices*24;
 }
 
 void *GuiBuffer::index_buffer_end()
 {
-	return tib.data + _num_indices*2;
+	return _index_buffer.data + _num_indices*2;
 }
 
 void GuiBuffer::create()
@@ -52,14 +54,14 @@ void GuiBuffer::reset()
 	_num_vertices = 0;
 	_num_indices = 0;
 
-	bgfx::allocTransientVertexBuffer(&tvb, 4096, _pos_tex_col);
-	bgfx::allocTransientIndexBuffer(&tib, 6144);
+	bgfx::allocTransientVertexBuffer(&_vertex_buffer, 4096, _pos_tex_col);
+	bgfx::allocTransientIndexBuffer(&_index_buffer, 6144);
 }
 
 void GuiBuffer::submit(u32 num_vertices, u32 num_indices, const Matrix4x4 &world)
 {
-	bgfx::setVertexBuffer(0, &tvb, _num_vertices, num_vertices);
-	bgfx::setIndexBuffer(&tib, _num_indices, num_indices);
+	bgfx::setVertexBuffer(0, &_vertex_buffer, _num_vertices, num_vertices);
+	bgfx::setIndexBuffer(&_index_buffer, _num_indices, num_indices);
 	bgfx::setTransform(to_float_ptr(world));
 
 	_shader_manager->submit(STRING_ID_32("gui", 0x2c56149a), VIEW_GUI);
@@ -70,8 +72,8 @@ void GuiBuffer::submit(u32 num_vertices, u32 num_indices, const Matrix4x4 &world
 
 void GuiBuffer::submit_with_material(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, ResourceManager &rm, Material *material)
 {
-	bgfx::setVertexBuffer(0, &tvb, _num_vertices, num_vertices);
-	bgfx::setIndexBuffer(&tib, _num_indices, num_indices);
+	bgfx::setVertexBuffer(0, &_vertex_buffer, _num_vertices, num_vertices);
+	bgfx::setIndexBuffer(&_index_buffer, _num_indices, num_indices);
 	bgfx::setTransform(to_float_ptr(world));
 
 	material->bind(rm, *_shader_manager, VIEW_GUI);
