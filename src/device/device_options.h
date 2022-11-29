@@ -36,7 +36,6 @@ struct DeviceOptions
 	u16 _window_y;
 	u16 _window_width;
 	u16 _window_height;
-
 #if CROWN_PLATFORM_ANDROID
 	void *_asset_manager;
 #endif

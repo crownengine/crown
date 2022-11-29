@@ -71,6 +71,9 @@ DeviceOptions::DeviceOptions(Allocator &a, int argc, const char **argv)
 	, _window_y(0)
 	, _window_width(CROWN_DEFAULT_WINDOW_WIDTH)
 	, _window_height(CROWN_DEFAULT_WINDOW_HEIGHT)
+#if CROWN_PLATFORM_ANDROID
+	, _asset_manager(NULL)
+#endif
 {
 }
 

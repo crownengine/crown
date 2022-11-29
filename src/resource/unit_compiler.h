@@ -23,16 +23,16 @@ struct UnitCompiler
 	{
 		ALLOCATOR_AWARE;
 
-		CompileFunction _compiler;
-
 		u32 _num;
 		Array<u32> _unit_index;
 		Buffer _data;
+		CompileFunction _compiler;
 
 		ComponentTypeData(Allocator &a)
 			: _num(0)
 			, _unit_index(a)
 			, _data(a)
+			, _compiler(NULL)
 		{
 		}
 	};
