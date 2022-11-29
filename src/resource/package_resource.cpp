@@ -90,8 +90,8 @@ namespace package_resource_internal
 {
 	s32 bring_in_requirements(HashSet<PackageResource::Resource> &output, CompileOptions &opts, ResourceId res_id)
 	{
-		HashMap<DynamicString, u32> reqs_deffault(default_allocator());
-		HashMap<DynamicString, u32> &reqs = hash_map::get(opts._data_compiler._data_requirements, res_id, reqs_deffault);
+		const HashMap<DynamicString, u32> reqs_deffault(default_allocator());
+		const HashMap<DynamicString, u32> &reqs = hash_map::get(opts._data_compiler._data_requirements, res_id, reqs_deffault);
 
 		auto cur = hash_map::begin(reqs);
 		auto end = hash_map::end(reqs);

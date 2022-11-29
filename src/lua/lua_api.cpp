@@ -1122,7 +1122,7 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_metafunction("Lightuserdata_mt", "__index", [](lua_State *L) {
 			LuaStack stack(L);
-			Vector3 &v = stack.get_vector3(1);
+			const Vector3 &v = stack.get_vector3(1);
 			const char *s = stack.get_string(2);
 
 			switch (s[0]) {
