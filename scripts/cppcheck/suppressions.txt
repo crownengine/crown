@@ -2,6 +2,8 @@
 cstyleCast
 allocaCalled
 shadowFunction
+shadowVariable
 unusedFunction
 redundantAssignment
 redundantInitialization
+virtualCallInConstructor
