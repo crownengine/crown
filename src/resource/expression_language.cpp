@@ -314,13 +314,13 @@ namespace expression_language
 				case '+': token = env.token_for_identifier(binary ? "+" : "u+"); binary = false; break;
 
 				default: {
-					char s1[2] = {*p, 0};
 					char s2[3] = {*p, *(p + 1), 0};
 
 					if (s2[1] && env.has_function(s2)) {
 						token = env.token_for_identifier(s2);
 						++p;
 					} else {
+						char s1[2] = {*p, 0};
 						token = env.token_for_identifier(s1);
 					}
 
