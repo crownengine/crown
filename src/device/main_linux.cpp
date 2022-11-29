@@ -653,7 +653,7 @@ struct WindowX11 : public Window
 	{
 	}
 
-	void open(u16 x, u16 y, u16 width, u16 height, u32 parent)
+	void open(u16 x, u16 y, u16 width, u16 height, u32 parent) override
 	{
 		int screen = DefaultScreen(s_linux_device->_x11_display);
 		int depth = DefaultDepth(s_linux_device->_x11_display, screen);
@@ -705,12 +705,12 @@ struct WindowX11 : public Window
 		XMapRaised(s_linux_device->_x11_display, s_linux_device->_x11_window);
 	}
 
-	void close()
+	void close() override
 	{
 		XDestroyWindow(s_linux_device->_x11_display, s_linux_device->_x11_window);
 	}
 
-	void bgfx_setup()
+	void bgfx_setup() override
 	{
 		bgfx::PlatformData pd;
 		pd.ndt          = s_linux_device->_x11_display;
@@ -721,23 +721,23 @@ struct WindowX11 : public Window
 		bgfx::setPlatformData(pd);
 	}
 
-	void show()
+	void show() override
 	{
 		XMapRaised(s_linux_device->_x11_display, s_linux_device->_x11_window);
 	}
 
-	void hide()
+	void hide() override
 	{
 		XUnmapWindow(s_linux_device->_x11_display, s_linux_device->_x11_window);
 	}
 
-	void resize(u16 width, u16 height)
+	void resize(u16 width, u16 height) override
 	{
 		XResizeWindow(s_linux_device->_x11_display, s_linux_device->_x11_window, width, height);
 		XFlush(s_linux_device->_x11_display);
 	}
 
-	void move(u16 x, u16 y)
+	void move(u16 x, u16 y) override
 	{
 		XMoveWindow(s_linux_device->_x11_display, s_linux_device->_x11_window, x, y);
 	}
@@ -755,22 +755,22 @@ struct WindowX11 : public Window
 		XSendEvent(s_linux_device->_x11_display, DefaultRootWindow(s_linux_device->_x11_display), False, SubstructureNotifyMask | SubstructureRedirectMask, &xev);
 	}
 
-	void minimize()
+	void minimize() override
 	{
 		XIconifyWindow(s_linux_device->_x11_display, s_linux_device->_x11_window, DefaultScreen(s_linux_device->_x11_display));
 	}
 
-	void maximize()
+	void maximize() override
 	{
 		maximize_or_restore(true);
 	}
 
-	void restore()
+	void restore() override
 	{
 		maximize_or_restore(false);
 	}
 
-	const char *title()
+	const char *title() override
 	{
 		static char buf[512];
 		memset(buf, 0, sizeof(buf));
@@ -781,17 +781,17 @@ struct WindowX11 : public Window
 		return buf;
 	}
 
-	void set_title(const char *title)
+	void set_title(const char *title) override
 	{
 		XStoreName(s_linux_device->_x11_display, s_linux_device->_x11_window, title);
 	}
 
-	void *handle()
+	void *handle() override
 	{
 		return (void *)(uintptr_t)s_linux_device->_x11_window;
 	}
 
-	void show_cursor(bool show)
+	void show_cursor(bool show) override
 	{
 		XDefineCursor(s_linux_device->_x11_display
 			, s_linux_device->_x11_window
@@ -799,7 +799,7 @@ struct WindowX11 : public Window
 			);
 	}
 
-	void set_fullscreen(bool full)
+	void set_fullscreen(bool full) override
 	{
 		XEvent xev;
 		xev.xclient.type = ClientMessage;
@@ -811,12 +811,12 @@ struct WindowX11 : public Window
 		XSendEvent(s_linux_device->_x11_display, DefaultRootWindow(s_linux_device->_x11_display), False, SubstructureNotifyMask | SubstructureRedirectMask, &xev);
 	}
 
-	void set_cursor(MouseCursor::Enum cursor)
+	void set_cursor(MouseCursor::Enum cursor) override
 	{
 		XDefineCursor(s_linux_device->_x11_display, s_linux_device->_x11_window, _x11_cursors[cursor]);
 	}
 
-	void set_cursor_mode(CursorMode::Enum mode)
+	void set_cursor_mode(CursorMode::Enum mode) override
 	{
 		if (mode == s_linux_device->_cursor_mode)
 			return;
@@ -875,7 +875,7 @@ namespace window
 
 struct DisplayXRandr : public Display
 {
-	void modes(Array<DisplayMode> &modes)
+	void modes(Array<DisplayMode> &modes) override
 	{
 		int num = 0;
 		XRRScreenSize *sizes = XRRConfigSizes(s_linux_device->_screen_config, &num);
@@ -892,7 +892,7 @@ struct DisplayXRandr : public Display
 		}
 	}
 
-	void set_mode(u32 id)
+	void set_mode(u32 id) override
 	{
 		int num = 0;
 		XRRScreenSize *sizes = XRRConfigSizes(s_linux_device->_screen_config, &num);

@@ -31,12 +31,12 @@ struct FileApk : public File
 		close();
 	}
 
-	void open(const char *path, FileOpenMode::Enum /*mode*/)
+	void open(const char *path, FileOpenMode::Enum /*mode*/) override
 	{
 		_asset = AAssetManager_open(_asset_manager, path, AASSET_MODE_RANDOM);
 	}
 
-	void close()
+	void close() override
 	{
 		if (_asset) {
 			AAsset_close(_asset);
@@ -44,30 +44,30 @@ struct FileApk : public File
 		}
 	}
 
-	bool is_open()
+	bool is_open() override
 	{
 		return _asset != NULL;
 	}
 
-	u32 size()
+	u32 size() override
 	{
 		CE_ASSERT(is_open(), "File is not open");
 		return AAsset_getLength(_asset);
 	}
 
-	u32 position()
+	u32 position() override
 	{
 		CE_ASSERT(is_open(), "File is not open");
 		return u32(AAsset_getLength(_asset) - AAsset_getRemainingLength(_asset));
 	}
 
-	bool end_of_file()
+	bool end_of_file() override
 	{
 		CE_ASSERT(is_open(), "File is not open");
 		return AAsset_getRemainingLength(_asset) == 0;
 	}
 
-	void seek(u32 position)
+	void seek(u32 position) override
 	{
 		CE_ASSERT(is_open(), "File is not open");
 		off_t seek_result = AAsset_seek(_asset, (off_t)position, SEEK_SET);
@@ -75,7 +75,7 @@ struct FileApk : public File
 		CE_UNUSED(seek_result);
 	}
 
-	void seek_to_end()
+	void seek_to_end() override
 	{
 		CE_ASSERT(is_open(), "File is not open");
 		off_t seek_result = AAsset_seek(_asset, 0, SEEK_END);
@@ -83,7 +83,7 @@ struct FileApk : public File
 		CE_UNUSED(seek_result);
 	}
 
-	void skip(u32 bytes)
+	void skip(u32 bytes) override
 	{
 		CE_ASSERT(is_open(), "File is not open");
 		off_t seek_result = AAsset_seek(_asset, (off_t)bytes, SEEK_CUR);
@@ -91,21 +91,21 @@ struct FileApk : public File
 		CE_UNUSED(seek_result);
 	}
 
-	u32 read(void *data, u32 size)
+	u32 read(void *data, u32 size) override
 	{
 		CE_ASSERT(is_open(), "File is not open");
 		CE_ENSURE(NULL != data);
 		return (u32)AAsset_read(_asset, data, size);
 	}
 
-	u32 write(const void * /*data*/, u32 /*size*/)
+	u32 write(const void * /*data*/, u32 /*size*/) override
 	{
 		CE_ASSERT(is_open(), "File is not open");
 		CE_FATAL("Apk files are read only!");
 		return 0;
 	}
 
-	void flush()
+	void flush() override
 	{
 		// Not needed
 	}
