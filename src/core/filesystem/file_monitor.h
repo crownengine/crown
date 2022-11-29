@@ -43,6 +43,12 @@ struct FileMonitor
 	///
 	~FileMonitor();
 
+	///
+	FileMonitor(const FileMonitor &) = delete;
+
+	///
+	FileMonitor &operator=(const FileMonitor &) = delete;
+
 	/// Starts monitoring the @a paths.
 	void start(u32 num, const char **paths, bool recursive, FileMonitorFunction fmf, void *user_data);
 
