@@ -28,7 +28,7 @@ struct UnitCompiler
 		Buffer _data;
 		CompileFunction _compiler;
 
-		ComponentTypeData(Allocator &a)
+		explicit ComponentTypeData(Allocator &a)
 			: _num(0)
 			, _unit_index(a)
 			, _data(a)
@@ -65,7 +65,7 @@ struct UnitCompiler
 	s32 compile_component(Buffer &output, StringId32 type, const char *json);
 
 	///
-	UnitCompiler(CompileOptions &opts);
+	explicit UnitCompiler(CompileOptions &opts);
 
 	///
 	~UnitCompiler();

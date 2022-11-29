@@ -185,7 +185,7 @@ struct Joypad
 	int _fd[CROWN_MAX_JOYPADS];
 	AxisData _axis[CROWN_MAX_JOYPADS];
 
-	Joypad(DeviceEventQueue &queue)
+	explicit Joypad(DeviceEventQueue &queue)
 		: _queue(&queue)
 	{
 		memset(&_fd, 0, sizeof(_fd));
@@ -323,7 +323,7 @@ struct LinuxDevice
 	s16 _mouse_last_y;
 	CursorMode::Enum _cursor_mode;
 
-	LinuxDevice(Allocator &a)
+	explicit LinuxDevice(Allocator &a)
 		: _x11_display(NULL)
 		, _wm_delete_window(None)
 		, _net_wm_state(None)

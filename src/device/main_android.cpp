@@ -38,7 +38,7 @@ struct AndroidDevice
 	Thread _main_thread;
 	DeviceOptions *_opts;
 
-	AndroidDevice(Allocator &a)
+	explicit AndroidDevice(Allocator &a)
 		: _events(a)
 		, _queue(push_event)
 		, _opts(NULL)
