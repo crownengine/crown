@@ -50,9 +50,41 @@ namespace json
 		CE_ENSURE(NULL != json);
 
 		switch (*json) {
-		case '"': json = skip_string(json); break;
-		case '[': json = skip_block(json, '[', ']'); break;
-		case '{': json = skip_block(json, '{', '}'); break;
+		case '"':
+			json = skip_string(json);
+			break;
+		case '[':
+		{
+			u32 num = 0;
+
+			for (char ch = *json++; ch != '\0'; ch = *json++) {
+				if (ch == '[') {
+					++num;
+				} else if (ch == ']') {
+					if (--num == 0)
+						break;
+				} else if (ch == '"') {
+					json = skip_string(json);
+				}
+			}
+			break;
+		}
+		case '{':
+		{
+			u32 num = 0;
+
+			for (char ch = *json++; ch != '\0'; ch = *json++) {
+				if (ch == '{') {
+					++num;
+				} else if (ch == '}') {
+					if (--num == 0)
+						break;
+				} else if (ch == '"') {
+					json = skip_string(json);
+				}
+			}
+			break;
+		}
 		default: for (; *json != ',' && *json != '}' && *json != ']'; ++json); break;
 		}
 

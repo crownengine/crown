@@ -14,6 +14,7 @@
 #include "core/filesystem/path.h"
 #include "core/guid.inl"
 #include "core/json/json.h"
+#include "core/json/json_object.inl"
 #include "core/json/sjson.h"
 #include "core/math/aabb.inl"
 #include "core/math/color4.inl"
@@ -1165,6 +1166,16 @@ static void test_json()
 		json::parse_string(str, "\"This is JSON\"");
 		ENSURE(strcmp(str.c_str(), "This is JSON") == 0);
 	}
+	{
+		TempAllocator1024 ta;
+		JsonObject obj(ta);
+		json::parse_object(obj, "{\"foo\":{\"}\":false}}");
+	}
+	{
+		TempAllocator1024 ta;
+		JsonObject obj(ta);
+		json::parse_object(obj, "{\"foo\":[\"]\"]}");
+	}
 	memory_globals::shutdown();
 }
 
@@ -1290,6 +1301,21 @@ static void test_sjson()
 		DynamicString str(ta);
 		sjson::parse_verbatim(str, "\"\"\"verbatim\"\"\"");
 		ENSURE(strcmp(str.c_str(), "verbatim") == 0);
+	}
+	{
+		TempAllocator1024 ta;
+		JsonObject obj(ta);
+		sjson::parse_object(obj, "{foo={\"}\"=false}}");
+	}
+	{
+		TempAllocator1024 ta;
+		JsonObject obj(ta);
+		sjson::parse_object(obj, "{foo={bar=\"\"\"}\"\"\"}}");
+	}
+	{
+		TempAllocator1024 ta;
+		JsonObject obj(ta);
+		sjson::parse_object(obj, "{foo=[\"]\"]}");
 	}
 	memory_globals::shutdown();
 }

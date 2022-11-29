@@ -53,17 +53,53 @@ namespace sjson
 		case '"':
 			json = skip_string(json);
 			if (*json == '"') {
-				++json;
-				json = strstr(json, "\"\"\"");
+				json = strstr(json + 1, "\"\"\"");
 				CE_ENSURE(json);
-				++json;
-				++json;
-				++json;
+				json += 3;
 			}
 			break;
+		case '[':
+		{
+			u32 num = 0;
 
-		case '[': json = skip_block(json, '[', ']'); break;
-		case '{': json = skip_block(json, '{', '}'); break;
+			for (char ch = *json++; ch != '\0'; ch = *json++) {
+				if (ch == '[') {
+					++num;
+				} else if (ch == ']') {
+					if (--num == 0)
+						break;
+				} else if (ch == '"') {
+					json = skip_string(json - 1);
+					if (*json == '"') {
+						json = strstr(json + 1, "\"\"\"");
+						CE_ENSURE(json);
+						json += 3;
+					}
+				}
+			}
+			break;
+		}
+		case '{':
+		{
+			u32 num = 0;
+
+			for (char ch = *json++; ch != '\0'; ch = *json++) {
+				if (ch == '{') {
+					++num;
+				} else if (ch == '}') {
+					if (--num == 0)
+						break;
+				} else if (ch == '"') {
+					json = skip_string(json - 1);
+					if (*json == '"') {
+						json = strstr(json + 1, "\"\"\"");
+						CE_ENSURE(json);
+						json += 3;
+					}
+				}
+			}
+			break;
+		}
 		default: for (; *json != '\0' && *json != ',' && *json != '\n' && *json != ' ' && *json != '}' && *json != ']'; ++json); break;
 		}
 
