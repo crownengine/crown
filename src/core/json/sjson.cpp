@@ -58,8 +58,7 @@ namespace sjson
 				json += 3;
 			}
 			break;
-		case '[':
-		{
+		case '[': {
 			u32 num = 0;
 
 			for (char ch = *json++; ch != '\0'; ch = *json++) {
@@ -79,8 +78,7 @@ namespace sjson
 			}
 			break;
 		}
-		case '{':
-		{
+		case '{': {
 			u32 num = 0;
 
 			for (char ch = *json++; ch != '\0'; ch = *json++) {

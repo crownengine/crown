@@ -53,8 +53,7 @@ namespace json
 		case '"':
 			json = skip_string(json);
 			break;
-		case '[':
-		{
+		case '[': {
 			u32 num = 0;
 
 			for (char ch = *json++; ch != '\0'; ch = *json++) {
@@ -69,8 +68,7 @@ namespace json
 			}
 			break;
 		}
-		case '{':
-		{
+		case '{': {
 			u32 num = 0;
 
 			for (char ch = *json++; ch != '\0'; ch = *json++) {
