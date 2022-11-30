@@ -124,7 +124,7 @@ public class SpriteResource
 			db.set_property_double(sprite_id, "height", height);
 
 			double frame_index = 0.0;
-			ArrayList<Value?> frames = new ArrayList<Value?>();
+
 			for (int r = 0; r < num_v; ++r) {
 				for (int c = 0; c < num_h; ++c) {
 					Vector2 cell_xy = sprite_cell_xy(r
