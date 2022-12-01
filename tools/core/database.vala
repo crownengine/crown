@@ -452,8 +452,8 @@ public class Database
 		_distance_from_last_sync = 0;
 	}
 
-	// See: load_more_from_path().
-	public int load_more_from_file(out Guid object_id, FileStream? fs, string resource_path)
+	// See: add_from_path().
+	public int add_from_file(out Guid object_id, FileStream? fs, string resource_path)
 	{
 		Hashtable json = SJSON.load_from_file(fs);
 
@@ -476,13 +476,13 @@ public class Database
 		return 0;
 	}
 
-	// Loads the database with the object stored at @a path, without resetting the
-	// database. This makes it possible to load multiple objects from distinct
+	// Adds the object stored at @a path to the database.
+	// This makes it possible to load multiple objects from distinct
 	// paths in the same database. @a resource_path is used as a key in the
 	// database to refer to the object that has been loaded. This is useful when
 	// you do not have the object ID but only its path, as it is often the case
 	// since resources use paths and not IDs to reference each other.
-	public int load_more_from_path(out Guid object_id, string path, string resource_path)
+	public int add_from_path(out Guid object_id, string path, string resource_path)
 	{
 		object_id = GUID_ZERO;
 
@@ -490,10 +490,10 @@ public class Database
 		if (fs == null)
 			return 1;
 
-		return load_more_from_file(out object_id, fs, resource_path);
+		return add_from_file(out object_id, fs, resource_path);
 	}
 
-	public int load_more_from_resource_path(out Guid object_id, string resource_path)
+	public int add_from_resource_path(out Guid object_id, string resource_path)
 	{
 		// If the resource is already loaded.
 		if (has_property(GUID_ZERO, resource_path)) {
@@ -502,21 +502,21 @@ public class Database
 		}
 
 		string path = _project.resource_path_to_absolute_path(resource_path);
-		return load_more_from_path(out object_id, path, resource_path);
+		return add_from_path(out object_id, path, resource_path);
 	}
 
 	/// Loads the database with the object stored at @a path.
 	public int load_from_file(out Guid object_id, FileStream fs, string resource_path)
 	{
 		reset();
-		return load_more_from_file(out object_id, fs, resource_path);
+		return add_from_file(out object_id, fs, resource_path);
 	}
 
 	/// Loads the database with the object stored at @a path.
 	public int load_from_path(out Guid object_id, string path, string resource_path)
 	{
 		reset();
-		return load_more_from_path(out object_id, path, resource_path);
+		return add_from_path(out object_id, path, resource_path);
 	}
 
 	/// Encodes the object @a id into SJSON object.

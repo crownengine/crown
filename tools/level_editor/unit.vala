@@ -24,7 +24,7 @@ public class Unit
 		string resource_path = name + ".unit";
 
 		Guid prefab_id = GUID_ZERO;
-		if (db.load_more_from_resource_path(out prefab_id, resource_path) != 0)
+		if (db.add_from_resource_path(out prefab_id, resource_path) != 0)
 			return; // Caller can query the database to check for error.
 		assert(prefab_id != GUID_ZERO);
 	}
