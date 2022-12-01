@@ -53,32 +53,25 @@ namespace json
 		case '"':
 			json = skip_string(json);
 			break;
-		case '[': {
-			u32 num = 0;
 
-			for (char ch = *json++; ch != '\0'; ch = *json++) {
-				if (ch == '[') {
-					++num;
-				} else if (ch == ']') {
-					if (--num == 0)
-						break;
-				} else if (ch == '"') {
-					json = skip_string(json);
-				}
-			}
-			break;
-		}
+		case '[':
 		case '{': {
 			u32 num = 0;
+			char aa = *json;
+			char bb = aa == '[' ? ']' : '}';
 
-			for (char ch = *json++; ch != '\0'; ch = *json++) {
-				if (ch == '{') {
+			while (*json != '\0') {
+				if (*json == aa) {
+					++json;
 					++num;
-				} else if (ch == '}') {
+				} else if (*json == bb) {
+					++json;
 					if (--num == 0)
 						break;
-				} else if (ch == '"') {
+				} else if (*json == '"') {
 					json = skip_string(json);
+				} else {
+					++json;
 				}
 			}
 			break;

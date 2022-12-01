@@ -45,65 +45,6 @@ namespace sjson
 		return json;
 	}
 
-	static const char *skip_value(const char *json)
-	{
-		CE_ENSURE(NULL != json);
-
-		switch (*json) {
-		case '"':
-			json = skip_string(json);
-			if (*json == '"') {
-				json = strstr(json + 1, "\"\"\"");
-				CE_ENSURE(json);
-				json += 3;
-			}
-			break;
-		case '[': {
-			u32 num = 0;
-
-			for (char ch = *json++; ch != '\0'; ch = *json++) {
-				if (ch == '[') {
-					++num;
-				} else if (ch == ']') {
-					if (--num == 0)
-						break;
-				} else if (ch == '"') {
-					json = skip_string(json - 1);
-					if (*json == '"') {
-						json = strstr(json + 1, "\"\"\"");
-						CE_ENSURE(json);
-						json += 3;
-					}
-				}
-			}
-			break;
-		}
-		case '{': {
-			u32 num = 0;
-
-			for (char ch = *json++; ch != '\0'; ch = *json++) {
-				if (ch == '{') {
-					++num;
-				} else if (ch == '}') {
-					if (--num == 0)
-						break;
-				} else if (ch == '"') {
-					json = skip_string(json - 1);
-					if (*json == '"') {
-						json = strstr(json + 1, "\"\"\"");
-						CE_ENSURE(json);
-						json += 3;
-					}
-				}
-			}
-			break;
-		}
-		default: for (; *json != '\0' && *json != ',' && *json != '\n' && *json != ' ' && *json != '}' && *json != ']'; ++json); break;
-		}
-
-		return json;
-	}
-
 	static const char *skip_comments(const char *json)
 	{
 		CE_ENSURE(NULL != json);
@@ -139,6 +80,55 @@ namespace sjson
 				++json;
 			else
 				break;
+		}
+
+		return json;
+	}
+
+	static const char *skip_value(const char *json)
+	{
+		CE_ENSURE(NULL != json);
+
+		switch (*json) {
+		case '"':
+			json = skip_string(json);
+			if (*json == '"') {
+				json = strstr(json + 1, "\"\"\"");
+				CE_ENSURE(json);
+				json += 3;
+			}
+			break;
+
+		case '[':
+		case '{': {
+			u32 num = 0;
+			char aa = *json;
+			char bb = aa == '[' ? ']' : '}';
+
+			while (*json != '\0') {
+				if (*json == aa) {
+					++json;
+					++num;
+				} else if (*json == bb) {
+					++json;
+					if (--num == 0)
+						break;
+				} else if (*json == '"') {
+					json = skip_string(json);
+					if (*json == '"') {
+						json = strstr(json + 1, "\"\"\"");
+						CE_ENSURE(json);
+						json += 3;
+					}
+				} else if (*json == '/') {
+					json = skip_comments(json);
+				} else {
+					++json;
+				}
+			}
+			break;
+		}
+		default: for (; *json != '\0' && *json != ',' && *json != '\n' && *json != ' ' && *json != '}' && *json != ']'; ++json); break;
 		}
 
 		return json;

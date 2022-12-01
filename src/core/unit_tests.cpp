@@ -1317,6 +1317,16 @@ static void test_sjson()
 		JsonObject obj(ta);
 		sjson::parse_object(obj, "{foo=[\"]\"]}");
 	}
+	{
+		TempAllocator1024 ta;
+		JsonObject obj(ta);
+		sjson::parse_object(obj, "{foo=[/*]*/]}");
+	}
+	{
+		TempAllocator1024 ta;
+		JsonObject obj(ta);
+		sjson::parse_object(obj, "{foo=[//]\n]}");
+	}
 	memory_globals::shutdown();
 }
 
