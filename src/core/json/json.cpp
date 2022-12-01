@@ -58,7 +58,7 @@ namespace json
 		case '{': {
 			u32 num = 0;
 			char aa = *json;
-			char bb = aa == '[' ? ']' : '}';
+			char bb = aa + 2; // Matching brace/bracket.
 
 			while (*json != '\0') {
 				if (*json == aa) {
