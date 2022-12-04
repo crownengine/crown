@@ -632,7 +632,7 @@ public class Database
 				if (key == "units")
 					set_object_type(obj_id, "unit");
 				else if (key == "sounds")
-					set_object_type(obj_id, "level_sound");
+					set_object_type(obj_id, OBJECT_TYPE_SOUND_SOURCE);
 				else
 					set_object_type(obj_id, "undefined");
 			} else if (owner_type == "state_machine") {

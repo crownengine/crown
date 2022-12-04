@@ -87,8 +87,6 @@ public class Level
 		if (!_project.path_is_within_source_dir(path))
 			_path = null;
 
-		fix_objects_types();
-
 		// FIXME: hack to keep the LevelTreeView working.
 		_db.key_changed(_id, "units");
 
@@ -779,17 +777,6 @@ public class Level
 			loge("Unknown undo/redo action: %u".printf(id));
 			break;
 		}
-	}
-
-	private void fix_objects_types()
-	{
-		HashSet<Guid?> units = _db.get_property_set(_id, "units", new HashSet<Guid?>());
-		foreach (var id in units)
-			_db.set_object_type(id, OBJECT_TYPE_UNIT);
-
-		HashSet<Guid?> sounds = _db.get_property_set(_id, "sounds", new HashSet<Guid?>());
-		foreach (var id in sounds)
-			_db.set_object_type(id, OBJECT_TYPE_SOUND_SOURCE);
 	}
 }
 
