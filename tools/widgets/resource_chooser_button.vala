@@ -80,6 +80,14 @@ public class ResourceChooserButton : Gtk.Box
 		rb.set_type_filter(type_filter);
 		rb.resource_selected.connect(() => { _name.text = rb._name; dg.response(ResponseType.OK); });
 
+		dg.key_press_event.connect((ev) => {
+				if (ev.keyval == Gdk.Key.Escape) {
+					dg.destroy();
+					return Gdk.EVENT_STOP;
+				}
+
+				return Gdk.EVENT_PROPAGATE;
+			});
 		dg.skip_taskbar_hint = true;
 		dg.get_content_area().pack_start(rb, true, true, 0);
 		dg.show_all();
