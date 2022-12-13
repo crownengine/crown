@@ -825,6 +825,21 @@ int main(int argc, char **argv)
 		freopen("CONOUT$", "w", stderr);
 	}
 
+	// code-format off
+	PHANDLER_ROUTINE signal_handler = [](DWORD dwCtrlType) {
+			switch (dwCtrlType) {
+			case CTRL_C_EVENT:
+				if (device())
+					device()->quit();
+				return TRUE;
+
+			default:
+				return FALSE;
+			}
+		};
+	// code-format on
+	SetConsoleCtrlHandler(signal_handler, TRUE);
+
 	WSADATA wsdata;
 	int err = WSAStartup(MAKEWORD(2, 2), &wsdata);
 	CE_ASSERT(err == 0, "WSAStartup: error = %d", err);
@@ -864,6 +879,7 @@ int main(int argc, char **argv)
 
 	FreeConsole();
 	WSACleanup();
+	SetConsoleCtrlHandler(signal_handler, FALSE);
 	return ec;
 }
 

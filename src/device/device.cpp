@@ -537,6 +537,9 @@ void Device::run()
 void Device::quit()
 {
 	_quit = true;
+
+	if (_console_server)
+		_console_server->close();
 }
 
 void Device::pause()

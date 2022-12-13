@@ -33,6 +33,7 @@
 #include <X11/Xutil.h>
 #define STB_SPRINTF_IMPLEMENTATION
 #include <stb_sprintf.h>
+#include <signal.h>
 
 namespace crown
 {
@@ -954,6 +955,32 @@ struct InitGlobals
 int main(int argc, char **argv)
 {
 	using namespace crown;
+
+	struct sigaction old_SIGINT;
+	struct sigaction old_SIGTERM;
+	struct sigaction act;
+	// code-format off
+	act.sa_handler = [](int signum) {
+			switch (signum)
+			{
+			case SIGINT:
+			case SIGTERM:
+				if (device())
+					device()->quit();
+				break;
+
+			default:
+				break;
+			}
+		};
+	// code-format on
+	sigemptyset(&act.sa_mask);
+	act.sa_flags = 0;
+	sigaction(SIGINT, NULL, &old_SIGINT);
+	sigaction(SIGINT, &act, NULL);
+	sigaction(SIGTERM, NULL, &old_SIGTERM);
+	sigaction(SIGTERM, &act, NULL);
+
 #if CROWN_BUILD_UNIT_TESTS
 	CommandLine cl(argc, (const char **)argv);
 	if (cl.has_option("run-unit-tests")) {
@@ -984,6 +1011,10 @@ int main(int argc, char **argv)
 		ec = s_linux_device->run(&opts);
 		CE_DELETE(default_allocator(), s_linux_device);
 	}
+
+	// Restore original signal handlers.
+	sigaction(SIGINT, &old_SIGINT, NULL);
+	sigaction(SIGTERM, &old_SIGTERM, NULL);
 
 	return ec;
 }
