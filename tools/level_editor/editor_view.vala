@@ -114,7 +114,6 @@ public class EditorView : Gtk.EventBox
 
 		this.realize.connect(on_event_box_realized);
 		this.set_visual(Gdk.Screen.get_default().get_system_visual());
-		this.set_size_request(128, 128);
 		this.events |= Gdk.EventMask.STRUCTURE_MASK; // map_event
 		this.map_event.connect(() => {
 				device_frame_delayed(16, _client);
