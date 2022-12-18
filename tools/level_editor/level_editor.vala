@@ -496,7 +496,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		// Widgets
 		_preferences_dialog = new PreferencesDialog(this);
-		_preferences_dialog.delete_event.connect(() => { _preferences_dialog.hide(); return Gdk.EVENT_STOP; });
+		_preferences_dialog.delete_event.connect(_preferences_dialog.hide_on_delete);
 
 		_combo = new Gtk.ComboBoxText();
 		_combo.append("editor", "Editor");
@@ -613,11 +613,7 @@ public class LevelEditorApplication : Gtk.Application
 				device_frame_delayed(16, _editor);
 				return Gdk.EVENT_PROPAGATE;
 			});
-		_resource_popover.delete_event.connect(() => {
-				// Do not destroy the widget.
-				_resource_popover.hide();
-				return Gdk.EVENT_STOP;
-			});
+		_resource_popover.delete_event.connect(_resource_popover.hide_on_delete);
 		_resource_popover.modal = true;
 
 		_resource_chooser = new ResourceChooser(_project, _project_store, _resource_preview_stack, _resource_preview);
