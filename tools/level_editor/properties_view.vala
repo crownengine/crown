@@ -684,6 +684,7 @@ public class PropertiesView : Gtk.Bin
 	private HashMap<string, Gtk.Expander> _expanders;
 	private HashMap<string, PropertyGrid> _objects;
 	private ArrayList<ComponentEntry?> _entries;
+	private Gee.ArrayList<Guid?>? _selection;
 
 	// Widgets
 	private Gtk.Label _nothing_to_show;
@@ -703,6 +704,7 @@ public class PropertiesView : Gtk.Bin
 		_expanders = new HashMap<string, Gtk.Expander>();
 		_objects = new HashMap<string, PropertyGrid>();
 		_entries = new ArrayList<ComponentEntry?>();
+		_selection = null;
 
 		// Widgets
 		_object_view = new PropertyGridSet();
@@ -789,14 +791,14 @@ public class PropertiesView : Gtk.Bin
 		}
 	}
 
-	public void on_selection_changed(Gee.ArrayList<Guid?> selection)
+	public void show_or_hide_properties()
 	{
-		if (selection.size != 1) {
+		if (_selection == null || _selection.size != 1) {
 			_stack.set_visible_child(_nothing_to_show);
 			return;
 		}
 
-		Guid id = selection[selection.size - 1];
+		Guid id = _selection[_selection.size - 1];
 		if (!_db.has_object(id))
 			return;
 
@@ -806,6 +808,18 @@ public class PropertiesView : Gtk.Bin
 			show_sound_source(id);
 		else
 			_stack.set_visible_child(_unknown_object_type);
+	}
+
+	public void on_selection_changed(Gee.ArrayList<Guid?> selection)
+	{
+		_selection = selection;
+		show_or_hide_properties();
+	}
+
+	public override void map()
+	{
+		base.map();
+		show_or_hide_properties();
 	}
 }
 
