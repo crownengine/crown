@@ -2352,31 +2352,7 @@ public class LevelEditorApplication : Gtk.Application
 		dlg.version = CROWN_VERSION;
 		dlg.website = "https://www.crownengine.org";
 		dlg.copyright = "Copyright (c) 2012-2023 Daniele Bartolini et al.";
-		dlg.license = "Crown Game Engine."
-			+ "\nCopyright (c) 2012-2023 Daniele Bartolini et al."
-			+ "\n"
-			+ "\nPermission is hereby granted, free of charge, to any person"
-			+ "\nobtaining a copy of this software and associated documentation"
-			+ "\nfiles (the \"Software\"), to deal in the Software without"
-			+ "\nrestriction, including without limitation the rights to use,"
-			+ "\ncopy, modify, merge, publish, distribute, sublicense, and/or sell"
-			+ "\ncopies of the Software, and to permit persons to whom the"
-			+ "\nSoftware is furnished to do so, subject to the following"
-			+ "\nconditions:"
-			+ "\n"
-			+ "\nThe above copyright notice and this permission notice shall be"
-			+ "\nincluded in all copies or substantial portions of the Software."
-			+ "\n"
-			+ "\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,"
-			+ "\nEXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES"
-			+ "\nOF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND"
-			+ "\nNONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT"
-			+ "\nHOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,"
-			+ "\nWHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING"
-			+ "\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR"
-			+ "\nOTHER DEALINGS IN THE SOFTWARE."
-			+ "\n"
-			;
+		dlg.license_type = GPL_3_0;
 		dlg.authors =
 		{
 			"Daniele Bartolini",
