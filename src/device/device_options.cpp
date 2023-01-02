@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2012-2022 Daniele Bartolini et al.
- * License: https://github.com/crownengine/crown/blob/master/LICENSE
+ * Copyright (c) 2012-2023 Daniele Bartolini et al.
+ * SPDX-License-Identifier: MIT
  */
 
 #include "config.h"
@@ -18,8 +18,8 @@ static void help(const char *msg = NULL)
 {
 	printf(
 		"The Flexible Game Engine\n"
-		"Copyright (c) 2012-2022 Daniele Bartolini et al.\n"
-		"License: https://github.com/crownengine/crown/blob/master/LICENSE\n"
+		"Copyright (c) 2012-2023 Daniele Bartolini et al.\n"
+		"SPDX-License-Identifier: MIT
 		"\n"
 		"Usage:\n"
 		"  crown [options]\n"

@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2012-2022 Daniele Bartolini et al.
- * License: https://github.com/crownengine/crown/blob/master/LICENSE
+ * Copyright (c) 2012-2023 Daniele Bartolini et al.
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 using Gdk; // Pixbuf
@@ -2351,9 +2351,9 @@ public class LevelEditorApplication : Gtk.Application
 		dlg.program_name = LEVEL_EDITOR_WINDOW_TITLE;
 		dlg.version = CROWN_VERSION;
 		dlg.website = "https://www.crownengine.org";
-		dlg.copyright = "Copyright (c) 2012-2022 Daniele Bartolini et al.";
+		dlg.copyright = "Copyright (c) 2012-2023 Daniele Bartolini et al.";
 		dlg.license = "Crown Game Engine."
-			+ "\nCopyright (c) 2012-2022 Daniele Bartolini et al."
+			+ "\nCopyright (c) 2012-2023 Daniele Bartolini et al."
 			+ "\n"
 			+ "\nPermission is hereby granted, free of charge, to any person"
 			+ "\nobtaining a copy of this software and associated documentation"

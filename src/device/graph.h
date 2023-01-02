@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2022 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2023 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 

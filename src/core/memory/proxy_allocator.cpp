@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2012-2022 Daniele Bartolini et al.
- * License: https://github.com/crownengine/crown/blob/master/LICENSE
+ * Copyright (c) 2012-2023 Daniele Bartolini et al.
+ * SPDX-License-Identifier: MIT
  */
 
 #include "core/error/error.inl"
