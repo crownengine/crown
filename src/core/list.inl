@@ -9,6 +9,8 @@
 
 namespace crown
 {
+#define LIST_INIT_HEAD(head) { &(head), &(head) }
+
 namespace list
 {
 	inline void init_head(ListNode &head)

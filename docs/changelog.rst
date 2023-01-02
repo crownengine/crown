@@ -14,6 +14,7 @@ Changelog
 **Runtime**
 
 * Windows: reduced CPU usage by polling joypads' status in a background thread.
+* Added ``graph`` command to plot profiler data at runtime.
 
 **Tools**
 

@@ -29,6 +29,7 @@
 #include "core/types.h"
 #include "device/console_server.h"
 #include "device/device.h"
+#include "device/graph.h"
 #include "device/input_device.h"
 #include "device/input_manager.h"
 #include "device/log.h"
@@ -417,6 +418,8 @@ void Device::run()
 	_pipeline = CE_NEW(_allocator, Pipeline)();
 	_pipeline->create(_width, _height);
 
+	graph_globals::init(_allocator, *_shader_manager, *_console_server);
+
 #if CROWN_TOOLS
 	tool_init();
 #endif
@@ -488,6 +491,8 @@ void Device::run()
 
 		profiler_globals::flush();
 
+		graph_globals::draw_all(_width, _height);
+
 #if CROWN_TOOLS
 		tool_update(dt);
 #else
@@ -508,6 +513,7 @@ void Device::run()
 
 	physics_globals::shutdown(_allocator);
 	audio_globals::shutdown();
+	graph_globals::shutdown();
 
 	_pipeline->destroy();
 	CE_DELETE(_allocator, _pipeline);
@@ -593,6 +599,19 @@ void Device::render(World &world, UnitId camera_unit)
 	bgfx::setViewTransform(VIEW_DEBUG, to_float_ptr(view), to_float_ptr(proj));
 	bgfx::setViewTransform(VIEW_GUI, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(ortho_proj));
 	bgfx::setViewTransform(VIEW_SELECTION, to_float_ptr(view), to_float_ptr(proj));
+
+	f32 graph_ortho[16];
+	bx::mtxOrtho(graph_ortho
+		, -_width / 2.0f
+		,  _width / 2.0f
+		, -_height / 2.0f
+		,  _height / 2.0f
+		, 0.0f
+		, 1.0f
+		, 0.0f
+		, caps->homogeneousDepth
+		);
+	bgfx::setViewTransform(VIEW_GRAPH, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(from_array(graph_ortho)));
 
 	bgfx::setViewRect(VIEW_SPRITE_0, 0, 0, _width, _height);
 	bgfx::setViewRect(VIEW_SPRITE_1, 0, 0, _width, _height);
