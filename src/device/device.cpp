@@ -766,9 +766,10 @@ void Device::refresh()
 				StringId64 resource_type(type);
 				StringId64 resource_name(resource.c_str(), len);
 
+				_resource_manager->reload(resource_type, resource_name);
+
 				if (resource_type == RESOURCE_TYPE_SCRIPT) {
 					refresh_lua = true;
-					_resource_manager->reload(resource_type, resource_name);
 				}
 			}
 

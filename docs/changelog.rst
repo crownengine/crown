@@ -17,6 +17,7 @@ Changelog
 * Added ``graph`` command to plot profiler data at runtime.
 * The ConsoleServer will now report an error when a command is not found.
 * Fixed a crash when reloading materials.
+* Hot-reloading has been enabled for all resource types.
 
 **Tools**
 
