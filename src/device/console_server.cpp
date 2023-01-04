@@ -25,7 +25,7 @@ namespace crown
 {
 namespace console_server_internal
 {
-	static void message_command(ConsoleServer &cs, u32 client_id, const char *json, void * /*user_data*/)
+	static void message_command(ConsoleServer &cs, u32 client_id, const char *json, void *user_data)
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
@@ -42,8 +42,12 @@ namespace console_server_internal
 		cmd.user_data = NULL;
 		cmd = hash_map::get(cs._commands, command_name.to_string_id(), cmd);
 
-		if (cmd.command_function != NULL)
-			cmd.command_function(cs, client_id, args, cmd.user_data);
+		if (cmd.command_function == NULL) {
+			((ConsoleServer *)user_data)->error(client_id, "Command not found");
+			return;
+		}
+
+		cmd.command_function(cs, client_id, args, cmd.user_data);
 	}
 
 	static void command_help(ConsoleServer &cs, u32 client_id, const JsonArray &args, void * /*user_data*/)
