@@ -175,7 +175,7 @@ struct RenderWorld
 			const MeshResource **resource;
 			const MeshGeometry **geometry;
 			MeshData *mesh;
-			StringId64 *material;
+			Material **material;
 			Matrix4x4 *world;
 			OBB *obb;
 		};
@@ -225,7 +225,6 @@ struct RenderWorld
 		void draw(u8 view
 			, ResourceManager *rm
 			, ShaderManager *sm
-			, MaterialManager *mm
 			, DrawOverride draw_override = NULL
 			);
 
@@ -249,7 +248,7 @@ struct RenderWorld
 
 			UnitId *unit;
 			const SpriteResource **resource;
-			StringId64 *material;
+			Material **material;
 			u32 *frame;
 			Matrix4x4 *world;
 			AABB *aabb;
@@ -304,7 +303,6 @@ struct RenderWorld
 		void draw(u8 view
 			, ResourceManager *rm
 			, ShaderManager *sm
-			, MaterialManager *mm
 			, DrawOverride draw_override = NULL
 			);
 

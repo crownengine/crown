@@ -101,4 +101,10 @@ inline u32 hash<f64>::operator()(const f64 val) const
 	return val == 0.0 ? 0 : murmur32(&val, sizeof(val), 0);
 }
 
+template<typename T>
+inline u32 hash<T *>::operator()(const T *val) const
+{
+	return (u32)(uintptr_t)val;
+}
+
 } // namespace crown

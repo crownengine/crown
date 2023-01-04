@@ -227,12 +227,13 @@ void Gui::image_uv_3d(const Vector3 &pos, const Vector2 &size, const Vector2 &uv
 	inds[4] = 2;
 	inds[5] = 3;
 
-	_material_manager->create_material(material);
+	const MaterialResource *mr = (MaterialResource *)_resource_manager->get(RESOURCE_TYPE_MATERIAL, material);
+	_material_manager->create_material(mr);
 	_buffer->submit_with_material(4
 		, 6
 		, _world
 		, *_resource_manager
-		, _material_manager->get(material)
+		, _material_manager->get(mr)
 		);
 }
 
@@ -253,7 +254,8 @@ void Gui::image(const Vector2 &pos, const Vector2 &size, StringId64 material, co
 
 void Gui::text_3d(const Vector3 &pos, u32 font_size, const char *str, StringId64 font, StringId64 material, const Color4 &color)
 {
-	_material_manager->create_material(material);
+	const MaterialResource *mr = (MaterialResource *)_resource_manager->get(RESOURCE_TYPE_MATERIAL, material);
+	_material_manager->create_material(mr);
 
 	const FontResource *fr = (FontResource *)_resource_manager->get(RESOURCE_TYPE_FONT, font);
 	const f32 scale = (f32)font_size / (f32)fr->font_size;
@@ -355,7 +357,7 @@ void Gui::text_3d(const Vector3 &pos, u32 font_size, const char *str, StringId64
 		, num_indices
 		, _world
 		, *_resource_manager
-		, _material_manager->get(material)
+		, _material_manager->get(mr)
 		);
 }
 

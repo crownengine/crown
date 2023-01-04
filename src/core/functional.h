@@ -114,4 +114,10 @@ struct hash<f64>
 	u32 operator()(const f64 val) const;
 };
 
+template<typename T>
+struct hash<T *>
+{
+	u32 operator()(const T *val) const;
+};
+
 } // namespace crown

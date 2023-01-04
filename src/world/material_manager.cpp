@@ -24,9 +24,8 @@ static const bgfx::UniformType::Enum s_bgfx_uniform_type[] =
 };
 CE_STATIC_ASSERT(countof(s_bgfx_uniform_type) == UniformType::COUNT);
 
-MaterialManager::MaterialManager(Allocator &a, ResourceManager &rm)
+MaterialManager::MaterialManager(Allocator &a)
 	: _allocator(&a)
-	, _resource_manager(&rm)
 	, _materials(a)
 {
 }
@@ -70,6 +69,8 @@ void MaterialManager::online(StringId64 id, ResourceManager &rm)
 		UniformHandle *uh  = uniform_handle(mr, i, base);
 		uh->uniform_handle = bgfx::createUniform(uniform_name(mr, ud), s_bgfx_uniform_type[ud->type]).idx;
 	}
+
+	create_material(mr);
 }
 
 void MaterialManager::offline(StringId64 id, ResourceManager &rm)
@@ -77,6 +78,8 @@ void MaterialManager::offline(StringId64 id, ResourceManager &rm)
 	using namespace material_resource;
 
 	MaterialResource *mr = (MaterialResource *)rm.get(RESOURCE_TYPE_MATERIAL, id);
+
+	destroy_material(mr);
 
 	char *base = (char *)mr + mr->dynamic_data_offset;
 
@@ -100,36 +103,36 @@ void MaterialManager::unload(Allocator &a, void *res)
 	a.deallocate(res);
 }
 
-void MaterialManager::create_material(StringId64 id)
+Material *MaterialManager::create_material(const MaterialResource *resource)
 {
-	if (hash_map::has(_materials, id))
-		return;
+	Material *mat = hash_map::get(_materials, resource, (Material *)NULL);
+	if (mat != NULL)
+		return mat;
 
-	const MaterialResource *mr = (MaterialResource *)_resource_manager->get(RESOURCE_TYPE_MATERIAL, id);
-
-	const u32 size = sizeof(Material) + mr->dynamic_data_size;
-	Material *mat  = (Material *)_allocator->allocate(size);
-	mat->_resource = mr;
+	const u32 size = sizeof(Material) + resource->dynamic_data_size;
+	mat = (Material *)_allocator->allocate(size);
+	mat->_resource = resource;
 	mat->_data     = (char *)&mat[1];
 
-	const char *data = (char *)mr + mr->dynamic_data_offset;
-	memcpy(mat->_data, data, mr->dynamic_data_size);
+	const char *data = (char *)resource + resource->dynamic_data_offset;
+	memcpy(mat->_data, data, resource->dynamic_data_size);
 
-	hash_map::set(_materials, id, mat);
+	hash_map::set(_materials, resource, mat);
+	return mat;
 }
 
-void MaterialManager::destroy_material(StringId64 id)
+void MaterialManager::destroy_material(const MaterialResource *resource)
 {
-	Material *mat = hash_map::get(_materials, id, (Material *)NULL);
+	Material *mat = hash_map::get(_materials, resource, (Material *)NULL);
 	_allocator->deallocate(mat);
 
-	hash_map::remove(_materials, id);
+	hash_map::remove(_materials, resource);
 }
 
-Material *MaterialManager::get(StringId64 id)
+Material *MaterialManager::get(const MaterialResource *resource)
 {
-	CE_ASSERT(hash_map::has(_materials, id), "Material not found");
-	return hash_map::get(_materials, id, (Material *)NULL);
+	CE_ASSERT(hash_map::has(_materials, resource), "Material not found");
+	return hash_map::get(_materials, resource, (Material *)NULL);
 }
 
 } // namespace crown

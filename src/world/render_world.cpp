@@ -99,7 +99,8 @@ RenderWorld::~RenderWorld()
 MeshInstance RenderWorld::mesh_create(UnitId unit, const MeshRendererDesc &mrd, const Matrix4x4 &tr)
 {
 	const MeshResource *mr = (const MeshResource *)_resource_manager->get(RESOURCE_TYPE_MESH, mrd.mesh_resource);
-	_material_manager->create_material(mrd.material_resource);
+	const MaterialResource *mat_res = (MaterialResource *)_resource_manager->get(RESOURCE_TYPE_MATERIAL, mrd.material_resource);
+	_material_manager->create_material(mat_res);
 	return _mesh_manager.create(unit, mr, mrd, tr);
 }
 
@@ -117,14 +118,14 @@ MeshInstance RenderWorld::mesh_instance(UnitId unit)
 Material *RenderWorld::mesh_material(MeshInstance mesh)
 {
 	CE_ASSERT(mesh.i < _mesh_manager._data.size, "Index out of bounds");
-	return _material_manager->get(_mesh_manager._data.material[mesh.i]);
+	return _mesh_manager._data.material[mesh.i];
 }
 
 void RenderWorld::mesh_set_material(MeshInstance mesh, StringId64 id)
 {
 	CE_ASSERT(mesh.i < _mesh_manager._data.size, "Index out of bounds");
-	_material_manager->create_material(id);
-	_mesh_manager._data.material[mesh.i] = id;
+	const MaterialResource *mat_res = (MaterialResource *)_resource_manager->get(RESOURCE_TYPE_MATERIAL, id);
+	_mesh_manager._data.material[mesh.i] = _material_manager->create_material(mat_res);
 }
 
 void RenderWorld::mesh_set_visible(MeshInstance mesh, bool visible)
@@ -164,7 +165,8 @@ f32 RenderWorld::mesh_cast_ray(MeshInstance mesh, const Vector3 &from, const Vec
 SpriteInstance RenderWorld::sprite_create(UnitId unit, const SpriteRendererDesc &srd, const Matrix4x4 &tr)
 {
 	const SpriteResource *sr = (const SpriteResource *)_resource_manager->get(RESOURCE_TYPE_SPRITE, srd.sprite_resource);
-	_material_manager->create_material(srd.material_resource);
+	const MaterialResource *mat_res = (MaterialResource *)_resource_manager->get(RESOURCE_TYPE_MATERIAL, srd.material_resource);
+	_material_manager->create_material(mat_res);
 	return _sprite_manager.create(unit, sr, srd, tr);
 }
 
@@ -189,14 +191,14 @@ void RenderWorld::sprite_set_sprite(SpriteInstance sprite, StringId64 sprite_res
 Material *RenderWorld::sprite_material(SpriteInstance sprite)
 {
 	CE_ASSERT(sprite.i < _sprite_manager._data.size, "Index out of bounds");
-	return _material_manager->get(_sprite_manager._data.material[sprite.i]);
+	return _sprite_manager._data.material[sprite.i];
 }
 
 void RenderWorld::sprite_set_material(SpriteInstance sprite, StringId64 id)
 {
 	CE_ASSERT(sprite.i < _sprite_manager._data.size, "Index out of bounds");
-	_material_manager->create_material(id);
-	_sprite_manager._data.material[sprite.i] = id;
+	const MaterialResource *mat_res = (MaterialResource *)_resource_manager->get(RESOURCE_TYPE_MATERIAL, id);
+	_sprite_manager._data.material[sprite.i] = _material_manager->create_material(mat_res);
 }
 
 void RenderWorld::sprite_set_frame(SpriteInstance sprite, u32 index)
@@ -406,27 +408,23 @@ void RenderWorld::render(const Matrix4x4 &view)
 		_mesh_manager.draw(VIEW_MESH
 			, _resource_manager
 			, _shader_manager
-			, _material_manager
 			);
 	}
 
 	_sprite_manager.draw(VIEW_SPRITE_0
 		, _resource_manager
 		, _shader_manager
-		, _material_manager
 		);
 
 	// Render outlines.
 	_mesh_manager.draw(VIEW_SELECTION
 		, _resource_manager
 		, _shader_manager
-		, _material_manager
 		, selection_draw_override
 		);
 	_sprite_manager.draw(VIEW_SELECTION
 		, _resource_manager
 		, _shader_manager
-		, _material_manager
 		, selection_draw_override
 		);
 }
@@ -485,7 +483,7 @@ void RenderWorld::MeshManager::allocate(u32 num)
 		+ num*sizeof(MeshResource *) + alignof(MeshResource *)
 		+ num*sizeof(MeshGeometry *) + alignof(MeshGeometry *)
 		+ num*sizeof(MeshData) + alignof(MeshData)
-		+ num*sizeof(StringId64) + alignof(StringId64)
+		+ num*sizeof(Material *) + alignof(Material *)
 		+ num*sizeof(Matrix4x4) + alignof(Matrix4x4)
 		+ num*sizeof(OBB) + alignof(OBB)
 		;
@@ -500,7 +498,7 @@ void RenderWorld::MeshManager::allocate(u32 num)
 	new_data.resource      = (const MeshResource **)memory::align_top(new_data.unit + num,     alignof(MeshResource *));
 	new_data.geometry      = (const MeshGeometry **)memory::align_top(new_data.resource + num, alignof(MeshGeometry *));
 	new_data.mesh          = (MeshData *           )memory::align_top(new_data.geometry + num, alignof(MeshData));
-	new_data.material      = (StringId64 *         )memory::align_top(new_data.mesh + num,     alignof(StringId64));
+	new_data.material      = (Material **          )memory::align_top(new_data.mesh + num,     alignof(Material *));
 	new_data.world         = (Matrix4x4 *          )memory::align_top(new_data.material + num, alignof(Matrix4x4));
 	new_data.obb           = (OBB *                )memory::align_top(new_data.world + num,    alignof(OBB));
 
@@ -508,7 +506,7 @@ void RenderWorld::MeshManager::allocate(u32 num)
 	memcpy(new_data.resource, _data.resource, _data.size * sizeof(MeshResource *));
 	memcpy(new_data.geometry, _data.geometry, _data.size * sizeof(MeshGeometry *));
 	memcpy(new_data.mesh, _data.mesh, _data.size * sizeof(MeshData));
-	memcpy(new_data.material, _data.material, _data.size * sizeof(StringId64));
+	memcpy(new_data.material, _data.material, _data.size * sizeof(Material *));
 	memcpy(new_data.world, _data.world, _data.size * sizeof(Matrix4x4));
 	memcpy(new_data.obb, _data.obb, _data.size * sizeof(OBB));
 
@@ -531,13 +529,14 @@ MeshInstance RenderWorld::MeshManager::create(UnitId unit, const MeshResource *m
 	const u32 last = _data.size;
 
 	const MeshGeometry *mg = mr->geometry(mrd.geometry_name);
+	const MaterialResource *mat_res = (MaterialResource *)_render_world->_resource_manager->get(RESOURCE_TYPE_MATERIAL, mrd.material_resource);
 
 	_data.unit[last]     = unit;
 	_data.resource[last] = mr;
 	_data.geometry[last] = mg;
 	_data.mesh[last].vbh = mg->vertex_buffer;
 	_data.mesh[last].ibh = mg->index_buffer;
-	_data.material[last] = mrd.material_resource;
+	_data.material[last] = _render_world->_material_manager->get(mat_res);
 	_data.world[last]    = tr;
 	_data.obb[last]      = mg->obb;
 
@@ -642,7 +641,7 @@ void RenderWorld::MeshManager::destroy()
 	_allocator->deallocate(_data.buffer);
 }
 
-void RenderWorld::MeshManager::draw(u8 view, ResourceManager *rm, ShaderManager *sm, MaterialManager *mm, DrawOverride draw_override)
+void RenderWorld::MeshManager::draw(u8 view, ResourceManager *rm, ShaderManager *sm, DrawOverride draw_override)
 {
 	for (u32 ii = 0; ii < _data.first_hidden; ++ii) {
 		bgfx::setTransform(to_float_ptr(_data.world[ii]));
@@ -652,7 +651,7 @@ void RenderWorld::MeshManager::draw(u8 view, ResourceManager *rm, ShaderManager 
 		if (draw_override)
 			draw_override(_data.unit[ii], _render_world);
 		else
-			mm->get(_data.material[ii])->bind(*rm, *sm, view);
+			_data.material[ii]->bind(*rm, *sm, view);
 	}
 }
 
@@ -663,7 +662,7 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 	const u32 bytes = 0
 		+ num*sizeof(UnitId) + alignof(UnitId)
 		+ num*sizeof(SpriteResource **) + alignof(SpriteResource *)
-		+ num*sizeof(StringId64) + alignof(StringId64)
+		+ num*sizeof(Material **) + alignof(Material *)
 		+ num*sizeof(u32) + alignof(u32)
 		+ num*sizeof(Matrix4x4) + alignof(Matrix4x4)
 		+ num*sizeof(AABB) + alignof(AABB)
@@ -681,7 +680,7 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 
 	new_data.unit     = (UnitId *               )memory::align_top(new_data.buffer,         alignof(UnitId));
 	new_data.resource = (const SpriteResource **)memory::align_top(new_data.unit + num,     alignof(SpriteResource *));
-	new_data.material = (StringId64 *           )memory::align_top(new_data.resource + num, alignof(StringId64));
+	new_data.material = (Material **            )memory::align_top(new_data.resource + num, alignof(Material *));
 	new_data.frame    = (u32 *                  )memory::align_top(new_data.material + num, alignof(u32));
 	new_data.world    = (Matrix4x4 *            )memory::align_top(new_data.frame + num,    alignof(Matrix4x4));
 	new_data.aabb     = (AABB *                 )memory::align_top(new_data.world + num,    alignof(AABB));
@@ -692,7 +691,7 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 
 	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
 	memcpy(new_data.resource, _data.resource, _data.size * sizeof(SpriteResource**));
-	memcpy(new_data.material, _data.material, _data.size * sizeof(StringId64));
+	memcpy(new_data.material, _data.material, _data.size * sizeof(Material **));
 	memcpy(new_data.frame, _data.frame, _data.size * sizeof(u32));
 	memcpy(new_data.world, _data.world, _data.size * sizeof(Matrix4x4));
 	memcpy(new_data.aabb, _data.aabb, _data.size * sizeof(AABB));
@@ -719,9 +718,11 @@ SpriteInstance RenderWorld::SpriteManager::create(UnitId unit, const SpriteResou
 
 	const u32 last = _data.size;
 
+	const MaterialResource *mat_res = (MaterialResource *)_render_world->_resource_manager->get(RESOURCE_TYPE_MATERIAL, srd.material_resource);
+
 	_data.unit[last]     = unit;
 	_data.resource[last] = sr;
-	_data.material[last] = srd.material_resource;
+	_data.material[last] = _render_world->_material_manager->get(mat_res);
 	_data.frame[last]    = 0;
 	_data.world[last]    = tr;
 	_data.aabb[last]     = AABB();
@@ -836,7 +837,7 @@ void RenderWorld::SpriteManager::destroy()
 	_allocator->deallocate(_data.buffer);
 }
 
-void RenderWorld::SpriteManager::draw(u8 view, ResourceManager *rm, ShaderManager *sm, MaterialManager *mm, DrawOverride draw_override)
+void RenderWorld::SpriteManager::draw(u8 view, ResourceManager *rm, ShaderManager *sm, DrawOverride draw_override)
 {
 	bgfx::VertexLayout layout;
 	bgfx::TransientVertexBuffer tvb;
@@ -928,7 +929,7 @@ void RenderWorld::SpriteManager::draw(u8 view, ResourceManager *rm, ShaderManage
 		if (draw_override)
 			draw_override(_data.unit[ii], _render_world);
 		else
-			mm->get(_data.material[ii])->bind(*rm, *sm, _data.layer[ii] + view, _data.depth[ii]);
+			_data.material[ii]->bind(*rm, *sm, _data.layer[ii] + view, _data.depth[ii]);
 	}
 }
 

@@ -17,11 +17,10 @@ namespace crown
 struct MaterialManager
 {
 	Allocator *_allocator;
-	ResourceManager *_resource_manager;
-	HashMap<StringId64, Material *> _materials;
+	HashMap<const MaterialResource *, Material *> _materials;
 
 	///
-	MaterialManager(Allocator &a, ResourceManager &rm);
+	MaterialManager(Allocator &a);
 
 	///
 	~MaterialManager();
@@ -38,14 +37,14 @@ struct MaterialManager
 	///
 	void unload(Allocator &a, void *res);
 
-	/// Creates the material @a id.
-	void create_material(StringId64 id);
+	/// Instantiates the material @a resource.
+	Material *create_material(const MaterialResource *resource);
 
-	/// Destroys the material @a id.
-	void destroy_material(StringId64 id);
+	/// Destroys the instance of the material @a resource.
+	void destroy_material(const MaterialResource *resource);
 
-	/// Returns the material @a id.
-	Material *get(StringId64 id);
+	/// Returns the instance of the material @a resource.
+	Material *get(const MaterialResource *resource);
 };
 
 } // namespace crown

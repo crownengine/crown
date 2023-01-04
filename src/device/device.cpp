@@ -398,7 +398,7 @@ void Device::run()
 	bgfx::init(init);
 
 	_shader_manager   = CE_NEW(_allocator, ShaderManager)(default_allocator());
-	_material_manager = CE_NEW(_allocator, MaterialManager)(default_allocator(), *_resource_manager);
+	_material_manager = CE_NEW(_allocator, MaterialManager)(default_allocator());
 	_input_manager    = CE_NEW(_allocator, InputManager)(default_allocator());
 	_unit_manager     = CE_NEW(_allocator, UnitManager)(default_allocator());
 	_lua_environment  = CE_NEW(_allocator, LuaEnvironment)();
