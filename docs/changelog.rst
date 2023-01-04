@@ -27,6 +27,7 @@ Changelog
 * Fixed crashes in the undo/redo system.
 * Fixed minor issues when toggling the Console.
 * Fixed the Project Browser not being able to obtain keyboard focus.
+* Fixed camera view not being restored.
 * Fixed minor aesthetic issues.
 
 0.46.0

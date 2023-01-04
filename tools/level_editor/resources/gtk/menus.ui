@@ -302,43 +302,43 @@
         <item>
           <attribute name="label" translatable="yes">Perspective</attribute>
           <attribute name="action">app.camera-view</attribute>
-          <attribute name="target">perspective</attribute>
+          <attribute name="target" type="i">0</attribute> <!-- See: Crown.CameraViewType -->
           <attribute name="accel">KP_5</attribute>
         </item>
         <item>
           <attribute name="label" translatable="yes">View Front</attribute>
           <attribute name="action">app.camera-view</attribute>
-          <attribute name="target">front</attribute>
+          <attribute name="target" type="i">1</attribute> <!-- See: Crown.CameraViewType -->
           <attribute name="accel">KP_1</attribute>
         </item>
         <item>
           <attribute name="label" translatable="yes">View Back</attribute>
           <attribute name="action">app.camera-view</attribute>
-          <attribute name="target">back</attribute>
+          <attribute name="target" type="i">2</attribute> <!-- See: Crown.CameraViewType -->
           <attribute name="accel">&lt;Primary&gt;KP_1</attribute>
         </item>
         <item>
           <attribute name="label" translatable="yes">View Right</attribute>
           <attribute name="action">app.camera-view</attribute>
-          <attribute name="target">right</attribute>
+          <attribute name="target" type="i">3</attribute> <!-- See: Crown.CameraViewType -->
           <attribute name="accel">KP_3</attribute>
         </item>
         <item>
           <attribute name="label" translatable="yes">View Left</attribute>
           <attribute name="action">app.camera-view</attribute>
-          <attribute name="target">left</attribute>
+          <attribute name="target" type="i">4</attribute> <!-- See: Crown.CameraViewType -->
           <attribute name="accel">&lt;Primary&gt;KP_3</attribute>
         </item>
         <item>
           <attribute name="label" translatable="yes">View Top</attribute>
           <attribute name="action">app.camera-view</attribute>
-          <attribute name="target">top</attribute>
+          <attribute name="target" type="i">5</attribute> <!-- See: Crown.CameraViewType -->
           <attribute name="accel">KP_7</attribute>
         </item>
         <item>
           <attribute name="label" translatable="yes">View Bottom</attribute>
           <attribute name="action">app.camera-view</attribute>
-          <attribute name="target">bottom</attribute>
+          <attribute name="target" type="i">6</attribute> <!-- See: Crown.CameraViewType -->
           <attribute name="accel">&lt;Primary&gt;KP_7</attribute>
         </item>
       </section>

@@ -44,6 +44,19 @@ public enum ReferenceSystem
 	WORLD
 }
 
+public enum CameraViewType
+{
+	PERSPECTIVE,
+	FRONT,
+	BACK,
+	RIGHT,
+	LEFT,
+	TOP,
+	BOTTOM,
+
+	COUNT
+}
+
 public class LevelEditorWindow : Gtk.ApplicationWindow
 {
 	private const GLib.ActionEntry[] action_entries =
@@ -212,8 +225,8 @@ public class LevelEditorApplication : Gtk.Application
 
 	private const GLib.ActionEntry[] action_entries_camera =
 	{
-		{ "menu-camera", null,           null, null            },
-		{ "camera-view", on_camera_view, "s",  "'perspective'" }
+		{ "menu-camera", null,           null, null },
+		{ "camera-view", on_camera_view, "i",  "0"  } // See: Crown.CameraViewType
 	};
 
 	private const GLib.ActionEntry[] action_entries_view =
@@ -273,6 +286,7 @@ public class LevelEditorApplication : Gtk.Application
 	private ToolType _tool_type_prev;
 	private SnapMode _snap_mode;
 	private ReferenceSystem _reference_system;
+	private CameraViewType _camera_view_type;
 
 	// Project state
 	private string _placeable_type;
@@ -503,6 +517,7 @@ public class LevelEditorApplication : Gtk.Application
 		_tool_type_prev = _tool_type;
 		_snap_mode = SnapMode.RELATIVE;
 		_reference_system = ReferenceSystem.LOCAL;
+		_camera_view_type = CameraViewType.PERSPECTIVE;
 
 		// Project state
 		_placeable_type = "";
@@ -1066,6 +1081,7 @@ public class LevelEditorApplication : Gtk.Application
 		sb.append(LevelEditorApi.set_tool_type(_tool_type));
 		sb.append(LevelEditorApi.set_snap_mode(_snap_mode));
 		sb.append(LevelEditorApi.set_reference_system(_reference_system));
+		sb.append(LevelEditorApi.set_camera_view_type(_camera_view_type));
 	}
 
 	private void append_project_state(StringBuilder sb)
@@ -2157,23 +2173,9 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_camera_view(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		string name = param.get_string();
+		_camera_view_type = (CameraViewType)param.get_int32();
 
-		if (name == "perspective")
-			_editor.send_script("LevelEditor:camera_view_perspective()");
-		else if (name == "front")
-			_editor.send_script("LevelEditor:camera_view_front()");
-		else if (name == "back")
-			_editor.send_script("LevelEditor:camera_view_back()");
-		else if (name == "right")
-			_editor.send_script("LevelEditor:camera_view_right()");
-		else if (name == "left")
-			_editor.send_script("LevelEditor:camera_view_left()");
-		else if (name == "top")
-			_editor.send_script("LevelEditor:camera_view_top()");
-		else if (name == "bottom")
-			_editor.send_script("LevelEditor:camera_view_bottom()");
-
+		send_state();
 		_editor.send(DeviceApi.frame());
 		action.set_state(param);
 	}

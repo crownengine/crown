@@ -158,6 +158,26 @@ namespace LevelEditorApi
 		return """LevelEditor:set_reference_system("%s")""".printf(rs == ReferenceSystem.LOCAL ? "local" : "world");
 	}
 
+	public string set_camera_view_type(CameraViewType type)
+	{
+		if (type == CameraViewType.PERSPECTIVE)
+			return "LevelEditor:camera_view_perspective()";
+		else if (type == CameraViewType.FRONT)
+			return "LevelEditor:camera_view_front()";
+		else if (type == CameraViewType.BACK)
+			return "LevelEditor:camera_view_back()";
+		else if (type == CameraViewType.RIGHT)
+			return "LevelEditor:camera_view_right()";
+		else if (type == CameraViewType.LEFT)
+			return "LevelEditor:camera_view_left()";
+		else if (type == CameraViewType.TOP)
+			return "LevelEditor:camera_view_top()";
+		else if (type == CameraViewType.BOTTOM)
+			return "LevelEditor:camera_view_bottom()";
+		else
+			return "LevelEditor:camera_view_perspective()";
+	}
+
 	public string enable_show_grid(bool enabled)
 	{
 		return "LevelEditor:enable_show_grid(%s)".printf(Lua.bool(enabled));
