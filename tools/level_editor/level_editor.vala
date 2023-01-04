@@ -867,6 +867,7 @@ public class LevelEditorApplication : Gtk.Application
 		_level.send_level();
 		send_state();
 		_preferences_dialog.apply();
+		_editor.send(DeviceApi.frame());
 	}
 
 	private void on_editor_disconnected()
@@ -1097,7 +1098,6 @@ public class LevelEditorApplication : Gtk.Application
 		append_editor_state(sb);
 		append_project_state(sb);
 		_editor.send_script(sb.str);
-		_editor.send(DeviceApi.frame());
 	}
 
 	private bool on_button_press(Gdk.EventButton ev)
@@ -1614,6 +1614,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		_editor_view.grab_focus();
 		send_state();
+		_editor.send(DeviceApi.frame());
 		action.set_state(param);
 	}
 
@@ -1622,6 +1623,7 @@ public class LevelEditorApplication : Gtk.Application
 		_snap_mode = (SnapMode)param.get_int32();
 
 		send_state();
+		_editor.send(DeviceApi.frame());
 		action.set_state(param);
 	}
 
@@ -1630,6 +1632,7 @@ public class LevelEditorApplication : Gtk.Application
 		_reference_system = (ReferenceSystem)param.get_int32();
 
 		send_state();
+		_editor.send(DeviceApi.frame());
 		action.set_state(param);
 	}
 
@@ -1637,6 +1640,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		_grid_size = (double)param.get_int32() / 10.0;
 		send_state();
+		_editor.send(DeviceApi.frame());
 		action.set_state(param);
 	}
 
@@ -1644,6 +1648,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		_rotation_snap = (double)param.get_int32();
 		send_state();
+		_editor.send(DeviceApi.frame());
 		action.set_state(param);
 	}
 
@@ -1651,6 +1656,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		_level.load_from_path(LEVEL_EMPTY);
 		_level.send_level();
+		_editor.send(DeviceApi.frame());
 	}
 
 	private void update_active_window_title()
@@ -1686,6 +1692,7 @@ public class LevelEditorApplication : Gtk.Application
 		if (_editor.is_connected()) {
 			_level.send_level();
 			send_state();
+			_editor.send(DeviceApi.frame());
 		}
 
 		update_active_window_title();
@@ -1827,6 +1834,7 @@ public class LevelEditorApplication : Gtk.Application
 		if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO) {
 			new_level();
 			send_state();
+			_editor.send(DeviceApi.frame());
 		}
 	}
 
@@ -2089,6 +2097,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		_show_grid = !action.get_state().get_boolean();
 		send_state();
+		_editor.send(DeviceApi.frame());
 		action.set_state(new GLib.Variant.boolean(_show_grid));
 	}
 
@@ -2113,6 +2122,7 @@ public class LevelEditorApplication : Gtk.Application
 		if (dg.run() == ResponseType.OK) {
 			_grid_size = sb.value;
 			send_state();
+			_editor.send(DeviceApi.frame());
 		}
 
 		dg.destroy();
@@ -2139,6 +2149,7 @@ public class LevelEditorApplication : Gtk.Application
 		if (dg.run() == ResponseType.OK) {
 			_rotation_snap = sb.value;
 			send_state();
+			_editor.send(DeviceApi.frame());
 		}
 
 		dg.destroy();
@@ -2169,6 +2180,7 @@ public class LevelEditorApplication : Gtk.Application
 	private void on_create_unit(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		_level.spawn_empty_unit();
+		_editor.send(DeviceApi.frame());
 	}
 
 	private void on_camera_view(GLib.SimpleAction action, GLib.Variant? param)
@@ -2255,6 +2267,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		_snap_to_grid = !action.get_state().get_boolean();
 		send_state();
+		_editor.send(DeviceApi.frame());
 		action.set_state(new GLib.Variant.boolean(_snap_to_grid));
 	}
 
@@ -2262,6 +2275,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		_debug_render_world = !action.get_state().get_boolean();
 		send_state();
+		_editor.send(DeviceApi.frame());
 		action.set_state(new GLib.Variant.boolean(_debug_render_world));
 	}
 
@@ -2269,6 +2283,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		_debug_physics_world = !action.get_state().get_boolean();
 		send_state();
+		_editor.send(DeviceApi.frame());
 		action.set_state(new GLib.Variant.boolean(_debug_physics_world));
 	}
 
@@ -2309,11 +2324,13 @@ public class LevelEditorApplication : Gtk.Application
 	private void on_duplicate(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		_level.duplicate_selected_objects();
+		_editor.send(DeviceApi.frame());
 	}
 
 	private void on_delete(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		_level.destroy_selected_objects();
+		_editor.send(DeviceApi.frame());
 	}
 
 	private void on_manual(GLib.SimpleAction action, GLib.Variant? param)
@@ -2401,6 +2418,7 @@ public class LevelEditorApplication : Gtk.Application
 			if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO) {
 				new_level();
 				send_state();
+				_editor.send(DeviceApi.frame());
 
 				_project.delete_resource(type, name);
 			}

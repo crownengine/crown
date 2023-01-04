@@ -109,7 +109,6 @@ public class Level
 		on_unit_spawned(id, null, VECTOR3_ZERO, QUATERNION_IDENTITY, VECTOR3_ONE);
 		generate_spawn_unit_commands(new Guid[] { id }, sb);
 		_client.send_script(sb.str);
-		_client.send(DeviceApi.frame());
 		selection_set(new Guid[] { id });
 	}
 
@@ -152,6 +151,7 @@ public class Level
 		Guid id = _selection.last();
 		on_move_objects(new Guid[] { id }, new Vector3[] { pos }, new Quaternion[] { rot }, new Vector3[] { scl });
 		send_move_objects(new Guid[] { id }, new Vector3[] { pos }, new Quaternion[] { rot }, new Vector3[] { scl });
+		_client.send(DeviceApi.frame());
 	}
 
 	public void duplicate_selected_objects()
@@ -290,6 +290,7 @@ public class Level
 			_selection.add(ids[i]);
 
 		send_selection();
+		_client.send(DeviceApi.frame());
 
 		selection_changed(_selection);
 	}
@@ -297,7 +298,6 @@ public class Level
 	public void send_selection()
 	{
 		_client.send_script(LevelEditorApi.selection_set(_selection.to_array()));
-		_client.send(DeviceApi.frame());
 	}
 
 	public void set_light(Guid unit_id, Guid component_id, string type, double range, double intensity, double spot_angle, Vector3 color)
@@ -442,7 +442,6 @@ public class Level
 		StringBuilder sb = new StringBuilder();
 		generate_spawn_unit_commands(ids, sb);
 		_client.send_script(sb.str);
-		_client.send(DeviceApi.frame());
 	}
 
 	private void send_spawn_sounds(Guid[] ids)
@@ -450,7 +449,6 @@ public class Level
 		StringBuilder sb = new StringBuilder();
 		generate_spawn_sound_commands(ids, sb);
 		_client.send_script(sb.str);
-		_client.send(DeviceApi.frame());
 	}
 
 	private void send_spawn_objects(Guid[] ids)
@@ -464,7 +462,6 @@ public class Level
 			}
 		}
 		_client.send_script(sb.str);
-		_client.send(DeviceApi.frame());
 	}
 
 	private void send_destroy_objects(Guid[] ids)
@@ -474,7 +471,6 @@ public class Level
 			sb.append(LevelEditorApi.destroy(id));
 
 		_client.send_script(sb.str);
-		_client.send(DeviceApi.frame());
 	}
 
 	private void send_move_objects(Guid[] ids, Vector3[] positions, Quaternion[] rotations, Vector3[] scales)
@@ -484,7 +480,6 @@ public class Level
 			sb.append(LevelEditorApi.move_object(ids[i], positions[i], rotations[i], scales[i]));
 
 		_client.send_script(sb.str);
-		_client.send(DeviceApi.frame());
 	}
 
 	public void send_level()
@@ -515,7 +510,6 @@ public class Level
 		_client.send_script(sb.str);
 
 		send_selection();
-		_client.send(DeviceApi.frame());
 	}
 
 	private void generate_spawn_unit_commands(Guid[] unit_ids, StringBuilder sb)
@@ -603,6 +597,8 @@ public class Level
 				send_destroy_objects(data);
 			else
 				send_spawn_units(data);
+
+			_client.send(DeviceApi.frame());
 			break;
 
 		case (int)ActionType.DESTROY_UNIT:
@@ -610,6 +606,8 @@ public class Level
 				send_spawn_units(data);
 			else
 				send_destroy_objects(data);
+
+			_client.send(DeviceApi.frame());
 			break;
 
 		case (int)ActionType.SPAWN_SOUND:
@@ -617,6 +615,8 @@ public class Level
 				send_destroy_objects(data);
 			else
 				send_spawn_sounds(data);
+
+			_client.send(DeviceApi.frame());
 			break;
 
 		case (int)ActionType.DESTROY_SOUND:
@@ -624,6 +624,8 @@ public class Level
 				send_spawn_sounds(data);
 			else
 				send_destroy_objects(data);
+
+			_client.send(DeviceApi.frame());
 			break;
 
 		case (int)ActionType.MOVE_OBJECTS: {
@@ -659,6 +661,7 @@ public class Level
 			}
 
 			send_move_objects(ids, positions, rotations, scales);
+			_client.send(DeviceApi.frame());
 			// FIXME: Hack to force update the properties view
 			selection_changed(_selection);
 			break;
@@ -670,6 +673,8 @@ public class Level
 				send_destroy_objects(new_ids);
 			else
 				send_spawn_objects(new_ids);
+
+			_client.send(DeviceApi.frame());
 			break;
 		}
 
@@ -757,6 +762,7 @@ public class Level
 		case (int)ActionType.SET_ACTOR:
 		case (int)ActionType.SET_SCRIPT:
 		case (int)ActionType.SET_ANIMATION_STATE_MACHINE:
+			_client.send(DeviceApi.frame());
 			// FIXME: Hack to force update the properties view
 			selection_changed(_selection);
 			break;
