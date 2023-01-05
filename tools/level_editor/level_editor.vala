@@ -189,10 +189,10 @@ public class LevelEditorApplication : Gtk.Application
 		{ "menu-grid",            null,                        null, null         },
 		{ "grid-show",            on_show_grid,                null, "true"       },
 		{ "grid-custom",          on_custom_grid,              null, null         },
-		{ "grid-preset",          on_grid_changed,             "s",  "'1'"        },
+		{ "grid-preset",          on_grid_changed,             "i",  "10"         }, // 10*meters.
 		{ "menu-rotation-snap",   null,                        null, null         },
 		{ "rotation-snap-custom", on_rotation_snap,            null, null         },
-		{ "rotation-snap-preset", on_rotation_snap_changed,    "s",  "'15'"       }
+		{ "rotation-snap-preset", on_rotation_snap_changed,    "i",  "15"         }
 	};
 
 	private const GLib.ActionEntry[] action_entries_create =
@@ -1619,14 +1619,14 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_grid_changed(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		_grid_size = float.parse(param.get_string());
+		_grid_size = (double)param.get_int32() / 10.0;
 		send_state();
 		action.set_state(param);
 	}
 
 	private void on_rotation_snap_changed(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		_rotation_snap = float.parse(param.get_string());
+		_rotation_snap = (double)param.get_int32();
 		send_state();
 		action.set_state(param);
 	}

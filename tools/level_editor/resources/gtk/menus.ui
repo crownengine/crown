@@ -172,32 +172,32 @@
           <item>
             <attribute name="label" translatable="no">0.1m</attribute>
             <attribute name="action">app.grid-preset</attribute>
-            <attribute name="target">0.1</attribute>
+            <attribute name="target" type="i">1</attribute>
           </item>
           <item>
             <attribute name="label" translatable="no">0.2m</attribute>
             <attribute name="action">app.grid-preset</attribute>
-            <attribute name="target">0.2</attribute>
+            <attribute name="target" type="i">2</attribute>
           </item>
           <item>
             <attribute name="label" translatable="no">0.5m</attribute>
             <attribute name="action">app.grid-preset</attribute>
-            <attribute name="target">0.5</attribute>
+            <attribute name="target" type="i">5</attribute>
           </item>
           <item>
             <attribute name="label" translatable="no">1m</attribute>
             <attribute name="action">app.grid-preset</attribute>
-            <attribute name="target">1</attribute>
+            <attribute name="target" type="i">10</attribute>
           </item>
           <item>
             <attribute name="label" translatable="no">2m</attribute>
             <attribute name="action">app.grid-preset</attribute>
-            <attribute name="target">2</attribute>
+            <attribute name="target" type="i">20</attribute>
           </item>
           <item>
             <attribute name="label" translatable="no">5m</attribute>
             <attribute name="action">app.grid-preset</attribute>
-            <attribute name="target">5</attribute>
+            <attribute name="target" type="i">50</attribute>
           </item>
         </section>
       </submenu>
@@ -215,32 +215,32 @@
           <item>
             <attribute name="label" translatable="no">1°</attribute>
             <attribute name="action">app.rotation-snap-preset</attribute>
-            <attribute name="target">1</attribute>
+            <attribute name="target" type="i">1</attribute>
           </item>
           <item>
             <attribute name="label" translatable="no">15°</attribute>
             <attribute name="action">app.rotation-snap-preset</attribute>
-            <attribute name="target">15</attribute>
+            <attribute name="target" type="i">15</attribute>
           </item>
           <item>
             <attribute name="label" translatable="no">30°</attribute>
             <attribute name="action">app.rotation-snap-preset</attribute>
-            <attribute name="target">30</attribute>
+            <attribute name="target" type="i">30</attribute>
           </item>
           <item>
             <attribute name="label" translatable="no">45°</attribute>
             <attribute name="action">app.rotation-snap-preset</attribute>
-            <attribute name="target">45</attribute>
+            <attribute name="target" type="i">45</attribute>
           </item>
           <item>
             <attribute name="label" translatable="no">90°</attribute>
             <attribute name="action">app.rotation-snap-preset</attribute>
-            <attribute name="target">90</attribute>
+            <attribute name="target" type="i">90</attribute>
           </item>
           <item>
             <attribute name="label" translatable="no">180°</attribute>
             <attribute name="action">app.rotation-snap-preset</attribute>
-            <attribute name="target">180</attribute>
+            <attribute name="target" type="i">180</attribute>
           </item>
         </section>
       </submenu>
