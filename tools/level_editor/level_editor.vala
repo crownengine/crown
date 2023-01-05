@@ -22,6 +22,28 @@ public enum Theme
 	COUNT
 }
 
+public enum ToolType
+{
+	PLACE,
+	MOVE,
+	ROTATE,
+	SCALE,
+
+	COUNT
+}
+
+public enum SnapMode
+{
+	RELATIVE,
+	ABSOLUTE
+}
+
+public enum ReferenceSystem
+{
+	LOCAL,
+	WORLD
+}
+
 public class LevelEditorWindow : Gtk.ApplicationWindow
 {
 	private const GLib.ActionEntry[] action_entries =
@@ -160,9 +182,9 @@ public class LevelEditorApplication : Gtk.Application
 		{ "redo",                 on_redo,                     null, null         },
 		{ "duplicate",            on_duplicate,                null, null         },
 		{ "delete",               on_delete,                   null, null         },
-		{ "tool",                 on_tool_changed,             "s",  "'move'"     },
-		{ "snap",                 on_snap_mode_changed,        "s",  "'relative'" },
-		{ "reference-system",     on_reference_system_changed, "s",  "'local'"    },
+		{ "tool",                 on_tool_changed,             "i",  "1"          }, // See: Crown.ToolType
+		{ "snap",                 on_snap_mode_changed,        "i",  "0"          }, // See: Crown.SnapMode
+		{ "reference-system",     on_reference_system_changed, "i",  "0"          }, // See: Crown.ReferenceSystem
 		{ "snap-to-grid",         on_snap_to_grid,             null, "true"       },
 		{ "menu-grid",            null,                        null, null         },
 		{ "grid-show",            on_show_grid,                null, "true"       },
@@ -247,10 +269,10 @@ public class LevelEditorApplication : Gtk.Application
 	private bool _snap_to_grid;
 	private bool _debug_render_world;
 	private bool _debug_physics_world;
-	private LevelEditorApi.ToolType _tool_type;
-	private LevelEditorApi.ToolType _tool_type_prev;
-	private LevelEditorApi.SnapMode _snap_mode;
-	private LevelEditorApi.ReferenceSystem _reference_system;
+	private ToolType _tool_type;
+	private ToolType _tool_type_prev;
+	private SnapMode _snap_mode;
+	private ReferenceSystem _reference_system;
 
 	// Project state
 	private string _placeable_type;
@@ -477,10 +499,10 @@ public class LevelEditorApplication : Gtk.Application
 		_snap_to_grid = true;
 		_debug_render_world = false;
 		_debug_physics_world = false;
-		_tool_type = LevelEditorApi.ToolType.MOVE;
+		_tool_type = ToolType.MOVE;
 		_tool_type_prev = _tool_type;
-		_snap_mode = LevelEditorApi.SnapMode.RELATIVE;
-		_reference_system = LevelEditorApi.ReferenceSystem.LOCAL;
+		_snap_mode = SnapMode.RELATIVE;
+		_reference_system = ReferenceSystem.LOCAL;
 
 		// Project state
 		_placeable_type = "";
@@ -781,7 +803,7 @@ public class LevelEditorApplication : Gtk.Application
 	private void on_resource_browser_resource_selected(string type, string name)
 	{
 		set_placeable(type, name);
-		activate_action("tool", new GLib.Variant.string("place"));
+		activate_action("tool", new GLib.Variant.int32(ToolType.PLACE));
 	}
 
 	private void on_data_compiler_connected(string address, int port)
@@ -1564,20 +1586,15 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_tool_changed(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		string name = param.get_string();
-		if (name == "place") {
-			// Store previous tool for it to be restored later.
-			if (_tool_type != LevelEditorApi.ToolType.PLACE)
-				_tool_type_prev = _tool_type;
+		ToolType type = (ToolType)param.get_int32();
 
-			_tool_type = LevelEditorApi.ToolType.PLACE;
-		} else if (name == "move") {
-			_tool_type = LevelEditorApi.ToolType.MOVE;
-		} else if (name == "rotate") {
-			_tool_type = LevelEditorApi.ToolType.ROTATE;
-		} else if (name == "scale") {
-			_tool_type = LevelEditorApi.ToolType.SCALE;
+		if (type == ToolType.PLACE) {
+			// Store previous tool for it to be restored later.
+			if (_tool_type != ToolType.PLACE)
+				_tool_type_prev = _tool_type;
 		}
+
+		_tool_type = type;
 
 		_editor_view.grab_focus();
 		send_state();
@@ -1586,11 +1603,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_snap_mode_changed(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		string name = param.get_string();
-		if (name == "relative")
-			_snap_mode = LevelEditorApi.SnapMode.RELATIVE;
-		else if (name == "absolute")
-			_snap_mode = LevelEditorApi.SnapMode.ABSOLUTE;
+		_snap_mode = (SnapMode)param.get_int32();
 
 		send_state();
 		action.set_state(param);
@@ -1598,11 +1611,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_reference_system_changed(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		string name = param.get_string();
-		if (name == "local")
-			_reference_system = LevelEditorApi.ReferenceSystem.LOCAL;
-		else if (name == "world")
-			_reference_system = LevelEditorApi.ReferenceSystem.WORLD;
+		_reference_system = (ReferenceSystem)param.get_int32();
 
 		send_state();
 		action.set_state(param);
@@ -2138,7 +2147,7 @@ public class LevelEditorApplication : Gtk.Application
 		else if (action.name == "sound-source")
 			set_placeable("sound", "");
 
-		activate_action("tool", new GLib.Variant.string("place"));
+		activate_action("tool", new GLib.Variant.int32(ToolType.PLACE));
 	}
 
 	private void on_create_unit(GLib.SimpleAction action, GLib.Variant? param)
@@ -2510,19 +2519,10 @@ public class LevelEditorApplication : Gtk.Application
 
 	public void activate_last_tool_before_place()
 	{
-		const string type_to_name[] =
-		{
-			"place",
-			"move",
-			"rotate",
-			"scale"
-		};
-		GLib.static_assert(type_to_name.length == LevelEditorApi.ToolType.COUNT);
-
-		if (_tool_type != LevelEditorApi.ToolType.PLACE)
+		if (_tool_type != ToolType.PLACE)
 			return;
 
-		activate_action("tool", new GLib.Variant.string(type_to_name[_tool_type_prev]));
+		activate_action("tool", new GLib.Variant.int32(_tool_type_prev));
 	}
 }
 

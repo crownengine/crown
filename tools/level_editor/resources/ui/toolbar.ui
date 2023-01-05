@@ -18,7 +18,7 @@
         <property name="can_focus">False</property>
         <property name="tooltip_text" translatable="yes">Place</property>
         <property name="action_name">app.tool</property>
-        <property name="action_target">'place'</property>
+        <property name="action_target">0</property>
         <property name="use_underline">True</property>
         <property name="icon_name">tool-place</property>
       </object>
@@ -33,7 +33,7 @@
         <property name="can_focus">False</property>
         <property name="tooltip_text" translatable="yes">Move</property>
         <property name="action_name">app.tool</property>
-        <property name="action_target">'move'</property>
+        <property name="action_target">1</property>
         <property name="use_underline">True</property>
         <property name="icon_name">tool-move</property>
         <property name="active">True</property>
@@ -49,7 +49,7 @@
         <property name="can_focus">False</property>
         <property name="tooltip_text" translatable="yes">Rotate</property>
         <property name="action_name">app.tool</property>
-        <property name="action_target">'rotate'</property>
+        <property name="action_target">2</property>
         <property name="use_underline">True</property>
         <property name="icon_name">tool-rotate</property>
       </object>
@@ -64,7 +64,7 @@
         <property name="can_focus">False</property>
         <property name="tooltip_text" translatable="yes">Scale</property>
         <property name="action_name">app.tool</property>
-        <property name="action_target">'scale'</property>
+        <property name="action_target">3</property>
         <property name="use_underline">True</property>
         <property name="icon_name">tool-scale</property>
       </object>
@@ -88,7 +88,7 @@
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="action_name">app.snap</property>
-        <property name="action_target">'relative'</property>
+        <property name="action_target">0</property>
         <property name="use_underline">True</property>
         <property name="icon_name">reference-local</property>
         <property name="active">True</property>
@@ -103,7 +103,7 @@
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="action_name">app.snap</property>
-        <property name="action_target">'absolute'</property>
+        <property name="action_target">1</property>
         <property name="use_underline">True</property>
         <property name="icon_name">reference-world</property>
       </object>
@@ -127,7 +127,7 @@
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="action_name">app.reference-system</property>
-        <property name="action_target">'local'</property>
+        <property name="action_target">0</property>
         <property name="use_underline">True</property>
         <property name="icon_name">axis-local</property>
         <property name="active">True</property>
@@ -142,7 +142,7 @@
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="action_name">app.reference-system</property>
-        <property name="action_target">'world'</property>
+        <property name="action_target">1</property>
         <property name="use_underline">True</property>
         <property name="icon_name">axis-world</property>
       </object>

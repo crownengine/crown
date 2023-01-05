@@ -134,16 +134,6 @@ namespace LevelEditorApi
 		return "LevelEditor:key_up(\"%s\")".printf(key);
 	}
 
-	public enum ToolType
-	{
-		PLACE,
-		MOVE,
-		ROTATE,
-		SCALE,
-
-		COUNT
-	}
-
 	public string set_tool_type(ToolType type)
 	{
 		const string _tools[] =
@@ -153,26 +143,14 @@ namespace LevelEditorApi
 			"rotate_tool",
 			"scale_tool"
 		};
-		GLib.static_assert(_tools.length == LevelEditorApi.ToolType.COUNT);
+		GLib.static_assert(_tools.length == ToolType.COUNT);
 
 		return "LevelEditor:set_tool(LevelEditor.%s)".printf(_tools[(int)type]);
-	}
-
-	public enum SnapMode
-	{
-		RELATIVE,
-		ABSOLUTE
 	}
 
 	public string set_snap_mode(SnapMode sm)
 	{
 		return """LevelEditor:set_snap_mode("%s")""".printf(sm == SnapMode.RELATIVE ? "relative" : "absolute");
-	}
-
-	public enum ReferenceSystem
-	{
-		LOCAL,
-		WORLD
 	}
 
 	public string set_reference_system(ReferenceSystem rs)

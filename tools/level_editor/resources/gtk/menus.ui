@@ -100,25 +100,25 @@
         <item>
           <attribute name="label" translatable="yes">Place</attribute>
           <attribute name="action">app.tool</attribute>
-          <attribute name="target">place</attribute>
+          <attribute name="target" type="i">0</attribute> <!-- See: Crown.ToolType -->
           <attribute name="accel">Q</attribute>
         </item>
         <item>
           <attribute name="label" translatable="yes">Move</attribute>
           <attribute name="action">app.tool</attribute>
-          <attribute name="target">move</attribute>
+          <attribute name="target" type="i">1</attribute> <!-- See: Crown.ToolType -->
           <attribute name="accel">W</attribute>
         </item>
         <item>
           <attribute name="label" translatable="yes">Rotate</attribute>
           <attribute name="action">app.tool</attribute>
-          <attribute name="target">rotate</attribute>
+          <attribute name="target" type="i">2</attribute> <!-- See: Crown.ToolType -->
           <attribute name="accel">E</attribute>
         </item>
         <item>
           <attribute name="label" translatable="yes">Scale</attribute>
           <attribute name="action">app.tool</attribute>
-          <attribute name="target">scale</attribute>
+          <attribute name="target" type="i">3</attribute> <!-- See: Crown.ToolType -->
           <attribute name="accel">R</attribute>
         </item>
       </section>
@@ -126,24 +126,24 @@
         <item>
           <attribute name="label" translatable="yes">Relative Snap</attribute>
           <attribute name="action">app.snap</attribute>
-          <attribute name="target">relative</attribute>
+          <attribute name="target" type="i">0</attribute> <!-- See: Crown.SnapMode -->
         </item>
         <item>
           <attribute name="label" translatable="yes">Absolute Snap</attribute>
           <attribute name="action">app.snap</attribute>
-          <attribute name="target">absolute</attribute>
+          <attribute name="target" type="i">1</attribute> <!-- See: Crown.SnapMode -->
         </item>
       </section>
       <section>
         <item>
           <attribute name="label" translatable="yes">Local Axis</attribute>
           <attribute name="action">app.reference-system</attribute>
-          <attribute name="target">local</attribute>
+          <attribute name="target" type="i">0</attribute> <!-- See: Crown.ReferenceSystem -->
         </item>
         <item>
           <attribute name="label" translatable="yes">World Axis</attribute>
           <attribute name="action">app.reference-system</attribute>
-          <attribute name="target">world</attribute>
+          <attribute name="target" type="i">1</attribute> <!-- See: Crown.ReferenceSystem -->
         </item>
       </section>
       <section>
