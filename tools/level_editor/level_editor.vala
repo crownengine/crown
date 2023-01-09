@@ -456,18 +456,18 @@ public class LevelEditorApplication : Gtk.Application
 		this.add_action_entries(action_entries_help, this);
 		this.add_action_entries(action_entries_project, this);
 
-		_tool_place_accels = this.get_accels_for_action("app.tool::place");
-		_tool_move_accels = this.get_accels_for_action("app.tool::move");
-		_tool_rotate_accels = this.get_accels_for_action("app.tool::rotate");
-		_tool_scale_accels = this.get_accels_for_action("app.tool::scale");
+		_tool_place_accels = this.get_accels_for_action("app.tool(0)");
+		_tool_move_accels = this.get_accels_for_action("app.tool(1)");
+		_tool_rotate_accels = this.get_accels_for_action("app.tool(2)");
+		_tool_scale_accels = this.get_accels_for_action("app.tool(3)");
 		_delete_accels = this.get_accels_for_action("app.delete");
-		_camera_view_perspective_accels = this.get_accels_for_action("app.camera-view::perspective");
-		_camera_view_front_accels = this.get_accels_for_action("app.camera-view::front");
-		_camera_view_back_accels = this.get_accels_for_action("app.camera-view::back");
-		_camera_view_right_accels = this.get_accels_for_action("app.camera-view::right");
-		_camera_view_left_accels = this.get_accels_for_action("app.camera-view::left");
-		_camera_view_top_accels = this.get_accels_for_action("app.camera-view::top");
-		_camera_view_bottom_accels = this.get_accels_for_action("app.camera-view::bottom");
+		_camera_view_perspective_accels = this.get_accels_for_action("app.camera-view(0)");
+		_camera_view_front_accels = this.get_accels_for_action("app.camera-view(1)");
+		_camera_view_back_accels = this.get_accels_for_action("app.camera-view(2)");
+		_camera_view_right_accels = this.get_accels_for_action("app.camera-view(3)");
+		_camera_view_left_accels = this.get_accels_for_action("app.camera-view(4)");
+		_camera_view_top_accels = this.get_accels_for_action("app.camera-view(5)");
+		_camera_view_bottom_accels = this.get_accels_for_action("app.camera-view(6)");
 
 		_compiler = new ConsoleClient();
 		_compiler.connected.connect(on_data_compiler_connected);
@@ -2457,31 +2457,31 @@ public class LevelEditorApplication : Gtk.Application
 	private void set_conflicting_accels(bool on)
 	{
 		if (on) {
-			this.set_accels_for_action("app.tool::place", _tool_place_accels);
-			this.set_accels_for_action("app.tool::move", _tool_move_accels);
-			this.set_accels_for_action("app.tool::rotate", _tool_rotate_accels);
-			this.set_accels_for_action("app.tool::scale", _tool_scale_accels);
+			this.set_accels_for_action("app.tool(0)", _tool_place_accels);
+			this.set_accels_for_action("app.tool(1)", _tool_move_accels);
+			this.set_accels_for_action("app.tool(2)", _tool_rotate_accels);
+			this.set_accels_for_action("app.tool(3)", _tool_scale_accels);
 			this.set_accels_for_action("app.delete", _delete_accels);
-			this.set_accels_for_action("app.camera-view::perspective", _camera_view_perspective_accels);
-			this.set_accels_for_action("app.camera-view::front", _camera_view_front_accels);
-			this.set_accels_for_action("app.camera-view::back", _camera_view_back_accels);
-			this.set_accels_for_action("app.camera-view::right", _camera_view_right_accels);
-			this.set_accels_for_action("app.camera-view::left", _camera_view_left_accels);
-			this.set_accels_for_action("app.camera-view::top", _camera_view_top_accels);
-			this.set_accels_for_action("app.camera-view::bottom", _camera_view_bottom_accels);
+			this.set_accels_for_action("app.camera-view(0)", _camera_view_perspective_accels);
+			this.set_accels_for_action("app.camera-view(1)", _camera_view_front_accels);
+			this.set_accels_for_action("app.camera-view(2)", _camera_view_back_accels);
+			this.set_accels_for_action("app.camera-view(3)", _camera_view_right_accels);
+			this.set_accels_for_action("app.camera-view(4)", _camera_view_left_accels);
+			this.set_accels_for_action("app.camera-view(5)", _camera_view_top_accels);
+			this.set_accels_for_action("app.camera-view(6)", _camera_view_bottom_accels);
 		} else {
-			this.set_accels_for_action("app.tool::place", {});
-			this.set_accels_for_action("app.tool::move", {});
-			this.set_accels_for_action("app.tool::rotate", {});
-			this.set_accels_for_action("app.tool::scale", {});
+			this.set_accels_for_action("app.tool(0)", {});
+			this.set_accels_for_action("app.tool(1)", {});
+			this.set_accels_for_action("app.tool(2)", {});
+			this.set_accels_for_action("app.tool(3)", {});
 			this.set_accels_for_action("app.delete", {});
-			this.set_accels_for_action("app.camera-view::perspective", {});
-			this.set_accels_for_action("app.camera-view::front", {});
-			this.set_accels_for_action("app.camera-view::back", {});
-			this.set_accels_for_action("app.camera-view::right", {});
-			this.set_accels_for_action("app.camera-view::left", {});
-			this.set_accels_for_action("app.camera-view::top", {});
-			this.set_accels_for_action("app.camera-view::bottom", {});
+			this.set_accels_for_action("app.camera-view(0)", {});
+			this.set_accels_for_action("app.camera-view(1)", {});
+			this.set_accels_for_action("app.camera-view(2)", {});
+			this.set_accels_for_action("app.camera-view(3)", {});
+			this.set_accels_for_action("app.camera-view(4)", {});
+			this.set_accels_for_action("app.camera-view(5)", {});
+			this.set_accels_for_action("app.camera-view(6)", {});
 		}
 	}
 
