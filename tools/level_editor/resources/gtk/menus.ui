@@ -164,39 +164,40 @@
         <section>
           <item>
             <attribute name="label" translatable="yes">Custom</attribute>
-            <attribute name="action">app.grid-custom</attribute>
+            <attribute name="action">app.grid-size</attribute>
             <attribute name="accel">&lt;Primary&gt;G</attribute>
+            <attribute name="target" type="i">0</attribute>
           </item>
         </section>
         <section>
           <item>
             <attribute name="label" translatable="no">0.1m</attribute>
-            <attribute name="action">app.grid-preset</attribute>
+            <attribute name="action">app.grid-size</attribute>
             <attribute name="target" type="i">1</attribute>
           </item>
           <item>
             <attribute name="label" translatable="no">0.2m</attribute>
-            <attribute name="action">app.grid-preset</attribute>
+            <attribute name="action">app.grid-size</attribute>
             <attribute name="target" type="i">2</attribute>
           </item>
           <item>
             <attribute name="label" translatable="no">0.5m</attribute>
-            <attribute name="action">app.grid-preset</attribute>
+            <attribute name="action">app.grid-size</attribute>
             <attribute name="target" type="i">5</attribute>
           </item>
           <item>
             <attribute name="label" translatable="no">1m</attribute>
-            <attribute name="action">app.grid-preset</attribute>
+            <attribute name="action">app.grid-size</attribute>
             <attribute name="target" type="i">10</attribute>
           </item>
           <item>
             <attribute name="label" translatable="no">2m</attribute>
-            <attribute name="action">app.grid-preset</attribute>
+            <attribute name="action">app.grid-size</attribute>
             <attribute name="target" type="i">20</attribute>
           </item>
           <item>
             <attribute name="label" translatable="no">5m</attribute>
-            <attribute name="action">app.grid-preset</attribute>
+            <attribute name="action">app.grid-size</attribute>
             <attribute name="target" type="i">50</attribute>
           </item>
         </section>
@@ -207,39 +208,40 @@
         <section>
           <item>
             <attribute name="label" translatable="yes">Custom</attribute>
-            <attribute name="action">app.rotation-snap-custom</attribute>
+            <attribute name="action">app.rotation-snap-size</attribute>
             <attribute name="accel">&lt;Primary&gt;H</attribute>
+            <attribute name="target" type="i">0</attribute>
           </item>
         </section>
         <section>
           <item>
             <attribute name="label" translatable="no">1°</attribute>
-            <attribute name="action">app.rotation-snap-preset</attribute>
+            <attribute name="action">app.rotation-snap-size</attribute>
             <attribute name="target" type="i">1</attribute>
           </item>
           <item>
             <attribute name="label" translatable="no">15°</attribute>
-            <attribute name="action">app.rotation-snap-preset</attribute>
+            <attribute name="action">app.rotation-snap-size</attribute>
             <attribute name="target" type="i">15</attribute>
           </item>
           <item>
             <attribute name="label" translatable="no">30°</attribute>
-            <attribute name="action">app.rotation-snap-preset</attribute>
+            <attribute name="action">app.rotation-snap-size</attribute>
             <attribute name="target" type="i">30</attribute>
           </item>
           <item>
             <attribute name="label" translatable="no">45°</attribute>
-            <attribute name="action">app.rotation-snap-preset</attribute>
+            <attribute name="action">app.rotation-snap-size</attribute>
             <attribute name="target" type="i">45</attribute>
           </item>
           <item>
             <attribute name="label" translatable="no">90°</attribute>
-            <attribute name="action">app.rotation-snap-preset</attribute>
+            <attribute name="action">app.rotation-snap-size</attribute>
             <attribute name="target" type="i">90</attribute>
           </item>
           <item>
             <attribute name="label" translatable="no">180°</attribute>
-            <attribute name="action">app.rotation-snap-preset</attribute>
+            <attribute name="action">app.rotation-snap-size</attribute>
             <attribute name="target" type="i">180</attribute>
           </item>
         </section>

@@ -190,22 +190,20 @@ public class LevelEditorApplication : Gtk.Application
 
 	private const GLib.ActionEntry[] action_entries_edit =
 	{
-		{ "menu-edit",            null,                        null, null         },
-		{ "undo",                 on_undo,                     null, null         },
-		{ "redo",                 on_redo,                     null, null         },
-		{ "duplicate",            on_duplicate,                null, null         },
-		{ "delete",               on_delete,                   null, null         },
-		{ "tool",                 on_tool_changed,             "i",  "1"          }, // See: Crown.ToolType
-		{ "snap",                 on_snap_mode_changed,        "i",  "0"          }, // See: Crown.SnapMode
-		{ "reference-system",     on_reference_system_changed, "i",  "0"          }, // See: Crown.ReferenceSystem
-		{ "snap-to-grid",         on_snap_to_grid,             null, "true"       },
-		{ "menu-grid",            null,                        null, null         },
-		{ "grid-show",            on_show_grid,                null, "true"       },
-		{ "grid-custom",          on_custom_grid,              null, null         },
-		{ "grid-preset",          on_grid_changed,             "i",  "10"         }, // 10*meters.
-		{ "menu-rotation-snap",   null,                        null, null         },
-		{ "rotation-snap-custom", on_rotation_snap,            null, null         },
-		{ "rotation-snap-preset", on_rotation_snap_changed,    "i",  "15"         }
+		{ "menu-edit",          null,                        null, null   },
+		{ "undo",               on_undo,                     null, null   },
+		{ "redo",               on_redo,                     null, null   },
+		{ "duplicate",          on_duplicate,                null, null   },
+		{ "delete",             on_delete,                   null, null   },
+		{ "tool",               on_tool_changed,             "i",  "1"    }, // See: Crown.ToolType
+		{ "snap",               on_snap_mode_changed,        "i",  "0"    }, // See: Crown.SnapMode
+		{ "reference-system",   on_reference_system_changed, "i",  "0"    }, // See: Crown.ReferenceSystem
+		{ "snap-to-grid",       on_snap_to_grid,             null, "true" },
+		{ "menu-grid",          null,                        null, null   },
+		{ "grid-show",          on_show_grid,                null, "true" },
+		{ "grid-size",          on_grid_size,                "i",  "10"   }, // 10*meters.
+		{ "menu-rotation-snap", null,                        null, null   },
+		{ "rotation-snap-size", on_rotation_snap_size,       "i",  "15"   }
 	};
 
 	private const GLib.ActionEntry[] action_entries_create =
@@ -1636,20 +1634,43 @@ public class LevelEditorApplication : Gtk.Application
 		action.set_state(param);
 	}
 
-	private void on_grid_changed(GLib.SimpleAction action, GLib.Variant? param)
+	private void on_grid_size(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		_grid_size = (double)param.get_int32() / 10.0;
-		send_state();
-		_editor.send(DeviceApi.frame());
-		action.set_state(param);
-	}
+		int32 new_size = param.get_int32();
 
-	private void on_rotation_snap_changed(GLib.SimpleAction action, GLib.Variant? param)
-	{
-		_rotation_snap = (double)param.get_int32();
-		send_state();
-		_editor.send(DeviceApi.frame());
-		action.set_state(param);
+		if (new_size != 0) {
+			_grid_size = (double)new_size / 10.0;
+			send_state();
+			_editor.send(DeviceApi.frame());
+			action.set_state(param);
+			return;
+		}
+
+		// Custom grid size.
+		Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Grid size"
+			, this.active_window
+			, DialogFlags.MODAL
+			, "Cancel"
+			, ResponseType.CANCEL
+			, "Ok"
+			, ResponseType.OK
+			, null
+			);
+
+		EntryDouble sb = new EntryDouble(_grid_size, 0.1, 1000);
+		sb.activate.connect(() => { dg.response(ResponseType.OK); });
+		dg.get_content_area().add(sb);
+		dg.skip_taskbar_hint = true;
+		dg.show_all();
+
+		if (dg.run() == ResponseType.OK) {
+			_grid_size = sb.value;
+			send_state();
+			_editor.send(DeviceApi.frame());
+			action.set_state(param);
+		}
+
+		dg.destroy();
 	}
 
 	private void new_level()
@@ -2101,35 +2122,19 @@ public class LevelEditorApplication : Gtk.Application
 		action.set_state(new GLib.Variant.boolean(_show_grid));
 	}
 
-	private void on_custom_grid()
+	private void on_rotation_snap_size(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Grid size"
-			, this.active_window
-			, DialogFlags.MODAL
-			, "Cancel"
-			, ResponseType.CANCEL
-			, "Ok"
-			, ResponseType.OK
-			, null
-			);
+		int32 new_size = param.get_int32();
 
-		EntryDouble sb = new EntryDouble(_grid_size, 0.1, 1000);
-		sb.activate.connect(() => { dg.response(ResponseType.OK); });
-		dg.get_content_area().add(sb);
-		dg.skip_taskbar_hint = true;
-		dg.show_all();
-
-		if (dg.run() == ResponseType.OK) {
-			_grid_size = sb.value;
+		if (new_size != 0) {
+			_rotation_snap = (double)new_size;
 			send_state();
 			_editor.send(DeviceApi.frame());
+			action.set_state(param);
+			return;
 		}
 
-		dg.destroy();
-	}
-
-	private void on_rotation_snap(GLib.SimpleAction action, GLib.Variant? param)
-	{
+		// Custom rotation size.
 		Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Rotation snap"
 			, this.active_window
 			, DialogFlags.MODAL
@@ -2150,6 +2155,7 @@ public class LevelEditorApplication : Gtk.Application
 			_rotation_snap = sb.value;
 			send_state();
 			_editor.send(DeviceApi.frame());
+			action.set_state(param);
 		}
 
 		dg.destroy();
