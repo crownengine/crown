@@ -1151,8 +1151,8 @@ public class LevelEditorApplication : Gtk.Application
 		yield stop_backend();
 
 		// Reset project state.
-		_placeable_type = "";
-		_placeable_name = "";
+		_placeable_type = "unit";
+		_placeable_name = "core/units/primitives/cube";
 
 		// Load project and level if any.
 		logi("Loading project: `%s`...".printf(sd));
