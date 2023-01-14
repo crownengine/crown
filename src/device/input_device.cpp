@@ -75,35 +75,7 @@ Vector3 InputDevice::axis(u8 id) const
 	if (id >= _num_axes)
 		return VECTOR3_ZERO;
 
-	Vector3 axis = _axis[id];
-	switch (_deadzone_mode[id]) {
-	case DeadzoneMode::RAW:
-		// No deadzone
-		break;
-
-	case DeadzoneMode::INDEPENDENT:
-		axis.x = fabs(axis.x) < _deadzone_size[id] ? 0.0f : axis.x;
-		axis.y = fabs(axis.y) < _deadzone_size[id] ? 0.0f : axis.y;
-		axis.z = fabs(axis.z) < _deadzone_size[id] ? 0.0f : axis.z;
-		break;
-
-	case DeadzoneMode::CIRCULAR:
-		if (length(axis) < _deadzone_size[id]) {
-			axis = VECTOR3_ZERO;
-		} else {
-			const f32 size = 1.0f - _deadzone_size[id];
-			const f32 size_inv = 1.0f / size;
-			const f32 axis_len = length(axis);
-			axis = normalize(axis) * (axis_len - _deadzone_size[id]) * size_inv;
-		}
-		break;
-
-	default:
-		CE_FATAL("Unknown deadzone mode");
-		break;
-	}
-
-	return axis;
+	return _axis[id];
 }
 
 const char *InputDevice::button_name(u8 id) const

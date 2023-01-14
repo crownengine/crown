@@ -4,6 +4,7 @@
  */
 
 #include "core/error/error.inl"
+#include "core/math/constants.h"
 #include "core/math/vector3.inl"
 #include "device/input_device.h"
 #include "device/input_manager.h"
@@ -276,6 +277,43 @@ InputDevice *InputManager::joypad(u8 i)
 	return _joypad[i];
 }
 
+/// Applies the deadzone settings for the axis @a id to @a axis and returns its value.
+static Vector3 deadzone(const InputDevice *dev, u8 id, const Vector3& axis)
+{
+	Vector3 out;
+
+	switch (dev->_deadzone_mode[id]) {
+	case DeadzoneMode::RAW:
+		out = axis;
+		break;
+
+	case DeadzoneMode::INDEPENDENT:
+		out.x = fabs(axis.x) < dev->_deadzone_size[id] ? 0.0f : axis.x;
+		out.y = fabs(axis.y) < dev->_deadzone_size[id] ? 0.0f : axis.y;
+		out.z = fabs(axis.z) < dev->_deadzone_size[id] ? 0.0f : axis.z;
+		break;
+
+	case DeadzoneMode::CIRCULAR:
+		if (length(axis) < dev->_deadzone_size[id]) {
+			out = VECTOR3_ZERO;
+		} else {
+			const f32 size = 1.0f - dev->_deadzone_size[id];
+			const f32 size_inv = 1.0f / size;
+			const f32 axis_len = length(axis);
+			out = axis;
+			out = normalize(out) * (axis_len - dev->_deadzone_size[id]) * size_inv;
+		}
+		break;
+
+	default:
+		CE_FATAL("Unknown deadzone mode");
+		out = axis;
+		break;
+	}
+
+	return out;
+}
+
 void InputManager::read(const OsEvent &event)
 {
 	InputDevice *dev;
@@ -322,6 +360,8 @@ void InputManager::read(const OsEvent &event)
 			axis.x = (f32)ev.axis_x / (f32)INT16_MAX;
 			axis.y = (f32)ev.axis_y / (f32)INT16_MAX;
 			axis.z = (f32)ev.axis_z / (f32)INT16_MAX;
+
+			axis = deadzone(dev, ev.axis_num, axis);
 		} else {
 			axis.x = ev.axis_x;
 			axis.y = ev.axis_y;
