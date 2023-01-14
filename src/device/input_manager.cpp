@@ -278,7 +278,7 @@ InputDevice *InputManager::joypad(u8 i)
 }
 
 /// Applies the deadzone settings for the axis @a id to @a axis and returns its value.
-static Vector3 deadzone(const InputDevice *dev, u8 id, const Vector3& axis)
+static Vector3 deadzone(const InputDevice *dev, u8 id, const Vector3 &axis)
 {
 	Vector3 out;
 
