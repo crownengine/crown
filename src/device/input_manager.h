@@ -33,6 +33,9 @@ struct InputManager
 	/// Destructor.
 	~InputManager();
 
+	/// Returns the InputDevice associated with @a type and @a num.
+	InputDevice *device_from_type(u16 type, u16 num);
+
 	/// Returns the default keyboard input device.
 	InputDevice *keyboard();
 
