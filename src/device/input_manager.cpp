@@ -178,6 +178,7 @@ InputManager::InputManager(Allocator &a)
 	, _mouse_last_x(INT16_MAX)
 	, _mouse_last_y(INT16_MAX)
 	, _has_delta_axis_event(false)
+	, _num_events(0)
 {
 	_keyboard = input_device::create(*_allocator
 		, "Keyboard"
@@ -317,6 +318,7 @@ static Vector3 deadzone(const InputDevice *dev, u8 id, const Vector3 &axis)
 void InputManager::read(const OsEvent &event)
 {
 	InputDevice *dev;
+	InputEvent input_ev;
 
 	switch (event.type) {
 	case OsEventType::BUTTON: {
@@ -326,7 +328,15 @@ void InputManager::read(const OsEvent &event)
 		if (CE_UNLIKELY(dev == NULL))
 			return;
 
+		// Publish the event.
 		dev->set_button(ev.button_num, ev.pressed);
+
+		input_ev.id     = ev.button_num;
+		input_ev.type   = ev.pressed ? InputEventType::BUTTON_PRESSED : InputEventType::BUTTON_RELEASED;
+		input_ev.value  = VECTOR3_ZERO;
+		input_ev.device = dev;
+
+		_events[_num_events++] = input_ev;
 		break;
 	}
 
@@ -368,7 +378,15 @@ void InputManager::read(const OsEvent &event)
 			axis.z = ev.axis_z;
 		}
 
+		// Publish the event.
 		dev->set_axis(ev.axis_num, axis.x, axis.y, axis.z);
+
+		input_ev.id     = ev.axis_num;
+		input_ev.type   = InputEventType::AXIS_CHANGED;
+		input_ev.value  = axis;
+		input_ev.device = dev;
+
+		_events[_num_events++] = input_ev;
 		break;
 	}
 
@@ -407,6 +425,8 @@ void InputManager::update()
 
 	for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i)
 		_joypad[i]->update();
+
+	_num_events = 0;
 }
 
 } // namespace crown

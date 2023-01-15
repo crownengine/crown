@@ -160,6 +160,26 @@ Gui
 Input
 =====
 
+**events** () : table
+	Returns an array of `InputEvent`_ tables.
+
+InputEvent
+----------
+
+InputEvent is a lua table with 4 fields:
+
+* ``id``: The id of the button or axis as returned by ``Keyboard.button_id()`` for example.
+* ``type``: One of the values from `InputEventType`_.
+* ``value``: The value of the axis as a Vector3 or ``nil`` when ``type`` is not an axis event.
+* ``device``: The input device that generated the event. This is one of ``Keyboard``, ``Mouse``, ``Pad1`` etc.
+
+InputEventType
+--------------
+
+* ``BUTTON_PRESSED``: A button has been pressed.
+* ``BUTTON_RELEASED``: A button has been released.
+* ``AXIS_CHANGED``: An axis changed its value.
+
 Keyboard
 --------
 

@@ -26,6 +26,8 @@ struct InputManager
 	s16 _mouse_last_x;
 	s16 _mouse_last_y;
 	bool _has_delta_axis_event;
+	u32 _num_events;
+	InputEvent _events[CROWN_MAX_OS_EVENTS];
 
 	/// Constructor.
 	explicit InputManager(Allocator &a);

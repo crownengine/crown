@@ -190,6 +190,7 @@ namespace input_device
 		id->_button_hash   = (StringId32 *)memory::align_top(id->_deadzone_size + num_axes,  alignof(StringId32));
 		id->_axis_hash     = (StringId32 *)memory::align_top(id->_button_hash + num_buttons, alignof(StringId32));
 		id->_name          = (char *      )memory::align_top(id->_axis_hash + num_axes,      alignof(char));
+		id->_lua_object    = 0;
 
 		memset(id->_last_state, 0, sizeof(u8)*num_buttons);
 		memset(id->_state, 0, sizeof(u8)*num_buttons);

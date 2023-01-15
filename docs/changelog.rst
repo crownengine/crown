@@ -30,6 +30,10 @@ Changelog
 * Fixed camera view not being restored.
 * Fixed minor aesthetic issues.
 
+**Lua API**
+
+* Added ``Input.events()``, see :doc:`lua_api` for details.
+
 0.46.0
 ------
 *19 Nov 2021*

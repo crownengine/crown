@@ -86,6 +86,9 @@ struct LuaEnvironment
 	///
 	void add_module_metafunction(const char *module, const char *name, const lua_CFunction func);
 
+	///
+	void set_module_number(const char *module, const char *name, f64 value);
+
 	/// Interface to lua_pcall/lua_call.
 	int call(int narg, int nres);
 

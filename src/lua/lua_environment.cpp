@@ -379,6 +379,21 @@ void LuaEnvironment::add_module_metafunction(const char *module, const char *nam
 	lua_pop(L, -1);
 }
 
+void LuaEnvironment::set_module_number(const char *module, const char *name, f64 value)
+{
+	// Create module if it does not exist
+	luaL_Reg entry;
+	entry.name = NULL;
+	entry.func = NULL;
+	luaL_register(L, module, &entry);
+	lua_pop(L, 1);
+
+	lua_getglobal(L, module);
+	lua_pushnumber(L, value);
+	lua_setfield(L, -2, name);
+	lua_pop(L, 1);
+}
+
 int LuaEnvironment::call(int narg, int nres)
 {
 	int status;

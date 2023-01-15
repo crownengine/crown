@@ -1232,6 +1232,8 @@ void load_api(LuaEnvironment &env)
 	env.add_module_function("Keyboard", "button",       KEYBOARD(button));
 	env.add_module_function("Keyboard", "button_name",  KEYBOARD(button_name));
 	env.add_module_function("Keyboard", "button_id",    KEYBOARD(button_id));
+	lua_getglobal(env.L, "Keyboard");
+	device()->_input_manager->keyboard()->_lua_object = luaL_ref(env.L, LUA_REGISTRYINDEX);
 
 	env.add_module_function("Mouse", "name",         MOUSE(name));
 	env.add_module_function("Mouse", "connected",    MOUSE(connected));
@@ -1247,6 +1249,8 @@ void load_api(LuaEnvironment &env)
 	env.add_module_function("Mouse", "axis_name",    MOUSE(axis_name));
 	env.add_module_function("Mouse", "button_id",    MOUSE(button_id));
 	env.add_module_function("Mouse", "axis_id",      MOUSE(axis_id));
+	lua_getglobal(env.L, "Mouse");
+	device()->_input_manager->mouse()->_lua_object = luaL_ref(env.L, LUA_REGISTRYINDEX);
 
 	env.add_module_function("Touch", "name",         TOUCH(name));
 	env.add_module_function("Touch", "connected",    TOUCH(connected));
@@ -1262,6 +1266,8 @@ void load_api(LuaEnvironment &env)
 	env.add_module_function("Touch", "axis_name",    TOUCH(axis_name));
 	env.add_module_function("Touch", "button_id",    TOUCH(button_id));
 	env.add_module_function("Touch", "axis_id",      TOUCH(axis_id));
+	lua_getglobal(env.L, "Touch");
+	device()->_input_manager->touch()->_lua_object = luaL_ref(env.L, LUA_REGISTRYINDEX);
 
 	env.add_module_function("Pad1", "name",         PAD(0, name));
 	env.add_module_function("Pad1", "connected",    PAD(0, connected));
@@ -1279,6 +1285,8 @@ void load_api(LuaEnvironment &env)
 	env.add_module_function("Pad1", "axis_id",      PAD(0, axis_id));
 	env.add_module_function("Pad1", "deadzone",     PAD(0, deadzone));
 	env.add_module_function("Pad1", "set_deadzone", PAD(0, set_deadzone));
+	lua_getglobal(env.L, "Pad1");
+	device()->_input_manager->joypad(0)->_lua_object = luaL_ref(env.L, LUA_REGISTRYINDEX);
 
 	env.add_module_function("Pad2", "name",         PAD(1, name));
 	env.add_module_function("Pad2", "connected",    PAD(1, connected));
@@ -1296,6 +1304,8 @@ void load_api(LuaEnvironment &env)
 	env.add_module_function("Pad2", "axis_id",      PAD(1, axis_id));
 	env.add_module_function("Pad2", "deadzone",     PAD(1, deadzone));
 	env.add_module_function("Pad2", "set_deadzone", PAD(1, set_deadzone));
+	lua_getglobal(env.L, "Pad2");
+	device()->_input_manager->joypad(1)->_lua_object = luaL_ref(env.L, LUA_REGISTRYINDEX);
 
 	env.add_module_function("Pad3", "name",         PAD(2, name));
 	env.add_module_function("Pad3", "connected",    PAD(2, connected));
@@ -1313,6 +1323,8 @@ void load_api(LuaEnvironment &env)
 	env.add_module_function("Pad3", "axis_id",      PAD(2, axis_id));
 	env.add_module_function("Pad3", "deadzone",     PAD(2, deadzone));
 	env.add_module_function("Pad3", "set_deadzone", PAD(2, set_deadzone));
+	lua_getglobal(env.L, "Pad3");
+	device()->_input_manager->joypad(2)->_lua_object = luaL_ref(env.L, LUA_REGISTRYINDEX);
 
 	env.add_module_function("Pad4", "name",         PAD(3, name));
 	env.add_module_function("Pad4", "connected",    PAD(3, connected));
@@ -1330,6 +1342,8 @@ void load_api(LuaEnvironment &env)
 	env.add_module_function("Pad4", "axis_id",      PAD(3, axis_id));
 	env.add_module_function("Pad4", "deadzone",     PAD(3, deadzone));
 	env.add_module_function("Pad4", "set_deadzone", PAD(3, set_deadzone));
+	lua_getglobal(env.L, "Pad4");
+	device()->_input_manager->joypad(3)->_lua_object = luaL_ref(env.L, LUA_REGISTRYINDEX);
 
 #undef PAD
 #undef TOUCH
@@ -2862,6 +2876,43 @@ void load_api(LuaEnvironment &env)
 			device()->_window->set_cursor_mode(cm);
 			return 0;
 		});
+
+	env.add_module_function("Input", "events", [](lua_State *L) {
+			LuaStack stack(L);
+			InputEvent *events = device()->_input_manager->_events;
+			u32 num_events = device()->_input_manager->_num_events;
+
+			stack.push_table(num_events);
+			for (u32 i = 0; i < num_events; ++i) {
+				stack.push_key_begin(i + 1);
+				stack.push_table(4);
+				{
+					stack.push_key_begin("id");
+					stack.push_int(events[i].id);
+					stack.push_key_end();
+
+					stack.push_key_begin("type");
+					stack.push_int(events[i].type);
+					stack.push_key_end();
+
+					if (events[i].type == InputEventType::AXIS_CHANGED) {
+						stack.push_key_begin("value");
+						stack.push_vector3(events[i].value);
+						stack.push_key_end();
+					}
+
+					stack.push_key_begin("device");
+					lua_rawgeti(L, LUA_REGISTRYINDEX, events[i].device->_lua_object);
+					stack.push_key_end();
+				}
+				stack.push_key_end();
+			}
+			return 1;
+		});
+
+	env.set_module_number("InputEventType", "BUTTON_PRESSED", InputEventType::BUTTON_PRESSED);
+	env.set_module_number("InputEventType", "BUTTON_RELEASED", InputEventType::BUTTON_RELEASED);
+	env.set_module_number("InputEventType", "AXIS_CHANGED", InputEventType::AXIS_CHANGED);
 	// code-format on
 }
 

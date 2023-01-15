@@ -33,6 +33,7 @@ struct InputDevice
 	StringId32 *_button_hash; // num_buttons
 	StringId32 *_axis_hash;   // num_axes
 	char *_name;              // strlen32(name) + 1
+	int _lua_object;
 
 	void set_button(u8 id, u8 state);
 	void set_axis(u8 id, f32 x, f32 y, f32 z);
