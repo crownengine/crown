@@ -22,5 +22,5 @@ fi
 
 # Commit changes.
 git add docs/changelog.rst
-git commit -m "Crown v{VERSION}"
-git tag v"${VERSION}"
+git commit -m "Crown v${VERSION}"
+git tag "v${VERSION}"
