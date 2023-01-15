@@ -22,6 +22,7 @@ Changelog
 **Tools**
 
 * The tools are now licensed under the GNU GPL v3.0 or later.
+* Bumped minimum GTK+ version to 3.22 (Ubuntu 18.04+).
 * Added the ability to set a limit to the memory used by the undo/redo system.
 * The editor now uses an external service to launch subprocesses and clean them up effectively after crashes.
 * Fixed crashes in the undo/redo system.

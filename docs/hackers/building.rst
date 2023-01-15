@@ -26,7 +26,7 @@ Set NDK path and ABI version (>= 23):
 	export ANDROID_NDK_ROOT=<path/to/android_ndk>
 	export ANDROID_NDK_ABI=23
 
-Linux (Ubuntu >= 16.04)
+Linux (Ubuntu >= 18.04)
 -----------------------
 
 .. code::
