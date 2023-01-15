@@ -58,6 +58,8 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#gui">Gui</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#input">Input</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#inputevent">InputEvent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#inputeventtype">InputEventType</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#keyboard">Keyboard</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#keyboard-button-names">Keyboard Button Names</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#keyboard-axis-names">Keyboard Axis Names</a></li>
@@ -304,6 +306,28 @@ The initial display mode is automatically reset when the program terminates.</p>
 </section>
 <section id="input">
 <h2>Input<a class="headerlink" href="#input" title="Permalink to this heading">¶</a></h2>
+<dl class="simple">
+<dt><strong>events</strong> ()<span class="classifier">table</span></dt><dd><p>Returns an array of <a class="reference internal" href="#inputevent">InputEvent</a> tables.</p>
+</dd>
+</dl>
+<section id="inputevent">
+<h3>InputEvent<a class="headerlink" href="#inputevent" title="Permalink to this heading">¶</a></h3>
+<p>InputEvent is a lua table with 4 fields:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">id</span></code>: The id of the button or axis as returned by <code class="docutils literal notranslate"><span class="pre">Keyboard.button_id()</span></code> for example.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">type</span></code>: One of the values from <a class="reference internal" href="#inputeventtype">InputEventType</a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">value</span></code>: The value of the axis as a Vector3 or <code class="docutils literal notranslate"><span class="pre">nil</span></code> when <code class="docutils literal notranslate"><span class="pre">type</span></code> is not an axis event.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">device</span></code>: The input device that generated the event. This is one of <code class="docutils literal notranslate"><span class="pre">Keyboard</span></code>, <code class="docutils literal notranslate"><span class="pre">Mouse</span></code>, <code class="docutils literal notranslate"><span class="pre">Pad1</span></code> etc.</p></li>
+</ul>
+</section>
+<section id="inputeventtype">
+<h3>InputEventType<a class="headerlink" href="#inputeventtype" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">BUTTON_PRESSED</span></code>: A button has been pressed.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BUTTON_RELEASED</span></code>: A button has been released.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AXIS_CHANGED</span></code>: An axis changed its value.</p></li>
+</ul>
+</section>
 <section id="keyboard">
 <h3>Keyboard<a class="headerlink" href="#keyboard" title="Permalink to this heading">¶</a></h3>
 <dl class="simple">

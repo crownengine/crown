@@ -9,19 +9,30 @@ Changelog
 
 * Fixed file changes not detected sometimes.
 * Fixed Ctrl+C/SIGTERM/SIGINT not being honored when launched with --server.
+* Fixed handling of filenames containing some special characters.
 
 **Runtime**
 
 * Windows: reduced CPU usage by polling joypads' status in a background thread.
+* Added ``graph`` command to plot profiler data at runtime.
+* The ConsoleServer will now report an error when a command is not found.
+* Fixed a crash when reloading materials.
+* Hot-reloading has been enabled for all resource types.
 
 **Tools**
 
+* The tools are now licensed under the GNU GPL v3.0 or later.
 * Added the ability to set a limit to the memory used by the undo/redo system.
 * The editor now uses an external service to launch subprocesses and clean them up effectively after crashes.
 * Fixed crashes in the undo/redo system.
 * Fixed minor issues when toggling the Console.
 * Fixed the Project Browser not being able to obtain keyboard focus.
+* Fixed camera view not being restored.
 * Fixed minor aesthetic issues.
+
+**Lua API**
+
+* Added ``Input.events()``, see :doc:`lua_api` for details.
 
 0.46.0
 ------

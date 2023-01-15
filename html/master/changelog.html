@@ -104,19 +104,30 @@
 <ul class="simple">
 <li><p>Fixed file changes not detected sometimes.</p></li>
 <li><p>Fixed Ctrl+C/SIGTERM/SIGINT not being honored when launched with –server.</p></li>
+<li><p>Fixed handling of filenames containing some special characters.</p></li>
 </ul>
 <p><strong>Runtime</strong></p>
 <ul class="simple">
 <li><p>Windows: reduced CPU usage by polling joypads’ status in a background thread.</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">graph</span></code> command to plot profiler data at runtime.</p></li>
+<li><p>The ConsoleServer will now report an error when a command is not found.</p></li>
+<li><p>Fixed a crash when reloading materials.</p></li>
+<li><p>Hot-reloading has been enabled for all resource types.</p></li>
 </ul>
 <p><strong>Tools</strong></p>
 <ul class="simple">
+<li><p>The tools are now licensed under the GNU GPL v3.0 or later.</p></li>
 <li><p>Added the ability to set a limit to the memory used by the undo/redo system.</p></li>
 <li><p>The editor now uses an external service to launch subprocesses and clean them up effectively after crashes.</p></li>
 <li><p>Fixed crashes in the undo/redo system.</p></li>
 <li><p>Fixed minor issues when toggling the Console.</p></li>
 <li><p>Fixed the Project Browser not being able to obtain keyboard focus.</p></li>
+<li><p>Fixed camera view not being restored.</p></li>
 <li><p>Fixed minor aesthetic issues.</p></li>
+</ul>
+<p><strong>Lua API</strong></p>
+<ul class="simple">
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">Input.events()</span></code>, see <a class="reference internal" href="lua_api.html"><span class="doc">Lua API reference</span></a> for details.</p></li>
 </ul>
 </section>
 <section id="id2">
