@@ -148,7 +148,7 @@ if [ "${PLATFORM}" = "linux" ] || [ "${PLATFORM}" = "windows" ]; then
 		export PATH="${PATH}:${MINGW}/bin"
 
 		# Copy editor from MinGW build.
-		cp build/mingw64/bin/level-editor-*.exe build/windows64/bin
+		cp build/mingw64/bin/level-editor-release.exe build/windows64/bin
 
 		# Copy required DLLs.
 		ldd build/mingw64/bin/level-editor-release.exe | grep '\/mingw.*\.dll' -o | xargs -I{} cp "{}" build/windows64/bin
