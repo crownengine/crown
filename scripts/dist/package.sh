@@ -210,15 +210,6 @@ for build_cfg in debug development release; do
 	rm build/"${BINARIES_DIR}"/bin/bx-"${build_cfg}".*          2> /dev/null
 done
 
-rm "build/${BINARIES_DIR}/bin/shaderc-debug${EXE_SUFFIX}"                                                2> /dev/null
-rm "build/${BINARIES_DIR}/bin/shaderc-development${EXE_SUFFIX}"                                          2> /dev/null
-rv "build/${BINARIES_DIR}/bin/shaderc-release${EXE_SUFFIX}" "${BINARIES_DIR}/bin/shaderc${EXE_SUFFIX}"   2> /dev/null
-rm "build/${BINARIES_DIR}/bin/texturec-debug${EXE_SUFFIX}"                                               2> /dev/null
-rm "build/${BINARIES_DIR}/bin/texturec-development${EXE_SUFFIX}"                                         2> /dev/null
-rv "build/${BINARIES_DIR}/bin/texturec-release${EXE_SUFFIX}" "${BINARIES_DIR}/bin/texturec${EXE_SUFFIX}" 2> /dev/null
-rm "build/${BINARIES_DIR}/bin/level-editor-imgui-*"                                                      2> /dev/null
-rm "build/${BINARIES_DIR}/bin/crown-debug${EXE_SUFFIX}"                                                  2> /dev/null
-
 if [ "${PLATFORM}" = "android" ]; then
 	rm -r build/"${BINARIES_DIR}"/bin/jit
 fi
