@@ -19,6 +19,10 @@ function GameBase.init()
 	local camera_transform = SceneGraph.instance(scene_graph, GameBase.camera_unit)
 	SceneGraph.set_local_position(scene_graph, camera_transform, Vector3(0, 6.5, -30))
 
+	if GameBase.game and GameBase.game.init then
+		GameBase.game.init()
+	end
+
 	-- Load test level if launched from Level Editor.
 	if TEST then
 		GameBase._test_package = Device.create_resource_package("_level_editor_test")
