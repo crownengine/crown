@@ -61,7 +61,9 @@ struct FileMonitorImpl
 			| IN_DONT_FOLLOW // Don't dereference pathname if it is a symbolic link.
 			| IN_ONLYDIR     // Only watch pathname if it is a directory.
 			);
-		CE_ASSERT(wd != -1, "inotify_add_watch: errno: %d", errno);
+
+		if (wd == -1)
+			return;
 
 		TempAllocator512 ta;
 		DynamicString str(ta);
@@ -116,7 +118,9 @@ struct FileMonitorImpl
 		_user_data = user_data;
 
 		_fd = inotify_init();
-		CE_ASSERT(_fd != -1, "inotify_init: errno: %d", errno);
+
+		if (_fd == -1)
+			return;
 
 		for (u32 i = 0; i < num; ++i)
 			add_watch(paths[i], recursive);

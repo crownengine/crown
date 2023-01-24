@@ -10,6 +10,7 @@ Changelog
 * Fixed file changes not detected sometimes.
 * Fixed Ctrl+C/SIGTERM/SIGINT not being honored when launched with --server.
 * Fixed handling of filenames containing some special characters.
+* Fixed a crash when a directory was created and deleted immediately after in a project folder.
 
 **Runtime**
 

@@ -82,7 +82,9 @@ struct FileMonitorImpl
 			| FILE_FLAG_OVERLAPPED       // Required by CreateIoCompletionPort
 			, NULL
 			);
-		CE_ASSERT(fh != INVALID_HANDLE_VALUE, "CreateFile: GetLastError: %d", GetLastError());
+
+		if (fh == INVALID_HANDLE_VALUE)
+			return;
 
 		// Create new IOCP or return already created one
 		_iocp = CreateIoCompletionPort(fh, _iocp, _key, 0);
