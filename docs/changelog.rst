@@ -19,6 +19,7 @@ Changelog
 * The ConsoleServer will now report an error when a command is not found.
 * Fixed a crash when reloading materials.
 * Hot-reloading has been enabled for all resource types.
+* Fixed a crash when malformed lua scripts were passed to boot.config or require()-ed from other lua scripts.
 
 **Tools**
 

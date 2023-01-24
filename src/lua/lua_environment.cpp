@@ -279,16 +279,32 @@ void LuaEnvironment::load_libs()
 
 void LuaEnvironment::do_file(const char *name)
 {
+	int status;
+
 	lua_getglobal(L, "dofile");
 	lua_pushstring(L, name);
-	this->call(1, 0);
+	status = this->call(1, 0);
+	if (status != LUA_OK) {
+		report(L, status);
+		device()->pause();
+	}
+
+	CE_ASSERT(lua_gettop(L) == 0, "Stack not clean");
 }
 
 void LuaEnvironment::require(const char *name)
 {
+	int status;
+
 	lua_getglobal(L, "require");
 	lua_pushstring(L, name);
-	this->call(1, 0);
+	status = this->call(1, 0);
+	if (status != LUA_OK) {
+		report(L, status);
+		device()->pause();
+	}
+
+	CE_ASSERT(lua_gettop(L) == 0, "Stack not clean");
 }
 
 LuaStack LuaEnvironment::execute(const LuaResource *lr, int nres)
