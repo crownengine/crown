@@ -36,6 +36,10 @@ Changelog
 
 * Added ``Input.events()``, see :doc:`lua_api` for details.
 
+**Samples**
+
+* Added 03-joypad sample.
+
 0.46.0
 ------
 *19 Nov 2021*

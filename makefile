@@ -186,9 +186,12 @@ docs:
 .PHONY: 02-animation
 02-animation: $(OS)-development64
 	cd build/$(OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir $(realpath samples/$@) --map-source-dir core $(realpath samples) --compile
+.PHONY: 03-joypad
+03-joypad: $(OS)-development64
+	cd build/$(OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir $(realpath samples/$@) --map-source-dir core $(realpath samples) --compile
 
 .PHONY: samples
-samples: 00-empty 01-physics 02-animation
+samples: 00-empty 01-physics 02-animation 03-joypad
 
 .PHONY: run-00-empty
 run-00-empty: 00-empty
@@ -198,6 +201,9 @@ run-01-physics: 01-physics
 	cd build/$(OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --data-dir $(realpath samples/$<_$(OS))
 .PHONY: run-02-animation
 run-02-animation: 02-animation
+	cd build/$(OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --data-dir $(realpath samples/$<_$(OS))
+.PHONY: run-03-joypad
+run-03-joypad: 03-joypad
 	cd build/$(OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --data-dir $(realpath samples/$<_$(OS))
 
 .PHONY: clean-samples

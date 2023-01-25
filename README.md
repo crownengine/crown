@@ -55,6 +55,9 @@ Engine initialization and shutdown.
 ### [02-animation](https://github.com/crownengine/crown/tree/master/samples/02-animation)
 ![02-animation](https://raw.githubusercontent.com/crownengine/crown/master/docs/shots/02-animation.png)
 
+### [03-joypad](https://github.com/crownengine/crown/tree/master/samples/03-joypad)
+![03-joypad](https://raw.githubusercontent.com/crownengine/crown/master/docs/shots/03-joypad.png)
+
 Contact
 -------
 
