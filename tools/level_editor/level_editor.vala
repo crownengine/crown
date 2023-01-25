@@ -2710,23 +2710,6 @@ public static int main(string[] args)
 			return GLib.LogWriterOutput.UNHANDLED;
 		});
 
-	// If args does not contain --child, spawn the launcher.
-	int ii;
-	for (ii = 0; ii < args.length; ++ii) {
-		if (args[ii] == "--child")
-			break;
-	}
-
-	if (ii == args.length) {
-		_log_prefix = "launcher";
-		return launcher_main(args);
-	}
-
-	_log_prefix = "editor";
-	// Remove --child from args for backward compatibility.
-	if (args.length > 1)
-		args = args[0 : args.length - 1];
-
 	// Global paths
 	_config_dir = GLib.File.new_for_path(GLib.Path.build_filename(GLib.Environment.get_user_config_dir(), "crown"));
 	try {
@@ -2749,11 +2732,28 @@ public static int main(string[] args)
 	}
 
 	_log_file = GLib.File.new_for_path(GLib.Path.build_filename(_logs_dir.get_path(), new GLib.DateTime.now_local().format("%Y-%m-%d") + ".log"));
+	_log_stream = GLib.FileStream.open(_log_file.get_path(), "a");
+
+	// If args does not contain --child, spawn the launcher.
+	int ii;
+	for (ii = 0; ii < args.length; ++ii) {
+		if (args[ii] == "--child")
+			break;
+	}
+
+	if (ii == args.length) {
+		_log_prefix = "launcher";
+		return launcher_main(args);
+	}
+
+	_log_prefix = "editor";
+	// Remove --child from args for backward compatibility.
+	if (args.length > 1)
+		args = args[0 : args.length - 1];
+
 	_settings_file = GLib.File.new_for_path(GLib.Path.build_filename(_config_dir.get_path(), "settings.sjson"));
 	_user_file = GLib.File.new_for_path(GLib.Path.build_filename(_config_dir.get_path(), "user.sjson"));
 	_console_history_file = GLib.File.new_for_path(GLib.Path.build_filename(_cache_dir.get_path(), "console_history.txt"));
-
-	_log_stream = GLib.FileStream.open(_log_file.get_path(), "a");
 
 	// Connect to SubprocessLauncher service.
 	SubprocessLauncher subprocess_launcher;
