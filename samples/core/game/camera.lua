@@ -1,3 +1,6 @@
+-- Copyright (c) 2012-2023 Daniele Bartolini et al.
+-- SPDX-License-Identifier: MIT
+
 require "core/lua/class"
 
 local wkey = false

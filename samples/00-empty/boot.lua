@@ -1,3 +1,6 @@
+-- Copyright (c) 2012-2023 Daniele Bartolini et al.
+-- SPDX-License-Identifier: MIT
+
 world = world or nil
 camera_unit = camera_unit or nil
 
