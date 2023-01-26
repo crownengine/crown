@@ -548,6 +548,16 @@ void Device::quit()
 		_console_server->close();
 }
 
+int Device::argc() const
+{
+	return _options._argc;
+}
+
+const char **Device::argv() const
+{
+	return (const char **)_options._argv;
+}
+
 void Device::pause()
 {
 	_paused = true;
