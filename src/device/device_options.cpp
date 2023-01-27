@@ -6,6 +6,7 @@
 #include "config.h"
 #include "core/command_line.h"
 #include "core/filesystem/path.h"
+#include "core/option.inl"
 #include "core/strings/dynamic_string.inl"
 #include "device/device_options.h"
 #include <errno.h>
@@ -53,13 +54,13 @@ static void help(const char *msg = NULL)
 DeviceOptions::DeviceOptions(Allocator &a, int argc, const char **argv)
 	: _argc(argc)
 	, _argv(argv)
-	, _source_dir(a)
+	, _source_dir(DynamicString(a))
 	, _map_source_dir_name(NULL)
-	, _map_source_dir_prefix(a)
-	, _data_dir(a)
+	, _map_source_dir_prefix(DynamicString(a))
+	, _data_dir(DynamicString(a))
 	, _boot_dir(NULL)
 	, _platform(NULL)
-	, _lua_string(a)
+	, _lua_string(DynamicString(a))
 	, _wait_console(false)
 	, _do_compile(false)
 	, _do_continue(false)
@@ -103,7 +104,7 @@ int DeviceOptions::parse(bool *quit)
 	_map_source_dir_name = cl.get_parameter(0, "map-source-dir");
 	if (_map_source_dir_name) {
 		path::reduce(_map_source_dir_prefix, cl.get_parameter(1, "map-source-dir"));
-		if (_map_source_dir_prefix.empty()) {
+		if (_map_source_dir_prefix.value().empty()) {
 			help("Mapped source directory must be specified.");
 			return EXIT_FAILURE;
 		}
@@ -126,12 +127,12 @@ int DeviceOptions::parse(bool *quit)
 			return EXIT_FAILURE;
 		}
 
-		if (_source_dir.empty()) {
+		if (_source_dir.value().empty()) {
 			help("Source dir must be specified.");
 			return EXIT_FAILURE;
 		}
 
-		if (_data_dir.empty()) {
+		if (_data_dir.value().empty()) {
 			_data_dir += _source_dir;
 			_data_dir += '_';
 			_data_dir += _platform;
@@ -140,7 +141,7 @@ int DeviceOptions::parse(bool *quit)
 
 	_server = cl.has_option("server");
 	if (_server) {
-		if (_source_dir.empty()) {
+		if (_source_dir.value().empty()) {
 			help("Source dir must be specified.");
 			return EXIT_FAILURE;
 		}
@@ -148,22 +149,22 @@ int DeviceOptions::parse(bool *quit)
 
 	_pumped = cl.has_option("pumped");
 
-	if (!_data_dir.empty()) {
-		if (!path::is_absolute(_data_dir.c_str())) {
+	if (!_data_dir.value().empty()) {
+		if (!path::is_absolute(_data_dir.value().c_str())) {
 			help("Data dir must be absolute.");
 			return EXIT_FAILURE;
 		}
 	}
 
-	if (!_source_dir.empty()) {
-		if (!path::is_absolute(_source_dir.c_str())) {
+	if (!_source_dir.value().empty()) {
+		if (!path::is_absolute(_source_dir.value().c_str())) {
 			help("Source dir must be absolute.");
 			return EXIT_FAILURE;
 		}
 	}
 
-	if (!_map_source_dir_prefix.empty()) {
-		if (!path::is_absolute(_map_source_dir_prefix.c_str())) {
+	if (!_map_source_dir_prefix.value().empty()) {
+		if (!path::is_absolute(_map_source_dir_prefix.value().c_str())) {
 			help("Mapped source dir must be absolute.");
 			return EXIT_FAILURE;
 		}
@@ -200,7 +201,7 @@ int DeviceOptions::parse(bool *quit)
 	const char *port = cl.get_parameter(0, "console-port");
 	if (port) {
 		errno = 0;
-		_console_port = strtoul(port, NULL, 10);
+		_console_port = (u16)strtoul(port, NULL, 10);
 		if (errno == ERANGE || errno == EINVAL) {
 			help("Console port is invalid.");
 			return EXIT_FAILURE;

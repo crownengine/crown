@@ -11,6 +11,7 @@
 #include "core/guid.h"
 #include "core/memory/globals.h"
 #include "core/memory/memory.inl"
+#include "core/option.inl"
 #include "core/os.h"
 #include "core/thread/spsc_queue.inl"
 #include "core/thread/thread.h"

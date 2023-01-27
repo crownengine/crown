@@ -20,6 +20,7 @@
 #include "core/memory/temp_allocator.inl"
 #include "core/network/ip_address.h"
 #include "core/network/socket.h"
+#include "core/option.inl"
 #include "core/os.h"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string.inl"
@@ -287,13 +288,13 @@ void Device::run()
 	_console_server->listen(_options._console_port, _options._wait_console);
 
 #if CROWN_PLATFORM_ANDROID
-	_data_filesystem = CE_NEW(_allocator, FilesystemApk)(default_allocator(), const_cast<AAssetManager *>((AAssetManager *)_options._asset_manager));
+	_data_filesystem = CE_NEW(_allocator, FilesystemApk)(default_allocator(), const_cast<AAssetManager *>((AAssetManager *)_options._asset_manager.value()));
 #else
 	_data_filesystem = CE_NEW(_allocator, FilesystemDisk)(default_allocator());
 	{
 		char cwd[1024];
-		const char *data_dir = !_options._data_dir.empty()
-			? _options._data_dir.c_str()
+		const char *data_dir = !_options._data_dir.value().empty()
+			? _options._data_dir.value().c_str()
 			: os::getcwd(cwd, sizeof(cwd))
 			;
 		((FilesystemDisk *)_data_filesystem)->set_prefix(data_dir);
@@ -413,7 +414,7 @@ void Device::run()
 
 	_lua_environment->load_libs();
 	_lua_environment->require(_boot_config.boot_script_name.c_str());
-	_lua_environment->execute_string(_options._lua_string.c_str());
+	_lua_environment->execute_string(_options._lua_string.value().c_str());
 
 	_pipeline = CE_NEW(_allocator, Pipeline)();
 	_pipeline->create(_width, _height);

@@ -18,11 +18,12 @@
 #include "core/json/sjson.h"
 #include "core/memory/allocator.h"
 #include "core/memory/temp_allocator.inl"
+#include "core/option.inl"
 #include "core/os.h"
 #include "core/strings/dynamic_string.inl"
+#include "core/strings/string.h"
 #include "core/strings/string_id.inl"
 #include "core/strings/string_stream.inl"
-#include "core/strings/string.h"
 #include "core/time.h"
 #include "device/console_server.h"
 #include "device/device_options.h"
@@ -1320,15 +1321,15 @@ int main_data_compiler(const DeviceOptions &opts)
 	dc->add_ignore_glob("*~");
 	dc->add_ignore_glob(".*");
 
-	dc->map_source_dir("", opts._source_dir.c_str());
+	dc->map_source_dir("", opts._source_dir.value().c_str());
 
 	if (opts._map_source_dir_name) {
 		dc->map_source_dir(opts._map_source_dir_name
-			, opts._map_source_dir_prefix.c_str()
+			, opts._map_source_dir_prefix.value().c_str()
 			);
 	}
 
-	dc->scan_and_restore(opts._data_dir.c_str());
+	dc->scan_and_restore(opts._data_dir.value().c_str());
 
 	bool success = true;
 
@@ -1337,10 +1338,10 @@ int main_data_compiler(const DeviceOptions &opts)
 			console_server()->execute_message_handlers(true);
 		}
 	} else {
-		success = dc->compile(opts._data_dir.c_str(), opts._platform);
+		success = dc->compile(opts._data_dir.value().c_str(), opts._platform);
 	}
 
-	dc->save(opts._data_dir.c_str());
+	dc->save(opts._data_dir.value().c_str());
 
 	CE_DELETE(default_allocator(), dc);
 	console_server_globals::shutdown();

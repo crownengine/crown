@@ -38,6 +38,7 @@
 #include "core/strings/string_view.inl"
 #include "core/thread/thread.h"
 #include "core/time.h"
+#include "core/option.inl"
 #include <stdlib.h> // EXIT_SUCCESS, EXIT_FAILURE
 #include <stdio.h>  // printf
 
@@ -1566,6 +1567,32 @@ static void test_filesystem()
 #endif // if CROWN_PLATFORM_POSIX
 }
 
+static void test_option()
+{
+	memory_globals::init();
+	{
+		Option<int> opt(3);
+		ENSURE(opt.value() == 3);
+		ENSURE(opt.has_changed() == false);
+
+		opt = 3;
+		ENSURE(opt.has_changed() == true);
+
+		opt = 4;
+		ENSURE(opt.value() == 4);
+	}
+	{
+		Option<DynamicString> opt { DynamicString(default_allocator()) };
+		ENSURE(opt.value() == "");
+		ENSURE(opt.has_changed() == false);
+
+		opt = "foo";
+		ENSURE(opt.value() == "foo");
+		ENSURE(opt.has_changed() == true);
+	}
+	memory_globals::shutdown();
+}
+
 #define RUN_TEST(name)      \
 	do {                    \
 		printf(#name "\n"); \
@@ -1600,6 +1627,7 @@ int main_unit_tests()
 	RUN_TEST(test_thread);
 	RUN_TEST(test_process);
 	RUN_TEST(test_filesystem);
+	RUN_TEST(test_option);
 
 	return EXIT_SUCCESS;
 }
