@@ -32,6 +32,7 @@ Changelog
 * Fixed the Project Browser not being able to obtain keyboard focus.
 * Fixed camera view not being restored.
 * Fixed minor aesthetic issues.
+* Fixed Console's text not scrolling to bottom.
 
 **Lua API**
 

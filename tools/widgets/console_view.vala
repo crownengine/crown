@@ -92,6 +92,7 @@ public class ConsoleView : Gtk.Box
 	public Gtk.ScrolledWindow _scrolled_window;
 	public EntryText _entry;
 	public Gtk.Box _entry_hbox;
+	public Gtk.TextMark _scroll_mark;
 
 	public ConsoleView(Project project, Gtk.ComboBoxText combo, PreferencesDialog preferences_dialog)
 	{
@@ -127,7 +128,7 @@ public class ConsoleView : Gtk.Box
 
 		Gtk.TextIter end_iter;
 		tb.get_end_iter(out end_iter);
-		tb.create_mark("scroll", end_iter, true);
+		_scroll_mark = tb.create_mark("scroll", end_iter, true);
 
 		_scrolled_window = new Gtk.ScrolledWindow(null, null);
 		_scrolled_window.vscrollbar_policy = Gtk.PolicyType.ALWAYS;
@@ -360,12 +361,25 @@ public class ConsoleView : Gtk.Box
 			}
 		} while (id_index++ >= 0);
 
+		// Line height is computed in an idle handler, wait a bit before scrolling to bottom.
+		// See: https://valadoc.org/gtk+-3.0/Gtk.TextView.scroll_to_iter.html
+		GLib.Idle.add(scroll_to_bottom);
+	}
+
+	private bool scroll_to_bottom()
+	{
+		Gtk.TextBuffer buffer = _text_view.buffer;
+
+		Gtk.TextIter end_iter;
+		buffer.get_end_iter(out end_iter);
+
 		// Scroll to bottom.
 		// See: gtk3-demo "Automatic Scrolling".
 		end_iter.set_line_offset(0);
-		Gtk.TextMark mark = buffer.get_mark("scroll");
-		buffer.move_mark(mark, end_iter);
-		_text_view.scroll_mark_onscreen(mark);
+		buffer.move_mark(_scroll_mark, end_iter);
+		_text_view.scroll_mark_onscreen(_scroll_mark);
+
+		return GLib.Source.REMOVE;
 	}
 }
 
