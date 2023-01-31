@@ -43,6 +43,7 @@ static void help(const char *msg = NULL)
 		"  --parent-window <handle>        Set the parent window <handle> of the main window.\n"
 		"  --server                        Run the engine in server mode.\n"
 		"  --pumped                        Do not advance the renderer unless explicitly requested via console.\n"
+		"  --window-rect <x y w h>         Sets the main window's position and size.\n"
 		"\n"
 		"Complete documentation available at https://docs.crownengine.org/html/v" CROWN_VERSION "\n"
 		);
@@ -247,6 +248,24 @@ int DeviceOptions::parse(bool *quit)
 				return EXIT_SUCCESS;
 			}
 		}
+	}
+
+	if (cl.has_option("window-rect")) {
+		const char *rect[4];
+		for (u32 ii = 0; ii < countof(rect); ++ii) {
+			rect[ii] = cl.get_parameter(ii, "window-rect");
+
+			if (!rect[ii]) {
+				printf("window-rect: format must be: <x y w h>\n");
+				*quit = true;
+				return EXIT_FAILURE;
+			}
+		}
+
+		_window_x      = (u16)strtoul(rect[0], NULL, 10);
+		_window_y      = (u16)strtoul(rect[1], NULL, 10);
+		_window_width  = (u16)strtoul(rect[2], NULL, 10);
+		_window_height = (u16)strtoul(rect[3], NULL, 10);
 	}
 
 	return EXIT_SUCCESS;

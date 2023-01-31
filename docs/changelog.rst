@@ -4,6 +4,10 @@ Changelog
 0.48.0 --- *DD MMM YYYY*
 ------------------------
 
+**Runtime**
+
+* Added ``--window-rect`` CLI option.
+
 0.47.0 --- *06 Feb 2023*
 ------------------------
 

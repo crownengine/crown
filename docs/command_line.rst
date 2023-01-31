@@ -74,5 +74,8 @@ Options
 
 	When using this option you must also specify ``--source-dir``.
 
+``--window-rect <x y w h>``
+	Sets the main window's position and size.
+
 ``--run-unit-tests``
 	Run unit tests and quit. Available only on ``linux`` and ``windows``.
