@@ -1960,6 +1960,7 @@ public class LevelEditorApplication : Gtk.Application
 
 			this.show_panel("main_vbox", Gtk.StackTransitionType.NONE);
 			_user.add_or_touch_recent_project(source_dir, source_dir);
+			_console_view.reset();
 			restart_backend.begin(source_dir, LEVEL_NONE);
 		}
 	}

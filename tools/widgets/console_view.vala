@@ -155,6 +155,17 @@ public class ConsoleView : Gtk.Box
 		_console_view_valid = true;
 	}
 
+	public void reset()
+	{
+		Gtk.TextIter start;
+		Gtk.TextIter end;
+
+		Gtk.TextBuffer buffer = _text_view.buffer;
+		buffer.get_start_iter(out start);
+		buffer.get_end_iter(out end);
+		buffer.@delete(ref start, ref end);
+	}
+
 	private void on_entry_activated()
 	{
 		string text = _entry.text;
