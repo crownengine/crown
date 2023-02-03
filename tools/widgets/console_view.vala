@@ -146,8 +146,9 @@ public class ConsoleView : Gtk.Box
 		this.pack_start(_entry_hbox, false, true, 0);
 
 		this.destroy.connect(on_destroy);
-		this.button_release_event.connect(on_button_released);
-		this.motion_notify_event.connect(on_motion_notify);
+
+		_text_view.button_release_event.connect(on_button_released);
+		_text_view.motion_notify_event.connect(on_motion_notify);
 
 		this.get_style_context().add_class("console-view");
 
