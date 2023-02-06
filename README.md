@@ -17,9 +17,9 @@ for more info.
 ### Binaries
 
   * [Changelog](https://docs.crownengine.org/html/latest/changelog.html)
-  * [Crown v0.46.0 for Linux 64-bits](https://github.com/crownengine/crown/releases/download/v0.46.0/crown-0.46.0-linux-x64.tar.gz)
-  * [Crown v0.46.0 for Windows 64-bits](https://github.com/crownengine/crown/releases/download/v0.46.0/crown-0.46.0-windows-x64.zip)
-  * [Crown v0.46.0 all releases](https://github.com/crownengine/crown/releases/tag/v0.46.0)
+  * [Crown v0.47.0 for Linux 64-bits](https://github.com/crownengine/crown/releases/download/v0.47.0/crown-0.47.0-linux-x64.tar.gz)
+  * [Crown v0.47.0 for Windows 64-bits](https://github.com/crownengine/crown/releases/download/v0.47.0/crown-0.47.0-windows-x64.zip)
+  * [Crown v0.47.0 all releases](https://github.com/crownengine/crown/releases/tag/v0.47.0)
   
 ### Arch Linux ([AUR](https://aur.archlinux.org/packages/crown/))
     yay -S crown
@@ -30,7 +30,7 @@ for more info.
   * [Lua API](https://docs.crownengine.org/html/master/lua_api.html)
   * [Building](https://docs.crownengine.org/html/master/hackers/building.html)
   
-### Latest Stable (v0.46.0)
+### Latest Stable (v0.47.0)
   * [User Manual](https://docs.crownengine.org/html/latest)
   * [Lua API](https://docs.crownengine.org/html/latest/lua_api.html)
 
