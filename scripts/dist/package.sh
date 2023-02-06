@@ -85,7 +85,7 @@ git checkout v"${VERSION}"
 # Build engine and tools.
 make clean
 if [ "${PLATFORM}" = "android" ]; then
-	export ANDROID_NDK_ROOT=~/android-sdk/ndk/21.0.6113669
+	export ANDROID_NDK_ROOT="$HOME"/android-sdk/ndk/21.0.6113669
 	export ANDROID_NDK_ABI=23
 	make android-"${ARCH}"-development MAKE_JOBS="${BUILD_JOBS}"
 	make android-"${ARCH}"-release MAKE_JOBS="${BUILD_JOBS}"
