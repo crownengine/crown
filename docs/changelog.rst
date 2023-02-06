@@ -3,7 +3,7 @@ Changelog
 
 0.47.0
 ------
-*DD MMM YYYY*
+*06 Feb 2023*
 
 **Data Compiler**
 
