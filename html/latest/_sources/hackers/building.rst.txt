@@ -7,7 +7,7 @@ Getting Source
 
 .. code::
 
-	git clone https://github.com/dbartolini/crown.git
+	git clone https://github.com/crownengine/crown.git
 
 Prerequisites
 =============
@@ -26,7 +26,7 @@ Set NDK path and ABI version (>= 23):
 	export ANDROID_NDK_ROOT=<path/to/android_ndk>
 	export ANDROID_NDK_ABI=23
 
-Linux (Ubuntu >= 16.04)
+Linux (Ubuntu >= 18.04)
 -----------------------
 
 .. code::
@@ -42,38 +42,33 @@ To build documentation you will also need:
 .. code::
 
 	sudo apt-get install python3-sphinx
-	sudo apt-get install doxygen
 
-Windows (VS 2019)
------------------
+Windows (VS 2019 or VS Code)
+----------------------------
 
-Visual Studio 2019:
+Install either Visual Studio 2019:
 
 	* https://visualstudio.microsoft.com/downloads
 
-GnuWin32 utilities:
+or Visual Studio Code:
 
-	* http://gnuwin32.sourceforge.net/packages/make.htm
-	* http://gnuwin32.sourceforge.net/packages/coreutils.htm
-	* http://gnuwin32.sourceforge.net/packages/libiconv.htm
-	* http://gnuwin32.sourceforge.net/packages/libintl.htm
+	* https://code.visualstudio.com
 
-Windows (MinGW)
----------------
-
-MSYS2:
+Install MSYS2:
 
 	* https://www.msys2.org/
+
+Add MSYS2 bin to your PATH; for a default install this would be:
+
+.. code::
+
+	C:\msys2\usr\bin
+
+Open MSYS2 shell and type:
 
 .. code::
 
 	pacman -S make mingw-w64-x86_64-gcc mingw-w64-x86_64-pkg-config mingw-w64-x86_64-gtk3 mingw-w64-x86_64-vala mingw-w64-x86_64-libgee
-
-Set MINGW path:
-
-.. code::
-
-	export MINGW=/mingw64
 
 Build
 =====
@@ -92,17 +87,32 @@ Linux
 
 	make tools-linux-release64
 
-Windows
--------
+Windows (VS 2019)
+-----------------
 
 Open Visual Studio 2019 Command Prompt:
 
 .. code::
 
-	make tools-linux-release64
+	make tools-windows-release64
 
 To build tools, open MSYS2 MSYS:
 
 .. code::
 
+	export MINGW=/mingw64
+	make tools-mingw-release64
+
+Windows (VS Code)
+-----------------
+
+Add the MinGW compiler to your path:
+
+	* https://code.visualstudio.com/docs/languages/cpp#_add-the-mingw-compiler-to-your-path
+
+Open Visual Studio Code Shell and set MINGW path:
+
+.. code::
+
+	$env:MINGW = "C:\msys64\mingw64"
 	make tools-mingw-release64

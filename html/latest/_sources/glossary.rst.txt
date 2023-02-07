@@ -46,7 +46,7 @@ This page lists definitions for terms used in Crown and this manual.
 
 	World
 		The object where the simulation of a number of :term:`units<Unit>` occur. This
-		simulation can be advanced in time and its results can be renderd on screen
+		simulation can be advanced in time and its results can be rendered on screen
 		from arbitrary view points defined by a :term:`Camera`.
 
 	Camera
