@@ -37,7 +37,6 @@ for more info.
 ## Community Support & Development
 
   * [Discord](https://discord.gg/CeXVWCT): [![Discord Chat](https://img.shields.io/discord/572468149358690314.svg)](https://discord.gg/CeXVWCT)
-  * [Trello Roadmap](https://trello.com/b/h88kbJNm/crown-game-engine)
 
 ## Screenshots
 

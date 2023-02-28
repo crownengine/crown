@@ -22,10 +22,12 @@ principles.
 Features
 --------
 
-Note: Crown is in active development and new features are added and improved all
-the time; you can check out the development efforts in real-time on the Crown
-Trello `board <https://trello.com/b/h88kbJNm/crown>`__. You can also join our
-Discord `channel <https://discord.com/invite/CeXVWCT>`__!
+.. note::
+
+	Crown is in active development and new features are added and improved all
+	the time; you can check out the development efforts in real-time on
+	`GitHub <https://github.com/crownengine/crown/issues>`__ and on the
+	`Discord <https://discord.com/invite/CeXVWCT>`__ channel!
 
 * Data-driven
 	Every aspect of the game is controlled through text configuration files. Text
