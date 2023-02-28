@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Changelog &mdash; Crown Manual 0.47.0 documentation</title>
+  <title>Changelog &mdash; Crown Manual 0.48.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -34,7 +34,7 @@
             <img src="_static/crown-logo-white.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                0.47.0
+                0.48.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -46,17 +46,18 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#id1">0.47.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id2">0.46.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id3">0.45.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id4">0.44.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id5">0.43.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id6">0.42.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id7">0.41.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id8">0.40.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id9">0.39.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id10">0.38.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id11">0.37.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id1">0.48.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">0.47.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">0.46.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">0.45.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">0.44.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">0.43.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">0.42.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id8">0.41.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id9">0.40.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id10">0.39.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id11">0.38.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id12">0.37.0</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
@@ -98,13 +99,18 @@
   <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this heading">¶</a></h1>
 <section id="id1">
-<h2>0.47.0<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
+<h2>0.48.0<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
 <p><em>DD MMM YYYY</em></p>
+</section>
+<section id="id2">
+<h2>0.47.0<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h2>
+<p><em>06 Feb 2023</em></p>
 <p><strong>Data Compiler</strong></p>
 <ul class="simple">
 <li><p>Fixed file changes not detected sometimes.</p></li>
 <li><p>Fixed Ctrl+C/SIGTERM/SIGINT not being honored when launched with –server.</p></li>
 <li><p>Fixed handling of filenames containing some special characters.</p></li>
+<li><p>Fixed a crash when a directory was created and deleted immediately after in a project folder.</p></li>
 </ul>
 <p><strong>Runtime</strong></p>
 <ul class="simple">
@@ -113,10 +119,12 @@
 <li><p>The ConsoleServer will now report an error when a command is not found.</p></li>
 <li><p>Fixed a crash when reloading materials.</p></li>
 <li><p>Hot-reloading has been enabled for all resource types.</p></li>
+<li><p>Fixed a crash when malformed lua scripts were passed to boot.config or require()-ed from other lua scripts.</p></li>
 </ul>
 <p><strong>Tools</strong></p>
 <ul class="simple">
 <li><p>The tools are now licensed under the GNU GPL v3.0 or later.</p></li>
+<li><p>Bumped minimum GTK+ version to 3.22 (Ubuntu 18.04+).</p></li>
 <li><p>Added the ability to set a limit to the memory used by the undo/redo system.</p></li>
 <li><p>The editor now uses an external service to launch subprocesses and clean them up effectively after crashes.</p></li>
 <li><p>Fixed crashes in the undo/redo system.</p></li>
@@ -124,14 +132,19 @@
 <li><p>Fixed the Project Browser not being able to obtain keyboard focus.</p></li>
 <li><p>Fixed camera view not being restored.</p></li>
 <li><p>Fixed minor aesthetic issues.</p></li>
+<li><p>Fixed Console’s text not scrolling to bottom.</p></li>
 </ul>
 <p><strong>Lua API</strong></p>
 <ul class="simple">
 <li><p>Added <code class="docutils literal notranslate"><span class="pre">Input.events()</span></code>, see <a class="reference internal" href="lua_api.html"><span class="doc">Lua API reference</span></a> for details.</p></li>
 </ul>
+<p><strong>Samples</strong></p>
+<ul class="simple">
+<li><p>Added 03-joypad sample.</p></li>
+</ul>
 </section>
-<section id="id2">
-<h2>0.46.0<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h2>
+<section id="id3">
+<h2>0.46.0<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h2>
 <p><em>19 Nov 2021</em></p>
 <p><strong>General</strong></p>
 <ul class="simple">
@@ -143,8 +156,8 @@
 <li><p>The Console will now use local time for log output.</p></li>
 </ul>
 </section>
-<section id="id3">
-<h2>0.45.0<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h2>
+<section id="id4">
+<h2>0.45.0<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h2>
 <p><em>30 Jul 2021</em></p>
 <p><strong>Data Compiler</strong></p>
 <ul class="simple">
@@ -158,8 +171,8 @@
 <li><p>Linux: fixed launching editor under Wayland.</p></li>
 </ul>
 </section>
-<section id="id4">
-<h2>0.44.0<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h2>
+<section id="id5">
+<h2>0.44.0<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h2>
 <p><em>13 May 2021</em></p>
 <p><strong>Data Compiler</strong></p>
 <ul class="simple">
@@ -184,8 +197,8 @@
 <li><p>Added <code class="docutils literal notranslate"><span class="pre">World.camera_destroy()</span></code>.</p></li>
 </ul>
 </section>
-<section id="id5">
-<h2>0.43.0<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h2>
+<section id="id6">
+<h2>0.43.0<a class="headerlink" href="#id6" title="Permalink to this heading">¶</a></h2>
 <p><em>17 Apr 2021</em></p>
 <p><strong>Data Compiler</strong></p>
 <ul class="simple">
@@ -217,8 +230,8 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">print()</span></code> will now try to detect the type of the lightuserdata and print it accordingly.</p></li>
 </ul>
 </section>
-<section id="id6">
-<h2>0.42.0<a class="headerlink" href="#id6" title="Permalink to this heading">¶</a></h2>
+<section id="id7">
+<h2>0.42.0<a class="headerlink" href="#id7" title="Permalink to this heading">¶</a></h2>
 <p><em>05 Mar 2021</em></p>
 <p><strong>Editor</strong></p>
 <ul class="simple">
@@ -241,8 +254,8 @@
 <li><p>Fixed changing Mesh and Sprite visibility.</p></li>
 </ul>
 </section>
-<section id="id7">
-<h2>0.41.0<a class="headerlink" href="#id7" title="Permalink to this heading">¶</a></h2>
+<section id="id8">
+<h2>0.41.0<a class="headerlink" href="#id8" title="Permalink to this heading">¶</a></h2>
 <p><em>16 Jan 2021</em></p>
 <p><strong>Manual</strong></p>
 <ul class="simple">
@@ -268,8 +281,8 @@
 <li><p>Removed the default “FPSCamera” camera from the core game framework</p></li>
 </ul>
 </section>
-<section id="id8">
-<h2>0.40.0<a class="headerlink" href="#id8" title="Permalink to this heading">¶</a></h2>
+<section id="id9">
+<h2>0.40.0<a class="headerlink" href="#id9" title="Permalink to this heading">¶</a></h2>
 <p><em>06 Jan 2021</em></p>
 <p><strong>Data Compiler</strong></p>
 <ul class="simple">
@@ -320,8 +333,8 @@
 <li><p>Fixed <code class="docutils literal notranslate"><span class="pre">SceneGraph.destroy()</span></code> to correctly update any linked transform before deleting the node</p></li>
 </ul>
 </section>
-<section id="id9">
-<h2>0.39.0<a class="headerlink" href="#id9" title="Permalink to this heading">¶</a></h2>
+<section id="id10">
+<h2>0.39.0<a class="headerlink" href="#id10" title="Permalink to this heading">¶</a></h2>
 <p><em>24 Oct 2020</em></p>
 <p><strong>Data Compiler</strong></p>
 <ul class="simple">
@@ -369,8 +382,8 @@
 <li><p>Added Matrix4x4.equal()</p></li>
 </ul>
 </section>
-<section id="id10">
-<h2>0.38.0<a class="headerlink" href="#id10" title="Permalink to this heading">¶</a></h2>
+<section id="id11">
+<h2>0.38.0<a class="headerlink" href="#id11" title="Permalink to this heading">¶</a></h2>
 <p><em>24 Aug 2020</em></p>
 <p><strong>Runtime</strong></p>
 <ul class="simple">
@@ -407,8 +420,8 @@
 <li><p>Unified projects directory structure</p></li>
 </ul>
 </section>
-<section id="id11">
-<h2>0.37.0<a class="headerlink" href="#id11" title="Permalink to this heading">¶</a></h2>
+<section id="id12">
+<h2>0.37.0<a class="headerlink" href="#id12" title="Permalink to this heading">¶</a></h2>
 <p><em>26 Jun 2020</em></p>
 <p><strong>Runtime</strong></p>
 <ul class="simple">

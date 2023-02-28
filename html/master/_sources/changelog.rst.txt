@@ -1,15 +1,20 @@
 Changelog
 =========
 
-0.47.0
+0.48.0
 ------
 *DD MMM YYYY*
+
+0.47.0
+------
+*06 Feb 2023*
 
 **Data Compiler**
 
 * Fixed file changes not detected sometimes.
 * Fixed Ctrl+C/SIGTERM/SIGINT not being honored when launched with --server.
 * Fixed handling of filenames containing some special characters.
+* Fixed a crash when a directory was created and deleted immediately after in a project folder.
 
 **Runtime**
 
@@ -18,10 +23,12 @@ Changelog
 * The ConsoleServer will now report an error when a command is not found.
 * Fixed a crash when reloading materials.
 * Hot-reloading has been enabled for all resource types.
+* Fixed a crash when malformed lua scripts were passed to boot.config or require()-ed from other lua scripts.
 
 **Tools**
 
 * The tools are now licensed under the GNU GPL v3.0 or later.
+* Bumped minimum GTK+ version to 3.22 (Ubuntu 18.04+).
 * Added the ability to set a limit to the memory used by the undo/redo system.
 * The editor now uses an external service to launch subprocesses and clean them up effectively after crashes.
 * Fixed crashes in the undo/redo system.
@@ -29,10 +36,15 @@ Changelog
 * Fixed the Project Browser not being able to obtain keyboard focus.
 * Fixed camera view not being restored.
 * Fixed minor aesthetic issues.
+* Fixed Console's text not scrolling to bottom.
 
 **Lua API**
 
 * Added ``Input.events()``, see :doc:`lua_api` for details.
+
+**Samples**
+
+* Added 03-joypad sample.
 
 0.46.0
 ------
