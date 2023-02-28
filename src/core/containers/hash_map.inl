@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2012-2023 Daniele Bartolini et al.
- * SPDX-License-Identifier: MIT
+ * SPDX-License-Identifier: MIT
  */
 
 // http://sebastiansylvan.com/post/robin-hood-hashing-should-be-your-default-hash-table-implementation/

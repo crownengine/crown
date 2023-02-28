@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2012-2023 Daniele Bartolini et al.
- * SPDX-License-Identifier: MIT
+ * SPDX-License-Identifier: MIT
  */
 
 // Adapted from Branimir Karadžić's platform.h (https://github.com/bkaradzic/bx)

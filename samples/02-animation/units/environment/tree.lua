@@ -1,5 +1,5 @@
 -- Copyright (c) 2012-2023 Daniele Bartolini et al.
--- SPDX-License-Identifier: MIT
+-- SPDX-License-Identifier: MIT
 
 local Behavior = Behavior or {}
 local Data = Data or {}

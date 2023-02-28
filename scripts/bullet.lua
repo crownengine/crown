@@ -1,6 +1,6 @@
 --
 -- Copyright (c) 2012-2023 Daniele Bartolini et al.
--- SPDX-License-Identifier: MIT
+-- SPDX-License-Identifier: MIT
 --
 
 local BULLET_DIR = (CROWN_DIR .. "3rdparty/bullet3/")

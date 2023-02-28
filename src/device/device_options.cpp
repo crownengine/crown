@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2012-2023 Daniele Bartolini et al.
- * SPDX-License-Identifier: MIT
+ * SPDX-License-Identifier: MIT
  */
 
 #include "config.h"
@@ -19,7 +19,7 @@ static void help(const char *msg = NULL)
 	printf(
 		"The Flexible Game Engine\n"
 		"Copyright (c) 2012-2023 Daniele Bartolini et al.\n"
-		"SPDX-License-Identifier: MIT\n"
+		"SPDX-License-Identifier: MIT\n"
 		"\n"
 		"Usage:\n"
 		"  crown [options]\n"
