@@ -44,18 +44,13 @@ for more info.
 
 ![level-editor](https://raw.githubusercontent.com/crownengine/crown/master/docs/shots/level-editor.png)
 
-### [00-empty](https://github.com/crownengine/crown/tree/master/samples/00-empty)
+### [Examples](https://github.com/crownengine/crown/tree/master/samples)
 
-Engine initialization and shutdown.
-
-### [01-physics](https://github.com/crownengine/crown/tree/master/samples/01-physics)
-![01-physics](https://raw.githubusercontent.com/crownengine/crown/master/docs/shots/01-physics.png)
-
-### [02-animation](https://github.com/crownengine/crown/tree/master/samples/02-animation)
-![02-animation](https://raw.githubusercontent.com/crownengine/crown/master/docs/shots/02-animation.png)
-
-### [03-joypad](https://github.com/crownengine/crown/tree/master/samples/03-joypad)
-![03-joypad](https://raw.githubusercontent.com/crownengine/crown/master/docs/shots/03-joypad.png)
+<p align="center">
+<img src="https://raw.githubusercontent.com/crownengine/crown/master/docs/shots/01-physics.png"   width="333px" title="01-physics"/>
+<img src="https://raw.githubusercontent.com/crownengine/crown/master/docs/shots/02-animation.png" width="333px" title="02-animation"/>
+<img src="https://raw.githubusercontent.com/crownengine/crown/master/docs/shots/03-joypad.png"    width="333px" title="03-joypad"/>
+</p>
 
 Contact
 -------
