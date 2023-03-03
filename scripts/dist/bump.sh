@@ -27,7 +27,8 @@ VERSION_NEXT_MAJOR=$1
 VERSION_NEXT_MINOR=$2
 VERSION_NEXT_PATCH=$3
 VERSION_NEXT="${VERSION_NEXT_MAJOR}.${VERSION_NEXT_MINOR}.${VERSION_NEXT_PATCH}"
-VERSION_NEXT_UNDERLINE=$(echo "${VERSION_NEXT}" | sed 's/./-/g') # Replace all chars in VERSION_NEXT with '-'
+VERSION_NEXT_TITLE="${VERSION_NEXT} --- DD MMM YYYY"
+VERSION_NEXT_UNDERLINE=$(echo "${VERSION_NEXT_TITLE}" | sed 's/./-/g') # Replace all chars in VERSION_NEXT_TITLE with '-'
 
 # Patch version numbers in config.h
 sed -i "s/MAJOR ${VERSION_MAJOR}/MAJOR ${VERSION_NEXT_MAJOR}/g" src/config.h
@@ -45,9 +46,8 @@ sed -i "s/${VERSION_PREV}/${VERSION}/g" README.md
 	echo "Changelog"
 	echo "========="
 	echo ""
-	echo "${VERSION_NEXT}"
+	echo "${VERSION_NEXT_TITLE}"
 	echo "${VERSION_NEXT_UNDERLINE}"
-	echo "*DD MMM YYYY*"
 } >> docs/changelog.rst.next
 
 tail docs/changelog.rst -n +3 >> docs/changelog.rst.next
