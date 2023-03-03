@@ -1,13 +1,11 @@
 Changelog
 =========
 
-0.48.0
-------
-*DD MMM YYYY*
+0.48.0 --- *DD MMM YYYY*
+------------------------
 
-0.47.0
-------
-*06 Feb 2023*
+0.47.0 --- *06 Feb 2023*
+------------------------
 
 **Data Compiler**
 
@@ -46,9 +44,8 @@ Changelog
 
 * Added 03-joypad sample.
 
-0.46.0
-------
-*19 Nov 2021*
+0.46.0 --- *19 Nov 2021*
+------------------------
 
 **General**
 
@@ -59,9 +56,8 @@ Changelog
 
 * The Console will now use local time for log output.
 
-0.45.0
-------
-*30 Jul 2021*
+0.45.0 --- *30 Jul 2021*
+------------------------
 
 **Data Compiler**
 
@@ -74,9 +70,8 @@ Changelog
 * Fixed deploy getting stuck.
 * Linux: fixed launching editor under Wayland.
 
-0.44.0
-------
-*13 May 2021*
+0.44.0 --- *13 May 2021*
+------------------------
 
 **Data Compiler**
 
@@ -100,9 +95,8 @@ Changelog
 
 * Added ``World.camera_destroy()``.
 
-0.43.0
-------
-*17 Apr 2021*
+0.43.0 --- *17 Apr 2021*
+------------------------
 
 **Data Compiler**
 
@@ -133,9 +127,8 @@ Changelog
 * Fixed ``World.camera_screen_to_world()`` returning incorrect z-axis values on Windows/D3D.
 * ``print()`` will now try to detect the type of the lightuserdata and print it accordingly.
 
-0.42.0
-------
-*05 Mar 2021*
+0.42.0 --- *05 Mar 2021*
+------------------------
 
 **Editor**
 
@@ -157,9 +150,8 @@ Changelog
 * Added support to 64-bits Android (ARMv8-a).
 * Fixed changing Mesh and Sprite visibility.
 
-0.41.0
-------
-*16 Jan 2021*
+0.41.0 --- *16 Jan 2021*
+------------------------
 
 **Manual**
 
@@ -184,9 +176,8 @@ Changelog
 * The Project Browser will now show every file type except those used only internally by the Editor
 * Removed the default "FPSCamera" camera from the core game framework
 
-0.40.0
-------
-*06 Jan 2021*
+0.40.0 --- *06 Jan 2021*
+------------------------
 
 **Data Compiler**
 
@@ -231,9 +222,8 @@ Changelog
 * Fixed ``SceneGraph.unlink()`` to correctly set the local pose of the unlinked transform to its previous world pose
 * Fixed ``SceneGraph.destroy()`` to correctly update any linked transform before deleting the node
 
-0.39.0
-------
-*24 Oct 2020*
+0.39.0 --- *24 Oct 2020*
+------------------------
 
 **Data Compiler**
 
@@ -280,9 +270,8 @@ Changelog
 
 * Added Matrix4x4.equal()
 
-0.38.0
-------
-*24 Aug 2020*
+0.38.0 --- *24 Aug 2020*
+------------------------
 
 **Runtime**
 
@@ -318,9 +307,8 @@ Changelog
 
 * Unified projects directory structure
 
-0.37.0
-------
-*26 Jun 2020*
+0.37.0 --- *26 Jun 2020*
+------------------------
 
 **Runtime**
 
