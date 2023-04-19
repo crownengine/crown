@@ -51,7 +51,7 @@ static const Vector3 segments[8][2] =
 
 static void draw_string(DebugLine &dl, const char *str, float x, float y)
 {
-	char table[256] = {0};
+	u8 table[256] = {0};
 	//             HGFEDCBA
 	table[' '] = 0b00000000;
 	table['0'] = 0b00111111;
