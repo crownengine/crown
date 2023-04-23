@@ -19,7 +19,7 @@ jobs:
       run: |
         make docs
   android-arm:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v3
     - name: prepare
@@ -61,7 +61,7 @@ jobs:
         export ANDROID_NDK_ABI=23
         make MAKE_JOBS=2 android-arm64-release
   linux:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v3
     - name: prepare
