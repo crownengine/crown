@@ -551,7 +551,18 @@ public class Project
 		_importers.add(data);
 		_importers.sort((a, b) => { return a.order < b.order ? -1 : 1; });
 
-		_all_extensions_importer_data.extensions.add_all(data.extensions);
+		//check for an remove duplicates
+		Gee.ArrayList<string> uniqueExtensions = new Gee.ArrayList<string>();
+		foreach (string ext in data.extensions){
+			if (uniqueExtensions.contains(ext)){
+				//it's a duplicate, don't add it
+			}
+			else {
+				uniqueExtensions.add(ext);
+			}
+		}
+
+		_all_extensions_importer_data.extensions.add_all(uniqueExtensions);
 		_all_extensions_importer_data._filter = create_gtk_file_filter("All", _all_extensions_importer_data.extensions);
 	}
 
