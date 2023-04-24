@@ -15,16 +15,18 @@ Prerequisites
 Android
 -------
 
-Android NDK:
+1. Install Android NDK (>= r23):
 
 	* https://developer.android.com/ndk/downloads
 
-Set NDK path and ABI version (>= 23):
+2. Set NDK path and ABI version:
 
 .. code::
 
 	export ANDROID_NDK_ROOT=<path/to/android_ndk>
 	export ANDROID_NDK_ABI=23
+
+3. Continue to `Build`_.
 
 Linux (Ubuntu >= 18.04)
 -----------------------
@@ -43,32 +45,44 @@ To build documentation you will also need:
 
 	sudo apt-get install python3-sphinx
 
-Windows (VS 2019 or VS Code)
-----------------------------
+Windows (VS 2019)
+-----------------
 
-Install either Visual Studio 2019:
+1. Install Visual Studio 2019:
 
 	* https://visualstudio.microsoft.com/downloads
 
-or Visual Studio Code:
+2. Continue to `Build`_.
+
+Windows (VS Code)
+-----------------
+
+1. Install Visual Studio Code:
 
 	* https://code.visualstudio.com
 
-Install MSYS2:
+2. Continue to `Build`_.
+
+Windows (MSYS2)
+---------------
+
+1. Install MSYS2:
 
 	* https://www.msys2.org/
 
-Add MSYS2 bin to your PATH; for a default install this would be:
+2. Add MSYS2 bin to your PATH; for a default install this would be:
 
 .. code::
 
-	C:\msys2\usr\bin
+	C:\msys64\usr\bin
 
-Open MSYS2 shell and type:
+3. Open MSYS2 shell and type:
 
 .. code::
 
 	pacman -S make mingw-w64-x86_64-gcc mingw-w64-x86_64-pkg-config mingw-w64-x86_64-gtk3 mingw-w64-x86_64-vala mingw-w64-x86_64-libgee
+
+4. Continue to `Build`_.
 
 Build
 =====
@@ -90,13 +104,13 @@ Linux
 Windows (VS 2019)
 -----------------
 
-Open Visual Studio 2019 Command Prompt:
+1. Open Visual Studio 2019 Command Prompt:
 
 .. code::
 
 	make tools-windows-release64
 
-To build tools, open MSYS2 MSYS:
+2. To build tools, open a MSYS2 MINGW64 shell:
 
 .. code::
 
@@ -106,13 +120,23 @@ To build tools, open MSYS2 MSYS:
 Windows (VS Code)
 -----------------
 
-Add the MinGW compiler to your path:
+1. Add the MinGW compiler to your path:
 
 	* https://code.visualstudio.com/docs/languages/cpp#_add-the-mingw-compiler-to-your-path
 
-Open Visual Studio Code Shell and set MINGW path:
+2. Open Visual Studio Code Shell:
 
 .. code::
 
 	$env:MINGW = "C:\msys64\mingw64"
+	make tools-mingw-release64
+
+Windows (MSYS2)
+---------------
+
+Open MSYS2 MINGW64 shell:
+
+.. code::
+
+	export MINGW=/mingw64
 	make tools-mingw-release64
