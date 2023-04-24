@@ -61,14 +61,17 @@
 <li class="toctree-l3"><a class="reference internal" href="#prerequisites">Prerequisites</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#android">Android</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#linux-ubuntu-18-04">Linux (Ubuntu &gt;= 18.04)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#windows-vs-2019-or-vs-code">Windows (VS 2019 or VS Code)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#windows-vs-2019">Windows (VS 2019)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#windows-vs-code">Windows (VS Code)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#windows-msys2">Windows (MSYS2)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#build">Build</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#id1">Android</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#linux">Linux</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#windows-vs-2019">Windows (VS 2019)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#windows-vs-code">Windows (VS Code)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id2">Windows (VS 2019)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id3">Windows (VS Code)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id4">Windows (MSYS2)</a></li>
 </ul>
 </li>
 </ul>
@@ -115,17 +118,23 @@
 <h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this heading">¶</a></h2>
 <section id="android">
 <h3>Android<a class="headerlink" href="#android" title="Permalink to this heading">¶</a></h3>
-<p>Android NDK:</p>
+<ol class="arabic">
+<li><p>Install Android NDK (&gt;= r23):</p>
 <blockquote>
 <div><ul class="simple">
 <li><p><a class="reference external" href="https://developer.android.com/ndk/downloads">https://developer.android.com/ndk/downloads</a></p></li>
 </ul>
 </div></blockquote>
-<p>Set NDK path and ABI version (&gt;= 23):</p>
+</li>
+<li><p>Set NDK path and ABI version:</p></li>
+</ol>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">ANDROID_NDK_ROOT</span><span class="o">=&lt;</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">android_ndk</span><span class="o">&gt;</span>
 <span class="n">export</span> <span class="n">ANDROID_NDK_ABI</span><span class="o">=</span><span class="mi">23</span>
 </pre></div>
 </div>
+<ol class="arabic simple" start="3">
+<li><p>Continue to <a class="reference internal" href="#build">Build</a>.</p></li>
+</ol>
 </section>
 <section id="linux-ubuntu-18-04">
 <h3>Linux (Ubuntu &gt;= 18.04)<a class="headerlink" href="#linux-ubuntu-18-04" title="Permalink to this heading">¶</a></h3>
@@ -141,34 +150,56 @@
 </pre></div>
 </div>
 </section>
-<section id="windows-vs-2019-or-vs-code">
-<h3>Windows (VS 2019 or VS Code)<a class="headerlink" href="#windows-vs-2019-or-vs-code" title="Permalink to this heading">¶</a></h3>
-<p>Install either Visual Studio 2019:</p>
+<section id="windows-vs-2019">
+<h3>Windows (VS 2019)<a class="headerlink" href="#windows-vs-2019" title="Permalink to this heading">¶</a></h3>
+<ol class="arabic">
+<li><p>Install Visual Studio 2019:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p><a class="reference external" href="https://visualstudio.microsoft.com/downloads">https://visualstudio.microsoft.com/downloads</a></p></li>
 </ul>
 </div></blockquote>
-<p>or Visual Studio Code:</p>
+</li>
+<li><p>Continue to <a class="reference internal" href="#build">Build</a>.</p></li>
+</ol>
+</section>
+<section id="windows-vs-code">
+<h3>Windows (VS Code)<a class="headerlink" href="#windows-vs-code" title="Permalink to this heading">¶</a></h3>
+<ol class="arabic">
+<li><p>Install Visual Studio Code:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p><a class="reference external" href="https://code.visualstudio.com">https://code.visualstudio.com</a></p></li>
 </ul>
 </div></blockquote>
-<p>Install MSYS2:</p>
+</li>
+<li><p>Continue to <a class="reference internal" href="#build">Build</a>.</p></li>
+</ol>
+</section>
+<section id="windows-msys2">
+<h3>Windows (MSYS2)<a class="headerlink" href="#windows-msys2" title="Permalink to this heading">¶</a></h3>
+<ol class="arabic">
+<li><p>Install MSYS2:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p><a class="reference external" href="https://www.msys2.org/">https://www.msys2.org/</a></p></li>
 </ul>
 </div></blockquote>
-<p>Add MSYS2 bin to your PATH; for a default install this would be:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">C</span><span class="p">:</span>\<span class="n">msys2</span>\<span class="n">usr</span>\<span class="nb">bin</span>
+</li>
+<li><p>Add MSYS2 bin to your PATH; for a default install this would be:</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">C</span><span class="p">:</span>\<span class="n">msys64</span>\<span class="n">usr</span>\<span class="nb">bin</span>
 </pre></div>
 </div>
-<p>Open MSYS2 shell and type:</p>
+<ol class="arabic simple" start="3">
+<li><p>Open MSYS2 shell and type:</p></li>
+</ol>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pacman</span> <span class="o">-</span><span class="n">S</span> <span class="n">make</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">gcc</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">pkg</span><span class="o">-</span><span class="n">config</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">gtk3</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">vala</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">libgee</span>
 </pre></div>
 </div>
+<ol class="arabic simple" start="4">
+<li><p>Continue to <a class="reference internal" href="#build">Build</a>.</p></li>
+</ol>
 </section>
 </section>
 <section id="build">
@@ -185,29 +216,44 @@
 </pre></div>
 </div>
 </section>
-<section id="windows-vs-2019">
-<h3>Windows (VS 2019)<a class="headerlink" href="#windows-vs-2019" title="Permalink to this heading">¶</a></h3>
-<p>Open Visual Studio 2019 Command Prompt:</p>
+<section id="id2">
+<h3>Windows (VS 2019)<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p>Open Visual Studio 2019 Command Prompt:</p></li>
+</ol>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">tools</span><span class="o">-</span><span class="n">windows</span><span class="o">-</span><span class="n">release64</span>
 </pre></div>
 </div>
-<p>To build tools, open MSYS2 MSYS:</p>
+<ol class="arabic simple" start="2">
+<li><p>To build tools, open a MSYS2 MINGW64 shell:</p></li>
+</ol>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">MINGW</span><span class="o">=/</span><span class="n">mingw64</span>
 <span class="n">make</span> <span class="n">tools</span><span class="o">-</span><span class="n">mingw</span><span class="o">-</span><span class="n">release64</span>
 </pre></div>
 </div>
 </section>
-<section id="windows-vs-code">
-<h3>Windows (VS Code)<a class="headerlink" href="#windows-vs-code" title="Permalink to this heading">¶</a></h3>
-<p>Add the MinGW compiler to your path:</p>
+<section id="id3">
+<h3>Windows (VS Code)<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h3>
+<ol class="arabic">
+<li><p>Add the MinGW compiler to your path:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p><a class="reference external" href="https://code.visualstudio.com/docs/languages/cpp#_add-the-mingw-compiler-to-your-path">https://code.visualstudio.com/docs/languages/cpp#_add-the-mingw-compiler-to-your-path</a></p></li>
 </ul>
 </div></blockquote>
-<p>Open Visual Studio Code Shell and set MINGW path:</p>
+</li>
+<li><p>Open Visual Studio Code Shell:</p></li>
+</ol>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$env:MINGW = &quot;C:\msys64\mingw64&quot;
 make tools-mingw-release64
+</pre></div>
+</div>
+</section>
+<section id="id4">
+<h3>Windows (MSYS2)<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h3>
+<p>Open MSYS2 MINGW64 shell:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">MINGW</span><span class="o">=/</span><span class="n">mingw64</span>
+<span class="n">make</span> <span class="n">tools</span><span class="o">-</span><span class="n">mingw</span><span class="o">-</span><span class="n">release64</span>
 </pre></div>
 </div>
 </section>
