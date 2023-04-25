@@ -67,7 +67,9 @@ Windows (VS Code)
 
 	* https://code.visualstudio.com
 
-2. Continue to `Build`_.
+2. Continue to :ref:`Windows (MSYS2) <pre_windows_msys2>`.
+
+.. _pre_windows_msys2:
 
 Windows (MSYS2)
 ---------------
@@ -82,7 +84,7 @@ Windows (MSYS2)
 
 	C:\msys64\usr\bin
 
-3. Open MSYS2 shell and type:
+3. Open MSYS2 shell and install dependencies:
 
 .. code::
 
