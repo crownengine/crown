@@ -1774,7 +1774,12 @@ public class LevelEditorApplication : Gtk.Application
 						, Gtk.ButtonsType.YES_NO
 						, "A file named `%s` already exists.\nOverwrite?".printf(_project.basename(path))
 						);
+					Gtk.Widget btn;
+					btn = md.add_button("_No", ResponseType.YES);
+					btn.get_style_context().add_class(Gtk.STYLE_CLASS_SUGGESTED_ACTION);
 					md.set_default_response(ResponseType.NO);
+					btn = md.add_button("_Yes", ResponseType.YES);
+					btn.get_style_context().add_class(Gtk.STYLE_CLASS_DESTRUCTIVE_ACTION);
 
 					rt = md.run();
 					md.destroy();
@@ -2016,9 +2021,12 @@ public class LevelEditorApplication : Gtk.Application
 			, Gtk.ButtonsType.NONE
 			, "Save changes to Level before closing?"
 			);
+		Gtk.Widget btn;
 		md.add_button("Close _without Saving", ResponseType.NO);
+		btn.get_style_context().add_class(Gtk.STYLE_CLASS_DESTRUCTIVE_ACTION);
 		md.add_button("_Cancel", ResponseType.CANCEL);
-		md.add_button("_Save", ResponseType.YES);
+		btn = md.add_button("_Save", ResponseType.YES);
+		btn.get_style_context().add_class(Gtk.STYLE_CLASS_SUGGESTED_ACTION);
 		md.set_default_response(ResponseType.YES);
 		int rt = md.run();
 		md.destroy();
