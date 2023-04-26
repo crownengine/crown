@@ -138,11 +138,15 @@
 </section>
 <section id="linux-ubuntu-18-04">
 <h3>Linux (Ubuntu &gt;= 18.04)<a class="headerlink" href="#linux-ubuntu-18-04" title="Permalink to this heading">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span>
-<span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">mesa</span><span class="o">-</span><span class="n">common</span><span class="o">-</span><span class="n">dev</span> <span class="n">libgl1</span><span class="o">-</span><span class="n">mesa</span><span class="o">-</span><span class="n">dev</span> <span class="n">libpulse</span><span class="o">-</span><span class="n">dev</span> <span class="n">libxrandr</span><span class="o">-</span><span class="n">dev</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span> <span class="n">mesa</span><span class="o">-</span><span class="n">common</span><span class="o">-</span><span class="n">dev</span> <span class="n">libgl1</span><span class="o">-</span><span class="n">mesa</span><span class="o">-</span><span class="n">dev</span> <span class="n">libpulse</span><span class="o">-</span><span class="n">dev</span> <span class="n">libxrandr</span><span class="o">-</span><span class="n">dev</span>
 
 <span class="n">sudo</span> <span class="n">add</span><span class="o">-</span><span class="n">apt</span><span class="o">-</span><span class="n">repository</span> <span class="n">ppa</span><span class="p">:</span><span class="n">vala</span><span class="o">-</span><span class="n">team</span>
-<span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">libgtk</span><span class="o">-</span><span class="mi">3</span><span class="o">-</span><span class="n">dev</span> <span class="n">valac</span> <span class="n">libgee</span><span class="o">-</span><span class="mf">0.8</span><span class="o">-</span><span class="n">dev</span>
+<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">libgtk</span><span class="o">-</span><span class="mi">3</span><span class="o">-</span><span class="n">dev</span> <span class="n">valac</span> <span class="n">libgee</span><span class="o">-</span><span class="mf">0.8</span><span class="o">-</span><span class="n">dev</span>
+</pre></div>
+</div>
+<p>If you encounter any errors while adding the Vala PPA, update <code class="docutils literal notranslate"><span class="pre">ca-certificates</span></code> first:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span> <span class="n">update</span>
+<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">ca</span><span class="o">-</span><span class="n">certificates</span>
 </pre></div>
 </div>
 <p>To build documentation you will also need:</p>
@@ -173,11 +177,11 @@
 </ul>
 </div></blockquote>
 </li>
-<li><p>Continue to <a class="reference internal" href="#build">Build</a>.</p></li>
+<li><p>Continue to <a class="reference internal" href="#pre-windows-msys2"><span class="std std-ref">Windows (MSYS2)</span></a>.</p></li>
 </ol>
 </section>
 <section id="windows-msys2">
-<h3>Windows (MSYS2)<a class="headerlink" href="#windows-msys2" title="Permalink to this heading">¶</a></h3>
+<span id="pre-windows-msys2"></span><h3>Windows (MSYS2)<a class="headerlink" href="#windows-msys2" title="Permalink to this heading">¶</a></h3>
 <ol class="arabic">
 <li><p>Install MSYS2:</p>
 <blockquote>
@@ -192,7 +196,7 @@
 </pre></div>
 </div>
 <ol class="arabic simple" start="3">
-<li><p>Open MSYS2 shell and type:</p></li>
+<li><p>Open MSYS2 shell and install dependencies:</p></li>
 </ol>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pacman</span> <span class="o">-</span><span class="n">S</span> <span class="n">make</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">gcc</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">pkgconf</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">gtk3</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">vala</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">libgee</span>
 </pre></div>
