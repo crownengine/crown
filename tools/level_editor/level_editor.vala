@@ -2022,7 +2022,7 @@ public class LevelEditorApplication : Gtk.Application
 			, "Save changes to Level before closing?"
 			);
 		Gtk.Widget btn;
-		md.add_button("Close _without Saving", ResponseType.NO);
+		btn = md.add_button("Close _without Saving", ResponseType.NO);
 		btn.get_style_context().add_class(Gtk.STYLE_CLASS_DESTRUCTIVE_ACTION);
 		md.add_button("_Cancel", ResponseType.CANCEL);
 		btn = md.add_button("_Save", ResponseType.YES);
