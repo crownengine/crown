@@ -33,11 +33,17 @@ Linux (Ubuntu >= 18.04)
 
 .. code::
 
-	sudo apt-get install build-essential
-	sudo apt-get install mesa-common-dev libgl1-mesa-dev libpulse-dev libxrandr-dev
+	sudo apt install build-essential mesa-common-dev libgl1-mesa-dev libpulse-dev libxrandr-dev
 
 	sudo add-apt-repository ppa:vala-team
-	sudo apt-get install libgtk-3-dev valac libgee-0.8-dev
+	sudo apt install libgtk-3-dev valac libgee-0.8-dev
+
+If you encounter any errors while adding the Vala PPA, update ``ca-certificates`` first:
+
+.. code::
+
+	sudo apt update
+	sudo apt install ca-certificates
 
 To build documentation you will also need:
 
