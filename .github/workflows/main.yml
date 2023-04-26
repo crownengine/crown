@@ -143,7 +143,7 @@ jobs:
     - name: mingw-prepare
       shell: msys2 {0}
       run: |
-        pacman --noconfirm -S make mingw-w64-x86_64-gcc mingw-w64-x86_64-pkg-config mingw-w64-x86_64-gtk3 mingw-w64-x86_64-vala mingw-w64-x86_64-libgee
+        pacman --noconfirm -S make mingw-w64-x86_64-gcc mingw-w64-x86_64-pkgconf mingw-w64-x86_64-gtk3 mingw-w64-x86_64-vala mingw-w64-x86_64-libgee
     - name: mingw-make-level-editor-debug64
       shell: msys2 {0}
       run: |
