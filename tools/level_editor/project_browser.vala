@@ -378,7 +378,7 @@ public class ProjectBrowser : Gtk.Box
 									);
 								Gtk.Widget btn;
 								btn = md.add_button("_Cancel", ResponseType.CANCEL);
-								btn.get_style_context().add_class(Gtk.STYLE_CLASS_SUGGESTED_ACTION);
+								
 								btn = md.add_button("_Delete", ResponseType.YES);
 								btn.get_style_context().add_class(Gtk.STYLE_CLASS_DESTRUCTIVE_ACTION);
 								md.set_default_response(ResponseType.CANCEL);
