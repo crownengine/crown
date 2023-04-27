@@ -387,7 +387,7 @@ public class ProjectBrowser : Gtk.Box
 								int rt = md.run();
 								md.destroy();
 
-								if (rt == (int)ResponseType.CANCEL)
+								if (rt != (int)ResponseType.YES)
 									return;
 
 								GLib.File file = GLib.File.new_for_path(GLib.Path.build_filename(_project.source_dir(), (string)name));

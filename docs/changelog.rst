@@ -8,6 +8,11 @@ Changelog
 
 * Added ``--window-rect`` CLI option.
 
+**Tools**
+
+* Fixed an issue that caused a project folder to be deleted when the ESC key was pressed in the confirmation dialog.
+* Fixed minor aesthetic issues.
+
 0.47.0 --- *06 Feb 2023*
 ------------------------
 
