@@ -101,8 +101,7 @@ public class PanelNewProject : Gtk.Viewport
 				GLib.File source_dir = GLib.File.new_for_path(GLib.Path.build_filename(path, info.get_name()));
 				_combo_box_map_template.append(source_dir.get_path(), info.get_name());
 			}
-		}
-		catch (GLib.Error e) {
+		} catch (GLib.Error e) {
 			loge(e.message);
 		}
 	}
@@ -128,8 +127,7 @@ public class PanelNewProject : Gtk.Viewport
 			} else if (src_type == GLib.FileType.REGULAR) {
 				src.copy(dst, flags);
 			}
-		}
-		catch (Error e) {
+		} catch (Error e) {
 			loge(e.message);
 		}
 	}

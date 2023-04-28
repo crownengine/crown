@@ -20,8 +20,7 @@ public class SoundResource
 
 			try {
 				file_src.copy(file_dst, FileCopyFlags.OVERWRITE);
-			}
-			catch (Error e) {
+			} catch (Error e) {
 				loge(e.message);
 			}
 

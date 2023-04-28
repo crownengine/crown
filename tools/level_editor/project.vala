@@ -347,8 +347,7 @@ public class Project
 		try {
 			_level_editor_test_level.delete();
 			_level_editor_test_package.delete();
-		}
-		catch (GLib.Error e) {
+		} catch (GLib.Error e) {
 			// Ignored
 		}
 	}
@@ -364,8 +363,7 @@ public class Project
 		GLib.File file = GLib.File.new_for_path(filename(type, name));
 		try {
 			file.delete();
-		}
-		catch (Error e) {
+		} catch (Error e) {
 			loge(e.message);
 		}
 	}

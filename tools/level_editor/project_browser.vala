@@ -357,8 +357,7 @@ public class ProjectBrowser : Gtk.Box
 								GLib.File file = GLib.File.new_for_path(GLib.Path.build_filename(_project.source_dir(), (string)name, sb.text));
 								try {
 									file.make_directory();
-								}
-								catch (Error e) {
+								} catch (Error e) {
 									loge(e.message);
 								}
 							}
@@ -393,8 +392,7 @@ public class ProjectBrowser : Gtk.Box
 								GLib.File file = GLib.File.new_for_path(GLib.Path.build_filename(_project.source_dir(), (string)name));
 								try {
 									_project.delete_tree(file);
-								}
-								catch (Error e) {
+								} catch (Error e) {
 									loge(e.message);
 								}
 							});

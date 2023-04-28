@@ -133,8 +133,7 @@ public class SpriteImportDialog : Gtk.Dialog
 
 		try {
 			_pixbuf = new Gdk.Pixbuf.from_file(png);
-		}
-		catch (GLib.Error e) {
+		} catch (GLib.Error e) {
 			loge(e.message);
 		}
 

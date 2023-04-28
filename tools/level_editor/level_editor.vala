@@ -740,8 +740,7 @@ public class LevelEditorApplication : Gtk.Application
 					GLib.File log_file = _logs_dir.resolve_relative_path(info.get_name());
 					log_file.delete();
 				}
-			}
-			catch (GLib.Error e) {
+			} catch (GLib.Error e) {
 				loge(e.message);
 			}
 		}
@@ -766,8 +765,7 @@ public class LevelEditorApplication : Gtk.Application
 
 			try {
 				win.icon = IconTheme.get_default().load_icon(CROWN_ICON_NAME, 256, 0);
-			}
-			catch (Error e) {
+			} catch (Error e) {
 				loge(e.message);
 			}
 		}
@@ -1578,8 +1576,7 @@ public class LevelEditorApplication : Gtk.Application
 
 					logi("Project deployed to `%s`".printf(data_dir.get_path()));
 				}
-			}
-			catch (Error e) {
+			} catch (Error e) {
 				loge("%s".printf(e.message));
 				loge("Failed to deploy project");
 			}
@@ -2120,8 +2117,7 @@ public class LevelEditorApplication : Gtk.Application
 			GLib.List<GLib.File> files = new GLib.List<GLib.File>();
 			files.append(file);
 			app.launch(files, null);
-		}
-		catch (Error e) {
+		} catch (Error e) {
 			loge(e.message);
 		}
 	}
@@ -2355,8 +2351,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		try {
 			AppInfo.launch_default_for_uri("https://docs.crownengine.org/html/v" + CROWN_VERSION, null);
-		}
-		catch (Error e) {
+		} catch (Error e) {
 			loge(e.message);
 		}
 	}
@@ -2365,8 +2360,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		try {
 			AppInfo.launch_default_for_uri("https://github.com/crownengine/crown/issues", null);
-		}
-		catch (Error e) {
+		} catch (Error e) {
 			loge(e.message);
 		}
 	}
@@ -2380,8 +2374,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		try {
 			AppInfo.launch_default_for_uri("https://docs.crownengine.org/html/v" + CROWN_VERSION + "/changelog.html", null);
-		}
-		catch (Error e) {
+		} catch (Error e) {
 			loge(e.message);
 		}
 	}
@@ -2630,16 +2623,14 @@ public void open_directory(string directory)
 #if CROWN_PLATFORM_LINUX
 	try {
 		GLib.AppInfo.launch_default_for_uri("file://" + directory, null);
-	}
-	catch (Error e) {
+	} catch (Error e) {
 		loge(e.message);
 	}
 #else
 	GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(subprocess_flags());
 	try {
 		sl.spawnv({ "explorer.exe", directory, null });
-	}
-	catch (Error e) {
+	} catch (Error e) {
 		loge(e.message);
 	}
 #endif
@@ -2662,8 +2653,7 @@ public static bool is_directory_empty(string path)
 			, FileQueryInfoFlags.NOFOLLOW_SYMLINKS
 			);
 		return enumerator.next_file() == null;
-	}
-	catch (GLib.Error e) {
+	} catch (GLib.Error e) {
 		loge(e.message);
 	}
 

@@ -27,8 +27,7 @@ public class ConsoleClient : GLib.Object
 			_connection = client.connect(new InetSocketAddress.from_string(address, port), null);
 			if (_connection != null)
 				connected(address, port);
-		}
-		catch (Error e) {
+		} catch (Error e) {
 			// Ignore
 		}
 	}
@@ -56,8 +55,7 @@ public class ConsoleClient : GLib.Object
 				_connection = null;
 				disconnected();
 			}
-		}
-		catch (Error e) {
+		} catch (Error e) {
 			loge(e.message);
 		}
 	}
@@ -84,8 +82,7 @@ public class ConsoleClient : GLib.Object
 			size_t bytes_read;
 			_connection.output_stream.write_all(header, out bytes_read);
 			_connection.output_stream.write_all(json.data, out bytes_read);
-		}
-		catch (Error e) {
+		} catch (Error e) {
 			loge(e.message);
 		}
 	}
@@ -125,8 +122,7 @@ public class ConsoleClient : GLib.Object
 			size_t bytes_read = 0;
 			if (input_stream.read_all(data, out bytes_read))
 				message_received(this, data);
-		}
-		catch (Error e) {
+		} catch (Error e) {
 			if (e.code == 44) // An existing connection was forcibly closed by the remote host.
 				close();
 		}
