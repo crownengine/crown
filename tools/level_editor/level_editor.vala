@@ -1263,7 +1263,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private async void start_editor(uint window_xid)
+	private async void start_editor(uint window_xid, int width, int height)
 	{
 		if (window_xid == 0)
 			return;
@@ -1279,7 +1279,8 @@ public class LevelEditorApplication : Gtk.Application
 			"--parent-window",
 			window_xid.to_string(),
 			"--wait-console",
-			"--pumped"
+			"--pumped",
+			"--window-rect", "0", "0", width.to_string(), height.to_string()
 		};
 
 		try {
@@ -1304,7 +1305,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private async void start_resource_preview(uint window_xid)
+	private async void start_resource_preview(uint window_xid, int width, int height)
 	{
 		if (window_xid == 0)
 			return;
@@ -1322,7 +1323,8 @@ public class LevelEditorApplication : Gtk.Application
 			"--console-port",
 			UNIT_PREVIEW_TCP_PORT.to_string(),
 			"--wait-console",
-			"--pumped"
+			"--pumped",
+			"--window-rect", "0", "0", width.to_string(), height.to_string()
 		};
 
 		try {
@@ -1419,7 +1421,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 
 		_editor_view = new EditorView(_editor);
-		_editor_view.realized.connect(on_editor_view_realized);
+		_editor_view.native_window_ready.connect(on_editor_view_realized);
 		_editor_view.button_press_event.connect(on_button_press);
 		_editor_view.button_release_event.connect(on_button_release);
 
@@ -1443,7 +1445,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		_resource_preview_view = new EditorView(_resource_preview, false);
 		_resource_preview_view.set_size_request(300, 300);
-		_resource_preview_view.realized.connect(on_resource_preview_view_realized);
+		_resource_preview_view.native_window_ready.connect(on_resource_preview_view_realized);
 		_resource_preview_view.show_all();
 
 		_resource_preview_stack.add(_resource_preview_view);
@@ -1585,14 +1587,14 @@ public class LevelEditorApplication : Gtk.Application
 		fcd.destroy();
 	}
 
-	private async void on_editor_view_realized()
+	private async void on_editor_view_realized(uint window_id, int width, int height)
 	{
-		start_editor.begin(_editor_view.window_id);
+		start_editor.begin(window_id, width, height);
 	}
 
-	private async void on_resource_preview_view_realized()
+	private async void on_resource_preview_view_realized(uint window_id, int width, int height)
 	{
-		start_resource_preview.begin(_resource_preview_view.window_id);
+		start_resource_preview.begin(window_id, width, height);
 	}
 
 	private void on_tool(GLib.SimpleAction action, GLib.Variant? param)

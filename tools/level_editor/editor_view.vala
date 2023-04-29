@@ -31,16 +31,12 @@ public class EditorView : Gtk.EventBox
 	private bool _mouse_right;
 
 	private uint _window_id;
-
-	public uint window_id
-	{
-		get { return (uint)_window_id; }
-	}
+	private uint _last_window_id;
 
 	private HashMap<uint, bool> _keys;
 
 	// Signals
-	public signal void realized();
+	public signal void native_window_ready(uint window_id, int width, int height);
 
 	private string key_to_string(uint k)
 	{
@@ -83,6 +79,7 @@ public class EditorView : Gtk.EventBox
 		_mouse_right  = false;
 
 		_window_id = 0;
+		_last_window_id = 0;
 
 		_keys = new HashMap<uint, bool>();
 		_keys[Gdk.Key.w] = false;
@@ -274,6 +271,11 @@ public class EditorView : Gtk.EventBox
 			)
 			return;
 
+		if (_last_window_id != _window_id) {
+			_last_window_id = _window_id;
+			native_window_ready(_window_id, ev.width, ev.height);
+		}
+
 		_allocation = ev;
 		_client.send(DeviceApi.resize(_allocation.width, _allocation.height));
 
@@ -296,7 +298,6 @@ public class EditorView : Gtk.EventBox
 #elif CROWN_PLATFORM_WINDOWS
 		_window_id = gdk_win32_window_get_handle(this.get_window());
 #endif
-		realized();
 	}
 }
 
