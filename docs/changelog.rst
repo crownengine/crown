@@ -4,6 +4,10 @@ Changelog
 0.48.0 --- *DD MMM YYYY*
 ------------------------
 
+**Data Compiler**
+
+* Data directories can now be deleted at run-time to force a full data compilation.
+
 **Runtime**
 
 * Added ``--window-rect`` CLI option.

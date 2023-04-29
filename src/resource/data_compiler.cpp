@@ -872,9 +872,27 @@ bool DataCompiler::compile(const char *data_dir, const char *platform)
 
 	FilesystemDisk data_fs(default_allocator());
 	data_fs.set_prefix(data_dir);
-	data_fs.create_directory("");
-	data_fs.create_directory(CROWN_DATA_DIRECTORY);
-	data_fs.create_directory(CROWN_TEMP_DIRECTORY);
+
+	// Create the data directory on disk.
+	CreateResult cr;
+	cr = data_fs.create_directory("");
+	if (cr.error == CreateResult::SUCCESS) {
+		// Either the data directory has never been created before or it has
+		// been deleted while the data compiler was running. In both cases reset
+		// the tracking structures to force a full compile.
+		hash_map::clear(_data_index);
+		hash_map::clear(_data_mtimes);
+		hash_map::clear(_data_dependencies);
+		hash_map::clear(_data_requirements);
+		hash_map::clear(_data_versions);
+
+		// Create sub-directories.
+		data_fs.create_directory(CROWN_DATA_DIRECTORY);
+		data_fs.create_directory(CROWN_TEMP_DIRECTORY);
+	} else if (cr.error != CreateResult::ALREADY_EXISTS) {
+		loge(DATA_COMPILER, "Failed to create the data directory: `%s`", data_dir);
+		return false;
+	}
 
 	// Find the set of resources to be compiled, removed etc.
 	Vector<DynamicString> to_compile(default_allocator());
