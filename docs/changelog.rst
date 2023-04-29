@@ -7,6 +7,7 @@ Changelog
 **Runtime**
 
 * Added ``--window-rect`` CLI option.
+* Fixed a double-free error during shutdown.
 
 **Tools**
 

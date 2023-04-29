@@ -305,6 +305,9 @@ void Device::run()
 
 	profiler_globals::init();
 
+	_shader_manager   = CE_NEW(_allocator, ShaderManager)(default_allocator());
+	_material_manager = CE_NEW(_allocator, MaterialManager)(default_allocator());
+
 	namespace smr = state_machine_internal;
 	namespace cor = config_resource_internal;
 	namespace ftr = font_resource_internal;
@@ -403,8 +406,6 @@ void Device::run()
 #endif
 	bgfx::init(init);
 
-	_shader_manager   = CE_NEW(_allocator, ShaderManager)(default_allocator());
-	_material_manager = CE_NEW(_allocator, MaterialManager)(default_allocator());
 	_input_manager    = CE_NEW(_allocator, InputManager)(default_allocator());
 	_unit_manager     = CE_NEW(_allocator, UnitManager)(default_allocator());
 	_lua_environment  = CE_NEW(_allocator, LuaEnvironment)();
@@ -526,10 +527,10 @@ void Device::run()
 	CE_DELETE(_allocator, _lua_environment);
 	CE_DELETE(_allocator, _unit_manager);
 	CE_DELETE(_allocator, _input_manager);
-	CE_DELETE(_allocator, _material_manager);
-	CE_DELETE(_allocator, _shader_manager);
 	CE_DELETE(_allocator, _resource_manager);
 	CE_DELETE(_allocator, _resource_loader);
+	CE_DELETE(_allocator, _material_manager);
+	CE_DELETE(_allocator, _shader_manager);
 
 	bgfx::shutdown();
 	CE_DELETE(_allocator, _bgfx_callback);
