@@ -2672,6 +2672,24 @@ private void device_frame_delayed(uint delay_ms, ConsoleClient client)
 
 public static int main(string[] args)
 {
+	// If args does not contain --child, spawn the launcher.
+	int ii;
+	for (ii = 0; ii < args.length; ++ii) {
+		if (args[ii] == "--child") {
+			break;
+		}
+	}
+
+	if (ii == args.length) {
+		_log_prefix = "launcher";
+	} else {
+		_log_prefix = "editor";
+
+		// Remove --child from args for backward compatibility.
+		if (args.length > 1)
+			args = args[0 : args.length - 1];
+	}
+
 	// Redirect GLib logs to internal log*().
 	GLib.set_print_handler((msg) => { logi(msg); });
 	GLib.set_printerr_handler((msg) => { loge(msg); });
@@ -2736,22 +2754,8 @@ public static int main(string[] args)
 	_log_file = GLib.File.new_for_path(GLib.Path.build_filename(_logs_dir.get_path(), new GLib.DateTime.now_local().format("%Y-%m-%d") + ".log"));
 	_log_stream = GLib.FileStream.open(_log_file.get_path(), "a");
 
-	// If args does not contain --child, spawn the launcher.
-	int ii;
-	for (ii = 0; ii < args.length; ++ii) {
-		if (args[ii] == "--child")
-			break;
-	}
-
-	if (ii == args.length) {
-		_log_prefix = "launcher";
+	if (_log_prefix == "launcher")
 		return launcher_main(args);
-	}
-
-	_log_prefix = "editor";
-	// Remove --child from args for backward compatibility.
-	if (args.length > 1)
-		args = args[0 : args.length - 1];
 
 	_settings_file = GLib.File.new_for_path(GLib.Path.build_filename(_config_dir.get_path(), "settings.sjson"));
 	_user_file = GLib.File.new_for_path(GLib.Path.build_filename(_config_dir.get_path(), "user.sjson"));
