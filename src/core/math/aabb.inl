@@ -47,7 +47,7 @@ namespace aabb
 	inline AABB transformed(const AABB &b, const Matrix4x4 &m)
 	{
 		Vector3 vertices[8];
-		to_vertices(b, vertices);
+		to_vertices(vertices, b);
 
 		vertices[0] = vertices[0] * m;
 		vertices[1] = vertices[1] * m;
@@ -63,7 +63,7 @@ namespace aabb
 		return r;
 	}
 
-	inline void to_vertices(const AABB &b, Vector3 v[8])
+	inline void to_vertices(Vector3 vertices[8], const AABB &b)
 	{
 		// 7 ---- 6
 		// |      |
@@ -74,37 +74,37 @@ namespace aabb
 		// |      |
 		// |      |  <--- Bottom face
 		// 0 ---- 1
-		v[0].x = b.min.x;
-		v[0].y = b.min.y;
-		v[0].z = b.max.z;
+		vertices[0].x = b.min.x;
+		vertices[0].y = b.min.y;
+		vertices[0].z = b.max.z;
 
-		v[1].x = b.max.x;
-		v[1].y = b.min.y;
-		v[1].z = b.max.z;
+		vertices[1].x = b.max.x;
+		vertices[1].y = b.min.y;
+		vertices[1].z = b.max.z;
 
-		v[2].x = b.max.x;
-		v[2].y = b.min.y;
-		v[2].z = b.min.z;
+		vertices[2].x = b.max.x;
+		vertices[2].y = b.min.y;
+		vertices[2].z = b.min.z;
 
-		v[3].x = b.min.x;
-		v[3].y = b.min.y;
-		v[3].z = b.min.z;
+		vertices[3].x = b.min.x;
+		vertices[3].y = b.min.y;
+		vertices[3].z = b.min.z;
 
-		v[4].x = b.min.x;
-		v[4].y = b.max.y;
-		v[4].z = b.max.z;
+		vertices[4].x = b.min.x;
+		vertices[4].y = b.max.y;
+		vertices[4].z = b.max.z;
 
-		v[5].x = b.max.x;
-		v[5].y = b.max.y;
-		v[5].z = b.max.z;
+		vertices[5].x = b.max.x;
+		vertices[5].y = b.max.y;
+		vertices[5].z = b.max.z;
 
-		v[6].x = b.max.x;
-		v[6].y = b.max.y;
-		v[6].z = b.min.z;
+		vertices[6].x = b.max.x;
+		vertices[6].y = b.max.y;
+		vertices[6].z = b.min.z;
 
-		v[7].x = b.min.x;
-		v[7].y = b.max.y;
-		v[7].z = b.min.z;
+		vertices[7].x = b.min.x;
+		vertices[7].y = b.max.y;
+		vertices[7].z = b.min.z;
 	}
 
 	inline Sphere to_sphere(const AABB &b)

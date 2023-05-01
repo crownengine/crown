@@ -45,7 +45,7 @@ namespace aabb
 	AABB transformed(const AABB &b, const Matrix4x4 &m);
 
 	/// Returns the eight vertices of the box @a b.
-	void to_vertices(const AABB &b, Vector3 v[8]);
+	void to_vertices(Vector3 vertices[8], const AABB &b);
 
 	/// Returns the sphere enclosing the box @a b.
 	Sphere to_sphere(const AABB &b);
