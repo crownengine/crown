@@ -9,6 +9,7 @@
 #include "core/math/intersection.h"
 #include "core/math/math.h"
 #include "core/math/matrix4x4.inl"
+#include "core/math/obb.inl"
 #include "core/math/vector3.inl"
 #include "core/strings/string_id.inl"
 #include "device/pipeline.h"
@@ -158,26 +159,26 @@ void DebugLine::add_frustum(const Matrix4x4 &mvp, const Color4 &color)
 
 void DebugLine::add_obb(const Matrix4x4 &tm, const Vector3 &half_extents, const Color4 &color)
 {
-	const Vector3 o = vector3(tm.t.x, tm.t.y, tm.t.z);
-	const Vector3 x = vector3(tm.x.x, tm.x.y, tm.x.z) * half_extents.x;
-	const Vector3 y = vector3(tm.y.x, tm.y.y, tm.y.z) * half_extents.y;
-	const Vector3 z = vector3(tm.z.x, tm.z.y, tm.z.z) * half_extents.z;
+	Vector3 vertices[8];
+	obb::to_vertices(vertices, { tm, half_extents });
 
-	// Back face
-	add_line(o - x - y - z, o + x - y - z, color);
-	add_line(o + x - y - z, o + x + y - z, color);
-	add_line(o + x + y - z, o - x + y - z, color);
-	add_line(o - x + y - z, o - x - y - z, color);
+	// Bottom face.
+	add_line(vertices[0], vertices[1], color);
+	add_line(vertices[1], vertices[2], color);
+	add_line(vertices[2], vertices[3], color);
+	add_line(vertices[3], vertices[0], color);
 
-	add_line(o - x - y + z, o + x - y + z, color);
-	add_line(o + x - y + z, o + x + y + z, color);
-	add_line(o + x + y + z, o - x + y + z, color);
-	add_line(o - x + y + z, o - x - y + z, color);
+	// Top face.
+	add_line(vertices[4], vertices[5], color);
+	add_line(vertices[5], vertices[6], color);
+	add_line(vertices[6], vertices[7], color);
+	add_line(vertices[7], vertices[4], color);
 
-	add_line(o - x - y - z, o - x - y + z, color);
-	add_line(o + x - y - z, o + x - y + z, color);
-	add_line(o + x + y - z, o + x + y + z, color);
-	add_line(o - x + y - z, o - x + y + z, color);
+	// Connect faces.
+	add_line(vertices[0], vertices[4], color);
+	add_line(vertices[1], vertices[5], color);
+	add_line(vertices[2], vertices[6], color);
+	add_line(vertices[3], vertices[7], color);
 }
 
 void DebugLine::add_mesh(const Matrix4x4 &tm, const void *vertices, u32 stride, const u16 *indices, u32 num, const Color4 &color)
