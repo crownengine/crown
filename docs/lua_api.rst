@@ -721,17 +721,23 @@ Functions
 **set_z** (m, z)
 	Sets the z axis of the matrix *m*.
 
+**translation** (m) : Vector3
+	Returns the translation portion of the matrix *m*.
+
+**set_translation** (m, t)
+	Sets the translation portion of the matrix *m*.
+
 **rotation** (m) : Quaternion
 	Returns the rotation portion of the matrix *m*.
 
 **set_rotation** (m, r)
 	Sets the rotation portion of the matrix *m*.
 
-**translation** (m) : Vector3
-	Returns the translation portion of the matrix *m*.
+**scale** (m) : Vector3
+	Returns the scale of the matrix *m*.
 
-**set_translation** (m, t)
-	Sets the translation portion of the matrix *m*.
+**set_scale** (m, r)
+	Sets the scale of the matrix *m*.
 
 **identity** ()
 	Returns the identity matrix.

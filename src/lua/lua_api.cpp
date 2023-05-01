@@ -851,6 +851,16 @@ void load_api(LuaEnvironment &env)
 			set_rotation(stack.get_matrix4x4(1), stack.get_quaternion(2));
 			return 0;
 		});
+	env.add_module_function("Matrix4x4", "scale", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.push_vector3(scale(stack.get_matrix4x4(1)));
+			return 1;
+		});
+	env.add_module_function("Matrix4x4", "set_scale", [](lua_State *L) {
+			LuaStack stack(L);
+			set_scale(stack.get_matrix4x4(1), stack.get_vector3(2));
+			return 0;
+		});
 	env.add_module_function("Matrix4x4", "identity", [](lua_State *L) {
 			LuaStack stack(L);
 			stack.push_matrix4x4(MATRIX4X4_IDENTITY);

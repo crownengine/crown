@@ -18,6 +18,10 @@ Changelog
 * Fixed an issue that caused a project folder to be deleted when the ESC key was pressed in the confirmation dialog.
 * Fixed minor aesthetic issues.
 
+**Lua API**
+
+* Added ``Matrix4x4.scale()`` and ``Matrix4x4.set_scale()``.
+
 0.47.0 --- *06 Feb 2023*
 ------------------------
 
