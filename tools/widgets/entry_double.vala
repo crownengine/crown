@@ -122,8 +122,15 @@ public class EntryDouble : Gtk.Entry
 	/// Returns @a str as double or @a deffault if conversion fails.
 	private double string_to_double(string str, double deffault)
 	{
-		double result;
-		return double.try_parse(str, out result) ? result : deffault;
+		TinyExpr.Variable vars[] =
+		{
+			{ "x", &_value }
+		};
+
+		int err;
+		TinyExpr.Expr expr = TinyExpr.compile(str, vars, out err);
+
+		return err == 0 ? TinyExpr.eval(expr) : deffault;
 	}
 }
 

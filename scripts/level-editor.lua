@@ -69,11 +69,21 @@ project "level-editor"
 
 	buildoptions_vala {
 		"--target-glib=2.38",
+		"--pkg tinyexpr",
+	}
+
+	vapidirs {
+		CROWN_DIR .. "tools/vapi"
+	}
+
+	buildoptions {
+		"-I" .. CROWN_DIR .. "3rdparty/tinyexpr"
 	}
 
 	files {
 		CROWN_DIR .. "tools/**.vala",
 		CROWN_DIR .. "tools/level_editor/resources/resources.gresource.xml",
+		CROWN_DIR .. "3rdparty/tinyexpr/tinyexpr.c",
 	}
 
 	strip()

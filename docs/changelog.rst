@@ -15,6 +15,7 @@ Changelog
 
 **Tools**
 
+* Numeric input fields will now accept simple math expressions.
 * Fixed an issue that caused a project folder to be deleted when the ESC key was pressed in the confirmation dialog.
 * Fixed minor aesthetic issues.
 

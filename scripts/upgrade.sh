@@ -445,6 +445,34 @@ update_sphinx_rtd_theme () {
 	git commit -m "docs: update sphinx_rtd_theme"
 }
 
+update_tinyexpr () {
+	# Download latest tinyexpr.
+	local REPO=https://github.com/codeplea/tinyexpr
+	local DEST=3rdparty/tinyexpr
+	local BRANCH=master
+
+	rm -rf "${DEST}"
+	git_clone "${DEST}" "${REPO}" "${BRANCH}"
+
+	# Cleanup.
+	rm -r "${DEST}"/doc
+	rm "${DEST}"/benchmark.c
+	rm "${DEST}"/CONTRIBUTING
+	rm "${DEST}"/example2.c
+	rm "${DEST}"/example3.c
+	rm "${DEST}"/example.c
+	rm "${DEST}"/Makefile
+	rm "${DEST}"/minctest.h
+	rm "${DEST}"/README.md
+	rm "${DEST}"/repl.c
+	rm "${DEST}"/smoke.c
+	rm "${DEST}"/.travis.yml
+
+	# Add changes and commit.
+	git add -f "${DEST}"
+	git commit -m "3rdparty: update tinyexpr"
+}
+
 print_help () {
 	echo "Usage: scripts/upgrade.sh <dependency-name>"
 }
@@ -477,6 +505,10 @@ while true; do
 		;;
 	sphinx_rtd_theme)
 		update_sphinx_rtd_theme
+		exit $?
+		;;
+	tinyexpr)
+		update_tinyexpr
 		exit $?
 		;;
 	*)
