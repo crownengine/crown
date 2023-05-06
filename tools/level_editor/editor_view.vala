@@ -30,6 +30,7 @@ public class EditorView : Gtk.EventBox
 	private uint _last_window_id;
 
 	private Gee.HashMap<uint, bool> _keys;
+	private bool _input_enabled;
 
 	// Signals
 	public signal void native_window_ready(uint window_id, int width, int height);
@@ -85,6 +86,8 @@ public class EditorView : Gtk.EventBox
 		_keys[Gdk.Key.Alt_L] = false;
 		_keys[Gdk.Key.Alt_R] = false;
 
+		_input_enabled = input_enabled;
+
 		// Widgets
 		this.can_focus = true;
 		this.events |= Gdk.EventMask.POINTER_MOTION_MASK
@@ -112,6 +115,8 @@ public class EditorView : Gtk.EventBox
 				device_frame_delayed(16, _client);
 				return Gdk.EVENT_PROPAGATE;
 			});
+		this.enter_notify_event.connect(on_enter_notify_event);
+
 	}
 
 	private bool on_button_release(Gdk.EventButton ev)
@@ -294,6 +299,14 @@ public class EditorView : Gtk.EventBox
 #elif CROWN_PLATFORM_WINDOWS
 		_window_id = gdk_win32_window_get_handle(this.get_window());
 #endif
+	}
+
+	bool on_enter_notify_event(Gdk.EventCrossing event)
+	{
+		if (_input_enabled)
+			this.grab_focus();
+
+		return Gdk.EVENT_PROPAGATE;
 	}
 }
 
