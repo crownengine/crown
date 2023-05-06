@@ -3,10 +3,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-using Gdk;
-using Gee;
-using Gtk;
-
 #if CROWN_PLATFORM_LINUX
 extern uint gdk_x11_window_get_xid(Gdk.Window window);
 #elif CROWN_PLATFORM_WINDOWS
@@ -33,7 +29,7 @@ public class EditorView : Gtk.EventBox
 	private uint _window_id;
 	private uint _last_window_id;
 
-	private HashMap<uint, bool> _keys;
+	private Gee.HashMap<uint, bool> _keys;
 
 	// Signals
 	public signal void native_window_ready(uint window_id, int width, int height);
@@ -81,7 +77,7 @@ public class EditorView : Gtk.EventBox
 		_window_id = 0;
 		_last_window_id = 0;
 
-		_keys = new HashMap<uint, bool>();
+		_keys = new Gee.HashMap<uint, bool>();
 		_keys[Gdk.Key.w] = false;
 		_keys[Gdk.Key.a] = false;
 		_keys[Gdk.Key.s] = false;
