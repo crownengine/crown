@@ -52,14 +52,14 @@ update_bx () {
 	rm -rf "${DEST}"/.gitattributes
 	rm -rf "${DEST}"/.gitignore
 	rm -rf "${DEST}"/.travis.yml
-	rm -rf "${DEST}"/3rdparty/catch/
+	rm -rf "${DEST}"/3rdparty/catch
 	rm -rf "${DEST}"/makefile
 	rm -rf "${DEST}"/README.md
 	rm -rf "${DEST}"/scripts/bin2c.lua
 	rm -rf "${DEST}"/scripts/lemon.lua
-	rm -rf "${DEST}"/tests/
-	rm -rf "${DEST}"/tools/bin2c/
-	rm -rf "${DEST}"/tools/lemon/
+	rm -rf "${DEST}"/tests
+	rm -rf "${DEST}"/tools/bin2c
+	rm -rf "${DEST}"/tools/lemon
 
 	git add -f "${DEST}"
 }
@@ -157,20 +157,20 @@ update_bgfx () {
 	rm -rf "${DEST}"/.gitignore
 	rm -rf "${DEST}"/.travis.yml
 	rm -rf "${DEST}"/3rdparty/.editorconfig
-	rm -rf "${DEST}"/3rdparty/cgltf/
-	rm -rf "${DEST}"/3rdparty/dear-imgui/
-	rm -rf "${DEST}"/3rdparty/freetype/
+	rm -rf "${DEST}"/3rdparty/cgltf
+	rm -rf "${DEST}"/3rdparty/dear-imgui
+	rm -rf "${DEST}"/3rdparty/freetype
 	rm -rf "${DEST}"/3rdparty/glslang/build
 	rm -rf "${DEST}"/3rdparty/glslang/build_info.py
 	rm -rf "${DEST}"/3rdparty/glslang/license-checker.cfg
-	rm -rf "${DEST}"/3rdparty/iconfontheaders/
-	rm -rf "${DEST}"/3rdparty/meshoptimizer/
-	rm -rf "${DEST}"/3rdparty/sdf/
-	rm -rf "${DEST}"/3rdparty/stb/
-	rm -rf "${DEST}"/bindings/
+	rm -rf "${DEST}"/3rdparty/iconfontheaders
+	rm -rf "${DEST}"/3rdparty/meshoptimizer
+	rm -rf "${DEST}"/3rdparty/sdf
+	rm -rf "${DEST}"/3rdparty/stb
+	rm -rf "${DEST}"/bindings
 	rm -rf "${DEST}"/CODEOWNERS
 	rm -rf "${DEST}"/CONTRIBUTING.md
-	rm -rf "${DEST}"/examples/
+	rm -rf "${DEST}"/examples
 	rm -rf "${DEST}"/makefile
 	rm -rf "${DEST}"/README.md
 	rm -rf "${DEST}"/scripts/bgfx-codegen.lua
@@ -205,9 +205,9 @@ update_bgfx () {
 	rm -rf "${DEST}"/src/varying.def.sc
 	rm -rf "${DEST}"/src/vs_clear.sc
 	rm -rf "${DEST}"/src/vs_debugfont.sc
-	rm -rf "${DEST}"/tools/geometryc/
-	rm -rf "${DEST}"/tools/geometryv/
-	rm -rf "${DEST}"/tools/texturev/
+	rm -rf "${DEST}"/tools/geometryc
+	rm -rf "${DEST}"/tools/geometryv
+	rm -rf "${DEST}"/tools/texturev
 	rm -rf "${DEST}"/docs
 
 	# Bump affected resources versions.
