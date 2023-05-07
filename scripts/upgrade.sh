@@ -58,8 +58,7 @@ update_bx () {
 	rm -rf "${DEST}"/scripts/bin2c.lua
 	rm -rf "${DEST}"/scripts/lemon.lua
 	rm -rf "${DEST}"/tests
-	rm -rf "${DEST}"/tools/bin2c
-	rm -rf "${DEST}"/tools/lemon
+	rm -rf "${DEST}"/tools
 
 	git add -f "${DEST}"
 }
@@ -208,6 +207,7 @@ update_bgfx () {
 	rm -rf "${DEST}"/tools/geometryc
 	rm -rf "${DEST}"/tools/geometryv
 	rm -rf "${DEST}"/tools/texturev
+	rm -rf "${DEST}"/tools/bin
 	rm -rf "${DEST}"/docs
 
 	# Bump affected resources versions.

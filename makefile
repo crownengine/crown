@@ -24,7 +24,7 @@ else
 endif
 endif
 
-GENIE=3rdparty/bx/tools/bin/$(OS)/genie
+GENIE=scripts/genie/bin/$(OS)/genie
 MAKE_JOBS=1
 
 # LuaJIT
