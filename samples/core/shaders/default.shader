@@ -419,97 +419,6 @@ bgfx_shaders = {
 		"""
 	}
 
-	ocornut_imgui = {
-		includes = "common"
-
-		varying = """
-			vec4 v_color0    : COLOR0    = vec4(1.0, 0.0, 0.0, 1.0);
-			vec3 v_normal    : NORMAL    = vec3(0.0, 0.0, 1.0);
-			vec2 v_texcoord0 : TEXCOORD0 = vec2(0.0, 0.0);
-
-			vec3 a_position  : POSITION;
-			vec4 a_normal    : NORMAL;
-			vec4 a_color0    : COLOR0;
-			vec2 a_texcoord0 : TEXCOORD0;
-		"""
-
-		vs_input_output = """
-			$input a_position, a_texcoord0, a_color0
-			$output v_color0, v_texcoord0
-		"""
-
-		vs_code = """
-			void main()
-			{
-				vec2 pos = 2.0*a_position.xy*u_viewTexel.xy;
-				gl_Position = vec4(pos.x - 1.0, 1.0 - pos.y, 0.0, 1.0);
-				v_texcoord0 = a_texcoord0;
-				v_color0    = a_color0;
-			}
-		"""
-
-		fs_input_output = """
-			$input v_color0, v_texcoord0
-		"""
-
-		fs_code = """
-			SAMPLER2D(s_tex, 0);
-
-			void main()
-			{
-				vec4 texel = texture2D(s_tex, v_texcoord0);
-				gl_FragColor = texel * v_color0;
-			}
-		"""
-	}
-
-	imgui_image = {
-		includes = "common"
-
-		varying = """
-			vec4 v_color0    : COLOR0    = vec4(1.0, 0.0, 0.0, 1.0);
-			vec3 v_normal    : NORMAL    = vec3(0.0, 0.0, 1.0);
-			vec2 v_texcoord0 : TEXCOORD0 = vec2(0.0, 0.0);
-
-			vec3 a_position  : POSITION;
-			vec4 a_normal    : NORMAL;
-			vec4 a_color0    : COLOR0;
-			vec2 a_texcoord0 : TEXCOORD0;
-		"""
-
-		vs_input_output = """
-			$input a_position, a_texcoord0
-			$output v_texcoord0
-		"""
-
-		vs_code = """
-			void main()
-			{
-				gl_Position = mul(u_viewProj, vec4(a_position.xy, 0.0, 1.0) );
-				v_texcoord0 = a_texcoord0;
-			}
-		"""
-
-		fs_input_output = """
-			$input v_texcoord0
-		"""
-
-		fs_code = """
-			uniform vec4 u_imageLodEnabled;
-			SAMPLER2D(s_color, 0);
-
-			#define u_imageLod     u_imageLodEnabled.x
-			#define u_imageEnabled u_imageLodEnabled.y
-
-			void main()
-			{
-				vec3 color = texture2DLod(s_color, v_texcoord0, u_imageLod).xyz;
-				float alpha = 0.2 + 0.8*u_imageEnabled;
-				gl_FragColor = vec4(color, alpha);
-			}
-		"""
-	}
-
 	blit = {
 		includes = "common"
 
@@ -640,16 +549,6 @@ shaders = {
 		render_state = "gui"
 	}
 
-	ocornut_imgui = {
-		bgfx_shader = "ocornut_imgui"
-		render_state = "gui"
-	}
-
-	imgui_image = {
-		bgfx_shader = "imgui_image"
-		render_state = "gui"
-	}
-
 	blit = {
 		bgfx_shader = "blit"
 		render_state = "gui_noblend"
@@ -678,8 +577,6 @@ static_compile = [
 	{ shader = "mesh" defines = ["DIFFUSE_MAP" "NO_LIGHT"] }
 	{ shader = "selection" defines = [] }
 	{ shader = "outline" defines = [] }
-	{ shader = "ocornut_imgui" defines = [] }
-	{ shader = "imgui_image" defines = [] }
 	{ shader = "blit" defines = [] }
 	{ shader = "fallback" defines = [] }
 	{ shader = "noop" defines = [] }

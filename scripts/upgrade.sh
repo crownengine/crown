@@ -380,53 +380,6 @@ update_openal () {
 	echo "!!! Remember to update ALSOFT_VERSION !!!"
 }
 
-update_dear_imgui () {
-	local DEST=3rdparty/ocornut-imgui
-	local REPO=https://github.com/ocornut/imgui
-	local BRANCH=docking
-
-	# Download latest dear-imgui.
-	rm -rf "${DEST}"
-	git_clone "${DEST}" "${REPO}" "${BRANCH}"
-
-	# Cleanup.
-	rm -rf "${DEST}"/backends
-	rm -rf "${DEST}"/docs
-	rm -rf "${DEST}"/examples
-	rm -rf "${DEST}"/misc
-	rm -rf "${DEST}"/.editorconfig
-	rm -rf "${DEST}"/.gitattributes
-	rm -rf "${DEST}"/.github
-	rm -rf "${DEST}"/.gitignore
-
-	# Add changes and commit.
-	git add -f "${DEST}"
-	git commit -m "3rdparty: update ocornut-imgui"
-}
-
-update_nativefiledialog () {
-	local REPO=https://github.com/mlabbe/nativefiledialog
-	local DEST=3rdparty/nativefiledialog
-	local BRANCH=master
-
-	# Download latest nativefiledialog.
-	rm -rf "${DEST}"
-	git_clone "${DEST}" "${REPO}" "${BRANCH}"
-
-	# Cleanup.
-	rm -r "${DEST}"/build
-	rm -r "${DEST}"/docs
-	rm -r "${DEST}"/screens
-	rm -r "${DEST}"/test
-	rm "${DEST}"/.gitignore
-	rm "${DEST}"/README.md
-	rm -rf "${DEST}"/.github
-
-	# Add changes and commit.
-	git add -f "${DEST}"
-	git commit -m "3rdparty: update nativefiledialog"
-}
-
 update_sphinx_rtd_theme () {
 	local REPO=https://github.com/readthedocs/sphinx_rtd_theme
 	local DEST=docs/_themes/sphinx_rtd_theme
@@ -493,14 +446,6 @@ while true; do
 		;;
 	openal)
 		update_openal
-		exit $?
-		;;
-	dear_imgui)
-		update_dear_imgui
-		exit $?
-		;;
-	nativefiledialog)
-		update_nativefiledialog
 		exit $?
 		;;
 	sphinx_rtd_theme)

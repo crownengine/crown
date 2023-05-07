@@ -214,7 +214,7 @@ clean-samples:
 
 .PHONY: codespell
 codespell:
-	@codespell docs src tools tools-imgui \
+	@codespell docs src tools \
 		--ignore-words=scripts/codespell-dictionary.txt \
 		--skip "*.ttf.h,*.png,docs/_themes,tools/level_editor/resources/theme/Adwaita" \
 		-q4 # 4: omit warnings about automatic fixes that were disabled in the dictionary.
