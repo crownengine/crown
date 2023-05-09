@@ -10,6 +10,7 @@
 #include "core/math/intersection.h"
 #include "core/math/math.h"
 #include "core/math/matrix4x4.inl"
+#include "core/math/obb.inl"
 #include "core/math/plane3.inl"
 #include "core/math/quaternion.inl"
 #include "core/math/types.h"
@@ -537,6 +538,20 @@ void load_api(LuaEnvironment &env)
 
 			stack.push_bool(obb_intersects_frustum(obb, f));
 			return 1;
+		});
+
+	env.add_module_function("Math", "obb_vertices", [](lua_State *L) {
+			LuaStack stack(L);
+			Matrix4x4 tm = stack.get_matrix4x4(1);
+			Vector3 half_extents = stack.get_vector3(2);
+
+			Vector3 vertices[8];
+			obb::to_vertices(vertices, { tm, half_extents });
+
+			for (u32 ii = 0; ii < 8; ++ii)
+				stack.push_vector3(vertices[ii]);
+
+			return 8;
 		});
 
 	env.add_module_function("Vector3", "x", [](lua_State *L) {

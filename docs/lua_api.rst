@@ -824,6 +824,9 @@ Math
 	the frustum defined by the planes ((n0, d0), (n1, d1), ..., (n5, d5)). The
 	planes be given in BRTLNF order, where B = bottom plane, R = right plane etc.
 
+**obb_vertices** (obb_tm, obb_half_extents) : v0, v1, v2, v3, v4, v5, v6, v7
+	Returns the vertices of the oriented bounding box (obb_tm, obb_half_extents).
+
 PhysicsWorld
 =============
 

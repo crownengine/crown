@@ -23,6 +23,7 @@ Changelog
 **Lua API**
 
 * Added ``Matrix4x4.scale()`` and ``Matrix4x4.set_scale()``.
+* Added ``Math.obb_vertices()``.
 
 0.47.0 --- *06 Feb 2023*
 ------------------------
