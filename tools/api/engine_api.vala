@@ -178,6 +178,16 @@ namespace LevelEditorApi
 			return "LevelEditor:camera_view_perspective()";
 	}
 
+	public string frame_objects(Guid?[] ids)
+	{
+		StringBuilder sb = new StringBuilder();
+		sb.append("LevelEditor:frame_objects({");
+		for (int i = 0; i < ids.length; ++i)
+			sb.append("\"%s\",".printf(ids[i].to_string()));
+		sb.append("})");
+		return sb.str;
+	}
+
 	public string enable_show_grid(bool enabled)
 	{
 		return "LevelEditor:enable_show_grid(%s)".printf(Lua.bool(enabled));

@@ -2086,3 +2086,80 @@ end
 function LevelEditor:camera_drag_start(mode)
 	self._camera:set_mode(mode, self._mouse.x, self._mouse.y)
 end
+
+function LevelEditor:frame_objects(ids)
+	local num_objects = #ids
+
+	if num_objects == 0 then
+		return
+	end
+
+	local nv, nq, nm = Device.temp_count()
+
+	-- Compute AABB from OBB.
+	local obb_tm, obb_he = self._objects[ids[1]]:obb()
+	local v0, v1, v2, v3, v4, v5, v6, v7 = Math.obb_vertices(obb_tm, obb_he)
+
+	local aabb_center = Vector3.zero()
+	local aabb_min = v0
+	local aabb_max = v0
+
+	aabb_min = Vector3.min(aabb_min, v1)
+	aabb_min = Vector3.min(aabb_min, v2)
+	aabb_min = Vector3.min(aabb_min, v3)
+	aabb_min = Vector3.min(aabb_min, v4)
+	aabb_min = Vector3.min(aabb_min, v5)
+	aabb_min = Vector3.min(aabb_min, v6)
+	aabb_min = Vector3.min(aabb_min, v7)
+
+	aabb_max = Vector3.max(aabb_max, v1)
+	aabb_max = Vector3.max(aabb_max, v2)
+	aabb_max = Vector3.max(aabb_max, v3)
+	aabb_max = Vector3.max(aabb_max, v4)
+	aabb_max = Vector3.max(aabb_max, v5)
+	aabb_max = Vector3.max(aabb_max, v6)
+	aabb_max = Vector3.max(aabb_max, v7)
+
+	for i = 2, num_objects do
+		obb_tm, obb_he = self._objects[ids[i]]:obb()
+		v0, v1, v2, v3, v4, v5, v6, v7 = Math.obb_vertices(obb_tm, obb_he)
+
+		aabb_min = Vector3.min(aabb_min, v1)
+		aabb_min = Vector3.min(aabb_min, v2)
+		aabb_min = Vector3.min(aabb_min, v3)
+		aabb_min = Vector3.min(aabb_min, v4)
+		aabb_min = Vector3.min(aabb_min, v5)
+		aabb_min = Vector3.min(aabb_min, v6)
+		aabb_min = Vector3.min(aabb_min, v7)
+
+		aabb_max = Vector3.max(aabb_max, v1)
+		aabb_max = Vector3.max(aabb_max, v2)
+		aabb_max = Vector3.max(aabb_max, v3)
+		aabb_max = Vector3.max(aabb_max, v4)
+		aabb_max = Vector3.max(aabb_max, v5)
+		aabb_max = Vector3.max(aabb_max, v6)
+		aabb_max = Vector3.max(aabb_max, v7)
+	end
+
+	aabb_center = Vector3.multiply(aabb_max + aabb_min, 0.5)
+	obb_tm, obb_he = Matrix4x4.from_translation(aabb_center), aabb_max - aabb_center
+
+	-- Frame camera to computed OBB.
+	local obb_position = Matrix4x4.translation(obb_tm)
+	local obb_scale = Matrix4x4.scale(obb_tm)
+	obb_he.x = obb_he.x * obb_scale.x
+	obb_he.y = obb_he.y * obb_scale.y
+	obb_he.z = obb_he.z * obb_scale.z
+	local obb_radius = Vector3.distance(obb_position, obb_position + obb_he)
+
+	local target_position = Matrix4x4.translation(obb_tm)
+	local camera_pose = self._camera:local_pose()
+	local camera_target_distance = obb_radius*3
+	local camera_forward  = Matrix4x4.z(camera_pose)
+	Matrix4x4.set_translation(camera_pose, target_position - camera_forward*camera_target_distance)
+
+	self._camera:set_local_pose(camera_pose)
+	self._camera._target_distance = camera_target_distance
+
+	Device.set_temp_count(nv, nq, nm)
+end

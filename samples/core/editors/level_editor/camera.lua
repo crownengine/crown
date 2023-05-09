@@ -127,6 +127,11 @@ function Camera:local_pose()
 	return SceneGraph.local_pose(self._sg, tr)
 end
 
+function Camera:set_local_pose(pose)
+	local tr = SceneGraph.instance(self._sg, self._unit)
+	return SceneGraph.set_local_pose(self._sg, tr, pose)
+end
+
 function Camera:is_orthographic()
 	return World.camera_projection_type(self._world, self:camera()) == "orthographic"
 end

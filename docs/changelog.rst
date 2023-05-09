@@ -15,6 +15,7 @@ Changelog
 
 **Tools**
 
+* Added camera framing of selected objects or whole Level.
 * Numeric input fields will now accept simple math expressions.
 * Fixed the Editor View struggling to grab keyboard focus sometimes.
 * Fixed an issue that caused a project folder to be deleted when the ESC key was pressed in the confirmation dialog.

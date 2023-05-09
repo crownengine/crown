@@ -223,8 +223,10 @@ public class LevelEditorApplication : Gtk.Application
 
 	private const GLib.ActionEntry[] action_entries_camera =
 	{
-		{ "menu-camera", null,           null, null },
-		{ "camera-view", on_camera_view, "i",  "0"  } // See: Crown.CameraViewType
+		{ "menu-camera",           null,                     null, null },
+		{ "camera-view",           on_camera_view,           "i",  "0"  }, // See: Crown.CameraViewType
+		{ "camera-frame-selected", on_camera_frame_selected, null, null },
+		{ "camera-frame-all",      on_camera_frame_all,      null, null }
 	};
 
 	private const GLib.ActionEntry[] action_entries_view =
@@ -303,6 +305,8 @@ public class LevelEditorApplication : Gtk.Application
 	private string[] _camera_view_left_accels;
 	private string[] _camera_view_top_accels;
 	private string[] _camera_view_bottom_accels;
+	private string[] _camera_frame_selected_accels;
+	private string[] _camera_frame_all_accels;
 
 	// Engine connections
 	private uint32 _compiler_process;
@@ -466,6 +470,8 @@ public class LevelEditorApplication : Gtk.Application
 		_camera_view_left_accels = this.get_accels_for_action("app.camera-view(4)");
 		_camera_view_top_accels = this.get_accels_for_action("app.camera-view(5)");
 		_camera_view_bottom_accels = this.get_accels_for_action("app.camera-view(6)");
+		_camera_frame_selected_accels = this.get_accels_for_action("app.camera-frame-selected");
+		_camera_frame_all_accels = this.get_accels_for_action("app.camera-frame-all");
 
 		_compiler = new ConsoleClient();
 		_compiler.connected.connect(on_data_compiler_connected);
@@ -2208,6 +2214,21 @@ public class LevelEditorApplication : Gtk.Application
 		action.set_state(param);
 	}
 
+	private void on_camera_frame_selected(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		Guid?[] selected_objects = _level._selection.to_array();
+		_editor.send_script(LevelEditorApi.frame_objects(selected_objects));
+		_editor.send(DeviceApi.frame());
+	}
+
+	private void on_camera_frame_all(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		Gee.ArrayList<Guid?> all_objects = new Gee.ArrayList<Guid?>();
+		_level.objects(ref all_objects);
+		_editor.send_script(LevelEditorApi.frame_objects(all_objects.to_array()));
+		_editor.send(DeviceApi.frame());
+	}
+
 	private void on_resource_chooser(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		_resource_popover.show_all();
@@ -2482,6 +2503,8 @@ public class LevelEditorApplication : Gtk.Application
 			this.set_accels_for_action("app.camera-view(4)", _camera_view_left_accels);
 			this.set_accels_for_action("app.camera-view(5)", _camera_view_top_accels);
 			this.set_accels_for_action("app.camera-view(6)", _camera_view_bottom_accels);
+			this.set_accels_for_action("app.camera-frame-selected", _camera_frame_selected_accels);
+			this.set_accels_for_action("app.camera-frame-all", _camera_frame_all_accels);
 		} else {
 			this.set_accels_for_action("app.tool(0)", {});
 			this.set_accels_for_action("app.tool(1)", {});
@@ -2495,6 +2518,8 @@ public class LevelEditorApplication : Gtk.Application
 			this.set_accels_for_action("app.camera-view(4)", {});
 			this.set_accels_for_action("app.camera-view(5)", {});
 			this.set_accels_for_action("app.camera-view(6)", {});
+			this.set_accels_for_action("app.camera-frame-selected", {});
+			this.set_accels_for_action("app.camera-frame-all", {});
 		}
 	}
 

@@ -344,6 +344,18 @@
           <attribute name="accel">&lt;Primary&gt;KP_7</attribute>
         </item>
       </section>
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">Frame Selected</attribute>
+          <attribute name="action">app.camera-frame-selected</attribute>
+          <attribute name="accel">F</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">Frame All</attribute>
+          <attribute name="action">app.camera-frame-all</attribute>
+          <attribute name="accel">A</attribute>
+        </item>
+      </section>
     </submenu>
     <submenu>
       <attribute name="label" translatable="yes">View</attribute>
