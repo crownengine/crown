@@ -996,7 +996,7 @@ bool DataCompiler::compile(const char *data_dir, const char *platform)
 		DynamicString dest(ta);
 		destination_path(dest, id);
 
-		// Compile data
+		// Compile data.
 		ResourceTypeData rtd;
 		rtd.version = 0;
 		rtd.compiler = NULL;
@@ -1004,51 +1004,50 @@ bool DataCompiler::compile(const char *data_dir, const char *platform)
 		DynamicString type_str(ta);
 		type_str = type;
 
+		// Dependencies and requirements lists must be regenerated each time
+		// the resource is being compiled. For example, if you delete
+		// "foo.unit" from a package, you do not want the list of
+		// requirements to include "foo.unit" again the next time that
+		// package is compiled.
+		HashMap<DynamicString, u32> new_dependencies(default_allocator());
+		HashMap<DynamicString, u32> new_requirements(default_allocator());
+
+		Buffer output(default_allocator());
+		FileBuffer file_buffer(output);
+		CompileOptions opts(file_buffer
+			, new_dependencies
+			, new_requirements
+			, *this
+			, data_fs
+			, id
+			, path
+			, platform
+			);
+
+		// Invoke compiler.
 		rtd = hash_map::get(_compilers, type_str, rtd);
-		{
-			// Dependencies and requirements lists must be regenerated each time
-			// the resource is being compiled. For example, if you delete
-			// "foo.unit" from a package, you do not want the list of
-			// requirements to include "foo.unit" again the next time that
-			// package is compiled.
-			HashMap<DynamicString, u32> new_dependencies(default_allocator());
-			HashMap<DynamicString, u32> new_requirements(default_allocator());
+		success = rtd.compiler(opts) == 0;
 
-			Buffer output(default_allocator());
-			FileBuffer file_buffer(output);
-			// Invoke compiler
-			CompileOptions opts(file_buffer
-				, new_dependencies
-				, new_requirements
-				, *this
-				, data_fs
-				, id
-				, path
-				, platform
-				);
-			success = rtd.compiler(opts) == 0;
+		if (success) {
+			// Update dependencies and requirements only if compiler(opts)
+			// succeeded. If the compilation fails due to a missing
+			// dependency and you update the dependency database with new
+			// partial data, the next call to compile() would not trigger a
+			// recompilation.
+			HashMap<DynamicString, u32> dependencies_deffault(default_allocator());
+			hash_map::clear(hash_map::get(_data_dependencies, id, dependencies_deffault));
+			HashMap<DynamicString, u32> requirements_deffault(default_allocator());
+			hash_map::clear(hash_map::get(_data_requirements, id, requirements_deffault));
+			hash_map::set(_data_dependencies, id, new_dependencies);
+			hash_map::set(_data_requirements, id, new_requirements);
 
-			if (success) {
-				// Update dependencies and requirements only if compiler(opts)
-				// succeeded. If the compilation fails due to a missing
-				// dependency and you update the dependency database with new
-				// partial data, the next call to compile() would not trigger a
-				// recompilation.
-				HashMap<DynamicString, u32> dependencies_deffault(default_allocator());
-				hash_map::clear(hash_map::get(_data_dependencies, id, dependencies_deffault));
-				HashMap<DynamicString, u32> requirements_deffault(default_allocator());
-				hash_map::clear(hash_map::get(_data_requirements, id, requirements_deffault));
-				hash_map::set(_data_dependencies, id, new_dependencies);
-				hash_map::set(_data_requirements, id, new_requirements);
+			// Write output to disk
+			File *outf = data_fs.open(dest.c_str(), FileOpenMode::WRITE);
+			u32 size = array::size(output);
+			u32 written = outf->write(array::begin(output), size);
+			data_fs.close(*outf);
 
-				// Write output to disk
-				File *outf = data_fs.open(dest.c_str(), FileOpenMode::WRITE);
-				u32 size = array::size(output);
-				u32 written = outf->write(array::begin(output), size);
-				data_fs.close(*outf);
-
-				success = size == written;
-			}
+			success = size == written;
 		}
 
 		if (success) {
