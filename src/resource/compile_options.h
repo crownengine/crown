@@ -60,20 +60,24 @@ struct CompileOptions
 	HashMap<DynamicString, u32> &_new_dependencies;
 	HashMap<DynamicString, u32> &_new_requirements;
 	DataCompiler &_data_compiler;
+	Filesystem &_output_filesystem;
 	Filesystem &_data_filesystem;
 	DynamicString _source_path;
 	const char *_platform;
 	ResourceId _resource_id;
+	bool _bundle;
 
 	///
 	CompileOptions(File &output
 		, HashMap<DynamicString, u32> &new_dependencies
 		, HashMap<DynamicString, u32> &new_requirements
 		, DataCompiler &dc
+		, Filesystem &output_filesystem
 		, Filesystem &data_filesystem
 		, ResourceId res_id
 		, const DynamicString &source_path
 		, const char *platform
+		, bool bundle = false
 		);
 
 	///

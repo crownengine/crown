@@ -29,20 +29,24 @@ CompileOptions::CompileOptions(File &output
 	, HashMap<DynamicString, u32> &new_dependencies
 	, HashMap<DynamicString, u32> &new_requirements
 	, DataCompiler &dc
+	, Filesystem &output_filesystem
 	, Filesystem &data_filesystem
 	, ResourceId res_id
 	, const DynamicString &source_path
 	, const char *platform
+	, bool bundle
 	)
 	: _file(output)
 	, _binary_writer(_file)
 	, _new_dependencies(new_dependencies)
 	, _new_requirements(new_requirements)
 	, _data_compiler(dc)
+	, _output_filesystem(output_filesystem)
 	, _data_filesystem(data_filesystem)
 	, _source_path(source_path)
 	, _platform(platform)
 	, _resource_id(res_id)
+	, _bundle(bundle)
 {
 }
 
@@ -99,19 +103,19 @@ Buffer CompileOptions::read_all(File *file)
 Buffer CompileOptions::read_temporary(const char *path)
 {
 	Buffer buf(default_allocator());
-	File *file = _data_filesystem.open(path, FileOpenMode::READ);
+	File *file = _output_filesystem.open(path, FileOpenMode::READ);
 	if (file->is_open())
 		buf = read_all(file);
-	_data_filesystem.close(*file);
+	_output_filesystem.close(*file);
 	return buf;
 }
 
 void CompileOptions::write_temporary(const char *path, const char *data, u32 size)
 {
-	File *file = _data_filesystem.open(path, FileOpenMode::WRITE);
+	File *file = _output_filesystem.open(path, FileOpenMode::WRITE);
 	if (file->is_open())
 		file->write(data, size);
-	_data_filesystem.close(*file);
+	_output_filesystem.close(*file);
 }
 
 void CompileOptions::write_temporary(const char *path, const Buffer &data)
@@ -181,7 +185,7 @@ void CompileOptions::temporary_path(DynamicString &abs, const char *suffix)
 	DynamicString prefix(ta);
 	prefix.from_guid(guid::new_guid());
 
-	_data_filesystem.absolute_path(str, CROWN_TEMP_DIRECTORY);
+	_output_filesystem.absolute_path(str, CROWN_TEMP_DIRECTORY);
 
 	path::join(abs, str.c_str(), prefix.c_str());
 	abs += '.';
@@ -190,7 +194,7 @@ void CompileOptions::temporary_path(DynamicString &abs, const char *suffix)
 
 DeleteResult CompileOptions::delete_file(const char *path)
 {
-	return _data_filesystem.delete_file(path);
+	return _output_filesystem.delete_file(path);
 }
 
 void CompileOptions::align(const u32 align)

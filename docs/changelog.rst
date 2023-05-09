@@ -8,10 +8,11 @@ Changelog
 
 * Data directories can now be deleted at run-time to force a full data compilation.
 * Some dependencies for Lua scripts are now automatically determined by parsing require() calls in the source.
+* Add ability to pack compiled data together into "bundles".
 
 **Runtime**
 
-* Added ``--window-rect`` CLI option.
+* Added ``--window-rect``, ``--bundle`` and ``--bundle-dir`` CLI options.
 * Fixed a double-free error during shutdown.
 
 **Tools**

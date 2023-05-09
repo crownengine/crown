@@ -868,7 +868,7 @@ bool DataCompiler::path_is_special(const char *path)
 
 bool DataCompiler::compile(const char *data_dir, const char *platform)
 {
-	const s64 time_start = time::now();
+	s64 time_start = time::now();
 
 	FilesystemDisk data_fs(default_allocator());
 	data_fs.set_prefix(data_dir);
@@ -1019,9 +1019,11 @@ bool DataCompiler::compile(const char *data_dir, const char *platform)
 			, new_requirements
 			, *this
 			, data_fs
+			, data_fs
 			, id
 			, path
 			, platform
+			, false
 			);
 
 		// Invoke compiler.
@@ -1080,6 +1082,101 @@ bool DataCompiler::compile(const char *data_dir, const char *platform)
 			logi(DATA_COMPILER, "Compiled data (rev %u) in " TIME_FMT, _revision, time::seconds(time::now() - time_start));
 		} else {
 			logi(DATA_COMPILER, "Data is up to date");
+		}
+
+		if (_options->_do_bundle) {
+			time_start = time::now();
+			// Find the set of resources to be compiled, removed etc.
+			Vector<DynamicString> to_bundle(default_allocator());
+
+			// Find all packages.
+			auto cur = hash_map::begin(_source_index._paths);
+			auto end = hash_map::end(_source_index._paths);
+			for (; cur != end; ++cur) {
+				HASH_MAP_SKIP_HOLE(_source_index._paths, cur);
+
+				const DynamicString &path = cur->first;
+
+				if (path.has_suffix(".package") || path.has_suffix(".config"))
+					vector::push_back(to_bundle, path);
+			}
+
+			FilesystemDisk data_fs(default_allocator());
+			data_fs.set_prefix(data_dir);
+
+			const char *bundle_dir = _options->_bundle_dir.value().c_str();
+			// Create the bundle directory on disk.
+			FilesystemDisk bundle_fs(default_allocator());
+			bundle_fs.set_prefix(bundle_dir);
+
+			cr = bundle_fs.create_directory("");
+			if (cr.error == CreateResult::SUCCESS) {
+				bundle_fs.create_directory(CROWN_DATA_DIRECTORY);
+			} else if (cr.error != CreateResult::ALREADY_EXISTS) {
+				loge(DATA_COMPILER, "Failed to create the bundle directory: `%s`", bundle_dir);
+				return false;
+			}
+
+			for (u32 ii = 0; ii < vector::size(to_bundle); ++ii) {
+				const DynamicString &path = to_bundle[ii];
+				logi(DATA_COMPILER, _options->_server ? RESOURCE_ID_FMT_STR : "%s", path.c_str());
+
+				ResourceId id = resource_id(path.c_str());
+				TempAllocator256 ta;
+				DynamicString dest(ta);
+				destination_path(dest, id);
+
+				// Bundle data.
+				ResourceTypeData rtd;
+				rtd.version = 0;
+				rtd.compiler = NULL;
+
+				DynamicString type_str(ta);
+				type_str = resource_type(path.c_str());
+
+				HashMap<DynamicString, u32> new_dependencies(default_allocator());
+				HashMap<DynamicString, u32> new_requirements(default_allocator());
+				Buffer output(default_allocator());
+				FileBuffer file_buffer(output);
+				CompileOptions opts(file_buffer
+					, new_dependencies
+					, new_requirements
+					, *this
+					, bundle_fs
+					, data_fs
+					, id
+					, path
+					, platform
+					, true
+					);
+
+				// Invoke compiler.
+				rtd = hash_map::get(_compilers, type_str, rtd);
+				success = rtd.compiler(opts) == 0;
+
+				if (success) {
+					// Write output to disk
+					File *outf = bundle_fs.open(dest.c_str(), FileOpenMode::WRITE);
+					u32 size = array::size(output);
+					u32 written = outf->write(array::begin(output), size);
+					bundle_fs.close(*outf);
+
+					success = size == written;
+				}
+
+				if (!success) {
+					loge(DATA_COMPILER, "Failed to generate bundle");
+					break;
+				}
+			}
+
+			if (success) {
+				if (vector::size(to_bundle)) {
+					logi(DATA_COMPILER, "Bundled data in " TIME_FMT, time::seconds(time::now() - time_start));
+				} else {
+					logi(DATA_COMPILER, "Bundles are up to date");
+				}
+			}
 		}
 	}
 

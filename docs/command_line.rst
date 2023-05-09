@@ -31,7 +31,12 @@ Options
 	The <path> must be absolute.
 
 ``--data-dir <path>``
-	Use <path> as the destination directory for compiled resources.
+	Run with the data located at <path>.
+
+	The <path> must be absolute.
+
+``--bundle-dir <path>``
+	Run with the bundles located at <path>.
 
 	The <path> must be absolute.
 
@@ -43,7 +48,10 @@ Options
 ``--compile``
 	Do a full compile of the resources.
 
-	When using this option you must also specify ``--platform``, ``--source-dir`` and ``--data-dir``.
+	When using this option you must also specify ``--source-dir``.
+
+``--bundle``
+	Generate bundles after the data has been compiled.
 
 ``--platform <platform>``
 	Compile resources for the given <platform>.

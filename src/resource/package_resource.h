@@ -19,6 +19,7 @@ struct ResourceOffset
 	StringId64 type;
 	StringId64 name;
 	u32 offset;      ///< Relative offset from package_resource::data().
+	u32 size;
 };
 
 struct PackageResource
@@ -26,7 +27,7 @@ struct PackageResource
 	u32 version;
 	u32 num_resources;
 	// ResourceOffset offsets[num_resources]
-	// Data
+	// Data (16-bytes aligned)
 };
 
 namespace package_resource_internal

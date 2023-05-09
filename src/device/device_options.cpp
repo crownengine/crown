@@ -29,10 +29,12 @@ static void help(const char *msg = NULL)
 		"  -h --help                       Display this help.\n"
 		"  -v --version                    Display engine version.\n"
 		"  --source-dir <path>             Specify the <path> of the project's source data.\n"
-		"  --data-dir <path>               Specify the <path> where to put the compiled data.\n"
+		"  --data-dir <path>               Run with the data located at <path>.\n"
+		"  --bundle-dir <path>             Run with the bundles located at <path>.\n"
 		"  --map-source-dir <name> <path>  Mount <path>/<name> at <source-dir>/<name>.\n"
 		"  --boot-dir <prefix>             Use <prefix>/boot.config to boot the engine.\n"
 		"  --compile                       Compile the project's source data.\n"
+		"  --bundle                        Generate bundles after the data has been compiled.\n"
 		"  --platform <platform>           Specify the target <platform> for data compilation.\n"
 		"      linux\n"
 		"      windows\n"
@@ -59,12 +61,14 @@ DeviceOptions::DeviceOptions(Allocator &a, int argc, const char **argv)
 	, _map_source_dir_name(NULL)
 	, _map_source_dir_prefix(DynamicString(a))
 	, _data_dir(DynamicString(a))
+	, _bundle_dir(DynamicString(a))
 	, _boot_dir(NULL)
 	, _platform(NULL)
 	, _lua_string(DynamicString(a))
 	, _wait_console(false)
 	, _do_compile(false)
 	, _do_continue(false)
+	, _do_bundle(false)
 	, _server(false)
 	, _pumped(false)
 	, _parent_window(0)
@@ -101,6 +105,7 @@ int DeviceOptions::parse(bool *quit)
 
 	path::reduce(_source_dir, cl.get_parameter(0, "source-dir"));
 	path::reduce(_data_dir, cl.get_parameter(0, "data-dir"));
+	path::reduce(_bundle_dir, cl.get_parameter(0, "bundle-dir"));
 
 	_map_source_dir_name = cl.get_parameter(0, "map-source-dir");
 	if (_map_source_dir_name) {
@@ -112,7 +117,8 @@ int DeviceOptions::parse(bool *quit)
 	}
 
 	_do_compile = cl.has_option("compile");
-	if (_do_compile) {
+	_do_bundle = cl.has_option("bundle");
+	if (_do_compile || _do_bundle) {
 		_platform = cl.get_parameter(0, "platform");
 
 		// Compile for platform the executable is built for.
@@ -137,6 +143,14 @@ int DeviceOptions::parse(bool *quit)
 			_data_dir += _source_dir;
 			_data_dir += '_';
 			_data_dir += _platform;
+		}
+
+		if (_do_bundle) {
+			if (_bundle_dir.value().empty()) {
+				_bundle_dir += _source_dir;
+				_bundle_dir += "_bundle_";
+				_bundle_dir += _platform;
+			}
 		}
 	}
 

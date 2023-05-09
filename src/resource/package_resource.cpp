@@ -8,6 +8,7 @@
 #include "core/containers/hash_map.inl"
 #include "core/containers/hash_set.inl"
 #include "core/filesystem/file.h"
+#include "core/filesystem/file_buffer.inl"
 #include "core/filesystem/filesystem.h"
 #include "core/filesystem/reader_writer.inl"
 #include "core/json/json_object.inl"
@@ -193,10 +194,46 @@ namespace package_resource_internal
 		opts.write(RESOURCE_HEADER(RESOURCE_VERSION_PACKAGE));
 		opts.write(array::size(resources));
 
-		for (u32 i = 0; i < array::size(resources); ++i) {
-			opts.write(resources[i].type);
-			opts.write(resources[i].name);
-			opts.write(UINT32_MAX);
+		if (opts._bundle) {
+			Buffer bundle_data(default_allocator());
+			FileBuffer bundle_file(bundle_data);
+			BinaryWriter bundle(bundle_file);
+
+			for (u32 ii = 0; ii < array::size(resources); ++ii) {
+				// Read the resource's compiled data.
+				ResourceId id = resource_id(resources[ii].type, resources[ii].name);
+				TempAllocator256 ta;
+				DynamicString dest(ta);
+				destination_path(dest, id);
+
+				// Append data to bundle.
+				File *data_file = opts._data_filesystem.open(dest.c_str(), FileOpenMode::READ);
+				const u32 data_size = data_file->size();
+
+				// Align data to a 16-bytes boundary.
+				bundle.align(16);
+				const u32 data_offset = array::size(bundle_data);
+
+				file::copy(bundle_file, *data_file, data_size);
+				opts._data_filesystem.close(*data_file);
+
+				// Write ResourceOffset.
+				opts.write(resources[ii].type);
+				opts.write(resources[ii].name);
+				opts.write(data_offset);
+				opts.write(data_size);
+			}
+
+			// Write bundled data.
+			opts.align(16);
+			opts.write(array::begin(bundle_data), array::size(bundle_data));
+		} else {
+			for (u32 ii = 0; ii < array::size(resources); ++ii) {
+				opts.write(resources[ii].type);
+				opts.write(resources[ii].name);
+				opts.write(UINT32_MAX);
+				opts.write(UINT32_MAX);
+			}
 		}
 
 		return 0;

@@ -23,12 +23,14 @@ struct DeviceOptions
 	Option<const char *> _map_source_dir_name;
 	Option<DynamicString> _map_source_dir_prefix;
 	Option<DynamicString> _data_dir;
+	Option<DynamicString> _bundle_dir;
 	Option<const char *> _boot_dir;
 	Option<const char *> _platform;
 	Option<DynamicString> _lua_string;
 	Option<bool> _wait_console;
 	Option<bool> _do_compile;
 	Option<bool> _do_continue;
+	Option<bool> _do_bundle;
 	Option<bool> _server;
 	Option<bool> _pumped;
 	Option<u32> _parent_window;
