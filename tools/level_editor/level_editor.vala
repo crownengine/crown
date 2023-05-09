@@ -1027,7 +1027,7 @@ public class LevelEditorApplication : Gtk.Application
 			ArrayList<string> keys = new ArrayList<string>.wrap(ids.keys.to_array());
 			keys.sort(Gee.Functions.get_compare_func_for(typeof(string)));
 
-			Guid[] n_ids             = new Guid[keys.size];
+			Guid?[] n_ids            = new Guid?[keys.size];
 			Vector3[] n_positions    = new Vector3[keys.size];
 			Quaternion[] n_rotations = new Quaternion[keys.size];
 			Vector3[] n_scales       = new Vector3[keys.size];

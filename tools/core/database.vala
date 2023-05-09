@@ -22,7 +22,7 @@ public struct RestorePointHeader
 public struct RestorePoint
 {
 	public RestorePointHeader header;
-	public Guid[] data;
+	public Guid?[] data;
 }
 
 public class Stack
@@ -321,7 +321,7 @@ public class Stack
 		write_uint32(action);
 	}
 
-	public void write_restore_point(uint32 id, Guid[] data)
+	public void write_restore_point(uint32 id, Guid?[] data)
 	{
 		uint32 size = _last_write_restore_point_size;
 
@@ -344,7 +344,7 @@ public class Stack
 		uint32 id = read_uint32();
 		uint32 size = read_uint32();
 		uint32 num_guids = read_uint32();
-		Guid[] ids = new Guid[num_guids];
+		Guid?[] ids = new Guid?[num_guids];
 		for (uint32 i = 0; i < num_guids; ++i)
 			ids[i] = read_guid();
 
@@ -407,7 +407,7 @@ public class Database
 	public signal void key_changed(Guid id, string key);
 	public signal void object_created(Guid id);
 	public signal void object_destroyed(Guid id);
-	public signal void undo_redo(bool undo, uint32 id, Guid[] data);
+	public signal void undo_redo(bool undo, uint32 id, Guid?[] data);
 
 	public Database(Project project, UndoRedo? undo_redo = null)
 	{
@@ -1179,7 +1179,7 @@ public class Database
 		return data.keys.to_array();
 	}
 
-	public void add_restore_point(int id, Guid[] data)
+	public void add_restore_point(int id, Guid?[] data)
 	{
 		if (_debug)
 			logi("add_restore_point %d, undo size = %u".printf(id, _undo_redo._undo.size()));

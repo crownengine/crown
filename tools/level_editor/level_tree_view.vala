@@ -280,7 +280,7 @@ public class LevelTreeView : Gtk.Box
 	{
 		_level.selection_changed.disconnect(on_level_selection_changed);
 
-		Guid[] ids = {};
+		Guid?[] ids = {};
 		_tree_selection.selected_foreach((model, path, iter) => {
 				Value type;
 				model.get_value(iter, Column.TYPE, out type);
