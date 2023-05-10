@@ -217,6 +217,7 @@ namespace package_resource
 	{
 		return (u8 *)resource_offset(pr, pr->num_resources);
 	}
-}
+
+} // namespace package_resource
 
 } // namespace crown

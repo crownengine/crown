@@ -43,6 +43,6 @@ namespace package_resource
 	/// Returns a pointer to the data segment of the package resource @a pr.
 	const u8 *data(const PackageResource *pr);
 
-}
+} // namespace package_resource
 
 } // namespace crown
