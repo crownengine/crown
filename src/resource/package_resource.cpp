@@ -23,72 +23,33 @@
 namespace crown
 {
 template<>
-struct hash<PackageResource::Resource>
+struct hash<ResourceOffset>
 {
-	u32 operator()(const PackageResource::Resource &val) const
+	u32 operator()(const ResourceOffset &val) const
 	{
 		return (u32)resource_id(val.type, val.name)._id;
 	}
 };
 
-PackageResource::Resource::Resource()
-{
-}
-
-PackageResource::Resource::Resource(StringId64 t, StringId64 n)
-	: type(t)
-	, name(n)
-{
-}
-
-bool operator<(const PackageResource::Resource &a, const PackageResource::Resource &b)
+bool operator<(const ResourceOffset &a, const ResourceOffset &b)
 {
 	return a.type < b.type;
 }
 
-bool operator==(const PackageResource::Resource &a, const PackageResource::Resource &b)
+bool operator==(const ResourceOffset &a, const ResourceOffset &b)
 {
 	return a.type == b.type
 		&& a.name == b.name
 		;
 }
 
-PackageResource::PackageResource(Allocator &a)
-	: resources(a)
-{
-}
-
-namespace package_resource_internal
-{
-	void *load(File &file, Allocator &a)
-	{
-		BinaryReader br(file);
-
-		u32 version;
-		br.read(version);
-		CE_ASSERT(version == RESOURCE_HEADER(RESOURCE_VERSION_PACKAGE), "Wrong version");
-
-		u32 num_resources;
-		br.read(num_resources);
-
-		PackageResource *pr = CE_NEW(a, PackageResource)(a);
-		array::resize(pr->resources, num_resources);
-		br.read(array::begin(pr->resources), sizeof(PackageResource::Resource)*num_resources);
-
-		return pr;
-	}
-
-	void unload(Allocator &a, void *resource)
-	{
-		CE_DELETE(a, (PackageResource *)resource);
-	}
-
-} // namespace package_resource_internal
-
 #if CROWN_CAN_COMPILE
 namespace package_resource_internal
 {
-	s32 bring_in_requirements(HashSet<PackageResource::Resource> &output, CompileOptions &opts, ResourceId res_id)
+	s32 bring_in_requirements(HashSet<ResourceOffset> &output
+		, CompileOptions &opts
+		, ResourceId res_id
+		)
 	{
 		const HashMap<DynamicString, u32> reqs_deffault(default_allocator());
 		const HashMap<DynamicString, u32> &reqs = hash_map::get(opts._data_compiler._data_requirements, res_id, reqs_deffault);
@@ -104,7 +65,11 @@ namespace package_resource_internal
 
 			const StringId64 req_type_hash(req_type);
 			const StringId64 req_name_hash(req_filename, req_name_len);
-			hash_set::insert(output, PackageResource::Resource(req_type_hash, req_name_hash));
+
+			ResourceOffset ro;
+			ro.type = req_type_hash;
+			ro.name = req_name_hash;
+			hash_set::insert(output, ro);
 
 			bring_in_requirements(output, opts, resource_id(req_type_hash, req_name_hash));
 		}
@@ -112,7 +77,11 @@ namespace package_resource_internal
 		return 0;
 	}
 
-	s32 compile_resources(HashSet<PackageResource::Resource> &output, CompileOptions &opts, const char *type, const JsonArray &names)
+	s32 compile_resources(HashSet<ResourceOffset> &output
+		, CompileOptions &opts
+		, const char *type
+		, const JsonArray &names
+		)
 	{
 		const StringId64 type_hash = StringId64(type);
 
@@ -125,11 +94,13 @@ namespace package_resource_internal
 			name += type;
 			opts.fake_read(name.c_str());
 
-			const StringId64 name_hash = sjson::parse_resource_name(names[i]);
-			hash_set::insert(output, PackageResource::Resource(type_hash, name_hash));
+			ResourceOffset ro;
+			ro.type = type_hash;
+			ro.name = sjson::parse_resource_name(names[i]);
+			hash_set::insert(output, ro);
 
 			// Bring in requirements
-			bring_in_requirements(output, opts, resource_id(type_hash, name_hash));
+			bring_in_requirements(output, opts, resource_id(ro.type, ro.name));
 		}
 
 		return 0;
@@ -152,8 +123,8 @@ namespace package_resource_internal
 		JsonArray shader(ta);
 		JsonArray sprite_animation(ta);
 
-		Array<PackageResource::Resource> resources(default_allocator());
-		HashSet<PackageResource::Resource> resources_set(default_allocator());
+		Array<ResourceOffset> resources(default_allocator());
+		HashSet<ResourceOffset> resources_set(default_allocator());
 
 		Buffer buf = opts.read();
 		sjson::parse(obj, buf);
@@ -225,6 +196,7 @@ namespace package_resource_internal
 		for (u32 i = 0; i < array::size(resources); ++i) {
 			opts.write(resources[i].type);
 			opts.write(resources[i].name);
+			opts.write(UINT32_MAX);
 		}
 
 		return 0;
@@ -232,5 +204,19 @@ namespace package_resource_internal
 
 } // namespace package_resource_internal
 #endif // if CROWN_CAN_COMPILE
+
+namespace package_resource
+{
+	const ResourceOffset *resource_offset(const PackageResource *pr, u32 index)
+	{
+		const ResourceOffset *ro = (ResourceOffset *)(pr + 1);
+		return ro + index;
+	}
+
+	const u8 *data(const PackageResource *pr)
+	{
+		return (u8 *)resource_offset(pr, pr->num_resources);
+	}
+}
 
 } // namespace crown

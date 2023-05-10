@@ -11,36 +11,38 @@
 #include "core/strings/string_id.h"
 #include "core/strings/types.h"
 #include "resource/types.h"
-#include "resource/types.h"
 
 namespace crown
 {
+struct ResourceOffset
+{
+	StringId64 type;
+	StringId64 name;
+	u32 offset;      ///< Relative offset from package_resource::data().
+};
+
 struct PackageResource
 {
-	struct Resource
-	{
-		StringId64 type;
-		StringId64 name;
-
-		///
-		Resource();
-
-		///
-		Resource(StringId64 t, StringId64 n);
-	};
-
-	Array<Resource> resources;
-
-	///
-	explicit PackageResource(Allocator &a);
+	u32 version;
+	u32 num_resources;
+	// ResourceOffset offsets[num_resources]
+	// Data
 };
 
 namespace package_resource_internal
 {
 	s32 compile(CompileOptions &opts);
-	void *load(File &file, Allocator &a);
-	void unload(Allocator &allocator, void *resource);
 
 } // namespace package_resource_internal
+
+namespace package_resource
+{
+	///
+	const ResourceOffset *resource_offset(const PackageResource *pr, u32 index);
+
+	/// Returns a pointer to the data segment of the package resource @a pr.
+	const u8 *data(const PackageResource *pr);
+
+}
 
 } // namespace crown

@@ -31,15 +31,17 @@ void ResourcePackage::load()
 	_resource_manager->flush();
 	_package = (const PackageResource *)_resource_manager->get(RESOURCE_TYPE_PACKAGE, _package_id);
 
-	for (u32 i = 0; i < array::size(_package->resources); ++i) {
-		_resource_manager->load(_package->resources[i].type, _package->resources[i].name);
+	for (u32 ii = 0; ii < _package->num_resources; ++ii) {
+		const ResourceOffset *ro = package_resource::resource_offset(_package, ii);
+		_resource_manager->load(ro->type, ro->name);
 	}
 }
 
 void ResourcePackage::unload()
 {
-	for (u32 i = 0; i < array::size(_package->resources); ++i) {
-		_resource_manager->unload(_package->resources[i].type, _package->resources[i].name);
+	for (u32 ii = 0; ii < _package->num_resources; ++ii) {
+		const ResourceOffset *ro = package_resource::resource_offset(_package, ii);
+		_resource_manager->unload(ro->type, ro->name);
 	}
 }
 
@@ -50,8 +52,9 @@ void ResourcePackage::flush()
 
 bool ResourcePackage::has_loaded() const
 {
-	for (u32 i = 0; i < array::size(_package->resources); ++i) {
-		if (!_resource_manager->can_get(_package->resources[i].type, _package->resources[i].name))
+	for (u32 ii = 0; ii < _package->num_resources; ++ii) {
+		const ResourceOffset *ro = package_resource::resource_offset(_package, ii);
+		if (!_resource_manager->can_get(ro->type, ro->name))
 			return false;
 	}
 
