@@ -1,9 +1,5 @@
 lua = [
-	"core/game/camera"
-	"core/game/game"
 	"core/game/boot"
-	"core/lua/class"
-	"main"
 ]
 shader = [
 	"core/shaders/common"
