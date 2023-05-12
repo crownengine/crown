@@ -5,11 +5,13 @@
 
 #include "config.h"
 #include "core/containers/array.inl"
+#include "core/containers/hash_set.inl"
 #include "core/filesystem/file.h"
 #include "core/memory/temp_allocator.inl"
 #include "core/process.h"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string_stream.inl"
+#include "core/strings/string_view.inl"
 #include "resource/compile_options.inl"
 #include "resource/lua_resource.h"
 
@@ -33,6 +35,66 @@ namespace lua_resource
 #if CROWN_CAN_COMPILE
 namespace lua_resource_internal
 {
+	static const char *skip_blanks(const char *lua)
+	{
+		lua = skip_spaces(lua);
+
+		if (*lua == '-') {
+			++lua;
+			if (*lua++ == '-' && *lua++ == '[' && *lua++ == '[') {
+				// Multi-line comment.
+				const char *mlc_end = strstr(lua, "--]]");
+				if (mlc_end != NULL)
+					lua = mlc_end + 4;
+				else
+					lua += strlen(lua);
+			} else {
+				// Single-line comment.
+				while (*lua && *lua != '\n')
+					++lua;
+			}
+		}
+
+		return skip_spaces(lua);
+	}
+
+	void find_requirements(HashSet<StringView> &requirements, const char *lua)
+	{
+		while (*lua) {
+			lua = skip_blanks(lua);
+
+			if (*lua == 'r') { // Find require()s.
+				const char *require = strstr(lua, "require");
+				if (!require) {
+					++lua;
+					continue;
+				}
+
+				lua = skip_blanks(require + 7);
+
+				if (*lua == '(')
+					++lua;
+
+				lua = skip_blanks(lua);
+
+				if (*lua == '\'' || *lua == '"') {
+					const char *param_begin = lua + 1;
+					const char *param_end   = strchr(param_begin, *lua);
+					if (param_end != NULL) {
+						hash_set::insert(requirements
+							, StringView(param_begin, param_end - param_begin)
+							);
+						lua = param_end + 1;
+					}
+				}
+			} else if (*lua == '-' || isspace(*lua)) {
+				lua = skip_blanks(lua);
+			} else if (*lua) {
+				++lua;
+			}
+		}
+	}
+
 	s32 compile(CompileOptions &opts)
 	{
 		TempAllocator1024 ta;
@@ -56,6 +118,23 @@ namespace lua_resource_internal
 			, "Failed to spawn `%s`"
 			, argv[0]
 			);
+
+		// Scan the .lua code for requirements.
+		Buffer lua_code = opts.read();
+		HashSet<StringView> requirements(default_allocator());
+		lua_resource_internal::find_requirements(requirements, array::begin(lua_code));
+
+		auto cur = hash_set::begin(requirements);
+		auto end = hash_set::end(requirements);
+		for (; cur != end; ++cur) {
+			HASH_SET_SKIP_HOLE(requirements, cur);
+
+			TempAllocator256 ta;
+			DynamicString name(ta);
+			name = *cur;
+			opts.add_requirement("lua", name.c_str());
+		}
+
 		StringStream output(ta);
 		opts.read_output(output, pr);
 		s32 ec = pr.wait();

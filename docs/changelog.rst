@@ -7,6 +7,7 @@ Changelog
 **Data Compiler**
 
 * Data directories can now be deleted at run-time to force a full data compilation.
+* Some dependencies for Lua scripts are now automatically determined by parsing require() calls in the source.
 
 **Runtime**
 

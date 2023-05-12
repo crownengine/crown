@@ -21,6 +21,10 @@ struct LuaResource
 
 namespace lua_resource_internal
 {
+	///
+	void find_requirements(HashSet<StringView> &requirements, const char *lua);
+
+	///
 	s32 compile(CompileOptions &opts);
 
 } // namespace lua_resource_internal

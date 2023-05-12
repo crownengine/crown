@@ -39,6 +39,7 @@
 #include "core/thread/thread.h"
 #include "core/time.h"
 #include "core/option.inl"
+#include "resource/lua_resource.h"
 #include <stdlib.h> // EXIT_SUCCESS, EXIT_FAILURE
 #include <stdio.h>  // printf
 
@@ -1593,6 +1594,156 @@ static void test_option()
 	memory_globals::shutdown();
 }
 
+static void test_lua_resource()
+{
+#if CROWN_CAN_COMPILE
+	memory_globals::init();
+	{
+		const char *lua = "";
+
+		HashSet<StringView> req(default_allocator());
+		lua_resource_internal::find_requirements(req, lua);
+
+		ENSURE(hash_set::size(req) == 0);
+	}
+	{
+		const char *lua = "require 'foo'";
+
+		HashSet<StringView> req(default_allocator());
+		lua_resource_internal::find_requirements(req, lua);
+
+		ENSURE(hash_set::size(req) == 1);
+		ENSURE(hash_set::has(req, StringView("foo")));
+	}
+	{
+		const char *lua = "require \"foo\"";
+
+		HashSet<StringView> req(default_allocator());
+		lua_resource_internal::find_requirements(req, lua);
+
+		ENSURE(hash_set::size(req) == 1);
+		ENSURE(hash_set::has(req, StringView("foo")));
+	}
+	{
+		const char *lua = "require (\"foo\")";
+
+		HashSet<StringView> req(default_allocator());
+		lua_resource_internal::find_requirements(req, lua);
+
+		ENSURE(hash_set::size(req) == 1);
+		ENSURE(hash_set::has(req, StringView("foo")));
+	}
+	{
+		const char *lua = "require";
+
+		HashSet<StringView> req(default_allocator());
+		lua_resource_internal::find_requirements(req, lua);
+
+		ENSURE(hash_set::size(req) == 0);
+	}
+	{
+		const char *lua = "require '";
+
+		HashSet<StringView> req(default_allocator());
+		lua_resource_internal::find_requirements(req, lua);
+
+		ENSURE(hash_set::size(req) == 0);
+	}
+	{
+		const char *lua = "require ('";
+
+		HashSet<StringView> req(default_allocator());
+		lua_resource_internal::find_requirements(req, lua);
+
+		ENSURE(hash_set::size(req) == 0);
+	}
+	{
+		const char *lua = "-- require (\"foo\")";
+
+		HashSet<StringView> req(default_allocator());
+		lua_resource_internal::find_requirements(req, lua);
+
+		ENSURE(hash_set::size(req) == 0);
+	}
+	{
+		const char *lua = "require (\"foo\") -- comment";
+
+		HashSet<StringView> req(default_allocator());
+		lua_resource_internal::find_requirements(req, lua);
+
+		ENSURE(hash_set::size(req) == 1);
+		ENSURE(hash_set::has(req, StringView("foo")));
+	}
+	{
+		const char *lua = "require --[[ comment --]] (\"foo\")";
+
+		HashSet<StringView> req(default_allocator());
+		lua_resource_internal::find_requirements(req, lua);
+
+		ENSURE(hash_set::size(req) == 1);
+		ENSURE(hash_set::has(req, StringView("foo")));
+	}
+	{
+		const char *lua = "require ( --[[--]] \"foo\" --[[--]])";
+
+		HashSet<StringView> req(default_allocator());
+		lua_resource_internal::find_requirements(req, lua);
+
+		ENSURE(hash_set::size(req) == 1);
+		ENSURE(hash_set::has(req, StringView("foo")));
+	}
+	{
+		const char *lua = "--[[ unmatched multi-line comment";
+
+		HashSet<StringView> req(default_allocator());
+		lua_resource_internal::find_requirements(req, lua);
+
+		ENSURE(hash_set::size(req) == 0);
+	}
+	{
+		const char *lua = "require --[[ unmatched multi-line comment after require";
+
+		HashSet<StringView> req(default_allocator());
+		lua_resource_internal::find_requirements(req, lua);
+
+		ENSURE(hash_set::size(req) == 0);
+	}
+	{
+		const char *lua =
+			"require (\"foo\")"
+			"require 'bar'"
+			"require 'baz'"
+			;
+
+		HashSet<StringView> req(default_allocator());
+		lua_resource_internal::find_requirements(req, lua);
+
+		ENSURE(hash_set::size(req) == 3);
+		ENSURE(hash_set::has(req, StringView("foo")));
+		ENSURE(hash_set::has(req, StringView("bar")));
+		ENSURE(hash_set::has(req, StringView("baz")));
+	}
+	{
+		const char *lua =
+			"function init()"
+			"    require (\"foo\")"
+			"    require 'bar'"
+			"    require 'baz'"
+			"end"
+			;
+
+		HashSet<StringView> req(default_allocator());
+		lua_resource_internal::find_requirements(req, lua);
+
+		ENSURE(hash_set::size(req) == 3);
+		ENSURE(hash_set::has(req, StringView("foo")));
+		ENSURE(hash_set::has(req, StringView("bar")));
+		ENSURE(hash_set::has(req, StringView("baz")));
+	}
+	memory_globals::shutdown();
+#endif // if CROWN_CAN_COMPILE
+}
+
 #define RUN_TEST(name)      \
 	do {                    \
 		printf(#name "\n"); \
@@ -1628,6 +1779,7 @@ int main_unit_tests()
 	RUN_TEST(test_process);
 	RUN_TEST(test_filesystem);
 	RUN_TEST(test_option);
+	RUN_TEST(test_lua_resource);
 
 	return EXIT_SUCCESS;
 }
