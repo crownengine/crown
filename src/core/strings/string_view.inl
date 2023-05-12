@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "core/murmur.h"
 #include "core/strings/string.inl"
 #include "core/strings/string_view.h"
 
@@ -73,5 +74,14 @@ inline bool operator<(const StringView &a, const StringView &b)
 	const int cmp = strncmp(a._data, b._data, len);
 	return cmp < 0 || (cmp == 0 && a._length < b._length);
 }
+
+template<>
+struct hash<StringView>
+{
+	u32 operator()(const StringView &val) const
+	{
+		return (u32)murmur64(val._data, val._length, 0);
+	}
+};
 
 } // namespace crown

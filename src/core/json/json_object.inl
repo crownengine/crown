@@ -7,20 +7,10 @@
 
 #include "core/containers/hash_map.inl"
 #include "core/json/types.h"
-#include "core/murmur.h"
 #include "core/strings/string_view.inl"
 
 namespace crown
 {
-template<>
-struct hash<StringView>
-{
-	u32 operator()(const StringView &val) const
-	{
-		return (u32)murmur32(val._data, val._length, 0);
-	}
-};
-
 /// Functions to manipulate JsonObject.
 ///
 /// @ingroup JSON
