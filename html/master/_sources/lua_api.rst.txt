@@ -721,17 +721,23 @@ Functions
 **set_z** (m, z)
 	Sets the z axis of the matrix *m*.
 
+**translation** (m) : Vector3
+	Returns the translation portion of the matrix *m*.
+
+**set_translation** (m, t)
+	Sets the translation portion of the matrix *m*.
+
 **rotation** (m) : Quaternion
 	Returns the rotation portion of the matrix *m*.
 
 **set_rotation** (m, r)
 	Sets the rotation portion of the matrix *m*.
 
-**translation** (m) : Vector3
-	Returns the translation portion of the matrix *m*.
+**scale** (m) : Vector3
+	Returns the scale of the matrix *m*.
 
-**set_translation** (m, t)
-	Sets the translation portion of the matrix *m*.
+**set_scale** (m, r)
+	Sets the scale of the matrix *m*.
 
 **identity** ()
 	Returns the identity matrix.
@@ -817,6 +823,9 @@ Math
 	Returns whether the oriented bounding box (obb_tm, obb_half_extents) intersects
 	the frustum defined by the planes ((n0, d0), (n1, d1), ..., (n5, d5)). The
 	planes be given in BRTLNF order, where B = bottom plane, R = right plane etc.
+
+**obb_vertices** (obb_tm, obb_half_extents) : v0, v1, v2, v3, v4, v5, v6, v7
+	Returns the vertices of the oriented bounding box (obb_tm, obb_half_extents).
 
 PhysicsWorld
 =============

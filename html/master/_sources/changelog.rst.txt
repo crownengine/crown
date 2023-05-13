@@ -4,9 +4,28 @@ Changelog
 0.48.0 --- *DD MMM YYYY*
 ------------------------
 
+**Data Compiler**
+
+* Data directories can now be deleted at run-time to force a full data compilation.
+* Some dependencies for Lua scripts are now automatically determined by parsing require() calls in the source.
+
 **Runtime**
 
 * Added ``--window-rect`` CLI option.
+* Fixed a double-free error during shutdown.
+
+**Tools**
+
+* Added camera framing of selected objects or whole Level.
+* Numeric input fields will now accept simple math expressions.
+* Fixed the Editor View struggling to grab keyboard focus sometimes.
+* Fixed an issue that caused a project folder to be deleted when the ESC key was pressed in the confirmation dialog.
+* Fixed minor aesthetic issues.
+
+**Lua API**
+
+* Added ``Matrix4x4.scale()`` and ``Matrix4x4.set_scale()``.
+* Added ``Math.obb_vertices()``.
 
 0.47.0 --- *06 Feb 2023*
 ------------------------

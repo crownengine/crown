@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Changelog &mdash; Crown Manual 0.48.0 documentation</title>
@@ -100,9 +100,28 @@
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this heading">¶</a></h1>
 <section id="dd-mmm-yyyy">
 <h2>0.48.0 — <em>DD MMM YYYY</em><a class="headerlink" href="#dd-mmm-yyyy" title="Permalink to this heading">¶</a></h2>
+<p><strong>Data Compiler</strong></p>
+<ul class="simple">
+<li><p>Data directories can now be deleted at run-time to force a full data compilation.</p></li>
+<li><p>Some dependencies for Lua scripts are now automatically determined by parsing require() calls in the source.</p></li>
+</ul>
 <p><strong>Runtime</strong></p>
 <ul class="simple">
 <li><p>Added <code class="docutils literal notranslate"><span class="pre">--window-rect</span></code> CLI option.</p></li>
+<li><p>Fixed a double-free error during shutdown.</p></li>
+</ul>
+<p><strong>Tools</strong></p>
+<ul class="simple">
+<li><p>Added camera framing of selected objects or whole Level.</p></li>
+<li><p>Numeric input fields will now accept simple math expressions.</p></li>
+<li><p>Fixed the Editor View struggling to grab keyboard focus sometimes.</p></li>
+<li><p>Fixed an issue that caused a project folder to be deleted when the ESC key was pressed in the confirmation dialog.</p></li>
+<li><p>Fixed minor aesthetic issues.</p></li>
+</ul>
+<p><strong>Lua API</strong></p>
+<ul class="simple">
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">Matrix4x4.scale()</span></code> and <code class="docutils literal notranslate"><span class="pre">Matrix4x4.set_scale()</span></code>.</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">Math.obb_vertices()</span></code>.</p></li>
 </ul>
 </section>
 <section id="feb-2023">

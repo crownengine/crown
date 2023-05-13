@@ -772,16 +772,6 @@ LuaJIT (MIT)
 
 A Just-In-Time Compiler for Lua.
 
-Native File Dialog (Zlib)
--------------------------
-
-A tiny, neat C library that portably invokes native file open, folder select and save dialogs.
-
-Dear ImGui (MIT)
-----------------
-
-Dear ImGui is a bloat-free graphical user interface library for C++.
-
 OpenAL soft (LGPL)
 ------------------
 

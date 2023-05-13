@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lua API reference &mdash; Crown Manual 0.48.0 documentation</title>
@@ -764,13 +764,17 @@ It uses NLerp.</p>
 </dd>
 <dt><strong>set_z</strong> (m, z)</dt><dd><p>Sets the z axis of the matrix <em>m</em>.</p>
 </dd>
+<dt><strong>translation</strong> (m)<span class="classifier">Vector3</span></dt><dd><p>Returns the translation portion of the matrix <em>m</em>.</p>
+</dd>
+<dt><strong>set_translation</strong> (m, t)</dt><dd><p>Sets the translation portion of the matrix <em>m</em>.</p>
+</dd>
 <dt><strong>rotation</strong> (m)<span class="classifier">Quaternion</span></dt><dd><p>Returns the rotation portion of the matrix <em>m</em>.</p>
 </dd>
 <dt><strong>set_rotation</strong> (m, r)</dt><dd><p>Sets the rotation portion of the matrix <em>m</em>.</p>
 </dd>
-<dt><strong>translation</strong> (m)<span class="classifier">Vector3</span></dt><dd><p>Returns the translation portion of the matrix <em>m</em>.</p>
+<dt><strong>scale</strong> (m)<span class="classifier">Vector3</span></dt><dd><p>Returns the scale of the matrix <em>m</em>.</p>
 </dd>
-<dt><strong>set_translation</strong> (m, t)</dt><dd><p>Sets the translation portion of the matrix <em>m</em>.</p>
+<dt><strong>set_scale</strong> (m, r)</dt><dd><p>Sets the scale of the matrix <em>m</em>.</p>
 </dd>
 <dt><strong>identity</strong> ()</dt><dd><p>Returns the identity matrix.</p>
 </dd>
@@ -856,6 +860,8 @@ bounding box (tm, half_extents) or -1.0 if no intersection.</p>
 <dt><strong>obb_intersects_frustum</strong> (obb_tm, obb_half_extents, n0, d0, n1, d1, n2, d2, n3, d3, n4, d4, n4, d5)<span class="classifier">bool</span></dt><dd><p>Returns whether the oriented bounding box (obb_tm, obb_half_extents) intersects
 the frustum defined by the planes ((n0, d0), (n1, d1), …, (n5, d5)). The
 planes be given in BRTLNF order, where B = bottom plane, R = right plane etc.</p>
+</dd>
+<dt><strong>obb_vertices</strong> (obb_tm, obb_half_extents)<span class="classifier">v0, v1, v2, v3, v4, v5, v6, v7</span></dt><dd><p>Returns the vertices of the oriented bounding box (obb_tm, obb_half_extents).</p>
 </dd>
 </dl>
 </section>
