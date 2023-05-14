@@ -1,42 +1,25 @@
 The flexible game engine. [![Build Status](https://github.com/crownengine/crown/workflows/build_and_test/badge.svg)](https://github.com/crownengine/crown/actions)
 =====================================
 
-Crown is a general purpose and data-driven game engine, written in [orthodox
+Crown is a general purpose and data-driven 3D and 2D game engine, written in [orthodox
 C++](https://gist.github.com/bkaradzic/2e39896bc7d8c34e042b) with a minimalistic
 and data-oriented design philosophy in mind.
 
-Crown isn't tied to a particular game type or genre but instead it offers a set
-of generic primitives and facilities to help you create a wide gamut of
-interactive 2D and 3D products.
-
-Check out the
-[Introduction](https://docs.crownengine.org/html/latest/introduction.html)
-for more info.
+Check out the [Introduction](https://docs.crownengine.org/html/latest/introduction.html) for more info.
 
 ## Download
-### Binaries
-
-  * [Changelog](https://docs.crownengine.org/html/latest/changelog.html)
-  * [Crown v0.47.0 for Linux 64-bits](https://github.com/crownengine/crown/releases/download/v0.47.0/crown-0.47.0-linux-x64.tar.gz)
-  * [Crown v0.47.0 for Windows 64-bits](https://github.com/crownengine/crown/releases/download/v0.47.0/crown-0.47.0-windows-x64.zip)
-  * [Crown v0.47.0 all releases](https://github.com/crownengine/crown/releases/tag/v0.47.0)
-  
-### Arch Linux ([AUR](https://aur.archlinux.org/packages/crown/))
-    yay -S crown
+  * [Prebuilt Binaries](https://crownengine.org/download)
   
 ## Documentation
-### Unstable (master)
-  * [User Manual](https://docs.crownengine.org/html/master)
-  * [Lua API](https://docs.crownengine.org/html/master/lua_api.html)
-  * [Building](https://docs.crownengine.org/html/master/hackers/building.html)
-  
-### Latest Stable (v0.47.0)
-  * [User Manual](https://docs.crownengine.org/html/latest)
-  * [Lua API](https://docs.crownengine.org/html/latest/lua_api.html)
+  * [User Manual (Latest stable)](https://docs.crownengine.org/html/latest)
+  * [User Manual (Unstable)](https://docs.crownengine.org/html/master)
+  * [Developer Manual](https://docs.crownengine.org/html/master/hackers)
 
 ## Community Support & Development
-
   * [Discord](https://discord.gg/CeXVWCT): [![Discord Chat](https://img.shields.io/discord/572468149358690314.svg)](https://discord.gg/CeXVWCT)
+
+## Building from source
+  * [Building](https://docs.crownengine.org/html/master/hackers/building.html)
 
 ## Screenshots
 
