@@ -208,9 +208,10 @@ run-03-joypad: 03-joypad
 
 .PHONY: clean-samples
 clean-samples:
-	-@rm -rf samples/00-empty_$(OS)
-	-@rm -rf samples/01-physics_$(OS)
-	-@rm -rf samples/02-animation_$(OS)
+	-@rm -rf samples/00-empty_{,bundle_}$(OS)
+	-@rm -rf samples/01-physics_{,bundle_}$(OS)
+	-@rm -rf samples/02-animation_{,bundle_}$(OS)
+	-@rm -rf samples/03-joypad_{,bundle_}$(OS)
 
 .PHONY: codespell
 codespell:
