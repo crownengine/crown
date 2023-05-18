@@ -11,7 +11,6 @@ unit = [
 ]
 
 shader = [
-	"core/shaders/common"
 	"core/shaders/default"
 ]
 

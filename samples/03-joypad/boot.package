@@ -2,7 +2,6 @@ lua = [
 	"core/game/boot"
 ]
 shader = [
-	"core/shaders/common"
 	"core/shaders/default"
 ]
 physics_config = [

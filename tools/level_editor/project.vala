@@ -135,13 +135,8 @@ public class Project
 		{
 			string text = "lua = ["
 				+ "\n	\"core/game/boot\""
-				+ "\n	\"core/game/camera\""
-				+ "\n	\"core/game/game\""
-				+ "\n	\"core/lua/class\""
-				+ "\n	\"main\""
 				+ "\n]"
 				+ "\nshader = ["
-				+ "\n	\"core/shaders/common\""
 				+ "\n	\"core/shaders/default\""
 				+ "\n]"
 				+ "\nphysics_config = ["
