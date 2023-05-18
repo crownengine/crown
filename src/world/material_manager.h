@@ -26,16 +26,10 @@ struct MaterialManager
 	~MaterialManager();
 
 	///
-	void *load(File &file, Allocator &a);
-
-	///
 	void online(StringId64 id, ResourceManager &rm);
 
 	///
 	void offline(StringId64 id, ResourceManager &rm);
-
-	///
-	void unload(Allocator &a, void *res);
 
 	/// Instantiates the material @a resource.
 	Material *create_material(const MaterialResource *resource);

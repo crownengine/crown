@@ -80,11 +80,6 @@ namespace material_resource
 
 namespace material_resource_internal
 {
-	void *load(File &file, Allocator &a)
-	{
-		return device()->_material_manager->load(file, a);
-	}
-
 	void online(StringId64 id, ResourceManager &rm)
 	{
 		device()->_material_manager->online(id, rm);
@@ -93,11 +88,6 @@ namespace material_resource_internal
 	void offline(StringId64 id, ResourceManager &rm)
 	{
 		device()->_material_manager->offline(id, rm);
-	}
-
-	void unload(Allocator &a, void *res)
-	{
-		device()->_material_manager->unload(a, res);
 	}
 
 } // namespace material_resource_internal

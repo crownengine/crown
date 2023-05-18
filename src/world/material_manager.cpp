@@ -41,15 +41,6 @@ MaterialManager::~MaterialManager()
 	}
 }
 
-void *MaterialManager::load(File &file, Allocator &a)
-{
-	const u32 file_size = file.size();
-	void *res = a.allocate(file_size);
-	file.read(res, file_size);
-	CE_ASSERT(*(u32 *)res == RESOURCE_HEADER(RESOURCE_VERSION_MATERIAL), "Wrong version");
-	return res;
-}
-
 void MaterialManager::online(StringId64 id, ResourceManager &rm)
 {
 	using namespace material_resource;
@@ -96,11 +87,6 @@ void MaterialManager::offline(StringId64 id, ResourceManager &rm)
 		bgfx_uh.idx = uh->uniform_handle;
 		bgfx::destroy(bgfx_uh);
 	}
-}
-
-void MaterialManager::unload(Allocator &a, void *res)
-{
-	a.deallocate(res);
 }
 
 Material *MaterialManager::create_material(const MaterialResource *resource)
