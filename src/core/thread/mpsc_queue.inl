@@ -42,7 +42,6 @@ struct MPSCQueue
 	///
 	bool pop(T &ev)
 	{
-		ScopedMutex sm(_mutex);
 		return _queue.pop(ev);
 	}
 };
