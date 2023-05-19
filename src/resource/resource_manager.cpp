@@ -35,7 +35,7 @@ bool operator==(const ResourceManager::ResourceEntry &a, const ResourceManager::
 		;
 }
 
-const ResourceManager::ResourceEntry ResourceManager::ResourceEntry::NOT_FOUND = { 0xffffffffu, NULL };
+const ResourceManager::ResourceEntry ResourceManager::ResourceEntry::NOT_FOUND = { 0xffffffffu, NULL, NULL };
 
 template<>
 struct hash<ResourceManager::ResourcePair>
@@ -65,11 +65,11 @@ ResourceManager::~ResourceManager()
 		const StringId64 type = cur->first.type;
 		const StringId64 name = cur->first.name;
 		on_offline(type, name);
-		on_unload(type, cur->second.data);
+		on_unload(type, cur->second.allocator, cur->second.data);
 	}
 }
 
-void ResourceManager::load(StringId64 type, StringId64 name)
+void ResourceManager::load(StringId64 package_name, StringId64 type, StringId64 name)
 {
 	ResourcePair id = { type, name };
 	ResourceEntry &entry = hash_map::get(_rm, id, ResourceEntry::NOT_FOUND);
@@ -84,6 +84,8 @@ void ResourceManager::load(StringId64 type, StringId64 name)
 		rtd = hash_map::get(_type_data, type, rtd);
 
 		ResourceRequest rr;
+		rr.resource_manager = this;
+		rr.package_name = package_name;
 		rr.type = type;
 		rr.name = name;
 		rr.version = rtd.version;
@@ -107,7 +109,7 @@ void ResourceManager::unload(StringId64 type, StringId64 name)
 
 	if (--entry.references == 0) {
 		on_offline(type, name);
-		on_unload(type, entry.data);
+		on_unload(type, entry.allocator, entry.data);
 
 		hash_map::remove(_rm, id);
 	}
@@ -123,7 +125,7 @@ void ResourceManager::reload(StringId64 type, StringId64 name)
 		return;
 
 	unload(type, name);
-	load(type, name);
+	load(PACKAGE_RESOURCE_NONE, type, name);
 	flush();
 
 	ResourceEntry &new_entry = hash_map::get(_rm, id, ResourceEntry::NOT_FOUND);
@@ -145,7 +147,7 @@ const void *ResourceManager::get(StringId64 type, StringId64 name)
 	CE_UNUSED(res_id);
 
 	if (_autoload && !hash_map::has(_rm, id)) {
-		load(type, name);
+		load(PACKAGE_RESOURCE_NONE, type, name);
 		flush();
 	}
 
@@ -170,21 +172,18 @@ void ResourceManager::complete_requests()
 	Array<ResourceRequest> loaded(ta);
 	_loader->get_loaded(loaded);
 
-	for (u32 i = 0; i < array::size(loaded); ++i)
-		complete_request(loaded[i].type, loaded[i].name, loaded[i].data);
-}
+	for (u32 ii = 0; ii < array::size(loaded); ++ii) {
+		ResourceEntry entry;
+		entry.references = 1;
+		entry.data = loaded[ii].data;
+		entry.allocator = loaded[ii].allocator;
 
-void ResourceManager::complete_request(StringId64 type, StringId64 name, void *data)
-{
-	ResourceEntry entry;
-	entry.references = 1;
-	entry.data = data;
+		ResourcePair id = { loaded[ii].type, loaded[ii].name };
 
-	ResourcePair id = { type, name };
+		hash_map::set(_rm, id, entry);
 
-	hash_map::set(_rm, id, entry);
-
-	on_online(type, name);
+		on_online(loaded[ii].type, loaded[ii].name);
+	}
 }
 
 void ResourceManager::register_type(StringId64 type, u32 version, LoadFunction load, UnloadFunction unload, OnlineFunction online, OfflineFunction offline)
@@ -215,14 +214,17 @@ void ResourceManager::on_offline(StringId64 type, StringId64 name)
 		func(name, *this);
 }
 
-void ResourceManager::on_unload(StringId64 type, void *data)
+void ResourceManager::on_unload(StringId64 type, Allocator *allocator, void *data)
 {
+	if (allocator == NULL)
+		return;
+
 	UnloadFunction func = hash_map::get(_type_data, type, ResourceTypeData()).unload;
 
 	if (func)
-		func(_resource_heap, data);
+		func(*allocator, data);
 	else
-		_resource_heap.deallocate(data);
+		allocator->deallocate(data);
 }
 
 } // namespace crown

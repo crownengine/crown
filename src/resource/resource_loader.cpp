@@ -7,6 +7,7 @@
 #include "core/containers/hash_map.inl"
 #include "core/containers/queue.inl"
 #include "core/filesystem/file.h"
+#include "core/filesystem/file_memory.inl"
 #include "core/filesystem/filesystem.h"
 #include "core/filesystem/path.h"
 #include "core/memory/globals.h"
@@ -16,16 +17,19 @@
 #include "core/strings/string_id.inl"
 #include "core/thread/scoped_mutex.inl"
 #include "device/log.h"
+#include "resource/package_resource.h"
 #include "resource/resource_id.inl"
 #include "resource/resource_loader.h"
+#include "resource/resource_manager.h"
 #include "resource/types.h"
 
 LOG_SYSTEM(RESOURCE_LOADER, "resource_loader")
 
 namespace crown
 {
-ResourceLoader::ResourceLoader(Filesystem &data_filesystem)
+ResourceLoader::ResourceLoader(Filesystem &data_filesystem, bool is_bundle)
 	: _data_filesystem(data_filesystem)
+	, _is_bundle(is_bundle)
 	, _requests(default_allocator())
 	, _loaded(default_allocator())
 	, _fallback(default_allocator())
@@ -102,32 +106,74 @@ s32 ResourceLoader::run()
 		DynamicString path(ta);
 		destination_path(path, res_id);
 
-		File *file = _data_filesystem.open(path.c_str(), FileOpenMode::READ);
-		if (!file->is_open()) {
-			logw(RESOURCE_LOADER, "Can't load resource: " RESOURCE_ID_FMT ". Falling back...", res_id._id);
+		if (_is_bundle) {
+			if (rr.type == RESOURCE_TYPE_PACKAGE || rr.type == RESOURCE_TYPE_CONFIG) {
+				File *file = _data_filesystem.open(path.c_str(), FileOpenMode::READ);
+				CE_ASSERT(file->is_open(), "Cannot load " RESOURCE_ID_FMT, res_id);
 
-			StringId64 fallback_name;
-			fallback_name = hash_map::get(_fallback, rr.type, fallback_name);
-			CE_ENSURE(fallback_name._id != 0);
+				// Load the resource.
+				if (rr.load_function) {
+					rr.data = rr.load_function(*file, *rr.allocator);
+				} else {
+					const u32 file_size = file->size();
+					rr.data = rr.allocator->allocate(file_size, 16);
+					file->read(rr.data, file_size);
+					CE_ASSERT(*(u32 *)rr.data == RESOURCE_HEADER(rr.version), "Wrong version");
+				}
 
-			res_id = resource_id(rr.type, fallback_name);
-			destination_path(path, res_id);
+				_data_filesystem.close(*file);
+			} else {
+				// Get the package containing the resource.
+				const PackageResource *pkg = (PackageResource *)rr.resource_manager->get(RESOURCE_TYPE_PACKAGE, rr.package_name);
+
+				// Find the resource inside the package.
+				for (u32 ii = 0; ii < pkg->num_resources; ++ii) {
+					const ResourceOffset *offt = package_resource::resource_offset(pkg, ii);
+					if (offt->type == rr.type && offt->name == rr.name) {
+						const void *resource_data = package_resource::data(pkg) + offt->offset;
+
+						// Load the resource.
+						if (rr.load_function) {
+							FileMemory fm(resource_data, offt->size);
+							rr.data = rr.load_function(fm, *rr.allocator);
+						} else {
+							rr.allocator = NULL;
+							rr.data = (void *)resource_data;
+							CE_ASSERT(*(u32 *)rr.data == RESOURCE_HEADER(rr.version), "Wrong version");
+						}
+
+						break;
+					}
+				}
+			}
+		} else {
+			File *file = _data_filesystem.open(path.c_str(), FileOpenMode::READ);
+			if (!file->is_open()) {
+				logw(RESOURCE_LOADER, "Cannot load resource: " RESOURCE_ID_FMT ". Falling back...", res_id._id);
+
+				StringId64 fallback_name;
+				fallback_name = hash_map::get(_fallback, rr.type, fallback_name);
+				CE_ENSURE(fallback_name._id != 0);
+
+				res_id = resource_id(rr.type, fallback_name);
+				destination_path(path, res_id);
+
+				_data_filesystem.close(*file);
+				file = _data_filesystem.open(path.c_str(), FileOpenMode::READ);
+			}
+			CE_ASSERT(file->is_open(), "Cannot load fallback resource: " RESOURCE_ID_FMT, res_id._id);
+
+			if (rr.load_function) {
+				rr.data = rr.load_function(*file, *rr.allocator);
+			} else {
+				const u32 file_size = file->size();
+				rr.data = rr.allocator->allocate(file_size, 16);
+				file->read(rr.data, file_size);
+				CE_ASSERT(*(u32 *)rr.data == RESOURCE_HEADER(rr.version), "Wrong version");
+			}
 
 			_data_filesystem.close(*file);
-			file = _data_filesystem.open(path.c_str(), FileOpenMode::READ);
 		}
-		CE_ASSERT(file->is_open(), "Can't load fallback resource: " RESOURCE_ID_FMT, res_id._id);
-
-		if (rr.load_function) {
-			rr.data = rr.load_function(*file, *rr.allocator);
-		} else {
-			const u32 size = file->size();
-			rr.data = rr.allocator->allocate(size, 16);
-			file->read(rr.data, size);
-			CE_ASSERT(*(u32 *)rr.data == RESOURCE_HEADER(rr.version), "Wrong version");
-		}
-
-		_data_filesystem.close(*file);
 
 		add_loaded(rr);
 		_mutex.lock();

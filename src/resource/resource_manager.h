@@ -7,12 +7,13 @@
 
 #include "core/containers/types.h"
 #include "core/filesystem/types.h"
+#include "core/json/types.h"
 #include "core/memory/proxy_allocator.h"
 #include "core/strings/string_id.h"
 #include "core/types.h"
-#include "resource/types.h"
-#include "core/json/types.h"
 #include "device/console_server.h"
+#include "resource/resource_id.h"
+#include "resource/types.h"
 
 namespace crown
 {
@@ -35,6 +36,7 @@ struct ResourceManager
 	struct ResourceEntry
 	{
 		u32 references;
+		Allocator *allocator;
 		void *data;
 
 		static const ResourceEntry NOT_FOUND;
@@ -60,8 +62,7 @@ struct ResourceManager
 
 	void on_online(StringId64 type, StringId64 name);
 	void on_offline(StringId64 type, StringId64 name);
-	void on_unload(StringId64 type, void *data);
-	void complete_request(StringId64 type, StringId64 name, void *data);
+	void on_unload(StringId64 type, Allocator *allocator, void *data);
 
 	/// Uses @a rl to load resources.
 	explicit ResourceManager(ResourceLoader &rl);
@@ -69,9 +70,9 @@ struct ResourceManager
 	///
 	~ResourceManager();
 
-	/// Loads the resource (@a type, @a name).
+	/// Loads the resource (@a type, @a name) from the @a package.
 	/// You can check whether the resource is available with can_get().
-	void load(StringId64 type, StringId64 name);
+	void load(StringId64 package_name, StringId64 type, StringId64 name);
 
 	/// Unloads the resource @a type @a name.
 	void unload(StringId64 type, StringId64 name);

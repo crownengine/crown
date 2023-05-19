@@ -252,7 +252,8 @@ namespace package_resource
 
 	const u8 *data(const PackageResource *pr)
 	{
-		return (u8 *)resource_offset(pr, pr->num_resources);
+		const u8 *data_offset = (u8 *)resource_offset(pr, pr->num_resources);
+		return (u8 *)memory::align_top(data_offset, 16);
 	}
 
 } // namespace package_resource

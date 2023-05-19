@@ -55,6 +55,9 @@ struct UnitResource;
 #define RESOURCE_TYPE_SPRITE           STRING_ID_64("sprite",           UINT64_C(0x8d5871f9ebdb651c))
 #define RESOURCE_TYPE_TEXTURE          STRING_ID_64("texture",          UINT64_C(0xcd4238c6a0c69e32))
 
+#define RESOURCE_NAME_INVALID StringId64(u64(0))
+#define PACKAGE_RESOURCE_NONE RESOURCE_NAME_INVALID
+
 #define RESOURCE_FULL_REBUILD_COUNT       u32(0) //!< How many times we required a full asset rebuild?
 #define RESOURCE_VERSION(ver)             (RESOURCE_FULL_REBUILD_COUNT + ver)
 #define RESOURCE_VERSION_STATE_MACHINE    RESOURCE_VERSION(4)

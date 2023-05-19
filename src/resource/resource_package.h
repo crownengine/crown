@@ -16,8 +16,8 @@ struct ResourcePackage
 {
 	u32 _marker;
 	ResourceManager *_resource_manager;
-	StringId64 _package_id;
-	const PackageResource *_package;
+	StringId64 _package_resource_name;
+	const PackageResource *_package_resource;
 
 	///
 	ResourcePackage(StringId64 id, ResourceManager &resman);

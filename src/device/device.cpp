@@ -293,13 +293,21 @@ void Device::run()
 	_data_filesystem = CE_NEW(_allocator, FilesystemDisk)(default_allocator());
 	{
 		char cwd[1024];
-		const char *data_dir = !_options._data_dir.value().empty()
-			? _options._data_dir.value().c_str()
-			: os::getcwd(cwd, sizeof(cwd))
-			;
+		const char *data_dir = NULL;
+
+		if (!_options._bundle_dir.value().empty())
+			data_dir = _options._bundle_dir.value().c_str();
+
+		if (data_dir == NULL) {
+			if (!_options._data_dir.value().empty())
+				data_dir = _options._data_dir.value().c_str();
+			else
+				data_dir = os::getcwd(cwd, sizeof(cwd));
+		}
+
 		((FilesystemDisk *)_data_filesystem)->set_prefix(data_dir);
 	}
-#endif
+#endif // if CROWN_PLATFORM_ANDROID
 
 	logi(DEVICE, "Crown %s %s %s", CROWN_VERSION, CROWN_PLATFORM_NAME, CROWN_ARCH_NAME);
 
@@ -324,7 +332,7 @@ void Device::run()
 	namespace txr = texture_resource_internal;
 	namespace utr = unit_resource_internal;
 
-	_resource_loader  = CE_NEW(_allocator, ResourceLoader)(*_data_filesystem);
+	_resource_loader  = CE_NEW(_allocator, ResourceLoader)(*_data_filesystem, !_options._bundle_dir.value().empty());
 	_resource_loader->register_fallback(RESOURCE_TYPE_TEXTURE,  STRING_ID_64("core/fallback/fallback", 0xd09058ae71962248));
 	_resource_loader->register_fallback(RESOURCE_TYPE_MATERIAL, STRING_ID_64("core/fallback/fallback", 0xd09058ae71962248));
 	_resource_loader->register_fallback(RESOURCE_TYPE_UNIT,     STRING_ID_64("core/fallback/fallback", 0xd09058ae71962248));
@@ -357,7 +365,7 @@ void Device::run()
 		boot_dir += CROWN_BOOT_CONFIG;
 
 		const StringId64 config_name(boot_dir.c_str());
-		_resource_manager->load(RESOURCE_TYPE_CONFIG, config_name);
+		_resource_manager->load(PACKAGE_RESOURCE_NONE, RESOURCE_TYPE_CONFIG, config_name);
 		_resource_manager->flush();
 		_boot_config.parse((const char *)_resource_manager->get(RESOURCE_TYPE_CONFIG, config_name));
 		_resource_manager->unload(RESOURCE_TYPE_CONFIG, config_name);

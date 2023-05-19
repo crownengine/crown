@@ -12,6 +12,7 @@
 #include "core/thread/mutex.h"
 #include "core/thread/thread.h"
 #include "core/types.h"
+#include "resource/types.h"
 
 namespace crown
 {
@@ -19,6 +20,8 @@ struct ResourceRequest
 {
 	typedef void * (*LoadFunction)(File &file, Allocator &a);
 
+	ResourceManager *resource_manager;
+	StringId64 package_name;
 	StringId64 type;
 	StringId64 name;
 	u32 version;
@@ -33,6 +36,7 @@ struct ResourceRequest
 struct ResourceLoader
 {
 	Filesystem &_data_filesystem;
+	bool _is_bundle;
 
 	Queue<ResourceRequest> _requests;
 	Queue<ResourceRequest> _loaded;
@@ -44,14 +48,18 @@ struct ResourceLoader
 	Mutex _loaded_mutex;
 	bool _exit;
 
+	///
 	u32 num_requests();
+
+	///
 	void add_loaded(ResourceRequest rr);
 
 	/// Do not call explicitly.
 	s32 run();
 
-	/// Read resources from @a data_filesystem.
-	explicit ResourceLoader(Filesystem &data_filesystem);
+	/// Read resources from @a data_filesystem. Is bundle specifies whether
+	/// the filesystem contains bundled data.
+	explicit ResourceLoader(Filesystem &data_filesystem, bool is_bundle);
 
 	///
 	~ResourceLoader();
