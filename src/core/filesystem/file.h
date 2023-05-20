@@ -53,14 +53,21 @@ struct File
 	/// Sets the cursor position to @a bytes after current position.
 	virtual void skip(u32 bytes) = 0;
 
-	/// Reads @a size bytes from file.
+	/// Reads @a size bytes from this into @a data.
 	virtual u32 read(void *data, u32 size) = 0;
 
-	/// Writes @a size bytes to file.
+	/// Writes @a size bytes from @a data to this.
 	virtual u32 write(const void *data, u32 size) = 0;
 
 	/// Forces the previouses write operations to complete.
 	virtual void flush() = 0;
 };
+
+namespace file
+{
+	/// Copies @a input_size bytes from @a input to @a output.
+	u32 copy(File &output, File &input, u32 input_size);
+
+} // namespace file
 
 } // namespace crown
