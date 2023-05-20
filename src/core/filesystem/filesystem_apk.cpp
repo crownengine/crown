@@ -31,8 +31,9 @@ struct FileApk : public File
 		close();
 	}
 
-	void open(const char *path, FileOpenMode::Enum /*mode*/) override
+	void open(const char *path, FileOpenMode::Enum mode) override
 	{
+		CE_UNUSED(mode);
 		_asset = AAssetManager_open(_asset_manager, path, AASSET_MODE_RANDOM);
 	}
 
@@ -98,8 +99,9 @@ struct FileApk : public File
 		return (u32)AAsset_read(_asset, data, size);
 	}
 
-	u32 write(const void * /*data*/, u32 /*size*/) override
+	u32 write(const void *data, u32 size) override
 	{
+		CE_UNUSED_2(data, size);
 		CE_ASSERT(is_open(), "File is not open");
 		CE_FATAL("Apk files are read only!");
 		return 0;
@@ -131,8 +133,10 @@ void FilesystemApk::close(File &file)
 	CE_DELETE(*_allocator, &file);
 }
 
-Stat FilesystemApk::stat(const char * /*path*/)
+Stat FilesystemApk::stat(const char *path)
 {
+	CE_UNUSED(path);
+
 	Stat info;
 	info.file_type = Stat::REGULAR;
 	info.size = 0;
@@ -140,8 +144,9 @@ Stat FilesystemApk::stat(const char * /*path*/)
 	return info;
 }
 
-bool FilesystemApk::exists(const char * /*path*/)
+bool FilesystemApk::exists(const char *path)
 {
+	CE_UNUSED(path);
 	return true;
 }
 
@@ -160,24 +165,27 @@ u64 FilesystemApk::last_modified_time(const char *path)
 	return 0;
 }
 
-CreateResult FilesystemApk::create_directory(const char * /*path*/)
+CreateResult FilesystemApk::create_directory(const char *path)
 {
+	CE_UNUSED(path);
 	CE_FATAL("Cannot create directory in Android assets folder");
 	CreateResult cr;
 	cr.error = CreateResult::UNKNOWN;
 	return cr;
 }
 
-DeleteResult FilesystemApk::delete_directory(const char * /*path*/)
+DeleteResult FilesystemApk::delete_directory(const char *path)
 {
+	CE_UNUSED(path);
 	CE_FATAL("Cannot delete directory in Android assets folder");
 	DeleteResult dr;
 	dr.error = DeleteResult::UNKNOWN;
 	return dr;
 }
 
-DeleteResult FilesystemApk::delete_file(const char * /*path*/)
+DeleteResult FilesystemApk::delete_file(const char *path)
 {
+	CE_UNUSED(path);
 	CE_FATAL("Cannot delete file in Android assets folder");
 	DeleteResult dr;
 	dr.error = DeleteResult::UNKNOWN;
