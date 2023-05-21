@@ -876,20 +876,22 @@ bool DataCompiler::compile(const char *data_dir, const char *platform)
 	// Create the data directory on disk.
 	CreateResult cr;
 	cr = data_fs.create_directory("");
-	if (cr.error == CreateResult::SUCCESS) {
-		// Either the data directory has never been created before or it has
-		// been deleted while the data compiler was running. In both cases reset
-		// the tracking structures to force a full compile.
-		hash_map::clear(_data_index);
-		hash_map::clear(_data_mtimes);
-		hash_map::clear(_data_dependencies);
-		hash_map::clear(_data_requirements);
-		hash_map::clear(_data_versions);
+	if (cr.error == CreateResult::SUCCESS || cr.error == CreateResult::ALREADY_EXISTS) {
+		if (cr.error == CreateResult::SUCCESS) {
+			// Either the data directory has never been created before or it has
+			// been deleted while the data compiler was running. In both cases reset
+			// the tracking structures to force a full compile.
+			hash_map::clear(_data_index);
+			hash_map::clear(_data_mtimes);
+			hash_map::clear(_data_dependencies);
+			hash_map::clear(_data_requirements);
+			hash_map::clear(_data_versions);
+		}
 
 		// Create sub-directories.
 		data_fs.create_directory(CROWN_DATA_DIRECTORY);
 		data_fs.create_directory(CROWN_TEMP_DIRECTORY);
-	} else if (cr.error != CreateResult::ALREADY_EXISTS) {
+	} else {
 		loge(DATA_COMPILER, "Failed to create the data directory: `%s`", data_dir);
 		return false;
 	}
@@ -1114,9 +1116,9 @@ bool DataCompiler::compile(const char *data_dir, const char *platform)
 			bundle_fs.set_prefix(bundle_dir);
 
 			cr = bundle_fs.create_directory("");
-			if (cr.error == CreateResult::SUCCESS) {
+			if (cr.error == CreateResult::SUCCESS || cr.error == CreateResult::ALREADY_EXISTS) {
 				bundle_fs.create_directory(CROWN_DATA_DIRECTORY);
-			} else if (cr.error != CreateResult::ALREADY_EXISTS) {
+			} else {
 				loge(DATA_COMPILER, "Failed to create the bundle directory: `%s`", bundle_dir);
 				return false;
 			}
