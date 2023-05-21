@@ -1043,13 +1043,17 @@ bool DataCompiler::compile(const char *data_dir, const char *platform)
 			hash_map::set(_data_dependencies, id, new_dependencies);
 			hash_map::set(_data_requirements, id, new_requirements);
 
-			// Write output to disk
+			// Write data to disk.
 			File *outf = data_fs.open(dest.c_str(), FileOpenMode::WRITE);
-			u32 size = array::size(output);
-			u32 written = outf->write(array::begin(output), size);
+			if (outf->is_open()) {
+				u32 size = array::size(output);
+				u32 written = outf->write(array::begin(output), size);
+				success = size == written;
+			} else {
+				loge(DATA_COMPILER, "Failed to write data to disk");
+				success = false;
+			}
 			data_fs.close(*outf);
-
-			success = size == written;
 		}
 
 		if (success) {
@@ -1155,13 +1159,17 @@ bool DataCompiler::compile(const char *data_dir, const char *platform)
 				success = rtd.compiler(opts) == 0;
 
 				if (success) {
-					// Write output to disk
+					// Write data to disk.
 					File *outf = bundle_fs.open(dest.c_str(), FileOpenMode::WRITE);
-					u32 size = array::size(output);
-					u32 written = outf->write(array::begin(output), size);
+					if (outf->is_open()) {
+						u32 size = array::size(output);
+						u32 written = outf->write(array::begin(output), size);
+						success = size == written;
+					} else {
+						loge(DATA_COMPILER, "Failed to write data to disk");
+						success = false;
+					}
 					bundle_fs.close(*outf);
-
-					success = size == written;
 				}
 
 				if (!success) {
