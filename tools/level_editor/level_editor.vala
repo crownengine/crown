@@ -1546,7 +1546,7 @@ public class LevelEditorApplication : Gtk.Application
 			);
 
 		if (fcd.run() == ResponseType.ACCEPT) {
-			GLib.File data_dir = File.new_for_path(fcd.get_filename());
+			GLib.File bundle_dir = File.new_for_path(fcd.get_filename());
 
 			string args[] =
 			{
@@ -1557,8 +1557,11 @@ public class LevelEditorApplication : Gtk.Application
 				"core",
 				_project.toolchain_dir(),
 				"--data-dir",
-				data_dir.get_path(),
-				"--compile"
+				_project.data_dir(),
+				"--bundle-dir",
+				bundle_dir.get_path(),
+				"--compile",
+				"--bundle",
 			};
 
 			try {
@@ -1567,22 +1570,24 @@ public class LevelEditorApplication : Gtk.Application
 				if (exit_status == 0) {
 					string game_name = DEPLOY_DEFAULT_NAME;
 					GLib.File engine_exe_src = File.new_for_path(DEPLOY_EXE);
-					GLib.File engine_exe_dst = File.new_for_path(Path.build_filename(data_dir.get_path(), game_name + EXE_SUFFIX));
+					GLib.File engine_exe_dst = File.new_for_path(Path.build_filename(bundle_dir.get_path(), game_name + EXE_SUFFIX));
 					engine_exe_src.copy(engine_exe_dst, FileCopyFlags.OVERWRITE);
 
 #if CROWN_PLATFORM_WINDOWS
 					string lua51_name = "lua51.dll";
 					GLib.File lua51_dll_src = File.new_for_path(lua51_name);
-					GLib.File lua51_dll_dst = File.new_for_path(Path.build_filename(data_dir.get_path(), lua51_name));
+					GLib.File lua51_dll_dst = File.new_for_path(Path.build_filename(bundle_dir.get_path(), lua51_name));
 					lua51_dll_src.copy(lua51_dll_dst, FileCopyFlags.OVERWRITE);
 
 					string openal_name = "openal-release.dll";
 					GLib.File openal_dll_src = File.new_for_path(openal_name);
-					GLib.File openal_dll_dst = File.new_for_path(Path.build_filename(data_dir.get_path(), openal_name));
+					GLib.File openal_dll_dst = File.new_for_path(Path.build_filename(bundle_dir.get_path(), openal_name));
 					openal_dll_src.copy(openal_dll_dst, FileCopyFlags.OVERWRITE);
 #endif
 
-					logi("Project deployed to `%s`".printf(data_dir.get_path()));
+					logi("Project deployed to `%s`".printf(bundle_dir.get_path()));
+				} else {
+					loge("Failed to deploy project (exit_status = %d)".printf(exit_status));
 				}
 			} catch (Error e) {
 				loge("%s".printf(e.message));
