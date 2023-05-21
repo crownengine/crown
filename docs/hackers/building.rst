@@ -58,7 +58,9 @@ Windows (VS 2019)
 
 	* https://visualstudio.microsoft.com/downloads
 
-2. Continue to `Build`_.
+2. If you want to build tools, continue to :ref:`Windows (MSYS2) <pre_windows_msys2>`.
+
+3. Continue to `Build`_.
 
 Windows (VS Code)
 -----------------
@@ -100,14 +102,14 @@ Android
 
 .. code::
 
-	make android-arm-release
+	make android-arm-release MAKE_JOBS=4
 
 Linux
 -----
 
 .. code::
 
-	make tools-linux-release64
+	make tools-linux-release64 MAKE_JOBS=4
 
 Windows (VS 2019)
 -----------------
@@ -116,14 +118,14 @@ Windows (VS 2019)
 
 .. code::
 
-	make tools-windows-release64
+	make tools-windows-release64 MAKE_JOBS=4
 
 2. To build tools, open a MSYS2 MINGW64 shell:
 
 .. code::
 
 	export MINGW=/mingw64
-	make tools-mingw-release64
+	make tools-mingw-release64 MAKE_JOBS=4
 
 Windows (VS Code)
 -----------------
@@ -137,7 +139,7 @@ Windows (VS Code)
 .. code::
 
 	$env:MINGW = "C:\msys64\mingw64"
-	make tools-mingw-release64
+	make tools-mingw-release64 MAKE_JOBS=4
 
 Windows (MSYS2)
 ---------------
@@ -147,4 +149,4 @@ Open MSYS2 MINGW64 shell:
 .. code::
 
 	export MINGW=/mingw64
-	make tools-mingw-release64
+	make tools-mingw-release64 MAKE_JOBS=4
