@@ -287,6 +287,7 @@ void Device::run()
 
 	_console_server->listen(_options._console_port, _options._wait_console);
 
+	bool is_bundle = true;
 #if CROWN_PLATFORM_ANDROID
 	_data_filesystem = CE_NEW(_allocator, FilesystemApk)(default_allocator(), const_cast<AAssetManager *>((AAssetManager *)_options._asset_manager.value()));
 #else
@@ -295,14 +296,18 @@ void Device::run()
 		char cwd[1024];
 		const char *data_dir = NULL;
 
-		if (!_options._bundle_dir.value().empty())
-			data_dir = _options._bundle_dir.value().c_str();
-
-		if (data_dir == NULL) {
-			if (!_options._data_dir.value().empty())
-				data_dir = _options._data_dir.value().c_str();
-			else
-				data_dir = os::getcwd(cwd, sizeof(cwd));
+		if (_options._bundle_dir.value().empty() && _options._data_dir.value().empty()) {
+			data_dir = os::getcwd(cwd, sizeof(cwd));
+		} else {
+			if (!_options._bundle_dir.value().empty()) {
+				data_dir = _options._bundle_dir.value().c_str();
+			} else {
+				is_bundle = false;
+				if (!_options._data_dir.value().empty())
+					data_dir = _options._data_dir.value().c_str();
+				else
+					data_dir = os::getcwd(cwd, sizeof(cwd));
+			}
 		}
 
 		((FilesystemDisk *)_data_filesystem)->set_prefix(data_dir);
@@ -332,7 +337,7 @@ void Device::run()
 	namespace txr = texture_resource_internal;
 	namespace utr = unit_resource_internal;
 
-	_resource_loader  = CE_NEW(_allocator, ResourceLoader)(*_data_filesystem, !_options._bundle_dir.value().empty());
+	_resource_loader  = CE_NEW(_allocator, ResourceLoader)(*_data_filesystem, is_bundle);
 	_resource_loader->register_fallback(RESOURCE_TYPE_TEXTURE,  STRING_ID_64("core/fallback/fallback", 0xd09058ae71962248));
 	_resource_loader->register_fallback(RESOURCE_TYPE_MATERIAL, STRING_ID_64("core/fallback/fallback", 0xd09058ae71962248));
 	_resource_loader->register_fallback(RESOURCE_TYPE_UNIT,     STRING_ID_64("core/fallback/fallback", 0xd09058ae71962248));
