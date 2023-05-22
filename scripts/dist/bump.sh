@@ -38,8 +38,6 @@ sed -i "s/PATCH ${VERSION_PATCH}/PATCH ${VERSION_NEXT_PATCH}/g" src/config.h
 sed -i "s/${VERSION}/${VERSION_NEXT}/g" tools/config.vala
 # Patch version string in docs
 sed -i "s/${VERSION}/${VERSION_NEXT}/g" docs/conf.py
-# Patch download links
-sed -i "s/${VERSION_PREV}/${VERSION}/g" README.md
 
 # Prepare CHANGELOG for next version
 {
@@ -62,7 +60,6 @@ if [ "${answer}" != "y" ] && [ "${answer}" != "Y" ]; then
 fi
 
 # Commit changes
-git add README.md
 git add src/config.h
 git add tools/config.vala
 git add docs/conf.py
