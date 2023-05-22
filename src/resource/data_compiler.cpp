@@ -234,6 +234,10 @@ static void console_command_refresh_list(ConsoleServer &cs, u32 client_id, const
 	sjson::parse(obj, json);
 	Guid client_guid = sjson::parse_guid(obj["client_id"]);
 
+	// Assume client is up to date, if never seen before.
+	if (!hash_map::has(dc->_client_revisions, client_guid))
+		hash_map::set(dc->_client_revisions, client_guid, dc->_revision);
+
 	ss << "{\"type\":\"refresh_list\",\"list\":[";
 	auto cur = hash_map::begin(dc->_data_revisions);
 	auto end = hash_map::end(dc->_data_revisions);

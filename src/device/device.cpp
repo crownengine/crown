@@ -731,9 +731,9 @@ void Device::destroy_resource_package(ResourcePackage &rp)
 	CE_DELETE(default_allocator(), &rp);
 }
 
-#if CROWN_DEBUG
 void Device::refresh()
 {
+#if CROWN_DEBUG
 	TempAllocator4096 ta;
 	Array<char> msg(ta);
 	StringStream ss(ta);
@@ -814,13 +814,8 @@ void Device::refresh()
 		if (_paused)
 			unpause();
 	}
-}
-#else
-void Device::refresh()
-{
-	// Do nothing
-}
 #endif // if CROWN_DEBUG
+}
 
 char _buffer[sizeof(Device)];
 Device *_device = NULL;
