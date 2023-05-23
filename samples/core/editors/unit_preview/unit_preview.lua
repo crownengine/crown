@@ -23,18 +23,12 @@ function UnitPreview:update(dt)
 	if self._object then
 		local obb_tm, obb_he = self._object:obb()
 
-		local radius = Vector3.length(obb_he)
-		radius = math.ceil(radius / 2)  * 2
-		radius = radius <   1 and   1 or radius
-		radius = radius > 100 and 100 or radius
+		local camera_pos = Vector3(1, 1, 1)
+		local camera_rot = Quaternion.look(Vector3.normalize(-camera_pos))
+		local camera_pose = Matrix4x4.from_quaternion_translation(camera_rot, camera_pos)
 
-		local camera_unit = self._camera:unit()
-		local pos = Vector3(radius, radius, -radius) * 2
-		local camera_pos = Matrix4x4.translation(obb_tm) + pos
-		local target_pos = Matrix4x4.translation(obb_tm)
-		local tr = SceneGraph.instance(self._sg, camera_unit)
-		SceneGraph.set_local_rotation(self._sg, tr, Quaternion.look(Vector3.normalize(target_pos - camera_pos)))
-		SceneGraph.set_local_position(self._sg, tr, camera_pos)
+		self._camera:set_local_pose(camera_pose)
+		self._camera:frame_obb(obb_tm, obb_he)
 	end
 
 	self._camera:update(dt, 0, 0, {})
