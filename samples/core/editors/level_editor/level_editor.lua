@@ -1850,22 +1850,6 @@ function LevelEditor:frame_objects(ids)
 	aabb_center = Vector3.multiply(aabb_max + aabb_min, 0.5)
 	obb_tm, obb_he = Matrix4x4.from_translation(aabb_center), aabb_max - aabb_center
 
-	-- Frame camera to computed OBB.
-	local obb_position = Matrix4x4.translation(obb_tm)
-	local obb_scale = Matrix4x4.scale(obb_tm)
-	obb_he.x = obb_he.x * obb_scale.x
-	obb_he.y = obb_he.y * obb_scale.y
-	obb_he.z = obb_he.z * obb_scale.z
-	local obb_radius = Vector3.distance(obb_position, obb_position + obb_he)
-
-	local target_position = Matrix4x4.translation(obb_tm)
-	local camera_pose = self._camera:local_pose()
-	local camera_target_distance = obb_radius*3
-	local camera_forward  = Matrix4x4.z(camera_pose)
-	Matrix4x4.set_translation(camera_pose, target_position - camera_forward*camera_target_distance)
-
-	self._camera:set_local_pose(camera_pose)
-	self._camera._target_distance = camera_target_distance
-
+	self._camera:frame_obb(obb_tm, obb_he)
 	Device.set_temp_count(nv, nq, nm)
 end

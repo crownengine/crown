@@ -215,3 +215,20 @@ function Camera:far_clip_distance()
 	local camera = self:camera()
 	return World.camera_far_clip_distance(self._world, camera)
 end
+
+function Camera:frame_obb(obb_tm, obb_he)
+	local obb_position = Matrix4x4.translation(obb_tm)
+	local obb_scale = Matrix4x4.scale(obb_tm)
+	obb_he.x = obb_he.x * obb_scale.x
+	obb_he.y = obb_he.y * obb_scale.y
+	obb_he.z = obb_he.z * obb_scale.z
+	local obb_radius = Vector3.distance(obb_position, obb_position + obb_he)
+
+	local camera_pose = self:local_pose()
+	local camera_target_distance = obb_radius*3
+	local camera_forward  = Matrix4x4.z(camera_pose)
+	Matrix4x4.set_translation(camera_pose, obb_position - camera_forward*camera_target_distance)
+
+	self:set_local_pose(camera_pose)
+	self._target_distance = camera_target_distance
+end
