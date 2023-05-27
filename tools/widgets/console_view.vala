@@ -176,21 +176,21 @@ public class ConsoleView : Gtk.Box
 			_distance = 0;
 
 			Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
-			ConsoleClient? client = ((LevelEditorApplication)app).current_selected_client();
+			RuntimeInstance? runtime = ((LevelEditorApplication)app).current_selected_runtime();
 
 			if (text[0] == ':') {
 				string[] args = text[1 : text.length].split(" ");
 				if (args.length > 0) {
-					if (client != null) {
-						client.send(DeviceApi.command(args));
-						client.send(DeviceApi.frame());
+					if (runtime != null) {
+						runtime.send(DeviceApi.command(args));
+						runtime.send(DeviceApi.frame());
 					}
 				}
 			} else {
-				if (client != null) {
+				if (runtime != null) {
 					logi("> %s".printf(text));
-					client.send_script(text);
-					client.send(DeviceApi.frame());
+					runtime.send_script(text);
+					runtime.send(DeviceApi.frame());
 				}
 			}
 		}

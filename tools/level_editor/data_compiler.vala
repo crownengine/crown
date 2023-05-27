@@ -7,14 +7,14 @@ namespace Crown
 {
 public class DataCompiler
 {
-	private ConsoleClient _compiler;
+	private RuntimeInstance _runtime;
 	private Guid _id;
 	private bool _success;
 	private SourceFunc _callback;
 
-	public DataCompiler(ConsoleClient client)
+	public DataCompiler(RuntimeInstance runtime)
 	{
-		_compiler = client;
+		_runtime = runtime;
 		_id = GUID_ZERO;
 		_success = false;
 		_callback = null;
@@ -28,7 +28,7 @@ public class DataCompiler
 
 		_id = Guid.new_guid();
 		_success = false;
-		_compiler.send(DataCompilerApi.compile(_id, data_dir, platform));
+		_runtime.send(DataCompilerApi.compile(_id, data_dir, platform));
 		_callback = compile.callback;
 		yield;
 

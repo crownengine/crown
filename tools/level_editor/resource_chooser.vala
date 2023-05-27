@@ -22,7 +22,7 @@ public class ResourceChooser : Gtk.Box
 	public Project _project;
 	public Gtk.ListStore _list_store;
 	public Gtk.Stack? _editor_stack;
-	public ConsoleClient? _resource_preview;
+	public RuntimeInstance? _resource_preview;
 	public unowned UserFilter _user_filter;
 	public string _name;
 
@@ -40,7 +40,7 @@ public class ResourceChooser : Gtk.Box
 	public ResourceChooser(Project? project
 		, ProjectStore project_store
 		, Gtk.Stack? editor_stack = null
-		, ConsoleClient? resource_preview = null
+		, RuntimeInstance? resource_preview = null
 		)
 	{
 		Object(orientation: Gtk.Orientation.VERTICAL, spacing: 0);

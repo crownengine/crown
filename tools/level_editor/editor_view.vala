@@ -14,7 +14,7 @@ namespace Crown
 public class EditorView : Gtk.EventBox
 {
 	// Data
-	private ConsoleClient _client;
+	private RuntimeInstance _runtime;
 
 	private Gtk.Allocation _allocation;
 	private uint _resize_timer_id;
@@ -61,9 +61,9 @@ public class EditorView : Gtk.EventBox
 		_keys[Gdk.Key.Alt_R] = false;
 	}
 
-	public EditorView(ConsoleClient client, bool input_enabled = true)
+	public EditorView(RuntimeInstance runtime, bool input_enabled = true)
 	{
-		_client = client;
+		_runtime = runtime;
 
 		_allocation = { 0, 0, 0, 0 };
 		_resize_timer_id = 0;
@@ -112,7 +112,7 @@ public class EditorView : Gtk.EventBox
 		this.set_visual(Gdk.Screen.get_default().get_system_visual());
 		this.events |= Gdk.EventMask.STRUCTURE_MASK; // map_event
 		this.map_event.connect(() => {
-				device_frame_delayed(16, _client);
+				device_frame_delayed(16, _runtime);
 				return Gdk.EVENT_PROPAGATE;
 			});
 		this.enter_notify_event.connect(on_enter_notify_event);
@@ -141,8 +141,8 @@ public class EditorView : Gtk.EventBox
 		}
 
 		if (str.length != 0) {
-			_client.send_script(str);
-			_client.send(DeviceApi.frame());
+			_runtime.send_script(str);
+			_runtime.send(DeviceApi.frame());
 		}
 		return Gdk.EVENT_PROPAGATE;
 	}
@@ -176,8 +176,8 @@ public class EditorView : Gtk.EventBox
 			str += LevelEditorApi.mouse_down((int)ev.x, (int)ev.y);
 
 		if (str.length != 0) {
-			_client.send_script(str);
-			_client.send(DeviceApi.frame());
+			_runtime.send_script(str);
+			_runtime.send(DeviceApi.frame());
 		}
 		return Gdk.EVENT_PROPAGATE;
 	}
@@ -208,8 +208,8 @@ public class EditorView : Gtk.EventBox
 		}
 
 		if (str.length != 0) {
-			_client.send_script(str);
-			_client.send(DeviceApi.frame());
+			_runtime.send_script(str);
+			_runtime.send(DeviceApi.frame());
 		}
 		return Gdk.EVENT_PROPAGATE;
 	}
@@ -229,8 +229,8 @@ public class EditorView : Gtk.EventBox
 		}
 
 		if (str.length != 0) {
-			_client.send_script(str);
-			_client.send(DeviceApi.frame());
+			_runtime.send_script(str);
+			_runtime.send(DeviceApi.frame());
 		}
 		return Gdk.EVENT_PROPAGATE;
 	}
@@ -240,20 +240,20 @@ public class EditorView : Gtk.EventBox
 		_mouse_curr_x = (int)ev.x;
 		_mouse_curr_y = (int)ev.y;
 
-		_client.send_script(LevelEditorApi.set_mouse_state(_mouse_curr_x
+		_runtime.send_script(LevelEditorApi.set_mouse_state(_mouse_curr_x
 			, _mouse_curr_y
 			, _mouse_left
 			, _mouse_middle
 			, _mouse_right
 			));
 
-		_client.send(DeviceApi.frame());
+		_runtime.send(DeviceApi.frame());
 		return Gdk.EVENT_PROPAGATE;
 	}
 
 	private bool on_scroll(Gdk.EventScroll ev)
 	{
-		_client.send_script(LevelEditorApi.mouse_wheel(ev.direction == Gdk.ScrollDirection.UP ? 1.0 : -1.0));
+		_runtime.send_script(LevelEditorApi.mouse_wheel(ev.direction == Gdk.ScrollDirection.UP ? 1.0 : -1.0));
 		return Gdk.EVENT_PROPAGATE;
 	}
 
@@ -278,12 +278,12 @@ public class EditorView : Gtk.EventBox
 		}
 
 		_allocation = ev;
-		_client.send(DeviceApi.resize(_allocation.width, _allocation.height));
+		_runtime.send(DeviceApi.resize(_allocation.width, _allocation.height));
 
 		// Ensure there is some delay between the last resize() and the last frame().
 		if (_resize_timer_id == 0) {
 			_resize_timer_id = GLib.Timeout.add_full(GLib.Priority.DEFAULT, 200, () => {
-					_client.send(DeviceApi.frame());
+					_runtime.send(DeviceApi.frame());
 					_resize_timer_id = 0;
 					return GLib.Source.REMOVE;
 				});

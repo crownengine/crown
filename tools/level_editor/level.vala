@@ -13,7 +13,7 @@ public class Level
 	public Project _project;
 
 	// Engine connections
-	public ConsoleClient _client;
+	public RuntimeInstance _runtime;
 
 	// Data
 	public Database _db;
@@ -30,12 +30,12 @@ public class Level
 	public signal void selection_changed(Gee.ArrayList<Guid?> selection);
 	public signal void object_editor_name_changed(Guid object_id, string name);
 
-	public Level(Database db, ConsoleClient client, Project project)
+	public Level(Database db, RuntimeInstance runtime, Project project)
 	{
 		_project = project;
 
 		// Engine connections
-		_client = client;
+		_runtime = runtime;
 
 		// Data
 		_db = db;
@@ -108,7 +108,7 @@ public class Level
 		Guid id = Guid.new_guid();
 		on_unit_spawned(id, null, VECTOR3_ZERO, QUATERNION_IDENTITY, VECTOR3_ONE);
 		generate_spawn_unit_commands(new Guid?[] { id }, sb);
-		_client.send_script(sb.str);
+		_runtime.send_script(sb.str);
 		selection_set(new Guid?[] { id });
 	}
 
@@ -151,7 +151,7 @@ public class Level
 		Guid id = _selection.last();
 		on_move_objects(new Guid?[] { id }, new Vector3[] { pos }, new Quaternion[] { rot }, new Vector3[] { scl });
 		send_move_objects(new Guid?[] { id }, new Vector3[] { pos }, new Quaternion[] { rot }, new Vector3[] { scl });
-		_client.send(DeviceApi.frame());
+		_runtime.send(DeviceApi.frame());
 	}
 
 	public void duplicate_selected_objects()
@@ -276,14 +276,14 @@ public class Level
 			_selection.add(ids[i]);
 
 		send_selection();
-		_client.send(DeviceApi.frame());
+		_runtime.send(DeviceApi.frame());
 
 		selection_changed(_selection);
 	}
 
 	public void send_selection()
 	{
-		_client.send_script(LevelEditorApi.selection_set(_selection.to_array()));
+		_runtime.send_script(LevelEditorApi.selection_set(_selection.to_array()));
 	}
 
 	public void set_light(Guid unit_id, Guid component_id, string type, double range, double intensity, double spot_angle, Vector3 color)
@@ -297,8 +297,8 @@ public class Level
 		unit.set_component_property_string (component_id, "type", OBJECT_TYPE_LIGHT);
 		_db.add_restore_point((int)ActionType.SET_LIGHT, new Guid?[] { unit_id });
 
-		_client.send_script(LevelEditorApi.set_light(unit_id, type, range, intensity, spot_angle, color));
-		_client.send(DeviceApi.frame());
+		_runtime.send_script(LevelEditorApi.set_light(unit_id, type, range, intensity, spot_angle, color));
+		_runtime.send(DeviceApi.frame());
 	}
 
 	public void set_mesh(Guid unit_id, Guid component_id, string mesh_resource, string geometry, string material, bool visible)
@@ -311,8 +311,8 @@ public class Level
 		unit.set_component_property_string(component_id, "type", OBJECT_TYPE_MESH_RENDERER);
 		_db.add_restore_point((int)ActionType.SET_MESH, new Guid?[] { unit_id });
 
-		_client.send_script(LevelEditorApi.set_mesh(unit_id, material, visible));
-		_client.send(DeviceApi.frame());
+		_runtime.send_script(LevelEditorApi.set_mesh(unit_id, material, visible));
+		_runtime.send(DeviceApi.frame());
 	}
 
 	public void set_sprite(Guid unit_id, Guid component_id, double layer, double depth, string material, string sprite_resource, bool visible)
@@ -326,8 +326,8 @@ public class Level
 		unit.set_component_property_string(component_id, "type", OBJECT_TYPE_SPRITE_RENDERER);
 		_db.add_restore_point((int)ActionType.SET_SPRITE, new Guid?[] { unit_id });
 
-		_client.send_script(LevelEditorApi.set_sprite(unit_id, sprite_resource, material, layer, depth, visible));
-		_client.send(DeviceApi.frame());
+		_runtime.send_script(LevelEditorApi.set_sprite(unit_id, sprite_resource, material, layer, depth, visible));
+		_runtime.send(DeviceApi.frame());
 	}
 
 	public void set_camera(Guid unit_id, Guid component_id, string projection, double fov, double near_range, double far_range)
@@ -340,8 +340,8 @@ public class Level
 		unit.set_component_property_string(component_id, "type", OBJECT_TYPE_CAMERA);
 		_db.add_restore_point((int)ActionType.SET_CAMERA, new Guid?[] { unit_id });
 
-		_client.send_script(LevelEditorApi.set_camera(unit_id, projection, fov, near_range, far_range));
-		_client.send(DeviceApi.frame());
+		_runtime.send_script(LevelEditorApi.set_camera(unit_id, projection, fov, near_range, far_range));
+		_runtime.send(DeviceApi.frame());
 	}
 
 	public void set_collider(Guid unit_id, Guid component_id, string shape, string scene, string name)
@@ -403,8 +403,8 @@ public class Level
 		_db.set_property_bool  (sound_id, "loop", loop);
 		_db.add_restore_point((int)ActionType.SET_SOUND, new Guid?[] { sound_id });
 
-		_client.send_script(LevelEditorApi.set_sound_range(sound_id, range));
-		_client.send(DeviceApi.frame());
+		_runtime.send_script(LevelEditorApi.set_sound_range(sound_id, range));
+		_runtime.send(DeviceApi.frame());
 	}
 
 	public string object_editor_name(Guid object_id)
@@ -427,14 +427,14 @@ public class Level
 	{
 		StringBuilder sb = new StringBuilder();
 		generate_spawn_unit_commands(ids, sb);
-		_client.send_script(sb.str);
+		_runtime.send_script(sb.str);
 	}
 
 	private void send_spawn_sounds(Guid?[] ids)
 	{
 		StringBuilder sb = new StringBuilder();
 		generate_spawn_sound_commands(ids, sb);
-		_client.send_script(sb.str);
+		_runtime.send_script(sb.str);
 	}
 
 	private void send_spawn_objects(Guid?[] ids)
@@ -447,7 +447,7 @@ public class Level
 				generate_spawn_sound_commands(new Guid?[] { ids[i] }, sb);
 			}
 		}
-		_client.send_script(sb.str);
+		_runtime.send_script(sb.str);
 	}
 
 	private void send_destroy_objects(Guid?[] ids)
@@ -456,7 +456,7 @@ public class Level
 		foreach (Guid id in ids)
 			sb.append(LevelEditorApi.destroy(id));
 
-		_client.send_script(sb.str);
+		_runtime.send_script(sb.str);
 	}
 
 	private void send_move_objects(Guid?[] ids, Vector3[] positions, Quaternion[] rotations, Vector3[] scales)
@@ -465,7 +465,7 @@ public class Level
 		for (int i = 0; i < ids.length; ++i)
 			sb.append(LevelEditorApi.move_object(ids[i], positions[i], rotations[i], scales[i]));
 
-		_client.send_script(sb.str);
+		_runtime.send_script(sb.str);
 	}
 
 	public void send_level()
@@ -479,7 +479,7 @@ public class Level
 		sb.append(LevelEditorApi.reset());
 		generate_spawn_unit_commands(unit_ids.to_array(), sb);
 		generate_spawn_sound_commands(sound_ids.to_array(), sb);
-		_client.send_script(sb.str);
+		_runtime.send_script(sb.str);
 
 		send_selection();
 	}
@@ -588,7 +588,7 @@ public class Level
 			else
 				send_spawn_units(data);
 
-			_client.send(DeviceApi.frame());
+			_runtime.send(DeviceApi.frame());
 			break;
 
 		case (int)ActionType.DESTROY_UNIT:
@@ -597,7 +597,7 @@ public class Level
 			else
 				send_destroy_objects(data);
 
-			_client.send(DeviceApi.frame());
+			_runtime.send(DeviceApi.frame());
 			break;
 
 		case (int)ActionType.SPAWN_SOUND:
@@ -606,7 +606,7 @@ public class Level
 			else
 				send_spawn_sounds(data);
 
-			_client.send(DeviceApi.frame());
+			_runtime.send(DeviceApi.frame());
 			break;
 
 		case (int)ActionType.DESTROY_SOUND:
@@ -615,7 +615,7 @@ public class Level
 			else
 				send_destroy_objects(data);
 
-			_client.send(DeviceApi.frame());
+			_runtime.send(DeviceApi.frame());
 			break;
 
 		case (int)ActionType.MOVE_OBJECTS: {
@@ -651,7 +651,7 @@ public class Level
 			}
 
 			send_move_objects(ids, positions, rotations, scales);
-			_client.send(DeviceApi.frame());
+			_runtime.send(DeviceApi.frame());
 			// FIXME: Hack to force update the properties view
 			selection_changed(_selection);
 			break;
@@ -664,7 +664,7 @@ public class Level
 			else
 				send_spawn_objects(new_ids);
 
-			_client.send(DeviceApi.frame());
+			_runtime.send(DeviceApi.frame());
 			break;
 		}
 
@@ -679,14 +679,14 @@ public class Level
 			Guid component_id;
 			unit.has_component(out component_id, OBJECT_TYPE_LIGHT);
 
-			_client.send_script(LevelEditorApi.set_light(unit_id
+			_runtime.send_script(LevelEditorApi.set_light(unit_id
 				, unit.get_component_property_string (component_id, "data.type")
 				, unit.get_component_property_double (component_id, "data.range")
 				, unit.get_component_property_double (component_id, "data.intensity")
 				, unit.get_component_property_double (component_id, "data.spot_angle")
 				, unit.get_component_property_vector3(component_id, "data.color")
 				));
-			_client.send(DeviceApi.frame());
+			_runtime.send(DeviceApi.frame());
 			// FIXME: Hack to force update the properties view
 			selection_changed(_selection);
 			break;
@@ -699,11 +699,11 @@ public class Level
 			Guid component_id;
 			unit.has_component(out component_id, OBJECT_TYPE_MESH_RENDERER);
 
-			_client.send_script(LevelEditorApi.set_mesh(unit_id
+			_runtime.send_script(LevelEditorApi.set_mesh(unit_id
 				, unit.get_component_property_string(component_id, "data.material")
 				, unit.get_component_property_bool  (component_id, "data.visible")
 				));
-			_client.send(DeviceApi.frame());
+			_runtime.send(DeviceApi.frame());
 			// FIXME: Hack to force update the properties view
 			selection_changed(_selection);
 			break;
@@ -716,14 +716,14 @@ public class Level
 			Guid component_id;
 			unit.has_component(out component_id, OBJECT_TYPE_SPRITE_RENDERER);
 
-			_client.send_script(LevelEditorApi.set_sprite(unit_id
+			_runtime.send_script(LevelEditorApi.set_sprite(unit_id
 				, unit.get_component_property_string(component_id, "data.sprite_resource")
 				, unit.get_component_property_string(component_id, "data.material")
 				, unit.get_component_property_double(component_id, "data.layer")
 				, unit.get_component_property_double(component_id, "data.depth")
 				, unit.get_component_property_bool  (component_id, "data.visible")
 				));
-			_client.send(DeviceApi.frame());
+			_runtime.send(DeviceApi.frame());
 			// FIXME: Hack to force update the properties view
 			selection_changed(_selection);
 			break;
@@ -736,13 +736,13 @@ public class Level
 			Guid component_id;
 			unit.has_component(out component_id, OBJECT_TYPE_CAMERA);
 
-			_client.send_script(LevelEditorApi.set_camera(unit_id
+			_runtime.send_script(LevelEditorApi.set_camera(unit_id
 				, unit.get_component_property_string(component_id, "data.projection")
 				, unit.get_component_property_double(component_id, "data.fov")
 				, unit.get_component_property_double(component_id, "data.near_range")
 				, unit.get_component_property_double(component_id, "data.far_range")
 				));
-			_client.send(DeviceApi.frame());
+			_runtime.send(DeviceApi.frame());
 			// FIXME: Hack to force update the properties view
 			selection_changed(_selection);
 			break;
@@ -752,7 +752,7 @@ public class Level
 		case (int)ActionType.SET_ACTOR:
 		case (int)ActionType.SET_SCRIPT:
 		case (int)ActionType.SET_ANIMATION_STATE_MACHINE:
-			_client.send(DeviceApi.frame());
+			_runtime.send(DeviceApi.frame());
 			// FIXME: Hack to force update the properties view
 			selection_changed(_selection);
 			break;
@@ -760,10 +760,10 @@ public class Level
 		case (int)ActionType.SET_SOUND: {
 			Guid sound_id = data[0];
 
-			_client.send_script(LevelEditorApi.set_sound_range(sound_id
+			_runtime.send_script(LevelEditorApi.set_sound_range(sound_id
 				, _db.get_property_double(sound_id, "range")
 				));
-			_client.send(DeviceApi.frame());
+			_runtime.send(DeviceApi.frame());
 			// FIXME: Hack to force update the properties view
 			selection_changed(_selection);
 			break;

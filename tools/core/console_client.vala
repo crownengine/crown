@@ -32,21 +32,6 @@ public class ConsoleClient : GLib.Object
 		}
 	}
 
-	// Tries to connect to the @a client. Return the number of tries after
-	// it succeeded or @a num_tries if failed.
-	public async int connect_async(string address, int port, int num_tries, int interval)
-	{
-		int tries;
-		for (tries = 0; tries < num_tries; ++tries) {
-			this.connect(address, port);
-			if (this.is_connected())
-				break;
-
-			GLib.Thread.usleep(interval*1000);
-		}
-		return tries;
-	}
-
 	public void close()
 	{
 		try {
