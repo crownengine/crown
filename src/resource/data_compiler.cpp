@@ -198,25 +198,32 @@ static void console_command_compile(ConsoleServer &cs, u32 client_id, const char
 	DynamicString id(ta);
 	DynamicString data_dir(ta);
 	DynamicString platform(ta);
+	StringStream ss(ta);
+	DataCompiler *dc = (DataCompiler *)user_data;
 
 	sjson::parse(obj, json);
 	sjson::parse_string(id, obj["id"]);
 	sjson::parse_string(data_dir, obj["data_dir"]);
 	sjson::parse_string(platform, obj["platform"]);
 
-	{
-		StringStream ss(ta);
-		ss << "{\"type\":\"compile\",\"id\":\"" << id.c_str() << "\",\"start\":true}";
-		cs.send(client_id, string_stream::c_str(ss));
-	}
+	ss << "{";
+	ss << "\"type\":\"compile\",";
+	ss << "\"id\":\"" << id.c_str() << "\",";
+	ss << "\"start\":true";
+	ss << "}";
+	cs.send(client_id, string_stream::c_str(ss));
 
-	bool succ = ((DataCompiler *)user_data)->compile(data_dir.c_str(), platform.c_str());
+	bool succ = dc->compile(data_dir.c_str(), platform.c_str());
 
-	{
-		StringStream ss(ta);
-		ss << "{\"type\":\"compile\",\"id\":\"" << id.c_str() << "\",\"success\":" << (succ ? "true" : "false") << "}";
-		cs.send(client_id, string_stream::c_str(ss));
-	}
+	array::clear(ss);
+	ss << "{";
+	ss << "\"type\":\"compile\",";
+	ss << "\"id\":\"" << id.c_str() << "\",";
+	ss << "\"success\":" << (succ ? "true" : "false") << ",";
+	ss << "\"revision\":" << dc->_revision;
+	ss << "}";
+
+	cs.send(client_id, string_stream::c_str(ss));
 }
 
 static void console_command_quit(ConsoleServer & /*cs*/, u32 /*client_id*/, const char * /*json*/, void * /*user_data*/)
@@ -232,11 +239,8 @@ static void console_command_refresh_list(ConsoleServer &cs, u32 client_id, const
 	StringStream ss(ta);
 	JsonObject obj(ta);
 	sjson::parse(obj, json);
-	Guid client_guid = sjson::parse_guid(obj["client_id"]);
 
-	// Assume client is up to date, if never seen before.
-	if (!hash_map::has(dc->_client_revisions, client_guid))
-		hash_map::set(dc->_client_revisions, client_guid, dc->_revision);
+	const u32 revision = (u32)sjson::parse_int(obj["revision"]);
 
 	ss << "{\"type\":\"refresh_list\",\"list\":[";
 	auto cur = hash_map::begin(dc->_data_revisions);
@@ -245,22 +249,15 @@ static void console_command_refresh_list(ConsoleServer &cs, u32 client_id, const
 		HASH_MAP_SKIP_HOLE(dc->_data_revisions, cur);
 
 		DynamicString deffault(ta);
-		if (cur->second > hash_map::get(dc->_client_revisions, client_guid, u32(0)))
-			ss << "\"" << hash_map::get(dc->_data_index, cur->first, deffault).c_str() << "\",";
+		if (cur->second > revision) {
+			ss << "\"";
+			ss << hash_map::get(dc->_data_index, cur->first, deffault).c_str();
+			ss << "\",";
+		}
 	}
 	ss << "]}";
 
 	cs.send(client_id, string_stream::c_str(ss));
-
-#if CROWN_DEBUG && !CROWN_DEVELOPMENT
-	char buf[GUID_BUF_LEN];
-	logi(DATA_COMPILER, "client %s was at rev: %u"
-		, guid::to_string(buf, sizeof(buf), client_guid)
-		, hash_map::get(dc->_client_revisions, client_guid, u32(0))
-		);
-#endif
-
-	hash_map::set(dc->_client_revisions, client_guid, dc->_revision);
 }
 
 static Buffer read(FilesystemDisk &data_fs, const char *filename)
@@ -560,7 +557,6 @@ DataCompiler::DataCompiler(const DeviceOptions &opts, ConsoleServer &cs)
 	, _data_versions(default_allocator())
 	, _file_monitor(default_allocator())
 	, _data_revisions(default_allocator())
-	, _client_revisions(default_allocator())
 	, _revision(0)
 {
 	cs.register_message_type("compile", console_command_compile, this);

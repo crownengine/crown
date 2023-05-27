@@ -10,37 +10,67 @@ public class DataCompiler
 	private RuntimeInstance _runtime;
 	private Guid _id;
 	private bool _success;
-	private SourceFunc _callback;
+	private SourceFunc _compile_callback;
+	private SourceFunc _refresh_list_callback;
+	private Gee.ArrayList<Value?> _refresh_list;
+	public uint _revision;
 
 	public DataCompiler(RuntimeInstance runtime)
 	{
 		_runtime = runtime;
 		_id = GUID_ZERO;
 		_success = false;
-		_callback = null;
+		_revision = 0;
+		_compile_callback = null;
+		_refresh_list_callback = null;
+		_refresh_list = null;
 	}
 
 	// Returns true if success, false otherwise.
 	public async bool compile(string data_dir, string platform)
 	{
-		if (_callback != null)
+		if (_compile_callback != null)
 			return false;
 
 		_id = Guid.new_guid();
 		_success = false;
 		_runtime.send(DataCompilerApi.compile(_id, data_dir, platform));
-		_callback = compile.callback;
+		_compile_callback = compile.callback;
 		yield;
 
 		return _success;
 	}
 
-	public void finished(bool success)
+	public void compile_finished(bool success, uint revision)
 	{
 		_success = success;
-		if (_callback != null)
-			_callback();
-		_callback = null;
+		_revision = revision;
+		if (_compile_callback != null)
+			_compile_callback();
+		_compile_callback = null;
+	}
+
+	/// Returns the list of resources that have changed since @a since_revision.
+	public async Gee.ArrayList<Value?> refresh_list(uint since_revision)
+	{
+		if (_refresh_list_callback != null)
+			return new Gee.ArrayList<Value?>();
+
+		_runtime.send(DataCompilerApi.refresh_list(since_revision));
+		_refresh_list_callback = refresh_list.callback;
+		yield;
+
+		return _refresh_list;
+	}
+
+	public void refresh_list_finished(Gee.ArrayList<Value?> resources)
+	{
+		unowned GLib.SourceFunc callback = _refresh_list_callback;
+		_refresh_list_callback = null;
+		_refresh_list = resources;
+
+		if (callback != null)
+			callback();
 	}
 }
 

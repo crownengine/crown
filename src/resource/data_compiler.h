@@ -64,7 +64,6 @@ struct DataCompiler
 	FileMonitor _file_monitor;
 	SourceIndex _source_index;
 	HashMap<StringId64, u32> _data_revisions;
-	HashMap<Guid, u32> _client_revisions;
 	u32 _revision;
 
 	void add_file(const char *path);

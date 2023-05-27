@@ -113,9 +113,8 @@ struct Device
 	/// You have to call ResourcePackage::unload() before destroying a package.
 	void destroy_resource_package(ResourcePackage &rp);
 
-	/// Reloads all the resources that have changed since the
-	/// last call to this function.
-	void refresh();
+	/// Reloads all the resources listed in the @a json message.
+	void refresh(const char *json);
 };
 
 /// Runs the engine.

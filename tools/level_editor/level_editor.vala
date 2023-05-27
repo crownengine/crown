@@ -62,6 +62,7 @@ public class RuntimeInstance
 	public SubprocessLauncher _subprocess_launcher;
 	public string _name;
 	public uint32 _process_id;
+	public uint _revision;
 	public GLib.SourceFunc _stop_callback;
 	public ConsoleClient _client;
 
@@ -75,6 +76,7 @@ public class RuntimeInstance
 		_subprocess_launcher = sl;
 		_name = name;
 		_process_id = uint32.MAX;
+		_revision = 0;
 		_stop_callback = null;
 		_client = new ConsoleClient();
 		_client.connected.connect(on_client_connected);
@@ -962,7 +964,7 @@ public class LevelEditorApplication : Gtk.Application
 		yield stop_heads();
 
 		// Reset the callback
-		_data_compiler.finished(false);
+		_data_compiler.compile_finished(false, 0);
 
 		_project_stack.set_visible_child(_project_stack_compiler_crashed_label);
 		_editor_stack.set_visible_child(_editor_stack_compiler_crashed_label);
@@ -1039,8 +1041,10 @@ public class LevelEditorApplication : Gtk.Application
 			if (msg.has_key("start")) {
 				// FIXME
 			} else if (msg.has_key("success")) {
-				_data_compiler.finished((bool)msg["success"]);
+				_data_compiler.compile_finished((bool)msg["success"], (uint)(double)msg["revision"]);
 			}
+		} else if (msg_type == "refresh_list") {
+			_data_compiler.refresh_list_finished((ArrayList<Value?>)msg["list"]);
 		} else if (msg_type == "unit_spawned") {
 			string id             = (string)msg["id"];
 			string name           = (string)msg["name"];
@@ -1311,6 +1315,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		try {
 			_editor._process_id = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
+			_editor._revision = _data_compiler._revision;
 		} catch (Error e) {
 			loge(e.message);
 		}
@@ -1351,6 +1356,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		try {
 			_resource_preview._process_id = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
+			_resource_preview._revision = _data_compiler._revision;
 		} catch (Error e) {
 			loge(e.message);
 		}
@@ -1460,6 +1466,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		try {
 			_game._process_id = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
+			_game._revision = _data_compiler._revision;
 		} catch (Error e) {
 			loge(e.message);
 		}
@@ -2244,12 +2251,22 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
 				if (_data_compiler.compile.end(res)) {
-					_editor.send(DeviceApi.refresh());
-					_editor.send(DeviceApi.frame());
-					_game.send(DeviceApi.refresh());
-					_game.send(DeviceApi.frame());
+					refresh_all_clients.begin();
 				}
 			});
+	}
+
+	private async void refresh_all_clients()
+	{
+		RuntimeInstance[] rutimes = new RuntimeInstance[] { _editor, _resource_preview, _game };
+
+		foreach (var ri in rutimes) {
+			var since_revision = ri._revision;
+			var refresh_list = yield _data_compiler.refresh_list(since_revision);
+			ri.send(DeviceApi.refresh(refresh_list));
+			ri.send(DeviceApi.frame());
+			ri._revision = _data_compiler._revision;
+		}
 	}
 
 	private void on_snap_to_grid(GLib.SimpleAction action, GLib.Variant? param)

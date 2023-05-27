@@ -49,6 +49,11 @@ namespace DataCompilerApi
 			);
 	}
 
+	public string refresh_list(uint since_revision)
+	{
+		return "{\"type\":\"refresh_list\",\"revision\":%u}".printf(since_revision);
+	}
+
 } /* namespace DataCompilerApi */
 
 namespace DeviceApi
@@ -69,11 +74,6 @@ namespace DeviceApi
 		return command({ "reload", type, name });
 	}
 
-	public string refresh()
-	{
-		return command({ "refresh" });
-	}
-
 	public string pause()
 	{
 		return command({ "pause" });
@@ -92,6 +92,16 @@ namespace DeviceApi
 	public string frame()
 	{
 		return "{\"type\":\"frame\"}";
+	}
+
+	public string refresh(Gee.ArrayList<Value?> resources)
+	{
+		StringBuilder sb = new StringBuilder();
+		foreach (var res in resources) {
+			sb.append("\"%s\",".printf((string)res));
+		}
+
+		return "{\"type\":\"refresh\",\"list\":[%s]}".printf(sb.str);
 	}
 
 } /* namespace DeviceApi */

@@ -172,11 +172,6 @@ static void device_command_unpause(ConsoleServer & /*cs*/, u32 /*client_id*/, co
 	device()->unpause();
 }
 
-static void device_command_refresh(ConsoleServer & /*cs*/, u32 /*client_id*/, const JsonArray & /*args*/, void * /*user_data*/)
-{
-	device()->refresh();
-}
-
 static void device_message_resize(ConsoleServer & /*cs*/, u32 /*client_id*/, const char *json, void * /*user_data*/)
 {
 	TempAllocator256 ta;
@@ -200,6 +195,12 @@ static void device_message_quit(ConsoleServer &cs, u32 client_id, const char *js
 {
 	CE_UNUSED_3(cs, client_id, json);
 	((Device *)user_data)->quit();
+}
+
+static void device_message_refresh(ConsoleServer &cs, u32 client_id, const char *json, void *user_data)
+{
+	CE_UNUSED_2(cs, client_id);
+	((Device *)user_data)->refresh(json);
 }
 
 Device::Device(const DeviceOptions &opts, ConsoleServer &cs)
@@ -284,13 +285,13 @@ void Device::run()
 {
 	s64 run_t0 = time::now();
 
-	_console_server->register_command_name("pause",   "Pause the engine",             device_command_pause,   this);
-	_console_server->register_command_name("unpause", "Resume the engine",            device_command_unpause, this);
-	_console_server->register_command_name("refresh", "Reload all changed resources", device_command_refresh, this);
+	_console_server->register_command_name("pause",   "Pause the engine",  device_command_pause,   this);
+	_console_server->register_command_name("unpause", "Resume the engine", device_command_unpause, this);
 
-	_console_server->register_message_type("resize", device_message_resize, this);
-	_console_server->register_message_type("frame",  device_message_frame,  this);
-	_console_server->register_message_type("quit",   device_message_quit,   this);
+	_console_server->register_message_type("resize",  device_message_resize,  this);
+	_console_server->register_message_type("frame",   device_message_frame,   this);
+	_console_server->register_message_type("quit",    device_message_quit,    this);
+	_console_server->register_message_type("refresh", device_message_refresh, this);
 
 	_console_server->listen(_options._console_port, _options._wait_console);
 
@@ -738,89 +739,44 @@ void Device::destroy_resource_package(ResourcePackage &rp)
 	CE_DELETE(default_allocator(), &rp);
 }
 
-void Device::refresh()
+void Device::refresh(const char *json)
 {
 #if CROWN_DEBUG
 	TempAllocator4096 ta;
-	Array<char> msg(ta);
-	StringStream ss(ta);
+	JsonObject obj(ta);
+	JsonArray list(ta);
+	DynamicString type(ta);
+	sjson::parse(obj, json);
 
-	TCPSocket dc;
-	ConnectResult cr = dc.connect(IP_ADDRESS_LOOPBACK, CROWN_DEFAULT_COMPILER_PORT);
-	if (cr.error == ConnectResult::SUCCESS) {
-		WriteResult wr;
-		static Guid client_id = guid::new_guid();
-		char buf[GUID_BUF_LEN];
-		ss << "{\"type\":\"refresh_list\",";
-		ss << "\"client_id\":\"";
-		ss << guid::to_string(buf, sizeof(buf), client_id);
-		ss << "\"}";
-		const char *refresh_list = string_stream::c_str(ss);
-		u32 msg_len = strlen32(refresh_list);
-		wr = dc.write(&msg_len, sizeof(msg_len));
-		if (wr.error == WriteResult::SUCCESS)
-			wr = dc.write(refresh_list, msg_len);
+	bool refresh_lua = false;
+	sjson::parse_array(list, obj["list"]);
+	for (u32 i = 0; i < array::size(list); ++i) {
+		DynamicString resource(ta);
+		sjson::parse_string(resource, list[i]);
+		logi(DEVICE, "%s", resource.c_str());
 
-		ReadResult rr;
-		rr.error = ReadResult::UNKNOWN;
-		if (wr.error == WriteResult::SUCCESS) {
-			do {
-				rr = dc.read(&msg_len, 4);
-				if (rr.error == ReadResult::SUCCESS) {
-					array::resize(msg, msg_len + 1);
-					rr = dc.read(array::begin(msg), msg_len);
-					msg[msg_len] = '\0';
-				}
+		const char *type = resource_type(resource.c_str());
+		const u32 len = resource_name_length(type, resource.c_str());
 
-				if (rr.error != ReadResult::SUCCESS)
-					break;
-			} while (strstr(array::begin(msg), "refresh_list") == NULL);
+		StringId64 resource_type(type);
+		StringId64 resource_name(resource.c_str(), len);
 
-			dc.close();
+		_resource_manager->reload(resource_type, resource_name);
+
+		if (resource_type == RESOURCE_TYPE_SCRIPT) {
+			refresh_lua = true;
 		}
-
-		if (rr.error == ReadResult::SUCCESS) {
-			JsonObject obj(ta);
-			JsonArray list(ta);
-			DynamicString type(ta);
-			sjson::parse(obj, array::begin(msg));
-			sjson::parse_string(type, obj["type"]);
-			if (type != "refresh_list") {
-				loge(DEVICE, "Unexpected response type: '%s'", type.c_str());
-				return;
-			}
-
-			bool refresh_lua = false;
-			sjson::parse_array(list, obj["list"]);
-			for (u32 i = 0; i < array::size(list); ++i) {
-				DynamicString resource(ta);
-				sjson::parse_string(resource, list[i]);
-				logi(DEVICE, "%s", resource.c_str());
-
-				const char *type = resource_type(resource.c_str());
-				const u32 len = resource_name_length(type, resource.c_str());
-
-				StringId64 resource_type(type);
-				StringId64 resource_name(resource.c_str(), len);
-
-				_resource_manager->reload(resource_type, resource_name);
-
-				if (resource_type == RESOURCE_TYPE_SCRIPT) {
-					refresh_lua = true;
-				}
-			}
-
-			if (!array::size(list)) {
-				logi(DEVICE, "Nothing to refresh");
-			} else {
-				if (refresh_lua)
-					_lua_environment->reload();
-			}
-		}
-
-		if (_paused)
-			unpause();
 	}
+
+	if (!array::size(list)) {
+		logi(DEVICE, "Nothing to refresh");
+	} else {
+		if (refresh_lua)
+			_lua_environment->reload();
+	}
+
+	if (_paused)
+		unpause();
 #endif // if CROWN_DEBUG
 }
 
