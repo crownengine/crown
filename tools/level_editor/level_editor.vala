@@ -1254,7 +1254,7 @@ public class LevelEditorApplication : Gtk.Application
 
 			if (_compiler.is_connected()) {
 				_stop_data_compiler_callback = stop_data_compiler.callback;
-				_compiler.send(DataCompilerApi.quit());
+				_compiler.send(RuntimeApi.quit());
 				yield; // Wait for ConsoleClient to disconnect.
 				_stop_data_compiler_callback = null;
 			}
@@ -1372,7 +1372,7 @@ public class LevelEditorApplication : Gtk.Application
 
 			if (_editor.is_connected()) {
 				_stop_editor_callback = stop_editor.callback;
-				_editor.send_script("Device.quit()");
+				_editor.send(RuntimeApi.quit());
 				yield; // Wait for ConsoleClient to disconnect.
 				_stop_editor_callback = null;
 				_editor_stack.set_visible_child(_editor_stack_disconnected_label);
@@ -1400,7 +1400,7 @@ public class LevelEditorApplication : Gtk.Application
 
 			if (_resource_preview.is_connected()) {
 				_stop_resource_preview_callback = stop_resource_preview.callback;
-				_resource_preview.send_script("Device.quit()");
+				_resource_preview.send(RuntimeApi.quit());
 				yield; // Wait for ConsoleClient to disconnect.
 				_stop_resource_preview_callback = null;
 				_resource_preview_stack.set_visible_child(_resource_preview_disconnected_label);
@@ -1519,7 +1519,7 @@ public class LevelEditorApplication : Gtk.Application
 
 			if (_game.is_connected()) {
 				_stop_game_callback = stop_game.callback;
-				_game.send_script("Device.quit()");
+				_game.send(RuntimeApi.quit());
 				yield; // Wait for SocketClient to disconnect.
 				_stop_game_callback = null;
 			}

@@ -30,6 +30,15 @@ namespace Lua
 
 } /* namespace Lua */
 
+namespace RuntimeApi
+{
+	public string quit()
+	{
+		return "{\"type\":\"quit\"}";
+	}
+
+} /* namespace RuntimeApi */
+
 namespace DataCompilerApi
 {
 	public string compile(Guid id, string data_dir, string platform)
@@ -38,11 +47,6 @@ namespace DataCompilerApi
 			, data_dir.replace("\\", "\\\\").replace("\"", "\\\"")
 			, platform
 			);
-	}
-
-	public string quit()
-	{
-		return "{\"type\":\"quit\"}";
 	}
 
 } /* namespace DataCompilerApi */

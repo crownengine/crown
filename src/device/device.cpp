@@ -196,6 +196,12 @@ static void device_message_frame(ConsoleServer & /*cs*/, u32 /*client_id*/, cons
 	((Device *)user_data)->_needs_draw = true;
 }
 
+static void device_message_quit(ConsoleServer &cs, u32 client_id, const char *json, void *user_data)
+{
+	CE_UNUSED_3(cs, client_id, json);
+	((Device *)user_data)->quit();
+}
+
 Device::Device(const DeviceOptions &opts, ConsoleServer &cs)
 	: _allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP)
 	, _options(opts)
@@ -284,6 +290,7 @@ void Device::run()
 
 	_console_server->register_message_type("resize", device_message_resize, this);
 	_console_server->register_message_type("frame",  device_message_frame,  this);
+	_console_server->register_message_type("quit",   device_message_quit,   this);
 
 	_console_server->listen(_options._console_port, _options._wait_console);
 
