@@ -1,10 +1,9 @@
 -- Copyright (c) 2012-2023 Daniele Bartolini et al.
 -- SPDX-License-Identifier: MIT
 
-require "core/editors/unit_preview/unit_preview"
-
 function init()
 	Device.enable_resource_autoload(true)
+	require "core/editors/unit_preview/unit_preview"
 	UnitPreview:init()
 end
 
