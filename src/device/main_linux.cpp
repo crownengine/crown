@@ -35,6 +35,7 @@
 #define STB_SPRINTF_IMPLEMENTATION
 #include <stb_sprintf.h>
 #include <signal.h>
+#include <errno.h>
 
 namespace crown
 {
@@ -347,6 +348,10 @@ struct LinuxDevice
 
 	int run(DeviceOptions *opts)
 	{
+		int err = pipe(exit_pipe);
+		CE_ASSERT(err != -1, "pipe: errno = %d", errno);
+		CE_UNUSED(err);
+
 		// http://tronche.com/gui/x/xlib/display/XInitThreads.html
 		Status xs = XInitThreads();
 		CE_ASSERT(xs != 0, "XInitThreads: error");
@@ -408,8 +413,6 @@ struct LinuxDevice
 		_x11_cursors[MouseCursor::SIZE_VERTICAL]       = XCreateFontCursor(_x11_display, XC_sb_v_double_arrow);
 		_x11_cursors[MouseCursor::WAIT]                = XCreateFontCursor(_x11_display, XC_watch);
 
-		pipe(exit_pipe);
-
 		// Start main thread
 		Thread main_thread;
 		main_thread.start([](void *user_data) {
@@ -418,7 +421,6 @@ struct LinuxDevice
 
 				// Write something just to unlock the listening select().
 				write(exit_pipe[1], &s_exit, sizeof(s_exit));
-				close(exit_pipe[1]);
 				return EXIT_SUCCESS;
 			}
 			, opts
@@ -605,7 +607,6 @@ struct LinuxDevice
 
 		_joypad.close();
 
-		close(exit_pipe[0]);
 		main_thread.stop();
 
 		// Free standard cursors
@@ -643,6 +644,9 @@ struct LinuxDevice
 		XRRFreeScreenConfigInfo(_screen_config);
 
 		XCloseDisplay(_x11_display);
+
+		::close(exit_pipe[0]);
+		::close(exit_pipe[1]);
 		return EXIT_SUCCESS;
 	}
 };
