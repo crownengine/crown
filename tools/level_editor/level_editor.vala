@@ -941,7 +941,6 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		logi("Disconnected from game");
 
-		_project.delete_garbage();
 		_combo.set_active_id("editor");
 		_toolbar_run.icon_name = "game-run";
 
@@ -1471,6 +1470,8 @@ public class LevelEditorApplication : Gtk.Application
 		SJSON.save(package, _project._level_editor_test_package.get_path());
 
 		bool success = yield _data_compiler.compile(_project.data_dir(), _project.platform());
+		_project.delete_garbage();
+
 		if (!success) {
 			_toolbar_run.icon_name = "game-run";
 			return;
