@@ -42,7 +42,6 @@ public class Project
 	public HashMap<string, Guid?> _map;
 	public ImporterData _all_extensions_importer_data;
 	public Gee.ArrayList<ImporterData?> _importers;
-	public DataCompiler _data_compiler;
 
 	public signal void file_added(string type, string name);
 	public signal void file_removed(string type, string name);
@@ -51,7 +50,7 @@ public class Project
 	public signal void project_reset();
 	public signal void project_loaded();
 
-	public Project(DataCompiler dc)
+	public Project()
 	{
 #if CROWN_PLATFORM_WINDOWS
 		_platform = "windows";
@@ -63,7 +62,6 @@ public class Project
 		_all_extensions_importer_data = ImporterData();
 		_all_extensions_importer_data.delegate = import_all_extensions;
 		_importers = new Gee.ArrayList<ImporterData?>();
-		_data_compiler = dc;
 	}
 
 	public void reset()
@@ -231,13 +229,13 @@ public class Project
 		}
 	}
 
-	public void create_script(string directory, string name, bool empty)
+	public int create_script(string directory, string name, bool empty)
 	{
 		string path = Path.build_filename(_source_dir.get_path(), directory + "/" + name + ".lua");
 		FileStream fs = FileStream.open(path, "wb");
 		if (fs != null) {
 			if (empty) {
-				fs.puts("\n");
+				return fs.puts("\n");
 			} else {
 				string text = "local Behavior = Behavior or {}"
 					+ "\nlocal Data = Data or {}"
@@ -275,28 +273,21 @@ public class Project
 					+ "\nreturn Behavior"
 					+ "\n"
 					;
-				fs.puts(text);
+				return fs.puts(text);
 			}
-
-			_data_compiler.compile.begin(this.data_dir(), this.platform(), (obj, res) => {
-					_data_compiler.compile.end(res);
-				});
 		}
+
+		return -1;
 	}
 
-	public void create_unit(string directory, string name)
+	public int create_unit(string directory, string name)
 	{
 		string path = Path.build_filename(_source_dir.get_path(), directory + "/" + name + ".unit");
 		FileStream fs = FileStream.open(path, "wb");
-		if (fs != null) {
-			fs.puts("\ncomponents = [");
-			fs.puts("\n]");
-			fs.puts("\n");
+		if (fs != null)
+			return fs.puts("\ncomponents = [\n]\n");
 
-			_data_compiler.compile.begin(this.data_dir(), this.platform(), (obj, res) => {
-					_data_compiler.compile.end(res);
-				});
-		}
+		return -1;
 	}
 
 	// Returns the absolute path to the source directory.
@@ -580,7 +571,7 @@ public class Project
 		return null;
 	}
 
-	public void import(string? destination_dir, Gtk.Window? parent_window = null)
+	public int import(string? destination_dir, Gtk.Window? parent_window = null)
 	{
 		Gtk.FileChooserDialog src = new Gtk.FileChooserDialog("Import..."
 			, parent_window
@@ -598,7 +589,7 @@ public class Project
 
 		if (src.run() != (int)ResponseType.ACCEPT) {
 			src.destroy();
-			return;
+			return -1;
 		}
 
 		string out_dir = "";
@@ -616,7 +607,7 @@ public class Project
 			if (dst.run() != (int)ResponseType.ACCEPT) {
 				dst.destroy();
 				src.destroy();
-				return;
+				return -1;
 			}
 
 			out_dir = dst.get_filename();
@@ -641,13 +632,10 @@ public class Project
 			importer = _all_extensions_importer_data.delegate;
 
 		// Import
-		if (importer(this, out_dir, filenames) == 0) {
-			_data_compiler.compile.begin(this.data_dir(), this.platform(), (obj, res) => {
-					_data_compiler.compile.end(res);
-				});
-		}
+		int ec = importer(this, out_dir, filenames);
 
 		src.destroy();
+		return ec;
 	}
 
 	public void delete_tree(GLib.File file) throws Error

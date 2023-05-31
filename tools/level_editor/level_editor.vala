@@ -603,7 +603,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		_data_compiler = new DataCompiler(_compiler);
 
-		_project = new Project(_data_compiler);
+		_project = new Project();
 		_project.set_toolchain_dir(_toolchain_dir.get_path());
 		_project.register_importer("Sprite", { "png" }, SpriteResource.import, 0.0);
 		_project.register_importer("Mesh", { "mesh" }, MeshResource.import, 1.0);
@@ -1968,7 +1968,16 @@ public class LevelEditorApplication : Gtk.Application
 	private void on_import(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		string destination_dir = param.get_string();
-		_project.import(destination_dir != "" ? destination_dir : null, this.active_window);
+
+		int ec = _project.import(destination_dir != "" ? destination_dir : null, this.active_window);
+		if (ec != 0) {
+			loge("Failed to import resource(s)");
+			return;
+		}
+
+		_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
+				_data_compiler.compile.end(res);
+			});
 	}
 
 	private void on_preferences(GLib.SimpleAction action, GLib.Variant? param)
@@ -2464,7 +2473,15 @@ public class LevelEditorApplication : Gtk.Application
 		string script_name = (string)param.get_child_value(1);
 		bool empty = (bool)param.get_child_value(2);
 
-		_project.create_script(dir_name, script_name, empty);
+		int ec = _project.create_script(dir_name, script_name, empty);
+		if (ec < 0) {
+			loge("Failed to create script %s".printf(script_name));
+			return;
+		}
+
+		_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
+				_data_compiler.compile.end(res);
+			});
 	}
 
 	private void on_create_unit(GLib.SimpleAction action, GLib.Variant? param)
@@ -2472,7 +2489,15 @@ public class LevelEditorApplication : Gtk.Application
 		string dir_name = (string)param.get_child_value(0);
 		string unit_name = (string)param.get_child_value(1);
 
-		_project.create_unit(dir_name, unit_name);
+		int ec = _project.create_unit(dir_name, unit_name);
+		if (ec < 0) {
+			loge("Failed to create unit %s".printf(unit_name));
+			return;
+		}
+
+		_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
+				_data_compiler.compile.end(res);
+			});
 	}
 
 	private void on_open_containing(GLib.SimpleAction action, GLib.Variant? param)
