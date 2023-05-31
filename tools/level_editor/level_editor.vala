@@ -333,17 +333,17 @@ public class LevelEditorApplication : Gtk.Application
 
 	private const GLib.ActionEntry[] action_entries_create =
 	{
-		{ "menu-create",        null,                null, null },
-		{ "menu-primitives",    null,                null, null },
-		{ "primitive-cube",     on_create_primitive, null, null },
-		{ "primitive-sphere",   on_create_primitive, null, null },
-		{ "primitive-cone",     on_create_primitive, null, null },
-		{ "primitive-cylinder", on_create_primitive, null, null },
-		{ "primitive-plane",    on_create_primitive, null, null },
-		{ "camera",             on_create_primitive, null, null },
-		{ "light",              on_create_primitive, null, null },
-		{ "sound-source",       on_create_primitive, null, null },
-		{ "unit-empty",         on_create_unit,      null, null }
+		{ "menu-create",        null,               null, null },
+		{ "menu-primitives",    null,               null, null },
+		{ "primitive-cube",     on_spawn_primitive, null, null },
+		{ "primitive-sphere",   on_spawn_primitive, null, null },
+		{ "primitive-cone",     on_spawn_primitive, null, null },
+		{ "primitive-cylinder", on_spawn_primitive, null, null },
+		{ "primitive-plane",    on_spawn_primitive, null, null },
+		{ "camera",             on_spawn_primitive, null, null },
+		{ "light",              on_spawn_primitive, null, null },
+		{ "sound-source",       on_spawn_primitive, null, null },
+		{ "unit-empty",         on_spawn_unit,      null, null }
 	};
 
 	private const GLib.ActionEntry[] action_entries_camera =
@@ -388,7 +388,12 @@ public class LevelEditorApplication : Gtk.Application
 
 	private const GLib.ActionEntry[] action_entries_project =
 	{
-		{ "delete-file", on_delete_file, "s", null }
+		{ "delete-file",      on_delete_file,      "s",     null },
+		{ "delete-directory", on_delete_directory, "s",     null },
+		{ "create-directory", on_create_directory, "(ss)",  null },
+		{ "create-script",    on_create_script,    "(ssb)", null },
+		{ "create-unit",      on_create_unit,      "(ss)",  null },
+		{ "open-containing",  on_open_containing,  "s",     null }
 	};
 
 	// Command line options
@@ -664,7 +669,7 @@ public class LevelEditorApplication : Gtk.Application
 		_combo.set_active_id("editor");
 
 		_console_view = new ConsoleView(_project, _combo, _preferences_dialog);
-		_project_browser = new ProjectBrowser(this, _project, _project_store);
+		_project_browser = new ProjectBrowser(_project_store);
 		_level_treeview = new LevelTreeView(_database, _level);
 		_level_layers_treeview = new LevelLayersTreeView(_database, _level);
 		_properties_view = new PropertiesView(_level, _project_store);
@@ -2136,7 +2141,7 @@ public class LevelEditorApplication : Gtk.Application
 		dg.destroy();
 	}
 
-	private void on_create_primitive(GLib.SimpleAction action, GLib.Variant? param)
+	private void on_spawn_primitive(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		if (action.name == "primitive-cube")
 			set_placeable("unit", "core/units/primitives/cube");
@@ -2158,7 +2163,7 @@ public class LevelEditorApplication : Gtk.Application
 		activate_action("tool", new GLib.Variant.int32(ToolType.PLACE));
 	}
 
-	private void on_create_unit(GLib.SimpleAction action, GLib.Variant? param)
+	private void on_spawn_unit(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		_level.spawn_empty_unit();
 		_editor.send(DeviceApi.frame());
@@ -2424,6 +2429,58 @@ public class LevelEditorApplication : Gtk.Application
 		} else {
 			_project.delete_resource(type, name);
 		}
+	}
+
+	private void on_delete_directory(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string dir_name = param.get_string();
+
+		var path = GLib.Path.build_filename(_project.source_dir(), dir_name);
+		try {
+			_project.delete_tree(GLib.File.new_for_path(path));
+		} catch (Error e) {
+			loge(e.message);
+		}
+	}
+
+	private void on_create_directory(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string parent_dir_name = (string)param.get_child_value(0);
+		string dir_name = (string)param.get_child_value(1);
+
+		logi("parent_dir_name %s dir_name %s".printf(parent_dir_name, dir_name));
+
+		var path = GLib.Path.build_filename(_project.source_dir(), parent_dir_name, dir_name);
+		try {
+			GLib.File.new_for_path(path).make_directory();
+		} catch (Error e) {
+			loge(e.message);
+		}
+	}
+
+	private void on_create_script(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string dir_name = (string)param.get_child_value(0);
+		string script_name = (string)param.get_child_value(1);
+		bool empty = (bool)param.get_child_value(2);
+
+		_project.create_script(dir_name, script_name, empty);
+	}
+
+	private void on_create_unit(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string dir_name = (string)param.get_child_value(0);
+		string unit_name = (string)param.get_child_value(1);
+
+		_project.create_unit(dir_name, unit_name);
+	}
+
+	private void on_open_containing(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string parent_name = param.get_string();
+
+		var path = GLib.Path.build_filename(_project.source_dir(), parent_name);
+		open_directory(GLib.File.new_for_path(path).get_path());
 	}
 
 	public void set_autosave_timer(uint minutes)

@@ -97,8 +97,8 @@ public class ResourceChooserButton : Gtk.Box
 
 	private void on_revealer_clicked()
 	{
-		Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
-		app.activate_action("project-browser-reveal", new GLib.Variant.string(_name.text + "." + _type));
+		var tuple = new GLib.Variant.tuple({_type, _name.text});
+		GLib.Application.get_default().activate_action("reveal-resource", tuple);
 	}
 
 	private bool type_filter(string type, string name)

@@ -20,7 +20,6 @@ private bool row_should_be_hidden(string type, string name)
 public class ProjectBrowser : Gtk.Box
 {
 	// Data
-	public Project _project;
 	public ProjectStore _project_store;
 
 	// Widgets
@@ -33,12 +32,11 @@ public class ProjectBrowser : Gtk.Box
 	// Signals
 	public signal void resource_selected(string type, string name);
 
-	public ProjectBrowser(Gtk.Application app, Project? project, ProjectStore project_store)
+	public ProjectBrowser(ProjectStore project_store)
 	{
 		Object(orientation: Gtk.Orientation.VERTICAL, spacing: 0);
 
 		// Data
-		_project = project;
 		_project_store = project_store;
 
 		// Widgets
@@ -177,18 +175,15 @@ public class ProjectBrowser : Gtk.Box
 		// Actions.
 		GLib.ActionEntry[] action_entries =
 		{
-			{ "project-browser-reveal", on_reveal, "s", null }
+			{ "reveal-resource", on_reveal, "(ss)", null }
 		};
-		app.add_action_entries(action_entries, this);
+		GLib.Application.get_default().add_action_entries(action_entries, this);
 	}
 
 	private void on_reveal(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		string resource_path = param.get_string();
-		string? type = resource_type(resource_path);
-		string? name = resource_name(type, resource_path);
-		if (type == null || name == null)
-			return;
+		string type = (string)param.get_child_value(0);
+		string name = (string)param.get_child_value(1);
 
 		Gtk.TreePath store_path;
 		if (_project_store.path_for_resource_type_name(out store_path, type, name)) {
@@ -223,8 +218,7 @@ public class ProjectBrowser : Gtk.Box
 
 					mi = new Gtk.MenuItem.with_label("Import...");
 					mi.activate.connect(() => {
-							Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
-							app.activate_action("import", new GLib.Variant.string((string)name));
+							GLib.Application.get_default().activate_action("import", new GLib.Variant.string((string)name));
 						});
 					menu.add(mi);
 
@@ -255,7 +249,8 @@ public class ProjectBrowser : Gtk.Box
 									return;
 								}
 
-								_project.create_script((string)name, sb.text, true);
+								var tuple = new GLib.Variant.tuple({(string)name, sb.text, true});
+								GLib.Application.get_default().activate_action("create-script", tuple);
 							}
 
 							dg.destroy();
@@ -286,7 +281,8 @@ public class ProjectBrowser : Gtk.Box
 									return;
 								}
 
-								_project.create_script((string)name, sb.text, false);
+								var tuple = new GLib.Variant.tuple({(string)name, sb.text, false});
+								GLib.Application.get_default().activate_action("create-script", tuple);
 							}
 
 							dg.destroy();
@@ -319,9 +315,10 @@ public class ProjectBrowser : Gtk.Box
 									dg.destroy();
 									return;
 								}
-
-								_project.create_unit((string)name, sb.text);
 							}
+
+							var tuple = new GLib.Variant.tuple({(string)name, sb.text});
+							GLib.Application.get_default().activate_action("create-unit", tuple);
 
 							dg.destroy();
 						});
@@ -354,12 +351,8 @@ public class ProjectBrowser : Gtk.Box
 									return;
 								}
 
-								GLib.File file = GLib.File.new_for_path(GLib.Path.build_filename(_project.source_dir(), (string)name, sb.text));
-								try {
-									file.make_directory();
-								} catch (Error e) {
-									loge(e.message);
-								}
+								var tuple = new GLib.Variant.tuple({(string)name, sb.text});
+								GLib.Application.get_default().activate_action("create-directory", tuple);
 							}
 
 							dg.destroy();
@@ -389,12 +382,7 @@ public class ProjectBrowser : Gtk.Box
 								if (rt != (int)ResponseType.YES)
 									return;
 
-								GLib.File file = GLib.File.new_for_path(GLib.Path.build_filename(_project.source_dir(), (string)name));
-								try {
-									_project.delete_tree(file);
-								} catch (Error e) {
-									loge(e.message);
-								}
+								GLib.Application.get_default().activate_action("delete-directory", new GLib.Variant.string((string)name));
 							});
 						menu.add(mi);
 					}
@@ -407,8 +395,7 @@ public class ProjectBrowser : Gtk.Box
 
 					mi = new Gtk.MenuItem.with_label("Delete File");
 					mi.activate.connect(() => {
-							Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
-							app.activate_action("delete-file", new GLib.Variant.string(resource_path((string)type, (string)name)));
+							GLib.Application.get_default().activate_action("delete-file", new GLib.Variant.string(resource_path((string)type, (string)name)));
 						});
 					menu.add(mi);
 
@@ -419,8 +406,7 @@ public class ProjectBrowser : Gtk.Box
 								Value parent_name;
 								_tree_view.model.get_value(parent, ProjectStore.Column.NAME, out parent_name);
 
-								GLib.File file = GLib.File.new_for_path(GLib.Path.build_filename(_project.source_dir(), (string)parent_name));
-								open_directory(file.get_path());
+								GLib.Application.get_default().activate_action("open-containing", new GLib.Variant.string((string)parent_name));
 							}
 						});
 					menu.add(mi);
@@ -444,8 +430,7 @@ public class ProjectBrowser : Gtk.Box
 					Value name;
 					_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
 
-					Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
-					app.activate_action("open-resource", resource_path((string)type, (string)name));
+					GLib.Application.get_default().activate_action("open-resource", resource_path((string)type, (string)name));
 				}
 			}
 		}
