@@ -12,7 +12,6 @@ namespace Crown
 public class PanelProjectsList : Gtk.ScrolledWindow
 {
 	// Data
-	LevelEditorApplication _application;
 	User _user;
 
 	// Widgets
@@ -25,12 +24,11 @@ public class PanelProjectsList : Gtk.ScrolledWindow
 	[GtkChild]
 	unowned Gtk.Button _button_import_project;
 
-	public PanelProjectsList(LevelEditorApplication app, User user)
+	public PanelProjectsList(User user)
 	{
 		this.shadow_type = Gtk.ShadowType.NONE;
 
 		// Data
-		_application = app;
 		_user = user;
 
 		_list_projects.set_sort_func((row1, row2) => {
@@ -40,16 +38,12 @@ public class PanelProjectsList : Gtk.ScrolledWindow
 			});
 
 		_button_new_project.clicked.connect(() => {
-				_application.show_panel("panel_new_project", Gtk.StackTransitionType.SLIDE_DOWN);
+				var app = (LevelEditorApplication)GLib.Application.get_default();
+				app.show_panel("panel_new_project", Gtk.StackTransitionType.SLIDE_DOWN);
 			});
 
 		_button_import_project.clicked.connect(() => {
-				string source_dir;
-				int rt = _application.run_open_project_dialog(out source_dir, (Gtk.Window)this.get_toplevel());
-				if (rt != ResponseType.ACCEPT)
-					return;
-
-				_user.add_or_touch_recent_project(source_dir, source_dir);
+				GLib.Application.get_default().activate_action("add-project", null);
 			});
 
 		_user.recent_project_added.connect(on_recent_project_added);
@@ -120,7 +114,7 @@ public class PanelProjectsList : Gtk.ScrolledWindow
 		button_open.set_valign(Gtk.Align.CENTER);
 		// button_open.set_margin_end(12);
 		button_open.clicked.connect(() => {
-				_application.activate_action("open-project", new GLib.Variant.string(source_dir));
+				GLib.Application.get_default().activate_action("open-project", new GLib.Variant.string(source_dir));
 			});
 		hbox.pack_end(button_open, false, false, 0);
 

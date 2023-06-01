@@ -302,6 +302,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "new-level",     on_new_level,     null, null },
 		{ "open-level",    on_open_level,    "s",  null },
 		{ "new-project",   on_new_project,   null, null },
+		{ "add-project",   on_add_project,   null, null },
 		{ "open-project",  on_open_project,  "s",  null },
 		{ "save",          on_save,          null, null },
 		{ "save-as",       on_save_as,       null, null },
@@ -830,7 +831,7 @@ public class LevelEditorApplication : Gtk.Application
 		_panel_new_project.fill_templates_list(_templates_dir.get_path());
 
 		_panel_welcome = new PanelWelcome();
-		_panel_projects_list = new PanelProjectsList(this, _user);
+		_panel_projects_list = new PanelProjectsList(_user);
 		_panel_welcome.pack_start(_panel_projects_list);
 		_panel_welcome.set_visible(true); // To make Gtk.Stack work...
 
@@ -1964,6 +1965,16 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
+	private void on_add_project(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string source_dir;
+		int rt = run_open_project_dialog(out source_dir, this.active_window);
+		if (rt != ResponseType.ACCEPT)
+			return;
+
+		_user.add_or_touch_recent_project(source_dir, source_dir);
+	}
+
 	private void on_save(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		save();
@@ -2614,7 +2625,7 @@ public class LevelEditorApplication : Gtk.Application
 			|| name == "panel_new_project"
 			|| name == "panel_projects_list"
 			) {
-			menu_set_enabled(false, action_entries_file, {"new-project", "open-project", "quit"});
+			menu_set_enabled(false, action_entries_file, {"new-project", "add-project", "open-project", "quit"});
 			menu_set_enabled(false, action_entries_edit);
 			menu_set_enabled(false, action_entries_create);
 			menu_set_enabled(false, action_entries_camera);
