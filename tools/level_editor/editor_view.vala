@@ -186,10 +186,8 @@ public class EditorView : Gtk.EventBox
 	{
 		string str = "";
 
-		if (ev.keyval == Gdk.Key.Escape) {
-			LevelEditorApplication app = (LevelEditorApplication)((Gtk.Window)this.get_toplevel()).application;
-			app.activate_last_tool_before_place();
-		}
+		if (ev.keyval == Gdk.Key.Escape)
+			GLib.Application.get_default().activate_action("cancel-place", null);
 
 		if (ev.keyval == Gdk.Key.Up)
 			str += "LevelEditor:key_down(\"move_up\")";

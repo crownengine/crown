@@ -321,6 +321,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "duplicate",          on_duplicate,          null, null   },
 		{ "delete",             on_delete,             null, null   },
 		{ "tool",               on_tool,               "i",  "1"    }, // See: Crown.ToolType
+		{ "cancel-place",       on_cancel_place,       null, null   },
 		{ "snap",               on_snap,               "i",  "0"    }, // See: Crown.SnapMode
 		{ "reference-system",   on_reference_system,   "i",  "0"    }, // See: Crown.ReferenceSystem
 		{ "snap-to-grid",       on_snap_to_grid,       null, "true" },
@@ -1585,6 +1586,14 @@ public class LevelEditorApplication : Gtk.Application
 		action.set_state(param);
 	}
 
+	private void on_cancel_place(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		if (_tool_type != ToolType.PLACE)
+			return;
+
+		activate_action("tool", new GLib.Variant.int32(_tool_type_prev));
+	}
+
 	private void on_snap(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		_snap_mode = (SnapMode)param.get_int32();
@@ -2620,14 +2629,6 @@ public class LevelEditorApplication : Gtk.Application
 		_placeable_type = type;
 		_placeable_name = name;
 		_editor.send_script(LevelEditorApi.set_placeable(type, name));
-	}
-
-	public void activate_last_tool_before_place()
-	{
-		if (_tool_type != ToolType.PLACE)
-			return;
-
-		activate_action("tool", new GLib.Variant.int32(_tool_type_prev));
 	}
 }
 
