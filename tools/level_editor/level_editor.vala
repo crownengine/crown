@@ -2346,15 +2346,19 @@ public class LevelEditorApplication : Gtk.Application
 	private void on_undo(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		int id = _database.undo();
-		if (id != -1)
+		if (id != -1) {
 			_statusbar.set_temporary_message("Undo: " + ActionNames[id]);
+			update_active_window_title();
+		}
 	}
 
 	private void on_redo(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		int id = _database.redo();
-		if (id != -1)
+		if (id != -1) {
 			_statusbar.set_temporary_message("Redo: " + ActionNames[id]);
+			update_active_window_title();
+		}
 	}
 
 	private void on_duplicate(GLib.SimpleAction action, GLib.Variant? param)
