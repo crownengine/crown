@@ -10,8 +10,7 @@ namespace Crown
 {
 public class PreferencesDialog : Gtk.Dialog
 {
-	// Data
-	public LevelEditorApplication _application;
+	public RuntimeInstance _editor;
 
 	// Document page.
 	public ColorButtonVector3 _grid_color_button;
@@ -41,14 +40,13 @@ public class PreferencesDialog : Gtk.Dialog
 
 	public Gtk.Notebook _notebook;
 
-	public PreferencesDialog(LevelEditorApplication app)
+	public PreferencesDialog(RuntimeInstance editor)
 	{
 		this.title = "Preferences";
 		this.border_width = 0;
 		this.set_icon_name(CROWN_ICON_NAME);
 
-		// Data
-		_application = app;
+		_editor = editor;
 
 		// Widgets
 		_document_set = new PropertyGridSet();
@@ -103,7 +101,8 @@ public class PreferencesDialog : Gtk.Dialog
 			, new string[] { "dark", "light" }
 			);
 		_theme_combo.value_changed.connect(() => {
-				_application.set_theme_from_name(_theme_combo.value);
+				var app = (LevelEditorApplication)GLib.Application.get_default();
+				app.set_theme_from_name(_theme_combo.value);
 			});
 
 		cv = new PropertyGrid();
@@ -165,24 +164,25 @@ public class PreferencesDialog : Gtk.Dialog
 
 	private void on_color_set()
 	{
-		_application._editor.send_script(LevelEditorApi.set_color("grid", _grid_color_button.value));
-		_application._editor.send_script(LevelEditorApi.set_color("grid_disabled", _grid_disabled_color_button.value));
-		_application._editor.send_script(LevelEditorApi.set_color("axis_x", _axis_x_color_button.value));
-		_application._editor.send_script(LevelEditorApi.set_color("axis_y", _axis_y_color_button.value));
-		_application._editor.send_script(LevelEditorApi.set_color("axis_z", _axis_z_color_button.value));
-		_application._editor.send_script(LevelEditorApi.set_color("axis_selected", _axis_selected_color_button.value));
-		_application._editor.send(DeviceApi.frame());
+		_editor.send_script(LevelEditorApi.set_color("grid", _grid_color_button.value));
+		_editor.send_script(LevelEditorApi.set_color("grid_disabled", _grid_disabled_color_button.value));
+		_editor.send_script(LevelEditorApi.set_color("axis_x", _axis_x_color_button.value));
+		_editor.send_script(LevelEditorApi.set_color("axis_y", _axis_y_color_button.value));
+		_editor.send_script(LevelEditorApi.set_color("axis_z", _axis_z_color_button.value));
+		_editor.send_script(LevelEditorApi.set_color("axis_selected", _axis_selected_color_button.value));
+		_editor.send(DeviceApi.frame());
 	}
 
 	private void on_gizmo_size_value_changed()
 	{
-		_application._editor.send_script("Gizmo.size = %f".printf(_gizmo_size_spin_button.value));
-		_application._editor.send(DeviceApi.frame());
+		_editor.send_script("Gizmo.size = %f".printf(_gizmo_size_spin_button.value));
+		_editor.send(DeviceApi.frame());
 	}
 
 	private void on_level_autosave_value_changed()
 	{
-		_application.set_autosave_timer((uint)_level_autosave_spin_button.value);
+		var app = (LevelEditorApplication)GLib.Application.get_default();
+		app.set_autosave_timer((uint)_level_autosave_spin_button.value);
 	}
 
 	public void decode(Hashtable settings)

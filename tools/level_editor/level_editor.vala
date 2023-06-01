@@ -662,7 +662,7 @@ public class LevelEditorApplication : Gtk.Application
 		_project_store = new ProjectStore(_project);
 
 		// Widgets
-		_preferences_dialog = new PreferencesDialog(this);
+		_preferences_dialog = new PreferencesDialog(_editor);
 		_preferences_dialog.delete_event.connect(_preferences_dialog.hide_on_delete);
 
 		_combo = new Gtk.ComboBoxText();
@@ -827,7 +827,7 @@ public class LevelEditorApplication : Gtk.Application
 		_file_filter.add_pattern("*.level");
 
 		_user = new User();
-		_panel_new_project = new PanelNewProject(this, _user, _project);
+		_panel_new_project = new PanelNewProject(_user, _project);
 		_panel_new_project.fill_templates_list(_templates_dir.get_path());
 
 		_panel_welcome = new PanelWelcome();

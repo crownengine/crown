@@ -231,15 +231,13 @@ public class LevelTreeView : Gtk.Box
 
 			mi = new Gtk.MenuItem.with_label("Duplicate");
 			mi.activate.connect(() => {
-					Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
-					app.activate_action("duplicate", null);
+					GLib.Application.get_default().activate_action("duplicate", null);
 				});
 			menu.add(mi);
 
 			mi = new Gtk.MenuItem.with_label("Delete");
 			mi.activate.connect(() => {
-					Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
-					app.activate_action("delete", null);
+					GLib.Application.get_default().activate_action("delete", null);
 				});
 			menu.add(mi);
 

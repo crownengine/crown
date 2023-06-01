@@ -17,20 +17,16 @@ public class EntrySearch : Gtk.SearchEntry
 
 	private bool on_focus_in(Gdk.EventFocus ev)
 	{
-		Gtk.Window win = this.get_toplevel() as Gtk.Window;
-		LevelEditorApplication app = (LevelEditorApplication)win.application;
-		if (app != null)
-			app.entry_any_focus_in(this);
+		var app = (LevelEditorApplication)GLib.Application.get_default();
+		app.entry_any_focus_in(this);
 
 		return Gdk.EVENT_PROPAGATE;
 	}
 
 	private bool on_focus_out(Gdk.EventFocus ef)
 	{
-		Gtk.Window win = this.get_toplevel() as Gtk.Window;
-		LevelEditorApplication app = (LevelEditorApplication)win.application;
-		if (app != null)
-			app.entry_any_focus_out(this);
+		var app = (LevelEditorApplication)GLib.Application.get_default();
+		app.entry_any_focus_out(this);
 
 		return Gdk.EVENT_PROPAGATE;
 	}

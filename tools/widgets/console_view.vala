@@ -175,8 +175,8 @@ public class ConsoleView : Gtk.Box
 			_entry_history.push(text);
 			_distance = 0;
 
-			Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
-			RuntimeInstance? runtime = ((LevelEditorApplication)app).current_selected_runtime();
+			var app = (LevelEditorApplication)GLib.Application.get_default();
+			RuntimeInstance? runtime = app.current_selected_runtime();
 
 			if (text[0] == ':') {
 				string[] args = text[1 : text.length].split(" ");
@@ -252,8 +252,7 @@ public class ConsoleView : Gtk.Box
 				foreach (var item in tags) {
 					string resource_name = item.get_data<string>("resource_name");
 					if (resource_name != null) {
-						Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
-						app.activate_action("open-resource", new GLib.Variant.string(resource_name));
+						GLib.Application.get_default().activate_action("open-resource", new GLib.Variant.string(resource_name));
 					}
 				}
 			}

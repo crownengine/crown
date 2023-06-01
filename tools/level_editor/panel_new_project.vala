@@ -12,7 +12,6 @@ namespace Crown
 public class PanelNewProject : Gtk.Viewport
 {
 	// Data
-	LevelEditorApplication _application;
 	User _user;
 	Project _project;
 
@@ -35,12 +34,11 @@ public class PanelNewProject : Gtk.Viewport
 	[GtkChild]
 	unowned Gtk.Label _label_message;
 
-	public PanelNewProject(LevelEditorApplication app, User user, Project project)
+	public PanelNewProject(User user, Project project)
 	{
 		this.shadow_type = Gtk.ShadowType.NONE;
 
 		// Data
-		_application = app;
 		_user = user;
 		_project = project;
 
@@ -50,7 +48,8 @@ public class PanelNewProject : Gtk.Viewport
 		_combo_box_map_template.value = "";
 
 		_button_back.clicked.connect(() => {
-				_application.show_panel("panel_welcome", StackTransitionType.SLIDE_UP);
+				var app = (LevelEditorApplication)GLib.Application.get_default();
+				app.show_panel("panel_welcome", StackTransitionType.SLIDE_UP);
 			});
 
 		_button_create.clicked.connect(() => {
@@ -79,14 +78,15 @@ public class PanelNewProject : Gtk.Viewport
 				_label_message.label = "";
 
 				_user.add_or_touch_recent_project(source_dir, _entry_name.text);
-				_application.show_panel("main_vbox");
+				var app = (LevelEditorApplication)GLib.Application.get_default();
+				app.show_panel("main_vbox");
 
 				if (_combo_box_map_template.value == "")
 					_project.create_initial_files(source_dir);
 				else
 					copy_template_to_source_dir(source_dir, _combo_box_map_template.value);
 
-				_application.restart_backend.begin(source_dir, LEVEL_NONE);
+				app.restart_backend.begin(source_dir, LEVEL_NONE);
 			});
 	}
 
