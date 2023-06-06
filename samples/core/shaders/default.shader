@@ -327,7 +327,7 @@ bgfx_shaders = {
 
 			void main()
 			{
-				gl_FragColor.r = uint(u_unit_id.x);
+				gl_FragColor.r = u_unit_id.x;
 			}
 		"""
 	}

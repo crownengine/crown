@@ -39,8 +39,15 @@ static void selection_draw_override(UnitId unit_id, RenderWorld *rw)
 		return;
 	}
 
+	union
+	{
+		u32 u;
+		f32 f;
+	} u2f;
+	u2f.u = unit_id._idx;
+
 	Vector4 data;
-	data.x = f32(unit_id._idx);
+	data.x = u2f.f;
 	data.y = 0.0f;
 	data.z = 0.0f;
 	data.w = 0.0f;
