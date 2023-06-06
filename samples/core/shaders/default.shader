@@ -367,7 +367,7 @@ bgfx_shaders = {
 
 			void main()
 			{
-				vec2 tex_size = textureSize(s_selection, 0) - vec2(1, 1);
+				vec2 tex_size = vec2(textureSize(s_selection, 0)) - vec2(1, 1);
 
 				uint id[8];
 				id[0] = texelFetch(s_selection, ivec2(v_texcoord0 * tex_size + vec2(-1, -1)), 0).r;
@@ -497,7 +497,7 @@ bgfx_shaders = {
 		vs_code = """
 			void main()
 			{
-				gl_Position = vec4_splat(0);
+				gl_Position = vec4_splat(0.0);
 			}
 		"""
 
