@@ -22,7 +22,7 @@ namespace log_internal
 	static void stdout_log(LogSeverity::Enum sev, System system, const char *msg)
 	{
 		char buf[8192];
-#if CROWN_PLATFORM_POSIX
+#if CROWN_PLATFORM_POSIX && !CROWN_PLATFORM_ANDROID
 	#define ANSI_RESET  "\x1b[0m"
 	#define ANSI_YELLOW "\x1b[33m"
 	#define ANSI_RED    "\x1b[31m"
