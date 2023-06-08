@@ -16,7 +16,6 @@
 #include "lua/lua_stack.inl"
 #include "resource/lua_resource.h"
 #include "resource/resource_manager.h"
-#include <lua.hpp>
 #include <stdarg.h>
 
 LOG_SYSTEM(LUA, "lua")
