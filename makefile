@@ -75,7 +75,7 @@ build/windows64/bin/luajit.exe:
 	-@rm -f 3rdparty/luajit/src/minilua.*
 
 build/projects/android-arm:
-	$(GENIE) --gfxapi=gles2 --with-luajit --compiler=android-arm gmake
+	$(GENIE) --gfxapi=gles2 --compiler=android-arm gmake
 android-arm-debug: build/projects/android-arm build/android-arm/bin/libluajit.a
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/android-arm config=debug
 android-arm-development: build/projects/android-arm build/android-arm/bin/libluajit.a
@@ -85,7 +85,7 @@ android-arm-release: build/projects/android-arm build/android-arm/bin/libluajit.
 android-arm: android-arm-debug android-arm-development android-arm-release
 
 build/projects/android-arm64:
-	$(GENIE) --file=scripts/genie.lua --with-luajit --compiler=android-arm64 gmake
+	$(GENIE) --file=scripts/genie.lua --compiler=android-arm64 gmake
 android-arm64-debug: build/projects/android-arm64 build/android-arm64/bin/libluajit.a
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/android-arm64 config=debug
 android-arm64-development: build/projects/android-arm64 build/android-arm64/bin/libluajit.a
@@ -104,7 +104,7 @@ build/linux64/bin/shaderc:
 build/projects/linux:
 	$(GENIE) --file=3rdparty/bgfx/scripts/genie.lua --with-tools --gcc=linux-gcc gmake
 	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools --gcc=linux-gcc gmake
-	$(GENIE) --gfxapi=gl32 --with-luajit --with-tools --compiler=linux-gcc gmake
+	$(GENIE) --gfxapi=gl32 --with-tools --compiler=linux-gcc gmake
 linux-debug64: build/projects/linux build/linux64/bin/luajit build/linux64/bin/texturec build/linux64/bin/shaderc
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux crown config=debug64
 linux-development64: build/projects/linux build/linux64/bin/luajit build/linux64/bin/texturec build/linux64/bin/shaderc
@@ -123,7 +123,7 @@ build/mingw64/bin/shaderc.exe:
 build/projects/mingw:
 	$(GENIE) --file=3rdparty/bgfx/scripts/genie.lua --with-tools --gcc=mingw-gcc gmake
 	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools --gcc=mingw-gcc gmake
-	$(GENIE) --gfxapi=d3d11 --with-luajit --with-tools --compiler=mingw-gcc gmake
+	$(GENIE) --gfxapi=d3d11 --with-tools --compiler=mingw-gcc gmake
 mingw-debug64: build/projects/mingw build/mingw64/bin/luajit.exe build/mingw64/bin/texturec.exe build/mingw64/bin/shaderc.exe
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw config=debug64
 mingw-development64: build/projects/mingw build/mingw64/bin/luajit.exe build/mingw64/bin/texturec.exe build/mingw64/bin/shaderc.exe
@@ -142,7 +142,7 @@ build/windows64/bin/shaderc.exe:
 build/projects/vs2019:
 	$(GENIE) --file=3rdparty/bgfx/scripts/genie.lua --with-tools vs2019
 	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools vs2019
-	$(GENIE) --gfxapi=d3d11 --with-luajit --with-tools --no-level-editor vs2019
+	$(GENIE) --gfxapi=d3d11 --with-tools --no-level-editor vs2019
 windows-debug64: build/projects/vs2019 build/windows64/bin/luajit.exe build/windows64/bin/texturec.exe build/windows64/bin/shaderc.exe
 	devenv.com build/projects/vs2019/crown.sln $(ARG_PREFIX)Build "debug|x64"
 windows-development64: build/projects/vs2019 build/windows64/bin/luajit.exe build/windows64/bin/texturec.exe build/windows64/bin/shaderc.exe

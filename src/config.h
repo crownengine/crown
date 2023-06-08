@@ -134,3 +134,7 @@
 #ifndef CROWN_MAX_OS_EVENTS
 	#define CROWN_MAX_OS_EVENTS 128
 #endif
+
+#ifndef CROWN_USE_LUAJIT
+	#define CROWN_USE_LUAJIT 1
+#endif

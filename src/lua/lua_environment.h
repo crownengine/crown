@@ -12,7 +12,6 @@
 #include "device/types.h"
 #include "lua/lua_stack.h"
 #include "resource/types.h"
-struct lua_State;
 
 namespace crown
 {

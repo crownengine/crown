@@ -62,7 +62,11 @@ static int msghandler(lua_State *L)
 			msg = lua_pushfstring(L, "(error object is a %s value)",
 				luaL_typename(L, 1));
 	}
+#if CROWN_USE_LUAJIT
 	luaL_traceback(L, L, msg, 1);  /* append a standard traceback */
+#else
+	lua_pushstring(L, "No traceback");
+#endif
 	return 1;  /* return the traceback */
 }
 
@@ -227,12 +231,14 @@ void LuaEnvironment::load_libs()
 	lua_pushcfunction(L, luaopen_debug);
 	lua_pushstring(L, LUA_DBLIBNAME);
 	lua_call(L, 1, 0);
+#if CROWN_USE_LUAJIT
 	lua_pushcfunction(L, luaopen_bit);
 	lua_pushstring(L, LUA_BITLIBNAME);
 	lua_call(L, 1, 0);
 	lua_pushcfunction(L, luaopen_jit);
 	lua_pushstring(L, LUA_JITLIBNAME);
 	lua_call(L, 1, 0);
+#endif
 
 	// Override print to redirect output to logging system
 	add_module_function("_G", "print", luaB_print);

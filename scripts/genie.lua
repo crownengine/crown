@@ -14,8 +14,13 @@ function copyLib()
 end
 
 newoption {
-	trigger = "with-luajit",
-	description = "Build with luajit support."
+	trigger = "no-lua",
+	description = "Build without Lua scripting."
+}
+
+newoption {
+	trigger = "no-luajit",
+	description = "Build with regular Lua."
 }
 
 newoption {
@@ -84,6 +89,7 @@ dofile ("openal.lua")
 openal_project(os.is("windows") and "SharedLib" or "StaticLib")
 
 dofile ("bullet.lua")
+dofile ("lua.lua")
 
 if _OPTIONS["with-tools"] then
 	group "tools"

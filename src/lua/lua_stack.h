@@ -11,7 +11,9 @@
 #include "core/types.h"
 #include "resource/types.h"
 #include "world/types.h"
-#include <lua.hpp>
+
+struct lua_State;
+typedef int (*lua_CFunction)(lua_State *L);
 
 #ifndef LUA_OK
 	#define LUA_OK 0
