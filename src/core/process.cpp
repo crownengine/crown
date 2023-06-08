@@ -6,7 +6,6 @@
 #include "core/memory/temp_allocator.inl"
 #include "core/process.h"
 #include "core/strings/string_stream.inl"
-#include <stdio.h> // fdopen etc.
 
 #if CROWN_PLATFORM_WINDOWS
 	#ifndef WIN32_LEAN_AND_MEAN
@@ -14,6 +13,8 @@
 	#endif
 	#include <windows.h>
 #else
+	#include <stdio.h>    // fdopen etc.
+	#include <stdlib.h>   // exit
 	#include <unistd.h>   // fork, execvp
 	#include <sys/wait.h> // waitpid
 	#include <errno.h>
@@ -170,8 +171,7 @@ s32 Process::spawn(const char * const *argv, u32 flags)
 		}
 
 		execvp(argv[0], (char * const *)argv);
-		// exec returned error
-		return -1;
+		exit(EXIT_FAILURE); // exec returned error
 	}
 
 	// Parent
