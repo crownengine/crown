@@ -142,9 +142,7 @@ const void *ResourceManager::get(StringId64 type, StringId64 name)
 {
 	const ResourcePair id = { type, name };
 
-	const ResourceId res_id = resource_id(type, name);
-	CE_ASSERT(can_get(type, name), "Resource not loaded: " RESOURCE_ID_FMT, res_id._id);
-	CE_UNUSED(res_id);
+	CE_ASSERT(can_get(type, name), "Resource not loaded: " RESOURCE_ID_FMT, resource_id(type, name)._id);
 
 	if (_autoload && !hash_map::has(_rm, id)) {
 		load(PACKAGE_RESOURCE_NONE, type, name);
