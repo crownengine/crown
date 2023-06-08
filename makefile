@@ -75,7 +75,7 @@ build/windows64/bin/luajit.exe:
 	-@rm -f 3rdparty/luajit/src/minilua.*
 
 build/projects/android-arm:
-	$(GENIE) --gfxapi=gles3 --compiler=android-arm gmake
+	$(GENIE) --gfxapi=gles3 --no-luajit --compiler=android-arm gmake
 android-arm-debug: build/projects/android-arm build/android-arm/bin/libluajit.a
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/android-arm config=debug
 android-arm-development: build/projects/android-arm build/android-arm/bin/libluajit.a
