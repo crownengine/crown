@@ -507,6 +507,7 @@ bgfx_shaders = {
 		fs_code = """
 			void main()
 			{
+				discard;
 			}
 		"""
 	}
