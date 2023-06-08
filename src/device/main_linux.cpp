@@ -940,22 +940,22 @@ bool next_event(OsEvent &ev)
 	return s_linux_device->_events.pop(ev);
 }
 
-} // namespace crown
-
 struct InitGlobals
 {
 	InitGlobals()
 	{
-		crown::memory_globals::init();
-		crown::guid_globals::init();
+		memory_globals::init();
+		guid_globals::init();
 	}
 
 	~InitGlobals()
 	{
-		crown::guid_globals::shutdown();
-		crown::memory_globals::shutdown();
+		guid_globals::shutdown();
+		memory_globals::shutdown();
 	}
 };
+
+} // namespace crown
 
 int main(int argc, char **argv)
 {
