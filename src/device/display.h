@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "core/containers/types.h"
 #include "core/memory/types.h"
 #include "core/types.h"
 
