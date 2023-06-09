@@ -100,6 +100,9 @@ android-arm64-release: build/projects/android-arm64 build/android-arm64/bin/libl
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/android-arm64 config=release
 android-arm64: android-arm64-debug android-arm64-development android-arm64-release
 
+build/linux32/bin/luac: build/projects/linux
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux luac config=release32
+	mv $@-release $@
 build/linux64/bin/texturec:
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/bimg/.build/projects/gmake-linux config=release64 texturec
 	cp -r 3rdparty/bimg/.build/linux64_gcc/bin/texturecRelease $@
@@ -118,6 +121,15 @@ linux-development64: build/projects/linux build/linux64/bin/luajit build/linux64
 linux-release64: build/projects/linux build/linux64/bin/luajit
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux crown config=release64
 linux: linux-debug64 linux-development64 linux-release64
+
+build/projects/wasm:
+	$(GENIE) --no-luajit --gfxapi=gles3 --compiler=wasm gmake
+wasm-debug: build/projects/wasm
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/wasm crown config=debug
+wasm-development: build/projects/wasm
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/wasm crown config=development
+wasm-release: build/projects/wasm
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/wasm crown config=release
 
 build/mingw64/bin/texturec.exe:
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/bimg/.build/projects/gmake-mingw-gcc config=release64 texturec
@@ -165,7 +177,7 @@ level-editor-linux-debug64:
 level-editor-linux-release64:
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux level-editor config=release64
 
-tools-linux-release32: build/linux32/bin/luajit
+tools-linux-release32: build/linux32/bin/luajit build/linux32/bin/luac
 
 tools-linux-debug64: linux-debug64 level-editor-linux-debug64
 tools-linux-release64: linux-development64 level-editor-linux-release64

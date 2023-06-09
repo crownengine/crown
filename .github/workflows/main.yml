@@ -59,6 +59,37 @@ jobs:
         export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/21.4.7075529
         export ANDROID_NDK_ABI=23
         make MAKE_JOBS=2 android-arm64-release
+  html5:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v3
+    - name: prepare
+      run: |
+        git clone https://github.com/emscripten-core/emsdk.git
+        cd emsdk
+        ./emsdk install latest
+        ./emsdk activate latest
+    - name: wasm-make-debug
+      run: |
+        export EMSCRIPTEN=$GITHUB_WORKSPACE/emsdk/upstream/emscripten
+        make MAKE_JOBS=2 wasm-debug
+    - name: wasm-test-debug
+      run: |
+        cd ./build/wasm/bin && node crown-debug --run-unit-tests
+    - name: wasm-make-development
+      run: |
+        export EMSCRIPTEN=$GITHUB_WORKSPACE/emsdk/upstream/emscripten
+        make MAKE_JOBS=2 wasm-development
+    - name: wasm-test-development
+      run: |
+        cd ./build/wasm/bin && node crown-development --run-unit-tests
+    - name: wasm-make-release
+      run: |
+        export EMSCRIPTEN=$GITHUB_WORKSPACE/emsdk/upstream/emscripten
+        make MAKE_JOBS=2 wasm-release
+    - name: wasm-test-release
+      run: |
+        cd ./build/wasm/bin && node crown-release --run-unit-tests
   linux:
     runs-on: ubuntu-20.04
     steps:
@@ -161,7 +192,7 @@ jobs:
         make MAKE_JOBS=2 level-editor-mingw-release64
   code-style:
     runs-on: ubuntu-20.04
-    needs: [android-arm, linux, windows]
+    needs: [android-arm, html5, linux, windows]
     steps:
     - uses: actions/checkout@v3
     - name: format

@@ -13,6 +13,7 @@ Changelog
 
 **Runtime**
 
+* Added experimental HTML5 target platform.
 * Added ``--window-rect``, ``--bundle`` and ``--bundle-dir`` CLI options.
 * Fixed a double-free error during shutdown.
 * Bumped minimum OpenGL|ES version for Android platform to 3.0.

@@ -15,6 +15,11 @@ project "lua"
 			"-Wno-implicit-fallthrough",
 		}
 
+	configuration { "wasm" }
+		buildoptions {
+			"-Wno-empty-body",
+		}
+
 	configuration { }
 
 	files {

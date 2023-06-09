@@ -52,6 +52,7 @@ namespace shader_resource_internal
 	{
 		"android", // Platform::ANDROID
 		"android", // Platform::ANDROID_ARM64
+		"asm.js",  // Platform::HTML5
 		"linux",   // Platform::LINUX
 		"windows"  // Platform::WINDOWS
 	};
@@ -481,7 +482,7 @@ namespace shader_resource_internal
 			NULL,
 		};
 
-		if (strcmp(platform, "android") == 0) {
+		if (strcmp(platform, "android") == 0 || strcmp(platform, "asm.js") == 0) {
 			argv[11] = "--profile";
 			argv[12] = "300_es"; // GLES3
 		} else if (strcmp(platform, "linux") == 0) {

@@ -18,6 +18,7 @@
 	#include <fcntl.h>      // fcntl
 	#include <netinet/in.h> // htons, htonl, ...
 	#include <sys/socket.h>
+	#include <sys/time.h>   // timeval
 	#include <unistd.h>     // close
 	#define SOCKET int
 	#define INVALID_SOCKET (-1)
@@ -171,16 +172,23 @@ namespace socket_internal
 
 	void set_reuse_address(SOCKET socket, bool reuse)
 	{
+#if CROWN_PLATFORM_EMSCRIPTEN
+		CE_UNUSED_2(socket, reuse);
+#else
 		CE_ENSURE(socket != INVALID_SOCKET);
 
 		int optval = (int)reuse;
 		int err = setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, (const char *)&optval, sizeof(optval));
 		CE_ASSERT(err == 0, "setsockopt: last_error() = %d", last_error());
 		CE_UNUSED(err);
+#endif
 	}
 
 	void set_timeout(SOCKET socket, u32 ms)
 	{
+#if CROWN_PLATFORM_EMSCRIPTEN
+		CE_UNUSED_2(socket, ms);
+#else
 		CE_ENSURE(socket != INVALID_SOCKET);
 
 		struct timeval tv;
@@ -192,6 +200,7 @@ namespace socket_internal
 		err = setsockopt(socket, SOL_SOCKET, SO_SNDTIMEO, (const char *)&tv, sizeof(tv));
 		CE_ASSERT(err == 0, "setsockopt: last_error(): %d", last_error());
 		CE_UNUSED(err);
+#endif
 	}
 
 } // namespace socket_internal

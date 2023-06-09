@@ -70,6 +70,9 @@ void ResourcePackage::flush()
 {
 	while (!has_loaded()) {
 		_resource_manager->complete_requests();
+#if CROWN_PLATFORM_EMSCRIPTEN
+			os::sleep(16);
+#endif
 	}
 }
 

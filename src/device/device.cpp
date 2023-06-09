@@ -65,6 +65,9 @@
 #include <bgfx/bgfx.h>
 #include <bx/allocator.h>
 #include <bx/math.h>
+#if CROWN_PLATFORM_EMSCRIPTEN
+	#include <emscripten/emscripten.h>
+#endif
 
 #define CROWN_MAX_SUBSYSTEMS_HEAP (8*1024*1024)
 
@@ -214,8 +217,8 @@ Device::Device(const DeviceOptions &opts, ConsoleServer &cs)
 	, _pipeline(NULL)
 	, _display(NULL)
 	, _window(NULL)
-	, _width(0)
-	, _height(0)
+	, _width(CROWN_DEFAULT_WINDOW_WIDTH)
+	, _height(CROWN_DEFAULT_WINDOW_HEIGHT)
 	, _quit(false)
 	, _paused(false)
 	, _needs_draw(true)
@@ -293,7 +296,9 @@ bool Device::frame()
 
 	// Only block if redraw is not needed.
 	const bool sync = !_needs_draw;
+#if !CROWN_PLATFORM_EMSCRIPTEN
 	_console_server->execute_message_handlers(sync);
+#endif
 
 	RECORD_FLOAT("device.dt", dt);
 	RECORD_FLOAT("device.fps", 1.0f/dt);
@@ -349,7 +354,9 @@ void Device::run()
 	_console_server->register_message_type("quit",    device_message_quit,    this);
 	_console_server->register_message_type("refresh", device_message_refresh, this);
 
+#if !CROWN_PLATFORM_EMSCRIPTEN
 	_console_server->listen(_options._console_port, _options._wait_console);
+#endif
 
 	bool is_bundle = true;
 #if CROWN_PLATFORM_ANDROID
@@ -437,9 +444,15 @@ void Device::run()
 
 		while (!_resource_manager->try_load(PACKAGE_RESOURCE_NONE, RESOURCE_TYPE_CONFIG, config_name)) {
 			_resource_manager->complete_requests();
+#if CROWN_PLATFORM_EMSCRIPTEN
+			os::sleep(16);
+#endif
 		}
 		while (!_resource_manager->can_get(RESOURCE_TYPE_CONFIG, config_name)) {
 			_resource_manager->complete_requests();
+#if CROWN_PLATFORM_EMSCRIPTEN
+			os::sleep(16);
+#endif
 		}
 
 		_boot_config.parse((const char *)_resource_manager->get(RESOURCE_TYPE_CONFIG, config_name));
@@ -449,6 +462,7 @@ void Device::run()
 	// Init all remaining subsystems
 	_display = display::create(_allocator);
 
+#if !CROWN_PLATFORM_EMSCRIPTEN
 	if (_options._window_width.has_changed() || _options._window_height.has_changed()) {
 		_width  = _options._window_width;
 		_height = _options._window_height;
@@ -456,6 +470,7 @@ void Device::run()
 		_width  = _boot_config.window_w;
 		_height = _boot_config.window_h;
 	}
+#endif
 
 	_window = window::create(_allocator);
 	_window->open(_options._window_x
@@ -478,7 +493,7 @@ void Device::run()
 	init.callback  = _bgfx_callback;
 	init.allocator = _bgfx_allocator;
 	init.vendorId = BGFX_PCI_ID_NONE;
-#if CROWN_PLATFORM_ANDROID
+#if CROWN_PLATFORM_ANDROID || CROWN_PLATFORM_EMSCRIPTEN
 	init.type = bgfx::RendererType::OpenGLES;
 #elif CROWN_PLATFORM_LINUX
 	init.type = bgfx::RendererType::OpenGL;
@@ -518,8 +533,11 @@ void Device::run()
 	_prev_height = _height;
 	_last_time = time::now();
 
-	while (!frame()) {
-	}
+#if CROWN_PLATFORM_EMSCRIPTEN
+	emscripten_set_main_loop_arg([](void *thiz) { ((Device *)thiz)->frame(); }, this, 0, -1);
+#else
+	while (!frame()) { }
+#endif
 
 	_lua_environment->call_global("shutdown");
 

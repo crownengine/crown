@@ -17,6 +17,7 @@ function toolchain(build_dir, lib_dir)
 			{ "linux-gcc",     "Linux (GCC compiler)"   },
 			{ "linux-clang",   "Linux (Clang compiler)" },
 			{ "mingw-gcc",     "MinGW (GCC compiler)"   },
+			{ "wasm",          "emscripten/wasm"        },
 		}
 	}
 
@@ -99,7 +100,20 @@ function toolchain(build_dir, lib_dir)
 			premake.valac.cc  = premake.gcc.cc
 			location(build_dir .. "projects/mingw")
 
-		end
+		elseif "wasm" == _OPTIONS["compiler"] then
+
+			if not os.getenv("EMSCRIPTEN") then
+				print("Set EMSCRIPTEN environment variable.")
+				os.exit(1)
+			end
+
+			premake.gcc.cc  = "$(EMSCRIPTEN)/emcc"
+			premake.gcc.cxx = "$(EMSCRIPTEN)/em++"
+			premake.gcc.ar  = "$(EMSCRIPTEN)/emar"
+
+			premake.gcc.llvm = true
+			location(build_dir .. "projects/wasm")
+	end
 	elseif _ACTION == "vs2017"
 		or _ACTION == "vs2019"
 		then
@@ -155,6 +169,11 @@ function toolchain(build_dir, lib_dir)
 	configuration { "debug or development", "linux-*" }
 		linkoptions {
 			"-rdynamic"
+		}
+
+	configuration { "debug or development", "wasm" }
+		linkoptions {
+			"-gsource-map" -- See: https://emscripten.org/docs/porting/exceptions.html?highlight=gsource%20map#stack-traces
 		}
 
 	configuration { "linux-gcc or android-arm" }
@@ -348,6 +367,16 @@ function toolchain(build_dir, lib_dir)
 			lib_dir .. "../build/mingw64/bin",
 		}
 		buildoptions { "-m64" }
+
+	configuration { "wasm" }
+		targetdir (path.join(build_dir, "wasm/bin"))
+		objdir (path.join(build_dir, "wasm/obj"))
+		libdirs { path.join(lib_dir, "lib/wasm") }
+		buildoptions {
+			"-Wunused-value",
+			"-Wundef",
+			"-pthread",
+		}
 
 	configuration { "vs*" }
 		includedirs { CROWN_DIR .. "3rdparty/bx/include/compat/msvc" }

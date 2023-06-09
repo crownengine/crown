@@ -27,7 +27,6 @@ function crown_project(_name, _kind, _defines)
 			"bimg",
 			"bx",
 			"bullet",
-			"openal",
 		}
 
 		if not _OPTIONS["no-lua"] then
@@ -91,6 +90,7 @@ function crown_project(_name, _kind, _defines)
 				"EGL",
 				"GLESv2",
 				"OpenSLES",
+				"openal",
 			}
 
 		configuration { "linux-*" }
@@ -99,10 +99,26 @@ function crown_project(_name, _kind, _defines)
 				"Xrandr",
 				"pthread",
 				"GL",
+				"openal",
+			}
+
+		configuration { "wasm" }
+			kind "ConsoleApp"
+			linkoptions {
+				"-pthread",               -- https://emscripten.org/docs/porting/pthreads.html#compiling-with-pthreads-enabled
+				"-lopenal",
+				"-s ABORTING_MALLOC=0",
+				"-s PTHREAD_POOL_SIZE=8",
+				"-s EXIT_RUNTIME=1",
+				"-s FORCE_FILESYSTEM",    -- https://github.com/emscripten-core/emscripten/blob/f5a1faa6c8d84fd5365a178013ce982d9168f6df/tools/file_packager.py#L17
+				"-s MAX_WEBGL_VERSION=2",
+				"-s TOTAL_MEMORY=128MB",
+				-- "-s SAFE_HEAP=1",
 			}
 
 		configuration { "vs* or mingw*" }
 			links {
+				"openal",
 				"dbghelp",
 				"xinput",
 				"psapi",

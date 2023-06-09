@@ -1507,6 +1507,7 @@ static void test_thread()
 
 static void test_process()
 {
+#if !CROWN_PLATFORM_EMSCRIPTEN
 	{
 #define ECHO_TEXT "foobar"
 		const char *argv[] =
@@ -1524,6 +1525,7 @@ static void test_process()
 		ENSURE(strcmp(buf, ECHO_TEXT "\n") == 0);
 		ENSURE(pr.wait() == 0);
 	}
+#endif // if !CROWN_PLATFORM_EMSCRIPTEN
 }
 
 static void test_filesystem()

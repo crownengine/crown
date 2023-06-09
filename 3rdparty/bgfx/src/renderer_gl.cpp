@@ -3920,8 +3920,8 @@ namespace bgfx { namespace gl
 
 		void setSamplerState(uint32_t _stage, uint32_t _numMips, uint32_t _flags, const float _rgba[4])
 		{
-			if ( (BX_ENABLED(BGFX_CONFIG_RENDERER_OPENGL) || m_gles3)
-			&&  m_samplerObjectSupport)
+			if ( BX_PLATFORM_EMSCRIPTEN || ((BX_ENABLED(BGFX_CONFIG_RENDERER_OPENGL) || m_gles3)
+			&&  m_samplerObjectSupport))
 			{
 				if (0 == (BGFX_SAMPLER_INTERNAL_DEFAULT & _flags) )
 				{

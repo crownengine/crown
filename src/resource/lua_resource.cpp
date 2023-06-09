@@ -103,18 +103,25 @@ namespace lua_resource_internal
 		opts.absolute_path(lua_src, opts.source_path());
 		opts.temporary_path(lua_out, "lua");
 
-		const char *luajit = EXE_PATH("luajit");
-		if (opts._platform == Platform::ANDROID)
-			luajit = EXE_PATH("../../linux32/bin/luajit");
+		const char *argv[16];
 
-		const char *argv[] =
-		{
-			luajit,
-			LUAJIT_FLAGS,
-			lua_src.c_str(),
-			lua_out.c_str(),
-			NULL
-		};
+		if (opts._platform == Platform::HTML5) {
+			argv[0] = EXE_PATH("../../linux32/bin/luac");
+			argv[1] = "-o";
+			argv[2] = lua_out.c_str();
+			argv[3] = lua_src.c_str();
+			argv[4] = NULL;
+		} else {
+			const char *luajit = EXE_PATH("luajit");
+			if (opts._platform == Platform::ANDROID)
+				luajit = EXE_PATH("../../linux32/bin/luajit");
+
+			argv[0] = luajit;
+			argv[1] = LUAJIT_FLAGS;
+			argv[2] = lua_src.c_str();
+			argv[3] = lua_out.c_str();
+			argv[4] = NULL;
+		}
 
 		Process pr;
 		s32 sc;

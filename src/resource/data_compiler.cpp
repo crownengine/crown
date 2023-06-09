@@ -76,6 +76,7 @@ static const PlatformInfo platform_info[] =
 {
 	{ "android",       Platform::ANDROID       },
 	{ "android-arm64", Platform::ANDROID_ARM64 },
+	{ "html5",         Platform::HTML5         },
 	{ "linux",         Platform::LINUX         },
 	{ "windows",       Platform::WINDOWS       }
 };

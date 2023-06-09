@@ -223,6 +223,7 @@ void Pipeline::render(ShaderManager &sm, StringId32 program, u8 view, u16 width,
 	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
 	sm.submit(program, view, 0, UINT64_MAX);
 
+#if !CROWN_PLATFORM_EMSCRIPTEN
 	bgfx::setTexture(0, _selection_texture_sampler, _selection_texture, samplerFlags);
 	bgfx::setTexture(1, _selection_depth_texture_sampler, _selection_depth_texture, samplerFlags);
 	bgfx::setTexture(2, _main_depth_texture_sampler, _main_depth_texture, samplerFlags);
@@ -230,6 +231,7 @@ void Pipeline::render(ShaderManager &sm, StringId32 program, u8 view, u16 width,
 	const f32 outline_color[] = { 1.0f, 0.37f, 0.05f, 1.0f };
 	bgfx::setUniform(_outline_color_uniform, outline_color);
 	sm.submit(STRING_ID_32("outline", UINT32_C(0xb6b58d80)), view, 0, UINT64_MAX);
+#endif
 }
 
 } // namespace crown

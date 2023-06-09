@@ -360,6 +360,7 @@ bgfx_shaders = {
 		"""
 
 		fs_code = """
+		#if !BX_PLATFORM_EMSCRIPTEN
 			USAMPLER2D(s_selection, 0);
 			SAMPLER2D(s_selection_depth, 1);
 			SAMPLER2D(s_main_depth, 2);
@@ -416,6 +417,12 @@ bgfx_shaders = {
 
 				gl_FragColor = vec4(u_outline_color.xyz, alpha);
 			}
+		#else
+			void main()
+			{
+				gl_FragColor = vec4_splat(0.0);
+			}
+		#endif
 		"""
 	}
 
@@ -451,7 +458,7 @@ bgfx_shaders = {
 
 			void main()
 			{
-				gl_FragColor.rgb = toGammaAccurate(texture2D(s_color, v_texcoord0).rgb);
+				gl_FragColor = toGammaAccurate(texture2D(s_color, v_texcoord0));
 			}
 		"""
 	}
