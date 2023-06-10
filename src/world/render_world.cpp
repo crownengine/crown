@@ -12,6 +12,7 @@
 #include "core/math/constants.h"
 #include "core/math/intersection.h"
 #include "core/math/matrix4x4.inl"
+#include "core/strings/string_id.inl"
 #include "device/pipeline.h"
 #include "resource/mesh_resource.h"
 #include "resource/resource_manager.h"

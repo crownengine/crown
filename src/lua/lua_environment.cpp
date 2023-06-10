@@ -9,6 +9,7 @@
 #include "core/json/sjson.h"
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/dynamic_string.inl"
+#include "core/strings/string_id.inl"
 #include "core/strings/string_stream.inl"
 #include "device/device.h"
 #include "device/log.h"

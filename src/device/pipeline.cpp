@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include "core/strings/string_id.inl"
 #include "core/types.h"
 #include "device/pipeline.h"
 #include "world/shader_manager.h"

@@ -11,6 +11,7 @@
 #include "core/memory/globals.h"
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/dynamic_string.inl"
+#include "core/strings/string_id.inl"
 #include "resource/compile_options.inl"
 #include "resource/level_resource.h"
 #include "resource/unit_compiler.h"

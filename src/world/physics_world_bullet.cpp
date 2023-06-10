@@ -14,6 +14,7 @@
 #include "core/math/quaternion.inl"
 #include "core/math/vector3.inl"
 #include "core/memory/proxy_allocator.h"
+#include "core/strings/string_id.inl"
 #include "device/log.h"
 #include "resource/physics_resource.h"
 #include "resource/resource_manager.h"

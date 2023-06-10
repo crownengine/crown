@@ -18,6 +18,7 @@
 #include "core/math/vector3.inl"
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/dynamic_string.inl"
+#include "core/strings/string_id.inl"
 #include "core/strings/string_stream.inl"
 #include "device/console_server.h"
 #include "device/device.h"

@@ -14,6 +14,16 @@ namespace crown
 {
 /// @addtogroup String
 /// @{
+inline StringId32::StringId32()
+	: _id(0)
+{
+}
+
+inline StringId32::StringId32(u32 idx)
+	: _id(idx)
+{
+}
+
 inline bool operator==(const StringId32 &a, const StringId32 &b)
 {
 	return a._id == b._id;
@@ -32,6 +42,16 @@ inline bool operator!=(const StringId32 &a, const StringId32 &b)
 inline bool operator<(const StringId32 &a, const StringId32 &b)
 {
 	return a._id < b._id;
+}
+
+inline StringId64::StringId64()
+	: _id(0)
+{
+}
+
+inline StringId64::StringId64(u64 idx)
+	: _id(idx)
+{
 }
 
 inline bool operator==(const StringId64 &a, const StringId64 &b)

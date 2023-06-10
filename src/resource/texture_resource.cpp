@@ -10,6 +10,7 @@
 #include "core/memory/temp_allocator.inl"
 #include "core/process.h"
 #include "core/strings/dynamic_string.inl"
+#include "core/strings/string_id.inl"
 #include "core/strings/string_stream.inl"
 #include "resource/compile_options.inl"
 #include "resource/resource_manager.h"

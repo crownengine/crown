@@ -9,6 +9,7 @@
 #include "core/memory/temp_allocator.inl"
 #include "core/platform.h"
 #include "core/strings/dynamic_string.inl"
+#include "core/strings/string_id.inl"
 #include "device/boot_config.h"
 
 namespace crown

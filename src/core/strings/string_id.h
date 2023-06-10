@@ -19,19 +19,19 @@ struct StringId32
 {
 	u32 _id;
 
-	StringId32()
-		: _id(0)
-	{
-	}
+	///
+	StringId32();
 
-	explicit StringId32(u32 idx)
-		: _id(idx)
-	{
-	}
+	///
+	explicit StringId32(u32 idx);
 
+	///
 	explicit StringId32(const char *str);
+
+	///
 	StringId32(const char *str, u32 len);
 
+	///
 	void hash(const char *str, u32 len);
 
 	/// Parses the id from @a str.
@@ -50,17 +50,16 @@ struct StringId64
 {
 	u64 _id;
 
-	StringId64()
-		: _id(0)
-	{
-	}
+	///
+	StringId64();
 
-	explicit StringId64(u64 idx)
-		: _id(idx)
-	{
-	}
+	///
+	explicit StringId64(u64 idx);
 
+	///
 	explicit StringId64(const char *str);
+
+	///
 	StringId64(const char *str, u32 len);
 
 	void hash(const char *str, u32 len);

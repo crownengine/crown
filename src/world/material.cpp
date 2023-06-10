@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include "core/strings/string_id.inl"
 #include "resource/material_resource.h"
 #include "resource/resource_manager.h"
 #include "resource/texture_resource.h"
