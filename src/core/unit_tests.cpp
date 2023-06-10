@@ -1509,34 +1509,23 @@ static void test_thread()
 
 static void test_process()
 {
-#if CROWN_PLATFORM_LINUX
 	{
-#if CROWN_DEVELOPMENT
-		#define CROWN_SUFFIX "development"
-#elif CROWN_DEBUG
-		#define CROWN_SUFFIX "debug"
-#else
-		#define CROWN_SUFFIX "release"
-#endif
+#define ECHO_TEXT "foobar"
 		const char *argv[] =
 		{
-			EXE_PATH("crown-" CROWN_SUFFIX)
-			, "--version"
+			"echo"
+			, ECHO_TEXT
 			, NULL
 		};
 
-		Process pr;
-		s32 err = pr.spawn(argv, CROWN_PROCESS_STDOUT_PIPE);
-		ENSURE(err == 0);
 		u32 nbr;
 		char buf[128] = {0};
+		Process pr;
+		ENSURE(pr.spawn(argv, CROWN_PROCESS_STDOUT_PIPE) == 0);
 		pr.read(&nbr, buf, sizeof(buf));
-		const char *ver = "Crown " CROWN_VERSION;
-		ENSURE(strncmp(buf, ver, strlen32(ver)) == 0);
-		s32 ec = pr.wait();
-		ENSURE(ec == 0);
+		ENSURE(strcmp(buf, ECHO_TEXT "\n") == 0);
+		ENSURE(pr.wait() == 0);
 	}
-#endif // if CROWN_PLATFORM_LINUX
 }
 
 static void test_filesystem()
