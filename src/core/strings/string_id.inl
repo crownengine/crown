@@ -6,7 +6,6 @@
 #pragma once
 
 #include "core/functional.h"
-#include "core/murmur.h"
 #include "core/strings/string.inl"
 #include "core/strings/string_id.h"
 
@@ -95,14 +94,16 @@ struct hash<StringId64>
 #if CROWN_DEBUG && !CROWN_DEVELOPMENT
 inline StringId32 STRING_ID_32(const char *str, const u32 id)
 {
-	CE_ASSERT(murmur32(str, strlen32(str), 0) == id, "Hash mismatch");
-	return StringId32(id);
+	StringId32 sid(str);
+	CE_ASSERT(sid._id == id, "Hash mismatch");
+	return sid;
 }
 
 inline StringId64 STRING_ID_64(const char *str, const u64 id)
 {
-	CE_ASSERT(murmur64(str, strlen32(str), 0) == id, "Hash mismatch");
-	return StringId64(id);
+	StringId64 sid(str);
+	CE_ASSERT(sid._id = id, "Hash mismatch");
+	return sid;
 }
 #endif
 /// @}
