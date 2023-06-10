@@ -43,16 +43,6 @@ typedef u32 SoundInstanceId;
 #define PHYSICS_WORLD_MARKER           UINT32_C(0x1cf49bae)
 #define ANIMATION_STATE_MACHINE_MARKER UINT32_C(0x59a1c462)
 
-#define COMPONENT_TYPE_ACTOR                   STRING_ID_32("actor",                   UINT32_C(0x13958a55))
-#define COMPONENT_TYPE_CAMERA                  STRING_ID_32("camera",                  UINT32_C(0x5005ac7a))
-#define COMPONENT_TYPE_COLLIDER                STRING_ID_32("collider",                UINT32_C(0x3b9259cb))
-#define COMPONENT_TYPE_LIGHT                   STRING_ID_32("light",                   UINT32_C(0x4cf76c7b))
-#define COMPONENT_TYPE_MESH_RENDERER           STRING_ID_32("mesh_renderer",           UINT32_C(0x2554ca17))
-#define COMPONENT_TYPE_SPRITE_RENDERER         STRING_ID_32("sprite_renderer",         UINT32_C(0x7b4af6de))
-#define COMPONENT_TYPE_TRANSFORM               STRING_ID_32("transform",               UINT32_C(0xb4363995))
-#define COMPONENT_TYPE_SCRIPT                  STRING_ID_32("script",                  UINT32_C(0x2cf63026))
-#define COMPONENT_TYPE_ANIMATION_STATE_MACHINE STRING_ID_32("animation_state_machine", UINT32_C(0xe3970e6b))
-
 /// Enumerates camera projection types.
 ///
 /// @ingroup World
