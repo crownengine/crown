@@ -4,6 +4,7 @@
  */
 
 #include "core/murmur.h"
+#include <string.h>
 
 namespace crown
 {
@@ -75,7 +76,12 @@ u64 murmur64(const void *key, u32 len, u64 seed)
 	const u64 *end = data + (len/8);
 
 	while (data != end) {
+#if CROWN_PLATFORM_ANDROID && CROWN_ARCH_32BIT
+		u64 k;
+		memcpy(&k, (const unsigned char *)data++, sizeof(k));
+#else
 		u64 k = *data++;
+#endif
 
 		k *= m;
 		k ^= k >> r;
