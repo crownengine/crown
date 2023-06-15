@@ -8,16 +8,12 @@
 #include "core/error/error.inl"
 #include "lua/lua_stack.h"
 
-#if CROWN_USE_LUAJIT
-	#include <lua.hpp>
-#else
 extern "C"
 {
 	#include <lua.h>
 	#include <lauxlib.h>
 	#include <lualib.h>
 }
-#endif
 
 #if CROWN_DEBUG
 	#define LUA_ASSERT(condition, stack, msg, ...)                       \
