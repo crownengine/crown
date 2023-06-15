@@ -83,7 +83,7 @@ extern bool next_event(OsEvent &ev);
 
 struct BgfxCallback : public bgfx::CallbackI
 {
-	virtual void fatal(const char *_filePath, uint16_t _line, bgfx::Fatal::Enum _code, const char *_str)
+	virtual void fatal(const char *_filePath, uint16_t _line, bgfx::Fatal::Enum _code, const char *_str) override
 	{
 		CE_ASSERT(false, "Fatal error: 0x%08x: %s", _code, _str);
 		CE_UNUSED(_filePath);
@@ -92,7 +92,7 @@ struct BgfxCallback : public bgfx::CallbackI
 		CE_UNUSED(_str);
 	}
 
-	virtual void traceVargs(const char * /*_filePath*/, u16 /*_line*/, const char *_format, va_list _argList)
+	virtual void traceVargs(const char * /*_filePath*/, u16 /*_line*/, const char *_format, va_list _argList) override
 	{
 		char buf[2048];
 		strncpy(buf, _format, sizeof(buf) - 1);
@@ -112,25 +112,25 @@ struct BgfxCallback : public bgfx::CallbackI
 	{
 	}
 
-	virtual u32 cacheReadSize(u64 /*_id*/)
+	virtual u32 cacheReadSize(u64 /*_id*/) override
 	{
 		return 0;
 	}
 
-	virtual bool cacheRead(u64 /*_id*/, void * /*_data*/, u32 /*_size*/)
+	virtual bool cacheRead(u64 /*_id*/, void * /*_data*/, u32 /*_size*/) override
 	{
 		return false;
 	}
 
-	virtual void cacheWrite(u64 /*_id*/, const void * /*_data*/, u32 /*_size*/)
+	virtual void cacheWrite(u64 /*_id*/, const void * /*_data*/, u32 /*_size*/) override
 	{
 	}
 
-	virtual void screenShot(const char * /*_filePath*/, u32 /*_width*/, u32 /*_height*/, u32 /*_pitch*/, const void * /*_data*/, u32 /*_size*/, bool /*_yflip*/)
+	virtual void screenShot(const char * /*_filePath*/, u32 /*_width*/, u32 /*_height*/, u32 /*_pitch*/, const void * /*_data*/, u32 /*_size*/, bool /*_yflip*/) override
 	{
 	}
 
-	virtual void captureBegin(u32 /*_width*/, u32 /*_height*/, u32 /*_pitch*/, bgfx::TextureFormat::Enum /*_format*/, bool /*_yflip*/)
+	virtual void captureBegin(u32 /*_width*/, u32 /*_height*/, u32 /*_pitch*/, bgfx::TextureFormat::Enum /*_format*/, bool /*_yflip*/) override
 	{
 	}
 
@@ -138,7 +138,7 @@ struct BgfxCallback : public bgfx::CallbackI
 	{
 	}
 
-	virtual void captureFrame(const void * /*_data*/, u32 /*_size*/)
+	virtual void captureFrame(const void * /*_data*/, u32 /*_size*/) override
 	{
 	}
 };
