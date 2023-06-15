@@ -54,7 +54,7 @@ static void selection_draw_override(UnitId unit_id, RenderWorld *rw)
 	data.w = 0.0f;
 	bgfx::setUniform(rw->_u_unit_id, &data);
 
-	rw->_shader_manager->submit(STRING_ID_32("selection", UINT32_C(0xfcb44ca9)), VIEW_SELECTION);
+	rw->_shader_manager->submit(STRING_ID_32("selection", UINT32_C(0x17c0bc11)), VIEW_SELECTION);
 }
 
 RenderWorld::RenderWorld(Allocator &a, ResourceManager &rm, ShaderManager &sm, MaterialManager &mm, UnitManager &um)

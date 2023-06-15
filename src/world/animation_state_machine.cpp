@@ -206,7 +206,7 @@ void AnimationStateMachine::update(float dt)
 					const Transition *dummy;
 					const State *s = state_machine::trigger(anim_i.state_machine
 						, anim_i.state
-						, STRING_ID_32("animation_end", 0xfe14d50b)
+						, STRING_ID_32("animation_end", UINT32_C(0x119d34e1))
 						, &dummy
 						);
 					anim_i.time = anim_i.state != s ? 0.0f : anim_i.time_total;

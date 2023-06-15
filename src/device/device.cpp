@@ -524,7 +524,7 @@ void Device::run()
 #if CROWN_TOOLS
 		tool_update(dt);
 #else
-		_pipeline->render(*_shader_manager, STRING_ID_32("blit", 0xc04ce9f7), VIEW_BLIT, _width, _height);
+		_pipeline->render(*_shader_manager, STRING_ID_32("blit", UINT32_C(0x045f02bb)), VIEW_BLIT, _width, _height);
 #endif
 
 		bgfx::frame();

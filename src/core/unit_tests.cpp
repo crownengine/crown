@@ -898,8 +898,6 @@ static void test_sphere()
 
 static void test_murmur()
 {
-	const u32 m = murmur32("murmur32", 8, 0);
-	ENSURE(m == 0x7c2365dbu);
 	const u64 n = murmur64("murmur64", 8, 0);
 	ENSURE(n == 0x90631502d1a3432bu);
 }

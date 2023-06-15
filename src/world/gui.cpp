@@ -64,7 +64,7 @@ void GuiBuffer::submit(u32 num_vertices, u32 num_indices, const Matrix4x4 &world
 	bgfx::setIndexBuffer(&_index_buffer, _num_indices, num_indices);
 	bgfx::setTransform(to_float_ptr(world));
 
-	_shader_manager->submit(STRING_ID_32("gui", 0x2c56149a), VIEW_GUI);
+	_shader_manager->submit(STRING_ID_32("gui", UINT32_C(0x66dbf9a2)), VIEW_GUI);
 
 	_num_vertices += num_vertices;
 	_num_indices += num_indices;

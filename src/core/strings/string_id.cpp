@@ -27,7 +27,7 @@ StringId32::StringId32(const char *str, u32 len)
 void StringId32::hash(const char *str, u32 len)
 {
 	CE_ENSURE(NULL != str);
-	_id = murmur32(str, len, 0);
+	_id = u32(murmur64(str, len, 0) & 0xffffffffu);
 }
 
 void StringId32::parse(const char *str)

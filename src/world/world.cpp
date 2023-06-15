@@ -599,7 +599,7 @@ void spawn_units(World &w, const UnitResource *ur, const Vector3 &pos, const Qua
 		const u32 *unit_index = unit_resource::component_unit_index(component);
 		const char *data = unit_resource::component_payload(component);
 
-		if (component->type == STRING_ID_32("transform", UINT32_C(0xb4363995))) {
+		if (component->type == STRING_ID_32("transform", UINT32_C(0xad9b5315))) {
 			const TransformDesc *td = (const TransformDesc *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++td) {
 				// FIXME: add SceneGraph::allocate() to reserve an instance
@@ -622,12 +622,12 @@ void spawn_units(World &w, const UnitResource *ur, const Vector3 &pos, const Qua
 					scene_graph->set_local_scale(ti, scale);
 				}
 			}
-		} else if (component->type == STRING_ID_32("camera", UINT32_C(0x5005ac7a))) {
+		} else if (component->type == STRING_ID_32("camera", UINT32_C(0x31822dc7))) {
 			const CameraDesc *cd = (const CameraDesc *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++cd) {
 				w.camera_create(unit_lookup[unit_index[i]], *cd, MATRIX4X4_IDENTITY);
 			}
-		} else if (component->type == STRING_ID_32("collider", UINT32_C(0x3b9259cb))) {
+		} else if (component->type == STRING_ID_32("collider", UINT32_C(0x2129d74e))) {
 			const ColliderDesc *cd = (const ColliderDesc *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i) {
 				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
@@ -635,40 +635,40 @@ void spawn_units(World &w, const UnitResource *ur, const Vector3 &pos, const Qua
 				physics_world->collider_create(unit_lookup[unit_index[i]], cd, scale(tm));
 				cd = (ColliderDesc *)((char *)(cd + 1) + cd->size);
 			}
-		} else if (component->type == STRING_ID_32("actor", UINT32_C(0x13958a55))) {
+		} else if (component->type == STRING_ID_32("actor", UINT32_C(0x374cf583))) {
 			const ActorResource *ar = (const ActorResource *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++ar) {
 				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
 				Matrix4x4 tm = scene_graph->world_pose(ti);
 				physics_world->actor_create(unit_lookup[unit_index[i]], ar, from_quaternion_translation(rotation(tm), translation(tm)));
 			}
-		} else if (component->type == STRING_ID_32("mesh_renderer", UINT32_C(0x2554ca17))) {
+		} else if (component->type == STRING_ID_32("mesh_renderer", UINT32_C(0xdf017893))) {
 			const MeshRendererDesc *mrd = (const MeshRendererDesc *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++mrd) {
 				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
 				Matrix4x4 tm = scene_graph->world_pose(ti);
 				render_world->mesh_create(unit_lookup[unit_index[i]], *mrd, tm);
 			}
-		} else if (component->type == STRING_ID_32("sprite_renderer", UINT32_C(0x7b4af6de))) {
+		} else if (component->type == STRING_ID_32("sprite_renderer", UINT32_C(0x6a1c2a3b))) {
 			const SpriteRendererDesc *srd = (const SpriteRendererDesc *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++srd) {
 				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
 				Matrix4x4 tm = scene_graph->world_pose(ti);
 				render_world->sprite_create(unit_lookup[unit_index[i]], *srd, tm);
 			}
-		} else if (component->type == STRING_ID_32("light", UINT32_C(0x4cf76c7b))) {
+		} else if (component->type == STRING_ID_32("light", UINT32_C(0xbb9f08c2))) {
 			const LightDesc *ld = (const LightDesc *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++ld) {
 				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
 				Matrix4x4 tm = scene_graph->world_pose(ti);
 				render_world->light_create(unit_lookup[unit_index[i]], *ld, tm);
 			}
-		} else if (component->type == STRING_ID_32("script", UINT32_C(0x2cf63026))) {
+		} else if (component->type == STRING_ID_32("script", UINT32_C(0xd18f8ad6))) {
 			const ScriptDesc *sd = (const ScriptDesc *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++sd) {
 				script_world::create(*script_world, unit_lookup[unit_index[i]], *sd);
 			}
-		} else if (component->type == STRING_ID_32("animation_state_machine", UINT32_C(0xe3970e6b))) {
+		} else if (component->type == STRING_ID_32("animation_state_machine", UINT32_C(0xe87992ac))) {
 			const AnimationStateMachineDesc *asmd = (const AnimationStateMachineDesc *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++asmd) {
 				animation_state_machine->create(unit_lookup[unit_index[i]], *asmd);
