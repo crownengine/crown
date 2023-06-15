@@ -907,14 +907,14 @@ static void test_string_id()
 	memory_globals::init();
 	{
 		StringId32 a("murmur32");
-		ENSURE(a._id == 0x7c2365dbu);
+		ENSURE(a._id == 0x68bd9babu);
 
 		StringId32 b("murmur32", 8);
-		ENSURE(b._id == 0x7c2365dbu);
+		ENSURE(b._id == 0x68bd9babu);
 
 		char str[9];
 		a.to_string(str, sizeof(str));
-		ENSURE(strcmp(str, "7c2365db") == 0);
+		ENSURE(strcmp(str, "68bd9bab") == 0);
 	}
 	{
 		StringId64 a("murmur64");
@@ -958,7 +958,7 @@ static void test_dynamic_string()
 		ENSURE(str.length() == 8);
 
 		const StringId32 id = str.to_string_id();
-		ENSURE(id._id == 0x7c2365dbu);
+		ENSURE(id._id == 0x68bd9babu);
 	}
 	{
 		TempAllocator1024 ta;
@@ -1018,7 +1018,7 @@ static void test_dynamic_string()
 		DynamicString str(ta);
 		str.from_string_id(id);
 		ENSURE(str.length() == 8);
-		ENSURE(strcmp(str.c_str(), "1812752e") == 0);
+		ENSURE(strcmp(str.c_str(), "618f4c63") == 0);
 	}
 	{
 		StringId64 id = StringId64("test");
@@ -1285,7 +1285,7 @@ static void test_sjson()
 	}
 	{
 		const StringId32 a = sjson::parse_string_id("\"murmur32\"");
-		ENSURE(a._id == 0x7c2365dbu);
+		ENSURE(a._id == 0x68bd9bab);
 	}
 	{
 		const StringId64 a = sjson::parse_resource_name("\"murmur64\"");
