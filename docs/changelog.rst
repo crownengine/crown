@@ -15,6 +15,7 @@ Changelog
 * Added ``--window-rect``, ``--bundle`` and ``--bundle-dir`` CLI options.
 * Fixed a double-free error during shutdown.
 * Bumped minimum OpenGL|ES version for Android platform to 3.0.
+* Fixed ``Touch.axis()`` value not being updated at the start or end of a touch action.
 
 **Tools**
 
