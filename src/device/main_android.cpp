@@ -125,34 +125,41 @@ struct AndroidDevice
 	s32 process_input(struct android_app *app, AInputEvent *event)
 	{
 		if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) {
-			const s32 action = AMotionEvent_getAction(event);
-			const s32 pointer_index = (action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
+			const s32 action_raw = AMotionEvent_getAction(event);
+			const s32 pointer_index = (action_raw & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
 			const s32 pointer_count = AMotionEvent_getPointerCount(event);
 
 			const s32 pointer_id = AMotionEvent_getPointerId(event, pointer_index);
 			const f32 x = AMotionEvent_getX(event, pointer_index);
 			const f32 y = AMotionEvent_getY(event, pointer_index);
 
-			const s32 actionMasked = (action & AMOTION_EVENT_ACTION_MASK);
+			const s32 action = (action_raw & AMOTION_EVENT_ACTION_MASK);
 
-			switch (actionMasked) {
+			switch (action) {
 			case AMOTION_EVENT_ACTION_DOWN:
 			case AMOTION_EVENT_ACTION_POINTER_DOWN:
-				_queue.push_button_event(InputDeviceType::TOUCHSCREEN
-					, 0
-					, pointer_id
-					, true
-					);
-				break;
-
 			case AMOTION_EVENT_ACTION_UP:
-			case AMOTION_EVENT_ACTION_POINTER_UP:
+			case AMOTION_EVENT_ACTION_POINTER_UP: {
+				_queue.push_axis_event(InputDeviceType::TOUCHSCREEN
+					, 0
+					, pointer_id
+					, x
+					, y
+					, 0
+					);
+
+				bool pointer_down = false;
+				if (action == AMOTION_EVENT_ACTION_DOWN
+					|| action == AMOTION_EVENT_ACTION_POINTER_DOWN)
+					pointer_down = true;
+
 				_queue.push_button_event(InputDeviceType::TOUCHSCREEN
 					, 0
 					, pointer_id
-					, false
+					, pointer_down
 					);
 				break;
+			}
 
 			case AMOTION_EVENT_ACTION_OUTSIDE:
 			case AMOTION_EVENT_ACTION_CANCEL:
