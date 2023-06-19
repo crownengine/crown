@@ -51,6 +51,7 @@ namespace shader_resource_internal
 	static const char *shaderc_platform[] =
 	{
 		"android", // Platform::ANDROID
+		"android", // Platform::ANDROID_ARM64
 		"linux",   // Platform::LINUX
 		"windows"  // Platform::WINDOWS
 	};

@@ -103,9 +103,13 @@ namespace lua_resource_internal
 		opts.absolute_path(lua_src, opts.source_path());
 		opts.temporary_path(lua_out, "lua");
 
+		const char *luajit = EXE_PATH("luajit");
+		if (opts._platform == Platform::ANDROID)
+			luajit = EXE_PATH("luajit32");
+
 		const char *argv[] =
 		{
-			EXE_PATH("luajit"),
+			luajit,
 			LUAJIT_FLAGS,
 			lua_src.c_str(),
 			lua_out.c_str(),

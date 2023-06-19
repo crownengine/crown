@@ -48,11 +48,23 @@ build/android-arm64/bin/libluajit.a:
 	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/libluajit.a build/android-arm64/bin
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
 
+build/linux64/bin/luajit32:
+	$(MAKE) -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src CC="gcc -m32" CCOPT="-O2 -fomit-frame-pointer -msse2" TARGET_SYS=Linux BUILDMODE=static
+	mkdir -p build/linux64/bin
+	cp -r 3rdparty/luajit/src/luajit build/linux64/bin/luajit32
+	$(MAKE) -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
+
 build/linux64/bin/luajit:
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src CC="gcc -m64" CCOPT="-O2 -fomit-frame-pointer -msse2" TARGET_SYS=Linux BUILDMODE=static
 	mkdir -p build/linux64/bin
 	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit 3rdparty/luajit/src/libluajit.a build/linux64/bin
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
+
+build/mingw64/bin/luajit32.exe:
+	$(MAKE) -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src CC="$(MINGW)/bin/x86_64-w64-mingw32-gcc -m32" CCOPT="-O2 -fomit-frame-pointer -msse2" TARGET_SYS=Windows BUILDMODE=static
+	mkdir -p build/mingw64/bin
+	cp 3rdparty/luajit/src/luajit.exe build/mingw32/bin/luajit32
+	$(MAKE) -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
 
 build/mingw64/bin/luajit.exe:
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src CC="$(MINGW)/bin/x86_64-w64-mingw32-gcc -m64" CCOPT="-O2 -fomit-frame-pointer -msse2" TARGET_SYS=Windows BUILDMODE=static
@@ -75,7 +87,7 @@ build/windows64/bin/luajit.exe:
 	-@rm -f 3rdparty/luajit/src/minilua.*
 
 build/projects/android-arm:
-	$(GENIE) --gfxapi=gles3 --no-luajit --compiler=android-arm gmake
+	$(GENIE) --gfxapi=gles3 --compiler=android-arm gmake
 android-arm-debug: build/projects/android-arm build/android-arm/bin/libluajit.a
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/android-arm config=debug
 android-arm-development: build/projects/android-arm build/android-arm/bin/libluajit.a
@@ -105,9 +117,9 @@ build/projects/linux:
 	$(GENIE) --file=3rdparty/bgfx/scripts/genie.lua --with-tools --gcc=linux-gcc gmake
 	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools --gcc=linux-gcc gmake
 	$(GENIE) --gfxapi=gl32 --with-tools --compiler=linux-gcc gmake
-linux-debug64: build/projects/linux build/linux64/bin/luajit build/linux64/bin/texturec build/linux64/bin/shaderc
+linux-debug64: build/projects/linux build/linux64/bin/luajit build/linux64/bin/luajit32 build/linux64/bin/texturec build/linux64/bin/shaderc
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux crown config=debug64
-linux-development64: build/projects/linux build/linux64/bin/luajit build/linux64/bin/texturec build/linux64/bin/shaderc
+linux-development64: build/projects/linux build/linux64/bin/luajit build/linux64/bin/luajit32 build/linux64/bin/texturec build/linux64/bin/shaderc
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux crown config=development64
 linux-release64: build/projects/linux build/linux64/bin/luajit
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux crown config=release64
@@ -124,9 +136,9 @@ build/projects/mingw:
 	$(GENIE) --file=3rdparty/bgfx/scripts/genie.lua --with-tools --gcc=mingw-gcc gmake
 	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools --gcc=mingw-gcc gmake
 	$(GENIE) --gfxapi=d3d11 --with-tools --compiler=mingw-gcc gmake
-mingw-debug64: build/projects/mingw build/mingw64/bin/luajit.exe build/mingw64/bin/texturec.exe build/mingw64/bin/shaderc.exe
+mingw-debug64: build/projects/mingw build/mingw64/bin/luajit.exe build/mingw64/bin/luajit32.exe build/mingw64/bin/texturec.exe build/mingw64/bin/shaderc.exe
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw config=debug64
-mingw-development64: build/projects/mingw build/mingw64/bin/luajit.exe build/mingw64/bin/texturec.exe build/mingw64/bin/shaderc.exe
+mingw-development64: build/projects/mingw build/mingw64/bin/luajit.exe build/mingw64/bin/luajit32.exe build/mingw64/bin/texturec.exe build/mingw64/bin/shaderc.exe
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw config=development64
 mingw-release64: build/projects/mingw build/mingw64/bin/luajit.exe
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw config=release64

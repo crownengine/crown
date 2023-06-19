@@ -26,14 +26,20 @@ Android
 	export ANDROID_NDK_ROOT=<path/to/android_ndk>
 	export ANDROID_NDK_ABI=23
 
-3. Continue to `Build`_.
+3. Install LuaJIT dependencies:
+
+.. core::
+
+	sudo apt-get install libc6-dev-i386
+
+4. Continue to `Build`_.
 
 Linux (Ubuntu >= 18.04)
 -----------------------
 
 .. code::
 
-	sudo apt install build-essential mesa-common-dev libgl1-mesa-dev libpulse-dev libxrandr-dev
+	sudo apt install build-essential mesa-common-dev libgl1-mesa-dev libpulse-dev libxrandr-dev libc6-dev-i386
 
 	sudo add-apt-repository ppa:vala-team
 	sudo apt install libgtk-3-dev valac libgee-0.8-dev

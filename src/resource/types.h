@@ -40,6 +40,7 @@ struct Platform
 	enum Enum
 	{
 		ANDROID,
+		ANDROID_ARM64,
 		LINUX,
 		WINDOWS,
 
