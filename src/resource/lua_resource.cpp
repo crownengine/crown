@@ -115,8 +115,10 @@ namespace lua_resource_internal
 			lua_out.c_str(),
 			NULL
 		};
+
 		Process pr;
-		s32 sc = pr.spawn(argv, CROWN_PROCESS_STDOUT_PIPE | CROWN_PROCESS_STDERR_MERGE);
+		s32 sc;
+		sc = pr.spawn(argv, CROWN_PROCESS_STDOUT_PIPE | CROWN_PROCESS_STDERR_MERGE);
 		DATA_COMPILER_ASSERT(sc == 0
 			, opts
 			, "Failed to spawn `%s`"

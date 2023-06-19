@@ -23,8 +23,6 @@ const string ENGINE_EXE = EXE_PREFIX
 	+ "crown-development"
 #endif
 	+ EXE_SUFFIX;
-const string DEPLOY_DEFAULT_NAME = "crown-release";
-const string DEPLOY_EXE = EXE_PREFIX + DEPLOY_DEFAULT_NAME + EXE_SUFFIX;
 
 const string DATA_COMPILER_ADDRESS = "127.0.0.1";
 const uint16 DATA_COMPILER_TCP_PORT = 10618;

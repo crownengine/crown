@@ -57,6 +57,27 @@ public enum CameraViewType
 	COUNT
 }
 
+public enum TargetConfig
+{
+	RELEASE,
+	DEVELOPMENT
+}
+
+public enum TargetPlatform
+{
+	ANDROID,
+	LINUX,
+	WINDOWS
+}
+
+public enum TargetArch
+{
+	X86,
+	X64,
+	ARM,
+	ARM64
+}
+
 public class RuntimeInstance
 {
 	public SubprocessLauncher _subprocess_launcher;
@@ -395,7 +416,14 @@ public class LevelEditorApplication : Gtk.Application
 		{ "create-directory", on_create_directory, "(ss)",  null },
 		{ "create-script",    on_create_script,    "(ssb)", null },
 		{ "create-unit",      on_create_unit,      "(ss)",  null },
-		{ "open-containing",  on_open_containing,  "s",     null }
+		{ "open-containing",  on_open_containing,  "s",     null },
+	};
+
+	private const GLib.ActionEntry[] action_entries_package =
+	{
+		{ "create-package-android", on_create_package_android, "(sississsssi)", null },
+		{ "create-package-linux",   on_create_package_linux,   "(sis)",         null },
+		{ "create-package-windows", on_create_package_windows, "(sis)",         null }
 	};
 
 	// Command line options
@@ -463,6 +491,7 @@ public class LevelEditorApplication : Gtk.Application
 	private LevelLayersTreeView _level_layers_treeview;
 	private PropertiesView _properties_view;
 	private PreferencesDialog _preferences_dialog;
+	private DeployDialog _deploy_dialog;
 	private ResourceChooser _resource_chooser;
 	private Gtk.Popover _resource_popover;
 	private Gtk.Overlay _editor_view_overlay;
@@ -581,6 +610,7 @@ public class LevelEditorApplication : Gtk.Application
 		this.add_action_entries(action_entries_debug, this);
 		this.add_action_entries(action_entries_help, this);
 		this.add_action_entries(action_entries_project, this);
+		this.add_action_entries(action_entries_package, this);
 
 		_tool_place_accels = this.get_accels_for_action("app.tool(0)");
 		_tool_move_accels = this.get_accels_for_action("app.tool(1)");
@@ -1495,70 +1525,6 @@ public class LevelEditorApplication : Gtk.Application
 		yield _game.stop();
 	}
 
-	private void deploy_game()
-	{
-		Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Select destination directory..."
-			, this.active_window
-			, FileChooserAction.SELECT_FOLDER
-			, "Cancel"
-			, ResponseType.CANCEL
-			, "Open"
-			, ResponseType.ACCEPT
-			);
-
-		if (fcd.run() == ResponseType.ACCEPT) {
-			GLib.File bundle_dir = File.new_for_path(fcd.get_filename());
-
-			string args[] =
-			{
-				ENGINE_EXE,
-				"--source-dir",
-				_project.source_dir(),
-				"--map-source-dir",
-				"core",
-				_project.toolchain_dir(),
-				"--data-dir",
-				_project.data_dir(),
-				"--bundle-dir",
-				bundle_dir.get_path(),
-				"--compile",
-				"--bundle",
-			};
-
-			try {
-				uint32 compiler = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
-				int exit_status = _subprocess_launcher.wait(compiler);
-				if (exit_status == 0) {
-					string game_name = DEPLOY_DEFAULT_NAME;
-					GLib.File engine_exe_src = File.new_for_path(DEPLOY_EXE);
-					GLib.File engine_exe_dst = File.new_for_path(Path.build_filename(bundle_dir.get_path(), game_name + EXE_SUFFIX));
-					engine_exe_src.copy(engine_exe_dst, FileCopyFlags.OVERWRITE);
-
-#if CROWN_PLATFORM_WINDOWS
-					string lua51_name = "lua51.dll";
-					GLib.File lua51_dll_src = File.new_for_path(lua51_name);
-					GLib.File lua51_dll_dst = File.new_for_path(Path.build_filename(bundle_dir.get_path(), lua51_name));
-					lua51_dll_src.copy(lua51_dll_dst, FileCopyFlags.OVERWRITE);
-
-					string openal_name = "openal-release.dll";
-					GLib.File openal_dll_src = File.new_for_path(openal_name);
-					GLib.File openal_dll_dst = File.new_for_path(Path.build_filename(bundle_dir.get_path(), openal_name));
-					openal_dll_src.copy(openal_dll_dst, FileCopyFlags.OVERWRITE);
-#endif
-
-					logi("Project deployed to `%s`".printf(bundle_dir.get_path()));
-				} else {
-					loge("Failed to deploy project (exit_status = %d)".printf(exit_status));
-				}
-			} catch (Error e) {
-				loge("%s".printf(e.message));
-				loge("Failed to deploy project");
-			}
-		}
-
-		fcd.destroy();
-	}
-
 	private async void on_editor_view_realized(uint window_id, int width, int height)
 	{
 		start_editor.begin(window_id, width, height);
@@ -2009,7 +1975,14 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_deploy(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		deploy_game();
+		if (_deploy_dialog == null) {
+			_deploy_dialog = new DeployDialog(_editor);
+			_deploy_dialog.set_transient_for(this.active_window);
+			_deploy_dialog.set_position(Gtk.WindowPosition.CENTER_ON_PARENT);
+			_deploy_dialog.delete_event.connect(_deploy_dialog.hide_on_delete);
+		}
+
+		_deploy_dialog.show_all();
 	}
 
 	private int run_level_changed_dialog(Gtk.Window? parent)
@@ -2530,6 +2503,696 @@ public class LevelEditorApplication : Gtk.Application
 
 		var path = GLib.Path.build_filename(_project.source_dir(), parent_name);
 		open_directory(GLib.File.new_for_path(path).get_path());
+	}
+
+	public void delete_tree(GLib.File file) throws Error
+	{
+		GLib.FileEnumerator fe = file.enumerate_children("standard::*"
+			, GLib.FileQueryInfoFlags.NOFOLLOW_SYMLINKS
+			);
+
+		GLib.FileInfo info = null;
+		while ((info = fe.next_file()) != null) {
+			GLib.File subfile = file.resolve_relative_path(info.get_name());
+
+			if (info.get_file_type() == GLib.FileType.DIRECTORY)
+				delete_tree(subfile);
+			else
+				subfile.delete();
+		}
+
+		file.delete();
+	}
+
+	private int deploy_create_package_folder(out string config_path, out string package_path, string output_path, string app_identifier, TargetPlatform platform, TargetArch arch, TargetConfig config)
+	{
+		string platform_name[] =
+		{
+			"android", // TargetArch.ANDROID
+			"linux",   // TargetArch.LINUX
+			"windows"  // TargetArch.WINDOWS
+		};
+
+		string arch_name[] =
+		{
+			"x86",  // TargetArch.X86
+			"x64",  // TargetArch.X64
+			"arm",  // TargetArch.ARM
+			"arm64" // TargetArch.ARM64
+		};
+
+		string config_name[] =
+		{
+			"release",    // TargetConfig.RELEASE
+			"development" // TargetConfig.DEVELOPMENT
+		};
+
+		string platform_path = Path.build_path(Path.DIR_SEPARATOR_S, output_path, platform_name[platform], arch_name[arch]);
+		config_path = Path.build_path(Path.DIR_SEPARATOR_S, platform_path, config_name[config]);
+		package_path = Path.build_path(Path.DIR_SEPARATOR_S, config_path, app_identifier);
+
+		try {
+			int rt = ResponseType.CANCEL;
+			if (GLib.File.new_for_path(package_path).query_exists()) {
+				Gtk.MessageDialog md = new Gtk.MessageDialog(_deploy_dialog
+					, DialogFlags.MODAL
+					, MessageType.QUESTION
+					, Gtk.ButtonsType.NONE
+					, "A file named `%s` already exists.\nOverwrite?".printf(package_path)
+					);
+
+				Gtk.Widget btn;
+				md.add_button("_No", ResponseType.NO);
+				btn = md.add_button("_Yes", ResponseType.YES);
+				btn.get_style_context().add_class(Gtk.STYLE_CLASS_DESTRUCTIVE_ACTION);
+
+				md.set_default_response(ResponseType.NO);
+
+				rt = md.run();
+				md.destroy();
+
+				if (rt == ResponseType.YES)
+					delete_tree(GLib.File.new_for_path(package_path));
+				else
+					return -1;
+			}
+
+			GLib.File.new_for_path(package_path).make_directory_with_parents();
+		} catch (Error e) {
+			loge(e.message);
+			return -1;
+		}
+
+		return 0;
+	}
+
+	private void on_create_package_android(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string config_name[] =
+		{
+			"release",
+			"development"
+		};
+
+		var output_path = (string)param.get_child_value(0);
+		var config = (int)param.get_child_value(1);
+		var app_title = (string)param.get_child_value(2);
+		var app_identifier = (string)param.get_child_value(3);
+		var app_version_code = (int)param.get_child_value(4);
+		var app_version_name = (string)param.get_child_value(5);
+		var keystore_path = (string)param.get_child_value(6);
+		var keystore_pass = (string)param.get_child_value(7);
+		var key_alias = (string)param.get_child_value(8);
+		var key_pass = (string)param.get_child_value(9);
+		var arch = (int)param.get_child_value(10);
+
+		var apk_name = app_identifier + "-" + app_version_name;
+		var activity_name = "MainActivity";
+
+		string? android_sdk_path = GLib.Environment.get_variable("ANDROID_SDK_PATH");
+		if (android_sdk_path == null) {
+			loge("Please set a valid ANDROID_SDK_PATH environment variable.");
+			return;
+		}
+
+		string? android_ndk_root_path = GLib.Environment.get_variable("ANDROID_NDK_ROOT");
+		if (android_ndk_root_path == null) {
+			loge("Please set a valid ANDROID_NDK_ROOT environment variable.");
+			return;
+		}
+
+		string config_path;
+		string package_path;
+		int err = deploy_create_package_folder(out config_path
+			, out package_path
+			, output_path
+			, apk_name
+			, TargetPlatform.ANDROID
+			, arch
+			, (TargetConfig)config
+			);
+		if (err != 0)
+			return;
+
+		logi("Creating Android package (%s)...".printf(arch == TargetArch.ARM ? "ARMv7-A" : "ARMv8-A"));
+
+		// Architecture-agnostic paths.
+		var manifests_path = Path.build_path(Path.DIR_SEPARATOR_S, package_path, "manifests");
+		var java_sources_path = Path.build_path(Path.DIR_SEPARATOR_S, package_path, "java");
+		var app_sources_path = Path.build_path(Path.DIR_SEPARATOR_S, java_sources_path, app_identifier.replace(".", "/"));
+		var assets_path = Path.build_path(Path.DIR_SEPARATOR_S, package_path, "assets");
+		var res_path = Path.build_path(Path.DIR_SEPARATOR_S, package_path, "res");
+		var bin_path = Path.build_path(Path.DIR_SEPARATOR_S, package_path, "bin");
+		var obj_path = Path.build_path(Path.DIR_SEPARATOR_S, package_path, "obj");
+		var res_layout_path = Path.build_path(Path.DIR_SEPARATOR_S, res_path, "layout");
+		var res_values_path = Path.build_path(Path.DIR_SEPARATOR_S, res_path, "values");
+		var res_drawable_path = Path.build_path(Path.DIR_SEPARATOR_S, res_path, "drawable");
+		var manifest_xml_path = Path.build_path(Path.DIR_SEPARATOR_S, manifests_path, "AndroidManifest.xml");
+		var strings_xml_path = Path.build_path(Path.DIR_SEPARATOR_S, res_path, "values", "strings.xml");
+		var activity_java_path = Path.build_path(Path.DIR_SEPARATOR_S, app_sources_path, "%s.java".printf(activity_name));
+		var android_jar_path = Path.build_path(Path.DIR_SEPARATOR_S, android_sdk_path, "platforms", "android-24", "android.jar");
+		var libcrown_src_name = "libcrown-" + config_name[config] + ".so";
+		var libcpp_name = "libc++_shared.so";
+		var signed_apk = Path.build_path(Path.DIR_SEPARATOR_S, bin_path, apk_name + ".signed.apk");
+		var unaligned_apk = Path.build_path(Path.DIR_SEPARATOR_S, bin_path, apk_name + ".unaligned.apk");
+		var final_apk = Path.build_path(Path.DIR_SEPARATOR_S, config_path, apk_name + ".apk");
+		var classes_dex_path = Path.build_path(Path.DIR_SEPARATOR_S, bin_path, "classes.dex");
+
+		// Architecture-specific paths.
+		string dc_platform = null;
+		string bin_folder  = null;
+		string apk_arch    = null;
+		if (arch == TargetArch.ARM) {
+			dc_platform = "android";
+			bin_folder  = "android-arm";
+			apk_arch    = "armeabi-v7a";
+		} else if (arch == TargetArch.ARM64) {
+			dc_platform = "android-arm64";
+			bin_folder  = "android-arm64";
+			apk_arch    = "arm64-v8a";
+		} else {
+			loge("Invalid architecture");
+			return;
+		}
+
+		var libcrown_src_path = Path.build_path(Path.DIR_SEPARATOR_S, "..", "..", bin_folder, "bin", libcrown_src_name);
+		var libcpp_src_path   = Path.build_path(Path.DIR_SEPARATOR_S, android_ndk_root_path, "sources", "cxx-stl", "llvm-libc++", "libs", apk_arch, libcpp_name);
+		var lib_path_relative      = Path.build_path(Path.DIR_SEPARATOR_S, "lib", apk_arch);
+		var lib_path               = Path.build_path(Path.DIR_SEPARATOR_S, package_path, lib_path_relative);
+		var libcrown_path_relative = Path.build_path(Path.DIR_SEPARATOR_S, lib_path_relative, "libcrown.so");
+		var libcpp_path_relative   = Path.build_path(Path.DIR_SEPARATOR_S, lib_path_relative, libcpp_name);
+		var libcrown_dst_path      = Path.build_path(Path.DIR_SEPARATOR_S, lib_path, "libcrown.so");
+		var libcpp_dst_path        = Path.build_path(Path.DIR_SEPARATOR_S, lib_path, "libc++_shared.so");
+
+		// Create Android project skeleton.
+		try {
+			GLib.File.new_for_path(manifests_path).make_directory();
+			GLib.File.new_for_path(app_sources_path).make_directory_with_parents();
+			GLib.File.new_for_path(lib_path).make_directory_with_parents();
+			GLib.File.new_for_path(assets_path).make_directory();
+			GLib.File.new_for_path(bin_path).make_directory();
+			GLib.File.new_for_path(obj_path).make_directory();
+			GLib.File.new_for_path(res_layout_path).make_directory_with_parents();
+			GLib.File.new_for_path(res_values_path).make_directory();
+			GLib.File.new_for_path(res_drawable_path).make_directory();
+		} catch (Error e) {
+			loge(e.message);
+		}
+
+		// Compile game data.
+		try {
+			GLib.File.new_for_path(libcrown_src_path).copy(GLib.File.new_for_path(libcrown_dst_path), GLib.FileCopyFlags.NONE);
+			GLib.File.new_for_path(libcpp_src_path).copy(GLib.File.new_for_path(libcpp_dst_path), GLib.FileCopyFlags.NONE);
+
+			string[] args;
+
+			string tmp_data_dir = GLib.DirUtils.make_tmp("XXXXXX");
+
+			// Populate Android assets folder with data.
+			args = new string[]
+			{
+				ENGINE_EXE,
+				"--source-dir",
+				_project.source_dir(),
+				"--map-source-dir",
+				"core",
+				_project.toolchain_dir(),
+				"--data-dir",
+				tmp_data_dir,
+				"--bundle-dir",
+				assets_path,
+				"--compile",
+				"--bundle",
+				"--platform",
+				dc_platform
+			};
+
+			uint32 pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
+			int exit_status = _subprocess_launcher.wait(pid);
+			delete_tree(GLib.File.new_for_path(tmp_data_dir));
+
+			if (exit_status != 0) {
+				loge("Failed to compile data. exit_status = %d".printf(exit_status));
+				return;
+			}
+		} catch (Error e) {
+			loge(e.message);
+			return;
+		}
+
+		// Create Android manifest.
+		string android_manifest = "";
+		android_manifest += "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
+		android_manifest += "\n<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"";
+		android_manifest += "\n  package=\"%s\"".printf(app_identifier);
+		android_manifest += "\n  android:versionCode=\"%u\"".printf(app_version_code);
+		android_manifest += "\n  android:versionName=\"%s\">".printf(app_version_name);
+		android_manifest += "\n";
+		android_manifest += "\n  <!-- For ConsoleServer -->";
+		android_manifest += "\n  <uses-permission android:name=\"android.permission.INTERNET\" />";
+		android_manifest += "\n";
+		android_manifest += "\n  <application";
+		android_manifest += "\n    android:hasCode=\"true\"";
+		android_manifest += "\n    android:label=\"%s\">".printf(app_title);
+		android_manifest += "\n    <activity";
+		android_manifest += "\n      android:name=\"%s.%s\"".printf(app_identifier, activity_name);
+		android_manifest += "\n      android:configChanges=\"orientation|keyboardHidden\"";
+		android_manifest += "\n      android:label=\"@string/activity_label\"";
+		android_manifest += "\n      android:screenOrientation=\"landscape\"";
+		android_manifest += "\n      android:theme=\"@android:style/Theme.NoTitleBar.Fullscreen\">";
+		android_manifest += "\n";
+		android_manifest += "\n      <!-- Tell NativeActivity the name of our .so -->";
+		android_manifest += "\n      <meta-data";
+		android_manifest += "\n        android:name=\"android.app.lib_name\"";
+		android_manifest += "\n        android:value=\"crown\" />";
+		android_manifest += "\n";
+		android_manifest += "\n      <intent-filter>";
+		android_manifest += "\n        <action android:name=\"android.intent.action.MAIN\" />";
+		android_manifest += "\n        <action android:name=\"android.intent.action.VIEW\" />";
+		android_manifest += "\n        <category android:name=\"android.intent.category.LAUNCHER\" />";
+		android_manifest += "\n      </intent-filter>";
+		android_manifest += "\n    </activity>";
+		android_manifest += "\n  </application>";
+		android_manifest += "\n</manifest>";
+		android_manifest += "\n";
+
+		GLib.FileStream? fs = FileStream.open(manifest_xml_path, "w");
+		if (fs == null) {
+			loge("Failed to open '%s'".printf(manifest_xml_path));
+			return;
+		}
+		fs.write(android_manifest.data);
+
+		// Create Android strings.xml.
+		string android_strings = "";
+		android_strings += "<resources>";
+		android_strings += "\n<string name=\"activity_label\">%s</string>".printf(app_title);
+		android_strings += "\n</resources>";
+		android_strings += "\n";
+
+		fs = FileStream.open(strings_xml_path, "w");
+		if (fs == null) {
+			loge("Failed to open '%s'".printf(strings_xml_path));
+			return;
+		}
+		fs.write(android_strings.data);
+
+		// Create Android activity.
+		string android_activity = "";
+		android_activity += "package %s;".printf(app_identifier);
+		android_activity += "\n";
+		android_activity += "\nimport android.app.NativeActivity;";
+		android_activity += "\nimport android.os.Bundle;";
+		android_activity += "\nimport android.view.View;";
+		android_activity += "\n";
+		android_activity += "\npublic class %s extends NativeActivity".printf(activity_name);
+		android_activity += "\n{";
+		android_activity += "\n    static";
+		android_activity += "\n    {";
+		android_activity += "\n        System.loadLibrary(\"crown\");";
+		android_activity += "\n    }";
+		android_activity += "\n";
+		android_activity += "\n    @Override";
+		android_activity += "\n    public void onCreate(Bundle savedInstanceState) {";
+		android_activity += "\n        super.onCreate(savedInstanceState);";
+		android_activity += "\n        // Init additional stuff here (Ads etc.)";
+		android_activity += "\n    }";
+		android_activity += "\n";
+		android_activity += "\n    @Override";
+		android_activity += "\n    public void onDestroy() {";
+		android_activity += "\n        // Destroy additional stuff here (Ads etc)";
+		android_activity += "\n        super.onDestroy();";
+		android_activity += "\n    }";
+		android_activity += "\n";
+		android_activity += "\n    @Override";
+		android_activity += "\n    public void onWindowFocusChanged(boolean hasFocus) {";
+		android_activity += "\n        super.onWindowFocusChanged(hasFocus);";
+		android_activity += "\n        if (hasFocus) {";
+		android_activity += "\n            hideSystemUI();";
+		android_activity += "\n        }";
+		android_activity += "\n    }";
+		android_activity += "\n";
+		android_activity += "\n    private void hideSystemUI() {";
+		android_activity += "\n        // Enables regular immersive mode.";
+		android_activity += "\n        // For \"lean back\" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.";
+		android_activity += "\n        // Or for \"sticky immersive,\" replace it with SYSTEM_UI_FLAG_IMMERSIVE_STICKY";
+		android_activity += "\n        View decorView = getWindow().getDecorView();";
+		android_activity += "\n        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE";
+		android_activity += "\n                // Set the content to appear under the system bars so that the";
+		android_activity += "\n                // content doesn't resize when the system bars hide and show.";
+		android_activity += "\n                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE";
+		android_activity += "\n                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION";
+		android_activity += "\n                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN";
+		android_activity += "\n                // Hide the nav bar and status bar";
+		android_activity += "\n                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION";
+		android_activity += "\n                | View.SYSTEM_UI_FLAG_FULLSCREEN";
+		android_activity += "\n        );";
+		android_activity += "\n    }";
+		android_activity += "\n";
+		android_activity += "\n    private void showSystemUI() {";
+		android_activity += "\n        // Shows the system bars by removing all the flags";
+		android_activity += "\n        // except for the ones that make the content appear under the system bars.";
+		android_activity += "\n        View decorView = getWindow().getDecorView();";
+		android_activity += "\n        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE";
+		android_activity += "\n                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION";
+		android_activity += "\n                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN";
+		android_activity += "\n        );";
+		android_activity += "\n    }";
+		android_activity += "\n}";
+		android_activity += "\n";
+
+		fs = FileStream.open(activity_java_path, "w");
+		if (fs == null) {
+			loge("Failed to open '%s'".printf(activity_java_path));
+			return;
+		}
+		fs.write(android_activity.data);
+
+		// Compile java NativeActivity.
+		Thread<int> javac = new Thread<int>("javac", () => {
+				try {
+					string[] args = new string[]
+					{
+						"javac",
+						"-verbose",
+						"-source",
+						"1.7",
+						"-target",
+						"1.7",
+						"-d",
+						obj_path,
+						"-classpath",
+						"java",
+						"-bootclasspath",
+						android_jar_path,
+						activity_java_path
+					};
+
+					var sl = new GLib.SubprocessLauncher(subprocess_flags());
+					sl.spawnv(args);
+				} catch (Error e) {
+					loge(e.message);
+					return -1;
+				}
+
+				return 0;
+			});
+		javac.join();
+
+		// Generate Android APK.
+		new Thread<int>("post-javac", () => {
+				// FIXME: just wait() for javac to terminate...
+				var class_path = Path.build_path(Path.DIR_SEPARATOR_S
+					, obj_path
+					, app_identifier.replace(".", "/")
+					, "%s.class".printf(activity_name)
+					);
+				var class_file = GLib.File.new_for_path(class_path);
+
+				// Wait for javac to generate the .class file.
+				GLib.Timer timer = new GLib.Timer();
+				timer.start();
+
+				while (!class_file.query_exists() && timer.elapsed() < 5) {
+					GLib.Thread.usleep(500*1000);
+				}
+
+				if (!class_file.query_exists()) {
+					loge("Failed to generate .class file");
+					return -1;
+				}
+
+				// Generate remaining APK stuff.
+				string[] args;
+				uint32 pid;
+				int exit_status;
+
+				try {
+					args = new string[]
+					{
+						"dx",
+						"--dex",
+						"--output",
+						classes_dex_path,
+						obj_path
+					};
+
+					pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
+					exit_status = _subprocess_launcher.wait(pid);
+					if (exit_status != 0) {
+						loge("Failed to generate dex file. exit_status %d".printf(exit_status));
+						return -1;
+					}
+
+					args = new string[]
+					{
+						"aapt",
+						"package",
+						"-f",
+						"-m",
+						"-F",
+						unaligned_apk,
+						"-M",
+						manifest_xml_path,
+						"-S",
+						res_path,
+						"-A",
+						assets_path,
+						"-I",
+						android_jar_path
+					};
+
+					pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
+					exit_status = _subprocess_launcher.wait(pid);
+					if (exit_status != 0) {
+						loge("Failed to do something with the APK. exit_status %d".printf(exit_status));
+						return -1;
+					}
+
+					args = new string[]
+					{
+						"aapt",
+						"add",
+						unaligned_apk,
+						"classes.dex"
+					};
+
+					pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, bin_path);
+					exit_status = _subprocess_launcher.wait(pid);
+					if (exit_status != 0) {
+						loge("Failed to add classes.dex to APK. exit_status %d".printf(exit_status));
+						return -1;
+					}
+
+					args = new string[]
+					{
+						"aapt",
+						"add",
+						unaligned_apk,
+						libcrown_path_relative,
+						libcpp_path_relative
+					};
+
+					pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, package_path);
+					exit_status = _subprocess_launcher.wait(pid);
+					if (exit_status != 0) {
+						loge("Failed to add libs to APK. exit_status %d".printf(exit_status));
+						return -1;
+					}
+
+					args = new string[]
+					{
+						"jarsigner",
+						"-keystore",
+						keystore_path,
+						"-storepass",
+						keystore_pass,
+						"-keypass",
+						key_pass,
+						"-signedjar",
+						signed_apk,
+						unaligned_apk,
+						key_alias
+					};
+
+					pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
+					exit_status = _subprocess_launcher.wait(pid);
+					if (exit_status != 0) {
+						loge("Failed sign APK. exit_status %d".printf(exit_status));
+						return -1;
+					}
+
+					args = new string[]
+					{
+						"zipalign",
+						"-f",
+						"4",
+						signed_apk,
+						final_apk
+					};
+
+					pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
+					exit_status = _subprocess_launcher.wait(pid);
+					if (exit_status != 0) {
+						loge("Failed align APK. exit_status %d".printf(exit_status));
+						return -1;
+					}
+				} catch (Error e) {
+					loge(e.message);
+					loge("Failed to deploy '%s'".printf(app_title));
+					return -1;
+				}
+
+				logi("Done!");
+				return 0;
+			});
+	}
+
+	private void on_create_package_linux(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string config_name[] =
+		{
+			"release",
+			"development"
+		};
+
+		var output_path = (string)param.get_child_value(0);
+		var config = (int)param.get_child_value(1);
+		var app_title = (string)param.get_child_value(2);
+
+		var exe_name = app_title.replace(" ", "_").down();
+
+		string config_path;
+		string package_path;
+		int err = deploy_create_package_folder(out config_path
+			, out package_path
+			, output_path
+			, exe_name
+			, TargetPlatform.LINUX
+			, TargetArch.X64
+			, (TargetConfig)config
+			);
+		if (err != 0)
+			return;
+
+		logi("Creating Linux package...");
+
+		// Create data bundle.
+		try {
+			string tmp_data_dir = GLib.DirUtils.make_tmp("XXXXXX");
+
+			string args[] =
+			{
+				ENGINE_EXE,
+				"--source-dir",
+				_project.source_dir(),
+				"--map-source-dir",
+				"core",
+				_project.toolchain_dir(),
+				"--data-dir",
+				tmp_data_dir,
+				"--bundle-dir",
+				package_path,
+				"--compile",
+				"--bundle",
+				"--platform",
+				"linux"
+			};
+
+			uint32 compiler = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
+			int exit_status = _subprocess_launcher.wait(compiler);
+			delete_tree(GLib.File.new_for_path(tmp_data_dir));
+
+			if (exit_status != 0) {
+				loge("Failed to compile data. exit_status = %d".printf(exit_status));
+				return;
+			}
+
+			GLib.File engine_exe_src = File.new_for_path(EXE_PREFIX + "crown-%s".printf(config_name[config]) + EXE_SUFFIX);
+			GLib.File engine_exe_dst = File.new_for_path(Path.build_filename(package_path, exe_name + EXE_SUFFIX));
+			engine_exe_src.copy(engine_exe_dst, FileCopyFlags.OVERWRITE);
+		} catch (Error e) {
+			loge(e.message);
+			loge("Failed to deploy '%s'".printf(app_title));
+		}
+
+		logi("Done!");
+	}
+
+	private void on_create_package_windows(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string config_name[] =
+		{
+			"release",
+			"development"
+		};
+
+		var output_path = (string)param.get_child_value(0);
+		var config = (int)param.get_child_value(1);
+		var app_title = (string)param.get_child_value(2);
+
+		var exe_name = app_title.replace(" ", "_").down();
+
+		string config_path;
+		string package_path;
+		int err = deploy_create_package_folder(out config_path
+			, out package_path
+			, output_path
+			, exe_name
+			, TargetPlatform.WINDOWS
+			, TargetArch.X64
+			, (TargetConfig)config
+			);
+		if (err != 0)
+			return;
+
+		logi("Creating Windows package");
+
+		// Create data bundle.
+		try {
+			string tmp_data_dir = GLib.DirUtils.make_tmp("XXXXXX");
+
+			string args[] =
+			{
+				ENGINE_EXE,
+				"--source-dir",
+				_project.source_dir(),
+				"--map-source-dir",
+				"core",
+				_project.toolchain_dir(),
+				"--data-dir",
+				tmp_data_dir,
+				"--bundle-dir",
+				package_path,
+				"--compile",
+				"--bundle",
+				"--platform",
+				"windows"
+			};
+
+			uint32 compiler = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
+			int exit_status = _subprocess_launcher.wait(compiler);
+			delete_tree(GLib.File.new_for_path(tmp_data_dir));
+
+			if (exit_status != 0) {
+				loge("Failed to compile data. exit_status = %d".printf(exit_status));
+				return;
+			}
+
+			GLib.File engine_exe_src = File.new_for_path(EXE_PREFIX + "crown-%s".printf(config_name[config]) + EXE_SUFFIX);
+			GLib.File engine_exe_dst = File.new_for_path(Path.build_filename(package_path, exe_name + EXE_SUFFIX));
+			engine_exe_src.copy(engine_exe_dst, FileCopyFlags.OVERWRITE);
+
+			string openal_name = "openal-release.dll";
+			GLib.File openal_dll_src = File.new_for_path(openal_name);
+			GLib.File openal_dll_dst = File.new_for_path(Path.build_filename(package_path, openal_name));
+			openal_dll_src.copy(openal_dll_dst, FileCopyFlags.OVERWRITE);
+		} catch (Error e) {
+			loge("%s".printf(e.message));
+			loge("Failed to deploy '%s'".printf(app_title));
+		}
+
+		logi("Done!");
 	}
 
 	public void set_autosave_timer(uint minutes)
