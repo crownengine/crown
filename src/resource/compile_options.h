@@ -149,9 +149,6 @@ struct CompileOptions
 	///
 	void write(const Buffer &data);
 
-	///
-	const char *platform() const;
-
 	/// Returns the first path with executable permissions or NULL if none found.
 	const char *exe_path(const char * const *paths, u32 num);
 

@@ -212,11 +212,6 @@ void CompileOptions::write(const Buffer &data)
 	write(array::begin(data), array::size(data));
 }
 
-const char *CompileOptions::platform() const
-{
-	return _platform;
-}
-
 const char *CompileOptions::exe_path(const char * const *paths, u32 num)
 {
 	for (u32 ii = 0; ii < num; ++ii) {

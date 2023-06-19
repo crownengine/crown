@@ -1220,7 +1220,7 @@ namespace shader_resource_internal
 				, _vs_out_path.c_str()
 				, _varying_path.c_str()
 				, "vertex"
-				, _opts.platform()
+				, _opts._platform
 				);
 			if (sc != 0) {
 				delete_temp_files();
@@ -1237,7 +1237,7 @@ namespace shader_resource_internal
 				, _fs_out_path.c_str()
 				, _varying_path.c_str()
 				, "fragment"
-				, _opts.platform()
+				, _opts._platform
 				);
 			if (sc != 0) {
 				delete_temp_files();
