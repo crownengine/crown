@@ -125,15 +125,6 @@ int DeviceOptions::parse(bool *quit)
 		if (_platform == NULL)
 			_platform = CROWN_PLATFORM_NAME;
 
-		if (true
-			&& strcmp(_platform, "android") != 0
-			&& strcmp(_platform, "linux") != 0
-			&& strcmp(_platform, "windows") != 0
-			) {
-			help("Cannot compile for the given platform.");
-			return EXIT_FAILURE;
-		}
-
 		if (_source_dir.value().empty()) {
 			help("Source dir must be specified.");
 			return EXIT_FAILURE;

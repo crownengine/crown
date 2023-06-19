@@ -63,7 +63,7 @@ struct CompileOptions
 	Filesystem &_output_filesystem;
 	Filesystem &_data_filesystem;
 	DynamicString _source_path;
-	const char *_platform;
+	Platform::Enum _platform;
 	ResourceId _resource_id;
 	bool _bundle;
 
@@ -76,7 +76,7 @@ struct CompileOptions
 		, Filesystem &data_filesystem
 		, ResourceId res_id
 		, const DynamicString &source_path
-		, const char *platform
+		, Platform::Enum platform
 		, bool bundle = false
 		);
 

@@ -35,6 +35,18 @@ struct SpriteResource;
 struct TextureResource;
 struct UnitResource;
 
+struct Platform
+{
+	enum Enum
+	{
+		ANDROID,
+		LINUX,
+		WINDOWS,
+
+		COUNT
+	};
+};
+
 } // namespace crown
 
 /// @addtogroup Resource

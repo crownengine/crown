@@ -33,7 +33,7 @@ CompileOptions::CompileOptions(File &output
 	, Filesystem &data_filesystem
 	, ResourceId res_id
 	, const DynamicString &source_path
-	, const char *platform
+	, Platform::Enum platform
 	, bool bundle
 	)
 	: _file(output)

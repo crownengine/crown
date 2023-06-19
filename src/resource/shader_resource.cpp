@@ -48,6 +48,14 @@ namespace shader_resource_internal
 #if CROWN_CAN_COMPILE
 namespace shader_resource_internal
 {
+	static const char *shaderc_platform[] =
+	{
+		"android", // Platform::ANDROID
+		"linux",   // Platform::LINUX
+		"windows"  // Platform::WINDOWS
+	};
+	CE_STATIC_ASSERT(countof(shaderc_platform) == Platform::COUNT);
+
 	static const char *shaderc_paths[] =
 	{
 		EXE_PATH("shaderc"),
@@ -1220,7 +1228,7 @@ namespace shader_resource_internal
 				, _vs_out_path.c_str()
 				, _varying_path.c_str()
 				, "vertex"
-				, _opts._platform
+				, shaderc_platform[_opts._platform]
 				);
 			if (sc != 0) {
 				delete_temp_files();
@@ -1237,7 +1245,7 @@ namespace shader_resource_internal
 				, _fs_out_path.c_str()
 				, _varying_path.c_str()
 				, "fragment"
-				, _opts._platform
+				, shaderc_platform[_opts._platform]
 				);
 			if (sc != 0) {
 				delete_temp_files();

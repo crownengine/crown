@@ -66,6 +66,20 @@ LOG_SYSTEM(DATA_COMPILER, "data_compiler")
 
 namespace crown
 {
+struct PlatformInfo
+{
+	const char *name;
+	Platform::Enum type;
+};
+
+static const PlatformInfo platform_info[] =
+{
+	{ "android",       Platform::ANDROID       },
+	{ "linux",         Platform::LINUX         },
+	{ "windows",       Platform::WINDOWS       }
+};
+CE_STATIC_ASSERT(countof(platform_info) == Platform::COUNT);
+
 static volatile bool _quit = false;
 
 static void notify_add_file(const char *path)
@@ -866,9 +880,20 @@ bool DataCompiler::path_is_special(const char *path)
 		;
 }
 
-bool DataCompiler::compile(const char *data_dir, const char *platform)
+bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 {
 	s64 time_start = time::now();
+
+	Platform::Enum platform = Platform::COUNT;
+	for (u32 ii = 0; ii < countof(platform_info); ++ii) {
+		if (strcmp(platform_info[ii].name, platform_name) == 0)
+			platform = platform_info[ii].type;
+	}
+
+	if (platform == Platform::COUNT) {
+		loge(DATA_COMPILER, "Cannot compile data for unknown platform `%s`", platform_name);
+		return false;
+	}
 
 	FilesystemDisk data_fs(default_allocator());
 	data_fs.set_prefix(data_dir);

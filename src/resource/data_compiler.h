@@ -99,7 +99,7 @@ struct DataCompiler
 
 	/// Compiles all the resources found in the source directory and puts them in @a data_dir.
 	/// Returns true on success, false otherwise.
-	bool compile(const char *data_dir, const char *platform);
+	bool compile(const char *data_dir, const char *platform_name);
 
 	/// Registers the resource @a compiler for the given resource @a type and @a version.
 	void register_compiler(const char *type, u32 version, CompileFunction compiler);
