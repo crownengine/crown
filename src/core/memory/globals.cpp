@@ -340,14 +340,22 @@ namespace memory_globals
 {
 	using namespace memory;
 
-	static char _buffer[sizeof(HeapAllocator) + sizeof(ScratchAllocator)];
+	static const u32 _buffer_size = sizeof(HeapAllocator) + alignof(HeapAllocator)
+		+ sizeof(ScratchAllocator) + alignof(ScratchAllocator)
+		;
+	static char _buffer[_buffer_size];
 	static HeapAllocator *_default_allocator;
 	static ScratchAllocator *_default_scratch_allocator;
 
 	void init()
 	{
-		_default_allocator = new (_buffer) HeapAllocator();
-		_default_scratch_allocator = new (_buffer + sizeof(HeapAllocator)) ScratchAllocator(*_default_allocator, 1024*1024);
+		void *buf = _buffer;
+		buf = memory::align_top(buf, alignof(HeapAllocator));
+		_default_allocator = new (buf) HeapAllocator();
+
+		buf = _default_allocator + 1;
+		buf = memory::align_top(buf, alignof(ScratchAllocator));
+		_default_scratch_allocator = new (buf) ScratchAllocator(*_default_allocator, 1024*1024);
 	}
 
 	void shutdown()
