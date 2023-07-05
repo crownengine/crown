@@ -90,6 +90,7 @@ openal_project(os.is("windows") and "SharedLib" or "StaticLib")
 
 dofile ("bullet.lua")
 dofile ("lua.lua")
+dofile ("luac.lua")
 
 if _OPTIONS["with-tools"] then
 	group "tools"
