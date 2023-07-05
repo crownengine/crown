@@ -24,6 +24,7 @@
 #include <windowsx.h> // GET_X_LPARAM, GET_Y_LPARAM
 #include <xinput.h>
 #define STB_SPRINTF_IMPLEMENTATION
+#define STB_SPRINTF_NOUNALIGNED
 #include <stb_sprintf.h>
 
 namespace crown

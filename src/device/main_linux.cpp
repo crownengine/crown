@@ -33,6 +33,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #define STB_SPRINTF_IMPLEMENTATION
+#define STB_SPRINTF_NOUNALIGNED
 #include <stb_sprintf.h>
 #include <signal.h>
 #include <errno.h>
