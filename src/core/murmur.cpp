@@ -8,6 +8,19 @@
 
 namespace crown
 {
+// MurmurHash2 was written by Austin Appleby, and is placed in the public
+// domain. The author hereby disclaims copyright to this source code.
+//
+// Note - This code makes a few assumptions about how your machine behaves -
+//
+// 1. We can read a 4-byte value from any address without crashing
+// 2. sizeof(int) == 4
+//
+// And it has a few limitations -
+//
+// 1. It will not work incrementally.
+// 2. It will not produce the same results on little-endian and big-endian
+//    machines.
 u64 murmur64(const void *key, u32 len, u64 seed)
 {
 	const u64 m = 0xc6a4a7935bd1e995ull;
