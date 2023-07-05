@@ -88,9 +88,9 @@ jobs:
     - name: linux-test-release64
       run: |
         cd ./build/linux64/bin && ./crown-release --run-unit-tests
-    - name: linux-test-data-compiler-android
+    - name: linux-test-data-compiler-android-arm64
       run: |
-        make samples SAMPLES_PLATFORM=android
+        make samples SAMPLES_PLATFORM=android-arm64
     - name: linux-test-data-compiler-linux
       run: |
         make samples SAMPLES_PLATFORM=linux
