@@ -66,7 +66,7 @@
 #include <bx/allocator.h>
 #include <bx/math.h>
 
-#define MAX_SUBSYSTEMS_HEAP 8 * 1024 * 1024
+#define CROWN_MAX_SUBSYSTEMS_HEAP (8*1024*1024)
 
 LOG_SYSTEM(DEVICE, "device")
 
@@ -204,7 +204,7 @@ static void device_message_refresh(ConsoleServer &cs, u32 client_id, const char 
 }
 
 Device::Device(const DeviceOptions &opts, ConsoleServer &cs)
-	: _allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP)
+	: _allocator(default_allocator(), CROWN_MAX_SUBSYSTEMS_HEAP)
 	, _options(opts)
 	, _boot_config(default_allocator())
 	, _console_server(&cs)
