@@ -780,16 +780,15 @@ void Device::refresh(const char *json)
 #endif // if CROWN_DEBUG
 }
 
-char _buffer[sizeof(Device)];
 Device *_device = NULL;
 
 void run(const DeviceOptions &opts)
 {
 	CE_ASSERT(_device == NULL, "Crown already initialized");
 	console_server_globals::init();
-	_device = new (_buffer) Device(opts, *console_server());
+	_device = CE_NEW(default_allocator(), Device)(opts, *console_server());
 	_device->run();
-	_device->~Device();
+	CE_DELETE(default_allocator(), _device);
 	_device = NULL;
 	console_server_globals::shutdown();
 }
