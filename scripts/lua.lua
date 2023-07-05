@@ -9,6 +9,14 @@ project "lua"
 	kind "StaticLib"
 	language "C"
 
+	configuration { "linux-*" }
+		buildoptions {
+			"-Wno-misleading-indentation",
+			"-Wno-implicit-fallthrough",
+		}
+
+	configuration { }
+
 	files {
 		LUA_DIR .. "src/**.c",
 	}
