@@ -105,7 +105,7 @@ namespace lua_resource_internal
 
 		const char *luajit = EXE_PATH("luajit");
 		if (opts._platform == Platform::ANDROID)
-			luajit = EXE_PATH("luajit32");
+			luajit = EXE_PATH("../../linux32/bin/luajit");
 
 		const char *argv[] =
 		{
