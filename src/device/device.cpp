@@ -72,13 +72,6 @@ LOG_SYSTEM(DEVICE, "device")
 
 namespace crown
 {
-#if CROWN_TOOLS
-extern void tool_init(void);
-extern void tool_update(float);
-extern void tool_shutdown(void);
-extern bool tool_process_events();
-#endif
-
 extern bool next_event(OsEvent &ev);
 
 struct BgfxCallback : public bgfx::CallbackI
@@ -232,10 +225,6 @@ Device::Device(const DeviceOptions &opts, ConsoleServer &cs)
 
 bool Device::process_events(bool vsync)
 {
-#if CROWN_TOOLS
-	return tool_process_events();
-#endif
-
 	bool exit = false;
 	bool reset = false;
 
@@ -448,10 +437,6 @@ void Device::run()
 
 	graph_globals::init(_allocator, *_shader_manager, *_console_server);
 
-#if CROWN_TOOLS
-	tool_init();
-#endif
-
 	logi(DEVICE, "Initialized in " TIME_FMT, time::seconds(time::now() - run_t0));
 
 	_lua_environment->call_global("init");
@@ -521,18 +506,10 @@ void Device::run()
 
 		graph_globals::draw_all(_width, _height);
 
-#if CROWN_TOOLS
-		tool_update(dt);
-#else
 		_pipeline->render(*_shader_manager, STRING_ID_32("blit", UINT32_C(0x045f02bb)), VIEW_BLIT, _width, _height);
-#endif
 
 		bgfx::frame();
 	}
-
-#if CROWN_TOOLS
-	tool_shutdown();
-#endif
 
 	_lua_environment->call_global("shutdown");
 

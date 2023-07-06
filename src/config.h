@@ -27,10 +27,6 @@
 	&& (CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS)       \
 	? 1 : 0)
 
-#ifndef CROWN_TOOLS
-	#define CROWN_TOOLS 0
-#endif
-
 #ifndef CROWN_BUILD_UNIT_TESTS
 	#define CROWN_BUILD_UNIT_TESTS 1
 #endif
