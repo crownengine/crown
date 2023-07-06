@@ -223,10 +223,9 @@ Device::Device(const DeviceOptions &opts, ConsoleServer &cs)
 	list::init_head(_worlds);
 }
 
-bool Device::process_events(bool vsync)
+bool Device::process_events()
 {
 	bool exit = false;
-	bool reset = false;
 
 	OsEvent event;
 	while (next_event(event)) {
@@ -240,7 +239,6 @@ bool Device::process_events(bool vsync)
 		case OsEventType::RESOLUTION:
 			_width  = event.resolution.width;
 			_height = event.resolution.height;
-			reset   = true;
 			break;
 
 		case OsEventType::EXIT:
@@ -264,10 +262,79 @@ bool Device::process_events(bool vsync)
 		}
 	}
 
-	if (reset)
-		bgfx::reset(_width, _height, (vsync ? BGFX_RESET_VSYNC : BGFX_RESET_NONE));
-
 	return exit;
+}
+
+bool Device::frame()
+{
+	if (CE_UNLIKELY(process_events() || _quit))
+		return true;
+
+	const s64 time = time::now();
+	const f32 dt   = f32(time::seconds(time - _last_time));
+	_last_time = time;
+	_needs_draw = !_options._pumped;
+
+	profiler_globals::clear();
+
+	if (CE_UNLIKELY(_width != _prev_width || _height != _prev_height)) {
+		_prev_width = _width;
+		_prev_height = _height;
+		bgfx::reset(_width, _height, (_boot_config.vsync ? BGFX_RESET_VSYNC : BGFX_RESET_NONE));
+		_pipeline->reset(_width, _height);
+
+		// Force pipeline reset in one cycle.
+		bgfx::frame();
+		bgfx::frame();
+
+		// Force redraw.
+		_needs_draw = true;
+	}
+
+	// Only block if redraw is not needed.
+	const bool sync = !_needs_draw;
+	_console_server->execute_message_handlers(sync);
+
+	RECORD_FLOAT("device.dt", dt);
+	RECORD_FLOAT("device.fps", 1.0f/dt);
+
+	if (CE_UNLIKELY(!_needs_draw))
+		return false;
+
+	if (CE_LIKELY(!_paused)) {
+		_resource_manager->complete_requests();
+
+		{
+			const s64 t0 = time::now();
+			LuaStack stack(_lua_environment->L);
+			stack.push_float(dt);
+			_lua_environment->call_global("update", 1);
+			RECORD_FLOAT("lua.update", f32(time::seconds(time::now() - t0)));
+		}
+		{
+			const s64 t0 = time::now();
+			LuaStack stack(_lua_environment->L);
+			stack.push_float(dt);
+			_lua_environment->call_global("render", 1);
+			RECORD_FLOAT("lua.render", f32(time::seconds(time::now() - t0)));
+		}
+	}
+
+	_lua_environment->reset_temporaries();
+	_input_manager->update();
+
+	const bgfx::Stats *stats = bgfx::getStats();
+	RECORD_FLOAT("bgfx.gpu_time", f32(f64(stats->gpuTimeEnd - stats->gpuTimeBegin)/stats->gpuTimerFreq));
+	RECORD_FLOAT("bgfx.cpu_time", f32(f64(stats->cpuTimeEnd - stats->cpuTimeBegin)/stats->cpuTimerFreq));
+
+	profiler_globals::flush();
+
+	graph_globals::draw_all(_width, _height);
+
+	_pipeline->render(*_shader_manager, STRING_ID_32("blit", UINT32_C(0x045f02bb)), VIEW_BLIT, _width, _height);
+
+	bgfx::frame();
+	return false;
 }
 
 void Device::run()
@@ -441,74 +508,11 @@ void Device::run()
 
 	_lua_environment->call_global("init");
 
-	u16 old_width = _width;
-	u16 old_height = _height;
-	s64 time_last = time::now();
+	_prev_width = _width;
+	_prev_height = _height;
+	_last_time = time::now();
 
-	while (!process_events(_boot_config.vsync) && !_quit) {
-		const s64 time = time::now();
-		const f32 dt   = f32(time::seconds(time - time_last));
-		time_last = time;
-		_needs_draw = !_options._pumped;
-
-		profiler_globals::clear();
-
-		if (_width != old_width || _height != old_height) {
-			old_width = _width;
-			old_height = _height;
-			_pipeline->reset(_width, _height);
-
-			// Force pipeline reset in one cycle.
-			bgfx::frame();
-			bgfx::frame();
-
-			// Force redraw.
-			_needs_draw = true;
-		}
-
-		// Only block if redraw is not needed.
-		const bool sync = !_needs_draw;
-		_console_server->execute_message_handlers(sync);
-
-		RECORD_FLOAT("device.dt", dt);
-		RECORD_FLOAT("device.fps", 1.0f/dt);
-
-		if (CE_UNLIKELY(!_needs_draw))
-			continue;
-
-		if (CE_LIKELY(!_paused)) {
-			_resource_manager->complete_requests();
-
-			{
-				const s64 t0 = time::now();
-				LuaStack stack(_lua_environment->L);
-				stack.push_float(dt);
-				_lua_environment->call_global("update", 1);
-				RECORD_FLOAT("lua.update", f32(time::seconds(time::now() - t0)));
-			}
-			{
-				const s64 t0 = time::now();
-				LuaStack stack(_lua_environment->L);
-				stack.push_float(dt);
-				_lua_environment->call_global("render", 1);
-				RECORD_FLOAT("lua.render", f32(time::seconds(time::now() - t0)));
-			}
-		}
-
-		_lua_environment->reset_temporaries();
-		_input_manager->update();
-
-		const bgfx::Stats *stats = bgfx::getStats();
-		RECORD_FLOAT("bgfx.gpu_time", f32(f64(stats->gpuTimeEnd - stats->gpuTimeBegin)/stats->gpuTimerFreq));
-		RECORD_FLOAT("bgfx.cpu_time", f32(f64(stats->cpuTimeEnd - stats->cpuTimeBegin)/stats->cpuTimerFreq));
-
-		profiler_globals::flush();
-
-		graph_globals::draw_all(_width, _height);
-
-		_pipeline->render(*_shader_manager, STRING_ID_32("blit", UINT32_C(0x045f02bb)), VIEW_BLIT, _width, _height);
-
-		bgfx::frame();
+	while (!frame()) {
 	}
 
 	_lua_environment->call_global("shutdown");

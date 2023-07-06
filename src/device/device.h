@@ -58,12 +58,16 @@ struct Device
 
 	u16 _width;
 	u16 _height;
+	u16 _prev_width;
+	u16 _prev_height;
+	s64 _last_time;
 
 	bool _quit;
 	bool _paused;
 	bool _needs_draw;
 
-	bool process_events(bool vsync);
+	///
+	bool process_events();
 
 	///
 	Device(const DeviceOptions &opts, ConsoleServer &cs);
@@ -73,6 +77,9 @@ struct Device
 
 	///
 	Device &operator=(const Device &) = delete;
+
+	/// Simulate one frame.
+	bool frame();
 
 	/// Runs the engine.
 	void run();
