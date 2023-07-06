@@ -32,7 +32,7 @@ struct SPSCQueue
 		, _allocator(&a)
 		, _queue(NULL)
 	{
-		_queue = (T *)_allocator->allocate(sizeof(T) * MAX_NUM_ITEMS);
+		_queue = (T *)_allocator->allocate(sizeof(T) * MAX_NUM_ITEMS, alignof(T));
 	}
 
 	///
