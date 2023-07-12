@@ -60,6 +60,8 @@ namespace socket_internal
 
 	AcceptResult accept(SOCKET socket, TCPSocket &c)
 	{
+		CE_ENSURE(socket != INVALID_SOCKET);
+
 		SOCKET err = ::accept(socket, NULL, NULL);
 
 		AcceptResult ar;
@@ -79,6 +81,8 @@ namespace socket_internal
 
 	ReadResult read(SOCKET socket, void *data, u32 size)
 	{
+		CE_ENSURE(socket != INVALID_SOCKET);
+
 		ReadResult rr;
 		rr.error = ReadResult::SUCCESS;
 		rr.bytes_read = 0;
@@ -114,6 +118,8 @@ namespace socket_internal
 
 	WriteResult write(SOCKET socket, const void *data, u32 size)
 	{
+		CE_ENSURE(socket != INVALID_SOCKET);
+
 		WriteResult wr;
 		wr.error = WriteResult::SUCCESS;
 		wr.bytes_wrote = 0;
@@ -150,6 +156,8 @@ namespace socket_internal
 
 	void set_blocking(SOCKET socket, bool blocking)
 	{
+		CE_ENSURE(socket != INVALID_SOCKET);
+
 #if CROWN_PLATFORM_WINDOWS
 		u_long non_blocking = blocking ? 0 : 1;
 		int err = ioctlsocket(socket, FIONBIO, &non_blocking);
@@ -163,6 +171,8 @@ namespace socket_internal
 
 	void set_reuse_address(SOCKET socket, bool reuse)
 	{
+		CE_ENSURE(socket != INVALID_SOCKET);
+
 		int optval = (int)reuse;
 		int err = setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, (const char *)&optval, sizeof(optval));
 		CE_ASSERT(err == 0, "setsockopt: last_error() = %d", last_error());
@@ -171,6 +181,8 @@ namespace socket_internal
 
 	void set_timeout(SOCKET socket, u32 ms)
 	{
+		CE_ENSURE(socket != INVALID_SOCKET);
+
 		struct timeval tv;
 		tv.tv_sec  = ms / 1000;
 		tv.tv_usec = ms % 1000 * 1000;
@@ -212,9 +224,14 @@ TCPSocket::~TCPSocket()
 	_priv->~Private();
 }
 
+bool TCPSocket::is_open()
+{
+	return _priv->socket != INVALID_SOCKET;
+}
+
 void TCPSocket::close()
 {
-	if (_priv->socket != INVALID_SOCKET) {
+	if (is_open()) {
 		::closesocket(_priv->socket);
 		_priv->socket = INVALID_SOCKET;
 	}

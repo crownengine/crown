@@ -88,6 +88,9 @@ struct TCPSocket
 	///
 	~TCPSocket();
 
+	/// Returns whether the socket is open.
+	bool is_open();
+
 	/// Closes the socket.
 	void close();
 
