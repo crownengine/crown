@@ -131,11 +131,11 @@ build/projects/mingw:
 	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools --gcc=mingw-gcc gmake
 	$(GENIE) --gfxapi=d3d11 --with-tools --compiler=mingw-gcc gmake
 mingw-debug64: build/projects/mingw build/mingw64/bin/luajit.exe build/mingw64/bin/texturec.exe build/mingw64/bin/shaderc.exe
-	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw config=debug64
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw crown config=debug64
 mingw-development64: build/projects/mingw build/mingw64/bin/luajit.exe build/mingw64/bin/texturec.exe build/mingw64/bin/shaderc.exe
-	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw config=development64
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw crown config=development64
 mingw-release64: build/projects/mingw build/mingw64/bin/luajit.exe
-	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw config=release64
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw crown config=release64
 mingw: mingw-debug64 mingw-development64 mingw-release64
 
 build/windows64/bin/texturec.exe:
