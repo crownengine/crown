@@ -187,7 +187,8 @@ void ConsoleServer::close()
 
 	// Unlock input thread if it is stuck inside the select().
 	u32 blank_header = 0;
-	_dummy_client.write(&blank_header, sizeof(blank_header));
+	if (_dummy_client.is_open())
+		_dummy_client.write(&blank_header, sizeof(blank_header));
 }
 
 void ConsoleServer::shutdown()

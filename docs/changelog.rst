@@ -9,6 +9,7 @@ Changelog
 * Data directories can now be deleted at run-time to force a full data compilation.
 * Some dependencies for Lua scripts are now automatically determined by parsing require() calls in the source.
 * Add ability to pack compiled data together into "bundles".
+* Windows: fixed an issue that prevented the data-compiler to be launched in stand-alone mode when the data-compiler server was running.
 
 **Runtime**
 

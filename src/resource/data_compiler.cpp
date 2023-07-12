@@ -1418,7 +1418,8 @@ int main_data_compiler(const DeviceOptions &opts)
 #endif // if CROWN_PLATFORM_WINDOWS
 
 	console_server_globals::init();
-	console_server()->listen(CROWN_DEFAULT_COMPILER_PORT, opts._wait_console);
+	if (opts._server)
+		console_server()->listen(CROWN_DEFAULT_COMPILER_PORT, opts._wait_console);
 
 	namespace cor = config_resource_internal;
 	namespace ftr = font_resource_internal;
