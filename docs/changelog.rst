@@ -16,7 +16,6 @@ Changelog
 * Added ``--window-rect``, ``--bundle`` and ``--bundle-dir`` CLI options.
 * Fixed a double-free error during shutdown.
 * Bumped minimum OpenGL|ES version for Android platform to 3.0.
-* Fixed ``Touch.axis()`` value not being updated at the start or end of a touch action.
 
 **Tools**
 
@@ -30,6 +29,7 @@ Changelog
 
 * Added ``Matrix4x4.scale()`` and ``Matrix4x4.set_scale()``.
 * Added ``Math.obb_vertices()``.
+* Fixed ``Touch.axis()`` value not being updated at the start or end of a touch action.
 
 0.47.0 --- *06 Feb 2023*
 ------------------------
