@@ -7,9 +7,8 @@ The Flexible Game Engine
    changelog
    introduction
    basics
+   reference/index
    lua_api
-   boot_config
-   command_line
    glossary
    copyright
    hackers/index
