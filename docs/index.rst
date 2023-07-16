@@ -12,11 +12,4 @@ The Flexible Game Engine
    command_line
    glossary
    copyright
-
-Hackers
-=======
-
-.. toctree::
-   :maxdepth: 2
-
    hackers/index
