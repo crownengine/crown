@@ -105,7 +105,7 @@ Supported platforms
 	* 64-bit dual-core CPU or higher
 	* OpenGL 3.2+ graphics card with 512 MB of RAM, 1 GB recommended
 	* 4 GB of RAM minimum, 8 GB recommended
-	* 1280x768 display resolution minimum, 1920x1080 recommended
+	* 1366x768 display resolution minimum, 1920x1080 recommended
 	* Three-button mouse
 
 
