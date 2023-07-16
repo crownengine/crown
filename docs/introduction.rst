@@ -107,3 +107,23 @@ Supported platforms
 	* 4 GB of RAM minimum, 8 GB recommended
 	* 1280x768 display resolution minimum, 1920x1080 recommended
 	* Three-button mouse
+
+
+Contact
+-------
+
+* Daniele Bartolini (`@aa_dani_bart <https://twitter.com/aa_dani_bart>`_)
+* Project page: https://github.com/crownengine/crown
+* Website: https://www.crownengine.org
+
+Contributors
+------------
+
+In chronological order.
+
+* Daniele Bartolini (`@dbartolini <https://github.com/dbartolini>`_)
+* Simone Boscaratto (`@Xed89 <https://github.com/Xed89>`_)
+* Michele Rossi (`@mikymod <https://github.com/mikymod>`_)
+* Michela Iacchelli - Crown logo v1.
+* Raphael de Vasconcelos Nascimento (`@vasconssa <https://github.com/vasconssa>`_)
+* Giulia Gazzoli - Crown logo v2.

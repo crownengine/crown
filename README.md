@@ -34,21 +34,3 @@ Check out the [Introduction](https://docs.crownengine.org/html/latest/introducti
 <img src="https://raw.githubusercontent.com/crownengine/crown/master/docs/shots/02-animation.png" width="272px" title="02-animation"/>
 <img src="https://raw.githubusercontent.com/crownengine/crown/master/docs/shots/03-joypad.png"    width="272px" title="03-joypad"/>
 </p>
-
-Contact
--------
-
-Daniele Bartolini ([@aa_dani_bart](https://twitter.com/aa_dani_bart))  
-Project page: https://github.com/crownengine/crown
-
-Contributors
-------------
-
-In chronological order.
-
-Daniele Bartolini ([@dbartolini](https://github.com/dbartolini))  
-Simone Boscaratto ([@Xed89](https://github.com/Xed89))  
-Michele Rossi ([@mikymod](https://github.com/mikymod))  
-Michela Iacchelli - Pepper logo.  
-Raphael de Vasconcelos Nascimento ([@vasconssa](https://github.com/vasconssa))  
-Giulia Gazzoli - Crown logo.
