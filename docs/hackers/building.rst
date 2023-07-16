@@ -28,7 +28,7 @@ Android
 
 3. Install LuaJIT dependencies:
 
-.. core::
+.. code::
 
 	sudo apt-get install libc6-dev-i386
 
