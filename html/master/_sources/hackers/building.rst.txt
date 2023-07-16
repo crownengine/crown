@@ -26,14 +26,20 @@ Android
 	export ANDROID_NDK_ROOT=<path/to/android_ndk>
 	export ANDROID_NDK_ABI=23
 
-3. Continue to `Build`_.
+3. Install LuaJIT dependencies:
+
+.. code::
+
+	sudo apt-get install libc6-dev-i386
+
+4. Continue to `Build`_.
 
 Linux (Ubuntu >= 18.04)
 -----------------------
 
 .. code::
 
-	sudo apt install build-essential mesa-common-dev libgl1-mesa-dev libpulse-dev libxrandr-dev
+	sudo apt install build-essential mesa-common-dev libgl1-mesa-dev libpulse-dev libxrandr-dev libc6-dev-i386
 
 	sudo add-apt-repository ppa:vala-team
 	sudo apt install libgtk-3-dev valac libgee-0.8-dev
@@ -58,7 +64,9 @@ Windows (VS 2019)
 
 	* https://visualstudio.microsoft.com/downloads
 
-2. Continue to `Build`_.
+2. If you want to build tools, continue to :ref:`Windows (MSYS2) <pre_windows_msys2>`.
+
+3. Continue to `Build`_.
 
 Windows (VS Code)
 -----------------
@@ -100,14 +108,14 @@ Android
 
 .. code::
 
-	make android-arm-release
+	make android-arm-release MAKE_JOBS=4
 
 Linux
 -----
 
 .. code::
 
-	make tools-linux-release64
+	make tools-linux-release64 MAKE_JOBS=4
 
 Windows (VS 2019)
 -----------------
@@ -116,14 +124,14 @@ Windows (VS 2019)
 
 .. code::
 
-	make tools-windows-release64
+	make tools-windows-release64 MAKE_JOBS=4
 
 2. To build tools, open a MSYS2 MINGW64 shell:
 
 .. code::
 
 	export MINGW=/mingw64
-	make tools-mingw-release64
+	make tools-mingw-release64 MAKE_JOBS=4
 
 Windows (VS Code)
 -----------------
@@ -137,7 +145,7 @@ Windows (VS Code)
 .. code::
 
 	$env:MINGW = "C:\msys64\mingw64"
-	make tools-mingw-release64
+	make tools-mingw-release64 MAKE_JOBS=4
 
 Windows (MSYS2)
 ---------------
@@ -147,4 +155,4 @@ Open MSYS2 MINGW64 shell:
 .. code::
 
 	export MINGW=/mingw64
-	make tools-mingw-release64
+	make tools-mingw-release64 MAKE_JOBS=4

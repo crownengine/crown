@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Console API &mdash; Crown Manual 0.48.0 documentation</title>
+  <title>Reference &mdash; Crown Manual 0.48.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -18,7 +18,8 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="copyright" title="Copyright" href="../copyright.html" />
-    <link rel="prev" title="Building" href="building.html" /> 
+    <link rel="next" title="boot.config reference" href="boot_config.html" />
+    <link rel="prev" title="Basic concepts" href="../basics.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -43,20 +44,15 @@
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../basics.html">Basic concepts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="boot_config.html">boot.config reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="command_line.html">Command line reference</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../lua_api.html">Lua API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../copyright.html">License</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">Hackers</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="building.html">Building</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Console API</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#tcp-protocol">TCP protocol</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#json-messages">JSON messages</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#execute-lua-scripts">Execute Lua scripts</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../hackers/index.html">Hackers</a></li>
 </ul>
 
         </div>
@@ -73,10 +69,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="index.html">Hackers</a> &raquo;</li>
-      <li>Console API</li>
+      <li>Reference</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/hackers/console_api.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/reference/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -84,45 +79,30 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="console-api">
-<h1>Console API<a class="headerlink" href="#console-api" title="Permalink to this heading">¶</a></h1>
-<p>Any number of clients can connect to the engine via TCP/IP and communicate
-with simple JSON API. The default port number is 10001 as defined by <code class="docutils literal notranslate"><span class="pre">CROWN_DEFAULT_CONSOLE_PORT</span></code>.
-You can change the port number with <code class="docutils literal notranslate"><span class="pre">--console-port</span></code> option.</p>
-<section id="tcp-protocol">
-<h2>TCP protocol<a class="headerlink" href="#tcp-protocol" title="Permalink to this heading">¶</a></h2>
-<p>Every message starts with u32 header containing the size in bytes of the
-following JSON message.</p>
-</section>
-<section id="json-messages">
-<h2>JSON messages<a class="headerlink" href="#json-messages" title="Permalink to this heading">¶</a></h2>
-<p>Every JSON message has a <code class="docutils literal notranslate"><span class="pre">type</span></code> key which identifies its type.
-Sending messages with unknown <code class="docutils literal notranslate"><span class="pre">type</span></code> will result with an error message:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;message&quot;</span> <span class="p">:</span> <span class="s2">&quot;Unknown command&quot;</span>
-<span class="p">}</span>
-</pre></div>
+  <section id="reference">
+<h1>Reference<a class="headerlink" href="#reference" title="Permalink to this heading">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="boot_config.html">boot.config reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="boot_config.html#generic-configurations">Generic configurations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="boot_config.html#platform-specific-configurations">Platform-specific configurations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="command_line.html">Command line reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="command_line.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="command_line.html#options">Options</a></li>
+</ul>
+</li>
+</ul>
 </div>
-</section>
-<section id="execute-lua-scripts">
-<h2>Execute Lua scripts<a class="headerlink" href="#execute-lua-scripts" title="Permalink to this heading">¶</a></h2>
-<p>Executing Lua script is as simple as sending the following message:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;script&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;script&quot;</span> <span class="p">:</span> <span class="s2">&quot;print(&#39;Hello, world!&#39;)&quot;</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>All the tools are controlled by sending simple Lua scripts to them.</p>
-</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="building.html" class="btn btn-neutral float-left" title="Building" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../basics.html" class="btn btn-neutral float-left" title="Basic concepts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="boot_config.html" class="btn btn-neutral float-right" title="boot.config reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

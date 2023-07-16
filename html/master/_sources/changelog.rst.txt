@@ -8,11 +8,14 @@ Changelog
 
 * Data directories can now be deleted at run-time to force a full data compilation.
 * Some dependencies for Lua scripts are now automatically determined by parsing require() calls in the source.
+* Add ability to pack compiled data together into "bundles".
+* Windows: fixed an issue that prevented the data-compiler to be launched in stand-alone mode when the data-compiler server was running.
 
 **Runtime**
 
-* Added ``--window-rect`` CLI option.
+* Added ``--window-rect``, ``--bundle`` and ``--bundle-dir`` CLI options.
 * Fixed a double-free error during shutdown.
+* Bumped minimum OpenGL|ES version for Android platform to 3.0.
 
 **Tools**
 
@@ -26,6 +29,7 @@ Changelog
 
 * Added ``Matrix4x4.scale()`` and ``Matrix4x4.set_scale()``.
 * Added ``Math.obb_vertices()``.
+* Fixed ``Touch.axis()`` value not being updated at the start or end of a touch action.
 
 0.47.0 --- *06 Feb 2023*
 ------------------------

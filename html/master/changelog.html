@@ -12,9 +12,6 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
@@ -30,8 +27,7 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html">
-            <img src="_static/crown-logo-white.svg" class="logo" alt="Logo"/>
+            <a href="index.html" class="icon icon-home"> Crown Manual
           </a>
               <div class="version">
                 0.48.0
@@ -62,13 +58,10 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="basics.html">Basic concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/index.html">Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="lua_api.html">Lua API reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="boot_config.html">boot.config reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="command_line.html">Command line reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="copyright.html">License</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="hackers/index.html">Hackers</a></li>
 </ul>
 
@@ -104,11 +97,14 @@
 <ul class="simple">
 <li><p>Data directories can now be deleted at run-time to force a full data compilation.</p></li>
 <li><p>Some dependencies for Lua scripts are now automatically determined by parsing require() calls in the source.</p></li>
+<li><p>Add ability to pack compiled data together into “bundles”.</p></li>
+<li><p>Windows: fixed an issue that prevented the data-compiler to be launched in stand-alone mode when the data-compiler server was running.</p></li>
 </ul>
 <p><strong>Runtime</strong></p>
 <ul class="simple">
-<li><p>Added <code class="docutils literal notranslate"><span class="pre">--window-rect</span></code> CLI option.</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">--window-rect</span></code>, <code class="docutils literal notranslate"><span class="pre">--bundle</span></code> and <code class="docutils literal notranslate"><span class="pre">--bundle-dir</span></code> CLI options.</p></li>
 <li><p>Fixed a double-free error during shutdown.</p></li>
+<li><p>Bumped minimum OpenGL|ES version for Android platform to 3.0.</p></li>
 </ul>
 <p><strong>Tools</strong></p>
 <ul class="simple">
@@ -122,6 +118,7 @@
 <ul class="simple">
 <li><p>Added <code class="docutils literal notranslate"><span class="pre">Matrix4x4.scale()</span></code> and <code class="docutils literal notranslate"><span class="pre">Matrix4x4.set_scale()</span></code>.</p></li>
 <li><p>Added <code class="docutils literal notranslate"><span class="pre">Math.obb_vertices()</span></code>.</p></li>
+<li><p>Fixed <code class="docutils literal notranslate"><span class="pre">Touch.axis()</span></code> value not being updated at the start or end of a touch action.</p></li>
 </ul>
 </section>
 <section id="feb-2023">
