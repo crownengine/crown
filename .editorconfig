@@ -2,10 +2,10 @@ root = true
 
 [*]
 end_of_line = lf
-indent_style = tab
 indent_size = 4
-max_line_length = 100
+indent_style = tab
 insert_final_newline = true
+max_line_length = 100
 trim_trailing_whitespace = true
 
 [*.md]
@@ -16,17 +16,18 @@ trim_trailing_whitespace = false
 indent_style = space
 
 [*.ui]
-indent_style = space
 indent_size = 2
+indent_style = space
 
 [*.xml]
-indent_style = space
 indent_size = 2
+indent_style = space
 
 [*.yml]
-indent_style = space
 indent_size = 2
+indent_style = space
 
 [*.rst]
-indent_style = tab
 indent_size = 4
+indent_style = tab
+max_line_length = 80
