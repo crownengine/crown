@@ -44,6 +44,11 @@ struct MPSCQueue
 	{
 		return _queue.pop(ev);
 	}
+
+	bool empty()
+	{
+		return _queue.empty();
+	}
 };
 
 } // namespace crown

@@ -10,6 +10,7 @@
 #include "core/strings/string_id.h"
 #include "core/thread/condition_variable.h"
 #include "core/thread/mutex.h"
+#include "core/thread/spsc_queue.inl"
 #include "core/thread/thread.h"
 #include "core/types.h"
 #include "resource/types.h"
@@ -38,18 +39,14 @@ struct ResourceLoader
 	Filesystem &_data_filesystem;
 	bool _is_bundle;
 
-	Queue<ResourceRequest> _requests;
-	Queue<ResourceRequest> _loaded;
+	SPSCQueue<ResourceRequest, 128> _requests;
+	SPSCQueue<ResourceRequest, 128> _loaded;
 	HashMap<StringId64, StringId64> _fallback;
 
 	Thread _thread;
 	Mutex _mutex;
 	ConditionVariable _requests_condition;
-	Mutex _loaded_mutex;
 	bool _exit;
-
-	///
-	u32 num_requests();
 
 	///
 	void add_loaded(ResourceRequest rr);
@@ -65,13 +62,8 @@ struct ResourceLoader
 	~ResourceLoader();
 
 	/// Adds a request for loading the resource described by @a rr.
-	void add_request(const ResourceRequest &rr);
-
-	/// Blocks until all pending requests have been processed.
-	void flush();
-
-	/// Returns all the resources that have been loaded.
-	void get_loaded(Array<ResourceRequest> &loaded);
+	/// Returns true on success, false otherwise.
+	bool add_request(const ResourceRequest &rr);
 
 	/// Registers a fallback resource @a name for the given resource @a type.
 	void register_fallback(StringId64 type, StringId64 name);

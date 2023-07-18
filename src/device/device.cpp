@@ -434,8 +434,14 @@ void Device::run()
 		boot_dir += CROWN_BOOT_CONFIG;
 
 		const StringId64 config_name(boot_dir.c_str());
-		_resource_manager->load(PACKAGE_RESOURCE_NONE, RESOURCE_TYPE_CONFIG, config_name);
-		_resource_manager->flush();
+
+		while (!_resource_manager->try_load(PACKAGE_RESOURCE_NONE, RESOURCE_TYPE_CONFIG, config_name)) {
+			_resource_manager->complete_requests();
+		}
+		while (!_resource_manager->can_get(RESOURCE_TYPE_CONFIG, config_name)) {
+			_resource_manager->complete_requests();
+		}
+
 		_boot_config.parse((const char *)_resource_manager->get(RESOURCE_TYPE_CONFIG, config_name));
 		_resource_manager->unload(RESOURCE_TYPE_CONFIG, config_name);
 	}

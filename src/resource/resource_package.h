@@ -18,6 +18,9 @@ struct ResourcePackage
 	ResourceManager *_resource_manager;
 	StringId64 _package_resource_name;
 	const PackageResource *_package_resource;
+	u32 _num_resources_queued;
+	bool _package_resource_queued;
+	bool _loaded;
 
 	///
 	ResourcePackage(StringId64 id, ResourceManager &resman);
@@ -38,7 +41,7 @@ struct ResourcePackage
 	void flush();
 
 	/// Returns whether the package has been loaded.
-	bool has_loaded() const;
+	bool has_loaded();
 };
 
 } // namespace crown

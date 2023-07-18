@@ -76,6 +76,14 @@ struct SPSCQueue
 		_head.store(head_next, std::memory_order_release);
 		return true;
 	}
+
+	///
+	bool empty()
+	{
+		const int head = _head.load(std::memory_order_relaxed);
+		const int tail = _tail.load(std::memory_order_acquire);
+		return head == tail;
+	}
 };
 
 } // namespace crown

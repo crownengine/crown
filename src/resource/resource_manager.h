@@ -70,9 +70,11 @@ struct ResourceManager
 	///
 	~ResourceManager();
 
-	/// Loads the resource (@a type, @a name) from the @a package.
-	/// You can check whether the resource is available with can_get().
-	void load(StringId64 package_name, StringId64 type, StringId64 name);
+	/// Tries to load the resource (@a type, @a name) from @a package.
+	/// When the load queue is full, it may fail returning false. In such case,
+	/// you must call complete_requests() and try again later until true is returned.
+	/// Use can_get() to check whether the resource can be used.
+	bool try_load(StringId64 package_name, StringId64 type, StringId64 name);
 
 	/// Unloads the resource @a type @a name.
 	void unload(StringId64 type, StringId64 name);
@@ -90,10 +92,7 @@ struct ResourceManager
 	/// Sets whether resources should be automatically loaded when accessed.
 	void enable_autoload(bool enable);
 
-	/// Blocks until all load() requests have been completed.
-	void flush();
-
-	/// Completes all load() requests which have been loaded by ResourceLoader.
+	/// Completes all load requests which have been loaded by ResourceLoader.
 	void complete_requests();
 
 	/// Registers a new resource @a type into the resource manager.

@@ -69,7 +69,7 @@ ResourceManager::~ResourceManager()
 	}
 }
 
-void ResourceManager::load(StringId64 package_name, StringId64 type, StringId64 name)
+bool ResourceManager::try_load(StringId64 package_name, StringId64 type, StringId64 name)
 {
 	ResourcePair id = { type, name };
 	ResourceEntry &entry = hash_map::get(_rm, id, ResourceEntry::NOT_FOUND);
@@ -93,17 +93,15 @@ void ResourceManager::load(StringId64 package_name, StringId64 type, StringId64 
 		rr.allocator = &_resource_heap;
 		rr.data = NULL;
 
-		_loader->add_request(rr);
-		return;
+		return _loader->add_request(rr);
 	}
 
 	entry.references++;
+	return true;
 }
 
 void ResourceManager::unload(StringId64 type, StringId64 name)
 {
-	flush();
-
 	ResourcePair id = { type, name };
 	ResourceEntry &entry = hash_map::get(_rm, id, ResourceEntry::NOT_FOUND);
 
@@ -125,8 +123,9 @@ void ResourceManager::reload(StringId64 type, StringId64 name)
 		return;
 
 	unload(type, name);
-	load(PACKAGE_RESOURCE_NONE, type, name);
-	flush();
+	while (!try_load(PACKAGE_RESOURCE_NONE, type, name)) {
+		complete_requests();
+	}
 
 	ResourceEntry &new_entry = hash_map::get(_rm, id, ResourceEntry::NOT_FOUND);
 	new_entry.references = old_refs;
@@ -145,8 +144,13 @@ const void *ResourceManager::get(StringId64 type, StringId64 name)
 	CE_ASSERT(can_get(type, name), "Resource not loaded: " RESOURCE_ID_FMT, resource_id(type, name)._id);
 
 	if (_autoload && !hash_map::has(_rm, id)) {
-		load(PACKAGE_RESOURCE_NONE, type, name);
-		flush();
+		while (!try_load(PACKAGE_RESOURCE_NONE, type, name)) {
+			complete_requests();
+		}
+
+		while (!hash_map::has(_rm, id)) {
+			complete_requests();
+		}
 	}
 
 	const ResourceEntry &entry = hash_map::get(_rm, id, ResourceEntry::NOT_FOUND);
@@ -158,29 +162,20 @@ void ResourceManager::enable_autoload(bool enable)
 	_autoload = enable;
 }
 
-void ResourceManager::flush()
-{
-	_loader->flush();
-	complete_requests();
-}
-
 void ResourceManager::complete_requests()
 {
-	TempAllocator1024 ta;
-	Array<ResourceRequest> loaded(ta);
-	_loader->get_loaded(loaded);
-
-	for (u32 ii = 0; ii < array::size(loaded); ++ii) {
+	ResourceRequest rr;
+	while (_loader->_loaded.pop(rr)) {
 		ResourceEntry entry;
 		entry.references = 1;
-		entry.data = loaded[ii].data;
-		entry.allocator = loaded[ii].allocator;
+		entry.data = rr.data;
+		entry.allocator = rr.allocator;
 
-		ResourcePair id = { loaded[ii].type, loaded[ii].name };
+		ResourcePair id = { rr.type, rr.name };
 
 		hash_map::set(_rm, id, entry);
 
-		on_online(loaded[ii].type, loaded[ii].name);
+		on_online(rr.type, rr.name);
 	}
 }
 
