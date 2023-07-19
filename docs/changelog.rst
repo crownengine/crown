@@ -19,6 +19,7 @@ Changelog
 
 **Tools**
 
+* Added Deploy dialog to generate packages for all supported platforms.
 * Added camera framing of selected objects or whole Level.
 * Numeric input fields will now accept simple math expressions.
 * Fixed the Editor View struggling to grab keyboard focus sometimes.
