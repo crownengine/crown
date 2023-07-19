@@ -18,6 +18,7 @@ public class PropertyGrid : Gtk.Grid
 	public PropertyGrid()
 	{
 		this.row_spacing = 4;
+		this.row_homogeneous = true;
 		this.column_spacing = 12;
 
 		// Data
