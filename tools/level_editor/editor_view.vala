@@ -19,9 +19,6 @@ public class EditorView : Gtk.EventBox
 	private Gtk.Allocation _allocation;
 	private uint _resize_timer_id;
 
-	private int _mouse_curr_x;
-	private int _mouse_curr_y;
-
 	private bool _mouse_left;
 	private bool _mouse_middle;
 	private bool _mouse_right;
@@ -67,9 +64,6 @@ public class EditorView : Gtk.EventBox
 
 		_allocation = { 0, 0, 0, 0 };
 		_resize_timer_id = 0;
-
-		_mouse_curr_x = 0;
-		_mouse_curr_y = 0;
 
 		_mouse_left   = false;
 		_mouse_middle = false;
@@ -121,19 +115,21 @@ public class EditorView : Gtk.EventBox
 
 	private bool on_button_release(Gdk.EventButton ev)
 	{
+		int scale = this.get_scale_factor();
+
 		_mouse_left   = ev.button == Gdk.BUTTON_PRIMARY   ? false : _mouse_left;
 		_mouse_middle = ev.button == Gdk.BUTTON_MIDDLE    ? false : _mouse_middle;
 		_mouse_right  = ev.button == Gdk.BUTTON_SECONDARY ? false : _mouse_right;
 
-		string str = LevelEditorApi.set_mouse_state(_mouse_curr_x
-			, _mouse_curr_y
+		string str = LevelEditorApi.set_mouse_state((int)ev.x*scale
+			, (int)ev.y*scale
 			, _mouse_left
 			, _mouse_middle
 			, _mouse_right
 			);
 
 		if (ev.button == Gdk.BUTTON_PRIMARY)
-			str += LevelEditorApi.mouse_up((int)ev.x, (int)ev.y);
+			str += LevelEditorApi.mouse_up((int)ev.x*scale, (int)ev.y*scale);
 
 		if (camera_modifier_pressed()) {
 			if (!_mouse_left || !_mouse_middle || !_mouse_right)
@@ -149,15 +145,16 @@ public class EditorView : Gtk.EventBox
 
 	private bool on_button_press(Gdk.EventButton ev)
 	{
-		// Grab keyboard focus
+		int scale = this.get_scale_factor();
+
 		this.grab_focus();
 
 		_mouse_left   = ev.button == Gdk.BUTTON_PRIMARY   ? true : _mouse_left;
 		_mouse_middle = ev.button == Gdk.BUTTON_MIDDLE    ? true : _mouse_middle;
 		_mouse_right  = ev.button == Gdk.BUTTON_SECONDARY ? true : _mouse_right;
 
-		string str = LevelEditorApi.set_mouse_state(_mouse_curr_x
-			, _mouse_curr_y
+		string str = LevelEditorApi.set_mouse_state((int)ev.x*scale
+			, (int)ev.y*scale
 			, _mouse_left
 			, _mouse_middle
 			, _mouse_right
@@ -173,7 +170,7 @@ public class EditorView : Gtk.EventBox
 		}
 
 		if (ev.button == Gdk.BUTTON_PRIMARY)
-			str += LevelEditorApi.mouse_down((int)ev.x, (int)ev.y);
+			str += LevelEditorApi.mouse_down((int)ev.x*scale, (int)ev.y*scale);
 
 		if (str.length != 0) {
 			_runtime.send_script(str);
@@ -235,11 +232,10 @@ public class EditorView : Gtk.EventBox
 
 	private bool on_motion_notify(Gdk.EventMotion ev)
 	{
-		_mouse_curr_x = (int)ev.x;
-		_mouse_curr_y = (int)ev.y;
+		int scale = this.get_scale_factor();
 
-		_runtime.send_script(LevelEditorApi.set_mouse_state(_mouse_curr_x
-			, _mouse_curr_y
+		_runtime.send_script(LevelEditorApi.set_mouse_state((int)ev.x*scale
+			, (int)ev.y*scale
 			, _mouse_left
 			, _mouse_middle
 			, _mouse_right
@@ -263,6 +259,8 @@ public class EditorView : Gtk.EventBox
 
 	private void on_size_allocate(Gtk.Allocation ev)
 	{
+		int scale = this.get_scale_factor();
+
 		if (_allocation.x == ev.x
 			&& _allocation.y == ev.y
 			&& _allocation.width == ev.width
@@ -272,11 +270,11 @@ public class EditorView : Gtk.EventBox
 
 		if (_last_window_id != _window_id) {
 			_last_window_id = _window_id;
-			native_window_ready(_window_id, ev.width, ev.height);
+			native_window_ready(_window_id, ev.width*scale, ev.height*scale);
 		}
 
 		_allocation = ev;
-		_runtime.send(DeviceApi.resize(_allocation.width, _allocation.height));
+		_runtime.send(DeviceApi.resize(_allocation.width*scale, _allocation.height*scale));
 
 		// Ensure there is some delay between the last resize() and the last frame().
 		if (_resize_timer_id == 0) {
