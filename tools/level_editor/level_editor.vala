@@ -66,6 +66,7 @@ public enum TargetConfig
 public enum TargetPlatform
 {
 	ANDROID,
+	HTML5,
 	LINUX,
 	WINDOWS
 }
@@ -75,7 +76,8 @@ public enum TargetArch
 	X86,
 	X64,
 	ARM,
-	ARM64
+	ARM64,
+	WASM
 }
 
 public class RuntimeInstance
@@ -422,6 +424,7 @@ public class LevelEditorApplication : Gtk.Application
 	private const GLib.ActionEntry[] action_entries_package =
 	{
 		{ "create-package-android", on_create_package_android, "(sississsssi)", null },
+		{ "create-package-html5",   on_create_package_html5,   "(sis)",         null },
 		{ "create-package-linux",   on_create_package_linux,   "(sis)",         null },
 		{ "create-package-windows", on_create_package_windows, "(sis)",         null }
 	};
@@ -2529,16 +2532,18 @@ public class LevelEditorApplication : Gtk.Application
 		string platform_name[] =
 		{
 			"android", // TargetArch.ANDROID
+			"html5",   // TargetArch.HTML5
 			"linux",   // TargetArch.LINUX
 			"windows"  // TargetArch.WINDOWS
 		};
 
 		string arch_name[] =
 		{
-			"x86",  // TargetArch.X86
-			"x64",  // TargetArch.X64
-			"arm",  // TargetArch.ARM
-			"arm64" // TargetArch.ARM64
+			"x86",   // TargetArch.X86
+			"x64",   // TargetArch.X64
+			"arm",   // TargetArch.ARM
+			"arm64", // TargetArch.ARM64
+			"wasm"   // TargetArch.WASM
 		};
 
 		string config_name[] =
@@ -3046,6 +3051,173 @@ public class LevelEditorApplication : Gtk.Application
 				logi("Done!");
 				return 0;
 			});
+	}
+
+	private void on_create_package_html5(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string config_name[] =
+		{
+			"release",
+			"development"
+		};
+
+		var output_path = (string)param.get_child_value(0);
+		var config = (int)param.get_child_value(1);
+		var app_title = (string)param.get_child_value(2);
+
+		var exe_name = app_title.replace(" ", "_").down();
+
+		string config_path;
+		string package_path;
+		int err = deploy_create_package_folder(out config_path
+			, out package_path
+			, output_path
+			, exe_name
+			, TargetPlatform.HTML5
+			, TargetArch.WASM
+			, (TargetConfig)config
+			);
+		if (err != 0)
+			return;
+
+		logi("Creating HTML5 package...");
+
+		// Create data bundle.
+		try {
+			string[] args;
+			string tmp_data_dir = GLib.DirUtils.make_tmp("XXXXXX");
+			string tmp_bundle_dir = GLib.DirUtils.make_tmp("XXXXXX");
+
+			args = new string[]
+			{
+				ENGINE_EXE,
+				"--source-dir",
+				_project.source_dir(),
+				"--map-source-dir",
+				"core",
+				_project.toolchain_dir(),
+				"--data-dir",
+				tmp_data_dir,
+				"--bundle-dir",
+				tmp_bundle_dir,
+				"--compile",
+				"--bundle",
+				"--platform",
+				"html5"
+			};
+
+			var pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
+			var exit_status = _subprocess_launcher.wait(pid);
+			delete_tree(GLib.File.new_for_path(tmp_data_dir));
+
+			if (exit_status != 0) {
+				loge("Failed to compile data. exit_status = %d".printf(exit_status));
+				return;
+			}
+
+			// Copy runtime executables to package folder.
+			var runtime_name_src = "crown-%s".printf(config_name[config]);
+			var runtime_path_src = Path.build_path(Path.DIR_SEPARATOR_S, "..", "..", "wasm", "bin", runtime_name_src);
+			var runtime_name_dst = Path.build_filename(package_path, runtime_name_src);
+
+			var src = File.new_for_path(runtime_path_src + ".js");
+			var dst = File.new_for_path(runtime_name_dst + ".js");
+			src.copy(dst, FileCopyFlags.OVERWRITE);
+
+			src = File.new_for_path(runtime_path_src + ".worker.js");
+			dst = File.new_for_path(runtime_name_dst + ".worker.js");
+			src.copy(dst, FileCopyFlags.OVERWRITE);
+
+			src = File.new_for_path(runtime_path_src + ".wasm");
+			dst = File.new_for_path(runtime_name_dst + ".wasm");
+			src.copy(dst, FileCopyFlags.OVERWRITE);
+
+			// Package bundle data with emscripten's file_packager.
+			args = new string[]
+			{
+				"file_packager.py",
+				Path.build_path(Path.DIR_SEPARATOR_S, package_path, "data.bin"),
+				"--preload",
+				"./data",
+				"--js-output=" + Path.build_path(Path.DIR_SEPARATOR_S, package_path, "data.js")
+			};
+
+			pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, tmp_bundle_dir);
+			exit_status = _subprocess_launcher.wait(pid);
+			delete_tree(GLib.File.new_for_path(tmp_bundle_dir));
+
+			if (exit_status != 0) {
+				loge("Failed to package data.js. exit_status %d".printf(exit_status));
+				return;
+			}
+
+			// Generate index.html.
+			var index_html_path = Path.build_path(Path.DIR_SEPARATOR_S, package_path, "index.html");
+
+			string index_html = "";
+			index_html += "\n<!doctype html>";
+			index_html += "\n<html lang=\"en-us\">";
+			index_html += "\n<head>";
+			index_html += "\n<meta charset=\"utf-8\">";
+			index_html += "\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">";
+			index_html += "\n<style>";
+			index_html += "\n  body {";
+			index_html += "\n  	 margin: 0px;";
+			index_html += "\n  	 background-color: black;";
+			index_html += "\n  }";
+			index_html += "\n  .app {";
+			index_html += "\n    display: block;";
+			index_html += "\n    border: 0px;";
+			index_html += "\n    margin: 0px;";
+			index_html += "\n    position: absolute;";
+			index_html += "\n    top: 0;";
+			index_html += "\n    left: 0;";
+			index_html += "\n    width: 100%;";
+			index_html += "\n    height: 100%;";
+			index_html += "\n    background-color: black;";
+			index_html += "\n  }";
+			index_html += "\n</style>";
+			index_html += "\n</head>";
+			index_html += "\n<body>";
+			index_html += "\n<canvas class=\"app\" id=\"canvas\" oncontextmenu=\"event.preventDefault()\" tabindex=-1></canvas>";
+			index_html += "\n<script type='text/javascript'>";
+			index_html += "\n  var Module = {";
+			index_html += "\n    preRun: [],";
+			index_html += "\n    postRun: [],";
+			index_html += "\n    canvas: (() => {";
+			index_html += "\n      var canvas = document.getElementById('canvas');";
+			index_html += "\n      canvas.addEventListener(\"webglcontextlost\", (e) => {";
+			index_html += "\n        alert('WebGL context lost. You will need to reload the page.');";
+			index_html += "\n        e.preventDefault();";
+			index_html += "\n      }, false);";
+			index_html += "\n      return canvas;";
+			index_html += "\n    })(),";
+			index_html += "\n    setStatus: (text) => { },";
+			index_html += "\n    monitorRunDependencies: (left) => { }";
+			index_html += "\n  };";
+			index_html += "\n  window.onerror = () => {";
+			index_html += "\n    if (text) console.error('onerror: ' + text);";
+			index_html += "\n  };";
+			index_html += "\n</script>";
+			index_html += "\n<script async type=\"text/javascript\" src=\"data.js\"></script>";
+			index_html += "\n<script async type=\"text/javascript\" src=\"%s.js\"></script>".printf(runtime_name_src);
+			index_html += "\n</body>";
+			index_html += "\n</html>";
+			index_html += "\n";
+
+			GLib.FileStream? fs = FileStream.open(index_html_path, "w");
+			if (fs == null) {
+				loge("Failed to open '%s'".printf(index_html_path));
+				return;
+			}
+			fs.write(index_html.data);
+		} catch (Error e) {
+			loge(e.message);
+			loge("Failed to deploy '%s'".printf(app_title));
+			return;
+		}
+
+		logi("Done!");
 	}
 
 	private void on_create_package_linux(GLib.SimpleAction action, GLib.Variant? param)

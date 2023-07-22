@@ -48,6 +48,14 @@ public class DeployDialog : Gtk.Dialog
 	public PropertyGridSet _android_set;
 	public Gtk.Box _android_box;
 
+	// HTML5 page.
+	public Gtk.Button _html5_deploy_button;
+	public Gtk.FileChooserButton _html5_output_path;
+	public ComboBoxMap _html5_config;
+	public Gtk.Entry _html5_app_title;
+	public PropertyGridSet _html5_set;
+	public Gtk.Box _html5_box;
+
 	// Linux page.
 	public Gtk.Button _linux_deploy_button;
 	public Gtk.FileChooserButton _linux_output_path;
@@ -225,6 +233,60 @@ public class DeployDialog : Gtk.Dialog
 		_android_box.pack_start(_android_deploy_button, false, true, 0);
 		_android_box.pack_start(_android_set, false, true, 0);
 
+		// HTML5 page.
+		_html5_deploy_button = make_deploy_button("HTML5");
+		_html5_deploy_button.clicked.connect(() => {
+				// Validate input fields.
+				string? output_path = _html5_output_path.get_filename();
+				if (output_path == null) {
+					loge("Select a valid output Destination");
+					return;
+				}
+
+				string app_title = _html5_app_title.text.strip();
+				if (app_title.length == 0) {
+					loge("Enter a valid Title");
+					return;
+				}
+
+				// Create the package.
+				GLib.Variant paramz[] =
+				{
+					(string)output_path,
+					int.parse(_html5_config.get_active_id()),
+					app_title
+				};
+
+				GLib.Application.get_default().activate_action("create-package-html5"
+					, new GLib.Variant.tuple(paramz));
+			});
+
+		_html5_output_path = new Gtk.FileChooserButton("Select folder", Gtk.FileChooserAction.SELECT_FOLDER);
+		_html5_config = make_deploy_config_combo();
+		_html5_app_title = new EntryText();
+		_html5_app_title.placeholder_text = "My Application";
+
+		_html5_set = new PropertyGridSet();
+		_html5_set.border_width = 12;
+
+		// HTML5 box.
+		_html5_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+		_html5_box.pack_start(_html5_deploy_button, false, true, 0);
+		_html5_box.pack_start(_html5_set, false, true, 0);
+
+		// HTML5 General page.
+		cv = new PropertyGrid();
+		cv.column_homogeneous = true;
+		cv.add_row("Destination", _html5_output_path);
+		cv.add_row("Config", _html5_config);
+		_html5_set.add_property_grid(cv, "Output");
+
+		// HTML5 Application.
+		cv = new PropertyGrid();
+		cv.column_homogeneous = true;
+		cv.add_row("Title", _html5_app_title);
+		_html5_set.add_property_grid(cv, "Application");
+
 		// Linux page.
 		_linux_deploy_button = make_deploy_button("Linux");
 		_linux_deploy_button.clicked.connect(() => {
@@ -336,6 +398,7 @@ public class DeployDialog : Gtk.Dialog
 		// Add pages.
 		_notebook = new Gtk.Notebook();
 		_notebook.append_page(_android_box, new Gtk.Label("Android"));
+		_notebook.append_page(_html5_box, new Gtk.Label("HTML5"));
 #if CROWN_PLATFORM_LINUX
 		_notebook.append_page(_linux_box, new Gtk.Label("Linux"));
 #elif CROWN_PLATFORM_WINDOWS
