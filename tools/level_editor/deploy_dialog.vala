@@ -74,14 +74,6 @@ public class DeployDialog : Gtk.Dialog
 
 		_editor = editor;
 
-		// Widgets
-		_android_set = new PropertyGridSet();
-		_android_set.border_width = 12;
-		_linux_set = new PropertyGridSet();
-		_linux_set.border_width = 12;
-		_windows_set = new PropertyGridSet();
-		_windows_set.border_width = 12;
-
 		// Android page.
 		_android_deploy_button = make_deploy_button("Android");
 		_android_deploy_button.clicked.connect(() => {
@@ -197,6 +189,9 @@ public class DeployDialog : Gtk.Dialog
 		_android_app_version_name = new Gtk.Entry();
 		_android_app_version_name.placeholder_text = "1.0";
 
+		_android_set = new PropertyGridSet();
+		_android_set.border_width = 12;
+
 		// Android Output grid.
 		PropertyGrid cv;
 		cv = new PropertyGrid();
@@ -263,6 +258,9 @@ public class DeployDialog : Gtk.Dialog
 		_linux_app_title = new EntryText();
 		_linux_app_title.placeholder_text = "My Application";
 
+		_linux_set = new PropertyGridSet();
+		_linux_set.border_width = 12;
+
 		// Linux box.
 		_linux_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		_linux_box.pack_start(_linux_deploy_button, false, true, 0);
@@ -313,6 +311,9 @@ public class DeployDialog : Gtk.Dialog
 		_windows_config = make_deploy_config_combo();
 		_windows_app_title = new EntryText();
 		_windows_app_title.placeholder_text = "My Application";
+
+		_windows_set = new PropertyGridSet();
+		_windows_set.border_width = 12;
 
 		// Windows box.
 		_windows_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
