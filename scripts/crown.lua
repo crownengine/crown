@@ -104,6 +104,7 @@ function crown_project(_name, _kind, _defines)
 
 		configuration { "wasm" }
 			kind "ConsoleApp"
+			targetextension ".js"
 			linkoptions {
 				"-pthread",               -- https://emscripten.org/docs/porting/pthreads.html#compiling-with-pthreads-enabled
 				"-lopenal",
