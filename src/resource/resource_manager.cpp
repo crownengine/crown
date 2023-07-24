@@ -123,7 +123,12 @@ void ResourceManager::reload(StringId64 type, StringId64 name)
 		return;
 
 	unload(type, name);
+
 	while (!try_load(PACKAGE_RESOURCE_NONE, type, name)) {
+		complete_requests();
+	}
+
+	while (!hash_map::has(_rm, id)) {
 		complete_requests();
 	}
 
