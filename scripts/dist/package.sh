@@ -135,7 +135,7 @@ if [ "${PLATFORM}" = "linux" ] || [ "${PLATFORM}" = "windows" ]; then
 			echo "fi"
 			# https://stackoverflow.com/questions/59895/how-to-get-the-source-directory-of-a-bash-script-from-within-the-script-itself
 			echo "DIR=\"\$( cd \"\$( dirname \"\$0\" )\" >/dev/null 2>&1 && pwd )\""
-			echo "cd \${DIR}/linux64/bin"
+			echo "cd \${DIR}/platforms/linux64/bin"
 			echo "export UBUNTU_MENUPROXY="
 			echo "./level-editor-release \${PROJECT} \${LEVEL}"
 		} >> build/crown
@@ -149,7 +149,7 @@ if [ "${PLATFORM}" = "linux" ] || [ "${PLATFORM}" = "windows" ]; then
 			echo "set PROJECT=%RETVAL%"
 			echo "set LEVEL=%2"
 			echo ""
-			echo "cd windows64\bin"
+			echo "cd platforms\windows64\bin"
 			echo "start level-editor-release.exe %PROJECT% %LEVEL%"
 			echo ""
 			echo "exit"
@@ -230,6 +230,8 @@ if [ "${PLATFORM}" = "android" ]; then
 fi
 
 # Create release package from build dir.
+mkdir build/platforms
+mv build/"${BINARIES_DIR}" build/platforms
 mv build "${PACKAGENAME}"
 ${ZIP} "${TARBALLNAME}" "${PACKAGENAME}"
 

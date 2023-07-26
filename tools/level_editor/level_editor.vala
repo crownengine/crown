@@ -3702,9 +3702,9 @@ public static int main(string[] args)
 	ii = 0;
 	string toolchain_paths[] =
 	{
+		"../../..",         // Relative path in release package.
+		"../../../samples", // Relative path in git worktree.
 		".",
-		"../..",
-		"../../../samples"
 	};
 	for (ii = 0; ii < toolchain_paths.length; ++ii) {
 		string path = Path.build_filename(toolchain_paths[ii], "core");
@@ -3721,9 +3721,8 @@ public static int main(string[] args)
 	// Find templates path, more desirable paths come first.
 	string templates_path[] =
 	{
+		"../../..", // Relative path in release package or git worktree.
 		".",
-		"../..",
-		"../../.."
 	};
 	for (ii = 0; ii < templates_path.length; ++ii) {
 		string path = Path.build_filename(templates_path[ii], "samples");
