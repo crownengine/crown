@@ -114,11 +114,9 @@ elif [ "${PLATFORM}" = "windows" ]; then
 	make tools-mingw-release64 MAKE_JOBS="${BUILD_JOBS}"
 fi
 
-# Copy license to build dir.
-cp LICENSE build
-
 if [ "${PLATFORM}" = "linux" ] || [ "${PLATFORM}" = "windows" ]; then
 	# Copy exporters, samples etc. to build dir.
+	cp    LICENSE             build
 	cp -r exporters           build
 	cp -r samples             build
 	mv    build/samples/core  build
@@ -233,6 +231,17 @@ fi
 mkdir build/platforms
 mv build/"${BINARIES_DIR}" build/platforms
 mv build "${PACKAGENAME}"
+
+# Add target platforms binaries to package.
+if [ "${PLATFORM}" = "linux" ] || [ "${PLATFORM}" = "windows" ]; then
+	for platform_tar in *.tar.gz wasm; do
+		if [ -f "${platform_tar}" ]; then
+			tar xf "${platform_tar}" --directory=./
+		fi
+	done
+fi
+
+# Compress package.
 ${ZIP} "${TARBALLNAME}" "${PACKAGENAME}"
 
 # Copy package to server.
