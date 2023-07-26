@@ -9,14 +9,16 @@ project "luac"
 	kind "ConsoleApp"
 	language "C"
 
+	links {
+		"lua"
+	}
+
 	configuration { "linux-*" }
 		links {
 			"m"
 		}
 
-	links {
-		"lua"
-	}
+	configuration { }
 
 	files {
 		LUA_DIR .. "src/luac.c",
