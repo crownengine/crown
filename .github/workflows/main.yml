@@ -67,8 +67,8 @@ jobs:
       run: |
         git clone https://github.com/emscripten-core/emsdk.git
         cd emsdk
-        ./emsdk install latest
-        ./emsdk activate latest
+        ./emsdk install 3.1.43
+        ./emsdk activate 3.1.43
     - name: wasm-make-debug
       run: |
         export EMSCRIPTEN=$GITHUB_WORKSPACE/emsdk/upstream/emscripten
