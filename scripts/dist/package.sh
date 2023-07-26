@@ -21,6 +21,11 @@ if [ "${PLATFORM}" = "android" ]; then
 		echo "Invalid architecture ${ARCH}"
 		exit 1
 	fi
+elif [ "${PLATFORM}" = "html5" ]; then
+	if [ "${ARCH}" != "wasm" ]; then
+		echo "Invalid architecture ${ARCH}"
+		exit 1
+	fi
 elif [ "${PLATFORM}" = "linux" ]; then
 	if [ "${ARCH}" != "x64" ]; then
 		echo "Invalid architecture ${ARCH}"
@@ -52,6 +57,8 @@ fi
 BINARIES_DIR="${PLATFORM}"64
 if [ "${PLATFORM}" = "android" ]; then
 	BINARIES_DIR="${PLATFORM}-${ARCH}"
+elif [ "${PLATFORM}" = "html5" ]; then
+	BINARIES_DIR="${ARCH}"
 fi
 
 # Destination folder.
@@ -76,19 +83,27 @@ if [ "${answer}" != "y" ] && [ "${answer}" != "Y" ]; then
 fi
 
 # Cleanup previous builds.
+make clean
 rm -rf "${TARBALLNAME}"
 rm -rf "${PACKAGENAME}"
 
 # Switch to desired tag.
-git checkout v"${VERSION}"
+if [ "${VERSION}" = "master" ]; then
+	git checkout "${VERSION}"
+else
+	git checkout v"${VERSION}"
+fi
 
 # Build engine and tools.
-make clean
 if [ "${PLATFORM}" = "android" ]; then
 	export ANDROID_NDK_ROOT="$HOME"/android-sdk/ndk/21.0.6113669
 	export ANDROID_NDK_ABI=23
 	make android-"${ARCH}"-development MAKE_JOBS="${BUILD_JOBS}"
 	make android-"${ARCH}"-release MAKE_JOBS="${BUILD_JOBS}"
+elif [ "${PLATFORM}" = "html5" ]; then
+	export EMSCRIPTEN="$HOME"/emsdk/upstream/emscripten
+	make wasm-development MAKE_JOBS="${BUILD_JOBS}"
+	make wasm-release MAKE_JOBS="${BUILD_JOBS}"
 elif [ "${PLATFORM}" = "linux" ]; then
 	make tools-linux-release64 MAKE_JOBS="${BUILD_JOBS}"
 	make linux-release64 MAKE_JOBS="${BUILD_JOBS}"
