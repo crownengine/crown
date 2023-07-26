@@ -67,7 +67,7 @@ fi
 
 TARBALLNAME="crown-${VERSION}-${PLATFORM}-${ARCH}.${TARBALLEXTENSION}"
 
-echo "Crown v${VERSION} will be packaged as ${TARBALLNAME}"
+echo "Crown '${VERSION}' will be packaged as '${TARBALLNAME}'"
 echo "Continue? [y/N]"
 read -r answer
 if [ "${answer}" != "y" ] && [ "${answer}" != "Y" ]; then
