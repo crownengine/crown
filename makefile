@@ -131,6 +131,11 @@ wasm-development: build/projects/wasm
 wasm-release: build/projects/wasm
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/wasm crown config=release
 
+build/projects/mingw32:
+	$(GENIE) --gfxapi=d3d11 --with-tools --compiler=mingw-gcc --with-32bit-compiler gmake
+build/mingw32/bin/luac: build/projects/mingw32
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw luac config=release32
+	mv $@-release $@
 build/mingw64/bin/texturec.exe:
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/bimg/.build/projects/gmake-mingw-gcc config=release64 texturec
 	cp -r 3rdparty/bimg/.build/win64_mingw-gcc/bin/texturecRelease.exe $@
@@ -189,6 +194,8 @@ level-editor-mingw-debug64: build/projects/mingw
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw level-editor config=debug64
 level-editor-mingw-release64: build/projects/mingw
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw level-editor config=release64
+
+tools-mingw-release32: build/mingw32/bin/luac
 
 tools-mingw-debug64: mingw-debug64 level-editor-mingw-debug64
 tools-mingw-release64: mingw-development64 level-editor-mingw-release64

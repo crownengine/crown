@@ -2,6 +2,7 @@
 -- Copyright (c) 2012-2023 Daniele Bartolini et al.
 -- SPDX-License-Identifier: MIT
 --
+-- Based on 3rdparty/bx/scripts/toolchain.lua by Branimir Karadzic.
 
 function toolchain(build_dir, lib_dir)
 
@@ -21,10 +22,20 @@ function toolchain(build_dir, lib_dir)
 		}
 	}
 
+	newoption {
+		trigger     = "with-32bit-compiler",
+		description = "Use 32-bit compiler instead 64-bit.",
+	}
+
 	if (_ACTION == nil) then return end
 
 	if _ACTION == "clean" then
 		os.rmdir(BUILD_DIR)
+	end
+
+	local compiler32bit = false
+	if _OPTIONS["with-32bit-compiler"] then
+		compiler32bit = true
 	end
 
 	if _ACTION == "gmake" then
@@ -94,8 +105,13 @@ function toolchain(build_dir, lib_dir)
 				os.exit(1)
 			end
 
-			premake.gcc.cc  = "$(MINGW)/bin/x86_64-w64-mingw32-gcc"
-			premake.gcc.cxx = "$(MINGW)/bin/x86_64-w64-mingw32-g++"
+			local mingwToolchain = "x86_64-w64-mingw32"
+			if compiler32bit then
+				mingwToolchain = "i686-w64-mingw32"
+			end
+
+			premake.gcc.cc  = "$(MINGW)/bin/" .. mingwToolchain .. "-gcc"
+			premake.gcc.cxx = "$(MINGW)/bin/" .. mingwToolchain .. "-g++"
 			premake.gcc.ar  = "$(MINGW)/bin/ar"
 			premake.valac.cc  = premake.gcc.cc
 			location(build_dir .. "projects/mingw")
