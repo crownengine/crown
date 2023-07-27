@@ -27,13 +27,15 @@ public class PropertyGrid : Gtk.Grid
 		_rows = 0;
 	}
 
-	public void add_row(string label, Gtk.Widget w)
+	public void add_row(string label, Gtk.Widget w, bool sensitive = true)
 	{
 		Gtk.Label l = new Label(label);
 		l.width_chars = 13;
 		l.set_alignment(1.0f, 0.5f);
+		l.sensitive = sensitive;
 
 		w.hexpand = true;
+		w.sensitive = sensitive;
 
 		this.attach(l, 0, (int)_rows);
 		this.attach(w, 1, (int)_rows);

@@ -27,6 +27,12 @@ public Gtk.Button make_deploy_button(string platform_name)
 	return btn;
 }
 
+#if CROWN_PLATFORM_WINDOWS
+public bool can_build_32bit_arm = false;
+#else
+public bool can_build_32bit_arm = true;
+#endif
+
 public class DeployDialog : Gtk.Dialog
 {
 	public RuntimeInstance _editor;
@@ -206,7 +212,7 @@ public class DeployDialog : Gtk.Dialog
 		cv.column_homogeneous = true;
 		cv.add_row("Destination", _android_output_path);
 		cv.add_row("Config", _android_config);
-		cv.add_row("ARMv7-A", _android_armv7);
+		cv.add_row("ARMv7-A", _android_armv7, can_build_32bit_arm);
 		cv.add_row("ARMv8-A", _android_armv8);
 		_android_set.add_property_grid(cv, "Output");
 
