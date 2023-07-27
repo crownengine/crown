@@ -15,12 +15,6 @@
 #include "resource/compile_options.inl"
 #include "resource/lua_resource.h"
 
-#if CROWN_DEBUG
-	#define LUAJIT_FLAGS "-bg" // Keep debug info
-#else
-	#define LUAJIT_FLAGS "-b"
-#endif
-
 namespace crown
 {
 namespace lua_resource
@@ -103,10 +97,24 @@ namespace lua_resource_internal
 		opts.absolute_path(lua_src, opts.source_path());
 		opts.temporary_path(lua_out, "lua");
 
+	#if CROWN_PLATFORM_LINUX
+		#define CROWN_32BIT_BIN_DIR "linux32"
+	#elif CROWN_PLATFORM_WINDOWS
+		#define CROWN_32BIT_BIN_DIR "windows32"
+	#else
+		#error "Unsupported platform"
+	#endif
+
+	#if CROWN_DEBUG
+		#define LUAJIT_FLAGS "-bg" // Keep debug info
+	#else
+		#define LUAJIT_FLAGS "-b"
+	#endif
+
 		const char *argv[16];
 
 		if (opts._platform == Platform::HTML5) {
-			argv[0] = EXE_PATH("../../linux32/bin/luac");
+			argv[0] = EXE_PATH("../../" CROWN_32BIT_BIN_DIR "/bin/luac");
 			argv[1] = "-o";
 			argv[2] = lua_out.c_str();
 			argv[3] = lua_src.c_str();
@@ -114,7 +122,7 @@ namespace lua_resource_internal
 		} else {
 			const char *luajit = EXE_PATH("luajit");
 			if (opts._platform == Platform::ANDROID)
-				luajit = EXE_PATH("../../linux32/bin/luajit");
+				luajit = EXE_PATH("../../" CROWN_32BIT_BIN_DIR "/bin/luajit");
 
 			argv[0] = luajit;
 			argv[1] = LUAJIT_FLAGS;
