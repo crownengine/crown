@@ -53,14 +53,6 @@ else
 	EXE_SUFFIX=
 fi
 
-# Build folder.
-BINARIES_DIR="${PLATFORM}"64
-if [ "${PLATFORM}" = "android" ]; then
-	BINARIES_DIR="${PLATFORM}-${ARCH}"
-elif [ "${PLATFORM}" = "html5" ]; then
-	BINARIES_DIR="${ARCH}"
-fi
-
 # Destination folder.
 PACKAGENAME=crown-"${VERSION}"
 
@@ -105,25 +97,106 @@ elif [ "${PLATFORM}" = "html5" ]; then
 	make wasm-development MAKE_JOBS="${BUILD_JOBS}"
 	make wasm-release MAKE_JOBS="${BUILD_JOBS}"
 elif [ "${PLATFORM}" = "linux" ]; then
+	make tools-linux-release32 MAKE_JOBS="${BUILD_JOBS}"
 	make tools-linux-release64 MAKE_JOBS="${BUILD_JOBS}"
 	make linux-release64 MAKE_JOBS="${BUILD_JOBS}"
 elif [ "${PLATFORM}" = "windows" ]; then
 	/c/Windows/System32/cmd.exe //C "scripts\\dist\\windows-release.bat"
+
+	# Build 64bit tools first.
 	export MINGW=/mingw64
-	export PATH="${PATH}:${MINGW}/bin"
+	export PATH="${MINGW}/bin:${PATH}"
 	make tools-mingw-release64 MAKE_JOBS="${BUILD_JOBS}"
+
+	# Copy required DLLs.
+	ldd build/mingw64/bin/level-editor-release.exe | grep '\/mingw.*\.dll' -o | xargs -I{} cp "{}" build/mingw64/bin
+
+	# Copy GTK-related executables.
+	cp /mingw64/bin/fc-cache.exe                    build/mingw64/bin
+	cp /mingw64/bin/fc-cat.exe                      build/mingw64/bin
+	cp /mingw64/bin/fc-list.exe                     build/mingw64/bin
+	cp /mingw64/bin/fc-match.exe                    build/mingw64/bin
+	cp /mingw64/bin/fc-pattern.exe                  build/mingw64/bin
+	cp /mingw64/bin/fc-query.exe                    build/mingw64/bin
+	cp /mingw64/bin/fc-scan.exe                     build/mingw64/bin
+	cp /mingw64/bin/fc-validate.exe                 build/mingw64/bin
+	cp /mingw64/bin/gdbus.exe                       build/mingw64/bin
+	cp /mingw64/bin/gdk-pixbuf-query-loaders.exe    build/mingw64/bin
+	cp /mingw64/bin/gspawn-win64-helper-console.exe build/mingw64/bin
+	cp /mingw64/bin/gspawn-win64-helper.exe         build/mingw64/bin
+	cp /mingw64/bin/gtk-query-immodules-3.0.exe     build/mingw64/bin
+	cp /mingw64/bin/gtk-update-icon-cache.exe       build/mingw64/bin
+
+	# Copy additional DLLs.
+	cp /mingw64/bin/liblzma-5.dll   build/mingw64/bin
+	cp /mingw64/bin/librsvg-2-2.dll build/mingw64/bin
+	cp /mingw64/bin/libxml2-2.dll   build/mingw64/bin
+
+	# Copy GDK pixbuf loaders.
+	mkdir -p build/mingw64/lib/gdk-pixbuf-2.0/2.10.0/loaders
+	cp -r /mingw64/lib/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-*.dll build/mingw64/lib/gdk-pixbuf-2.0/2.10.0/loaders
+	cp -r /mingw64/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache                 build/mingw64/lib/gdk-pixbuf-2.0/2.10.0
+
+	# Copy GLib schemas.
+	mkdir -p build/mingw64/share/glib-2.0/schemas
+	cp -r /mingw64/share/glib-2.0/schemas/gschemas.compiled build/mingw64/share/glib-2.0/schemas
+
+	# Copy Adwaita and hicolor icons.
+	mkdir -p build/mingw64/share/icons/Adwaita/scalable
+	cp -r /mingw64/share/icons/Adwaita/icon-theme.cache   build/mingw64/share/icons/Adwaita
+	cp -r /mingw64/share/icons/Adwaita/index.theme        build/mingw64/share/icons/Adwaita
+	cp -r /mingw64/share/icons/Adwaita/scalable/*         build/mingw64/share/icons/Adwaita/scalable
+	cp -r /mingw64/share/icons/hicolor                    build/mingw64/share/icons
+
+	# Switch to 32bit toolchain, re-generate projects and build 32bit tools.
+	export MINGW=/mingw32
+	export PATH="${MINGW}/bin:${PATH}"
+	make -B tools-mingw-release32 MAKE_JOBS="${BUILD_JOBS}"
+
+	# Rename mingw* to windows*.
+	cp -r build/mingw64/* build/windows64 # windows64 exists already, just copy mingw stuff into it (see: windows-release.bat).
+	rm -r build/mingw64
+	mv    build/mingw32   build/windows32
 fi
 
-if [ "${PLATFORM}" = "linux" ] || [ "${PLATFORM}" = "windows" ]; then
-	# Copy exporters, samples etc. to build dir.
-	cp    LICENSE             build
-	cp -r exporters           build
-	cp -r samples             build
-	mv    build/samples/core  build
+# Strip unnecessary files from build dir.
+find build -iname 'obj'               \
+	-o -iname     'projects'          \
+	-o -wholename 'android-*/bin/jit' \
+	-o -iname     '*.a'               \
+	-o -iname     '*.exp'             \
+	-o -iname     '*.ilk'             \
+	-o -iname     '*.lib'             \
+	-o -iname     'bgfx-*'            \
+	-o -iname     'bimg_decode-*'     \
+	-o -iname     'bimg_encode-*'     \
+	-o -iname     'bimg-*'            \
+	-o -iname     'bullet-*'          \
+	-o -iname     'bx-*'              \
+	| tr '\n' '\0'                    \
+	| xargs -0 -n1 rm -rf
 
+# Create release package from build dir.
+mv build platforms
+mkdir "${PACKAGENAME}"
+mv platforms "${PACKAGENAME}"
+
+if [ "${PLATFORM}" = "linux" ] || [ "${PLATFORM}" = "windows" ]; then
+	# Add target platforms binaries to package.
+	for platform_tar in *.tar.gz; do
+		if [ -f "${platform_tar}" ]; then
+			tar xf "${platform_tar}" --directory=./
+		fi
+	done
+
+	# Copy exporters, samples etc. to package dir.
+	cp    LICENSE   "${PACKAGENAME}"
+	cp -r exporters "${PACKAGENAME}"
+	cp -r samples   "${PACKAGENAME}"
+	mv    "${PACKAGENAME}"/samples/core "${PACKAGENAME}"
+
+	# Create script that launches the editor.
 	if [ "${PLATFORM}" = "linux" ]; then
-		# Create script that launches the editor.
-		rm build/crown
 		{
 			echo "#!/bin/sh"
 			echo "PROJECT=\$1"
@@ -136,11 +209,9 @@ if [ "${PLATFORM}" = "linux" ] || [ "${PLATFORM}" = "windows" ]; then
 			echo "cd \${DIR}/platforms/linux64/bin"
 			echo "export UBUNTU_MENUPROXY="
 			echo "./level-editor-release \${PROJECT} \${LEVEL}"
-		} >> build/crown
-		chmod +x build/crown
+		} > "${PACKAGENAME}"/crown
+		chmod +x "${PACKAGENAME}"/crown
 	elif [ "${PLATFORM}" = "windows" ]; then
-		# Create script that launches the editor.
-		rm build/crown.bat
 		{
 			echo "@echo off"
 			echo "call :ABSOLUTEPATH %1"
@@ -155,90 +226,8 @@ if [ "${PLATFORM}" = "linux" ] || [ "${PLATFORM}" = "windows" ]; then
 			echo ":ABSOLUTEPATH"
 			echo "  SET RETVAL=%~dpfn1"
 			echo "  EXIT /B"
-		} >> build/crown.bat
-
-		export MINGW=/mingw64
-		export PATH="${PATH}:${MINGW}/bin"
-
-		# Copy editor from MinGW build.
-		cp build/mingw64/bin/level-editor-release.exe build/windows64/bin
-
-		# Copy required DLLs.
-		ldd build/mingw64/bin/level-editor-release.exe | grep '\/mingw.*\.dll' -o | xargs -I{} cp "{}" build/windows64/bin
-
-		# Copy GTK-related executables.
-		cp /mingw64/bin/fc-cache.exe                    build/windows64/bin
-		cp /mingw64/bin/fc-cat.exe                      build/windows64/bin
-		cp /mingw64/bin/fc-list.exe                     build/windows64/bin
-		cp /mingw64/bin/fc-match.exe                    build/windows64/bin
-		cp /mingw64/bin/fc-pattern.exe                  build/windows64/bin
-		cp /mingw64/bin/fc-query.exe                    build/windows64/bin
-		cp /mingw64/bin/fc-scan.exe                     build/windows64/bin
-		cp /mingw64/bin/fc-validate.exe                 build/windows64/bin
-		cp /mingw64/bin/gdbus.exe                       build/windows64/bin
-		cp /mingw64/bin/gdk-pixbuf-query-loaders.exe    build/windows64/bin
-		cp /mingw64/bin/gspawn-win64-helper-console.exe build/windows64/bin
-		cp /mingw64/bin/gspawn-win64-helper.exe         build/windows64/bin
-		cp /mingw64/bin/gtk-query-immodules-3.0.exe     build/windows64/bin
-		cp /mingw64/bin/gtk-update-icon-cache.exe       build/windows64/bin
-
-		# Copy additional DLLs.
-		cp /mingw64/bin/liblzma-5.dll   build/windows64/bin
-		cp /mingw64/bin/librsvg-2-2.dll build/windows64/bin
-		cp /mingw64/bin/libxml2-2.dll   build/windows64/bin
-
-		# Copy GDK pixbuf loaders.
-		mkdir -p build/windows64/lib/gdk-pixbuf-2.0/2.10.0/loaders
-		cp -r /mingw64/lib/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-*.dll build/windows64/lib/gdk-pixbuf-2.0/2.10.0/loaders
-		cp -r /mingw64/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache                 build/windows64/lib/gdk-pixbuf-2.0/2.10.0
-
-		# Copy GLib schemas.
-		mkdir -p build/windows64/share/glib-2.0/schemas
-		cp -r /mingw64/share/glib-2.0/schemas/gschemas.compiled build/windows64/share/glib-2.0/schemas
-
-		# Copy Adwaita and hicolor icons.
-		mkdir -p build/windows64/share/icons/Adwaita/scalable
-		cp -r /mingw64/share/icons/Adwaita/icon-theme.cache   build/windows64/share/icons/Adwaita
-		cp -r /mingw64/share/icons/Adwaita/index.theme        build/windows64/share/icons/Adwaita
-		cp -r /mingw64/share/icons/Adwaita/scalable/*         build/windows64/share/icons/Adwaita/scalable
-		cp -r /mingw64/share/icons/hicolor                    build/windows64/share/icons
+		} > "${PACKAGENAME}"/crown.bat
 	fi
-fi
-
-# Strip unnecessary files from build dir.
-rm -r build/mingw64                     2> /dev/null
-rm -r build/projects                    2> /dev/null
-rm -r build/"${BINARIES_DIR}"/obj/      2> /dev/null
-rm    build/"${BINARIES_DIR}"/bin/*.a   2> /dev/null
-rm    build/"${BINARIES_DIR}"/bin/*.exp 2> /dev/null
-rm    build/"${BINARIES_DIR}"/bin/*.ilk 2> /dev/null
-rm    build/"${BINARIES_DIR}"/bin/*.lib 2> /dev/null
-
-for build_cfg in debug development release; do
-	rm build/"${BINARIES_DIR}"/bin/bgfx-"${build_cfg}".*        2> /dev/null
-	rm build/"${BINARIES_DIR}"/bin/bimg_decode-"${build_cfg}".* 2> /dev/null
-	rm build/"${BINARIES_DIR}"/bin/bimg_encode-"${build_cfg}".* 2> /dev/null
-	rm build/"${BINARIES_DIR}"/bin/bimg-"${build_cfg}".*        2> /dev/null
-	rm build/"${BINARIES_DIR}"/bin/bullet-"${build_cfg}".*      2> /dev/null
-	rm build/"${BINARIES_DIR}"/bin/bx-"${build_cfg}".*          2> /dev/null
-done
-
-if [ "${PLATFORM}" = "android" ]; then
-	rm -r build/"${BINARIES_DIR}"/bin/jit
-fi
-
-# Create release package from build dir.
-mkdir build/platforms
-mv build/"${BINARIES_DIR}" build/platforms
-mv build "${PACKAGENAME}"
-
-# Add target platforms binaries to package.
-if [ "${PLATFORM}" = "linux" ] || [ "${PLATFORM}" = "windows" ]; then
-	for platform_tar in *.tar.gz wasm; do
-		if [ -f "${platform_tar}" ]; then
-			tar xf "${platform_tar}" --directory=./
-		fi
-	done
 fi
 
 # Compress package.
