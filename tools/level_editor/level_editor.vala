@@ -3360,6 +3360,11 @@ public class LevelEditorApplication : Gtk.Application
 			GLib.File openal_dll_src = File.new_for_path(openal_name);
 			GLib.File openal_dll_dst = File.new_for_path(Path.build_filename(package_path, openal_name));
 			openal_dll_src.copy(openal_dll_dst, FileCopyFlags.OVERWRITE);
+
+			string lua_name = "lua51.dll";
+			GLib.File lua_dll_src = File.new_for_path(lua_name);
+			GLib.File lua_dll_dst = File.new_for_path(Path.build_filename(package_path, lua_name));
+			lua_dll_src.copy(lua_dll_dst, FileCopyFlags.OVERWRITE);
 		} catch (Error e) {
 			loge("%s".printf(e.message));
 			loge("Failed to deploy '%s'".printf(app_title));
