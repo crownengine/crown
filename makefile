@@ -167,11 +167,11 @@ build/projects/vs2019:
 	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools vs2019
 	$(GENIE) --gfxapi=d3d11 --with-tools --no-level-editor vs2019
 windows-debug64: build/projects/vs2019 build/windows64/bin/luajit.exe build/windows64/bin/texturec.exe build/windows64/bin/shaderc.exe
-	devenv.com build/projects/vs2019/crown.sln $(ARG_PREFIX)Build /Project crown "debug|x64"
+	devenv.com build/projects/vs2019/crown.sln $(ARG_PREFIX)Build "debug|x64" $(ARG_PREFIX)Project crown
 windows-development64: build/projects/vs2019 build/windows64/bin/luajit.exe build/windows64/bin/texturec.exe build/windows64/bin/shaderc.exe
-	devenv.com build/projects/vs2019/crown.sln $(ARG_PREFIX)Build /Project crown "development|x64"
+	devenv.com build/projects/vs2019/crown.sln $(ARG_PREFIX)Build "development|x64" $(ARG_PREFIX)Project crown
 windows-release64: build/projects/vs2019 build/windows64/bin/luajit.exe
-	devenv.com build/projects/vs2019/crown.sln $(ARG_PREFIX)Build /Project crown "release|x64"
+	devenv.com build/projects/vs2019/crown.sln $(ARG_PREFIX)Build "release|x64" $(ARG_PREFIX)Project crown
 
 level-editor-theme:
 	cd tools/level_editor/resources/theme/Adwaita && ./parse-sass.sh
