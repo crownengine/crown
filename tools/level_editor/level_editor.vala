@@ -3286,6 +3286,7 @@ public class LevelEditorApplication : Gtk.Application
 		} catch (Error e) {
 			loge(e.message);
 			loge("Failed to deploy '%s'".printf(app_title));
+			return;
 		}
 
 		logi("Done!");
@@ -3362,6 +3363,7 @@ public class LevelEditorApplication : Gtk.Application
 		} catch (Error e) {
 			loge("%s".printf(e.message));
 			loge("Failed to deploy '%s'".printf(app_title));
+			return;
 		}
 
 		logi("Done!");
