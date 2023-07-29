@@ -3195,8 +3195,8 @@ public class LevelEditorApplication : Gtk.Application
 			index_html += "\n    setStatus: (text) => { },";
 			index_html += "\n    monitorRunDependencies: (left) => { }";
 			index_html += "\n  };";
-			index_html += "\n  window.onerror = () => {";
-			index_html += "\n    if (text) console.error('onerror: ' + text);";
+			index_html += "\n  window.onerror = (event) => {";
+			index_html += "\n    console.error('onerror: ' + event.message);";
 			index_html += "\n  };";
 			index_html += "\n</script>";
 			index_html += "\n<script async type=\"text/javascript\" src=\"data.js\"></script>";
