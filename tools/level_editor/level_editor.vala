@@ -3135,7 +3135,7 @@ public class LevelEditorApplication : Gtk.Application
 			// Package bundle data with emscripten's file_packager.
 			args = new string[]
 			{
-				"file_packager.py",
+				"file_packager",
 				Path.build_path(Path.DIR_SEPARATOR_S, package_path, "data.bin"),
 				"--preload",
 				"./data",
