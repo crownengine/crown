@@ -101,6 +101,7 @@ jobs:
         sudo apt-get install libgtk-3-dev
         sudo add-apt-repository ppa:vala-team
         sudo apt-get install valac libgee-0.8-dev
+        sudo apt-get install libxml2-utils # xml-stripblanks
     - name: linux-make-debug64
       run: |
         make MAKE_JOBS=2 linux-debug64
