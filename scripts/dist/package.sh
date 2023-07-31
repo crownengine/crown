@@ -143,9 +143,11 @@ elif [ "${PLATFORM}" = "windows" ]; then
 
 	# Copy Adwaita and hicolor icons.
 	mkdir -p build/mingw64/share/icons/Adwaita/scalable
+	mkdir -p build/mingw64/share/icons/Adwaita/symbolic
 	cp -r /mingw64/share/icons/Adwaita/icon-theme.cache   build/mingw64/share/icons/Adwaita
 	cp -r /mingw64/share/icons/Adwaita/index.theme        build/mingw64/share/icons/Adwaita
 	cp -r /mingw64/share/icons/Adwaita/scalable/*         build/mingw64/share/icons/Adwaita/scalable
+	cp -r /mingw64/share/icons/Adwaita/symbolic/*         build/mingw64/share/icons/Adwaita/symbolic
 	cp -r /mingw64/share/icons/hicolor                    build/mingw64/share/icons
 
 	# Switch to 32bit toolchain, re-generate projects and build 32bit tools.
