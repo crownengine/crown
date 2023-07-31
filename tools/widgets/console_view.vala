@@ -250,9 +250,14 @@ public class ConsoleView : Gtk.Box
 				// Check whether the text under the mouse pointer has a link tag.
 				GLib.SList<unowned TextTag> tags = iter.get_tags();
 				foreach (var item in tags) {
-					string resource_name = item.get_data<string>("resource_name");
-					if (resource_name != null) {
-						GLib.Application.get_default().activate_action("open-resource", new GLib.Variant.string(resource_name));
+					string item_data;
+					if ((item_data = item.get_data<string>("uri")) != null) {
+						if (item_data.has_prefix("resource_id:"))
+							GLib.Application.get_default().activate_action("open-resource", new GLib.Variant.string(item_data[12:item_data.length]));
+						else if (item_data.has_prefix("file:"))
+							open_directory(item_data[5:item_data.length]);
+						else
+							GLib.AppInfo.launch_default_for_uri(item_data, null);
 					}
 				}
 			}
@@ -279,10 +284,8 @@ public class ConsoleView : Gtk.Box
 			// Check whether the text under the mouse pointer has a link tag.
 			GLib.SList<unowned TextTag> tags = iter.get_tags();
 			foreach (var item in tags) {
-				string resource_name = item.get_data<string>("resource_name");
-				if (resource_name != null) {
+				if (item.get_data<string>("uri") != null)
 					hovering = true;
-				}
 			}
 		}
 
@@ -320,8 +323,7 @@ public class ConsoleView : Gtk.Box
 		do {
 			// Search for occurrences of the ID string.
 			int id_index_orig = id_index;
-			id_index = message.index_of("#ID(", id_index);
-			if (id_index != -1) {
+			if ((id_index = message.index_of("#ID(", id_index_orig)) != -1) {
 				// If an occurrenct is found, insert the preceding text as usual.
 				string line_chunk = message.substring(id_index_orig, id_index - id_index_orig);
 				buffer.insert_with_tags(ref end_iter
@@ -331,10 +333,10 @@ public class ConsoleView : Gtk.Box
 					, null
 					);
 
-				// Try to extract the ID from the ID string.
+				// Try to extract the resource ID from #ID() argument.
 				int id_closing_parentheses = message.index_of(")", id_index + 4);
 				if (id_closing_parentheses == -1) {
-					// If the ID is malformed, insert the whole line as-is.
+					// Syntax error, insert the whole line as-is.
 					buffer.insert_with_tags(ref end_iter
 						, message.substring(id_index)
 						, -1
@@ -348,19 +350,59 @@ public class ConsoleView : Gtk.Box
 				string resource_name;
 				string resource_id = message.substring(id_index + 4, id_closing_parentheses - (id_index + 4));
 				_project.resource_id_to_name(out resource_name, resource_id);
-				// Create a tag for hyperlink.
-				Gtk.TextTag hyperlink = null;
-				hyperlink = buffer.create_tag(null, "underline", Pango.Underline.SINGLE, null);
-				hyperlink.set_data("resource_name", resource_name);
+
+				// Create a tag for link.
+				Gtk.TextTag link = null;
+				link = buffer.create_tag(null, "underline", Pango.Underline.SINGLE, null);
+				link.set_data("uri", "resource_id:%s".printf(resource_name));
 
 				buffer.insert_with_tags(ref end_iter
 					, resource_name
 					, -1
 					, buffer.tag_table.lookup(severity)
-					, hyperlink
+					, link
 					, null
 					);
 				id_index += 4 + resource_id.length;
+				continue;
+			} else if ((id_index = message.index_of("#FILE(", id_index_orig)) != -1) {
+				// If an occurrenct is found, insert the preceding text as usual.
+				string line_chunk = message.substring(id_index_orig, id_index - id_index_orig);
+				buffer.insert_with_tags(ref end_iter
+					, line_chunk
+					, line_chunk.length
+					, buffer.tag_table.lookup(severity)
+					, null
+					);
+
+				// Try to extract the path from #FILE() argument.
+				int id_closing_parentheses = message.index_of(")", id_index + 6);
+				if (id_closing_parentheses == -1) {
+					// Syntax error, insert the whole line as-is.
+					buffer.insert_with_tags(ref end_iter
+						, message.substring(id_index)
+						, -1
+						, buffer.tag_table.lookup(severity)
+						, null
+						);
+					break;
+				}
+
+				string file_path = message.substring(id_index + 6, id_closing_parentheses - (id_index + 6));
+
+				// Create a tag for link.
+				Gtk.TextTag link = null;
+				link = buffer.create_tag(null, "underline", Pango.Underline.SINGLE, null);
+				link.set_data("uri", "file:%s".printf(file_path));
+
+				buffer.insert_with_tags(ref end_iter
+					, file_path
+					, -1
+					, buffer.tag_table.lookup(severity)
+					, link
+					, null
+					);
+				id_index += 6 + file_path.length;
 				continue;
 			} else {
 				buffer.insert_with_tags(ref end_iter

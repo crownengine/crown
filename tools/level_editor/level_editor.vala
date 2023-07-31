@@ -3048,7 +3048,7 @@ public class LevelEditorApplication : Gtk.Application
 					return -1;
 				}
 
-				logi("Done!");
+				logi("Done: #FILE(%s)".printf(package_path));
 				return 0;
 			});
 	}
@@ -3217,7 +3217,7 @@ public class LevelEditorApplication : Gtk.Application
 			return;
 		}
 
-		logi("Done!");
+		logi("Done: #FILE(%s)".printf(package_path));
 	}
 
 	private void on_create_package_linux(GLib.SimpleAction action, GLib.Variant? param)
@@ -3289,7 +3289,7 @@ public class LevelEditorApplication : Gtk.Application
 			return;
 		}
 
-		logi("Done!");
+		logi("Done: #FILE(%s)".printf(package_path));
 	}
 
 	private void on_create_package_windows(GLib.SimpleAction action, GLib.Variant? param)
@@ -3371,7 +3371,7 @@ public class LevelEditorApplication : Gtk.Application
 			return;
 		}
 
-		logi("Done!");
+		logi("Done: #FILE(%s)".printf(package_path));
 	}
 
 	public void set_autosave_timer(uint minutes)
