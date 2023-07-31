@@ -5,7 +5,7 @@
 
 namespace Crown
 {
-const string CROWN_VERSION = "0.48.0";
+const string CROWN_VERSION = "0.49.0";
 
 #if CROWN_PLATFORM_LINUX
 const string ENGINE_DIR = ".";
