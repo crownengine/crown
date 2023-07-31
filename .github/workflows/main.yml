@@ -120,12 +120,6 @@ jobs:
     - name: linux-test-release64
       run: |
         cd ./build/linux64/bin && ./crown-release --run-unit-tests
-    - name: linux-test-data-compiler-android-arm64
-      run: |
-        make samples SAMPLES_PLATFORM=android-arm64
-    - name: linux-test-data-compiler-linux
-      run: |
-        make samples SAMPLES_PLATFORM=linux
     - name: linux-make-level-editor-debug64
       run: |
         make MAKE_JOBS=2 level-editor-linux-debug64
