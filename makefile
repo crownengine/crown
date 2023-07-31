@@ -114,9 +114,9 @@ build/projects/linux:
 	$(GENIE) --file=3rdparty/bgfx/scripts/genie.lua --with-tools --gcc=linux-gcc gmake
 	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools --gcc=linux-gcc gmake
 	$(GENIE) --gfxapi=gl32 --with-tools --compiler=linux-gcc gmake
-linux-debug64: build/projects/linux build/linux64/bin/luajit build/linux64/bin/texturec build/linux64/bin/shaderc
+linux-debug64: build/projects/linux build/linux64/bin/luajit
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux crown config=debug64
-linux-development64: build/projects/linux build/linux64/bin/luajit build/linux64/bin/texturec build/linux64/bin/shaderc
+linux-development64: build/projects/linux build/linux64/bin/luajit
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux crown config=development64
 linux-release64: build/projects/linux build/linux64/bin/luajit
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux crown config=release64
@@ -147,9 +147,9 @@ build/projects/mingw:
 	$(GENIE) --file=3rdparty/bgfx/scripts/genie.lua --with-tools --gcc=mingw-gcc gmake
 	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools --gcc=mingw-gcc gmake
 	$(GENIE) --gfxapi=d3d11 --with-tools --compiler=mingw-gcc gmake
-mingw-debug64: build/projects/mingw build/mingw64/bin/luajit.exe build/mingw64/bin/texturec.exe build/mingw64/bin/shaderc.exe
+mingw-debug64: build/projects/mingw build/mingw64/bin/luajit.exe
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw crown config=debug64
-mingw-development64: build/projects/mingw build/mingw64/bin/luajit.exe build/mingw64/bin/texturec.exe build/mingw64/bin/shaderc.exe
+mingw-development64: build/projects/mingw build/mingw64/bin/luajit.exe
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw crown config=development64
 mingw-release64: build/projects/mingw build/mingw64/bin/luajit.exe
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw crown config=release64
@@ -166,9 +166,9 @@ build/projects/vs2019:
 	$(GENIE) --file=3rdparty/bgfx/scripts/genie.lua --with-tools vs2019
 	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools vs2019
 	$(GENIE) --gfxapi=d3d11 --with-tools --no-level-editor vs2019
-windows-debug64: build/projects/vs2019 build/windows64/bin/luajit.exe build/windows64/bin/texturec.exe build/windows64/bin/shaderc.exe
+windows-debug64: build/projects/vs2019 build/windows64/bin/luajit.exe
 	devenv.com build/projects/vs2019/crown.sln $(ARG_PREFIX)Build "debug|x64" $(ARG_PREFIX)Project crown
-windows-development64: build/projects/vs2019 build/windows64/bin/luajit.exe build/windows64/bin/texturec.exe build/windows64/bin/shaderc.exe
+windows-development64: build/projects/vs2019 build/windows64/bin/luajit.exe
 	devenv.com build/projects/vs2019/crown.sln $(ARG_PREFIX)Build "development|x64" $(ARG_PREFIX)Project crown
 windows-release64: build/projects/vs2019 build/windows64/bin/luajit.exe
 	devenv.com build/projects/vs2019/crown.sln $(ARG_PREFIX)Build "release|x64" $(ARG_PREFIX)Project crown
@@ -184,11 +184,11 @@ level-editor-linux-release64:
 
 tools-linux-release32: build/linux32/bin/luajit build/linux32/bin/luac
 
-tools-linux-debug64: linux-debug64 level-editor-linux-debug64
-tools-linux-release64: linux-development64 level-editor-linux-release64
+tools-linux-debug64: linux-debug64 level-editor-linux-debug64 build/linux64/bin/texturec build/linux64/bin/shaderc
+tools-linux-release64: linux-development64 level-editor-linux-release64 build/linux64/bin/texturec build/linux64/bin/shaderc
 
-tools-windows-debug64: windows-debug64
-tools-windows-release64: windows-development64
+tools-windows-debug64: windows-debug64 build/windows64/bin/texturec.exe build/windows64/bin/shaderc.exe
+tools-windows-release64: windows-development64 build/windows64/bin/texturec.exe build/windows64/bin/shaderc.exe
 
 level-editor-mingw-debug64: build/projects/mingw
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw level-editor config=debug64
@@ -197,8 +197,8 @@ level-editor-mingw-release64: build/projects/mingw
 
 tools-mingw-release32: build/mingw32/bin/luac
 
-tools-mingw-debug64: mingw-debug64 level-editor-mingw-debug64
-tools-mingw-release64: mingw-development64 level-editor-mingw-release64
+tools-mingw-debug64: mingw-debug64 level-editor-mingw-debug64 build/mingw64/bin/texturec.exe build/mingw64/bin/shaderc.exe
+tools-mingw-release64: mingw-development64 level-editor-mingw-release64 build/mingw64/bin/texturec.exe build/mingw64/bin/shaderc.exe
 
 .PHONY: docs
 docs:
