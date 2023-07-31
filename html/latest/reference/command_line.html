@@ -3,16 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Command line reference &mdash; Crown Manual 0.47.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <title>Command line reference &mdash; Crown Manual 0.48.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
   <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
+    <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
       <script>
           var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'./',
-              VERSION:'0.47.0',
+              URL_ROOT:'../',
+              VERSION:'0.48.0',
               LANGUAGE:'en',
               COLLAPSE_INDEX:false,
               FILE_SUFFIX:'.html',
@@ -20,14 +20,14 @@
               SOURCELINK_SUFFIX: '.txt'
           };
       </script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/doctools.js"></script>
-    <script src="_static/js/theme.js"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="copyright" title="Copyright" href="copyright.html" />
-    <link rel="next" title="Glossary" href="glossary.html" />
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="copyright" title="Copyright" href="../copyright.html" />
+    <link rel="next" title="Lua API reference" href="../lua_api.html" />
     <link rel="prev" title="boot.config reference" href="boot_config.html" /> 
 </head>
 
@@ -36,13 +36,13 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html"><img src="_static/crown-logo-white.svg" class="logo" alt="Logo"/>
+            <a href="../index.html"><img src="../_static/crown-logo-white.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                0.47.0
+                0.48.0
               </div>
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -50,21 +50,22 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
-<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="basics.html">Basic concepts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="lua_api.html">Lua API reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="boot_config.html">boot.config reference</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Command line reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#options">Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basics.html">Basic concepts</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="boot_config.html">boot.config reference</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Command line reference</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#options">Options</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
-<li class="toctree-l1"><a class="reference internal" href="copyright.html">License</a></li>
 </ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="hackers/index.html">Hackers</a></li>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../lua_api.html">Lua API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../copyright.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hackers/index.html">Hackers</a></li>
 </ul>
 
         </div>
@@ -73,17 +74,18 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Crown Manual</a>
+          <a href="../index.html">Crown Manual</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">Reference</a> &raquo;</li>
       <li>Command line reference</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/command_line.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/reference/command_line.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -116,7 +118,11 @@
 <p class="last">The &lt;path&gt; must be absolute.</p>
 </dd>
 <dt><code class="docutils literal"><span class="pre">--data-dir</span> <span class="pre">&lt;path&gt;</span></code></dt>
-<dd><p class="first">Use &lt;path&gt; as the destination directory for compiled resources.</p>
+<dd><p class="first">Run with the data located at &lt;path&gt;.</p>
+<p class="last">The &lt;path&gt; must be absolute.</p>
+</dd>
+<dt><code class="docutils literal"><span class="pre">--bundle-dir</span> <span class="pre">&lt;path&gt;</span></code></dt>
+<dd><p class="first">Run with the bundles located at &lt;path&gt;.</p>
 <p class="last">The &lt;path&gt; must be absolute.</p>
 </dd>
 <dt><code class="docutils literal"><span class="pre">--boot-dir</span> <span class="pre">&lt;path&gt;</span></code></dt>
@@ -125,8 +131,10 @@
 </dd>
 <dt><code class="docutils literal"><span class="pre">--compile</span></code></dt>
 <dd><p class="first">Do a full compile of the resources.</p>
-<p class="last">When using this option you must also specify <code class="docutils literal"><span class="pre">--platform</span></code>, <code class="docutils literal"><span class="pre">--source-dir</span></code> and <code class="docutils literal"><span class="pre">--data-dir</span></code>.</p>
+<p class="last">When using this option you must also specify <code class="docutils literal"><span class="pre">--source-dir</span></code>.</p>
 </dd>
+<dt><code class="docutils literal"><span class="pre">--bundle</span></code></dt>
+<dd>Generate bundles after the data has been compiled.</dd>
 <dt><code class="docutils literal"><span class="pre">--platform</span> <span class="pre">&lt;platform&gt;</span></code></dt>
 <dd><p class="first">Compile resources for the given &lt;platform&gt;.
 Possible values for &lt;platform&gt; are:</p>
@@ -152,6 +160,8 @@ Possible values for &lt;platform&gt; are:</p>
 <dd><p class="first">Run the engine in server mode.</p>
 <p class="last">When using this option you must also specify <code class="docutils literal"><span class="pre">--source-dir</span></code>.</p>
 </dd>
+<dt><code class="docutils literal"><span class="pre">--window-rect</span> <span class="pre">&lt;x</span> <span class="pre">y</span> <span class="pre">w</span> <span class="pre">h&gt;</span></code></dt>
+<dd>Sets the main window’s position and size.</dd>
 <dt><code class="docutils literal"><span class="pre">--run-unit-tests</span></code></dt>
 <dd>Run unit tests and quit. Available only on <code class="docutils literal"><span class="pre">linux</span></code> and <code class="docutils literal"><span class="pre">windows</span></code>.</dd>
 </dl>
@@ -163,13 +173,13 @@ Possible values for &lt;platform&gt; are:</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="boot_config.html" class="btn btn-neutral float-left" title="boot.config reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="glossary.html" class="btn btn-neutral float-right" title="Glossary" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../lua_api.html" class="btn btn-neutral float-right" title="Lua API reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.</p>
+    <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
