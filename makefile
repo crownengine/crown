@@ -38,40 +38,41 @@ NDKCC64=$(NDKBIN)/aarch64-linux-android$(NDKABI)-clang
 
 build/android-arm/bin/libluajit.a:
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src HOST_CC="gcc -m32" CROSS=$(NDKCROSS) STATIC_CC=$(NDKCC) DYNAMIC_CC="$(NDKCC) -fPIC" TARGET_LD=$(NDKCC)
-	mkdir -p build/android-arm/bin
-	cp -r 3rdparty/luajit/src/libluajit.a build/android-arm/bin
-	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
+	-@install -m775 -D 3rdparty/luajit/src/libluajit.a $@
+	-@"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
 
 build/android-arm64/bin/libluajit.a:
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src CROSS=$(NDKCROSS64) STATIC_CC=$(NDKCC64) DYNAMIC_CC="$(NDKCC64) -fPIC" TARGET_LD=$(NDKCC64)
-	mkdir -p build/android-arm64/bin
-	cp -r 3rdparty/luajit/src/libluajit.a build/android-arm64/bin
-	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
+	-@install -m775 -D 3rdparty/luajit/src/libluajit.a $@
+	-@"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
 
 build/linux32/bin/luajit:
 	$(MAKE) -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src CC="gcc -m32" CCOPT="-O2 -fomit-frame-pointer -msse2" TARGET_SYS=Linux BUILDMODE=static
-	mkdir -p build/linux32/bin
-	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit build/linux32/bin
-	$(MAKE) -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
-
+	-@install -m775 -D 3rdparty/luajit/src/luajit $@
+	-@cp -r 3rdparty/luajit/src/jit build/linux32/bin
+	-@$(MAKE) -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
 build/linux64/bin/luajit:
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src CC="gcc -m64" CCOPT="-O2 -fomit-frame-pointer -msse2" TARGET_SYS=Linux BUILDMODE=static
-	mkdir -p build/linux64/bin
-	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit 3rdparty/luajit/src/libluajit.a build/linux64/bin
-	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
+	-@install -m775 -D 3rdparty/luajit/src/luajit $@
+	-@install -m664 -D 3rdparty/luajit/src/libluajit.a build/linux64/bin/libluajit.a
+	-@cp -r 3rdparty/luajit/src/jit build/linux64/bin
+	-@"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
 
 build/mingw64/bin/luajit.exe:
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src CC="$(MINGW)/bin/x86_64-w64-mingw32-gcc -m64" CCOPT="-O2 -fomit-frame-pointer -msse2" TARGET_SYS=Windows BUILDMODE=static
-	-$(MKDIR) "build/mingw64/bin"
-	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit.exe 3rdparty/luajit/src/libluajit.a build/mingw64/bin
+	-@install -m775 -D 3rdparty/luajit/src/luajit.exe $@
+	-@install -m664 -D 3rdparty/luajit/src/libluajit.a build/mingw64/bin/libluajit.a
+	-@cp -r 3rdparty/luajit/src/jit build/mingw64/bin
 	-@"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
 	-@rm 3rdparty/luajit/src/host/buildvm.exe
 	-@rm 3rdparty/luajit/src/host/minilua.exe
 
 build/windows64/bin/luajit.exe:
-	-$(MKDIR) "build/windows64/bin"
 	cd "3rdparty/luajit/src" && .\\msvcbuild.bat
-	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit.exe 3rdparty/luajit/src/lua51.dll 3rdparty/luajit/src/lua51.lib build/windows64/bin
+	-@install -m775 -D 3rdparty/luajit/src/luajit.exe $@
+	-@install -m664 -D 3rdparty/luajit/src/lua51.dll build/windows64/bin/lua51.dll
+	-@install -m664 -D 3rdparty/luajit/src/lua51.lib build/windows64/bin/lua51.lib
+	-@cp -r 3rdparty/luajit/src/jit build/windows64/bin
 	-@rm -f 3rdparty/luajit/src/buildvm.*
 	-@rm -f 3rdparty/luajit/src/jit/vmdef.lua
 	-@rm -f 3rdparty/luajit/src/lua51.*
@@ -80,125 +81,211 @@ build/windows64/bin/luajit.exe:
 	-@rm -f 3rdparty/luajit/src/luajit.lib
 	-@rm -f 3rdparty/luajit/src/minilua.*
 
+build/linux32/bin/luac: \
+	build/projects/linux
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux luac config=release32
+	-@install -m775 -D $@-release $@
+
+build/mingw32/bin/luac: \
+	build/projects/mingw32
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw luac config=release32
+	-@install -m775 -D $@-release $@
+
+build/linux64/bin/texturec: \
+	build/projects/linux
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/bimg/.build/projects/gmake-linux config=release64 texturec
+	-@install -m775 -D 3rdparty/bimg/.build/linux64_gcc/bin/texturecRelease $@
+build/linux64/bin/shaderc: \
+	build/projects/linux
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/bgfx/.build/projects/gmake-linux config=release64 shaderc
+	-@install -m775 -D 3rdparty/bgfx/.build/linux64_gcc/bin/shadercRelease $@
+
+build/mingw64/bin/texturec.exe: \
+	build/projects/mingw
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/bimg/.build/projects/gmake-mingw-gcc config=release64 texturec
+	-@install -m775 -D 3rdparty/bimg/.build/win64_mingw-gcc/bin/texturecRelease.exe $@
+build/mingw64/bin/shaderc.exe: \
+	build/projects/mingw
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/bgfx/.build/projects/gmake-mingw-gcc config=release64 shaderc
+	-@install -m775 -D 3rdparty/bgfx/.build/win64_mingw-gcc/bin/shadercRelease.exe $@
+
+build/windows64/bin/texturec.exe: \
+	build/projects/windows
+	devenv.com 3rdparty/bimg/.build/projects/vs2019/bimg.sln $(ARG_PREFIX)Build "Release|x64" $(ARG_PREFIX)Project texturec.vcxproj
+	-@install -m775 -D 3rdparty/bimg/.build/win64_vs2019/bin/texturecRelease.exe $@
+build/windows64/bin/shaderc.exe: \
+	build/projects/windows
+	devenv.com 3rdparty/bgfx/.build/projects/vs2019/bgfx.sln $(ARG_PREFIX)Build "Release|x64" $(ARG_PREFIX)Project shaderc.vcxproj
+	-@install -m775 -D 3rdparty/bgfx/.build/win64_vs2019/bin/shadercRelease.exe $@
+
 build/projects/android-arm:
 	$(GENIE) --gfxapi=gles3 --compiler=android-arm gmake
-android-arm-debug: build/projects/android-arm build/android-arm/bin/libluajit.a
+android-arm-debug:             \
+	build/projects/android-arm \
+	build/android-arm/bin/libluajit.a
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/android-arm crown config=debug
-android-arm-development: build/projects/android-arm build/android-arm/bin/libluajit.a
+android-arm-development:       \
+	build/projects/android-arm \
+	build/android-arm/bin/libluajit.a
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/android-arm crown config=development
-android-arm-release: build/projects/android-arm build/android-arm/bin/libluajit.a
+android-arm-release:           \
+	build/projects/android-arm \
+	build/android-arm/bin/libluajit.a
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/android-arm crown config=release
-android-arm: android-arm-debug android-arm-development android-arm-release
+android-arm:                \
+	android-arm-debug       \
+	android-arm-development \
+	android-arm-release
 
 build/projects/android-arm64:
 	$(GENIE) --gfxapi=gles3 --file=scripts/genie.lua --compiler=android-arm64 gmake
-android-arm64-debug: build/projects/android-arm64 build/android-arm64/bin/libluajit.a
+android-arm64-debug:             \
+	build/projects/android-arm64 \
+	build/android-arm64/bin/libluajit.a
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/android-arm64 crown config=debug
-android-arm64-development: build/projects/android-arm64 build/android-arm64/bin/libluajit.a
+android-arm64-development:       \
+	build/projects/android-arm64 \
+	build/android-arm64/bin/libluajit.a
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/android-arm64 crown config=development
-android-arm64-release: build/projects/android-arm64 build/android-arm64/bin/libluajit.a
+android-arm64-release:           \
+	build/projects/android-arm64 \
+	build/android-arm64/bin/libluajit.a
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/android-arm64 crown config=release
-android-arm64: android-arm64-debug android-arm64-development android-arm64-release
-
-build/linux32/bin/luac: build/projects/linux
-	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux luac config=release32
-	mv $@-release $@
-build/linux64/bin/texturec:
-	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/bimg/.build/projects/gmake-linux config=release64 texturec
-	cp -r 3rdparty/bimg/.build/linux64_gcc/bin/texturecRelease $@
-build/linux64/bin/shaderc:
-	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/bgfx/.build/projects/gmake-linux config=release64 shaderc
-	cp -r 3rdparty/bgfx/.build/linux64_gcc/bin/shadercRelease $@
+android-arm64:                \
+	android-arm64-debug       \
+	android-arm64-development \
+	android-arm64-release
 
 build/projects/linux:
 	$(GENIE) --file=3rdparty/bgfx/scripts/genie.lua --with-tools --gcc=linux-gcc gmake
 	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools --gcc=linux-gcc gmake
 	$(GENIE) --gfxapi=gl32 --with-tools --compiler=linux-gcc gmake
-linux-debug64: build/projects/linux build/linux64/bin/luajit
+linux-debug64:           \
+	build/projects/linux \
+	build/linux64/bin/luajit
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux crown config=debug64
-linux-development64: build/projects/linux build/linux64/bin/luajit
+linux-development64:     \
+	build/projects/linux \
+	build/linux64/bin/luajit
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux crown config=development64
-linux-release64: build/projects/linux build/linux64/bin/luajit
+linux-release64:         \
+	build/projects/linux \
+	build/linux64/bin/luajit
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux crown config=release64
-linux: linux-debug64 linux-development64 linux-release64
+linux:                  \
+	linux-debug64       \
+	linux-development64 \
+	linux-release64
 
 build/projects/wasm:
 	$(GENIE) --no-luajit --gfxapi=gles3 --compiler=wasm gmake
-wasm-debug: build/projects/wasm
+wasm-debug: \
+	build/projects/wasm
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/wasm crown config=debug
-wasm-development: build/projects/wasm
+wasm-development: \
+	build/projects/wasm
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/wasm crown config=development
-wasm-release: build/projects/wasm
+wasm-release: \
+	build/projects/wasm
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/wasm crown config=release
+wasm:                \
+	wasm-debug       \
+	wasm-development \
+	wasm-release
 
 build/projects/mingw32:
 	$(GENIE) --gfxapi=d3d11 --with-tools --compiler=mingw-gcc --with-32bit-compiler gmake
-build/mingw32/bin/luac: build/projects/mingw32
-	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw luac config=release32
-	mv $@-release $@
-build/mingw64/bin/texturec.exe:
-	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/bimg/.build/projects/gmake-mingw-gcc config=release64 texturec
-	cp -r 3rdparty/bimg/.build/win64_mingw-gcc/bin/texturecRelease.exe $@
-build/mingw64/bin/shaderc.exe:
-	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/bgfx/.build/projects/gmake-mingw-gcc config=release64 shaderc
-	cp -r 3rdparty/bgfx/.build/win64_mingw-gcc/bin/shadercRelease.exe $@
-
 build/projects/mingw:
 	$(GENIE) --file=3rdparty/bgfx/scripts/genie.lua --with-tools --gcc=mingw-gcc gmake
 	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools --gcc=mingw-gcc gmake
 	$(GENIE) --gfxapi=d3d11 --with-tools --compiler=mingw-gcc gmake
-mingw-debug64: build/projects/mingw build/mingw64/bin/luajit.exe
+mingw-debug64:           \
+	build/projects/mingw \
+	build/mingw64/bin/luajit.exe
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw crown config=debug64
-mingw-development64: build/projects/mingw build/mingw64/bin/luajit.exe
+mingw-development64:     \
+	build/projects/mingw \
+	build/mingw64/bin/luajit.exe
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw crown config=development64
-mingw-release64: build/projects/mingw build/mingw64/bin/luajit.exe
+mingw-release64:         \
+	build/projects/mingw \
+	build/mingw64/bin/luajit.exe
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw crown config=release64
-mingw: mingw-debug64 mingw-development64 mingw-release64
-
-build/windows64/bin/texturec.exe:
-	devenv.com 3rdparty/bimg/.build/projects/vs2019/bimg.sln $(ARG_PREFIX)Build "Release|x64" $(ARG_PREFIX)Project texturec.vcxproj
-	cp -r 3rdparty/bimg/.build/win64_vs2019/bin/texturecRelease.exe $@
-build/windows64/bin/shaderc.exe:
-	devenv.com 3rdparty/bgfx/.build/projects/vs2019/bgfx.sln $(ARG_PREFIX)Build "Release|x64" $(ARG_PREFIX)Project shaderc.vcxproj
-	cp -r 3rdparty/bgfx/.build/win64_vs2019/bin/shadercRelease.exe $@
+mingw:                  \
+	mingw-debug64       \
+	mingw-development64 \
+	mingw-release64
 
 build/projects/vs2019:
 	$(GENIE) --file=3rdparty/bgfx/scripts/genie.lua --with-tools vs2019
 	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools vs2019
 	$(GENIE) --gfxapi=d3d11 --with-tools --no-level-editor vs2019
-windows-debug64: build/projects/vs2019 build/windows64/bin/luajit.exe
+windows-debug64:          \
+	build/projects/vs2019 \
+	build/windows64/bin/luajit.exe
 	devenv.com build/projects/vs2019/crown.sln $(ARG_PREFIX)Build "debug|x64" $(ARG_PREFIX)Project crown
-windows-development64: build/projects/vs2019 build/windows64/bin/luajit.exe
+windows-development64:    \
+	build/projects/vs2019 \
+	build/windows64/bin/luajit.exe
 	devenv.com build/projects/vs2019/crown.sln $(ARG_PREFIX)Build "development|x64" $(ARG_PREFIX)Project crown
-windows-release64: build/projects/vs2019 build/windows64/bin/luajit.exe
+windows-release64:        \
+	build/projects/vs2019 \
+	build/windows64/bin/luajit.exe
 	devenv.com build/projects/vs2019/crown.sln $(ARG_PREFIX)Build "release|x64" $(ARG_PREFIX)Project crown
 
 level-editor-theme:
 	cd tools/level_editor/resources/theme/Adwaita && ./parse-sass.sh
 	cd tools/level_editor/resources && ./generate-resources.sh > resources.gresource.xml
 
-level-editor-linux-debug64:
+level-editor-linux-debug64: \
+	build/projects/linux
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux level-editor config=debug64
-level-editor-linux-release64:
+level-editor-linux-release64: \
+	build/projects/linux
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux level-editor config=release64
 
-tools-linux-release32: build/linux32/bin/luajit build/linux32/bin/luac
-
-tools-linux-debug64: linux-debug64 level-editor-linux-debug64 build/linux64/bin/texturec build/linux64/bin/shaderc
-tools-linux-release64: linux-development64 level-editor-linux-release64 build/linux64/bin/texturec build/linux64/bin/shaderc
-
-tools-windows-debug64: windows-debug64 build/windows64/bin/texturec.exe build/windows64/bin/shaderc.exe
-tools-windows-release64: windows-development64 build/windows64/bin/texturec.exe build/windows64/bin/shaderc.exe
-
-level-editor-mingw-debug64: build/projects/mingw
+level-editor-mingw-debug64: \
+	build/projects/mingw
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw level-editor config=debug64
-level-editor-mingw-release64: build/projects/mingw
+level-editor-mingw-release64: \
+	build/projects/mingw
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw level-editor config=release64
 
-tools-mingw-release32: build/mingw32/bin/luac
+tools-linux-release32:       \
+	build/linux32/bin/luajit \
+	build/linux32/bin/luac
+tools-linux-debug64:           \
+	build/linux64/bin/texturec \
+	build/linux64/bin/shaderc  \
+	linux-debug64              \
+	level-editor-linux-debug64
+tools-linux-release64:         \
+	build/linux64/bin/texturec \
+	build/linux64/bin/shaderc  \
+	linux-development64        \
+	level-editor-linux-release64
 
-tools-mingw-debug64: mingw-debug64 level-editor-mingw-debug64 build/mingw64/bin/texturec.exe build/mingw64/bin/shaderc.exe
-tools-mingw-release64: mingw-development64 level-editor-mingw-release64 build/mingw64/bin/texturec.exe build/mingw64/bin/shaderc.exe
+tools-windows-debug64:               \
+	build/windows64/bin/texturec.exe \
+	build/windows64/bin/shaderc.exe  \
+	windows-debug64
+tools-windows-release64:             \
+	build/windows64/bin/texturec.exe \
+	build/windows64/bin/shaderc.exe  \
+	windows-development64
+
+tools-mingw-release32: \
+	build/mingw32/bin/luac
+tools-mingw-debug64:               \
+	build/mingw64/bin/texturec.exe \
+	build/mingw64/bin/shaderc.exe  \
+	mingw-debug64                  \
+	level-editor-mingw-debug64
+tools-mingw-release64:             \
+	build/mingw64/bin/texturec.exe \
+	build/mingw64/bin/shaderc.exe  \
+	mingw-development64            \
+	level-editor-mingw-release64
 
 .PHONY: docs
 docs:
