@@ -52,11 +52,13 @@ if [ -z "${UNCRUSTIFY}" ]; then
 	UNCRUSTIFY=./scripts/uncrustify/bin/"${OS}"/uncrustify
 fi
 
-# Do uncrustify.
-echo "$3"
-${UNCRUSTIFY} -q -c "$1" -l "$2" -f "$3"           \
-	| fix_indentation_char                         \
-	| add_newline_before_namespace_closing_bracket \
-	| fix_semicolon_indentation                    \
-	> "$3".new                                     \
-	&& mv "$3".new "$3"
+if [ -n "$3" ]; then
+	# Do uncrustify.
+	echo "$3"
+	${UNCRUSTIFY} -q -c "$1" -l "$2" -f "$3"           \
+		| fix_indentation_char                         \
+		| add_newline_before_namespace_closing_bracket \
+		| fix_semicolon_indentation                    \
+		> "$3".new                                     \
+		&& mv "$3".new "$3"
+fi

@@ -6,9 +6,15 @@ format_src () {
 		| xargs -0 -n1 -P"$1" ./scripts/uncrustify/uncrustify-wrapper.sh scripts/uncrustify/cpp.cfg CPP
 }
 
-format_tools () {
-	find tools/ -iname '*.vala' -o -iname '*.c' \
-		| tr '\n' '\0'                          \
+format_tools_c () {
+	find tools/ -iname '*.c' \
+		| tr '\n' '\0'       \
+		| xargs -0 -n1 -P"$1" ./scripts/uncrustify/uncrustify-wrapper.sh scripts/uncrustify/cpp.cfg C
+}
+
+format_tools_vala () {
+	find tools/ -iname '*.vala' \
+		| tr '\n' '\0'          \
 		| xargs -0 -n1 -P"$1" ./scripts/uncrustify/uncrustify-wrapper.sh scripts/uncrustify/vala.cfg VALA
 }
 
@@ -43,6 +49,7 @@ done
 
 # Format all.
 format_src "${NUM_JOBS}"
+format_tools_c "${NUM_JOBS}"
 if [ "${ENABLE_TOOLS}" -eq 1 ]; then
-	format_tools "${NUM_JOBS}"
+	format_tools_vala "${NUM_JOBS}"
 fi
