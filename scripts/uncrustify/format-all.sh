@@ -3,19 +3,19 @@
 format_src () {
 	find src/ -iname '*.h' -o -iname '*.inl' -o -iname '*.cpp' \
 		| tr '\n' '\0'                                         \
-		| xargs -0 -n1 -P"$1" ./scripts/uncrustify/uncrustify-wrapper.sh scripts/uncrustify/cpp.cfg CPP
+		| xargs -0 -n1 -P"$1" ./scripts/uncrustify/uncrustify-wrapper.sh scripts/uncrustify/cpp.cfg
 }
 
 format_tools_c () {
 	find tools/ -iname '*.c' \
 		| tr '\n' '\0'       \
-		| xargs -0 -n1 -P"$1" ./scripts/uncrustify/uncrustify-wrapper.sh scripts/uncrustify/cpp.cfg C
+		| xargs -0 -n1 -P"$1" ./scripts/uncrustify/uncrustify-wrapper.sh scripts/uncrustify/cpp.cfg
 }
 
 format_tools_vala () {
 	find tools/ -iname '*.vala' \
 		| tr '\n' '\0'          \
-		| xargs -0 -n1 -P"$1" ./scripts/uncrustify/uncrustify-wrapper.sh scripts/uncrustify/vala.cfg VALA
+		| xargs -0 -n1 -P"$1" ./scripts/uncrustify/uncrustify-wrapper.sh scripts/uncrustify/vala.cfg
 }
 
 NUM_JOBS=1
