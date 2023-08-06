@@ -4,6 +4,10 @@ Changelog
 0.49.0 --- DD MMM YYYY
 ----------------------
 
+**Tools**
+
+* Fixed initial 'sensitivity' state in some widgets.
+
 0.48.0 --- *31 Jul 2023*
 ------------------------
 
