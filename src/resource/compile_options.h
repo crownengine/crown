@@ -39,7 +39,9 @@
 #define DATA_COMPILER_ASSERT_RESOURCE_EXISTS(type, name, opts) \
 	DATA_COMPILER_ASSERT(opts.resource_exists(type, name)      \
 		, opts                                                 \
-		, "Resource not found: '%s.%s'"                        \
+		, opts._server                                         \
+		? "Resource not found: " RESOURCE_ID_FMT_STR_PAIR      \
+		: "Resource not found: %s.%s"                          \
 		, name                                                 \
 		, type                                                 \
 		)
@@ -47,7 +49,9 @@
 #define DATA_COMPILER_ASSERT_FILE_EXISTS(name, opts) \
 	DATA_COMPILER_ASSERT(opts.file_exists(name)      \
 		, opts                                       \
-		, "File not found: '%s'"                     \
+		, opts._server                               \
+		? "File not found: #FILE(%s)"                \
+		: "File not found: %s"                       \
 		, name                                       \
 		)
 
@@ -66,6 +70,7 @@ struct CompileOptions
 	Platform::Enum _platform;
 	ResourceId _resource_id;
 	bool _bundle;
+	bool _server;
 
 	///
 	CompileOptions(File &output

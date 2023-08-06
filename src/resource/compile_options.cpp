@@ -15,6 +15,7 @@
 #include "core/filesystem/reader_writer.inl"
 #include "core/guid.h"
 #include "core/memory/temp_allocator.inl"
+#include "core/option.inl"
 #include "core/os.h"
 #include "core/process.h"
 #include "core/strings/dynamic_string.inl"
@@ -47,6 +48,7 @@ CompileOptions::CompileOptions(File &output
 	, _platform(platform)
 	, _resource_id(res_id)
 	, _bundle(bundle)
+	, _server(_data_compiler._options->_server)
 {
 }
 
