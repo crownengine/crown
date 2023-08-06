@@ -286,7 +286,8 @@ void Gui::text_3d(const Vector3 &pos, u32 font_size, const char *str, StringId64
 		u32 state = 0;
 		u32 code_point = 0;
 		if (utf8::decode(&state, &code_point, str[i]) == UTF8_ACCEPT) {
-			const GlyphData *glyph = font_resource::glyph(fr, code_point);
+			const GlyphData deffault_glyph = {};
+			const GlyphData *glyph = font_resource::glyph(fr, code_point, &deffault_glyph);
 
 			const f32 baseline = glyph->height - glyph->y_offset;
 

@@ -21,21 +21,18 @@ namespace crown
 {
 namespace font_resource
 {
-	const GlyphData *glyph(const FontResource *fr, CodePoint cp)
+	const GlyphData *glyph(const FontResource *fr, CodePoint cp, const GlyphData *deffault)
 	{
-		CE_ASSERT(cp < fr->num_glyphs, "Index out of bounds");
-
-		const CodePoint *pts  = (CodePoint *)&fr[1];
-		const GlyphData *data = (GlyphData *)(pts + fr->num_glyphs);
+		const CodePoint *codes  = (CodePoint *)&fr[1];
+		const GlyphData *glyphs = (GlyphData *)(codes + fr->num_glyphs);
 
 		// FIXME: Can do binary search
 		for (u32 i = 0; i < fr->num_glyphs; ++i) {
-			if (pts[i] == cp)
-				return &data[i];
+			if (codes[i] == cp)
+				return &glyphs[i];
 		}
 
-		CE_FATAL("Glyph not found");
-		return NULL;
+		return deffault;
 	}
 
 } // namespace font_resource

@@ -4,6 +4,10 @@ Changelog
 0.49.0 --- DD MMM YYYY
 ----------------------
 
+**Runtime**
+
+* Fixed a crash when rendering text with a font missing some of the glyphs.
+
 **Tools**
 
 * Fixed initial 'sensitivity' state in some widgets.
