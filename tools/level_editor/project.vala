@@ -618,6 +618,7 @@ public class Project
 
 		Gtk.FileFilter? current_filter = src.get_filter();
 		GLib.SList<string> filenames = src.get_filenames();
+		src.destroy();
 
 		// Find importer callback
 		unowned ImporterDelegate? importer = null;
@@ -631,11 +632,7 @@ public class Project
 		if (importer == null)
 			importer = _all_extensions_importer_data.delegate;
 
-		// Import
-		int ec = importer(this, out_dir, filenames);
-
-		src.destroy();
-		return ec;
+		return importer(this, out_dir, filenames);
 	}
 
 	public void delete_tree(GLib.File file) throws Error
