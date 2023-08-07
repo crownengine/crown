@@ -1720,7 +1720,7 @@ public class LevelEditorApplication : Gtk.Application
 						, DialogFlags.MODAL
 						, MessageType.QUESTION
 						, Gtk.ButtonsType.NONE
-						, "A file named `%s` already exists.\nOverwrite?".printf(_project.basename(path))
+						, "A file named `%s` already exists.\nOverwrite?".printf(GLib.Path.get_basename(path))
 						);
 
 					Gtk.Widget btn;

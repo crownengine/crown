@@ -380,12 +380,6 @@ public class Project
 		return _files;
 	}
 
-	public string basename(string path)
-	{
-		int ls = path.last_index_of("/");
-		return ls == -1 ? path : path.substring(ls + 1);
-	}
-
 	public string extension(string path)
 	{
 		string bn = basename(path);
