@@ -1958,15 +1958,15 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		string destination_dir = param.get_string();
 
-		int ec = _project.import(destination_dir != "" ? destination_dir : null, this.active_window);
-		if (ec != 0) {
+		ImportResult ec = _project.import(destination_dir != "" ? destination_dir : null, this.active_window);
+		if (ec == ImportResult.ERROR) {
 			loge("Failed to import resource(s)");
 			return;
+		} else if (ec == ImportResult.SUCCESS) {
+			_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
+					_data_compiler.compile.end(res);
+				});
 		}
-
-		_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
-				_data_compiler.compile.end(res);
-			});
 	}
 
 	private void on_preferences(GLib.SimpleAction action, GLib.Variant? param)

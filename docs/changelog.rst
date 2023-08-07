@@ -11,6 +11,7 @@ Changelog
 **Tools**
 
 * Fixed initial 'sensitivity' state in some widgets.
+* Fixed erratic messages when importing assets and improved import procedure robustness.
 
 0.48.0 --- *31 Jul 2023*
 ------------------------

@@ -9,7 +9,7 @@ namespace Crown
 {
 public class SoundResource
 {
-	public static int import(Project project, string destination_dir, SList<string> filenames)
+	public static ImportResult import(Project project, string destination_dir, SList<string> filenames)
 	{
 		foreach (unowned string filename_i in filenames) {
 			GLib.File file_src = File.new_for_path(filename_i);
@@ -22,6 +22,7 @@ public class SoundResource
 				file_src.copy(file_dst, FileCopyFlags.OVERWRITE);
 			} catch (Error e) {
 				loge(e.message);
+				return ImportResult.ERROR;
 			}
 
 			Hashtable sound = new Hashtable();
@@ -30,7 +31,7 @@ public class SoundResource
 			SJSON.save(sound, Path.build_filename(project.source_dir(), resource_path) + ".sound");
 		}
 
-		return 0;
+		return ImportResult.SUCCESS;
 	}
 }
 

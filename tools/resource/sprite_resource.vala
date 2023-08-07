@@ -7,7 +7,7 @@ namespace Crown
 {
 public class SpriteResource
 {
-	public static int import(Project project, string destination_dir, SList<string> filenames)
+	public static ImportResult import(Project project, string destination_dir, SList<string> filenames)
 	{
 		Hashtable importer_settings = null;
 		string importer_settings_path = null;
@@ -102,6 +102,7 @@ public class SpriteResource
 				file_src.copy(file_dst, FileCopyFlags.OVERWRITE);
 			} catch (Error e) {
 				loge(e.message);
+				return ImportResult.ERROR;
 			}
 
 			Database db = new Database(project);
@@ -273,7 +274,7 @@ public class SpriteResource
 			db.save(Path.build_filename(project.source_dir(), resource_path + ".unit"), unit_id);
 		}
 
-		return 0;
+		return ImportResult.SUCCESS;
 	}
 }
 

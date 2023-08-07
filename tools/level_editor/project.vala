@@ -8,11 +8,18 @@ using Gee;
 
 namespace Crown
 {
+public enum ImportResult
+{
+	SUCCESS, ///< Data imported successfully.
+	ERROR,   ///< Error during import or elsewhere.
+	CANCEL   ///< User cancelled the import.
+}
+
 public class Project
 {
 	public const string LEVEL_EDITOR_TEST_NAME = "_level_editor_test";
 
-	public delegate int ImporterDelegate(Project project, string destination_dir, SList<string> filenames);
+	public delegate ImportResult ImporterDelegate(Project project, string destination_dir, SList<string> filenames);
 
 	[Compact]
 	public struct ImporterData
@@ -465,7 +472,7 @@ public class Project
 		return Path.build_filename(prefix, resource_path);
 	}
 
-	public static int import_all_extensions(Project project, string destination_dir, SList<string> filenames)
+	public static ImportResult import_all_extensions(Project project, string destination_dir, SList<string> filenames)
 	{
 		Gee.ArrayList<string> paths = new Gee.ArrayList<string>();
 		foreach (var item in filenames)
@@ -477,12 +484,12 @@ public class Project
 				return strcmp(a[ext_a:a.length], b[ext_b:b.length]);
 			});
 
-		int success = 0;
-		while (paths.size != 0 && success == 0) {
+		int result = 0;
+		while (paths.size != 0 && result == ImportResult.SUCCESS) {
 			// Find importer for the first file in the list of selected filenames.
 			ImporterData? importer = project.find_importer_for_path(paths[0]);
 			if (importer == null)
-				return -1;
+				return ImportResult.ERROR;
 
 			// Create the list of all filenames importable by importer.
 			Gee.ArrayList<string> importables = new Gee.ArrayList<string>();
@@ -501,17 +508,17 @@ public class Project
 			// If importables is empty, filenames must have been filled with
 			// un-importable filenames...
 			if (importables.size == 0)
-				return -1;
+				return ImportResult.ERROR;
 
 			// Convert importables to SList<string> to be used as delegate param.
 			SList<string> importables_list = new SList<string>();
 			foreach (var item in importables)
 				importables_list.append(item);
 
-			success = importer.delegate(project, destination_dir, importables_list);
+			result = importer.delegate(project, destination_dir, importables_list);
 		}
 
-		return success;
+		return result;
 	}
 
 	// Returns a Gtk.FileFilter based on file @a extensions list.
@@ -571,7 +578,7 @@ public class Project
 		return null;
 	}
 
-	public int import(string? destination_dir, Gtk.Window? parent_window = null)
+	public ImportResult import(string? destination_dir, Gtk.Window? parent_window = null)
 	{
 		Gtk.FileChooserDialog src = new Gtk.FileChooserDialog("Import..."
 			, parent_window
@@ -589,7 +596,7 @@ public class Project
 
 		if (src.run() != (int)ResponseType.ACCEPT) {
 			src.destroy();
-			return -1;
+			return ImportResult.CANCEL;
 		}
 
 		string out_dir = "";
@@ -607,7 +614,7 @@ public class Project
 			if (dst.run() != (int)ResponseType.ACCEPT) {
 				dst.destroy();
 				src.destroy();
-				return -1;
+				return ImportResult.CANCEL;
 			}
 
 			out_dir = dst.get_filename();
