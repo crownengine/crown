@@ -3,10 +3,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-using Cairo;
-using Gdk;
-using Gtk;
-
 namespace Crown
 {
 public enum Pivot
