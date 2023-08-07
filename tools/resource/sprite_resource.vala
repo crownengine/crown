@@ -11,17 +11,31 @@ public class SpriteResource
 	{
 		Hashtable importer_settings = null;
 		string importer_settings_path = null;
+		string image_path;
+		string image_type;
+		string image_name;
 		{
 			GLib.File file_src = File.new_for_path(filenames.nth_data(0));
-			GLib.File file_dst = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
+			image_path = file_src.get_path();
+			image_type = image_path.substring(image_path.last_index_of_char('.') + 1
+				, image_path.length - image_path.last_index_of_char('.') - 1
+				);
 
+			GLib.File file_dst = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
 			string resource_filename = project._source_dir.get_relative_path(file_dst);
 			string resource_path     = resource_filename.substring(0, resource_filename.last_index_of_char('.'));
 
 			importer_settings_path = Path.build_filename(project.source_dir(), resource_path) + ".importer_settings";
+
+			int last_slash = resource_path.last_index_of_char('/');
+			if (last_slash == -1)
+				image_name = resource_path;
+			else
+				image_name = resource_path.substring(last_slash + 1, resource_path.length - last_slash - 1);
 		}
 
-		SpriteImportDialog dlg = new SpriteImportDialog(filenames.nth_data(0));
+		SpriteImportDialog dlg = new SpriteImportDialog(image_path, image_name);
+		dlg._unit_name.sensitive = filenames.length() == 1;
 		dlg.show_all();
 
 		if (File.new_for_path(importer_settings_path).query_exists()) {
@@ -69,13 +83,19 @@ public class SpriteResource
 		string actor_class             = (string)dlg.actor_class.value;
 		bool lock_rotation_y           = dlg.lock_rotation_y.active;
 		double mass                    = (double)dlg.mass.value;
+		image_name                     = dlg._unit_name.value;
 
 		dlg.destroy();
 
 		foreach (unowned string filename_i in filenames) {
 			GLib.File file_src = File.new_for_path(filename_i);
-			GLib.File file_dst = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
+			string resource_basename;
+			if (filenames.length() == 1)
+				resource_basename = image_name + "." + image_type;
+			else
+				resource_basename = file_src.get_basename();
 
+			GLib.File file_dst = File.new_for_path(Path.build_filename(destination_dir, resource_basename));
 			string resource_filename = project._source_dir.get_relative_path(file_dst);
 			string resource_path     = resource_filename.substring(0, resource_filename.last_index_of_char('.'));
 			string resource_name     = ResourceId.resource_name(resource_path);

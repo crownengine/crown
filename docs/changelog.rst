@@ -10,6 +10,7 @@ Changelog
 
 **Tools**
 
+* Added the ability to rename a sprite in the Sprite Importer.
 * Fixed initial 'sensitivity' state in some widgets.
 * Fixed erratic messages when importing assets and improved import procedure robustness.
 

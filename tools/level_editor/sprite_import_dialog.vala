@@ -92,6 +92,7 @@ public class SpriteImportDialog : Gtk.Dialog
 	public Gtk.ScrolledWindow _scrolled_window;
 	public Gtk.DrawingArea _preview;
 
+	public EntryResourceBasename _unit_name;
 	public Gtk.Label resolution;
 	public EntryVector2 cells;
 	public Gtk.CheckButton cell_wh_auto;
@@ -121,14 +122,14 @@ public class SpriteImportDialog : Gtk.Dialog
 	public Gtk.CheckButton lock_rotation_y;
 
 	// Widgets
-	public SpriteImportDialog(string png)
+	public SpriteImportDialog(string image_path, string unit_name)
 	{
 		this.border_width = 4;
 		this.title = "Import Sprite...";
 		this.set_icon_name(CROWN_ICON_NAME);
 
 		try {
-			_pixbuf = new Gdk.Pixbuf.from_file(png);
+			_pixbuf = new Gdk.Pixbuf.from_file(image_path);
 		} catch (GLib.Error e) {
 			loge(e.message);
 		}
@@ -292,6 +293,8 @@ public class SpriteImportDialog : Gtk.Dialog
 				return Gdk.EVENT_STOP;
 			});
 
+		_unit_name = new EntryResourceBasename(unit_name);
+
 		resolution = new Gtk.Label(_pixbuf.width.to_string() + " × " + _pixbuf.height.to_string());
 		resolution.halign = Gtk.Align.START;
 
@@ -423,6 +426,10 @@ public class SpriteImportDialog : Gtk.Dialog
 		sprite_set.border_width = 6;
 
 		PropertyGrid cv;
+		cv = new PropertyGrid();
+		cv.add_row("Name", _unit_name);
+		sprite_set.add_property_grid(cv, "Unit");
+
 		cv = new PropertyGrid();
 		cv.add_row("Resolution", resolution);
 		cv.add_row("Cells", cells);
