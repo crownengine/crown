@@ -380,13 +380,6 @@ public class Project
 		return _files;
 	}
 
-	public string extension(string path)
-	{
-		string bn = basename(path);
-		int ld = bn.last_index_of(".");
-		return (ld == -1 || ld == 0) ? "" : bn.substring(ld + 1);
-	}
-
 	public void add_file(string path)
 	{
 		string type = extension(path);
