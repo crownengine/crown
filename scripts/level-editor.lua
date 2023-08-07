@@ -64,7 +64,8 @@ project "level-editor"
 	}
 
 	linkoptions {
-		"-lm"
+		"-lm",
+		"-lfreetype",
 	}
 
 	buildoptions_vala {
@@ -77,11 +78,13 @@ project "level-editor"
 	}
 
 	buildoptions {
-		"-I" .. CROWN_DIR .. "3rdparty/tinyexpr"
+		"-I" .. CROWN_DIR .. "3rdparty/tinyexpr",
+		"-I" .. CROWN_DIR .. "3rdparty/stb",
 	}
 
 	files {
 		CROWN_DIR .. "tools/**.vala",
+		CROWN_DIR .. "tools/**.c",
 		CROWN_DIR .. "tools/level_editor/resources/resources.gresource.xml",
 		CROWN_DIR .. "3rdparty/tinyexpr/tinyexpr.c",
 	}

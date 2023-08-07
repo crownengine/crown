@@ -170,19 +170,31 @@ public class SJSON
 				string guid_a_str;
 				string guid_b_str;
 
-				if (obj_a.has_key("id"))
-					guid_a_str = (string)obj_a["id"];
-				else if (obj_a.has_key("_guid"))
+				if (obj_a.has_key("id")) {
+					Value? val = obj_a["id"];
+					if (val.holds(typeof(string)))
+						guid_a_str = (string)val;
+					else
+						// The 'id' key has been used for something else than a Guid. Font files are
+						// an example of the 'id' key used to store the codepoint of a glyph.
+						return 0;
+				} else if (obj_a.has_key("_guid")) {
 					guid_a_str = (string)obj_a["_guid"];
-				else
+				} else {
 					return 0;
+				}
 
-				if (obj_b.has_key("id"))
-					guid_b_str = (string)obj_b["id"];
-				else if (obj_b.has_key("_guid"))
+				if (obj_b.has_key("id")) {
+					Value? val = obj_b["id"];
+					if (val.holds(typeof(string)))
+						guid_b_str = (string)val;
+					else
+						return 0; // See comment above.
+				} else if (obj_b.has_key("_guid")) {
 					guid_b_str = (string)obj_b["_guid"];
-				else
+				} else {
 					return 0;
+				}
 
 				Guid guid_a = Guid.parse(guid_a_str);
 				Guid guid_b = Guid.parse(guid_b_str);

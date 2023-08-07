@@ -10,6 +10,7 @@ Changelog
 
 **Tools**
 
+* Added a TrueType and OpenType Font Importer.
 * Added the ability to rename a sprite in the Sprite Importer.
 * Added a popup menu to quickly access some resource-related functionalities directly from the Console.
 * Fixed initial 'sensitivity' state in some widgets.

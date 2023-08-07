@@ -644,6 +644,7 @@ public class LevelEditorApplication : Gtk.Application
 		_project.register_importer("Mesh", { "mesh" }, MeshResource.import, 1.0);
 		_project.register_importer("Sound", { "wav" }, SoundResource.import, 2.0);
 		_project.register_importer("Texture", { "png", "tga", "dds", "ktx", "pvr" }, TextureResource.import, 2.0);
+		_project.register_importer("Font", { "ttf", "otf" }, FontResource.import, 3.0);
 
 		uint32 undo_redo_size = DEFAULT_UNDO_REDO_MAX_SIZE;
 		if (_settings.has_key("preferences")) {
