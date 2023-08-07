@@ -78,7 +78,7 @@ public class SpriteResource
 
 			string resource_filename = project._source_dir.get_relative_path(file_dst);
 			string resource_path     = resource_filename.substring(0, resource_filename.last_index_of_char('.'));
-			string resource_name     = project.resource_path_to_resource_name(resource_path);
+			string resource_name     = ResourceId.resource_name(resource_path);
 
 			SJSON.save(importer_settings, Path.build_filename(project.source_dir(), resource_path) + ".importer_settings");
 
@@ -109,7 +109,7 @@ public class SpriteResource
 
 			Guid texture_id = Guid.new_guid();
 			db.create(texture_id, "texture");
-			db.set_property_string(texture_id, "source", project.resource_path_to_resource_name(resource_filename));
+			db.set_property_string(texture_id, "source", ResourceId.resource_name(resource_filename));
 			db.set_property_bool  (texture_id, "generate_mips", false);
 			db.set_property_bool  (texture_id, "normal_map", false);
 

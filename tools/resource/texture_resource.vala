@@ -29,7 +29,7 @@ public class TextureResource
 
 			Guid texture_id = Guid.new_guid();
 			db.create(texture_id, "texture");
-			db.set_property_string(texture_id, "source", project.resource_path_to_resource_name(resource_filename));
+			db.set_property_string(texture_id, "source", ResourceId.resource_name(resource_filename));
 			db.set_property_bool  (texture_id, "generate_mips", true);
 			db.set_property_bool  (texture_id, "normal_map", false);
 

@@ -98,7 +98,7 @@ public class MeshResource
 
 			string resource_filename = project._source_dir.get_relative_path(file_dst);
 			string resource_path     = resource_filename.substring(0, resource_filename.last_index_of_char('.'));
-			string resource_name     = project.resource_path_to_resource_name(resource_path);
+			string resource_name     = ResourceId.resource_name(resource_path);
 
 			// Choose material or create new one
 			FileChooserDialog mtl = new FileChooserDialog("Select material... (Cancel to create a new one)"
@@ -128,7 +128,7 @@ public class MeshResource
 				SJSON.save(material, Path.build_filename(project.source_dir(), material_path) + ".material");
 			}
 			mtl.destroy();
-			string material_name = project.resource_path_to_resource_name(material_path);
+			string material_name = ResourceId.resource_name(material_path);
 
 			try {
 				file_src.copy(file_dst, FileCopyFlags.OVERWRITE);

@@ -423,19 +423,6 @@ public class Project
 		tree_removed(path);
 	}
 
-	/// Converts @a path to the corresponding resource name.
-	/// On Linux, no transformation is needed. On Windows,
-	/// backslashes are converted to slashes.
-	public string resource_path_to_resource_name(string path)
-	{
-		return path.replace("\\", "/");
-	}
-
-	public string resource_filename_to_resource_path(string filename)
-	{
-		return filename.substring(0, filename.last_index_of_char('.'));
-	}
-
 	public string absolute_path_to_resource_filename(string path)
 	{
 		string prefix = _source_dir.get_path();

@@ -26,7 +26,7 @@ public class SoundResource
 			}
 
 			Hashtable sound = new Hashtable();
-			sound["source"] = project.resource_path_to_resource_name(resource_filename);
+			sound["source"] = ResourceId.resource_name(resource_filename);
 
 			SJSON.save(sound, Path.build_filename(project.source_dir(), resource_path) + ".sound");
 		}

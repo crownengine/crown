@@ -1740,8 +1740,8 @@ public class LevelEditorApplication : Gtk.Application
 
 		// Save level
 		string resource_filename = _project.absolute_path_to_resource_filename(path);
-		string resource_path     = _project.resource_filename_to_resource_path(resource_filename);
-		string resource_name     = _project.resource_path_to_resource_name(resource_path);
+		string resource_path     = ResourceId.resource_path(resource_filename);
+		string resource_name     = ResourceId.resource_name(resource_path);
 
 		_level.save(resource_name);
 		_statusbar.set_temporary_message("Saved %s".printf(_level._path));
@@ -1867,8 +1867,8 @@ public class LevelEditorApplication : Gtk.Application
 
 		// Load level
 		string resource_filename = _project.absolute_path_to_resource_filename(path);
-		string resource_path     = _project.resource_filename_to_resource_path(resource_filename);
-		string resource_name     = _project.resource_path_to_resource_name(resource_path);
+		string resource_path     = ResourceId.resource_path(resource_filename);
+		string resource_name     = ResourceId.resource_name(resource_path);
 
 		load_level(resource_name);
 	}
