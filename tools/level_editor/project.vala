@@ -3,9 +3,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-using Gtk;
-using Gee;
-
 namespace Crown
 {
 public enum ImportResult
@@ -46,7 +43,7 @@ public class Project
 	public File _level_editor_test_package;
 	public string _platform;
 	public Database _files;
-	public HashMap<string, Guid?> _map;
+	public Gee.HashMap<string, Guid?> _map;
 	public ImporterData _all_extensions_importer_data;
 	public Gee.ArrayList<ImporterData?> _importers;
 
@@ -65,7 +62,7 @@ public class Project
 		_platform = "linux";
 #endif
 		_files = new Database(this);
-		_map = new HashMap<string, Guid?>();
+		_map = new Gee.HashMap<string, Guid?>();
 		_all_extensions_importer_data = ImporterData();
 		_all_extensions_importer_data.delegate = import_all_extensions;
 		_importers = new Gee.ArrayList<ImporterData?>();
@@ -522,7 +519,7 @@ public class Project
 	}
 
 	// Returns a Gtk.FileFilter based on file @a extensions list.
-	public Gtk.FileFilter create_gtk_file_filter(string name, ArrayList<string> extensions)
+	public Gtk.FileFilter create_gtk_file_filter(string name, Gee.ArrayList<string> extensions)
 	{
 		Gtk.FileFilter filter = new Gtk.FileFilter();
 
@@ -582,11 +579,11 @@ public class Project
 	{
 		Gtk.FileChooserDialog src = new Gtk.FileChooserDialog("Import..."
 			, parent_window
-			, FileChooserAction.OPEN
+			, Gtk.FileChooserAction.OPEN
 			, "Cancel"
-			, ResponseType.CANCEL
+			, Gtk.ResponseType.CANCEL
 			, "Open"
-			, ResponseType.ACCEPT
+			, Gtk.ResponseType.ACCEPT
 			);
 		src.select_multiple = true;
 		foreach (var importer in _importers)
@@ -594,7 +591,7 @@ public class Project
 		src.add_filter(_all_extensions_importer_data._filter);
 		src.set_filter(_all_extensions_importer_data._filter);
 
-		if (src.run() != (int)ResponseType.ACCEPT) {
+		if (src.run() != (int)Gtk.ResponseType.ACCEPT) {
 			src.destroy();
 			return ImportResult.CANCEL;
 		}
@@ -603,15 +600,15 @@ public class Project
 		if (destination_dir == null) {
 			Gtk.FileChooserDialog dst = new Gtk.FileChooserDialog("Select destination folder..."
 				, parent_window
-				, FileChooserAction.SELECT_FOLDER
+				, Gtk.FileChooserAction.SELECT_FOLDER
 				, "Cancel"
-				, ResponseType.CANCEL
+				, Gtk.ResponseType.CANCEL
 				, "Select"
-				, ResponseType.ACCEPT
+				, Gtk.ResponseType.ACCEPT
 				);
 			dst.set_current_folder(this.source_dir());
 
-			if (dst.run() != (int)ResponseType.ACCEPT) {
+			if (dst.run() != (int)Gtk.ResponseType.ACCEPT) {
 				dst.destroy();
 				src.destroy();
 				return ImportResult.CANCEL;
