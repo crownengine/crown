@@ -23,15 +23,16 @@ public class SpriteResource
 
 			GLib.File file_dst = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
 			string resource_filename = project._source_dir.get_relative_path(file_dst);
-			string resource_path     = resource_filename.substring(0, resource_filename.last_index_of_char('.'));
+			string resource_path     = ResourceId.normalize(resource_filename);
+			string resource_name     = ResourceId.name(resource_path);
 
-			importer_settings_path = Path.build_filename(project.source_dir(), resource_path) + ".importer_settings";
+			importer_settings_path = Path.build_filename(project.source_dir(), resource_name) + ".importer_settings";
 
-			int last_slash = resource_path.last_index_of_char('/');
+			int last_slash = resource_name.last_index_of_char('/');
 			if (last_slash == -1)
-				image_name = resource_path;
+				image_name = resource_name;
 			else
-				image_name = resource_path.substring(last_slash + 1, resource_path.length - last_slash - 1);
+				image_name = resource_name.substring(last_slash + 1, resource_name.length - last_slash - 1);
 		}
 
 		SpriteImportDialog dlg = new SpriteImportDialog(image_path, image_name);
@@ -97,10 +98,10 @@ public class SpriteResource
 
 			GLib.File file_dst = File.new_for_path(Path.build_filename(destination_dir, resource_basename));
 			string resource_filename = project._source_dir.get_relative_path(file_dst);
-			string resource_path     = resource_filename.substring(0, resource_filename.last_index_of_char('.'));
-			string resource_name     = ResourceId.resource_name(resource_path);
+			string resource_path     = ResourceId.normalize(resource_filename);
+			string resource_name     = ResourceId.name(resource_path);
 
-			SJSON.save(importer_settings, Path.build_filename(project.source_dir(), resource_path) + ".importer_settings");
+			SJSON.save(importer_settings, Path.build_filename(project.source_dir(), resource_name) + ".importer_settings");
 
 			Hashtable textures = new Hashtable();
 			textures["u_albedo"] = resource_name;
@@ -116,7 +117,7 @@ public class SpriteResource
 			material["shader"]   = "sprite";
 			material["textures"] = textures;
 			material["uniforms"] = uniforms;
-			SJSON.save(material, Path.build_filename(project.source_dir(), resource_path) + ".material");
+			SJSON.save(material, Path.build_filename(project.source_dir(), resource_name) + ".material");
 
 			try {
 				file_src.copy(file_dst, FileCopyFlags.OVERWRITE);
@@ -129,11 +130,11 @@ public class SpriteResource
 
 			Guid texture_id = Guid.new_guid();
 			db.create(texture_id, "texture");
-			db.set_property_string(texture_id, "source", ResourceId.resource_name(resource_filename));
+			db.set_property_string(texture_id, "source", resource_path);
 			db.set_property_bool  (texture_id, "generate_mips", false);
 			db.set_property_bool  (texture_id, "normal_map", false);
 
-			db.save(Path.build_filename(project.source_dir(), resource_path + ".texture"), texture_id);
+			db.save(Path.build_filename(project.source_dir(), resource_name + ".texture"), texture_id);
 			db.reset();
 
 			Guid sprite_id = Guid.new_guid();
@@ -170,7 +171,7 @@ public class SpriteResource
 				}
 			}
 
-			db.save(Path.build_filename(project.source_dir(), resource_path + ".sprite"), sprite_id);
+			db.save(Path.build_filename(project.source_dir(), resource_name + ".sprite"), sprite_id);
 			db.reset();
 
 			// Generate or modify existing .unit.
@@ -291,7 +292,7 @@ public class SpriteResource
 				}
 			}
 
-			db.save(Path.build_filename(project.source_dir(), resource_path + ".unit"), unit_id);
+			db.save(Path.build_filename(project.source_dir(), resource_name + ".unit"), unit_id);
 		}
 
 		return ImportResult.SUCCESS;

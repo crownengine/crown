@@ -16,7 +16,8 @@ public class SoundResource
 			GLib.File file_dst = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
 
 			string resource_filename = project._source_dir.get_relative_path(file_dst);
-			string resource_path     = resource_filename.substring(0, resource_filename.last_index_of_char('.'));
+			string resource_path     = ResourceId.normalize(resource_filename);
+			string resource_name     = ResourceId.name(resource_path);
 
 			try {
 				file_src.copy(file_dst, FileCopyFlags.OVERWRITE);
@@ -26,9 +27,9 @@ public class SoundResource
 			}
 
 			Hashtable sound = new Hashtable();
-			sound["source"] = ResourceId.resource_name(resource_filename);
+			sound["source"] = resource_name;
 
-			SJSON.save(sound, Path.build_filename(project.source_dir(), resource_path) + ".sound");
+			SJSON.save(sound, Path.build_filename(project.source_dir(), resource_name) + ".sound");
 		}
 
 		return ImportResult.SUCCESS;

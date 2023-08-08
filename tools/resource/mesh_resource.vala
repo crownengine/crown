@@ -97,8 +97,8 @@ public class MeshResource
 			GLib.File file_dst = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
 
 			string resource_filename = project._source_dir.get_relative_path(file_dst);
-			string resource_path     = resource_filename.substring(0, resource_filename.last_index_of_char('.'));
-			string resource_name     = ResourceId.resource_name(resource_path);
+			string resource_path     = ResourceId.normalize(resource_filename);
+			string resource_name     = ResourceId.name(resource_path);
 
 			// Choose material or create new one
 			FileChooserDialog mtl = new FileChooserDialog("Select material... (Cancel to create a new one)"
@@ -116,19 +116,19 @@ public class MeshResource
 			fltr.add_pattern("*.material");
 			mtl.add_filter(fltr);
 
-			string material_path = resource_path;
+			string material_name = resource_name;
 			if (mtl.run() == (int)ResponseType.ACCEPT) {
-				material_path = project._source_dir.get_relative_path(File.new_for_path(mtl.get_filename()));
-				material_path = material_path.substring(0, material_path.last_index_of_char('.'));
+				string material_filename = project._source_dir.get_relative_path(File.new_for_path(mtl.get_filename()));
+				string material_path     = ResourceId.normalize(material_filename);
+				material_name            = ResourceId.name(material_path);
 			} else {
 				Hashtable material = new Hashtable();
 				material["shader"]   = "mesh+DIFFUSE_MAP";
 				material["textures"] = new Hashtable();
 				material["uniforms"] = new Hashtable();
-				SJSON.save(material, Path.build_filename(project.source_dir(), material_path) + ".material");
+				SJSON.save(material, Path.build_filename(project.source_dir(), material_name) + ".material");
 			}
 			mtl.destroy();
-			string material_name = ResourceId.resource_name(material_path);
 
 			try {
 				file_src.copy(file_dst, FileCopyFlags.OVERWRITE);

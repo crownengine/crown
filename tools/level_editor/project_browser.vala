@@ -131,7 +131,7 @@ public class ProjectBrowser : Gtk.Box
 				if ((string)type == "<folder>")
 					cell.set_property("text", (string)segment);
 				else
-					cell.set_property("text", resource_path((string)type, (string)segment));
+					cell.set_property("text", ResourceId.path((string)type, (string)segment));
 			});
 		_tree_view = new Gtk.TreeView();
 		_tree_view.append_column(column);
@@ -395,7 +395,7 @@ public class ProjectBrowser : Gtk.Box
 
 					mi = new Gtk.MenuItem.with_label("Delete File");
 					mi.activate.connect(() => {
-							GLib.Application.get_default().activate_action("delete-file", new GLib.Variant.string(resource_path((string)type, (string)name)));
+							GLib.Application.get_default().activate_action("delete-file", new GLib.Variant.string(ResourceId.path((string)type, (string)name)));
 						});
 					menu.add(mi);
 
@@ -430,7 +430,7 @@ public class ProjectBrowser : Gtk.Box
 					Value name;
 					_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
 
-					GLib.Application.get_default().activate_action("open-resource", resource_path((string)type, (string)name));
+					GLib.Application.get_default().activate_action("open-resource", ResourceId.path((string)type, (string)name));
 				}
 			}
 		}

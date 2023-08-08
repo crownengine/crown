@@ -344,7 +344,7 @@ public class Project
 
 	public string filename(string type, string name)
 	{
-		string resource_path = resource_path(type, name);
+		string resource_path = ResourceId.path(type, name);
 		return Path.build_filename(source_dir(), resource_path);
 	}
 
@@ -382,7 +382,7 @@ public class Project
 
 	public void add_file(string path)
 	{
-		string type = extension(path);
+		string type = path_extension(path);
 		string name = type == "" ? path : path.substring(0, path.last_index_of("."));
 
 		Guid id = Guid.new_guid();

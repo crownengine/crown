@@ -466,7 +466,7 @@ public class Database
 			object_id = Guid.new_guid();
 
 		create_internal(0, object_id);
-		set_object_type(object_id, resource_type(resource_path));
+		set_object_type(object_id, ResourceId.type(resource_path));
 
 		decode_object(object_id, GUID_ZERO, "", json);
 

@@ -1740,8 +1740,8 @@ public class LevelEditorApplication : Gtk.Application
 
 		// Save level
 		string resource_filename = _project.absolute_path_to_resource_filename(path);
-		string resource_path     = ResourceId.resource_path(resource_filename);
-		string resource_name     = ResourceId.resource_name(resource_path);
+		string resource_path     = ResourceId.normalize(resource_filename);
+		string resource_name     = ResourceId.name(resource_path);
 
 		_level.save(resource_name);
 		_statusbar.set_temporary_message("Saved %s".printf(_level._path));
@@ -1867,8 +1867,8 @@ public class LevelEditorApplication : Gtk.Application
 
 		// Load level
 		string resource_filename = _project.absolute_path_to_resource_filename(path);
-		string resource_path     = ResourceId.resource_path(resource_filename);
-		string resource_name     = ResourceId.resource_name(resource_path);
+		string resource_path     = ResourceId.normalize(resource_filename);
+		string resource_name     = ResourceId.name(resource_path);
 
 		load_level(resource_name);
 	}
@@ -2067,20 +2067,20 @@ public class LevelEditorApplication : Gtk.Application
 		if (param == null)
 			return;
 
-		string resource_path = param.get_string();
-		string? type = Crown.resource_type(resource_path);
-		string? name = Crown.resource_name(type, resource_path);
-		if (type == null || name == null)
+		string resource_path  = param.get_string();
+		string? resource_type = ResourceId.type(resource_path);
+		string? resource_name = ResourceId.name(resource_path);
+		if (resource_type == null || resource_name == null)
 			return;
 
-		if (type == "level") {
-			activate_action("open-level", name);
+		if (resource_type == "level") {
+			activate_action("open-level", resource_name);
 			return;
 		}
 
 		GLib.AppInfo? app = null;
 
-		if (type == "lua") {
+		if (resource_type == "lua") {
 			app = _preferences_dialog._lua_external_tool_button.get_app_info();
 		} else if (is_image_file(resource_path)) {
 			app = _preferences_dialog._image_external_tool_button.get_app_info();
@@ -2416,13 +2416,13 @@ public class LevelEditorApplication : Gtk.Application
 		if (param == null)
 			return;
 
-		string resource_path = param.get_string();
-		string? type = Crown.resource_type(resource_path);
-		string? name = Crown.resource_name(type, resource_path);
-		if (type == null || name == null)
+		string resource_path  = param.get_string();
+		string? resource_type = ResourceId.type(resource_path);
+		string? resource_name = ResourceId.name(resource_path);
+		if (resource_type == null || resource_name == null)
 			return;
 
-		if (name == _level._name) {
+		if (resource_name == _level._name) {
 			int rt = ResponseType.YES;
 
 			if (_database.changed())
@@ -2433,10 +2433,10 @@ public class LevelEditorApplication : Gtk.Application
 				send_state();
 				_editor.send(DeviceApi.frame());
 
-				_project.delete_resource(type, name);
+				_project.delete_resource(resource_type, resource_name);
 			}
 		} else {
-			_project.delete_resource(type, name);
+			_project.delete_resource(resource_type, resource_name);
 		}
 	}
 
