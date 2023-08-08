@@ -147,6 +147,7 @@ public class ConsoleView : Gtk.Box
 
 		this.destroy.connect(on_destroy);
 
+		_text_view.button_press_event.connect(on_button_pressed);
 		_text_view.button_release_event.connect(on_button_released);
 		_text_view.motion_notify_event.connect(on_motion_notify);
 
@@ -226,6 +227,56 @@ public class ConsoleView : Gtk.Box
 	private void on_destroy()
 	{
 		_console_view_valid = false;
+	}
+
+	private bool on_button_pressed(Gdk.EventButton ev)
+	{
+		if (ev.button == Gdk.BUTTON_SECONDARY) {
+			// Do not handle click if some text is selected.
+			Gtk.TextIter dummy_iter;
+			if (_text_view.buffer.get_selection_bounds(out dummy_iter, out dummy_iter))
+				return Gdk.EVENT_PROPAGATE;
+
+			int buffer_x;
+			int buffer_y;
+			_text_view.window_to_buffer_coords(Gtk.TextWindowType.WIDGET
+				, (int)ev.x
+				, (int)ev.y
+				, out buffer_x
+				, out buffer_y
+				);
+
+			Gtk.TextIter iter;
+			if (_text_view.get_iter_at_location(out iter, buffer_x, buffer_y)) {
+				// Check whether the text under the mouse pointer has a link tag.
+				GLib.SList<unowned TextTag> tags = iter.get_tags();
+				foreach (var item in tags) {
+					string item_data;
+					if ((item_data = item.get_data<string>("uri")) == null)
+						continue;
+
+					if (item_data.has_prefix("resource_id:")) {
+						Gtk.Menu menu = new Gtk.Menu();
+						Gtk.MenuItem mi;
+
+						mi = new Gtk.MenuItem.with_label("Reveal");
+						mi.activate.connect(() => {
+								var resource_path = item_data[12:item_data.length];
+								GLib.Variant paramz[] = { ResourceId.type(resource_path), ResourceId.name(resource_path)};
+								GLib.Application.get_default().activate_action("reveal-resource", new GLib.Variant.tuple(paramz));
+							});
+						menu.add(mi);
+
+						menu.show_all();
+						menu.popup(null, null, null, ev.button, ev.time);
+
+						return Gdk.EVENT_STOP;
+					}
+				}
+			}
+		}
+
+		return Gdk.EVENT_PROPAGATE;
 	}
 
 	private bool on_button_released(Gdk.EventButton ev)

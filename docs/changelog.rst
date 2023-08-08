@@ -11,6 +11,7 @@ Changelog
 **Tools**
 
 * Added the ability to rename a sprite in the Sprite Importer.
+* Added a popup menu to quickly access some resource-related functionalities directly from the Console.
 * Fixed initial 'sensitivity' state in some widgets.
 * Fixed erratic messages when importing assets and improved import procedure robustness.
 
