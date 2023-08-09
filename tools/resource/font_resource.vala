@@ -61,7 +61,7 @@ public class FontResource
 		int font_size = (int)dlg._font_size.value;
 		font_name     = dlg._font_name.value;
 
-		dlg.destroy();
+		dlg.hide();
 
 		foreach (unowned string filename_i in filenames) {
 			GLib.File file_src = File.new_for_path(filename_i);
@@ -126,6 +126,7 @@ public class FontResource
 			SJSON.save(font, Path.build_filename(project.source_dir(), resource_name) + ".font");
 		}
 
+		dlg.destroy();
 		return ImportResult.SUCCESS;
 	}
 }
