@@ -4,6 +4,10 @@ Changelog
 0.49.0 --- DD MMM YYYY
 ----------------------
 
+**Data Compiler**
+
+* Linux: fixed detection of deleted directories in some cases.
+
 **Runtime**
 
 * Fixed a crash when rendering text with a font missing some of the glyphs.

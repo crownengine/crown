@@ -294,7 +294,7 @@ struct FileMonitorImpl
 			// Unpaired IN_MOVED_TO or IN_MOVE_FROM with missing IN_MOVED_TO (rename from outside
 			// watched directory).
 			if (cookie != 0) {
-				if (cookie_mask & IN_MOVED_TO) {
+				if (cookie_mask & IN_MOVED_TO || cookie_mask & IN_MOVED_FROM) {
 					_function(_user_data
 						, FileMonitorEvent::DELETED
 						, cookie_mask & IN_ISDIR
