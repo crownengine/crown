@@ -492,6 +492,13 @@ public class SpriteImportDialog : Gtk.Dialog
 		this.add_button("Cancel", Gtk.ResponseType.CANCEL);
 		this.add_button("OK", Gtk.ResponseType.OK);
 		this.response.connect(on_response);
+		this.map_event.connect(on_map_event);
+	}
+
+	private bool on_map_event(Gdk.EventAny ev)
+	{
+		_unit_name.grab_focus();
+		return Gdk.EVENT_PROPAGATE;
 	}
 
 	private void on_response(Gtk.Dialog source, int response_id)

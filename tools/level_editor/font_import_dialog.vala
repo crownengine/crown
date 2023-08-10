@@ -268,6 +268,13 @@ public class FontImportDialog : Gtk.Dialog
 		this.add_button("OK", Gtk.ResponseType.OK);
 		this.response.connect(on_response);
 		this.destroy.connect(on_destroy);
+		this.map_event.connect(on_map_event);
+	}
+
+	private bool on_map_event(Gdk.EventAny ev)
+	{
+		_font_name.grab_focus();
+		return Gdk.EVENT_PROPAGATE;
 	}
 
 	private void on_response(Gtk.Dialog source, int response_id)
