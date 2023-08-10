@@ -12,6 +12,8 @@
 #define STB_RECT_PACK_IMPLEMENTATION
 #include <stb_rect_pack.h>
 
+#define CROWN_RECT_MARGIN 1 ///< Right and bottom glyph rect margin in pixels.
+
 struct GlyphData
 {
 	int id;        ///< Codepoint.
@@ -105,8 +107,8 @@ void *crown_font_atlas_generate(const char *font_path, int font_size, int range_
 		rects = (stbrp_rect *)malloc(sizeof(*rects) * atlas->num_glyphs);
 		for (int ii = 0; ii < atlas->num_glyphs; ++ii) {
 			rects[ii].id = ii;
-			rects[ii].w = atlas->glyphs[ii].width;
-			rects[ii].h = atlas->glyphs[ii].height;
+			rects[ii].w = CROWN_RECT_MARGIN + atlas->glyphs[ii].width;
+			rects[ii].h = CROWN_RECT_MARGIN + atlas->glyphs[ii].height;
 		}
 		all_packed = true;
 		stbrp_pack_rects(&ctx, rects, atlas->num_glyphs);
