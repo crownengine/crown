@@ -94,9 +94,9 @@ public class MeshResource
 	{
 		foreach (unowned string filename_i in filenames) {
 			GLib.File file_src = File.new_for_path(filename_i);
-			GLib.File file_dst = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
 
-			string resource_filename = project._source_dir.get_relative_path(file_dst);
+			GLib.File file_dst       = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
+			string resource_filename = project.resource_filename(file_dst.get_path());
 			string resource_path     = ResourceId.normalize(resource_filename);
 			string resource_name     = ResourceId.name(resource_path);
 
@@ -118,7 +118,7 @@ public class MeshResource
 
 			string material_name = resource_name;
 			if (mtl.run() == (int)ResponseType.ACCEPT) {
-				string material_filename = project._source_dir.get_relative_path(File.new_for_path(mtl.get_filename()));
+				string material_filename = project.resource_filename(mtl.get_filename());
 				string material_path     = ResourceId.normalize(material_filename);
 				material_name            = ResourceId.name(material_path);
 			} else {
@@ -126,7 +126,7 @@ public class MeshResource
 				material["shader"]   = "mesh+DIFFUSE_MAP";
 				material["textures"] = new Hashtable();
 				material["uniforms"] = new Hashtable();
-				SJSON.save(material, Path.build_filename(project.source_dir(), material_name) + ".material");
+				SJSON.save(material, project.absolute_path(material_name) + ".material");
 			}
 			mtl.destroy();
 
@@ -178,7 +178,7 @@ public class MeshResource
 				create_components(db, unit_id, new_unit_id, material_name, resource_name, entry.key, (Hashtable)entry.value);
 			}
 
-			db.save(Path.build_filename(project.source_dir(), resource_path + ".unit"), unit_id);
+			db.save(project.absolute_path(resource_name) + ".unit", unit_id);
 		}
 
 		return ImportResult.SUCCESS;

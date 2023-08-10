@@ -13,9 +13,9 @@ public class TextureResource
 	{
 		foreach (unowned string filename_i in filenames) {
 			GLib.File file_src = File.new_for_path(filename_i);
-			GLib.File file_dst = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
 
-			string resource_filename = project._source_dir.get_relative_path(file_dst);
+			GLib.File file_dst       = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
+			string resource_filename = project.resource_filename(file_dst.get_path());
 			string resource_path     = ResourceId.normalize(resource_filename);
 			string resource_name     = ResourceId.name(resource_path);
 
@@ -34,7 +34,7 @@ public class TextureResource
 			db.set_property_bool  (texture_id, "generate_mips", true);
 			db.set_property_bool  (texture_id, "normal_map", false);
 
-			db.save(Path.build_filename(project.source_dir(), resource_name + ".texture"), texture_id);
+			db.save(project.absolute_path(resource_name) + ".texture", texture_id);
 		}
 
 		return ImportResult.SUCCESS;

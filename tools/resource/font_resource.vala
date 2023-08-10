@@ -21,12 +21,12 @@ public class FontResource
 				, font_path.length - font_path.last_index_of_char('.') - 1
 				);
 
-			GLib.File file_dst = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
-			string resource_filename = project._source_dir.get_relative_path(file_dst);
+			GLib.File file_dst       = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
+			string resource_filename = project.resource_filename(file_dst.get_path());
 			string resource_path     = ResourceId.normalize(resource_filename);
 			string resource_name     = ResourceId.name(resource_path);
 
-			importer_settings_path = Path.build_filename(project.source_dir(), resource_name) + ".importer_settings";
+			importer_settings_path = project.absolute_path(resource_name) + ".importer_settings";
 
 			font_path = file_src.get_path();
 
@@ -71,15 +71,15 @@ public class FontResource
 			else
 				resource_basename = file_src.get_basename();
 
-			GLib.File file_dst = File.new_for_path(Path.build_filename(destination_dir, resource_basename));
-			string resource_filename = project._source_dir.get_relative_path(file_dst);
+			GLib.File file_dst       = File.new_for_path(Path.build_filename(destination_dir, resource_basename));
+			string resource_filename = project.resource_filename(file_dst.get_path());
 			string resource_path     = ResourceId.normalize(resource_filename);
 			string resource_name     = ResourceId.name(resource_path);
 
-			SJSON.save(importer_settings, Path.build_filename(project.source_dir(), resource_name) + ".importer_settings");
+			SJSON.save(importer_settings, project.absolute_path(resource_name) + ".importer_settings");
 
 			// Save .png atlas.
-			dlg.save_png(Path.build_filename(project.source_dir(), resource_name + ".png"));
+			dlg.save_png(project.absolute_path(resource_name) + ".png");
 
 			Database db = new Database(project);
 
@@ -90,7 +90,7 @@ public class FontResource
 			db.set_property_bool  (texture_id, "generate_mips", false);
 			db.set_property_bool  (texture_id, "normal_map", false);
 
-			db.save(Path.build_filename(project.source_dir(), resource_name) + ".texture", texture_id);
+			db.save(project.absolute_path(resource_name) + ".texture", texture_id);
 			db.reset();
 
 			// Generate .material resource.
@@ -100,7 +100,7 @@ public class FontResource
 			Hashtable material = new Hashtable();
 			material["shader"]   = "gui+DIFFUSE_MAP";
 			material["textures"] = textures;
-			SJSON.save(material, Path.build_filename(project.source_dir(), resource_name) + ".material");
+			SJSON.save(material, project.absolute_path(resource_name) + ".material");
 
 			// Generate .font resource.
 			var glyphs = new Gee.ArrayList<Value?>();
@@ -123,7 +123,7 @@ public class FontResource
 			font["size"]      = size;
 			font["font_size"] = font_size;
 			font["glyphs"]    = glyphs;
-			SJSON.save(font, Path.build_filename(project.source_dir(), resource_name) + ".font");
+			SJSON.save(font, project.absolute_path(resource_name) + ".font");
 		}
 
 		dlg.destroy();

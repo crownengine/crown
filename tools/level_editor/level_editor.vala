@@ -2445,7 +2445,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		string dir_name = param.get_string();
 
-		var path = GLib.Path.build_filename(_project.source_dir(), dir_name);
+		var path = _project.absolute_path(dir_name);
 		try {
 			_project.delete_tree(GLib.File.new_for_path(path));
 		} catch (Error e) {
@@ -2458,9 +2458,7 @@ public class LevelEditorApplication : Gtk.Application
 		string parent_dir_name = (string)param.get_child_value(0);
 		string dir_name = (string)param.get_child_value(1);
 
-		logi("parent_dir_name %s dir_name %s".printf(parent_dir_name, dir_name));
-
-		var path = GLib.Path.build_filename(_project.source_dir(), parent_dir_name, dir_name);
+		var path = _project.absolute_path(GLib.Path.build_filename(parent_dir_name, dir_name));
 		try {
 			GLib.File.new_for_path(path).make_directory();
 		} catch (Error e) {
@@ -2505,8 +2503,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		string parent_name = param.get_string();
 
-		var path = GLib.Path.build_filename(_project.source_dir(), parent_name);
-		open_directory(GLib.File.new_for_path(path).get_path());
+		open_directory(_project.absolute_path(parent_name));
 	}
 
 	public void delete_tree(GLib.File file) throws Error

@@ -235,7 +235,9 @@ public class Project
 
 	public int create_script(string directory, string name, bool empty)
 	{
-		string path = Path.build_filename(_source_dir.get_path(), directory + "/" + name + ".lua");
+		string script_path = Path.build_filename(directory, name + ".lua");
+		string path = this.absolute_path(script_path);
+
 		FileStream fs = FileStream.open(path, "wb");
 		if (fs != null) {
 			if (empty) {
@@ -286,7 +288,9 @@ public class Project
 
 	public int create_unit(string directory, string name)
 	{
-		string path = Path.build_filename(_source_dir.get_path(), directory + "/" + name + ".unit");
+		string unit_path = Path.build_filename(directory, name + ".unit");
+		string path = this.absolute_path(unit_path);
+
 		FileStream fs = FileStream.open(path, "wb");
 		if (fs != null)
 			return fs.puts("\ncomponents = [\n]\n");
@@ -342,17 +346,12 @@ public class Project
 		}
 	}
 
-	public string filename(string type, string name)
-	{
-		string resource_path = ResourceId.path(type, name);
-		return Path.build_filename(source_dir(), resource_path);
-	}
-
 	public void delete_resource(string type, string name)
 	{
-		GLib.File file = GLib.File.new_for_path(filename(type, name));
+		var path = this.absolute_path(ResourceId.path(type, name));
+
 		try {
-			file.delete();
+			GLib.File.new_for_path(path).delete();
 		} catch (Error e) {
 			loge(e.message);
 		}
@@ -428,7 +427,7 @@ public class Project
 		string prefix = _source_dir.get_path();
 
 		if (absolute_path.has_prefix(_toolchain_dir.get_path() + "/core"))
-			prefix = _toolchain_dir.get_path() + "/core";
+			prefix = _toolchain_dir.get_path();
 
 		return File.new_for_path(prefix).get_relative_path(File.new_for_path(absolute_path));
 	}
@@ -591,7 +590,7 @@ public class Project
 			out_dir = dst.get_filename();
 			dst.destroy();
 		} else {
-			out_dir = GLib.File.new_for_path(GLib.Path.build_filename(source_dir(), destination_dir)).get_path();
+			out_dir = this.absolute_path(destination_dir);
 		}
 
 		Gtk.FileFilter? current_filter = src.get_filter();
