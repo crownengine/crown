@@ -131,7 +131,7 @@ bgfx_shaders = {
 		includes = "common"
 
 		samplers = {
-			u_albedo = { sampler_state = "clamp_point" }
+			u_albedo = { sampler_state = "clamp_anisotropic" }
 		}
 
 		varying = """
