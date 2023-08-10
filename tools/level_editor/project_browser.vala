@@ -8,15 +8,6 @@ using Gee;
 
 namespace Crown
 {
-// Returns true if the row should be hidden
-private bool row_should_be_hidden(string type, string name)
-{
-	return type == "<folder>" && name == "core"
-		|| type == "importer_settings"
-		|| name == Project.LEVEL_EDITOR_TEST_NAME
-		;
-}
-
 public class ProjectBrowser : Gtk.Box
 {
 	// Data
@@ -28,6 +19,8 @@ public class ProjectBrowser : Gtk.Box
 	public Gtk.TreeView _tree_view;
 	public Gtk.TreeSelection _tree_selection;
 	public Gtk.ScrolledWindow _scrolled_window;
+
+	public bool _hide_core_resources;
 
 	// Signals
 	public signal void resource_selected(string type, string name);
@@ -170,6 +163,8 @@ public class ProjectBrowser : Gtk.Box
 		_scrolled_window = new Gtk.ScrolledWindow(null, null);
 		_scrolled_window.add(_tree_view);
 
+		_hide_core_resources = true;
+
 		this.pack_start(_scrolled_window, true, true, 0);
 
 		// Actions.
@@ -180,10 +175,24 @@ public class ProjectBrowser : Gtk.Box
 		GLib.Application.get_default().add_action_entries(action_entries, this);
 	}
 
+	// Returns true if the row should be hidden.
+	private bool row_should_be_hidden(string type, string name)
+	{
+		return type == "<folder>" && name == "core" && _hide_core_resources
+			|| type == "importer_settings"
+			|| name == Project.LEVEL_EDITOR_TEST_NAME
+			;
+	}
+
 	private void on_reveal(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		string type = (string)param.get_child_value(0);
 		string name = (string)param.get_child_value(1);
+
+		if (name.has_prefix("core/")) {
+			_hide_core_resources = false;
+			_tree_filter.refilter();
+		}
 
 		Gtk.TreePath store_path;
 		if (_project_store.path_for_resource_type_name(out store_path, type, name)) {
