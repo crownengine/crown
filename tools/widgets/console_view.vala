@@ -261,8 +261,14 @@ public class ConsoleView : Gtk.Box
 
 						mi = new Gtk.MenuItem.with_label("Reveal");
 						mi.activate.connect(() => {
-								var resource_path = item_data[12:item_data.length];
-								GLib.Variant paramz[] = { ResourceId.type(resource_path), ResourceId.name(resource_path)};
+								var resource_path  = item_data[12:item_data.length];
+								var? resource_type = ResourceId.type(resource_path);
+								var? resource_name = ResourceId.name(resource_path);
+
+								if (resource_type == null || resource_name == null)
+									return;
+
+								GLib.Variant paramz[] = { resource_type, resource_name };
 								GLib.Application.get_default().activate_action("reveal-resource", new GLib.Variant.tuple(paramz));
 							});
 						menu.add(mi);
