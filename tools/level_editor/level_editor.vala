@@ -1740,7 +1740,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 
 		// Save level
-		string resource_filename = _project.absolute_path_to_resource_filename(path);
+		string resource_filename = _project.resource_filename(path);
 		string resource_path     = ResourceId.normalize(resource_filename);
 		string resource_name     = ResourceId.name(resource_path);
 
@@ -1867,7 +1867,7 @@ public class LevelEditorApplication : Gtk.Application
 		assert(path != "");
 
 		// Load level
-		string resource_filename = _project.absolute_path_to_resource_filename(path);
+		string resource_filename = _project.resource_filename(path);
 		string resource_path     = ResourceId.normalize(resource_filename);
 		string resource_name     = ResourceId.name(resource_path);
 
@@ -2088,7 +2088,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 
 		try {
-			GLib.File file = GLib.File.new_for_path(_project.resource_path_to_absolute_path(resource_path));
+			GLib.File file = GLib.File.new_for_path(_project.absolute_path(resource_path));
 			if (app == null)
 				app = file.query_default_handler();
 

@@ -65,7 +65,7 @@ public class Level
 	public int load_from_path(string name)
 	{
 		string resource_path = name + ".level";
-		string path = _project.resource_path_to_absolute_path(resource_path);
+		string path = _project.absolute_path(resource_path);
 
 		FileStream fs = FileStream.open(path, "rb");
 		if (fs == null)

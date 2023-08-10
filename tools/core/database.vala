@@ -501,7 +501,7 @@ public class Database
 			return 0;
 		}
 
-		string path = _project.resource_path_to_absolute_path(resource_path);
+		string path = _project.absolute_path(resource_path);
 		return add_from_path(out object_id, path, resource_path);
 	}
 

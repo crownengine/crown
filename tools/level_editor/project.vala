@@ -423,17 +423,17 @@ public class Project
 		tree_removed(path);
 	}
 
-	public string absolute_path_to_resource_filename(string path)
+	public string resource_filename(string absolute_path)
 	{
 		string prefix = _source_dir.get_path();
 
-		if (path.has_prefix(_toolchain_dir.get_path() + "/core"))
+		if (absolute_path.has_prefix(_toolchain_dir.get_path() + "/core"))
 			prefix = _toolchain_dir.get_path() + "/core";
 
-		return File.new_for_path(prefix).get_relative_path(File.new_for_path(path));
+		return File.new_for_path(prefix).get_relative_path(File.new_for_path(absolute_path));
 	}
 
-	public string resource_path_to_absolute_path(string resource_path)
+	public string absolute_path(string resource_path)
 	{
 		string prefix = _source_dir.get_path();
 
