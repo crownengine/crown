@@ -621,7 +621,7 @@ public class Database
 
 			// Decode object ID.
 			Guid obj_id;
-			if (obj.has_key("id"))
+			if (obj.has_key("id") && owner_type != "font")
 				obj_id = Guid.parse((string)obj["id"]);
 			else if (obj.has_key("_guid"))
 				obj_id = Guid.parse((string)obj["_guid"]);
@@ -655,6 +655,11 @@ public class Database
 				if (key == "frames") {
 					set_object_type(obj_id, "sprite_frame");
 					set_property_internal(0, obj_id, "index", (double)i);
+				}
+			} else if (owner_type == "font") {
+				if (key == "glyphs") {
+					set_object_type(obj_id, "font_glyph");
+					set_property_internal(0, obj_id, "cp", (double)obj["id"]);
 				}
 			}
 

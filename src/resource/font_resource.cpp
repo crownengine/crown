@@ -59,7 +59,7 @@ namespace font_resource_internal
 			sjson::parse(obj, glyphs[i]);
 
 			GlyphInfo gi;
-			gi.cp           = sjson::parse_int  (obj["id"]);
+			gi.cp           = sjson::parse_int  (json_object::has(obj, "id") ? obj["id"] : obj["cp"]);
 			gi.gd.x         = sjson::parse_float(obj["x"]);
 			gi.gd.y         = sjson::parse_float(obj["y"]);
 			gi.gd.width     = sjson::parse_float(obj["width"]);
