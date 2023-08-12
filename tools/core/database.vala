@@ -612,7 +612,12 @@ public class Database
 		create_empty_set(0, owner_id, key);
 
 		for (int i = 0; i < json.size; ++i) {
-			Hashtable obj = (Hashtable)json[i];
+			Hashtable obj;
+			string owner_type = object_type(owner_id);
+			if (owner_type == "sprite_animation")
+				obj = new Hashtable();
+			else
+				obj = (Hashtable)json[i];
 
 			// Decode object ID.
 			Guid obj_id;
@@ -627,15 +632,14 @@ public class Database
 
 			// Determine the object's type based on the type of its
 			// parent and other heuristics.
-			string owner_type = object_type(owner_id);
-			if (owner_type == "level") {
+			if (owner_type == OBJECT_TYPE_LEVEL) {
 				if (key == "units")
-					set_object_type(obj_id, "unit");
+					set_object_type(obj_id, OBJECT_TYPE_UNIT);
 				else if (key == "sounds")
 					set_object_type(obj_id, OBJECT_TYPE_SOUND_SOURCE);
 				else
 					set_object_type(obj_id, "undefined");
-			} else if (owner_type == "state_machine") {
+			} else if (owner_type == OBJECT_TYPE_STATE_MACHINE) {
 				if (key == "states")
 					set_object_type(obj_id, "state_machine_node");
 				else if (key == "variables")
@@ -647,7 +651,7 @@ public class Database
 					set_object_type(obj_id, "node_animation");
 				else if (key == "transitions")
 					set_object_type(obj_id, "node_transition");
-			} else if (owner_type == "sprite") {
+			} else if (owner_type == OBJECT_TYPE_SPRITE) {
 				if (key == "frames") {
 					set_object_type(obj_id, "sprite_frame");
 					set_property_internal(0, obj_id, "index", (double)i);
