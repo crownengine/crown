@@ -1,10 +1,15 @@
-
+_guid = "6da5d7b6-23b0-4474-bdbf-b93886ee0343"
+_type = "sprite"
 frames = [
 	{
+		_guid = "fb2c6c81-62f8-41a9-9768-a4bd63db298c"
+		_type = "sprite_frame"
+		index = 0
 		name = "sprite_0"
 		pivot = [
 			16
 			64
+			0
 		]
 		region = [
 			0

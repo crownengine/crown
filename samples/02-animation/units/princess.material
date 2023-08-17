@@ -1,4 +1,5 @@
-
+_guid = "ce2f44da-492c-4bfc-861f-1a9c235d758a"
+_type = "material"
 shader = "sprite"
 textures = {
 	u_albedo = "units/princess"

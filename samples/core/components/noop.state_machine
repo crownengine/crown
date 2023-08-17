@@ -1,14 +1,18 @@
+_guid = "8d6ad578-15b3-462c-b2b2-8b02334de154"
+_type = "state_machine"
 initial_state = "6cf446e5-ca8e-4114-888b-2f0315145236"
 states = [
 	{
+		_guid = "6cf446e5-ca8e-4114-888b-2f0315145236"
+		_type = "state_machine_node"
 		animations = [
 			{
-				id = "c9c520be-1c1c-4756-9156-45b1af00b463"
+				_guid = "c9c520be-1c1c-4756-9156-45b1af00b463"
+				_type = "node_animation"
 				name = "core/components/noop"
 				weight = "1"
 			}
 		]
-		id = "6cf446e5-ca8e-4114-888b-2f0315145236"
 		loop = true
 		speed = "1"
 		transitions = [

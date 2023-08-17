@@ -1,35 +1,33 @@
+_guid = "7f5bebfb-6d22-4a64-a5c2-47f598440bfb"
+_type = "material"
 shader = "mesh"
-
-textures = {
-}
-
 uniforms = {
 	u_ambient = {
 		type = "vector3"
 		value = [
-			0.4
-			0.4
-			0.4
+			0.40000000000000002
+			0.40000000000000002
+			0.40000000000000002
 		]
 	}
 	u_diffuse = {
 		type = "vector3"
 		value = [
-			1.0
-			1.0
-			1.0
-		]
-	}
-	u_specular = {
-		type = "vector3"
-		value = [
-			0.0
-			0.0
-			0.0
+			1
+			1
+			1
 		]
 	}
 	u_shininess = {
 		type = "float"
-		value = 0.0
+		value = 0
+	}
+	u_specular = {
+		type = "vector3"
+		value = [
+			0
+			0
+			0
+		]
 	}
 }

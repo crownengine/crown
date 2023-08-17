@@ -1,36 +1,36 @@
+_guid = "7dfad1f5-f17d-409e-a885-2d7b072f8630"
+_type = "material"
 shader = "mesh+DIFFUSE_MAP"
-
 textures = {
 	u_albedo = "units/grid"
 }
-
 uniforms = {
 	u_ambient = {
 		type = "vector3"
 		value = [
-			0.4
-			0.4
-			0.4
+			0.40000000000000002
+			0.40000000000000002
+			0.40000000000000002
 		]
 	}
 	u_diffuse = {
 		type = "vector3"
 		value = [
-			1.0
-			1.0
-			1.0
-		]
-	}
-	u_specular = {
-		type = "vector3"
-		value = [
-			0.0
-			0.0
-			0.0
+			1
+			1
+			1
 		]
 	}
 	u_shininess = {
 		type = "float"
-		value = 0.0
+		value = 0
+	}
+	u_specular = {
+		type = "vector3"
+		value = [
+			0
+			0
+			0
+		]
 	}
 }

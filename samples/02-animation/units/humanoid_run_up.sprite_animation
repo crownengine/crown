@@ -1,2 +1,45 @@
-frames = [ 1 2 3 4 5 6 7 8 ]
+_guid = "0dc1b40d-38b9-4d84-9f29-b01b574cebc0"
+_type = "sprite_animation"
+frames = [
+	{
+		_guid = "02e8aa33-0927-4c37-a461-0bf1e26a8477"
+		_type = "animation_frame"
+		index = 4
+	}
+	{
+		_guid = "06d8a6d5-5d72-4177-92f6-39d9535c0f13"
+		_type = "animation_frame"
+		index = 1
+	}
+	{
+		_guid = "3275f064-ef19-4ca7-a52a-f104bd56d6a5"
+		_type = "animation_frame"
+		index = 7
+	}
+	{
+		_guid = "42e635ae-dae2-46e6-a8a7-b752bf0da5c4"
+		_type = "animation_frame"
+		index = 3
+	}
+	{
+		_guid = "5500c0b6-f04c-40fe-8440-b88d64d8d446"
+		_type = "animation_frame"
+		index = 8
+	}
+	{
+		_guid = "79b481e0-7b61-4a7a-b596-6c60c6bebbbd"
+		_type = "animation_frame"
+		index = 2
+	}
+	{
+		_guid = "7a6d9e59-f56c-4c92-9711-1c2b20106a92"
+		_type = "animation_frame"
+		index = 5
+	}
+	{
+		_guid = "d75bf8a7-ac6f-4d17-9654-7ccb46069732"
+		_type = "animation_frame"
+		index = 6
+	}
+]
 total_time = 0.5

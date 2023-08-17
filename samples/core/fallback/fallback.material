@@ -1,7 +1,3 @@
+_guid = "8afa598b-1df7-4216-a13a-b5e50af5d0ea"
+_type = "material"
 shader = "fallback"
-
-textures = {
-}
-
-uniforms = {
-}

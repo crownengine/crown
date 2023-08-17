@@ -1,12 +1,14 @@
-id = "d67463da-f179-4eb4-849c-0f7fc5e63e34"
+_guid = "d67463da-f179-4eb4-849c-0f7fc5e63e34"
+_type = "level"
 sounds = [
 ]
 units = [
 	{
+		_guid = "0365e3df-a7ac-4f49-87de-f1b9bdf3f958"
+		_type = "unit"
 		editor = {
 			name = "unit_0008"
 		}
-		id = "0365e3df-a7ac-4f49-87de-f1b9bdf3f958"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -33,10 +35,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "04f23df8-d4fc-4ebc-811b-42f843499c79"
+		_type = "unit"
 		editor = {
 			name = "unit_0001"
 		}
-		id = "04f23df8-d4fc-4ebc-811b-42f843499c79"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -63,10 +66,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "05757636-12a1-48b0-9ade-59cc3d9bb19c"
+		_type = "unit"
 		editor = {
 			name = "unit_0002"
 		}
-		id = "05757636-12a1-48b0-9ade-59cc3d9bb19c"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -93,10 +97,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "0bd39883-476e-4193-b750-1484ecedd959"
+		_type = "unit"
 		editor = {
 			name = "unit_0000"
 		}
-		id = "0bd39883-476e-4193-b750-1484ecedd959"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -123,10 +128,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "0c8b1474-8e72-44ee-9189-86c84a3dcfda"
+		_type = "unit"
 		editor = {
 			name = "unit_0003"
 		}
-		id = "0c8b1474-8e72-44ee-9189-86c84a3dcfda"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -153,10 +159,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "0cae3b7c-23a1-454c-802d-5fce8b84093f"
+		_type = "unit"
 		editor = {
 			name = "unit_0004"
 		}
-		id = "0cae3b7c-23a1-454c-802d-5fce8b84093f"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -183,10 +190,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "0e164588-c310-4c41-9e04-e9c9a2044c6b"
+		_type = "unit"
 		editor = {
 			name = "unit_0005"
 		}
-		id = "0e164588-c310-4c41-9e04-e9c9a2044c6b"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -213,10 +221,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "0f234f5f-7ac3-4fb5-809d-54e83e849253"
+		_type = "unit"
 		editor = {
 			name = "unit_0006"
 		}
-		id = "0f234f5f-7ac3-4fb5-809d-54e83e849253"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -243,10 +252,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "1f04201a-debf-4320-964f-de8d8764d37d"
+		_type = "unit"
 		editor = {
 			name = "unit_0007"
 		}
-		id = "1f04201a-debf-4320-964f-de8d8764d37d"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -273,10 +283,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "29f29073-bd6d-457e-8912-de80e0994ffc"
+		_type = "unit"
 		editor = {
 			name = "unit_0009"
 		}
-		id = "29f29073-bd6d-457e-8912-de80e0994ffc"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -303,10 +314,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "2a450c56-45db-4226-8ddc-bf26b04dd5d5"
+		_type = "unit"
 		editor = {
 			name = "skydome"
 		}
-		id = "2a450c56-45db-4226-8ddc-bf26b04dd5d5"
 		modified_components = {
 			#6ef7e034-8519-4189-9527-04dfe17aebca = {
 				data = {
@@ -333,10 +345,11 @@ units = [
 		prefab = "units/skydome"
 	}
 	{
+		_guid = "3282fd34-1c42-49cc-8014-4a1e941de86a"
+		_type = "unit"
 		editor = {
 			name = "unit_0011"
 		}
-		id = "3282fd34-1c42-49cc-8014-4a1e941de86a"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -363,10 +376,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "37e02b71-55d3-4913-86ea-dc80b19c024c"
+		_type = "unit"
 		editor = {
 			name = "unit_0012"
 		}
-		id = "37e02b71-55d3-4913-86ea-dc80b19c024c"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -393,10 +407,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "3ce1462b-dd86-4c6c-b26d-114154aed730"
+		_type = "unit"
 		editor = {
 			name = "unit_0013"
 		}
-		id = "3ce1462b-dd86-4c6c-b26d-114154aed730"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -423,10 +438,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "5fe4cf4f-1f5c-4af4-816f-c563f316fd44"
+		_type = "unit"
 		editor = {
 			name = "unit_0014"
 		}
-		id = "5fe4cf4f-1f5c-4af4-816f-c563f316fd44"
 		modified_components = {
 			#805e9323-578b-4d22-8414-b15b1a5ff7bc = {
 				data = {
@@ -453,10 +469,11 @@ units = [
 		prefab = "units/plane"
 	}
 	{
+		_guid = "663ef523-b073-424b-9cd4-546680541377"
+		_type = "unit"
 		editor = {
 			name = "unit_0015"
 		}
-		id = "663ef523-b073-424b-9cd4-546680541377"
 		modified_components = {
 			#805e9323-578b-4d22-8414-b15b1a5ff7bc = {
 				data = {
@@ -483,10 +500,11 @@ units = [
 		prefab = "units/plane"
 	}
 	{
+		_guid = "683c5131-06e1-4dad-96cd-3ef6d573d9bf"
+		_type = "unit"
 		editor = {
 			name = "light_0000"
 		}
-		id = "683c5131-06e1-4dad-96cd-3ef6d573d9bf"
 		modified_components = {
 			#3f6f6b7c-b4cf-4173-aab0-288a63d7c73a = {
 				data = {
@@ -513,10 +531,11 @@ units = [
 		prefab = "core/units/light"
 	}
 	{
+		_guid = "70d2d5c4-e1ee-4458-aaff-9950341162cf"
+		_type = "unit"
 		editor = {
 			name = "unit_0016"
 		}
-		id = "70d2d5c4-e1ee-4458-aaff-9950341162cf"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -543,10 +562,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "747d5b75-f1b4-476d-af74-8fabaf475cd6"
+		_type = "unit"
 		editor = {
 			name = "unit_0017"
 		}
-		id = "747d5b75-f1b4-476d-af74-8fabaf475cd6"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -573,10 +593,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "764eb24e-9947-4d94-a814-2c26c1477892"
+		_type = "unit"
 		editor = {
 			name = "unit_0018"
 		}
-		id = "764eb24e-9947-4d94-a814-2c26c1477892"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -603,10 +624,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "7af7b904-9f6f-4d23-a202-03ece3887bb5"
+		_type = "unit"
 		editor = {
 			name = "unit_0019"
 		}
-		id = "7af7b904-9f6f-4d23-a202-03ece3887bb5"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -633,10 +655,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "809dc860-5b63-4850-8637-9da2d0cae323"
+		_type = "unit"
 		editor = {
 			name = "unit_0020"
 		}
-		id = "809dc860-5b63-4850-8637-9da2d0cae323"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -663,10 +686,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "8537c3c6-dfc6-4c8d-a91c-e7f4ec4fa3e5"
+		_type = "unit"
 		editor = {
 			name = "unit_0021"
 		}
-		id = "8537c3c6-dfc6-4c8d-a91c-e7f4ec4fa3e5"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -693,10 +717,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "88d290eb-62ea-44e2-860f-16a18e428a65"
+		_type = "unit"
 		editor = {
 			name = "unit_0022"
 		}
-		id = "88d290eb-62ea-44e2-860f-16a18e428a65"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -723,10 +748,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "9ab38fec-f03e-475f-a07c-98c618fab522"
+		_type = "unit"
 		editor = {
 			name = "unit_0023"
 		}
-		id = "9ab38fec-f03e-475f-a07c-98c618fab522"
 		modified_components = {
 			#805e9323-578b-4d22-8414-b15b1a5ff7bc = {
 				data = {
@@ -753,10 +779,11 @@ units = [
 		prefab = "units/plane"
 	}
 	{
+		_guid = "9c35713a-b50a-4c4d-9338-44eb2913d61c"
+		_type = "unit"
 		editor = {
 			name = "unit_0024"
 		}
-		id = "9c35713a-b50a-4c4d-9338-44eb2913d61c"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -783,10 +810,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "a29ecd27-9cb5-4f2f-a417-d32b93cfb615"
+		_type = "unit"
 		editor = {
 			name = "unit_0025"
 		}
-		id = "a29ecd27-9cb5-4f2f-a417-d32b93cfb615"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -813,10 +841,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "ab4b8ed6-780a-4d3a-86fe-d8345bdd2226"
+		_type = "unit"
 		editor = {
 			name = "unit_0026"
 		}
-		id = "ab4b8ed6-780a-4d3a-86fe-d8345bdd2226"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -843,10 +872,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "b1827eaa-4222-450c-866c-d719354e0b0b"
+		_type = "unit"
 		editor = {
 			name = "unit_0027"
 		}
-		id = "b1827eaa-4222-450c-866c-d719354e0b0b"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -873,10 +903,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "b38e2246-4aa1-4fea-954b-71c21b39415f"
+		_type = "unit"
 		editor = {
 			name = "unit_0028"
 		}
-		id = "b38e2246-4aa1-4fea-954b-71c21b39415f"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -903,10 +934,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "ba450bf1-ab65-4ccb-8889-1d8b20bad417"
+		_type = "unit"
 		editor = {
 			name = "unit_0029"
 		}
-		id = "ba450bf1-ab65-4ccb-8889-1d8b20bad417"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -933,10 +965,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "ba8d7ab5-8d00-46bf-9740-c6bfd6f1a95d"
+		_type = "unit"
 		editor = {
 			name = "ground"
 		}
-		id = "ba8d7ab5-8d00-46bf-9740-c6bfd6f1a95d"
 		modified_components = {
 			#805e9323-578b-4d22-8414-b15b1a5ff7bc = {
 				data = {
@@ -963,10 +996,11 @@ units = [
 		prefab = "units/plane"
 	}
 	{
+		_guid = "c100421b-79c1-43b8-8790-dd71960bafa9"
+		_type = "unit"
 		editor = {
 			name = "unit_0031"
 		}
-		id = "c100421b-79c1-43b8-8790-dd71960bafa9"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -993,10 +1027,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "c48604c3-e761-415b-b83c-4a1eaa1a42f8"
+		_type = "unit"
 		editor = {
 			name = "unit_0032"
 		}
-		id = "c48604c3-e761-415b-b83c-4a1eaa1a42f8"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -1023,10 +1058,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "cb332d1a-6b79-4204-b288-d3b059138e57"
+		_type = "unit"
 		editor = {
 			name = "unit_0033"
 		}
-		id = "cb332d1a-6b79-4204-b288-d3b059138e57"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -1053,10 +1089,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "ce46276d-06fe-4b1f-b400-452965e66d49"
+		_type = "unit"
 		editor = {
 			name = "ramp"
 		}
-		id = "ce46276d-06fe-4b1f-b400-452965e66d49"
 		modified_components = {
 			#1089a8ef-c51f-417d-9160-3716b5b441d7 = {
 				data = {
@@ -1083,10 +1120,11 @@ units = [
 		prefab = "units/ramp"
 	}
 	{
+		_guid = "cf5c2f17-d515-4e05-b9b3-a6297d050544"
+		_type = "unit"
 		editor = {
 			name = "unit_0035"
 		}
-		id = "cf5c2f17-d515-4e05-b9b3-a6297d050544"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -1113,10 +1151,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "d508c0b1-3e22-4fa4-af59-fbdbeb1a68e8"
+		_type = "unit"
 		editor = {
 			name = "unit_0036"
 		}
-		id = "d508c0b1-3e22-4fa4-af59-fbdbeb1a68e8"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -1143,10 +1182,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "d52ad0e5-5798-4037-8494-ca23a013fdab"
+		_type = "unit"
 		editor = {
 			name = "unit_0037"
 		}
-		id = "d52ad0e5-5798-4037-8494-ca23a013fdab"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -1173,10 +1213,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "d95eca3d-21f9-40fa-b218-e0c52b2327c7"
+		_type = "unit"
 		editor = {
 			name = "unit_0038"
 		}
-		id = "d95eca3d-21f9-40fa-b218-e0c52b2327c7"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -1203,10 +1244,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "e0398eaa-22ee-453f-a016-b768d95a8785"
+		_type = "unit"
 		editor = {
 			name = "unit_0039"
 		}
-		id = "e0398eaa-22ee-453f-a016-b768d95a8785"
 		modified_components = {
 			#805e9323-578b-4d22-8414-b15b1a5ff7bc = {
 				data = {
@@ -1233,10 +1275,11 @@ units = [
 		prefab = "units/plane"
 	}
 	{
+		_guid = "e31c8dde-f80b-4bba-80fb-6d263df32ab8"
+		_type = "unit"
 		editor = {
 			name = "unit_0040"
 		}
-		id = "e31c8dde-f80b-4bba-80fb-6d263df32ab8"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -1263,10 +1306,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "e53ca129-4bc4-4cd3-9627-8962f4acc1e1"
+		_type = "unit"
 		editor = {
 			name = "unit_0041"
 		}
-		id = "e53ca129-4bc4-4cd3-9627-8962f4acc1e1"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
@@ -1293,10 +1337,11 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "ea7b8639-190b-42aa-b581-004ae990434a"
+		_type = "unit"
 		editor = {
 			name = "unit_0042"
 		}
-		id = "ea7b8639-190b-42aa-b581-004ae990434a"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {

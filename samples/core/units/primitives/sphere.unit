@@ -1,16 +1,20 @@
-
+_guid = "6d0f5a3a-26a1-4b3c-a918-c5aea7efa556"
+_type = "unit"
 components = [
 	{
+		_guid = "37ac9624-1d8c-4612-85da-d74654f48177"
+		_type = "collider"
 		data = {
-			geometry_name = "Sphere"
-			material = "core/units/primitives/primitive"
-			mesh_resource = "core/units/primitives/sphere"
-			visible = true
+			material = "default"
+			name = "Sphere"
+			scene = "core/units/primitives/sphere"
+			shape = "convex_hull"
 		}
-		id = "ce881722-b0da-41ea-b29b-b26b85cf61b5"
-		type = "mesh_renderer"
+		type = "collider"
 	}
 	{
+		_guid = "8972a214-327e-4396-b01e-45701189e8c9"
+		_type = "transform"
 		data = {
 			position = [
 				0
@@ -29,27 +33,28 @@ components = [
 				1
 			]
 		}
-		id = "8972a214-327e-4396-b01e-45701189e8c9"
 		type = "transform"
 	}
 	{
-		data = {
-			material = "default"
-			name = "Sphere"
-			scene = "core/units/primitives/sphere"
-			shape = "convex_hull"
-		}
-		id = "37ac9624-1d8c-4612-85da-d74654f48177"
-		type = "collider"
-	}
-	{
+		_guid = "b90d4427-bc08-4d40-aaf5-9d0eb80be391"
+		_type = "actor"
 		data = {
 			class = "static"
 			collision_filter = "default"
 			mass = 1
 			material = "default"
 		}
-		id = "b90d4427-bc08-4d40-aaf5-9d0eb80be391"
 		type = "actor"
+	}
+	{
+		_guid = "ce881722-b0da-41ea-b29b-b26b85cf61b5"
+		_type = "mesh_renderer"
+		data = {
+			geometry_name = "Sphere"
+			material = "core/units/primitives/primitive"
+			mesh_resource = "core/units/primitives/sphere"
+			visible = true
+		}
+		type = "mesh_renderer"
 	}
 ]

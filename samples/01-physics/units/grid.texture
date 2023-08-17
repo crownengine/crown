@@ -1,3 +1,5 @@
-source = "units/grid.tga"
+_guid = "d5012d34-111f-4419-a1e2-36b1408adbb8"
+_type = "texture"
 generate_mips = true
 normal_map = false
+source = "units/grid.tga"

@@ -1,12 +1,14 @@
-id = "fed25d3f-c771-4082-95d5-b289706c1a2b"
+_guid = "fed25d3f-c771-4082-95d5-b289706c1a2b"
+_type = "level"
 sounds = [
 ]
 units = [
 	{
+		_guid = "20e3d0f7-28a0-4ceb-8232-c977b858c97d"
+		_type = "unit"
 		editor = {
 			name = "light_0001"
 		}
-		id = "20e3d0f7-28a0-4ceb-8232-c977b858c97d"
 		modified_components = {
 			#3f6f6b7c-b4cf-4173-aab0-288a63d7c73a = {
 				data = {
@@ -33,10 +35,11 @@ units = [
 		prefab = "core/units/light"
 	}
 	{
+		_guid = "3f6299e4-1a95-4ac4-9a44-c511983518fc"
+		_type = "unit"
 		editor = {
 			name = "unit_0025"
 		}
-		id = "3f6299e4-1a95-4ac4-9a44-c511983518fc"
 		modified_components = {
 			#525553d1-d333-4757-8608-9040ff265ebd = {
 				data = {
@@ -63,10 +66,11 @@ units = [
 		prefab = "units/environment/tree"
 	}
 	{
+		_guid = "53895ad6-3a1b-4a9a-a8a3-8735e3402608"
+		_type = "unit"
 		editor = {
 			name = "unit_0023"
 		}
-		id = "53895ad6-3a1b-4a9a-a8a3-8735e3402608"
 		modified_components = {
 			#525553d1-d333-4757-8608-9040ff265ebd = {
 				data = {
@@ -93,10 +97,11 @@ units = [
 		prefab = "units/environment/tree"
 	}
 	{
+		_guid = "69a216ee-398c-44ff-90e8-3cc8e8fda1eb"
+		_type = "unit"
 		editor = {
 			name = "unit_0022"
 		}
-		id = "69a216ee-398c-44ff-90e8-3cc8e8fda1eb"
 		modified_components = {
 			#525553d1-d333-4757-8608-9040ff265ebd = {
 				data = {
@@ -123,10 +128,11 @@ units = [
 		prefab = "units/environment/tree"
 	}
 	{
+		_guid = "8506efab-8f99-404b-a5aa-4291303c8363"
+		_type = "unit"
 		editor = {
 			name = "unit_0024"
 		}
-		id = "8506efab-8f99-404b-a5aa-4291303c8363"
 		modified_components = {
 			#525553d1-d333-4757-8608-9040ff265ebd = {
 				data = {

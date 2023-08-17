@@ -1,16 +1,20 @@
-
+_guid = "00dc7134-8b8a-4240-be70-991de981514e"
+_type = "unit"
 components = [
 	{
+		_guid = "3371ebe2-5dd3-4e37-bc1f-d63a34096c02"
+		_type = "mesh_renderer"
 		data = {
 			geometry_name = "Cylinder"
 			material = "core/units/sound"
 			mesh_resource = "core/units/sound"
 			visible = true
 		}
-		id = "3371ebe2-5dd3-4e37-bc1f-d63a34096c02"
 		type = "mesh_renderer"
 	}
 	{
+		_guid = "faa19c89-7550-474e-a86e-97a87c5d5cee"
+		_type = "transform"
 		data = {
 			position = [
 				0
@@ -29,7 +33,6 @@ components = [
 				1
 			]
 		}
-		id = "faa19c89-7550-474e-a86e-97a87c5d5cee"
 		type = "transform"
 	}
 ]

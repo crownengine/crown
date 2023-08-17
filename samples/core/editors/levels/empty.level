@@ -1,12 +1,14 @@
-id = "ba028395-428e-42f2-aca8-11a1523fe8bf"
+_guid = "ba028395-428e-42f2-aca8-11a1523fe8bf"
+_type = "level"
 sounds = [
 ]
 units = [
 	{
+		_guid = "20e3d0f7-28a0-4ceb-8232-c977b858c97d"
+		_type = "unit"
 		editor = {
 			name = "light_0000"
 		}
-		id = "20e3d0f7-28a0-4ceb-8232-c977b858c97d"
 		modified_components = {
 			#3f6f6b7c-b4cf-4173-aab0-288a63d7c73a = {
 				data = {

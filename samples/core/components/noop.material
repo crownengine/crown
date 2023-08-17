@@ -1,7 +1,3 @@
+_guid = "6017acba-681b-43ff-b213-56efe3f2578b"
+_type = "material"
 shader = "noop"
-
-textures = {
-}
-
-uniforms = {
-}

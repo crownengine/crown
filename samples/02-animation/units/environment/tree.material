@@ -1,4 +1,5 @@
-
+_guid = "f174f984-efac-446c-9dcc-ca8c2f78cb52"
+_type = "material"
 shader = "sprite"
 textures = {
 	u_albedo = "units/environment/tree"

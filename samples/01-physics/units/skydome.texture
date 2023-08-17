@@ -1,3 +1,5 @@
-source = "units/skydome.tga"
+_guid = "b2904e43-a3fb-406b-8821-5f810500242c"
+_type = "texture"
 generate_mips = false
 normal_map = false
+source = "units/skydome.tga"

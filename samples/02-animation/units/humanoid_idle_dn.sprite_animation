@@ -1,2 +1,10 @@
-frames = [ 18 ]
+_guid = "550727ae-1cd0-47a4-a1e3-28ef1733b9f0"
+_type = "sprite_animation"
+frames = [
+	{
+		_guid = "7c5cb125-6650-4c3a-b1f4-4291a3585e73"
+		_type = "animation_frame"
+		index = 18
+	}
+]
 total_time = 1

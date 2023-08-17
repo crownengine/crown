@@ -1,8 +1,6 @@
+_guid = "b8c5fcbd-9a99-4c1a-a25b-1a24d4482008"
+_type = "material"
 shader = "mesh+DIFFUSE_MAP+NO_LIGHT"
-
 textures = {
 	u_albedo = "units/skydome"
-}
-
-uniforms = {
 }

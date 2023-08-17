@@ -1,153 +1,15 @@
-
+_guid = "3670c305-299b-4b5c-90e0-78f5923b1756"
+_type = "sprite"
 frames = [
 	{
-		name = "sprite_0"
-		pivot = [
-			32
-			64
-		]
-		region = [
-			0
-			0
-			64
-			64
-		]
-	}
-	{
-		name = "sprite_1"
-		pivot = [
-			96
-			64
-		]
-		region = [
-			64
-			0
-			64
-			64
-		]
-	}
-	{
-		name = "sprite_2"
-		pivot = [
-			160
-			64
-		]
-		region = [
-			128
-			0
-			64
-			64
-		]
-	}
-	{
-		name = "sprite_3"
-		pivot = [
-			224
-			64
-		]
-		region = [
-			192
-			0
-			64
-			64
-		]
-	}
-	{
-		name = "sprite_4"
-		pivot = [
-			288
-			64
-		]
-		region = [
-			256
-			0
-			64
-			64
-		]
-	}
-	{
-		name = "sprite_5"
-		pivot = [
-			352
-			64
-		]
-		region = [
-			320
-			0
-			64
-			64
-		]
-	}
-	{
-		name = "sprite_6"
-		pivot = [
-			416
-			64
-		]
-		region = [
-			384
-			0
-			64
-			64
-		]
-	}
-	{
-		name = "sprite_7"
-		pivot = [
-			480
-			64
-		]
-		region = [
-			448
-			0
-			64
-			64
-		]
-	}
-	{
-		name = "sprite_8"
-		pivot = [
-			544
-			64
-		]
-		region = [
-			512
-			0
-			64
-			64
-		]
-	}
-	{
-		name = "sprite_9"
-		pivot = [
-			32
-			128
-		]
-		region = [
-			0
-			64
-			64
-			64
-		]
-	}
-	{
-		name = "sprite_10"
-		pivot = [
-			96
-			128
-		]
-		region = [
-			64
-			64
-			64
-			64
-		]
-	}
-	{
+		_guid = "01126959-c7be-40b4-af45-2b0252beab59"
+		_type = "sprite_frame"
+		index = 11
 		name = "sprite_11"
 		pivot = [
 			160
 			128
+			0
 		]
 		region = [
 			128
@@ -157,75 +19,14 @@ frames = [
 		]
 	}
 	{
-		name = "sprite_12"
-		pivot = [
-			224
-			128
-		]
-		region = [
-			192
-			64
-			64
-			64
-		]
-	}
-	{
-		name = "sprite_13"
-		pivot = [
-			288
-			128
-		]
-		region = [
-			256
-			64
-			64
-			64
-		]
-	}
-	{
-		name = "sprite_14"
-		pivot = [
-			352
-			128
-		]
-		region = [
-			320
-			64
-			64
-			64
-		]
-	}
-	{
-		name = "sprite_15"
-		pivot = [
-			416
-			128
-		]
-		region = [
-			384
-			64
-			64
-			64
-		]
-	}
-	{
-		name = "sprite_16"
-		pivot = [
-			480
-			128
-		]
-		region = [
-			448
-			64
-			64
-			64
-		]
-	}
-	{
+		_guid = "0f0b037c-0033-44f9-a08c-3baaba669454"
+		_type = "sprite_frame"
+		index = 17
 		name = "sprite_17"
 		pivot = [
 			544
 			128
+			0
 		]
 		region = [
 			512
@@ -235,235 +36,579 @@ frames = [
 		]
 	}
 	{
-		name = "sprite_18"
-		pivot = [
-			32
-			192
-		]
-		region = [
-			0
-			128
-			64
-			64
-		]
-	}
-	{
-		name = "sprite_19"
-		pivot = [
-			96
-			192
-		]
-		region = [
-			64
-			128
-			64
-			64
-		]
-	}
-	{
-		name = "sprite_20"
-		pivot = [
-			160
-			192
-		]
-		region = [
-			128
-			128
-			64
-			64
-		]
-	}
-	{
-		name = "sprite_21"
-		pivot = [
-			224
-			192
-		]
-		region = [
-			192
-			128
-			64
-			64
-		]
-	}
-	{
-		name = "sprite_22"
-		pivot = [
-			288
-			192
-		]
-		region = [
-			256
-			128
-			64
-			64
-		]
-	}
-	{
-		name = "sprite_23"
-		pivot = [
-			352
-			192
-		]
-		region = [
-			320
-			128
-			64
-			64
-		]
-	}
-	{
-		name = "sprite_24"
-		pivot = [
-			416
-			192
-		]
-		region = [
-			384
-			128
-			64
-			64
-		]
-	}
-	{
-		name = "sprite_25"
-		pivot = [
-			480
-			192
-		]
-		region = [
-			448
-			128
-			64
-			64
-		]
-	}
-	{
-		name = "sprite_26"
-		pivot = [
-			544
-			192
-		]
-		region = [
-			512
-			128
-			64
-			64
-		]
-	}
-	{
-		name = "sprite_27"
-		pivot = [
-			32
-			256
-		]
-		region = [
-			0
-			192
-			64
-			64
-		]
-	}
-	{
-		name = "sprite_28"
-		pivot = [
-			96
-			256
-		]
-		region = [
-			64
-			192
-			64
-			64
-		]
-	}
-	{
-		name = "sprite_29"
-		pivot = [
-			160
-			256
-		]
-		region = [
-			128
-			192
-			64
-			64
-		]
-	}
-	{
-		name = "sprite_30"
-		pivot = [
-			224
-			256
-		]
-		region = [
-			192
-			192
-			64
-			64
-		]
-	}
-	{
-		name = "sprite_31"
-		pivot = [
-			288
-			256
-		]
-		region = [
-			256
-			192
-			64
-			64
-		]
-	}
-	{
-		name = "sprite_32"
-		pivot = [
-			352
-			256
-		]
-		region = [
-			320
-			192
-			64
-			64
-		]
-	}
-	{
-		name = "sprite_33"
-		pivot = [
-			416
-			256
-		]
-		region = [
-			384
-			192
-			64
-			64
-		]
-	}
-	{
-		name = "sprite_34"
-		pivot = [
-			480
-			256
-		]
-		region = [
-			448
-			192
-			64
-			64
-		]
-	}
-	{
+		_guid = "0ff117cf-3f0b-4e66-8525-46cdbcc6ca24"
+		_type = "sprite_frame"
+		index = 35
 		name = "sprite_35"
 		pivot = [
 			544
 			256
+			0
 		]
 		region = [
 			512
 			192
+			64
+			64
+		]
+	}
+	{
+		_guid = "10e9db9b-a142-4898-bd9b-8547ab46e5da"
+		_type = "sprite_frame"
+		index = 23
+		name = "sprite_23"
+		pivot = [
+			352
+			192
+			0
+		]
+		region = [
+			320
+			128
+			64
+			64
+		]
+	}
+	{
+		_guid = "119b3f9a-1814-43c5-af16-5d74067930fe"
+		_type = "sprite_frame"
+		index = 13
+		name = "sprite_13"
+		pivot = [
+			288
+			128
+			0
+		]
+		region = [
+			256
+			64
+			64
+			64
+		]
+	}
+	{
+		_guid = "19717d52-299b-43ff-968c-e69a016103d4"
+		_type = "sprite_frame"
+		index = 14
+		name = "sprite_14"
+		pivot = [
+			352
+			128
+			0
+		]
+		region = [
+			320
+			64
+			64
+			64
+		]
+	}
+	{
+		_guid = "32e34744-e844-48b3-8ee4-14a252f3e18f"
+		_type = "sprite_frame"
+		index = 16
+		name = "sprite_16"
+		pivot = [
+			480
+			128
+			0
+		]
+		region = [
+			448
+			64
+			64
+			64
+		]
+	}
+	{
+		_guid = "3846f642-84b2-42a9-ab13-3f377b1b8d83"
+		_type = "sprite_frame"
+		index = 4
+		name = "sprite_4"
+		pivot = [
+			288
+			64
+			0
+		]
+		region = [
+			256
+			0
+			64
+			64
+		]
+	}
+	{
+		_guid = "3b1e16c3-3cce-4905-88cb-af26679e9d3b"
+		_type = "sprite_frame"
+		index = 18
+		name = "sprite_18"
+		pivot = [
+			32
+			192
+			0
+		]
+		region = [
+			0
+			128
+			64
+			64
+		]
+	}
+	{
+		_guid = "4ae277cb-28f4-4307-974c-70cd2f4a2611"
+		_type = "sprite_frame"
+		index = 31
+		name = "sprite_31"
+		pivot = [
+			288
+			256
+			0
+		]
+		region = [
+			256
+			192
+			64
+			64
+		]
+	}
+	{
+		_guid = "533be46e-3b9e-4ac0-9865-fc7827740dbd"
+		_type = "sprite_frame"
+		index = 33
+		name = "sprite_33"
+		pivot = [
+			416
+			256
+			0
+		]
+		region = [
+			384
+			192
+			64
+			64
+		]
+	}
+	{
+		_guid = "58d192d5-e718-43af-a64e-6748f5967bc9"
+		_type = "sprite_frame"
+		index = 29
+		name = "sprite_29"
+		pivot = [
+			160
+			256
+			0
+		]
+		region = [
+			128
+			192
+			64
+			64
+		]
+	}
+	{
+		_guid = "63789765-be9f-4dc3-88f8-c6e8de4682b4"
+		_type = "sprite_frame"
+		index = 28
+		name = "sprite_28"
+		pivot = [
+			96
+			256
+			0
+		]
+		region = [
+			64
+			192
+			64
+			64
+		]
+	}
+	{
+		_guid = "668478af-8d6e-4d3b-b778-41b76542e0e7"
+		_type = "sprite_frame"
+		index = 1
+		name = "sprite_1"
+		pivot = [
+			96
+			64
+			0
+		]
+		region = [
+			64
+			0
+			64
+			64
+		]
+	}
+	{
+		_guid = "6731d72c-c1aa-4441-8f04-4b218a3c2ff8"
+		_type = "sprite_frame"
+		index = 21
+		name = "sprite_21"
+		pivot = [
+			224
+			192
+			0
+		]
+		region = [
+			192
+			128
+			64
+			64
+		]
+	}
+	{
+		_guid = "82dbd2c5-f9dc-43ce-8af9-41cc37d16bd9"
+		_type = "sprite_frame"
+		index = 3
+		name = "sprite_3"
+		pivot = [
+			224
+			64
+			0
+		]
+		region = [
+			192
+			0
+			64
+			64
+		]
+	}
+	{
+		_guid = "857f318c-6c7e-488d-a19a-74aaca5189de"
+		_type = "sprite_frame"
+		index = 32
+		name = "sprite_32"
+		pivot = [
+			352
+			256
+			0
+		]
+		region = [
+			320
+			192
+			64
+			64
+		]
+	}
+	{
+		_guid = "8c1e3d87-cfe9-41a1-995d-2ae7ac74b20f"
+		_type = "sprite_frame"
+		index = 5
+		name = "sprite_5"
+		pivot = [
+			352
+			64
+			0
+		]
+		region = [
+			320
+			0
+			64
+			64
+		]
+	}
+	{
+		_guid = "8ca079f2-de24-40b4-9ff9-eeae6c068d4c"
+		_type = "sprite_frame"
+		index = 20
+		name = "sprite_20"
+		pivot = [
+			160
+			192
+			0
+		]
+		region = [
+			128
+			128
+			64
+			64
+		]
+	}
+	{
+		_guid = "91fcdd67-7e5c-4b3f-b44e-4b6cfac420fa"
+		_type = "sprite_frame"
+		index = 6
+		name = "sprite_6"
+		pivot = [
+			416
+			64
+			0
+		]
+		region = [
+			384
+			0
+			64
+			64
+		]
+	}
+	{
+		_guid = "9b874e82-da64-4587-ad9b-dd1db7d5a3c6"
+		_type = "sprite_frame"
+		index = 2
+		name = "sprite_2"
+		pivot = [
+			160
+			64
+			0
+		]
+		region = [
+			128
+			0
+			64
+			64
+		]
+	}
+	{
+		_guid = "9c04f40c-230e-4991-8979-59fa58b072d4"
+		_type = "sprite_frame"
+		index = 30
+		name = "sprite_30"
+		pivot = [
+			224
+			256
+			0
+		]
+		region = [
+			192
+			192
+			64
+			64
+		]
+	}
+	{
+		_guid = "aa36a574-24a8-4d9d-81ac-e84877c16b68"
+		_type = "sprite_frame"
+		index = 24
+		name = "sprite_24"
+		pivot = [
+			416
+			192
+			0
+		]
+		region = [
+			384
+			128
+			64
+			64
+		]
+	}
+	{
+		_guid = "ae1ef438-6ea8-463f-8939-ae14cf87ba13"
+		_type = "sprite_frame"
+		index = 8
+		name = "sprite_8"
+		pivot = [
+			544
+			64
+			0
+		]
+		region = [
+			512
+			0
+			64
+			64
+		]
+	}
+	{
+		_guid = "bfc6089b-b060-4a2f-81bb-a15e84b67103"
+		_type = "sprite_frame"
+		index = 0
+		name = "sprite_0"
+		pivot = [
+			32
+			64
+			0
+		]
+		region = [
+			0
+			0
+			64
+			64
+		]
+	}
+	{
+		_guid = "c2343d73-cc96-4ff1-8caf-daa7d3e76508"
+		_type = "sprite_frame"
+		index = 27
+		name = "sprite_27"
+		pivot = [
+			32
+			256
+			0
+		]
+		region = [
+			0
+			192
+			64
+			64
+		]
+	}
+	{
+		_guid = "c73a1825-3a66-417b-adb0-31e201f7fa6b"
+		_type = "sprite_frame"
+		index = 12
+		name = "sprite_12"
+		pivot = [
+			224
+			128
+			0
+		]
+		region = [
+			192
+			64
+			64
+			64
+		]
+	}
+	{
+		_guid = "ce322f48-487e-4fc9-ad76-8caba224dd58"
+		_type = "sprite_frame"
+		index = 15
+		name = "sprite_15"
+		pivot = [
+			416
+			128
+			0
+		]
+		region = [
+			384
+			64
+			64
+			64
+		]
+	}
+	{
+		_guid = "dbcba85b-4622-4ea2-b7f0-74168e89436e"
+		_type = "sprite_frame"
+		index = 9
+		name = "sprite_9"
+		pivot = [
+			32
+			128
+			0
+		]
+		region = [
+			0
+			64
+			64
+			64
+		]
+	}
+	{
+		_guid = "e4316dcd-2d0a-406b-9f13-99e2083966a9"
+		_type = "sprite_frame"
+		index = 25
+		name = "sprite_25"
+		pivot = [
+			480
+			192
+			0
+		]
+		region = [
+			448
+			128
+			64
+			64
+		]
+	}
+	{
+		_guid = "e61bf499-6e0e-414f-87c8-61abc0ffcf50"
+		_type = "sprite_frame"
+		index = 34
+		name = "sprite_34"
+		pivot = [
+			480
+			256
+			0
+		]
+		region = [
+			448
+			192
+			64
+			64
+		]
+	}
+	{
+		_guid = "e76e1d48-4c52-4f37-a17e-bb33e2eea997"
+		_type = "sprite_frame"
+		index = 7
+		name = "sprite_7"
+		pivot = [
+			480
+			64
+			0
+		]
+		region = [
+			448
+			0
+			64
+			64
+		]
+	}
+	{
+		_guid = "e9f4b416-8206-4d11-b52b-1cb4c6ded994"
+		_type = "sprite_frame"
+		index = 26
+		name = "sprite_26"
+		pivot = [
+			544
+			192
+			0
+		]
+		region = [
+			512
+			128
+			64
+			64
+		]
+	}
+	{
+		_guid = "ec90e1a5-5593-4010-a22c-6e2f2a5fb6f9"
+		_type = "sprite_frame"
+		index = 22
+		name = "sprite_22"
+		pivot = [
+			288
+			192
+			0
+		]
+		region = [
+			256
+			128
+			64
+			64
+		]
+	}
+	{
+		_guid = "ecbf2091-9a65-4ad2-8fca-60347e53bf58"
+		_type = "sprite_frame"
+		index = 19
+		name = "sprite_19"
+		pivot = [
+			96
+			192
+			0
+		]
+		region = [
+			64
+			128
+			64
+			64
+		]
+	}
+	{
+		_guid = "f38a0e21-1006-4165-ad2a-f42387327983"
+		_type = "sprite_frame"
+		index = 10
+		name = "sprite_10"
+		pivot = [
+			96
+			128
+			0
+		]
+		region = [
+			64
+			64
 			64
 			64
 		]

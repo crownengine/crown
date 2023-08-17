@@ -1,6 +1,9 @@
-
+_guid = "b9e1d9a3-c201-477c-b33b-044581ccce37"
+_type = "unit"
 components = [
 	{
+		_guid = "1d578001-d96b-4b0e-90a9-181b32161a7d"
+		_type = "transform"
 		data = {
 			position = [
 				0
@@ -19,34 +22,36 @@ components = [
 				1
 			]
 		}
-		id = "1d578001-d96b-4b0e-90a9-181b32161a7d"
 		type = "transform"
 	}
 	{
+		_guid = "2c75ed10-6fe9-4f4c-b28d-80ebca2ef66f"
+		_type = "camera"
 		data = {
 			far_range = 1000
 			fov = 0.78539800000000004
-			near_range = 0.1
+			near_range = 0.10000000000000001
 			projection = "perspective"
 		}
-		id = "2c75ed10-6fe9-4f4c-b28d-80ebca2ef66f"
 		type = "camera"
 	}
 	{
+		_guid = "a02e02a1-9ce4-4e20-885a-badbf6197d7a"
+		_type = "mesh_renderer"
 		data = {
 			geometry_name = "Camera"
 			material = "core/units/camera"
 			mesh_resource = "core/units/camera"
 			visible = true
 		}
-		id = "a02e02a1-9ce4-4e20-885a-badbf6197d7a"
 		type = "mesh_renderer"
 	}
 	{
+		_guid = "eee01696-8523-4d3f-b49a-59821238f270"
+		_type = "script"
 		data = {
 			script_resource = "core/units/camera"
 		}
-		id = "eee01696-8523-4d3f-b49a-59821238f270"
 		type = "script"
 	}
 ]

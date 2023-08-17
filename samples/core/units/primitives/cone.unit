@@ -1,16 +1,20 @@
-
+_guid = "26ecbef8-c834-4f6e-818d-7c1cade5d967"
+_type = "unit"
 components = [
 	{
+		_guid = "157bdce7-ab63-4478-9550-65610918343e"
+		_type = "collider"
 		data = {
-			class = "static"
-			collision_filter = "default"
-			mass = 1
 			material = "default"
+			name = "Cone"
+			scene = "core/units/primitives/cone"
+			shape = "convex_hull"
 		}
-		id = "1862249c-206a-4fdb-9e3f-c37a149e58d8"
-		type = "actor"
+		type = "collider"
 	}
 	{
+		_guid = "1689686c-99b6-4b8a-90c8-9606bb466096"
+		_type = "transform"
 		data = {
 			position = [
 				0
@@ -29,27 +33,28 @@ components = [
 				1
 			]
 		}
-		id = "1689686c-99b6-4b8a-90c8-9606bb466096"
 		type = "transform"
 	}
 	{
+		_guid = "1862249c-206a-4fdb-9e3f-c37a149e58d8"
+		_type = "actor"
 		data = {
+			class = "static"
+			collision_filter = "default"
+			mass = 1
 			material = "default"
-			name = "Cone"
-			scene = "core/units/primitives/cone"
-			shape = "convex_hull"
 		}
-		id = "157bdce7-ab63-4478-9550-65610918343e"
-		type = "collider"
+		type = "actor"
 	}
 	{
+		_guid = "56078f34-c3b0-4c64-a245-5d305021712b"
+		_type = "mesh_renderer"
 		data = {
 			geometry_name = "Cone"
 			material = "core/units/primitives/primitive"
 			mesh_resource = "core/units/primitives/cone"
 			visible = true
 		}
-		id = "56078f34-c3b0-4c64-a245-5d305021712b"
 		type = "mesh_renderer"
 	}
 ]

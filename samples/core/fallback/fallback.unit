@@ -1,6 +1,9 @@
-
+_guid = "09143fd8-4c3d-4b9c-a483-99ae2c9a9c3f"
+_type = "unit"
 components = [
 	{
+		_guid = "8c9fa813-e963-468e-859d-02fb0438ca04"
+		_type = "transform"
 		data = {
 			position = [
 				0
@@ -19,7 +22,6 @@ components = [
 				1
 			]
 		}
-		id = "8c9fa813-e963-468e-859d-02fb0438ca04"
 		type = "transform"
 	}
 ]

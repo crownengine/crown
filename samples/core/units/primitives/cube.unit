@@ -1,16 +1,20 @@
-
+_guid = "0cc80c3d-089a-43ad-b145-77c504e2ef50"
+_type = "unit"
 components = [
 	{
+		_guid = "08b8b97a-c894-409f-8f57-e7508ff8d3cf"
+		_type = "collider"
 		data = {
-			class = "static"
-			collision_filter = "default"
-			mass = 1
 			material = "default"
+			name = "Cube"
+			scene = "core/units/primitives/cube"
+			shape = "convex_hull"
 		}
-		id = "b15082c5-3aaf-4c9a-8925-e5c958d49171"
-		type = "actor"
+		type = "collider"
 	}
 	{
+		_guid = "23dbf108-db64-4ca2-9647-8c639ee039ad"
+		_type = "transform"
 		data = {
 			position = [
 				0
@@ -29,27 +33,28 @@ components = [
 				1
 			]
 		}
-		id = "23dbf108-db64-4ca2-9647-8c639ee039ad"
 		type = "transform"
 	}
 	{
-		data = {
-			material = "default"
-			name = "Cube"
-			scene = "core/units/primitives/cube"
-			shape = "convex_hull"
-		}
-		id = "08b8b97a-c894-409f-8f57-e7508ff8d3cf"
-		type = "collider"
-	}
-	{
+		_guid = "49753fff-34ea-4aff-8bcf-5116f1c1519a"
+		_type = "mesh_renderer"
 		data = {
 			geometry_name = "Cube"
 			material = "core/units/primitives/primitive"
 			mesh_resource = "core/units/primitives/cube"
 			visible = true
 		}
-		id = "49753fff-34ea-4aff-8bcf-5116f1c1519a"
 		type = "mesh_renderer"
+	}
+	{
+		_guid = "b15082c5-3aaf-4c9a-8925-e5c958d49171"
+		_type = "actor"
+		data = {
+			class = "static"
+			collision_filter = "default"
+			mass = 1
+			material = "default"
+		}
+		type = "actor"
 	}
 ]

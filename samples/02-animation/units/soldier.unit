@@ -1,13 +1,17 @@
-
+_guid = "0156b8a4-7fa0-4b8d-98fc-82b2c6d11eb4"
+_type = "unit"
 components = [
 	{
+		_guid = "1ae2bba5-d24a-4c6e-8af7-a8b97340d221"
+		_type = "animation_state_machine"
 		data = {
 			state_machine_resource = "units/humanoid"
 		}
-		id = "1ae2bba5-d24a-4c6e-8af7-a8b97340d221"
 		type = "animation_state_machine"
 	}
 	{
+		_guid = "6340ce8f-6380-4718-b827-83ebddb60e42"
+		_type = "sprite_renderer"
 		data = {
 			depth = 0
 			layer = 1
@@ -15,10 +19,11 @@ components = [
 			sprite_resource = "units/soldier"
 			visible = true
 		}
-		id = "6340ce8f-6380-4718-b827-83ebddb60e42"
 		type = "sprite_renderer"
 	}
 	{
+		_guid = "ac52af2e-475e-49ea-8fb0-2e7fc3fe9d19"
+		_type = "transform"
 		data = {
 			position = [
 				0
@@ -37,7 +42,6 @@ components = [
 				1
 			]
 		}
-		id = "ac52af2e-475e-49ea-8fb0-2e7fc3fe9d19"
 		type = "transform"
 	}
 ]

@@ -1,4 +1,5 @@
-
+_guid = "5471c291-617b-473d-baa0-09685a7f6d83"
+_type = "texture"
 generate_mips = false
 normal_map = false
 source = "units/princess.png"
