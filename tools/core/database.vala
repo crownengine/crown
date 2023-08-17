@@ -594,7 +594,10 @@ public class Database
 				decode_object(id, owner_id, k, ht);
 			} else if (val.holds(typeof(ArrayList))) {
 				ArrayList<Value?> arr = (ArrayList<Value?>)val;
-				if (arr.size > 0 && arr[0].holds(typeof(double)))
+				if (arr.size > 0
+					&& arr[0].holds(typeof(double))
+					&& k != "frames" // sprite_animation
+					)
 					set_property_internal(0, id, k, decode_value(val));
 				else
 					decode_set(id, key, arr);
@@ -655,6 +658,11 @@ public class Database
 				if (key == "frames") {
 					set_object_type(obj_id, "sprite_frame");
 					set_property_internal(0, obj_id, "index", (double)i);
+				}
+			} else if (owner_type == "sprite_animation") {
+				if (key == "frames") {
+					set_object_type(obj_id, "animation_frame");
+					set_property_internal(0, obj_id, "index", (double)json[i]);
 				}
 			} else if (owner_type == "font") {
 				if (key == "glyphs") {

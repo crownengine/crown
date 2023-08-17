@@ -206,8 +206,15 @@ namespace sprite_animation_resource_internal
 		sjson::parse_array(object_frames, obj["frames"]);
 
 		array::resize(frames, array::size(object_frames));
-		for (u32 i = 0; i < array::size(object_frames); ++i)
-			frames[i] = (u32)sjson::parse_float(object_frames[i]);
+		for (u32 i = 0; i < array::size(object_frames); ++i) {
+			if (sjson::type(object_frames[i]) == JsonValueType::NUMBER) {
+				frames[i] = (u32)sjson::parse_float(object_frames[i]);
+			} else {
+				JsonObject animation_frame_obj(ta);
+				sjson::parse_object(animation_frame_obj, object_frames[i]);
+				frames[i] = (u32)sjson::parse_float(animation_frame_obj["index"]);
+			}
+		}
 
 		total_time = sjson::parse_float(obj["total_time"]);
 
