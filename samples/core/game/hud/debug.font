@@ -1,0 +1,1146 @@
+_guid = "2cf6a0ca-b387-4635-91fd-72f862943689"
+_type = "font"
+font_size = 32
+glyphs = [
+	{
+		_guid = "06a98e5d-b112-48f0-8519-b1d175b3a13d"
+		_type = "font_glyph"
+		cp = 42
+		height = 12
+		width = 13
+		x = 67
+		x_advance = 19
+		x_offset = 3
+		y = 118
+		y_offset = 23
+	}
+	{
+		_guid = "080ebc6f-d4e6-430e-a326-cba433fb1cd1"
+		_type = "font_glyph"
+		cp = 102
+		height = 23
+		width = 16
+		x = 161
+		x_advance = 19
+		x_offset = 2
+		y = 25
+		y_offset = 23
+	}
+	{
+		_guid = "097c7e07-f80a-4785-8794-64abe26fd36e"
+		_type = "font_glyph"
+		cp = 123
+		height = 30
+		width = 14
+		x = 0
+		x_advance = 19
+		x_offset = 3
+		y = 0
+		y_offset = 23
+	}
+	{
+		_guid = "0afb495b-0a3e-47cf-a137-8c86d34f54c8"
+		_type = "font_glyph"
+		cp = 75
+		height = 21
+		width = 18
+		x = 165
+		x_advance = 19
+		x_offset = 2
+		y = 49
+		y_offset = 21
+	}
+	{
+		_guid = "0c0d3529-0e00-4ee5-959c-6347845341ba"
+		_type = "font_glyph"
+		cp = 77
+		height = 21
+		width = 16
+		x = 17
+		x_advance = 19
+		x_offset = 2
+		y = 75
+		y_offset = 21
+	}
+	{
+		_guid = "0c9362f1-a38b-45a1-8571-acfc19a7100d"
+		_type = "font_glyph"
+		cp = 55
+		height = 21
+		width = 15
+		x = 207
+		x_advance = 19
+		x_offset = 2
+		y = 92
+		y_offset = 21
+	}
+	{
+		_guid = "0d7f471e-bc9a-4376-9aa3-02f95e26cb29"
+		_type = "font_glyph"
+		cp = 89
+		height = 21
+		width = 19
+		x = 145
+		x_advance = 19
+		x_offset = 0
+		y = 49
+		y_offset = 21
+	}
+	{
+		_guid = "0de5903d-77d7-4f0a-8686-430e904bf098"
+		_type = "font_glyph"
+		cp = 110
+		height = 17
+		width = 15
+		x = 120
+		x_advance = 19
+		x_offset = 2
+		y = 115
+		y_offset = 17
+	}
+	{
+		_guid = "110a1bb8-fb28-428e-9614-e82127b2b7c9"
+		_type = "font_glyph"
+		cp = 47
+		height = 23
+		width = 17
+		x = 227
+		x_advance = 19
+		x_offset = 1
+		y = 0
+		y_offset = 23
+	}
+	{
+		_guid = "144eea4c-9e19-4ff7-b68e-014bb5fbe8b5"
+		_type = "font_glyph"
+		cp = 60
+		height = 17
+		width = 17
+		x = 39
+		x_advance = 19
+		x_offset = 1
+		y = 97
+		y_offset = 19
+	}
+	{
+		_guid = "15cab3a7-cf36-4585-b364-2aebe1f416f7"
+		_type = "font_glyph"
+		cp = 69
+		height = 21
+		width = 16
+		x = 0
+		x_advance = 19
+		x_offset = 2
+		y = 75
+		y_offset = 21
+	}
+	{
+		_guid = "175c83a8-63b1-494b-8435-f62b01503543"
+		_type = "font_glyph"
+		cp = 46
+		height = 5
+		width = 5
+		x = 214
+		x_advance = 19
+		x_offset = 7
+		y = 132
+		y_offset = 5
+	}
+	{
+		_guid = "1bb0db23-0542-4d09-91bc-02c6dc9d60ff"
+		_type = "font_glyph"
+		cp = 48
+		height = 21
+		width = 17
+		x = 203
+		x_advance = 19
+		x_offset = 1
+		y = 49
+		y_offset = 21
+	}
+	{
+		_guid = "2020c6b7-53a2-41de-aaf3-64a32afd0d5a"
+		_type = "font_glyph"
+		cp = 37
+		height = 21
+		width = 20
+		x = 104
+		x_advance = 19
+		x_offset = 0
+		y = 28
+		y_offset = 21
+	}
+	{
+		_guid = "23f3493e-4cde-488d-a772-3ca26d9b0f7f"
+		_type = "font_glyph"
+		cp = 118
+		height = 17
+		width = 18
+		x = 20
+		x_advance = 19
+		x_offset = 1
+		y = 97
+		y_offset = 17
+	}
+	{
+		_guid = "24c95da4-d08f-4c44-9bd6-af9237be049c"
+		_type = "font_glyph"
+		cp = 108
+		height = 24
+		width = 14
+		x = 212
+		x_advance = 19
+		x_offset = 4
+		y = 0
+		y_offset = 24
+	}
+	{
+		_guid = "26b8cc21-72b8-4895-8729-2ba8611de9a2"
+		_type = "font_glyph"
+		cp = 88
+		height = 21
+		width = 19
+		x = 125
+		x_advance = 19
+		x_offset = 0
+		y = 49
+		y_offset = 21
+	}
+	{
+		_guid = "27748cfa-dccf-49dd-9a4a-e7ce63010190"
+		_type = "font_glyph"
+		cp = 79
+		height = 21
+		width = 17
+		x = 18
+		x_advance = 19
+		x_offset = 1
+		y = 53
+		y_offset = 21
+	}
+	{
+		_guid = "28ddda9b-9e12-49cb-9f03-06156e3ac7aa"
+		_type = "font_glyph"
+		cp = 105
+		height = 23
+		width = 16
+		x = 178
+		x_advance = 19
+		x_offset = 2
+		y = 25
+		y_offset = 23
+	}
+	{
+		_guid = "2947af38-3baf-47d8-9495-2847dbb8d32e"
+		_type = "font_glyph"
+		cp = 53
+		height = 21
+		width = 16
+		x = 139
+		x_advance = 19
+		x_offset = 2
+		y = 71
+		y_offset = 21
+	}
+	{
+		_guid = "2f2c555b-f2f6-4526-851c-a66010249af9"
+		_type = "font_glyph"
+		cp = 41
+		height = 30
+		width = 9
+		x = 54
+		x_advance = 19
+		x_offset = 5
+		y = 0
+		y_offset = 23
+	}
+	{
+		_guid = "3224d6b7-fd3e-48ab-9d7d-643daa18346c"
+		_type = "font_glyph"
+		cp = 32
+		height = 0
+		width = 0
+		x = 100
+		x_advance = 19
+		x_offset = 0
+		y = 116
+		y_offset = 0
+	}
+	{
+		_guid = "33f7fec6-9692-4458-80a9-53b58d5ccac0"
+		_type = "font_glyph"
+		cp = 82
+		height = 21
+		width = 17
+		x = 36
+		x_advance = 19
+		x_offset = 2
+		y = 53
+		y_offset = 21
+	}
+	{
+		_guid = "35038e27-fdd2-444a-9e3b-729a4eee3c88"
+		_type = "font_glyph"
+		cp = 126
+		height = 4
+		width = 17
+		x = 220
+		x_advance = 19
+		x_offset = 1
+		y = 132
+		y_offset = 13
+	}
+	{
+		_guid = "368de099-1699-4fe6-9fd3-3c66dcb9d479"
+		_type = "font_glyph"
+		cp = 93
+		height = 30
+		width = 9
+		x = 74
+		x_advance = 19
+		x_offset = 4
+		y = 0
+		y_offset = 23
+	}
+	{
+		_guid = "3696b246-f735-403d-826d-cc2069d0ef2f"
+		_type = "font_glyph"
+		cp = 80
+		height = 21
+		width = 16
+		x = 34
+		x_advance = 19
+		x_offset = 2
+		y = 75
+		y_offset = 21
+	}
+	{
+		_guid = "39ec8dfa-0959-48c2-a496-b1f535903085"
+		_type = "font_glyph"
+		cp = 54
+		height = 21
+		width = 16
+		x = 156
+		x_advance = 19
+		x_offset = 2
+		y = 71
+		y_offset = 21
+	}
+	{
+		_guid = "3bfb3a83-643d-47fa-b929-4071603f044a"
+		_type = "font_glyph"
+		cp = 67
+		height = 21
+		width = 17
+		x = 83
+		x_advance = 19
+		x_offset = 1
+		y = 52
+		y_offset = 21
+	}
+	{
+		_guid = "3f278e74-bc5f-4087-852b-4cc22df3b67c"
+		_type = "font_glyph"
+		cp = 95
+		height = 2
+		width = 21
+		x = 0
+		x_advance = 19
+		x_offset = -1
+		y = 133
+		y_offset = -2
+	}
+	{
+		_guid = "40651959-4157-442a-9100-5ad2a535cb2c"
+		_type = "font_glyph"
+		cp = 125
+		height = 30
+		width = 14
+		x = 15
+		x_advance = 19
+		x_offset = 2
+		y = 0
+		y_offset = 23
+	}
+	{
+		_guid = "40739887-4693-4299-b507-5ef9d3033a3e"
+		_type = "font_glyph"
+		cp = 103
+		height = 24
+		width = 15
+		x = 180
+		x_advance = 19
+		x_offset = 2
+		y = 0
+		y_offset = 17
+	}
+	{
+		_guid = "412beb64-8d18-4d37-a3d7-1295ef028a91"
+		_type = "font_glyph"
+		cp = 43
+		height = 16
+		width = 17
+		x = 82
+		x_advance = 19
+		x_offset = 1
+		y = 116
+		y_offset = 19
+	}
+	{
+		_guid = "469245b8-5820-446a-b22a-b4207097a378"
+		_type = "font_glyph"
+		cp = 68
+		height = 21
+		width = 16
+		x = 72
+		x_advance = 19
+		x_offset = 2
+		y = 74
+		y_offset = 21
+	}
+	{
+		_guid = "49edeb13-80d8-4666-8560-65f7e2091e0e"
+		_type = "font_glyph"
+		cp = 104
+		height = 23
+		width = 15
+		x = 211
+		x_advance = 19
+		x_offset = 2
+		y = 25
+		y_offset = 23
+	}
+	{
+		_guid = "4c7a9248-2f0d-46f2-9325-ed4adbbfd740"
+		_type = "font_glyph"
+		cp = 112
+		height = 24
+		width = 16
+		x = 163
+		x_advance = 19
+		x_offset = 2
+		y = 0
+		y_offset = 17
+	}
+	{
+		_guid = "4c7c8633-3bfc-47ae-a953-0251f6d9f3a2"
+		_type = "font_glyph"
+		cp = 50
+		height = 21
+		width = 15
+		x = 51
+		x_advance = 19
+		x_offset = 2
+		y = 75
+		y_offset = 21
+	}
+	{
+		_guid = "58950745-2401-450d-84fa-358b9acfe986"
+		_type = "font_glyph"
+		cp = 90
+		height = 21
+		width = 18
+		x = 184
+		x_advance = 19
+		x_offset = 1
+		y = 49
+		y_offset = 21
+	}
+	{
+		_guid = "5afc0a0a-9a34-4a1e-b45d-2a512aeca664"
+		_type = "font_glyph"
+		cp = 101
+		height = 17
+		width = 16
+		x = 18
+		x_advance = 19
+		x_offset = 2
+		y = 115
+		y_offset = 17
+	}
+	{
+		_guid = "5bc63071-2a7b-4847-bdb1-30f2e8c5880a"
+		_type = "font_glyph"
+		cp = 44
+		height = 10
+		width = 7
+		x = 67
+		x_advance = 19
+		x_offset = 4
+		y = 131
+		y_offset = 5
+	}
+	{
+		_guid = "5c4df88f-77b6-46bf-8235-7523654da5e1"
+		_type = "font_glyph"
+		cp = 81
+		height = 27
+		width = 17
+		x = 126
+		x_advance = 19
+		x_offset = 1
+		y = 0
+		y_offset = 21
+	}
+	{
+		_guid = "5f868272-fb8a-40b8-a770-3ced72840364"
+		_type = "font_glyph"
+		cp = 85
+		height = 21
+		width = 15
+		x = 150
+		x_advance = 19
+		x_offset = 2
+		y = 93
+		y_offset = 21
+	}
+	{
+		_guid = "62fc016d-06f8-4638-adf5-bed6de0d425c"
+		_type = "font_glyph"
+		cp = 52
+		height = 21
+		width = 17
+		x = 104
+		x_advance = 19
+		x_offset = 1
+		y = 50
+		y_offset = 21
+	}
+	{
+		_guid = "658bee76-c46f-4188-9158-91f99f26995b"
+		_type = "font_glyph"
+		cp = 97
+		height = 17
+		width = 17
+		x = 219
+		x_advance = 19
+		x_offset = 2
+		y = 114
+		y_offset = 17
+	}
+	{
+		_guid = "68a18e01-6677-4f84-b075-f67d4137aac9"
+		_type = "font_glyph"
+		cp = 116
+		height = 21
+		width = 14
+		x = 67
+		x_advance = 19
+		x_offset = 2
+		y = 96
+		y_offset = 21
+	}
+	{
+		_guid = "6c45dcd1-cd25-4491-a520-11ff14d13ddc"
+		_type = "font_glyph"
+		cp = 56
+		height = 21
+		width = 16
+		x = 173
+		x_advance = 19
+		x_offset = 2
+		y = 71
+		y_offset = 21
+	}
+	{
+		_guid = "6d0b12b0-cac9-48c8-be49-11b883b02e61"
+		_type = "font_glyph"
+		cp = 113
+		height = 24
+		width = 15
+		x = 196
+		x_advance = 19
+		x_offset = 2
+		y = 0
+		y_offset = 17
+	}
+	{
+		_guid = "6d0d5d06-9486-435f-922b-5999e2407e2c"
+		_type = "font_glyph"
+		cp = 107
+		height = 23
+		width = 15
+		x = 88
+		x_advance = 19
+		x_offset = 3
+		y = 28
+		y_offset = 23
+	}
+	{
+		_guid = "6da5609d-4ced-465a-ba3e-94369cda5a22"
+		_type = "font_glyph"
+		cp = 122
+		height = 17
+		width = 15
+		x = 168
+		x_advance = 19
+		x_offset = 2
+		y = 115
+		y_offset = 17
+	}
+	{
+		_guid = "732e4e32-df42-43cb-b974-386f0260fbac"
+		_type = "font_glyph"
+		cp = 65
+		height = 21
+		width = 20
+		x = 0
+		x_advance = 19
+		x_offset = 0
+		y = 31
+		y_offset = 21
+	}
+	{
+		_guid = "773e783b-d008-447d-ac18-e10408d14874"
+		_type = "font_glyph"
+		cp = 62
+		height = 17
+		width = 17
+		x = 201
+		x_advance = 19
+		x_offset = 1
+		y = 114
+		y_offset = 19
+	}
+	{
+		_guid = "78f0b67b-f6d4-4b49-8db2-a35e50cce6bf"
+		_type = "font_glyph"
+		cp = 114
+		height = 17
+		width = 14
+		x = 52
+		x_advance = 19
+		x_offset = 3
+		y = 115
+		y_offset = 17
+	}
+	{
+		_guid = "7d08d93b-9f31-4047-826a-a7740c3584c4"
+		_type = "font_glyph"
+		cp = 38
+		height = 21
+		width = 19
+		x = 227
+		x_advance = 19
+		x_offset = 0
+		y = 48
+		y_offset = 21
+	}
+	{
+		_guid = "801c99ea-e8f1-47d7-88f1-ec1c9aa7467a"
+		_type = "font_glyph"
+		cp = 124
+		height = 30
+		width = 3
+		x = 84
+		x_advance = 19
+		x_offset = 8
+		y = 0
+		y_offset = 23
+	}
+	{
+		_guid = "83a47e4c-fa05-448e-b09a-270d58e10bc7"
+		_type = "font_glyph"
+		cp = 120
+		height = 17
+		width = 17
+		x = 0
+		x_advance = 19
+		x_offset = 1
+		y = 115
+		y_offset = 17
+	}
+	{
+		_guid = "89d5a898-48a0-47cd-a233-41e88f43dc14"
+		_type = "font_glyph"
+		cp = 99
+		height = 17
+		width = 15
+		x = 104
+		x_advance = 19
+		x_offset = 2
+		y = 115
+		y_offset = 17
+	}
+	{
+		_guid = "89efe7fc-e36b-4609-bc00-00b1faa4a3cb"
+		_type = "font_glyph"
+		cp = 117
+		height = 17
+		width = 15
+		x = 152
+		x_advance = 19
+		x_offset = 2
+		y = 115
+		y_offset = 17
+	}
+	{
+		_guid = "94d0b78f-c5b6-4732-be6d-4b1c2300f1a6"
+		_type = "font_glyph"
+		cp = 71
+		height = 21
+		width = 17
+		x = 0
+		x_advance = 19
+		x_offset = 1
+		y = 53
+		y_offset = 21
+	}
+	{
+		_guid = "951f2435-f9c4-4b12-8b9e-a0e41e6c1dec"
+		_type = "font_glyph"
+		cp = 36
+		height = 27
+		width = 17
+		x = 108
+		x_advance = 19
+		x_offset = 1
+		y = 0
+		y_offset = 24
+	}
+	{
+		_guid = "97c3554d-75cf-42ec-bdf3-6eb162b03796"
+		_type = "font_glyph"
+		cp = 78
+		height = 21
+		width = 15
+		x = 134
+		x_advance = 19
+		x_offset = 2
+		y = 93
+		y_offset = 21
+	}
+	{
+		_guid = "98358ba2-499b-40ee-9cf4-ea74a67dccf2"
+		_type = "font_glyph"
+		cp = 100
+		height = 23
+		width = 15
+		x = 195
+		x_advance = 19
+		x_offset = 2
+		y = 25
+		y_offset = 23
+	}
+	{
+		_guid = "983f1550-66de-4bd6-b6b1-3927ba274260"
+		_type = "font_glyph"
+		cp = 98
+		height = 23
+		width = 16
+		x = 144
+		x_advance = 19
+		x_offset = 2
+		y = 25
+		y_offset = 23
+	}
+	{
+		_guid = "9dac6d2f-4715-492f-909b-501a50780638"
+		_type = "font_glyph"
+		cp = 106
+		height = 30
+		width = 13
+		x = 30
+		x_advance = 19
+		x_offset = 1
+		y = 0
+		y_offset = 23
+	}
+	{
+		_guid = "a2ce3e21-4cb8-49b9-b782-058ccc0e8c7e"
+		_type = "font_glyph"
+		cp = 119
+		height = 17
+		width = 19
+		x = 0
+		x_advance = 19
+		x_offset = 0
+		y = 97
+		y_offset = 17
+	}
+	{
+		_guid = "a39cdfa0-8874-4fca-93bf-2012f3815503"
+		_type = "font_glyph"
+		cp = 66
+		height = 21
+		width = 16
+		x = 101
+		x_advance = 19
+		x_offset = 2
+		y = 72
+		y_offset = 21
+	}
+	{
+		_guid = "a8fd072b-2ef0-4400-9a5e-da9e37fbc35d"
+		_type = "font_glyph"
+		cp = 57
+		height = 21
+		width = 15
+		x = 223
+		x_advance = 19
+		x_offset = 2
+		y = 92
+		y_offset = 21
+	}
+	{
+		_guid = "ac3f7d69-ff33-4124-bafe-e766d10425c7"
+		_type = "font_glyph"
+		cp = 39
+		height = 10
+		width = 5
+		x = 75
+		x_advance = 19
+		x_offset = 7
+		y = 131
+		y_offset = 23
+	}
+	{
+		_guid = "adb1ad19-e5eb-4d07-9ead-af2e4f7c7d05"
+		_type = "font_glyph"
+		cp = 86
+		height = 21
+		width = 20
+		x = 21
+		x_advance = 19
+		x_offset = 0
+		y = 31
+		y_offset = 21
+	}
+	{
+		_guid = "afc2ca59-8c06-4d25-9724-2f1d125cf836"
+		_type = "font_glyph"
+		cp = 45
+		height = 3
+		width = 9
+		x = 246
+		x_advance = 19
+		x_offset = 5
+		y = 132
+		y_offset = 10
+	}
+	{
+		_guid = "b073fa8d-b292-4818-87c2-01557702e83f"
+		_type = "font_glyph"
+		cp = 91
+		height = 30
+		width = 9
+		x = 64
+		x_advance = 19
+		x_offset = 6
+		y = 0
+		y_offset = 23
+	}
+	{
+		_guid = "b6b3aede-aa95-4c5c-89c4-45c2b2f82ba1"
+		_type = "font_glyph"
+		cp = 63
+		height = 21
+		width = 16
+		x = 190
+		x_advance = 19
+		x_offset = 1
+		y = 71
+		y_offset = 21
+	}
+	{
+		_guid = "b900a91b-ab68-4597-af2f-c2554af3a03f"
+		_type = "font_glyph"
+		cp = 92
+		height = 23
+		width = 17
+		x = 227
+		x_advance = 19
+		x_offset = 1
+		y = 24
+		y_offset = 23
+	}
+	{
+		_guid = "c0f0fc26-0632-4213-b5a6-24353a6122ea"
+		_type = "font_glyph"
+		cp = 72
+		height = 21
+		width = 15
+		x = 239
+		x_advance = 19
+		x_offset = 2
+		y = 92
+		y_offset = 21
+	}
+	{
+		_guid = "c1913d10-b350-4e48-91d8-da19358e6071"
+		_type = "font_glyph"
+		cp = 49
+		height = 21
+		width = 16
+		x = 239
+		x_advance = 19
+		x_offset = 2
+		y = 70
+		y_offset = 21
+	}
+	{
+		_guid = "c27df903-f8c8-4b4a-8d11-cb65b85f078f"
+		_type = "font_glyph"
+		cp = 76
+		height = 21
+		width = 15
+		x = 118
+		x_advance = 19
+		x_offset = 3
+		y = 93
+		y_offset = 21
+	}
+	{
+		_guid = "c9d24946-37ee-4c16-8452-124d38bba425"
+		_type = "font_glyph"
+		cp = 70
+		height = 21
+		width = 14
+		x = 166
+		x_advance = 19
+		x_offset = 3
+		y = 93
+		y_offset = 21
+	}
+	{
+		_guid = "cdb8f532-7746-44aa-ac6b-a51ad9dc3156"
+		_type = "font_glyph"
+		cp = 84
+		height = 21
+		width = 17
+		x = 221
+		x_advance = 19
+		x_offset = 1
+		y = 70
+		y_offset = 21
+	}
+	{
+		_guid = "cf801866-aa01-4f9a-8f8e-7f92429b2a53"
+		_type = "font_glyph"
+		cp = 58
+		height = 17
+		width = 5
+		x = 82
+		x_advance = 19
+		x_offset = 7
+		y = 96
+		y_offset = 17
+	}
+	{
+		_guid = "d6a13b55-484d-4b5a-88f8-7fa0f5dcd27f"
+		_type = "font_glyph"
+		cp = 121
+		height = 24
+		width = 18
+		x = 144
+		x_advance = 19
+		x_offset = 1
+		y = 0
+		y_offset = 17
+	}
+	{
+		_guid = "daa80f1b-30f6-47e7-827e-92fba3b4a921"
+		_type = "font_glyph"
+		cp = 115
+		height = 17
+		width = 15
+		x = 136
+		x_advance = 19
+		x_offset = 2
+		y = 115
+		y_offset = 17
+	}
+	{
+		_guid = "dd875592-2795-4409-9b7a-4a563d7b2f69"
+		_type = "font_glyph"
+		cp = 109
+		height = 17
+		width = 17
+		x = 237
+		x_advance = 19
+		x_offset = 1
+		y = 114
+		y_offset = 17
+	}
+	{
+		_guid = "df5e1740-5847-47d3-9107-e9490a0809db"
+		_type = "font_glyph"
+		cp = 33
+		height = 21
+		width = 4
+		x = 196
+		x_advance = 19
+		x_offset = 8
+		y = 93
+		y_offset = 21
+	}
+	{
+		_guid = "df6a3053-919a-49cb-b006-2080fea74f95"
+		_type = "font_glyph"
+		cp = 96
+		height = 4
+		width = 7
+		x = 238
+		x_advance = 19
+		x_offset = 6
+		y = 132
+		y_offset = 23
+	}
+	{
+		_guid = "e28e199c-0aa8-4d23-a8e7-11f2dfb2fb33"
+		_type = "font_glyph"
+		cp = 64
+		height = 27
+		width = 19
+		x = 88
+		x_advance = 19
+		x_offset = 0
+		y = 0
+		y_offset = 23
+	}
+	{
+		_guid = "e4ead53f-a71e-4e24-a6fe-2341cfc61570"
+		_type = "font_glyph"
+		cp = 74
+		height = 21
+		width = 14
+		x = 89
+		x_advance = 19
+		x_offset = 2
+		y = 94
+		y_offset = 21
+	}
+	{
+		_guid = "e6821584-d2cb-4a98-940f-c9b638e2e810"
+		_type = "font_glyph"
+		cp = 61
+		height = 9
+		width = 17
+		x = 196
+		x_advance = 19
+		x_offset = 1
+		y = 132
+		y_offset = 15
+	}
+	{
+		_guid = "e731b451-bff7-4c37-9c36-3bdf404efb89"
+		_type = "font_glyph"
+		cp = 34
+		height = 10
+		width = 11
+		x = 184
+		x_advance = 19
+		x_offset = 4
+		y = 130
+		y_offset = 23
+	}
+	{
+		_guid = "ef00cf27-b165-4342-923a-225076669479"
+		_type = "font_glyph"
+		cp = 87
+		height = 21
+		width = 20
+		x = 42
+		x_advance = 19
+		x_offset = 0
+		y = 31
+		y_offset = 21
+	}
+	{
+		_guid = "ef37a4da-14d1-4a13-b195-9f1d797731a7"
+		_type = "font_glyph"
+		cp = 83
+		height = 21
+		width = 17
+		x = 54
+		x_advance = 19
+		x_offset = 1
+		y = 53
+		y_offset = 21
+	}
+	{
+		_guid = "f0ea44eb-bb54-4e3d-b88c-477624e93973"
+		_type = "font_glyph"
+		cp = 40
+		height = 30
+		width = 9
+		x = 44
+		x_advance = 19
+		x_offset = 5
+		y = 0
+		y_offset = 23
+	}
+	{
+		_guid = "f10e2ab8-e72c-43c1-ae54-d59ad85859a0"
+		_type = "font_glyph"
+		cp = 35
+		height = 21
+		width = 19
+		x = 63
+		x_advance = 19
+		x_offset = 0
+		y = 31
+		y_offset = 21
+	}
+	{
+		_guid = "f2d9081e-2a97-43bb-a73f-fbdd1d27ce77"
+		_type = "font_glyph"
+		cp = 59
+		height = 22
+		width = 8
+		x = 245
+		x_advance = 19
+		x_offset = 5
+		y = 0
+		y_offset = 17
+	}
+	{
+		_guid = "f716253d-36dd-4bc9-942b-f09b0a7167ab"
+		_type = "font_glyph"
+		cp = 73
+		height = 21
+		width = 14
+		x = 181
+		x_advance = 19
+		x_offset = 3
+		y = 93
+		y_offset = 21
+	}
+	{
+		_guid = "fc8b5a24-e676-4d3a-b949-f908858dffef"
+		_type = "font_glyph"
+		cp = 111
+		height = 17
+		width = 16
+		x = 35
+		x_advance = 19
+		x_offset = 2
+		y = 115
+		y_offset = 17
+	}
+	{
+		_guid = "fd486fa9-b2ec-42d3-b5fa-5e91ed968051"
+		_type = "font_glyph"
+		cp = 51
+		height = 21
+		width = 16
+		x = 122
+		x_advance = 19
+		x_offset = 2
+		y = 71
+		y_offset = 21
+	}
+	{
+		_guid = "fd7e6487-852b-415c-9b91-22be5db5e4d5"
+		_type = "font_glyph"
+		cp = 94
+		height = 14
+		width = 16
+		x = 184
+		x_advance = 19
+		x_offset = 2
+		y = 115
+		y_offset = 21
+	}
+]
+size = 256
