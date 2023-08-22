@@ -29,7 +29,7 @@
 	#include <string.h>   // memset
 	#include <sys/wait.h> // wait
 	#include <time.h>     // clock_gettime
-	#include <unistd.h>   // unlink, rmdir, getcwd, access
+	#include <unistd.h>   // unlink, rmdir, getcwd, access, chdir
 #endif // if CROWN_PLATFORM_WINDOWS
 #if CROWN_PLATFORM_ANDROID
 	#include <android/log.h>
@@ -229,6 +229,17 @@ namespace os
 		return buf;
 #else
 		return ::getcwd(buf, size);
+#endif
+	}
+
+	void setcwd(const char *cwd)
+	{
+#if CROWN_PLATFORM_WINDOWS
+		BOOL ret = SetCurrentDirectory(cwd);
+		CE_UNUSED(ret);
+#else
+		int ret = chdir(cwd);
+		CE_UNUSED(ret);
 #endif
 	}
 

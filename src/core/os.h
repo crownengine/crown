@@ -113,6 +113,9 @@ namespace os
 	/// Returns the current working directory.
 	const char *getcwd(char *buf, u32 size);
 
+	/// Sets the current working directory.
+	void setcwd(const char *cwd);
+
 	/// Returns the value of the environment variable @a name.
 	const char *getenv(const char *name);
 
