@@ -30,7 +30,7 @@ struct ConditionVariable
 	ConditionVariable &operator=(const ConditionVariable &) = delete;
 
 	///
-	void wait(Mutex &mutex);
+	void wait(Mutex &mutex, u32 ms = 0u);
 
 	///
 	void signal();

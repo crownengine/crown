@@ -7,6 +7,7 @@
 #include "core/platform.h"
 #include "core/thread/condition_variable.h"
 #include "core/thread/mutex.h"
+#include <errno.h>
 #include <new>
 
 #if CROWN_PLATFORM_WINDOWS
@@ -55,15 +56,31 @@ ConditionVariable::~ConditionVariable()
 	_priv->~Private();
 }
 
-void ConditionVariable::wait(Mutex &mutex)
+void ConditionVariable::wait(Mutex &mutex, u32 ms)
 {
 #if CROWN_PLATFORM_WINDOWS
-	SleepConditionVariableCS(&_priv->cv, (CRITICAL_SECTION *)mutex.native_handle(), INFINITE);
+	SleepConditionVariableCS(&_priv->cv, (CRITICAL_SECTION *)mutex.native_handle(), ms == 0 ? INFINITE : ms);
 #else
-	int err = pthread_cond_wait(&_priv->cond, (pthread_mutex_t *)mutex.native_handle());
-	CE_ASSERT(err == 0, "pthread_cond_wait: errno = %d", err);
+	int err;
 	CE_UNUSED(err);
-#endif
+
+	if (ms == 0) {
+		err = pthread_cond_wait(&_priv->cond, (pthread_mutex_t *)mutex.native_handle());
+		CE_ASSERT(err == 0, "pthread_cond_wait: errno = %d", err);
+	} else {
+		timespec ts;
+		clock_gettime(CLOCK_REALTIME, &ts);
+
+		const u64 ns = ts.tv_sec * UINT64_C(1000000000) + ts.tv_nsec + u64(ms) * UINT64_C(1000000);
+		ts.tv_sec  = ns / UINT64_C(1000000000);
+		ts.tv_nsec = ns % UINT64_C(1000000000);
+
+		err = pthread_cond_timedwait(&_priv->cond, (pthread_mutex_t *)mutex.native_handle(), &ts);
+		if (err == ETIMEDOUT)
+			return;
+		CE_ASSERT(err == 0, "pthread_cond_timedwait: errno = %d", err);
+	}
+#endif // if CROWN_PLATFORM_WINDOWS
 }
 
 void ConditionVariable::signal()
