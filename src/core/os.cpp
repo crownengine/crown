@@ -24,7 +24,7 @@
 	#include <dirent.h>   // opendir, readdir
 	#include <dlfcn.h>    // dlopen, dlclose, dlsym
 	#include <errno.h>
-	#include <stdio.h>    // fputs
+	#include <stdio.h>    // fputs, rename
 	#include <stdlib.h>   // getenv
 	#include <string.h>   // memset
 	#include <sys/wait.h> // wait
@@ -308,6 +308,23 @@ namespace os
 #else
 		return ::access(path, flags);
 #endif
+	}
+
+	RenameResult rename(const char *old_name, const char *new_name)
+	{
+		RenameResult rr;
+#if CROWN_PLATFORM_WINDOWS
+		if (MoveFile(old_name, new_name) != 0)
+			rr.error = RenameResult::SUCCESS;
+		else
+			rr.error = RenameResult::UNKNOWN;
+#else
+		if (::rename(old_name, new_name) == 0)
+			rr.error == RenameResult::SUCCESS;
+		else
+			rr.error = RenameResult::UNKNOWN;
+#endif
+		return rr;
 	}
 
 } // namespace os

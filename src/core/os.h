@@ -69,6 +69,18 @@ struct AccessFlags
 	};
 };
 
+/// Result from os::rename().
+///
+/// @a ingroup OS
+struct RenameResult
+{
+	enum
+	{
+		SUCCESS, ///<
+		UNKNOWN  ///< Unknown error.
+	} error;
+};
+
 /// Operating system functions.
 ///
 /// @ingroup OS
@@ -121,6 +133,9 @@ namespace os
 
 	///
 	s32 access(const char *path, u32 flags);
+
+	///
+	RenameResult rename(const char *old_name, const char *new_name);
 
 } // namespace os
 
