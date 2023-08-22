@@ -152,24 +152,27 @@ jobs:
         call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
         devenv build/projects/vs2019/crown.sln /Build "debug|x64" /Project crown
     - name: windows-test-debug64
+      shell: cmd
       run: |
-        ./build/windows64/bin/crown-debug --run-unit-tests
+        build\windows64\bin\crown-debug.exe --run-unit-tests
     - name: windows-make-development64
       shell: cmd
       run: |
         call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
         devenv build/projects/vs2019/crown.sln /Build "development|x64" /Project crown
     - name: windows-test-development64
+      shell: cmd
       run: |
-        ./build/windows64/bin/crown-development --run-unit-tests
+        build\windows64\bin\crown-development.exe --run-unit-tests
     - name: windows-make-release64
       shell: cmd
       run: |
         call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
         devenv build/projects/vs2019/crown.sln /Build "release|x64" /Project crown
     - name: windows-test-release64
+      shell: cmd
       run: |
-        ./build/windows64/bin/crown-release --run-unit-tests
+        build\windows64\bin\crown-release.exe --run-unit-tests
     - uses: msys2/setup-msys2@v2
     - name: mingw-prepare
       shell: msys2 {0}

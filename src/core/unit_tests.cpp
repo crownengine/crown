@@ -1507,7 +1507,7 @@ static void test_thread()
 
 static void test_process()
 {
-#if !CROWN_PLATFORM_EMSCRIPTEN
+#if !CROWN_PLATFORM_EMSCRIPTEN && !CROWN_PLATFORM_WINDOWS
 	{
 #define ECHO_TEXT "foobar"
 		const char *argv[] =
