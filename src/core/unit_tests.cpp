@@ -11,6 +11,7 @@
 #include "core/containers/hash_map.inl"
 #include "core/containers/hash_set.inl"
 #include "core/containers/vector.inl"
+#include "core/filesystem/file.h"
 #include "core/filesystem/file_monitor.h"
 #include "core/filesystem/filesystem_disk.h"
 #include "core/filesystem/path.h"
@@ -1721,6 +1722,35 @@ static void test_file_monitor()
 		path::join(new_name, "dir", "bar");
 		os::rename(old_name.c_str(), new_name.c_str());
 		state.wait(500);
+
+		fm.stop();
+	}
+	{
+		ScopedUniqueWorkingDir uwd;
+
+		FilesystemDisk fs(default_allocator());
+		fs.set_prefix("dir");
+		fs.create_directory("");
+		File *file = fs.open("pi", FileOpenMode::WRITE);
+
+		const char *paths[] = { "dir" };
+		UserData state;
+		FileMonitor fm(default_allocator());
+		fm.start(countof(paths), paths, true, state.callback, &state);
+
+		state.check = [](auto user_data, auto fme, auto is_dir, auto path, auto path_modified) {
+			CE_UNUSED_2(user_data, path_modified);
+			ENSURE(fme == FileMonitorEvent::CHANGED);
+			ENSURE(is_dir == false);
+			DynamicString os_path(default_allocator());
+			path::join(os_path, "dir", "pi");
+			ENSURE(strcmp(path, os_path.c_str()) == 0);
+		};
+		file->write("3.14", 4);
+		file->flush();
+		state.wait(500);
+
+		fs.close(*file);
 
 		fm.stop();
 	}
