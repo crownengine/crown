@@ -110,7 +110,6 @@ public class EditorView : Gtk.EventBox
 				return Gdk.EVENT_PROPAGATE;
 			});
 		this.enter_notify_event.connect(on_enter_notify_event);
-
 	}
 
 	private bool on_button_release(Gdk.EventButton ev)

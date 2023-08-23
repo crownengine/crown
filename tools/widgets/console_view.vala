@@ -310,9 +310,9 @@ public class ConsoleView : Gtk.Box
 					string item_data;
 					if ((item_data = item.get_data<string>("uri")) != null) {
 						if (item_data.has_prefix("resource_id:"))
-							GLib.Application.get_default().activate_action("open-resource", new GLib.Variant.string(item_data[12:item_data.length]));
+							GLib.Application.get_default().activate_action("open-resource", new GLib.Variant.string(item_data[12 : item_data.length]));
 						else if (item_data.has_prefix("file:"))
-							open_directory(item_data[5:item_data.length]);
+							open_directory(item_data[5 : item_data.length]);
 						else
 							GLib.AppInfo.launch_default_for_uri(item_data, null);
 					}

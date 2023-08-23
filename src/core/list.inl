@@ -43,7 +43,7 @@ namespace list
 
 } // namespace crown
 
-#define list_for_each(cur, head)                             \
+#define list_for_each(cur, head) \
 	for (cur = (head)->next; cur != (head); cur = cur->next)
 
 #define list_for_each_safe(cur, tmp, head)    \

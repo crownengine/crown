@@ -575,7 +575,7 @@ public class Database
 		string[] keys = json.keys.to_array();
 		foreach (string key in keys) {
 			// ID is filled by decode_set().
-			if (key == "id"	|| key == "_guid")
+			if (key == "id" || key == "_guid")
 				continue;
 
 			// The "type" key defines object type only if it appears

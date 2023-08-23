@@ -117,7 +117,7 @@ public class RuntimeInstance
 	{
 		disconnected(this);
 
-		if (_stop_callback!= null)
+		if (_stop_callback != null)
 			_stop_callback();
 	}
 
@@ -186,7 +186,6 @@ public class RuntimeInstance
 		} catch (GLib.Error e) {
 			loge(e.message);
 		}
-
 	}
 
 	public void send(string json)

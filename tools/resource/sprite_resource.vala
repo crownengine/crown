@@ -162,7 +162,7 @@ public class SpriteResource
 
 					Guid frame_id = Guid.new_guid();
 					db.create(frame_id, "sprite_frame");
-					db.set_property_string    (frame_id, "name", "sprite_%d".printf(c +	num_h*r));
+					db.set_property_string    (frame_id, "name", "sprite_%d".printf(c + num_h*r));
 					db.set_property_quaternion(frame_id, "region", Quaternion(x, y, cell_w, cell_h));
 					db.set_property_vector3   (frame_id, "pivot", Vector3(x + pivot_xy.x, y + pivot_xy.y, 0.0));
 					db.set_property_double    (frame_id, "index", frame_index++);

@@ -420,4 +420,3 @@ public class DeployDialog : Gtk.Dialog
 }
 
 } /* namespace Crown */
-
