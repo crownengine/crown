@@ -56,17 +56,24 @@ ConditionVariable::~ConditionVariable()
 	_priv->~Private();
 }
 
-void ConditionVariable::wait(Mutex &mutex, u32 ms)
+WaitResult ConditionVariable::wait(Mutex &mutex, u32 ms)
 {
+	WaitResult wr;
 #if CROWN_PLATFORM_WINDOWS
-	SleepConditionVariableCS(&_priv->cv, (CRITICAL_SECTION *)mutex.native_handle(), ms == 0 ? INFINITE : ms);
+	if (SleepConditionVariableCS(&_priv->cv
+		, (CRITICAL_SECTION *)mutex.native_handle()
+		, ms == 0 ? INFINITE : ms
+		))
+		wr.error = WaitResult::SUCCESS;
+	else if (GetLastError() == ERROR_TIMEOUT)
+		wr.error = WaitResult::TIMEOUT;
+	else
+		wr.error = WaitResult::UNKNOWN;
 #else
 	int err;
-	CE_UNUSED(err);
 
 	if (ms == 0) {
 		err = pthread_cond_wait(&_priv->cond, (pthread_mutex_t *)mutex.native_handle());
-		CE_ASSERT(err == 0, "pthread_cond_wait: errno = %d", err);
 	} else {
 		timespec ts;
 		clock_gettime(CLOCK_REALTIME, &ts);
@@ -76,11 +83,16 @@ void ConditionVariable::wait(Mutex &mutex, u32 ms)
 		ts.tv_nsec = ns % UINT64_C(1000000000);
 
 		err = pthread_cond_timedwait(&_priv->cond, (pthread_mutex_t *)mutex.native_handle(), &ts);
-		if (err == ETIMEDOUT)
-			return;
-		CE_ASSERT(err == 0, "pthread_cond_timedwait: errno = %d", err);
 	}
+
+	if (err == 0)
+		wr.error = WaitResult::SUCCESS;
+	else if (err == ETIMEDOUT)
+		wr.error = WaitResult::TIMEOUT;
+	else
+		wr.error = WaitResult::UNKNOWN;
 #endif // if CROWN_PLATFORM_WINDOWS
+	return wr;
 }
 
 void ConditionVariable::signal()

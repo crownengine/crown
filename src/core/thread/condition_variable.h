@@ -9,6 +9,19 @@
 
 namespace crown
 {
+/// Result of a ConditionVariable::wait().
+///
+/// @ingroup Thread
+struct WaitResult
+{
+	enum Enum
+	{
+		SUCCESS,
+		TIMEOUT,
+		UNKNOWN
+	} error;
+};
+
 /// Condition variable.
 ///
 /// @ingroup Thread
@@ -30,7 +43,7 @@ struct ConditionVariable
 	ConditionVariable &operator=(const ConditionVariable &) = delete;
 
 	///
-	void wait(Mutex &mutex, u32 ms = 0u);
+	WaitResult wait(Mutex &mutex, u32 ms = 0u);
 
 	///
 	void signal();
