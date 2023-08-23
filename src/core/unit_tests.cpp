@@ -11,6 +11,8 @@
 #include "core/containers/hash_map.inl"
 #include "core/containers/hash_set.inl"
 #include "core/containers/vector.inl"
+#include "core/filesystem/file_monitor.h"
+#include "core/filesystem/filesystem_disk.h"
 #include "core/filesystem/path.h"
 #include "core/guid.inl"
 #include "core/json/json.h"
@@ -30,15 +32,17 @@
 #include "core/memory/memory.inl"
 #include "core/memory/temp_allocator.inl"
 #include "core/murmur.h"
+#include "core/option.inl"
 #include "core/os.h"
 #include "core/process.h"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string.inl"
 #include "core/strings/string_id.inl"
 #include "core/strings/string_view.inl"
+#include "core/thread/condition_variable.h"
+#include "core/thread/mutex.h"
 #include "core/thread/thread.h"
 #include "core/time.h"
-#include "core/option.inl"
 #include "resource/lua_resource.h"
 #include <stdlib.h> // EXIT_SUCCESS, EXIT_FAILURE
 #include <stdio.h>  // printf
@@ -1557,6 +1561,171 @@ static void test_filesystem()
 #endif // if CROWN_PLATFORM_POSIX
 }
 
+static void test_file_monitor()
+{
+#if !CROWN_PLATFORM_EMSCRIPTEN
+	struct UserData
+	{
+		bool done;
+		Mutex m;
+		ConditionVariable cv;
+		FileMonitorFunction check;
+
+		UserData()
+			: done(false)
+		{
+		}
+
+		void wait(u32 ms)
+		{
+			m.lock();
+			while (!done)
+				cv.wait(m, ms);
+			m.unlock();
+			ENSURE(done);
+		}
+
+		static void callback(void *user_data, FileMonitorEvent::Enum fme, bool is_dir, const char *path, const char *path_modified)
+		{
+			UserData *ud = (UserData *)user_data;
+			ud->done = false;
+			ud->check(user_data, fme, is_dir, path, path_modified);
+			ud->done = true;
+			ud->cv.signal();
+		}
+	};
+
+	struct ScopedUniqueWorkingDir
+	{
+		char _workdir[1024];
+
+		ScopedUniqueWorkingDir()
+		{
+			os::getcwd(_workdir, sizeof(_workdir));
+
+			char unique_name[GUID_BUF_LEN];
+			guid::to_string(unique_name, sizeof(unique_name), guid::new_guid());
+			os::create_directory(unique_name);
+			os::setcwd(unique_name);
+		}
+
+		~ScopedUniqueWorkingDir()
+		{
+			os::setcwd(_workdir);
+		}
+	};
+
+	memory_globals::init();
+	guid_globals::init();
+	{
+		ScopedUniqueWorkingDir uwd;
+
+		FilesystemDisk fs(default_allocator());
+		fs.set_prefix("dir");
+		fs.create_directory("");
+
+		const char *paths[] = { "dir" };
+		UserData state;
+		FileMonitor fm(default_allocator());
+		fm.start(countof(paths), paths, true, state.callback, &state);
+
+		state.check = [](auto user_data, auto fme, auto is_dir, auto path, auto path_modified) {
+			CE_UNUSED_2(user_data, path_modified);
+			ENSURE(fme == FileMonitorEvent::CREATED);
+			ENSURE(is_dir == true);
+			DynamicString os_path(default_allocator());
+			path::join(os_path, "dir", "foo");
+			ENSURE(strcmp(path, os_path.c_str()) == 0);
+		};
+		fs.create_directory("foo");
+		state.wait(500);
+
+		fm.stop();
+	}
+	{
+		ScopedUniqueWorkingDir uwd;
+
+		FilesystemDisk fs1(default_allocator());
+		fs1.set_prefix("dir1");
+		fs1.create_directory("");
+		FilesystemDisk fs2(default_allocator());
+		fs2.set_prefix("dir2");
+		fs2.create_directory("");
+		fs2.create_directory("foo");
+
+		const char *paths[] = { "dir1" };
+		UserData state;
+		FileMonitor fm(default_allocator());
+		fm.start(countof(paths), paths, true, state.callback, &state);
+
+		state.check = [](auto user_data, auto fme, auto is_dir, auto path, auto path_modified) {
+			CE_UNUSED_2(user_data, path_modified);
+			ENSURE(fme == FileMonitorEvent::CREATED);
+			ENSURE(is_dir == true);
+			DynamicString os_path(default_allocator());
+			path::join(os_path, "dir1", "foo");
+			ENSURE(strcmp(path, os_path.c_str()) == 0);
+		};
+		DynamicString old_name(default_allocator());
+		DynamicString new_name(default_allocator());
+		path::join(old_name, "dir2", "foo");
+		path::join(new_name, "dir1", "foo");
+		os::rename(old_name.c_str(), new_name.c_str());
+		state.wait(500);
+
+		state.check = [](auto user_data, auto fme, auto is_dir, auto path, auto path_modified) {
+			CE_UNUSED_2(user_data, path_modified);
+			ENSURE(fme == FileMonitorEvent::DELETED);
+#if !CROWN_PLATFORM_WINDOWS
+			ENSURE(is_dir == true);
+#endif
+			DynamicString os_path(default_allocator());
+			path::join(os_path, "dir1", "foo");
+			ENSURE(strcmp(path, os_path.c_str()) == 0);
+		};
+		os::rename(new_name.c_str(), old_name.c_str());
+		state.wait(500);
+
+		fm.stop();
+	}
+	{
+		ScopedUniqueWorkingDir uwd;
+
+		FilesystemDisk fs(default_allocator());
+		fs.set_prefix("dir");
+		fs.create_directory("");
+		fs.create_directory("foo");
+
+		const char *paths[] = { "dir" };
+		UserData state;
+		FileMonitor fm(default_allocator());
+		fm.start(countof(paths), paths, true, state.callback, &state);
+
+		state.check = [](auto user_data, auto fme, auto is_dir, auto path, auto path_modified) {
+			CE_UNUSED(user_data);
+			ENSURE(fme == FileMonitorEvent::RENAMED);
+			ENSURE(is_dir == true);
+			DynamicString os_path(default_allocator());
+			DynamicString os_path_modified(default_allocator());
+			path::join(os_path, "dir", "foo");
+			path::join(os_path_modified, "dir", "bar");
+			ENSURE(strcmp(path, os_path.c_str()) == 0);
+			ENSURE(strcmp(path_modified, os_path_modified.c_str()) == 0);
+		};
+		DynamicString old_name(default_allocator());
+		DynamicString new_name(default_allocator());
+		path::join(old_name, "dir", "foo");
+		path::join(new_name, "dir", "bar");
+		os::rename(old_name.c_str(), new_name.c_str());
+		state.wait(500);
+
+		fm.stop();
+	}
+	guid_globals::shutdown();
+	memory_globals::shutdown();
+#endif // if !CROWN_PLATFORM_EMSCRIPTEN
+}
+
 static void test_option()
 {
 	memory_globals::init();
@@ -1767,6 +1936,7 @@ int main_unit_tests()
 	RUN_TEST(test_thread);
 	RUN_TEST(test_process);
 	RUN_TEST(test_filesystem);
+	RUN_TEST(test_file_monitor);
 	RUN_TEST(test_option);
 	RUN_TEST(test_lua_resource);
 
