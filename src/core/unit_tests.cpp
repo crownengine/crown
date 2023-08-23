@@ -1578,9 +1578,12 @@ static void test_file_monitor()
 
 		void wait(u32 ms)
 		{
+			WaitResult wr;
+			wr.error = WaitResult::SUCCESS;
+
 			m.lock();
-			while (!done)
-				cv.wait(m, ms);
+			while (!done && wr.error != WaitResult::TIMEOUT)
+				wr = cv.wait(m, ms);
 			m.unlock();
 			ENSURE(done);
 		}
