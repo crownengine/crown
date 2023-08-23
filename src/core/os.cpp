@@ -320,7 +320,7 @@ namespace os
 			rr.error = RenameResult::UNKNOWN;
 #else
 		if (::rename(old_name, new_name) == 0)
-			rr.error == RenameResult::SUCCESS;
+			rr.error = RenameResult::SUCCESS;
 		else
 			rr.error = RenameResult::UNKNOWN;
 #endif
