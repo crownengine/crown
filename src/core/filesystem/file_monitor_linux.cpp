@@ -10,6 +10,7 @@
 #include "core/filesystem/file_monitor.h"
 #include "core/filesystem/path.h"
 #include "core/memory/temp_allocator.inl"
+#include "core/os.h"
 #include "core/strings/dynamic_string.inl"
 #include "core/thread/thread.h"
 #include <dirent.h> // opendir, readdir
@@ -291,10 +292,11 @@ struct FileMonitorImpl
 				p += sizeof(inotify_event) + ev->len;
 			}
 
-			// Unpaired IN_MOVED_TO or IN_MOVE_FROM with missing IN_MOVED_TO (rename from outside
-			// watched directory).
-			if (cookie != 0) {
-				if (cookie_mask & IN_MOVED_TO || cookie_mask & IN_MOVED_FROM) {
+			// Unpaired IN_MOVED_FROM: file deleted (moved out to non-monitored dir).
+			if (cookie != 0 && cookie_mask & IN_MOVED_FROM) {
+				Stat st;
+				os::stat(st, cookie_path.c_str());
+				if (st.file_type == Stat::NO_ENTRY) {
 					_function(_user_data
 						, FileMonitorEvent::DELETED
 						, cookie_mask & IN_ISDIR
