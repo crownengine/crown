@@ -261,7 +261,7 @@ public class ConsoleView : Gtk.Box
 
 						mi = new Gtk.MenuItem.with_label("Reveal");
 						mi.activate.connect(() => {
-								string resource_path  = item_data[12:item_data.length];
+								string resource_path  = item_data[12 : item_data.length];
 								string? resource_type = ResourceId.type(resource_path);
 								string? resource_name = ResourceId.name(resource_path);
 

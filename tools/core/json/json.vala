@@ -290,7 +290,7 @@ public class JSON
 		int end = index;
 		while ("0123456789+-.eE".index_of_char((char)json[end]) != -1)
 			++end;
-		uint8[] num = json[index:end];
+		uint8[] num = json[index : end];
 		num += '\0';
 		index = end;
 		return double.parse((string)num);
