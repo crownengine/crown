@@ -397,7 +397,7 @@ public class ProjectBrowser : Gtk.Box
 					}
 
 					menu.show_all();
-					menu.popup(null, null, null, ev.button, ev.time);
+					menu.popup_at_pointer(ev);
 				} else { // If file
 					Gtk.Menu menu = new Gtk.Menu();
 					Gtk.MenuItem mi;
@@ -421,7 +421,7 @@ public class ProjectBrowser : Gtk.Box
 					menu.add(mi);
 
 					menu.show_all();
-					menu.popup(null, null, null, ev.button, ev.time);
+					menu.popup_at_pointer(ev);
 				}
 			}
 		} else if (ev.button == Gdk.BUTTON_PRIMARY) {
