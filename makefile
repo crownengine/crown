@@ -294,16 +294,16 @@ docs:
 SAMPLES_PLATFORM=$(OS)
 
 .PHONY: 00-empty
-00-empty: $(OS)-development64
+00-empty: $(OS)-development64 tools-$(OS)-release64
 	cd build/$(OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir $(realpath samples/$@) --map-source-dir core $(realpath samples) --compile --platform $(SAMPLES_PLATFORM)
 .PHONY: 01-physics
-01-physics: $(OS)-development64
+01-physics: $(OS)-development64 tools-$(OS)-release64
 	cd build/$(OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir $(realpath samples/$@) --map-source-dir core $(realpath samples) --compile --platform $(SAMPLES_PLATFORM)
 .PHONY: 02-animation
-02-animation: $(OS)-development64
+02-animation: $(OS)-development64 tools-$(OS)-release64
 	cd build/$(OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir $(realpath samples/$@) --map-source-dir core $(realpath samples) --compile --platform $(SAMPLES_PLATFORM)
 .PHONY: 03-joypad
-03-joypad: $(OS)-development64
+03-joypad: $(OS)-development64 tools-$(OS)-release64
 	cd build/$(OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir $(realpath samples/$@) --map-source-dir core $(realpath samples) --compile --platform $(SAMPLES_PLATFORM)
 
 .PHONY: samples
