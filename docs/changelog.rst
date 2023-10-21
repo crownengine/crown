@@ -20,6 +20,7 @@ Changelog
 * Added a popup menu to quickly access some resource-related functionalities directly from the Console.
 * Fixed initial 'sensitivity' state in some widgets.
 * Fixed erratic messages when importing assets and improved import procedure robustness.
+* Fixed creating new project from templates.
 
 0.48.0 --- *31 Jul 2023*
 ------------------------

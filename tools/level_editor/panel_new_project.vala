@@ -113,7 +113,6 @@ public class PanelNewProject : Gtk.Viewport
 			if (src_type == GLib.FileType.DIRECTORY) {
 				if (dst.query_exists() == false)
 					dst.make_directory();
-				src.copy_attributes(dst, flags);
 
 				string dst_path = dst.get_path();
 				string src_path = src.get_path();
