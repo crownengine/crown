@@ -13,8 +13,8 @@ format_tools_c () {
 }
 
 format_tools_vala () {
-	find tools/ -iname '*.vala' \
-		| tr '\n' '\0'          \
+	find tools/ -iname '*.vala' -o -iname '*.vapi' \
+		| tr '\n' '\0'                             \
 		| xargs -0 -n1 -P"$1" ./scripts/uncrustify/uncrustify-wrapper.sh scripts/uncrustify/vala.cfg
 }
 
