@@ -4,6 +4,7 @@ frames = [
 	{
 		_guid = "06eb9706-a4db-4f40-bd74-7969b011fffc"
 		_type = "animation_frame"
+		frame = 0
 		index = 0
 	}
 ]

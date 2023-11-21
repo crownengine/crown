@@ -4,7 +4,8 @@ frames = [
 	{
 		_guid = "b1227ffa-a2d5-413b-ae4e-2d075c3ce0b1"
 		_type = "animation_frame"
-		index = 9
+		frame = 9
+		index = 0
 	}
 ]
 total_time = 1

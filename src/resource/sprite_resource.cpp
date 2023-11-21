@@ -189,6 +189,12 @@ namespace sprite_animation_resource
 } // namespace sprite_animation_resource
 
 #if CROWN_CAN_COMPILE
+struct SpriteAnimationFrame
+{
+	u32 frame; // Sprite frame.
+	u32 index; // Sorting index.
+};
+
 namespace sprite_animation_resource_internal
 {
 	s32 compile(CompileOptions &opts)
@@ -199,7 +205,7 @@ namespace sprite_animation_resource_internal
 		JsonObject obj(ta);
 		JsonArray object_frames(ta);
 
-		Array<u32> frames(default_allocator());
+		Array<SpriteAnimationFrame> frames(default_allocator());
 		float total_time = 0.0f;
 
 		sjson::parse(obj, buf);
@@ -208,13 +214,26 @@ namespace sprite_animation_resource_internal
 		array::resize(frames, array::size(object_frames));
 		for (u32 i = 0; i < array::size(object_frames); ++i) {
 			if (sjson::type(object_frames[i]) == JsonValueType::NUMBER) {
-				frames[i] = (u32)sjson::parse_float(object_frames[i]);
+				frames[i].frame = (u32)sjson::parse_float(object_frames[i]);
+				frames[i].index = i;
 			} else {
 				JsonObject animation_frame_obj(ta);
 				sjson::parse_object(animation_frame_obj, object_frames[i]);
-				frames[i] = (u32)sjson::parse_float(animation_frame_obj["index"]);
+
+				if (json_object::has(animation_frame_obj, "frame"))
+					frames[i].frame = (u32)sjson::parse_float(animation_frame_obj["frame"]);
+				else
+					frames[i].frame = 0; // Crown 0.48 shipped with malformed .sprite_animtion files.
+
+				frames[i].index = (u32)sjson::parse_float(animation_frame_obj["index"]);
 			}
 		}
+
+		std::sort(array::begin(frames)
+			, array::end(frames)
+			, [](const SpriteAnimationFrame &frame_a, const SpriteAnimationFrame &frame_b) {
+				return frame_a.index < frame_b.index;
+			});
 
 		total_time = sjson::parse_float(obj["total_time"]);
 
@@ -229,7 +248,7 @@ namespace sprite_animation_resource_internal
 		opts.write(sar.total_time);
 
 		for (u32 i = 0; i < array::size(frames); i++)
-			opts.write(frames[i]);
+			opts.write(frames[i].frame);
 
 		return 0;
 	}
