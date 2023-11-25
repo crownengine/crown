@@ -22,6 +22,7 @@ Changelog
 * Fixed initial 'sensitivity' state in some widgets.
 * Fixed erratic messages when importing assets and improved import procedure robustness.
 * Fixed creating new project from templates.
+* The most recent project in the Projects List can now be opened by pressing the 'Enter' key.
 
 0.48.0 --- *31 Jul 2023*
 ------------------------

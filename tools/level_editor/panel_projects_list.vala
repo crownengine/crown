@@ -8,6 +8,61 @@ using Gee;
 
 namespace Crown
 {
+public class ProjectRow : Gtk.ListBoxRow
+{
+	public Gtk.Box _vbox;
+	public Gtk.Box _hbox;
+	public Gtk.Label _name;
+	public Gtk.Label _source_dir;
+	public Gtk.Button _remove_button;
+	public Gtk.Button _open_button;
+
+	public ProjectRow(string source_dir, string time, string name)
+	{
+		this.set_data("source_dir", source_dir);
+		this.set_data("mtime", time);
+
+		_vbox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+
+		_name = new Gtk.Label(null);
+		_name.set_margin_start(12);
+		_name.set_margin_end(12);
+		_name.set_margin_top(8);
+		_name.set_margin_bottom(8);
+		_name.set_markup("<b>%s</b>".printf(name));
+		_name.set_xalign(0.0f);
+		_vbox.pack_start(_name);
+
+		_source_dir = new Gtk.Label(null);
+		_source_dir.set_margin_start(12);
+		_source_dir.set_margin_end(12);
+		_source_dir.set_margin_bottom(8);
+		_source_dir.set_markup("<small>%s</small>".printf(source_dir));
+		_source_dir.set_xalign(0.0f);
+		_vbox.pack_start(_source_dir);
+
+		_hbox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 6);
+		_hbox.pack_start(_vbox);
+
+		_remove_button = new Gtk.Button.from_icon_name("list-remove-symbolic");
+		_remove_button.get_style_context().add_class("flat");
+		_remove_button.get_style_context().add_class("destructive-action");
+		_remove_button.set_halign(Gtk.Align.CENTER);
+		_remove_button.set_valign(Gtk.Align.CENTER);
+		_remove_button.set_margin_end(12);
+		_hbox.pack_end(_remove_button, false, false, 0);
+
+		_open_button = new Gtk.Button.with_label("Open");
+		_open_button.get_style_context().add_class("flat");
+		_open_button.set_halign(Gtk.Align.CENTER);
+		_open_button.set_valign(Gtk.Align.CENTER);
+		// _open_button.set_margin_end(12);
+		_hbox.pack_end(_open_button, false, false, 0);
+
+		this.add(_hbox);
+	}
+}
+
 [GtkTemplate (ui = "/org/crown/level_editor/ui/panel_projects_list.ui")]
 public class PanelProjectsList : Gtk.ScrolledWindow
 {
@@ -53,41 +108,10 @@ public class PanelProjectsList : Gtk.ScrolledWindow
 
 	public void on_recent_project_added(string source_dir, string name, string time)
 	{
-		Gtk.Widget widget;
+		// Add project row.
+		var row = new ProjectRow(source_dir, time, name);
 
-		// Add row
-		Gtk.ListBoxRow row = new Gtk.ListBoxRow();
-		row.set_data("source_dir", source_dir);
-		row.set_data("mtime", time);
-		Gtk.Box vbox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
-
-		widget = new Gtk.Label(null);
-		widget.set_margin_start(12);
-		widget.set_margin_end(12);
-		widget.set_margin_top(8);
-		widget.set_margin_bottom(8);
-		((Gtk.Label)widget).set_markup("<b>%s</b>".printf(name));
-		((Gtk.Label)widget).set_xalign(0.0f);
-		vbox.pack_start(widget);
-
-		widget = new Gtk.Label(null);
-		widget.set_margin_start(12);
-		widget.set_margin_end(12);
-		widget.set_margin_bottom(8);
-		((Gtk.Label)widget).set_markup("<small>%s</small>".printf(source_dir));
-		((Gtk.Label)widget).set_xalign(0.0f);
-		vbox.pack_start(widget);
-
-		Gtk.Box hbox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 6);
-		hbox.pack_start(vbox);
-
-		Gtk.Button remove_button = new Gtk.Button.from_icon_name("list-remove-symbolic");
-		remove_button.get_style_context().add_class("flat");
-		remove_button.get_style_context().add_class("destructive-action");
-		remove_button.set_halign(Gtk.Align.CENTER);
-		remove_button.set_valign(Gtk.Align.CENTER);
-		remove_button.set_margin_end(12);
-		remove_button.clicked.connect(() => {
+		row._remove_button.clicked.connect(() => {
 				Gtk.MessageDialog md = new Gtk.MessageDialog((Gtk.Window)this.get_toplevel()
 					, Gtk.DialogFlags.MODAL
 					, Gtk.MessageType.WARNING
@@ -106,24 +130,18 @@ public class PanelProjectsList : Gtk.ScrolledWindow
 				_user.remove_recent_project(row.get_data("source_dir"));
 				_list_projects.remove(row);
 			});
-		hbox.pack_end(remove_button, false, false, 0);
 
-		Gtk.Button button_open = new Gtk.Button.with_label("Open");
-		button_open.get_style_context().add_class("flat");
-		button_open.set_halign(Gtk.Align.CENTER);
-		button_open.set_valign(Gtk.Align.CENTER);
-		// button_open.set_margin_end(12);
-		button_open.clicked.connect(() => {
+		row._open_button.clicked.connect(() => {
 				GLib.Application.get_default().activate_action("open-project", new GLib.Variant.string(source_dir));
 			});
-		hbox.pack_end(button_open, false, false, 0);
 
-		row.add(hbox);
 		_list_projects.add(row);
 		_list_projects.show_all(); // Otherwise the list is not always updated...
 
 		if (!GLib.FileUtils.test(source_dir, FileTest.EXISTS))
-			button_open.sensitive = false;
+			row._open_button.sensitive = false;
+
+		invalidate_sort();
 	}
 
 	public void on_recent_project_touched(string source_dir, string mtime)
@@ -135,7 +153,20 @@ public class PanelProjectsList : Gtk.ScrolledWindow
 				}
 			});
 
+		invalidate_sort();
+	}
+
+	public void invalidate_sort()
+	{
 		_list_projects.invalidate_sort();
+
+		// Give focus to most recent project's open button.
+		ProjectRow? first_row = (ProjectRow?)_list_projects.get_row_at_index(0);
+		stdout.printf("mmmm\n");
+		if (first_row != null) {
+			stdout.printf("first row selected\n");
+			first_row._open_button.has_focus = true;
+		}
 	}
 }
 
