@@ -12,6 +12,7 @@ Changelog
 
 * Fixed a crash when rendering text with a font missing some of the glyphs.
 * Fixed pixelation when rendering scaled text.
+* Fixed .sprite_animation's compiler and resources.
 
 **Tools**
 
