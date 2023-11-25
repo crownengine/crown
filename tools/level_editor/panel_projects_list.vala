@@ -162,11 +162,8 @@ public class PanelProjectsList : Gtk.ScrolledWindow
 
 		// Give focus to most recent project's open button.
 		ProjectRow? first_row = (ProjectRow?)_list_projects.get_row_at_index(0);
-		stdout.printf("mmmm\n");
-		if (first_row != null) {
-			stdout.printf("first row selected\n");
+		if (first_row != null)
 			first_row._open_button.has_focus = true;
-		}
 	}
 }
 
