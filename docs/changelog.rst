@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.49.0 --- DD MMM YYYY
+0.49.0 --- 27 Nov 2023
 ----------------------
 
 **Data Compiler**
