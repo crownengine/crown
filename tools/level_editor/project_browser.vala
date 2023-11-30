@@ -65,9 +65,9 @@ public class ProjectBrowser : Gtk.Box
 
 				Value id_a;
 				Value id_b;
-				model.get_value(iter_a, ProjectStore.Column.SEGMENT, out id_a);
-				model.get_value(iter_b, ProjectStore.Column.SEGMENT, out id_b);
-				return strcmp((string)id_a, (string)id_b);
+				model.get_value(iter_a, ProjectStore.Column.NAME, out id_a);
+				model.get_value(iter_b, ProjectStore.Column.NAME, out id_b);
+				return strcmp(GLib.Path.get_basename((string)id_a), GLib.Path.get_basename((string)id_b));
 			});
 
 		Gtk.TreeViewColumn column = new Gtk.TreeViewColumn();
@@ -116,15 +116,21 @@ public class ProjectBrowser : Gtk.Box
 					cell.set_property("icon-name", "text-x-generic-symbolic");
 			});
 		column.set_cell_data_func(cell_text, (cell_layout, cell, model, iter) => {
-				Value segment;
+				Value name;
 				Value type;
-				model.get_value(iter, ProjectStore.Column.SEGMENT, out segment);
+				model.get_value(iter, ProjectStore.Column.NAME, out name);
 				model.get_value(iter, ProjectStore.Column.TYPE, out type);
 
-				if ((string)type == "<folder>")
-					cell.set_property("text", (string)segment);
-				else
-					cell.set_property("text", ResourceId.path((string)type, (string)segment));
+				string basename = GLib.Path.get_basename((string)name);
+
+				if ((string)type == "<folder>") {
+					if ((string)name == "")
+						cell.set_property("text", _project_store._project.name());
+					else
+						cell.set_property("text", basename);
+				} else {
+					cell.set_property("text", ResourceId.path((string)type, basename));
+				}
 			});
 		_tree_view = new Gtk.TreeView();
 		_tree_view.append_column(column);

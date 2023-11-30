@@ -16,7 +16,6 @@ public class ProjectStore
 	{
 		NAME,
 		TYPE,
-		SEGMENT,
 
 		COUNT
 	}
@@ -41,7 +40,6 @@ public class ProjectStore
 		_tree_store = new Gtk.TreeStore(Column.COUNT
 			, typeof(string) // resource name
 			, typeof(string) // resource type
-			, typeof(string) // resource segment
 			);
 		_list_store = new Gtk.ListStore(2
 			, typeof(string) // resource name
@@ -66,14 +64,6 @@ public class ProjectStore
 		if (last_slash == -1)
 			return ROOT_FOLDER;
 		return name.substring(0, last_slash);
-	}
-
-	private string segment(string name)
-	{
-		int last_slash = name.last_index_of_char('/');
-		if (last_slash == -1)
-			return name;
-		return name.substring(last_slash + 1);
 	}
 
 	public bool path_for_resource_type_name(out Gtk.TreePath path, string type, string name)
@@ -125,8 +115,6 @@ public class ProjectStore
 				, folder
 				, Column.TYPE
 				, "<folder>"
-				, Column.SEGMENT
-				, folder.substring(start_index)
 				, -1
 				);
 
@@ -146,8 +134,6 @@ public class ProjectStore
 					, folder.substring(0, first_slash)
 					, Column.TYPE
 					, "<folder>"
-					, Column.SEGMENT
-					, folder.substring(start_index, first_slash - start_index)
 					, -1
 					);
 
@@ -173,7 +159,6 @@ public class ProjectStore
 	private void on_project_file_added(string type, string name)
 	{
 		string f = folder(name);
-		string s = segment(name);
 		Gtk.TreeIter parent = make_tree(f);
 		Gtk.TreeIter iter;
 		_tree_store.insert_with_values(out iter
@@ -183,8 +168,6 @@ public class ProjectStore
 			, name
 			, Column.TYPE
 			, type
-			, Column.SEGMENT
-			, s
 			, -1
 			);
 		_list_store.insert_with_values(out iter
@@ -286,8 +269,6 @@ public class ProjectStore
 			, ROOT_FOLDER
 			, Column.TYPE
 			, "<folder>"
-			, Column.SEGMENT
-			, _project.name()
 			, -1
 			);
 
