@@ -209,6 +209,9 @@ update_bgfx () {
 	rm -rf "${DEST}"/tools/texturev
 	rm -rf "${DEST}"/tools/bin
 	rm -rf "${DEST}"/docs
+	sed -i '/dofile \"texturev.lua\"/d' "${DEST}"/scripts/genie.lua
+	sed -i '/dofile \"geometryc.lua\"/d' "${DEST}"/scripts/genie.lua
+	sed -i '/dofile \"geometryv.lua\"/d' "${DEST}"/scripts/genie.lua
 
 	# Bump affected resources versions.
 	RESOURCE_TYPES_H=src/resource/types.h
