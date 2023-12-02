@@ -1,14 +1,17 @@
 /*
- * Copyright 2011-2021 Branimir Karadzic. All rights reserved.
- * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
+ * Copyright 2011-2023 Branimir Karadzic. All rights reserved.
+ * License: https://github.com/bkaradzic/bx/blob/master/LICENSE
  */
 
 #include <bx/math.h>
 #include <bx/uint32_t.h>
 
+#include <bx/string.h>
+
 namespace bx
 {
-	const float kInfinity = bitsToFloat(UINT32_C(0x7f800000) );
+	const float  kFloatInfinity  = bitsToFloat(kFloatExponentMask);
+	const double kDoubleInfinity = bitsToDouble(kDoubleExponentMask);
 
 	namespace
 	{
@@ -112,7 +115,7 @@ namespace bx
 
 		if (maxaxy == 0.0f)
 		{
-			return 0.0f*sign(_y);
+			return _y < 0.0f ? -0.0f : 0.0f;
 		}
 
 		const float mxy    = minaxy / maxaxy;
@@ -125,7 +128,7 @@ namespace bx
 		const float tmp5   = tmp4 * mxy;
 		const float tmp6   = ay > ax   ? kPiHalf - tmp5 : tmp5;
 		const float tmp7   = _x < 0.0f ? kPi     - tmp6 : tmp6;
-		const float result = sign(_y)*tmp7;
+		const float result = _y < 0.0f ? -tmp7 : tmp7;
 
 		return result;
 	}
@@ -133,11 +136,11 @@ namespace bx
 	BX_CONST_FUNC float ldexp(float _a, int32_t _b)
 	{
 		const uint32_t ftob     = floatToBits(_a);
-		const uint32_t masked   = uint32_and(ftob, UINT32_C(0xff800000) );
+		const uint32_t masked   = uint32_and(ftob, kFloatSignMask | kFloatExponentMask);
 		const uint32_t expsign0 = uint32_sra(masked, 23);
 		const uint32_t tmp      = uint32_iadd(expsign0, _b);
 		const uint32_t expsign1 = uint32_sll(tmp, 23);
-		const uint32_t mantissa = uint32_and(ftob, UINT32_C(0x007fffff) );
+		const uint32_t mantissa = uint32_and(ftob, kFloatMantissaMask);
 		const uint32_t bits     = uint32_or(mantissa, expsign1);
 		const float    result   = bitsToFloat(bits);
 
@@ -147,9 +150,9 @@ namespace bx
 	float frexp(float _a, int32_t* _outExp)
 	{
 		const uint32_t ftob     = floatToBits(_a);
-		const uint32_t masked0  = uint32_and(ftob, UINT32_C(0x7f800000) );
+		const uint32_t masked0  = uint32_and(ftob, kFloatExponentMask);
 		const uint32_t exp0     = uint32_srl(masked0, 23);
-		const uint32_t masked1  = uint32_and(ftob,   UINT32_C(0x807fffff) );
+		const uint32_t masked1  = uint32_and(ftob,   kFloatSignMask | kFloatMantissaMask);
 		const uint32_t bits     = uint32_or(masked1, UINT32_C(0x3f000000) );
 		const float    result   = bitsToFloat(bits);
 
@@ -238,37 +241,49 @@ namespace bx
 		return result;
 	}
 
-	void mtxLookAt(float* _result, const Vec3& _eye, const Vec3& _at, const Vec3& _up, Handness::Enum _handness)
+	void mtxLookAt(float* _result, const Vec3& _eye, const Vec3& _at, const Vec3& _up, Handedness::Enum _handedness)
 	{
-		const Vec3 view = normalize(
-			  Handness::Right == _handness
-			? sub(_eye, _at)
-			: sub(_at, _eye)
-			);
-		const Vec3 uxv   = cross(_up, view);
-		const Vec3 right = normalize(uxv);
-		const Vec3 up    = cross(view, right);
+		const Vec3 eye  = Handedness::Left == _handedness ? _eye : neg(_eye);
+		const Vec3 view = normalize(sub(_at, eye) );
 
-		memSet(_result, 0, sizeof(float)*16);
+		Vec3 right = bx::InitNone;
+		Vec3 up    = bx::InitNone;
+
+		const Vec3 uxv = cross(_up, view);
+
+		if (0.0f == dot(uxv, uxv) )
+		{
+			right = { Handedness::Left == _handedness ? -1.0f : 1.0f, 0.0f, 0.0f };
+		}
+		else
+		{
+			right = normalize(uxv);
+		}
+
+		up = cross(view, right);
+
 		_result[ 0] = right.x;
 		_result[ 1] = up.x;
 		_result[ 2] = view.x;
+		_result[ 3] = 0.0f;
 
 		_result[ 4] = right.y;
 		_result[ 5] = up.y;
 		_result[ 6] = view.y;
+		_result[ 7] = 0.0f;
 
 		_result[ 8] = right.z;
 		_result[ 9] = up.z;
 		_result[10] = view.z;
+		_result[11] = 0.0f;
 
-		_result[12] = -dot(right, _eye);
-		_result[13] = -dot(up,    _eye);
-		_result[14] = -dot(view,  _eye);
+		_result[12] = -dot(right, eye);
+		_result[13] = -dot(up,    eye);
+		_result[14] = -dot(view,  eye);
 		_result[15] = 1.0f;
 	}
 
-	static void mtxProjXYWH(float* _result, float _x, float _y, float _width, float _height, float _near, float _far, bool _homogeneousNdc, Handness::Enum _handness)
+	static void mtxProjXYWH(float* _result, float _x, float _y, float _width, float _height, float _near, float _far, bool _homogeneousNdc, Handedness::Enum _handedness)
 	{
 		const float diff = _far-_near;
 		const float aa = _homogeneousNdc ? (     _far+_near)/diff : _far/diff;
@@ -277,14 +292,14 @@ namespace bx
 		memSet(_result, 0, sizeof(float)*16);
 		_result[ 0] = _width;
 		_result[ 5] = _height;
-		_result[ 8] = (Handness::Right == _handness) ?    _x :  -_x;
-		_result[ 9] = (Handness::Right == _handness) ?    _y :  -_y;
-		_result[10] = (Handness::Right == _handness) ?   -aa :   aa;
-		_result[11] = (Handness::Right == _handness) ? -1.0f : 1.0f;
+		_result[ 8] = (Handedness::Right == _handedness) ?    _x :  -_x;
+		_result[ 9] = (Handedness::Right == _handedness) ?    _y :  -_y;
+		_result[10] = (Handedness::Right == _handedness) ?   -aa :   aa;
+		_result[11] = (Handedness::Right == _handedness) ? -1.0f : 1.0f;
 		_result[14] = -bb;
 	}
 
-	void mtxProj(float* _result, float _ut, float _dt, float _lt, float _rt, float _near, float _far, bool _homogeneousNdc, Handness::Enum _handness)
+	void mtxProj(float* _result, float _ut, float _dt, float _lt, float _rt, float _near, float _far, bool _homogeneousNdc, Handedness::Enum _handedness)
 	{
 		const float invDiffRl = 1.0f/(_rt - _lt);
 		const float invDiffUd = 1.0f/(_ut - _dt);
@@ -292,22 +307,22 @@ namespace bx
 		const float height =  2.0f*_near * invDiffUd;
 		const float xx     = (_rt + _lt) * invDiffRl;
 		const float yy     = (_ut + _dt) * invDiffUd;
-		mtxProjXYWH(_result, xx, yy, width, height, _near, _far, _homogeneousNdc, _handness);
+		mtxProjXYWH(_result, xx, yy, width, height, _near, _far, _homogeneousNdc, _handedness);
 	}
 
-	void mtxProj(float* _result, const float _fov[4], float _near, float _far, bool _homogeneousNdc, Handness::Enum _handness)
+	void mtxProj(float* _result, const float _fov[4], float _near, float _far, bool _homogeneousNdc, Handedness::Enum _handedness)
 	{
-		mtxProj(_result, _fov[0], _fov[1], _fov[2], _fov[3], _near, _far, _homogeneousNdc, _handness);
+		mtxProj(_result, _fov[0], _fov[1], _fov[2], _fov[3], _near, _far, _homogeneousNdc, _handedness);
 	}
 
-	void mtxProj(float* _result, float _fovy, float _aspect, float _near, float _far, bool _homogeneousNdc, Handness::Enum _handness)
+	void mtxProj(float* _result, float _fovy, float _aspect, float _near, float _far, bool _homogeneousNdc, Handedness::Enum _handedness)
 	{
 		const float height = 1.0f/tan(toRad(_fovy)*0.5f);
 		const float width  = height * 1.0f/_aspect;
-		mtxProjXYWH(_result, 0.0f, 0.0f, width, height, _near, _far, _homogeneousNdc, _handness);
+		mtxProjXYWH(_result, 0.0f, 0.0f, width, height, _near, _far, _homogeneousNdc, _handedness);
 	}
 
-	static void mtxProjInfXYWH(float* _result, float _x, float _y, float _width, float _height, float _near, bool _homogeneousNdc, Handness::Enum _handness, NearFar::Enum _nearFar)
+	static void mtxProjInfXYWH(float* _result, float _x, float _y, float _width, float _height, float _near, bool _homogeneousNdc, Handedness::Enum _handedness, NearFar::Enum _nearFar)
 	{
 		float aa;
 		float bb;
@@ -325,14 +340,14 @@ namespace bx
 		memSet(_result, 0, sizeof(float)*16);
 		_result[ 0] = _width;
 		_result[ 5] = _height;
-		_result[ 8] = (Handness::Right == _handness) ?    _x :  -_x;
-		_result[ 9] = (Handness::Right == _handness) ?    _y :  -_y;
-		_result[10] = (Handness::Right == _handness) ?   -aa :   aa;
-		_result[11] = (Handness::Right == _handness) ? -1.0f : 1.0f;
+		_result[ 8] = (Handedness::Right == _handedness) ?    _x :  -_x;
+		_result[ 9] = (Handedness::Right == _handedness) ?    _y :  -_y;
+		_result[10] = (Handedness::Right == _handedness) ?   -aa :   aa;
+		_result[11] = (Handedness::Right == _handedness) ? -1.0f : 1.0f;
 		_result[14] = -bb;
 	}
 
-	void mtxProjInf(float* _result, float _ut, float _dt, float _lt, float _rt, float _near, bool _homogeneousNdc, Handness::Enum _handness, NearFar::Enum _nearFar)
+	void mtxProjInf(float* _result, float _ut, float _dt, float _lt, float _rt, float _near, bool _homogeneousNdc, Handedness::Enum _handedness, NearFar::Enum _nearFar)
 	{
 		const float invDiffRl = 1.0f/(_rt - _lt);
 		const float invDiffUd = 1.0f/(_ut - _dt);
@@ -340,22 +355,22 @@ namespace bx
 		const float height =  2.0f*_near * invDiffUd;
 		const float xx     = (_rt + _lt) * invDiffRl;
 		const float yy     = (_ut + _dt) * invDiffUd;
-		mtxProjInfXYWH(_result, xx, yy, width, height, _near, _homogeneousNdc, _handness, _nearFar);
+		mtxProjInfXYWH(_result, xx, yy, width, height, _near, _homogeneousNdc, _handedness, _nearFar);
 	}
 
-	void mtxProjInf(float* _result, const float _fov[4], float _near, bool _homogeneousNdc, Handness::Enum _handness, NearFar::Enum _nearFar)
+	void mtxProjInf(float* _result, const float _fov[4], float _near, bool _homogeneousNdc, Handedness::Enum _handedness, NearFar::Enum _nearFar)
 	{
-		mtxProjInf(_result, _fov[0], _fov[1], _fov[2], _fov[3], _near, _homogeneousNdc, _handness, _nearFar);
+		mtxProjInf(_result, _fov[0], _fov[1], _fov[2], _fov[3], _near, _homogeneousNdc, _handedness, _nearFar);
 	}
 
-	void mtxProjInf(float* _result, float _fovy, float _aspect, float _near, bool _homogeneousNdc, Handness::Enum _handness, NearFar::Enum _nearFar)
+	void mtxProjInf(float* _result, float _fovy, float _aspect, float _near, bool _homogeneousNdc, Handedness::Enum _handedness, NearFar::Enum _nearFar)
 	{
 		const float height = 1.0f/tan(toRad(_fovy)*0.5f);
 		const float width  = height * 1.0f/_aspect;
-		mtxProjInfXYWH(_result, 0.0f, 0.0f, width, height, _near, _homogeneousNdc, _handness, _nearFar);
+		mtxProjInfXYWH(_result, 0.0f, 0.0f, width, height, _near, _homogeneousNdc, _handedness, _nearFar);
 	}
 
-	void mtxOrtho(float* _result, float _left, float _right, float _bottom, float _top, float _near, float _far, float _offset, bool _homogeneousNdc, Handness::Enum _handness)
+	void mtxOrtho(float* _result, float _left, float _right, float _bottom, float _top, float _near, float _far, float _offset, bool _homogeneousNdc, Handedness::Enum _handedness)
 	{
 		const float aa = 2.0f/(_right - _left);
 		const float bb = 2.0f/(_top - _bottom);
@@ -370,7 +385,7 @@ namespace bx
 		memSet(_result, 0, sizeof(float)*16);
 		_result[ 0] = aa;
 		_result[ 5] = bb;
-		_result[10] = Handness::Right == _handness ? -cc : cc;
+		_result[10] = Handedness::Right == _handedness ? -cc : cc;
 		_result[12] = dd + _offset;
 		_result[13] = ee;
 		_result[14] = ff;

@@ -1177,10 +1177,13 @@ void HlslParseContext::flatten(const TVariable& variable, bool linkage, bool arr
     if (type.isBuiltIn() && !type.isStruct())
         return;
 
+
     auto entry = flattenMap.insert(std::make_pair(variable.getUniqueId(),
                                                   TFlattenData(type.getQualifier().layoutBinding,
                                                                type.getQualifier().layoutLocation)));
 
+    if (type.isStruct() && type.getStruct()->size()==0)
+        return;
     // if flattening arrayed io struct, array each member of dereferenced type
     if (arrayed) {
         const TType dereferencedType(type, 0);
@@ -1596,7 +1599,7 @@ void HlslParseContext::handleFunctionDeclarator(const TSourceLoc& loc, TFunction
     //
     bool builtIn;
     TSymbol* symbol = symbolTable.find(function.getMangledName(), &builtIn);
-    const TFunction* prevDec = symbol ? symbol->getAsFunction() : 0;
+    const TFunction* prevDec = symbol ? symbol->getAsFunction() : nullptr;
 
     if (prototype) {
         // All built-in functions are defined, even though they don't have a body.
@@ -1752,6 +1755,18 @@ void HlslParseContext::handleEntryPointAttributes(const TSourceLoc& loc, const T
             const TIntermSequence& sequence = it->args->getSequence();
             for (int lid = 0; lid < int(sequence.size()); ++lid)
                 intermediate.setLocalSize(lid, sequence[lid]->getAsConstantUnion()->getConstArray()[0].getIConst());
+            break;
+        }
+        case EatInstance: 
+        {
+            int invocations;
+
+            if (!it->getInt(invocations)) {
+                error(loc, "invalid instance", "", "");
+            } else {
+                if (!intermediate.setInvocations(invocations))
+                    error(loc, "cannot change previously set instance attribute", "", "");
+            }
             break;
         }
         case EatMaxVertexCount:
@@ -2430,6 +2445,11 @@ void HlslParseContext::remapNonEntryPointIO(TFunction& function)
             clearUniformInputOutput(function[i].type->getQualifier());
 }
 
+TIntermNode* HlslParseContext::handleDeclare(const TSourceLoc& loc, TIntermTyped* var)
+{
+    return intermediate.addUnaryNode(EOpDeclare, var, loc, TType(EbtVoid));
+}
+
 // Handle function returns, including type conversions to the function return type
 // if necessary.
 TIntermNode* HlslParseContext::handleReturnValue(const TSourceLoc& loc, TIntermTyped* value)
@@ -2455,7 +2475,7 @@ TIntermNode* HlslParseContext::handleReturnValue(const TSourceLoc& loc, TIntermT
 void HlslParseContext::handleFunctionArgument(TFunction* function,
                                               TIntermTyped*& arguments, TIntermTyped* newArg)
 {
-    TParameter param = { 0, new TType, nullptr };
+    TParameter param = { nullptr, new TType, nullptr };
     param.type->shallowCopy(newArg->getType());
 
     function->addParameter(param);
@@ -5430,7 +5450,7 @@ void HlslParseContext::decomposeIntrinsic(const TSourceLoc& loc, TIntermTyped*& 
         }
     case EOpWavePrefixCountBits:
         {
-            // Mapped to subgroupBallotInclusiveBitCount(subgroupBallot())
+            // Mapped to subgroupBallotExclusiveBitCount(subgroupBallot())
             // builtin
 
             // uvec4 type.
@@ -5444,7 +5464,7 @@ void HlslParseContext::decomposeIntrinsic(const TSourceLoc& loc, TIntermTyped*& 
             TType uintType(EbtUint, EvqTemporary);
 
             node = intermediate.addBuiltInFunctionCall(loc,
-                EOpSubgroupBallotInclusiveBitCount, true, res, uintType);
+                EOpSubgroupBallotExclusiveBitCount, true, res, uintType);
 
             break;
         }
@@ -7548,7 +7568,6 @@ const TFunction* HlslParseContext::findFunction(const TSourceLoc& loc, TFunction
          candidateList[0]->getBuiltInOp() == EOpMethodRestartStrip ||
          candidateList[0]->getBuiltInOp() == EOpMethodIncrementCounter ||
          candidateList[0]->getBuiltInOp() == EOpMethodDecrementCounter ||
-         candidateList[0]->getBuiltInOp() == EOpMethodAppend ||
          candidateList[0]->getBuiltInOp() == EOpMethodConsume)) {
         return candidateList[0];
     }
@@ -7773,18 +7792,18 @@ const TFunction* HlslParseContext::findFunction(const TSourceLoc& loc, TFunction
             // Handle aggregates: put all args into the new function call
             for (int arg = 0; arg < int(args->getAsAggregate()->getSequence().size()); ++arg) {
                 // TODO: But for constness, we could avoid the new & shallowCopy, and use the pointer directly.
-                TParameter param = { 0, new TType, nullptr };
+                TParameter param = { nullptr, new TType, nullptr };
                 param.type->shallowCopy(args->getAsAggregate()->getSequence()[arg]->getAsTyped()->getType());
                 convertedCall.addParameter(param);
             }
         } else if (args->getAsUnaryNode()) {
             // Handle unaries: put all args into the new function call
-            TParameter param = { 0, new TType, nullptr };
+            TParameter param = { nullptr, new TType, nullptr };
             param.type->shallowCopy(args->getAsUnaryNode()->getOperand()->getAsTyped()->getType());
             convertedCall.addParameter(param);
         } else if (args->getAsTyped()) {
             // Handle bare e.g, floats, not in an aggregate.
-            TParameter param = { 0, new TType, nullptr };
+            TParameter param = { nullptr, new TType, nullptr };
             param.type->shallowCopy(args->getAsTyped()->getType());
             convertedCall.addParameter(param);
         } else {
@@ -8023,11 +8042,16 @@ TIntermNode* HlslParseContext::declareVariable(const TSourceLoc& loc, const TStr
     if (flattenVar)
         flatten(*symbol->getAsVariable(), symbolTable.atGlobalLevel());
 
-    if (initializer == nullptr)
-        return nullptr;
+    TVariable* variable = symbol->getAsVariable();
+
+    if (initializer == nullptr) {
+        if (intermediate.getDebugInfo())
+            return executeDeclaration(loc, variable);
+        else
+            return nullptr;
+    }
 
     // Deal with initializer
-    TVariable* variable = symbol->getAsVariable();
     if (variable == nullptr) {
         error(loc, "initializer requires a variable, not a member", identifier.c_str(), "");
         return nullptr;
@@ -8092,6 +8116,24 @@ TVariable* HlslParseContext::declareNonArray(const TSourceLoc& loc, const TStrin
 
     error(loc, "redefinition", variable->getName().c_str(), "");
     return nullptr;
+}
+
+// Return a declaration of a temporary variable
+//
+// This is used to force a variable to be declared in the correct scope
+// when debug information is being generated.
+
+TIntermNode* HlslParseContext::executeDeclaration(const TSourceLoc& loc, TVariable* variable)
+{
+  //
+  // Identifier must be of type temporary.
+  //
+  TStorageQualifier qualifier = variable->getType().getQualifier().storage;
+  if (qualifier != EvqTemporary)
+      return nullptr;
+
+  TIntermSymbol* intermSymbol = intermediate.addSymbol(*variable, loc);
+  return handleDeclare(loc, intermSymbol);
 }
 
 //
@@ -9006,7 +9048,8 @@ void HlslParseContext::fixBlockUniformOffsets(const TQualifier& qualifier, TType
             // "The specified offset must be a multiple
             // of the base alignment of the type of the block member it qualifies, or a compile-time error results."
             if (! IsMultipleOfPow2(memberQualifier.layoutOffset, memberAlignment))
-                error(memberLoc, "must be a multiple of the member's alignment", "offset", "");
+                error(memberLoc, "must be a multiple of the member's alignment", "offset",
+                    "(layout offset = %d | member alignment = %d)", memberQualifier.layoutOffset, memberAlignment);
 
             // "The offset qualifier forces the qualified member to start at or after the specified
             // integral-constant expression, which will be its byte offset from the beginning of the buffer.

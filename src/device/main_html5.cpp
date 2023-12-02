@@ -25,7 +25,6 @@
 #define STB_SPRINTF_IMPLEMENTATION
 #define STB_SPRINTF_NOUNALIGNED
 #include <stb_sprintf.h>
-#include <bgfx/platform.h>
 #include <emscripten/emscripten.h>
 #include <emscripten/html5.h>
 
@@ -62,17 +61,6 @@ struct WindowEmscripten : public Window
 
 	void close() override
 	{
-	}
-
-	void bgfx_setup() override
-	{
-		bgfx::PlatformData pd;
-		pd.ndt          = NULL;
-		pd.nwh          = (void *)"#" CROWN_HTML5_CANVAS_NAME;
-		pd.context      = NULL;
-		pd.backBuffer   = NULL;
-		pd.backBufferDS = NULL;
-		bgfx::setPlatformData(pd);
 	}
 
 	void show() override
@@ -139,7 +127,12 @@ struct WindowEmscripten : public Window
 		}
 	}
 
-	void *handle() override
+	void *native_handle() override
+	{
+		return (void *)"#" CROWN_HTML5_CANVAS_NAME;
+	}
+
+	void *native_display() override
 	{
 		return NULL;
 	}

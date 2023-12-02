@@ -343,6 +343,7 @@ void TScanContext::fillInKeywordMap()
 
     (*KeywordMap)["const"] =                   CONST;
     (*KeywordMap)["uniform"] =                 UNIFORM;
+    (*KeywordMap)["tileImageEXT"] =            TILEIMAGEEXT;
     (*KeywordMap)["buffer"] =                  BUFFER;
     (*KeywordMap)["in"] =                      IN;
     (*KeywordMap)["out"] =                     OUT;
@@ -685,6 +686,10 @@ void TScanContext::fillInKeywordMap()
     (*KeywordMap)["texture2DRect"] =           TEXTURE2DRECT;
     (*KeywordMap)["texture1DArray"] =          TEXTURE1DARRAY;
 
+    (*KeywordMap)["attachmentEXT"] =           ATTACHMENTEXT;
+    (*KeywordMap)["iattachmentEXT"] =          IATTACHMENTEXT;
+    (*KeywordMap)["uattachmentEXT"] =          UATTACHMENTEXT;
+
     (*KeywordMap)["subpassInput"] =            SUBPASSINPUT;
     (*KeywordMap)["subpassInputMS"] =          SUBPASSINPUTMS;
     (*KeywordMap)["isubpassInput"] =           ISUBPASSINPUT;
@@ -739,6 +744,7 @@ void TScanContext::fillInKeywordMap()
     (*KeywordMap)["f16subpassInputMS"] =            F16SUBPASSINPUTMS;
     (*KeywordMap)["__explicitInterpAMD"] =     EXPLICITINTERPAMD;
     (*KeywordMap)["pervertexNV"] =             PERVERTEXNV;
+    (*KeywordMap)["pervertexEXT"] =            PERVERTEXEXT;
     (*KeywordMap)["precise"] =                 PRECISE;
 
     (*KeywordMap)["rayPayloadNV"] =            PAYLOADNV;
@@ -757,10 +763,15 @@ void TScanContext::fillInKeywordMap()
     (*KeywordMap)["perprimitiveNV"] =          PERPRIMITIVENV;
     (*KeywordMap)["perviewNV"] =               PERVIEWNV;
     (*KeywordMap)["taskNV"] =                  PERTASKNV;
+    (*KeywordMap)["perprimitiveEXT"] =         PERPRIMITIVEEXT;
+    (*KeywordMap)["taskPayloadSharedEXT"] =    TASKPAYLOADWORKGROUPEXT;
 
     (*KeywordMap)["fcoopmatNV"] =              FCOOPMATNV;
     (*KeywordMap)["icoopmatNV"] =              ICOOPMATNV;
     (*KeywordMap)["ucoopmatNV"] =              UCOOPMATNV;
+
+    (*KeywordMap)["hitObjectNV"] =             HITOBJECTNV;
+    (*KeywordMap)["hitObjectAttributeNV"] =    HITOBJECTATTRNV;
 
     ReservedSet = new std::unordered_set<const char*, str_hash, str_eq>;
 
@@ -936,6 +947,7 @@ int TScanContext::tokenizeIdentifier()
     switch (keyword) {
     case CONST:
     case UNIFORM:
+    case TILEIMAGEEXT:
     case IN:
     case OUT:
     case INOUT:
@@ -1652,6 +1664,9 @@ int TScanContext::tokenizeIdentifier()
     case ISUBPASSINPUTMS:
     case USUBPASSINPUT:
     case USUBPASSINPUTMS:
+    case ATTACHMENTEXT:
+    case IATTACHMENTEXT:
+    case UATTACHMENTEXT:
         if (parseContext.spvVersion.vulkan > 0)
             return keyword;
         else
@@ -1719,6 +1734,12 @@ int TScanContext::tokenizeIdentifier()
             return keyword;
         return identifierOrType();
 
+    case PERVERTEXEXT:
+        if ((!parseContext.isEsProfile() && parseContext.version >= 450) ||
+            parseContext.extensionTurnedOn(E_GL_EXT_fragment_shader_barycentric))
+            return keyword;
+        return identifierOrType();
+
     case PRECISE:
         if ((parseContext.isEsProfile() &&
              (parseContext.version >= 320 || parseContext.extensionsTurnedOn(Num_AEP_gpu_shader5, AEP_gpu_shader5))) ||
@@ -1733,9 +1754,15 @@ int TScanContext::tokenizeIdentifier()
     case PERPRIMITIVENV:
     case PERVIEWNV:
     case PERTASKNV:
-        if ((!parseContext.isEsProfile() && parseContext.version >= 450) ||
-            (parseContext.isEsProfile() && parseContext.version >= 320) ||
+        if (parseContext.symbolTable.atBuiltInLevel() ||
             parseContext.extensionTurnedOn(E_GL_NV_mesh_shader))
+            return keyword;
+        return identifierOrType();
+
+    case PERPRIMITIVEEXT:
+    case TASKPAYLOADWORKGROUPEXT:
+        if (parseContext.symbolTable.atBuiltInLevel() ||
+            parseContext.extensionTurnedOn(E_GL_EXT_mesh_shader))
             return keyword;
         return identifierOrType();
 
@@ -1772,6 +1799,20 @@ int TScanContext::tokenizeIdentifier()
     case SPIRV_LITERAL:
         if (parseContext.symbolTable.atBuiltInLevel() ||
             parseContext.extensionTurnedOn(E_GL_EXT_spirv_intrinsics))
+            return keyword;
+        return identifierOrType();
+
+    case HITOBJECTNV:
+        if (parseContext.symbolTable.atBuiltInLevel() ||
+            (!parseContext.isEsProfile() && parseContext.version >= 460
+                 && parseContext.extensionTurnedOn(E_GL_NV_shader_invocation_reorder)))
+            return keyword;
+        return identifierOrType();
+
+    case HITOBJECTATTRNV:
+        if (parseContext.symbolTable.atBuiltInLevel() ||
+            (!parseContext.isEsProfile() && parseContext.version >= 460
+                 && parseContext.extensionTurnedOn(E_GL_NV_shader_invocation_reorder)))
             return keyword;
         return identifierOrType();
 #endif

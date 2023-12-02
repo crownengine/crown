@@ -21,7 +21,6 @@
 #include "device/display.h"
 #include "device/window.h"
 #include "resource/data_compiler.h"
-#include <bgfx/platform.h>
 #include <fcntl.h>  // O_RDONLY, ...
 #include <stdlib.h>
 #include <string.h> // memset
@@ -717,17 +716,6 @@ struct WindowX11 : public Window
 		XDestroyWindow(s_linux_device->_x11_display, s_linux_device->_x11_window);
 	}
 
-	void bgfx_setup() override
-	{
-		bgfx::PlatformData pd;
-		pd.ndt          = s_linux_device->_x11_display;
-		pd.nwh          = (void *)(uintptr_t)s_linux_device->_x11_window;
-		pd.context      = NULL;
-		pd.backBuffer   = NULL;
-		pd.backBufferDS = NULL;
-		bgfx::setPlatformData(pd);
-	}
-
 	void show() override
 	{
 		XMapRaised(s_linux_device->_x11_display, s_linux_device->_x11_window);
@@ -798,11 +786,6 @@ struct WindowX11 : public Window
 		XStoreName(s_linux_device->_x11_display, s_linux_device->_x11_window, title);
 	}
 
-	void *handle() override
-	{
-		return (void *)(uintptr_t)s_linux_device->_x11_window;
-	}
-
 	void show_cursor(bool show) override
 	{
 		XDefineCursor(s_linux_device->_x11_display
@@ -868,6 +851,16 @@ struct WindowX11 : public Window
 			XUngrabPointer(s_linux_device->_x11_display, CurrentTime);
 			XFlush(s_linux_device->_x11_display);
 		}
+	}
+
+	void *native_handle() override
+	{
+		return (void *)(uintptr_t)s_linux_device->_x11_window;
+	}
+
+	void *native_display() override
+	{
+		return s_linux_device->_x11_display;
 	}
 };
 

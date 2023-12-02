@@ -1,6 +1,6 @@
 /*
- * Copyright 2010-2021 Branimir Karadzic. All rights reserved.
- * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
+ * Copyright 2010-2023 Branimir Karadzic. All rights reserved.
+ * License: https://github.com/bkaradzic/bx/blob/master/LICENSE
  */
 
 #include <bx/string.h>
@@ -185,12 +185,19 @@ namespace bx
 		BX_UNUSED(_filePath);
 		return NULL;
 #else
-		return ::dlopen(_filePath.getCPtr(), RTLD_LOCAL|RTLD_LAZY);
+		void* so = ::dlopen(_filePath.getCPtr(), RTLD_LOCAL|RTLD_LAZY);
+		BX_WARN(NULL != so, "dlopen failed: \"%s\".", ::dlerror() );
+		return so;
 #endif // BX_PLATFORM_
 	}
 
 	void dlclose(void* _handle)
 	{
+		if (NULL == _handle)
+		{
+			return;
+		}
+
 #if BX_PLATFORM_WINDOWS
 		::FreeLibrary( (HMODULE)_handle);
 #elif  BX_PLATFORM_EMSCRIPTEN \

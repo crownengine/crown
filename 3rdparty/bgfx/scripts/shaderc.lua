@@ -1,6 +1,6 @@
 --
--- Copyright 2010-2021 Branimir Karadzic. All rights reserved.
--- License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
+-- Copyright 2010-2023 Branimir Karadzic. All rights reserved.
+-- License: https://github.com/bkaradzic/bgfx/blob/master/LICENSE
 --
 
 group "tools/shaderc"
@@ -29,6 +29,8 @@ project "spirv-opt"
 		path.join(SPIRV_TOOLS, "source/opt/**.h"),
 		path.join(SPIRV_TOOLS, "source/reduce/**.cpp"),
 		path.join(SPIRV_TOOLS, "source/reduce/**.h"),
+		path.join(SPIRV_TOOLS, "source/val/**.cpp"),
+		path.join(SPIRV_TOOLS, "source/val/**.h"),
 
 		-- libspirv
 		path.join(SPIRV_TOOLS, "source/assembly_grammar.cpp"),
@@ -89,53 +91,12 @@ project "spirv-opt"
 		path.join(SPIRV_TOOLS, "source/util/string_utils.cpp"),
 		path.join(SPIRV_TOOLS, "source/util/string_utils.h"),
 		path.join(SPIRV_TOOLS, "source/util/timer.h"),
-		path.join(SPIRV_TOOLS, "source/val/basic_block.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/construct.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/decoration.h"),
-		path.join(SPIRV_TOOLS, "source/val/function.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/instruction.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate.h"),
-		path.join(SPIRV_TOOLS, "source/val/validate_adjacency.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_annotation.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_arithmetics.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_atomics.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_barriers.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_bitwise.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_builtins.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_capability.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_cfg.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_composites.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_constants.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_conversion.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_debug.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_decorations.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_derivatives.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_execution_limitations.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_extensions.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_function.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_id.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_image.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_instruction.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_interfaces.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_layout.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_literals.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_logicals.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_memory.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_memory_semantics.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_misc.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_mode_setting.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_non_uniform.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_primitives.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_scopes.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_small_type_uses.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validate_type.cpp"),
-		path.join(SPIRV_TOOLS, "source/val/validation_state.cpp"),
 	}
 
 	configuration { "vs*" }
 		buildoptions {
 			"/wd4127", -- warning C4127: conditional expression is constant
+			"/wd4267", -- warning C4267: 'argument': conversion from '' to '', possible loss of data
 			"/wd4389", -- warning C4389: '==': signed/unsigned mismatch
 			"/wd4702", -- warning C4702: unreachable code
 			"/wd4706", -- warning C4706: assignment within conditional expression
@@ -233,11 +194,6 @@ project "glslang"
 		path.join(GLSLANG, "OGLCompilersDLL/**.h"),
 	}
 
-	removefiles {
-		path.join(GLSLANG, "glslang/OSDependent/Unix/main.cpp"),
-		path.join(GLSLANG, "glslang/OSDependent/Windows/main.cpp"),
-	}
-
 	configuration { "windows" }
 		removefiles {
 			path.join(GLSLANG, "glslang/OSDependent/Unix/**.cpp"),
@@ -268,7 +224,7 @@ project "glslang"
 			"/wd4838", -- warning C4838: conversion from 'spv::GroupOperation' to 'unsigned int' requires a narrowing conversion
 		}
 
-	configuration { "mingw* or linux*" }
+	configuration { "mingw-gcc or linux-gcc" }
 		buildoptions {
 			"-Wno-logical-op",
 			"-Wno-maybe-uninitialized",

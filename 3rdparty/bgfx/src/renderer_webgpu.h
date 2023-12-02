@@ -1,6 +1,6 @@
 /*
  * Copyright 2011-2019 Branimir Karadzic. All rights reserved.
- * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
+ * License: https://github.com/bkaradzic/bgfx/blob/master/LICENSE
  */
 
 #ifndef BGFX_RENDERER_WEBGPU_H_HEADER_GUARD
@@ -98,7 +98,7 @@ namespace bgfx { namespace webgpu
 
 			if(NULL != m_dynamic)
 			{
-				BX_DELETE(g_allocator, m_dynamic);
+				bx::deleteObject(g_allocator, m_dynamic);
 				m_dynamic = NULL;
 			}
 		}
@@ -278,12 +278,12 @@ namespace bgfx { namespace webgpu
 
 	void release(RenderPassStateWgpu* _ptr)
 	{
-		BX_DELETE(g_allocator, _ptr);
+		bx::deleteObject(g_allocator, _ptr);
 	}
 
 	void release(PipelineStateWgpu* _ptr)
 	{
-		BX_DELETE(g_allocator, _ptr);
+		bx::deleteObject(g_allocator, _ptr);
 	}
 
 	class StagingBufferWgpu
@@ -413,7 +413,7 @@ namespace bgfx { namespace webgpu
 
 	void release(SamplerStateWgpu* _ptr)
 	{
-		BX_DELETE(g_allocator, _ptr);
+		bx::deleteObject(g_allocator, _ptr);
 	}
 
 	struct FrameBufferWgpu;
@@ -509,7 +509,7 @@ namespace bgfx { namespace webgpu
 
 		void init();
 		void shutdown();
-		uint32_t begin(uint32_t _resultIdx);
+		uint32_t begin(uint32_t _resultIdx, uint32_t _frameNum);
 		void end(uint32_t _idx);
 		void addHandlers(wgpu::CommandBuffer& _commandBuffer);
 		bool get();
@@ -521,11 +521,13 @@ namespace bgfx { namespace webgpu
 				m_begin = 0;
 				m_end = 0;
 				m_pending = 0;
+				m_frameNum = 0;
 			}
 
 			uint64_t m_begin;
 			uint64_t m_end;
 			uint32_t m_pending;
+			uint32_t m_frameNum; // TODO: implement (currently stays 0)
 		};
 
 		uint64_t m_begin;

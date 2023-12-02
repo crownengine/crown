@@ -1,6 +1,6 @@
 /*
- * Copyright 2011-2021 Branimir Karadzic. All rights reserved.
- * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
+ * Copyright 2011-2023 Branimir Karadzic. All rights reserved.
+ * License: https://github.com/bkaradzic/bgfx/blob/master/LICENSE
  */
 
 #include "shaderc.h"
@@ -85,6 +85,7 @@ namespace bgfx
 	//       1.3      |       1.1      |      1311
 	//       1.4      |       1.1      |      1411
 	//       1.5      |       1.2      |      1512
+	//       1.6      |       1.3      |      1613
 
 	struct Profile
 	{
@@ -104,11 +105,12 @@ namespace bgfx
 		{  ShadingLang::HLSL,  500,    "s_5_0"      },
 		{  ShadingLang::Metal, 1000,   "metal"      },
 		{  ShadingLang::PSSL,  1000,   "pssl"       },
+		{  ShadingLang::SpirV, 1010,   "spirv"      },
+		{  ShadingLang::SpirV, 1010,   "spirv10-10" },
 		{  ShadingLang::SpirV, 1311,   "spirv13-11" },
 		{  ShadingLang::SpirV, 1411,   "spirv14-11" },
 		{  ShadingLang::SpirV, 1512,   "spirv15-12" },
-		{  ShadingLang::SpirV, 1010,   "spirv10-10" },
-		{  ShadingLang::SpirV, 1010,   "spirv"      },
+		{  ShadingLang::SpirV, 1613,   "spirv16-13" },
 		{  ShadingLang::GLSL,  120,    "120"        },
 		{  ShadingLang::GLSL,  130,    "130"        },
 		{  ShadingLang::GLSL,  140,    "140"        },
@@ -717,10 +719,11 @@ namespace bgfx
 
 	struct Preprocessor
 	{
-		Preprocessor(const char* _filePath, bool _essl)
+		Preprocessor(const char* _filePath, bool _essl, bx::WriterI* _messageWriter)
 			: m_tagptr(m_tags)
 			, m_scratchPos(0)
 			, m_fgetsPos(0)
+			, m_messageWriter(_messageWriter)
 		{
 			m_tagptr->tag = FPPTAG_USERDATA;
 			m_tagptr->data = this;
@@ -881,9 +884,11 @@ namespace bgfx
 			thisClass->m_preprocessed += char(_ch);
 		}
 
-		static void fppError(void* /*_userData*/, char* _format, va_list _vargs)
+		static void fppError(void* _userData, char* _format, va_list _vargs)
 		{
-			bx::vprintf(_format, _vargs);
+			bx::ErrorAssert err;
+			Preprocessor* thisClass = (Preprocessor*)_userData;
+			bx::write(thisClass->m_messageWriter, _format, _vargs, &err);
 		}
 
 		char* scratch(const char* _str)
@@ -905,6 +910,7 @@ namespace bgfx
 		char m_scratch[16<<10];
 		uint32_t m_scratchPos;
 		uint32_t m_fgetsPos;
+		bx::WriterI* m_messageWriter;
 	};
 
 	typedef std::vector<std::string> InOut;
@@ -990,8 +996,8 @@ namespace bgfx
 
 		bx::printf(
 			  "shaderc, bgfx shader compiler tool, version %d.%d.%d.\n"
-			  "Copyright 2011-2021 Branimir Karadzic. All rights reserved.\n"
-			  "License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause\n\n"
+			  "Copyright 2011-2023 Branimir Karadzic. All rights reserved.\n"
+			  "License: https://github.com/bkaradzic/bgfx/blob/master/LICENSE\n\n"
 			, BGFX_SHADERC_VERSION_MAJOR
 			, BGFX_SHADERC_VERSION_MINOR
 			, BGFX_API_VERSION
@@ -1002,11 +1008,12 @@ namespace bgfx
 
 			  "\n"
 			  "Options:\n"
-			  "  -h, --help                    Help.\n"
-			  "  -v, --version                 Version information only.\n"
-			  "  -f <file path>                Input file path.\n"
-			  "  -i <include path>             Include path (for multiple paths use -i multiple times).\n"
-			  "  -o <file path>                Output file path.\n"
+			  "  -h, --help            	       Display this help and exit.\n"
+			  "  -v, --version                 Output version information and exit.\n"
+			  "  -f <file path>                Input's file path.\n"
+			  "  -i <include path>             Include path. (for multiple paths use -i multiple times)\n"
+			  "  -o <file path>                Output's file path.\n"
+			  "      --stdout                  Output to console.\n"
 			  "      --bin2c [array name]      Generate C header file. If array name is not specified base file name will be used as name.\n"
 			  "      --depends                 Generate makefile style depends file.\n"
 			  "      --platform <platform>     Target platform.\n"
@@ -1017,7 +1024,7 @@ namespace bgfx
 			  "           orbis\n"
 			  "           osx\n"
 			  "           windows\n"
-			  "      -p, --profile <profile>   Shader model (default GLSL).\n"
+			  "      -p, --profile <profile>   Shader model. Defaults to GLSL.\n"
 			);
 
 		{
@@ -1040,20 +1047,20 @@ namespace bgfx
 		}
 
 		bx::printf(
-			  "      --preprocess              Preprocess only.\n"
-			  "      --define <defines>        Add defines to preprocessor (semicolon separated).\n"
-			  "      --raw                     Do not process shader. No preprocessor, and no glsl-optimizer (GLSL only).\n"
-			  "      --type <type>             Shader type (vertex, fragment, compute)\n"
-			  "      --varyingdef <file path>  Path to varying.def.sc file.\n"
-			  "      --verbose                 Verbose.\n"
+			  "      --preprocess              Only pre-process.\n"
+			  "      --define <defines>        Add defines to preprocessor. (Semicolon-separated)\n"
+			  "      --raw                     Do not process shader. No preprocessor, and no glsl-optimizer. (GLSL only)\n"
+			  "      --type <type>             Shader type. Can be 'vertex', 'fragment, or 'compute'.\n"
+			  "      --varyingdef <file path>  varying.def.sc's file path.\n"
+			  "      --verbose                 Be verbose.\n"
 
 			  "\n"
-			  "Options (DX9 and DX11 only):\n"
+			  "(DX9 and DX11 only):\n"
 
 			  "\n"
 			  "      --debug                   Debug information.\n"
 			  "      --disasm                  Disassemble compiled shader.\n"
-			  "  -O <level>                    Optimization level (0, 1, 2, 3).\n"
+			  "  -O <level>                    Set optimization level. Can be 0 to 3.\n"
 			  "      --Werror                  Treat warnings as errors.\n"
 
 			  "\n"
@@ -1068,8 +1075,10 @@ namespace bgfx
 		return word;
 	}
 
-	bool compileShader(const char* _varying, const char* _comment, char* _shader, uint32_t _shaderLen, Options& _options, bx::FileWriter* _writer)
+	bool compileShader(const char* _varying, const char* _comment, char* _shader, uint32_t _shaderLen, Options& _options, bx::WriterI* _shaderWriter, bx::WriterI* _messageWriter)
 	{
+		bx::ErrorAssert messageErr;
+
 		uint32_t profile_id = 0;
 
 		const char* profile_opt = _options.profile.c_str();
@@ -1095,14 +1104,14 @@ namespace bgfx
 
 			if (profile_id == count)
 			{
-				bx::printf("Unknown profile: %s\n", profile_opt);
+				bx::write(_messageWriter, &messageErr, "Unknown profile: %s\n", profile_opt);
 				return false;
 			}
 		}
 
 		const Profile *profile = &s_profiles[profile_id];
 
-		Preprocessor preprocessor(_options.inputFilePath.c_str(), profile->lang != ShadingLang::ESSL);
+		Preprocessor preprocessor(_options.inputFilePath.c_str(), profile->lang == ShadingLang::ESSL, _messageWriter);
 
 		for (size_t ii = 0; ii < _options.includeDirs.size(); ++ii)
 		{
@@ -1272,7 +1281,7 @@ namespace bgfx
 			break;
 
 		default:
-			bx::printf("Unknown type: %c?!", _options.shaderType);
+			bx::write(_messageWriter, &messageErr, "Unknown type: %c?!", _options.shaderType);
 			return false;
 		}
 
@@ -1457,7 +1466,7 @@ namespace bgfx
 				if (bx::findIdentifierMatch(it->c_str(), s_allowedVertexShaderInputs).isEmpty() )
 				{
 					invalidShaderAttribute = true;
-					bx::printf(
+					bx::write(_messageWriter, &messageErr,
 						  "Invalid vertex shader input attribute '%s'.\n"
 						  "\n"
 						  "Valid input attributes:\n"
@@ -1478,49 +1487,49 @@ namespace bgfx
 		{
 			if ('f' == _options.shaderType)
 			{
-				bx::write(_writer, BGFX_CHUNK_MAGIC_FSH, &err);
+				bx::write(_shaderWriter, BGFX_CHUNK_MAGIC_FSH, &err);
 			}
 			else if ('v' == _options.shaderType)
 			{
-				bx::write(_writer, BGFX_CHUNK_MAGIC_VSH, &err);
+				bx::write(_shaderWriter, BGFX_CHUNK_MAGIC_VSH, &err);
 			}
 			else
 			{
-				bx::write(_writer, BGFX_CHUNK_MAGIC_CSH, &err);
+				bx::write(_shaderWriter, BGFX_CHUNK_MAGIC_CSH, &err);
 			}
 
-			bx::write(_writer, inputHash, &err);
-			bx::write(_writer, outputHash, &err);
+			bx::write(_shaderWriter, inputHash, &err);
+			bx::write(_shaderWriter, outputHash, &err);
 		}
 
 		if (raw)
 		{
 			if (profile->lang == ShadingLang::GLSL)
 			{
-				bx::write(_writer, uint16_t(0), &err);
+				bx::write(_shaderWriter, uint16_t(0), &err);
 
 				uint32_t shaderSize = (uint32_t)bx::strLen(input);
-				bx::write(_writer, shaderSize, &err);
-				bx::write(_writer, input, shaderSize, &err);
-				bx::write(_writer, uint8_t(0), &err);
+				bx::write(_shaderWriter, shaderSize, &err);
+				bx::write(_shaderWriter, input, shaderSize, &err);
+				bx::write(_shaderWriter, uint8_t(0), &err);
 
 				compiled = true;
 			}
 			else if (profile->lang == ShadingLang::Metal)
 			{
-				compiled = compileMetalShader(_options, BX_MAKEFOURCC('M', 'T', 'L', 0), input, _writer);
+				compiled = compileMetalShader(_options, BX_MAKEFOURCC('M', 'T', 'L', 0), input, _shaderWriter, _messageWriter);
 			}
 			else if (profile->lang == ShadingLang::SpirV)
 			{
-				compiled = compileSPIRVShader(_options, profile->id, input, _writer);
+				compiled = compileSPIRVShader(_options, profile->id, input, _shaderWriter, _messageWriter);
 			}
 			else if (profile->lang == ShadingLang::PSSL)
 			{
-				compiled = compilePSSLShader(_options, 0, input, _writer);
+				compiled = compilePSSLShader(_options, 0, input, _shaderWriter, _messageWriter);
 			}
 			else
 			{
-				compiled = compileHLSLShader(_options, profile->id, input, _writer);
+				compiled = compileHLSLShader(_options, profile->id, input, _shaderWriter, _messageWriter);
 			}
 		}
 		else if ('c' == _options.shaderType) // Compute
@@ -1528,7 +1537,7 @@ namespace bgfx
 			bx::StringView entry = bx::strFind(input, "void main()");
 			if (entry.isEmpty() )
 			{
-				bx::printf("Shader entry point 'void main()' is not found.\n");
+				bx::write(_messageWriter, &messageErr, "Shader entry point 'void main()' is not found.\n");
 			}
 			else
 			{
@@ -1615,7 +1624,7 @@ namespace bgfx
 					if (_options.preprocessOnly)
 					{
 						bx::write(
-							  _writer
+							_shaderWriter
 							, preprocessor.m_preprocessed.c_str()
 							, (int32_t)preprocessor.m_preprocessed.size()
 							, &err
@@ -1627,9 +1636,9 @@ namespace bgfx
 					{
 						std::string code;
 
-						bx::write(_writer, BGFX_CHUNK_MAGIC_CSH, &err);
-						bx::write(_writer, uint32_t(0), &err);
-						bx::write(_writer, outputHash, &err);
+						bx::write(_shaderWriter, BGFX_CHUNK_MAGIC_CSH, &err);
+						bx::write(_shaderWriter, uint32_t(0), &err);
+						bx::write(_shaderWriter, outputHash, &err);
 
 						if (profile->lang == ShadingLang::GLSL
 						||  profile->lang == ShadingLang::ESSL)
@@ -1649,12 +1658,12 @@ namespace bgfx
 
 							code += preprocessor.m_preprocessed;
 
-							bx::write(_writer, uint16_t(0), &err);
+							bx::write(_shaderWriter, uint16_t(0), &err);
 
 							uint32_t shaderSize = (uint32_t)code.size();
-							bx::write(_writer, shaderSize, &err);
-							bx::write(_writer, code.c_str(), shaderSize, &err);
-							bx::write(_writer, uint8_t(0), &err);
+							bx::write(_shaderWriter, shaderSize, &err);
+							bx::write(_shaderWriter, code.c_str(), shaderSize, &err);
+							bx::write(_shaderWriter, uint8_t(0), &err);
 
 							compiled = true;
 						}
@@ -1665,19 +1674,19 @@ namespace bgfx
 
 							if (profile->lang == ShadingLang::Metal)
 							{
-								compiled = compileMetalShader(_options, BX_MAKEFOURCC('M', 'T', 'L', 0), code, _writer);
+								compiled = compileMetalShader(_options, BX_MAKEFOURCC('M', 'T', 'L', 0), code, _shaderWriter, _messageWriter);
 							}
 							else if (profile->lang == ShadingLang::SpirV)
 							{
-								compiled = compileSPIRVShader(_options, profile->id, code, _writer);
+								compiled = compileSPIRVShader(_options, profile->id, code, _shaderWriter, _messageWriter);
 							}
 							else if (profile->lang == ShadingLang::PSSL)
 							{
-								compiled = compilePSSLShader(_options, 0, code, _writer);
+								compiled = compilePSSLShader(_options, 0, code, _shaderWriter, _messageWriter);
 							}
 							else
 							{
-								compiled = compileHLSLShader(_options, profile->id, code, _writer);
+								compiled = compileHLSLShader(_options, profile->id, code, _shaderWriter, _messageWriter);
 							}
 						}
 					}
@@ -1705,7 +1714,7 @@ namespace bgfx
 			bx::StringView entry = bx::strFind(shader, "void main()");
 			if (entry.isEmpty() )
 			{
-				bx::printf("Shader entry point 'void main()' is not found.\n");
+				bx::write(_messageWriter, &messageErr, "Shader entry point 'void main()' is not found.\n");
 			}
 			else
 			{
@@ -1956,7 +1965,7 @@ namespace bgfx
 							}
 							else
 							{
-								bx::printf("gl_PrimitiveID builtin is not supported by this D3D9 HLSL.\n");
+								bx::write(_messageWriter, &messageErr, "gl_PrimitiveID builtin is not supported by D3D9 HLSL.\n");
 								return false;
 							}
 						}
@@ -2031,7 +2040,7 @@ namespace bgfx
 							}
 							else
 							{
-								bx::printf("gl_ViewportIndex builtin is not supported by this D3D9 HLSL.\n");
+								bx::write(_messageWriter, &messageErr, "gl_ViewportIndex builtin is not supported by D3D9 HLSL.\n");
 								return false;
 							}
 						}
@@ -2047,7 +2056,7 @@ namespace bgfx
 							}
 							else
 							{
-								bx::printf("gl_Layer builtin is not supported by this D3D9 HLSL.\n");
+								bx::write(_messageWriter, &messageErr, "gl_Layer builtin is not supported by D3D9 HLSL.\n");
 								return false;
 							}
 						}
@@ -2086,7 +2095,7 @@ namespace bgfx
 							}
 							else
 							{
-								bx::printf("gl_VertexID builtin is not supported by this D3D9 HLSL.\n");
+								bx::write(_messageWriter, &messageErr, "gl_VertexID builtin is not supported by D3D9 HLSL.\n");
 								return false;
 							}
 						}
@@ -2102,7 +2111,7 @@ namespace bgfx
 							}
 							else
 							{
-								bx::printf("gl_InstanceID builtin is not supported by this D3D9 HLSL.\n");
+								bx::write(_messageWriter, &messageErr, "gl_InstanceID builtin is not supported by D3D9 HLSL.\n");
 								return false;
 							}
 						}
@@ -2144,7 +2153,7 @@ namespace bgfx
 					if (_options.preprocessOnly)
 					{
 						bx::write(
-							  _writer
+							_shaderWriter
 							, preprocessor.m_preprocessed.c_str()
 							, (int32_t)preprocessor.m_preprocessed.size()
 							, &err
@@ -2158,21 +2167,21 @@ namespace bgfx
 
 						if ('f' == _options.shaderType)
 						{
-							bx::write(_writer, BGFX_CHUNK_MAGIC_FSH, &err);
-							bx::write(_writer, inputHash, &err);
-							bx::write(_writer, uint32_t(0), &err);
+							bx::write(_shaderWriter, BGFX_CHUNK_MAGIC_FSH, &err);
+							bx::write(_shaderWriter, inputHash, &err);
+							bx::write(_shaderWriter, uint32_t(0), &err);
 						}
 						else if ('v' == _options.shaderType)
 						{
-							bx::write(_writer, BGFX_CHUNK_MAGIC_VSH, &err);
-							bx::write(_writer, uint32_t(0), &err);
-							bx::write(_writer, outputHash, &err);
+							bx::write(_shaderWriter, BGFX_CHUNK_MAGIC_VSH, &err);
+							bx::write(_shaderWriter, uint32_t(0), &err);
+							bx::write(_shaderWriter, outputHash, &err);
 						}
 						else
 						{
-							bx::write(_writer, BGFX_CHUNK_MAGIC_CSH, &err);
-							bx::write(_writer, uint32_t(0), &err);
-							bx::write(_writer, outputHash, &err);
+							bx::write(_shaderWriter, BGFX_CHUNK_MAGIC_CSH, &err);
+							bx::write(_shaderWriter, uint32_t(0), &err);
+							bx::write(_shaderWriter, outputHash, &err);
 						}
 
 						if (profile->lang == ShadingLang::GLSL
@@ -2372,6 +2381,11 @@ namespace bgfx
 										bx::stringPrintf(code, "precision highp int;\n");
 									}
 
+									if (glsl_profile >= 300 && usesTextureArray)
+									{
+										bx::stringPrintf(code, "precision highp sampler2DArray;\n");
+									}
+
 									// Pretend that all extensions are available.
 									// This will be stripped later.
 									if (usesTextureLod)
@@ -2503,14 +2517,15 @@ namespace bgfx
 								}
 
 								bx::stringPrintf(code
-									, "#define texture2DLod       textureLod\n"
+									, "#define texture2D          texture\n"
+									  "#define texture2DLod       textureLod\n"
 									  "#define texture2DGrad      textureGrad\n"
 									  "#define texture2DProjLod   textureProjLod\n"
 									  "#define texture2DProjGrad  textureProjGrad\n"
 									  "#define textureCubeLod     textureLod\n"
 									  "#define textureCubeGrad    textureGrad\n"
 									  "#define texture3D          texture\n"
-									  "#define texture2DLofOffset textureLodOffset\n"
+									  "#define texture2DLodOffset textureLodOffset\n"
 									);
 
 								bx::stringPrintf(code, "#define attribute in\n");
@@ -2529,12 +2544,12 @@ namespace bgfx
 							{
 								code += preprocessor.m_preprocessed;
 
-								bx::write(_writer, uint16_t(0), &err);
+								bx::write(_shaderWriter, uint16_t(0), &err);
 
 								uint32_t shaderSize = (uint32_t)code.size();
-								bx::write(_writer, shaderSize, &err);
-								bx::write(_writer, code.c_str(), shaderSize, &err);
-								bx::write(_writer, uint8_t(0), &err);
+								bx::write(_shaderWriter, shaderSize, &err);
+								bx::write(_shaderWriter, code.c_str(), shaderSize, &err);
+								bx::write(_shaderWriter, uint8_t(0), &err);
 
 								compiled = true;
 							}
@@ -2548,7 +2563,7 @@ namespace bgfx
 									glsl_profile |= 0x80000000;
 								}
 
-								compiled = compileGLSLShader(_options, glsl_profile, code, _writer);
+								compiled = compileGLSLShader(_options, glsl_profile, code, _shaderWriter, _messageWriter);
 							}
 						}
 						else
@@ -2558,19 +2573,19 @@ namespace bgfx
 
 							if (profile->lang == ShadingLang::Metal)
 							{
-								compiled = compileMetalShader(_options, BX_MAKEFOURCC('M', 'T', 'L', 0), code, _writer);
+								compiled = compileMetalShader(_options, BX_MAKEFOURCC('M', 'T', 'L', 0), code, _shaderWriter, _messageWriter);
 							}
 							else if (profile->lang == ShadingLang::SpirV)
 							{
-								compiled = compileSPIRVShader(_options, profile->id, code, _writer);
+								compiled = compileSPIRVShader(_options, profile->id, code, _shaderWriter, _messageWriter);
 							}
 							else if (profile->lang == ShadingLang::PSSL)
 							{
-								compiled = compilePSSLShader(_options, 0, code, _writer);
+								compiled = compilePSSLShader(_options, 0, code, _shaderWriter, _messageWriter);
 							}
 							else
 							{
-								compiled = compileHLSLShader(_options, profile->id, code, _writer);
+								compiled = compileHLSLShader(_options, profile->id, code, _shaderWriter, _messageWriter);
 							}
 						}
 					}
@@ -2627,10 +2642,11 @@ namespace bgfx
 			return bx::kExitFailure;
 		}
 
+		bool consoleOut = cmdLine.hasArg("stdout");
 		const char* outFilePath = cmdLine.findOption('o');
-		if (NULL == outFilePath)
+		if (NULL == outFilePath && !consoleOut)
 		{
-			help("Output file name must be specified.");
+			help("Output file name must be specified or use \"--stdout\" to output to stdout.");
 			return bx::kExitFailure;
 		}
 
@@ -2643,7 +2659,7 @@ namespace bgfx
 
 		Options options;
 		options.inputFilePath = filePath;
-		options.outputFilePath = outFilePath;
+		options.outputFilePath = consoleOut ? "" : outFilePath;
 		options.shaderType = bx::toLower(type[0]);
 
 		options.disasm = cmdLine.hasArg('\0', "disasm");
@@ -2809,25 +2825,31 @@ namespace bgfx
 
 			bx::FileWriter* writer = NULL;
 
-			if (!bin2c.isEmpty() )
+			if (!consoleOut)
 			{
-				writer = new Bin2cWriter(bin2c);
-			}
-			else
-			{
-				writer = new bx::FileWriter;
+				if (!bin2c.isEmpty())
+				{
+					writer = new Bin2cWriter(bin2c);
+				}
+				else
+				{
+					writer = new bx::FileWriter;
+				}
+
+				if (!bx::open(writer, outFilePath))
+				{
+					bx::printf("Unable to open output file '%s'.\n", outFilePath);
+					return bx::kExitFailure;
+				}
 			}
 
-			if (!bx::open(writer, outFilePath) )
+			compiled = compileShader(varying, commandLineComment.c_str(), data, size, options, consoleOut ? bx::getStdOut() : writer, bx::getStdOut());
+
+			if (!consoleOut)
 			{
-				bx::printf("Unable to open output file '%s'.\n", outFilePath);
-				return bx::kExitFailure;
+				bx::close(writer);
+				delete writer;
 			}
-
-			compiled = compileShader(varying, commandLineComment.c_str(), data, size, options, writer);
-
-			bx::close(writer);
-			delete writer;
 		}
 
 		if (compiled)

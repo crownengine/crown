@@ -1,6 +1,6 @@
 /*
- * Copyright 2011-2021 Branimir Karadzic. All rights reserved.
- * License: https://github.com/bkaradzic/bimg#license-bsd-2-clause
+ * Copyright 2011-2023 Branimir Karadzic. All rights reserved.
+ * License: https://github.com/bkaradzic/bimg/blob/master/LICENSE
  */
 
 #include "bimg_p.h"
@@ -67,6 +67,7 @@ BX_PRAGMA_DIAGNOSTIC_IGNORED_GCC("-Wimplicit-fallthrough");
 #define STBI_REALLOC(_ptr, _size) lodepng_realloc(_ptr, _size)
 #define STBI_FREE(_ptr)           lodepng_free(_ptr)
 #define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_STATIC
 #include <stb/stb_image.h>
 BX_PRAGMA_DIAGNOSTIC_POP();
 
@@ -491,7 +492,6 @@ namespace bimg
 				if (UINT8_MAX != idxR)
 				{
 					const bool asFloat = exrHeader.pixel_types[idxR] == TINYEXR_PIXELTYPE_FLOAT;
-					uint32_t srcBpp = 32;
 					uint32_t dstBpp = asFloat ? 32 : 16;
 					format = asFloat ? TextureFormat::R32F : TextureFormat::R16F;
 					uint32_t stepR = 1;
@@ -501,7 +501,6 @@ namespace bimg
 
 					if (UINT8_MAX != idxG)
 					{
-						srcBpp += 32;
 						dstBpp = asFloat ? 64 : 32;
 						format = asFloat ? TextureFormat::RG32F : TextureFormat::RG16F;
 						stepG  = 1;
@@ -509,7 +508,6 @@ namespace bimg
 
 					if (UINT8_MAX != idxB)
 					{
-						srcBpp += 32;
 						dstBpp = asFloat ? 128 : 64;
 						format = asFloat ? TextureFormat::RGBA32F : TextureFormat::RGBA16F;
 						stepB  = 1;
@@ -517,13 +515,12 @@ namespace bimg
 
 					if (UINT8_MAX != idxA)
 					{
-						srcBpp += 32;
 						dstBpp = asFloat ? 128 : 64;
 						format = asFloat ? TextureFormat::RGBA32F : TextureFormat::RGBA16F;
 						stepA  = 1;
 					}
 
-					data   = (uint8_t*)BX_ALLOC(_allocator, exrImage.width * exrImage.height * dstBpp/8);
+					data   = (uint8_t*)bx::alloc(_allocator, exrImage.width * exrImage.height * dstBpp/8);
 					width  = exrImage.width;
 					height = exrImage.height;
 
@@ -631,7 +628,7 @@ namespace bimg
 				, false
 				, data
 				);
-			BX_FREE(_allocator, data);
+			bx::free(_allocator, data);
 			output->m_hasAlpha = hasAlpha;
 		}
 

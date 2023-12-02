@@ -4103,6 +4103,43 @@
       "version" : "1.4"
     },
     {
+      "opname" : "OpColorAttachmentReadEXT",
+      "class"  : "Image",
+      "opcode" : 4160,
+      "operands" : [
+        { "kind" : "IdResultType" },
+        { "kind" : "IdResult" },
+        { "kind" : "IdRef", "name" : "'Attachment'" },
+        { "kind" : "IdRef", "name" : "'Sample'", "quantifier" : "?" }
+      ],
+      "capabilities": [ "TileImageColorReadAccessEXT" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpDepthAttachmentReadEXT",
+      "class"  : "Image",
+      "opcode" : 4161,
+      "operands" : [
+        { "kind" : "IdResultType" },
+        { "kind" : "IdResult" },
+        { "kind" : "IdRef", "name" : "'Sample'", "quantifier" : "?" }
+      ],
+      "capabilities" : [ "TileImageDepthReadAccessEXT" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpStencilAttachmentReadEXT",
+      "class"  : "Image",
+      "opcode" : 4162,
+      "operands" : [
+        { "kind" : "IdResultType" },
+        { "kind" : "IdResult" },
+        { "kind" : "IdRef", "name" : "'Sample'", "quantifier" : "?" }
+      ],
+      "capabilities" : [ "TileImageStencilReadAccessEXT" ],
+      "version" : "None"
+    },
+    {
       "opname" : "OpTerminateInvocation",
       "class"  : "Control-Flow",
       "opcode" : 4416,
@@ -4181,6 +4218,21 @@
         "SPV_KHR_subgroup_vote"
       ],
       "capabilities" : [ "SubgroupVoteKHR" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpGroupNonUniformRotateKHR",
+      "class"  : "Group",
+      "opcode" : 4431,
+      "operands" : [
+        { "kind" : "IdResultType" },
+        { "kind" : "IdResult" },
+        { "kind" : "IdScope", "name" : "'Execution'" },
+        { "kind" : "IdRef", "name" : "'Value'" },
+        { "kind" : "IdRef", "name" : "'Delta'" },
+        { "kind" : "IdRef", "name" : "'ClusterSize'", "quantifier" : "?" }
+      ],
+      "capabilities" : [ "GroupNonUniformRotateKHR" ],
       "version" : "None"
     },
     {
@@ -4442,6 +4494,77 @@
       "version" : "1.6"
     },
     {
+      "opname" : "OpTypeCooperativeMatrixKHR",
+      "class"  : "Type-Declaration",
+      "opcode" : 4456,
+      "operands" : [
+        { "kind" : "IdResult" },
+        { "kind" : "IdRef",        "name" : "'Component Type'" },
+        { "kind" : "IdScope",      "name" : "'Scope'" },
+        { "kind" : "IdRef",        "name" : "'Rows'" },
+        { "kind" : "IdRef",        "name" : "'Columns'" },
+        { "kind" : "IdRef",        "name" : "'Use'" }
+      ],
+      "capabilities" : [ "CooperativeMatrixKHR" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpCooperativeMatrixLoadKHR",
+      "class"  : "Memory",
+      "opcode" : 4457,
+      "operands" : [
+        { "kind" : "IdResultType" },
+        { "kind" : "IdResult" },
+        { "kind" : "IdRef",             "name" : "'Pointer'" },
+        { "kind" : "IdRef",             "name" : "'MemoryLayout'" },
+        { "kind" : "IdRef",             "name" : "'Stride'", "quantifier": "?" },
+        { "kind" : "MemoryAccess",      "name" : "'Memory Operand'", "quantifier" : "?" }
+      ],
+      "capabilities" : [ "CooperativeMatrixKHR" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpCooperativeMatrixStoreKHR",
+      "class"  : "Memory",
+      "opcode" : 4458,
+      "operands" : [
+        { "kind" : "IdRef",             "name" : "'Pointer'" },
+        { "kind" : "IdRef",             "name" : "'Object'" },
+        { "kind" : "IdRef",             "name" : "'MemoryLayout'" },
+        { "kind" : "IdRef",             "name" : "'Stride'", "quantifier": "?" },
+        { "kind" : "MemoryAccess",      "name" : "'Memory Operand'", "quantifier" : "?" }
+      ],
+      "capabilities" : [ "CooperativeMatrixKHR" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpCooperativeMatrixMulAddKHR",
+      "class"  : "Arithmetic",
+      "opcode" : 4459,
+      "operands" : [
+        { "kind" : "IdResultType" },
+        { "kind" : "IdResult" },
+        { "kind" : "IdRef",             "name" : "'A'" },
+        { "kind" : "IdRef",             "name" : "'B'" },
+        { "kind" : "IdRef",             "name" : "'C'" },
+        { "kind" : "CooperativeMatrixOperands", "name" : "'Cooperative Matrix Operands'", "quantifier" : "?" }
+      ],
+      "capabilities" : [ "CooperativeMatrixKHR" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpCooperativeMatrixLengthKHR",
+      "class"  : "Miscellaneous",
+      "opcode" : 4460,
+      "operands" : [
+        { "kind" : "IdResultType" },
+        { "kind" : "IdResult" },
+        { "kind" : "IdRef",        "name" : "'Type'" }
+      ],
+      "capabilities" : [ "CooperativeMatrixKHR" ],
+      "version" : "None"
+    },
+    {
         "opname" : "OpTypeRayQueryKHR",
         "class" : "Reserved",
         "opcode" : 4472,
@@ -4576,6 +4699,66 @@
         "capabilities" : [ "RayQueryKHR" ],
         "extensions" : [ "SPV_KHR_ray_query" ],
         "version" : "None"
+    },
+    {
+      "opname" : "OpImageSampleWeightedQCOM",
+      "class"  : "Image",
+      "opcode" : 4480,
+      "operands" : [
+        { "kind" : "IdResultType" },
+        { "kind" : "IdResult" },
+        { "kind" : "IdRef", "name" : "'Texture'" },
+        { "kind" : "IdRef", "name" : "'Coordinates'" },
+        { "kind" : "IdRef", "name" : "'Weights'" }
+      ],
+      "capabilities" : [ "TextureSampleWeightedQCOM" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpImageBoxFilterQCOM",
+      "class"  : "Image",
+      "opcode" : 4481,
+      "operands" : [
+        { "kind" : "IdResultType" },
+        { "kind" : "IdResult" },
+        { "kind" : "IdRef", "name" : "'Texture'" },
+        { "kind" : "IdRef", "name" : "'Coordinates'" },
+        { "kind" : "IdRef", "name" : "'Box Size'" }
+      ],
+      "capabilities" : [ "TextureBoxFilterQCOM" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpImageBlockMatchSSDQCOM",
+      "class"  : "Image",
+      "opcode" : 4482,
+      "operands" : [
+        { "kind" : "IdResultType" },
+        { "kind" : "IdResult" },
+        { "kind" : "IdRef", "name" : "'Target'" },
+        { "kind" : "IdRef", "name" : "'Target Coordinates'" },
+        { "kind" : "IdRef", "name" : "'Reference'" },
+        { "kind" : "IdRef", "name" : "'Reference Coordinates'" },
+        { "kind" : "IdRef", "name" : "'Block Size'" }
+      ],
+      "capabilities" : [ "TextureBlockMatchQCOM" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpImageBlockMatchSADQCOM",
+      "class"  : "Image",
+      "opcode" : 4483,
+      "operands" : [
+        { "kind" : "IdResultType" },
+        { "kind" : "IdResult" },
+        { "kind" : "IdRef", "name" : "'Target'" },
+        { "kind" : "IdRef", "name" : "'Target Coordinates'" },
+        { "kind" : "IdRef", "name" : "'Reference'" },
+        { "kind" : "IdRef", "name" : "'Reference Coordinates'" },
+        { "kind" : "IdRef", "name" : "'Block Size'" }
+      ],
+      "capabilities" : [ "TextureBlockMatchQCOM" ],
+      "version" : "None"
     },
     {
       "opname" : "OpGroupIAddNonUniformAMD",
@@ -4736,7 +4919,461 @@
         { "kind" : "IdScope", "name" : "'Scope'" }
       ],
       "capabilities" : [ "ShaderClockKHR" ],
-      "extensions" : [ "SPV_KHR_shader_clock" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpHitObjectRecordHitMotionNV",
+      "class"  : "Reserved",
+      "opcode" : 5249,
+      "operands" : [
+        { "kind" : "IdRef", "name" : "'Hit Object'" },
+        { "kind" : "IdRef", "name" : "'Acceleration Structure'" },
+        { "kind" : "IdRef", "name" : "'InstanceId'" },
+        { "kind" : "IdRef", "name" : "'PrimitiveId'" },
+        { "kind" : "IdRef", "name" : "'GeometryIndex'" },
+        { "kind" : "IdRef", "name" : "'Hit Kind'" },
+        { "kind" : "IdRef", "name" : "'SBT Record Offset'" },
+        { "kind" : "IdRef", "name" : "'SBT Record Stride'" },
+        { "kind" : "IdRef", "name" : "'Origin'" },
+        { "kind" : "IdRef", "name" : "'TMin'" },
+        { "kind" : "IdRef", "name" : "'Direction'" },
+        { "kind" : "IdRef", "name" : "'TMax'" },
+        { "kind" : "IdRef", "name" : "'Current Time'" },
+        { "kind" : "IdRef", "name" : "'HitObject Attributes'" }
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV", "RayTracingMotionBlurNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpHitObjectRecordHitWithIndexMotionNV",
+      "class"  : "Reserved",
+      "opcode" : 5250,
+      "operands" : [
+        { "kind" : "IdRef", "name" : "'Hit Object'" },
+        { "kind" : "IdRef", "name" : "'Acceleration Structure'" },
+        { "kind" : "IdRef", "name" : "'InstanceId'" },
+        { "kind" : "IdRef", "name" : "'PrimitiveId'" },
+        { "kind" : "IdRef", "name" : "'GeometryIndex'" },
+        { "kind" : "IdRef", "name" : "'Hit Kind'" },
+        { "kind" : "IdRef", "name" : "'SBT Record Index'" },
+        { "kind" : "IdRef", "name" : "'Origin'" },
+        { "kind" : "IdRef", "name" : "'TMin'" },
+        { "kind" : "IdRef", "name" : "'Direction'" },
+        { "kind" : "IdRef", "name" : "'TMax'" },
+        { "kind" : "IdRef", "name" : "'Current Time'" },
+        { "kind" : "IdRef", "name" : "'HitObject Attributes'" }
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV", "RayTracingMotionBlurNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpHitObjectRecordMissMotionNV",
+      "class"  : "Reserved",
+      "opcode" : 5251,
+      "operands" : [
+        { "kind" : "IdRef", "name" : "'Hit Object'" },
+        { "kind" : "IdRef", "name" : "'SBT Index'" },
+        { "kind" : "IdRef", "name" : "'Origin'" },
+        { "kind" : "IdRef", "name" : "'TMin'" },
+        { "kind" : "IdRef", "name" : "'Direction'" },
+        { "kind" : "IdRef", "name" : "'TMax'" },
+        { "kind" : "IdRef", "name" : "'Current Time'" }
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV", "RayTracingMotionBlurNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpHitObjectGetWorldToObjectNV",
+      "class"  : "Reserved",
+      "opcode" : 5252,
+      "operands" : [
+        { "kind" : "IdResultType"},
+        { "kind" : "IdResult"},
+        { "kind" : "IdRef", "name" : "'Hit Object'" }
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpHitObjectGetObjectToWorldNV",
+      "class"  : "Reserved",
+      "opcode" : 5253,
+      "operands" : [
+        { "kind" : "IdResultType"},
+        { "kind" : "IdResult"},
+        { "kind" : "IdRef", "name" : "'Hit Object'" }
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpHitObjectGetObjectRayDirectionNV",
+      "class"  : "Reserved",
+      "opcode" : 5254,
+      "operands" : [
+        { "kind" : "IdResultType"},
+        { "kind" : "IdResult"},
+        { "kind" : "IdRef", "name" : "'Hit Object'" }
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpHitObjectGetObjectRayOriginNV",
+      "class"  : "Reserved",
+      "opcode" : 5255,
+      "operands" : [
+        { "kind" : "IdResultType"},
+        { "kind" : "IdResult"},
+        { "kind" : "IdRef", "name" : "'Hit Object'" }
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpHitObjectTraceRayMotionNV",
+      "class"  : "Reserved",
+      "opcode" : 5256,
+      "operands" : [
+        { "kind" : "IdRef", "name" : "'Hit Object'" },
+        { "kind" : "IdRef", "name" : "'Acceleration Structure'"},
+        { "kind" : "IdRef", "name" : "'RayFlags'"},
+        { "kind" : "IdRef", "name" : "'Cullmask'"},
+        { "kind" : "IdRef", "name" : "'SBT Record Offset'"},
+        { "kind" : "IdRef", "name" : "'SBT Record Stride'"},
+        { "kind" : "IdRef", "name" : "'Miss Index'"},
+        { "kind" : "IdRef", "name" : "'Origin'"},
+        { "kind" : "IdRef", "name" : "'TMin'"},
+        { "kind" : "IdRef", "name" : "'Direction'"},
+        { "kind" : "IdRef", "name" : "'TMax'"},
+        { "kind" : "IdRef", "name" : "'Time'"},
+        { "kind" : "IdRef", "name" : "'Payload'"}
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV", "RayTracingMotionBlurNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpHitObjectGetShaderRecordBufferHandleNV",
+      "class"  : "Reserved",
+      "opcode" : 5257,
+      "operands" : [
+        { "kind" : "IdResultType"},
+        { "kind" : "IdResult"},
+        { "kind" : "IdRef", "name" : "'Hit Object'" }
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpHitObjectGetShaderBindingTableRecordIndexNV",
+      "class"  : "Reserved",
+      "opcode" : 5258,
+      "operands" : [
+        { "kind" : "IdResultType"},
+        { "kind" : "IdResult"},
+        { "kind" : "IdRef", "name" : "'Hit Object'" }
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpHitObjectRecordEmptyNV",
+      "class"  : "Reserved",
+      "opcode" : 5259,
+      "operands" : [
+        { "kind" : "IdRef", "name" : "'Hit Object'" }
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpHitObjectTraceRayNV",
+      "class"  : "Reserved",
+      "opcode" : 5260,
+      "operands" : [
+        { "kind" : "IdRef", "name" : "'Hit Object'" },
+        { "kind" : "IdRef", "name" : "'Acceleration Structure'"},
+        { "kind" : "IdRef", "name" : "'RayFlags'"},
+        { "kind" : "IdRef", "name" : "'Cullmask'"},
+        { "kind" : "IdRef", "name" : "'SBT Record Offset'"},
+        { "kind" : "IdRef", "name" : "'SBT Record Stride'"},
+        { "kind" : "IdRef", "name" : "'Miss Index'"},
+        { "kind" : "IdRef", "name" : "'Origin'"},
+        { "kind" : "IdRef", "name" : "'TMin'"},
+        { "kind" : "IdRef", "name" : "'Direction'"},
+        { "kind" : "IdRef", "name" : "'TMax'"},
+        { "kind" : "IdRef", "name" : "'Payload'"}
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpHitObjectRecordHitNV",
+      "class"  : "Reserved",
+      "opcode" : 5261,
+      "operands" : [
+        { "kind" : "IdRef", "name" : "'Hit Object'" },
+        { "kind" : "IdRef", "name" : "'Acceleration Structure'" },
+        { "kind" : "IdRef", "name" : "'InstanceId'" },
+        { "kind" : "IdRef", "name" : "'PrimitiveId'" },
+        { "kind" : "IdRef", "name" : "'GeometryIndex'" },
+        { "kind" : "IdRef", "name" : "'Hit Kind'" },
+        { "kind" : "IdRef", "name" : "'SBT Record Offset'" },
+        { "kind" : "IdRef", "name" : "'SBT Record Stride'" },
+        { "kind" : "IdRef", "name" : "'Origin'" },
+        { "kind" : "IdRef", "name" : "'TMin'" },
+        { "kind" : "IdRef", "name" : "'Direction'" },
+        { "kind" : "IdRef", "name" : "'TMax'" },
+        { "kind" : "IdRef", "name" : "'HitObject Attributes'" }
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpHitObjectRecordHitWithIndexNV",
+      "class"  : "Reserved",
+      "opcode" : 5262,
+      "operands" : [
+        { "kind" : "IdRef", "name" : "'Hit Object'" },
+        { "kind" : "IdRef", "name" : "'Acceleration Structure'" },
+        { "kind" : "IdRef", "name" : "'InstanceId'" },
+        { "kind" : "IdRef", "name" : "'PrimitiveId'" },
+        { "kind" : "IdRef", "name" : "'GeometryIndex'" },
+        { "kind" : "IdRef", "name" : "'Hit Kind'" },
+        { "kind" : "IdRef", "name" : "'SBT Record Index'" },
+        { "kind" : "IdRef", "name" : "'Origin'" },
+        { "kind" : "IdRef", "name" : "'TMin'" },
+        { "kind" : "IdRef", "name" : "'Direction'" },
+        { "kind" : "IdRef", "name" : "'TMax'" },
+        { "kind" : "IdRef", "name" : "'HitObject Attributes'" }
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpHitObjectRecordMissNV",
+      "class"  : "Reserved",
+      "opcode" : 5263,
+      "operands" : [
+        { "kind" : "IdRef", "name" : "'Hit Object'" },
+        { "kind" : "IdRef", "name" : "'SBT Index'" },
+        { "kind" : "IdRef", "name" : "'Origin'" },
+        { "kind" : "IdRef", "name" : "'TMin'" },
+        { "kind" : "IdRef", "name" : "'Direction'" },
+        { "kind" : "IdRef", "name" : "'TMax'" }
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpHitObjectExecuteShaderNV",
+      "class"  : "Reserved",
+      "opcode" : 5264,
+      "operands" : [
+        { "kind" : "IdRef", "name" : "'Hit Object'" },
+        { "kind" : "IdRef", "name" : "'Payload'" }
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpHitObjectGetCurrentTimeNV",
+      "class"  : "Reserved",
+      "opcode" : 5265,
+      "operands" : [
+        { "kind" : "IdResultType"},
+        { "kind" : "IdResult"},
+        { "kind" : "IdRef", "name" : "'Hit Object'" }
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpHitObjectGetAttributesNV",
+      "class"  : "Reserved",
+      "opcode" : 5266,
+      "operands" : [
+        { "kind" : "IdRef", "name" : "'Hit Object'" },
+        { "kind" : "IdRef", "name" : "'Hit Object Attribute'" }
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpHitObjectGetHitKindNV",
+      "class"  : "Reserved",
+      "opcode" : 5267,
+      "operands" : [
+        { "kind" : "IdResultType"},
+        { "kind" : "IdResult"},
+        { "kind" : "IdRef", "name" : "'Hit Object'" }
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpHitObjectGetPrimitiveIndexNV",
+      "class"  : "Reserved",
+      "opcode" : 5268,
+      "operands" : [
+        { "kind" : "IdResultType"},
+        { "kind" : "IdResult"},
+        { "kind" : "IdRef", "name" : "'Hit Object'" }
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpHitObjectGetGeometryIndexNV",
+      "class"  : "Reserved",
+      "opcode" : 5269,
+      "operands" : [
+        { "kind" : "IdResultType"},
+        { "kind" : "IdResult"},
+        { "kind" : "IdRef", "name" : "'Hit Object'" }
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpHitObjectGetInstanceIdNV",
+      "class"  : "Reserved",
+      "opcode" : 5270,
+      "operands" : [
+        { "kind" : "IdResultType"},
+        { "kind" : "IdResult"},
+        { "kind" : "IdRef", "name" : "'Hit Object'" }
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpHitObjectGetInstanceCustomIndexNV",
+      "class"  : "Reserved",
+      "opcode" : 5271,
+      "operands" : [
+        { "kind" : "IdResultType"},
+        { "kind" : "IdResult"},
+        { "kind" : "IdRef", "name" : "'Hit Object'" }
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpHitObjectGetWorldRayDirectionNV",
+      "class"  : "Reserved",
+      "opcode" : 5272,
+      "operands" : [
+        { "kind" : "IdResultType"},
+        { "kind" : "IdResult"},
+        { "kind" : "IdRef", "name" : "'Hit Object'" }
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpHitObjectGetWorldRayOriginNV",
+      "class"  : "Reserved",
+      "opcode" : 5273,
+      "operands" : [
+        { "kind" : "IdResultType"},
+        { "kind" : "IdResult"},
+        { "kind" : "IdRef", "name" : "'Hit Object'" }
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpHitObjectGetRayTMaxNV",
+      "class"  : "Reserved",
+      "opcode" : 5274,
+      "operands" : [
+        { "kind" : "IdResultType"},
+        { "kind" : "IdResult"},
+        { "kind" : "IdRef", "name" : "'Hit Object'" }
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpHitObjectGetRayTMinNV",
+      "class"  : "Reserved",
+      "opcode" : 5275,
+      "operands" : [
+        { "kind" : "IdResultType"},
+        { "kind" : "IdResult"},
+        { "kind" : "IdRef", "name" : "'Hit Object'" }
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpHitObjectIsEmptyNV",
+      "class"  : "Reserved",
+      "opcode" : 5276,
+      "operands" : [
+        { "kind" : "IdResultType"},
+        { "kind" : "IdResult"},
+        { "kind" : "IdRef", "name" : "'Hit Object'" }
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpHitObjectIsHitNV",
+      "class"  : "Reserved",
+      "opcode" : 5277,
+      "operands" : [
+        { "kind" : "IdResultType"},
+        { "kind" : "IdResult"},
+        { "kind" : "IdRef", "name" : "'Hit Object'" }
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpHitObjectIsMissNV",
+      "class"  : "Reserved",
+      "opcode" : 5278,
+      "operands" : [
+        { "kind" : "IdResultType"},
+        { "kind" : "IdResult"},
+        { "kind" : "IdRef", "name" : "'Hit Object'" }
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpReorderThreadWithHitObjectNV",
+      "class"  : "Reserved",
+      "opcode" : 5279,
+      "operands" : [
+        { "kind" : "IdRef", "name" : "'Hit Object'" },
+        { "kind" : "IdRef", "quantifier" : "?", "name" : "'Hint'" },
+        { "kind" : "IdRef", "quantifier" : "?", "name" : "'Bits'" }
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpReorderThreadWithHintNV",
+      "class"  : "Reserved",
+      "opcode" : 5280,
+      "operands" : [
+        { "kind" : "IdRef", "name" : "'Hint'" },
+        { "kind" : "IdRef", "name" : "'Bits'" }
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpTypeHitObjectNV",
+      "class"  : "Reserved",
+      "opcode" : 5281,
+      "operands" : [
+        { "kind" : "IdResult" }
+      ],
+      "capabilities" : [ "ShaderInvocationReorderNV" ],
       "version" : "None"
     },
     {
@@ -4754,6 +5391,30 @@
       ],
       "capabilities" : [ "ImageFootprintNV" ],
       "extensions" : [ "SPV_NV_shader_image_footprint" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpEmitMeshTasksEXT",
+      "class"  : "Reserved",
+      "opcode" : 5294,
+      "operands" : [
+        { "kind" : "IdRef", "name" : "'Group Count X'" },
+        { "kind" : "IdRef", "name" : "'Group Count Y'" },
+        { "kind" : "IdRef", "name" : "'Group Count Z'" },
+        { "kind" : "IdRef", "quantifier" : "?", "name" : "'Payload'" }
+      ],
+      "capabilities" : [ "MeshShadingEXT" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpSetMeshOutputsEXT",
+      "class"  : "Reserved",
+      "opcode" : 5295,
+      "operands" : [
+        { "kind" : "IdRef", "name" : "'Vertex Count'" },
+        { "kind" : "IdRef", "name" : "'Primitive Count'" }
+      ],
+      "capabilities" : [ "MeshShadingEXT" ],
       "version" : "None"
     },
     {
@@ -4894,6 +5555,25 @@
       "version" : "None"
     },
     {
+      "opname" : "OpRayQueryGetIntersectionTriangleVertexPositionsKHR",
+      "class"  : "Reserved",
+      "opcode" : 5340,
+        "operands" : [
+            { "kind" : "IdResultType" },
+            { "kind" : "IdResult" },
+            {
+                "kind" : "IdRef",
+                "name" : "'RayQuery'"
+            },
+            {
+                "kind" : "IdRef",
+                "name" : "'Intersection'"
+            }
+        ],
+      "capabilities" : [ "RayQueryPositionFetchKHR" ],
+      "version" : "None"
+    },
+    {
       "opname" : "OpTypeAccelerationStructureNV",
       "class"  : "Reserved",
       "opcode" : 5341,
@@ -5029,7 +5709,7 @@
       "opname" : "OpDemoteToHelperInvocationEXT",
       "class"  : "Control-Flow",
       "opcode" : 5380,
-      "capabilities" : [ "DemoteToHelperInvocation" ],
+      "capabilities" : [ "DemoteToHelperInvocationEXT" ],
       "version" : "1.6"
     },
     {
@@ -7870,6 +8550,43 @@
       "version" : "None"
     },
     {
+      "opname" : "OpAliasDomainDeclINTEL",
+      "class"  : "@exclude",
+      "opcode" : 5911,
+      "operands" : [
+        { "kind" : "IdResult"},
+        { "kind" : "IdRef", "quantifier" : "?", "name" : "'Name'" }
+      ],
+      "capabilities" : [ "MemoryAccessAliasingINTEL" ],
+      "extensions" : [ "SPV_INTEL_memory_access_aliasing" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpAliasScopeDeclINTEL",
+      "class"  : "@exclude",
+      "opcode" : 5912,
+      "operands" : [
+        { "kind" : "IdResult"},
+        { "kind" : "IdRef", "name" : "'Alias Domain'"},
+        { "kind" : "IdRef", "quantifier" : "?", "name" : "'Name'" }
+      ],
+      "capabilities" : [ "MemoryAccessAliasingINTEL" ],
+      "extensions" : [ "SPV_INTEL_memory_access_aliasing" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpAliasScopeListDeclINTEL",
+      "class"  : "@exclude",
+      "opcode" : 5913,
+      "operands" : [
+        { "kind" : "IdResult"},
+        { "kind" : "IdRef", "quantifier" : "*", "name" : "'AliasScope1, AliasScope2, ...'" }
+      ],
+      "capabilities" : [ "MemoryAccessAliasingINTEL" ],
+      "extensions" : [ "SPV_INTEL_memory_access_aliasing" ],
+      "version" : "None"
+    },
+    {
       "opname" : "OpFixedSqrtINTEL",
       "class"  : "@exclude",
       "opcode" : 5923,
@@ -8512,6 +9229,166 @@
       ],
       "capabilities" : [ "LongConstantCompositeINTEL" ],
       "version" : "None"
+    },
+    {
+      "opname" : "OpConvertFToBF16INTEL",
+      "class"  : "Conversion",
+      "opcode" : 6116,
+      "operands" : [
+        { "kind" : "IdResultType" },
+        { "kind" : "IdResult" },
+        { "kind" : "IdRef",        "name" : "'Float Value'" }
+      ],
+      "capabilities" : [ "BFloat16ConversionINTEL" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpConvertBF16ToFINTEL",
+      "class"  : "Conversion",
+      "opcode" : 6117,
+      "operands" : [
+        { "kind" : "IdResultType" },
+        { "kind" : "IdResult" },
+        { "kind" : "IdRef",        "name" : "'BFloat16 Value'" }
+      ],
+      "capabilities" : [ "BFloat16ConversionINTEL" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpControlBarrierArriveINTEL",
+      "class"  : "Barrier",
+      "opcode" : 6142,
+      "operands" : [
+        { "kind" : "IdScope",           "name" : "'Execution'" },
+        { "kind" : "IdScope",           "name" : "'Memory'" },
+        { "kind" : "IdMemorySemantics", "name" : "'Semantics'" }
+      ],
+      "capabilities" : [ "SplitBarrierINTEL" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpControlBarrierWaitINTEL",
+      "class"  : "Barrier",
+      "opcode" : 6143,
+      "operands" : [
+        { "kind" : "IdScope",           "name" : "'Execution'" },
+        { "kind" : "IdScope",           "name" : "'Memory'" },
+        { "kind" : "IdMemorySemantics", "name" : "'Semantics'" }
+      ],
+      "capabilities" : [ "SplitBarrierINTEL" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpGroupIMulKHR",
+      "class"  : "Group",
+      "opcode" : 6401,
+      "operands" : [
+        { "kind" : "IdResultType" },
+        { "kind" : "IdResult" },
+        { "kind" : "IdScope",        "name" : "'Execution'" },
+        { "kind" : "GroupOperation", "name" : "'Operation'" },
+        { "kind" : "IdRef",          "name" : "'X'" }
+      ],
+      "capabilities" : [ "GroupUniformArithmeticKHR" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpGroupFMulKHR",
+      "class"  : "Group",
+      "opcode" : 6402,
+      "operands" : [
+        { "kind" : "IdResultType" },
+        { "kind" : "IdResult" },
+        { "kind" : "IdScope",        "name" : "'Execution'" },
+        { "kind" : "GroupOperation", "name" : "'Operation'" },
+        { "kind" : "IdRef",          "name" : "'X'" }
+      ],
+      "capabilities" : [ "GroupUniformArithmeticKHR" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpGroupBitwiseAndKHR",
+      "class"  : "Group",
+      "opcode" : 6403,
+      "operands" : [
+        { "kind" : "IdResultType" },
+        { "kind" : "IdResult" },
+        { "kind" : "IdScope",        "name" : "'Execution'" },
+        { "kind" : "GroupOperation", "name" : "'Operation'" },
+        { "kind" : "IdRef",          "name" : "'X'" }
+      ],
+      "capabilities" : [ "GroupUniformArithmeticKHR" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpGroupBitwiseOrKHR",
+      "class"  : "Group",
+      "opcode" : 6404,
+      "operands" : [
+        { "kind" : "IdResultType" },
+        { "kind" : "IdResult" },
+        { "kind" : "IdScope",        "name" : "'Execution'" },
+        { "kind" : "GroupOperation", "name" : "'Operation'" },
+        { "kind" : "IdRef",          "name" : "'X'" }
+      ],
+      "capabilities" : [ "GroupUniformArithmeticKHR" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpGroupBitwiseXorKHR",
+      "class"  : "Group",
+      "opcode" : 6405,
+      "operands" : [
+        { "kind" : "IdResultType" },
+        { "kind" : "IdResult" },
+        { "kind" : "IdScope",        "name" : "'Execution'" },
+        { "kind" : "GroupOperation", "name" : "'Operation'" },
+        { "kind" : "IdRef",          "name" : "'X'" }
+      ],
+      "capabilities" : [ "GroupUniformArithmeticKHR" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpGroupLogicalAndKHR",
+      "class"  : "Group",
+      "opcode" : 6406,
+      "operands" : [
+        { "kind" : "IdResultType" },
+        { "kind" : "IdResult" },
+        { "kind" : "IdScope",        "name" : "'Execution'" },
+        { "kind" : "GroupOperation", "name" : "'Operation'" },
+        { "kind" : "IdRef",          "name" : "'X'" }
+      ],
+      "capabilities" : [ "GroupUniformArithmeticKHR" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpGroupLogicalOrKHR",
+      "class"  : "Group",
+      "opcode" : 6407,
+      "operands" : [
+        { "kind" : "IdResultType" },
+        { "kind" : "IdResult" },
+        { "kind" : "IdScope",        "name" : "'Execution'" },
+        { "kind" : "GroupOperation", "name" : "'Operation'" },
+        { "kind" : "IdRef",          "name" : "'X'" }
+      ],
+      "capabilities" : [ "GroupUniformArithmeticKHR" ],
+      "version" : "None"
+    },
+    {
+      "opname" : "OpGroupLogicalXorKHR",
+      "class"  : "Group",
+      "opcode" : 6408,
+      "operands" : [
+        { "kind" : "IdResultType" },
+        { "kind" : "IdResult" },
+        { "kind" : "IdScope",        "name" : "'Execution'" },
+        { "kind" : "GroupOperation", "name" : "'Operation'" },
+        { "kind" : "IdRef",          "name" : "'X'" }
+      ],
+      "capabilities" : [ "GroupUniformArithmeticKHR" ],
+      "version" : "None"
     }
   ],
   "operand_kinds" : [
@@ -8808,7 +9685,6 @@
             { "kind" : "LiteralInteger" }
           ],
           "capabilities" : [ "FPGALoopControlsINTEL" ],
-          "extensions" : [ "SPV_INTEL_fpga_loop_controls" ],
           "version" : "None"
         },
         {
@@ -8818,7 +9694,6 @@
             { "kind" : "LiteralInteger" }
           ],
           "capabilities" : [ "FPGALoopControlsINTEL" ],
-          "extensions" : [ "SPV_INTEL_fpga_loop_controls" ],
           "version" : "None"
         },
         {
@@ -8828,7 +9703,6 @@
             { "kind" : "LiteralInteger" }
           ],
           "capabilities" : [ "FPGALoopControlsINTEL" ],
-          "extensions" : [ "SPV_INTEL_fpga_loop_controls" ],
           "version" : "None"
         },
         {
@@ -8838,7 +9712,6 @@
             { "kind" : "LiteralInteger" }
           ],
           "capabilities" : [ "FPGALoopControlsINTEL" ],
-          "extensions" : [ "SPV_INTEL_fpga_loop_controls" ],
           "version" : "None"
         },
         {
@@ -8848,7 +9721,6 @@
             { "kind" : "LiteralInteger" }
           ],
           "capabilities" : [ "FPGALoopControlsINTEL" ],
-          "extensions" : [ "SPV_INTEL_fpga_loop_controls" ],
           "version" : "None"
         },
         {
@@ -8858,7 +9730,6 @@
             { "kind" : "LiteralInteger" }
           ],
           "capabilities" : [ "FPGALoopControlsINTEL" ],
-          "extensions" : [ "SPV_INTEL_fpga_loop_controls" ],
           "version" : "None"
         },
         {
@@ -8868,17 +9739,30 @@
             { "kind" : "LiteralInteger" }
           ],
           "capabilities" : [ "FPGALoopControlsINTEL" ],
-          "extensions" : [ "SPV_INTEL_fpga_loop_controls" ],
           "version" : "None"
         },
         {
           "enumerant" : "NoFusionINTEL",
           "value" : "0x800000",
+          "capabilities" : [ "FPGALoopControlsINTEL" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "LoopCountINTEL",
+          "value" : "0x1000000",
           "parameters" : [
             { "kind" : "LiteralInteger" }
           ],
           "capabilities" : [ "FPGALoopControlsINTEL" ],
-          "extensions" : [ "SPV_INTEL_fpga_loop_controls" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "MaxReinvocationDelayINTEL",
+          "value" : "0x2000000",
+          "parameters" : [
+            { "kind" : "LiteralInteger" }
+          ],
+          "capabilities" : [ "FPGALoopControlsINTEL" ],
           "version" : "None"
         }
       ]
@@ -9090,6 +9974,26 @@
           "capabilities" : [ "VulkanMemoryModel" ],
           "extensions" : [ "SPV_KHR_vulkan_memory_model" ],
           "version" : "1.5"
+        },
+        {
+          "enumerant" : "AliasScopeINTELMask",
+          "value" : "0x10000",
+          "parameters" : [
+            { "kind" : "IdRef" }
+          ],
+          "capabilities" : [ "MemoryAccessAliasingINTEL" ],
+          "extensions" : [ "SPV_INTEL_memory_access_aliasing" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "NoAliasINTELMask",
+          "parameters" : [
+            { "kind" : "IdRef" }
+          ],
+          "value" : "0x20000",
+          "capabilities" : [ "MemoryAccessAliasingINTEL" ],
+          "extensions" : [ "SPV_INTEL_memory_access_aliasing" ],
+          "version" : "None"
         }
       ]
     },
@@ -9177,6 +10081,12 @@
           "value" : "0x0200",
           "capabilities" : [ "RayTraversalPrimitiveCullingKHR" ],
           "version" : "None"
+        },
+        {
+          "enumerant" : "ForceOpacityMicromap2StateEXT",
+          "value" : "0x0400",
+          "capabilities" : [ "RayTracingOpacityMicromapEXT" ],
+          "version" : "None"
         }
       ]
     },
@@ -9241,6 +10151,14 @@
         {
           "enumerant" : "CPP_for_OpenCL",
           "value" : 6
+        },
+        {
+          "enumerant" : "SYCL",
+          "value" : 7
+        },
+        {
+          "enumerant" : "HERO_C",
+          "value" : 8
         }
       ]
     },
@@ -9365,6 +10283,18 @@
           "enumerant" : "CallableKHR",
           "value" : 5318,
           "capabilities" : [ "RayTracingNV" , "RayTracingKHR" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "TaskEXT",
+          "value" : 5364,
+          "capabilities" : [ "MeshShadingEXT" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "MeshEXT",
+          "value" : 5365,
+          "capabilities" : [ "MeshShadingEXT" ],
           "version" : "None"
         }
       ]
@@ -9581,7 +10511,7 @@
         {
           "enumerant" : "OutputVertices",
           "value" : 26,
-          "capabilities" : [ "Geometry", "Tessellation", "MeshShadingNV" ],
+          "capabilities" : [ "Geometry", "Tessellation", "MeshShadingNV", "MeshShadingEXT" ],
           "parameters" : [
             { "kind" : "LiteralInteger", "name" : "'Vertex count'" }
           ]
@@ -9589,7 +10519,7 @@
         {
           "enumerant" : "OutputPoints",
           "value" : 27,
-          "capabilities" : [ "Geometry", "MeshShadingNV" ]
+          "capabilities" : [ "Geometry", "MeshShadingNV", "MeshShadingEXT" ]
         },
         {
           "enumerant" : "OutputLineStrip",
@@ -9675,6 +10605,24 @@
           "version" : "1.2"
         },
         {
+          "enumerant" : "NonCoherentColorAttachmentReadEXT",
+          "value" : 4169,
+          "capabilities" : [ "TileImageColorReadAccessEXT" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "NonCoherentDepthAttachmentReadEXT",
+          "value" : 4170,
+          "capabilities" : [ "TileImageDepthReadAccessEXT" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "NonCoherentStencilAttachmentReadEXT",
+          "value" : 4171,
+          "capabilities" : [ "TileImageStencilReadAccessEXT" ],
+          "version" : "None"
+        },
+        {
           "enumerant" : "SubgroupUniformControlFlowKHR",
           "value" : 4421,
           "capabilities" : [ "Shader" ],
@@ -9739,6 +10687,13 @@
           "version" : "1.4"
         },
         {
+          "enumerant": "EarlyAndLateFragmentTestsAMD",
+          "value": 5017,
+          "capabilities": [ "Shader" ],
+          "extensions": [ "SPV_AMD_shader_early_and_late_fragment_tests" ],
+          "version": "None"
+        },
+        {
           "enumerant" : "StencilRefReplacingEXT",
           "value" : 5027,
           "capabilities" : [ "StencilExportEXT" ],
@@ -9746,20 +10701,79 @@
           "version" : "None"
         },
         {
+          "enumerant": "StencilRefUnchangedFrontAMD",
+          "value": 5079,
+          "capabilities": [ "StencilExportEXT" ],
+          "extensions": [ "SPV_AMD_shader_early_and_late_fragment_tests", "SPV_EXT_shader_stencil_export" ],
+          "version": "None"
+        },
+        {
+          "enumerant": "StencilRefGreaterFrontAMD",
+          "value": 5080,
+          "capabilities": [ "StencilExportEXT" ],
+          "extensions": [ "SPV_AMD_shader_early_and_late_fragment_tests", "SPV_EXT_shader_stencil_export" ],
+          "version": "None"
+        },
+        {
+          "enumerant": "StencilRefLessFrontAMD",
+          "value": 5081,
+          "capabilities": [ "StencilExportEXT" ],
+          "extensions": [ "SPV_AMD_shader_early_and_late_fragment_tests", "SPV_EXT_shader_stencil_export" ],
+          "version": "None"
+        },
+        {
+          "enumerant": "StencilRefUnchangedBackAMD",
+          "value": 5082,
+          "capabilities": [ "StencilExportEXT" ],
+          "extensions": [ "SPV_AMD_shader_early_and_late_fragment_tests", "SPV_EXT_shader_stencil_export" ],
+          "version": "None"
+        },
+        {
+          "enumerant": "StencilRefGreaterBackAMD",
+          "value": 5083,
+          "capabilities": [ "StencilExportEXT" ],
+          "extensions": [ "SPV_AMD_shader_early_and_late_fragment_tests", "SPV_EXT_shader_stencil_export" ],
+          "version": "None"
+        },
+        {
+          "enumerant": "StencilRefLessBackAMD",
+          "value": 5084,
+          "capabilities": [ "StencilExportEXT" ],
+          "extensions": [ "SPV_AMD_shader_early_and_late_fragment_tests", "SPV_EXT_shader_stencil_export" ],
+          "version": "None"
+        },
+        {
           "enumerant" : "OutputLinesNV",
           "value" : 5269,
-          "capabilities" : [ "MeshShadingNV" ],
-          "extensions" : [ "SPV_NV_mesh_shader" ],
+          "capabilities" : [ "MeshShadingNV", "MeshShadingEXT" ],
+          "extensions" : [ "SPV_NV_mesh_shader", "SPV_EXT_mesh_shader" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "OutputLinesEXT",
+          "value" : 5269,
+          "capabilities" : [ "MeshShadingNV", "MeshShadingEXT" ],
+          "extensions" : [ "SPV_NV_mesh_shader", "SPV_EXT_mesh_shader" ],
           "version" : "None"
         },
         {
           "enumerant" : "OutputPrimitivesNV",
           "value" : 5270,
-          "capabilities" : [ "MeshShadingNV" ],
+          "capabilities" : [ "MeshShadingNV", "MeshShadingEXT" ],
           "parameters" : [
             { "kind" : "LiteralInteger", "name" : "'Primitive count'" }
           ],
-          "extensions" : [ "SPV_NV_mesh_shader" ],
+          "extensions" : [ "SPV_NV_mesh_shader", "SPV_EXT_mesh_shader" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "OutputPrimitivesEXT",
+          "value" : 5270,
+          "capabilities" : [ "MeshShadingNV", "MeshShadingEXT" ],
+          "parameters" : [
+            { "kind" : "LiteralInteger", "name" : "'Primitive count'" }
+          ],
+          "extensions" : [ "SPV_NV_mesh_shader", "SPV_EXT_mesh_shader" ],
           "version" : "None"
         },
         {
@@ -9779,8 +10793,15 @@
         {
           "enumerant" : "OutputTrianglesNV",
           "value" : 5298,
-          "capabilities" : [ "MeshShadingNV" ],
-          "extensions" : [ "SPV_NV_mesh_shader" ],
+          "capabilities" : [ "MeshShadingNV", "MeshShadingEXT" ],
+          "extensions" : [ "SPV_NV_mesh_shader", "SPV_EXT_mesh_shader" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "OutputTrianglesEXT",
+          "value" : 5298,
+          "capabilities" : [ "MeshShadingNV", "MeshShadingEXT" ],
+          "extensions" : [ "SPV_NV_mesh_shader", "SPV_EXT_mesh_shader" ],
           "version" : "None"
         },
         {
@@ -9917,6 +10938,33 @@
           ],
           "capabilities" : [ "FPGAKernelAttributesINTEL" ],
           "version" : "None"
+        },
+        {
+          "enumerant" : "StreamingInterfaceINTEL",
+          "value" : 6154,
+          "parameters" : [
+            { "kind" : "LiteralInteger", "name" : "'StallFreeReturn'" }
+          ],
+          "capabilities" : [ "FPGAKernelAttributesINTEL" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "RegisterMapInterfaceINTEL",
+          "value" : 6160,
+          "parameters" : [
+            { "kind" : "LiteralInteger", "name" : "'WaitForDoneWrite'" }
+          ],
+          "capabilities" : [ "FPGAKernelAttributesv2INTEL" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "NamedBarrierCountINTEL",
+          "value" : 6417,
+          "parameters" : [
+            { "kind" : "LiteralInteger", "name" : "'Barrier Count'" }
+          ],
+          "capabilities" : [ "VectorComputeINTEL" ],
+          "version" : "None"
         }
       ]
     },
@@ -9987,6 +11035,12 @@
           ],
           "capabilities" : [ "Shader" ],
           "version" : "1.3"
+        },
+        {
+          "enumerant" : "TileImageEXT",
+          "value" : 4172,
+          "capabilities" : [ "TileImageColorReadAccessEXT" ],
+          "version" : "None"
         },
         {
           "enumerant" : "CallableDataNV",
@@ -10087,6 +11141,19 @@
           "version" : "1.5"
         },
         {
+          "enumerant" : "HitObjectAttributeNV",
+          "value" : 5385,
+          "capabilities" : [ "ShaderInvocationReorderNV" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "TaskPayloadWorkgroupEXT",
+          "value" : 5402,
+          "extensions" : [ "SPV_EXT_mesh_shader" ],
+          "capabilities" : [ "MeshShadingEXT" ],
+          "version" : "1.4"
+        },
+        {
           "enumerant" : "CodeSectionINTEL",
           "value" : 5605,
           "extensions" : [ "SPV_INTEL_function_pointers" ],
@@ -10120,12 +11187,11 @@
         {
           "enumerant" : "1D",
           "value" : 0,
-          "capabilities" : [ "Sampled1D", "Image1D" ]
+          "capabilities" : [ "Sampled1D" ]
         },
         {
           "enumerant" : "2D",
-          "value" : 1,
-          "capabilities" : [ "Shader", "Kernel", "ImageMSArray" ]
+          "value" : 1
         },
         {
           "enumerant" : "3D",
@@ -10134,22 +11200,28 @@
         {
           "enumerant" : "Cube",
           "value" : 3,
-          "capabilities" : [ "Shader", "ImageCubeArray" ]
+          "capabilities" : [ "Shader" ]
         },
         {
           "enumerant" : "Rect",
           "value" : 4,
-          "capabilities" : [ "SampledRect", "ImageRect" ]
+          "capabilities" : [ "SampledRect" ]
         },
         {
           "enumerant" : "Buffer",
           "value" : 5,
-          "capabilities" : [ "SampledBuffer", "ImageBuffer" ]
+          "capabilities" : [ "SampledBuffer" ]
         },
         {
           "enumerant" : "SubpassData",
           "value" : 6,
           "capabilities" : [ "InputAttachment" ]
+        },
+        {
+          "enumerant" : "TileImageDataEXT",
+          "value" : 4173,
+          "capabilities" : [ "TileImageColorReadAccessEXT" ],
+          "version" : "None"
         }
       ]
     },
@@ -10609,6 +11681,16 @@
           "enumerant" : "UnormInt101010_2",
           "value" : 16,
           "capabilities" : [ "Kernel" ]
+        },
+        {
+          "enumerant" : "UnsignedIntRaw10EXT",
+          "value" : 19,
+          "capabilities" : [ "Kernel" ]
+        },
+        {
+          "enumerant" : "UnsignedIntRaw12EXT",
+          "value" : 20,
+          "capabilities" : [ "Kernel" ]
         }
       ]
     },
@@ -10841,6 +11923,11 @@
           "enumerant" : "NoReadWrite",
           "value" : 7,
           "capabilities" : [ "Kernel" ]
+        },
+        {
+          "enumerant" : "RuntimeAlignedINTEL",
+          "value" : 5940,
+          "capabilities" : [ "RuntimeAlignedAttributeINTEL" ]
         }
       ]
     },
@@ -11163,6 +12250,18 @@
           "version" : "1.4"
         },
         {
+          "enumerant" : "WeightTextureQCOM",
+          "value" : 4487,
+          "extensions" : [ "SPV_QCOM_image_processing" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "BlockMatchTextureQCOM",
+          "value" : 4488,
+          "extensions" : [ "SPV_QCOM_image_processing" ],
+          "version" : "None"
+        },
+        {
           "enumerant" : "ExplicitInterpAMD",
           "value" : 4999,
           "extensions" : [ "SPV_AMD_shader_explicit_vertex_parameter" ],
@@ -11201,8 +12300,15 @@
         {
           "enumerant" : "PerPrimitiveNV",
           "value" : 5271,
-          "capabilities" : [ "MeshShadingNV" ],
-          "extensions" : [ "SPV_NV_mesh_shader" ],
+          "capabilities" : [ "MeshShadingNV", "MeshShadingEXT" ],
+          "extensions" : [ "SPV_NV_mesh_shader", "SPV_EXT_mesh_shader" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "PerPrimitiveEXT",
+          "value" : 5271,
+          "capabilities" : [ "MeshShadingNV", "MeshShadingEXT" ],
+          "extensions" : [ "SPV_NV_mesh_shader", "SPV_EXT_mesh_shader" ],
           "version" : "None"
         },
         {
@@ -11215,8 +12321,8 @@
         {
           "enumerant" : "PerTaskNV",
           "value" : 5273,
-          "capabilities" : [ "MeshShadingNV" ],
-          "extensions" : [ "SPV_NV_mesh_shader" ],
+          "capabilities" : [ "MeshShadingNV", "MeshShadingEXT" ],
+          "extensions" : [ "SPV_NV_mesh_shader", "SPV_EXT_mesh_shader" ],
           "version" : "None"
         },
         {
@@ -11273,6 +12379,12 @@
           "capabilities" : [ "PhysicalStorageBufferAddresses" ],
           "extensions" : [ "SPV_EXT_physical_storage_buffer" ],
           "version" : "1.5"
+        },
+        {
+          "enumerant" : "HitObjectShaderRecordBufferNV",
+          "value" : 5386,
+          "capabilities" : [ "ShaderInvocationReorderNV" ],
+          "version" : "None"
         },
         {
           "enumerant" : "BindlessSamplerNV",
@@ -11580,6 +12692,61 @@
           "version" : "None"
         },
         {
+          "enumerant" : "MathOpDSPModeINTEL",
+          "value" : 5909,
+          "parameters" : [
+            { "kind" : "LiteralInteger", "name" : "'Mode'" },
+            { "kind" : "LiteralInteger", "name" : "'Propagate'" }
+          ],
+          "capabilities" : [ "FPGADSPControlINTEL" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "AliasScopeINTEL",
+          "value" : 5914,
+          "parameters" : [
+            { "kind" : "IdRef", "name" : "'Aliasing Scopes List'" }
+          ],
+          "capabilities" : [ "MemoryAccessAliasingINTEL" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "NoAliasINTEL",
+          "value" : 5915,
+          "parameters" : [
+            { "kind" : "IdRef", "name" : "'Aliasing Scopes List'" }
+          ],
+          "capabilities" : [ "MemoryAccessAliasingINTEL" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "InitiationIntervalINTEL",
+          "value" : 5917,
+          "parameters" : [
+            { "kind" : "LiteralInteger", "name" : "'Cycles'" }
+          ],
+          "capabilities" : [ "FPGAInvocationPipeliningAttributesINTEL" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "MaxConcurrencyINTEL",
+          "value" : 5918,
+          "parameters" : [
+            { "kind" : "LiteralInteger", "name" : "'Invocations'" }
+          ],
+          "capabilities" : [ "FPGAInvocationPipeliningAttributesINTEL" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "PipelineEnableINTEL",
+          "value" : 5919,
+          "parameters" : [
+            { "kind" : "LiteralInteger", "name" : "'Enable'" }
+          ],
+          "capabilities" : [ "FPGAInvocationPipeliningAttributesINTEL" ],
+          "version" : "None"
+        },
+        {
           "enumerant" : "BufferLocationINTEL",
           "value" : 5921,
           "parameters" : [
@@ -11624,6 +12791,98 @@
           "value" : 6140,
           "capabilities" : [ "VectorComputeINTEL" ],
           "version" : "None"
+        },
+        {
+          "enumerant" : "LatencyControlLabelINTEL",
+          "value" : 6172,
+          "parameters" : [
+            { "kind" : "LiteralInteger", "name" : "'Latency Label'" }
+          ],
+          "capabilities" : [ "FPGALatencyControlINTEL" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "LatencyControlConstraintINTEL",
+          "value" : 6173,
+          "parameters" : [
+            { "kind" : "LiteralInteger", "name" : "'Relative To'" },
+            { "kind" : "LiteralInteger", "name" : "'Control Type'" },
+            { "kind" : "LiteralInteger", "name" : "'Relative Cycle'" }
+          ],
+          "capabilities" : [ "FPGALatencyControlINTEL" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "ConduitKernelArgumentINTEL",
+          "value" : 6175,
+          "capabilities" : [ "FPGAArgumentInterfacesINTEL" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "RegisterMapKernelArgumentINTEL",
+          "value" : 6176,
+          "capabilities" : [ "FPGAArgumentInterfacesINTEL" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "MMHostInterfaceAddressWidthINTEL",
+          "value" : 6177,
+          "capabilities" : [ "FPGAArgumentInterfacesINTEL" ],
+          "parameters" : [
+            { "kind" : "LiteralInteger", "name" : "'AddressWidth'" }
+          ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "MMHostInterfaceDataWidthINTEL",
+          "value" : 6178,
+          "capabilities" : [ "FPGAArgumentInterfacesINTEL" ],
+          "parameters" : [
+            { "kind" : "LiteralInteger", "name" : "'DataWidth'" }
+          ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "MMHostInterfaceLatencyINTEL",
+          "value" : 6179,
+          "capabilities" : [ "FPGAArgumentInterfacesINTEL" ],
+          "parameters" : [
+            { "kind" : "LiteralInteger", "name" : "'Latency'" }
+          ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "MMHostInterfaceReadWriteModeINTEL",
+          "value" : 6180,
+          "capabilities" : [ "FPGAArgumentInterfacesINTEL" ],
+          "parameters" : [
+            { "kind" : "AccessQualifier", "name" : "'ReadWriteMode'" }
+          ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "MMHostInterfaceMaxBurstINTEL",
+          "value" : 6181,
+          "capabilities" : [ "FPGAArgumentInterfacesINTEL" ],
+          "parameters" : [
+            { "kind" : "LiteralInteger", "name" : "'MaxBurstCount'" }
+          ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "MMHostInterfaceWaitRequestINTEL",
+          "value" : 6182,
+          "capabilities" : [ "FPGAArgumentInterfacesINTEL" ],
+          "parameters" : [
+            { "kind" : "LiteralInteger", "name" : "'Waitrequest'" }
+          ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "StableKernelArgumentINTEL",
+          "value" : 6183,
+          "capabilities" : [ "FPGAArgumentInterfacesINTEL" ],
+          "version" : "None"
         }
       ]
     },
@@ -11664,7 +12923,7 @@
         {
           "enumerant" : "PrimitiveId",
           "value" : 7,
-          "capabilities" : [ "Geometry", "Tessellation", "RayTracingNV", "RayTracingKHR", "MeshShadingNV" ]
+          "capabilities" : [ "Geometry", "Tessellation", "RayTracingNV", "RayTracingKHR", "MeshShadingNV", "MeshShadingEXT" ]
         },
         {
           "enumerant" : "InvocationId",
@@ -11674,12 +12933,12 @@
         {
           "enumerant" : "Layer",
           "value" : 9,
-          "capabilities" : [ "Geometry", "ShaderLayer", "ShaderViewportIndexLayerEXT", "MeshShadingNV" ]
+          "capabilities" : [ "Geometry", "ShaderLayer", "ShaderViewportIndexLayerEXT", "MeshShadingNV", "MeshShadingEXT" ]
         },
         {
           "enumerant" : "ViewportIndex",
           "value" : 10,
-          "capabilities" : [ "MultiViewport", "ShaderViewportIndex", "ShaderViewportIndexLayerEXT", "MeshShadingNV" ]
+          "capabilities" : [ "MultiViewport", "ShaderViewportIndex", "ShaderViewportIndexLayerEXT", "MeshShadingNV", "MeshShadingEXT" ]
         },
         {
           "enumerant" : "TessLevelOuter",
@@ -11831,6 +13090,31 @@
           "capabilities" : [ "Shader" ]
         },
         {
+          "enumerant" : "CoreIDARM",
+          "value" : 4160,
+          "capabilities" : [ "CoreBuiltinsARM" ]
+        },
+        {
+          "enumerant" : "CoreCountARM",
+          "value" : 4161,
+          "capabilities" : [ "CoreBuiltinsARM" ]
+        },
+        {
+          "enumerant" : "CoreMaxIDARM",
+          "value" : 4162,
+          "capabilities" : [ "CoreBuiltinsARM" ]
+        },
+        {
+          "enumerant" : "WarpIDARM",
+          "value" : 4163,
+          "capabilities" : [ "CoreBuiltinsARM" ]
+        },
+        {
+          "enumerant" : "WarpMaxIDARM",
+          "value" : 4164,
+          "capabilities" : [ "CoreBuiltinsARM" ]
+        },
+        {
           "enumerant" : "SubgroupEqMask",
           "value" : 4416,
           "capabilities" : [ "SubgroupBallotKHR", "GroupNonUniformBallot" ],
@@ -11912,8 +13196,8 @@
         {
           "enumerant" : "DrawIndex",
           "value" : 4426,
-          "capabilities" : [ "DrawParameters", "MeshShadingNV" ],
-          "extensions" : [ "SPV_KHR_shader_draw_parameters", "SPV_NV_mesh_shader" ],
+          "capabilities" : [ "DrawParameters", "MeshShadingNV", "MeshShadingEXT" ],
+          "extensions" : [ "SPV_KHR_shader_draw_parameters", "SPV_NV_mesh_shader", "SPV_EXT_mesh_shader" ],
           "version" : "1.3"
         },
         {
@@ -12148,6 +13432,34 @@
           "version" : "None"
         },
         {
+          "enumerant" : "PrimitivePointIndicesEXT",
+          "value" : 5294,
+          "capabilities" : [ "MeshShadingEXT" ],
+          "extensions" : [ "SPV_EXT_mesh_shader" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "PrimitiveLineIndicesEXT",
+          "value" : 5295,
+          "capabilities" : [ "MeshShadingEXT" ],
+          "extensions" : [ "SPV_EXT_mesh_shader" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "PrimitiveTriangleIndicesEXT",
+          "value" : 5296,
+          "capabilities" : [ "MeshShadingEXT" ],
+          "extensions" : [ "SPV_EXT_mesh_shader" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "CullPrimitiveEXT",
+          "value" : 5299,
+          "capabilities" : [ "MeshShadingEXT" ],
+          "extensions" : [ "SPV_EXT_mesh_shader" ],
+          "version" : "None"
+        },
+        {
           "enumerant" : "LaunchIdNV",
           "value" : 5319,
           "capabilities" : [ "RayTracingNV" , "RayTracingKHR" ],
@@ -12330,6 +13642,12 @@
           "version" : "None"
         },
         {
+          "enumerant" : "HitTriangleVertexPositionsKHR",
+          "value" : 5335,
+          "capabilities" : [ "RayTracingPositionFetchKHR" ],
+          "version" : "None"
+        },
+        {
           "enumerant" : "IncomingRayFlagsNV",
           "value" : 5351,
           "capabilities" : [ "RayTracingNV" , "RayTracingKHR" ],
@@ -12376,6 +13694,13 @@
           "value" : 5377,
           "capabilities" : [ "ShaderSMBuiltinsNV" ],
           "extensions" : [ "SPV_NV_shader_sm_builtins" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "CullMaskKHR",
+          "value"  : 6021,
+          "capabilities" : [ "RayCullMaskKHR" ],
+          "extensions" : [ "SPV_KHR_ray_cull_mask" ],
           "version" : "None"
         }
       ]
@@ -12847,6 +14172,29 @@
           "version" : "1.6"
         },
         {
+          "enumerant" : "CoreBuiltinsARM",
+          "value" : 4165,
+          "extensions" : [ "SPV_ARM_core_builtins" ]
+        },
+        {
+          "enumerant" : "TileImageColorReadAccessEXT",
+          "value" : 4166,
+          "extensions" : [ "SPV_EXT_shader_tile_image" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "TileImageDepthReadAccessEXT",
+          "value" : 4167,
+          "extensions" : [ "SPV_EXT_shader_tile_image" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "TileImageStencilReadAccessEXT",
+          "value" : 4168,
+          "extensions" : [ "SPV_EXT_shader_tile_image" ],
+          "version" : "None"
+        },
+        {
           "enumerant" : "FragmentShadingRateKHR",
           "value" : 4422,
           "capabilities" : [ "Shader" ],
@@ -13054,6 +14402,24 @@
           "version" : "None"
         },
         {
+          "enumerant" : "TextureSampleWeightedQCOM",
+          "value" : 4484,
+          "extensions" : [ "SPV_QCOM_image_processing" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "TextureBoxFilterQCOM",
+          "value" : 4485,
+          "extensions" : [ "SPV_QCOM_image_processing" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "TextureBlockMatchQCOM",
+          "value" : 4486,
+          "extensions" : [ "SPV_QCOM_image_processing" ],
+          "version" : "None"
+        },
+        {
           "enumerant" : "Float16ImageAMD",
           "value" : 5008,
           "capabilities" : [ "Shader" ],
@@ -13098,7 +14464,6 @@
         {
           "enumerant" : "ShaderClockKHR",
           "value" : 5055,
-          "capabilities" : [ "Shader" ],
           "extensions" : [ "SPV_KHR_shader_clock" ],
           "version" : "None"
         },
@@ -13169,6 +14534,13 @@
           "enumerant" : "ImageFootprintNV",
           "value" : 5282,
           "extensions" : [ "SPV_NV_shader_image_footprint" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "MeshShadingEXT",
+          "value" : 5283,
+          "capabilities" : [ "Shader" ],
+          "extensions" : [ "SPV_EXT_mesh_shader" ],
           "version" : "None"
         },
         {
@@ -13366,6 +14738,13 @@
           "version" : "1.5"
         },
         {
+          "enumerant" : "RayTracingPositionFetchKHR",
+          "value" : 5336,
+          "capabilities" : [ "Shader" ],
+          "extensions" : [ "SPV_KHR_ray_tracing_position_fetch" ],
+          "version" : "None"
+        },
+        {
           "enumerant" : "RayTracingNV",
           "value" : 5340,
           "capabilities" : [ "Shader" ],
@@ -13477,9 +14856,30 @@
           "version" : "1.6"
         },
         {
+          "enumerant" : "RayTracingOpacityMicromapEXT",
+          "value" : 5381,
+          "capabilities" : [ "RayQueryKHR","RayTracingKHR" ],
+          "extensions" : [ "SPV_EXT_opacity_micromap" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "ShaderInvocationReorderNV",
+          "value" : 5383,
+          "capabilities" : [ "RayTracingKHR" ],
+          "extensions" : [ "SPV_NV_shader_invocation_reorder" ],
+          "version" : "None"
+        },
+        {
           "enumerant" : "BindlessTextureNV",
           "value" : 5390,
           "extensions" : [ "SPV_NV_bindless_texture" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "RayQueryPositionFetchKHR",
+          "value" : 5391,
+          "capabilities" : [ "Shader" ],
+          "extensions" : [ "SPV_KHR_ray_tracing_position_fetch" ],
           "version" : "None"
         },
         {
@@ -13678,6 +15078,24 @@
           "version" : "None"
         },
         {
+          "enumerant" : "FPGADSPControlINTEL",
+          "value" : 5908,
+          "extensions" : [ "SPV_INTEL_fpga_dsp_control" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "MemoryAccessAliasingINTEL",
+          "value" : 5910,
+          "extensions" : [ "SPV_INTEL_memory_access_aliasing" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "FPGAInvocationPipeliningAttributesINTEL",
+          "value" : 5916,
+          "extensions" : [ "SPV_INTEL_fpga_invocation_pipelining_attributes" ],
+          "version" : "None"
+        },
+        {
           "enumerant" : "FPGABufferLocationINTEL",
           "value" : 5920,
           "extensions" : [ "SPV_INTEL_fpga_buffer_location" ],
@@ -13693,6 +15111,12 @@
           "enumerant" : "USMStorageClassesINTEL",
           "value" : 5935,
           "extensions" : [ "SPV_INTEL_usm_storage_classes" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "RuntimeAlignedAttributeINTEL",
+          "value" : 5939,
+          "extensions" : [ "SPV_INTEL_runtime_aligned" ],
           "version" : "None"
         },
         {
@@ -13760,9 +15184,28 @@
           "version" : "1.6"
         },
         {
+          "enumerant" : "RayCullMaskKHR",
+          "value" : 6020,
+          "extensions" : [ "SPV_KHR_ray_cull_mask" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "CooperativeMatrixKHR",
+          "value" : 6022,
+          "extensions" : [ "SPV_KHR_cooperative_matrix" ],
+          "version" : "None"
+        },
+        {
           "enumerant" : "BitInstructions",
           "value" : 6025,
           "extensions" : [ "SPV_KHR_bit_instructions" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "GroupNonUniformRotateKHR",
+          "value" : 6026,
+          "capabilities" : [ "GroupNonUniform" ],
+          "extensions" : [ "SPV_KHR_subgroup_rotate" ],
           "version" : "None"
         },
         {
@@ -13799,6 +15242,43 @@
           "enumerant" : "DebugInfoModuleINTEL",
           "value" : 6114,
           "extensions" : [ "SPV_INTEL_debug_module" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "BFloat16ConversionINTEL",
+          "value" : 6115,
+          "extensions" : [ "SPV_INTEL_bfloat16_conversion" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "SplitBarrierINTEL",
+          "value" : 6141,
+          "extensions" : [ "SPV_INTEL_split_barrier" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "FPGAKernelAttributesv2INTEL",
+          "value" : 6161,
+          "capabilities" : [ "FPGAKernelAttributesINTEL" ],
+          "extensions" : [ "SPV_INTEL_kernel_attributes" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "FPGALatencyControlINTEL",
+          "value" : 6171,
+          "extensions" : [ "SPV_INTEL_fpga_latency_control" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "FPGAArgumentInterfacesINTEL",
+          "value" : 6174,
+          "extensions" : [ "SPV_INTEL_fpga_argument_interfaces" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "GroupUniformArithmeticKHR",
+          "value" : 6400,
+          "extensions" : [ "SPV_KHR_uniform_group_instructions"],
           "version" : "None"
         }
       ]
@@ -13877,6 +15357,90 @@
           "value" : 0,
           "extensions" : [ "SPV_KHR_integer_dot_product" ],
           "version" : "1.6"
+        }
+      ]
+    },
+    {
+      "category" : "BitEnum",
+      "kind" : "CooperativeMatrixOperands",
+      "enumerants" : [
+        {
+          "enumerant" : "None",
+          "value" : "0x0000",
+          "capabilities" : [ "CooperativeMatrixKHR" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "MatrixASignedComponents",
+          "value" : "0x0001",
+          "capabilities" : [ "CooperativeMatrixKHR" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "MatrixBSignedComponents",
+          "value" : "0x0002",
+          "capabilities" : [ "CooperativeMatrixKHR" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "MatrixCSignedComponents",
+          "value" : "0x0004",
+          "capabilities" : [ "CooperativeMatrixKHR" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "MatrixResultSignedComponents",
+          "value" : "0x0008",
+          "capabilities" : [ "CooperativeMatrixKHR" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "SaturatingAccumulation",
+          "value" : "0x0010",
+          "capabilities" : [ "CooperativeMatrixKHR" ],
+          "version" : "None"
+        }
+      ]
+    },
+    {
+      "category" : "ValueEnum",
+      "kind" : "CooperativeMatrixLayout",
+      "enumerants" : [
+        {
+          "enumerant" : "RowMajorKHR",
+          "value" : 0,
+          "capabilities" : [ "CooperativeMatrixKHR" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "ColumnMajorKHR",
+          "value" : 1,
+          "capabilities" : [ "CooperativeMatrixKHR" ],
+          "version" : "None"
+        }
+      ]
+    },
+    {
+      "category" : "ValueEnum",
+      "kind" : "CooperativeMatrixUse",
+      "enumerants" : [
+        {
+          "enumerant" : "MatrixAKHR",
+          "value" : 0,
+          "capabilities" : [ "CooperativeMatrixKHR" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "MatrixBKHR",
+          "value" : 1,
+          "capabilities" : [ "CooperativeMatrixKHR" ],
+          "version" : "None"
+        },
+        {
+          "enumerant" : "MatrixAccumulatorKHR",
+          "value" : 2,
+          "capabilities" : [ "CooperativeMatrixKHR" ],
+          "version" : "None"
         }
       ]
     },

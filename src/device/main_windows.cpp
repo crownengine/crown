@@ -18,7 +18,6 @@
 #include "device/device.h"
 #include "device/device_event_queue.inl"
 #include "resource/data_compiler.h"
-#include <bgfx/platform.h>
 #include <stdio.h>    // FILE, freopen, stdio etc.
 #include <winsock2.h>
 #include <windowsx.h> // GET_X_LPARAM, GET_Y_LPARAM
@@ -629,14 +628,6 @@ struct WindowWin : public Window
 	{
 	}
 
-	void bgfx_setup() override
-	{
-		bgfx::PlatformData pd;
-		memset(&pd, 0, sizeof(pd));
-		pd.nwh = s_windows_device->_hwnd;
-		bgfx::setPlatformData(pd);
-	}
-
 	void show() override
 	{
 		ShowWindow(s_windows_device->_hwnd, SW_SHOW);
@@ -747,9 +738,14 @@ struct WindowWin : public Window
 		}
 	}
 
-	void *handle() override
+	void *native_handle() override
 	{
 		return (void *)(uintptr_t)s_windows_device->_hwnd;
+	}
+
+	void *native_display() override
+	{
+		return NULL;
 	}
 };
 

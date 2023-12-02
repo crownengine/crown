@@ -16,7 +16,6 @@
 #include "device/device_event_queue.inl"
 #include <android/sensor.h>
 #include <android/window.h>
-#include <bgfx/platform.h>
 #include <jni.h>
 #include <stdlib.h>
 #define STB_SPRINTF_IMPLEMENTATION
@@ -38,6 +37,7 @@ struct AndroidDevice
 	DeviceEventQueue _queue;
 	Thread _main_thread;
 	DeviceOptions *_opts;
+	ANativeWindow *_window;
 
 	explicit AndroidDevice(Allocator &a)
 		: _events(a)
@@ -78,14 +78,7 @@ struct AndroidDevice
 
 		case APP_CMD_INIT_WINDOW: {
 			CE_ASSERT(app->window != NULL, "Android window is NULL");
-
-			bgfx::PlatformData pd;
-			pd.ndt          = NULL;
-			pd.nwh          = app->window;
-			pd.context      = NULL;
-			pd.backBuffer   = NULL;
-			pd.backBufferDS = NULL;
-			bgfx::setPlatformData(pd);
+			_window = app->window;
 
 			// Push metrics here since Android does not trigger APP_CMD_WINDOW_RESIZED
 			const s32 width  = ANativeWindow_getWidth(app->window);
@@ -217,6 +210,8 @@ struct AndroidDevice
 	}
 };
 
+static AndroidDevice *s_android_device;
+
 struct WindowAndroid : public Window
 {
 	WindowAndroid()
@@ -229,10 +224,6 @@ struct WindowAndroid : public Window
 	}
 
 	void close() override
-	{
-	}
-
-	void bgfx_setup() override
 	{
 	}
 
@@ -296,7 +287,12 @@ struct WindowAndroid : public Window
 		CE_UNUSED(mode);
 	}
 
-	void *handle() override
+	void *native_handle() override
+	{
+		return s_android_device->_window;
+	}
+
+	void *native_display() override
 	{
 		return NULL;
 	}
@@ -342,8 +338,6 @@ namespace display
 	}
 
 } // namespace display
-
-static AndroidDevice *s_android_device;
 
 static bool push_event(const OsEvent &ev)
 {

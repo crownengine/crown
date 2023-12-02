@@ -1,6 +1,6 @@
 /*
- * Copyright 2010-2021 Branimir Karadzic. All rights reserved.
- * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
+ * Copyright 2010-2023 Branimir Karadzic. All rights reserved.
+ * License: https://github.com/bkaradzic/bx/blob/master/LICENSE
  */
 
 #include <bx/file.h>
@@ -279,7 +279,7 @@ namespace bx
 				return false;
 			}
 
-			m_fd = crt0::open(_filePath.get(), crt0::Open::Read, 0);
+			m_fd = crt0::open(_filePath.getCPtr(), crt0::Open::Read, 0);
 
 			if (0 >= m_fd)
 			{
@@ -360,7 +360,7 @@ namespace bx
 				return false;
 			}
 
-			m_fd = crt0::open(_filePath.get(), _append ? crt0::Open::Append : crt0::Open::Write, 0600);
+			m_fd = crt0::open(_filePath.getCPtr(), _append ? crt0::Open::Append : crt0::Open::Write, 0600);
 
 			if (0 >= m_fd)
 			{

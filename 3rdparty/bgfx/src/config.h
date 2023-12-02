@@ -1,6 +1,6 @@
 /*
- * Copyright 2011-2021 Branimir Karadzic. All rights reserved.
- * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
+ * Copyright 2011-2023 Branimir Karadzic. All rights reserved.
+ * License: https://github.com/bkaradzic/bgfx/blob/master/LICENSE
  */
 
 #ifndef BGFX_CONFIG_H_HEADER_GUARD
@@ -39,12 +39,14 @@
 
 #	ifndef BGFX_CONFIG_RENDERER_DIRECT3D9
 #		define BGFX_CONFIG_RENDERER_DIRECT3D9 (0 \
+					|| BX_PLATFORM_LINUX         \
 					|| BX_PLATFORM_WINDOWS       \
 					? 1 : 0)
 #	endif // BGFX_CONFIG_RENDERER_DIRECT3D9
 
 #	ifndef BGFX_CONFIG_RENDERER_DIRECT3D11
 #		define BGFX_CONFIG_RENDERER_DIRECT3D11 (0 \
+					|| BX_PLATFORM_LINUX          \
 					|| BX_PLATFORM_WINDOWS        \
 					|| BX_PLATFORM_WINRT          \
 					|| BX_PLATFORM_XBOXONE        \
@@ -53,6 +55,7 @@
 
 #	ifndef BGFX_CONFIG_RENDERER_DIRECT3D12
 #		define BGFX_CONFIG_RENDERER_DIRECT3D12 (0 \
+					|| BX_PLATFORM_LINUX          \
 					|| BX_PLATFORM_WINDOWS        \
 					|| BX_PLATFORM_WINRT          \
 					|| BX_PLATFORM_XBOXONE        \
@@ -87,7 +90,6 @@
 #		define BGFX_CONFIG_RENDERER_OPENGL (0 \
 					|| BX_PLATFORM_BSD        \
 					|| BX_PLATFORM_LINUX      \
-					|| BX_PLATFORM_OSX        \
 					|| BX_PLATFORM_WINDOWS    \
 					? BGFX_CONFIG_RENDERER_OPENGL_MIN_VERSION : 0)
 #	endif // BGFX_CONFIG_RENDERER_OPENGL
@@ -102,7 +104,6 @@
 #		define BGFX_CONFIG_RENDERER_OPENGLES (0 \
 					|| BX_PLATFORM_ANDROID      \
 					|| BX_PLATFORM_EMSCRIPTEN   \
-					|| BX_PLATFORM_IOS          \
 					|| BX_PLATFORM_RPI          \
 					|| BX_PLATFORM_NX           \
 					? BGFX_CONFIG_RENDERER_OPENGLES_MIN_VERSION : 0)
@@ -191,6 +192,11 @@
 #ifndef BGFX_CONFIG_USE_TINYSTL
 #	define BGFX_CONFIG_USE_TINYSTL 1
 #endif // BGFX_CONFIG_USE_TINYSTL
+
+/// Debug text maximum scale factor.
+#ifndef BGFX_CONFIG_DEBUG_TEXT_MAX_SCALE
+#	define BGFX_CONFIG_DEBUG_TEXT_MAX_SCALE 4
+#endif // BGFX_CONFIG_DEBUG_TEXT_MAX_SCALE
 
 /// Enable nVidia PerfHUD integration.
 #ifndef BGFX_CONFIG_DEBUG_PERFHUD

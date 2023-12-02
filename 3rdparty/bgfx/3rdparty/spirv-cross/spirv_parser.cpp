@@ -31,7 +31,7 @@ namespace SPIRV_CROSS_NAMESPACE
 {
 Parser::Parser(vector<uint32_t> spirv)
 {
-	ir.spirv = move(spirv);
+	ir.spirv = std::move(spirv);
 }
 
 Parser::Parser(const uint32_t *spirv_data, size_t word_count)
@@ -68,6 +68,7 @@ static bool is_valid_spirv_version(uint32_t version)
 	case 0x10300: // SPIR-V 1.3
 	case 0x10400: // SPIR-V 1.4
 	case 0x10500: // SPIR-V 1.5
+	case 0x10600: // SPIR-V 1.6
 		return true;
 
 	default:
@@ -182,6 +183,15 @@ void Parser::parse(const Instruction &instruction)
 	auto op = static_cast<Op>(instruction.op);
 	uint32_t length = instruction.length;
 
+	// HACK for glslang that might emit OpEmitMeshTasksEXT followed by return / branch.
+	// Instead of failing hard, just ignore it.
+	if (ignore_trailing_block_opcodes)
+	{
+		ignore_trailing_block_opcodes = false;
+		if (op == OpReturn || op == OpBranch || op == OpUnreachable)
+			return;
+	}
+
 	switch (op)
 	{
 	case OpSourceContinued:
@@ -258,29 +268,37 @@ void Parser::parse(const Instruction &instruction)
 	case OpExtension:
 	{
 		auto ext = extract_string(ir.spirv, instruction.offset);
-		ir.declared_extensions.push_back(move(ext));
+		ir.declared_extensions.push_back(std::move(ext));
 		break;
 	}
 
 	case OpExtInstImport:
 	{
 		uint32_t id = ops[0];
+
+		SPIRExtension::Extension spirv_ext = SPIRExtension::Unsupported;
+
 		auto ext = extract_string(ir.spirv, instruction.offset + 1);
 		if (ext == "GLSL.std.450")
-			set<SPIRExtension>(id, SPIRExtension::GLSL);
+			spirv_ext = SPIRExtension::GLSL;
 		else if (ext == "DebugInfo")
-			set<SPIRExtension>(id, SPIRExtension::SPV_debug_info);
+			spirv_ext = SPIRExtension::SPV_debug_info;
 		else if (ext == "SPV_AMD_shader_ballot")
-			set<SPIRExtension>(id, SPIRExtension::SPV_AMD_shader_ballot);
+			spirv_ext = SPIRExtension::SPV_AMD_shader_ballot;
 		else if (ext == "SPV_AMD_shader_explicit_vertex_parameter")
-			set<SPIRExtension>(id, SPIRExtension::SPV_AMD_shader_explicit_vertex_parameter);
+			spirv_ext = SPIRExtension::SPV_AMD_shader_explicit_vertex_parameter;
 		else if (ext == "SPV_AMD_shader_trinary_minmax")
-			set<SPIRExtension>(id, SPIRExtension::SPV_AMD_shader_trinary_minmax);
+			spirv_ext = SPIRExtension::SPV_AMD_shader_trinary_minmax;
 		else if (ext == "SPV_AMD_gcn_shader")
-			set<SPIRExtension>(id, SPIRExtension::SPV_AMD_gcn_shader);
-		else
-			set<SPIRExtension>(id, SPIRExtension::Unsupported);
+			spirv_ext = SPIRExtension::SPV_AMD_gcn_shader;
+		else if (ext == "NonSemantic.DebugPrintf")
+			spirv_ext = SPIRExtension::NonSemanticDebugPrintf;
+		else if (ext == "NonSemantic.Shader.DebugInfo.100")
+			spirv_ext = SPIRExtension::NonSemanticShaderDebugInfo;
+		else if (ext.find("NonSemantic.") == 0)
+			spirv_ext = SPIRExtension::NonSemanticGeneric;
 
+		set<SPIRExtension>(id, spirv_ext);
 		// Other SPIR-V extensions which have ExtInstrs are currently not supported.
 
 		break;
@@ -290,7 +308,15 @@ void Parser::parse(const Instruction &instruction)
 	{
 		// The SPIR-V debug information extended instructions might come at global scope.
 		if (current_block)
+		{
 			current_block->ops.push_back(instruction);
+			if (length >= 2)
+			{
+				const auto *type = maybe_get<SPIRType>(ops[0]);
+				if (type)
+					ir.load_type_width.insert({ ops[1], type->width });
+			}
+		}
 		break;
 	}
 
@@ -338,9 +364,29 @@ void Parser::parse(const Instruction &instruction)
 			execution.output_vertices = ops[2];
 			break;
 
+		case ExecutionModeOutputPrimitivesEXT:
+			execution.output_primitives = ops[2];
+			break;
+
 		default:
 			break;
 		}
+		break;
+	}
+
+	case OpExecutionModeId:
+	{
+		auto &execution = ir.entry_points[ops[0]];
+		auto mode = static_cast<ExecutionMode>(ops[1]);
+		execution.flags.set(mode);
+
+		if (mode == ExecutionModeLocalSizeId)
+		{
+			execution.workgroup_size.id_x = ops[2];
+			execution.workgroup_size.id_y = ops[3];
+			execution.workgroup_size.id_z = ops[4];
+		}
+
 		break;
 	}
 
@@ -993,7 +1039,16 @@ void Parser::parse(const Instruction &instruction)
 			}
 			else
 			{
-				ir.block_meta[current_block->next_block] &= ~ParsedIR::BLOCK_META_SELECTION_MERGE_BIT;
+				// Collapse loops if we have to.
+				bool collapsed_loop = current_block->true_block == current_block->merge_block &&
+				                      current_block->merge == SPIRBlock::MergeLoop;
+
+				if (collapsed_loop)
+				{
+					ir.block_meta[current_block->merge_block] &= ~ParsedIR::BLOCK_META_LOOP_MERGE_BIT;
+					ir.block_meta[current_block->continue_block] &= ~ParsedIR::BLOCK_META_CONTINUE_BIT;
+				}
+
 				current_block->next_block = current_block->true_block;
 				current_block->condition = 0;
 				current_block->true_block = 0;
@@ -1042,6 +1097,7 @@ void Parser::parse(const Instruction &instruction)
 	}
 
 	case OpKill:
+	case OpTerminateInvocation:
 	{
 		if (!current_block)
 			SPIRV_CROSS_THROW("Trying to end a non-existing block.");
@@ -1064,6 +1120,18 @@ void Parser::parse(const Instruction &instruction)
 			SPIRV_CROSS_THROW("Trying to end a non-existing block.");
 		current_block->terminator = SPIRBlock::IgnoreIntersection;
 		current_block = nullptr;
+		break;
+
+	case OpEmitMeshTasksEXT:
+		if (!current_block)
+			SPIRV_CROSS_THROW("Trying to end a non-existing block.");
+		current_block->terminator = SPIRBlock::EmitMeshTasks;
+		for (uint32_t i = 0; i < 3; i++)
+			current_block->mesh.groups[i] = ops[i];
+		current_block->mesh.payload = length >= 4 ? ops[3] : 0;
+		current_block = nullptr;
+		// Currently glslang is bugged and does not treat EmitMeshTasksEXT as a terminator.
+		ignore_trailing_block_opcodes = true;
 		break;
 
 	case OpReturn:
@@ -1194,10 +1262,9 @@ void Parser::parse(const Instruction &instruction)
 		{
 			const auto *type = maybe_get<SPIRType>(ops[0]);
 			if (type)
-			{
 				ir.load_type_width.insert({ ops[1], type->width });
-			}
 		}
+
 		if (!current_block)
 			SPIRV_CROSS_THROW("Currently no block to insert opcode.");
 

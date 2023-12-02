@@ -1,6 +1,6 @@
 /*
- * Copyright 2010-2021 Branimir Karadzic. All rights reserved.
- * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
+ * Copyright 2010-2023 Branimir Karadzic. All rights reserved.
+ * License: https://github.com/bkaradzic/bx/blob/master/LICENSE
  */
 
 #ifndef BX_H_HEADER_GUARD
@@ -58,6 +58,7 @@
 #endif // defined(__has_extension)
 
 #if BX_COMPILER_GCC || BX_COMPILER_CLANG
+#	define BX_ASSUME(_condition) BX_MACRO_BLOCK_BEGIN if (!(_condition) ) { __builtin_unreachable(); } BX_MACRO_BLOCK_END
 #	define BX_ALIGN_DECL(_align, _decl) _decl __attribute__( (aligned(_align) ) )
 #	define BX_ALLOW_UNUSED __attribute__( (unused) )
 #	define BX_FORCE_INLINE inline __attribute__( (__always_inline__) )
@@ -66,7 +67,8 @@
 #	define BX_UNLIKELY(_x) __builtin_expect(!!(_x), 0)
 #	define BX_NO_INLINE   __attribute__( (noinline) )
 #	define BX_NO_RETURN   __attribute__( (noreturn) )
-#	define BX_CONST_FUNC  __attribute__( (const) )
+#	define BX_CONST_FUNC  __attribute__( (pure) )
+#	define BX_UNREACHABLE __builtin_unreachable()
 
 #	if BX_COMPILER_GCC >= 70000
 #		define BX_FALLTHROUGH __attribute__( (fallthrough) )
@@ -89,6 +91,7 @@
 #		define __stdcall
 #	endif // BX_CRT_MSVC
 #elif BX_COMPILER_MSVC
+#	define BX_ASSUME(_condition) __assume(_condition)
 #	define BX_ALIGN_DECL(_align, _decl) __declspec(align(_align) ) _decl
 #	define BX_ALLOW_UNUSED
 #	define BX_FORCE_INLINE __forceinline
@@ -98,6 +101,7 @@
 #	define BX_NO_INLINE __declspec(noinline)
 #	define BX_NO_RETURN
 #	define BX_CONST_FUNC  __declspec(noalias)
+#	define BX_UNREACHABLE __assume(false)
 #	define BX_FALLTHROUGH BX_NOOP()
 #	define BX_NO_VTABLE __declspec(novtable)
 #	define BX_PRINTF_ARGS(_format, _args)
@@ -109,11 +113,7 @@
 
 /// The return value of the function is solely a function of the arguments.
 ///
-#if __cplusplus < 201402
-#	define BX_CONSTEXPR_FUNC BX_CONST_FUNC
-#else
-#	define BX_CONSTEXPR_FUNC constexpr BX_CONST_FUNC
-#endif // __cplusplus < 201402
+#define BX_CONSTEXPR_FUNC constexpr BX_CONST_FUNC
 
 ///
 #define BX_STATIC_ASSERT(_condition, ...) static_assert(_condition, "" __VA_ARGS__)
@@ -201,16 +201,24 @@
 #	define BX_PRAGMA_DIAGNOSTIC_IGNORED_CLANG_GCC(_x)
 #endif // BX_COMPILER_
 
-///
+/// No default constructor.
 #define BX_CLASS_NO_DEFAULT_CTOR(_class) \
-	private: _class()
+	_class() = delete
 
-#define BX_CLASS_NO_COPY(_class) \
-	private: _class(const _class& _rhs)
+/// No copy constructor.
+#define BX_CLASS_NO_COPY_CTOR(_class) \
+	_class(const _class& _rhs) = delete
 
-#define BX_CLASS_NO_ASSIGNMENT(_class) \
-	private: _class& operator=(const _class& _rhs)
+/// No copy assignment operator.
+#define BX_CLASS_NO_COPY_ASSIGNMENT(_class) \
+	_class& operator=(const _class& _rhs) = delete
 
+/// No copy construcor, and copy assignment operator.
+#define BX_CLASS_NO_COPY(_class)   \
+	BX_CLASS_NO_COPY_CTOR(_class); \
+	BX_CLASS_NO_COPY_ASSIGNMENT(_class)
+
+///
 #define BX_CLASS_ALLOCATOR(_class)              \
 	public: void* operator new(size_t _size);   \
 	public: void  operator delete(void* _ptr);  \
@@ -236,6 +244,14 @@
 #	endif // BX_CONFIG_DEBUG
 #endif // BX_ASSERT
 
+#ifndef BX_ASSERT_LOC
+#	if BX_CONFIG_DEBUG
+#		define BX_ASSERT_LOC _BX_ASSERT_LOC
+#	else
+#		define BX_ASSERT_LOC(...) BX_NOOP()
+#	endif // BX_CONFIG_DEBUG
+#endif // BX_ASSERT_LOC
+
 #ifndef BX_TRACE
 #	if BX_CONFIG_DEBUG
 #		define BX_TRACE _BX_TRACE
@@ -243,6 +259,14 @@
 #		define BX_TRACE(...) BX_NOOP()
 #	endif // BX_CONFIG_DEBUG
 #endif // BX_TRACE
+
+#ifndef BX_TRACE_LOC
+#	if BX_CONFIG_DEBUG
+#		define BX_TRACE_LOC _BX_TRACE_LOC
+#	else
+#		define BX_TRACE_LOC(...) BX_NOOP()
+#	endif // BX_CONFIG_DEBUG
+#endif // BX_TRACE_LOC
 
 #ifndef BX_WARN
 #	if BX_CONFIG_DEBUG
@@ -252,9 +276,22 @@
 #	endif // BX_CONFIG_DEBUG
 #endif // BX_ASSERT
 
+#ifndef BX_WARN_LOC
+#	if BX_CONFIG_DEBUG
+#		define BX_WARN_LOC _BX_WARN_LOC
+#	else
+#		define BX_WARN_LOC(...) BX_NOOP()
+#	endif // BX_CONFIG_DEBUG
+#endif // BX_WARN_LOC
+
 #define _BX_TRACE(_format, ...)                                                                    \
 	BX_MACRO_BLOCK_BEGIN                                                                           \
 		bx::debugPrintf(__FILE__ "(" BX_STRINGIZE(__LINE__) "): BX " _format "\n", ##__VA_ARGS__); \
+	BX_MACRO_BLOCK_END
+
+#define _BX_TRACE_LOC(_location, _format, ...)                                                          \
+	BX_MACRO_BLOCK_BEGIN                                                                                \
+		bx::debugPrintf("%s(%d): BX " _format "\n", _location.filePath, _location.line, ##__VA_ARGS__); \
 	BX_MACRO_BLOCK_END
 
 #define _BX_WARN(_condition, _format, ...)            \
@@ -272,6 +309,23 @@
 			BX_TRACE("ASSERT " _format, ##__VA_ARGS__); \
 			bx::debugBreak();                           \
 		}                                               \
+	BX_MACRO_BLOCK_END
+
+#define _BX_ASSERT_LOC(_location, _condition, _format, ...)             \
+	BX_MACRO_BLOCK_BEGIN                                                \
+		if (!BX_IGNORE_C4127(_condition) )                              \
+		{                                                               \
+			_BX_TRACE_LOC(_location, "ASSERT " _format, ##__VA_ARGS__); \
+			bx::debugBreak();                                           \
+		}                                                               \
+	BX_MACRO_BLOCK_END
+
+#define _BX_WARN_LOC(_location, _condition, _format, ...)             \
+	BX_MACRO_BLOCK_BEGIN                                              \
+		if (!BX_IGNORE_C4127(_condition) )                            \
+		{                                                             \
+			_BX_TRACE_LOC(_location, "WARN " _format, ##__VA_ARGS__); \
+		}                                                             \
 	BX_MACRO_BLOCK_END
 
 // static_assert sometimes causes unused-local-typedef...

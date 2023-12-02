@@ -89,9 +89,6 @@ struct Window
 	/// Sets the title of the window.
 	virtual void set_title(const char *title) = 0;
 
-	/// Returns the native window handle.
-	virtual void *handle() = 0;
-
 	/// Sets whether to @a show the cursor.
 	virtual void show_cursor(bool show) = 0;
 
@@ -106,7 +103,11 @@ struct Window
 	/// Sets the mouse cursor @a mode on this window
 	virtual void set_cursor_mode(CursorMode::Enum mode) = 0;
 
-	virtual void bgfx_setup() = 0;
+	/// Returns the native window handle or NULL if the platform does not support it.
+	virtual void *native_handle() = 0;
+
+	/// Returns the native display handle or NULL if the platform does not support it.
+	virtual void *native_display() = 0;
 };
 
 /// Functions to manipulate Window

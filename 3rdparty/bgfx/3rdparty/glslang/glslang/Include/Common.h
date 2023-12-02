@@ -45,6 +45,7 @@
 #else
 #include <cmath>
 #endif
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <list>
@@ -56,6 +57,7 @@
 #include <vector>
 
 #if defined(__ANDROID__) || (defined(_MSC_VER) && _MSC_VER < 1700)
+#include <sstream>
 
 namespace std {
 template<typename T>
@@ -67,7 +69,7 @@ std::string to_string(const T& val) {
 }
 #endif
 
-#if (defined(_MSC_VER) && _MSC_VER < 1900 /*vs2015*/) || MINGW_HAS_SECURE_API
+#if defined(MINGW_HAS_SECURE_API) && MINGW_HAS_SECURE_API
     #include <basetsd.h>
     #ifndef snprintf
     #define snprintf sprintf_s
@@ -81,22 +83,6 @@ std::string to_string(const T& val) {
     #define safe_vsprintf(buf,max,format,args) vsnprintf((buf), (max), (format), (args))
     #include <stdint.h>
     #define UINT_PTR uintptr_t
-#endif
-
-#if defined(_MSC_VER) && _MSC_VER < 1800
-    #include <stdlib.h>
-    inline long long int strtoll (const char* str, char** endptr, int base)
-    {
-        return _strtoi64(str, endptr, base);
-    }
-    inline unsigned long long int strtoull (const char* str, char** endptr, int base)
-    {
-        return _strtoui64(str, endptr, base);
-    }
-    inline long long int atoll (const char* str)
-    {
-        return strtoll(str, NULL, 10);
-    }
 #endif
 
 #if defined(_MSC_VER)
@@ -219,7 +205,7 @@ template <class T> T Max(const T a, const T b) { return a > b ? a : b; }
 //
 // Create a TString object from an integer.
 //
-#if defined _MSC_VER || MINGW_HAS_SECURE_API
+#if defined(_MSC_VER) || (defined(MINGW_HAS_SECURE_API) && MINGW_HAS_SECURE_API)
 inline const TString String(const int i, const int base = 10)
 {
     char text[16];     // 32 bit ints are at most 10 digits in base 10

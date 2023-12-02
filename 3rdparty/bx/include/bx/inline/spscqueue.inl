@@ -1,6 +1,6 @@
 /*
- * Copyright 2010-2021 Branimir Karadzic. All rights reserved.
- * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
+ * Copyright 2010-2023 Branimir Karadzic. All rights reserved.
+ * License: https://github.com/bkaradzic/bx/blob/master/LICENSE
  */
 
 #ifndef BX_SPSCQUEUE_H_HEADER_GUARD
@@ -27,7 +27,7 @@ namespace bx
 		{
 			Node* node = m_first;
 			m_first = node->m_next;
-			BX_DELETE(m_allocator, node);
+			bx::deleteObject(m_allocator, node);
 		}
 	}
 
@@ -39,7 +39,7 @@ namespace bx
 		{
 			Node* node = m_first;
 			m_first = m_first->m_next;
-			BX_DELETE(m_allocator, node);
+			bx::deleteObject(m_allocator, node);
 		}
 	}
 

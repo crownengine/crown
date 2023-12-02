@@ -36,7 +36,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(GLSLANG_WEB) && !defined(GLSLANG_ANGLE)
+#if !defined(GLSLANG_WEB)
 
 #include "localintermediate.h"
 #include "../Include/InfoSink.h"
@@ -663,7 +663,11 @@ bool TOutputTraverser::visitUnary(TVisit /* visit */, TIntermUnary* node)
     case EOpSubpassLoad:   out.debug << "subpassLoad";   break;
     case EOpSubpassLoadMS: out.debug << "subpassLoadMS"; break;
 
+    case EOpColorAttachmentReadEXT:   out.debug << "colorAttachmentReadEXT";   break;
+
     case EOpConstructReference: out.debug << "Construct reference type"; break;
+
+    case EOpDeclare: out.debug << "Declare"; break;
 
 #ifndef GLSLANG_WEB
     case EOpSpirvInst: out.debug << "spirv_instruction"; break;
@@ -692,6 +696,7 @@ bool TOutputTraverser::visitAggregate(TVisit /* visit */, TIntermAggregate* node
 
     switch (node->getOp()) {
     case EOpSequence:      out.debug << "Sequence\n";       return true;
+    case EOpScope:         out.debug << "Scope\n";       return true;
     case EOpLinkerObjects: out.debug << "Linker Objects\n"; return true;
     case EOpComma:         out.debug << "Comma";            break;
     case EOpFunction:      out.debug << "Function Definition: " << node->getName(); break;
@@ -1057,6 +1062,8 @@ bool TOutputTraverser::visitAggregate(TVisit /* visit */, TIntermAggregate* node
     case EOpSubpassLoad:   out.debug << "subpassLoad";   break;
     case EOpSubpassLoadMS: out.debug << "subpassLoadMS"; break;
 
+    case EOpColorAttachmentReadEXT:   out.debug << "colorAttachmentReadEXT";   break;
+
     case EOpTraceNV:                          out.debug << "traceNV"; break;
     case EOpTraceRayMotionNV:                 out.debug << "traceRayMotionNV"; break;
     case EOpTraceKHR:                         out.debug << "traceRayKHR"; break;
@@ -1068,6 +1075,8 @@ bool TOutputTraverser::visitAggregate(TVisit /* visit */, TIntermAggregate* node
     case EOpExecuteCallableNV:                out.debug << "executeCallableNV"; break;
     case EOpExecuteCallableKHR:               out.debug << "executeCallableKHR"; break;
     case EOpWritePackedPrimitiveIndices4x8NV: out.debug << "writePackedPrimitiveIndices4x8NV"; break;
+    case EOpEmitMeshTasksEXT:                 out.debug << "EmitMeshTasksEXT"; break;
+    case EOpSetMeshOutputsEXT:                out.debug << "SetMeshOutputsEXT"; break;
 
     case EOpRayQueryInitialize:                                            out.debug << "rayQueryInitializeEXT"; break;
     case EOpRayQueryTerminate:                                             out.debug << "rayQueryTerminateEXT"; break;
@@ -1092,6 +1101,7 @@ bool TOutputTraverser::visitAggregate(TVisit /* visit */, TIntermAggregate* node
     case EOpRayQueryGetWorldRayOrigin:                                     out.debug << "rayQueryGetWorldRayOriginEXT"; break;
     case EOpRayQueryGetIntersectionObjectToWorld:                          out.debug << "rayQueryGetIntersectionObjectToWorldEXT"; break;
     case EOpRayQueryGetIntersectionWorldToObject:                          out.debug << "rayQueryGetIntersectionWorldToObjectEXT"; break;
+    case EOpRayQueryGetIntersectionTriangleVertexPositionsEXT:             out.debug << "rayQueryGetIntersectionTriangleVertexPositionsEXT"; break;
 
     case EOpCooperativeMatrixLoad:  out.debug << "Load cooperative matrix";  break;
     case EOpCooperativeMatrixStore:  out.debug << "Store cooperative matrix";  break;
@@ -1100,14 +1110,48 @@ bool TOutputTraverser::visitAggregate(TVisit /* visit */, TIntermAggregate* node
     case EOpIsHelperInvocation: out.debug << "IsHelperInvocation"; break;
     case EOpDebugPrintf:  out.debug << "Debug printf";  break;
 
+    case EOpHitObjectTraceRayNV: out.debug << "HitObjectTraceRayNV"; break;
+    case EOpHitObjectTraceRayMotionNV: out.debug << "HitObjectTraceRayMotionNV"; break;
+    case EOpHitObjectRecordHitNV: out.debug << "HitObjectRecordHitNV"; break;
+    case EOpHitObjectRecordHitMotionNV: out.debug << "HitObjectRecordHitMotionNV"; break;
+    case EOpHitObjectRecordHitWithIndexNV: out.debug << "HitObjectRecordHitWithIndexNV"; break;
+    case EOpHitObjectRecordHitWithIndexMotionNV: out.debug << "HitObjectRecordHitWithIndexMotionNV"; break;
+    case EOpHitObjectRecordMissNV: out.debug << "HitObjectRecordMissNV"; break;
+    case EOpHitObjectRecordMissMotionNV: out.debug << "HitObjectRecordMissMotionNV"; break;
+    case EOpHitObjectRecordEmptyNV: out.debug << "HitObjectRecordEmptyNV"; break;
+    case EOpHitObjectExecuteShaderNV: out.debug << "HitObjectExecuteShaderNV"; break;
+    case EOpHitObjectIsEmptyNV: out.debug << "HitObjectIsEmptyNV"; break;
+    case EOpHitObjectIsMissNV: out.debug << "HitObjectIsMissNV"; break;
+    case EOpHitObjectIsHitNV:  out.debug << "HitObjectIsHitNV"; break;
+    case EOpHitObjectGetRayTMinNV: out.debug << "HitObjectGetRayTMinNV"; break;
+    case EOpHitObjectGetRayTMaxNV: out.debug << "HitObjectGetRayTMaxNV"; break;
+    case EOpHitObjectGetObjectRayOriginNV: out.debug << "HitObjectGetObjectRayOriginNV"; break;
+    case EOpHitObjectGetObjectRayDirectionNV: out.debug << "HitObjectGetObjectRayDirectionNV"; break;
+    case EOpHitObjectGetWorldRayOriginNV: out.debug << "HitObjectGetWorldRayOriginNV"; break;
+    case EOpHitObjectGetWorldRayDirectionNV: out.debug << "HitObjectGetWorldRayDirectionNV"; break;
+    case EOpHitObjectGetObjectToWorldNV: out.debug << "HitObjectGetObjectToWorldNV"; break;
+    case EOpHitObjectGetWorldToObjectNV: out.debug << "HitObjectGetWorldToObjectNV"; break;
+    case EOpHitObjectGetInstanceCustomIndexNV: out.debug<< "HitObjectGetInstanceCustomIndexNV"; break;
+    case EOpHitObjectGetInstanceIdNV: out.debug << "HitObjectGetInstaneIdNV"; break;
+    case EOpHitObjectGetGeometryIndexNV: out.debug << "HitObjectGetGeometryIndexNV"; break;
+    case EOpHitObjectGetPrimitiveIndexNV: out.debug << "HitObjectGetPrimitiveIndexNV"; break;
+    case EOpHitObjectGetHitKindNV: out.debug << "HitObjectGetHitKindNV"; break;
+    case EOpHitObjectGetAttributesNV: out.debug << "HitObjectGetAttributesNV"; break;
+    case EOpHitObjectGetCurrentTimeNV: out.debug << "HitObjectGetCurrentTimeNV"; break;
+    case EOpHitObjectGetShaderBindingTableRecordIndexNV: out.debug << "HitObjectGetShaderBindingTableRecordIndexNV"; break;
+    case EOpHitObjectGetShaderRecordBufferHandleNV: out.debug << "HitObjectReadShaderRecordBufferHandleNV"; break;
+    case EOpReorderThreadNV: out.debug << "ReorderThreadNV"; break;
+
 #ifndef GLSLANG_WEB
     case EOpSpirvInst: out.debug << "spirv_instruction"; break;
 #endif
+    case EOpStencilAttachmentReadEXT: out.debug << "stencilAttachmentReadEXT"; break;
+    case EOpDepthAttachmentReadEXT: out.debug << "depthAttachmentReadEXT"; break;
 
     default: out.debug.message(EPrefixError, "Bad aggregation op");
     }
 
-    if (node->getOp() != EOpSequence && node->getOp() != EOpParameters)
+    if (node->getOp() != EOpSequence && node->getOp() != EOpScope && node->getOp() != EOpParameters)
         out.debug << " (" << node->getCompleteString() << ")";
 
     out.debug << "\n";
@@ -1507,6 +1551,12 @@ void TIntermediate::output(TInfoSink& infoSink, bool tree)
             infoSink.debug << "using early_fragment_tests\n";
         if (postDepthCoverage)
             infoSink.debug << "using post_depth_coverage\n";
+        if (nonCoherentColorAttachmentReadEXT)
+            infoSink.debug << "using non_coherent_color_attachment_readEXT\n";
+        if (nonCoherentDepthAttachmentReadEXT)
+            infoSink.debug << "using non_coherent_depth_attachment_readEXT\n";
+        if (nonCoherentStencilAttachmentReadEXT)
+            infoSink.debug << "using non_coherent_stencil_attachment_readEXT\n";
         if (depthLayout != EldNone)
             infoSink.debug << "using " << TQualifier::getLayoutDepthString(depthLayout) << "\n";
         if (blendEquations != 0) {
@@ -1522,12 +1572,12 @@ void TIntermediate::output(TInfoSink& infoSink, bool tree)
             infoSink.debug << "interlock ordering = " << TQualifier::getInterlockOrderingString(interlockOrdering) << "\n";
         break;
 
-    case EShLangMeshNV:
+    case EShLangMesh:
         infoSink.debug << "max_vertices = " << vertices << "\n";
         infoSink.debug << "max_primitives = " << primitives << "\n";
         infoSink.debug << "output primitive = " << TQualifier::getGeometryString(outputPrimitive) << "\n";
         // Fall through
-    case EShLangTaskNV:
+    case EShLangTask:
         // Fall through
     case EShLangCompute:
         infoSink.debug << "local_size = (" << localSize[0] << ", " << localSize[1] << ", " << localSize[2] << ")\n";
@@ -1547,7 +1597,7 @@ void TIntermediate::output(TInfoSink& infoSink, bool tree)
         break;
     }
 
-    if (treeRoot == 0 || ! tree)
+    if (treeRoot == nullptr || ! tree)
         return;
 
     TOutputTraverser it(infoSink);
@@ -1558,4 +1608,4 @@ void TIntermediate::output(TInfoSink& infoSink, bool tree)
 
 } // end namespace glslang
 
-#endif // !GLSLANG_WEB && !GLSLANG_ANGLE
+#endif // !GLSLANG_WEB

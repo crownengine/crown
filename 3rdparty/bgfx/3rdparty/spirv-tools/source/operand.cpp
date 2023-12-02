@@ -72,12 +72,16 @@ spv_result_t spvOperandTableNameLookup(spv_target_env env,
       // Note that the second rule assumes the extension enabling this operand
       // is indeed requested in the SPIR-V code; checking that should be
       // validator's work.
-      if (((version >= entry.minVersion && version <= entry.lastVersion) ||
-           entry.numExtensions > 0u || entry.numCapabilities > 0u) &&
-          nameLength == strlen(entry.name) &&
+      if (nameLength == strlen(entry.name) &&
           !strncmp(entry.name, name, nameLength)) {
-        *pEntry = &entry;
-        return SPV_SUCCESS;
+        if ((version >= entry.minVersion && version <= entry.lastVersion) ||
+            entry.numExtensions > 0u || entry.numCapabilities > 0u) {
+          *pEntry = &entry;
+          return SPV_SUCCESS;
+        } else {
+          // if there is no extension/capability then the version is wrong
+          return SPV_ERROR_WRONG_VERSION;
+        }
       }
     }
   }
@@ -232,6 +236,13 @@ const char* spvOperandTypeStr(spv_operand_type_t type) {
     case SPV_OPERAND_TYPE_PACKED_VECTOR_FORMAT:
     case SPV_OPERAND_TYPE_OPTIONAL_PACKED_VECTOR_FORMAT:
       return "packed vector format";
+    case SPV_OPERAND_TYPE_COOPERATIVE_MATRIX_OPERANDS:
+    case SPV_OPERAND_TYPE_OPTIONAL_COOPERATIVE_MATRIX_OPERANDS:
+      return "cooperative matrix operands";
+    case SPV_OPERAND_TYPE_COOPERATIVE_MATRIX_LAYOUT:
+      return "cooperative matrix layout";
+    case SPV_OPERAND_TYPE_COOPERATIVE_MATRIX_USE:
+      return "cooperative matrix use";
     case SPV_OPERAND_TYPE_IMAGE:
     case SPV_OPERAND_TYPE_OPTIONAL_IMAGE:
       return "image";
@@ -365,6 +376,8 @@ bool spvOperandIsConcrete(spv_operand_type_t type) {
     case SPV_OPERAND_TYPE_QUANTIZATION_MODES:
     case SPV_OPERAND_TYPE_OVERFLOW_MODES:
     case SPV_OPERAND_TYPE_PACKED_VECTOR_FORMAT:
+    case SPV_OPERAND_TYPE_COOPERATIVE_MATRIX_LAYOUT:
+    case SPV_OPERAND_TYPE_COOPERATIVE_MATRIX_USE:
       return true;
     default:
       break;
@@ -383,6 +396,7 @@ bool spvOperandIsConcreteMask(spv_operand_type_t type) {
     case SPV_OPERAND_TYPE_FRAGMENT_SHADING_RATE:
     case SPV_OPERAND_TYPE_DEBUG_INFO_FLAGS:
     case SPV_OPERAND_TYPE_CLDEBUG100_DEBUG_INFO_FLAGS:
+    case SPV_OPERAND_TYPE_COOPERATIVE_MATRIX_OPERANDS:
       return true;
     default:
       break;
@@ -401,6 +415,7 @@ bool spvOperandIsOptional(spv_operand_type_t type) {
     case SPV_OPERAND_TYPE_OPTIONAL_LITERAL_STRING:
     case SPV_OPERAND_TYPE_OPTIONAL_ACCESS_QUALIFIER:
     case SPV_OPERAND_TYPE_OPTIONAL_PACKED_VECTOR_FORMAT:
+    case SPV_OPERAND_TYPE_OPTIONAL_COOPERATIVE_MATRIX_OPERANDS:
     case SPV_OPERAND_TYPE_OPTIONAL_CIV:
       return true;
     default:
@@ -508,7 +523,7 @@ bool spvIsInIdType(spv_operand_type_t type) {
 }
 
 std::function<bool(unsigned)> spvOperandCanBeForwardDeclaredFunction(
-    SpvOp opcode) {
+    spv::Op opcode) {
   std::function<bool(unsigned index)> out;
   if (spvOpcodeGeneratesType(opcode)) {
     // All types can use forward pointers.
@@ -516,57 +531,57 @@ std::function<bool(unsigned)> spvOperandCanBeForwardDeclaredFunction(
     return out;
   }
   switch (opcode) {
-    case SpvOpExecutionMode:
-    case SpvOpExecutionModeId:
-    case SpvOpEntryPoint:
-    case SpvOpName:
-    case SpvOpMemberName:
-    case SpvOpSelectionMerge:
-    case SpvOpDecorate:
-    case SpvOpMemberDecorate:
-    case SpvOpDecorateId:
-    case SpvOpDecorateStringGOOGLE:
-    case SpvOpMemberDecorateStringGOOGLE:
-    case SpvOpBranch:
-    case SpvOpLoopMerge:
+    case spv::Op::OpExecutionMode:
+    case spv::Op::OpExecutionModeId:
+    case spv::Op::OpEntryPoint:
+    case spv::Op::OpName:
+    case spv::Op::OpMemberName:
+    case spv::Op::OpSelectionMerge:
+    case spv::Op::OpDecorate:
+    case spv::Op::OpMemberDecorate:
+    case spv::Op::OpDecorateId:
+    case spv::Op::OpDecorateStringGOOGLE:
+    case spv::Op::OpMemberDecorateStringGOOGLE:
+    case spv::Op::OpBranch:
+    case spv::Op::OpLoopMerge:
       out = [](unsigned) { return true; };
       break;
-    case SpvOpGroupDecorate:
-    case SpvOpGroupMemberDecorate:
-    case SpvOpBranchConditional:
-    case SpvOpSwitch:
+    case spv::Op::OpGroupDecorate:
+    case spv::Op::OpGroupMemberDecorate:
+    case spv::Op::OpBranchConditional:
+    case spv::Op::OpSwitch:
       out = [](unsigned index) { return index != 0; };
       break;
 
-    case SpvOpFunctionCall:
+    case spv::Op::OpFunctionCall:
       // The Function parameter.
       out = [](unsigned index) { return index == 2; };
       break;
 
-    case SpvOpPhi:
+    case spv::Op::OpPhi:
       out = [](unsigned index) { return index > 1; };
       break;
 
-    case SpvOpEnqueueKernel:
+    case spv::Op::OpEnqueueKernel:
       // The Invoke parameter.
       out = [](unsigned index) { return index == 8; };
       break;
 
-    case SpvOpGetKernelNDrangeSubGroupCount:
-    case SpvOpGetKernelNDrangeMaxSubGroupSize:
+    case spv::Op::OpGetKernelNDrangeSubGroupCount:
+    case spv::Op::OpGetKernelNDrangeMaxSubGroupSize:
       // The Invoke parameter.
       out = [](unsigned index) { return index == 3; };
       break;
 
-    case SpvOpGetKernelWorkGroupSize:
-    case SpvOpGetKernelPreferredWorkGroupSizeMultiple:
+    case spv::Op::OpGetKernelWorkGroupSize:
+    case spv::Op::OpGetKernelPreferredWorkGroupSizeMultiple:
       // The Invoke parameter.
       out = [](unsigned index) { return index == 2; };
       break;
-    case SpvOpTypeForwardPointer:
+    case spv::Op::OpTypeForwardPointer:
       out = [](unsigned index) { return index == 0; };
       break;
-    case SpvOpTypeArray:
+    case spv::Op::OpTypeArray:
       out = [](unsigned index) { return index == 1; };
       break;
     default:

@@ -1,6 +1,6 @@
 --
--- Copyright 2010-2021 Branimir Karadzic. All rights reserved.
--- License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
+-- Copyright 2010-2023 Branimir Karadzic. All rights reserved.
+-- License: https://github.com/bkaradzic/bgfx/blob/master/LICENSE
 --
 
 function filesexist(_srcPath, _dstPath, _files)
@@ -107,9 +107,16 @@ function bgfxProjectBase(_kind, _defines)
 		}
 	end
 
+	configuration { "linux-*" }
+		includedirs {
+			path.join(BGFX_DIR, "3rdparty/directx-headers/include/directx"),
+			path.join(BGFX_DIR, "3rdparty/directx-headers/include"),
+			path.join(BGFX_DIR, "3rdparty/directx-headers/include/wsl/stubs"),
+		}
+
 	configuration { "vs* or mingw*", "not durango" }
 		includedirs {
-			path.join(BGFX_DIR, "3rdparty/dxsdk/include"),
+			path.join(BGFX_DIR, "3rdparty/directx-headers/include/directx"),
 		}
 
 	configuration { "android*" }
@@ -237,7 +244,6 @@ function bgfxProjectBase(_kind, _defines)
 			}
 
 			excludes {
-				path.join(BGFX_DIR, "src/glcontext_**.mm"),
 				path.join(BGFX_DIR, "src/renderer_**.mm"),
 				path.join(BGFX_DIR, "src/amalgamated.cpp"),
 			}
@@ -252,7 +258,6 @@ function bgfxProjectBase(_kind, _defines)
 	else
 		configuration { "xcode* or osx* or ios*" }
 			files {
-				path.join(BGFX_DIR, "src/glcontext_**.mm"),
 				path.join(BGFX_DIR, "src/renderer_**.mm"),
 			}
 

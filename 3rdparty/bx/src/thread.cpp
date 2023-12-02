@@ -1,6 +1,6 @@
 /*
- * Copyright 2010-2021 Branimir Karadzic. All rights reserved.
- * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
+ * Copyright 2010-2023 Branimir Karadzic. All rights reserved.
+ * License: https://github.com/bkaradzic/bx/blob/master/LICENSE
  */
 
 #include <bx/os.h>
@@ -21,12 +21,12 @@
 	|| BX_PLATFORM_IOS     \
 	|| BX_PLATFORM_OSX     \
 	|| BX_PLATFORM_PS4     \
-	|| BX_PLATFORM_RPI	   \
+	|| BX_PLATFORM_RPI     \
 	|| BX_PLATFORM_NX
 #	include <pthread.h>
-#	if defined(__FreeBSD__)
+#	if BX_PLATFORM_BSD
 #		include <pthread_np.h>
-#	endif
+#	endif // BX_PLATFORM_BSD
 #	if BX_PLATFORM_LINUX && (BX_CRT_GLIBC < 21200)
 #		include <sys/prctl.h>
 #	endif // BX_PLATFORM_
@@ -109,7 +109,7 @@ namespace bx
 
 		ThreadInternal* ti = (ThreadInternal*)m_internal;
 #if BX_CRT_NONE
-		ti->m_handle = INT32_MIN;
+		ti->m_handle = -1;
 #elif  BX_PLATFORM_WINDOWS \
 	|| BX_PLATFORM_WINRT   \
 	|| BX_PLATFORM_XBOXONE
@@ -140,7 +140,7 @@ namespace bx
 #if BX_CRT_NONE
 		ti->m_handle = crt0::threadCreate(&ti->threadFunc, _userData, m_stackSize, _name);
 
-		if (NULL == ti->m_handle)
+		if (-1 == ti->m_handle)
 		{
 			return false;
 		}

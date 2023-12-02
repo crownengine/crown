@@ -1,6 +1,6 @@
 /*
- * Copyright 2011-2021 Branimir Karadzic. All rights reserved.
- * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
+ * Copyright 2011-2023 Branimir Karadzic. All rights reserved.
+ * License: https://github.com/bkaradzic/bgfx/blob/master/LICENSE
  */
 
 #include "bgfx_p.h"
@@ -31,7 +31,7 @@ namespace bgfx { namespace gl
 		SwapChainGL(int _context, const char* _canvas)
 			: m_context(_context)
 		{
-			m_canvas = (char*)BX_ALLOC(g_allocator, strlen(_canvas) + 1);
+			m_canvas = (char*)bx::alloc(g_allocator, strlen(_canvas) + 1);
 			strcpy(m_canvas, _canvas);
 
 			makeCurrent();
@@ -45,7 +45,7 @@ namespace bgfx { namespace gl
 		~SwapChainGL()
 		{
 			EMSCRIPTEN_CHECK(emscripten_webgl_destroy_context(m_context) );
-			BX_FREE(g_allocator, m_canvas);
+			bx::free(g_allocator, m_canvas);
 		}
 
 		void makeCurrent()
@@ -63,7 +63,7 @@ namespace bgfx { namespace gl
 		char* m_canvas;
 	};
 
-	void GlContext::create(uint32_t _width, uint32_t _height)
+	void GlContext::create(uint32_t _width, uint32_t _height, uint32_t /*_flags*/)
 	{
 		// assert?
 		if (m_primary != NULL)
@@ -107,7 +107,7 @@ namespace bgfx { namespace gl
 				m_current = NULL;
 			}
 
-			BX_DELETE(g_allocator, m_primary);
+			bx::deleteObject(g_allocator, m_primary);
 			m_primary = NULL;
 		}
 	}
@@ -137,7 +137,7 @@ namespace bgfx { namespace gl
 
 		s_attrs.minorVersion = 0;
 		const char* canvas = (const char*) _nwh;
-		int error = 0;
+		int32_t error = 0;
 
 		for (int version = 2; version >= 1; --version)
 		{
@@ -154,10 +154,13 @@ namespace bgfx { namespace gl
 
 				return swapChain;
 			}
-			error = (int) context;
+
+			error = (int32_t)context;
 		}
 
 		BX_TRACE("Failed to create WebGL context. (Canvas handle: '%s', last attempt error %d)", canvas, error);
+		BX_UNUSED(error);
+
 		return NULL;
 	}
 
@@ -168,7 +171,7 @@ namespace bgfx { namespace gl
 
 	void GlContext::destroySwapChain(SwapChainGL* _swapChain)
 	{
-		BX_DELETE(g_allocator, _swapChain);
+		bx::deleteObject(g_allocator, _swapChain);
 	}
 
 	void GlContext::swap(SwapChainGL* /* _swapChain */)

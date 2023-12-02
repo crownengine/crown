@@ -1,6 +1,6 @@
 /*
- * Copyright 2010-2021 Branimir Karadzic. All rights reserved.
- * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
+ * Copyright 2010-2023 Branimir Karadzic. All rights reserved.
+ * License: https://github.com/bkaradzic/bx/blob/master/LICENSE
  */
 
 #ifndef BX_SIMD_T_H_HEADER_GUARD
@@ -588,7 +588,11 @@ BX_SIMD128_IMPLEMENT_TEST(xyzw , 0xf)
 	template<>
 	BX_SIMD_INLINE simd128_sse_t simd_rsqrt_nr(simd128_sse_t _a)
 	{
+#if BX_COMPILER_MSVC
+		return simd_rsqrt_ni(_a);
+#else
 		return simd_rsqrt_nr_ni(_a);
+#endif // BX_COMPILER_MSVC
 	}
 
 	template<>

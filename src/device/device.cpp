@@ -481,7 +481,6 @@ void Device::run()
 		);
 	_window->set_title(_boot_config.window_title.c_str());
 	_window->set_fullscreen(_boot_config.fullscreen);
-	_window->bgfx_setup();
 
 	_bgfx_allocator = CE_NEW(_allocator, BgfxAllocator)(default_allocator());
 	_bgfx_callback  = CE_NEW(_allocator, BgfxCallback)();
@@ -492,6 +491,8 @@ void Device::run()
 	init.resolution.reset  = _boot_config.vsync ? BGFX_RESET_VSYNC : BGFX_RESET_NONE;
 	init.callback  = _bgfx_callback;
 	init.allocator = _bgfx_allocator;
+	init.platformData.ndt = _window->native_display();
+	init.platformData.nwh = _window->native_handle();
 	init.vendorId = BGFX_PCI_ID_NONE;
 #if CROWN_PLATFORM_ANDROID || CROWN_PLATFORM_EMSCRIPTEN
 	init.type = bgfx::RendererType::OpenGLES;

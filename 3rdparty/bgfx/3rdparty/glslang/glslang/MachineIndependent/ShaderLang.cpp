@@ -298,9 +298,6 @@ void InitializeStageSymbolTable(TBuiltInParseables& builtInParseables, int versi
 #ifdef GLSLANG_WEB
     profile = EEsProfile;
     version = 310;
-#elif defined(GLSLANG_ANGLE)
-    profile = ECoreProfile;
-    version = 450;
 #endif
 
     (*symbolTables[language]).adoptLevels(*commonTable[CommonIndex(profile, language)]);
@@ -322,9 +319,6 @@ bool InitializeSymbolTables(TInfoSink& infoSink, TSymbolTable** commonTable,  TS
 #ifdef GLSLANG_WEB
     profile = EEsProfile;
     version = 310;
-#elif defined(GLSLANG_ANGLE)
-    profile = ECoreProfile;
-    version = 450;
 #endif
 
     std::unique_ptr<TBuiltInParseables> builtInParseables(CreateBuiltInParseables(infoSink, source));
@@ -371,7 +365,6 @@ bool InitializeSymbolTables(TInfoSink& infoSink, TSymbolTable** commonTable,  TS
         InitializeStageSymbolTable(*builtInParseables, version, profile, spvVersion, EShLangCompute, source,
                                    infoSink, commonTable, symbolTables);
 
-#ifndef GLSLANG_ANGLE
     // check for ray tracing stages
     if (profile != EEsProfile && version >= 450) {
         InitializeStageSymbolTable(*builtInParseables, version, profile, spvVersion, EShLangRayGen, source,
@@ -391,15 +384,14 @@ bool InitializeSymbolTables(TInfoSink& infoSink, TSymbolTable** commonTable,  TS
     // check for mesh
     if ((profile != EEsProfile && version >= 450) ||
         (profile == EEsProfile && version >= 320))
-        InitializeStageSymbolTable(*builtInParseables, version, profile, spvVersion, EShLangMeshNV, source,
+        InitializeStageSymbolTable(*builtInParseables, version, profile, spvVersion, EShLangMesh, source,
                                    infoSink, commonTable, symbolTables);
 
     // check for task
     if ((profile != EEsProfile && version >= 450) ||
         (profile == EEsProfile && version >= 320))
-        InitializeStageSymbolTable(*builtInParseables, version, profile, spvVersion, EShLangTaskNV, source,
+        InitializeStageSymbolTable(*builtInParseables, version, profile, spvVersion, EShLangTask, source,
                                    infoSink, commonTable, symbolTables);
-#endif // !GLSLANG_ANGLE
 #endif // !GLSLANG_WEB
 
     return true;
@@ -502,7 +494,7 @@ void SetupBuiltinSymbolTable(int version, EProfile profile, const SpvVersion& sp
 // Function to Print all builtins
 void DumpBuiltinSymbolTable(TInfoSink& infoSink, const TSymbolTable& symbolTable)
 {
-#if !defined(GLSLANG_WEB) && !defined(GLSLANG_ANGLE)
+#if !defined(GLSLANG_WEB)
     infoSink.debug << "BuiltinSymbolTable {\n";
 
     symbolTable.dump(infoSink, true);
@@ -606,7 +598,7 @@ bool DeduceVersionProfile(TInfoSink& infoSink, EShLanguage stage, bool versionNo
         break;
     }
 
-#if !defined(GLSLANG_WEB) && !defined(GLSLANG_ANGLE)
+#if !defined(GLSLANG_WEB)
     // Correct for stage type...
     switch (stage) {
     case EShLangGeometry:
@@ -650,8 +642,8 @@ bool DeduceVersionProfile(TInfoSink& infoSink, EShLanguage stage, bool versionNo
             version = 460;
         }
         break;
-    case EShLangMeshNV:
-    case EShLangTaskNV:
+    case EShLangMesh:
+    case EShLangTask:
         if ((profile == EEsProfile && version < 320) ||
             (profile != EEsProfile && version < 450)) {
             correct = false;
@@ -813,6 +805,7 @@ bool ProcessDeferred(
     // set version/profile to defaultVersion/defaultProfile regardless of the #version
     // directive in the source code
     bool forceDefaultVersionAndProfile,
+    int overrideVersion, // overrides version specified by #verison or default version
     bool forwardCompatible,     // give errors for use of deprecated features
     EShMessages messages,       // warnings/errors/AST; things to print out
     TIntermediate& intermediate, // returned tree, etc.
@@ -883,7 +876,7 @@ bool ProcessDeferred(
                                 : userInput.scanVersion(version, profile, versionNotFirstToken);
     bool versionNotFound = version == 0;
     if (forceDefaultVersionAndProfile && source == EShSourceGlsl) {
-#if !defined(GLSLANG_WEB) && !defined(GLSLANG_ANGLE)
+#if !defined(GLSLANG_WEB)
         if (! (messages & EShMsgSuppressWarnings) && ! versionNotFound &&
             (version != defaultVersion || profile != defaultProfile)) {
             compiler->infoSink.info << "Warning, (version, profile) forced to be ("
@@ -900,19 +893,19 @@ bool ProcessDeferred(
         version = defaultVersion;
         profile = defaultProfile;
     }
+    if (source == EShSourceGlsl && overrideVersion != 0) {
+        version = overrideVersion;
+    }
 
     bool goodVersion = DeduceVersionProfile(compiler->infoSink, stage,
                                             versionNotFirst, defaultVersion, source, version, profile, spvVersion);
 #ifdef GLSLANG_WEB
     profile = EEsProfile;
     version = 310;
-#elif defined(GLSLANG_ANGLE)
-    profile = ECoreProfile;
-    version = 450;
 #endif
 
     bool versionWillBeError = (versionNotFound || (profile == EEsProfile && version >= 300 && versionNotFirst));
-#if !defined(GLSLANG_WEB) && !defined(GLSLANG_ANGLE)
+#if !defined(GLSLANG_WEB)
     bool warnVersionNotFirst = false;
     if (! versionWillBeError && versionNotFirstToken) {
         if (messages & EShMsgRelaxedErrors)
@@ -985,7 +978,7 @@ bool ProcessDeferred(
     parseContext->setLimits(*resources);
     if (! goodVersion)
         parseContext->addError();
-#if !defined(GLSLANG_WEB) && !defined(GLSLANG_ANGLE)
+#if !defined(GLSLANG_WEB)
     if (warnVersionNotFirst) {
         TSourceLoc loc;
         loc.init();
@@ -1023,7 +1016,7 @@ bool ProcessDeferred(
     return success;
 }
 
-#if !defined(GLSLANG_WEB) && !defined(GLSLANG_ANGLE)
+#if !defined(GLSLANG_WEB)
 
 // Responsible for keeping track of the most recent source string and line in
 // the preprocessor and outputting newlines appropriately if the source string
@@ -1246,16 +1239,14 @@ struct DoFullParse{
             parseContext.infoSink.info << parseContext.getNumErrors() << " compilation errors.  No code generated.\n\n";
         }
 
-#ifndef GLSLANG_ANGLE
         if (messages & EShMsgAST)
             intermediate.output(parseContext.infoSink, true);
-#endif
 
         return success;
     }
 };
 
-#if !defined(GLSLANG_WEB) && !defined(GLSLANG_ANGLE)
+#if !defined(GLSLANG_WEB)
 // Take a single compilation unit, and run the preprocessor on it.
 // Return: True if there were no issues found in preprocessing,
 //         False if during preprocessing any unknown version, pragmas or
@@ -1275,6 +1266,7 @@ bool PreprocessDeferred(
     int defaultVersion,         // use 100 for ES environment, 110 for desktop
     EProfile defaultProfile,
     bool forceDefaultVersionAndProfile,
+    int overrideVersion,        // use 0 if not overriding GLSL version
     bool forwardCompatible,     // give errors for use of deprecated features
     EShMessages messages,       // warnings/errors/AST; things to print out
     TShader::Includer& includer,
@@ -1285,7 +1277,7 @@ bool PreprocessDeferred(
     DoPreprocessing parser(outputString);
     return ProcessDeferred(compiler, shaderStrings, numStrings, inputLengths, stringNames,
                            preamble, optLevel, resources, defaultVersion,
-                           defaultProfile, forceDefaultVersionAndProfile,
+                           defaultProfile, forceDefaultVersionAndProfile, overrideVersion,
                            forwardCompatible, messages, intermediate, parser,
                            false, includer, "", environment);
 }
@@ -1314,6 +1306,7 @@ bool CompileDeferred(
     int defaultVersion,         // use 100 for ES environment, 110 for desktop
     EProfile defaultProfile,
     bool forceDefaultVersionAndProfile,
+    int overrideVersion,        // use 0 if not overriding GLSL version
     bool forwardCompatible,     // give errors for use of deprecated features
     EShMessages messages,       // warnings/errors/AST; things to print out
     TIntermediate& intermediate,// returned tree, etc.
@@ -1324,7 +1317,7 @@ bool CompileDeferred(
     DoFullParse parser;
     return ProcessDeferred(compiler, shaderStrings, numStrings, inputLengths, stringNames,
                            preamble, optLevel, resources, defaultVersion,
-                           defaultProfile, forceDefaultVersionAndProfile,
+                           defaultProfile, forceDefaultVersionAndProfile, overrideVersion,
                            forwardCompatible, messages, intermediate, parser,
                            true, includer, sourceEntryPointName, environment);
 }
@@ -1364,7 +1357,7 @@ int ShInitialize()
 ShHandle ShConstructCompiler(const EShLanguage language, int debugOptions)
 {
     if (!InitThread())
-        return 0;
+        return nullptr;
 
     TShHandleBase* base = static_cast<TShHandleBase*>(ConstructCompiler(language, debugOptions));
 
@@ -1374,7 +1367,7 @@ ShHandle ShConstructCompiler(const EShLanguage language, int debugOptions)
 ShHandle ShConstructLinker(const EShExecutable executable, int debugOptions)
 {
     if (!InitThread())
-        return 0;
+        return nullptr;
 
     TShHandleBase* base = static_cast<TShHandleBase*>(ConstructLinker(executable, debugOptions));
 
@@ -1384,7 +1377,7 @@ ShHandle ShConstructLinker(const EShExecutable executable, int debugOptions)
 ShHandle ShConstructUniformMap()
 {
     if (!InitThread())
-        return 0;
+        return nullptr;
 
     TShHandleBase* base = static_cast<TShHandleBase*>(ConstructUniformMap());
 
@@ -1393,7 +1386,7 @@ ShHandle ShConstructUniformMap()
 
 void ShDestruct(ShHandle handle)
 {
-    if (handle == 0)
+    if (handle == nullptr)
         return;
 
     TShHandleBase* base = static_cast<TShHandleBase*>(handle);
@@ -1426,7 +1419,7 @@ int ShFinalize()
                 for (int source = 0; source < SourceCount; ++source) {
                     for (int stage = 0; stage < EShLangCount; ++stage) {
                         delete SharedSymbolTables[version][spvVersion][p][source][stage];
-                        SharedSymbolTables[version][spvVersion][p][source][stage] = 0;
+                        SharedSymbolTables[version][spvVersion][p][source][stage] = nullptr;
                     }
                 }
             }
@@ -1439,7 +1432,7 @@ int ShFinalize()
                 for (int source = 0; source < SourceCount; ++source) {
                     for (int pc = 0; pc < EPcCount; ++pc) {
                         delete CommonSymbolTable[version][spvVersion][p][source][pc];
-                        CommonSymbolTable[version][spvVersion][p][source][pc] = 0;
+                        CommonSymbolTable[version][spvVersion][p][source][pc] = nullptr;
                     }
                 }
             }
@@ -1482,12 +1475,12 @@ int ShCompile(
     )
 {
     // Map the generic handle to the C++ object
-    if (handle == 0)
+    if (handle == nullptr)
         return 0;
 
     TShHandleBase* base = reinterpret_cast<TShHandleBase*>(handle);
     TCompiler* compiler = base->getAsCompiler();
-    if (compiler == 0)
+    if (compiler == nullptr)
         return 0;
 
     SetThreadPoolAllocator(compiler->getPool());
@@ -1498,7 +1491,7 @@ int ShCompile(
     TIntermediate intermediate(compiler->getLanguage());
     TShader::ForbidIncluder includer;
     bool success = CompileDeferred(compiler, shaderStrings, numStrings, inputLengths, nullptr,
-                                   "", optLevel, resources, defaultVersion, ENoProfile, false,
+                                   "", optLevel, resources, defaultVersion, ENoProfile, false, 0,
                                    forwardCompatible, messages, intermediate, includer);
 
     //
@@ -1527,13 +1520,13 @@ int ShLinkExt(
     const ShHandle compHandles[],
     const int numHandles)
 {
-    if (linkHandle == 0 || numHandles == 0)
+    if (linkHandle == nullptr || numHandles == 0)
         return 0;
 
     THandleList cObjects;
 
     for (int i = 0; i < numHandles; ++i) {
-        if (compHandles[i] == 0)
+        if (compHandles[i] == nullptr)
             return 0;
         TShHandleBase* base = reinterpret_cast<TShHandleBase*>(compHandles[i]);
         if (base->getAsLinker()) {
@@ -1542,18 +1535,17 @@ int ShLinkExt(
         if (base->getAsCompiler())
             cObjects.push_back(base->getAsCompiler());
 
-        if (cObjects[i] == 0)
+        if (cObjects[i] == nullptr)
             return 0;
     }
 
     TShHandleBase* base = reinterpret_cast<TShHandleBase*>(linkHandle);
     TLinker* linker = static_cast<TLinker*>(base->getAsLinker());
 
-    SetThreadPoolAllocator(linker->getPool());
-
-    if (linker == 0)
+    if (linker == nullptr)
         return 0;
-
+    
+    SetThreadPoolAllocator(linker->getPool());
     linker->infoSink.info.erase();
 
     for (int i = 0; i < numHandles; ++i) {
@@ -1576,7 +1568,7 @@ int ShLinkExt(
 //
 void ShSetEncryptionMethod(ShHandle handle)
 {
-    if (handle == 0)
+    if (handle == nullptr)
         return;
 }
 
@@ -1585,8 +1577,8 @@ void ShSetEncryptionMethod(ShHandle handle)
 //
 const char* ShGetInfoLog(const ShHandle handle)
 {
-    if (handle == 0)
-        return 0;
+    if (handle == nullptr)
+        return nullptr;
 
     TShHandleBase* base = static_cast<TShHandleBase*>(handle);
     TInfoSink* infoSink;
@@ -1596,7 +1588,7 @@ const char* ShGetInfoLog(const ShHandle handle)
     else if (base->getAsLinker())
         infoSink = &(base->getAsLinker()->getInfoSink());
     else
-        return 0;
+        return nullptr;
 
     infoSink->info << infoSink->debug.c_str();
     return infoSink->info.c_str();
@@ -1608,14 +1600,14 @@ const char* ShGetInfoLog(const ShHandle handle)
 //
 const void* ShGetExecutable(const ShHandle handle)
 {
-    if (handle == 0)
-        return 0;
+    if (handle == nullptr)
+        return nullptr;
 
     TShHandleBase* base = reinterpret_cast<TShHandleBase*>(handle);
 
     TLinker* linker = static_cast<TLinker*>(base->getAsLinker());
-    if (linker == 0)
-        return 0;
+    if (linker == nullptr)
+        return nullptr;
 
     return linker->getObjectCode();
 }
@@ -1630,13 +1622,13 @@ const void* ShGetExecutable(const ShHandle handle)
 //
 int ShSetVirtualAttributeBindings(const ShHandle handle, const ShBindingTable* table)
 {
-    if (handle == 0)
+    if (handle == nullptr)
         return 0;
 
     TShHandleBase* base = reinterpret_cast<TShHandleBase*>(handle);
     TLinker* linker = static_cast<TLinker*>(base->getAsLinker());
 
-    if (linker == 0)
+    if (linker == nullptr)
         return 0;
 
     linker->setAppAttributeBindings(table);
@@ -1649,13 +1641,13 @@ int ShSetVirtualAttributeBindings(const ShHandle handle, const ShBindingTable* t
 //
 int ShSetFixedAttributeBindings(const ShHandle handle, const ShBindingTable* table)
 {
-    if (handle == 0)
+    if (handle == nullptr)
         return 0;
 
     TShHandleBase* base = reinterpret_cast<TShHandleBase*>(handle);
     TLinker* linker = static_cast<TLinker*>(base->getAsLinker());
 
-    if (linker == 0)
+    if (linker == nullptr)
         return 0;
 
     linker->setFixedAttributeBindings(table);
@@ -1667,12 +1659,12 @@ int ShSetFixedAttributeBindings(const ShHandle handle, const ShBindingTable* tab
 //
 int ShExcludeAttributes(const ShHandle handle, int *attributes, int count)
 {
-    if (handle == 0)
+    if (handle == nullptr)
         return 0;
 
     TShHandleBase* base = reinterpret_cast<TShHandleBase*>(handle);
     TLinker* linker = static_cast<TLinker*>(base->getAsLinker());
-    if (linker == 0)
+    if (linker == nullptr)
         return 0;
 
     linker->setExcludedAttributes(attributes, count);
@@ -1688,12 +1680,12 @@ int ShExcludeAttributes(const ShHandle handle, int *attributes, int count)
 //
 int ShGetUniformLocation(const ShHandle handle, const char* name)
 {
-    if (handle == 0)
+    if (handle == nullptr)
         return -1;
 
     TShHandleBase* base = reinterpret_cast<TShHandleBase*>(handle);
     TUniformMap* uniformMap= base->getAsUniformMap();
-    if (uniformMap == 0)
+    if (uniformMap == nullptr)
         return -1;
 
     return uniformMap->getLocation(name);
@@ -1759,7 +1751,7 @@ public:
 };
 
 TShader::TShader(EShLanguage s)
-    : stage(s), lengths(nullptr), stringNames(nullptr), preamble("")
+    : stage(s), lengths(nullptr), stringNames(nullptr), preamble(""), overrideVersion(0)
 {
     pool = new TPoolAllocator;
     infoSink = new TInfoSink;
@@ -1828,8 +1820,15 @@ void  TShader::setUniqueId(unsigned long long id)
     intermediate->setUniqueId(id);
 }
 
+void TShader::setOverrideVersion(int version)
+{
+    overrideVersion = version;
+}
+
+void TShader::setDebugInfo(bool debugInfo)              { intermediate->setDebugInfo(debugInfo); }
 void TShader::setInvertY(bool invert)                   { intermediate->setInvertY(invert); }
 void TShader::setDxPositionW(bool invert)               { intermediate->setDxPositionW(invert); }
+void TShader::setEnhancedMsgs()                         { intermediate->setEnhancedMsgs(); }
 void TShader::setNanMinMaxClamp(bool useNonNan)         { intermediate->setNanMinMaxClamp(useNonNan); }
 
 #ifndef GLSLANG_WEB
@@ -1909,12 +1908,12 @@ bool TShader::parse(const TBuiltInResource* builtInResources, int defaultVersion
 
     return CompileDeferred(compiler, strings, numStrings, lengths, stringNames,
                            preamble, EShOptNone, builtInResources, defaultVersion,
-                           defaultProfile, forceDefaultVersionAndProfile,
+                           defaultProfile, forceDefaultVersionAndProfile, overrideVersion,
                            forwardCompatible, messages, *intermediate, includer, sourceEntryPointName,
                            &environment);
 }
 
-#if !defined(GLSLANG_WEB) && !defined(GLSLANG_ANGLE)
+#if !defined(GLSLANG_WEB)
 // Fill in a string with the result of preprocessing ShaderStrings
 // Returns true if all extensions, pragmas and version strings were valid.
 //
@@ -1936,7 +1935,7 @@ bool TShader::preprocess(const TBuiltInResource* builtInResources,
 
     return PreprocessDeferred(compiler, strings, numStrings, lengths, stringNames, preamble,
                               EShOptNone, builtInResources, defaultVersion,
-                              defaultProfile, forceDefaultVersionAndProfile,
+                              defaultProfile, forceDefaultVersionAndProfile, overrideVersion,
                               forwardCompatible, message, includer, *intermediate, output_string,
                               &environment);
 }
@@ -1953,15 +1952,15 @@ const char* TShader::getInfoDebugLog()
 }
 
 TProgram::TProgram() :
-#if !defined(GLSLANG_WEB) && !defined(GLSLANG_ANGLE)
-    reflection(0),
+#if !defined(GLSLANG_WEB)
+    reflection(nullptr),
 #endif
     linked(false)
 {
     pool = new TPoolAllocator;
     infoSink = new TInfoSink;
     for (int s = 0; s < EShLangCount; ++s) {
-        intermediate[s] = 0;
+        intermediate[s] = nullptr;
         newedIntermediate[s] = false;
     }
 }
@@ -1969,7 +1968,7 @@ TProgram::TProgram() :
 TProgram::~TProgram()
 {
     delete infoSink;
-#if !defined(GLSLANG_WEB) && !defined(GLSLANG_ANGLE)
+#if !defined(GLSLANG_WEB)
     delete reflection;
 #endif
 
@@ -2019,7 +2018,7 @@ bool TProgram::linkStage(EShLanguage stage, EShMessages messages)
     if (stages[stage].size() == 0)
         return true;
 
-#if !defined(GLSLANG_WEB) && !defined(GLSLANG_ANGLE)
+#if !defined(GLSLANG_WEB)
     int numEsShaders = 0, numNonEsShaders = 0;
     for (auto it = stages[stage].begin(); it != stages[stage].end(); ++it) {
         if ((*it)->intermediate->getProfile() == EEsProfile) {
@@ -2049,6 +2048,8 @@ bool TProgram::linkStage(EShLanguage stage, EShMessages messages)
                                                 firstIntermediate->getVersion(),
                                                 firstIntermediate->getProfile());
         intermediate[stage]->setLimits(firstIntermediate->getLimits());
+        if (firstIntermediate->getEnhancedMsgs())
+            intermediate[stage]->setEnhancedMsgs();
 
         // The new TIntermediate must use the same origin as the original TIntermediates.
         // Otherwise linking will fail due to different coordinate systems.
@@ -2073,10 +2074,8 @@ bool TProgram::linkStage(EShLanguage stage, EShMessages messages)
 #endif
     intermediate[stage]->finalCheck(*infoSink, (messages & EShMsgKeepUncalled) != 0);
 
-#ifndef GLSLANG_ANGLE
     if (messages & EShMsgAST)
         intermediate[stage]->output(*infoSink, true);
-#endif
 
     return intermediate[stage]->getNumErrors() == 0;
 }
@@ -2154,7 +2153,7 @@ const char* TProgram::getInfoDebugLog()
     return infoSink->debug.c_str();
 }
 
-#if !defined(GLSLANG_WEB) && !defined(GLSLANG_ANGLE)
+#if !defined(GLSLANG_WEB)
 
 //
 // Reflection implementation.
@@ -2236,6 +2235,6 @@ bool TProgram::mapIO(TIoMapResolver* pResolver, TIoMapper* pIoMapper)
     return ioMapper->doMap(pResolver, *infoSink);
 }
 
-#endif // !GLSLANG_WEB && !GLSLANG_ANGLE
+#endif // !GLSLANG_WEB
 
 } // end namespace glslang

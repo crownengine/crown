@@ -1,18 +1,17 @@
 /*
- * Copyright 2011-2021 Branimir Karadzic. All rights reserved.
- * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
+ * Copyright 2011-2023 Branimir Karadzic. All rights reserved.
+ * License: https://github.com/bkaradzic/bgfx/blob/master/LICENSE
  */
 
 #ifndef BGFX_RENDERER_GL_H_HEADER_GUARD
 #define BGFX_RENDERER_GL_H_HEADER_GUARD
 
-#define BGFX_USE_EGL (BGFX_CONFIG_RENDERER_OPENGLES && (0 \
-	|| BX_PLATFORM_ANDROID                                \
-	|| BX_PLATFORM_BSD                                    \
-	|| BX_PLATFORM_LINUX                                  \
-	|| BX_PLATFORM_NX                                     \
-	|| BX_PLATFORM_RPI                                    \
-	|| BX_PLATFORM_WINDOWS                                \
+#define BGFX_USE_EGL ( (BGFX_CONFIG_RENDERER_OPENGL || BGFX_CONFIG_RENDERER_OPENGLES) && (0 \
+	|| BX_PLATFORM_ANDROID                                                                  \
+	|| BX_PLATFORM_BSD                                                                      \
+	|| BX_PLATFORM_LINUX                                                                    \
+	|| BX_PLATFORM_NX                                                                       \
+	|| BX_PLATFORM_RPI                                                                      \
 	) )
 
 #define BGFX_USE_HTML5 (BGFX_CONFIG_RENDERER_OPENGLES && (0 \
@@ -23,15 +22,9 @@
 	|| BX_PLATFORM_WINDOWS                              \
 	) )
 
-#define BGFX_USE_GLX (BGFX_CONFIG_RENDERER_OPENGL && (0 \
-	|| BX_PLATFORM_BSD                                  \
-	|| BX_PLATFORM_LINUX                                \
-	) )
-
 #define BGFX_USE_GL_DYNAMIC_LIB (0 \
 	|| BX_PLATFORM_BSD             \
 	|| BX_PLATFORM_LINUX           \
-	|| BX_PLATFORM_OSX             \
 	|| BX_PLATFORM_WINDOWS         \
 	)
 
@@ -68,25 +61,12 @@
 #if BGFX_CONFIG_RENDERER_OPENGL
 #	if BGFX_CONFIG_RENDERER_OPENGL >= 31
 #		include <gl/glcorearb.h>
-#		if BX_PLATFORM_OSX
-#			define GL_ARB_shader_objects // OSX collsion with GLhandleARB in gltypes.h
-#		endif // BX_PLATFORM_OSX
 #	else
 #		if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
 #			define GL_PROTOTYPES
 #			define GL_GLEXT_LEGACY
 #			include <GL/gl.h>
 #			undef GL_PROTOTYPES
-#		elif BX_PLATFORM_OSX
-#			define GL_GLEXT_LEGACY
-#			define long ptrdiff_t
-#			include <OpenGL/gl.h>
-#			undef long
-#			undef GL_VERSION_1_2
-#			undef GL_VERSION_1_3
-#			undef GL_VERSION_1_4
-#			undef GL_VERSION_1_5
-#			undef GL_VERSION_2_0
 #		elif BX_PLATFORM_WINDOWS
 #			ifndef WIN32_LEAN_AND_MEAN
 #				define WIN32_LEAN_AND_MEAN
@@ -103,20 +83,9 @@
 #elif BGFX_CONFIG_RENDERER_OPENGLES
 typedef double GLdouble;
 #	if BGFX_CONFIG_RENDERER_OPENGLES < 30
-#		if BX_PLATFORM_IOS
-#			include <OpenGLES/ES2/gl.h>
-#			include <OpenGLES/ES2/glext.h>
-//#define GL_UNSIGNED_INT_10_10_10_2_OES                          0x8DF6
-#define GL_UNSIGNED_INT_2_10_10_10_REV_EXT                      0x8368
-#define GL_TEXTURE_3D_OES                                       0x806F
-#define GL_SAMPLER_3D_OES                                       0x8B5F
-#define GL_TEXTURE_WRAP_R_OES                                   0x8072
-#define GL_PROGRAM_BINARY_LENGTH_OES                            0x8741
-#		else
-#			include <GLES2/gl2platform.h>
-#			include <GLES2/gl2.h>
-#			include <GLES2/gl2ext.h>
-#		endif // BX_PLATFORM_
+#		include <GLES2/gl2platform.h>
+#		include <GLES2/gl2.h>
+#		include <GLES2/gl2ext.h>
 typedef int64_t  GLint64;
 typedef uint64_t GLuint64;
 #		define GL_PROGRAM_BINARY_LENGTH GL_PROGRAM_BINARY_LENGTH_OES
@@ -140,17 +109,15 @@ typedef uint64_t GLuint64;
 #		define GL_UNSIGNED_INT_24_8 GL_UNSIGNED_INT_24_8_OES
 #	elif BGFX_CONFIG_RENDERER_OPENGLES >= 30
 #		include <GLES3/gl3platform.h>
-#		include <GLES3/gl3.h>
-#		include <GLES3/gl3ext.h>
+#		if BGFX_CONFIG_RENDERER_OPENGLES >= 32
+#			include <GLES3/gl32.h>
+#		elif BGFX_CONFIG_RENDERER_OPENGLES >= 31
+#			include <GLES3/gl31.h>
+#		else
+#			include <GLES3/gl3.h>
+#		endif // BGFX_CONFIG_RENDERER_OPENGLES
+#		include <GLES2/gl2ext.h>
 #	endif // BGFX_CONFIG_RENDERER_
-
-#	if BGFX_USE_EGL
-#		include "glcontext_egl.h"
-#	endif // BGFX_USE_EGL
-
-#	if BGFX_USE_HTML5
-#		include "glcontext_html5.h"
-#	endif // BGFX_USE_EGL
 
 #endif // BGFX_CONFIG_RENDERER_OPENGL
 
@@ -161,6 +128,10 @@ typedef uint64_t GLuint64;
 #ifndef GL_LUMINANCE
 #	define GL_LUMINANCE 0x1909
 #endif // GL_LUMINANCE
+
+#ifndef GL_BGR
+#	define GL_BGR 0x80E0
+#endif // GL_BGR
 
 #ifndef GL_BGRA
 #	define GL_BGRA 0x80E1
@@ -504,63 +475,127 @@ typedef uint64_t GLuint64;
 
 #ifndef ATC_RGB_AMD
 	#define GL_ATC_RGB_AMD 0x8C92
-#endif
+#endif // ATC_RGB_AMD
 
 #ifndef GL_ATC_RGBA_EXPLICIT_ALPHA_AMD
 #   define GL_ATC_RGBA_EXPLICIT_ALPHA_AMD 0x8C93
-#endif
+#endif // GL_ATC_RGBA_EXPLICIT_ALPHA_AMD
 
 #ifndef ATC_RGBA_INTERPOLATED_ALPHA_AMD
 #   define GL_ATC_RGBA_INTERPOLATED_ALPHA_AMD 0x87EE
-#endif
+#endif // ATC_RGBA_INTERPOLATED_ALPHA_AMD
 
 #ifndef GL_COMPRESSED_RGBA_ASTC_4x4_KHR
 #   define GL_COMPRESSED_RGBA_ASTC_4x4_KHR 0x93B0
-#endif
+#endif // GL_COMPRESSED_RGBA_ASTC_4x4_KHR
+
+#ifndef GL_COMPRESSED_RGBA_ASTC_5x4_KHR
+#   define GL_COMPRESSED_RGBA_ASTC_5x4_KHR 0x93B1
+#endif // GL_COMPRESSED_RGBA_ASTC_5x4_KHR
 
 #ifndef GL_COMPRESSED_RGBA_ASTC_5x5_KHR
 #   define GL_COMPRESSED_RGBA_ASTC_5x5_KHR 0x93B2
-#endif
+#endif // GL_COMPRESSED_RGBA_ASTC_5x5_KHR
+
+#ifndef GL_COMPRESSED_RGBA_ASTC_6x5_KHR
+#   define GL_COMPRESSED_RGBA_ASTC_6x5_KHR 0x93B3
+#endif // GL_COMPRESSED_RGBA_ASTC_6x5_KHR
 
 #ifndef GL_COMPRESSED_RGBA_ASTC_6x6_KHR
 #   define GL_COMPRESSED_RGBA_ASTC_6x6_KHR 0x93B4
-#endif
+#endif // GL_COMPRESSED_RGBA_ASTC_6x6_KHR
 
 #ifndef GL_COMPRESSED_RGBA_ASTC_8x5_KHR
 #   define GL_COMPRESSED_RGBA_ASTC_8x5_KHR 0x93B5
-#endif
+#endif // GL_COMPRESSED_RGBA_ASTC_8x5_KHR
 
 #ifndef GL_COMPRESSED_RGBA_ASTC_8x6_KHR
 #   define GL_COMPRESSED_RGBA_ASTC_8x6_KHR 0x93B6
-#endif
+#endif // GL_COMPRESSED_RGBA_ASTC_8x6_KHR
+
+#ifndef GL_COMPRESSED_RGBA_ASTC_8x8_KHR
+#   define GL_COMPRESSED_RGBA_ASTC_8x8_KHR 0x93B7
+#endif // GL_COMPRESSED_RGBA_ASTC_8x8_KHR
 
 #ifndef GL_COMPRESSED_RGBA_ASTC_10x5_KHR
 #   define GL_COMPRESSED_RGBA_ASTC_10x5_KHR 0x93B8
-#endif
+#endif // GL_COMPRESSED_RGBA_ASTC_10x5_KHR
+
+#ifndef GL_COMPRESSED_RGBA_ASTC_10x6_KHR
+#   define GL_COMPRESSED_RGBA_ASTC_10x6_KHR 0x93B9
+#endif // GL_COMPRESSED_RGBA_ASTC_10x6_KHR
+
+#ifndef GL_COMPRESSED_RGBA_ASTC_10x8_KHR
+#   define GL_COMPRESSED_RGBA_ASTC_10x8_KHR 0x93BA
+#endif // GL_COMPRESSED_RGBA_ASTC_10x8_KHR
+
+#ifndef GL_COMPRESSED_RGBA_ASTC_10x10_KHR
+#   define GL_COMPRESSED_RGBA_ASTC_10x10_KHR 0x93BB
+#endif // GL_COMPRESSED_RGBA_ASTC_10x10_KHR
+
+#ifndef GL_COMPRESSED_RGBA_ASTC_12x10_KHR
+#   define GL_COMPRESSED_RGBA_ASTC_12x10_KHR 0x93BC
+#endif // GL_COMPRESSED_RGBA_ASTC_12x10_KHR
+
+#ifndef GL_COMPRESSED_RGBA_ASTC_12x12_KHR
+#   define GL_COMPRESSED_RGBA_ASTC_12x12_KHR 0x93BD
+#endif // GL_COMPRESSED_RGBA_ASTC_12x12_KHR
 
 #ifndef GL_COMPRESSED_SRGB8_ASTC_4x4_KHR
 #   define GL_COMPRESSED_SRGB8_ASTC_4x4_KHR 0x93D0
-#endif
+#endif // GL_COMPRESSED_SRGB8_ASTC_4x4_KHR
+
+#ifndef GL_COMPRESSED_SRGB8_ASTC_5x4_KHR
+#   define GL_COMPRESSED_SRGB8_ASTC_5x4_KHR 0x93D1
+#endif // GL_COMPRESSED_SRGB8_ASTC_5x4_KHR
 
 #ifndef GL_COMPRESSED_SRGB8_ASTC_5x5_KHR
 #   define GL_COMPRESSED_SRGB8_ASTC_5x5_KHR 0x93D2
-#endif
+#endif // GL_COMPRESSED_SRGB8_ASTC_5x5_KHR
+
+#ifndef GL_COMPRESSED_SRGB8_ASTC_6x5_KHR
+#   define GL_COMPRESSED_SRGB8_ASTC_6x5_KHR 0x93D3
+#endif // GL_COMPRESSED_SRGB8_ASTC_6x5_KHR
 
 #ifndef GL_COMPRESSED_SRGB8_ASTC_6x6_KHR
 #   define GL_COMPRESSED_SRGB8_ASTC_6x6_KHR 0x93D4
-#endif
+#endif // GL_COMPRESSED_SRGB8_ASTC_6x6_KHR
 
 #ifndef GL_COMPRESSED_SRGB8_ASTC_8x5_KHR
 #   define GL_COMPRESSED_SRGB8_ASTC_8x5_KHR 0x93D5
-#endif
+#endif // GL_COMPRESSED_SRGB8_ASTC_8x5_KHR
 
 #ifndef GL_COMPRESSED_SRGB8_ASTC_8x6_KHR
 #   define GL_COMPRESSED_SRGB8_ASTC_8x6_KHR 0x93D6
-#endif
+#endif // GL_COMPRESSED_SRGB8_ASTC_8x6_KHR
+
+#ifndef GL_COMPRESSED_SRGB8_ASTC_8x8_KHR
+#   define GL_COMPRESSED_SRGB8_ASTC_8x8_KHR 0x93D7
+#endif // GL_COMPRESSED_SRGB8_ASTC_8x8_KHR
 
 #ifndef GL_COMPRESSED_SRGB8_ASTC_10x5_KHR
 #   define GL_COMPRESSED_SRGB8_ASTC_10x5_KHR 0x93D8
-#endif
+#endif // GL_COMPRESSED_SRGB8_ASTC_10x5_KHR
+
+#ifndef GL_COMPRESSED_SRGB8_ASTC_10x6_KHR
+#   define GL_COMPRESSED_SRGB8_ASTC_10x6_KHR 0x93D9
+#endif // GL_COMPRESSED_SRGB8_ASTC_10x6_KHR
+
+#ifndef GL_COMPRESSED_SRGB8_ASTC_10x8_KHR
+#   define GL_COMPRESSED_SRGB8_ASTC_10x8_KHR 0x93DA
+#endif // GL_COMPRESSED_SRGB8_ASTC_10x8_KHR
+
+#ifndef GL_COMPRESSED_SRGB8_ASTC_10x10_KHR
+#   define GL_COMPRESSED_SRGB8_ASTC_10x10_KHR 0x93DB
+#endif // GL_COMPRESSED_SRGB8_ASTC_10x10_KHR
+
+#ifndef GL_COMPRESSED_SRGB8_ASTC_12x10_KHR
+#   define GL_COMPRESSED_SRGB8_ASTC_12x10_KHR 0x93DC
+#endif // GL_COMPRESSED_SRGB8_ASTC_12x10_KHR
+
+#ifndef GL_COMPRESSED_SRGB8_ASTC_12x12_KHR
+#   define GL_COMPRESSED_SRGB8_ASTC_12x12_KHR 0x93DD
+#endif // GL_COMPRESSED_SRGB8_ASTC_12x12_KHR
 
 #ifndef GL_COMPRESSED_RGBA_BPTC_UNORM_ARB
 #	define GL_COMPRESSED_RGBA_BPTC_UNORM_ARB 0x8E8C
@@ -991,6 +1026,10 @@ typedef uint64_t GLuint64;
 #	define GL_FIRST_VERTEX_CONVENTION 0x8E4D
 #endif // GL_FIRST_VERTEX_CONVENTION
 
+#ifndef GL_PARAMETER_BUFFER_ARB
+#	define GL_PARAMETER_BUFFER_ARB 0x80EE
+#endif // GL_PARAMETER_BUFFER_ARB
+
 // _KHR or _ARB...
 #define GL_DEBUG_OUTPUT_SYNCHRONOUS         0x8242
 #define GL_DEBUG_NEXT_LOGGED_MESSAGE_LENGTH 0x8243
@@ -1090,17 +1129,13 @@ typedef uint64_t GLuint64;
 #	define GL_TEXTURE_LOD_BIAS 0x8501
 #endif // GL_TEXTURE_LOD_BIAS
 
-#if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
-#	include "glcontext_glx.h"
-#elif BX_PLATFORM_OSX
-#	include "glcontext_nsgl.h"
-#elif BX_PLATFORM_IOS
-#	include "glcontext_eagl.h"
-#endif // BX_PLATFORM_
-
-#if BGFX_USE_WGL
+#if BGFX_USE_EGL
+#	include "glcontext_egl.h"
+#elif BGFX_USE_HTML5
+#	include "glcontext_html5.h"
+#elif BGFX_USE_WGL
 #	include "glcontext_wgl.h"
-#endif // BGFX_USE_WGL
+#endif // BGFX_USE_*
 
 #ifndef GL_APIENTRY
 #	define GL_APIENTRY APIENTRY
@@ -1128,14 +1163,14 @@ namespace bgfx { namespace gl
 
 	const char* glEnumName(GLenum _enum);
 
-#define _GL_CHECK(_check, _call) \
-				BX_MACRO_BLOCK_BEGIN \
-					/*BX_TRACE(#_call);*/ \
-					_call; \
-					GLenum gl_err = glGetError(); \
-					_check(0 == gl_err, #_call "; GL error 0x%x: %s", gl_err, glEnumName(gl_err) ); \
-					BX_UNUSED(gl_err); \
-				BX_MACRO_BLOCK_END
+#define _GL_CHECK(_check, _call)                                                                    \
+	BX_MACRO_BLOCK_BEGIN                                                                \
+		/*BX_TRACE(#_call);*/                                                           \
+		_call;                                                                          \
+		GLenum gl_err = glGetError();                                                   \
+		_check(0 == gl_err, #_call "; GL error 0x%x: %s", gl_err, glEnumName(gl_err) ); \
+		BX_UNUSED(gl_err);                                                              \
+	BX_MACRO_BLOCK_END
 
 #define IGNORE_GL_ERROR_CHECK(...) BX_NOOP()
 
@@ -1501,8 +1536,10 @@ namespace bgfx { namespace gl
 		uint8_t m_unboundUsedAttrib[Attrib::Count]; // For tracking unbound used attributes between begin()/end().
 		uint8_t m_usedCount;
 		uint8_t m_used[Attrib::Count]; // Dense.
-		GLint m_attributes[Attrib::Count]; // Sparse.
-		GLint m_instanceData[BGFX_CONFIG_MAX_INSTANCE_DATA_COUNT+1];
+		GLint   m_attributes[Attrib::Count]; // Sparse.
+
+		GLint    m_instanceData[BGFX_CONFIG_MAX_INSTANCE_DATA_COUNT+1];
+		uint16_t m_instanceOffset[BGFX_CONFIG_MAX_INSTANCE_DATA_COUNT];
 
 		GLint m_sampler[BGFX_CONFIG_MAX_TEXTURE_SAMPLERS];
 		uint8_t m_numSamplers;
@@ -1525,6 +1562,7 @@ namespace bgfx { namespace gl
 			{
 				Query& query = m_query[ii];
 				query.m_ready = false;
+				query.m_frameNum = 0;
 				GL_CHECK(glGenQueries(1, &query.m_begin) );
 				GL_CHECK(glGenQueries(1, &query.m_end) );
 			}
@@ -1546,7 +1584,7 @@ namespace bgfx { namespace gl
 			}
 		}
 
-		uint32_t begin(uint32_t _resultIdx)
+		uint32_t begin(uint32_t _resultIdx, uint32_t _frameNum)
 		{
 			while (0 == m_control.reserve(1) )
 			{
@@ -1559,6 +1597,7 @@ namespace bgfx { namespace gl
 			const uint32_t idx = m_control.m_current;
 			Query& query = m_query[idx];
 			query.m_resultIdx = _resultIdx;
+			query.m_frameNum = _frameNum;
 			query.m_ready     = false;
 
 			GL_CHECK(glQueryCounter(query.m_begin
@@ -1607,6 +1646,7 @@ namespace bgfx { namespace gl
 
 					Result& result = m_result[query.m_resultIdx];
 					--result.m_pending;
+					result.m_frameNum = query.m_frameNum;
 
 					GL_CHECK(glGetQueryObjectui64v(query.m_begin
 						, GL_QUERY_RESULT
@@ -1629,14 +1669,16 @@ namespace bgfx { namespace gl
 		{
 			void reset()
 			{
-				m_begin   = 0;
-				m_end     = 0;
-				m_pending = 0;
+				m_begin    = 0;
+				m_end      = 0;
+				m_pending  = 0;
+				m_frameNum = 0;
 			}
 
 			uint64_t m_begin;
 			uint64_t m_end;
 			uint32_t m_pending;
+			uint32_t m_frameNum;
 		};
 
 		struct Query
@@ -1644,6 +1686,7 @@ namespace bgfx { namespace gl
 			GLuint   m_begin;
 			GLuint   m_end;
 			uint32_t m_resultIdx;
+			uint32_t m_frameNum;
 			bool     m_ready;
 		};
 

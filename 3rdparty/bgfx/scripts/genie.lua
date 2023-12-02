@@ -1,6 +1,6 @@
 --
--- Copyright 2010-2021 Branimir Karadzic. All rights reserved.
--- License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
+-- Copyright 2010-2023 Branimir Karadzic. All rights reserved.
+-- License: https://github.com/bkaradzic/bgfx/blob/master/LICENSE
 --
 
 MODULE_DIR = path.getabsolute("../")
@@ -79,11 +79,14 @@ newaction {
 			csgen.write(csgen.gen_dllname(), "../bindings/cs/bgfx_dllname.cs")
 
 			local dgen = require "bindings-d"
-			dgen.write(dgen.gen_types(), "../bindings/d/types.d")
-			dgen.write(dgen.gen_funcs(), "../bindings/d/funcs.d")
+			dgen.write(dgen.gen(), "../bindings/d/package.d")
+			dgen.write(dgen.fakeEnumFile, "../bindings/d/fakeenum.d")
 
 			local csgen = require "bindings-bf"
 			csgen.write(csgen.gen(), "../bindings/bf/bgfx.bf")
+
+			local ziggen = require "bindings-zig"
+			ziggen.write(ziggen.gen(), "../bindings/zig/bgfx.zig")
 		end
 
 		os.exit()
@@ -97,14 +100,19 @@ newaction {
 
 		local f = io.popen("git rev-list --count HEAD")
 		local rev = string.match(f:read("*a"), ".*%S")
+
+		local codegen = require "codegen"
+		local idl = codegen.idl "bgfx.idl"
+		print("1." .. idl._version .. "." .. rev)
+
 		f:close()
 		f = io.popen("git log --format=format:%H -1")
 		local sha1 = f:read("*a")
 		f:close()
 		io.output(path.join(MODULE_DIR, "src/version.h"))
 		io.write("/*\n")
-		io.write(" * Copyright 2011-2021 Branimir Karadzic. All rights reserved.\n")
-		io.write(" * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause\n")
+		io.write(" * Copyright 2011-2023 Branimir Karadzic. All rights reserved.\n")
+		io.write(" * License: https://github.com/bkaradzic/bgfx/blob/master/LICENSE\n")
 		io.write(" */\n")
 		io.write("\n")
 		io.write("/*\n")
@@ -203,7 +211,7 @@ end
 if _OPTIONS["with-sdl"] then
 	if os.is("windows") then
 		if not os.getenv("SDL2_DIR") then
-			print("Set SDL2_DIR enviroment variable.")
+			print("Set SDL2_DIR environment variable.")
 		end
 	end
 end
@@ -305,6 +313,7 @@ function exampleProjectDefaults()
 	configuration { "mingw*" }
 		targetextension ".exe"
 		links {
+			"comdlg32",
 			"gdi32",
 			"psapi",
 		}
@@ -431,14 +440,6 @@ function exampleProjectDefaults()
 		kind "WindowedApp"
 		files {
 			path.join(BGFX_DIR, "examples/runtime/tvOS-Info.plist"),
-		}
-
-
-	configuration { "qnx*" }
-		targetextension ""
-		links {
-			"EGL",
-			"GLESv2",
 		}
 
 	configuration {}
@@ -590,12 +591,15 @@ or _OPTIONS["with-combined-examples"] then
 		, "44-sss"
 		, "45-bokeh"
 		, "46-fsr"
+		, "47-pixelformats"
+		, "48-drawindirect"
+		, "49-hextile"
 		)
 
 	-- 17-drawstress requires multithreading, does not compile for singlethreaded wasm
---	if platform is not single-threaded then
+	if premake.gcc.namestyle == nil or not premake.gcc.namestyle == "Emscripten" then
 		exampleProject(false, "17-drawstress")
---	end
+	end
 
 	-- C99 source doesn't compile under WinRT settings
 	if not premake.vstudio.iswinrt() then

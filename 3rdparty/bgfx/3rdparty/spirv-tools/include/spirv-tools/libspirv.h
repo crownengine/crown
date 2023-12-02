@@ -286,6 +286,13 @@ typedef enum spv_operand_type_t {
   // An optional packed vector format
   SPV_OPERAND_TYPE_OPTIONAL_PACKED_VECTOR_FORMAT,
 
+  // Concrete operand types for cooperative matrix.
+  SPV_OPERAND_TYPE_COOPERATIVE_MATRIX_OPERANDS,
+  // An optional cooperative matrix operands
+  SPV_OPERAND_TYPE_OPTIONAL_COOPERATIVE_MATRIX_OPERANDS,
+  SPV_OPERAND_TYPE_COOPERATIVE_MATRIX_LAYOUT,
+  SPV_OPERAND_TYPE_COOPERATIVE_MATRIX_USE,
+
   // This is a sentinel value, and does not represent an operand type.
   // It should come last.
   SPV_OPERAND_TYPE_NUM_OPERAND_TYPES,
@@ -403,6 +410,19 @@ typedef struct spv_parsed_instruction_t {
   uint16_t num_operands;
 } spv_parsed_instruction_t;
 
+typedef struct spv_parsed_header_t {
+  // The magic number of the SPIR-V module.
+  uint32_t magic;
+  // Version number.
+  uint32_t version;
+  // Generator's magic number.
+  uint32_t generator;
+  // IDs bound for this module (0 < id < bound).
+  uint32_t bound;
+  // reserved.
+  uint32_t reserved;
+} spv_parsed_header_t;
+
 typedef struct spv_const_binary_t {
   const uint32_t* code;
   const size_t wordCount;
@@ -441,6 +461,8 @@ typedef struct spv_optimizer_options_t spv_optimizer_options_t;
 typedef struct spv_reducer_options_t spv_reducer_options_t;
 
 typedef struct spv_fuzzer_options_t spv_fuzzer_options_t;
+
+typedef struct spv_optimizer_t spv_optimizer_t;
 
 // Type Definitions
 
@@ -483,6 +505,7 @@ SPIRV_TOOLS_EXPORT const char* spvSoftwareVersionDetailsString(void);
 //    SPV_ENV_VULKAN_1_1           ->  SPIR-V 1.3
 //    SPV_ENV_VULKAN_1_1_SPIRV_1_4 ->  SPIR-V 1.4
 //    SPV_ENV_VULKAN_1_2           ->  SPIR-V 1.5
+//    SPV_ENV_VULKAN_1_3           ->  SPIR-V 1.6
 // Consult the description of API entry points for specific rules.
 typedef enum {
   SPV_ENV_UNIVERSAL_1_0,  // SPIR-V 1.0 latest revision, no other restrictions.
@@ -519,7 +542,9 @@ typedef enum {
   SPV_ENV_VULKAN_1_2,     // Vulkan 1.2 latest revision.
 
   SPV_ENV_UNIVERSAL_1_6,  // SPIR-V 1.6 latest revision, no other restrictions.
-  SPV_ENV_MAX             // Keep this as the last enum value.
+  SPV_ENV_VULKAN_1_3,     // Vulkan 1.3 latest revision.
+
+  SPV_ENV_MAX  // Keep this as the last enum value.
 } spv_target_env;
 
 // SPIR-V Validator can be parameterized with the following Universal Limits.
@@ -558,7 +583,7 @@ SPIRV_TOOLS_EXPORT bool spvParseVulkanEnv(uint32_t vulkan_ver,
 // Creates a context object for most of the SPIRV-Tools API.
 // Returns null if env is invalid.
 //
-// See specific API calls for how the target environment is interpeted
+// See specific API calls for how the target environment is interpreted
 // (particularly assembly and validation).
 SPIRV_TOOLS_EXPORT spv_context spvContextCreate(spv_target_env env);
 
@@ -610,7 +635,7 @@ SPIRV_TOOLS_EXPORT void spvValidatorOptionsSetRelaxLogicalPointer(
 //    set that option.
 // 2) Pointers that are pass as parameters to function calls do not have to
 //    match the storage class of the formal parameter.
-// 3) Pointers that are actaul parameters on function calls do not have to point
+// 3) Pointers that are actual parameters on function calls do not have to point
 //    to the same type pointed as the formal parameter.  The types just need to
 //    logically match.
 // 4) GLSLstd450 Interpolate* instructions can have a load of an interpolant
@@ -636,7 +661,7 @@ SPIRV_TOOLS_EXPORT void spvValidatorOptionsSetUniformBufferStandardLayout(
 // Records whether the validator should use "scalar" block layout rules.
 // Scalar layout rules are more permissive than relaxed block layout.
 //
-// See Vulkan extnesion VK_EXT_scalar_block_layout.  The scalar alignment is
+// See Vulkan extension VK_EXT_scalar_block_layout.  The scalar alignment is
 // defined as follows:
 // - scalar alignment of a scalar is the scalar size
 // - scalar alignment of a vector is the scalar alignment of its component
@@ -666,6 +691,10 @@ SPIRV_TOOLS_EXPORT void spvValidatorOptionsSetSkipBlockLayout(
 // Records whether or not the validator should allow the LocalSizeId
 // decoration where the environment otherwise would not allow it.
 SPIRV_TOOLS_EXPORT void spvValidatorOptionsSetAllowLocalSizeId(
+    spv_validator_options options, bool val);
+
+// Whether friendly names should be used in validation error messages.
+SPIRV_TOOLS_EXPORT void spvValidatorOptionsSetFriendlyNames(
     spv_validator_options options, bool val);
 
 // Creates an optimizer options object with default options. Returns a valid
@@ -893,6 +922,63 @@ SPIRV_TOOLS_EXPORT spv_result_t spvBinaryParse(
     const spv_const_context context, void* user_data, const uint32_t* words,
     const size_t num_words, spv_parsed_header_fn_t parse_header,
     spv_parsed_instruction_fn_t parse_instruction, spv_diagnostic* diagnostic);
+
+// The optimizer interface.
+
+// A pointer to a function that accepts a log message from an optimizer.
+typedef void (*spv_message_consumer)(
+    spv_message_level_t, const char*, const spv_position_t*, const char*);
+
+// Creates and returns an optimizer object.  This object must be passed to
+// optimizer APIs below and is valid until passed to spvOptimizerDestroy.
+SPIRV_TOOLS_EXPORT spv_optimizer_t* spvOptimizerCreate(spv_target_env env);
+
+// Destroys the given optimizer object.
+SPIRV_TOOLS_EXPORT void spvOptimizerDestroy(spv_optimizer_t* optimizer);
+
+// Sets an spv_message_consumer on an optimizer object.
+SPIRV_TOOLS_EXPORT void spvOptimizerSetMessageConsumer(
+    spv_optimizer_t* optimizer, spv_message_consumer consumer);
+
+// Registers passes that attempt to legalize the generated code.
+SPIRV_TOOLS_EXPORT void spvOptimizerRegisterLegalizationPasses(
+    spv_optimizer_t* optimizer);
+
+// Registers passes that attempt to improve performance of generated code.
+SPIRV_TOOLS_EXPORT void spvOptimizerRegisterPerformancePasses(
+    spv_optimizer_t* optimizer);
+
+// Registers passes that attempt to improve the size of generated code.
+SPIRV_TOOLS_EXPORT void spvOptimizerRegisterSizePasses(
+    spv_optimizer_t* optimizer);
+
+// Registers a pass specified by a flag in an optimizer object.
+SPIRV_TOOLS_EXPORT bool spvOptimizerRegisterPassFromFlag(
+    spv_optimizer_t* optimizer, const char* flag);
+
+// Registers passes specified by length number of flags in an optimizer object.
+SPIRV_TOOLS_EXPORT bool spvOptimizerRegisterPassesFromFlags(
+    spv_optimizer_t* optimizer, const char** flags, const size_t flag_count);
+
+// Optimizes the SPIR-V code of size |word_count| pointed to by |binary| and
+// returns an optimized spv_binary in |optimized_binary|.
+//
+// Returns SPV_SUCCESS on successful optimization, whether or not the module is
+// modified.  Returns an SPV_ERROR_* if the module fails to validate or if
+// errors occur when processing using any of the registered passes.  In that
+// case, no further passes are executed and the |optimized_binary| contents may
+// be invalid.
+//
+// By default, the binary is validated before any transforms are performed,
+// and optionally after each transform.  Validation uses SPIR-V spec rules
+// for the SPIR-V version named in the binary's header (at word offset 1).
+// Additionally, if the target environment is a client API (such as
+// Vulkan 1.1), then validate for that client API version, to the extent
+// that it is verifiable from data in the binary itself, or from the
+// validator options set on the optimizer options.
+SPIRV_TOOLS_EXPORT spv_result_t spvOptimizerRun(
+    spv_optimizer_t* optimizer, const uint32_t* binary, const size_t word_count,
+    spv_binary* optimized_binary, const spv_optimizer_options options);
 
 #ifdef __cplusplus
 }

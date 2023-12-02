@@ -33,7 +33,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(GLSLANG_WEB) && !defined(GLSLANG_ANGLE)
+#if !defined(GLSLANG_WEB)
 
 #ifndef _IOMAPPER_INCLUDED
 #define _IOMAPPER_INCLUDED
@@ -61,6 +61,15 @@ struct TVarEntryInfo {
     int newComponent;
     int newIndex;
     EShLanguage stage;
+
+    void clearNewAssignments() {
+        newBinding = -1;
+        newSet = -1;
+        newLocation = -1;
+        newComponent = -1;
+        newIndex = -1;
+    }
+
     struct TOrderById {
         inline bool operator()(const TVarEntryInfo& l, const TVarEntryInfo& r) { return l.id < r.id; }
     };
@@ -349,4 +358,4 @@ private:
 
 #endif // _IOMAPPER_INCLUDED
 
-#endif // !GLSLANG_WEB && !GLSLANG_ANGLE
+#endif // !GLSLANG_WEB

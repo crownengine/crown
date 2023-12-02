@@ -1,6 +1,6 @@
 /*
- * Copyright 2010-2021 Branimir Karadzic. All rights reserved.
- * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
+ * Copyright 2010-2023 Branimir Karadzic. All rights reserved.
+ * License: https://github.com/bkaradzic/bx/blob/master/LICENSE
  */
 
 #ifndef BX_HANDLE_ALLOC_H_HEADER_GUARD
@@ -103,14 +103,14 @@ namespace bx
 
 	inline HandleAlloc* createHandleAlloc(AllocatorI* _allocator, uint16_t _maxHandles)
 	{
-		uint8_t* ptr = (uint8_t*)BX_ALLOC(_allocator, sizeof(HandleAlloc) + 2*_maxHandles*sizeof(uint16_t) );
+		uint8_t* ptr = (uint8_t*)bx::alloc(_allocator, sizeof(HandleAlloc) + 2*_maxHandles*sizeof(uint16_t) );
 		return BX_PLACEMENT_NEW(ptr, HandleAlloc)(_maxHandles);
 	}
 
 	inline void destroyHandleAlloc(AllocatorI* _allocator, HandleAlloc* _handleAlloc)
 	{
 		_handleAlloc->~HandleAlloc();
-		BX_FREE(_allocator, _handleAlloc);
+		bx::free(_allocator, _handleAlloc);
 	}
 
 	template <uint16_t MaxHandlesT>

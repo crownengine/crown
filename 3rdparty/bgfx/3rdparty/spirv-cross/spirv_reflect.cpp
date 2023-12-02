@@ -292,7 +292,7 @@ bool CompilerReflection::type_is_reference(const SPIRType &type) const
 {
 	// Physical pointers and arrays of physical pointers need to refer to the pointee's type.
 	return type_is_top_level_physical_pointer(type) ||
-	       (!type.array.empty() && type_is_top_level_physical_pointer(get<SPIRType>(type.parent_type)));
+	       (type_is_array_of_pointers(type) && type.storage == StorageClassPhysicalStorageBuffer);
 }
 
 void CompilerReflection::emit_types()
@@ -587,18 +587,18 @@ void CompilerReflection::emit_resources(const char *tag, const SmallVector<Resou
 		{
 			bool ssbo_block = type.storage == StorageClassStorageBuffer ||
 			                  (type.storage == StorageClassUniform && typeflags.get(DecorationBufferBlock));
-			if (ssbo_block)
-			{
-				auto buffer_flags = get_buffer_block_flags(res.id);
-				if (buffer_flags.get(DecorationNonReadable))
-					json_stream->emit_json_key_value("writeonly", true);
-				if (buffer_flags.get(DecorationNonWritable))
-					json_stream->emit_json_key_value("readonly", true);
-				if (buffer_flags.get(DecorationRestrict))
-					json_stream->emit_json_key_value("restrict", true);
-				if (buffer_flags.get(DecorationCoherent))
-					json_stream->emit_json_key_value("coherent", true);
-			}
+			Bitset qualifier_mask = ssbo_block ? get_buffer_block_flags(res.id) : mask;
+
+			if (qualifier_mask.get(DecorationNonReadable))
+				json_stream->emit_json_key_value("writeonly", true);
+			if (qualifier_mask.get(DecorationNonWritable))
+				json_stream->emit_json_key_value("readonly", true);
+			if (qualifier_mask.get(DecorationRestrict))
+				json_stream->emit_json_key_value("restrict", true);
+			if (qualifier_mask.get(DecorationCoherent))
+				json_stream->emit_json_key_value("coherent", true);
+			if (qualifier_mask.get(DecorationVolatile))
+				json_stream->emit_json_key_value("volatile", true);
 		}
 
 		emit_type_array(type);

@@ -74,6 +74,9 @@ void C_DECL TParseContextBase::error(const TSourceLoc& loc, const char* szReason
 {
     if (messages & EShMsgOnlyPreprocessor)
         return;
+    // If enhanced msg readability, only print one error
+    if (messages & EShMsgEnhanced && numErrors > 0)
+        return;
     va_list args;
     va_start(args, szExtraInfoFormat);
     outputMessage(loc, szReason, szToken, szExtraInfoFormat, EPrefixError, args);
@@ -156,7 +159,8 @@ bool TParseContextBase::lValueErrorCheck(const TSourceLoc& loc, const char* op, 
         //
         switch (node->getBasicType()) {
         case EbtSampler:
-            message = "can't modify a sampler";
+            if (extensionTurnedOn(E_GL_ARB_bindless_texture) == false)
+                message = "can't modify a sampler";
             break;
         case EbtVoid:
             message = "can't modify void";
@@ -170,6 +174,9 @@ bool TParseContextBase::lValueErrorCheck(const TSourceLoc& loc, const char* op, 
             break;
         case EbtRayQuery:
             message = "can't modify rayQueryEXT";
+            break;
+        case EbtHitObjectNV:
+            message = "can't modify hitObjectNV";
             break;
 #endif
         default:
@@ -228,11 +235,11 @@ bool TParseContextBase::lValueErrorCheck(const TSourceLoc& loc, const char* op, 
 // Test for and give an error if the node can't be read from.
 void TParseContextBase::rValueErrorCheck(const TSourceLoc& loc, const char* op, TIntermTyped* node)
 {
-    TIntermBinary* binaryNode = node->getAsBinaryNode();
-    const TIntermSymbol* symNode = node->getAsSymbolNode();
-
     if (! node)
         return;
+
+    TIntermBinary* binaryNode = node->getAsBinaryNode();
+    const TIntermSymbol* symNode = node->getAsSymbolNode();
 
     if (node->getQualifier().isWriteOnly()) {
         const TIntermTyped* leftMostTypeNode = TIntermediate::findLValueBase(node, true);

@@ -1,5 +1,5 @@
 --
--- Copyright 2010-2021 Branimir Karadzic. All rights reserved.
+-- Copyright 2010-2023 Branimir Karadzic. All rights reserved.
 -- License: https://github.com/bkaradzic/bx#license-bsd-2-clause
 --
 
@@ -9,8 +9,9 @@ project "bimg_encode"
 	includedirs {
 		path.join(BIMG_DIR, "include"),
 		path.join(BIMG_DIR, "3rdparty"),
-		path.join(BIMG_DIR, "3rdparty/nvtt"),
+		path.join(BIMG_DIR, "3rdparty/astc-encoder/include"),
 		path.join(BIMG_DIR, "3rdparty/iqa/include"),
+		path.join(BIMG_DIR, "3rdparty/nvtt"),
 		path.join(BIMG_DIR, "3rdparty/tinyexr/deps/miniz"),
 	}
 
@@ -30,14 +31,18 @@ project "bimg_encode"
 		path.join(BIMG_DIR, "3rdparty/nvtt/**.h"),
 		path.join(BIMG_DIR, "3rdparty/pvrtc/**.cpp"),
 		path.join(BIMG_DIR, "3rdparty/pvrtc/**.h"),
-		path.join(BIMG_DIR, "3rdparty/astc/**.cpp"),
-		path.join(BIMG_DIR, "3rdparty/astc/**.h"),
 		path.join(BIMG_DIR, "3rdparty/tinyexr/**.h"),
 		path.join(BIMG_DIR, "3rdparty/iqa/include/**.h"),
 		path.join(BIMG_DIR, "3rdparty/iqa/source/**.c"),
 	}
 
 	using_bx()
+
+	configuration {}
+
+	removeflags {
+		"FloatFast", -- astc-encoder doesn't work with it.
+	}
 
 	configuration { "linux-*" }
 		buildoptions {

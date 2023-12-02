@@ -1,6 +1,6 @@
 /*
- * Copyright 2010-2021 Branimir Karadzic. All rights reserved.
- * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
+ * Copyright 2010-2023 Branimir Karadzic. All rights reserved.
+ * License: https://github.com/bkaradzic/bx/blob/master/LICENSE
  */
 
 #ifndef BX_ERROR_H_HEADER_GUARD
@@ -38,7 +38,6 @@ namespace bx
 	{
 		BX_CLASS(Error
 			, NO_COPY
-			, NO_ASSIGNMENT
 			);
 
 	public:
@@ -105,8 +104,8 @@ namespace bx
 	class ErrorScope
 	{
 		BX_CLASS(ErrorScope
+			, NO_DEFAULT_CTOR
 			, NO_COPY
-			, NO_ASSIGNMENT
 			);
 
 	public:

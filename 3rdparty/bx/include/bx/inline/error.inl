@@ -1,6 +1,6 @@
 /*
- * Copyright 2010-2021 Branimir Karadzic. All rights reserved.
- * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
+ * Copyright 2010-2023 Branimir Karadzic. All rights reserved.
+ * License: https://github.com/bkaradzic/bx/blob/master/LICENSE
  */
 
 #ifndef BX_ERROR_H_HEADER_GUARD
@@ -101,6 +101,7 @@ namespace bx
 		: m_err(_err)
 		, m_name(_name)
 	{
+		BX_UNUSED(m_err);
 		BX_ASSERT(NULL != _err, "_err can't be NULL");
 	}
 

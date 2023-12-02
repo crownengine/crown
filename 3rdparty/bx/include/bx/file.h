@@ -1,6 +1,6 @@
 /*
- * Copyright 2010-2021 Branimir Karadzic. All rights reserved.
- * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
+ * Copyright 2010-2023 Branimir Karadzic. All rights reserved.
+ * License: https://github.com/bkaradzic/bx/blob/master/LICENSE
  */
 
 #ifndef BX_FILE_H_HEADER_GUARD
@@ -134,7 +134,7 @@ namespace bx
 	///
 	bool remove(const FilePath& _filePath, Error* _err = bx::ErrorIgnore{});
 
-	/// Removes file or directory recursivelly.
+	/// Removes file or directory recursively.
 	///
 	bool removeAll(const FilePath& _filePath, Error* _err = bx::ErrorIgnore{});
 

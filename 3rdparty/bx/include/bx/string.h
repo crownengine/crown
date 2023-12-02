@@ -1,6 +1,6 @@
 /*
- * Copyright 2010-2021 Branimir Karadzic. All rights reserved.
- * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
+ * Copyright 2010-2023 Branimir Karadzic. All rights reserved.
+ * License: https://github.com/bkaradzic/bx/blob/master/LICENSE
  */
 
 #ifndef BX_STRING_H_HEADER_GUARD
@@ -20,16 +20,51 @@ namespace bx
 		};
 	};
 
+	/// Zero-terminated string literal.
+	///
+	class StringLiteral
+	{
+	public:
+		/// Construct default/empty string literal.
+		///
+		constexpr StringLiteral();
+
+		/// Construct string literal from C-style string literal.
+		///
+		template<int32_t SizeT>
+		constexpr StringLiteral(const char (&str)[SizeT]);
+
+		/// Returns string length.
+		///
+		constexpr int32_t getLength() const;
+
+		/// Returns zero-terminated C string pointer to string literal.
+		///
+		constexpr const char* getCPtr() const;
+
+	private:
+		const char* m_ptr;
+		int32_t     m_len;
+	};
+
 	/// Non-zero-terminated string view.
 	///
 	class StringView
 	{
 	public:
+		/// Construct default/empty string view.
 		///
 		StringView();
 
+		/// Construct string view from string literal.
 		///
-		StringView(const StringView& _rhs, int32_t _start = 0, int32_t _len = INT32_MAX);
+		constexpr StringView(const StringLiteral& _str);
+
+		///
+		StringView(const StringView& _rhs);
+
+		///
+		StringView(const StringView& _rhs, int32_t _start, int32_t _len);
 
 		///
 		StringView& operator=(const char* _rhs);
@@ -38,26 +73,13 @@ namespace bx
 		StringView& operator=(const StringView& _rhs);
 
 		///
-		StringView(char* _ptr);
-
-		///
 		StringView(const char* _ptr);
-
-		///
-		StringView(char* _ptr, int32_t _len);
 
 		///
 		StringView(const char* _ptr, int32_t _len);
 
 		///
 		StringView(const char* _ptr, const char* _term);
-
-		///
-		template<typename Ty>
-		explicit StringView(const Ty& _container);
-
-		///
-		void set(char* _ptr);
 
 		///
 		void set(const char* _ptr);
@@ -69,11 +91,10 @@ namespace bx
 		void set(const char* _ptr, const char* _term);
 
 		///
-		void set(const StringView& _str, int32_t _start = 0, int32_t _len = INT32_MAX);
+		void set(const StringView& _str);
 
 		///
-		template<typename Ty>
-		void set(const Ty& _container);
+		void set(const StringView& _str, int32_t _start, int32_t _len);
 
 		///
 		void clear();
@@ -92,12 +113,15 @@ namespace bx
 		const char* getTerm() const;
 
 		/// Returns `true` if string is empty.
+		///
 		bool isEmpty() const;
 
 		/// Returns string length.
+		///
 		int32_t getLength() const;
 
 		/// Returns `true` if string is zero terminated.
+		///
 		bool is0Terminated() const;
 
 	protected:
@@ -146,19 +170,28 @@ namespace bx
 		int32_t m_capacity;
 	};
 
-	/// Retruns true if character is part of space set.
+	/// Returns true if character is part of white space set.
+	///
+	/// White space set is:
+	///   ' '  - Space.
+	///   '\t' - Horizontal tab.
+	///   '\n' - Line feed / new line.
+	///   '\r' - Carriage return.
+	///   '\v' - Vertical tab.
+	///   '\f' - Form feed / new page.
+	///
 	bool isSpace(char _ch);
 
 	/// Returns true if string view contains only space characters.
 	bool isSpace(const StringView& _str);
 
-	/// Retruns true if character is uppercase.
+	/// Returns true if character is uppercase.
 	bool isUpper(char _ch);
 
 	/// Returns true if string view contains only uppercase characters.
 	bool isUpper(const StringView& _str);
 
-	/// Retruns true if character is lowercase.
+	/// Returns true if character is lowercase.
 	bool isLower(char _ch);
 
 	/// Returns true if string view contains only lowercase characters.
@@ -167,19 +200,19 @@ namespace bx
 	/// Returns true if character is part of alphabet set.
 	bool isAlpha(char _ch);
 
-	/// Retruns true if string view contains only alphabet characters.
+	/// Returns true if string view contains only alphabet characters.
 	bool isAlpha(const StringView& _str);
 
 	/// Returns true if character is part of numeric set.
 	bool isNumeric(char _ch);
 
-	/// Retruns true if string view contains only numeric characters.
+	/// Returns true if string view contains only numeric characters.
 	bool isNumeric(const StringView& _str);
 
 	/// Returns true if character is part of alpha numeric set.
 	bool isAlphaNum(char _ch);
 
-	/// Returns true if string view contains only alpha-numeric characters.
+	/// Returns true if string view contains only alphanumeric characters.
 	bool isAlphaNum(const StringView& _str);
 
 	/// Returns true if character is part of hexadecimal set.
@@ -194,7 +227,7 @@ namespace bx
 	/// Returns true if string vieww contains only printable characters.
 	bool isPrint(const StringView& _str);
 
-	/// Retruns lower case character representing _ch.
+	/// Returns lower case character representing _ch.
 	char toLower(char _ch);
 
 	/// Lower case string in place assuming length passed is valid.
@@ -231,7 +264,7 @@ namespace bx
 	/// including zero terminator. Copy will be terminated with '\0'.
 	int32_t strCopy(char* _dst, int32_t _dstSize, const StringView& _str, int32_t _num = INT32_MAX);
 
-	/// Concatinate string.
+	/// Concatenate string.
 	int32_t strCat(char* _dst, int32_t _dstSize, const StringView& _str, int32_t _num = INT32_MAX);
 
 	/// Test whether the string _str begins with prefix.
@@ -282,7 +315,7 @@ namespace bx
 	/// Find new line. Returns pointer after new line terminator.
 	StringView strFindNl(const StringView& _str);
 
-	/// Find end of line. Retuns pointer to new line terminator.
+	/// Find end of line. Returns pointer to new line terminator.
 	StringView strFindEol(const StringView& _str);
 
 	/// Returns StringView of word or empty.
@@ -326,10 +359,6 @@ namespace bx
 	/// Templatized snprintf.
 	template <typename Ty>
 	void stringPrintf(Ty& _out, const char* _format, ...);
-
-	/// Replace all instances of substring.
-	template <typename Ty>
-	Ty replaceAll(const Ty& _str, const char* _from, const char* _to);
 
 	/// Convert size in bytes to human readable string kibi units.
 	int32_t prettify(char* _out, int32_t _count, uint64_t _value, Units::Enum _units = Units::Kibi);

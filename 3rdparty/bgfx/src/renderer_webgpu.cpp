@@ -1,6 +1,6 @@
 /*
  * Copyright 2011-2019 Branimir Karadzic. All rights reserved.
- * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
+ * License: https://github.com/bkaradzic/bgfx/blob/master/LICENSE
  */
 
 #include "bgfx_p.h"
@@ -306,11 +306,19 @@ namespace bgfx { namespace webgpu
 		{ wgpu::TextureFormat::Undefined,           wgpu::TextureFormat::Undefined        },  // ATCE
 		{ wgpu::TextureFormat::Undefined,           wgpu::TextureFormat::Undefined        },  // ATCI
 		{ wgpu::TextureFormat::Undefined,           wgpu::TextureFormat::Undefined        },  // ASTC4x4
+		{ wgpu::TextureFormat::Undefined,           wgpu::TextureFormat::Undefined        },  // ASTC5x4
 		{ wgpu::TextureFormat::Undefined,           wgpu::TextureFormat::Undefined        },  // ASTC5x5
+		{ wgpu::TextureFormat::Undefined,           wgpu::TextureFormat::Undefined        },  // ASTC6x5
 		{ wgpu::TextureFormat::Undefined,           wgpu::TextureFormat::Undefined        },  // ASTC6x6
 		{ wgpu::TextureFormat::Undefined,           wgpu::TextureFormat::Undefined        },  // ASTC8x5
 		{ wgpu::TextureFormat::Undefined,           wgpu::TextureFormat::Undefined        },  // ASTC8x6
+		{ wgpu::TextureFormat::Undefined,           wgpu::TextureFormat::Undefined        },  // ASTC8x8
 		{ wgpu::TextureFormat::Undefined,           wgpu::TextureFormat::Undefined        },  // ASTC10x5
+		{ wgpu::TextureFormat::Undefined,           wgpu::TextureFormat::Undefined        },  // ASTC10x6
+		{ wgpu::TextureFormat::Undefined,           wgpu::TextureFormat::Undefined        },  // ASTC10x8
+		{ wgpu::TextureFormat::Undefined,           wgpu::TextureFormat::Undefined        },  // ASTC10x10
+		{ wgpu::TextureFormat::Undefined,           wgpu::TextureFormat::Undefined        },  // ASTC12x10
+		{ wgpu::TextureFormat::Undefined,           wgpu::TextureFormat::Undefined        },  // ASTC12x12
 		{ wgpu::TextureFormat::Undefined,           wgpu::TextureFormat::Undefined        },  // Unknown
 		{ wgpu::TextureFormat::Undefined,           wgpu::TextureFormat::Undefined        },  // R1
 		{ wgpu::TextureFormat::Undefined,           wgpu::TextureFormat::Undefined        },  // A8
@@ -356,8 +364,11 @@ namespace bgfx { namespace webgpu
 		{ wgpu::TextureFormat::RGBA32Sint,          wgpu::TextureFormat::Undefined        },  // RGBA32I
 		{ wgpu::TextureFormat::RGBA32Uint,          wgpu::TextureFormat::Undefined        },  // RGBA32U
 		{ wgpu::TextureFormat::RGBA32Float,         wgpu::TextureFormat::Undefined        },  // RGBA32F
+		{ wgpu::TextureFormat::Undefined,           wgpu::TextureFormat::Undefined        },  // B5G6R5
 		{ wgpu::TextureFormat::Undefined,           wgpu::TextureFormat::Undefined        },  // R5G6B5
+		{ wgpu::TextureFormat::Undefined,           wgpu::TextureFormat::Undefined        },  // BGRA4
 		{ wgpu::TextureFormat::Undefined,           wgpu::TextureFormat::Undefined        },  // RGBA4
+		{ wgpu::TextureFormat::Undefined,           wgpu::TextureFormat::Undefined        },  // BGR5A1
 		{ wgpu::TextureFormat::Undefined,           wgpu::TextureFormat::Undefined        },  // RGB5A1
 		{ wgpu::TextureFormat::RGB10A2Unorm,        wgpu::TextureFormat::Undefined        },  // RGB10A2
 		{ wgpu::TextureFormat::RG11B10Ufloat,       wgpu::TextureFormat::Undefined        },  // RG11B10F
@@ -658,8 +669,11 @@ namespace bgfx { namespace webgpu
 			g_caps.formats[TextureFormat::PTC14 ] =
 			g_caps.formats[TextureFormat::PTC12A] =
 			g_caps.formats[TextureFormat::PTC14A] =
+			g_caps.formats[TextureFormat::B5G6R5] =
 			g_caps.formats[TextureFormat::R5G6B5] =
+			g_caps.formats[TextureFormat::BGRA4 ] =
 			g_caps.formats[TextureFormat::RGBA4 ] =
+			g_caps.formats[TextureFormat::BGR5A1] =
 			g_caps.formats[TextureFormat::RGB5A1] = BGFX_CAPS_FORMAT_TEXTURE_NONE;
 
 			g_caps.formats[TextureFormat::RGB9E5F] &= ~(BGFX_CAPS_FORMAT_TEXTURE_FRAMEBUFFER | BGFX_CAPS_FORMAT_TEXTURE_FRAMEBUFFER_MSAA);
@@ -1009,11 +1023,11 @@ namespace bgfx { namespace webgpu
 		{
 			if (NULL != m_uniforms[_handle.idx])
 			{
-				BX_FREE(g_allocator, m_uniforms[_handle.idx]);
+				bx::free(g_allocator, m_uniforms[_handle.idx]);
 			}
 
 			uint32_t size = bx::alignUp(g_uniformTypeSize[_type]*_num, 16);
-			void* data = BX_ALLOC(g_allocator, size);
+			void* data = bx::alloc(g_allocator, size);
 			bx::memSet(data, 0, size);
 			m_uniforms[_handle.idx] = data;
 			m_uniformReg.add(_handle, _name);
@@ -1021,7 +1035,7 @@ namespace bgfx { namespace webgpu
 
 		void destroyUniform(UniformHandle _handle) override
 		{
-			BX_FREE(g_allocator, m_uniforms[_handle.idx]);
+			bx::free(g_allocator, m_uniforms[_handle.idx]);
 			m_uniforms[_handle.idx] = NULL;
 			m_uniformReg.remove(_handle);
 		}
@@ -2445,7 +2459,7 @@ namespace bgfx { namespace webgpu
 		s_renderWgpu = BX_NEW(g_allocator, RendererContextWgpu);
 		if (!s_renderWgpu->init(_init) )
 		{
-			BX_DELETE(g_allocator, s_renderWgpu);
+			bx::deleteObject(g_allocator, s_renderWgpu);
 			s_renderWgpu = NULL;
 		}
 		return s_renderWgpu;
@@ -2454,7 +2468,7 @@ namespace bgfx { namespace webgpu
 	void rendererDestroy()
 	{
 		s_renderWgpu->shutdown();
-		BX_DELETE(g_allocator, s_renderWgpu);
+		bx::deleteObject(g_allocator, s_renderWgpu);
 		s_renderWgpu = NULL;
 	}
 
@@ -2703,7 +2717,7 @@ namespace bgfx { namespace webgpu
 		const uint32_t* code = (const uint32_t*)reader.getDataPtr();
 		bx::skip(&reader, shaderSize+1);
 
-		m_code = (uint32_t*)BX_ALLOC(g_allocator, shaderSize);
+		m_code = (uint32_t*)bx::alloc(g_allocator, shaderSize);
 		m_codeSize = shaderSize;
 
 		bx::memCopy(m_code, code, shaderSize);
@@ -2924,7 +2938,7 @@ namespace bgfx { namespace webgpu
 		m_fsh = NULL;
 		if ( NULL != m_computePS )
 		{
-			BX_DELETE(g_allocator, m_computePS);
+			bx::deleteObject(g_allocator, m_computePS);
 			m_computePS = NULL;
 		}
 	}
@@ -2967,7 +2981,7 @@ namespace bgfx { namespace webgpu
 		{
 			if ( m_dynamic == NULL )
 			{
-				m_dynamic = (uint8_t*)BX_ALLOC(g_allocator, m_size);
+				m_dynamic = (uint8_t*)bx::alloc(g_allocator, m_size);
 			}
 
 			bx::memCopy(m_dynamic + _offset, _data, _size);
@@ -3188,7 +3202,7 @@ namespace bgfx { namespace webgpu
 				uint8_t layer;
 			};
 
-			ImageInfo* imageInfos = (ImageInfo*)BX_ALLOC(g_allocator, sizeof(ImageInfo) * numSrd);
+			ImageInfo* imageInfos = (ImageInfo*)bx::alloc(g_allocator, sizeof(ImageInfo) * numSrd);
 			bx::memSet(imageInfos, 0, sizeof(ImageInfo) * numSrd);
 			uint32_t alignment = 1; // tightly aligned buffer
 
@@ -3207,7 +3221,7 @@ namespace bgfx { namespace webgpu
 							const uint32_t slice = bx::strideAlign(bx::max<uint32_t>(mip.m_height, 4) * pitch, alignment);
 							const uint32_t size = slice * mip.m_depth;
 
-							uint8_t* temp = (uint8_t*)BX_ALLOC(g_allocator, size);
+							uint8_t* temp = (uint8_t*)bx::alloc(g_allocator, size);
 							bimg::imageDecodeToBgra8(
 								  g_allocator
 								, temp
@@ -3234,7 +3248,7 @@ namespace bgfx { namespace webgpu
 							const uint32_t slice = bx::strideAlign((mip.m_height / blockInfo.blockHeight) * pitch, alignment);
 							const uint32_t size = slice * mip.m_depth;
 
-							uint8_t* temp = (uint8_t*)BX_ALLOC(g_allocator, size);
+							uint8_t* temp = (uint8_t*)bx::alloc(g_allocator, size);
 							bimg::imageCopy(
 								  temp
 								, mip.m_height / blockInfo.blockHeight
@@ -3260,7 +3274,7 @@ namespace bgfx { namespace webgpu
 							const uint32_t slice = bx::strideAlign(mip.m_height * pitch, alignment);
 							const uint32_t size = slice * mip.m_depth;
 
-							uint8_t* temp = (uint8_t*)BX_ALLOC(g_allocator, size);
+							uint8_t* temp = (uint8_t*)bx::alloc(g_allocator, size);
 							bimg::imageCopy(temp
 								, mip.m_height
 								, mip.m_width * mip.m_bpp / 8
@@ -3324,9 +3338,9 @@ namespace bgfx { namespace webgpu
 				stagingBuffer.Unmap();
 			}
 
-			wgpu::ImageCopyBuffer* imageCopyBuffer = (wgpu::ImageCopyBuffer*)BX_ALLOC(g_allocator, sizeof(wgpu::ImageCopyBuffer) * numSrd);
-			wgpu::ImageCopyTexture* imageCopyTexture = (wgpu::ImageCopyTexture*)BX_ALLOC(g_allocator, sizeof(wgpu::ImageCopyTexture) * numSrd);
-			wgpu::Extent3D* textureCopySize = (wgpu::Extent3D*)BX_ALLOC(g_allocator, sizeof(wgpu::Extent3D) * numSrd);
+			wgpu::ImageCopyBuffer* imageCopyBuffer = (wgpu::ImageCopyBuffer*)bx::alloc(g_allocator, sizeof(wgpu::ImageCopyBuffer) * numSrd);
+			wgpu::ImageCopyTexture* imageCopyTexture = (wgpu::ImageCopyTexture*)bx::alloc(g_allocator, sizeof(wgpu::ImageCopyTexture) * numSrd);
+			wgpu::Extent3D* textureCopySize = (wgpu::Extent3D*)bx::alloc(g_allocator, sizeof(wgpu::Extent3D) * numSrd);
 
 			uint64_t offset = 0;
 
@@ -3378,14 +3392,14 @@ namespace bgfx { namespace webgpu
 			//vkFreeMemory(device, stagingDeviceMem, allocatorCb);
 			//vkDestroy(stagingBuffer);
 
-			BX_FREE(g_allocator, imageCopyBuffer);
-			BX_FREE(g_allocator, imageCopyTexture);
-			BX_FREE(g_allocator, textureCopySize);
+			bx::free(g_allocator, imageCopyBuffer);
+			bx::free(g_allocator, imageCopyTexture);
+			bx::free(g_allocator, textureCopySize);
 			for (uint32_t ii = 0; ii < numSrd; ++ii)
 			{
-				BX_FREE(g_allocator, imageInfos[ii].data);
+				bx::free(g_allocator, imageInfos[ii].data);
 			}
-			BX_FREE(g_allocator, imageInfos);
+			bx::free(g_allocator, imageInfos);
 		}
 	}
 
@@ -3404,7 +3418,7 @@ namespace bgfx { namespace webgpu
 
 		if (convert)
 		{
-			temp = (uint8_t*)BX_ALLOC(g_allocator, rectpitch*_rect.m_height);
+			temp = (uint8_t*)bx::alloc(g_allocator, rectpitch*_rect.m_height);
 			bimg::imageDecodeToBgra8(
 				  g_allocator
 				, temp
@@ -3464,7 +3478,7 @@ namespace bgfx { namespace webgpu
 
 		if (NULL != temp)
 		{
-			BX_FREE(g_allocator, temp);
+			bx::free(g_allocator, temp);
 		}
 	}
 
@@ -3846,7 +3860,7 @@ namespace bgfx { namespace webgpu
 	{
 		if (NULL != m_swapChain)
 		{
-			BX_DELETE(g_allocator, m_swapChain);
+			bx::deleteObject(g_allocator, m_swapChain);
 			m_swapChain = NULL;
 		}
 
@@ -3981,9 +3995,10 @@ namespace bgfx { namespace webgpu
 	{
 	}
 
-	uint32_t TimerQueryWgpu::begin(uint32_t _resultIdx)
+	uint32_t TimerQueryWgpu::begin(uint32_t _resultIdx, uint32_t _frameNum)
 	{
 		BX_UNUSED(_resultIdx);
+		BX_UNUSED(_frameNum);
 		return 0;
 	}
 
@@ -4841,6 +4856,7 @@ namespace bgfx { namespace webgpu
 		perfStats.numCompute    = statsKeyType[1];
 		perfStats.numBlit       = _render->m_numBlitItems;
 		perfStats.maxGpuLatency = maxGpuLatency;
+		perfStats.gpuFrameNum   = result.m_frameNum;
 		bx::memCopy(perfStats.numPrims, statsNumPrimsRendered, sizeof(perfStats.numPrims) );
 		perfStats.gpuMemoryMax  = -INT64_MAX;
 		perfStats.gpuMemoryUsed = -INT64_MAX;
