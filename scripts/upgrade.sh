@@ -6,8 +6,18 @@ git_clone () {
 	local DEST=$1
 	local REPO=$2
 	local BRANCH=$3
+	local COMMIT=$4
+	local DEPTH=100 # Ensure enough commits are available for COMMIT option to work.
 
-	git clone "${REPO}" "${DEST}" --branch="${BRANCH}" --depth=1 --separate-git-dir="$(mktemp -u)" && rm "${DEST}"/.git
+	git clone "${REPO}" "${DEST}" --branch="${BRANCH}" --depth="${DEPTH}" --separate-git-dir="$(mktemp -u)"
+
+	if [ ! -z "${COMMIT}" ]; then
+		pushd "${PWD}" > /dev/null
+		cd "${DEST}"                        \
+			&& git reset --hard "${COMMIT}" \
+			&& rm .git
+		popd > /dev/null
+	fi
 }
 
 update_luajit () {
