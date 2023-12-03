@@ -759,7 +759,12 @@ struct WindowX11 : public Window
 		xev.xclient.data.l[0] = maximize ? 1 : 0; // 0 = remove property, 1 = set property
 		xev.xclient.data.l[1] = s_linux_device->_net_wm_state_maximized_horz;
 		xev.xclient.data.l[2] = s_linux_device->_net_wm_state_maximized_vert;
-		XSendEvent(s_linux_device->_x11_display, DefaultRootWindow(s_linux_device->_x11_display), False, SubstructureNotifyMask | SubstructureRedirectMask, &xev);
+		XSendEvent(s_linux_device->_x11_display
+			, DefaultRootWindow(s_linux_device->_x11_display)
+			, False
+			, SubstructureNotifyMask | SubstructureRedirectMask
+			, &xev
+			);
 	}
 
 	void minimize() override
