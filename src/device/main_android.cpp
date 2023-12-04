@@ -223,8 +223,9 @@ struct WindowAndroid : public Window
 	{
 	}
 
-	void open(u16 /*x*/, u16 /*y*/, u16 /*width*/, u16 /*height*/, u32 /*parent*/) override
+	void open(u16 x, u16 y, u16 width, u16 height, u32 parent) override
 	{
+		CE_UNUSED_5(x, y, width, height, parent);
 	}
 
 	void close() override
@@ -243,12 +244,14 @@ struct WindowAndroid : public Window
 	{
 	}
 
-	void resize(u16 /*width*/, u16 /*height*/) override
+	void resize(u16 width, u16 height) override
 	{
+		CE_UNUSED_2(width, height);
 	}
 
-	void move(u16 /*x*/, u16 /*y*/) override
+	void move(u16 x, u16 y) override
 	{
+		CE_UNUSED_2(x, y);
 	}
 
 	void minimize() override
@@ -268,24 +271,29 @@ struct WindowAndroid : public Window
 		return NULL;
 	}
 
-	void set_title(const char * /*title*/) override
+	void set_title(const char *title) override
 	{
+		CE_UNUSED(title);
 	}
 
-	void show_cursor(bool /*show*/) override
+	void show_cursor(bool show) override
 	{
+		CE_UNUSED(show);
 	}
 
-	void set_fullscreen(bool /*fullscreen*/) override
+	void set_fullscreen(bool fullscreen) override
 	{
+		CE_UNUSED(fullscreen);
 	}
 
-	void set_cursor(MouseCursor::Enum /*cursor*/) override
+	void set_cursor(MouseCursor::Enum cursor) override
 	{
+		CE_UNUSED(cursor);
 	}
 
-	void set_cursor_mode(CursorMode::Enum /*mode*/) override
+	void set_cursor_mode(CursorMode::Enum mode) override
 	{
+		CE_UNUSED(mode);
 	}
 
 	void *handle() override
@@ -310,12 +318,14 @@ namespace window
 
 struct DisplayAndroid : public Display
 {
-	void modes(Array<DisplayMode> & /*modes*/) override
+	void modes(Array<DisplayMode> &modes) override
 	{
+		CE_UNUSED(modes);
 	}
 
-	void set_mode(u32 /*id*/) override
+	void set_mode(u32 id) override
 	{
+		CE_UNUSED(id);
 	}
 };
 

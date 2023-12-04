@@ -618,8 +618,9 @@ struct WindowWin : public Window
 	{
 	}
 
-	void open(u16 x, u16 y, u16 width, u16 height, u32 /*parent*/) override
+	void open(u16 x, u16 y, u16 width, u16 height, u32 parent) override
 	{
+		CE_UNUSED(parent);
 		move(x, y);
 		resize(width, height);
 	}
@@ -709,8 +710,9 @@ struct WindowWin : public Window
 		SetCursor(s_windows_device->_hcursor);
 	}
 
-	void set_fullscreen(bool /*fullscreen*/) override
+	void set_fullscreen(bool fullscreen) override
 	{
+		CE_UNUSED(fullscreen);
 	}
 
 	void set_cursor(MouseCursor::Enum cursor) override
@@ -767,12 +769,14 @@ namespace window
 
 struct DisplayWin : public Display
 {
-	void modes(Array<DisplayMode> & /*modes*/) override
+	void modes(Array<DisplayMode> &modes) override
 	{
+		CE_UNUSED(modes);
 	}
 
-	void set_mode(u32 /*id*/) override
+	void set_mode(u32 id) override
 	{
+		CE_UNUSED(id);
 	}
 };
 
