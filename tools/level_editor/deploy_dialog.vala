@@ -43,6 +43,7 @@ public class DeployDialog : Gtk.Dialog
 	public ComboBoxMap _android_config;
 	public CheckBox _android_armv7;
 	public CheckBox _android_armv8;
+	public CheckBox _android_use_debug_keystore;
 	public Gtk.FileChooserButton _android_keystore;
 	public Gtk.Entry _android_keystore_password;
 	public Gtk.Entry _android_key_alias;
@@ -122,25 +123,37 @@ public class DeployDialog : Gtk.Dialog
 					return;
 				}
 
-				string? keystore_path = _android_keystore.get_filename();
+				string? keystore_path = _android_use_debug_keystore.get_active()
+					? GLib.Path.build_filename(GLib.Environment.get_home_dir(), ".android", "debug.keystore")
+					: _android_keystore.get_filename()
+					;
 				if (keystore_path == null) {
 					loge("Enter a valid Keystore file");
 					return;
 				}
 
-				string keystore_pass = _android_keystore_password.text;
+				string keystore_pass = _android_use_debug_keystore.get_active()
+					? "android"
+					: _android_keystore_password.text
+					;
 				if (keystore_path.length == 0) {
 					loge("Enter a valid Keystore Password");
 					return;
 				}
 
-				string key_alias = _android_key_alias.text;
+				string key_alias = _android_use_debug_keystore.get_active()
+					? "androiddebugkey"
+					: _android_key_alias.text
+					;
 				if (key_alias.length == 0) {
 					loge("Enter a valid Key Alias");
 					return;
 				}
 
-				string key_pass = _android_key_password.text;
+				string key_pass = _android_use_debug_keystore.get_active()
+					? "android"
+					: _android_key_password.text
+					;
 				if (key_pass.length == 0) {
 					loge("Enter a valid Key Password");
 					return;
@@ -185,6 +198,9 @@ public class DeployDialog : Gtk.Dialog
 		_android_armv7.value = false;
 		_android_armv8 = new CheckBox();
 		_android_armv8.value = true;
+		_android_use_debug_keystore = new CheckBox();
+		_android_use_debug_keystore.value_changed.connect(() => { android_set_debug_keystore(); });
+		_android_use_debug_keystore.value = true;
 		_android_keystore = new Gtk.FileChooserButton("Select file", Gtk.FileChooserAction.OPEN);
 		_android_keystore_password = new Gtk.Entry();
 		_android_keystore_password.set_visibility(false);
@@ -202,6 +218,8 @@ public class DeployDialog : Gtk.Dialog
 		_android_app_version_code.placeholder_text = "1";
 		_android_app_version_name = new Gtk.Entry();
 		_android_app_version_name.placeholder_text = "1.0";
+
+		android_set_debug_keystore();
 
 		_android_set = new PropertyGridSet();
 		_android_set.border_width = 12;
@@ -229,6 +247,7 @@ public class DeployDialog : Gtk.Dialog
 		// Android Signing.
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
+		cv.add_row("Use debug keystore", _android_use_debug_keystore);
 		cv.add_row("Keystore", _android_keystore);
 		cv.add_row("Keystore password", _android_keystore_password);
 		cv.add_row("Alias", _android_key_alias);
@@ -416,6 +435,15 @@ public class DeployDialog : Gtk.Dialog
 
 		this.get_content_area().border_width = 0;
 		this.get_content_area().add(_notebook);
+	}
+
+	public void android_set_debug_keystore()
+	{
+		bool sensitive = !_android_use_debug_keystore.get_active();
+		_android_keystore.sensitive = sensitive;
+		_android_keystore_password.sensitive = sensitive;
+		_android_key_alias.sensitive = sensitive;
+		_android_key_password.sensitive = sensitive;
 	}
 }
 

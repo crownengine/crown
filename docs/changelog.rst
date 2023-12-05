@@ -4,6 +4,10 @@ Changelog
 0.50.0 --- DD MMM YYYY
 ----------------------
 
+**Tools**
+
+* Added an option to use the debug keystore when deploying APKs for Android.
+
 0.49.0 --- 27 Nov 2023
 ----------------------
 
