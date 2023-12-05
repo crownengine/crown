@@ -152,6 +152,7 @@ function toolchain(build_dir, lib_dir)
 	end
 
 	flags {
+		"Cpp14",
 		"StaticRuntime",
 		"NoPCH",
 		"NoRTTI",
@@ -238,9 +239,6 @@ function toolchain(build_dir, lib_dir)
 			"-Wextra",
 			"-Wundef",
 			"-msse2",
-		}
-		buildoptions_cpp {
-			"-std=c++14",
 		}
 		links {
 			"dl",
@@ -355,9 +353,6 @@ function toolchain(build_dir, lib_dir)
 			"-Wunused-value",
 			"-Wundef",
 		}
-		buildoptions_cpp {
-			"-std=c++14",
-		}
 		linkoptions {
 			"-Wl,--gc-sections",
 			"-static",
@@ -411,6 +406,7 @@ function toolchain(build_dir, lib_dir)
 		buildoptions {
 			"/Ob2", -- The Inline Function Expansion
 			"/we4715", -- Not all control paths return a value
+			"/Zc:__cplusplus", -- https://learn.microsoft.com/en-us/cpp/build/reference/zc-cplusplus?view=msvc-170
 		}
 		linkoptions {
 			"/ignore:4199", -- LNK4199: /DELAYLOAD:*.dll ignored; no imports found from *.dll
