@@ -1292,23 +1292,22 @@ public class LevelEditorApplication : Gtk.Application
 		_inspector_stack.set_visible_child(_inspector_stack_compiling_data_label);
 
 		// Compile data.
-		_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
-				if (_data_compiler.compile.end(res)) {
-					load_level(ln);
+		bool success = yield _data_compiler.compile(_project.data_dir(), _project.platform());
 
-					// If successful, start the level editor.
-					restart_editor.begin((obj, res) => {
-							restart_editor.end(res);
+		if (!success) {
+			_project_stack.set_visible_child(_project_stack_compiler_failed_compilation_label);
+			_editor_stack.set_visible_child(_editor_stack_compiler_failed_compilation_label);
+			_inspector_stack.set_visible_child(_inspector_stack_compiler_failed_compilation_label);
+			return;
+		}
 
-							_project_stack.set_visible_child(_project_browser);
-							_inspector_stack.set_visible_child(_inspector_pane);
-						});
-				} else {
-					_project_stack.set_visible_child(_project_stack_compiler_failed_compilation_label);
-					_editor_stack.set_visible_child(_editor_stack_compiler_failed_compilation_label);
-					_inspector_stack.set_visible_child(_inspector_stack_compiler_failed_compilation_label);
-				}
-			});
+		// If successful, start the level editor.
+		load_level(ln);
+		yield restart_editor();
+
+		_project_stack.set_visible_child(_project_browser);
+		_inspector_stack.set_visible_child(_inspector_pane);
+		return;
 	}
 
 	public async void stop_heads()
@@ -1915,7 +1914,11 @@ public class LevelEditorApplication : Gtk.Application
 			this.show_panel("main_vbox", Gtk.StackTransitionType.NONE);
 			_user.add_or_touch_recent_project(source_dir, source_dir);
 			_console_view.reset();
-			restart_backend.begin(source_dir, LEVEL_NONE);
+
+			restart_backend.begin(source_dir, LEVEL_NONE, (obj, res) => {
+					restart_backend.end(res);
+					_project_browser.select_project_root();
+				});
 		}
 	}
 

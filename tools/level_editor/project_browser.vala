@@ -477,6 +477,11 @@ public class ProjectBrowser : Gtk.Box
 
 		return Gdk.EVENT_PROPAGATE;
 	}
+
+	public void select_project_root()
+	{
+		_tree_selection.select_path(new Gtk.TreePath.first());
+	}
 }
 
 } /* namespace Crown */
