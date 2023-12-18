@@ -2567,6 +2567,13 @@ void load_api(LuaEnvironment &env)
 			stack.push_string(buf);
 			return 1;
 		});
+#if CROWN_DEBUG || CROWN_DEVELOPMENT
+	env.add_module_function("Device", "screenshot", [](lua_State *L) {
+			LuaStack stack(L);
+			device()->screenshot(stack.get_string(1));
+			return 0;
+		});
+#endif
 
 	env.add_module_function("Profiler", "enter_scope", [](lua_State *L) {
 			LuaStack stack(L);

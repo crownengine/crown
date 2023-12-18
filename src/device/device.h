@@ -122,6 +122,9 @@ struct Device
 
 	/// Reloads all the resources listed in the @a json message.
 	void refresh(const char *json);
+
+	/// Captures a screenshot of the main window's backbuffer and saves it at @a path in PNG format.
+	void screenshot(const char *path);
 };
 
 /// Runs the engine.

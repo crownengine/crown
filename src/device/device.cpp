@@ -63,7 +63,11 @@
 #include "world/unit_manager.h"
 #include "world/world.h"
 #include <bgfx/bgfx.h>
+#include <bimg/bimg.h>
 #include <bx/allocator.h>
+#include <bx/error.h>
+#include <bx/error.h>
+#include <bx/file.h>
 #include <bx/math.h>
 #if CROWN_PLATFORM_EMSCRIPTEN
 	#include <emscripten/emscripten.h>
@@ -127,7 +131,22 @@ struct BgfxCallback : public bgfx::CallbackI
 
 	virtual void screenShot(const char *_filePath, u32 _width, u32 _height, u32 _pitch, const void *_data, u32 _size, bool _yflip) override
 	{
-		CE_UNUSED_7(_filePath, _width, _height, _pitch, _data, _size, _yflip);
+		CE_UNUSED(_size);
+
+		bx::Error err;
+		bx::FileWriter writer;
+		if (bx::open(&writer, _filePath, false, &err)) {
+			bimg::imageWritePng(&writer
+				, _width
+				, _height
+				, _pitch
+				, _data
+				, bimg::TextureFormat::BGRA8
+				, _yflip
+				, &err
+				);
+			bx::close(&writer);
+		}
 	}
 
 	virtual void captureBegin(u32 _width, u32 _height, u32 _pitch, bgfx::TextureFormat::Enum _format, bool _yflip) override
@@ -790,6 +809,11 @@ void Device::refresh(const char *json)
 	if (_paused)
 		unpause();
 #endif // if CROWN_DEBUG
+}
+
+void Device::screenshot(const char *path)
+{
+	bgfx::requestScreenShot(BGFX_INVALID_HANDLE, path);
 }
 
 Device *_device = NULL;

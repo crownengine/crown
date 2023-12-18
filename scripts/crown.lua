@@ -12,6 +12,7 @@ function crown_project(_name, _kind, _defines)
 			CROWN_DIR .. "src",
 			CROWN_DIR .. "3rdparty/bgfx/include",
 			CROWN_DIR .. "3rdparty/bgfx/src",
+			CROWN_DIR .. "3rdparty/bimg/include",
 			CROWN_DIR .. "3rdparty/bx/include",
 			CROWN_DIR .. "3rdparty/stb",
 			CROWN_DIR .. "3rdparty/bullet3/src",
