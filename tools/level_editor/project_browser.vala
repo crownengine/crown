@@ -227,8 +227,9 @@ public class ProjectBrowser : Gtk.Box
 				_tree_view.model.get_value(iter, ProjectStore.Column.TYPE, out type);
 				_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
 
+				Gtk.Menu menu = new Gtk.Menu();
+
 				if (type == "<folder>") {
-					Gtk.Menu menu = new Gtk.Menu();
 					Gtk.MenuItem mi;
 
 					mi = new Gtk.MenuItem.with_label("Import...");
@@ -401,11 +402,7 @@ public class ProjectBrowser : Gtk.Box
 							});
 						menu.add(mi);
 					}
-
-					menu.show_all();
-					menu.popup_at_pointer(ev);
 				} else { // If file
-					Gtk.Menu menu = new Gtk.Menu();
 					Gtk.MenuItem mi;
 
 					mi = new Gtk.MenuItem.with_label("Delete File");
@@ -425,10 +422,31 @@ public class ProjectBrowser : Gtk.Box
 							}
 						});
 					menu.add(mi);
-
-					menu.show_all();
-					menu.popup_at_pointer(ev);
 				}
+
+				// Add shared menu items.
+				Gtk.MenuItem mi;
+
+				mi = new Gtk.SeparatorMenuItem();
+				menu.add(mi);
+
+				mi = new Gtk.MenuItem.with_label("Copy Path");
+				mi.activate.connect(() => {
+						string abs_path;
+
+						if ((string)type == "<folder>")
+							abs_path = _project_store._project.absolute_path((string)name);
+						else
+							abs_path = _project_store._project.absolute_path(ResourceId.path((string)type, (string)name));
+
+						var clip = Gtk.Clipboard.get_default(Gdk.Display.get_default());
+						clip.set_text(abs_path, abs_path.length);
+						clip.store();
+					});
+				menu.add(mi);
+
+				menu.show_all();
+				menu.popup_at_pointer(ev);
 			}
 		} else if (ev.button == Gdk.BUTTON_PRIMARY) {
 			if (ev.type == Gdk.EventType.@2BUTTON_PRESS) {
