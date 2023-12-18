@@ -436,7 +436,7 @@ public class Project
 	{
 		string prefix = _source_dir.get_path();
 
-		if (resource_path.has_prefix("core/"))
+		if (resource_path.has_prefix("core/") || resource_path == "core")
 			prefix = _toolchain_dir.get_path();
 
 		return Path.build_filename(prefix, resource_path);
