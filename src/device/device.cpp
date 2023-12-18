@@ -81,61 +81,67 @@ struct BgfxCallback : public bgfx::CallbackI
 {
 	virtual void fatal(const char *_filePath, uint16_t _line, bgfx::Fatal::Enum _code, const char *_str) override
 	{
+		CE_UNUSED_4(_filePath, _line, _code, _str);
 		CE_ASSERT(false, "Fatal error: 0x%08x: %s", _code, _str);
-		CE_UNUSED(_filePath);
-		CE_UNUSED(_line);
-		CE_UNUSED(_code);
-		CE_UNUSED(_str);
 	}
 
-	virtual void traceVargs(const char * /*_filePath*/, u16 /*_line*/, const char *_format, va_list _argList) override
+	virtual void traceVargs(const char *_filePath, u16 _line, const char *_format, va_list _argList) override
 	{
+		CE_UNUSED_2(_filePath, _line);
 		char buf[2048];
 		strncpy(buf, _format, sizeof(buf) - 1);
 		buf[strlen32(buf) - 1] = '\0'; // Remove trailing newline
 		vlogi(DEVICE, buf, _argList);
 	}
 
-	virtual void profilerBegin(const char * /*_name*/, uint32_t /*_abgr*/, const char * /*_filePath*/, uint16_t /*_line*/) override
+	virtual void profilerBegin(const char *_name, uint32_t _abgr, const char *_filePath, uint16_t _line) override
 	{
+		CE_UNUSED_4(_name, _abgr, _filePath, _line);
 	}
 
-	virtual void profilerBeginLiteral(const char * /*_name*/, uint32_t /*_abgr*/, const char * /*_filePath*/, uint16_t /*_line*/) override
+	virtual void profilerBeginLiteral(const char *_name, uint32_t _abgr, const char *_filePath, uint16_t _line) override
 	{
+		CE_UNUSED_4(_name, _abgr, _filePath, _line);
 	}
 
 	virtual void profilerEnd() override
 	{
 	}
 
-	virtual u32 cacheReadSize(u64 /*_id*/) override
+	virtual u32 cacheReadSize(u64 _id) override
 	{
+		CE_UNUSED(_id);
 		return 0;
 	}
 
-	virtual bool cacheRead(u64 /*_id*/, void * /*_data*/, u32 /*_size*/) override
+	virtual bool cacheRead(u64 _id, void *_data, u32 _size) override
 	{
+		CE_UNUSED_3(_id, _data, _size);
 		return false;
 	}
 
-	virtual void cacheWrite(u64 /*_id*/, const void * /*_data*/, u32 /*_size*/) override
+	virtual void cacheWrite(u64 _id, const void *_data, u32 _size) override
 	{
+		CE_UNUSED_3(_id, _data, _size);
 	}
 
-	virtual void screenShot(const char * /*_filePath*/, u32 /*_width*/, u32 /*_height*/, u32 /*_pitch*/, const void * /*_data*/, u32 /*_size*/, bool /*_yflip*/) override
+	virtual void screenShot(const char *_filePath, u32 _width, u32 _height, u32 _pitch, const void *_data, u32 _size, bool _yflip) override
 	{
+		CE_UNUSED_7(_filePath, _width, _height, _pitch, _data, _size, _yflip);
 	}
 
-	virtual void captureBegin(u32 /*_width*/, u32 /*_height*/, u32 /*_pitch*/, bgfx::TextureFormat::Enum /*_format*/, bool /*_yflip*/) override
+	virtual void captureBegin(u32 _width, u32 _height, u32 _pitch, bgfx::TextureFormat::Enum _format, bool _yflip) override
 	{
+		CE_UNUSED_5(_width, _height, _pitch, _format, _yflip);
 	}
 
 	virtual void captureEnd() override
 	{
 	}
 
-	virtual void captureFrame(const void * /*_data*/, u32 /*_size*/) override
+	virtual void captureFrame(const void *_data, u32 _size) override
 	{
+		CE_UNUSED_2(_data, _size);
 	}
 };
 

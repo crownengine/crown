@@ -100,6 +100,8 @@ struct StringId64 STRING_ID_64(const char *str, const u64 id);
 #define CE_UNUSED_3(a, b, c) CE_UNUSED_2(a, b); CE_UNUSED(c)
 #define CE_UNUSED_4(a, b, c, d) CE_UNUSED_3(a, b, c); CE_UNUSED(d)
 #define CE_UNUSED_5(a, b, c, d, e) CE_UNUSED_4(a, b, c, d); CE_UNUSED(e)
+#define CE_UNUSED_6(a, b, c, d, e, f) CE_UNUSED_5(a, b, c, d, e); CE_UNUSED(f)
+#define CE_UNUSED_7(a, b, c, d, e, f, g) CE_UNUSED_6(a, b, c, d, e, f); CE_UNUSED(g)
 #define CE_STATIC_ASSERT(condition, ...) static_assert(condition, "" # __VA_ARGS__)
 
 #if CROWN_COMPILER_GCC || CROWN_COMPILER_CLANG
