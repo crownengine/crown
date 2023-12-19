@@ -333,7 +333,8 @@ public class LevelEditorApplication : Gtk.Application
 		{ "deploy",        on_deploy,        null, null },
 		{ "close",         on_close,         null, null },
 		{ "quit",          on_quit,          null, null },
-		{ "open-resource", on_open_resource, "s",  null }
+		{ "open-resource", on_open_resource, "s",  null },
+		{ "copy-path",     on_copy_path,     "s",  null }
 	};
 
 	private const GLib.ActionEntry[] action_entries_edit =
@@ -2102,6 +2103,17 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
+	private void on_copy_path(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string path  = param.get_string();
+
+		string abs_path = _project.absolute_path(path);
+
+		var clip = Gtk.Clipboard.get_default(Gdk.Display.get_default());
+		clip.set_text(abs_path, abs_path.length);
+		clip.store();
+	}
+
 	private void on_show_grid(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		_show_grid = !action.get_state().get_boolean();
@@ -2503,9 +2515,16 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_open_containing(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		string parent_name = param.get_string();
+		string path = param.get_string();
+		GLib.File abs_path = GLib.File.new_for_path(_project.absolute_path(path));
+		GLib.File? abs_parent = abs_path.get_parent();
 
-		open_directory(_project.absolute_path(parent_name));
+		string abs_parent_path = abs_parent != null
+			? abs_parent.get_path()
+			: abs_path.get_path()
+			;
+
+		open_directory(abs_parent_path);
 	}
 
 	public void delete_tree(GLib.File file) throws Error

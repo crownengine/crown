@@ -8,6 +8,224 @@ using Gee;
 
 namespace Crown
 {
+private Gtk.Menu? menu_create(string type, string name)
+{
+	Gtk.Menu? menu;
+
+	if (type == "<folder>") {
+		menu = new Gtk.Menu();
+
+		Gtk.MenuItem mi;
+
+		mi = new Gtk.MenuItem.with_label("Import...");
+		mi.activate.connect(() => {
+				GLib.Application.get_default().activate_action("import", new GLib.Variant.string((string)name));
+			});
+		menu.add(mi);
+
+		mi = new Gtk.SeparatorMenuItem();
+		menu.add(mi);
+
+		mi = new Gtk.MenuItem.with_label("New Script...");
+		mi.activate.connect(() => {
+				Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Script Name"
+					, ((Gtk.Application)GLib.Application.get_default()).active_window
+					, DialogFlags.MODAL
+					, "Cancel"
+					, ResponseType.CANCEL
+					, "Ok"
+					, ResponseType.OK
+					, null
+					);
+
+				EntryText sb = new EntryText();
+				sb.activate.connect(() => { dg.response(ResponseType.OK); });
+				dg.get_content_area().add(sb);
+				dg.skip_taskbar_hint = true;
+				dg.show_all();
+
+				if (dg.run() == (int)ResponseType.OK) {
+					if (sb.text.strip() == "") {
+						dg.destroy();
+						return;
+					}
+
+					var tuple = new GLib.Variant.tuple({(string)name, sb.text, true});
+					GLib.Application.get_default().activate_action("create-script", tuple);
+				}
+
+				dg.destroy();
+			});
+		menu.add(mi);
+
+		mi = new Gtk.MenuItem.with_label("New Script (Unit)...");
+		mi.activate.connect(() => {
+				Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Script Name"
+					, ((Gtk.Application)GLib.Application.get_default()).active_window
+					, DialogFlags.MODAL
+					, "Cancel"
+					, ResponseType.CANCEL
+					, "Ok"
+					, ResponseType.OK
+					, null
+					);
+
+				EntryText sb = new EntryText();
+				sb.activate.connect(() => { dg.response(ResponseType.OK); });
+				dg.get_content_area().add(sb);
+				dg.skip_taskbar_hint = true;
+				dg.show_all();
+
+				if (dg.run() == (int)ResponseType.OK) {
+					if (sb.text.strip() == "") {
+						dg.destroy();
+						return;
+					}
+
+					var tuple = new GLib.Variant.tuple({(string)name, sb.text, false});
+					GLib.Application.get_default().activate_action("create-script", tuple);
+				}
+
+				dg.destroy();
+			});
+		menu.add(mi);
+
+		mi = new Gtk.SeparatorMenuItem();
+		menu.add(mi);
+
+		mi = new Gtk.MenuItem.with_label("New Unit...");
+		mi.activate.connect(() => {
+				Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Unit Name"
+					, ((Gtk.Application)GLib.Application.get_default()).active_window
+					, DialogFlags.MODAL
+					, "Cancel"
+					, ResponseType.CANCEL
+					, "Ok"
+					, ResponseType.OK
+					, null
+					);
+
+				EntryText sb = new EntryText();
+				sb.activate.connect(() => { dg.response(ResponseType.OK); });
+				dg.get_content_area().add(sb);
+				dg.skip_taskbar_hint = true;
+				dg.show_all();
+
+				if (dg.run() == (int)ResponseType.OK) {
+					if (sb.text.strip() == "") {
+						dg.destroy();
+						return;
+					}
+				}
+
+				var tuple = new GLib.Variant.tuple({(string)name, sb.text});
+				GLib.Application.get_default().activate_action("create-unit", tuple);
+
+				dg.destroy();
+			});
+		menu.add(mi);
+
+		mi = new Gtk.SeparatorMenuItem();
+		menu.add(mi);
+
+		mi = new Gtk.MenuItem.with_label("New Folder...");
+		mi.activate.connect(() => {
+				Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Folder Name"
+					, ((Gtk.Application)GLib.Application.get_default()).active_window
+					, DialogFlags.MODAL
+					, "Cancel"
+					, ResponseType.CANCEL
+					, "Ok"
+					, ResponseType.OK
+					, null
+					);
+
+				EntryText sb = new EntryText();
+				sb.activate.connect(() => { dg.response(ResponseType.OK); });
+				dg.get_content_area().add(sb);
+				dg.skip_taskbar_hint = true;
+				dg.show_all();
+
+				if (dg.run() == (int)ResponseType.OK) {
+					if (sb.text.strip() == "") {
+						dg.destroy();
+						return;
+					}
+
+					var tuple = new GLib.Variant.tuple({(string)name, sb.text});
+					GLib.Application.get_default().activate_action("create-directory", tuple);
+				}
+
+				dg.destroy();
+			});
+		menu.add(mi);
+
+		if ((string)name != ProjectStore.ROOT_FOLDER) {
+			mi = new Gtk.MenuItem.with_label("Delete Folder");
+			mi.activate.connect(() => {
+					Gtk.MessageDialog md = new Gtk.MessageDialog(((Gtk.Application)GLib.Application.get_default()).active_window
+						, Gtk.DialogFlags.MODAL
+						, Gtk.MessageType.WARNING
+						, Gtk.ButtonsType.NONE
+						, "Delete Folder " + (string)name + "?"
+						);
+
+					Gtk.Widget btn;
+					md.add_button("_Cancel", ResponseType.CANCEL);
+					btn = md.add_button("_Delete", ResponseType.YES);
+					btn.get_style_context().add_class(Gtk.STYLE_CLASS_DESTRUCTIVE_ACTION);
+
+					md.set_default_response(ResponseType.CANCEL);
+
+					int rt = md.run();
+					md.destroy();
+
+					if (rt != (int)ResponseType.YES)
+						return;
+
+					GLib.Application.get_default().activate_action("delete-directory", new GLib.Variant.string((string)name));
+				});
+			menu.add(mi);
+		}
+	} else { // If file
+		menu = new Gtk.Menu();
+
+		Gtk.MenuItem mi;
+
+		mi = new Gtk.MenuItem.with_label("Delete File");
+		mi.activate.connect(() => {
+				GLib.Application.get_default().activate_action("delete-file", new GLib.Variant.string(ResourceId.path((string)type, (string)name)));
+			});
+		menu.add(mi);
+
+		mi = new Gtk.MenuItem.with_label("Open Containing Folder...");
+		mi.activate.connect(() => {
+				GLib.Application.get_default().activate_action("open-containing", new GLib.Variant.string(name));
+			});
+		menu.add(mi);
+	}
+
+	// Add shared menu items.
+	Gtk.MenuItem mi;
+
+	mi = new Gtk.SeparatorMenuItem();
+	menu.add(mi);
+
+	mi = new Gtk.MenuItem.with_label("Copy Path");
+	mi.activate.connect(() => {
+			string path;
+			if (type == "<folder>")
+				path = name;
+			else
+				path = ResourceId.path(type, name);
+
+			GLib.Application.get_default().activate_action("copy-path", new GLib.Variant.string(path));
+		});
+	menu.add(mi);
+
+	return menu;
+}
+
 public class ProjectBrowser : Gtk.Box
 {
 	// Data
@@ -227,226 +445,11 @@ public class ProjectBrowser : Gtk.Box
 				_tree_view.model.get_value(iter, ProjectStore.Column.TYPE, out type);
 				_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
 
-				Gtk.Menu menu = new Gtk.Menu();
-
-				if (type == "<folder>") {
-					Gtk.MenuItem mi;
-
-					mi = new Gtk.MenuItem.with_label("Import...");
-					mi.activate.connect(() => {
-							GLib.Application.get_default().activate_action("import", new GLib.Variant.string((string)name));
-						});
-					menu.add(mi);
-
-					mi = new Gtk.SeparatorMenuItem();
-					menu.add(mi);
-
-					mi = new Gtk.MenuItem.with_label("New Script...");
-					mi.activate.connect(() => {
-							Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Script Name"
-								, (Gtk.Window)this.get_toplevel()
-								, DialogFlags.MODAL
-								, "Cancel"
-								, ResponseType.CANCEL
-								, "Ok"
-								, ResponseType.OK
-								, null
-								);
-
-							EntryText sb = new EntryText();
-							sb.activate.connect(() => { dg.response(ResponseType.OK); });
-							dg.get_content_area().add(sb);
-							dg.skip_taskbar_hint = true;
-							dg.show_all();
-
-							if (dg.run() == (int)ResponseType.OK) {
-								if (sb.text.strip() == "") {
-									dg.destroy();
-									return;
-								}
-
-								var tuple = new GLib.Variant.tuple({(string)name, sb.text, true});
-								GLib.Application.get_default().activate_action("create-script", tuple);
-							}
-
-							dg.destroy();
-						});
-					menu.add(mi);
-
-					mi = new Gtk.MenuItem.with_label("New Script (Unit)...");
-					mi.activate.connect(() => {
-							Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Script Name"
-								, (Gtk.Window)this.get_toplevel()
-								, DialogFlags.MODAL
-								, "Cancel"
-								, ResponseType.CANCEL
-								, "Ok"
-								, ResponseType.OK
-								, null
-								);
-
-							EntryText sb = new EntryText();
-							sb.activate.connect(() => { dg.response(ResponseType.OK); });
-							dg.get_content_area().add(sb);
-							dg.skip_taskbar_hint = true;
-							dg.show_all();
-
-							if (dg.run() == (int)ResponseType.OK) {
-								if (sb.text.strip() == "") {
-									dg.destroy();
-									return;
-								}
-
-								var tuple = new GLib.Variant.tuple({(string)name, sb.text, false});
-								GLib.Application.get_default().activate_action("create-script", tuple);
-							}
-
-							dg.destroy();
-						});
-					menu.add(mi);
-
-					mi = new Gtk.SeparatorMenuItem();
-					menu.add(mi);
-
-					mi = new Gtk.MenuItem.with_label("New Unit...");
-					mi.activate.connect(() => {
-							Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Unit Name"
-								, (Gtk.Window)this.get_toplevel()
-								, DialogFlags.MODAL
-								, "Cancel"
-								, ResponseType.CANCEL
-								, "Ok"
-								, ResponseType.OK
-								, null
-								);
-
-							EntryText sb = new EntryText();
-							sb.activate.connect(() => { dg.response(ResponseType.OK); });
-							dg.get_content_area().add(sb);
-							dg.skip_taskbar_hint = true;
-							dg.show_all();
-
-							if (dg.run() == (int)ResponseType.OK) {
-								if (sb.text.strip() == "") {
-									dg.destroy();
-									return;
-								}
-							}
-
-							var tuple = new GLib.Variant.tuple({(string)name, sb.text});
-							GLib.Application.get_default().activate_action("create-unit", tuple);
-
-							dg.destroy();
-						});
-					menu.add(mi);
-
-					mi = new Gtk.SeparatorMenuItem();
-					menu.add(mi);
-
-					mi = new Gtk.MenuItem.with_label("New Folder...");
-					mi.activate.connect(() => {
-							Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Folder Name"
-								, (Gtk.Window)this.get_toplevel()
-								, DialogFlags.MODAL
-								, "Cancel"
-								, ResponseType.CANCEL
-								, "Ok"
-								, ResponseType.OK
-								, null
-								);
-
-							EntryText sb = new EntryText();
-							sb.activate.connect(() => { dg.response(ResponseType.OK); });
-							dg.get_content_area().add(sb);
-							dg.skip_taskbar_hint = true;
-							dg.show_all();
-
-							if (dg.run() == (int)ResponseType.OK) {
-								if (sb.text.strip() == "") {
-									dg.destroy();
-									return;
-								}
-
-								var tuple = new GLib.Variant.tuple({(string)name, sb.text});
-								GLib.Application.get_default().activate_action("create-directory", tuple);
-							}
-
-							dg.destroy();
-						});
-					menu.add(mi);
-
-					if ((string)name != ProjectStore.ROOT_FOLDER) {
-						mi = new Gtk.MenuItem.with_label("Delete Folder");
-						mi.activate.connect(() => {
-								Gtk.MessageDialog md = new Gtk.MessageDialog((Gtk.Window)this.get_toplevel()
-									, Gtk.DialogFlags.MODAL
-									, Gtk.MessageType.WARNING
-									, Gtk.ButtonsType.NONE
-									, "Delete Folder " + (string)name + "?"
-									);
-
-								Gtk.Widget btn;
-								md.add_button("_Cancel", ResponseType.CANCEL);
-								btn = md.add_button("_Delete", ResponseType.YES);
-								btn.get_style_context().add_class(Gtk.STYLE_CLASS_DESTRUCTIVE_ACTION);
-
-								md.set_default_response(ResponseType.CANCEL);
-
-								int rt = md.run();
-								md.destroy();
-
-								if (rt != (int)ResponseType.YES)
-									return;
-
-								GLib.Application.get_default().activate_action("delete-directory", new GLib.Variant.string((string)name));
-							});
-						menu.add(mi);
-					}
-				} else { // If file
-					Gtk.MenuItem mi;
-
-					mi = new Gtk.MenuItem.with_label("Delete File");
-					mi.activate.connect(() => {
-							GLib.Application.get_default().activate_action("delete-file", new GLib.Variant.string(ResourceId.path((string)type, (string)name)));
-						});
-					menu.add(mi);
-
-					mi = new Gtk.MenuItem.with_label("Open Containing Folder...");
-					mi.activate.connect(() => {
-							Gtk.TreeIter parent;
-							if (_tree_view.model.iter_parent(out parent, iter)) {
-								Value parent_name;
-								_tree_view.model.get_value(parent, ProjectStore.Column.NAME, out parent_name);
-
-								GLib.Application.get_default().activate_action("open-containing", new GLib.Variant.string((string)parent_name));
-							}
-						});
-					menu.add(mi);
+				var? menu = menu_create((string)type, (string)name);
+				if (menu != null) {
+					menu.show_all();
+					menu.popup_at_pointer(ev);
 				}
-
-				// Add shared menu items.
-				Gtk.MenuItem mi;
-
-				mi = new Gtk.SeparatorMenuItem();
-				menu.add(mi);
-
-				mi = new Gtk.MenuItem.with_label("Copy Path");
-				mi.activate.connect(() => {
-						string abs_path;
-
-						if ((string)type == "<folder>")
-							abs_path = _project_store._project.absolute_path((string)name);
-						else
-							abs_path = _project_store._project.absolute_path(ResourceId.path((string)type, (string)name));
-
-						var clip = Gtk.Clipboard.get_default(Gdk.Display.get_default());
-						clip.set_text(abs_path, abs_path.length);
-						clip.store();
-					});
-				menu.add(mi);
-
-				menu.show_all();
-				menu.popup_at_pointer(ev);
 			}
 		} else if (ev.button == Gdk.BUTTON_PRIMARY) {
 			if (ev.type == Gdk.EventType.@2BUTTON_PRESS) {
