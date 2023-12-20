@@ -7,7 +7,7 @@ namespace Crown
 {
 namespace ResourceId
 {
-/// Returns the extension of @a path or null if the path has no extension.
+	/// Returns the extension of @a path or null if the path has no extension.
 	public string? extension(string path)
 	{
 		string bn = GLib.Path.get_basename(path);
@@ -15,13 +15,13 @@ namespace ResourceId
 		return (ld == -1 || bn.substring(ld) == bn) ? null : bn.substring(ld + 1);
 	}
 
-/// Returns the type of the resource @a path or null if the path has not type.
+	/// Returns the type of the resource @a path or null if the path has not type.
 	public string? type(string path)
 	{
 		return ResourceId.extension(path);
 	}
 
-/// Returns the name of the resource @a path or null if the path is not a resource path.
+	/// Returns the name of the resource @a path or null if the path is not a resource path.
 	public string? name(string path)
 	{
 		string? type = ResourceId.type(path);
@@ -33,7 +33,7 @@ namespace ResourceId
 		return type == "" ? name : name + "." + type;
 	}
 
-/// Converts a regular path into a resource path.
+	/// Converts a regular path into a resource path.
 	public string normalize(string path)
 	{
 		return path.replace("\\", "/");
