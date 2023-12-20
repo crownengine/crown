@@ -288,68 +288,13 @@ public class ProjectBrowser : Gtk.Box
 				return strcmp(GLib.Path.get_basename((string)id_a), GLib.Path.get_basename((string)id_b));
 			});
 
-		Gtk.TreeViewColumn column = new Gtk.TreeViewColumn();
 		Gtk.CellRendererPixbuf cell_pixbuf = new Gtk.CellRendererPixbuf();
 		Gtk.CellRendererText cell_text = new Gtk.CellRendererText();
+		Gtk.TreeViewColumn column = new Gtk.TreeViewColumn();
 		column.pack_start(cell_pixbuf, false);
 		column.pack_start(cell_text, true);
-		column.set_cell_data_func(cell_pixbuf, (cell_layout, cell, model, iter) => {
-				Value type;
-				model.get_value(iter, ProjectStore.Column.TYPE, out type);
-
-				// https://specifications.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html
-				if ((string)type == "<folder>")
-					cell.set_property("icon-name", "folder-symbolic");
-				else if ((string)type == "state_machine")
-					cell.set_property("icon-name", "text-x-generic-symbolic");
-				else if ((string)type == "config")
-					cell.set_property("icon-name", "text-x-generic-symbolic");
-				else if ((string)type == "font")
-					cell.set_property("icon-name", "font-x-generic-symbolic");
-				else if ((string)type == "unit")
-					cell.set_property("icon-name", "level-object-unit");
-				else if ((string)type == "level")
-					cell.set_property("icon-name", "text-x-generic-symbolic");
-				else if ((string)type == "material")
-					cell.set_property("icon-name", "text-x-generic-symbolic");
-				else if ((string)type == "mesh")
-					cell.set_property("icon-name", "text-x-generic-symbolic");
-				else if ((string)type == "package")
-					cell.set_property("icon-name", "package-x-generic-symbolic");
-				else if ((string)type == "physics_config")
-					cell.set_property("icon-name", "text-x-generic-symbolic");
-				else if ((string)type == "lua")
-					cell.set_property("icon-name", "x-office-document-symbolic");
-				else if ((string)type == "shader")
-					cell.set_property("icon-name", "text-x-script-symbolic");
-				else if ((string)type == "sound")
-					cell.set_property("icon-name", "audio-x-generic-symbolic");
-				else if ((string)type == "sprite_animation")
-					cell.set_property("icon-name", "text-x-generic-symbolic");
-				else if ((string)type == "sprite")
-					cell.set_property("icon-name", "text-x-generic-symbolic");
-				else if ((string)type == "texture")
-					cell.set_property("icon-name", "image-x-generic-symbolic");
-				else
-					cell.set_property("icon-name", "text-x-generic-symbolic");
-			});
-		column.set_cell_data_func(cell_text, (cell_layout, cell, model, iter) => {
-				Value name;
-				Value type;
-				model.get_value(iter, ProjectStore.Column.NAME, out name);
-				model.get_value(iter, ProjectStore.Column.TYPE, out type);
-
-				string basename = GLib.Path.get_basename((string)name);
-
-				if ((string)type == "<folder>") {
-					if ((string)name == "")
-						cell.set_property("text", _project_store._project.name());
-					else
-						cell.set_property("text", basename);
-				} else {
-					cell.set_property("text", ResourceId.path((string)type, basename));
-				}
-			});
+		column.set_cell_data_func(cell_pixbuf, pixbuf_func);
+		column.set_cell_data_func(cell_text, text_func);
 		_tree_view = new Gtk.TreeView();
 		_tree_view.append_column(column);
 #if 0
@@ -502,6 +447,67 @@ public class ProjectBrowser : Gtk.Box
 	public void select_project_root()
 	{
 		_tree_selection.select_path(new Gtk.TreePath.first());
+	}
+
+	private void pixbuf_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
+	{
+		Value type;
+		model.get_value(iter, ProjectStore.Column.TYPE, out type);
+
+		// https://specifications.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html
+		if ((string)type == "<folder>")
+			cell.set_property("icon-name", "folder-symbolic");
+		else if ((string)type == "state_machine")
+			cell.set_property("icon-name", "text-x-generic-symbolic");
+		else if ((string)type == "config")
+			cell.set_property("icon-name", "text-x-generic-symbolic");
+		else if ((string)type == "font")
+			cell.set_property("icon-name", "font-x-generic-symbolic");
+		else if ((string)type == "unit")
+			cell.set_property("icon-name", "level-object-unit");
+		else if ((string)type == "level")
+			cell.set_property("icon-name", "text-x-generic-symbolic");
+		else if ((string)type == "material")
+			cell.set_property("icon-name", "text-x-generic-symbolic");
+		else if ((string)type == "mesh")
+			cell.set_property("icon-name", "text-x-generic-symbolic");
+		else if ((string)type == "package")
+			cell.set_property("icon-name", "package-x-generic-symbolic");
+		else if ((string)type == "physics_config")
+			cell.set_property("icon-name", "text-x-generic-symbolic");
+		else if ((string)type == "lua")
+			cell.set_property("icon-name", "x-office-document-symbolic");
+		else if ((string)type == "shader")
+			cell.set_property("icon-name", "text-x-script-symbolic");
+		else if ((string)type == "sound")
+			cell.set_property("icon-name", "audio-x-generic-symbolic");
+		else if ((string)type == "sprite_animation")
+			cell.set_property("icon-name", "text-x-generic-symbolic");
+		else if ((string)type == "sprite")
+			cell.set_property("icon-name", "text-x-generic-symbolic");
+		else if ((string)type == "texture")
+			cell.set_property("icon-name", "image-x-generic-symbolic");
+		else
+			cell.set_property("icon-name", "text-x-generic-symbolic");
+	}
+
+	private void text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
+	{
+		Value name;
+		Value type;
+		model.get_value(iter, ProjectStore.Column.NAME, out name);
+		model.get_value(iter, ProjectStore.Column.TYPE, out type);
+
+		string basename = GLib.Path.get_basename((string)name);
+
+		if ((string)type == "<folder>") {
+			if ((string)name == "")
+				cell.set_property("text", _project_store._project.name());
+			else
+				cell.set_property("text", basename);
+		} else {
+			cell.set_property("text", ResourceId.path((string)type, basename));
+		}
 	}
 }
 
