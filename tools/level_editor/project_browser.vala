@@ -445,7 +445,7 @@ public class ProjectBrowser : Gtk.Box
 				_tree_view.model.get_value(iter, ProjectStore.Column.TYPE, out type);
 				_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
 
-				var? menu = menu_create((string)type, (string)name);
+				Gtk.Menu? menu = menu_create((string)type, (string)name);
 				if (menu != null) {
 					menu.show_all();
 					menu.popup_at_pointer(ev);
