@@ -28,6 +28,17 @@ namespace ResourceId
 		return type == null ? null : path.substring(0, path.last_index_of_char('.'));
 	}
 
+	/// Returns the parent folder of the resource located at @a path.
+	public string parent_folder(string path)
+	{
+		int ls = path.last_index_of_char('/');
+
+		if (ls == -1)
+			return "";
+
+		return path.substring(0, ls);
+	}
+
 	public string path(string type, string name)
 	{
 		return type == "" ? name : name + "." + type;

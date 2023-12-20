@@ -58,21 +58,14 @@ public class ProjectStore
 		_list_store.clear();
 	}
 
-	private string folder(string name)
-	{
-		int last_slash = name.last_index_of_char('/');
-		if (last_slash == -1)
-			return ROOT_FOLDER;
-		return name.substring(0, last_slash);
-	}
-
 	public bool path_for_resource_type_name(out Gtk.TreePath path, string type, string name)
 	{
-		string f = folder(name);
-		if (_folders.has_key(f)) {
+		string parent_folder = ResourceId.parent_folder(name);
+
+		if (_folders.has_key(parent_folder)) {
 			// Find the name inside the folder.
 			Gtk.TreeIter parent_iter;
-			_tree_store.get_iter(out parent_iter, _folders[f].get_path());
+			_tree_store.get_iter(out parent_iter, _folders[parent_folder].get_path());
 
 			Gtk.TreeIter child;
 			if (_tree_store.iter_children(out child, parent_iter)) {
@@ -158,8 +151,9 @@ public class ProjectStore
 
 	private void on_project_file_added(string type, string name)
 	{
-		string f = folder(name);
-		Gtk.TreeIter parent = make_tree(f);
+		string parent_folder = ResourceId.parent_folder(name);
+
+		Gtk.TreeIter parent = make_tree(parent_folder);
 		Gtk.TreeIter iter;
 		_tree_store.insert_with_values(out iter
 			, parent
@@ -182,13 +176,14 @@ public class ProjectStore
 
 	private void on_project_file_removed(string type, string name)
 	{
-		string f = folder(name);
-		if (!_folders.has_key(f))
+		string parent_folder = ResourceId.parent_folder(name);
+
+		if (!_folders.has_key(parent_folder))
 			return;
 
 		// Remove from tree store
 		Gtk.TreeIter parent_iter;
-		_tree_store.get_iter(out parent_iter, _folders[f].get_path());
+		_tree_store.get_iter(out parent_iter, _folders[parent_folder].get_path());
 		Gtk.TreeIter child;
 		if (_tree_store.iter_children(out child, parent_iter)) {
 			Value iter_name;
