@@ -965,6 +965,7 @@ namespace shader_resource_internal
 				JsonObject shader(ta);
 				sjson::parse_object(shader, cur->second);
 
+				s32 err = 0;
 				BgfxShader bgfxshader(default_allocator());
 				if (json_object::has(shader, "includes"))
 					sjson::parse_string(bgfxshader._includes, shader["includes"]);
@@ -981,7 +982,9 @@ namespace shader_resource_internal
 				if (json_object::has(shader, "fs_input_output"))
 					sjson::parse_verbatim(bgfxshader._fs_input_output, shader["fs_input_output"]);
 				if (json_object::has(shader, "samplers"))
-					parse_bgfx_samplers(bgfxshader, shader["samplers"]);
+					err = parse_bgfx_samplers(bgfxshader, shader["samplers"]);
+
+				DATA_COMPILER_ENSURE(err == 0, _opts);
 
 				DynamicString key(ta);
 				key = cur->first;

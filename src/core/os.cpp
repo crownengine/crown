@@ -51,18 +51,24 @@ namespace os
 	void *library_open(const char *path)
 	{
 #if CROWN_PLATFORM_WINDOWS
-		return (void *)LoadLibraryA(path);
+		void *lib = (void *)LoadLibraryA(path);
+		CE_ASSERT(lib != NULL, "LoadLibraryA: error: %s", GetLastError());
+		return lib;
 #else
-		return ::dlopen(path, RTLD_LAZY);
+		void *lib = ::dlopen(path, RTLD_LAZY);
+		CE_ASSERT(lib != NULL, "dlopen: error: %s", dlerror());
+		return lib;
 #endif
 	}
 
 	void library_close(void *library)
 	{
 #if CROWN_PLATFORM_WINDOWS
-		FreeLibrary((HMODULE)library);
+		BOOL err = FreeLibrary((HMODULE)library);
+		CE_ASSERT(err != 0, "FreeLibrary: error: %s", GetLastError());
 #else
-		dlclose(library);
+		int err = dlclose(library);
+		CE_ASSERT(err == 0, "dlclose: error: %s", dlerror());
 #endif
 	}
 
