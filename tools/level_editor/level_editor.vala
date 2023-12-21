@@ -925,8 +925,16 @@ public class LevelEditorApplication : Gtk.Application
 	protected override void activate()
 	{
 		if (this.active_window == null) {
+
+    		var settings = new Settings ("/org/crown/level_editor/resources/WindowState");
+
 			LevelEditorWindow win = new LevelEditorWindow(this);
-			win.set_default_size(WINDOW_DEFAULT_WIDTH, WINDOW_DEFAULT_HEIGHT);
+
+			settings.bind ("width", win,
+                   "default-width", SettingsBindFlags.DEFAULT);
+    		settings.bind ("height", win,
+                   "default-height", SettingsBindFlags.DEFAULT);
+
 			win.add(_main_stack);
 
 			try {

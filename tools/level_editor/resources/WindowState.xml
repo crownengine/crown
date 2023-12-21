@@ -1,0 +1,10 @@
+<schemalist>
+  <schema id="WindowState" path="/org/crown/level_editor/resources/">
+    <key name="width" type="i">
+      <default>1280</default>
+    </key>
+    <key name="height" type="i">
+      <default>720</default>
+    </key>
+  </schema>
+</schemalist>
