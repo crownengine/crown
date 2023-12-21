@@ -926,7 +926,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		if (this.active_window == null) {
 
-    		var settings = new Settings ("/org/crown/level_editor/resources/WindowState");
+    		var settings = new GLib.Settings ("/org/crown/level_editor/resources/WindowState");
 
 			LevelEditorWindow win = new LevelEditorWindow(this);
 
