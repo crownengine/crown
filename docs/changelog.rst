@@ -4,6 +4,10 @@ Changelog
 0.50.0 --- DD MMM YYYY
 ----------------------
 
+**Data Compiler**
+
+* Fixed existence/redefinition checks for samplers.
+
 **Tools**
 
 * Added an option to use the debug keystore when deploying APKs for Android.
