@@ -14,6 +14,7 @@ const int WINDOW_DEFAULT_HEIGHT = 720;
 const string LEVEL_EDITOR_WINDOW_TITLE = "Crown Editor";
 const string CROWN_ICON_NAME = "crown";
 
+
 public enum Theme
 {
 	DARK,
@@ -206,6 +207,8 @@ public class RuntimeInstance
 
 public class LevelEditorWindow : Gtk.ApplicationWindow
 {
+	private Hashtable _window_state;
+
 	private const GLib.ActionEntry[] action_entries =
 	{
 		{ "fullscreen", on_fullscreen, null, null }
@@ -302,6 +305,7 @@ public class LevelEditorWindow : Gtk.ApplicationWindow
 		app._editor.send_script(LevelEditorApi.key_up("ctrl_left"));
 		app._editor.send_script(LevelEditorApi.key_up("shift_left"));
 		app._editor.send_script(LevelEditorApi.key_up("alt_left"));
+
 		return Gdk.EVENT_PROPAGATE;
 	}
 }
@@ -314,6 +318,7 @@ public enum StartGame
 
 public class LevelEditorApplication : Gtk.Application
 {
+	private Hashtable _window_state;
 	// Constants
 	private const GLib.ActionEntry[] action_entries_file =
 	{
@@ -450,6 +455,8 @@ public class LevelEditorApplication : Gtk.Application
 	private SnapMode _snap_mode;
 	private ReferenceSystem _reference_system;
 	private CameraViewType _camera_view_type;
+
+	
 
 	// Project state
 	private string _placeable_type;
@@ -922,18 +929,30 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
+	protected void load_window_state()
+	{
+		string window_state_dir = GLib.Environment.get_variable("XDG_CACHE_HOME");
+		
+		try{
+			_window_state = SJSON.load_from_path(window_state_dir);
+		} catch (Error e) {
+			//this happens if the JSON file doesn't yet exist
+			_window_state.set("window_width",WINDOW_DEFAULT_WIDTH);
+			_window_state.set("window_hieght",WINDOW_DEFAULT_HEIGHT);
+			SJSON.save(_window_state, window_state_dir);
+		}
+
+		
+	}
+
 	protected override void activate()
 	{
 		if (this.active_window == null) {
 
-    		var settings = new GLib.Settings ("/org/crown/level_editor/resources/WindowState");
-
 			LevelEditorWindow win = new LevelEditorWindow(this);
 
-			settings.bind ("width", win,
-                   "default-width", SettingsBindFlags.DEFAULT);
-    		settings.bind ("height", win,
-                   "default-height", SettingsBindFlags.DEFAULT);
+			load_window_state();
+			win.set_default_size((int)_window_state["window_width"], (int)_window_state["window_height"]);
 
 			win.add(_main_stack);
 
