@@ -597,6 +597,7 @@ public class LevelEditorApplication : Gtk.Application
 			);
 
 		_settings = SJSON.load_from_path(_settings_file.get_path());
+		load_window_state();
 
 		// Set theme.
 		set_theme(Theme.DARK);
@@ -951,7 +952,7 @@ public class LevelEditorApplication : Gtk.Application
 
 			LevelEditorWindow win = new LevelEditorWindow(this);
 
-			load_window_state();
+			
 			win.set_default_size((int)_window_state["window_width"], (int)_window_state["window_height"]);
 
 			win.add(_main_stack);
@@ -1800,6 +1801,11 @@ public class LevelEditorApplication : Gtk.Application
 		_preferences_dialog.encode(_settings);
 		SJSON.save(_settings, _settings_file.get_path());
 		_console_view._entry_history.save(_console_history_file.get_path());
+
+		string window_state_dir = GLib.Environment.get_variable("XDG_CACHE_HOME");
+		_window_state["window_width"] = this.active_window.get_allocated_width();
+		_window_state["window_hieght"] =  this.active_window.get_allocated_height();
+		SJSON.save(_window_state, window_state_dir);
 
 		// Destroy widgets.
 		if (_resource_chooser != null)
