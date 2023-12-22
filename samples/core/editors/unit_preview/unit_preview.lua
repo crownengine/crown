@@ -23,8 +23,17 @@ function UnitPreview:update(dt)
 	if self._object then
 		local obb_tm, obb_he = self._object:obb()
 
-		local camera_pos = Vector3(1, 1, 1)
-		local camera_rot = Quaternion.look(Vector3.normalize(-camera_pos))
+		local camera_pos
+		local camera_rot
+
+		if RenderWorld.sprite_instance(self._rw, self._object._unit_id) then
+			camera_pos = Vector3(0, 1, 0)
+			camera_rot = Quaternion.look(Vector3.normalize(-camera_pos), Vector3(0, 0, 1))
+		else
+			camera_pos = Vector3(1, 1, -1)
+			camera_rot = Quaternion.look(Vector3.normalize(-camera_pos))
+		end
+
 		local camera_pose = Matrix4x4.from_quaternion_translation(camera_rot, camera_pos)
 
 		self._camera:set_local_pose(camera_pose)

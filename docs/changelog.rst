@@ -12,6 +12,7 @@ Changelog
 
 * Added an option to use the debug keystore when deploying APKs for Android.
 * Added the ability to copy the path of files in the Project Browser.
+* Fixed unit preview in the Resource Chooser.
 
 0.49.0 --- 27 Nov 2023
 ----------------------
