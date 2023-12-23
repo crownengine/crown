@@ -319,6 +319,8 @@ public enum StartGame
 public class LevelEditorApplication : Gtk.Application
 {
 	private Hashtable _window_state;
+	private string window_state_path;
+
 	// Constants
 	private const GLib.ActionEntry[] action_entries_file =
 	{
@@ -932,15 +934,15 @@ public class LevelEditorApplication : Gtk.Application
 
 	protected void load_window_state()
 	{
-		string window_state_dir = GLib.Environment.get_variable("XDG_CACHE_HOME");
+		window_state_path = GLib.Environment.get_variable("XDG_CACHE_HOME");
 		
 		try{
-			_window_state = SJSON.load_from_path(window_state_dir);
+			_window_state = SJSON.load_from_path(window_state_path);
 		} catch (Error e) {
 			//this happens if the JSON file doesn't yet exist
 			_window_state.set("window_width",WINDOW_DEFAULT_WIDTH);
 			_window_state.set("window_hieght",WINDOW_DEFAULT_HEIGHT);
-			SJSON.save(_window_state, window_state_dir);
+			SJSON.save(_window_state, window_state_path);
 		}
 
 		
@@ -1802,10 +1804,10 @@ public class LevelEditorApplication : Gtk.Application
 		SJSON.save(_settings, _settings_file.get_path());
 		_console_view._entry_history.save(_console_history_file.get_path());
 
-		string window_state_dir = GLib.Environment.get_variable("XDG_CACHE_HOME");
+		
 		_window_state["window_width"] = this.active_window.get_allocated_width();
 		_window_state["window_hieght"] =  this.active_window.get_allocated_height();
-		SJSON.save(_window_state, window_state_dir);
+		SJSON.save(_window_state, window_state_path);
 
 		// Destroy widgets.
 		if (_resource_chooser != null)
