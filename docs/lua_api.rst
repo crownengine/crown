@@ -1325,6 +1325,9 @@ World
 **create_screen_gui** (world) : Gui
 	Creates a new Gui.
 
+**destroy_gui** (world, gui)
+	Destroys the *gui*.
+
 **scene_graph** (world) : SceneGraph
 	Returns the scene graph.
 
