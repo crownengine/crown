@@ -7,6 +7,22 @@ using Gtk;
 
 namespace Crown
 {
+public class CounterLabel : Gtk.Label
+{
+	public CounterLabel()
+	{
+		this.get_style_context().add_class("counter-label");
+		this.set_visible(true);
+	}
+
+	protected override void get_preferred_height(out int minimum_height, out int natural_height)
+	{
+		// FIXME: Find a proper way to position/size labels inside Gtk.TextView.
+		// Make Gtk.Label think it only needs 16px vertical to show its text.
+		minimum_height = 1;
+		natural_height = 16;
+	}
+}
 public class EntryHistory
 {
 	public uint _capacity;
@@ -78,11 +94,19 @@ public class EntryHistory
 
 public class ConsoleView : Gtk.Box
 {
+	public struct LastMsg
+	{
+		string text;
+		int num_repetitions;
+		Gtk.TextChildAnchor anchor;
+	}
+
 	// Data
 	public EntryHistory _entry_history;
 	public uint _distance;
 	public Project _project;
 	public PreferencesDialog _preferences_dialog;
+	public LastMsg _last_message;
 
 	// Widgets
 	public Gdk.Cursor _text_cursor;
@@ -93,6 +117,7 @@ public class ConsoleView : Gtk.Box
 	public EntryText _entry;
 	public Gtk.Box _entry_hbox;
 	public Gtk.TextMark _scroll_mark;
+	public Gtk.TextMark _time_mark;
 
 	public ConsoleView(Project project, Gtk.ComboBoxText combo, PreferencesDialog preferences_dialog)
 	{
@@ -133,6 +158,7 @@ public class ConsoleView : Gtk.Box
 		Gtk.TextIter end_iter;
 		tb.get_end_iter(out end_iter);
 		_scroll_mark = tb.create_mark("scroll", end_iter, true);
+		_time_mark = tb.create_mark("time", end_iter, true);
 
 		_scrolled_window = new Gtk.ScrolledWindow(null, null);
 		_scrolled_window.vscrollbar_policy = Gtk.PolicyType.ALWAYS;
@@ -384,6 +410,55 @@ public class ConsoleView : Gtk.Box
 		Gtk.TextIter end_iter;
 		buffer.get_end_iter(out end_iter);
 
+		// Avoid showing duplicated messages. Insert a little counter
+		// at the end of each line occurring twice or more.
+		if (_last_message.text == message) {
+			// Replace the current time with the latest one.
+			Gtk.TextIter time_start;
+			Gtk.TextIter time_end;
+			buffer.get_iter_at_mark(out time_start, _time_mark);
+			time_end = time_start;
+			time_end.forward_chars(time.length);
+			buffer.delete(ref time_start, ref time_end);
+
+			buffer.get_iter_at_mark(out time_start, _time_mark);
+			buffer.insert_with_tags(ref time_start
+				, time
+				, time.length
+				, buffer.tag_table.lookup("time")
+				, null
+				);
+
+			if (_last_message.num_repetitions == 0) {
+				// Create a new anchor at the end of the line.
+				buffer.get_end_iter(out end_iter);
+				end_iter.backward_char();
+				_last_message.anchor = buffer.create_child_anchor(end_iter);
+				_text_view.add_child_at_anchor(new CounterLabel(), _last_message.anchor);
+				scroll_to_bottom();
+			}
+
+			++_last_message.num_repetitions;
+
+			const int MAX_REPETITIONS = 1000;
+			if (_last_message.num_repetitions < MAX_REPETITIONS) {
+				List<unowned Widget> widgets = _last_message.anchor.get_widgets();
+				unowned var label_widget = widgets.first();
+				var cl = (CounterLabel)label_widget.data;
+
+				if (_last_message.num_repetitions == MAX_REPETITIONS - 1)
+					cl.set_markup("%d+".printf(_last_message.num_repetitions));
+				else
+					cl.set_markup("%d".printf(_last_message.num_repetitions + 1));
+			}
+
+			return;
+		} else {
+			_last_message.text = message;
+			_last_message.num_repetitions = 0;
+		}
+
+		buffer.move_mark(_time_mark, end_iter);
 		buffer.insert_with_tags(ref end_iter
 			, time
 			, time.length
