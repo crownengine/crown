@@ -3544,13 +3544,9 @@ public static void log(string system, string severity, string message)
 	}
 
 	if (_console_view_valid) {
-		string line = "%s.%06d  %s: %s\n".printf(now_str
-			, now_us
-			, system
-			, message
-			);
-
-		_console_view.log(severity, line);
+		string line = "%s: %s\n".printf(system, message);
+		string time = "%s.%06d  ".printf(now_str, now_us);
+		_console_view.log(time, severity, line);
 	}
 }
 

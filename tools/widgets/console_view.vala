@@ -120,11 +120,15 @@ public class ConsoleView : Gtk.Box
 		tag_warning.foreground_rgba = { 1.0, 1.0, 0.4, 1.0 };
 		Gtk.TextTag tag_error = new Gtk.TextTag("error");
 		tag_error.foreground_rgba = { 1.0, 0.4, 0.4, 1.0 };
+		Gtk.TextTag tag_time = new Gtk.TextTag("time");
+		tag_time.foreground_rgba = get_style_context().get_color(Gtk.StateFlags.NORMAL);
+
 
 		Gtk.TextBuffer tb = _text_view.buffer;
 		tb.tag_table.add(tag_info);
 		tb.tag_table.add(tag_warning);
 		tb.tag_table.add(tag_error);
+		tb.tag_table.add(tag_time);
 
 		Gtk.TextIter end_iter;
 		tb.get_end_iter(out end_iter);
@@ -363,7 +367,7 @@ public class ConsoleView : Gtk.Box
 		return Gdk.EVENT_PROPAGATE;
 	}
 
-	public void log(string severity, string message)
+	public void log(string time, string severity, string message)
 	{
 		Gtk.TextBuffer buffer = _text_view.buffer;
 
@@ -379,6 +383,13 @@ public class ConsoleView : Gtk.Box
 
 		Gtk.TextIter end_iter;
 		buffer.get_end_iter(out end_iter);
+
+		buffer.insert_with_tags(ref end_iter
+			, time
+			, time.length
+			, buffer.tag_table.lookup("time")
+			, null
+			);
 
 		// Replace all IDs with corresponding human-readable names.
 		int id_index = 0;
