@@ -568,7 +568,7 @@ public class ConsoleView : Gtk.Box
 	{
 		// Line height is computed in an idle handler, wait a bit before scrolling to bottom.
 		// See: https://valadoc.org/gtk+-3.0/Gtk.TextView.scroll_to_iter.html
-		GLib.Idle.add_once(() => {
+		GLib.Idle.add(() => {
 				Gtk.TextIter end_iter;
 				_text_view.buffer.get_end_iter(out end_iter);
 
@@ -577,6 +577,8 @@ public class ConsoleView : Gtk.Box
 				end_iter.set_line_offset(0);
 				_text_view.buffer.move_mark(_scroll_mark, end_iter);
 				_text_view.scroll_mark_onscreen(_scroll_mark);
+
+				return GLib.Source.REMOVE;
 			});
 	}
 }
