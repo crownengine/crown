@@ -148,7 +148,6 @@ public class ConsoleView : Gtk.Box
 		Gtk.TextTag tag_time = new Gtk.TextTag("time");
 		tag_time.foreground_rgba = get_style_context().get_color(Gtk.StateFlags.NORMAL);
 
-
 		Gtk.TextBuffer tb = _text_view.buffer;
 		tb.tag_table.add(tag_info);
 		tb.tag_table.add(tag_warning);
