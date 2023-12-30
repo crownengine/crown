@@ -25,7 +25,6 @@
     <file>icons/16x16/apps/crown-white.png</file>
     <file>icons/16x16/emblems/axis-local-symbolic.symbolic.png</file>
     <file>icons/16x16/emblems/axis-world-symbolic.symbolic.png</file>
-    <file>icons/16x16/emblems/donate.png</file>
     <file>icons/16x16/emblems/game-run-symbolic.symbolic.png</file>
     <file>icons/16x16/emblems/game-stop-symbolic.symbolic.png</file>
     <file>icons/16x16/emblems/layer-locked-symbolic.symbolic.png</file>
@@ -56,7 +55,6 @@
     <file>icons/48x48/apps/crown-white.png</file>
     <file>icons/512x512/apps/crown-black.png</file>
     <file>icons/512x512/apps/crown-black-socket.png</file>
-    <file>icons/512x512/apps/crown-black-socket-weirdres.png</file>
     <file>icons/512x512/apps/crown.png</file>
     <file>icons/512x512/apps/crown-white.png</file>
     <file>icons/64x64/apps/crown-black.png</file>
