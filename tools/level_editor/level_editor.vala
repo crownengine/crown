@@ -572,7 +572,7 @@ public class LevelEditorApplication : Gtk.Application
 		if (theme == Theme.COUNT)
 			return;
 
-		string css = "/org/crown/level_editor/theme/Adwaita/gtk%s.css".printf(theme == Theme.DARK ? "-dark" : "");
+		string css = "/org/crown/level_editor/ui/style-%s.css".printf(theme == Theme.DARK ? "dark" : "light");
 		_css_provider.load_from_resource(css);
 	}
 

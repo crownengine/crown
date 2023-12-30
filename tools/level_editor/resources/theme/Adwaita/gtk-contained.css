@@ -1971,23 +1971,6 @@ popover.emoji-completion contents row box { padding: 2px 10px; }
 
 popover.emoji-completion .emoji:hover { background: white; }
 
-/* Crown Editor classes */
-.color { min-height: 22px; padding: 0px; }
-
-.console-view textview, .console-view entry { font: 12px "Monospace"; }
-
-.statusbar { font-size: 10px; min-height: 22px; }
-
-.axis { min-width: 22px; font-weight: bold; border-radius: 4px 0px 0px 4px; }
-
-.axis.x { background: rgba(120, 0, 0, 0.8); }
-
-.axis.y { background: rgba(0, 120, 0, 0.8); }
-
-.axis.z { background: rgba(0, 0, 120, 0.8); }
-
-.axis.w { background: rgba(120, 120, 120, 0.8); }
-
 /* GTK NAMED COLORS ---------------- use responsibly! */
 /*
 widget text/foreground color */

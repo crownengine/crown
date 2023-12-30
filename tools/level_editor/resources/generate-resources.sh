@@ -9,6 +9,9 @@ echo "    <file compressed=\"true\">theme/Adwaita/gtk-contained-dark.css</file>"
 echo "    <file compressed=\"true\">theme/Adwaita/gtk-contained.css</file>"
 echo "    <file compressed=\"true\">theme/Adwaita/gtk-dark.css</file>"
 echo "    <file compressed=\"true\">theme/Adwaita/gtk.css</file>"
+echo "    <file compressed=\"true\">ui/style.css</file>"
+echo "    <file compressed=\"true\">ui/style-light.css</file>"
+echo "    <file compressed=\"true\">ui/style-dark.css</file>"
 
 find * -name '*.ui' \
 	| sort          \
