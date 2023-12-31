@@ -6,16 +6,16 @@ $ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 $asset_suffix: if($variant=='dark', '-dark', '');
 $backdrop_transition: 200ms ease-out;
 $button_transition: all 200ms $ease-out-quad;
-$button_radius: 3px;
+$button_radius: 5px;
 $menu_radius: 5px;
 $window_radius: $button_radius + 3;
 $popover_radius: $button_radius + 4;
 
 // Optional compact sizes for buttons, headerbar and headerbar widgets
-$_sizevariant: 'compact'; //compact otherwise
+$_sizevariant: 'default'; //compact otherwise
 $_headerbar_height: if($_sizevariant=='default', 46px, 40px);
-$_entry_height: if($_sizevariant=='default', 32px, 22px);
-$_btn_pad: if($_sizevariant=='default', 4px 9px, 0px 6px);
+$_entry_height: if($_sizevariant=='default', 32px, 28px);
+$_btn_pad: if($_sizevariant=='default', 4px 9px, 2px 6px);
 $_hb_btn_pad: if($_sizevariant=='default', 6px, 5px);
 $_img_btn_pad: if($_sizevariant=='default', 5px, 2px);
 $_sel_menu_pad: if($_sizevariant=='default', 6px 10px, 4px 10px);
@@ -52,9 +52,7 @@ $_switch_margin: if($_sizevariant=='default', 10px, 7px);
   outline-width: 1px;
   -gtk-outline-radius: $button-radius - 2;
 
-  -gtk-secondary-caret-color: $selected_bg_color;
-
-  font-size: 12px;
+  -gtk-secondary-caret-color: $selected_bg_color
 }
 
 
@@ -110,6 +108,7 @@ $_switch_margin: if($_sizevariant=='default', 10px, 7px);
 .view,
 %view {
   color: $text_color;
+  caret-color: $caret_color;
   background-color: $base_color;
 
   &:backdrop {
@@ -170,7 +169,7 @@ flowbox {
   background-color: if($variant=='light', transparent, black);
   border-radius: 0;
   padding: 0;
-
+  
   &:backdrop { background-color: if($variant=='light', transparent, darken($backdrop_base_color,5%)); }
   &:active, &:selected { background-color: if($variant=='light', transparent, $selected_bg_color); }
   &:disabled { background-color: if($variant=='light', transparent, $insensitive_bg_color); }
@@ -324,8 +323,8 @@ spinner {
 entry {
   %entry_basic, & {
     min-height: $_entry_height;
-    padding-left: 4px;
-    padding-right: 4px;
+    padding-left: 8px;
+    padding-right: 8px;
     border: 1px solid;
     border-radius: $button_radius;
     transition: all 200ms $ease-out-quad;
@@ -583,7 +582,7 @@ $_dot_color: if($variant=='light', $selected_bg_color,
 button {
   @at-root %button_basic, & {
 
-    min-height: 22px;
+    min-height: 24px;
     min-width: 16px;
     padding: $_btn_pad;
     border: 1px solid;
@@ -651,9 +650,9 @@ button {
     }
 
     &.image-button {
-      min-width: 22px;
-      padding-left: 0px;
-      padding-right: 0px;
+      min-width: 24px;
+      padding-left: $_img_btn_pad;
+      padding-right: $_img_btn_pad;
     }
 
     &.text-button {
@@ -1140,7 +1139,7 @@ modelbutton.flat arrow {
 }
 
 button.color {
-  padding: 0px;
+  padding: 4px;
 
   colorswatch:only-child {
     &, overlay { border-radius: 0; }
@@ -1627,10 +1626,10 @@ headerbar {
       background-color: $suggested_bg_color;
       background-image: none;
       box-shadow: inset 0 1px mix($top_hilight, $suggested_bg_color, 60%);
-
-      label {
+      
+      label { 
         text-shadow: none;
-        color: $selected_fg_color;
+        color: $selected_fg_color; 
       }
     }
 
@@ -1768,9 +1767,9 @@ headerbar {
       padding: 0;
     }
   }
+  
 
-
-
+  
   separator.titlebutton { opacity: 0; } /* hide the close button separator */
 
   .solid-csd & {
@@ -2504,9 +2503,9 @@ notebook {
     }
 
     tab {
-      min-height: 24px;
-      min-width: 24px;
-      padding: 3px 6px;
+      min-height: 30px;
+      min-width: 30px;
+      padding: 3px 12px;
 
       outline-offset: -5px;
 
@@ -2879,12 +2878,12 @@ switch {
 
     @if $variant == 'light' {
       @include button(normal-alt, $edge: $shadow_color);
-    }
+    } 
     @else {
       @include button(normal-alt, $c: lighten($bg_color,6%), $edge: $shadow_color);
     }
   }
-
+  
   image { color: transparent; } /* only show i / o for the accessible theme */
 
   &:hover slider {
@@ -3031,7 +3030,7 @@ radio {
   }
 
   &:backdrop { transition: $backdrop_transition; }
-
+  
   @if $variant == 'light' {
     // the borders of the light variant versions of checks and radios are too similar in luminosity to the selected background
     // color, hence we need special casing.
@@ -4105,7 +4104,7 @@ separator.sidebar {
 $_placesidebar_icons_opacity: 0.7;
 
 row image.sidebar-icon { opacity: $_placesidebar_icons_opacity; } // dim the sidebar icons
-                                                                  // see bug #786613 for details
+                                                                  // see bug #786613 for details 
                                                                   // on this oddity
 
 placessidebar {
@@ -4283,7 +4282,7 @@ infobar {
   border-style: none;
 
   &.action:hover > revealer > box {
-      background-color: if($variant == 'light', desaturate(lighten(invert($selected_bg_color), 47%), 30%),
+      background-color: if($variant == 'light', desaturate(lighten(invert($selected_bg_color), 47%), 30%), 
                         desaturate(darken(invert($selected_bg_color),42%), 70%));
       border-bottom: 1px solid lighten($borders_color, 5%);
   }
@@ -4294,7 +4293,7 @@ infobar {
   &.error {
     &:backdrop > revealer > box, & > revealer > box {
       label, & { color: $fg_color; }
-      background-color: if($variant == 'light', desaturate(lighten(invert($selected_bg_color), 45%), 30%),
+      background-color: if($variant == 'light', desaturate(lighten(invert($selected_bg_color), 45%), 30%), 
                         desaturate(darken(invert($selected_bg_color),40%), 70%));
       border-bottom: 1px solid lighten($borders_color, 5%);
     }
@@ -4589,7 +4588,7 @@ decoration {
   .tiled-bottom &,
   .tiled-left & {
     border-radius: 0;
-    box-shadow: 0 0 0 1px $_wm_border_backdrop,
+    box-shadow: 0 0 0 1px $_wm_border,
                 0 0 0 20px transparent; //transparent control workaround -- #3670
 
     &:backdrop { box-shadow: 0 0 0 1px $_wm_border_backdrop,
@@ -4603,6 +4602,8 @@ decoration {
   // just doing borders, wm draws actual shadows
   .ssd & { box-shadow: 0 0 0 1px $_wm_border; }
   .ssd &:backdrop { box-shadow: 0 0 0 1px $_wm_border_backdrop; }
+  .ssd.maximized &,
+  .ssd.maximized &:backdrop { box-shadow: none; }
 
   .csd.popup & {
     border-radius: $menu_radius;
@@ -4791,7 +4792,7 @@ stackswitcher button.text-button.circular { // FIXME aggregate with buttons
  * Emoji *
  ********/
 
-popover.emoji-picker {
+popover.emoji-picker { 
   padding-left: 0;
   padding-right: 0;
 
