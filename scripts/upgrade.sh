@@ -422,6 +422,27 @@ update_sphinx_rtd_theme () {
 	git commit -m "docs: update sphinx_rtd_theme"
 }
 
+update_gtk_theme () {
+	local REPO=https://gitlab.gnome.org/GNOME/gtk.git
+	local DEST=tools/level_editor/resources/theme/Adwaita
+	local BRANCH=gtk-3-24
+
+	local GTK_THEME=$(mktemp -d)
+
+	# Download latest sphinx_rtd_theme.
+	git_clone "${GTK_THEME}" "${REPO}" "${BRANCH}"
+
+	rm -rf "${DEST}"
+	mv "${GTK_THEME}"/gtk/theme/Adwaita "${DEST}"
+
+	sed -i 's/resource:\/\/\/org\/gtk\/libgtk\/theme\/Adwaita\/gtk-contained.css/resource:\/\/\/org\/crown\/level_editor\/theme\/Adwaita\/gtk-contained.css/' "${DEST}"/gtk.css
+	sed -i 's/resource:\/\/\/org\/gtk\/libgtk\/theme\/Adwaita\/gtk-contained-dark.css/resource:\/\/\/org\/crown\/level_editor\/theme\/Adwaita\/gtk-contained-dark.css/' "${DEST}"/gtk-dark.css
+
+	# Add changes and commit.
+	git add -f "${DEST}"
+	git commit -m "tools: update GTK theme"
+}
+
 update_tinyexpr () {
 	# Download latest tinyexpr.
 	local REPO=https://github.com/codeplea/tinyexpr
@@ -478,6 +499,10 @@ while true; do
 		;;
 	tinyexpr)
 		update_tinyexpr
+		exit $?
+		;;
+	gtk_theme)
+		update_gtk_theme
 		exit $?
 		;;
 	*)
