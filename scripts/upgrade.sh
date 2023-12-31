@@ -7,7 +7,11 @@ git_clone () {
 	local REPO=$2
 	local BRANCH=$3
 	local COMMIT=$4
-	local DEPTH=100 # Ensure enough commits are available for COMMIT option to work.
+	local DEPTH=1
+
+	if [ ! -z "${COMMIT}" ]; then
+		DEPTH=100 # Ensure enough commits are available for COMMIT option to work.
+	fi
 
 	git clone "${REPO}" "${DEST}" --branch="${BRANCH}" --depth="${DEPTH}" --separate-git-dir="$(mktemp -u)"
 
