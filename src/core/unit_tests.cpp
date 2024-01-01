@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2023 Daniele Bartolini et al.
+ * Copyright (c) 2012-2024 Daniele Bartolini et al.
  * SPDX-License-Identifier: MIT
  */
 

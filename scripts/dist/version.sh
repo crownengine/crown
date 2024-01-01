@@ -1,6 +1,6 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright (c) 2012-2023 Daniele Bartolini et al.
+# Copyright (c) 2012-2024 Daniele Bartolini et al.
 
 crown_version_major () {
 	grep "#define CROWN_VERSION_MAJOR" src/config.h | cut -d' ' -f3

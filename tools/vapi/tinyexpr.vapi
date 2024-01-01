@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2023 Daniele Bartolini <dbartolini@crownengine.org>
+ * Copyright (c) 2012-2024 Daniele Bartolini <dbartolini@crownengine.org>
  * SPDX-License-Identifier: MIT
  */
 

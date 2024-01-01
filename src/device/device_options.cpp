@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2023 Daniele Bartolini et al.
+ * Copyright (c) 2012-2024 Daniele Bartolini et al.
  * SPDX-License-Identifier: MIT
  */
 
@@ -19,7 +19,7 @@ static void help(const char *msg = NULL)
 {
 	printf(
 		"The Flexible Game Engine\n"
-		"Copyright (c) 2012-2023 Daniele Bartolini et al.\n"
+		"Copyright (c) 2012-2024 Daniele Bartolini et al.\n"
 		"SPDX-License-Identifier: MIT\n"
 		"\n"
 		"Usage:\n"

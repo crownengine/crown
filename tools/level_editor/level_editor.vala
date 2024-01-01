@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2023 Daniele Bartolini et al.
+ * Copyright (c) 2012-2024 Daniele Bartolini et al.
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
@@ -2407,7 +2407,7 @@ public class LevelEditorApplication : Gtk.Application
 		dlg.program_name = LEVEL_EDITOR_WINDOW_TITLE;
 		dlg.version = CROWN_VERSION;
 		dlg.website = "https://www.crownengine.org";
-		dlg.copyright = "Copyright (c) 2012-2023 Daniele Bartolini et al.";
+		dlg.copyright = "Copyright (c) 2012-2024 Daniele Bartolini et al.";
 		dlg.license_type = GPL_3_0;
 		dlg.authors =
 		{

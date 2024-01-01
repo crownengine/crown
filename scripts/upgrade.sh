@@ -1,6 +1,6 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright (c) 2012-2023 Daniele Bartolini et al.
+# Copyright (c) 2012-2024 Daniele Bartolini et al.
 
 git_clone () {
 	local DEST=$1
