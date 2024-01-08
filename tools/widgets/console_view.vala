@@ -138,21 +138,15 @@ public class ConsoleView : Gtk.Box
 		_text_view.editable = false;
 		_text_view.can_focus = false;
 
-		// // Create tags for color-formatted text
-		Gtk.TextTag tag_info = new Gtk.TextTag("info");
-		tag_info.foreground_rgba = { 0.7, 0.7, 0.7, 1.0 };
-		Gtk.TextTag tag_warning = new Gtk.TextTag("warning");
-		tag_warning.foreground_rgba = { 1.0, 1.0, 0.4, 1.0 };
-		Gtk.TextTag tag_error = new Gtk.TextTag("error");
-		tag_error.foreground_rgba = { 1.0, 0.4, 0.4, 1.0 };
-		Gtk.TextTag tag_time = new Gtk.TextTag("time");
-		tag_time.foreground_rgba = get_style_context().get_color(Gtk.StateFlags.NORMAL);
-
+		// Create tags for color-formatted text.
 		Gtk.TextBuffer tb = _text_view.buffer;
-		tb.tag_table.add(tag_info);
-		tb.tag_table.add(tag_warning);
-		tb.tag_table.add(tag_error);
-		tb.tag_table.add(tag_time);
+		tb.tag_table.add(new Gtk.TextTag("info"));
+		tb.tag_table.add(new Gtk.TextTag("warning"));
+		tb.tag_table.add(new Gtk.TextTag("error"));
+		tb.tag_table.add(new Gtk.TextTag("time"));
+
+		this.style_updated.connect(update_style);
+		update_style();
 
 		Gtk.TextIter end_iter;
 		tb.get_end_iter(out end_iter);
@@ -580,6 +574,25 @@ public class ConsoleView : Gtk.Box
 
 				return GLib.Source.REMOVE;
 			});
+	}
+
+	private void update_style()
+	{
+		Gtk.TextBuffer tb = _text_view.buffer;
+		Gtk.TextTag tag_warning = tb.tag_table.lookup("warning");
+		Gtk.TextTag tag_error = tb.tag_table.lookup("error");
+		Gtk.TextTag tag_info = tb.tag_table.lookup("info");
+		Gtk.TextTag tag_time = tb.tag_table.lookup("time");
+
+		Gdk.RGBA col;
+		get_style_context().lookup_color("warning_color", out col);
+		tag_warning.foreground_rgba = col;
+		get_style_context().lookup_color("error_color", out col);
+		tag_error.foreground_rgba = col;
+		get_style_context().lookup_color("theme_fg_color", out col);
+		tag_info.foreground_rgba = col;
+		get_style_context().lookup_color("success_color", out col);
+		tag_time.foreground_rgba = col;
 	}
 }
 

@@ -14,6 +14,7 @@ Changelog
 * Added the ability to copy the path of files in the Project Browser.
 * Fixed unit preview in the Resource Chooser.
 * The Console will now show a single line with a counter instead of spamming the view with duplicated entries.
+* Fixed Console's text color in dark/light mode.
 
 0.49.0 --- 27 Nov 2023
 ----------------------
