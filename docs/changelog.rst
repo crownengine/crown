@@ -8,6 +8,10 @@ Changelog
 
 * Fixed existence/redefinition checks for samplers.
 
+**Runtime**
+
+* Fixed intra-frame button press/release detection.
+
 **Tools**
 
 * Added an option to use the debug keystore when deploying APKs for Android.

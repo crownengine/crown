@@ -25,7 +25,6 @@ struct InputDevice
 	const char **_button_name;
 	const char **_axis_name;
 
-	u8 *_last_state;          // num_buttons
 	u8 *_state;               // num_buttons
 	Vector3 *_axis;           // num_axes
 	u32 *_deadzone_mode;      // num_axes

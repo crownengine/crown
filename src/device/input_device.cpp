@@ -14,6 +14,13 @@
 #include "device/input_device.h"
 #include <string.h> // strcpy, memset
 
+#define CE_BUTTON_STATE_MASK  0x01
+#define CE_BUTTON_STATE_SHIFT 0
+#define CE_BUTTON_MASK        0xc0
+#define CE_BUTTON_SHIFT       6
+#define CE_BUTTON_PRESSED     0x40
+#define CE_BUTTON_RELEASED    0x80
+
 namespace crown
 {
 const char *InputDevice::name() const
@@ -39,7 +46,7 @@ u8 InputDevice::num_axes() const
 bool InputDevice::pressed(u8 id) const
 {
 	return id < _num_buttons
-		? (~_last_state[id] & _state[id]) != 0
+		? (_state[id] & CE_BUTTON_PRESSED) != 0
 		: false
 		;
 }
@@ -47,7 +54,7 @@ bool InputDevice::pressed(u8 id) const
 bool InputDevice::released(u8 id) const
 {
 	return id < _num_buttons
-		? (_last_state[id] & ~_state[id]) != 0
+		? (_state[id] & CE_BUTTON_RELEASED) != 0
 		: false
 		;
 }
@@ -65,7 +72,7 @@ u8 InputDevice::any_released() const
 f32 InputDevice::button(u8 id) const
 {
 	return id < _num_buttons
-		? f32(_state[id])
+		? f32((_state[id] & CE_BUTTON_STATE_MASK) >> CE_BUTTON_STATE_SHIFT)
 		: 0.0f
 		;
 }
@@ -136,7 +143,16 @@ void InputDevice::set_deadzone(u8 id, DeadzoneMode::Enum deadzone_mode, f32 dead
 void InputDevice::set_button(u8 id, u8 state)
 {
 	CE_ASSERT(id < _num_buttons, "Index out of bounds");
-	_state[id] = state;
+
+	bool pressed = (_state[id] & CE_BUTTON_STATE_MASK) >> CE_BUTTON_STATE_SHIFT == 1;
+
+	if (pressed && state == 0)
+		_state[id] |= CE_BUTTON_RELEASED;
+	if (!pressed && state == 1)
+		_state[id] |= CE_BUTTON_PRESSED;
+
+	_state[id] = (_state[id] & ~(1 << CE_BUTTON_STATE_SHIFT))
+		| (state << CE_BUTTON_STATE_SHIFT);
 
 	if (_first_button[state % countof(_first_button)] == UINT8_MAX)
 		_first_button[state % countof(_first_button)] = id;
@@ -152,7 +168,9 @@ void InputDevice::set_axis(u8 id, f32 x, f32 y, f32 z)
 
 void InputDevice::update()
 {
-	memcpy(_last_state, _state, sizeof(u8)*_num_buttons);
+	for (u32 ii = 0; ii < _num_buttons; ++ii)
+		_state[ii] &= ~CE_BUTTON_MASK;
+
 	_first_button[0] = UINT8_MAX;
 	_first_button[1] = UINT8_MAX;
 }
@@ -182,8 +200,7 @@ namespace input_device
 		id->_button_name     = button_names;
 		id->_axis_name       = axis_names;
 
-		id->_last_state    = (u8 *        )&id[1];
-		id->_state         = (u8 *        )memory::align_top(id->_last_state + num_buttons,  alignof(u8));
+		id->_state         = (u8 *        )&id[1];
 		id->_axis          = (Vector3 *   )memory::align_top(id->_state + num_buttons,       alignof(Vector3));
 		id->_deadzone_mode = (u32 *       )memory::align_top(id->_axis + num_axes,           alignof(u32));
 		id->_deadzone_size = (f32 *       )memory::align_top(id->_deadzone_mode + num_axes,  alignof(f32));
@@ -192,7 +209,6 @@ namespace input_device
 		id->_name          = (char *      )memory::align_top(id->_axis_hash + num_axes,      alignof(char));
 		id->_lua_object    = 0;
 
-		memset(id->_last_state, 0, sizeof(u8)*num_buttons);
 		memset(id->_state, 0, sizeof(u8)*num_buttons);
 		memset(id->_axis, 0, sizeof(Vector3)*num_axes);
 		memset(id->_deadzone_mode, 0, sizeof(*id->_deadzone_mode)*num_axes);
