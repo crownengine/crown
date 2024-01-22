@@ -19,6 +19,7 @@ Changelog
 * Fixed unit preview in the Resource Chooser.
 * The Console will now show a single line with a counter instead of spamming the view with duplicated entries.
 * Fixed Console's text color in dark/light mode.
+* Fixed mouse click in the Editor View not selecting the correct sprite in some circumnstances.
 
 0.49.0 --- 27 Nov 2023
 ----------------------

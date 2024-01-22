@@ -208,17 +208,17 @@ end
 function raycast(objects, pos, dir)
 	local object = nil
 	local nearest = math.huge
-	local layer = 0
-	local depth = 0
+	local sprite_z = 0
 
 	for k, v in pairs(objects) do
 		local t, l, d = v:raycast(pos, dir)
 		if t ~= -1.0 then
-			-- If sprite
+			-- If intersection.
 			if l and d then
-				if l >= layer and d >= depth then
-					layer = l
-					depth = d
+				-- If sprite.
+				local new_z = math.pow(2, 32)*l + d
+				if new_z >= sprite_z then
+					sprite_z = new_z
 					nearest = t
 					object = v
 				end
