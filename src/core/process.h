@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "core/types.h"
 #include "core/strings/types.h"
 
 #if CROWN_PLATFORM_WINDOWS
