@@ -339,21 +339,22 @@ public class LevelEditorApplication : Gtk.Application
 
 	private const GLib.ActionEntry[] action_entries_edit =
 	{
-		{ "menu-edit",          null,                  null, null   },
-		{ "undo",               on_undo,               null, null   },
-		{ "redo",               on_redo,               null, null   },
-		{ "duplicate",          on_duplicate,          null, null   },
-		{ "delete",             on_delete,             null, null   },
-		{ "tool",               on_tool,               "i",  "1"    }, // See: Crown.ToolType
-		{ "cancel-place",       on_cancel_place,       null, null   },
-		{ "snap",               on_snap,               "i",  "0"    }, // See: Crown.SnapMode
-		{ "reference-system",   on_reference_system,   "i",  "0"    }, // See: Crown.ReferenceSystem
-		{ "snap-to-grid",       on_snap_to_grid,       null, "true" },
-		{ "menu-grid",          null,                  null, null   },
-		{ "grid-show",          on_show_grid,          null, "true" },
-		{ "grid-size",          on_grid_size,          "i",  "10"   }, // 10*meters.
-		{ "menu-rotation-snap", null,                  null, null   },
-		{ "rotation-snap-size", on_rotation_snap_size, "i",  "15"   }
+		{ "menu-edit",          null,                  null,   null   },
+		{ "undo",               on_undo,               null,   null   },
+		{ "redo",               on_redo,               null,   null   },
+		{ "duplicate",          on_duplicate,          null,   null   },
+		{ "delete",             on_delete,             null,   null   },
+		{ "tool",               on_tool,               "i",    "1"    }, // See: Crown.ToolType
+		{ "set-placeable",      on_set_placeable,      "(ss)", null   },
+		{ "cancel-place",       on_cancel_place,       null,   null   },
+		{ "snap",               on_snap,               "i",    "0"    }, // See: Crown.SnapMode
+		{ "reference-system",   on_reference_system,   "i",    "0"    }, // See: Crown.ReferenceSystem
+		{ "snap-to-grid",       on_snap_to_grid,       null,   "true" },
+		{ "menu-grid",          null,                  null,   null   },
+		{ "grid-show",          on_show_grid,          null,   "true" },
+		{ "grid-size",          on_grid_size,          "i",    "10"   }, // 10*meters.
+		{ "menu-rotation-snap", null,                  null,   null   },
+		{ "rotation-snap-size", on_rotation_snap_size, "i",    "15"   }
 	};
 
 	private const GLib.ActionEntry[] action_entries_create =
@@ -979,8 +980,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_resource_browser_resource_selected(string type, string name)
 	{
-		set_placeable(type, name);
-		activate_action("tool", new GLib.Variant.int32(ToolType.PLACE));
+		activate_action("set-placeable", new GLib.Variant.tuple({ type, name }));
 	}
 
 	private void on_runtime_connected(RuntimeInstance ri, string address, int port)
@@ -2163,24 +2163,28 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_spawn_primitive(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		if (action.name == "primitive-cube")
-			set_placeable("unit", "core/units/primitives/cube");
-		else if (action.name == "primitive-sphere")
-			set_placeable("unit", "core/units/primitives/sphere");
-		else if (action.name == "primitive-cone")
-			set_placeable("unit", "core/units/primitives/cone");
-		else if (action.name == "primitive-cylinder")
-			set_placeable("unit", "core/units/primitives/cylinder");
-		else if (action.name == "primitive-plane")
-			set_placeable("unit", "core/units/primitives/plane");
-		else if (action.name == "camera")
-			set_placeable("unit", "core/units/camera");
-		else if (action.name == "light")
-			set_placeable("unit", "core/units/light");
-		else if (action.name == "sound-source")
-			set_placeable("sound", "");
+		GLib.Variant[] paramz;
 
-		activate_action("tool", new GLib.Variant.int32(ToolType.PLACE));
+		if (action.name == "primitive-cube")
+			paramz = { "unit", "core/units/primitives/cube" };
+		else if (action.name == "primitive-sphere")
+			paramz = { "unit", "core/units/primitives/sphere" };
+		else if (action.name == "primitive-cone")
+			paramz = { "unit", "core/units/primitives/cone" };
+		else if (action.name == "primitive-cylinder")
+			paramz = { "unit", "core/units/primitives/cylinder" };
+		else if (action.name == "primitive-plane")
+			paramz = { "unit", "core/units/primitives/plane" };
+		else if (action.name == "camera")
+			paramz = { "unit", "core/units/camera" };
+		else if (action.name == "light")
+			paramz = { "unit", "core/units/light" };
+		else if (action.name == "sound-source")
+			paramz = { "sound", "" };
+		else
+			paramz = { "unit", "core/units/primitives/cube" };
+
+		activate_action("set-placeable", new GLib.Variant.tuple(paramz));
 	}
 
 	private void on_spawn_unit(GLib.SimpleAction action, GLib.Variant? param)
@@ -3500,11 +3504,13 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	public void set_placeable(string type, string name)
+	private void on_set_placeable(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		_placeable_type = type;
-		_placeable_name = name;
-		_editor.send_script(LevelEditorApi.set_placeable(type, name));
+		_placeable_type = (string)param.get_child_value(0);
+		_placeable_name = (string)param.get_child_value(1);
+
+		_editor.send_script(LevelEditorApi.set_placeable(_placeable_type, _placeable_name));
+		activate_action("tool", new GLib.Variant.int32(ToolType.PLACE));
 	}
 }
 
