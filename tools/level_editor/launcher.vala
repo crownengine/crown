@@ -64,9 +64,7 @@ public class SubprocessLauncherServer : Object
 
 			if (subprocesses[ii].get_if_exited()) {
 				int exit_status = subprocesses[ii].get_exit_status();
-				if (ii != subprocesses.size - 1)
-					subprocesses[subprocesses.size - 1] = subprocesses[ii];
-				subprocesses.remove_at(subprocesses.size - 1);
+				subprocesses.remove_at(ii);
 				return exit_status;
 			}
 		} catch (GLib.Error e) {
