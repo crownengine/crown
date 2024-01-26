@@ -55,10 +55,18 @@ fi
 if [ -n "$2" ]; then
 	# Do uncrustify.
 	echo "$2"
-	${UNCRUSTIFY} -q -c "$1" -f "$2"                   \
+	${UNCRUSTIFY} -q -c "$1" -f "$2" > "$2".new
+
+	if [ $? -ne 0 ]; then
+		echo "Failed to format '$2'"
+		exit 1
+	else
+		cat "$2".new                                   \
 		| fix_indentation_char                         \
 		| add_newline_before_namespace_closing_bracket \
 		| fix_semicolon_indentation                    \
-		> "$2".new                                     \
-		&& mv "$2".new "$2"
+		> "$2"
+	fi
+
+	rm "$2".new
 fi
