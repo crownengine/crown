@@ -126,9 +126,10 @@ public class RuntimeInstance
 		disconnected_unexpected(this);
 
 		try {
-			if (_process_id != uint32.MAX)
+			if (_process_id != uint32.MAX) {
 				_subprocess_launcher.wait(_process_id);
-			_process_id = uint32.MAX;
+				_process_id = uint32.MAX;
+			}
 		} catch (GLib.Error e) {
 			loge(e.message);
 		}
