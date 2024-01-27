@@ -83,6 +83,15 @@ extern bool next_event(OsEvent &ev);
 
 struct BgfxCallback : public bgfx::CallbackI
 {
+	DynamicString _screenshot_path;
+	std::atomic_int _screenshot_ready;
+
+	explicit BgfxCallback(Allocator &a)
+		: _screenshot_path(a)
+		, _screenshot_ready(0)
+	{
+	}
+
 	virtual void fatal(const char *_filePath, uint16_t _line, bgfx::Fatal::Enum _code, const char *_str) override
 	{
 		CE_UNUSED_4(_filePath, _line, _code, _str);
@@ -147,6 +156,10 @@ struct BgfxCallback : public bgfx::CallbackI
 				);
 			bx::close(&writer);
 		}
+
+		_screenshot_path = _filePath;
+		_screenshot_ready = 1;
+		++device()->_needs_draw; // 1 frame for _screenshot_ready to be evaluated.
 	}
 
 	virtual void captureBegin(u32 _width, u32 _height, u32 _pitch, bgfx::TextureFormat::Enum _format, bool _yflip) override
@@ -347,6 +360,13 @@ bool Device::frame()
 			_lua_environment->call_global("render", 1);
 			RECORD_FLOAT("lua.render", f32(time::seconds(time::now() - t0)));
 		}
+
+		if (_bgfx_callback->_screenshot_ready) {
+			_bgfx_callback->_screenshot_ready = 0;
+			LuaStack stack(_lua_environment->L);
+			stack.push_string(_bgfx_callback->_screenshot_path.c_str());
+			_lua_environment->call_global("screenshot", 1);
+		}
 	}
 
 	_lua_environment->reset_temporaries();
@@ -514,7 +534,7 @@ void Device::run()
 		_window->show();
 
 	_bgfx_allocator = CE_NEW(_allocator, BgfxAllocator)(default_allocator());
-	_bgfx_callback  = CE_NEW(_allocator, BgfxCallback)();
+	_bgfx_callback  = CE_NEW(_allocator, BgfxCallback)(default_allocator());
 
 	bgfx::Init init;
 	init.resolution.width  = _width;
@@ -820,6 +840,7 @@ void Device::refresh(const char *json)
 void Device::screenshot(const char *path)
 {
 	bgfx::requestScreenShot(BGFX_INVALID_HANDLE, path);
+	++device()->_needs_draw; // 1 frame for the request to be fulfilled.
 }
 
 Device *_device = NULL;
