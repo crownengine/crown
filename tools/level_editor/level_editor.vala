@@ -2288,9 +2288,9 @@ public class LevelEditorApplication : Gtk.Application
 
 	private async void refresh_all_clients()
 	{
-		RuntimeInstance[] rutimes = new RuntimeInstance[] { _editor, _resource_preview, _game };
+		RuntimeInstance[] runtimes = new RuntimeInstance[] { _editor, _resource_preview, _game };
 
-		foreach (var ri in rutimes) {
+		foreach (var ri in runtimes) {
 			var since_revision = ri._revision;
 			var refresh_list = yield _data_compiler.refresh_list(since_revision);
 			ri.send(DeviceApi.refresh(refresh_list));
