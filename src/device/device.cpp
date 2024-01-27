@@ -507,6 +507,9 @@ void Device::run()
 	_window->set_title(_boot_config.window_title.c_str());
 	_window->set_fullscreen(_boot_config.fullscreen);
 
+	if (!_options._hidden)
+		_window->show();
+
 	_bgfx_allocator = CE_NEW(_allocator, BgfxAllocator)(default_allocator());
 	_bgfx_callback  = CE_NEW(_allocator, BgfxCallback)();
 

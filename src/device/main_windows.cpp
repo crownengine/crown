@@ -321,7 +321,7 @@ struct WindowsDevice
 		wnd.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
 		RegisterClassExA(&wnd);
 
-		DWORD style = WS_VISIBLE;
+		DWORD style = 0;
 		DWORD exstyle = 0;
 		if (_options->_parent_window == 0) {
 			style |= WS_OVERLAPPEDWINDOW;

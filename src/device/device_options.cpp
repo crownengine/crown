@@ -46,6 +46,7 @@ static void help(const char *msg = NULL)
 		"  --parent-window <handle>        Set the parent window <handle> of the main window.\n"
 		"  --server                        Run the engine in server mode.\n"
 		"  --pumped                        Do not advance the renderer unless explicitly requested via console.\n"
+		"  --hidden                        Make the main window initially invisible.\n"
 		"  --window-rect <x y w h>         Sets the main window's position and size.\n"
 		"\n"
 		"Complete documentation available at https://docs.crownengine.org/html/v" CROWN_VERSION "\n"
@@ -72,6 +73,7 @@ DeviceOptions::DeviceOptions(Allocator &a, int argc, const char **argv)
 	, _do_bundle(false)
 	, _server(false)
 	, _pumped(false)
+	, _hidden(false)
 	, _parent_window(0)
 	, _console_port(CROWN_DEFAULT_CONSOLE_PORT)
 	, _window_x(0)
@@ -155,6 +157,7 @@ int DeviceOptions::parse(bool *quit)
 	}
 
 	_pumped = cl.has_option("pumped");
+	_hidden = cl.has_option("hidden");
 
 	if (!_data_dir.value().empty()) {
 		if (!path::is_absolute(_data_dir.value().c_str())) {

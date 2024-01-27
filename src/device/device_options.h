@@ -33,6 +33,7 @@ struct DeviceOptions
 	Option<bool> _do_bundle;
 	Option<bool> _server;
 	Option<bool> _pumped;
+	Option<bool> _hidden;
 	Option<u32> _parent_window;
 	Option<u16> _console_port;
 	Option<u16> _window_x;

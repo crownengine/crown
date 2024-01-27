@@ -707,8 +707,6 @@ struct WindowX11 : public Window
 		CE_ASSERT(s_linux_device->_x11_window != None, "XCreateWindow: error");
 
 		XSetWMProtocols(s_linux_device->_x11_display, s_linux_device->_x11_window, &s_linux_device->_wm_delete_window, 1);
-
-		XMapRaised(s_linux_device->_x11_display, s_linux_device->_x11_window);
 	}
 
 	void close() override

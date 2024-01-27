@@ -11,6 +11,7 @@ Changelog
 **Runtime**
 
 * Fixed intra-frame button press/release detection.
+* Added ``--hidden`` CLI option.
 
 **Tools**
 
