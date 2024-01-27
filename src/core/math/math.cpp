@@ -81,7 +81,7 @@ f32 cubic(const f32 p0, const f32 p1, f32 t)
 	const f32 tt  = t * t;
 	const f32 ttt = tt * t;
 
-	return p0 * (2.0f * ttt - 3.0f * tt + 1.0f) + p1 * (3.0f * tt  - 2.0f * ttt);
+	return p0 * (2.0f * ttt - 3.0f * tt + 1.0f) + p1 * (3.0f * tt - 2.0f * ttt);
 }
 
 f32 bezier(const f32 p0, const f32 p1, const f32 p2, const f32 p3, f32 t)
