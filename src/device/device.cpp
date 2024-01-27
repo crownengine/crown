@@ -209,7 +209,7 @@ static void device_message_resize(ConsoleServer & /*cs*/, u32 /*client_id*/, con
 
 static void device_message_frame(ConsoleServer & /*cs*/, u32 /*client_id*/, const char * /*json*/, void *user_data)
 {
-	((Device *)user_data)->_needs_draw = true;
+	++((Device *)user_data)->_needs_draw;
 }
 
 static void device_message_quit(ConsoleServer &cs, u32 client_id, const char *json, void *user_data)
@@ -246,7 +246,7 @@ Device::Device(const DeviceOptions &opts, ConsoleServer &cs)
 	, _height(CROWN_DEFAULT_WINDOW_HEIGHT)
 	, _quit(false)
 	, _paused(false)
-	, _needs_draw(true)
+	, _needs_draw(1)
 {
 	list::init_head(_worlds);
 }
@@ -301,7 +301,6 @@ bool Device::frame()
 	const s64 time = time::now();
 	const f32 dt   = f32(time::seconds(time - _last_time));
 	_last_time = time;
-	_needs_draw = !_options._pumped;
 
 	profiler_globals::clear();
 
@@ -316,7 +315,7 @@ bool Device::frame()
 		bgfx::frame();
 
 		// Force redraw.
-		_needs_draw = true;
+		++_needs_draw;
 	}
 
 	// Only block if redraw is not needed.
@@ -364,6 +363,10 @@ bool Device::frame()
 	_pipeline->render(*_shader_manager, STRING_ID_32("blit", UINT32_C(0x045f02bb)), VIEW_BLIT, _width, _height);
 
 	bgfx::frame();
+
+	if (_needs_draw-- == 1)
+		_needs_draw = (int)!_options._pumped;
+
 	return false;
 }
 

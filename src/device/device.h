@@ -23,6 +23,7 @@
 #include "resource/types.h"
 #include "resource/types.h"
 #include "world/types.h"
+#include <atomic>
 
 /// @defgroup Device Device
 namespace crown
@@ -64,7 +65,7 @@ struct Device
 
 	bool _quit;
 	bool _paused;
-	bool _needs_draw;
+	std::atomic_int _needs_draw;
 
 	///
 	bool process_events();
