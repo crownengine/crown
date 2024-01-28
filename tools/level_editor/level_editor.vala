@@ -410,6 +410,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "report-issue", on_report_issue, null, null },
 		{ "browse-logs",  on_browse_logs,  null, null },
 		{ "changelog",    on_changelog,    null, null },
+		{ "donate",       on_donate,       null, null },
 		{ "about",        on_about,        null, null }
 	};
 
@@ -2396,6 +2397,15 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		try {
 			AppInfo.launch_default_for_uri("https://docs.crownengine.org/html/v" + CROWN_VERSION + "/changelog.html", null);
+		} catch (Error e) {
+			loge(e.message);
+		}
+	}
+
+	private void on_donate(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		try {
+			AppInfo.launch_default_for_uri("https://crownengine.org/fund", null);
 		} catch (Error e) {
 			loge(e.message);
 		}

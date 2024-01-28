@@ -459,6 +459,10 @@
           <attribute name="action">app.changelog</attribute>
         </item>
         <item>
+          <attribute name="label" translatable="yes">Donate...</attribute>
+          <attribute name="action">app.donate</attribute>
+        </item>
+        <item>
           <attribute name="label" translatable="yes">About</attribute>
           <attribute name="action">app.about</attribute>
         </item>
