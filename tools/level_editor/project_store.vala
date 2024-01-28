@@ -41,7 +41,7 @@ public class ProjectStore
 			, typeof(string) // resource name
 			, typeof(string) // resource type
 			);
-		_list_store = new Gtk.ListStore(2
+		_list_store = new Gtk.ListStore(Column.COUNT
 			, typeof(string) // resource name
 			, typeof(string) // resource type
 			);
@@ -60,6 +60,11 @@ public class ProjectStore
 
 	public bool path_for_resource_type_name(out Gtk.TreePath path, string type, string name)
 	{
+		if (type == "<folder>") {
+			path = _folders[name].get_path();
+			return true;
+		}
+
 		string parent_folder = ResourceId.parent_folder(name);
 
 		if (_folders.has_key(parent_folder)) {
@@ -224,6 +229,16 @@ public class ProjectStore
 	private void on_project_tree_added(string name)
 	{
 		make_tree(name);
+
+		Gtk.TreeIter iter;
+		_list_store.insert_with_values(out iter
+			, -1
+			, Column.NAME
+			, name
+			, Column.TYPE
+			, "<folder>"
+			, -1
+			);
 	}
 
 	private void on_project_tree_removed(string name)
@@ -247,6 +262,25 @@ public class ProjectStore
 				it.unset();
 		}
 		_folders.unset(name);
+
+		// Remove from list store.
+		Gtk.TreeIter child;
+		if (_list_store.iter_children(out child, null)) {
+			Value iter_name;
+			Value iter_type;
+
+			while (true) {
+				_list_store.get_value(child, Column.NAME, out iter_name);
+				_list_store.get_value(child, Column.TYPE, out iter_type);
+				if ((string)iter_name == name && (string)iter_type == "<folder>") {
+					_list_store.remove(ref child);
+					break;
+				}
+
+				if (!_list_store.iter_next(ref child))
+					break;
+			}
+		}
 	}
 
 	private void on_project_reset()

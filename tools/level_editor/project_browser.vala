@@ -13,6 +13,9 @@ private Gtk.Menu? menu_create(string type, string name)
 	Gtk.Menu? menu;
 
 	if (type == "<folder>") {
+		if (name == "..")
+			return null;
+
 		menu = new Gtk.Menu();
 
 		Gtk.MenuItem mi;
@@ -226,7 +229,174 @@ private Gtk.Menu? menu_create(string type, string name)
 	return menu;
 }
 
-public class ProjectBrowser : Gtk.Box
+public class ProjectIconView : Gtk.IconView
+{
+	public enum Column
+	{
+		TYPE,
+		NAME,
+		PIXBUF,
+
+		COUNT
+	}
+
+	public string _selected_type;
+	public string _selected_name;
+	public ProjectStore _project_store;
+	public Gtk.ListStore _list_store;
+	public Gtk.CellRendererPixbuf _cell_renderer_pixbuf;
+	public Gtk.CellRendererText _cell_renderer_text;
+
+	public ProjectIconView(ProjectStore project_store)
+	{
+		_project_store = project_store;
+
+		_list_store = new Gtk.ListStore(Column.COUNT
+			, typeof(string)     // Column.TYPE
+			, typeof(string)     // Column.NAME
+			, typeof(Gdk.Pixbuf) // Column.PIXBUF
+			);
+		_list_store.set_sort_column_id(Column.TYPE, Gtk.SortType.ASCENDING);
+
+		this.button_press_event.connect(on_button_pressed);
+
+		_cell_renderer_pixbuf = new Gtk.CellRendererPixbuf();
+		_cell_renderer_pixbuf.stock_size = Gtk.IconSize.DIALOG;
+
+		_cell_renderer_text = new Gtk.CellRendererText();
+		_cell_renderer_text.xalign = 0.5f; // Center text.
+
+		this.pack_start(_cell_renderer_pixbuf, false);
+		this.pack_start(_cell_renderer_text, false);
+		this.set_cell_data_func(_cell_renderer_pixbuf, pixbuf_func);
+		this.set_cell_data_func(_cell_renderer_text, text_func);
+
+		this.set_model(_list_store);
+	}
+
+	private bool on_button_pressed(Gdk.EventButton ev)
+	{
+		if (ev.button == Gdk.BUTTON_SECONDARY) {
+			string type;
+			string name;
+
+			Gtk.TreePath path;
+			if ((path = this.get_path_at_pos((int)ev.x, (int)ev.y)) != null) {
+				Gtk.TreeIter iter;
+				this.model.get_iter(out iter, path);
+
+				Value val;
+				this.model.get_value(iter, Column.TYPE, out val);
+				type = (string)val;
+				this.model.get_value(iter, Column.NAME, out val);
+				name = (string)val;
+
+			} else {
+				type = _selected_type;
+				name = _selected_name;
+			}
+
+			Gtk.Menu? menu = menu_create(type, name);
+			if (menu != null) {
+				menu.show_all();
+				menu.popup_at_pointer(ev);
+			}
+		} else if (ev.button == Gdk.BUTTON_PRIMARY) {
+			if (ev.type == Gdk.EventType.@2BUTTON_PRESS) {
+				Gtk.TreePath path;
+				if ((path = this.get_path_at_pos((int)ev.x, (int)ev.y)) != null) {
+					Gtk.TreeIter iter;
+					this.model.get_iter(out iter, path);
+
+					Value type;
+					Value name;
+					this.model.get_value(iter, Column.TYPE, out type);
+					this.model.get_value(iter, Column.NAME, out name);
+
+					if ((string)type == "<folder>") {
+						string dir_name;
+						if ((string)name == "..")
+							dir_name = ResourceId.parent_folder((string)_selected_name);
+						else
+							dir_name = (string)name;
+
+						GLib.Application.get_default().activate_action("open-directory", new GLib.Variant.string(dir_name));
+					} else {
+						GLib.Application.get_default().activate_action("open-resource", ResourceId.path((string)type, (string)name));
+					}
+				}
+			}
+		}
+
+		return Gdk.EVENT_PROPAGATE;
+	}
+
+	private void pixbuf_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
+	{
+		Value val;
+		string type;
+		string name;
+		model.get_value(iter, Column.TYPE, out val);
+		type = (string)val;
+		model.get_value(iter, Column.NAME, out val);
+		name = (string)val;
+
+		// https://specifications.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html
+		var theme = Gtk.IconTheme.get_default();
+		var fg_color = this.get_style_context().get_color(Gtk.StateFlags.NORMAL);
+		try {
+			if (type == "<folder>")
+				cell.set_property("pixbuf", theme.lookup_icon("folder-symbolic", 64, 0).load_symbolic(fg_color));
+			else if ((string)type == "state_machine")
+				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
+			else if ((string)type == "config")
+				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
+			else if ((string)type == "font")
+				cell.set_property("pixbuf", theme.lookup_icon("font-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
+			else if ((string)type == "level")
+				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
+			else if ((string)type == "material")
+				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
+			else if ((string)type == "mesh")
+				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
+			else if ((string)type == "package")
+				cell.set_property("pixbuf", theme.lookup_icon("package-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
+			else if ((string)type == "physics_config")
+				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
+			else if ((string)type == "lua")
+				cell.set_property("pixbuf", theme.lookup_icon("x-office-document-symbolic", 64, 0).load_symbolic(fg_color));
+			else if ((string)type == "shader")
+				cell.set_property("pixbuf", theme.lookup_icon("text-x-script-symbolic", 64, 0).load_symbolic(fg_color));
+			else if ((string)type == "sound")
+				cell.set_property("pixbuf", theme.lookup_icon("audio-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
+			else if ((string)type == "sprite_animation")
+				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
+			else if ((string)type == "sprite")
+				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
+			else if ((string)type == "texture")
+				cell.set_property("pixbuf", theme.lookup_icon("image-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
+			else
+				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
+		} catch (GLib.Error e) {
+			loge(e.message);
+		}
+	}
+
+	private void text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
+	{
+		Value type;
+		Value name;
+		model.get_value(iter, Column.TYPE, out type);
+		model.get_value(iter, Column.NAME, out name);
+
+		if (name == "..")
+			cell.set_property("text", name);
+		else
+			cell.set_property("text", GLib.Path.get_basename((string)name));
+	}
+}
+
+public class ProjectBrowser : Gtk.Bin
 {
 	// Data
 	public ProjectStore _project_store;
@@ -236,7 +406,15 @@ public class ProjectBrowser : Gtk.Box
 	public Gtk.TreeModelSort _tree_sort;
 	public Gtk.TreeView _tree_view;
 	public Gtk.TreeSelection _tree_selection;
-	public Gtk.ScrolledWindow _scrolled_window;
+	public Gdk.Pixbuf _empty_pixbuf;
+	public ProjectIconView _icon_view;
+	public bool _show_icon_view;
+	public Gtk.Button _toggle_icon_view;
+	public Gtk.Box _tree_view_content;
+	public Gtk.Box _icon_view_content;
+	public Gtk.ScrolledWindow _scrolled_window_a;
+	public Gtk.ScrolledWindow _scrolled_window_b;
+	public Gtk.Paned _paned;
 
 	public bool _hide_core_resources;
 
@@ -245,8 +423,6 @@ public class ProjectBrowser : Gtk.Box
 
 	public ProjectBrowser(ProjectStore project_store)
 	{
-		Object(orientation: Gtk.Orientation.VERTICAL, spacing: 0);
-
 		// Data
 		_project_store = project_store;
 
@@ -260,10 +436,16 @@ public class ProjectBrowser : Gtk.Box
 				model.get_value(iter, ProjectStore.Column.TYPE, out type);
 				model.get_value(iter, ProjectStore.Column.NAME, out name);
 
-				return (string)type != null
+				bool should_hide = (string)type != null
 					&& (string)name != null
 					&& !row_should_be_hidden((string)type, (string)name)
 					;
+
+				if (_show_icon_view) {
+					return should_hide && type == "<folder>";
+				} else {
+					return should_hide;
+				}
 			});
 
 		_tree_sort = new Gtk.TreeModelSort.with_model(_tree_filter);
@@ -324,22 +506,72 @@ public class ProjectBrowser : Gtk.Box
 		_tree_view.model = _tree_sort;
 		_tree_view.headers_visible = false;
 		_tree_view.button_press_event.connect(on_button_pressed);
-		_tree_view.button_release_event.connect(on_button_released);
 
 		_tree_selection = _tree_view.get_selection();
 		_tree_selection.set_mode(Gtk.SelectionMode.BROWSE);
+		_tree_selection.changed.connect(() => { update_icon_view(); });
 
-		_scrolled_window = new Gtk.ScrolledWindow(null, null);
-		_scrolled_window.add(_tree_view);
+		_empty_pixbuf = new Gdk.Pixbuf.from_data({ 0x00, 0x00, 0x00, 0x00 }, Gdk.Colorspace.RGB, true, 8, 1, 1, 4);
+
+		_project_store._list_store.row_inserted.connect((path, iter) => { update_icon_view(); });
+		_project_store._list_store.row_deleted.connect((path) => { update_icon_view(); });
+
+		// Create icon view.
+		_icon_view = new ProjectIconView(_project_store);
+
+		// Create switch button.
+		_show_icon_view = true;
+		_toggle_icon_view = new Gtk.Button.from_icon_name("level-tree-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
+		_toggle_icon_view.get_style_context().add_class("flat");
+		_toggle_icon_view.clicked.connect(() => {
+				_show_icon_view = !_show_icon_view;
+
+				if (_show_icon_view) {
+					_icon_view_content.show_all();
+					_toggle_icon_view.set_image(new Gtk.Image.from_icon_name("level-tree-symbolic", Gtk.IconSize.SMALL_TOOLBAR));
+				} else {
+					_icon_view_content.hide();
+					_toggle_icon_view.set_image(new Gtk.Image.from_icon_name("browser-icon-view", Gtk.IconSize.SMALL_TOOLBAR));
+				}
+
+				_tree_filter.refilter();
+			});
+
+		// Create paned split-view.
+		_scrolled_window_a = new Gtk.ScrolledWindow(null, null);
+		_scrolled_window_a.add(_tree_view);
+
+		_scrolled_window_b = new Gtk.ScrolledWindow(null, null);
+		_scrolled_window_b.add(_icon_view);
+
+		var _tree_view_control = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		_tree_view_control.pack_end(_toggle_icon_view, false, false);
+
+		_tree_view_content = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+		_tree_view_content.pack_start(_tree_view_control, false);
+		_tree_view_content.pack_start(_scrolled_window_a, true, true);
+
+		var _icon_view_control = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		// _icon_view_control.pack_end(..., false, false);
+
+		_icon_view_content = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+		_icon_view_content.pack_start(_icon_view_control, false);
+		_icon_view_content.pack_start(_scrolled_window_b, true, true);
+
+		_paned = new Gtk.Paned(Gtk.Orientation.VERTICAL);
+		_paned.pack1(_tree_view_content, true, false);
+		_paned.pack2(_icon_view_content, true, false);
+		_paned.set_position(400);
+
+		this.add(_paned);
 
 		_hide_core_resources = true;
-
-		this.pack_start(_scrolled_window, true, true, 0);
 
 		// Actions.
 		GLib.ActionEntry[] action_entries =
 		{
-			{ "reveal-resource", on_reveal, "(ss)", null }
+			{ "reveal-resource", on_reveal,         "(ss)", null },
+			{ "open-directory",  on_open_directory, "s",    null }
 		};
 		GLib.Application.get_default().add_action_entries(action_entries, this);
 	}
@@ -363,8 +595,43 @@ public class ProjectBrowser : Gtk.Box
 			_tree_filter.refilter();
 		}
 
+		logi("on_reveal:");
+		string parent_type = type;
+		string parent_name = name;
+		Gtk.TreePath filter_path = null;
+		do {
+			logi("  parent_name %s".printf(parent_name));
+			Gtk.TreePath store_path;
+			if (!_project_store.path_for_resource_type_name(out store_path, parent_type, parent_name)) {
+				logi("  wtf?");
+				break;
+			}
+
+			filter_path = _tree_filter.convert_child_path_to_path(store_path);
+			if (filter_path == null) { // Either the path is not valid or points to a non-visible row in the model.
+				logi("  the path %s is not visible...".printf(parent_name));
+				parent_type = "<folder>";
+				parent_name = ResourceId.parent_folder(parent_name);
+				continue;
+			}
+
+			Gtk.TreePath sort_path = _tree_sort.convert_child_path_to_path(filter_path);
+			if (sort_path == null) { // The path is not valid.
+				logi("  the path is not valid");
+				break;
+			}
+
+			_tree_view.expand_to_path(sort_path);
+			_tree_view.get_selection().select_path(sort_path);
+		} while (filter_path == null && parent_name != "");
+	}
+
+	private void on_open_directory(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string dir_name = param.get_string();
+
 		Gtk.TreePath store_path;
-		if (_project_store.path_for_resource_type_name(out store_path, type, name)) {
+		if (_project_store.path_for_resource_type_name(out store_path, "<folder>", dir_name)) {
 			Gtk.TreePath filter_path = _tree_filter.convert_child_path_to_path(store_path);
 			if (filter_path == null) // Either the path is not valid or points to a non-visible row in the model.
 				return;
@@ -419,29 +686,86 @@ public class ProjectBrowser : Gtk.Box
 		return Gdk.EVENT_PROPAGATE;
 	}
 
-	private bool on_button_released(Gdk.EventButton ev)
+	private void update_icon_view()
 	{
-		if (ev.button == Gdk.BUTTON_PRIMARY) {
-			Gtk.TreePath path;
-			if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, null, null, null)) {
-				Gtk.TreeIter iter;
-				_tree_view.model.get_iter(out iter, path);
+		Gtk.TreeModel selected_model;
+		Gtk.TreeIter selected_iter;
+		if (!_tree_selection.get_selected(out selected_model, out selected_iter))
+			return;
 
-				Value type;
-				_tree_view.model.get_value(iter, ProjectStore.Column.TYPE, out type);
-				if ((string)type != "<folder>")
-					return Gdk.EVENT_PROPAGATE;
+		// If there is a selected node.
+		_icon_view._list_store.clear();
 
-				if (_tree_view.is_row_expanded(path))
-					_tree_view.collapse_row(path);
-				else
-					_tree_view.expand_row(path, /*open_all = */ false);
+		// Get the selected node's type and name.
+		string selected_type;
+		string selected_name;
+		Value val;
+		selected_model.get_value(selected_iter, ProjectStore.Column.TYPE, out val);
+		selected_type = (string)val;
+		selected_model.get_value(selected_iter, ProjectStore.Column.NAME, out val);
+		selected_name = (string)val;
 
-				return Gdk.EVENT_STOP;
-			}
+		// Add parent folder.
+		if (selected_name != "") {
+			Gtk.TreeIter dummy;
+			_icon_view._list_store.insert_with_values(out dummy
+				, -1
+				, ProjectIconView.Column.TYPE
+				, "<folder>"
+				, ProjectIconView.Column.NAME
+				, ".."
+				, -1
+				);
 		}
 
-		return Gdk.EVENT_PROPAGATE;
+		// Fill the icon view list with paths matching the selected node's name.
+		_project_store._list_store.foreach((model, path, iter) => {
+				string type;
+				string name;
+				model.get_value(iter, ProjectStore.Column.TYPE, out val);
+				type = (string)val;
+				model.get_value(iter, ProjectStore.Column.NAME, out val);
+				name = (string)val;
+
+				if (row_should_be_hidden(type, name))
+					return false;
+
+				// Skip paths without common ancestor.
+				if (!name.has_prefix(selected_name))
+					return false;
+
+				// Skip paths that are too deep in the hierarchy:
+				// selected_name: foo
+				// hierarchy:
+				//   foo/bar OK
+				//   foo/baz OK
+				//   foo/bar/baz NOPE
+				string name_suffix;
+				if (selected_name == "") // Project folder.
+					name_suffix = name.substring((selected_name).length);
+				else if (selected_name != name) // Folder itself.
+					name_suffix = name.substring((selected_name).length + 1);
+				else
+					return false;
+
+				if (name_suffix.index_of_char('/') != -1)
+					return false;
+
+				// Add the path to the list.
+				Gtk.TreeIter dummy;
+				_icon_view._list_store.insert_with_values(out dummy
+					, -1
+					, ProjectIconView.Column.TYPE
+					, type
+					, ProjectIconView.Column.NAME
+					, name
+					, -1
+					);
+				return false;
+			});
+
+		_icon_view._selected_type = selected_type;
+		_icon_view._selected_name = selected_name;
 	}
 
 	public void select_project_root()
@@ -451,8 +775,13 @@ public class ProjectBrowser : Gtk.Box
 
 	private void pixbuf_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
-		Value type;
-		model.get_value(iter, ProjectStore.Column.TYPE, out type);
+		Value val;
+		string type;
+		string name;
+		model.get_value(iter, ProjectStore.Column.TYPE, out val);
+		type = (string)val;
+		model.get_value(iter, ProjectStore.Column.NAME, out val);
+		name = (string)val;
 
 		// https://specifications.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html
 		if ((string)type == "<folder>")
