@@ -530,6 +530,9 @@ public class LevelEditorApplication : Gtk.Application
 	private Gtk.Toolbar _toolbar;
 	private Gtk.ToolButton _toolbar_run;
 	private Gtk.Notebook _level_tree_view_notebook;
+	private Gtk.Notebook _console_notebook;
+	private Gtk.Notebook _project_notebook;
+	private Gtk.Notebook _inspector_notebook;
 	private Gtk.Paned _editor_pane;
 	private Gtk.Paned _content_pane;
 	private Gtk.Paned _inspector_pane;
@@ -835,17 +838,29 @@ public class LevelEditorApplication : Gtk.Application
 		_level_tree_view_notebook.append_page(_level_treeview, new Gtk.Image.from_icon_name("level-tree", IconSize.SMALL_TOOLBAR));
 		_level_tree_view_notebook.append_page(_level_layers_treeview, new Gtk.Image.from_icon_name("level-layers", IconSize.SMALL_TOOLBAR));
 
+		_console_notebook = new Notebook();
+		_console_notebook.show_border = false;
+		_console_notebook.append_page(_console_view, new Gtk.Label.with_mnemonic("Console"));
+
+		_project_notebook = new Notebook();
+		_project_notebook.show_border = false;
+		_project_notebook.append_page(_project_stack, new Gtk.Label.with_mnemonic("Project"));
+
+		_inspector_notebook = new Notebook();
+		_inspector_notebook.show_border = false;
+		_inspector_notebook.append_page(_properties_view, new Gtk.Label.with_mnemonic("Properties"));
+
 		_editor_pane = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
-		_editor_pane.pack1(_project_stack, false, false);
+		_editor_pane.pack1(_project_notebook, false, false);
 		_editor_pane.pack2(_editor_stack, true, false);
 
 		_content_pane = new Gtk.Paned(Gtk.Orientation.VERTICAL);
 		_content_pane.pack1(_editor_pane, true, false);
-		_content_pane.pack2(_console_view, false, false);
+		_content_pane.pack2(_console_notebook, false, false);
 
 		_inspector_pane = new Gtk.Paned(Gtk.Orientation.VERTICAL);
 		_inspector_pane.pack1(_level_tree_view_notebook, true, false);
-		_inspector_pane.pack2(_properties_view, false, false);
+		_inspector_pane.pack2(_inspector_notebook, false, false);
 		_inspector_stack.add(_inspector_pane);
 
 		_main_pane = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
@@ -2226,22 +2241,22 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_project_browser(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		if (_project_stack.is_visible()) {
-			_project_stack.hide();
+		if (_project_notebook.is_visible()) {
+			_project_notebook.hide();
 		} else {
-			_project_stack.show_all();
+			_project_notebook.show_all();
 		}
 	}
 
 	private void on_console(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		if (_console_view.is_visible()) {
+		if (_console_notebook.is_visible()) {
 			if (_console_view._entry.has_focus)
-				_console_view.hide();
+				_console_notebook.hide();
 			else
 				_console_view._entry.grab_focus_without_selecting();
 		} else {
-			_console_view.show_all();
+			_console_notebook.show_all();
 			_console_view._entry.grab_focus_without_selecting();
 		}
 	}
