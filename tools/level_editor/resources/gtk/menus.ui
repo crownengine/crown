@@ -432,6 +432,12 @@
           <attribute name="action">app.restart-editor-view</attribute>
         </item>
       </section>
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">Browse Logs...</attribute>
+          <attribute name="action">app.browse-logs</attribute>
+        </item>
+      </section>
     </submenu>
     <submenu>
       <attribute name="label" translatable="yes">Help</attribute>
@@ -445,12 +451,6 @@
         <item>
           <attribute name="label" translatable="yes">Report an Issue...</attribute>
           <attribute name="action">app.report-issue</attribute>
-        </item>
-      </section>
-      <section>
-        <item>
-          <attribute name="label" translatable="yes">Browse Logs...</attribute>
-          <attribute name="action">app.browse-logs</attribute>
         </item>
       </section>
       <section>
