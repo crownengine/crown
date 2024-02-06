@@ -97,6 +97,13 @@ Device
 		To unload the resources loaded by the package, you have to call
 		ResourcePackage.unload() first.
 
+**screenshot** (path)
+	Captures a screenshot of the main window's backbuffer and saves it at *path* in PNG format.
+	The global callback ``screenshot (path)`` will be called after the file is written to disk.
+
+	.. note::
+		Only available in debug and development builds.
+
 **console_send** (table)
 	Sends the given lua *table* to clients connected to the engine.
 	Values can be either ``nil``, bool, number, string, table, array, Vector2, Vector3, Quaternion, Matrix4x4 or Color4.
@@ -1324,6 +1331,9 @@ World
 
 **create_screen_gui** (world) : Gui
 	Creates a new Gui.
+
+**destroy_gui** (world, gui)
+	Destroys the *gui*.
 
 **scene_graph** (world) : SceneGraph
 	Returns the scene graph.

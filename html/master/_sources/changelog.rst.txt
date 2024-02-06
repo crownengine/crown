@@ -1,7 +1,55 @@
 Changelog
 =========
 
-0.48.0 --- *DD MMM YYYY*
+0.50.0 --- DD MMM YYYY
+----------------------
+
+**Data Compiler**
+
+* Fixed existence/redefinition checks for samplers.
+
+**Runtime**
+
+* Fixed intra-frame button press/release detection.
+* Added ``--hidden`` CLI option.
+
+**Tools**
+
+* Added an option to use the debug keystore when deploying APKs for Android.
+* Added the ability to copy the path of files in the Project Browser.
+* Fixed unit preview in the Resource Chooser.
+* The Console will now show a single line with a counter instead of spamming the view with duplicated entries.
+* Fixed Console's text color in dark/light mode.
+* Fixed mouse click in the Editor View not selecting the correct sprite in some circumnstances.
+
+**Lua API**
+
+* Added ``Device.screenshot()`` and ``screenshot()`` callback, see :doc:`lua_api` for details.
+
+0.49.0 --- 27 Nov 2023
+----------------------
+
+**Data Compiler**
+
+* Linux: fixed detection of deleted directories in some cases.
+
+**Runtime**
+
+* Fixed a crash when rendering text with a font missing some of the glyphs.
+* Fixed pixelation when rendering scaled text.
+* Fixed .sprite_animation's compiler and resources.
+
+**Tools**
+
+* Added a TrueType and OpenType Font Importer.
+* Added the ability to rename a sprite in the Sprite Importer.
+* Added a popup menu to quickly access some resource-related functionalities directly from the Console.
+* Fixed initial 'sensitivity' state in some widgets.
+* Fixed erratic messages when importing assets and improved import procedure robustness.
+* Fixed creating new project from templates.
+* The most recent project in the Projects List can now be opened by pressing the 'Enter' key.
+
+0.48.0 --- *31 Jul 2023*
 ------------------------
 
 **Data Compiler**
@@ -13,16 +61,19 @@ Changelog
 
 **Runtime**
 
+* Added experimental HTML5 target platform.
 * Added ``--window-rect``, ``--bundle`` and ``--bundle-dir`` CLI options.
 * Fixed a double-free error during shutdown.
 * Bumped minimum OpenGL|ES version for Android platform to 3.0.
 
 **Tools**
 
+* Added Deploy dialog to generate packages for all supported platforms.
 * Added camera framing of selected objects or whole Level.
 * Numeric input fields will now accept simple math expressions.
 * Fixed the Editor View struggling to grab keyboard focus sometimes.
 * Fixed an issue that caused a project folder to be deleted when the ESC key was pressed in the confirmation dialog.
+* Fixed the Editor View's size when Hi-DPI is enabled.
 * Fixed minor aesthetic issues.
 
 **Lua API**

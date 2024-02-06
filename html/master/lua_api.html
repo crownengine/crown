@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lua API reference &mdash; Crown Manual 0.48.0 documentation</title>
+  <title>Lua API reference &mdash; Crown Manual 0.50.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -12,6 +12,9 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
@@ -27,10 +30,11 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> Crown Manual
+            <a href="index.html">
+            <img src="_static/crown-logo-white.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                0.48.0
+                0.50.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -243,6 +247,13 @@ The form is “major.minor.micro”.</p>
 <p class="admonition-title">Note</p>
 <p>To unload the resources loaded by the package, you have to call
 ResourcePackage.unload() first.</p>
+</div>
+</dd>
+<dt><strong>screenshot</strong> (path)</dt><dd><p>Captures a screenshot of the main window’s backbuffer and saves it at <em>path</em> in PNG format.
+The global callback <code class="docutils literal notranslate"><span class="pre">screenshot</span> <span class="pre">(path)</span></code> will be called after the file is written to disk.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Only available in debug and development builds.</p>
 </div>
 </dd>
 <dt><strong>console_send</strong> (table)</dt><dd><p>Sends the given lua <em>table</em> to clients connected to the engine.
@@ -1256,6 +1267,8 @@ enable depth test when rendering the lines.</p>
 <dt><strong>destroy_debug_line</strong> (world, line)</dt><dd><p>Destroys the debug <em>line</em>.</p>
 </dd>
 <dt><strong>create_screen_gui</strong> (world)<span class="classifier">Gui</span></dt><dd><p>Creates a new Gui.</p>
+</dd>
+<dt><strong>destroy_gui</strong> (world, gui)</dt><dd><p>Destroys the <em>gui</em>.</p>
 </dd>
 <dt><strong>scene_graph</strong> (world)<span class="classifier">SceneGraph</span></dt><dd><p>Returns the scene graph.</p>
 </dd>

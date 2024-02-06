@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Changelog &mdash; Crown Manual 0.48.0 documentation</title>
+  <title>Changelog &mdash; Crown Manual 0.50.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -12,6 +12,9 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
@@ -27,10 +30,11 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> Crown Manual
+            <a href="index.html">
+            <img src="_static/crown-logo-white.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                0.48.0
+                0.50.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -42,7 +46,9 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#dd-mmm-yyyy">0.48.0 — <em>DD MMM YYYY</em></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dd-mmm-yyyy">0.50.0 — DD MMM YYYY</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#nov-2023">0.49.0 — 27 Nov 2023</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#jul-2023">0.48.0 — <em>31 Jul 2023</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#feb-2023">0.47.0 — <em>06 Feb 2023</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#nov-2021">0.46.0 — <em>19 Nov 2021</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#jul-2021">0.45.0 — <em>30 Jul 2021</em></a></li>
@@ -92,7 +98,55 @@
   <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this heading">¶</a></h1>
 <section id="dd-mmm-yyyy">
-<h2>0.48.0 — <em>DD MMM YYYY</em><a class="headerlink" href="#dd-mmm-yyyy" title="Permalink to this heading">¶</a></h2>
+<h2>0.50.0 — DD MMM YYYY<a class="headerlink" href="#dd-mmm-yyyy" title="Permalink to this heading">¶</a></h2>
+<p><strong>Data Compiler</strong></p>
+<ul class="simple">
+<li><p>Fixed existence/redefinition checks for samplers.</p></li>
+</ul>
+<p><strong>Runtime</strong></p>
+<ul class="simple">
+<li><p>Fixed intra-frame button press/release detection.</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">--hidden</span></code> CLI option.</p></li>
+</ul>
+<p><strong>Tools</strong></p>
+<ul class="simple">
+<li><p>Added an option to use the debug keystore when deploying APKs for Android.</p></li>
+<li><p>Added the ability to copy the path of files in the Project Browser.</p></li>
+<li><p>Fixed unit preview in the Resource Chooser.</p></li>
+<li><p>The Console will now show a single line with a counter instead of spamming the view with duplicated entries.</p></li>
+<li><p>Fixed Console’s text color in dark/light mode.</p></li>
+<li><p>Fixed mouse click in the Editor View not selecting the correct sprite in some circumnstances.</p></li>
+</ul>
+<p><strong>Lua API</strong></p>
+<ul class="simple">
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">Device.screenshot()</span></code> and <code class="docutils literal notranslate"><span class="pre">screenshot()</span></code> callback, see <a class="reference internal" href="lua_api.html"><span class="doc">Lua API reference</span></a> for details.</p></li>
+</ul>
+</section>
+<section id="nov-2023">
+<h2>0.49.0 — 27 Nov 2023<a class="headerlink" href="#nov-2023" title="Permalink to this heading">¶</a></h2>
+<p><strong>Data Compiler</strong></p>
+<ul class="simple">
+<li><p>Linux: fixed detection of deleted directories in some cases.</p></li>
+</ul>
+<p><strong>Runtime</strong></p>
+<ul class="simple">
+<li><p>Fixed a crash when rendering text with a font missing some of the glyphs.</p></li>
+<li><p>Fixed pixelation when rendering scaled text.</p></li>
+<li><p>Fixed .sprite_animation’s compiler and resources.</p></li>
+</ul>
+<p><strong>Tools</strong></p>
+<ul class="simple">
+<li><p>Added a TrueType and OpenType Font Importer.</p></li>
+<li><p>Added the ability to rename a sprite in the Sprite Importer.</p></li>
+<li><p>Added a popup menu to quickly access some resource-related functionalities directly from the Console.</p></li>
+<li><p>Fixed initial ‘sensitivity’ state in some widgets.</p></li>
+<li><p>Fixed erratic messages when importing assets and improved import procedure robustness.</p></li>
+<li><p>Fixed creating new project from templates.</p></li>
+<li><p>The most recent project in the Projects List can now be opened by pressing the ‘Enter’ key.</p></li>
+</ul>
+</section>
+<section id="jul-2023">
+<h2>0.48.0 — <em>31 Jul 2023</em><a class="headerlink" href="#jul-2023" title="Permalink to this heading">¶</a></h2>
 <p><strong>Data Compiler</strong></p>
 <ul class="simple">
 <li><p>Data directories can now be deleted at run-time to force a full data compilation.</p></li>
@@ -102,16 +156,19 @@
 </ul>
 <p><strong>Runtime</strong></p>
 <ul class="simple">
+<li><p>Added experimental HTML5 target platform.</p></li>
 <li><p>Added <code class="docutils literal notranslate"><span class="pre">--window-rect</span></code>, <code class="docutils literal notranslate"><span class="pre">--bundle</span></code> and <code class="docutils literal notranslate"><span class="pre">--bundle-dir</span></code> CLI options.</p></li>
 <li><p>Fixed a double-free error during shutdown.</p></li>
 <li><p>Bumped minimum OpenGL|ES version for Android platform to 3.0.</p></li>
 </ul>
 <p><strong>Tools</strong></p>
 <ul class="simple">
+<li><p>Added Deploy dialog to generate packages for all supported platforms.</p></li>
 <li><p>Added camera framing of selected objects or whole Level.</p></li>
 <li><p>Numeric input fields will now accept simple math expressions.</p></li>
 <li><p>Fixed the Editor View struggling to grab keyboard focus sometimes.</p></li>
 <li><p>Fixed an issue that caused a project folder to be deleted when the ESC key was pressed in the confirmation dialog.</p></li>
+<li><p>Fixed the Editor View’s size when Hi-DPI is enabled.</p></li>
 <li><p>Fixed minor aesthetic issues.</p></li>
 </ul>
 <p><strong>Lua API</strong></p>
