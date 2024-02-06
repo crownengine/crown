@@ -98,7 +98,7 @@ Device
 		ResourcePackage.unload() first.
 
 **screenshot** (path)
-	Captures a screenshot of the main window's backbuffer and saves it at @a path in PNG format.
+	Captures a screenshot of the main window's backbuffer and saves it at *path* in PNG format.
 	The global callback ``screenshot (path)`` will be called after the file is written to disk.
 
 	.. note::
