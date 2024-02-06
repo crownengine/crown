@@ -22,7 +22,7 @@ Changelog
 * Fixed Console's text color in dark/light mode.
 * Fixed mouse click in the Editor View not selecting the correct sprite in some circumnstances.
 
-Lua API**
+**Lua API**
 
 * Added ``Device.screenshot()`` and ``screenshot()`` callback, see :doc:`lua_api` for details.
 
