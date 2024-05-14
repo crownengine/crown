@@ -283,7 +283,19 @@ update_bullet () {
 	rm -rf "${DEST}"/MANIFEST.in
 	rm -rf "${DEST}"/README.md
 	rm -rf "${DEST}"/setup.py
+	rm -rf "${DEST}"/src/*.cpp
+	rm -rf "${DEST}"/src/*.h
 	rm -rf "${DEST}"/src/.DS_Store
+	rm -rf "${DEST}"/src/Bullet3Collision/
+	rm -rf "${DEST}"/src/Bullet3Common
+	rm -rf "${DEST}"/src/Bullet3Dynamics
+	rm -rf "${DEST}"/src/Bullet3Geometry
+	rm -rf "${DEST}"/src/Bullet3OpenCL
+	rm -rf "${DEST}"/src/Bullet3Serialize
+	rm -rf "${DEST}"/src/BulletCollision/CollisionDispatch/btCollisionWorldImporter.cpp
+	rm -rf "${DEST}"/src/BulletCollision/Gimpact
+	rm -rf "${DEST}"/src/BulletInverseDynamics
+	rm -rf "${DEST}"/src/clew
 	rm -rf "${DEST}"/test
 	rm -rf "${DEST}"/UseBullet.cmake
 	rm -rf "${DEST}"/VERSION
