@@ -134,6 +134,51 @@ public static void wait_async_ready_callback(Object? source_object, AsyncResult 
 	}
 }
 
+public static void child_watch_function(GLib.Pid pid, int wait_status)
+{
+	// When the monitored child terminates, terminate all the
+	// processes it spawned.
+	try {
+		if (GLib.Process.check_exit_status(wait_status)) {
+			int exit_status;
+#if CROWN_PLATFORM_WINDOWS
+			exit_status = wait_status;
+#else
+			exit_status = Process.exit_status(wait_status);
+#endif
+			logi("Child PID %s terminated with status %d".printf(pid.to_string(), exit_status));
+		}
+	} catch (GLib.Error e) {
+		loge(e.message);
+	}
+	GLib.Process.close_pid(pid);
+
+	uint wait_timer_id = 0;
+	GLib.Cancellable cancellable = new GLib.Cancellable();
+	if (subprocesses.size > 0) {
+		// Spawn a watchdog to cancel all wait_async() after a while.
+		uint interval_ms = 500;
+		wait_timer_id = GLib.Timeout.add(interval_ms, () => {
+				cancellable.cancel();
+				return GLib.Source.REMOVE;
+			});
+
+		logi("Waiting %ums for %d subprocesses to terminate...".printf(interval_ms, subprocesses.size));
+	}
+
+	if (wait_timer_id > 0) {
+		// Wait asynchronusly for children to terminate.
+		foreach (var subproc in subprocesses)
+			subproc.wait_async.begin(cancellable, wait_async_ready_callback);
+	} else {
+		// Force children to exit.
+		foreach (var subproc in subprocesses)
+			subproc.force_exit();
+
+		loop.quit();
+	}
+}
+
 public static int launcher_main(string[] args)
 {
 	loop = new GLib.MainLoop (null, false);
@@ -184,49 +229,7 @@ public static int launcher_main(string[] args)
 
 	// Monitor child for termination.
 	// This requires one of GLib.Process.spawn*().
-	uint event_source = GLib.ChildWatch.add(child_pid, (pid, wait_status) => {
-			// When the monitored child terminates, terminate all the
-			// processes it spawned.
-			try {
-				if (GLib.Process.check_exit_status(wait_status)) {
-					int exit_status;
-#if CROWN_PLATFORM_WINDOWS
-					exit_status = wait_status;
-#else
-					exit_status = Process.exit_status(wait_status);
-#endif
-					logi("Child PID %s terminated with status %d".printf(pid.to_string(), exit_status));
-				}
-			} catch (GLib.Error e) {
-				loge(e.message);
-			}
-			GLib.Process.close_pid(pid);
-
-			uint wait_timer_id = 0;
-			GLib.Cancellable cancellable = new GLib.Cancellable();
-			if (subprocesses.size > 0) {
-				// Spawn a watchdog to cancel all wait_async() after a while.
-				uint interval_ms = 500;
-				wait_timer_id = GLib.Timeout.add(interval_ms, () => {
-						cancellable.cancel();
-						return GLib.Source.REMOVE;
-					});
-
-				logi("Waiting %ums for %d subprocesses to terminate...".printf(interval_ms, subprocesses.size));
-			}
-
-			if (wait_timer_id > 0) {
-				// Wait asynchronusly for children to terminate.
-				foreach (var subproc in subprocesses)
-					subproc.wait_async.begin(cancellable, wait_async_ready_callback);
-			} else {
-				// Force children to exit.
-				foreach (var subproc in subprocesses)
-					subproc.force_exit();
-
-				loop.quit();
-			}
-		});
+	uint event_source = GLib.ChildWatch.add(child_pid, child_watch_function);
 
 	if (event_source <= 0) {
 		loge("Failed to create child watch");

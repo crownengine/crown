@@ -17,7 +17,6 @@ format_tools_vala () {
 		| grep -v 'data_compiler.vala'             \
 		| grep -v 'deploy_dialog.vala'             \
 		| grep -v 'font_import_dialog.vala'        \
-		| grep -v 'launcher.vala'                  \
 		| grep -v 'level.vala'                     \
 		| grep -v 'level_editor.vala'              \
 		| grep -v 'level_tree_view.vala'           \
