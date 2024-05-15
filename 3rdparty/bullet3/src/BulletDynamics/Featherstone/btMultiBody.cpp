@@ -936,7 +936,8 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 			if (m_useGyroTerm)
 				zeroAccSpatFrc[i + 1].addAngular(spatVel[i + 1].getAngular().cross(m_links[i].m_inertiaLocal * spatVel[i + 1].getAngular()));
 			//
-			zeroAccSpatFrc[i + 1].addLinear(m_links[i].m_mass * spatVel[i + 1].getAngular().cross(spatVel[i + 1].getLinear()));
+                        if (!isConstraintPass)
+      				zeroAccSpatFrc[i + 1].addLinear(m_links[i].m_mass * spatVel[i + 1].getAngular().cross(spatVel[i + 1].getLinear()));
 			//
 			//btVector3 temp = m_links[i].m_mass * spatVel[i+1].getAngular().cross(spatVel[i+1].getLinear());
 			////clamp parent's omega
@@ -983,7 +984,11 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 			//
 			hDof = spatInertia[i + 1] * m_links[i].m_axes[dof];
 			//
-			Y[m_links[i].m_dofOffset + dof] = m_links[i].m_jointTorque[dof] - m_links[i].m_axes[dof].dot(zeroAccSpatFrc[i + 1]) - spatCoriolisAcc[i].dot(hDof);
+			btScalar jointTorque = 0;
+			if (isConstraintPass) jointTorque = 0;
+			else jointTorque = m_links[i].m_jointTorque[dof];
+			Y[m_links[i].m_dofOffset + dof] = jointTorque - m_links[i].m_axes[dof].dot(zeroAccSpatFrc[i + 1]) - spatCoriolisAcc[i].dot(hDof);
+
 		}
 		for (int dof = 0; dof < m_links[i].m_dofCount; ++dof)
 		{

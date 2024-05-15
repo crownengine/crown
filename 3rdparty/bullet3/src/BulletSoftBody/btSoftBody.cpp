@@ -231,6 +231,9 @@ void btSoftBody::initDefaults()
 	m_gravityFactor = 1;
 	m_cacheBarycenter = false;
 	m_fdbvnt = 0;
+
+	// reduced flag
+	m_reducedModel = false;
 }
 
 //
@@ -1481,6 +1484,21 @@ void btSoftBody::randomizeConstraints()
 		btSwap(m_faces[i], m_faces[NEXTRAND % ni]);
 	}
 #undef NEXTRAND
+}
+
+void btSoftBody::updateState(const btAlignedObjectArray<btVector3>& q, const btAlignedObjectArray<btVector3>& v)
+{
+	int node_count = m_nodes.size();
+	btAssert(node_count == q.size());
+	btAssert(node_count == v.size());
+	for (int i = 0; i < node_count; i++)
+	{
+		Node& n = m_nodes[i];
+		n.m_x = q[i];
+		n.m_q = q[i];
+		n.m_v = v[i];
+		n.m_vn = v[i];
+	}
 }
 
 //
@@ -2789,7 +2807,7 @@ bool btSoftBody::checkDeformableContact(const btCollisionObjectWrapper* colObjWr
 //
 // Compute barycentric coordinates (u, v, w) for
 // point p with respect to triangle (a, b, c)
-static void getBarycentric(const btVector3& p, btVector3& a, btVector3& b, btVector3& c, btVector3& bary)
+static void getBarycentric(const btVector3& p, const btVector3& a, const btVector3& b, const btVector3& c, btVector3& bary)
 {
 	btVector3 v0 = b - a, v1 = c - a, v2 = p - a;
 	btScalar d00 = v0.dot(v0);
@@ -2798,8 +2816,17 @@ static void getBarycentric(const btVector3& p, btVector3& a, btVector3& b, btVec
 	btScalar d20 = v2.dot(v0);
 	btScalar d21 = v2.dot(v1);
 	btScalar denom = d00 * d11 - d01 * d01;
-	bary.setY((d11 * d20 - d01 * d21) / denom);
-	bary.setZ((d00 * d21 - d01 * d20) / denom);
+	// In the case of a degenerate triangle, pick a vertex.
+	if (btFabs(denom) < SIMD_EPSILON) 
+	{
+		bary.setY(btScalar(0.0));
+		bary.setZ(btScalar(0.0));
+	} 
+	else 
+	{
+		bary.setY((d11 * d20 - d01 * d21) / denom);
+		bary.setZ((d00 * d21 - d01 * d20) / denom);
+  	}
 	bary.setX(btScalar(1) - bary.getY() - bary.getZ());
 }
 
@@ -2821,7 +2848,7 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
 	btScalar dst;
 	btGjkEpaSolver2::sResults results;
 
-//	#define USE_QUADRATURE 1
+	//	#define USE_QUADRATURE 1
 
 	// use collision quadrature point
 #ifdef USE_QUADRATURE
@@ -3879,7 +3906,7 @@ void btSoftBody::PSolve_RContacts(btSoftBody* psb, btScalar kst, btScalar ti)
 			btVector3 va(0, 0, 0);
 			btRigidBody* rigidCol = 0;
 			btMultiBodyLinkCollider* multibodyLinkCol = 0;
-			btScalar* deltaV;
+			btScalar* deltaV = NULL;
 
 			if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
 			{

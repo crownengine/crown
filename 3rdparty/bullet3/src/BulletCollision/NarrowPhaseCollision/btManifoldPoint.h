@@ -95,8 +95,8 @@ public:
 										 m_contactERP(0.f),
 										 m_frictionCFM(0.f),
 										 m_lifeTime(0),
-            m_lateralFrictionDir1(0,0,0),
-            m_lateralFrictionDir2(0,0,0)
+										 m_lateralFrictionDir1(0,0,0),
+										 m_lateralFrictionDir2(0,0,0)
 	{
 	}
 
