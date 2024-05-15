@@ -49,15 +49,10 @@ project "bullet"
 	configuration {}
 
 	files {
-		BULLET_DIR .. "src/BulletCollision/**.cpp",
-		BULLET_DIR .. "src/BulletDynamics/**.cpp",
-		BULLET_DIR .. "src/BulletSoftBody/*.cpp",
-		BULLET_DIR .. "src/LinearMath/**.cpp",
+		BULLET_DIR .. "src/**.cpp",
 	}
 
 	removefiles {
-		BULLET_DIR .. "src/BulletCollision/Gimpact/**.h",
-		BULLET_DIR .. "src/BulletCollision/Gimpact/**.cpp",
 		BULLET_DIR .. "src/BulletDynamics/Vehicle/**.h",
 		BULLET_DIR .. "src/BulletDynamics/Vehicle/**.cpp",
 		BULLET_DIR .. "src/BulletSoftBody/**.h",
