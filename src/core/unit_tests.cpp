@@ -142,6 +142,22 @@ static void test_hash_map()
 	}
 	{
 		HashMap<s32, s32> m(a);
+
+		for (s32 i = 0; i < 12; ++i)
+		{
+			s32 key = 12 + i;
+			hash_map::set(m, key, 99);
+			hash_map::set(m, i, i);
+			hash_map::remove(m, key);
+		}
+
+		ENSURE(hash_map::size(m) == 12);
+
+		for (s32 i = 0; i < 12; ++i)
+			ENSURE(hash_map::get(m, i, 0) == i);
+	}
+	{
+		HashMap<s32, s32> m(a);
 		hash_map_internal::grow(m);
 		ENSURE(hash_map::capacity(m) == 16);
 
@@ -194,6 +210,22 @@ static void test_hash_set()
 
 		for (s32 i = 0; i < 100; ++i)
 			ENSURE(!hash_set::has(m, i*i));
+	}
+	{
+		HashSet<s32> m(a);
+
+		for (s32 i = 0; i < 12; ++i)
+		{
+			s32 key = 12 + i;
+			hash_set::insert(m, key);
+			hash_set::insert(m, i);
+			hash_set::remove(m, key);
+		}
+
+		ENSURE(hash_set::size(m) == 12);
+
+		for (s32 i = 0; i < 12; ++i)
+			ENSURE(hash_set::has(m, i));
 	}
 	{
 		HashSet<s32> ma(a);

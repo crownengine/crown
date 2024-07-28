@@ -95,10 +95,11 @@ namespace hash_set_internal
 
 		const u32 hash = key_hash<TKey, Hash>(key);
 		u32 hash_i = hash & m._mask;
+		const u32 pos = m._index[hash_i].hash;
 		for (u32 dist = 0;;) {
 			if (m._index[hash_i].index == FREE)
 				return END_OF_LIST;
-			else if (dist > probe_distance(m, m._index[hash_i].hash, hash_i))
+			else if (dist > probe_distance(m, pos, hash_i))
 				return END_OF_LIST;
 			else if (!is_deleted(m._index[hash_i].index) && m._index[hash_i].hash == hash && key_equals<TKey, KeyEqual>(m._data[hash_i], key))
 				return hash_i;
