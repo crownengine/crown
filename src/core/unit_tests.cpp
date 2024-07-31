@@ -143,8 +143,7 @@ static void test_hash_map()
 	{
 		HashMap<s32, s32> m(a);
 
-		for (s32 i = 0; i < 12; ++i)
-		{
+		for (s32 i = 0; i < 12; ++i) {
 			s32 key = 12 + i;
 			hash_map::set(m, key, 99);
 			hash_map::set(m, i, i);
@@ -214,8 +213,7 @@ static void test_hash_set()
 	{
 		HashSet<s32> m(a);
 
-		for (s32 i = 0; i < 12; ++i)
-		{
+		for (s32 i = 0; i < 12; ++i) {
 			s32 key = 12 + i;
 			hash_set::insert(m, key);
 			hash_set::insert(m, i);
