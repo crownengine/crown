@@ -22,6 +22,7 @@ Changelog
 * The Console will now show a single line with a counter instead of spamming the view with duplicated entries.
 * Fixed Console's text color in dark/light mode.
 * Fixed mouse click in the Editor View not selecting the correct sprite in some circumnstances.
+* Added the ability to drag & drop units from the ProjectBrowser to the EditorView.
 
 **Lua API**
 

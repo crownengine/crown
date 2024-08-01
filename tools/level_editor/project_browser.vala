@@ -8,6 +8,11 @@ using Gee;
 
 namespace Crown
 {
+public const Gtk.TargetEntry[] dnd_targets =
+{
+	{ "RESOURCE_PATH", Gtk.TargetFlags.SAME_APP, 0 },
+};
+
 private Gtk.Menu? menu_create(string type, string name)
 {
 	Gtk.Menu? menu;
@@ -246,6 +251,7 @@ public class ProjectIconView : Gtk.IconView
 	public Gtk.ListStore _list_store;
 	public Gtk.CellRendererPixbuf _cell_renderer_pixbuf;
 	public Gtk.CellRendererText _cell_renderer_text;
+	public Gdk.Pixbuf _empty_pixbuf;
 
 	public ProjectIconView(ProjectStore project_store)
 	{
@@ -266,12 +272,49 @@ public class ProjectIconView : Gtk.IconView
 		_cell_renderer_text = new Gtk.CellRendererText();
 		_cell_renderer_text.xalign = 0.5f; // Center text.
 
+		_empty_pixbuf = new Gdk.Pixbuf.from_data({ 0x00, 0x00, 0x00, 0x00 }, Gdk.Colorspace.RGB, true, 8, 1, 1, 4);
+
 		this.pack_start(_cell_renderer_pixbuf, false);
 		this.pack_start(_cell_renderer_text, false);
 		this.set_cell_data_func(_cell_renderer_pixbuf, pixbuf_func);
 		this.set_cell_data_func(_cell_renderer_text, text_func);
 
 		this.set_model(_list_store);
+		this.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, dnd_targets, Gdk.DragAction.COPY);
+		this.drag_data_get.connect(on_drag_data_get);
+		this.drag_begin.connect_after(on_drag_begin);
+		this.drag_end.connect(on_drag_end);
+	}
+
+	private void on_drag_data_get(Gdk.DragContext context, Gtk.SelectionData data, uint info, uint time_)
+	{
+		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_data_get.html
+		GLib.List<Gtk.TreePath> selected_path = this.get_selected_items();
+		Gtk.TreeIter selected_iter;
+		this.model.get_iter(out selected_iter, selected_path.data);
+
+		Value val;
+		string type;
+		string name;
+		this.model.get_value(selected_iter, Column.TYPE, out val);
+		type = (string)val;
+		this.model.get_value(selected_iter, Column.NAME, out val);
+		name = (string)val;
+
+		string resource_path = ResourceId.path(type, name);
+		data.set(Gdk.Atom.intern_static_string("RESOURCE_PATH"), 8, resource_path.data);
+	}
+
+	private void on_drag_begin(Gdk.DragContext context)
+	{
+		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_begin.html
+		Gtk.drag_set_icon_pixbuf(context, _empty_pixbuf, 0, 0);
+	}
+
+	private void on_drag_end(Gdk.DragContext context)
+	{
+		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_end.html
+		GLib.Application.get_default().activate_action("cancel-place", null);
 	}
 
 	private bool on_button_pressed(Gdk.EventButton ev)
@@ -507,6 +550,11 @@ public class ProjectBrowser : Gtk.Bin
 		_tree_view.headers_visible = false;
 		_tree_view.button_press_event.connect(on_button_pressed);
 
+		_tree_view.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, dnd_targets, Gdk.DragAction.COPY);
+		_tree_view.drag_data_get.connect(on_drag_data_get);
+		_tree_view.drag_begin.connect_after(on_drag_begin);
+		_tree_view.drag_end.connect(on_drag_end);
+
 		_tree_selection = _tree_view.get_selection();
 		_tree_selection.set_mode(Gtk.SelectionMode.BROWSE);
 		_tree_selection.changed.connect(() => { update_icon_view(); });
@@ -577,6 +625,38 @@ public class ProjectBrowser : Gtk.Bin
 		GLib.Application.get_default().add_action_entries(action_entries, this);
 	}
 
+	private void on_drag_data_get(Gdk.DragContext context, Gtk.SelectionData data, uint info, uint time_)
+	{
+		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_data_get.html
+		Gtk.TreeModel selected_model;
+		Gtk.TreeIter selected_iter;
+		if (!_tree_selection.get_selected(out selected_model, out selected_iter))
+			return;
+
+		Value val;
+		string type;
+		string name;
+		selected_model.get_value(selected_iter, ProjectStore.Column.TYPE, out val);
+		type = (string)val;
+		selected_model.get_value(selected_iter, ProjectStore.Column.NAME, out val);
+		name = (string)val;
+
+		string resource_path = ResourceId.path(type, name);
+		data.set_text(resource_path, -1);
+	}
+
+	private void on_drag_begin(Gdk.DragContext context)
+	{
+		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_begin.html
+		Gtk.drag_set_icon_pixbuf(context, _empty_pixbuf, 0, 0);
+	}
+
+	private void on_drag_end(Gdk.DragContext context)
+	{
+		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_end.html
+		GLib.Application.get_default().activate_action("cancel-place", null);
+	}
+
 	// Returns true if the row should be hidden.
 	private bool row_should_be_hidden(string type, string name)
 	{
@@ -596,21 +676,17 @@ public class ProjectBrowser : Gtk.Bin
 			_tree_filter.refilter();
 		}
 
-		logi("on_reveal:");
 		string parent_type = type;
 		string parent_name = name;
 		Gtk.TreePath filter_path = null;
 		do {
-			logi("  parent_name %s".printf(parent_name));
 			Gtk.TreePath store_path;
 			if (!_project_store.path_for_resource_type_name(out store_path, parent_type, parent_name)) {
-				logi("  wtf?");
 				break;
 			}
 
 			filter_path = _tree_filter.convert_child_path_to_path(store_path);
 			if (filter_path == null) { // Either the path is not valid or points to a non-visible row in the model.
-				logi("  the path %s is not visible...".printf(parent_name));
 				parent_type = "<folder>";
 				parent_name = ResourceId.parent_folder(parent_name);
 				continue;
@@ -618,7 +694,6 @@ public class ProjectBrowser : Gtk.Bin
 
 			Gtk.TreePath sort_path = _tree_sort.convert_child_path_to_path(filter_path);
 			if (sort_path == null) { // The path is not valid.
-				logi("  the path is not valid");
 				break;
 			}
 

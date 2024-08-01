@@ -13,6 +13,11 @@ namespace Crown
 {
 public class EditorView : Gtk.EventBox
 {
+	private const Gtk.TargetEntry[] dnd_targets =
+	{
+		{ "RESOURCE_PATH", Gtk.TargetFlags.SAME_APP, 0 },
+	};
+
 	// Data
 	private RuntimeInstance _runtime;
 
@@ -28,6 +33,8 @@ public class EditorView : Gtk.EventBox
 
 	private Gee.HashMap<uint, bool> _keys;
 	private bool _input_enabled;
+	private bool _drag_enter;
+	private uint _last_time;
 
 	// Signals
 	public signal void native_window_ready(uint window_id, int width, int height);
@@ -81,6 +88,8 @@ public class EditorView : Gtk.EventBox
 		_keys[Gdk.Key.Alt_R] = false;
 
 		_input_enabled = input_enabled;
+		_drag_enter = false;
+		_last_time = 0;
 
 		// Widgets
 		this.can_focus = true;
@@ -110,6 +119,77 @@ public class EditorView : Gtk.EventBox
 				return Gdk.EVENT_PROPAGATE;
 			});
 		this.enter_notify_event.connect(on_enter_notify_event);
+
+		Gtk.drag_dest_set(this, Gtk.DestDefaults.MOTION, dnd_targets, Gdk.DragAction.COPY);
+		this.drag_data_received.connect(on_drag_data_received);
+		this.drag_motion.connect(on_drag_motion);
+		this.drag_drop.connect(on_drag_drop);
+		this.drag_leave.connect(on_drag_leave);
+	}
+
+	private void on_drag_data_received(Gdk.DragContext context, int x, int y, Gtk.SelectionData data, uint info, uint time_)
+	{
+		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_data_received.html
+		string resource_path = (string)data.get_data();
+		string type = ResourceId.type(resource_path);
+		string name = ResourceId.name(resource_path);
+
+		if (type == OBJECT_TYPE_UNIT || type == OBJECT_TYPE_SOUND_SOURCE) {
+			GLib.Application.get_default().activate_action("set-placeable", new GLib.Variant.tuple({ type, name }));
+
+			int scale = this.get_scale_factor();
+			_runtime.send_script(LevelEditorApi.mouse_down(x*scale, y*scale));
+		}
+	}
+
+	private bool on_drag_motion(Gdk.DragContext context, int x, int y, uint _time)
+	{
+		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_motion.html
+		Gdk.Atom target;
+
+		target = Gtk.drag_dest_find_target(this, context, null);
+		if (target == Gdk.Atom.NONE) {
+			Gdk.drag_status(context, 0, _time);
+		} else {
+			if (_drag_enter == false) {
+				Gtk.drag_get_data(this, context, target, _time);
+				_drag_enter = true;
+			}
+
+			if (_time - _last_time >= 16) {
+				// Drag motion events seem to fire at a very high frequency compared to regular
+				// motion notify events. Limit them to 60 hz.
+				_last_time = _time;
+				int scale = this.get_scale_factor();
+				_runtime.send_script(LevelEditorApi.set_mouse_state(x*scale
+					, y*scale
+					, _mouse_left
+					, _mouse_middle
+					, _mouse_right
+					));
+
+				_runtime.send(DeviceApi.frame());
+			}
+		}
+
+		return true;
+	}
+
+	private bool on_drag_drop(Gdk.DragContext context, int x, int y, uint time_)
+	{
+		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_drop.html
+		int scale = this.get_scale_factor();
+		_runtime.send_script(LevelEditorApi.mouse_up(x*scale, y*scale));
+		GLib.Application.get_default().activate_action("cancel-place", null);
+		_runtime.send(DeviceApi.frame());
+		Gtk.drag_finish(context, true, false, time_);
+		return true;
+	}
+
+	private void on_drag_leave(Gdk.DragContext context, uint time_)
+	{
+		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_leave.html
+		_drag_enter = false;
 	}
 
 	private bool on_button_release(Gdk.EventButton ev)
