@@ -71,6 +71,7 @@ project "level-editor"
 	buildoptions_vala {
 		"--target-glib=2.38",
 		"--pkg tinyexpr",
+		"--pkg md5",
 	}
 
 	vapidirs {
@@ -79,6 +80,7 @@ project "level-editor"
 
 	buildoptions {
 		"-I" .. CROWN_DIR .. "3rdparty/tinyexpr",
+		"-I" .. CROWN_DIR .. "3rdparty/md5",
 		"-I" .. CROWN_DIR .. "3rdparty/stb",
 	}
 
@@ -87,6 +89,7 @@ project "level-editor"
 		CROWN_DIR .. "tools/**.c",
 		CROWN_DIR .. "tools/level_editor/resources/resources.gresource.xml",
 		CROWN_DIR .. "3rdparty/tinyexpr/tinyexpr.c",
+		CROWN_DIR .. "3rdparty/md5/md5.c",
 	}
 
 	strip()
