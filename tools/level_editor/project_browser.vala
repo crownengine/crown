@@ -523,6 +523,7 @@ public class ProjectBrowser : Gtk.Bin
 		_show_icon_view = true;
 		_toggle_icon_view = new Gtk.Button.from_icon_name("level-tree-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
 		_toggle_icon_view.get_style_context().add_class("flat");
+		_toggle_icon_view.can_focus = false;
 		_toggle_icon_view.clicked.connect(() => {
 				_show_icon_view = !_show_icon_view;
 
