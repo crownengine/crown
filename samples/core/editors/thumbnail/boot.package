@@ -1,0 +1,15 @@
+lua = [
+	"core/editors/thumbnail/thumbnail"
+]
+
+physics_config = [
+	"global"
+]
+
+unit = [
+	"core/units/camera"
+]
+
+shader = [
+	"core/shaders/default"
+]
