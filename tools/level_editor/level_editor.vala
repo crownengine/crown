@@ -479,6 +479,7 @@ public class LevelEditorApplication : Gtk.Application
 	public RuntimeInstance _editor;
 	private RuntimeInstance _resource_preview;
 	private RuntimeInstance _game;
+	private RuntimeInstance _thumbnail;
 
 	// Level data
 	private UndoRedo _undo_redo;
@@ -679,6 +680,12 @@ public class LevelEditorApplication : Gtk.Application
 		_game.connected.connect(on_game_connected);
 		_game.disconnected.connect(on_game_disconnected);
 		_game.disconnected_unexpected.connect(on_game_disconnected);
+
+		_thumbnail = new RuntimeInstance(_subprocess_launcher, "thumbnail");
+		_thumbnail.message_received.connect(on_message_received);
+		_thumbnail.connected.connect(on_runtime_connected);
+		_thumbnail.disconnected.connect(on_runtime_disconnected);
+		_thumbnail.disconnected_unexpected.connect(on_runtime_disconnected_unexpected);
 
 		_level = new Level(_database, _editor, _project);
 
@@ -1435,6 +1442,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	private async void stop_editor()
 	{
+		yield stop_thumbnail();
 		yield stop_resource_preview();
 		yield _editor.stop();
 		_editor_stack.set_visible_child(_editor_stack_disconnected_label);
@@ -1468,6 +1476,7 @@ public class LevelEditorApplication : Gtk.Application
 		_editor_stack.set_visible_child(_editor_view_overlay);
 
 		yield restart_resource_preview();
+		yield start_thumbnail();
 	}
 
 	private async void restart_resource_preview()
@@ -1540,9 +1549,49 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
+	private async void start_thumbnail()
+	{
+		string args[] =
+		{
+			ENGINE_EXE,
+			"--data-dir",
+			_project.data_dir(),
+			"--boot-dir",
+			THUMBNAIL_BOOT_DIR,
+			"--console-port",
+			THUMBNAIL_TCP_PORT.to_string(),
+			"--wait-console",
+			"--pumped",
+			"--hidden"
+		};
+
+		try {
+			_thumbnail._process_id = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
+			_thumbnail._revision = _data_compiler._revision;
+		} catch (Error e) {
+			loge(e.message);
+		}
+
+		// Try to connect to the game.
+		int tries = yield _thumbnail.connect_async(THUMBNAIL_ADDRESS
+			, THUMBNAIL_TCP_PORT
+			, THUMBNAIL_CONNECTION_TRIES
+			, THUMBNAIL_CONNECTION_INTERVAL
+			);
+		if (tries == THUMBNAIL_CONNECTION_TRIES) {
+			loge("Cannot connect to thumbnail");
+			return;
+		}
+	}
+
 	private async void stop_game()
 	{
 		yield _game.stop();
+	}
+
+	private async void stop_thumbnail()
+	{
+		yield _thumbnail.stop();
 	}
 
 	private async void on_editor_view_realized(uint window_id, int width, int height)
@@ -2304,7 +2353,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	private async void refresh_all_clients()
 	{
-		RuntimeInstance[] runtimes = new RuntimeInstance[] { _editor, _resource_preview, _game };
+		RuntimeInstance[] runtimes = new RuntimeInstance[] { _editor, _resource_preview, _game, _thumbnail };
 
 		foreach (var ri in runtimes) {
 			var since_revision = ri._revision;

@@ -36,6 +36,9 @@ const uint16 UNIT_PREVIEW_TCP_PORT = 10002;
 const string GAME_ADDRESS = "127.0.0.1";
 const uint16 GAME_TCP_PORT = 12345;
 
+const string THUMBNAIL_ADDRESS = "127.0.0.1";
+const uint16 THUMBNAIL_TCP_PORT = 54321;
+
 const int DATA_COMPILER_CONNECTION_TRIES = 10;
 const int DATA_COMPILER_CONNECTION_INTERVAL = 250;
 
@@ -45,8 +48,12 @@ const int EDITOR_CONNECTION_INTERVAL = 125;
 const int GAME_CONNECTION_TRIES = 16;
 const int GAME_CONNECTION_INTERVAL = 125;
 
+const int THUMBNAIL_CONNECTION_TRIES = 16;
+const int THUMBNAIL_CONNECTION_INTERVAL = 125;
+
 const string LEVEL_EDITOR_BOOT_DIR = "core/editors/level_editor";
 const string UNIT_PREVIEW_BOOT_DIR = "core/editors/unit_preview";
+const string THUMBNAIL_BOOT_DIR = "core/editors/thumbnail";
 const string LEVEL_NONE = "";
 const string LEVEL_EMPTY = "core/editors/levels/empty";
 
