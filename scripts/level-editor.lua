@@ -61,6 +61,8 @@ project "level-editor"
 		"-Wno-unused-but-set-variable",
 		"-Wno-cast-function-type",
 		"-Wno-missing-field-initializers",
+		"-Wno-incompatible-pointer-types",
+		"-D VALA_STRICT_C",
 	}
 
 	linkoptions {
