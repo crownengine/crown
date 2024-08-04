@@ -502,6 +502,7 @@ public class LevelEditorApplication : Gtk.Application
 	private ResourceChooser _resource_chooser;
 	private Gtk.Popover _resource_popover;
 	private Gtk.Overlay _editor_view_overlay;
+	private ThumbnailCache _thumbnail_cache;
 
 	private Gtk.Stack _project_stack;
 	private Gtk.Label _project_stack_compiling_data_label;
@@ -718,7 +719,8 @@ public class LevelEditorApplication : Gtk.Application
 		_combo.set_active_id("editor");
 
 		_console_view = new ConsoleView(_project, _combo, _preferences_dialog);
-		_project_browser = new ProjectBrowser(_project_store);
+		_thumbnail_cache = new ThumbnailCache(_project, _thumbnail, 32*1024*1024);
+		_project_browser = new ProjectBrowser(_project_store, _thumbnail_cache);
 		_level_treeview = new LevelTreeView(_database, _level);
 		_level_layers_treeview = new LevelLayersTreeView(_database, _level);
 		_properties_view = new PropertiesView(_level, _project_store);
@@ -1182,6 +1184,11 @@ public class LevelEditorApplication : Gtk.Application
 			_level.on_selection(ids);
 		} else if (msg_type == "error") {
 			loge((string)msg["message"]);
+		} else if (msg_type == "thumbnail") {
+			string resource_type = (string)msg["resource_type"];
+			string resource_name = (string)msg["resource_name"];
+			string path = (string)msg["path"];
+			_thumbnail_cache.thumbnail_ready(resource_type, resource_name, path);
 		} else {
 			loge("Unknown message type: " + msg_type);
 		}
@@ -3595,6 +3602,8 @@ public static GLib.File _templates_dir;
 public static GLib.File _config_dir;
 public static GLib.File _logs_dir;
 public static GLib.File _cache_dir;
+public static GLib.File _thumbnails_dir;
+public static GLib.File _thumbnails_normal_dir;
 public static GLib.File _documents_dir;
 public static GLib.File _log_file;
 public static GLib.File _settings_file;
@@ -3775,6 +3784,20 @@ public static int main(string[] args)
 	_cache_dir = GLib.File.new_for_path(GLib.Path.build_filename(GLib.Environment.get_user_cache_dir(), "crown"));
 	try {
 		_cache_dir.make_directory();
+	} catch (Error e) {
+		/* Nobody cares */
+	}
+
+	_thumbnails_dir = GLib.File.new_for_path(GLib.Path.build_filename(GLib.Environment.get_user_cache_dir(), "thumbnails"));
+	try {
+		_thumbnails_dir.make_directory();
+	} catch (Error e) {
+		/* Nobody cares */
+	}
+
+	_thumbnails_normal_dir = GLib.File.new_for_path(GLib.Path.build_filename(_thumbnails_dir.get_path(), "normal"));
+	try {
+		_thumbnails_normal_dir.make_directory();
 	} catch (Error e) {
 		/* Nobody cares */
 	}

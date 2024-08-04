@@ -248,14 +248,19 @@ public class ProjectIconView : Gtk.IconView
 	public string _selected_type;
 	public string _selected_name;
 	public ProjectStore _project_store;
+	public ThumbnailCache _thumbnail_cache;
 	public Gtk.ListStore _list_store;
 	public Gtk.CellRendererPixbuf _cell_renderer_pixbuf;
 	public Gtk.CellRendererText _cell_renderer_text;
 	public Gdk.Pixbuf _empty_pixbuf;
 
-	public ProjectIconView(ProjectStore project_store)
+	public ProjectIconView(ProjectStore project_store, ThumbnailCache thumbnail_cache)
 	{
 		_project_store = project_store;
+		_thumbnail_cache = thumbnail_cache;
+		_thumbnail_cache.changed.connect(() => {
+			this.queue_draw();
+		});
 
 		_list_store = new Gtk.ListStore(Column.COUNT
 			, typeof(string)     // Column.TYPE
@@ -408,10 +413,12 @@ public class ProjectIconView : Gtk.IconView
 				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
 			else if ((string)type == "lua")
 				cell.set_property("pixbuf", theme.lookup_icon("x-office-document-symbolic", 64, 0).load_symbolic(fg_color));
+			else if ((string)type == "unit")
+				cell.set_property("pixbuf", _thumbnail_cache.get(type, name));
 			else if ((string)type == "shader")
 				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
 			else if ((string)type == "sound")
-				cell.set_property("pixbuf", theme.lookup_icon("audio-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
+				cell.set_property("pixbuf", _thumbnail_cache.get(type, name));
 			else if ((string)type == "sprite_animation")
 				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
 			else if ((string)type == "sprite")
@@ -464,7 +471,7 @@ public class ProjectBrowser : Gtk.Bin
 	// Signals
 	public signal void resource_selected(string type, string name);
 
-	public ProjectBrowser(ProjectStore project_store)
+	public ProjectBrowser(ProjectStore project_store, ThumbnailCache thumbnail_cache)
 	{
 		// Data
 		_project_store = project_store;
@@ -565,7 +572,7 @@ public class ProjectBrowser : Gtk.Bin
 		_project_store._list_store.row_deleted.connect((path) => { update_icon_view(); });
 
 		// Create icon view.
-		_icon_view = new ProjectIconView(_project_store);
+		_icon_view = new ProjectIconView(_project_store, thumbnail_cache);
 
 		// Create switch button.
 		_show_icon_view = true;

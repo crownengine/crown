@@ -408,4 +408,13 @@ namespace UnitPreviewApi
 
 } /* namespace UnitPreviewApi */
 
+namespace ThumbnailApi
+{
+	public string add_request(string placeable_type, string name, string thumbnail_path)
+	{
+		return "Thumbnail:add_request(\"%s\", \"%s\", \"%s\")".printf(placeable_type, name, thumbnail_path);
+	}
+
+} /* namespace UnitPreviewApi */
+
 } /* namespace Crown */
