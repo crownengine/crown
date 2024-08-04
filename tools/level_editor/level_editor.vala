@@ -670,6 +670,10 @@ public class LevelEditorApplication : Gtk.Application
 		_editor.disconnected.connect(on_runtime_disconnected);
 		_editor.disconnected_unexpected.connect(on_editor_disconnected_unexpected);
 
+		_preferences_dialog = new PreferencesDialog(_editor);
+		_preferences_dialog.delete_event.connect(_preferences_dialog.hide_on_delete);
+		_preferences_dialog.decode(_settings);
+
 		_resource_preview = new RuntimeInstance(_subprocess_launcher, "resource_preview");
 		_resource_preview.message_received.connect(on_message_received);
 		_resource_preview.connected.connect(on_runtime_connected);
@@ -710,16 +714,13 @@ public class LevelEditorApplication : Gtk.Application
 		_project_store = new ProjectStore(_project);
 
 		// Widgets
-		_preferences_dialog = new PreferencesDialog(_editor);
-		_preferences_dialog.delete_event.connect(_preferences_dialog.hide_on_delete);
-
 		_combo = new Gtk.ComboBoxText();
 		_combo.append("editor", "Editor");
 		_combo.append("game", "Game");
 		_combo.set_active_id("editor");
 
 		_console_view = new ConsoleView(_project, _combo, _preferences_dialog);
-		_thumbnail_cache = new ThumbnailCache(_project, _thumbnail, 32*1024*1024);
+		_thumbnail_cache = new ThumbnailCache(_project, _thumbnail, (uint)_preferences_dialog._thumbnail_cache_max_size.value * 1024 * 1024);
 		_project_browser = new ProjectBrowser(_project_store, _thumbnail_cache);
 		_level_treeview = new LevelTreeView(_database, _level);
 		_level_layers_treeview = new LevelLayersTreeView(_database, _level);
@@ -900,8 +901,6 @@ public class LevelEditorApplication : Gtk.Application
 		_main_stack.add_named(_panel_welcome, "panel_welcome");
 		_main_stack.add_named(_panel_new_project, "panel_new_project");
 		_main_stack.add_named(_main_vbox, "main_vbox");
-
-		_preferences_dialog.decode(_settings);
 
 		// Delete expired logs
 		if (_preferences_dialog._log_delete_after_days.value != 0) {

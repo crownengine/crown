@@ -31,6 +31,7 @@ public class PreferencesDialog : Gtk.Dialog
 	public EntryDouble _undo_redo_max_size;
 	public EntryDouble _log_delete_after_days;
 	public EntryDouble _console_max_lines;
+	public EntryDouble _thumbnail_cache_max_size;
 	public PropertyGridSet _system_set;
 
 	// External Tools page.
@@ -128,12 +129,14 @@ public class PreferencesDialog : Gtk.Dialog
 		_undo_redo_max_size = new EntryDouble(8, 1, 2048);
 		_log_delete_after_days = new EntryDouble(10, 0, 90);
 		_console_max_lines = new EntryDouble(256, 10, 1024);
+		_thumbnail_cache_max_size = new EntryDouble(32, 1, 128);
 
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
 		cv.add_row("Undo/Redo max size (MiB)", _undo_redo_max_size);
 		cv.add_row("Delete logs older than (days)", _log_delete_after_days);
 		cv.add_row("Console max lines", _console_max_lines);
+		cv.add_row("Thumbnail cache max size (MiB)", _thumbnail_cache_max_size);
 		_system_set.add_property_grid(cv, "Memory and Limits");
 
 		// External tools page.
@@ -203,6 +206,7 @@ public class PreferencesDialog : Gtk.Dialog
 		_undo_redo_max_size.value         = (preferences.has_key("undo_redo_max_size") ? (double)preferences["undo_redo_max_size"] : _undo_redo_max_size.value);
 		_log_delete_after_days.value      = preferences.has_key("log_expiration") ? (double)preferences["log_expiration"] : _log_delete_after_days.value;
 		_console_max_lines.value          = preferences.has_key("console_max_lines") ? (double)preferences["console_max_lines"] : _console_max_lines.value;
+		_thumbnail_cache_max_size.value   = (preferences.has_key("thumbnail_cache_max_size") ? (double)preferences["thumbnail_cache_max_size"] : _thumbnail_cache_max_size.value);
 
 		if (preferences.has_key("theme"))
 			_theme_combo.value = (string)preferences["theme"];
@@ -273,6 +277,7 @@ public class PreferencesDialog : Gtk.Dialog
 		preferences["log_expiration"] = _log_delete_after_days.value;
 		preferences["console_max_lines"] = _console_max_lines.value;
 		preferences["theme"]          = _theme_combo.value;
+		preferences["thumbnail_cache_max_size"] = _thumbnail_cache_max_size.value;
 
 		// External tools.
 		string app;
