@@ -409,7 +409,7 @@ public class ProjectIconView : Gtk.IconView
 			else if ((string)type == "lua")
 				cell.set_property("pixbuf", theme.lookup_icon("x-office-document-symbolic", 64, 0).load_symbolic(fg_color));
 			else if ((string)type == "shader")
-				cell.set_property("pixbuf", theme.lookup_icon("text-x-script-symbolic", 64, 0).load_symbolic(fg_color));
+				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
 			else if ((string)type == "sound")
 				cell.set_property("pixbuf", theme.lookup_icon("audio-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
 			else if ((string)type == "sprite_animation")
@@ -883,7 +883,7 @@ public class ProjectBrowser : Gtk.Bin
 		else if ((string)type == "lua")
 			cell.set_property("icon-name", "x-office-document-symbolic");
 		else if ((string)type == "shader")
-			cell.set_property("icon-name", "text-x-script-symbolic");
+			cell.set_property("icon-name", "text-x-generic-symbolic");
 		else if ((string)type == "sound")
 			cell.set_property("icon-name", "audio-x-generic-symbolic");
 		else if ((string)type == "sprite_animation")
