@@ -236,6 +236,8 @@ private Gtk.Menu? menu_create(string type, string name)
 
 public class ProjectIconView : Gtk.IconView
 {
+	const int ICON_SIZE = 48;
+
 	public enum Column
 	{
 		TYPE,
@@ -394,39 +396,39 @@ public class ProjectIconView : Gtk.IconView
 		var fg_color = this.get_style_context().get_color(Gtk.StateFlags.NORMAL);
 		try {
 			if (type == "<folder>")
-				cell.set_property("pixbuf", theme.lookup_icon("folder-symbolic", 64, 0).load_symbolic(fg_color));
+				cell.set_property("pixbuf", theme.lookup_icon("folder-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
 			else if ((string)type == "state_machine")
-				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
+				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
 			else if ((string)type == "config")
-				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
+				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
 			else if ((string)type == "font")
-				cell.set_property("pixbuf", theme.lookup_icon("font-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
+				cell.set_property("pixbuf", theme.lookup_icon("font-x-generic-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
 			else if ((string)type == "level")
-				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
+				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
 			else if ((string)type == "material")
-				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
+				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
 			else if ((string)type == "mesh")
-				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
+				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
 			else if ((string)type == "package")
-				cell.set_property("pixbuf", theme.lookup_icon("package-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
+				cell.set_property("pixbuf", theme.lookup_icon("package-x-generic-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
 			else if ((string)type == "physics_config")
-				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
+				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
 			else if ((string)type == "lua")
-				cell.set_property("pixbuf", theme.lookup_icon("x-office-document-symbolic", 64, 0).load_symbolic(fg_color));
+				cell.set_property("pixbuf", theme.lookup_icon("x-office-document-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
 			else if ((string)type == "unit")
 				cell.set_property("pixbuf", _thumbnail_cache.get(type, name));
 			else if ((string)type == "shader")
-				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
+				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
 			else if ((string)type == "sound")
 				cell.set_property("pixbuf", _thumbnail_cache.get(type, name));
 			else if ((string)type == "sprite_animation")
-				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
+				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
 			else if ((string)type == "sprite")
-				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
+				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
 			else if ((string)type == "texture")
-				cell.set_property("pixbuf", theme.lookup_icon("image-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
+				cell.set_property("pixbuf", theme.lookup_icon("image-x-generic-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
 			else
-				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", 64, 0).load_symbolic(fg_color));
+				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
 		} catch (GLib.Error e) {
 			loge(e.message);
 		}
