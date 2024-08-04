@@ -57,6 +57,4 @@ const string THUMBNAIL_BOOT_DIR = "core/editors/thumbnail";
 const string LEVEL_NONE = "";
 const string LEVEL_EMPTY = "core/editors/levels/empty";
 
-const uint32 DEFAULT_UNDO_REDO_MAX_SIZE = 8;
-
 } /* namespace Crown */

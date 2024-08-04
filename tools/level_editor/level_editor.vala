@@ -599,14 +599,6 @@ public class LevelEditorApplication : Gtk.Application
 
 		_settings = SJSON.load_from_path(_settings_file.get_path());
 
-		// Set theme.
-		set_theme(Theme.DARK);
-		if (_settings.has_key("preferences")) {
-			Hashtable preferences = (Hashtable)_settings["preferences"];
-			if (preferences.has_key("theme"))
-				set_theme_from_name((string)preferences["theme"]);
-		}
-
 		// HACK: register CrownClamp type within GObject's type system to
 		// make GtkBuilder able to find it when creating the widget from
 		// .ui files.
@@ -654,16 +646,6 @@ public class LevelEditorApplication : Gtk.Application
 		_project.register_importer("Texture", { "png", "tga", "dds", "ktx", "pvr" }, TextureResource.import, 2.0);
 		_project.register_importer("Font", { "ttf", "otf" }, FontResource.import, 3.0);
 
-		uint32 undo_redo_size = DEFAULT_UNDO_REDO_MAX_SIZE;
-		if (_settings.has_key("preferences")) {
-			Hashtable preferences = (Hashtable)_settings["preferences"];
-			if (preferences.has_key("undo_redo_max_size"))
-				undo_redo_size = (uint32)(double)preferences["undo_redo_max_size"];
-		}
-		_undo_redo = new UndoRedo(undo_redo_size*1024*1024);
-		_database = new Database(_project, _undo_redo);
-		_database.key_changed.connect(() => { update_active_window_title(); });
-
 		_editor = new RuntimeInstance(_subprocess_launcher, "editor");
 		_editor.message_received.connect(on_message_received);
 		_editor.connected.connect(on_editor_connected);
@@ -673,6 +655,8 @@ public class LevelEditorApplication : Gtk.Application
 		_preferences_dialog = new PreferencesDialog(_editor);
 		_preferences_dialog.delete_event.connect(_preferences_dialog.hide_on_delete);
 		_preferences_dialog.decode(_settings);
+
+		set_theme_from_name(_preferences_dialog._theme_combo.value);
 
 		_resource_preview = new RuntimeInstance(_subprocess_launcher, "resource_preview");
 		_resource_preview.message_received.connect(on_message_received);
@@ -691,6 +675,10 @@ public class LevelEditorApplication : Gtk.Application
 		_thumbnail.connected.connect(on_runtime_connected);
 		_thumbnail.disconnected.connect(on_runtime_disconnected);
 		_thumbnail.disconnected_unexpected.connect(on_runtime_disconnected_unexpected);
+
+		_undo_redo = new UndoRedo((uint)_preferences_dialog._undo_redo_max_size.value * 1024 * 1024);
+		_database = new Database(_project, _undo_redo);
+		_database.key_changed.connect(() => { update_active_window_title(); });
 
 		_level = new Level(_database, _editor, _project);
 
