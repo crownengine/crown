@@ -6,6 +6,7 @@
 #pragma once
 
 #include "core/strings/string_id.h"
+#include "core/strings/types.h"
 #include <inttypes.h> // PRIx64
 
 #define RESOURCE_ID_FMT "#ID(%.16" PRIx64 ")"
