@@ -96,6 +96,9 @@ namespace material_resource
 	TextureData *texture_data(const MaterialResource *mr, u32 i);
 
 	///
+	TextureData *texture_data_by_name(const MaterialResource *mr, StringId32 name);
+
+	///
 	const char *texture_name(const MaterialResource *mr, const TextureData *td);
 
 	///
@@ -106,6 +109,9 @@ namespace material_resource
 
 	///
 	TextureHandle *texture_handle(const MaterialResource *mr, u32 i, char *dynamic);
+
+	///
+	TextureHandle *texture_handle_by_name(const MaterialResource *mr, StringId32 name, char *dynamic);
 
 } // namespace material_resource
 

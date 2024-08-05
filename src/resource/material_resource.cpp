@@ -53,6 +53,18 @@ namespace material_resource
 		return &base[i];
 	}
 
+	TextureData *texture_data_by_name(const MaterialResource *mr, StringId32 name)
+	{
+		for (u32 i = 0, n = mr->num_textures; i < n; ++i) {
+			TextureData *data = texture_data(mr, i);
+			if (data->name == name)
+				return data;
+		}
+
+		CE_FATAL("Unknown texture");
+		return NULL;
+	}
+
 	const char *texture_name(const MaterialResource *mr, const TextureData *td)
 	{
 		return (const char *)mr + mr->dynamic_data_offset + mr->dynamic_data_size + td->sampler_name_offset;
@@ -73,6 +85,12 @@ namespace material_resource
 	TextureHandle *texture_handle(const MaterialResource *mr, u32 i, char *dynamic)
 	{
 		TextureData *td = texture_data(mr, i);
+		return (TextureHandle *)(dynamic + td->data_offset);
+	}
+
+	TextureHandle *texture_handle_by_name(const MaterialResource *mr, StringId32 name, char *dynamic)
+	{
+		TextureData *td = texture_data_by_name(mr, name);
 		return (TextureHandle *)(dynamic + td->data_offset);
 	}
 
