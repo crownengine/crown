@@ -8,6 +8,7 @@
 #include "core/strings/string_id.inl"
 #include "resource/material_resource.h"
 #include "resource/resource_manager.h"
+#include "resource/texture_resource.h"
 #include "world/material_manager.h"
 #include <bgfx/bgfx.h>
 #include <string.h> // memcpy
@@ -52,7 +53,9 @@ void MaterialManager::online(StringId64 id, ResourceManager &rm)
 	for (u32 i = 0; i < mr->num_textures; ++i) {
 		TextureData *td    = texture_data(mr, i);
 		TextureHandle *th  = texture_handle(mr, i, base);
+		TextureResource *tr = (TextureResource *)rm.get(RESOURCE_TYPE_TEXTURE, td->id);
 		th->sampler_handle = bgfx::createUniform(texture_name(mr, td), bgfx::UniformType::Sampler).idx;
+		th->texture_handle = tr->handle.idx;
 	}
 
 	for (u32 i = 0; i < mr->num_uniforms; ++i) {

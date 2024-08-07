@@ -44,7 +44,7 @@ struct GuiBuffer
 	void submit(u32 num_vertices, u32 num_indices, const Matrix4x4 &world);
 
 	///
-	void submit_with_material(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, ResourceManager &rm, Material *material);
+	void submit_with_material(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, Material *material);
 };
 
 /// Immediate mode Gui.

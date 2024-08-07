@@ -70,13 +70,13 @@ void GuiBuffer::submit(u32 num_vertices, u32 num_indices, const Matrix4x4 &world
 	_num_indices += num_indices;
 }
 
-void GuiBuffer::submit_with_material(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, ResourceManager &rm, Material *material)
+void GuiBuffer::submit_with_material(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, Material *material)
 {
 	bgfx::setVertexBuffer(0, &_vertex_buffer, _num_vertices, num_vertices);
 	bgfx::setIndexBuffer(&_index_buffer, _num_indices, num_indices);
 	bgfx::setTransform(to_float_ptr(world));
 
-	material->bind(rm, *_shader_manager, VIEW_GUI);
+	material->bind(*_shader_manager, VIEW_GUI);
 
 	_num_vertices += num_vertices;
 	_num_indices += num_indices;
@@ -232,7 +232,6 @@ void Gui::image_uv_3d(const Vector3 &pos, const Vector2 &size, const Vector2 &uv
 	_buffer->submit_with_material(4
 		, 6
 		, _world
-		, *_resource_manager
 		, _material_manager->get(mr)
 		);
 }
@@ -357,7 +356,6 @@ void Gui::text_3d(const Vector3 &pos, u32 font_size, const char *str, StringId64
 	_buffer->submit_with_material(num_vertices
 		, num_indices
 		, _world
-		, *_resource_manager
 		, _material_manager->get(mr)
 		);
 }

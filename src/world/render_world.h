@@ -223,7 +223,6 @@ struct RenderWorld
 
 		///
 		void draw(u8 view
-			, ResourceManager *rm
 			, ShaderManager *sm
 			, DrawOverride draw_override = NULL
 			);
@@ -301,7 +300,6 @@ struct RenderWorld
 
 		///
 		void draw(u8 view
-			, ResourceManager *rm
 			, ShaderManager *sm
 			, DrawOverride draw_override = NULL
 			);
