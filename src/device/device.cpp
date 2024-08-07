@@ -438,7 +438,6 @@ void Device::run()
 	profiler_globals::init();
 
 	_shader_manager   = CE_NEW(_allocator, ShaderManager)(default_allocator());
-	_material_manager = CE_NEW(_allocator, MaterialManager)(default_allocator());
 
 	namespace smr = state_machine_internal;
 	namespace cor = config_resource_internal;
@@ -477,6 +476,8 @@ void Device::run()
 	_resource_manager->register_type(RESOURCE_TYPE_STATE_MACHINE,    RESOURCE_VERSION_STATE_MACHINE,    NULL,      NULL,        NULL,        NULL);
 	_resource_manager->register_type(RESOURCE_TYPE_TEXTURE,          RESOURCE_VERSION_TEXTURE,          txr::load, txr::unload, txr::online, txr::offline);
 	_resource_manager->register_type(RESOURCE_TYPE_UNIT,             RESOURCE_VERSION_UNIT,             NULL,      NULL,        NULL,        NULL);
+
+	_material_manager = CE_NEW(_allocator, MaterialManager)(default_allocator(), *_resource_manager);
 
 	// Read config
 	{

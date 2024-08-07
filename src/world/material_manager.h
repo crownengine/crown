@@ -17,10 +17,11 @@ namespace crown
 struct MaterialManager
 {
 	Allocator *_allocator;
+	ResourceManager *_resource_manager;
 	HashMap<const MaterialResource *, Material *> _materials;
 
 	///
-	MaterialManager(Allocator &a);
+	MaterialManager(Allocator &a, ResourceManager &rm);
 
 	///
 	~MaterialManager();
