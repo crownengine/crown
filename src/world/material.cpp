@@ -76,4 +76,11 @@ void Material::set_matrix4x4(StringId32 name, const Matrix4x4 &value)
 	*(Matrix4x4 *)(p + sizeof(u32)) = value;
 }
 
+void Material::set_texture(StringId32 sampler_name, ResourceId texture_resource)
+{
+	const TextureResource *tr = (TextureResource *)_resource_manager->get(RESOURCE_TYPE_TEXTURE, texture_resource);
+	TextureHandle *th = (TextureHandle *)material_resource::texture_handle_by_name(_resource, sampler_name, _data);
+	th->texture_handle = tr->handle.idx;
+}
+
 } // namespace crown

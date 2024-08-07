@@ -6,6 +6,7 @@
 #pragma once
 
 #include "core/math/types.h"
+#include "resource/resource_id.h"
 #include "resource/types.h"
 #include "world/types.h"
 
@@ -16,6 +17,7 @@ namespace crown
 /// @ingroup World
 struct Material
 {
+	ResourceManager *_resource_manager;
 	const MaterialResource *_resource;
 	char *_data;
 
@@ -36,6 +38,9 @@ struct Material
 
 	/// Sets the @a value of the variable @a name.
 	void set_matrix4x4(StringId32 name, const Matrix4x4 &value);
+
+	/// Sets the @a texture_resource of the sampler @a sampler_name.
+	void set_texture(StringId32 sampler_name, ResourceId texture_resource);
 };
 
 } // namespace crown

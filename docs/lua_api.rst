@@ -433,6 +433,9 @@ Material
 **set_matrix4x4** (material, name, value)
 	Sets the *value* of the variable *name*.
 
+**set_texture** (material, sampler_name, texture_name)
+	Sets the *texture_resource* of the sampler *sampler_name*.
+
 Math
 ====
 

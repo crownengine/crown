@@ -30,6 +30,7 @@ Changelog
 **Lua API**
 
 * Added ``Device.screenshot()`` and ``screenshot()`` callback, see :doc:`lua_api` for details.
+* Added ``Material.set_texture()``.
 
 0.49.0 --- 27 Nov 2023
 ----------------------

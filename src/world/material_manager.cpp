@@ -25,8 +25,9 @@ static const bgfx::UniformType::Enum s_bgfx_uniform_type[] =
 };
 CE_STATIC_ASSERT(countof(s_bgfx_uniform_type) == UniformType::COUNT);
 
-MaterialManager::MaterialManager(Allocator &a)
+MaterialManager::MaterialManager(Allocator &a, ResourceManager &rm)
 	: _allocator(&a)
+	, _resource_manager(&rm)
 	, _materials(a)
 {
 }
@@ -100,8 +101,9 @@ Material *MaterialManager::create_material(const MaterialResource *resource)
 
 	const u32 size = sizeof(Material) + resource->dynamic_data_size;
 	mat = (Material *)_allocator->allocate(size);
-	mat->_resource = resource;
-	mat->_data     = (char *)&mat[1];
+	mat->_resource_manager = _resource_manager;
+	mat->_resource         = resource;
+	mat->_data             = (char *)&mat[1];
 
 	const char *data = (char *)resource + resource->dynamic_data_offset;
 	memcpy(mat->_data, data, resource->dynamic_data_size);
