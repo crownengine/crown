@@ -13,7 +13,7 @@
 
 namespace crown
 {
-void Material::bind(ResourceManager &rm, ShaderManager &sm, u8 view, s32 depth) const
+void Material::bind(ShaderManager &sm, u8 view, s32 depth) const
 {
 	using namespace material_resource;
 
@@ -22,12 +22,10 @@ void Material::bind(ResourceManager &rm, ShaderManager &sm, u8 view, s32 depth) 
 		const TextureData *td   = texture_data(_resource, i);
 		const TextureHandle *th = texture_handle(_resource, i, _data);
 
-		const TextureResource *teximg = (TextureResource *)rm.get(RESOURCE_TYPE_TEXTURE, td->id);
-
 		bgfx::UniformHandle sampler;
 		bgfx::TextureHandle texture;
 		sampler.idx = th->sampler_handle;
-		texture.idx = teximg->handle.idx;
+		texture.idx = th->texture_handle;
 
 		bgfx::setTexture(i
 			, sampler

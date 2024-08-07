@@ -413,28 +413,14 @@ void RenderWorld::render(const Matrix4x4 &view)
 		bgfx::setUniform(_u_light_range, &lid.range[ll]);
 		bgfx::setUniform(_u_light_intensity, &lid.intensity[ll]);
 
-		_mesh_manager.draw(VIEW_MESH
-			, _resource_manager
-			, _shader_manager
-			);
+		_mesh_manager.draw(VIEW_MESH, _shader_manager);
 	}
 
-	_sprite_manager.draw(VIEW_SPRITE_0
-		, _resource_manager
-		, _shader_manager
-		);
+	_sprite_manager.draw(VIEW_SPRITE_0, _shader_manager);
 
 	// Render outlines.
-	_mesh_manager.draw(VIEW_SELECTION
-		, _resource_manager
-		, _shader_manager
-		, selection_draw_override
-		);
-	_sprite_manager.draw(VIEW_SELECTION
-		, _resource_manager
-		, _shader_manager
-		, selection_draw_override
-		);
+	_mesh_manager.draw(VIEW_SELECTION, _shader_manager, selection_draw_override);
+	_sprite_manager.draw(VIEW_SELECTION, _shader_manager, selection_draw_override);
 }
 
 void RenderWorld::debug_draw(DebugLine &dl)
@@ -649,7 +635,7 @@ void RenderWorld::MeshManager::destroy()
 	_allocator->deallocate(_data.buffer);
 }
 
-void RenderWorld::MeshManager::draw(u8 view, ResourceManager *rm, ShaderManager *sm, DrawOverride draw_override)
+void RenderWorld::MeshManager::draw(u8 view, ShaderManager *sm, DrawOverride draw_override)
 {
 	for (u32 ii = 0; ii < _data.first_hidden; ++ii) {
 		bgfx::setTransform(to_float_ptr(_data.world[ii]));
@@ -659,7 +645,7 @@ void RenderWorld::MeshManager::draw(u8 view, ResourceManager *rm, ShaderManager 
 		if (draw_override)
 			draw_override(_data.unit[ii], _render_world);
 		else
-			_data.material[ii]->bind(*rm, *sm, view);
+			_data.material[ii]->bind(*sm, view);
 	}
 }
 
@@ -845,7 +831,7 @@ void RenderWorld::SpriteManager::destroy()
 	_allocator->deallocate(_data.buffer);
 }
 
-void RenderWorld::SpriteManager::draw(u8 view, ResourceManager *rm, ShaderManager *sm, DrawOverride draw_override)
+void RenderWorld::SpriteManager::draw(u8 view, ShaderManager *sm, DrawOverride draw_override)
 {
 	bgfx::VertexLayout layout;
 	bgfx::TransientVertexBuffer tvb;
@@ -937,7 +923,7 @@ void RenderWorld::SpriteManager::draw(u8 view, ResourceManager *rm, ShaderManage
 		if (draw_override)
 			draw_override(_data.unit[ii], _render_world);
 		else
-			_data.material[ii]->bind(*rm, *sm, _data.layer[ii] + view, _data.depth[ii]);
+			_data.material[ii]->bind(*sm, _data.layer[ii] + view, _data.depth[ii]);
 	}
 }
 
