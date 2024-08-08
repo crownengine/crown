@@ -4,6 +4,40 @@
 require "core/editors/level_editor/camera"
 require "core/editors/unit"
 
+UnitPreview = class(UnitPreview)
+
+function UnitPreview:init(world, unit_name)
+	self._object = UnitBox(world
+		, Device.guid()
+		, World.spawn_unit(world, unit_name)
+		, unit_name
+		)
+end
+
+function UnitPreview:destroy()
+	self._object:destroy()
+end
+
+function UnitPreview:render(camera)
+	local obb_tm, obb_he = self._object:obb()
+
+	local camera_pos
+	local camera_rot
+
+	if RenderWorld.sprite_instance(Thumbnail._rw, self._object._unit_id) then
+		camera_pos = Vector3(0, 1, 0)
+		camera_rot = Quaternion.look(Vector3.normalize(-camera_pos), Vector3(0, 0, 1))
+	else
+		camera_pos = Vector3(1, 1, -1)
+		camera_rot = Quaternion.look(Vector3.normalize(-camera_pos))
+	end
+
+	local camera_pose = Matrix4x4.from_quaternion_translation(camera_rot, camera_pos)
+
+	camera:set_local_pose(camera_pose)
+	camera:frame_obb(obb_tm, obb_he)
+end
+
 Thumbnail = Thumbnail or {}
 
 function Thumbnail:init()
@@ -36,45 +70,24 @@ function Thumbnail:update(dt)
 		return
 	end
 
-	if req.type == "sound" then
-		name = "core/units/sound"
-	elseif req.type ~= "unit" then
+	if self._object ~= nil then
+		self._object:destroy()
+		self._object = nil
+	end
+
+	if req.type == "unit" then
+		self._object = UnitPreview(self._world, req.name)
+	elseif req.type == "sound" then
+		self._object = UnitPreview(self._world, "core/units/sound")
+	else
 		return
 	end
 
 	if self._object ~= nil then
-		if self._object:prefab() == req.name then return end
-		self._object:destroy()
-	end
-
-	self._object = UnitBox(self._world
-		, Device.guid()
-		, World.spawn_unit(self._world, req.name)
-		, req.name
-		)
-
-	if self._object then
-		local obb_tm, obb_he = self._object:obb()
-
-		local camera_pos
-		local camera_rot
-
-		if RenderWorld.sprite_instance(self._rw, self._object._unit_id) then
-			camera_pos = Vector3(0, 1, 0)
-			camera_rot = Quaternion.look(Vector3.normalize(-camera_pos), Vector3(0, 0, 1))
-		else
-			camera_pos = Vector3(1, 1, -1)
-			camera_rot = Quaternion.look(Vector3.normalize(-camera_pos))
-		end
-
-		local camera_pose = Matrix4x4.from_quaternion_translation(camera_rot, camera_pos)
-
-		self._camera:set_local_pose(camera_pose)
-		self._camera:frame_obb(obb_tm, obb_he)
+		self._object:render(self._camera)
 	end
 
 	self._camera:update(dt, 0, 0, {})
-
 	Device.render(self._world, self._camera:unit())
 	table.insert(self._pending, req)
 	Device.screenshot(req.path)
