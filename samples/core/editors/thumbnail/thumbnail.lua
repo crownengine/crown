@@ -54,6 +54,21 @@ function TexturePreview:render(camera)
 	Gui.image(Thumbnail._gui, Vector2(0, 0), Vector2(128, 128), self._material_name, Color4.white())
 end
 
+MaterialPreview = class(MaterialPreview)
+
+function MaterialPreview:init(world, material_name)
+	self._unit_preview = UnitPreview(world, "core/units/primitives/sphere")
+	self._unit_preview._object:set_mesh(material_name, true)
+end
+
+function MaterialPreview:destroy()
+	self._unit_preview:destroy()
+end
+
+function MaterialPreview:render(camera)
+	self._unit_preview:render(camera)
+end
+
 Thumbnail = Thumbnail or {}
 
 function Thumbnail:init()
@@ -97,6 +112,8 @@ function Thumbnail:update(dt)
 		self._object = UnitPreview(self._world, "core/units/sound")
 	elseif req.type == "texture" then
 		self._object = TexturePreview(self._world, req.name)
+	elseif req.type == "material" then
+		self._object = MaterialPreview(self._world, req.name)
 	else
 		return
 	end

@@ -418,7 +418,7 @@ public class ProjectIconView : Gtk.IconView
 			else if ((string)type == "level")
 				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
 			else if ((string)type == "material")
-				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
+				cell.set_property("pixbuf", _thumbnail_cache.get(type, name));
 			else if ((string)type == "mesh")
 				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
 			else if ((string)type == "package")
