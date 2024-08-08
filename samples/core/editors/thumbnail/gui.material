@@ -1,0 +1,6 @@
+_guid = "643705c5-5acb-4e63-9784-a17636459d17"
+_type = "material"
+shader = "gui+DIFFUSE_MAP"
+textures = {
+	u_albedo = "core/fallback/fallback"
+}

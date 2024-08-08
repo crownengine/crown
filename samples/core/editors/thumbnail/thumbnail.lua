@@ -38,6 +38,22 @@ function UnitPreview:render(camera)
 	camera:frame_obb(obb_tm, obb_he)
 end
 
+TexturePreview = class(TexturePreview)
+
+function TexturePreview:init(world, texture_name)
+	self._texture_name = texture_name
+	self._material_name = "core/editors/thumbnail/gui"
+	self._material = Gui.material(Thumbnail._gui, self._material_name)
+end
+
+function TexturePreview:destroy()
+end
+
+function TexturePreview:render(camera)
+	Material.set_texture(self._material, "u_albedo", self._texture_name)
+	Gui.image(Thumbnail._gui, Vector2(0, 0), Vector2(128, 128), self._material_name, Color4.white())
+end
+
 Thumbnail = Thumbnail or {}
 
 function Thumbnail:init()
@@ -79,6 +95,8 @@ function Thumbnail:update(dt)
 		self._object = UnitPreview(self._world, req.name)
 	elseif req.type == "sound" then
 		self._object = UnitPreview(self._world, "core/units/sound")
+	elseif req.type == "texture" then
+		self._object = TexturePreview(self._world, req.name)
 	else
 		return
 	end

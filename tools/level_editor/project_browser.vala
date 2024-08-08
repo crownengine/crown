@@ -438,7 +438,7 @@ public class ProjectIconView : Gtk.IconView
 			else if ((string)type == "sprite")
 				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
 			else if ((string)type == "texture")
-				cell.set_property("pixbuf", theme.lookup_icon("image-x-generic-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
+				cell.set_property("pixbuf", _thumbnail_cache.get(type, name));
 			else
 				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
 		} catch (GLib.Error e) {
