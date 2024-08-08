@@ -164,6 +164,9 @@ Gui
 **text** (gui, pos, font_size, str, font_resource, material_resource, color)
 	Draws text.
 
+**material** (material_resource) : Material
+	Returns the material *material_resource*.
+
 Input
 =====
 

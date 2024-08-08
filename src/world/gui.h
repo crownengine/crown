@@ -111,6 +111,9 @@ struct Gui
 
 	///
 	void text(const Vector2 &pos, u32 font_size, const char *str, StringId64 font, StringId64 material, const Color4 &color);
+
+	/// Returns the material @a material_resource.
+	Material *material(ResourceId material_resource);
 };
 
 } // namespace crown

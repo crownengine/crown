@@ -2813,6 +2813,11 @@ void load_api(LuaEnvironment &env)
 				);
 			return 0;
 		});
+	env.add_module_function("Gui", "material", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.push_material(stack.get_gui(1)->material(stack.get_resource_name(2)));
+			return 1;
+		});
 
 	env.add_module_function("Display", "modes", [](lua_State *L) {
 			LuaStack stack(L);

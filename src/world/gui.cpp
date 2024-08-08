@@ -365,4 +365,10 @@ void Gui::text(const Vector2 &pos, u32 font_size, const char *str, StringId64 fo
 	text_3d(vector3(pos.x, pos.y, 0.0f), font_size, str, font, material, color);
 }
 
+Material *Gui::material(ResourceId material_resource)
+{
+	const MaterialResource *mr = (MaterialResource *)_resource_manager->get(RESOURCE_TYPE_MATERIAL, material_resource);
+	return _material_manager->get(mr);
+}
+
 } // namespace crown
