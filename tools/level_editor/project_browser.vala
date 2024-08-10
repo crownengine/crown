@@ -272,12 +272,21 @@ public class ProjectIconView : Gtk.IconView
 		_list_store.set_sort_column_id(Column.TYPE, Gtk.SortType.ASCENDING);
 
 		this.button_press_event.connect(on_button_pressed);
+		this.set_item_width(80);
 
 		_cell_renderer_pixbuf = new Gtk.CellRendererPixbuf();
 		_cell_renderer_pixbuf.stock_size = Gtk.IconSize.DIALOG;
 
+		// https://gitlab.gnome.org/GNOME/gtk/-/blob/3.24.43/gtk/gtkiconview.c#L5147
 		_cell_renderer_text = new Gtk.CellRendererText();
-		_cell_renderer_text.xalign = 0.5f; // Center text.
+		_cell_renderer_text.set("wrap-mode", Pango.WrapMode.WORD_CHAR);
+		_cell_renderer_text.set("alignment", Pango.Alignment.CENTER);
+		_cell_renderer_text.set("xalign", 0.5);
+		_cell_renderer_text.set("yalign", 0.0);
+		int wrap_width = this.item_width;
+		wrap_width -= 2 * this.item_padding * 2;
+		_cell_renderer_text.set("wrap-width", wrap_width);
+		_cell_renderer_text.set("width", wrap_width);
 
 		_empty_pixbuf = new Gdk.Pixbuf.from_data({ 0x00, 0x00, 0x00, 0x00 }, Gdk.Colorspace.RGB, true, 8, 1, 1, 4);
 
