@@ -140,9 +140,9 @@ bool ResourceManager::can_get(StringId64 type, StringId64 name)
 
 const void *ResourceManager::get(StringId64 type, StringId64 name)
 {
-	const ResourcePair id = { type, name };
-
 	CE_ASSERT(can_get(type, name), "Resource not loaded: " RESOURCE_ID_FMT, resource_id(type, name)._id);
+
+	const ResourcePair id = { type, name };
 
 	if (_autoload && !hash_map::has(_resources, id)) {
 		while (!try_load(PACKAGE_RESOURCE_NONE, type, name)) {
