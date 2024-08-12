@@ -33,13 +33,13 @@ struct ResourceManager
 		StringId64 name;
 	};
 
-	struct ResourceEntry
+	struct ResourceData
 	{
 		u32 references;
 		Allocator *allocator;
 		void *data;
 
-		static const ResourceEntry NOT_FOUND;
+		static const ResourceData NOT_FOUND;
 	};
 
 	struct ResourceTypeData
@@ -54,7 +54,7 @@ struct ResourceManager
 	ProxyAllocator _resource_heap;
 	ResourceLoader *_loader;
 	HashMap<StringId64, ResourceTypeData> _types;
-	HashMap<ResourcePair, ResourceEntry> _resources;
+	HashMap<ResourcePair, ResourceData> _resources;
 	bool _autoload;
 
 	void on_online(StringId64 type, StringId64 name);

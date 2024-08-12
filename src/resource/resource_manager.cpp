@@ -28,14 +28,14 @@ bool operator==(const ResourceManager::ResourcePair &a, const ResourceManager::R
 		;
 }
 
-bool operator==(const ResourceManager::ResourceEntry &a, const ResourceManager::ResourceEntry &b)
+bool operator==(const ResourceManager::ResourceData &a, const ResourceManager::ResourceData &b)
 {
 	return a.references == b.references
 		&& a.data == b.data
 		;
 }
 
-const ResourceManager::ResourceEntry ResourceManager::ResourceEntry::NOT_FOUND = { 0xffffffffu, NULL, NULL };
+const ResourceManager::ResourceData ResourceManager::ResourceData::NOT_FOUND = { 0xffffffffu, NULL, NULL };
 
 template<>
 struct hash<ResourceManager::ResourcePair>
@@ -72,9 +72,9 @@ ResourceManager::~ResourceManager()
 bool ResourceManager::try_load(StringId64 package_name, StringId64 type, StringId64 name)
 {
 	ResourcePair id = { type, name };
-	ResourceEntry &entry = hash_map::get(_resources, id, ResourceEntry::NOT_FOUND);
+	ResourceData &rd = hash_map::get(_resources, id, ResourceData::NOT_FOUND);
 
-	if (entry == ResourceEntry::NOT_FOUND) {
+	if (rd == ResourceData::NOT_FOUND) {
 		ResourceTypeData rtd;
 		rtd.version = UINT32_MAX;
 		rtd.load = NULL;
@@ -96,18 +96,18 @@ bool ResourceManager::try_load(StringId64 package_name, StringId64 type, StringI
 		return _loader->add_request(rr);
 	}
 
-	entry.references++;
+	rd.references++;
 	return true;
 }
 
 void ResourceManager::unload(StringId64 type, StringId64 name)
 {
 	ResourcePair id = { type, name };
-	ResourceEntry &entry = hash_map::get(_resources, id, ResourceEntry::NOT_FOUND);
+	ResourceData &rd = hash_map::get(_resources, id, ResourceData::NOT_FOUND);
 
-	if (--entry.references == 0) {
+	if (--rd.references == 0) {
 		on_offline(type, name);
-		on_unload(type, entry.allocator, entry.data);
+		on_unload(type, rd.allocator, rd.data);
 
 		hash_map::remove(_resources, id);
 	}
@@ -116,10 +116,10 @@ void ResourceManager::unload(StringId64 type, StringId64 name)
 void ResourceManager::reload(StringId64 type, StringId64 name)
 {
 	const ResourcePair id = { type, name };
-	const ResourceEntry &entry = hash_map::get(_resources, id, ResourceEntry::NOT_FOUND);
-	const u32 old_refs = entry.references;
+	const ResourceData &rd = hash_map::get(_resources, id, ResourceData::NOT_FOUND);
+	const u32 old_refs = rd.references;
 
-	if (entry == ResourceEntry::NOT_FOUND)
+	if (rd == ResourceData::NOT_FOUND)
 		return;
 
 	unload(type, name);
@@ -132,8 +132,8 @@ void ResourceManager::reload(StringId64 type, StringId64 name)
 		complete_requests();
 	}
 
-	ResourceEntry &new_entry = hash_map::get(_resources, id, ResourceEntry::NOT_FOUND);
-	new_entry.references = old_refs;
+	ResourceData &new_rd = hash_map::get(_resources, id, ResourceData::NOT_FOUND);
+	new_rd.references = old_refs;
 }
 
 bool ResourceManager::can_get(StringId64 type, StringId64 name)
@@ -158,8 +158,7 @@ const void *ResourceManager::get(StringId64 type, StringId64 name)
 		}
 	}
 
-	const ResourceEntry &entry = hash_map::get(_resources, id, ResourceEntry::NOT_FOUND);
-	return entry.data;
+	return hash_map::get(_resources, id, ResourceData::NOT_FOUND).data;
 }
 
 void ResourceManager::enable_autoload(bool enable)
@@ -171,14 +170,14 @@ void ResourceManager::complete_requests()
 {
 	ResourceRequest rr;
 	while (_loader->_loaded.pop(rr)) {
-		ResourceEntry entry;
-		entry.references = 1;
-		entry.data = rr.data;
-		entry.allocator = rr.allocator;
+		ResourceData rd;
+		rd.references = 1;
+		rd.data = rr.data;
+		rd.allocator = rr.allocator;
 
 		ResourcePair id = { rr.type, rr.name };
 
-		hash_map::set(_resources, id, entry);
+		hash_map::set(_resources, id, rd);
 
 		on_online(rr.type, rr.name);
 	}
