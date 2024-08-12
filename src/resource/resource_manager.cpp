@@ -35,7 +35,9 @@ bool operator==(const ResourceManager::ResourceData &a, const ResourceManager::R
 		;
 }
 
-const ResourceManager::ResourceData ResourceManager::ResourceData::NOT_FOUND = { 0xffffffffu, NULL, NULL };
+const ResourceManager::ResourceData ResourceManager::ResourceData::NOT_FOUND = { UINT32_MAX, NULL, NULL };
+
+const ResourceManager::ResourceTypeData ResourceManager::ResourceTypeData::NOT_FOUND = { UINT32_MAX, NULL, NULL, NULL, NULL };
 
 template<>
 struct hash<ResourceManager::ResourcePair>
@@ -75,13 +77,7 @@ bool ResourceManager::try_load(StringId64 package_name, StringId64 type, StringI
 	ResourceData &rd = hash_map::get(_resources, id, ResourceData::NOT_FOUND);
 
 	if (rd == ResourceData::NOT_FOUND) {
-		ResourceTypeData rtd;
-		rtd.version = UINT32_MAX;
-		rtd.load = NULL;
-		rtd.online = NULL;
-		rtd.offline = NULL;
-		rtd.unload = NULL;
-		rtd = hash_map::get(_types, type, rtd);
+		ResourceTypeData rtd = hash_map::get(_types, type, ResourceTypeData::NOT_FOUND);
 
 		ResourceRequest rr;
 		rr.resource_manager = this;
@@ -197,7 +193,7 @@ void ResourceManager::register_type(StringId64 type, u32 version, LoadFunction l
 
 void ResourceManager::on_online(StringId64 type, StringId64 name)
 {
-	OnlineFunction func = hash_map::get(_types, type, ResourceTypeData()).online;
+	OnlineFunction func = hash_map::get(_types, type, ResourceTypeData::NOT_FOUND).online;
 
 	if (func)
 		func(name, *this);
@@ -205,7 +201,7 @@ void ResourceManager::on_online(StringId64 type, StringId64 name)
 
 void ResourceManager::on_offline(StringId64 type, StringId64 name)
 {
-	OfflineFunction func = hash_map::get(_types, type, ResourceTypeData()).offline;
+	OfflineFunction func = hash_map::get(_types, type, ResourceTypeData::NOT_FOUND).offline;
 
 	if (func)
 		func(name, *this);
@@ -216,7 +212,7 @@ void ResourceManager::on_unload(StringId64 type, Allocator *allocator, void *dat
 	if (allocator == NULL)
 		return;
 
-	UnloadFunction func = hash_map::get(_types, type, ResourceTypeData()).unload;
+	UnloadFunction func = hash_map::get(_types, type, ResourceTypeData::NOT_FOUND).unload;
 
 	if (func)
 		func(*allocator, data);

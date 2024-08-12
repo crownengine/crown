@@ -49,6 +49,8 @@ struct ResourceManager
 		OnlineFunction online;
 		OfflineFunction offline;
 		UnloadFunction unload;
+
+		static const ResourceTypeData NOT_FOUND;
 	};
 
 	ProxyAllocator _resource_heap;
