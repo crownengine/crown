@@ -51,13 +51,10 @@ struct ResourceManager
 		UnloadFunction unload;
 	};
 
-	typedef HashMap<StringId64, ResourceTypeData> TypeMap;
-	typedef HashMap<ResourcePair, ResourceEntry> ResourceMap;
-
 	ProxyAllocator _resource_heap;
 	ResourceLoader *_loader;
-	TypeMap _type_data;
-	ResourceMap _rm;
+	HashMap<StringId64, ResourceTypeData> _types;
+	HashMap<ResourcePair, ResourceEntry> _resources;
 	bool _autoload;
 
 	void on_online(StringId64 type, StringId64 name);

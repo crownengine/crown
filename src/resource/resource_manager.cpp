@@ -49,18 +49,18 @@ struct hash<ResourceManager::ResourcePair>
 ResourceManager::ResourceManager(ResourceLoader &rl)
 	: _resource_heap(default_allocator(), "resource")
 	, _loader(&rl)
-	, _type_data(default_allocator())
-	, _rm(default_allocator())
+	, _types(default_allocator())
+	, _resources(default_allocator())
 	, _autoload(false)
 {
 }
 
 ResourceManager::~ResourceManager()
 {
-	auto cur = hash_map::begin(_rm);
-	auto end = hash_map::end(_rm);
+	auto cur = hash_map::begin(_resources);
+	auto end = hash_map::end(_resources);
 	for (; cur != end; ++cur) {
-		HASH_MAP_SKIP_HOLE(_rm, cur);
+		HASH_MAP_SKIP_HOLE(_resources, cur);
 
 		const StringId64 type = cur->first.type;
 		const StringId64 name = cur->first.name;
@@ -72,7 +72,7 @@ ResourceManager::~ResourceManager()
 bool ResourceManager::try_load(StringId64 package_name, StringId64 type, StringId64 name)
 {
 	ResourcePair id = { type, name };
-	ResourceEntry &entry = hash_map::get(_rm, id, ResourceEntry::NOT_FOUND);
+	ResourceEntry &entry = hash_map::get(_resources, id, ResourceEntry::NOT_FOUND);
 
 	if (entry == ResourceEntry::NOT_FOUND) {
 		ResourceTypeData rtd;
@@ -81,7 +81,7 @@ bool ResourceManager::try_load(StringId64 package_name, StringId64 type, StringI
 		rtd.online = NULL;
 		rtd.offline = NULL;
 		rtd.unload = NULL;
-		rtd = hash_map::get(_type_data, type, rtd);
+		rtd = hash_map::get(_types, type, rtd);
 
 		ResourceRequest rr;
 		rr.resource_manager = this;
@@ -103,20 +103,20 @@ bool ResourceManager::try_load(StringId64 package_name, StringId64 type, StringI
 void ResourceManager::unload(StringId64 type, StringId64 name)
 {
 	ResourcePair id = { type, name };
-	ResourceEntry &entry = hash_map::get(_rm, id, ResourceEntry::NOT_FOUND);
+	ResourceEntry &entry = hash_map::get(_resources, id, ResourceEntry::NOT_FOUND);
 
 	if (--entry.references == 0) {
 		on_offline(type, name);
 		on_unload(type, entry.allocator, entry.data);
 
-		hash_map::remove(_rm, id);
+		hash_map::remove(_resources, id);
 	}
 }
 
 void ResourceManager::reload(StringId64 type, StringId64 name)
 {
 	const ResourcePair id = { type, name };
-	const ResourceEntry &entry = hash_map::get(_rm, id, ResourceEntry::NOT_FOUND);
+	const ResourceEntry &entry = hash_map::get(_resources, id, ResourceEntry::NOT_FOUND);
 	const u32 old_refs = entry.references;
 
 	if (entry == ResourceEntry::NOT_FOUND)
@@ -128,18 +128,18 @@ void ResourceManager::reload(StringId64 type, StringId64 name)
 		complete_requests();
 	}
 
-	while (!hash_map::has(_rm, id)) {
+	while (!hash_map::has(_resources, id)) {
 		complete_requests();
 	}
 
-	ResourceEntry &new_entry = hash_map::get(_rm, id, ResourceEntry::NOT_FOUND);
+	ResourceEntry &new_entry = hash_map::get(_resources, id, ResourceEntry::NOT_FOUND);
 	new_entry.references = old_refs;
 }
 
 bool ResourceManager::can_get(StringId64 type, StringId64 name)
 {
 	const ResourcePair id = { type, name };
-	return _autoload ? true : hash_map::has(_rm, id);
+	return _autoload ? true : hash_map::has(_resources, id);
 }
 
 const void *ResourceManager::get(StringId64 type, StringId64 name)
@@ -148,17 +148,17 @@ const void *ResourceManager::get(StringId64 type, StringId64 name)
 
 	CE_ASSERT(can_get(type, name), "Resource not loaded: " RESOURCE_ID_FMT, resource_id(type, name)._id);
 
-	if (_autoload && !hash_map::has(_rm, id)) {
+	if (_autoload && !hash_map::has(_resources, id)) {
 		while (!try_load(PACKAGE_RESOURCE_NONE, type, name)) {
 			complete_requests();
 		}
 
-		while (!hash_map::has(_rm, id)) {
+		while (!hash_map::has(_resources, id)) {
 			complete_requests();
 		}
 	}
 
-	const ResourceEntry &entry = hash_map::get(_rm, id, ResourceEntry::NOT_FOUND);
+	const ResourceEntry &entry = hash_map::get(_resources, id, ResourceEntry::NOT_FOUND);
 	return entry.data;
 }
 
@@ -178,7 +178,7 @@ void ResourceManager::complete_requests()
 
 		ResourcePair id = { rr.type, rr.name };
 
-		hash_map::set(_rm, id, entry);
+		hash_map::set(_resources, id, entry);
 
 		on_online(rr.type, rr.name);
 	}
@@ -193,12 +193,12 @@ void ResourceManager::register_type(StringId64 type, u32 version, LoadFunction l
 	rtd.offline = offline;
 	rtd.unload = unload;
 
-	hash_map::set(_type_data, type, rtd);
+	hash_map::set(_types, type, rtd);
 }
 
 void ResourceManager::on_online(StringId64 type, StringId64 name)
 {
-	OnlineFunction func = hash_map::get(_type_data, type, ResourceTypeData()).online;
+	OnlineFunction func = hash_map::get(_types, type, ResourceTypeData()).online;
 
 	if (func)
 		func(name, *this);
@@ -206,7 +206,7 @@ void ResourceManager::on_online(StringId64 type, StringId64 name)
 
 void ResourceManager::on_offline(StringId64 type, StringId64 name)
 {
-	OfflineFunction func = hash_map::get(_type_data, type, ResourceTypeData()).offline;
+	OfflineFunction func = hash_map::get(_types, type, ResourceTypeData()).offline;
 
 	if (func)
 		func(name, *this);
@@ -217,7 +217,7 @@ void ResourceManager::on_unload(StringId64 type, Allocator *allocator, void *dat
 	if (allocator == NULL)
 		return;
 
-	UnloadFunction func = hash_map::get(_type_data, type, ResourceTypeData()).unload;
+	UnloadFunction func = hash_map::get(_types, type, ResourceTypeData()).unload;
 
 	if (func)
 		func(*allocator, data);
