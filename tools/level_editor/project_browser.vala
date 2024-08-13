@@ -660,7 +660,7 @@ public class ProjectBrowser : Gtk.Bin
 		name = (string)val;
 
 		string resource_path = ResourceId.path(type, name);
-		data.set_text(resource_path, -1);
+		data.set(Gdk.Atom.intern_static_string("RESOURCE_PATH"), 8, resource_path.data);
 	}
 
 	private void on_drag_begin(Gdk.DragContext context)
