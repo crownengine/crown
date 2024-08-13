@@ -305,9 +305,12 @@ public class ProjectIconView : Gtk.IconView
 	private void on_drag_data_get(Gdk.DragContext context, Gtk.SelectionData data, uint info, uint time_)
 	{
 		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_data_get.html
-		GLib.List<Gtk.TreePath> selected_path = this.get_selected_items();
+		GLib.List<Gtk.TreePath> selected_paths = this.get_selected_items();
+		if (selected_paths.length() == 0u)
+			return;
+
 		Gtk.TreeIter selected_iter;
-		this.model.get_iter(out selected_iter, selected_path.data);
+		this.model.get_iter(out selected_iter, selected_paths.nth(0).data);
 
 		Value val;
 		string type;

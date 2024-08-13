@@ -130,7 +130,11 @@ public class EditorView : Gtk.EventBox
 	private void on_drag_data_received(Gdk.DragContext context, int x, int y, Gtk.SelectionData data, uint info, uint time_)
 	{
 		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_data_received.html
-		string resource_path = (string)data.get_data();
+		unowned uint8[] raw_data = data.get_data_with_length();
+		if (raw_data.length == -1)
+			return;
+
+		string resource_path = (string)raw_data;
 		string type = ResourceId.type(resource_path);
 		string name = ResourceId.name(resource_path);
 
