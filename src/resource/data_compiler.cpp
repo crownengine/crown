@@ -154,9 +154,9 @@ void SourceIndex::scan_directory(FilesystemDisk &fs, const char *prefix, const c
 			}
 			resource_name += file_i;
 
-			Stat stat;
-			stat = fs.stat(file_i.c_str());
-			hash_map::set(_paths, resource_name, stat);
+			Stat st;
+			st = fs.stat(file_i.c_str());
+			hash_map::set(_paths, resource_name, st);
 
 			notify_add_file(resource_name.c_str());
 		}
@@ -624,11 +624,11 @@ void DataCompiler::remove_file(const char *path)
 	// Mark the entry as deleted but do not remove it from the map. We still
 	// need to know which resource has been deleted in order to remove its
 	// associated BLOB in the data directory at the next compile() call.
-	Stat stat;
-	stat.file_type = Stat::NO_ENTRY;
-	stat.size = 0;
-	stat.mtime = 0;
-	hash_map::set(_source_index._paths, path_str, stat);
+	Stat st;
+	st.file_type = Stat::NO_ENTRY;
+	st.size = 0;
+	st.mtime = 0;
+	hash_map::set(_source_index._paths, path_str, st);
 
 	notify_remove_file(path);
 }
@@ -817,12 +817,12 @@ void DataCompiler::save(const char *data_dir)
 
 bool DataCompiler::dependency_changed(const DynamicString &path, ResourceId id, u64 dst_mtime)
 {
-	Stat stat;
-	stat.file_type = Stat::FileType::NO_ENTRY;
-	stat.size = 0;
-	stat.mtime = 0;
-	stat = hash_map::get(_source_index._paths, path, stat);
-	if (stat.file_type == Stat::FileType::NO_ENTRY || stat.mtime > dst_mtime)
+	Stat st;
+	st.file_type = Stat::FileType::NO_ENTRY;
+	st.size = 0;
+	st.mtime = 0;
+	st = hash_map::get(_source_index._paths, path, st);
+	if (st.file_type == Stat::FileType::NO_ENTRY || st.mtime > dst_mtime)
 		return true;
 
 	const HashMap<DynamicString, u32> deffault(default_allocator());
@@ -1356,9 +1356,9 @@ void DataCompiler::file_monitor_callback(FileMonitorEvent::Enum fme, bool is_dir
 				FilesystemDisk fs(default_allocator());
 				fs.set_prefix(source_dir.c_str());
 
-				Stat stat;
-				stat = fs.stat(filename);
-				hash_map::set(_source_index._paths, resource_name, stat);
+				Stat st;
+				st = fs.stat(filename);
+				hash_map::set(_source_index._paths, resource_name, st);
 			}
 			break;
 
