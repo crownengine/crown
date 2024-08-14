@@ -120,6 +120,18 @@ static void notify_remove_tree(const char *path)
 	console_server()->broadcast(string_stream::c_str(ss));
 }
 
+static void notify_change_file(const char *path, Stat &st)
+{
+	TempAllocator512 ta;
+	StringStream ss(ta);
+	ss << "{\"type\":\"change_file\"";
+	ss << ",\"path\":\"" << path << "\"";
+	ss << ",\"size\":\"" << st.size << "\"";
+	ss << ",\"mtime\":\"" << st.mtime << "\"";
+	ss << "}";
+	console_server()->broadcast(string_stream::c_str(ss));
+}
+
 SourceIndex::SourceIndex()
 	: _paths(default_allocator())
 {
@@ -1363,6 +1375,8 @@ void DataCompiler::file_monitor_callback(FileMonitorEvent::Enum fme, bool is_dir
 				Stat st;
 				st = fs.stat(filename);
 				hash_map::set(_source_index._paths, resource_name, st);
+
+				notify_change_file(resource_name.c_str(), st);
 			}
 			break;
 

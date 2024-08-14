@@ -1091,6 +1091,12 @@ public class LevelEditorApplication : Gtk.Application
 			string path = (string)msg["path"];
 
 			_project.remove_tree(path);
+		} else if (msg_type == "change_file") {
+			string path = (string)msg["path"];
+			uint64 size = uint64.parse((string)msg["size"]);
+			uint64 mtime = uint64.parse((string)msg["mtime"]);
+
+			_project.change_file(path, size, mtime);
 		} else if (msg_type == "compile") {
 			// Guid id = Guid.parse((string)msg["id"]);
 
