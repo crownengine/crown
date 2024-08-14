@@ -35,7 +35,11 @@ void ResourcePackage::load()
 {
 	// Load the package resource itself.
 	if (!_package_resource_queued) {
-		_package_resource_queued = _resource_manager->try_load(PACKAGE_RESOURCE_NONE, RESOURCE_TYPE_PACKAGE, _package_resource_name);
+		_package_resource_queued = _resource_manager->try_load(PACKAGE_RESOURCE_NONE
+			, RESOURCE_TYPE_PACKAGE
+			, _package_resource_name
+			, 0
+			);
 	} else {
 		if (_package_resource == NULL) {
 			if (!_resource_manager->can_get(RESOURCE_TYPE_PACKAGE, _package_resource_name)) {
@@ -50,7 +54,7 @@ void ResourcePackage::load()
 		// resources it contains.
 		for (u32 ii = _num_resources_queued; ii < _package_resource->num_resources; ++ii) {
 			const ResourceOffset *ro = package_resource::resource_offset(_package_resource, ii);
-			if (!_resource_manager->try_load(_package_resource_name, ro->type, ro->name))
+			if (!_resource_manager->try_load(_package_resource_name, ro->type, ro->name, ro->online_order))
 				break;
 
 			++_num_resources_queued;

@@ -11,6 +11,7 @@
 #include "core/thread/condition_variable.h"
 #include "core/thread/mutex.h"
 #include "core/thread/spsc_queue.inl"
+#include "core/thread/mpsc_queue.inl"
 #include "core/thread/thread.h"
 #include "core/types.h"
 #include "resource/types.h"
@@ -26,6 +27,7 @@ struct ResourceRequest
 	StringId64 type;
 	StringId64 name;
 	u32 version;
+	u32 online_order;
 	LoadFunction load_function;
 	Allocator *allocator;
 	void *data;
@@ -40,7 +42,7 @@ struct ResourceLoader
 	bool _is_bundle;
 
 	SPSCQueue<ResourceRequest, 128> _requests;
-	SPSCQueue<ResourceRequest, 128> _loaded;
+	MPSCQueue<ResourceRequest, 128> _loaded;
 	HashMap<StringId64, StringId64> _fallback;
 
 	Thread _thread;

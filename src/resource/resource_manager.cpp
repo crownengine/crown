@@ -31,11 +31,33 @@ bool operator==(const ResourceManager::ResourcePair &a, const ResourceManager::R
 bool operator==(const ResourceManager::ResourceData &a, const ResourceManager::ResourceData &b)
 {
 	return a.references == b.references
+		&& a.online_sequence_num == b.online_sequence_num
+		&& a.allocator == b.allocator
 		&& a.data == b.data
 		;
 }
 
-const ResourceManager::ResourceData ResourceManager::ResourceData::NOT_FOUND = { UINT32_MAX, NULL, NULL };
+bool operator!=(const ResourceManager::ResourceData &a, const ResourceManager::ResourceData &b)
+{
+	return !(a == b);
+}
+
+const ResourceManager::ResourceData ResourceManager::ResourceData::NOT_FOUND = { UINT32_MAX, 0u, NULL, NULL };
+
+bool operator==(const ResourceManager::ResourceTypeData &a, const ResourceManager::ResourceTypeData &b)
+{
+	return a.version == b.version
+		&& a.load == b.load
+		&& a.online == b.online
+		&& a.offline == b.offline
+		&& a.unload == b.unload
+		;
+}
+
+bool operator!=(const ResourceManager::ResourceTypeData &a, const ResourceManager::ResourceTypeData &b)
+{
+	return !(a == b);
+}
 
 const ResourceManager::ResourceTypeData ResourceManager::ResourceTypeData::NOT_FOUND = { UINT32_MAX, NULL, NULL, NULL, NULL };
 
@@ -47,6 +69,24 @@ struct hash<ResourceManager::ResourcePair>
 		return u32(resource_id(val.type, val.name)._id);
 	}
 };
+
+namespace resource_manager_internal
+{
+	void add_resource(ResourceManager &rm, StringId64 type, StringId64 name, Allocator *allocator, void *data)
+	{
+		ResourceManager::ResourceData rd;
+		rd.references = 1;
+		rd.online_sequence_num = 0;
+		rd.allocator = allocator;
+		rd.data = data;
+
+		ResourceManager::ResourcePair id = { type, name };
+		hash_map::set(rm._resources, id, rd);
+
+		rm.on_online(type, name);
+	}
+
+} // namespace resource_manager_internal
 
 ResourceManager::ResourceManager(ResourceLoader &rl)
 	: _resource_heap(default_allocator(), "resource")
@@ -71,28 +111,37 @@ ResourceManager::~ResourceManager()
 	}
 }
 
-bool ResourceManager::try_load(StringId64 package_name, StringId64 type, StringId64 name)
+bool ResourceManager::try_load(StringId64 package_name, StringId64 type, StringId64 name, u32 online_order)
 {
 	ResourcePair id = { type, name };
 	ResourceData &rd = hash_map::get(_resources, id, ResourceData::NOT_FOUND);
 
+	ResourceRequest rr;
+	rr.resource_manager = this;
+	rr.package_name = package_name;
+	rr.type = type;
+	rr.name = name;
+	rr.online_order = online_order;
+	rr.data = NULL;
+
 	if (rd == ResourceData::NOT_FOUND) {
 		ResourceTypeData rtd = hash_map::get(_types, type, ResourceTypeData::NOT_FOUND);
+		CE_ENSURE(rtd != ResourceTypeData::NOT_FOUND);
 
-		ResourceRequest rr;
-		rr.resource_manager = this;
-		rr.package_name = package_name;
-		rr.type = type;
-		rr.name = name;
+		rr.allocator = &_resource_heap;
 		rr.version = rtd.version;
 		rr.load_function = rtd.load;
-		rr.allocator = &_resource_heap;
-		rr.data = NULL;
-
 		return _loader->add_request(rr);
 	}
 
 	rd.references++;
+
+	// Push a spurious loaded resource event. This avoids blocking forever
+	// in complete_requests() by keeping the online_sequence_num updated.
+	rr.allocator = NULL;
+	rr.version = 0;
+	rr.load_function = NULL;
+	_loader->_loaded.push(rr);
 	return true;
 }
 
@@ -120,7 +169,7 @@ void ResourceManager::reload(StringId64 type, StringId64 name)
 
 	unload(type, name);
 
-	while (!try_load(PACKAGE_RESOURCE_NONE, type, name)) {
+	while (!try_load(PACKAGE_RESOURCE_NONE, type, name, 0)) {
 		complete_requests();
 	}
 
@@ -145,7 +194,7 @@ const void *ResourceManager::get(StringId64 type, StringId64 name)
 	const ResourcePair id = { type, name };
 
 	if (_autoload && !hash_map::has(_resources, id)) {
-		while (!try_load(PACKAGE_RESOURCE_NONE, type, name)) {
+		while (!try_load(PACKAGE_RESOURCE_NONE, type, name, 0)) {
 			complete_requests();
 		}
 
@@ -166,16 +215,40 @@ void ResourceManager::complete_requests()
 {
 	ResourceRequest rr;
 	while (_loader->_loaded.pop(rr)) {
-		ResourceData rd;
-		rd.references = 1;
-		rd.data = rr.data;
-		rd.allocator = rr.allocator;
+		if (rr.type == RESOURCE_TYPE_PACKAGE || rr.type == RESOURCE_TYPE_CONFIG || _autoload) {
+			// Always add packages and configs to the resource map because they never have
+			// requirements and are never required by any resource, hence no online() order
+			// constraints apply.
+			resource_manager_internal::add_resource(*this
+				, rr.type
+				, rr.name
+				, rr.allocator
+				, rr.data
+				);
+		} else {
+			ResourcePair rp { RESOURCE_TYPE_PACKAGE, rr.package_name };
+			ResourceData &pkg_data = hash_map::get(_resources, rp, ResourceData::NOT_FOUND);
+			CE_ENSURE(pkg_data != ResourceData::NOT_FOUND);
 
-		ResourcePair id = { rr.type, rr.name };
+			if (rr.online_order != pkg_data.online_sequence_num) {
+				// Cannot process this resource yet; we need to wait for all its requirements to be
+				// put online() first. Put the request back into the loaded queue to try again
+				// later.
+				_loader->_loaded.push(rr);
+			} else {
+				++pkg_data.online_sequence_num;
 
-		hash_map::set(_resources, id, rd);
-
-		on_online(rr.type, rr.name);
+				if (rr.data != NULL && rr.allocator != NULL) {
+					// If this is a non-spurious request, add it to the resource map.
+					resource_manager_internal::add_resource(*this
+						, rr.type
+						, rr.name
+						, rr.allocator
+						, rr.data
+						);
+				}
+			}
+		}
 	}
 }
 

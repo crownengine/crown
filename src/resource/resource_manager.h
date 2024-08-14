@@ -36,6 +36,7 @@ struct ResourceManager
 	struct ResourceData
 	{
 		u32 references;
+		u32 online_sequence_num;
 		Allocator *allocator;
 		void *data;
 
@@ -73,7 +74,7 @@ struct ResourceManager
 	/// When the load queue is full, it may fail returning false. In such case,
 	/// you must call complete_requests() and try again later until true is returned.
 	/// Use can_get() to check whether the resource can be used.
-	bool try_load(StringId64 package_name, StringId64 type, StringId64 name);
+	bool try_load(StringId64 package_name, StringId64 type, StringId64 name, u32 online_order);
 
 	/// Unloads the resource @a type @a name.
 	void unload(StringId64 type, StringId64 name);

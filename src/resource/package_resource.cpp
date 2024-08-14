@@ -48,12 +48,16 @@ bool operator==(const ResourceOffset &a, const ResourceOffset &b)
 namespace package_resource_internal
 {
 	s32 bring_in_requirements(HashSet<ResourceOffset> &output
+		, u32 *graph_level
 		, CompileOptions &opts
 		, ResourceId res_id
 		)
 	{
 		const HashMap<DynamicString, u32> reqs_deffault(default_allocator());
 		const HashMap<DynamicString, u32> &reqs = hash_map::get(opts._data_compiler._data_requirements, res_id, reqs_deffault);
+
+		u32 max_graph_level = 0;
+		u32 cur_graph_level;
 
 		auto cur = hash_map::begin(reqs);
 		auto end = hash_map::end(reqs);
@@ -67,14 +71,19 @@ namespace package_resource_internal
 			const StringId64 req_type_hash(req_type);
 			const StringId64 req_name_hash(req_filename, req_name_len);
 
+			cur_graph_level = 0;
+			bring_in_requirements(output, &cur_graph_level, opts, resource_id(req_type_hash, req_name_hash));
+			max_graph_level = max(max_graph_level, cur_graph_level + 1);
+
 			ResourceOffset ro;
 			ro.type = req_type_hash;
 			ro.name = req_name_hash;
+			ro.online_order = cur_graph_level;
+			ro._pad = 0;
 			hash_set::insert(output, ro);
-
-			bring_in_requirements(output, opts, resource_id(req_type_hash, req_name_hash));
 		}
 
+		*graph_level = max_graph_level;
 		return 0;
 	}
 
@@ -98,10 +107,14 @@ namespace package_resource_internal
 			ResourceOffset ro;
 			ro.type = type_hash;
 			ro.name = sjson::parse_resource_name(names[i]);
-			hash_set::insert(output, ro);
 
 			// Bring in requirements
-			bring_in_requirements(output, opts, resource_id(ro.type, ro.name));
+			u32 graph_level = 0;
+			bring_in_requirements(output, &graph_level, opts, resource_id(ro.type, ro.name));
+
+			ro.online_order = graph_level;
+			ro._pad = 0;
+			hash_set::insert(output, ro);
 		}
 
 		return 0;
@@ -190,6 +203,17 @@ namespace package_resource_internal
 			array::push_back(resources, *cur);
 		}
 
+		// Generate sequential online order numbers.
+		Array<ResourceOffset> original_resources = resources;
+		u32 online_order = 0;
+		for (u32 i = 0; i < array::size(resources); ++i) {
+			for (u32 j = 0; j < array::size(resources); ++j) {
+				if (original_resources[j].online_order == i)
+					resources[j].online_order = online_order++;
+			}
+		}
+		DATA_COMPILER_ENSURE(online_order == array::size(resources), opts);
+
 		// Write
 		opts.write(RESOURCE_HEADER(RESOURCE_VERSION_PACKAGE));
 		opts.write(array::size(resources));
@@ -222,6 +246,8 @@ namespace package_resource_internal
 				opts.write(resources[ii].name);
 				opts.write(data_offset);
 				opts.write(data_size);
+				opts.write(resources[ii].online_order);
+				opts.write(resources[ii]._pad);
 			}
 
 			// Write bundled data.
@@ -233,6 +259,8 @@ namespace package_resource_internal
 				opts.write(resources[ii].name);
 				opts.write(UINT32_MAX);
 				opts.write(UINT32_MAX);
+				opts.write(resources[ii].online_order);
+				opts.write(resources[ii]._pad);
 			}
 		}
 

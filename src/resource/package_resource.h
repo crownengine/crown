@@ -20,6 +20,8 @@ struct ResourceOffset
 	StringId64 name;
 	u32 offset;      ///< Relative offset from package_resource::data().
 	u32 size;
+	u32 online_order;
+	u32 _pad;
 };
 
 struct PackageResource

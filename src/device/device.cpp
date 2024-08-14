@@ -490,7 +490,7 @@ void Device::run()
 
 		const StringId64 config_name(boot_dir.c_str());
 
-		while (!_resource_manager->try_load(PACKAGE_RESOURCE_NONE, RESOURCE_TYPE_CONFIG, config_name)) {
+		while (!_resource_manager->try_load(PACKAGE_RESOURCE_NONE, RESOURCE_TYPE_CONFIG, config_name, 0)) {
 			_resource_manager->complete_requests();
 #if CROWN_PLATFORM_EMSCRIPTEN
 			os::sleep(16);

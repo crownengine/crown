@@ -13,6 +13,7 @@ Changelog
 * Fixed intra-frame button press/release detection.
 * Added ``--hidden`` CLI option.
 * Fixed HashMap and HashSet.
+* Packages will now bring resources online in the correct order. This enables runtime optimizations and features previously impossible to have.
 * Windows: fixed resolution property from boot.config not being honored.
 
 **Tools**
