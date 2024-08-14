@@ -1075,8 +1075,10 @@ public class LevelEditorApplication : Gtk.Application
 			log(system, (string)msg["severity"], (string)msg["message"]);
 		} else if (msg_type == "add_file") {
 			string path = (string)msg["path"];
+			uint64 size = uint64.parse((string)msg["size"]);
+			uint64 mtime = uint64.parse((string)msg["mtime"]);
 
-			_project.add_file(path);
+			_project.add_file(path, size, mtime);
 		} else if (msg_type == "remove_file") {
 			string path = (string)msg["path"];
 

@@ -84,11 +84,15 @@ CE_STATIC_ASSERT(countof(platform_info) == Platform::COUNT);
 
 static volatile bool _quit = false;
 
-static void notify_add_file(const char *path)
+static void notify_add_file(const char *path, Stat &st)
 {
 	TempAllocator512 ta;
 	StringStream ss(ta);
-	ss << "{\"type\":\"add_file\",\"path\":\"" << path << "\"}";
+	ss << "{\"type\":\"add_file\"";
+	ss << ",\"path\":\"" << path << "\"";
+	ss << ",\"size\":\"" << st.size << "\"";
+	ss << ",\"mtime\":\"" << st.mtime << "\"";
+	ss << "}";
 	console_server()->broadcast(string_stream::c_str(ss));
 }
 
@@ -158,7 +162,7 @@ void SourceIndex::scan_directory(FilesystemDisk &fs, const char *prefix, const c
 			st = fs.stat(file_i.c_str());
 			hash_map::set(_paths, resource_name, st);
 
-			notify_add_file(resource_name.c_str());
+			notify_add_file(resource_name.c_str(), st);
 		}
 	}
 }
@@ -612,7 +616,7 @@ void DataCompiler::add_file(const char *path)
 
 	// Avoid sending spurious add_file() notifications for already known paths.
 	if (prev_st.file_type == Stat::NO_ENTRY)
-		notify_add_file(path);
+		notify_add_file(path, st);
 }
 
 void DataCompiler::remove_file(const char *path)

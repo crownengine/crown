@@ -47,7 +47,7 @@ public class Project
 	public ImporterData _all_extensions_importer_data;
 	public Gee.ArrayList<ImporterData?> _importers;
 
-	public signal void file_added(string type, string name);
+	public signal void file_added(string type, string name, uint64 size, uint64 mtime);
 	public signal void file_removed(string type, string name);
 	public signal void tree_added(string name);
 	public signal void tree_removed(string name);
@@ -379,7 +379,7 @@ public class Project
 		return _files;
 	}
 
-	public void add_file(string path)
+	public void add_file(string path, uint64 size, uint64 mtime)
 	{
 		string type = path_extension(path);
 		string name = type == "" ? path : path.substring(0, path.last_index_of("."));
@@ -389,11 +389,13 @@ public class Project
 		_files.set_property_string(id, "path", path);
 		_files.set_property_string(id, "type", type);
 		_files.set_property_string(id, "name", name);
+		_files.set_property_string(id, "size", size.to_string());
+		_files.set_property_string(id, "mtime", mtime.to_string());
 		_files.add_to_set(GUID_ZERO, "data", id);
 
 		_map[path] = id;
 
-		file_added(type, name);
+		file_added(type, name, size, mtime);
 	}
 
 	public void remove_file(string path)
