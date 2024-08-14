@@ -11,8 +11,7 @@ Check out the [Introduction](https://docs.crownengine.org/html/latest/introducti
   * [Prebuilt Binaries](https://crownengine.org/download)
   
 ## Documentation
-  * [User Manual (Latest stable)](https://docs.crownengine.org/html/latest)
-  * [User Manual (Unstable)](https://docs.crownengine.org/html/master)
+  * User Manual ([latest](https://docs.crownengine.org/html/latest) or [unstable](https://docs.crownengine.org/html/master))
   * [Developer Manual](https://docs.crownengine.org/html/master/hackers)
 
 ## Community Support & Development
