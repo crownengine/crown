@@ -512,8 +512,8 @@ void Device::run()
 
 #if !CROWN_PLATFORM_EMSCRIPTEN
 	if (_options._window_width.has_changed() || _options._window_height.has_changed()) {
-		_width  = _options._window_width;
-		_height = _options._window_height;
+		_width  = _options._window_width.value();
+		_height = _options._window_height.value();
 	} else {
 		_width  = _boot_config.window_w;
 		_height = _boot_config.window_h;

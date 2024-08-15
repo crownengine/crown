@@ -333,8 +333,8 @@ struct WindowsDevice
 		RECT rect;
 		rect.left   = 0;
 		rect.top    = 0;
-		rect.right  = _options->_window_width;
-		rect.bottom = _options->_window_height;
+		rect.right  = _options->_window_width.value();
+		rect.bottom = _options->_window_height.value();
 		AdjustWindowRect(&rect, style, FALSE);
 
 		_hwnd = CreateWindowExA(exstyle

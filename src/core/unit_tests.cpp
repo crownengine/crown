@@ -1797,20 +1797,11 @@ static void test_option()
 		ENSURE(opt.value() == 3);
 		ENSURE(opt.has_changed() == false);
 
-		opt = 3;
+		opt.set_value(3);
 		ENSURE(opt.has_changed() == true);
 
-		opt = 4;
+		opt.set_value(4);
 		ENSURE(opt.value() == 4);
-	}
-	{
-		Option<DynamicString> opt { DynamicString(default_allocator()) };
-		ENSURE(opt.value() == "");
-		ENSURE(opt.has_changed() == false);
-
-		opt = "foo";
-		ENSURE(opt.value() == "foo");
-		ENSURE(opt.has_changed() == true);
 	}
 	memory_globals::shutdown();
 }

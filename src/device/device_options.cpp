@@ -271,10 +271,10 @@ int DeviceOptions::parse(bool *quit)
 			}
 		}
 
-		_window_x      = (u16)strtoul(rect[0], NULL, 10);
-		_window_y      = (u16)strtoul(rect[1], NULL, 10);
-		_window_width  = (u16)strtoul(rect[2], NULL, 10);
-		_window_height = (u16)strtoul(rect[3], NULL, 10);
+		_window_x = (u16)strtoul(rect[0], NULL, 10);
+		_window_y = (u16)strtoul(rect[1], NULL, 10);
+		_window_width.set_value((u16)strtoul(rect[2], NULL, 10));
+		_window_height.set_value((u16)strtoul(rect[3], NULL, 10));
 	}
 
 	return EXIT_SUCCESS;

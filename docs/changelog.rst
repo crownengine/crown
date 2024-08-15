@@ -13,6 +13,7 @@ Changelog
 * Fixed intra-frame button press/release detection.
 * Added ``--hidden`` CLI option.
 * Fixed HashMap and HashSet.
+* Windows: fixed resolution property from boot.config not being honored.
 
 **Tools**
 

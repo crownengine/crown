@@ -15,30 +15,16 @@ inline Option<T>::Option(const T &default_val)
 }
 
 template<typename T>
-inline T &Option<T>::operator=(const T &val)
-{
-	_value = val;
-	_changed = true;
-	return *this;
-}
-
-template<typename T>
-inline Option<T>::operator T() const
-{
-	return _value;
-}
-
-template<typename T>
-inline Option<T>::operator T &()
-{
-	_changed = true;
-	return _value;
-}
-
-template<typename T>
 inline const T &Option<T>::value() const
 {
 	return _value;
+}
+
+template<typename T>
+inline void Option<T>::set_value(const T &val)
+{
+	_changed = true;
+	_value = val;
 }
 
 template<typename T>

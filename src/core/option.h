@@ -26,24 +26,11 @@ struct Option
 	///
 	const Option<T> &operator=(const Option &opt) = delete;
 
-	template<typename U>
-	T &operator=(const U &val)
-	{
-		_changed = true;
-		return _value = val;
-	}
-
-	///
-	T &operator=(const T &val);
-
-	///
-	operator T() const;
-
-	///
-	operator T &();
-
 	///
 	const T &value() const;
+
+	///
+	void set_value(const T &val);
 
 	/// Returns whether the option's value has been changed from its default.
 	bool has_changed() const;
