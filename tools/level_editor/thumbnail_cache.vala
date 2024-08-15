@@ -154,16 +154,6 @@ public class ThumbnailCache
 		StringId64 resource_id = StringId64(resource_path);
 		Gdk.Pixbuf? pixbuf = null;
 
-		// Create a unique temporary file to store the thumbnail's data.
-		GLib.File thumb_path_tmp = null;
-		try {
-			FileIOStream fs;
-			thumb_path_tmp = GLib.File.new_tmp(null, out fs);
-			fs.close();
-		} catch (GLib.Error e) {
-			loge(e.message);
-		}
-
 		if (!_map.has_key(resource_id)) {
 			if (_list.length() == _max_cache_size) {
 				// Evict the least recently used entry.
@@ -187,6 +177,17 @@ public class ThumbnailCache
 			if (false && thumb_path_dst.query_exists()) {
 				copy_thumbnail_from_path(pixbuf, thumb_path_dst.get_path());
 			} else {
+				// No on-disk thumbnail found, ask the thumbnail server to generate one.
+				// Create a unique temporary file to store the thumbnail's data.
+				GLib.File thumb_path_tmp = null;
+				try {
+					FileIOStream fs;
+					thumb_path_tmp = GLib.File.new_tmp(null, out fs);
+					fs.close();
+				} catch (GLib.Error e) {
+					loge(e.message);
+				}
+
 				// Append request to generate a thumbnail.
 				_thumbnail.send_script(ThumbnailApi.add_request(type, name, thumb_path_tmp.get_path()));
 				_thumbnail.send(DeviceApi.frame());
