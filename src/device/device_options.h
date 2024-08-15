@@ -18,14 +18,14 @@ namespace crown
 struct DeviceOptions
 {
 	int _argc;
-	const char ** _argv;
+	const char **_argv;
 	DynamicString _source_dir;
-	const char * _map_source_dir_name;
+	const char *_map_source_dir_name;
 	DynamicString _map_source_dir_prefix;
 	DynamicString _data_dir;
 	DynamicString _bundle_dir;
-	const char * _boot_dir;
-	const char * _platform;
+	const char *_boot_dir;
+	const char *_platform;
 	DynamicString _lua_string;
 	bool _wait_console;
 	bool _do_compile;
