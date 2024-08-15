@@ -110,11 +110,11 @@ build/mingw64/bin/shaderc.exe: \
 	-@install -m775 -D 3rdparty/bgfx/.build/win64_mingw-gcc/bin/shadercRelease.exe $@
 
 build/windows64/bin/texturec.exe: \
-	build/projects/windows
+	build/projects/vs2019
 	devenv.com 3rdparty/bimg/.build/projects/vs2019/bimg.sln $(ARG_PREFIX)Build "Release|x64" $(ARG_PREFIX)Project texturec.vcxproj
 	-@install -m775 -D 3rdparty/bimg/.build/win64_vs2019/bin/texturecRelease.exe $@
 build/windows64/bin/shaderc.exe: \
-	build/projects/windows
+	build/projects/vs2019
 	devenv.com 3rdparty/bgfx/.build/projects/vs2019/bgfx.sln $(ARG_PREFIX)Build "Release|x64" $(ARG_PREFIX)Project shaderc.vcxproj
 	-@install -m775 -D 3rdparty/bgfx/.build/win64_vs2019/bin/shadercRelease.exe $@
 
