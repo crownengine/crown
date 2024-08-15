@@ -408,22 +408,22 @@ void Device::run()
 
 	bool is_bundle = true;
 #if CROWN_PLATFORM_ANDROID
-	_data_filesystem = CE_NEW(_allocator, FilesystemApk)(default_allocator(), const_cast<AAssetManager *>((AAssetManager *)_options._asset_manager.value()));
+	_data_filesystem = CE_NEW(_allocator, FilesystemApk)(default_allocator(), const_cast<AAssetManager *>((AAssetManager *)_options._asset_manager));
 #else
 	_data_filesystem = CE_NEW(_allocator, FilesystemDisk)(default_allocator());
 	{
 		char cwd[1024];
 		const char *data_dir = NULL;
 
-		if (_options._bundle_dir.value().empty() && _options._data_dir.value().empty()) {
+		if (_options._bundle_dir.empty() && _options._data_dir.empty()) {
 			data_dir = os::getcwd(cwd, sizeof(cwd));
 		} else {
-			if (!_options._bundle_dir.value().empty()) {
-				data_dir = _options._bundle_dir.value().c_str();
+			if (!_options._bundle_dir.empty()) {
+				data_dir = _options._bundle_dir.c_str();
 			} else {
 				is_bundle = false;
-				if (!_options._data_dir.value().empty())
-					data_dir = _options._data_dir.value().c_str();
+				if (!_options._data_dir.empty())
+					data_dir = _options._data_dir.c_str();
 				else
 					data_dir = os::getcwd(cwd, sizeof(cwd));
 			}
@@ -570,7 +570,7 @@ void Device::run()
 
 	_lua_environment->load_libs();
 	_lua_environment->require(_boot_config.boot_script_name.c_str());
-	_lua_environment->execute_string(_options._lua_string.value().c_str());
+	_lua_environment->execute_string(_options._lua_string.c_str());
 
 	_pipeline = CE_NEW(_allocator, Pipeline)();
 	_pipeline->create(_width, _height);

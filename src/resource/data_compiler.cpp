@@ -1137,7 +1137,7 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 			FilesystemDisk data_fs(default_allocator());
 			data_fs.set_prefix(data_dir);
 
-			const char *bundle_dir = _options->_bundle_dir.value().c_str();
+			const char *bundle_dir = _options->_bundle_dir.c_str();
 			// Create the bundle directory on disk.
 			FilesystemDisk bundle_fs(default_allocator());
 			bundle_fs.set_prefix(bundle_dir);
@@ -1473,15 +1473,15 @@ int main_data_compiler(const DeviceOptions &opts)
 	dc->add_ignore_glob("*~");
 	dc->add_ignore_glob(".*");
 
-	dc->map_source_dir("", opts._source_dir.value().c_str());
+	dc->map_source_dir("", opts._source_dir.c_str());
 
 	if (opts._map_source_dir_name) {
 		dc->map_source_dir(opts._map_source_dir_name
-			, opts._map_source_dir_prefix.value().c_str()
+			, opts._map_source_dir_prefix.c_str()
 			);
 	}
 
-	dc->scan_and_restore(opts._data_dir.value().c_str());
+	dc->scan_and_restore(opts._data_dir.c_str());
 
 	bool success = true;
 
@@ -1490,10 +1490,10 @@ int main_data_compiler(const DeviceOptions &opts)
 			console_server()->execute_message_handlers(true);
 		}
 	} else {
-		success = dc->compile(opts._data_dir.value().c_str(), opts._platform);
+		success = dc->compile(opts._data_dir.c_str(), opts._platform);
 	}
 
-	dc->save(opts._data_dir.value().c_str());
+	dc->save(opts._data_dir.c_str());
 
 	CE_DELETE(default_allocator(), dc);
 	console_server_globals::shutdown();

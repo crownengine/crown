@@ -113,7 +113,7 @@ int DeviceOptions::parse(bool *quit)
 	_map_source_dir_name = cl.get_parameter(0, "map-source-dir");
 	if (_map_source_dir_name) {
 		path::reduce(_map_source_dir_prefix, cl.get_parameter(1, "map-source-dir"));
-		if (_map_source_dir_prefix.value().empty()) {
+		if (_map_source_dir_prefix.empty()) {
 			help("Mapped source directory must be specified.");
 			return EXIT_FAILURE;
 		}
@@ -128,19 +128,19 @@ int DeviceOptions::parse(bool *quit)
 		if (_platform == NULL)
 			_platform = CROWN_PLATFORM_NAME;
 
-		if (_source_dir.value().empty()) {
+		if (_source_dir.empty()) {
 			help("Source dir must be specified.");
 			return EXIT_FAILURE;
 		}
 
-		if (_data_dir.value().empty()) {
+		if (_data_dir.empty()) {
 			_data_dir += _source_dir;
 			_data_dir += '_';
 			_data_dir += _platform;
 		}
 
 		if (_do_bundle) {
-			if (_bundle_dir.value().empty()) {
+			if (_bundle_dir.empty()) {
 				_bundle_dir += _source_dir;
 				_bundle_dir += "_bundle_";
 				_bundle_dir += _platform;
@@ -150,7 +150,7 @@ int DeviceOptions::parse(bool *quit)
 
 	_server = cl.has_option("server");
 	if (_server) {
-		if (_source_dir.value().empty()) {
+		if (_source_dir.empty()) {
 			help("Source dir must be specified.");
 			return EXIT_FAILURE;
 		}
@@ -159,22 +159,22 @@ int DeviceOptions::parse(bool *quit)
 	_pumped = cl.has_option("pumped");
 	_hidden = cl.has_option("hidden");
 
-	if (!_data_dir.value().empty()) {
-		if (!path::is_absolute(_data_dir.value().c_str())) {
+	if (!_data_dir.empty()) {
+		if (!path::is_absolute(_data_dir.c_str())) {
 			help("Data dir must be absolute.");
 			return EXIT_FAILURE;
 		}
 	}
 
-	if (!_source_dir.value().empty()) {
-		if (!path::is_absolute(_source_dir.value().c_str())) {
+	if (!_source_dir.empty()) {
+		if (!path::is_absolute(_source_dir.c_str())) {
 			help("Source dir must be absolute.");
 			return EXIT_FAILURE;
 		}
 	}
 
-	if (!_map_source_dir_prefix.value().empty()) {
-		if (!path::is_absolute(_map_source_dir_prefix.value().c_str())) {
+	if (!_map_source_dir_prefix.empty()) {
+		if (!path::is_absolute(_map_source_dir_prefix.c_str())) {
 			help("Mapped source dir must be absolute.");
 			return EXIT_FAILURE;
 		}
