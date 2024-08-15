@@ -184,13 +184,13 @@ public class ThumbnailCache
 					FileIOStream fs;
 					thumb_path_tmp = GLib.File.new_tmp(null, out fs);
 					fs.close();
+
+					// Append request to generate a thumbnail.
+					_thumbnail.send_script(ThumbnailApi.add_request(type, name, thumb_path_tmp.get_path()));
+					_thumbnail.send(DeviceApi.frame());
 				} catch (GLib.Error e) {
 					loge(e.message);
 				}
-
-				// Append request to generate a thumbnail.
-				_thumbnail.send_script(ThumbnailApi.add_request(type, name, thumb_path_tmp.get_path()));
-				_thumbnail.send(DeviceApi.frame());
 			}
 		} else {
 			CacheEntry? entry = _map.get(resource_id);
