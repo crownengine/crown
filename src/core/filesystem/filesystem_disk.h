@@ -34,6 +34,10 @@ struct FilesystemDisk : public Filesystem
 	/// @copydoc Filesystem::open()
 	File *open(const char *path, FileOpenMode::Enum mode) override;
 
+	/// Opens a new temporary file for writing. It returns a pointer to the new
+	/// file and its @a absolute_path.
+	File *open_temporary(DynamicString &absolute_path);
+
 	/// @copydoc Filesystem::close()
 	void close(File &file) override;
 

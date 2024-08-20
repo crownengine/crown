@@ -7,6 +7,7 @@
 #include "core/filesystem/file.h"
 #include "core/filesystem/filesystem_disk.h"
 #include "core/filesystem/path.h"
+#include "core/guid.h"
 #include "core/memory/temp_allocator.inl"
 #include "core/os.h"
 #include "core/strings/dynamic_string.inl"
@@ -248,6 +249,19 @@ File *FilesystemDisk::open(const char *path, FileOpenMode::Enum mode)
 
 	FileDisk *file = CE_NEW(*_allocator, FileDisk)();
 	file->open(abs_path.c_str(), mode);
+	return file;
+}
+
+File *FilesystemDisk::open_temporary(DynamicString &absolute_path)
+{
+	TempAllocator256 ta;
+	DynamicString tmp_basename(ta);
+	tmp_basename.from_guid(guid::new_guid());
+	tmp_basename += ".tmp";
+	this->absolute_path(absolute_path, tmp_basename.c_str());
+
+	FileDisk *file = CE_NEW(*_allocator, FileDisk)();
+	file->open(absolute_path.c_str(), FileOpenMode::WRITE);
 	return file;
 }
 
