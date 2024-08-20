@@ -95,11 +95,11 @@ namespace os
 	}
 
 #if CROWN_PLATFORM_POSIX
-	void stat(Stat &info, int fd)
+	void stat(Stat &st, int fd)
 	{
-		info.file_type = Stat::NO_ENTRY;
-		info.size = 0;
-		info.mtime = 0;
+		st.file_type = Stat::NO_ENTRY;
+		st.size = 0;
+		st.mtime = 0;
 
 		struct stat buf;
 		memset(&buf, 0, sizeof(buf));
@@ -108,20 +108,20 @@ namespace os
 			return;
 
 		if (S_ISREG(buf.st_mode) == 1)
-			info.file_type = Stat::REGULAR;
+			st.file_type = Stat::REGULAR;
 		else if (S_ISDIR(buf.st_mode) == 1)
-			info.file_type = Stat::DIRECTORY;
+			st.file_type = Stat::DIRECTORY;
 
-		info.size  = buf.st_size;
-		info.mtime = buf.st_mtim.tv_sec * s64(1000000000) + buf.st_mtim.tv_nsec;
+		st.size  = buf.st_size;
+		st.mtime = buf.st_mtim.tv_sec * s64(1000000000) + buf.st_mtim.tv_nsec;
 	}
 #endif // if CROWN_PLATFORM_POSIX
 
-	void stat(Stat &info, const char *path)
+	void stat(Stat &st, const char *path)
 	{
-		info.file_type = Stat::NO_ENTRY;
-		info.size  = 0;
-		info.mtime = 0;
+		st.file_type = Stat::NO_ENTRY;
+		st.size  = 0;
+		st.mtime = 0;
 
 #if CROWN_PLATFORM_WINDOWS
 		WIN32_FIND_DATAA wfd;
@@ -131,19 +131,19 @@ namespace os
 		FindClose(fh);
 
 		if ((wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
-			info.file_type = Stat::DIRECTORY;
+			st.file_type = Stat::DIRECTORY;
 		else // Assume regular file.
-			info.file_type = Stat::REGULAR;
+			st.file_type = Stat::REGULAR;
 
 		ULARGE_INTEGER fs = {};
 		fs.LowPart  = wfd.nFileSizeLow;
 		fs.HighPart = wfd.nFileSizeHigh;
-		info.size = fs.QuadPart;
+		st.size = fs.QuadPart;
 
 		ULARGE_INTEGER lwt = {};
 		lwt.LowPart  = wfd.ftLastWriteTime.dwLowDateTime;
 		lwt.HighPart = wfd.ftLastWriteTime.dwHighDateTime;
-		info.mtime = lwt.QuadPart * u64(100); // See https://docs.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-filetime
+		st.mtime = lwt.QuadPart * u64(100); // See https://docs.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-filetime
 #else
 		struct stat buf;
 		memset(&buf, 0, sizeof(buf));
@@ -152,12 +152,12 @@ namespace os
 			return;
 
 		if (S_ISREG(buf.st_mode) == 1)
-			info.file_type = Stat::REGULAR;
+			st.file_type = Stat::REGULAR;
 		else if (S_ISDIR(buf.st_mode) == 1)
-			info.file_type = Stat::DIRECTORY;
+			st.file_type = Stat::DIRECTORY;
 
-		info.size  = buf.st_size;
-		info.mtime = buf.st_mtim.tv_sec * s64(1000000000) + buf.st_mtim.tv_nsec;
+		st.size  = buf.st_size;
+		st.mtime = buf.st_mtim.tv_sec * s64(1000000000) + buf.st_mtim.tv_nsec;
 #endif // if CROWN_PLATFORM_WINDOWS
 	}
 

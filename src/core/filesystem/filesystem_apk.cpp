@@ -137,11 +137,11 @@ Stat FilesystemApk::stat(const char *path)
 {
 	CE_UNUSED(path);
 
-	Stat info;
-	info.file_type = Stat::REGULAR;
-	info.size = 0;
-	info.mtime = UINT64_MAX;
-	return info;
+	Stat st;
+	st.file_type = Stat::REGULAR;
+	st.size = 0;
+	st.mtime = UINT64_MAX;
+	return st;
 }
 
 bool FilesystemApk::exists(const char *path)

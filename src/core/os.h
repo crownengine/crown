@@ -102,12 +102,12 @@ namespace os
 	void log(const char *msg);
 
 #if CROWN_PLATFORM_POSIX
-	/// Returns information about @a fd.
-	void stat(Stat &info, int fd);
+	/// Returns the status of the file descriptor @a fd.
+	void stat(Stat &st, int fd);
 #endif
 
-	/// Returns information about @a path.
-	void stat(Stat &info, const char *path);
+	/// Returns the status of the file at @a path.
+	void stat(Stat &st, const char *path);
 
 	/// Deletes the file at @a path.
 	DeleteResult delete_file(const char *path);

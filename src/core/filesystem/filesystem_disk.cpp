@@ -93,9 +93,9 @@ struct FileDisk : public File
 #if CROWN_PLATFORM_WINDOWS
 		return GetFileSize(_file, NULL);
 #else
-		Stat stat;
-		os::stat(stat, fileno(_file));
-		return (u32)stat.size;
+		Stat st;
+		os::stat(st, fileno(_file));
+		return (u32)st.size;
 #endif
 	}
 
@@ -264,9 +264,9 @@ Stat FilesystemDisk::stat(const char *path)
 	DynamicString abs_path(ta);
 	absolute_path(abs_path, path);
 
-	Stat info;
-	os::stat(info, abs_path.c_str());
-	return info;
+	Stat st;
+	os::stat(st, abs_path.c_str());
+	return st;
 }
 
 bool FilesystemDisk::exists(const char *path)
