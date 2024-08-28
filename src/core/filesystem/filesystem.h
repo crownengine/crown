@@ -64,6 +64,9 @@ struct Filesystem
 	/// Deletes the file at the given @a path.
 	virtual DeleteResult delete_file(const char *path) = 0;
 
+	/// Renames the file at @a old_path to @a new_path.
+	virtual RenameResult rename(const char *old_path, const char *new_path) = 0;
+
 	/// Returns the relative file names in the given @a path.
 	virtual void list_files(const char *path, Vector<DynamicString> &files) = 0;
 

@@ -336,6 +336,19 @@ DeleteResult FilesystemDisk::delete_file(const char *path)
 	return os::delete_file(abs_path.c_str());
 }
 
+RenameResult FilesystemDisk::rename(const char *old_path, const char *new_path)
+{
+	CE_ENSURE(old_path != NULL);
+	CE_ENSURE(new_path != NULL);
+
+	DynamicString old_abs_path(default_allocator());
+	DynamicString new_abs_path(default_allocator());
+	absolute_path(old_abs_path, old_path);
+	absolute_path(new_abs_path, new_path);
+
+	return os::rename(old_abs_path.c_str(), new_abs_path.c_str());
+}
+
 void FilesystemDisk::list_files(const char *path, Vector<DynamicString> &files)
 {
 	CE_ENSURE(NULL != path);

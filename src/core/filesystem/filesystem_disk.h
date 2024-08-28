@@ -65,6 +65,9 @@ struct FilesystemDisk : public Filesystem
 	/// @copydoc Filesystem::delete_file()
 	DeleteResult delete_file(const char *path) override;
 
+	/// @copydoc Filesystem::rename()
+	RenameResult rename(const char *old_path, const char *new_path);
+
 	/// @copydoc Filesystem::list_files()
 	void list_files(const char *path, Vector<DynamicString> &files) override;
 

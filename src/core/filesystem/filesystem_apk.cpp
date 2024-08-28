@@ -192,6 +192,15 @@ DeleteResult FilesystemApk::delete_file(const char *path)
 	return dr;
 }
 
+RenameResult FilesystemApk::rename(const char *old_path, const char *new_path)
+{
+	CE_UNUSED_2(old_path, new_path);
+	CE_FATAL("Cannot rename file in Android assets folder");
+	RenameResult rr;
+	rr.error = RenameResult::UNKNOWN;
+	return rr;
+}
+
 void FilesystemApk::list_files(const char *path, Vector<DynamicString> &files)
 {
 	CE_ENSURE(NULL != path);
