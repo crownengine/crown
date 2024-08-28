@@ -1104,6 +1104,8 @@ public class LevelEditorApplication : Gtk.Application
 				// FIXME
 			} else if (msg.has_key("success")) {
 				_data_compiler.compile_finished((bool)msg["success"], (uint)(double)msg["revision"]);
+				_project._data_compiled = true;
+				_project_browser.queue_draw();
 			}
 		} else if (msg_type == "refresh_list") {
 			_data_compiler.refresh_list_finished((ArrayList<Value?>)msg["list"]);

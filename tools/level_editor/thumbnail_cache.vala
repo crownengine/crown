@@ -10,9 +10,10 @@ public class ThumbnailCache
 	[Compact]
 	public struct CacheEntry
 	{
-		// Pixbuf area inside the atlas.
-		Gdk.Pixbuf? pixbuf;
-		unowned List<StringId64?> lru;
+		Gdk.Pixbuf? pixbuf;            ///< Pixbuf area inside the atlas.
+		unowned List<StringId64?> lru; ///< Pointer to LRU list entry.
+		uint64 mtime;                  ///< Pixbuf last modification time.
+		bool pending;                  ///< Whether a request to generate the thumbnail is pending.
 	}
 
 	public const int THUMBNAIL_SIZE = 64;
@@ -101,7 +102,22 @@ public class ThumbnailCache
 		if (entry == null)
 			return;
 
-		copy_thumbnail_from_path(entry.pixbuf, thumb_path_dst.get_path());
+		try {
+			// Read thumbnail from disk.
+			uint64 thumb_mtime = 0;
+			GLib.FileInfo thumb_info = thumb_path_dst.query_info("*", GLib.FileQueryInfoFlags.NOFOLLOW_SYMLINKS);
+			GLib.DateTime? mdate = thumb_info.get_modification_date_time();
+			if (mdate != null)
+				thumb_mtime = mdate.to_unix() * 1000000000 + mdate.get_microsecond() * 1000; // Convert to ns.
+
+			copy_thumbnail_from_path(entry.pixbuf, thumb_path_dst.get_path());
+			entry.mtime = thumb_mtime;
+			entry.pending = false;
+			_map.set(resource_id, entry);
+			assert(_map.get(resource_id).mtime == thumb_mtime);
+		} catch (GLib.Error e) {
+			loge(e.message);
+		}
 	}
 
 	// Copies @a thumbnail inside the atlas at the position defined by @a subpixbuf.
@@ -152,49 +168,11 @@ public class ThumbnailCache
 	{
 		string resource_path = ResourceId.path(type, name);
 		StringId64 resource_id = StringId64(resource_path);
-		Gdk.Pixbuf? pixbuf = null;
+		CacheEntry? entry = null;
 
-		if (!_map.has_key(resource_id)) {
-			if (_list.length() == _max_cache_size) {
-				// Evict the least recently used entry.
-				unowned List<StringId64?> lru = _list.nth(0);
-				// Reuse the subpixbuf from the evicted entry.
-				pixbuf = _map.get(lru.data).pixbuf;
-				_map.unset(lru.data);
-				_list.remove_link(lru);
-			}
-
-			// Create a new subpixbuf if the entry has not been reused.
-			if (pixbuf == null)
-				pixbuf = create_thumbnail_subpixbuf();
-
-			// Create a new cache entry.
-			_list.append(resource_id);
-			CacheEntry entry = { pixbuf, _list.last() };
-			_map.set(resource_id, entry);
-
-			GLib.File thumb_path_dst = GLib.File.new_for_path(thumbnail_path(resource_path));
-			if (false && thumb_path_dst.query_exists()) {
-				copy_thumbnail_from_path(pixbuf, thumb_path_dst.get_path());
-			} else {
-				// No on-disk thumbnail found, ask the thumbnail server to generate one.
-				// Create a unique temporary file to store the thumbnail's data.
-				GLib.File thumb_path_tmp = null;
-				try {
-					FileIOStream fs;
-					thumb_path_tmp = GLib.File.new_tmp(null, out fs);
-					fs.close();
-
-					// Append request to generate a thumbnail.
-					_thumbnail.send_script(ThumbnailApi.add_request(type, name, thumb_path_tmp.get_path()));
-					_thumbnail.send(DeviceApi.frame());
-				} catch (GLib.Error e) {
-					loge(e.message);
-				}
-			}
-		} else {
-			CacheEntry? entry = _map.get(resource_id);
-			pixbuf = entry.pixbuf;
+		// Allocate a subpixbuf slot inside the atlas.
+		if (_map.has_key(resource_id)) {
+			entry = _map.get(resource_id);
 
 			// Set resource_id as most recently used entry.
 			_list.remove_link(entry.lru);
@@ -202,9 +180,63 @@ public class ThumbnailCache
 			_list.append(resource_id);
 			entry.lru = _list.last();
 			_map.set(resource_id, entry);
+		} else {
+			Gdk.Pixbuf? pixbuf = null;
+
+			if (_list.length() == _max_cache_size) {
+				// Evict the least recently used entry.
+				unowned List<StringId64?> lru = _list.nth(0);
+				// Reuse the subpixbuf from the evicted entry.
+				pixbuf = _map.get(lru.data).pixbuf;
+				_map.unset(lru.data);
+				_list.remove_link(lru);
+			} else {
+				// Create a new subpixbuf if the entry is new.
+				pixbuf = create_thumbnail_subpixbuf();
+			}
+
+			uint64 thumb_mtime = 0;
+			try {
+				// Read thumbnail from disk.
+				GLib.File thumb_path_dst = GLib.File.new_for_path(thumbnail_path(resource_path));
+				GLib.FileInfo thumb_info = thumb_path_dst.query_info("*", GLib.FileQueryInfoFlags.NOFOLLOW_SYMLINKS);
+				GLib.DateTime? mdate = thumb_info.get_modification_date_time();
+				if (mdate != null)
+					thumb_mtime = mdate.to_unix() * 1000000000 + mdate.get_microsecond() * 1000; // Convert to ns.
+
+				copy_thumbnail_from_path(pixbuf, thumb_path_dst.get_path());
+			} catch (GLib.Error e) {
+				// Nobody cares.
+			}
+
+			// Create a new cache entry.
+			_list.append(resource_id);
+			entry = { pixbuf, _list.last(), thumb_mtime, false };
+			_map.set(resource_id, entry);
 		}
 
-		return pixbuf;
+		if (!entry.pending && (entry.mtime == 0 || entry.mtime <= _project.mtime(type, name))) {
+			// On-disk thumbnail not found or outdated.
+			// Ask the server to generate a fresh one if the data is ready.
+			if (_project._data_compiled) {
+				try {
+					// Create a unique temporary file to store the thumbnail's data.
+					FileIOStream fs;
+					GLib.File thumb_path_tmp = GLib.File.new_tmp(null, out fs);
+					fs.close();
+
+					// Request a new thumbnail.
+					entry.pending = true;
+					_map.set(resource_id, entry);
+					_thumbnail.send_script(ThumbnailApi.add_request(type, name, thumb_path_tmp.get_path()));
+					_thumbnail.send(DeviceApi.frame());
+				} catch (GLib.Error e) {
+					loge(e.message);
+				}
+			}
+		}
+
+		return entry.pixbuf;
 	}
 }
 

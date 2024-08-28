@@ -46,6 +46,7 @@ public class Project
 	public Gee.HashMap<string, Guid?> _map;
 	public ImporterData _all_extensions_importer_data;
 	public Gee.ArrayList<ImporterData?> _importers;
+	public bool _data_compiled;
 
 	public signal void file_added(string type, string name, uint64 size, uint64 mtime);
 	public signal void file_removed(string type, string name);
@@ -67,6 +68,15 @@ public class Project
 		_all_extensions_importer_data = ImporterData();
 		_all_extensions_importer_data.delegate = import_all_extensions;
 		_importers = new Gee.ArrayList<ImporterData?>();
+		_data_compiled = false;
+	}
+
+	public uint64 mtime(string type, string name)
+	{
+		var path = ResourceId.path(type, name);
+		Guid id = _map[path];
+		string mtime = _files.get_property_string(id, "mtime");
+		return uint64.parse(mtime);
 	}
 
 	public void reset()
@@ -433,6 +443,8 @@ public class Project
 		Guid id = _map[path];
 		_files.set_property_string(id, "size", size.to_string());
 		_files.set_property_string(id, "mtime", mtime.to_string());
+
+		_data_compiled = false;
 
 		file_changed(type, name, size, mtime);
 	}
