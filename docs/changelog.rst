@@ -7,6 +7,7 @@ Changelog
 **Data Compiler**
 
 * Fixed existence/redefinition checks for samplers.
+* Improved data writing robustness.
 
 **Runtime**
 

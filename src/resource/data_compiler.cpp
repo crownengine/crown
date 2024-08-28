@@ -461,11 +461,12 @@ static void read_data_dependencies(DataCompiler &dc, FilesystemDisk &data_fs, co
 	}
 }
 
-static void write_data_index(FilesystemDisk &data_fs, const char *filename, const HashMap<StringId64, DynamicString> &index)
+static s32 write_data_index(FilesystemDisk &data_fs, const char *filename, const HashMap<StringId64, DynamicString> &index)
 {
 	StringStream ss(default_allocator());
+	DynamicString temp_filename(default_allocator());
 
-	File *file = data_fs.open(filename, FileOpenMode::WRITE);
+	File *file = data_fs.open_temporary(temp_filename);
 	if (file->is_open()) {
 		auto cur = hash_map::begin(index);
 		auto end = hash_map::end(index);
@@ -478,16 +479,24 @@ static void write_data_index(FilesystemDisk &data_fs, const char *filename, cons
 			ss << "\"" << str.c_str() << "\" = \"" << cur->second.c_str() << "\"\n";
 		}
 
-		file->write(string_stream::c_str(ss), strlen32(string_stream::c_str(ss)));
+		u32 ss_len = strlen32(string_stream::c_str(ss));
+		if (ss_len != file->write(string_stream::c_str(ss), ss_len)) {
+			data_fs.close(*file);
+			return -1;
+		}
 	}
 	data_fs.close(*file);
+
+	RenameResult rr = data_fs.rename(temp_filename.c_str(), filename);
+	return rr.error == RenameResult::SUCCESS ? 0 : -1;
 }
 
-static void write_data_versions(FilesystemDisk &data_fs, const char *filename, const HashMap<DynamicString, u32> &versions)
+static s32 write_data_versions(FilesystemDisk &data_fs, const char *filename, const HashMap<DynamicString, u32> &versions)
 {
 	StringStream ss(default_allocator());
+	DynamicString temp_filename(default_allocator());
 
-	File *file = data_fs.open(filename, FileOpenMode::WRITE);
+	File *file = data_fs.open_temporary(temp_filename);
 	if (file->is_open()) {
 		auto cur = hash_map::begin(versions);
 		auto end = hash_map::end(versions);
@@ -497,16 +506,24 @@ static void write_data_versions(FilesystemDisk &data_fs, const char *filename, c
 			ss << cur->first.c_str() << " = " << cur->second << "\n";
 		}
 
-		file->write(string_stream::c_str(ss), strlen32(string_stream::c_str(ss)));
+		u32 ss_len = strlen32(string_stream::c_str(ss));
+		if (ss_len != file->write(string_stream::c_str(ss), ss_len)) {
+			data_fs.close(*file);
+			return -1;
+		}
 	}
 	data_fs.close(*file);
+
+	RenameResult rr = data_fs.rename(temp_filename.c_str(), filename);
+	return rr.error == RenameResult::SUCCESS ? 0 : -1;
 }
 
-static void write_data_mtimes(FilesystemDisk &data_fs, const char *filename, const HashMap<StringId64, u64> &mtimes)
+static s32 write_data_mtimes(FilesystemDisk &data_fs, const char *filename, const HashMap<StringId64, u64> &mtimes)
 {
 	StringStream ss(default_allocator());
+	DynamicString temp_filename(default_allocator());
 
-	File *file = data_fs.open(filename, FileOpenMode::WRITE);
+	File *file = data_fs.open_temporary(temp_filename);
 	if (file->is_open()) {
 		auto cur = hash_map::begin(mtimes);
 		auto end = hash_map::end(mtimes);
@@ -519,16 +536,24 @@ static void write_data_mtimes(FilesystemDisk &data_fs, const char *filename, con
 			ss << "\"" << key.c_str() << "\" = \"" << cur->second << "\"\n";
 		}
 
-		file->write(string_stream::c_str(ss), strlen32(string_stream::c_str(ss)));
+		u32 ss_len = strlen32(string_stream::c_str(ss));
+		if (ss_len != file->write(string_stream::c_str(ss), ss_len)) {
+			data_fs.close(*file);
+			return -1;
+		}
 	}
 	data_fs.close(*file);
+
+	RenameResult rr = data_fs.rename(temp_filename.c_str(), filename);
+	return rr.error == RenameResult::SUCCESS ? 0 : -1;
 }
 
-static void write_data_dependencies(FilesystemDisk &data_fs, const char *filename, const HashMap<StringId64, DynamicString> &index, const HashMap<StringId64, HashMap<DynamicString, u32>> &dependencies, const HashMap<StringId64, HashMap<DynamicString, u32>> &requirements)
+static s32 write_data_dependencies(FilesystemDisk &data_fs, const char *filename, const HashMap<StringId64, DynamicString> &index, const HashMap<StringId64, HashMap<DynamicString, u32>> &dependencies, const HashMap<StringId64, HashMap<DynamicString, u32>> &requirements)
 {
 	StringStream ss(default_allocator());
+	DynamicString temp_filename(default_allocator());
 
-	File *file = data_fs.open(filename, FileOpenMode::WRITE);
+	File *file = data_fs.open_temporary(temp_filename);
 	if (file->is_open()) {
 		auto cur = hash_map::begin(index);
 		auto end = hash_map::end(index);
@@ -570,9 +595,16 @@ static void write_data_dependencies(FilesystemDisk &data_fs, const char *filenam
 			ss << "]\n";
 		}
 
-		file->write(string_stream::c_str(ss), strlen32(string_stream::c_str(ss)));
+		u32 ss_len = strlen32(string_stream::c_str(ss));
+		if (ss_len != file->write(string_stream::c_str(ss), ss_len)) {
+			data_fs.close(*file);
+			return -1;
+		}
 	}
 	data_fs.close(*file);
+
+	RenameResult rr = data_fs.rename(temp_filename.c_str(), filename);
+	return rr.error == RenameResult::SUCCESS ? 0 : -1;
 }
 
 DataCompiler::DataCompiler(const DeviceOptions &opts, ConsoleServer &cs)
@@ -820,14 +852,35 @@ void DataCompiler::scan_and_restore(const char *data_dir)
 void DataCompiler::save(const char *data_dir)
 {
 	s64 time_start = time::now();
+	s32 res = 0;
 
 	FilesystemDisk data_fs(default_allocator());
 	data_fs.set_prefix(data_dir);
 
-	write_data_index(data_fs, CROWN_DATA_INDEX, _data_index);
-	write_data_mtimes(data_fs, CROWN_DATA_MTIMES, _data_mtimes);
-	write_data_dependencies(data_fs, CROWN_DATA_DEPENDENCIES, _data_index, _data_dependencies, _data_requirements);
-	write_data_versions(data_fs, CROWN_DATA_VERSIONS, _data_versions);
+	res = write_data_index(data_fs, CROWN_DATA_INDEX, _data_index);
+	if (res != 0) {
+		loge(DATA_COMPILER, "Failed to save: %s", CROWN_DATA_INDEX);
+		return;
+	}
+
+	res = write_data_mtimes(data_fs, CROWN_DATA_MTIMES, _data_mtimes);
+	if (res != 0) {
+		loge(DATA_COMPILER, "Failed to save: %s", CROWN_DATA_MTIMES);
+		return;
+	}
+
+	res = write_data_dependencies(data_fs, CROWN_DATA_DEPENDENCIES, _data_index, _data_dependencies, _data_requirements);
+	if (res != 0) {
+		loge(DATA_COMPILER, "Failed to save: %s", CROWN_DATA_DEPENDENCIES);
+		return;
+	}
+
+	res = write_data_versions(data_fs, CROWN_DATA_VERSIONS, _data_versions);
+	if (res != 0) {
+		loge(DATA_COMPILER, "Failed to save: %s", CROWN_DATA_VERSIONS);
+		return;
+	}
+
 	logi(DATA_COMPILER, "Saved state in " TIME_FMT, time::seconds(time::now() - time_start));
 }
 
@@ -1089,7 +1142,8 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 			hash_map::set(_data_requirements, id, new_requirements);
 
 			// Write data to disk.
-			File *outf = data_fs.open(dest.c_str(), FileOpenMode::WRITE);
+			DynamicString temp_dest(default_allocator());
+			File *outf = data_fs.open_temporary(temp_dest);
 			if (outf->is_open()) {
 				u32 size = array::size(output);
 				u32 written = outf->write(array::begin(output), size);
@@ -1099,6 +1153,11 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 				success = false;
 			}
 			data_fs.close(*outf);
+
+			if (success) {
+				RenameResult rr = data_fs.rename(temp_dest.c_str(), dest.c_str());
+				success = rr.error == RenameResult::SUCCESS;
+			}
 		}
 
 		if (success) {
@@ -1205,7 +1264,8 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 
 				if (success) {
 					// Write data to disk.
-					File *outf = bundle_fs.open(dest.c_str(), FileOpenMode::WRITE);
+					DynamicString temp_dest(default_allocator());
+					File *outf = bundle_fs.open_temporary(temp_dest);
 					if (outf->is_open()) {
 						u32 size = array::size(output);
 						u32 written = outf->write(array::begin(output), size);
@@ -1215,6 +1275,11 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 						success = false;
 					}
 					bundle_fs.close(*outf);
+
+					if (success) {
+						RenameResult rr = data_fs.rename(temp_dest.c_str(), dest.c_str());
+						success = rr.error == RenameResult::SUCCESS;
+					}
 				}
 
 				if (!success) {
