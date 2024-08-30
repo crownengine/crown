@@ -323,7 +323,7 @@ namespace os
 	{
 		RenameResult rr;
 #if CROWN_PLATFORM_WINDOWS
-		if (MoveFile(old_name, new_name) != 0)
+		if (MoveFileEx(old_name, new_name, MOVEFILE_REPLACE_EXISTING) != 0)
 			rr.error = RenameResult::SUCCESS;
 		else
 			rr.error = RenameResult::UNKNOWN;
