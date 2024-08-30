@@ -143,7 +143,10 @@ namespace os
 		ULARGE_INTEGER lwt = {};
 		lwt.LowPart  = wfd.ftLastWriteTime.dwLowDateTime;
 		lwt.HighPart = wfd.ftLastWriteTime.dwHighDateTime;
-		st.mtime = lwt.QuadPart * u64(100); // See https://docs.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-filetime
+		// Convert mtime to ns and subtract Unix epoch to Windows epoch
+		// difference in ns (i.e. 1970-01-01, 12AM - 1601-01-01, 12AM).
+		// See: https://docs.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-filetime
+		st.mtime = lwt.QuadPart * u64(100) - u64(11644473600) * u64(1000000000);
 #else
 		struct stat buf;
 		memset(&buf, 0, sizeof(buf));
