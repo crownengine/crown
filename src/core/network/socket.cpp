@@ -15,11 +15,12 @@
 	#define MSG_NOSIGNAL 0
 #else
 	#include <errno.h>
-	#include <fcntl.h>      // fcntl
-	#include <netinet/in.h> // htons, htonl, ...
+	#include <fcntl.h>       // fcntl
+	#include <netinet/in.h>  // htons, htonl, ...
+	#include <netinet/tcp.h> // TCP_NODELAY
 	#include <sys/socket.h>
-	#include <sys/time.h>   // timeval
-	#include <unistd.h>     // close
+	#include <sys/time.h>    // timeval
+	#include <unistd.h>      // close
 	#define SOCKET int
 	#define INVALID_SOCKET (-1)
 	#define SOCKET_ERROR (-1)
@@ -56,6 +57,12 @@ namespace socket_internal
 	{
 		SOCKET socket = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 		CE_ASSERT(socket >= 0, "socket: last_error() = %d", last_error());
+#if !CROWN_PLATFORM_EMSCRIPTEN
+		int optval = 1;
+		int err = setsockopt(socket, IPPROTO_TCP, TCP_NODELAY, (const char *)&optval, sizeof(optval));
+		CE_ASSERT(err == 0, "setsockopt: last_error() = %d", last_error());
+		CE_UNUSED(err);
+#endif
 		return socket;
 	}
 
