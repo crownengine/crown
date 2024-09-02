@@ -7,11 +7,15 @@ Changelog
 **Data Compiler**
 
 * Fixed existence/redefinition checks for samplers.
+* Improved data writing robustness.
 
 **Runtime**
 
 * Fixed intra-frame button press/release detection.
 * Added ``--hidden`` CLI option.
+* Fixed HashMap and HashSet.
+* Packages will now bring resources online in the correct order. This enables runtime optimizations and features previously impossible to have.
+* Windows: fixed resolution property from boot.config not being honored.
 
 **Tools**
 
@@ -21,10 +25,14 @@ Changelog
 * The Console will now show a single line with a counter instead of spamming the view with duplicated entries.
 * Fixed Console's text color in dark/light mode.
 * Fixed mouse click in the Editor View not selecting the correct sprite in some circumnstances.
+* Added the ability to drag & drop units from the ProjectBrowser to the EditorView.
+* Added thumbnails for .unit and .sound resources in the Project Browser.
 
 **Lua API**
 
 * Added ``Device.screenshot()`` and ``screenshot()`` callback, see :doc:`lua_api` for details.
+* Added ``Material.set_texture()``.
+* Added ``Gui.material()``.
 
 0.49.0 --- 27 Nov 2023
 ----------------------
