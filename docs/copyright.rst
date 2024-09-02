@@ -762,15 +762,20 @@ FreeType (FreeType Project LICENSE)
 
 Software library to render fonts.
 
-IconFontCppHeaders (MIT)
-------------------------
+Lua (MIT)
+---------
 
-C++11, C89 and None headers for icon fonts Font Awesome, Google Material Design icons and Kenney game icons.
+Lua is a powerful, efficient, lightweight, embeddable scripting language.
 
 LuaJIT (MIT)
 ------------
 
 A Just-In-Time Compiler for Lua.
+
+MD5 (Zlib)
+----------
+
+Independent implementation of MD5 (RFC 1321).
 
 OpenAL soft (LGPL)
 ------------------
@@ -782,3 +787,7 @@ stb (Public domain)
 
 single-file public domain (or MIT licensed) libraries for C/C++.
 
+tinyexpr (Zlib)
+---------------
+
+TinyExpr is a very small recursive descent parser and evaluation engine for math expressions.
