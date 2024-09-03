@@ -640,7 +640,7 @@ public class Project
 		GLib.SList<string> filenames = src.get_filenames();
 		src.destroy();
 
-		// Find importer callback
+		// Find importer callback.
 		unowned ImporterDelegate? importer = null;
 		foreach (var imp in _importers) {
 			if (imp._filter == current_filter) {
@@ -648,7 +648,7 @@ public class Project
 				break;
 			}
 		}
-		// Fallback if no importer found
+		// Fallback if no importer found.
 		if (importer == null)
 			importer = _all_extensions_importer_data.delegate;
 
