@@ -643,7 +643,7 @@ public class Project
 		// Find importer callback.
 		unowned ImporterDelegate? importer = null;
 		foreach (var imp in _importers) {
-			if (imp._filter == current_filter) {
+			if (imp._filter == current_filter && imp.can_import_list(filenames)) {
 				importer = imp.delegate;
 				break;
 			}
