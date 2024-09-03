@@ -33,6 +33,26 @@ public class Project
 			order = 0.0;
 			_filter = new Gtk.FileFilter();
 		}
+
+		public bool can_import(string filename)
+		{
+			foreach (var ext in extensions) {
+				if (filename.has_suffix("." + ext))
+					return true;
+			}
+
+			return false;
+		}
+
+		public bool can_import_list(GLib.SList<string> filenames)
+		{
+			foreach (var filename in filenames) {
+				if (!can_import(filename))
+					return false;
+			}
+
+			return true;
+		}
 	}
 
 	// Data
@@ -494,11 +514,9 @@ public class Project
 			for (var has_next = cur.next(); has_next; has_next = cur.next()) {
 				string path = paths[cur.index()];
 
-				foreach (var ext in importer.extensions) {
-					if (path.has_suffix("." + ext)) {
-						importables.add(path);
-						cur.remove();
-					}
+				if (importer.can_import(path)) {
+					importables.add(path);
+					cur.remove();
 				}
 			}
 
@@ -566,10 +584,8 @@ public class Project
 	public ImporterData? find_importer_for_path(string path)
 	{
 		foreach (var imp in _importers) {
-			foreach (var ext in imp.extensions) {
-				if (path.has_suffix("." + ext))
-					return imp;
-			}
+			if (imp.can_import(path))
+				return imp;
 		}
 
 		return null;
