@@ -97,11 +97,13 @@ Supported platforms
 
 * Runtime
 	* Android 7.0+ (ARMv7-a, ARMv8-a)
+	* HTML5 (Wasm/Emscripten)
 	* Ubuntu 18.04+ (x86_64)
-	* Windows 7, 8, 10 (x86_64)
+	* Windows 7+ (x86_64)
 
 * Editor
-	* Any 64-bit Linux distribution with GTK+ 3.22 or newer, 64-bit Ubuntu 18.04+ recommended
+	* Any 64-bit Linux with GTK+ 3.22 or newer (Ubuntu 18.04+)
+	* Any 64-bit Windows 7+
 	* 64-bit dual-core CPU or higher
 	* OpenGL 3.2+ graphics card with 512 MB of RAM, 1 GB recommended
 	* 4 GB of RAM minimum, 8 GB recommended
