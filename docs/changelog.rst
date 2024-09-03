@@ -26,7 +26,7 @@ Changelog
 * Fixed Console's text color in dark/light mode.
 * Fixed mouse click in the Editor View not selecting the correct sprite in some circumnstances.
 * Added the ability to drag & drop units from the ProjectBrowser to the EditorView.
-* Added thumbnails for .unit and .sound resources in the Project Browser.
+* Added thumbnails for .unit, .material, .texture and .sound resources in the Project Browser.
 
 **Lua API**
 
