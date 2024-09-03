@@ -112,9 +112,8 @@ Supported platforms
 Contact
 -------
 
-* Daniele Bartolini (`@aa_dani_bart <https://twitter.com/aa_dani_bart>`_)
-* Project page: https://github.com/crownengine/crown
 * Website: https://www.crownengine.org
+* Project page: https://github.com/crownengine/crown
 
 Contributors
 ------------
