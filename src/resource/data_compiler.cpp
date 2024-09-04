@@ -849,41 +849,6 @@ void DataCompiler::scan_and_restore(const char *data_dir)
 		default_allocator().deallocate((void *)directories[n - 1 - i]);
 }
 
-void DataCompiler::save(const char *data_dir)
-{
-	s64 time_start = time::now();
-	s32 res = 0;
-
-	FilesystemDisk data_fs(default_allocator());
-	data_fs.set_prefix(data_dir);
-
-	res = write_data_index(data_fs, CROWN_DATA_INDEX, _data_index);
-	if (res != 0) {
-		loge(DATA_COMPILER, "Failed to save: %s", CROWN_DATA_INDEX);
-		return;
-	}
-
-	res = write_data_mtimes(data_fs, CROWN_DATA_MTIMES, _data_mtimes);
-	if (res != 0) {
-		loge(DATA_COMPILER, "Failed to save: %s", CROWN_DATA_MTIMES);
-		return;
-	}
-
-	res = write_data_dependencies(data_fs, CROWN_DATA_DEPENDENCIES, _data_index, _data_dependencies, _data_requirements);
-	if (res != 0) {
-		loge(DATA_COMPILER, "Failed to save: %s", CROWN_DATA_DEPENDENCIES);
-		return;
-	}
-
-	res = write_data_versions(data_fs, CROWN_DATA_VERSIONS, _data_versions);
-	if (res != 0) {
-		loge(DATA_COMPILER, "Failed to save: %s", CROWN_DATA_VERSIONS);
-		return;
-	}
-
-	logi(DATA_COMPILER, "Saved state in " TIME_FMT, time::seconds(time::now() - time_start));
-}
-
 bool DataCompiler::dependency_changed(const DynamicString &path, ResourceId id, u64 dst_mtime)
 {
 	Stat st;
@@ -1298,6 +1263,31 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 		}
 	}
 
+	// Save state to disk.
+	s32 res = write_data_index(data_fs, CROWN_DATA_INDEX, _data_index);
+	if (res != 0) {
+		loge(DATA_COMPILER, "Failed to save: %s", CROWN_DATA_INDEX);
+		return false;
+	}
+
+	res = write_data_mtimes(data_fs, CROWN_DATA_MTIMES, _data_mtimes);
+	if (res != 0) {
+		loge(DATA_COMPILER, "Failed to save: %s", CROWN_DATA_MTIMES);
+		return false;
+	}
+
+	res = write_data_dependencies(data_fs, CROWN_DATA_DEPENDENCIES, _data_index, _data_dependencies, _data_requirements);
+	if (res != 0) {
+		loge(DATA_COMPILER, "Failed to save: %s", CROWN_DATA_DEPENDENCIES);
+		return false;
+	}
+
+	res = write_data_versions(data_fs, CROWN_DATA_VERSIONS, _data_versions);
+	if (res != 0) {
+		loge(DATA_COMPILER, "Failed to save: %s", CROWN_DATA_VERSIONS);
+		return false;
+	}
+
 	return success;
 }
 
@@ -1575,8 +1565,6 @@ int main_data_compiler(const DeviceOptions &opts)
 	} else {
 		success = dc->compile(opts._data_dir.c_str(), opts._platform);
 	}
-
-	dc->save(opts._data_dir.c_str());
 
 	CE_DELETE(default_allocator(), dc);
 	console_server_globals::shutdown();
