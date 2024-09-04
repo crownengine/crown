@@ -67,6 +67,7 @@ public class Project
 	public ImporterData _all_extensions_importer_data;
 	public Gee.ArrayList<ImporterData?> _importers;
 	public bool _data_compiled;
+	public Hashtable _data_index;
 
 	public signal void file_added(string type, string name, uint64 size, uint64 mtime);
 	public signal void file_removed(string type, string name);
@@ -89,6 +90,15 @@ public class Project
 		_all_extensions_importer_data.delegate = import_all_extensions;
 		_importers = new Gee.ArrayList<ImporterData?>();
 		_data_compiled = false;
+		_data_index = new Hashtable();
+	}
+
+	public void data_compiled()
+	{
+		_data_compiled = true;
+
+		string index_path = Path.build_filename(_data_dir.get_path(), "data_index.sjson");
+		_data_index = SJSON.load_from_path(index_path);
 	}
 
 	public uint64 mtime(string type, string name)
@@ -393,9 +403,7 @@ public class Project
 	/// it returns false and sets @a resource_name to the value of @a resource_id.
 	public bool resource_id_to_name(out string resource_name, string resource_id)
 	{
-		string index_path = Path.build_filename(_data_dir.get_path(), "data_index.sjson");
-		Hashtable index = SJSON.load_from_path(index_path);
-		Value? name = index[resource_id];
+		Value? name = _data_index[resource_id];
 		if (name != null) {
 			resource_name = (string)name;
 			return true;
