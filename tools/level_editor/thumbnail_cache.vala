@@ -135,13 +135,17 @@ public class ThumbnailCache
 		changed();
 	}
 
-	public void copy_thumbnail_from_path(Gdk.Pixbuf? subpixbuf, string thumbnail_path)
+	public void copy_thumbnail_from_path(Gdk.Pixbuf? subpixbuf, string thumbnail_path) throws GLib.Error
 	{
-		var thumbnail = new Gdk.Pixbuf.from_file_at_size(thumbnail_path
-			, THUMBNAIL_SIZE
-			, THUMBNAIL_SIZE
-			);
-		copy_thumbnail(subpixbuf, thumbnail);
+		try {
+			var thumbnail = new Gdk.Pixbuf.from_file_at_size(thumbnail_path
+				, THUMBNAIL_SIZE
+				, THUMBNAIL_SIZE
+				);
+			copy_thumbnail(subpixbuf, thumbnail);
+		} finally {
+			// Empty.
+		}
 	}
 
 	public void reset(uint max_size)
