@@ -3557,7 +3557,7 @@ public class LevelEditorApplication : Gtk.Application
 			int win_w;
 			int win_h;
 			this.active_window.get_size(out win_w, out win_h);
-			_editor_pane.set_position(210);
+			_editor_pane.set_position(320);
 			_content_pane.set_position(win_h - 250);
 			_inspector_pane.set_position(win_h - 600);
 			_main_pane.set_position(win_w - 375);
