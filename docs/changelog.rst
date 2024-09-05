@@ -7,6 +7,7 @@ Changelog
 **Data Compiler**
 
 * Fixed existence/redefinition checks for samplers.
+* Added the ability to inherit render states via the ``inherit`` property.
 * Improved data writing robustness.
 
 **Runtime**

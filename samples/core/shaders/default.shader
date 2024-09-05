@@ -9,11 +9,8 @@ render_states = {
 	}
 
 	debug_line_noz = {
+		inherit = "debug_line"
 		depth_enable = false
-		blend_enable = true
-		blend_src = "src_alpha"
-		blend_dst = "inv_src_alpha"
-		primitive_type = "pt_lines"
 	}
 
 	gui = {
@@ -25,8 +22,8 @@ render_states = {
 	}
 
 	gui_noblend = {
-		depth_write_enable = false
-		depth_enable = false
+		inherit = "gui"
+		blend_enable = false
 	}
 
 	sprite = {

@@ -756,6 +756,21 @@ namespace shader_resource_internal
 				JsonObject obj(ta);
 				sjson::parse_object(obj, cur->second);
 
+				// Read inherit render state if any.
+				RenderState inherit_rs;
+				const bool has_inherit = json_object::has(obj, "inherit");
+				if (has_inherit) {
+					DynamicString inherit(ta);
+					sjson::parse_string(inherit, obj["inherit"]);
+					DATA_COMPILER_ASSERT(hash_map::has(_render_states, inherit)
+						, _opts
+						, "Unknown inherit render state: '%s'"
+						, inherit.c_str()
+						);
+					RenderState deffault_rs;
+					inherit_rs = hash_map::get(_render_states, inherit, deffault_rs);
+				}
+
 				const bool has_rgb_write_enable   = json_object::has(obj, "rgb_write_enable");
 				const bool has_alpha_write_enable = json_object::has(obj, "alpha_write_enable");
 				const bool has_depth_write_enable = json_object::has(obj, "depth_write_enable");
@@ -773,22 +788,32 @@ namespace shader_resource_internal
 
 				if (has_rgb_write_enable) {
 					rs._rgb_write_enable = sjson::parse_bool(obj["rgb_write_enable"]);
+				} else if (has_inherit) {
+					rs._rgb_write_enable = inherit_rs._rgb_write_enable;
 				}
 
 				if (has_alpha_write_enable) {
 					rs._alpha_write_enable = sjson::parse_bool(obj["alpha_write_enable"]);
+				} else if (has_inherit) {
+					rs._alpha_write_enable = inherit_rs._alpha_write_enable;
 				}
 
 				if (has_depth_write_enable) {
 					rs._depth_write_enable = sjson::parse_bool(obj["depth_write_enable"]);
+				} else if (has_inherit) {
+					rs._depth_write_enable = inherit_rs._depth_write_enable;
 				}
 
 				if (has_depth_enable) {
 					rs._depth_enable = sjson::parse_bool(obj["depth_enable"]);
+				} else if (has_inherit) {
+					rs._depth_enable = inherit_rs._depth_enable;
 				}
 
 				if (has_blend_enable) {
 					rs._blend_enable = sjson::parse_bool(obj["blend_enable"]);
+				} else if (has_inherit) {
+					rs._blend_enable = inherit_rs._blend_enable;
 				}
 
 				if (has_depth_func) {
@@ -800,6 +825,8 @@ namespace shader_resource_internal
 						, "Unknown depth test: '%s'"
 						, depth_func.c_str()
 						);
+				} else if (has_inherit) {
+					rs._depth_func = inherit_rs._depth_func;
 				}
 
 				if (has_blend_src) {
@@ -811,6 +838,8 @@ namespace shader_resource_internal
 						, "Unknown blend function: '%s'"
 						, blend_src.c_str()
 						);
+				} else if (has_inherit) {
+					rs._blend_src = inherit_rs._blend_src;
 				}
 
 				if (has_blend_dst) {
@@ -822,6 +851,8 @@ namespace shader_resource_internal
 						, "Unknown blend function: '%s'"
 						, blend_dst.c_str()
 						);
+				} else if (has_inherit) {
+					rs._blend_dst = inherit_rs._blend_dst;
 				}
 
 				if (has_blend_equation) {
@@ -833,6 +864,8 @@ namespace shader_resource_internal
 						, "Unknown blend equation: '%s'"
 						, blend_equation.c_str()
 						);
+				} else if (has_inherit) {
+					rs._blend_equation = inherit_rs._blend_equation;
 				}
 
 				if (has_cull_mode) {
@@ -844,6 +877,8 @@ namespace shader_resource_internal
 						, "Unknown cull mode: '%s'"
 						, cull_mode.c_str()
 						);
+				} else if (has_inherit) {
+					rs._cull_mode = inherit_rs._cull_mode;
 				}
 
 				if (has_primitive_type) {
@@ -855,6 +890,8 @@ namespace shader_resource_internal
 						, "Unknown primitive type: '%s'"
 						, primitive_type.c_str()
 						);
+				} else if (has_inherit) {
+					rs._primitive_type = inherit_rs._primitive_type;
 				}
 
 				DynamicString key(ta);
