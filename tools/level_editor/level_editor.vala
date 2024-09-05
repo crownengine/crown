@@ -509,6 +509,7 @@ public class LevelEditorApplication : Gtk.Application
 	private Gtk.Label _project_stack_connecting_to_data_compiler_label;
 	private Gtk.Label _project_stack_compiler_crashed_label;
 	private Gtk.Label _project_stack_compiler_failed_compilation_label;
+	private Gtk.Label _project_stack_stopping_backend_label;
 
 	private Gtk.Stack _editor_stack;
 	private Gtk.Label _editor_stack_compiling_data_label;
@@ -517,6 +518,7 @@ public class LevelEditorApplication : Gtk.Application
 	private Gtk.Label _editor_stack_compiler_failed_compilation_label;
 	private Gtk.Label _editor_stack_disconnected_label;
 	private Gtk.Label _editor_stack_oops_label;
+	private Gtk.Label _editor_stack_stopping_backend_label;
 
 	public Gtk.Stack _resource_preview_stack;
 	public Gtk.Label _resource_preview_disconnected_label;
@@ -528,6 +530,7 @@ public class LevelEditorApplication : Gtk.Application
 	private Gtk.Label _inspector_stack_connecting_to_data_compiler_label;
 	private Gtk.Label _inspector_stack_compiler_crashed_label;
 	private Gtk.Label _inspector_stack_compiler_failed_compilation_label;
+	private Gtk.Label _inspector_stack_stopping_backend_label;
 
 	private Gtk.Toolbar _toolbar;
 	private Gtk.ToolButton _toolbar_run;
@@ -724,6 +727,8 @@ public class LevelEditorApplication : Gtk.Application
 		_project_stack.add(_project_stack_compiler_crashed_label);
 		_project_stack_compiler_failed_compilation_label = compiler_failed_compilation_label();
 		_project_stack.add(_project_stack_compiler_failed_compilation_label);
+		_project_stack_stopping_backend_label = stopping_backend_label();
+		_project_stack.add(_project_stack_stopping_backend_label);
 
 		_editor_stack = new Gtk.Stack();
 		_editor_stack_compiling_data_label = compiling_data_label();
@@ -744,6 +749,8 @@ public class LevelEditorApplication : Gtk.Application
 				return true;
 			});
 		_editor_stack.add(_editor_stack_oops_label);
+		_editor_stack_stopping_backend_label = stopping_backend_label();
+		_editor_stack.add(_editor_stack_stopping_backend_label);
 
 		_resource_preview_stack = new Gtk.Stack();
 		_resource_preview_no_preview_label = new Gtk.Label("No Preview");
@@ -771,6 +778,8 @@ public class LevelEditorApplication : Gtk.Application
 		_inspector_stack.add(_inspector_stack_compiler_crashed_label);
 		_inspector_stack_compiler_failed_compilation_label = compiler_failed_compilation_label();
 		_inspector_stack.add(_inspector_stack_compiler_failed_compilation_label);
+		_inspector_stack_stopping_backend_label = stopping_backend_label();
+		_inspector_stack.add(_inspector_stack_stopping_backend_label);
 
 		Gtk.Builder builder = new Gtk.Builder.from_resource("/org/crown/level_editor/ui/toolbar.ui");
 		_toolbar = builder.get_object("toolbar") as Gtk.Toolbar;
@@ -1267,6 +1276,11 @@ public class LevelEditorApplication : Gtk.Application
 		return label;
 	}
 
+	Gtk.Label stopping_backend_label()
+	{
+		return new Gtk.Label("Stopping Backend...");
+	}
+
 	public async void restart_backend(string source_dir, string level_name)
 	{
 		string sd = source_dir.dup();
@@ -1347,6 +1361,10 @@ public class LevelEditorApplication : Gtk.Application
 
 	public async void stop_backend()
 	{
+		_project_stack.set_visible_child(_project_stack_stopping_backend_label);
+		_editor_stack.set_visible_child(_editor_stack_stopping_backend_label);
+		_inspector_stack.set_visible_child(_inspector_stack_stopping_backend_label);
+
 		yield stop_heads();
 		yield stop_data_compiler();
 
