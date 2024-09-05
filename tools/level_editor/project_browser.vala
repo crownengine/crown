@@ -395,6 +395,9 @@ public class ProjectIconView : Gtk.IconView
 
 	private void pixbuf_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
+		if (!get_mapped())
+			return;
+
 		Value val;
 		string type;
 		string name;
@@ -872,6 +875,9 @@ public class ProjectBrowser : Gtk.Bin
 
 	private void pixbuf_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
+		if (!get_mapped())
+			return;
+
 		Value val;
 		string type;
 		string name;
