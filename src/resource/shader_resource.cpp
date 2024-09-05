@@ -777,14 +777,8 @@ namespace shader_resource_internal
 				rs._depth_enable       = depth_enable;
 				rs._blend_enable       = blend_enable;
 
-				DynamicString depth_func(ta);
-				DynamicString blend_src(ta);
-				DynamicString blend_dst(ta);
-				DynamicString blend_equation(ta);
-				DynamicString cull_mode(ta);
-				DynamicString primitive_type(ta);
-
 				if (has_depth_func) {
+					DynamicString depth_func(ta);
 					sjson::parse_string(depth_func, obj["depth_func"]);
 					rs._depth_func = name_to_depth_func(depth_func.c_str());
 					DATA_COMPILER_ASSERT(rs._depth_func != DepthFunction::COUNT
@@ -795,6 +789,7 @@ namespace shader_resource_internal
 				}
 
 				if (has_blend_src) {
+					DynamicString blend_src(ta);
 					sjson::parse_string(blend_src, obj["blend_src"]);
 					rs._blend_src = name_to_blend_function(blend_src.c_str());
 					DATA_COMPILER_ASSERT(rs._blend_src != BlendFunction::COUNT
@@ -805,6 +800,7 @@ namespace shader_resource_internal
 				}
 
 				if (has_blend_dst) {
+					DynamicString blend_dst(ta);
 					sjson::parse_string(blend_dst, obj["blend_dst"]);
 					rs._blend_dst = name_to_blend_function(blend_dst.c_str());
 					DATA_COMPILER_ASSERT(rs._blend_dst != BlendFunction::COUNT
@@ -815,6 +811,7 @@ namespace shader_resource_internal
 				}
 
 				if (has_blend_equation) {
+					DynamicString blend_equation(ta);
 					sjson::parse_string(blend_equation, obj["blend_equation"]);
 					rs._blend_equation = name_to_blend_equation(blend_equation.c_str());
 					DATA_COMPILER_ASSERT(rs._blend_equation != BlendEquation::COUNT
@@ -825,6 +822,7 @@ namespace shader_resource_internal
 				}
 
 				if (has_cull_mode) {
+					DynamicString cull_mode(ta);
 					sjson::parse_string(cull_mode, obj["cull_mode"]);
 					rs._cull_mode = name_to_cull_mode(cull_mode.c_str());
 					DATA_COMPILER_ASSERT(rs._cull_mode != CullMode::COUNT
@@ -835,6 +833,7 @@ namespace shader_resource_internal
 				}
 
 				if (has_primitive_type) {
+					DynamicString primitive_type(ta);
 					sjson::parse_string(primitive_type, obj["primitive_type"]);
 					rs._primitive_type = name_to_primitive_type(primitive_type.c_str());
 					DATA_COMPILER_ASSERT(rs._primitive_type != PrimitiveType::COUNT
