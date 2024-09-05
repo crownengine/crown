@@ -756,26 +756,40 @@ namespace shader_resource_internal
 				JsonObject obj(ta);
 				sjson::parse_object(obj, cur->second);
 
-				const bool rgb_write_enable   = sjson::parse_bool(obj["rgb_write_enable"]);
-				const bool alpha_write_enable = sjson::parse_bool(obj["alpha_write_enable"]);
-				const bool depth_write_enable = sjson::parse_bool(obj["depth_write_enable"]);
-				const bool depth_enable       = sjson::parse_bool(obj["depth_enable"]);
-				const bool blend_enable       = sjson::parse_bool(obj["blend_enable"]);
-
-				const bool has_depth_func     = json_object::has(obj, "depth_func");
-				const bool has_blend_src      = json_object::has(obj, "blend_src");
-				const bool has_blend_dst      = json_object::has(obj, "blend_dst");
-				const bool has_blend_equation = json_object::has(obj, "blend_equation");
-				const bool has_cull_mode      = json_object::has(obj, "cull_mode");
-				const bool has_primitive_type = json_object::has(obj, "primitive_type");
+				const bool has_rgb_write_enable   = json_object::has(obj, "rgb_write_enable");
+				const bool has_alpha_write_enable = json_object::has(obj, "alpha_write_enable");
+				const bool has_depth_write_enable = json_object::has(obj, "depth_write_enable");
+				const bool has_depth_enable       = json_object::has(obj, "depth_enable");
+				const bool has_blend_enable       = json_object::has(obj, "blend_enable");
+				const bool has_depth_func         = json_object::has(obj, "depth_func");
+				const bool has_blend_src          = json_object::has(obj, "blend_src");
+				const bool has_blend_dst          = json_object::has(obj, "blend_dst");
+				const bool has_blend_equation     = json_object::has(obj, "blend_equation");
+				const bool has_cull_mode          = json_object::has(obj, "cull_mode");
+				const bool has_primitive_type     = json_object::has(obj, "primitive_type");
 
 				RenderState rs;
 				rs.reset();
-				rs._rgb_write_enable   = rgb_write_enable;
-				rs._alpha_write_enable = alpha_write_enable;
-				rs._depth_write_enable = depth_write_enable;
-				rs._depth_enable       = depth_enable;
-				rs._blend_enable       = blend_enable;
+
+				if (has_rgb_write_enable) {
+					rs._rgb_write_enable = sjson::parse_bool(obj["rgb_write_enable"]);
+				}
+
+				if (has_alpha_write_enable) {
+					rs._alpha_write_enable = sjson::parse_bool(obj["alpha_write_enable"]);
+				}
+
+				if (has_depth_write_enable) {
+					rs._depth_write_enable = sjson::parse_bool(obj["depth_write_enable"]);
+				}
+
+				if (has_depth_enable) {
+					rs._depth_enable = sjson::parse_bool(obj["depth_enable"]);
+				}
+
+				if (has_blend_enable) {
+					rs._blend_enable = sjson::parse_bool(obj["blend_enable"]);
+				}
 
 				if (has_depth_func) {
 					DynamicString depth_func(ta);
