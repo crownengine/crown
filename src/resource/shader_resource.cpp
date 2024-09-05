@@ -519,10 +519,10 @@ namespace shader_resource_internal
 
 		void reset()
 		{
-			_rgb_write_enable = false;
-			_alpha_write_enable = false;
-			_depth_write_enable = false;
-			_depth_enable = false;
+			_rgb_write_enable = true;
+			_alpha_write_enable = true;
+			_depth_write_enable = true;
+			_depth_enable = true;
 			_blend_enable = false;
 			_depth_func = DepthFunction::LEQUAL;
 			_blend_src = BlendFunction::SRC_ALPHA;

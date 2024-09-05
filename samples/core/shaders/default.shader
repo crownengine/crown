@@ -2,84 +2,46 @@ include = ["core/shaders/common.shader"]
 
 render_states = {
 	debug_line = {
-		rgb_write_enable = true
-		alpha_write_enable = true
-		depth_write_enable = true
-		depth_enable = true
-		depth_func = "lequal"
 		blend_enable = true
 		blend_src = "src_alpha"
 		blend_dst = "inv_src_alpha"
 		primitive_type = "pt_lines"
-		cull_mode = "cw"
 	}
 
 	debug_line_noz = {
-		rgb_write_enable = true
-		alpha_write_enable = true
-		depth_write_enable = true
 		depth_enable = false
-		depth_func = "lequal"
 		blend_enable = true
 		blend_src = "src_alpha"
 		blend_dst = "inv_src_alpha"
 		primitive_type = "pt_lines"
-		cull_mode = "cw"
 	}
 
 	gui = {
-		rgb_write_enable = true
-		alpha_write_enable = true
 		depth_write_enable = false
 		depth_enable = false
-		depth_func = "lequal"
 		blend_enable = true
 		blend_src = "src_alpha"
 		blend_dst = "inv_src_alpha"
-		cull_mode = "cw"
 	}
 
 	gui_noblend = {
-		rgb_write_enable = true
-		alpha_write_enable = true
 		depth_write_enable = false
 		depth_enable = false
-		depth_func = "lequal"
-		blend_enable = false
-		cull_mode = "cw"
 	}
 
 	sprite = {
-		rgb_write_enable = true
-		alpha_write_enable = true
-		depth_write_enable = true
-		depth_enable = true
 		depth_func = "always"
 		blend_enable = true
 		blend_src = "src_alpha"
 		blend_dst = "inv_src_alpha"
 		blend_equation = "add"
-		cull_mode = "cw"
 	}
 
 	mesh = {
-		rgb_write_enable = true
-		alpha_write_enable = true
-		depth_write_enable = true
-		depth_enable = true
-		depth_func = "lequal"
-		blend_enable = false
-		cull_mode = "cw"
 	}
 
 	selection = {
-		rgb_write_enable = true
 		alpha_write_enable = false
-		depth_write_enable = true
-		depth_enable = true
-		depth_func = "lequal"
-		blend_enable = false
-		cull_mode = "cw"
 	}
 
 	noop = {
