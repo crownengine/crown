@@ -28,6 +28,7 @@ Changelog
 * Fixed mouse click in the Editor View not selecting the correct sprite in some circumnstances.
 * Added the ability to drag & drop units from the ProjectBrowser to the EditorView.
 * Added thumbnails for .unit, .material, .texture and .sound resources in the Project Browser.
+* Fixed importing resources in the source directory's root asking for destination directory.
 
 **Lua API**
 

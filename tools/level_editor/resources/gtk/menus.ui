@@ -39,8 +39,7 @@
       <section>
         <item>
           <attribute name="label" translatable="yes">Import...</attribute>
-          <attribute name="action">app.import</attribute>
-          <attribute name="target"></attribute>
+          <attribute name="action">app.import-null</attribute>
           <attribute name="accel">&lt;Primary&gt;I</attribute>
         </item>
       </section>

@@ -330,6 +330,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "save",          on_save,          null, null },
 		{ "save-as",       on_save_as,       null, null },
 		{ "import",        on_import,        "s",  null },
+		{ "import-null",   on_import,        null, null },
 		{ "preferences",   on_preferences,   null, null },
 		{ "deploy",        on_deploy,        null, null },
 		{ "close",         on_close,         null, null },
@@ -2048,9 +2049,9 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_import(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		string destination_dir = param.get_string();
+		string? destination_dir = param == null ? null : param.get_string();
 
-		ImportResult ec = _project.import(destination_dir != "" ? destination_dir : null, this.active_window);
+		ImportResult ec = _project.import(destination_dir, this.active_window);
 		if (ec == ImportResult.ERROR) {
 			loge("Failed to import resource(s)");
 			return;
