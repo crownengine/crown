@@ -720,6 +720,7 @@ public class ProjectBrowser : Gtk.Bin
 
 			_tree_view.expand_to_path(sort_path);
 			_tree_view.get_selection().select_path(sort_path);
+			_tree_view.scroll_to_cell(sort_path, null, false, 0.0f, 0.0f);
 		} while (filter_path == null && parent_name != "");
 	}
 
