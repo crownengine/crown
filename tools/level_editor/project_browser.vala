@@ -708,14 +708,16 @@ public class ProjectBrowser : Gtk.Bin
 			}
 
 			filter_path = _tree_filter.convert_child_path_to_path(store_path);
-			if (filter_path == null) { // Either the path is not valid or points to a non-visible row in the model.
+			if (filter_path == null) {
+				// Either the path is not valid or points to a non-visible row in the model.
 				parent_type = "<folder>";
 				parent_name = ResourceId.parent_folder(parent_name);
 				continue;
 			}
 
 			Gtk.TreePath sort_path = _tree_sort.convert_child_path_to_path(filter_path);
-			if (sort_path == null) { // The path is not valid.
+			if (sort_path == null) {
+				// The path is not valid.
 				break;
 			}
 
