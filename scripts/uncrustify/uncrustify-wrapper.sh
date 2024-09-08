@@ -61,8 +61,7 @@ if [ -n "$2" ]; then
 		echo "Failed to format '$2'"
 		exit 1
 	else
-		cat "$2".new                                   \
-		| fix_indentation_char                         \
+		fix_indentation_char < "$2".new                \
 		| add_newline_before_namespace_closing_bracket \
 		| fix_semicolon_indentation                    \
 		> "$2"
