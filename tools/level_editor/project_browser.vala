@@ -483,9 +483,6 @@ public class ProjectBrowser : Gtk.Bin
 
 	public bool _hide_core_resources;
 
-	// Signals
-	public signal void resource_selected(string type, string name);
-
 	public ProjectBrowser(ProjectStore project_store, ThumbnailCache thumbnail_cache)
 	{
 		// Data
