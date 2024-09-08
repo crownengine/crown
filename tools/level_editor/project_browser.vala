@@ -363,29 +363,27 @@ public class ProjectIconView : Gtk.IconView
 				menu.show_all();
 				menu.popup_at_pointer(ev);
 			}
-		} else if (ev.button == Gdk.BUTTON_PRIMARY) {
-			if (ev.type == Gdk.EventType.@2BUTTON_PRESS) {
-				Gtk.TreePath path;
-				if ((path = this.get_path_at_pos((int)ev.x, (int)ev.y)) != null) {
-					Gtk.TreeIter iter;
-					this.model.get_iter(out iter, path);
+		} else if (ev.button == Gdk.BUTTON_PRIMARY && ev.type == Gdk.EventType.@2BUTTON_PRESS) {
+			Gtk.TreePath path;
+			if ((path = this.get_path_at_pos((int)ev.x, (int)ev.y)) != null) {
+				Gtk.TreeIter iter;
+				this.model.get_iter(out iter, path);
 
-					Value type;
-					Value name;
-					this.model.get_value(iter, Column.TYPE, out type);
-					this.model.get_value(iter, Column.NAME, out name);
+				Value type;
+				Value name;
+				this.model.get_value(iter, Column.TYPE, out type);
+				this.model.get_value(iter, Column.NAME, out name);
 
-					if ((string)type == "<folder>") {
-						string dir_name;
-						if ((string)name == "..")
-							dir_name = ResourceId.parent_folder((string)_selected_name);
-						else
-							dir_name = (string)name;
+				if ((string)type == "<folder>") {
+					string dir_name;
+					if ((string)name == "..")
+						dir_name = ResourceId.parent_folder((string)_selected_name);
+					else
+						dir_name = (string)name;
 
-						GLib.Application.get_default().activate_action("open-directory", new GLib.Variant.string(dir_name));
-					} else {
-						GLib.Application.get_default().activate_action("open-resource", ResourceId.path((string)type, (string)name));
-					}
+					GLib.Application.get_default().activate_action("open-directory", new GLib.Variant.string(dir_name));
+				} else {
+					GLib.Application.get_default().activate_action("open-resource", ResourceId.path((string)type, (string)name));
 				}
 			}
 		}
@@ -763,23 +761,21 @@ public class ProjectBrowser : Gtk.Bin
 					menu.popup_at_pointer(ev);
 				}
 			}
-		} else if (ev.button == Gdk.BUTTON_PRIMARY) {
-			if (ev.type == Gdk.EventType.@2BUTTON_PRESS) {
-				Gtk.TreePath path;
-				if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, null, null, null)) {
-					Gtk.TreeIter iter;
-					_tree_view.model.get_iter(out iter, path);
+		} else if (ev.button == Gdk.BUTTON_PRIMARY && ev.type == Gdk.EventType.@2BUTTON_PRESS) {
+			Gtk.TreePath path;
+			if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, null, null, null)) {
+				Gtk.TreeIter iter;
+				_tree_view.model.get_iter(out iter, path);
 
-					Value type;
-					_tree_view.model.get_value(iter, ProjectStore.Column.TYPE, out type);
-					if ((string)type == "<folder>")
-						return Gdk.EVENT_PROPAGATE;
+				Value type;
+				_tree_view.model.get_value(iter, ProjectStore.Column.TYPE, out type);
+				if ((string)type == "<folder>")
+					return Gdk.EVENT_PROPAGATE;
 
-					Value name;
-					_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
+				Value name;
+				_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
 
-					GLib.Application.get_default().activate_action("open-resource", ResourceId.path((string)type, (string)name));
-				}
+				GLib.Application.get_default().activate_action("open-resource", ResourceId.path((string)type, (string)name));
 			}
 		}
 
