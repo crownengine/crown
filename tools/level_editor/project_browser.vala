@@ -459,6 +459,27 @@ public class ProjectIconView : Gtk.IconView
 		else
 			cell.set_property("text", GLib.Path.get_basename((string)name));
 	}
+
+	public void reveal(string type, string name)
+	{
+		_list_store.foreach((model, path, iter) => {
+				GLib.Value val;
+				string store_type;
+				string store_name;
+				model.get_value(iter, Column.TYPE, out val);
+				store_type = (string)val;
+				model.get_value(iter, Column.NAME, out val);
+				store_name = (string)val;
+
+				if (store_name == name && store_type == type) {
+					select_path(path);
+					scroll_to_path(path, false, 0.0f, 0.0f);
+					return true;
+				}
+
+				return false;
+			});
+	}
 }
 
 public class ProjectBrowser : Gtk.Bin
@@ -721,6 +742,7 @@ public class ProjectBrowser : Gtk.Bin
 			_tree_view.expand_to_path(sort_path);
 			_tree_view.get_selection().select_path(sort_path);
 			_tree_view.scroll_to_cell(sort_path, null, false, 0.0f, 0.0f);
+			_icon_view.reveal(type, name);
 		} while (filter_path == null && parent_name != "");
 	}
 
