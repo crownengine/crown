@@ -619,14 +619,65 @@ public class ProjectBrowser : Gtk.Bin
 				_show_icon_view = !_show_icon_view;
 
 				if (_show_icon_view) {
+					// Save the currently selected resource and a path to its parent. Those will be
+					// used later, after the tree has been refiltered, to show the correct folder
+					// and reveal the selected resource in the icon view.
+					string? selected_type = null;
+					string? selected_name = null;
+					Gtk.TreePath? parent_path = null;
+					Gtk.TreeModel selected_model;
+					Gtk.TreeIter selected_iter;
+					if (_tree_selection.get_selected(out selected_model, out selected_iter)) {
+						Value val;
+						selected_model.get_value(selected_iter, ProjectStore.Column.TYPE, out val);
+						selected_type = (string)val;
+						selected_model.get_value(selected_iter, ProjectStore.Column.NAME, out val);
+						selected_name = (string)val;
+
+						if (selected_type != "<folder>") {
+							Gtk.TreeIter parent_iter;
+							if (selected_model.iter_parent(out parent_iter, selected_iter))
+								parent_path = _tree_view.model.get_path(parent_iter);
+						}
+					}
+
+					_tree_filter.refilter();
+
+					if (parent_path != null) {
+						_tree_selection.select_path(parent_path);
+						_icon_view.reveal(selected_type, selected_name);
+					}
+
 					_icon_view_content.show_all();
 					_toggle_icon_view.set_image(new Gtk.Image.from_icon_name("level-tree-symbolic", Gtk.IconSize.SMALL_TOOLBAR));
 				} else {
+					// Save the currently selected resource. This will be used later, after the tree
+					// has been refiltered, to reveal the selected resource in the tree view.
+					string? selected_type = null;
+					string? selected_name = null;
+					GLib.List<Gtk.TreePath> selected_paths = _icon_view.get_selected_items();
+					if (selected_paths.length() == 1u) {
+						Gtk.TreeIter selected_iter;
+						if (_icon_view._list_store.get_iter(out selected_iter, selected_paths.nth(0).data)) {
+							GLib.Value val;
+							_icon_view._list_store.get_value(selected_iter, ProjectIconView.Column.TYPE, out val);
+							selected_type = (string)val;
+							_icon_view._list_store.get_value(selected_iter, ProjectIconView.Column.NAME, out val);
+							selected_name = (string)val;
+						}
+					}
+
+					_tree_filter.refilter();
+
+					if (selected_type != null && selected_type != "<folder>") {
+						reveal(selected_type, selected_name);
+					}
+
 					_icon_view_content.hide();
 					_toggle_icon_view.set_image(new Gtk.Image.from_icon_name("browser-icon-view", Gtk.IconSize.SMALL_TOOLBAR));
-				}
 
-				_tree_filter.refilter();
+					_tree_view.queue_draw(); // It doesn't draw by itself sometimes...
+				}
 			});
 
 		// Create paned split-view.
