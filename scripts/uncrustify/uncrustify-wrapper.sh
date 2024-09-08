@@ -56,9 +56,7 @@ if [ -n "$2" ]; then
 	# Do uncrustify.
 	echo "$2"
 	TEMPFILE_UNCRUSTIFY=$(mktemp)
-	${UNCRUSTIFY} -q -c "$1" -f "$2" > "$TEMPFILE_UNCRUSTIFY"
-
-	if [ $? -ne 0 ]; then
+	if ! ${UNCRUSTIFY} -q -c "$1" -f "$2" > "$TEMPFILE_UNCRUSTIFY"; then
 		echo "Failed to format '$2'"
 		exit 1
 	else
@@ -71,8 +69,7 @@ if [ -n "$2" ]; then
 		rm "$TEMPFILE_UNCRUSTIFY"
 
 		# Only overwrite if there are differences.
-		diff "$2" "$TEMPFILE_AWK" 2>/dev/null
-		if [ $? -ne 0 ]; then
+		if ! diff "$2" "$TEMPFILE_AWK" 2>/dev/null; then
 			mv "$TEMPFILE_AWK" "$2"
 		else
 			rm "$TEMPFILE_AWK"
