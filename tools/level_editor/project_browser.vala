@@ -709,16 +709,8 @@ public class ProjectBrowser : Gtk.Bin
 			;
 	}
 
-	private void on_reveal(GLib.SimpleAction action, GLib.Variant? param)
+	private void reveal(string type, string name)
 	{
-		string type = (string)param.get_child_value(0);
-		string name = (string)param.get_child_value(1);
-
-		if (name.has_prefix("core/")) {
-			_hide_core_resources = false;
-			_tree_filter.refilter();
-		}
-
 		string parent_type = type;
 		string parent_name = name;
 		Gtk.TreePath filter_path = null;
@@ -747,6 +739,19 @@ public class ProjectBrowser : Gtk.Bin
 			_tree_view.scroll_to_cell(sort_path, null, false, 0.0f, 0.0f);
 			_icon_view.reveal(type, name);
 		} while (filter_path == null && parent_name != "");
+	}
+
+	private void on_reveal(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string type = (string)param.get_child_value(0);
+		string name = (string)param.get_child_value(1);
+
+		if (name.has_prefix("core/")) {
+			_hide_core_resources = false;
+			_tree_filter.refilter();
+		}
+
+		reveal(type, name);
 	}
 
 	private void on_open_directory(GLib.SimpleAction action, GLib.Variant? param)
