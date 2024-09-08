@@ -344,6 +344,9 @@ public class ProjectIconView : Gtk.IconView
 
 			Gtk.TreePath path;
 			if ((path = this.get_path_at_pos((int)ev.x, (int)ev.y)) != null) {
+				select_path(path);
+				scroll_to_path(path, false, 0.0f, 0.0f);
+
 				Gtk.TreeIter iter;
 				this.model.get_iter(out iter, path);
 
