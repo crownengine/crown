@@ -879,7 +879,11 @@ public class Database
 	public string object_type(Guid id)
 	{
 		assert(has_object(id));
-		return (string)get_data(id)["_type"];
+
+		if (id == GUID_ZERO)
+			return "database";
+		else
+			return (string)get_data(id)["_type"];
 	}
 
 	// Sets the @a type of the object @a id.
