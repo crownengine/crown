@@ -62,8 +62,8 @@ public class PropertyGridSet : Gtk.Box
 
 		Gtk.Expander expander = new Gtk.Expander("");
 		expander.label_widget = lb;
-		expander.child = cv;
 		expander.expanded = true;
+		expander.add(cv);
 		this.pack_start(expander, false, true, 0);
 
 		return expander;
