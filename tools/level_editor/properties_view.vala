@@ -729,7 +729,7 @@ public class PropertiesView : Gtk.Bin
 		register_object_type("Transform", "sound_transform",  0, new SoundTransformView(_level));
 		register_object_type("Sound",     "sound_properties", 1, new SoundView(_level, store));
 
-		_nothing_to_show = new Gtk.Label("Nothing to show");
+		_nothing_to_show = new Gtk.Label("Select an object to start editing");
 		_unknown_object_type = new Gtk.Label("Unknown object type");
 
 		_viewport = new Gtk.Viewport(null, null);
