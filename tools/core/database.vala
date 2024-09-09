@@ -408,6 +408,7 @@ public class Database
 	public signal void object_created(Guid id);
 	public signal void object_destroyed(Guid id);
 	public signal void undo_redo(bool undo, uint32 id, Guid?[] data);
+	public signal void restore_point_added(int id, Guid?[] data);
 
 	public Database(Project project, UndoRedo? undo_redo = null)
 	{
@@ -1208,6 +1209,7 @@ public class Database
 		if (_undo_redo != null) {
 			_undo_redo._undo.write_restore_point(id, data);
 			_undo_redo._redo.clear();
+			restore_point_added(id, data);
 		}
 	}
 
