@@ -327,7 +327,7 @@ public class Stack
 
 		uint32 num_guids = data.length;
 		for (uint32 i = 0; i < num_guids; ++i)
-			write_guid(data[i]);
+			write_guid(data[num_guids - 1 - i]);
 		write_uint32(num_guids);
 		write_uint32(size);
 		write_uint32(id);
