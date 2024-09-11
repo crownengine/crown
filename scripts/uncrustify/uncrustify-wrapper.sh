@@ -69,7 +69,7 @@ if [ -n "$2" ]; then
 		rm "$TEMPFILE_UNCRUSTIFY"
 
 		# Only overwrite if there are differences.
-		if ! diff "$2" "$TEMPFILE_AWK" 2>/dev/null; then
+		if ! cmp -s "$2" "$TEMPFILE_AWK"; then
 			mv "$TEMPFILE_AWK" "$2"
 		else
 			rm "$TEMPFILE_AWK"
