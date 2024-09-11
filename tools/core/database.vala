@@ -15,6 +15,7 @@ public enum UndoRedoAction
 public struct RestorePointHeader
 {
 	public uint32 id;
+	public uint32 flags;
 	public uint32 size;
 	public uint32 num_guids;
 }
@@ -321,7 +322,7 @@ public class Stack
 		write_uint32(action);
 	}
 
-	public void write_restore_point(uint32 id, Guid?[] data)
+	public void write_restore_point(uint32 id, uint32 flags, Guid?[] data)
 	{
 		uint32 size = _last_write_restore_point_size;
 
@@ -330,6 +331,7 @@ public class Stack
 			write_guid(data[num_guids - 1 - i]);
 		write_uint32(num_guids);
 		write_uint32(size);
+		write_uint32(flags);
 		write_uint32(id);
 		write_uint32(UndoRedoAction.RESTORE_POINT);
 
@@ -342,13 +344,14 @@ public class Stack
 		assert(t == UndoRedoAction.RESTORE_POINT);
 
 		uint32 id = read_uint32();
+		uint32 flags = read_uint32();
 		uint32 size = read_uint32();
 		uint32 num_guids = read_uint32();
 		Guid?[] ids = new Guid?[num_guids];
 		for (uint32 i = 0; i < num_guids; ++i)
 			ids[i] = read_guid();
 
-		RestorePointHeader rph = { id, size, num_guids };
+		RestorePointHeader rph = { id, flags, size, num_guids };
 		return { rph, ids };
 	}
 }
@@ -408,7 +411,7 @@ public class Database
 	public signal void object_created(Guid id);
 	public signal void object_destroyed(Guid id);
 	public signal void undo_redo(bool undo, uint32 id, Guid?[] data);
-	public signal void restore_point_added(int id, Guid?[] data);
+	public signal void restore_point_added(int id, Guid?[] data, uint32 flags);
 
 	public Database(Project project, UndoRedo? undo_redo = null)
 	{
@@ -1221,15 +1224,15 @@ public class Database
 		return data.keys.to_array();
 	}
 
-	public void add_restore_point(int id, Guid?[] data)
+	public void add_restore_point(int id, Guid?[] data, uint32 flags = 0u)
 	{
 		if (_debug)
 			logi("add_restore_point %d, undo size = %u".printf(id, _undo_redo._undo.size()));
 
 		if (_undo_redo != null) {
-			_undo_redo._undo.write_restore_point(id, data);
+			_undo_redo._undo.write_restore_point(id, flags, data);
 			_undo_redo._redo.clear();
-			restore_point_added(id, data);
+			restore_point_added(id, data, flags);
 		}
 	}
 
@@ -1351,7 +1354,7 @@ public class Database
 		undo_or_redo(_undo_redo._undo, _undo_redo._redo, rp.header.size);
 
 		undo_redo(true, rp.header.id, rp.data);
-		_undo_redo._redo.write_restore_point(rp.header.id, rp.data);
+		_undo_redo._redo.write_restore_point(rp.header.id, rp.header.flags, rp.data);
 
 		return (int)rp.header.id;
 	}
@@ -1370,7 +1373,7 @@ public class Database
 		undo_or_redo(_undo_redo._redo, _undo_redo._undo, rp.header.size);
 
 		undo_redo(false, rp.header.id, rp.data);
-		_undo_redo._undo.write_restore_point(rp.header.id, rp.data);
+		_undo_redo._undo.write_restore_point(rp.header.id, rp.header.flags, rp.data);
 
 		return (int)rp.header.id;
 	}
