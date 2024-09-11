@@ -1283,8 +1283,7 @@ public class LevelEditorApplication : Gtk.Application
 				on_objects_created(data);
 			break;
 
-		case ActionType.DESTROY_UNIT:
-		case ActionType.DESTROY_SOUND:
+		case ActionType.DESTROY_OBJECTS:
 			if ((flags & ActionTypeFlags.FROM_SERVER) == 0)
 				on_objects_destroyed(data);
 			break;
@@ -1327,8 +1326,7 @@ public class LevelEditorApplication : Gtk.Application
 				on_objects_created(data);
 			break;
 
-		case ActionType.DESTROY_UNIT:
-		case ActionType.DESTROY_SOUND:
+		case ActionType.DESTROY_OBJECTS:
 			if (undo)
 				on_objects_created(data);
 			else

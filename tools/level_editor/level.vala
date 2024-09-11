@@ -111,31 +111,17 @@ public class Level
 
 	public void destroy_objects(Guid?[] ids)
 	{
-		Guid?[] units = {};
-		Guid?[] sounds = {};
-
 		foreach (Guid id in ids) {
-			if (_db.object_type(id) == OBJECT_TYPE_UNIT)
-				units += id;
-			else if (_db.object_type(id) == OBJECT_TYPE_SOUND_SOURCE)
-				sounds += id;
-		}
-
-		if (units.length > 0) {
-			foreach (Guid id in units) {
+			if (_db.object_type(id) == OBJECT_TYPE_UNIT) {
 				_db.remove_from_set(_id, "units", id);
 				_db.destroy(id);
-			}
-			_db.add_restore_point((int)ActionType.DESTROY_UNIT, units);
-		}
-
-		if (sounds.length > 0) {
-			foreach (Guid id in sounds) {
+			} else if (_db.object_type(id) == OBJECT_TYPE_SOUND_SOURCE) {
 				_db.remove_from_set(_id, "sounds", id);
 				_db.destroy(id);
 			}
-			_db.add_restore_point((int)ActionType.DESTROY_SOUND, sounds);
 		}
+
+		_db.add_restore_point((int)ActionType.DESTROY_OBJECTS, ids);
 	}
 
 	public void duplicate_selected_objects()
