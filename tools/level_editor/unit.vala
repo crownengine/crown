@@ -29,6 +29,18 @@ public class Unit
 		assert(prefab_id != GUID_ZERO);
 	}
 
+	public void create(string? prefab, Vector3 pos, Quaternion rot, Vector3 scl)
+	{
+		_db.create(_id, OBJECT_TYPE_UNIT);
+
+		if (prefab != null)
+			_db.set_property_string(_id, "prefab", prefab);
+
+		set_local_position(pos);
+		set_local_rotation(rot);
+		set_local_scale(scl);
+	}
+
 	public Value? get_component_property(Guid component_id, string key)
 	{
 		Value? val;
@@ -214,6 +226,72 @@ public class Unit
 		return Unit.has_component_static(out component_id, out owner_id, component_type, _db, _id);
 	}
 
+	public Vector3 local_position()
+	{
+		Vector3 position;
+
+		Guid component_id;
+		if (has_component(out component_id, OBJECT_TYPE_TRANSFORM))
+			position = get_component_property_vector3(component_id, "data.position");
+		else
+			position = _db.get_property_vector3(_id, "position");
+
+		return position;
+	}
+
+	public Quaternion local_rotation()
+	{
+		Quaternion rotation;
+
+		Guid component_id;
+		if (has_component(out component_id, OBJECT_TYPE_TRANSFORM))
+			rotation = get_component_property_quaternion(component_id, "data.rotation");
+		else
+			rotation = _db.get_property_quaternion(_id, "rotation");
+
+		return rotation;
+	}
+
+	public Vector3 local_scale()
+	{
+		Vector3 scale;
+
+		Guid component_id;
+		if (has_component(out component_id, OBJECT_TYPE_TRANSFORM))
+			scale = get_component_property_vector3(component_id, "data.scale");
+		else
+			scale = _db.get_property_vector3(_id, "scale");
+
+		return scale;
+	}
+
+	public void set_local_position(Vector3 position)
+	{
+		Guid component_id;
+		if (has_component(out component_id, OBJECT_TYPE_TRANSFORM))
+			set_component_property_vector3(component_id, "data.position", position);
+		else
+			_db.set_property_vector3(_id, "position", position);
+	}
+
+	public void set_local_rotation(Quaternion rotation)
+	{
+		Guid component_id;
+		if (has_component(out component_id, OBJECT_TYPE_TRANSFORM))
+			set_component_property_quaternion(component_id, "data.rotation", rotation);
+		else
+			_db.set_property_quaternion(_id, "rotation", rotation);
+	}
+
+	public void set_local_scale(Vector3 scale)
+	{
+		Guid component_id;
+		if (has_component(out component_id, OBJECT_TYPE_TRANSFORM))
+			set_component_property_vector3(component_id, "data.scale", scale);
+		else
+			_db.set_property_vector3(_id, "scale", scale);
+	}
+
 	public void remove_component(Guid component_id)
 	{
 		_db.remove_from_set(_id, "components", component_id);
@@ -289,6 +367,15 @@ public class Unit
 		} else {
 			logw("Unregistered component type `%s`".printf(component_type));
 		}
+	}
+
+	public void send(RuntimeInstance runtime)
+	{
+		runtime.send_script(LevelEditorApi.move_object(_id
+			, local_position()
+			, local_rotation()
+			, local_scale()
+			));
 	}
 }
 
