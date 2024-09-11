@@ -57,8 +57,8 @@
       </section>
       <section>
         <item>
-          <attribute name="label" translatable="yes">Close</attribute>
-          <attribute name="action">app.close</attribute>
+          <attribute name="label" translatable="yes">Close Project</attribute>
+          <attribute name="action">app.close-project</attribute>
           <attribute name="accel">&lt;Primary&gt;W</attribute>
         </item>
         <item>

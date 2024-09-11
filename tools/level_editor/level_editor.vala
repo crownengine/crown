@@ -333,7 +333,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "import-null",   on_import,        null, null },
 		{ "preferences",   on_preferences,   null, null },
 		{ "deploy",        on_deploy,        null, null },
-		{ "close",         on_close,         null, null },
+		{ "close-project", on_close_project, null, null },
 		{ "quit",          on_quit,          null, null },
 		{ "open-resource", on_open_resource, "s",  null },
 		{ "copy-path",     on_copy_path,     "s",  null }
@@ -2119,7 +2119,7 @@ public class LevelEditorApplication : Gtk.Application
 		return rt;
 	}
 
-	private void on_close(GLib.SimpleAction action, GLib.Variant? param)
+	private void on_close_project(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		int rt = ResponseType.YES;
 
