@@ -11,17 +11,19 @@ namespace Crown
 public class PropertyGrid : Gtk.Grid
 {
 	// Data
+	public Database? _db;
 	public Guid _id;
 	public Guid _component_id;
 	public int _rows;
 
-	public PropertyGrid()
+	public PropertyGrid(Database? db = null)
 	{
 		this.row_spacing = 4;
 		this.row_homogeneous = true;
 		this.column_spacing = 12;
 
 		// Data
+		_db = db;
 		_id = GUID_ZERO;
 		_component_id = GUID_ZERO;
 		_rows = 0;
@@ -72,18 +74,14 @@ public class PropertyGridSet : Gtk.Box
 
 public class TransformPropertyGrid : PropertyGrid
 {
-	// Data
-	Level _level;
-
 	// Widgets
 	private EntryPosition _position;
 	private EntryRotation _rotation;
 	private EntryScale _scale;
 
-	public TransformPropertyGrid(Level level)
+	public TransformPropertyGrid(Database db)
 	{
-		// Data
-		_level = level;
+		base(db);
 
 		// Widgets
 		_position = new EntryPosition();
@@ -100,15 +98,17 @@ public class TransformPropertyGrid : PropertyGrid
 
 	private void on_value_changed()
 	{
-		_level.move_selected_objects(_position.value
-			, _rotation.value
-			, _scale.value
-			);
+		Unit unit = new Unit(_db, _id);
+		unit.set_component_property_vector3   (_component_id, "data.position", _position.value);
+		unit.set_component_property_quaternion(_component_id, "data.rotation", _rotation.value);
+		unit.set_component_property_vector3   (_component_id, "data.scale", _scale.value);
+
+		_db.add_restore_point((int)ActionType.SET_TRANSFORM, new Guid?[] { _id, _component_id });
 	}
 
 	public override void update()
 	{
-		Unit unit = new Unit(_level._db, _id);
+		Unit unit = new Unit(_db, _id);
 		_position.value = unit.get_component_property_vector3   (_component_id, "data.position");
 		_rotation.value = unit.get_component_property_quaternion(_component_id, "data.rotation");
 		_scale.value    = unit.get_component_property_vector3   (_component_id, "data.scale");
@@ -117,19 +117,15 @@ public class TransformPropertyGrid : PropertyGrid
 
 public class MeshRendererPropertyGrid : PropertyGrid
 {
-	// Data
-	Level _level;
-
 	// Widgets
 	private ResourceChooserButton _mesh_resource;
 	private EntryText _geometry;
 	private ResourceChooserButton _material;
 	private CheckBox _visible;
 
-	public MeshRendererPropertyGrid(Level level, ProjectStore store)
+	public MeshRendererPropertyGrid(Database db, ProjectStore store)
 	{
-		// Data
-		_level = level;
+		base(db);
 
 		// Widgets
 		_mesh_resource = new ResourceChooserButton(store, "mesh");
@@ -149,18 +145,18 @@ public class MeshRendererPropertyGrid : PropertyGrid
 
 	private void on_value_changed()
 	{
-		_level.set_mesh(_id
-			, _component_id
-			, _mesh_resource.value
-			, _geometry.text
-			, _material.value
-			, _visible.value
-			);
+		Unit unit = new Unit(_db, _id);
+		unit.set_component_property_string(_component_id, "data.mesh_resource", _mesh_resource.value);
+		unit.set_component_property_string(_component_id, "data.geometry_name", _geometry.text);
+		unit.set_component_property_string(_component_id, "data.material", _material.value);
+		unit.set_component_property_bool  (_component_id, "data.visible", _visible.value);
+
+		_db.add_restore_point((int)ActionType.SET_MESH, new Guid?[] { _id, _component_id });
 	}
 
 	public override void update()
 	{
-		Unit unit = new Unit(_level._db, _id);
+		Unit unit = new Unit(_db, _id);
 		_mesh_resource.value = unit.get_component_property_string(_component_id, "data.mesh_resource");
 		_geometry.text       = unit.get_component_property_string(_component_id, "data.geometry_name");
 		_material.value      = unit.get_component_property_string(_component_id, "data.material");
@@ -170,9 +166,6 @@ public class MeshRendererPropertyGrid : PropertyGrid
 
 public class SpriteRendererPropertyGrid : PropertyGrid
 {
-	// Data
-	Level _level;
-
 	// Widgets
 	private ResourceChooserButton _sprite_resource;
 	private ResourceChooserButton _material;
@@ -180,10 +173,9 @@ public class SpriteRendererPropertyGrid : PropertyGrid
 	private EntryDouble _depth;
 	private CheckBox _visible;
 
-	public SpriteRendererPropertyGrid(Level level, ProjectStore store)
+	public SpriteRendererPropertyGrid(Database db, ProjectStore store)
 	{
-		// Data
-		_level = level;
+		base(db);
 
 		// Widgets
 		_sprite_resource = new ResourceChooserButton(store, "sprite");
@@ -206,19 +198,19 @@ public class SpriteRendererPropertyGrid : PropertyGrid
 
 	private void on_value_changed()
 	{
-		_level.set_sprite(_id
-			, _component_id
-			, _layer.value
-			, _depth.value
-			, _material.value
-			, _sprite_resource.value
-			, _visible.value
-			);
+		Unit unit = new Unit(_db, _id);
+		unit.set_component_property_string(_component_id, "data.sprite_resource", _sprite_resource.value);
+		unit.set_component_property_string(_component_id, "data.material", _material.value);
+		unit.set_component_property_double(_component_id, "data.layer", _layer.value);
+		unit.set_component_property_double(_component_id, "data.depth", _depth.value);
+		unit.set_component_property_bool  (_component_id, "data.visible", _visible.value);
+
+		_db.add_restore_point((int)ActionType.SET_SPRITE, new Guid?[] { _id, _component_id });
 	}
 
 	public override void update()
 	{
-		Unit unit = new Unit(_level._db, _id);
+		Unit unit = new Unit(_db, _id);
 		_sprite_resource.value = unit.get_component_property_string(_component_id, "data.sprite_resource");
 		_material.value        = unit.get_component_property_string(_component_id, "data.material");
 		_layer.value           = unit.get_component_property_double(_component_id, "data.layer");
@@ -229,9 +221,6 @@ public class SpriteRendererPropertyGrid : PropertyGrid
 
 public class LightPropertyGrid : PropertyGrid
 {
-	// Data
-	Level _level;
-
 	// Widgets
 	private ComboBoxMap _type;
 	private EntryDouble _range;
@@ -239,10 +228,9 @@ public class LightPropertyGrid : PropertyGrid
 	private EntryDouble _spot_angle;
 	private ColorButtonVector3 _color;
 
-	public LightPropertyGrid(Level level)
+	public LightPropertyGrid(Database db)
 	{
-		// Data
-		_level = level;
+		base(db);
 
 		// Widgets
 		_type = new ComboBoxMap();
@@ -268,48 +256,38 @@ public class LightPropertyGrid : PropertyGrid
 
 	private void on_value_changed()
 	{
-		_level.set_light(_id
-			, _component_id
-			, _type.value
-			, _range.value
-			, _intensity.value
-			, _spot_angle.value*(Math.PI/180.0)
-			, _color.value
-			);
+		Unit unit = new Unit(_db, _id);
+		unit.set_component_property_string (_component_id, "data.type",       _type.value);
+		unit.set_component_property_double (_component_id, "data.range",      _range.value);
+		unit.set_component_property_double (_component_id, "data.intensity",  _intensity.value);
+		unit.set_component_property_double (_component_id, "data.spot_angle", _spot_angle.value * (Math.PI/180.0));
+		unit.set_component_property_vector3(_component_id, "data.color",      _color.value);
+
+		_db.add_restore_point((int)ActionType.SET_LIGHT, new Guid?[] { _id, _component_id });
 	}
 
 	public override void update()
 	{
-		Unit unit = new Unit(_level._db, _id);
-		string type       = unit.get_component_property_string (_component_id, "data.type");
-		double range      = unit.get_component_property_double (_component_id, "data.range");
-		double intensity  = unit.get_component_property_double (_component_id, "data.intensity");
-		double spot_angle = unit.get_component_property_double (_component_id, "data.spot_angle");
-		Vector3 color     = unit.get_component_property_vector3(_component_id, "data.color");
-
-		_type.value       = type;
-		_range.value      = range;
-		_intensity.value  = intensity;
-		_spot_angle.value = spot_angle*(180.0/Math.PI);
-		_color.value      = color;
+		Unit unit = new Unit(_db, _id);
+		_type.value       = unit.get_component_property_string (_component_id, "data.type");
+		_range.value      = unit.get_component_property_double (_component_id, "data.range");
+		_intensity.value  = unit.get_component_property_double (_component_id, "data.intensity");
+		_spot_angle.value = unit.get_component_property_double (_component_id, "data.spot_angle") * (180.0/Math.PI);
+		_color.value      = unit.get_component_property_vector3(_component_id, "data.color");
 	}
 }
 
 public class CameraPropertyGrid : PropertyGrid
 {
-	// Data
-	Level _level;
-
 	// Widgets
 	private ComboBoxMap _projection;
 	private EntryDouble _fov;
 	private EntryDouble _near_range;
 	private EntryDouble _far_range;
 
-	public CameraPropertyGrid(Level level)
+	public CameraPropertyGrid(Database db)
 	{
-		// Data
-		_level = level;
+		base(db);
 
 		// Widgets
 		_projection = new ComboBoxMap();
@@ -331,19 +309,18 @@ public class CameraPropertyGrid : PropertyGrid
 
 	private void on_value_changed()
 	{
-		_level.set_camera(_id
-			, _component_id
-			, _projection.value
-			, _fov.value*(Math.PI/180.0)
-			, _near_range.value
-			, _far_range.value
-			);
+		Unit unit = new Unit(_db, _id);
+		unit.set_component_property_string(_component_id, "data.projection", _projection.value);
+		unit.set_component_property_double(_component_id, "data.fov", _fov.value * (Math.PI/180.0));
+		unit.set_component_property_double(_component_id, "data.near_range", _near_range.value);
+		unit.set_component_property_double(_component_id, "data.far_range", _far_range.value);
+
+		_db.add_restore_point((int)ActionType.SET_CAMERA, new Guid?[] { _id, _component_id });
 	}
 
 	public override void update()
 	{
-		Unit unit = new Unit(_level._db, _id);
-
+		Unit unit = new Unit(_db, _id);
 		_projection.value = unit.get_component_property_string(_component_id, "data.projection");
 		_fov.value        = unit.get_component_property_double(_component_id, "data.fov") * (180.0/Math.PI);
 		_near_range.value = unit.get_component_property_double(_component_id, "data.near_range");
@@ -353,19 +330,15 @@ public class CameraPropertyGrid : PropertyGrid
 
 public class ColliderPropertyGrid : PropertyGrid
 {
-	// Data
-	Level _level;
-
 	// Widgets
 	private EntryText _source;
 	private EntryText _shape;
 	private ResourceChooserButton _scene;
 	private EntryText _name;
 
-	public ColliderPropertyGrid(Level level, ProjectStore store)
+	public ColliderPropertyGrid(Database db, ProjectStore store)
 	{
-		// Data
-		_level = level;
+		base(db);
 
 		// Widgets
 		_source = new EntryText();
@@ -387,19 +360,17 @@ public class ColliderPropertyGrid : PropertyGrid
 
 	private void on_value_changed()
 	{
-		if (_source.text == "mesh") {
-			_level.set_collider(_id
-				, _component_id
-				, _shape.text
-				, _scene.value
-				, _name.text
-				);
-		}
+		Unit unit = new Unit(_db, _id);
+		unit.set_component_property_string(_component_id, "data.shape", _shape.text);
+		unit.set_component_property_string(_component_id, "data.scene", _scene.value);
+		unit.set_component_property_string(_component_id, "data.name", _name.text);
+
+		_db.add_restore_point((int)ActionType.SET_COLLIDER, new Guid?[] { _id, _component_id });
 	}
 
 	public override void update()
 	{
-		Unit unit = new Unit(_level._db, _id);
+		Unit unit = new Unit(_db, _id);
 
 		Value? source = unit.get_component_property(_component_id, "data.source");
 		if (source != null) {
@@ -425,19 +396,15 @@ public class ColliderPropertyGrid : PropertyGrid
 
 public class ActorPropertyGrid : PropertyGrid
 {
-	// Data
-	Level _level;
-
 	// Widgets
 	private ComboBoxMap _class;
 	private EntryText _collision_filter;
 	private EntryDouble _mass;
 	private EntryText _material;
 
-	public ActorPropertyGrid(Level level)
+	public ActorPropertyGrid(Database db)
 	{
-		// Data
-		_level = level;
+		base(db);
 
 		// Widgets
 		_class = new ComboBoxMap();
@@ -461,18 +428,24 @@ public class ActorPropertyGrid : PropertyGrid
 
 	private void on_value_changed()
 	{
-		_level.set_actor(_id
-			, _component_id
-			, _class.value
-			, _collision_filter.text
-			, _material.text
-			, _mass.value
-			);
+		Unit unit = new Unit(_db, _id);
+		unit.set_component_property_string(_component_id, "data.class", _class.value);
+		unit.set_component_property_string(_component_id, "data.collision_filter", _collision_filter.text);
+		unit.set_component_property_string(_component_id, "data.material", _material.text);
+		unit.set_component_property_double(_component_id, "data.mass", _mass.value);
+		unit.set_component_property_bool  (_component_id, "data.lock_rotation_x", (bool)unit.get_component_property_bool(_component_id, "data.lock_rotation_x"));
+		unit.set_component_property_bool  (_component_id, "data.lock_rotation_y", (bool)unit.get_component_property_bool(_component_id, "data.lock_rotation_y"));
+		unit.set_component_property_bool  (_component_id, "data.lock_rotation_z", (bool)unit.get_component_property_bool(_component_id, "data.lock_rotation_z"));
+		unit.set_component_property_bool  (_component_id, "data.lock_translation_x", (bool)unit.get_component_property_bool(_component_id, "data.lock_translation_x"));
+		unit.set_component_property_bool  (_component_id, "data.lock_translation_y", (bool)unit.get_component_property_bool(_component_id, "data.lock_translation_y"));
+		unit.set_component_property_bool  (_component_id, "data.lock_translation_z", (bool)unit.get_component_property_bool(_component_id, "data.lock_translation_z"));
+
+		_db.add_restore_point((int)ActionType.SET_ACTOR, new Guid?[] { _id, _component_id });
 	}
 
 	public override void update()
 	{
-		Unit unit = new Unit(_level._db, _id);
+		Unit unit = new Unit(_db, _id);
 		_class.value           = unit.get_component_property_string(_component_id, "data.class");
 		_collision_filter.text = unit.get_component_property_string(_component_id, "data.collision_filter");
 		_material.text         = unit.get_component_property_string(_component_id, "data.material");
@@ -482,16 +455,12 @@ public class ActorPropertyGrid : PropertyGrid
 
 public class ScriptPropertyGrid : PropertyGrid
 {
-	// Data
-	Level _level;
-
 	// Widgets
 	private ResourceChooserButton _script_resource;
 
-	public ScriptPropertyGrid(Level level, ProjectStore store)
+	public ScriptPropertyGrid(Database db, ProjectStore store)
 	{
-		// Data
-		_level = level;
+		base(db);
 
 		// Widgets
 		_script_resource = new ResourceChooserButton(store, "lua");
@@ -502,31 +471,27 @@ public class ScriptPropertyGrid : PropertyGrid
 
 	private void on_value_changed()
 	{
-		_level.set_script(_id
-			, _component_id
-			, _script_resource.value
-			);
+		Unit unit = new Unit(_db, _id);
+		unit.set_component_property_string(_component_id, "data.script_resource", _script_resource.value);
+
+		_db.add_restore_point((int)ActionType.SET_SCRIPT, new Guid?[] { _id, _component_id });
 	}
 
 	public override void update()
 	{
-		Unit unit = new Unit(_level._db, _id);
+		Unit unit = new Unit(_db, _id);
 		_script_resource.value = unit.get_component_property_string(_component_id, "data.script_resource");
 	}
 }
 
 public class AnimationStateMachine : PropertyGrid
 {
-	// Data
-	Level _level;
-
 	// Widgets
 	private ResourceChooserButton _state_machine_resource;
 
-	public AnimationStateMachine(Level level, ProjectStore store)
+	public AnimationStateMachine(Database db, ProjectStore store)
 	{
-		// Data
-		_level = level;
+		base(db);
 
 		// Widgets
 		_state_machine_resource = new ResourceChooserButton(store, "state_machine");
@@ -537,31 +502,27 @@ public class AnimationStateMachine : PropertyGrid
 
 	private void on_value_changed()
 	{
-		_level.set_animation_state_machine(_id
-			, _component_id
-			, _state_machine_resource.value
-			);
+		Unit unit = new Unit(_db, _id);
+		unit.set_component_property_string(_component_id, "data.state_machine_resource", _state_machine_resource.value);
+
+		_db.add_restore_point((int)ActionType.SET_ANIMATION_STATE_MACHINE, new Guid?[] { _id, _component_id });
 	}
 
 	public override void update()
 	{
-		Unit unit = new Unit(_level._db, _id);
+		Unit unit = new Unit(_db, _id);
 		_state_machine_resource.value = unit.get_component_property_string(_component_id, "data.state_machine_resource");
 	}
 }
 
 public class UnitView : PropertyGrid
 {
-	// Data
-	Level _level;
-
 	// Widgets
 	private ResourceChooserButton _prefab;
 
-	public UnitView(Level level, ProjectStore store)
+	public UnitView(Database db, ProjectStore store)
 	{
-		// Data
-		_level = level;
+		base(db);
 
 		// Widgets
 		_prefab = new ResourceChooserButton(store, "unit");
@@ -572,26 +533,23 @@ public class UnitView : PropertyGrid
 
 	public override void update()
 	{
-		if (_level._db.has_property(_id, "prefab"))
-			_prefab.value = _level._db.get_property_string(_id, "prefab");
-		else
+		if (_db.has_property(_id, "prefab")) {
+			_prefab.value = _db.get_property_string(_id, "prefab");
+		} else {
 			_prefab.value = "<none>";
+		}
 	}
 }
 
 public class SoundTransformView : PropertyGrid
 {
-	// Data
-	Level _level;
-
 	// Widgets
 	private EntryVector3 _position;
 	private EntryRotation _rotation;
 
-	public SoundTransformView(Level level)
+	public SoundTransformView(Database db)
 	{
-		// Data
-		_level = level;
+		base(db);
 
 		// Widgets
 		_position = new EntryPosition();
@@ -606,16 +564,16 @@ public class SoundTransformView : PropertyGrid
 
 	private void on_value_changed()
 	{
-		Vector3 pos    = _position.value;
-		Quaternion rot = _rotation.value;
+		_db.set_property_vector3   (_id, "position", _position.value);
+		_db.set_property_quaternion(_id, "rotation", _rotation.value);
 
-		_level.move_selected_objects(pos, rot, Vector3(1.0, 1.0, 1.0));
+		_db.add_restore_point((int)ActionType.SET_SOUND, new Guid?[] { _id });
 	}
 
 	public override void update()
 	{
-		Vector3 pos    = _level._db.get_property_vector3   (_id, "position");
-		Quaternion rot = _level._db.get_property_quaternion(_id, "rotation");
+		Vector3 pos    = _db.get_property_vector3   (_id, "position");
+		Quaternion rot = _db.get_property_quaternion(_id, "rotation");
 
 		_position.value = pos;
 		_rotation.value = rot;
@@ -624,19 +582,15 @@ public class SoundTransformView : PropertyGrid
 
 public class SoundView : PropertyGrid
 {
-	// Data
-	Level _level;
-
 	// Widgets
 	private ResourceChooserButton _name;
 	private EntryDouble _range;
 	private EntryDouble _volume;
 	private CheckBox _loop;
 
-	public SoundView(Level level, ProjectStore store)
+	public SoundView(Database db, ProjectStore store)
 	{
-		// Data
-		_level = level;
+		base(db);
 
 		// Widgets
 		_name   = new ResourceChooserButton(store, "sound");
@@ -656,20 +610,20 @@ public class SoundView : PropertyGrid
 
 	private void on_value_changed()
 	{
-		_level.set_sound(_id
-			, _name.value
-			, _range.value
-			, _volume.value
-			, _loop.value
-			);
+		_db.set_property_string(_id, "name", _name.value);
+		_db.set_property_double(_id, "range", _range.value);
+		_db.set_property_double(_id, "volume", _volume.value);
+		_db.set_property_bool  (_id, "loop", _loop.value);
+
+		_db.add_restore_point((int)ActionType.SET_SOUND, new Guid?[] { _id });
 	}
 
 	public override void update()
 	{
-		_name.value   = _level._db.get_property_string(_id, "name");
-		_range.value  = _level._db.get_property_double(_id, "range");
-		_volume.value = _level._db.get_property_double(_id, "volume");
-		_loop.value   = _level._db.get_property_bool  (_id, "loop");
+		_name.value   = _db.get_property_string(_id, "name");
+		_range.value  = _db.get_property_double(_id, "range");
+		_volume.value = _db.get_property_double(_id, "volume");
+		_loop.value   = _db.get_property_bool  (_id, "loop");
 	}
 }
 
@@ -682,7 +636,6 @@ public class PropertiesView : Gtk.Bin
 	}
 
 	// Data
-	private Level _level;
 	private Database _db;
 	private HashMap<string, Gtk.Expander> _expanders;
 	private HashMap<string, PropertyGrid> _objects;
@@ -697,12 +650,10 @@ public class PropertiesView : Gtk.Bin
 	private PropertyGridSet _object_view;
 	private Gtk.Stack _stack;
 
-	public PropertiesView(Level level, ProjectStore store)
+	public PropertiesView(Database db, ProjectStore store)
 	{
 		// Data
-		_level = level;
-		_level.selection_changed.connect(on_selection_changed);
-		_db = level._db;
+		_db = db;
 
 		_expanders = new HashMap<string, Gtk.Expander>();
 		_objects = new HashMap<string, PropertyGrid>();
@@ -714,20 +665,20 @@ public class PropertiesView : Gtk.Bin
 		_object_view.border_width = 6;
 
 		// Unit
-		register_object_type("Unit",                    "name",                    0, new UnitView(_level, store));
-		register_object_type("Transform",               "transform",               0, new TransformPropertyGrid(_level));
-		register_object_type("Light",                   "light",                   1, new LightPropertyGrid(_level));
-		register_object_type("Camera",                  "camera",                  2, new CameraPropertyGrid(_level));
-		register_object_type("Mesh Renderer",           "mesh_renderer",           3, new MeshRendererPropertyGrid(_level, store));
-		register_object_type("Sprite Renderer",         "sprite_renderer",         3, new SpriteRendererPropertyGrid(_level, store));
-		register_object_type("Collider",                "collider",                3, new ColliderPropertyGrid(_level, store));
-		register_object_type("Actor",                   "actor",                   3, new ActorPropertyGrid(_level));
-		register_object_type("Script",                  "script",                  3, new ScriptPropertyGrid(_level, store));
-		register_object_type("Animation State Machine", "animation_state_machine", 3, new AnimationStateMachine(_level, store));
+		register_object_type("Unit",                    "name",                              0, new UnitView(_db, store));
+		register_object_type("Transform",               OBJECT_TYPE_TRANSFORM,               0, new TransformPropertyGrid(_db));
+		register_object_type("Light",                   OBJECT_TYPE_LIGHT,                   1, new LightPropertyGrid(_db));
+		register_object_type("Camera",                  OBJECT_TYPE_CAMERA,                  2, new CameraPropertyGrid(_db));
+		register_object_type("Mesh Renderer",           OBJECT_TYPE_MESH_RENDERER,           3, new MeshRendererPropertyGrid(_db, store));
+		register_object_type("Sprite Renderer",         OBJECT_TYPE_SPRITE_RENDERER,         3, new SpriteRendererPropertyGrid(_db, store));
+		register_object_type("Collider",                OBJECT_TYPE_COLLIDER,                3, new ColliderPropertyGrid(_db, store));
+		register_object_type("Actor",                   OBJECT_TYPE_ACTOR,                   3, new ActorPropertyGrid(_db));
+		register_object_type("Script",                  OBJECT_TYPE_SCRIPT,                  3, new ScriptPropertyGrid(_db, store));
+		register_object_type("Animation State Machine", OBJECT_TYPE_ANIMATION_STATE_MACHINE, 3, new AnimationStateMachine(_db, store));
 
 		// Sound
-		register_object_type("Transform", "sound_transform",  0, new SoundTransformView(_level));
-		register_object_type("Sound",     "sound_properties", 1, new SoundView(_level, store));
+		register_object_type("Transform", "sound_transform",  0, new SoundTransformView(_db));
+		register_object_type("Sound",     "sound_properties", 1, new SoundView(_db, store));
 
 		_nothing_to_show = new Gtk.Label("Select an object to start editing");
 		_unknown_object_type = new Gtk.Label("Unknown object type");

@@ -14,6 +14,7 @@ public enum ActionType
 	MOVE_OBJECTS,
 	DUPLICATE_OBJECTS,
 	OBJECT_SET_EDITOR_NAME,
+	SET_TRANSFORM,
 	SET_LIGHT,
 	SET_MESH,
 	SET_SPRITE,
@@ -34,6 +35,7 @@ public const string ActionNames[] =
 	"Move Objects",
 	"Duplicate Objects",
 	"Set Object Name",
+	"Set Transform Parameter",
 	"Set Light Parameter",
 	"Set Mesh Parameter",
 	"Set Sprite Parameter",
@@ -44,5 +46,10 @@ public const string ActionNames[] =
 	"Set Animation State Machine Parameter",
 	"Set Sound Parameter"
 };
+
+public enum ActionTypeFlags
+{
+	FROM_SERVER = 0x1
+}
 
 } /* namespace Crown */

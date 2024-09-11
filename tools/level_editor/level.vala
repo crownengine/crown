@@ -39,8 +39,6 @@ public class Level
 
 		// Data
 		_db = db;
-		_db.undo_redo.connect(undo_redo_action);
-
 		_selection = new Gee.ArrayList<Guid?>();
 
 		reset();
@@ -104,11 +102,10 @@ public class Level
 
 	public void spawn_empty_unit()
 	{
-		StringBuilder sb = new StringBuilder();
 		Guid id = Guid.new_guid();
 		on_unit_spawned(id, null, VECTOR3_ZERO, QUATERNION_IDENTITY, VECTOR3_ONE);
-		generate_spawn_unit_commands(new Guid?[] { id }, sb);
-		_runtime.send_script(sb.str);
+		_db.add_restore_point((int)ActionType.SPAWN_UNIT, new Guid?[] { id });
+
 		selection_set(new Guid?[] { id });
 	}
 
@@ -139,19 +136,6 @@ public class Level
 			}
 			_db.add_restore_point((int)ActionType.DESTROY_SOUND, sounds);
 		}
-
-		send_destroy_objects(ids);
-	}
-
-	public void move_selected_objects(Vector3 pos, Quaternion rot, Vector3 scl)
-	{
-		if (_selection.size == 0)
-			return;
-
-		Guid id = _selection.last();
-		on_move_objects(new Guid?[] { id }, new Vector3[] { pos }, new Quaternion[] { rot }, new Vector3[] { scl });
-		send_move_objects(new Guid?[] { id }, new Vector3[] { pos }, new Quaternion[] { rot }, new Vector3[] { scl });
-		_runtime.send(DeviceApi.frame());
 	}
 
 	public void duplicate_selected_objects()
@@ -186,78 +170,42 @@ public class Level
 		}
 		_db.add_restore_point((int)ActionType.DUPLICATE_OBJECTS, new_ids);
 
-		send_spawn_objects(new_ids);
 		selection_set(ids);
 	}
 
 	public void on_unit_spawned(Guid id, string? name, Vector3 pos, Quaternion rot, Vector3 scl)
 	{
-		_db.create(id, OBJECT_TYPE_UNIT);
-		_db.set_property_string(id, "editor.name", "unit_%04u".printf(_num_units++));
-
-		if (name != null) {
-			_db.set_property_string(id, "prefab", name);
-		}
-
 		Unit unit = new Unit(_db, id);
-		Guid component_id;
-		if (unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM)) {
-			unit.set_component_property_vector3   (component_id, "data.position", pos);
-			unit.set_component_property_quaternion(component_id, "data.rotation", rot);
-			unit.set_component_property_vector3   (component_id, "data.scale", scl);
-			unit.set_component_property_string    (component_id, "type", OBJECT_TYPE_TRANSFORM);
-		} else {
-			_db.set_property_vector3   (id, "position", pos);
-			_db.set_property_quaternion(id, "rotation", rot);
-			_db.set_property_vector3   (id, "scale", scl);
-		}
+		unit.create(name, pos, rot, scl);
+
+		_db.set_property_string(id, "editor.name", "unit_%04u".printf(_num_units++));
 		_db.add_to_set(_id, "units", id);
-		_db.add_restore_point((int)ActionType.SPAWN_UNIT, new Guid?[] { id });
 	}
 
 	public void on_sound_spawned(Guid id, string name, Vector3 pos, Quaternion rot, Vector3 scl, double range, double volume, bool loop)
 	{
-		_db.create(id, OBJECT_TYPE_SOUND_SOURCE);
+		Sound sound = new Sound(_db, id);
+		sound.create(name, pos, rot, scl, range, volume, loop);
+
 		_db.set_property_string    (id, "editor.name", "sound_%04u".printf(_num_sounds++));
-		_db.set_property_vector3   (id, "position", pos);
-		_db.set_property_quaternion(id, "rotation", rot);
-		_db.set_property_string    (id, "name", name);
-		_db.set_property_double    (id, "range", range);
-		_db.set_property_double    (id, "volume", volume);
-		_db.set_property_bool      (id, "loop", loop);
 		_db.add_to_set(_id, "sounds", id);
-		_db.add_restore_point((int)ActionType.SPAWN_SOUND, new Guid?[] { id });
 	}
 
 	public void on_move_objects(Guid?[] ids, Vector3[] positions, Quaternion[] rotations, Vector3[] scales)
 	{
 		for (int i = 0; i < ids.length; ++i) {
-			Guid id = ids[i];
-			Vector3 pos = positions[i];
-			Quaternion rot = rotations[i];
-			Vector3 scl = scales[i];
-
-			if (_db.object_type(id) == OBJECT_TYPE_UNIT) {
-				Unit unit = new Unit(_db, id);
-				Guid component_id;
-				if (unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM)) {
-					unit.set_component_property_vector3   (component_id, "data.position", pos);
-					unit.set_component_property_quaternion(component_id, "data.rotation", rot);
-					unit.set_component_property_vector3   (component_id, "data.scale", scl);
-				} else {
-					_db.set_property_vector3   (id, "position", pos);
-					_db.set_property_quaternion(id, "rotation", rot);
-					_db.set_property_vector3   (id, "scale", scl);
-				}
-			} else if (_db.object_type(id) == OBJECT_TYPE_SOUND_SOURCE) {
-				_db.set_property_vector3   (id, "position", pos);
-				_db.set_property_quaternion(id, "rotation", rot);
+			if (_db.object_type(ids[i]) == OBJECT_TYPE_UNIT) {
+				Unit unit = new Unit(_db, ids[i]);
+				unit.set_local_position(positions[i]);
+				unit.set_local_rotation(rotations[i]);
+				unit.set_local_scale(scales[i]);
+			} else if (_db.object_type(ids[i]) == OBJECT_TYPE_SOUND_SOURCE) {
+				Sound sound = new Sound(_db, ids[i]);
+				sound.set_local_position(positions[i]);
+				sound.set_local_rotation(rotations[i]);
+				sound.set_local_scale(scales[i]);
 			}
 		}
-		_db.add_restore_point((int)ActionType.MOVE_OBJECTS, ids);
-
-		// FIXME: Hack to force update the properties view
-		selection_changed(_selection);
 	}
 
 	public void on_selection(Guid[] ids)
@@ -286,127 +234,6 @@ public class Level
 		_runtime.send_script(LevelEditorApi.selection_set(_selection.to_array()));
 	}
 
-	public void set_light(Guid unit_id, Guid component_id, string type, double range, double intensity, double spot_angle, Vector3 color)
-	{
-		Unit unit = new Unit(_db, unit_id);
-		unit.set_component_property_string (component_id, "data.type",       type);
-		unit.set_component_property_double (component_id, "data.range",      range);
-		unit.set_component_property_double (component_id, "data.intensity",  intensity);
-		unit.set_component_property_double (component_id, "data.spot_angle", spot_angle);
-		unit.set_component_property_vector3(component_id, "data.color",      color);
-		unit.set_component_property_string (component_id, "type", OBJECT_TYPE_LIGHT);
-		_db.add_restore_point((int)ActionType.SET_LIGHT, new Guid?[] { unit_id });
-
-		_runtime.send_script(LevelEditorApi.set_light(unit_id, type, range, intensity, spot_angle, color));
-		_runtime.send(DeviceApi.frame());
-	}
-
-	public void set_mesh(Guid unit_id, Guid component_id, string mesh_resource, string geometry, string material, bool visible)
-	{
-		Unit unit = new Unit(_db, unit_id);
-		unit.set_component_property_string(component_id, "data.mesh_resource", mesh_resource);
-		unit.set_component_property_string(component_id, "data.geometry_name", geometry);
-		unit.set_component_property_string(component_id, "data.material", material);
-		unit.set_component_property_bool  (component_id, "data.visible", visible);
-		unit.set_component_property_string(component_id, "type", OBJECT_TYPE_MESH_RENDERER);
-		_db.add_restore_point((int)ActionType.SET_MESH, new Guid?[] { unit_id });
-
-		_runtime.send_script(LevelEditorApi.set_mesh(unit_id, material, visible));
-		_runtime.send(DeviceApi.frame());
-	}
-
-	public void set_sprite(Guid unit_id, Guid component_id, double layer, double depth, string material, string sprite_resource, bool visible)
-	{
-		Unit unit = new Unit(_db, unit_id);
-		unit.set_component_property_double(component_id, "data.layer", layer);
-		unit.set_component_property_double(component_id, "data.depth", depth);
-		unit.set_component_property_string(component_id, "data.material", material);
-		unit.set_component_property_string(component_id, "data.sprite_resource", sprite_resource);
-		unit.set_component_property_bool  (component_id, "data.visible", visible);
-		unit.set_component_property_string(component_id, "type", OBJECT_TYPE_SPRITE_RENDERER);
-		_db.add_restore_point((int)ActionType.SET_SPRITE, new Guid?[] { unit_id });
-
-		_runtime.send_script(LevelEditorApi.set_sprite(unit_id, sprite_resource, material, layer, depth, visible));
-		_runtime.send(DeviceApi.frame());
-	}
-
-	public void set_camera(Guid unit_id, Guid component_id, string projection, double fov, double near_range, double far_range)
-	{
-		Unit unit = new Unit(_db, unit_id);
-		unit.set_component_property_string(component_id, "data.projection", projection);
-		unit.set_component_property_double(component_id, "data.fov", fov);
-		unit.set_component_property_double(component_id, "data.near_range", near_range);
-		unit.set_component_property_double(component_id, "data.far_range", far_range);
-		unit.set_component_property_string(component_id, "type", OBJECT_TYPE_CAMERA);
-		_db.add_restore_point((int)ActionType.SET_CAMERA, new Guid?[] { unit_id });
-
-		_runtime.send_script(LevelEditorApi.set_camera(unit_id, projection, fov, near_range, far_range));
-		_runtime.send(DeviceApi.frame());
-	}
-
-	public void set_collider(Guid unit_id, Guid component_id, string shape, string scene, string name)
-	{
-		Unit unit = new Unit(_db, unit_id);
-		unit.set_component_property_string(component_id, "data.shape", shape);
-		unit.set_component_property_string(component_id, "data.scene", scene);
-		unit.set_component_property_string(component_id, "data.name", name);
-		unit.set_component_property_string(component_id, "type", OBJECT_TYPE_COLLIDER);
-		_db.add_restore_point((int)ActionType.SET_COLLIDER, new Guid?[] { unit_id });
-
-		// No synchronization.
-	}
-
-	public void set_actor(Guid unit_id, Guid component_id, string class, string collision_filter, string material, double mass)
-	{
-		Unit unit = new Unit(_db, unit_id);
-		unit.set_component_property_string(component_id, "data.class", class);
-		unit.set_component_property_string(component_id, "data.collision_filter", collision_filter);
-		unit.set_component_property_string(component_id, "data.material", material);
-		unit.set_component_property_double(component_id, "data.mass", mass);
-		unit.set_component_property_bool  (component_id, "data.lock_rotation_x", (bool)unit.get_component_property_bool(component_id, "data.lock_rotation_x"));
-		unit.set_component_property_bool  (component_id, "data.lock_rotation_y", (bool)unit.get_component_property_bool(component_id, "data.lock_rotation_y"));
-		unit.set_component_property_bool  (component_id, "data.lock_rotation_z", (bool)unit.get_component_property_bool(component_id, "data.lock_rotation_z"));
-		unit.set_component_property_bool  (component_id, "data.lock_translation_x", (bool)unit.get_component_property_bool(component_id, "data.lock_translation_x"));
-		unit.set_component_property_bool  (component_id, "data.lock_translation_y", (bool)unit.get_component_property_bool(component_id, "data.lock_translation_y"));
-		unit.set_component_property_bool  (component_id, "data.lock_translation_z", (bool)unit.get_component_property_bool(component_id, "data.lock_translation_z"));
-		unit.set_component_property_string(component_id, "type", OBJECT_TYPE_ACTOR);
-		_db.add_restore_point((int)ActionType.SET_ACTOR, new Guid?[] { unit_id });
-
-		// No synchronization.
-	}
-
-	public void set_script(Guid unit_id, Guid component_id, string script_resource)
-	{
-		Unit unit = new Unit(_db, unit_id);
-		unit.set_component_property_string(component_id, "data.script_resource", script_resource);
-		unit.set_component_property_string(component_id, "type", OBJECT_TYPE_SCRIPT);
-		_db.add_restore_point((int)ActionType.SET_SCRIPT, new Guid?[] { unit_id });
-
-		// No synchronization.
-	}
-
-	public void set_animation_state_machine(Guid unit_id, Guid component_id, string state_machine_resource)
-	{
-		Unit unit = new Unit(_db, unit_id);
-		unit.set_component_property_string(component_id, "data.state_machine_resource", state_machine_resource);
-		unit.set_component_property_string(component_id, "type", OBJECT_TYPE_ANIMATION_STATE_MACHINE);
-		_db.add_restore_point((int)ActionType.SET_ANIMATION_STATE_MACHINE, new Guid?[] { unit_id });
-
-		// No synchronization.
-	}
-
-	public void set_sound(Guid sound_id, string name, double range, double volume, bool loop)
-	{
-		_db.set_property_string(sound_id, "name", name);
-		_db.set_property_double(sound_id, "range", range);
-		_db.set_property_double(sound_id, "volume", volume);
-		_db.set_property_bool  (sound_id, "loop", loop);
-		_db.add_restore_point((int)ActionType.SET_SOUND, new Guid?[] { sound_id });
-
-		_runtime.send_script(LevelEditorApi.set_sound_range(sound_id, range));
-		_runtime.send(DeviceApi.frame());
-	}
-
 	public string object_editor_name(Guid object_id)
 	{
 		if (_db.has_property(object_id, "editor.name"))
@@ -419,25 +246,9 @@ public class Level
 	{
 		_db.set_property_string(object_id, "editor.name", name);
 		_db.add_restore_point((int)ActionType.OBJECT_SET_EDITOR_NAME, new Guid?[] { object_id });
-
-		object_editor_name_changed(object_id, name);
 	}
 
-	private void send_spawn_units(Guid?[] ids)
-	{
-		StringBuilder sb = new StringBuilder();
-		generate_spawn_unit_commands(ids, sb);
-		_runtime.send_script(sb.str);
-	}
-
-	private void send_spawn_sounds(Guid?[] ids)
-	{
-		StringBuilder sb = new StringBuilder();
-		generate_spawn_sound_commands(ids, sb);
-		_runtime.send_script(sb.str);
-	}
-
-	private void send_spawn_objects(Guid?[] ids)
+	public void send_spawn_objects(Guid?[] ids)
 	{
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < ids.length; ++i) {
@@ -450,20 +261,11 @@ public class Level
 		_runtime.send_script(sb.str);
 	}
 
-	private void send_destroy_objects(Guid?[] ids)
+	public void send_destroy_objects(Guid?[] ids)
 	{
 		StringBuilder sb = new StringBuilder();
 		foreach (Guid id in ids)
 			sb.append(LevelEditorApi.destroy(id));
-
-		_runtime.send_script(sb.str);
-	}
-
-	private void send_move_objects(Guid?[] ids, Vector3[] positions, Quaternion[] rotations, Vector3[] scales)
-	{
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < ids.length; ++i)
-			sb.append(LevelEditorApi.move_object(ids[i], positions[i], rotations[i], scales[i]));
 
 		_runtime.send_script(sb.str);
 	}
@@ -576,202 +378,6 @@ public class Level
 				, _db.get_property_bool      (id, "loop")
 				);
 			sb.append(s);
-		}
-	}
-
-	private void undo_redo_action(bool undo, uint32 id, Guid?[] data)
-	{
-		switch (id) {
-		case (int)ActionType.SPAWN_UNIT:
-			if (undo)
-				send_destroy_objects(data);
-			else
-				send_spawn_units(data);
-
-			_runtime.send(DeviceApi.frame());
-			break;
-
-		case (int)ActionType.DESTROY_UNIT:
-			if (undo)
-				send_spawn_units(data);
-			else
-				send_destroy_objects(data);
-
-			_runtime.send(DeviceApi.frame());
-			break;
-
-		case (int)ActionType.SPAWN_SOUND:
-			if (undo)
-				send_destroy_objects(data);
-			else
-				send_spawn_sounds(data);
-
-			_runtime.send(DeviceApi.frame());
-			break;
-
-		case (int)ActionType.DESTROY_SOUND:
-			if (undo)
-				send_spawn_sounds(data);
-			else
-				send_destroy_objects(data);
-
-			_runtime.send(DeviceApi.frame());
-			break;
-
-		case (int)ActionType.MOVE_OBJECTS: {
-			Guid?[] ids = data;
-
-			Vector3[] positions = new Vector3[ids.length];
-			Quaternion[] rotations = new Quaternion[ids.length];
-			Vector3[] scales = new Vector3[ids.length];
-
-			for (int i = 0; i < ids.length; ++i) {
-				if (_db.object_type(ids[i]) == OBJECT_TYPE_UNIT) {
-					Guid unit_id = ids[i];
-
-					Unit unit = new Unit(_db, unit_id);
-					Guid component_id;
-					if (unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM)) {
-						positions[i] = unit.get_component_property_vector3   (component_id, "data.position");
-						rotations[i] = unit.get_component_property_quaternion(component_id, "data.rotation");
-						scales[i]    = unit.get_component_property_vector3   (component_id, "data.scale");
-					} else {
-						positions[i] = _db.get_property_vector3   (unit_id, "position");
-						rotations[i] = _db.get_property_quaternion(unit_id, "rotation");
-						scales[i]    = _db.get_property_vector3   (unit_id, "scale");
-					}
-				} else if (_db.object_type(ids[i]) == OBJECT_TYPE_SOUND_SOURCE) {
-					Guid sound_id = ids[i];
-					positions[i] = _db.get_property_vector3   (sound_id, "position");
-					rotations[i] = _db.get_property_quaternion(sound_id, "rotation");
-					scales[i]    = Vector3(1.0, 1.0, 1.0);
-				} else {
-					assert(false);
-				}
-			}
-
-			send_move_objects(ids, positions, rotations, scales);
-			_runtime.send(DeviceApi.frame());
-			// FIXME: Hack to force update the properties view
-			selection_changed(_selection);
-			break;
-		}
-
-		case (int)ActionType.DUPLICATE_OBJECTS: {
-			Guid?[] new_ids = data;
-			if (undo)
-				send_destroy_objects(new_ids);
-			else
-				send_spawn_objects(new_ids);
-
-			_runtime.send(DeviceApi.frame());
-			break;
-		}
-
-		case (int)ActionType.OBJECT_SET_EDITOR_NAME:
-			object_editor_name_changed(data[0], object_editor_name(data[0]));
-			break;
-
-		case (int)ActionType.SET_LIGHT: {
-			Guid unit_id = data[0];
-
-			Unit unit = new Unit(_db, unit_id);
-			Guid component_id;
-			unit.has_component(out component_id, OBJECT_TYPE_LIGHT);
-
-			_runtime.send_script(LevelEditorApi.set_light(unit_id
-				, unit.get_component_property_string (component_id, "data.type")
-				, unit.get_component_property_double (component_id, "data.range")
-				, unit.get_component_property_double (component_id, "data.intensity")
-				, unit.get_component_property_double (component_id, "data.spot_angle")
-				, unit.get_component_property_vector3(component_id, "data.color")
-				));
-			_runtime.send(DeviceApi.frame());
-			// FIXME: Hack to force update the properties view
-			selection_changed(_selection);
-			break;
-		}
-
-		case (int)ActionType.SET_MESH: {
-			Guid unit_id = data[0];
-
-			Unit unit = new Unit(_db, unit_id);
-			Guid component_id;
-			unit.has_component(out component_id, OBJECT_TYPE_MESH_RENDERER);
-
-			_runtime.send_script(LevelEditorApi.set_mesh(unit_id
-				, unit.get_component_property_string(component_id, "data.material")
-				, unit.get_component_property_bool  (component_id, "data.visible")
-				));
-			_runtime.send(DeviceApi.frame());
-			// FIXME: Hack to force update the properties view
-			selection_changed(_selection);
-			break;
-		}
-
-		case (int)ActionType.SET_SPRITE: {
-			Guid unit_id = data[0];
-
-			Unit unit = new Unit(_db, unit_id);
-			Guid component_id;
-			unit.has_component(out component_id, OBJECT_TYPE_SPRITE_RENDERER);
-
-			_runtime.send_script(LevelEditorApi.set_sprite(unit_id
-				, unit.get_component_property_string(component_id, "data.sprite_resource")
-				, unit.get_component_property_string(component_id, "data.material")
-				, unit.get_component_property_double(component_id, "data.layer")
-				, unit.get_component_property_double(component_id, "data.depth")
-				, unit.get_component_property_bool  (component_id, "data.visible")
-				));
-			_runtime.send(DeviceApi.frame());
-			// FIXME: Hack to force update the properties view
-			selection_changed(_selection);
-			break;
-		}
-
-		case (int)ActionType.SET_CAMERA: {
-			Guid unit_id = data[0];
-
-			Unit unit = new Unit(_db, unit_id);
-			Guid component_id;
-			unit.has_component(out component_id, OBJECT_TYPE_CAMERA);
-
-			_runtime.send_script(LevelEditorApi.set_camera(unit_id
-				, unit.get_component_property_string(component_id, "data.projection")
-				, unit.get_component_property_double(component_id, "data.fov")
-				, unit.get_component_property_double(component_id, "data.near_range")
-				, unit.get_component_property_double(component_id, "data.far_range")
-				));
-			_runtime.send(DeviceApi.frame());
-			// FIXME: Hack to force update the properties view
-			selection_changed(_selection);
-			break;
-		}
-
-		case (int)ActionType.SET_COLLIDER:
-		case (int)ActionType.SET_ACTOR:
-		case (int)ActionType.SET_SCRIPT:
-		case (int)ActionType.SET_ANIMATION_STATE_MACHINE:
-			_runtime.send(DeviceApi.frame());
-			// FIXME: Hack to force update the properties view
-			selection_changed(_selection);
-			break;
-
-		case (int)ActionType.SET_SOUND: {
-			Guid sound_id = data[0];
-
-			_runtime.send_script(LevelEditorApi.set_sound_range(sound_id
-				, _db.get_property_double(sound_id, "range")
-				));
-			_runtime.send(DeviceApi.frame());
-			// FIXME: Hack to force update the properties view
-			selection_changed(_selection);
-			break;
-		}
-
-		default:
-			loge("Unknown undo/redo action: %u".printf(id));
-			break;
 		}
 	}
 }

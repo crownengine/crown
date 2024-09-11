@@ -778,6 +778,8 @@ public class LevelEditorApplication : Gtk.Application
 		_undo_redo = new UndoRedo((uint)_preferences_dialog._undo_redo_max_size.value * 1024 * 1024);
 		_database = new Database(_project, _undo_redo);
 		_database.key_changed.connect(() => { update_active_window_title(); });
+		_database.restore_point_added.connect(on_restore_point_added);
+		_database.undo_redo.connect(on_undo_redo);
 
 		_level = new Level(_database, _editor, _project);
 
@@ -811,7 +813,8 @@ public class LevelEditorApplication : Gtk.Application
 		_project_browser = new ProjectBrowser(_project_store, _thumbnail_cache);
 		_level_treeview = new LevelTreeView(_database, _level);
 		_level_layers_treeview = new LevelLayersTreeView(_database, _level);
-		_properties_view = new PropertiesView(_level, _project_store);
+		_properties_view = new PropertiesView(_database, _project_store);
+		_level.selection_changed.connect(_properties_view.on_selection_changed);
 
 		_project_stack = new Gtk.Stack();
 		_project_stack.add(_project_browser);
@@ -1221,20 +1224,21 @@ public class LevelEditorApplication : Gtk.Application
 		} else if (msg_type == "refresh_list") {
 			_data_compiler.refresh_list_finished((ArrayList<Value?>)msg["list"]);
 		} else if (msg_type == "unit_spawned") {
-			string id             = (string)msg["id"];
+			Guid id               = Guid.parse((string)msg["id"]);
 			string name           = (string)msg["name"];
 			ArrayList<Value?> pos = (ArrayList<Value?>)msg["position"];
 			ArrayList<Value?> rot = (ArrayList<Value?>)msg["rotation"];
 			ArrayList<Value?> scl = (ArrayList<Value?>)msg["scale"];
 
-			_level.on_unit_spawned(Guid.parse(id)
+			_level.on_unit_spawned(id
 				, name
 				, Vector3.from_array(pos)
 				, Quaternion.from_array(rot)
 				, Vector3.from_array(scl)
 				);
+			_database.add_restore_point((int)ActionType.SPAWN_UNIT, new Guid?[] { id }, ActionTypeFlags.FROM_SERVER);
 		} else if (msg_type == "sound_spawned") {
-			string id             = (string)msg["id"];
+			Guid id               = Guid.parse((string)msg["id"]);
 			string name           = (string)msg["name"];
 			ArrayList<Value?> pos = (ArrayList<Value?>)msg["position"];
 			ArrayList<Value?> rot = (ArrayList<Value?>)msg["rotation"];
@@ -1243,7 +1247,7 @@ public class LevelEditorApplication : Gtk.Application
 			double volume         = (double)msg["volume"];
 			bool loop             = (bool)msg["loop"];
 
-			_level.on_sound_spawned(Guid.parse(id)
+			_level.on_sound_spawned(id
 				, name
 				, Vector3.from_array(pos)
 				, Quaternion.from_array(rot)
@@ -1252,6 +1256,7 @@ public class LevelEditorApplication : Gtk.Application
 				, volume
 				, loop
 				);
+			_database.add_restore_point((int)ActionType.SPAWN_SOUND, new Guid?[] { id }, ActionTypeFlags.FROM_SERVER);
 		} else if (msg_type == "move_objects") {
 			Hashtable ids           = (Hashtable)msg["ids"];
 			Hashtable new_positions = (Hashtable)msg["new_positions"];
@@ -1276,6 +1281,7 @@ public class LevelEditorApplication : Gtk.Application
 			}
 
 			_level.on_move_objects(n_ids, n_positions, n_rotations, n_scales);
+			_database.add_restore_point((int)ActionType.MOVE_OBJECTS, n_ids, ActionTypeFlags.FROM_SERVER);
 		} else if (msg_type == "selection") {
 			Hashtable objects = (Hashtable)msg["objects"];
 
@@ -1330,6 +1336,135 @@ public class LevelEditorApplication : Gtk.Application
 		append_editor_state(sb);
 		append_project_state(sb);
 		_editor.send_script(sb.str);
+	}
+
+	private void on_objects_created(Guid?[] object_ids)
+	{
+		_level.send_spawn_objects(object_ids);
+		_editor.send(DeviceApi.frame());
+		_level.selection_changed(_level._selection);
+	}
+
+	private void on_objects_destroyed(Guid?[] object_ids)
+	{
+		_level.send_destroy_objects(object_ids);
+		_editor.send(DeviceApi.frame());
+		_level.selection_changed(_level._selection);
+	}
+
+	private void on_object_changed(Guid object_id, Guid? component_id)
+	{
+		string object_type = _database.object_type(object_id);
+
+		if (object_type == OBJECT_TYPE_UNIT) {
+			Unit unit = new Unit(_database, object_id);
+			if (component_id == null)
+				unit.send(_editor);
+			else
+				unit.send_component(_editor, object_id, component_id);
+		} else if (object_type == OBJECT_TYPE_SOUND_SOURCE) {
+			Sound sound = new Sound(_database, object_id);
+			sound.send(_editor);
+		} else {
+			logw("Object changed with no handler: %s".printf(object_type));
+		}
+
+		_editor.send(DeviceApi.frame());
+	}
+
+	private void on_restore_point_added(int id, Guid?[] data, uint32 flags)
+	{
+		switch (id) {
+		case ActionType.SPAWN_UNIT:
+		case ActionType.SPAWN_SOUND:
+		case ActionType.DUPLICATE_OBJECTS:
+			if ((flags & ActionTypeFlags.FROM_SERVER) == 0)
+				on_objects_created(data);
+			break;
+
+		case ActionType.DESTROY_UNIT:
+		case ActionType.DESTROY_SOUND:
+			if ((flags & ActionTypeFlags.FROM_SERVER) == 0)
+				on_objects_destroyed(data);
+			break;
+
+		case ActionType.MOVE_OBJECTS:
+		case ActionType.SET_TRANSFORM:
+		case ActionType.SET_LIGHT:
+		case ActionType.SET_MESH:
+		case ActionType.SET_SPRITE:
+		case ActionType.SET_CAMERA:
+		case ActionType.SET_COLLIDER:
+		case ActionType.SET_ACTOR:
+		case ActionType.SET_SCRIPT:
+		case ActionType.SET_ANIMATION_STATE_MACHINE:
+		case ActionType.SET_SOUND:
+			if ((flags & ActionTypeFlags.FROM_SERVER) == 0)
+				on_object_changed(data[0], data[1]);
+			break;
+
+		case ActionType.OBJECT_SET_EDITOR_NAME:
+			on_object_changed(data[0], null);
+			_level.object_editor_name_changed(data[0], _level.object_editor_name(data[0]));
+			break;
+
+		default:
+			logw("Unknown action type %d".printf(id));
+			break;
+		}
+
+		_properties_view.show_or_hide_properties();
+	}
+
+	private void on_undo_redo(bool undo, uint32 id, Guid?[] data)
+	{
+		switch (id) {
+		case ActionType.SPAWN_UNIT:
+		case ActionType.SPAWN_SOUND:
+		case ActionType.DUPLICATE_OBJECTS:
+			if (undo)
+				on_objects_destroyed(data);
+			else
+				on_objects_created(data);
+			break;
+
+		case ActionType.DESTROY_UNIT:
+		case ActionType.DESTROY_SOUND:
+			if (undo)
+				on_objects_created(data);
+			else
+				on_objects_destroyed(data);
+			break;
+
+		case ActionType.MOVE_OBJECTS:
+			for (int i = 0; i < data.length; ++i)
+				on_object_changed(data[i], null);
+			break;
+
+		case ActionType.SET_TRANSFORM:
+		case ActionType.SET_LIGHT:
+		case ActionType.SET_MESH:
+		case ActionType.SET_SPRITE:
+		case ActionType.SET_CAMERA:
+		case ActionType.SET_COLLIDER:
+		case ActionType.SET_ACTOR:
+		case ActionType.SET_SCRIPT:
+		case ActionType.SET_ANIMATION_STATE_MACHINE:
+		case ActionType.SET_SOUND:
+			on_object_changed(data[0], data[1]);
+			break;
+
+		case ActionType.OBJECT_SET_EDITOR_NAME:
+			on_object_changed(data[0], null);
+			_level.object_editor_name_changed(data[0], _level.object_editor_name(data[0]));
+			break;
+
+		default:
+			logw("Unknown action type %u".printf(id));
+			break;
+		}
+
+		_properties_view.show_or_hide_properties();
 	}
 
 	private bool on_button_press(Gdk.EventButton ev)
