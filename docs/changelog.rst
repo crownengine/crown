@@ -4,20 +4,6 @@ Changelog
 0.50.0 --- DD MMM YYYY
 ----------------------
 
-**Data Compiler**
-
-* Fixed existence/redefinition checks for samplers.
-* Added the ability to inherit render states via the ``inherit`` property.
-* Improved data writing robustness.
-
-**Runtime**
-
-* Fixed intra-frame button press/release detection.
-* Added ``--hidden`` CLI option.
-* Fixed HashMap and HashSet.
-* Packages will now bring resources online in the correct order. This enables runtime optimizations and features previously impossible to have.
-* Windows: fixed resolution property from boot.config not being honored.
-
 **Tools**
 
 * Added an option to use the debug keystore when deploying APKs for Android.
@@ -31,11 +17,19 @@ Changelog
 * Fixed importing resources in the source directory's root asking for destination directory.
 * Improved revealing a resource in the Project Browser.
 
-**Lua API**
+**Runtime**
 
-* Added ``Device.screenshot()`` and ``screenshot()`` callback, see :doc:`lua_api` for details.
-* Added ``Material.set_texture()``.
-* Added ``Gui.material()``.
+* Fixed intra-frame button press/release detection.
+* Added ``--hidden`` CLI option.
+* Fixed HashMap and HashSet.
+* Packages will now bring resources online in the correct order. This enables runtime optimizations and features previously impossible to have.
+* Windows: fixed resolution property from boot.config not being honored.
+* Data Compiler: Fixed existence/redefinition checks for samplers.
+* Data Compiler: Added the ability to inherit render states via the ``inherit`` property.
+* Data Compiler: Improved data writing robustness.
+* Lua API: Added ``Device.screenshot()`` and ``screenshot()`` callback, see :doc:`lua_api` for details.
+* Lua API: Added ``Material.set_texture()``.
+* Lua API: Added ``Gui.material()``.
 
 0.49.0 --- 27 Nov 2023
 ----------------------
