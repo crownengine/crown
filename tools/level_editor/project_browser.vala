@@ -789,7 +789,7 @@ public class ProjectBrowser : Gtk.Bin
 			_tree_view.get_selection().select_path(sort_path);
 			_tree_view.scroll_to_cell(sort_path, null, false, 0.0f, 0.0f);
 			_icon_view.reveal(type, name);
-		} while (filter_path == null && parent_name != "");
+		} while (filter_path == null);
 	}
 
 	private void on_reveal(GLib.SimpleAction action, GLib.Variant? param)
