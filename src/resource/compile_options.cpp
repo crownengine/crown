@@ -26,6 +26,16 @@
 
 namespace crown
 {
+static const char *s_platforms[] =
+{
+	"android", // Platform::ANDROID
+	"android", // Platform::ANDROID_ARM64
+	"html5",   // Platform::HTML5
+	"linux",   // Platform::LINUX
+	"windows"  // Platform::WINDOWS
+};
+CE_STATIC_ASSERT(countof(s_platforms) == Platform::COUNT);
+
 CompileOptions::CompileOptions(File &output
 	, HashMap<DynamicString, u32> &new_dependencies
 	, HashMap<DynamicString, u32> &new_requirements
@@ -232,6 +242,11 @@ void CompileOptions::read_output(StringStream &output, Process &pr)
 		msg[nbr] = '\0';
 		output << msg;
 	}
+}
+
+const char *CompileOptions::platform_name()
+{
+	return s_platforms[_platform];
 }
 
 } // namespace crown

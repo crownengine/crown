@@ -76,6 +76,98 @@ namespace texture_resource_internal
 #endif
 	};
 
+	struct TextureFormat
+	{
+		enum Enum
+		{
+			BC1,
+			BC2,
+			BC3,
+			BC4,
+			BC5,
+			PTC14,
+			RGB8,
+			RGBA8,
+
+			COUNT
+		};
+	};
+
+	struct TextureFormatInfo
+	{
+		const char *name;
+		TextureFormat::Enum type;
+	};
+
+	static const TextureFormatInfo s_texture_formats[] =
+	{
+		{ "BC1",   TextureFormat::BC1   },
+		{ "BC2",   TextureFormat::BC2   },
+		{ "BC3",   TextureFormat::BC3   },
+		{ "BC4",   TextureFormat::BC4   },
+		{ "BC5",   TextureFormat::BC5   },
+		{ "PTC14", TextureFormat::PTC14 },
+		{ "RGB8",  TextureFormat::RGB8  },
+		{ "RGBA8", TextureFormat::RGBA8 },
+	};
+	CE_STATIC_ASSERT(countof(s_texture_formats) == TextureFormat::COUNT);
+
+	static TextureFormat::Enum texture_format_to_enum(const char *format)
+	{
+		for (u32 i = 0; i < countof(s_texture_formats); ++i) {
+			if (strcmp(format, s_texture_formats[i].name) == 0)
+				return s_texture_formats[i].type;
+		}
+
+		return TextureFormat::COUNT;
+	}
+
+	struct OutputSettings
+	{
+		TextureFormat::Enum format; ///< Output format.
+		bool generate_mips;         ///< Whether to generate mip-maps.
+		u32 mip_skip_smallest;      ///< Number of (smallest) mip steps to skip.
+		bool normal_map;            ///< Whether to skip gamma correction.
+
+		OutputSettings()
+			: format(TextureFormat::RGBA8)
+			, generate_mips(true)
+			, mip_skip_smallest(0u)
+			, normal_map(false)
+		{
+		}
+	};
+
+	s32 parse_output(OutputSettings &os, JsonObject &output, CompileOptions &opts)
+	{
+		const char *platform = opts.platform_name();
+
+		if (json_object::has(output, platform)) {
+			TempAllocator1024 ta;
+			JsonObject obj(ta);
+			sjson::parse_object(obj, output[platform]);
+
+			DynamicString format(ta);
+			if (json_object::has(obj, "format")) {
+				sjson::parse_string(format, obj["format"]);
+				os.format = texture_format_to_enum(format.c_str());
+				DATA_COMPILER_ASSERT(os.format != TextureFormat::COUNT
+					, opts
+					, "Unknown texture format: '%s'"
+					, format.c_str()
+					);
+			}
+			if (json_object::has(obj, "generate_mips"))
+				os.generate_mips     = sjson::parse_bool(obj["generate_mips"]);
+			if (json_object::has(obj, "mip_skip_smallest"))
+				os.mip_skip_smallest = sjson::parse_int (obj["mip_skip_smallest"]);
+			if (json_object::has(obj, "normal_map"))
+				os.normal_map        = sjson::parse_bool(obj["normal_map"]);
+		}
+
+		return 0;
+	}
+
 	s32 compile(CompileOptions &opts)
 	{
 		Buffer buf = opts.read();
@@ -89,8 +181,17 @@ namespace texture_resource_internal
 		DATA_COMPILER_ASSERT_FILE_EXISTS(name.c_str(), opts);
 		opts.fake_read(name.c_str());
 
-		const bool generate_mips = sjson::parse_bool(obj["generate_mips"]);
-		const bool normal_map    = sjson::parse_bool(obj["normal_map"]);
+		OutputSettings os;
+
+		JsonObject output(ta);
+		if (json_object::has(obj, "output")) {
+			sjson::parse_object(output, obj["output"]);
+			s32 err = parse_output(os, output, opts);
+			DATA_COMPILER_ENSURE(err == 0, opts);
+		} else {
+			os.generate_mips = sjson::parse_bool(obj["generate_mips"]);
+			os.normal_map    = sjson::parse_bool(obj["normal_map"]);
+		}
 
 		DynamicString tex_src(ta);
 		DynamicString tex_out(ta);
@@ -103,6 +204,9 @@ namespace texture_resource_internal
 			, "texturec not found"
 			);
 
+		char mipskip[16];
+		stbsp_snprintf(mipskip, sizeof(mipskip), "--mipskip %u", os.mip_skip_smallest);
+
 		const char *argv[] =
 		{
 			texturec,
@@ -110,8 +214,12 @@ namespace texture_resource_internal
 			tex_src.c_str(),
 			"-o",
 			tex_out.c_str(),
-			(generate_mips ? "-m" : ""),
-			(normal_map    ? "-n" : ""),
+			"-t",
+			s_texture_formats[os.format].name,
+			(os.normal_map ? "-n" : ""),
+			(os.generate_mips ? "-m" : ""),
+			(os.mip_skip_smallest > 0 ? "--mipskip" : ""),
+			(os.mip_skip_smallest > 0 ? mipskip : ""),
 			NULL
 		};
 		Process pr;
@@ -121,13 +229,13 @@ namespace texture_resource_internal
 			, "Failed to spawn `%s`"
 			, argv[0]
 			);
-		StringStream output(ta);
-		opts.read_output(output, pr);
+		StringStream texturec_output(ta);
+		opts.read_output(texturec_output, pr);
 		s32 ec = pr.wait();
 		DATA_COMPILER_ASSERT(ec == 0
 			, opts
 			, "Failed to compile texture:\n%s"
-			, string_stream::c_str(output)
+			, string_stream::c_str(texturec_output)
 			);
 
 		Buffer blob = opts.read_temporary(tex_out.c_str());

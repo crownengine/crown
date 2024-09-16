@@ -24,6 +24,7 @@ Changelog
 * Fixed HashMap and HashSet.
 * Packages will now bring resources online in the correct order. This enables runtime optimizations and features previously impossible to have.
 * Windows: fixed resolution property from boot.config not being honored.
+* Data Compiler: Added per-platform texture output settings.
 * Data Compiler: Fixed existence/redefinition checks for samplers.
 * Data Compiler: Added the ability to inherit render states via the ``inherit`` property.
 * Data Compiler: Improved data writing robustness.
