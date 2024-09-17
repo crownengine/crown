@@ -160,7 +160,7 @@ struct CompileOptions
 	///
 	void read_output(StringStream &ss, Process &pr);
 
-	/// Returns the target platfom as a string.
+	/// Returns the target platform as a string.
 	const char *platform_name();
 };
 
