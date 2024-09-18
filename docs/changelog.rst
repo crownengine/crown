@@ -16,6 +16,7 @@ Changelog
 * Added thumbnails for .unit, .material, .texture and .sound resources in the Project Browser.
 * Fixed importing resources in the source directory's root asking for destination directory.
 * Improved revealing a resource in the Project Browser.
+* Fixed some dialogs not getting focus when opened after the first time.
 
 **Runtime**
 

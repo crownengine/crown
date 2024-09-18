@@ -2067,6 +2067,7 @@ public class LevelEditorApplication : Gtk.Application
 		_preferences_dialog.set_transient_for(this.active_window);
 		_preferences_dialog.set_position(Gtk.WindowPosition.CENTER_ON_PARENT);
 		_preferences_dialog.show_all();
+		_preferences_dialog.present();
 	}
 
 	private void on_deploy(GLib.SimpleAction action, GLib.Variant? param)
@@ -2079,6 +2080,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 
 		_deploy_dialog.show_all();
+		_deploy_dialog.present();
 	}
 
 	private int run_level_changed_dialog(Gtk.Window? parent)
