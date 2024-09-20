@@ -1147,8 +1147,12 @@ public class LevelEditorApplication : Gtk.Application
 				// FIXME
 			} else if (msg.has_key("success")) {
 				_data_compiler.compile_finished((bool)msg["success"], (uint)(double)msg["revision"]);
-				_project.data_compiled();
-				_project_browser.queue_draw();
+
+				refresh_all_clients.begin((obj, res) => {
+						refresh_all_clients.end(res);
+						_project.data_compiled();
+						_project_browser.queue_draw();
+					});
 			}
 		} else if (msg_type == "refresh") {
 			ri.refresh_finished((bool)msg["success"]);
