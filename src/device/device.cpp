@@ -820,7 +820,6 @@ void Device::refresh(const char *json)
 	for (u32 i = 0; i < array::size(list); ++i) {
 		DynamicString resource(ta);
 		sjson::parse_string(resource, list[i]);
-		logi(DEVICE, "%s", resource.c_str());
 
 		const char *type = resource_type(resource.c_str());
 		const u32 len = resource_name_length(type, resource.c_str());
@@ -835,9 +834,7 @@ void Device::refresh(const char *json)
 		}
 	}
 
-	if (!array::size(list)) {
-		logi(DEVICE, "Nothing to refresh");
-	} else {
+	if (array::size(list)) {
 		if (refresh_lua)
 			_lua_environment->reload();
 	}
