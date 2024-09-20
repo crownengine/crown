@@ -235,6 +235,15 @@ static void device_message_refresh(ConsoleServer &cs, u32 client_id, const char 
 {
 	CE_UNUSED_2(cs, client_id);
 	((Device *)user_data)->refresh(json);
+
+	TempAllocator512 ta;
+	StringStream ss(ta);
+	ss << "{";
+	ss << "\"type\":\"refresh\",";
+	ss << "\"success\":" << (true ? "true" : "false");
+	ss << "}";
+
+	cs.send(client_id, string_stream::c_str(ss));
 }
 
 Device::Device(const DeviceOptions &opts, ConsoleServer &cs)

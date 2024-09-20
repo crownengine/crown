@@ -87,6 +87,8 @@ public class RuntimeInstance
 	public uint32 _process_id;
 	public uint _revision;
 	public GLib.SourceFunc _stop_callback;
+	public GLib.SourceFunc _refresh_callback;
+	public bool _refresh_success;
 	public ConsoleClient _client;
 
 	public signal void connected(RuntimeInstance ri, string address, int port);
@@ -101,6 +103,8 @@ public class RuntimeInstance
 		_process_id = uint32.MAX;
 		_revision = 0;
 		_stop_callback = null;
+		_refresh_callback = null;
+		_refresh_success = false;
 		_client = new ConsoleClient();
 		_client.connected.connect(on_client_connected);
 		_client.message_received.connect(on_client_message_received);
@@ -202,6 +206,35 @@ public class RuntimeInstance
 	public bool is_connected()
 	{
 		return _client.is_connected();
+	}
+
+	public async bool refresh(DataCompiler dc)
+	{
+		if (_refresh_callback != null)
+			return false;
+
+		if (!is_connected())
+			return false;
+
+		var compiler_revision = dc._revision;
+		var refresh_list = yield dc.refresh_list(_revision);
+		_client.send(DeviceApi.refresh(refresh_list));
+		_client.send(DeviceApi.frame());
+		_refresh_callback = refresh.callback;
+		yield; // Wait for client to refresh the resources.
+
+		if (_refresh_success)
+			_revision = compiler_revision;
+
+		return _refresh_success;
+	}
+
+	public void refresh_finished(bool success)
+	{
+		_refresh_success = success;
+		if (_refresh_callback != null)
+			_refresh_callback();
+		_refresh_callback = null;
 	}
 }
 
@@ -1117,6 +1150,8 @@ public class LevelEditorApplication : Gtk.Application
 				_project.data_compiled();
 				_project_browser.queue_draw();
 			}
+		} else if (msg_type == "refresh") {
+			ri.refresh_finished((bool)msg["success"]);
 		} else if (msg_type == "refresh_list") {
 			_data_compiler.refresh_list_finished((ArrayList<Value?>)msg["list"]);
 		} else if (msg_type == "unit_spawned") {
@@ -2376,17 +2411,16 @@ public class LevelEditorApplication : Gtk.Application
 			});
 	}
 
-	private async void refresh_all_clients()
+	private async bool refresh_all_clients()
 	{
 		RuntimeInstance[] runtimes = new RuntimeInstance[] { _editor, _resource_preview, _game, _thumbnail };
+		bool success = true;
 
-		foreach (var ri in runtimes) {
-			var since_revision = ri._revision;
-			var refresh_list = yield _data_compiler.refresh_list(since_revision);
-			ri.send(DeviceApi.refresh(refresh_list));
-			ri.send(DeviceApi.frame());
-			ri._revision = _data_compiler._revision;
-		}
+		foreach (var ri in runtimes)
+			if (!yield ri.refresh(_data_compiler))
+				success = false;
+
+		return success;
 	}
 
 	private void on_snap_to_grid(GLib.SimpleAction action, GLib.Variant? param)
