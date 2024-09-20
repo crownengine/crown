@@ -79,9 +79,10 @@ struct ResourceManager
 	/// Unloads the resource @a type @a name.
 	void unload(StringId64 type, StringId64 name);
 
-	/// Reloads the resource (@a type, @a name).
+	/// Reloads the resource (@a type, @a name) and returns its new data.
+	/// If the resource is not loaded, it returns NULL.
 	/// @note The user has to manually update all the references to the old resource.
-	void reload(StringId64 type, StringId64 name);
+	void *reload(StringId64 type, StringId64 name);
 
 	/// Returns whether the manager has the resource (@a type, @a name).
 	bool can_get(StringId64 type, StringId64 name);

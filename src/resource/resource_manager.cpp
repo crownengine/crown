@@ -158,27 +158,27 @@ void ResourceManager::unload(StringId64 type, StringId64 name)
 	}
 }
 
-void ResourceManager::reload(StringId64 type, StringId64 name)
+void *ResourceManager::reload(StringId64 type, StringId64 name)
 {
 	const ResourcePair id = { type, name };
 	const ResourceData &rd = hash_map::get(_resources, id, ResourceData::NOT_FOUND);
-	const u32 old_refs = rd.references;
 
 	if (rd == ResourceData::NOT_FOUND)
-		return;
+		return NULL;
 
+	const u32 old_refs = rd.references;
 	unload(type, name);
 
 	while (!try_load(PACKAGE_RESOURCE_NONE, type, name, 0)) {
 		complete_requests();
 	}
 
-	while (!hash_map::has(_resources, id)) {
+	ResourceData new_rd;
+	while ((new_rd = hash_map::get(_resources, id, ResourceData::NOT_FOUND)) == ResourceData::NOT_FOUND)
 		complete_requests();
-	}
 
-	ResourceData &new_rd = hash_map::get(_resources, id, ResourceData::NOT_FOUND);
 	new_rd.references = old_refs;
+	return new_rd.data;
 }
 
 bool ResourceManager::can_get(StringId64 type, StringId64 name)
