@@ -66,7 +66,13 @@ function MaterialPreview:destroy()
 end
 
 function MaterialPreview:render(camera)
-	self._unit_preview:render(camera)
+	local obb_tm, obb_he = self._unit_preview._object:obb()
+
+	local camera_pos = Vector3(1, 1, 1)
+	local camera_rot = Quaternion.look(Vector3.normalize(-camera_pos))
+	local camera_pose = Matrix4x4.from_quaternion_translation(camera_rot, camera_pos)
+
+	camera:set_local_pose(camera_pose)
 end
 
 Thumbnail = Thumbnail or {}
