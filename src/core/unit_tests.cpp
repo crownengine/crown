@@ -1777,7 +1777,7 @@ static void test_file_monitor()
 			ENSURE(strcmp(path, os_path.c_str()) == 0);
 		};
 		file->write("3.14", 4);
-		file->flush();
+		file->sync();
 		state.wait(500);
 
 		fs.close(*file);

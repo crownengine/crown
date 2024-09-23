@@ -95,9 +95,10 @@ struct FileMemory : public File
 		return 0;
 	}
 
-	virtual void flush() override
+	virtual s32 sync() override
 	{
 		CE_NOOP();
+		return 0;
 	}
 };
 

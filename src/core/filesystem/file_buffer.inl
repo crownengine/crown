@@ -94,9 +94,10 @@ struct FileBuffer : public File
 		return size;
 	}
 
-	virtual void flush() override
+	virtual s32 sync() override
 	{
 		CE_NOOP();
+		return 0;
 	}
 };
 

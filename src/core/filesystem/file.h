@@ -59,8 +59,9 @@ struct File
 	/// Writes @a size bytes from @a data to this.
 	virtual u32 write(const void *data, u32 size) = 0;
 
-	/// Forces the previouses write operations to complete.
-	virtual void flush() = 0;
+	/// Forces the previous write()s to be transferred to the underlying storage device.
+	/// Returns 0 if success, -1 otherwise.
+	virtual s32 sync() = 0;
 };
 
 namespace file

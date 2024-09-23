@@ -21,6 +21,7 @@
 #else
 	#include <stdio.h>
 	#include <errno.h>
+	#include <unistd.h> // fsync
 #endif
 
 namespace crown
@@ -211,20 +212,19 @@ struct FileDisk : public File
 #endif
 	}
 
-	void flush() override
+	s32 sync() override
 	{
 		CE_ASSERT(is_open(), "File is not open");
 #if CROWN_PLATFORM_WINDOWS
-		BOOL err = FlushFileBuffers(_file);
-		CE_ASSERT(err != 0
-			, "FlushFileBuffers: GetLastError = %d"
-			, GetLastError()
-			);
+		if (FlushFileBuffers(_file) != 0)
+			return -1;
 #else
-		int err = fflush(_file);
-		CE_ASSERT(err == 0, "fflush: errno = %d", errno);
+		if (fflush(_file) != 0)
+			return -1;
+		if (fsync(fileno(_file)) == -1)
+			return -1;
 #endif
-		CE_UNUSED(err);
+		return 0;
 	}
 };
 
