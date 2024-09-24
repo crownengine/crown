@@ -1276,6 +1276,9 @@ public class Database
 					db.add_to_set(id, new_key + (new_key == "" ? "" : ".") + key, j);
 				}
 			} else {
+				if (!db.has_object(id))
+					db.create(id, object_type(id));
+
 				string kk = new_key + (new_key == "" ? "" : ".") + key;
 
 				if (ob[key] == null)
