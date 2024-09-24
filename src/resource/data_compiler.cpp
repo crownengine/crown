@@ -1044,14 +1044,12 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 	// Compile all changed resources
 	for (u32 i = 0; i < vector::size(to_compile); ++i) {
 		const DynamicString &path = to_compile[i];
-		logi(DATA_COMPILER, _options->_server ? RESOURCE_ID_FMT_STR : "%s", path.c_str());
 
 		const char *type = resource_type(path.c_str());
-		if (type == NULL || !can_compile(type)) {
-			loge(DATA_COMPILER, "Unknown resource file: '%s'", path.c_str());
-			loge(DATA_COMPILER, "Append matching pattern to " CROWN_DATAIGNORE " to ignore it");
+		if (type == NULL || !can_compile(type))
 			continue;
-		}
+
+		logi(DATA_COMPILER, _options->_server ? RESOURCE_ID_FMT_STR : "%s", path.c_str());
 
 		// Build destination file path
 		ResourceId id = resource_id(path.c_str());
