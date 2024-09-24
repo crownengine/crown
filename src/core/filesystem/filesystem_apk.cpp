@@ -109,7 +109,7 @@ struct FileApk : public File
 
 	s32 sync() override
 	{
-		// Not needed
+		return 0;
 	}
 };
 
