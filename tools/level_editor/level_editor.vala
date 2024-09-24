@@ -516,6 +516,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "create-script",    on_create_script,    "(ssb)", null },
 		{ "create-unit",      on_create_unit,      "(ss)",  null },
 		{ "open-containing",  on_open_containing,  "s",     null },
+		{ "texture-settings", on_texture_settings, "s",     null }
 	};
 
 	private const GLib.ActionEntry[] action_entries_package =
@@ -593,6 +594,7 @@ public class LevelEditorApplication : Gtk.Application
 	private PropertiesView _properties_view;
 	private PreferencesDialog _preferences_dialog;
 	private DeployDialog _deploy_dialog;
+	private TextureSettingsDialog _texture_settings_dialog;
 	private ResourceChooser _resource_chooser;
 	private Gtk.Popover _resource_popover;
 	private Gtk.Overlay _editor_view_overlay;
@@ -2182,6 +2184,25 @@ public class LevelEditorApplication : Gtk.Application
 		_deploy_dialog.present();
 	}
 
+	private void on_texture_settings(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string texture_name = param.get_string();
+
+		if (_texture_settings_dialog == null) {
+			_texture_settings_dialog = new TextureSettingsDialog(_project, _project_store, _database);
+			_texture_settings_dialog.set_transient_for(this.active_window);
+			_texture_settings_dialog.set_position(Gtk.WindowPosition.CENTER_ON_PARENT);
+			_texture_settings_dialog.delete_event.connect(_texture_settings_dialog.hide_on_delete);
+			_texture_settings_dialog.texture_saved.connect(() => {
+						_data_compiler.compile.begin(_project.data_dir(), _project.platform());
+					});
+		}
+
+		_texture_settings_dialog.set_texture(texture_name);
+		_texture_settings_dialog.show_all();
+		_texture_settings_dialog.present();
+	}
+
 	private int run_level_changed_dialog(Gtk.Window? parent)
 	{
 		Gtk.MessageDialog md = new Gtk.MessageDialog(parent
@@ -2269,6 +2290,9 @@ public class LevelEditorApplication : Gtk.Application
 
 		if (resource_type == "level") {
 			activate_action("open-level", resource_name);
+			return;
+		} else if (resource_type == "texture") {
+			activate_action("texture-settings", resource_name);
 			return;
 		}
 
