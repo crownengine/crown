@@ -107,7 +107,7 @@ struct FileApk : public File
 		return 0;
 	}
 
-	void sync() override
+	s32 sync() override
 	{
 		// Not needed
 	}
