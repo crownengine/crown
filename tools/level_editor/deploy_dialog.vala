@@ -11,15 +11,15 @@ namespace Crown
 public ComboBoxMap make_deploy_config_combo()
 {
 	return new ComboBoxMap(0
-		, new string?[] { "Release", "Development" }
+		, new string?[] { TargetConfig.RELEASE.to_label(), TargetConfig.DEVELOPMENT.to_label() }
 		, new string?[] { ((int)TargetConfig.RELEASE).to_string(), ((int)TargetConfig.DEVELOPMENT).to_string() }
 		);
 }
 
-public Gtk.Button make_deploy_button(string platform_name)
+public Gtk.Button make_deploy_button(TargetPlatform platform)
 {
 	var btn = new Gtk.Button();
-	btn.label = "Package Project for %s".printf(platform_name);
+	btn.label = "Package Project for %s".printf(platform.to_label());
 	btn.margin_start = 12;
 	btn.margin_end = 12;
 	btn.margin_top = 12;
@@ -90,7 +90,7 @@ public class DeployDialog : Gtk.Dialog
 		_editor = editor;
 
 		// Android page.
-		_android_deploy_button = make_deploy_button("Android");
+		_android_deploy_button = make_deploy_button(TargetPlatform.ANDROID);
 		_android_deploy_button.clicked.connect(() => {
 				// Validate input fields.
 				string? output_path = _android_output_path.get_filename();
@@ -260,7 +260,7 @@ public class DeployDialog : Gtk.Dialog
 		_android_box.pack_start(_android_set, false, true, 0);
 
 		// HTML5 page.
-		_html5_deploy_button = make_deploy_button("HTML5");
+		_html5_deploy_button = make_deploy_button(TargetPlatform.HTML5);
 		_html5_deploy_button.clicked.connect(() => {
 				// Validate input fields.
 				string? output_path = _html5_output_path.get_filename();
@@ -314,7 +314,7 @@ public class DeployDialog : Gtk.Dialog
 		_html5_set.add_property_grid(cv, "Application");
 
 		// Linux page.
-		_linux_deploy_button = make_deploy_button("Linux");
+		_linux_deploy_button = make_deploy_button(TargetPlatform.LINUX);
 		_linux_deploy_button.clicked.connect(() => {
 				// Validate input fields.
 				string? output_path = _linux_output_path.get_filename();
@@ -368,7 +368,7 @@ public class DeployDialog : Gtk.Dialog
 		_linux_set.add_property_grid(cv, "Application");
 
 		// Windows page.
-		_windows_deploy_button = make_deploy_button("Windows");
+		_windows_deploy_button = make_deploy_button(TargetPlatform.WINDOWS);
 		_windows_deploy_button.clicked.connect(() => {
 				// Validate input fields.
 				string? output_path = _windows_output_path.get_filename();
@@ -423,12 +423,12 @@ public class DeployDialog : Gtk.Dialog
 
 		// Add pages.
 		_notebook = new Gtk.Notebook();
-		_notebook.append_page(_android_box, new Gtk.Label("Android"));
-		_notebook.append_page(_html5_box, new Gtk.Label("HTML5"));
+		_notebook.append_page(_android_box, new Gtk.Label(TargetPlatform.ANDROID.to_label()));
+		_notebook.append_page(_html5_box, new Gtk.Label(TargetPlatform.HTML5.to_label()));
 #if CROWN_PLATFORM_LINUX
-		_notebook.append_page(_linux_box, new Gtk.Label("Linux"));
+		_notebook.append_page(_linux_box, new Gtk.Label(TargetPlatform.LINUX.to_label()));
 #elif CROWN_PLATFORM_WINDOWS
-		_notebook.append_page(_windows_box, new Gtk.Label("Windows"));
+		_notebook.append_page(_windows_box, new Gtk.Label(TargetPlatform.WINDOWS.to_label()));
 #endif
 		_notebook.vexpand = true;
 		_notebook.show_border = false;

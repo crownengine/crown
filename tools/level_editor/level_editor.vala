@@ -60,7 +60,33 @@ public enum CameraViewType
 public enum TargetConfig
 {
 	RELEASE,
-	DEVELOPMENT
+	DEVELOPMENT,
+
+	COUNT;
+
+	public string to_key()
+	{
+		switch (this) {
+		case RELEASE:
+			return "release";
+		case DEVELOPMENT:
+			return "development";
+		default:
+			return "unknown";
+		}
+	}
+
+	public string to_label()
+	{
+		switch (this) {
+		case RELEASE:
+			return "Release";
+		case DEVELOPMENT:
+			return "Development";
+		default:
+			return "unknown";
+		}
+	}
 }
 
 public enum TargetPlatform
@@ -68,7 +94,41 @@ public enum TargetPlatform
 	ANDROID,
 	HTML5,
 	LINUX,
-	WINDOWS
+	WINDOWS,
+
+	COUNT;
+
+	public string to_key()
+	{
+		switch (this) {
+		case ANDROID:
+			return "android";
+		case HTML5:
+			return "html5";
+		case LINUX:
+			return "linux";
+		case WINDOWS:
+			return "windows";
+		default:
+			return "unknown";
+		}
+	}
+
+	public string to_label()
+	{
+		switch (this) {
+		case ANDROID:
+			return "Android";
+		case HTML5:
+			return "HTML5";
+		case LINUX:
+			return "Linux";
+		case WINDOWS:
+			return "Windows";
+		default:
+			return "Unknown";
+		}
+	}
 }
 
 public enum TargetArch
