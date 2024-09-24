@@ -97,6 +97,9 @@ public class EntryDouble : Gtk.Entry
 		app.entry_any_focus_out(this);
 
 		set_value_safe(string_to_double(this.text, _value));
+
+		this.select_region(0, 0);
+
 		return Gdk.EVENT_PROPAGATE;
 	}
 
