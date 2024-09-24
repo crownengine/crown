@@ -1089,6 +1089,26 @@ public class Database
 		set_property_internal(1, id, key, val);
 	}
 
+	public void set_property(Guid id, string key, Value? val)
+	{
+		if (val == null)
+			set_property_null(id, key);
+		if (val.holds(typeof(bool)))
+			set_property_bool(id, key, (bool)val);
+		else if (val.holds(typeof(double)))
+			set_property_double(id, key, (double)val);
+		else if (val.holds(typeof(string)))
+			set_property_string(id, key, (string)val);
+		else if (val.holds(typeof(Guid)))
+			set_property_guid(id, key, (Guid)val);
+		else if (val.holds(typeof(Vector3)))
+			set_property_vector3(id, key, (Vector3)val);
+		else if (val.holds(typeof(Quaternion)))
+			set_property_quaternion(id, key, (Quaternion)val);
+		else
+			assert(false);
+	}
+
 	public void add_to_set(Guid id, string key, Guid item_id)
 	{
 		assert(has_object(id));
