@@ -3,19 +3,50 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-using Gtk;
-using Gdk;
-
 namespace Crown
 {
-public class EntryDouble : Gtk.Entry
+public class EntryDouble : Gtk.Entry, Property
 {
+	public bool _inconsistent;
 	public double _min;
 	public double _max;
 	public double _value;
 	public bool _stop_emit;
 	public string _preview_fmt;
 	public string _edit_fmt;
+
+	// Signals
+	public signal void value_changed();
+
+	public void set_inconsistent(bool inconsistent)
+	{
+		if (_inconsistent != inconsistent) {
+			_inconsistent = inconsistent;
+
+			_stop_emit = true;
+			if (_inconsistent) {
+				this.text = INCONSISTENT_LABEL;
+			} else {
+				set_value_safe(string_to_double(this.text, _value));
+			}
+			_stop_emit = false;
+		}
+	}
+
+	public bool is_inconsistent()
+	{
+		return _inconsistent;
+	}
+
+	public Value? generic_value()
+	{
+		return this.value;
+	}
+
+	public void set_generic_value(Value? val)
+	{
+		this.value = (double)val;
+	}
 
 	public double value
 	{
@@ -31,24 +62,23 @@ public class EntryDouble : Gtk.Entry
 		}
 	}
 
-	// Signals
-	public signal void value_changed();
-
 	public EntryDouble(double val, double min, double max, string preview_fmt = "%.6g", string edit_fmt = "%.17g")
 	{
 		this.input_purpose = Gtk.InputPurpose.NUMBER;
 		this.set_width_chars(1);
 
 		this.scroll_event.connect(on_scroll);
+		this.button_press_event.connect(on_button_press);
 		this.button_release_event.connect(on_button_release);
 		this.activate.connect(on_activate);
 		this.focus_in_event.connect(on_focus_in);
 		this.focus_out_event.connect(on_focus_out);
 
-		this._min = min;
-		this._max = max;
-		this._preview_fmt = preview_fmt;
-		this._edit_fmt = edit_fmt;
+		_inconsistent = false;
+		_min = min;
+		_max = max;
+		_preview_fmt = preview_fmt;
+		_edit_fmt = edit_fmt;
 
 		_stop_emit = true;
 		set_value_safe(val);
@@ -61,12 +91,24 @@ public class EntryDouble : Gtk.Entry
 		return Gdk.EVENT_PROPAGATE;
 	}
 
+	private bool on_button_press(Gdk.EventButton ev)
+	{
+		this.grab_focus();
+
+		return Gdk.EVENT_PROPAGATE;
+	}
+
 	private bool on_button_release(Gdk.EventButton ev)
 	{
 		if (ev.button == Gdk.BUTTON_PRIMARY && this.has_focus) {
-			this.text = _edit_fmt.printf(_value);
+			if (_inconsistent)
+				this.text = "";
+			else
+				this.text = _edit_fmt.printf(_value);
+
 			this.set_position(-1);
 			this.select_region(0, -1);
+
 			return Gdk.EVENT_STOP;
 		}
 
@@ -85,9 +127,14 @@ public class EntryDouble : Gtk.Entry
 		var app = (LevelEditorApplication)GLib.Application.get_default();
 		app.entry_any_focus_in(this);
 
-		this.text = _edit_fmt.printf(_value);
+		if (_inconsistent)
+			this.text = "";
+		else
+			this.text = _edit_fmt.printf(_value);
+
 		this.set_position(-1);
 		this.select_region(0, -1);
+
 		return Gdk.EVENT_PROPAGATE;
 	}
 
@@ -96,7 +143,15 @@ public class EntryDouble : Gtk.Entry
 		var app = (LevelEditorApplication)GLib.Application.get_default();
 		app.entry_any_focus_out(this);
 
-		set_value_safe(string_to_double(this.text, _value));
+		if (_inconsistent) {
+			if (this.text != "") {
+				set_value_safe(string_to_double(this.text, _value));
+			} else {
+				this.text = INCONSISTENT_LABEL;
+			}
+		} else {
+			set_value_safe(string_to_double(this.text, _value));
+		}
 
 		this.select_region(0, 0);
 
@@ -107,10 +162,12 @@ public class EntryDouble : Gtk.Entry
 	{
 		double clamped = val.clamp(_min, _max);
 
-		// Convert to text for displaying
+		// Convert to text for displaying.
 		this.text = _preview_fmt.printf(clamped);
 
-		// Notify value changed
+		_inconsistent = false;
+
+		// Notify value changed.
 		if (_value != clamped) {
 			_value = clamped;
 			if (!_stop_emit)
