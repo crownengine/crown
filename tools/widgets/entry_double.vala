@@ -36,7 +36,7 @@ public class EntryDouble : Gtk.Entry
 
 	public EntryDouble(double val, double min, double max, string preview_fmt = "%.6g", string edit_fmt = "%.17g")
 	{
-		this.input_purpose = Gtk.InputPurpose.DIGITS;
+		this.input_purpose = Gtk.InputPurpose.NUMBER;
 		this.set_width_chars(1);
 
 		this.scroll_event.connect(on_scroll);
