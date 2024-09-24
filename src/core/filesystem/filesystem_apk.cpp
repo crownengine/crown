@@ -107,7 +107,7 @@ struct FileApk : public File
 		return 0;
 	}
 
-	void flush() override
+	void sync() override
 	{
 		// Not needed
 	}
