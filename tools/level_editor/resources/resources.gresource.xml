@@ -11,8 +11,6 @@
     <file compressed="true">ui/style-light.css</file>
     <file compressed="true">ui/style-dark.css</file>
     <file compressed="true" preprocess="xml-stripblanks">gtk/menus.ui</file>
-    <file compressed="true" preprocess="xml-stripblanks">ui/panel_new_project.ui</file>
-    <file compressed="true" preprocess="xml-stripblanks">ui/panel_projects_list.ui</file>
     <file compressed="true" preprocess="xml-stripblanks">ui/toolbar.ui</file>
     <file>icons/1024x1024/apps/crown-black.png</file>
     <file>icons/1024x1024/apps/crown.png</file>

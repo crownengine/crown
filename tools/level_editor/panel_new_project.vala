@@ -8,7 +8,6 @@ using Gee;
 
 namespace Crown
 {
-[GtkTemplate (ui = "/org/crown/level_editor/ui/panel_new_project.ui")]
 public class PanelNewProject : Gtk.Viewport
 {
 	// Data
@@ -16,23 +15,20 @@ public class PanelNewProject : Gtk.Viewport
 	Project _project;
 
 	// Widgets
-	[GtkChild]
-	unowned Gtk.Button _button_back;
-
-	[GtkChild]
-	unowned Gtk.Button _button_create;
-
-	[GtkChild]
-	unowned EntryText _entry_name;
-
-	[GtkChild]
-	unowned Gtk.FileChooserButton _file_chooser_button_location;
-
-	[GtkChild]
-	unowned ComboBoxMap _combo_box_map_template;
-
-	[GtkChild]
-	unowned Gtk.Label _label_message;
+	public Gtk.Label _new_project_label;
+	public Gtk.Label _name_label;
+	public EntryText _entry_name;
+	public Gtk.Label _location_label;
+	public Gtk.FileChooserButton _file_chooser_button_location;
+	public Gtk.Label _template_label;
+	public ComboBoxMap _combo_box_map_template;
+	public Gtk.Label _label_message;
+	public Gtk.Button _button_back;
+	public Gtk.Button _button_create;
+	public Gtk.Box _buttons_box;
+	public Gtk.Box _box;
+	public Gtk.Grid _grid;
+	public Clamp _clamp;
 
 	public PanelNewProject(User user, Project project)
 	{
@@ -42,16 +38,37 @@ public class PanelNewProject : Gtk.Viewport
 		_user = user;
 		_project = project;
 
+		_new_project_label = new Gtk.Label("New Project");
+		_new_project_label.xalign = 0;
+		_new_project_label.set_attributes(Pango.AttrList.from_string("0 -1 weight bold, 0 -1 scale 1.5"));
+
+		_name_label = new Gtk.Label("Name");
+		_name_label.xalign = 1;
+		_entry_name = new EntryText();
+
+		_location_label = new Gtk.Label("Location");
+		_location_label.xalign = 1;
+		_file_chooser_button_location = new Gtk.FileChooserButton("Select Folder", Gtk.FileChooserAction.SELECT_FOLDER);
 		_file_chooser_button_location.set_current_folder(_documents_dir.get_path());
 
+		_template_label = new Gtk.Label("Template");
+		_template_label.xalign = 1;
+		_combo_box_map_template = new ComboBoxMap();
+		_combo_box_map_template.hexpand = true;
 		_combo_box_map_template.append("", "None");
 		_combo_box_map_template.value = "";
 
+		_label_message = new Gtk.Label("");
+		_label_message.xalign = 1;
+
+		_button_back = new Gtk.Button.with_label("Back");
 		_button_back.clicked.connect(() => {
 				var app = (LevelEditorApplication)GLib.Application.get_default();
 				app.show_panel("panel_welcome", StackTransitionType.SLIDE_UP);
 			});
 
+		_button_create = new Gtk.Button.with_label("Create");
+		_button_create.get_style_context().add_class(Gtk.STYLE_CLASS_SUGGESTED_ACTION);
 		_button_create.clicked.connect(() => {
 				if (_entry_name.text == "") {
 					_label_message.label = "Choose project name";
@@ -88,6 +105,38 @@ public class PanelNewProject : Gtk.Viewport
 
 				app.restart_backend.begin(source_dir, LEVEL_NONE);
 			});
+
+		_buttons_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		_buttons_box.spacing = 6;
+		_buttons_box.pack_end(_button_create, false, true);
+		_buttons_box.pack_end(_button_back, false, true);
+
+		_grid = new Gtk.Grid();
+		_grid.hexpand = true;
+		_grid.row_spacing = 6;
+		_grid.column_spacing = 12;
+		_grid.attach(_name_label, 0, 0);
+		_grid.attach(_entry_name, 1, 0);
+		_grid.attach(_location_label, 0, 1);
+		_grid.attach(_file_chooser_button_location, 1, 1);
+		_grid.attach(_template_label, 0, 2);
+		_grid.attach(_combo_box_map_template, 1, 2);
+		_grid.attach(_buttons_box, 1, 3);
+
+		_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+		_box.margin_start = 12;
+		_box.margin_end = 12;
+		_box.margin_top = 32;
+		_box.margin_bottom = 32;
+		_box.spacing = 12;
+		_box.pack_start(_new_project_label, false, true);
+		_box.pack_start(_grid, false, true);
+		_box.pack_start(_label_message, false, true);
+
+		_clamp = new Clamp();
+		_clamp.add(_box);
+
+		this.add(_clamp);
 	}
 
 	public void fill_templates_list(string path)
