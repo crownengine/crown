@@ -162,14 +162,13 @@ public class PanelProjectsList : Gtk.ScrolledWindow
 				md.add_button("_Cancel", ResponseType.CANCEL);
 				md.add_button("_Remove", ResponseType.YES);
 				md.set_default_response(ResponseType.CANCEL);
-				int rt = md.run();
+
+				if (md.run() == ResponseType.YES) {
+					_user.remove_recent_project(row.get_data("source_dir"));
+					_list_projects.remove(row);
+				}
+
 				md.destroy();
-
-				if (rt == ResponseType.CANCEL)
-					return;
-
-				_user.remove_recent_project(row.get_data("source_dir"));
-				_list_projects.remove(row);
 			});
 
 		row._open_button.clicked.connect(() => {
