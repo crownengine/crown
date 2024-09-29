@@ -86,12 +86,12 @@ public class PanelProjectsList : Gtk.ScrolledWindow
 		// Data
 		_user = user;
 
-		_projects_list_label = new Gtk.Label("New Project");
+		_projects_list_label = new Gtk.Label(null);
 		_projects_list_label.xalign = 0;
-		_projects_list_label.set_attributes(Pango.AttrList.from_string("0 -1 weight bold, 0 -1 scale 1.5"));
+		_projects_list_label.set_markup("<span font_weight=\"bold\" size=\"x-large\">Projects</span>");
 
 		_local_label = new Gtk.Label("Local");
-		_local_label.set_attributes(Pango.AttrList.from_string("0 -1 weight bold"));
+		_local_label.set_markup("<span font_weight=\"bold\">Local</span>");
 
 		_project_list_empty = new Gtk.Label("No projects found.\nUse the buttons above to create a new project or import an already existing one.");
 		_project_list_empty.visible = true;

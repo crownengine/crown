@@ -38,9 +38,9 @@ public class PanelNewProject : Gtk.Viewport
 		_user = user;
 		_project = project;
 
-		_new_project_label = new Gtk.Label("New Project");
+		_new_project_label = new Gtk.Label(null);
 		_new_project_label.xalign = 0;
-		_new_project_label.set_attributes(Pango.AttrList.from_string("0 -1 weight bold, 0 -1 scale 1.5"));
+		_new_project_label.set_markup("<span font_weight=\"bold\" size=\"x-large\">New Project</span>");
 
 		_name_label = new Gtk.Label("Name");
 		_name_label.xalign = 1;
