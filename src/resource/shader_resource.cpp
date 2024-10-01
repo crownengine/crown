@@ -490,7 +490,7 @@ namespace shader_resource_internal
 			argv[12] = "150"; // OpenGL 3.2+
 		} else if (strcmp(platform, "windows") == 0) {
 			argv[11] = "--profile";
-			argv[12] = ((strcmp(type, "vertex") == 0) ? "vs_4_0" : "ps_4_0");
+			argv[12] = "s_4_0";
 		} else {
 			return -1;
 		}

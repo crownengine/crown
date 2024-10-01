@@ -28,6 +28,7 @@ Changelog
 * Data Compiler: Added per-platform texture output settings.
 * Data Compiler: Fixed existence/redefinition checks for samplers.
 * Data Compiler: Added the ability to inherit render states via the ``inherit`` property.
+* Data Compiler: Windows: Fixed shader compilation.
 * Data Compiler: Improved data writing robustness.
 * Lua API: Added ``Device.screenshot()`` and ``screenshot()`` callback, see :doc:`lua_api` for details.
 * Lua API: Added ``Material.set_texture()``.
