@@ -631,6 +631,9 @@ struct WindowWin : public Window
 	void show() override
 	{
 		ShowWindow(s_windows_device->_hwnd, SW_SHOW);
+
+		if (s_windows_device->_options->_parent_window == 0)
+			SetForegroundWindow(s_windows_device->_hwnd);
 	}
 
 	void hide() override
