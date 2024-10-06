@@ -2325,7 +2325,9 @@ public class LevelEditorApplication : Gtk.Application
 
 		var clip = Gtk.Clipboard.get_default(Gdk.Display.get_default());
 		clip.set_text(abs_path, abs_path.length);
+#if !CROWN_PLATFORM_WINDOWS
 		clip.store();
+#endif
 	}
 
 	private void on_show_grid(GLib.SimpleAction action, GLib.Variant? param)
