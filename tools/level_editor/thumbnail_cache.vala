@@ -170,6 +170,9 @@ public class ThumbnailCache
 
 	public Gdk.Pixbuf? get(string type, string name)
 	{
+		if (!_project.is_loaded())
+			return null;
+
 		string resource_path = ResourceId.path(type, name);
 		StringId64 resource_id = StringId64(resource_path);
 		CacheEntry? entry = null;

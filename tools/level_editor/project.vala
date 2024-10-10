@@ -119,6 +119,11 @@ public class Project
 		project_reset();
 	}
 
+	public bool is_loaded()
+	{
+		return _source_dir != null;
+	}
+
 	public void load(string source_dir)
 	{
 		reset();
