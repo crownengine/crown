@@ -14,6 +14,7 @@ const int WINDOW_DEFAULT_HEIGHT = 720;
 const string LEVEL_EDITOR_WINDOW_TITLE = "Crown Editor";
 const string CROWN_ICON_NAME = "crown";
 
+
 public enum Theme
 {
 	DARK,
@@ -300,6 +301,8 @@ public class RuntimeInstance
 
 public class LevelEditorWindow : Gtk.ApplicationWindow
 {
+	private Hashtable _window_state;
+
 	private const GLib.ActionEntry[] action_entries =
 	{
 		{ "fullscreen", on_fullscreen, null, null }
@@ -396,6 +399,7 @@ public class LevelEditorWindow : Gtk.ApplicationWindow
 		app._editor.send_script(LevelEditorApi.key_up("ctrl_left"));
 		app._editor.send_script(LevelEditorApi.key_up("shift_left"));
 		app._editor.send_script(LevelEditorApi.key_up("alt_left"));
+
 		return Gdk.EVENT_PROPAGATE;
 	}
 }
@@ -408,6 +412,9 @@ public enum StartGame
 
 public class LevelEditorApplication : Gtk.Application
 {
+	private Hashtable _window_state;
+	private string window_state_path;
+
 	// Constants
 	private const GLib.ActionEntry[] action_entries_file =
 	{
@@ -548,6 +555,8 @@ public class LevelEditorApplication : Gtk.Application
 	private SnapMode _snap_mode;
 	private ReferenceSystem _reference_system;
 	private CameraViewType _camera_view_type;
+
+	
 
 	// Project state
 	private string _placeable_type;
@@ -697,6 +706,7 @@ public class LevelEditorApplication : Gtk.Application
 			);
 
 		_settings = SJSON.load_from_path(_settings_file.get_path());
+		load_window_state();
 
 		// HACK: register CrownClamp type within GObject's type system to
 		// make GtkBuilder able to find it when creating the widget from
@@ -1041,11 +1051,31 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
+	protected void load_window_state()
+	{
+		window_state_path = GLib.Environment.get_variable("XDG_CACHE_HOME");
+		
+		try{
+			_window_state = SJSON.load_from_path(window_state_path);
+		} catch (Error e) {
+			//this happens if the JSON file doesn't yet exist
+			_window_state.set("window_width",WINDOW_DEFAULT_WIDTH);
+			_window_state.set("window_hieght",WINDOW_DEFAULT_HEIGHT);
+			SJSON.save(_window_state, window_state_path);
+		}
+
+		
+	}
+
 	protected override void activate()
 	{
 		if (this.active_window == null) {
+
 			LevelEditorWindow win = new LevelEditorWindow(this);
-			win.set_default_size(WINDOW_DEFAULT_WIDTH, WINDOW_DEFAULT_HEIGHT);
+
+			
+			win.set_default_size((int)_window_state["window_width"], (int)_window_state["window_height"]);
+
 			win.add(_main_stack);
 
 			try {
@@ -1963,6 +1993,11 @@ public class LevelEditorApplication : Gtk.Application
 		_preferences_dialog.encode(_settings);
 		SJSON.save(_settings, _settings_file.get_path());
 		_console_view._entry_history.save(_console_history_file.get_path());
+
+		
+		_window_state["window_width"] = this.active_window.get_allocated_width();
+		_window_state["window_hieght"] =  this.active_window.get_allocated_height();
+		SJSON.save(_window_state, window_state_path);
 
 		// Destroy widgets.
 		if (_resource_chooser != null)
