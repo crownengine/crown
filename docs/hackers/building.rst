@@ -15,7 +15,7 @@ Prerequisites
 Android
 -------
 
-1. Install Android NDK (>= r23):
+1. Install Android NDK (>= r21e LTS):
 
 	* https://developer.android.com/ndk/downloads
 
@@ -34,7 +34,7 @@ Android
 
 4. Continue to `Build`_.
 
-Linux (Ubuntu >= 18.04)
+Linux (Ubuntu >= 20.04)
 -----------------------
 
 .. code::
