@@ -1956,6 +1956,15 @@ static void test_lua_resource()
 #endif // if CROWN_CAN_COMPILE
 }
 
+static void test_time()
+{
+	{
+		s64 t = time::now();
+		os::sleep(32);
+		ENSURE(time::seconds(time::now() - t) >= 0.032);
+	}
+}
+
 #define RUN_TEST(name)      \
 	do {                    \
 		printf(#name "\n"); \
@@ -1993,6 +2002,7 @@ int main_unit_tests()
 	RUN_TEST(test_file_monitor);
 	RUN_TEST(test_option);
 	RUN_TEST(test_lua_resource);
+	RUN_TEST(test_time);
 
 	return EXIT_SUCCESS;
 }
