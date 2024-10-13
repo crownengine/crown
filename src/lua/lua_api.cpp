@@ -57,6 +57,16 @@ static const LightInfo s_light[] =
 };
 CE_STATIC_ASSERT(countof(s_light) == LightType::COUNT);
 
+static LightType::Enum name_to_light_type(const char *name)
+{
+	for (u32 i = 0; i < countof(s_light); ++i) {
+		if (strcmp(s_light[i].name, name) == 0)
+			return s_light[i].type;
+	}
+
+	return LightType::COUNT;
+}
+
 struct ProjectionInfo
 {
 	const char *name;
@@ -69,6 +79,16 @@ static const ProjectionInfo s_projection[] =
 	{ "perspective",  ProjectionType::PERSPECTIVE  }
 };
 CE_STATIC_ASSERT(countof(s_projection) == ProjectionType::COUNT);
+
+static ProjectionType::Enum name_to_projection_type(const char *name)
+{
+	for (u32 i = 0; i < countof(s_projection); ++i) {
+		if (strcmp(s_projection[i].name, name) == 0)
+			return s_projection[i].type;
+	}
+
+	return ProjectionType::COUNT;
+}
 
 struct MouseCursorInfo
 {
@@ -91,6 +111,16 @@ static const MouseCursorInfo s_cursor[] =
 };
 CE_STATIC_ASSERT(countof(s_cursor) == MouseCursor::COUNT);
 
+static MouseCursor::Enum name_to_mouse_cursor(const char *name)
+{
+	for (u32 i = 0; i < countof(s_cursor); ++i) {
+		if (strcmp(s_cursor[i].name, name) == 0)
+			return s_cursor[i].type;
+	}
+
+	return MouseCursor::COUNT;
+}
+
 struct CursorModeInfo
 {
 	const char *name;
@@ -103,36 +133,6 @@ static const CursorModeInfo s_mode[] =
 	{ "normal", CursorMode::NORMAL }
 };
 CE_STATIC_ASSERT(countof(s_mode) == CursorMode::COUNT);
-
-static LightType::Enum name_to_light_type(const char *name)
-{
-	for (u32 i = 0; i < countof(s_light); ++i) {
-		if (strcmp(s_light[i].name, name) == 0)
-			return s_light[i].type;
-	}
-
-	return LightType::COUNT;
-}
-
-static ProjectionType::Enum name_to_projection_type(const char *name)
-{
-	for (u32 i = 0; i < countof(s_projection); ++i) {
-		if (strcmp(s_projection[i].name, name) == 0)
-			return s_projection[i].type;
-	}
-
-	return ProjectionType::COUNT;
-}
-
-static MouseCursor::Enum name_to_mouse_cursor(const char *name)
-{
-	for (u32 i = 0; i < countof(s_cursor); ++i) {
-		if (strcmp(s_cursor[i].name, name) == 0)
-			return s_cursor[i].type;
-	}
-
-	return MouseCursor::COUNT;
-}
 
 static CursorMode::Enum name_to_cursor_mode(const char *name)
 {
