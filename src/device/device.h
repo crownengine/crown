@@ -21,7 +21,6 @@
 #include "device/window.h"
 #include "lua/types.h"
 #include "resource/types.h"
-#include "resource/types.h"
 #include "world/types.h"
 #include <atomic>
 
