@@ -81,4 +81,16 @@ union OsEvent
 	TextEvent text;
 };
 
+struct TimestepPolicy
+{
+	enum Enum
+	{
+		VARIABLE, ///< The time it took the previous frame to simulate.
+		SMOOTHED, ///< An average of the previous N frame times.
+		FIXED,    ///< The time is fixed.
+
+		COUNT
+	};
+};
+
 } // namespace crown
