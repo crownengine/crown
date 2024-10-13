@@ -285,6 +285,7 @@ Device::Device(const DeviceOptions &opts, ConsoleServer &cs)
 	, _pipeline(NULL)
 	, _display(NULL)
 	, _window(NULL)
+	, _timestep_policy(TimestepPolicy::VARIABLE)
 	, _width(CROWN_DEFAULT_WINDOW_WIDTH)
 	, _height(CROWN_DEFAULT_WINDOW_HEIGHT)
 	, _quit(false)
@@ -336,16 +337,42 @@ bool Device::process_events()
 	return exit;
 }
 
+void Device::set_timestep_policy(TimestepPolicy::Enum tp)
+{
+	if (_timestep_policy == tp)
+		return;
+
+	_timestep_policy = tp;
+}
+
+void Device::set_timestep_smoothing(u32 num_samples, u32 num_outliers, f32 average_cap)
+{
+	_delta_time_filter.set_smoothing(num_samples, num_outliers, average_cap);
+}
+
 bool Device::frame()
 {
 	if (CE_UNLIKELY(process_events() || _quit))
 		return true;
 
 	const s64 time = time::now();
-	const f32 dt   = f32(time::seconds(time - _last_time));
+	const s64 raw_dt_ticks = time - _last_time;
+	const f32 raw_dt = f32(time::seconds(raw_dt_ticks));
 	_last_time = time;
 
 	profiler_globals::clear();
+	RECORD_FLOAT("device.dt", raw_dt);
+	RECORD_FLOAT("device.fps", 1.0f/raw_dt);
+
+	f32 dt;
+	if (_timestep_policy == TimestepPolicy::SMOOTHED) {
+		f32 smoothed_dt = _delta_time_filter.filter(raw_dt_ticks);
+		RECORD_FLOAT("device.smoothed_dt", smoothed_dt);
+		RECORD_FLOAT("device.smoothed_fps", 1.0f/smoothed_dt);
+		dt = smoothed_dt;
+	} else {
+		dt = raw_dt;
+	}
 
 	if (CE_UNLIKELY(_width != _prev_width || _height != _prev_height)) {
 		_prev_width = _width;
@@ -366,9 +393,6 @@ bool Device::frame()
 #if !CROWN_PLATFORM_EMSCRIPTEN
 	_console_server->execute_message_handlers(sync);
 #endif
-
-	RECORD_FLOAT("device.dt", dt);
-	RECORD_FLOAT("device.fps", 1.0f/dt);
 
 	if (CE_UNLIKELY(!_needs_draw))
 		return false;

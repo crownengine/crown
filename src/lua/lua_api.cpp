@@ -144,6 +144,29 @@ static CursorMode::Enum name_to_cursor_mode(const char *name)
 	return CursorMode::COUNT;
 }
 
+struct TimestepPolicyInfo
+{
+	StringId32 name;
+	TimestepPolicy::Enum type;
+};
+
+static const TimestepPolicyInfo s_timestep_policy[] =
+{
+	{ STRING_ID_32("variable", UINT32_C(0xd638145a)), TimestepPolicy::VARIABLE },
+	{ STRING_ID_32("smoothed", UINT32_C(0x460246ef)), TimestepPolicy::SMOOTHED },
+};
+CE_STATIC_ASSERT(countof(s_timestep_policy) == TimestepPolicy::COUNT);
+
+static TimestepPolicy::Enum name_to_timestep_policy(const StringId32 name)
+{
+	for (u32 i = 0; i < countof(s_timestep_policy); ++i) {
+		if (s_timestep_policy[i].name == name)
+			return s_timestep_policy[i].type;
+	}
+
+	return TimestepPolicy::COUNT;
+}
+
 static int vector3box_store(lua_State *L)
 {
 	LuaStack stack(L);
@@ -2574,6 +2597,20 @@ void load_api(LuaEnvironment &env)
 			return 0;
 		});
 #endif
+	env.add_module_function("Device", "set_timestep_policy", [](lua_State *L) {
+			LuaStack stack(L);
+			StringId32 policy_name = stack.get_string_id_32(1);
+			device()->set_timestep_policy(name_to_timestep_policy(policy_name));
+			return 0;
+		});
+	env.add_module_function("Device", "set_timestep_smoothing", [](lua_State *L) {
+			LuaStack stack(L);
+			device()->set_timestep_smoothing(stack.get_int(1)
+				, stack.get_int(2)
+				, stack.get_float(3)
+				);
+			return 0;
+		});
 
 	env.add_module_function("Profiler", "enter_scope", [](lua_State *L) {
 			LuaStack stack(L);

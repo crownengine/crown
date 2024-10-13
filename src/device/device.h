@@ -14,10 +14,12 @@
 #include "core/types.h"
 #include "device/boot_config.h"
 #include "device/console_server.h"
+#include "device/delta_time_filter.h"
 #include "device/device_options.h"
 #include "device/display.h"
 #include "device/input_types.h"
 #include "device/pipeline.h"
+#include "device/types.h"
 #include "device/window.h"
 #include "lua/types.h"
 #include "resource/types.h"
@@ -55,6 +57,8 @@ struct Device
 	Display *_display;
 	Window *_window;
 	ListNode _worlds;
+	TimestepPolicy::Enum _timestep_policy;
+	DeltaTimeFilter _delta_time_filter;
 
 	u16 _width;
 	u16 _height;
@@ -77,6 +81,17 @@ struct Device
 
 	///
 	Device &operator=(const Device &) = delete;
+
+	/// Sets the timestep policy:
+	/// * TimestepPolicy::VARIABLE: the timestep is the time it took for the previous frame to
+	/// simulate. This is the default;
+	/// * TimestepPolicy::SMOOTHED: the timestep is computed as an average of the previous delta
+	/// times.
+	void set_timestep_policy(TimestepPolicy::Enum policy);
+
+	/// Sets the smoothed timestep parameters.
+	/// @see DeltaTimeFilter::set_timestep_smoothing()
+	void set_timestep_smoothing(u32 num_samples, u32 num_outliers, f32 average_cap);
 
 	/// Simulate one frame.
 	bool frame();

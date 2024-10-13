@@ -81,4 +81,15 @@ union OsEvent
 	TextEvent text;
 };
 
+struct TimestepPolicy
+{
+	enum Enum
+	{
+		VARIABLE,
+		SMOOTHED,
+
+		COUNT
+	};
+};
+
 } // namespace crown
