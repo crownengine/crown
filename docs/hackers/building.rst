@@ -144,7 +144,7 @@ Windows (VS Code)
 
 .. code::
 
-	$env:MINGW = "C:\msys64\mingw64"
+	$env:MINGW = "C:\\msys64\\mingw64"
 	make tools-mingw-release64 MAKE_JOBS=4
 
 Windows (MSYS2)
