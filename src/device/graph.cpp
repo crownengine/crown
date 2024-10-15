@@ -389,7 +389,15 @@ namespace graph_internal
 
 		DynamicString subcmd(ta);
 		sjson::parse_string(subcmd, args[1]);
-		if (subcmd == "make") {
+		if (subcmd == "help") {
+			cs.error(client_id, "  make      Create a new graph.");
+			cs.error(client_id, "  list      List graphs.");
+			cs.error(client_id, "  range     Set the range of a graph.");
+			cs.error(client_id, "  add       Add a field to a graph.");
+			cs.error(client_id, "  hide      Hide a graph.");
+			cs.error(client_id, "  show      Show a graph.");
+			cs.error(client_id, "  layout    Set the layout of a graph.");
+		} else if (subcmd == "make") {
 			if (array::size(args) != 3) {
 				cs.error(client_id, "Usage: graph make <name>");
 				return;
