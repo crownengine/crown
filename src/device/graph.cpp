@@ -315,11 +315,11 @@ struct Graph
 			return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 		};
 
-		const f32 margin_padding = 32.0; // Pixels of padding inside window margins
+		const f32 margin_padding = 32.0; // Pixels of padding inside window margins.
 		const f32 window_width_padded  = f32(window_width) - margin_padding;
 		const f32 window_height_padded = f32(window_height) - margin_padding;
 
-		// Margins in window-coordinates
+		// Margins in window-coordinates.
 		const f32 margin_right   =  window_width_padded / 2.0f;
 		const f32 margin_left    = -margin_right;
 		const f32 margin_top     =  window_height_padded / 2.0f;
@@ -369,22 +369,22 @@ struct Graph
 
 		f32 x_end = x_start + x_step*(_num_samples - 1);
 
-		// Draw margin top
+		// Draw margin top.
 		dl.add_line(vector3(x_start, y_max, 0.0f)
 			, vector3(x_end, y_max, 0.0f)
 			, COLOR4_ORANGE
 			);
-		// Draw margin right
+		// Draw margin right.
 		dl.add_line(vector3(x_end, y_max, 0.0f)
 			, vector3(x_end, y_min, 0.0f)
 			, COLOR4_ORANGE
 			);
-		// Draw margin bottom
+		// Draw margin bottom.
 		dl.add_line(vector3(x_end, y_min, 0.0f)
 			, vector3(x_start, y_min, 0.0f)
 			, COLOR4_ORANGE
 			);
-		// Draw margin left
+		// Draw margin left.
 		dl.add_line(vector3(x_start, y_min, 0.0f)
 			, vector3(x_start, y_max, 0.0f)
 			, COLOR4_ORANGE
@@ -419,7 +419,7 @@ struct Graph
 			}
 		}
 
-		// Draw labels
+		// Draw labels.
 #define TEXT_PADDING 6.0f
 		float str_x = x_start + TEXT_PADDING;
 		char buf[64] = {};
