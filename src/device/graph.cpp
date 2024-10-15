@@ -240,6 +240,25 @@ struct Graph
 		add(StringId32(field));
 	}
 
+	void remove(StringId32 field)
+	{
+		for (u32 i = 0; i < array::size(_channels); ++i) {
+			if (_channels[i].field == field) {
+				_allocator->deallocate(_channels[i].samples);
+				u32 last_index = array::size(_channels) - 1;
+				if (i != last_index)
+					_channels[i] = _channels[last_index];
+				array::pop_back(_channels);
+				return;
+			}
+		}
+	}
+
+	void remove(const char *field)
+	{
+		remove(StringId32(field));
+	}
+
 	void sample(u32 samples_index, f32 value)
 	{
 		if (_range_auto) {
@@ -457,6 +476,7 @@ namespace graph_internal
 			cs.error(client_id, "  list      List graphs.");
 			cs.error(client_id, "  range     Set the range of a graph.");
 			cs.error(client_id, "  add       Add a field to a graph.");
+			cs.error(client_id, "  remove    Remove a field from a graph.");
 			cs.error(client_id, "  hide      Hide a graph.");
 			cs.error(client_id, "  show      Show a graph.");
 			cs.error(client_id, "  layout    Set the layout of a graph.");
@@ -524,6 +544,23 @@ namespace graph_internal
 				return;
 			}
 			graph->add(field.c_str());
+		} else if (subcmd == "remove") {
+			if (array::size(args) != 4) {
+				cs.error(client_id, "Usage: graph remove <name> <field>");
+				return;
+			}
+
+			DynamicString name(ta);
+			DynamicString field(ta);
+			sjson::parse_string(name, args[2]);
+			sjson::parse_string(field, args[3]);
+
+			Graph *graph = graph::find(_graphs, name.c_str());
+			if (graph == NULL) {
+				cs.error(client_id, "Graph not found");
+				return;
+			}
+			graph->remove(field.c_str());
 		} else if (subcmd == "hide") {
 			if (array::size(args) != 3) {
 				cs.error(client_id, "Usage: graph hide <name>");
