@@ -4,6 +4,10 @@ Changelog
 0.51.0 --- DD MMM YYYY
 ----------------------
 
+**Runtime**
+
+* Improved ``graph`` command with the ability to add multiple fields, customize colors and limit the number of samples shown.
+
 0.50.0 --- 10 Oct 2024
 ----------------------
 
