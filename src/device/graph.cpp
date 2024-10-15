@@ -9,6 +9,7 @@
 
 #include "core/json/sjson.h"
 #include "core/list.inl"
+#include "core/math/color4.inl"
 #include "core/math/constants.h"
 #include "core/math/matrix4x4.inl"
 #include "core/memory/temp_allocator.inl"
@@ -19,6 +20,7 @@
 #include "device/log.h"
 #include "device/profiler.h"
 #include "world/debug_line.h"
+#include <errno.h>
 #include <stb_sprintf.h>
 
 LOG_SYSTEM(GRAPH, "graph")
@@ -93,6 +95,30 @@ static void draw_string(DebugLine &dl, const char *str, float x, float y)
 	}
 }
 
+struct ColorInfo
+{
+	StringId32 name;
+	Color4 color;
+};
+
+static const ColorInfo s_colors[] =
+{
+	{ STRING_ID_32("red", UINT32_C(0x493d87b1)),    COLOR4_RED    },
+	{ STRING_ID_32("green", UINT32_C(0xaba60fc3)),  COLOR4_GREEN  },
+	{ STRING_ID_32("blue", UINT32_C(0x399a4f18)),   COLOR4_BLUE   },
+	{ STRING_ID_32("yellow", UINT32_C(0x4ec858fe)), COLOR4_YELLOW }
+};
+
+static u32 name_to_color_index(StringId32 name)
+{
+	for (u32 i = 0; i < countof(s_colors); ++i) {
+		if (s_colors[i].name == name)
+			return i;
+	}
+
+	return UINT32_MAX;
+}
+
 /// Plots graphs for debugging purposes.
 ///
 /// @ingroup Device
@@ -108,6 +134,7 @@ struct Graph
 		StringId32 field;
 		u32 head;
 		Vector3 *samples;
+		Color4 color;
 	};
 
 	Allocator *_allocator;
@@ -203,6 +230,7 @@ struct Graph
 		cd.field = field;
 		cd.head = 0;
 		cd.samples = (Vector3 *)_allocator->allocate(sizeof(Vector3) * ChannelData::MAX_SAMPLES);
+		cd.color = COLOR4_YELLOW;
 
 		array::push_back(_channels, cd);
 	}
@@ -260,14 +288,6 @@ struct Graph
 		auto remap = [](f32 x, f32 in_min, f32 in_max, f32 out_min, f32 out_max) -> f32 {
 			return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 		};
-
-		Color4 colors[] =
-		{
-			COLOR4_YELLOW,
-			COLOR4_RED,
-			COLOR4_GREEN
-		};
-		CE_STATIC_ASSERT(countof(colors) == GRAPH_MAX_AXES);
 
 		const f32 margin_padding = 32.0; // Pixels of padding inside window margins
 		const f32 window_width_padded  = f32(window_width) - margin_padding;
@@ -364,7 +384,7 @@ struct Graph
 					b.y = remap(b_data[axis], _range_min, _range_max, y_min, y_max);
 					b.z = 0.0f;
 
-					dl.add_line(a, b, colors[axis]);
+					dl.add_line(a, b, num_axis == 1 ? cd.color : s_colors[1 + axis].color);
 				}
 
 				oldest = (oldest + 1) % ChannelData::MAX_SAMPLES;
@@ -440,6 +460,7 @@ namespace graph_internal
 			cs.error(client_id, "  hide      Hide a graph.");
 			cs.error(client_id, "  show      Show a graph.");
 			cs.error(client_id, "  layout    Set the layout of a graph.");
+			cs.error(client_id, "  color     Set the color of a field in a graph.");
 		} else if (subcmd == "make") {
 			if (array::size(args) != 3) {
 				cs.error(client_id, "Usage: graph make <name>");
@@ -566,6 +587,55 @@ namespace graph_internal
 				return;
 			}
 			graph->_layout = (Graph::Layout)lt;
+		} else if (subcmd == "color") {
+			if (array::size(args) != 5) {
+				cs.error(client_id, "Usage: graph color <name> <field> <color>");
+				return;
+			}
+
+			DynamicString name(ta);
+			DynamicString color_name(ta);
+			StringId32 field = sjson::parse_string_id(args[3]);
+			sjson::parse_string(name, args[2]);
+			sjson::parse_string(color_name, args[4]);
+
+			Color4 color;
+			u32 color_index = name_to_color_index(color_name.to_string_id());
+			if (color_index == UINT32_MAX) {
+				if (color_name.length() != 3 && color_name.length() != 6) {
+					cs.error(client_id, "Invalid color");
+					return;
+				} else {
+					// Decode hex color.
+					errno = 0;
+					u32 val = strtol(color_name.c_str(), NULL, 16);
+					if (errno != ERANGE && errno != EINVAL) {
+						if (color_name.length() == 3) {
+							u8 r = ((val & 0xf00) >> 8) | ((val & 0xf00) >> 4);
+							u8 g = ((val & 0x0f0) >> 4) | ((val & 0x0f0) >> 0);
+							u8 b = ((val & 0x00f) >> 0) | ((val & 0x00f) << 4);
+							color = from_rgb(r, g, b);
+						} else {
+							color = from_rgb(val);
+						}
+					}
+				}
+			} else {
+				color = s_colors[color_index].color;
+			}
+
+			Graph *graph = graph::find(_graphs, name.c_str());
+			if (graph == NULL) {
+				cs.error(client_id, "Graph not found");
+				return;
+			}
+
+			for (u32 i = 0; i < array::size(graph->_channels); ++i) {
+				if (graph->_channels[i].field == field) {
+					graph->_channels[i].color = color;
+					break;
+				}
+			}
 		} else {
 			cs.error(client_id, "Unknown graph command");
 		}
