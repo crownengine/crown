@@ -99,32 +99,39 @@ static void draw_string(DebugLine &dl, const char *str, float x, float y)
 struct Graph
 {
 #define GRAPH_MAX_AXES 3
-#define GRAPH_MAX_SAMPLES 128
-	s32 _head;
-	f32 _samples[GRAPH_MAX_AXES][GRAPH_MAX_SAMPLES];
+
+	struct ChannelData
+	{
+		enum { MAX_SAMPLES = 1024 };
+
+		ProfilerEventType::Enum type;
+		StringId32 field;
+		u32 head;
+		Vector3 *samples;
+	};
+
+	Allocator *_allocator;
 	f32 _range_min;
 	f32 _range_max;
 	DynamicString _name;
 	ListNode _node;
-	char _field[32];
 	bool _visible;
 	bool _range_auto;
 	enum Layout { FILL, LEFT, RIGHT, BOTTOM, TOP } _layout;
+	Array<ChannelData> _channels;
 
 	Graph(Allocator &a)
-		: _head(0)
+		: _allocator(&a)
 		, _range_min(0.0f)
 		, _range_max(0.0f)
 		, _name(a)
 		, _visible(true)
 		, _range_auto(true)
 		, _layout(FILL)
+		, _channels(a)
 	{
 		_node.next = NULL;
 		_node.prev = NULL;
-
-		memset(_samples, 0, sizeof(_samples));
-		memset(_field, 0, sizeof(_field));
 	}
 
 	void set_range(f32 range_min, f32 range_max, bool range_auto)
@@ -154,16 +161,24 @@ struct Graph
 			switch (type) {
 			case ProfilerEventType::RECORD_FLOAT: {
 				RecordFloat *rf = (RecordFloat *)cur;
-				if (strcmp(_field, rf->name) == 0)
-					sample(rf->value);
+				for (u32 i = 0; i < array::size(_channels); ++i) {
+					if (_channels[i].field == StringId32(rf->name)) {
+						sample(i, rf->value);
+						break;
+					}
+				}
 			}
 				cur += size;
 				break;
 
 			case ProfilerEventType::RECORD_VECTOR3: {
 				RecordVector3 *rv = (RecordVector3 *)cur;
-				if (strcmp(_field, rv->name) == 0)
-					sample(rv->value);
+				for (u32 i = 0; i < array::size(_channels); ++i) {
+					if (_channels[i].field == StringId32(rv->name)) {
+						sample(i, rv->value);
+						break;
+					}
+				}
 			}
 				cur += size;
 				break;
@@ -182,12 +197,22 @@ struct Graph
 		}
 	}
 
-	void add(const char *field)
+	void add(StringId32 field)
 	{
-		strcpy(_field, field);
+		ChannelData cd;
+		cd.field = field;
+		cd.head = 0;
+		cd.samples = (Vector3 *)_allocator->allocate(sizeof(Vector3) * ChannelData::MAX_SAMPLES);
+
+		array::push_back(_channels, cd);
 	}
 
-	void sample(f32 value)
+	void add(const char *field)
+	{
+		add(StringId32(field));
+	}
+
+	void sample(u32 samples_index, f32 value)
 	{
 		if (_range_auto) {
 			if (_range_min > value)
@@ -195,11 +220,14 @@ struct Graph
 			if (_range_max < value)
 				_range_max = value;
 		}
-		_samples[0][_head] = value;
-		_head = (_head + 1) % GRAPH_MAX_SAMPLES;
+
+		ChannelData &cd = _channels[samples_index];
+		cd.type = ProfilerEventType::RECORD_FLOAT;
+		cd.samples[cd.head] = vector3(value, 0.0f, 0.0f);
+		cd.head = (cd.head + 1) % ChannelData::MAX_SAMPLES;
 	}
 
-	void sample(const Vector3 &value)
+	void sample(u32 samples_index, const Vector3 &value)
 	{
 		if (_range_auto) {
 			if (_range_min > value.x)
@@ -215,10 +243,11 @@ struct Graph
 			if (_range_max < value.z)
 				_range_max = value.z;
 		}
-		_samples[0][_head] = value.x;
-		_samples[1][_head] = value.y;
-		_samples[2][_head] = value.z;
-		_head = (_head + 1) % GRAPH_MAX_SAMPLES;
+
+		ChannelData &cd = _channels[samples_index];
+		cd.type = ProfilerEventType::RECORD_VECTOR3;
+		cd.samples[cd.head] = value;
+		cd.head = (cd.head + 1) % ChannelData::MAX_SAMPLES;
 	}
 
 	void draw(DebugLine &dl, u16 window_width, u16 window_height)
@@ -257,28 +286,28 @@ struct Graph
 		switch (_layout) {
 		case LEFT:
 			x_start = margin_left;
-			x_step = f32(margin_right - margin_left) / f32(GRAPH_MAX_SAMPLES - 1) / 2.0f;
+			x_step = f32(margin_right - margin_left) / f32(ChannelData::MAX_SAMPLES - 1) / 2.0f;
 			y_min = margin_bottom;
 			y_max = margin_top;
 			break;
 
 		case RIGHT:
 			x_start = 0.0f;
-			x_step = f32(margin_right - margin_left) / f32(GRAPH_MAX_SAMPLES - 1) / 2.0f;
+			x_step = f32(margin_right - margin_left) / f32(ChannelData::MAX_SAMPLES - 1) / 2.0f;
 			y_min = margin_bottom;
 			y_max = margin_top;
 			break;
 
 		case BOTTOM:
 			x_start = margin_left;
-			x_step = f32(margin_right - margin_left) / f32(GRAPH_MAX_SAMPLES - 1);
+			x_step = f32(margin_right - margin_left) / f32(ChannelData::MAX_SAMPLES - 1);
 			y_min = margin_bottom;
 			y_max = 0.0f;
 			break;
 
 		case TOP:
 			x_start = margin_left;
-			x_step = f32(margin_right - margin_left) / f32(GRAPH_MAX_SAMPLES - 1);
+			x_step = f32(margin_right - margin_left) / f32(ChannelData::MAX_SAMPLES - 1);
 			y_min = 0.0f;
 			y_max = margin_top;
 			break;
@@ -286,24 +315,26 @@ struct Graph
 		case FILL:
 		default:
 			x_start = margin_left;
-			x_step = f32(margin_right - margin_left) / f32(GRAPH_MAX_SAMPLES - 1);
+			x_step = f32(margin_right - margin_left) / f32(ChannelData::MAX_SAMPLES - 1);
 			y_min = margin_bottom;
 			y_max = margin_top;
 			break;
 		}
 
+		f32 x_end = x_start + x_step*(ChannelData::MAX_SAMPLES - 1);
+
 		// Draw margin top
 		dl.add_line(vector3(x_start, y_max, 0.0f)
-			, vector3(x_start + x_step*(GRAPH_MAX_SAMPLES - 1), y_max, 0.0f)
+			, vector3(x_end, y_max, 0.0f)
 			, COLOR4_ORANGE
 			);
 		// Draw margin right
-		dl.add_line(vector3(x_start + x_step*(GRAPH_MAX_SAMPLES - 1), y_max, 0.0f)
-			, vector3(x_start + x_step*(GRAPH_MAX_SAMPLES - 1), y_min, 0.0f)
+		dl.add_line(vector3(x_end, y_max, 0.0f)
+			, vector3(x_end, y_min, 0.0f)
 			, COLOR4_ORANGE
 			);
 		// Draw margin bottom
-		dl.add_line(vector3(x_start + x_step*(GRAPH_MAX_SAMPLES - 1), y_min, 0.0f)
+		dl.add_line(vector3(x_end, y_min, 0.0f)
 			, vector3(x_start, y_min, 0.0f)
 			, COLOR4_ORANGE
 			);
@@ -313,18 +344,30 @@ struct Graph
 			, COLOR4_ORANGE
 			);
 
-		// For each channel
-		for (s32 cc = 0; cc < GRAPH_MAX_AXES; ++cc) {
-			// For each sample in the channel
-			for (s32 ii = 0, oldest = _head; ii < GRAPH_MAX_SAMPLES - 1; ++ii) {
-				f32 value[2];
-				value[0] = remap(_samples[cc][(oldest + 0) % GRAPH_MAX_SAMPLES], _range_min, _range_max, y_min, y_max);
-				value[1] = remap(_samples[cc][(oldest + 1) % GRAPH_MAX_SAMPLES], _range_min, _range_max, y_min, y_max);
-				dl.add_line(vector3(x_start + (ii + 0)*x_step, value[0], 0.0f)
-					, vector3(x_start + (ii + 1)*x_step, value[1], 0.0f)
-					, colors[cc]
-					);
-				oldest = (oldest + 1) % GRAPH_MAX_SAMPLES;
+		// For each channel.
+		for (u32 cc = 0; cc < array::size(_channels); ++cc) {
+			ChannelData &cd = _channels[cc];
+			// For each sample.
+			for (u32 ii = 0, oldest = cd.head; ii < ChannelData::MAX_SAMPLES - 1; ++ii) {
+				const u32 num_axis = cd.type == ProfilerEventType::RECORD_FLOAT ? 1 : 3;
+				for (u32 axis = 0; axis < num_axis; ++axis) {
+					f32 *a_data = to_float_ptr(cd.samples[(oldest + 0) % ChannelData::MAX_SAMPLES]);
+					f32 *b_data = to_float_ptr(cd.samples[(oldest + 1) % ChannelData::MAX_SAMPLES]);
+					Vector3 a;
+					Vector3 b;
+
+					a.x = x_start + (ii + 0)*x_step;
+					a.y = remap(a_data[axis], _range_min, _range_max, y_min, y_max);
+					a.z = 0.0f;
+
+					b.x = x_start + (ii + 1)*x_step;
+					b.y = remap(b_data[axis], _range_min, _range_max, y_min, y_max);
+					b.z = 0.0f;
+
+					dl.add_line(a, b, colors[axis]);
+				}
+
+				oldest = (oldest + 1) % ChannelData::MAX_SAMPLES;
 			}
 		}
 
