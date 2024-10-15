@@ -512,6 +512,13 @@ static void test_color4()
 		ENSURE(fequal(a.w, 0.38431f, 0.00001f));
 	}
 	{
+		const Color4 a = from_rgb(0x3fe70c);
+		ENSURE(fequal(a.x, 0.24705f, 0.00001f));
+		ENSURE(fequal(a.y, 0.90588f, 0.00001f));
+		ENSURE(fequal(a.z, 0.04705f, 0.00001f));
+		ENSURE(fequal(a.w, 1.0f, 0.00001f));
+	}
+	{
 		const Color4 a = from_rgba(63, 231, 12, 98);
 
 		const u32 rgba = to_rgba(a);

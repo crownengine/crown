@@ -34,6 +34,17 @@ inline Color4 from_rgb(u8 r, u8 g, u8 b)
 	return c;
 }
 
+/// Returns a new color from packed RGB integer.
+inline Color4 from_rgb(u32 rgb)
+{
+	Color4 c;
+	c.x = 1.0f/255.0f * ((rgb & 0xff0000) >> 16);
+	c.y = 1.0f/255.0f * ((rgb & 0x00ff00) >> 8);
+	c.z = 1.0f/255.0f * ((rgb & 0x0000ff) >> 0);
+	c.w = 1.0f;
+	return c;
+}
+
 /// Returns a new color from individual elements.
 inline Color4 from_rgba(u8 r, u8 g, u8 b, u8 a)
 {
