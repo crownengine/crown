@@ -140,6 +140,7 @@ struct Graph
 	Allocator *_allocator;
 	f32 _range_min;
 	f32 _range_max;
+	u32 _num_samples;
 	DynamicString _name;
 	ListNode _node;
 	bool _visible;
@@ -151,6 +152,7 @@ struct Graph
 		: _allocator(&a)
 		, _range_min(0.0f)
 		, _range_max(0.0f)
+		, _num_samples(ChannelData::MAX_SAMPLES)
 		, _name(a)
 		, _visible(true)
 		, _range_auto(true)
@@ -172,6 +174,11 @@ struct Graph
 		}
 
 		_range_auto = range_auto;
+	}
+
+	void set_samples(u32 num_samples)
+	{
+		_num_samples = min(u32(ChannelData::MAX_SAMPLES), num_samples);
 	}
 
 	void sample_with_filter(const char *cur, const char *end)
@@ -325,28 +332,28 @@ struct Graph
 		switch (_layout) {
 		case LEFT:
 			x_start = margin_left;
-			x_step = f32(margin_right - margin_left) / f32(ChannelData::MAX_SAMPLES - 1) / 2.0f;
+			x_step = f32(margin_right - margin_left) / f32(_num_samples - 1) / 2.0f;
 			y_min = margin_bottom;
 			y_max = margin_top;
 			break;
 
 		case RIGHT:
 			x_start = 0.0f;
-			x_step = f32(margin_right - margin_left) / f32(ChannelData::MAX_SAMPLES - 1) / 2.0f;
+			x_step = f32(margin_right - margin_left) / f32(_num_samples - 1) / 2.0f;
 			y_min = margin_bottom;
 			y_max = margin_top;
 			break;
 
 		case BOTTOM:
 			x_start = margin_left;
-			x_step = f32(margin_right - margin_left) / f32(ChannelData::MAX_SAMPLES - 1);
+			x_step = f32(margin_right - margin_left) / f32(_num_samples - 1);
 			y_min = margin_bottom;
 			y_max = 0.0f;
 			break;
 
 		case TOP:
 			x_start = margin_left;
-			x_step = f32(margin_right - margin_left) / f32(ChannelData::MAX_SAMPLES - 1);
+			x_step = f32(margin_right - margin_left) / f32(_num_samples - 1);
 			y_min = 0.0f;
 			y_max = margin_top;
 			break;
@@ -354,13 +361,13 @@ struct Graph
 		case FILL:
 		default:
 			x_start = margin_left;
-			x_step = f32(margin_right - margin_left) / f32(ChannelData::MAX_SAMPLES - 1);
+			x_step = f32(margin_right - margin_left) / f32(_num_samples - 1);
 			y_min = margin_bottom;
 			y_max = margin_top;
 			break;
 		}
 
-		f32 x_end = x_start + x_step*(ChannelData::MAX_SAMPLES - 1);
+		f32 x_end = x_start + x_step*(_num_samples - 1);
 
 		// Draw margin top
 		dl.add_line(vector3(x_start, y_max, 0.0f)
@@ -386,12 +393,14 @@ struct Graph
 		// For each channel.
 		for (u32 cc = 0; cc < array::size(_channels); ++cc) {
 			ChannelData &cd = _channels[cc];
+			u32 cur_sample = (cd.head - 1 - _num_samples) % ChannelData::MAX_SAMPLES;
+
 			// For each sample.
-			for (u32 ii = 0, oldest = cd.head; ii < ChannelData::MAX_SAMPLES - 1; ++ii) {
+			for (u32 ii = 0; ii < _num_samples - 1; ++ii) {
 				const u32 num_axis = cd.type == ProfilerEventType::RECORD_FLOAT ? 1 : 3;
 				for (u32 axis = 0; axis < num_axis; ++axis) {
-					f32 *a_data = to_float_ptr(cd.samples[(oldest + 0) % ChannelData::MAX_SAMPLES]);
-					f32 *b_data = to_float_ptr(cd.samples[(oldest + 1) % ChannelData::MAX_SAMPLES]);
+					f32 *a_data = to_float_ptr(cd.samples[(cur_sample + 0) % ChannelData::MAX_SAMPLES]);
+					f32 *b_data = to_float_ptr(cd.samples[(cur_sample + 1) % ChannelData::MAX_SAMPLES]);
 					Vector3 a;
 					Vector3 b;
 
@@ -406,7 +415,7 @@ struct Graph
 					dl.add_line(a, b, num_axis == 1 ? cd.color : s_colors[1 + axis].color);
 				}
 
-				oldest = (oldest + 1) % ChannelData::MAX_SAMPLES;
+				cur_sample = (cur_sample + 1) % ChannelData::MAX_SAMPLES;
 			}
 		}
 
@@ -481,6 +490,7 @@ namespace graph_internal
 			cs.error(client_id, "  show      Show a graph.");
 			cs.error(client_id, "  layout    Set the layout of a graph.");
 			cs.error(client_id, "  color     Set the color of a field in a graph.");
+			cs.error(client_id, "  samples   Set the number of samples to show in a graph.");
 		} else if (subcmd == "make") {
 			if (array::size(args) != 3) {
 				cs.error(client_id, "Usage: graph make <name>");
@@ -673,6 +683,24 @@ namespace graph_internal
 					break;
 				}
 			}
+		} else if (subcmd == "samples") {
+			if (array::size(args) != 4) {
+				cs.error(client_id, "Usage: graph samples <name> <samples>");
+				return;
+			}
+
+			DynamicString name(ta);
+			DynamicString samples(ta);
+			sjson::parse_string(name, args[2]);
+			sjson::parse_string(samples, args[3]);
+
+			Graph *graph = graph::find(_graphs, name.c_str());
+			if (graph == NULL) {
+				cs.error(client_id, "Graph not found");
+				return;
+			}
+
+			graph->set_samples((u32)sjson::parse_int(samples.c_str()));
 		} else {
 			cs.error(client_id, "Unknown graph command");
 		}
