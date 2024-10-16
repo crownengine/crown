@@ -278,7 +278,7 @@ namespace expression_language
 
 	/// Tokenizes the source code @a p into a sequence of tokens. The environment @a env
 	/// is used for looking up source code identifiers.
-	/// Returns the total number of tokens. If the returned number is greater than the @a capcity, only
+	/// Returns the total number of tokens. If the returned number is greater than the @a capacity, only
 	/// the first @a capacity items will be converted.
 	static unsigned tokenize(const char *p, const CompileEnvironment &env, Token *tokens, unsigned capacity)
 	{

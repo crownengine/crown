@@ -167,7 +167,7 @@ public static void child_watch_function(GLib.Pid pid, int wait_status)
 	}
 
 	if (wait_timer_id > 0) {
-		// Wait asynchronusly for children to terminate.
+		// Wait asynchronously for children to terminate.
 		foreach (var subproc in subprocesses)
 			subproc.wait_async.begin(cancellable, wait_async_ready_callback);
 	} else {

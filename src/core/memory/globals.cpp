@@ -203,7 +203,7 @@ namespace memory
 	};
 
 	// Copyright (C) 2012 Bitsquid AB
-	// License: https://bitbucket.org/bitsquid/foundation/src/default/LICENCSE
+	// License: https://bitbucket.org/bitsquid/foundation/src/default/LICENSE
 	//
 	// An allocator used to allocate temporary "scratch" memory. The allocator
 	// uses a fixed size ring buffer to services the requests.
