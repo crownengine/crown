@@ -51,13 +51,9 @@ namespace os
 	void *library_open(const char *path)
 	{
 #if CROWN_PLATFORM_WINDOWS
-		void *lib = (void *)LoadLibraryA(path);
-		CE_ASSERT(lib != NULL, "LoadLibraryA: error: %s", GetLastError());
-		return lib;
+		return (void *)LoadLibraryA(path);
 #else
-		void *lib = ::dlopen(path, RTLD_LAZY);
-		CE_ASSERT(lib != NULL, "dlopen: error: %s", dlerror());
-		return lib;
+		return ::dlopen(path, RTLD_LAZY);
 #endif
 	}
 
