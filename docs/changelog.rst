@@ -7,6 +7,7 @@ Changelog
 **Runtime**
 
 * Improved ``graph`` command with the ability to add multiple fields, customize colors and limit the number of samples shown.
+* Windows: fixed xinput.dll not found on some systems.
 
 0.50.0 --- 10 Oct 2024
 ----------------------

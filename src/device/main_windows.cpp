@@ -148,6 +148,24 @@ static XinputToJoypad s_xinput_to_joypad[] =
 	{ XINPUT_GAMEPAD_Y,              JoypadButton::Y              }
 };
 
+// See: https://learn.microsoft.com/en-us/windows/win32/xinput/xinput-versions
+static const char *s_xinput_dll_names[] =
+{
+	"xinput1_4.dll",
+	"xinput1_3.dll",
+	"xinput9_1_0.dll"
+};
+
+#define XINPUT_IMPORT() \
+	DL_IMPORT_FUNC(XInputGetState, DWORD, (DWORD, XINPUT_STATE *))
+
+#define DL_IMPORT_FUNC(func_name, return_type, params) \
+	typedef return_type (*PROTO_ ## func_name)params;  \
+	static PROTO_ ## func_name func_name
+
+XINPUT_IMPORT();
+#undef DL_IMPORT_FUNC
+
 struct Joypad
 {
 	struct Axis
@@ -169,6 +187,9 @@ struct Joypad
 
 	void update(DeviceEventQueue &queue)
 	{
+		if (XInputGetState == NULL)
+			return;
+
 		for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i) {
 			XINPUT_STATE state;
 			memset(&state, 0, sizeof(state));
@@ -293,6 +314,7 @@ struct WindowsDevice
 	s16 _mouse_last_y;
 	CursorMode::Enum _cursor_mode;
 	DeviceOptions *_options;
+	void *_xinput_lib;
 
 	WindowsDevice(Allocator &a, DeviceOptions &opts)
 		: _hwnd(NULL)
@@ -303,7 +325,26 @@ struct WindowsDevice
 		, _mouse_last_y(INT16_MAX)
 		, _cursor_mode(CursorMode::NORMAL)
 		, _options(&opts)
+		, _xinput_lib(NULL)
 	{
+#define DL_IMPORT_FUNC(func_name, return_type, params)                             \
+	func_name = (PROTO_ ## func_name)os::library_symbol(_xinput_lib, # func_name); \
+	CE_ENSURE(func_name != NULL);
+
+		for (u32 i = 0; i < countof(s_xinput_dll_names); ++i) {
+			if ((_xinput_lib = os::library_open(s_xinput_dll_names[i])) != NULL) {
+				XINPUT_IMPORT();
+				break;
+			}
+		}
+
+#undef DL_IMPORT_FUNC
+	}
+
+	~WindowsDevice()
+	{
+		if (_xinput_lib != NULL)
+			os::library_close(_xinput_lib);
 	}
 
 	int run()

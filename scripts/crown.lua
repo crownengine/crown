@@ -122,7 +122,6 @@ function crown_project(_name, _kind, _defines)
 			links {
 				"openal",
 				"dbghelp",
-				"xinput",
 				"psapi",
 				"ws2_32",
 				"ole32",
