@@ -206,6 +206,27 @@ static void device_command_unpause(ConsoleServer & /*cs*/, u32 /*client_id*/, co
 	device()->unpause();
 }
 
+static void device_command_game(ConsoleServer &cs, u32 client_id, const JsonArray &args, void *user_data)
+{
+	CE_UNUSED(user_data);
+	TempAllocator1024 ta;
+
+	if (array::size(args) < 2) {
+		cs.error(client_id, "Usage: game <pause|resume>");
+		return;
+	}
+
+	DynamicString subcmd(ta);
+	sjson::parse_string(subcmd, args[1]);
+	if (subcmd == "pause") {
+		device()->pause();
+	} else if (subcmd == "resume") {
+		device()->unpause();
+	} else {
+		loge(DEVICE, "Unknown game parameter");
+	}
+}
+
 static void device_message_resize(ConsoleServer & /*cs*/, u32 /*client_id*/, const char *json, void * /*user_data*/)
 {
 	TempAllocator256 ta;
@@ -405,6 +426,7 @@ void Device::run()
 
 	_console_server->register_command_name("pause",   "Pause the engine.",  device_command_pause,   this);
 	_console_server->register_command_name("unpause", "Resume the engine.", device_command_unpause, this);
+	_console_server->register_command_name("game",    "Pause/resume the engine.", device_command_game, this);
 
 	_console_server->register_message_type("resize",  device_message_resize,  this);
 	_console_server->register_message_type("frame",   device_message_frame,   this);
