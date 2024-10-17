@@ -481,16 +481,16 @@ namespace graph_internal
 		DynamicString subcmd(ta);
 		sjson::parse_string(subcmd, args[1]);
 		if (subcmd == "help") {
-			cs.error(client_id, "  make      Create a new graph.");
-			cs.error(client_id, "  list      List graphs.");
-			cs.error(client_id, "  range     Set the range of a graph.");
-			cs.error(client_id, "  add       Add a field to a graph.");
-			cs.error(client_id, "  remove    Remove a field from a graph.");
-			cs.error(client_id, "  hide      Hide a graph.");
-			cs.error(client_id, "  show      Show a graph.");
-			cs.error(client_id, "  layout    Set the layout of a graph.");
-			cs.error(client_id, "  color     Set the color of a field in a graph.");
-			cs.error(client_id, "  samples   Set the number of samples to show in a graph.");
+			logi(GRAPH, "make       Create a new graph.");
+			logi(GRAPH, "list       List graphs.");
+			logi(GRAPH, "range      Set the range of a graph.");
+			logi(GRAPH, "add        Add a field to a graph.");
+			logi(GRAPH, "remove     Remove a field from a graph.");
+			logi(GRAPH, "hide       Hide a graph.");
+			logi(GRAPH, "show       Show a graph.");
+			logi(GRAPH, "layout     Set the layout of a graph.");
+			logi(GRAPH, "color      Set the color of a field in a graph.");
+			logi(GRAPH, "samples    Set the number of samples to show in a graph.");
 		} else if (subcmd == "make") {
 			if (array::size(args) != 3) {
 				cs.error(client_id, "Usage: graph make <name>");
@@ -515,7 +515,7 @@ namespace graph_internal
 			}
 		} else if (subcmd == "range") {
 			if (array::size(args) != 3 && array::size(args) != 5) {
-				cs.error(client_id, "Usage: graph range <name> [min max]");
+				cs.error(client_id, "Usage: graph range <graph> [min max]");
 				return;
 			}
 
@@ -539,7 +539,7 @@ namespace graph_internal
 			graph->set_range(sjson::parse_float(min.c_str()), sjson::parse_float(max.c_str()), array::size(args) == 3);
 		} else if (subcmd == "add") {
 			if (array::size(args) != 4) {
-				cs.error(client_id, "Usage: graph add <name> <field>");
+				cs.error(client_id, "Usage: graph add <graph> <field>");
 				return;
 			}
 
@@ -556,7 +556,7 @@ namespace graph_internal
 			graph->add(field.c_str());
 		} else if (subcmd == "remove") {
 			if (array::size(args) != 4) {
-				cs.error(client_id, "Usage: graph remove <name> <field>");
+				cs.error(client_id, "Usage: graph remove <graph> <field>");
 				return;
 			}
 
@@ -573,7 +573,7 @@ namespace graph_internal
 			graph->remove(field.c_str());
 		} else if (subcmd == "hide") {
 			if (array::size(args) != 3) {
-				cs.error(client_id, "Usage: graph hide <name>");
+				cs.error(client_id, "Usage: graph hide <graph>");
 				return;
 			}
 
@@ -588,7 +588,7 @@ namespace graph_internal
 			graph->_visible = false;
 		} else if (subcmd == "show") {
 			if (array::size(args) != 3) {
-				cs.error(client_id, "Usage: graph show <name>");
+				cs.error(client_id, "Usage: graph show <graph>");
 				return;
 			}
 
@@ -603,7 +603,7 @@ namespace graph_internal
 			graph->_visible = true;
 		} else if (subcmd == "layout") {
 			if (array::size(args) != 4) {
-				cs.error(client_id, "Usage: graph layout <name> <type>");
+				cs.error(client_id, "Usage: graph layout <graph> <type>");
 				return;
 			}
 
@@ -636,7 +636,7 @@ namespace graph_internal
 			graph->_layout = (Graph::Layout)lt;
 		} else if (subcmd == "color") {
 			if (array::size(args) != 5) {
-				cs.error(client_id, "Usage: graph color <name> <field> <color>");
+				cs.error(client_id, "Usage: graph color <graph> <field> <color>");
 				return;
 			}
 
@@ -685,7 +685,7 @@ namespace graph_internal
 			}
 		} else if (subcmd == "samples") {
 			if (array::size(args) != 4) {
-				cs.error(client_id, "Usage: graph samples <name> <samples>");
+				cs.error(client_id, "Usage: graph samples <graph> <samples>");
 				return;
 			}
 
@@ -702,7 +702,7 @@ namespace graph_internal
 
 			graph->set_samples((u32)sjson::parse_int(samples.c_str()));
 		} else {
-			cs.error(client_id, "Unknown graph command");
+			cs.error(client_id, "Unknown graph parameter");
 		}
 	}
 
