@@ -401,6 +401,8 @@ public class ActorPropertyGrid : PropertyGrid
 	private EntryText _collision_filter;
 	private EntryDouble _mass;
 	private EntryText _material;
+	private CheckBox3 _lock_translation;
+	private CheckBox3 _lock_rotation;
 
 	public ActorPropertyGrid(Database db)
 	{
@@ -419,11 +421,25 @@ public class ActorPropertyGrid : PropertyGrid
 		_material.sensitive = false;
 		_mass = new EntryDouble(1.0, 0.0, double.MAX);
 		_mass.value_changed.connect(on_value_changed);
+		_lock_translation = new CheckBox3();
+		_lock_translation.value_changed.connect(on_value_changed);
+		_lock_rotation = new CheckBox3();
+		_lock_rotation.value_changed.connect(on_value_changed);
 
 		add_row("Class", _class);
 		add_row("Collision Filter", _collision_filter);
 		add_row("Material", _material);
 		add_row("Mass", _mass);
+		add_row("Lock Translation", _lock_translation);
+		add_row("Lock Rotation", _lock_rotation);
+	}
+
+	private bool get_component_property_bool_optional(Unit unit, Guid component_id, string key)
+	{
+		return unit.get_component_property(component_id, key) != null
+			? (bool)unit.get_component_property_bool(component_id, key)
+			: false
+			;
 	}
 
 	private void on_value_changed()
@@ -433,12 +449,12 @@ public class ActorPropertyGrid : PropertyGrid
 		unit.set_component_property_string(_component_id, "data.collision_filter", _collision_filter.text);
 		unit.set_component_property_string(_component_id, "data.material", _material.text);
 		unit.set_component_property_double(_component_id, "data.mass", _mass.value);
-		unit.set_component_property_bool  (_component_id, "data.lock_rotation_x", (bool)unit.get_component_property_bool(_component_id, "data.lock_rotation_x"));
-		unit.set_component_property_bool  (_component_id, "data.lock_rotation_y", (bool)unit.get_component_property_bool(_component_id, "data.lock_rotation_y"));
-		unit.set_component_property_bool  (_component_id, "data.lock_rotation_z", (bool)unit.get_component_property_bool(_component_id, "data.lock_rotation_z"));
-		unit.set_component_property_bool  (_component_id, "data.lock_translation_x", (bool)unit.get_component_property_bool(_component_id, "data.lock_translation_x"));
-		unit.set_component_property_bool  (_component_id, "data.lock_translation_y", (bool)unit.get_component_property_bool(_component_id, "data.lock_translation_y"));
-		unit.set_component_property_bool  (_component_id, "data.lock_translation_z", (bool)unit.get_component_property_bool(_component_id, "data.lock_translation_z"));
+		unit.set_component_property_bool  (_component_id, "data.lock_translation_x", _lock_translation._x.value);
+		unit.set_component_property_bool  (_component_id, "data.lock_translation_y", _lock_translation._y.value);
+		unit.set_component_property_bool  (_component_id, "data.lock_translation_z", _lock_translation._z.value);
+		unit.set_component_property_bool  (_component_id, "data.lock_rotation_x", _lock_rotation._x.value);
+		unit.set_component_property_bool  (_component_id, "data.lock_rotation_y", _lock_rotation._y.value);
+		unit.set_component_property_bool  (_component_id, "data.lock_rotation_z", _lock_rotation._z.value);
 
 		_db.add_restore_point((int)ActionType.SET_ACTOR, new Guid?[] { _id, _component_id });
 	}
@@ -446,10 +462,16 @@ public class ActorPropertyGrid : PropertyGrid
 	public override void update()
 	{
 		Unit unit = new Unit(_db, _id);
-		_class.value           = unit.get_component_property_string(_component_id, "data.class");
-		_collision_filter.text = unit.get_component_property_string(_component_id, "data.collision_filter");
-		_material.text         = unit.get_component_property_string(_component_id, "data.material");
-		_mass.value            = unit.get_component_property_double(_component_id, "data.mass");
+		_class.value               = unit.get_component_property_string(_component_id, "data.class");
+		_collision_filter.text     = unit.get_component_property_string(_component_id, "data.collision_filter");
+		_material.text             = unit.get_component_property_string(_component_id, "data.material");
+		_mass.value                = unit.get_component_property_double(_component_id, "data.mass");
+		_lock_translation._x.value = get_component_property_bool_optional(unit, _component_id, "data.lock_translation_x");
+		_lock_translation._y.value = get_component_property_bool_optional(unit, _component_id, "data.lock_translation_y");
+		_lock_translation._z.value = get_component_property_bool_optional(unit, _component_id, "data.lock_translation_z");
+		_lock_rotation._x.value    = get_component_property_bool_optional(unit, _component_id, "data.lock_rotation_x");
+		_lock_rotation._y.value    = get_component_property_bool_optional(unit, _component_id, "data.lock_rotation_y");
+		_lock_rotation._z.value    = get_component_property_bool_optional(unit, _component_id, "data.lock_rotation_z");
 	}
 }
 
