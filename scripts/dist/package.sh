@@ -134,8 +134,8 @@ elif [ "${PLATFORM}" = "windows" ]; then
 
 	# Copy GDK pixbuf loaders.
 	mkdir -p build/mingw64/lib/gdk-pixbuf-2.0/2.10.0/loaders
-	cp -r /mingw64/lib/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-*.dll build/mingw64/lib/gdk-pixbuf-2.0/2.10.0/loaders
-	cp -r /mingw64/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache                 build/mingw64/lib/gdk-pixbuf-2.0/2.10.0
+	cp -r /mingw64/lib/gdk-pixbuf-2.0/2.10.0/loaders/*pixbufloader*.dll build/mingw64/lib/gdk-pixbuf-2.0/2.10.0/loaders
+	cp -r /mingw64/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache              build/mingw64/lib/gdk-pixbuf-2.0/2.10.0
 
 	# Copy GLib schemas.
 	mkdir -p build/mingw64/share/glib-2.0/schemas
