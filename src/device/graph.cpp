@@ -718,7 +718,7 @@ namespace graph_globals
 		_allocator = &a;
 		_lines = CE_NEW(a, DebugLine)(sm, false);
 
-		cs.register_command_name("graph", "Plot selected profiler data", graph_internal::handle_command, NULL);
+		cs.register_command_name("graph", "Plot selected profiler data.", graph_internal::handle_command, NULL);
 	}
 
 	void shutdown()

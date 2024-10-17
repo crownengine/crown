@@ -403,8 +403,8 @@ void Device::run()
 {
 	s64 run_t0 = time::now();
 
-	_console_server->register_command_name("pause",   "Pause the engine",  device_command_pause,   this);
-	_console_server->register_command_name("unpause", "Resume the engine", device_command_unpause, this);
+	_console_server->register_command_name("pause",   "Pause the engine.",  device_command_pause,   this);
+	_console_server->register_command_name("unpause", "Resume the engine.", device_command_unpause, this);
 
 	_console_server->register_message_type("resize",  device_message_resize,  this);
 	_console_server->register_message_type("frame",   device_message_frame,   this);

@@ -75,7 +75,7 @@ namespace console_server_internal
 
 			logi(CONSOLE_SERVER, "%s%*s%s"
 				, cur->second.name
-				, longest - strlen32(cur->second.name) + 2
+				, longest - strlen32(cur->second.name) + 4
 				, " "
 				, cur->second.brief
 				);
@@ -155,7 +155,7 @@ ConsoleServer::ConsoleServer(Allocator &a)
 	, _output_read(&_output_1)
 {
 	this->register_message_type("command", console_server_internal::message_command, this);
-	this->register_command_name("help", "List all commands", console_server_internal::command_help, this);
+	this->register_command_name("help", "List all commands.", console_server_internal::command_help, this);
 }
 
 void ConsoleServer::listen(u16 port, bool wait)
