@@ -271,10 +271,8 @@ struct Graph
 	void sample(u32 samples_index, f32 value)
 	{
 		if (_range_auto) {
-			if (_range_min > value)
-				_range_min = value;
-			if (_range_max < value)
-				_range_max = value;
+			_range_min = min(_range_min, value);
+			_range_max = max(_range_max, value);
 		}
 
 		ChannelData &cd = _channels[samples_index];
@@ -287,18 +285,8 @@ struct Graph
 	void sample(u32 samples_index, const Vector3 &value)
 	{
 		if (_range_auto) {
-			if (_range_min > value.x)
-				_range_min = value.x;
-			if (_range_min > value.y)
-				_range_min = value.y;
-			if (_range_min > value.z)
-				_range_min = value.z;
-			if (_range_max < value.x)
-				_range_max = value.x;
-			if (_range_max < value.y)
-				_range_max = value.y;
-			if (_range_max < value.z)
-				_range_max = value.z;
+			_range_min = min(_range_min, min(value.x, value.y, value.z));
+			_range_max = max(_range_max, max(value.x, value.y, value.z));
 		}
 
 		ChannelData &cd = _channels[samples_index];
