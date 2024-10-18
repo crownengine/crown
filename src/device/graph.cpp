@@ -132,6 +132,7 @@ struct Graph
 
 		ProfilerEventType::Enum type;
 		StringId32 field;
+		u32 size;
 		u32 head;
 		Vector3 *samples;
 		Color4 color;
@@ -235,6 +236,7 @@ struct Graph
 	{
 		ChannelData cd;
 		cd.field = field;
+		cd.size = 0;
 		cd.head = 0;
 		cd.samples = (Vector3 *)_allocator->allocate(sizeof(Vector3) * ChannelData::MAX_SAMPLES);
 		cd.color = COLOR4_YELLOW;
@@ -279,6 +281,7 @@ struct Graph
 		cd.type = ProfilerEventType::RECORD_FLOAT;
 		cd.samples[cd.head] = vector3(value, 0.0f, 0.0f);
 		cd.head = (cd.head + 1) % ChannelData::MAX_SAMPLES;
+		cd.size = min(cd.size + 1, (u32)ChannelData::MAX_SAMPLES);
 	}
 
 	void sample(u32 samples_index, const Vector3 &value)
@@ -302,6 +305,7 @@ struct Graph
 		cd.type = ProfilerEventType::RECORD_VECTOR3;
 		cd.samples[cd.head] = value;
 		cd.head = (cd.head + 1) % ChannelData::MAX_SAMPLES;
+		cd.size = min(cd.size + 1, (u32)ChannelData::MAX_SAMPLES);
 	}
 
 	void draw(DebugLine &dl, u16 window_width, u16 window_height)
@@ -396,23 +400,26 @@ struct Graph
 			u32 cur_sample = (cd.head - 1 - _num_samples) % ChannelData::MAX_SAMPLES;
 
 			// For each sample.
-			for (u32 ii = 0; ii < _num_samples - 1; ++ii) {
-				const u32 num_axis = cd.type == ProfilerEventType::RECORD_FLOAT ? 1 : 3;
-				for (u32 axis = 0; axis < num_axis; ++axis) {
-					f32 *a_data = to_float_ptr(cd.samples[(cur_sample + 0) % ChannelData::MAX_SAMPLES]);
-					f32 *b_data = to_float_ptr(cd.samples[(cur_sample + 1) % ChannelData::MAX_SAMPLES]);
-					Vector3 a;
-					Vector3 b;
+			for (u32 ii = 0; ii < (_num_samples - 1); ++ii) {
+				// Do not draw invalid samples.
+				if (cd.size >= _num_samples || ii >= _num_samples - cd.size) {
+					const u32 num_axis = cd.type == ProfilerEventType::RECORD_FLOAT ? 1 : 3;
+					for (u32 axis = 0; axis < num_axis; ++axis) {
+						f32 *a_data = to_float_ptr(cd.samples[(cur_sample + 0) % ChannelData::MAX_SAMPLES]);
+						f32 *b_data = to_float_ptr(cd.samples[(cur_sample + 1) % ChannelData::MAX_SAMPLES]);
+						Vector3 a;
+						Vector3 b;
 
-					a.x = x_start + (ii + 0)*x_step;
-					a.y = remap(a_data[axis], _range_min, _range_max, y_min, y_max);
-					a.z = 0.0f;
+						a.x = x_start + (ii + 0)*x_step;
+						a.y = remap(a_data[axis], _range_min, _range_max, y_min, y_max);
+						a.z = 0.0f;
 
-					b.x = x_start + (ii + 1)*x_step;
-					b.y = remap(b_data[axis], _range_min, _range_max, y_min, y_max);
-					b.z = 0.0f;
+						b.x = x_start + (ii + 1)*x_step;
+						b.y = remap(b_data[axis], _range_min, _range_max, y_min, y_max);
+						b.z = 0.0f;
 
-					dl.add_line(a, b, num_axis == 1 ? cd.color : s_colors[1 + axis].color);
+						dl.add_line(a, b, num_axis == 1 ? cd.color : s_colors[1 + axis].color);
+					}
 				}
 
 				cur_sample = (cur_sample + 1) % ChannelData::MAX_SAMPLES;
