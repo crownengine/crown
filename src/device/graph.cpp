@@ -418,7 +418,7 @@ struct Graph
 						b.y = remap(b_data[axis], _range_min, _range_max, y_min, y_max);
 						b.z = 0.0f;
 
-						dl.add_line(a, b, num_axis == 1 ? cd.color : s_colors[1 + axis].color);
+						dl.add_line(a, b, num_axis == 1 ? cd.color : s_colors[axis].color);
 					}
 				}
 
