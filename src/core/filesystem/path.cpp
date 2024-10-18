@@ -24,10 +24,8 @@ namespace path
 	{
 		CE_ENSURE(NULL != path);
 #if CROWN_PLATFORM_WINDOWS
-		return strlen32(path) > 2
-			&& isalpha(path[0])
-			&& path[1] == ':'
-			&& path[2] == PATH_SEPARATOR
+		return (strlen32(path) > 2 && isalpha(path[0]) && path[1] == ':' && path[2] == PATH_SEPARATOR)
+			|| (strlen32(path) > 1 && path[0] == '/' && isalpha(path[1]))
 			;
 #else
 		return strlen32(path) > 0
@@ -46,7 +44,8 @@ namespace path
 	{
 		CE_ENSURE(NULL != path);
 #if CROWN_PLATFORM_WINDOWS
-		return is_absolute(path) && strlen32(path) == 3;
+		return is_absolute(path)
+			&& ((strlen(path) == 2 && path[0] == '/') || strlen32(path) == 3 && isalpha(path[0]));
 #else
 		return is_absolute(path) && strlen32(path) == 1;
 #endif

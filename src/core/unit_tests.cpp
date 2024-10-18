@@ -1376,22 +1376,23 @@ static void test_path()
 {
 #if CROWN_PLATFORM_WINDOWS
 	{
-		const bool a = path::is_absolute("C:\\Users\\foo");
-		ENSURE(a == true);
-		const bool b = path::is_absolute("Users\\foo");
-		ENSURE(b == false);
+		ENSURE(path::is_absolute("C:\\Users\\foo"));
+		ENSURE(path::is_absolute("/c/Users/foo"));
+		ENSURE(!path::is_absolute("Users\\foo"));
+		ENSURE(!path::is_absolute("Users/foo"));
 	}
 	{
-		const bool a = path::is_relative("D:\\Users\\foo");
-		ENSURE(a == false);
-		const bool b = path::is_relative("Users\\foo");
-		ENSURE(b == true);
+		ENSURE(!path::is_relative("D:\\Users\\foo"));
+		ENSURE(!path::is_relative("/d/Users/foo"));
+		ENSURE(path::is_relative("Users\\foo"));
+		ENSURE(path::is_relative("Users/foo"));
 	}
 	{
-		const bool a = path::is_root("E:\\");
-		ENSURE(a == true);
-		const bool b = path::is_root("E:\\Users");
-		ENSURE(b == false);
+		ENSURE(path::is_root("E:\\"));
+		ENSURE(path::is_root("/c"));
+		ENSURE(!path::is_root("/home"));
+		ENSURE(!path::is_root("E:\\Users"));
+		ENSURE(!path::is_root("/c/Users"));
 	}
 	{
 		ENSURE(path::has_trailing_separator("C:\\Users\\foo\\"));
