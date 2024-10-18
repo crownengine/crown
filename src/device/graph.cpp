@@ -144,8 +144,9 @@ struct Graph
 	u32 _num_samples;
 	DynamicString _name;
 	ListNode _node;
-	bool _visible;
-	bool _range_auto;
+	bool _visible : 1;
+	bool _range_auto : 1;
+	bool _range_dirty : 1; // Whether the range needs to be recomputed.
 	enum Layout { FILL, LEFT, RIGHT, BOTTOM, TOP } _layout;
 	Array<ChannelData> _channels;
 
@@ -157,6 +158,7 @@ struct Graph
 		, _name(a)
 		, _visible(true)
 		, _range_auto(true)
+		, _range_dirty(true)
 		, _layout(FILL)
 		, _channels(a)
 	{
@@ -167,8 +169,7 @@ struct Graph
 	void set_range(f32 range_min, f32 range_max, bool range_auto)
 	{
 		if (range_auto) {
-			_range_min = 0.0f;
-			_range_max = 0.0f;
+			_range_dirty = _range_auto != range_auto;
 		} else {
 			_range_min = range_min;
 			_range_max = range_max;
@@ -270,30 +271,66 @@ struct Graph
 
 	void sample(u32 samples_index, f32 value)
 	{
-		if (_range_auto) {
-			_range_min = min(_range_min, value);
-			_range_max = max(_range_max, value);
-		}
-
 		ChannelData &cd = _channels[samples_index];
 		cd.type = ProfilerEventType::RECORD_FLOAT;
 		cd.samples[cd.head] = vector3(value, 0.0f, 0.0f);
 		cd.head = (cd.head + 1) % ChannelData::MAX_SAMPLES;
 		cd.size = min(cd.size + 1, (u32)ChannelData::MAX_SAMPLES);
+
+		if (_range_auto) {
+			if (CE_UNLIKELY(_range_dirty)) {
+				for (u32 ii = 0; ii < array::size(_channels); ++ii) {
+					ChannelData &cd = _channels[ii];
+					for (u32 jj = 0; jj < cd.size; ++jj) {
+						const f32 val = cd.samples[(cd.head - 1 - jj) % ChannelData::MAX_SAMPLES].x;
+
+						if (jj == 0) {
+							_range_min = val;
+							_range_max = val;
+						} else {
+							_range_min = min(_range_min, val);
+							_range_max = max(_range_max, val);
+						}
+					}
+				}
+				_range_dirty = false;
+			} else {
+				_range_min = min(_range_min, value);
+				_range_max = max(_range_max, value);
+			}
+		}
 	}
 
 	void sample(u32 samples_index, const Vector3 &value)
 	{
-		if (_range_auto) {
-			_range_min = min(_range_min, min(value.x, value.y, value.z));
-			_range_max = max(_range_max, max(value.x, value.y, value.z));
-		}
-
 		ChannelData &cd = _channels[samples_index];
 		cd.type = ProfilerEventType::RECORD_VECTOR3;
 		cd.samples[cd.head] = value;
 		cd.head = (cd.head + 1) % ChannelData::MAX_SAMPLES;
 		cd.size = min(cd.size + 1, (u32)ChannelData::MAX_SAMPLES);
+
+		if (_range_auto) {
+			if (CE_UNLIKELY(_range_dirty)) {
+				for (u32 ii = 0; ii < array::size(_channels); ++ii) {
+					ChannelData &cd = _channels[ii];
+					for (u32 jj = 0; jj < cd.size; ++jj) {
+						const Vector3 val = cd.samples[(cd.head - 1 - jj) % ChannelData::MAX_SAMPLES];
+
+						if (jj == 0) {
+							_range_min = min(val.x, val.y, val.z);
+							_range_max = max(val.x, val.y, val.z);
+						} else {
+							_range_min = min(_range_min, min(value.x, value.y, value.z));
+							_range_max = max(_range_max, max(value.x, value.y, value.z));
+						}
+					}
+				}
+				_range_dirty = false;
+			} else {
+				_range_min = min(_range_min, min(value.x, value.y, value.z));
+				_range_max = max(_range_max, max(value.x, value.y, value.z));
+			}
+		}
 	}
 
 	void draw(DebugLine &dl, u16 window_width, u16 window_height)
