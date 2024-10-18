@@ -18,9 +18,11 @@
 #include "device/device.h"
 #include "device/device_event_queue.inl"
 #include "resource/data_compiler.h"
+#include <fcntl.h>    // _O_TEXT
+#include <io.h>       // _open_osfhandle
 #include <stdio.h>    // FILE, freopen, stdio etc.
-#include <winsock2.h>
 #include <windowsx.h> // GET_X_LPARAM, GET_Y_LPARAM
+#include <winsock2.h>
 #include <xinput.h>
 #define STB_SPRINTF_IMPLEMENTATION
 #define STB_SPRINTF_NOUNALIGNED
@@ -866,9 +868,16 @@ int main(int argc, char **argv)
 	using namespace crown;
 
 	if (AttachConsole(ATTACH_PARENT_PROCESS) != 0) {
-		freopen("CONIN$", "r", stdin);
-		freopen("CONOUT$", "w", stdout);
-		freopen("CONOUT$", "w", stderr);
+		const DWORD handles[] = { STD_OUTPUT_HANDLE, STD_ERROR_HANDLE, STD_INPUT_HANDLE };
+		const char *modes[] = { "w", "w", "r" };
+		FILE *stdfds[] = { stdout, stderr, stdin };
+
+		for (u32 i = 0; i < countof(handles); ++i) {
+			HANDLE out = GetStdHandle(handles[i]);
+			int fd = _open_osfhandle((intptr_t)out, _O_TEXT);
+			*stdfds[i] = *_fdopen(fd, modes[i]);
+			setvbuf(stdfds[i], NULL, _IONBF, 0); // No buffering.
+		}
 	}
 
 	// code-format off
