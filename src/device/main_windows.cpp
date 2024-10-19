@@ -166,6 +166,7 @@ static const char *s_xinput_dll_names[] =
 	static PROTO_ ## func_name func_name
 
 XINPUT_IMPORT();
+
 #undef DL_IMPORT_FUNC
 
 struct Joypad
