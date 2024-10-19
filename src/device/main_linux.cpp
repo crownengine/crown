@@ -307,9 +307,73 @@ static int exit_pipe[2];
 static Cursor _x11_cursors[MouseCursor::COUNT];
 static bool push_event(const OsEvent &ev);
 
+#define X11_IMPORT()                                                                                                                                                                                          \
+	DL_IMPORT_FUNC(XCloseDisplay,              int,         (::Display *));                                                                                                                                   \
+	DL_IMPORT_FUNC(XCloseIM,                   Status,      (XIM));                                                                                                                                           \
+	DL_IMPORT_FUNC(XCreateBitmapFromData,      Pixmap,      (::Display *, Drawable, _Xconst char *, unsigned int, unsigned int));                                                                             \
+	DL_IMPORT_FUNC(XCreateFontCursor,          Cursor,      (::Display *, unsigned int));                                                                                                                     \
+	DL_IMPORT_FUNC(XCreateIC,                  XIC,         (XIM, ...));                                                                                                                                      \
+	DL_IMPORT_FUNC(XCreatePixmapCursor,        Cursor,      (::Display *, Pixmap, Pixmap, XColor *, XColor *, unsigned int, unsigned int));                                                                   \
+	DL_IMPORT_FUNC(XCreateWindow,              ::Window,    (::Display *, ::Window, int, int, unsigned int, unsigned int, unsigned int, int, unsigned int, Visual *, unsigned long, XSetWindowAttributes *)); \
+	DL_IMPORT_FUNC(XDefineCursor,              int,         (::Display *, ::Window, Cursor));                                                                                                                 \
+	DL_IMPORT_FUNC(XDestroyIC,                 void,        (XIC));                                                                                                                                           \
+	DL_IMPORT_FUNC(XDestroyWindow,             int,         (::Display *, ::Window));                                                                                                                         \
+	DL_IMPORT_FUNC(XEventsQueued,              int,         (::Display *, int));                                                                                                                              \
+	DL_IMPORT_FUNC(XFetchName,                 int,         (::Display *, ::Window, char **));                                                                                                                \
+	DL_IMPORT_FUNC(XFlush,                     int,         (::Display *));                                                                                                                                   \
+	DL_IMPORT_FUNC(XFree,                      int,         (void *));                                                                                                                                        \
+	DL_IMPORT_FUNC(XFreeCursor,                int,         (::Display *, Cursor));                                                                                                                           \
+	DL_IMPORT_FUNC(XFreePixmap,                int,         (::Display *, Pixmap));                                                                                                                           \
+	DL_IMPORT_FUNC(XGetWindowAttributes,       Status,      (::Display *, ::Window, XWindowAttributes *));                                                                                                    \
+	DL_IMPORT_FUNC(XGrabPointer,               int,         (::Display *, ::Window, Bool, unsigned int, int, int, ::Window, Cursor, Time));                                                                   \
+	DL_IMPORT_FUNC(XIconifyWindow,             Status,      (::Display *, ::Window, int));                                                                                                                    \
+	DL_IMPORT_FUNC(XInitThreads,               Status,      (void));                                                                                                                                          \
+	DL_IMPORT_FUNC(XInternAtom,                Atom,        (::Display *, _Xconst char *, Bool));                                                                                                             \
+	DL_IMPORT_FUNC(XLookupKeysym,              Status,      (XKeyEvent *, int));                                                                                                                              \
+	DL_IMPORT_FUNC(XMapRaised,                 int,         (::Display *, ::Window));                                                                                                                         \
+	DL_IMPORT_FUNC(XMoveWindow,                int,         (::Display *, ::Window, int, int));                                                                                                               \
+	DL_IMPORT_FUNC(XNextEvent,                 int,         (::Display *, XEvent *));                                                                                                                         \
+	DL_IMPORT_FUNC(XOpenDisplay,               ::Display *, (_Xconst char *));                                                                                                                                \
+	DL_IMPORT_FUNC(XOpenIM,                    XIM,         (::Display *, struct _XrmHashBucketRec *, char *, char *));                                                                                       \
+	DL_IMPORT_FUNC(XRefreshKeyboardMapping,    int,         (XMappingEvent *));                                                                                                                               \
+	DL_IMPORT_FUNC(XResizeWindow,              int,         (::Display *, ::Window, unsigned int, unsigned int));                                                                                             \
+	DL_IMPORT_FUNC(XSendEvent,                 Status,      (::Display *, ::Window, Bool, long, XEvent *));                                                                                                   \
+	DL_IMPORT_FUNC(XSetWMProtocols,            Status,      (::Display *, ::Window, Atom *, int));                                                                                                            \
+	DL_IMPORT_FUNC(XStoreName,                 int,         (::Display *, ::Window, _Xconst char *));                                                                                                         \
+	DL_IMPORT_FUNC(XUngrabPointer,             int,         (::Display *, Time));                                                                                                                             \
+	DL_IMPORT_FUNC(XUnmapWindow,               int,         (::Display *, ::Window));                                                                                                                         \
+	DL_IMPORT_FUNC(XWarpPointer,               int,         (::Display *, ::Window, ::Window, int, int, unsigned int, unsigned int, int, int));                                                               \
+	DL_IMPORT_FUNC(XkbSetDetectableAutoRepeat, Bool,        (::Display *, Bool, Bool *));                                                                                                                     \
+	DL_IMPORT_FUNC(Xutf8LookupString,          int,         (XIC, XKeyPressedEvent *, char *, int, KeySym *, Status *))
+
+#define DL_IMPORT_FUNC(func_name, return_type, params) \
+	typedef return_type (*PROTO_ ## func_name)params;  \
+	static PROTO_ ## func_name func_name
+
+X11_IMPORT();
+
+#undef DL_IMPORT_FUNC
+
+#define XRR_IMPORT()                                                                                                 \
+	DL_IMPORT_FUNC(XRRConfigCurrentConfiguration, SizeID,                   (XRRScreenConfiguration *, Rotation *)); \
+	DL_IMPORT_FUNC(XRRConfigSizes,                XRRScreenSize *,          (XRRScreenConfiguration *, int *));      \
+	DL_IMPORT_FUNC(XRRFreeScreenConfigInfo,       void,                     (XRRScreenConfiguration *));             \
+	DL_IMPORT_FUNC(XRRGetScreenInfo,              XRRScreenConfiguration *, (::Display *, ::Window));                \
+	DL_IMPORT_FUNC(XRRSetScreenConfig,            Status,                   (::Display *, XRRScreenConfiguration *, Drawable, int, Rotation, Time))
+
+#define DL_IMPORT_FUNC(func_name, return_type, params) \
+	typedef return_type (*PROTO_ ## func_name)params;  \
+	static PROTO_ ## func_name func_name
+
+XRR_IMPORT();
+
+#undef DL_IMPORT_FUNC
+
 struct LinuxDevice
 {
 	::Display *_x11_display;
+	void *_x11_lib;
+	void *_xrandr_lib;
 	Atom _wm_delete_window;
 	Atom _net_wm_state;
 	Atom _net_wm_state_maximized_horz;
@@ -328,6 +392,8 @@ struct LinuxDevice
 
 	explicit LinuxDevice(Allocator &a)
 		: _x11_display(NULL)
+		, _x11_lib(NULL)
+		, _xrandr_lib(NULL)
 		, _wm_delete_window(None)
 		, _net_wm_state(None)
 		, _net_wm_state_maximized_horz(None)
@@ -351,6 +417,24 @@ struct LinuxDevice
 		int err = pipe(exit_pipe);
 		CE_ASSERT(err != -1, "pipe: errno = %d", errno);
 		CE_UNUSED(err);
+
+		_x11_lib = os::library_open("libX11.so");
+#define DL_IMPORT_FUNC(func_name, return_type, params)                          \
+	func_name = (PROTO_ ## func_name)os::library_symbol(_x11_lib, # func_name); \
+	CE_ENSURE(func_name != NULL);
+
+		X11_IMPORT();
+
+#undef DL_IMPORT_FUNC
+
+		_xrandr_lib = os::library_open("libXrandr.so");
+#define DL_IMPORT_FUNC(func_name, return_type, params)                             \
+	func_name = (PROTO_ ## func_name)os::library_symbol(_xrandr_lib, # func_name); \
+	CE_ENSURE(func_name != NULL);
+
+		XRR_IMPORT();
+
+#undef DL_IMPORT_FUNC
 
 		// http://tronche.com/gui/x/xlib/display/XInitThreads.html
 		Status xs = XInitThreads();
@@ -644,6 +728,9 @@ struct LinuxDevice
 		XRRFreeScreenConfigInfo(_screen_config);
 
 		XCloseDisplay(_x11_display);
+
+		os::library_close(_xrandr_lib);
+		os::library_close(_x11_lib);
 
 		::close(exit_pipe[0]);
 		::close(exit_pipe[1]);

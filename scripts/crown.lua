@@ -96,8 +96,6 @@ function crown_project(_name, _kind, _defines)
 
 		configuration { "linux-*" }
 			links {
-				"X11",
-				"Xrandr",
 				"pthread",
 				"openal",
 			}
