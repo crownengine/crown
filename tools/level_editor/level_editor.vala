@@ -376,7 +376,7 @@ public class LevelEditorWindow : Gtk.ApplicationWindow
 	private bool on_window_state_event(Gdk.EventWindowState ev)
 	{
 		_fullscreen = (ev.new_window_state & Gdk.WindowState.FULLSCREEN) != 0;
-		return Gdk.EVENT_STOP;
+		return Gdk.EVENT_PROPAGATE;
 	}
 
 	private bool on_delete_event()
