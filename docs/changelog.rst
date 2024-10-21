@@ -4,6 +4,9 @@ Changelog
 0.51.0 --- DD MMM YYYY
 ----------------------
 
+**Tools**
+* The window state (size, maximized, fullscreen etc.) will now be restored across sessions.
+
 **Runtime**
 
 * Improved ``graph`` command with the ability to add multiple fields, customize colors and limit the number of samples shown.

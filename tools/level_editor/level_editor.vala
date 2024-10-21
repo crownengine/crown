@@ -321,6 +321,7 @@ public class LevelEditorWindow : Gtk.ApplicationWindow
 		this.focus_out_event.connect(this.on_focus_out);
 
 		_fullscreen = false;
+		this.set_default_size(WINDOW_DEFAULT_WIDTH, WINDOW_DEFAULT_HEIGHT);
 	}
 
 	private void on_fullscreen(GLib.SimpleAction action, GLib.Variant? param)
@@ -397,6 +398,50 @@ public class LevelEditorWindow : Gtk.ApplicationWindow
 		app._editor.send_script(LevelEditorApi.key_up("shift_left"));
 		app._editor.send_script(LevelEditorApi.key_up("alt_left"));
 		return Gdk.EVENT_PROPAGATE;
+	}
+
+	public Hashtable encode()
+	{
+		Hashtable json_obj = new Hashtable();
+
+		// This is the appropriate size to save, see:
+		// https://valadoc.org/gtk+-3.0/Gtk.Window.set_default_size.html
+		int width;
+		int height;
+		this.get_size(out width, out height);
+		json_obj["width"] = width;
+		json_obj["height"] = height;
+
+		json_obj["maximized"] = this.is_maximized;
+		json_obj["fullscreen"] = this._fullscreen;
+		return json_obj;
+	}
+
+	public void decode(Hashtable json_obj)
+	{
+		if (json_obj.has_key("width"))
+			this.default_width = (int)(double)json_obj["width"];
+		else
+			this.default_width = WINDOW_DEFAULT_WIDTH;
+
+		if (json_obj.has_key("height"))
+			this.default_height = (int)(double)json_obj["height"];
+		else
+			this.default_height = WINDOW_DEFAULT_HEIGHT;
+
+		if (json_obj.has_key("maximized")) {
+			if ((bool)json_obj["maximized"])
+				this.maximize();
+			else
+				this.unmaximize();
+		}
+
+		if (json_obj.has_key("fullscreen")) {
+			if ((bool)json_obj["fullscreen"])
+				this.fullscreen();
+			else
+				this.unfullscreen();
+		}
 	}
 }
 
@@ -532,6 +577,7 @@ public class LevelEditorApplication : Gtk.Application
 	private string _level_resource = "";
 	private User _user;
 	private Hashtable _settings;
+	private Hashtable _window_state;
 
 	// Subprocess launcher service.
 	private SubprocessLauncher _subprocess_launcher;
@@ -697,6 +743,7 @@ public class LevelEditorApplication : Gtk.Application
 			);
 
 		_settings = SJSON.load_from_path(_settings_file.get_path());
+		_window_state = SJSON.load_from_path(_window_state_file.get_path());
 
 		// HACK: register CrownClamp type within GObject's type system to
 		// make GtkBuilder able to find it when creating the widget from
@@ -1048,7 +1095,8 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		if (this.active_window == null) {
 			LevelEditorWindow win = new LevelEditorWindow(this);
-			win.set_default_size(WINDOW_DEFAULT_WIDTH, WINDOW_DEFAULT_HEIGHT);
+			if (_window_state.has_key("level_editor_window"))
+				win.decode((Hashtable)_window_state["level_editor_window"]);
 			win.add(_main_stack);
 
 			try {
@@ -1059,7 +1107,6 @@ public class LevelEditorApplication : Gtk.Application
 		}
 
 		this.active_window.show_all();
-		this.active_window.maximize();
 	}
 
 	protected override bool local_command_line(ref unowned string[] args, out int exit_status)
@@ -2085,6 +2132,13 @@ public class LevelEditorApplication : Gtk.Application
 		return GLib.Source.CONTINUE;
 	}
 
+	private Hashtable encode()
+	{
+		Hashtable json_obj = new Hashtable();
+		json_obj["level_editor_window"] = ((LevelEditorWindow)this.active_window).encode();
+		return json_obj;
+	}
+
 	protected override void shutdown()
 	{
 		// Disable auto-save.
@@ -2095,6 +2149,7 @@ public class LevelEditorApplication : Gtk.Application
 		_user.save(_user_file.get_path());
 		_preferences_dialog.encode(_settings);
 		SJSON.save(_settings, _settings_file.get_path());
+		SJSON.save(encode(), _window_state_file.get_path());
 		_console_view._entry_history.save(_console_history_file.get_path());
 
 		// Destroy widgets.
@@ -3884,6 +3939,7 @@ public static GLib.File _log_file;
 public static GLib.File _settings_file;
 public static GLib.File _user_file;
 public static GLib.File _console_history_file;
+public static GLib.File _window_state_file;
 
 public static GLib.FileStream _log_stream;
 public static ConsoleView _console_view;
@@ -4084,6 +4140,7 @@ public static int main(string[] args)
 		return launcher_main(args);
 
 	_settings_file = GLib.File.new_for_path(GLib.Path.build_filename(_config_dir.get_path(), "settings.sjson"));
+	_window_state_file = GLib.File.new_for_path(GLib.Path.build_filename(_cache_dir.get_path(), "window.sjson"));
 	_user_file = GLib.File.new_for_path(GLib.Path.build_filename(_config_dir.get_path(), "user.sjson"));
 	_console_history_file = GLib.File.new_for_path(GLib.Path.build_filename(_cache_dir.get_path(), "console_history.txt"));
 
