@@ -13,12 +13,10 @@ Check out the [Introduction](https://docs.crownengine.org/html/latest/introducti
 ## Documentation
   * User Manual ([latest](https://docs.crownengine.org/html/latest) or [unstable](https://docs.crownengine.org/html/master))
   * [Developer Manual](https://docs.crownengine.org/html/master/hackers)
+  * [Building from Source](https://docs.crownengine.org/html/master/hackers/building.html)
 
 ## Community Support & Development
   * [Discord](https://discord.gg/CeXVWCT): [![Discord Chat](https://img.shields.io/discord/572468149358690314.svg)](https://discord.gg/CeXVWCT)
-
-## Building from source
-  * [Building](https://docs.crownengine.org/html/master/hackers/building.html)
 
 ## Screenshots
 
