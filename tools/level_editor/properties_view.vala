@@ -397,28 +397,62 @@ public class ColliderPropertyGrid : PropertyGrid
 public class ActorPropertyGrid : PropertyGrid
 {
 	// Widgets
+	private Project _project;
 	private ComboBoxMap _class;
-	private EntryText _collision_filter;
+	private ComboBoxMap _collision_filter;
 	private EntryDouble _mass;
-	private EntryText _material;
+	private ComboBoxMap _material;
 	private CheckBox3 _lock_translation;
 	private CheckBox3 _lock_rotation;
 
-	public ActorPropertyGrid(Database db)
+	private void decode_global_physics_config(Hashtable global)
+	{
+		const string keys[] = { "actors", "collision_filters", "materials" };
+		ComboBoxMap combos[] = { _class, _collision_filter, _material };
+
+		for (int i = 0; i < keys.length; ++i) {
+			combos[i].clear();
+			if (global.has_key(keys[i])) {
+				Hashtable obj = (Hashtable)global[keys[i]];
+				foreach (var e in obj)
+					combos[i].append(e.key, e.key);
+			}
+		}
+
+		update();
+	}
+
+	private void on_project_file_added_or_changed(string type, string name, uint64 size, uint64 mtime)
+	{
+		if (type != "physics_config" || name != "global")
+			return;
+
+		string path = ResourceId.path("physics_config", "global");
+		Hashtable global = SJSON.load_from_path(_project.absolute_path(path));
+		decode_global_physics_config(global);
+	}
+
+	private void on_project_file_removed(string type, string name)
+	{
+		if (type != "physics_config" || name != "global")
+			return;
+
+		decode_global_physics_config(new Hashtable());
+	}
+
+	public ActorPropertyGrid(Database db, Project prj)
 	{
 		base(db);
 
+		_project = prj;
+
 		// Widgets
 		_class = new ComboBoxMap();
-		_class.append("static", "static");
-		_class.append("dynamic", "dynamic");
-		_class.append("keyframed", "keyframed");
-		_class.append("trigger", "trigger");
 		_class.value_changed.connect(on_value_changed);
-		_collision_filter = new EntryText();
-		_collision_filter.sensitive = false;
-		_material = new EntryText();
-		_material.sensitive = false;
+		_collision_filter = new ComboBoxMap();
+		_collision_filter.value_changed.connect(on_value_changed);
+		_material = new ComboBoxMap();
+		_material.value_changed.connect(on_value_changed);
 		_mass = new EntryDouble(1.0, 0.0, double.MAX);
 		_mass.value_changed.connect(on_value_changed);
 		_lock_translation = new CheckBox3();
@@ -432,6 +466,10 @@ public class ActorPropertyGrid : PropertyGrid
 		add_row("Mass", _mass);
 		add_row("Lock Translation", _lock_translation);
 		add_row("Lock Rotation", _lock_rotation);
+
+		prj.file_added.connect(on_project_file_added_or_changed);
+		prj.file_changed.connect(on_project_file_added_or_changed);
+		prj.file_removed.connect(on_project_file_removed);
 	}
 
 	private bool get_component_property_bool_optional(Unit unit, Guid component_id, string key)
@@ -445,9 +483,12 @@ public class ActorPropertyGrid : PropertyGrid
 	private void on_value_changed()
 	{
 		Unit unit = new Unit(_db, _id);
-		unit.set_component_property_string(_component_id, "data.class", _class.value);
-		unit.set_component_property_string(_component_id, "data.collision_filter", _collision_filter.text);
-		unit.set_component_property_string(_component_id, "data.material", _material.text);
+		if (!_class.is_inconsistent() && _class.value != null)
+			unit.set_component_property_string(_component_id, "data.class", _class.value);
+		if (!_collision_filter.is_inconsistent() && _collision_filter.value != null)
+			unit.set_component_property_string(_component_id, "data.collision_filter", _collision_filter.value);
+		if (!_material.is_inconsistent() && _material.value != null)
+			unit.set_component_property_string(_component_id, "data.material", _material.value);
 		unit.set_component_property_double(_component_id, "data.mass", _mass.value);
 		unit.set_component_property_bool  (_component_id, "data.lock_translation_x", _lock_translation._x.value);
 		unit.set_component_property_bool  (_component_id, "data.lock_translation_y", _lock_translation._y.value);
@@ -463,8 +504,8 @@ public class ActorPropertyGrid : PropertyGrid
 	{
 		Unit unit = new Unit(_db, _id);
 		_class.value               = unit.get_component_property_string(_component_id, "data.class");
-		_collision_filter.text     = unit.get_component_property_string(_component_id, "data.collision_filter");
-		_material.text             = unit.get_component_property_string(_component_id, "data.material");
+		_collision_filter.value    = unit.get_component_property_string(_component_id, "data.collision_filter");
+		_material.value            = unit.get_component_property_string(_component_id, "data.material");
 		_mass.value                = unit.get_component_property_double(_component_id, "data.mass");
 		_lock_translation._x.value = get_component_property_bool_optional(unit, _component_id, "data.lock_translation_x");
 		_lock_translation._y.value = get_component_property_bool_optional(unit, _component_id, "data.lock_translation_y");
@@ -694,7 +735,7 @@ public class PropertiesView : Gtk.Bin
 		register_object_type("Mesh Renderer",           OBJECT_TYPE_MESH_RENDERER,           3, new MeshRendererPropertyGrid(_db, store));
 		register_object_type("Sprite Renderer",         OBJECT_TYPE_SPRITE_RENDERER,         3, new SpriteRendererPropertyGrid(_db, store));
 		register_object_type("Collider",                OBJECT_TYPE_COLLIDER,                3, new ColliderPropertyGrid(_db, store));
-		register_object_type("Actor",                   OBJECT_TYPE_ACTOR,                   3, new ActorPropertyGrid(_db));
+		register_object_type("Actor",                   OBJECT_TYPE_ACTOR,                   3, new ActorPropertyGrid(_db, store._project));
 		register_object_type("Script",                  OBJECT_TYPE_SCRIPT,                  3, new ScriptPropertyGrid(_db, store));
 		register_object_type("Animation State Machine", OBJECT_TYPE_ANIMATION_STATE_MACHINE, 3, new AnimationStateMachine(_db, store));
 
