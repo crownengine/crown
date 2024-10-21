@@ -4049,19 +4049,19 @@ public static int main(string[] args)
 	} catch (Error e) {
 		/* Nobody cares */
 	}
-	_logs_dir = GLib.File.new_for_path(GLib.Path.build_filename(_config_dir.get_path(), "logs"));
-	try {
-		_logs_dir.make_directory();
-	} catch (Error e) {
-		/* Nobody cares */
-	}
-	_documents_dir = GLib.File.new_for_path(GLib.Environment.get_user_special_dir(GLib.UserDirectory.DOCUMENTS));
 	_cache_dir = GLib.File.new_for_path(GLib.Path.build_filename(GLib.Environment.get_user_cache_dir(), "crown"));
 	try {
 		_cache_dir.make_directory();
 	} catch (Error e) {
 		/* Nobody cares */
 	}
+	_logs_dir = GLib.File.new_for_path(GLib.Path.build_filename(_cache_dir.get_path(), "logs"));
+	try {
+		_logs_dir.make_directory();
+	} catch (Error e) {
+		/* Nobody cares */
+	}
+	_documents_dir = GLib.File.new_for_path(GLib.Environment.get_user_special_dir(GLib.UserDirectory.DOCUMENTS));
 
 	_thumbnails_dir = GLib.File.new_for_path(GLib.Path.build_filename(GLib.Environment.get_user_cache_dir(), "thumbnails"));
 	try {
