@@ -95,11 +95,10 @@ public class ComboBoxMap : Gtk.ComboBox, Property
 		this.pack_start(renderer, true);
 		this.add_attribute(renderer, "text", 1);
 
-		// Insert the "inconsistent" ID and label.
-		Gtk.TreeIter iter;
-		_store.insert_with_values(out iter, -1, 0, INCONSISTENT_ID, 1, INCONSISTENT_LABEL, -1);
+		insert_special_values();
 
 		if (labels != null) {
+			Gtk.TreeIter iter;
 			for (int ii = 0; ii < ids.length; ++ii) {
 				unowned string? id = ids != null ? ids[ii] : null;
 				_store.insert_with_values(out iter, -1, 0, id, 1, labels[ii], -1);
@@ -117,6 +116,15 @@ public class ComboBoxMap : Gtk.ComboBox, Property
 	{
 		Gtk.TreeIter iter;
 		_store.insert_with_values(out iter, -1, 0, id, 1, label, -1);
+	}
+
+	public void clear()
+	{
+		_stop_emit = true;
+		_store.clear();
+		insert_special_values();
+		_inconsistent = false;
+		_stop_emit = false;
 	}
 
 	private void on_changed()
@@ -137,6 +145,15 @@ public class ComboBoxMap : Gtk.ComboBox, Property
 	{
 		GLib.Signal.stop_emission_by_name(this, "scroll-event");
 		return Gdk.EVENT_PROPAGATE;
+	}
+
+	private void insert_special_values()
+	{
+		assert(_store.iter_n_children(null) == 0u);
+
+		// Insert the "inconsistent" ID and label.
+		Gtk.TreeIter iter;
+		_store.insert_with_values(out iter, -1, 0, INCONSISTENT_ID, 1, INCONSISTENT_LABEL, -1);
 	}
 }
 
