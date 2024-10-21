@@ -419,7 +419,8 @@ public class ActorPropertyGrid : PropertyGrid
 			}
 		}
 
-		update();
+		if (_id != GUID_ZERO)
+			update();
 	}
 
 	private void on_project_file_added_or_changed(string type, string name, uint64 size, uint64 mtime)
