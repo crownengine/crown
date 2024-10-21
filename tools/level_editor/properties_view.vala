@@ -760,6 +760,8 @@ public class PropertiesView : Gtk.Bin
 
 		this.add(_stack);
 		this.get_style_context().add_class("properties-view");
+
+		store._project.project_reset.connect(on_project_reset);
 	}
 
 	private void register_object_type(string label, string object_type, int position, PropertyGrid cv)
@@ -838,6 +840,15 @@ public class PropertiesView : Gtk.Bin
 	{
 		base.map();
 		show_or_hide_properties();
+	}
+
+	public void on_project_reset()
+	{
+		foreach (var obj in _objects) {
+			PropertyGrid cv = obj.value;
+			cv._id = GUID_ZERO;
+			cv._component_id = GUID_ZERO;
+		}
 	}
 }
 
