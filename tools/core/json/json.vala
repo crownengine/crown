@@ -8,8 +8,6 @@
  * Public Domain Niklas Frykholm
  */
 
-using Gee;
-
 namespace Crown
 {
 /// <summary>
@@ -101,8 +99,8 @@ public class JSON
 			builder.append_printf("%.17g", (double)o);
 		else if (o.holds(typeof(string)))
 			write_string((string)o, builder);
-		else if (o.holds(typeof(ArrayList)))
-			write_array((ArrayList)o, builder, indentation);
+		else if (o.holds(typeof(Gee.ArrayList)))
+			write_array((Gee.ArrayList)o, builder, indentation);
 		else if (o.holds(typeof(Hashtable)))
 			write_object((Hashtable)o, builder, indentation);
 		else
@@ -127,7 +125,7 @@ public class JSON
 		builder.append_c('"');
 	}
 
-	static void write_array(ArrayList<Value?> a, StringBuilder builder, int indentation)
+	static void write_array(Gee.ArrayList<Value?> a, StringBuilder builder, int indentation)
 	{
 		bool write_comma = false;
 		builder.append("[ ");
@@ -229,9 +227,9 @@ public class JSON
 		return ht;
 	}
 
-	static ArrayList<Value?> parse_array(uint8[] json, ref int index)
+	static Gee.ArrayList<Value?> parse_array(uint8[] json, ref int index)
 	{
-		ArrayList<Value?> a = new ArrayList<Value?>();
+		Gee.ArrayList<Value?> a = new Gee.ArrayList<Value?>();
 		consume(json, ref index, "[");
 		while (next(json, ref index) != ']') {
 			Value? value = parse(json, ref index);
@@ -243,7 +241,7 @@ public class JSON
 
 	static uint8[] parse_binary(uint8[] json, ref int index)
 	{
-		ArrayList<uint8> s = new ArrayList<uint8>();
+		Gee.ArrayList<uint8> s = new Gee.ArrayList<uint8>();
 
 		consume(json, ref index, "\"");
 		while (true) {

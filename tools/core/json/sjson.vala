@@ -8,8 +8,6 @@
  * Public Domain Niklas Frykholm
  */
 
-using Gee;
-
 namespace Crown
 {
 /// <summary>
@@ -102,7 +100,7 @@ public class SJSON
 
 	static void write_object_fields(Hashtable t, StringBuilder builder, int indentation)
 	{
-		ArrayList<string> keys = new ArrayList<string>.wrap(t.keys.to_array());
+		Gee.ArrayList<string> keys = new Gee.ArrayList<string>.wrap(t.keys.to_array());
 		keys.sort(Gee.Functions.get_compare_func_for(typeof(string)));
 		foreach (string key in keys) {
 			write_new_line(builder, indentation);
@@ -138,8 +136,8 @@ public class SJSON
 			builder.append_printf("%.17g", (double)o);
 		else if (o.holds(typeof(string)))
 			write_string((string)o, builder);
-		else if (o.holds(typeof(ArrayList)))
-			write_array((ArrayList)o, builder, indentation);
+		else if (o.holds(typeof(Gee.ArrayList)))
+			write_array((Gee.ArrayList)o, builder, indentation);
 		else if (o.holds(typeof(Hashtable)))
 			write_object((Hashtable)o, builder, indentation);
 		else
@@ -158,9 +156,9 @@ public class SJSON
 		builder.append_c('"');
 	}
 
-	static void write_array(ArrayList<Value?> a, StringBuilder builder, int indentation)
+	static void write_array(Gee.ArrayList<Value?> a, StringBuilder builder, int indentation)
 	{
-		ArrayList<Value?> a_sorted = a;
+		Gee.ArrayList<Value?> a_sorted = a;
 		a_sorted.sort((a, b) => {
 				if (!a.holds(typeof(Hashtable)) || !b.holds(typeof(Hashtable)))
 					return 0;
@@ -272,7 +270,7 @@ public class SJSON
 		if (json[index] == '"')
 			return parse_string(json, ref index);
 
-		ArrayList<uint8> s = new ArrayList<uint8>();
+		Gee.ArrayList<uint8> s = new Gee.ArrayList<uint8>();
 		while (true) {
 			uint8 c = json[index];
 			if (c == ' ' || c == '\t' || c == '\n' || c == '=')
@@ -343,9 +341,9 @@ public class SJSON
 		return ht;
 	}
 
-	static ArrayList<Value?> parse_array(uint8 [] json, ref int index)
+	static Gee.ArrayList<Value?> parse_array(uint8 [] json, ref int index)
 	{
-		ArrayList<Value?> a = new ArrayList<Value?>();
+		Gee.ArrayList<Value?> a = new Gee.ArrayList<Value?>();
 		consume(json, ref index, "[");
 		while (next(json, ref index) != ']') {
 			Value? value = parse_value(json, ref index);
@@ -357,7 +355,7 @@ public class SJSON
 
 	static string parse_string(uint8[] json, ref int index)
 	{
-		ArrayList<uint8> s = new ArrayList<uint8>();
+		Gee.ArrayList<uint8> s = new Gee.ArrayList<uint8>();
 
 		consume(json, ref index, "\"");
 		while (true) {
