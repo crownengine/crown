@@ -12,8 +12,6 @@ using Gee;
 
 namespace Crown
 {
-public class Hashtable : HashMap<string, Value?> { }
-
 /// <summary>
 /// Provides functions for encoding and decoding files in the JSON format.
 /// </summary>
