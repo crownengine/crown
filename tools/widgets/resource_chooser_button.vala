@@ -10,7 +10,6 @@ namespace Crown
 public class ResourceChooserButton : Gtk.Box
 {
 	// Data
-	public bool _stop_emit;
 	public string _type;
 
 	// Widgets
@@ -23,13 +22,11 @@ public class ResourceChooserButton : Gtk.Box
 	{
 		get
 		{
-			return _name.text;
+			return _name.value;
 		}
 		set
 		{
-			_stop_emit = true;
-			_name.text = value;
-			_stop_emit = false;
+			_name.value = value;
 		}
 	}
 
@@ -41,14 +38,12 @@ public class ResourceChooserButton : Gtk.Box
 		Object(orientation: Gtk.Orientation.HORIZONTAL, spacing: 0);
 
 		// Data
-		_stop_emit = false;
 		_type = type;
 
 		// Widgets
 		_name = new EntryText();
-		_name.sensitive = false;
+		_name.set_editable(false);
 		_name.hexpand = true;
-		_name.changed.connect(on_value_changed);
 		this.pack_start(_name, true, true);
 
 		_revealer = new Gtk.Button.from_icon_name("go-jump-symbolic");
@@ -62,12 +57,6 @@ public class ResourceChooserButton : Gtk.Box
 		_project_store = store;
 	}
 
-	private void on_value_changed()
-	{
-		if (!_stop_emit)
-			value_changed();
-	}
-
 	private void on_selector_clicked()
 	{
 		Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Select Resource"
@@ -78,7 +67,11 @@ public class ResourceChooserButton : Gtk.Box
 
 		var rb = new ResourceChooser(null, _project_store);
 		rb.set_type_filter(type_filter);
-		rb.resource_selected.connect(() => { _name.text = rb._name; dg.response(ResponseType.OK); });
+		rb.resource_selected.connect(() => {
+				_name.value = rb._name;
+				value_changed();
+				dg.response(ResponseType.OK);
+			});
 
 		dg.key_press_event.connect((ev) => {
 				if (ev.keyval == Gdk.Key.Escape) {
@@ -97,7 +90,7 @@ public class ResourceChooserButton : Gtk.Box
 
 	private void on_revealer_clicked()
 	{
-		var tuple = new GLib.Variant.tuple({_type, _name.text});
+		var tuple = new GLib.Variant.tuple({_type, _name.value});
 		GLib.Application.get_default().activate_action("reveal-resource", tuple);
 	}
 
