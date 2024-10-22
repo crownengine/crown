@@ -3,26 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Building &mdash; Crown Manual 0.50.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <title>Building &mdash; Crown Manual 0.51.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
-  
-      <script>
-          var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'../',
-              VERSION:'0.50.0',
-              LANGUAGE:'en',
-              COLLAPSE_INDEX:false,
-              FILE_SUFFIX:'.html',
-              HAS_SOURCE:  true,
-              SOURCELINK_SUFFIX: '.txt'
-          };
-      </script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
+  <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -39,7 +29,7 @@
             <a href="../index.html"><img src="../_static/crown-logo-white.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                0.50.0
+                0.51.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -62,7 +52,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#getting-source">Getting Source</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#prerequisites">Prerequisites</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#android">Android</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#linux-ubuntu-18-04">Linux (Ubuntu &gt;= 18.04)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#linux-ubuntu-20-04">Linux (Ubuntu &gt;= 20.04)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#windows-vs-2019">Windows (VS 2019)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#windows-vs-code">Windows (VS Code)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#windows-msys2">Windows (MSYS2)</a></li>
@@ -112,7 +102,7 @@
 <h1>Building<a class="headerlink" href="#building" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="getting-source">
 <h2>Getting Source<a class="headerlink" href="#getting-source" title="Permalink to this headline">¶</a></h2>
-<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">crownengine</span><span class="o">/</span><span class="n">crown</span><span class="o">.</span><span class="n">git</span>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">crownengine</span><span class="o">/</span><span class="n">crown</span><span class="o">.</span><span class="n">git</span>
 </pre></div>
 </div>
 </div>
@@ -121,7 +111,7 @@
 <div class="section" id="android">
 <h3>Android<a class="headerlink" href="#android" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic">
-<li><p class="first">Install Android NDK (&gt;= r23):</p>
+<li><p class="first">Install Android NDK (&gt;= r21e LTS):</p>
 <blockquote>
 <div><ul class="simple">
 <li><a class="reference external" href="https://developer.android.com/ndk/downloads">https://developer.android.com/ndk/downloads</a></li>
@@ -131,35 +121,35 @@
 <li><p class="first">Set NDK path and ABI version:</p>
 </li>
 </ol>
-<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">ANDROID_NDK_ROOT</span><span class="o">=&lt;</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">android_ndk</span><span class="o">&gt;</span>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">ANDROID_NDK_ROOT</span><span class="o">=&lt;</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">android_ndk</span><span class="o">&gt;</span>
 <span class="n">export</span> <span class="n">ANDROID_NDK_ABI</span><span class="o">=</span><span class="mi">23</span>
 </pre></div>
 </div>
 <ol class="arabic simple" start="3">
 <li>Install LuaJIT dependencies:</li>
 </ol>
-<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">libc6</span><span class="o">-</span><span class="n">dev</span><span class="o">-</span><span class="n">i386</span>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">libc6</span><span class="o">-</span><span class="n">dev</span><span class="o">-</span><span class="n">i386</span>
 </pre></div>
 </div>
 <ol class="arabic simple" start="4">
 <li>Continue to <a class="reference internal" href="#build">Build</a>.</li>
 </ol>
 </div>
-<div class="section" id="linux-ubuntu-18-04">
-<h3>Linux (Ubuntu &gt;= 18.04)<a class="headerlink" href="#linux-ubuntu-18-04" title="Permalink to this headline">¶</a></h3>
-<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span> <span class="n">mesa</span><span class="o">-</span><span class="n">common</span><span class="o">-</span><span class="n">dev</span> <span class="n">libgl1</span><span class="o">-</span><span class="n">mesa</span><span class="o">-</span><span class="n">dev</span> <span class="n">libpulse</span><span class="o">-</span><span class="n">dev</span> <span class="n">libxrandr</span><span class="o">-</span><span class="n">dev</span> <span class="n">libc6</span><span class="o">-</span><span class="n">dev</span><span class="o">-</span><span class="n">i386</span>
+<div class="section" id="linux-ubuntu-20-04">
+<h3>Linux (Ubuntu &gt;= 20.04)<a class="headerlink" href="#linux-ubuntu-20-04" title="Permalink to this headline">¶</a></h3>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span> <span class="n">mesa</span><span class="o">-</span><span class="n">common</span><span class="o">-</span><span class="n">dev</span> <span class="n">libgl1</span><span class="o">-</span><span class="n">mesa</span><span class="o">-</span><span class="n">dev</span> <span class="n">libpulse</span><span class="o">-</span><span class="n">dev</span> <span class="n">libxrandr</span><span class="o">-</span><span class="n">dev</span> <span class="n">libc6</span><span class="o">-</span><span class="n">dev</span><span class="o">-</span><span class="n">i386</span>
 
 <span class="n">sudo</span> <span class="n">add</span><span class="o">-</span><span class="n">apt</span><span class="o">-</span><span class="n">repository</span> <span class="n">ppa</span><span class="p">:</span><span class="n">vala</span><span class="o">-</span><span class="n">team</span>
 <span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">libgtk</span><span class="o">-</span><span class="mi">3</span><span class="o">-</span><span class="n">dev</span> <span class="n">valac</span> <span class="n">libgee</span><span class="o">-</span><span class="mf">0.8</span><span class="o">-</span><span class="n">dev</span>
 </pre></div>
 </div>
-<p>If you encounter any errors while adding the Vala PPA, update <code class="docutils literal"><span class="pre">ca-certificates</span></code> first:</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span> <span class="n">update</span>
+<p>If you encounter any errors while adding the Vala PPA, update <code class="docutils literal notranslate"><span class="pre">ca-certificates</span></code> first:</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span> <span class="n">update</span>
 <span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">ca</span><span class="o">-</span><span class="n">certificates</span>
 </pre></div>
 </div>
 <p>To build documentation you will also need:</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">python3</span><span class="o">-</span><span class="n">sphinx</span>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">python3</span><span class="o">-</span><span class="n">sphinx</span>
 </pre></div>
 </div>
 </div>
@@ -206,13 +196,13 @@
 <li><p class="first">Add MSYS2 bin to your PATH; for a default install this would be:</p>
 </li>
 </ol>
-<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">C</span><span class="p">:</span>\<span class="n">msys64</span>\<span class="n">usr</span>\<span class="nb">bin</span>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">C</span><span class="p">:</span>\<span class="n">msys64</span>\<span class="n">usr</span>\<span class="nb">bin</span>
 </pre></div>
 </div>
 <ol class="arabic simple" start="3">
 <li>Open MSYS2 shell and install dependencies:</li>
 </ol>
-<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">pacman</span> <span class="o">-</span><span class="n">S</span> <span class="n">make</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">gcc</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">pkgconf</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">gtk3</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">vala</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">libgee</span>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pacman</span> <span class="o">-</span><span class="n">S</span> <span class="n">make</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">gcc</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">pkgconf</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">gtk3</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">vala</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">libgee</span>
 </pre></div>
 </div>
 <ol class="arabic simple" start="4">
@@ -224,13 +214,13 @@
 <h2>Build<a class="headerlink" href="#build" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="id1">
 <h3>Android<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
-<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">android</span><span class="o">-</span><span class="n">arm</span><span class="o">-</span><span class="n">release</span> <span class="n">MAKE_JOBS</span><span class="o">=</span><span class="mi">4</span>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">android</span><span class="o">-</span><span class="n">arm</span><span class="o">-</span><span class="n">release</span> <span class="n">MAKE_JOBS</span><span class="o">=</span><span class="mi">4</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="linux">
 <h3>Linux<a class="headerlink" href="#linux" title="Permalink to this headline">¶</a></h3>
-<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">tools</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">release64</span> <span class="n">MAKE_JOBS</span><span class="o">=</span><span class="mi">4</span>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">tools</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">release64</span> <span class="n">MAKE_JOBS</span><span class="o">=</span><span class="mi">4</span>
 </pre></div>
 </div>
 </div>
@@ -239,13 +229,13 @@
 <ol class="arabic simple">
 <li>Open Visual Studio 2019 Command Prompt:</li>
 </ol>
-<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">tools</span><span class="o">-</span><span class="n">windows</span><span class="o">-</span><span class="n">release64</span> <span class="n">MAKE_JOBS</span><span class="o">=</span><span class="mi">4</span>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">tools</span><span class="o">-</span><span class="n">windows</span><span class="o">-</span><span class="n">release64</span> <span class="n">MAKE_JOBS</span><span class="o">=</span><span class="mi">4</span>
 </pre></div>
 </div>
 <ol class="arabic simple" start="2">
 <li>To build tools, open a MSYS2 MINGW64 shell:</li>
 </ol>
-<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">MINGW</span><span class="o">=/</span><span class="n">mingw64</span>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">MINGW</span><span class="o">=/</span><span class="n">mingw64</span>
 <span class="n">make</span> <span class="n">tools</span><span class="o">-</span><span class="n">mingw</span><span class="o">-</span><span class="n">release64</span> <span class="n">MAKE_JOBS</span><span class="o">=</span><span class="mi">4</span>
 </pre></div>
 </div>
@@ -263,7 +253,7 @@
 <li><p class="first">Open Visual Studio Code Shell:</p>
 </li>
 </ol>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>$env:MINGW = &quot;C:\msys64\mingw64&quot;
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>$env:MINGW = &quot;C:\\msys64\\mingw64&quot;
 make tools-mingw-release64 MAKE_JOBS=4
 </pre></div>
 </div>
@@ -271,7 +261,7 @@ make tools-mingw-release64 MAKE_JOBS=4
 <div class="section" id="id4">
 <h3>Windows (MSYS2)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
 <p>Open MSYS2 MINGW64 shell:</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">MINGW</span><span class="o">=/</span><span class="n">mingw64</span>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">MINGW</span><span class="o">=/</span><span class="n">mingw64</span>
 <span class="n">make</span> <span class="n">tools</span><span class="o">-</span><span class="n">mingw</span><span class="o">-</span><span class="n">release64</span> <span class="n">MAKE_JOBS</span><span class="o">=</span><span class="mi">4</span>
 </pre></div>
 </div>

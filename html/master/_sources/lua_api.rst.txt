@@ -124,6 +124,26 @@ Device
 **guid** () : string
 	Returns a new GUID.
 
+**set_timestep_policy** (policy)
+	Sets the timestep policy:
+
+	* ``variable``: the timestep is the time it took for the previous frame to simulate. This is the default;
+	* ``smoothed``: the timestep is computed as an average of the previous delta times.
+
+**set_timestep_smoothing** (num_samples, num_outliers, average_cap)
+	Sets the number of samples to be averaged, the outliers to be excluded and the maximum
+	allowed deviation in percent from the previous average.  Given a delta time series DTs, and
+	a previous average AVGp:
+
+	* DTs = [ .33; .30; .32; .33; .24; .33; .25; .35; .33; .42 ]
+	* AVGp = 0.33
+
+	A call to set_smoothing(10, 2, 0.1) would compute the new average like so:
+
+	1. Remove the 2 minimum and maximum values in DTs;
+	2. Compute the average for the remaining 6 values in DTs: AVG = 0.323.
+	3. Smooth the newly computed average: AVG = lerp(AVGp, AVG, 0.1) = 0.329.
+
 Display
 =======
 

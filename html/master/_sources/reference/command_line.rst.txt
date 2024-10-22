@@ -1,20 +1,40 @@
-Command line reference
-======================
+Command line
+============
 
 Examples
 --------
 
-Compile source data from ``/home/user/demo`` using a mapped ``core`` folder.
+Compile and run the project ``/home/user/crown/samples/01-physics`` using a mapped ``core`` folder:
 
 .. code::
 
-	crown-development64 --source-dir /home/user/demo --map-source-dir core /home/user --compile
+	export CROWN=/home/user/crown
+	cd $CROWN/platforms/linux64/bin
+	./crown-development --compile --continue --source-dir $CROWN/samples/01-physics --map-source-dir core $CROWN/samples
 
-Run the engine using compiled data from ``/home/user/demo_linux``:
+Compile and run for HTML5:
 
 .. code::
 
-	crown-development64 --data-dir /home/user/demo_linux
+	./crown-development --compile --continue --platform html5 --source-dir $CROWN/samples/01-physics --map-source-dir core $CROWN/samples
+
+Compile a "bundled" version of the project:
+
+.. code::
+
+	./crown-development --compile --bundle --source-dir $CROWN/samples/01-physics --map-source-dir core $CROWN/samples
+
+Run the project from bundled data:
+
+.. code::
+
+	./crown-development --data-dir $CROWN/samples/01-physics_linux
+
+Customize the data directory name:
+
+.. code::
+
+	./crown-development --compile --data-dir $CROWN/samples/01-physics_custom --source-dir $CROWN/samples/01-physics --map-source-dir core $CROWN/samples
 
 Options
 -------
@@ -40,6 +60,11 @@ Options
 
 	The <path> must be absolute.
 
+``--map-source-dir <name> <path>``
+	Mount <path>/<name> at <source-dir>/<name>.
+
+	The <path> must be absolute.
+
 ``--boot-dir <path>``
 	Boot the engine with the ``boot.config`` from given <path>.
 
@@ -58,6 +83,7 @@ Options
 	Possible values for <platform> are:
 
 	* ``android``
+	* ``html5``
 	* ``linux``
 	* ``windows``
 
@@ -82,8 +108,14 @@ Options
 
 	When using this option you must also specify ``--source-dir``.
 
+``--pumped``
+	Do not advance the renderer unless explicitly requested via console.
+
+``--hidden``
+	Make the main window initially invisible.
+
 ``--window-rect <x y w h>``
 	Sets the main window's position and size.
 
 ``--run-unit-tests``
-	Run unit tests and quit. Available only on ``linux`` and ``windows``.
+	Run unit tests and quit.

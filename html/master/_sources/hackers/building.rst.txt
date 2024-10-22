@@ -15,7 +15,7 @@ Prerequisites
 Android
 -------
 
-1. Install Android NDK (>= r23):
+1. Install Android NDK (>= r21e LTS):
 
 	* https://developer.android.com/ndk/downloads
 
@@ -34,7 +34,7 @@ Android
 
 4. Continue to `Build`_.
 
-Linux (Ubuntu >= 18.04)
+Linux (Ubuntu >= 20.04)
 -----------------------
 
 .. code::
@@ -144,7 +144,7 @@ Windows (VS Code)
 
 .. code::
 
-	$env:MINGW = "C:\msys64\mingw64"
+	$env:MINGW = "C:\\msys64\\mingw64"
 	make tools-mingw-release64 MAKE_JOBS=4
 
 Windows (MSYS2)

@@ -3,26 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Changelog &mdash; Crown Manual 0.50.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <title>Changelog &mdash; Crown Manual 0.51.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
-  
-      <script>
-          var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'./',
-              VERSION:'0.50.0',
-              LANGUAGE:'en',
-              COLLAPSE_INDEX:false,
-              FILE_SUFFIX:'.html',
-              HAS_SOURCE:  true,
-              SOURCELINK_SUFFIX: '.txt'
-          };
-      </script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/doctools.js"></script>
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -39,7 +29,7 @@
             <a href="index.html"><img src="_static/crown-logo-white.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                0.50.0
+                0.51.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -51,7 +41,8 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#dd-mmm-yyyy">0.50.0 — DD MMM YYYY</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dd-mmm-yyyy">0.51.0 — DD MMM YYYY</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#oct-2024">0.50.0 — 10 Oct 2024</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#nov-2023">0.49.0 — 27 Nov 2023</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#jul-2023">0.48.0 — <em>31 Jul 2023</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#feb-2023">0.47.0 — <em>06 Feb 2023</em></a></li>
@@ -103,20 +94,20 @@
   <div class="section" id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="dd-mmm-yyyy">
-<h2>0.50.0 — DD MMM YYYY<a class="headerlink" href="#dd-mmm-yyyy" title="Permalink to this headline">¶</a></h2>
-<p><strong>Data Compiler</strong></p>
-<ul class="simple">
-<li>Fixed existence/redefinition checks for samplers.</li>
-<li>Improved data writing robustness.</li>
-</ul>
+<h2>0.51.0 — DD MMM YYYY<a class="headerlink" href="#dd-mmm-yyyy" title="Permalink to this headline">¶</a></h2>
+<p><strong>Tools</strong>
+* The window state (size, maximized, fullscreen etc.) will now be restored across sessions.</p>
 <p><strong>Runtime</strong></p>
 <ul class="simple">
-<li>Fixed intra-frame button press/release detection.</li>
-<li>Added <code class="docutils literal"><span class="pre">--hidden</span></code> CLI option.</li>
-<li>Fixed HashMap and HashSet.</li>
-<li>Packages will now bring resources online in the correct order. This enables runtime optimizations and features previously impossible to have.</li>
-<li>Windows: fixed resolution property from boot.config not being honored.</li>
+<li>Added the ability to set a new (smoothed) timestep policy.</li>
+<li>Improved <code class="docutils literal notranslate"><span class="pre">graph</span></code> command with the ability to add multiple fields, customize colors and limit the number of samples shown.</li>
+<li>Lua API: Added <code class="docutils literal notranslate"><span class="pre">Device.set_timestep_policy()</span></code> and <code class="docutils literal notranslate"><span class="pre">Device.set_timestep_smoothing()</span></code>.</li>
+<li>Windows: fixed xinput.dll not found on some systems.</li>
+<li>Windows: fixed console output and absolute paths when launched under MinGW.</li>
 </ul>
+</div>
+<div class="section" id="oct-2024">
+<h2>0.50.0 — 10 Oct 2024<a class="headerlink" href="#oct-2024" title="Permalink to this headline">¶</a></h2>
 <p><strong>Tools</strong></p>
 <ul class="simple">
 <li>Added an option to use the debug keystore when deploying APKs for Android.</li>
@@ -127,12 +118,25 @@
 <li>Fixed mouse click in the Editor View not selecting the correct sprite in some circumnstances.</li>
 <li>Added the ability to drag &amp; drop units from the ProjectBrowser to the EditorView.</li>
 <li>Added thumbnails for .unit, .material, .texture and .sound resources in the Project Browser.</li>
+<li>Fixed importing resources in the source directory’s root asking for destination directory.</li>
+<li>Improved revealing a resource in the Project Browser.</li>
+<li>Fixed some dialogs not getting focus when opened after the first time.</li>
 </ul>
-<p><strong>Lua API</strong></p>
+<p><strong>Runtime</strong></p>
 <ul class="simple">
-<li>Added <code class="docutils literal"><span class="pre">Device.screenshot()</span></code> and <code class="docutils literal"><span class="pre">screenshot()</span></code> callback, see <a class="reference internal" href="lua_api.html"><span class="doc">Lua API reference</span></a> for details.</li>
-<li>Added <code class="docutils literal"><span class="pre">Material.set_texture()</span></code>.</li>
-<li>Added <code class="docutils literal"><span class="pre">Gui.material()</span></code>.</li>
+<li>Fixed intra-frame button press/release detection.</li>
+<li>Added <code class="docutils literal notranslate"><span class="pre">--hidden</span></code> CLI option.</li>
+<li>Fixed HashMap and HashSet.</li>
+<li>Packages will now bring resources online in the correct order. This enables runtime optimizations and features previously impossible to have.</li>
+<li>Windows: fixed resolution property from boot.config not being honored.</li>
+<li>Data Compiler: Added per-platform texture output settings.</li>
+<li>Data Compiler: Fixed existence/redefinition checks for samplers.</li>
+<li>Data Compiler: Added the ability to inherit render states via the <code class="docutils literal notranslate"><span class="pre">inherit</span></code> property.</li>
+<li>Data Compiler: Windows: Fixed shader compilation.</li>
+<li>Data Compiler: Improved data writing robustness.</li>
+<li>Lua API: Added <code class="docutils literal notranslate"><span class="pre">Device.screenshot()</span></code> and <code class="docutils literal notranslate"><span class="pre">screenshot()</span></code> callback, see <a class="reference internal" href="lua_api.html"><span class="doc">Lua API reference</span></a> for details.</li>
+<li>Lua API: Added <code class="docutils literal notranslate"><span class="pre">Material.set_texture()</span></code>.</li>
+<li>Lua API: Added <code class="docutils literal notranslate"><span class="pre">Gui.material()</span></code>.</li>
 </ul>
 </div>
 <div class="section" id="nov-2023">
@@ -170,7 +174,7 @@
 <p><strong>Runtime</strong></p>
 <ul class="simple">
 <li>Added experimental HTML5 target platform.</li>
-<li>Added <code class="docutils literal"><span class="pre">--window-rect</span></code>, <code class="docutils literal"><span class="pre">--bundle</span></code> and <code class="docutils literal"><span class="pre">--bundle-dir</span></code> CLI options.</li>
+<li>Added <code class="docutils literal notranslate"><span class="pre">--window-rect</span></code>, <code class="docutils literal notranslate"><span class="pre">--bundle</span></code> and <code class="docutils literal notranslate"><span class="pre">--bundle-dir</span></code> CLI options.</li>
 <li>Fixed a double-free error during shutdown.</li>
 <li>Bumped minimum OpenGL|ES version for Android platform to 3.0.</li>
 </ul>
@@ -186,9 +190,9 @@
 </ul>
 <p><strong>Lua API</strong></p>
 <ul class="simple">
-<li>Added <code class="docutils literal"><span class="pre">Matrix4x4.scale()</span></code> and <code class="docutils literal"><span class="pre">Matrix4x4.set_scale()</span></code>.</li>
-<li>Added <code class="docutils literal"><span class="pre">Math.obb_vertices()</span></code>.</li>
-<li>Fixed <code class="docutils literal"><span class="pre">Touch.axis()</span></code> value not being updated at the start or end of a touch action.</li>
+<li>Added <code class="docutils literal notranslate"><span class="pre">Matrix4x4.scale()</span></code> and <code class="docutils literal notranslate"><span class="pre">Matrix4x4.set_scale()</span></code>.</li>
+<li>Added <code class="docutils literal notranslate"><span class="pre">Math.obb_vertices()</span></code>.</li>
+<li>Fixed <code class="docutils literal notranslate"><span class="pre">Touch.axis()</span></code> value not being updated at the start or end of a touch action.</li>
 </ul>
 </div>
 <div class="section" id="feb-2023">
@@ -203,7 +207,7 @@
 <p><strong>Runtime</strong></p>
 <ul class="simple">
 <li>Windows: reduced CPU usage by polling joypads’ status in a background thread.</li>
-<li>Added <code class="docutils literal"><span class="pre">graph</span></code> command to plot profiler data at runtime.</li>
+<li>Added <code class="docutils literal notranslate"><span class="pre">graph</span></code> command to plot profiler data at runtime.</li>
 <li>The ConsoleServer will now report an error when a command is not found.</li>
 <li>Fixed a crash when reloading materials.</li>
 <li>Hot-reloading has been enabled for all resource types.</li>
@@ -224,7 +228,7 @@
 </ul>
 <p><strong>Lua API</strong></p>
 <ul class="simple">
-<li>Added <code class="docutils literal"><span class="pre">Input.events()</span></code>, see <a class="reference internal" href="lua_api.html"><span class="doc">Lua API reference</span></a> for details.</li>
+<li>Added <code class="docutils literal notranslate"><span class="pre">Input.events()</span></code>, see <a class="reference internal" href="lua_api.html"><span class="doc">Lua API reference</span></a> for details.</li>
 </ul>
 <p><strong>Samples</strong></p>
 <ul class="simple">
@@ -272,14 +276,14 @@
 <li>Custom theme improvements.</li>
 <li>Fixed duplicated entries in the Resource Chooser.</li>
 <li>Changing the sprite in the Sprite Renderer component is now reflected to the Runtime.</li>
-<li>Added noop resources in <code class="docutils literal"><span class="pre">core/components/noop.*</span></code>.</li>
+<li>Added noop resources in <code class="docutils literal notranslate"><span class="pre">core/components/noop.*</span></code>.</li>
 <li>Changed the fallback shader to output Color4(255, 0, 255, 255).</li>
 <li>Added the ability to spawn empty units.</li>
 <li>Added the ability to choose between “Light” and “Dark” theme for the editor UI.</li>
 </ul>
 <p><strong>Lua API</strong></p>
 <ul class="simple">
-<li>Added <code class="docutils literal"><span class="pre">World.camera_destroy()</span></code>.</li>
+<li>Added <code class="docutils literal notranslate"><span class="pre">World.camera_destroy()</span></code>.</li>
 </ul>
 </div>
 <div class="section" id="apr-2021">
@@ -292,7 +296,7 @@
 <p><strong>Runtime</strong></p>
 <ul class="simple">
 <li>Added –pumped mode to skip rendering of frames unless explicitly requested.</li>
-<li>Fixed the creation of uniforms with <code class="docutils literal"><span class="pre">matrix4x4</span></code> type.</li>
+<li>Fixed the creation of uniforms with <code class="docutils literal notranslate"><span class="pre">matrix4x4</span></code> type.</li>
 <li>Fixed crashes when loading shaders in some circumnstances.</li>
 </ul>
 <p><strong>Tools</strong></p>
@@ -308,10 +312,10 @@
 </ul>
 <p><strong>Lua API</strong></p>
 <ul class="simple">
-<li>Added <code class="docutils literal"><span class="pre">Math.obb_intersects_frustum()</span></code></li>
-<li>Removed <code class="docutils literal"><span class="pre">DebugLine.add_unit()</span></code></li>
-<li>Fixed <code class="docutils literal"><span class="pre">World.camera_screen_to_world()</span></code> returning incorrect z-axis values on Windows/D3D.</li>
-<li><code class="docutils literal"><span class="pre">print()</span></code> will now try to detect the type of the lightuserdata and print it accordingly.</li>
+<li>Added <code class="docutils literal notranslate"><span class="pre">Math.obb_intersects_frustum()</span></code></li>
+<li>Removed <code class="docutils literal notranslate"><span class="pre">DebugLine.add_unit()</span></code></li>
+<li>Fixed <code class="docutils literal notranslate"><span class="pre">World.camera_screen_to_world()</span></code> returning incorrect z-axis values on Windows/D3D.</li>
+<li><code class="docutils literal notranslate"><span class="pre">print()</span></code> will now try to detect the type of the lightuserdata and print it accordingly.</li>
 </ul>
 </div>
 <div class="section" id="mar-2021">
@@ -396,23 +400,23 @@
 <li><dl class="first docutils">
 <dt>All component managers accessors have been uniformed to accept a component instance ID (instead of a UnitId or both):</dt>
 <dd><ul class="first last">
-<li>All <code class="docutils literal"><span class="pre">AnimationStateMachine.*</span></code>, except <code class="docutils literal"><span class="pre">AnimationStateMachine.create()</span></code></li>
-<li>All <code class="docutils literal"><span class="pre">RenderWorld.light_*</span></code>, except <code class="docutils literal"><span class="pre">RenderWorld.light_create()</span></code></li>
-<li>All <code class="docutils literal"><span class="pre">RenderWorld.sprite_*</span></code>, except <code class="docutils literal"><span class="pre">RenderWorld.sprite_create()</span></code></li>
-<li>All <code class="docutils literal"><span class="pre">SceneGraph.*</span></code>, except <code class="docutils literal"><span class="pre">SceneGraph.create()</span></code></li>
-<li>All <code class="docutils literal"><span class="pre">World.camera_*</span></code>, except <code class="docutils literal"><span class="pre">World.camera_create()</span></code></li>
-<li><code class="docutils literal"><span class="pre">PhysicsWorld.actor_instances()</span></code></li>
+<li>All <code class="docutils literal notranslate"><span class="pre">AnimationStateMachine.*</span></code>, except <code class="docutils literal notranslate"><span class="pre">AnimationStateMachine.create()</span></code></li>
+<li>All <code class="docutils literal notranslate"><span class="pre">RenderWorld.light_*</span></code>, except <code class="docutils literal notranslate"><span class="pre">RenderWorld.light_create()</span></code></li>
+<li>All <code class="docutils literal notranslate"><span class="pre">RenderWorld.sprite_*</span></code>, except <code class="docutils literal notranslate"><span class="pre">RenderWorld.sprite_create()</span></code></li>
+<li>All <code class="docutils literal notranslate"><span class="pre">SceneGraph.*</span></code>, except <code class="docutils literal notranslate"><span class="pre">SceneGraph.create()</span></code></li>
+<li>All <code class="docutils literal notranslate"><span class="pre">World.camera_*</span></code>, except <code class="docutils literal notranslate"><span class="pre">World.camera_create()</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_instances()</span></code></li>
 </ul>
 </dd>
 </dl>
 </li>
 <li>Added AnimationStateMachine.instance()</li>
-<li><code class="docutils literal"><span class="pre">RenderWorld.set_mesh_visible()</span></code> will now work as expected</li>
-<li>Changed <code class="docutils literal"><span class="pre">SceneGraph.link()</span></code> behavior and added parameters to explicitly set the position, rotation and scale of the child transform after linking is done</li>
-<li>Fixed <code class="docutils literal"><span class="pre">Matrix4x4.rotation()</span></code> to return the correct Quaternion even when the matrix has scaling applied</li>
-<li>Fixed <code class="docutils literal"><span class="pre">SceneGraph.*_rotation()</span></code> to return the correct Quaternion even when the node has scaling applied</li>
-<li>Fixed <code class="docutils literal"><span class="pre">SceneGraph.unlink()</span></code> to correctly set the local pose of the unlinked transform to its previous world pose</li>
-<li>Fixed <code class="docutils literal"><span class="pre">SceneGraph.destroy()</span></code> to correctly update any linked transform before deleting the node</li>
+<li><code class="docutils literal notranslate"><span class="pre">RenderWorld.set_mesh_visible()</span></code> will now work as expected</li>
+<li>Changed <code class="docutils literal notranslate"><span class="pre">SceneGraph.link()</span></code> behavior and added parameters to explicitly set the position, rotation and scale of the child transform after linking is done</li>
+<li>Fixed <code class="docutils literal notranslate"><span class="pre">Matrix4x4.rotation()</span></code> to return the correct Quaternion even when the matrix has scaling applied</li>
+<li>Fixed <code class="docutils literal notranslate"><span class="pre">SceneGraph.*_rotation()</span></code> to return the correct Quaternion even when the node has scaling applied</li>
+<li>Fixed <code class="docutils literal notranslate"><span class="pre">SceneGraph.unlink()</span></code> to correctly set the local pose of the unlinked transform to its previous world pose</li>
+<li>Fixed <code class="docutils literal notranslate"><span class="pre">SceneGraph.destroy()</span></code> to correctly update any linked transform before deleting the node</li>
 </ul>
 </div>
 <div class="section" id="oct-2020">
@@ -489,7 +493,7 @@
 <li>Fixed main.lua files generated by Level Editor for new projects</li>
 <li>Improved look of EntryVector3 widget</li>
 <li>Lua reloading has been extended to the running game when pressing F5 from the Level Editor</li>
-<li>Nodes in the Level Tree can now be exanded by clicking on the corresponding row</li>
+<li>Nodes in the Level Tree can now be expanded by clicking on the corresponding row</li>
 <li>Preferences are now saved to the user’s config directory</li>
 <li>Renaming of objects in the Level Tree is now handled with a modal dialog</li>
 <li>The Editor View will now show a message explaining how to recover the session after a crash or unintended disconnection</li>
