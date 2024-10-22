@@ -87,6 +87,7 @@ struct TimestepPolicy
 	{
 		VARIABLE,
 		SMOOTHED,
+		FIXED,
 
 		COUNT
 	};

@@ -370,6 +370,9 @@ bool Device::frame()
 		RECORD_FLOAT("device.smoothed_dt", smoothed_dt);
 		RECORD_FLOAT("device.smoothed_fps", 1.0f/smoothed_dt);
 		dt = smoothed_dt;
+	} else if (_timestep_policy == TimestepPolicy::FIXED) {
+		// TODO
+		dt = raw_dt;
 	} else {
 		dt = raw_dt;
 	}

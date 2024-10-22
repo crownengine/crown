@@ -154,6 +154,7 @@ static const TimestepPolicyInfo s_timestep_policy[] =
 {
 	{ STRING_ID_32("variable", UINT32_C(0xd638145a)), TimestepPolicy::VARIABLE },
 	{ STRING_ID_32("smoothed", UINT32_C(0x460246ef)), TimestepPolicy::SMOOTHED },
+	{ STRING_ID_32("fixed", UINT32_C(0x08eeb19e)),    TimestepPolicy::FIXED    }
 };
 CE_STATIC_ASSERT(countof(s_timestep_policy) == TimestepPolicy::COUNT);
 
