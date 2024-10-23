@@ -118,20 +118,43 @@ public class TransformPropertyGrid : PropertyGrid
 public class MeshRendererPropertyGrid : PropertyGrid
 {
 	// Widgets
+	private Project _project;
 	private ResourceChooserButton _mesh_resource;
-	private EntryText _geometry;
+	private ComboBoxMap _geometry;
 	private ResourceChooserButton _material;
 	private CheckBox _visible;
+
+	private void decode(Hashtable mesh_resource)
+	{
+		const string keys[] = { "geometries" };
+		ComboBoxMap combos[] = { _geometry };
+
+		for (int i = 0; i < keys.length; ++i) {
+			combos[i].clear();
+			if (mesh_resource.has_key(keys[i])) {
+				Hashtable obj = (Hashtable)mesh_resource[keys[i]];
+				foreach (var e in obj)
+					combos[i].append(e.key, e.key);
+			}
+		}
+	}
+
+	private void decode_from_resource(string type, string name)
+	{
+		string path = ResourceId.path(type, name);
+		decode(SJSON.load_from_path(_project.absolute_path(path)));
+	}
 
 	public MeshRendererPropertyGrid(Database db, ProjectStore store)
 	{
 		base(db);
 
+		_project = store._project;
+
 		// Widgets
 		_mesh_resource = new ResourceChooserButton(store, "mesh");
-		_mesh_resource.value_changed.connect(on_value_changed);
-		_geometry = new EntryText();
-		_geometry.sensitive = false;
+		_mesh_resource.value_changed.connect(on_mesh_resource_value_changed);
+		_geometry = new ComboBoxMap();
 		_material = new ResourceChooserButton(store, "material");
 		_material.value_changed.connect(on_value_changed);
 		_visible = new CheckBox();
@@ -143,24 +166,37 @@ public class MeshRendererPropertyGrid : PropertyGrid
 		add_row("Visible", _visible);
 	}
 
+	private void on_mesh_resource_value_changed()
+	{
+		decode_from_resource("mesh", _mesh_resource.value);
+		_geometry.value = _geometry.any_valid_id();
+		on_value_changed();
+	}
+
 	private void on_value_changed()
 	{
 		Unit unit = new Unit(_db, _id);
 		unit.set_component_property_string(_component_id, "data.mesh_resource", _mesh_resource.value);
-		unit.set_component_property_string(_component_id, "data.geometry_name", _geometry.text);
+		unit.set_component_property_string(_component_id, "data.geometry_name", _geometry.value);
 		unit.set_component_property_string(_component_id, "data.material", _material.value);
 		unit.set_component_property_bool  (_component_id, "data.visible", _visible.value);
 
 		_db.add_restore_point((int)ActionType.SET_MESH, new Guid?[] { _id, _component_id });
 	}
 
+	private void update_mesh_and_geometry(Unit unit)
+	{
+		_mesh_resource.value = unit.get_component_property_string(_component_id, "data.mesh_resource");
+		decode_from_resource("mesh", _mesh_resource.value);
+		_geometry.value = unit.get_component_property_string(_component_id, "data.geometry_name");
+	}
+
 	public override void update()
 	{
 		Unit unit = new Unit(_db, _id);
-		_mesh_resource.value = unit.get_component_property_string(_component_id, "data.mesh_resource");
-		_geometry.text       = unit.get_component_property_string(_component_id, "data.geometry_name");
-		_material.value      = unit.get_component_property_string(_component_id, "data.material");
-		_visible.value       = unit.get_component_property_bool  (_component_id, "data.visible");
+		update_mesh_and_geometry(unit);
+		_material.value = unit.get_component_property_string(_component_id, "data.material");
+		_visible.value  = unit.get_component_property_bool  (_component_id, "data.visible");
 	}
 }
 

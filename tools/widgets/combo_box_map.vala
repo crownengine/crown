@@ -128,6 +128,26 @@ public class ComboBoxMap : Gtk.ComboBox, Property
 		_stop_emit = false;
 	}
 
+	public string any_valid_id()
+	{
+		string some_id = INCONSISTENT_ID;
+
+		if (_store.iter_n_children(null) > 1u) {
+			_store.foreach((model, path, iter) => {
+					Value id_val;
+					model.get_value(iter, 0, out id_val);
+					if ((string)id_val != INCONSISTENT_ID) {
+						some_id = (string)id_val;
+						return true;
+					}
+
+					return false;
+				});
+		}
+
+		return some_id;
+	}
+
 	private void on_changed()
 	{
 		if (_inconsistent && this.get_active_id() == INCONSISTENT_ID)
