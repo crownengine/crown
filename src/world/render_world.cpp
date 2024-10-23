@@ -123,6 +123,13 @@ MeshInstance RenderWorld::mesh_instance(UnitId unit)
 	return _mesh_manager.mesh(unit);
 }
 
+void RenderWorld::mesh_set_geometry(MeshInstance mesh, StringId64 mesh_resource, StringId32 geometry)
+{
+	CE_ASSERT(mesh.i < _mesh_manager._data.size, "Index out of bounds");
+	const MeshResource *mr = (MeshResource *)_resource_manager->get(RESOURCE_TYPE_MESH, mesh_resource);
+	_mesh_manager.set_geometry(mesh, mr, geometry);
+}
+
 Material *RenderWorld::mesh_material(MeshInstance mesh)
 {
 	CE_ASSERT(mesh.i < _mesh_manager._data.size, "Index out of bounds");
@@ -606,6 +613,18 @@ void RenderWorld::MeshManager::swap(u32 inst_a, u32 inst_b)
 bool RenderWorld::MeshManager::has(UnitId unit)
 {
 	return is_valid(mesh(unit));
+}
+
+void RenderWorld::MeshManager::set_geometry(MeshInstance mesh, const MeshResource *mr, StringId32 geometry)
+{
+	const MeshGeometry *mg = mr->geometry(geometry);
+	CE_ENSURE(mg != NULL);
+
+	_data.resource[mesh.i] = mr;
+	_data.geometry[mesh.i] = mg;
+	_data.mesh[mesh.i].vbh = mg->vertex_buffer;
+	_data.mesh[mesh.i].ibh = mg->index_buffer;
+	_data.obb[mesh.i]      = mg->obb;
 }
 
 void RenderWorld::MeshManager::set_visible(MeshInstance inst, bool visible)

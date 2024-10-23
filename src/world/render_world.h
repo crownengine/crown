@@ -35,6 +35,10 @@ struct RenderWorld
 	/// Returns the ID of the mesh owned by the *unit*.
 	MeshInstance mesh_instance(UnitId unit);
 
+	/// Sets the @a geometry of the @a mesh. @a geometry must be a valid geometry name inside @a
+	/// mesh_resource.
+	void mesh_set_geometry(MeshInstance mesh, StringId64 mesh_resource, StringId32 geometry);
+
 	/// Returns the material of the @a mesh.
 	Material *mesh_material(MeshInstance mesh);
 
@@ -208,6 +212,9 @@ struct RenderWorld
 
 		///
 		bool has(UnitId unit);
+
+		///
+		void set_geometry(MeshInstance mesh, const MeshResource *mr, StringId32 geometry);
 
 		///
 		void set_visible(MeshInstance mesh, bool visible);

@@ -12,6 +12,7 @@ Changelog
 * Added the ability to set a new (smoothed) timestep policy.
 * Improved ``graph`` command with the ability to add multiple fields, customize colors and limit the number of samples shown.
 * Lua API: Added ``Device.set_timestep_policy()`` and ``Device.set_timestep_smoothing()``.
+* Lua API: Added ``RenderWorld.mesh_set_geometry()``.
 * Windows: fixed xinput.dll not found on some systems.
 * Windows: fixed console output and absolute paths when launched under MinGW.
 

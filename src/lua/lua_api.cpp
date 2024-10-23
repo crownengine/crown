@@ -1866,6 +1866,11 @@ void load_api(LuaEnvironment &env)
 			stack.push_float(t);
 			return 1;
 		});
+	env.add_module_function("RenderWorld", "mesh_set_geometry", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->mesh_set_geometry(stack.get_mesh_instance(2), stack.get_resource_name(3), stack.get_string_id_32(4));
+			return 0;
+		});
 	env.add_module_function("RenderWorld", "mesh_material", [](lua_State *L) {
 			LuaStack stack(L);
 			Material *material = stack.get_render_world(1)->mesh_material(stack.get_mesh_instance(2));
