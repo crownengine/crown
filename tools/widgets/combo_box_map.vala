@@ -57,6 +57,7 @@ public class ComboBoxMap : Gtk.ComboBox, Property
 		set
 		{
 			_stop_emit = true;
+			_filter.refilter();
 			bool success = this.set_active_id((string)value);
 			_stop_emit = false;
 			set_inconsistent(!success);
