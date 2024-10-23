@@ -49,7 +49,7 @@ static void help(const char *msg = NULL)
 		"  --hidden                        Make the main window initially invisible.\n"
 		"  --window-rect <x y w h>         Sets the main window's position and size.\n"
 		"\n"
-		"Complete documentation available at https://docs.crownengine.org/html/v" CROWN_VERSION "\n"
+		"Full documentation at https://docs.crownengine.org/html/v" CROWN_VERSION "/reference/command_line.html\n"
 		);
 
 	if (msg)
