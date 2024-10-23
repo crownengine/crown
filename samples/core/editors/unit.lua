@@ -154,8 +154,9 @@ function UnitBox:set_light(type, range, intensity, angle, color)
 	RenderWorld.light_set_spot_angle(self._rw, light, angle)
 end
 
-function UnitBox:set_mesh(material, visible)
+function UnitBox:set_mesh(mesh_resource, geometry, material, visible)
 	local mesh = RenderWorld.mesh_instance(self._rw, self._unit_id)
+	RenderWorld.mesh_set_geometry(self._rw, mesh, mesh_resource, geometry)
 	RenderWorld.mesh_set_material(self._rw, mesh, material)
 	RenderWorld.mesh_set_visible(self._rw, mesh, visible)
 end

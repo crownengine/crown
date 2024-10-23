@@ -337,6 +337,8 @@ public class Unit
 				));
 		} else if (component_type == OBJECT_TYPE_MESH_RENDERER) {
 			runtime.send_script(LevelEditorApi.set_mesh(unit_id
+				, unit.get_component_property_string(component_id, "data.mesh_resource")
+				, unit.get_component_property_string(component_id, "data.geometry_name")
 				, unit.get_component_property_string(component_id, "data.material")
 				, unit.get_component_property_bool  (component_id, "data.visible")
 				));
