@@ -49,6 +49,7 @@ static void help(const char *msg = NULL)
 		"  --hidden                        Make the main window initially invisible.\n"
 		"  --window-rect <x y w h>         Sets the main window's position and size.\n"
 		"  --string-id <string>            Prints the 32- and 64-bits IDs of <string>.\n"
+		"  --run-unit-tests                Run unit tests and quit.\n"
 		"\n"
 		"Full documentation at https://docs.crownengine.org/html/v" CROWN_VERSION "/reference/command_line.html\n"
 		);
