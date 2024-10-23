@@ -48,6 +48,7 @@ static void help(const char *msg = NULL)
 		"  --pumped                        Do not advance the renderer unless explicitly requested via console.\n"
 		"  --hidden                        Make the main window initially invisible.\n"
 		"  --window-rect <x y w h>         Sets the main window's position and size.\n"
+		"  --string-id <string>            Prints the 32- and 64-bits IDs of <string>.\n"
 		"\n"
 		"Full documentation at https://docs.crownengine.org/html/v" CROWN_VERSION "/reference/command_line.html\n"
 		);

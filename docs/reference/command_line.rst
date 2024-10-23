@@ -117,5 +117,8 @@ Options
 ``--window-rect <x y w h>``
 	Sets the main window's position and size.
 
+``--string-id <string>``
+	Print the 32- and 64-bits IDs of <string>.
+
 ``--run-unit-tests``
 	Run unit tests and quit.
