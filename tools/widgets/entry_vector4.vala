@@ -47,7 +47,7 @@ public class EntryVector4 : Gtk.Box
 	// Signals
 	public signal void value_changed();
 
-	public EntryVector4(Vector4 xyz, Vector4 min, Vector4 max)
+	public EntryVector4(Vector4 xyz, Vector4 min, Vector4 max, string preview_fmt = "%.4g")
 	{
 		Object(orientation: Gtk.Orientation.HORIZONTAL, spacing: 4);
 
@@ -55,10 +55,10 @@ public class EntryVector4 : Gtk.Box
 		_stop_emit = false;
 
 		// Widgets
-		_x = new EntryDouble(xyz.x, min.x, max.x);
-		_y = new EntryDouble(xyz.y, min.y, max.y);
-		_z = new EntryDouble(xyz.z, min.z, max.z);
-		_w = new EntryDouble(xyz.w, min.w, max.w);
+		_x = new EntryDouble(xyz.x, min.x, max.x, preview_fmt);
+		_y = new EntryDouble(xyz.y, min.y, max.y, preview_fmt);
+		_z = new EntryDouble(xyz.z, min.z, max.z, preview_fmt);
+		_w = new EntryDouble(xyz.w, min.w, max.w, preview_fmt);
 
 		_x.value_changed.connect(on_value_changed);
 		_y.value_changed.connect(on_value_changed);
