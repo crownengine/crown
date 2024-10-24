@@ -5,6 +5,7 @@ Changelog
 ----------------------
 
 **Tools**
+
 * The Editor's main window state (size, maximized, fullscreen etc.) will now be restored across sessions.
 
 **Runtime**
