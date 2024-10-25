@@ -24,8 +24,8 @@ function Game.level_loaded()
 	Game.camera = FPSCamera(GameBase.world, GameBase.camera_unit)
 
 	-- Debug
-	PhysicsWorld.enable_debug_drawing(Game.pw, debug_physics)
-	RenderWorld.enable_debug_drawing(Game.rw, debug_graphics)
+	PhysicsWorld.enable_debug_drawing(Game.pw, Game.debug_physics)
+	RenderWorld.enable_debug_drawing(Game.rw, Game.debug_graphics)
 end
 
 function Game.update(dt)
@@ -35,13 +35,13 @@ function Game.update(dt)
 	end
 
 	if Keyboard.released(Keyboard.button_id("z")) then
-		debug_physics = not debug_physics
-		PhysicsWorld.enable_debug_drawing(Game.pw, debug_physics)
+		Game.debug_physics = not Game.debug_physics
+		PhysicsWorld.enable_debug_drawing(Game.pw, Game.debug_physics)
 	end
 
 	if Keyboard.released(Keyboard.button_id("x")) then
-		debug_graphics = not debug_graphics
-		RenderWorld.enable_debug_drawing(Game.rw, debug_graphics)
+		Game.debug_graphics = not Game.debug_graphics
+		RenderWorld.enable_debug_drawing(Game.rw, Game.debug_graphics)
 	end
 
 	-- Spawn a sphere when left mouse button is pressed
