@@ -272,6 +272,9 @@ namespace physics_resource_internal
 			case ColliderType::HEIGHTFIELD:
 				DATA_COMPILER_ASSERT(false, opts, "Not implemented yet");
 				break;
+			default:
+				DATA_COMPILER_ASSERT(false, opts, "Invalid collider type");
+				break;
 			}
 		} else {
 			JsonObject collider_data(ta);
@@ -293,6 +296,8 @@ namespace physics_resource_internal
 			} else if (cd.type == ColliderType::CAPSULE) {
 				cd.capsule.radius = sjson::parse_float(collider_data["radius"]);
 				cd.capsule.height = sjson::parse_float(collider_data["height"]);
+			} else {
+				DATA_COMPILER_ASSERT(false, opts, "Invalid collider type");
 			}
 		}
 
