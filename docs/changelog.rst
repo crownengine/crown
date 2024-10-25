@@ -7,6 +7,7 @@ Changelog
 **Tools**
 
 * The Editor's main window state (size, maximized, fullscreen etc.) will now be restored across sessions.
+* The Inspector is now able to fully edit all the properties of all the components in a Unit.
 
 **Runtime**
 
