@@ -205,7 +205,8 @@ namespace physics_resource_internal
 		DynamicString source(ta);
 		if (json_object::has(obj, "source"))
 			sjson::parse_string(source, obj["source"]);
-		bool explicit_collider = source == "mesh" || json_object::has(obj, "scene");
+		bool explicit_collider = source == "mesh"
+			|| (source != "inline" && json_object::has(obj, "scene"));
 
 		if (explicit_collider) {
 			// Parse .mesh
