@@ -18,4 +18,6 @@ level-object-sound
 level-object-unknown
 game-run
 game-stop
+browser-favorites
+browser-folder
 browser-icon-view
