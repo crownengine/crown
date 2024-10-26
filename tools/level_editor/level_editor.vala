@@ -4125,7 +4125,7 @@ public static int main(string[] args)
 	} catch (Error e) {
 		/* Nobody cares */
 	}
-	_logs_dir = GLib.File.new_for_path(GLib.Path.build_filename(_cache_dir.get_path(), "logs"));
+	_logs_dir = GLib.File.new_for_path(GLib.Path.build_filename(_state_dir.get_path(), "logs"));
 	try {
 		_logs_dir.make_directory();
 	} catch (Error e) {
@@ -4154,9 +4154,9 @@ public static int main(string[] args)
 		return launcher_main(args);
 
 	_settings_file = GLib.File.new_for_path(GLib.Path.build_filename(_config_dir.get_path(), "settings.sjson"));
-	_window_state_file = GLib.File.new_for_path(GLib.Path.build_filename(_cache_dir.get_path(), "window.sjson"));
-	_user_file = GLib.File.new_for_path(GLib.Path.build_filename(_config_dir.get_path(), "user.sjson"));
-	_console_history_file = GLib.File.new_for_path(GLib.Path.build_filename(_cache_dir.get_path(), "console_history.txt"));
+	_window_state_file = GLib.File.new_for_path(GLib.Path.build_filename(_state_dir.get_path(), "window.sjson"));
+	_user_file = GLib.File.new_for_path(GLib.Path.build_filename(_data_dir.get_path(), "user.sjson"));
+	_console_history_file = GLib.File.new_for_path(GLib.Path.build_filename(_state_dir.get_path(), "console_history.txt"));
 
 	// Connect to SubprocessLauncher service.
 	SubprocessLauncher subprocess_launcher;
