@@ -2290,6 +2290,23 @@ public class LevelEditorApplication : Gtk.Application
 			if (_project.source_dir() == source_dir)
 				return;
 
+			// Naively check whether the selected folder contains a Crown project.
+			if (!GLib.File.new_for_path(GLib.Path.build_filename(source_dir, "boot.config")).query_exists()
+				|| !GLib.File.new_for_path(GLib.Path.build_filename(source_dir, "global.physics_config")).query_exists()
+				) {
+				Gtk.MessageDialog md = new Gtk.MessageDialog(this.active_window
+					, Gtk.DialogFlags.MODAL
+					, Gtk.MessageType.INFO
+					, Gtk.ButtonsType.OK
+					, "The selected folder does not appear to be a valid Crown project."
+					);
+
+				md.set_default_response(ResponseType.OK);
+				md.run();
+				md.destroy();
+				return;
+			}
+
 			this.show_panel("main_vbox", Gtk.StackTransitionType.NONE);
 			_user.add_or_touch_recent_project(source_dir, source_dir);
 			_console_view.reset();
