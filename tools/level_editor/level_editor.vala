@@ -3929,9 +3929,11 @@ public class LevelEditorApplication : Gtk.Application
 // Global paths
 public static GLib.File _toolchain_dir;
 public static GLib.File _templates_dir;
+public static GLib.File _data_dir;
 public static GLib.File _config_dir;
-public static GLib.File _logs_dir;
+public static GLib.File _state_dir;
 public static GLib.File _cache_dir;
+public static GLib.File _logs_dir;
 public static GLib.File _thumbnails_dir;
 public static GLib.File _thumbnails_normal_dir;
 public static GLib.File _documents_dir;
@@ -4099,9 +4101,21 @@ public static int main(string[] args)
 		});
 
 	// Global paths
+	_data_dir = GLib.File.new_for_path(GLib.Path.build_filename(GLib.Environment.get_user_data_dir(), "crown"));
+	try {
+		_data_dir.make_directory();
+	} catch (Error e) {
+		/* Nobody cares */
+	}
 	_config_dir = GLib.File.new_for_path(GLib.Path.build_filename(GLib.Environment.get_user_config_dir(), "crown"));
 	try {
 		_config_dir.make_directory();
+	} catch (Error e) {
+		/* Nobody cares */
+	}
+	_state_dir = GLib.File.new_for_path(GLib.Path.build_filename(GLib.Environment.get_user_state_dir(), "crown"));
+	try {
+		_state_dir.make_directory();
 	} catch (Error e) {
 		/* Nobody cares */
 	}
