@@ -119,7 +119,7 @@ public class MeshRendererPropertyGrid : PropertyGrid
 {
 	// Widgets
 	private Project _project;
-	private ResourceChooserButton _mesh_resource;
+	private ResourceChooserButton _scene;
 	private ComboBoxMap _geometry;
 	private ResourceChooserButton _material;
 	private CheckBox _visible;
@@ -152,23 +152,23 @@ public class MeshRendererPropertyGrid : PropertyGrid
 		_project = store._project;
 
 		// Widgets
-		_mesh_resource = new ResourceChooserButton(store, "mesh");
-		_mesh_resource.value_changed.connect(on_mesh_resource_value_changed);
+		_scene = new ResourceChooserButton(store, "mesh");
+		_scene.value_changed.connect(on_scene_value_changed);
 		_geometry = new ComboBoxMap();
 		_material = new ResourceChooserButton(store, "material");
 		_material.value_changed.connect(on_value_changed);
 		_visible = new CheckBox();
 		_visible.value_changed.connect(on_value_changed);
 
-		add_row("Mesh", _mesh_resource);
+		add_row("Scene", _scene);
 		add_row("Geometry", _geometry);
 		add_row("Material", _material);
 		add_row("Visible", _visible);
 	}
 
-	private void on_mesh_resource_value_changed()
+	private void on_scene_value_changed()
 	{
-		decode_from_resource("mesh", _mesh_resource.value);
+		decode_from_resource("mesh", _scene.value);
 		_geometry.value = _geometry.any_valid_id();
 		on_value_changed();
 	}
@@ -176,7 +176,7 @@ public class MeshRendererPropertyGrid : PropertyGrid
 	private void on_value_changed()
 	{
 		Unit unit = new Unit(_db, _id);
-		unit.set_component_property_string(_component_id, "data.mesh_resource", _mesh_resource.value);
+		unit.set_component_property_string(_component_id, "data.mesh_resource", _scene.value);
 		unit.set_component_property_string(_component_id, "data.geometry_name", _geometry.value);
 		unit.set_component_property_string(_component_id, "data.material", _material.value);
 		unit.set_component_property_bool  (_component_id, "data.visible", _visible.value);
@@ -186,8 +186,8 @@ public class MeshRendererPropertyGrid : PropertyGrid
 
 	private void update_mesh_and_geometry(Unit unit)
 	{
-		_mesh_resource.value = unit.get_component_property_string(_component_id, "data.mesh_resource");
-		decode_from_resource("mesh", _mesh_resource.value);
+		_scene.value = unit.get_component_property_string(_component_id, "data.mesh_resource");
+		decode_from_resource("mesh", _scene.value);
 		_geometry.value = unit.get_component_property_string(_component_id, "data.geometry_name");
 	}
 
@@ -370,7 +370,7 @@ public class ColliderPropertyGrid : PropertyGrid
 	private Project _project;
 	private ComboBoxMap _source;
 	private ResourceChooserButton _scene;
-	private ComboBoxMap _name;
+	private ComboBoxMap _geometry;
 	private ComboBoxMap _shape;
 	// Inline colliders.
 	private EntryPosition _position;
@@ -382,7 +382,7 @@ public class ColliderPropertyGrid : PropertyGrid
 	private void decode(Hashtable mesh_resource)
 	{
 		const string keys[] = { "geometries" };
-		ComboBoxMap combos[] = { _name };
+		ComboBoxMap combos[] = { _geometry };
 
 		for (int i = 0; i < keys.length; ++i) {
 			combos[i].clear();
@@ -413,8 +413,8 @@ public class ColliderPropertyGrid : PropertyGrid
 		_source.value_changed.connect(on_source_value_changed);
 		_scene = new ResourceChooserButton(store, "mesh");
 		_scene.value_changed.connect(on_scene_value_changed);
-		_name = new ComboBoxMap();
-		_name.value_changed.connect(on_value_changed);
+		_geometry = new ComboBoxMap();
+		_geometry.value_changed.connect(on_value_changed);
 		_shape = new ComboBoxMap();
 		_shape.append("sphere", "sphere");
 		_shape.append("capsule", "capsule");
@@ -436,7 +436,7 @@ public class ColliderPropertyGrid : PropertyGrid
 
 		add_row("Source", _source);
 		add_row("Scene", _scene);
-		add_row("Name", _name);
+		add_row("Geometry", _geometry);
 
 		add_row("Shape", _shape);
 		add_row("Position", _position);
@@ -453,7 +453,7 @@ public class ColliderPropertyGrid : PropertyGrid
 		} else if (_source.value == "mesh") {
 			_scene.value = "core/units/primitives/cube";
 			decode_from_resource("mesh", _scene.value);
-			_name.value = "Cube";
+			_geometry.value = "Cube";
 			_shape.value = "mesh";
 		} else {
 			assert(false);
@@ -466,7 +466,7 @@ public class ColliderPropertyGrid : PropertyGrid
 	private void on_scene_value_changed()
 	{
 		decode_from_resource("mesh", _scene.value);
-		_name.value = _name.any_valid_id();
+		_geometry.value = _geometry.any_valid_id();
 
 		on_value_changed();
 	}
@@ -481,7 +481,7 @@ public class ColliderPropertyGrid : PropertyGrid
 	{
 		if (_source.value == "inline") {
 			_scene.sensitive = false;
-			_name.sensitive = false;
+			_geometry.sensitive = false;
 			_position.sensitive = true;
 			_rotation.sensitive = true;
 
@@ -506,7 +506,7 @@ public class ColliderPropertyGrid : PropertyGrid
 			}
 		} else if (_source.value == "mesh") {
 			_scene.sensitive = true;
-			_name.sensitive = true;
+			_geometry.sensitive = true;
 			_position.sensitive = false;
 			_rotation.sensitive = false;
 			_half_extents.sensitive = false;
@@ -522,7 +522,7 @@ public class ColliderPropertyGrid : PropertyGrid
 		Unit unit = new Unit(_db, _id);
 		unit.set_component_property_string(_component_id, "data.source", _source.value);
 		unit.set_component_property_string(_component_id, "data.scene", _scene.value);
-		unit.set_component_property_string(_component_id, "data.name", _name.value);
+		unit.set_component_property_string(_component_id, "data.name", _geometry.value);
 		unit.set_component_property_string(_component_id, "data.shape", _shape.value);
 		unit.set_component_property_vector3(_component_id, "data.collider_data.position", _position.value);
 		unit.set_component_property_quaternion(_component_id, "data.collider_data.rotation", _rotation.value);
@@ -545,11 +545,11 @@ public class ColliderPropertyGrid : PropertyGrid
 		if (unit.get_component_property(_component_id, "data.scene") == null) {
 			_scene.value = "core/units/primitives/cube";
 			decode_from_resource("mesh", _scene.value);
-			_name.value  = _name.any_valid_id();
+			_geometry.value  = _geometry.any_valid_id();
 		} else {
 			_scene.value = unit.get_component_property_string(_component_id, "data.scene");
 			decode_from_resource("mesh", _scene.value);
-			_name.value = unit.get_component_property_string(_component_id, "data.name");
+			_geometry.value = unit.get_component_property_string(_component_id, "data.name");
 		}
 
 		_shape.value = unit.get_component_property_string(_component_id, "data.shape");
