@@ -519,15 +519,15 @@ public class ProjectBrowser : Gtk.Bin
 				model.get_value(iter, ProjectStore.Column.TYPE, out type);
 				model.get_value(iter, ProjectStore.Column.NAME, out name);
 
-				bool should_hide = (string)type != null
+				bool should_show = (string)type != null
 					&& (string)name != null
 					&& !row_should_be_hidden((string)type, (string)name)
 					;
 
 				if (_show_icon_view) {
-					return should_hide && type == "<folder>";
+					return should_show && type == "<folder>";
 				} else {
-					return should_hide;
+					return should_show;
 				}
 			});
 
