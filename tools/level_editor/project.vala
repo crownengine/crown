@@ -59,6 +59,7 @@ public class Project
 	public File? _source_dir;
 	public File _toolchain_dir;
 	public File _data_dir;
+	public File _user_dir;
 	public File _level_editor_test_level;
 	public File _level_editor_test_package;
 	public string _platform;
@@ -136,6 +137,13 @@ public class Project
 
 		// Cleanup source directory from previous runs' garbage
 		delete_garbage();
+
+		_user_dir = GLib.File.new_for_path(GLib.Path.build_filename(Crown._data_dir.get_path(), "projects", StringId64(source_dir).to_string()));
+		try {
+			_user_dir.make_directory_with_parents();
+		} catch (Error e) {
+			/* Nobody cares */
+		}
 
 		project_loaded();
 	}
@@ -363,6 +371,12 @@ public class Project
 	public string data_dir()
 	{
 		return _data_dir.get_path();
+	}
+
+	// Returns the absolute path to the user-specific data for this project.
+	public string user_dir()
+	{
+		return _user_dir.get_path();
 	}
 
 	public string platform()
