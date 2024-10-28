@@ -112,12 +112,12 @@ public class Project
 
 	public void reset()
 	{
+		project_reset();
+
 		_source_dir = null;
 
 		_files.reset();
 		_map.clear();
-
-		project_reset();
 	}
 
 	public bool is_loaded()
