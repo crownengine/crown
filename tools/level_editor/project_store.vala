@@ -25,6 +25,7 @@ public class ProjectStore
 	public Gtk.TreeStore _tree_store;
 	public Gtk.ListStore _list_store;
 	public Gee.HashMap<string, Gtk.TreeRowReference> _folders;
+	public Gtk.TreeRowReference _favorites_root;
 
 	public ProjectStore(Project project)
 	{
@@ -56,6 +57,19 @@ public class ProjectStore
 		_folders.clear();
 		_tree_store.clear();
 		_list_store.clear();
+
+		// Add favorites root.
+		Gtk.TreeIter iter;
+		_tree_store.insert_with_values(out iter
+			, null
+			, -1
+			, Column.NAME
+			, ROOT_FOLDER
+			, Column.TYPE
+			, "<favorites>"
+			, -1
+			);
+		_favorites_root = new Gtk.TreeRowReference(_tree_store, _tree_store.get_path(iter));
 	}
 
 	public bool path_for_resource_type_name(out Gtk.TreePath path, string type, string name)
@@ -101,6 +115,70 @@ public class ProjectStore
 			return null;
 
 		return _folders[ROOT_FOLDER].get_path();
+	}
+
+	public Gtk.TreePath? favorites_root_path()
+	{
+		return _favorites_root.get_path();
+	}
+
+	public void add_to_favorites(string type, string name)
+	{
+		Gtk.TreeIter favorites_root_iter;
+		_tree_store.get_iter(out favorites_root_iter, favorites_root_path());
+
+		// Avoid duplicates.
+		Gtk.TreeIter child;
+		if (_tree_store.iter_children(out child, favorites_root_iter)) {
+			Value iter_name;
+			Value iter_type;
+
+			while (true) {
+				_tree_store.get_value(child, Column.NAME, out iter_name);
+				_tree_store.get_value(child, Column.TYPE, out iter_type);
+				if ((string)iter_name == name && (string)iter_type == type)
+					return;
+
+				if (!_tree_store.iter_next(ref child))
+					break;
+			}
+		}
+
+		// Add to favorites.
+		Gtk.TreeIter iter;
+		_tree_store.insert_with_values(out iter
+			, favorites_root_iter
+			, -1
+			, Column.NAME
+			, name
+			, Column.TYPE
+			, type
+			, -1
+			);
+	}
+
+	public void remove_from_favorites(string type, string name)
+	{
+		// Remove from tree store.
+		Gtk.TreeIter parent_iter;
+		_tree_store.get_iter(out parent_iter, favorites_root_path());
+		Gtk.TreeIter child;
+		if (_tree_store.iter_children(out child, parent_iter)) {
+			Value iter_name;
+			Value iter_type;
+
+			while (true) {
+				_tree_store.get_value(child, Column.NAME, out iter_name);
+				_tree_store.get_value(child, Column.TYPE, out iter_type);
+				if ((string)iter_name == name && (string)iter_type == type) {
+					_tree_store.remove(ref child);
+					break;
+				}
+
+				if (!_tree_store.iter_next(ref child))
+					break;
+			}
+		}
 	}
 
 	private Gtk.TreeIter make_tree_internal(string folder, int start_index, Gtk.TreeRowReference parent)
@@ -310,6 +388,71 @@ public class ProjectStore
 			);
 
 		_folders[ROOT_FOLDER] = new Gtk.TreeRowReference(_tree_store, _tree_store.get_path(iter));
+	}
+
+	public Gee.ArrayList<Value?> encode_favorites()
+	{
+		Gee.ArrayList<Value?> favorites = new Gee.ArrayList<Value?>();
+
+		Gtk.TreeIter parent_iter;
+		_tree_store.get_iter(out parent_iter, favorites_root_path());
+		Gtk.TreeIter child;
+		if (_tree_store.iter_children(out child, parent_iter)) {
+			Value iter_name;
+			Value iter_type;
+
+			while (true) {
+				_tree_store.get_value(child, Column.NAME, out iter_name);
+				_tree_store.get_value(child, Column.TYPE, out iter_type);
+
+				Hashtable resource = new Hashtable();
+				resource["type"] = (string)iter_type;
+				resource["name"] = (string)iter_name;
+				favorites.add(resource);
+
+				if (!_tree_store.iter_next(ref child))
+					break;
+			}
+		}
+
+		return favorites;
+	}
+
+	public Hashtable encode()
+	{
+		Hashtable h = new Hashtable();
+		h["favorites"] = encode_favorites();
+		return h;
+	}
+
+	public void decode_favorites(Gee.ArrayList<Value?> favorites)
+	{
+		foreach (var entry in favorites) {
+			if (entry == null || !entry.holds(typeof(Hashtable)))
+				continue;
+
+			Hashtable resource = (Hashtable)entry;
+			if (!resource.has_key("type") || !resource.has_key("name"))
+				continue;
+
+			Value type = resource["type"];
+			if (!type.holds(typeof(string)))
+				continue;
+			Value name = resource["name"];
+			if (!name.holds(typeof(string)))
+				continue;
+
+			add_to_favorites((string)type, (string)name);
+		}
+	}
+
+	public void decode(Hashtable h)
+	{
+		if (h.has_key("favorites")) {
+			Value favorites = h["favorites"];
+			if (favorites.holds(typeof(Gee.ArrayList)))
+				decode_favorites((Gee.ArrayList<Value?>)favorites);
+		}
 	}
 }
 

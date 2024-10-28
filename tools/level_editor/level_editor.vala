@@ -791,6 +791,8 @@ public class LevelEditorApplication : Gtk.Application
 		_project.register_importer("Sound", { "wav" }, SoundResource.import, 2.0);
 		_project.register_importer("Texture", { "png", "tga", "dds", "ktx", "pvr" }, TextureResource.import, 2.0);
 		_project.register_importer("Font", { "ttf", "otf" }, FontResource.import, 3.0);
+		_project.project_reset.connect(on_project_reset);
+		_project.project_loaded.connect(on_project_loaded);
 
 		_editor = new RuntimeInstance(_subprocess_launcher, "editor");
 		_editor.message_received.connect(on_message_received);
@@ -3940,6 +3942,23 @@ public class LevelEditorApplication : Gtk.Application
 
 		_editor.send_script(LevelEditorApi.set_placeable(_placeable_type, _placeable_name));
 		activate_action("tool", new GLib.Variant.int32(ToolType.PLACE));
+	}
+
+	private void on_project_reset()
+	{
+		if (!_project.is_loaded())
+			return;
+
+		// Save per-project data.
+		string path = GLib.Path.build_filename(_project.user_dir(), "project_store.sjson");
+		SJSON.save(_project_store.encode(), path);
+	}
+
+	private void on_project_loaded()
+	{
+		// Load per-project data.
+		string path = GLib.Path.build_filename(_project.user_dir(), "project_store.sjson");
+		_project_store.decode(SJSON.load_from_path(path));
 	}
 }
 

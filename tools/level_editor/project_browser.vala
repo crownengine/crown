@@ -13,7 +13,8 @@ public const Gtk.TargetEntry[] dnd_targets =
 	{ "RESOURCE_PATH", Gtk.TargetFlags.SAME_APP, 0 },
 };
 
-private Gtk.Menu? menu_create(string type, string name)
+// Menu to open when clicking on project's files and folders.
+private Gtk.Menu? project_entry_menu_create(string type, string name)
 {
 	Gtk.Menu? menu;
 
@@ -231,6 +232,55 @@ private Gtk.Menu? menu_create(string type, string name)
 		});
 	menu.add(mi);
 
+	if (type != "<folder>" || name != "") {
+		mi = new Gtk.MenuItem.with_label("Add to Favorites");
+		mi.activate.connect(() => {
+				var tuple = new GLib.Variant.tuple({type, name});
+				GLib.Application.get_default().activate_action("favorite-resource", tuple);
+			});
+		menu.add(mi);
+	}
+
+	return menu;
+}
+
+// Menu to open when clicking on favorites' entries.
+private Gtk.Menu? favorites_entry_menu_create(string type, string name)
+{
+	Gtk.Menu? menu;
+
+	menu = new Gtk.Menu();
+
+	Gtk.MenuItem mi;
+
+	mi = new Gtk.MenuItem.with_label("Open Containing Folder...");
+	mi.activate.connect(() => {
+			GLib.Application.get_default().activate_action("open-containing", new GLib.Variant.string(name));
+		});
+	menu.add(mi);
+
+	mi = new Gtk.SeparatorMenuItem();
+	menu.add(mi);
+
+	mi = new Gtk.MenuItem.with_label("Copy Path");
+	mi.activate.connect(() => {
+			string path;
+			if (type == "<folder>")
+				path = name;
+			else
+				path = ResourceId.path(type, name);
+
+			GLib.Application.get_default().activate_action("copy-path", new GLib.Variant.string(path));
+		});
+	menu.add(mi);
+
+	mi = new Gtk.MenuItem.with_label("Remove from Favorites");
+	mi.activate.connect(() => {
+			var tuple = new GLib.Variant.tuple({type, name});
+			GLib.Application.get_default().activate_action("unfavorite-resource", tuple);
+		});
+	menu.add(mi);
+
 	return menu;
 }
 
@@ -255,6 +305,7 @@ public class ProjectIconView : Gtk.IconView
 	public Gtk.CellRendererPixbuf _cell_renderer_pixbuf;
 	public Gtk.CellRendererText _cell_renderer_text;
 	public Gdk.Pixbuf _empty_pixbuf;
+	public bool _showing_project_folder;
 
 	public ProjectIconView(ProjectStore project_store, ThumbnailCache thumbnail_cache)
 	{
@@ -289,6 +340,8 @@ public class ProjectIconView : Gtk.IconView
 		_cell_renderer_text.set("width", wrap_width);
 
 		_empty_pixbuf = new Gdk.Pixbuf.from_data({ 0x00, 0x00, 0x00, 0x00 }, Gdk.Colorspace.RGB, true, 8, 1, 1, 4);
+
+		_showing_project_folder = true;
 
 		this.pack_start(_cell_renderer_pixbuf, false);
 		this.pack_start(_cell_renderer_text, false);
@@ -361,7 +414,13 @@ public class ProjectIconView : Gtk.IconView
 				name = _selected_name;
 			}
 
-			Gtk.Menu? menu = menu_create(type, name);
+			Gtk.Menu? menu;
+			menu = project_entry_menu_create(type, name);
+			if (_showing_project_folder)
+				menu = project_entry_menu_create(type, name);
+			else
+				menu = favorites_entry_menu_create(type, name);
+
 			if (menu != null) {
 				menu.show_all();
 				menu.popup_at_pointer(ev);
@@ -526,7 +585,12 @@ public class ProjectBrowser : Gtk.Bin
 					;
 
 				if (_show_icon_view) {
-					return should_show && type == "<folder>";
+					// Hide all descendants of the favorites root.
+					Gtk.TreePath? path = model.get_path(iter);
+					if (path != null && _project_store.favorites_root_path() != null && path.is_descendant(_project_store.favorites_root_path()))
+						return false;
+
+					return should_show && (type == "<folder>" || type == "<favorites>");
 				} else {
 					return should_show;
 				}
@@ -539,6 +603,13 @@ public class ProjectBrowser : Gtk.Bin
 				model.get_value(iter_a, ProjectStore.Column.TYPE, out type_a);
 				model.get_value(iter_b, ProjectStore.Column.TYPE, out type_b);
 
+				// Favorites is always on top.
+				if ((string)type_a == "<favorites>")
+					return -1;
+				if ((string)type_b == "<favorites>")
+					return 1;
+
+				// Then folders.
 				if ((string)type_a == "<folder>") {
 					if ((string)type_b != "<folder>")
 						return -1;
@@ -547,6 +618,7 @@ public class ProjectBrowser : Gtk.Bin
 						return 1;
 				}
 
+				// And finally, regular files.
 				Value id_a;
 				Value id_b;
 				model.get_value(iter_a, ProjectStore.Column.NAME, out id_a);
@@ -711,8 +783,10 @@ public class ProjectBrowser : Gtk.Bin
 		// Actions.
 		GLib.ActionEntry[] action_entries =
 		{
-			{ "reveal-resource", on_reveal,         "(ss)", null },
-			{ "open-directory",  on_open_directory, "s",    null }
+			{ "reveal-resource",     on_reveal,              "(ss)", null },
+			{ "open-directory",      on_open_directory,      "s",    null },
+			{ "favorite-resource",   on_favorite_resource,   "(ss)", null },
+			{ "unfavorite-resource", on_unfavorite_resource, "(ss)", null }
 		};
 		GLib.Application.get_default().add_action_entries(action_entries, this);
 	}
@@ -821,6 +895,22 @@ public class ProjectBrowser : Gtk.Bin
 		}
 	}
 
+	private void on_favorite_resource(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string type = (string)param.get_child_value(0);
+		string name = (string)param.get_child_value(1);
+
+		_project_store.add_to_favorites(type, name);
+	}
+
+	private void on_unfavorite_resource(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string type = (string)param.get_child_value(0);
+		string name = (string)param.get_child_value(1);
+
+		_project_store.remove_from_favorites(type, name);
+	}
+
 	private bool on_button_pressed(Gdk.EventButton ev)
 	{
 		if (ev.button == Gdk.BUTTON_SECONDARY) {
@@ -834,7 +924,16 @@ public class ProjectBrowser : Gtk.Bin
 				_tree_view.model.get_value(iter, ProjectStore.Column.TYPE, out type);
 				_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
 
-				Gtk.Menu? menu = menu_create((string)type, (string)name);
+				Gtk.TreePath? filter_path = _tree_sort.convert_path_to_child_path(path);
+				Gtk.TreePath? store_path = _tree_filter.convert_path_to_child_path(filter_path);
+				Gtk.Menu? menu;
+				if (store_path.is_descendant(_project_store.project_root_path()) || store_path.compare(_project_store.project_root_path()) == 0)
+					menu = project_entry_menu_create((string)type, (string)name);
+				else if (store_path.is_descendant(_project_store.favorites_root_path()))
+					menu = favorites_entry_menu_create((string)type, (string)name);
+				else
+					menu = null;
+
 				if (menu != null) {
 					menu.show_all();
 					menu.popup_at_pointer(ev);
@@ -880,67 +979,98 @@ public class ProjectBrowser : Gtk.Bin
 		selected_model.get_value(selected_iter, ProjectStore.Column.NAME, out val);
 		selected_name = (string)val;
 
-		// Add parent folder.
-		if (selected_name != "") {
-			Gtk.TreeIter dummy;
-			_icon_view._list_store.insert_with_values(out dummy
-				, -1
-				, ProjectIconView.Column.TYPE
-				, "<folder>"
-				, ProjectIconView.Column.NAME
-				, ".."
-				, -1
-				);
-		}
+		if (selected_type == "<folder>") {
+			_icon_view._showing_project_folder = true;
 
-		// Fill the icon view list with paths matching the selected node's name.
-		_project_store._list_store.foreach((model, path, iter) => {
-				string type;
-				string name;
-				model.get_value(iter, ProjectStore.Column.TYPE, out val);
-				type = (string)val;
-				model.get_value(iter, ProjectStore.Column.NAME, out val);
-				name = (string)val;
-
-				if (row_should_be_hidden(type, name))
-					return false;
-
-				// Skip paths without common ancestor.
-				if (!name.has_prefix(selected_name))
-					return false;
-
-				// Skip paths that are too deep in the hierarchy:
-				// selected_name: foo
-				// hierarchy:
-				//   foo/bar OK
-				//   foo/baz OK
-				//   foo/bar/baz NOPE
-				string name_suffix;
-				if (selected_name == "") // Project folder.
-					name_suffix = name.substring((selected_name).length);
-				else if (selected_name != name) // Folder itself.
-					name_suffix = name.substring((selected_name).length + 1);
-				else
-					return false;
-
-				if (name_suffix.index_of_char('/') != -1)
-					return false;
-
-				// Add the path to the list.
+			// Add parent folder.
+			if (selected_name != "") {
 				Gtk.TreeIter dummy;
 				_icon_view._list_store.insert_with_values(out dummy
 					, -1
 					, ProjectIconView.Column.TYPE
-					, type
+					, "<folder>"
 					, ProjectIconView.Column.NAME
-					, name
+					, ".."
 					, -1
 					);
-				return false;
-			});
+			}
 
-		_icon_view._selected_type = selected_type;
-		_icon_view._selected_name = selected_name;
+			// Fill the icon view list with paths matching the selected node's name.
+			_project_store._list_store.foreach((model, path, iter) => {
+					string type;
+					string name;
+					model.get_value(iter, ProjectStore.Column.TYPE, out val);
+					type = (string)val;
+					model.get_value(iter, ProjectStore.Column.NAME, out val);
+					name = (string)val;
+
+					if (row_should_be_hidden(type, name))
+						return false;
+
+					// Skip paths without common ancestor.
+					if (!name.has_prefix(selected_name))
+						return false;
+
+					// Skip paths that are too deep in the hierarchy:
+					// selected_name: foo
+					// hierarchy:
+					//   foo/bar OK
+					//   foo/baz OK
+					//   foo/bar/baz NOPE
+					string name_suffix;
+					if (selected_name == "") // Project folder.
+						name_suffix = name.substring((selected_name).length);
+					else if (selected_name != name) // Folder itself.
+						name_suffix = name.substring((selected_name).length + 1);
+					else
+						return false;
+
+					if (name_suffix.index_of_char('/') != -1)
+						return false;
+
+					// Add the path to the list.
+					Gtk.TreeIter dummy;
+					_icon_view._list_store.insert_with_values(out dummy
+						, -1
+						, ProjectIconView.Column.TYPE
+						, type
+						, ProjectIconView.Column.NAME
+						, name
+						, -1
+						);
+					return false;
+				});
+
+			_icon_view._selected_type = selected_type;
+			_icon_view._selected_name = selected_name;
+		} else if (selected_type == "<favorites>") {
+			_icon_view._showing_project_folder = false;
+
+			// Fill the icon view list with paths whose ancestor is the favorites root.
+			_project_store._tree_store.foreach((model, path, iter) => {
+					string type;
+					string name;
+					model.get_value(iter, ProjectStore.Column.TYPE, out val);
+					type = (string)val;
+					model.get_value(iter, ProjectStore.Column.NAME, out val);
+					name = (string)val;
+
+					if (!path.is_descendant(_project_store.favorites_root_path()))
+						return false;
+
+					// Add the path to the list.
+					Gtk.TreeIter dummy;
+					_icon_view._list_store.insert_with_values(out dummy
+						, -1
+						, ProjectIconView.Column.TYPE
+						, type
+						, ProjectIconView.Column.NAME
+						, name
+						, -1
+						);
+					return false;
+				});
+		}
 	}
 
 	public void select_project_root()
@@ -969,6 +1099,8 @@ public class ProjectBrowser : Gtk.Bin
 		// https://specifications.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html
 		if ((string)type == "<folder>")
 			cell.set_property("icon-name", "folder-symbolic");
+		else if ((string)type == "<favorites>")
+			cell.set_property("icon-name", "browser-favorites");
 		else if ((string)type == "state_machine")
 			cell.set_property("icon-name", "text-x-generic-symbolic");
 		else if ((string)type == "config")
@@ -1017,6 +1149,8 @@ public class ProjectBrowser : Gtk.Bin
 				cell.set_property("text", _project_store._project.name());
 			else
 				cell.set_property("text", basename);
+		} else if ((string)type == "<favorites>") {
+			cell.set_property("text", "Favorites");
 		} else {
 			cell.set_property("text", ResourceId.path((string)type, basename));
 		}
