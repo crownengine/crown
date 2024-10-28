@@ -58,7 +58,10 @@ MaterialPreview = class(MaterialPreview)
 
 function MaterialPreview:init(world, material_name)
 	self._unit_preview = UnitPreview(world, "core/units/primitives/sphere")
-	self._unit_preview._object:set_mesh(material_name, true)
+	local unit_box = self._unit_preview._object
+	local render_world = unit_box._rw
+	local mesh_instance = RenderWorld.mesh_instance(render_world, unit_box:unit_id())
+	RenderWorld.mesh_set_material(render_world, mesh_instance, material_name)
 end
 
 function MaterialPreview:destroy()
