@@ -95,6 +95,14 @@ public class ProjectStore
 		return false;
 	}
 
+	public Gtk.TreePath? project_root_path()
+	{
+		if (!_folders.has_key(ROOT_FOLDER))
+			return null;
+
+		return _folders[ROOT_FOLDER].get_path();
+	}
+
 	private Gtk.TreeIter make_tree_internal(string folder, int start_index, Gtk.TreeRowReference parent)
 	{
 		// Folder can be:

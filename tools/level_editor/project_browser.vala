@@ -512,7 +512,8 @@ public class ProjectBrowser : Gtk.Bin
 		// Widgets
 		_tree_filter = new Gtk.TreeModelFilter(_project_store._tree_store, null);
 		_tree_filter.set_visible_func((model, iter) => {
-				_tree_view.expand_row(new Gtk.TreePath.first(), false);
+				if (_project_store.project_root_path() != null)
+					_tree_view.expand_row(_project_store.project_root_path(), false);
 
 				Value type;
 				Value name;
@@ -944,7 +945,15 @@ public class ProjectBrowser : Gtk.Bin
 
 	public void select_project_root()
 	{
-		_tree_selection.select_path(new Gtk.TreePath.first());
+		Gtk.TreePath? filter_path = _tree_filter.convert_child_path_to_path(_project_store.project_root_path());
+		if (filter_path == null)
+			return;
+
+		Gtk.TreePath? sort_path = _tree_sort.convert_child_path_to_path(filter_path);
+		if (sort_path == null)
+			return;
+
+		_tree_selection.select_path(sort_path);
 	}
 
 	private void pixbuf_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
