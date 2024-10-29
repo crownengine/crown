@@ -315,6 +315,13 @@ namespace LevelEditorApi
 			);
 	}
 
+	public string unit_destroy_component_type(Guid id, string component_type)
+	{
+		return "LevelEditor:unit_destroy_component_type(\"%s\", \"%s\")".printf(id.to_string()
+			, component_type
+			);
+	}
+
 	public string move_object(Guid id, Vector3 pos, Quaternion rot, Vector3 scl)
 	{
 		return "LevelEditor:move_object(\"%s\", %s, %s, %s)".printf(id.to_string()

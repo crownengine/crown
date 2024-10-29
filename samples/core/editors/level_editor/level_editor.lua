@@ -1717,6 +1717,12 @@ function LevelEditor:add_transform_component(id, component_id, pos, rot, scale)
 	SceneGraph.create(self._sg, unit_id, pos, rot, scale)
 end
 
+function LevelEditor:add_camera_component(id, component_id, projection, fov, far_range, near_range)
+	local unit_box = self._objects[id]
+	local unit_id = unit_box:unit_id();
+	World.camera_create(self._world, unit_id, projection, fov, far_range, near_range, unit_box:world_pose());
+end
+
 function LevelEditor:add_mesh_component(id, component_id, mesh_resource, geometry_name, material_resource, visible)
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id()
@@ -1735,10 +1741,36 @@ function LevelEditor:add_light_component(id, component_id, type, range, intensit
 	RenderWorld.light_create(self._rw, unit_id, type, range, intensity, spot_angle, color, unit_box:world_pose())
 end
 
-function LevelEditor:add_camera_component(id, component_id, projection, fov, far_range, near_range)
+function LevelEditor:unit_destroy_component_type(id, component_type)
 	local unit_box = self._objects[id]
-	local unit_id = unit_box:unit_id();
-	World.camera_create(self._world, unit_id, projection, fov, far_range, near_range, unit_box:world_pose());
+	local unit_id = unit_box:unit_id()
+
+	if component_type == "transform" then
+		local inst = SceneGraph.instance(self._sg, unit_id)
+		SceneGraph.destroy(self._sg, inst)
+	elseif component_type == "camera" then
+		local inst = World.camera_instance(self._world, unit_id)
+		World.camera_destroy(self._world, inst)
+	elseif component_type == "mesh_renderer" then
+		local inst = RenderWorld.mesh_instance(self._rw, unit_id)
+		RenderWorld.mesh_destroy(self._rw, inst)
+	elseif component_type == "sprite_renderer" then
+		local inst = RenderWorld.sprite_instance(self._rw, unit_id)
+		RenderWorld.sprite_destroy(self._rw, inst)
+	elseif component_type == "light" then
+		local inst = RenderWorld.light_instance(self._rw, unit_id)
+		RenderWorld.light_destroy(self._rw, inst)
+	elseif component_type == "script" then
+		-- Nothing to do.
+	elseif component_type == "collider" then
+		-- Nothing to do.
+	elseif component_type == "actor" then
+		-- Nothing to do.
+	elseif component_type == "animation_state_machine" then
+		-- Nothing to do.
+	else
+		assert(false)
+	end
 end
 
 function LevelEditor:move_object(id, pos, rot, scale)
