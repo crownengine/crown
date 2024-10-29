@@ -241,7 +241,7 @@ public class Level
 			if (_db.object_type(ids[i]) == OBJECT_TYPE_UNIT) {
 				Unit.generate_spawn_unit_commands(new Guid?[] { ids[i] }, sb, _db);
 			} else if (_db.object_type(ids[i]) == OBJECT_TYPE_SOUND_SOURCE) {
-				generate_spawn_sound_commands(new Guid?[] { ids[i] }, sb);
+				Sound.generate_spawn_sound_commands(new Guid?[] { ids[i] }, sb, _db);
 			}
 		}
 		_runtime.send_script(sb.str);
@@ -266,7 +266,7 @@ public class Level
 		StringBuilder sb = new StringBuilder();
 		sb.append(LevelEditorApi.reset());
 		Unit.generate_spawn_unit_commands(unit_ids.to_array(), sb, _db);
-		generate_spawn_sound_commands(sound_ids.to_array(), sb);
+		Sound.generate_spawn_sound_commands(sound_ids.to_array(), sb, _db);
 		_runtime.send_script(sb.str);
 
 		send_selection();
@@ -290,20 +290,6 @@ public class Level
 		sounds(ref ids);
 	}
 
-	private void generate_spawn_sound_commands(Guid?[] sound_ids, StringBuilder sb)
-	{
-		foreach (Guid id in sound_ids) {
-			string s = LevelEditorApi.spawn_sound(id
-				, _db.get_property_string    (id, "name")
-				, _db.get_property_vector3   (id, "position")
-				, _db.get_property_quaternion(id, "rotation")
-				, _db.get_property_double    (id, "range")
-				, _db.get_property_double    (id, "volume")
-				, _db.get_property_bool      (id, "loop")
-				);
-			sb.append(s);
-		}
-	}
 }
 
 } /* namespace Crown */
