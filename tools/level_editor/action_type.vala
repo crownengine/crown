@@ -28,9 +28,8 @@ public enum ActionType
 public const string ActionNames[] =
 {
 	"Spawn Unit",
-	"Destroy Unit",
 	"Spawn Sound",
-	"Destroy Sound",
+	"Destroy Objects",
 	"Move Objects",
 	"Duplicate Objects",
 	"Set Object Name",
