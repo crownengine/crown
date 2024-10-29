@@ -1389,7 +1389,9 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_objects_created(Guid?[] object_ids)
 	{
-		_level.send_spawn_objects(object_ids);
+		StringBuilder sb = new StringBuilder();
+		_level.generate_spawn_objects(sb, object_ids);
+		_editor.send_script(sb.str);
 		_editor.send(DeviceApi.frame());
 		_level.selection_changed(_level._selection);
 	}
