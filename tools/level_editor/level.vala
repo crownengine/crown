@@ -239,7 +239,7 @@ public class Level
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < ids.length; ++i) {
 			if (_db.object_type(ids[i]) == OBJECT_TYPE_UNIT) {
-				generate_spawn_unit_commands(new Guid?[] { ids[i] }, sb);
+				Unit.generate_spawn_unit_commands(new Guid?[] { ids[i] }, sb, _db);
 			} else if (_db.object_type(ids[i]) == OBJECT_TYPE_SOUND_SOURCE) {
 				generate_spawn_sound_commands(new Guid?[] { ids[i] }, sb);
 			}
@@ -265,7 +265,7 @@ public class Level
 
 		StringBuilder sb = new StringBuilder();
 		sb.append(LevelEditorApi.reset());
-		generate_spawn_unit_commands(unit_ids.to_array(), sb);
+		Unit.generate_spawn_unit_commands(unit_ids.to_array(), sb, _db);
 		generate_spawn_sound_commands(sound_ids.to_array(), sb);
 		_runtime.send_script(sb.str);
 
@@ -288,68 +288,6 @@ public class Level
 	{
 		units(ref ids);
 		sounds(ref ids);
-	}
-
-	private void generate_spawn_unit_commands(Guid?[] unit_ids, StringBuilder sb)
-	{
-		foreach (Guid unit_id in unit_ids) {
-			Unit unit = new Unit(_db, unit_id);
-
-			sb.append(LevelEditorApi.spawn_empty_unit(unit_id));
-
-			Guid component_id;
-			if (unit.has_component(out component_id, "transform")) {
-				string s = LevelEditorApi.add_tranform_component(unit_id
-					, component_id
-					, unit.get_component_property_vector3   (component_id, "data.position")
-					, unit.get_component_property_quaternion(component_id, "data.rotation")
-					, unit.get_component_property_vector3   (component_id, "data.scale")
-					);
-				sb.append(s);
-			}
-			if (unit.has_component(out component_id, "camera")) {
-				string s = LevelEditorApi.add_camera_component(unit_id
-					, component_id
-					, unit.get_component_property_string(component_id, "data.projection")
-					, unit.get_component_property_double(component_id, "data.fov")
-					, unit.get_component_property_double(component_id, "data.far_range")
-					, unit.get_component_property_double(component_id, "data.near_range")
-					);
-				sb.append(s);
-			}
-			if (unit.has_component(out component_id, "mesh_renderer")) {
-				string s = LevelEditorApi.add_mesh_renderer_component(unit_id
-					, component_id
-					, unit.get_component_property_string(component_id, "data.mesh_resource")
-					, unit.get_component_property_string(component_id, "data.geometry_name")
-					, unit.get_component_property_string(component_id, "data.material")
-					, unit.get_component_property_bool  (component_id, "data.visible")
-					);
-				sb.append(s);
-			}
-			if (unit.has_component(out component_id, "sprite_renderer")) {
-				string s = LevelEditorApi.add_sprite_renderer_component(unit_id
-					, component_id
-					, unit.get_component_property_string(component_id, "data.sprite_resource")
-					, unit.get_component_property_string(component_id, "data.material")
-					, unit.get_component_property_double(component_id, "data.layer")
-					, unit.get_component_property_double(component_id, "data.depth")
-					, unit.get_component_property_bool  (component_id, "data.visible")
-					);
-				sb.append(s);
-			}
-			if (unit.has_component(out component_id, "light")) {
-				string s = LevelEditorApi.add_light_component(unit_id
-					, component_id
-					, unit.get_component_property_string (component_id, "data.type")
-					, unit.get_component_property_double (component_id, "data.range")
-					, unit.get_component_property_double (component_id, "data.intensity")
-					, unit.get_component_property_double (component_id, "data.spot_angle")
-					, unit.get_component_property_vector3(component_id, "data.color")
-					);
-				sb.append(s);
-			}
-		}
 	}
 
 	private void generate_spawn_sound_commands(Guid?[] sound_ids, StringBuilder sb)

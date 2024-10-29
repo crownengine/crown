@@ -317,6 +317,68 @@ public class Unit
 			&& _db.get_property_string(_id, "prefab") == "core/units/camera";
 	}
 
+	public static void generate_spawn_unit_commands(Guid?[] unit_ids, StringBuilder sb, Database db)
+	{
+		foreach (Guid unit_id in unit_ids) {
+			Unit unit = new Unit(db, unit_id);
+
+			sb.append(LevelEditorApi.spawn_empty_unit(unit_id));
+
+			Guid component_id;
+			if (unit.has_component(out component_id, "transform")) {
+				string s = LevelEditorApi.add_tranform_component(unit_id
+					, component_id
+					, unit.get_component_property_vector3   (component_id, "data.position")
+					, unit.get_component_property_quaternion(component_id, "data.rotation")
+					, unit.get_component_property_vector3   (component_id, "data.scale")
+					);
+				sb.append(s);
+			}
+			if (unit.has_component(out component_id, "camera")) {
+				string s = LevelEditorApi.add_camera_component(unit_id
+					, component_id
+					, unit.get_component_property_string(component_id, "data.projection")
+					, unit.get_component_property_double(component_id, "data.fov")
+					, unit.get_component_property_double(component_id, "data.far_range")
+					, unit.get_component_property_double(component_id, "data.near_range")
+					);
+				sb.append(s);
+			}
+			if (unit.has_component(out component_id, "mesh_renderer")) {
+				string s = LevelEditorApi.add_mesh_renderer_component(unit_id
+					, component_id
+					, unit.get_component_property_string(component_id, "data.mesh_resource")
+					, unit.get_component_property_string(component_id, "data.geometry_name")
+					, unit.get_component_property_string(component_id, "data.material")
+					, unit.get_component_property_bool  (component_id, "data.visible")
+					);
+				sb.append(s);
+			}
+			if (unit.has_component(out component_id, "sprite_renderer")) {
+				string s = LevelEditorApi.add_sprite_renderer_component(unit_id
+					, component_id
+					, unit.get_component_property_string(component_id, "data.sprite_resource")
+					, unit.get_component_property_string(component_id, "data.material")
+					, unit.get_component_property_double(component_id, "data.layer")
+					, unit.get_component_property_double(component_id, "data.depth")
+					, unit.get_component_property_bool  (component_id, "data.visible")
+					);
+				sb.append(s);
+			}
+			if (unit.has_component(out component_id, "light")) {
+				string s = LevelEditorApi.add_light_component(unit_id
+					, component_id
+					, unit.get_component_property_string (component_id, "data.type")
+					, unit.get_component_property_double (component_id, "data.range")
+					, unit.get_component_property_double (component_id, "data.intensity")
+					, unit.get_component_property_double (component_id, "data.spot_angle")
+					, unit.get_component_property_vector3(component_id, "data.color")
+					);
+				sb.append(s);
+			}
+		}
+	}
+
 	public void send_component(RuntimeInstance runtime, Guid unit_id, Guid component_id)
 	{
 		string component_type = _db.object_type(component_id);
