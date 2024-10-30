@@ -956,11 +956,18 @@ public class PropertiesView : Gtk.Bin
 
 			Unit unit = new Unit(_db, id);
 			Guid component_id;
-			if (unit.has_component(out component_id, entry.type) || entry.type == "name") {
+			Guid owner_id;
+			if (unit.has_component_with_owner(out component_id, out owner_id, entry.type) || entry.type == "name") {
 				PropertyGrid cv = _objects[entry.type];
 				cv._id = id;
 				cv._component_id = component_id;
 				cv.update();
+
+				if (id == owner_id)
+					expander.get_style_context().remove_class("inherited");
+				else
+					expander.get_style_context().add_class("inherited");
+
 				expander.show_all();
 			} else {
 				expander.hide();

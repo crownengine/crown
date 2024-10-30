@@ -220,10 +220,16 @@ public class Unit
 	}
 
 	/// Returns whether the unit has the component_type.
+	public bool has_component_with_owner(out Guid component_id, out Guid owner_id, string component_type)
+	{
+		return Unit.has_component_static(out component_id, out owner_id, component_type, _db, _id);
+	}
+
+	/// Returns whether the unit has the component_type.
 	public bool has_component(out Guid component_id, string component_type)
 	{
 		Guid owner_id;
-		return Unit.has_component_static(out component_id, out owner_id, component_type, _db, _id);
+		return has_component_with_owner(out component_id, out owner_id, component_type);
 	}
 
 	public Vector3 local_position()
