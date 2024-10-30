@@ -436,7 +436,7 @@ namespace state_machine_internal
 			DATA_COMPILER_ENSURE(err == 0, _opts);
 			DATA_COMPILER_ASSERT(hash_map::size(_states) > 0
 				, _opts
-				, "State machine must contain one state at least"
+				, "States cannot be empty"
 				);
 
 			_initial_state = sjson::parse_guid(obj["initial_state"]);
