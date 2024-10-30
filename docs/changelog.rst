@@ -4,6 +4,10 @@ Changelog
 0.52.0 --- DD MMM YYYY
 ----------------------
 
+**Tools**
+
+* Added the ability to add/remove components from units in the Inspector panel.
+
 0.51.0 --- 28 Oct 2024
 ----------------------
 
