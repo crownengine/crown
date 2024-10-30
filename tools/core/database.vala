@@ -808,8 +808,6 @@ public class Database
 
 		object_destroyed(id);
 		_distance_from_last_sync += dir;
-
-		_data.unset(id);
 	}
 
 	private void set_property_internal(int dir, Guid id, string key, Value? value)
