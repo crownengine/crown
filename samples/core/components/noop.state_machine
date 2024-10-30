@@ -6,12 +6,6 @@ states = [
 		_guid = "6cf446e5-ca8e-4114-888b-2f0315145236"
 		_type = "state_machine_node"
 		animations = [
-			{
-				_guid = "c9c520be-1c1c-4756-9156-45b1af00b463"
-				_type = "node_animation"
-				name = "core/components/noop"
-				weight = "1"
-			}
 		]
 		loop = true
 		speed = "1"

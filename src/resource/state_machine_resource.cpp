@@ -258,10 +258,6 @@ namespace state_machine_internal
 
 				vector::push_back(si.animations, ai);
 			}
-			DATA_COMPILER_ASSERT(vector::size(si.animations) > 0
-				, _opts
-				, "State must contain one animation at least"
-				);
 
 			return 0;
 		}

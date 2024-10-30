@@ -154,6 +154,7 @@ void AnimationStateMachine::update(float dt)
 		f32 max_v = 0.0f;
 		u32 max_i = UINT32_MAX;
 		StringId64 name;
+		name._id = 0;
 
 		const AnimationArray *aa = state_machine::state_animations(anim_i.state);
 		for (u32 jj = 0; jj < aa->num; ++jj) {
@@ -168,6 +169,9 @@ void AnimationStateMachine::update(float dt)
 				name = animation->name;
 			}
 		}
+
+		if (name._id == 0)
+			continue;
 
 		// Evaluate animation speed
 		stack.size = 0;

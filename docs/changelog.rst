@@ -8,6 +8,10 @@ Changelog
 
 * Added the ability to add/remove components from units in the Inspector panel.
 
+**Runtime**
+
+* Animation state machines can now contain empty animation sets.
+
 0.51.0 --- 28 Oct 2024
 ----------------------
 
