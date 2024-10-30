@@ -73,3 +73,7 @@ notebook > header tab {
 	font-weight: bold;
 	margin-left: 10px;
 }
+
+.properties-view expander.inherited title label {
+	color: rgb(150, 100, 0);
+}

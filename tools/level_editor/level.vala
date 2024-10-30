@@ -236,22 +236,27 @@ public class Level
 
 	public void generate_spawn_objects(StringBuilder sb, Guid?[] object_ids)
 	{
-		for (int i = 0; i < object_ids.length; ++i) {
+		int i = 0;
+		while (i < object_ids.length) {
 			if (_db.object_type(object_ids[i]) == OBJECT_TYPE_UNIT) {
-				Unit.generate_spawn_unit_commands(sb, new Guid?[] { object_ids[i] }, _db);
+				i += Unit.generate_spawn_unit_commands(sb, object_ids[i:object_ids.length], _db);
 			} else if (_db.object_type(object_ids[i]) == OBJECT_TYPE_SOUND_SOURCE) {
-				Sound.generate_spawn_sound_commands(sb, new Guid?[] { object_ids[i] }, _db);
+				i += Sound.generate_spawn_sound_commands(sb, object_ids[i:object_ids.length], _db);
 			}
 		}
 	}
 
-	public void send_destroy_objects(Guid?[] ids)
+	public void generate_destroy_objects(StringBuilder sb, Guid?[] object_ids)
 	{
-		StringBuilder sb = new StringBuilder();
-		foreach (Guid id in ids)
-			sb.append(LevelEditorApi.destroy(id));
-
-		_runtime.send_script(sb.str);
+		int i = 0;
+		while (i < object_ids.length) {
+			if (_db.object_type(object_ids[i]) == OBJECT_TYPE_UNIT) {
+				i += Unit.generate_destroy_commands(sb, object_ids[i:object_ids.length], _db);
+			} else if (_db.object_type(object_ids[i]) == OBJECT_TYPE_SOUND_SOURCE) {
+				sb.append(LevelEditorApi.destroy(object_ids[i]));
+				++i;
+			}
+		}
 	}
 
 	public void send_level()

@@ -89,9 +89,15 @@ public class Sound
 		_db.set_property_bool(_id, "loop", loop);
 	}
 
-	public static void generate_spawn_sound_commands(StringBuilder sb, Guid?[] sound_ids, Database db)
+	public static int generate_spawn_sound_commands(StringBuilder sb, Guid?[] object_ids, Database db)
 	{
-		foreach (Guid id in sound_ids) {
+		int i = 0;
+		for (; i < object_ids.length; ++i) {
+			if (db.object_type(object_ids[i]) != OBJECT_TYPE_SOUND_SOURCE)
+				break;
+
+			Guid id = object_ids[i];
+
 			string s = LevelEditorApi.spawn_sound(id
 				, db.get_property_string    (id, "name")
 				, db.get_property_vector3   (id, "position")
@@ -102,6 +108,8 @@ public class Sound
 				);
 			sb.append(s);
 		}
+
+		return i;
 	}
 
 	public void send(RuntimeInstance runtime)

@@ -323,9 +323,15 @@ public class Unit
 			&& _db.get_property_string(_id, "prefab") == "core/units/camera";
 	}
 
-	public static void generate_spawn_unit_commands(StringBuilder sb, Guid?[] unit_ids, Database db)
+	public static int generate_spawn_unit_commands(StringBuilder sb, Guid?[] object_ids, Database db)
 	{
-		foreach (Guid unit_id in unit_ids) {
+		int i;
+
+		for (i = 0; i < object_ids.length; ++i) {
+			if (db.object_type(object_ids[i]) != OBJECT_TYPE_UNIT)
+				break;
+
+			Guid unit_id = object_ids[i];
 			Unit unit = new Unit(db, unit_id);
 
 			sb.append(LevelEditorApi.spawn_empty_unit(unit_id));
@@ -383,6 +389,22 @@ public class Unit
 				sb.append(s);
 			}
 		}
+
+		return i;
+	}
+
+	public static int generate_destroy_commands(StringBuilder sb, Guid?[] object_ids, Database db)
+	{
+		int i;
+
+		for (i = 0; i < object_ids.length; ++i) {
+			if (db.object_type(object_ids[i]) != OBJECT_TYPE_UNIT)
+				break;
+
+			sb.append(LevelEditorApi.destroy(object_ids[i]));
+		}
+
+		return i;
 	}
 
 	public void send_component(RuntimeInstance runtime, Guid unit_id, Guid component_id)
