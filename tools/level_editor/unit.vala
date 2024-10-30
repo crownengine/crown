@@ -317,7 +317,7 @@ public class Unit
 			&& _db.get_property_string(_id, "prefab") == "core/units/camera";
 	}
 
-	public static void generate_spawn_unit_commands(Guid?[] unit_ids, StringBuilder sb, Database db)
+	public static void generate_spawn_unit_commands(StringBuilder sb, Guid?[] unit_ids, Database db)
 	{
 		foreach (Guid unit_id in unit_ids) {
 			Unit unit = new Unit(db, unit_id);

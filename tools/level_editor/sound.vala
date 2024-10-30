@@ -89,7 +89,7 @@ public class Sound
 		_db.set_property_bool(_id, "loop", loop);
 	}
 
-	public static void generate_spawn_sound_commands(Guid?[] sound_ids, StringBuilder sb, Database db)
+	public static void generate_spawn_sound_commands(StringBuilder sb, Guid?[] sound_ids, Database db)
 	{
 		foreach (Guid id in sound_ids) {
 			string s = LevelEditorApi.spawn_sound(id

@@ -238,9 +238,9 @@ public class Level
 	{
 		for (int i = 0; i < object_ids.length; ++i) {
 			if (_db.object_type(object_ids[i]) == OBJECT_TYPE_UNIT) {
-				Unit.generate_spawn_unit_commands(new Guid?[] { object_ids[i] }, sb, _db);
+				Unit.generate_spawn_unit_commands(sb, new Guid?[] { object_ids[i] }, _db);
 			} else if (_db.object_type(object_ids[i]) == OBJECT_TYPE_SOUND_SOURCE) {
-				Sound.generate_spawn_sound_commands(new Guid?[] { object_ids[i] }, sb, _db);
+				Sound.generate_spawn_sound_commands(sb, new Guid?[] { object_ids[i] }, _db);
 			}
 		}
 	}
@@ -263,8 +263,8 @@ public class Level
 
 		StringBuilder sb = new StringBuilder();
 		sb.append(LevelEditorApi.reset());
-		Unit.generate_spawn_unit_commands(unit_ids.to_array(), sb, _db);
-		Sound.generate_spawn_sound_commands(sound_ids.to_array(), sb, _db);
+		Unit.generate_spawn_unit_commands(sb, unit_ids.to_array(), _db);
+		Sound.generate_spawn_sound_commands(sb, sound_ids.to_array(), _db);
 		_runtime.send_script(sb.str);
 
 		send_selection();
