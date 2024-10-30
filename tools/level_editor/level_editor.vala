@@ -572,6 +572,12 @@ public class LevelEditorApplication : Gtk.Application
 		{ "create-package-windows", on_create_package_windows, "(sis)",         null }
 	};
 
+	private const GLib.ActionEntry[] action_entries_unit =
+	{
+		{ "unit-add-component",    on_unit_add_component,    "s", null },
+		{ "unit-remove-component", on_unit_remove_component, "s", null }
+	};
+
 	// Command line options
 	private string? _source_dir = null;
 	private string _level_resource = "";
@@ -760,6 +766,7 @@ public class LevelEditorApplication : Gtk.Application
 		this.add_action_entries(action_entries_help, this);
 		this.add_action_entries(action_entries_project, this);
 		this.add_action_entries(action_entries_package, this);
+		this.add_action_entries(action_entries_unit, this);
 
 		_tool_place_accels = this.get_accels_for_action("app.tool(0)");
 		_tool_move_accels = this.get_accels_for_action("app.tool(1)");
@@ -850,6 +857,17 @@ public class LevelEditorApplication : Gtk.Application
 		_placeable_name = "";
 
 		_project_store = new ProjectStore(_project);
+
+		// Register component types.
+		Unit.register_component_type(OBJECT_TYPE_TRANSFORM,               "");
+		Unit.register_component_type(OBJECT_TYPE_LIGHT,                   OBJECT_TYPE_TRANSFORM);
+		Unit.register_component_type(OBJECT_TYPE_CAMERA,                  OBJECT_TYPE_TRANSFORM);
+		Unit.register_component_type(OBJECT_TYPE_MESH_RENDERER,           OBJECT_TYPE_TRANSFORM);
+		Unit.register_component_type(OBJECT_TYPE_SPRITE_RENDERER,         OBJECT_TYPE_TRANSFORM);
+		Unit.register_component_type(OBJECT_TYPE_COLLIDER,                OBJECT_TYPE_TRANSFORM);
+		Unit.register_component_type(OBJECT_TYPE_ACTOR,                   OBJECT_TYPE_TRANSFORM);
+		Unit.register_component_type(OBJECT_TYPE_SCRIPT,                  "");
+		Unit.register_component_type(OBJECT_TYPE_ANIMATION_STATE_MACHINE, "");
 
 		// Widgets
 		_combo = new Gtk.ComboBoxText();
@@ -1431,11 +1449,13 @@ public class LevelEditorApplication : Gtk.Application
 		case ActionType.SPAWN_UNIT:
 		case ActionType.SPAWN_SOUND:
 		case ActionType.DUPLICATE_OBJECTS:
+		case ActionType.UNIT_ADD_COMPONENT:
 			if ((flags & ActionTypeFlags.FROM_SERVER) == 0)
 				on_objects_created(data);
 			break;
 
 		case ActionType.DESTROY_OBJECTS:
+		case ActionType.UNIT_REMOVE_COMPONENT:
 			if ((flags & ActionTypeFlags.FROM_SERVER) == 0)
 				on_objects_destroyed(data);
 			break;
@@ -1474,6 +1494,7 @@ public class LevelEditorApplication : Gtk.Application
 		case ActionType.SPAWN_UNIT:
 		case ActionType.SPAWN_SOUND:
 		case ActionType.DUPLICATE_OBJECTS:
+		case ActionType.UNIT_ADD_COMPONENT:
 			if (undo)
 				on_objects_destroyed(data);
 			else
@@ -1481,6 +1502,7 @@ public class LevelEditorApplication : Gtk.Application
 			break;
 
 		case ActionType.DESTROY_OBJECTS:
+		case ActionType.UNIT_REMOVE_COMPONENT:
 			if (undo)
 				on_objects_created(data);
 			else
@@ -2372,6 +2394,9 @@ public class LevelEditorApplication : Gtk.Application
 					_data_compiler.compile.end(res);
 				});
 		}
+
+		// FIXME: hack to force PropertiesView to update.
+		_level.selection_changed(_level._selection);
 	}
 
 	private void on_preferences(GLib.SimpleAction action, GLib.Variant? param)
@@ -3830,6 +3855,68 @@ public class LevelEditorApplication : Gtk.Application
 		}
 
 		logi("Done: #FILE(%s)".printf(package_path));
+	}
+
+	private void on_unit_add_component(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		if (param == null)
+			return;
+
+		string component_type = param.get_string();
+		Guid unit_id = _level._selection.last();
+		Unit unit = new Unit(_database, unit_id);
+		ArrayList<Guid?> components_added = new ArrayList<Guid?>();
+		components_added.add(unit_id);
+		unit.add_component_type_dependencies(ref components_added, component_type);
+
+		_database.add_restore_point((int)ActionType.UNIT_ADD_COMPONENT, components_added.to_array());
+	}
+
+	private void on_unit_remove_component(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		if (param == null)
+			return;
+
+		string component_type = param.get_string();
+		Guid unit_id = _level._selection.last();
+		Unit unit = new Unit(_database, unit_id);
+
+		Guid component_id;
+		if (!unit.has_component(out component_id, component_type))
+			return;
+
+		Gee.ArrayList<unowned string> dependents = new Gee.ArrayList<unowned string>();
+		// Do not remove if any other component needs us.
+		foreach (var entry in Unit._component_registry.entries) {
+			Guid dummy;
+			if (!unit.has_component(out dummy, entry.key))
+				continue;
+
+			string[] component_type_dependencies = ((string)entry.value).split(", ");
+			if (component_type in component_type_dependencies)
+				dependents.add(entry.key);
+		}
+
+		if (dependents.size > 0) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("Cannot remove %s due to the following dependencies:\n\n".printf(component_type));
+			foreach (var item in dependents)
+				sb.append("• %s\n".printf(item));
+
+			Gtk.MessageDialog md = new Gtk.MessageDialog(this.active_window
+				, DialogFlags.MODAL
+				, MessageType.WARNING
+				, Gtk.ButtonsType.OK
+				, sb.str
+				);
+			md.set_default_response(ResponseType.OK);
+
+			md.run();
+			md.destroy();
+			return;
+		} else {
+			unit.remove_component_type(component_type);
+		}
 	}
 
 	public void set_autosave_timer(uint minutes)

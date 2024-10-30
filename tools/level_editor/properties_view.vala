@@ -757,17 +757,79 @@ public class AnimationStateMachine : PropertyGrid
 public class UnitView : PropertyGrid
 {
 	// Widgets
+	private ProjectStore _store;
 	private ResourceChooserButton _prefab;
+	private Gtk.MenuButton _component_add;
+	private Gtk.Box _components;
+	private Gtk.Popover _add_popover;
+
+	private void on_add_component_clicked(Gtk.Button button)
+	{
+		Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
+		app.activate_action("unit-add-component", new GLib.Variant.string(button.label));
+
+		_add_popover.hide();
+	}
+
+	public static Gtk.Menu component_menu(string object_type)
+	{
+		Gtk.Menu menu = new Gtk.Menu();
+		Gtk.MenuItem mi;
+
+		mi = new Gtk.MenuItem.with_label("Remove Component");
+		mi.activate.connect(() => {
+				GLib.Application.get_default().activate_action("unit-remove-component", new GLib.Variant.string(object_type));
+			});
+		menu.add(mi);
+
+		return menu;
+	}
 
 	public UnitView(Database db, ProjectStore store)
 	{
 		base(db);
 
+		_store = store;
+
 		// Widgets
 		_prefab = new ResourceChooserButton(store, "unit");
 		_prefab._selector.sensitive = false;
 
+		// List of component types.
+		const string components[] =
+		{
+			OBJECT_TYPE_TRANSFORM,
+			OBJECT_TYPE_LIGHT,
+			OBJECT_TYPE_CAMERA,
+			OBJECT_TYPE_MESH_RENDERER,
+			OBJECT_TYPE_SPRITE_RENDERER,
+			OBJECT_TYPE_COLLIDER,
+			OBJECT_TYPE_ACTOR,
+			OBJECT_TYPE_SCRIPT,
+			OBJECT_TYPE_ANIMATION_STATE_MACHINE
+		};
+
+		Gtk.Box add_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+		for (int cc = 0; cc < components.length; ++cc) {
+			Gtk.Button mb;
+			mb = new Gtk.Button.with_label(components[cc]);
+			mb.clicked.connect(on_add_component_clicked);
+			add_box.pack_start(mb);
+		}
+		add_box.show_all();
+		_add_popover = new Gtk.Popover(null);
+		_add_popover.add(add_box);
+
+		_component_add = new Gtk.MenuButton();
+		_component_add.label = "Add Component";
+		_component_add.set_popover(_add_popover);
+
+		_components = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 6);
+		_components.homogeneous = true;
+		_components.pack_start(_component_add);
+
 		add_row("Prefab", _prefab);
+		add_row("Components", _components);
 	}
 
 	public override void update()
@@ -889,6 +951,9 @@ public class PropertiesView : Gtk.Bin
 	private PropertyGridSet _object_view;
 	private Gtk.Stack _stack;
 
+	[CCode (has_target = false)]
+	public delegate Gtk.Menu ContextMenu(string object_type);
+
 	public PropertiesView(Database db, ProjectStore store)
 	{
 		// Data
@@ -905,15 +970,15 @@ public class PropertiesView : Gtk.Bin
 
 		// Unit
 		register_object_type("Unit",                    "name",                              0, new UnitView(_db, store));
-		register_object_type("Transform",               OBJECT_TYPE_TRANSFORM,               0, new TransformPropertyGrid(_db));
-		register_object_type("Light",                   OBJECT_TYPE_LIGHT,                   1, new LightPropertyGrid(_db));
-		register_object_type("Camera",                  OBJECT_TYPE_CAMERA,                  2, new CameraPropertyGrid(_db));
-		register_object_type("Mesh Renderer",           OBJECT_TYPE_MESH_RENDERER,           3, new MeshRendererPropertyGrid(_db, store));
-		register_object_type("Sprite Renderer",         OBJECT_TYPE_SPRITE_RENDERER,         3, new SpriteRendererPropertyGrid(_db, store));
-		register_object_type("Collider",                OBJECT_TYPE_COLLIDER,                3, new ColliderPropertyGrid(_db, store));
-		register_object_type("Actor",                   OBJECT_TYPE_ACTOR,                   3, new ActorPropertyGrid(_db, store._project));
-		register_object_type("Script",                  OBJECT_TYPE_SCRIPT,                  3, new ScriptPropertyGrid(_db, store));
-		register_object_type("Animation State Machine", OBJECT_TYPE_ANIMATION_STATE_MACHINE, 3, new AnimationStateMachine(_db, store));
+		register_object_type("Transform",               OBJECT_TYPE_TRANSFORM,               0, new TransformPropertyGrid(_db),             UnitView.component_menu);
+		register_object_type("Light",                   OBJECT_TYPE_LIGHT,                   1, new LightPropertyGrid(_db),                 UnitView.component_menu);
+		register_object_type("Camera",                  OBJECT_TYPE_CAMERA,                  2, new CameraPropertyGrid(_db),                UnitView.component_menu);
+		register_object_type("Mesh Renderer",           OBJECT_TYPE_MESH_RENDERER,           3, new MeshRendererPropertyGrid(_db, store),   UnitView.component_menu);
+		register_object_type("Sprite Renderer",         OBJECT_TYPE_SPRITE_RENDERER,         3, new SpriteRendererPropertyGrid(_db, store), UnitView.component_menu);
+		register_object_type("Collider",                OBJECT_TYPE_COLLIDER,                3, new ColliderPropertyGrid(_db, store),       UnitView.component_menu);
+		register_object_type("Actor",                   OBJECT_TYPE_ACTOR,                   3, new ActorPropertyGrid(_db, store._project), UnitView.component_menu);
+		register_object_type("Script",                  OBJECT_TYPE_SCRIPT,                  3, new ScriptPropertyGrid(_db, store),         UnitView.component_menu);
+		register_object_type("Animation State Machine", OBJECT_TYPE_ANIMATION_STATE_MACHINE, 3, new AnimationStateMachine(_db, store),      UnitView.component_menu);
 
 		// Sound
 		register_object_type("Transform", "sound_transform",  0, new SoundTransformView(_db));
@@ -939,9 +1004,22 @@ public class PropertiesView : Gtk.Bin
 		store._project.project_reset.connect(on_project_reset);
 	}
 
-	private void register_object_type(string label, string object_type, int position, PropertyGrid cv)
+	private void register_object_type(string label, string object_type, int position, PropertyGrid cv, ContextMenu? action = null)
 	{
 		Gtk.Expander expander = _object_view.add_property_grid(cv, label);
+		if (action != null) {
+			expander.button_release_event.connect((ev) => {
+					if (ev.button == Gdk.BUTTON_SECONDARY) {
+						Gtk.Menu menu = action(object_type);
+						menu.show_all();
+						menu.popup_at_pointer(ev);
+						return Gdk.EVENT_STOP;
+					}
+
+					return Gdk.EVENT_PROPAGATE;
+				});
+		}
+
 		_objects[object_type] = cv;
 		_expanders[object_type] = expander;
 		_entries.add({ object_type, position });

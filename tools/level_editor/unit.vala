@@ -9,6 +9,7 @@ namespace Crown
 {
 public class Unit
 {
+	public static Hashtable _component_registry;
 	public Database _db;
 	public Guid _id;
 
@@ -211,6 +212,7 @@ public class Unit
 				);
 		}
 
+		// If the prefab does not have the component, so does this unit.
 		if (prefab_has_component)
 			return db.get_property(unit_id, "deleted_components.#" + component_id.to_string()) == null;
 
@@ -298,9 +300,105 @@ public class Unit
 			_db.set_property_vector3(_id, "scale", scale);
 	}
 
-	public void remove_component(Guid component_id)
+	// Adds the @a component_type to the unit and returns its ID.
+	public Guid add_component_type(string component_type)
 	{
-		_db.remove_from_set(_id, "components", component_id);
+		// Create a new component.
+		Guid component_id = Guid.new_guid();
+		_db.create(component_id, component_type);
+
+		// Initialize component data based on its type.
+		if (component_type == OBJECT_TYPE_TRANSFORM) {
+			_db.set_property_vector3   (component_id, "data.position", VECTOR3_ZERO);
+			_db.set_property_quaternion(component_id, "data.rotation", QUATERNION_IDENTITY);
+			_db.set_property_vector3   (component_id, "data.scale", VECTOR3_ONE);
+		} else if (component_type == OBJECT_TYPE_CAMERA) {
+			_db.set_property_string(component_id, "data.projection", "perspective");
+			_db.set_property_double(component_id, "data.fov", 45.0 * (Math.PI/180.0));
+			_db.set_property_double(component_id, "data.far_range", 0.01);
+			_db.set_property_double(component_id, "data.near_range", 1000.0);
+		} else if (component_type == OBJECT_TYPE_MESH_RENDERER) {
+			_db.set_property_string(component_id, "data.mesh_resource", "core/components/noop");
+			_db.set_property_string(component_id, "data.geometry_name", "Noop");
+			_db.set_property_string(component_id, "data.material", "core/components/noop");
+			_db.set_property_bool  (component_id, "data.visible", true);
+		} else if (component_type == OBJECT_TYPE_SPRITE_RENDERER) {
+			_db.set_property_string(component_id, "data.sprite_resource", "core/components/noop");
+			_db.set_property_string(component_id, "data.material", "core/components/noop");
+			_db.set_property_double(component_id, "data.layer", 0);
+			_db.set_property_double(component_id, "data.depth", 0);
+			_db.set_property_bool  (component_id, "data.visible", true);
+		} else if (component_type == OBJECT_TYPE_LIGHT) {
+			_db.set_property_string (component_id, "data.type", "directional");
+			_db.set_property_double (component_id, "data.range", 1.0);
+			_db.set_property_double (component_id, "data.intensity", 1.0);
+			_db.set_property_double (component_id, "data.spot_angle", 45.0 * (Math.PI/180.0));
+			_db.set_property_vector3(component_id, "data.color", VECTOR3_ONE);
+		} else if (component_type == OBJECT_TYPE_SCRIPT) {
+			_db.set_property_string(component_id, "data.script_resource", "core/components/noop");
+		} else if (component_type == OBJECT_TYPE_COLLIDER) {
+			_db.set_property_string    (component_id, "data.shape", "box");
+			_db.set_property_string    (component_id, "data.source", "mesh"); // "inline" or "mesh"
+			// if "mesh"
+			_db.set_property_string    (component_id, "data.scene", "core/components/noop");
+			_db.set_property_string    (component_id, "data.name", "Noop");
+			// if "inline"
+			_db.set_property_vector3   (component_id, "data.collider_data.position", VECTOR3_ZERO);
+			_db.set_property_quaternion(component_id, "data.collider_data.rotation", QUATERNION_IDENTITY);
+			_db.set_property_vector3   (component_id, "data.collider_data.half_extents", VECTOR3_ZERO); // for "box"
+			_db.set_property_double    (component_id, "data.collider_data.radius", 0.0); // for "sphere" and "capsule"
+			_db.set_property_double    (component_id, "data.collider_data.height", 0.0); // for "capsule"
+		} else if (component_type == OBJECT_TYPE_ACTOR) {
+			_db.set_property_bool  (component_id, "data.lock_translation_x", false);
+			_db.set_property_bool  (component_id, "data.lock_translation_y", false);
+			_db.set_property_bool  (component_id, "data.lock_translation_z", false);
+			_db.set_property_bool  (component_id, "data.lock_rotation_x", false);
+			_db.set_property_bool  (component_id, "data.lock_rotation_y", false);
+			_db.set_property_bool  (component_id, "data.lock_rotation_z", false);
+			_db.set_property_string(component_id, "data.class", "static");
+			_db.set_property_double(component_id, "data.mass", 1.0);
+			_db.set_property_string(component_id, "data.collision_filter", "default");
+			_db.set_property_string(component_id, "data.material", "default");
+		} else if (component_type == OBJECT_TYPE_ANIMATION_STATE_MACHINE) {
+			_db.set_property_string(component_id, "data.state_machine_resource", "core/components/noop");
+		} else {
+			logw("Unregistered component type `%s`".printf(component_type));
+		}
+
+		_db.add_to_set(_id, "components", component_id);
+		return component_id;
+	}
+
+	/// Removes the @a component_type from the unit.
+	public void remove_component_type(string component_type)
+	{
+		Guid component_id;
+		Guid owner_id;
+		if (has_component_with_owner(out component_id, out owner_id, component_type)) {
+			if (_id == owner_id) {
+				_db.remove_from_set(_id, "components", component_id);
+			} else {
+				_db.set_property_bool(_id, "deleted_components.#" + component_id.to_string(), false);
+
+				// Clean all modified_components keys that matches the deleted component ID.
+				string[] unit_keys = _db.get_keys(_id);
+				for (int ii = 0; ii < unit_keys.length; ++ii) {
+					if (unit_keys[ii].has_prefix("modified_components.#" + component_id.to_string()))
+						_db.set_property_null(_id, unit_keys[ii]);
+				}
+			}
+
+			_db.add_restore_point((int)ActionType.UNIT_REMOVE_COMPONENT, new Guid?[] { _id, component_id });
+		} else {
+			logw("The unit has no such component type `%s`".printf(component_type));
+		}
+	}
+
+	public static void register_component_type(string type, string depends_on)
+	{
+		if (_component_registry == null)
+			_component_registry = new Hashtable();
+		_component_registry[type] = depends_on;
 	}
 
 	/// Returns whether the unit has a prefab.
@@ -327,66 +425,170 @@ public class Unit
 	{
 		int i;
 
-		for (i = 0; i < object_ids.length; ++i) {
-			if (db.object_type(object_ids[i]) != OBJECT_TYPE_UNIT)
-				break;
+		if (object_ids.length > 1 && Unit.is_component(object_ids[1], db)) {
+			for (i = 1; i < object_ids.length; ++i) {
+				if (!is_component(object_ids[i], db))
+					break;
 
-			Guid unit_id = object_ids[i];
-			Unit unit = new Unit(db, unit_id);
+				Guid unit_id = object_ids[0];
+				Guid component_id = object_ids[i];
+				string component_type = db.object_type(component_id);
+				Unit unit = new Unit(db, unit_id);
 
-			sb.append(LevelEditorApi.spawn_empty_unit(unit_id));
+				if (component_type == OBJECT_TYPE_TRANSFORM) {
+					sb.append(LevelEditorApi.add_tranform_component(unit_id
+						, component_id
+						, unit.get_component_property_vector3   (component_id, "data.position")
+						, unit.get_component_property_quaternion(component_id, "data.rotation")
+						, unit.get_component_property_vector3   (component_id, "data.scale")
+						));
+				} else if (component_type == OBJECT_TYPE_CAMERA) {
+					sb.append(LevelEditorApi.add_camera_component(unit_id
+						, component_id
+						, unit.get_component_property_string(component_id, "data.projection")
+						, unit.get_component_property_double(component_id, "data.fov")
+						, unit.get_component_property_double(component_id, "data.far_range")
+						, unit.get_component_property_double(component_id, "data.near_range")
+						));
+				} else if (component_type == OBJECT_TYPE_MESH_RENDERER) {
+					sb.append(LevelEditorApi.add_mesh_renderer_component(unit_id
+						, component_id
+						, unit.get_component_property_string(component_id, "data.mesh_resource")
+						, unit.get_component_property_string(component_id, "data.geometry_name")
+						, unit.get_component_property_string(component_id, "data.material")
+						, unit.get_component_property_bool  (component_id, "data.visible")
+						));
+				} else if (component_type == OBJECT_TYPE_SPRITE_RENDERER) {
+					sb.append(LevelEditorApi.add_sprite_renderer_component(unit_id
+						, component_id
+						, unit.get_component_property_string(component_id, "data.sprite_resource")
+						, unit.get_component_property_string(component_id, "data.material")
+						, unit.get_component_property_double(component_id, "data.layer")
+						, unit.get_component_property_double(component_id, "data.depth")
+						, unit.get_component_property_bool  (component_id, "data.visible")
+						));
+				} else if (component_type == OBJECT_TYPE_LIGHT) {
+					sb.append(LevelEditorApi.add_light_component(unit_id
+						, component_id
+						, unit.get_component_property_string (component_id, "data.type")
+						, unit.get_component_property_double (component_id, "data.range")
+						, unit.get_component_property_double (component_id, "data.intensity")
+						, unit.get_component_property_double (component_id, "data.spot_angle")
+						, unit.get_component_property_vector3(component_id, "data.color")
+						));
+				} else if (component_type == OBJECT_TYPE_SCRIPT) {
+					/*
+					 * sb.append(LevelEditorApi.add_script_component(unit_id
+					 *  , component_id
+					 *  , unit.get_component_property_string(component_id, "data.script_resource")
+					 *  ));
+					 */
+				} else if (component_type == OBJECT_TYPE_COLLIDER) {
+					/*
+					 * sb.append(LevelEditorApi.add_collider_component(unit_id
+					 *  , component_id
+					 *  , unit.get_component_property_string    (component_id, "data.shape")
+					 *  , unit.get_component_property_string    (component_id, "data.source")
+					 *  // if "mesh"
+					 *  , unit.get_component_property_string    (component_id, "data.scene")
+					 *  , unit.get_component_property_string    (component_id, "data.name")
+					 *  // if "inline"
+					 *  , unit.get_component_property_vector3   (component_id, "data.collider_data.position")
+					 *  , unit.get_component_property_quaternion(component_id, "data.collider_data.rotation")
+					 *  , unit.get_component_property_vector3   (component_id, "data.collider_data.half_extents")
+					 *  , unit.get_component_property_double    (component_id, "data.collider_data.radius")
+					 *  , unit.get_component_property_double    (component_id, "data.collider_data.height")
+					 *  ));
+					 */
+				} else if (component_type == OBJECT_TYPE_ACTOR) {
+					/*
+					 * sb.append(LevelEditorApi.add_actor_component(unit_id
+					 *  , component_id
+					 *  , unit.get_component_property_bool  (component_id, "data.lock_translation_x")
+					 *  , unit.get_component_property_bool  (component_id, "data.lock_translation_y")
+					 *  , unit.get_component_property_bool  (component_id, "data.lock_translation_z")
+					 *  , unit.get_component_property_bool  (component_id, "data.lock_rotation_x")
+					 *  , unit.get_component_property_bool  (component_id, "data.lock_rotation_y")
+					 *  , unit.get_component_property_bool  (component_id, "data.lock_rotation_z")
+					 *  , unit.get_component_property_string(component_id, "data.class")
+					 *  , unit.get_component_property_double(component_id, "data.mass")
+					 *  , unit.get_component_property_string(component_id, "data.collision_filter")
+					 *  , unit.get_component_property_string(component_id, "data.material")
+					 *  ));
+					 */
+				} else if (component_type == OBJECT_TYPE_ANIMATION_STATE_MACHINE) {
+					/*
+					 * sb.append(LevelEditorApi.add_animation_state_machine_component(unit_id
+					 *  , component_id
+					 *  , unit.get_component_property_string(component_id, "data.state_machine_resource")
+					 *  ));
+					 */
+				} else {
+					logw("Unregistered component type `%s`".printf(component_type));
+				}
+			}
+		} else {
+			for (i = 0; i < object_ids.length; ++i) {
+				if (db.object_type(object_ids[i]) != OBJECT_TYPE_UNIT)
+					break;
 
-			Guid component_id;
-			if (unit.has_component(out component_id, "transform")) {
-				string s = LevelEditorApi.add_tranform_component(unit_id
-					, component_id
-					, unit.get_component_property_vector3   (component_id, "data.position")
-					, unit.get_component_property_quaternion(component_id, "data.rotation")
-					, unit.get_component_property_vector3   (component_id, "data.scale")
-					);
-				sb.append(s);
-			}
-			if (unit.has_component(out component_id, "camera")) {
-				string s = LevelEditorApi.add_camera_component(unit_id
-					, component_id
-					, unit.get_component_property_string(component_id, "data.projection")
-					, unit.get_component_property_double(component_id, "data.fov")
-					, unit.get_component_property_double(component_id, "data.far_range")
-					, unit.get_component_property_double(component_id, "data.near_range")
-					);
-				sb.append(s);
-			}
-			if (unit.has_component(out component_id, "mesh_renderer")) {
-				string s = LevelEditorApi.add_mesh_renderer_component(unit_id
-					, component_id
-					, unit.get_component_property_string(component_id, "data.mesh_resource")
-					, unit.get_component_property_string(component_id, "data.geometry_name")
-					, unit.get_component_property_string(component_id, "data.material")
-					, unit.get_component_property_bool  (component_id, "data.visible")
-					);
-				sb.append(s);
-			}
-			if (unit.has_component(out component_id, "sprite_renderer")) {
-				string s = LevelEditorApi.add_sprite_renderer_component(unit_id
-					, component_id
-					, unit.get_component_property_string(component_id, "data.sprite_resource")
-					, unit.get_component_property_string(component_id, "data.material")
-					, unit.get_component_property_double(component_id, "data.layer")
-					, unit.get_component_property_double(component_id, "data.depth")
-					, unit.get_component_property_bool  (component_id, "data.visible")
-					);
-				sb.append(s);
-			}
-			if (unit.has_component(out component_id, "light")) {
-				string s = LevelEditorApi.add_light_component(unit_id
-					, component_id
-					, unit.get_component_property_string (component_id, "data.type")
-					, unit.get_component_property_double (component_id, "data.range")
-					, unit.get_component_property_double (component_id, "data.intensity")
-					, unit.get_component_property_double (component_id, "data.spot_angle")
-					, unit.get_component_property_vector3(component_id, "data.color")
-					);
-				sb.append(s);
+				Guid unit_id = object_ids[i];
+				Unit unit = new Unit(db, unit_id);
+
+				sb.append(LevelEditorApi.spawn_empty_unit(unit_id));
+
+				Guid component_id;
+				if (unit.has_component(out component_id, "transform")) {
+					string s = LevelEditorApi.add_tranform_component(unit_id
+						, component_id
+						, unit.get_component_property_vector3   (component_id, "data.position")
+						, unit.get_component_property_quaternion(component_id, "data.rotation")
+						, unit.get_component_property_vector3   (component_id, "data.scale")
+						);
+					sb.append(s);
+				}
+				if (unit.has_component(out component_id, "camera")) {
+					string s = LevelEditorApi.add_camera_component(unit_id
+						, component_id
+						, unit.get_component_property_string(component_id, "data.projection")
+						, unit.get_component_property_double(component_id, "data.fov")
+						, unit.get_component_property_double(component_id, "data.far_range")
+						, unit.get_component_property_double(component_id, "data.near_range")
+						);
+					sb.append(s);
+				}
+				if (unit.has_component(out component_id, "mesh_renderer")) {
+					string s = LevelEditorApi.add_mesh_renderer_component(unit_id
+						, component_id
+						, unit.get_component_property_string(component_id, "data.mesh_resource")
+						, unit.get_component_property_string(component_id, "data.geometry_name")
+						, unit.get_component_property_string(component_id, "data.material")
+						, unit.get_component_property_bool  (component_id, "data.visible")
+						);
+					sb.append(s);
+				}
+				if (unit.has_component(out component_id, "sprite_renderer")) {
+					string s = LevelEditorApi.add_sprite_renderer_component(unit_id
+						, component_id
+						, unit.get_component_property_string(component_id, "data.sprite_resource")
+						, unit.get_component_property_string(component_id, "data.material")
+						, unit.get_component_property_double(component_id, "data.layer")
+						, unit.get_component_property_double(component_id, "data.depth")
+						, unit.get_component_property_bool  (component_id, "data.visible")
+						);
+					sb.append(s);
+				}
+				if (unit.has_component(out component_id, "light")) {
+					string s = LevelEditorApi.add_light_component(unit_id
+						, component_id
+						, unit.get_component_property_string (component_id, "data.type")
+						, unit.get_component_property_double (component_id, "data.range")
+						, unit.get_component_property_double (component_id, "data.intensity")
+						, unit.get_component_property_double (component_id, "data.spot_angle")
+						, unit.get_component_property_vector3(component_id, "data.color")
+						);
+					sb.append(s);
+				}
 			}
 		}
 
@@ -397,11 +599,24 @@ public class Unit
 	{
 		int i;
 
-		for (i = 0; i < object_ids.length; ++i) {
-			if (db.object_type(object_ids[i]) != OBJECT_TYPE_UNIT)
-				break;
+		if (object_ids.length > 1 && Unit.is_component(object_ids[1], db)) {
+			for (i = 1; i < object_ids.length; ++i) {
+				if (!is_component(object_ids[i], db))
+					break;
 
-			sb.append(LevelEditorApi.destroy(object_ids[i]));
+				Guid unit_id = object_ids[0];
+				Guid component_id = object_ids[i];
+				string component_type = db.object_type(component_id);
+
+				sb.append(LevelEditorApi.unit_destroy_component_type(unit_id, component_type));
+			}
+		} else {
+			for (i = 0; i < object_ids.length; ++i) {
+				if (db.object_type(object_ids[i]) != OBJECT_TYPE_UNIT)
+					break;
+
+				sb.append(LevelEditorApi.destroy(object_ids[i]));
+			}
 		}
 
 		return i;
@@ -468,6 +683,38 @@ public class Unit
 			, local_rotation()
 			, local_scale()
 			));
+	}
+
+	public static bool is_component(Guid id, Database db)
+	{
+		string type = db.object_type(id);
+
+		return type == OBJECT_TYPE_TRANSFORM
+			|| type == OBJECT_TYPE_CAMERA
+			|| type == OBJECT_TYPE_MESH_RENDERER
+			|| type == OBJECT_TYPE_SPRITE_RENDERER
+			|| type == OBJECT_TYPE_LIGHT
+			|| type == OBJECT_TYPE_SCRIPT
+			|| type == OBJECT_TYPE_COLLIDER
+			|| type == OBJECT_TYPE_ACTOR
+			|| type == OBJECT_TYPE_ANIMATION_STATE_MACHINE
+			;
+	}
+
+	public void add_component_type_dependencies(ref ArrayList<Guid?> components_added, string component_type)
+	{
+		Guid dummy;
+		if (has_component(out dummy, component_type))
+			return;
+
+		string[] component_type_dependencies = ((string)Unit._component_registry[component_type]).split(", ");
+		foreach (unowned string dependency in component_type_dependencies) {
+			Guid dependency_component_id;
+			if (!has_component(out dependency_component_id, dependency))
+				add_component_type_dependencies(ref components_added, dependency);
+		}
+
+		components_added.add(add_component_type(component_type));
 	}
 }
 
