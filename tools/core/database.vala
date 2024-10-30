@@ -935,7 +935,8 @@ public class Database
 					destroy(item_id);
 				}
 			} else {
-				set_property_null(id, key);
+				if (key != "type" && key != "_type")
+					set_property_null(id, key);
 			}
 		}
 
