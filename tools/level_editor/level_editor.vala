@@ -12,7 +12,7 @@ namespace Crown
 const int WINDOW_DEFAULT_WIDTH = 1280;
 const int WINDOW_DEFAULT_HEIGHT = 720;
 const string LEVEL_EDITOR_WINDOW_TITLE = "Crown Editor";
-const string CROWN_ICON_NAME = "crown";
+const string CROWN_ICON_NAME = "crown-black-socket";
 
 public enum Theme
 {
