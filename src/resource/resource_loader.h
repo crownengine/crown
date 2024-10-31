@@ -26,7 +26,6 @@ struct ResourceRequest
 	StringId64 package_name;
 	StringId64 type;
 	StringId64 name;
-	u32 version;
 	u32 online_order;
 	LoadFunction load_function;
 	Allocator *allocator;

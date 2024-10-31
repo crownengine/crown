@@ -84,14 +84,7 @@ s32 ResourceLoader::run()
 					CE_ASSERT(file->is_open(), "Cannot load " RESOURCE_ID_FMT, res_id);
 
 					// Load the resource.
-					if (rr.load_function) {
-						rr.data = rr.load_function(*file, *rr.allocator);
-					} else {
-						const u32 file_size = file->size();
-						rr.data = rr.allocator->allocate(file_size, 16);
-						file->read(rr.data, file_size);
-						CE_ASSERT(*(u32 *)rr.data == RESOURCE_HEADER(rr.version), "Wrong version");
-					}
+					rr.data = rr.load_function(*file, *rr.allocator);
 
 					_data_filesystem.close(*file);
 				} else {
@@ -105,15 +98,8 @@ s32 ResourceLoader::run()
 							const void *resource_data = package_resource::data(pkg) + offt->offset;
 
 							// Load the resource.
-							if (rr.load_function) {
-								FileMemory fm(resource_data, offt->size);
-								rr.data = rr.load_function(fm, *rr.allocator);
-							} else {
-								rr.allocator = NULL;
-								rr.data = (void *)resource_data;
-								CE_ASSERT(*(u32 *)rr.data == RESOURCE_HEADER(rr.version), "Wrong version");
-							}
-
+							FileMemory fm(resource_data, offt->size);
+							rr.data = rr.load_function(fm, *rr.allocator);
 							break;
 						}
 					}
@@ -135,14 +121,8 @@ s32 ResourceLoader::run()
 				}
 				CE_ASSERT(file->is_open(), "Cannot load fallback resource: " RESOURCE_ID_FMT, res_id._id);
 
-				if (rr.load_function) {
-					rr.data = rr.load_function(*file, *rr.allocator);
-				} else {
-					const u32 file_size = file->size();
-					rr.data = rr.allocator->allocate(file_size, 16);
-					file->read(rr.data, file_size);
-					CE_ASSERT(*(u32 *)rr.data == RESOURCE_HEADER(rr.version), "Wrong version");
-				}
+				// Load the resource.
+				rr.data = rr.load_function(*file, *rr.allocator);
 
 				_data_filesystem.close(*file);
 			}

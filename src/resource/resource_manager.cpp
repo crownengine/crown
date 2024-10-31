@@ -5,6 +5,7 @@
 
 #include "core/containers/array.inl"
 #include "core/containers/hash_map.inl"
+#include "core/filesystem/file_memory.inl"
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string_id.inl"
@@ -86,6 +87,31 @@ namespace resource_manager_internal
 		rm.on_online(type, name);
 	}
 
+	void *load(File &file, Allocator &a)
+	{
+		const u32 file_size = file.size();
+		void *data = a.allocate(file_size, 16);
+		file.read(data, file_size);
+		return data;
+	}
+
+	void *load_from_bundle(File &file, Allocator &a)
+	{
+		CE_UNUSED(a);
+		return (void *)((FileMemory &)file)._memory;
+	}
+
+	void unload(Allocator &a, void *data)
+	{
+		a.deallocate(data);
+	}
+
+	void unload_from_bundle(Allocator &a, void *data)
+	{
+		CE_UNUSED_2(a, data);
+		return;
+	}
+
 } // namespace resource_manager_internal
 
 ResourceManager::ResourceManager(ResourceLoader &rl)
@@ -129,7 +155,6 @@ bool ResourceManager::try_load(StringId64 package_name, StringId64 type, StringI
 		CE_ENSURE(rtd != ResourceTypeData::NOT_FOUND);
 
 		rr.allocator = &_resource_heap;
-		rr.version = rtd.version;
 		rr.load_function = rtd.load;
 		return _resource_loader->add_request(rr);
 	}
@@ -139,7 +164,6 @@ bool ResourceManager::try_load(StringId64 package_name, StringId64 type, StringI
 	// Push a spurious loaded resource event. This avoids blocking forever
 	// in complete_requests() by keeping the online_sequence_num updated.
 	rr.allocator = NULL;
-	rr.version = 0;
 	rr.load_function = NULL;
 	_resource_loader->_loaded.push(rr);
 	return true;
@@ -256,10 +280,34 @@ void ResourceManager::register_type(StringId64 type, u32 version, LoadFunction l
 {
 	ResourceTypeData rtd;
 	rtd.version = version;
-	rtd.load = load;
+	if (load == NULL) {
+		if (type == RESOURCE_TYPE_PACKAGE || type == RESOURCE_TYPE_CONFIG) {
+			rtd.load = resource_manager_internal::load;
+		} else {
+			rtd.load = _resource_loader->_is_bundle
+				? resource_manager_internal::load_from_bundle
+				: resource_manager_internal::load
+				;
+		}
+	} else {
+		rtd.load = load;
+	}
+
+	if (unload == NULL) {
+		if (type == RESOURCE_TYPE_PACKAGE || type == RESOURCE_TYPE_CONFIG) {
+			rtd.unload = resource_manager_internal::unload;
+		} else {
+			rtd.unload = _resource_loader->_is_bundle
+				? resource_manager_internal::unload_from_bundle
+				: resource_manager_internal::unload
+				;
+		}
+	} else {
+		rtd.unload = unload;
+	}
+
 	rtd.online = online;
 	rtd.offline = offline;
-	rtd.unload = unload;
 
 	hash_map::set(_types, type, rtd);
 }
@@ -282,15 +330,9 @@ void ResourceManager::on_offline(StringId64 type, StringId64 name)
 
 void ResourceManager::on_unload(StringId64 type, Allocator *allocator, void *data)
 {
-	if (allocator == NULL)
-		return;
-
 	UnloadFunction func = hash_map::get(_types, type, ResourceTypeData::NOT_FOUND).unload;
 
-	if (func)
-		func(*allocator, data);
-	else
-		allocator->deallocate(data);
+	func(*allocator, data);
 }
 
 } // namespace crown
