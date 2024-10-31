@@ -465,7 +465,7 @@ public class ProjectIconView : Gtk.IconView
 
 		// https://specifications.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html
 		if (type == "<folder>")
-			cell.set_property("icon-name", "folder-symbolic");
+			cell.set_property("icon-name", "browser-folder-symbolic");
 		else if ((string)type == "state_machine")
 			cell.set_property("icon-name", "text-x-generic-symbolic");
 		else if ((string)type == "config")
@@ -1092,7 +1092,7 @@ public class ProjectBrowser : Gtk.Bin
 
 		// https://specifications.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html
 		if ((string)type == "<folder>")
-			cell.set_property("icon-name", "folder-symbolic");
+			cell.set_property("icon-name", "browser-folder-symbolic");
 		else if ((string)type == "<favorites>")
 			cell.set_property("icon-name", "browser-favorites");
 		else if ((string)type == "state_machine")

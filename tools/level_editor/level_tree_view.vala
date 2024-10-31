@@ -110,7 +110,7 @@ public class LevelTreeView : Gtk.Box
 				model.get_value(iter, LevelTreeView.Column.TYPE, out type);
 
 				if ((int)type == LevelTreeView.ItemType.FOLDER)
-					cell.set_property("icon-name", "folder-symbolic");
+					cell.set_property("icon-name", "browser-folder-symbolic");
 				else if ((int)type == LevelTreeView.ItemType.UNIT)
 					cell.set_property("icon-name", "level-object-unit");
 				else if ((int)type == LevelTreeView.ItemType.SOUND)
