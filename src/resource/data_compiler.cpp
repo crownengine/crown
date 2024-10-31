@@ -1240,7 +1240,7 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 					bundle_fs.close(*outf);
 
 					if (success) {
-						RenameResult rr = data_fs.rename(temp_dest.c_str(), dest.c_str());
+						RenameResult rr = bundle_fs.rename(temp_dest.c_str(), dest.c_str());
 						success = rr.error == RenameResult::SUCCESS;
 					}
 				}
