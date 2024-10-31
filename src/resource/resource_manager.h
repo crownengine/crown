@@ -55,7 +55,7 @@ struct ResourceManager
 	};
 
 	ProxyAllocator _resource_heap;
-	ResourceLoader *_loader;
+	ResourceLoader *_resource_loader;
 	HashMap<StringId64, ResourceTypeData> _types;
 	HashMap<ResourcePair, ResourceData> _resources;
 	bool _autoload;

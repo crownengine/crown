@@ -90,7 +90,7 @@ namespace resource_manager_internal
 
 ResourceManager::ResourceManager(ResourceLoader &rl)
 	: _resource_heap(default_allocator(), "resource")
-	, _loader(&rl)
+	, _resource_loader(&rl)
 	, _types(default_allocator())
 	, _resources(default_allocator())
 	, _autoload(false)
@@ -131,7 +131,7 @@ bool ResourceManager::try_load(StringId64 package_name, StringId64 type, StringI
 		rr.allocator = &_resource_heap;
 		rr.version = rtd.version;
 		rr.load_function = rtd.load;
-		return _loader->add_request(rr);
+		return _resource_loader->add_request(rr);
 	}
 
 	rd.references++;
@@ -141,7 +141,7 @@ bool ResourceManager::try_load(StringId64 package_name, StringId64 type, StringI
 	rr.allocator = NULL;
 	rr.version = 0;
 	rr.load_function = NULL;
-	_loader->_loaded.push(rr);
+	_resource_loader->_loaded.push(rr);
 	return true;
 }
 
@@ -214,7 +214,7 @@ void ResourceManager::enable_autoload(bool enable)
 void ResourceManager::complete_requests()
 {
 	ResourceRequest rr;
-	while (_loader->_loaded.pop(rr)) {
+	while (_resource_loader->_loaded.pop(rr)) {
 		if (rr.type == RESOURCE_TYPE_PACKAGE || rr.type == RESOURCE_TYPE_CONFIG || _autoload) {
 			// Always add packages and configs to the resource map because they never have
 			// requirements and are never required by any resource, hence no online() order
@@ -234,7 +234,7 @@ void ResourceManager::complete_requests()
 				// Cannot process this resource yet; we need to wait for all its requirements to be
 				// put online() first. Put the request back into the loaded queue to try again
 				// later.
-				_loader->_loaded.push(rr);
+				_resource_loader->_loaded.push(rr);
 			} else {
 				++pkg_data.online_sequence_num;
 
