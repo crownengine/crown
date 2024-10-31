@@ -12,55 +12,6 @@
     <file compressed="true">ui/style-dark.css</file>
     <file compressed="true" preprocess="xml-stripblanks">gtk/menus.ui</file>
     <file compressed="true" preprocess="xml-stripblanks">ui/toolbar.ui</file>
-    <file>icons/1024x1024/apps/crown-black.png</file>
-    <file>icons/1024x1024/apps/crown.png</file>
-    <file>icons/1024x1024/apps/crown-white.png</file>
-    <file>icons/128x128/apps/crown-black.png</file>
-    <file>icons/128x128/apps/crown.png</file>
-    <file>icons/128x128/apps/crown-white.png</file>
-    <file>icons/16x16/apps/crown-black.png</file>
-    <file>icons/16x16/apps/crown.png</file>
-    <file>icons/16x16/apps/crown-white.png</file>
-    <file>icons/16x16/emblems/axis-local-symbolic.symbolic.png</file>
-    <file>icons/16x16/emblems/axis-world-symbolic.symbolic.png</file>
-    <file>icons/16x16/emblems/browser-favorites-symbolic.symbolic.png</file>
-    <file>icons/16x16/emblems/browser-folder-symbolic.symbolic.png</file>
-    <file>icons/16x16/emblems/browser-icon-view-symbolic.symbolic.png</file>
-    <file>icons/16x16/emblems/game-run-symbolic.symbolic.png</file>
-    <file>icons/16x16/emblems/game-stop-symbolic.symbolic.png</file>
-    <file>icons/16x16/emblems/layer-locked-symbolic.symbolic.png</file>
-    <file>icons/16x16/emblems/layer-visible-symbolic.symbolic.png</file>
-    <file>icons/16x16/emblems/level-layers-symbolic.symbolic.png</file>
-    <file>icons/16x16/emblems/level-object-camera-symbolic.symbolic.png</file>
-    <file>icons/16x16/emblems/level-object-light-symbolic.png</file>
-    <file>icons/16x16/emblems/level-object-light-symbolic.symbolic.png</file>
-    <file>icons/16x16/emblems/level-object-sound-symbolic.symbolic.png</file>
-    <file>icons/16x16/emblems/level-object-unit-symbolic.symbolic.png</file>
-    <file>icons/16x16/emblems/level-object-unknown-symbolic.symbolic.png</file>
-    <file>icons/16x16/emblems/level-tree-symbolic.symbolic.png</file>
-    <file>icons/16x16/emblems/reference-local-symbolic.symbolic.png</file>
-    <file>icons/16x16/emblems/reference-world-symbolic.symbolic.png</file>
-    <file>icons/16x16/emblems/snap-to-grid-symbolic.symbolic.png</file>
-    <file>icons/16x16/emblems/tool-move-symbolic.symbolic.png</file>
-    <file>icons/16x16/emblems/tool-place-symbolic.symbolic.png</file>
-    <file>icons/16x16/emblems/tool-rotate-symbolic.symbolic.png</file>
-    <file>icons/16x16/emblems/tool-scale-symbolic.symbolic.png</file>
-    <file>icons/256x256/apps/crown-black.png</file>
-    <file>icons/256x256/apps/crown.png</file>
-    <file>icons/256x256/apps/crown-white.png</file>
-    <file>icons/32x32/apps/crown-black.png</file>
-    <file>icons/32x32/apps/crown.png</file>
-    <file>icons/32x32/apps/crown-white.png</file>
-    <file>icons/48x48/apps/crown-black.png</file>
-    <file>icons/48x48/apps/crown.png</file>
-    <file>icons/48x48/apps/crown-white.png</file>
-    <file>icons/512x512/apps/crown-black.png</file>
-    <file>icons/512x512/apps/crown-black-socket.png</file>
-    <file>icons/512x512/apps/crown.png</file>
-    <file>icons/512x512/apps/crown-white.png</file>
-    <file>icons/64x64/apps/crown-black.png</file>
-    <file>icons/64x64/apps/crown.png</file>
-    <file>icons/64x64/apps/crown-white.png</file>
     <file>theme/Adwaita/assets/bullet-symbolic.symbolic.png</file>
     <file>theme/Adwaita/assets/check-symbolic.symbolic.png</file>
     <file>theme/Adwaita/assets/dash-symbolic.symbolic.png</file>
@@ -184,5 +135,34 @@
     <file>theme/Adwaita/assets/text-select-start-hover-dark.png</file>
     <file>theme/Adwaita/assets/text-select-start-hover.png</file>
     <file>theme/Adwaita/assets/text-select-start.png</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/axis-local-symbolic.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/axis-world-symbolic.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/browser-favorites-symbolic.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/browser-folder-symbolic.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/browser-icon-view-symbolic.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/crown-black-socket.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/crown-black.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/crown-logo-black.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/crown-logo.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/crown-logo-white.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/crown.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/game-run-symbolic.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/game-stop-symbolic.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/layer-locked-symbolic.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/layer-visible-symbolic.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/level-layers-symbolic.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/level-object-camera-symbolic.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/level-object-light-symbolic.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/level-object-sound-symbolic.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/level-object-unit-symbolic.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/level-object-unknown-symbolic.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/level-tree-symbolic.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/reference-local-symbolic.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/reference-world-symbolic.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/snap-to-grid-symbolic.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/tool-move-symbolic.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/tool-place-symbolic.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/tool-rotate-symbolic.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/tool-scale-symbolic.svg</file>
   </gresource>
 </gresources>

@@ -464,46 +464,40 @@ public class ProjectIconView : Gtk.IconView
 		name = (string)val;
 
 		// https://specifications.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html
-		var theme = Gtk.IconTheme.get_default();
-		var fg_color = this.get_style_context().get_color(Gtk.StateFlags.NORMAL);
-		try {
-			if (type == "<folder>")
-				cell.set_property("pixbuf", theme.lookup_icon("folder-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
-			else if ((string)type == "state_machine")
-				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
-			else if ((string)type == "config")
-				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
-			else if ((string)type == "font")
-				cell.set_property("pixbuf", theme.lookup_icon("font-x-generic-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
-			else if ((string)type == "level")
-				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
-			else if ((string)type == "material")
-				cell.set_property("pixbuf", _thumbnail_cache.get(type, name));
-			else if ((string)type == "mesh")
-				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
-			else if ((string)type == "package")
-				cell.set_property("pixbuf", theme.lookup_icon("package-x-generic-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
-			else if ((string)type == "physics_config")
-				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
-			else if ((string)type == "lua")
-				cell.set_property("pixbuf", theme.lookup_icon("x-office-document-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
-			else if ((string)type == "unit")
-				cell.set_property("pixbuf", _thumbnail_cache.get(type, name));
-			else if ((string)type == "shader")
-				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
-			else if ((string)type == "sound")
-				cell.set_property("pixbuf", _thumbnail_cache.get(type, name));
-			else if ((string)type == "sprite_animation")
-				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
-			else if ((string)type == "sprite")
-				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
-			else if ((string)type == "texture")
-				cell.set_property("pixbuf", _thumbnail_cache.get(type, name));
-			else
-				cell.set_property("pixbuf", theme.lookup_icon("text-x-generic-symbolic", ICON_SIZE, 0).load_symbolic(fg_color));
-		} catch (GLib.Error e) {
-			loge(e.message);
-		}
+		if (type == "<folder>")
+			cell.set_property("icon-name", "folder-symbolic");
+		else if ((string)type == "state_machine")
+			cell.set_property("icon-name", "text-x-generic-symbolic");
+		else if ((string)type == "config")
+			cell.set_property("icon-name", "text-x-generic-symbolic");
+		else if ((string)type == "font")
+			cell.set_property("icon-name", "font-x-generic-symbolic");
+		else if ((string)type == "level")
+			cell.set_property("icon-name", "text-x-generic-symbolic");
+		else if ((string)type == "material")
+			cell.set_property("pixbuf", _thumbnail_cache.get(type, name));
+		else if ((string)type == "mesh")
+			cell.set_property("icon-name", "text-x-generic-symbolic");
+		else if ((string)type == "package")
+			cell.set_property("icon-name", "package-x-generic-symbolic");
+		else if ((string)type == "physics_config")
+			cell.set_property("icon-name", "text-x-generic-symbolic");
+		else if ((string)type == "lua")
+			cell.set_property("icon-name", "x-office-document-symbolic");
+		else if ((string)type == "unit")
+			cell.set_property("pixbuf", _thumbnail_cache.get(type, name));
+		else if ((string)type == "shader")
+			cell.set_property("icon-name", "text-x-generic-symbolic");
+		else if ((string)type == "sound")
+			cell.set_property("pixbuf", _thumbnail_cache.get(type, name));
+		else if ((string)type == "sprite_animation")
+			cell.set_property("icon-name", "text-x-generic-symbolic");
+		else if ((string)type == "sprite")
+			cell.set_property("icon-name", "text-x-generic-symbolic");
+		else if ((string)type == "texture")
+			cell.set_property("pixbuf", _thumbnail_cache.get(type, name));
+		else
+			cell.set_property("icon-name", "text-x-generic-symbolic");
 	}
 
 	private void text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)

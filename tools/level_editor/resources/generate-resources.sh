@@ -18,10 +18,15 @@ find * -name '*.ui' \
 	| tr '\n' '\0'  \
 	| xargs -0 -n1 printf "    <file compressed=\"true\" preprocess=\"xml-stripblanks\">%s</file>\n"
 
-find icons theme/Adwaita/assets -name '*.png' \
-	| sort                                    \
-	| tr '\n' '\0'                            \
+find theme/Adwaita/assets -name '*.png' \
+	| sort                              \
+	| tr '\n' '\0'                      \
 	| xargs -0 -n1 printf "    <file>%s</file>\n"
+
+find icons -name '*.svg' \
+	| sort               \
+	| tr '\n' '\0'       \
+	| xargs -0 -n1 printf "    <file compressed=\"true\" preprocess=\"xml-stripblanks\">%s</file>\n"
 
 echo "  </gresource>"
 echo "</gresources>"

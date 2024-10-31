@@ -7,6 +7,7 @@ Changelog
 **Tools**
 
 * Added the ability to add/remove components from units in the Inspector panel.
+* Improved compatibility with Hi-DPI screens.
 
 **Runtime**
 
