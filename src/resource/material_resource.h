@@ -84,34 +84,28 @@ namespace material_resource_internal
 namespace material_resource
 {
 	///
-	UniformData *uniform_data(const MaterialResource *mr, u32 i);
+	UniformData *uniform_data_array(const MaterialResource *mr);
 
 	///
-	UniformData *uniform_data_by_name(const MaterialResource *mr, StringId32 name);
+	u32 uniform_data_index(const MaterialResource *mr, const UniformData *ud, StringId32 name);
 
 	///
-	const char *uniform_name(const MaterialResource *mr, const UniformData *ud);
+	const char *uniform_name(const MaterialResource *mr, const UniformData *ud, u32 i);
 
 	///
-	TextureData *texture_data(const MaterialResource *mr, u32 i);
+	TextureData *texture_data_array(const MaterialResource *mr);
 
 	///
-	TextureData *texture_data_by_name(const MaterialResource *mr, StringId32 name);
+	u32 texture_data_index(const MaterialResource *mr, const TextureData *td, StringId32 name);
 
 	///
-	const char *texture_name(const MaterialResource *mr, const TextureData *td);
+	const char *texture_name(const MaterialResource *mr, const TextureData *td, u32 i);
 
 	///
-	UniformHandle *uniform_handle(const MaterialResource *mr, u32 i, char *dynamic);
+	UniformHandle *uniform_handle(const UniformData *ud, u32 i, char *dynamic);
 
 	///
-	UniformHandle *uniform_handle_by_name(const MaterialResource *mr, StringId32 name, char *dynamic);
-
-	///
-	TextureHandle *texture_handle(const MaterialResource *mr, u32 i, char *dynamic);
-
-	///
-	TextureHandle *texture_handle_by_name(const MaterialResource *mr, StringId32 name, char *dynamic);
+	TextureHandle *texture_handle(const TextureData *td, u32 i, char *dynamic);
 
 } // namespace material_resource
 

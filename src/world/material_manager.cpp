@@ -51,18 +51,18 @@ void MaterialManager::online(StringId64 id, ResourceManager &rm)
 
 	char *base = (char *)mr + mr->dynamic_data_offset;
 
+	const TextureData *td = texture_data_array(mr);
 	for (u32 i = 0; i < mr->num_textures; ++i) {
-		TextureData *td    = texture_data(mr, i);
-		TextureHandle *th  = texture_handle(mr, i, base);
+		TextureHandle *th  = texture_handle(td, i, base);
 		TextureResource *tr = (TextureResource *)rm.get(RESOURCE_TYPE_TEXTURE, td->id);
-		th->sampler_handle = bgfx::createUniform(texture_name(mr, td), bgfx::UniformType::Sampler).idx;
+		th->sampler_handle = bgfx::createUniform(texture_name(mr, td, i), bgfx::UniformType::Sampler).idx;
 		th->texture_handle = tr->handle.idx;
 	}
 
+	const UniformData *ud = uniform_data_array(mr);
 	for (u32 i = 0; i < mr->num_uniforms; ++i) {
-		UniformData *ud    = uniform_data(mr, i);
-		UniformHandle *uh  = uniform_handle(mr, i, base);
-		uh->uniform_handle = bgfx::createUniform(uniform_name(mr, ud), s_bgfx_uniform_type[ud->type]).idx;
+		UniformHandle *uh  = uniform_handle(ud, i, base);
+		uh->uniform_handle = bgfx::createUniform(uniform_name(mr, ud, i), s_bgfx_uniform_type[ud->type]).idx;
 	}
 
 	create_material(mr);
@@ -78,15 +78,17 @@ void MaterialManager::offline(StringId64 id, ResourceManager &rm)
 
 	char *base = (char *)mr + mr->dynamic_data_offset;
 
+	const TextureData *td = texture_data_array(mr);
 	for (u32 i = 0; i < mr->num_textures; ++i) {
-		TextureHandle *th = texture_handle(mr, i, base);
+		TextureHandle *th = texture_handle(td, i, base);
 		bgfx::UniformHandle sh;
 		sh.idx = th->sampler_handle;
 		bgfx::destroy(sh);
 	}
 
+	const UniformData *ud = uniform_data_array(mr);
 	for (u32 i = 0; i < mr->num_uniforms; ++i) {
-		UniformHandle *uh = uniform_handle(mr, i, base);
+		UniformHandle *uh = uniform_handle(ud, i, base);
 		bgfx::UniformHandle bgfx_uh;
 		bgfx_uh.idx = uh->uniform_handle;
 		bgfx::destroy(bgfx_uh);

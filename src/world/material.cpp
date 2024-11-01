@@ -17,10 +17,10 @@ void Material::bind(ShaderManager &sm, u8 view, s32 depth) const
 {
 	using namespace material_resource;
 
-	// Set samplers
+	// Set samplers.
+	const TextureData *td = texture_data_array(_resource);
 	for (u32 i = 0; i < _resource->num_textures; ++i) {
-		const TextureData *td   = texture_data(_resource, i);
-		const TextureHandle *th = texture_handle(_resource, i, _data);
+		const TextureHandle *th = texture_handle(td, i, _data);
 
 		bgfx::UniformHandle sampler;
 		bgfx::TextureHandle texture;
@@ -34,9 +34,10 @@ void Material::bind(ShaderManager &sm, u8 view, s32 depth) const
 			);
 	}
 
-	// Set uniforms
+	// Set uniforms.
+	const UniformData *ud = uniform_data_array(_resource);
 	for (u32 i = 0; i < _resource->num_uniforms; ++i) {
-		const UniformHandle *uh = uniform_handle(_resource, i, _data);
+		const UniformHandle *uh = uniform_handle(ud, i, _data);
 
 		bgfx::UniformHandle buh;
 		buh.idx = uh->uniform_handle;
@@ -46,40 +47,46 @@ void Material::bind(ShaderManager &sm, u8 view, s32 depth) const
 	sm.submit(_resource->shader, view, depth);
 }
 
+template<typename T>
+static void set_uniform_value(StringId32 name, const T &value, const MaterialResource *mr, char *dynamic_data)
+{
+	UniformData *ud = material_resource::uniform_data_array(mr);
+	u32 idx = material_resource::uniform_data_index(mr, ud, name);
+	char *p = (char *)material_resource::uniform_handle(ud, idx, dynamic_data);
+	*(T *)(p + sizeof(u32)) = value;
+}
+
 void Material::set_float(StringId32 name, f32 value)
 {
-	char *p = (char *)material_resource::uniform_handle_by_name(_resource, name, _data);
-	*(f32 *)(p + sizeof(u32)) = value;
+	set_uniform_value(name, value, _resource, _data);
 }
 
 void Material::set_vector2(StringId32 name, const Vector2 &value)
 {
-	char *p = (char *)material_resource::uniform_handle_by_name(_resource, name, _data);
-	*(Vector2 *)(p + sizeof(u32)) = value;
+	set_uniform_value(name, value, _resource, _data);
 }
 
 void Material::set_vector3(StringId32 name, const Vector3 &value)
 {
-	char *p = (char *)material_resource::uniform_handle_by_name(_resource, name, _data);
-	*(Vector3 *)(p + sizeof(u32)) = value;
+	set_uniform_value(name, value, _resource, _data);
 }
 
 void Material::set_vector4(StringId32 name, const Vector4 &value)
 {
-	char *p = (char *)material_resource::uniform_handle_by_name(_resource, name, _data);
-	*(Vector4 *)(p + sizeof(u32)) = value;
+	set_uniform_value(name, value, _resource, _data);
 }
 
 void Material::set_matrix4x4(StringId32 name, const Matrix4x4 &value)
 {
-	char *p = (char *)material_resource::uniform_handle_by_name(_resource, name, _data);
-	*(Matrix4x4 *)(p + sizeof(u32)) = value;
+	set_uniform_value(name, value, _resource, _data);
 }
 
 void Material::set_texture(StringId32 sampler_name, ResourceId texture_resource)
 {
 	const TextureResource *tr = (TextureResource *)_resource_manager->get(RESOURCE_TYPE_TEXTURE, texture_resource);
-	TextureHandle *th = (TextureHandle *)material_resource::texture_handle_by_name(_resource, sampler_name, _data);
+	TextureData *td = material_resource::texture_data_array(_resource);
+	u32 idx = material_resource::texture_data_index(_resource, td, sampler_name);
+	TextureHandle *th = (TextureHandle *)material_resource::texture_handle(td, idx, _data);
 	th->texture_handle = tr->handle.idx;
 }
 

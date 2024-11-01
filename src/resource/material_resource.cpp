@@ -24,74 +24,56 @@ namespace crown
 {
 namespace material_resource
 {
-	UniformData *uniform_data(const MaterialResource *mr, u32 i)
+	UniformData *uniform_data_array(const MaterialResource *mr)
 	{
-		UniformData *base = (UniformData *)((char *)mr + mr->uniform_data_offset);
-		return &base[i];
+		return (UniformData *)((char *)mr + mr->uniform_data_offset);
 	}
 
-	UniformData *uniform_data_by_name(const MaterialResource *mr, StringId32 name)
+	u32 uniform_data_index(const MaterialResource *mr, const UniformData *ud, StringId32 name)
 	{
 		for (u32 i = 0, n = mr->num_uniforms; i < n; ++i) {
-			UniformData *data = uniform_data(mr, i);
-			if (data->name == name)
-				return data;
+			if (ud[i].name == name)
+				return i;
 		}
 
 		CE_FATAL("Unknown uniform");
-		return NULL;
+		return UINT32_MAX;
 	}
 
-	const char *uniform_name(const MaterialResource *mr, const UniformData *ud)
+	const char *uniform_name(const MaterialResource *mr, const UniformData *ud, u32 i)
 	{
-		return (const char *)mr + mr->dynamic_data_offset + mr->dynamic_data_size + ud->name_offset;
+		return (const char *)mr + mr->dynamic_data_offset + mr->dynamic_data_size + ud[i].name_offset;
 	}
 
-	TextureData *texture_data(const MaterialResource *mr, u32 i)
+	TextureData *texture_data_array(const MaterialResource *mr)
 	{
-		TextureData *base = (TextureData *)((char *)mr + mr->texture_data_offset);
-		return &base[i];
+		return (TextureData *)((char *)mr + mr->texture_data_offset);
 	}
 
-	TextureData *texture_data_by_name(const MaterialResource *mr, StringId32 name)
+	u32 texture_data_index(const MaterialResource *mr, const TextureData *td, StringId32 name)
 	{
 		for (u32 i = 0, n = mr->num_textures; i < n; ++i) {
-			TextureData *data = texture_data(mr, i);
-			if (data->name == name)
-				return data;
+			if (td[i].name == name)
+				return i;
 		}
 
 		CE_FATAL("Unknown texture");
-		return NULL;
+		return UINT32_MAX;
 	}
 
-	const char *texture_name(const MaterialResource *mr, const TextureData *td)
+	const char *texture_name(const MaterialResource *mr, const TextureData *td, u32 i)
 	{
-		return (const char *)mr + mr->dynamic_data_offset + mr->dynamic_data_size + td->sampler_name_offset;
+		return (const char *)mr + mr->dynamic_data_offset + mr->dynamic_data_size + td[i].sampler_name_offset;
 	}
 
-	UniformHandle *uniform_handle(const MaterialResource *mr, u32 i, char *dynamic)
+	UniformHandle *uniform_handle(const UniformData *ud, u32 i, char *dynamic)
 	{
-		UniformData *ud = uniform_data(mr, i);
-		return (UniformHandle *)(dynamic + ud->data_offset);
+		return (UniformHandle *)(dynamic + ud[i].data_offset);
 	}
 
-	UniformHandle *uniform_handle_by_name(const MaterialResource *mr, StringId32 name, char *dynamic)
+	TextureHandle *texture_handle(const TextureData *td, u32 i, char *dynamic)
 	{
-		UniformData *ud = uniform_data_by_name(mr, name);
-		return (UniformHandle *)(dynamic + ud->data_offset);
-	}
-
-	TextureHandle *texture_handle(const MaterialResource *mr, u32 i, char *dynamic)
-	{
-		TextureData *td = texture_data(mr, i);
-		return (TextureHandle *)(dynamic + td->data_offset);
-	}
-
-	TextureHandle *texture_handle_by_name(const MaterialResource *mr, StringId32 name, char *dynamic)
-	{
-		TextureData *td = texture_data_by_name(mr, name);
-		return (TextureHandle *)(dynamic + td->data_offset);
+		return (TextureHandle *)(dynamic + td[i].data_offset);
 	}
 
 } // namespace material_resource
