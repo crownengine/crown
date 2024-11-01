@@ -31,6 +31,11 @@ struct ResourceRequest
 	LoadFunction load_function;
 	Allocator *allocator;
 	void *data;
+
+	bool is_spurious()
+	{
+		return data == NULL && allocator == NULL;
+	}
 };
 
 /// Loads resources in a background thread.

@@ -238,7 +238,7 @@ void ResourceManager::complete_requests()
 			} else {
 				++pkg_data.online_sequence_num;
 
-				if (rr.data != NULL && rr.allocator != NULL) {
+				if (!rr.is_spurious()) {
 					// If this is a non-spurious request, add it to the resource map.
 					resource_manager_internal::add_resource(*this
 						, rr.type
