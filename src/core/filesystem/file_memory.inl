@@ -6,6 +6,7 @@
 #pragma once
 
 #include "core/filesystem/file.h"
+#include <string.h> // memcpy
 
 namespace crown
 {
