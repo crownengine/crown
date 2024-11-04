@@ -21,6 +21,8 @@ struct MaterialResource
 	u32 texture_data_offset;
 	u32 num_uniforms;
 	u32 uniform_data_offset;
+	u32 names_data_size;
+	u32 names_data_offset;
 	u32 dynamic_data_size;
 	u32 dynamic_data_offset;
 };

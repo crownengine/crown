@@ -42,7 +42,7 @@ namespace material_resource
 
 	const char *uniform_name(const MaterialResource *mr, const UniformData *ud, u32 i)
 	{
-		return (const char *)mr + mr->dynamic_data_offset + mr->dynamic_data_size + ud[i].name_offset;
+		return (const char *)mr + mr->names_data_offset + ud[i].name_offset;
 	}
 
 	TextureData *texture_data_array(const MaterialResource *mr)
@@ -63,7 +63,7 @@ namespace material_resource
 
 	const char *texture_name(const MaterialResource *mr, const TextureData *td, u32 i)
 	{
-		return (const char *)mr + mr->dynamic_data_offset + mr->dynamic_data_size + td[i].sampler_name_offset;
+		return (const char *)mr + mr->names_data_offset + td[i].sampler_name_offset;
 	}
 
 	UniformHandle *uniform_handle(const UniformData *ud, u32 i, char *dynamic)
@@ -308,8 +308,10 @@ namespace material_resource_internal
 		mr.texture_data_offset = sizeof(mr);
 		mr.num_uniforms        = array::size(unidata);
 		mr.uniform_data_offset = mr.texture_data_offset + sizeof(TextureData)*array::size(texdata);
+		mr.names_data_size     = array::size(names);
+		mr.names_data_offset   = mr.uniform_data_offset + sizeof(UniformData)*array::size(unidata);
 		mr.dynamic_data_size   = array::size(dynblob);
-		mr.dynamic_data_offset = mr.uniform_data_offset + sizeof(UniformData)*array::size(unidata);
+		mr.dynamic_data_offset = mr.names_data_offset + mr.names_data_size;
 
 		// Write
 		opts.write(mr.version);
@@ -318,6 +320,8 @@ namespace material_resource_internal
 		opts.write(mr.texture_data_offset);
 		opts.write(mr.num_uniforms);
 		opts.write(mr.uniform_data_offset);
+		opts.write(mr.names_data_size);
+		opts.write(mr.names_data_offset);
 		opts.write(mr.dynamic_data_size);
 		opts.write(mr.dynamic_data_offset);
 
@@ -336,8 +340,8 @@ namespace material_resource_internal
 			opts.write(unidata[i].data_offset);
 		}
 
-		opts.write(dynblob);
 		opts.write(names);
+		opts.write(dynblob);
 
 		return 0;
 	}
