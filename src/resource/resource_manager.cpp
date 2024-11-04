@@ -5,13 +5,13 @@
 
 #include "core/containers/array.inl"
 #include "core/containers/hash_map.inl"
-#include "core/filesystem/file_memory.inl"
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string_id.inl"
 #include "resource/resource_id.inl"
 #include "resource/resource_loader.h"
 #include "resource/resource_manager.h"
+#include "resource/simple_resource.h"
 
 namespace crown
 {
@@ -85,31 +85,6 @@ namespace resource_manager_internal
 		hash_map::set(rm._resources, id, rd);
 
 		rm.on_online(type, name);
-	}
-
-	void *load(File &file, Allocator &a)
-	{
-		const u32 file_size = file.size();
-		void *data = a.allocate(file_size, 16);
-		file.read(data, file_size);
-		return data;
-	}
-
-	void *load_from_bundle(File &file, Allocator &a)
-	{
-		CE_UNUSED(a);
-		return (void *)((FileMemory &)file)._memory;
-	}
-
-	void unload(Allocator &a, void *data)
-	{
-		a.deallocate(data);
-	}
-
-	void unload_from_bundle(Allocator &a, void *data)
-	{
-		CE_UNUSED_2(a, data);
-		return;
 	}
 
 } // namespace resource_manager_internal
@@ -282,11 +257,11 @@ void ResourceManager::register_type(StringId64 type, u32 version, LoadFunction l
 	rtd.version = version;
 	if (load == NULL) {
 		if (type == RESOURCE_TYPE_PACKAGE || type == RESOURCE_TYPE_CONFIG) {
-			rtd.load = resource_manager_internal::load;
+			rtd.load = simple_resource::load;
 		} else {
 			rtd.load = _resource_loader->_is_bundle
-				? resource_manager_internal::load_from_bundle
-				: resource_manager_internal::load
+				? simple_resource::load_from_bundle
+				: simple_resource::load
 				;
 		}
 	} else {
@@ -295,11 +270,11 @@ void ResourceManager::register_type(StringId64 type, u32 version, LoadFunction l
 
 	if (unload == NULL) {
 		if (type == RESOURCE_TYPE_PACKAGE || type == RESOURCE_TYPE_CONFIG) {
-			rtd.unload = resource_manager_internal::unload;
+			rtd.unload = simple_resource::unload;
 		} else {
 			rtd.unload = _resource_loader->_is_bundle
-				? resource_manager_internal::unload_from_bundle
-				: resource_manager_internal::unload
+				? simple_resource::unload_from_bundle
+				: simple_resource::unload
 				;
 		}
 	} else {
