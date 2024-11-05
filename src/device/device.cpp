@@ -854,7 +854,7 @@ void Device::destroy_resource_package(ResourcePackage &rp)
 
 void Device::refresh(const char *json)
 {
-#if CROWN_DEBUG
+#if CROWN_CAN_RELOAD
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
 	JsonArray list(ta);
@@ -887,7 +887,9 @@ void Device::refresh(const char *json)
 
 	if (_paused)
 		unpause();
-#endif // if CROWN_DEBUG
+#else
+	CE_UNUSED(json);
+#endif // if CROWN_CAN_RELOAD
 }
 
 void Device::screenshot(const char *path)
