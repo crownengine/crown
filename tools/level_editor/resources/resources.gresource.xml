@@ -148,6 +148,7 @@
     <file compressed="true" preprocess="xml-stripblanks">icons/crown.svg</file>
     <file compressed="true" preprocess="xml-stripblanks">icons/game-run-symbolic.svg</file>
     <file compressed="true" preprocess="xml-stripblanks">icons/game-stop-symbolic.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/hearth-symbolic.svg</file>
     <file compressed="true" preprocess="xml-stripblanks">icons/layer-locked-symbolic.svg</file>
     <file compressed="true" preprocess="xml-stripblanks">icons/layer-visible-symbolic.svg</file>
     <file compressed="true" preprocess="xml-stripblanks">icons/level-layers-symbolic.svg</file>
