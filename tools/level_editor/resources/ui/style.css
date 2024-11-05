@@ -77,3 +77,7 @@ notebook > header tab {
 .properties-view expander.inherited title label {
 	color: rgb(150, 100, 0);
 }
+
+button.compact {
+	padding: 0px 2px 0px 2px;
+}

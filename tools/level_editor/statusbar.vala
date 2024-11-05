@@ -15,6 +15,7 @@ public class Statusbar : Gtk.Box
 	// Widgets
 	public Gtk.Label _status;
 	public Gtk.Label _temporary_message;
+	public Gtk.Button _version;
 
 	public Statusbar()
 	{
@@ -28,10 +29,16 @@ public class Statusbar : Gtk.Box
 		// Widgets
 		_status = new Gtk.Label("Idle");
 		_temporary_message = new Gtk.Label("");
+		_version = new Gtk.Button.with_label(CROWN_VERSION);
+		_version.get_style_context().add_class("flat");
+		_version.get_style_context().add_class("compact");
+		_version.clicked.connect(() => {
+				GLib.Application.get_default().activate_action("changelog", null);
+			});
 
 		this.pack_start(_status, false, false, 0);
 		this.pack_start(_temporary_message, false, false, 0);
-		this.pack_end(new Gtk.Label(CROWN_VERSION), false, false, 0);
+		this.pack_end(_version, false, false, 0);
 		this.get_style_context().add_class("statusbar");
 	}
 
