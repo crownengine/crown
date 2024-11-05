@@ -66,6 +66,7 @@ namespace os
 		int err = dlclose(library);
 		CE_ASSERT(err == 0, "dlclose: error: %s", dlerror());
 #endif
+		CE_UNUSED(err);
 	}
 
 	void *library_symbol(void *library, const char *name)
