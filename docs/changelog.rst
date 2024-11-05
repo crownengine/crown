@@ -13,6 +13,7 @@ Changelog
 
 * Animation state machines can now contain empty animation sets.
 * Fixed loading resources from bundles.
+* Added texture hot-reloading.
 * Data Compiler: fixed bundle generation.
 
 0.51.0 --- 28 Oct 2024
