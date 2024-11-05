@@ -2822,7 +2822,7 @@ public class LevelEditorApplication : Gtk.Application
 	private void on_manual(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		try {
-			AppInfo.launch_default_for_uri("https://docs.crownengine.org/html/v" + CROWN_VERSION, null);
+			AppInfo.launch_default_for_uri(CROWN_LATEST_DOCS_URL, null);
 		} catch (Error e) {
 			loge(e.message);
 		}
@@ -2845,7 +2845,7 @@ public class LevelEditorApplication : Gtk.Application
 	private void on_changelog(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		try {
-			AppInfo.launch_default_for_uri("https://docs.crownengine.org/html/v" + CROWN_VERSION + "/changelog.html", null);
+			AppInfo.launch_default_for_uri(CROWN_LATEST_CHANGELOG_URL, null);
 		} catch (Error e) {
 			loge(e.message);
 		}
@@ -2854,7 +2854,7 @@ public class LevelEditorApplication : Gtk.Application
 	private void on_donate(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		try {
-			AppInfo.launch_default_for_uri("https://crownengine.org/fund", null);
+			AppInfo.launch_default_for_uri(CROWN_FUND_URL, null);
 		} catch (Error e) {
 			loge(e.message);
 		}
@@ -2870,7 +2870,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		dlg.program_name = LEVEL_EDITOR_WINDOW_TITLE;
 		dlg.version = CROWN_VERSION;
-		dlg.website = "https://www.crownengine.org";
+		dlg.website = CROWN_WWW_URL;
 		dlg.copyright = "Copyright (c) 2012-2024 Daniele Bartolini et al.";
 		dlg.license_type = GPL_3_0;
 		dlg.authors =
