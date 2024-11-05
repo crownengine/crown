@@ -166,17 +166,25 @@ void *ResourceManager::reload(StringId64 type, StringId64 name)
 	if (rd == ResourceData::NOT_FOUND)
 		return NULL;
 
+	// Save old state.
 	const u32 old_refs = rd.references;
-	unload(type, name);
 
-	while (!try_load(PACKAGE_RESOURCE_NONE, type, name, 0)) {
+	// Unload the old resource.
+	on_offline(type, name);
+	on_unload(type, rd.allocator, rd.data);
+	hash_map::remove(_resources, id);
+
+	// Load the new resource.
+	while (!try_load(rd.package_name, type, name, 0)) {
 		complete_requests();
 	}
 
+	// Wait until the new resource has been loaded.
 	ResourceData new_rd;
 	while ((new_rd = hash_map::get(_resources, id, ResourceData::NOT_FOUND)) == ResourceData::NOT_FOUND)
 		complete_requests();
 
+	// Restore old state into the new resource.
 	new_rd.references = old_refs;
 	return new_rd.data;
 }
@@ -231,7 +239,7 @@ void ResourceManager::complete_requests()
 			ResourceData &pkg_data = hash_map::get(_resources, rp, ResourceData::NOT_FOUND);
 			CE_ENSURE(pkg_data != ResourceData::NOT_FOUND);
 
-			if (rr.online_order != pkg_data.online_sequence_num) {
+			if (rr.online_order > pkg_data.online_sequence_num) {
 				// Cannot process this resource yet; we need to wait for all its requirements to be
 				// put online() first. Put the request back into the loaded queue to try again
 				// later.
