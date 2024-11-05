@@ -35,11 +35,11 @@ struct MaterialManager
 	/// Instantiates the material @a resource.
 	Material *create_material(const MaterialResource *resource);
 
-	/// Destroys the instance of the material @a resource.
-	void destroy_material(const MaterialResource *resource);
-
 	/// Returns the instance of the material @a resource.
 	Material *get(const MaterialResource *resource);
+
+	///
+	void reload_textures(const TextureResource *old_resource, const TextureResource *new_resource);
 };
 
 } // namespace crown

@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include "core/containers/array.inl"
 #include "core/strings/string_id.inl"
 #include "resource/material_resource.h"
 #include "resource/resource_manager.h"
@@ -13,6 +14,14 @@
 
 namespace crown
 {
+Material::Material(Allocator &a)
+#if CROWN_CAN_RELOAD
+	: _texture_resources(a)
+#endif
+{
+	CE_UNUSED(a);
+}
+
 void Material::bind(ShaderManager &sm, u8 view, s32 depth) const
 {
 	using namespace material_resource;
@@ -88,6 +97,26 @@ void Material::set_texture(StringId32 sampler_name, ResourceId texture_resource)
 	u32 idx = material_resource::texture_data_index(_resource, td, sampler_name);
 	TextureHandle *th = (TextureHandle *)material_resource::texture_handle(td, idx, _data);
 	th->texture_handle = tr->handle.idx;
+#if CROWN_CAN_RELOAD
+	u32 index = material_resource::texture_data_index(_resource, td, sampler_name);
+	_texture_resources[index] = (TextureResource *)tr;
+#endif
+}
+
+void Material::reload_textures(const TextureResource *old_resource, const TextureResource *new_resource)
+{
+#if CROWN_CAN_RELOAD
+	const TextureData *td = material_resource::texture_data_array(_resource);
+	for (u32 i = 0; i < array::size(_texture_resources); ++i) {
+		if (_texture_resources[i] == old_resource) {
+			_texture_resources[i] = (TextureResource *)new_resource;
+			TextureHandle *th = material_resource::texture_handle(td, i, _data);
+			th->texture_handle = new_resource->handle.idx;
+		}
+	}
+#else
+	CE_UNUSED_2(old_resource, new_resource);
+#endif
 }
 
 } // namespace crown

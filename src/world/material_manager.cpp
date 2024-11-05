@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include "core/containers/array.inl"
 #include "core/containers/hash_map.inl"
 #include "core/filesystem/file.h"
 #include "core/strings/string_id.inl"
@@ -48,39 +49,36 @@ void MaterialManager::online(StringId64 id, ResourceManager &rm)
 	using namespace material_resource;
 
 	MaterialResource *mr = (MaterialResource *)rm.get(RESOURCE_TYPE_MATERIAL, id);
-
-	char *base = (char *)mr + mr->dynamic_data_offset;
+	Material *material = create_material(mr);
 
 	const TextureData *td = texture_data_array(mr);
 	for (u32 i = 0; i < mr->num_textures; ++i) {
-		TextureHandle *th  = texture_handle(td, i, base);
+		TextureHandle *th   = texture_handle(td, i, material->_data);
 		TextureResource *tr = (TextureResource *)rm.get(RESOURCE_TYPE_TEXTURE, td->id);
 		th->sampler_handle = bgfx::createUniform(texture_name(mr, td, i), bgfx::UniformType::Sampler).idx;
 		th->texture_handle = tr->handle.idx;
+#if CROWN_CAN_RELOAD
+		material->_texture_resources[i] = tr;
+#endif
 	}
 
 	const UniformData *ud = uniform_data_array(mr);
 	for (u32 i = 0; i < mr->num_uniforms; ++i) {
-		UniformHandle *uh  = uniform_handle(ud, i, base);
+		UniformHandle *uh  = uniform_handle(ud, i, material->_data);
 		uh->uniform_handle = bgfx::createUniform(uniform_name(mr, ud, i), s_bgfx_uniform_type[ud->type]).idx;
 	}
-
-	create_material(mr);
 }
 
 void MaterialManager::offline(StringId64 id, ResourceManager &rm)
 {
 	using namespace material_resource;
 
-	MaterialResource *mr = (MaterialResource *)rm.get(RESOURCE_TYPE_MATERIAL, id);
-
-	destroy_material(mr);
-
-	char *base = (char *)mr + mr->dynamic_data_offset;
+	const MaterialResource *mr = (MaterialResource *)rm.get(RESOURCE_TYPE_MATERIAL, id);
+	Material *material = hash_map::get(_materials, mr, (Material *)NULL);
 
 	const TextureData *td = texture_data_array(mr);
 	for (u32 i = 0; i < mr->num_textures; ++i) {
-		TextureHandle *th = texture_handle(td, i, base);
+		TextureHandle *th = texture_handle(td, i, material->_data);
 		bgfx::UniformHandle sh;
 		sh.idx = th->sampler_handle;
 		bgfx::destroy(sh);
@@ -88,44 +86,59 @@ void MaterialManager::offline(StringId64 id, ResourceManager &rm)
 
 	const UniformData *ud = uniform_data_array(mr);
 	for (u32 i = 0; i < mr->num_uniforms; ++i) {
-		UniformHandle *uh = uniform_handle(ud, i, base);
+		UniformHandle *uh = uniform_handle(ud, i, material->_data);
 		bgfx::UniformHandle bgfx_uh;
 		bgfx_uh.idx = uh->uniform_handle;
 		bgfx::destroy(bgfx_uh);
 	}
+
+	CE_DELETE(*_allocator, material);
+	hash_map::remove(_materials, mr);
 }
 
 Material *MaterialManager::create_material(const MaterialResource *resource)
 {
-	Material *mat = hash_map::get(_materials, resource, (Material *)NULL);
-	if (mat != NULL)
-		return mat;
+	Material *material = hash_map::get(_materials, resource, (Material *)NULL);
+	if (material != NULL)
+		return material;
 
 	const u32 size = sizeof(Material) + resource->dynamic_data_size;
-	mat = (Material *)_allocator->allocate(size);
-	mat->_resource_manager = _resource_manager;
-	mat->_resource         = resource;
-	mat->_data             = (char *)&mat[1];
+	material = (Material *)_allocator->allocate(size);
+	new (material) Material(*_allocator);
+	material->_resource_manager = _resource_manager;
+	material->_resource = resource;
+	material->_data = (char *)&material[1];
 
-	const char *data = (char *)resource + resource->dynamic_data_offset;
-	memcpy(mat->_data, data, resource->dynamic_data_size);
+	const char *dynamic_data = (char *)resource + resource->dynamic_data_offset;
+	memcpy(material->_data, dynamic_data, resource->dynamic_data_size);
 
-	hash_map::set(_materials, resource, mat);
-	return mat;
-}
+#if CROWN_CAN_RELOAD
+	array::resize(material->_texture_resources, resource->num_textures);
+#endif
 
-void MaterialManager::destroy_material(const MaterialResource *resource)
-{
-	Material *mat = hash_map::get(_materials, resource, (Material *)NULL);
-	_allocator->deallocate(mat);
-
-	hash_map::remove(_materials, resource);
+	hash_map::set(_materials, resource, material);
+	return material;
 }
 
 Material *MaterialManager::get(const MaterialResource *resource)
 {
 	CE_ASSERT(hash_map::has(_materials, resource), "Material not found");
 	return hash_map::get(_materials, resource, (Material *)NULL);
+}
+
+void MaterialManager::reload_textures(const TextureResource *old_resource, const TextureResource *new_resource)
+{
+#if CROWN_CAN_RELOAD
+	auto cur = hash_map::begin(_materials);
+	auto end = hash_map::end(_materials);
+	for (; cur != end; ++cur) {
+		HASH_MAP_SKIP_HOLE(_materials, cur);
+
+		cur->second->reload_textures(old_resource, new_resource);
+	}
+#else
+	CE_UNUSED_2(old_resource, new_resource);
+#endif
 }
 
 } // namespace crown

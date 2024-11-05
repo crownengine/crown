@@ -873,10 +873,13 @@ void Device::refresh(const char *json)
 		StringId64 resource_type(type);
 		StringId64 resource_name(resource.c_str(), len);
 
-		_resource_manager->reload(resource_type, resource_name);
+		const void *old_resource = _resource_manager->get(resource_type, resource_name);
+		const void *new_resource = _resource_manager->reload(resource_type, resource_name);
 
 		if (resource_type == RESOURCE_TYPE_SCRIPT) {
 			refresh_lua = true;
+		} else if (resource_type == RESOURCE_TYPE_TEXTURE) {
+			_material_manager->reload_textures((TextureResource *)old_resource, (TextureResource *)new_resource);
 		}
 	}
 

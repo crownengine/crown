@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "config.h"
 #include "core/math/types.h"
 #include "resource/resource_id.h"
 #include "resource/types.h"
@@ -20,6 +21,12 @@ struct Material
 	ResourceManager *_resource_manager;
 	const MaterialResource *_resource;
 	char *_data;
+#if CROWN_CAN_RELOAD
+	Array<TextureResource *> _texture_resources;
+#endif
+
+	///
+	explicit Material(Allocator &a);
 
 	///
 	void bind(ShaderManager &sm, u8 view, s32 depth = 0) const;
@@ -41,6 +48,9 @@ struct Material
 
 	/// Sets the @a texture_resource of the sampler @a sampler_name.
 	void set_texture(StringId32 sampler_name, ResourceId texture_resource);
+
+	///
+	void reload_textures(const TextureResource *old_resource, const TextureResource *new_resource);
 };
 
 } // namespace crown
