@@ -35,6 +35,7 @@ struct ResourceManager
 
 	struct ResourceData
 	{
+		StringId64 package_name;
 		u32 references;
 		u32 online_sequence_num;
 		Allocator *allocator;

@@ -43,7 +43,7 @@ bool operator!=(const ResourceManager::ResourceData &a, const ResourceManager::R
 	return !(a == b);
 }
 
-const ResourceManager::ResourceData ResourceManager::ResourceData::NOT_FOUND = { UINT32_MAX, 0u, NULL, NULL };
+const ResourceManager::ResourceData ResourceManager::ResourceData::NOT_FOUND = { PACKAGE_RESOURCE_NONE, UINT32_MAX, 0u, NULL, NULL };
 
 bool operator==(const ResourceManager::ResourceTypeData &a, const ResourceManager::ResourceTypeData &b)
 {
@@ -73,9 +73,10 @@ struct hash<ResourceManager::ResourcePair>
 
 namespace resource_manager_internal
 {
-	void add_resource(ResourceManager &rm, StringId64 type, StringId64 name, Allocator *allocator, void *data)
+	void add_resource(ResourceManager &rm, StringId64 package_name, StringId64 type, StringId64 name, Allocator *allocator, void *data)
 	{
 		ResourceManager::ResourceData rd;
+		rd.package_name = package_name;
 		rd.references = 1;
 		rd.online_sequence_num = 0;
 		rd.allocator = allocator;
@@ -219,6 +220,7 @@ void ResourceManager::complete_requests()
 			// requirements and are never required by any resource, hence no online() order
 			// constraints apply.
 			resource_manager_internal::add_resource(*this
+				, rr.package_name
 				, rr.type
 				, rr.name
 				, rr.allocator
@@ -240,6 +242,7 @@ void ResourceManager::complete_requests()
 				if (!rr.is_spurious()) {
 					// If this is a non-spurious request, add it to the resource map.
 					resource_manager_internal::add_resource(*this
+						, rr.package_name
 						, rr.type
 						, rr.name
 						, rr.allocator
