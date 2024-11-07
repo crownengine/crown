@@ -2038,7 +2038,7 @@ public class LevelEditorApplication : Gtk.Application
 			title += " - ";
 		}
 
-		title += LEVEL_EDITOR_WINDOW_TITLE;
+		title += LEVEL_EDITOR_WINDOW_TITLE + " " + CROWN_VERSION;
 
 		if (this.active_window.title != title)
 			this.active_window.title = title;
