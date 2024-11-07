@@ -2031,11 +2031,10 @@ public class LevelEditorApplication : Gtk.Application
 		string title = "";
 
 		if (_level._name != null) {
-			title += (_level._name == LEVEL_EMPTY) ? "untitled" : _level._name;
-
 			if (_database.changed())
 				title += " • ";
 
+			title += (_level._name == LEVEL_EMPTY) ? "untitled" : _level._name;
 			title += " - ";
 		}
 
