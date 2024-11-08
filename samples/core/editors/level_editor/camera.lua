@@ -97,7 +97,6 @@ function Camera:init(world, unit)
 	self._sg = World.scene_graph(world)
 	self._movement_speed = 1
 	self._rotation_speed = 0.002
-	self._perspective_local_pose = Matrix4x4Box()
 	self._orthographic_size = 10
 	self._target_distance = 10
 
@@ -155,22 +154,41 @@ function Camera:set_perspective()
 		return
 	end
 
+	local camera = self:camera()
 	local tr = SceneGraph.instance(self._sg, self._unit)
-	SceneGraph.set_local_pose(self._sg, tr, self._perspective_local_pose:unbox())
-	World.camera_set_projection_type(self._world, self:camera(), "perspective")
+
+	local camera_pose     = SceneGraph.local_pose(self._sg, tr)
+	local camera_position = Matrix4x4.translation(camera_pose)
+	local camera_forward  = Matrix4x4.z(camera_pose)
+	local target_position = camera_position + camera_forward * self._target_distance
+
+	local ortho_len = self:screen_length_to_world_length(target_position, 10)
+	World.camera_set_projection_type(self._world, camera, "perspective")
+	local persp_len = self:screen_length_to_world_length(target_position, 10)
+
+	self._target_distance = self._target_distance * (ortho_len / persp_len)
+	SceneGraph.set_local_position(self._sg, tr, target_position - camera_forward * self._target_distance)
 end
 
 function Camera:set_orthographic(world_center, world_radius, dir, up)
-	if not self:is_orthographic() then
-		self._perspective_local_pose:store(self:local_pose())
-	end
-
-	local tr = SceneGraph.instance(self._sg, self._unit)
-	SceneGraph.set_local_rotation(self._sg, tr, Quaternion.look(dir, up))
-	SceneGraph.set_local_position(self._sg, tr, world_center - dir * math.abs(Vector3.dot(dir, world_radius)) * 100) -- FIXME
 	local camera = self:camera()
-	World.camera_set_orthographic_size(self._world, camera, self._orthographic_size)
+	local tr = SceneGraph.instance(self._sg, self._unit)
+
+	local camera_pose     = SceneGraph.local_pose(self._sg, tr)
+	local camera_position = Matrix4x4.translation(camera_pose)
+	local camera_forward  = Matrix4x4.z(camera_pose)
+	local target_position = camera_position + camera_forward * self._target_distance
+
+	local new_camera_position = target_position - dir * self._target_distance
+	local persp_len = self:screen_length_to_world_length(target_position, 10)
+	SceneGraph.set_local_rotation(self._sg, tr, Quaternion.look(dir, up))
+	SceneGraph.set_local_position(self._sg, tr, new_camera_position)
 	World.camera_set_projection_type(self._world, camera, "orthographic")
+	World.camera_set_orthographic_size(self._world, camera, self._orthographic_size)
+	local ortho_len = self:screen_length_to_world_length(target_position, 10)
+
+	self._orthographic_size = self._orthographic_size * (persp_len / ortho_len)
+	World.camera_set_orthographic_size(self._world, camera, self._orthographic_size)
 end
 
 function Camera:screen_length_to_world_length(position, length)

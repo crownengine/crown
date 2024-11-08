@@ -7,6 +7,7 @@ Changelog
 **Tools**
 
 * Added the ability to add/remove components from units in the Inspector panel.
+* Fixed switching between orthographic and perspective camera modes.
 * Improved compatibility with Hi-DPI screens.
 * The Level Tree will now scroll to the last selected object.
 
