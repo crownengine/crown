@@ -299,6 +299,8 @@ public class LevelTreeView : Gtk.Box
 		_tree_selection.changed.disconnect(on_tree_selection_changed);
 		_tree_selection.unselect_all();
 
+		Gtk.TreePath? last_selected = null;
+
 		_tree_sort.foreach ((model, path, iter) => {
 				Value type;
 				model.get_value(iter, Column.TYPE, out type);
@@ -311,12 +313,16 @@ public class LevelTreeView : Gtk.Box
 				foreach (Guid? guid in selection) {
 					if ((Guid)id == guid) {
 						_tree_selection.select_iter(iter);
+						last_selected = path;
 						return false;
 					}
 				}
 
 				return false;
 			});
+
+		if (last_selected != null)
+			_tree_view.scroll_to_cell(last_selected, null, false, 0.0f, 0.0f);
 
 		_tree_selection.changed.connect(on_tree_selection_changed);
 	}

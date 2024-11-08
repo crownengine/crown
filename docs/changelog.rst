@@ -8,6 +8,7 @@ Changelog
 
 * Added the ability to add/remove components from units in the Inspector panel.
 * Improved compatibility with Hi-DPI screens.
+* The Level Tree will now scroll to the last selected object.
 
 **Runtime**
 
