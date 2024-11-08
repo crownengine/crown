@@ -599,7 +599,6 @@ public class LevelEditorApplication : Gtk.Application
 	private ToolType _tool_type_prev;
 	private SnapMode _snap_mode;
 	private ReferenceSystem _reference_system;
-	private CameraViewType _camera_view_type;
 
 	// Project state
 	private string _placeable_type;
@@ -850,7 +849,6 @@ public class LevelEditorApplication : Gtk.Application
 		_tool_type_prev = _tool_type;
 		_snap_mode = SnapMode.RELATIVE;
 		_reference_system = ReferenceSystem.LOCAL;
-		_camera_view_type = CameraViewType.PERSPECTIVE;
 
 		// Project state
 		_placeable_type = "";
@@ -1363,6 +1361,8 @@ public class LevelEditorApplication : Gtk.Application
 			}
 
 			_level.on_selection(ids);
+		} else if (msg_type == "camera") {
+			_level.on_camera(msg);
 		} else if (msg_type == "error") {
 			loge((string)msg["message"]);
 		} else if (msg_type == "thumbnail") {
@@ -1387,7 +1387,6 @@ public class LevelEditorApplication : Gtk.Application
 		sb.append(LevelEditorApi.set_tool_type(_tool_type));
 		sb.append(LevelEditorApi.set_snap_mode(_snap_mode));
 		sb.append(LevelEditorApi.set_reference_system(_reference_system));
-		sb.append(LevelEditorApi.set_camera_view_type(_camera_view_type));
 	}
 
 	private void append_project_state(StringBuilder sb)
@@ -2646,9 +2645,9 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_camera_view(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		_camera_view_type = (CameraViewType)param.get_int32();
+		_level._camera_view_type = (CameraViewType)param.get_int32();
 
-		send_state();
+		_editor.send_script(LevelEditorApi.set_camera_view_type(_level._camera_view_type));
 		_editor.send(DeviceApi.frame());
 		action.set_state(param);
 	}

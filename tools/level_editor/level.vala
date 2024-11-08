@@ -26,6 +26,12 @@ public class Level
 	public string _path;
 	public Guid _id;
 
+	public Vector3 _camera_position;
+	public Quaternion _camera_rotation;
+	public double _camera_orthographic_size;
+	public double _camera_target_distance;
+	public CameraViewType _camera_view_type;
+
 	// Signals
 	public signal void selection_changed(Gee.ArrayList<Guid?> selection);
 	public signal void object_editor_name_changed(Guid object_id, string name);
@@ -58,6 +64,12 @@ public class Level
 		_name = null;
 		_path = null;
 		_id = GUID_ZERO;
+
+		_camera_position = Vector3(20, 20, -20);
+		_camera_rotation = Quaternion.look(Vector3(-20, -20, 20).normalize(), Vector3(0.0, 1.0, 0.0));
+		_camera_target_distance = _camera_position.length();
+		_camera_orthographic_size = _camera_target_distance;
+		_camera_view_type = CameraViewType.PERSPECTIVE;
 	}
 
 	public int load_from_path(string name)
@@ -73,6 +85,9 @@ public class Level
 		int ret = _db.load_from_file(out _id, fs, resource_path);
 		if (ret != 0)
 			return ret;
+
+		camera_decode();
+		GLib.Application.get_default().activate_action("camera-view", new GLib.Variant.int32(_camera_view_type));
 
 		_name = name;
 		_path = path;
@@ -95,6 +110,7 @@ public class Level
 	{
 		string path = Path.build_filename(_project.source_dir(), name + ".level");
 
+		camera_encode();
 		_db.save(path, _id);
 		_path = path;
 		_name = name;
@@ -273,6 +289,7 @@ public class Level
 		_runtime.send_script(sb.str);
 
 		send_selection();
+		send_camera();
 	}
 
 	public void units(ref Gee.ArrayList<Guid?> ids)
@@ -293,6 +310,55 @@ public class Level
 		sounds(ref ids);
 	}
 
+	public void camera_decode()
+	{
+		string properties[] =
+		{
+			"editor.camera.position",
+			"editor.camera.rotation",
+			"editor.camera.target_distance",
+			"editor.camera.orthographic_size",
+			"editor.camera.view_type"
+		};
+
+		foreach (var p in properties) {
+			if (!_db.has_property(_id, p))
+				return;
+		}
+
+		_camera_position = _db.get_property_vector3(_id, "editor.camera.position");
+		_camera_rotation = _db.get_property_quaternion(_id, "editor.camera.rotation");
+		_camera_target_distance = _db.get_property_double(_id, "editor.camera.target_distance");
+		_camera_orthographic_size = _db.get_property_double(_id, "editor.camera.orthographic_size");
+		_camera_view_type = (CameraViewType)_db.get_property_double(_id, "editor.camera.view_type");
+	}
+
+	public void camera_encode()
+	{
+		_db.set_property_internal(0, _id, "editor.camera.position", _camera_position);
+		_db.set_property_internal(0, _id, "editor.camera.rotation", _camera_rotation);
+		_db.set_property_internal(0, _id, "editor.camera.target_distance", _camera_target_distance);
+		_db.set_property_internal(0, _id, "editor.camera.orthographic_size", _camera_orthographic_size);
+		_db.set_property_internal(0, _id, "editor.camera.view_type", (double)_camera_view_type);
+	}
+
+	public void send_camera()
+	{
+		_runtime.send_script(LevelEditorApi.camera_restore(_camera_position
+			, _camera_rotation
+			, _camera_orthographic_size
+			, _camera_target_distance
+			, _camera_view_type
+			));
+	}
+
+	public void on_camera(Hashtable msg)
+	{
+		_camera_position = Vector3.from_array((ArrayList<Value?>)msg["position"]);
+		_camera_rotation = Quaternion.from_array((ArrayList<Value?>)msg["rotation"]);
+		_camera_orthographic_size = (double)msg["orthographic_size"];
+		_camera_target_distance = (double)msg["target_distance"];
+	}
 }
 
 } /* namespace Crown */

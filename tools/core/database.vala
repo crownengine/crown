@@ -810,7 +810,7 @@ public class Database
 		_distance_from_last_sync += dir;
 	}
 
-	private void set_property_internal(int dir, Guid id, string key, Value? value)
+	public void set_property_internal(int dir, Guid id, string key, Value? value)
 	{
 		assert(has_object(id));
 		assert(is_valid_key(key));

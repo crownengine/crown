@@ -192,6 +192,21 @@ namespace LevelEditorApi
 			return "LevelEditor:camera_view_perspective()";
 	}
 
+	public string camera_restore(Vector3 position
+		, Quaternion rotation
+		, double ortho_size
+		, double target_distance
+		, CameraViewType view_type
+		)
+	{
+		return """LevelEditor._camera:restore(%s, %s, %.17g, %.17g, '%s')""".printf(Lua.vector3(position)
+			, Lua.quaternion(rotation)
+			, ortho_size
+			, target_distance
+			, view_type == CameraViewType.PERSPECTIVE ? "perspective" : "orthographic"
+			);
+	}
+
 	public string frame_objects(Guid?[] ids)
 	{
 		StringBuilder sb = new StringBuilder();

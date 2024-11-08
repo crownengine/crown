@@ -168,6 +168,8 @@ function Camera:set_perspective()
 
 	self._target_distance = self._target_distance * (ortho_len / persp_len)
 	SceneGraph.set_local_position(self._sg, tr, target_position - camera_forward * self._target_distance)
+
+	self:send_state()
 end
 
 function Camera:set_orthographic(world_center, world_radius, dir, up)
@@ -189,6 +191,8 @@ function Camera:set_orthographic(world_center, world_radius, dir, up)
 
 	self._orthographic_size = self._orthographic_size * (persp_len / ortho_len)
 	World.camera_set_orthographic_size(self._world, camera, self._orthographic_size)
+
+	self:send_state()
 end
 
 function Camera:screen_length_to_world_length(position, length)
@@ -200,11 +204,45 @@ function Camera:screen_length_to_world_length(position, length)
 end
 
 function Camera:update(dt, dx, dy, keyboard, mouse)
+	local old_pose = self:local_pose()
+	local old_target_distance = self._target_distance
+	local old_orthographic_size = self._orthographic_size
+
 	if dx ~= 0 or dy ~= 0 then
 		if self._move_callback ~= nil then
 			self._move_callback(self, mouse.x, mouse.y)
 		end
 	end
+
+	if not Matrix4x4.equal(old_pose, self:local_pose())
+		or old_target_distance ~= self._target_distance
+		or old_orthographic_size ~= self._orthographic_size then
+		self:send_state()
+	end
+end
+
+function Camera:send_state()
+	if self._last_send_state ~= nil and os.clock() - self._last_send_state < 1/60 then
+		return
+	end
+	self._last_send_state = os.clock()
+
+	Device.console_send { type = "camera"
+		, position = Matrix4x4.translation(self:local_pose())
+		, rotation = Matrix4x4.rotation(self:local_pose())
+		, orthographic_size = self._orthographic_size
+		, target_distance = self._target_distance
+		}
+end
+
+function Camera:restore(position, rotation, ortho_size, target_distance, projection_type)
+	self:set_local_pose(Matrix4x4.from_quaternion_translation(rotation, position))
+	self._orthographic_size = ortho_size
+	self._target_distance = target_distance
+	World.camera_set_projection_type(self._world, self:camera(), projection_type)
+	World.camera_set_orthographic_size(self._world, self:camera(), ortho_size)
+	self._drag_start_orthographic_size = self._orthographic_size
+	self._drag_start_target_distance = self._target_distance
 end
 
 function Camera:set_mode(mode, x, y)
@@ -249,4 +287,5 @@ function Camera:frame_obb(obb_tm, obb_he)
 
 	self:set_local_pose(camera_pose)
 	self._target_distance = camera_target_distance
+	self:send_state()
 end
