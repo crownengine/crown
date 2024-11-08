@@ -101,6 +101,40 @@ public struct Quaternion
 		}
 	}
 
+	public Quaternion.look(Vector3 dir, Vector3 up)
+	{
+		Vector3 xaxis = up.cross(dir);
+		Vector3 yaxis = dir.cross(xaxis);
+
+		Matrix4x4 m = {};
+		m.x.x = xaxis.x;
+		m.x.y = xaxis.y;
+		m.x.z = xaxis.z;
+		m.x.w = 0.0;
+
+		m.y.x = yaxis.x;
+		m.y.y = yaxis.y;
+		m.y.z = yaxis.z;
+		m.y.w = 0.0;
+
+		m.z.x = dir.x;
+		m.z.y = dir.y;
+		m.z.z = dir.z;
+		m.z.w = 0.0;
+
+		m.t.x = 0.0;
+		m.t.y = 0.0;
+		m.t.z = 0.0;
+		m.t.w = 1.0;
+
+		Quaternion q = Quaternion.from_matrix(m);
+		q.normalize();
+		this.x = q.x;
+		this.y = q.y;
+		this.z = q.z;
+		this.w = q.w;
+	}
+
 	/// Returns the dot product between quaternions @a a and @a b.
 	public double dot(Quaternion b)
 	{

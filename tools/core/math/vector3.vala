@@ -42,6 +42,14 @@ public struct Vector3
 		return this.x * b.x + this.y * b.y + this.z * b.z;
 	}
 
+	public Vector3 cross(Vector3 b)
+	{
+		return Vector3(this.y * b.z - this.z * b.y
+			, this.z * b.x - this.x * b.z
+			, this.x * b.y - this.y * b.x
+			);
+	}
+
 	public double length_squared()
 	{
 		return dot(this);
@@ -52,13 +60,14 @@ public struct Vector3
 		return Math.sqrt(length_squared());
 	}
 
-	public void normalize()
+	public Vector3 normalize()
 	{
 		double len = length();
 		double inv_len = 1.0 / len;
 		this.x *= inv_len;
 		this.y *= inv_len;
 		this.z *= inv_len;
+		return this;
 	}
 
 	public void set_length(double len)
