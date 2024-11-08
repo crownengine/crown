@@ -231,6 +231,9 @@ void LuaEnvironment::load_libs()
 	lua_pushcfunction(L, luaopen_debug);
 	lua_pushstring(L, LUA_DBLIBNAME);
 	lua_call(L, 1, 0);
+	lua_pushcfunction(L, luaopen_os);
+	lua_pushstring(L, LUA_OSLIBNAME);
+	lua_call(L, 1, 0);
 #if CROWN_USE_LUAJIT
 	lua_pushcfunction(L, luaopen_bit);
 	lua_pushstring(L, LUA_BITLIBNAME);
