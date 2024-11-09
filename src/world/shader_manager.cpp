@@ -140,7 +140,7 @@ u32 ShaderManager::sampler_state(StringId32 shader_id, StringId32 sampler_name)
 	return UINT32_MAX;
 }
 
-void ShaderManager::submit(StringId32 shader_id, u8 view_id, s32 depth, u64 state)
+void ShaderManager::submit(StringId32 shader_id, u8 view_id, u32 depth, u64 state)
 {
 	CE_ASSERT(hash_map::has(_shader_map, shader_id), "Shader not found");
 	ShaderData sd;

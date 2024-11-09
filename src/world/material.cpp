@@ -22,7 +22,7 @@ Material::Material(Allocator &a)
 	CE_UNUSED(a);
 }
 
-void Material::bind(ShaderManager &sm, u8 view, s32 depth) const
+void Material::bind(ShaderManager &sm, u8 view, u32 depth) const
 {
 	using namespace material_resource;
 

@@ -29,7 +29,7 @@ struct Material
 	explicit Material(Allocator &a);
 
 	///
-	void bind(ShaderManager &sm, u8 view, s32 depth = 0) const;
+	void bind(ShaderManager &sm, u8 view, u32 depth = 0u) const;
 
 	/// Sets the @a value of the variable @a name.
 	void set_float(StringId32 name, f32 value);

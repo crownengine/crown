@@ -52,7 +52,7 @@ struct ShaderManager
 	u32 sampler_state(StringId32 shader_id, StringId32 sampler_name);
 
 	///
-	void submit(StringId32 shader_id, u8 view_id, s32 depth = 0, u64 state = UINT64_MAX);
+	void submit(StringId32 shader_id, u8 view_id, u32 depth = 0u, u64 state = UINT64_MAX);
 };
 
 } // namespace crown
