@@ -169,20 +169,34 @@ Gui
 **move** (gui, pos)
 	Moves the Gui to *pos*.
 
-**triangle** (gui, a, b, c, color)
+**triangle** (gui, a, b, c, color [, depth])
 	Draws a triangle defined by vertices *a*, *b* and *c*.
+	Objects with a lower depth are drawn in front. If depth is omitted its value
+	is set to 0.
 
 **rect** (gui, pos, size, color)
 	Draws a rectangle.
+	If pos is a Vector3, the z element specifies the drawing depth. Objects with
+	a lower depth are drawn in front. If pos is a Vector2, the z elements is set
+	to 0.
 
 **image** (gui, pos, size, material_resource, color)
 	Draws an image.
+	If pos is a Vector3, the z element specifies the drawing depth. Objects with
+	a lower depth are drawn in front. If pos is a Vector2, the z elements is set
+	to 0.
 
 **image_uv** (gui, pos, size, uv0, uv1, material_resource, color)
 	Draws an image with explicit UV coordinates.
+	If pos is a Vector3, the z element specifies the drawing depth. Objects with
+	a lower depth are drawn in front. If pos is a Vector2, the z elements is set
+	to 0.
 
 **text** (gui, pos, font_size, str, font_resource, material_resource, color)
 	Draws text.
+	If pos is a Vector3, the z element specifies the drawing depth. Objects with
+	a lower depth are drawn in front. If pos is a Vector2, the z elements is set
+	to 0.
 
 **material** (material_resource) : Material
 	Returns the material *material_resource*.

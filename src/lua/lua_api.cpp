@@ -2813,12 +2813,13 @@ void load_api(LuaEnvironment &env)
 				, stack.get_vector2(3)
 				, stack.get_vector2(4)
 				, stack.get_color4(5)
+				, stack.num_args() > 5 ? stack.get_float(6) : 0.0f
 				);
 			return 0;
 		});
 	env.add_module_function("Gui", "rect", [](lua_State *L) {
 			LuaStack stack(L);
-			stack.get_gui(1)->rect(stack.get_vector2(2)
+			stack.get_gui(1)->rect(stack.get_vector3(2)
 				, stack.get_vector2(3)
 				, stack.get_color4(4)
 				);
@@ -2826,7 +2827,7 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("Gui", "image", [](lua_State *L) {
 			LuaStack stack(L);
-			stack.get_gui(1)->image(stack.get_vector2(2)
+			stack.get_gui(1)->image(stack.get_vector3(2)
 				, stack.get_vector2(3)
 				, stack.get_resource_name(4)
 				, stack.get_color4(5)
@@ -2835,7 +2836,7 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("Gui", "image_uv", [](lua_State *L) {
 			LuaStack stack(L);
-			stack.get_gui(1)->image_uv(stack.get_vector2(2)
+			stack.get_gui(1)->image_uv(stack.get_vector3(2)
 				, stack.get_vector2(3)
 				, stack.get_vector2(4)
 				, stack.get_vector2(5)
@@ -2846,7 +2847,7 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("Gui", "text", [](lua_State *L) {
 			LuaStack stack(L);
-			stack.get_gui(1)->text(stack.get_vector2(2)
+			stack.get_gui(1)->text(stack.get_vector3(2)
 				, stack.get_int(3)
 				, stack.get_string(4)
 				, stack.get_resource_name(5)

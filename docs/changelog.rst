@@ -18,6 +18,7 @@ Changelog
 * Fixed loading resources from bundles.
 * Added texture hot-reloading.
 * Data Compiler: fixed bundle generation.
+* Lua API: Gui drawing primitives can now specify an optional depth value for sorting.
 
 0.51.0 --- 28 Oct 2024
 ----------------------

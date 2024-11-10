@@ -786,7 +786,7 @@ void Device::render(World &world, UnitId camera_unit)
 	bgfx::setViewMode(VIEW_SPRITE_5, bgfx::ViewMode::DepthAscending);
 	bgfx::setViewMode(VIEW_SPRITE_6, bgfx::ViewMode::DepthAscending);
 	bgfx::setViewMode(VIEW_SPRITE_7, bgfx::ViewMode::DepthAscending);
-	bgfx::setViewMode(VIEW_GUI, bgfx::ViewMode::Sequential);
+	bgfx::setViewMode(VIEW_GUI, bgfx::ViewMode::DepthDescending);
 	bgfx::setViewMode(VIEW_BLIT, bgfx::ViewMode::Sequential);
 
 	bgfx::setViewFrameBuffer(VIEW_SPRITE_0, _pipeline->_main_frame_buffer);

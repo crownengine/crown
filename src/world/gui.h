@@ -41,10 +41,10 @@ struct GuiBuffer
 	void reset();
 
 	///
-	void submit(u32 num_vertices, u32 num_indices, const Matrix4x4 &world);
+	void submit(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, u32 depth);
 
 	///
-	void submit_with_material(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, Material *material);
+	void submit_with_material(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, u32 depth, Material *material);
 };
 
 /// Immediate mode Gui.
@@ -83,34 +83,34 @@ struct Gui
 	void move(const Vector2 &pos);
 
 	///
-	void triangle_3d(const Vector3 &a, const Vector3 &b, const Vector3 &c, const Color4 &color);
+	void triangle_3d(const Vector3 &a, const Vector3 &b, const Vector3 &c, const Color4 &color, f32 depth = 0.0f);
 
 	///
-	void triangle(const Vector2 &a, const Vector2 &b, const Vector2 &c, const Color4 &color);
+	void triangle(const Vector2 &a, const Vector2 &b, const Vector2 &c, const Color4 &color, f32 depth = 0.0f);
 
 	///
-	void rect_3d(const Vector3 &pos, const Vector2 &size, const Color4 &color);
+	void rect_3d(const Vector3 &pos, const Vector2 &size, const Color4 &color, f32 depth = 0.0f);
 
 	///
-	void rect(const Vector2 &pos, const Vector2 &size, const Color4 &color);
+	void rect(const Vector3 &pos, const Vector2 &size, const Color4 &color);
 
 	///
-	void image_3d(const Vector3 &pos, const Vector2 &size, StringId64 material, const Color4 &color);
+	void image_3d(const Vector3 &pos, const Vector2 &size, StringId64 material, const Color4 &color, f32 depth = 0.0f);
 
 	///
-	void image(const Vector2 &pos, const Vector2 &size, StringId64 material, const Color4 &color);
+	void image(const Vector3 &pos, const Vector2 &size, StringId64 material, const Color4 &color);
 
 	///
-	void image_uv_3d(const Vector3 &pos, const Vector2 &size, const Vector2 &uv0, const Vector2 &uv1, StringId64 material, const Color4 &color);
+	void image_uv_3d(const Vector3 &pos, const Vector2 &size, const Vector2 &uv0, const Vector2 &uv1, StringId64 material, const Color4 &color, f32 depth = 0.0f);
 
 	///
-	void image_uv(const Vector2 &pos, const Vector2 &size, const Vector2 &uv0, const Vector2 &uv1, StringId64 material, const Color4 &color);
+	void image_uv(const Vector3 &pos, const Vector2 &size, const Vector2 &uv0, const Vector2 &uv1, StringId64 material, const Color4 &color);
 
 	///
-	void text_3d(const Vector3 &pos, u32 font_size, const char *str, StringId64 font, StringId64 material, const Color4 &color);
+	void text_3d(const Vector3 &pos, u32 font_size, const char *str, StringId64 font, StringId64 material, const Color4 &color, f32 depth = 0.0f);
 
 	///
-	void text(const Vector2 &pos, u32 font_size, const char *str, StringId64 font, StringId64 material, const Color4 &color);
+	void text(const Vector3 &pos, u32 font_size, const char *str, StringId64 font, StringId64 material, const Color4 &color);
 
 	/// Returns the material @a material_resource.
 	Material *material(ResourceId material_resource);
