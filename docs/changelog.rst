@@ -11,6 +11,7 @@ Changelog
 * The Editor will now save and restore the camera state per Level.
 * Improved compatibility with Hi-DPI screens.
 * The Level Tree will now scroll to the last selected object.
+* Added a simple camera compass to the Editor View.
 
 **Runtime**
 

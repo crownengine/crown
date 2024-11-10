@@ -1493,6 +1493,8 @@ function LevelEditor:update(dt)
 	self._camera:mouse_wheel(self._mouse.wheel.delta)
 	self._camera:update(dt, self._mouse.dx, self._mouse.dy, self._keyboard, self._mouse)
 
+	self:draw_camera_compass()
+
 	if self._camera:is_idle() then
 		self.tool:mouse_move(self._mouse.x, self._mouse.y)
 	end
@@ -1883,4 +1885,136 @@ function LevelEditor:frame_objects(ids)
 
 	self._camera:frame_obb(obb_tm, obb_he)
 	Device.set_temp_count(nv, nq, nm)
+end
+
+function LevelEditor:draw_camera_compass()
+	-- Draw origin axes.
+	local camera = self._camera:camera()
+	local camera_pose = self._camera:local_pose()
+	local camera_position = Matrix4x4.translation(camera_pose)
+	local camera_forward = Matrix4x4.z(camera_pose)
+	local axis_len = 40
+	local axis_tip_radius = 8
+	local gizmo_margin_right = 8
+	local len = self._camera:screen_length_to_world_length(camera_position + camera_forward, axis_len)
+	local x_screen = World.camera_world_to_screen(self._world, camera, camera_position + camera_forward + len*Vector3(1, 0, 0))
+	local y_screen = World.camera_world_to_screen(self._world, camera, camera_position + camera_forward + len*Vector3(0, 1, 0))
+	local z_screen = World.camera_world_to_screen(self._world, camera, camera_position + camera_forward + len*Vector3(0, 0, 1))
+	local o_screen = World.camera_world_to_screen(self._world, camera, camera_position + camera_forward)
+	local neg_x_screen = World.camera_world_to_screen(self._world, camera, camera_position + camera_forward + len*Vector3(-1, 0, 0))
+	local neg_y_screen = World.camera_world_to_screen(self._world, camera, camera_position + camera_forward + len*Vector3(0, -1, 0))
+	local neg_z_screen = World.camera_world_to_screen(self._world, camera, camera_position + camera_forward + len*Vector3(0, 0, -1))
+	local resol_x, resol_y = Device.resolution()
+	local gizmo_origin_x = resol_x * 0.5 - (axis_len + axis_tip_radius + gizmo_margin_right)
+	local gizmo_origin_y = resol_y * 0.5 - (axis_len + axis_tip_radius + gizmo_margin_right)
+	local screen_translation = Vector2(gizmo_origin_x, gizmo_origin_y)
+
+	local x_axis_alpha = math.max(0.6, 1 - (1 + Vector3.dot(Vector3(1, 0, 0), camera_forward)) * 0.5)
+	local y_axis_alpha = math.max(0.6, 1 - (1 + Vector3.dot(Vector3(0, 1, 0), camera_forward)) * 0.5)
+	local z_axis_alpha = math.max(0.6, 1 - (1 + Vector3.dot(Vector3(0, 0, 1), camera_forward)) * 0.5)
+	local neg_x_axis_alpha = math.max(0.4, 1 - (1 + Vector3.dot(Vector3(-1, 0, 0), camera_forward)) * 0.5)
+	local neg_y_axis_alpha = math.max(0.4, 1 - (1 + Vector3.dot(Vector3(0, -1, 0), camera_forward)) * 0.5)
+	local neg_z_axis_alpha = math.max(0.4, 1 - (1 + Vector3.dot(Vector3(0, 0, -1), camera_forward)) * 0.5)
+
+	function draw_circle(gui, center, radius, color)
+		local segments = 36
+		for i=1,segments do
+			local x0 = math.cos(2 * math.pi * ((i - 1) / segments)) * radius
+			local y0 = math.sin(2 * math.pi * ((i - 1) / segments)) * radius
+			local x1 = math.cos(2 * math.pi * ((i - 0) / segments)) * radius
+			local y1 = math.sin(2 * math.pi * ((i - 0) / segments)) * radius
+
+			Gui.triangle(gui
+				, center
+				, center + Vector2(x0, y0)
+				, center + Vector2(x1, y1)
+				, color
+				, center.z
+				)
+		end
+	end
+
+	local x_axis_color = Color4.lerp_alpha(Colors.axis_x(), x_axis_alpha)
+	local y_axis_color = Color4.lerp_alpha(Colors.axis_y(), y_axis_alpha)
+	local z_axis_color = Color4.lerp_alpha(Colors.axis_z(), z_axis_alpha)
+	local neg_x_axis_color = Color4.lerp_alpha(Colors.axis_x(), neg_x_axis_alpha)
+	local neg_y_axis_color = Color4.lerp_alpha(Colors.axis_y(), neg_y_axis_alpha)
+	local neg_z_axis_color = Color4.lerp_alpha(Colors.axis_z(), neg_z_axis_alpha)
+
+	-- Draw tips.
+	draw_circle(self._screen_gui, x_screen + screen_translation, axis_tip_radius, x_axis_color)
+	draw_circle(self._screen_gui, y_screen + screen_translation, axis_tip_radius, y_axis_color)
+	draw_circle(self._screen_gui, z_screen + screen_translation, axis_tip_radius, z_axis_color)
+	draw_circle(self._screen_gui, neg_x_screen + screen_translation, axis_tip_radius, neg_x_axis_color)
+	draw_circle(self._screen_gui, neg_y_screen + screen_translation, axis_tip_radius, neg_y_axis_color)
+	draw_circle(self._screen_gui, neg_z_screen + screen_translation, axis_tip_radius, neg_z_axis_color)
+
+	function draw_segment(gui, a, b, depth, color)
+		local thickness = 1
+		local ab_segment = a - b
+		local ab_normal = Vector3.normalize(Vector2(ab_segment.y, -ab_segment.x))
+
+		-- Draw segment top-half.
+		Gui.triangle(gui
+			, a + ab_normal * thickness
+			, a - ab_normal * thickness
+			, b + ab_normal * thickness
+			, color
+			, depth
+			)
+		-- Draw segment bottom-half.
+		Gui.triangle(gui
+			, a - ab_normal * thickness
+			, b - ab_normal * thickness
+			, b + ab_normal * thickness
+			, color
+			, depth
+			)
+	end
+
+	-- Draw axes.
+	draw_segment(self._screen_gui
+		, o_screen + screen_translation
+		, x_screen + screen_translation + Vector3.normalize(o_screen - x_screen) * axis_tip_radius
+		, x_screen.z
+		, x_axis_color
+		)
+	draw_segment(self._screen_gui
+		, o_screen + screen_translation
+		, y_screen + screen_translation + Vector3.normalize(o_screen - y_screen) * axis_tip_radius
+		, y_screen.z
+		, y_axis_color
+		)
+	draw_segment(self._screen_gui
+		, o_screen + screen_translation
+		, z_screen + screen_translation + Vector3.normalize(o_screen - z_screen) * axis_tip_radius
+		, z_screen.z
+		, z_axis_color
+		)
+
+	-- Draw labels.
+	Gui.text(self._screen_gui
+		, x_screen + screen_translation - Vector2(axis_tip_radius * 0.5, axis_tip_radius * 0.5)
+		, 14
+		, "X"
+		, "core/game/hud/debug"
+		, "core/game/hud/debug"
+		, Color4.black()
+		)
+	Gui.text(self._screen_gui
+		, y_screen + screen_translation - Vector2(axis_tip_radius * 0.5, axis_tip_radius * 0.5)
+		, 14
+		, "Y"
+		, "core/game/hud/debug"
+		, "core/game/hud/debug"
+		, Color4.black()
+		)
+	Gui.text(self._screen_gui
+		, z_screen + screen_translation - Vector2(axis_tip_radius * 0.5, axis_tip_radius * 0.5)
+		, 14
+		, "Z"
+		, "core/game/hud/debug"
+		, "core/game/hud/debug"
+		, Color4.black()
+		)
 end
