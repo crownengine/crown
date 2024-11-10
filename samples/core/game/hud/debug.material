@@ -1,0 +1,4 @@
+shader = "gui+DIFFUSE_MAP"
+textures = {
+	u_albedo = "core/game/hud/debug"
+}
