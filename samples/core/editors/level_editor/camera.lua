@@ -17,7 +17,7 @@ local function camera_tumble(self, x, y)
 	local camera_forward  = Matrix4x4.z(camera_pose)
 
 	local rotation_up    = Quaternion.from_axis_angle(Vector3.up(), drag_delta.x * self._rotation_speed)
-	local rotation_right = Quaternion.from_axis_angle(camera_right, drag_delta.y * self._rotation_speed)
+	local rotation_right = Quaternion.from_axis_angle(camera_right, -drag_delta.y * self._rotation_speed)
 	local rotate_delta   = Matrix4x4.from_quaternion(Quaternion.multiply(rotation_up, rotation_right))
 
 	local target_position = camera_position + (camera_forward * self._target_distance)
@@ -58,9 +58,9 @@ local function camera_track(self, x, y)
 	end
 
 	local delta = (drag_delta.y * pan_speed) * camera_up
-				- (drag_delta.x * pan_speed) * camera_right
+				+ (drag_delta.x * pan_speed) * camera_right
 	local tr = SceneGraph.instance(self._sg, self._unit)
-	SceneGraph.set_local_position(self._sg, tr, camera_position + delta)
+	SceneGraph.set_local_position(self._sg, tr, camera_position - delta)
 end
 
 local function camera_dolly(self, x, y)
@@ -70,7 +70,7 @@ local function camera_dolly(self, x, y)
 		-- Zoom speed is proportional to initial orthographic size
 		local zoom_speed = self._drag_start_orthographic_size / 400
 		local zoom_delta = drag_delta.y * zoom_speed
-		self._orthographic_size = math.max(1, self._drag_start_orthographic_size + zoom_delta)
+		self._orthographic_size = math.max(1, self._drag_start_orthographic_size - zoom_delta)
 
 		World.camera_set_orthographic_size(self._world, self:camera(), self._orthographic_size)
 	else
@@ -78,7 +78,7 @@ local function camera_dolly(self, x, y)
 		local move_speed  = self._drag_start_target_distance / 400
 		local mouse_delta = drag_delta.y * move_speed
 
-		self._target_distance = math.max(1, self._drag_start_target_distance + mouse_delta)
+		self._target_distance = math.max(1, self._drag_start_target_distance - mouse_delta)
 		local move_delta = self._target_distance - self._drag_start_target_distance
 
 		local camera_pose     = self._drag_start_camera_pose:unbox()

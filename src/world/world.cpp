@@ -418,6 +418,9 @@ void World::camera_set_viewport_metrics(CameraInstance camera, u16 x, u16 y, u16
 
 Vector3 World::camera_screen_to_world(CameraInstance camera, const Vector3 &pos)
 {
+	const f32 w = _camera[camera.i].view_width;
+	const f32 h = _camera[camera.i].view_height;
+
 	TransformInstance ti = _scene_graph->instance(_camera[camera.i].unit);
 
 	Matrix4x4 projection = camera_projection_matrix(camera);
@@ -429,12 +432,9 @@ Vector3 World::camera_screen_to_world(CameraInstance camera, const Vector3 &pos)
 	const bgfx::Caps *caps = bgfx::getCaps();
 
 	Vector4 ndc;
-	ndc.x = (2.0f * (pos.x - 0.0f)) / _camera[camera.i].view_width - 1.0f;
-	ndc.y = (2.0f * (_camera[camera.i].view_height - pos.y)) / _camera[camera.i].view_height - 1.0f;
-	ndc.z = caps->homogeneousDepth
-		? (2.0f * pos.z) - 1.0f
-		: pos.z
-		;
+	ndc.x = (2.0f * pos.x) / w - 1.0f;
+	ndc.y = (2.0f * pos.y) / h - 1.0f;
+	ndc.z = caps->homogeneousDepth ? (2.0f * pos.z) - 1.0f : pos.z;
 	ndc.w = 1.0f;
 
 	Vector4 tmp = ndc * mvp;
@@ -445,6 +445,11 @@ Vector3 World::camera_screen_to_world(CameraInstance camera, const Vector3 &pos)
 
 Vector3 World::camera_world_to_screen(CameraInstance camera, const Vector3 &pos)
 {
+	const f32 x = _camera[camera.i].view_x;
+	const f32 y = _camera[camera.i].view_y;
+	const f32 w = _camera[camera.i].view_width;
+	const f32 h = _camera[camera.i].view_height;
+
 	TransformInstance ti = _scene_graph->instance(_camera[camera.i].unit);
 
 	Matrix4x4 projection = camera_projection_matrix(camera);
@@ -464,8 +469,8 @@ Vector3 World::camera_world_to_screen(CameraInstance camera, const Vector3 &pos)
 	ndc.y = clip.y / clip.w;
 
 	Vector3 screen;
-	screen.x = (_camera[camera.i].view_x + _camera[camera.i].view_width  * (ndc.x + 1.0f)) / 2.0f;
-	screen.y = (_camera[camera.i].view_y + _camera[camera.i].view_height * (1.0f - ndc.y)) / 2.0f;
+	screen.x = (x + w  * (ndc.x + 1.0f)) / 2.0f;
+	screen.y = h - (y + h * (1.0f - ndc.y)) / 2.0f;
 	screen.z = 0.0f;
 
 	return screen;

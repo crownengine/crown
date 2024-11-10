@@ -452,10 +452,10 @@ function SelectTool:mouse_move(x, y)
 		--  |       |
 		--  |       |
 		-- p0 ---- p1
-		local p0, rd0 = LevelEditor:camera():camera_ray(rect_start.x, rect_end.y)
-		local p1, rd1 = LevelEditor:camera():camera_ray(rect_end.x  , rect_end.y)
-		local p2, rd2 = LevelEditor:camera():camera_ray(rect_end.x  , rect_start.y)
-		local p3, rd3 = LevelEditor:camera():camera_ray(rect_start.x, rect_start.y)
+		local p0, rd0 = LevelEditor:camera():camera_ray(rect_start.x, rect_start.y)
+		local p1, rd1 = LevelEditor:camera():camera_ray(rect_end.x, rect_start.y)
+		local p2, rd2 = LevelEditor:camera():camera_ray(rect_end.x, rect_end.y)
+		local p3, rd3 = LevelEditor:camera():camera_ray(rect_start.x, rect_end.y)
 
 		local camera_near = LevelEditor:camera():near_clip_distance()
 		local camera_far = LevelEditor:camera():far_clip_distance()
@@ -500,9 +500,7 @@ function SelectTool:mouse_move(x, y)
 		-- Draw the selection rectangle.
 		local fill_color = Color4(140, 140, 140, 20)
 		local border_color = Color4(180, 180, 180, 200)
-		-- Invert y-coord due to Gui having origin at bottom-left corner.
-		local resol_x, resol_y = Device.resolution()
-		local gui_rect_start = Vector3(rect_start.x, resol_y - rect_start.y - rect_size.y, 0)
+		local gui_rect_start = Vector3(rect_start.x, rect_start.y, 0)
 		Gui.rect(LevelEditor._screen_gui
 			, gui_rect_start
 			, rect_size
@@ -1536,8 +1534,9 @@ function LevelEditor:reset()
 end
 
 function LevelEditor:set_mouse_state(x, y, left, middle, right)
+	local resol_x, resol_y = Device.resolution()
 	self._mouse.x = x
-	self._mouse.y = y
+	self._mouse.y = resol_y - y
 	self._mouse.left = left
 	self._mouse.middle = middle
 	self._mouse.right = right
@@ -1548,14 +1547,16 @@ function LevelEditor:mouse_wheel(delta)
 end
 
 function LevelEditor:mouse_down(x, y)
+	local resol_x, resol_y = Device.resolution()
 	if self._camera:is_idle() then
-		self.tool:mouse_down(x, y)
+		self.tool:mouse_down(x, resol_y - y)
 	end
 end
 
 function LevelEditor:mouse_up(x, y)
+	local resol_x, resol_y = Device.resolution()
 	if self._camera:is_idle() then
-		self.tool:mouse_up(x, y)
+		self.tool:mouse_up(x, resol_y - y)
 	end
 end
 

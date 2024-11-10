@@ -19,6 +19,7 @@ Changelog
 * Added texture hot-reloading.
 * Data Compiler: fixed bundle generation.
 * Lua API: Gui drawing primitives can now specify an optional depth value for sorting.
+* Lua API: ``World.camera_screen_to_world()`` and ``World.camera_world_to_screen()`` now use a bottom-left screen-space origin to match the coordinate space used by the Gui subsystem.
 
 0.51.0 --- 28 Oct 2024
 ----------------------
