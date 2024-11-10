@@ -456,22 +456,15 @@ Vector3 World::camera_world_to_screen(CameraInstance camera, const Vector3 &pos)
 	Matrix4x4 world_inv = _scene_graph->world_pose(ti);
 	invert(world_inv);
 
-	Vector4 xyzw;
-	xyzw.x = pos.x;
-	xyzw.y = pos.y;
-	xyzw.z = pos.z;
-	xyzw.w = 1.0f;
+	Vector4 ndc = vector4(pos.x, pos.y, pos.z, 1.0f) * world_inv * projection;
+	ndc.x *= 1.0 / ndc.w;
+	ndc.y *= 1.0 / ndc.w;
 
-	Vector4 clip = xyzw * (world_inv * projection);
-
-	Vector4 ndc;
-	ndc.x = clip.x / clip.w;
-	ndc.y = clip.y / clip.w;
 
 	Vector3 screen;
 	screen.x = (x + w  * (ndc.x + 1.0f)) / 2.0f;
 	screen.y = h - (y + h * (1.0f - ndc.y)) / 2.0f;
-	screen.z = 0.0f;
+	screen.z = ndc.z;
 
 	return screen;
 }
