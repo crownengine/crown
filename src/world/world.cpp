@@ -460,7 +460,6 @@ Vector3 World::camera_world_to_screen(CameraInstance camera, const Vector3 &pos)
 	ndc.x *= 1.0 / ndc.w;
 	ndc.y *= 1.0 / ndc.w;
 
-
 	Vector3 screen;
 	screen.x = (x + w  * (ndc.x + 1.0f)) / 2.0f;
 	screen.y = h - (y + h * (1.0f - ndc.y)) / 2.0f;
