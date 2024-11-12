@@ -13,11 +13,11 @@ function Behavior.spawned(world, units)
 		local unit = units[uu]
 
 		if Data[world][unit] == nil then
-			-- Store instance-specific data
+			-- Store instance-specific data.
 			-- Data[world][unit] = {}
 		end
 
-		-- Set sprite depth based on unit's position
+		-- Set sprite depth based on unit's position.
 		local sg = World.scene_graph(world)
 		local rw = World.render_world(world)
 		local tr = SceneGraph.instance(sg, unit)
@@ -29,7 +29,7 @@ function Behavior.spawned(world, units)
 end
 
 function Behavior.unspawned(world, units)
-	-- Cleanup
+	-- Cleanup.
 	for uu = 1, #units do
 		if Data[world][units] then
 			Data[world][units] = nil
@@ -38,7 +38,7 @@ function Behavior.unspawned(world, units)
 end
 
 function Behavior.update(world, dt)
-	-- Do nothing
+	-- Do nothing.
 end
 
 return Behavior

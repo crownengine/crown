@@ -22,17 +22,18 @@ function Game.level_loaded()
 	Game.sg = World.scene_graph(GameBase.world)
 	Game.camera = FPSCamera(GameBase.world, GameBase.camera_unit)
 
-	-- Debug
+	-- Debug.
 	PhysicsWorld.enable_debug_drawing(Game.pw, Game.debug_physics)
 	RenderWorld.enable_debug_drawing(Game.rw, Game.debug_graphics)
 end
 
 function Game.update(dt)
-	-- Stop the engine when the 'ESC' key is released
+	-- Stop the engine when the 'ESC' key is released.
 	if Keyboard.released(Keyboard.button_id("escape")) then
 		Device.quit()
 	end
 
+	-- Toggle debug drawing.
 	if Keyboard.released(Keyboard.button_id("z")) then
 		Game.debug_physics = not Game.debug_physics
 		PhysicsWorld.enable_debug_drawing(Game.pw, Game.debug_physics)
@@ -43,7 +44,7 @@ function Game.update(dt)
 		RenderWorld.enable_debug_drawing(Game.rw, Game.debug_graphics)
 	end
 
-	-- Spawn a sphere when left mouse button is pressed
+	-- Shoot a sphere when left mouse button is pressed.
 	if Mouse.pressed(Mouse.button_id("left")) then
 		local tr = SceneGraph.instance(Game.sg, Game.camera:unit())
 		local pos = SceneGraph.local_position(Game.sg, tr)
@@ -54,7 +55,7 @@ function Game.update(dt)
 		PhysicsWorld.actor_add_impulse(Game.pw, a1, dir * 500.0)
 	end
 
-	-- Perform a raycast when middle mouse button is pressed
+	-- Perform a raycast when middle mouse button is pressed.
 	if Mouse.pressed(Mouse.button_id("middle")) then
 		local tr = SceneGraph.instance(Game.sg, Game.camera:unit())
 		local pos = SceneGraph.local_position(Game.sg, tr)
@@ -71,7 +72,7 @@ function Game.update(dt)
 		Window.set_cursor_mode(Game.cursor.modes[Game.cursor.current_mode])
 	end
 
-	-- Update camera
+	-- Update camera.
 	local delta = Mouse.axis(Mouse.axis_id("cursor_delta"))
 	Game.camera:update(dt, delta.x, delta.y)
 end

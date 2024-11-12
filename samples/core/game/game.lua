@@ -13,10 +13,10 @@ GameBase = GameBase or {
 }
 
 function GameBase.init()
-	-- Create world
+	-- Create world.
 	GameBase.world = Device.create_world()
 
-	-- Create default camera
+	-- Create default camera.
 	GameBase.camera_unit = World.spawn_unit(GameBase.world, "core/units/camera")
 	local scene_graph = World.scene_graph(GameBase.world)
 	local camera_transform = SceneGraph.instance(scene_graph, GameBase.camera_unit)
@@ -48,7 +48,7 @@ function GameBase.update(dt)
 	World.update(GameBase.world, dt)
 
 	if TEST then
-		-- Stop the engine when the 'ESC' key is released
+		-- Stop the engine when the 'ESC' key is released.
 		if Keyboard.released(Keyboard.button_id("escape")) then
 			Device.quit()
 		end
