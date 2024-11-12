@@ -4,6 +4,10 @@ Changelog
 0.53.0 --- DD MMM YYYY
 ----------------------
 
+**Runtime**
+
+* Data Compiler: fixed erratic texture compilation when both legacy properties and the new "output" object were specified in the .texture resource.
+
 0.52.0 --- 11 Nov 2024
 ----------------------
 

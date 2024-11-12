@@ -183,14 +183,16 @@ namespace texture_resource_internal
 
 		OutputSettings os;
 
+		if (json_object::has(obj, "generate_mips"))
+			os.generate_mips = sjson::parse_bool(obj["generate_mips"]);
+		if (json_object::has(obj, "normal_map"))
+			os.normal_map = sjson::parse_bool(obj["normal_map"]);
+
 		JsonObject output(ta);
 		if (json_object::has(obj, "output")) {
 			sjson::parse_object(output, obj["output"]);
 			s32 err = parse_output(os, output, opts);
 			DATA_COMPILER_ENSURE(err == 0, opts);
-		} else {
-			os.generate_mips = sjson::parse_bool(obj["generate_mips"]);
-			os.normal_map    = sjson::parse_bool(obj["normal_map"]);
 		}
 
 		DynamicString tex_src(ta);
