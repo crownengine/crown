@@ -10,12 +10,11 @@ Game = Game or {
 	debug_graphics = false,
 	debug_physics = false,
 	camera = nil,
+	cursor = { modes = { "normal", "disabled"}, current_mode = 1 },
 }
 
 GameBase.game = Game
 GameBase.game_level = "levels/test"
-local cursor_modes = {"normal", "disabled"}
-local cursor_mode_nxt_idx = 2
 
 function Game.level_loaded()
 	Game.pw = World.physics_world(GameBase.world)
@@ -66,10 +65,10 @@ function Game.update(dt)
 		end
 	end
 
-	-- Toggle mouse cursor modes
+	-- Toggle mouse cursor modes.
 	if Keyboard.released(Keyboard.button_id("space")) then
-		Window.set_cursor_mode(cursor_modes[cursor_mode_nxt_idx])
-		cursor_mode_nxt_idx = 1 + cursor_mode_nxt_idx % 2
+		Game.cursor.current_mode = 1 + Game.cursor.current_mode % #Game.cursor.modes
+		Window.set_cursor_mode(Game.cursor.modes[Game.cursor.current_mode])
 	end
 
 	-- Update camera
