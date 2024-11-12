@@ -85,7 +85,7 @@ public class DeployDialog : Gtk.Dialog
 	{
 		this.title = "Deploy";
 		this.border_width = 0;
-		this.set_icon_name(CROWN_ICON_NAME);
+		this.set_icon_name(CROWN_EDITOR_ICON_NAME);
 
 		_editor = editor;
 

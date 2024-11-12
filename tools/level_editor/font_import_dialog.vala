@@ -132,7 +132,7 @@ public class FontImportDialog : Gtk.Dialog
 	{
 		this.border_width = 4;
 		this.title = "Import Font...";
-		this.set_icon_name(CROWN_ICON_NAME);
+		this.set_icon_name(CROWN_EDITOR_ICON_NAME);
 
 		// Create checkered pattern
 		{

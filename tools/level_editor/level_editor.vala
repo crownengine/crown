@@ -12,7 +12,7 @@ namespace Crown
 const int WINDOW_DEFAULT_WIDTH = 1280;
 const int WINDOW_DEFAULT_HEIGHT = 720;
 const string LEVEL_EDITOR_WINDOW_TITLE = "Crown Editor";
-const string CROWN_ICON_NAME = "crown-black-socket";
+const string CROWN_EDITOR_ICON_NAME = "crown-black-socket";
 
 public enum Theme
 {
@@ -1118,7 +1118,7 @@ public class LevelEditorApplication : Gtk.Application
 			win.add(_main_stack);
 
 			try {
-				win.icon = IconTheme.get_default().load_icon(CROWN_ICON_NAME, 256, 0);
+				win.icon = IconTheme.get_default().load_icon(CROWN_EDITOR_ICON_NAME, 256, 0);
 			} catch (Error e) {
 				loge(e.message);
 			}
@@ -2864,7 +2864,7 @@ public class LevelEditorApplication : Gtk.Application
 		dlg.set_destroy_with_parent(true);
 		dlg.set_transient_for(this.active_window);
 		dlg.set_modal(true);
-		dlg.set_logo_icon_name(CROWN_ICON_NAME);
+		dlg.set_logo_icon_name(CROWN_EDITOR_ICON_NAME);
 
 		dlg.program_name = LEVEL_EDITOR_WINDOW_TITLE;
 		dlg.version = CROWN_VERSION;

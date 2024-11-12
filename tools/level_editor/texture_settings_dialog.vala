@@ -91,7 +91,7 @@ public class TextureSettingsDialog : Gtk.Dialog
 
 		this.title = "Texture Settings";
 		this.border_width = 0;
-		this.set_icon_name(CROWN_ICON_NAME);
+		this.set_icon_name(CROWN_EDITOR_ICON_NAME);
 
 		_texture_set = new PropertyGridSet();
 		_texture_set.border_width = 12;

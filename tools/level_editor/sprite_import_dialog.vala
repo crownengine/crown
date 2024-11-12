@@ -126,7 +126,7 @@ public class SpriteImportDialog : Gtk.Dialog
 	{
 		this.border_width = 4;
 		this.title = "Import Sprite...";
-		this.set_icon_name(CROWN_ICON_NAME);
+		this.set_icon_name(CROWN_EDITOR_ICON_NAME);
 
 		try {
 			_pixbuf = new Gdk.Pixbuf.from_file(image_path);
