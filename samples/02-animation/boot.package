@@ -15,3 +15,9 @@ unit = [
 level = [
 	"levels/game"
 ]
+font = [
+	"core/game/hud/debug"
+]
+material = [
+	"core/game/hud/debug"
+]

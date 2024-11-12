@@ -101,6 +101,18 @@ function Game.update(dt)
 	else
 		AnimationStateMachine.trigger(Game.sm, asm, "idle")
 	end
+
+	-- Toggle help.
+	if Keyboard.pressed(Keyboard.button_id("f1")) then
+		GameBase.show_help = not GameBase.show_help
+	end
+
+	GameBase.draw_help({{ key = "f1", desc = "Toggle help" },
+		{ key = "w/a/s/d", desc = "Move" },
+		{ key = "j", desc = "Switch characters" },
+		{ key = "esc", desc = "Quit" }}
+		, "Crown Animation Sample"
+		)
 end
 
 function Game.render(dt)

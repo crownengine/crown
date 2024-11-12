@@ -72,6 +72,21 @@ function Game.update(dt)
 		Window.set_cursor_mode(Game.cursor.modes[Game.cursor.current_mode])
 	end
 
+	-- Toggle help.
+	if Keyboard.pressed(Keyboard.button_id("f1")) then
+		GameBase.show_help = not GameBase.show_help
+	end
+
+	GameBase.draw_help({{ key = "f1", desc = "Toggle help" },
+		{ key = "w/a/s/d", desc = "Move" },
+		{ key = "left click", desc = "Shoot" },
+		{ key = "space", desc = "Toggle mouse lock" },
+		{ key = "z", desc = "Toggle physics debug" },
+		{ key = "x", desc = "Toggle graphics debug" },
+		{ key = "esc", desc = "Quit" }}
+		, "Crown Physics Sample"
+		)
+
 	-- Update camera.
 	local delta = Mouse.axis(Mouse.axis_id("cursor_delta"))
 	Game.camera:update(dt, delta.x, delta.y)
