@@ -2,4 +2,18 @@ _guid = "d5012d34-111f-4419-a1e2-36b1408adbb8"
 _type = "texture"
 generate_mips = true
 normal_map = false
+output = {
+	android = {
+		format = "BC1"
+	}
+	html5 = {
+		format = "BC1"
+	}
+	linux = {
+		format = "BC1"
+	}
+	windows = {
+		format = "BC1"
+	}
+}
 source = "units/grid.tga"

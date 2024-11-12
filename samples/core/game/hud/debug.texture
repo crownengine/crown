@@ -2,4 +2,18 @@ _guid = "8ad54b71-7f82-4877-af52-58b386cf052c"
 _type = "texture"
 generate_mips = false
 normal_map = false
+output = {
+	android = {
+		format = "RGBA8"
+	}
+	html5 = {
+		format = "RGBA8"
+	}
+	linux = {
+		format = "RGBA8"
+	}
+	windows = {
+		format = "RGBA8"
+	}
+}
 source = "core/game/hud/debug.png"

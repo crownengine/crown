@@ -2,4 +2,18 @@ _guid = "b25ac73b-0744-40fb-8f1f-d99092a543e9"
 _type = "texture"
 generate_mips = true
 normal_map = false
+output = {
+	android = {
+		format = "BC1"
+	}
+	html5 = {
+		format = "BC1"
+	}
+	linux = {
+		format = "BC1"
+	}
+	windows = {
+		format = "BC1"
+	}
+}
 source = "core/fallback/fallback.png"
