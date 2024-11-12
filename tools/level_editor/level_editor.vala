@@ -11,7 +11,8 @@ namespace Crown
 {
 const int WINDOW_DEFAULT_WIDTH = 1280;
 const int WINDOW_DEFAULT_HEIGHT = 720;
-const string LEVEL_EDITOR_WINDOW_TITLE = "Crown Editor";
+const string CROWN_EDITOR_NAME = "Crown Editor";
+const string CROWN_EDITOR_MAIN_WINDOW_TITLE = CROWN_EDITOR_NAME + " " + CROWN_VERSION;
 const string CROWN_EDITOR_ICON_NAME = "crown-black-socket";
 
 public enum Theme
@@ -313,7 +314,7 @@ public class LevelEditorWindow : Gtk.ApplicationWindow
 
 		this.add_action_entries(action_entries, this);
 
-		this.title = LEVEL_EDITOR_WINDOW_TITLE;
+		this.title = CROWN_EDITOR_MAIN_WINDOW_TITLE;
 		this.key_press_event.connect(this.on_key_press);
 		this.key_release_event.connect(this.on_key_release);
 		this.window_state_event.connect(this.on_window_state_event);
@@ -1680,7 +1681,7 @@ public class LevelEditorApplication : Gtk.Application
 		_level.reset();
 		_project.reset();
 
-		this.active_window.title = LEVEL_EDITOR_WINDOW_TITLE;
+		this.active_window.title = CROWN_EDITOR_MAIN_WINDOW_TITLE;
 	}
 
 	private async void stop_data_compiler()
@@ -2037,7 +2038,7 @@ public class LevelEditorApplication : Gtk.Application
 			title += " - ";
 		}
 
-		title += LEVEL_EDITOR_WINDOW_TITLE + " " + CROWN_VERSION;
+		title += CROWN_EDITOR_MAIN_WINDOW_TITLE;
 
 		if (this.active_window.title != title)
 			this.active_window.title = title;
@@ -2866,7 +2867,7 @@ public class LevelEditorApplication : Gtk.Application
 		dlg.set_modal(true);
 		dlg.set_logo_icon_name(CROWN_EDITOR_ICON_NAME);
 
-		dlg.program_name = LEVEL_EDITOR_WINDOW_TITLE;
+		dlg.program_name = CROWN_EDITOR_NAME;
 		dlg.version = CROWN_VERSION;
 		dlg.website = CROWN_WWW_URL;
 		dlg.copyright = "Copyright (c) 2012-2024 Daniele Bartolini et al.";
