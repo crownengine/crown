@@ -171,34 +171,25 @@ void ConsoleServer::listen(u16 port, bool wait)
 	_input_thread.start([](void *thiz) { return ((ConsoleServer *)thiz)->run_input_thread(); }, this);
 	_output_thread.start([](void *thiz) { return ((ConsoleServer *)thiz)->run_output_thread(); }, this);
 
-	// Connect a dummy client to the _server to
-	// unlock the input_thread later at exit.
-	_dummy_client.connect(IP_ADDRESS_LOOPBACK, _port);
-	_client_connected.wait();
-
 	// Wait for real clients to connect.
 	if (wait)
 		_client_connected.wait();
 }
 
-void ConsoleServer::close()
+void ConsoleServer::shutdown()
 {
+	if (!_server.is_open())
+		return;
+
 	_thread_exit = true;
 
 	// Unlock input thread if it is stuck inside the select().
-	u32 blank_header = 0;
-	if (_dummy_client.is_open())
-		_dummy_client.write(&blank_header, sizeof(blank_header));
-}
-
-void ConsoleServer::shutdown()
-{
-	close();
-	_dummy_client.close();
-
 	_handlers_semaphore.post();
 	if (_input_thread.is_running())
 		_input_thread.stop();
+
+	// Unlock execute_message_handlers in sync mode.
+	_input_semaphore.post();
 
 	_output_condition.signal();
 	if (_output_thread.is_running())
@@ -337,7 +328,7 @@ s32 ConsoleServer::run_input_thread()
 	while (!_thread_exit) {
 		// Wait for input from one of the sockets in _active_socket_set.
 		_read_socket_set = _active_socket_set;
-		SelectResult ret = _read_socket_set.select(UINT32_MAX);
+		SelectResult ret = _read_socket_set.select(100);
 		if (ret.error == SelectResult::GENERIC_ERROR) {
 			return -1;
 		} else if (ret.error == SelectResult::TIMEOUT) {
@@ -357,9 +348,6 @@ s32 ConsoleServer::run_input_thread()
 
 			// If ready socket is the one listening for incoming connections.
 			if (cur_socket == _server) {
-				if (_thread_exit)
-					break;
-
 				// Accept the incoming connection.
 				TCPSocket client;
 				AcceptResult ar = _server.accept_nonblock(client);
@@ -368,6 +356,9 @@ s32 ConsoleServer::run_input_thread()
 					_active_socket_set.set(&client);
 					_client_connected.post();
 				}
+
+				if (_thread_exit)
+					break;
 			} else { // Check if any other socket is ready for reading.
 				u32 msg_len = 0;
 				ReadResult rr = cur_socket.read(&msg_len, 4);

@@ -1454,7 +1454,7 @@ int main_data_compiler(const DeviceOptions &opts)
 			case CTRL_C_EVENT:
 				_quit = true;
 				if (console_server())
-					console_server()->close();
+					console_server()->shutdown();
 				return TRUE;
 
 			default:
@@ -1473,7 +1473,7 @@ int main_data_compiler(const DeviceOptions &opts)
 			case SIGTERM:
 				_quit = true;
 				if (console_server())
-					console_server()->close();
+					console_server()->shutdown();
 				break;
 
 			default:
