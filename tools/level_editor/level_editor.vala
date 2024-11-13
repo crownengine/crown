@@ -174,8 +174,6 @@ public class RuntimeInstance
 	private void on_client_connected(string address, int port)
 	{
 		connected(this, address, port);
-
-		_client.receive_async();
 	}
 
 	private void on_client_disconnected()
@@ -203,8 +201,6 @@ public class RuntimeInstance
 	private void on_client_message_received(ConsoleClient client, uint8[] json)
 	{
 		message_received(this, client, json);
-
-		_client.receive_async();
 	}
 
 	// Tries to connect to the @a client. Return the number of tries after

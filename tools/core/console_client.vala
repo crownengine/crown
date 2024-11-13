@@ -25,8 +25,10 @@ public class ConsoleClient : GLib.Object
 		try {
 			GLib.SocketClient client = new GLib.SocketClient();
 			_connection = client.connect(new InetSocketAddress.from_string(address, port), null);
-			if (_connection != null)
+			if (_connection != null) {
 				connected(address, port);
+				receive_async();
+			}
 		} catch (Error e) {
 			// Ignore
 		}
@@ -105,8 +107,10 @@ public class ConsoleClient : GLib.Object
 
 			uint8[] data = new uint8[size];
 			size_t bytes_read = 0;
-			if (input_stream.read_all(data, out bytes_read))
+			if (input_stream.read_all(data, out bytes_read)) {
 				message_received(this, data);
+				receive_async();
+			}
 		} catch (Error e) {
 			if (e.code == 44) // An existing connection was forcibly closed by the remote host.
 				close();
