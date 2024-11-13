@@ -296,6 +296,13 @@ public class ConsoleView : Gtk.Box
 							});
 						menu.add(mi);
 
+						mi = new Gtk.MenuItem.with_label("Open Containing Folder...");
+						mi.activate.connect(() => {
+								string resource_path = item_data[12 : item_data.length];
+								GLib.Application.get_default().activate_action("open-containing", new GLib.Variant.string(resource_path));
+							});
+						menu.add(mi);
+
 						menu.show_all();
 						menu.popup_at_pointer(ev);
 
