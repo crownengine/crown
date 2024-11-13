@@ -2405,7 +2405,7 @@ public class LevelEditorApplication : Gtk.Application
 	private void on_deploy(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		if (_deploy_dialog == null) {
-			_deploy_dialog = new DeployDialog(_editor);
+			_deploy_dialog = new DeployDialog(_project, _editor);
 			_deploy_dialog.set_transient_for(this.active_window);
 			_deploy_dialog.set_position(Gtk.WindowPosition.CENTER_ON_PARENT);
 			_deploy_dialog.delete_event.connect(_deploy_dialog.hide_on_delete);

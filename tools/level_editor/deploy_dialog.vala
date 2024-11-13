@@ -36,6 +36,7 @@ public bool can_build_32bit_arm = true;
 public class DeployDialog : Gtk.Dialog
 {
 	public RuntimeInstance _editor;
+	public Project _project;
 
 	// Android page.
 	public Gtk.Button _android_deploy_button;
@@ -81,12 +82,13 @@ public class DeployDialog : Gtk.Dialog
 
 	public Gtk.Notebook _notebook;
 
-	public DeployDialog(RuntimeInstance editor)
+	public DeployDialog(Project project, RuntimeInstance editor)
 	{
 		this.title = "Deploy";
 		this.border_width = 0;
 		this.set_icon_name(CROWN_EDITOR_ICON_NAME);
 
+		_project = project;
 		_editor = editor;
 
 		// Android page.
@@ -211,6 +213,7 @@ public class DeployDialog : Gtk.Dialog
 		_android_key_password.input_purpose = Gtk.InputPurpose.PASSWORD;
 		_android_app_title = new EntryText();
 		_android_app_title.placeholder_text = "My Application";
+		_android_app_title.text = _project.name();
 		_android_app_identifier = new Gtk.Entry();
 		_android_app_identifier.placeholder_text = "org.company.product";
 		_android_app_version_code = new Gtk.Entry();
@@ -291,6 +294,7 @@ public class DeployDialog : Gtk.Dialog
 		_html5_config = make_deploy_config_combo();
 		_html5_app_title = new EntryText();
 		_html5_app_title.placeholder_text = "My Application";
+		_html5_app_title.text = _project.name();
 
 		_html5_set = new PropertyGridSet();
 		_html5_set.border_width = 12;
@@ -345,6 +349,7 @@ public class DeployDialog : Gtk.Dialog
 		_linux_config = make_deploy_config_combo();
 		_linux_app_title = new EntryText();
 		_linux_app_title.placeholder_text = "My Application";
+		_linux_app_title.text = _project.name();
 
 		_linux_set = new PropertyGridSet();
 		_linux_set.border_width = 12;
@@ -399,6 +404,7 @@ public class DeployDialog : Gtk.Dialog
 		_windows_config = make_deploy_config_combo();
 		_windows_app_title = new EntryText();
 		_windows_app_title.placeholder_text = "My Application";
+		_windows_app_title.text = _project.name();
 
 		_windows_set = new PropertyGridSet();
 		_windows_set.border_width = 12;
