@@ -4038,6 +4038,10 @@ public class LevelEditorApplication : Gtk.Application
 		// Save per-project data.
 		string path = GLib.Path.build_filename(_project.user_dir(), "project_store.sjson");
 		SJSON.save(_project_store.encode(), path);
+
+		// Destroy dialogs.
+		_texture_settings_dialog = null;
+		_deploy_dialog = null;
 	}
 
 	private void on_project_loaded()
