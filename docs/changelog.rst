@@ -4,7 +4,7 @@ Changelog
 0.53.0 --- DD MMM YYYY
 ----------------------
 
-*Tools**
+**Tools**
 
 * Fixed some dialogs retaining old state when switching between projects.
 
