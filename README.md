@@ -1,22 +1,16 @@
 The flexible game engine. [![Build Status](https://github.com/crownengine/crown/workflows/build_and_test/badge.svg)](https://github.com/crownengine/crown/actions)
 =====================================
 
-Crown is a general purpose and data-driven 3D and 2D game engine, written in [orthodox
-C++](https://gist.github.com/bkaradzic/2e39896bc7d8c34e042b) with a minimalistic
-and data-oriented design philosophy in mind.
-
-Check out the [Introduction](https://docs.crownengine.org/html/latest/introduction.html) for more info.
+[Crown](https://docs.crownengine.org/html/latest/introduction.html) is a complete and cross-platform game engine designed for flexibility, performance, and fast-iterations.
 
 ## Download
   * [Prebuilt Binaries](https://crownengine.org/download)
   
-## Documentation
+## Support & Development
   * User Manual ([latest](https://docs.crownengine.org/html/latest) or [unstable](https://docs.crownengine.org/html/master))
   * [Developer Manual](https://docs.crownengine.org/html/master/hackers)
   * [Building from Source](https://docs.crownengine.org/html/master/hackers/building.html)
-
-## Community Support & Development
-  * [Discord](https://discord.gg/CeXVWCT): [![Discord Chat](https://img.shields.io/discord/572468149358690314.svg)](https://discord.gg/CeXVWCT)
+  * [Discord](https://discord.gg/CeXVWCT) [![Discord Chat](https://img.shields.io/discord/572468149358690314.svg)](https://discord.gg/CeXVWCT)
 
 ## Screenshots
 
