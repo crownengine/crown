@@ -3,8 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lua API reference &mdash; Crown Manual 0.51.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <title>Lua API reference &mdash; Crown 0.53.0 Manual 0.53.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" /><link rel="shortcut icon" href="_static/crown-black-socket.svg"/>
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -26,10 +27,10 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html"><img src="_static/crown-logo-white.svg" class="logo" alt="Logo"/>
+            <a href="index.html"><img src="_static/crown-black-socket.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                0.51.0
+                Crown 0.53.0 Manual
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -150,7 +151,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Crown Manual</a>
+          <a href="index.html">Crown 0.53.0 Manual</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -315,16 +316,30 @@ The initial display mode is automatically reset when the program terminates.</dd
 <dl class="docutils">
 <dt><strong>move</strong> (gui, pos)</dt>
 <dd>Moves the Gui to <em>pos</em>.</dd>
-<dt><strong>triangle</strong> (gui, a, b, c, color)</dt>
-<dd>Draws a triangle defined by vertices <em>a</em>, <em>b</em> and <em>c</em>.</dd>
+<dt><strong>triangle</strong> (gui, a, b, c, color [, depth])</dt>
+<dd>Draws a triangle defined by vertices <em>a</em>, <em>b</em> and <em>c</em>.
+Objects with a lower depth are drawn in front. If depth is omitted its value
+is set to 0.</dd>
 <dt><strong>rect</strong> (gui, pos, size, color)</dt>
-<dd>Draws a rectangle.</dd>
+<dd>Draws a rectangle.
+If pos is a Vector3, the z element specifies the drawing depth. Objects with
+a lower depth are drawn in front. If pos is a Vector2, the z elements is set
+to 0.</dd>
 <dt><strong>image</strong> (gui, pos, size, material_resource, color)</dt>
-<dd>Draws an image.</dd>
+<dd>Draws an image.
+If pos is a Vector3, the z element specifies the drawing depth. Objects with
+a lower depth are drawn in front. If pos is a Vector2, the z elements is set
+to 0.</dd>
 <dt><strong>image_uv</strong> (gui, pos, size, uv0, uv1, material_resource, color)</dt>
-<dd>Draws an image with explicit UV coordinates.</dd>
+<dd>Draws an image with explicit UV coordinates.
+If pos is a Vector3, the z element specifies the drawing depth. Objects with
+a lower depth are drawn in front. If pos is a Vector2, the z elements is set
+to 0.</dd>
 <dt><strong>text</strong> (gui, pos, font_size, str, font_resource, material_resource, color)</dt>
-<dd>Draws text.</dd>
+<dd>Draws text.
+If pos is a Vector3, the z element specifies the drawing depth. Objects with
+a lower depth are drawn in front. If pos is a Vector2, the z elements is set
+to 0.</dd>
 <dt><strong>material</strong> (material_resource) <span class="classifier-delimiter">:</span> <span class="classifier">Material</span></dt>
 <dd>Returns the material <em>material_resource</em>.</dd>
 </dl>

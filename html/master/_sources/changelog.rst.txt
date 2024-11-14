@@ -1,17 +1,54 @@
 Changelog
 =========
 
-0.51.0 --- DD MMM YYYY
+0.53.0 --- DD MMM YYYY
 ----------------------
 
 **Tools**
-* The window state (size, maximized, fullscreen etc.) will now be restored across sessions.
+
+* Fixed some dialogs retaining old state when switching between projects.
+
+**Runtime**
+
+* Fixed an issue that caused the Runtime to stop sending console messages after a while.
+* Data Compiler: fixed erratic texture compilation when both legacy properties and the new "output" object were specified in the .texture resource.
+
+0.52.0 --- 11 Nov 2024
+----------------------
+
+**Tools**
+
+* Added the ability to add/remove components from units in the Inspector panel.
+* Fixed switching between orthographic and perspective camera modes.
+* The Editor will now save and restore the camera state per Level.
+* Improved compatibility with Hi-DPI screens.
+* The Level Tree will now scroll to the last selected object.
+* Added a simple camera compass to the Editor View.
+
+**Runtime**
+
+* Animation state machines can now contain empty animation sets.
+* Fixed loading resources from bundles.
+* Added texture hot-reloading.
+* Data Compiler: fixed bundle generation.
+* Lua API: Gui drawing primitives can now specify an optional depth value for sorting.
+* Lua API: ``World.camera_screen_to_world()`` and ``World.camera_world_to_screen()`` now use a bottom-left screen-space origin to match the coordinate space used by the Gui subsystem. Additionally, ``World.camera_world_to_screen()`` will now return the point's distance from the camera in world-space.
+
+0.51.0 --- 28 Oct 2024
+----------------------
+
+**Tools**
+
+* The Editor's main window state (size, maximized, fullscreen etc.) will now be restored across sessions.
+* The Inspector is now able to fully edit all the properties of all the components in a Unit.
+* Added the ability to add resources to a Favorites list in the Project Browser.
 
 **Runtime**
 
 * Added the ability to set a new (smoothed) timestep policy.
 * Improved ``graph`` command with the ability to add multiple fields, customize colors and limit the number of samples shown.
 * Lua API: Added ``Device.set_timestep_policy()`` and ``Device.set_timestep_smoothing()``.
+* Lua API: Added ``RenderWorld.mesh_set_geometry()``.
 * Windows: fixed xinput.dll not found on some systems.
 * Windows: fixed console output and absolute paths when launched under MinGW.
 

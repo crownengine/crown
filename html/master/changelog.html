@@ -3,8 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Changelog &mdash; Crown Manual 0.51.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <title>Changelog &mdash; Crown 0.53.0 Manual 0.53.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" /><link rel="shortcut icon" href="_static/crown-black-socket.svg"/>
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -18,7 +19,7 @@
     <link rel="search" title="Search" href="search.html" />
     <link rel="copyright" title="Copyright" href="copyright.html" />
     <link rel="next" title="Introduction" href="introduction.html" />
-    <link rel="prev" title="The Flexible Game Engine" href="index.html" /> 
+    <link rel="prev" title="Crown 0.53.0 Manual" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -26,10 +27,10 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html"><img src="_static/crown-logo-white.svg" class="logo" alt="Logo"/>
+            <a href="index.html"><img src="_static/crown-black-socket.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                0.51.0
+                Crown 0.53.0 Manual
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -41,8 +42,10 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#dd-mmm-yyyy">0.51.0 — DD MMM YYYY</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#oct-2024">0.50.0 — 10 Oct 2024</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dd-mmm-yyyy">0.53.0 — DD MMM YYYY</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#nov-2024">0.52.0 — 11 Nov 2024</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#oct-2024">0.51.0 — 28 Oct 2024</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id1">0.50.0 — 10 Oct 2024</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#nov-2023">0.49.0 — 27 Nov 2023</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#jul-2023">0.48.0 — <em>31 Jul 2023</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#feb-2023">0.47.0 — <em>06 Feb 2023</em></a></li>
@@ -52,7 +55,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#apr-2021">0.43.0 — <em>17 Apr 2021</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mar-2021">0.42.0 — <em>05 Mar 2021</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#jan-2021">0.41.0 — <em>16 Jan 2021</em></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id1">0.40.0 — <em>06 Jan 2021</em></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">0.40.0 — <em>06 Jan 2021</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#oct-2020">0.39.0 — <em>24 Oct 2020</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#aug-2020">0.38.0 — <em>24 Aug 2020</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#jun-2020">0.37.0 — <em>26 Jun 2020</em></a></li>
@@ -73,7 +76,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Crown Manual</a>
+          <a href="index.html">Crown 0.53.0 Manual</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -94,20 +97,58 @@
   <div class="section" id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="dd-mmm-yyyy">
-<h2>0.51.0 — DD MMM YYYY<a class="headerlink" href="#dd-mmm-yyyy" title="Permalink to this headline">¶</a></h2>
-<p><strong>Tools</strong>
-* The window state (size, maximized, fullscreen etc.) will now be restored across sessions.</p>
+<h2>0.53.0 — DD MMM YYYY<a class="headerlink" href="#dd-mmm-yyyy" title="Permalink to this headline">¶</a></h2>
+<p><strong>Tools</strong></p>
+<ul class="simple">
+<li>Fixed some dialogs retaining old state when switching between projects.</li>
+</ul>
+<p><strong>Runtime</strong></p>
+<ul class="simple">
+<li>Fixed an issue that caused the Runtime to stop sending console messages after a while.</li>
+<li>Data Compiler: fixed erratic texture compilation when both legacy properties and the new “output” object were specified in the .texture resource.</li>
+</ul>
+</div>
+<div class="section" id="nov-2024">
+<h2>0.52.0 — 11 Nov 2024<a class="headerlink" href="#nov-2024" title="Permalink to this headline">¶</a></h2>
+<p><strong>Tools</strong></p>
+<ul class="simple">
+<li>Added the ability to add/remove components from units in the Inspector panel.</li>
+<li>Fixed switching between orthographic and perspective camera modes.</li>
+<li>The Editor will now save and restore the camera state per Level.</li>
+<li>Improved compatibility with Hi-DPI screens.</li>
+<li>The Level Tree will now scroll to the last selected object.</li>
+<li>Added a simple camera compass to the Editor View.</li>
+</ul>
+<p><strong>Runtime</strong></p>
+<ul class="simple">
+<li>Animation state machines can now contain empty animation sets.</li>
+<li>Fixed loading resources from bundles.</li>
+<li>Added texture hot-reloading.</li>
+<li>Data Compiler: fixed bundle generation.</li>
+<li>Lua API: Gui drawing primitives can now specify an optional depth value for sorting.</li>
+<li>Lua API: <code class="docutils literal notranslate"><span class="pre">World.camera_screen_to_world()</span></code> and <code class="docutils literal notranslate"><span class="pre">World.camera_world_to_screen()</span></code> now use a bottom-left screen-space origin to match the coordinate space used by the Gui subsystem. Additionally, <code class="docutils literal notranslate"><span class="pre">World.camera_world_to_screen()</span></code> will now return the point’s distance from the camera in world-space.</li>
+</ul>
+</div>
+<div class="section" id="oct-2024">
+<h2>0.51.0 — 28 Oct 2024<a class="headerlink" href="#oct-2024" title="Permalink to this headline">¶</a></h2>
+<p><strong>Tools</strong></p>
+<ul class="simple">
+<li>The Editor’s main window state (size, maximized, fullscreen etc.) will now be restored across sessions.</li>
+<li>The Inspector is now able to fully edit all the properties of all the components in a Unit.</li>
+<li>Added the ability to add resources to a Favorites list in the Project Browser.</li>
+</ul>
 <p><strong>Runtime</strong></p>
 <ul class="simple">
 <li>Added the ability to set a new (smoothed) timestep policy.</li>
 <li>Improved <code class="docutils literal notranslate"><span class="pre">graph</span></code> command with the ability to add multiple fields, customize colors and limit the number of samples shown.</li>
 <li>Lua API: Added <code class="docutils literal notranslate"><span class="pre">Device.set_timestep_policy()</span></code> and <code class="docutils literal notranslate"><span class="pre">Device.set_timestep_smoothing()</span></code>.</li>
+<li>Lua API: Added <code class="docutils literal notranslate"><span class="pre">RenderWorld.mesh_set_geometry()</span></code>.</li>
 <li>Windows: fixed xinput.dll not found on some systems.</li>
 <li>Windows: fixed console output and absolute paths when launched under MinGW.</li>
 </ul>
 </div>
-<div class="section" id="oct-2024">
-<h2>0.50.0 — 10 Oct 2024<a class="headerlink" href="#oct-2024" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h2>0.50.0 — 10 Oct 2024<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <p><strong>Tools</strong></p>
 <ul class="simple">
 <li>Added an option to use the debug keystore when deploying APKs for Android.</li>
@@ -367,8 +408,8 @@
 <li>Removed the default “FPSCamera” camera from the core game framework</li>
 </ul>
 </div>
-<div class="section" id="id1">
-<h2>0.40.0 — <em>06 Jan 2021</em><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id2">
+<h2>0.40.0 — <em>06 Jan 2021</em><a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
 <p><strong>Data Compiler</strong></p>
 <ul class="simple">
 <li>Fixed an issue that caused resources to not be compiled with the proper version in rare circumnstances</li>
@@ -554,7 +595,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="The Flexible Game Engine" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Crown 0.53.0 Manual" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="introduction.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
