@@ -45,7 +45,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'Crown Manual'
+project = 'Crown 0.53.0 Manual'
 copyright = 'Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License'
 author = 'Daniele Bartolini'
 

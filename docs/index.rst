@@ -1,5 +1,5 @@
-The Flexible Game Engine
-========================
+Crown |version| Manual
+======================
 
 .. toctree::
    :maxdepth: 2
