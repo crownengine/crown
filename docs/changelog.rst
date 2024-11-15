@@ -7,6 +7,7 @@ Changelog
 **Tools**
 
 * Fixed some dialogs retaining old state when switching between projects.
+* Fixed the Project Browser not updating when adding/removing files.
 
 **Runtime**
 

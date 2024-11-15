@@ -22,8 +22,8 @@ public class ProjectStore
 
 	// Data
 	public Project _project;
-	public Gtk.TreeStore _tree_store;
 	public Gtk.ListStore _list_store;
+	public Gtk.TreeStore _tree_store;
 	public Gee.HashMap<string, Gtk.TreeRowReference> _folders;
 	public Gtk.TreeRowReference _favorites_root;
 
@@ -38,11 +38,11 @@ public class ProjectStore
 		_project.project_reset.connect(on_project_reset);
 		_project.project_loaded.connect(on_project_loaded);
 
-		_tree_store = new Gtk.TreeStore(Column.COUNT
+		_list_store = new Gtk.ListStore(Column.COUNT
 			, typeof(string) // resource name
 			, typeof(string) // resource type
 			);
-		_list_store = new Gtk.ListStore(Column.COUNT
+		_tree_store = new Gtk.TreeStore(Column.COUNT
 			, typeof(string) // resource name
 			, typeof(string) // resource type
 			);
@@ -246,8 +246,7 @@ public class ProjectStore
 
 		Gtk.TreeIter parent = make_tree(parent_folder);
 		Gtk.TreeIter iter;
-		_tree_store.insert_with_values(out iter
-			, parent
+		_list_store.insert_with_values(out iter
 			, -1
 			, Column.NAME
 			, name
@@ -255,7 +254,8 @@ public class ProjectStore
 			, type
 			, -1
 			);
-		_list_store.insert_with_values(out iter
+		_tree_store.insert_with_values(out iter
+			, parent
 			, -1
 			, Column.NAME
 			, name
@@ -268,14 +268,32 @@ public class ProjectStore
 	private void on_project_file_removed(string type, string name)
 	{
 		string parent_folder = ResourceId.parent_folder(name);
+		Gtk.TreeIter child;
 
 		if (!_folders.has_key(parent_folder))
 			return;
 
-		// Remove from tree store
+		// Remove from list store.
+		if (_list_store.iter_children(out child, null)) {
+			Value iter_name;
+			Value iter_type;
+
+			while (true) {
+				_list_store.get_value(child, Column.NAME, out iter_name);
+				_list_store.get_value(child, Column.TYPE, out iter_type);
+				if ((string)iter_name == name && (string)iter_type == type) {
+					_list_store.remove(ref child);
+					break;
+				}
+
+				if (!_list_store.iter_next(ref child))
+					break;
+			}
+		}
+
+		// Remove from tree store.
 		Gtk.TreeIter parent_iter;
 		_tree_store.get_iter(out parent_iter, _folders[parent_folder].get_path());
-		Gtk.TreeIter child;
 		if (_tree_store.iter_children(out child, parent_iter)) {
 			Value iter_name;
 			Value iter_type;
@@ -293,29 +311,10 @@ public class ProjectStore
 			}
 		}
 
-		// Remove from list store
-		if (_list_store.iter_children(out child, null)) {
-			Value iter_name;
-			Value iter_type;
-
-			while (true) {
-				_list_store.get_value(child, Column.NAME, out iter_name);
-				_list_store.get_value(child, Column.TYPE, out iter_type);
-				if ((string)iter_name == name && (string)iter_type == type) {
-					_list_store.remove(ref child);
-					break;
-				}
-
-				if (!_list_store.iter_next(ref child))
-					break;
-			}
-		}
 	}
 
 	private void on_project_tree_added(string name)
 	{
-		make_tree(name);
-
 		Gtk.TreeIter iter;
 		_list_store.insert_with_values(out iter
 			, -1
@@ -325,6 +324,8 @@ public class ProjectStore
 			, "<folder>"
 			, -1
 			);
+
+		make_tree(name);
 	}
 
 	private void on_project_tree_removed(string name)
@@ -334,20 +335,6 @@ public class ProjectStore
 
 		if (!_folders.has_key(name))
 			return;
-
-		// Remove the tree
-		Gtk.TreeIter iter;
-		_tree_store.get_iter(out iter, _folders[name].get_path());
-		_tree_store.remove(ref iter);
-
-		// Remove any stale TreeRowRerefence
-		var it = _folders.map_iterator();
-		for (var has_next = it.next(); has_next; has_next = it.next()) {
-			string ff = it.get_key();
-			if (ff.has_prefix(name + "/"))
-				it.unset();
-		}
-		_folders.unset(name);
 
 		// Remove from list store.
 		Gtk.TreeIter child;
@@ -367,6 +354,20 @@ public class ProjectStore
 					break;
 			}
 		}
+
+		// Remove the tree.
+		Gtk.TreeIter iter;
+		_tree_store.get_iter(out iter, _folders[name].get_path());
+		_tree_store.remove(ref iter);
+
+		// Remove any stale TreeRowRerefence
+		var it = _folders.map_iterator();
+		for (var has_next = it.next(); has_next; has_next = it.next()) {
+			string ff = it.get_key();
+			if (ff.has_prefix(name + "/"))
+				it.unset();
+		}
+		_folders.unset(name);
 	}
 
 	private void on_project_reset()
