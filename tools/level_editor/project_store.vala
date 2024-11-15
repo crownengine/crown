@@ -310,7 +310,6 @@ public class ProjectStore
 					break;
 			}
 		}
-
 	}
 
 	private void on_project_tree_added(string name)
