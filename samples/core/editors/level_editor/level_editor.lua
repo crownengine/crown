@@ -1453,7 +1453,7 @@ function LevelEditor:init()
 	self._objects = {}
 	self._selection = Selection()
 	self._show_grid = true
-	self._snap_to_grid = true
+	self._snap_to_grid = false
 	self._snap_mode = "relative"
 	self._reference_system = "local"
 	self._spawn_height = 0.0

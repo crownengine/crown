@@ -476,22 +476,22 @@ public class LevelEditorApplication : Gtk.Application
 
 	private const GLib.ActionEntry[] action_entries_edit =
 	{
-		{ "menu-edit",          null,                  null,   null   },
-		{ "undo",               on_undo,               null,   null   },
-		{ "redo",               on_redo,               null,   null   },
-		{ "duplicate",          on_duplicate,          null,   null   },
-		{ "delete",             on_delete,             null,   null   },
-		{ "tool",               on_tool,               "i",    "1"    }, // See: Crown.ToolType
-		{ "set-placeable",      on_set_placeable,      "(ss)", null   },
-		{ "cancel-place",       on_cancel_place,       null,   null   },
-		{ "snap",               on_snap,               "i",    "0"    }, // See: Crown.SnapMode
-		{ "reference-system",   on_reference_system,   "i",    "0"    }, // See: Crown.ReferenceSystem
-		{ "snap-to-grid",       on_snap_to_grid,       null,   "true" },
-		{ "menu-grid",          null,                  null,   null   },
-		{ "grid-show",          on_show_grid,          null,   "true" },
-		{ "grid-size",          on_grid_size,          "i",    "10"   }, // 10*meters.
-		{ "menu-rotation-snap", null,                  null,   null   },
-		{ "rotation-snap-size", on_rotation_snap_size, "i",    "15"   }
+		{ "menu-edit",          null,                  null,   null    },
+		{ "undo",               on_undo,               null,   null    },
+		{ "redo",               on_redo,               null,   null    },
+		{ "duplicate",          on_duplicate,          null,   null    },
+		{ "delete",             on_delete,             null,   null    },
+		{ "tool",               on_tool,               "i",    "1"     }, // See: Crown.ToolType
+		{ "set-placeable",      on_set_placeable,      "(ss)", null    },
+		{ "cancel-place",       on_cancel_place,       null,   null    },
+		{ "snap",               on_snap,               "i",    "0"     }, // See: Crown.SnapMode
+		{ "reference-system",   on_reference_system,   "i",    "0"     }, // See: Crown.ReferenceSystem
+		{ "snap-to-grid",       on_snap_to_grid,       null,   "false" },
+		{ "menu-grid",          null,                  null,   null    },
+		{ "grid-show",          on_show_grid,          null,   "true"  },
+		{ "grid-size",          on_grid_size,          "i",    "10"    }, // 10*meters.
+		{ "menu-rotation-snap", null,                  null,   null    },
+		{ "rotation-snap-size", on_rotation_snap_size, "i",    "15"    }
 	};
 
 	private const GLib.ActionEntry[] action_entries_create =
@@ -839,7 +839,7 @@ public class LevelEditorApplication : Gtk.Application
 		_grid_size = 1.0;
 		_rotation_snap = 15.0;
 		_show_grid = true;
-		_snap_to_grid = true;
+		_snap_to_grid = false;
 		_debug_render_world = false;
 		_debug_physics_world = false;
 		_tool_type = ToolType.MOVE;
