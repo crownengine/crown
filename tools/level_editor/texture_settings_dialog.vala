@@ -31,7 +31,7 @@ const string texture_formats[] =
 	"RGBA8"
 };
 
-public class TextureSettingsDialog : Gtk.Dialog
+public class TextureSettingsDialog : Gtk.Window
 {
 	public Project _project;
 	public Database _database;
@@ -53,6 +53,10 @@ public class TextureSettingsDialog : Gtk.Dialog
 	public EntryDouble _mip_skip_smallest;
 	public CheckBox _normal_map;
 	public Gtk.Box _box;
+	public Gtk.EventControllerKey _controller_key;
+	public Gtk.Button _cancel;
+	public Gtk.Button _save;
+	public Gtk.HeaderBar _header_bar;
 
 	public signal void texture_saved();
 
@@ -89,7 +93,6 @@ public class TextureSettingsDialog : Gtk.Dialog
 		_platforms.get_selection().set_mode(Gtk.SelectionMode.MULTIPLE);
 		_platforms.get_selection().changed.connect(on_platforms_selection_changed);
 
-		this.title = "Texture Settings";
 		this.border_width = 0;
 		this.set_icon_name(CROWN_EDITOR_ICON_NAME);
 
@@ -151,10 +154,33 @@ public class TextureSettingsDialog : Gtk.Dialog
 		_box.pack_start(_stack, false, true, 0);
 		_box.vexpand = true;
 
-		this.get_content_area().border_width = 0;
-		this.get_content_area().add(_box);
+		this.add(_box);
 
-		this.delete_event.connect(on_delete_event);
+		_controller_key = new Gtk.EventControllerKey(this);
+		_controller_key.key_pressed.connect((keyval, keycode, state) => {
+				if (keyval == Gdk.Key.Escape) {
+					close();
+					return Gdk.EVENT_STOP;
+				}
+
+				return Gdk.EVENT_PROPAGATE;
+			});
+
+		_cancel = new Gtk.Button.with_label("Cancel");
+		_cancel.clicked.connect(() => {
+				close();
+			});
+		_save = new Gtk.Button.with_label("Save & Reload");
+		_save.get_style_context().add_class("suggested-action");
+		_save.clicked.connect(() => {
+				save();
+			});
+		_header_bar = new Gtk.HeaderBar();
+		_header_bar.title = "Texture Settings";
+		_header_bar.show_close_button = true;
+		_header_bar.pack_start(_cancel);
+		_header_bar.pack_end(_save);
+		this.set_titlebar(_header_bar);
 
 		_never_opened_before = true;
 		_stack.map.connect(on_stack_map);
@@ -340,12 +366,6 @@ public class TextureSettingsDialog : Gtk.Dialog
 
 		_texture_database.dump(_project.absolute_path(_texture_path), _texture_id);
 		texture_saved();
-	}
-
-	public bool on_delete_event(Gdk.EventAny ev)
-	{
-		save();
-		return Gdk.EVENT_PROPAGATE;
 	}
 
 	public string platform_property(string platform_name, string property)
