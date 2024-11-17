@@ -52,6 +52,8 @@ namespace texture_resource_internal
 	{
 		TextureResource *tr = (TextureResource *)rm.get(RESOURCE_TYPE_TEXTURE, id);
 		bgfx::destroy(tr->handle);
+		bgfx::frame();
+		bgfx::frame();
 	}
 
 	void unload(Allocator &a, void *resource)
