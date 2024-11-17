@@ -281,6 +281,13 @@ private Gtk.Menu? favorites_entry_menu_create(string type, string name)
 		});
 	menu.add(mi);
 
+	mi = new Gtk.MenuItem.with_label("Reveal");
+	mi.activate.connect(() => {
+			var tuple = new GLib.Variant.tuple({type, name});
+			GLib.Application.get_default().activate_action("reveal-resource", tuple);
+		});
+	menu.add(mi);
+
 	return menu;
 }
 
