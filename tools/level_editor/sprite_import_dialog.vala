@@ -171,12 +171,6 @@ public class SpriteImportDialog : Gtk.Dialog
 				Gdk.cairo_set_source_pixbuf(cr, _pixbuf, 0, 0);
 				cr.paint();
 
-				// Pivot is relative to the top-left corner of the cell
-				Vector2 pivot = sprite_cell_pivot_xy((int)cell.value.x
-					, (int)cell.value.y
-					, (int)pivot.active
-					);
-
 				int num_v = (int)cells.value.y;
 				int num_h = (int)cells.value.x;
 
@@ -213,10 +207,6 @@ public class SpriteImportDialog : Gtk.Dialog
 						cr.set_line_width(1);
 						cr.set_source_rgba(0.9, 0.1, 0.1, 0.9);
 						cr.stroke();
-
-						cr.arc(x0 + pivot.x, y0 + pivot.y, 5.0, 0, 2*Math.PI);
-						cr.set_source_rgba(0.1, 0.1, 0.9, 0.6);
-						cr.fill();
 					}
 				}
 
@@ -291,6 +281,16 @@ public class SpriteImportDialog : Gtk.Dialog
 					cr.set_source_rgba(0.3, 0.3, 0.3, 0.6);
 					cr.fill();
 				}
+
+				// Draw pivot.
+				// Pivot is relative to the top-left corner of the cell.
+				Vector2 pivot = sprite_cell_pivot_xy((int)cell.value.x
+					, (int)cell.value.y
+					, (int)pivot.active
+					);
+				cr.arc(pivot.x, pivot.y, 5.0, 0, 2*Math.PI);
+				cr.set_source_rgba(0.1, 0.1, 0.9, 0.6);
+				cr.fill();
 
 				return Gdk.EVENT_STOP;
 			});
