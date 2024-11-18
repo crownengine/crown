@@ -96,6 +96,7 @@ public class SpriteImportDialog : Gtk.Dialog
 {
 	public Cairo.Surface _checker;
 	public Gdk.Pixbuf _pixbuf;
+	public Cairo.Pattern _pixbuf_pattern;
 	public Gtk.DrawingArea _slices;
 	public Gtk.ScrolledWindow _scrolled_window;
 	public Gtk.DrawingArea _preview;
@@ -136,6 +137,12 @@ public class SpriteImportDialog : Gtk.Dialog
 	public EntryDouble _current_frame;
 	public Gtk.Box _frame_selector_box;
 	public Gtk.Overlay _preview_overlay;
+	public Gtk.EventControllerScroll _preview_controller_scroll;
+	public Gtk.EventControllerScroll _slices_controller_scroll;
+
+	public double _preview_zoom;
+	public double _slices_zoom;
+	public double _zoom_speed;
 
 	// Widgets
 	public SpriteImportDialog(string image_path, string unit_name)
@@ -149,6 +156,9 @@ public class SpriteImportDialog : Gtk.Dialog
 		} catch (GLib.Error e) {
 			loge(e.message);
 		}
+
+		_pixbuf_pattern = new Cairo.Pattern.for_surface(Gdk.cairo_surface_create_from_pixbuf(_pixbuf, 1, null));
+		_pixbuf_pattern.set_filter(Cairo.Filter.NEAREST);
 
 		// Create checkered pattern
 		{
@@ -169,8 +179,17 @@ public class SpriteImportDialog : Gtk.Dialog
 		_slices.set_size_request(_pixbuf.width, _pixbuf.height);
 
 		_slices.draw.connect((cr) => {
+				int allocated_width = _preview.get_allocated_width();
+				int allocated_height = _preview.get_allocated_height();
+				double original_line_width = cr.get_line_width();
+
 				cr.set_source_rgb(0.1, 0.1, 0.1);
 				cr.paint();
+
+				cr.translate(allocated_width * 0.5, allocated_height * 0.5);
+				cr.scale(_slices_zoom, _slices_zoom);
+				cr.set_line_width(original_line_width / _slices_zoom);
+				cr.translate(-_pixbuf.width * 0.5, -_pixbuf.height * 0.5);
 
 				cr.save();
 				cr.set_source_surface(_checker, 0, 0);
@@ -182,7 +201,7 @@ public class SpriteImportDialog : Gtk.Dialog
 				cr.paint();
 				cr.restore();
 
-				Gdk.cairo_set_source_pixbuf(cr, _pixbuf, 0, 0);
+				cr.set_source(_pixbuf_pattern);
 				cr.paint();
 
 				int num_v = (int)cells.value.y;
@@ -218,7 +237,6 @@ public class SpriteImportDialog : Gtk.Dialog
 						cr.move_to((double)x3 + 0.5, (double)y3);
 						cr.line_to((double)x0 + 0.5, (double)y0);
 
-						cr.set_line_width(1);
 						cr.set_source_rgba(0.9, 0.1, 0.1, 0.9);
 						cr.stroke();
 					}
@@ -236,6 +254,10 @@ public class SpriteImportDialog : Gtk.Dialog
 		_preview.set_size_request(128, 128);
 
 		_preview.draw.connect((cr) => {
+				int allocated_width = _preview.get_allocated_width();
+				int allocated_height = _preview.get_allocated_height();
+				double original_line_width = cr.get_line_width();
+
 				cr.set_source_rgb(0.1, 0.1, 0.1);
 				cr.paint();
 
@@ -255,7 +277,12 @@ public class SpriteImportDialog : Gtk.Dialog
 				int x0 = (int)sc.x;
 				int y0 = (int)sc.y;
 
-				// Draw checkered background
+				cr.translate(allocated_width * 0.5, allocated_height * 0.5);
+				cr.scale(_preview_zoom, _preview_zoom);
+				cr.set_line_width(original_line_width / _preview_zoom);
+				cr.translate(-cell.value.x * 0.5, -cell.value.y * 0.5);
+
+				// Draw checkered background.
 				cr.save();
 				cr.set_source_surface(_checker, 0, 0);
 				Cairo.Pattern pattern = cr.get_source();
@@ -529,6 +556,22 @@ public class SpriteImportDialog : Gtk.Dialog
 		_notebook = new Gtk.Notebook();
 		_notebook.append_page(_preview_overlay, new Gtk.Label("Preview"));
 		_notebook.append_page(_scrolled_window, new Gtk.Label("Slices"));
+
+		_preview_controller_scroll = new Gtk.EventControllerScroll(_preview, Gtk.EventControllerScrollFlags.VERTICAL);
+		_preview_controller_scroll.scroll.connect((dx, dy) => {
+				_preview_zoom = double.min(10.0, double.max(0.25, _preview_zoom - dy * _zoom_speed));
+				_preview.queue_draw();
+			});
+
+		_slices_controller_scroll = new Gtk.EventControllerScroll(_slices, Gtk.EventControllerScrollFlags.VERTICAL);
+		_slices_controller_scroll.scroll.connect((dx, dy) => {
+				_slices_zoom = double.min(10.0, double.max(0.25, _slices_zoom - dy * _zoom_speed));
+				_slices.queue_draw();
+			});
+
+		_preview_zoom = 4.0;
+		_slices_zoom = 1.0;
+		_zoom_speed = 0.2;
 
 		Gtk.Paned pane;
 		pane = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
