@@ -321,11 +321,11 @@ public class SpriteImportDialog : Gtk.Dialog
 		mass = new EntryDouble(10.0, 0.0, double.MAX);
 
 		circle_collision_center = new EntryVector2(Vector2(cell.value.x/2.0, cell.value.y/2.0), Vector2(-double.MAX, -double.MAX), Vector2(double.MAX, double.MAX));
-		circle_collision_radius = new EntryDouble(32.0, 0.0, double.MAX);
+		circle_collision_radius = new EntryDouble(32.0, 0.5, double.MAX);
 
 		capsule_collision_center = new EntryVector2(Vector2(cell.value.x/2.0, cell.value.y/2.0), Vector2(-double.MAX, -double.MAX), Vector2(double.MAX, double.MAX));
-		capsule_collision_radius = new EntryDouble(32.0, -double.MAX, double.MAX);
-		capsule_collision_height = new EntryDouble(64.0, 0.0, double.MAX);
+		capsule_collision_radius = new EntryDouble(32.0, 0.5, double.MAX);
+		capsule_collision_height = new EntryDouble(64.0, 2.0*capsule_collision_radius.value, double.MAX);
 
 		cells.value_changed.connect (() => {
 				if (cell_wh_auto.active)
@@ -395,6 +395,7 @@ public class SpriteImportDialog : Gtk.Dialog
 			});
 
 		capsule_collision_radius.value_changed.connect(() => {
+				capsule_collision_height.set_min(2.0 * capsule_collision_radius.value);
 				_preview.queue_draw();
 			});
 
