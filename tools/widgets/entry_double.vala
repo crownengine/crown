@@ -188,6 +188,18 @@ public class EntryDouble : Gtk.Entry, Property
 
 		return err == 0 ? TinyExpr.eval(expr) : deffault;
 	}
+
+	public void set_min(double min)
+	{
+		_min = min;
+		set_value_safe(_value);
+	}
+
+	public void set_max(double max)
+	{
+		_max = max;
+		set_value_safe(_value);
+	}
 }
 
 } /* namespace Crown */
