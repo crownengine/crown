@@ -86,6 +86,12 @@ Vector2 sprite_cell_pivot_xy(int cell_w, int cell_h, int pivot)
 	return Vector2(pivot_x, pivot_y);
 }
 
+void sprite_cell_from_index(out int r, out int c, int num_cols, int index)
+{
+	r = (int)(index / num_cols);
+	c = index - r * num_cols;
+}
+
 public class SpriteImportDialog : Gtk.Dialog
 {
 	public Cairo.Surface _checker;
@@ -124,6 +130,12 @@ public class SpriteImportDialog : Gtk.Dialog
 	public Gtk.CheckButton lock_rotation_y;
 
 	public Gtk.Notebook _notebook;
+
+	public Gtk.Button _previous_frame;
+	public Gtk.Button _next_frame;
+	public EntryDouble _current_frame;
+	public Gtk.Box _frame_selector_box;
+	public Gtk.Overlay _preview_overlay;
 
 	// Widgets
 	public SpriteImportDialog(string image_path, string unit_name)
@@ -227,8 +239,11 @@ public class SpriteImportDialog : Gtk.Dialog
 				cr.set_source_rgb(0.1, 0.1, 0.1);
 				cr.paint();
 
-				Vector2 sc = sprite_cell_xy(0
-					, 0
+				int r, c;
+				sprite_cell_from_index(out r, out c, (int)cells.value.x, (int)_current_frame.value);
+
+				Vector2 sc = sprite_cell_xy(r
+					, c
 					, (int)offset.value.x
 					, (int)offset.value.y
 					, (int)cell.value.x
@@ -239,8 +254,6 @@ public class SpriteImportDialog : Gtk.Dialog
 
 				int x0 = (int)sc.x;
 				int y0 = (int)sc.y;
-				int x1 = x0 + (int)cell.value.x;
-				int y2 = y0 + (int)cell.value.y;
 
 				// Draw checkered background
 				cr.save();
@@ -248,16 +261,20 @@ public class SpriteImportDialog : Gtk.Dialog
 				Cairo.Pattern pattern = cr.get_source();
 				pattern.set_filter(Cairo.Filter.NEAREST);
 				pattern.set_extend(Cairo.Extend.REPEAT);
-				cr.rectangle(x0, y0, x1, y2);
+				cr.rectangle(0, 0, (int)cell.value.x, (int)cell.value.y);
 				cr.clip();
 				cr.new_path(); // path not consumed by clip()
 				cr.paint();
 				cr.restore();
 
-				// Draw sprite
+				// Draw sprite frame.
+				Gdk.Pixbuf frame_pixbuf = new Gdk.Pixbuf.subpixbuf(_pixbuf, x0, y0, (int)cell.value.x, (int)cell.value.y);
+				Cairo.Surface frame_surface = Gdk.cairo_surface_create_from_pixbuf(frame_pixbuf, 1, null);
+				Cairo.Pattern frame_pattern = new Cairo.Pattern.for_surface(frame_surface);
+				frame_pattern.set_filter(Cairo.Filter.NEAREST);
 				cr.save();
-				Gdk.cairo_set_source_pixbuf(cr, _pixbuf, 0, 0);
-				cr.rectangle(x0, y0, x1, y2);
+				cr.set_source(frame_pattern);
+				cr.paint();
 				cr.clip();
 				cr.new_path(); // path not consumed by clip()
 				cr.paint();
@@ -334,6 +351,8 @@ public class SpriteImportDialog : Gtk.Dialog
 		cells.value_changed.connect (() => {
 				if (cell_wh_auto.active)
 					cell.value = Vector2(_pixbuf.width / cells.value.x, _pixbuf.height / cells.value.y);
+
+				_current_frame.set_max(cells.value.x * cells.value.y - 1);
 
 				_slices.queue_draw();
 				_preview.queue_draw();
@@ -483,8 +502,32 @@ public class SpriteImportDialog : Gtk.Dialog
 		cv.add_row("Shape Data", shape);
 		sprite_set.add_property_grid(cv, "Collider");
 
+		_previous_frame = new Gtk.Button.from_icon_name("go-previous-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
+		_previous_frame.clicked.connect(() => {
+				_current_frame.value -= 1;
+			});
+		_next_frame = new Gtk.Button.from_icon_name("go-next-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
+		_next_frame.clicked.connect(() => {
+				_current_frame.value += 1;
+			});
+		_current_frame = new EntryDouble(0.0, 0.0, cells.value.x * cells.value.y - 1);
+		_current_frame.value_changed.connect(() => {
+				_preview.queue_draw();
+			});
+		_frame_selector_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		_frame_selector_box.homogeneous = true;
+		_frame_selector_box.halign = Gtk.Align.CENTER;
+		_frame_selector_box.valign = Gtk.Align.END;
+		_frame_selector_box.margin_bottom = 24;
+		_frame_selector_box.pack_start(_previous_frame);
+		_frame_selector_box.pack_start(_current_frame);
+		_frame_selector_box.pack_end(_next_frame);
+		_preview_overlay = new Gtk.Overlay();
+		_preview_overlay.add(_preview);
+		_preview_overlay.add_overlay(_frame_selector_box);
+
 		_notebook = new Gtk.Notebook();
-		_notebook.append_page(_preview, new Gtk.Label("Preview"));
+		_notebook.append_page(_preview_overlay, new Gtk.Label("Preview"));
 		_notebook.append_page(_scrolled_window, new Gtk.Label("Slices"));
 
 		Gtk.Paned pane;
