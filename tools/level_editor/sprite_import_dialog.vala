@@ -88,7 +88,7 @@ public class SpriteImportDialog : Gtk.Dialog
 {
 	public Cairo.Surface _checker;
 	public Gdk.Pixbuf _pixbuf;
-	public Gtk.DrawingArea _drawing_area;
+	public Gtk.DrawingArea _slices;
 	public Gtk.ScrolledWindow _scrolled_window;
 	public Gtk.DrawingArea _preview;
 
@@ -149,10 +149,10 @@ public class SpriteImportDialog : Gtk.Dialog
 			cr.fill();
 		}
 
-		_drawing_area = new Gtk.DrawingArea();
-		_drawing_area.set_size_request(_pixbuf.width, _pixbuf.height);
+		_slices = new Gtk.DrawingArea();
+		_slices.set_size_request(_pixbuf.width, _pixbuf.height);
 
-		_drawing_area.draw.connect((cr) => {
+		_slices.draw.connect((cr) => {
 				cr.set_source_rgb(0.1, 0.1, 0.1);
 				cr.paint();
 
@@ -224,7 +224,7 @@ public class SpriteImportDialog : Gtk.Dialog
 		_scrolled_window = new Gtk.ScrolledWindow(null, null);
 		_scrolled_window.min_content_width = 640;
 		_scrolled_window.min_content_height = 640;
-		_scrolled_window.add(_drawing_area);
+		_scrolled_window.add(_slices);
 
 		_preview = new Gtk.DrawingArea();
 		_preview.set_size_request(128, 128);
@@ -331,32 +331,31 @@ public class SpriteImportDialog : Gtk.Dialog
 				if (cell_wh_auto.active)
 					cell.value = Vector2(_pixbuf.width / cells.value.x, _pixbuf.height / cells.value.y);
 
-				_drawing_area.queue_draw();
+				_slices.queue_draw();
 				_preview.queue_draw();
 			});
 
 		cell_wh_auto.toggled.connect(() => {
 				cell.sensitive = !cell_wh_auto.active;
 				cell.value = Vector2(_pixbuf.width / cells.value.x, _pixbuf.height / cells.value.y);
-
-				_drawing_area.queue_draw();
+				_slices.queue_draw();
 				_preview.queue_draw();
 			});
 
 		cell.value_changed.connect (() => {
 				circle_collision_center.value = Vector2(cell.value.x/2.0, cell.value.y/2.0);
 				capsule_collision_center.value = Vector2(cell.value.x/2.0, cell.value.y/2.0);
-				_drawing_area.queue_draw();
+				_slices.queue_draw();
 				_preview.queue_draw();
 			});
 
 		offset.value_changed.connect(() => {
-				_drawing_area.queue_draw();
+				_slices.queue_draw();
 				_preview.queue_draw();
 			});
 
 		spacing.value_changed.connect(() => {
-				_drawing_area.queue_draw();
+				_slices.queue_draw();
 				_preview.queue_draw();
 			});
 
@@ -416,7 +415,7 @@ public class SpriteImportDialog : Gtk.Dialog
 		pivot.active = Pivot.CENTER;
 
 		pivot.changed.connect(() => {
-				_drawing_area.queue_draw();
+				_slices.queue_draw();
 				_preview.queue_draw();
 			});
 
