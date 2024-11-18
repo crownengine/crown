@@ -35,11 +35,8 @@ while true; do
 	--update-icons)
 		CROWN_GIT=~/git/crown
 		CROWN_ICONS=${CROWN_GIT}/tools/level_editor/resources/icons
-		for _res in 512x512 256x256 128x128 64x64 48x48 32x32 16x16; do
-			mkdir -p "icons/${_res}/apps"
-			cp -r "${CROWN_ICONS}/${_res}/apps/crown.png" "icons/${_res}/apps"
-		done
-		cp "${CROWN_ICONS}/crown.svg" icons
+		mkdir -p icons
+		cp "${CROWN_ICONS}/crown-black-socket.svg" icons
 		tar czf icons.tar.gz icons
 		rm -r icons
 		exit 0
