@@ -5,6 +5,8 @@
 
 namespace Crown
 {
+public Gdk.RGBA collider_color = { 1.0, 0.5, 0.0, 1.0 };
+
 public enum Pivot
 {
 	TOP_LEFT,
@@ -261,15 +263,15 @@ public class SpriteImportDialog : Gtk.Dialog
 				cr.paint();
 				cr.restore();
 
-				// Draw collision
+				// Draw collider.
 				if (shape.visible_child_name == "square_collider") {
 					cr.rectangle(collision_xy.value.x, collision_xy.value.y, collision_wh.value.x, collision_wh.value.y);
-					cr.set_source_rgba(0.3, 0.3, 0.3, 0.6);
-					cr.fill();
+					cr.set_source_rgba(collider_color.red, collider_color.green, collider_color.blue, collider_color.alpha);
+					cr.stroke();
 				} else if (shape.visible_child_name == "circle_collider") {
 					cr.arc(circle_collision_center.value.x, circle_collision_center.value.y, circle_collision_radius.value, 0, 2*Math.PI);
-					cr.set_source_rgba(0.3, 0.3, 0.3, 0.6);
-					cr.fill();
+					cr.set_source_rgba(collider_color.red, collider_color.green, collider_color.blue, collider_color.alpha);
+					cr.stroke();
 				} else if (shape.visible_child_name == "capsule_collider") {
 					double x = capsule_collision_center.value.x;
 					double y = capsule_collision_center.value.y;
@@ -278,8 +280,8 @@ public class SpriteImportDialog : Gtk.Dialog
 					cr.arc(x - height/2, y, radius, Math.PI/2, 3*Math.PI/2);
 					cr.rectangle(x - height/2, y - radius, height, 2*radius);
 					cr.arc(x + height/2, y, radius, 3*Math.PI/2, Math.PI/2);
-					cr.set_source_rgba(0.3, 0.3, 0.3, 0.6);
-					cr.fill();
+					cr.set_source_rgba(collider_color.red, collider_color.green, collider_color.blue, collider_color.alpha);
+					cr.stroke();
 				}
 
 				// Draw pivot.
