@@ -121,6 +121,8 @@ public class SpriteImportDialog : Gtk.Dialog
 	public EntryDouble mass;
 	public Gtk.CheckButton lock_rotation_y;
 
+	public Gtk.Notebook _notebook;
+
 	// Widgets
 	public SpriteImportDialog(string image_path, string unit_name)
 	{
@@ -479,13 +481,13 @@ public class SpriteImportDialog : Gtk.Dialog
 		cv.add_row("Shape Data", shape);
 		sprite_set.add_property_grid(cv, "Collider");
 
-		Gtk.Box box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
-		box.pack_start(_scrolled_window, true, true);
-		box.pack_start(_preview, true, true);
+		_notebook = new Gtk.Notebook();
+		_notebook.append_page(_preview, new Gtk.Label("Preview"));
+		_notebook.append_page(_scrolled_window, new Gtk.Label("Slices"));
 
 		Gtk.Paned pane;
 		pane = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
-		pane.pack1(box, false, false);
+		pane.pack1(_notebook, false, false);
 		pane.pack2(sprite_set, true, false);
 
 		this.get_content_area().add(pane);
