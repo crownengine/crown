@@ -71,7 +71,7 @@ project "crown-editor"
 	}
 
 	buildoptions_vala {
-		"--target-glib=2.38",
+		"--target-glib=2.64.6",
 		"--pkg tinyexpr",
 		"--pkg md5",
 	}
