@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Crown
+GenericName=Game Engine
+Comment=A complete and cross-platform game engine designed for flexibility, performance, and fast-iterations.
+Exec=crown
+TryExec=crown
+Icon=org.crownengine.Crown
+Terminal=false
+Categories=Development;Graphics;
+PrefersNonDefaultGPU=true

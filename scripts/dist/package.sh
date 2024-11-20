@@ -215,6 +215,10 @@ if [ "${PLATFORM}" = "linux" ] || [ "${PLATFORM}" = "windows" ]; then
 			echo "./crown-editor-release \${PROJECT} \${LEVEL}"
 		} > "${PACKAGENAME}"/crown
 		chmod +x "${PACKAGENAME}"/crown
+
+		# Copy app icon and .desktop file.
+		cp scripts/dist/linux/org.crownengine.Crown.desktop "${PACKAGENAME}"
+		cp tools/level_editor/resources/icons/crown-black-socket.svg "${PACKAGENAME}"/org.crownengine.Crown.svg
 	elif [ "${PLATFORM}" = "windows" ]; then
 		{
 			echo "@echo off"

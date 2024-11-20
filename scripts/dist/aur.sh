@@ -32,15 +32,6 @@ while true; do
 		git push
 		exit $?
 		;;
-	--update-icons)
-		CROWN_GIT=~/git/crown
-		CROWN_ICONS=${CROWN_GIT}/tools/level_editor/resources/icons
-		mkdir -p icons
-		cp "${CROWN_ICONS}/crown-black-socket.svg" icons
-		tar czf icons.tar.gz icons
-		rm -r icons
-		exit 0
-		;;
 	-h|--help)
 		echo "Usage:"
 		echo "1) $0 --clean"
