@@ -3,7 +3,7 @@
 -- SPDX-License-Identifier: MIT
 --
 
-project "level-editor"
+project "crown-editor"
 	kind "WindowedApp"
 	language "Vala"
 

@@ -219,7 +219,7 @@ mingw:                  \
 build/projects/vs2019:
 	$(GENIE) --file=3rdparty/bgfx/scripts/genie.lua --with-tools vs2019
 	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools vs2019
-	$(GENIE) --gfxapi=d3d11 --with-tools --no-level-editor vs2019
+	$(GENIE) --gfxapi=d3d11 --with-tools --no-editor vs2019
 windows-debug64:          \
 	build/projects/vs2019 \
 	build/windows64/bin/luajit.exe
@@ -233,23 +233,23 @@ windows-release64:        \
 	build/windows64/bin/luajit.exe
 	devenv.com build/projects/vs2019/crown.sln $(ARG_PREFIX)Build "release|x64" $(ARG_PREFIX)Project crown
 
-level-editor-theme:
+crown-editor-theme:
 	cd tools/level_editor/resources/theme/Adwaita && ./parse-sass.sh
 	cd tools/level_editor/resources && ./generate-resources.sh > resources.gresource.xml
 
-level-editor-linux-debug64: \
+crown-editor-linux-debug64: \
 	build/projects/linux
-	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux level-editor config=debug64
-level-editor-linux-release64: \
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux crown-editor config=debug64
+crown-editor-linux-release64: \
 	build/projects/linux
-	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux level-editor config=release64
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux crown-editor config=release64
 
-level-editor-mingw-debug64: \
+crown-editor-mingw-debug64: \
 	build/projects/mingw
-	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw level-editor config=debug64
-level-editor-mingw-release64: \
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw crown-editor config=debug64
+crown-editor-mingw-release64: \
 	build/projects/mingw
-	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw level-editor config=release64
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw crown-editor config=release64
 
 tools-linux-release32:       \
 	build/linux32/bin/luajit \
@@ -258,12 +258,12 @@ tools-linux-debug64:           \
 	build/linux64/bin/texturec \
 	build/linux64/bin/shaderc  \
 	linux-debug64              \
-	level-editor-linux-debug64
+	crown-editor-linux-debug64
 tools-linux-release64:         \
 	build/linux64/bin/texturec \
 	build/linux64/bin/shaderc  \
 	linux-development64        \
-	level-editor-linux-release64
+	crown-editor-linux-release64
 
 tools-windows-debug64:               \
 	build/windows64/bin/texturec.exe \
@@ -280,12 +280,12 @@ tools-mingw-debug64:               \
 	build/mingw64/bin/texturec.exe \
 	build/mingw64/bin/shaderc.exe  \
 	mingw-debug64                  \
-	level-editor-mingw-debug64
+	crown-editor-mingw-debug64
 tools-mingw-release64:             \
 	build/mingw64/bin/texturec.exe \
 	build/mingw64/bin/shaderc.exe  \
 	mingw-development64            \
-	level-editor-mingw-release64
+	crown-editor-mingw-release64
 
 .PHONY: docs
 docs:

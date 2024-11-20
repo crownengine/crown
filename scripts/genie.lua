@@ -29,8 +29,8 @@ newoption {
 }
 
 newoption {
-	trigger = "no-level-editor",
-	description = "Do not build Level Editor."
+	trigger = "no-editor",
+	description = "Do not build the Editor."
 }
 
 newoption {
@@ -95,7 +95,7 @@ dofile ("luac.lua")
 if _OPTIONS["with-tools"] then
 	group "tools"
 
-	if not _OPTIONS["no-level-editor"] then
-		dofile ("level-editor.lua")
+	if not _OPTIONS["no-editor"] then
+		dofile ("crown-editor.lua")
 	end
 end

@@ -120,12 +120,12 @@ jobs:
     - name: linux-test-release64
       run: |
         cd ./build/linux64/bin && ./crown-release --run-unit-tests
-    - name: linux-make-level-editor-debug64
+    - name: linux-make-crown-editor-debug64
       run: |
-        make MAKE_JOBS=2 level-editor-linux-debug64
-    - name: linux-make-level-editor-release64
+        make MAKE_JOBS=2 crown-editor-linux-debug64
+    - name: linux-make-crown-editor-release64
       run: |
-        make MAKE_JOBS=2 level-editor-linux-release64
+        make MAKE_JOBS=2 crown-editor-linux-release64
   windows:
     runs-on: windows-2019
     steps:
@@ -145,7 +145,7 @@ jobs:
       shell: cmd
       run: |
         call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-        scripts\genie\bin\windows\genie --file=scripts\genie.lua --with-tools --no-level-editor vs2019
+        scripts\genie\bin\windows\genie --file=scripts\genie.lua --with-tools --no-editor vs2019
     - name: windows-make-debug64
       shell: cmd
       run: |
@@ -178,16 +178,16 @@ jobs:
       shell: msys2 {0}
       run: |
         pacman --noconfirm -S make mingw-w64-x86_64-gcc mingw-w64-x86_64-pkgconf mingw-w64-x86_64-gtk3 mingw-w64-x86_64-vala mingw-w64-x86_64-libgee
-    - name: mingw-make-level-editor-debug64
+    - name: mingw-make-crown-editor-debug64
       shell: msys2 {0}
       run: |
         export MINGW=/mingw64
-        make MAKE_JOBS=2 level-editor-mingw-debug64
-    - name: mingw-make-level-editor-release64
+        make MAKE_JOBS=2 crown-editor-mingw-debug64
+    - name: mingw-make-crown-editor-release64
       shell: msys2 {0}
       run: |
         export MINGW=/mingw64
-        make MAKE_JOBS=2 level-editor-mingw-release64
+        make MAKE_JOBS=2 crown-editor-mingw-release64
   code-style:
     runs-on: ubuntu-20.04
     needs: [android-arm, html5, linux, windows]

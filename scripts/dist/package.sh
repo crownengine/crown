@@ -109,7 +109,7 @@ elif [ "${PLATFORM}" = "windows" ]; then
 	make tools-mingw-release64 MAKE_JOBS="${BUILD_JOBS}"
 
 	# Copy required DLLs.
-	ldd build/mingw64/bin/level-editor-release.exe | grep '\/mingw.*\.dll' -o | xargs -I{} cp "{}" build/mingw64/bin
+	ldd build/mingw64/bin/crown-editor-release.exe | grep '\/mingw.*\.dll' -o | xargs -I{} cp "{}" build/mingw64/bin
 
 	# Copy GTK-related executables.
 	cp /mingw64/bin/fc-cache.exe                    build/mingw64/bin
@@ -212,7 +212,7 @@ if [ "${PLATFORM}" = "linux" ] || [ "${PLATFORM}" = "windows" ]; then
 			echo "DIR=\"\$( cd \"\$( dirname \"\$0\" )\" >/dev/null 2>&1 && pwd )\""
 			echo "cd \${DIR}/platforms/linux64/bin"
 			echo "export UBUNTU_MENUPROXY="
-			echo "./level-editor-release \${PROJECT} \${LEVEL}"
+			echo "./crown-editor-release \${PROJECT} \${LEVEL}"
 		} > "${PACKAGENAME}"/crown
 		chmod +x "${PACKAGENAME}"/crown
 	elif [ "${PLATFORM}" = "windows" ]; then
@@ -223,7 +223,7 @@ if [ "${PLATFORM}" = "linux" ] || [ "${PLATFORM}" = "windows" ]; then
 			echo "set LEVEL=%2"
 			echo ""
 			echo "cd platforms\windows64\bin"
-			echo "start level-editor-release.exe %PROJECT% %LEVEL%"
+			echo "start crown-editor-release.exe %PROJECT% %LEVEL%"
 			echo ""
 			echo "exit"
 			echo ""
