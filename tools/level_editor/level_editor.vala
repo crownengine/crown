@@ -699,7 +699,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	public LevelEditorApplication(SubprocessLauncher subprocess_launcher)
 	{
-		Object(application_id: "org.crown.level_editor"
+		Object(application_id: "org.crownengine.Crown"
 			, flags: GLib.ApplicationFlags.FLAGS_NONE
 			);
 
@@ -727,7 +727,7 @@ public class LevelEditorApplication : Gtk.Application
 		if (theme == Theme.COUNT)
 			return;
 
-		string css = "/org/crown/level_editor/ui/style-%s.css".printf(theme == Theme.DARK ? "dark" : "light");
+		string css = "/org/crownengine/Crown/ui/style-%s.css".printf(theme == Theme.DARK ? "dark" : "light");
 		_css_provider.load_from_resource(css);
 	}
 
@@ -942,7 +942,7 @@ public class LevelEditorApplication : Gtk.Application
 		_inspector_stack_stopping_backend_label = stopping_backend_label();
 		_inspector_stack.add(_inspector_stack_stopping_backend_label);
 
-		Gtk.Builder builder = new Gtk.Builder.from_resource("/org/crown/level_editor/ui/toolbar.ui");
+		Gtk.Builder builder = new Gtk.Builder.from_resource("/org/crownengine/Crown/ui/toolbar.ui");
 		_toolbar = builder.get_object("toolbar") as Gtk.Toolbar;
 		_toolbar_run = builder.get_object("run") as Gtk.ToolButton;
 
