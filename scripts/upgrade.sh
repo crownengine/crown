@@ -483,6 +483,33 @@ update_tinyexpr () {
 	git commit -m "3rdparty: update tinyexpr"
 }
 
+update_ufbx () {
+	# Download latest tinyexpr.
+	local REPO=https://github.com/ufbx/ufbx
+	local DEST=3rdparty/ufbx
+	local BRANCH=v0.15.0
+
+	rm -rf "${DEST}"
+	git_clone "${DEST}" "${REPO}" "${BRANCH}"
+
+	# Cleanup.
+	rm -r "${DEST}"/.git
+	rm -r "${DEST}"/.github
+	rm -r "${DEST}"/bindgen
+	rm -r "${DEST}"/data
+	rm -r "${DEST}"/examples
+	rm -r "${DEST}"/extra
+	rm -r "${DEST}"/misc
+	rm -r "${DEST}"/test
+	rm "${DEST}"/.gitattributes
+	rm "${DEST}"/.gitignore
+	rm "${DEST}"/README.md
+
+	# Add changes and commit.
+	git add -f "${DEST}"
+	git commit -m "3rdparty: update ufbx"
+}
+
 print_help () {
 	echo "Usage: scripts/upgrade.sh <dependency-name>"
 }
@@ -515,6 +542,10 @@ while true; do
 		;;
 	gtk_theme)
 		update_gtk_theme
+		exit $?
+		;;
+	ufbx)
+		update_ufbx
 		exit $?
 		;;
 	*)
