@@ -16,7 +16,7 @@ The flexible game engine. [![Build Status](https://github.com/crownengine/crown/
 
 ### [Editor](https://github.com/crownengine/crown/tree/master/tools/level_editor)
 
-![crown-editor](https://raw.githubusercontent.com/crownengine/crown/master/docs/shots/crown-editor.png)
+![level-editor](https://raw.githubusercontent.com/crownengine/crown/master/docs/shots/level-editor.png)
 
 ### [Examples](https://github.com/crownengine/crown/tree/master/samples)
 
