@@ -721,11 +721,8 @@ void Device::render(World &world, UnitId camera_unit)
 		: _boot_config.aspect_ratio
 		);
 	CameraInstance camera = world.camera_instance(camera_unit);
-	world.camera_set_aspect(camera, aspect_ratio);
-	world.camera_set_viewport_metrics(camera, 0, 0, _width, _height);
-
 	const Matrix4x4 view = world.camera_view_matrix(camera);
-	const Matrix4x4 proj = world.camera_projection_matrix(camera);
+	const Matrix4x4 proj = world.camera_projection_matrix(camera, aspect_ratio);
 
 	const bgfx::Caps *caps = bgfx::getCaps();
 	f32 bx_ortho[16];

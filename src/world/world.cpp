@@ -11,6 +11,7 @@
 #include "core/math/vector4.inl"
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/string_id.inl"
+#include "device/device.h"
 #include "lua/lua_environment.h"
 #include "resource/resource_manager.h"
 #include "resource/unit_resource.h"
@@ -322,7 +323,7 @@ ProjectionType::Enum World::camera_projection_type(CameraInstance camera)
 	return _camera[camera.i].projection_type;
 }
 
-Matrix4x4 World::camera_projection_matrix(CameraInstance camera)
+Matrix4x4 World::camera_projection_matrix(CameraInstance camera, f32 aspect_ratio)
 {
 	Camera &cam = _camera[camera.i];
 
@@ -331,8 +332,8 @@ Matrix4x4 World::camera_projection_matrix(CameraInstance camera)
 	switch (cam.projection_type) {
 	case ProjectionType::ORTHOGRAPHIC:
 		bx::mtxOrtho(bx_proj
-			, -cam.half_size * cam.aspect
-			, cam.half_size * cam.aspect
+			, -cam.half_size * aspect_ratio
+			, cam.half_size * aspect_ratio
 			, -cam.half_size
 			, cam.half_size
 			, cam.near_range
@@ -345,7 +346,7 @@ Matrix4x4 World::camera_projection_matrix(CameraInstance camera)
 	case ProjectionType::PERSPECTIVE:
 		bx::mtxProj(bx_proj
 			, fdeg(cam.fov)
-			, cam.aspect
+			, aspect_ratio
 			, cam.near_range
 			, cam.far_range
 			, caps->homogeneousDepth
@@ -378,11 +379,6 @@ void World::camera_set_fov(CameraInstance camera, f32 fov)
 	_camera[camera.i].fov = fov;
 }
 
-void World::camera_set_aspect(CameraInstance camera, f32 aspect)
-{
-	_camera[camera.i].aspect = aspect;
-}
-
 f32 World::camera_near_clip_distance(CameraInstance camera)
 {
 	return _camera[camera.i].near_range;
@@ -408,22 +404,17 @@ void World::camera_set_orthographic_size(CameraInstance camera, f32 half_size)
 	_camera[camera.i].half_size = half_size;
 }
 
-void World::camera_set_viewport_metrics(CameraInstance camera, u16 x, u16 y, u16 width, u16 height)
-{
-	_camera[camera.i].view_x = x;
-	_camera[camera.i].view_y = y;
-	_camera[camera.i].view_width = width;
-	_camera[camera.i].view_height = height;
-}
-
 Vector3 World::camera_screen_to_world(CameraInstance camera, const Vector3 &pos)
 {
-	const f32 w = _camera[camera.i].view_width;
-	const f32 h = _camera[camera.i].view_height;
+	u16 view_width;
+	u16 view_height;
+	device()->resolution(view_width, view_height);
+	const f32 w = (f32)view_width;
+	const f32 h = (f32)view_height;
 
 	TransformInstance ti = _scene_graph->instance(_camera[camera.i].unit);
 
-	Matrix4x4 projection = camera_projection_matrix(camera);
+	Matrix4x4 projection = camera_projection_matrix(camera, w/h);
 	Matrix4x4 world_inv = _scene_graph->world_pose(ti);
 	invert(world_inv);
 	Matrix4x4 mvp = world_inv * projection;
@@ -445,14 +436,17 @@ Vector3 World::camera_screen_to_world(CameraInstance camera, const Vector3 &pos)
 
 Vector3 World::camera_world_to_screen(CameraInstance camera, const Vector3 &pos)
 {
-	const f32 x = _camera[camera.i].view_x;
-	const f32 y = _camera[camera.i].view_y;
-	const f32 w = _camera[camera.i].view_width;
-	const f32 h = _camera[camera.i].view_height;
+	u16 view_width;
+	u16 view_height;
+	device()->resolution(view_width, view_height);
+	const f32 x = 0.0f;
+	const f32 y = 0.0f;
+	const f32 w = (f32)view_width;
+	const f32 h = (f32)view_height;
 
 	TransformInstance ti = _scene_graph->instance(_camera[camera.i].unit);
 
-	Matrix4x4 projection = camera_projection_matrix(camera);
+	Matrix4x4 projection = camera_projection_matrix(camera, w/h);
 	Matrix4x4 world_inv = _scene_graph->world_pose(ti);
 	invert(world_inv);
 

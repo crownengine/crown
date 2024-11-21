@@ -30,17 +30,9 @@ struct World
 
 		Frustum frustum;
 		f32 fov;
-		f32 aspect;
 		f32 near_range;
 		f32 far_range;
-
-		// Orthographic projection only
-		f32 half_size;
-
-		u16 view_x;
-		u16 view_y;
-		u16 view_width;
-		u16 view_height;
+		f32 half_size; // Orthographic projection only.
 	};
 
 	u32 _marker;
@@ -117,7 +109,7 @@ struct World
 	ProjectionType::Enum camera_projection_type(CameraInstance camera);
 
 	/// Returns the projection matrix of the @a camera.
-	Matrix4x4 camera_projection_matrix(CameraInstance camera);
+	Matrix4x4 camera_projection_matrix(CameraInstance camera, f32 aspect_ratio);
 
 	/// Returns the view matrix of the @a camera.
 	Matrix4x4 camera_view_matrix(CameraInstance camera);
@@ -127,9 +119,6 @@ struct World
 
 	/// Sets the field-of-view of the @a camera in degrees.
 	void camera_set_fov(CameraInstance camera, f32 fov);
-
-	/// Sets the aspect ratio of the @a camera. (Perspective projection only.)
-	void camera_set_aspect(CameraInstance camera, f32 aspect);
 
 	/// Returns the near clip distance of the @a camera.
 	f32 camera_near_clip_distance(CameraInstance camera);
@@ -146,9 +135,6 @@ struct World
 	/// Sets the vertical *half_size* of the orthographic view volume.
 	/// The horizontal size is proportional to the viewport's aspect ratio.
 	void camera_set_orthographic_size(CameraInstance camera, f32 half_size);
-
-	/// Sets the coordinates for the @a camera viewport in pixels.
-	void camera_set_viewport_metrics(CameraInstance camera, u16 x, u16 y, u16 width, u16 height);
 
 	/// Returns @a pos from screen-space to world-space coordinates.
 	Vector3 camera_screen_to_world(CameraInstance camera, const Vector3 &pos);
