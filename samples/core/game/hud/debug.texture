@@ -4,16 +4,16 @@ generate_mips = false
 normal_map = false
 output = {
 	android = {
-		format = "RGBA8"
+		format = "BC3"
 	}
 	html5 = {
-		format = "RGBA8"
+		format = "BC3"
 	}
 	linux = {
-		format = "RGBA8"
+		format = "BC3"
 	}
 	windows = {
-		format = "RGBA8"
+		format = "BC3"
 	}
 }
 source = "core/game/hud/debug.png"
