@@ -47,6 +47,51 @@ public enum TextureFormat
 
 public class TextureResource
 {
+	public Database _db;
+	public Guid _id;
+
+	public TextureResource(Database db, Guid id, string source_image, TextureFormat output_format, bool generate_mips, bool is_normal_map)
+	{
+		_db = db;
+		_id = id;
+
+		_db.create(_id, "texture");
+
+		for (int tp = 0; tp < TargetPlatform.COUNT; ++tp) {
+			string platform = ((TargetPlatform)tp).to_key();
+			_db.set_property_string(_id, "source", source_image);
+			_db.set_property_string(_id, "output." + platform + ".format", output_format.to_key());
+			_db.set_property_bool(_id, "output." + platform + ".generate_mips", generate_mips);
+			_db.set_property_bool(_id, "output." + platform + ".normal_map", is_normal_map);
+			_db.set_property_double(_id, "output." + platform + ".mip_skip_smallest", 0);
+		}
+	}
+
+	public TextureResource.color_map(Database db, Guid texture_id, string source_image)
+	{
+		this(db, texture_id, source_image, TextureFormat.BC1, true, false);
+	}
+
+	public TextureResource.normal_map(Database db, Guid texture_id, string source_image)
+	{
+		this(db, texture_id, source_image, TextureFormat.BC5, true, true);
+	}
+
+	public TextureResource.font_atlas(Database db, Guid texture_id, string source_image)
+	{
+		this(db, texture_id, source_image, TextureFormat.BC3, false, false);
+	}
+
+	public TextureResource.sprite(Database db, Guid texture_id, string source_image)
+	{
+		this(db, texture_id, source_image, TextureFormat.RGBA8, false, false);
+	}
+
+	public void save(Project project, string resource_name)
+	{
+		_db.save(project.absolute_path(resource_name) + ".texture", _id);
+	}
+
 	public static ImportResult import(Project project, string destination_dir, SList<string> filenames)
 	{
 		foreach (unowned string filename_i in filenames) {
@@ -65,14 +110,8 @@ public class TextureResource
 			}
 
 			Database db = new Database(project);
-
-			Guid texture_id = Guid.new_guid();
-			db.create(texture_id, "texture");
-			db.set_property_string(texture_id, "source", resource_path);
-			db.set_property_bool  (texture_id, "generate_mips", true);
-			db.set_property_bool  (texture_id, "normal_map", false);
-
-			db.save(project.absolute_path(resource_name) + ".texture", texture_id);
+			var texture_resource = new TextureResource.color_map(db, Guid.new_guid(), resource_path);
+			texture_resource.save(project, resource_name);
 		}
 
 		return ImportResult.SUCCESS;

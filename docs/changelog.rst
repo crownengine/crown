@@ -11,6 +11,7 @@ Changelog
 * Snapping is now disabled by default.
 * Fixed the Camera Compass and Gizmos not updating immediately in some circumnstances.
 * Fixed opening core folders from Favorites.
+* Resource importers will now generate textures with appropriate default settings.
 
 **Runtime**
 

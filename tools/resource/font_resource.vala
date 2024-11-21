@@ -84,13 +84,8 @@ public class FontResource
 			Database db = new Database(project);
 
 			// Generate .texture resource.
-			Guid texture_id = Guid.new_guid();
-			db.create(texture_id, "texture");
-			db.set_property_string(texture_id, "source", resource_name + ".png");
-			db.set_property_bool  (texture_id, "generate_mips", false);
-			db.set_property_bool  (texture_id, "normal_map", false);
-
-			db.save(project.absolute_path(resource_name) + ".texture", texture_id);
+			var texture_resource = new TextureResource.font_atlas(db, Guid.new_guid(), resource_name + ".png");
+			texture_resource.save(project, resource_name);
 			db.reset();
 
 			// Generate .material resource.
