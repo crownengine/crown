@@ -882,6 +882,11 @@ public class ProjectBrowser : Gtk.Bin
 	{
 		string dir_name = param.get_string();
 
+		if (dir_name.has_prefix("core/") || dir_name == "core") {
+			_hide_core_resources = false;
+			_tree_filter.refilter();
+		}
+
 		Gtk.TreePath store_path;
 		if (_project_store.path_for_resource_type_name(out store_path, "<folder>", dir_name)) {
 			Gtk.TreePath filter_path = _tree_filter.convert_child_path_to_path(store_path);

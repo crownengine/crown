@@ -10,6 +10,7 @@ Changelog
 * Fixed the Project Browser not updating when adding/removing files.
 * Snapping is now disabled by default.
 * Fixed the Camera Compass and Gizmos not updating immediately in some circumnstances.
+* Fixed opening core folders from Favorites.
 
 **Runtime**
 
