@@ -7,6 +7,44 @@ using Gee;
 
 namespace Crown
 {
+public enum TextureFormat
+{
+	BC1,
+	BC2,
+	BC3,
+	BC4,
+	BC5,
+	PTC14,
+	RGB8,
+	RGBA8,
+
+	COUNT;
+
+	public string to_key()
+	{
+		switch (this) {
+		case BC1:
+			return "BC1";
+		case BC2:
+			return "BC2";
+		case BC3:
+			return "BC3";
+		case BC4:
+			return "BC4";
+		case BC5:
+			return "BC5";
+		case PTC14:
+			return "PTC14";
+		case RGB8:
+			return "RGB8";
+		case RGBA8:
+			return "RGBA8";
+		default:
+			return "BC1";
+		}
+	}
+}
+
 public class TextureResource
 {
 	public static ImportResult import(Project project, string destination_dir, SList<string> filenames)

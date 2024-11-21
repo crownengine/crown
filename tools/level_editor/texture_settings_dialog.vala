@@ -5,32 +5,6 @@
 
 namespace Crown
 {
-public enum TextureFormat
-{
-	BC1,
-	BC2,
-	BC3,
-	BC4,
-	BC5,
-	PTC14,
-	RGB8,
-	RGBA8,
-
-	COUNT
-}
-
-const string texture_formats[] =
-{
-	"BC1",
-	"BC2",
-	"BC3",
-	"BC4",
-	"BC5",
-	"PTC14",
-	"RGB8",
-	"RGBA8"
-};
-
 public class TextureSettingsDialog : Gtk.Window
 {
 	public Project _project;
@@ -120,6 +94,10 @@ public class TextureSettingsDialog : Gtk.Window
 		_texture_set.add_property_grid(cv, "Input");
 
 		// Output grid.
+		string[] texture_formats = new string[TextureFormat.COUNT];
+		for (int tf = 0; tf < TextureFormat.COUNT; ++tf)
+			texture_formats[tf] = ((TextureFormat)tf).to_key();
+
 		_format = new ComboBoxMap(TextureFormat.BC1
 			, texture_formats
 			, texture_formats
