@@ -1515,12 +1515,12 @@ function LevelEditor:update(dt)
 end
 
 function LevelEditor:render(dt)
-	Device.render(self._world, self._camera:unit())
-
 	DebugLine.submit(self._lines)
 	DebugLine.reset(self._lines)
 	DebugLine.submit(self._lines_no_depth)
 	DebugLine.reset(self._lines_no_depth)
+
+	Device.render(self._world, self._camera:unit())
 end
 
 function LevelEditor:shutdown()
