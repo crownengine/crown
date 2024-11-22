@@ -97,5 +97,6 @@ if _OPTIONS["with-tools"] then
 
 	if not _OPTIONS["no-editor"] then
 		dofile ("crown-editor.lua")
+		dofile ("crown-launcher.lua")
 	end
 end

@@ -136,3 +136,7 @@
 #ifndef CROWN_USE_LUAJIT
 	#define CROWN_USE_LUAJIT 1
 #endif
+
+#ifndef CROWN_LOG_TO_CONSOLE
+	#define CROWN_LOG_TO_CONSOLE 1
+#endif

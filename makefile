@@ -251,6 +251,20 @@ crown-editor-mingw-release64: \
 	build/projects/mingw
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw crown-editor config=release64
 
+crown-launcher-linux-debug64: \
+	build/projects/linux
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux crown-launcher config=debug64
+crown-launcher-linux-release64: \
+	build/projects/linux
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux crown-launcher config=release64
+
+crown-launcher-mingw-debug64: \
+	build/projects/mingw
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw crown-launcher config=debug64
+crown-launcher-mingw-release64: \
+	build/projects/mingw
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw crown-launcher config=release64
+
 tools-linux-release32:       \
 	build/linux32/bin/luajit \
 	build/linux32/bin/luac

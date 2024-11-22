@@ -3,14 +3,17 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include "config.h"
 #include "core/memory/temp_allocator.inl"
 #include "core/os.h"
 #include "core/platform.h"
 #include "core/strings/string.inl"
 #include "core/strings/string_stream.inl"
 #include "core/thread/scoped_mutex.inl"
-#include "device/console_server.h"
 #include "device/log.h"
+#if CROWN_LOG_TO_CONSOLE
+	#include "device/console_server.h"
+#endif
 #include <stb_sprintf.h>
 
 namespace crown
@@ -40,6 +43,9 @@ namespace log_internal
 	/// Sends a log message to all clients.
 	static void console_log(LogSeverity::Enum sev, System system, const char *msg)
 	{
+#if !CROWN_LOG_TO_CONSOLE
+		CE_UNUSED_3(sev, system, msg);
+#else
 		if (!console_server())
 			return;
 
@@ -65,6 +71,7 @@ namespace log_internal
 		ss << "\"}";
 
 		console_server()->broadcast(string_stream::c_str(ss));
+#endif // if !CROWN_LOG_TO_CONSOLE
 	}
 
 	void vlogx(LogSeverity::Enum sev, System system, const char *msg, va_list args)

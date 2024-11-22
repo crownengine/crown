@@ -99,6 +99,7 @@ elif [ "${PLATFORM}" = "html5" ]; then
 elif [ "${PLATFORM}" = "linux" ]; then
 	make tools-linux-release32 MAKE_JOBS="${BUILD_JOBS}"
 	make tools-linux-release64 MAKE_JOBS="${BUILD_JOBS}"
+	make crown-launcher-linux-release64 MAKE_JOBS="${BUILD_JOBS}"
 	make linux-release64 MAKE_JOBS="${BUILD_JOBS}"
 elif [ "${PLATFORM}" = "windows" ]; then
 	/c/Windows/System32/cmd.exe //C "scripts\\dist\\windows-release.bat"
@@ -107,6 +108,7 @@ elif [ "${PLATFORM}" = "windows" ]; then
 	export MINGW=/mingw64
 	export PATH="${MINGW}/bin:${PATH}"
 	make tools-mingw-release64 MAKE_JOBS="${BUILD_JOBS}"
+	make crown-launcher-mingw-release64 MAKE_JOBS="${BUILD_JOBS}"
 
 	# Copy required DLLs.
 	ldd build/mingw64/bin/crown-editor-release.exe | grep '\/mingw.*\.dll' -o | xargs -I{} cp "{}" build/mingw64/bin
@@ -199,42 +201,16 @@ if [ "${PLATFORM}" = "linux" ] || [ "${PLATFORM}" = "windows" ]; then
 	cp -r samples   "${PACKAGENAME}"
 	mv    "${PACKAGENAME}"/samples/core "${PACKAGENAME}"
 
-	# Create script that launches the editor.
 	if [ "${PLATFORM}" = "linux" ]; then
-		{
-			echo "#!/bin/sh"
-			echo "PROJECT=\$1"
-			echo "LEVEL=\$2"
-			echo "if [ ! -z \$PROJECT ]; then"
-			echo "	PROJECT=\$(readlink -f \${PROJECT})"
-			echo "fi"
-			# https://stackoverflow.com/questions/59895/how-to-get-the-source-directory-of-a-bash-script-from-within-the-script-itself
-			echo "DIR=\"\$( cd \"\$( dirname \"\$0\" )\" >/dev/null 2>&1 && pwd )\""
-			echo "cd \${DIR}/platforms/linux64/bin"
-			echo "export UBUNTU_MENUPROXY="
-			echo "./crown-editor-release \${PROJECT} \${LEVEL}"
-		} > "${PACKAGENAME}"/crown
-		chmod +x "${PACKAGENAME}"/crown
+		# Copy crown-launcher.
+		mv "${PACKAGENAME}"/platforms/linux64/bin/crown-launcher-release "${PACKAGENAME}"/crown-launcher
 
 		# Copy app icon and .desktop file.
 		cp scripts/dist/linux/org.crownengine.Crown.desktop "${PACKAGENAME}"
 		cp tools/level_editor/resources/icons/crown-black-socket.svg "${PACKAGENAME}"/org.crownengine.Crown.svg
 	elif [ "${PLATFORM}" = "windows" ]; then
-		{
-			echo "@echo off"
-			echo "call :ABSOLUTEPATH %1"
-			echo "set PROJECT=%RETVAL%"
-			echo "set LEVEL=%2"
-			echo ""
-			echo "cd platforms\windows64\bin"
-			echo "start crown-editor-release.exe %PROJECT% %LEVEL%"
-			echo ""
-			echo "exit"
-			echo ""
-			echo ":ABSOLUTEPATH"
-			echo "  SET RETVAL=%~dpfn1"
-			echo "  EXIT /B"
-		} > "${PACKAGENAME}"/crown.bat
+		# Copy crown-launcher.
+		mv "${PACKAGENAME}"/platforms/windows64/bin/crown-launcher-release.exe "${PACKAGENAME}"/crown-launcher.exe
 	fi
 fi
 
