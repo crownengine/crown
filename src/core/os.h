@@ -131,6 +131,10 @@ namespace os
 	/// Returns the value of the environment variable @a name.
 	const char *getenv(const char *name);
 
+	/// Sets the environment variable @a name to @a value. If the variable
+	/// does not exist it creates it. Returns 0 on success, otherwise it returns -1.
+	s32 setenv(const char *name, const char *value);
+
 	///
 	s32 access(const char *path, u32 flags);
 

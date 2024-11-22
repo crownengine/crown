@@ -259,6 +259,15 @@ namespace os
 #endif
 	}
 
+	s32 setenv(const char *name, const char *value)
+	{
+#if CROWN_PLATFORM_WINDOWS
+		return SetEnvironmentVariable(name, value) != 0 ? 0 : -1;
+#else
+		return ::setenv(name, value, 1);
+#endif
+	}
+
 	void list_files(const char *path, Vector<DynamicString> &files)
 	{
 #if CROWN_PLATFORM_WINDOWS
