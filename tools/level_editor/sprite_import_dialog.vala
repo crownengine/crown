@@ -287,6 +287,7 @@ public class SpriteImportDialog : Gtk.Dialog
 		PropertyGridSet sprite_set = new PropertyGridSet();
 		sprite_set.border_width = 6;
 
+		// Slices.
 		PropertyGrid cv;
 		cv = new PropertyGrid();
 		cv.add_row("Name", _unit_name);
@@ -300,20 +301,16 @@ public class SpriteImportDialog : Gtk.Dialog
 		cv.add_row("Offset", offset);
 		cv.add_row("Spacing", spacing);
 		cv.add_row("Pivot", pivot);
+		cv.add_row("Collision", collision_enabled);
 		sprite_set.add_property_grid(cv, "Image");
 
+		// Sprite Renderer.
 		cv = new PropertyGrid();
 		cv.add_row("Layer", layer);
 		cv.add_row("Depth", depth);
 		sprite_set.add_property_grid(cv, "Sprite Renderer");
 
-		cv = new PropertyGrid();
-		cv.add_row("Collision", collision_enabled);
-		cv.add_row("Class", actor_class);
-		cv.add_row("Mass", mass);
-		cv.add_row("Lock Rotation", lock_rotation_y);
-		sprite_set.add_property_grid(cv, "Actor");
-
+		// Collider.
 		shape = new Gtk.Stack();
 		shape.notify["visible-child"].connect(() => { _preview.queue_draw(); });
 
@@ -340,6 +337,13 @@ public class SpriteImportDialog : Gtk.Dialog
 		cv.add_row("Shape Type", shape_switcher);
 		cv.add_row("Shape Data", shape);
 		sprite_set.add_property_grid(cv, "Collider");
+
+		// Actor.
+		cv = new PropertyGrid();
+		cv.add_row("Class", actor_class);
+		cv.add_row("Mass", mass);
+		cv.add_row("Lock Rotation", lock_rotation_y);
+		sprite_set.add_property_grid(cv, "Actor");
 
 		_previous_frame = new Gtk.Button.from_icon_name("go-previous-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
 		_previous_frame.clicked.connect(() => {
