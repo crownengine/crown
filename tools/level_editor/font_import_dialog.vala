@@ -66,10 +66,9 @@ private void copy_alpha_to_argb32(Cairo.ImageSurface dst, Cairo.ImageSurface src
 
 public class FontImportDialog : Gtk.Dialog
 {
-	public Cairo.Surface _checker;
 	public FontAtlas* _font_atlas;
 	public Cairo.ImageSurface _atlas;
-	public Gtk.DrawingArea _drawing_area;
+	public PixbufView _drawing_area;
 	public Gtk.ScrolledWindow _scrolled_window;
 
 	public Gtk.Label _atlas_size;
@@ -111,6 +110,8 @@ public class FontImportDialog : Gtk.Dialog
 			);
 
 		_atlas_size.set_text(_atlas.get_width().to_string() + " × " + _atlas.get_height().to_string());
+		_drawing_area.set_pixbuf(Gdk.pixbuf_get_from_surface(_atlas, 0, 0, _atlas.get_width(), _atlas.get_height()));
+		_drawing_area._zoom = 1.0;
 	}
 
 	public GlyphData* glyph_data(int index)
@@ -134,44 +135,9 @@ public class FontImportDialog : Gtk.Dialog
 		this.title = "Import Font...";
 		this.set_icon_name(CROWN_EDITOR_ICON_NAME);
 
-		// Create checkered pattern
-		{
-			int width = 16;
-			int height = 16;
-			_checker = new Cairo.ImageSurface(Cairo.Format.RGB24, width, height);
-
-			Cairo.Context cr = new Cairo.Context(_checker);
-			cr.set_source_rgb(0.9, 0.9, 0.9);
-			cr.paint();
-			cr.set_source_rgb(0.7, 0.7, 0.7);
-			cr.rectangle(width / 2, 0, width / 2, height / 2);
-			cr.rectangle(0, height / 2, width / 2, height / 2);
-			cr.fill();
-		}
-
-		_drawing_area = new Gtk.DrawingArea();
-		_drawing_area.draw.connect((cr) => {
-				cr.set_source_rgb(0.1, 0.1, 0.1);
-				cr.paint();
-
-				cr.save();
-				cr.set_source_surface(_checker, 0, 0);
-				Cairo.Pattern pattern = cr.get_source();
-				pattern.set_filter(Cairo.Filter.NEAREST);
-				pattern.set_extend(Cairo.Extend.REPEAT);
-				cr.rectangle(0, 0, _atlas.get_width(), _atlas.get_height());
-				cr.clip();
-				cr.paint();
-				cr.restore();
-
-				cr.save();
-				cr.set_source_surface(_atlas, 0, 0);
-				cr.rectangle(0, 0, _atlas.get_width(), _atlas.get_height());
-				cr.paint();
-				cr.restore();
-
-				return Gdk.EVENT_STOP;
-			});
+		_drawing_area = new PixbufView();
+		_drawing_area._filter = Cairo.Filter.BILINEAR;
+		_drawing_area._extend = Cairo.Extend.NONE;
 
 		_scrolled_window = new Gtk.ScrolledWindow(null, null);
 		_scrolled_window.min_content_width = 640;
