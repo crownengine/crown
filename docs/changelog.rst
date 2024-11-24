@@ -12,6 +12,7 @@ Changelog
 * Fixed the Camera Compass and Gizmos not updating immediately in some circumnstances.
 * Fixed opening core folders from Favorites.
 * Resource importers will now generate textures with appropriate default settings.
+* Added thumbnails to the Project Browser's tree view.
 
 **Runtime**
 
