@@ -10,7 +10,7 @@ public class ThumbnailCache
 	[Compact]
 	public struct CacheEntry
 	{
-		Gdk.Pixbuf? pixbuf;            ///< Pixbuf area inside the atlas.
+		int id;                        ///< Entry unique ID. Used to convert the entry to a Pixbuf area inside the atlas.
 		unowned List<StringId64?> lru; ///< Pointer to LRU list entry.
 		uint64 mtime;                  ///< Pixbuf last modification time.
 		bool pending;                  ///< Whether a request to generate the thumbnail is pending.
@@ -21,9 +21,12 @@ public class ThumbnailCache
 	public Project _project;
 	public RuntimeInstance _thumbnail;
 	public Gdk.Pixbuf _atlas;
+	public int _mip0_width;
+	public int _mip0_height;
 	public GLib.List<StringId64?> _list;
 	public Gee.HashMap<StringId64?, CacheEntry?> _map;
 	public uint _max_cache_size;
+	public bool _no_disk_cache; // Debug only: always go through server to get a thumbnail.
 
 	// Called when the cache changed its content.
 	public signal void changed();
@@ -34,6 +37,7 @@ public class ThumbnailCache
 		_thumbnail = thumbnail;
 		_list = new GLib.List<StringId64?>();
 		_map = new Gee.HashMap<StringId64?, CacheEntry?>(StringId64.hash_func, StringId64.equal_func);
+		_no_disk_cache = false;
 
 		reset(max_cache_size);
 	}
@@ -68,19 +72,31 @@ public class ThumbnailCache
 		return GLib.Path.build_filename(_thumbnails_normal_dir.get_path(), thumb_filename);
 	}
 
-	public Gdk.Pixbuf? create_thumbnail_subpixbuf()
+	public Gdk.Pixbuf? thumbnail_subpixbuf(int entry_id, int thumb_size = THUMBNAIL_SIZE)
 	{
-		int thumbs_per_row = _atlas.get_width() / THUMBNAIL_SIZE;
-		int thumb_row = (int)_list.length() / thumbs_per_row;
-		int thumb_col = (int)_list.length() % thumbs_per_row;
-		int dest_x = thumb_col * THUMBNAIL_SIZE;
-		int dest_y = thumb_row * THUMBNAIL_SIZE;
+		assert(thumb_size <= THUMBNAIL_SIZE);
+
+		int thumbs_per_row = _mip0_width / THUMBNAIL_SIZE;
+		int thumb_row = entry_id / thumbs_per_row;
+		int thumb_col = entry_id % thumbs_per_row;
+		int mip_level = THUMBNAIL_SIZE / thumb_size;
+		int dest_x;
+		int dest_y;
+
+		if (mip_level == 1) {
+			dest_x = thumb_col * thumb_size;
+			dest_y = thumb_row * thumb_size;
+		} else {
+			int half_ml = mip_level / 2;
+			dest_x = thumb_col * thumb_size + _mip0_width;
+			dest_y = thumb_row * thumb_size + (int)(_mip0_height * ((half_ml - 1) / (double)half_ml));
+		}
 
 		return new Gdk.Pixbuf.subpixbuf(_atlas
 			, dest_x
 			, dest_y
-			, THUMBNAIL_SIZE
-			, THUMBNAIL_SIZE
+			, thumb_size
+			, thumb_size
 			);
 	}
 
@@ -110,7 +126,7 @@ public class ThumbnailCache
 			if (mdate != null)
 				thumb_mtime = mdate.to_unix() * 1000000000 + mdate.get_microsecond() * 1000; // Convert to ns.
 
-			copy_thumbnail_from_path(entry.pixbuf, thumb_path_dst.get_path());
+			load_thumbnail_from_path(entry.id, thumb_path_dst.get_path());
 			entry.mtime = thumb_mtime;
 			entry.pending = false;
 			_map.set(resource_id, entry);
@@ -125,8 +141,8 @@ public class ThumbnailCache
 	{
 		thumbnail.copy_area(0
 			, 0
-			, THUMBNAIL_SIZE
-			, THUMBNAIL_SIZE
+			, thumbnail.width
+			, thumbnail.height
 			, subpixbuf
 			, 0
 			, 0
@@ -135,14 +151,31 @@ public class ThumbnailCache
 		changed();
 	}
 
-	public void copy_thumbnail_from_path(Gdk.Pixbuf? subpixbuf, string thumbnail_path) throws GLib.Error
+	// Generates mips for @a thumb_id. The main thumbnail for @a thumb_id
+	// is assumed to be already loaded into the atlas.
+	public void generate_mips(int thumb_id)
 	{
+		Gdk.Pixbuf main_thumbnail = thumbnail_subpixbuf(thumb_id, THUMBNAIL_SIZE);
+
+		for (int size = THUMBNAIL_SIZE / 2; size >= 16; size /= 2) {
+			Gdk.Pixbuf? mip = thumbnail_subpixbuf(thumb_id, size);
+			Gdk.Pixbuf main_scaled = main_thumbnail.scale_simple(mip.width, mip.height, Gdk.InterpType.BILINEAR);
+			copy_thumbnail(mip, main_scaled);
+		}
+	}
+
+	public void load_thumbnail_from_path(int thumb_id, string thumbnail_path) throws GLib.Error
+	{
+		Gdk.Pixbuf? subpixbuf = thumbnail_subpixbuf(thumb_id, THUMBNAIL_SIZE);
+
 		try {
 			var thumbnail = new Gdk.Pixbuf.from_file_at_size(thumbnail_path
-				, THUMBNAIL_SIZE
-				, THUMBNAIL_SIZE
+				, subpixbuf.width
+				, subpixbuf.height
 				);
 			copy_thumbnail(subpixbuf, thumbnail);
+
+			generate_mips(thumb_id);
 		} finally {
 			// Empty.
 		}
@@ -153,22 +186,22 @@ public class ThumbnailCache
 		_list = new GLib.List<StringId64?>(); // No clear?
 		_map.clear();
 
-		int height;
-		int width = (int)Math.sqrt(max_size);
-		width /= 4; // 4 bytes per pixel.
-		width -= width % THUMBNAIL_SIZE;
-		height = width;
-		_max_cache_size = (width / THUMBNAIL_SIZE) * (height / THUMBNAIL_SIZE);
+		double mip0_max_area = (double)max_size * (2.0/3.0); // Remaining 1/3 for mip 1, 2, ...
+		_mip0_width = (int)(Math.sqrt(mip0_max_area));
+		_mip0_width /= 4; // 4 bytes per pixel.
+		_mip0_width -= _mip0_width % THUMBNAIL_SIZE;
+		_mip0_height = _mip0_width;
+		_max_cache_size = (_mip0_width / THUMBNAIL_SIZE) * (_mip0_height / THUMBNAIL_SIZE);
 
 		_atlas = new Gdk.Pixbuf(Gdk.Colorspace.RGB
 			, true
 			, 8
-			, width
-			, height
+			, _mip0_width + _mip0_width / 2
+			, _mip0_height
 			);
 	}
 
-	public Gdk.Pixbuf? get(string type, string name)
+	public Gdk.Pixbuf? get(string type, string name, int thumb_size = THUMBNAIL_SIZE)
 	{
 		if (!_project.is_loaded())
 			return null;
@@ -188,37 +221,39 @@ public class ThumbnailCache
 			entry.lru = _list.last();
 			_map.set(resource_id, entry);
 		} else {
-			Gdk.Pixbuf? pixbuf = null;
+			int entry_id = 0;
 
 			if (_list.length() == _max_cache_size) {
 				// Evict the least recently used entry.
 				unowned List<StringId64?> lru = _list.nth(0);
 				// Reuse the subpixbuf from the evicted entry.
-				pixbuf = _map.get(lru.data).pixbuf;
+				entry_id = _map.get(lru.data).id;
 				_map.unset(lru.data);
 				_list.remove_link(lru);
 			} else {
 				// Create a new subpixbuf if the entry is new.
-				pixbuf = create_thumbnail_subpixbuf();
+				entry_id = (int)_list.length();
 			}
 
 			uint64 thumb_mtime = 0;
 			try {
-				// Read thumbnail from disk.
-				GLib.File thumb_path_dst = GLib.File.new_for_path(thumbnail_path(resource_path));
-				GLib.FileInfo thumb_info = thumb_path_dst.query_info("*", GLib.FileQueryInfoFlags.NOFOLLOW_SYMLINKS);
-				GLib.DateTime? mdate = thumb_info.get_modification_date_time();
-				if (mdate != null)
-					thumb_mtime = mdate.to_unix() * 1000000000 + mdate.get_microsecond() * 1000; // Convert to ns.
+				if (!_no_disk_cache) {
+					// Read thumbnail from disk.
+					GLib.File thumb_path_dst = GLib.File.new_for_path(thumbnail_path(resource_path));
+					GLib.FileInfo thumb_info = thumb_path_dst.query_info("*", GLib.FileQueryInfoFlags.NOFOLLOW_SYMLINKS);
+					GLib.DateTime? mdate = thumb_info.get_modification_date_time();
+					if (mdate != null)
+						thumb_mtime = mdate.to_unix() * 1000000000 + mdate.get_microsecond() * 1000; // Convert to ns.
 
-				copy_thumbnail_from_path(pixbuf, thumb_path_dst.get_path());
+					load_thumbnail_from_path(entry_id, thumb_path_dst.get_path());
+				}
 			} catch (GLib.Error e) {
 				// Nobody cares.
 			}
 
 			// Create a new cache entry.
 			_list.append(resource_id);
-			entry = { pixbuf, _list.last(), thumb_mtime, false };
+			entry = { entry_id, _list.last(), thumb_mtime, false };
 			_map.set(resource_id, entry);
 		}
 
@@ -243,7 +278,7 @@ public class ThumbnailCache
 			}
 		}
 
-		return entry.pixbuf;
+		return thumbnail_subpixbuf(entry.id, thumb_size);
 	}
 }
 
