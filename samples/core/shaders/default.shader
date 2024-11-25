@@ -111,7 +111,7 @@ bgfx_shaders = {
 			void main()
 			{
 				gl_Position = mul(u_modelViewProj, vec4(a_position, 1.0));
-		#ifdef DIFFUSE_MAP
+		#if defined(DIFFUSE_MAP)
 				v_texcoord0 = a_texcoord0;
 		#endif // DIFFUSE_MAP
 				v_color0 = toLinearAccurate(a_color0);
@@ -123,13 +123,13 @@ bgfx_shaders = {
 		"""
 
 		fs_code = """
-		#ifdef DIFFUSE_MAP
+		#if defined(DIFFUSE_MAP)
 			SAMPLER2D(u_albedo, 0);
 		#endif // DIFFUSE_MAP
 
 			void main()
 			{
-		#ifdef DIFFUSE_MAP
+		#if defined(DIFFUSE_MAP)
 				gl_FragColor = texture2D(u_albedo, v_texcoord0) * v_color0;
 		#else
 				gl_FragColor = v_color0;
@@ -230,7 +230,7 @@ bgfx_shaders = {
 			uniform vec4 u_specular;
 		#endif
 
-		#ifdef DIFFUSE_MAP
+		#if defined(DIFFUSE_MAP)
 			SAMPLER2D(u_albedo, 0);
 		#endif // DIFFUSE_MAP
 
@@ -250,7 +250,7 @@ bgfx_shaders = {
 				vec3 color = vec3(1.0f, 1.0f, 1.0f);
 		#endif // !defined(NO_LIGHT)
 
-		#ifdef DIFFUSE_MAP
+		#if defined(DIFFUSE_MAP)
 				gl_FragColor.rgb = color * texture2D(u_albedo, v_texcoord0).rgb;
 		#else
 				gl_FragColor.rgb = color;
