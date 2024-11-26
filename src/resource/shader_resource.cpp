@@ -10,14 +10,18 @@
 #include "core/json/json_object.inl"
 #include "core/json/sjson.h"
 #include "core/memory/temp_allocator.inl"
+#include "core/option.inl"
 #include "core/process.h"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string_stream.inl"
 #include "device/device.h"
+#include "device/log.h"
 #include "resource/compile_options.inl"
 #include "resource/resource_manager.h"
 #include "resource/shader_resource.h"
 #include "world/shader_manager.h"
+
+LOG_SYSTEM(SHADER_RESOURCE, "shader_resource")
 
 namespace crown
 {
@@ -500,72 +504,141 @@ namespace shader_resource_internal
 
 	struct RenderState
 	{
-		bool _rgb_write_enable;
-		bool _alpha_write_enable;
-		bool _depth_write_enable;
-		bool _depth_enable;
-		bool _blend_enable;
-		DepthFunction::Enum _depth_func;
-		BlendFunction::Enum _blend_src;
-		BlendFunction::Enum _blend_dst;
-		BlendEquation::Enum _blend_equation;
-		CullMode::Enum _cull_mode;
-		PrimitiveType::Enum _primitive_type;
+		ALLOCATOR_AWARE;
 
-		RenderState()
+		struct State
 		{
-			reset();
+			Option<bool> _rgb_write_enable;
+			Option<bool> _alpha_write_enable;
+			Option<bool> _depth_write_enable;
+			Option<bool> _depth_enable;
+			Option<bool> _blend_enable;
+			Option<DepthFunction::Enum> _depth_func;
+			Option<BlendFunction::Enum> _blend_src;
+			Option<BlendFunction::Enum> _blend_dst;
+			Option<BlendEquation::Enum> _blend_equation;
+			Option<CullMode::Enum> _cull_mode;
+			Option<PrimitiveType::Enum> _primitive_type;
+
+			void dump()
+			{
+				logi(SHADER_RESOURCE, "rgb_write_enable %d", _rgb_write_enable.value());
+				logi(SHADER_RESOURCE, "alpha_write_enable %d", _alpha_write_enable.value());
+				logi(SHADER_RESOURCE, "depth_write_enable %d", _depth_write_enable.value());
+				logi(SHADER_RESOURCE, "depth_enable %d", _depth_enable.value());
+				logi(SHADER_RESOURCE, "blend_enable %d", _blend_enable.value());
+				logi(SHADER_RESOURCE, "depth_func %d", _depth_func.value());
+				logi(SHADER_RESOURCE, "blend_src %d", _blend_src.value());
+				logi(SHADER_RESOURCE, "blend_dst %d", _blend_dst.value());
+				logi(SHADER_RESOURCE, "blend_equation %d", _blend_equation.value());
+				logi(SHADER_RESOURCE, "cull_mode %d", _cull_mode.value());
+				logi(SHADER_RESOURCE, "primitive_type %d", _primitive_type.value());
+			}
+
+			State()
+				: _rgb_write_enable(true)
+				, _alpha_write_enable(true)
+				, _depth_write_enable(true)
+				, _depth_enable(true)
+				, _blend_enable(false)
+				, _depth_func(DepthFunction::LEQUAL)
+				, _blend_src(BlendFunction::SRC_ALPHA)
+				, _blend_dst(BlendFunction::INV_SRC_ALPHA)
+				, _blend_equation(BlendEquation::ADD)
+				, _cull_mode(CullMode::CW)
+				, _primitive_type(PrimitiveType::PT_TRIANGLES)
+			{
+			}
+
+			State(const State &other) = delete;
+
+			State &operator=(const State &other) = delete;
+
+			void overwrite_changed_properties(const State &other)
+			{
+				if (other._rgb_write_enable.has_changed())
+					_rgb_write_enable.set_value(other._rgb_write_enable.value());
+				if (other._alpha_write_enable.has_changed())
+					_alpha_write_enable.set_value(other._alpha_write_enable.value());
+				if (other._depth_write_enable.has_changed())
+					_depth_write_enable.set_value(other._depth_write_enable.value());
+				if (other._depth_enable.has_changed())
+					_depth_enable.set_value(other._depth_enable.value());
+				if (other._blend_enable.has_changed())
+					_blend_enable.set_value(other._blend_enable.value());
+				if (other._depth_func.has_changed())
+					_depth_func.set_value(other._depth_func.value());
+				if (other._blend_src.has_changed())
+					_blend_src.set_value(other._blend_src.value());
+				if (other._blend_dst.has_changed())
+					_blend_dst.set_value(other._blend_dst.value());
+				if (other._blend_equation.has_changed())
+					_blend_equation.set_value(other._blend_equation.value());
+				if (other._cull_mode.has_changed())
+					_cull_mode.set_value(other._cull_mode.value());
+				if (other._primitive_type.has_changed())
+					_primitive_type.set_value(other._primitive_type.value());
+			}
+
+			u64 encode() const
+			{
+				const u64 depth_func = _depth_enable.value()
+					? _bgfx_depth_func_map[_depth_func.value()]
+					: 0
+					;
+				const u64 blend_func = _blend_enable.value() && _blend_src.value() != BlendFunction::COUNT && _blend_dst.value() != BlendFunction::COUNT
+					? BGFX_STATE_BLEND_FUNC(_bgfx_blend_func_map[_blend_src.value()], _bgfx_blend_func_map[_blend_dst.value()])
+					: 0
+					;
+				const u64 blend_eq = _blend_enable.value() && _blend_equation.value() != BlendEquation::COUNT
+					? BGFX_STATE_BLEND_EQUATION(_bgfx_blend_equation_map[_blend_equation.value()])
+					: 0
+					;
+				const u64 cull_mode = _cull_mode.value() != CullMode::COUNT
+					? _bgfx_cull_mode_map[_cull_mode.value()]
+					: 0
+					;
+				const u64 primitive_type = _primitive_type.value() != PrimitiveType::COUNT
+					? _bgfx_primitive_type_map[_primitive_type.value()]
+					: 0
+					;
+
+				u64 state = 0;
+				state |= _rgb_write_enable.value()   ? BGFX_STATE_WRITE_RGB : 0;
+				state |= _alpha_write_enable.value() ? BGFX_STATE_WRITE_A   : 0;
+				state |= _depth_write_enable.value() ? BGFX_STATE_WRITE_Z   : 0;
+				state |= depth_func;
+				state |= blend_func;
+				state |= blend_eq;
+				state |= cull_mode;
+				state |= primitive_type;
+
+				return state;
+			}
+		};
+
+		DynamicString _inherit;
+		Vector<DynamicString> _expressions;
+		Array<State> _states;
+
+		explicit RenderState(Allocator &a)
+			: _inherit(a)
+			, _expressions(a)
+			, _states(a)
+		{
 		}
 
-		void reset()
+		void push_back_states(const DynamicString &expr, const RenderState::State &state)
 		{
-			_rgb_write_enable = true;
-			_alpha_write_enable = true;
-			_depth_write_enable = true;
-			_depth_enable = true;
-			_blend_enable = false;
-			_depth_func = DepthFunction::LEQUAL;
-			_blend_src = BlendFunction::SRC_ALPHA;
-			_blend_dst = BlendFunction::INV_SRC_ALPHA;
-			_blend_equation = BlendEquation::ADD;
-			_cull_mode = CullMode::CW;
-			_primitive_type = PrimitiveType::PT_TRIANGLES;
+			vector::push_back(_expressions, expr);
+			array::push_back(_states, state);
 		}
 
-		u64 encode() const
+		void push_back_states(const char *expr, const RenderState::State &state)
 		{
-			const u64 depth_func = _depth_enable
-				? _bgfx_depth_func_map[_depth_func]
-				: 0
-				;
-			const u64 blend_func = _blend_enable && _blend_src != BlendFunction::COUNT && _blend_dst != BlendFunction::COUNT
-				? BGFX_STATE_BLEND_FUNC(_bgfx_blend_func_map[_blend_src], _bgfx_blend_func_map[_blend_dst])
-				: 0
-				;
-			const u64 blend_eq = _blend_enable && _blend_equation != BlendEquation::COUNT
-				? BGFX_STATE_BLEND_EQUATION(_bgfx_blend_equation_map[_blend_equation])
-				: 0
-				;
-			const u64 cull_mode = _cull_mode != CullMode::COUNT
-				? _bgfx_cull_mode_map[_cull_mode]
-				: 0
-				;
-			const u64 primitive_type = _primitive_type != PrimitiveType::COUNT
-				? _bgfx_primitive_type_map[_primitive_type]
-				: 0
-				;
-
-			u64 state = 0;
-			state |= _rgb_write_enable   ? BGFX_STATE_WRITE_RGB : 0;
-			state |= _alpha_write_enable ? BGFX_STATE_WRITE_A   : 0;
-			state |= _depth_write_enable ? BGFX_STATE_WRITE_Z   : 0;
-			state |= depth_func;
-			state |= blend_func;
-			state |= blend_eq;
-			state |= cull_mode;
-			state |= primitive_type;
-
-			return state;
+			DynamicString expr_str(default_allocator());
+			expr_str = expr;
+			push_back_states(expr_str, state);
 		}
 	};
 
@@ -742,6 +815,302 @@ namespace shader_resource_internal
 			return 0;
 		}
 
+		s32 parse_states_compat(RenderState::State &state, JsonObject &obj)
+		{
+			// gui = {
+			//   ...
+			//   states = { <-- You are here.
+			//   }
+			// }
+			// This function is for backwards compatibility only.
+			// See: parse_states() and parse_conditional_states().
+
+			TempAllocator4096 ta;
+			const char *warn_msg = "RenderState properties are deprecated. Use states = { ... } object.";
+
+			if (json_object::has(obj, "rgb_write_enable")) {
+				logw(SHADER_RESOURCE, warn_msg);
+				state._rgb_write_enable.set_value(sjson::parse_bool(obj["rgb_write_enable"]));
+			}
+
+			if (json_object::has(obj, "alpha_write_enable")) {
+				logw(SHADER_RESOURCE, warn_msg);
+				state._alpha_write_enable.set_value(sjson::parse_bool(obj["alpha_write_enable"]));
+			}
+
+			if (json_object::has(obj, "depth_write_enable")) {
+				logw(SHADER_RESOURCE, warn_msg);
+				state._depth_write_enable.set_value(sjson::parse_bool(obj["depth_write_enable"]));
+			}
+
+			if (json_object::has(obj, "depth_enable")) {
+				logw(SHADER_RESOURCE, warn_msg);
+				state._depth_enable.set_value(sjson::parse_bool(obj["depth_enable"]));
+			}
+
+			if (json_object::has(obj, "blend_enable")) {
+				logw(SHADER_RESOURCE, warn_msg);
+				state._blend_enable.set_value(sjson::parse_bool(obj["blend_enable"]));
+			}
+
+			if (json_object::has(obj, "depth_func")) {
+				logw(SHADER_RESOURCE, warn_msg);
+				DynamicString depth_func(ta);
+				sjson::parse_string(depth_func, obj["depth_func"]);
+				state._depth_func.set_value(name_to_depth_func(depth_func.c_str()));
+				DATA_COMPILER_ASSERT(state._depth_func.value() != DepthFunction::COUNT
+					, _opts
+					, "Unknown depth test: '%s'"
+					, depth_func.c_str()
+					);
+			}
+
+			if (json_object::has(obj, "blend_src")) {
+				logw(SHADER_RESOURCE, warn_msg);
+				DynamicString blend_src(ta);
+				sjson::parse_string(blend_src, obj["blend_src"]);
+				state._blend_src.set_value(name_to_blend_function(blend_src.c_str()));
+				DATA_COMPILER_ASSERT(state._blend_src.value() != BlendFunction::COUNT
+					, _opts
+					, "Unknown blend function: '%s'"
+					, blend_src.c_str()
+					);
+			}
+
+			if (json_object::has(obj, "blend_dst")) {
+				logw(SHADER_RESOURCE, warn_msg);
+				DynamicString blend_dst(ta);
+				sjson::parse_string(blend_dst, obj["blend_dst"]);
+				state._blend_dst.set_value(name_to_blend_function(blend_dst.c_str()));
+				DATA_COMPILER_ASSERT(state._blend_dst.value() != BlendFunction::COUNT
+					, _opts
+					, "Unknown blend function: '%s'"
+					, blend_dst.c_str()
+					);
+			}
+
+			if (json_object::has(obj, "blend_equation")) {
+				logw(SHADER_RESOURCE, warn_msg);
+				DynamicString blend_equation(ta);
+				sjson::parse_string(blend_equation, obj["blend_equation"]);
+				state._blend_equation.set_value(name_to_blend_equation(blend_equation.c_str()));
+				DATA_COMPILER_ASSERT(state._blend_equation.value() != BlendEquation::COUNT
+					, _opts
+					, "Unknown blend equation: '%s'"
+					, blend_equation.c_str()
+					);
+			}
+
+			if (json_object::has(obj, "cull_mode")) {
+				logw(SHADER_RESOURCE, warn_msg);
+				DynamicString cull_mode(ta);
+				sjson::parse_string(cull_mode, obj["cull_mode"]);
+				state._cull_mode.set_value(name_to_cull_mode(cull_mode.c_str()));
+				DATA_COMPILER_ASSERT(state._cull_mode.value() != CullMode::COUNT
+					, _opts
+					, "Unknown cull mode: '%s'"
+					, cull_mode.c_str()
+					);
+			}
+
+			if (json_object::has(obj, "primitive_type")) {
+				logw(SHADER_RESOURCE, warn_msg);
+				DynamicString primitive_type(ta);
+				sjson::parse_string(primitive_type, obj["primitive_type"]);
+				state._primitive_type.set_value(name_to_primitive_type(primitive_type.c_str()));
+				DATA_COMPILER_ASSERT(state._primitive_type.value() != PrimitiveType::COUNT
+					, _opts
+					, "Unknown primitive type: '%s'"
+					, primitive_type.c_str()
+					);
+			}
+
+			return 0;
+		}
+
+		s32 parse_states(RenderState::State &state, const char *json)
+		{
+			// gui = {
+			//   states = { <-- You are here.
+			//   }
+			//   ...
+			// }
+			//
+			// Possible cases:
+			// a) "some_expr" = { state_a = b, state_b = c, ... }
+			//   Ignore, this is handled by parse_conditional_states().
+			// b) state_x = y
+
+			TempAllocator4096 ta;
+			JsonObject states(ta);
+			sjson::parse_object(states, json);
+
+			auto cur = json_object::begin(states);
+			auto end = json_object::end(states);
+			for (; cur != end; ++cur) {
+				JSON_OBJECT_SKIP_HOLE(states, cur);
+
+				// It must be a regular key/value state.
+				if (cur->first == "rgb_write_enable") {
+					state._rgb_write_enable.set_value(sjson::parse_bool(states["rgb_write_enable"]));
+				} else if (cur->first == "alpha_write_enable") {
+					state._alpha_write_enable.set_value(sjson::parse_bool(states["alpha_write_enable"]));
+				} else if (cur->first == "depth_write_enable") {
+					state._depth_write_enable.set_value(sjson::parse_bool(states["depth_write_enable"]));
+				} else if (cur->first == "depth_enable") {
+					state._depth_enable.set_value(sjson::parse_bool(states["depth_enable"]));
+				} else if (cur->first == "blend_enable") {
+					state._blend_enable.set_value(sjson::parse_bool(states["blend_enable"]));
+				} else if (cur->first == "depth_func") {
+					DynamicString depth_func(ta);
+					sjson::parse_string(depth_func, states["depth_func"]);
+					state._depth_func.set_value(name_to_depth_func(depth_func.c_str()));
+					DATA_COMPILER_ASSERT(state._depth_func.value() != DepthFunction::COUNT
+						, _opts
+						, "Unknown depth test: '%s'"
+						, depth_func.c_str()
+						);
+				} else if (cur->first == "blend_src") {
+					DynamicString blend_src(ta);
+					sjson::parse_string(blend_src, states["blend_src"]);
+					state._blend_src.set_value(name_to_blend_function(blend_src.c_str()));
+					DATA_COMPILER_ASSERT(state._blend_src.value() != BlendFunction::COUNT
+						, _opts
+						, "Unknown blend function: '%s'"
+						, blend_src.c_str()
+						);
+				} else if (cur->first == "blend_dst") {
+					DynamicString blend_dst(ta);
+					sjson::parse_string(blend_dst, states["blend_dst"]);
+					state._blend_dst.set_value(name_to_blend_function(blend_dst.c_str()));
+					DATA_COMPILER_ASSERT(state._blend_dst.value() != BlendFunction::COUNT
+						, _opts
+						, "Unknown blend function: '%s'"
+						, blend_dst.c_str()
+						);
+				} else if (cur->first == "blend_equation") {
+					DynamicString blend_equation(ta);
+					sjson::parse_string(blend_equation, states["blend_equation"]);
+					state._blend_equation.set_value(name_to_blend_equation(blend_equation.c_str()));
+					DATA_COMPILER_ASSERT(state._blend_equation.value() != BlendEquation::COUNT
+						, _opts
+						, "Unknown blend equation: '%s'"
+						, blend_equation.c_str()
+						);
+				} else if (cur->first == "cull_mode") {
+					DynamicString cull_mode(ta);
+					sjson::parse_string(cull_mode, states["cull_mode"]);
+					state._cull_mode.set_value(name_to_cull_mode(cull_mode.c_str()));
+					DATA_COMPILER_ASSERT(state._cull_mode.value() != CullMode::COUNT
+						, _opts
+						, "Unknown cull mode: '%s'"
+						, cull_mode.c_str()
+						);
+				} else if (cur->first == "primitive_type") {
+					DynamicString primitive_type(ta);
+					sjson::parse_string(primitive_type, states["primitive_type"]);
+					state._primitive_type.set_value(name_to_primitive_type(primitive_type.c_str()));
+					DATA_COMPILER_ASSERT(state._primitive_type.value() != PrimitiveType::COUNT
+						, _opts
+						, "Unknown primitive type: '%s'"
+						, primitive_type.c_str()
+						);
+				} else {
+					// Skip conditionals state objects, error out on anything else.
+					if (sjson::type(cur->second) != JsonValueType::OBJECT) {
+						DATA_COMPILER_ASSERT(false
+							, _opts
+							, "Unknown state property: '%.*s'"
+							, cur->first.length()
+							, cur->first.data()
+							);
+					}
+				}
+			}
+
+			return 0;
+		}
+
+		s32 parse_conditional_states(RenderState &rs, const char *json)
+		{
+			// gui = {
+			//   states = { <-- You are here.
+			//   }
+			//   ...
+			// }
+			//
+			// Possible cases:
+			// a) "some_expr" = { state_a = b, state_b = c, ... }
+			// b) state_x = y
+			//   Ignore, this is handled by parse_states().
+
+			TempAllocator4096 ta;
+			JsonObject obj(ta);
+			sjson::parse_object(obj, json);
+
+			// Read conditional states.
+			auto cur = json_object::begin(obj);
+			auto end = json_object::end(obj);
+			for (; cur != end; ++cur) {
+				JSON_OBJECT_SKIP_HOLE(obj, cur);
+
+				if (sjson::type(cur->second) == JsonValueType::OBJECT) {
+					// It must be a conditional expression: "expr()" = { ... }
+					RenderState::State states;
+					s32 err = parse_states(states, cur->second);
+					DATA_COMPILER_ENSURE(err == 0, _opts);
+
+					DynamicString expr(default_allocator());
+					expr = cur->first;
+					rs.push_back_states(expr, states);
+				}
+			}
+
+			return 0;
+		}
+
+		s32 parse_render_state(RenderState &rs, const char *json)
+		{
+			// gui = { <-- You are here.
+			//   states = {
+			//   }
+			//   ...
+			// }
+
+			TempAllocator4096 ta;
+			JsonObject obj(ta);
+			sjson::parse_object(obj, json);
+			s32 err = 0;
+
+			// Read inherit render state if any.
+			if (json_object::has(obj, "inherit")) {
+				sjson::parse_string(rs._inherit, obj["inherit"]);
+				DATA_COMPILER_ASSERT(hash_map::has(_render_states, rs._inherit)
+					, _opts
+					, "Unknown inherit render state: '%s'"
+					, rs._inherit.c_str()
+					);
+			}
+
+			// Read states from render state object itself; for backwards compatibility.
+			RenderState::State states_compat;
+			err = parse_states_compat(states_compat, obj);
+			DATA_COMPILER_ENSURE(err == 0, _opts);
+			rs.push_back_states("1", states_compat); // Always applied.
+
+			// Read states from new, dedicated "states" object.
+			if (json_object::has(obj, "states")) {
+				RenderState::State states;
+				err = parse_states(states, obj["states"]);
+				DATA_COMPILER_ENSURE(err == 0, _opts);
+				rs.push_back_states("1", states); // Always applied.
+
+				err = parse_conditional_states(rs, obj["states"]);
+			}
+
+			return 0;
+		}
+
 		s32 parse_render_states(const char *json)
 		{
 			TempAllocator4096 ta;
@@ -756,115 +1125,9 @@ namespace shader_resource_internal
 				JsonObject obj(ta);
 				sjson::parse_object(obj, cur->second);
 
-				RenderState rs;
-				rs.reset();
-
-				// Read inherit render state if any.
-				const bool has_inherit = json_object::has(obj, "inherit");
-				if (has_inherit) {
-					DynamicString inherit(ta);
-					sjson::parse_string(inherit, obj["inherit"]);
-					DATA_COMPILER_ASSERT(hash_map::has(_render_states, inherit)
-						, _opts
-						, "Unknown inherit render state: '%s'"
-						, inherit.c_str()
-						);
-					RenderState deffault_rs;
-					rs = hash_map::get(_render_states, inherit, deffault_rs);
-				}
-
-				const bool has_rgb_write_enable   = json_object::has(obj, "rgb_write_enable");
-				const bool has_alpha_write_enable = json_object::has(obj, "alpha_write_enable");
-				const bool has_depth_write_enable = json_object::has(obj, "depth_write_enable");
-				const bool has_depth_enable       = json_object::has(obj, "depth_enable");
-				const bool has_blend_enable       = json_object::has(obj, "blend_enable");
-				const bool has_depth_func         = json_object::has(obj, "depth_func");
-				const bool has_blend_src          = json_object::has(obj, "blend_src");
-				const bool has_blend_dst          = json_object::has(obj, "blend_dst");
-				const bool has_blend_equation     = json_object::has(obj, "blend_equation");
-				const bool has_cull_mode          = json_object::has(obj, "cull_mode");
-				const bool has_primitive_type     = json_object::has(obj, "primitive_type");
-
-				if (has_rgb_write_enable)
-					rs._rgb_write_enable = sjson::parse_bool(obj["rgb_write_enable"]);
-
-				if (has_alpha_write_enable)
-					rs._alpha_write_enable = sjson::parse_bool(obj["alpha_write_enable"]);
-
-				if (has_depth_write_enable)
-					rs._depth_write_enable = sjson::parse_bool(obj["depth_write_enable"]);
-
-				if (has_depth_enable)
-					rs._depth_enable = sjson::parse_bool(obj["depth_enable"]);
-
-				if (has_blend_enable)
-					rs._blend_enable = sjson::parse_bool(obj["blend_enable"]);
-
-				if (has_depth_func) {
-					DynamicString depth_func(ta);
-					sjson::parse_string(depth_func, obj["depth_func"]);
-					rs._depth_func = name_to_depth_func(depth_func.c_str());
-					DATA_COMPILER_ASSERT(rs._depth_func != DepthFunction::COUNT
-						, _opts
-						, "Unknown depth test: '%s'"
-						, depth_func.c_str()
-						);
-				}
-
-				if (has_blend_src) {
-					DynamicString blend_src(ta);
-					sjson::parse_string(blend_src, obj["blend_src"]);
-					rs._blend_src = name_to_blend_function(blend_src.c_str());
-					DATA_COMPILER_ASSERT(rs._blend_src != BlendFunction::COUNT
-						, _opts
-						, "Unknown blend function: '%s'"
-						, blend_src.c_str()
-						);
-				}
-
-				if (has_blend_dst) {
-					DynamicString blend_dst(ta);
-					sjson::parse_string(blend_dst, obj["blend_dst"]);
-					rs._blend_dst = name_to_blend_function(blend_dst.c_str());
-					DATA_COMPILER_ASSERT(rs._blend_dst != BlendFunction::COUNT
-						, _opts
-						, "Unknown blend function: '%s'"
-						, blend_dst.c_str()
-						);
-				}
-
-				if (has_blend_equation) {
-					DynamicString blend_equation(ta);
-					sjson::parse_string(blend_equation, obj["blend_equation"]);
-					rs._blend_equation = name_to_blend_equation(blend_equation.c_str());
-					DATA_COMPILER_ASSERT(rs._blend_equation != BlendEquation::COUNT
-						, _opts
-						, "Unknown blend equation: '%s'"
-						, blend_equation.c_str()
-						);
-				}
-
-				if (has_cull_mode) {
-					DynamicString cull_mode(ta);
-					sjson::parse_string(cull_mode, obj["cull_mode"]);
-					rs._cull_mode = name_to_cull_mode(cull_mode.c_str());
-					DATA_COMPILER_ASSERT(rs._cull_mode != CullMode::COUNT
-						, _opts
-						, "Unknown cull mode: '%s'"
-						, cull_mode.c_str()
-						);
-				}
-
-				if (has_primitive_type) {
-					DynamicString primitive_type(ta);
-					sjson::parse_string(primitive_type, obj["primitive_type"]);
-					rs._primitive_type = name_to_primitive_type(primitive_type.c_str());
-					DATA_COMPILER_ASSERT(rs._primitive_type != PrimitiveType::COUNT
-						, _opts
-						, "Unknown primitive type: '%s'"
-						, primitive_type.c_str()
-						);
-				}
+				RenderState rs(default_allocator());
+				s32 err = parse_render_state(rs, cur->second);
+				DATA_COMPILER_ENSURE(err == 0, _opts);
 
 				DynamicString key(ta);
 				key = cur->first;
@@ -1167,13 +1430,15 @@ namespace shader_resource_internal
 					, render_state.c_str()
 					);
 
-				const RenderState rs_default;
-				const RenderState &rs = hash_map::get(_render_states, render_state, rs_default);
+				s32 err = 0;
+				RenderState::State state;
+				err = compile_render_state(state, render_state.c_str(), defines);
+				DATA_COMPILER_ENSURE(err == 0, _opts);
 
-				_opts.write(shader_name._id);                                // Shader name
-				_opts.write(rs.encode());                                    // Render state
-				compile_sampler_states(bgfx_shader.c_str());                 // Sampler states
-				s32 err = compile_bgfx_shader(bgfx_shader.c_str(), defines); // Shader code
+				_opts.write(shader_name._id);                            // Shader name
+				_opts.write(state.encode());                             // Render state
+				compile_sampler_states(bgfx_shader.c_str());             // Sampler states
+				err = compile_bgfx_shader(bgfx_shader.c_str(), defines); // Shader code
 				DATA_COMPILER_ENSURE(err == 0, _opts);
 			}
 
@@ -1323,6 +1588,31 @@ namespace shader_resource_internal
 			_opts.write(vs_data);
 			_opts.write(array::size(fs_data));
 			_opts.write(fs_data);
+
+			return 0;
+		}
+
+		s32 compile_render_state(RenderState::State &state, const char *render_state, const Vector<DynamicString> &defines)
+		{
+			TempAllocator512 taa;
+			DynamicString key(taa);
+			key = render_state;
+			const RenderState rs_default(default_allocator());
+			const RenderState &rs = hash_map::get(_render_states, key, rs_default);
+
+			// Compile inherited state if any.
+			if (!(rs._inherit == "")) {
+				s32 err = compile_render_state(state, rs._inherit.c_str(), defines);
+				DATA_COMPILER_ENSURE(err == 0, _opts);
+			}
+
+			// Evaluate expressions and apply states.
+			if (vector::size(rs._expressions) > 0) {
+				// Evaluate expressions.
+				for (u32 i = 0; i < vector::size(rs._expressions); ++i) {
+					state.overwrite_changed_properties(rs._states[i]);
+				}
+			}
 
 			return 0;
 		}
