@@ -138,7 +138,7 @@ namespace array
 			a._capacity = capacity;
 			a._data = (T *)a._allocator->allocate(capacity * sizeof(T), alignof(T));
 
-			memcpy(a._data, tmp, a._size * sizeof(T));
+			memcpy((void *)a._data, tmp, a._size * sizeof(T));
 
 			a._allocator->deallocate(tmp);
 		}
@@ -167,7 +167,7 @@ namespace array
 		if (a._capacity == a._size)
 			grow(a, 0);
 
-		memcpy(&a._data[a._size], &item, sizeof(T));
+		memcpy((void *)&a._data[a._size], &item, sizeof(T));
 
 		return a._size++;
 	}
@@ -185,7 +185,7 @@ namespace array
 		if (a._capacity <= a._size + count)
 			grow(a, a._size + count);
 
-		memcpy(&a._data[a._size], items, sizeof(T) * count);
+		memcpy((void *)&a._data[a._size], items, sizeof(T) * count);
 		a._size += count;
 
 		return a._size;
@@ -269,7 +269,7 @@ inline Array<T>::Array(const Array<T> &other)
 {
 	const u32 size = other._size;
 	array::resize(*this, size);
-	memcpy(_data, other._data, sizeof(T) * size);
+	memcpy((void *)_data, other._data, sizeof(T) * size);
 }
 
 template<typename T>
@@ -297,7 +297,7 @@ inline Array<T> &Array<T>::operator=(const Array<T> &other)
 {
 	const u32 size = other._size;
 	array::resize(*this, size);
-	memcpy(_data, other._data, sizeof(T) * size);
+	memcpy((void *)_data, other._data, sizeof(T) * size);
 	return *this;
 }
 
