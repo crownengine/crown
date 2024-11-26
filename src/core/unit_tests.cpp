@@ -44,6 +44,7 @@
 #include "core/thread/mutex.h"
 #include "core/thread/thread.h"
 #include "core/time.h"
+#include "resource/expression_language.h"
 #include "resource/lua_resource.h"
 #include <stdlib.h> // EXIT_SUCCESS, EXIT_FAILURE
 #include <stdio.h>  // printf
@@ -1973,6 +1974,63 @@ static void test_time()
 	}
 }
 
+static void test_expression_language()
+{
+	namespace el = expression_language;
+	memory_globals::init();
+	{
+		unsigned byte_code[1024];
+		f32 stack_data[32];
+		el::Stack stack(stack_data, countof(stack_data));
+
+		u32 num = el::compile(""
+			, 0
+			, NULL
+			, 0
+			, NULL
+			, NULL
+			, byte_code
+			, countof(byte_code)
+			);
+		ENSURE(num <= countof(byte_code));
+
+		bool ok = el::run(byte_code, NULL, stack);
+		ENSURE(ok && stack.size == 0);
+	}
+	{
+		auto eval = [](const char *expr) {
+			unsigned byte_code[1024];
+			f32 stack_data[32];
+			const char *variable_names[] = { "a", "b" };
+			f32 variable_values[] = { 2.0f, 1.5f };
+			const char *constant_names[] = { "PI" };
+			f32 constant_values[] = { 3.14159265359f };
+			el::Stack stack(stack_data, countof(stack_data));
+
+			u32 num = el::compile(expr
+				, countof(variable_names)
+				, variable_names
+				, countof(constant_names)
+				, constant_names
+				, constant_values
+				, byte_code
+				, countof(byte_code)
+				);
+			ENSURE(num <= countof(byte_code));
+
+			bool ok = el::run(byte_code, variable_values, stack);
+			ENSURE(ok && stack.size > 0);
+			return stack_data[stack.size - 1];
+		};
+
+		ENSURE(fequal(eval("1 + 1"), 2.0f, 0.0001f));
+		ENSURE(fequal(eval("a + b"), 3.5f, 0.0001f));
+		ENSURE(fequal(eval("3*(sin(PI/2) + 2) - 1"), 8.0f, 0.0001f));
+		ENSURE(fequal(eval("2*b*(sin(a)/2) + 2) - 1"), 2.36394f, 0.0001f));
+	}
+	memory_globals::shutdown();
+}
+
 #define RUN_TEST(name)      \
 	do {                    \
 		printf(#name "\n"); \
@@ -2011,6 +2069,7 @@ int main_unit_tests()
 	RUN_TEST(test_option);
 	RUN_TEST(test_lua_resource);
 	RUN_TEST(test_time);
+	RUN_TEST(test_expression_language);
 
 	return EXIT_SUCCESS;
 }
