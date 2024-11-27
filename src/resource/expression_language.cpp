@@ -141,7 +141,6 @@ namespace expression_language
 
 } // namespace expression_language
 
-#if CROWN_CAN_COMPILE
 namespace expression_language
 {
 	static inline unsigned float_to_unsigned(float f)
@@ -543,6 +542,5 @@ namespace expression_language
 	}
 
 } // namespace expression_language
-#endif // if CROWN_CAN_COMPILE
 
 } // namespace crown
