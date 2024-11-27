@@ -1136,14 +1136,8 @@ namespace shader_resource_internal
 			s32 err = 0;
 
 			// Read inherit render state if any.
-			if (json_object::has(obj, "inherit")) {
+			if (json_object::has(obj, "inherit"))
 				sjson::parse_string(rs._inherit, obj["inherit"]);
-				DATA_COMPILER_ASSERT(hash_map::has(_render_states, rs._inherit)
-					, _opts
-					, "Unknown inherit render state: '%s'"
-					, rs._inherit.c_str()
-					);
-			}
 
 			// Read states from render state object itself; for backwards compatibility.
 			RenderState::State states_compat;
@@ -1711,6 +1705,12 @@ namespace shader_resource_internal
 
 			// Compile inherited state if any.
 			if (!(rs._inherit == "")) {
+				DATA_COMPILER_ASSERT(hash_map::has(_render_states, rs._inherit)
+					, _opts
+					, "Unknown inherit render state: '%s'"
+					, rs._inherit.c_str()
+					);
+
 				s32 err = compile_render_state(state, rs._inherit.c_str(), defines);
 				DATA_COMPILER_ENSURE(err == 0, _opts);
 			}
