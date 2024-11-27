@@ -17,9 +17,11 @@
 #include "device/device.h"
 #include "device/log.h"
 #include "resource/compile_options.inl"
+#include "resource/expression_language.inl"
 #include "resource/resource_manager.h"
 #include "resource/shader_resource.h"
 #include "world/shader_manager.h"
+#include <algorithm> // std::sort
 
 LOG_SYSTEM(SHADER_RESOURCE, "shader_resource")
 
@@ -459,6 +461,34 @@ namespace shader_resource_internal
 		return SamplerWrap::COUNT;
 	}
 
+	struct FunctionOp
+	{
+		enum Enum
+		{
+			OP_LOGIC_AND,
+			OP_LOGIC_OR,
+			OP_DEFINED,
+
+			COUNT
+		};
+	};
+
+	const char *function_names[] =
+	{
+		"&&",
+		"||",
+		"defined"
+	};
+	CE_STATIC_ASSERT(countof(function_names) == FunctionOp::COUNT);
+
+	expression_language::Function function_values[] =
+	{
+		{ FunctionOp::OP_LOGIC_AND, 5, 2 },
+		{ FunctionOp::OP_LOGIC_OR,  4, 2 },
+		{ FunctionOp::OP_DEFINED,  17, 1 }
+	};
+	CE_STATIC_ASSERT(countof(function_values) == FunctionOp::COUNT);
+
 	static s32 run_external_compiler(Process &pr
 		, const char *shaderc
 		, const char *infile
@@ -617,28 +647,43 @@ namespace shader_resource_internal
 			}
 		};
 
+		struct StateIndex
+		{
+			uintptr_t sort_key;
+			u32 index;
+		};
+
 		DynamicString _inherit;
 		Vector<DynamicString> _expressions;
 		Array<State> _states;
+		Array<StateIndex> _states_indices;
 
 		explicit RenderState(Allocator &a)
 			: _inherit(a)
 			, _expressions(a)
 			, _states(a)
+			, _states_indices(a)
 		{
 		}
 
-		void push_back_states(const DynamicString &expr, const RenderState::State &state)
+		void push_back_states(const DynamicString &expr, const RenderState::State &state, uintptr_t sort_key)
 		{
 			vector::push_back(_expressions, expr);
+			u32 state_index = array::size(_states);
 			array::push_back(_states, state);
+			array::push_back(_states_indices, { sort_key, state_index });
+			std::sort(array::begin(_states_indices)
+				, array::end(_states_indices)
+				, [](const StateIndex &a, const StateIndex &b) {
+					return a.sort_key < b.sort_key;
+				});
 		}
 
-		void push_back_states(const char *expr, const RenderState::State &state)
+		void push_back_states(const char *expr, const RenderState::State &state, uintptr_t sort_key)
 		{
 			DynamicString expr_str(default_allocator());
 			expr_str = expr;
-			push_back_states(expr_str, state);
+			push_back_states(expr_str, state, sort_key);
 		}
 	};
 
@@ -1062,7 +1107,12 @@ namespace shader_resource_internal
 
 					DynamicString expr(default_allocator());
 					expr = cur->first;
-					rs.push_back_states(expr, states);
+					// Use cur->first.data() as sort key so we can sort states
+					// by the order they appear in the source file.
+					rs.push_back_states(expr
+						, states
+						, (uintptr_t)(void *)cur->first.data()
+						);
 				}
 			}
 
@@ -1096,14 +1146,14 @@ namespace shader_resource_internal
 			RenderState::State states_compat;
 			err = parse_states_compat(states_compat, obj);
 			DATA_COMPILER_ENSURE(err == 0, _opts);
-			rs.push_back_states("1", states_compat); // Always applied.
+			rs.push_back_states("1", states_compat, 0u); // Always applied.
 
 			// Read states from new, dedicated "states" object.
 			if (json_object::has(obj, "states")) {
 				RenderState::State states;
 				err = parse_states(states, obj["states"]);
 				DATA_COMPILER_ENSURE(err == 0, _opts);
-				rs.push_back_states("1", states); // Always applied.
+				rs.push_back_states("1", states, 1u); // Always applied.
 
 				err = parse_conditional_states(rs, obj["states"]);
 			}
@@ -1592,6 +1642,61 @@ namespace shader_resource_internal
 			return 0;
 		}
 
+		static void compute_function(int op_code, expression_language::Stack &stack)
+		{
+#define POP() expression_language::pop(stack)
+#define PUSH(f) expression_language::push(stack, f)
+
+			float a, b;
+
+			switch (op_code) {
+			case FunctionOp::OP_LOGIC_AND: b = POP(); a = POP(); PUSH(f32(a && b)); break;
+			case FunctionOp::OP_LOGIC_OR: b = POP(); a = POP(); PUSH(f32(a || b)); break;
+			case FunctionOp::OP_DEFINED: a = POP(); PUSH(f32(a == 1.0)); break;
+			default:
+				CE_ASSERT(false, "Unknown opcode %d", op_code);
+			}
+
+#undef POP
+#undef PUSH
+		}
+
+		static s32 eval(const char *expr, u32 num_constants, const char **constant_names, const f32 *constant_values, CompileOptions &opts)
+		{
+			namespace el = expression_language;
+
+			el::CompileEnvironment env;
+			env.num_variables = 0;
+			env.variable_names = NULL;
+			env.num_constants = num_constants;
+			env.constant_names = constant_names;
+			env.constant_values = constant_values;
+			env.num_functions = countof(function_names);
+			env.function_names = function_names;
+			env.function_values = function_values;
+			env.compute_function = compute_function;
+
+			f32 stack_data[32];
+			f32 variables[32];
+			expression_language::Stack stack(stack_data, countof(stack_data));
+
+			unsigned byte_code[1024];
+			u32 num = expression_language::compile(expr
+				, env
+				, byte_code
+				, countof(byte_code)
+				);
+			DATA_COMPILER_ENSURE(num <= countof(byte_code), opts);
+
+			bool ok = expression_language::run(byte_code, variables, stack);
+			DATA_COMPILER_ASSERT(ok && stack.size > 0
+				, opts
+				, "Failed to evaluate expression: '%s'"
+				, expr
+				);
+			return (bool)stack_data[stack.size - 1];
+		}
+
 		s32 compile_render_state(RenderState::State &state, const char *render_state, const Vector<DynamicString> &defines)
 		{
 			TempAllocator512 taa;
@@ -1608,10 +1713,34 @@ namespace shader_resource_internal
 
 			// Evaluate expressions and apply states.
 			if (vector::size(rs._expressions) > 0) {
-				// Evaluate expressions.
-				for (u32 i = 0; i < vector::size(rs._expressions); ++i) {
-					state.overwrite_changed_properties(rs._states[i]);
+				// Convert defines to plain array.
+				u32 num_constants = vector::size(defines);
+				const char **constants = (const char **)default_allocator().allocate(num_constants * sizeof(char *));
+				f32 *constant_values = (f32 *)default_allocator().allocate(num_constants * sizeof(f32 *));
+				for (u32 i = 0; i < num_constants; ++i) {
+					constants[i] = defines[i].c_str();
+					constant_values[i] = 1.0f;
 				}
+
+				// Evaluate expressions in the same order they occur
+				// in the source file.
+				for (u32 i = 0; i < vector::size(rs._expressions); ++i) {
+					const u32 state_index = rs._states_indices[i].index;
+					const char *expr = rs._expressions[state_index].c_str();
+					const RenderState::State &cond_state = rs._states[state_index];
+
+					bool eval_result = eval(expr
+						, num_constants
+						, constants
+						, constant_values
+						, _opts
+						);
+					if (eval_result)
+						state.overwrite_changed_properties(cond_state);
+				}
+
+				default_allocator().deallocate(constant_values);
+				default_allocator().deallocate(constants);
 			}
 
 			return 0;
