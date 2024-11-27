@@ -374,7 +374,7 @@ bgfx_shaders = {
 				if (s_depth > m_depth)
 					alpha *= 0.35;
 
-				gl_FragColor = vec4(u_outline_color.xyz, alpha);
+				gl_FragColor = vec4(toLinearAccurate(u_outline_color.xyz), alpha);
 			}
 		#else
 			void main()

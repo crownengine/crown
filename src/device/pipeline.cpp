@@ -227,10 +227,12 @@ void Pipeline::render(ShaderManager &sm, StringId32 program, u8 view, u16 width,
 	bgfx::setTexture(0, _selection_texture_sampler, _selection_texture, samplerFlags);
 	bgfx::setTexture(1, _selection_depth_texture_sampler, _selection_depth_texture, samplerFlags);
 	bgfx::setTexture(2, _main_depth_texture_sampler, _main_depth_texture, samplerFlags);
+	bgfx::setViewRect(VIEW_OUTLINE, 0, 0, width, height);
+	bgfx::setViewTransform(VIEW_OUTLINE, NULL, ortho);
 	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
 	const f32 outline_color[] = { 1.0f, 0.37f, 0.05f, 1.0f };
 	bgfx::setUniform(_outline_color_uniform, outline_color);
-	sm.submit(STRING_ID_32("outline", UINT32_C(0xb6b58d80)), view, 0, UINT64_MAX);
+	sm.submit(STRING_ID_32("outline", UINT32_C(0xb6b58d80)), VIEW_OUTLINE, 0, UINT64_MAX);
 #endif
 }
 

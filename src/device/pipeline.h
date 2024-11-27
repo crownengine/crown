@@ -18,6 +18,7 @@
 #define VIEW_SPRITE_7    8
 #define VIEW_MESH       16
 #define VIEW_SELECTION  32
+#define VIEW_OUTLINE    33
 #define VIEW_DEBUG     100
 #define VIEW_GUI       128
 #define VIEW_GRAPH     200

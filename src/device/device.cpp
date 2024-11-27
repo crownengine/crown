@@ -768,8 +768,9 @@ void Device::render(World &world, UnitId camera_unit)
 	bgfx::setViewRect(VIEW_SPRITE_7, 0, 0, _width, _height);
 	bgfx::setViewRect(VIEW_MESH, 0, 0, _width, _height);
 	bgfx::setViewRect(VIEW_DEBUG, 0, 0, _width, _height);
-	bgfx::setViewRect(VIEW_GUI, 0, 0, _width, _height);
 	bgfx::setViewRect(VIEW_SELECTION, 0, 0, _width, _height);
+	bgfx::setViewRect(VIEW_OUTLINE, 0, 0, _width, _height);
+	bgfx::setViewRect(VIEW_GUI, 0, 0, _width, _height);
 	bgfx::setViewRect(VIEW_GRAPH, 0, 0, _width, _height);
 
 	bgfx::setViewMode(VIEW_SPRITE_0, bgfx::ViewMode::DepthAscending);
@@ -793,8 +794,9 @@ void Device::render(World &world, UnitId camera_unit)
 	bgfx::setViewFrameBuffer(VIEW_SPRITE_7, _pipeline->_main_frame_buffer);
 	bgfx::setViewFrameBuffer(VIEW_MESH, _pipeline->_main_frame_buffer);
 	bgfx::setViewFrameBuffer(VIEW_DEBUG, _pipeline->_main_frame_buffer);
-	bgfx::setViewFrameBuffer(VIEW_GUI, _pipeline->_main_frame_buffer);
 	bgfx::setViewFrameBuffer(VIEW_SELECTION, _pipeline->_selection_frame_buffer);
+	bgfx::setViewFrameBuffer(VIEW_OUTLINE, _pipeline->_main_frame_buffer);
+	bgfx::setViewFrameBuffer(VIEW_GUI, _pipeline->_main_frame_buffer);
 	bgfx::setViewFrameBuffer(VIEW_GRAPH, _pipeline->_main_frame_buffer);
 	bgfx::setViewFrameBuffer(VIEW_BLIT, BGFX_INVALID_HANDLE);
 
@@ -808,8 +810,9 @@ void Device::render(World &world, UnitId camera_unit)
 	bgfx::touch(VIEW_SPRITE_7);
 	bgfx::touch(VIEW_MESH);
 	bgfx::touch(VIEW_DEBUG);
-	bgfx::touch(VIEW_GUI);
 	bgfx::touch(VIEW_SELECTION);
+	bgfx::touch(VIEW_OUTLINE);
+	bgfx::touch(VIEW_GUI);
 	bgfx::touch(VIEW_GRAPH);
 	bgfx::touch(VIEW_BLIT);
 
