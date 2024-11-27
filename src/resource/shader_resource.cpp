@@ -467,6 +467,7 @@ namespace shader_resource_internal
 		{
 			OP_LOGIC_AND,
 			OP_LOGIC_OR,
+			OP_LOGIC_NOT,
 			OP_DEFINED,
 
 			COUNT
@@ -477,15 +478,17 @@ namespace shader_resource_internal
 	{
 		"&&",
 		"||",
+		"!",
 		"defined"
 	};
 	CE_STATIC_ASSERT(countof(function_names) == FunctionOp::COUNT);
 
 	expression_language::Function function_values[] =
 	{
-		{ FunctionOp::OP_LOGIC_AND, 5, 2 },
-		{ FunctionOp::OP_LOGIC_OR,  4, 2 },
-		{ FunctionOp::OP_DEFINED,  17, 1 }
+		{ FunctionOp::OP_LOGIC_AND,  5, 2 },
+		{ FunctionOp::OP_LOGIC_OR,   4, 2 },
+		{ FunctionOp::OP_LOGIC_NOT, 16, 1 },
+		{ FunctionOp::OP_DEFINED,   17, 1 }
 	};
 	CE_STATIC_ASSERT(countof(function_values) == FunctionOp::COUNT);
 
@@ -1652,6 +1655,7 @@ namespace shader_resource_internal
 			switch (op_code) {
 			case FunctionOp::OP_LOGIC_AND: b = POP(); a = POP(); PUSH(f32(a && b)); break;
 			case FunctionOp::OP_LOGIC_OR: b = POP(); a = POP(); PUSH(f32(a || b)); break;
+			case FunctionOp::OP_LOGIC_NOT: a = POP(); PUSH(f32(!a)); break;
 			case FunctionOp::OP_DEFINED: a = POP(); PUSH(f32(a == 1.0)); break;
 			default:
 				CE_ASSERT(false, "Unknown opcode %d", op_code);
