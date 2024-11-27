@@ -1,7 +1,7 @@
 #include "core/error/error.h"
 #include "core/math/math.h"
 #include "core/strings/string.inl"
-#include "resource/expression_language.h"
+#include "resource/expression_language.inl"
 #include <alloca.h>
 #include <limits.h> // UINT_MAX
 #include <stdlib.h> // strtof
@@ -49,18 +49,6 @@ namespace expression_language
 		OP_MATCH_2D
 	};
 
-	static inline float pop(Stack &stack)
-	{
-		CE_ASSERT(stack.size > 0, "Stack underflow");
-		return stack.data[--stack.size];
-	}
-
-	static inline void push(Stack &stack, float f)
-	{
-		CE_ASSERT(stack.size < stack.capacity, "Stack overflow");
-		stack.data[stack.size++] = f;
-	}
-
 	inline float fmax(float a, float b)
 	{
 		return a > b ? a : b;
@@ -82,7 +70,7 @@ namespace expression_language
 	}
 
 	/// Computes the function specified by @a op_code on the @a stack.
-	static inline void compute_function(OpCode op_code, Stack &stack)
+	static inline void default_compute_function(int op_code, Stack &stack)
 	{
 #define POP() pop(stack)
 #define PUSH(f) push(stack, f)
@@ -123,8 +111,11 @@ namespace expression_language
 		return fu.f;
 	}
 
-	bool run(const unsigned *byte_code, const float *variables, Stack &stack)
+	bool run(const unsigned *byte_code, const float *variables, Stack &stack, ComputeFunction compute_function)
 	{
+		if (compute_function == NULL)
+			compute_function = default_compute_function;
+
 		const unsigned *p = byte_code;
 		while (true) {
 			unsigned bc = *p++;
@@ -205,38 +196,8 @@ namespace expression_language
 		};
 	};
 
-	/// Describes a function.
-	struct Function
+	namespace compile_env
 	{
-		Function()
-		{
-		}
-
-		Function(OpCode op_code, unsigned precedence, unsigned arity)
-			: op_code(op_code)
-			, precedence(precedence)
-			, arity(arity)
-		{
-		}
-
-		OpCode op_code;      ///< The opcode of the function.
-		unsigned precedence; ///< The precedence of the function operator.
-		unsigned arity;      ///< The number of arguments that the function takes.
-	};
-
-	/// Represents the environment in which we are compiling -- the available variables,
-	/// constants and functions.
-	struct CompileEnvironment
-	{
-		unsigned num_variables;
-		const char **variable_names;
-		unsigned num_constants;
-		const char **constant_names;
-		const float *constant_values;
-		unsigned num_functions;
-		const char **function_names;
-		const Function *function_values;
-
 		/// Finds a string in @a strings matching @a s of length @a len and returns its index.
 		/// Returns UINT_MAX if no such string is found.
 		static unsigned find_string(const char *s, unsigned len, unsigned num_strings, const char **strings)
@@ -248,33 +209,34 @@ namespace expression_language
 		}
 
 		/// Finds a token representing the identifier in the environment.
-		Token token_for_identifier(const char *identifier, unsigned len) const
+		Token token_for_identifier(const CompileEnvironment &env, const char *identifier, unsigned len, Token default_token = Token(Token::NUMBER, 0.0f))
 		{
 			unsigned i;
-			if ((i = find_string(identifier, len, num_variables, variable_names)) != UINT_MAX) {
+			if ((i = find_string(identifier, len, env.num_variables, env.variable_names)) != UINT_MAX) {
 				return Token(Token::VARIABLE, i);
-			} else if ((i = find_string(identifier, len, num_constants, constant_names)) != UINT_MAX) {
-				return Token(Token::NUMBER, constant_values[i]);
-			} else if ((i = find_string(identifier, len, num_functions, function_names)) != UINT_MAX) {
+			} else if ((i = find_string(identifier, len, env.num_constants, env.constant_names)) != UINT_MAX) {
+				return Token(Token::NUMBER, env.constant_values[i]);
+			} else if ((i = find_string(identifier, len, env.num_functions, env.function_names)) != UINT_MAX) {
 				return Token(Token::FUNCTION, i);
 			} else {
-				CE_FATAL("Unknown identifier: %s", identifier);
-				return Token();
+				// CE_FATAL("Unknown identifier: %s", identifier);
+				return default_token;
 			}
 		}
 
 		/// Finds a token representing the identifier in the environment.
-		Token token_for_identifier(const char *identifier) const
+		Token token_for_identifier(const CompileEnvironment &env, const char *identifier)
 		{
-			return token_for_identifier(identifier, strlen32(identifier));
+			return token_for_identifier(env, identifier, strlen32(identifier));
 		}
 
 		/// True if there is a function matching the specified identifier.
-		bool has_function(char *identifier) const
+		bool has_function(const CompileEnvironment &env, char *identifier)
 		{
-			return find_string(identifier, strlen32(identifier), num_functions, function_names) != UINT_MAX;
+			return find_string(identifier, strlen32(identifier), env.num_functions, env.function_names) != UINT_MAX;
 		}
-	};
+
+	} // namespace compile_env
 
 	/// Tokenizes the source code @a p into a sequence of tokens. The environment @a env
 	/// is used for looking up source code identifiers.
@@ -302,7 +264,7 @@ namespace expression_language
 				const char *identifier = p;
 				while ((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || (*p == '_') || (*p >= '0' && *p <= '9'))
 					p++;
-				token = env.token_for_identifier(identifier, u32(p - identifier));
+				token = compile_env::token_for_identifier(env, identifier, u32(p - identifier));
 				binary = true;
 				// Operators
 			} else {
@@ -310,18 +272,18 @@ namespace expression_language
 				case '(': token = Token(Token::LEFT_PARENTHESIS); binary = false; break;
 				case ')': token = Token(Token::RIGHT_PARENTHESIS); binary = true; break;
 				case ' ': case '\t': case '\n': case '\r': break;
-				case '-': token = env.token_for_identifier(binary ? "-" : "u-"); binary = false; break;
-				case '+': token = env.token_for_identifier(binary ? "+" : "u+"); binary = false; break;
+				case '-': token = compile_env::token_for_identifier(env, binary ? "-" : "u-"); binary = false; break;
+				case '+': token = compile_env::token_for_identifier(env, binary ? "+" : "u+"); binary = false; break;
 
 				default: {
 					char s2[3] = {*p, *(p + 1), 0};
 
-					if (s2[1] && env.has_function(s2)) {
-						token = env.token_for_identifier(s2);
+					if (s2[1] && compile_env::has_function(env, s2)) {
+						token = compile_env::token_for_identifier(env, s2);
 						++p;
 					} else {
 						char s1[2] = {*p, 0};
-						token = env.token_for_identifier(s1);
+						token = compile_env::token_for_identifier(env, s1);
 					}
 
 					binary = false;
@@ -370,7 +332,7 @@ namespace expression_language
 				continue;
 
 			stack.size = arity;
-			compute_function(f.op_code, stack);
+			env.compute_function(f.op_code, stack);
 			unsigned results = stack.size;
 			int to_remove = int(arity + 1) - int(results);
 			if (to_remove > 0) {
@@ -501,29 +463,11 @@ namespace expression_language
 	}
 
 	unsigned compile(const char *source
-		, unsigned num_variables
-		, const char **variables
-		, unsigned num_constants
-		, const char **constant_names
-		, const float *constant_values
+		, CompileEnvironment &env
 		, unsigned *byte_code
 		, unsigned capacity
 		)
 	{
-		const char *function_names[NUM_DEFAULT_FUNCTIONS];
-		Function functions[NUM_DEFAULT_FUNCTIONS];
-		unsigned num_functions = setup_functions(function_names, functions, NUM_DEFAULT_FUNCTIONS);
-
-		CompileEnvironment env;
-		env.num_variables = num_variables;
-		env.variable_names = variables;
-		env.num_constants = num_constants;
-		env.constant_names = constant_names;
-		env.constant_values = constant_values;
-		env.num_functions = num_functions;
-		env.function_names = function_names;
-		env.function_values = functions;
-
 		unsigned num_tokens = tokenize(source, env, NULL, 0);
 
 		// Change alloca to some other temp memory allocator if you want to
@@ -568,6 +512,34 @@ namespace expression_language
 
 		fold_constants(rpl, num_rpl, env);
 		return generate_bytecode(rpl, num_rpl, env, byte_code, capacity);
+	}
+
+	unsigned compile(const char *source
+		, unsigned num_variables
+		, const char **variables
+		, unsigned num_constants
+		, const char **constant_names
+		, const float *constant_values
+		, unsigned *byte_code
+		, unsigned capacity
+		)
+	{
+		const char *function_names[NUM_DEFAULT_FUNCTIONS];
+		Function functions[NUM_DEFAULT_FUNCTIONS];
+		unsigned num_functions = setup_functions(function_names, functions, NUM_DEFAULT_FUNCTIONS);
+
+		CompileEnvironment env;
+		env.num_variables = num_variables;
+		env.variable_names = variables;
+		env.num_constants = num_constants;
+		env.constant_names = constant_names;
+		env.constant_values = constant_values;
+		env.num_functions = num_functions;
+		env.function_names = function_names;
+		env.function_values = functions;
+		env.compute_function = default_compute_function;
+
+		return compile(source, env, byte_code, capacity);
 	}
 
 } // namespace expression_language

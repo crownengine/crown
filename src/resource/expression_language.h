@@ -45,16 +45,62 @@ namespace expression_language
 		}
 	};
 
+	float pop(Stack &stack);
+	void push(Stack &stack, float f);
+
+	typedef void (*ComputeFunction)(int op_code, Stack &stack);
+
 	/// Runs the @a byte_code using the @a stack as execution stack.
 	/// @a variables is a list of variable values to use for the execution.
 	/// They should match the list of variable names supplied to the compile function.
-	bool run(const unsigned *byte_code, const float *variables, Stack &stack);
+	bool run(const unsigned *byte_code, const float *variables, Stack &stack, ComputeFunction compute_function = NULL);
 
 } // namespace expression_language
 
 #if CROWN_CAN_COMPILE
 namespace expression_language
 {
+	/// Describes a function.
+	struct Function
+	{
+		Function()
+		{
+		}
+
+		Function(int op_code, unsigned precedence, unsigned arity)
+			: op_code(op_code)
+			, precedence(precedence)
+			, arity(arity)
+		{
+		}
+
+		int op_code;         ///< The opcode of the function.
+		unsigned precedence; ///< The precedence of the function operator.
+		unsigned arity;      ///< The number of arguments that the function takes.
+	};
+
+	/// Represents the environment in which we are compiling -- the available variables,
+	/// constants and functions.
+	struct CompileEnvironment
+	{
+		unsigned num_variables;
+		const char **variable_names;
+		unsigned num_constants;
+		const char **constant_names;
+		const float *constant_values;
+		unsigned num_functions;
+		const char **function_names;
+		const Function *function_values;
+		ComputeFunction compute_function;
+	};
+
+	///
+	unsigned compile(const char *source
+		, CompileEnvironment &env
+		, unsigned *byte_code
+		, unsigned capacity
+		);
+
 	/// Compiles the @a source and stores the result in the @a byte_code.
 	/// @a variables is a list of variable names. The position of the variable in
 	/// the list should match the position when @a variables is sent to the run
