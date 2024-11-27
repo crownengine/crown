@@ -50,16 +50,6 @@ namespace expression_language
 
 	typedef void (*ComputeFunction)(int op_code, Stack &stack);
 
-	/// Runs the @a byte_code using the @a stack as execution stack.
-	/// @a variables is a list of variable values to use for the execution.
-	/// They should match the list of variable names supplied to the compile function.
-	bool run(const unsigned *byte_code, const float *variables, Stack &stack, ComputeFunction compute_function = NULL);
-
-} // namespace expression_language
-
-#if CROWN_CAN_COMPILE
-namespace expression_language
-{
 	/// Describes a function.
 	struct Function
 	{
@@ -123,7 +113,11 @@ namespace expression_language
 		, unsigned byte_code_capacity
 		);
 
+	/// Runs the @a byte_code using the @a stack as execution stack.
+	/// @a variables is a list of variable values to use for the execution.
+	/// They should match the list of variable names supplied to the compile function.
+	bool run(const unsigned *byte_code, const float *variables, Stack &stack, ComputeFunction compute_function = NULL);
+
 } // namespace expression_language
-#endif // if CROWN_CAN_COMPILE
 
 } // namespace crown
