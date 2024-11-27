@@ -826,7 +826,7 @@ namespace shader_resource_internal
 			// See: parse_states() and parse_conditional_states().
 
 			TempAllocator4096 ta;
-			const char *warn_msg = "RenderState properties are deprecated. Use states = { ... } object.";
+			const char *warn_msg = "RenderState properties are deprecated. Use 'states' object instead.";
 
 			if (json_object::has(obj, "rgb_write_enable")) {
 				logw(SHADER_RESOURCE, warn_msg);
