@@ -41,10 +41,10 @@ struct GuiBuffer
 	void reset();
 
 	///
-	void submit(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, u32 depth);
+	void submit(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, StringId32 shader_id, u8 view, u32 depth);
 
 	///
-	void submit_with_material(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, u32 depth, Material *material);
+	void submit_with_material(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, u8 view, u32 depth, Material *material);
 };
 
 /// Immediate mode Gui.
@@ -71,10 +71,18 @@ struct Gui
 	ShaderManager *_shader_manager;
 	MaterialManager *_material_manager;
 	Matrix4x4 _world;
+	StringId32 _gui_shader;
+	u8 _view;
 	ListNode _node;
 
 	///
-	Gui(GuiBuffer &gb, ResourceManager &rm, ShaderManager &sm, MaterialManager &mm);
+	Gui(GuiBuffer &gb
+		, ResourceManager &rm
+		, ShaderManager &sm
+		, MaterialManager &mm
+		, StringId32 gui_shader
+		, u8 view
+		);
 
 	///
 	~Gui();
@@ -101,7 +109,7 @@ struct Gui
 	void image(const Vector3 &pos, const Vector2 &size, StringId64 material, const Color4 &color);
 
 	///
-	void image_uv_3d(const Vector3 &pos, const Vector2 &size, const Vector2 &uv0, const Vector2 &uv1, StringId64 material, const Color4 &color, f32 depth = 0.0f);
+	void image_3d_uv(const Vector3 &pos, const Vector2 &size, const Vector2 &uv0, const Vector2 &uv1, StringId64 material, const Color4 &color, f32 depth = 0.0f);
 
 	///
 	void image_uv(const Vector3 &pos, const Vector2 &size, const Vector2 &uv0, const Vector2 &uv1, StringId64 material, const Color4 &color);
@@ -115,5 +123,23 @@ struct Gui
 	/// Returns the material @a material_resource.
 	Material *material(ResourceId material_resource);
 };
+
+namespace gui
+{
+	Gui *create_screen_gui(Allocator &allocator
+		, GuiBuffer &buffer
+		, ResourceManager &resource_manager
+		, ShaderManager &shader_manager
+		, MaterialManager &material_manager
+		);
+
+	Gui *create_world_gui(Allocator &allocator
+		, GuiBuffer &buffer
+		, ResourceManager &resource_manager
+		, ShaderManager &shader_manager
+		, MaterialManager &material_manager
+		);
+
+} // namespace gui
 
 } // namespace crown

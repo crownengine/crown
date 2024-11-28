@@ -1639,6 +1639,11 @@ void load_api(LuaEnvironment &env)
 			stack.push_gui(stack.get_world(1)->create_screen_gui());
 			return 1;
 		});
+	env.add_module_function("World", "create_world_gui", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.push_gui(stack.get_world(1)->create_world_gui());
+			return 1;
+		});
 	env.add_module_function("World", "destroy_gui", [](lua_State *L) {
 			LuaStack stack(L);
 			stack.get_world(1)->destroy_gui(*stack.get_gui(2));
@@ -2817,11 +2822,30 @@ void load_api(LuaEnvironment &env)
 				);
 			return 0;
 		});
+	env.add_module_function("Gui", "triangle_3d", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_gui(1)->triangle_3d(stack.get_vector3(2)
+				, stack.get_vector3(3)
+				, stack.get_vector3(4)
+				, stack.get_color4(5)
+				, stack.num_args() > 5 ? stack.get_float(6) : 0.0f
+				);
+			return 0;
+		});
 	env.add_module_function("Gui", "rect", [](lua_State *L) {
 			LuaStack stack(L);
 			stack.get_gui(1)->rect(stack.get_vector3(2)
 				, stack.get_vector2(3)
 				, stack.get_color4(4)
+				);
+			return 0;
+		});
+	env.add_module_function("Gui", "rect_3d", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_gui(1)->rect_3d(stack.get_vector3(2)
+				, stack.get_vector2(3)
+				, stack.get_color4(4)
+				, stack.num_args() > 4 ? stack.get_float(5) : 0.0f
 				);
 			return 0;
 		});
@@ -2831,6 +2855,16 @@ void load_api(LuaEnvironment &env)
 				, stack.get_vector2(3)
 				, stack.get_resource_name(4)
 				, stack.get_color4(5)
+				);
+			return 0;
+		});
+	env.add_module_function("Gui", "image_3d", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_gui(1)->image_3d(stack.get_vector3(2)
+				, stack.get_vector2(3)
+				, stack.get_resource_name(4)
+				, stack.get_color4(5)
+				, stack.num_args() > 5 ? stack.get_float(6) : 0.0f
 				);
 			return 0;
 		});
@@ -2845,6 +2879,18 @@ void load_api(LuaEnvironment &env)
 				);
 			return 0;
 		});
+	env.add_module_function("Gui", "image_3d_uv", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_gui(1)->image_3d_uv(stack.get_vector3(2)
+				, stack.get_vector2(3)
+				, stack.get_vector2(4)
+				, stack.get_vector2(5)
+				, stack.get_resource_name(6)
+				, stack.get_color4(7)
+				, stack.num_args() > 7 ? stack.get_float(8) : 0.0f
+				);
+			return 0;
+		});
 	env.add_module_function("Gui", "text", [](lua_State *L) {
 			LuaStack stack(L);
 			stack.get_gui(1)->text(stack.get_vector3(2)
@@ -2853,6 +2899,18 @@ void load_api(LuaEnvironment &env)
 				, stack.get_resource_name(5)
 				, stack.get_resource_name(6)
 				, stack.get_color4(7)
+				);
+			return 0;
+		});
+	env.add_module_function("Gui", "text_3d", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_gui(1)->text_3d(stack.get_vector3(2)
+				, stack.get_int(3)
+				, stack.get_string(4)
+				, stack.get_resource_name(5)
+				, stack.get_resource_name(6)
+				, stack.get_color4(7)
+				, stack.num_args() > 7 ? stack.get_float(8) : 0.0f
 				);
 			return 0;
 		});

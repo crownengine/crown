@@ -189,6 +189,9 @@ struct World
 	/// Creates a new screen-space Gui.
 	Gui *create_screen_gui();
 
+	/// Creates a new world-space Gui.
+	Gui *create_world_gui();
+
 	/// Destroys the @a gui.
 	void destroy_gui(Gui &gui);
 

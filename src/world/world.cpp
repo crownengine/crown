@@ -515,7 +515,22 @@ void World::destroy_debug_line(DebugLine &line)
 
 Gui *World::create_screen_gui()
 {
-	Gui *gui = CE_NEW(*_allocator, Gui)(_gui_buffer, *_resource_manager
+	Gui *gui = gui::create_screen_gui(*_allocator
+		, _gui_buffer
+		, *_resource_manager
+		, *_shader_manager
+		, *_material_manager
+		);
+
+	list::add(gui->_node, _guis);
+	return gui;
+}
+
+Gui *World::create_world_gui()
+{
+	Gui *gui = gui::create_world_gui(*_allocator
+		, _gui_buffer
+		, *_resource_manager
 		, *_shader_manager
 		, *_material_manager
 		);

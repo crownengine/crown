@@ -14,11 +14,17 @@ render_states = {
 	}
 
 	gui = {
-		depth_write_enable = false
-		depth_enable = false
-		blend_enable = true
-		blend_src = "src_alpha"
-		blend_dst = "inv_src_alpha"
+		states = {
+			cull_mode = "none"
+			depth_write_enable = true
+			depth_enable = false
+			blend_enable = true
+			blend_src = "src_alpha"
+			blend_dst = "inv_src_alpha"
+			"defined(DEPTH_ENABLED)" = {
+				depth_enable = true
+			}
+		}
 	}
 
 	gui_noblend = {
@@ -39,6 +45,13 @@ render_states = {
 
 	selection = {
 		alpha_write_enable = false
+	}
+
+	outline = {
+		inherit = "gui"
+		states = {
+			depth_write_enable = false
+		}
 	}
 
 	noop = {
@@ -513,7 +526,7 @@ shaders = {
 
 	outline = {
 		bgfx_shader = "outline"
-		render_state = "gui"
+		render_state = "outline"
 	}
 
 	blit = {
@@ -538,6 +551,8 @@ static_compile = [
 	{ shader = "debug_line_noz" defines = [] }
 	{ shader = "gui" defines = [] }
 	{ shader = "gui" defines = ["DIFFUSE_MAP"]}
+	{ shader = "gui" defines = ["DEPTH_ENABLED"]}
+	{ shader = "gui" defines = ["DIFFUSE_MAP" "DEPTH_ENABLED"]}
 	{ shader = "sprite" defines = [] }
 	{ shader = "mesh" defines = [] }
 	{ shader = "mesh" defines = ["DIFFUSE_MAP"] }

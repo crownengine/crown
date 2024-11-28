@@ -18,6 +18,7 @@ Changelog
 
 * Fixed an issue that caused the Runtime to stop sending console messages after a while.
 * Fixed texture reloading crashing in some circumnstances.
+* Lua API: Added ``World.create_world_gui()`` and 3D variants for all Gui functions.
 * Data Compiler: render states in .shader files can now have properties set based on conditional expressions evaluated at compile-time.
 * Data Compiler: fixed erratic texture compilation when both legacy properties and the new "output" object were specified in the .texture resource.
 

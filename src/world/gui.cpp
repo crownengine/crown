@@ -8,6 +8,7 @@
 #include "core/math/matrix4x4.inl"
 #include "core/math/vector2.inl"
 #include "core/math/vector3.inl"
+#include "core/memory/memory.inl"
 #include "core/strings/string.inl"
 #include "core/strings/string_id.inl"
 #include "core/strings/utf8.h"
@@ -63,37 +64,45 @@ void GuiBuffer::reset()
 	bgfx::allocTransientIndexBuffer(&_index_buffer, 6144);
 }
 
-void GuiBuffer::submit(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, u32 depth)
+void GuiBuffer::submit(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, StringId32 shader_id, u8 view, u32 depth)
 {
 	bgfx::setVertexBuffer(0, &_vertex_buffer, _num_vertices, num_vertices);
 	bgfx::setIndexBuffer(&_index_buffer, _num_indices, num_indices);
 	bgfx::setTransform(to_float_ptr(world));
 
-	_shader_manager->submit(STRING_ID_32("gui", UINT32_C(0x66dbf9a2)), VIEW_GUI, depth);
+	_shader_manager->submit(shader_id, view, depth);
 
 	_num_vertices += num_vertices;
 	_num_indices += num_indices;
 }
 
-void GuiBuffer::submit_with_material(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, u32 depth, Material *material)
+void GuiBuffer::submit_with_material(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, u8 view, u32 depth, Material *material)
 {
 	bgfx::setVertexBuffer(0, &_vertex_buffer, _num_vertices, num_vertices);
 	bgfx::setIndexBuffer(&_index_buffer, _num_indices, num_indices);
 	bgfx::setTransform(to_float_ptr(world));
 
-	material->bind(*_shader_manager, VIEW_GUI, depth);
+	material->bind(*_shader_manager, view, depth);
 
 	_num_vertices += num_vertices;
 	_num_indices += num_indices;
 }
 
-Gui::Gui(GuiBuffer &gb, ResourceManager &rm, ShaderManager &sm, MaterialManager &mm)
+Gui::Gui(GuiBuffer &gb
+	, ResourceManager &rm
+	, ShaderManager &sm
+	, MaterialManager &mm
+	, StringId32 gui_shader
+	, u8 view
+	)
 	: _marker(DEBUG_GUI_MARKER)
 	, _buffer(&gb)
 	, _resource_manager(&rm)
 	, _shader_manager(&sm)
 	, _material_manager(&mm)
 	, _world(MATRIX4X4_IDENTITY)
+	, _gui_shader(gui_shader)
+	, _view(view)
 {
 	_node.next = NULL;
 	_node.prev = NULL;
@@ -138,7 +147,7 @@ void Gui::triangle_3d(const Vector3 &a, const Vector3 &b, const Vector3 &c, cons
 	inds[1] = 1;
 	inds[2] = 2;
 
-	_buffer->submit(3, 3, _world, depth_u32(depth));
+	_buffer->submit(3, 3, _world, _gui_shader, _view, depth_u32(depth));
 }
 
 void Gui::triangle(const Vector2 &a, const Vector2 &b, const Vector2 &c, const Color4 &color, f32 depth)
@@ -185,7 +194,7 @@ void Gui::rect_3d(const Vector3 &pos, const Vector2 &size, const Color4 &color, 
 	inds[4] = 2;
 	inds[5] = 3;
 
-	_buffer->submit(4, 6, _world, depth_u32(depth));
+	_buffer->submit(4, 6, _world, _gui_shader, _view, depth_u32(depth));
 }
 
 void Gui::rect(const Vector3 &pos, const Vector2 &size, const Color4 &color)
@@ -193,7 +202,7 @@ void Gui::rect(const Vector3 &pos, const Vector2 &size, const Color4 &color)
 	rect_3d(vector3(pos.x, pos.y, 0.0f), size, color, pos.z);
 }
 
-void Gui::image_uv_3d(const Vector3 &pos, const Vector2 &size, const Vector2 &uv0, const Vector2 &uv1, StringId64 material, const Color4 &color, f32 depth)
+void Gui::image_3d_uv(const Vector3 &pos, const Vector2 &size, const Vector2 &uv0, const Vector2 &uv1, StringId64 material, const Color4 &color, f32 depth)
 {
 	VertexData *vd = (VertexData *)_buffer->vertex_buffer_end();
 	vd[0].pos.x = pos.x;
@@ -237,6 +246,7 @@ void Gui::image_uv_3d(const Vector3 &pos, const Vector2 &size, const Vector2 &uv
 	_buffer->submit_with_material(4
 		, 6
 		, _world
+		, _view
 		, depth_u32(depth)
 		, _material_manager->get(mr)
 		);
@@ -244,12 +254,12 @@ void Gui::image_uv_3d(const Vector3 &pos, const Vector2 &size, const Vector2 &uv
 
 void Gui::image_uv(const Vector3 &pos, const Vector2 &size, const Vector2 &uv0, const Vector2 &uv1, StringId64 material, const Color4 &color)
 {
-	image_uv_3d(vector3(pos.x, pos.y, 0.0f), size, uv0, uv1, material, color, pos.z);
+	image_3d_uv(vector3(pos.x, pos.y, 0.0f), size, uv0, uv1, material, color, pos.z);
 }
 
 void Gui::image_3d(const Vector3 &pos, const Vector2 &size, StringId64 material, const Color4 &color, f32 depth)
 {
-	image_uv_3d(pos, size, VECTOR2_ZERO, VECTOR2_ONE, material, color, depth);
+	image_3d_uv(pos, size, VECTOR2_ZERO, VECTOR2_ONE, material, color, depth);
 }
 
 void Gui::image(const Vector3 &pos, const Vector2 &size, StringId64 material, const Color4 &color)
@@ -362,6 +372,7 @@ void Gui::text_3d(const Vector3 &pos, u32 font_size, const char *str, StringId64
 	_buffer->submit_with_material(num_vertices
 		, num_indices
 		, _world
+		, _view
 		, depth_u32(depth)
 		, _material_manager->get(mr)
 		);
@@ -377,5 +388,43 @@ Material *Gui::material(ResourceId material_resource)
 	const MaterialResource *mr = (MaterialResource *)_resource_manager->get(RESOURCE_TYPE_MATERIAL, material_resource);
 	return _material_manager->get(mr);
 }
+
+namespace gui
+{
+	Gui *create_screen_gui(Allocator &allocator
+		, GuiBuffer &buffer
+		, ResourceManager &resource_manager
+		, ShaderManager &shader_manager
+		, MaterialManager &material_manager
+		)
+	{
+		Gui *gui = CE_NEW(allocator, Gui)(buffer
+			, resource_manager
+			, shader_manager
+			, material_manager
+			, STRING_ID_32("gui", UINT32_C(0x66dbf9a2))
+			, VIEW_SCREEN_GUI
+			);
+		return gui;
+	}
+
+	Gui *create_world_gui(Allocator &allocator
+		, GuiBuffer &buffer
+		, ResourceManager &resource_manager
+		, ShaderManager &shader_manager
+		, MaterialManager &material_manager
+		)
+	{
+		Gui *gui = CE_NEW(allocator, Gui)(buffer
+			, resource_manager
+			, shader_manager
+			, material_manager
+			, STRING_ID_32("gui+DEPTH_ENABLED", UINT32_C(0xd594a1a5))
+			, VIEW_WORLD_GUI
+			);
+		return gui;
+	}
+
+} // namespace gui
 
 } // namespace crown
