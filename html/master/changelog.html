@@ -101,10 +101,19 @@
 <p><strong>Tools</strong></p>
 <ul class="simple">
 <li>Fixed some dialogs retaining old state when switching between projects.</li>
+<li>Fixed the Project Browser not updating when adding/removing files.</li>
+<li>Snapping is now disabled by default.</li>
+<li>Fixed the Camera Compass and Gizmos not updating immediately in some circumnstances.</li>
+<li>Fixed opening core folders from Favorites.</li>
+<li>Resource importers will now generate textures with appropriate default settings.</li>
+<li>Added thumbnails to the Project Browser’s tree view.</li>
 </ul>
 <p><strong>Runtime</strong></p>
 <ul class="simple">
 <li>Fixed an issue that caused the Runtime to stop sending console messages after a while.</li>
+<li>Fixed texture reloading crashing in some circumnstances.</li>
+<li>Lua API: Added <code class="docutils literal notranslate"><span class="pre">World.create_world_gui()</span></code> and 3D variants for all Gui functions.</li>
+<li>Data Compiler: render states in .shader files can now have properties set based on conditional expressions evaluated at compile-time.</li>
 <li>Data Compiler: fixed erratic texture compilation when both legacy properties and the new “output” object were specified in the .texture resource.</li>
 </ul>
 </div>

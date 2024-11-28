@@ -791,3 +791,8 @@ tinyexpr (Zlib)
 ---------------
 
 TinyExpr is a very small recursive descent parser and evaluation engine for math expressions.
+
+ufbx (MIT)
+----------
+
+Single source file FBX file loader.

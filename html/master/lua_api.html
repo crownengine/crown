@@ -320,26 +320,36 @@ The initial display mode is automatically reset when the program terminates.</dd
 <dd>Draws a triangle defined by vertices <em>a</em>, <em>b</em> and <em>c</em>.
 Objects with a lower depth are drawn in front. If depth is omitted its value
 is set to 0.</dd>
+<dt><strong>triangle_3d</strong> (gui, a, b, c, color [, depth])</dt>
+<dd>Draws a 3D triangle defined by vertices <em>a</em>, <em>b</em> and <em>c</em>.</dd>
 <dt><strong>rect</strong> (gui, pos, size, color)</dt>
 <dd>Draws a rectangle.
 If pos is a Vector3, the z element specifies the drawing depth. Objects with
 a lower depth are drawn in front. If pos is a Vector2, the z elements is set
 to 0.</dd>
+<dt><strong>rect_3d</strong> (gui, pos, size, color [, depth])</dt>
+<dd>Draws a 3D rectangle.</dd>
 <dt><strong>image</strong> (gui, pos, size, material_resource, color)</dt>
 <dd>Draws an image.
 If pos is a Vector3, the z element specifies the drawing depth. Objects with
 a lower depth are drawn in front. If pos is a Vector2, the z elements is set
 to 0.</dd>
+<dt><strong>image_3d</strong> (gui, pos, size, material_resource, color [, depth])</dt>
+<dd>Draws a 3D image.</dd>
 <dt><strong>image_uv</strong> (gui, pos, size, uv0, uv1, material_resource, color)</dt>
 <dd>Draws an image with explicit UV coordinates.
 If pos is a Vector3, the z element specifies the drawing depth. Objects with
 a lower depth are drawn in front. If pos is a Vector2, the z elements is set
 to 0.</dd>
+<dt><strong>image_3d_uv</strong> (gui, pos, size, uv0, uv1, material_resource, color [, depth])</dt>
+<dd>Draws a 3D image with explicit UV coordinates.</dd>
 <dt><strong>text</strong> (gui, pos, font_size, str, font_resource, material_resource, color)</dt>
 <dd>Draws text.
 If pos is a Vector3, the z element specifies the drawing depth. Objects with
 a lower depth are drawn in front. If pos is a Vector2, the z elements is set
 to 0.</dd>
+<dt><strong>text_3d</strong> (gui, pos, font_size, str, font_resource, material_resource, color [, depth])</dt>
+<dd>Draws 3D text.</dd>
 <dt><strong>material</strong> (material_resource) <span class="classifier-delimiter">:</span> <span class="classifier">Material</span></dt>
 <dd>Returns the material <em>material_resource</em>.</dd>
 </dl>
@@ -1313,7 +1323,9 @@ enable depth test when rendering the lines.</dd>
 <dt><strong>destroy_debug_line</strong> (world, line)</dt>
 <dd>Destroys the debug <em>line</em>.</dd>
 <dt><strong>create_screen_gui</strong> (world) <span class="classifier-delimiter">:</span> <span class="classifier">Gui</span></dt>
-<dd>Creates a new Gui.</dd>
+<dd>Creates a new Gui for 2D drawing.</dd>
+<dt><strong>create_world_gui</strong> (world) <span class="classifier-delimiter">:</span> <span class="classifier">Gui</span></dt>
+<dd>Creates a new Gui for 3D drawing.</dd>
 <dt><strong>destroy_gui</strong> (world, gui)</dt>
 <dd>Destroys the <em>gui</em>.</dd>
 <dt><strong>scene_graph</strong> (world) <span class="classifier-delimiter">:</span> <span class="classifier">SceneGraph</span></dt>
