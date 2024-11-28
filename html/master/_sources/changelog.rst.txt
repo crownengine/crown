@@ -6,9 +6,11 @@ Changelog
 
 **Tools**
 
+* The Sprite Importer now has dedicated "preview" and "slices" tabs, which can now be zoomed. Plus, it received improvements in settings validation and placement and clearer collider outline rendering.
+* The Font Importer can now zoom the generated atlas.
+* Snap-to-grid when placing objects in the level is now disabled by default.
 * Fixed some dialogs retaining old state when switching between projects.
 * Fixed the Project Browser not updating when adding/removing files.
-* Snapping is now disabled by default.
 * Fixed the Camera Compass and Gizmos not updating immediately in some circumnstances.
 * Fixed opening core folders from Favorites.
 * Resource importers will now generate textures with appropriate default settings.
