@@ -206,10 +206,10 @@ fi
 # Archive the build in a package.
 ${TAR} "${TARBALLNAME}" "${PACKAGENAME}"
 
-# Copy package to server.
-if [ ! -z "${PACKAGESERVER}" ]; then
-	if [ "${PLATFORM}" = "linux" ]; then
-		ssh "${PACKAGESERVER}" "mkdir -p ~/Data/vms/${PACKAGENAME}"
-	fi
-	scp "${TARBALLNAME}" "${PACKAGESERVER}":~/Data/vms/"${PACKAGENAME}"
+
+# Copy package to the packages server.
+if [ ! -z "${PKG_SERVER_ADDR}" ]; then
+	PARTIALS_DIR="${PKG_SERVER_HOME}/${PACKAGENAME}"/partials
+	ssh -i "${PKG_SERVER_KEY}" "${PKG_SERVER_USER}@${PKG_SERVER_ADDR}" "mkdir -p ${PARTIALS_DIR}"
+	scp -i "${PKG_SERVER_KEY}" "${TARBALLNAME}" "${PKG_SERVER_USER}@${PKG_SERVER_ADDR}":"${PARTIALS_DIR}/${TARBALLNAME}"
 fi
