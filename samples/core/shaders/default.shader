@@ -27,9 +27,13 @@ render_states = {
 		}
 	}
 
-	gui_noblend = {
-		inherit = "gui"
-		blend_enable = false
+	blit = {
+		states = {
+			cull_mode = "none"
+			depth_write_enable = false;
+			depth_enable = false;
+			blend_enable = false;
+		}
 	}
 
 	sprite = {
@@ -531,7 +535,7 @@ shaders = {
 
 	blit = {
 		bgfx_shader = "blit"
-		render_state = "gui_noblend"
+		render_state = "blit"
 	}
 
 	fallback = {
