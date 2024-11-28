@@ -27,6 +27,8 @@ public class ThumbnailCache
 	public Gee.HashMap<StringId64?, CacheEntry?> _map;
 	public uint _max_cache_size;
 	public bool _no_disk_cache; // Debug only: always go through server to get a thumbnail.
+	public PixbufView _debug_pixbuf;
+	public Gtk.Window _debug_window;
 
 	// Called when the cache changed its content.
 	public signal void changed();
@@ -279,6 +281,26 @@ public class ThumbnailCache
 		}
 
 		return thumbnail_subpixbuf(entry.id, thumb_size);
+	}
+
+	public void show_debug_window(Gtk.Window parent_window)
+	{
+		if (_debug_window == null) {
+			_debug_pixbuf = new PixbufView();
+			_debug_pixbuf._zoom = 0.4;
+			_debug_window = new Gtk.Window();
+			_debug_window.set_title("ThumbnailCache Debug");
+			_debug_window.set_size_request(800, 800);
+			_debug_window.add(_debug_pixbuf);
+			this.changed.connect(() => {
+					_debug_pixbuf.set_pixbuf(_atlas);
+					_debug_pixbuf.queue_draw();
+				});
+		}
+
+		_debug_window.set_transient_for(parent_window);
+		_debug_window.show_all();
+		_debug_window.present();
 	}
 }
 
