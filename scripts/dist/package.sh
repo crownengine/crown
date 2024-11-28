@@ -57,14 +57,10 @@ fi
 PACKAGENAME=crown-"${VERSION}"
 
 # Tarball name.
-ZIP="tar -zcf"
-TARBALLEXTENSION=tar.gz
-if [ "${PLATFORM}" = "windows" ]; then
-	ZIP="zip -rq"
-	TARBALLEXTENSION=zip
-fi
+TAR="tar -cf"
+TARBALLEXTENSION=tar
 
-TARBALLNAME="crown-${VERSION}-${PLATFORM}-${ARCH}.${TARBALLEXTENSION}"
+TARBALLNAME="${PACKAGENAME}-${PLATFORM}-${ARCH}.${TARBALLEXTENSION}"
 
 echo "Crown '${VERSION}' will be packaged as '${TARBALLNAME}'"
 echo "Continue? [y/N]"
@@ -207,8 +203,8 @@ if [ "${PLATFORM}" = "linux" ] || [ "${PLATFORM}" = "windows" ]; then
 	fi
 fi
 
-# Compress package.
-${ZIP} "${TARBALLNAME}" "${PACKAGENAME}"
+# Archive the build in a package.
+${TAR} "${TARBALLNAME}" "${PACKAGENAME}"
 
 # Copy package to server.
 if [ ! -z "${PACKAGESERVER}" ]; then
