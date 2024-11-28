@@ -188,13 +188,6 @@ mkdir "${PACKAGENAME}"
 mv platforms "${PACKAGENAME}"
 
 if [ "${PLATFORM}" = "linux" ] || [ "${PLATFORM}" = "windows" ]; then
-	# Add target platforms binaries to package.
-	for platform_tar in *.tar.gz; do
-		if [ -f "${platform_tar}" ]; then
-			tar xf "${platform_tar}" --directory=./
-		fi
-	done
-
 	# Copy exporters, samples etc. to package dir.
 	cp    LICENSE   "${PACKAGENAME}"
 	cp -r exporters "${PACKAGENAME}"
