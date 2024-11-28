@@ -37,18 +37,22 @@ render_states = {
 	}
 
 	sprite = {
-		depth_func = "always"
-		blend_enable = true
-		blend_src = "src_alpha"
-		blend_dst = "inv_src_alpha"
-		blend_equation = "add"
+		states = {
+			depth_func = "always"
+			blend_enable = true
+			blend_src = "src_alpha"
+			blend_dst = "inv_src_alpha"
+			blend_equation = "add"
+		}
 	}
 
 	mesh = {
 	}
 
 	selection = {
-		alpha_write_enable = false
+		states = {
+			alpha_write_enable = false
+		}
 	}
 
 	outline = {
@@ -59,11 +63,13 @@ render_states = {
 	}
 
 	noop = {
-		rgb_write_enable = false
-		alpha_write_enable = false
-		depth_write_enable = false
-		depth_enable = false
-		blend_enable = false
+		states = {
+			rgb_write_enable = false
+			alpha_write_enable = false
+			depth_write_enable = false
+			depth_enable = false
+			blend_enable = false
+		}
 	}
 }
 
