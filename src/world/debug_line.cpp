@@ -23,10 +23,13 @@
 
 namespace crown
 {
+static const StringId32 debug_line_depth_enabled = STRING_ID_32("debug_line+DEPTH_ENABLED", UINT32_C(0x8819e848));
+static const StringId32 debug_line = STRING_ID_32("debug_line", UINT32_C(0xbc06e973));
+
 DebugLine::DebugLine(ShaderManager &sm, bool depth_test)
 	: _marker(DEBUG_LINE_MARKER)
 	, _shader_manager(&sm)
-	, _shader(depth_test ? "debug_line" : "debug_line_noz")
+	, _shader(depth_test ? debug_line_depth_enabled : debug_line)
 	, _num(0)
 {
 	_vertex_layout.begin();

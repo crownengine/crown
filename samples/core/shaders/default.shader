@@ -2,15 +2,15 @@ include = ["core/shaders/common.shader"]
 
 render_states = {
 	debug_line = {
-		blend_enable = true
-		blend_src = "src_alpha"
-		blend_dst = "inv_src_alpha"
-		primitive_type = "pt_lines"
-	}
-
-	debug_line_noz = {
-		inherit = "debug_line"
-		depth_enable = false
+		states = {
+			blend_enable = true
+			blend_src = "src_alpha"
+			blend_dst = "inv_src_alpha"
+			primitive_type = "pt_lines"
+			"!defined(DEPTH_ENABLED)" = {
+				depth_enable = false
+			}
+		}
 	}
 
 	gui = {
@@ -503,11 +503,6 @@ shaders = {
 		render_state = "debug_line"
 	}
 
-	debug_line_noz = {
-		bgfx_shader = "debug_line"
-		render_state = "debug_line_noz"
-	}
-
 	gui = {
 		bgfx_shader = "gui"
 		render_state = "gui"
@@ -552,7 +547,7 @@ shaders = {
 
 static_compile = [
 	{ shader = "debug_line" defines = [] }
-	{ shader = "debug_line_noz" defines = [] }
+	{ shader = "debug_line" defines = ["DEPTH_ENABLED"] }
 	{ shader = "gui" defines = [] }
 	{ shader = "gui" defines = ["DIFFUSE_MAP"]}
 	{ shader = "gui" defines = ["DEPTH_ENABLED"]}
