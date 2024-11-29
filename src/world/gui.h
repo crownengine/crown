@@ -91,31 +91,31 @@ struct Gui
 	void move(const Vector2 &pos);
 
 	///
-	void triangle_3d(const Vector3 &a, const Vector3 &b, const Vector3 &c, const Color4 &color, f32 depth = 0.0f);
+	void triangle_3d(const Matrix4x4& local_pose, const Vector3 &a, const Vector3 &b, const Vector3 &c, const Color4 &color, f32 depth = 0.0f);
 
 	///
 	void triangle(const Vector2 &a, const Vector2 &b, const Vector2 &c, const Color4 &color, f32 depth = 0.0f);
 
 	///
-	void rect_3d(const Vector3 &pos, const Vector2 &size, const Color4 &color, f32 depth = 0.0f);
+	void rect_3d(const Matrix4x4& local_pose, const Vector3 &pos, const Vector2 &size, const Color4 &color, f32 depth = 0.0f);
 
 	///
 	void rect(const Vector3 &pos, const Vector2 &size, const Color4 &color);
 
 	///
-	void image_3d(const Vector3 &pos, const Vector2 &size, StringId64 material, const Color4 &color, f32 depth = 0.0f);
+	void image_3d(const Matrix4x4& local_pose, const Vector3 &pos, const Vector2 &size, StringId64 material, const Color4 &color, f32 depth = 0.0f);
 
 	///
 	void image(const Vector3 &pos, const Vector2 &size, StringId64 material, const Color4 &color);
 
 	///
-	void image_3d_uv(const Vector3 &pos, const Vector2 &size, const Vector2 &uv0, const Vector2 &uv1, StringId64 material, const Color4 &color, f32 depth = 0.0f);
+	void image_3d_uv(const Matrix4x4& local_pose, const Vector3 &pos, const Vector2 &size, const Vector2 &uv0, const Vector2 &uv1, StringId64 material, const Color4 &color, f32 depth = 0.0f);
 
 	///
 	void image_uv(const Vector3 &pos, const Vector2 &size, const Vector2 &uv0, const Vector2 &uv1, StringId64 material, const Color4 &color);
 
 	///
-	void text_3d(const Vector3 &pos, u32 font_size, const char *str, StringId64 font, StringId64 material, const Color4 &color, f32 depth = 0.0f);
+	void text_3d(const Matrix4x4& local_pose, const Vector3 &pos, u32 font_size, const char *str, StringId64 font, StringId64 material, const Color4 &color, f32 depth = 0.0f);
 
 	///
 	void text(const Vector3 &pos, u32 font_size, const char *str, StringId64 font, StringId64 material, const Color4 &color);

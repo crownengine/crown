@@ -118,7 +118,7 @@ void Gui::move(const Vector2 &pos)
 	set_translation(_world, vector3(pos.x, pos.y, 0));
 }
 
-void Gui::triangle_3d(const Vector3 &a, const Vector3 &b, const Vector3 &c, const Color4 &color, f32 depth)
+void Gui::triangle_3d(const Matrix4x4& local_pose, const Vector3 &a, const Vector3 &b, const Vector3 &c, const Color4 &color, f32 depth)
 {
 	VertexData *vd = (VertexData *)_buffer->vertex_buffer_end();
 	vd[0].pos.x = a.x;
@@ -147,15 +147,21 @@ void Gui::triangle_3d(const Vector3 &a, const Vector3 &b, const Vector3 &c, cons
 	inds[1] = 1;
 	inds[2] = 2;
 
-	_buffer->submit(3, 3, _world, _gui_shader, _view, depth_u32(depth));
+	_buffer->submit(3, 3, local_pose*_world, _gui_shader, _view, depth_u32(depth));
 }
 
 void Gui::triangle(const Vector2 &a, const Vector2 &b, const Vector2 &c, const Color4 &color, f32 depth)
 {
-	triangle_3d(vector3(a.x, a.y, 0.0f), vector3(b.x, b.y, 0.0f), vector3(c.x, c.y, 0.0f), color, depth);
+	triangle_3d(MATRIX4X4_IDENTITY
+		, vector3(a.x, a.y, 0.0f)
+		, vector3(b.x, b.y, 0.0f)
+		, vector3(c.x, c.y, 0.0f)
+		, color
+		, depth
+		);
 }
 
-void Gui::rect_3d(const Vector3 &pos, const Vector2 &size, const Color4 &color, f32 depth)
+void Gui::rect_3d(const Matrix4x4 &local_pose, const Vector3 &pos, const Vector2 &size, const Color4 &color, f32 depth)
 {
 	VertexData *vd = (VertexData *)_buffer->vertex_buffer_end();
 	vd[0].pos.x = pos.x;
@@ -194,15 +200,20 @@ void Gui::rect_3d(const Vector3 &pos, const Vector2 &size, const Color4 &color, 
 	inds[4] = 2;
 	inds[5] = 3;
 
-	_buffer->submit(4, 6, _world, _gui_shader, _view, depth_u32(depth));
+	_buffer->submit(4, 6, local_pose*_world, _gui_shader, _view, depth_u32(depth));
 }
 
 void Gui::rect(const Vector3 &pos, const Vector2 &size, const Color4 &color)
 {
-	rect_3d(vector3(pos.x, pos.y, 0.0f), size, color, pos.z);
+	rect_3d(MATRIX4X4_IDENTITY
+		, vector3(pos.x, pos.y, 0.0f)
+		, size
+		, color
+		, pos.z
+		);
 }
 
-void Gui::image_3d_uv(const Vector3 &pos, const Vector2 &size, const Vector2 &uv0, const Vector2 &uv1, StringId64 material, const Color4 &color, f32 depth)
+void Gui::image_3d_uv(const Matrix4x4& local_pose, const Vector3 &pos, const Vector2 &size, const Vector2 &uv0, const Vector2 &uv1, StringId64 material, const Color4 &color, f32 depth)
 {
 	VertexData *vd = (VertexData *)_buffer->vertex_buffer_end();
 	vd[0].pos.x = pos.x;
@@ -245,7 +256,7 @@ void Gui::image_3d_uv(const Vector3 &pos, const Vector2 &size, const Vector2 &uv
 	_material_manager->create_material(mr);
 	_buffer->submit_with_material(4
 		, 6
-		, _world
+		, local_pose*_world
 		, _view
 		, depth_u32(depth)
 		, _material_manager->get(mr)
@@ -254,20 +265,42 @@ void Gui::image_3d_uv(const Vector3 &pos, const Vector2 &size, const Vector2 &uv
 
 void Gui::image_uv(const Vector3 &pos, const Vector2 &size, const Vector2 &uv0, const Vector2 &uv1, StringId64 material, const Color4 &color)
 {
-	image_3d_uv(vector3(pos.x, pos.y, 0.0f), size, uv0, uv1, material, color, pos.z);
+	image_3d_uv(MATRIX4X4_IDENTITY
+		, vector3(pos.x, pos.y, 0.0f)
+		, size
+		, uv0
+		, uv1
+		, material
+		, color
+		, pos.z
+		);
 }
 
-void Gui::image_3d(const Vector3 &pos, const Vector2 &size, StringId64 material, const Color4 &color, f32 depth)
+void Gui::image_3d(const Matrix4x4& local_pose, const Vector3 &pos, const Vector2 &size, StringId64 material, const Color4 &color, f32 depth)
 {
-	image_3d_uv(pos, size, VECTOR2_ZERO, VECTOR2_ONE, material, color, depth);
+	image_3d_uv(local_pose
+		, pos
+		, size
+		, VECTOR2_ZERO
+		, VECTOR2_ONE
+		, material
+		, color
+		, depth
+		);
 }
 
 void Gui::image(const Vector3 &pos, const Vector2 &size, StringId64 material, const Color4 &color)
 {
-	image_3d(vector3(pos.x, pos.y, 0.0f), size, material, color, pos.z);
+	image_3d(MATRIX4X4_IDENTITY
+		, vector3(pos.x, pos.y, 0.0f)
+		, size
+		, material
+		, color
+		, pos.z
+		);
 }
 
-void Gui::text_3d(const Vector3 &pos, u32 font_size, const char *str, StringId64 font, StringId64 material, const Color4 &color, f32 depth)
+void Gui::text_3d(const Matrix4x4& local_pose, const Vector3 &pos, u32 font_size, const char *str, StringId64 font, StringId64 material, const Color4 &color, f32 depth)
 {
 	const MaterialResource *mr = (MaterialResource *)_resource_manager->get(RESOURCE_TYPE_MATERIAL, material);
 	_material_manager->create_material(mr);
@@ -371,7 +404,7 @@ void Gui::text_3d(const Vector3 &pos, u32 font_size, const char *str, StringId64
 
 	_buffer->submit_with_material(num_vertices
 		, num_indices
-		, _world
+		, local_pose*_world
 		, _view
 		, depth_u32(depth)
 		, _material_manager->get(mr)
@@ -380,7 +413,15 @@ void Gui::text_3d(const Vector3 &pos, u32 font_size, const char *str, StringId64
 
 void Gui::text(const Vector3 &pos, u32 font_size, const char *str, StringId64 font, StringId64 material, const Color4 &color)
 {
-	text_3d(vector3(pos.x, pos.y, 0.0f), font_size, str, font, material, color, pos.z);
+	text_3d(MATRIX4X4_IDENTITY
+		, vector3(pos.x, pos.y, 0.0f)
+		, font_size
+		, str
+		, font
+		, material
+		, color
+		, pos.z
+		);
 }
 
 Material *Gui::material(ResourceId material_resource)
