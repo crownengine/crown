@@ -162,6 +162,8 @@ public class TextureSettingsDialog : Gtk.Window
 
 		_never_opened_before = true;
 		_stack.map.connect(on_stack_map);
+
+		this.delete_event.connect(on_delete_event);
 	}
 
 	public void on_stack_map()
@@ -353,6 +355,12 @@ public class TextureSettingsDialog : Gtk.Window
 			+ "."
 			+ property
 			;
+	}
+
+	public bool on_delete_event(Gdk.EventAny event)
+	{
+		_texture_id = GUID_ZERO;
+		return Gdk.EVENT_PROPAGATE;
 	}
 }
 
