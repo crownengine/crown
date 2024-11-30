@@ -118,7 +118,7 @@ void Gui::move(const Vector2 &pos)
 	set_translation(_world, vector3(pos.x, pos.y, 0));
 }
 
-void Gui::triangle_3d(const Matrix4x4& local_pose, const Vector3 &a, const Vector3 &b, const Vector3 &c, const Color4 &color, f32 depth)
+void Gui::triangle_3d(const Matrix4x4 &local_pose, const Vector3 &a, const Vector3 &b, const Vector3 &c, const Color4 &color, f32 depth)
 {
 	VertexData *vd = (VertexData *)_buffer->vertex_buffer_end();
 	vd[0].pos.x = a.x;
@@ -213,7 +213,7 @@ void Gui::rect(const Vector3 &pos, const Vector2 &size, const Color4 &color)
 		);
 }
 
-void Gui::image_3d_uv(const Matrix4x4& local_pose, const Vector3 &pos, const Vector2 &size, const Vector2 &uv0, const Vector2 &uv1, StringId64 material, const Color4 &color, f32 depth)
+void Gui::image_3d_uv(const Matrix4x4 &local_pose, const Vector3 &pos, const Vector2 &size, const Vector2 &uv0, const Vector2 &uv1, StringId64 material, const Color4 &color, f32 depth)
 {
 	VertexData *vd = (VertexData *)_buffer->vertex_buffer_end();
 	vd[0].pos.x = pos.x;
@@ -276,7 +276,7 @@ void Gui::image_uv(const Vector3 &pos, const Vector2 &size, const Vector2 &uv0, 
 		);
 }
 
-void Gui::image_3d(const Matrix4x4& local_pose, const Vector3 &pos, const Vector2 &size, StringId64 material, const Color4 &color, f32 depth)
+void Gui::image_3d(const Matrix4x4 &local_pose, const Vector3 &pos, const Vector2 &size, StringId64 material, const Color4 &color, f32 depth)
 {
 	image_3d_uv(local_pose
 		, pos
@@ -300,7 +300,7 @@ void Gui::image(const Vector3 &pos, const Vector2 &size, StringId64 material, co
 		);
 }
 
-void Gui::text_3d(const Matrix4x4& local_pose, const Vector3 &pos, u32 font_size, const char *str, StringId64 font, StringId64 material, const Color4 &color, f32 depth)
+void Gui::text_3d(const Matrix4x4 &local_pose, const Vector3 &pos, u32 font_size, const char *str, StringId64 font, StringId64 material, const Color4 &color, f32 depth)
 {
 	const MaterialResource *mr = (MaterialResource *)_resource_manager->get(RESOURCE_TYPE_MATERIAL, material);
 	_material_manager->create_material(mr);
