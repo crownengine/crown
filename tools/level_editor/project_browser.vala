@@ -338,6 +338,8 @@ public class ProjectFolderView : Gtk.Bin
 		TYPE,
 		NAME,
 		PIXBUF,
+		SIZE,
+		MTIME,
 
 		COUNT
 	}
@@ -366,6 +368,8 @@ public class ProjectFolderView : Gtk.Bin
 			, typeof(string)     // Column.TYPE
 			, typeof(string)     // Column.NAME
 			, typeof(Gdk.Pixbuf) // Column.PIXBUF
+			, typeof(uint64)     // Column.SIZE
+			, typeof(uint64)     // Column.MTIME
 			);
 		_list_store.set_sort_column_id(Column.TYPE, Gtk.SortType.ASCENDING);
 
@@ -425,6 +429,18 @@ public class ProjectFolderView : Gtk.Bin
 		column.title = "Type";
 		column.pack_start(cell_text, true);
 		column.set_cell_data_func(cell_text, list_view_type_text_func);
+		_list_view.append_column(column);
+
+		column = new Gtk.TreeViewColumn();
+		column.title = "Size";
+		column.pack_start(cell_text, true);
+		column.set_cell_data_func(cell_text, list_view_size_text_func);
+		_list_view.append_column(column);
+
+		column = new Gtk.TreeViewColumn();
+		column.title = "Modified";
+		column.pack_start(cell_text, true);
+		column.set_cell_data_func(cell_text, list_view_mtime_text_func);
 		_list_view.append_column(column);
 
 		_empty_pixbuf = new Gdk.Pixbuf.from_data({ 0x00, 0x00, 0x00, 0x00 }, Gdk.Colorspace.RGB, true, 8, 1, 1, 4);
@@ -612,6 +628,49 @@ public class ProjectFolderView : Gtk.Bin
 			cell.set_property("text", "Folder");
 		else
 			cell.set_property("text", type);
+	}
+
+	private void list_view_size_text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
+	{
+		Value val;
+		model.get_value(iter, Column.SIZE, out val);
+		uint64 size = (uint64)val;
+
+		uint64 si_size;
+		string si_unit;
+		if (size >= 1024*1024*1024) {
+			si_size = size / 1024*1024*1024;
+			si_unit = "GiB";
+		} else if (size >= 1024*1024) {
+			si_size = size / 1024*1024;
+			si_unit = "MiB";
+		} else if (size >= 1024) {
+			si_size = size / 1024;
+			si_unit = "KiB";
+		} else {
+			si_size = size;
+			si_unit = size > 1 ? "bytes" : "byte";
+		}
+
+		if (size != 0)
+			cell.set_property("text", "%d %s".printf((int)si_size, si_unit));
+		else
+			cell.set_property("text", "n/a");
+	}
+
+	private void list_view_mtime_text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
+	{
+		Value type;
+		model.get_value(iter, Column.MTIME, out type);
+		uint64 mtime = (uint64)type;
+
+		if (mtime != 0) {
+			int64 mtime_secs = (int64)(mtime / (1000*1000*1000));
+			GLib.DateTime date_time = new GLib.DateTime.from_unix_local(mtime_secs);
+			cell.set_property("text", date_time.format("%d %b %Y; %H:%m:%S"));
+		} else {
+			cell.set_property("text", "n/a");
+		}
 	}
 
 	public void reveal(string type, string name)
@@ -1153,6 +1212,10 @@ public class ProjectBrowser : Gtk.Bin
 					, "<folder>"
 					, ProjectFolderView.Column.NAME
 					, ".."
+					, ProjectFolderView.Column.SIZE
+					, 0u
+					, ProjectFolderView.Column.MTIME
+					, 0u
 					, -1
 					);
 			}
@@ -1190,6 +1253,13 @@ public class ProjectBrowser : Gtk.Bin
 					if (name_suffix.index_of_char('/') != -1)
 						return false;
 
+					uint64 size;
+					uint64 mtime;
+					model.get_value(iter, ProjectStore.Column.SIZE, out val);
+					size = (uint64)val;
+					model.get_value(iter, ProjectStore.Column.MTIME, out val);
+					mtime = (uint64)val;
+
 					// Add the path to the list.
 					Gtk.TreeIter dummy;
 					_folder_view._list_store.insert_with_values(out dummy
@@ -1198,6 +1268,10 @@ public class ProjectBrowser : Gtk.Bin
 						, type
 						, ProjectFolderView.Column.NAME
 						, name
+						, ProjectFolderView.Column.SIZE
+						, size
+						, ProjectFolderView.Column.MTIME
+						, mtime
 						, -1
 						);
 					return false;
@@ -1220,6 +1294,13 @@ public class ProjectBrowser : Gtk.Bin
 					if (!path.is_descendant(_project_store.favorites_root_path()))
 						return false;
 
+					uint64 size;
+					uint64 mtime;
+					model.get_value(iter, ProjectStore.Column.SIZE, out val);
+					size = (uint64)val;
+					model.get_value(iter, ProjectStore.Column.MTIME, out val);
+					mtime = (uint64)val;
+
 					// Add the path to the list.
 					Gtk.TreeIter dummy;
 					_folder_view._list_store.insert_with_values(out dummy
@@ -1228,6 +1309,10 @@ public class ProjectBrowser : Gtk.Bin
 						, type
 						, ProjectFolderView.Column.NAME
 						, name
+						, ProjectFolderView.Column.SIZE
+						, size
+						, ProjectFolderView.Column.MTIME
+						, mtime
 						, -1
 						);
 					return false;

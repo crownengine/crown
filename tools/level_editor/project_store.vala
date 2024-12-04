@@ -16,6 +16,8 @@ public class ProjectStore
 	{
 		NAME,
 		TYPE,
+		SIZE,
+		MTIME,
 
 		COUNT
 	}
@@ -41,10 +43,14 @@ public class ProjectStore
 		_list_store = new Gtk.ListStore(Column.COUNT
 			, typeof(string) // resource name
 			, typeof(string) // resource type
+			, typeof(uint64) // resource size
+			, typeof(uint64) // resource mtime
 			);
 		_tree_store = new Gtk.TreeStore(Column.COUNT
 			, typeof(string) // resource name
 			, typeof(string) // resource type
+			, typeof(uint64) // resource size
+			, typeof(uint64) // resource mtime
 			);
 
 		_folders = new Gee.HashMap<string, Gtk.TreeRowReference>();
@@ -67,6 +73,10 @@ public class ProjectStore
 			, ROOT_FOLDER
 			, Column.TYPE
 			, "<favorites>"
+			, Column.SIZE
+			, 0u
+			, Column.MTIME
+			, 0u
 			, -1
 			);
 		_favorites_root = new Gtk.TreeRowReference(_tree_store, _tree_store.get_path(iter));
@@ -153,6 +163,10 @@ public class ProjectStore
 			, name
 			, Column.TYPE
 			, type
+			, Column.SIZE
+			, 0u
+			, Column.MTIME
+			, 0u
 			, -1
 			);
 	}
@@ -199,6 +213,10 @@ public class ProjectStore
 				, folder
 				, Column.TYPE
 				, "<folder>"
+				, Column.SIZE
+				, 0u
+				, Column.MTIME
+				, 0u
 				, -1
 				);
 
@@ -218,6 +236,10 @@ public class ProjectStore
 					, folder.substring(0, first_slash)
 					, Column.TYPE
 					, "<folder>"
+					, Column.SIZE
+					, 0u
+					, Column.MTIME
+					, 0u
 					, -1
 					);
 
@@ -240,7 +262,7 @@ public class ProjectStore
 		return make_tree_internal(folder, 0, _folders[ROOT_FOLDER]);
 	}
 
-	private void on_project_file_added(string type, string name)
+	private void on_project_file_added(string type, string name, uint64 size, uint64 mtime)
 	{
 		string parent_folder = ResourceId.parent_folder(name);
 
@@ -252,6 +274,10 @@ public class ProjectStore
 			, name
 			, Column.TYPE
 			, type
+			, Column.SIZE
+			, size
+			, Column.MTIME
+			, mtime
 			, -1
 			);
 		_tree_store.insert_with_values(out iter
@@ -261,6 +287,10 @@ public class ProjectStore
 			, name
 			, Column.TYPE
 			, type
+			, Column.SIZE
+			, size
+			, Column.MTIME
+			, mtime
 			, -1
 			);
 	}
@@ -321,6 +351,10 @@ public class ProjectStore
 			, name
 			, Column.TYPE
 			, "<folder>"
+			, Column.SIZE
+			, 0u
+			, Column.MTIME
+			, 0u
 			, -1
 			);
 
@@ -384,6 +418,10 @@ public class ProjectStore
 			, ROOT_FOLDER
 			, Column.TYPE
 			, "<folder>"
+			, Column.SIZE
+			, 0u
+			, Column.MTIME
+			, 0u
 			, -1
 			);
 
