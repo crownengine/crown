@@ -4,6 +4,11 @@ Changelog
 0.54.0 --- DD MMM YYYY
 ----------------------
 
+**Tools**
+
+* Items in the Project Browser can now be sorted by name, type, size or last modification time.
+* Added a list-view mode to the Project Browser.
+
 0.53.0 --- 30 Nov 2024
 ----------------------
 

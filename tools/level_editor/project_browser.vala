@@ -371,7 +371,6 @@ public class ProjectFolderView : Gtk.Bin
 			, typeof(uint64)     // Column.SIZE
 			, typeof(uint64)     // Column.MTIME
 			);
-		_list_store.set_sort_column_id(Column.TYPE, Gtk.SortType.ASCENDING);
 
 		_icon_view = new Gtk.IconView();
 		_icon_view.set_model(_list_store);
@@ -726,6 +725,44 @@ public class ProjectFolderView : Gtk.Bin
 
 public class ProjectBrowser : Gtk.Bin
 {
+	public enum SortMode
+	{
+		NAME_AZ,
+		NAME_ZA,
+		TYPE_AZ,
+		TYPE_ZA,
+		SIZE_MIN_MAX,
+		SIZE_MAX_MIN,
+		LAST_MTIME,
+		FIRST_MTIME,
+
+		COUNT;
+
+		public string to_label()
+		{
+			switch (this) {
+			case NAME_AZ:
+				return "Name A-Z";
+			case NAME_ZA:
+				return "Name Z-A";
+			case TYPE_AZ:
+				return "Type A-Z";
+			case TYPE_ZA:
+				return "Type Z-A";
+			case SIZE_MIN_MAX:
+				return "Size min-Max";
+			case SIZE_MAX_MIN:
+				return "Size Max-min";
+			case LAST_MTIME:
+				return "Last Modified";
+			case FIRST_MTIME:
+				return "First Modified";
+			default:
+				return "Unknown";
+			}
+		}
+	}
+
 	// Data
 	public ProjectStore _project_store;
 	public ThumbnailCache _thumbnail_cache;
@@ -741,6 +778,12 @@ public class ProjectBrowser : Gtk.Bin
 	public Gtk.Button _toggle_folder_view;
 	public Gtk.Box _tree_view_content;
 	public Gtk.Button _toggle_icon_view;
+	public Gtk.ListStore _folder_list_store;
+	public Gtk.TreeModelSort _folder_list_sort;
+	public SortMode _sort_mode;
+	public Gtk.Box _sort_items_box;
+	public Gtk.Popover _sort_items_popover;
+	public Gtk.MenuButton _sort_items;
 	public Gtk.Box _folder_view_content;
 	public Gtk.ScrolledWindow _scrolled_window;
 	public Gtk.Paned _paned;
@@ -952,6 +995,22 @@ public class ProjectBrowser : Gtk.Bin
 		_tree_view_content.pack_start(_tree_view_control, false);
 		_tree_view_content.pack_start(_scrolled_window, true, true);
 
+		// Setup sort menu button popover.
+		_sort_items_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+
+		Gtk.RadioButton? button = null;
+		for (int i = 0; i < SortMode.COUNT; ++i)
+			button = add_sort_item(button, (SortMode)i);
+
+		_sort_items_box.show_all();
+		_sort_items_popover = new Gtk.Popover(null);
+		_sort_items_popover.add(_sort_items_box);
+		_sort_items = new Gtk.MenuButton();
+		_sort_items.add(new Gtk.Image.from_icon_name("list-sort", Gtk.IconSize.SMALL_TOOLBAR));
+		_sort_items.get_style_context().add_class("flat");
+		_sort_items.can_focus = false;
+		_sort_items.set_popover(_sort_items_popover);
+
 		bool _show_icon_view = true;
 		_toggle_icon_view = new Gtk.Button.from_icon_name("browser-list-view", Gtk.IconSize.SMALL_TOOLBAR);
 		_toggle_icon_view.get_style_context().add_class("flat");
@@ -982,6 +1041,7 @@ public class ProjectBrowser : Gtk.Bin
 
 		var _folder_view_control = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
 		_folder_view_control.pack_end(_toggle_icon_view, false, false);
+		_folder_view_control.pack_end(_sort_items, false, false);
 
 		_folder_view_content = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		_folder_view_content.pack_start(_folder_view_control, false);
@@ -995,6 +1055,78 @@ public class ProjectBrowser : Gtk.Bin
 		this.add(_paned);
 
 		_hide_core_resources = true;
+
+		_folder_list_store = new Gtk.ListStore(ProjectStore.Column.COUNT
+			, typeof(string) // ProjectStore.Column.NAME
+			, typeof(string) // ProjectStore.Column.TYPE
+			, typeof(uint64) // ProjectStore.Column.SIZE
+			, typeof(uint64) // ProjectStore.Column.MTIME
+			);
+
+		_folder_list_sort = new Gtk.TreeModelSort.with_model(_folder_list_store);
+		_folder_list_sort.set_default_sort_func((model, iter_a, iter_b) => {
+				Value type_a;
+				Value type_b;
+				model.get_value(iter_a, ProjectStore.Column.TYPE, out type_a);
+				model.get_value(iter_b, ProjectStore.Column.TYPE, out type_b);
+				Value name_a;
+				Value name_b;
+				model.get_value(iter_a, ProjectStore.Column.NAME, out name_a);
+				model.get_value(iter_b, ProjectStore.Column.NAME, out name_b);
+
+				// Folders are always on top.
+				if ((string)type_a == "<folder>" && (string)type_b != "<folder>") {
+					return -1;
+				} else if ((string)type_a != "<folder>" && (string)type_b == "<folder>") {
+					return 1;
+				} else if ((string)type_a == "<folder>" && (string)type_b == "<folder>") {
+					// Special folders always first.
+					if ((string)name_a == "..")
+						return -1;
+					else if ((string)name_b == "..")
+						return 1;
+				}
+
+				switch (_sort_mode) {
+				case SortMode.NAME_AZ:
+				case SortMode.NAME_ZA: {
+					int cmp = strcmp((string)name_a, (string)name_b);
+					return _sort_mode == SortMode.NAME_AZ ? cmp : -cmp;
+				}
+
+				case SortMode.TYPE_AZ:
+				case SortMode.TYPE_ZA: {
+					int cmp = strcmp((string)type_a, (string)type_b);
+					return _sort_mode == SortMode.TYPE_AZ ? cmp : -cmp;
+
+				}
+
+				case SortMode.SIZE_MIN_MAX:
+				case SortMode.SIZE_MAX_MIN: {
+					Value size_a;
+					Value size_b;
+					model.get_value(iter_a, ProjectStore.Column.SIZE, out size_a);
+					model.get_value(iter_b, ProjectStore.Column.SIZE, out size_b);
+
+					int cmp = (uint64)size_a <= (uint64)size_b ? -1 : 1;
+					return _sort_mode == SortMode.SIZE_MIN_MAX ? cmp : -cmp;
+				}
+
+				case SortMode.LAST_MTIME:
+				case SortMode.FIRST_MTIME: {
+					Value mtime_a;
+					Value mtime_b;
+					model.get_value(iter_a, ProjectStore.Column.MTIME, out mtime_a);
+					model.get_value(iter_b, ProjectStore.Column.MTIME, out mtime_b);
+
+					int cmp = (uint64)mtime_a >= (uint64)mtime_b ? -1 : 1;
+					return _sort_mode == SortMode.LAST_MTIME ? cmp : -cmp;
+				}
+
+				default:
+					return 0;
+				}
+			});
 
 		// Actions.
 		GLib.ActionEntry[] action_entries =
@@ -1183,12 +1315,13 @@ public class ProjectBrowser : Gtk.Bin
 
 	private void update_folder_view()
 	{
+		// Return if selection is empty.
 		Gtk.TreeModel selected_model;
 		Gtk.TreeIter selected_iter;
 		if (!_tree_selection.get_selected(out selected_model, out selected_iter))
 			return;
 
-		// If there is a selected node.
+		_folder_list_store.clear();
 		_folder_view._list_store.clear();
 
 		// Get the selected node's type and name.
@@ -1206,21 +1339,21 @@ public class ProjectBrowser : Gtk.Bin
 			// Add parent folder.
 			if (selected_name != "") {
 				Gtk.TreeIter dummy;
-				_folder_view._list_store.insert_with_values(out dummy
+				_folder_list_store.insert_with_values(out dummy
 					, -1
-					, ProjectFolderView.Column.TYPE
+					, ProjectStore.Column.TYPE
 					, "<folder>"
-					, ProjectFolderView.Column.NAME
+					, ProjectStore.Column.NAME
 					, ".."
-					, ProjectFolderView.Column.SIZE
+					, ProjectStore.Column.SIZE
 					, 0u
-					, ProjectFolderView.Column.MTIME
+					, ProjectStore.Column.MTIME
 					, 0u
 					, -1
 					);
 			}
 
-			// Fill the icon view list with paths matching the selected node's name.
+			// Fill the intermediate icon view list with paths matching the selected node's name.
 			_project_store._list_store.foreach((model, path, iter) => {
 					string type;
 					string name;
@@ -1262,15 +1395,15 @@ public class ProjectBrowser : Gtk.Bin
 
 					// Add the path to the list.
 					Gtk.TreeIter dummy;
-					_folder_view._list_store.insert_with_values(out dummy
+					_folder_list_store.insert_with_values(out dummy
 						, -1
-						, ProjectFolderView.Column.TYPE
+						, ProjectStore.Column.TYPE
 						, type
-						, ProjectFolderView.Column.NAME
+						, ProjectStore.Column.NAME
 						, name
-						, ProjectFolderView.Column.SIZE
+						, ProjectStore.Column.SIZE
 						, size
-						, ProjectFolderView.Column.MTIME
+						, ProjectStore.Column.MTIME
 						, mtime
 						, -1
 						);
@@ -1303,21 +1436,53 @@ public class ProjectBrowser : Gtk.Bin
 
 					// Add the path to the list.
 					Gtk.TreeIter dummy;
-					_folder_view._list_store.insert_with_values(out dummy
+					_folder_list_store.insert_with_values(out dummy
 						, -1
-						, ProjectFolderView.Column.TYPE
+						, ProjectStore.Column.TYPE
 						, type
-						, ProjectFolderView.Column.NAME
+						, ProjectStore.Column.NAME
 						, name
-						, ProjectFolderView.Column.SIZE
+						, ProjectStore.Column.SIZE
 						, size
-						, ProjectFolderView.Column.MTIME
+						, ProjectStore.Column.MTIME
 						, mtime
 						, -1
 						);
 					return false;
 				});
 		}
+
+		// Now, fill the actual icon view list with correctly sorted paths.
+		_folder_list_sort.foreach((model, path, iter) => {
+				string type;
+				string name;
+				uint64 size;
+				uint64 mtime;
+				model.get_value(iter, ProjectStore.Column.TYPE, out val);
+				type = (string)val;
+				model.get_value(iter, ProjectStore.Column.NAME, out val);
+				name = (string)val;
+				model.get_value(iter, ProjectStore.Column.SIZE, out val);
+				size = (uint64)val;
+				model.get_value(iter, ProjectStore.Column.MTIME, out val);
+				mtime = (uint64)val;
+
+				// Add the path to the list.
+				Gtk.TreeIter dummy;
+				_folder_view._list_store.insert_with_values(out dummy
+					, -1
+					, ProjectFolderView.Column.TYPE
+					, type
+					, ProjectFolderView.Column.NAME
+					, name
+					, ProjectFolderView.Column.SIZE
+					, size
+					, ProjectFolderView.Column.MTIME
+					, mtime
+					, -1
+					);
+				return false;
+			});
 	}
 
 	public void select_project_root()
@@ -1365,6 +1530,18 @@ public class ProjectBrowser : Gtk.Bin
 		} else {
 			cell.set_property("text", ResourceId.path((string)type, basename));
 		}
+	}
+
+	private Gtk.RadioButton add_sort_item(Gtk.RadioButton? group, SortMode mode)
+	{
+		var button = new Gtk.RadioButton.with_label_from_widget(group, mode.to_label());
+		button.toggled.connect(() => {
+				_sort_mode = mode;
+				update_folder_view();
+				_sort_items_popover.popdown();
+			});
+		_sort_items_box.pack_start(button, false, false);
+		return button;
 	}
 }
 
