@@ -333,8 +333,6 @@ private void set_thumbnail(Gtk.CellRenderer cell, string type, string name, int 
 }
 public class ProjectFolderView : Gtk.Bin
 {
-	const int ICON_SIZE = 48;
-
 	public enum Column
 	{
 		TYPE,
