@@ -201,6 +201,7 @@ public class ThumbnailCache
 			, _mip0_width + _mip0_width / 2
 			, _mip0_height
 			);
+		changed();
 	}
 
 	public Gdk.Pixbuf? get(string type, string name, int thumb_size = THUMBNAIL_SIZE)
