@@ -34,6 +34,7 @@ public class ProjectStore
 		// Data
 		_project = project;
 		_project.file_added.connect(on_project_file_added);
+		_project.file_changed.connect(on_project_file_changed);
 		_project.file_removed.connect(on_project_file_removed);
 		_project.tree_added.connect(on_project_tree_added);
 		_project.tree_removed.connect(on_project_tree_removed);
@@ -293,6 +294,12 @@ public class ProjectStore
 			, mtime
 			, -1
 			);
+	}
+
+	private void on_project_file_changed(string type, string name, uint64 size, uint64 mtime)
+	{
+		on_project_file_removed(type, name);
+		on_project_file_added(type, name, size, mtime);
 	}
 
 	private void on_project_file_removed(string type, string name)

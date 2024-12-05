@@ -71,10 +71,10 @@ public class Project
 	public Hashtable _data_index;
 
 	public signal void file_added(string type, string name, uint64 size, uint64 mtime);
+	public signal void file_changed(string type, string name, uint64 size, uint64 mtime);
 	public signal void file_removed(string type, string name);
 	public signal void tree_added(string name);
 	public signal void tree_removed(string name);
-	public signal void file_changed(string type, string name, uint64 size, uint64 mtime);
 	public signal void project_reset();
 	public signal void project_loaded();
 
@@ -456,6 +456,20 @@ public class Project
 		file_added(type, name, size, mtime);
 	}
 
+	public void change_file(string path, uint64 size, uint64 mtime)
+	{
+		string type = path_extension(path);
+		string name = type == "" ? path : path.substring(0, path.last_index_of("."));
+
+		Guid id = _map[path];
+		_files.set_property_string(id, "size", size.to_string());
+		_files.set_property_string(id, "mtime", mtime.to_string());
+
+		_data_compiled = false;
+
+		file_changed(type, name, size, mtime);
+	}
+
 	public void remove_file(string path)
 	{
 		if (!_map.has_key(path)) {
@@ -480,20 +494,6 @@ public class Project
 	public void remove_tree(string path)
 	{
 		tree_removed(path);
-	}
-
-	public void change_file(string path, uint64 size, uint64 mtime)
-	{
-		string type = path_extension(path);
-		string name = type == "" ? path : path.substring(0, path.last_index_of("."));
-
-		Guid id = _map[path];
-		_files.set_property_string(id, "size", size.to_string());
-		_files.set_property_string(id, "mtime", mtime.to_string());
-
-		_data_compiled = false;
-
-		file_changed(type, name, size, mtime);
 	}
 
 	public string resource_filename(string absolute_path)
