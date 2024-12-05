@@ -638,10 +638,10 @@ public class ProjectFolderView : Gtk.Bin
 		uint64 si_size;
 		string si_unit;
 		if (size >= 1024*1024*1024) {
-			si_size = size / 1024*1024*1024;
+			si_size = size / (1024*1024*1024);
 			si_unit = "GiB";
 		} else if (size >= 1024*1024) {
-			si_size = size / 1024*1024;
+			si_size = size / (1024*1024);
 			si_unit = "MiB";
 		} else if (size >= 1024) {
 			si_size = size / 1024;
