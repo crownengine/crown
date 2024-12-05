@@ -1366,7 +1366,7 @@ public class ProjectBrowser : Gtk.Bin
 						return false;
 
 					// Skip paths without common ancestor.
-					if (!name.has_prefix(selected_name))
+					if (ResourceId.parent_folder(name) != selected_name)
 						return false;
 
 					// Skip paths that are too deep in the hierarchy:
