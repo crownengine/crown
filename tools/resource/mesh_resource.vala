@@ -3,9 +3,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-using Gee;
-using Gtk;
-
 namespace Crown
 {
 public class MeshResource
@@ -14,7 +11,7 @@ public class MeshResource
 	{
 		Unit unit = new Unit(db, unit_id);
 
-		Matrix4x4 matrix_local = Matrix4x4.from_array((ArrayList<Value?>)node["matrix_local"]);
+		Matrix4x4 matrix_local = Matrix4x4.from_array((Gee.ArrayList<Value?>)node["matrix_local"]);
 		Vector3 position = matrix_local.t.to_vector3();
 		Quaternion rotation = matrix_local.rotation();
 		Vector3 scale = matrix_local.scale();
@@ -101,23 +98,23 @@ public class MeshResource
 			string resource_name     = ResourceId.name(resource_path);
 
 			// Choose material or create new one
-			FileChooserDialog mtl = new FileChooserDialog("Select material... (Cancel to create a new one)"
+			Gtk.FileChooserDialog mtl = new Gtk.FileChooserDialog("Select material... (Cancel to create a new one)"
 				, null
-				, FileChooserAction.OPEN
+				, Gtk.FileChooserAction.OPEN
 				, "Cancel"
-				, ResponseType.CANCEL
+				, Gtk.ResponseType.CANCEL
 				, "Select"
-				, ResponseType.ACCEPT
+				, Gtk.ResponseType.ACCEPT
 				);
 			mtl.set_current_folder(project.source_dir());
 
-			FileFilter fltr = new FileFilter();
+			Gtk.FileFilter fltr = new Gtk.FileFilter();
 			fltr.set_filter_name("Material (*.material)");
 			fltr.add_pattern("*.material");
 			mtl.add_filter(fltr);
 
 			string material_name = resource_name;
-			if (mtl.run() == (int)ResponseType.ACCEPT) {
+			if (mtl.run() == (int)Gtk.ResponseType.ACCEPT) {
 				string material_filename = project.resource_filename(mtl.get_filename());
 				string material_path     = ResourceId.normalize(material_filename);
 				material_name            = ResourceId.name(material_path);
