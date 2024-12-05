@@ -284,7 +284,7 @@ public class ThumbnailCache
 		return thumbnail_subpixbuf(entry.id, thumb_size);
 	}
 
-	public void show_debug_window(Gtk.Window parent_window)
+	public void show_debug_window(Gtk.Window? parent_window)
 	{
 		if (_debug_window == null) {
 			_debug_pixbuf = new PixbufView();
