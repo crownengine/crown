@@ -666,7 +666,7 @@ public class ProjectFolderView : Gtk.Bin
 		if (mtime != 0) {
 			int64 mtime_secs = (int64)(mtime / (1000*1000*1000));
 			GLib.DateTime date_time = new GLib.DateTime.from_unix_local(mtime_secs);
-			cell.set_property("text", date_time.format("%d %b %Y; %H:%m:%S"));
+			cell.set_property("text", date_time.format("%d %b %Y; %H:%M:%S"));
 		} else {
 			cell.set_property("text", "n/a");
 		}
