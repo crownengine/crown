@@ -310,6 +310,8 @@ public class ProjectStore
 		if (!_folders.has_key(parent_folder))
 			return;
 
+		remove_from_favorites(type, name);
+
 		// Remove from list store.
 		if (_list_store.iter_children(out child, null)) {
 			Value iter_name;
@@ -375,6 +377,8 @@ public class ProjectStore
 
 		if (!_folders.has_key(name))
 			return;
+
+		remove_from_favorites("<folder>", name);
 
 		// Remove from list store.
 		Gtk.TreeIter child;
