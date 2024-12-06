@@ -252,7 +252,7 @@ public class ProjectStore
 		}
 	}
 
-	private Gtk.TreeIter make_tree(string folder)
+	private Gtk.TreeIter find_or_make_tree(string folder)
 	{
 		if (_folders.has_key(folder)) {
 			Gtk.TreeIter iter;
@@ -267,7 +267,7 @@ public class ProjectStore
 	{
 		string parent_folder = ResourceId.parent_folder(name);
 
-		Gtk.TreeIter parent = make_tree(parent_folder);
+		Gtk.TreeIter parent = find_or_make_tree(parent_folder);
 		Gtk.TreeIter iter;
 		_list_store.insert_with_values(out iter
 			, -1
@@ -365,7 +365,7 @@ public class ProjectStore
 			, -1
 			);
 
-		make_tree(name);
+		find_or_make_tree(name);
 	}
 
 	private void on_project_tree_removed(string name)
