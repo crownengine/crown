@@ -442,6 +442,12 @@ public class ProjectFolderView : Gtk.Bin
 		column.set_cell_data_func(cell_text, list_view_mtime_text_func);
 		_list_view.append_column(column);
 
+		column = new Gtk.TreeViewColumn();
+		column.title = "Name";
+		column.pack_start(cell_text, true);
+		column.set_cell_data_func(cell_text, list_view_name_text_func);
+		_list_view.append_column(column);
+
 		_empty_pixbuf = new Gdk.Pixbuf.from_data({ 0x00, 0x00, 0x00, 0x00 }, Gdk.Colorspace.RGB, true, 8, 1, 1, 4);
 
 		_showing_project_folder = true;
@@ -668,6 +674,17 @@ public class ProjectFolderView : Gtk.Bin
 		} else {
 			cell.set_property("text", "n/a");
 		}
+	}
+
+	private void list_view_name_text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
+	{
+		Value name;
+		model.get_value(iter, Column.NAME, out name);
+
+		if (name == "..")
+			cell.set_property("text", "n/a");
+		else
+			cell.set_property("text", (string)name);
 	}
 
 	public void reveal(string type, string name)
