@@ -298,8 +298,69 @@ public class ProjectStore
 
 	private void on_project_file_changed(string type, string name, uint64 size, uint64 mtime)
 	{
-		on_project_file_removed(type, name);
-		on_project_file_added(type, name, size, mtime);
+		string parent_folder = ResourceId.parent_folder(name);
+		Gtk.TreeIter child;
+
+		if (!_folders.has_key(parent_folder))
+			return;
+
+		// Update the list store entry.
+		if (_list_store.iter_children(out child, null)) {
+			Value iter_name;
+			Value iter_type;
+
+			while (true) {
+				_list_store.get_value(child, Column.NAME, out iter_name);
+				_list_store.get_value(child, Column.TYPE, out iter_type);
+				if ((string)iter_name == name && (string)iter_type == type) {
+					_list_store.set(child
+						, Column.NAME
+						, name
+						, Column.TYPE
+						, type
+						, Column.SIZE
+						, size
+						, Column.MTIME
+						, mtime
+						, -1
+						);
+					break;
+				}
+
+				if (!_list_store.iter_next(ref child))
+					break;
+			}
+		}
+
+		// Update the tree store entry.
+		Gtk.TreeIter parent_iter;
+		_tree_store.get_iter(out parent_iter, _folders[parent_folder].get_path());
+		if (_tree_store.iter_children(out child, parent_iter)) {
+			Value iter_name;
+			Value iter_type;
+
+			while (true) {
+				_tree_store.get_value(child, Column.NAME, out iter_name);
+				_tree_store.get_value(child, Column.TYPE, out iter_type);
+				if ((string)iter_name == name && (string)iter_type == type) {
+					_tree_store.set(child
+						, Column.NAME
+						, name
+						, Column.TYPE
+						, type
+						, Column.SIZE
+						, size
+						, Column.MTIME
+						, mtime
+						, -1
+						);
+					break;
+				}
+
+				if (!_tree_store.iter_next(ref child))
+					break;
+			}
+		}
 	}
 
 	private void on_project_file_removed(string type, string name)

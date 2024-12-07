@@ -935,6 +935,7 @@ public class ProjectBrowser : Gtk.Bin
 		_empty_pixbuf = new Gdk.Pixbuf.from_data({ 0x00, 0x00, 0x00, 0x00 }, Gdk.Colorspace.RGB, true, 8, 1, 1, 4);
 
 		_project_store._tree_store.row_inserted.connect((path, iter) => { update_folder_view(); });
+		_project_store._tree_store.row_changed.connect((path, iter) => { update_folder_view(); });
 		_project_store._tree_store.row_deleted.connect((path) => { update_folder_view(); });
 
 		// Create icon view.
