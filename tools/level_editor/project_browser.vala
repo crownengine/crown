@@ -419,9 +419,9 @@ public class ProjectFolderView : Gtk.Bin
 		_list_view.append_column(column);
 
 		column = new Gtk.TreeViewColumn();
-		column.title = "Name";
+		column.title = "Basename";
 		column.pack_start(cell_text, true);
-		column.set_cell_data_func(cell_text, list_view_name_text_func);
+		column.set_cell_data_func(cell_text, list_view_basename_text_func);
 		_list_view.append_column(column);
 
 		column = new Gtk.TreeViewColumn();
@@ -605,11 +605,9 @@ public class ProjectFolderView : Gtk.Bin
 		set_thumbnail(cell, type, name, 32, _thumbnail_cache);
 	}
 
-	private void list_view_name_text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
+	private void list_view_basename_text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
-		Value type;
 		Value name;
-		model.get_value(iter, Column.TYPE, out type);
 		model.get_value(iter, Column.NAME, out name);
 
 		if (name == "..")
