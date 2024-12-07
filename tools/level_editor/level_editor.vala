@@ -471,7 +471,8 @@ public class LevelEditorApplication : Gtk.Application
 		{ "close-project", on_close_project, null, null },
 		{ "quit",          on_quit,          null, null },
 		{ "open-resource", on_open_resource, "s",  null },
-		{ "copy-path",     on_copy_path,     "s",  null }
+		{ "copy-path",     on_copy_path,     "s",  null },
+		{ "copy-name",     on_copy_name,     "s",  null }
 	};
 
 	private const GLib.ActionEntry[] action_entries_edit =
@@ -2548,17 +2549,24 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void on_copy_path(GLib.SimpleAction action, GLib.Variant? param)
+	private void copy_string(string str)
 	{
-		string path  = param.get_string();
-
-		string abs_path = _project.absolute_path(path);
-
 		var clip = Gtk.Clipboard.get_default(Gdk.Display.get_default());
-		clip.set_text(abs_path, abs_path.length);
+		clip.set_text(str, str.length);
 #if !CROWN_PLATFORM_WINDOWS
 		clip.store();
 #endif
+	}
+
+	private void on_copy_path(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string path  = param.get_string();
+		copy_string(_project.absolute_path(path));
+	}
+
+	private void on_copy_name(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		copy_string(param.get_string());
 	}
 
 	private void on_show_grid(GLib.SimpleAction action, GLib.Variant? param)

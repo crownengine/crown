@@ -232,6 +232,12 @@ private Gtk.Menu? project_entry_menu_create(string type, string name)
 		});
 	menu.add(mi);
 
+	mi = new Gtk.MenuItem.with_label("Copy Name");
+	mi.activate.connect(() => {
+			GLib.Application.get_default().activate_action("copy-name", new GLib.Variant.string(name));
+		});
+	menu.add(mi);
+
 	if (type != "<folder>" || name != "") {
 		mi = new Gtk.MenuItem.with_label("Add to Favorites");
 		mi.activate.connect(() => {
@@ -271,6 +277,12 @@ private Gtk.Menu? favorites_entry_menu_create(string type, string name)
 				path = ResourceId.path(type, name);
 
 			GLib.Application.get_default().activate_action("copy-path", new GLib.Variant.string(path));
+		});
+	menu.add(mi);
+
+	mi = new Gtk.MenuItem.with_label("Copy Name");
+	mi.activate.connect(() => {
+			GLib.Application.get_default().activate_action("copy-name", new GLib.Variant.string(name));
 		});
 	menu.add(mi);
 
