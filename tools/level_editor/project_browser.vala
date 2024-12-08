@@ -785,11 +785,12 @@ public class ProjectFolderView : Gtk.Bin
 		_list_store.get_value(iter, Column.MTIME, out val);
 		uint64 mtime = (uint64)val;
 
-		tooltip.set_markup("<b>%s</b>\nType: %s\nSize: %s\nModified: %s".printf(name
-			, prettify_type(type)
+		string text = "<b>%s</b>\nType: %s\nSize: %s\nModified: %s".printf(GLib.Markup.escape_text(name)
+			, GLib.Markup.escape_text(prettify_type(type))
 			, size == 0 ? "n/a" : prettify_size(size)
 			, mtime == 0 ? "n/a" : prettify_time(mtime)
-			));
+			);
+		tooltip.set_markup(text);
 
 		return true;
 	}
