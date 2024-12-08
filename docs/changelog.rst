@@ -8,6 +8,7 @@ Changelog
 
 * Items in the Project Browser can now be sorted by name, type, size or last modification time.
 * Added a list-view mode to the Project Browser.
+* Added a tooltip to the Folder Icon View to show details about the hovered item.
 * Fixed an issue that caused erratic resources being shown in the Project Brower's folder view.
 
 0.53.0 --- 30 Nov 2024

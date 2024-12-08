@@ -345,6 +345,43 @@ private void set_thumbnail(Gtk.CellRenderer cell, string type, string name, int 
 }
 public class ProjectFolderView : Gtk.Bin
 {
+	private static string prettify_type(string type)
+	{
+		if (type == "<folder>")
+			return "Folder";
+		else
+			return type;
+	}
+
+	private static string prettify_size(uint64 size)
+	{
+		uint64 si_size;
+		string si_unit;
+
+		if (size >= 1024*1024*1024) {
+			si_size = size / (1024*1024*1024);
+			si_unit = "GiB";
+		} else if (size >= 1024*1024) {
+			si_size = size / (1024*1024);
+			si_unit = "MiB";
+		} else if (size >= 1024) {
+			si_size = size / 1024;
+			si_unit = "KiB";
+		} else {
+			si_size = size;
+			si_unit = size > 1 ? "bytes" : "byte";
+		}
+
+		return "%d %s".printf((int)si_size, si_unit);
+	}
+
+	private static string prettify_time(uint64 time)
+	{
+		int64 mtime_secs = (int64)(time / (1000*1000*1000));
+		GLib.DateTime date_time = new GLib.DateTime.from_unix_local(mtime_secs);
+		return date_time.format("%d %b %Y; %H:%M:%S");
+	}
+
 	public enum Column
 	{
 		TYPE,
@@ -392,6 +429,8 @@ public class ProjectFolderView : Gtk.Bin
 		_icon_view.drag_data_get.connect(on_drag_data_get);
 		_icon_view.drag_begin.connect_after(on_drag_begin);
 		_icon_view.drag_end.connect(on_drag_end);
+		_icon_view.has_tooltip = true;
+		_icon_view.query_tooltip.connect(on_icon_view_query_tooltip);
 
 		// https://gitlab.gnome.org/GNOME/gtk/-/blob/3.24.43/gtk/gtkiconview.c#L5147
 		_cell_renderer_text = new Gtk.CellRendererText();
@@ -639,10 +678,7 @@ public class ProjectFolderView : Gtk.Bin
 		Value type;
 		model.get_value(iter, Column.TYPE, out type);
 
-		if (type == "<folder>")
-			cell.set_property("text", "Folder");
-		else
-			cell.set_property("text", type);
+		cell.set_property("text", prettify_type((string)type));
 	}
 
 	private void list_view_size_text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
@@ -651,24 +687,8 @@ public class ProjectFolderView : Gtk.Bin
 		model.get_value(iter, Column.SIZE, out val);
 		uint64 size = (uint64)val;
 
-		uint64 si_size;
-		string si_unit;
-		if (size >= 1024*1024*1024) {
-			si_size = size / (1024*1024*1024);
-			si_unit = "GiB";
-		} else if (size >= 1024*1024) {
-			si_size = size / (1024*1024);
-			si_unit = "MiB";
-		} else if (size >= 1024) {
-			si_size = size / 1024;
-			si_unit = "KiB";
-		} else {
-			si_size = size;
-			si_unit = size > 1 ? "bytes" : "byte";
-		}
-
 		if (size != 0)
-			cell.set_property("text", "%d %s".printf((int)si_size, si_unit));
+			cell.set_property("text", prettify_size(size));
 		else
 			cell.set_property("text", "n/a");
 	}
@@ -679,13 +699,10 @@ public class ProjectFolderView : Gtk.Bin
 		model.get_value(iter, Column.MTIME, out type);
 		uint64 mtime = (uint64)type;
 
-		if (mtime != 0) {
-			int64 mtime_secs = (int64)(mtime / (1000*1000*1000));
-			GLib.DateTime date_time = new GLib.DateTime.from_unix_local(mtime_secs);
-			cell.set_property("text", date_time.format("%d %b %Y; %H:%M:%S"));
-		} else {
+		if (mtime != 0)
+			cell.set_property("text", prettify_time(mtime));
+		else
 			cell.set_property("text", "n/a");
-		}
 	}
 
 	private void list_view_name_text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
@@ -748,6 +765,35 @@ public class ProjectFolderView : Gtk.Bin
 			return false;
 		}
 	}
+
+	private bool on_icon_view_query_tooltip(int x, int y, bool keyboard_tooltip, Gtk.Tooltip tooltip)
+	{
+		Gtk.TreePath? path = _icon_view.get_path_at_pos(x, y);
+		if (path == null)
+			return false;
+
+		Gtk.TreeIter iter;
+		_list_store.get_iter(out iter, path);
+
+		Value val;
+		_list_store.get_value(iter, Column.TYPE, out val);
+		string type = (string)val;
+		_list_store.get_value(iter, Column.NAME, out val);
+		string name = (string)val;
+		_list_store.get_value(iter, Column.SIZE, out val);
+		uint64 size = (uint64)val;
+		_list_store.get_value(iter, Column.MTIME, out val);
+		uint64 mtime = (uint64)val;
+
+		tooltip.set_markup("<b>%s</b>\nType: %s\nSize: %s\nModified: %s".printf(name
+			, prettify_type(type)
+			, size == 0 ? "n/a" : prettify_size(size)
+			, mtime == 0 ? "n/a" : prettify_time(mtime)
+			));
+
+		return true;
+	}
+
 }
 
 public class ProjectBrowser : Gtk.Bin
