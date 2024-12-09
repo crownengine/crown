@@ -412,13 +412,10 @@ Vector3 World::camera_screen_to_world(CameraInstance camera, const Vector3 &pos)
 	const f32 w = (f32)view_width;
 	const f32 h = (f32)view_height;
 
-	TransformInstance ti = _scene_graph->instance(_camera[camera.i].unit);
-
-	Matrix4x4 projection = camera_projection_matrix(camera, w/h);
-	Matrix4x4 world_inv = _scene_graph->world_pose(ti);
-	invert(world_inv);
-	Matrix4x4 mvp = world_inv * projection;
-	invert(mvp);
+	Matrix4x4 camera_proj = camera_projection_matrix(camera, w/h);
+	Matrix4x4 camera_view = camera_view_matrix(camera);
+	Matrix4x4 camera_view_proj = camera_view * camera_proj;
+	invert(camera_view_proj);
 
 	const bgfx::Caps *caps = bgfx::getCaps();
 
@@ -428,7 +425,7 @@ Vector3 World::camera_screen_to_world(CameraInstance camera, const Vector3 &pos)
 	ndc.z = caps->homogeneousDepth ? (2.0f * pos.z) - 1.0f : pos.z;
 	ndc.w = 1.0f;
 
-	Vector4 tmp = ndc * mvp;
+	Vector4 tmp = ndc * camera_view_proj;
 	tmp *= 1.0f / tmp.w;
 
 	return vector3(tmp.x, tmp.y, tmp.z);
@@ -444,13 +441,12 @@ Vector3 World::camera_world_to_screen(CameraInstance camera, const Vector3 &pos)
 	const f32 w = (f32)view_width;
 	const f32 h = (f32)view_height;
 
-	TransformInstance ti = _scene_graph->instance(_camera[camera.i].unit);
+	Matrix4x4 camera_proj = camera_projection_matrix(camera, w/h);
+	Matrix4x4 camera_view = camera_view_matrix(camera);
+	Matrix4x4 camera_view_proj = camera_view * camera_proj;
 
-	Matrix4x4 projection = camera_projection_matrix(camera, w/h);
-	Matrix4x4 world_inv = _scene_graph->world_pose(ti);
-	invert(world_inv);
-
-	Vector4 ndc = vector4(pos.x, pos.y, pos.z, 1.0f) * world_inv * projection;
+	Vector4 pos4 = vector4(pos.x, pos.y, pos.z, 1.0f);
+	Vector4 ndc  = pos4 * camera_view_proj;
 	ndc.x *= 1.0 / ndc.w;
 	ndc.y *= 1.0 / ndc.w;
 
