@@ -110,7 +110,9 @@ function Camera:init(world, unit)
 	-- Hide camera mesh.
 	local render_world = World.render_world(self._world)
 	local camera_mesh = RenderWorld.mesh_instance(render_world, self._unit)
-	RenderWorld.mesh_set_visible(render_world, camera_mesh, false)
+	if camera_mesh ~= nil then
+		RenderWorld.mesh_set_visible(render_world, camera_mesh, false)
+	end
 end
 
 function Camera:unit()

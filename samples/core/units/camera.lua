@@ -20,7 +20,9 @@ function Behavior.spawned(world, units)
 		-- Hide the camera mesh
 		local render_world = World.render_world(world)
 		local camera_mesh = RenderWorld.mesh_instance(render_world, unit)
-		RenderWorld.mesh_set_visible(render_world, camera_mesh, false)
+		if camera_mesh ~= nil then
+			RenderWorld.mesh_set_visible(render_world, camera_mesh, false)
+		end
 	end
 end
 
