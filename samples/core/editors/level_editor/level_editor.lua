@@ -1799,27 +1799,27 @@ function LevelEditor:camera_view_perspective()
 end
 
 function LevelEditor:camera_view_front()
-	self._camera:set_orthographic(Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(0, 0, 1), Vector3(0, 1, 0))
+	self._camera:set_orthographic(Vector3.forward(), Vector3.up())
 end
 
 function LevelEditor:camera_view_back()
-	self._camera:set_orthographic(Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(0, 0, -1), Vector3(0, 1, 0))
+	self._camera:set_orthographic(Vector3.backward(), Vector3.up())
 end
 
 function LevelEditor:camera_view_right()
-	self._camera:set_orthographic(Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(-1, 0, 0), Vector3(0, 1, 0))
+	self._camera:set_orthographic(Vector3.left(), Vector3.up())
 end
 
 function LevelEditor:camera_view_left()
-	self._camera:set_orthographic(Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(1, 0, 0), Vector3(0, 1, 0))
+	self._camera:set_orthographic(Vector3.right(), Vector3.up())
 end
 
 function LevelEditor:camera_view_top()
-	self._camera:set_orthographic(Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(0, -1, 0), Vector3(0, 0, 1))
+	self._camera:set_orthographic(Vector3.down(), Vector3.forward())
 end
 
 function LevelEditor:camera_view_bottom()
-	self._camera:set_orthographic(Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(0, 1, 0), Vector3(0, 0, 1))
+	self._camera:set_orthographic(Vector3.up(), Vector3.forward())
 end
 
 function LevelEditor:camera_drag_start(mode)

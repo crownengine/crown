@@ -174,7 +174,7 @@ function Camera:set_perspective()
 	self:send_state()
 end
 
-function Camera:set_orthographic(world_center, world_radius, dir, up)
+function Camera:set_orthographic(dir, up)
 	local camera = self:camera()
 	local tr = SceneGraph.instance(self._sg, self._unit)
 
