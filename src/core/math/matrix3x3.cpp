@@ -33,6 +33,57 @@ Matrix3x3 from_axes(const Vector3 &x, const Vector3 &y, const Vector3 &z)
 	return m;
 }
 
+Matrix3x3 from_x_axis_angle(f32 angle)
+{
+	Matrix3x3 m;
+	m.x.x = 1.0f;
+	m.x.y = 0.0f;
+	m.x.z = 0.0f;
+
+	m.y.x = 0.0f;
+	m.y.y = fcos(angle);
+	m.y.z = fsin(angle);
+
+	m.z.x = 0.0f;
+	m.z.y = -fsin(angle);
+	m.z.z = fcos(angle);
+	return m;
+}
+
+Matrix3x3 from_y_axis_angle(f32 angle)
+{
+	Matrix3x3 m;
+	m.x.x = fcos(angle);
+	m.x.y = 0.0f;
+	m.x.z = -fsin(angle);
+
+	m.y.x = 0.0f;
+	m.y.y = 1.0f;
+	m.y.z = 0.0f;
+
+	m.z.x = fsin(angle);
+	m.z.y = 0.0f;
+	m.z.z = fcos(angle);
+	return m;
+}
+
+Matrix3x3 from_z_axis_angle(f32 angle)
+{
+	Matrix3x3 m;
+	m.x.x = fcos(angle);
+	m.x.y = fsin(angle);
+	m.x.z = 0.0f;
+
+	m.y.x = -fsin(angle);
+	m.y.y = fcos(angle);
+	m.y.z = 0.0f;
+
+	m.z.x = 0.0f;
+	m.z.y = 0.0f;
+	m.z.z = 1.0f;
+	return m;
+}
+
 Matrix3x3 from_quaternion(const Quaternion &r)
 {
 	const float xx = r.x * r.x;

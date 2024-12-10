@@ -19,6 +19,15 @@ Matrix3x3 from_elements(f32 xx, f32 xy, f32 xz, f32 yx, f32 yy, f32 yz, f32 zx, 
 /// Returns a new matrix from axes @a x, @a y and @a z.
 Matrix3x3 from_axes(const Vector3 &x, const Vector3 &y, const Vector3 &z);
 
+/// Returns a new matrix that rotates around +X axis by @a angle radians.
+Matrix3x3 from_x_axis_angle(f32 angle);
+
+/// Returns a new matrix that rotates around +Y axis by @a angle radians.
+Matrix3x3 from_y_axis_angle(f32 angle);
+
+/// Returns a new matrix that rotates around +Z axis by @a angle radians.
+Matrix3x3 from_z_axis_angle(f32 angle);
+
 /// Returns a new matrix from rotation @a r.
 Matrix3x3 from_quaternion(const Quaternion &r);
 

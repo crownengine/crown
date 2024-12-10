@@ -630,6 +630,47 @@ static void test_matrix3x3()
 		ENSURE(fequal(b.z.y,  1.1f, 0.00001f));
 		ENSURE(fequal(b.z.z, -3.8f, 0.00001f));
 	}
+	{
+		const f32 angle = frad(10.0f);
+		Matrix3x3 a;
+		Matrix3x3 b;
+
+		a = from_quaternion(from_axis_angle(vector3(1.0f, 0.0f, 0.0f), angle));
+		b = from_x_axis_angle(angle);
+		ENSURE(fequal(a.x.x, b.x.x, 0.00001f));
+		ENSURE(fequal(a.x.y, b.x.y, 0.00001f));
+		ENSURE(fequal(a.x.z, b.x.z, 0.00001f));
+		ENSURE(fequal(a.y.x, b.y.x, 0.00001f));
+		ENSURE(fequal(a.y.y, b.y.y, 0.00001f));
+		ENSURE(fequal(a.y.z, b.y.z, 0.00001f));
+		ENSURE(fequal(a.z.x, b.z.x, 0.00001f));
+		ENSURE(fequal(a.z.y, b.z.y, 0.00001f));
+		ENSURE(fequal(a.z.z, b.z.z, 0.00001f));
+
+		a = from_quaternion(from_axis_angle(vector3(0.0f, 1.0f, 0.0f), angle));
+		b = from_y_axis_angle(angle);
+		ENSURE(fequal(a.x.x, b.x.x, 0.00001f));
+		ENSURE(fequal(a.x.y, b.x.y, 0.00001f));
+		ENSURE(fequal(a.x.z, b.x.z, 0.00001f));
+		ENSURE(fequal(a.y.x, b.y.x, 0.00001f));
+		ENSURE(fequal(a.y.y, b.y.y, 0.00001f));
+		ENSURE(fequal(a.y.z, b.y.z, 0.00001f));
+		ENSURE(fequal(a.z.x, b.z.x, 0.00001f));
+		ENSURE(fequal(a.z.y, b.z.y, 0.00001f));
+		ENSURE(fequal(a.z.z, b.z.z, 0.00001f));
+
+		a = from_quaternion(from_axis_angle(vector3(0.0f, 0.0f, 1.0f), angle));
+		b = from_z_axis_angle(angle);
+		ENSURE(fequal(a.x.x, b.x.x, 0.00001f));
+		ENSURE(fequal(a.x.y, b.x.y, 0.00001f));
+		ENSURE(fequal(a.x.z, b.x.z, 0.00001f));
+		ENSURE(fequal(a.y.x, b.y.x, 0.00001f));
+		ENSURE(fequal(a.y.y, b.y.y, 0.00001f));
+		ENSURE(fequal(a.y.z, b.y.z, 0.00001f));
+		ENSURE(fequal(a.z.x, b.z.x, 0.00001f));
+		ENSURE(fequal(a.z.y, b.z.y, 0.00001f));
+		ENSURE(fequal(a.z.z, b.z.z, 0.00001f));
+	}
 }
 
 static void test_matrix4x4()
