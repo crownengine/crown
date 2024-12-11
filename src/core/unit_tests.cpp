@@ -338,12 +338,20 @@ static void test_vector3()
 		ENSURE(fequal(c,  4.69f, 0.0001f));
 	}
 	{
-		const Vector3 a = vector3(1.2f,  4.2f, -2.3f);
-		const Vector3 b = vector3(2.7f, -1.9f, -4.1f);
-		const Vector3 c = cross(a, b);
-		ENSURE(fequal(c.x, -21.59f, 0.0001f));
-		ENSURE(fequal(c.y,  -1.29f, 0.0001f));
-		ENSURE(fequal(c.z, -13.62f, 0.0001f));
+		const Vector3 z_axis = cross(VECTOR3_XAXIS, VECTOR3_YAXIS);
+		ENSURE(fequal(z_axis.x, VECTOR3_ZAXIS.x, 0.0001f));
+		ENSURE(fequal(z_axis.y, VECTOR3_ZAXIS.y, 0.0001f));
+		ENSURE(fequal(z_axis.z, VECTOR3_ZAXIS.z, 0.0001f));
+
+		const Vector3 x_axis = cross(VECTOR3_YAXIS, VECTOR3_ZAXIS);
+		ENSURE(fequal(x_axis.x, VECTOR3_XAXIS.x, 0.0001f));
+		ENSURE(fequal(x_axis.y, VECTOR3_XAXIS.y, 0.0001f));
+		ENSURE(fequal(x_axis.z, VECTOR3_XAXIS.z, 0.0001f));
+
+		const Vector3 y_axis = cross(VECTOR3_ZAXIS, VECTOR3_XAXIS);
+		ENSURE(fequal(y_axis.x, VECTOR3_YAXIS.x, 0.0001f));
+		ENSURE(fequal(y_axis.y, VECTOR3_YAXIS.y, 0.0001f));
+		ENSURE(fequal(y_axis.z, VECTOR3_YAXIS.z, 0.0001f));
 	}
 	{
 		const Vector3 a = vector3(1.2f,  4.2f, -2.3f);
