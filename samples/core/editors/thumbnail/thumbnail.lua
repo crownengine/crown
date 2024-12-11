@@ -28,7 +28,7 @@ function UnitPreview:render(camera)
 		camera_pos = Vector3.up()
 		camera_rot = Quaternion.look(Vector3.normalize(-camera_pos), Vector3.forward())
 	else
-		camera_pos = Vector3(1, 1, -1)
+		camera_pos = Vector3(1, -1, 1)
 		camera_rot = Quaternion.look(Vector3.normalize(-camera_pos))
 	end
 
@@ -92,7 +92,7 @@ function Thumbnail:init()
 	self._requests = {}
 	self._pending = {}
 
-	World.spawn_unit(self._world, "core/units/light", Vector3(1000, 1000, -1000))
+	World.spawn_unit(self._world, "core/units/light", Vector3(1000, -1000, 1000))
 end
 
 function Thumbnail:thumbnail_ready(screenshot_path)

@@ -18,8 +18,8 @@ components = [
 			]
 			scale = [
 				8
-				1
 				8
+				1
 			]
 		}
 		type = "transform"

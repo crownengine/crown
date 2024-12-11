@@ -340,6 +340,7 @@ Matrix4x4 World::camera_projection_matrix(CameraInstance camera, f32 aspect_rati
 			, cam.far_range
 			, 0.0f
 			, caps->homogeneousDepth
+			, bx::Handedness::Right
 			);
 		break;
 
@@ -350,6 +351,7 @@ Matrix4x4 World::camera_projection_matrix(CameraInstance camera, f32 aspect_rati
 			, cam.near_range
 			, cam.far_range
 			, caps->homogeneousDepth
+			, bx::Handedness::Right
 			);
 		break;
 
@@ -365,6 +367,9 @@ Matrix4x4 World::camera_view_matrix(CameraInstance camera)
 {
 	TransformInstance ti = _scene_graph->instance(_camera[camera.i].unit);
 	Matrix4x4 view = _scene_graph->world_pose(ti);
+	Matrix4x4 rotate_x_90 = from_matrix3x3(from_x_axis_angle(frad(90.0f)));
+
+	view = rotate_x_90 * view;
 	invert(view);
 	return view;
 }

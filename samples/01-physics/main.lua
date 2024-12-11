@@ -48,7 +48,7 @@ function Game.update(dt)
 	if Mouse.pressed(Mouse.button_id("left")) then
 		local tr = SceneGraph.instance(Game.sg, Game.camera:unit())
 		local pos = SceneGraph.local_position(Game.sg, tr)
-		local dir = Matrix4x4.z(SceneGraph.local_pose(Game.sg, tr))
+		local dir = Matrix4x4.y(SceneGraph.local_pose(Game.sg, tr))
 		local u1 = World.spawn_unit(GameBase.world, "units/sphere", pos)
 		local a1 = PhysicsWorld.actor_instance(Game.pw, u1)
 		Vector3.normalize(dir)

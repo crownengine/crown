@@ -15,7 +15,7 @@ function UnitPreview:init()
 	self._camera = Camera(self._world, World.spawn_unit(self._world, "core/units/camera"))
 	self._object = nil
 
-	World.spawn_unit(self._world, "core/units/light", Vector3(1000, 1000, -1000))
+	World.spawn_unit(self._world, "core/units/light", Vector3(1000, -1000, 1000))
 end
 
 function UnitPreview:update(dt)
@@ -31,7 +31,7 @@ function UnitPreview:update(dt)
 			camera_pos = Vector3.up()
 			camera_rot = Quaternion.look(Vector3.normalize(-camera_pos), Vector3.forward())
 		else
-			camera_pos = Vector3(1, 1, -1)
+			camera_pos = Vector3(1, -1, 1)
 			camera_rot = Quaternion.look(Vector3.normalize(-camera_pos))
 		end
 

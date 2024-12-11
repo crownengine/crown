@@ -81,7 +81,7 @@ def write_file(file
 		def write_positions(me):
 			for v in me.vertices:
 				x, y, z = veckey3d(v.co)
-				fw(" %.6f %.6f %.6f" % (x, z, y))
+				fw(" %.6f %.6f %.6f" % (x, y, z))
 
 		def write_normals(me):
 			for f in me.polygons:
@@ -92,13 +92,13 @@ def write_file(file
 						if noKey not in normals:
 							normals[noKey] = len(normals)
 							x, y, z = noKey
-							fw(" %.6f %.6f %.6f" % (x, z, y))
+							fw(" %.6f %.6f %.6f" % (x, y, z))
 				else:
 					noKey = veckey3d(f.normal)
 					if noKey not in normals:
 						normals[noKey] = len(normals)
 						x, y, z = noKey
-						fw(" %.6f %.6f %.6f" % (x, z, y))
+						fw(" %.6f %.6f %.6f" % (x, y, z))
 
 		def write_tangents(me):
 			for l in me.loops:
@@ -200,18 +200,14 @@ def write_file(file
 		def write_node(o, parent, depth):
 			ml = o.matrix_local.copy()
 			ml.transpose()
-			ml[0][1], ml[0][2] = ml[0][2], ml[0][1]
-			ml[1][1], ml[1][2] = ml[1][2], ml[1][1]
-			ml[2][1], ml[2][2] = ml[2][2], ml[2][1]
-			ml[3][1], ml[3][2] = ml[3][2], ml[3][1]
 
 			fw('\"%s\" = {\n' % o.name, depth+1)
 			if o.parent:
 				fw('parent = \"%s\"\n' % o.parent.name, depth+2)
 			fw('matrix_local = [ ', depth+2)
 			fw('%f %f %f %f ' % ml[0][:])
-			fw('%f %f %f %f ' % ml[2][:])
 			fw('%f %f %f %f ' % ml[1][:])
+			fw('%f %f %f %f ' % ml[2][:])
 			fw('%f %f %f %f ' % ml[3][:])
 			fw(']\n')
 

@@ -29,8 +29,8 @@ function Game.level_loaded()
 	World.camera_set_orthographic_size(GameBase.world, camera, 540/2/32)
 	World.camera_set_projection_type(GameBase.world, camera, "orthographic")
 	local camera_transform = SceneGraph.instance(Game.sg, GameBase.camera_unit)
-	SceneGraph.set_local_position(Game.sg, camera_transform, Vector3(0, 8, 0))
-	SceneGraph.set_local_rotation(Game.sg, camera_transform, Quaternion.from_axis_angle(Vector3.right(), 90*(math.pi/180.0)))
+	SceneGraph.set_local_position(Game.sg, camera_transform, Vector3(0, 0, 8))
+	SceneGraph.set_local_rotation(Game.sg, camera_transform, Quaternion.from_axis_angle(Vector3.right(), -90*(math.pi/180.0)))
 
 	-- Spawn characters.
 	Game.players[1] = World.spawn_unit(GameBase.world, "units/soldier", Vector3(-2, 0, 0))
@@ -58,11 +58,6 @@ function Game.update(dt)
 		Game.player = Game.players[Game.player_i]
 	end
 
-	-- Player movement.
-	local function swap_yz(vector3_xy)
-		return Vector3(vector3_xy.x, 0, vector3_xy.y)
-	end
-
 	-- Read direction from joypad.
 	local pad_dir = Pad1.axis(Pad1.axis_id("left"))
 	-- Add keyboard contribution.
@@ -77,13 +72,13 @@ function Game.update(dt)
 	local player_speed = 4
 	local player_tr = SceneGraph.instance(Game.sg, Game.player)
 	local player_position = SceneGraph.local_position(Game.sg, player_tr)
-	SceneGraph.set_local_position(Game.sg, player_tr, player_position + swap_yz(pad_dir)*player_speed*dt)
+	SceneGraph.set_local_position(Game.sg, player_tr, player_position + pad_dir*player_speed*dt)
 
 	-- Sprite depth is proportional to its Z position.
 	for i=1, #Game.players do
 		local tr = SceneGraph.instance(Game.sg, Game.players[i])
 		local pos = SceneGraph.local_position(Game.sg, tr)
-		local depth = math.floor(1000 + (1000 - 32*pos.z))
+		local depth = math.floor(1000 + (1000 - 32*pos.y))
 		local sprite = RenderWorld.sprite_instance(Game.rw, Game.players[i])
 		RenderWorld.sprite_set_depth(Game.rw, sprite, depth)
 	end

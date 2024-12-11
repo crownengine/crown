@@ -1032,7 +1032,7 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("Quaternion", "look", [](lua_State *L) {
 			LuaStack stack(L);
-			const Vector3 up = stack.num_args() == 2 ? stack.get_vector3(2) : VECTOR3_YAXIS;
+			const Vector3 up = stack.num_args() == 2 ? stack.get_vector3(2) : VECTOR3_ZAXIS;
 			stack.push_quaternion(look(stack.get_vector3(1), up));
 			return 1;
 		});

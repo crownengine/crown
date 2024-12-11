@@ -726,7 +726,7 @@ void Device::render(World &world, UnitId camera_unit)
 
 	const bgfx::Caps *caps = bgfx::getCaps();
 	f32 bx_ortho[16];
-	bx::mtxOrtho(bx_ortho, 0, _width, 0, _height, 0.0f, 1.0f, 0.0f, caps->homogeneousDepth);
+	bx::mtxOrtho(bx_ortho, 0, _width, 0, _height, 0.0f, 1.0f, 0.0f, caps->homogeneousDepth, bx::Handedness::Right);
 	Matrix4x4 ortho_proj = from_array(bx_ortho);
 
 	bgfx::setViewClear(VIEW_SPRITE_0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x080808ff, 1.0f, 0);
@@ -756,6 +756,7 @@ void Device::render(World &world, UnitId camera_unit)
 		, 1.0f
 		, 0.0f
 		, caps->homogeneousDepth
+		, bx::Handedness::Right
 		);
 	bgfx::setViewTransform(VIEW_GRAPH, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(from_array(graph_ortho)));
 

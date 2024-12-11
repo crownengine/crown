@@ -22,7 +22,7 @@ function GameBase.init()
 	GameBase.camera_unit = World.spawn_unit(GameBase.world, "core/units/camera")
 	local scene_graph = World.scene_graph(GameBase.world)
 	local camera_transform = SceneGraph.instance(scene_graph, GameBase.camera_unit)
-	SceneGraph.set_local_position(scene_graph, camera_transform, Vector3(0, 6.5, -30))
+	SceneGraph.set_local_position(scene_graph, camera_transform, Vector3(0, -30, 6.5))
 
 	if GameBase.game and GameBase.game.init then
 		GameBase.game.init()

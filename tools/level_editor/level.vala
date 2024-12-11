@@ -65,8 +65,8 @@ public class Level
 		_path = null;
 		_id = GUID_ZERO;
 
-		_camera_position = Vector3(20, 20, -20);
-		_camera_rotation = Quaternion.look(Vector3(-20, -20, 20).normalize(), Vector3(0.0, 1.0, 0.0));
+		_camera_position = Vector3(20, -20, 20);
+		_camera_rotation = Quaternion.look(Vector3(-20, 20, -20).normalize(), Vector3(0.0, 0.0, 1.0));
 		_camera_target_distance = _camera_position.length();
 		_camera_orthographic_size = _camera_target_distance;
 		_camera_view_type = CameraViewType.PERSPECTIVE;

@@ -125,21 +125,21 @@ function draw_grid(lines, tm, center, size, axis, color)
 	local x = nil
 	local y = nil
 
-	if axis == "x" or axis == "xz" then
+	if axis == "x" or axis == "xy" then
 		x = Matrix4x4.x(tm)
-		y = Matrix4x4.z(tm)
+		y = Matrix4x4.y(tm)
 	elseif axis == "y" or axis == "yz" then
-		x = Matrix4x4.z(tm)
-		y = Matrix4x4.y(tm)
+		x = Matrix4x4.y(tm)
+		y = Matrix4x4.z(tm)
 	elseif axis == "z" then
+		x = Matrix4x4.y(tm)
+		y = Matrix4x4.z(tm)
+	elseif axis == "xz" then
 		x = Matrix4x4.x(tm)
 		y = Matrix4x4.z(tm)
-	elseif axis == "xy" then
-		x = Matrix4x4.x(tm)
-		y = Matrix4x4.y(tm)
 	else
 		x = Matrix4x4.x(tm)
-		y = Matrix4x4.z(tm)
+		y = Matrix4x4.y(tm)
 	end
 
 	local cr, cg, cb, ca = Quaternion.elements(color)
@@ -193,14 +193,14 @@ function draw_world_origin_grid(lines, size, step)
 
 	for i = 1, n do
 		local s = i*step
-		DebugLine.add_line(lines, Vector3(-r, 0, -s), Vector3( r, 0, -s), Colors.grid())
-		DebugLine.add_line(lines, Vector3(-r, 0,  s), Vector3( r, 0,  s), Colors.grid())
-		DebugLine.add_line(lines, Vector3(-s, 0, -r), Vector3(-s, 0,  r), Colors.grid())
-		DebugLine.add_line(lines, Vector3( s, 0, -r), Vector3( s, 0,  r), Colors.grid())
+		DebugLine.add_line(lines, Vector3(-r, -s, 0), Vector3( r, -s, 0), Colors.grid())
+		DebugLine.add_line(lines, Vector3(-r,  s, 0), Vector3( r,  s, 0), Colors.grid())
+		DebugLine.add_line(lines, Vector3(-s, -r, 0), Vector3(-s,  r, 0), Colors.grid())
+		DebugLine.add_line(lines, Vector3( s, -r, 0), Vector3( s,  r, 0), Colors.grid())
 	end
 
-	DebugLine.add_line(lines, Vector3(-r, 0,  0), Vector3(r, 0, 0), Color4.black())
-	DebugLine.add_line(lines, Vector3( 0, 0, -r), Vector3(0, 0, r), Color4.black())
+	DebugLine.add_line(lines, Vector3(-r,  0, 0), Vector3(r, 0, 0), Color4.black())
+	DebugLine.add_line(lines, Vector3( 0, -r, 0), Vector3(0, r, 0), Color4.black())
 
 	Device.set_temp_count(nv, nq, nm)
 end
@@ -464,34 +464,34 @@ function SelectTool:mouse_move(x, y)
 		if LevelEditor:camera():is_orthographic() then
 			local camera_pose = LevelEditor:camera():local_pose()
 			local camera_xaxis = Matrix4x4.x(camera_pose)
-			local camera_yaxis = Matrix4x4.y(camera_pose)
+			local camera_zaxis = Matrix4x4.z(camera_pose)
 
-			local n0 = camera_yaxis
+			local n0 = camera_zaxis
 			local d0 = Vector3.dot(n0, p0)
 			local n1 = -camera_xaxis
 			local d1 = Vector3.dot(n1, p1)
-			local n2 = -camera_yaxis
+			local n2 = -camera_zaxis
 			local d2 = Vector3.dot(n2, p2)
 			local n3 = camera_xaxis
 			local d3 = Vector3.dot(n3, p3)
-			local n4 = Matrix4x4.z(LevelEditor:camera():local_pose())
+			local n4 = Matrix4x4.y(LevelEditor:camera():local_pose())
 			local d4 = Vector3.dot(n4, p0)
-			local n5 = -Matrix4x4.z(LevelEditor:camera():local_pose())
+			local n5 = -Matrix4x4.y(LevelEditor:camera():local_pose())
 			local d5 = Vector3.dot(n5, p0 + rd0 * camera_far)
 
 			objects_in_frustum(n0, d0, n1, d1, n2, d2, n3, d3, n4, d4, n5, d5)
 		else
-			local n0 = Vector3.normalize(Vector3.cross(rd0, rd1))
+			local n0 = Vector3.normalize(Vector3.cross(rd1, rd0))
 			local d0 = Vector3.dot(n0, p0)
-			local n1 = Vector3.normalize(Vector3.cross(rd1, rd2))
+			local n1 = Vector3.normalize(Vector3.cross(rd2, rd1))
 			local d1 = Vector3.dot(n1, p1)
-			local n2 = Vector3.normalize(Vector3.cross(rd2, rd3))
+			local n2 = Vector3.normalize(Vector3.cross(rd3, rd2))
 			local d2 = Vector3.dot(n2, p2)
-			local n3 = Vector3.normalize(Vector3.cross(rd3, rd0))
+			local n3 = Vector3.normalize(Vector3.cross(rd0, rd3))
 			local d3 = Vector3.dot(n3, p3)
-			local n4 = Matrix4x4.z(LevelEditor:camera():local_pose())
+			local n4 = Matrix4x4.y(LevelEditor:camera():local_pose())
 			local d4 = Vector3.dot(n4, p0)
-			local n5 = -Matrix4x4.z(LevelEditor:camera():local_pose())
+			local n5 = -Matrix4x4.y(LevelEditor:camera():local_pose())
 			local d5 = Vector3.dot(n5, p0 + rd0 * (camera_far-camera_near))
 
 			objects_in_frustum(n0, d0, n1, d1, n2, d2, n3, d3, n4, d4, n5, d5)
@@ -586,7 +586,7 @@ function PlaceTool:update(dt, x, y)
 	end
 
 	local pos = self:position()
-	LevelEditor:draw_grid(Matrix4x4.from_translation(pos), self:position(), LevelEditor._grid.size, "z")
+	LevelEditor:draw_grid(Matrix4x4.from_translation(pos), self:position(), LevelEditor._grid.size, "xy")
 	local sg = World.scene_graph(LevelEditor._world)
 
 	-- Create placeable 'preview' object.
@@ -614,19 +614,19 @@ function PlaceTool:mouse_move(x, y)
 	if self:is_idle() then
 		local spawn_point = LevelEditor:find_spawn_point(x, y)
 		self._spawn_height = LevelEditor._spawn_height
-		self._spawn_point_height = spawn_point.y
+		self._spawn_point_height = spawn_point.z
 		self:set_position(spawn_point)
 	elseif self:is_placing() then
 		local pos, dir = LevelEditor:camera():camera_ray(x, y)
 		local gizmo_pos = self:position()
-		local point = Vector3(gizmo_pos.x, self._spawn_height, gizmo_pos.y)
+		local point = Vector3(gizmo_pos.x, gizmo_pos.y, self._spawn_height)
 		local normal = Vector3.up()
 
 		local t = Math.ray_plane_intersection(pos, dir, point, normal)
 		if t ~= -1.0 then
 			local spawn_point = pos + dir * t
 			spawn_point = LevelEditor:snap(Matrix4x4.identity(), spawn_point) or spawn_point
-			spawn_point.y = self._spawn_point_height
+			spawn_point.z = self._spawn_point_height
 			if LevelEditor.debug then
 				DebugLine.add_sphere(LevelEditor._lines_no_depth
 					, spawn_point
@@ -752,11 +752,11 @@ function MoveTool:x_axis()
 end
 
 function MoveTool:y_axis()
-	return Quaternion.up(self._rotation:unbox())
+	return Quaternion.forward(self._rotation:unbox())
 end
 
 function MoveTool:z_axis()
-	return Quaternion.forward(self._rotation:unbox())
+	return Quaternion.up(self._rotation:unbox())
 end
 
 function MoveTool:is_axis_selected(axis)
@@ -788,7 +788,7 @@ function MoveTool:drag_plane()
 	if self._selected == "xy" then return self:drag_start(),  Vector3.cross(self:x_axis(), self:y_axis()) end
 	if self._selected == "yz" then return self:drag_start(),  Vector3.cross(self:y_axis(), self:z_axis()) end
 	if self._selected == "xz" then return self:drag_start(), -Vector3.cross(self:x_axis(), self:z_axis()) end
-	if self._selected == "xyz" then return self:drag_start(), -Matrix4x4.z(LevelEditor:camera():local_pose()) end
+	if self._selected == "xyz" then return self:drag_start(), -Matrix4x4.y(LevelEditor:camera():local_pose()) end
 	return nil, nil
 end
 
@@ -804,7 +804,7 @@ function MoveTool:update(dt, x, y)
 	local tm = self:pose()
 	local p  = self:position()
 	local l  = LevelEditor:camera():screen_length_to_world_length(self:position(), Gizmo.size)
-	local cam_z = Matrix4x4.z(LevelEditor:camera():local_pose())
+	local cam_forward = Matrix4x4.y(LevelEditor:camera():local_pose())
 	local cam_to_gizmo = Vector3.normalize(p-Matrix4x4.translation(LevelEditor:camera():local_pose()))
 
 	local function transform(tm, offset)
@@ -824,7 +824,7 @@ function MoveTool:update(dt, x, y)
 			plane_enabled(self:z_axis(), cam_to_gizmo) and Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0.4, 0.4, 0.0)), l * Vector3(0.1, 0.1, 0.0)) or -1,
 			plane_enabled(self:x_axis(), cam_to_gizmo) and Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0.0, 0.4, 0.4)), l * Vector3(0.0, 0.1, 0.1)) or -1,
 			plane_enabled(self:y_axis(), cam_to_gizmo) and Math.ray_obb_intersection(pos, dir, transform(tm, l * Vector3(0.4, 0.0, 0.4)), l * Vector3(0.1, 0.0, 0.1)) or -1,
-			Math.ray_disc_intersection(pos, dir, self:position(), l * 2*0.07, -cam_z)
+			Math.ray_disc_intersection(pos, dir, self:position(), l * 2*0.07, -cam_forward)
 		}
 
 		local nearest = nil
@@ -854,7 +854,7 @@ function MoveTool:update(dt, x, y)
 	DebugLine.add_obb(lines, transform(tm, l * Vector3(0.0, 0.4, 0.4)), l * Vector3(0.0, 0.1, 0.1), plane_color(self:x_axis(), cam_to_gizmo, self._selected == "yz" and Colors.axis_selected() or Colors.axis_y()))
 	DebugLine.add_obb(lines, transform(tm, l * Vector3(0.4, 0.0, 0.4)), l * Vector3(0.1, 0.0, 0.1), plane_color(self:y_axis(), cam_to_gizmo, self._selected == "xz" and Colors.axis_selected() or Colors.axis_z()))
 	-- Draw camera plane handle.
-	DebugLine.add_circle(lines, p, l * 2*0.07, -cam_z, self:is_axis_selected("xyz") and Colors.axis_selected() or Colors.grid())
+	DebugLine.add_circle(lines, p, l * 2*0.07, -cam_forward, self:is_axis_selected("xyz") and Colors.axis_selected() or Colors.grid())
 
 	if self:axis_selected() then
 		LevelEditor:draw_grid(LevelEditor:grid_pose(self:pose()), self:position(), LevelEditor._grid.size, self._selected)
@@ -1001,9 +1001,9 @@ end
 
 function RotateTool:rotate_normal()
 	if self._selected == "x" then return Quaternion.right(self:rotation()) end
-	if self._selected == "y" then return Quaternion.up(self:rotation()) end
-	if self._selected == "z" then return Quaternion.forward(self:rotation()) end
-	if self._selected == "xyz" then return -Matrix4x4.z(LevelEditor:camera():local_pose()) end
+	if self._selected == "y" then return Quaternion.forward(self:rotation()) end
+	if self._selected == "z" then return Quaternion.up(self:rotation()) end
+	if self._selected == "xyz" then return -Matrix4x4.y(LevelEditor:camera():local_pose()) end
 	return nil
 end
 
@@ -1019,7 +1019,7 @@ function RotateTool:update(dt, x, y)
 	local tm = self:pose()
 	local p  = self:position()
 	local l  = LevelEditor:camera():screen_length_to_world_length(self:position(), Gizmo.size)
-	local cam_z = Matrix4x4.z(LevelEditor:camera():local_pose())
+	local cam_forward = Matrix4x4.y(LevelEditor:camera():local_pose())
 
 	-- Select axis
 	if self:is_idle() then
@@ -1029,7 +1029,7 @@ function RotateTool:update(dt, x, y)
 			Math.ray_disc_intersection(pos, dir, p, l, Matrix4x4.x(tm)),
 			Math.ray_disc_intersection(pos, dir, p, l, Matrix4x4.y(tm)),
 			Math.ray_disc_intersection(pos, dir, p, l, Matrix4x4.z(tm)),
-			Math.ray_disc_intersection(pos, dir, p, l*1.25, -cam_z)
+			Math.ray_disc_intersection(pos, dir, p, l*1.25, -cam_forward)
 		}
 
 		local nearest = nil
@@ -1083,7 +1083,7 @@ function RotateTool:update(dt, x, y)
 	DebugLine.add_arc(lines, p, l, Matrix4x4.y(tm), self._selected == "y" and Colors.axis_selected() or Colors.axis_y())
 	DebugLine.add_arc(lines, p, l, Matrix4x4.z(tm), self._selected == "z" and Colors.axis_selected() or Colors.axis_z())
 	-- Draw camera plane handle.
-	DebugLine.add_circle(lines, p, l*1.25, cam_z, self._selected == "xyz" and Colors.axis_selected() or Colors.grid())
+	DebugLine.add_circle(lines, p, l*1.25, cam_forward, self._selected == "xyz" and Colors.axis_selected() or Colors.grid())
 
 
 	if self:is_rotating() then
@@ -1214,11 +1214,11 @@ function ScaleTool:x_axis()
 end
 
 function ScaleTool:y_axis()
-	return Quaternion.up(self:rotation())
+	return Quaternion.forward(self:rotation())
 end
 
 function ScaleTool:z_axis()
-	return Quaternion.forward(self:rotation())
+	return Quaternion.up(self:rotation())
 end
 
 function ScaleTool:axis_selected()
@@ -1270,7 +1270,7 @@ function ScaleTool:update(dt, x, y)
 	local tm = self:world_pose()
 	local p = self:position()
 	local axis_len = LevelEditor:camera():screen_length_to_world_length(self:position(), Gizmo.size)
-	local cam_z = Matrix4x4.z(LevelEditor:camera():local_pose())
+	local cam_forward = Matrix4x4.y(LevelEditor:camera():local_pose())
 	local cam_to_gizmo = Vector3.normalize(p-Matrix4x4.translation(LevelEditor:camera():local_pose()))
 
 	if self:is_idle() then
@@ -1284,7 +1284,7 @@ function ScaleTool:update(dt, x, y)
 			{ plane_enabled(self:z_axis(), cam_to_gizmo), 1, Math.ray_obb_intersection(pos, dir, transform(tm, axis_len*Vector3(0.25, 0.25, 0   )), axis_len*Vector3(0.25, 0.25, 0.07)) },
 			{ plane_enabled(self:x_axis(), cam_to_gizmo), 1, Math.ray_obb_intersection(pos, dir, transform(tm, axis_len*Vector3(0   , 0.25, 0.25)), axis_len*Vector3(0.07, 0.25, 0.25)) },
 			{ plane_enabled(self:y_axis(), cam_to_gizmo), 1, Math.ray_obb_intersection(pos, dir, transform(tm, axis_len*Vector3(0.25, 0   , 0.25)), axis_len*Vector3(0.25, 0.07, 0.25)) },
-			{ 1                                         , 2, Math.ray_disc_intersection(pos, dir, Matrix4x4.translation(tm), axis_len*1.25, cam_z)                                      }
+			{ 1                                         , 2, Math.ray_disc_intersection(pos, dir, Matrix4x4.translation(tm), axis_len*1.25, cam_forward)                                }
 		}
 
 		local nearest = nil
@@ -1320,7 +1320,7 @@ function ScaleTool:update(dt, x, y)
 	DebugLine.add_line(lines, p + Matrix4x4.x(tm)*axis_len*0.5, p + Matrix4x4.x(tm)*axis_len*0.5 + Matrix4x4.z(tm)*axis_len*0.5, plane_color(self:y_axis(), cam_to_gizmo, self._selected == "xz" and Colors.axis_selected() or Colors.axis_x()))
 	DebugLine.add_line(lines, p + Matrix4x4.z(tm)*axis_len*0.5, p + Matrix4x4.z(tm)*axis_len*0.5 + Matrix4x4.x(tm)*axis_len*0.5, plane_color(self:y_axis(), cam_to_gizmo, self._selected == "xz" and Colors.axis_selected() or Colors.axis_z()))
 	-- Draw camera plane handle.
-	DebugLine.add_circle(lines, p, axis_len*1.25, cam_z, self._selected == "xyz" and Colors.axis_selected() or Colors.grid())
+	DebugLine.add_circle(lines, p, axis_len*1.25, cam_forward, self._selected == "xyz" and Colors.axis_selected() or Colors.grid())
 end
 
 function ScaleTool:mouse_move(x, y)
@@ -1403,7 +1403,7 @@ function ScaleTool:drag_axis()
 end
 
 function ScaleTool:drag_plane()
-	local camera_dir = Matrix4x4.z(LevelEditor:camera():local_pose())
+	local camera_dir = Matrix4x4.y(LevelEditor:camera():local_pose())
 	if self._selected == "xy" then return self:position(), self:z_axis()
 	elseif self._selected == "yz" then return self:position(), self:x_axis()
 	elseif self._selected == "xz" then return self:position(), self:y_axis()
@@ -1472,7 +1472,7 @@ function LevelEditor:init()
 	self.debug = false
 
 	-- Adjust camera position and orientation.
-	local pos = Vector3(20, 20, -20)
+	local pos = Vector3(20, -20, 20)
 	local zero_pos = Vector3.zero() - pos
 	local len = math.abs(Vector3.length(zero_pos))
 	local dir = Vector3.normalize(zero_pos)
@@ -1510,7 +1510,7 @@ function LevelEditor:update(dt)
 
 	local pos, dir = self._camera:camera_ray(self._mouse.x, self._mouse.y)
 	local selected_object, t = raycast(self._objects, pos, dir)
-	self._spawn_height = selected_object and (pos + dir * t).y or 0
+	self._spawn_height = selected_object and (pos + dir * t).z or 0
 
 	-- Draw level objects
 	for k, v in pairs(self._objects) do
@@ -1673,7 +1673,7 @@ end
 function LevelEditor:find_spawn_point(x, y)
 	local pos, dir = self._camera:camera_ray(x, y)
 	local spawn_height = LevelEditor._spawn_height
-	local point = Vector3(0, spawn_height, 0)
+	local point = Vector3(0, 0, spawn_height)
 	local normal = Vector3.up()
 	local t = Math.ray_plane_intersection(pos, dir, point, normal)
 	local target = t == -1.0 and point or pos + dir * t
@@ -1896,7 +1896,7 @@ function LevelEditor:draw_camera_compass()
 	local camera = self._camera:camera()
 	local camera_pose = self._camera:local_pose()
 	local camera_position = Matrix4x4.translation(camera_pose)
-	local camera_forward = Matrix4x4.z(camera_pose)
+	local camera_forward = Matrix4x4.y(camera_pose)
 	local axis_len = 40
 	local axis_tip_radius = 8
 	local gizmo_margin_right = 8

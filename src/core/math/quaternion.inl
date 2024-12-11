@@ -150,13 +150,13 @@ inline Quaternion power(const Quaternion &q, f32 exp)
 /// Returns the quaternion describing the rotation needed to face towards @a dir.
 inline Quaternion look(const Vector3 &dir, const Vector3 &up)
 {
-	const Vector3 xaxis = cross(up, dir);
-	const Vector3 yaxis = cross(dir, xaxis);
+	const Vector3 xaxis = cross(dir, up);
+	const Vector3 zaxis = cross(xaxis, dir);
 
 	Matrix3x3 m;
 	m.x = xaxis;
-	m.y = yaxis;
-	m.z = dir;
+	m.y = dir;
+	m.z = zaxis;
 	Quaternion q = quaternion(m);
 	normalize(q);
 	return q;
@@ -173,14 +173,14 @@ inline Vector3 right(const Quaternion &q)
 inline Vector3 up(const Quaternion &q)
 {
 	const Matrix3x3 m = from_quaternion(q);
-	return m.y;
+	return m.z;
 }
 
 /// Returns the forward axis of the rotation represented by @a q.
 inline Vector3 forward(const Quaternion &q)
 {
 	const Matrix3x3 m = from_quaternion(q);
-	return m.z;
+	return m.y;
 }
 
 /// Returns the linearly interpolated quaternion between *a* and *b* at time *t* in [0, 1]. It uses NLerp.

@@ -118,26 +118,26 @@ namespace sprite_resource_internal
 			// A -- B
 			//
 			array::push_back(vertices, x0);   // A.x
-			array::push_back(vertices, 0.0f); // A.y
-			array::push_back(vertices, y0);   // A.z
+			array::push_back(vertices, y0);   // A.y
+			array::push_back(vertices, 0.0f); // A.z
 			array::push_back(vertices, u0);   // A.u
 			array::push_back(vertices, v0);   // A.v
 
 			array::push_back(vertices, x1);   // B.x
-			array::push_back(vertices, 0.0f); // B.y
-			array::push_back(vertices, y0);   // B.z
+			array::push_back(vertices, y0);   // B.y
+			array::push_back(vertices, 0.0f); // B.z
 			array::push_back(vertices, u1);   // B.u
 			array::push_back(vertices, v0);   // B.v
 
 			array::push_back(vertices, x1);   // C.x
-			array::push_back(vertices, 0.0f); // C.y
-			array::push_back(vertices, y1);   // C.z
+			array::push_back(vertices, y1);   // C.y
+			array::push_back(vertices, 0.0f); // C.z
 			array::push_back(vertices, u1);   // C.u
 			array::push_back(vertices, v1);   // C.v
 
 			array::push_back(vertices, x0);   // D.x
-			array::push_back(vertices, 0.0f); // D.y
-			array::push_back(vertices, y1);   // D.z
+			array::push_back(vertices, y1);   // D.y
+			array::push_back(vertices, 0.0f); // D.z
 			array::push_back(vertices, u0);   // D.u
 			array::push_back(vertices, v1);   // D.v
 		}
@@ -151,8 +151,8 @@ namespace sprite_resource_internal
 			, array::begin(vertices)
 			);
 		// Enforce some thickness
-		aabb.min.y = -0.25f;
-		aabb.max.y =  0.25f;
+		aabb.min.z = -0.25f;
+		aabb.max.z =  0.25f;
 
 		OBB obb;
 		obb.tm = from_quaternion_translation(QUATERNION_IDENTITY, aabb::center(aabb));

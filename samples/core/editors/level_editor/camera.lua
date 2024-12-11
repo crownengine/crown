@@ -14,17 +14,17 @@ local function camera_tumble(self, x, y)
 	local camera_position = Matrix4x4.translation(camera_pose)
 	local camera_rotation = Matrix4x4.rotation(camera_pose)
 	local camera_right    = Matrix4x4.x(camera_pose)
-	local camera_forward  = Matrix4x4.z(camera_pose)
+	local camera_forward  = Matrix4x4.y(camera_pose)
 
-	local rotation_up    = Quaternion.from_axis_angle(Vector3.up(), drag_delta.x * self._rotation_speed)
-	local rotation_right = Quaternion.from_axis_angle(camera_right, -drag_delta.y * self._rotation_speed)
+	local rotation_up    = Quaternion.from_axis_angle(Vector3.up(), -drag_delta.x * self._rotation_speed)
+	local rotation_right = Quaternion.from_axis_angle(camera_right, drag_delta.y * self._rotation_speed)
 	local rotate_delta   = Matrix4x4.from_quaternion(Quaternion.multiply(rotation_up, rotation_right))
 
 	local target_position = camera_position + (camera_forward * self._target_distance)
 
 	local rotate_original = Matrix4x4.from_quaternion(camera_rotation)
 	local move_to_target  = Matrix4x4.from_translation(target_position)
-	local move_to_origin  = Matrix4x4.from_translation(Vector3(0, 0, -self._target_distance));
+	local move_to_origin  = Matrix4x4.from_translation(Vector3(0, -self._target_distance, 0));
 
 	local pose = Matrix4x4.identity()
 	pose = Matrix4x4.multiply(pose, move_to_origin)
@@ -41,7 +41,7 @@ local function camera_track(self, x, y)
 	local camera_pose     = self._drag_start_camera_pose:unbox()
 	local camera_position = Matrix4x4.translation(camera_pose)
 	local camera_right    = Matrix4x4.x(camera_pose)
-	local camera_up       = Matrix4x4.y(camera_pose)
+	local camera_up       = Matrix4x4.z(camera_pose)
 
 	local pan_speed = 0
 
@@ -83,7 +83,7 @@ local function camera_dolly(self, x, y)
 
 		local camera_pose     = self._drag_start_camera_pose:unbox()
 		local camera_position = Matrix4x4.translation(camera_pose)
-		local camera_forward  = Matrix4x4.z(camera_pose);
+		local camera_forward  = Matrix4x4.y(camera_pose);
 		local tr = SceneGraph.instance(self._sg, self._unit)
 		SceneGraph.set_local_position(self._sg, tr, camera_position - camera_forward*move_delta)
 	end
@@ -146,7 +146,7 @@ function Camera:camera_ray(x, y)
 	local near = World.camera_screen_to_world(self._world, camera, Vector3(x, y, 0))
 	local far = World.camera_screen_to_world(self._world, camera, Vector3(x, y, 1))
 	local dir = World.camera_projection_type(self._world, camera) == "orthographic"
-		and Matrix4x4.z(self:local_pose())
+		and Matrix4x4.y(self:local_pose())
 		or Vector3.normalize(far - near)
 	return near, dir
 end
@@ -161,7 +161,7 @@ function Camera:set_perspective()
 
 	local camera_pose     = SceneGraph.local_pose(self._sg, tr)
 	local camera_position = Matrix4x4.translation(camera_pose)
-	local camera_forward  = Matrix4x4.z(camera_pose)
+	local camera_forward  = Matrix4x4.y(camera_pose)
 	local target_position = camera_position + camera_forward * self._target_distance
 
 	local ortho_len = self:screen_length_to_world_length(target_position, 10)
@@ -180,7 +180,7 @@ function Camera:set_orthographic(dir, up)
 
 	local camera_pose     = SceneGraph.local_pose(self._sg, tr)
 	local camera_position = Matrix4x4.translation(camera_pose)
-	local camera_forward  = Matrix4x4.z(camera_pose)
+	local camera_forward  = Matrix4x4.y(camera_pose)
 	local target_position = camera_position + camera_forward * self._target_distance
 
 	local new_camera_position = target_position - dir * self._target_distance
@@ -284,7 +284,7 @@ function Camera:frame_obb(obb_tm, obb_he)
 
 	local camera_pose = self:local_pose()
 	local camera_target_distance = obb_radius*3
-	local camera_forward  = Matrix4x4.z(camera_pose)
+	local camera_forward  = Matrix4x4.y(camera_pose)
 	Matrix4x4.set_translation(camera_pose, obb_position - camera_forward*camera_target_distance)
 
 	self:set_local_pose(camera_pose)

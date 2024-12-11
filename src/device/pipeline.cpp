@@ -206,7 +206,7 @@ void Pipeline::render(ShaderManager &sm, StringId32 program, u8 view, u16 width,
 	const bgfx::Caps *caps = bgfx::getCaps();
 
 	f32 ortho[16];
-	bx::mtxOrtho(ortho, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 100.0f, 0.0f, caps->homogeneousDepth);
+	bx::mtxOrtho(ortho, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 100.0f, 0.0f, caps->homogeneousDepth, bx::Handedness::Right);
 
 	bgfx::setViewRect(view, 0, 0, width, height);
 	bgfx::setViewTransform(view, NULL, ortho);

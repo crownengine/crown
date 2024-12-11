@@ -14,8 +14,8 @@ units = [
 				data = {
 					position = [
 						-9.9999999999999995e-07
-						27
 						-10
+						27
 					]
 					rotation = [
 						0.14644599999999999
@@ -45,8 +45,8 @@ units = [
 				data = {
 					position = [
 						-5
-						0
 						1
+						0
 					]
 					rotation = [
 						0
@@ -76,8 +76,8 @@ units = [
 				data = {
 					position = [
 						0
-						0
 						-3
+						0
 					]
 					rotation = [
 						0
@@ -107,8 +107,8 @@ units = [
 				data = {
 					position = [
 						0
-						0
 						4
+						0
 					]
 					rotation = [
 						0
@@ -138,8 +138,8 @@ units = [
 				data = {
 					position = [
 						5
-						0
 						1
+						0
 					]
 					rotation = [
 						0

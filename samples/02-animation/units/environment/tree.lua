@@ -22,7 +22,7 @@ function Behavior.spawned(world, units)
 		local rw = World.render_world(world)
 		local tr = SceneGraph.instance(sg, unit)
 		local pos = SceneGraph.local_position(sg, tr)
-		local depth = math.floor(1000 + (1000 - 32*pos.z))
+		local depth = math.floor(1000 + (1000 - 32*pos.y))
 		local sprite = RenderWorld.sprite_instance(rw, unit)
 		RenderWorld.sprite_set_depth(rw, sprite, depth)
 	end
