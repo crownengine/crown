@@ -6,7 +6,7 @@
 bl_info = {
 	"name"        : "Crown Engine .mesh format",
 	"author"      : "Daniele Bartolini",
-	"blender"     : (2, 80, 0),
+	"blender"     : (2, 83, 0),
 	"location"    : "File > Import-Export",
 	"description" : "Export Crown Engine .mesh models",
 	"warning"     : "",
