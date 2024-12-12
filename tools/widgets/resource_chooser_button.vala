@@ -59,7 +59,7 @@ public class ResourceChooserButton : Gtk.Box
 
 	private void on_selector_clicked()
 	{
-		Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Select Resource"
+		Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Select a %s".printf(_type)
 			, (Gtk.Window)this.get_toplevel()
 			, DialogFlags.MODAL
 			, null
