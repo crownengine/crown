@@ -25,8 +25,8 @@ function UnitPreview:render(camera)
 	local camera_rot
 
 	if RenderWorld.sprite_instance(Thumbnail._rw, self._object._unit_id) then
-		camera_pos = Vector3(0, 1, 0)
-		camera_rot = Quaternion.look(Vector3.normalize(-camera_pos), Vector3(0, 0, 1))
+		camera_pos = Vector3.up()
+		camera_rot = Quaternion.look(Vector3.normalize(-camera_pos), Vector3.forward())
 	else
 		camera_pos = Vector3(1, 1, -1)
 		camera_rot = Quaternion.look(Vector3.normalize(-camera_pos))
