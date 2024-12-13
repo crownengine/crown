@@ -17,6 +17,7 @@ Changelog
 * Fixed an issue that caused warnings to be printed on the console when a Sound Source was deleted from a level.
 * Reduced clutter in the Project Browser by hiding all files with importable extensions.
 * Fixed missing/wrong previews and thumbnails in some circumnstances.
+* Improved unit previews and thumbnails with better lighting/dimensionality.
 
 **Runtime**
 

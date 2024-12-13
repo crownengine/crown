@@ -15,7 +15,10 @@ function UnitPreview:init()
 	self._camera = Camera(self._world, World.spawn_unit(self._world, "core/units/camera"))
 	self._object = nil
 
-	World.spawn_unit(self._world, "core/units/light", Vector3(1000, -1000, 1000))
+	World.spawn_unit(self._world, "core/units/light"
+		, Vector3(1000, 0, 0)
+		, Quaternion.from_axis_angle(Vector3.forward(), 45.0 * (math.pi / 180.0))
+		)
 end
 
 function UnitPreview:update(dt)

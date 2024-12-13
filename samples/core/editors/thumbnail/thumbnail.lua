@@ -69,10 +69,8 @@ function MaterialPreview:destroy()
 end
 
 function MaterialPreview:render(camera)
-	local obb_tm, obb_he = self._unit_preview._object:obb()
-
-	local camera_pos = Vector3(1, 1, 1)
-	local camera_rot = Quaternion.look(Vector3.normalize(-camera_pos))
+	local camera_pos = Vector3(1, -1, 0.5)
+	local camera_rot = Quaternion.from_axis_angle(Vector3.up(), 45.0 * (math.pi / 180.0))
 	local camera_pose = Matrix4x4.from_quaternion_translation(camera_rot, camera_pos)
 
 	camera:set_local_pose(camera_pose)
@@ -92,7 +90,10 @@ function Thumbnail:init()
 	self._requests = {}
 	self._pending = {}
 
-	World.spawn_unit(self._world, "core/units/light", Vector3(1000, -1000, 1000))
+	World.spawn_unit(self._world, "core/units/light"
+		, Vector3(1000, 0, 0)
+		, Quaternion.from_axis_angle(Vector3.forward(), 45.0 * (math.pi / 180.0))
+		)
 end
 
 function Thumbnail:thumbnail_ready(screenshot_path)
