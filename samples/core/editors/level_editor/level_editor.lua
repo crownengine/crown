@@ -1142,8 +1142,6 @@ function RotateTool:mouse_move(x, y)
 
 		local v1 = Vector3.normalize(drag_start - self:position())
 		local v2 = Vector3.normalize(point_on_plane - self:position())
-		local v1_dot_v2 = Vector3.dot(v1, v2)
-		local v1_cross_v2 = Vector3.cross(v1, v2)
 
 		local rotation_normal = self._rotation_axis:unbox()
 		local y_axis = v1
