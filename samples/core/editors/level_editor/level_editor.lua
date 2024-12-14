@@ -539,6 +539,7 @@ function PlaceTool:init()
 	self._placeable_id   = nil
 	self._spawn_height       = 0 -- The spawn height at the time of "idle" -> "placing" transition.
 	self._spawn_point_height = 0 -- The spawn point height at the time of "idle" -> "placing" transition.
+	self._object_position_delta = Vector3Box(Vector3.zero())
 
 	self:set_state("idle")
 end
@@ -564,6 +565,10 @@ function PlaceTool:set_position(pos)
 	self._position:store(pos)
 end
 
+function PlaceTool:object_position_delta()
+	return self._object_position_delta:unbox()
+end
+
 function PlaceTool:set_placeable(placeable_type, name)
 	assert(placeable_type == nil or placeable_type == "unit" or placeable_type == "sound")
 	self._placeable_type = placeable_type
@@ -582,8 +587,9 @@ function PlaceTool:update(dt, x, y)
 
 	local pos = self:position()
 	LevelEditor:draw_grid(Matrix4x4.from_translation(pos), self:position(), LevelEditor._grid.size, "z")
+	local sg = World.scene_graph(LevelEditor._world)
 
-	-- Create placeable preview if it does not exist yet
+	-- Create placeable 'preview' object.
 	if self._placeable_id == nil then
 		if self._placeable_type == "unit" then
 			self._placeable_id = World.spawn_unit(LevelEditor._world, self._placeable_name, pos)
@@ -591,15 +597,15 @@ function PlaceTool:update(dt, x, y)
 			self._placeable_id = World.spawn_unit(LevelEditor._world, "core/units/sound", pos)
 		end
 
-		UnitUtils.freeze(LevelEditor._world, self._placeable_id)
-	end
+		local tr = SceneGraph.instance(sg, self._placeable_id)
+		self._object_position_delta:store(SceneGraph.local_position(sg, tr) - pos)
 
-	-- Update placeable position
-	if (self._placeable_id ~= nil) then
-		local sg = World.scene_graph(LevelEditor._world)
+		UnitUtils.freeze(LevelEditor._world, self._placeable_id)
+	else
+		-- Update placeable position.
 		local tr = SceneGraph.instance(sg, self._placeable_id)
 		if tr ~= nil then
-			SceneGraph.set_local_position(sg, tr, pos)
+			SceneGraph.set_local_position(sg, tr, pos + self:object_position_delta())
 		end
 	end
 end
