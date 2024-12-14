@@ -858,6 +858,8 @@ public class ProjectBrowser : Gtk.Bin
 	public Gtk.Box _sort_items_box;
 	public Gtk.Popover _sort_items_popover;
 	public Gtk.MenuButton _sort_items;
+	public Gtk.Box _empty_favorites_box;
+	public Gtk.Stack _folder_stack;
 	public Gtk.Box _folder_view_content;
 	public Gtk.ScrolledWindow _scrolled_window;
 	public Gtk.Paned _paned;
@@ -1118,9 +1120,19 @@ public class ProjectBrowser : Gtk.Bin
 		_folder_view_control.pack_end(_toggle_icon_view, false, false);
 		_folder_view_control.pack_end(_sort_items, false, false);
 
+		_empty_favorites_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+		_empty_favorites_box.valign = Gtk.Align.CENTER;
+		_empty_favorites_box.pack_start(new Gtk.Image.from_icon_name("browser-favorites", Gtk.IconSize.DIALOG), false, false);
+		_empty_favorites_box.pack_start(new Gtk.Label("Favorites is empty"), false, false);
+
+		_folder_stack = new Gtk.Stack();
+		_folder_stack.add_named(_folder_view, "folder-view");
+		_folder_stack.add_named(_empty_favorites_box, "empty-favorites");
+		_folder_stack.set_visible_child_full("folder-view", Gtk.StackTransitionType.NONE);
+
 		_folder_view_content = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		_folder_view_content.pack_start(_folder_view_control, false);
-		_folder_view_content.pack_start(_folder_view, true, true);
+		_folder_view_content.pack_start(_folder_stack, true, true);
 
 		_paned = new Gtk.Paned(Gtk.Orientation.VERTICAL);
 		_paned.pack1(_tree_view_content, true, false);
@@ -1488,8 +1500,11 @@ public class ProjectBrowser : Gtk.Bin
 
 			_folder_view._selected_type = selected_type;
 			_folder_view._selected_name = selected_name;
+
+			_folder_stack.set_visible_child_full("folder-view", Gtk.StackTransitionType.NONE);
 		} else if (selected_type == "<favorites>") {
 			_folder_view._showing_project_folder = false;
+			int num_items = 0;
 
 			// Fill the icon view list with paths whose ancestor is the favorites root.
 			_project_store._tree_store.foreach((model, path, iter) => {
@@ -1524,8 +1539,14 @@ public class ProjectBrowser : Gtk.Bin
 						, mtime
 						, -1
 						);
+					++num_items;
 					return false;
 				});
+
+				if (num_items == 0)
+					_folder_stack.set_visible_child_full("empty-favorites", Gtk.StackTransitionType.NONE);
+				else
+					_folder_stack.set_visible_child_full("folder-view", Gtk.StackTransitionType.NONE);
 		}
 
 		// Now, fill the actual icon view list with correctly sorted paths.
