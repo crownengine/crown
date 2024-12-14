@@ -34,20 +34,20 @@ public class Project
 			_filter = new Gtk.FileFilter();
 		}
 
-		public bool can_import(string filename)
+		public bool can_import_extension(string extension)
 		{
 			foreach (var ext in extensions) {
-				if (filename.has_suffix("." + ext))
+				if (extension == ext)
 					return true;
 			}
 
 			return false;
 		}
 
-		public bool can_import_list(GLib.SList<string> filenames)
+		public bool can_import_filenames(GLib.SList<string> filenames)
 		{
 			foreach (var filename in filenames) {
-				if (!can_import(filename))
+				if (!can_import_extension(path_extension(filename)))
 					return false;
 			}
 
@@ -541,7 +541,7 @@ public class Project
 			for (var has_next = cur.next(); has_next; has_next = cur.next()) {
 				string path = paths[cur.index()];
 
-				if (importer.can_import(path)) {
+				if (importer.can_import_extension(path_extension(path))) {
 					importables.add(path);
 					cur.remove();
 				}
@@ -608,14 +608,19 @@ public class Project
 
 	// Returns the preferable importer (lowest order values) which can import files
 	// with the given @a extension.
-	public ImporterData? find_importer_for_path(string path)
+	public ImporterData? find_importer_for_extension(string extension)
 	{
 		foreach (var imp in _importers) {
-			if (imp.can_import(path))
+			if (imp.can_import_extension(extension))
 				return imp;
 		}
 
 		return null;
+	}
+
+	public ImporterData? find_importer_for_path(string path)
+	{
+		return find_importer_for_extension(path_extension(path));
 	}
 
 	public ImportResult import(string? destination_dir, Gtk.Window? parent_window = null)
@@ -670,7 +675,7 @@ public class Project
 		// Find importer callback.
 		unowned ImporterDelegate? importer = null;
 		foreach (var imp in _importers) {
-			if (imp._filter == current_filter && imp.can_import_list(filenames)) {
+			if (imp._filter == current_filter && imp.can_import_filenames(filenames)) {
 				importer = imp.delegate;
 				break;
 			}
