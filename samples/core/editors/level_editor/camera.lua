@@ -123,6 +123,11 @@ function Camera:camera()
 	return World.camera_instance(self._world, self._unit)
 end
 
+function Camera:local_position()
+	local tr = SceneGraph.instance(self._sg, self._unit)
+	return SceneGraph.local_position(self._sg, tr)
+end
+
 function Camera:local_pose()
 	local tr = SceneGraph.instance(self._sg, self._unit)
 	return SceneGraph.local_pose(self._sg, tr)
@@ -131,6 +136,18 @@ end
 function Camera:set_local_pose(pose)
 	local tr = SceneGraph.instance(self._sg, self._unit)
 	return SceneGraph.set_local_pose(self._sg, tr, pose)
+end
+
+function Camera:right()
+	return Matrix4x4.x(self:local_pose())
+end
+
+function Camera:forward()
+	return Matrix4x4.y(self:local_pose())
+end
+
+function Camera:up()
+	return Matrix4x4.z(self:local_pose())
 end
 
 function Camera:is_orthographic()

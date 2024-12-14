@@ -462,21 +462,20 @@ function SelectTool:mouse_move(x, y)
 
 		-- Compute volume planes. Normals point inside the volume.
 		if LevelEditor:camera():is_orthographic() then
-			local camera_pose = LevelEditor:camera():local_pose()
-			local camera_xaxis = Matrix4x4.x(camera_pose)
-			local camera_zaxis = Matrix4x4.z(camera_pose)
+			local camera_right = LevelEditor:camera():right()
+			local camera_up = LevelEditor:camera():up()
 
-			local n0 = camera_zaxis
+			local n0 = camera_up
 			local d0 = Vector3.dot(n0, p0)
-			local n1 = -camera_xaxis
+			local n1 = -camera_right
 			local d1 = Vector3.dot(n1, p1)
-			local n2 = -camera_zaxis
+			local n2 = -camera_up
 			local d2 = Vector3.dot(n2, p2)
-			local n3 = camera_xaxis
+			local n3 = camera_right
 			local d3 = Vector3.dot(n3, p3)
-			local n4 = Matrix4x4.y(LevelEditor:camera():local_pose())
+			local n4 = LevelEditor:camera():forward()
 			local d4 = Vector3.dot(n4, p0)
-			local n5 = -Matrix4x4.y(LevelEditor:camera():local_pose())
+			local n5 = -LevelEditor:camera():forward()
 			local d5 = Vector3.dot(n5, p0 + rd0 * camera_far)
 
 			objects_in_frustum(n0, d0, n1, d1, n2, d2, n3, d3, n4, d4, n5, d5)
@@ -489,9 +488,9 @@ function SelectTool:mouse_move(x, y)
 			local d2 = Vector3.dot(n2, p2)
 			local n3 = Vector3.normalize(Vector3.cross(rd0, rd3))
 			local d3 = Vector3.dot(n3, p3)
-			local n4 = Matrix4x4.y(LevelEditor:camera():local_pose())
+			local n4 = LevelEditor:camera():forward()
 			local d4 = Vector3.dot(n4, p0)
-			local n5 = -Matrix4x4.y(LevelEditor:camera():local_pose())
+			local n5 = -LevelEditor:camera():forward()
 			local d5 = Vector3.dot(n5, p0 + rd0 * (camera_far-camera_near))
 
 			objects_in_frustum(n0, d0, n1, d1, n2, d2, n3, d3, n4, d4, n5, d5)
@@ -788,7 +787,7 @@ function MoveTool:drag_plane()
 	if self._selected == "xy" then return self:drag_start(),  Vector3.cross(self:x_axis(), self:y_axis()) end
 	if self._selected == "yz" then return self:drag_start(),  Vector3.cross(self:y_axis(), self:z_axis()) end
 	if self._selected == "xz" then return self:drag_start(), -Vector3.cross(self:x_axis(), self:z_axis()) end
-	if self._selected == "xyz" then return self:drag_start(), -Matrix4x4.y(LevelEditor:camera():local_pose()) end
+	if self._selected == "xyz" then return self:drag_start(), -LevelEditor:camera():forward() end
 	return nil, nil
 end
 
@@ -804,8 +803,8 @@ function MoveTool:update(dt, x, y)
 	local tm = self:pose()
 	local p  = self:position()
 	local l  = LevelEditor:camera():screen_length_to_world_length(self:position(), Gizmo.size)
-	local cam_forward = Matrix4x4.y(LevelEditor:camera():local_pose())
-	local cam_to_gizmo = Vector3.normalize(p-Matrix4x4.translation(LevelEditor:camera():local_pose()))
+	local cam_forward = LevelEditor:camera():forward()
+	local cam_to_gizmo = Vector3.normalize(p - LevelEditor:camera():local_position())
 
 	local function transform(tm, offset)
 		local m = Matrix4x4.copy(tm)
@@ -1003,7 +1002,7 @@ function RotateTool:rotate_normal()
 	if self._selected == "x" then return Quaternion.right(self:rotation()) end
 	if self._selected == "y" then return Quaternion.forward(self:rotation()) end
 	if self._selected == "z" then return Quaternion.up(self:rotation()) end
-	if self._selected == "xyz" then return -Matrix4x4.y(LevelEditor:camera():local_pose()) end
+	if self._selected == "xyz" then return -LevelEditor:camera():forward() end
 	return nil
 end
 
@@ -1019,7 +1018,7 @@ function RotateTool:update(dt, x, y)
 	local tm = self:pose()
 	local p  = self:position()
 	local l  = LevelEditor:camera():screen_length_to_world_length(self:position(), Gizmo.size)
-	local cam_forward = Matrix4x4.y(LevelEditor:camera():local_pose())
+	local cam_forward = LevelEditor:camera():forward()
 
 	-- Select axis
 	if self:is_idle() then
@@ -1061,7 +1060,7 @@ function RotateTool:update(dt, x, y)
 		local step = (2*math.pi) / (segments > 3 and segments or 3)
 		local from = center - y
 
-		local cam_to_center = Vector3.normalize(center-Matrix4x4.translation(LevelEditor:camera():local_pose()))
+		local cam_to_center = Vector3.normalize(center - LevelEditor:camera():local_position())
 
 		for i=0,segments+1 do
 			local t = step * i - (math.pi/2)
@@ -1270,8 +1269,8 @@ function ScaleTool:update(dt, x, y)
 	local tm = self:world_pose()
 	local p = self:position()
 	local axis_len = LevelEditor:camera():screen_length_to_world_length(self:position(), Gizmo.size)
-	local cam_forward = Matrix4x4.y(LevelEditor:camera():local_pose())
-	local cam_to_gizmo = Vector3.normalize(p-Matrix4x4.translation(LevelEditor:camera():local_pose()))
+	local cam_forward = LevelEditor:camera():forward()
+	local cam_to_gizmo = Vector3.normalize(p - LevelEditor:camera():local_position())
 
 	if self:is_idle() then
 		-- Select axis
@@ -1403,7 +1402,7 @@ function ScaleTool:drag_axis()
 end
 
 function ScaleTool:drag_plane()
-	local camera_dir = Matrix4x4.y(LevelEditor:camera():local_pose())
+	local camera_dir = LevelEditor:camera():forward()
 	if self._selected == "xy" then return self:position(), self:z_axis()
 	elseif self._selected == "yz" then return self:position(), self:x_axis()
 	elseif self._selected == "xz" then return self:position(), self:y_axis()
