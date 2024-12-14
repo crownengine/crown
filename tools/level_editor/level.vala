@@ -45,7 +45,7 @@ public class Level
 
 		// Data
 		_db = db;
-		_selection = new Gee.ArrayList<Guid?>();
+		_selection = new Gee.ArrayList<Guid?>(Guid.equal_func);
 
 		reset();
 	}
@@ -128,6 +128,8 @@ public class Level
 	public void destroy_objects(Guid?[] ids)
 	{
 		foreach (Guid id in ids) {
+			_selection.remove(id);
+
 			if (_db.object_type(id) == OBJECT_TYPE_UNIT) {
 				_db.remove_from_set(_id, "units", id);
 				_db.destroy(id);
@@ -156,7 +158,6 @@ public class Level
 	public void destroy_selected_objects()
 	{
 		destroy_objects(_selection.to_array());
-		_selection.clear();
 	}
 
 	public void duplicate_objects(Guid?[] ids, Guid?[] new_ids)

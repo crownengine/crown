@@ -10,6 +10,7 @@ Changelog
 * Added a list-view mode to the Project Browser.
 * Added a tooltip to the Folder Icon View to show details about the hovered item.
 * Fixed an issue that caused erratic resources being shown in the Project Brower's folder view.
+* Fixed an issue that caused warnings to be printed on the console when a Sound Source was deleted from a level.
 
 0.53.0 --- 30 Nov 2024
 ----------------------
