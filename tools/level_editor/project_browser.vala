@@ -1252,6 +1252,7 @@ public class ProjectBrowser : Gtk.Bin
 		return type == "<folder>" && name == "core" && _hide_core_resources
 			|| type == "importer_settings"
 			|| name == Project.LEVEL_EDITOR_TEST_NAME
+			|| _project_store._project.is_type_importable(type)
 			;
 	}
 

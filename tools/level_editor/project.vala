@@ -623,6 +623,11 @@ public class Project
 		return find_importer_for_extension(path_extension(path));
 	}
 
+	public bool is_type_importable(string type)
+	{
+		return find_importer_for_extension(type) != null;
+	}
+
 	public ImportResult import(string? destination_dir, Gtk.Window? parent_window = null)
 	{
 		Gtk.FileChooserDialog src = new Gtk.FileChooserDialog("Import..."
