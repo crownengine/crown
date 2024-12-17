@@ -78,16 +78,16 @@ struct BgfxWriter : public bx::WriterI
 };
 
 MeshResource::MeshResource(Allocator &a)
-	: geometry_names(a)
+	: nodes(a)
 	, geometries(a)
 {
 }
 
 const MeshGeometry *MeshResource::geometry(StringId32 name) const
 {
-	for (u32 i = 0; i < array::size(geometry_names); ++i) {
-		if (geometry_names[i] == name)
-			return geometries[i];
+	for (u32 i = 0; i < array::size(nodes); ++i) {
+		if (nodes[i].name == name)
+			return geometries[nodes[i].geometry_index];
 	}
 
 	CE_FATAL("Mesh name not found");
@@ -108,12 +108,17 @@ namespace mesh_resource_internal
 		br.read(num_geoms);
 
 		MeshResource *mr = CE_NEW(a, MeshResource)(a);
-		array::resize(mr->geometry_names, num_geoms);
-		array::resize(mr->geometries, num_geoms);
 
 		for (u32 i = 0; i < num_geoms; ++i) {
-			StringId32 name;
-			br.read(name);
+			u32 num_names;
+			br.read(num_names);
+
+			for (u32 j = 0; j < num_names; ++j) {
+				StringId32 name;
+				br.read(name);
+
+				array::push_back(mr->nodes, { name, i });
+			}
 
 			bgfx::VertexLayout layout;
 			BgfxReader reader(br);
@@ -150,8 +155,7 @@ namespace mesh_resource_internal
 			br.read(mg->vertices.data, vsize);
 			br.read(mg->indices.data, isize);
 
-			mr->geometry_names[i] = name;
-			mr->geometries[i] = mg;
+			array::push_back(mr->geometries, mg);
 		}
 
 		return mr;
@@ -244,6 +248,9 @@ namespace mesh_resource_internal
 				s32 err = mesh::parse_nodes(*mesh, obj["children"], opts);
 				DATA_COMPILER_ENSURE(err == 0, opts);
 			}
+
+			if (json_object::has(obj, "geometry"))
+				sjson::parse_string(n._geometry, obj["geometry"]);
 
 			return 0;
 		}
@@ -445,6 +452,18 @@ namespace mesh_resource_internal
 					, node_name.c_str()
 					);
 
+				// For backwards compatibility: originally .mesh resources
+				// enforced (implicitly) a 1:1 relationship between nodes
+				// and geometries.
+				if (node._geometry == "")
+					node._geometry = node_name;
+
+				DATA_COMPILER_ASSERT(hash_map::has(m._geometries, node._geometry)
+					, opts
+					, "Node '%s' references unexisting geometry '%s'"
+					, node_name.c_str()
+					, node._geometry.c_str()
+					);
 				hash_map::set(m._nodes, node_name, node);
 			}
 
@@ -469,6 +488,18 @@ namespace mesh_resource_internal
 			return mesh::parse(m, opts, opts._source_path.c_str());
 		}
 
+		void geometry_names(Vector<DynamicString> &names, const Mesh &m, const DynamicString &geometry)
+		{
+			auto cur = hash_map::begin(m._nodes);
+			auto end = hash_map::end(m._nodes);
+			for (; cur != end; ++cur) {
+				HASH_MAP_SKIP_HOLE(m._nodes, cur);
+
+				if (cur->second._geometry == geometry)
+					vector::push_back(names, cur->first);
+			}
+		}
+
 		s32 write(Mesh &m, CompileOptions &opts)
 		{
 			opts.write(RESOURCE_HEADER(RESOURCE_VERSION_MESH));
@@ -479,10 +510,16 @@ namespace mesh_resource_internal
 			for (; cur != end; ++cur) {
 				HASH_MAP_SKIP_HOLE(m._geometries, cur);
 
+				Vector<DynamicString> geo_names(default_allocator());
+				geometry_names(geo_names, m, cur->first);
+				u32 num_geo_names = vector::size(geo_names);
+
+				opts.write(num_geo_names);
+				for (u32 i = 0; i < num_geo_names; ++i)
+					opts.write(geo_names[i].to_string_id()._id);
+
 				Geometry *geo = (Geometry *)&cur->second;
 				mesh::generate_vertex_and_index_buffers(*geo);
-
-				opts.write(cur->first.to_string_id()._id);
 
 				bgfx::VertexLayout layout = mesh::vertex_layout(*geo);
 				u32 stride = mesh::vertex_stride(*geo);
@@ -525,6 +562,7 @@ namespace mesh_resource_internal
 
 	Node::Node(Allocator &a)
 		: _local_pose(MATRIX4X4_IDENTITY)
+		, _geometry(a)
 	{
 	}
 

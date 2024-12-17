@@ -39,9 +39,15 @@ struct MeshGeometry
 	IndexData indices;
 };
 
+struct MeshNode
+{
+	StringId32 name;
+	u32 geometry_index;
+};
+
 struct MeshResource
 {
-	Array<StringId32> geometry_names;
+	Array<MeshNode> nodes;
 	Array<MeshGeometry *> geometries;
 
 	///
@@ -58,6 +64,7 @@ namespace mesh_resource_internal
 		ALLOCATOR_AWARE;
 
 		Matrix4x4 _local_pose;
+		DynamicString _geometry;
 
 		///
 		explicit Node(Allocator &a);

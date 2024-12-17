@@ -200,20 +200,20 @@ namespace physics_resource_internal
 			s32 err = mesh_resource_internal::mesh::parse(mesh, opts, scene.c_str());
 			DATA_COMPILER_ENSURE(err == 0, opts);
 
-			mesh_resource_internal::Geometry deffault_geometry(default_allocator());
-			mesh_resource_internal::Geometry &geometry = hash_map::get(mesh._geometries, name, deffault_geometry);
-			DATA_COMPILER_ASSERT(&geometry != &deffault_geometry
-				, opts
-				, "Geometry '%s' does not exist"
-				, name.c_str()
-				);
-
 			mesh_resource_internal::Node deffault_node(default_allocator());
 			mesh_resource_internal::Node &node = hash_map::get(mesh._nodes, name, deffault_node);
 			DATA_COMPILER_ASSERT(&node != &deffault_node
 				, opts
 				, "Node '%s' does not exist"
 				, name.c_str()
+				);
+
+			mesh_resource_internal::Geometry deffault_geometry(default_allocator());
+			mesh_resource_internal::Geometry &geometry = hash_map::get(mesh._geometries, node._geometry, deffault_geometry);
+			DATA_COMPILER_ASSERT(&geometry != &deffault_geometry
+				, opts
+				, "Geometry '%s' does not exist"
+				, node._geometry.c_str()
 				);
 
 			for (u32 i = 0; i < array::size(geometry._positions); i += 3) {
