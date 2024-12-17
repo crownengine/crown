@@ -5,10 +5,10 @@
 
 #pragma once
 
-#include "core/containers/types.h"
 #include "core/filesystem/types.h"
 #include "core/math/types.h"
 #include "core/memory/types.h"
+#include "core/strings/dynamic_string.h"
 #include "core/strings/string_id.h"
 #include "resource/types.h"
 #include "resource/types.h"
@@ -53,6 +53,55 @@ struct MeshResource
 
 namespace mesh_resource_internal
 {
+	struct Node
+	{
+		ALLOCATOR_AWARE;
+
+		Matrix4x4 _local_pose;
+
+		///
+		explicit Node(Allocator &a);
+	};
+
+	struct Geometry
+	{
+		ALLOCATOR_AWARE;
+
+		Array<f32> _positions;
+		Array<f32> _normals;
+		Array<f32> _uvs;
+		Array<f32> _tangents;
+		Array<f32> _binormals;
+
+		Array<u16> _position_indices;
+		Array<u16> _normal_indices;
+		Array<u16> _uv_indices;
+		Array<u16> _tangent_indices;
+		Array<u16> _binormal_indices;
+
+		Array<char> _vertex_buffer;
+		Array<u16> _index_buffer;
+
+		///
+		explicit Geometry(Allocator &a);
+	};
+
+	struct Mesh
+	{
+		HashMap<DynamicString, Geometry> _geometries;
+		HashMap<DynamicString, Node> _nodes;
+
+		///
+		explicit Mesh(Allocator &a);
+	};
+
+	namespace mesh
+	{
+		///
+		s32 parse(Mesh &m, CompileOptions &opts, const char *path);
+
+	} // namespace mesh
+
 	s32 compile(CompileOptions &opts);
 	void *load(File &file, Allocator &a);
 	void online(StringId64 /*id*/, ResourceManager & /*rm*/);
