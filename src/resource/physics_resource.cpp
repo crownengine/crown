@@ -20,6 +20,7 @@
 #include "core/strings/string.inl"
 #include "core/strings/string_id.inl"
 #include "resource/compile_options.inl"
+#include "resource/mesh_resource.h"
 #include "resource/physics_resource.h"
 #include "world/types.h"
 
@@ -154,29 +155,6 @@ namespace physics_resource_internal
 		sd.box.half_size = (aabb.max - aabb.min) * 0.5f;
 	}
 
-	const char *find_node_by_name(const JsonObject &nodes, const char *name)
-	{
-		auto cur = json_object::begin(nodes);
-		auto end = json_object::end(nodes);
-		for (; cur != end; ++cur) {
-			JSON_OBJECT_SKIP_HOLE(nodes, cur);
-
-			if (cur->first == name)
-				return cur->second;
-
-			TempAllocator512 ta;
-			JsonObject node(ta);
-			JsonObject children(ta);
-			sjson::parse_object(node, cur->second);
-			if (json_object::has(node, "children")) {
-				sjson::parse_object(children, node["children"]);
-				return find_node_by_name(children, name);
-			}
-		}
-
-		return NULL;
-	}
-
 	s32 compile_collider(Buffer &output, const char *json, CompileOptions &opts)
 	{
 		TempAllocator4096 ta;
@@ -209,60 +187,44 @@ namespace physics_resource_internal
 			|| (source != "inline" && json_object::has(obj, "scene"));
 
 		if (explicit_collider) {
-			// Parse .mesh
 			DynamicString scene(ta);
 			DynamicString name(ta);
 			sjson::parse_string(scene, obj["scene"]);
 			sjson::parse_string(name, obj["name"]);
-			DATA_COMPILER_ASSERT_RESOURCE_EXISTS("mesh", scene.c_str(), opts);
-			scene += ".mesh";
 
-			Buffer file = opts.read(scene.c_str());
-			JsonObject json_mesh(ta);
-			JsonObject geometries(ta);
-			JsonObject geometry(ta);
-			JsonObject nodes(ta);
-			JsonObject node(ta);
-			sjson::parse(json_mesh, file);
-			sjson::parse(geometries, json_mesh["geometries"]);
-			DATA_COMPILER_ASSERT(json_object::has(geometries, name.c_str())
+			// Parse mesh resource.
+			if (opts.resource_exists("mesh", scene.c_str()))
+				scene += ".mesh";
+
+			mesh_resource_internal::Mesh mesh(default_allocator());
+			s32 err = mesh_resource_internal::mesh::parse(mesh, opts, scene.c_str());
+			DATA_COMPILER_ENSURE(err == 0, opts);
+
+			mesh_resource_internal::Geometry deffault_geometry(default_allocator());
+			mesh_resource_internal::Geometry &geometry = hash_map::get(mesh._geometries, name, deffault_geometry);
+			DATA_COMPILER_ASSERT(&geometry != &deffault_geometry
 				, opts
 				, "Geometry '%s' does not exist"
 				, name.c_str()
 				);
-			sjson::parse(geometry, geometries[name.c_str()]);
 
-			// Find node
-			sjson::parse(nodes, json_mesh["nodes"]);
-			const char *node_data = find_node_by_name(nodes, name.c_str());
-			DATA_COMPILER_ASSERT(node_data != NULL
+			mesh_resource_internal::Node deffault_node(default_allocator());
+			mesh_resource_internal::Node &node = hash_map::get(mesh._nodes, name, deffault_node);
+			DATA_COMPILER_ASSERT(&node != &deffault_node
 				, opts
 				, "Node '%s' does not exist"
 				, name.c_str()
 				);
-			sjson::parse(node, node_data);
 
-			JsonArray positions(ta);
-			sjson::parse_array(positions, geometry["position"]);
-
-			JsonObject indices(ta);
-			JsonArray indices_data(ta);
-			JsonArray position_indices(ta);
-			sjson::parse_object(indices, geometry["indices"]);
-			sjson::parse_array(indices_data, indices["data"]);
-			sjson::parse_array(position_indices, indices_data[0]);
-
-			for (u32 i = 0; i < array::size(positions); i += 3) {
+			for (u32 i = 0; i < array::size(geometry._positions); i += 3) {
 				Vector3 p;
-				p.x = sjson::parse_float(positions[i + 0]);
-				p.y = sjson::parse_float(positions[i + 1]);
-				p.z = sjson::parse_float(positions[i + 2]);
+				p.x = geometry._positions[i + 0];
+				p.y = geometry._positions[i + 1];
+				p.z = geometry._positions[i + 2];
 				array::push_back(points, p);
 			}
 
-			for (u32 i = 0; i < array::size(position_indices); ++i) {
-				array::push_back(point_indices, (u16)sjson::parse_int(position_indices[i]));
-			}
+			point_indices = geometry._position_indices;
 
 			switch (cd.type) {
 			case ColliderType::SPHERE:      compile_sphere(cd, points); break;
