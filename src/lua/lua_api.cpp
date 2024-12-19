@@ -1733,6 +1733,12 @@ void load_api(LuaEnvironment &env)
 				stack.push_nil();
 			return 1;
 		});
+	env.add_module_function("SceneGraph", "owner", [](lua_State *L) {
+			LuaStack stack(L);
+			UnitId unit = stack.get_scene_graph(1)->owner(stack.get_transform_instance(2));
+			stack.push_unit(unit);
+			return 1;
+		});
 	env.add_module_function("SceneGraph", "local_position", [](lua_State *L) {
 			LuaStack stack(L);
 			stack.push_vector3(stack.get_scene_graph(1)->local_position(stack.get_transform_instance(2)));
@@ -1805,6 +1811,24 @@ void load_api(LuaEnvironment &env)
 			LuaStack stack(L);
 			stack.get_scene_graph(1)->unlink(stack.get_transform_instance(2));
 			return 0;
+		});
+	env.add_module_function("SceneGraph", "first_child", [](lua_State *L) {
+			LuaStack stack(L);
+			TransformInstance inst = stack.get_scene_graph(1)->first_child(stack.get_transform_instance(2));
+			if (is_valid(inst))
+				stack.push_transform(inst);
+			else
+				stack.push_nil();
+			return 1;
+		});
+	env.add_module_function("SceneGraph", "next_sibling", [](lua_State *L) {
+			LuaStack stack(L);
+			TransformInstance inst = stack.get_scene_graph(1)->next_sibling(stack.get_transform_instance(2));
+			if (is_valid(inst))
+				stack.push_transform(inst);
+			else
+				stack.push_nil();
+			return 1;
 		});
 
 	env.add_module_function("UnitManager", "create", [](lua_State *L) {

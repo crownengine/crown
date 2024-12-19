@@ -222,6 +222,12 @@ TransformInstance SceneGraph::instance(UnitId unit)
 	return make_instance(hash_map::get(_map, unit, UINT32_MAX));
 }
 
+UnitId SceneGraph::owner(TransformInstance transform)
+{
+	CE_ASSERT(transform.i < _data.size, "Index out of bounds");
+	return _data.unit[transform.i];
+}
+
 bool SceneGraph::has(UnitId unit)
 {
 	return hash_map::has(_map, unit);
@@ -379,6 +385,18 @@ void SceneGraph::unlink(TransformInstance child)
 	_data.parent[child.i].i = UINT32_MAX;
 	_data.next_sibling[child.i].i = UINT32_MAX;
 	_data.prev_sibling[child.i].i = UINT32_MAX;
+}
+
+TransformInstance SceneGraph::first_child(TransformInstance parent)
+{
+	CE_ASSERT(parent.i < _data.size, "Index out of bounds");
+	return _data.first_child[parent.i];
+}
+
+TransformInstance SceneGraph::next_sibling(TransformInstance child)
+{
+	CE_ASSERT(child.i < _data.size, "Index out of bounds");
+	return _data.next_sibling[child.i];
 }
 
 void SceneGraph::clear_changed()

@@ -84,6 +84,9 @@ struct SceneGraph
 	/// Returns the ID of the transform owned by the *unit*.
 	TransformInstance instance(UnitId unit);
 
+	/// Returns the unit that owns @a transform.
+	UnitId owner(TransformInstance transform);
+
 	/// Returns whether the @a unit has a transform.
 	bool has(UnitId unit);
 
@@ -143,6 +146,14 @@ struct SceneGraph
 	/// Unlinks @a child from its parent if it has any. After unlinking, the local
 	/// pose of the @a child is set to its previous world pose.
 	void unlink(TransformInstance child);
+
+	/// Returns the first child of the instance @a parent or an invalid
+	/// instance if @a parent has no children.
+	TransformInstance first_child(TransformInstance parent);
+
+	/// Returns the next sibling of the instance @a child or an invalid
+	/// instance if @a child has no sibling.
+	TransformInstance next_sibling(TransformInstance child);
 
 	void clear_changed();
 	void get_changed(Array<UnitId> &units, Array<Matrix4x4> &world_poses);

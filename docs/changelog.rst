@@ -22,6 +22,7 @@ Changelog
 **Runtime**
 
 * Lua API: 3D Gui will now place objects on the new XY plane (on the "floor") by default.
+* Lua API: added ``SceneGraph.owner()``, ``SceneGraph.first_child()`` and ``SceneGraph.next_sibling()``.
 * Data Compiler: .mesh resource can now have shared geometries between nodes.
 
 0.53.0 --- 30 Nov 2024

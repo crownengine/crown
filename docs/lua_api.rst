@@ -1229,6 +1229,9 @@ SceneGraph
 **instance** (sg, unit) : Id
 	Returns the ID of the transform owned by the *unit*, or ``nil``.
 
+**owner** (sg, transform) : UnitId
+	Returns the unit that owns *transform*.
+
 **local_position** (sg, transform) : Vector3
 	Returns the local position of the *transform*.
 
@@ -1271,6 +1274,14 @@ SceneGraph
 **unlink** (sg, child)
 	Unlinks *child* from its parent if it has any. After unlinking, the local
 	pose of the *child* is set to its previous world pose.
+
+**first_child** (sg, parent) : Id
+	Returns the first child of the instance *parent* or ``nil``
+	if *parent* has no children.
+
+**next_sibling** (sg, child) : Id
+	Returns the next sibling of the instance *child* or ``nil``
+	if *child* has no sibling.
 
 SoundWorld
 ===========
