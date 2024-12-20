@@ -5,33 +5,39 @@ require "core/lua/class"
 
 UnitUtils = UnitUtils or {}
 
+function UnitUtils.collect_children(scene_graph, unit_id, children)
+	local transform = SceneGraph.instance(scene_graph, unit_id)
+	if transform == nil then return end
+
+	local cur_child = SceneGraph.first_child(scene_graph, transform)
+	while cur_child ~= nil do
+		local child_id = SceneGraph.owner(scene_graph, cur_child)
+		UnitUtils.collect_children(scene_graph, child_id, children)
+		table.insert(children, child_id)
+		cur_child = SceneGraph.next_sibling(scene_graph, cur_child)
+	end
+
+	table.insert(children, unit_id)
+end
+
 function UnitUtils.freeze(world, unit_id)
-	local pw = World.physics_world(world)
-	local actor = PhysicsWorld.actor_instance(pw, unit_id)
-	if (actor ~= nil) then
-		PhysicsWorld.actor_set_kinematic(pw, actor, true)
+	local physics_world = World.physics_world(world)
+	local scene_graph = World.scene_graph(world)
+	local children = {}
+	UnitUtils.collect_children(scene_graph, unit_id, children)
+
+	for _, child_id in ipairs(children) do
+		local actor = PhysicsWorld.actor_instance(physics_world, child_id)
+		if actor ~= nil then
+			PhysicsWorld.actor_set_kinematic(physics_world, actor, true)
+		end
 	end
 end
 
 function UnitUtils.destroy_tree(world, unit_id)
-	local function collect_children(scene_graph, unit_id, children)
-		local transform = SceneGraph.instance(scene_graph, unit_id)
-		if transform == nil then return end
-
-		local cur_child = SceneGraph.first_child(scene_graph, transform)
-		while cur_child ~= nil do
-			local child_id = SceneGraph.owner(scene_graph, cur_child)
-			collect_children(scene_graph, child_id, children)
-			table.insert(children, child_id)
-			cur_child = SceneGraph.next_sibling(scene_graph, cur_child)
-		end
-
-		table.insert(children, unit_id)
-	end
-
 	local scene_graph = World.scene_graph(world)
 	local children = {}
-	collect_children(scene_graph, unit_id, children)
+	UnitUtils.collect_children(scene_graph, unit_id, children)
 
 	for _, child_id in ipairs(children) do
 		World.destroy_unit(world, child_id)
