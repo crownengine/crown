@@ -122,3 +122,16 @@ end
 function SoundObject:set_range(range)
 	self._range = range
 end
+
+function SoundObject:send()
+	Device.console_send { type = "sound_spawned"
+		, id = guid
+		, name = self:name()
+		, position = self:local_position()
+		, rotation = self:local_rotation()
+		, scale = self:local_scale()
+		, range = self._range
+		, volume = self._volume
+		, loop = self._loop
+		}
+end

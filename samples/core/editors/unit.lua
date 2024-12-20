@@ -177,3 +177,13 @@ function UnitBox:set_camera(projection, fov, near_range, far_range)
 	World.camera_set_near_clip_distance(self._world, camera, near_range)
 	World.camera_set_far_clip_distance(self._world, camera, far_range)
 end
+
+function UnitBox:send()
+	Device.console_send { type = "unit_spawned"
+		, id = self._id
+		, name = self:prefab()
+		, position = self:local_position()
+		, rotation = self:local_rotation()
+		, scale = self:local_scale()
+		}
+end
