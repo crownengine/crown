@@ -572,11 +572,6 @@ function PlaceTool:set_placeable(placeable_type, name)
 	assert(placeable_type == nil or placeable_type == "unit" or placeable_type == "sound")
 	self._placeable_type = placeable_type
 	self._placeable_name = name
-
-	if (self._placeable_id ~= nil) then
-		World.destroy_unit(LevelEditor._world, self._placeable_id)
-		self._placeable_id = nil
-	end
 end
 
 function PlaceTool:update(dt, x, y)
@@ -673,7 +668,7 @@ end
 
 function PlaceTool:on_leave()
 	if self._placeable_id ~= nil then
-		World.destroy_unit(LevelEditor._world, self._placeable_id)
+		UnitUtils.destroy_tree(LevelEditor._world, self._placeable_id)
 		self._placeable_id = nil
 	end
 end

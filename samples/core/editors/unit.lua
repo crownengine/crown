@@ -13,6 +13,30 @@ function UnitUtils.freeze(world, unit_id)
 	end
 end
 
+function UnitUtils.destroy_tree(world, unit_id)
+	local function collect_children(scene_graph, unit_id, children)
+		local transform = SceneGraph.instance(scene_graph, unit_id)
+		local cur_child = SceneGraph.first_child(scene_graph, transform)
+
+		while cur_child ~= nil do
+			local child_id = SceneGraph.owner(scene_graph, cur_child)
+			collect_children(scene_graph, child_id, children)
+			table.insert(children, child_id)
+			cur_child = SceneGraph.next_sibling(scene_graph, cur_child)
+		end
+
+		table.insert(children, unit_id)
+	end
+
+	local scene_graph = World.scene_graph(world)
+	local children = {}
+	collect_children(scene_graph, unit_id, children)
+
+	for _, child_id in ipairs(children) do
+		World.destroy_unit(world, child_id)
+	end
+end
+
 UnitBox = class(UnitBox)
 
 function UnitBox:init(world, id, unit_id, prefab)
