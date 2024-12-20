@@ -332,6 +332,16 @@ public class LevelTreeView : Gtk.Box
 			});
 	}
 
+	private ItemType item_type(Unit u)
+	{
+		if (u.is_light())
+			return ItemType.LIGHT;
+		else if (u.is_camera())
+			return ItemType.CAMERA;
+		else
+			return ItemType.UNIT;
+	}
+
 	private void on_database_key_changed(Guid id, string key)
 	{
 		if (id != _level._id)
@@ -356,18 +366,6 @@ public class LevelTreeView : Gtk.Box
 			, "Units"
 			, -1
 			);
-		Gtk.TreeIter lights_iter;
-		_tree_store.insert_with_values(out lights_iter
-			, null
-			, -1
-			, Column.TYPE
-			, ItemType.FOLDER
-			, Column.GUID
-			, GUID_ZERO
-			, Column.NAME
-			, "Lights"
-			, -1
-			);
 		Gtk.TreeIter sounds_iter;
 		_tree_store.insert_with_values(out sounds_iter
 			, null
@@ -380,45 +378,23 @@ public class LevelTreeView : Gtk.Box
 			, "Sounds"
 			, -1
 			);
-		Gtk.TreeIter cameras_iter;
-		_tree_store.insert_with_values(out cameras_iter
-			, null
-			, -1
-			, Column.TYPE
-			, ItemType.FOLDER
-			, Column.GUID
-			, GUID_ZERO
-			, Column.NAME
-			, "Cameras"
-			, -1
-			);
 
 		HashSet<Guid?> units  = _db.get_property_set(_level._id, "units", new HashSet<Guid?>());
 		HashSet<Guid?> sounds = _db.get_property_set(_level._id, "sounds", new HashSet<Guid?>());
 
-		foreach (Guid unit in units) {
-			Unit u = new Unit(_level._db, unit);
-
-			int item_type = LevelTreeView.ItemType.UNIT;
-			Gtk.TreeIter tree_iter = units_iter;
-			if (u.is_light()) {
-				item_type = LevelTreeView.ItemType.LIGHT;
-				tree_iter = lights_iter;
-			} else if (u.is_camera()) {
-				item_type = LevelTreeView.ItemType.CAMERA;
-				tree_iter = cameras_iter;
-			}
+		foreach (Guid unit_id in units) {
+			Unit u = new Unit(_level._db, unit_id);
 
 			Gtk.TreeIter iter;
 			_tree_store.insert_with_values(out iter
-				, tree_iter
+				, units_iter
 				, -1
 				, Column.TYPE
-				, item_type
+				, item_type(u)
 				, Column.GUID
-				, unit
+				, unit_id
 				, Column.NAME
-				, _level.object_editor_name(unit)
+				, _level.object_editor_name(unit_id)
 				, -1
 				);
 		}
