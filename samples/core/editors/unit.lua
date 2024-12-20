@@ -16,8 +16,9 @@ end
 function UnitUtils.destroy_tree(world, unit_id)
 	local function collect_children(scene_graph, unit_id, children)
 		local transform = SceneGraph.instance(scene_graph, unit_id)
-		local cur_child = SceneGraph.first_child(scene_graph, transform)
+		if transform == nil then return end
 
+		local cur_child = SceneGraph.first_child(scene_graph, transform)
 		while cur_child ~= nil do
 			local child_id = SceneGraph.owner(scene_graph, cur_child)
 			collect_children(scene_graph, child_id, children)
