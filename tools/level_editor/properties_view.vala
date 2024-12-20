@@ -131,11 +131,11 @@ public class MeshRendererPropertyGrid : PropertyGrid
 
 		for (int i = 0; i < keys.length; ++i) {
 			combos[i].clear();
-			if (mesh_resource.has_key(keys[i])) {
-				Hashtable obj = (Hashtable)mesh_resource[keys[i]];
-				foreach (var e in obj)
-					combos[i].append(e.key, e.key);
-			}
+
+			Mesh mesh = new Mesh();
+			mesh.decode(mesh_resource);
+			foreach (var node in mesh._nodes)
+				combos[i].append(node, node);
 		}
 	}
 
@@ -386,11 +386,11 @@ public class ColliderPropertyGrid : PropertyGrid
 
 		for (int i = 0; i < keys.length; ++i) {
 			combos[i].clear();
-			if (mesh_resource.has_key(keys[i])) {
-				Hashtable obj = (Hashtable)mesh_resource[keys[i]];
-				foreach (var e in obj)
-					combos[i].append(e.key, e.key);
-			}
+
+			Mesh mesh = new Mesh();
+			mesh.decode(mesh_resource);
+			foreach (var node in mesh._nodes)
+				combos[i].append(node, node);
 		}
 	}
 
