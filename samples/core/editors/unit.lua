@@ -71,7 +71,7 @@ function UnitBox:unit_id()
 end
 
 function UnitBox:destroy()
-	World.destroy_unit(self._world, self._unit_id)
+	UnitUtils.destroy_tree(self._world, self._unit_id)
 end
 
 function UnitBox:local_position()

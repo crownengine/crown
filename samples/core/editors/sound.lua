@@ -26,7 +26,7 @@ function SoundObject:unit_id()
 end
 
 function SoundObject:destroy()
-	World.destroy_unit(self._world, self._unit_id)
+	UnitUtils.destroy_tree(self._world, self._unit_id)
 end
 
 function SoundObject:name()
