@@ -125,7 +125,7 @@ end
 
 function SoundObject:send()
 	Device.console_send { type = "sound_spawned"
-		, id = guid
+		, id = self._id
 		, name = self:name()
 		, position = self:local_position()
 		, rotation = self:local_rotation()
