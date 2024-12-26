@@ -74,6 +74,7 @@ project "crown-editor"
 		"--target-glib=2.64.6",
 		"--pkg tinyexpr",
 		"--pkg md5",
+		"--pkg ufbx",
 	}
 
 	vapidirs {
@@ -83,6 +84,7 @@ project "crown-editor"
 	buildoptions {
 		"-I" .. CROWN_DIR .. "3rdparty/tinyexpr",
 		"-I" .. CROWN_DIR .. "3rdparty/md5",
+		"-I" .. CROWN_DIR .. "3rdparty/ufbx",
 		"-I" .. CROWN_DIR .. "3rdparty/stb",
 	}
 
@@ -92,6 +94,7 @@ project "crown-editor"
 		CROWN_DIR .. "tools/level_editor/resources/resources.gresource.xml",
 		CROWN_DIR .. "3rdparty/tinyexpr/tinyexpr.c",
 		CROWN_DIR .. "3rdparty/md5/md5.c",
+		CROWN_DIR .. "3rdparty/ufbx/ufbx.c",
 	}
 
 	strip()
