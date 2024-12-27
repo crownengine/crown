@@ -579,16 +579,12 @@ void World::post_level_loaded_event()
 	event_stream::write(_events, EventType::LEVEL_LOADED, ev);
 }
 
+void World::disable_unit_callbacks()
+{
 #if CROWN_DEBUG
-void World::disable_unit_callbacks()
-{
 	_script_world->_disable_callbacks = true;
-}
-#else
-void World::disable_unit_callbacks()
-{
-}
 #endif
+}
 
 void spawn_units(World &w, const UnitResource *ur, const Vector3 &pos, const Quaternion &rot, const Vector3 &scl, const UnitId *unit_lookup)
 {
