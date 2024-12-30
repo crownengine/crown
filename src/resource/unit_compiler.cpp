@@ -297,133 +297,163 @@ static s32 compile_animation_state_machine(Buffer &output, const char *json, Com
 	return 0;
 }
 
-UnitCompiler::UnitCompiler(CompileOptions &opts)
-	: _opts(opts)
-	, _num_units(0)
-	, _component_data(default_allocator())
-	, _component_info(default_allocator())
-	, _unit_names(default_allocator())
-	, _unit_parents(default_allocator())
+namespace unit_compiler
 {
-	register_component_compiler("transform",               &compile_transform,                           0.0f);
-	register_component_compiler("camera",                  &compile_camera,                              1.0f);
-	register_component_compiler("mesh_renderer",           &compile_mesh_renderer,                       1.0f);
-	register_component_compiler("sprite_renderer",         &compile_sprite_renderer,                     1.0f);
-	register_component_compiler("light",                   &compile_light,                               1.0f);
-	register_component_compiler("script",                  &compile_script,                              1.0f);
-	register_component_compiler("collider",                &physics_resource_internal::compile_collider, 1.0f);
-	register_component_compiler("actor",                   &physics_resource_internal::compile_actor,    2.0f);
-	register_component_compiler("joint",                   &physics_resource_internal::compile_joint,    3.0f);
-	register_component_compiler("animation_state_machine", &compile_animation_state_machine,             1.0f);
-}
-
-UnitCompiler::~UnitCompiler()
-{
-}
-
-Buffer UnitCompiler::read_unit(const char *path)
-{
-	Buffer buf = _opts.read(path);
-	array::push_back(buf, '\0');
-	return buf;
-}
-
-s32 UnitCompiler::compile_unit(const char *path)
-{
-	return compile_unit_from_json(array::begin(read_unit(path)), UINT32_MAX);
-}
-
-u32 object_index_from_id(const JsonArray &objects, const Guid &id)
-{
-	for (u32 i = 0; i < array::size(objects); ++i) {
-		TempAllocator512 ta;
-		JsonObject obj(ta);
-		sjson::parse(obj, objects[i]);
-
-		if (json_object::has(obj, "id")) {
-			if (sjson::parse_guid(obj["id"]) == id)
-				return i;
-		} else {
-			if (sjson::parse_guid(obj["_guid"]) == id)
-				return i;
-		}
+	Buffer read_unit(UnitCompiler &c, const char *path)
+	{
+		Buffer buf = c._opts.read(path);
+		array::push_back(buf, '\0');
+		return buf;
 	}
 
-	return UINT32_MAX;
-}
-
-s32 UnitCompiler::collect_units(Buffer &data, Array<u32> &prefabs, const char *json)
-{
-	u32 prefab_offt = array::size(data);
-	array::push(data, json, strlen32(json));
-	array::push_back(data, '\0');
-	array::push_back(prefabs, prefab_offt);
-
-	TempAllocator4096 ta;
-	JsonObject prefab(ta);
-	sjson::parse(prefab, json);
-
-	if (json_object::has(prefab, "prefab")) {
-		TempAllocator512 ta;
-		DynamicString path(ta);
-		sjson::parse_string(path, prefab["prefab"]);
-		DATA_COMPILER_ASSERT_RESOURCE_EXISTS("unit"
-			, path.c_str()
-			, _opts
-			);
-		path += ".unit";
-
-		Buffer buf = read_unit(path.c_str());
-		return 1 + collect_units(data, prefabs, array::begin(buf));
-	}
-
-	return 1;
-}
-
-s32 UnitCompiler::compile_unit_from_json(const char *json, const u32 parent)
-{
-	Buffer data(default_allocator());
-	Array<u32> offsets(default_allocator()); // Offsets to JSON objects into data
-
-	// offsets[  0] = { prefab = ..., comps = .., mods = ... } <- Original unit
-	// offsets[  1] = { prefab = ..., ... }                    <- Prefab of the original unit
-	// offsets[  2] = { prefab = ..., ... }                    <- Prefab of the prefab of the original unit
-	// offsets[n-1] = { prefab = nil, ... }                    <- Root unit
-	s32 err = 0;
-	err = collect_units(data, offsets, json);
-	DATA_COMPILER_ENSURE(err >= 0, _opts);
-
-	TempAllocator4096 ta;
-	JsonArray merged_components(ta);
-	JsonArray merged_components_data(ta);
-	JsonArray merged_children(ta);
-	u32 num_prefabs = array::size(offsets);
-
-	// Merge components of all prefabs from the root unit up to the unit that
-	// started the compilation.
-	for (u32 ii = 0; ii < num_prefabs; ++ii) {
+	// Collects the prefabs data of @a unit_json and its children recursively.
+	// Prefab of deeper child is collected first.
+	//
+	// Consider the following hierarchy:
+	//
+	//   Unit      Prefab
+	//   A         P
+	//   +-B
+	//   +-C       Q
+	//      +-D    +-R
+	//
+	// collect_prefab(A) will collect the data needed to compile
+	// the unit 'A' and all its children:
+	//
+	// prefab_offsets[  0] = P = { prefab = nil }   <- Prefab of A
+	// prefab_offsets[  1] = Q = { prefab = nil }   <- Prefab of C
+	// prefab_offsets[n-1] = A = { prefab = P   }   <- A itself
+	s32 collect_prefabs(UnitCompiler &c, StringId64 unit_name, const char *unit_json, bool append_data)
+	{
+		TempAllocator4096 ta;
 		JsonObject prefab(ta);
-		sjson::parse(prefab, array::begin(data) + offsets[num_prefabs - 1 - ii]);
+		sjson::parse(prefab, unit_json);
 
-		if (json_object::has(prefab, "components")) {
+		if (json_object::has(prefab, "children")) {
+			JsonArray children(ta);
+			sjson::parse_array(children, prefab["children"]);
+
+			for (u32 i = 0; i < array::size(children); ++i) {
+				s32 err = collect_prefabs(c, unit_name, children[i], false);
+				DATA_COMPILER_ENSURE(err == 0, c._opts);
+			}
+		}
+
+		if (json_object::has(prefab, "prefab")) {
+			TempAllocator512 ta;
+			DynamicString path(ta);
+			sjson::parse_string(path, prefab["prefab"]);
+			DATA_COMPILER_ASSERT_RESOURCE_EXISTS("unit"
+				, path.c_str()
+				, c._opts
+				);
+			StringId64 name(path.c_str());
+			path += ".unit";
+
+			Buffer buf = read_unit(c, path.c_str());
+			s32 err = collect_prefabs(c, name, array::begin(buf), true);
+			DATA_COMPILER_ENSURE(err == 0, c._opts);
+		}
+
+		if (append_data) {
+			u32 prefab_offset = array::size(c._prefab_data);
+			array::push(c._prefab_data, unit_json, strlen32(unit_json));
+			array::push_back(c._prefab_data, '\0');
+			array::push_back(c._prefab_offsets, prefab_offset);
+			array::push_back(c._prefab_names, unit_name);
+		}
+
+		return 0;
+	}
+
+	const char *prefab_json(UnitCompiler &c, const char *prefab_name)
+	{
+		StringId64 name(prefab_name);
+		for (u32 i = 0; i < array::size(c._prefab_names); ++i) {
+			if (c._prefab_names[i] == name)
+				return &c._prefab_data[c._prefab_offsets[i]];
+		}
+
+		return NULL;
+	}
+
+	u32 object_index(const JsonArray &objects, const Guid &object_id)
+	{
+		for (u32 i = 0; i < array::size(objects); ++i) {
+			TempAllocator512 ta;
+			JsonObject obj(ta);
+			sjson::parse(obj, objects[i]);
+
+			if (json_object::has(obj, "id")) {
+				if (sjson::parse_guid(obj["id"]) == object_id)
+					return i;
+			} else {
+				if (sjson::parse_guid(obj["_guid"]) == object_id)
+					return i;
+			}
+		}
+
+		return UINT32_MAX;
+	}
+
+	Unit *find_children(Unit *unit, Guid id)
+	{
+		CE_ENSURE(unit != NULL);
+
+		auto cur = hash_map::begin(unit->_children);
+		auto end = hash_map::end(unit->_children);
+		for (; cur != end; ++cur) {
+			HASH_MAP_SKIP_HOLE(unit->_children, cur);
+
+			if (cur->first == id)
+				return cur->second;
+
+			Unit *child = find_children(cur->second, id);
+			if (child != NULL)
+				return child;
+		}
+
+		return NULL;
+	}
+
+	void delete_unit(Unit *unit)
+	{
+		auto cur = hash_map::begin(unit->_children);
+		auto end = hash_map::end(unit->_children);
+		for (; cur != end; ++cur) {
+			HASH_MAP_SKIP_HOLE(unit->_children, cur);
+
+			delete_unit(cur->second);
+		}
+
+		CE_DELETE(default_allocator(), unit);
+	}
+
+	s32 modify_unit_components(UnitCompiler &c, Unit *unit, const char *unit_json)
+	{
+		TempAllocator4096 ta;
+		JsonObject obj(ta);
+		sjson::parse(obj, unit_json);
+
+		if (json_object::has(obj, "components")) {
 			JsonArray components(ta);
-			sjson::parse_array(components, prefab["components"]);
+			sjson::parse_array(components, obj["components"]);
 
-			// Add components
+			// Add components.
 			for (u32 cc = 0; cc < array::size(components); ++cc) {
 				JsonObject component(ta);
 				sjson::parse_object(component, components[cc]);
 
-				array::push_back(merged_components, components[cc]);
-				array::push_back(merged_components_data, component["data"]);
+				array::push_back(unit->_merged_components, components[cc]);
+				array::push_back(unit->_merged_components_data, component["data"]);
 			}
 		}
 
-		if (json_object::has(prefab, "deleted_components")) {
+		if (json_object::has(obj, "deleted_components")) {
 			JsonObject deleted_components(ta);
-			sjson::parse_object(deleted_components, prefab["deleted_components"]);
+			sjson::parse_object(deleted_components, obj["deleted_components"]);
 
-			// Delete components
+			// Delete components.
 			auto cur = json_object::begin(deleted_components);
 			auto end = json_object::end(deleted_components);
 			for (; cur != end; ++cur) {
@@ -431,35 +461,35 @@ s32 UnitCompiler::compile_unit_from_json(const char *json, const u32 parent)
 
 				auto key = cur->first;
 
-				// Extract GUID from key #xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+				// Extract GUID from key "#xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".
 				char guid[37];
 				strncpy(guid, key.data() + 1, sizeof(guid) - 1);
 				guid[36] = '\0';
 				Guid component_id = guid::parse(guid);
 
-				u32 comp_idx = object_index_from_id(merged_components, component_id);
+				u32 comp_idx = object_index(unit->_merged_components, component_id);
 				if (comp_idx != UINT32_MAX) {
-					u32 comp_last = array::size(merged_components) - 1;
-					merged_components[comp_idx] = merged_components[comp_last];
-					array::pop_back(merged_components);
-					merged_components_data[comp_idx] = merged_components_data[comp_last];
-					array::pop_back(merged_components_data);
+					u32 comp_last = array::size(unit->_merged_components) - 1;
+					unit->_merged_components[comp_idx] = unit->_merged_components[comp_last];
+					array::pop_back(unit->_merged_components);
+					unit->_merged_components_data[comp_idx] = unit->_merged_components_data[comp_last];
+					array::pop_back(unit->_merged_components_data);
 				} else {
 					char buf[GUID_BUF_LEN];
 					DATA_COMPILER_ASSERT(false
-						, _opts
-						, "Deletion of unexisting component ID: %s\n"
+						, c._opts
+						, "Deletion of unexisting component ID: %s"
 						, guid::to_string(buf, sizeof(buf), component_id)
 						);
 				}
 			}
 		}
 
-		if (json_object::has(prefab, "modified_components")) {
+		if (json_object::has(obj, "modified_components")) {
 			JsonObject modified_components(ta);
-			sjson::parse(modified_components, prefab["modified_components"]);
+			sjson::parse(modified_components, obj["modified_components"]);
 
-			// Modify components
+			// Modify components.
 			auto cur = json_object::begin(modified_components);
 			auto end = json_object::end(modified_components);
 			for (; cur != end; ++cur) {
@@ -468,233 +498,400 @@ s32 UnitCompiler::compile_unit_from_json(const char *json, const u32 parent)
 				auto key = cur->first;
 				auto val = cur->second;
 
-				// Extract GUID from key #xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+				// Extract GUID from key "#xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".
 				char guid[37];
 				strncpy(guid, key.data() + 1, sizeof(guid) - 1);
 				guid[36] = '\0';
 				Guid component_id = guid::parse(guid);
 
-				// Patch component "data" key
-				u32 comp_idx = object_index_from_id(merged_components, component_id);
+				// Patch component "data" key.
+				u32 comp_idx = object_index(unit->_merged_components, component_id);
 				if (comp_idx != UINT32_MAX) {
 					JsonObject modified_component(ta);
 					sjson::parse_object(modified_component, val);
 
-					merged_components_data[comp_idx] = modified_component["data"];
+					unit->_merged_components_data[comp_idx] = modified_component["data"];
 				} else {
 					char buf[GUID_BUF_LEN];
 					DATA_COMPILER_ASSERT(false
-						, _opts
-						, "Modification of unexisting component ID: %s\n"
+						, c._opts
+						, "Modification of unexisting component ID: %s"
 						, guid::to_string(buf, sizeof(buf), component_id)
 						);
 				}
 			}
 		}
 
-		if (json_object::has(prefab, "children")) {
-			JsonArray children(ta);
-			sjson::parse_array(children, prefab["children"]);
-			for (u32 cc = 0; cc < array::size(children); ++cc) {
-				array::push_back(merged_children, children[cc]);
+		return 0;
+	}
+
+	s32 parse_unit_internal(UnitCompiler &c
+		, const char *unit_json
+		, Unit *instance_unit
+		, Unit *parent_unit
+		)
+	{
+		TempAllocator4096 ta;
+		JsonObject obj(ta);
+		sjson::parse(obj, unit_json);
+
+		Guid id = sjson::parse_guid(obj["_guid"]);
+
+		Unit *unit = instance_unit;
+		if (unit == NULL) {
+			unit = CE_NEW(default_allocator(), Unit)(default_allocator());
+		}
+
+		if (instance_unit == NULL) {
+			if (parent_unit == NULL) {
+				hash_map::set(c._units, id, unit);
+			} else {
+				unit->_parent = parent_unit;
+				hash_map::set(parent_unit->_children, id, unit);
 			}
 		}
 
-		if (json_object::has(prefab, "deleted_children")) {
-			JsonArray deleted_children(ta);
-			sjson::parse_array(deleted_children, prefab["deleted_children"]);
+		if (json_object::has(obj, "prefab")) {
+			TempAllocator512 ta;
+			DynamicString prefab(ta);
+			sjson::parse_string(prefab, obj["prefab"]);
+			const char *prefab_json_data = prefab_json(c, prefab.c_str());
+			DATA_COMPILER_ASSERT(prefab_json_data != NULL
+				, c._opts
+				, "Unknown prefab: '%s'"
+				, prefab.c_str()
+				);
 
-			// Delete components
+			s32 err = parse_unit_internal(c
+				, prefab_json_data
+				, unit
+				, NULL
+				);
+			DATA_COMPILER_ENSURE(err == 0, c._opts);
+		}
+
+		s32 err = modify_unit_components(c, unit, unit_json);
+		DATA_COMPILER_ENSURE(err == 0, c._opts);
+
+		if (json_object::has(obj, "children")) {
+			JsonArray children(ta);
+			sjson::parse_array(children, obj["children"]);
+
+			for (u32 cc = 0; cc < array::size(children); ++cc) {
+				s32 err = parse_unit_internal(c
+					, children[cc]
+					, NULL
+					, unit
+					);
+				DATA_COMPILER_ENSURE(err == 0, c._opts);
+			}
+		}
+
+		if (json_object::has(obj, "deleted_children")) {
+			JsonArray deleted_children(ta);
+			sjson::parse_array(deleted_children, obj["deleted_children"]);
+
+			// Delete children.
 			for (u32 ii = 0; ii < array::size(deleted_children); ++ii) {
 				JsonObject obj(ta);
 				sjson::parse_object(obj, deleted_children[ii]);
 				Guid id = sjson::parse_guid(obj["id"]);
 
-				u32 child_index = object_index_from_id(merged_children, id);
-				if (child_index != UINT32_MAX) {
-					u32 child_last = array::size(merged_children) - 1;
-					merged_children[child_index] = merged_children[child_last];
-					array::pop_back(merged_children);
-				} else {
-					char buf[GUID_BUF_LEN];
-					DATA_COMPILER_ASSERT(false
-						, _opts
-						, "Deletion of unexisting child ID: %s\n"
-						, guid::to_string(buf, sizeof(buf), id)
-						);
-				}
+				Unit *child = find_children(unit, id);
+
+				char buf[GUID_BUF_LEN];
+				DATA_COMPILER_ASSERT(child != NULL
+					, c._opts
+					, "Deletion of unexisting child ID: %s"
+					, guid::to_string(buf, sizeof(buf), id)
+					);
+
+				Unit *child_parent = child->_parent;
+				delete_unit(child);
+				hash_map::remove(child_parent->_children, id);
 			}
 		}
 
-		if (ii == 0) {
-			// Unnamed object hash == 0
-			StringId32 name_hash;
+		if (json_object::has(obj, "modified_children")) {
+			JsonArray modified_children(ta);
+			sjson::parse_array(modified_children, obj["modified_children"]);
 
-			// Parse Level Editor data
-			if (json_object::has(prefab, "editor")) {
-				JsonObject editor(ta);
-				sjson::parse(editor, prefab["editor"]);
+			for (u32 ii = 0; ii < array::size(modified_children); ++ii) {
+				JsonObject obj(ta);
+				sjson::parse_object(obj, modified_children[ii]);
+				Guid id = sjson::parse_guid(obj["id"]);
 
-				if (json_object::has(editor, "name"))
-					name_hash = sjson::parse_string_id(editor["name"]);
+				Unit *child = find_children(unit, id);
+
+				char buf[GUID_BUF_LEN];
+				DATA_COMPILER_ASSERT(child != NULL
+					, c._opts
+					, "Modification of unexisting child ID: %s"
+					, guid::to_string(buf, sizeof(buf), id)
+					);
+
+				s32 err = modify_unit_components(c, child, modified_children[ii]);
+				DATA_COMPILER_ENSURE(err == 0, c._opts);
+			}
+		}
+
+		// Parse unit's editor name.
+		if (json_object::has(obj, "editor")) {
+			JsonObject editor(ta);
+			sjson::parse(editor, obj["editor"]);
+
+			if (json_object::has(editor, "name"))
+				unit->_editor_name = sjson::parse_string_id(editor["name"]);
+		}
+
+		return 0;
+	}
+
+	s32 parse_unit_from_json(UnitCompiler &c, const char *unit_json)
+	{
+		s32 err = collect_prefabs(c, StringId64(), unit_json, true);
+		DATA_COMPILER_ENSURE(err == 0, c._opts);
+
+		u32 original_unit = c._prefab_offsets[array::size(c._prefab_offsets) - 1];
+		return parse_unit_internal(c, &c._prefab_data[original_unit], NULL, NULL);
+	}
+
+	s32 parse_unit(UnitCompiler &c, const char *path)
+	{
+		return parse_unit_from_json(c, array::begin(read_unit(c, path)));
+	}
+
+	s32 parse_unit_array_from_json(UnitCompiler &c, const char *units_array_json)
+	{
+		TempAllocator4096 ta;
+		JsonArray units(ta);
+		sjson::parse_array(units, units_array_json);
+
+		Array<u32> original_units(default_allocator());
+
+		for (u32 i = 0; i < array::size(units); ++i) {
+			s32 err = collect_prefabs(c, StringId64(), units[i], true);
+			DATA_COMPILER_ENSURE(err == 0, c._opts);
+			u32 original_unit = c._prefab_offsets[array::size(c._prefab_offsets) - 1];
+			array::push_back(original_units, original_unit);
+		}
+
+		for (u32 i = 0; i < array::size(units); ++i) {
+			s32 err = parse_unit_internal(c, &c._prefab_data[original_units[i]], NULL, NULL);
+			DATA_COMPILER_ENSURE(err == 0, c._opts);
+		}
+
+		return 0;
+	}
+
+	s32 flatten_unit(UnitCompiler &c, Unit *unit, u32 parent_unit_index)
+	{
+		const u32 unit_index = c._num_units;
+
+		// Compile component data for each component type found
+		// in the tree of units.
+		for (u32 cc = 0; cc < array::size(unit->_merged_components); ++cc) {
+			const char *component_json = unit->_merged_components[cc];
+
+			TempAllocator512 ta;
+			JsonObject component(ta);
+			sjson::parse(component, component_json);
+
+			StringId32 comp_type;
+			if (json_object::has(component, "type")) {
+				comp_type = sjson::parse_string_id(component["type"]);
+			} else {
+				comp_type = sjson::parse_string_id(component["_type"]);
 			}
 
-			array::push_back(_unit_names, name_hash);
-		}
-	}
+			// Append data to the component data for the given type.
+			ComponentTypeData ctd_deffault(default_allocator());
+			ComponentTypeData &ctd = const_cast<ComponentTypeData &>(hash_map::get(c._component_data, comp_type, ctd_deffault));
+			DATA_COMPILER_ASSERT(&ctd != &ctd_deffault, c._opts, "Unknown component type");
 
-	// Compile component data for each component type found in the chain of units.
-	for (u32 cc = 0; cc < array::size(merged_components); ++cc) {
-		const char *val = merged_components[cc];
+			// Compile component.
+			Buffer comp_data(default_allocator());
+			s32 err = ctd._compiler(comp_data, unit->_merged_components_data[cc], c._opts);
+			DATA_COMPILER_ENSURE(err == 0, c._opts);
 
-		TempAllocator512 ta;
-		JsonObject component(ta);
-		sjson::parse(component, val);
+			// One component per unit max.
+			auto cur = array::begin(ctd._unit_index);
+			auto end = array::end(ctd._unit_index);
+			if (std::find(cur, end, unit_index) != end) {
+				char buf[STRING_ID32_BUF_LEN];
+				DATA_COMPILER_ASSERT(false
+					, c._opts
+					, "Unit already has a component of type: %s"
+					, comp_type.to_string(buf, sizeof(buf))
+					);
+			}
 
-		StringId32 type;
-		if (json_object::has(component, "type")) {
-			type = sjson::parse_string_id(component["type"]);
-		} else {
-			type = sjson::parse_string_id(component["_type"]);
-		}
-
-		Buffer component_data(default_allocator());
-		err = compile_component(component_data, type, merged_components_data[cc]);
-		DATA_COMPILER_ENSURE(err == 0, _opts);
-
-		// Append data to the component data for the given type.
-		ComponentTypeData component_types_deffault(default_allocator());
-		ComponentTypeData &ctd = const_cast<ComponentTypeData &>(hash_map::get(_component_data, type, component_types_deffault));
-
-		// One component per unit max.
-		auto cur = array::begin(ctd._unit_index);
-		auto end = array::end(ctd._unit_index);
-		if (std::find(cur, end, _num_units) != end) {
-			char buf[STRING_ID32_BUF_LEN];
-			DATA_COMPILER_ASSERT(false
-				, _opts
-				, "Unit already has a component of type: %s"
-				, type.to_string(buf, sizeof(buf))
-				);
+			array::push(ctd._data, array::begin(comp_data), array::size(comp_data));
+			array::push_back(ctd._unit_index, unit_index);
+			++ctd._num;
 		}
 
-		array::push(ctd._data, array::begin(component_data), array::size(component_data));
-		array::push_back(ctd._unit_index, _num_units);
-		++ctd._num;
+		array::push_back(c._unit_parents, parent_unit_index);
+		array::push_back(c._unit_names, unit->_editor_name);
+		++c._num_units;
+
+		// Flatten children tree.
+		auto cur = hash_map::begin(unit->_children);
+		auto end = hash_map::end(unit->_children);
+		for (; cur != end; ++cur) {
+			HASH_MAP_SKIP_HOLE(unit->_children, cur);
+
+			s32 err = flatten_unit(c, cur->second, unit_index);
+			DATA_COMPILER_ENSURE(err == 0, c._opts);
+		}
+
+		return 0;
 	}
-	array::push_back(_unit_parents, parent);
-	++_num_units;
 
-	err = compile_units_array(merged_children, _num_units - 1);
-	DATA_COMPILER_ENSURE(err == 0, _opts);
-	return 0;
-}
+	void register_component_compiler(UnitCompiler &c, StringId32 type, CompileFunction fn, f32 spawn_order)
+	{
+		ComponentTypeData ctd(default_allocator());
+		ctd._compiler = fn;
 
-s32 UnitCompiler::compile_units_array(const JsonArray &units, const u32 parent)
-{
-	for (u32 i = 0; i < array::size(units); ++i) {
-		s32 err = compile_unit_from_json(units[i], parent);
-		DATA_COMPILER_ENSURE(err == 0, _opts);
+		ComponentTypeInfo cti;
+		cti._type = type;
+		cti._spawn_order = spawn_order;
+
+		hash_map::set(c._component_data, type, ctd);
+
+		array::push_back(c._component_info, cti);
+		std::sort(array::begin(c._component_info), array::end(c._component_info));
 	}
-	return 0;
+
+	void register_component_compiler(UnitCompiler &c, const char *type, CompileFunction fn, f32 spawn_order)
+	{
+		register_component_compiler(c, StringId32(type), fn, spawn_order);
+	}
+
+	s32 flatten(UnitCompiler &c)
+	{
+		auto cur = hash_map::begin(c._units);
+		auto end = hash_map::end(c._units);
+		for (; cur != end; ++cur) {
+			HASH_MAP_SKIP_HOLE(c._units, cur);
+
+			s32 err = flatten_unit(c, cur->second, UINT32_MAX);
+			DATA_COMPILER_ENSURE(err == 0, c._opts);
+		}
+
+		return 0;
+	}
+
+	Buffer blob(UnitCompiler &c)
+	{
+		Buffer output(default_allocator());
+		FileBuffer fb(output);
+		BinaryWriter bw(fb);
+
+		flatten(c);
+
+		// Count component types.
+		u32 num_component_types = 0;
+		auto cur = hash_map::begin(c._component_data);
+		auto end = hash_map::end(c._component_data);
+		for (; cur != end; ++cur) {
+			HASH_MAP_SKIP_HOLE(c._component_data, cur);
+
+			if (cur->second._num > 0)
+				++num_component_types;
+		}
+
+		// Write header.
+		UnitResource ur;
+		ur.version = RESOURCE_HEADER(RESOURCE_VERSION_UNIT);
+		ur.num_units = c._num_units;
+		ur.num_component_types = num_component_types;
+
+		bw.write(ur.version);
+		bw.write(ur.num_units);
+		bw.write(ur.num_component_types);
+
+		CE_ENSURE(c._num_units > 0);
+		CE_ENSURE(array::size(c._unit_parents) > 0);
+		CE_ENSURE(array::size(c._unit_parents) == c._num_units);
+
+		// Write parents.
+		for (u32 ii = 0; ii < c._num_units; ++ii)
+			bw.write(c._unit_parents[ii]);
+
+		for (u32 ii = 0; ii < array::size(c._component_info); ++ii) {
+			const StringId32 comp_type = c._component_info[ii]._type;
+
+			const ComponentTypeData ctd_deffault(default_allocator());
+			const ComponentTypeData &ctd = hash_map::get(c._component_data, comp_type, ctd_deffault);
+
+			if (ctd._num == 0)
+				continue;
+
+			// Write component data.
+			ComponentData cd;
+			cd.type = comp_type;
+			cd.num_instances = ctd._num;
+			cd.data_size = array::size(ctd._data);
+
+			bw.align(alignof(cd));
+			bw.write(cd.type);
+			bw.write(cd.num_instances);
+			bw.write(cd.data_size);
+			for (u32 jj = 0; jj < array::size(ctd._unit_index); ++jj)
+				bw.write(ctd._unit_index[jj]);
+			bw.align(16);
+			bw.write(array::begin(ctd._data), array::size(ctd._data));
+		}
+
+		return output;
+	}
+
+} // namespace unit_compiler
+
+Unit::Unit(Allocator &a)
+	: _merged_components(a)
+	, _merged_components_data(a)
+	, _children(a)
+	, _parent(NULL)
+{
 }
 
-s32 UnitCompiler::compile_units_array(const char *json, const u32 parent)
+UnitCompiler::UnitCompiler(Allocator &a, CompileOptions &opts)
+	: _units(a)
+	, _opts(opts)
+	, _prefab_data(a)
+	, _prefab_offsets(a)
+	, _prefab_names(a)
+	, _component_data(a)
+	, _component_info(a)
+	, _unit_names(a)
+	, _unit_parents(a)
+	, _num_units(0)
 {
-	TempAllocator4096 ta;
-	JsonArray units(ta);
-	sjson::parse_array(units, json);
-	return compile_units_array(units, parent);
+	unit_compiler::register_component_compiler(*this, "transform",               &compile_transform,                           0.0f);
+	unit_compiler::register_component_compiler(*this, "camera",                  &compile_camera,                              1.0f);
+	unit_compiler::register_component_compiler(*this, "mesh_renderer",           &compile_mesh_renderer,                       1.0f);
+	unit_compiler::register_component_compiler(*this, "sprite_renderer",         &compile_sprite_renderer,                     1.0f);
+	unit_compiler::register_component_compiler(*this, "light",                   &compile_light,                               1.0f);
+	unit_compiler::register_component_compiler(*this, "script",                  &compile_script,                              1.0f);
+	unit_compiler::register_component_compiler(*this, "collider",                &physics_resource_internal::compile_collider, 1.0f);
+	unit_compiler::register_component_compiler(*this, "actor",                   &physics_resource_internal::compile_actor,    2.0f);
+	unit_compiler::register_component_compiler(*this, "joint",                   &physics_resource_internal::compile_joint,    3.0f);
+	unit_compiler::register_component_compiler(*this, "animation_state_machine", &compile_animation_state_machine,             1.0f);
 }
 
-Buffer UnitCompiler::blob()
+UnitCompiler::~UnitCompiler()
 {
-	Buffer output(default_allocator());
-	FileBuffer fb(output);
-	BinaryWriter bw(fb);
-
-	// Count component types
-	u32 num_component_types = 0;
-	auto cur = hash_map::begin(_component_data);
-	auto end = hash_map::end(_component_data);
+	auto cur = hash_map::begin(_units);
+	auto end = hash_map::end(_units);
 	for (; cur != end; ++cur) {
-		HASH_MAP_SKIP_HOLE(_component_data, cur);
+		HASH_MAP_SKIP_HOLE(_units, cur);
 
-		if (cur->second._num > 0)
-			++num_component_types;
+		unit_compiler::delete_unit(cur->second);
 	}
 
-	// Write header
-	UnitResource ur;
-	ur.version = RESOURCE_HEADER(RESOURCE_VERSION_UNIT);
-	ur.num_units = _num_units;
-	ur.num_component_types = num_component_types;
-
-	bw.write(ur.version);
-	bw.write(ur.num_units);
-	bw.write(ur.num_component_types);
-
-	// Write parents
-	for (u32 ii = 0; ii < _num_units; ++ii)
-		bw.write(_unit_parents[ii]);
-
-	for (u32 ii = 0; ii < array::size(_component_info); ++ii) {
-		const ComponentTypeData deffault_ctd(default_allocator());
-
-		const StringId32 type        = _component_info[ii]._type;
-		const ComponentTypeData &ctd = hash_map::get(_component_data, type, deffault_ctd);
-
-		const Buffer &data           = ctd._data;
-		const Array<u32> &unit_index = ctd._unit_index;
-		const u32 num                = ctd._num;
-
-		if (num == 0)
-			continue;
-
-		// Write component data
-		ComponentData cd;
-		cd.type = type;
-		cd.num_instances = num;
-		cd.data_size = array::size(data);
-
-		bw.align(alignof(cd));
-		bw.write(cd.type);
-		bw.write(cd.num_instances);
-		bw.write(cd.data_size);
-		for (u32 jj = 0; jj < array::size(unit_index); ++jj)
-			bw.write(unit_index[jj]);
-		bw.align(16);
-		bw.write(array::begin(data), array::size(data));
-	}
-
-	return output;
-}
-
-void UnitCompiler::register_component_compiler(const char *type, CompileFunction fn, f32 spawn_order)
-{
-	register_component_compiler(StringId32(type), fn, spawn_order);
-}
-
-void UnitCompiler::register_component_compiler(StringId32 type, CompileFunction fn, f32 spawn_order)
-{
-	ComponentTypeData ctd(default_allocator());
-	ctd._compiler = fn;
-
-	ComponentTypeInfo cti;
-	cti._type = type;
-	cti._spawn_order = spawn_order;
-
-	hash_map::set(_component_data, type, ctd);
-
-	array::push_back(_component_info, cti);
-	std::sort(array::begin(_component_info), array::end(_component_info));
-}
-
-s32 UnitCompiler::compile_component(Buffer &output, StringId32 type, const char *json)
-{
-	DATA_COMPILER_ASSERT(hash_map::has(_component_data, type), _opts, "Unknown component");
-
-	return hash_map::get(_component_data, type, ComponentTypeData(default_allocator()))._compiler(output, json, _opts);
+	hash_map::clear(_units);
 }
 
 } // namespace crown

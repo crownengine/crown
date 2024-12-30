@@ -18,13 +18,12 @@ namespace unit_resource_internal
 {
 	s32 compile(CompileOptions &opts)
 	{
-		Buffer unit_data(default_allocator());
-
-		UnitCompiler uc(opts);
-		s32 err = uc.compile_unit(opts.source_path());
+		UnitCompiler uc(default_allocator(), opts);
+		s32 err = unit_compiler::parse_unit(uc, opts.source_path());
 		DATA_COMPILER_ENSURE(err == 0, opts);
-
-		opts.write(uc.blob());
+		Buffer blob = unit_compiler::blob(uc);
+		DATA_COMPILER_ENSURE(array::size(blob) > 0, opts);
+		opts.write(blob);
 		return 0;
 	}
 

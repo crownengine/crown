@@ -15,82 +15,83 @@
 
 namespace crown
 {
+typedef s32 (*CompileFunction)(Buffer &output, const char *json, CompileOptions &opts);
+
+struct ComponentTypeData
+{
+	ALLOCATOR_AWARE;
+
+	u32 _num;
+	Array<u32> _unit_index;
+	Buffer _data;
+	CompileFunction _compiler;
+
+	explicit ComponentTypeData(Allocator &a)
+		: _num(0)
+		, _unit_index(a)
+		, _data(a)
+		, _compiler(NULL)
+	{
+	}
+};
+
+struct ComponentTypeInfo
+{
+	StringId32 _type;
+	float _spawn_order;
+
+	bool operator<(const ComponentTypeInfo &a) const
+	{
+		return _spawn_order < a._spawn_order;
+	}
+};
+
+struct Unit
+{
+	ALLOCATOR_AWARE;
+
+	StringId32 _editor_name;
+	JsonArray _merged_components;
+	JsonArray _merged_components_data;
+	HashMap<Guid, Unit *> _children;
+	Unit *_parent;
+
+	///
+	explicit Unit(Allocator &a);
+};
+
 struct UnitCompiler
 {
-	typedef s32 (*CompileFunction)(Buffer &output, const char *json, CompileOptions &opts);
-
-	struct ComponentTypeData
-	{
-		ALLOCATOR_AWARE;
-
-		u32 _num;
-		Array<u32> _unit_index;
-		Buffer _data;
-		CompileFunction _compiler;
-
-		explicit ComponentTypeData(Allocator &a)
-			: _num(0)
-			, _unit_index(a)
-			, _data(a)
-			, _compiler(NULL)
-		{
-		}
-	};
-
-	struct ComponentTypeInfo
-	{
-		StringId32 _type;
-		float _spawn_order;
-
-		bool operator<(const ComponentTypeInfo &a) const
-		{
-			return _spawn_order < a._spawn_order;
-		}
-	};
-
+	HashMap<Guid, Unit *> _units;
 	CompileOptions &_opts;
-	u32 _num_units;
+	Buffer _prefab_data;
+	Array<u32> _prefab_offsets;
+	Array<StringId64> _prefab_names;
 	HashMap<StringId32, ComponentTypeData> _component_data;
 	Array<ComponentTypeInfo> _component_info;
 	Array<StringId32> _unit_names;
 	Array<u32> _unit_parents;
+	u32 _num_units;
 
 	///
-	void register_component_compiler(const char *type, CompileFunction fn, f32 spawn_order);
-
-	///
-	void register_component_compiler(StringId32 type, CompileFunction fn, f32 spawn_order);
-
-	///
-	s32 compile_component(Buffer &output, StringId32 type, const char *json);
-
-	///
-	explicit UnitCompiler(CompileOptions &opts);
+	UnitCompiler(Allocator &a, CompileOptions &opts);
 
 	///
 	~UnitCompiler();
-
-	///
-	Buffer read_unit(const char *name);
-
-	///
-	s32 compile_unit(const char *path);
-
-	///
-	s32 compile_unit_from_json(const char *json, const u32 parent);
-
-	///
-	s32 compile_units_array(const JsonArray &units, const u32 parent);
-
-	///
-	s32 compile_units_array(const char *json, const u32 parent);
-
-	///
-	s32 collect_units(Buffer &data, Array<u32> &prefabs, const char *json);
-
-	///
-	Buffer blob();
 };
+
+namespace unit_compiler
+{
+	///
+	s32 parse_unit(UnitCompiler &c, const char *path);
+
+	///
+	s32 parse_unit_array_from_json(UnitCompiler &c, const char *units_array_json);
+
+	///
+	Buffer blob(UnitCompiler &c);
+
+} // namespace unit_compiler
 
 } // namespace crown
 

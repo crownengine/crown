@@ -82,12 +82,12 @@ namespace level_resource_internal
 			}
 		}
 
-		UnitCompiler uc(opts);
-		s32 err = 0;
-		err = uc.compile_units_array(obj["units"], UINT32_MAX);
+		UnitCompiler uc(default_allocator(), opts);
+		s32 err = unit_compiler::parse_unit_array_from_json(uc, obj["units"]);
 		DATA_COMPILER_ENSURE(err == 0, opts);
 
-		Buffer unit_blob = uc.blob();
+		Buffer units_blob = unit_compiler::blob(uc);
+		DATA_COMPILER_ENSURE(array::size(units_blob) > 0, opts);
 
 		// Write
 		LevelResource lr;
@@ -121,7 +121,7 @@ namespace level_resource_internal
 
 		// Write units
 		opts.align(16);
-		opts.write(unit_blob);
+		opts.write(units_blob);
 		return 0;
 	}
 
