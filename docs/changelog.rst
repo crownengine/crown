@@ -25,6 +25,7 @@ Changelog
 * Lua API: added ``SceneGraph.owner()``, ``SceneGraph.first_child()`` and ``SceneGraph.next_sibling()``.
 * Data Compiler: .mesh resource can now have shared geometries between nodes.
 * Data Compiler: .unit resources have now the ability to add/remove inherited children or to override them by adding, removing or modifying their components.
+* Fixed destroying units with a script component.
 
 0.53.0 --- 30 Nov 2024
 ----------------------

@@ -95,7 +95,7 @@ namespace script_world
 
 	void destroy(ScriptWorld &sw, UnitId unit, ScriptInstance /*i*/)
 	{
-		CE_ASSERT(hash_map::has(sw._map, unit), "Unit does not have script component");
+		CE_ASSERT(hash_map::has(sw._map, unit), "Unit %u does not have script component", unit._idx);
 
 		const u32 unit_i    = hash_map::get(sw._map, unit, UINT32_MAX);
 		const u32 last_i    = array::size(sw._data) - 1;
@@ -121,6 +121,7 @@ namespace script_world
 
 		sw._data[unit_i] = sw._data[last_i];
 		hash_map::set(sw._map, last_u, unit_i);
+		hash_map::remove(sw._map, unit);
 		array::pop_back(sw._data);
 	}
 
