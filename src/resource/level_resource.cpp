@@ -86,8 +86,9 @@ namespace level_resource_internal
 		s32 err = unit_compiler::parse_unit_array_from_json(uc, obj["units"]);
 		DATA_COMPILER_ENSURE(err == 0, opts);
 
-		Buffer units_blob = unit_compiler::blob(uc);
-		DATA_COMPILER_ENSURE(array::size(units_blob) > 0, opts);
+		Buffer units_blob(default_allocator());
+		err = unit_compiler::blob(units_blob, uc);
+		DATA_COMPILER_ENSURE(err == 0, opts);
 
 		// Write
 		LevelResource lr;

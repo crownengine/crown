@@ -687,6 +687,7 @@ namespace unit_compiler
 	s32 flatten_unit(UnitCompiler &c, Unit *unit, u32 parent_unit_index)
 	{
 		const u32 unit_index = c._num_units;
+		bool unit_has_transform = false;
 
 		// Compile component data for each component type found
 		// in the tree of units.
@@ -703,6 +704,9 @@ namespace unit_compiler
 			} else {
 				comp_type = sjson::parse_string_id(component["_type"]);
 			}
+
+			if (comp_type == STRING_ID_32("transform", UINT32_C(0xad9b5315)))
+				unit_has_transform = true;
 
 			// Append data to the component data for the given type.
 			ComponentTypeData ctd_deffault(default_allocator());
@@ -741,6 +745,10 @@ namespace unit_compiler
 		for (; cur != end; ++cur) {
 			HASH_MAP_SKIP_HOLE(unit->_children, cur);
 
+			DATA_COMPILER_ASSERT(unit_has_transform
+				, c._opts
+				, "Units with children must have 'transform' component"
+				);
 			s32 err = flatten_unit(c, cur->second, unit_index);
 			DATA_COMPILER_ENSURE(err == 0, c._opts);
 		}
@@ -782,13 +790,13 @@ namespace unit_compiler
 		return 0;
 	}
 
-	Buffer blob(UnitCompiler &c)
+	s32 blob(Buffer &output, UnitCompiler &c)
 	{
-		Buffer output(default_allocator());
 		FileBuffer fb(output);
 		BinaryWriter bw(fb);
 
-		flatten(c);
+		s32 err = flatten(c);
+		DATA_COMPILER_ENSURE(err == 0, c._opts);
 
 		// Count component types.
 		u32 num_component_types = 0;
@@ -844,7 +852,7 @@ namespace unit_compiler
 			bw.write(array::begin(ctd._data), array::size(ctd._data));
 		}
 
-		return output;
+		return 0;
 	}
 
 } // namespace unit_compiler
