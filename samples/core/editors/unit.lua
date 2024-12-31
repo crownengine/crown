@@ -13,7 +13,6 @@ function UnitUtils.collect_children(scene_graph, unit_id, children)
 	while cur_child ~= nil do
 		local child_id = SceneGraph.owner(scene_graph, cur_child)
 		UnitUtils.collect_children(scene_graph, child_id, children)
-		table.insert(children, child_id)
 		cur_child = SceneGraph.next_sibling(scene_graph, cur_child)
 	end
 
