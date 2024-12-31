@@ -592,7 +592,11 @@ function PlaceTool:update(dt, x, y)
 		end
 
 		local tr = SceneGraph.instance(sg, self._placeable_id)
-		self._object_position_delta:store(SceneGraph.local_position(sg, tr) - pos)
+		if tr ~= nil then
+			self._object_position_delta:store(SceneGraph.local_position(sg, tr) - pos)
+		else
+			self._object_position_delta:store(Vector3.zero())
+		end
 
 		UnitUtils.freeze(LevelEditor._world, self._placeable_id)
 	else
