@@ -345,11 +345,13 @@ public class Project
 		string unit_path = Path.build_filename(directory, name + ".unit");
 		string path = this.absolute_path(unit_path);
 
-		FileStream fs = FileStream.open(path, "wb");
-		if (fs != null)
-			return fs.puts("\ncomponents = [\n]\n");
+		Database db = new Database(this, null);
+		Guid unit_id = Guid.new_guid();
+		Unit unit = new Unit(db, unit_id);
+		unit.create_empty();
 
-		return -1;
+		db.dump(path, unit_id);
+		return 0;
 	}
 
 	// Returns the absolute path to the source directory.

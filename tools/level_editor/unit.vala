@@ -30,9 +30,14 @@ public class Unit
 		assert(prefab_id != GUID_ZERO);
 	}
 
-	public void create(string? prefab, Vector3 pos, Quaternion rot, Vector3 scl)
+	public void create_empty()
 	{
 		_db.create(_id, OBJECT_TYPE_UNIT);
+	}
+
+	public void create(string? prefab, Vector3 pos, Quaternion rot, Vector3 scl)
+	{
+		create_empty();
 
 		if (prefab != null)
 			_db.set_property_string(_id, "prefab", prefab);
