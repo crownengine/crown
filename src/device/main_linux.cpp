@@ -749,9 +749,6 @@ struct WindowX11 : public Window
 	void open(u16 x, u16 y, u16 width, u16 height, u32 parent) override
 	{
 		int screen = DefaultScreen(s_linux_device->_x11_display);
-		int depth = DefaultDepth(s_linux_device->_x11_display, screen);
-		Visual *visual = DefaultVisual(s_linux_device->_x11_display, screen);
-
 		::Window root_window = RootWindow(s_linux_device->_x11_display, screen);
 		::Window parent_window = (parent == 0) ? root_window : (::Window)parent;
 
@@ -771,11 +768,6 @@ struct WindowX11 : public Window
 				| PointerMotionMask
 				| EnterWindowMask
 				;
-		} else {
-			XWindowAttributes parent_attrs;
-			XGetWindowAttributes(s_linux_device->_x11_display, parent_window, &parent_attrs);
-			depth = parent_attrs.depth;
-			visual = parent_attrs.visual;
 		}
 
 		s_linux_device->_x11_window = XCreateWindow(s_linux_device->_x11_display
@@ -785,9 +777,9 @@ struct WindowX11 : public Window
 			, width
 			, height
 			, 0
-			, depth
+			, CopyFromParent
 			, InputOutput
-			, visual
+			, CopyFromParent
 			, CWBorderPixel | CWEventMask
 			, &win_attribs
 			);
