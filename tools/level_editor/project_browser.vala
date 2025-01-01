@@ -1403,16 +1403,15 @@ public class ProjectBrowser : Gtk.Bin
 
 	private void update_folder_view()
 	{
-		// Return if selection is empty.
+		_folder_list_store.clear();
+		_folder_view._list_store.clear();
+
+		// Get the selected node's type and name.
 		Gtk.TreeModel selected_model;
 		Gtk.TreeIter selected_iter;
 		if (!_tree_selection.get_selected(out selected_model, out selected_iter))
 			return;
 
-		_folder_list_store.clear();
-		_folder_view._list_store.clear();
-
-		// Get the selected node's type and name.
 		string selected_type;
 		string selected_name;
 		Value val;

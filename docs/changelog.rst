@@ -18,6 +18,7 @@ Changelog
 * Reduced clutter in the Project Browser by hiding all files with importable extensions.
 * Fixed missing/wrong previews and thumbnails in some circumnstances.
 * Improved unit previews and thumbnails with better lighting/dimensionality.
+* Fixed Project Browser showing stale files in some circumnstances.
 
 **Runtime**
 
