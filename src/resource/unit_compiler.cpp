@@ -827,10 +827,6 @@ namespace unit_compiler
 		bw.write(ur.num_units);
 		bw.write(ur.num_component_types);
 
-		CE_ENSURE(c._num_units > 0);
-		CE_ENSURE(array::size(c._unit_parents) > 0);
-		CE_ENSURE(array::size(c._unit_parents) == c._num_units);
-
 		// Write parents.
 		for (u32 ii = 0; ii < c._num_units; ++ii)
 			bw.write(c._unit_parents[ii]);
