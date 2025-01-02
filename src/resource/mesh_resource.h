@@ -62,7 +62,8 @@ namespace mesh
 {
 	///
 	s32 parse(Mesh &m, Buffer &buf, CompileOptions &opts);
-}
+
+} // namespace mesh
 
 namespace mesh_resource_internal
 {

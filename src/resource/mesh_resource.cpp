@@ -354,7 +354,7 @@ namespace mesh
 		return mesh::parse(m, opts, opts._source_path.c_str());
 	}
 
-}
+} // namespace mesh
 
 namespace mesh_resource_internal
 {

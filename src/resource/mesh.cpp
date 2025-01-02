@@ -225,7 +225,8 @@ namespace mesh
 			return mesh::parse(m, buf, opts);
 		}
 	}
-}
+
+} // namespace mesh
 
 Node::Node(Allocator &a)
 	: _local_pose(MATRIX4X4_IDENTITY)
