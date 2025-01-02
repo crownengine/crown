@@ -50,7 +50,13 @@ public class TextureResource
 	public Database _db;
 	public Guid _id;
 
-	public TextureResource(Database db, Guid id, string source_image, TextureFormat output_format, bool generate_mips, bool is_normal_map)
+	public TextureResource(Database db
+		, Guid id
+		, string source_image
+		, TextureFormat output_format
+		, bool generate_mips
+		, bool is_normal_map
+		)
 	{
 		_db = db;
 		_id = id;
