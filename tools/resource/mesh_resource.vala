@@ -41,7 +41,7 @@ public class MeshResource
 
 			unit.set_component_property_string(component_id, "data.geometry_name", node_name);
 			unit.set_component_property_string(component_id, "data.material", material_name);
-			unit.set_component_property_string(component_id, "data.mesh_resource", resource_name);
+			unit.set_component_property_string(component_id, "data.mesh_resource", resource_name + ".mesh");
 			unit.set_component_property_bool  (component_id, "data.visible", true);
 		}
 
@@ -172,7 +172,14 @@ public class MeshResource
 					new_unit_id = Guid.new_guid();
 					db.create(new_unit_id, OBJECT_TYPE_UNIT);
 				}
-				create_components(db, unit_id, new_unit_id, material_name, resource_name, entry.key, (Hashtable)entry.value);
+				create_components(db
+					, unit_id
+					, new_unit_id
+					, material_name
+					, resource_name
+					, entry.key
+					, (Hashtable)entry.value
+					);
 			}
 
 			db.save(project.absolute_path(resource_name) + ".unit", unit_id);

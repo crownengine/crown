@@ -20,6 +20,7 @@
 #include "core/strings/string.inl"
 #include "core/strings/string_id.inl"
 #include "resource/compile_options.inl"
+#include "resource/mesh.h"
 #include "resource/mesh_resource.h"
 #include "resource/physics_resource.h"
 #include "world/types.h"
@@ -193,23 +194,20 @@ namespace physics_resource_internal
 			sjson::parse_string(name, obj["name"]);
 
 			// Parse mesh resource.
-			if (opts.resource_exists("mesh", scene.c_str()))
-				scene += ".mesh";
-
-			mesh_resource_internal::Mesh mesh(default_allocator());
-			s32 err = mesh_resource_internal::mesh::parse(mesh, opts, scene.c_str());
+			Mesh mesh(default_allocator());
+			s32 err = mesh::parse(mesh, opts, scene.c_str());
 			DATA_COMPILER_ENSURE(err == 0, opts);
 
-			mesh_resource_internal::Node deffault_node(default_allocator());
-			mesh_resource_internal::Node &node = hash_map::get(mesh._nodes, name, deffault_node);
+			Node deffault_node(default_allocator());
+			Node &node = hash_map::get(mesh._nodes, name, deffault_node);
 			DATA_COMPILER_ASSERT(&node != &deffault_node
 				, opts
 				, "Node '%s' does not exist"
 				, name.c_str()
 				);
 
-			mesh_resource_internal::Geometry deffault_geometry(default_allocator());
-			mesh_resource_internal::Geometry &geometry = hash_map::get(mesh._geometries, node._geometry, deffault_geometry);
+			Geometry deffault_geometry(default_allocator());
+			Geometry &geometry = hash_map::get(mesh._geometries, node._geometry, deffault_geometry);
 			DATA_COMPILER_ASSERT(&geometry != &deffault_geometry
 				, opts
 				, "Geometry '%s' does not exist"

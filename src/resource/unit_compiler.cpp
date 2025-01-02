@@ -18,6 +18,7 @@
 #include "core/strings/string_id.inl"
 #include "resource/compile_options.inl"
 #include "resource/physics_resource.h"
+#include "resource/resource_id.inl"
 #include "resource/unit_compiler.h"
 #include "resource/unit_resource.h"
 #include "world/types.h"
@@ -130,10 +131,17 @@ static s32 compile_mesh_renderer(Buffer &output, const char *json, CompileOption
 
 	DynamicString mesh_resource(ta);
 	sjson::parse_string(mesh_resource, obj["mesh_resource"]);
-	DATA_COMPILER_ASSERT_RESOURCE_EXISTS("mesh"
-		, mesh_resource.c_str()
+
+	DATA_COMPILER_ENSURE(opts.resource_exists("mesh", mesh_resource.c_str())
+		|| opts.file_exists(mesh_resource.c_str())
 		, opts
 		);
+
+	const char *mesh_resource_type = resource_type(mesh_resource.c_str());
+	if (mesh_resource_type != NULL) {
+		u32 name_len = resource_name_length(mesh_resource_type, mesh_resource.c_str());
+		array::resize(mesh_resource._data, name_len);
+	}
 	opts.add_requirement("mesh", mesh_resource.c_str());
 
 	DynamicString material(ta);
@@ -145,7 +153,7 @@ static s32 compile_mesh_renderer(Buffer &output, const char *json, CompileOption
 	opts.add_requirement("material", material.c_str());
 
 	MeshRendererDesc mrd;
-	mrd.mesh_resource     = sjson::parse_resource_name(obj["mesh_resource"]);
+	mrd.mesh_resource     = StringId64(mesh_resource.c_str());
 	mrd.material_resource = sjson::parse_resource_name(obj["material"]);
 	mrd.geometry_name     = sjson::parse_string_id    (obj["geometry_name"]);
 	mrd.visible           = sjson::parse_bool         (obj["visible"]);
