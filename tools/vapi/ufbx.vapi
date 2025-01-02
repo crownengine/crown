@@ -20,61 +20,61 @@ public struct Real : double
 [CCode (cname = "ufbx_string", destroy_function = "", has_type_id = false)]
 public struct String
 {
-	char* data;
-	size_t size;
+	[CCode (array_length_cname = "length", array_length_type = "size_t")]
+	public char[] data;
 }
 
 [SimpleType]
 [CCode (cname = "ufbx_blob", destroy_function = "", has_type_id = false)]
 public struct Blob
 {
-	void* data;
-	size_t size;
+	[CCode (array_length_cname = "size", array_length_type = "size_t")]
+	public void[] data;
 }
 
 [SimpleType]
 [CCode (cname = "ufbx_vec2", destroy_function = "", has_type_id = false)]
 public struct Vec2
 {
-	Real x;
-	Real y;
+	public Real x;
+	public Real y;
 	[CCode (cname = "v")]
-	Real v[2];
+	public Real v[2];
 }
 
 [SimpleType]
 [CCode (cname = "ufbx_vec3", destroy_function = "", has_type_id = false)]
 public struct Vec3
 {
-	Real x;
-	Real y;
-	Real z;
+	public Real x;
+	public Real y;
+	public Real z;
 	[CCode (cname = "v")]
-	Real v[3];
+	public Real v[3];
 }
 
 [SimpleType]
 [CCode (cname = "ufbx_vec4", destroy_function = "", has_type_id = false)]
 public struct Vec4
 {
-	Real x;
-	Real y;
-	Real z;
-	Real w;
+	public Real x;
+	public Real y;
+	public Real z;
+	public Real w;
 	[CCode (cname = "v")]
-	Real v[3];
+	public Real v[3];
 }
 
 [SimpleType]
 [CCode (cname = "ufbx_quat", destroy_function = "", has_type_id = false)]
 public struct Quat
 {
-	Real x;
-	Real y;
-	Real z;
-	Real w;
+	public Real x;
+	public Real y;
+	public Real z;
+	public Real w;
 	[CCode (cname = "v")]
-	Real v[4];
+	public Real v[4];
 }
 
 [CCode (cname = "ufbx_rotation_order", cprefix = "UFBX_ROTATION_ORDER_", has_type_id = false)]
@@ -94,86 +94,86 @@ public enum RotationOrder
 [CCode (cname = "ufbx_transform", destroy_function = "", has_type_id = false)]
 public struct Transform
 {
-	Vec3 translation;
-	Quat rotation;
-	Vec3 scale;
+	public Vec3 translation;
+	public Quat rotation;
+	public Vec3 scale;
 }
 
 [CCode (cname = "ufbx_matrix", destroy_function = "", has_type_id = false)]
 public struct Matrix
 {
-	Real m00;
-	Real m10;
-	Real m20;
-	Real m01;
-	Real m11;
-	Real m21;
-	Real m02;
-	Real m12;
-	Real m22;
-	Real m03;
-	Real m13;
-	Real m23;
+	public Real m00;
+	public Real m10;
+	public Real m20;
+	public Real m01;
+	public Real m11;
+	public Real m21;
+	public Real m02;
+	public Real m12;
+	public Real m22;
+	public Real m03;
+	public Real m13;
+	public Real m23;
 	[CCode (cname = "cols")]
-	Vec3 cols[4];
+	public Vec3 cols[4];
 	[CCode (cname = "v")]
-	Real v[12];
+	public Real v[12];
 }
 
 [CCode (cname = "ufbx_void_list", destroy_function = "", has_type_id = false)]
 public struct VoidList
 {
-	void* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public void[] data;
 }
 
 [CCode (cname = "ufbx_bool_list", destroy_function = "", has_type_id = false)]
 public struct BoolList
 {
-	bool* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public bool[] data;
 }
 
 [CCode (cname = "ufbx_uint32_list", destroy_function = "", has_type_id = false)]
 public struct Uint32List
 {
-	uint32* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public uint32[] data;
 }
 
 [CCode (cname = "ufbx_real_list", destroy_function = "", has_type_id = false)]
 public struct RealList
 {
-	Real* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public Real[] data;
 }
 
 [CCode (cname = "ufbx_vec2_list", destroy_function = "", has_type_id = false)]
 public struct Vec2List
 {
-	Vec2* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public Vec2[] data;
 }
 
 [CCode (cname = "ufbx_vec3_list", destroy_function = "", has_type_id = false)]
 public struct Vec3List
 {
-	Vec3* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public Vec3[] data;
 }
 
 [CCode (cname = "ufbx_vec4_list", destroy_function = "", has_type_id = false)]
 public struct Vec4List
 {
-	Vec4* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public Vec4[] data;
 }
 
 [CCode (cname = "ufbx_string_list", destroy_function = "", has_type_id = false)]
 public struct StringList
 {
-	String* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public String[] data;
 }
 
 public const uint32 NO_INDEX;
@@ -195,33 +195,34 @@ public enum DomValueType
 [CCode (cname = "ufbx_dom_value", destroy_function = "", has_type_id = false)]
 public struct DomValue
 {
-	DomValueType type;
-	String value_str;
-	Blob value_blob;
-	int64 value_int;
-	double value_float;
+	public DomValueType type;
+	public String value_str;
+	public Blob value_blob;
+	public int64 value_int;
+	public double value_float;
 }
 
 [CCode (cname = "ufbx_dom_node_list", destroy_function = "", has_type_id = false)]
 public struct DomNodeList
 {
-	DomNode** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public DomNode[] data;
 }
 
 [CCode (cname = "ufbx_dom_value_list", destroy_function = "", has_type_id = false)]
 public struct DomValueList
 {
-	DomValue* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public DomValue[] data;
 }
 
+[Compact]
 [CCode (cname = "ufbx_dom_node", destroy_function = "", has_type_id = false)]
-public struct DomNode
+public class DomNode
 {
-	String name;
-	DomNodeList children;
-	DomValueList values;
+	public String name;
+	public DomNodeList children;
+	public DomValueList values;
 }
 
 [CCode (cname = "ufbx_prop_type", cprefix = "UFBX_PROP_", has_type_id = false)]
@@ -276,300 +277,301 @@ public enum PropFlags
 	VALUE_BLOB
 }
 
+[Compact]
 [CCode (cname = "ufbx_prop", destroy_function = "", has_type_id = false)]
-public struct Prop
+public class Prop
 {
-	String name;
-	uint32 _internal_key;
-	PropType type;
-	PropFlags flags;
-	String value_str;
-	Blob value_blob;
-	int64 value_int;
+	public String name;
+	public uint32 _internal_key;
+	public PropType type;
+	public PropFlags flags;
+	public String value_str;
+	public Blob value_blob;
+	public int64 value_int;
 	[CCode (cname = "value_real_arr")]
-	Real value_real_arr[4];
+	public Real value_real_arr[4];
 	[CCode (cname = "value_real")]
-	Real value_real;
+	public Real value_real;
 	[CCode (cname = "value_vec2")]
-	Vec2 value_vec2;
+	public Vec2 value_vec2;
 	[CCode (cname = "value_vec3")]
-	Vec3 value_vec3;
+	public Vec3 value_vec3;
 	[CCode (cname = "value_vec4")]
-	Vec4 value_vec4;
+	public Vec4 value_vec4;
 }
 
 [CCode (cname = "ufbx_prop_list", destroy_function = "", has_type_id = false)]
 public struct PropList
 {
-	Prop* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public Prop[] data;
 }
 
 [CCode (cname = "ufbx_props", destroy_function = "", has_type_id = false)]
 public struct Props
 {
-	PropList props;
-	size_t num_animated;
-	Props? defaults;
+	public PropList props;
+	public size_t num_animated;
+	public unowned Props? defaults;
 }
 
 [CCode (cname = "ufbx_element_list", destroy_function = "", has_type_id = false)]
 public struct ElementList
 {
-	Element** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public Element[] data;
 }
 [CCode (cname = "ufbx_unknown_list", destroy_function = "", has_type_id = false)]
 public struct UnknownList
 {
-	Unknown** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public Unknown[] data;
 }
 [CCode (cname = "ufbx_node_list", destroy_function = "", has_type_id = false)]
 public struct NodeList
 {
 	[CCode (array_length_cname = "count", array_length_type = "size_t")]
-	public Node[] data;
+	public (unowned Node)[] data;
 }
 [CCode (cname = "ufbx_mesh_list", destroy_function = "", has_type_id = false)]
 public struct MeshList
 {
-	Mesh** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public Mesh[] data;
 }
 [CCode (cname = "ufbx_light_list", destroy_function = "", has_type_id = false)]
 public struct LightList
 {
-	Light** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public Light[] data;
 }
 [CCode (cname = "ufbx_camera_list", destroy_function = "", has_type_id = false)]
 public struct CameraList
 {
-	Camera** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public Camera[] data;
 }
 [CCode (cname = "ufbx_bone_list", destroy_function = "", has_type_id = false)]
 public struct BoneList
 {
-	Bone** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public Bone[] data;
 }
 [CCode (cname = "ufbx_empty_list", destroy_function = "", has_type_id = false)]
 public struct EmptyList
 {
-	Empty** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public Empty[] data;
 }
 [CCode (cname = "ufbx_line_curve_list", destroy_function = "", has_type_id = false)]
 public struct LineCurveList
 {
-	LineCurve** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public LineCurve[] data;
 }
 [CCode (cname = "ufbx_nurbs_curve_list", destroy_function = "", has_type_id = false)]
 public struct NurbsCurveList
 {
-	NurbsCurve** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public NurbsCurve[] data;
 }
 [CCode (cname = "ufbx_nurbs_surface_list", destroy_function = "", has_type_id = false)]
 public struct NurbsSurfaceList
 {
-	NurbsSurface** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public NurbsSurface[] data;
 }
 [CCode (cname = "ufbx_nurbs_trim_surface_list", destroy_function = "", has_type_id = false)]
 public struct NurbsTrimSurfaceList
 {
-	NurbsTrimSurface** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public NurbsTrimSurface[] data;
 }
 [CCode (cname = "ufbx_nurbs_trim_boundary_list", destroy_function = "", has_type_id = false)]
 public struct NurbsTrimBoundaryList
 {
-	NurbsTrimBoundary** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public NurbsTrimBoundary[] data;
 }
 [CCode (cname = "ufbx_procedural_geometry_list", destroy_function = "", has_type_id = false)]
 public struct ProceduralGeometryList
 {
-	ProceduralGeometry** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public ProceduralGeometry[] data;
 }
 [CCode (cname = "ufbx_stereo_camera_list", destroy_function = "", has_type_id = false)]
 public struct StereoCameraList
 {
-	StereoCamera** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public StereoCamera[] data;
 }
 [CCode (cname = "ufbx_camera_switcher_list", destroy_function = "", has_type_id = false)]
 public struct CameraSwitcherList
 {
-	CameraSwitcher** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public CameraSwitcher[] data;
 }
 [CCode (cname = "ufbx_marker_list", destroy_function = "", has_type_id = false)]
 public struct MarkerList
 {
-	Marker** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public Marker[] data;
 }
 [CCode (cname = "ufbx_lod_group_list", destroy_function = "", has_type_id = false)]
 public struct LogGroupList
 {
-	LodGroup** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public LodGroup[] data;
 }
 [CCode (cname = "ufbx_skin_deformer_list", destroy_function = "", has_type_id = false)]
 public struct SkinDeformerList
 {
-	SkinDeformer** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public SkinDeformer[] data;
 }
 [CCode (cname = "ufbx_skin_cluster_list", destroy_function = "", has_type_id = false)]
 public struct SkinClusterList
 {
-	SkinCluster** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public SkinCluster[] data;
 }
 [CCode (cname = "ufbx_blend_deformer_list", destroy_function = "", has_type_id = false)]
 public struct BlendDeformerList
 {
-	BlendDeformer** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public BlendDeformer[] data;
 }
 [CCode (cname = "ufbx_blend_channel_list", destroy_function = "", has_type_id = false)]
 public struct BlendChannelList
 {
-	BlendChannel** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public BlendChannel[] data;
 }
 [CCode (cname = "ufbx_blend_shape_list", destroy_function = "", has_type_id = false)]
 public struct BlendShapeList
 {
-	BlendShape** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public BlendShape[] data;
 }
 [CCode (cname = "ufbx_cache_deformer_list", destroy_function = "", has_type_id = false)]
 public struct CacheDeformerList
 {
-	CacheDeformer** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public CacheDeformer[] data;
 }
 [CCode (cname = "ufbx_cache_file_list", destroy_function = "", has_type_id = false)]
 public struct CacheFileList
 {
-	CacheFile** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public CacheFile[] data;
 }
 [CCode (cname = "ufbx_material_list", destroy_function = "", has_type_id = false)]
 public struct MaterialList
 {
-	Material** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public Material[] data;
 }
 [CCode (cname = "ufbx_texture_list", destroy_function = "", has_type_id = false)]
 public struct TextureList
 {
-	Texture** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public Texture[] data;
 }
 [CCode (cname = "ufbx_video_list", destroy_function = "", has_type_id = false)]
 public struct VideoList
 {
-	Video** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public Video[] data;
 }
 [CCode (cname = "ufbx_shader_list", destroy_function = "", has_type_id = false)]
 public struct ShaderList
 {
-	Shader** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public Shader[] data;
 }
 [CCode (cname = "ufbx_shader_binding_list", destroy_function = "", has_type_id = false)]
 public struct ShaderBindingList
 {
-	ShaderBinding** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public ShaderBinding[] data;
 }
 [CCode (cname = "ufbx_anim_stack_list", destroy_function = "", has_type_id = false)]
 public struct AnimStackList
 {
-	AnimStack** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public AnimStack[] data;
 }
 [CCode (cname = "ufbx_anim_layer_list", destroy_function = "", has_type_id = false)]
 public struct AnimLayerList
 {
-	AnimLayer** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public AnimLayer[] data;
 }
 [CCode (cname = "ufbx_anim_value_list", destroy_function = "", has_type_id = false)]
 public struct AnimValueList
 {
-	AnimValue** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public AnimValue[] data;
 }
 [CCode (cname = "ufbx_anim_curve_list", destroy_function = "", has_type_id = false)]
 public struct AnimCurveList
 {
-	AnimCurve** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public AnimCurve[] data;
 }
 [CCode (cname = "ufbx_display_layer_list", destroy_function = "", has_type_id = false)]
 public struct DisplayLayerList
 {
-	DisplayLayer** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public DisplayLayer[] data;
 }
 [CCode (cname = "ufbx_selection_set_list", destroy_function = "", has_type_id = false)]
 public struct SelectionSetList
 {
-	SelectionSet** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public SelectionSet[] data;
 }
 [CCode (cname = "ufbx_selection_node_list", destroy_function = "", has_type_id = false)]
 public struct SelectionNodeList
 {
-	SelectionNode** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public SelectionNode[] data;
 }
 [CCode (cname = "ufbx_character_list", destroy_function = "", has_type_id = false)]
 public struct CharacterList
 {
-	Character** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public Character[] data;
 }
 [CCode (cname = "ufbx_constraint_list", destroy_function = "", has_type_id = false)]
 public struct ConstraintList
 {
-	Constraint** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public Constraint[] data;
 }
 [CCode (cname = "ufbx_audio_layer_list", destroy_function = "", has_type_id = false)]
 public struct AudioLayerList
 {
-	AudioLayer** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public AudioLayer[] data;
 }
 [CCode (cname = "ufbx_audio_clip_list", destroy_function = "", has_type_id = false)]
 public struct AudioClipList
 {
-	AudioClip** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public AudioClip[] data;
 }
 [CCode (cname = "ufbx_pose_list", destroy_function = "", has_type_id = false)]
 public struct PoseList
 {
-	Pose** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public Pose[] data;
 }
 [CCode (cname = "ufbx_metadata_object_list", destroy_function = "", has_type_id = false)]
 public struct MetadataObjectList
 {
-	MetadataObject** data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public MetadataObject[] data;
 }
 
 [CCode (cname = "ufbx_element_type", cprefix = "UFBX_ELEMENT_", has_type_id = false)]
@@ -622,24 +624,26 @@ public enum ElementType
 	TYPE_LAST_ATTRIB  = LOD_GROUP,
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_connection", destroy_function = "", has_type_id = false)]
 public struct Connection
 {
-	Element* src;
-	Element* dst;
-	String src_prop;
-	String dst_prop;
+	public unowned Element src;
+	public unowned Element dst;
+	public String src_prop;
+	public String dst_prop;
 }
 
 [CCode (cname = "ufbx_connection_list", destroy_function = "", has_type_id = false)]
 public struct ConnectionList
 {
-	Connection* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public Connection[] data;
 }
 
+[Compact]
 [CCode (cname = "ufbx_element", destroy_function = "", has_type_id = false)]
-public struct Element
+public class Element
 {
 	public String name;
 	public Props props;
@@ -653,22 +657,23 @@ public struct Element
 	public unowned Scene scene;
 }
 
+[Compact]
 [CCode (cname = "ufbx_unknown", destroy_function = "", has_type_id = false)]
-public struct Unknown
+public class Unknown
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
-	String type;
-	String super_type;
-	String sub_type;
+	public uint32 typed_id;
+	public String type;
+	public String super_type;
+	public String sub_type;
 }
 
 [CCode (cname = "ufbx_inherit_mode", cprefix = "UFBX_INHERIT_MODE_", has_type_id = false)]
@@ -695,7 +700,7 @@ public enum MirrorAxis
 public class Node
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
 	public String name;
 	[CCode (cname = "props")]
@@ -704,15 +709,15 @@ public class Node
 	public uint32 element_id;
 	[CCode (cname = "typed_id")]
 	public uint32 typed_id;
-	public Node? parent;
+	public unowned Node? parent;
 	public NodeList children;
-	public Mesh? mesh;
-	public Light? light;
-	public Camera? camera;
-	public Bone? bone;
-	public Element? attrib;
-	public Node? geometry_transform_helper;
-	public Node? scale_helper;
+	public unowned Mesh? mesh;
+	public unowned Light? light;
+	public unowned Camera? camera;
+	public unowned Bone? bone;
+	public unowned Element? attrib;
+	public unowned Node? geometry_transform_helper;
+	public unowned Node? scale_helper;
 	public ElementType attrib_type;
 	public ElementList all_attribs;
 	public InheritMode inherit_mode;
@@ -720,7 +725,7 @@ public class Node
 	public Transform local_transform;
 	public Transform geometry_transform;
 	public Vec3 inherit_scale;
-	public Node? inherit_scale_node;
+	public unowned Node? inherit_scale_node;
 	public RotationOrder rotation_order;
 	public Vec3 euler_rotation;
 	public Matrix node_to_parent;
@@ -736,7 +741,7 @@ public class Node
 	public Real adjust_translation_scale;
 	public MirrorAxis adjust_mirror_axis;
 	public MaterialList materials;
-	public Pose? bind_pose;
+	public unowned Pose? bind_pose;
 	public bool visible;
 	public bool is_root;
 	public bool has_geometry_transform;
@@ -751,194 +756,202 @@ public class Node
 [CCode (cname = "ufbx_vertex_attrib", destroy_function = "", has_type_id = false)]
 public struct VertexAttrib
 {
-	bool exists;
-	VoidList values;
-	Uint32List indices;
-	size_t value_reals;
-	bool unique_per_vertex;
-	RealList values_w;
+	public bool exists;
+	public VoidList values;
+	public Uint32List indices;
+	public size_t value_reals;
+	public bool unique_per_vertex;
+	public RealList values_w;
 }
 
 [CCode (cname = "ufbx_vertex_real", destroy_function = "", has_type_id = false)]
 public struct VertexReal
 {
-	bool exists;
-	RealList values;
-	Uint32List indices;
-	size_t value_reals;
-	bool unique_per_vertex;
-	RealList values_w;
+	public bool exists;
+	public RealList values;
+	public Uint32List indices;
+	public size_t value_reals;
+	public bool unique_per_vertex;
+	public RealList values_w;
 }
 
 [CCode (cname = "ufbx_vertex_vec2", destroy_function = "", has_type_id = false)]
 public struct VertexVec2
 {
-	bool exists;
-	Vec2List values;
-	Uint32List indices;
-	size_t value_reals;
-	bool unique_per_vertex;
-	RealList values_w;
+	public bool exists;
+	public Vec2List values;
+	public Uint32List indices;
+	public size_t value_reals;
+	public bool unique_per_vertex;
+	public RealList values_w;
 }
 
 [CCode (cname = "ufbx_vertex_vec3", destroy_function = "", has_type_id = false)]
 public struct VertexVec3
 {
-	bool exists;
-	Vec3List values;
-	Uint32List indices;
-	size_t value_reals;
-	bool unique_per_vertex;
-	RealList values_w;
+	public bool exists;
+	public Vec3List values;
+	public Uint32List indices;
+	public size_t value_reals;
+	public bool unique_per_vertex;
+	public RealList values_w;
 }
 
 [CCode (cname = "ufbx_vertex_vec4", destroy_function = "", has_type_id = false)]
 public struct VertexVec4
 {
-	bool exists;
-	Vec4List values;
-	Uint32List indices;
-	size_t value_reals;
-	bool unique_per_vertex;
-	RealList values_w;
+	public bool exists;
+	public Vec4List values;
+	public Uint32List indices;
+	public size_t value_reals;
+	public bool unique_per_vertex;
+	public RealList values_w;
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_uv_set", destroy_function = "", has_type_id = false)]
 public struct UvSet
 {
-	String name;
-	uint32 index;
-	VertexVec2 vertex_uv;
-	VertexVec3 vertex_tangent;
-	VertexVec3 vertex_bitangent;
+	public String name;
+	public uint32 index;
+	public VertexVec2 vertex_uv;
+	public VertexVec3 vertex_tangent;
+	public VertexVec3 vertex_bitangent;
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_color_set", destroy_function = "", has_type_id = false)]
 public struct ColorSet
 {
-	String name;
-	uint32 index;
-	VertexVec4 vertex_color;
+	public String name;
+	public uint32 index;
+	public VertexVec4 vertex_color;
 }
 
 [CCode (cname = "ufbx_uv_set_list", destroy_function = "", has_type_id = false)]
 public struct UvSetList
 {
-	UvSet* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public UvSet[] data;
 }
 
 [CCode (cname = "ufbx_color_set_list", destroy_function = "", has_type_id = false)]
 public struct ColorSetList
 {
-	ColorSet* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public ColorSet[] data;
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_edge", destroy_function = "", has_type_id = false)]
 public struct Edge
 {
 	[CCode (cname = "a")]
-	uint32 a;
+	public uint32 a;
 	[CCode (cname = "b")]
-	uint32 b;
+	public uint32 b;
 	[CCode (cname = "indices")]
-	uint32 indices[2];
+	public uint32 indices[2];
 }
 
 [CCode (cname = "ufbx_edge_list", destroy_function = "", has_type_id = false)]
 public struct EdgeList
 {
-	Edge* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public Edge[] data;
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_face", destroy_function = "", has_type_id = false)]
 public struct Face
 {
-	uint32 index_begin;
-	uint32 num_indices;
+	public uint32 index_begin;
+	public uint32 num_indices;
 }
 
 [CCode (cname = "ufbx_face_list", destroy_function = "", has_type_id = false)]
 public struct FaceList
 {
-	Face* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public Face[] data;
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_mesh_part", destroy_function = "", has_type_id = false)]
 public struct MeshPart
 {
-	uint32 index;
-	size_t num_faces;
-	size_t num_triangles;
-	size_t num_empty_faces;
-	size_t num_point_faces;
-	size_t num_line_faces;
-	Uint32List face_indices;
+	public uint32 index;
+	public size_t num_faces;
+	public size_t num_triangles;
+	public size_t num_empty_faces;
+	public size_t num_point_faces;
+	public size_t num_line_faces;
+	public Uint32List face_indices;
 }
 
 [CCode (cname = "ufbx_mesh_part_list", destroy_function = "", has_type_id = false)]
 public struct MeshPartList
 {
-	MeshPart* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public MeshPart[] data;
 }
 
+[Compact]
 [CCode (cname = "ufbx_face_group", destroy_function = "", has_type_id = false)]
 public struct FaceGroup
 {
-	int32 id;
-	String name;
+	public int32 id;
+	public String name;
 }
 
 [CCode (cname = "ufbx_face_group_list", destroy_function = "", has_type_id = false)]
 public struct FaceGroupList
 {
-	FaceGroup* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public FaceGroup[] data;
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_subdivision_weight_range", destroy_function = "", has_type_id = false)]
 public struct SubdivisionWeightRange
 {
-	uint32 weight_begin;
-	uint32 num_weights;
+	public uint32 weight_begin;
+	public uint32 num_weights;
 }
 
 [CCode (cname = "ufbx_subdivision_weight_range_list", destroy_function = "", has_type_id = false)]
 public struct SubdivisionWeightRangeList
 {
-	SubdivisionWeightRange* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public SubdivisionWeightRange[] data;
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_subdivision_weight", destroy_function = "", has_type_id = false)]
 public struct SubdivisionWeight
 {
-	Real weight;
-	uint32 index;
+	public Real weight;
+	public uint32 index;
 }
 
 [CCode (cname = "ufbx_subdivision_weight_list", destroy_function = "", has_type_id = false)]
 public struct SubdivisionWeightList
 {
-	SubdivisionWeight* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public SubdivisionWeight[] data;
 }
 
 [CCode (cname = "ufbx_subdivision_result", destroy_function = "", has_type_id = false)]
 public struct SubdivisionResult
 {
-	size_t result_memory_used;
-	size_t temp_memory_used;
-	size_t result_allocs;
-	size_t temp_allocs;
-	SubdivisionWeightRangeList source_vertex_ranges;
-	SubdivisionWeightList source_vertex_weights;
-	SubdivisionWeightRangeList skin_cluster_ranges;
-	SubdivisionWeightList skin_cluster_weights;
+	public size_t result_memory_used;
+	public size_t temp_memory_used;
+	public size_t result_allocs;
+	public size_t temp_allocs;
+	public SubdivisionWeightRangeList source_vertex_ranges;
+	public SubdivisionWeightList source_vertex_weights;
+	public SubdivisionWeightRangeList skin_cluster_ranges;
+	public SubdivisionWeightList skin_cluster_weights;
 }
 
 [CCode (cname = "ufbx_subdivision_display_mode", cprefix = "UFBX_SUBDIVISION_DISPLAY_", has_type_id = false)]
@@ -963,73 +976,74 @@ public enum SubdivisionBoundary
 	COUNT
 }
 
+[Compact]
 [CCode (cname = "ufbx_mesh", destroy_function = "", has_type_id = false)]
-public struct Mesh
+public class Mesh
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
+	public uint32 typed_id;
 	[CCode (cname = "instances")]
-	NodeList instances;
-	size_t num_vertices;
-	size_t num_indices;
-	size_t num_faces;
-	size_t num_triangles;
-	size_t num_edges;
-	size_t max_face_triangles;
-	size_t num_empty_faces;
-	size_t num_point_faces;
-	size_t num_line_faces;
-	FaceList faces;
-	BoolList face_smoothing;
-	Uint32List face_material;
-	Uint32List face_group;
-	BoolList face_hole;
-	EdgeList edges;
-	BoolList edge_smoothing;
-	RealList edge_crease;
-	BoolList edge_visibility;
-	Uint32List vertex_indices;
-	Vec3List vertices;
-	Uint32List vertex_first_index;
-	VertexVec3 vertex_position;
-	VertexVec3 vertex_normal;
-	VertexVec2 vertex_uv;
-	VertexVec3 vertex_tangent;
-	VertexVec3 vertex_bitangent;
-	VertexVec4 vertex_color;
-	VertexReal vertex_crease;
-	UvSetList uv_sets;
-	ColorSetList color_sets;
-	MaterialList materials;
-	FaceGroupList face_groups;
-	MeshPartList material_parts;
-	MeshPartList face_group_parts;
-	Uint32List material_part_usage_order;
-	bool skinned_is_local;
-	VertexVec3 skinned_position;
-	VertexVec3 skinned_normal;
-	SkinDeformerList skin_deformers;
-	BlendDeformerList blend_deformers;
-	CacheDeformerList cache_deformers;
-	ElementList all_deformers;
-	uint32 subdivision_preview_levels;
-	uint32 subdivision_render_levels;
-	SubdivisionDisplayMode subdivision_display_mode;
-	SubdivisionBoundary subdivision_boundary;
-	SubdivisionBoundary subdivision_uv_boundary;
-	bool reversed_winding;
-	bool generated_normals;
-	bool subdivision_evaluated;
-	SubdivisionResult? subdivision_result;
-	bool from_tessellated_nurbs;
+	public NodeList instances;
+	public size_t num_vertices;
+	public size_t num_indices;
+	public size_t num_faces;
+	public size_t num_triangles;
+	public size_t num_edges;
+	public size_t max_face_triangles;
+	public size_t num_empty_faces;
+	public size_t num_point_faces;
+	public size_t num_line_faces;
+	public FaceList faces;
+	public BoolList face_smoothing;
+	public Uint32List face_material;
+	public Uint32List face_group;
+	public BoolList face_hole;
+	public EdgeList edges;
+	public BoolList edge_smoothing;
+	public RealList edge_crease;
+	public BoolList edge_visibility;
+	public Uint32List vertex_indices;
+	public Vec3List vertices;
+	public Uint32List vertex_first_index;
+	public VertexVec3 vertex_position;
+	public VertexVec3 vertex_normal;
+	public VertexVec2 vertex_uv;
+	public VertexVec3 vertex_tangent;
+	public VertexVec3 vertex_bitangent;
+	public VertexVec4 vertex_color;
+	public VertexReal vertex_crease;
+	public UvSetList uv_sets;
+	public ColorSetList color_sets;
+	public MaterialList materials;
+	public FaceGroupList face_groups;
+	public MeshPartList material_parts;
+	public MeshPartList face_group_parts;
+	public Uint32List material_part_usage_order;
+	public bool skinned_is_local;
+	public VertexVec3 skinned_position;
+	public VertexVec3 skinned_normal;
+	public SkinDeformerList skin_deformers;
+	public BlendDeformerList blend_deformers;
+	public CacheDeformerList cache_deformers;
+	public ElementList all_deformers;
+	public uint32 subdivision_preview_levels;
+	public uint32 subdivision_render_levels;
+	public SubdivisionDisplayMode subdivision_display_mode;
+	public SubdivisionBoundary subdivision_boundary;
+	public SubdivisionBoundary subdivision_uv_boundary;
+	public bool reversed_winding;
+	public bool generated_normals;
+	public bool subdivision_evaluated;
+	public unowned SubdivisionResult? subdivision_result;
+	public bool from_tessellated_nurbs;
 }
 
 [CCode (cname = "ufbx_light_type", cprefix = "UFBX_LIGHT_", has_type_id = false)]
@@ -1061,31 +1075,32 @@ public enum LightAreaShape
 	COUNT
 }
 
+[Compact]
 [CCode (cname = "ufbx_light", destroy_function = "", has_type_id = false)]
-public struct Light
+public class Light
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
+	public uint32 typed_id;
 	[CCode (cname = "instances")]
-	NodeList instances;
-	Vec3 color;
-	Real intensity;
-	Vec3 local_direction;
-	LightType type;
-	LightDecay decay;
-	LightAreaShape area_shape;
-	Real inner_angle;
-	Real outer_angle;
-	bool cast_light;
-	bool cast_shadows;
+	public NodeList instances;
+	public Vec3 color;
+	public Real intensity;
+	public Vec3 local_direction;
+	public LightType type;
+	public LightDecay decay;
+	public LightAreaShape area_shape;
+	public Real inner_angle;
+	public Real outer_angle;
+	public bool cast_light;
+	public bool cast_shadows;
 }
 
 [CCode (cname = "ufbx_projection_mode", cprefix = "UFBX_PROJECTION_MODE_", has_type_id = false)]
@@ -1164,9 +1179,9 @@ public enum CoordinateAxis
 [CCode (cname = "ufbx_coordinate_axes", has_type_id = false)]
 public struct CoordinateAxes
 {
-	CoordinateAxis right;
-	CoordinateAxis up;
-	CoordinateAxis front;
+	public CoordinateAxis right;
+	public CoordinateAxis up;
+	public CoordinateAxis front;
 
 	[CCode (cname = "ufbx_axes_right_handed_y_up")]
 	public const CoordinateAxes RIGHT_HANDED_Y_UP;
@@ -1178,114 +1193,119 @@ public struct CoordinateAxes
 	public const CoordinateAxes LEFT_HANDED_Z_UP;
 }
 
+[Compact]
 [CCode (cname = "ufbx_camera", destroy_function = "", has_type_id = false)]
-public struct Camera
+public class Camera
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
+	public uint32 typed_id;
 	[CCode (cname = "instances")]
-	NodeList instances;
-	ProjectionMode projection_mode;
-	bool resolution_is_pixels;
-	Vec2 resolution;
-	Vec2 field_of_view_deg;
-	Vec2 field_of_view_tan;
-	Real orthographic_extent;
-	Vec2 orthographic_size;
-	Vec2 projection_plane;
-	Real aspect_ratio;
-	Real near_plane;
-	Real far_plane;
-	CoordinateAxes projection_axes;
-	AspectMode aspect_mode;
-	ApertureMode aperture_mode;
-	GateFit gate_fit;
-	ApertureFormat aperture_format;
-	Real focal_length_mm;
-	Vec2 film_size_inch;
-	Vec2 aperture_size_inch;
-	Real squeeze_ratio;
+	public NodeList instances;
+	public ProjectionMode projection_mode;
+	public bool resolution_is_pixels;
+	public Vec2 resolution;
+	public Vec2 field_of_view_deg;
+	public Vec2 field_of_view_tan;
+	public Real orthographic_extent;
+	public Vec2 orthographic_size;
+	public Vec2 projection_plane;
+	public Real aspect_ratio;
+	public Real near_plane;
+	public Real far_plane;
+	public CoordinateAxes projection_axes;
+	public AspectMode aspect_mode;
+	public ApertureMode aperture_mode;
+	public GateFit gate_fit;
+	public ApertureFormat aperture_format;
+	public Real focal_length_mm;
+	public Vec2 film_size_inch;
+	public Vec2 aperture_size_inch;
+	public Real squeeze_ratio;
 }
 
+[Compact]
 [CCode (cname = "ufbx_bone", destroy_function = "", has_type_id = false)]
-public struct Bone
+public class Bone
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
+	public uint32 typed_id;
 	[CCode (cname = "instances")]
-	NodeList instances;
-	Real radius;
-	Real relative_length;
-	bool is_root;
+	public NodeList instances;
+	public Real radius;
+	public Real relative_length;
+	public bool is_root;
 }
 
+[Compact]
 [CCode (cname = "ufbx_empty", destroy_function = "", has_type_id = false)]
-public struct Empty
+public class Empty
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
+	public uint32 typed_id;
 	[CCode (cname = "instances")]
-	NodeList instances;
+	public NodeList instances;
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_line_segment", destroy_function = "", has_type_id = false)]
 public struct LineSegment
 {
-	uint32 index_begin;
-	uint32 num_indices;
+	public uint32 index_begin;
+	public uint32 num_indices;
 }
 
 [CCode (cname = "ufbx_line_segment_list", destroy_function = "", has_type_id = false)]
 public struct LineSegmentList
 {
-	LineSegment* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public LineSegment[] data;
 }
 
+[Compact]
 [CCode (cname = "ufbx_line_curve", destroy_function = "", has_type_id = false)]
-public struct LineCurve
+public class LineCurve
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
+	public uint32 typed_id;
 	[CCode (cname = "instances")]
-	NodeList instances;
-	Vec3 color;
-	Vec3List control_points;
-	Uint32List point_indices;
-	LineSegmentList segments;
-	bool from_tessellated_nurbs;
+	public NodeList instances;
+	public Vec3 color;
+	public Vec3List control_points;
+	public Uint32List point_indices;
+	public LineSegmentList segments;
+	public bool from_tessellated_nurbs;
 }
 
 [CCode (cname = "ufbx_nurbs_topology", cprefix = "UFBX_NURBS_TOPOLOGY_", has_type_id = false)]
@@ -1300,147 +1320,154 @@ public enum NurbsTopology
 [CCode (cname = "ufbx_nurbs_basis", destroy_function = "", has_type_id = false)]
 public struct NurbsBasis
 {
-	uint32 order;
-	NurbsTopology topology;
-	RealList knot_vector;
-	Real t_min;
-	Real t_max;
-	RealList spans;
-	bool is_2d;
-	size_t num_wrap_control_points;
-	bool valid;
+	public uint32 order;
+	public NurbsTopology topology;
+	public RealList knot_vector;
+	public Real t_min;
+	public Real t_max;
+	public RealList spans;
+	public bool is_2d;
+	public size_t num_wrap_control_points;
+	public bool valid;
 }
 
+[Compact]
 [CCode (cname = "ufbx_nurbs_curve", destroy_function = "", has_type_id = false)]
-public struct NurbsCurve
+public class NurbsCurve
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
+	public uint32 typed_id;
 	[CCode (cname = "instances")]
-	NodeList instances;
-	NurbsBasis basis;
-	Vec4List control_points;
+	public NodeList instances;
+	public NurbsBasis basis;
+	public Vec4List control_points;
 }
 
+[Compact]
 [CCode (cname = "ufbx_nurbs_surface", destroy_function = "", has_type_id = false)]
-public struct NurbsSurface
+public class NurbsSurface
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
+	public uint32 typed_id;
 	[CCode (cname = "instances")]
-	NodeList instances;
-	NurbsBasis basis_u;
-	NurbsBasis basis_v;
-	size_t num_control_points_u;
-	size_t num_control_points_v;
-	Vec4List control_points;
-	uint32 span_subdivision_u;
-	uint32 span_subdivision_v;
-	bool flip_normals;
-	Material? material;
+	public NodeList instances;
+	public NurbsBasis basis_u;
+	public NurbsBasis basis_v;
+	public size_t num_control_points_u;
+	public size_t num_control_points_v;
+	public Vec4List control_points;
+	public uint32 span_subdivision_u;
+	public uint32 span_subdivision_v;
+	public bool flip_normals;
+	public unowned Material? material;
 }
 
+[Compact]
 [CCode (cname = "ufbx_nurbs_trim_surface", destroy_function = "", has_type_id = false)]
-public struct NurbsTrimSurface
+public class NurbsTrimSurface
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
+	public uint32 typed_id;
 	[CCode (cname = "instances")]
-	NodeList instances;
+	public NodeList instances;
 }
 
+[Compact]
 [CCode (cname = "ufbx_nurbs_trim_boundary", destroy_function = "", has_type_id = false)]
-public struct NurbsTrimBoundary
+public class NurbsTrimBoundary
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
+	public uint32 typed_id;
 	[CCode (cname = "instances")]
-	NodeList instances;
+	public NodeList instances;
 }
 
+[Compact]
 [CCode (cname = "ufbx_procedural_geometry", destroy_function = "", has_type_id = false)]
-public struct ProceduralGeometry
+public class ProceduralGeometry
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
+	public uint32 typed_id;
 	[CCode (cname = "instances")]
-	NodeList instances;
+	public NodeList instances;
 }
 
+[Compact]
 [CCode (cname = "ufbx_stereo_camera", destroy_function = "", has_type_id = false)]
-public struct StereoCamera
+public class StereoCamera
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
+	public uint32 typed_id;
 	[CCode (cname = "instances")]
-	NodeList instances;
-	Camera? left;
-	Camera? right;
+	public NodeList instances;
+	public unowned Camera? left;
+	public unowned Camera? right;
 }
 
+[Compact]
 [CCode (cname = "ufbx_camera_switcher", destroy_function = "", has_type_id = false)]
-public struct CameraSwitcher
+public class CameraSwitcher
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
+	public uint32 typed_id;
 	[CCode (cname = "instances")]
-	NodeList instances;
+	public NodeList instances;
 }
 
 [CCode (cname = "ufbx_marker_type", cprefix = "UFBX_MARKER_", has_type_id = false)]
@@ -1452,22 +1479,23 @@ public enum MarkerType
 	TYPE_COUNT
 }
 
+[Compact]
 [CCode (cname = "ufbx_marker", destroy_function = "", has_type_id = false)]
-public struct Marker
+public class Marker
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
+	public uint32 typed_id;
 	[CCode (cname = "instances")]
-	NodeList instances;
-	MarkerType type;
+	public NodeList instances;
+	public MarkerType type;
 }
 
 [CCode (cname = "ufbx_lod_display", cprefix = "UFBX_LOD_DISPLAY_", has_type_id = false)]
@@ -1479,41 +1507,43 @@ public enum LodDisplay
 	COUNT
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_lod_level", destroy_function = "", has_type_id = false)]
 public struct LodLevel
 {
-	Real distance;
-	LodDisplay display;
+	public Real distance;
+	public LodDisplay display;
 }
 
 [CCode (cname = "ufbx_lod_level_list", destroy_function = "", has_type_id = false)]
 public struct LodLevelList
 {
-	LodLevel* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public LodLevel[] data;
 }
 
+[Compact]
 [CCode (cname = "ufbx_lod_group", destroy_function = "", has_type_id = false)]
-public struct LodGroup
+public class LodGroup
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
+	public uint32 typed_id;
 	[CCode (cname = "instances")]
-	NodeList instances;
-	bool relative_distances;
-	LodLevelList lod_levels;
-	bool ignore_parent_transform;
-	bool use_distance_limit;
-	Real distance_limit_min;
-	Real distance_limit_max;
+	public NodeList instances;
+	public bool relative_distances;
+	public LodLevelList lod_levels;
+	public bool ignore_parent_transform;
+	public bool use_distance_limit;
+	public Real distance_limit_min;
+	public Real distance_limit_max;
 }
 
 [CCode (cname = "ufbx_skinning_method", cprefix = "UFBX_SKINNING_METHOD_", has_type_id = false)]
@@ -1526,148 +1556,156 @@ public enum SkinningMethod
 	COUNT
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_skin_vertex", destroy_function = "", has_type_id = false)]
 public struct SkinVertex
 {
-	uint32 weight_begin;
-	uint32 num_weights;
-	Real dq_weight;
+	public uint32 weight_begin;
+	public uint32 num_weights;
+	public Real dq_weight;
 }
 
 [CCode (cname = "ufbx_skin_vertex_list", destroy_function = "", has_type_id = false)]
 public struct SkinVertexList
 {
-	SkinVertex* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public SkinVertex[] data;
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_skin_weight", destroy_function = "", has_type_id = false)]
 public struct SkinWeight
 {
-	uint32 cluster_index;
-	Real weight;
+	public uint32 cluster_index;
+	public Real weight;
 }
 
 [CCode (cname = "ufbx_skin_weight_list", destroy_function = "", has_type_id = false)]
 public struct SkinWeightList
 {
-	SkinWeight* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public SkinWeight[] data;
 }
 
+[Compact]
 [CCode (cname = "ufbx_skin_deformer", destroy_function = "", has_type_id = false)]
-public struct SkinDeformer
+public class SkinDeformer
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
-	SkinningMethod skinning_method;
-	SkinClusterList clusters;
-	SkinVertexList vertices;
-	SkinWeightList weights;
-	size_t max_weights_per_vertex;
-	size_t num_dq_weights;
-	Uint32List dq_vertices;
-	RealList dq_weights;
+	public uint32 typed_id;
+	public SkinningMethod skinning_method;
+	public SkinClusterList clusters;
+	public SkinVertexList vertices;
+	public SkinWeightList weights;
+	public size_t max_weights_per_vertex;
+	public size_t num_dq_weights;
+	public Uint32List dq_vertices;
+	public RealList dq_weights;
 }
 
+[Compact]
 [CCode (cname = "ufbx_skin_cluster", destroy_function = "", has_type_id = false)]
-public struct SkinCluster
+public class SkinCluster
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
-	Node? bone_node;
-	Matrix geometry_to_bone;
-	Matrix mesh_node_to_bone;
-	Matrix bind_to_world;
-	Matrix geometry_to_world;
-	Transform geometry_to_world_transform;
-	size_t num_weights;
-	Uint32List vertices;
-	RealList weights;
+	public uint32 typed_id;
+	public unowned Node? bone_node;
+	public Matrix geometry_to_bone;
+	public Matrix mesh_node_to_bone;
+	public Matrix bind_to_world;
+	public Matrix geometry_to_world;
+	public Transform geometry_to_world_transform;
+	public size_t num_weights;
+	public Uint32List vertices;
+	public RealList weights;
 }
 
+[Compact]
 [CCode (cname = "ufbx_blend_deformer", destroy_function = "", has_type_id = false)]
-public struct BlendDeformer
+public class BlendDeformer
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
-	BlendChannelList channels;
+	public uint32 typed_id;
+	public BlendChannelList channels;
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_blend_keyframe", destroy_function = "", has_type_id = false)]
 public struct BlendKeyframe
 {
-	BlendShape* shape;
-	Real target_weight;
-	Real effective_weight;
+	public unowned BlendShape shape;
+	public Real target_weight;
+	public Real effective_weight;
 }
 
 [CCode (cname = "ufbx_blend_keyframe_list", destroy_function = "", has_type_id = false)]
 public struct BlendKeyframeList
 {
-	BlendKeyframe* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public BlendKeyframe[] data;
 }
 
+[Compact]
 [CCode (cname = "ufbx_blend_channel", destroy_function = "", has_type_id = false)]
-public struct BlendChannel
+public class BlendChannel
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
-	Real weight;
-	BlendKeyframeList keyframes;
-	BlendShape? target_shape;
+	public uint32 typed_id;
+	public Real weight;
+	public BlendKeyframeList keyframes;
+	public unowned BlendShape? target_shape;
 }
 
+[Compact]
 [CCode (cname = "ufbx_blend_shape", destroy_function = "", has_type_id = false)]
-public struct BlendShape
+public class BlendShape
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
-	size_t num_offsets;
-	Uint32List offset_vertices;
-	Vec3List position_offsets;
-	Vec3List normal_offsets;
+	public uint32 typed_id;
+	public size_t num_offsets;
+	public Uint32List offset_vertices;
+	public Vec3List position_offsets;
+	public Vec3List normal_offsets;
 }
 
 [CCode (cname = "ufbx_cache_file_format", cprefix = "UFBX_CACHE_FILE_FORMAT_", has_type_id = false)]
@@ -1709,138 +1747,143 @@ public enum CacheInterpretation
 	COUNT
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_cache_frame", destroy_function = "", has_type_id = false)]
 public struct CacheFrame
 {
-	String channel;
-	double time;
-	String filename;
-	CacheFileFormat file_format;
-	MirrorAxis mirror_axis;
-	Real scale_factor;
-	CacheDataFormat data_format;
-	CacheDataEncoding data_encoding;
-	uint64 data_offset;
-	uint32 data_count;
-	uint32 data_element_bytes;
-	uint64 data_total_bytes;
+	public String channel;
+	public double time;
+	public String filename;
+	public CacheFileFormat file_format;
+	public MirrorAxis mirror_axis;
+	public Real scale_factor;
+	public CacheDataFormat data_format;
+	public CacheDataEncoding data_encoding;
+	public uint64 data_offset;
+	public uint32 data_count;
+	public uint32 data_element_bytes;
+	public uint64 data_total_bytes;
 }
 
 [CCode (cname = "ufbx_cache_frame", destroy_function = "", has_type_id = false)]
 public struct CacheFrameList
 {
-	CacheFrame* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public CacheFrame[] data;
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_cache_channel", destroy_function = "", has_type_id = false)]
 public struct CacheChannel
 {
-	String name;
-	CacheInterpretation interpretation;
-	String interpretation_name;
-	CacheFrameList frames;
-	MirrorAxis mirror_axis;
-	Real scale_factor;
+	public String name;
+	public CacheInterpretation interpretation;
+	public String interpretation_name;
+	public CacheFrameList frames;
+	public MirrorAxis mirror_axis;
+	public Real scale_factor;
 }
 
 [CCode (cname = "ufbx_cache_channel_list", destroy_function = "", has_type_id = false)]
 public struct CacheChannelList
 {
-	CacheChannel* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public CacheChannel[] data;
 }
 
 [CCode (cname = "ufbx_geometry_cache", destroy_function = "", has_type_id = false)]
 public struct GeometryCache
 {
-	String root_filename;
-	CacheChannelList channels;
-	CacheFrameList frames;
-	StringList extra_info;
+	public String root_filename;
+	public CacheChannelList channels;
+	public CacheFrameList frames;
+	public StringList extra_info;
 }
 
+[Compact]
 [CCode (cname = "ufbx_cache_deformer", destroy_function = "", has_type_id = false)]
-public struct CacheDeformer
+public class CacheDeformer
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
-	String channel;
-	CacheFile? file;
-	GeometryCache? external_cache;
-	CacheChannel? external_channel;
+	public uint32 typed_id;
+	public String channel;
+	public unowned CacheFile? file;
+	public unowned GeometryCache? external_cache;
+	public unowned CacheChannel? external_channel;
 }
 
+[Compact]
 [CCode (cname = "ufbx_cache_file", destroy_function = "", has_type_id = false)]
-public struct CacheFile
+public class CacheFile
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
-	String filename;
-	String absolute_filename;
-	String relative_filename;
-	Blob raw_filename;
-	Blob raw_absolute_filename;
-	Blob raw_relative_filename;
-	CacheFileFormat format;
-	GeometryCache? external_cache;
+	public uint32 typed_id;
+	public String filename;
+	public String absolute_filename;
+	public String relative_filename;
+	public Blob raw_filename;
+	public Blob raw_absolute_filename;
+	public Blob raw_relative_filename;
+	public CacheFileFormat format;
+	public unowned GeometryCache? external_cache;
 }
 
 [CCode (cname = "ufbx_material_map", destroy_function = "", has_type_id = false)]
 public struct MaterialMap
 {
 	[CCode (cname = "value_real")]
-	Real value_real;
+	public Real value_real;
 	[CCode (cname = "value_vec2")]
-	Vec2 value_vec2;
+	public Vec2 value_vec2;
 	[CCode (cname = "value_vec3")]
-	Vec3 value_vec3;
+	public Vec3 value_vec3;
 	[CCode (cname = "value_vec4")]
-	Vec4 value_vec4;
-	int64 value_int;
-	Texture? texture;
-	bool has_value;
-	bool texture_enabled;
-	bool feature_disabled;
-	uint8 value_components;
+	public Vec4 value_vec4;
+	public int64 value_int;
+	public unowned Texture? texture;
+	public bool has_value;
+	public bool texture_enabled;
+	public bool feature_disabled;
+	public uint8 value_components;
 }
 
 [CCode (cname = "ufbx_material_feature_info", destroy_function = "", has_type_id = false)]
 public struct MaterialFeatureInfo
 {
-	bool enabled;
-	bool is_explicit;
+	public bool enabled;
+	public bool is_explicit;
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_material_texture", destroy_function = "", has_type_id = false)]
 public struct MaterialTexture
 {
-	String material_prop;
-	String shader_prop;
-	Texture* texture;
+	public String material_prop;
+	public String shader_prop;
+	public unowned Texture texture;
 }
 
 [CCode (cname = "ufbx_material_texture_list", destroy_function = "", has_type_id = false)]
 public struct MaterialTextureList
 {
-	MaterialTexture* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public MaterialTexture[] data;
 }
 
 [CCode (cname = "ufbx_shader_type", cprefix = "UFBX_SHADER_", has_type_id = false)]
@@ -1981,240 +2024,241 @@ public enum MaterialFeature
 public struct MaterialFbxMaps
 {
 	[CCode (cname = "maps")]
-	MaterialMap maps[MaterialFbxMap.MAP_COUNT];
+	public MaterialMap maps[MaterialFbxMap.MAP_COUNT];
 	[CCode (cname = "diffuse_factor")]
-	MaterialMap diffuse_factor;
+	public MaterialMap diffuse_factor;
 	[CCode (cname = "diffuse_color")]
-	MaterialMap diffuse_color;
+	public MaterialMap diffuse_color;
 	[CCode (cname = "specular_factor")]
-	MaterialMap specular_factor;
+	public MaterialMap specular_factor;
 	[CCode (cname = "specular_color")]
-	MaterialMap specular_color;
+	public MaterialMap specular_color;
 	[CCode (cname = "specular_exponent")]
-	MaterialMap specular_exponent;
+	public MaterialMap specular_exponent;
 	[CCode (cname = "reflection_factor")]
-	MaterialMap reflection_factor;
+	public MaterialMap reflection_factor;
 	[CCode (cname = "reflection_color")]
-	MaterialMap reflection_color;
+	public MaterialMap reflection_color;
 	[CCode (cname = "transparency_factor")]
-	MaterialMap transparency_factor;
+	public MaterialMap transparency_factor;
 	[CCode (cname = "transparency_color")]
-	MaterialMap transparency_color;
+	public MaterialMap transparency_color;
 	[CCode (cname = "emission_factor")]
-	MaterialMap emission_factor;
+	public MaterialMap emission_factor;
 	[CCode (cname = "emission_color")]
-	MaterialMap emission_color;
+	public MaterialMap emission_color;
 	[CCode (cname = "ambient_factor")]
-	MaterialMap ambient_factor;
+	public MaterialMap ambient_factor;
 	[CCode (cname = "ambient_color")]
-	MaterialMap ambient_color;
+	public MaterialMap ambient_color;
 	[CCode (cname = "normal_map")]
-	MaterialMap normal_map;
+	public MaterialMap normal_map;
 	[CCode (cname = "bump")]
-	MaterialMap bump;
+	public MaterialMap bump;
 	[CCode (cname = "bump_factor")]
-	MaterialMap bump_factor;
+	public MaterialMap bump_factor;
 	[CCode (cname = "displacement_factor")]
-	MaterialMap displacement_factor;
+	public MaterialMap displacement_factor;
 	[CCode (cname = "displacement")]
-	MaterialMap displacement;
+	public MaterialMap displacement;
 	[CCode (cname = "vector_displacement_factor")]
-	MaterialMap vector_displacement_factor;
+	public MaterialMap vector_displacement_factor;
 	[CCode (cname = "vector_displacement")]
-	MaterialMap vector_displacement;
+	public MaterialMap vector_displacement;
 }
 
 [CCode (cname = "ufbx_material_pbr_maps", destroy_function = "", has_type_id = false)]
 public struct MaterialPbrMaps
 {
 	[CCode (cname = "maps")]
-	MaterialMap maps[MaterialPbrMap.MAP_COUNT];
+	public MaterialMap maps[MaterialPbrMap.MAP_COUNT];
 	[CCode (cname = "base_factor")]
-	MaterialMap base_factor;
+	public MaterialMap base_factor;
 	[CCode (cname = "base_color")]
-	MaterialMap base_color;
+	public MaterialMap base_color;
 	[CCode (cname = "roughness")]
-	MaterialMap roughness;
+	public MaterialMap roughness;
 	[CCode (cname = "metalness")]
-	MaterialMap metalness;
+	public MaterialMap metalness;
 	[CCode (cname = "diffuse_roughness")]
-	MaterialMap diffuse_roughness;
+	public MaterialMap diffuse_roughness;
 	[CCode (cname = "specular_factor")]
-	MaterialMap specular_factor;
+	public MaterialMap specular_factor;
 	[CCode (cname = "specular_color")]
-	MaterialMap specular_color;
+	public MaterialMap specular_color;
 	[CCode (cname = "specular_ior")]
-	MaterialMap specular_ior;
+	public MaterialMap specular_ior;
 	[CCode (cname = "specular_anisotropy")]
-	MaterialMap specular_anisotropy;
+	public MaterialMap specular_anisotropy;
 	[CCode (cname = "specular_rotation")]
-	MaterialMap specular_rotation;
+	public MaterialMap specular_rotation;
 	[CCode (cname = "transmission_factor")]
-	MaterialMap transmission_factor;
+	public MaterialMap transmission_factor;
 	[CCode (cname = "transmission_color")]
-	MaterialMap transmission_color;
+	public MaterialMap transmission_color;
 	[CCode (cname = "transmission_depth")]
-	MaterialMap transmission_depth;
+	public MaterialMap transmission_depth;
 	[CCode (cname = "transmission_scatter")]
-	MaterialMap transmission_scatter;
+	public MaterialMap transmission_scatter;
 	[CCode (cname = "transmission_scatter_anisotropy")]
-	MaterialMap transmission_scatter_anisotropy;
+	public MaterialMap transmission_scatter_anisotropy;
 	[CCode (cname = "transmission_dispersion")]
-	MaterialMap transmission_dispersion;
+	public MaterialMap transmission_dispersion;
 	[CCode (cname = "transmission_roughness")]
-	MaterialMap transmission_roughness;
+	public MaterialMap transmission_roughness;
 	[CCode (cname = "transmission_extra_roughness")]
-	MaterialMap transmission_extra_roughness;
+	public MaterialMap transmission_extra_roughness;
 	[CCode (cname = "transmission_priority")]
-	MaterialMap transmission_priority;
+	public MaterialMap transmission_priority;
 	[CCode (cname = "transmission_enable_in_aov")]
-	MaterialMap transmission_enable_in_aov;
+	public MaterialMap transmission_enable_in_aov;
 	[CCode (cname = "subsurface_factor")]
-	MaterialMap subsurface_factor;
+	public MaterialMap subsurface_factor;
 	[CCode (cname = "subsurface_color")]
-	MaterialMap subsurface_color;
+	public MaterialMap subsurface_color;
 	[CCode (cname = "subsurface_radius")]
-	MaterialMap subsurface_radius;
+	public MaterialMap subsurface_radius;
 	[CCode (cname = "subsurface_scale")]
-	MaterialMap subsurface_scale;
+	public MaterialMap subsurface_scale;
 	[CCode (cname = "subsurface_anisotropy")]
-	MaterialMap subsurface_anisotropy;
+	public MaterialMap subsurface_anisotropy;
 	[CCode (cname = "subsurface_tint_color")]
-	MaterialMap subsurface_tint_color;
+	public MaterialMap subsurface_tint_color;
 	[CCode (cname = "subsurface_type")]
-	MaterialMap subsurface_type;
+	public MaterialMap subsurface_type;
 	[CCode (cname = "sheen_factor")]
-	MaterialMap sheen_factor;
+	public MaterialMap sheen_factor;
 	[CCode (cname = "sheen_color")]
-	MaterialMap sheen_color;
+	public MaterialMap sheen_color;
 	[CCode (cname = "sheen_roughness")]
-	MaterialMap sheen_roughness;
+	public MaterialMap sheen_roughness;
 	[CCode (cname = "coat_factor")]
-	MaterialMap coat_factor;
+	public MaterialMap coat_factor;
 	[CCode (cname = "coat_color")]
-	MaterialMap coat_color;
+	public MaterialMap coat_color;
 	[CCode (cname = "coat_roughness")]
-	MaterialMap coat_roughness;
+	public MaterialMap coat_roughness;
 	[CCode (cname = "coat_ior")]
-	MaterialMap coat_ior;
+	public MaterialMap coat_ior;
 	[CCode (cname = "coat_anisotropy")]
-	MaterialMap coat_anisotropy;
+	public MaterialMap coat_anisotropy;
 	[CCode (cname = "coat_rotation")]
-	MaterialMap coat_rotation;
+	public MaterialMap coat_rotation;
 	[CCode (cname = "coat_normal")]
-	MaterialMap coat_normal;
+	public MaterialMap coat_normal;
 	[CCode (cname = "coat_affect_base_color")]
-	MaterialMap coat_affect_base_color;
+	public MaterialMap coat_affect_base_color;
 	[CCode (cname = "coat_affect_base_roughness")]
-	MaterialMap coat_affect_base_roughness;
+	public MaterialMap coat_affect_base_roughness;
 	[CCode (cname = "thin_film_thickness")]
-	MaterialMap thin_film_thickness;
+	public MaterialMap thin_film_thickness;
 	[CCode (cname = "thin_film_ior")]
-	MaterialMap thin_film_ior;
+	public MaterialMap thin_film_ior;
 	[CCode (cname = "emission_factor")]
-	MaterialMap emission_factor;
+	public MaterialMap emission_factor;
 	[CCode (cname = "emission_color")]
-	MaterialMap emission_color;
+	public MaterialMap emission_color;
 	[CCode (cname = "opacity")]
-	MaterialMap opacity;
+	public MaterialMap opacity;
 	[CCode (cname = "indirect_diffuse")]
-	MaterialMap indirect_diffuse;
+	public MaterialMap indirect_diffuse;
 	[CCode (cname = "indirect_specular")]
-	MaterialMap indirect_specular;
+	public MaterialMap indirect_specular;
 	[CCode (cname = "normal_map")]
-	MaterialMap normal_map;
+	public MaterialMap normal_map;
 	[CCode (cname = "tangent_map")]
-	MaterialMap tangent_map;
+	public MaterialMap tangent_map;
 	[CCode (cname = "displacement_map")]
-	MaterialMap displacement_map;
+	public MaterialMap displacement_map;
 	[CCode (cname = "matte_factor")]
-	MaterialMap matte_factor;
+	public MaterialMap matte_factor;
 	[CCode (cname = "matte_color")]
-	MaterialMap matte_color;
+	public MaterialMap matte_color;
 	[CCode (cname = "ambient_occlusion")]
-	MaterialMap ambient_occlusion;
+	public MaterialMap ambient_occlusion;
 	[CCode (cname = "glossiness")]
-	MaterialMap glossiness;
+	public MaterialMap glossiness;
 	[CCode (cname = "coat_glossiness")]
-	MaterialMap coat_glossiness;
+	public MaterialMap coat_glossiness;
 	[CCode (cname = "transmission_glossiness")]
-	MaterialMap transmission_glossiness;
+	public MaterialMap transmission_glossiness;
 }
 
 [CCode (cname = "ufbx_material_features", destroy_function = "", has_type_id = false)]
 public struct MaterialFeatures
 {
 	[CCode (cname = "features")]
-	MaterialFeatureInfo features[MaterialFeature.COUNT];
+	public MaterialFeatureInfo features[MaterialFeature.COUNT];
 	[CCode (cname = "pbr")]
-	MaterialFeatureInfo pbr;
+	public MaterialFeatureInfo pbr;
 	[CCode (cname = "metalness")]
-	MaterialFeatureInfo metalness;
+	public MaterialFeatureInfo metalness;
 	[CCode (cname = "diffuse")]
-	MaterialFeatureInfo diffuse;
+	public MaterialFeatureInfo diffuse;
 	[CCode (cname = "specular")]
-	MaterialFeatureInfo specular;
+	public MaterialFeatureInfo specular;
 	[CCode (cname = "emission")]
-	MaterialFeatureInfo emission;
+	public MaterialFeatureInfo emission;
 	[CCode (cname = "transmission")]
-	MaterialFeatureInfo transmission;
+	public MaterialFeatureInfo transmission;
 	[CCode (cname = "coat")]
-	MaterialFeatureInfo coat;
+	public MaterialFeatureInfo coat;
 	[CCode (cname = "sheen")]
-	MaterialFeatureInfo sheen;
+	public MaterialFeatureInfo sheen;
 	[CCode (cname = "opacity")]
-	MaterialFeatureInfo opacity;
+	public MaterialFeatureInfo opacity;
 	[CCode (cname = "ambient_occlusion")]
-	MaterialFeatureInfo ambient_occlusion;
+	public MaterialFeatureInfo ambient_occlusion;
 	[CCode (cname = "matte")]
-	MaterialFeatureInfo matte;
+	public MaterialFeatureInfo matte;
 	[CCode (cname = "unlit")]
-	MaterialFeatureInfo unlit;
+	public MaterialFeatureInfo unlit;
 	[CCode (cname = "ior")]
-	MaterialFeatureInfo ior;
+	public MaterialFeatureInfo ior;
 	[CCode (cname = "diffuse_roughness")]
-	MaterialFeatureInfo diffuse_roughness;
+	public MaterialFeatureInfo diffuse_roughness;
 	[CCode (cname = "transmission_roughness")]
-	MaterialFeatureInfo transmission_roughness;
+	public MaterialFeatureInfo transmission_roughness;
 	[CCode (cname = "thin_walled")]
-	MaterialFeatureInfo thin_walled;
+	public MaterialFeatureInfo thin_walled;
 	[CCode (cname = "caustics")]
-	MaterialFeatureInfo caustics;
+	public MaterialFeatureInfo caustics;
 	[CCode (cname = "exit_to_background")]
-	MaterialFeatureInfo exit_to_background;
+	public MaterialFeatureInfo exit_to_background;
 	[CCode (cname = "internal_reflections")]
-	MaterialFeatureInfo internal_reflections;
+	public MaterialFeatureInfo internal_reflections;
 	[CCode (cname = "double_sided")]
-	MaterialFeatureInfo double_sided;
+	public MaterialFeatureInfo double_sided;
 	[CCode (cname = "roughness_as_glossiness")]
-	MaterialFeatureInfo roughness_as_glossiness;
+	public MaterialFeatureInfo roughness_as_glossiness;
 	[CCode (cname = "coat_roughness_as_glossiness")]
-	MaterialFeatureInfo coat_roughness_as_glossiness;
+	public MaterialFeatureInfo coat_roughness_as_glossiness;
 	[CCode (cname = "transmission_roughness_as_glossiness")]
-	MaterialFeatureInfo transmission_roughness_as_glossiness;
+	public MaterialFeatureInfo transmission_roughness_as_glossiness;
 }
 
+[Compact]
 [CCode (cname = "ufbx_material", destroy_function = "", has_type_id = false)]
-public struct Material
+public class Material
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
-	MaterialFbxMaps fbx;
-	MaterialPbrMaps pbr;
-	MaterialFeatures features;
-	ShaderType shader_type;
-	Shader? shader;
-	String shading_model_name;
-	String shader_prop_prefix;
-	MaterialTextureList textures;
+	public uint32 typed_id;
+	public MaterialFbxMaps fbx;
+	public MaterialPbrMaps pbr;
+	public MaterialFeatures features;
+	public ShaderType shader_type;
+	public unowned Shader? shader;
+	public String shading_model_name;
+	public String shader_prop_prefix;
+	public MaterialTextureList textures;
 }
 
 [CCode (cname = "ufbx_texture_type", cprefix = "UFBX_TEXTURE_", has_type_id = false)]
@@ -2272,19 +2316,20 @@ public enum WrapMode
 	COUNT
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_texture_layer", destroy_function = "", has_type_id = false)]
 public struct TextureLayer
 {
-	Texture* texture;
-	BlendMode blend_mode;
-	Real alpha;
+	public unowned Texture texture;
+	public BlendMode blend_mode;
+	public Real alpha;
 }
 
 [CCode (cname = "ufbx_texture_layer", destroy_function = "", has_type_id = false)]
 public struct TextureLayerList
 {
-	TextureLayer* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public TextureLayer[] data;
 }
 
 [CCode (cname = "ufbx_shader_texture_type", cprefix = "UFBX_SHADER_TEXTURE_", has_type_id = false)]
@@ -2296,297 +2341,311 @@ public enum ShaderTextureType
 	TYPE_COUNT
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_shader_texture_input", destroy_function = "", has_type_id = false)]
 public struct ShaderTextureInput
 {
-	String name;
+	public String name;
 	[CCode (cname = "value_real")]
-	Real value_real;
+	public Real value_real;
 	[CCode (cname = "value_vec2")]
-	Vec2 value_vec2;
+	public Vec2 value_vec2;
 	[CCode (cname = "value_vec3")]
-	Vec3 value_vec3;
+	public Vec3 value_vec3;
 	[CCode (cname = "value_vec4")]
-	Vec4 value_vec4;
-	int64 value_int;
-	String value_str;
-	Blob value_blob;
-	Texture? texture;
-	int64 texture_output_index;
-	bool texture_enabled;
-	Prop* prop;
-	Prop? texture_prop;
-	Prop? texture_enabled_prop;
+	public Vec4 value_vec4;
+	public int64 value_int;
+	public String value_str;
+	public Blob value_blob;
+	public unowned Texture? texture;
+	public int64 texture_output_index;
+	public bool texture_enabled;
+	public unowned Prop prop;
+	public unowned Prop? texture_prop;
+	public unowned Prop? texture_enabled_prop;
 }
 
 [CCode (cname = "ufbx_shader_texture_input_list", destroy_function = "", has_type_id = false)]
 public struct ShaderTextureInputList
 {
-	ShaderTextureInput* data;
-	size_t size;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public ShaderTextureInput[] data;
 }
 
 [CCode (cname = "ufbx_shader_texture", destroy_function = "", has_type_id = false)]
 public struct ShaderTexture
 {
-	ShaderTextureType type;
-	String shader_name;
-	uint64 shader_type_id;
-	ShaderTextureInputList inputs;
-	String shader_source;
-	Blob raw_shader_source;
-	Texture* main_texture;
-	int64 main_texture_output_index;
-	String prop_prefix;
+	public ShaderTextureType type;
+	public String shader_name;
+	public uint64 shader_type_id;
+	public ShaderTextureInputList inputs;
+	public String shader_source;
+	public Blob raw_shader_source;
+	public unowned Texture main_texture;
+	public int64 main_texture_output_index;
+	public String prop_prefix;
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_texture_file", destroy_function = "", has_type_id = false)]
 public struct TextureFile
 {
-	uint32 index;
-	String filename;
-	String absolute_filename;
-	String relative_filename;
-	Blob raw_filename;
-	Blob raw_absolute_filename;
-	Blob raw_relative_filename;
-	Blob content;
+	public uint32 index;
+	public String filename;
+	public String absolute_filename;
+	public String relative_filename;
+	public Blob raw_filename;
+	public Blob raw_absolute_filename;
+	public Blob raw_relative_filename;
+	public Blob content;
 }
 
 [CCode (cname = "ufbx_texture_file_list", destroy_function = "", has_type_id = false)]
 public struct TextureFileList
 {
-	TextureFile* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public TextureFile[] data;
 }
 
+[Compact]
 [CCode (cname = "ufbx_texture", destroy_function = "", has_type_id = false)]
-public struct Texture
+public class Texture
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
-	TextureType type;
-	String filename;
-	String absolute_filename;
-	String relative_filename;
-	Blob raw_filename;
-	Blob raw_absolute_filename;
-	Blob raw_relative_filename;
-	Blob content;
-	Video? video;
-	uint32 file_index;
-	bool has_file;
-	TextureLayerList layers;
-	ShaderTexture? shader;
-	TextureList file_textures;
-	String uv_set;
-	WrapMode wrap_u;
-	WrapMode wrap_v;
-	bool has_uv_transform;
-	Transform uv_transform;
-	Matrix texture_to_uv;
-	Matrix uv_to_texture;
+	public uint32 typed_id;
+	public TextureType type;
+	public String filename;
+	public String absolute_filename;
+	public String relative_filename;
+	public Blob raw_filename;
+	public Blob raw_absolute_filename;
+	public Blob raw_relative_filename;
+	public Blob content;
+	public unowned Video? video;
+	public uint32 file_index;
+	public bool has_file;
+	public TextureLayerList layers;
+	public unowned ShaderTexture? shader;
+	public TextureList file_textures;
+	public String uv_set;
+	public WrapMode wrap_u;
+	public WrapMode wrap_v;
+	public bool has_uv_transform;
+	public Transform uv_transform;
+	public Matrix texture_to_uv;
+	public Matrix uv_to_texture;
 }
 
+[Compact]
 [CCode (cname = "ufbx_video", destroy_function = "", has_type_id = false)]
-public struct Video
+public class Video
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
-	String filename;
-	String absolute_filename;
-	String relative_filename;
-	Blob raw_filename;
-	Blob raw_absolute_filename;
-	Blob raw_relative_filename;
-	Blob content;
+	public uint32 typed_id;
+	public String filename;
+	public String absolute_filename;
+	public String relative_filename;
+	public Blob raw_filename;
+	public Blob raw_absolute_filename;
+	public Blob raw_relative_filename;
+	public Blob content;
 }
 
+[Compact]
 [CCode (cname = "ufbx_shader", destroy_function = "", has_type_id = false)]
-public struct Shader
+public class Shader
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
-	ShaderType type;
-	ShaderBindingList bindings;
+	public uint32 typed_id;
+	public ShaderType type;
+	public ShaderBindingList bindings;
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_shader_prop_binding", destroy_function = "", has_type_id = false)]
 public struct ShaderPropBinding
 {
-	String shader_prop;
-	String material_prop;
+	public String shader_prop;
+	public String material_prop;
 }
 
 [CCode (cname = "ufbx_shader_prop_binding_list", destroy_function = "", has_type_id = false)]
 public struct ShaderPropBindingList
 {
-	ShaderPropBinding* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public ShaderPropBinding[] data;
 }
 
+[Compact]
 [CCode (cname = "ufbx_shader_binding", destroy_function = "", has_type_id = false)]
-public struct ShaderBinding
+public class ShaderBinding
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
-	ShaderPropBindingList prop_bindings;
+	public uint32 typed_id;
+	public ShaderPropBindingList prop_bindings;
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_prop_override", destroy_function = "", has_type_id = false)]
 public struct PropOverride
 {
-	uint32 element_id;
-	uint32 _internal_key;
-	String prop_name;
-	Vec4 value;
-	String value_str;
-	int64 value_int;
+	public uint32 element_id;
+	public uint32 _internal_key;
+	public String prop_name;
+	public Vec4 value;
+	public String value_str;
+	public int64 value_int;
 }
 
 [CCode (cname = "ufbx_prop_override_list", destroy_function = "", has_type_id = false)]
 public struct PropOverrideList
 {
-	PropOverride* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public PropOverride[] data;
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_transform_override", destroy_function = "", has_type_id = false)]
 public struct TransformOverride
 {
-	uint32 node_id;
-	Transform transform;
+	public uint32 node_id;
+	public Transform transform;
 }
 
 [CCode (cname = "ufbx_transform_override_list", destroy_function = "", has_type_id = false)]
 public struct TransformOverrideList
 {
-	TransformOverride* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public TransformOverride[] data;
 }
 
+[Compact]
 [CCode (cname = "ufbx_anim", destroy_function = "", has_type_id = false)]
-public struct Anim
+public class Anim
 {
-	double time_begin;
-	double time_end;
-	AnimLayerList layers;
-	RealList override_layer_weights;
-	PropOverrideList prop_overrides;
-	TransformOverrideList transform_overrides;
-	bool ignore_connections;
-	bool custom;
+	public double time_begin;
+	public double time_end;
+	public AnimLayerList layers;
+	public RealList override_layer_weights;
+	public PropOverrideList prop_overrides;
+	public TransformOverrideList transform_overrides;
+	public bool ignore_connections;
+	public bool custom;
 }
 
+[Compact]
 [CCode (cname = "ufbx_anim_stack", destroy_function = "", has_type_id = false)]
-public struct AnimStack
+public class AnimStack
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
-	double time_begin;
-	double time_end;
-	AnimLayerList layers;
-	Anim* anim;
+	public uint32 typed_id;
+	public double time_begin;
+	public double time_end;
+	public AnimLayerList layers;
+	public unowned Anim anim;
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_anim_prop", destroy_function = "", has_type_id = false)]
 public struct AnimProp
 {
-	Element* element;
-	uint32 _internal_key;
-	String prop_name;
-	AnimValue* anim_value;
+	public unowned Element element;
+	public uint32 _internal_key;
+	public String prop_name;
+	public unowned AnimValue anim_value;
 }
 
 [CCode (cname = "ufbx_anim_list", destroy_function = "", has_type_id = false)]
 public struct AnimPropList
 {
-	AnimProp* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public AnimProp[] data;
 }
 
+[Compact]
 [CCode (cname = "ufbx_anim_layer", destroy_function = "", has_type_id = false)]
-public struct AnimLayer
+public class AnimLayer
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
-	Real weight;
-	bool weight_is_animated;
-	bool blended;
-	bool additive;
-	bool compose_rotation;
-	bool compose_scale;
-	AnimValueList anim_values;
-	AnimPropList anim_props;
-	Anim* anim;
-	uint32 _min_element_id;
-	uint32 _max_element_id;
-	uint32 _element_id_bitmask[4];
+	public uint32 typed_id;
+	public Real weight;
+	public bool weight_is_animated;
+	public bool blended;
+	public bool additive;
+	public bool compose_rotation;
+	public bool compose_scale;
+	public AnimValueList anim_values;
+	public AnimPropList anim_props;
+	public unowned Anim anim;
+	public uint32 _min_element_id;
+	public uint32 _max_element_id;
+	public uint32 _element_id_bitmask[4];
 }
 
+[Compact]
 [CCode (cname = "ufbx_anim_value", destroy_function = "", has_type_id = false)]
-public struct AnimValue
+public class AnimValue
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
-	Vec3 default_value;
-	AnimCurve? curves[3];
+	public uint32 typed_id;
+	public Vec3 default_value;
+	public unowned AnimCurve? curves[3];
 }
 
 [CCode (cname = "ufbx_interpolation", cprefix = "UFBX_INTERPOLATION_", has_type_id = false)]
@@ -2602,114 +2661,120 @@ public enum Interpolation
 [CCode (cname = "ufbx_tangent", destroy_function = "", has_type_id = false)]
 public struct Tangent
 {
-	float dx;
-	float dy;
+	public float dx;
+	public float dy;
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_keyframe", destroy_function = "", has_type_id = false)]
 public struct Keyframe
 {
-	double time;
-	Real value;
-	Interpolation interpolation;
-	Tangent left;
-	Tangent right;
+	public double time;
+	public Real value;
+	public Interpolation interpolation;
+	public Tangent left;
+	public Tangent right;
 }
 
 [CCode (cname = "ufbx_keyframe_list", destroy_function = "", has_type_id = false)]
 public struct KeyframeList
 {
-	Keyframe* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public Keyframe[] data;
 }
 
+[Compact]
 [CCode (cname = "ufbx_anim_curve", destroy_function = "", has_type_id = false)]
-public struct AnimCurve
+public class AnimCurve
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
-	KeyframeList keyframes;
-	Real min_value;
-	Real max_value;
+	public uint32 typed_id;
+	public KeyframeList keyframes;
+	public Real min_value;
+	public Real max_value;
 }
 
+[Compact]
 [CCode (cname = "ufbx_display_layer", destroy_function = "", has_type_id = false)]
-public struct DisplayLayer
+public class DisplayLayer
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
-	NodeList nodes;
-	bool visible;
-	bool frozen;
-	Vec3 ui_color;
+	public uint32 typed_id;
+	public NodeList nodes;
+	public bool visible;
+	public bool frozen;
+	public Vec3 ui_color;
 }
 
+[Compact]
 [CCode (cname = "ufbx_selection_set", destroy_function = "", has_type_id = false)]
-public struct SelectionSet
+public class SelectionSet
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
-	SelectionNodeList nodes;
+	public uint32 typed_id;
+	public SelectionNodeList nodes;
 }
 
+[Compact]
 [CCode (cname = "ufbx_selection_node", destroy_function = "", has_type_id = false)]
-public struct SelectionNode
+public class SelectionNode
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
-	Node? target_node;
-	Mesh? target_mesh;
-	bool include_node;
-	Uint32List vertices;
-	Uint32List edges;
-	Uint32List faces;
+	public uint32 typed_id;
+	public unowned Node? target_node;
+	public unowned Mesh? target_mesh;
+	public bool include_node;
+	public Uint32List vertices;
+	public Uint32List edges;
+	public Uint32List faces;
 }
 
+[Compact]
 [CCode (cname = "ufbx_character", destroy_function = "", has_type_id = false)]
-public struct Character
+public class Character
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
+	public uint32 typed_id;
 }
 
 [CCode (cname = "ufbx_constraint_type", cprefix = "UFBX_CONSTRAINT_", has_type_id = false)]
@@ -2725,19 +2790,20 @@ public enum ConstraintType
 	TYPE_COUNT
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_constraint_target", destroy_function = "", has_type_id = false)]
 public struct ConstraintTarget
 {
-	Node* node;
-	Real weight;
-	Transform transform;
+	public unowned Node node;
+	public Real weight;
+	public Transform transform;
 }
 
 [CCode (cname = "ufbx_constraint_target_list", destroy_function = "", has_type_id = false)]
 public struct ConstraintTargetList
 {
-	ConstraintTarget* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public ConstraintTarget[] data;
 }
 
 [CCode (cname = "ufbx_constraint_aim_up_type", cprefix = "UFBX_CONSTRAINT_AIM_UP_", has_type_id = false)]
@@ -2759,137 +2825,144 @@ public enum ConstraintIkPoleType
 	TYPE_COUNT
 }
 
+[Compact]
 [CCode (cname = "ufbx_constraint", destroy_function = "", has_type_id = false)]
-public struct Constraint
+public class Constraint
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
-	ConstraintType type;
-	String type_name;
-	Node? node;
-	ConstraintTargetList targets;
-	Real weight;
-	bool active;
-	bool constrain_translation[3];
-	bool constrain_rotation[3];
-	bool constrain_scale[3];
-	Transform transform_offset;
-	Vec3 aim_vector;
-	ConstraintAimUpType aim_up_type;
-	Node? aim_up_node;
-	Vec3 aim_up_vector;
-	Node? ik_effector;
-	Node? ik_end_node;
-	Vec3 ik_pole_vector;
+	public uint32 typed_id;
+	public ConstraintType type;
+	public String type_name;
+	public unowned Node? node;
+	public ConstraintTargetList targets;
+	public Real weight;
+	public bool active;
+	public bool constrain_translation[3];
+	public bool constrain_rotation[3];
+	public bool constrain_scale[3];
+	public Transform transform_offset;
+	public Vec3 aim_vector;
+	public ConstraintAimUpType aim_up_type;
+	public unowned Node? aim_up_node;
+	public Vec3 aim_up_vector;
+	public unowned Node? ik_effector;
+	public unowned Node? ik_end_node;
+	public Vec3 ik_pole_vector;
 }
 
+[Compact]
 [CCode (cname = "ufbx_audio_layer", destroy_function = "", has_type_id = false)]
-public struct AudioLayer
+public class AudioLayer
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
-	AudioClipList clips;
+	public uint32 typed_id;
+	public AudioClipList clips;
 }
 
+[Compact]
 [CCode (cname = "ufbx_audio_clip", destroy_function = "", has_type_id = false)]
-public struct AudioClip
+public class AudioClip
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
-	String filename;
-	String absolute_filename;
-	String relative_filename;
-	Blob raw_filename;
-	Blob raw_absolute_filename;
-	Blob raw_relative_filename;
-	Blob content;
+	public uint32 typed_id;
+	public String filename;
+	public String absolute_filename;
+	public String relative_filename;
+	public Blob raw_filename;
+	public Blob raw_absolute_filename;
+	public Blob raw_relative_filename;
+	public Blob content;
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_bone_pose", destroy_function = "", has_type_id = false)]
 public struct BonePose
 {
-	Node* bone_node;
-	Matrix bone_to_world;
-	Matrix bone_to_parent;
+	public unowned Node bone_node;
+	public Matrix bone_to_world;
+	public Matrix bone_to_parent;
 }
 
 [CCode (cname = "ufbx_bone_pose_list", destroy_function = "", has_type_id = false)]
 public struct BonePoseList
 {
-	BonePose* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public BonePose[] data;
 }
 
+[Compact]
 [CCode (cname = "ufbx_pose", destroy_function = "", has_type_id = false)]
-public struct Pose
+public class Pose
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
-	bool is_bind_pose;
-	BonePoseList bone_poses;
+	public uint32 typed_id;
+	public bool is_bind_pose;
+	public BonePoseList bone_poses;
 }
 
+[Compact]
 [CCode (cname = "ufbx_metadata_object", destroy_function = "", has_type_id = false)]
-public struct MetadataObject
+public class MetadataObject
 {
 	[CCode (cname = "element")]
-	Element element;
+	public Element element;
 	[CCode (cname = "name")]
-	String name;
+	public String name;
 	[CCode (cname = "props")]
-	Props props;
+	public Props props;
 	[CCode (cname = "element_id")]
-	uint32 element_id;
+	public uint32 element_id;
 	[CCode (cname = "typed_id")]
-	uint32 typed_id;
+	public uint32 typed_id;
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_name_element", destroy_function = "", has_type_id = false)]
 public struct NameElement
 {
-	String name;
-	ElementType type;
-	uint32 _internal_key;
-	Element* element;
+	public String name;
+	public ElementType type;
+	public uint32 _internal_key;
+	public unowned Element element;
 }
 
 [CCode (cname = "ufbx_name_element_list", destroy_function = "", has_type_id = false)]
 public struct NameElementList
 {
-	NameElement* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public NameElement[] data;
 }
 
 [CCode (cname = "ufbx_exporter", cprefix = "UFBX_EXPORTER_", has_type_id = false)]
@@ -2906,9 +2979,9 @@ public enum Exporter
 [CCode (cname = "ufbx_application", destroy_function = "", has_type_id = false)]
 public struct Application
 {
-	String vendor;
-	String name;
-	String version;
+	public String vendor;
+	public String name;
+	public String version;
 }
 
 [CCode (cname = "ufbx_file_format", cprefix = "UFBX_FILE_FORMAT_", has_type_id = false)]
@@ -2941,20 +3014,21 @@ public enum WarningType
 	TYPE_FIRST_DEDUPLICATED = WarningType.INDEX_CLAMPED
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_warning", destroy_function = "", has_type_id = false)]
 public struct Warning
 {
-	WarningType type;
-	String description;
-	uint32 element_id;
-	size_t count;
+	public WarningType type;
+	public String description;
+	public uint32 element_id;
+	public size_t count;
 }
 
 [CCode (cname = "ufbx_warning_list", destroy_function = "", has_type_id = false)]
 public struct WarningList
 {
-	Warning* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public Warning[] data;
 }
 
 [CCode (cname = "ufbx_thumbnail_format", cprefix = "UFBX_THUMBNAIL_FORMAT_", has_type_id = false)]
@@ -2978,58 +3052,58 @@ public enum SpaceConversion
 [CCode (cname = "ufbx_thumbnail", destroy_function = "", has_type_id = false)]
 public struct Thumbnail
 {
-	Props props;
-	uint32 width;
-	uint32 height;
-	ThumbnailFormat format;
-	Blob data;
+	public Props props;
+	public uint32 width;
+	public uint32 height;
+	public ThumbnailFormat format;
+	public Blob data;
 }
 
 [CCode (cname = "ufbx_metadata", destroy_function = "", has_type_id = false)]
 public struct Metadata
 {
-	WarningList warnings;
-	bool ascii;
-	uint32 version;
-	FileFormat file_format;
-	bool may_contain_no_index;
-	bool may_contain_missing_vertex_position;
-	bool may_contain_broken_elements;
-	bool is_unsafe;
-	bool has_warning[WarningType.TYPE_COUNT];
-	String creator;
-	bool big_endian;
-	String filename;
-	String relative_root;
-	Blob raw_filename;
-	Blob raw_relative_root;
-	Exporter exporter;
-	uint32 exporter_version;
-	Props scene_props;
-	Application original_application;
-	Application latest_application;
-	Thumbnail thumbnail;
-	bool geometry_ignored;
-	bool animation_ignored;
-	bool embedded_ignored;
-	size_t max_face_triangles;
-	size_t result_memory_used;
-	size_t temp_memory_used;
-	size_t result_allocs;
-	size_t temp_allocs;
-	size_t element_buffer_size;
-	size_t num_shader_textures;
-	Real bone_prop_size_unit;
-	bool bone_prop_limb_length_relative;
-	Real ortho_size_unit;
-	int64 ktime_second;
-	String original_file_path;
-	Blob raw_original_file_path;
-	SpaceConversion space_conversion;
-	Quat root_rotation;
-	Real root_scale;
-	MirrorAxis mirror_axis;
-	Real geometry_scale;
+	public WarningList warnings;
+	public bool ascii;
+	public uint32 version;
+	public FileFormat file_format;
+	public bool may_contain_no_index;
+	public bool may_contain_missing_vertex_position;
+	public bool may_contain_broken_elements;
+	public bool is_unsafe;
+	public bool has_warning[WarningType.TYPE_COUNT];
+	public String creator;
+	public bool big_endian;
+	public String filename;
+	public String relative_root;
+	public Blob raw_filename;
+	public Blob raw_relative_root;
+	public Exporter exporter;
+	public uint32 exporter_version;
+	public Props scene_props;
+	public Application original_application;
+	public Application latest_application;
+	public Thumbnail thumbnail;
+	public bool geometry_ignored;
+	public bool animation_ignored;
+	public bool embedded_ignored;
+	public size_t max_face_triangles;
+	public size_t result_memory_used;
+	public size_t temp_memory_used;
+	public size_t result_allocs;
+	public size_t temp_allocs;
+	public size_t element_buffer_size;
+	public size_t num_shader_textures;
+	public Real bone_prop_size_unit;
+	public bool bone_prop_limb_length_relative;
+	public Real ortho_size_unit;
+	public int64 ktime_second;
+	public String original_file_path;
+	public Blob raw_original_file_path;
+	public SpaceConversion space_conversion;
+	public Quat root_rotation;
+	public Real root_scale;
+	public MirrorAxis mirror_axis;
+	public Real geometry_scale;
 }
 
 [CCode (cname = "ufbx_time_mode", cprefix = "UFBX_TIME_MODE_", has_type_id = false)]
@@ -3078,17 +3152,17 @@ public enum SnapMode
 [CCode (cname = "ufbx_scene_settings", destroy_function = "", has_type_id = false)]
 public struct SceneSettings
 {
-	Props props;
-	CoordinateAxes axes;
-	Real unit_meters;
-	double frames_per_second;
-	Vec3 ambient_color;
-	String default_camera;
-	TimeMode time_mode;
-	TimeProtocol time_protocol;
-	SnapMode snap_mode;
-	CoordinateAxis original_axis_up;
-	Real original_unit_meters;
+	public Props props;
+	public CoordinateAxes axes;
+	public Real unit_meters;
+	public double frames_per_second;
+	public Vec3 ambient_color;
+	public String default_camera;
+	public TimeMode time_mode;
+	public TimeProtocol time_protocol;
+	public SnapMode snap_mode;
+	public CoordinateAxis original_axis_up;
+	public Real original_unit_meters;
 }
 
 [Compact]
@@ -3097,8 +3171,8 @@ public class Scene
 {
 	public Metadata metadata;
 	public SceneSettings settings;
-	public Node* root_node;
-	public Anim* anim;
+	public unowned Node root_node;
+	public unowned Anim anim;
 	[CCode (cname = "unknowns")]
 	public UnknownList unknowns;
 	[CCode (cname = "nodes")]
@@ -3190,7 +3264,7 @@ public class Scene
 	public ConnectionList connections_src;
 	public ConnectionList connections_dst;
 	public NameElementList elements_by_name;
-	public DomNode? dom_root;
+	public unowned DomNode? dom_root;
 	[CCode (cname = "ufbx_load_memory")]
 	public static Scene? load_memory(void* data, size_t data_size, LoadOpts opts, ref Error error);
 	[CCode (cname = "ufbx_load_file")]
@@ -3202,18 +3276,18 @@ public class Scene
 [CCode (cname = "ufbx_curve_point", destroy_function = "", has_type_id = false)]
 public struct CurvePoint
 {
-	bool valid;
-	Vec3 position;
-	Vec3 derivative;
+	public bool valid;
+	public Vec3 position;
+	public Vec3 derivative;
 }
 
 [CCode (cname = "ufbx_surface_point", destroy_function = "", has_type_id = false)]
 public struct SurfacePoint
 {
-	bool valid;
-	Vec3 position;
-	Vec3 derivative_u;
-	Vec3 derivative_v;
+	public bool valid;
+	public Vec3 position;
+	public Vec3 derivative_u;
+	public Vec3 derivative_v;
 }
 
 [CCode (cname = "ufbx_topo_flags", cprefix = "UFBX_TOPO_", has_type_id = false)]
@@ -3226,21 +3300,21 @@ public enum TopoFlags
 [CCode (cname = "ufbx_topo_edge", destroy_function = "", has_type_id = false)]
 public struct TopoEdge
 {
-	uint32 index;
-	uint32 next;
-	uint32 prev;
-	uint32 twin;
-	uint32 face;
-	uint32 edge;
-	TopoFlags flags;
+	public uint32 index;
+	public uint32 next;
+	public uint32 prev;
+	public uint32 twin;
+	public uint32 face;
+	public uint32 edge;
+	public TopoFlags flags;
 }
 
 [CCode (cname = "ufbx_vertex_stream", destroy_function = "", has_type_id = false)]
 public struct VertexStream
 {
-	void* data;
-	size_t vertex_count;
-	size_t vertex_size;
+	[CCode (array_length_cname = "vertex_count", array_length_type = "size_t")]
+	public void[] data;
+	public size_t vertex_size;
 }
 
 [CCode (cname = "ufbx_alloc_fn", has_target = true, delegate_target_pos = 0.9)]
@@ -3254,21 +3328,21 @@ public delegate void FreeAllocatorFn();
 [CCode (cname = "ufbx_allocator", destroy_function = "", has_type_id = false)]
 public struct Allocator
 {
-	AllocFn alloc_fn;
-	ReallocFn realloc_fn;
-	FreeFn free_fn;
-	FreeAllocatorFn free_allocator_fn;
-	void* user;
+	public AllocFn alloc_fn;
+	public ReallocFn realloc_fn;
+	public FreeFn free_fn;
+	public FreeAllocatorFn free_allocator_fn;
+	public void* user;
 }
 
 [CCode (cname = "ufbx_allocator_opts", destroy_function = "", has_type_id = false)]
 public struct AllocatorOpts
 {
-	Allocator allocator;
-	size_t memory_limit;
-	size_t allocation_limit;
-	size_t huge_threshold;
-	size_t max_chunk_size;
+	public Allocator allocator;
+	public size_t memory_limit;
+	public size_t allocation_limit;
+	public size_t huge_threshold;
+	public size_t max_chunk_size;
 }
 
 [CCode (cname = "ufbx_read_fn", has_target = true, delegate_target_pos = 0.9)]
@@ -3282,11 +3356,11 @@ public delegate void CloseFn();
 [CCode (cname = "ufbx_stream", destroy_function = "", has_type_id = false)]
 public struct Stream
 {
-	ReadFn read_fn;
-	SkipFn skip_fn;
-	SizeFn size_fn;
-	CloseFn close_fn;
-	void* user;
+	public ReadFn read_fn;
+	public SkipFn skip_fn;
+	public SizeFn size_fn;
+	public CloseFn close_fn;
+	public void* user;
 }
 
 [CCode (cname = "ufbx_open_file_type", cprefix = "UFBX_OPEN_FILE_", has_type_id = false)]
@@ -3307,9 +3381,9 @@ public struct OpenFileContext : uintptr
 [CCode (cname = "ufbx_open_file_info", destroy_function = "", has_type_id = false)]
 public struct OpenFileInfo
 {
-	OpenFileContext context;
-	OpenFileType type;
-	Blob original_filename;
+	public OpenFileContext context;
+	public OpenFileType type;
+	public Blob original_filename;
 }
 
 [CCode (cname = "ufbx_open_file_fn", has_target = true, delegate_target_pos = 0.9)]
@@ -3317,17 +3391,17 @@ public delegate bool OpenFileFn(Stream stream, string path, size_t path_len, Ope
 [CCode (cname = "ufbx_open_file_cb", destroy_function = "", has_type_id = false)]
 public struct OpenFileCb
 {
-	OpenFileFn fn;
-	void* user;
+	public OpenFileFn fn;
+	public void* user;
 }
 
 [CCode (cname = "ufbx_open_file_opts", destroy_function = "", has_type_id = false)]
 public struct OpenFileOptions
 {
-	uint32 _begin_zero;
-	AllocatorOpts allocator;
-	bool filename_null_terminated;
-	uint32 _end_zero;
+	public uint32 _begin_zero;
+	public AllocatorOpts allocator;
+	public bool filename_null_terminated;
+	public uint32 _end_zero;
 }
 
 [CCode (cname = "ufbx_close_memory_fn", has_target = true, delegate_target_pos = 0.9)]
@@ -3335,26 +3409,26 @@ public delegate void CloseMemoryFn(void* data, size_t data_size);
 [CCode (cname = "ufbx_close_memory_cb", destroy_function = "", has_type_id = false)]
 public struct CloseMemoryCb
 {
-	CloseMemoryFn fn;
-	void* user;
+	public CloseMemoryFn fn;
+	public void* user;
 }
 
 [CCode (cname = "ufbx_open_memory_opts", destroy_function = "", has_type_id = false)]
 public struct OpenMemoryOpts
 {
-	uint32 _begin_zero;
-	AllocatorOpts allocator;
-	bool no_copy;
-	CloseMemoryCb close_cb;
-	uint32 _end_zero;
+	public uint32 _begin_zero;
+	public AllocatorOpts allocator;
+	public bool no_copy;
+	public CloseMemoryCb close_cb;
+	public uint32 _end_zero;
 }
 
 [CCode (cname = "ufbx_error_frame", destroy_function = "", has_type_id = false)]
 public struct ErrorFrame
 {
-	uint32 source_line;
-	String function;
-	String description;
+	public uint32 source_line;
+	public String function;
+	public String description;
 }
 
 [CCode (cname = "ufbx_error_type", cprefix = "UFBX_ERROR_", has_type_id = false)]
@@ -3389,19 +3463,19 @@ public enum ErrorType
 [CCode (cname = "ufbx_error", destroy_function = "", has_type_id = false)]
 public struct Error
 {
-	ErrorType type;
-	String description;
-	uint32 stack_size;
-	ErrorFrame stack[ERROR_STACK_MAX_DEPTH];
-	size_t info_length;
-	char info[ERROR_INFO_LENGTH];
+	public ErrorType type;
+	public String description;
+	public uint32 stack_size;
+	public ErrorFrame stack[ERROR_STACK_MAX_DEPTH];
+	public size_t info_length;
+	public char info[ERROR_INFO_LENGTH];
 }
 
 [CCode (cname = "ufbx_progress", destroy_function = "", has_type_id = false)]
 public struct Progress
 {
-	uint64 bytes_read;
-	uint64 bytes_total;
+	public uint64 bytes_read;
+	public uint64 bytes_total;
 }
 
 [CCode (cname = "ufbx_progress_result", cprefix = "UFBX_PROGRESS_", has_type_id = false)]
@@ -3417,34 +3491,34 @@ public delegate ProgressResult ProgressFn(Progress progress);
 [CCode (cname = "ufbx_progress_cb", destroy_function = "", has_type_id = false)]
 public struct ProgressCb
 {
-	ProgressFn fn;
-	void* user;
+	public ProgressFn fn;
+	public void* user;
 }
 
 [CCode (cname = "ufbx_inflate_input", destroy_function = "", has_type_id = false)]
 public struct InflateInput
 {
-	size_t total_size;
-	void* data;
-	size_t data_size;
-	void* buffer;
-	size_t buffer_size;
-	ReadFn read_fn;
-	void* read_user;
-	ProgressCb progress_cb;
-	uint64 progress_interval_hint;
-	uint64 progress_size_before;
-	uint64 progress_size_after;
-	bool no_header;
-	bool no_checksum;
-	size_t internal_fast_bits;
+	public size_t total_size;
+	public void* data;
+	public size_t data_size;
+	public void* buffer;
+	public size_t buffer_size;
+	public ReadFn read_fn;
+	public void* read_user;
+	public ProgressCb progress_cb;
+	public uint64 progress_interval_hint;
+	public uint64 progress_size_before;
+	public uint64 progress_size_after;
+	public bool no_header;
+	public bool no_checksum;
+	public size_t internal_fast_bits;
 }
 
 [CCode (cname = "ufbx_inflate_retain", destroy_function = "", has_type_id = false)]
 struct InflateRetain
 {
-	bool initialized;
-	uint64 data[1024];
+	public bool initialized;
+	public uint64 data[1024];
 }
 
 [CCode (cname = "ufbx_index_error_handling", cprefix = "UFBX_INDEX_ERROR_HANDLING_", has_type_id = false)]
@@ -3509,105 +3583,110 @@ public enum BakedKeyFlags
 	REDUCED
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_baked_vec3", destroy_function = "", has_type_id = false)]
 public struct BakedVec3
 {
-	double time;
-	Vec3 value;
-	BakedKeyFlags flags;
+	public double time;
+	public Vec3 value;
+	public BakedKeyFlags flags;
 }
 
 [CCode (cname = "ufbx_baked_vec3_list", destroy_function = "", has_type_id = false)]
 public struct BakedVec3List
 {
-	BakedVec3* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public BakedVec3[] data;
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_baked_quat", destroy_function = "", has_type_id = false)]
 public struct BakedQuat
 {
-	double time;
-	Quat value;
-	BakedKeyFlags flags;
+	public double time;
+	public Quat value;
+	public BakedKeyFlags flags;
 }
 
 [CCode (cname = "ufbx_baked_quat_list", destroy_function = "", has_type_id = false)]
 public struct BakedQuatList
 {
-	BakedQuat* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public BakedQuat[] data;
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_baked_node", destroy_function = "", has_type_id = false)]
 public struct BakedNode
 {
-	uint32 typed_id;
-	uint32 element_id;
-	bool constant_translation;
-	bool constant_rotation;
-	bool constant_scale;
-	BakedVec3List translation_keys;
-	BakedQuatList rotation_keys;
-	BakedVec3List scale_keys;
+	public uint32 typed_id;
+	public uint32 element_id;
+	public bool constant_translation;
+	public bool constant_rotation;
+	public bool constant_scale;
+	public BakedVec3List translation_keys;
+	public BakedQuatList rotation_keys;
+	public BakedVec3List scale_keys;
 }
 
 [CCode (cname = "ufbx_baked_node_list", destroy_function = "", has_type_id = false)]
 public struct BakedNodeList
 {
-	BakedNode* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public BakedNode[] data;
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_baked_prop", destroy_function = "", has_type_id = false)]
 public struct BakedProp
 {
-	String name;
-	bool constant_value;
-	BakedVec3List keys;
+	public String name;
+	public bool constant_value;
+	public BakedVec3List keys;
 }
 
 [CCode (cname = "ufbx_baked_prop_list", destroy_function = "", has_type_id = false)]
 public struct BakedPropList
 {
-	BakedProp* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public BakedProp[] data;
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_baked_element", destroy_function = "", has_type_id = false)]
 public struct BakedElement
 {
-	uint32 element_id;
-	BakedPropList props;
+	public uint32 element_id;
+	public BakedPropList props;
 }
 
 [CCode (cname = "ufbx_baked_element_list", destroy_function = "", has_type_id = false)]
 public struct BakedElementList
 {
-	BakedElement* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public BakedElement[] data;
 }
 
 [CCode (cname = "ufbx_baked_anim_metadata", destroy_function = "", has_type_id = false)]
 public struct BakedAnimMetadata
 {
-	size_t result_memory_used;
-	size_t temp_memory_used;
-	size_t result_allocs;
-	size_t temp_allocs;
+	public size_t result_memory_used;
+	public size_t temp_memory_used;
+	public size_t result_allocs;
+	public size_t temp_allocs;
 }
 
 [CCode (cname = "ufbx_baked_anim", destroy_function = "", has_type_id = false)]
 public struct BakedAnim
 {
-	BakedNodeList nodes;
-	BakedElementList elements;
-	double playback_time_begin;
-	double playback_time_end;
-	double playback_duration;
-	double key_time_min;
-	double key_time_max;
-	BakedAnimMetadata metadata;
+	public BakedNodeList nodes;
+	public BakedElementList elements;
+	public double playback_time_begin;
+	public double playback_time_end;
+	public double playback_duration;
+	public double key_time_min;
+	public double key_time_max;
+	public BakedAnimMetadata metadata;
 }
 
 //
@@ -3621,7 +3700,7 @@ public struct ThreadPoolContext : uintptr
 [CCode (cname = "ufbx_thread_pool_info", destroy_function = "", has_type_id = false)]
 public struct ThreadPoolInfo
 {
-	uint32 max_concurrent_tasks;
+	public uint32 max_concurrent_tasks;
 }
 
 [CCode (cname = "ufbx_thread_pool_init_fn", has_target = true, delegate_target_pos = 0.9)]
@@ -3635,158 +3714,159 @@ public delegate void ThreadPoolFreeFn(ThreadPoolContext ctx);
 [CCode (cname = "ufbx_thread_pool", destroy_function = "", has_type_id = false)]
 public struct ThreadPool
 {
-	ThreadPoolInitFn init_fn;
-	ThreadPoolRunFn run_fn;
-	ThreadPoolWaitFn wait_fn;
-	ThreadPoolFreeFn free_fn;
-	void* user;
+	public ThreadPoolInitFn init_fn;
+	public ThreadPoolRunFn run_fn;
+	public ThreadPoolWaitFn wait_fn;
+	public ThreadPoolFreeFn free_fn;
+	public void* user;
 }
 
 [CCode (cname = "ufbx_thread_opts", destroy_function = "", has_type_id = false)]
 public struct ThreadOpts
 {
-	ThreadPool pool;
-	size_t num_tasks;
-	size_t memory_limit;
+	public ThreadPool pool;
+	public size_t num_tasks;
+	public size_t memory_limit;
 }
 
 [CCode (cname = "ufbx_load_opts", destroy_function = "", has_type_id = false)]
 public struct LoadOpts
 {
-	uint32 _begin_zero;
-	AllocatorOpts temp_allocator;
-	AllocatorOpts result_allocator;
-	ThreadOpts thread_opts;
-	bool ignore_geometry;
-	bool ignore_animation;
-	bool ignore_embedded;
-	bool ignore_all_content;
-	bool evaluate_skinning;
-	bool evaluate_caches;
-	bool load_external_files;
-	bool ignore_missing_external_files;
-	bool skip_skin_vertices;
-	bool skip_mesh_parts;
-	bool clean_skin_weights;
-	bool use_blender_pbr_material;
-	bool disable_quirks;
-	bool strict;
-	bool force_single_thread_ascii_parsing;
-	bool allow_unsafe;
-	IndexErrorHandling index_error_handling;
-	bool connect_broken_elements;
-	bool allow_nodes_out_of_root;
-	bool allow_missing_vertex_position;
-	bool allow_empty_faces;
-	bool generate_missing_normals;
-	bool open_main_file_with_default;
-	char path_separator;
-	uint32 node_depth_limit;
-	uint64 file_size_estimate;
-	size_t read_buffer_size;
-	String filename;
-	Blob raw_filename;
-	ProgressCb progress_cb;
-	uint64 progress_interval_hint;
-	OpenFileCb open_file_cb;
-	GeometryTransformHandling geometry_transform_handling;
-	InheritModeHandling inherit_mode_handling;
-	PivotHandling pivot_handling;
-	SpaceConversion space_conversion;
-	MirrorAxis handedness_conversion_axis;
-	bool handedness_conversion_retain_winding;
-	bool reverse_winding;
-	CoordinateAxes target_axes;
-	Real target_unit_meters;
-	CoordinateAxes target_camera_axes;
-	CoordinateAxes target_light_axes;
-	String geometry_transform_helper_name;
-	String scale_helper_name;
-	bool normalize_normals;
-	bool normalize_tangents;
-	bool use_root_transform;
-	Transform root_transform;
-	double key_clamp_threshold;
-	UnicodeErrorHandling unicode_error_handling;
-	bool retain_vertex_attrib_w;
-	bool retain_dom;
-	FileFormat file_format;
-	size_t file_format_lookahead;
-	bool no_format_from_content;
-	bool no_format_from_extension;
-	bool obj_search_mtl_by_filename;
-	bool obj_merge_objects;
-	bool obj_merge_groups;
-	bool obj_split_groups;
-	String obj_mtl_path;
-	Blob obj_mtl_data;
-	Real obj_unit_meters;
-	CoordinateAxes obj_axes;
-	uint32 _end_zero;
+	public uint32 _begin_zero;
+	public AllocatorOpts temp_allocator;
+	public AllocatorOpts result_allocator;
+	public ThreadOpts thread_opts;
+	public bool ignore_geometry;
+	public bool ignore_animation;
+	public bool ignore_embedded;
+	public bool ignore_all_content;
+	public bool evaluate_skinning;
+	public bool evaluate_caches;
+	public bool load_external_files;
+	public bool ignore_missing_external_files;
+	public bool skip_skin_vertices;
+	public bool skip_mesh_parts;
+	public bool clean_skin_weights;
+	public bool use_blender_pbr_material;
+	public bool disable_quirks;
+	public bool strict;
+	public bool force_single_thread_ascii_parsing;
+	public bool allow_unsafe;
+	public IndexErrorHandling index_error_handling;
+	public bool connect_broken_elements;
+	public bool allow_nodes_out_of_root;
+	public bool allow_missing_vertex_position;
+	public bool allow_empty_faces;
+	public bool generate_missing_normals;
+	public bool open_main_file_with_default;
+	public char path_separator;
+	public uint32 node_depth_limit;
+	public uint64 file_size_estimate;
+	public size_t read_buffer_size;
+	public String filename;
+	public Blob raw_filename;
+	public ProgressCb progress_cb;
+	public uint64 progress_interval_hint;
+	public OpenFileCb open_file_cb;
+	public GeometryTransformHandling geometry_transform_handling;
+	public InheritModeHandling inherit_mode_handling;
+	public PivotHandling pivot_handling;
+	public SpaceConversion space_conversion;
+	public MirrorAxis handedness_conversion_axis;
+	public bool handedness_conversion_retain_winding;
+	public bool reverse_winding;
+	public CoordinateAxes target_axes;
+	public Real target_unit_meters;
+	public CoordinateAxes target_camera_axes;
+	public CoordinateAxes target_light_axes;
+	public String geometry_transform_helper_name;
+	public String scale_helper_name;
+	public bool normalize_normals;
+	public bool normalize_tangents;
+	public bool use_root_transform;
+	public Transform root_transform;
+	public double key_clamp_threshold;
+	public UnicodeErrorHandling unicode_error_handling;
+	public bool retain_vertex_attrib_w;
+	public bool retain_dom;
+	public FileFormat file_format;
+	public size_t file_format_lookahead;
+	public bool no_format_from_content;
+	public bool no_format_from_extension;
+	public bool obj_search_mtl_by_filename;
+	public bool obj_merge_objects;
+	public bool obj_merge_groups;
+	public bool obj_split_groups;
+	public String obj_mtl_path;
+	public Blob obj_mtl_data;
+	public Real obj_unit_meters;
+	public CoordinateAxes obj_axes;
+	public uint32 _end_zero;
 }
 
 [CCode (cname = "ufbx_evaluate_opts", destroy_function = "", has_type_id = false)]
 public struct EvaluateOpts
 {
-	uint32 _begin_zero;
-	Allocator temp_allocator;
-	AllocatorOpts result_allocator;
-	bool evaluate_skinning;
-	bool evaluate_caches;
-	bool load_external_files;
-	OpenFileCb open_file_cb;
-	uint32 _end_zero;
+	public uint32 _begin_zero;
+	public Allocator temp_allocator;
+	public AllocatorOpts result_allocator;
+	public bool evaluate_skinning;
+	public bool evaluate_caches;
+	public bool load_external_files;
+	public OpenFileCb open_file_cb;
+	public uint32 _end_zero;
 }
 
 [CCode (cname = "ufbx_const_uint32_list", destroy_function = "", has_type_id = false)]
 public struct ConstUint32List
 {
-	uint32* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public uint32[] data;
 }
 
 [CCode (cname = "ufbx_const_real_list", destroy_function = "", has_type_id = false)]
 public struct ConstRealList
 {
-	Real* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public Real[] data;
 }
 
+[SimpleType]
 [CCode (cname = "ufbx_prop_override_desc", destroy_function = "", has_type_id = false)]
 public struct PropOverrideDesc
 {
-	uint32 element_id;
-	String prop_name;
-	Vec4 value;
-	String value_str;
-	int64 value_int;
+	public uint32 element_id;
+	public String prop_name;
+	public Vec4 value;
+	public String value_str;
+	public int64 value_int;
 }
 
 [CCode (cname = "ufbx_const_prop_override_desc_list", destroy_function = "", has_type_id = false)]
 public struct ConstPropOverrideDescList
 {
-	PropOverrideDesc* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public PropOverrideDesc[] data;
 }
 
 [CCode (cname = "ufbx_const_transform_override_list", destroy_function = "", has_type_id = false)]
 public struct ConstTransformOverrideList
 {
-	TransformOverride* data;
-	size_t count;
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public TransformOverride[] data;
 }
 
 [CCode (cname = "ufbx_anim_opts", destroy_function = "", has_type_id = false)]
 public struct AnimOpts
 {
-	uint32 _begin_zero;
-	ConstUint32List layer_ids;
-	ConstRealList override_layer_weights;
-	ConstPropOverrideDescList prop_overrides;
-	ConstTransformOverrideList transform_overrides;
-	bool ignore_connections;
-	AllocatorOpts result_allocator;
-	uint32 _end_zero;
+	public uint32 _begin_zero;
+	public ConstUint32List layer_ids;
+	public ConstRealList override_layer_weights;
+	public ConstPropOverrideDescList prop_overrides;
+	public ConstTransformOverrideList transform_overrides;
+	public bool ignore_connections;
+	public AllocatorOpts result_allocator;
+	public uint32 _end_zero;
 }
 
 [CCode (cname = "ufbx_bake_step_handling", cprefix = "UFBX_BAKE_STEP_HANDLING_", has_type_id = false)]
@@ -3803,101 +3883,101 @@ public enum BakeStepHandling
 [CCode (cname = "ufbx_bake_opts", destroy_function = "", has_type_id = false)]
 public struct BakeOpts
 {
-	uint32 _begin_zero;
-	AllocatorOpts temp_allocator;
-	AllocatorOpts result_allocator;
-	bool trim_start_time;
-	double resample_rate;
-	double minimum_sample_rate;
-	double maximum_sample_rate;
-	bool bake_transform_props;
-	bool skip_node_transforms;
-	bool no_resample_rotation;
-	bool ignore_layer_weight_animation;
-	size_t max_keyframe_segments;
-	BakeStepHandling step_handling;
-	double step_custom_duration;
-	double step_custom_epsilon;
-	bool key_reduction_enabled;
-	bool key_reduction_rotation;
-	double key_reduction_threshold;
-	size_t key_reduction_passes;
-	uint32 _end_zero;
+	public uint32 _begin_zero;
+	public AllocatorOpts temp_allocator;
+	public AllocatorOpts result_allocator;
+	public bool trim_start_time;
+	public double resample_rate;
+	public double minimum_sample_rate;
+	public double maximum_sample_rate;
+	public bool bake_transform_props;
+	public bool skip_node_transforms;
+	public bool no_resample_rotation;
+	public bool ignore_layer_weight_animation;
+	public size_t max_keyframe_segments;
+	public BakeStepHandling step_handling;
+	public double step_custom_duration;
+	public double step_custom_epsilon;
+	public bool key_reduction_enabled;
+	public bool key_reduction_rotation;
+	public double key_reduction_threshold;
+	public size_t key_reduction_passes;
+	public uint32 _end_zero;
 }
 
 [CCode (cname = "ufbx_tessellate_curve_opts", destroy_function = "", has_type_id = false)]
 public struct TessellateCurveOpts
 {
-	uint32 _begin_zero;
-	AllocatorOpts temp_allocator;
-	AllocatorOpts result_allocator;
-	size_t span_subdivision;
-	uint32 _end_zero;
+	public uint32 _begin_zero;
+	public AllocatorOpts temp_allocator;
+	public AllocatorOpts result_allocator;
+	public size_t span_subdivision;
+	public uint32 _end_zero;
 }
 
 [CCode (cname = "ufbx_tessellate_surface_opts", destroy_function = "", has_type_id = false)]
 public struct TessellateSurfaceOpts
 {
-	uint32 _begin_zero;
-	AllocatorOpts temp_allocator;
-	AllocatorOpts result_allocator;
-	size_t span_subdivision_u;
-	size_t span_subdivision_v;
-	bool skip_mesh_parts;
-	uint32 _end_zero;
+	public uint32 _begin_zero;
+	public AllocatorOpts temp_allocator;
+	public AllocatorOpts result_allocator;
+	public size_t span_subdivision_u;
+	public size_t span_subdivision_v;
+	public bool skip_mesh_parts;
+	public uint32 _end_zero;
 }
 
 [CCode (cname = "ufbx_subdivide_opts", destroy_function = "", has_type_id = false)]
 public struct SubdivideOpts
 {
-	uint32 _begin_zero;
-	AllocatorOpts temp_allocator;
-	AllocatorOpts result_allocator;
-	SubdivisionBoundary boundary;
-	SubdivisionBoundary uv_boundary;
-	bool ignore_normals;
-	bool interpolate_normals;
-	bool interpolate_tangents;
-	bool evaluate_source_vertices;
-	size_t max_source_vertices;
-	bool evaluate_skin_weights;
-	size_t max_skin_weights;
-	size_t skin_deformer_index;
-	uint32 _end_zero;
+	public uint32 _begin_zero;
+	public AllocatorOpts temp_allocator;
+	public AllocatorOpts result_allocator;
+	public SubdivisionBoundary boundary;
+	public SubdivisionBoundary uv_boundary;
+	public bool ignore_normals;
+	public bool interpolate_normals;
+	public bool interpolate_tangents;
+	public bool evaluate_source_vertices;
+	public size_t max_source_vertices;
+	public bool evaluate_skin_weights;
+	public size_t max_skin_weights;
+	public size_t skin_deformer_index;
+	public uint32 _end_zero;
 }
 
 [CCode (cname = "ufbx_geometry_cache_opts", destroy_function = "", has_type_id = false)]
 public struct GeometryCacheOpts
 {
-	uint32 _begin_zero;
-	AllocatorOpts temp_allocator;
-	AllocatorOpts result_allocator;
-	OpenFileCb open_file_cb;
-	double frames_per_second;
-	MirrorAxis mirror_axis;
-	bool use_scale_factor;
-	Real scale_factor;
-	uint32 _end_zero;
+	public uint32 _begin_zero;
+	public AllocatorOpts temp_allocator;
+	public AllocatorOpts result_allocator;
+	public OpenFileCb open_file_cb;
+	public double frames_per_second;
+	public MirrorAxis mirror_axis;
+	public bool use_scale_factor;
+	public Real scale_factor;
+	public uint32 _end_zero;
 }
 
 [CCode (cname = "ufbx_geometry_cache_data_opts", destroy_function = "", has_type_id = false)]
 public struct GeometryCacheDataOpts
 {
-	uint32 _begin_zero;
-	OpenFileCb open_file_cb;
-	bool additive;
-	bool use_weight;
-	Real weight;
-	bool ignore_transform;
-	uint32 _end_zero;
+	public uint32 _begin_zero;
+	public OpenFileCb open_file_cb;
+	public bool additive;
+	public bool use_weight;
+	public Real weight;
+	public bool ignore_transform;
+	public uint32 _end_zero;
 }
 
 [CCode (cname = "ufbx_panic", destroy_function = "", has_type_id = false)]
 public struct Panic
 {
-	bool did_panic;
-	size_t message_length;
-	char message[PANIC_MESSAGE_LENGTH];
+	public bool did_panic;
+	public size_t message_length;
+	public char message[PANIC_MESSAGE_LENGTH];
 }
 
 public bool is_thread_safe();
