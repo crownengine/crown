@@ -58,6 +58,7 @@ struct MeshResource
 	const MeshGeometry *geometry(StringId32 name) const;
 };
 
+#if CROWN_CAN_COMPILE
 namespace mesh
 {
 	///
@@ -70,6 +71,11 @@ namespace mesh_resource_internal
 	///
 	s32 compile(CompileOptions &opts);
 
+} // namespace mesh_resource_internal
+#endif
+
+namespace mesh_resource_internal
+{
 	///
 	void *load(File &file, Allocator &a);
 

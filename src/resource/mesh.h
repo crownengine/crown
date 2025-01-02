@@ -5,11 +5,14 @@
 
 #pragma once
 
-#include "core/filesystem/types.h"
-#include "core/math/types.h"
-#include "core/memory/types.h"
-#include "core/strings/dynamic_string.h"
-#include "resource/types.h"
+#include "config.h"
+
+#if CROWN_CAN_COMPILE
+#   include "core/filesystem/types.h"
+#   include "core/math/types.h"
+#   include "core/memory/types.h"
+#   include "core/strings/dynamic_string.h"
+#   include "resource/types.h"
 
 namespace crown
 {
@@ -73,3 +76,5 @@ namespace mesh
 } // namespace mesh
 
 } // namespace crown
+
+#endif // if CROWN_CAN_COMPILE

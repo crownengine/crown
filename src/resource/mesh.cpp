@@ -4,24 +4,26 @@
  */
 
 #include "config.h"
-#include "core/containers/array.inl"
-#include "core/containers/vector.inl"
-#include "core/filesystem/filesystem.h"
-#include "core/json/json_object.inl"
-#include "core/json/sjson.h"
-#include "core/math/aabb.inl"
-#include "core/math/constants.h"
-#include "core/math/matrix4x4.inl"
-#include "core/math/vector2.inl"
-#include "core/math/vector3.inl"
-#include "core/memory/temp_allocator.inl"
-#include "core/strings/dynamic_string.inl"
-#include "resource/compile_options.inl"
-#include "resource/mesh.h"
-#include "resource/mesh_resource.h"
-#include <bx/error.h>
-#include <bx/readerwriter.h>
-#include <vertexlayout.h> // bgfx::write, bgfx::read
+
+#if CROWN_CAN_COMPILE
+#   include "core/containers/array.inl"
+#   include "core/containers/vector.inl"
+#   include "core/filesystem/filesystem.h"
+#   include "core/json/json_object.inl"
+#   include "core/json/sjson.h"
+#   include "core/math/aabb.inl"
+#   include "core/math/constants.h"
+#   include "core/math/matrix4x4.inl"
+#   include "core/math/vector2.inl"
+#   include "core/math/vector3.inl"
+#   include "core/memory/temp_allocator.inl"
+#   include "core/strings/dynamic_string.inl"
+#   include "resource/compile_options.inl"
+#   include "resource/mesh.h"
+#   include "resource/mesh_resource.h"
+#   include <bx/error.h>
+#   include <bx/readerwriter.h>
+#   include <vertexlayout.h> // bgfx::write, bgfx::read
 
 namespace crown
 {
@@ -258,3 +260,5 @@ Mesh::Mesh(Allocator &a)
 }
 
 } // namespace crown
+
+#endif // if CROWN_CAN_COMPILE
