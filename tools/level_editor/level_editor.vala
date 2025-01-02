@@ -790,11 +790,11 @@ public class LevelEditorApplication : Gtk.Application
 
 		_project = new Project();
 		_project.set_toolchain_dir(_toolchain_dir.get_path());
-		_project.register_importer("Sprite", { "png" }, SpriteResource.import, 0.0);
-		_project.register_importer("Mesh", { "mesh" }, MeshResource.import, 1.0);
-		_project.register_importer("Sound", { "wav" }, SoundResource.import, 2.0);
-		_project.register_importer("Texture", { "png", "tga", "dds", "ktx", "pvr" }, TextureResource.import, 2.0);
-		_project.register_importer("Font", { "ttf", "otf" }, FontResource.import, 3.0);
+		_project.register_importer("Sprite", { "png" }, SpriteResource.import, on_import_result, 0.0);
+		_project.register_importer("Mesh", { "mesh" }, MeshResource.import, on_import_result, 1.0);
+		_project.register_importer("Sound", { "wav" }, SoundResource.import, on_import_result, 2.0);
+		_project.register_importer("Texture", { "png", "tga", "dds", "ktx", "pvr" }, TextureResource.import, on_import_result, 2.0);
+		_project.register_importer("Font", { "ttf", "otf" }, FontResource.import, on_import_result, 3.0);
 		_project.project_reset.connect(on_project_reset);
 		_project.project_loaded.connect(on_project_loaded);
 
@@ -2377,15 +2377,12 @@ public class LevelEditorApplication : Gtk.Application
 		save_as(null);
 	}
 
-	private void on_import(GLib.SimpleAction action, GLib.Variant? param)
+	private void on_import_result(ImportResult result)
 	{
-		string? destination_dir = param == null ? null : param.get_string();
-
-		ImportResult ec = _project.import(destination_dir, this.active_window);
-		if (ec == ImportResult.ERROR) {
+		if (result == ImportResult.ERROR) {
 			loge("Failed to import resource(s)");
 			return;
-		} else if (ec == ImportResult.SUCCESS) {
+		} else if (result == ImportResult.SUCCESS) {
 			_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
 					_data_compiler.compile.end(res);
 				});
@@ -2393,6 +2390,15 @@ public class LevelEditorApplication : Gtk.Application
 
 		// FIXME: hack to force PropertiesView to update.
 		_level.selection_changed(_level._selection);
+	}
+
+	private void on_import(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string? destination_dir = param == null ? null : param.get_string();
+
+		ImportResult ec = _project.import(destination_dir, on_import_result, this.active_window);
+		if (ec != ImportResult.CALLBACK)
+			on_import_result(ec);
 	}
 
 	private void on_preferences(GLib.SimpleAction action, GLib.Variant? param)

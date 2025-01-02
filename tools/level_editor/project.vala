@@ -9,14 +9,17 @@ public enum ImportResult
 {
 	SUCCESS, ///< Data imported successfully.
 	ERROR,   ///< Error during import or elsewhere.
-	CANCEL   ///< User cancelled the import.
+	CANCEL,  ///< User cancelled the import.
+	CALLBACK ///< The actual importing will happen in the provided callback.
 }
+
+public delegate void Import(ImportResult result);
 
 public class Project
 {
 	public const string LEVEL_EDITOR_TEST_NAME = "_level_editor_test";
 
-	public delegate ImportResult ImporterDelegate(Project project, string destination_dir, SList<string> filenames);
+	public delegate ImportResult ImporterDelegate(Project project, string destination_dir, SList<string> filenames, Import import_result);
 
 	[Compact]
 	public struct ImporterData
@@ -25,6 +28,7 @@ public class Project
 		public Gee.ArrayList<string> extensions;
 		public double order;
 		public Gtk.FileFilter _filter;
+		public unowned Import import_result;
 
 		ImporterData()
 		{
@@ -32,6 +36,7 @@ public class Project
 			extensions = new Gee.ArrayList<string>();
 			order = 0.0;
 			_filter = new Gtk.FileFilter();
+			import_result = null;
 		}
 
 		public bool can_import_extension(string extension)
@@ -518,7 +523,7 @@ public class Project
 		return Path.build_filename(prefix, resource_path);
 	}
 
-	public static ImportResult import_all_extensions(Project project, string destination_dir, SList<string> filenames)
+	public static ImportResult import_all_extensions(Project project, string destination_dir, SList<string> filenames, Import import_result)
 	{
 		Gee.ArrayList<string> paths = new Gee.ArrayList<string>();
 		foreach (var item in filenames)
@@ -559,7 +564,7 @@ public class Project
 			foreach (var item in importables)
 				importables_list.append(item);
 
-			result = importer.delegate(project, destination_dir, importables_list);
+			result = importer.delegate(project, destination_dir, importables_list, import_result);
 		}
 
 		return result;
@@ -598,12 +603,13 @@ public class Project
 	// Registers an @a importer for importing source data with the given @a
 	// extensions. @a order is used to establish precedence when distinct importers
 	// support similar extensions; lower values have higher precedence.
-	public void register_importer(string name, string[] extensions, ImporterDelegate importer, double order)
+	public void register_importer(string name, string[] extensions, ImporterDelegate importer, Import import_result, double order)
 	{
 		ImporterData data = ImporterData();
 		data.delegate = importer;
 		data.extensions.add_all_array(extensions);
 		data.order = order;
+		data.import_result = import_result;
 
 		register_importer_internal(name, ref data);
 	}
@@ -630,7 +636,7 @@ public class Project
 		return find_importer_for_extension(type) != null;
 	}
 
-	public ImportResult import(string? destination_dir, Gtk.Window? parent_window = null)
+	public ImportResult import(string? destination_dir, Import import_result, Gtk.Window? parent_window = null)
 	{
 		Gtk.FileChooserDialog src = new Gtk.FileChooserDialog("Import..."
 			, parent_window
@@ -691,7 +697,7 @@ public class Project
 		if (importer == null)
 			importer = _all_extensions_importer_data.delegate;
 
-		return importer(this, out_dir, filenames);
+		return importer(this, out_dir, filenames, import_result);
 	}
 
 	public void delete_tree(GLib.File file) throws Error
