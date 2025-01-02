@@ -19,6 +19,7 @@ Changelog
 * Fixed missing/wrong previews and thumbnails in some circumnstances.
 * Improved unit previews and thumbnails with better lighting/dimensionality.
 * Fixed Project Browser showing stale files in some circumnstances.
+* Items in the Level Tree can now be sorted by name or type.
 
 **Runtime**
 

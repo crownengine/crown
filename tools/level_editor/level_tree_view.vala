@@ -13,10 +13,10 @@ public class LevelTreeView : Gtk.Box
 	private enum ItemType
 	{
 		FOLDER,
-		UNIT,
-		SOUND,
+		CAMERA,
 		LIGHT,
-		CAMERA
+		SOUND,
+		UNIT
 	}
 
 	private enum Column
@@ -26,6 +26,32 @@ public class LevelTreeView : Gtk.Box
 		NAME,
 
 		COUNT
+	}
+
+	public enum SortMode
+	{
+		NAME_AZ,
+		NAME_ZA,
+		TYPE_AZ,
+		TYPE_ZA,
+
+		COUNT;
+
+		public string to_label()
+		{
+			switch (this) {
+			case NAME_AZ:
+				return "Name A-Z";
+			case NAME_ZA:
+				return "Name Z-A";
+			case TYPE_AZ:
+				return "Type A-Z";
+			case TYPE_ZA:
+				return "Type Z-A";
+			default:
+				return "Unknown";
+			}
+		}
 	}
 
 	// Data
@@ -40,6 +66,10 @@ public class LevelTreeView : Gtk.Box
 	private Gtk.TreeView _tree_view;
 	private Gtk.TreeSelection _tree_selection;
 	private Gtk.ScrolledWindow _scrolled_window;
+	private SortMode _sort_mode;
+	private Gtk.Box _sort_items_box;
+	private Gtk.Popover _sort_items_popover;
+	private Gtk.MenuButton _sort_items;
 
 	public LevelTreeView(Database db, Level level)
 	{
@@ -93,11 +123,27 @@ public class LevelTreeView : Gtk.Box
 				if ((int)type_a == ItemType.FOLDER || (int)type_b == ItemType.FOLDER)
 					return -1;
 
-				Value id_a;
-				Value id_b;
-				model.get_value(iter_a, Column.NAME, out id_a);
-				model.get_value(iter_b, Column.NAME, out id_b);
-				return strcmp((string)id_a, (string)id_b);
+				switch (_sort_mode) {
+				case SortMode.NAME_AZ:
+				case SortMode.NAME_ZA: {
+					Value name_a;
+					Value name_b;
+					model.get_value(iter_a, Column.NAME, out name_a);
+					model.get_value(iter_b, Column.NAME, out name_b);
+
+					int cmp = strcmp((string)name_a, (string)name_b);
+					return _sort_mode == SortMode.NAME_AZ ? cmp : -cmp;
+				}
+
+				case SortMode.TYPE_AZ:
+				case SortMode.TYPE_ZA: {
+					int cmp = (int)type_a - (int)type_b;
+					return _sort_mode == SortMode.TYPE_AZ ? cmp : -cmp;
+				}
+
+				default:
+					return 0;
+				}
 			});
 
 		Gtk.TreeViewColumn column = new Gtk.TreeViewColumn();
@@ -152,7 +198,27 @@ public class LevelTreeView : Gtk.Box
 		_scrolled_window = new Gtk.ScrolledWindow(null, null);
 		_scrolled_window.add(_tree_view);
 
-		this.pack_start(_filter_entry, false, true, 0);
+		// Setup sort menu button popover.
+		_sort_items_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+
+		Gtk.RadioButton? button = null;
+		for (int i = 0; i < SortMode.COUNT; ++i)
+			button = add_sort_item(button, (SortMode)i);
+
+		_sort_items_box.show_all();
+		_sort_items_popover = new Gtk.Popover(null);
+		_sort_items_popover.add(_sort_items_box);
+		_sort_items = new Gtk.MenuButton();
+		_sort_items.add(new Gtk.Image.from_icon_name("list-sort", Gtk.IconSize.SMALL_TOOLBAR));
+		_sort_items.get_style_context().add_class("flat");
+		_sort_items.can_focus = false;
+		_sort_items.set_popover(_sort_items_popover);
+
+		var tree_control = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		tree_control.pack_start(_filter_entry, true, true);
+		tree_control.pack_end(_sort_items, false, false);
+
+		this.pack_start(tree_control, false, true, 0);
 		this.pack_start(_scrolled_window, true, true, 0);
 	}
 
@@ -424,6 +490,18 @@ public class LevelTreeView : Gtk.Box
 		_tree_selection.changed.disconnect(on_tree_selection_changed);
 		_tree_filter.refilter();
 		_tree_selection.changed.connect(on_tree_selection_changed);
+	}
+
+	private Gtk.RadioButton add_sort_item(Gtk.RadioButton? group, SortMode mode)
+	{
+		var button = new Gtk.RadioButton.with_label_from_widget(group, mode.to_label());
+		button.toggled.connect(() => {
+				_sort_mode = mode;
+				_tree_filter.refilter();
+				_sort_items_popover.popdown();
+			});
+		_sort_items_box.pack_start(button, false, false);
+		return button;
 	}
 }
 
