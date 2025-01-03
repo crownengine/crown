@@ -312,8 +312,14 @@ static Buffer read(FilesystemDisk &data_fs, const char *filename)
 	return buffer;
 }
 
-static void parse_data_versions(HashMap<DynamicString, u32> &versions, const JsonObject &obj)
+static void parse_data_versions(HashMap<DynamicString, u32> &versions
+	, Buffer &json
+	)
 {
+	TempAllocator512 ta;
+	JsonObject obj(ta);
+	sjson::parse(obj, json);
+
 	auto cur = json_object::begin(obj);
 	auto end = json_object::end(obj);
 	for (; cur != end; ++cur) {
@@ -327,19 +333,24 @@ static void parse_data_versions(HashMap<DynamicString, u32> &versions, const Jso
 	}
 }
 
-static void read_data_versions(HashMap<DynamicString, u32> &versions, FilesystemDisk &data_fs, const char *filename)
+static void read_data_versions(HashMap<DynamicString, u32> &versions
+	, FilesystemDisk &data_fs
+	, const char *filename
+	)
 {
 	Buffer json = read(data_fs, filename);
+	parse_data_versions(versions, json);
+}
 
+static void parse_data_index(HashMap<StringId64, DynamicString> &index
+	, const SourceIndex &sources
+	, Buffer &json
+	)
+{
 	TempAllocator512 ta;
 	JsonObject obj(ta);
 	sjson::parse(obj, json);
 
-	parse_data_versions(versions, obj);
-}
-
-static void parse_data_index(HashMap<StringId64, DynamicString> &index, const JsonObject &obj, const SourceIndex &sources)
-{
 	auto cur = json_object::begin(obj);
 	auto end = json_object::end(obj);
 	for (; cur != end; ++cur) {
@@ -360,19 +371,25 @@ static void parse_data_index(HashMap<StringId64, DynamicString> &index, const Js
 	}
 }
 
-static void read_data_index(HashMap<StringId64, DynamicString> &index, FilesystemDisk &data_fs, const char *filename, const SourceIndex &sources)
+static void read_data_index(HashMap<StringId64, DynamicString> &index
+	, FilesystemDisk &data_fs
+	, const SourceIndex &sources
+	, const char *filename
+	)
 {
 	Buffer json = read(data_fs, filename);
+	parse_data_index(index, sources, json);
+}
 
-	TempAllocator512 ta;
+static void parse_data_mtimes(HashMap<StringId64, u64> &mtimes
+	, const HashMap<StringId64, DynamicString> &data_index
+	, Buffer &json
+	)
+{
+	TempAllocator128 ta;
 	JsonObject obj(ta);
 	sjson::parse(obj, json);
 
-	parse_data_index(index, obj, sources);
-}
-
-static void parse_data_mtimes(HashMap<StringId64, u64> &mtimes, const JsonObject &obj, const HashMap<StringId64, DynamicString> &data_index)
-{
 	auto cur = json_object::begin(obj);
 	auto end = json_object::end(obj);
 	for (; cur != end; ++cur) {
@@ -394,15 +411,14 @@ static void parse_data_mtimes(HashMap<StringId64, u64> &mtimes, const JsonObject
 	}
 }
 
-static void read_data_mtimes(HashMap<StringId64, u64> &mtimes, FilesystemDisk &data_fs, const char *filename, const HashMap<StringId64, DynamicString> &data_index)
+static void read_data_mtimes(HashMap<StringId64, u64> &mtimes
+	, FilesystemDisk &data_fs
+	, const HashMap<StringId64, DynamicString> &data_index
+	, const char *filename
+	)
 {
 	Buffer json = read(data_fs, filename);
-
-	TempAllocator128 ta;
-	JsonObject obj(ta);
-	sjson::parse(obj, json);
-
-	parse_data_mtimes(mtimes, obj, data_index);
+	parse_data_mtimes(mtimes, data_index, json);
 }
 
 static void add_dependency_internal(HashMap<StringId64, HashMap<DynamicString, u32>> &dependencies, ResourceId id, const DynamicString &dependency)
@@ -425,7 +441,11 @@ static void add_dependency_internal(HashMap<StringId64, HashMap<DynamicString, u
 	add_dependency_internal(dependencies, id, dependency_str);
 }
 
-static void read_data_dependencies(DataCompiler &dc, FilesystemDisk &data_fs, const char *filename, const HashMap<StringId64, DynamicString> &data_index)
+static void read_data_dependencies(DataCompiler &dc
+	, FilesystemDisk &data_fs
+	, const HashMap<StringId64, DynamicString> &data_index
+	, const char *filename
+	)
 {
 	Buffer json = read(data_fs, filename);
 
@@ -826,9 +846,9 @@ void DataCompiler::scan_and_restore(const char *data_dir)
 	FilesystemDisk data_fs(default_allocator());
 	data_fs.set_prefix(data_dir);
 
-	read_data_index(_data_index, data_fs, CROWN_DATA_INDEX, _source_index);
-	read_data_mtimes(_data_mtimes, data_fs, CROWN_DATA_MTIMES, _data_index);
-	read_data_dependencies(*this, data_fs, CROWN_DATA_DEPENDENCIES, _data_index);
+	read_data_index(_data_index, data_fs, _source_index, CROWN_DATA_INDEX);
+	read_data_mtimes(_data_mtimes, data_fs, _data_index, CROWN_DATA_MTIMES);
+	read_data_dependencies(*this, data_fs, _data_index, CROWN_DATA_DEPENDENCIES);
 	read_data_versions(_data_versions, data_fs, CROWN_DATA_VERSIONS);
 	logi(DATA_COMPILER, "Restored state in " TIME_FMT, time::seconds(time::now() - time_start));
 
