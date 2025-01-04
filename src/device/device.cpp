@@ -95,7 +95,7 @@ struct BgfxCallback : public bgfx::CallbackI
 	virtual void fatal(const char *_filePath, uint16_t _line, bgfx::Fatal::Enum _code, const char *_str) override
 	{
 		CE_UNUSED_4(_filePath, _line, _code, _str);
-		CE_ASSERT(false, "Fatal error: 0x%08x: %s", _code, _str);
+		error::abort("%s (code 0x%08x).\n", _str, _code);
 	}
 
 	virtual void traceVargs(const char *_filePath, u16 _line, const char *_format, va_list _argList) override
