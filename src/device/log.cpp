@@ -22,7 +22,7 @@ namespace log_internal
 {
 	static Mutex s_mutex;
 
-	static void stdout_log(LogSeverity::Enum sev, System system, const char *msg)
+	static void stdout_log(LogSeverity::Enum sev, System system, const char *format)
 	{
 		char buf[8192];
 #if CROWN_PLATFORM_POSIX && !CROWN_PLATFORM_ANDROID && !CROWN_PLATFORM_EMSCRIPTEN
@@ -33,9 +33,9 @@ namespace log_internal
 		const char *stt[] = { ANSI_RESET, ANSI_YELLOW, ANSI_RED };
 		CE_STATIC_ASSERT(countof(stt) == LogSeverity::COUNT);
 
-		stbsp_snprintf(buf, sizeof(buf), "%s%s: %s\n" ANSI_RESET, stt[sev], system.name, msg);
+		stbsp_snprintf(buf, sizeof(buf), "%s%s: %s\n" ANSI_RESET, stt[sev], system.name, format);
 #else
-		stbsp_snprintf(buf, sizeof(buf), "%s: %s\n", system.name, msg);
+		stbsp_snprintf(buf, sizeof(buf), "%s: %s\n", system.name, format);
 #endif
 		os::log(buf);
 	}
@@ -74,22 +74,22 @@ namespace log_internal
 #endif // if !CROWN_LOG_TO_CONSOLE
 	}
 
-	void vlogx(LogSeverity::Enum sev, System system, const char *msg, va_list args)
+	void vlogx(LogSeverity::Enum sev, System system, const char *format, va_list args)
 	{
 		ScopedMutex sm(s_mutex);
 
 		char buf[8192];
-		stbsp_vsnprintf(buf, sizeof(buf), msg, args);
+		stbsp_vsnprintf(buf, sizeof(buf), format, args);
 
 		stdout_log(sev, system, buf);
 		console_log(sev, system, buf);
 	}
 
-	void logx(LogSeverity::Enum sev, System system, const char *msg, ...)
+	void logx(LogSeverity::Enum sev, System system, const char *format, ...)
 	{
 		va_list args;
-		va_start(args, msg);
-		vlogx(sev, system, msg, args);
+		va_start(args, format);
+		vlogx(sev, system, format, args);
 		va_end(args);
 	}
 
