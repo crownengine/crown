@@ -13,6 +13,14 @@ public const Gtk.TargetEntry[] dnd_targets =
 	{ "RESOURCE_PATH", Gtk.TargetFlags.SAME_APP, 0 },
 };
 
+private string project_path(string type, string name)
+{
+	if (type == "<folder>")
+		return name;
+
+	return ResourceId.path(type, name);
+}
+
 // Menu to open when clicking on project's files and folders.
 private Gtk.Menu? project_entry_menu_create(string type, string name)
 {
@@ -222,12 +230,7 @@ private Gtk.Menu? project_entry_menu_create(string type, string name)
 
 	mi = new Gtk.MenuItem.with_label("Copy Path");
 	mi.activate.connect(() => {
-			string path;
-			if (type == "<folder>")
-				path = name;
-			else
-				path = ResourceId.path(type, name);
-
+			string path = project_path(type, name);
 			GLib.Application.get_default().activate_action("copy-path", new GLib.Variant.string(path));
 		});
 	menu.add(mi);
@@ -270,12 +273,7 @@ private Gtk.Menu? favorites_entry_menu_create(string type, string name)
 
 	mi = new Gtk.MenuItem.with_label("Copy Path");
 	mi.activate.connect(() => {
-			string path;
-			if (type == "<folder>")
-				path = name;
-			else
-				path = ResourceId.path(type, name);
-
+			string path = project_path(type, name);
 			GLib.Application.get_default().activate_action("copy-path", new GLib.Variant.string(path));
 		});
 	menu.add(mi);
