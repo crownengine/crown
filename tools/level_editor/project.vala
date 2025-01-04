@@ -413,17 +413,6 @@ public class Project
 		}
 	}
 
-	public void delete_resource(string type, string name)
-	{
-		var path = this.absolute_path(ResourceId.path(type, name));
-
-		try {
-			GLib.File.new_for_path(path).delete();
-		} catch (Error e) {
-			loge(e.message);
-		}
-	}
-
 	/// Converts the @a resource_id to its corresponding human-readable @a
 	/// resource_name. It returns true if the conversion is successful, otherwise
 	/// it returns false and sets @a resource_name to the value of @a resource_id.

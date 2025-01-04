@@ -211,7 +211,8 @@ private Gtk.Menu? project_entry_menu_create(string type, string name)
 
 		mi = new Gtk.MenuItem.with_label("Delete File");
 		mi.activate.connect(() => {
-				GLib.Application.get_default().activate_action("delete-file", new GLib.Variant.string(ResourceId.path((string)type, (string)name)));
+				string path = project_path(type, name);
+				GLib.Application.get_default().activate_action("delete-file", new GLib.Variant.string(path));
 			});
 		menu.add(mi);
 	}

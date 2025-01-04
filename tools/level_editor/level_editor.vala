@@ -2907,24 +2907,32 @@ public class LevelEditorApplication : Gtk.Application
 		string resource_path  = param.get_string();
 		string? resource_type = ResourceId.type(resource_path);
 		string? resource_name = ResourceId.name(resource_path);
-		if (resource_type == null || resource_name == null)
-			return;
+		bool do_delete = true;
 
-		if (resource_name == _level._name) {
-			int rt = ResponseType.YES;
+		if (resource_type != null && resource_name != null) {
+			if (resource_name == _level._name) {
+				int rt = ResponseType.YES;
 
-			if (_database.changed())
-				rt = run_level_changed_dialog(this.active_window);
+				if (_database.changed())
+					rt = run_level_changed_dialog(this.active_window);
 
-			if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO) {
-				new_level();
-				send_state();
-				_editor.send(DeviceApi.frame());
-
-				_project.delete_resource(resource_type, resource_name);
+				if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO) {
+					new_level();
+					send_state();
+					_editor.send(DeviceApi.frame());
+				} else {
+					do_delete = false;
+				}
 			}
-		} else {
-			_project.delete_resource(resource_type, resource_name);
+		}
+
+		if (do_delete) {
+			string path = _project.absolute_path(resource_path);
+			try {
+				GLib.File.new_for_path(path).delete();
+			} catch (Error e) {
+				loge(e.message);
+			}
 		}
 	}
 
