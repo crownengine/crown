@@ -1454,7 +1454,7 @@ void DataCompiler::file_monitor_callback(FileMonitorEvent::Enum fme, bool is_dir
 			break;
 
 		default:
-			CE_ASSERT(false, "Unknown FileMonitorEvent: %d", fme);
+			CE_FATAL("Unknown FileMonitorEvent: %d", fme);
 			break;
 		}
 	}

@@ -1652,7 +1652,7 @@ namespace shader_resource_internal
 			case FunctionOp::OP_LOGIC_NOT: a = POP(); PUSH(f32(!a)); break;
 			case FunctionOp::OP_DEFINED: a = POP(); PUSH(f32(a == 1.0)); break;
 			default:
-				CE_ASSERT(false, "Unknown opcode %d", op_code);
+				CE_FATAL("Unknown opcode %d", op_code);
 			}
 
 #undef POP

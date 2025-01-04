@@ -23,7 +23,7 @@ namespace json
 		CE_ENSURE(NULL != json);
 
 		if (c && c != *json) {
-			CE_ASSERT(false, "Expected '%c' got '%c'", c, *json);
+			CE_FATAL("Expected '%c' got '%c'", c, *json);
 		}
 
 		return ++json;
