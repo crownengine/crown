@@ -1037,8 +1037,6 @@ int main(int argc, char **argv)
 {
 	using namespace crown;
 
-	struct sigaction old_SIGINT;
-	struct sigaction old_SIGTERM;
 	struct sigaction act;
 	// code-format off
 	act.sa_handler = [](int signum) {
@@ -1050,17 +1048,35 @@ int main(int argc, char **argv)
 					device()->quit();
 				break;
 
+			case SIGABRT:
+			case SIGBUS:
+			case SIGFPE:
+			case SIGILL:
+			case SIGPIPE:
+			case SIGSEGV:
+			case SIGSYS:
+				// FIXME: only use signal-safe functions.
+				error::abort("Signal %d\n", signum);
+				break;
+
 			default:
+				// FIXME: only use signal-safe functions.
+				error::abort("Unhandled signal %d\n", signum);
 				break;
 			}
 		};
 	// code-format on
 	sigemptyset(&act.sa_mask);
 	act.sa_flags = 0;
-	sigaction(SIGINT, NULL, &old_SIGINT);
 	sigaction(SIGINT, &act, NULL);
-	sigaction(SIGTERM, NULL, &old_SIGTERM);
 	sigaction(SIGTERM, &act, NULL);
+	sigaction(SIGABRT, &act, NULL);
+	sigaction(SIGBUS, &act, NULL);
+	sigaction(SIGFPE, &act, NULL);
+	sigaction(SIGILL, &act, NULL);
+	sigaction(SIGPIPE, &act, NULL);
+	sigaction(SIGSEGV, &act, NULL);
+	sigaction(SIGSYS, &act, NULL);
 
 #if CROWN_BUILD_UNIT_TESTS
 	CommandLine cl(argc, (const char **)argv);
@@ -1092,10 +1108,6 @@ int main(int argc, char **argv)
 		ec = s_linux_device->run(&opts);
 		CE_DELETE(default_allocator(), s_linux_device);
 	}
-
-	// Restore original signal handlers.
-	sigaction(SIGINT, &old_SIGINT, NULL);
-	sigaction(SIGTERM, &old_SIGTERM, NULL);
 
 	return ec;
 }
