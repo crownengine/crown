@@ -214,12 +214,6 @@ private Gtk.Menu? project_entry_menu_create(string type, string name)
 				GLib.Application.get_default().activate_action("delete-file", new GLib.Variant.string(ResourceId.path((string)type, (string)name)));
 			});
 		menu.add(mi);
-
-		mi = new Gtk.MenuItem.with_label("Open Containing Folder...");
-		mi.activate.connect(() => {
-				GLib.Application.get_default().activate_action("open-containing", new GLib.Variant.string(name));
-			});
-		menu.add(mi);
 	}
 
 	// Add shared menu items.
@@ -238,6 +232,12 @@ private Gtk.Menu? project_entry_menu_create(string type, string name)
 	mi = new Gtk.MenuItem.with_label("Copy Name");
 	mi.activate.connect(() => {
 			GLib.Application.get_default().activate_action("copy-name", new GLib.Variant.string(name));
+		});
+	menu.add(mi);
+
+	mi = new Gtk.MenuItem.with_label("Open Containing Folder...");
+	mi.activate.connect(() => {
+			GLib.Application.get_default().activate_action("open-containing", new GLib.Variant.string(name));
 		});
 	menu.add(mi);
 
