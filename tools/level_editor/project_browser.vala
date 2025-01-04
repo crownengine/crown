@@ -133,10 +133,10 @@ private Gtk.Menu? project_entry_menu_create(string type, string name)
 						dg.destroy();
 						return;
 					}
-				}
 
-				var tuple = new GLib.Variant.tuple({(string)name, sb.text});
-				GLib.Application.get_default().activate_action("create-unit", tuple);
+					var tuple = new GLib.Variant.tuple({(string)name, sb.text});
+					GLib.Application.get_default().activate_action("create-unit", tuple);
+				}
 
 				dg.destroy();
 			});

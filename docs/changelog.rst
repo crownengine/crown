@@ -20,6 +20,7 @@ Changelog
 * Improved unit previews and thumbnails with better lighting/dimensionality.
 * Fixed Project Browser showing stale files in some circumnstances.
 * Items in the Level Tree can now be sorted by name or type.
+* Fixed an issue in the Project Browser that caused a new Unit to be always created even if the user cancelled the "New Unit..." action.
 
 **Runtime**
 
