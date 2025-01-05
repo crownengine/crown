@@ -102,7 +102,7 @@ static s32 compile_camera(Buffer &output, const char *json, CompileOptions &opts
 	RETURN_IF_ERROR(sjson::parse_string(type, obj["projection"]), opts);
 
 	ProjectionType::Enum pt = projection_name_to_enum(type.c_str());
-	DATA_COMPILER_ASSERT(pt != ProjectionType::COUNT
+	RETURN_IF_FALSE(pt != ProjectionType::COUNT
 		, opts
 		, "Unknown projection type: '%s'"
 		, type.c_str()
@@ -132,7 +132,7 @@ static s32 compile_mesh_renderer(Buffer &output, const char *json, CompileOption
 	DynamicString mesh_resource(ta);
 	RETURN_IF_ERROR(sjson::parse_string(mesh_resource, obj["mesh_resource"]), opts);
 
-	DATA_COMPILER_ENSURE(opts.resource_exists("mesh", mesh_resource.c_str())
+	ENSURE_OR_RETURN(opts.resource_exists("mesh", mesh_resource.c_str())
 		|| opts.file_exists(mesh_resource.c_str())
 		, opts
 		);
@@ -146,7 +146,7 @@ static s32 compile_mesh_renderer(Buffer &output, const char *json, CompileOption
 
 	DynamicString material(ta);
 	RETURN_IF_ERROR(sjson::parse_string(material, obj["material"]), opts);
-	DATA_COMPILER_ASSERT_RESOURCE_EXISTS("material"
+	RETURN_IF_RESOURCE_MISSING("material"
 		, material.c_str()
 		, opts
 		);
@@ -181,7 +181,7 @@ static s32 compile_sprite_renderer(Buffer &output, const char *json, CompileOpti
 
 	DynamicString sprite_resource(ta);
 	RETURN_IF_ERROR(sjson::parse_string(sprite_resource, obj["sprite_resource"]), opts);
-	DATA_COMPILER_ASSERT_RESOURCE_EXISTS("sprite"
+	RETURN_IF_RESOURCE_MISSING("sprite"
 		, sprite_resource.c_str()
 		, opts
 		);
@@ -189,7 +189,7 @@ static s32 compile_sprite_renderer(Buffer &output, const char *json, CompileOpti
 
 	DynamicString material(ta);
 	RETURN_IF_ERROR(sjson::parse_string(material, obj["material"]), opts);
-	DATA_COMPILER_ASSERT_RESOURCE_EXISTS("material"
+	RETURN_IF_RESOURCE_MISSING("material"
 		, material.c_str()
 		, opts
 		);
@@ -236,7 +236,7 @@ static s32 compile_light(Buffer &output, const char *json, CompileOptions &opts)
 	RETURN_IF_ERROR(sjson::parse_string(type, obj["type"]), opts);
 
 	LightType::Enum lt = light_name_to_enum(type.c_str());
-	DATA_COMPILER_ASSERT(lt != LightType::COUNT
+	RETURN_IF_FALSE(lt != LightType::COUNT
 		, opts
 		, "Unknown light type: '%s'"
 		, type.c_str()
@@ -267,7 +267,7 @@ static s32 compile_script(Buffer &output, const char *json, CompileOptions &opts
 
 	DynamicString script_resource(ta);
 	RETURN_IF_ERROR(sjson::parse_string(script_resource, obj["script_resource"]), opts);
-	DATA_COMPILER_ASSERT_RESOURCE_EXISTS("lua"
+	RETURN_IF_RESOURCE_MISSING("lua"
 		, script_resource.c_str()
 		, opts
 		);
@@ -290,7 +290,7 @@ static s32 compile_animation_state_machine(Buffer &output, const char *json, Com
 
 	DynamicString state_machine_resource(ta);
 	RETURN_IF_ERROR(sjson::parse_string(state_machine_resource, obj["state_machine_resource"]), opts);
-	DATA_COMPILER_ASSERT_RESOURCE_EXISTS("state_machine"
+	RETURN_IF_RESOURCE_MISSING("state_machine"
 		, state_machine_resource.c_str()
 		, opts
 		);
@@ -343,7 +343,7 @@ namespace unit_compiler
 
 			for (u32 i = 0; i < array::size(children); ++i) {
 				s32 err = collect_prefabs(c, unit_name, children[i], false);
-				DATA_COMPILER_ENSURE(err == 0, c._opts);
+				ENSURE_OR_RETURN(err == 0, c._opts);
 			}
 		}
 
@@ -351,7 +351,7 @@ namespace unit_compiler
 			TempAllocator512 ta;
 			DynamicString path(ta);
 			RETURN_IF_ERROR(sjson::parse_string(path, prefab["prefab"]), c._opts);
-			DATA_COMPILER_ASSERT_RESOURCE_EXISTS("unit"
+			RETURN_IF_RESOURCE_MISSING("unit"
 				, path.c_str()
 				, c._opts
 				);
@@ -360,7 +360,7 @@ namespace unit_compiler
 
 			Buffer buf = read_unit(c, path.c_str());
 			s32 err = collect_prefabs(c, name, array::begin(buf), true);
-			DATA_COMPILER_ENSURE(err == 0, c._opts);
+			ENSURE_OR_RETURN(err == 0, c._opts);
 		}
 
 		if (append_data) {
@@ -486,7 +486,7 @@ namespace unit_compiler
 					array::pop_back(unit->_merged_components_data);
 				} else {
 					char buf[GUID_BUF_LEN];
-					DATA_COMPILER_ASSERT(false
+					RETURN_IF_FALSE(false
 						, c._opts
 						, "Deletion of unexisting component ID: %s"
 						, guid::to_string(buf, sizeof(buf), component_id)
@@ -523,7 +523,7 @@ namespace unit_compiler
 					unit->_merged_components_data[comp_idx] = modified_component["data"];
 				} else {
 					char buf[GUID_BUF_LEN];
-					DATA_COMPILER_ASSERT(false
+					RETURN_IF_FALSE(false
 						, c._opts
 						, "Modification of unexisting component ID: %s"
 						, guid::to_string(buf, sizeof(buf), component_id)
@@ -566,7 +566,7 @@ namespace unit_compiler
 			DynamicString prefab(ta);
 			RETURN_IF_ERROR(sjson::parse_string(prefab, obj["prefab"]), c._opts);
 			const char *prefab_json_data = prefab_json(c, prefab.c_str());
-			DATA_COMPILER_ASSERT(prefab_json_data != NULL
+			RETURN_IF_FALSE(prefab_json_data != NULL
 				, c._opts
 				, "Unknown prefab: '%s'"
 				, prefab.c_str()
@@ -577,11 +577,11 @@ namespace unit_compiler
 				, unit
 				, NULL
 				);
-			DATA_COMPILER_ENSURE(err == 0, c._opts);
+			ENSURE_OR_RETURN(err == 0, c._opts);
 		}
 
 		s32 err = modify_unit_components(c, unit, unit_json);
-		DATA_COMPILER_ENSURE(err == 0, c._opts);
+		ENSURE_OR_RETURN(err == 0, c._opts);
 
 		if (json_object::has(obj, "children")) {
 			JsonArray children(ta);
@@ -593,7 +593,7 @@ namespace unit_compiler
 					, NULL
 					, unit
 					);
-				DATA_COMPILER_ENSURE(err == 0, c._opts);
+				ENSURE_OR_RETURN(err == 0, c._opts);
 			}
 		}
 
@@ -610,7 +610,7 @@ namespace unit_compiler
 				Unit *child = find_children(unit, id);
 
 				char buf[GUID_BUF_LEN];
-				DATA_COMPILER_ASSERT(child != NULL
+				RETURN_IF_FALSE(child != NULL
 					, c._opts
 					, "Deletion of unexisting child ID: %s"
 					, guid::to_string(buf, sizeof(buf), id)
@@ -634,14 +634,14 @@ namespace unit_compiler
 				Unit *child = find_children(unit, id);
 
 				char buf[GUID_BUF_LEN];
-				DATA_COMPILER_ASSERT(child != NULL
+				RETURN_IF_FALSE(child != NULL
 					, c._opts
 					, "Modification of unexisting child ID: %s"
 					, guid::to_string(buf, sizeof(buf), id)
 					);
 
 				s32 err = modify_unit_components(c, child, modified_children[ii]);
-				DATA_COMPILER_ENSURE(err == 0, c._opts);
+				ENSURE_OR_RETURN(err == 0, c._opts);
 			}
 		}
 
@@ -661,7 +661,7 @@ namespace unit_compiler
 	s32 parse_unit_from_json(UnitCompiler &c, const char *unit_json)
 	{
 		s32 err = collect_prefabs(c, StringId64(), unit_json, true);
-		DATA_COMPILER_ENSURE(err == 0, c._opts);
+		ENSURE_OR_RETURN(err == 0, c._opts);
 
 		u32 original_unit = c._prefab_offsets[array::size(c._prefab_offsets) - 1];
 		return parse_unit_internal(c, &c._prefab_data[original_unit], NULL, NULL);
@@ -682,14 +682,14 @@ namespace unit_compiler
 
 		for (u32 i = 0; i < array::size(units); ++i) {
 			s32 err = collect_prefabs(c, StringId64(), units[i], true);
-			DATA_COMPILER_ENSURE(err == 0, c._opts);
+			ENSURE_OR_RETURN(err == 0, c._opts);
 			u32 original_unit = c._prefab_offsets[array::size(c._prefab_offsets) - 1];
 			array::push_back(original_units, original_unit);
 		}
 
 		for (u32 i = 0; i < array::size(units); ++i) {
 			s32 err = parse_unit_internal(c, &c._prefab_data[original_units[i]], NULL, NULL);
-			DATA_COMPILER_ENSURE(err == 0, c._opts);
+			ENSURE_OR_RETURN(err == 0, c._opts);
 		}
 
 		return 0;
@@ -722,19 +722,19 @@ namespace unit_compiler
 			// Append data to the component data for the given type.
 			ComponentTypeData ctd_deffault(default_allocator());
 			ComponentTypeData &ctd = const_cast<ComponentTypeData &>(hash_map::get(c._component_data, comp_type, ctd_deffault));
-			DATA_COMPILER_ASSERT(&ctd != &ctd_deffault, c._opts, "Unknown component type");
+			RETURN_IF_FALSE(&ctd != &ctd_deffault, c._opts, "Unknown component type");
 
 			// Compile component.
 			Buffer comp_data(default_allocator());
 			s32 err = ctd._compiler(comp_data, unit->_merged_components_data[cc], c._opts);
-			DATA_COMPILER_ENSURE(err == 0, c._opts);
+			ENSURE_OR_RETURN(err == 0, c._opts);
 
 			// One component per unit max.
 			auto cur = array::begin(ctd._unit_index);
 			auto end = array::end(ctd._unit_index);
 			if (std::find(cur, end, unit_index) != end) {
 				char buf[STRING_ID32_BUF_LEN];
-				DATA_COMPILER_ASSERT(false
+				RETURN_IF_FALSE(false
 					, c._opts
 					, "Unit already has a component of type: %s"
 					, comp_type.to_string(buf, sizeof(buf))
@@ -756,12 +756,12 @@ namespace unit_compiler
 		for (; cur != end; ++cur) {
 			HASH_MAP_SKIP_HOLE(unit->_children, cur);
 
-			DATA_COMPILER_ASSERT(unit_has_transform
+			RETURN_IF_FALSE(unit_has_transform
 				, c._opts
 				, "Units with children must have 'transform' component"
 				);
 			s32 err = flatten_unit(c, cur->second, unit_index);
-			DATA_COMPILER_ENSURE(err == 0, c._opts);
+			ENSURE_OR_RETURN(err == 0, c._opts);
 		}
 
 		return 0;
@@ -795,7 +795,7 @@ namespace unit_compiler
 			HASH_MAP_SKIP_HOLE(c._units, cur);
 
 			s32 err = flatten_unit(c, cur->second, UINT32_MAX);
-			DATA_COMPILER_ENSURE(err == 0, c._opts);
+			ENSURE_OR_RETURN(err == 0, c._opts);
 		}
 
 		return 0;
@@ -807,7 +807,7 @@ namespace unit_compiler
 		BinaryWriter bw(fb);
 
 		s32 err = flatten(c);
-		DATA_COMPILER_ENSURE(err == 0, c._opts);
+		ENSURE_OR_RETURN(err == 0, c._opts);
 
 		// Count component types.
 		u32 num_component_types = 0;

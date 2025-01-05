@@ -65,7 +65,7 @@ namespace level_resource_internal
 
 				DynamicString sound_name(ta);
 				RETURN_IF_ERROR(sjson::parse_string(sound_name, sound["name"]), opts);
-				DATA_COMPILER_ASSERT_RESOURCE_EXISTS("sound"
+				RETURN_IF_RESOURCE_MISSING("sound"
 					, sound_name.c_str()
 					, opts
 					);
@@ -84,11 +84,11 @@ namespace level_resource_internal
 
 		UnitCompiler uc(default_allocator(), opts);
 		s32 err = unit_compiler::parse_unit_array_from_json(uc, obj["units"]);
-		DATA_COMPILER_ENSURE(err == 0, opts);
+		ENSURE_OR_RETURN(err == 0, opts);
 
 		Buffer units_blob(default_allocator());
 		err = unit_compiler::blob(units_blob, uc);
-		DATA_COMPILER_ENSURE(err == 0, opts);
+		ENSURE_OR_RETURN(err == 0, opts);
 
 		// Write
 		LevelResource lr;

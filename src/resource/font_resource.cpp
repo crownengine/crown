@@ -87,7 +87,7 @@ namespace font_resource_internal
 
 		const u32 texture_size = RETURN_IF_ERROR(sjson::parse_int(obj["size"]), opts);
 		const u32 font_size    = RETURN_IF_ERROR(sjson::parse_int(obj["font_size"]), opts);
-		DATA_COMPILER_ASSERT(font_size > 0
+		RETURN_IF_FALSE(font_size > 0
 			, opts
 			, "Font size must be > 0"
 			);
@@ -95,7 +95,7 @@ namespace font_resource_internal
 		s32 err = 0;
 		Array<GlyphInfo> _glyphs(default_allocator());
 		err = parse_glyphs(_glyphs, glyphs, opts);
-		DATA_COMPILER_ENSURE(err == 0, opts);
+		ENSURE_OR_RETURN(err == 0, opts);
 		std::sort(array::begin(_glyphs), array::end(_glyphs));
 
 		opts.write(RESOURCE_HEADER(RESOURCE_VERSION_FONT));

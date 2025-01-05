@@ -153,7 +153,7 @@ namespace texture_resource_internal
 			if (json_object::has(obj, "format")) {
 				RETURN_IF_ERROR(sjson::parse_string(format, obj["format"]), opts);
 				os.format = texture_format_to_enum(format.c_str());
-				DATA_COMPILER_ASSERT(os.format != TextureFormat::COUNT
+				RETURN_IF_FALSE(os.format != TextureFormat::COUNT
 					, opts
 					, "Unknown texture format: '%s'"
 					, format.c_str()
@@ -183,7 +183,7 @@ namespace texture_resource_internal
 
 		DynamicString name(ta);
 		RETURN_IF_ERROR(sjson::parse_string(name, obj["source"]), opts);
-		DATA_COMPILER_ASSERT_FILE_EXISTS(name.c_str(), opts);
+		RETURN_IF_FILE_MISSING(name.c_str(), opts);
 		opts.fake_read(name.c_str());
 
 		OutputSettings os;
@@ -199,7 +199,7 @@ namespace texture_resource_internal
 		if (json_object::has(obj, "output")) {
 			RETURN_IF_ERROR(sjson::parse_object(output, obj["output"]), opts);
 			s32 err = parse_output(os, output, opts);
-			DATA_COMPILER_ENSURE(err == 0, opts);
+			ENSURE_OR_RETURN(err == 0, opts);
 		}
 
 		DynamicString tex_src(ta);
@@ -208,7 +208,7 @@ namespace texture_resource_internal
 		opts.temporary_path(tex_out, "ktx");
 
 		const char *texturec = opts.exe_path(texturec_paths, countof(texturec_paths));
-		DATA_COMPILER_ASSERT(texturec != NULL
+		RETURN_IF_FALSE(texturec != NULL
 			, opts
 			, "texturec not found"
 			);
@@ -233,7 +233,7 @@ namespace texture_resource_internal
 		};
 		Process pr;
 		s32 sc = pr.spawn(argv, CROWN_PROCESS_STDOUT_PIPE | CROWN_PROCESS_STDERR_MERGE);
-		DATA_COMPILER_ASSERT(sc == 0
+		RETURN_IF_FALSE(sc == 0
 			, opts
 			, "Failed to spawn `%s`"
 			, argv[0]
@@ -241,7 +241,7 @@ namespace texture_resource_internal
 		StringStream texturec_output(ta);
 		opts.read_output(texturec_output, pr);
 		s32 ec = pr.wait();
-		DATA_COMPILER_ASSERT(ec == 0
+		RETURN_IF_FALSE(ec == 0
 			, opts
 			, "Failed to compile texture:\n%s"
 			, string_stream::c_str(texturec_output)

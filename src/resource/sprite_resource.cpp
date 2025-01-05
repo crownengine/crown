@@ -92,7 +92,7 @@ namespace sprite_resource_internal
 		// Parse frames.
 		Array<SpriteFrame> sprite_frames(default_allocator());
 		s32 err = parse_frames(sprite_frames, frames, opts);
-		DATA_COMPILER_ENSURE(err == 0, opts);
+		ENSURE_OR_RETURN(err == 0, opts);
 
 		// Fill verices.
 		Array<f32> vertices(default_allocator());

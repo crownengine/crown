@@ -166,7 +166,7 @@ namespace physics_resource_internal
 		RETURN_IF_ERROR(sjson::parse_string(type, obj["shape"]), opts);
 
 		ColliderType::Enum st = shape_type_to_enum(type.c_str());
-		DATA_COMPILER_ASSERT(st != ColliderType::COUNT
+		RETURN_IF_FALSE(st != ColliderType::COUNT
 			, opts
 			, "Unknown shape type: '%s'"
 			, type.c_str()
@@ -197,11 +197,11 @@ namespace physics_resource_internal
 			// Parse mesh resource.
 			Mesh mesh(default_allocator());
 			s32 err = mesh::parse(mesh, opts, scene.c_str());
-			DATA_COMPILER_ENSURE(err == 0, opts);
+			ENSURE_OR_RETURN(err == 0, opts);
 
 			Node deffault_node(default_allocator());
 			Node &node = hash_map::get(mesh._nodes, name, deffault_node);
-			DATA_COMPILER_ASSERT(&node != &deffault_node
+			RETURN_IF_FALSE(&node != &deffault_node
 				, opts
 				, "Node '%s' does not exist"
 				, name.c_str()
@@ -209,7 +209,7 @@ namespace physics_resource_internal
 
 			Geometry deffault_geometry(default_allocator());
 			Geometry &geometry = hash_map::get(mesh._geometries, node._geometry, deffault_geometry);
-			DATA_COMPILER_ASSERT(&geometry != &deffault_geometry
+			RETURN_IF_FALSE(&geometry != &deffault_geometry
 				, opts
 				, "Geometry '%s' does not exist"
 				, node._geometry.c_str()
@@ -232,16 +232,16 @@ namespace physics_resource_internal
 			case ColliderType::CONVEX_HULL: break;
 			case ColliderType::MESH:        break;
 			case ColliderType::HEIGHTFIELD:
-				DATA_COMPILER_ASSERT(false, opts, "Not implemented yet");
+				RETURN_IF_FALSE(false, opts, "Not implemented yet");
 				break;
 			default:
-				DATA_COMPILER_ASSERT(false, opts, "Invalid collider type");
+				RETURN_IF_FALSE(false, opts, "Invalid collider type");
 				break;
 			}
 		} else {
 			JsonObject collider_data(ta);
 			JsonArray org(ta);
-			DATA_COMPILER_ASSERT(json_object::has(obj, "collider_data")
+			RETURN_IF_FALSE(json_object::has(obj, "collider_data")
 				, opts
 				, "No collider_data found"
 				);
@@ -259,7 +259,7 @@ namespace physics_resource_internal
 				cd.capsule.radius = RETURN_IF_ERROR(sjson::parse_float(collider_data["radius"]), opts);
 				cd.capsule.height = RETURN_IF_ERROR(sjson::parse_float(collider_data["height"]), opts);
 			} else {
-				DATA_COMPILER_ASSERT(false, opts, "Invalid collider type");
+				RETURN_IF_FALSE(false, opts, "Invalid collider type");
 			}
 		}
 
@@ -359,7 +359,7 @@ namespace physics_resource_internal
 		RETURN_IF_ERROR(sjson::parse_string(type, obj["type"]), opts);
 
 		JointType::Enum jt = joint_type_to_enum(type.c_str());
-		DATA_COMPILER_ASSERT(jt != JointType::COUNT
+		RETURN_IF_FALSE(jt != JointType::COUNT
 			, opts
 			, "Unknown joint type: '%s'"
 			, type.c_str()
@@ -557,7 +557,7 @@ namespace physics_config_resource_internal
 
 		u32 new_filter_mask()
 		{
-			DATA_COMPILER_ASSERT(_filter != 0x80000000u
+			RETURN_IF_FALSE(_filter != 0x80000000u
 				, _opts
 				, "Too many collision filters"
 				);
@@ -569,7 +569,7 @@ namespace physics_config_resource_internal
 
 		u32 filter_to_mask(StringId32 filter)
 		{
-			DATA_COMPILER_ASSERT(hash_map::has(_filter_map, filter)
+			RETURN_IF_FALSE(hash_map::has(_filter_map, filter)
 				, _opts
 				, "Filter not found"
 				);
@@ -593,15 +593,15 @@ namespace physics_config_resource_internal
 		s32 err = 0;
 		if (json_object::has(obj, "collision_filters")) {
 			err = cfc.parse(obj["collision_filters"]);
-			DATA_COMPILER_ENSURE(err == 0, opts);
+			ENSURE_OR_RETURN(err == 0, opts);
 		}
 		if (json_object::has(obj, "materials")) {
 			err = parse_materials(obj["materials"], materials, opts);
-			DATA_COMPILER_ENSURE(err == 0, opts);
+			ENSURE_OR_RETURN(err == 0, opts);
 		}
 		if (json_object::has(obj, "actors")) {
 			err = parse_actors(obj["actors"], actors, opts);
-			DATA_COMPILER_ENSURE(err == 0, opts);
+			ENSURE_OR_RETURN(err == 0, opts);
 		}
 
 		// Setup struct for writing

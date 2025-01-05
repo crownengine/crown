@@ -134,7 +134,7 @@ namespace lua_resource_internal
 		Process pr;
 		s32 sc;
 		sc = pr.spawn(argv, CROWN_PROCESS_STDOUT_PIPE | CROWN_PROCESS_STDERR_MERGE);
-		DATA_COMPILER_ASSERT(sc == 0
+		RETURN_IF_FALSE(sc == 0
 			, opts
 			, "Failed to spawn `%s`"
 			, argv[0]
@@ -159,7 +159,7 @@ namespace lua_resource_internal
 		StringStream output(ta);
 		opts.read_output(output, pr);
 		s32 ec = pr.wait();
-		DATA_COMPILER_ASSERT(ec == 0
+		RETURN_IF_FALSE(ec == 0
 			, opts
 			, "Failed to compile lua:\n%s"
 			, string_stream::c_str(output)

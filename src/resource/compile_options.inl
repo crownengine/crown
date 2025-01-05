@@ -11,39 +11,39 @@
 #include "core/filesystem/reader_writer.inl"
 #include "resource/compile_options.h"
 
-#define DATA_COMPILER_ASSERT(condition, opts, msg, ...) \
-	do                                                  \
-	{                                                   \
-		if (!(condition))                               \
-		{                                               \
-			opts.error(msg, ## __VA_ARGS__);            \
-			return -1;                                  \
-		}                                               \
+#define RETURN_IF_FALSE(condition, opts, msg, ...) \
+	do                                             \
+	{                                              \
+		if (!(condition))                          \
+		{                                          \
+			opts.error(msg, ## __VA_ARGS__);       \
+			return -1;                             \
+		}                                          \
 	} while (0)
 
-#define DATA_COMPILER_ENSURE(condition, opts)             \
-	DATA_COMPILER_ASSERT(condition                        \
+#define ENSURE_OR_RETURN(condition, opts) \
+	RETURN_IF_FALSE(condition             \
+		, opts                            \
+		, # condition " failed."          \
+		)
+
+#define RETURN_IF_RESOURCE_MISSING(type, name, opts)      \
+	RETURN_IF_FALSE(opts.resource_exists(type, name)      \
 		, opts                                            \
-		, "DATA_COMPILER_ENSURE(" # condition ") failed." \
+		, opts._server                                    \
+		? "Resource not found: " RESOURCE_ID_FMT_STR_PAIR \
+		: "Resource not found: %s.%s"                     \
+		, name                                            \
+		, type                                            \
 		)
 
-#define DATA_COMPILER_ASSERT_RESOURCE_EXISTS(type, name, opts) \
-	DATA_COMPILER_ASSERT(opts.resource_exists(type, name)      \
-		, opts                                                 \
-		, opts._server                                         \
-		? "Resource not found: " RESOURCE_ID_FMT_STR_PAIR      \
-		: "Resource not found: %s.%s"                          \
-		, name                                                 \
-		, type                                                 \
-		)
-
-#define DATA_COMPILER_ASSERT_FILE_EXISTS(name, opts) \
-	DATA_COMPILER_ASSERT(opts.file_exists(name)      \
-		, opts                                       \
-		, opts._server                               \
-		? "File not found: #FILE(%s)"                \
-		: "File not found: %s"                       \
-		, name                                       \
+#define RETURN_IF_FILE_MISSING(name, opts) \
+	RETURN_IF_FALSE(opts.file_exists(name) \
+		, opts                             \
+		, opts._server                     \
+		? "File not found: #FILE(%s)"      \
+		: "File not found: %s"             \
+		, name                             \
 		)
 
 #define RETURN_IF_ERROR(sjson_func, opts) \

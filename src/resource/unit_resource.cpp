@@ -20,10 +20,10 @@ namespace unit_resource_internal
 	{
 		UnitCompiler uc(default_allocator(), opts);
 		s32 err = unit_compiler::parse_unit(uc, opts.source_path());
-		DATA_COMPILER_ENSURE(err == 0, opts);
+		ENSURE_OR_RETURN(err == 0, opts);
 		Buffer blob(default_allocator());
 		err = unit_compiler::blob(blob, uc);
-		DATA_COMPILER_ENSURE(err == 0, opts);
+		ENSURE_OR_RETURN(err == 0, opts);
 		opts.write(blob);
 		return 0;
 	}

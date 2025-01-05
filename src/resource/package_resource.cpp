@@ -99,7 +99,7 @@ namespace package_resource_internal
 			TempAllocator256 ta;
 			DynamicString name(ta);
 			RETURN_IF_ERROR(sjson::parse_string(name, names[i]), opts);
-			DATA_COMPILER_ASSERT_RESOURCE_EXISTS(type, name.c_str(), opts);
+			RETURN_IF_RESOURCE_MISSING(type, name.c_str(), opts);
 			name += ".";
 			name += type;
 			opts.fake_read(name.c_str());
@@ -182,29 +182,29 @@ namespace package_resource_internal
 
 		s32 err = 0;
 		err = compile_resources(resources_set, "texture", texture, opts);
-		DATA_COMPILER_ENSURE(err == 0, opts);
+		ENSURE_OR_RETURN(err == 0, opts);
 		err = compile_resources(resources_set, "lua", script, opts);
-		DATA_COMPILER_ENSURE(err == 0, opts);
+		ENSURE_OR_RETURN(err == 0, opts);
 		err = compile_resources(resources_set, "sound", sound, opts);
-		DATA_COMPILER_ENSURE(err == 0, opts);
+		ENSURE_OR_RETURN(err == 0, opts);
 		err = compile_resources(resources_set, "mesh", mesh, opts);
-		DATA_COMPILER_ENSURE(err == 0, opts);
+		ENSURE_OR_RETURN(err == 0, opts);
 		err = compile_resources(resources_set, "unit", unit, opts);
-		DATA_COMPILER_ENSURE(err == 0, opts);
+		ENSURE_OR_RETURN(err == 0, opts);
 		err = compile_resources(resources_set, "sprite", sprite, opts);
-		DATA_COMPILER_ENSURE(err == 0, opts);
+		ENSURE_OR_RETURN(err == 0, opts);
 		err = compile_resources(resources_set, "material", material, opts);
-		DATA_COMPILER_ENSURE(err == 0, opts);
+		ENSURE_OR_RETURN(err == 0, opts);
 		err = compile_resources(resources_set, "font", font, opts);
-		DATA_COMPILER_ENSURE(err == 0, opts);
+		ENSURE_OR_RETURN(err == 0, opts);
 		err = compile_resources(resources_set, "level", level, opts);
-		DATA_COMPILER_ENSURE(err == 0, opts);
+		ENSURE_OR_RETURN(err == 0, opts);
 		err = compile_resources(resources_set, "physics_config", phyconf, opts);
-		DATA_COMPILER_ENSURE(err == 0, opts);
+		ENSURE_OR_RETURN(err == 0, opts);
 		err = compile_resources(resources_set, "shader", shader, opts);
-		DATA_COMPILER_ENSURE(err == 0, opts);
+		ENSURE_OR_RETURN(err == 0, opts);
 		err = compile_resources(resources_set, "sprite_animation", sprite_animation, opts);
-		DATA_COMPILER_ENSURE(err == 0, opts);
+		ENSURE_OR_RETURN(err == 0, opts);
 
 		// Generate resource list
 		auto cur = hash_set::begin(resources_set);
@@ -224,7 +224,7 @@ namespace package_resource_internal
 					resources[j].online_order = online_order++;
 			}
 		}
-		DATA_COMPILER_ENSURE(online_order == array::size(resources), opts);
+		ENSURE_OR_RETURN(online_order == array::size(resources), opts);
 
 		// Write
 		opts.write(RESOURCE_HEADER(RESOURCE_VERSION_PACKAGE));

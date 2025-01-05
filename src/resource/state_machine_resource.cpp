@@ -246,7 +246,7 @@ namespace state_machine_internal
 
 				DynamicString animation_resource(ta);
 				RETURN_IF_ERROR(sjson::parse_string(animation_resource, animation["name"]), _opts);
-				DATA_COMPILER_ASSERT_RESOURCE_EXISTS("sprite_animation"
+				RETURN_IF_RESOURCE_MISSING("sprite_animation"
 					, animation_resource.c_str()
 					, _opts
 					);
@@ -272,7 +272,7 @@ namespace state_machine_internal
 				DynamicString mode_str(ta);
 				RETURN_IF_ERROR(sjson::parse_string(mode_str, transition["mode"]), _opts);
 				const u32 mode = name_to_transition_mode(mode_str.c_str());
-				DATA_COMPILER_ASSERT(mode != TransitionMode::COUNT
+				RETURN_IF_FALSE(mode != TransitionMode::COUNT
 					, _opts
 					, "Unknown transition mode: '%s'"
 					, mode_str.c_str()
@@ -307,9 +307,9 @@ namespace state_machine_internal
 
 				s32 err = 0;
 				err = parse_transitions(si, transitions);
-				DATA_COMPILER_ENSURE(err == 0, _opts);
+				ENSURE_OR_RETURN(err == 0, _opts);
 				err = parse_animations(si, animations);
-				DATA_COMPILER_ENSURE(err == 0, _opts);
+				ENSURE_OR_RETURN(err == 0, _opts);
 
 				Guid guid;
 				if (json_object::has(state, "id")) {
@@ -318,7 +318,7 @@ namespace state_machine_internal
 					guid = RETURN_IF_ERROR(sjson::parse_guid(state["_guid"]), _opts);
 				}
 
-				DATA_COMPILER_ASSERT(!hash_map::has(_states, guid)
+				RETURN_IF_FALSE(!hash_map::has(_states, guid)
 					, _opts
 					, "State GUID duplicated"
 					);
@@ -429,23 +429,23 @@ namespace state_machine_internal
 
 			s32 err = 0;
 			err = parse_states(states);
-			DATA_COMPILER_ENSURE(err == 0, _opts);
-			DATA_COMPILER_ASSERT(hash_map::size(_states) > 0
+			ENSURE_OR_RETURN(err == 0, _opts);
+			RETURN_IF_FALSE(hash_map::size(_states) > 0
 				, _opts
 				, "States cannot be empty"
 				);
 
 			_initial_state = RETURN_IF_ERROR(sjson::parse_guid(obj["initial_state"]), _opts);
-			DATA_COMPILER_ASSERT(hash_map::has(_states, _initial_state)
+			RETURN_IF_FALSE(hash_map::has(_states, _initial_state)
 				, _opts
 				, "Initial state references non-existing state"
 				);
 
 			err = parse_variables(variables);
-			DATA_COMPILER_ENSURE(err == 0, _opts);
+			ENSURE_OR_RETURN(err == 0, _opts);
 
 			err = compute_state_offsets();
-			DATA_COMPILER_ENSURE(err == 0, _opts);
+			ENSURE_OR_RETURN(err == 0, _opts);
 
 			return 0;
 		}
@@ -532,7 +532,7 @@ namespace state_machine_internal
 		StateMachineCompiler smc(opts);
 		s32 err = 0;
 		err = smc.parse(buf);
-		DATA_COMPILER_ENSURE(err == 0, opts);
+		ENSURE_OR_RETURN(err == 0, opts);
 
 		return smc.write();
 	}

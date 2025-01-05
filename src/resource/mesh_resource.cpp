@@ -225,7 +225,7 @@ namespace mesh
 
 		if (json_object::has(obj, "children")) {
 			s32 err = mesh::parse_nodes(*mesh, obj["children"], opts);
-			DATA_COMPILER_ENSURE(err == 0, opts);
+			ENSURE_OR_RETURN(err == 0, opts);
 		}
 
 		if (json_object::has(obj, "geometry")) {
@@ -263,15 +263,15 @@ namespace mesh
 		RETURN_IF_ERROR(sjson::parse(obj, sjson), opts);
 
 		s32 err = parse_float_array(g._positions, obj["position"], opts);
-		DATA_COMPILER_ENSURE(err == 0, opts);
+		ENSURE_OR_RETURN(err == 0, opts);
 
 		if (json_object::has(obj, "normal")) {
 			err = parse_float_array(g._normals, obj["normal"], opts);
-			DATA_COMPILER_ENSURE(err == 0, opts);
+			ENSURE_OR_RETURN(err == 0, opts);
 		}
 		if (json_object::has(obj, "texcoord")) {
 			err = parse_float_array(g._uvs, obj["texcoord"], opts);
-			DATA_COMPILER_ENSURE(err == 0, opts);
+			ENSURE_OR_RETURN(err == 0, opts);
 		}
 
 		return parse_indices(g, obj["indices"], opts);
@@ -290,11 +290,11 @@ namespace mesh
 
 			Geometry geo(default_allocator());
 			s32 err = mesh::parse_geometry(geo, cur->second, opts);
-			DATA_COMPILER_ENSURE(err == 0, opts);
+			ENSURE_OR_RETURN(err == 0, opts);
 
 			DynamicString geometry_name(ta);
 			geometry_name = cur->first;
-			DATA_COMPILER_ASSERT(!hash_map::has(m._geometries, geometry_name)
+			RETURN_IF_FALSE(!hash_map::has(m._geometries, geometry_name)
 				, opts
 				, "Geometry redefined: '%s'"
 				, geometry_name.c_str()
@@ -318,11 +318,11 @@ namespace mesh
 
 			Node node(default_allocator());
 			s32 err = mesh::parse_node(node, cur->second, &m, opts);
-			DATA_COMPILER_ENSURE(err == 0, opts);
+			ENSURE_OR_RETURN(err == 0, opts);
 
 			DynamicString node_name(ta);
 			node_name = cur->first;
-			DATA_COMPILER_ASSERT(!hash_map::has(m._nodes, node_name)
+			RETURN_IF_FALSE(!hash_map::has(m._nodes, node_name)
 				, opts
 				, "Node redefined: '%s'"
 				, node_name.c_str()
@@ -334,7 +334,7 @@ namespace mesh
 			if (node._geometry == "")
 				node._geometry = node_name;
 
-			DATA_COMPILER_ASSERT(hash_map::has(m._geometries, node._geometry)
+			RETURN_IF_FALSE(hash_map::has(m._geometries, node._geometry)
 				, opts
 				, "Node '%s' references unexisting geometry '%s'"
 				, node_name.c_str()
@@ -354,7 +354,7 @@ namespace mesh
 		RETURN_IF_ERROR(sjson::parse(obj, buf), opts);
 
 		s32 err = mesh::parse_geometries(m, obj["geometries"], opts);
-		DATA_COMPILER_ENSURE(err == 0, opts);
+		ENSURE_OR_RETURN(err == 0, opts);
 
 		return mesh::parse_nodes(m, obj["nodes"], opts);
 	}
@@ -372,7 +372,7 @@ namespace mesh_resource_internal
 	{
 		Mesh mesh(default_allocator());
 		s32 err = mesh::parse(mesh, opts);
-		DATA_COMPILER_ENSURE(err == 0, opts);
+		ENSURE_OR_RETURN(err == 0, opts);
 		return mesh::write(mesh, opts);
 	}
 

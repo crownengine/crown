@@ -160,7 +160,7 @@ namespace material_resource_internal
 
 			DynamicString texture(ta);
 			RETURN_IF_ERROR(sjson::parse_string(texture, value), opts);
-			DATA_COMPILER_ASSERT_RESOURCE_EXISTS("texture", texture.c_str(), opts);
+			RETURN_IF_RESOURCE_MISSING("texture", texture.c_str(), opts);
 			opts.add_requirement("texture", texture.c_str());
 
 			TextureHandle th;
@@ -208,7 +208,7 @@ namespace material_resource_internal
 			RETURN_IF_ERROR(sjson::parse_string(type, uniform["type"]), opts);
 
 			const UniformType::Enum ut = name_to_uniform_type(type.c_str());
-			DATA_COMPILER_ASSERT(ut != UniformType::COUNT
+			RETURN_IF_FALSE(ut != UniformType::COUNT
 				, opts
 				, "Unknown uniform type: '%s'"
 				, type.c_str()
@@ -298,11 +298,11 @@ namespace material_resource_internal
 
 		if (json_object::has(obj, "textures")) {
 			s32 err = parse_textures(texdata, names, dynblob, obj["textures"], opts);
-			DATA_COMPILER_ENSURE(err == 0, opts);
+			ENSURE_OR_RETURN(err == 0, opts);
 		}
 		if (json_object::has(obj, "uniforms")) {
 			s32 err = parse_uniforms(unidata, names, dynblob, obj["uniforms"], opts);
-			DATA_COMPILER_ENSURE(err == 0, opts);
+			ENSURE_OR_RETURN(err == 0, opts);
 		}
 
 		MaterialResource mr;

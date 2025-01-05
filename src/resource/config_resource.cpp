@@ -48,15 +48,15 @@ namespace config_resource_internal
 
 		const char *boot_script_json  = boot["boot_script"];
 		const char *boot_package_json = boot["boot_package"];
-		DATA_COMPILER_ASSERT(boot_script_json != NULL, opts, "'boot_script' must be specified.");
-		DATA_COMPILER_ASSERT(boot_package_json != NULL, opts, "'boot_package' must be specified.");
+		RETURN_IF_FALSE(boot_script_json != NULL, opts, "'boot_script' must be specified.");
+		RETURN_IF_FALSE(boot_package_json != NULL, opts, "'boot_package' must be specified.");
 
 		DynamicString boot_script(ta);
 		DynamicString boot_package(ta);
 		RETURN_IF_ERROR(sjson::parse_string(boot_script, boot_script_json), opts);
 		RETURN_IF_ERROR(sjson::parse_string(boot_package, boot_package_json), opts);
-		DATA_COMPILER_ASSERT_RESOURCE_EXISTS("lua", boot_script.c_str(), opts);
-		DATA_COMPILER_ASSERT_RESOURCE_EXISTS("package", boot_package.c_str(), opts);
+		RETURN_IF_RESOURCE_MISSING("lua", boot_script.c_str(), opts);
+		RETURN_IF_RESOURCE_MISSING("package", boot_package.c_str(), opts);
 
 		if (opts._bundle) {
 			TempAllocator256 ta;
