@@ -20,41 +20,6 @@
 #include "resource/types.h"
 #include <stdarg.h>
 
-#define DATA_COMPILER_ASSERT(condition, opts, msg, ...) \
-	do                                                  \
-	{                                                   \
-		if (!(condition))                               \
-		{                                               \
-			opts.error(msg, ## __VA_ARGS__);            \
-			return -1;                                  \
-		}                                               \
-	} while (0)
-
-#define DATA_COMPILER_ENSURE(condition, opts)             \
-	DATA_COMPILER_ASSERT(condition                        \
-		, opts                                            \
-		, "DATA_COMPILER_ENSURE(" # condition ") failed." \
-		)
-
-#define DATA_COMPILER_ASSERT_RESOURCE_EXISTS(type, name, opts) \
-	DATA_COMPILER_ASSERT(opts.resource_exists(type, name)      \
-		, opts                                                 \
-		, opts._server                                         \
-		? "Resource not found: " RESOURCE_ID_FMT_STR_PAIR      \
-		: "Resource not found: %s.%s"                          \
-		, name                                                 \
-		, type                                                 \
-		)
-
-#define DATA_COMPILER_ASSERT_FILE_EXISTS(name, opts) \
-	DATA_COMPILER_ASSERT(opts.file_exists(name)      \
-		, opts                                       \
-		, opts._server                               \
-		? "File not found: #FILE(%s)"                \
-		: "File not found: %s"                       \
-		, name                                       \
-		)
-
 namespace crown
 {
 struct CompileOptions
