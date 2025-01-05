@@ -1,6 +1,6 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright (c) 2012-2024 Daniele Bartolini et al.
+# Copyright (c) 2012-2025 Daniele Bartolini et al.
 
 if [ $# -lt 1 ]; then
 	echo "Usage: $0 <platform> <arch> [version]"

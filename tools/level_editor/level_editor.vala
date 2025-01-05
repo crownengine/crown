@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2024 Daniele Bartolini et al.
+ * Copyright (c) 2012-2025 Daniele Bartolini et al.
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
@@ -2880,7 +2880,7 @@ public class LevelEditorApplication : Gtk.Application
 		dlg.program_name = CROWN_EDITOR_NAME;
 		dlg.version = CROWN_VERSION;
 		dlg.website = CROWN_WWW_URL;
-		dlg.copyright = "Copyright (c) 2012-2024 Daniele Bartolini et al.";
+		dlg.copyright = "Copyright (c) 2012-2025 Daniele Bartolini et al.";
 		dlg.license_type = GPL_3_0;
 		dlg.authors =
 		{
