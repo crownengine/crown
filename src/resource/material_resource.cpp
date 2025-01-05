@@ -144,7 +144,7 @@ namespace material_resource_internal
 		return offt;
 	}
 
-	static s32 parse_textures(const char *json, Array<TextureData> &textures, Array<char> &names, Array<char> &dynamic, CompileOptions &opts)
+	static s32 parse_textures(Array<TextureData> &textures, Array<char> &names, Array<char> &dynamic, const char *json, CompileOptions &opts)
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
@@ -184,7 +184,7 @@ namespace material_resource_internal
 		return 0;
 	}
 
-	static s32 parse_uniforms(const char *json, Array<UniformData> &uniforms, Array<char> &names, Array<char> &dynamic, CompileOptions &opts)
+	static s32 parse_uniforms(Array<UniformData> &uniforms, Array<char> &names, Array<char> &dynamic, const char *json, CompileOptions &opts)
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
@@ -297,11 +297,11 @@ namespace material_resource_internal
 		RETURN_IF_ERROR(sjson::parse_string(shader, obj["shader"]), opts);
 
 		if (json_object::has(obj, "textures")) {
-			s32 err = parse_textures(obj["textures"], texdata, names, dynblob, opts);
+			s32 err = parse_textures(texdata, names, dynblob, obj["textures"], opts);
 			DATA_COMPILER_ENSURE(err == 0, opts);
 		}
 		if (json_object::has(obj, "uniforms")) {
-			s32 err = parse_uniforms(obj["uniforms"], unidata, names, dynblob, opts);
+			s32 err = parse_uniforms(unidata, names, dynblob, obj["uniforms"], opts);
 			DATA_COMPILER_ENSURE(err == 0, opts);
 		}
 

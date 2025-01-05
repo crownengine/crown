@@ -49,8 +49,8 @@ namespace package_resource_internal
 {
 	s32 bring_in_requirements(HashSet<ResourceOffset> &output
 		, u32 *graph_level
-		, CompileOptions &opts
 		, ResourceId res_id
+		, CompileOptions &opts
 		)
 	{
 		const HashMap<DynamicString, u32> reqs_deffault(default_allocator());
@@ -72,7 +72,7 @@ namespace package_resource_internal
 			const StringId64 req_name_hash(req_filename, req_name_len);
 
 			cur_graph_level = 0;
-			bring_in_requirements(output, &cur_graph_level, opts, resource_id(req_type_hash, req_name_hash));
+			bring_in_requirements(output, &cur_graph_level, resource_id(req_type_hash, req_name_hash), opts);
 			max_graph_level = max(max_graph_level, cur_graph_level + 1);
 
 			ResourceOffset ro;
@@ -88,9 +88,9 @@ namespace package_resource_internal
 	}
 
 	s32 compile_resources(HashSet<ResourceOffset> &output
-		, CompileOptions &opts
 		, const char *type
 		, const JsonArray &names
+		, CompileOptions &opts
 		)
 	{
 		const StringId64 type_hash = StringId64(type);
@@ -110,7 +110,7 @@ namespace package_resource_internal
 
 			// Bring in requirements
 			u32 graph_level = 0;
-			bring_in_requirements(output, &graph_level, opts, resource_id(ro.type, ro.name));
+			bring_in_requirements(output, &graph_level, resource_id(ro.type, ro.name), opts);
 
 			ro.online_order = graph_level;
 			ro._pad = 0;
@@ -181,29 +181,29 @@ namespace package_resource_internal
 		}
 
 		s32 err = 0;
-		err = compile_resources(resources_set, opts, "texture", texture);
+		err = compile_resources(resources_set, "texture", texture, opts);
 		DATA_COMPILER_ENSURE(err == 0, opts);
-		err = compile_resources(resources_set, opts, "lua", script);
+		err = compile_resources(resources_set, "lua", script, opts);
 		DATA_COMPILER_ENSURE(err == 0, opts);
-		err = compile_resources(resources_set, opts, "sound", sound);
+		err = compile_resources(resources_set, "sound", sound, opts);
 		DATA_COMPILER_ENSURE(err == 0, opts);
-		err = compile_resources(resources_set, opts, "mesh", mesh);
+		err = compile_resources(resources_set, "mesh", mesh, opts);
 		DATA_COMPILER_ENSURE(err == 0, opts);
-		err = compile_resources(resources_set, opts, "unit", unit);
+		err = compile_resources(resources_set, "unit", unit, opts);
 		DATA_COMPILER_ENSURE(err == 0, opts);
-		err = compile_resources(resources_set, opts, "sprite", sprite);
+		err = compile_resources(resources_set, "sprite", sprite, opts);
 		DATA_COMPILER_ENSURE(err == 0, opts);
-		err = compile_resources(resources_set, opts, "material", material);
+		err = compile_resources(resources_set, "material", material, opts);
 		DATA_COMPILER_ENSURE(err == 0, opts);
-		err = compile_resources(resources_set, opts, "font", font);
+		err = compile_resources(resources_set, "font", font, opts);
 		DATA_COMPILER_ENSURE(err == 0, opts);
-		err = compile_resources(resources_set, opts, "level", level);
+		err = compile_resources(resources_set, "level", level, opts);
 		DATA_COMPILER_ENSURE(err == 0, opts);
-		err = compile_resources(resources_set, opts, "physics_config", phyconf);
+		err = compile_resources(resources_set, "physics_config", phyconf, opts);
 		DATA_COMPILER_ENSURE(err == 0, opts);
-		err = compile_resources(resources_set, opts, "shader", shader);
+		err = compile_resources(resources_set, "shader", shader, opts);
 		DATA_COMPILER_ENSURE(err == 0, opts);
-		err = compile_resources(resources_set, opts, "sprite_animation", sprite_animation);
+		err = compile_resources(resources_set, "sprite_animation", sprite_animation, opts);
 		DATA_COMPILER_ENSURE(err == 0, opts);
 
 		// Generate resource list
