@@ -5,10 +5,12 @@
 
 #pragma once
 
+#include "config.h"
+
+#if CROWN_CAN_COMPILE
 #include "core/filesystem/reader_writer.inl"
 #include "resource/compile_options.h"
 
-#if CROWN_CAN_COMPILE
 #define DATA_COMPILER_ASSERT(condition, opts, msg, ...) \
 	do                                                  \
 	{                                                   \
