@@ -14,6 +14,7 @@
 #include "core/filesystem/path.h"
 #include "core/filesystem/reader_writer.inl"
 #include "core/guid.h"
+#include "core/json/sjson.h"
 #include "core/memory/temp_allocator.inl"
 #include "core/option.inl"
 #include "core/os.h"
@@ -35,6 +36,13 @@ static const char *s_platforms[] =
 	"windows"  // Platform::WINDOWS
 };
 CE_STATIC_ASSERT(countof(s_platforms) == Platform::COUNT);
+
+static void sjson_error(const char *msg, void *user_data)
+{
+	CompileOptions *opts = (CompileOptions *)user_data;
+	opts->error("%s", msg);
+	opts->_sjson_error = true;
+}
 
 CompileOptions::CompileOptions(File &output
 	, HashMap<DynamicString, u32> &new_dependencies
@@ -59,7 +67,9 @@ CompileOptions::CompileOptions(File &output
 	, _resource_id(res_id)
 	, _bundle(bundle)
 	, _server(_data_compiler._options->_server)
+	, _sjson_error(false)
 {
+	sjson::set_error_callback(sjson_error, this);
 }
 
 void CompileOptions::error(const char *msg, va_list args)

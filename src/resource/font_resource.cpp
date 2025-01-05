@@ -51,22 +51,22 @@ namespace font_resource_internal
 		}
 	};
 
-	s32 parse_glyphs(Array<GlyphInfo> &_glyphs, const JsonArray &glyphs)
+	s32 parse_glyphs(Array<GlyphInfo> &_glyphs, const JsonArray &glyphs, CompileOptions &opts)
 	{
 		for (u32 i = 0; i < array::size(glyphs); ++i) {
 			TempAllocator512 ta;
 			JsonObject obj(ta);
-			sjson::parse(obj, glyphs[i]);
+			RETURN_IF_ERROR(sjson::parse(obj, glyphs[i]), opts);
 
 			GlyphInfo gi;
-			gi.cp           = sjson::parse_int  (json_object::has(obj, "id") ? obj["id"] : obj["cp"]);
-			gi.gd.x         = sjson::parse_float(obj["x"]);
-			gi.gd.y         = sjson::parse_float(obj["y"]);
-			gi.gd.width     = sjson::parse_float(obj["width"]);
-			gi.gd.height    = sjson::parse_float(obj["height"]);
-			gi.gd.x_offset  = sjson::parse_float(obj["x_offset"]);
-			gi.gd.y_offset  = sjson::parse_float(obj["y_offset"]);
-			gi.gd.x_advance = sjson::parse_float(obj["x_advance"]);
+			gi.cp           = RETURN_IF_ERROR(sjson::parse_int  (json_object::has(obj, "id") ? obj["id"] : obj["cp"]), opts);
+			gi.gd.x         = RETURN_IF_ERROR(sjson::parse_float(obj["x"]), opts);
+			gi.gd.y         = RETURN_IF_ERROR(sjson::parse_float(obj["y"]), opts);
+			gi.gd.width     = RETURN_IF_ERROR(sjson::parse_float(obj["width"]), opts);
+			gi.gd.height    = RETURN_IF_ERROR(sjson::parse_float(obj["height"]), opts);
+			gi.gd.x_offset  = RETURN_IF_ERROR(sjson::parse_float(obj["x_offset"]), opts);
+			gi.gd.y_offset  = RETURN_IF_ERROR(sjson::parse_float(obj["y_offset"]), opts);
+			gi.gd.x_advance = RETURN_IF_ERROR(sjson::parse_float(obj["x_advance"]), opts);
 
 			array::push_back(_glyphs, gi);
 		}
@@ -82,11 +82,11 @@ namespace font_resource_internal
 		JsonObject obj(ta);
 		JsonArray glyphs(ta);
 
-		sjson::parse(obj, buf);
-		sjson::parse_array(glyphs, obj["glyphs"]);
+		RETURN_IF_ERROR(sjson::parse(obj, buf), opts);
+		RETURN_IF_ERROR(sjson::parse_array(glyphs, obj["glyphs"]), opts);
 
-		const u32 texture_size = sjson::parse_int(obj["size"]);
-		const u32 font_size    = sjson::parse_int(obj["font_size"]);
+		const u32 texture_size = RETURN_IF_ERROR(sjson::parse_int(obj["size"]), opts);
+		const u32 font_size    = RETURN_IF_ERROR(sjson::parse_int(obj["font_size"]), opts);
 		DATA_COMPILER_ASSERT(font_size > 0
 			, opts
 			, "Font size must be > 0"
@@ -94,7 +94,7 @@ namespace font_resource_internal
 
 		s32 err = 0;
 		Array<GlyphInfo> _glyphs(default_allocator());
-		err = parse_glyphs(_glyphs, glyphs);
+		err = parse_glyphs(_glyphs, glyphs, opts);
 		DATA_COMPILER_ENSURE(err == 0, opts);
 		std::sort(array::begin(_glyphs), array::end(_glyphs));
 

@@ -148,7 +148,7 @@ namespace material_resource_internal
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
-		sjson::parse(obj, json);
+		RETURN_IF_ERROR(sjson::parse(obj, json), opts);
 
 		auto cur = json_object::begin(obj);
 		auto end = json_object::end(obj);
@@ -159,7 +159,7 @@ namespace material_resource_internal
 			const char *value    = cur->second;
 
 			DynamicString texture(ta);
-			sjson::parse_string(texture, value);
+			RETURN_IF_ERROR(sjson::parse_string(texture, value), opts);
 			DATA_COMPILER_ASSERT_RESOURCE_EXISTS("texture", texture.c_str(), opts);
 			opts.add_requirement("texture", texture.c_str());
 
@@ -174,7 +174,7 @@ namespace material_resource_internal
 			TextureData td;
 			td.sampler_name_offset = sampler_name_offset;
 			td.name                = StringId32(key.data(), key.length());
-			td.id                  = sjson::parse_resource_name(value);
+			td.id                  = RETURN_IF_ERROR(sjson::parse_resource_name(value), opts);
 			td.data_offset         = reserve_dynamic_data(dynamic, th);
 			td._pad1               = 0;
 
@@ -188,7 +188,7 @@ namespace material_resource_internal
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
-		sjson::parse(obj, json);
+		RETURN_IF_ERROR(sjson::parse(obj, json), opts);
 
 		auto cur = json_object::begin(obj);
 		auto end = json_object::end(obj);
@@ -202,10 +202,10 @@ namespace material_resource_internal
 			uh.uniform_handle = 0;
 
 			JsonObject uniform(ta);
-			sjson::parse_object(uniform, value);
+			RETURN_IF_ERROR(sjson::parse_object(uniform, value), opts);
 
 			DynamicString type(ta);
-			sjson::parse_string(type, uniform["type"]);
+			RETURN_IF_ERROR(sjson::parse_string(type, uniform["type"]), opts);
 
 			const UniformType::Enum ut = name_to_uniform_type(type.c_str());
 			DATA_COMPILER_ASSERT(ut != UniformType::COUNT
@@ -226,7 +226,7 @@ namespace material_resource_internal
 
 			switch (ud.type) {
 			case UniformType::FLOAT: {
-				const f32 value = sjson::parse_float(uniform["value"]);
+				const f32 value = RETURN_IF_ERROR(sjson::parse_float(uniform["value"]), opts);
 				Vector4 data;
 				data.x = value;
 				data.y = 0.0f;
@@ -237,7 +237,7 @@ namespace material_resource_internal
 			}
 
 			case UniformType::VECTOR2: {
-				const Vector2 value = sjson::parse_vector2(uniform["value"]);
+				const Vector2 value = RETURN_IF_ERROR(sjson::parse_vector2(uniform["value"]), opts);
 				Vector4 data;
 				data.x = value.x;
 				data.y = value.y;
@@ -248,7 +248,7 @@ namespace material_resource_internal
 			}
 
 			case UniformType::VECTOR3: {
-				const Vector3 value = sjson::parse_vector3(uniform["value"]);
+				const Vector3 value = RETURN_IF_ERROR(sjson::parse_vector3(uniform["value"]), opts);
 				Vector4 data;
 				data.x = value.x;
 				data.y = value.y;
@@ -258,13 +258,17 @@ namespace material_resource_internal
 				break;
 			}
 
-			case UniformType::VECTOR4:
-				reserve_dynamic_data(dynamic, sjson::parse_vector4(uniform["value"]));
+			case UniformType::VECTOR4: {
+				auto data = RETURN_IF_ERROR(sjson::parse_vector4(uniform["value"]), opts);
+				reserve_dynamic_data(dynamic, data);
 				break;
+			}
 
-			case UniformType::MATRIX4X4:
-				reserve_dynamic_data(dynamic, sjson::parse_matrix4x4(uniform["value"]));
+			case UniformType::MATRIX4X4: {
+				auto data = RETURN_IF_ERROR(sjson::parse_matrix4x4(uniform["value"]), opts);
+				reserve_dynamic_data(dynamic, data);
 				break;
+			}
 
 			default:
 				CE_FATAL("Unknown uniform type");
@@ -282,7 +286,7 @@ namespace material_resource_internal
 		Buffer buf = opts.read();
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
-		sjson::parse(obj, buf);
+		RETURN_IF_ERROR(sjson::parse(obj, buf), opts);
 
 		Array<TextureData> texdata(default_allocator());
 		Array<UniformData> unidata(default_allocator());
@@ -290,7 +294,7 @@ namespace material_resource_internal
 		Array<char> dynblob(default_allocator());
 
 		DynamicString shader(ta);
-		sjson::parse_string(shader, obj["shader"]);
+		RETURN_IF_ERROR(sjson::parse_string(shader, obj["shader"]), opts);
 
 		if (json_object::has(obj, "textures")) {
 			s32 err = parse_textures(obj["textures"], texdata, names, dynblob, opts);

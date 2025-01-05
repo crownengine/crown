@@ -242,10 +242,10 @@ namespace state_machine_internal
 			for (u32 i = 0; i < array::size(animations); ++i) {
 				TempAllocator4096 ta;
 				JsonObject animation(ta);
-				sjson::parse_object(animation, animations[i]);
+				RETURN_IF_ERROR(sjson::parse_object(animation, animations[i]), _opts);
 
 				DynamicString animation_resource(ta);
-				sjson::parse_string(animation_resource, animation["name"]);
+				RETURN_IF_ERROR(sjson::parse_string(animation_resource, animation["name"]), _opts);
 				DATA_COMPILER_ASSERT_RESOURCE_EXISTS("sprite_animation"
 					, animation_resource.c_str()
 					, _opts
@@ -253,8 +253,8 @@ namespace state_machine_internal
 				_opts.add_requirement("sprite_animation", animation_resource.c_str());
 
 				AnimationInfo ai(ta);
-				ai.name = sjson::parse_resource_name(animation["name"]);
-				sjson::parse_string(ai.weight, animation["weight"]);
+				ai.name = RETURN_IF_ERROR(sjson::parse_resource_name(animation["name"]), _opts);
+				RETURN_IF_ERROR(sjson::parse_string(ai.weight, animation["weight"]), _opts);
 
 				vector::push_back(si.animations, ai);
 			}
@@ -267,10 +267,10 @@ namespace state_machine_internal
 			for (u32 i = 0; i < array::size(transitions); ++i) {
 				TempAllocator4096 ta;
 				JsonObject transition(ta);
-				sjson::parse_object(transition, transitions[i]);
+				RETURN_IF_ERROR(sjson::parse_object(transition, transitions[i]), _opts);
 
 				DynamicString mode_str(ta);
-				sjson::parse_string(mode_str, transition["mode"]);
+				RETURN_IF_ERROR(sjson::parse_string(mode_str, transition["mode"]), _opts);
 				const u32 mode = name_to_transition_mode(mode_str.c_str());
 				DATA_COMPILER_ASSERT(mode != TransitionMode::COUNT
 					, _opts
@@ -279,10 +279,10 @@ namespace state_machine_internal
 					);
 
 				TransitionInfo ti;
-				ti.transition.event        = sjson::parse_string_id(transition["event"]);
+				ti.transition.event        = RETURN_IF_ERROR(sjson::parse_string_id(transition["event"]), _opts);
 				ti.transition.state_offset = UINT32_MAX;
 				ti.transition.mode         = mode;
-				ti.state                   = sjson::parse_guid(transition["to"]);
+				ti.state                   = RETURN_IF_ERROR(sjson::parse_guid(transition["to"]), _opts);
 
 				vector::push_back(si.transitions, ti);
 			}
@@ -297,13 +297,13 @@ namespace state_machine_internal
 				JsonObject state(ta);
 				JsonArray animations(ta);
 				JsonArray transitions(ta);
-				sjson::parse_object(state, states[i]);
-				sjson::parse_array(animations, state["animations"]);
-				sjson::parse_array(transitions, state["transitions"]);
+				RETURN_IF_ERROR(sjson::parse_object(state, states[i]), _opts);
+				RETURN_IF_ERROR(sjson::parse_array(animations, state["animations"]), _opts);
+				RETURN_IF_ERROR(sjson::parse_array(transitions, state["transitions"]), _opts);
 
 				StateInfo si(ta);
-				sjson::parse_string(si.speed, state["speed"]);
-				si.loop = sjson::parse_bool(state["loop"]);
+				RETURN_IF_ERROR(sjson::parse_string(si.speed, state["speed"]), _opts);
+				si.loop = RETURN_IF_ERROR(sjson::parse_bool(state["loop"]), _opts);
 
 				s32 err = 0;
 				err = parse_transitions(si, transitions);
@@ -313,9 +313,9 @@ namespace state_machine_internal
 
 				Guid guid;
 				if (json_object::has(state, "id")) {
-					guid = sjson::parse_guid(state["id"]);
+					guid = RETURN_IF_ERROR(sjson::parse_guid(state["id"]), _opts);
 				} else {
-					guid = sjson::parse_guid(state["_guid"]);
+					guid = RETURN_IF_ERROR(sjson::parse_guid(state["_guid"]), _opts);
 				}
 
 				DATA_COMPILER_ASSERT(!hash_map::has(_states, guid)
@@ -333,12 +333,12 @@ namespace state_machine_internal
 			for (u32 i = 0; i < array::size(variables); ++i) {
 				TempAllocator4096 ta;
 				JsonObject variable(ta);
-				sjson::parse_object(variable, variables[i]);
+				RETURN_IF_ERROR(sjson::parse_object(variable, variables[i]), _opts);
 
 				VariableInfo vi(ta);
-				vi.name  = sjson::parse_string_id(variable["name"]);
-				vi.value = sjson::parse_float(variable["value"]);
-				sjson::parse_string(vi.name_string, variable["name"]);
+				vi.name  = RETURN_IF_ERROR(sjson::parse_string_id(variable["name"]), _opts);
+				vi.value = RETURN_IF_ERROR(sjson::parse_float(variable["value"]), _opts);
+				RETURN_IF_ERROR(sjson::parse_string(vi.name_string, variable["name"]), _opts);
 
 				vector::push_back(_variables, vi);
 			}
@@ -423,9 +423,9 @@ namespace state_machine_internal
 			JsonArray states(ta);
 			JsonArray variables(ta);
 
-			sjson::parse(obj, buf);
-			sjson::parse_array(states, obj["states"]);
-			sjson::parse_array(variables, obj["variables"]);
+			RETURN_IF_ERROR(sjson::parse(obj, buf), _opts);
+			RETURN_IF_ERROR(sjson::parse_array(states, obj["states"]), _opts);
+			RETURN_IF_ERROR(sjson::parse_array(variables, obj["variables"]), _opts);
 
 			s32 err = 0;
 			err = parse_states(states);
@@ -435,7 +435,7 @@ namespace state_machine_internal
 				, "States cannot be empty"
 				);
 
-			_initial_state = sjson::parse_guid(obj["initial_state"]);
+			_initial_state = RETURN_IF_ERROR(sjson::parse_guid(obj["initial_state"]), _opts);
 			DATA_COMPILER_ASSERT(hash_map::has(_states, _initial_state)
 				, _opts
 				, "Initial state references non-existing state"

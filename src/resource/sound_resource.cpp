@@ -51,10 +51,10 @@ namespace sound_resource_internal
 
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
-		sjson::parse(obj, buf);
+		RETURN_IF_ERROR(sjson::parse(obj, buf), opts);
 
 		DynamicString name(ta);
-		sjson::parse_string(name, obj["source"]);
+		RETURN_IF_ERROR(sjson::parse_string(name, obj["source"]), opts);
 
 		Buffer sound = opts.read(name.c_str());
 		const WAVHeader *wav = (const WAVHeader *)array::begin(sound);

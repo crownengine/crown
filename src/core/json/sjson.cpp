@@ -13,25 +13,58 @@
 #include "core/strings/string.h"
 #include <errno.h>
 #include <stdlib.h> // strtod
+#include <stb_sprintf.h>
 
 namespace crown
 {
 namespace sjson
 {
-	static const char *next(const char *json, const char c = 0)
+	static void default_error(const char *msg, void *user_data)
 	{
-		CE_ENSURE(NULL != json);
-
-		if (c && c != *json) {
-			CE_FATAL("Expected '%c' got '%c'", c, *json);
-		}
-
-		return ++json;
+		CE_UNUSED(user_data);
+		CE_FATAL("%s", msg);
 	}
+
+	static thread_local SJsonError _error_function = default_error;
+	static thread_local void *_error_user_data;
+
+	void set_error_callback(SJsonError callback, void *user_data)
+	{
+		_error_function = callback;
+		_error_user_data = user_data;
+	}
+
+	void vfatal(const char *format, va_list args)
+	{
+		char msg[1024];
+		stbsp_vsnprintf(msg, sizeof(msg), format, args);
+		_error_function(msg, _error_user_data);
+	}
+
+	void fatal(const char *format, ...)
+	{
+		va_list args;
+		va_start(args, format);
+		vfatal(format, args);
+		va_end(args);
+	}
+
+#define NEXT_OR_RETURN(json, c, return_val)            \
+	do {                                               \
+		char _c = (c);                                 \
+		if (_c && _c != *json) {                       \
+			fatal("Expected '%c' got '%c'", _c, json); \
+			return return_val;                         \
+		}                                              \
+	} while (0);                                       \
+	++json
 
 	static const char *skip_string(const char *json)
 	{
-		CE_ENSURE(NULL != json);
+		if (json == NULL) {
+			fatal("json is NULL");
+			return NULL;
+		}
 
 		while (*++json) {
 			if (*json == '"') {
@@ -47,22 +80,26 @@ namespace sjson
 
 	static const char *skip_comments(const char *json)
 	{
-		CE_ENSURE(NULL != json);
+		if (json == NULL) {
+			fatal("json is NULL");
+			return NULL;
+		}
 
 		if (*json == '/') {
 			++json;
 			if (*json == '/') {
-				json = next(json, '/');
+				NEXT_OR_RETURN(json, '/', NULL);
 				while (*json && *json != '\n')
 					++json;
 			} else if (*json == '*') {
 				++json;
 				while (*json && *json != '*')
 					++json;
-				json = next(json, '*');
-				json = next(json, '/');
+				NEXT_OR_RETURN(json, '*', NULL);
+				NEXT_OR_RETURN(json, '/', NULL);
 			} else {
-				CE_FATAL("Bad comment");
+				fatal("Bad comment");
+				return NULL;
 			}
 		}
 
@@ -71,7 +108,10 @@ namespace sjson
 
 	static const char *skip_spaces(const char *json)
 	{
-		CE_ENSURE(NULL != json);
+		if (json == NULL) {
+			fatal("json is NULL");
+			return NULL;
+		}
 
 		while (*json) {
 			if (*json == '/')
@@ -87,14 +127,20 @@ namespace sjson
 
 	static const char *skip_value(const char *json)
 	{
-		CE_ENSURE(NULL != json);
+		if (json == NULL) {
+			fatal("json is NULL");
+			return NULL;
+		}
 
 		switch (*json) {
 		case '"':
 			json = skip_string(json);
 			if (*json == '"') {
 				json = strstr(json + 1, "\"\"\"");
-				CE_ENSURE(json);
+				if (json == NULL) {
+					fatal("Bad verbatim string");
+					return NULL;
+				}
 				json += 3;
 			}
 			break;
@@ -117,7 +163,10 @@ namespace sjson
 					json = skip_string(json);
 					if (*json == '"') {
 						json = strstr(json + 1, "\"\"\"");
-						CE_ENSURE(json);
+						if (json == NULL) {
+							fatal("Bad verbatim string");
+							return NULL;
+						}
 						json += 3;
 					}
 				} else if (*json == '/') {
@@ -136,7 +185,10 @@ namespace sjson
 
 	JsonValueType::Enum type(const char *json)
 	{
-		CE_ENSURE(NULL != json);
+		if (json == NULL) {
+			fatal("json is NULL");
+			return JsonValueType::NIL;
+		}
 
 		switch (*json) {
 		case '"': return JsonValueType::STRING;
@@ -149,7 +201,11 @@ namespace sjson
 
 	static const char *parse_key(const char *json, DynamicString &key)
 	{
-		CE_ENSURE(NULL != json);
+		if (json == NULL) {
+			fatal("json is NULL");
+			return NULL;
+		}
+
 		if (*json == '"') {
 			parse_string(key, json);
 			return skip_string(json);
@@ -162,13 +218,16 @@ namespace sjson
 			key += *json++;
 		}
 
-		CE_FATAL("Bad key");
+		fatal("Bad object key '%s'", key.c_str());
 		return NULL;
 	}
 
 	static f64 parse_number(const char *json)
 	{
-		CE_ENSURE(NULL != json);
+		if (json == NULL) {
+			fatal("json is NULL");
+			return 0.0f;
+		}
 
 		TempAllocator512 alloc;
 		Array<char> number(alloc);
@@ -207,7 +266,10 @@ namespace sjson
 
 		errno = 0;
 		f64 val = strtod(array::begin(number), NULL);
-		CE_ASSERT(errno != ERANGE && errno != EINVAL, "Failed to parse f64: %s", array::begin(number));
+		if (errno == ERANGE || errno == EINVAL) {
+			fatal("Bad number '%s'", array::begin(number));
+			return 0.0f;
+		}
 		return val;
 	}
 
@@ -223,33 +285,41 @@ namespace sjson
 
 	bool parse_bool(const char *json)
 	{
-		CE_ENSURE(NULL != json);
+		if (json == NULL) {
+			fatal("json is NULL");
+			return false;
+		}
 
 		switch (*json) {
 		case 't':
-			json = next(json, 't');
-			json = next(json, 'r');
-			json = next(json, 'u');
-			next(json, 'e');
+			NEXT_OR_RETURN(json, 't', false);
+			NEXT_OR_RETURN(json, 'r', false);
+			NEXT_OR_RETURN(json, 'u', false);
+			NEXT_OR_RETURN(json, 'e', false);
+			--json;
 			return true;
 
 		case 'f':
-			json = next(json, 'f');
-			json = next(json, 'a');
-			json = next(json, 'l');
-			json = next(json, 's');
-			next(json, 'e');
+			NEXT_OR_RETURN(json, 'f', false);
+			NEXT_OR_RETURN(json, 'a', false);
+			NEXT_OR_RETURN(json, 'l', false);
+			NEXT_OR_RETURN(json, 's', false);
+			NEXT_OR_RETURN(json, 'e', false);
+			--json;
 			return false;
 
 		default:
-			CE_FATAL("Bad boolean");
+			fatal("Bad boolean");
 			return false;
 		}
 	}
 
 	void parse_string(DynamicString &str, const char *json)
 	{
-		CE_ENSURE(NULL != json);
+		if (json == NULL) {
+			fatal("json is NULL");
+			return;
+		}
 
 		if (*json == '"') {
 			while (*++json) {
@@ -268,7 +338,7 @@ namespace sjson
 					case 'n': str += '\n'; break;
 					case 'r': str += '\r'; break;
 					case 't': str += '\t'; break;
-					default: CE_FATAL("Bad escape character"); break;
+					default: fatal("Bad escape character"); return; break;
 					}
 				} else {
 					str += *json;
@@ -276,12 +346,15 @@ namespace sjson
 			}
 		}
 
-		CE_FATAL("Bad string");
+		fatal("Bad string");
 	}
 
 	void parse_array(JsonArray &arr, const char *json)
 	{
-		CE_ENSURE(NULL != json);
+		if (json == NULL) {
+			fatal("json is NULL");
+			return;
+		}
 
 		if (*json == '[') {
 			json = skip_spaces(++json);
@@ -302,12 +375,15 @@ namespace sjson
 			}
 		}
 
-		CE_FATAL("Bad array");
+		fatal("Bad array");
 	}
 
 	static void parse_root_object(JsonObject &obj, const char *json)
 	{
-		CE_ENSURE(NULL != json);
+		if (json == NULL) {
+			fatal("json is NULL");
+			return;
+		}
 
 		while (*json) {
 			const char *key_begin = *json == '"' ? (json + 1) : json;
@@ -319,7 +395,7 @@ namespace sjson
 			StringView fs_key(key_begin, key.length());
 
 			json = skip_spaces(json);
-			json = next(json, (*json == '=') ? '=' : ':');
+			NEXT_OR_RETURN(json, (*json == '=') ? '=' : ':', /*void*/);
 			json = skip_spaces(json);
 
 			hash_map::set(obj._map, fs_key, json);
@@ -331,7 +407,10 @@ namespace sjson
 
 	void parse_object(JsonObject &obj, const char *json)
 	{
-		CE_ENSURE(NULL != json);
+		if (json == NULL) {
+			fatal("json is NULL");
+			return;
+		}
 
 		if (*json == '{') {
 			json = skip_spaces(++json);
@@ -349,7 +428,7 @@ namespace sjson
 				StringView fs_key(key_begin, key.length());
 
 				json = skip_spaces(json);
-				json = next(json, (*json == '=') ? '=' : ':');
+				NEXT_OR_RETURN(json, (*json == '=') ? '=' : ':', /*void*/);
 				json = skip_spaces(json);
 
 				hash_map::set(obj._map, fs_key, json);
@@ -364,12 +443,15 @@ namespace sjson
 			}
 		}
 
-		CE_FATAL("Bad object");
+		fatal("Bad object");
 	}
 
 	void parse(JsonObject &obj, const char *json)
 	{
-		CE_ENSURE(NULL != json);
+		if (json == NULL) {
+			fatal("json is NULL");
+			return;
+		}
 
 		json = skip_spaces(json);
 
@@ -498,14 +580,20 @@ namespace sjson
 
 	void parse_verbatim(DynamicString &str, const char *json)
 	{
-		CE_ENSURE(NULL != json);
+		if (json == NULL) {
+			fatal("json is NULL");
+			return;
+		}
 
-		json = next(json, '"');
-		json = next(json, '"');
-		json = next(json, '"');
+		NEXT_OR_RETURN(json, '"', /*void*/);
+		NEXT_OR_RETURN(json, '"', /*void*/);
+		NEXT_OR_RETURN(json, '"', /*void*/);
 
 		const char *end = strstr(json, "\"\"\"");
-		CE_ASSERT(end, "Bad verbatim string");
+		if (end == NULL) {
+			fatal("Bad verbatim string");
+			return;
+		}
 
 		str.set(json, u32(end - json));
 	}

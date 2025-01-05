@@ -12,11 +12,17 @@
 
 namespace crown
 {
+///
+typedef void (*SJsonError)(const char *msg, void *user_data);
+
 /// Functions to parse SJSON-encoded data.
 ///
 /// @ingroup JSON
 namespace sjson
 {
+	///
+	void set_error_callback(SJsonError callback, void *user_data);
+
 	/// Returns the data type of the SJSON string @a json.
 	JsonValueType::Enum type(const char *json);
 

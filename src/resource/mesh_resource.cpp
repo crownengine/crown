@@ -185,26 +185,32 @@ namespace mesh_resource_internal
 #if CROWN_CAN_COMPILE
 namespace mesh
 {
-	static void parse_float_array(Array<f32> &output, const char *json)
+	static s32 parse_float_array(Array<f32> &output, const char *json, CompileOptions &opts)
 	{
 		TempAllocator4096 ta;
 		JsonArray floats(ta);
-		sjson::parse_array(floats, json);
+		RETURN_IF_ERROR(sjson::parse_array(floats, json), opts);
 
 		array::resize(output, array::size(floats));
-		for (u32 i = 0; i < array::size(floats); ++i)
-			output[i] = sjson::parse_float(floats[i]);
+		for (u32 i = 0; i < array::size(floats); ++i) {
+			output[i] = RETURN_IF_ERROR(sjson::parse_float(floats[i]), opts);
+		}
+
+		return 0;
 	}
 
-	static void parse_index_array(Array<u16> &output, const char *json)
+	static s32 parse_index_array(Array<u16> &output, const char *json, CompileOptions &opts)
 	{
 		TempAllocator4096 ta;
 		JsonArray indices(ta);
-		sjson::parse_array(indices, json);
+		RETURN_IF_ERROR(sjson::parse_array(indices, json), opts);
 
 		array::resize(output, array::size(indices));
-		for (u32 i = 0; i < array::size(indices); ++i)
-			output[i] = (u16)sjson::parse_int(indices[i]);
+		for (u32 i = 0; i < array::size(indices); ++i) {
+			output[i] = (u16)RETURN_IF_ERROR(sjson::parse_int(indices[i]), opts);
+		}
+
+		return 0;
 	}
 
 	s32 parse_nodes(Mesh &m, const char *sjson, CompileOptions &opts);
@@ -213,65 +219,69 @@ namespace mesh
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
-		sjson::parse(obj, sjson);
+		RETURN_IF_ERROR(sjson::parse(obj, sjson), opts);
 
-		n._local_pose = sjson::parse_matrix4x4(obj["matrix_local"]);
+		n._local_pose = RETURN_IF_ERROR(sjson::parse_matrix4x4(obj["matrix_local"]), opts);
 
 		if (json_object::has(obj, "children")) {
 			s32 err = mesh::parse_nodes(*mesh, obj["children"], opts);
 			DATA_COMPILER_ENSURE(err == 0, opts);
 		}
 
-		if (json_object::has(obj, "geometry"))
-			sjson::parse_string(n._geometry, obj["geometry"]);
+		if (json_object::has(obj, "geometry")) {
+			RETURN_IF_ERROR(sjson::parse_string(n._geometry, obj["geometry"]), opts);
+		}
 
 		return 0;
 	}
 
-	s32 parse_indices(Geometry &g, const char *json)
+	s32 parse_indices(Geometry &g, const char *json, CompileOptions &opts)
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
-		sjson::parse(obj, json);
+		RETURN_IF_ERROR(sjson::parse(obj, json), opts);
 
 		JsonArray data_json(ta);
-		sjson::parse_array(data_json, obj["data"]);
+		RETURN_IF_ERROR(sjson::parse_array(data_json, obj["data"]), opts);
 
-		parse_index_array(g._position_indices, data_json[0]);
+		parse_index_array(g._position_indices, data_json[0], opts);
 
 		if (has_normals(g)) {
-			parse_index_array(g._normal_indices, data_json[1]);
+			parse_index_array(g._normal_indices, data_json[1], opts);
 		}
 		if (has_uvs(g)) {
-			parse_index_array(g._uv_indices, data_json[2]);
+			parse_index_array(g._uv_indices, data_json[2], opts);
 		}
 
 		return 0;
 	}
 
-	s32 parse_geometry(Geometry &g, const char *sjson)
+	s32 parse_geometry(Geometry &g, const char *sjson, CompileOptions &opts)
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
-		sjson::parse(obj, sjson);
+		RETURN_IF_ERROR(sjson::parse(obj, sjson), opts);
 
-		parse_float_array(g._positions, obj["position"]);
+		s32 err = parse_float_array(g._positions, obj["position"], opts);
+		DATA_COMPILER_ENSURE(err == 0, opts);
 
 		if (json_object::has(obj, "normal")) {
-			parse_float_array(g._normals, obj["normal"]);
+			err = parse_float_array(g._normals, obj["normal"], opts);
+			DATA_COMPILER_ENSURE(err == 0, opts);
 		}
 		if (json_object::has(obj, "texcoord")) {
-			parse_float_array(g._uvs, obj["texcoord"]);
+			err = parse_float_array(g._uvs, obj["texcoord"], opts);
+			DATA_COMPILER_ENSURE(err == 0, opts);
 		}
 
-		return parse_indices(g, obj["indices"]);
+		return parse_indices(g, obj["indices"], opts);
 	}
 
 	s32 parse_geometries(Mesh &m, const char *sjson, CompileOptions &opts)
 	{
 		TempAllocator4096 ta;
 		JsonObject geometries(ta);
-		sjson::parse(geometries, sjson);
+		RETURN_IF_ERROR(sjson::parse(geometries, sjson), opts);
 
 		auto cur = json_object::begin(geometries);
 		auto end = json_object::end(geometries);
@@ -279,7 +289,7 @@ namespace mesh
 			JSON_OBJECT_SKIP_HOLE(geometries, cur);
 
 			Geometry geo(default_allocator());
-			s32 err = mesh::parse_geometry(geo, cur->second);
+			s32 err = mesh::parse_geometry(geo, cur->second, opts);
 			DATA_COMPILER_ENSURE(err == 0, opts);
 
 			DynamicString geometry_name(ta);
@@ -299,7 +309,7 @@ namespace mesh
 	{
 		TempAllocator4096 ta;
 		JsonObject nodes(ta);
-		sjson::parse(nodes, sjson);
+		RETURN_IF_ERROR(sjson::parse(nodes, sjson), opts);
 
 		auto cur = json_object::begin(nodes);
 		auto end = json_object::end(nodes);
@@ -341,7 +351,7 @@ namespace mesh
 		TempAllocator4096 ta;
 		JsonObject nodes(ta);
 		JsonObject obj(ta);
-		sjson::parse(obj, buf);
+		RETURN_IF_ERROR(sjson::parse(obj, buf), opts);
 
 		s32 err = mesh::parse_geometries(m, obj["geometries"], opts);
 		DATA_COMPILER_ENSURE(err == 0, opts);

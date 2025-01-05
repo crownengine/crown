@@ -52,19 +52,19 @@ namespace level_resource_internal
 		Buffer buf = opts.read();
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
-		sjson::parse(obj, buf);
+		RETURN_IF_ERROR(sjson::parse(obj, buf), opts);
 
 		Array<LevelSound> sounds(default_allocator());
 		{
 			JsonArray sounds_json(ta);
-			sjson::parse_array(sounds_json, obj["sounds"]);
+			RETURN_IF_ERROR(sjson::parse_array(sounds_json, obj["sounds"]), opts);
 
 			for (u32 i = 0; i < array::size(sounds_json); ++i) {
 				JsonObject sound(ta);
-				sjson::parse_object(sound, sounds_json[i]);
+				RETURN_IF_ERROR(sjson::parse_object(sound, sounds_json[i]), opts);
 
 				DynamicString sound_name(ta);
-				sjson::parse_string(sound_name, sound["name"]);
+				RETURN_IF_ERROR(sjson::parse_string(sound_name, sound["name"]), opts);
 				DATA_COMPILER_ASSERT_RESOURCE_EXISTS("sound"
 					, sound_name.c_str()
 					, opts
@@ -72,11 +72,11 @@ namespace level_resource_internal
 				opts.add_requirement("sound", sound_name.c_str());
 
 				LevelSound ls;
-				ls.name     = sjson::parse_resource_name(sound["name"]);
-				ls.position = sjson::parse_vector3      (sound["position"]);
-				ls.volume   = sjson::parse_float        (sound["volume"]);
-				ls.range    = sjson::parse_float        (sound["range"]);
-				ls.loop     = sjson::parse_bool         (sound["loop"]);
+				ls.name     = RETURN_IF_ERROR(sjson::parse_resource_name(sound["name"]), opts);
+				ls.position = RETURN_IF_ERROR(sjson::parse_vector3      (sound["position"]), opts);
+				ls.volume   = RETURN_IF_ERROR(sjson::parse_float        (sound["volume"]), opts);
+				ls.range    = RETURN_IF_ERROR(sjson::parse_float        (sound["range"]), opts);
+				ls.loop     = RETURN_IF_ERROR(sjson::parse_bool         (sound["loop"]), opts);
 
 				array::push_back(sounds, ls);
 			}
