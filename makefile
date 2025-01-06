@@ -363,10 +363,6 @@ cppcheck:
 format-sources:
 	@scripts/uncrustify/format-all.sh -j $(MAKE_JOBS) --enable-tools
 
-.PHONY: create-meson-build
-create-meson-build:
-	$(GENIE) create-meson-build
-
 .PHONY: clean
 clean: clean-samples
 	@echo Cleaning...
