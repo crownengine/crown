@@ -199,7 +199,7 @@ namespace mesh
 		return 0;
 	}
 
-	static s32 parse_index_array(Array<u16> &output, const char *json, CompileOptions &opts)
+	static s32 parse_index_array(Array<u32> &output, const char *json, CompileOptions &opts)
 	{
 		TempAllocator4096 ta;
 		JsonArray indices(ta);
@@ -207,7 +207,7 @@ namespace mesh
 
 		array::resize(output, array::size(indices));
 		for (u32 i = 0; i < array::size(indices); ++i) {
-			output[i] = (u16)RETURN_IF_ERROR(sjson::parse_int(indices[i]), opts);
+			output[i] = RETURN_IF_ERROR(sjson::parse_int(indices[i]), opts);
 		}
 
 		return 0;

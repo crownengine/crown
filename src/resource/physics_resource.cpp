@@ -179,7 +179,7 @@ namespace physics_resource_internal
 		cd.size     = 0;
 
 		Array<Vector3> points(default_allocator());
-		Array<u16> point_indices(default_allocator());
+		Array<u32> point_indices(default_allocator());
 
 		DynamicString source(ta);
 		if (json_object::has(obj, "source")) {
@@ -294,7 +294,7 @@ namespace physics_resource_internal
 			if (cd.type == ColliderType::MESH) {
 				bw.write(array::size(point_indices));
 				for (u32 ii = 0; ii < array::size(point_indices); ++ii)
-					bw.write(point_indices[ii]);
+					bw.write((u16)point_indices[ii]);
 			}
 		}
 		return 0;
