@@ -82,6 +82,16 @@ namespace mesh
 		return array::size(g._uvs) != 0;
 	}
 
+	bool has_tangents(Geometry &g)
+	{
+		return array::size(g._tangents) != 0;
+	}
+
+	bool has_bitangents(Geometry &g)
+	{
+		return array::size(g._bitangents) != 0;
+	}
+
 	static u32 vertex_stride(Geometry &g)
 	{
 		u32 stride = 0;

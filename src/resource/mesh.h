@@ -68,6 +68,12 @@ namespace mesh
 	bool has_uvs(Geometry &g);
 
 	///
+	bool has_tangents(Geometry &g);
+
+	///
+	bool has_bitangents(Geometry &g);
+
+	///
 	s32 parse(Mesh &m, CompileOptions &opts, const char *path);
 
 	///
