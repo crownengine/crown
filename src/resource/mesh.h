@@ -35,13 +35,13 @@ struct Geometry
 	Array<f32> _normals;
 	Array<f32> _uvs;
 	Array<f32> _tangents;
-	Array<f32> _binormals;
+	Array<f32> _bitangents;
 
 	Array<u32> _position_indices;
 	Array<u32> _normal_indices;
 	Array<u32> _uv_indices;
 	Array<u32> _tangent_indices;
-	Array<u32> _binormal_indices;
+	Array<u32> _bitangent_indices;
 
 	Array<char> _vertex_buffer;
 	Array<u16> _index_buffer;

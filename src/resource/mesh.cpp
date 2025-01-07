@@ -60,13 +60,13 @@ namespace mesh
 		array::clear(g._normals);
 		array::clear(g._uvs);
 		array::clear(g._tangents);
-		array::clear(g._binormals);
+		array::clear(g._bitangents);
 
 		array::clear(g._position_indices);
 		array::clear(g._normal_indices);
 		array::clear(g._uv_indices);
 		array::clear(g._tangent_indices);
-		array::clear(g._binormal_indices);
+		array::clear(g._bitangent_indices);
 
 		array::clear(g._vertex_buffer);
 		array::clear(g._index_buffer);
@@ -241,12 +241,12 @@ Geometry::Geometry(Allocator &a)
 	, _normals(a)
 	, _uvs(a)
 	, _tangents(a)
-	, _binormals(a)
+	, _bitangents(a)
 	, _position_indices(a)
 	, _normal_indices(a)
 	, _uv_indices(a)
 	, _tangent_indices(a)
-	, _binormal_indices(a)
+	, _bitangent_indices(a)
 	, _vertex_buffer(a)
 	, _index_buffer(a)
 {
