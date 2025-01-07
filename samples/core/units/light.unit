@@ -51,4 +51,11 @@ components = [
 		}
 		type = "mesh_renderer"
 	}
+	{
+		_guid = "1f56e077-b6b5-402c-8e99-98b541ef5f9b"
+		_type = "script"
+		data = {
+			script_resource = "core/units/common"
+		}
+	}
 ]

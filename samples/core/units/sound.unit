@@ -35,4 +35,11 @@ components = [
 		}
 		type = "transform"
 	}
+	{
+		_guid = "4cb55f73-067a-4009-8a46-260185fcae80"
+		_type = "script"
+		data = {
+			script_resource = "core/units/common"
+		}
+	}
 ]

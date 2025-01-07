@@ -50,7 +50,7 @@ components = [
 		_guid = "eee01696-8523-4d3f-b49a-59821238f270"
 		_type = "script"
 		data = {
-			script_resource = "core/units/camera"
+			script_resource = "core/units/common"
 		}
 		type = "script"
 	}
