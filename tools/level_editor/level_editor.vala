@@ -2784,6 +2784,16 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_run_game(GLib.SimpleAction action, GLib.Variant? param)
 	{
+		// Trigger a 'focus_out_event' on the currently focused
+		// widget within the active_window, if any. This will
+		// force 'focus' to commit its pending changes to the
+		// database so we do not miss any modifications before
+		// launching the game.
+		Gtk.Widget? focus = this.active_window.get_focus();
+		_editor_view.grab_focus();
+		if (focus != null)
+			focus.grab_focus();
+
 		string icon_name_displayed = _toolbar_run.icon_name;
 
 		stop_game.begin((obj, res) => {

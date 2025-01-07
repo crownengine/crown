@@ -21,6 +21,7 @@ Changelog
 * Fixed Project Browser showing stale files in some circumnstances.
 * Items in the Level Tree can now be sorted by name or type.
 * Fixed an issue in the Project Browser that caused a new Unit to be always created even if the user cancelled the "New Unit..." action.
+* Fixed an issue that caused the Level Editor to launch a game with outdated state in some circumnstances.
 
 **Runtime**
 
