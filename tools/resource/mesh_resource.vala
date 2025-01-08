@@ -41,7 +41,7 @@ public class MeshResource
 
 			unit.set_component_property_string(component_id, "data.geometry_name", node_name);
 			unit.set_component_property_string(component_id, "data.material", material_name);
-			unit.set_component_property_string(component_id, "data.mesh_resource", resource_name + ".mesh");
+			unit.set_component_property_string(component_id, "data.mesh_resource", resource_name);
 			unit.set_component_property_bool  (component_id, "data.visible", true);
 		}
 
@@ -87,7 +87,7 @@ public class MeshResource
 		}
 	}
 
-	public static ImportResult import(Project project, string destination_dir, SList<string> filenames)
+	public static ImportResult do_import(Project project, string destination_dir, SList<string> filenames)
 	{
 		foreach (unowned string filename_i in filenames) {
 			GLib.File file_src = File.new_for_path(filename_i);
@@ -186,6 +186,27 @@ public class MeshResource
 		}
 
 		return ImportResult.SUCCESS;
+	}
+
+	public static ImportResult import(Project project, string destination_dir, SList<string> filenames, Import import_result)
+	{
+		SList<string> fbx_filenames = new SList<string>();
+		SList<string> mesh_filenames = new SList<string>();
+		foreach (unowned string filename_i in filenames) {
+			if (filename_i.has_suffix(".fbx"))
+				fbx_filenames.append(filename_i);
+			else if (filename_i.has_suffix(".mesh"))
+				mesh_filenames.append(filename_i);
+			else
+				assert(false);
+		}
+
+		ImportResult res = ImportResult.SUCCESS;
+		if (mesh_filenames != null)
+			res = MeshResource.do_import(project, destination_dir, mesh_filenames);
+		if (res == ImportResult.SUCCESS && fbx_filenames != null)
+			res = FBXImporter.import(project, destination_dir, fbx_filenames, import_result);
+		return res;
 	}
 }
 

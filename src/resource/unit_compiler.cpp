@@ -132,16 +132,7 @@ static s32 compile_mesh_renderer(Buffer &output, const char *json, CompileOption
 	DynamicString mesh_resource(ta);
 	RETURN_IF_ERROR(sjson::parse_string(mesh_resource, obj["mesh_resource"]), opts);
 
-	ENSURE_OR_RETURN(opts.resource_exists("mesh", mesh_resource.c_str())
-		|| opts.file_exists(mesh_resource.c_str())
-		, opts
-		);
-
-	const char *mesh_resource_type = resource_type(mesh_resource.c_str());
-	if (mesh_resource_type != NULL) {
-		u32 name_len = resource_name_length(mesh_resource_type, mesh_resource.c_str());
-		array::resize(mesh_resource._data, name_len);
-	}
+	RETURN_IF_RESOURCE_MISSING("mesh", mesh_resource.c_str(), opts);
 	opts.add_requirement("mesh", mesh_resource.c_str());
 
 	DynamicString material(ta);
@@ -153,7 +144,7 @@ static s32 compile_mesh_renderer(Buffer &output, const char *json, CompileOption
 	opts.add_requirement("material", material.c_str());
 
 	MeshRendererDesc mrd;
-	mrd.mesh_resource     = StringId64(mesh_resource.c_str());
+	mrd.mesh_resource     = RETURN_IF_ERROR(sjson::parse_resource_name(obj["mesh_resource"]), opts);
 	mrd.material_resource = RETURN_IF_ERROR(sjson::parse_resource_name(obj["material"]), opts);
 	mrd.geometry_name     = RETURN_IF_ERROR(sjson::parse_string_id    (obj["geometry_name"]), opts);
 	mrd.visible           = RETURN_IF_ERROR(sjson::parse_bool         (obj["visible"]), opts);

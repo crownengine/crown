@@ -13,6 +13,7 @@ Changelog
 * Items in the Project Browser can now be sorted by name, type, size or last modification time.
 * Added a list-view mode to the Project Browser.
 * Added a tooltip to the Folder Icon View to show details about the hovered item.
+* Added the ability to import scenes from FBX files (meshes, lights, cameras, textures and materials).
 * Fixed an issue that caused erratic resources being shown in the Project Brower's folder view.
 * Fixed an issue that caused warnings to be printed on the console when a Sound Source was deleted from a level.
 * Reduced clutter in the Project Browser by hiding all files with importable extensions.

@@ -74,7 +74,10 @@ namespace mesh
 	bool has_bitangents(Geometry &g);
 
 	///
-	s32 parse(Mesh &m, CompileOptions &opts, const char *path);
+	s32 parse(Mesh &m, const char *path, CompileOptions &opts);
+
+	///
+	s32 parse(Mesh &m, CompileOptions &opts);
 
 	///
 	s32 write(Mesh &m, CompileOptions &opts);

@@ -1566,6 +1566,7 @@ int main_data_compiler(const DeviceOptions &opts)
 	dc->add_ignore_glob("*.tga");
 	dc->add_ignore_glob("*.tmp");
 	dc->add_ignore_glob("*.wav");
+	dc->add_ignore_glob("*.fbx");
 	dc->add_ignore_glob("*~");
 	dc->add_ignore_glob(".*");
 

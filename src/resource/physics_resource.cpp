@@ -195,8 +195,10 @@ namespace physics_resource_internal
 			RETURN_IF_ERROR(sjson::parse_string(name, obj["name"]), opts);
 
 			// Parse mesh resource.
+			RETURN_IF_RESOURCE_MISSING("mesh", scene.c_str(), opts);
+			scene += ".mesh";
 			Mesh mesh(default_allocator());
-			s32 err = mesh::parse(mesh, opts, scene.c_str());
+			s32 err = mesh::parse(mesh, scene.c_str(), opts);
 			ENSURE_OR_RETURN(err == 0, opts);
 
 			Node deffault_node(default_allocator());
@@ -222,6 +224,11 @@ namespace physics_resource_internal
 				p.z = geometry._positions[i + 2];
 				array::push_back(points, p);
 			}
+			RETURN_IF_FALSE(array::size(points) > 0
+				, opts
+				, "Collider is empty '%s'"
+				, name.c_str()
+				);
 
 			point_indices = geometry._position_indices;
 

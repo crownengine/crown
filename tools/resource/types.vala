@@ -21,5 +21,6 @@ const string OBJECT_TYPE_TRANSFORM               = "transform";
 const string OBJECT_TYPE_UNIT                    = "unit";
 const string OBJECT_TYPE_SPRITE                  = "sprite";
 const string OBJECT_TYPE_FONT                    = "font";
+const string OBJECT_TYPE_MESH                    = "mesh";
 
 } /* namespace Crown */

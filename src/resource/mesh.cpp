@@ -20,6 +20,7 @@
 #   include "core/strings/dynamic_string.inl"
 #   include "resource/compile_options.inl"
 #   include "resource/mesh.h"
+#   include "resource/mesh_fbx.h"
 #   include "resource/mesh_resource.h"
 #   include <bx/error.h>
 #   include <bx/readerwriter.h>
@@ -172,11 +173,13 @@ namespace mesh
 		aabb::reset(aabb);
 		memset(&obb, 0, sizeof(obb));
 
-		aabb::from_points(aabb
-			, array::size(g._positions) / 3
-			, sizeof(g._positions[0]) * 3
-			, array::begin(g._positions)
-			);
+		if (array::size(g._positions) != 0) {
+			aabb::from_points(aabb
+				, array::size(g._positions) / 3
+				, sizeof(g._positions[0]) * 3
+				, array::begin(g._positions)
+				);
+		}
 
 		obb.tm = from_quaternion_translation(QUATERNION_IDENTITY, aabb::center(aabb));
 		obb.half_extents = (aabb.max - aabb.min) * 0.5f;
@@ -223,19 +226,43 @@ namespace mesh
 		return 0;
 	}
 
-	s32 parse(Mesh &m, CompileOptions &opts, const char *path)
+	static s32 parse_internal(Mesh &m, Buffer &buf, CompileOptions &opts)
 	{
-		if (str_has_suffix(path, ".mesh")) {
-			Buffer buf = opts.read(path);
-			return mesh::parse(m, buf, opts);
+		TempAllocator4096 ta;
+		JsonObject obj(ta);
+		RETURN_IF_ERROR(sjson::parse(obj, buf), opts);
+
+		DynamicString source(ta);
+		if (json_object::has(obj, "source")) {
+			RETURN_IF_ERROR(sjson::parse_string(source, obj["source"]), opts);
+
+			RETURN_IF_FILE_MISSING(source.c_str(), opts);
+			if (source.has_suffix(".fbx")) {
+				Buffer fbx_buf = opts.read(source.c_str());
+				return fbx::parse(m, fbx_buf, opts);
+			}
+
+			RETURN_IF_FALSE(false
+				, opts
+				, "Unknown source mesh '%s'"
+				, source.c_str()
+				);
 		} else {
-			TempAllocator512 ta;
-			DynamicString str(ta);
-			str = path;
-			str += ".mesh";
-			Buffer buf = opts.read(str.c_str());
 			return mesh::parse(m, buf, opts);
 		}
+	}
+
+	s32 parse(Mesh &m, const char *path, CompileOptions &opts)
+	{
+		RETURN_IF_FILE_MISSING(path, opts);
+		Buffer buf = opts.read(path);
+		return parse_internal(m, buf, opts);
+	}
+
+	s32 parse(Mesh &m, CompileOptions &opts)
+	{
+		Buffer buf = opts.read();
+		return parse_internal(m, buf, opts);
 	}
 
 } // namespace mesh
