@@ -1170,7 +1170,7 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 
 		if (vector::size(to_compile)) {
 			_revision++;
-			logi(DATA_COMPILER, "Compiled data (rev %u) in " TIME_FMT, _revision, time::seconds(time::now() - time_start));
+			logi(DATA_COMPILER, "Data (rev %u) compiled in " TIME_FMT, _revision, time::seconds(time::now() - time_start));
 		} else {
 			logi(DATA_COMPILER, "Data is up to date");
 		}
