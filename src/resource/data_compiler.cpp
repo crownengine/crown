@@ -899,7 +899,12 @@ bool DataCompiler::dependency_changed(const DynamicString &path, ResourceId id, 
 bool DataCompiler::version_changed(const DynamicString &path, ResourceId id)
 {
 	const char *type = resource_type(path.c_str());
-	if (data_version_stored(type) != data_version(type))
+	const u32 dv = data_version(type);
+	const u32 ds = data_version_stored(type);
+
+	if (dv == UINT32_MAX)
+		return false;
+	else if (dv != ds)
 		return true;
 
 	const HashMap<DynamicString, u32> deffault(default_allocator());
