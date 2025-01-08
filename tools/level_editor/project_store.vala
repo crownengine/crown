@@ -188,10 +188,10 @@ public class ProjectStore
 				if ((string)iter_name == name && (string)iter_type == type) {
 					_tree_store.remove(ref child);
 					break;
+				} else {
+					if (!_tree_store.iter_next(ref child))
+						break;
 				}
-
-				if (!_tree_store.iter_next(ref child))
-					break;
 			}
 		}
 	}
@@ -384,10 +384,10 @@ public class ProjectStore
 				if ((string)iter_name == name && (string)iter_type == type) {
 					_list_store.remove(ref child);
 					break;
+				} else {
+					if (!_list_store.iter_next(ref child))
+						break;
 				}
-
-				if (!_list_store.iter_next(ref child))
-					break;
 			}
 		}
 
@@ -404,10 +404,10 @@ public class ProjectStore
 				if ((string)iter_name == name && (string)iter_type == type) {
 					_tree_store.remove(ref child);
 					break;
+				} else {
+					if (!_tree_store.iter_next(ref child))
+						break;
 				}
-
-				if (!_tree_store.iter_next(ref child))
-					break;
 			}
 		}
 	}
