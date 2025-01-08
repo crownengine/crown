@@ -450,13 +450,15 @@ public class ProjectStore
 			while (true) {
 				_list_store.get_value(child, Column.NAME, out iter_name);
 				_list_store.get_value(child, Column.TYPE, out iter_type);
-				if ((string)iter_name == name && (string)iter_type == "<folder>") {
-					_list_store.remove(ref child);
-					break;
+				if (((string)iter_name == name && (string)iter_type == "<folder>")
+					|| ((string)iter_name).has_prefix(name + "/")
+					) {
+					if (!_list_store.remove(ref child))
+						break;
+				} else {
+					if (!_list_store.iter_next(ref child))
+						break;
 				}
-
-				if (!_list_store.iter_next(ref child))
-					break;
 			}
 		}
 
