@@ -40,8 +40,12 @@ public class SpriteResource
 		dlg.show_all();
 
 		if (File.new_for_path(importer_settings_path).query_exists()) {
-			importer_settings = SJSON.load_from_path(importer_settings_path);
-			dlg.load(importer_settings);
+			try {
+				importer_settings = SJSON.load_from_path(importer_settings_path);
+				dlg.load(importer_settings);
+			} catch (JsonSyntaxError e) {
+				importer_settings = new Hashtable();
+			}
 		} else {
 			importer_settings = new Hashtable();
 		}
@@ -101,7 +105,12 @@ public class SpriteResource
 			string resource_path     = ResourceId.normalize(resource_filename);
 			string resource_name     = ResourceId.name(resource_path);
 
-			SJSON.save(importer_settings, project.absolute_path(resource_name) + ".importer_settings");
+			try {
+				SJSON.save(importer_settings, project.absolute_path(resource_name) + ".importer_settings");
+			} catch (JsonWriteError e) {
+				loge(e.message);
+				return ImportResult.ERROR;
+			}
 
 			Hashtable textures = new Hashtable();
 			textures["u_albedo"] = resource_name;
@@ -117,7 +126,12 @@ public class SpriteResource
 			material["shader"]   = "sprite";
 			material["textures"] = textures;
 			material["uniforms"] = uniforms;
-			SJSON.save(material, project.absolute_path(resource_name) + ".material");
+			try {
+				SJSON.save(material, project.absolute_path(resource_name) + ".material");
+			} catch (JsonWriteError e) {
+				loge(e.message);
+				return ImportResult.ERROR;
+			}
 
 			try {
 				file_src.copy(file_dst, FileCopyFlags.OVERWRITE);

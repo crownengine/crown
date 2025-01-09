@@ -180,7 +180,11 @@ public class FBXImportDialog : Gtk.Window
 		get_destination_file(out file_dst, destination_dir, File.new_for_path(_filenames[0]));
 		get_resource_name(out resource_name, file_dst, _project);
 		_options_path = _project.absolute_path(resource_name) + ".importer_settings";
-		_options.decode(SJSON.load_from_path(_options_path));
+		try {
+			_options.decode(SJSON.load_from_path(_options_path));
+		} catch (JsonSyntaxError e) {
+			// No-op.
+		}
 
 		PropertyGrid cv;
 		cv = new PropertyGrid();
@@ -228,8 +232,13 @@ public class FBXImportDialog : Gtk.Window
 	void import()
 	{
 		ImportResult res = FBXImporter.do_import(_options, _project, _destination_dir, _filenames);
-		if (res == ImportResult.SUCCESS)
-			SJSON.save(_options.encode(), _options_path);
+		if (res == ImportResult.SUCCESS) {
+			try {
+				SJSON.save(_options.encode(), _options_path);
+			} catch (JsonWriteError e) {
+				res = ImportResult.ERROR;
+			}
+		}
 		_import_result(res);
 		close();
 	}

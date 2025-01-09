@@ -745,8 +745,16 @@ public class LevelEditorApplication : Gtk.Application
 			, STYLE_PROVIDER_PRIORITY_APPLICATION
 			);
 
-		_settings = SJSON.load_from_path(_settings_file.get_path());
-		_window_state = SJSON.load_from_path(_window_state_file.get_path());
+		try {
+			_settings = SJSON.load_from_path(_settings_file.get_path());
+		} catch (JsonSyntaxError e) {
+			loge(e.message);
+		}
+		try {
+			_window_state = SJSON.load_from_path(_window_state_file.get_path());
+		} catch (JsonSyntaxError e) {
+			loge(e.message);
+		}
 
 		// HACK: register CrownClamp type within GObject's type system to
 		// make GtkBuilder able to find it when creating the widget from
@@ -1238,9 +1246,16 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_message_received(RuntimeInstance ri, ConsoleClient client, uint8[] json)
 	{
-		Hashtable msg = JSON.decode(json) as Hashtable;
-		string msg_type = msg["type"] as string;
+		try {
+			Hashtable msg = JSON.decode(json) as Hashtable;
+			handle_message(ri, client, (string)msg["type"], msg);
+		} catch (JsonSyntaxError e) {
+			loge(e.message);
+		}
+	}
 
+	private void handle_message(RuntimeInstance ri, ConsoleClient client, string msg_type, Hashtable msg)
+	{
 		if (msg_type == "message") {
 			string system = ri._name + ": " + (string)msg["system"];
 			log(system, (string)msg["severity"], (string)msg["message"]);
@@ -1826,17 +1841,27 @@ public class LevelEditorApplication : Gtk.Application
 		_resource_preview_stack.set_visible_child(_resource_preview_view);
 	}
 
+	private int dump_test_level()
+	{
+		try {
+			// Save temporary package to reference test level.
+			ArrayList<Value?> level = new ArrayList<Value?>();
+			level.add("_level_editor_test");
+			Hashtable package = new Hashtable();
+			package["level"] = level;
+			SJSON.save(package, _project._level_editor_test_package.get_path());
+		} catch (JsonWriteError e) {
+			return -1;
+		}
+
+		// Save test level to file.
+		return _database.dump(_project._level_editor_test_level.get_path(), _level._id);
+	}
+
 	private async void start_game(StartGame sg)
 	{
-		// Save test level to file
-		_database.dump(_project._level_editor_test_level.get_path(), _level._id);
-
-		// Save temporary package to reference test level
-		ArrayList<Value?> level = new ArrayList<Value?>();
-		level.add("_level_editor_test");
-		Hashtable package = new Hashtable();
-		package["level"] = level;
-		SJSON.save(package, _project._level_editor_test_package.get_path());
+		if (dump_test_level() != 0)
+			return;
 
 		bool success = yield _data_compiler.compile(_project.data_dir(), _project.platform());
 		_project.delete_garbage();
@@ -2172,8 +2197,16 @@ public class LevelEditorApplication : Gtk.Application
 		// Save editor settings.
 		_user.save(_user_file.get_path());
 		_preferences_dialog.encode(_settings);
-		SJSON.save(_settings, _settings_file.get_path());
-		SJSON.save(encode(), _window_state_file.get_path());
+		try {
+			SJSON.save(_settings, _settings_file.get_path());
+		} catch (JsonWriteError e) {
+			loge(e.message);
+		}
+		try {
+			SJSON.save(encode(), _window_state_file.get_path());
+		} catch (JsonWriteError e) {
+			loge(e.message);
+		}
 		_console_view._entry_history.save(_console_history_file.get_path());
 
 		// Destroy widgets.
@@ -4068,8 +4101,12 @@ public class LevelEditorApplication : Gtk.Application
 			return;
 
 		// Save per-project data.
-		string path = GLib.Path.build_filename(_project.user_dir(), "project_store.sjson");
-		SJSON.save(_project_store.encode(), path);
+		try {
+			string path = GLib.Path.build_filename(_project.user_dir(), "project_store.sjson");
+			SJSON.save(_project_store.encode(), path);
+		} catch (JsonWriteError e) {
+			loge(e.message);
+		}
 
 		// Destroy dialogs.
 		_texture_settings_dialog = null;
@@ -4079,8 +4116,13 @@ public class LevelEditorApplication : Gtk.Application
 	private void on_project_loaded()
 	{
 		// Load per-project data.
-		string path = GLib.Path.build_filename(_project.user_dir(), "project_store.sjson");
-		_project_store.decode(SJSON.load_from_path(path));
+		try {
+			string path = GLib.Path.build_filename(_project.user_dir(), "project_store.sjson");
+			_project_store.decode(SJSON.load_from_path(path));
+		}
+		catch (JsonSyntaxError e) {
+			// No-op.
+		}
 	}
 }
 

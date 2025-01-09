@@ -25,6 +25,7 @@ Changelog
 * Fixed an issue that caused the Level Editor to launch a game with outdated state in some circumnstances.
 * Fixed an issue with some core objects not being hidden when spawned in-game.
 * Fixed an issue that caused the Project Browser to show deleted content sometimes.
+* Fixed several crashes when parsing or writing invalid JSON data.
 
 **Runtime**
 

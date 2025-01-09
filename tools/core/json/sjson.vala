@@ -20,7 +20,7 @@ public class SJSON
 	///  Encodes the Hashtable t in the simplified JSON format. The Hashtable can
 	///  contain, numbers, bools, strings, ArrayLists and Hashtables.
 	/// </summary>
-	public static string encode(Hashtable t)
+	public static string encode(Hashtable t) throws JsonWriteError
 	{
 		StringBuilder sb = new StringBuilder();
 		write_root_object(t, sb);
@@ -31,7 +31,7 @@ public class SJSON
 	/// <summary>
 	/// Encodes the object o in the simplified JSON format (not as a root object).
 	/// </summary>
-	public static string encode_object(Value? o)
+	public static string encode_object(Value? o) throws JsonWriteError
 	{
 		StringBuilder sb = new StringBuilder();
 		write(o, sb, 0);
@@ -42,7 +42,7 @@ public class SJSON
 	/// Decodes a SJSON bytestream into a Hashtable with numbers, bools, strings,
 	/// ArrayLists and Hashtables.
 	/// </summary>
-	public static Hashtable decode(uint8[] sjson)
+	public static Hashtable decode(uint8[] sjson) throws JsonSyntaxError
 	{
 		int index = 0;
 		return parse_root_object(sjson, ref index);
@@ -51,7 +51,7 @@ public class SJSON
 	/// <summary>
 	/// Convenience function for loading a file.
 	/// </summary>
-	public static Hashtable load_from_file(GLib.FileStream? fs)
+	public static Hashtable load_from_file(GLib.FileStream? fs) throws JsonSyntaxError
 	{
 		if (fs == null)
 			return new Hashtable();
@@ -75,7 +75,7 @@ public class SJSON
 	/// <summary>
 	/// Convenience function for loading a file.
 	/// </summary>
-	public static Hashtable load_from_path(string path)
+	public static Hashtable load_from_path(string path) throws JsonSyntaxError
 	{
 		FileStream fs = FileStream.open(path, "rb");
 		return load_from_file(fs);
@@ -84,7 +84,7 @@ public class SJSON
 	/// <summary>
 	/// Convenience function for saving a file.
 	/// </summary>
-	public static void save(Hashtable h, string path)
+	public static void save(Hashtable h, string path) throws JsonWriteError
 	{
 		FileStream fs = FileStream.open(path, "wb");
 		if (fs == null)
@@ -93,12 +93,12 @@ public class SJSON
 		fs.write(encode(h).data);
 	}
 
-	static void write_root_object(Hashtable t, StringBuilder builder)
+	static void write_root_object(Hashtable t, StringBuilder builder) throws JsonWriteError
 	{
 		write_object_fields(t, builder, 0);
 	}
 
-	static void write_object_fields(Hashtable t, StringBuilder builder, int indentation)
+	static void write_object_fields(Hashtable t, StringBuilder builder, int indentation) throws JsonWriteError
 	{
 		Gee.ArrayList<string> keys = new Gee.ArrayList<string>.wrap(t.keys.to_array());
 		keys.sort(Gee.Functions.get_compare_func_for(typeof(string)));
@@ -118,7 +118,7 @@ public class SJSON
 			builder.append_c('\t');
 	}
 
-	static void write(Value? o, StringBuilder builder, int indentation)
+	static void write(Value? o, StringBuilder builder, int indentation) throws JsonWriteError
 	{
 		if (o == null)
 			builder.append("null");
@@ -141,7 +141,7 @@ public class SJSON
 		else if (o.holds(typeof(Hashtable)))
 			write_object((Hashtable)o, builder, indentation);
 		else
-			GLib.assert(false);
+			throw new JsonWriteError.BAD_VALUE("Unsupported value type '%s'".printf(o.type_name()));
 	}
 
 	static void write_string(string s, StringBuilder builder)
@@ -156,7 +156,7 @@ public class SJSON
 		builder.append_c('"');
 	}
 
-	static void write_array(Gee.ArrayList<Value?> a, StringBuilder builder, int indentation)
+	static void write_array(Gee.ArrayList<Value?> a, StringBuilder builder, int indentation) throws JsonWriteError
 	{
 		Gee.ArrayList<Value?> a_sorted = a;
 		a_sorted.sort((a, b) => {
@@ -208,7 +208,7 @@ public class SJSON
 		builder.append_c(']');
 	}
 
-	static void write_object(Hashtable t, StringBuilder builder, int indentation)
+	static void write_object(Hashtable t, StringBuilder builder, int indentation) throws JsonWriteError
 	{
 		builder.append_c('{');
 		write_object_fields(t, builder, indentation + 1);
@@ -216,7 +216,7 @@ public class SJSON
 		builder.append_c('}');
 	}
 
-	static Hashtable parse_root_object(uint8 [] json, ref int index)
+	static Hashtable parse_root_object(uint8 [] json, ref int index) throws JsonSyntaxError
 	{
 		Hashtable ht = new Hashtable();
 		while (!at_end(json, ref index)) {
@@ -228,13 +228,13 @@ public class SJSON
 		return ht;
 	}
 
-	static bool at_end(uint8 [] json, ref int index)
+	static bool at_end(uint8 [] json, ref int index) throws JsonSyntaxError
 	{
 		skip_whitespace(json, ref index);
 		return index >= json.length;
 	}
 
-	static void skip_whitespace(uint8 [] json, ref int index)
+	static void skip_whitespace(uint8 [] json, ref int index) throws JsonSyntaxError
 	{
 		while (index < json.length) {
 			uint8 c = json[index];
@@ -247,7 +247,7 @@ public class SJSON
 		}
 	}
 
-	static void skip_comment(uint8 [] json, ref int index)
+	static void skip_comment(uint8 [] json, ref int index) throws JsonSyntaxError
 	{
 		uint8 next = json[index + 1];
 		if (next == '/') {
@@ -259,11 +259,11 @@ public class SJSON
 				++index;
 			index += 2;
 		} else {
-			GLib.assert(false);
+			throw new JsonSyntaxError.BAD_COMMENT("Bad comment");
 		}
 	}
 
-	static string parse_identifier(uint8 [] json, ref int index)
+	static string parse_identifier(uint8 [] json, ref int index) throws JsonSyntaxError
 	{
 		skip_whitespace(json, ref index);
 
@@ -282,17 +282,17 @@ public class SJSON
 		return (string)s.to_array();
 	}
 
-	static void consume(uint8 [] json, ref int index, string consume)
+	static void consume(uint8 [] json, ref int index, string consume) throws JsonSyntaxError
 	{
 		skip_whitespace(json, ref index);
 		for (int i = 0; i < consume.length; ++i) {
 			if (json[index] != consume[i])
-				GLib.assert(false);
+				throw new JsonSyntaxError.BAD_TOKEN("Expected '%c' got '%c'".printf(consume[i], json[index]));
 			++index;
 		}
 	}
 
-	static Value? parse_value(uint8 [] json, ref int index)
+	static Value? parse_value(uint8 [] json, ref int index) throws JsonSyntaxError
 	{
 		uint8 c = next(json, ref index);
 
@@ -314,18 +314,17 @@ public class SJSON
 			consume(json, ref index, "null");
 			return null;
 		} else {
-			GLib.assert(false);
-			return null;
+			throw new JsonSyntaxError.BAD_VALUE("Bad value");
 		}
 	}
 
-	static uint8 next(uint8 [] json, ref int index)
+	static uint8 next(uint8 [] json, ref int index) throws JsonSyntaxError
 	{
 		skip_whitespace(json, ref index);
 		return json[index];
 	}
 
-	static Hashtable parse_object(uint8 [] json, ref int index)
+	static Hashtable parse_object(uint8 [] json, ref int index) throws JsonSyntaxError
 	{
 		Hashtable ht = new Hashtable();
 		consume(json, ref index, "{");
@@ -341,7 +340,7 @@ public class SJSON
 		return ht;
 	}
 
-	static Gee.ArrayList<Value?> parse_array(uint8 [] json, ref int index)
+	static Gee.ArrayList<Value?> parse_array(uint8 [] json, ref int index) throws JsonSyntaxError
 	{
 		Gee.ArrayList<Value?> a = new Gee.ArrayList<Value?>();
 		consume(json, ref index, "[");
@@ -353,7 +352,7 @@ public class SJSON
 		return a;
 	}
 
-	static string parse_string(uint8[] json, ref int index)
+	static string parse_string(uint8[] json, ref int index) throws JsonSyntaxError
 	{
 		Gee.ArrayList<uint8> s = new Gee.ArrayList<uint8>();
 
@@ -381,9 +380,9 @@ public class SJSON
 				else if (q == 't')
 					s.add('\t');
 				else if (q == 'u')
-					GLib.assert(false);
+					throw new JsonSyntaxError.BAD_STRING("Unsupported escape character 'u'");
 				else
-					GLib.assert(false);
+					throw new JsonSyntaxError.BAD_STRING("Bad string");
 			}
 		}
 		s.add('\0');

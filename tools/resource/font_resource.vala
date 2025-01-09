@@ -42,8 +42,12 @@ public class FontResource
 		dlg.show_all();
 
 		if (File.new_for_path(importer_settings_path).query_exists()) {
-			importer_settings = SJSON.load_from_path(importer_settings_path);
-			dlg.load(importer_settings);
+			try {
+				importer_settings = SJSON.load_from_path(importer_settings_path);
+				dlg.load(importer_settings);
+			} catch (JsonSyntaxError e) {
+				importer_settings = new Hashtable();
+			}
 		} else {
 			importer_settings = new Hashtable();
 		}
@@ -76,7 +80,11 @@ public class FontResource
 			string resource_path     = ResourceId.normalize(resource_filename);
 			string resource_name     = ResourceId.name(resource_path);
 
-			SJSON.save(importer_settings, project.absolute_path(resource_name) + ".importer_settings");
+			try {
+				SJSON.save(importer_settings, project.absolute_path(resource_name) + ".importer_settings");
+			} catch (JsonWriteError e) {
+				return ImportResult.ERROR;
+			}
 
 			// Save .png atlas.
 			dlg.save_png(project.absolute_path(resource_name) + ".png");
@@ -95,7 +103,11 @@ public class FontResource
 			Hashtable material = new Hashtable();
 			material["shader"]   = "gui+DIFFUSE_MAP";
 			material["textures"] = textures;
-			SJSON.save(material, project.absolute_path(resource_name) + ".material");
+			try {
+				SJSON.save(material, project.absolute_path(resource_name) + ".material");
+			} catch (JsonWriteError e) {
+				return ImportResult.ERROR;
+			}
 
 			// Generate .font resource.
 			Guid font_id = Guid.new_guid();

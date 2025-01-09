@@ -443,10 +443,15 @@ public class Database
 	}
 
 	/// Saves database to path without marking it as not changed.
-	public void dump(string path, Guid id)
+	public int dump(string path, Guid id)
 	{
-		Hashtable json = encode(id);
-		SJSON.save(json, path);
+		try {
+			Hashtable json = encode(id);
+			SJSON.save(json, path);
+			return 0;
+		} catch (JsonWriteError e) {
+			return -1;
+		}
 	}
 
 	/// Saves database to path.
@@ -459,25 +464,29 @@ public class Database
 	// See: add_from_path().
 	public int add_from_file(out Guid object_id, FileStream? fs, string resource_path)
 	{
-		Hashtable json = SJSON.load_from_file(fs);
+		try {
+			Hashtable json = SJSON.load_from_file(fs);
 
-		// Parse the object's ID or generate a new one if none is found.
-		if (json.has_key("id"))
-			object_id = Guid.parse((string)json["id"]);
-		else if (json.has_key("_guid"))
-			object_id = Guid.parse((string)json["_guid"]);
-		else
-			object_id = Guid.new_guid();
+			// Parse the object's ID or generate a new one if none is found.
+			if (json.has_key("id"))
+				object_id = Guid.parse((string)json["id"]);
+			else if (json.has_key("_guid"))
+				object_id = Guid.parse((string)json["_guid"]);
+			else
+				object_id = Guid.new_guid();
 
-		create_internal(0, object_id);
-		set_object_type(object_id, ResourceId.type(resource_path));
+			create_internal(0, object_id);
+			set_object_type(object_id, ResourceId.type(resource_path));
 
-		decode_object(object_id, GUID_ZERO, "", json);
+			decode_object(object_id, GUID_ZERO, "", json);
 
-		// Create a mapping between the path and the object it has been loaded into.
-		set_property_internal(0, GUID_ZERO, resource_path, object_id);
-
-		return 0;
+			// Create a mapping between the path and the object it has been loaded into.
+			set_property_internal(0, GUID_ZERO, resource_path, object_id);
+			return 0;
+		} catch (JsonSyntaxError e) {
+			object_id = GUID_ZERO;
+			return -1;
+		}
 	}
 
 	// Adds the object stored at @a path to the database.

@@ -103,8 +103,12 @@ public class Project
 	{
 		_data_compiled = true;
 
-		string index_path = Path.build_filename(_data_dir.get_path(), "data_index.sjson");
-		_data_index = SJSON.load_from_path(index_path);
+		try {
+			string index_path = Path.build_filename(_data_dir.get_path(), "data_index.sjson");
+			_data_index = SJSON.load_from_path(index_path);
+		} catch (JsonSyntaxError e) {
+			loge(e.message);
+		}
 	}
 
 	public uint64 mtime(string type, string name)

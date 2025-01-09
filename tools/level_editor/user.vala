@@ -51,13 +51,21 @@ public class User
 
 	public void load(string path)
 	{
-		Hashtable sjson = SJSON.load_from_path(path);
-		decode(sjson);
+		try {
+			Hashtable sjson = SJSON.load_from_path(path);
+			decode(sjson);
+		} catch (JsonSyntaxError e) {
+			loge(e.message);
+		}
 	}
 
 	public void save(string path)
 	{
-		SJSON.save(encode(), path);
+		try {
+			SJSON.save(encode(), path);
+		} catch (JsonWriteError e) {
+			loge(e.message);
+		}
 	}
 
 	public void add_or_touch_recent_project(string source_dir, string name)

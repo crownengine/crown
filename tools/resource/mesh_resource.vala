@@ -123,7 +123,12 @@ public class MeshResource
 				material["shader"]   = "mesh+DIFFUSE_MAP";
 				material["textures"] = new Hashtable();
 				material["uniforms"] = new Hashtable();
-				SJSON.save(material, project.absolute_path(material_name) + ".material");
+				try {
+					SJSON.save(material, project.absolute_path(material_name) + ".material");
+				} catch (JsonWriteError e) {
+					loge(e.message);
+					return ImportResult.ERROR;
+				}
 			}
 			mtl.destroy();
 
@@ -143,46 +148,51 @@ public class MeshResource
 				db.create(unit_id, OBJECT_TYPE_UNIT);
 			}
 
-			Hashtable mesh = SJSON.load_from_path(filename_i);
-			Hashtable mesh_nodes = (Hashtable)mesh["nodes"];
+			try {
+				Hashtable mesh = SJSON.load_from_path(filename_i);
+				Hashtable mesh_nodes = (Hashtable)mesh["nodes"];
 
-			if (mesh_nodes.size > 1) {
-				// Create an extra "root" unit to accommodate multiple root objects. This
-				// "root" unit will only have a transform centered at origin to allow other
-				// objects to be linked to it via the SceneGraph.
-				Unit unit = new Unit(db, unit_id);
-
-				Guid component_id;
-				if (!unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM)) {
-					component_id = Guid.new_guid();
-					db.create(component_id, OBJECT_TYPE_TRANSFORM);
-					db.add_to_set(unit_id, "components", component_id);
-				}
-
-				unit.set_component_property_vector3   (component_id, "data.position", VECTOR3_ZERO);
-				unit.set_component_property_quaternion(component_id, "data.rotation", QUATERNION_IDENTITY);
-				unit.set_component_property_vector3   (component_id, "data.scale", VECTOR3_ONE);
-			}
-
-			Guid new_unit_id = unit_id;
-			foreach (var entry in mesh_nodes.entries) {
 				if (mesh_nodes.size > 1) {
-					// If the mesh contains multiple root objects, create a new unit for each
-					// one of those, otherwise put the components inside the base unit.
-					new_unit_id = Guid.new_guid();
-					db.create(new_unit_id, OBJECT_TYPE_UNIT);
-				}
-				create_components(db
-					, unit_id
-					, new_unit_id
-					, material_name
-					, resource_name
-					, entry.key
-					, (Hashtable)entry.value
-					);
-			}
+					// Create an extra "root" unit to accommodate multiple root objects. This
+					// "root" unit will only have a transform centered at origin to allow other
+					// objects to be linked to it via the SceneGraph.
+					Unit unit = new Unit(db, unit_id);
 
-			db.save(project.absolute_path(resource_name) + ".unit", unit_id);
+					Guid component_id;
+					if (!unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM)) {
+						component_id = Guid.new_guid();
+						db.create(component_id, OBJECT_TYPE_TRANSFORM);
+						db.add_to_set(unit_id, "components", component_id);
+					}
+
+					unit.set_component_property_vector3   (component_id, "data.position", VECTOR3_ZERO);
+					unit.set_component_property_quaternion(component_id, "data.rotation", QUATERNION_IDENTITY);
+					unit.set_component_property_vector3   (component_id, "data.scale", VECTOR3_ONE);
+				}
+
+				Guid new_unit_id = unit_id;
+				foreach (var entry in mesh_nodes.entries) {
+					if (mesh_nodes.size > 1) {
+						// If the mesh contains multiple root objects, create a new unit for each
+						// one of those, otherwise put the components inside the base unit.
+						new_unit_id = Guid.new_guid();
+						db.create(new_unit_id, OBJECT_TYPE_UNIT);
+					}
+					create_components(db
+						, unit_id
+						, new_unit_id
+						, material_name
+						, resource_name
+						, entry.key
+						, (Hashtable)entry.value
+						);
+				}
+
+				db.save(project.absolute_path(resource_name) + ".unit", unit_id);
+			} catch (JsonSyntaxError e) {
+				loge(e.message);
+				return ImportResult.ERROR;
+			}
 		}
 
 		return ImportResult.SUCCESS;

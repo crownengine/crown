@@ -141,8 +141,12 @@ public class MeshRendererPropertyGrid : PropertyGrid
 
 	private void decode_from_resource(string type, string name)
 	{
-		string path = ResourceId.path(type, name);
-		decode(SJSON.load_from_path(_project.absolute_path(path)));
+		try {
+			string path = ResourceId.path(type, name);
+			decode(SJSON.load_from_path(_project.absolute_path(path)));
+		} catch (JsonSyntaxError e) {
+			loge(e.message);
+		}
 	}
 
 	public MeshRendererPropertyGrid(Database db, ProjectStore store)
@@ -396,8 +400,12 @@ public class ColliderPropertyGrid : PropertyGrid
 
 	private void decode_from_resource(string type, string name)
 	{
-		string path = ResourceId.path(type, name);
-		decode(SJSON.load_from_path(_project.absolute_path(path)));
+		try {
+			string path = ResourceId.path(type, name);
+			decode(SJSON.load_from_path(_project.absolute_path(path)));
+		} catch (JsonSyntaxError e) {
+			loge(e.message);
+		}
 	}
 
 	public ColliderPropertyGrid(Database db, ProjectStore store)
@@ -604,8 +612,12 @@ public class ActorPropertyGrid : PropertyGrid
 			return;
 
 		string path = ResourceId.path("physics_config", "global");
-		Hashtable global = SJSON.load_from_path(_project.absolute_path(path));
-		decode_global_physics_config(global);
+		try {
+			Hashtable global = SJSON.load_from_path(_project.absolute_path(path));
+			decode_global_physics_config(global);
+		} catch (JsonSyntaxError e) {
+			loge(e.message);
+		}
 	}
 
 	private void on_project_file_removed(string type, string name)
