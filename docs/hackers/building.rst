@@ -32,10 +32,12 @@ Android
 
 	sudo apt-get install libc6-dev-i386
 
-4. Continue to `Build`_.
+4. :ref:`Build for Android<build_android>`.
 
 Linux (Ubuntu >= 20.04)
 -----------------------
+
+1. Install dependencies:
 
 .. code::
 
@@ -45,38 +47,20 @@ Linux (Ubuntu >= 20.04)
 	sudo add-apt-repository ppa:vala-team
 	sudo apt install valac libgee-0.8-dev
 
-If you encounter any errors while adding the Vala PPA, update ``ca-certificates`` first:
-
-.. code::
-
-	sudo apt update
-	sudo apt install ca-certificates
-
-To build documentation you will also need:
-
-.. code::
-
+	# Optionally, to build docs:
 	sudo apt-get install python3-sphinx
 
-Windows (VS 2019)
------------------
+.. note::
 
-1. Install Visual Studio 2019:
+	If you encounter any errors while adding the Vala PPA, please update
+	``ca-certificates`` first:
 
-	* https://visualstudio.microsoft.com/downloads
+	.. code::
 
-2. If you want to build tools, continue to :ref:`Windows (MSYS2) <pre_windows_msys2>`.
+		sudo apt update
+		sudo apt install ca-certificates
 
-3. Continue to `Build`_.
-
-Windows (VS Code)
------------------
-
-1. Install Visual Studio Code:
-
-	* https://code.visualstudio.com
-
-2. Continue to :ref:`Windows (MSYS2) <pre_windows_msys2>`.
+2. :ref:`Build for Linux<build_linux>`.
 
 .. _pre_windows_msys2:
 
@@ -93,18 +77,46 @@ Windows (MSYS2)
 
 	C:\msys64\usr\bin
 
-3. Open MSYS2 shell and install dependencies:
+3. Open MSYS2 MINGW64 shell and install dependencies:
 
 .. code::
 
-	pacman -S make mingw-w64-x86_64-gcc mingw-w64-x86_64-pkgconf \
+	pacman -Sy make mingw-w64-x86_64-gcc mingw-w64-x86_64-pkgconf \
 	mingw-w64-x86_64-gtk3 mingw-w64-x86_64-sassc \
 	mingw-w64-x86_64-vala mingw-w64-x86_64-libgee
 
-4. Continue to `Build`_.
+4. :ref:`Build for Windows (MSYS2)<build_msys2>`.
+
+Windows (VS Code)
+-----------------
+
+1. Install Visual Studio Code:
+
+	* https://code.visualstudio.com
+
+2. Install C/C++ extension for VS Code:
+
+   * https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools
+
+3. :ref:`Install MSYS2 <pre_windows_msys2>`.
+
+4. :ref:`Build for Windows (VS Code) <build_vs_code>`.
+
+Windows (VS 2019)
+-----------------
+
+1. Install Visual Studio 2019:
+
+	* https://visualstudio.microsoft.com/downloads
+
+2. If you want to build tools, :ref:`install Windows (MSYS2) <pre_windows_msys2>`.
+
+3. :ref:`Build for Windows (VS 2019)<build_vs_2019>`.
 
 Build
 =====
+
+.. _build_android:
 
 Android
 -------
@@ -113,12 +125,40 @@ Android
 
 	make android-arm-release MAKE_JOBS=4
 
+.. _build_linux:
+
 Linux
 -----
 
 .. code::
 
 	make tools-linux-release64 MAKE_JOBS=4
+
+.. _build_msys2:
+
+Windows (MSYS2)
+---------------
+
+Open MSYS2 MINGW64 shell:
+
+.. code::
+
+	export MINGW=/mingw64
+	make tools-mingw-release64 MAKE_JOBS=4
+
+.. _build_vs_code:
+
+Windows (VS Code)
+-----------------
+
+Open Visual Studio Code Shell:
+
+.. code::
+
+	$env:MINGW = "C:\\msys64\\mingw64"
+	make tools-mingw-release64 MAKE_JOBS=4
+
+.. _build_vs_2019:
 
 Windows (VS 2019)
 -----------------
@@ -136,26 +176,3 @@ Windows (VS 2019)
 	export MINGW=/mingw64
 	make tools-mingw-release64 MAKE_JOBS=4
 
-Windows (VS Code)
------------------
-
-1. Add the MinGW compiler to your path:
-
-	* https://code.visualstudio.com/docs/languages/cpp#_add-the-mingw-compiler-to-your-path
-
-2. Open Visual Studio Code Shell:
-
-.. code::
-
-	$env:MINGW = "C:\\msys64\\mingw64"
-	make tools-mingw-release64 MAKE_JOBS=4
-
-Windows (MSYS2)
----------------
-
-Open MSYS2 MINGW64 shell:
-
-.. code::
-
-	export MINGW=/mingw64
-	make tools-mingw-release64 MAKE_JOBS=4
