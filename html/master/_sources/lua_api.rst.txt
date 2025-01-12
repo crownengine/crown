@@ -174,7 +174,7 @@ Gui
 	Objects with a lower depth are drawn in front. If depth is omitted its value
 	is set to 0.
 
-**triangle_3d** (gui, a, b, c, color [, depth])
+**triangle_3d** (gui, local_pose, a, b, c, color [, depth])
 	Draws a 3D triangle defined by vertices *a*, *b* and *c*.
 
 **rect** (gui, pos, size, color)
@@ -183,7 +183,7 @@ Gui
 	a lower depth are drawn in front. If pos is a Vector2, the z elements is set
 	to 0.
 
-**rect_3d** (gui, pos, size, color [, depth])
+**rect_3d** (gui, local_pose, pos, size, color [, depth])
 	Draws a 3D rectangle.
 
 **image** (gui, pos, size, material_resource, color)
@@ -192,7 +192,7 @@ Gui
 	a lower depth are drawn in front. If pos is a Vector2, the z elements is set
 	to 0.
 
-**image_3d** (gui, pos, size, material_resource, color [, depth])
+**image_3d** (gui, local_pose, pos, size, material_resource, color [, depth])
 	Draws a 3D image.
 
 **image_uv** (gui, pos, size, uv0, uv1, material_resource, color)
@@ -201,7 +201,7 @@ Gui
 	a lower depth are drawn in front. If pos is a Vector2, the z elements is set
 	to 0.
 
-**image_3d_uv** (gui, pos, size, uv0, uv1, material_resource, color [, depth])
+**image_3d_uv** (gui, local_pose, pos, size, uv0, uv1, material_resource, color [, depth])
 	Draws a 3D image with explicit UV coordinates.
 
 **text** (gui, pos, font_size, str, font_resource, material_resource, color)
@@ -210,7 +210,7 @@ Gui
 	a lower depth are drawn in front. If pos is a Vector2, the z elements is set
 	to 0.
 
-**text_3d** (gui, pos, font_size, str, font_resource, material_resource, color [, depth])
+**text_3d** (gui, local_pose, pos, font_size, str, font_resource, material_resource, color [, depth])
 	Draws 3D text.
 
 **material** (material_resource) : Material
@@ -1229,6 +1229,9 @@ SceneGraph
 **instance** (sg, unit) : Id
 	Returns the ID of the transform owned by the *unit*, or ``nil``.
 
+**owner** (sg, transform) : UnitId
+	Returns the unit that owns *transform*.
+
 **local_position** (sg, transform) : Vector3
 	Returns the local position of the *transform*.
 
@@ -1263,14 +1266,22 @@ SceneGraph
 	Sets the local *pose* of the *transform*.
 
 **link** (sg, parent, child, child_local_position, child_local_rotation, child_local_scale)
-	Links `child` to `parent`. After linking the child will follow its
+	Links *child* to *parent*. After linking the child will follow its
 	parent. Set child_local_* to modify the child position after it has been
 	linked to the parent, otherwise che child will be positioned at the
 	location of its parent.
 
 **unlink** (sg, child)
-	Unlinks `child` from its parent if it has any. After unlinking, the local
-	pose of the @a child is set to its previous world pose.
+	Unlinks *child* from its parent if it has any. After unlinking, the local
+	pose of the *child* is set to its previous world pose.
+
+**first_child** (sg, parent) : Id
+	Returns the first child of the instance *parent* or ``nil``
+	if *parent* has no children.
+
+**next_sibling** (sg, child) : Id
+	Returns the next sibling of the instance *child* or ``nil``
+	if *child* has no sibling.
 
 SoundWorld
 ===========

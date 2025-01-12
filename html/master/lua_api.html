@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lua API reference &mdash; Crown 0.53.0 Manual 0.53.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <title>Lua API reference &mdash; Crown 0.54.0 Manual 0.54.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" /><link rel="shortcut icon" href="_static/crown-black-socket.svg"/>
   <!--[if lt IE 9]>
@@ -30,7 +30,7 @@
             <a href="index.html"><img src="_static/crown-black-socket.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                Crown 0.53.0 Manual
+                Crown 0.54.0 Manual
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -43,7 +43,6 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="basics.html">Basic concepts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/index.html">Reference</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Lua API reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#animationstatemachine">AnimationStateMachine</a></li>
@@ -151,7 +150,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Crown 0.53.0 Manual</a>
+          <a href="index.html">Crown 0.54.0 Manual</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -320,35 +319,35 @@ The initial display mode is automatically reset when the program terminates.</dd
 <dd>Draws a triangle defined by vertices <em>a</em>, <em>b</em> and <em>c</em>.
 Objects with a lower depth are drawn in front. If depth is omitted its value
 is set to 0.</dd>
-<dt><strong>triangle_3d</strong> (gui, a, b, c, color [, depth])</dt>
+<dt><strong>triangle_3d</strong> (gui, local_pose, a, b, c, color [, depth])</dt>
 <dd>Draws a 3D triangle defined by vertices <em>a</em>, <em>b</em> and <em>c</em>.</dd>
 <dt><strong>rect</strong> (gui, pos, size, color)</dt>
 <dd>Draws a rectangle.
 If pos is a Vector3, the z element specifies the drawing depth. Objects with
 a lower depth are drawn in front. If pos is a Vector2, the z elements is set
 to 0.</dd>
-<dt><strong>rect_3d</strong> (gui, pos, size, color [, depth])</dt>
+<dt><strong>rect_3d</strong> (gui, local_pose, pos, size, color [, depth])</dt>
 <dd>Draws a 3D rectangle.</dd>
 <dt><strong>image</strong> (gui, pos, size, material_resource, color)</dt>
 <dd>Draws an image.
 If pos is a Vector3, the z element specifies the drawing depth. Objects with
 a lower depth are drawn in front. If pos is a Vector2, the z elements is set
 to 0.</dd>
-<dt><strong>image_3d</strong> (gui, pos, size, material_resource, color [, depth])</dt>
+<dt><strong>image_3d</strong> (gui, local_pose, pos, size, material_resource, color [, depth])</dt>
 <dd>Draws a 3D image.</dd>
 <dt><strong>image_uv</strong> (gui, pos, size, uv0, uv1, material_resource, color)</dt>
 <dd>Draws an image with explicit UV coordinates.
 If pos is a Vector3, the z element specifies the drawing depth. Objects with
 a lower depth are drawn in front. If pos is a Vector2, the z elements is set
 to 0.</dd>
-<dt><strong>image_3d_uv</strong> (gui, pos, size, uv0, uv1, material_resource, color [, depth])</dt>
+<dt><strong>image_3d_uv</strong> (gui, local_pose, pos, size, uv0, uv1, material_resource, color [, depth])</dt>
 <dd>Draws a 3D image with explicit UV coordinates.</dd>
 <dt><strong>text</strong> (gui, pos, font_size, str, font_resource, material_resource, color)</dt>
 <dd>Draws text.
 If pos is a Vector3, the z element specifies the drawing depth. Objects with
 a lower depth are drawn in front. If pos is a Vector2, the z elements is set
 to 0.</dd>
-<dt><strong>text_3d</strong> (gui, pos, font_size, str, font_resource, material_resource, color [, depth])</dt>
+<dt><strong>text_3d</strong> (gui, local_pose, pos, font_size, str, font_resource, material_resource, color [, depth])</dt>
 <dd>Draws 3D text.</dd>
 <dt><strong>material</strong> (material_resource) <span class="classifier-delimiter">:</span> <span class="classifier">Material</span></dt>
 <dd>Returns the material <em>material_resource</em>.</dd>
@@ -1203,6 +1202,8 @@ instead, you have to poll for completion with has_loaded().</p>
 <dd>Destroys the <em>transform</em> instance.</dd>
 <dt><strong>instance</strong> (sg, unit) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
 <dd>Returns the ID of the transform owned by the <em>unit</em>, or <code class="docutils literal notranslate"><span class="pre">nil</span></code>.</dd>
+<dt><strong>owner</strong> (sg, transform) <span class="classifier-delimiter">:</span> <span class="classifier">UnitId</span></dt>
+<dd>Returns the unit that owns <em>transform</em>.</dd>
 <dt><strong>local_position</strong> (sg, transform) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
 <dd>Returns the local position of the <em>transform</em>.</dd>
 <dt><strong>local_rotation</strong> (sg, transform) <span class="classifier-delimiter">:</span> <span class="classifier">Quaternion</span></dt>
@@ -1226,13 +1227,19 @@ instead, you have to poll for completion with has_loaded().</p>
 <dt><strong>set_local_pose</strong> (sg, transform, pose)</dt>
 <dd>Sets the local <em>pose</em> of the <em>transform</em>.</dd>
 <dt><strong>link</strong> (sg, parent, child, child_local_position, child_local_rotation, child_local_scale)</dt>
-<dd>Links <cite>child</cite> to <cite>parent</cite>. After linking the child will follow its
+<dd>Links <em>child</em> to <em>parent</em>. After linking the child will follow its
 parent. Set child_local_* to modify the child position after it has been
 linked to the parent, otherwise che child will be positioned at the
 location of its parent.</dd>
 <dt><strong>unlink</strong> (sg, child)</dt>
-<dd>Unlinks <cite>child</cite> from its parent if it has any. After unlinking, the local
-pose of the &#64;a child is set to its previous world pose.</dd>
+<dd>Unlinks <em>child</em> from its parent if it has any. After unlinking, the local
+pose of the <em>child</em> is set to its previous world pose.</dd>
+<dt><strong>first_child</strong> (sg, parent) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
+<dd>Returns the first child of the instance <em>parent</em> or <code class="docutils literal notranslate"><span class="pre">nil</span></code>
+if <em>parent</em> has no children.</dd>
+<dt><strong>next_sibling</strong> (sg, child) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
+<dd>Returns the next sibling of the instance <em>child</em> or <code class="docutils literal notranslate"><span class="pre">nil</span></code>
+if <em>child</em> has no sibling.</dd>
 </dl>
 </div>
 <div class="section" id="soundworld">

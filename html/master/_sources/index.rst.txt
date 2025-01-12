@@ -6,7 +6,6 @@ Crown |version| Manual
 
    changelog
    introduction
-   basics
    reference/index
    lua_api
    glossary
