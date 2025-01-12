@@ -5,92 +5,29 @@ Introduction
 What is it?
 -----------
 
-Crown is a general purpose and data-driven game engine, written in `orthodox
-<https://gist.github.com/bkaradzic/2e39896bc7d8c34e042b>`__ C++ with a
-minimalistic and data-oriented design philosophy in mind.
+Crown is a complete and cross-platform game engine designed for flexibility,
+performance, and fast-iterations.
 
-Crown isn't tied to a particular game type or genre but instead it offers a set
-of generic primitives and facilities to help you create a wide gamut of
-interactive 2D and 3D products.
+It is not limited to a specific game type or genre; rather, it provides a set of
+versatile primitives and tools that can be used to create a broad range of both
+3D and 2D games.
 
-Crown also offers a complete cross-platform editor to create and put together
-all the elements that make up your game.
-
-Crown is loosely inspired by the Bitsquid engine and many of its design
-principles.
-
-Features
---------
+.. image:: shots/level-editor.png
 
 .. note::
 
-	Crown is in active development and new features are added and improved all
-	the time; you can check out the development efforts in real-time on
-	`GitHub <https://github.com/crownengine/crown/issues>`__ and on the
-	`Discord <https://discord.com/invite/CeXVWCT>`__ channel!
+    Crown is in active development and new features are added and improved all
+    the time; You can follow the development progress in real-time on `GitHub
+    <https://github.com/crownengine/crown/issues>`__ and join the discussions on
+    the `Discord <https://discord.com/invite/CeXVWCT>`__ channel!
 
-* Data-driven
-	Every aspect of the game is controlled through text configuration files. Text
-	files are human-readable for easy inspection and play nicely with traditional
-	version control systems. Before shipping, configuration files are compiled to
-	efficient platform-specific binary blobs.
+License
+-------
 
-* Data-oriented
-	Data in memory is organized to achieve the maximum performance possible on
-	every platform.
-
-* Lightweight codebase and runtime
-	Engine plus tools amounts to less than 50K LOC. Written in simple 'C-style'
-	C++. It is easy for anyone to understand and make modifications.
-
-* Editor
-	* Runs and looks equally well both on Linux and on Windows.
-	* Source data importers (meshes, sprites, sounds, textures etc.).
-	* All the editing data is held by the editor which runs in its own process, if the Runtime crashes you can restart it without losing your work.
-	* TCP/IP communication with Runtime allows editing to be mirrored to remote devices (phones, consoles etc.).
-	* Hot-reloading of every asset including code.
-
-* Graphics
-	* High-level 2D and 3D objects: sprites, meshes and lights (directional, omni and spot).
-	* Cross-plaform GLSL-like shader programming language with data-driven definitions of render states and permutations.
-	* D3D11, GL 3.2 and GLES 2.0 render backends.
-	* PNG, TGA, DDS, KTX and PVR texture formats.
-
-* Animation
-	* Animation state machine with events, variables and blending with simple expressions evaluator.
-	* Flipbook sprite animation.
-
-* Physics
-	* Static, dynamic and keyframed rigid bodies, triggers and joints (fixed, spring and hinge).
-	* Spatial queries: ray-, sphere- and box-casts.
-	* Multiple collision geometries per rigid body.
-	* Collision geometry can be generated from mesh data, authored by artists or manually specified.
-	* Uniform scaling of physics objects.
-
-* Audio
-	* 3D audio sources with position and range-based attenuation.
-	* Volume control.
-	* WAV format supported.
-
-* Scripting
-	* Integrated Lua runtime can be used to control every aspect of the game.
-	* LuaJIT is used on supported platforms for maximum performance.
-	* Integrated REPL to quickly test and experiment while the game is running.
-	* Live reloading of gameplay code without needing to restart the game.
-
-* Debugging
-	* Integrated profiler.
-	* Callstack generation for C++ and Lua.
-
-* Gui
-	* Immediate-mode GUI with custom materials.
-	* TrueType text rendering via texture atlas.
-
-* Input
-	* Unified interface for accessing mice, keyboards, touchpads and joypads.
-
-* Exporters
-	* Mesh exporter for Blender >= 2.80.
+The games you create with Crown is your sole property. All the data (models,
+textures, levels etc.) and code you produce (including data and code that Crown
+itself outputs) is free for you to use as you wish. See :doc:`copyright` for an
+exhaustive list of the licenses involved.
 
 Supported platforms
 -------------------
@@ -102,13 +39,93 @@ Supported platforms
 	* Windows 7+ (x86_64)
 
 * Editor
-	* Any 64-bit Linux with GTK+ 3.24 or newer (Ubuntu 20.04+)
-	* Any 64-bit Windows 7+
+	* Ubuntu 20.04+ (or any 64-bit Linux with GTK+ >= 3.24)
+	* Windows 7+
+
+Hardware requirements
+---------------------
+
+* Editor
 	* 64-bit dual-core CPU or higher
 	* OpenGL 3.2+ graphics card with 512 MB of RAM, 1 GB recommended
 	* 4 GB of RAM minimum, 8 GB recommended
 	* 1366x768 display resolution minimum, 1920x1080 recommended
 	* Three-button mouse
+
+Design Principles
+-----------------
+
+Crown is loosely inspired by the Bitsquid engine and shares with it many of its
+design principles:
+
+* Data-driven
+	All aspects of the game are defined via text-based configuration files,
+	which are compiled into native, efficient, platform-specific BLOBs before
+	shipping. These files are human-readable, making them easy to inspect and
+	compatible with traditional VCS and regular text-based utilities.
+
+* Data-oriented
+	Data in memory is organized to achieve the maximum performance possible on
+	every supported platform.
+
+* Hot-reload everything
+	Every game asset is reloadable at run-time, including code.
+
+* Multi-process Editor/Runtime architecture
+	The Editor and the Runtime live in separate processes. The Editor helds all
+	the important data: if the Runtime crashes you can restart it without losing
+	any work.
+
+* Lightweight Codebase and Runtime
+	The Runtime (plus tools) consist of fewer than 70K lines of code. Written in
+	straightforward 'C-style' C++, it is easily understood and extensible by
+	anyone.
+
+Features
+--------
+
+* Cross-platform Editor
+	* DCC data importers for models, textures, sounds etc.
+	* Scene Editor with place/move/rotate/scale controls, snapping, selection etc.
+	* Deployer for Android, HTML5 and desktop platforms.
+	* Project Browser with thumbnails and multiple view modes.
+	* Scene Tree and object Inspector.
+	* Console with Lua REPL.
+
+* Graphics
+	* High-level 3D & 2D objects (meshes, cameras, lights and sprites).
+	* Cross-platform GLSL-like shader programming language.
+	* Animation state machine with events, variables and blending with simple expressions evaluator.
+	* Immediate-mode GUI API with customizable materials.
+	* TrueType text rendering via texture atlas.
+	* Flipbook sprite animation.
+	* PNG, TGA, DDS, KTX and PVR texture formats.
+	* D3D11, GL 3.2 and GLES 2.0 render backends.
+
+* Physics
+	* Static, dynamic and keyframed rigid bodies with multiple colliders.
+	* Joints (fixed, spring and hinge).
+	* Spatial queries: ray-, sphere- and box-casts.
+	* Triggers.
+
+* Scripting
+	* Integrated Lua runtime can be used to control every aspect of the game.
+	* On supported platforms, LuaJIT is used for even higher performances.
+	* Integrated REPL to quickly test and experiment while the game is running.
+	* Live reloading of gameplay code without needing to restart the game.
+
+* Debugging
+	* Integrated profiler and data plotter graph.
+	* C++ and Lua callstack generation.
+
+* Input
+	* Unified interface for mice, keyboards, joypads and touchpads.
+	* Full list of input events for each simulation frame.
+	* Simplified polling interface for rapid prototyping.
+
+* Audio
+	* 3D audio sources with position and range-based attenuation.
+	* Formats: WAV.
 
 Contact
 -------
