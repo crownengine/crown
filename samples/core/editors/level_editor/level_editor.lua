@@ -568,8 +568,18 @@ function PlaceTool:object_position_delta()
 	return self._object_position_delta:unbox()
 end
 
+function PlaceTool:destroy_placeable()
+	if self._placeable_id ~= nil then
+		UnitUtils.destroy_tree(LevelEditor._world, self._placeable_id)
+		self._placeable_id = nil
+	end
+end
+
 function PlaceTool:set_placeable(placeable_type, name)
 	assert(placeable_type == nil or placeable_type == "unit" or placeable_type == "sound")
+	if self._placeable_type ~= placeable_type or self._placeable_name ~= placeable_name then
+		self:destroy_placeable()
+	end
 	self._placeable_type = placeable_type
 	self._placeable_name = name
 end
@@ -671,10 +681,7 @@ function PlaceTool:mouse_up(x, y)
 end
 
 function PlaceTool:on_leave()
-	if self._placeable_id ~= nil then
-		UnitUtils.destroy_tree(LevelEditor._world, self._placeable_id)
-		self._placeable_id = nil
-	end
+	self:destroy_placeable()
 end
 
 MoveTool = class(MoveTool)
