@@ -71,10 +71,10 @@ public class PanelProjectsList : Gtk.ScrolledWindow
 	// Widgets
 	public Gtk.Label _projects_list_label;
 	public Gtk.Label _local_label;
-	public Gtk.Label _project_list_empty;
+	public Gtk.Box _project_list_empty;
 	public Gtk.ListBox _list_projects;
-	public Gtk.Button _button_new_project;
 	public Gtk.Button _button_import_project;
+	public Gtk.Button _button_new_project;
 	public Gtk.Box _buttons_box;
 	public Gtk.Box _projects_box;
 	public Clamp _clamp;
@@ -93,12 +93,16 @@ public class PanelProjectsList : Gtk.ScrolledWindow
 		_local_label = new Gtk.Label("Local");
 		_local_label.set_markup("<span font_weight=\"bold\">Local</span>");
 
-		_project_list_empty = new Gtk.Label("No projects found.\nUse the buttons above to create a new project or import an already existing one.");
-		_project_list_empty.visible = true;
-		_project_list_empty.margin_start = 12;
-		_project_list_empty.margin_end = 12;
-		_project_list_empty.margin_top = 8;
-		_project_list_empty.margin_bottom = 8;
+		_project_list_empty = new Gtk.Box(Gtk.Orientation.VERTICAL, 6);
+		_project_list_empty.margin_top = 12;
+		_project_list_empty.margin_bottom = 12;
+		var label = new Gtk.Label(null);
+		label.set_markup("<span font_size=\"large\"><b>No projects found</b></span>");
+		_project_list_empty.pack_start(label, false, false);
+		label = new Gtk.Label(null);
+		label.set_markup("Use the buttons above to create a new project or import an already existing one.");
+		_project_list_empty.pack_start(label, false, false);
+		_project_list_empty.show_all();
 
 		_list_projects = new Gtk.ListBox();
 		_list_projects.set_placeholder(_project_list_empty);
@@ -108,24 +112,22 @@ public class PanelProjectsList : Gtk.ScrolledWindow
 				return mtime1 > mtime2 ? -1 : 1; // LRU
 			});
 
-		_button_new_project = new Gtk.Button.with_label("New");
-		_button_new_project.get_style_context().add_class("flat");
+		_button_import_project = new Gtk.Button.with_label("Import...");
+		_button_import_project.clicked.connect(() => {
+				GLib.Application.get_default().activate_action("add-project", null);
+			});
+		_button_new_project = new Gtk.Button.with_label("Create New");
+		_button_new_project.get_style_context().add_class("suggested-action");
 		_button_new_project.clicked.connect(() => {
 				var app = (LevelEditorApplication)GLib.Application.get_default();
 				app.show_panel("panel_new_project", Gtk.StackTransitionType.SLIDE_DOWN);
 			});
 
-		_button_import_project = new Gtk.Button.with_label("Import");
-		_button_import_project.get_style_context().add_class("flat");
-		_button_import_project.clicked.connect(() => {
-				GLib.Application.get_default().activate_action("add-project", null);
-			});
-
 		_buttons_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
 		_buttons_box.spacing = 6;
 		_buttons_box.pack_start(_local_label, false, true);
-		_buttons_box.pack_end(_button_import_project, false, true);
 		_buttons_box.pack_end(_button_new_project, false, true);
+		_buttons_box.pack_end(_button_import_project, false, true);
 
 		_projects_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		_projects_box.margin_start = 12;
