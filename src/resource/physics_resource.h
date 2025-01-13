@@ -32,6 +32,7 @@ struct PhysicsConfigResource
 	u32 actors_offset;
 	u32 num_filters;
 	u32 filters_offset;
+	Vector3 gravity;
 };
 
 struct PhysicsMaterial

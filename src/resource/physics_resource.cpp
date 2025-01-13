@@ -595,6 +595,7 @@ namespace physics_config_resource_internal
 		Array<PhysicsMaterial> materials(default_allocator());
 		Array<PhysicsActor> actors(default_allocator());
 		CollisionFilterCompiler cfc(opts);
+		PhysicsConfigResource pcr;
 
 		// Parse materials
 		s32 err = 0;
@@ -610,9 +611,13 @@ namespace physics_config_resource_internal
 			err = parse_actors(obj["actors"], actors, opts);
 			ENSURE_OR_RETURN(err == 0, opts);
 		}
+		if (json_object::has(obj, "gravity")) {
+			pcr.gravity = RETURN_IF_ERROR(sjson::parse_vector3(obj["gravity"]), opts);
+		} else {
+			pcr.gravity = vector3(0.0f, 0.0f, -10.0f);
+		}
 
 		// Setup struct for writing
-		PhysicsConfigResource pcr;
 		pcr.version       = RESOURCE_HEADER(RESOURCE_VERSION_PHYSICS_CONFIG);
 		pcr.num_materials = array::size(materials);
 		pcr.num_actors    = array::size(actors);
@@ -635,6 +640,7 @@ namespace physics_config_resource_internal
 		opts.write(pcr.actors_offset);
 		opts.write(pcr.num_filters);
 		opts.write(pcr.filters_offset);
+		opts.write(pcr.gravity);
 
 		// Write materials
 		for (u32 i = 0; i < pcr.num_materials; ++i) {

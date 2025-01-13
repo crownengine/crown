@@ -249,12 +249,12 @@ struct PhysicsWorldImpl
 			, physics_globals::_bt_configuration
 			);
 
-		_dynamics_world->setGravity(to_btVector3(vector3(0.0f, 0.0f, -10.0f)));
+		_config_resource = (PhysicsConfigResource *)rm.get(RESOURCE_TYPE_PHYSICS_CONFIG, STRING_ID_64("global", 0x0b2f08fe66e395c0));
+
+		_dynamics_world->setGravity(to_btVector3(_config_resource->gravity));
 		_dynamics_world->getCollisionWorld()->setDebugDrawer(&_debug_drawer);
 		_dynamics_world->setInternalTickCallback(tick_cb, this);
 		_dynamics_world->getPairCache()->setOverlapFilterCallback(&_filter_callback);
-
-		_config_resource = (PhysicsConfigResource *)rm.get(RESOURCE_TYPE_PHYSICS_CONFIG, STRING_ID_64("global", 0x0b2f08fe66e395c0));
 
 		_unit_destroy_callback.destroy = PhysicsWorldImpl::unit_destroyed_callback;
 		_unit_destroy_callback.user_data = this;

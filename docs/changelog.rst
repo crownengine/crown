@@ -36,6 +36,7 @@ Changelog
 * Data Compiler: the data compiler will now print an error message instead of crashing when parsing malformed SJSON files.
 * Data Compiler: fixed and issue that caused some resources to be always marked as outdated in some circumnstances.
 * Fixed destroying units with a script component.
+* Added customizable gravity vector in global.physics_config resource.
 
 0.53.0 --- 30 Nov 2024
 ----------------------
