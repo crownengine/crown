@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Console API &mdash; Crown 0.54.0 Manual 0.54.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <title>Installing on Linux &mdash; Crown 0.54.0 Manual 0.54.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" /><link rel="shortcut icon" href="../_static/crown-black-socket.svg"/>
   <!--[if lt IE 9]>
@@ -18,7 +18,8 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="copyright" title="Copyright" href="../copyright.html" />
-    <link rel="prev" title="Building" href="building.html" /> 
+    <link rel="next" title="Installing on Windows" href="installing_on_windows.html" />
+    <link rel="prev" title="Hardware Requirements" href="hardware_requirements.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -42,22 +43,22 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../installing_crown/index.html">Installing Crown</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Installing Crown</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="hardware_requirements.html">Hardware Requirements</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Installing on Linux</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#installing-from-crownengine-org">Installing from crownengine.org</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#installing-from-package-manager">Installing from Package Manager</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installing_on_windows.html">Installing on Windows</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../lua_api.html">Lua API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../copyright.html">License</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">Hackers</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="building.html">Building</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Console API</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#tcp-protocol">TCP protocol</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#json-messages">JSON messages</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#execute-lua-scripts">Execute Lua scripts</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../hackers/index.html">Hackers</a></li>
 </ul>
 
         </div>
@@ -74,10 +75,10 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="index.html">Hackers</a> &raquo;</li>
-      <li>Console API</li>
+          <li><a href="index.html">Installing Crown</a> &raquo;</li>
+      <li>Installing on Linux</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/hackers/console_api.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/installing_crown/installing_on_linux.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -85,37 +86,22 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="console-api">
-<h1>Console API<a class="headerlink" href="#console-api" title="Permalink to this headline">¶</a></h1>
-<p>Any number of clients can connect to the engine via TCP/IP and communicate
-with simple JSON API. The default port number is 10001 as defined by <code class="docutils literal notranslate"><span class="pre">CROWN_DEFAULT_CONSOLE_PORT</span></code>.
-You can change the port number with <code class="docutils literal notranslate"><span class="pre">--console-port</span></code> option.</p>
-<div class="section" id="tcp-protocol">
-<h2>TCP protocol<a class="headerlink" href="#tcp-protocol" title="Permalink to this headline">¶</a></h2>
-<p>Every message starts with u32 header containing the size in bytes of the
-following JSON message.</p>
+  <div class="section" id="installing-on-linux">
+<h1>Installing on Linux<a class="headerlink" href="#installing-on-linux" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="installing-from-crownengine-org">
+<h2>Installing from crownengine.org<a class="headerlink" href="#installing-from-crownengine-org" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://www.crownengine.org/download">Download Crown</a> Tarball and extract it
+somewhere on your filesystem.</p>
+<p>Open the extracted folder and double-click the <code class="docutils literal notranslate"><span class="pre">crown-launcher</span></code> executable to
+launch the Crown Editor.</p>
 </div>
-<div class="section" id="json-messages">
-<h2>JSON messages<a class="headerlink" href="#json-messages" title="Permalink to this headline">¶</a></h2>
-<p>Every JSON message has a <code class="docutils literal notranslate"><span class="pre">type</span></code> key which identifies its type.
-Sending messages with unknown <code class="docutils literal notranslate"><span class="pre">type</span></code> will result with an error message:</p>
-<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;message&quot;</span> <span class="p">:</span> <span class="s2">&quot;Unknown command&quot;</span>
-<span class="p">}</span>
+<div class="section" id="installing-from-package-manager">
+<h2>Installing from Package Manager<a class="headerlink" href="#installing-from-package-manager" title="Permalink to this headline">¶</a></h2>
+<p>If you use ArchLinux, you can install Crown directly from your favorite package
+manager:</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">yay</span> <span class="o">-</span><span class="n">Sy</span> <span class="n">crown</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="execute-lua-scripts">
-<h2>Execute Lua scripts<a class="headerlink" href="#execute-lua-scripts" title="Permalink to this headline">¶</a></h2>
-<p>Executing Lua script is as simple as sending the following message:</p>
-<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;script&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;script&quot;</span> <span class="p">:</span> <span class="s2">&quot;print(&#39;Hello, world!&#39;)&quot;</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>All the tools are controlled by sending simple Lua scripts to them.</p>
 </div>
 </div>
 
@@ -123,7 +109,8 @@ Sending messages with unknown <code class="docutils literal notranslate"><span c
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="building.html" class="btn btn-neutral float-left" title="Building" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="hardware_requirements.html" class="btn btn-neutral float-left" title="Hardware Requirements" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="installing_on_windows.html" class="btn btn-neutral float-right" title="Installing on Windows" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
