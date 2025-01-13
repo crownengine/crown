@@ -6,6 +6,7 @@ Crown |version| Manual
 
    changelog
    introduction
+   installing_crown/index
    reference/index
    lua_api
    glossary
