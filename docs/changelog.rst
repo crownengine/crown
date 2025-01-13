@@ -26,6 +26,7 @@ Changelog
 * Fixed an issue with some core objects not being hidden when spawned in-game.
 * Fixed an issue that caused the Project Browser to show deleted content sometimes.
 * Fixed several crashes when parsing or writing invalid JSON data.
+* The New Project panel will now offer to create the project folder automatically.
 
 **Runtime**
 

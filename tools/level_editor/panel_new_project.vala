@@ -18,6 +18,8 @@ public class PanelNewProject : Gtk.Viewport
 	public Gtk.Label _new_project_label;
 	public Gtk.Label _name_label;
 	public EntryText _entry_name;
+	public Gtk.Label _create_folder_label;
+	public Gtk.CheckButton _create_folder;
 	public Gtk.Label _location_label;
 	public Gtk.FileChooserButton _file_chooser_button_location;
 	public Gtk.Label _template_label;
@@ -51,6 +53,11 @@ public class PanelNewProject : Gtk.Viewport
 		_file_chooser_button_location = new Gtk.FileChooserButton("Select Folder", Gtk.FileChooserAction.SELECT_FOLDER);
 		_file_chooser_button_location.set_current_folder(_documents_dir.get_path());
 
+		_create_folder_label = new Gtk.Label("Create Project Folder");
+		_create_folder_label.xalign = 1;
+		_create_folder = new Gtk.CheckButton();
+		_create_folder.active = true;
+
 		_template_label = new Gtk.Label("Template");
 		_template_label.xalign = 1;
 		_combo_box_map_template = new ComboBoxMap();
@@ -82,14 +89,38 @@ public class PanelNewProject : Gtk.Viewport
 					_label_message.label = "Location is not valid";
 					return;
 				}
-				if (GLib.FileUtils.test(source_dir, FileTest.IS_REGULAR)) {
-					_label_message.label = "Location must be an empty directory";
-					return;
-				}
 
-				if (!is_directory_empty(source_dir)) {
-					_label_message.label = "Location must be an empty directory";
-					return;
+				if (_create_folder.active) {
+					string name = (string)_entry_name.text;
+					name = name.down();
+					name = name.replace(" ", "_");
+					name = name.replace("\f", "_");
+					name = name.replace("\n", "_");
+					name = name.replace("\r", "_");
+					name = name.replace("\t", "_");
+					name = name.replace("\v", "_");
+
+					try {
+						GLib.File project_folder = GLib.File.new_for_path(Path.build_filename(source_dir, name));
+						project_folder.make_directory();
+						source_dir = project_folder.get_path();
+					} catch (GLib.Error e) {
+						if (e.code == GLib.IOError.EXISTS)
+							_label_message.label = "Project Folder already exists";
+						else
+							_label_message.label = "Project Folder cannot be created automatically";
+						return;
+					}
+				} else {
+					if (GLib.FileUtils.test(source_dir, FileTest.IS_REGULAR)) {
+						_label_message.label = "Location must be an empty directory";
+						return;
+					}
+
+					if (!is_directory_empty(source_dir)) {
+						_label_message.label = "Location must be an empty directory";
+						return;
+					}
 				}
 
 				_label_message.label = "";
@@ -117,11 +148,13 @@ public class PanelNewProject : Gtk.Viewport
 		_grid.column_spacing = 12;
 		_grid.attach(_name_label, 0, 0);
 		_grid.attach(_entry_name, 1, 0);
-		_grid.attach(_location_label, 0, 1);
-		_grid.attach(_file_chooser_button_location, 1, 1);
-		_grid.attach(_template_label, 0, 2);
-		_grid.attach(_combo_box_map_template, 1, 2);
-		_grid.attach(_buttons_box, 1, 3);
+		_grid.attach(_create_folder_label, 0, 1);
+		_grid.attach(_create_folder, 1, 1);
+		_grid.attach(_location_label, 0, 2);
+		_grid.attach(_file_chooser_button_location, 1, 2);
+		_grid.attach(_template_label, 0, 3);
+		_grid.attach(_combo_box_map_template, 1, 3);
+		_grid.attach(_buttons_box, 1, 4);
 
 		_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		_box.margin_start = 12;
