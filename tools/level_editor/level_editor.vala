@@ -1861,7 +1861,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	private async void start_game(StartGame sg)
 	{
-		if (dump_test_level() != 0)
+		if (sg == StartGame.TEST && dump_test_level() != 0)
 			return;
 
 		bool success = yield _data_compiler.compile(_project.data_dir(), _project.platform());
