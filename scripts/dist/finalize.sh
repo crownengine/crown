@@ -30,7 +30,7 @@ concatenate_and_compress () {
 		# Compress.
 		if [ "${mp}" = "windows-x64" ]; then
 			tar xf "${PARTIAL_PKG}-${mp}.tar" --directory="${PARTIALS_DIR}"
-			zip -rq "${PARTIAL_PKG}-${mp}.zip" "${PARTIAL_PKG}"
+			(cd "${PARTIALS_DIR}" && zip -rq "${PKG_NAME}-${mp}.zip" "${PKG_NAME}")
 		else
 			gzip "${PARTIAL_PKG}-${mp}.tar"
 		fi
