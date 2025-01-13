@@ -1672,6 +1672,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		_project_stack.set_visible_child(_project_browser);
 		_inspector_stack.set_visible_child(_inspector_pane);
+		_project_browser.select_project_root();
 		return;
 	}
 
@@ -2370,7 +2371,6 @@ public class LevelEditorApplication : Gtk.Application
 
 			restart_backend.begin(source_dir, LEVEL_NONE, (obj, res) => {
 					restart_backend.end(res);
-					_project_browser.select_project_root();
 				});
 		}
 	}
