@@ -586,11 +586,12 @@ void LuaEnvironment::reset_temporaries()
 #endif
 }
 
-static void console_command_script(ConsoleServer & /*cs*/, u32 /*client_id*/, const char *json, void *user_data)
+static void console_command_script(ConsoleServer &cs, u32 client_id, const char *json, void *user_data)
 {
-	TempAllocator4096 ta;
+	CE_UNUSED_2(cs, client_id);
+	TempAllocator1024 ta;
 	JsonObject obj(ta);
-	DynamicString script(ta);
+	DynamicString script(default_allocator());
 
 	sjson::parse(obj, json);
 	sjson::parse_string(script, obj["script"]);
@@ -618,11 +619,12 @@ static void do_REPL(LuaEnvironment *env, const char *lua)
 	return;
 }
 
-static void console_command_REPL(ConsoleServer & /*cs*/, u32 /*client_id*/, const char *json, void *user_data)
+static void console_command_REPL(ConsoleServer &cs, u32 client_id, const char *json, void *user_data)
 {
-	TempAllocator4096 ta;
+	CE_UNUSED_2(cs, client_id);
+	TempAllocator1024 ta;
 	JsonObject obj(ta);
-	DynamicString script(ta);
+	DynamicString script(default_allocator());
 
 	sjson::parse(obj, json);
 	sjson::parse_string(script, obj["repl"]);
