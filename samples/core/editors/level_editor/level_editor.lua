@@ -211,6 +211,7 @@ function raycast(objects, pos, dir)
 	local sprite_z = 0
 
 	for k, v in pairs(objects) do
+		local nv, nq, nm = Device.temp_count()
 		local t, l, d = v:raycast(pos, dir)
 		if t ~= -1.0 then
 			-- If intersection.
@@ -229,6 +230,7 @@ function raycast(objects, pos, dir)
 				end
 			end
 		end
+		Device.set_temp_count(nv, nq, nm)
 	end
 
 	return object, nearest
@@ -305,7 +307,9 @@ function Selection:world_poses()
 	local objs = self:objects()
 	local poses = {}
 	for k, v in pairs(objs) do
+		local nv, nq, nm = Device.temp_count()
 		poses[#poses + 1] = Matrix4x4Box(v:world_pose())
+		Device.set_temp_count(nv, nq, nm)
 	end
 	return poses
 end
@@ -315,6 +319,7 @@ function Selection:send()
 end
 
 function Selection:send_move_objects()
+	local nv, nq, nm = Device.temp_count()
 	local ids = {}
 	local new_positions = {}
 	local new_rotations = {}
@@ -334,6 +339,7 @@ function Selection:send_move_objects()
 		, new_rotations = new_rotations
 		, new_scales = new_scales
 		}
+	Device.set_temp_count(nv, nq, nm)
 end
 
 SelectTool = class(SelectTool)
@@ -417,6 +423,7 @@ function SelectTool:mouse_move(x, y)
 		-- adds/removes them to/from the selection.
 		local function objects_in_frustum(n0, d0, n1, d1, n2, d2, n3, d3, n4, d4, n5, d5)
 			for k, obj in pairs(LevelEditor._objects) do
+				local nv, nq, nm = Device.temp_count()
 				local obb_tm, obb_he = obj:obb()
 				local obj_intersects = Math.obb_intersects_frustum(obb_tm, obb_he, n0, d0, n1, d1, n2, d2, n3, d3, n4, d4, n5, d5)
 
@@ -443,6 +450,7 @@ function SelectTool:mouse_move(x, y)
 						LevelEditor._selection:remove(obj:id())
 					end
 				end
+				Device.set_temp_count(nv, nq, nm)
 			end
 		end
 
@@ -920,11 +928,13 @@ function MoveTool:mouse_move(x, y)
 		-- Apply translation to selected objects.
 		local objects = LevelEditor._selection:objects()
 		for ii, obj in pairs(objects) do
+			local nv, nq, nm = Device.temp_count()
 			local obj_position = Matrix4x4.translation(self._poses_start[ii]:unbox())
 			local gizmo_position = self:position()
 			local gizmo_obj_distance = obj_position - gizmo_position
 			local new_gizmo_position = gizmo_position + drag_vector
 			obj:set_local_position((LevelEditor:snap(self:pose(), new_gizmo_position) or new_gizmo_position) + gizmo_obj_distance)
+			Device.set_temp_count(nv, nq, nm)
 		end
 	end
 end
@@ -1155,12 +1165,14 @@ function RotateTool:mouse_move(x, y)
 		-- FIXME Rotate selected objects
 		local objects = LevelEditor._selection:objects()
 		for k, v in pairs(objects) do
+			local nv, nq, nm = Device.temp_count()
 			local start_pose = self._poses_start[k]:unbox()
 			local new_pose = Matrix4x4.multiply(start_pose, translate_to_origin)
 			new_pose = Matrix4x4.multiply(new_pose, apply_delta_rotation)
 			new_pose = Matrix4x4.multiply(new_pose, translate_back_to_origin)
 			v:set_local_position(Matrix4x4.translation(new_pose))
 			v:set_local_rotation(Matrix4x4.rotation(new_pose))
+			Device.set_temp_count(nv, nq, nm)
 		end
 	end
 end
@@ -1324,6 +1336,7 @@ function ScaleTool:mouse_move(x, y)
 		-- Apply transformation to all selected objects.
 		local selection = LevelEditor._selection:objects()
 		for ii, obj in pairs(selection) do
+			local nv, nq, nm = Device.temp_count()
 			-- Apply scale.
 			local obj_scale = self._start_scales[ii]:unbox()
 			obj_scale.x = math.max(self.SCALE_MIN, obj_scale.x * scale_ratio.x)
@@ -1341,6 +1354,7 @@ function ScaleTool:mouse_move(x, y)
 			gizmo_obj_distance.z = gizmo_obj_distance.z * scale_ratio.z
 			local obj_new_position = gizmo_position + gizmo_obj_distance
 			obj:set_local_position(LevelEditor:snap(self:world_pose(), obj_new_position) or obj_new_position)
+			Device.set_temp_count(nv, nq, nm)
 		end
 	end
 end
@@ -1824,8 +1838,6 @@ function LevelEditor:frame_objects(ids)
 		return
 	end
 
-	local nv, nq, nm = Device.temp_count()
-
 	-- Compute AABB from OBB.
 	local obb_tm, obb_he = self._objects[ids[1]]:obb()
 	local v0, v1, v2, v3, v4, v5, v6, v7 = Math.obb_vertices(obb_tm, obb_he)
@@ -1851,6 +1863,7 @@ function LevelEditor:frame_objects(ids)
 	aabb_max = Vector3.max(aabb_max, v7)
 
 	for i = 2, num_objects do
+		local nv, nq, nm = Device.temp_count()
 		obb_tm, obb_he = self._objects[ids[i]]:obb()
 		v0, v1, v2, v3, v4, v5, v6, v7 = Math.obb_vertices(obb_tm, obb_he)
 
@@ -1869,13 +1882,13 @@ function LevelEditor:frame_objects(ids)
 		aabb_max = Vector3.max(aabb_max, v5)
 		aabb_max = Vector3.max(aabb_max, v6)
 		aabb_max = Vector3.max(aabb_max, v7)
+		Device.set_temp_count(nv, nq, nm)
 	end
 
 	aabb_center = Vector3.multiply(aabb_max + aabb_min, 0.5)
 	obb_tm, obb_he = Matrix4x4.from_translation(aabb_center), aabb_max - aabb_center
 
 	self._camera:frame_obb(obb_tm, obb_he)
-	Device.set_temp_count(nv, nq, nm)
 end
 
 function LevelEditor:draw_camera_compass()
