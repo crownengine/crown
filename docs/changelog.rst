@@ -4,6 +4,10 @@ Changelog
 0.55.0 --- DD MMM YYYY
 ----------------------
 
+**Runtime**
+
+* Lua: fixed max temporaries check failing to trigger in some circumnstances.
+
 0.54.0 --- 13 Jan 2025
 ----------------------
 
