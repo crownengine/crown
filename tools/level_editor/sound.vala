@@ -98,6 +98,7 @@ public class Sound
 
 			Guid id = object_ids[i];
 
+			sb.append("editor_nv, editor_nq, editor_nm = Device.temp_count()");
 			string s = LevelEditorApi.spawn_sound(id
 				, db.get_property_string    (id, "name")
 				, db.get_property_vector3   (id, "position")
@@ -107,6 +108,7 @@ public class Sound
 				, db.get_property_bool      (id, "loop")
 				);
 			sb.append(s);
+			sb.append("Device.set_temp_count(editor_nv, editor_nq, editor_nm)");
 		}
 
 		return i;
