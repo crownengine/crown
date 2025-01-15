@@ -440,6 +440,8 @@ public class Unit
 				string component_type = db.object_type(component_id);
 				Unit unit = new Unit(db, unit_id);
 
+				sb.append("editor_nv, editor_nq, editor_nm = Device.temp_count()");
+
 				if (component_type == OBJECT_TYPE_TRANSFORM) {
 					sb.append(LevelEditorApi.add_tranform_component(unit_id
 						, component_id
@@ -531,6 +533,8 @@ public class Unit
 				} else {
 					logw("Unregistered component type `%s`".printf(component_type));
 				}
+
+				sb.append("Device.set_temp_count(editor_nv, editor_nq, editor_nm)");
 			}
 		} else {
 			for (i = 0; i < object_ids.length; ++i) {
@@ -541,6 +545,7 @@ public class Unit
 				Unit unit = new Unit(db, unit_id);
 
 				sb.append(LevelEditorApi.spawn_empty_unit(unit_id));
+				sb.append("editor_nv, editor_nq, editor_nm = Device.temp_count()");
 
 				Guid component_id;
 				if (unit.has_component(out component_id, "transform")) {
@@ -594,6 +599,8 @@ public class Unit
 						);
 					sb.append(s);
 				}
+
+				sb.append("Device.set_temp_count(editor_nv, editor_nq, editor_nm)");
 			}
 		}
 
