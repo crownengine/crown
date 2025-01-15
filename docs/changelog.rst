@@ -4,6 +4,10 @@ Changelog
 0.55.0 --- DD MMM YYYY
 ----------------------
 
+**Tools**
+
+* Fixed a crash when editing many objects simultaneusly.
+
 **Runtime**
 
 * Lua: fixed max temporaries check failing to trigger in some circumnstances.
