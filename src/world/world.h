@@ -56,6 +56,8 @@ struct World
 	HashMap<UnitId, u32> _camera_map;
 
 	EventStream _events;
+	Array<UnitId> _changed_units;
+	Array<Matrix4x4> _changed_world;
 	GuiBuffer _gui_buffer;
 
 	ListNode _guis;

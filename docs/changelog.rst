@@ -7,6 +7,7 @@ Changelog
 **Runtime**
 
 * Lua: fixed max temporaries check failing to trigger in some circumnstances.
+* Fixed a crash when moving many objects simultaneusly.
 
 0.54.0 --- 13 Jan 2025
 ----------------------

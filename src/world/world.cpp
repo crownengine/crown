@@ -50,6 +50,8 @@ World::World(Allocator &a, ResourceManager &rm, ShaderManager &sm, MaterialManag
 	, _camera(a)
 	, _camera_map(a)
 	, _events(a)
+	, _changed_units(a)
+	, _changed_world(a)
 	, _gui_buffer(sm)
 {
 	_lines = create_debug_line(true);
@@ -192,15 +194,11 @@ void World::update_scene(f32 dt)
 		array::clear(events);
 	}
 
-	TempAllocator4096 ta;
-	Array<UnitId> changed_units(ta);
-	Array<Matrix4x4> changed_world(ta);
+	_scene_graph->get_changed(_changed_units, _changed_world);
 
-	_scene_graph->get_changed(changed_units, changed_world);
-
-	_physics_world->update_actor_world_poses(array::begin(changed_units)
-		, array::end(changed_units)
-		, array::begin(changed_world)
+	_physics_world->update_actor_world_poses(array::begin(_changed_units)
+		, array::end(_changed_units)
+		, array::begin(_changed_world)
 		);
 
 	_physics_world->update(dt);
@@ -242,14 +240,14 @@ void World::update_scene(f32 dt)
 		array::clear(events);
 	}
 
-	array::clear(changed_units);
-	array::clear(changed_world);
-	_scene_graph->get_changed(changed_units, changed_world);
+	array::clear(_changed_units);
+	array::clear(_changed_world);
+	_scene_graph->get_changed(_changed_units, _changed_world);
 	_scene_graph->clear_changed();
 
-	_render_world->update_transforms(array::begin(changed_units)
-		, array::end(changed_units)
-		, array::begin(changed_world)
+	_render_world->update_transforms(array::begin(_changed_units)
+		, array::end(_changed_units)
+		, array::begin(_changed_world)
 		);
 
 	_sound_world->update();
