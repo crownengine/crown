@@ -2581,8 +2581,7 @@ void load_api(LuaEnvironment &env)
 			LuaStack stack(L);
 			LUA_ASSERT(stack.is_table(1), stack, "Table expected");
 
-			TempAllocator1024 alloc;
-			StringStream json(alloc);
+			StringStream json(default_allocator());
 			lua_dump_table(L, 1, json);
 
 			console_server()->broadcast(string_stream::c_str(json));
