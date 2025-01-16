@@ -11,7 +11,6 @@
 #include "core/strings/string_id.h"
 #include "core/types.h"
 #include "resource/types.h"
-#include "resource/types.h"
 #include <bgfx/bgfx.h>
 
 namespace crown
@@ -39,6 +38,13 @@ struct ShaderResource
 	};
 
 	Array<Data> _data;
+};
+
+struct ShaderData
+{
+	u64 state;
+	ShaderResource::Sampler samplers[4];
+	bgfx::ProgramHandle program;
 };
 
 namespace shader_resource_internal

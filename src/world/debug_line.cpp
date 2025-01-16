@@ -29,8 +29,6 @@ static bgfx::VertexLayout vertex_layout;
 
 DebugLine::DebugLine(ShaderManager &sm, bool depth_test)
 	: _marker(DEBUG_LINE_MARKER)
-	, _shader_manager(&sm)
-	, _shader(depth_test ? debug_line_depth_enabled : debug_line)
 	, _num(0)
 {
 	if (vertex_layout.m_hash == 0) {
@@ -39,6 +37,8 @@ DebugLine::DebugLine(ShaderManager &sm, bool depth_test)
 		vertex_layout.add(bgfx::Attrib::Color0,   4, bgfx::AttribType::Uint8, true);
 		vertex_layout.end();
 	}
+
+	_shader = sm.shader(depth_test ? debug_line_depth_enabled : debug_line);
 }
 
 DebugLine::~DebugLine()
@@ -222,7 +222,8 @@ void DebugLine::submit(u8 view_id)
 	memcpy(tvb.data, _lines, sizeof(Line) * _num);
 
 	bgfx::setVertexBuffer(0, &tvb, 0, _num * 2);
-	_shader_manager->submit(_shader, view_id);
+	bgfx::setState(_shader.state);
+	bgfx::submit(view_id, _shader.program);
 }
 
 } // namespace crown

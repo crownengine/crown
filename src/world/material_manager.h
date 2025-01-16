@@ -18,10 +18,11 @@ struct MaterialManager
 {
 	Allocator *_allocator;
 	ResourceManager *_resource_manager;
+	ShaderManager *_shader_manager;
 	HashMap<const MaterialResource *, Material *> _materials;
 
 	///
-	MaterialManager(Allocator &a, ResourceManager &rm);
+	MaterialManager(Allocator &a, ResourceManager &rm, ShaderManager &sm);
 
 	///
 	~MaterialManager();

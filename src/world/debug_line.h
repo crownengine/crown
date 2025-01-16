@@ -9,6 +9,7 @@
 #include "core/strings/string_id.h"
 #include "core/types.h"
 #include "device/pipeline.h"
+#include "resource/shader_resource.h"
 #include "resource/types.h"
 #include "world/types.h"
 #include <bgfx/bgfx.h>
@@ -33,10 +34,9 @@ struct DebugLine
 	};
 
 	u32 _marker;
-	ShaderManager *_shader_manager;
-	StringId32 _shader;
 	u32 _num;
 	Line _lines[MAX_LINES];
+	ShaderData _shader;
 
 	/// Whether to enable @a depth_test
 	DebugLine(ShaderManager &sm, bool depth_test);

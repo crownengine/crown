@@ -20,13 +20,6 @@ namespace crown
 /// @ingroup World
 struct ShaderManager
 {
-	struct ShaderData
-	{
-		u64 state;
-		ShaderResource::Sampler samplers[4];
-		bgfx::ProgramHandle program;
-	};
-
 	typedef HashMap<StringId32, ShaderData> ShaderMap;
 	ShaderMap _shader_map;
 
@@ -46,13 +39,7 @@ struct ShaderManager
 	void unload(Allocator &a, void *res);
 
 	///
-	void add_shader(StringId32 name, u64 state, const ShaderResource::Sampler samplers[4], bgfx::ProgramHandle program);
-
-	///
-	u32 sampler_state(StringId32 shader_id, StringId32 sampler_name);
-
-	///
-	void submit(StringId32 shader_id, u8 view_id, u32 depth = 0u, u64 state = UINT64_MAX);
+	ShaderData shader(StringId32 name);
 };
 
 } // namespace crown

@@ -22,7 +22,7 @@ Material::Material(Allocator &a)
 	CE_UNUSED(a);
 }
 
-void Material::bind(ShaderManager &sm, u8 view, u32 depth) const
+void Material::bind(u8 view, u32 depth) const
 {
 	using namespace material_resource;
 
@@ -35,12 +35,14 @@ void Material::bind(ShaderManager &sm, u8 view, u32 depth) const
 		bgfx::TextureHandle texture;
 		sampler.idx = th->sampler_handle;
 		texture.idx = th->texture_handle;
+		u32 sampler_state = 0u;
 
-		bgfx::setTexture(i
-			, sampler
-			, texture
-			, sm.sampler_state(_resource->shader, td->name)
-			);
+		for (u32 i = 0; i < countof(_shader.samplers); ++i) {
+			if (_shader.samplers[i].name == td->name._id)
+				sampler_state = _shader.samplers[i].state;
+		}
+
+		bgfx::setTexture(i, sampler, texture, sampler_state);
 	}
 
 	// Set uniforms.
@@ -53,7 +55,8 @@ void Material::bind(ShaderManager &sm, u8 view, u32 depth) const
 		bgfx::setUniform(buh, (char *)uh + sizeof(uh->uniform_handle));
 	}
 
-	sm.submit(_resource->shader, view, depth);
+	bgfx::setState(_shader.state);
+	bgfx::submit(view, _shader.program, depth);
 }
 
 template<typename T>

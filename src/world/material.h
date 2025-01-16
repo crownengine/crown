@@ -9,6 +9,7 @@
 #include "core/math/types.h"
 #include "resource/resource_id.h"
 #include "resource/types.h"
+#include "resource/shader_resource.h"
 #include "world/types.h"
 
 namespace crown
@@ -21,6 +22,7 @@ struct Material
 	ResourceManager *_resource_manager;
 	const MaterialResource *_resource;
 	char *_data;
+	ShaderData _shader;
 #if CROWN_CAN_RELOAD
 	Array<TextureResource *> _texture_resources;
 #endif
@@ -29,7 +31,7 @@ struct Material
 	explicit Material(Allocator &a);
 
 	///
-	void bind(ShaderManager &sm, u8 view, u32 depth = 0u) const;
+	void bind(u8 view, u32 depth = 0u) const;
 
 	/// Sets the @a value of the variable @a name.
 	void set_float(StringId32 name, f32 value);

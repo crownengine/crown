@@ -64,13 +64,14 @@ void GuiBuffer::reset()
 	bgfx::allocTransientIndexBuffer(&_index_buffer, 6144);
 }
 
-void GuiBuffer::submit(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, StringId32 shader_id, u8 view, u32 depth)
+void GuiBuffer::submit(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, ShaderData &shader, u8 view, u32 depth)
 {
 	bgfx::setVertexBuffer(0, &_vertex_buffer, _num_vertices, num_vertices);
 	bgfx::setIndexBuffer(&_index_buffer, _num_indices, num_indices);
 	bgfx::setTransform(to_float_ptr(world));
 
-	_shader_manager->submit(shader_id, view, depth);
+	bgfx::setState(shader.state);
+	bgfx::submit(view, shader.program, depth);
 
 	_num_vertices += num_vertices;
 	_num_indices += num_indices;
@@ -82,7 +83,7 @@ void GuiBuffer::submit_with_material(u32 num_vertices, u32 num_indices, const Ma
 	bgfx::setIndexBuffer(&_index_buffer, _num_indices, num_indices);
 	bgfx::setTransform(to_float_ptr(world));
 
-	material->bind(*_shader_manager, view, depth);
+	material->bind(view, depth);
 
 	_num_vertices += num_vertices;
 	_num_indices += num_indices;
@@ -92,7 +93,7 @@ Gui::Gui(GuiBuffer &gb
 	, ResourceManager &rm
 	, ShaderManager &sm
 	, MaterialManager &mm
-	, StringId32 gui_shader
+	, StringId32 shader_name
 	, u8 view
 	)
 	: _marker(DEBUG_GUI_MARKER)
@@ -101,11 +102,12 @@ Gui::Gui(GuiBuffer &gb
 	, _shader_manager(&sm)
 	, _material_manager(&mm)
 	, _world(MATRIX4X4_IDENTITY)
-	, _gui_shader(gui_shader)
 	, _view(view)
 {
 	_node.next = NULL;
 	_node.prev = NULL;
+
+	_gui_shader = sm.shader(shader_name);
 }
 
 Gui::~Gui()
