@@ -54,7 +54,8 @@ static void selection_draw_override(UnitId unit_id, RenderWorld *rw)
 	data.w = 0.0f;
 	bgfx::setUniform(rw->_u_unit_id, &data);
 
-	rw->_shader_manager->submit(STRING_ID_32("selection", UINT32_C(0x17c0bc11)), VIEW_SELECTION);
+	bgfx::setState(rw->_selection_shader.state);
+	bgfx::submit(VIEW_SELECTION, rw->_selection_shader.program);
 }
 
 RenderWorld::RenderWorld(Allocator &a, ResourceManager &rm, ShaderManager &sm, MaterialManager &mm, UnitManager &um)
@@ -83,6 +84,7 @@ RenderWorld::RenderWorld(Allocator &a, ResourceManager &rm, ShaderManager &sm, M
 
 	// Selection.
 	_u_unit_id = bgfx::createUniform("u_unit_id", bgfx::UniformType::Vec4);
+	_selection_shader = sm.shader(STRING_ID_32("selection", UINT32_C(0x17c0bc11)));
 }
 
 RenderWorld::~RenderWorld()
@@ -420,14 +422,14 @@ void RenderWorld::render(const Matrix4x4 &view)
 		bgfx::setUniform(_u_light_range, &lid.range[ll]);
 		bgfx::setUniform(_u_light_intensity, &lid.intensity[ll]);
 
-		_mesh_manager.draw(VIEW_MESH, _shader_manager);
+		_mesh_manager.draw(VIEW_MESH);
 	}
 
-	_sprite_manager.draw(VIEW_SPRITE_0, _shader_manager);
+	_sprite_manager.draw(VIEW_SPRITE_0);
 
 	// Render outlines.
-	_mesh_manager.draw(VIEW_SELECTION, _shader_manager, selection_draw_override);
-	_sprite_manager.draw(VIEW_SELECTION, _shader_manager, selection_draw_override);
+	_mesh_manager.draw(VIEW_SELECTION, selection_draw_override);
+	_sprite_manager.draw(VIEW_SELECTION, selection_draw_override);
 }
 
 void RenderWorld::debug_draw(DebugLine &dl)
@@ -654,7 +656,7 @@ void RenderWorld::MeshManager::destroy()
 	_allocator->deallocate(_data.buffer);
 }
 
-void RenderWorld::MeshManager::draw(u8 view, ShaderManager *sm, DrawOverride draw_override)
+void RenderWorld::MeshManager::draw(u8 view, DrawOverride draw_override)
 {
 	for (u32 ii = 0; ii < _data.first_hidden; ++ii) {
 		bgfx::setTransform(to_float_ptr(_data.world[ii]));
@@ -664,7 +666,7 @@ void RenderWorld::MeshManager::draw(u8 view, ShaderManager *sm, DrawOverride dra
 		if (draw_override)
 			draw_override(_data.unit[ii], _render_world);
 		else
-			_data.material[ii]->bind(*sm, view);
+			_data.material[ii]->bind(view);
 	}
 }
 
@@ -850,7 +852,7 @@ void RenderWorld::SpriteManager::destroy()
 	_allocator->deallocate(_data.buffer);
 }
 
-void RenderWorld::SpriteManager::draw(u8 view, ShaderManager *sm, DrawOverride draw_override)
+void RenderWorld::SpriteManager::draw(u8 view, DrawOverride draw_override)
 {
 	bgfx::VertexLayout layout;
 	bgfx::TransientVertexBuffer tvb;
@@ -942,7 +944,7 @@ void RenderWorld::SpriteManager::draw(u8 view, ShaderManager *sm, DrawOverride d
 		if (draw_override)
 			draw_override(_data.unit[ii], _render_world);
 		else
-			_data.material[ii]->bind(*sm, _data.layer[ii] + view, _data.depth[ii]);
+			_data.material[ii]->bind(_data.layer[ii] + view, _data.depth[ii]);
 	}
 }
 

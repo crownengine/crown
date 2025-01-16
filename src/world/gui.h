@@ -8,6 +8,7 @@
 #include "core/list.h"
 #include "core/math/types.h"
 #include "device/pipeline.h"
+#include "resource/shader_resource.h"
 #include "resource/types.h"
 #include "world/material.h"
 #include "world/shader_manager.h"
@@ -41,7 +42,7 @@ struct GuiBuffer
 	void reset();
 
 	///
-	void submit(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, StringId32 shader_id, u8 view, u32 depth);
+	void submit(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, ShaderData &shader, u8 view, u32 depth);
 
 	///
 	void submit_with_material(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, u8 view, u32 depth, Material *material);
@@ -71,7 +72,7 @@ struct Gui
 	ShaderManager *_shader_manager;
 	MaterialManager *_material_manager;
 	Matrix4x4 _world;
-	StringId32 _gui_shader;
+	ShaderData _gui_shader;
 	u8 _view;
 	ListNode _node;
 
@@ -80,7 +81,7 @@ struct Gui
 		, ResourceManager &rm
 		, ShaderManager &sm
 		, MaterialManager &mm
-		, StringId32 gui_shader
+		, StringId32 shader_name
 		, u8 view
 		);
 

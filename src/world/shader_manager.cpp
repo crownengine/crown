@@ -14,6 +14,26 @@
 
 namespace crown
 {
+static ShaderData SHADER_DATA_INVALID =
+{
+	BGFX_STATE_DEFAULT,
+	{
+		{
+			0u, BGFX_INVALID_HANDLE
+		},
+		{
+			0u, BGFX_INVALID_HANDLE
+		},
+		{
+			0u, BGFX_INVALID_HANDLE
+		},
+		{
+			0u, BGFX_INVALID_HANDLE
+		}
+	},
+	BGFX_INVALID_HANDLE
+};
+
 ShaderManager::ShaderManager(Allocator &a)
 	: _shader_map(a)
 {
@@ -87,7 +107,11 @@ void ShaderManager::online(StringId64 id, ResourceManager &rm)
 		bgfx::ProgramHandle program = bgfx::createProgram(vs, fs, true);
 		CE_ASSERT(bgfx::isValid(program), "Failed to create GPU program");
 
-		add_shader(data.name, data.state, data.samplers, program);
+		ShaderData sd;
+		sd.state = data.state;
+		memcpy(sd.samplers, data.samplers, sizeof(sd.samplers));
+		sd.program = program;
+		hash_map::set(_shader_map, data.name, sd);
 	}
 }
 
@@ -114,42 +138,9 @@ void ShaderManager::unload(Allocator &a, void *res)
 	CE_DELETE(a, (ShaderResource *)res);
 }
 
-void ShaderManager::add_shader(StringId32 name, u64 state, const ShaderResource::Sampler samplers[4], bgfx::ProgramHandle program)
+ShaderData ShaderManager::shader(StringId32 name)
 {
-	ShaderData sd;
-	sd.state = state;
-	memcpy(sd.samplers, samplers, sizeof(sd.samplers));
-	sd.program = program;
-	hash_map::set(_shader_map, name, sd);
-}
-
-u32 ShaderManager::sampler_state(StringId32 shader_id, StringId32 sampler_name)
-{
-	CE_ASSERT(hash_map::has(_shader_map, shader_id), "Shader not found");
-	ShaderData sd;
-	sd.state = BGFX_STATE_DEFAULT;
-	sd.program = BGFX_INVALID_HANDLE;
-	sd = hash_map::get(_shader_map, shader_id, sd);
-
-	for (u32 i = 0; i < countof(sd.samplers); ++i) {
-		if (sd.samplers[i].name == sampler_name._id)
-			return sd.samplers[i].state;
-	}
-
-	CE_FATAL("Sampler not found");
-	return UINT32_MAX;
-}
-
-void ShaderManager::submit(StringId32 shader_id, u8 view_id, u32 depth, u64 state)
-{
-	CE_ASSERT(hash_map::has(_shader_map, shader_id), "Shader not found");
-	ShaderData sd;
-	sd.state = BGFX_STATE_DEFAULT;
-	sd.program = BGFX_INVALID_HANDLE;
-	sd = hash_map::get(_shader_map, shader_id, sd);
-
-	bgfx::setState(state != UINT64_MAX ? state : sd.state);
-	bgfx::submit(view_id, sd.program, depth);
+	return hash_map::get(_shader_map, name, SHADER_DATA_INVALID);
 }
 
 } // namespace crown

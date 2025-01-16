@@ -9,6 +9,7 @@
 #include "core/math/types.h"
 #include "core/strings/string_id.h"
 #include "resource/mesh_resource.h"
+#include "resource/shader_resource.h"
 #include "resource/types.h"
 #include "world/types.h"
 #include <bgfx/bgfx.h>
@@ -230,10 +231,7 @@ struct RenderWorld
 		void swap(u32 inst_a, u32 inst_b);
 
 		///
-		void draw(u8 view
-			, ShaderManager *sm
-			, DrawOverride draw_override = NULL
-			);
+		void draw(u8 view, DrawOverride draw_override = NULL);
 
 		///
 		MeshInstance make_instance(u32 i)
@@ -307,10 +305,7 @@ struct RenderWorld
 		void swap(u32 inst_a, u32 inst_b);
 
 		///
-		void draw(u8 view
-			, ShaderManager *sm
-			, DrawOverride draw_override = NULL
-			);
+		void draw(u8 view, DrawOverride draw_override = NULL);
 
 		///
 		SpriteInstance make_instance(u32 i)
@@ -400,6 +395,7 @@ struct RenderWorld
 
 	HashSet<UnitId> _selection;
 	bgfx::UniformHandle _u_unit_id;
+	ShaderData _selection_shader;
 };
 
 } // namespace crown
