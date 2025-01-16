@@ -93,8 +93,20 @@ void screenSpaceQuad(float _textureWidth, float _textureHeight, float _texelHalf
 	}
 }
 
+static void lookup_default_shaders(Pipeline &pl)
+{
+	pl._blit_shader = pl._shader_manager->shader(STRING_ID_32("blit", UINT32_C(0x045f02bb)));
+	pl._gui_shader = pl._shader_manager->shader(STRING_ID_32("gui", UINT32_C(0x66dbf9a2)));
+	pl._gui_3d_shader = pl._shader_manager->shader(STRING_ID_32("gui+DEPTH_ENABLED", UINT32_C(0xd594a1a5)));
+	pl._debug_line_depth_enabled_shader = pl._shader_manager->shader(STRING_ID_32("debug_line+DEPTH_ENABLED", UINT32_C(0x8819e848)));
+	pl._debug_line_shader = pl._shader_manager->shader(STRING_ID_32("debug_line", UINT32_C(0xbc06e973)));
+	pl._outline_shader = pl._shader_manager->shader(STRING_ID_32("outline", UINT32_C(0xb6b58d80)));
+	pl._selection_shader = pl._shader_manager->shader(STRING_ID_32("selection", UINT32_C(0x17c0bc11)));
+}
+
 Pipeline::Pipeline(ShaderManager &sm)
-	: _main_color_texture(BGFX_INVALID_HANDLE)
+	: _shader_manager(&sm)
+	, _main_color_texture(BGFX_INVALID_HANDLE)
 	, _main_depth_texture(BGFX_INVALID_HANDLE)
 	, _main_frame_buffer(BGFX_INVALID_HANDLE)
 	, _main_color_texture_sampler(BGFX_INVALID_HANDLE)
@@ -106,8 +118,7 @@ Pipeline::Pipeline(ShaderManager &sm)
 	, _selection_depth_texture_sampler(BGFX_INVALID_HANDLE)
 	, _outline_color_uniform(BGFX_INVALID_HANDLE)
 {
-	_blit_shader = sm.shader(STRING_ID_32("blit", UINT32_C(0x045f02bb)));
-	_outline_shader = sm.shader(STRING_ID_32("outline", UINT32_C(0xb6b58d80)));
+	lookup_default_shaders(*this);
 }
 
 void Pipeline::create(uint16_t width, uint16_t height)

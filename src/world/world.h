@@ -41,6 +41,7 @@ struct World
 	ShaderManager *_shader_manager;
 	MaterialManager *_material_manager;
 	LuaEnvironment *_lua_environment;
+	Pipeline *_pipeline;
 	UnitManager *_unit_manager;
 
 	DebugLine *_lines;
@@ -71,7 +72,14 @@ struct World
 	}
 
 	///
-	World(Allocator &a, ResourceManager &rm, ShaderManager &sm, MaterialManager &mm, UnitManager &um, LuaEnvironment &env);
+	World(Allocator &a
+		, ResourceManager &rm
+		, ShaderManager &sm
+		, MaterialManager &mm
+		, UnitManager &um
+		, LuaEnvironment &env
+		, Pipeline &pl
+		);
 
 	///
 	~World();
