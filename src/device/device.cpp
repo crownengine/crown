@@ -694,7 +694,7 @@ void Device::run()
 	_pipeline = CE_NEW(_allocator, Pipeline)(*_shader_manager);
 	_pipeline->create(_width, _height);
 
-	graph_globals::init(_allocator, *_shader_manager, *_console_server);
+	graph_globals::init(_allocator, *_pipeline, *_console_server);
 
 	logi(DEVICE, "Initialized in " TIME_FMT, time::seconds(time::now() - run_t0));
 
@@ -896,6 +896,7 @@ World *Device::create_world()
 		, *_material_manager
 		, *_unit_manager
 		, *_lua_environment
+		, *_pipeline
 		);
 
 	list::add(world->_node, _worlds);

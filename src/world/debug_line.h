@@ -36,10 +36,10 @@ struct DebugLine
 	u32 _marker;
 	u32 _num;
 	Line _lines[MAX_LINES];
-	ShaderData _shader;
+	ShaderData *_shader;
 
 	/// Whether to enable @a depth_test
-	DebugLine(ShaderManager &sm, bool depth_test);
+	DebugLine(ShaderData *shader);
 
 	///
 	~DebugLine();
@@ -78,5 +78,11 @@ struct DebugLine
 	/// Submits the lines to renderer for drawing.
 	void submit(u8 view_id = VIEW_DEBUG);
 };
+
+namespace debug_line
+{
+	DebugLine *create(Allocator &a, Pipeline &pl, bool depth_enabled);
+
+} // namespace debug_line
 
 } // namespace crown

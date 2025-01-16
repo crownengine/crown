@@ -11,6 +11,7 @@
 #include "core/math/matrix4x4.inl"
 #include "core/math/obb.inl"
 #include "core/math/vector3.inl"
+#include "core/memory/memory.inl"
 #include "core/strings/string_id.inl"
 #include "device/pipeline.h"
 #include "resource/mesh_resource.h"
@@ -23,13 +24,12 @@
 
 namespace crown
 {
-static const StringId32 debug_line_depth_enabled = STRING_ID_32("debug_line+DEPTH_ENABLED", UINT32_C(0x8819e848));
-static const StringId32 debug_line = STRING_ID_32("debug_line", UINT32_C(0xbc06e973));
 static bgfx::VertexLayout vertex_layout;
 
-DebugLine::DebugLine(ShaderManager &sm, bool depth_test)
+DebugLine::DebugLine(ShaderData *shader)
 	: _marker(DEBUG_LINE_MARKER)
 	, _num(0)
+	, _shader(shader)
 {
 	if (vertex_layout.m_hash == 0) {
 		vertex_layout.begin();
@@ -37,8 +37,6 @@ DebugLine::DebugLine(ShaderManager &sm, bool depth_test)
 		vertex_layout.add(bgfx::Attrib::Color0,   4, bgfx::AttribType::Uint8, true);
 		vertex_layout.end();
 	}
-
-	_shader = sm.shader(depth_test ? debug_line_depth_enabled : debug_line);
 }
 
 DebugLine::~DebugLine()
@@ -222,8 +220,17 @@ void DebugLine::submit(u8 view_id)
 	memcpy(tvb.data, _lines, sizeof(Line) * _num);
 
 	bgfx::setVertexBuffer(0, &tvb, 0, _num * 2);
-	bgfx::setState(_shader.state);
-	bgfx::submit(view_id, _shader.program);
+	bgfx::setState(_shader->state);
+	bgfx::submit(view_id, _shader->program);
 }
+
+namespace debug_line
+{
+	DebugLine *create(Allocator &a, Pipeline &pl, bool depth_enabled)
+	{
+		return CE_NEW(a, DebugLine)(depth_enabled ? &pl._debug_line_depth_enabled_shader : &pl._debug_line_shader);
+	}
+
+} // namespace debug_line
 
 } // namespace crown

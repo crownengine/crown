@@ -17,7 +17,7 @@ namespace crown
 namespace graph_globals
 {
 	///
-	void init(Allocator &a, ShaderManager &sm, ConsoleServer &cs);
+	void init(Allocator &a, Pipeline &pl, ConsoleServer &cs);
 
 	///
 	void shutdown();
