@@ -25,6 +25,7 @@ namespace crown
 {
 static const StringId32 debug_line_depth_enabled = STRING_ID_32("debug_line+DEPTH_ENABLED", UINT32_C(0x8819e848));
 static const StringId32 debug_line = STRING_ID_32("debug_line", UINT32_C(0xbc06e973));
+static bgfx::VertexLayout vertex_layout;
 
 DebugLine::DebugLine(ShaderManager &sm, bool depth_test)
 	: _marker(DEBUG_LINE_MARKER)
@@ -32,10 +33,12 @@ DebugLine::DebugLine(ShaderManager &sm, bool depth_test)
 	, _shader(depth_test ? debug_line_depth_enabled : debug_line)
 	, _num(0)
 {
-	_vertex_layout.begin();
-	_vertex_layout.add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float);
-	_vertex_layout.add(bgfx::Attrib::Color0,   4, bgfx::AttribType::Uint8, true);
-	_vertex_layout.end();
+	if (vertex_layout.m_hash == 0) {
+		vertex_layout.begin();
+		vertex_layout.add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float);
+		vertex_layout.add(bgfx::Attrib::Color0,   4, bgfx::AttribType::Uint8, true);
+		vertex_layout.end();
+	}
 }
 
 DebugLine::~DebugLine()
@@ -211,11 +214,11 @@ void DebugLine::submit(u8 view_id)
 	if (!_num)
 		return;
 
-	if (!bgfx::getAvailTransientVertexBuffer(_num * 2, _vertex_layout))
+	if (!bgfx::getAvailTransientVertexBuffer(_num * 2, vertex_layout))
 		return;
 
 	bgfx::TransientVertexBuffer tvb;
-	bgfx::allocTransientVertexBuffer(&tvb, _num * 2, _vertex_layout);
+	bgfx::allocTransientVertexBuffer(&tvb, _num * 2, vertex_layout);
 	memcpy(tvb.data, _lines, sizeof(Line) * _num);
 
 	bgfx::setVertexBuffer(0, &tvb, 0, _num * 2);

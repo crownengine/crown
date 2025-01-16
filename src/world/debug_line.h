@@ -35,8 +35,6 @@ struct DebugLine
 	u32 _marker;
 	ShaderManager *_shader_manager;
 	StringId32 _shader;
-	bgfx::VertexLayout _vertex_layout;
-
 	u32 _num;
 	Line _lines[MAX_LINES];
 
