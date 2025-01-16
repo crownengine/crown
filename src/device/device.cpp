@@ -434,7 +434,7 @@ bool Device::frame()
 
 	graph_globals::draw_all(_width, _height);
 
-	_pipeline->render(*_shader_manager, STRING_ID_32("blit", UINT32_C(0x045f02bb)), VIEW_BLIT, _width, _height);
+	_pipeline->render(_width, _height);
 
 	bgfx::frame();
 
@@ -532,7 +532,7 @@ void Device::run()
 	_resource_manager->register_type(RESOURCE_TYPE_TEXTURE,          RESOURCE_VERSION_TEXTURE,          txr::load, txr::unload, txr::online, txr::offline);
 	_resource_manager->register_type(RESOURCE_TYPE_UNIT,             RESOURCE_VERSION_UNIT,             NULL,      NULL,        NULL,        NULL);
 
-	_material_manager = CE_NEW(_allocator, MaterialManager)(default_allocator(), *_resource_manager);
+	_material_manager = CE_NEW(_allocator, MaterialManager)(default_allocator(), *_resource_manager, *_shader_manager);
 
 	// Read config
 	{
@@ -628,7 +628,7 @@ void Device::run()
 	_lua_environment->require(_boot_config.boot_script_name.c_str());
 	_lua_environment->execute_string(_options._lua_string.c_str());
 
-	_pipeline = CE_NEW(_allocator, Pipeline)();
+	_pipeline = CE_NEW(_allocator, Pipeline)(*_shader_manager);
 	_pipeline->create(_width, _height);
 
 	graph_globals::init(_allocator, *_shader_manager, *_console_server);

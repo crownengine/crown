@@ -11,6 +11,7 @@
 #include "resource/resource_manager.h"
 #include "resource/texture_resource.h"
 #include "world/material_manager.h"
+#include "world/shader_manager.h"
 #include <bgfx/bgfx.h>
 #include <string.h> // memcpy
 
@@ -26,9 +27,10 @@ static const bgfx::UniformType::Enum s_bgfx_uniform_type[] =
 };
 CE_STATIC_ASSERT(countof(s_bgfx_uniform_type) == UniformType::COUNT);
 
-MaterialManager::MaterialManager(Allocator &a, ResourceManager &rm)
+MaterialManager::MaterialManager(Allocator &a, ResourceManager &rm, ShaderManager &sm)
 	: _allocator(&a)
 	, _resource_manager(&rm)
+	, _shader_manager(&sm)
 	, _materials(a)
 {
 }
@@ -108,6 +110,7 @@ Material *MaterialManager::create_material(const MaterialResource *resource)
 	material->_resource_manager = _resource_manager;
 	material->_resource = resource;
 	material->_data = (char *)&material[1];
+	material->_shader = _shader_manager->shader(resource->shader);
 
 	const char *dynamic_data = (char *)resource + resource->dynamic_data_offset;
 	memcpy(material->_data, dynamic_data, resource->dynamic_data_size);

@@ -93,7 +93,7 @@ void screenSpaceQuad(float _textureWidth, float _textureHeight, float _texelHalf
 	}
 }
 
-Pipeline::Pipeline()
+Pipeline::Pipeline(ShaderManager &sm)
 	: _main_color_texture(BGFX_INVALID_HANDLE)
 	, _main_depth_texture(BGFX_INVALID_HANDLE)
 	, _main_frame_buffer(BGFX_INVALID_HANDLE)
@@ -106,6 +106,8 @@ Pipeline::Pipeline()
 	, _selection_depth_texture_sampler(BGFX_INVALID_HANDLE)
 	, _outline_color_uniform(BGFX_INVALID_HANDLE)
 {
+	_blit_shader = sm.shader(STRING_ID_32("blit", UINT32_C(0x045f02bb)));
+	_outline_shader = sm.shader(STRING_ID_32("outline", UINT32_C(0xb6b58d80)));
 }
 
 void Pipeline::create(uint16_t width, uint16_t height)
@@ -201,15 +203,15 @@ void Pipeline::reset(u16 width, u16 height)
 	_selection_frame_buffer = bgfx::createFrameBuffer(countof(_selection_frame_buffer_attachments), _selection_frame_buffer_attachments);
 }
 
-void Pipeline::render(ShaderManager &sm, StringId32 program, u8 view, u16 width, u16 height)
+void Pipeline::render(u16 width, u16 height)
 {
 	const bgfx::Caps *caps = bgfx::getCaps();
 
 	f32 ortho[16];
 	bx::mtxOrtho(ortho, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 100.0f, 0.0f, caps->homogeneousDepth, bx::Handedness::Right);
 
-	bgfx::setViewRect(view, 0, 0, width, height);
-	bgfx::setViewTransform(view, NULL, ortho);
+	bgfx::setViewRect(VIEW_BLIT, 0, 0, width, height);
+	bgfx::setViewTransform(VIEW_BLIT, NULL, ortho);
 
 	const u32 samplerFlags = 0
 		| BGFX_SAMPLER_MIN_POINT
@@ -221,7 +223,8 @@ void Pipeline::render(ShaderManager &sm, StringId32 program, u8 view, u16 width,
 
 	bgfx::setTexture(0, _main_color_texture_sampler, _main_color_texture, samplerFlags);
 	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
-	sm.submit(program, view, 0, UINT64_MAX);
+	bgfx::setState(_blit_shader.state);
+	bgfx::submit(VIEW_BLIT, _blit_shader.program);
 
 #if !CROWN_PLATFORM_EMSCRIPTEN
 	bgfx::setTexture(0, _selection_texture_sampler, _selection_texture, samplerFlags);
@@ -232,7 +235,8 @@ void Pipeline::render(ShaderManager &sm, StringId32 program, u8 view, u16 width,
 	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
 	const f32 outline_color[] = { 1.0f, 0.37f, 0.05f, 1.0f };
 	bgfx::setUniform(_outline_color_uniform, outline_color);
-	sm.submit(STRING_ID_32("outline", UINT32_C(0xb6b58d80)), VIEW_OUTLINE, 0, UINT64_MAX);
+	bgfx::setState(_outline_shader.state);
+	bgfx::submit(VIEW_OUTLINE, _outline_shader.program);
 #endif
 }
 

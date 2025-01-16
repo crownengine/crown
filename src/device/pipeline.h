@@ -6,6 +6,7 @@
 #pragma once
 
 #include "world/types.h"
+#include "resource/shader_resource.h"
 #include <bgfx/bgfx.h>
 
 #define VIEW_SPRITE_0     1
@@ -48,8 +49,12 @@ struct Pipeline
 	bgfx::UniformHandle _selection_depth_texture_sampler;
 	bgfx::UniformHandle _outline_color_uniform;
 
+	// Default shaders.
+	ShaderData _blit_shader;
+	ShaderData _outline_shader;
+
 	///
-	Pipeline();
+	Pipeline(ShaderManager &sm);
 
 	///
 	void create(u16 width, u16 height);
@@ -61,7 +66,7 @@ struct Pipeline
 	void reset(u16 width, u16 height);
 
 	///
-	void render(ShaderManager &sm, StringId32 program, u8 view, u16 width, u16 height);
+	void render(u16 width, u16 height);
 };
 
 } // namespace crown
