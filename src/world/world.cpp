@@ -32,13 +32,21 @@
 
 namespace crown
 {
-World::World(Allocator &a, ResourceManager &rm, ShaderManager &sm, MaterialManager &mm, UnitManager &um, LuaEnvironment &env)
+World::World(Allocator &a
+	, ResourceManager &rm
+	, ShaderManager &sm
+	, MaterialManager &mm
+	, UnitManager &um
+	, LuaEnvironment &env
+	, Pipeline &pl
+	)
 	: _marker(WORLD_MARKER)
 	, _allocator(&a)
 	, _resource_manager(&rm)
 	, _shader_manager(&sm)
 	, _material_manager(&mm)
 	, _lua_environment(&env)
+	, _pipeline(&pl)
 	, _unit_manager(&um)
 	, _lines(NULL)
 	, _scene_graph(NULL)
@@ -56,7 +64,7 @@ World::World(Allocator &a, ResourceManager &rm, ShaderManager &sm, MaterialManag
 {
 	_lines = create_debug_line(true);
 	_scene_graph   = CE_NEW(*_allocator, SceneGraph)(*_allocator, um);
-	_render_world  = CE_NEW(*_allocator, RenderWorld)(*_allocator, rm, sm, mm, um);
+	_render_world  = CE_NEW(*_allocator, RenderWorld)(*_allocator, rm, sm, mm, um, pl);
 	_physics_world = CE_NEW(*_allocator, PhysicsWorld)(*_allocator, rm, um, *_lines);
 	_sound_world   = CE_NEW(*_allocator, SoundWorld)(*_allocator);
 	_script_world  = CE_NEW(*_allocator, ScriptWorld)(*_allocator, um, rm, env, *this);
@@ -504,7 +512,7 @@ void World::set_sound_volume(SoundInstanceId id, f32 vol)
 
 DebugLine *World::create_debug_line(bool depth_test)
 {
-	return CE_NEW(*_allocator, DebugLine)(*_shader_manager, depth_test);
+	return debug_line::create(*_allocator, *_pipeline, depth_test);
 }
 
 void World::destroy_debug_line(DebugLine &line)
@@ -519,6 +527,7 @@ Gui *World::create_screen_gui()
 		, *_resource_manager
 		, *_shader_manager
 		, *_material_manager
+		, &_pipeline->_gui_shader
 		);
 
 	list::add(gui->_node, _guis);
@@ -532,6 +541,7 @@ Gui *World::create_world_gui()
 		, *_resource_manager
 		, *_shader_manager
 		, *_material_manager
+		, &_pipeline->_gui_3d_shader
 		);
 
 	list::add(gui->_node, _guis);

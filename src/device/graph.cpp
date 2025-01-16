@@ -745,10 +745,10 @@ namespace graph_globals
 	Allocator *_allocator = NULL;
 	DebugLine *_lines = NULL;
 
-	void init(Allocator &a, ShaderManager &sm, ConsoleServer &cs)
+	void init(Allocator &a, Pipeline &pl, ConsoleServer &cs)
 	{
 		_allocator = &a;
-		_lines = CE_NEW(a, DebugLine)(sm, false);
+		_lines = debug_line::create(a, pl, false);
 
 		cs.register_command_name("graph", "Plot selected profiler data.", graph_internal::handle_command, NULL);
 	}

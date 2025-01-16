@@ -18,7 +18,7 @@ namespace graph_globals
 {
 #if CROWN_DEBUG
 	///
-	void init(Allocator &a, ShaderManager &sm, ConsoleServer &cs);
+	void init(Allocator &a, Pipeline &pl, ConsoleServer &cs);
 
 	///
 	void shutdown();

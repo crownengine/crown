@@ -34,6 +34,8 @@ namespace crown
 /// @ingroup Device
 struct Pipeline
 {
+	ShaderManager *_shader_manager;
+
 	// Main output color/depth buffers.
 	bgfx::TextureHandle _main_color_texture;
 	bgfx::TextureHandle _main_depth_texture;
@@ -51,7 +53,12 @@ struct Pipeline
 
 	// Default shaders.
 	ShaderData _blit_shader;
+	ShaderData _gui_shader;
+	ShaderData _gui_3d_shader;
+	ShaderData _debug_line_depth_enabled_shader;
+	ShaderData _debug_line_shader;
 	ShaderData _outline_shader;
+	ShaderData _selection_shader;
 
 	///
 	Pipeline(ShaderManager &sm);

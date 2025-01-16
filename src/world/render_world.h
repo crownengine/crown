@@ -22,7 +22,13 @@ namespace crown
 struct RenderWorld
 {
 	///
-	RenderWorld(Allocator &a, ResourceManager &rm, ShaderManager &sm, MaterialManager &mm, UnitManager &um);
+	RenderWorld(Allocator &a
+		, ResourceManager &rm
+		, ShaderManager &sm
+		, MaterialManager &mm
+		, UnitManager &um
+		, Pipeline &pl
+		);
 
 	///
 	~RenderWorld();
@@ -378,6 +384,7 @@ struct RenderWorld
 	ShaderManager *_shader_manager;
 	MaterialManager *_material_manager;
 	UnitManager *_unit_manager;
+	Pipeline *_pipeline;
 
 	bgfx::UniformHandle _u_light_position;
 	bgfx::UniformHandle _u_light_direction;
@@ -394,7 +401,6 @@ struct RenderWorld
 
 	HashSet<UnitId> _selection;
 	bgfx::UniformHandle _u_unit_id;
-	ShaderData _selection_shader;
 };
 
 } // namespace crown

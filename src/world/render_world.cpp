@@ -54,16 +54,23 @@ static void selection_draw_override(UnitId unit_id, RenderWorld *rw)
 	data.w = 0.0f;
 	bgfx::setUniform(rw->_u_unit_id, &data);
 
-	bgfx::setState(rw->_selection_shader.state);
-	bgfx::submit(VIEW_SELECTION, rw->_selection_shader.program);
+	bgfx::setState(rw->_pipeline->_selection_shader.state);
+	bgfx::submit(VIEW_SELECTION, rw->_pipeline->_selection_shader.program);
 }
 
-RenderWorld::RenderWorld(Allocator &a, ResourceManager &rm, ShaderManager &sm, MaterialManager &mm, UnitManager &um)
+RenderWorld::RenderWorld(Allocator &a
+	, ResourceManager &rm
+	, ShaderManager &sm
+	, MaterialManager &mm
+	, UnitManager &um
+	, Pipeline &pl
+	)
 	: _marker(RENDER_WORLD_MARKER)
 	, _resource_manager(&rm)
 	, _shader_manager(&sm)
 	, _material_manager(&mm)
 	, _unit_manager(&um)
+	, _pipeline(&pl)
 	, _debug_drawing(false)
 	, _mesh_manager(a, this)
 	, _sprite_manager(a, this)
@@ -84,7 +91,6 @@ RenderWorld::RenderWorld(Allocator &a, ResourceManager &rm, ShaderManager &sm, M
 
 	// Selection.
 	_u_unit_id = bgfx::createUniform("u_unit_id", bgfx::UniformType::Vec4);
-	_selection_shader = sm.shader(STRING_ID_32("selection", UINT32_C(0x17c0bc11)));
 }
 
 RenderWorld::~RenderWorld()

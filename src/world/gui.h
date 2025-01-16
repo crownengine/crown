@@ -72,7 +72,7 @@ struct Gui
 	ShaderManager *_shader_manager;
 	MaterialManager *_material_manager;
 	Matrix4x4 _world;
-	ShaderData _gui_shader;
+	ShaderData *_gui_shader;
 	u8 _view;
 	ListNode _node;
 
@@ -81,7 +81,7 @@ struct Gui
 		, ResourceManager &rm
 		, ShaderManager &sm
 		, MaterialManager &mm
-		, StringId32 shader_name
+		, ShaderData *shader
 		, u8 view
 		);
 
@@ -132,6 +132,7 @@ namespace gui
 		, ResourceManager &resource_manager
 		, ShaderManager &shader_manager
 		, MaterialManager &material_manager
+		, ShaderData *shader
 		);
 
 	Gui *create_world_gui(Allocator &allocator
@@ -139,6 +140,7 @@ namespace gui
 		, ResourceManager &resource_manager
 		, ShaderManager &shader_manager
 		, MaterialManager &material_manager
+		, ShaderData *shader
 		);
 
 } // namespace gui

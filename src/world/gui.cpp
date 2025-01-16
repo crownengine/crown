@@ -93,7 +93,7 @@ Gui::Gui(GuiBuffer &gb
 	, ResourceManager &rm
 	, ShaderManager &sm
 	, MaterialManager &mm
-	, StringId32 shader_name
+	, ShaderData *shader
 	, u8 view
 	)
 	: _marker(DEBUG_GUI_MARKER)
@@ -102,12 +102,11 @@ Gui::Gui(GuiBuffer &gb
 	, _shader_manager(&sm)
 	, _material_manager(&mm)
 	, _world(MATRIX4X4_IDENTITY)
+	, _gui_shader(shader)
 	, _view(view)
 {
 	_node.next = NULL;
 	_node.prev = NULL;
-
-	_gui_shader = sm.shader(shader_name);
 }
 
 Gui::~Gui()
@@ -149,7 +148,7 @@ void Gui::triangle_3d(const Matrix4x4 &local_pose, const Vector3 &a, const Vecto
 	inds[1] = 1;
 	inds[2] = 2;
 
-	_buffer->submit(3, 3, local_pose*_world, _gui_shader, _view, depth_u32(depth));
+	_buffer->submit(3, 3, local_pose*_world, *_gui_shader, _view, depth_u32(depth));
 }
 
 void Gui::triangle(const Vector2 &a, const Vector2 &b, const Vector2 &c, const Color4 &color, f32 depth)
@@ -202,7 +201,7 @@ void Gui::rect_3d(const Matrix4x4 &local_pose, const Vector3 &pos, const Vector2
 	inds[4] = 2;
 	inds[5] = 3;
 
-	_buffer->submit(4, 6, local_pose*_world, _gui_shader, _view, depth_u32(depth));
+	_buffer->submit(4, 6, local_pose*_world, *_gui_shader, _view, depth_u32(depth));
 }
 
 void Gui::rect(const Vector3 &pos, const Vector2 &size, const Color4 &color)
@@ -439,13 +438,14 @@ namespace gui
 		, ResourceManager &resource_manager
 		, ShaderManager &shader_manager
 		, MaterialManager &material_manager
+		, ShaderData *shader
 		)
 	{
 		Gui *gui = CE_NEW(allocator, Gui)(buffer
 			, resource_manager
 			, shader_manager
 			, material_manager
-			, STRING_ID_32("gui", UINT32_C(0x66dbf9a2))
+			, shader
 			, VIEW_SCREEN_GUI
 			);
 		return gui;
@@ -456,13 +456,14 @@ namespace gui
 		, ResourceManager &resource_manager
 		, ShaderManager &shader_manager
 		, MaterialManager &material_manager
+		, ShaderData *shader
 		)
 	{
 		Gui *gui = CE_NEW(allocator, Gui)(buffer
 			, resource_manager
 			, shader_manager
 			, material_manager
-			, STRING_ID_32("gui+DEPTH_ENABLED", UINT32_C(0xd594a1a5))
+			, shader
 			, VIEW_WORLD_GUI
 			);
 		return gui;
