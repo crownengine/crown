@@ -740,6 +740,12 @@ namespace graph_internal
 
 } // namespace graph_internal
 
+} // namespace crown
+
+#endif // CROWN_DEBUG
+
+namespace crown
+{
 namespace graph_globals
 {
 	Allocator *_allocator = NULL;
@@ -747,14 +753,20 @@ namespace graph_globals
 
 	void init(Allocator &a, ShaderManager &sm, ConsoleServer &cs)
 	{
+#if CROWN_DEBUG
 		_allocator = &a;
 		_lines = CE_NEW(a, DebugLine)(sm, false);
 
 		cs.register_command_name("graph", "Plot selected profiler data.", graph_internal::handle_command, NULL);
+#else
+		CE_UNUSED_3(a, sm, cs);
+		CE_NOOP();
+#endif
 	}
 
 	void shutdown()
 	{
+#if CROWN_DEBUG
 		// Destroy all graphs
 		ListNode *cur;
 		ListNode *tmp;
@@ -767,10 +779,14 @@ namespace graph_globals
 		CE_DELETE(*_allocator, _lines);
 		_lines = NULL;
 		_allocator = NULL;
+#else
+		CE_NOOP();
+#endif
 	}
 
 	void draw_all(u16 window_width, u16 window_height)
 	{
+#if CROWN_DEBUG
 		_lines->reset();
 
 		ListNode *cur;
@@ -779,10 +795,12 @@ namespace graph_globals
 			Graph *graph = (Graph *)container_of(cur, Graph, _node);
 			graph->draw(*_lines, window_width, window_height);
 		}
+#else
+		CE_UNUSED_2(window_width, window_height);
+		CE_NOOP();
+#endif
 	}
 
 } // namespace graph_globals
 
 } // namespace crown
-
-#endif // CROWN_DEBUG
