@@ -1435,23 +1435,11 @@ public class LevelEditorApplication : Gtk.Application
 		_level.selection_changed(_level._selection);
 	}
 
-	private void on_object_changed(Guid object_id, Guid? component_id)
+	private void on_objects_changed(Guid?[] object_ids)
 	{
-		string object_type = _database.object_type(object_id);
-
-		if (object_type == OBJECT_TYPE_UNIT) {
-			Unit unit = new Unit(_database, object_id);
-			if (component_id == null)
-				unit.send(_editor);
-			else
-				unit.send_component(_editor, object_id, component_id);
-		} else if (object_type == OBJECT_TYPE_SOUND_SOURCE) {
-			Sound sound = new Sound(_database, object_id);
-			sound.send(_editor);
-		} else {
-			logw("Object changed with no handler: %s".printf(object_type));
-		}
-
+		StringBuilder sb = new StringBuilder();
+		_level.generate_change_objects(sb, object_ids);
+		_editor.send_script(sb.str);
 		_editor.send(DeviceApi.frame());
 	}
 
@@ -1484,11 +1472,11 @@ public class LevelEditorApplication : Gtk.Application
 		case ActionType.SET_ANIMATION_STATE_MACHINE:
 		case ActionType.SET_SOUND:
 			if ((flags & ActionTypeFlags.FROM_SERVER) == 0)
-				on_object_changed(data[0], data[1]);
+				on_objects_changed(data);
 			break;
 
 		case ActionType.OBJECT_SET_EDITOR_NAME:
-			on_object_changed(data[0], null);
+			on_objects_changed(data);
 			_level.object_editor_name_changed(data[0], _level.object_editor_name(data[0]));
 			break;
 
@@ -1522,10 +1510,6 @@ public class LevelEditorApplication : Gtk.Application
 			break;
 
 		case ActionType.MOVE_OBJECTS:
-			for (int i = 0; i < data.length; ++i)
-				on_object_changed(data[i], null);
-			break;
-
 		case ActionType.SET_TRANSFORM:
 		case ActionType.SET_LIGHT:
 		case ActionType.SET_MESH:
@@ -1536,11 +1520,11 @@ public class LevelEditorApplication : Gtk.Application
 		case ActionType.SET_SCRIPT:
 		case ActionType.SET_ANIMATION_STATE_MACHINE:
 		case ActionType.SET_SOUND:
-			on_object_changed(data[0], data[1]);
+			on_objects_changed(data);
 			break;
 
 		case ActionType.OBJECT_SET_EDITOR_NAME:
-			on_object_changed(data[0], null);
+			on_objects_changed(data);
 			_level.object_editor_name_changed(data[0], _level.object_editor_name(data[0]));
 			break;
 

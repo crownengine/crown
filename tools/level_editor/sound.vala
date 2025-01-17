@@ -114,14 +114,27 @@ public class Sound
 		return i;
 	}
 
-	public void send(RuntimeInstance runtime)
+	public static int generate_change_sound_commands(StringBuilder sb, Guid?[] object_ids, Database db)
 	{
-		runtime.send_script(LevelEditorApi.move_object(_id
-			, local_position()
-			, local_rotation()
-			, local_scale()
-			));
-		runtime.send_script(LevelEditorApi.set_sound_range(_id, range()));
+		int i = 0;
+		for (; i < object_ids.length; ++i) {
+			if (db.object_type(object_ids[i]) != OBJECT_TYPE_SOUND_SOURCE)
+				break;
+
+			Guid id = object_ids[i];
+			Sound sound = new Sound(db, id);
+
+			sb.append("editor_nv, editor_nq, editor_nm = Device.temp_count()");
+			sb.append(LevelEditorApi.move_object(id
+				, sound.local_position()
+				, sound.local_rotation()
+				, sound.local_scale()
+				));
+			sb.append(LevelEditorApi.set_sound_range(id, sound.range()));
+			sb.append("Device.set_temp_count(editor_nv, editor_nq, editor_nm)");
+		}
+
+		return i;
 	}
 }
 
