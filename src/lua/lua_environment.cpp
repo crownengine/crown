@@ -591,7 +591,7 @@ static void console_command_script(ConsoleServer &cs, u32 client_id, const char 
 	DynamicString script(default_allocator());
 
 	sjson::parse(obj, json);
-	sjson::parse_string(script, obj["script"]);
+	sjson::parse_verbatim(script, obj["script"]);
 
 	((LuaEnvironment *)user_data)->execute_string(script.c_str());
 }
@@ -624,7 +624,7 @@ static void console_command_REPL(ConsoleServer &cs, u32 client_id, const char *j
 	DynamicString script(default_allocator());
 
 	sjson::parse(obj, json);
-	sjson::parse_string(script, obj["repl"]);
+	sjson::parse_verbatim(script, obj["repl"]);
 
 	do_REPL((LuaEnvironment *)user_data, script.c_str());
 }

@@ -77,7 +77,7 @@ public class ConsoleClient : GLib.Object
 	// Sends the lua script to the target
 	public void send_script(string lua)
 	{
-		send("{\"type\":\"repl\",\"repl\":\"" + lua.replace("\\", "\\\\").replace("\"", "\\\"") + "\"}");
+		send("{\"type\":\"repl\",\"repl\":\"\"\"%s\"\"\"}".printf(lua));
 	}
 
 	public void receive_async()
