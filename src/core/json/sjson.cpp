@@ -595,7 +595,12 @@ namespace sjson
 			return;
 		}
 
-		str.set(json, u32(end - json));
+		// Find last '"'.
+		end += 3;
+		while (*end && *end == '"')
+			++end;
+
+		str.set(json, u32(end - 3 - json));
 	}
 
 } // namespace json
