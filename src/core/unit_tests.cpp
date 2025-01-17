@@ -1395,6 +1395,18 @@ static void test_sjson()
 		ENSURE(strcmp(str.c_str(), "verbatim") == 0);
 	}
 	{
+		TempAllocator128 ta;
+		DynamicString str(ta);
+		sjson::parse_verbatim(str, "\"\"\"\"foo\"\"\"\"");
+		ENSURE(strcmp(str.c_str(), "\"foo\"") == 0);
+	}
+	{
+		TempAllocator128 ta;
+		DynamicString str(ta);
+		sjson::parse_verbatim(str, "\"\"\"\"foo\"\"\"\"bananas\"\"\"");
+		ENSURE(strcmp(str.c_str(), "\"foo\"") == 0);
+	}
+	{
 		TempAllocator1024 ta;
 		JsonObject obj(ta);
 		sjson::parse_object(obj, "{foo={\"}\"=false}}");
