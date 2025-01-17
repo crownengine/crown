@@ -8,6 +8,7 @@ Changelog
 
 * Fixed a crash when editing many objects simultaneusly.
 * Fixed a crash when trying to load levels with many objects.
+* Fixed an issue that prevented undo/redo operations to be executed in bulk.
 
 **Runtime**
 

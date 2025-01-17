@@ -276,6 +276,18 @@ public class Level
 		}
 	}
 
+	public void generate_change_objects(StringBuilder sb, Guid?[] object_ids)
+	{
+		int i = 0;
+		while (i < object_ids.length) {
+			if (_db.object_type(object_ids[i]) == OBJECT_TYPE_UNIT) {
+				i += Unit.generate_change_commands(sb, object_ids[i:object_ids.length], _db);
+			} else if (_db.object_type(object_ids[i]) == OBJECT_TYPE_SOUND_SOURCE) {
+				i += Sound.generate_change_sound_commands(sb, object_ids[i:object_ids.length], _db);
+			}
+		}
+	}
+
 	public void send_level()
 	{
 		Gee.ArrayList<Guid?> unit_ids = new Gee.ArrayList<Guid?>();

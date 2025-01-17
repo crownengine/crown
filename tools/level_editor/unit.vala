@@ -634,67 +634,91 @@ public class Unit
 		return i;
 	}
 
-	public void send_component(RuntimeInstance runtime, Guid unit_id, Guid component_id)
+	public static int generate_change_commands(StringBuilder sb, Guid?[] object_ids, Database db)
 	{
-		string component_type = _db.object_type(component_id);
-		Unit unit = new Unit(_db, unit_id);
+		int i;
 
-		if (component_type == OBJECT_TYPE_TRANSFORM) {
-			runtime.send_script(LevelEditorApi.move_object(unit_id
-				, unit.get_component_property_vector3   (component_id, "data.position")
-				, unit.get_component_property_quaternion(component_id, "data.rotation")
-				, unit.get_component_property_vector3   (component_id, "data.scale")
-				));
-		} else if (component_type == OBJECT_TYPE_CAMERA) {
-			runtime.send_script(LevelEditorApi.set_camera(unit_id
-				, unit.get_component_property_string(component_id, "data.projection")
-				, unit.get_component_property_double(component_id, "data.fov")
-				, unit.get_component_property_double(component_id, "data.far_range")
-				, unit.get_component_property_double(component_id, "data.near_range")
-				));
-		} else if (component_type == OBJECT_TYPE_MESH_RENDERER) {
-			runtime.send_script(LevelEditorApi.set_mesh(unit_id
-				, unit.get_component_property_string(component_id, "data.mesh_resource")
-				, unit.get_component_property_string(component_id, "data.geometry_name")
-				, unit.get_component_property_string(component_id, "data.material")
-				, unit.get_component_property_bool  (component_id, "data.visible")
-				));
-		} else if (component_type == OBJECT_TYPE_SPRITE_RENDERER) {
-			runtime.send_script(LevelEditorApi.set_sprite(unit_id
-				, unit.get_component_property_string(component_id, "data.sprite_resource")
-				, unit.get_component_property_string(component_id, "data.material")
-				, unit.get_component_property_double(component_id, "data.layer")
-				, unit.get_component_property_double(component_id, "data.depth")
-				, unit.get_component_property_bool  (component_id, "data.visible")
-				));
-		} else if (component_type == OBJECT_TYPE_LIGHT) {
-			runtime.send_script(LevelEditorApi.set_light(unit_id
-				, unit.get_component_property_string (component_id, "data.type")
-				, unit.get_component_property_double (component_id, "data.range")
-				, unit.get_component_property_double (component_id, "data.intensity")
-				, unit.get_component_property_double (component_id, "data.spot_angle")
-				, unit.get_component_property_vector3(component_id, "data.color")
-				));
-		} else if (component_type == OBJECT_TYPE_SCRIPT) {
-			/* No sync. */
-		} else if (component_type == OBJECT_TYPE_COLLIDER) {
-			/* No sync. */
-		} else if (component_type == OBJECT_TYPE_ACTOR) {
-			/* No sync. */
-		} else if (component_type == OBJECT_TYPE_ANIMATION_STATE_MACHINE) {
-			/* No sync. */
+		if (object_ids.length > 1 && Unit.is_component(object_ids[1], db)) {
+			for (i = 1; i < object_ids.length; ++i) {
+				if (!is_component(object_ids[i], db))
+					break;
+
+				Guid unit_id = object_ids[0];
+				Guid component_id = object_ids[i];
+				string component_type = db.object_type(component_id);
+				Unit unit = new Unit(db, unit_id);
+
+				sb.append("editor_nv, editor_nq, editor_nm = Device.temp_count()");
+
+				if (component_type == OBJECT_TYPE_TRANSFORM) {
+					sb.append(LevelEditorApi.move_object(unit_id
+						, unit.get_component_property_vector3   (component_id, "data.position")
+						, unit.get_component_property_quaternion(component_id, "data.rotation")
+						, unit.get_component_property_vector3   (component_id, "data.scale")
+						));
+				} else if (component_type == OBJECT_TYPE_CAMERA) {
+					sb.append(LevelEditorApi.set_camera(unit_id
+						, unit.get_component_property_string(component_id, "data.projection")
+						, unit.get_component_property_double(component_id, "data.fov")
+						, unit.get_component_property_double(component_id, "data.far_range")
+						, unit.get_component_property_double(component_id, "data.near_range")
+						));
+				} else if (component_type == OBJECT_TYPE_MESH_RENDERER) {
+					sb.append(LevelEditorApi.set_mesh(unit_id
+						, unit.get_component_property_string(component_id, "data.mesh_resource")
+						, unit.get_component_property_string(component_id, "data.geometry_name")
+						, unit.get_component_property_string(component_id, "data.material")
+						, unit.get_component_property_bool  (component_id, "data.visible")
+						));
+				} else if (component_type == OBJECT_TYPE_SPRITE_RENDERER) {
+					sb.append(LevelEditorApi.set_sprite(unit_id
+						, unit.get_component_property_string(component_id, "data.sprite_resource")
+						, unit.get_component_property_string(component_id, "data.material")
+						, unit.get_component_property_double(component_id, "data.layer")
+						, unit.get_component_property_double(component_id, "data.depth")
+						, unit.get_component_property_bool  (component_id, "data.visible")
+						));
+				} else if (component_type == OBJECT_TYPE_LIGHT) {
+					sb.append(LevelEditorApi.set_light(unit_id
+						, unit.get_component_property_string (component_id, "data.type")
+						, unit.get_component_property_double (component_id, "data.range")
+						, unit.get_component_property_double (component_id, "data.intensity")
+						, unit.get_component_property_double (component_id, "data.spot_angle")
+						, unit.get_component_property_vector3(component_id, "data.color")
+						));
+				} else if (component_type == OBJECT_TYPE_SCRIPT) {
+					/* No sync. */
+				} else if (component_type == OBJECT_TYPE_COLLIDER) {
+					/* No sync. */
+				} else if (component_type == OBJECT_TYPE_ACTOR) {
+					/* No sync. */
+				} else if (component_type == OBJECT_TYPE_ANIMATION_STATE_MACHINE) {
+					/* No sync. */
+				} else {
+					logw("Unregistered component type `%s`".printf(component_type));
+				}
+
+				sb.append("Device.set_temp_count(editor_nv, editor_nq, editor_nm)");
+			}
 		} else {
-			logw("Unregistered component type `%s`".printf(component_type));
-		}
-	}
+			for (i = 0; i < object_ids.length; ++i) {
+				if (db.object_type(object_ids[i]) != OBJECT_TYPE_UNIT)
+					break;
 
-	public void send(RuntimeInstance runtime)
-	{
-		runtime.send_script(LevelEditorApi.move_object(_id
-			, local_position()
-			, local_rotation()
-			, local_scale()
-			));
+				Guid unit_id = object_ids[i];
+				Unit unit = new Unit(db, unit_id);
+
+				sb.append("editor_nv, editor_nq, editor_nm = Device.temp_count()");
+				sb.append(LevelEditorApi.move_object(unit_id
+					, unit.local_position()
+					, unit.local_rotation()
+					, unit.local_scale()
+					));
+				sb.append("Device.set_temp_count(editor_nv, editor_nq, editor_nm)");
+			}
+		}
+
+		return i;
 	}
 
 	public static bool is_component(Guid id, Database db)
