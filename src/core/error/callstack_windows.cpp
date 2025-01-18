@@ -21,6 +21,16 @@ namespace crown
 {
 namespace error
 {
+	s32 callstack_init()
+	{
+		return 0;
+	}
+
+	void callstack_shutdown()
+	{
+		CE_NOOP();
+	}
+
 	void callstack(log_internal::System system, LogSeverity::Enum severity)
 	{
 		SymInitialize(GetCurrentProcess(), NULL, TRUE);

@@ -15,6 +15,16 @@ namespace crown
 {
 namespace error
 {
+	s32 callstack_init()
+	{
+		return 0;
+	}
+
+	void callstack_shutdown()
+	{
+		CE_NOOP();
+	}
+
 	void callstack(log_internal::System system, LogSeverity::Enum severity)
 	{
 		int size = emscripten_get_callstack(EM_LOG_C_STACK | EM_LOG_JS_STACK, NULL, 0);

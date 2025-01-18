@@ -8,6 +8,7 @@
 #if CROWN_PLATFORM_LINUX
 #include "core/command_line.h"
 #include "core/containers/array.inl"
+#include "core/error/callstack.h"
 #include "core/guid.h"
 #include "core/memory/globals.h"
 #include "core/memory/memory.inl"
@@ -1031,11 +1032,23 @@ struct InitGlobals
 	}
 };
 
+void at_exit()
+{
+	error::callstack_shutdown();
+}
+
 } // namespace crown
 
 int main(int argc, char **argv)
 {
 	using namespace crown;
+
+	if (error::callstack_init() != 0)
+		return EXIT_FAILURE;
+	if (atexit(at_exit) != 0) {
+		error::callstack_shutdown();
+		return EXIT_FAILURE;
+	}
 
 	struct sigaction act;
 	// code-format off
@@ -1055,12 +1068,10 @@ int main(int argc, char **argv)
 			case SIGPIPE:
 			case SIGSEGV:
 			case SIGSYS:
-				// FIXME: only use signal-safe functions.
 				error::abort("Signal %d", signum);
 				break;
 
 			default:
-				// FIXME: only use signal-safe functions.
 				error::abort("Unhandled signal %d", signum);
 				break;
 			}
