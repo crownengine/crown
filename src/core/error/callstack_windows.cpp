@@ -6,7 +6,7 @@
 #include "core/platform.h"
 
 #if CROWN_PLATFORM_WINDOWS
-#include "core/strings/string_stream.inl"
+#include "core/error/callstack.h"
 #ifndef WIN32_LEAN_AND_MEAN
 	#define WIN32_LEAN_AND_MEAN
 #endif
@@ -16,13 +16,12 @@
 #include <dbghelp.h>
 #pragma warning(pop)
 #include <new>
-#include <stb_sprintf.h>
 
 namespace crown
 {
 namespace error
 {
-	void callstack(StringStream &ss)
+	void callstack(log_internal::System system, LogSeverity::Enum severity)
 	{
 		SymInitialize(GetCurrentProcess(), NULL, TRUE);
 		SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_UNDNAME);
@@ -85,27 +84,23 @@ namespace error
 				);
 			res = res && SymFromAddr(GetCurrentProcess(), stack.AddrPC.Offset, 0, sym);
 
-			char str[512];
-
 			if (res == TRUE) {
-				stbsp_snprintf(str
-					, sizeof(str)
-					, "    [%2i] %s in %s:%d\n"
+				log_internal::logx(severity
+					, system
+					, "[%2i] %s in %s:%d"
 					, num
 					, sym->Name
 					, line.FileName
 					, line.LineNumber
 					);
 			} else {
-				stbsp_snprintf(str
-					, sizeof(str)
-					, "    [%2i] 0x%p\n"
+				log_internal::logx(severity
+					, system
+					, "[%2i] 0x%p"
 					, num
 					, stack.AddrPC.Offset
 					);
 			}
-
-			ss << str;
 		}
 
 		SymCleanup(GetCurrentProcess());

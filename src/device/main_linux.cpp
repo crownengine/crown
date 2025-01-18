@@ -1056,12 +1056,12 @@ int main(int argc, char **argv)
 			case SIGSEGV:
 			case SIGSYS:
 				// FIXME: only use signal-safe functions.
-				error::abort("Signal %d\n", signum);
+				error::abort("Signal %d", signum);
 				break;
 
 			default:
 				// FIXME: only use signal-safe functions.
-				error::abort("Unhandled signal %d\n", signum);
+				error::abort("Unhandled signal %d", signum);
 				break;
 			}
 		};

@@ -5,15 +5,15 @@
 
 #pragma once
 
-#include "core/strings/string_stream.h"
-#include "core/strings/types.h"
+#include "core/types.h"
+#include "device/log.h"
 
 namespace crown
 {
 namespace error
 {
-	/// Fills @a ss with the current call stack.
-	void callstack(StringStream &ss);
+	/// Logs the current call stack.
+	void callstack(log_internal::System system, LogSeverity::Enum severity = LogSeverity::LOG_INFO);
 
 } // namespace error
 
