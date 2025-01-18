@@ -12,6 +12,12 @@ namespace crown
 {
 namespace error
 {
+	/// Initializes the callstack subsystem.
+	s32 callstack_init();
+
+	/// Shutdowns the callstack subsystem.
+	void callstack_shutdown();
+
 	/// Logs the current call stack.
 	void callstack(log_internal::System system, LogSeverity::Enum severity = LogSeverity::LOG_INFO);
 
