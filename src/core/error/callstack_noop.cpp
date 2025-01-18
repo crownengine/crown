@@ -6,15 +6,15 @@
 #include "core/platform.h"
 
 #if CROWN_PLATFORM_ANDROID
-#include "core/strings/string_stream.inl"
+#include "core/error/callstack.h"
 
 namespace crown
 {
 namespace error
 {
-	void callstack(StringStream &ss)
+	void callstack(log_internal::System system, LogSeverity::Enum severity)
 	{
-		ss << "Not supported";
+		log_internal::logx(severity, system, "Not supported");
 	}
 
 } // namespace error

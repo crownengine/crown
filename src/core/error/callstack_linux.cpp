@@ -6,15 +6,15 @@
 #include "core/platform.h"
 
 #if CROWN_PLATFORM_LINUX && (CROWN_COMPILER_GCC || CROWN_COMPILER_CLANG)
+#include "core/error/callstack.h"
 #include "core/process.h"
 #include "core/strings/string.inl"
-#include "core/strings/string_stream.inl"
 #include <cxxabi.h>
 #include <execinfo.h>
+#include <stb_sprintf.h>
 #include <stdlib.h> // free
 #include <string.h> // strchr
 #include <unistd.h> // getpid
-#include <stb_sprintf.h>
 
 namespace crown
 {
@@ -46,7 +46,7 @@ namespace error
 		return "<addr2line missing>";
 	}
 
-	void callstack(StringStream &ss)
+	void callstack(log_internal::System system, LogSeverity::Enum severity)
 	{
 		void *array[64];
 		int size = backtrace(array, countof(array));
@@ -61,8 +61,6 @@ namespace error
 			char *addr_begin   = strchr(msg, '[');
 			char *addr_end     = strchr(msg, ']');
 
-			char buf[512];
-
 			// Attempt to demangle the symbol
 			if (mangled_name && offset_begin && offset_end && mangled_name < offset_begin) {
 				*mangled_name++ = '\0';
@@ -76,9 +74,9 @@ namespace error
 				char line[256];
 				memset(line, 0, sizeof(line));
 
-				stbsp_snprintf(buf
-					, sizeof(buf)
-					, "    [%2d] %s: (%s)+%s in %s\n"
+				log_internal::logx(severity
+					, system
+					, "[%2d] %s: (%s)+%s in %s"
 					, i
 					, msg
 					, (demangle_ok == 0 ? real_name : mangled_name)
@@ -88,10 +86,8 @@ namespace error
 
 				free(real_name);
 			} else {
-				stbsp_snprintf(buf, sizeof(buf), "    [%2d] %s\n", i, msg);
+				log_internal::logx(severity, system, "[%2d] %s", i, msg);
 			}
-
-			ss << buf;
 		}
 		free(messages);
 	}

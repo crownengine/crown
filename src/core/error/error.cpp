@@ -22,14 +22,9 @@ namespace error
 	{
 		char buf[1024];
 		stbsp_vsnprintf(buf, sizeof(buf), format, args);
-
-		TempAllocator4096 ta;
-		StringStream ss(ta);
-		ss << buf;
-		ss << "Stacktrace:\n";
-		callstack(ss);
-
-		loge(ERROR, string_stream::c_str(ss));
+		loge(ERROR, buf);
+		loge(ERROR, "Stacktrace:");
+		callstack(ERROR, LogSeverity::LOG_ERROR);
 		exit(EXIT_FAILURE);
 	}
 
