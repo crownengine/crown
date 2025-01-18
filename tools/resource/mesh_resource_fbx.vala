@@ -261,7 +261,7 @@ public class FBXImporter
 
 		// Create mesh_renderer.
 		if (node.mesh != null) {
-			Unit unit = new Unit(db, unit_id);
+			Unit unit = Unit(db, unit_id);
 			db.create(unit_id, OBJECT_TYPE_UNIT);
 
 			// Create transform.
@@ -332,7 +332,7 @@ public class FBXImporter
 			if (!options.import_lights.value)
 				return;
 
-			Unit unit = new Unit(db, unit_id);
+			Unit unit = Unit(db, unit_id);
 			unit.create("core/units/light", pos, rot, scl);
 
 			Guid component_id;
@@ -347,7 +347,7 @@ public class FBXImporter
 			if (!options.import_cameras.value)
 				return;
 
-			Unit unit = new Unit(db, unit_id);
+			Unit unit = Unit(db, unit_id);
 			unit.create("core/units/camera", pos, rot, scl);
 
 			Guid component_id;
@@ -361,7 +361,7 @@ public class FBXImporter
 			if (!options.import_skeleton.value)
 				return;
 		} else {
-			Unit unit = new Unit(db, unit_id);
+			Unit unit = Unit(db, unit_id);
 			db.create(unit_id, OBJECT_TYPE_UNIT);
 
 			// Create transform.
@@ -489,7 +489,7 @@ public class FBXImporter
 					// Create .texture resource.
 					Guid texture_id = Guid.new_guid();
 					// FIXME: detect texture type.
-					TextureResource texture_resource = new TextureResource.color_map(db
+					TextureResource texture_resource = TextureResource.color_map(db
 						, texture_id
 						, texture_resource_name + ".png"
 						);

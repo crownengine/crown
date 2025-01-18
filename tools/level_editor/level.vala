@@ -178,7 +178,7 @@ public class Level
 
 	public void on_unit_spawned(Guid id, string? name, Vector3 pos, Quaternion rot, Vector3 scl)
 	{
-		Unit unit = new Unit(_db, id);
+		Unit unit = Unit(_db, id);
 		unit.create(name, pos, rot, scl);
 
 		_db.set_property_string(id, "editor.name", "unit_%04u".printf(_num_units++));
@@ -187,7 +187,7 @@ public class Level
 
 	public void on_sound_spawned(Guid id, string name, Vector3 pos, Quaternion rot, Vector3 scl, double range, double volume, bool loop)
 	{
-		Sound sound = new Sound(_db, id);
+		Sound sound = Sound(_db, id);
 		sound.create(name, pos, rot, scl, range, volume, loop);
 
 		_db.set_property_string    (id, "editor.name", "sound_%04u".printf(_num_sounds++));
@@ -198,12 +198,12 @@ public class Level
 	{
 		for (int i = 0; i < ids.length; ++i) {
 			if (_db.object_type(ids[i]) == OBJECT_TYPE_UNIT) {
-				Unit unit = new Unit(_db, ids[i]);
+				Unit unit = Unit(_db, ids[i]);
 				unit.set_local_position(positions[i]);
 				unit.set_local_rotation(rotations[i]);
 				unit.set_local_scale(scales[i]);
 			} else if (_db.object_type(ids[i]) == OBJECT_TYPE_SOUND_SOURCE) {
-				Sound sound = new Sound(_db, ids[i]);
+				Sound sound = Sound(_db, ids[i]);
 				sound.set_local_position(positions[i]);
 				sound.set_local_rotation(rotations[i]);
 				sound.set_local_scale(scales[i]);

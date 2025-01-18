@@ -5,7 +5,7 @@
 
 namespace Crown
 {
-public class Sound
+public struct Sound
 {
 	public Database _db;
 	public Guid _id;
@@ -122,7 +122,7 @@ public class Sound
 				break;
 
 			Guid id = object_ids[i];
-			Sound sound = new Sound(db, id);
+			Sound sound = Sound(db, id);
 
 			sb.append("editor_nv, editor_nq, editor_nm = Device.temp_count()");
 			sb.append(LevelEditorApi.move_object(id

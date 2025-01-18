@@ -356,7 +356,7 @@ public class Project
 
 		Database db = new Database(this, null);
 		Guid unit_id = Guid.new_guid();
-		Unit unit = new Unit(db, unit_id);
+		Unit unit = Unit(db, unit_id);
 		unit.create_empty();
 
 		db.dump(path, unit_id);

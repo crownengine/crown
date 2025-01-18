@@ -142,7 +142,7 @@ public class SpriteResource
 
 			Database db = new Database(project);
 
-			var texture_resource = new TextureResource.sprite(db, Guid.new_guid(), resource_path);
+			var texture_resource = TextureResource.sprite(db, Guid.new_guid(), resource_path);
 			texture_resource.save(project, resource_name);
 			db.reset();
 
@@ -190,7 +190,7 @@ public class SpriteResource
 				db.create(unit_id, OBJECT_TYPE_UNIT);
 			}
 
-			Unit unit = new Unit(db, unit_id);
+			Unit unit = Unit(db, unit_id);
 
 			// Create transform
 			{
