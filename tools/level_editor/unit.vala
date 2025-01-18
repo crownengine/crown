@@ -7,7 +7,7 @@ using Gee;
 
 namespace Crown
 {
-public class Unit
+public struct Unit
 {
 	public static Hashtable _component_registry;
 	public Database _db;
@@ -71,7 +71,7 @@ public class Unit
 			Unit.load_unit(_db, prefab);
 			Guid prefab_id = _db.get_property_guid(GUID_ZERO, prefab + ".unit");
 
-			Unit unit = new Unit(_db, prefab_id);
+			Unit unit = Unit(_db, prefab_id);
 			return unit.get_component_property(component_id, key);
 		}
 
@@ -438,7 +438,7 @@ public class Unit
 				Guid unit_id = object_ids[0];
 				Guid component_id = object_ids[i];
 				string component_type = db.object_type(component_id);
-				Unit unit = new Unit(db, unit_id);
+				Unit unit = Unit(db, unit_id);
 
 				sb.append("editor_nv, editor_nq, editor_nm = Device.temp_count()");
 
@@ -542,7 +542,7 @@ public class Unit
 					break;
 
 				Guid unit_id = object_ids[i];
-				Unit unit = new Unit(db, unit_id);
+				Unit unit = Unit(db, unit_id);
 
 				sb.append(LevelEditorApi.spawn_empty_unit(unit_id));
 				sb.append("editor_nv, editor_nq, editor_nm = Device.temp_count()");
@@ -646,7 +646,7 @@ public class Unit
 				Guid unit_id = object_ids[0];
 				Guid component_id = object_ids[i];
 				string component_type = db.object_type(component_id);
-				Unit unit = new Unit(db, unit_id);
+				Unit unit = Unit(db, unit_id);
 
 				sb.append("editor_nv, editor_nq, editor_nm = Device.temp_count()");
 
@@ -706,7 +706,7 @@ public class Unit
 					break;
 
 				Guid unit_id = object_ids[i];
-				Unit unit = new Unit(db, unit_id);
+				Unit unit = Unit(db, unit_id);
 
 				sb.append("editor_nv, editor_nq, editor_nm = Device.temp_count()");
 				sb.append(LevelEditorApi.move_object(unit_id

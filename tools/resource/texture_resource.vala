@@ -45,7 +45,7 @@ public enum TextureFormat
 	}
 }
 
-public class TextureResource
+public struct TextureResource
 {
 	public Database _db;
 	public Guid _id;
@@ -116,7 +116,7 @@ public class TextureResource
 			}
 
 			Database db = new Database(project);
-			var texture_resource = new TextureResource.color_map(db, Guid.new_guid(), resource_path);
+			var texture_resource = TextureResource.color_map(db, Guid.new_guid(), resource_path);
 			texture_resource.save(project, resource_name);
 		}
 

@@ -5,11 +5,11 @@
 
 namespace Crown
 {
-public class MeshResource
+namespace MeshResource
 {
 	public static void create_components(Database db, Guid parent_unit_id, Guid unit_id, string material_name, string resource_name, string node_name, Hashtable node)
 	{
-		Unit unit = new Unit(db, unit_id);
+		Unit unit = Unit(db, unit_id);
 
 		Matrix4x4 matrix_local = Matrix4x4.from_array((Gee.ArrayList<Value?>)node["matrix_local"]);
 		Vector3 position = matrix_local.t.to_vector3();
@@ -156,7 +156,7 @@ public class MeshResource
 					// Create an extra "root" unit to accommodate multiple root objects. This
 					// "root" unit will only have a transform centered at origin to allow other
 					// objects to be linked to it via the SceneGraph.
-					Unit unit = new Unit(db, unit_id);
+					Unit unit = Unit(db, unit_id);
 
 					Guid component_id;
 					if (!unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM)) {
@@ -218,6 +218,7 @@ public class MeshResource
 			res = FBXImporter.import(project, destination_dir, fbx_filenames, import_result);
 		return res;
 	}
-}
+
+} /* namespace MeshResource */
 
 } /* namespace Crown */

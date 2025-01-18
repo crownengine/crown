@@ -5,7 +5,7 @@
 
 namespace Crown
 {
-public class Mesh
+public struct Mesh
 {
 	public Gee.ArrayList<string> _nodes;
 

@@ -318,7 +318,7 @@ public class LevelTreeView : Gtk.Box
 	{
 		_level.selection_changed.disconnect(on_level_selection_changed);
 
-		Guid?[] ids = {};
+		Gee.ArrayList<Guid?> ids = new Gee.ArrayList<Guid?>();
 		_tree_selection.selected_foreach((model, path, iter) => {
 				Value type;
 				model.get_value(iter, Column.TYPE, out type);
@@ -327,10 +327,10 @@ public class LevelTreeView : Gtk.Box
 
 				Value id;
 				model.get_value(iter, Column.GUID, out id);
-				ids += (Guid)id;
+				ids.add((Guid)id);
 			});
 
-		_level.selection_set(ids);
+		_level.selection_set(ids.to_array());
 		_level.selection_changed.connect(on_level_selection_changed);
 	}
 
@@ -449,7 +449,7 @@ public class LevelTreeView : Gtk.Box
 		HashSet<Guid?> sounds = _db.get_property_set(_level._id, "sounds", new HashSet<Guid?>());
 
 		foreach (Guid unit_id in units) {
-			Unit u = new Unit(_level._db, unit_id);
+			Unit u = Unit(_level._db, unit_id);
 
 			Gtk.TreeIter iter;
 			_tree_store.insert_with_values(out iter

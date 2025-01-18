@@ -98,7 +98,7 @@ public class TransformPropertyGrid : PropertyGrid
 
 	private void on_value_changed()
 	{
-		Unit unit = new Unit(_db, _id);
+		Unit unit = Unit(_db, _id);
 		unit.set_component_property_vector3   (_component_id, "data.position", _position.value);
 		unit.set_component_property_quaternion(_component_id, "data.rotation", _rotation.value);
 		unit.set_component_property_vector3   (_component_id, "data.scale", _scale.value);
@@ -108,7 +108,7 @@ public class TransformPropertyGrid : PropertyGrid
 
 	public override void update()
 	{
-		Unit unit = new Unit(_db, _id);
+		Unit unit = Unit(_db, _id);
 		_position.value = unit.get_component_property_vector3   (_component_id, "data.position");
 		_rotation.value = unit.get_component_property_quaternion(_component_id, "data.rotation");
 		_scale.value    = unit.get_component_property_vector3   (_component_id, "data.scale");
@@ -132,7 +132,7 @@ public class MeshRendererPropertyGrid : PropertyGrid
 		for (int i = 0; i < keys.length; ++i) {
 			combos[i].clear();
 
-			Mesh mesh = new Mesh();
+			Mesh mesh = Mesh();
 			mesh.decode(mesh_resource);
 			foreach (var node in mesh._nodes)
 				combos[i].append(node, node);
@@ -179,7 +179,7 @@ public class MeshRendererPropertyGrid : PropertyGrid
 
 	private void on_value_changed()
 	{
-		Unit unit = new Unit(_db, _id);
+		Unit unit = Unit(_db, _id);
 		unit.set_component_property_string(_component_id, "data.mesh_resource", _scene.value);
 		unit.set_component_property_string(_component_id, "data.geometry_name", _node.value);
 		unit.set_component_property_string(_component_id, "data.material", _material.value);
@@ -197,7 +197,7 @@ public class MeshRendererPropertyGrid : PropertyGrid
 
 	public override void update()
 	{
-		Unit unit = new Unit(_db, _id);
+		Unit unit = Unit(_db, _id);
 		update_mesh_and_geometry(unit);
 		_material.value = unit.get_component_property_string(_component_id, "data.material");
 		_visible.value  = unit.get_component_property_bool  (_component_id, "data.visible");
@@ -238,7 +238,7 @@ public class SpriteRendererPropertyGrid : PropertyGrid
 
 	private void on_value_changed()
 	{
-		Unit unit = new Unit(_db, _id);
+		Unit unit = Unit(_db, _id);
 		unit.set_component_property_string(_component_id, "data.sprite_resource", _sprite_resource.value);
 		unit.set_component_property_string(_component_id, "data.material", _material.value);
 		unit.set_component_property_double(_component_id, "data.layer", _layer.value);
@@ -250,7 +250,7 @@ public class SpriteRendererPropertyGrid : PropertyGrid
 
 	public override void update()
 	{
-		Unit unit = new Unit(_db, _id);
+		Unit unit = Unit(_db, _id);
 		_sprite_resource.value = unit.get_component_property_string(_component_id, "data.sprite_resource");
 		_material.value        = unit.get_component_property_string(_component_id, "data.material");
 		_layer.value           = unit.get_component_property_double(_component_id, "data.layer");
@@ -296,7 +296,7 @@ public class LightPropertyGrid : PropertyGrid
 
 	private void on_value_changed()
 	{
-		Unit unit = new Unit(_db, _id);
+		Unit unit = Unit(_db, _id);
 		unit.set_component_property_string (_component_id, "data.type",       _type.value);
 		unit.set_component_property_double (_component_id, "data.range",      _range.value);
 		unit.set_component_property_double (_component_id, "data.intensity",  _intensity.value);
@@ -308,7 +308,7 @@ public class LightPropertyGrid : PropertyGrid
 
 	public override void update()
 	{
-		Unit unit = new Unit(_db, _id);
+		Unit unit = Unit(_db, _id);
 		_type.value       = unit.get_component_property_string (_component_id, "data.type");
 		_range.value      = unit.get_component_property_double (_component_id, "data.range");
 		_intensity.value  = unit.get_component_property_double (_component_id, "data.intensity");
@@ -349,7 +349,7 @@ public class CameraPropertyGrid : PropertyGrid
 
 	private void on_value_changed()
 	{
-		Unit unit = new Unit(_db, _id);
+		Unit unit = Unit(_db, _id);
 		unit.set_component_property_string(_component_id, "data.projection", _projection.value);
 		unit.set_component_property_double(_component_id, "data.fov", _fov.value * (Math.PI/180.0));
 		unit.set_component_property_double(_component_id, "data.near_range", _near_range.value);
@@ -360,7 +360,7 @@ public class CameraPropertyGrid : PropertyGrid
 
 	public override void update()
 	{
-		Unit unit = new Unit(_db, _id);
+		Unit unit = Unit(_db, _id);
 		_projection.value = unit.get_component_property_string(_component_id, "data.projection");
 		_fov.value        = unit.get_component_property_double(_component_id, "data.fov") * (180.0/Math.PI);
 		_near_range.value = unit.get_component_property_double(_component_id, "data.near_range");
@@ -391,7 +391,7 @@ public class ColliderPropertyGrid : PropertyGrid
 		for (int i = 0; i < keys.length; ++i) {
 			combos[i].clear();
 
-			Mesh mesh = new Mesh();
+			Mesh mesh = Mesh();
 			mesh.decode(mesh_resource);
 			foreach (var node in mesh._nodes)
 				combos[i].append(node, node);
@@ -527,7 +527,7 @@ public class ColliderPropertyGrid : PropertyGrid
 
 	private void on_value_changed()
 	{
-		Unit unit = new Unit(_db, _id);
+		Unit unit = Unit(_db, _id);
 		unit.set_component_property_string(_component_id, "data.source", _source.value);
 		unit.set_component_property_string(_component_id, "data.scene", _scene.value);
 		unit.set_component_property_string(_component_id, "data.name", _node.value);
@@ -543,7 +543,7 @@ public class ColliderPropertyGrid : PropertyGrid
 
 	public override void update()
 	{
-		Unit unit = new Unit(_db, _id);
+		Unit unit = Unit(_db, _id);
 
 		if (unit.get_component_property(_component_id, "data.source") == null)
 			_source.value = "mesh";
@@ -670,7 +670,7 @@ public class ActorPropertyGrid : PropertyGrid
 
 	private void on_value_changed()
 	{
-		Unit unit = new Unit(_db, _id);
+		Unit unit = Unit(_db, _id);
 		if (!_class.is_inconsistent() && _class.value != null)
 			unit.set_component_property_string(_component_id, "data.class", _class.value);
 		if (!_collision_filter.is_inconsistent() && _collision_filter.value != null)
@@ -690,7 +690,7 @@ public class ActorPropertyGrid : PropertyGrid
 
 	public override void update()
 	{
-		Unit unit = new Unit(_db, _id);
+		Unit unit = Unit(_db, _id);
 		_class.value               = unit.get_component_property_string(_component_id, "data.class");
 		_collision_filter.value    = unit.get_component_property_string(_component_id, "data.collision_filter");
 		_material.value            = unit.get_component_property_string(_component_id, "data.material");
@@ -722,7 +722,7 @@ public class ScriptPropertyGrid : PropertyGrid
 
 	private void on_value_changed()
 	{
-		Unit unit = new Unit(_db, _id);
+		Unit unit = Unit(_db, _id);
 		unit.set_component_property_string(_component_id, "data.script_resource", _script_resource.value);
 
 		_db.add_restore_point((int)ActionType.SET_SCRIPT, new Guid?[] { _id, _component_id });
@@ -730,7 +730,7 @@ public class ScriptPropertyGrid : PropertyGrid
 
 	public override void update()
 	{
-		Unit unit = new Unit(_db, _id);
+		Unit unit = Unit(_db, _id);
 		_script_resource.value = unit.get_component_property_string(_component_id, "data.script_resource");
 	}
 }
@@ -753,7 +753,7 @@ public class AnimationStateMachine : PropertyGrid
 
 	private void on_value_changed()
 	{
-		Unit unit = new Unit(_db, _id);
+		Unit unit = Unit(_db, _id);
 		unit.set_component_property_string(_component_id, "data.state_machine_resource", _state_machine_resource.value);
 
 		_db.add_restore_point((int)ActionType.SET_ANIMATION_STATE_MACHINE, new Guid?[] { _id, _component_id });
@@ -761,7 +761,7 @@ public class AnimationStateMachine : PropertyGrid
 
 	public override void update()
 	{
-		Unit unit = new Unit(_db, _id);
+		Unit unit = Unit(_db, _id);
 		_state_machine_resource.value = unit.get_component_property_string(_component_id, "data.state_machine_resource");
 	}
 }
@@ -1044,7 +1044,7 @@ public class PropertiesView : Gtk.Bin
 		foreach (var entry in _entries) {
 			Gtk.Expander expander = _expanders[entry.type];
 
-			Unit unit = new Unit(_db, id);
+			Unit unit = Unit(_db, id);
 			Guid component_id;
 			Guid owner_id;
 			if (unit.has_component_with_owner(out component_id, out owner_id, entry.type) || entry.type == "name") {

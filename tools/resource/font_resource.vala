@@ -92,7 +92,7 @@ public class FontResource
 			Database db = new Database(project);
 
 			// Generate .texture resource.
-			var texture_resource = new TextureResource.font_atlas(db, Guid.new_guid(), resource_name + ".png");
+			var texture_resource = TextureResource.font_atlas(db, Guid.new_guid(), resource_name + ".png");
 			texture_resource.save(project, resource_name);
 			db.reset();
 

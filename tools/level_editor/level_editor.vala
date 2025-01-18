@@ -3908,7 +3908,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		string component_type = param.get_string();
 		Guid unit_id = _level._selection.last();
-		Unit unit = new Unit(_database, unit_id);
+		Unit unit = Unit(_database, unit_id);
 		ArrayList<Guid?> components_added = new ArrayList<Guid?>();
 		components_added.add(unit_id);
 		unit.add_component_type_dependencies(ref components_added, component_type);
@@ -3923,7 +3923,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		string component_type = param.get_string();
 		Guid unit_id = _level._selection.last();
-		Unit unit = new Unit(_database, unit_id);
+		Unit unit = Unit(_database, unit_id);
 
 		Guid component_id;
 		if (!unit.has_component(out component_id, component_type))
