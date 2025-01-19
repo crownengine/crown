@@ -7,6 +7,26 @@ entering it in the command prompt:
 
 .. image:: images/console_command.png
 
+crash
+-----
+
+Crash the engine for testing purposes. Accepts the following parameters:
+
+``div_by_zero``
+	Divide a number by zero.
+
+``unaligned``
+	Do an unaligned memory access.
+
+``segfault``
+	Trigger a segmentation fault.
+
+``oom``
+	Allocate too much memory.
+
+``assert``
+	Call CE_ASSERT(false).
+
 game
 ----
 

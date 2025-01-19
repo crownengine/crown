@@ -227,6 +227,68 @@ static void device_command_game(ConsoleServer &cs, u32 client_id, const JsonArra
 	}
 }
 
+static void device_command_crash(ConsoleServer &cs, u32 client_id, const JsonArray &args, void *user_data)
+{
+	CE_UNUSED(user_data);
+	TempAllocator1024 ta;
+
+	struct CrashType
+	{
+		enum Enum
+		{
+			DIVISION_BY_ZERO,
+			UNALIGNED_ACCESS,
+			SEGMENTATION_FAULT,
+			OUT_OF_MEMORY,
+			ASSERT,
+
+			COUNT
+		};
+	};
+
+	struct
+	{
+		const char *type;
+		const char *desc;
+	}
+	crash_info[] =
+	{
+		{ "div_by_zero", "Divide a number by zero." },
+		{ "unaligned", "Do an unaligned memory access." },
+		{ "segfault", "Trigger a segmentation fault." },
+		{ "oom", "Allocate too much memory." },
+		{ "assert", "Call CE_ASSERT(false)." }
+	};
+	CE_STATIC_ASSERT(countof(crash_info) == CrashType::COUNT);
+
+	if (array::size(args) < 2) {
+		cs.error(client_id, "Usage: crash <type>");
+		return;
+	}
+
+	DynamicString subcmd(ta);
+	sjson::parse_string(subcmd, args[1]);
+	if (subcmd == crash_info[CrashType::DIVISION_BY_ZERO].type) {
+		f32(time::now()) / 0.0f;
+	} else if (subcmd == crash_info[CrashType::UNALIGNED_ACCESS].type) {
+		CE_ALIGN_DECL(alignof(s64), u8 buf[16]);
+		*((s64 *)&buf[1]) = time::now();
+	} else if (subcmd == crash_info[CrashType::SEGMENTATION_FAULT].type) {
+		*((s64 *)(uintptr_t)time::now()) = time::now();
+	} else if (subcmd == crash_info[CrashType::OUT_OF_MEMORY].type) {
+		while (s64 t = time::now())
+			*((s64 *)malloc(1024*1024)) = t;
+	} else if (subcmd == crash_info[CrashType::ASSERT].type) {
+		CE_ASSERT(false, "False");
+	} else if (subcmd == "help") {
+		for (u32 i = 0; i < CrashType::COUNT; ++i) {
+			logi(DEVICE, "%s %s", crash_info[i].type, crash_info[i].desc);
+		}
+	} else {
+		loge(DEVICE, "Unknown crash parameter");
+	}
+}
+
 static void device_message_resize(ConsoleServer & /*cs*/, u32 /*client_id*/, const char *json, void * /*user_data*/)
 {
 	TempAllocator256 ta;
@@ -451,6 +513,7 @@ void Device::run()
 	_console_server->register_command_name("pause",   "Pause the engine.",  device_command_pause,   this);
 	_console_server->register_command_name("unpause", "Resume the engine.", device_command_unpause, this);
 	_console_server->register_command_name("game",    "Pause/resume the engine.", device_command_game, this);
+	_console_server->register_command_name("crash",   "Crash the engine.", device_command_crash, this);
 
 	_console_server->register_message_type("resize",  device_message_resize,  this);
 	_console_server->register_message_type("frame",   device_message_frame,   this);
