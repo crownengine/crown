@@ -144,6 +144,7 @@ struct RenderWorld
 
 	void update_transforms(const UnitId *begin, const UnitId *end, const Matrix4x4 *world);
 
+	///
 	void render(const Matrix4x4 &view);
 
 	/// Sets whether to @a enable debug drawing
