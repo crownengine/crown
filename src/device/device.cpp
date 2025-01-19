@@ -941,6 +941,8 @@ void Device::refresh(const char *json)
 		StringId64 resource_name(resource.c_str(), len);
 		bool is_type_reloadable = resource_type == RESOURCE_TYPE_SCRIPT
 			|| resource_type == RESOURCE_TYPE_TEXTURE
+			|| resource_type == RESOURCE_TYPE_SHADER
+			|| resource_type == RESOURCE_TYPE_MATERIAL
 			;
 
 		if (is_type_reloadable && _resource_manager->can_get(resource_type, resource_name)) {
@@ -951,6 +953,16 @@ void Device::refresh(const char *json)
 				refresh_lua = true;
 			} else if (resource_type == RESOURCE_TYPE_TEXTURE) {
 				_material_manager->reload_textures((TextureResource *)old_resource, (TextureResource *)new_resource);
+			} else if (resource_type == RESOURCE_TYPE_SHADER) {
+				_pipeline->reload_shaders((ShaderResource *)old_resource, (ShaderResource *)new_resource);
+				_material_manager->reload_shaders((ShaderResource *)old_resource, (ShaderResource *)new_resource);
+			} else if (resource_type == RESOURCE_TYPE_MATERIAL) {
+				ListNode *cur;
+				list_for_each(cur, &_worlds)
+				{
+					World *w = (World *)container_of(cur, World, _node);
+					w->reload_materials((MaterialResource *)old_resource, (MaterialResource *)new_resource);
+				}
 			}
 		}
 	}

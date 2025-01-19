@@ -163,6 +163,9 @@ struct RenderWorld
 	///
 	void unit_destroyed_callback(UnitId unit);
 
+	///
+	void reload_materials(const MaterialResource *old_resource, const MaterialResource *new_resource);
+
 	/// Callback to customize drawing of objects.
 	typedef void (*DrawOverride)(UnitId unit_id, RenderWorld *rw);
 
@@ -190,6 +193,9 @@ struct RenderWorld
 			Material **material;
 			Matrix4x4 *world;
 			OBB *obb;
+#if CROWN_CAN_RELOAD
+			const MaterialResource **material_resource;
+#endif
 		};
 
 		Allocator *_allocator;
@@ -267,6 +273,9 @@ struct RenderWorld
 			bool *flip_y;
 			u32 *layer;
 			u32 *depth;
+#if CROWN_CAN_RELOAD
+			const MaterialResource **material_resource;
+#endif
 		};
 
 		Allocator *_allocator;

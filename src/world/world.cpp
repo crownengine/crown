@@ -594,6 +594,16 @@ void World::disable_unit_callbacks()
 #endif
 }
 
+void World::reload_materials(const MaterialResource *old_resource, const MaterialResource *new_resource)
+{
+#if CROWN_CAN_RELOAD
+	_render_world->reload_materials(old_resource, new_resource);
+#else
+	CE_UNUSED_2(old_resource, new_resource);
+	CE_NOOP();
+#endif
+}
+
 void spawn_units(World &w, const UnitResource *ur, const Vector3 &pos, const Quaternion &rot, const Vector3 &scl, const UnitId *unit_lookup)
 {
 	SceneGraph *scene_graph = w._scene_graph;

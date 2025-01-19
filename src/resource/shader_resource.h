@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "config.h"
 #include "core/containers/types.h"
 #include "core/filesystem/types.h"
 #include "core/memory/types.h"
@@ -45,6 +46,9 @@ struct ShaderData
 	u64 state;
 	ShaderResource::Sampler samplers[4];
 	bgfx::ProgramHandle program;
+#if CROWN_CAN_RELOAD
+	const ShaderResource *resource;
+#endif
 };
 
 namespace shader_resource_internal

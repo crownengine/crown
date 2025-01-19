@@ -251,4 +251,10 @@ void Pipeline::render(u16 width, u16 height)
 #endif
 }
 
+void Pipeline::reload_shaders(const ShaderResource *old_resource, const ShaderResource *new_resource)
+{
+	CE_UNUSED_2(old_resource, new_resource);
+	lookup_default_shaders(*this);
+}
+
 } // namespace crown

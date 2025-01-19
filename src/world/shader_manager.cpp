@@ -31,7 +31,10 @@ static ShaderData SHADER_DATA_INVALID =
 			0u, BGFX_INVALID_HANDLE
 		}
 	},
-	BGFX_INVALID_HANDLE
+	BGFX_INVALID_HANDLE,
+#if CROWN_CAN_RELOAD
+	NULL
+#endif
 };
 
 ShaderManager::ShaderManager(Allocator &a)
@@ -111,6 +114,9 @@ void ShaderManager::online(StringId64 id, ResourceManager &rm)
 		sd.state = data.state;
 		memcpy(sd.samplers, data.samplers, sizeof(sd.samplers));
 		sd.program = program;
+#if CROWN_CAN_RELOAD
+		sd.resource = shader;
+#endif
 		hash_map::set(_shader_map, data.name, sd);
 	}
 }
