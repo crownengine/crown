@@ -15,7 +15,7 @@
 			{                                                \
 				crown::error::abort("Assertion failed: %s\n" \
 					"    In: %s:%d\n"                        \
-					"    " msg "\n"                          \
+					"    " msg                               \
 					, # condition                            \
 					, __FILE__                               \
 					, __LINE__                               \
