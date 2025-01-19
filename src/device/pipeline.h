@@ -74,6 +74,9 @@ struct Pipeline
 
 	///
 	void render(u16 width, u16 height);
+
+	///
+	void reload_shaders(const ShaderResource *old_resource, const ShaderResource *new_resource);
 };
 
 } // namespace crown

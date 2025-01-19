@@ -41,6 +41,9 @@ struct MaterialManager
 
 	///
 	void reload_textures(const TextureResource *old_resource, const TextureResource *new_resource);
+
+	///
+	void reload_shaders(const ShaderResource *old_resource, const ShaderResource *new_resource);
 };
 
 } // namespace crown

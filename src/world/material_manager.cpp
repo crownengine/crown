@@ -141,6 +141,26 @@ void MaterialManager::reload_textures(const TextureResource *old_resource, const
 	}
 #else
 	CE_UNUSED_2(old_resource, new_resource);
+	CE_NOOP();
+#endif
+}
+
+void MaterialManager::reload_shaders(const ShaderResource *old_resource, const ShaderResource *new_resource)
+{
+#if CROWN_CAN_RELOAD
+	auto cur = hash_map::begin(_materials);
+	auto end = hash_map::end(_materials);
+	for (; cur != end; ++cur) {
+		HASH_MAP_SKIP_HOLE(_materials, cur);
+
+		Material *m = cur->second;
+		if (m->_shader.resource == old_resource) {
+			m->_shader = _shader_manager->shader(m->_resource->shader);
+		}
+	}
+#else
+	CE_UNUSED_2(old_resource, new_resource);
+	CE_NOOP();
 #endif
 }
 

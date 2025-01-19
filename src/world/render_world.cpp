@@ -483,6 +483,27 @@ void RenderWorld::unit_destroyed_callback(UnitId unit)
 	}
 }
 
+void RenderWorld::reload_materials(const MaterialResource *old_resource, const MaterialResource *new_resource)
+{
+#if CROWN_CAN_RELOAD
+	for (u32 i = 0; i < _mesh_manager._data.size; ++i) {
+		if (_mesh_manager._data.material_resource[i] == old_resource) {
+			_mesh_manager._data.material[i] = _material_manager->get(new_resource);
+			_mesh_manager._data.material_resource[i] = new_resource;
+		}
+	}
+
+	for (u32 i = 0; i < _sprite_manager._data.size; ++i) {
+		if (_sprite_manager._data.material_resource[i] == old_resource) {
+			_sprite_manager._data.material[i] = _material_manager->get(new_resource);
+			_sprite_manager._data.material_resource[i] = new_resource;
+		}
+	}
+#else
+	CE_UNUSED_2(old_resource, new_resource);
+#endif
+}
+
 void RenderWorld::MeshManager::allocate(u32 num)
 {
 	CE_ENSURE(num > _data.size);
@@ -495,6 +516,10 @@ void RenderWorld::MeshManager::allocate(u32 num)
 		+ num*sizeof(Material *) + alignof(Material *)
 		+ num*sizeof(Matrix4x4) + alignof(Matrix4x4)
 		+ num*sizeof(OBB) + alignof(OBB)
+#if CROWN_CAN_RELOAD
+		+ num*sizeof(MaterialResource *) + alignof(MaterialResource *)
+#endif
+		+ 0
 		;
 
 	MeshInstanceData new_data;
@@ -510,6 +535,9 @@ void RenderWorld::MeshManager::allocate(u32 num)
 	new_data.material      = (Material **          )memory::align_top(new_data.mesh + num,     alignof(Material *));
 	new_data.world         = (Matrix4x4 *          )memory::align_top(new_data.material + num, alignof(Matrix4x4));
 	new_data.obb           = (OBB *                )memory::align_top(new_data.world + num,    alignof(OBB));
+#if CROWN_CAN_RELOAD
+	new_data.material_resource = (const MaterialResource **)memory::align_top(new_data.obb + num, alignof(MaterialResource *));
+#endif
 
 	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
 	memcpy(new_data.resource, _data.resource, _data.size * sizeof(MeshResource *));
@@ -518,6 +546,9 @@ void RenderWorld::MeshManager::allocate(u32 num)
 	memcpy(new_data.material, _data.material, _data.size * sizeof(Material *));
 	memcpy(new_data.world, _data.world, _data.size * sizeof(Matrix4x4));
 	memcpy(new_data.obb, _data.obb, _data.size * sizeof(OBB));
+#if CROWN_CAN_RELOAD
+	memcpy(new_data.material_resource, _data.material_resource, _data.size * sizeof(MaterialResource *));
+#endif
 
 	_allocator->deallocate(_data.buffer);
 	_data = new_data;
@@ -548,6 +579,9 @@ MeshInstance RenderWorld::MeshManager::create(UnitId unit, const MeshResource *m
 	_data.material[last] = _render_world->_material_manager->get(mat_res);
 	_data.world[last]    = tr;
 	_data.obb[last]      = mg->obb;
+#if CROWN_CAN_RELOAD
+	_data.material_resource[last] = mat_res;
+#endif
 
 	hash_map::set(_map, unit, last);
 	++_data.size;
@@ -582,6 +616,9 @@ void RenderWorld::MeshManager::destroy(MeshInstance inst)
 	_data.material[inst.i] = _data.material[last];
 	_data.world[inst.i]    = _data.world[last];
 	_data.obb[inst.i]      = _data.obb[last];
+#if CROWN_CAN_RELOAD
+	_data.material_resource[inst.i] = _data.material_resource[last];
+#endif
 
 	hash_map::set(_map, last_u, inst.i);
 	hash_map::remove(_map, u);
@@ -613,6 +650,9 @@ void RenderWorld::MeshManager::swap(u32 inst_a, u32 inst_b)
 	exchange(_data.material[inst_a], _data.material[inst_b]);
 	exchange(_data.world[inst_a],    _data.world[inst_b]);
 	exchange(_data.obb[inst_a],      _data.obb[inst_b]);
+#if CROWN_CAN_RELOAD
+	exchange(_data.material_resource[inst_a], _data.material_resource[inst_b]);
+#endif
 
 	hash_map::set(_map, unit_a, inst_b);
 	hash_map::set(_map, unit_b, inst_a);
@@ -691,6 +731,10 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 		+ num*sizeof(bool) + alignof(bool)
 		+ num*sizeof(u32) + alignof(u32)
 		+ num*sizeof(u32) + alignof(u32)
+#if CROWN_CAN_RELOAD
+		+ num*sizeof(MaterialResource **) + alignof(MaterialResource *)
+#endif
+		+ 0
 		;
 
 	SpriteInstanceData new_data;
@@ -709,6 +753,9 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 	new_data.flip_y   = (bool *                 )memory::align_top(new_data.flip_x + num,   alignof(bool));
 	new_data.layer    = (u32 *                  )memory::align_top(new_data.flip_y + num,   alignof(u32));
 	new_data.depth    = (u32 *                  )memory::align_top(new_data.layer + num,    alignof(u32));
+#if CROWN_CAN_RELOAD
+	new_data.material_resource = (const MaterialResource **)memory::align_top(new_data.depth + num, alignof(MaterialResource *));
+#endif
 
 	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
 	memcpy(new_data.resource, _data.resource, _data.size * sizeof(SpriteResource**));
@@ -720,6 +767,9 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 	memcpy(new_data.flip_y, _data.flip_y, _data.size * sizeof(bool));
 	memcpy(new_data.layer, _data.layer, _data.size * sizeof(u32));
 	memcpy(new_data.depth, _data.depth, _data.size * sizeof(u32));
+#if CROWN_CAN_RELOAD
+	memcpy(new_data.material_resource, _data.material_resource, _data.size * sizeof(MaterialResource *));
+#endif
 
 	_allocator->deallocate(_data.buffer);
 	_data = new_data;
@@ -751,6 +801,9 @@ SpriteInstance RenderWorld::SpriteManager::create(UnitId unit, const SpriteResou
 	_data.flip_y[last]   = false;
 	_data.layer[last]    = srd.layer;
 	_data.depth[last]    = srd.depth;
+#if CROWN_CAN_RELOAD
+	_data.material_resource[last] = mat_res;
+#endif
 
 	hash_map::set(_map, unit, last);
 	++_data.size;
@@ -787,6 +840,9 @@ void RenderWorld::SpriteManager::destroy(SpriteInstance inst)
 	_data.flip_y[inst.i]   = _data.flip_y[last];
 	_data.layer[inst.i]    = _data.layer[last];
 	_data.depth[inst.i]    = _data.depth[last];
+#if CROWN_CAN_RELOAD
+	_data.material_resource[inst.i] = _data.material_resource[last];
+#endif
 
 	hash_map::set(_map, last_u, inst.i);
 	hash_map::remove(_map, u);
@@ -821,6 +877,9 @@ void RenderWorld::SpriteManager::swap(u32 inst_a, u32 inst_b)
 	exchange(_data.flip_y[inst_a],   _data.flip_y[inst_b]);
 	exchange(_data.layer[inst_a],    _data.layer[inst_b]);
 	exchange(_data.depth[inst_a],    _data.depth[inst_b]);
+#if CROWN_CAN_RELOAD
+	exchange(_data.material_resource[inst_a], _data.material_resource[inst_b]);
+#endif
 
 	hash_map::set(_map, unit_a, inst_b);
 	hash_map::set(_map, unit_b, inst_a);

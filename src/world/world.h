@@ -221,6 +221,9 @@ struct World
 	/// other callback. This is used only by the editor to prevent user logic to
 	/// interfere with editor's assumptions.
 	void disable_unit_callbacks();
+
+	///
+	void reload_materials(const MaterialResource *old_resource, const MaterialResource *new_resource);
 };
 
 void spawn_units(World &w, const UnitResource *ur, const Vector3 &pos, const Quaternion &rot, const Vector3 &scl, const UnitId *unit_lookup);
