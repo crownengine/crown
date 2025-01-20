@@ -221,28 +221,28 @@ public:
 
 	void setBaseWorldTransform(const btTransform &tr)
 	{
-		setBasePos(tr.getOrigin());
+		setBasePos(tr.m_origin);
 		setWorldToBaseRot(tr.getRotation().inverse());
 	}
 
 	btTransform getBaseWorldTransform() const
 	{
 		btTransform tr;
-		tr.setOrigin(getBasePos());
+		tr.m_origin = (getBasePos());
 		tr.setRotation(getWorldToBaseRot().inverse());
 		return tr;
 	}
 
 	void setInterpolateBaseWorldTransform(const btTransform &tr)
 	{
-		setInterpolateBasePos(tr.getOrigin());
+		setInterpolateBasePos(tr.m_origin);
 		setInterpolateWorldToBaseRot(tr.getRotation().inverse());
 	}
 
 	btTransform getInterpolateBaseWorldTransform() const
 	{
 		btTransform tr;
-		tr.setOrigin(getInterpolateBasePos());
+		tr.m_origin = (getInterpolateBasePos());
 		tr.setRotation(getInterpolateWorldToBaseRot().inverse());
 		return tr;
 	}

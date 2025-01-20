@@ -79,8 +79,8 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput &input, Result 
 
 static void btComputeSupport(const btConvexShape *convexA, const btTransform &localTransA, const btConvexShape *convexB, const btTransform &localTransB, const btVector3 &dir, bool check2d, btVector3 &supAworld, btVector3 &supBworld, btVector3 &aMinb)
 {
-	btVector3 separatingAxisInA = (dir)*localTransA.getBasis();
-	btVector3 separatingAxisInB = (-dir) * localTransB.getBasis();
+	btVector3 separatingAxisInA = (dir)*localTransA.m_basis;
+	btVector3 separatingAxisInB = (-dir) * localTransB.m_basis;
 
 	btVector3 pInANoMargin = convexA->localGetSupportVertexWithoutMarginNonVirtual(separatingAxisInA);
 	btVector3 qInBNoMargin = convexB->localGetSupportVertexWithoutMarginNonVirtual(separatingAxisInB);
@@ -696,9 +696,9 @@ void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput &inpu
 	btVector3 pointOnA, pointOnB;
 	btTransform localTransA = input.m_transformA;
 	btTransform localTransB = input.m_transformB;
-	btVector3 positionOffset = (localTransA.getOrigin() + localTransB.getOrigin()) * btScalar(0.5);
-	localTransA.getOrigin() -= positionOffset;
-	localTransB.getOrigin() -= positionOffset;
+	btVector3 positionOffset = (localTransA.m_origin + localTransB.m_origin) * btScalar(0.5);
+	localTransA.m_origin -= positionOffset;
+	localTransB.m_origin -= positionOffset;
 
 	bool check2d = m_minkowskiA->isConvex2d() && m_minkowskiB->isConvex2d();
 
@@ -839,8 +839,8 @@ void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput &inpu
 			for (;;)
 			//while (true)
 			{
-				btVector3 separatingAxisInA = (-m_cachedSeparatingAxis) * localTransA.getBasis();
-				btVector3 separatingAxisInB = m_cachedSeparatingAxis * localTransB.getBasis();
+				btVector3 separatingAxisInA = (-m_cachedSeparatingAxis) * localTransA.m_basis;
+				btVector3 separatingAxisInB = m_cachedSeparatingAxis * localTransB.m_basis;
 
 				btVector3 pInA = m_minkowskiA->localGetSupportVertexWithoutMarginNonVirtual(separatingAxisInA);
 				btVector3 qInB = m_minkowskiB->localGetSupportVertexWithoutMarginNonVirtual(separatingAxisInB);
@@ -1116,8 +1116,8 @@ void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput &inpu
 
 			btScalar d2 = 0.f;
 			{
-				btVector3 separatingAxisInA = (-orgNormalInB) * localTransA.getBasis();
-				btVector3 separatingAxisInB = orgNormalInB * localTransB.getBasis();
+				btVector3 separatingAxisInA = (-orgNormalInB) * localTransA.m_basis;
+				btVector3 separatingAxisInB = orgNormalInB * localTransB.m_basis;
 
 				btVector3 pInA = m_minkowskiA->localGetSupportVertexWithoutMarginNonVirtual(separatingAxisInA);
 				btVector3 qInB = m_minkowskiB->localGetSupportVertexWithoutMarginNonVirtual(separatingAxisInB);
@@ -1130,8 +1130,8 @@ void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput &inpu
 
 			btScalar d1 = 0;
 			{
-				btVector3 separatingAxisInA = (normalInB)*localTransA.getBasis();
-				btVector3 separatingAxisInB = -normalInB * localTransB.getBasis();
+				btVector3 separatingAxisInA = (normalInB)*localTransA.m_basis;
+				btVector3 separatingAxisInB = -normalInB * localTransB.m_basis;
 
 				btVector3 pInA = m_minkowskiA->localGetSupportVertexWithoutMarginNonVirtual(separatingAxisInA);
 				btVector3 qInB = m_minkowskiB->localGetSupportVertexWithoutMarginNonVirtual(separatingAxisInB);
@@ -1143,8 +1143,8 @@ void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput &inpu
 			}
 			btScalar d0 = 0.f;
 			{
-				btVector3 separatingAxisInA = (-normalInB) * input.m_transformA.getBasis();
-				btVector3 separatingAxisInB = normalInB * input.m_transformB.getBasis();
+				btVector3 separatingAxisInA = (-normalInB) * input.m_transformA.m_basis;
+				btVector3 separatingAxisInB = normalInB * input.m_transformB.m_basis;
 
 				btVector3 pInA = m_minkowskiA->localGetSupportVertexWithoutMarginNonVirtual(separatingAxisInA);
 				btVector3 qInB = m_minkowskiB->localGetSupportVertexWithoutMarginNonVirtual(separatingAxisInB);

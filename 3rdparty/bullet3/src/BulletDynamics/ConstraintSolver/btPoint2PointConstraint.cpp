@@ -39,8 +39,8 @@ void btPoint2PointConstraint::buildJacobian()
 		{
 			normal[i] = 1;
 			new (&m_jac[i]) btJacobianEntry(
-				m_rbA.getCenterOfMassTransform().getBasis().transpose(),
-				m_rbB.getCenterOfMassTransform().getBasis().transpose(),
+				m_rbA.getCenterOfMassTransform().m_basis.transpose(),
+				m_rbB.getCenterOfMassTransform().m_basis.transpose(),
 				m_rbA.getCenterOfMassTransform() * m_pivotInA - m_rbA.getCenterOfMassPosition(),
 				m_rbB.getCenterOfMassTransform() * m_pivotInB - m_rbB.getCenterOfMassPosition(),
 				normal,
@@ -90,7 +90,7 @@ void btPoint2PointConstraint::getInfo2NonVirtual(btConstraintInfo2* info, const 
 	info->m_J1linearAxis[info->rowskip + 1] = 1;
 	info->m_J1linearAxis[2 * info->rowskip + 2] = 1;
 
-	btVector3 a1 = body0_trans.getBasis() * getPivotInA();
+	btVector3 a1 = body0_trans.m_basis * getPivotInA();
 	{
 		btVector3* angular0 = (btVector3*)(info->m_J1angularAxis);
 		btVector3* angular1 = (btVector3*)(info->m_J1angularAxis + info->rowskip);
@@ -103,7 +103,7 @@ void btPoint2PointConstraint::getInfo2NonVirtual(btConstraintInfo2* info, const 
 	info->m_J2linearAxis[info->rowskip + 1] = -1;
 	info->m_J2linearAxis[2 * info->rowskip + 2] = -1;
 
-	btVector3 a2 = body1_trans.getBasis() * getPivotInB();
+	btVector3 a2 = body1_trans.m_basis * getPivotInB();
 
 	{
 		//	btVector3 a2n = -a2;
@@ -119,7 +119,7 @@ void btPoint2PointConstraint::getInfo2NonVirtual(btConstraintInfo2* info, const 
 	int j;
 	for (j = 0; j < 3; j++)
 	{
-		info->m_constraintError[j * info->rowskip] = k * (a2[j] + body1_trans.getOrigin()[j] - a1[j] - body0_trans.getOrigin()[j]);
+		info->m_constraintError[j * info->rowskip] = k * (a2[j] + body1_trans.m_origin[j] - a1[j] - body0_trans.m_origin[j]);
 		//printf("info->m_constraintError[%d]=%f\n",j,info->m_constraintError[j]);
 	}
 	if (m_flags & BT_P2P_FLAGS_CFM)

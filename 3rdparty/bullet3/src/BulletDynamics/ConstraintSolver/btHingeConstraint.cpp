@@ -44,22 +44,22 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA, btRigidBody& rbB, const b
 	  m_stopCFM(0),
 	  m_stopERP(0)
 {
-	m_rbAFrame.getOrigin() = pivotInA;
+	m_rbAFrame.m_origin = pivotInA;
 
 	// since no frame is given, assume this to be zero angle and just pick rb transform axis
-	btVector3 rbAxisA1 = rbA.getCenterOfMassTransform().getBasis().getColumn(0);
+	btVector3 rbAxisA1 = rbA.getCenterOfMassTransform().m_basis.getColumn(0);
 
 	btVector3 rbAxisA2;
 	btScalar projection = axisInA.dot(rbAxisA1);
 	if (projection >= 1.0f - SIMD_EPSILON)
 	{
-		rbAxisA1 = -rbA.getCenterOfMassTransform().getBasis().getColumn(2);
-		rbAxisA2 = rbA.getCenterOfMassTransform().getBasis().getColumn(1);
+		rbAxisA1 = -rbA.getCenterOfMassTransform().m_basis.getColumn(2);
+		rbAxisA2 = rbA.getCenterOfMassTransform().m_basis.getColumn(1);
 	}
 	else if (projection <= -1.0f + SIMD_EPSILON)
 	{
-		rbAxisA1 = rbA.getCenterOfMassTransform().getBasis().getColumn(2);
-		rbAxisA2 = rbA.getCenterOfMassTransform().getBasis().getColumn(1);
+		rbAxisA1 = rbA.getCenterOfMassTransform().m_basis.getColumn(2);
+		rbAxisA2 = rbA.getCenterOfMassTransform().m_basis.getColumn(1);
 	}
 	else
 	{
@@ -67,7 +67,7 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA, btRigidBody& rbB, const b
 		rbAxisA1 = rbAxisA2.cross(axisInA);
 	}
 
-	m_rbAFrame.getBasis().setValue(rbAxisA1.getX(), rbAxisA2.getX(), axisInA.getX(),
+	m_rbAFrame.m_basis.setValue(rbAxisA1.getX(), rbAxisA2.getX(), axisInA.getX(),
 								   rbAxisA1.getY(), rbAxisA2.getY(), axisInA.getY(),
 								   rbAxisA1.getZ(), rbAxisA2.getZ(), axisInA.getZ());
 
@@ -75,8 +75,8 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA, btRigidBody& rbB, const b
 	btVector3 rbAxisB1 = quatRotate(rotationArc, rbAxisA1);
 	btVector3 rbAxisB2 = axisInB.cross(rbAxisB1);
 
-	m_rbBFrame.getOrigin() = pivotInB;
-	m_rbBFrame.getBasis().setValue(rbAxisB1.getX(), rbAxisB2.getX(), axisInB.getX(),
+	m_rbBFrame.m_origin = pivotInB;
+	m_rbBFrame.m_basis.setValue(rbAxisB1.getX(), rbAxisB2.getX(), axisInB.getX(),
 								   rbAxisB1.getY(), rbAxisB2.getY(), axisInB.getY(),
 								   rbAxisB1.getZ(), rbAxisB2.getZ(), axisInB.getZ());
 
@@ -113,19 +113,19 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA, const btVector3& pivotInA
 	btVector3 rbAxisA1, rbAxisA2;
 	btPlaneSpace1(axisInA, rbAxisA1, rbAxisA2);
 
-	m_rbAFrame.getOrigin() = pivotInA;
-	m_rbAFrame.getBasis().setValue(rbAxisA1.getX(), rbAxisA2.getX(), axisInA.getX(),
+	m_rbAFrame.m_origin = pivotInA;
+	m_rbAFrame.m_basis.setValue(rbAxisA1.getX(), rbAxisA2.getX(), axisInA.getX(),
 								   rbAxisA1.getY(), rbAxisA2.getY(), axisInA.getY(),
 								   rbAxisA1.getZ(), rbAxisA2.getZ(), axisInA.getZ());
 
-	btVector3 axisInB = rbA.getCenterOfMassTransform().getBasis() * axisInA;
+	btVector3 axisInB = rbA.getCenterOfMassTransform().m_basis * axisInA;
 
 	btQuaternion rotationArc = shortestArcQuat(axisInA, axisInB);
 	btVector3 rbAxisB1 = quatRotate(rotationArc, rbAxisA1);
 	btVector3 rbAxisB2 = axisInB.cross(rbAxisB1);
 
-	m_rbBFrame.getOrigin() = rbA.getCenterOfMassTransform()(pivotInA);
-	m_rbBFrame.getBasis().setValue(rbAxisB1.getX(), rbAxisB2.getX(), axisInB.getX(),
+	m_rbBFrame.m_origin = rbA.getCenterOfMassTransform()(pivotInA);
+	m_rbBFrame.m_basis.setValue(rbAxisB1.getX(), rbAxisB2.getX(), axisInB.getX(),
 								   rbAxisB1.getY(), rbAxisB2.getY(), axisInB.getY(),
 								   rbAxisB1.getZ(), rbAxisB2.getZ(), axisInB.getZ());
 
@@ -188,7 +188,7 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA, const btTransform& rbAFra
 {
 	///not providing rigidbody B means implicitly using worldspace for body B
 
-	m_rbBFrame.getOrigin() = m_rbA.getCenterOfMassTransform()(m_rbAFrame.getOrigin());
+	m_rbBFrame.m_origin = m_rbA.getCenterOfMassTransform()(m_rbAFrame.m_origin);
 #ifndef _BT_USE_CENTER_LIMIT_
 	//start with free
 	m_lowerLimit = btScalar(1.0f);
@@ -210,8 +210,8 @@ void btHingeConstraint::buildJacobian()
 
 		if (!m_angularOnly)
 		{
-			btVector3 pivotAInW = m_rbA.getCenterOfMassTransform() * m_rbAFrame.getOrigin();
-			btVector3 pivotBInW = m_rbB.getCenterOfMassTransform() * m_rbBFrame.getOrigin();
+			btVector3 pivotAInW = m_rbA.getCenterOfMassTransform() * m_rbAFrame.m_origin;
+			btVector3 pivotBInW = m_rbB.getCenterOfMassTransform() * m_rbBFrame.m_origin;
 			btVector3 relPos = pivotBInW - pivotAInW;
 
 			btVector3 normal[3];
@@ -229,8 +229,8 @@ void btHingeConstraint::buildJacobian()
 			for (int i = 0; i < 3; i++)
 			{
 				new (&m_jac[i]) btJacobianEntry(
-					m_rbA.getCenterOfMassTransform().getBasis().transpose(),
-					m_rbB.getCenterOfMassTransform().getBasis().transpose(),
+					m_rbA.getCenterOfMassTransform().m_basis.transpose(),
+					m_rbB.getCenterOfMassTransform().m_basis.transpose(),
 					pivotAInW - m_rbA.getCenterOfMassPosition(),
 					pivotBInW - m_rbB.getCenterOfMassPosition(),
 					normal[i],
@@ -248,27 +248,27 @@ void btHingeConstraint::buildJacobian()
 		btVector3 jointAxis0local;
 		btVector3 jointAxis1local;
 
-		btPlaneSpace1(m_rbAFrame.getBasis().getColumn(2), jointAxis0local, jointAxis1local);
+		btPlaneSpace1(m_rbAFrame.m_basis.getColumn(2), jointAxis0local, jointAxis1local);
 
-		btVector3 jointAxis0 = getRigidBodyA().getCenterOfMassTransform().getBasis() * jointAxis0local;
-		btVector3 jointAxis1 = getRigidBodyA().getCenterOfMassTransform().getBasis() * jointAxis1local;
-		btVector3 hingeAxisWorld = getRigidBodyA().getCenterOfMassTransform().getBasis() * m_rbAFrame.getBasis().getColumn(2);
+		btVector3 jointAxis0 = getRigidBodyA().getCenterOfMassTransform().m_basis * jointAxis0local;
+		btVector3 jointAxis1 = getRigidBodyA().getCenterOfMassTransform().m_basis * jointAxis1local;
+		btVector3 hingeAxisWorld = getRigidBodyA().getCenterOfMassTransform().m_basis * m_rbAFrame.m_basis.getColumn(2);
 
 		new (&m_jacAng[0]) btJacobianEntry(jointAxis0,
-										   m_rbA.getCenterOfMassTransform().getBasis().transpose(),
-										   m_rbB.getCenterOfMassTransform().getBasis().transpose(),
+										   m_rbA.getCenterOfMassTransform().m_basis.transpose(),
+										   m_rbB.getCenterOfMassTransform().m_basis.transpose(),
 										   m_rbA.getInvInertiaDiagLocal(),
 										   m_rbB.getInvInertiaDiagLocal());
 
 		new (&m_jacAng[1]) btJacobianEntry(jointAxis1,
-										   m_rbA.getCenterOfMassTransform().getBasis().transpose(),
-										   m_rbB.getCenterOfMassTransform().getBasis().transpose(),
+										   m_rbA.getCenterOfMassTransform().m_basis.transpose(),
+										   m_rbB.getCenterOfMassTransform().m_basis.transpose(),
 										   m_rbA.getInvInertiaDiagLocal(),
 										   m_rbB.getInvInertiaDiagLocal());
 
 		new (&m_jacAng[2]) btJacobianEntry(hingeAxisWorld,
-										   m_rbA.getCenterOfMassTransform().getBasis().transpose(),
-										   m_rbB.getCenterOfMassTransform().getBasis().transpose(),
+										   m_rbA.getCenterOfMassTransform().m_basis.transpose(),
+										   m_rbB.getCenterOfMassTransform().m_basis.transpose(),
 										   m_rbA.getInvInertiaDiagLocal(),
 										   m_rbB.getInvInertiaDiagLocal());
 
@@ -279,7 +279,7 @@ void btHingeConstraint::buildJacobian()
 		testLimit(m_rbA.getCenterOfMassTransform(), m_rbB.getCenterOfMassTransform());
 
 		//Compute K = J*W*J' for hinge axis
-		btVector3 axisA = getRigidBodyA().getCenterOfMassTransform().getBasis() * m_rbAFrame.getBasis().getColumn(2);
+		btVector3 axisA = getRigidBodyA().getCenterOfMassTransform().m_basis * m_rbAFrame.m_basis.getColumn(2);
 		m_kHinge = 1.0f / (getRigidBodyA().computeAngularImpulseDenominator(axisA) +
 						   getRigidBodyB().computeAngularImpulseDenominator(axisA));
 	}
@@ -397,8 +397,8 @@ void btHingeConstraint::getInfo2Internal(btConstraintInfo2* info, const btTransf
 	btTransform trA = transA * m_rbAFrame;
 	btTransform trB = transB * m_rbBFrame;
 	// pivot point
-	btVector3 pivotAInW = trA.getOrigin();
-	btVector3 pivotBInW = trB.getOrigin();
+	btVector3 pivotAInW = trA.m_origin;
+	btVector3 pivotBInW = trB.m_origin;
 #if 0
 	if (0)
 	{
@@ -437,7 +437,7 @@ void btHingeConstraint::getInfo2Internal(btConstraintInfo2* info, const btTransf
 		info->m_J2linearAxis[2 * skip + 2] = -1;
 	}
 
-	btVector3 a1 = pivotAInW - transA.getOrigin();
+	btVector3 a1 = pivotAInW - transA.m_origin;
 	{
 		btVector3* angular0 = (btVector3*)(info->m_J1angularAxis);
 		btVector3* angular1 = (btVector3*)(info->m_J1angularAxis + skip);
@@ -445,7 +445,7 @@ void btHingeConstraint::getInfo2Internal(btConstraintInfo2* info, const btTransf
 		btVector3 a1neg = -a1;
 		a1neg.getSkewSymmetricMatrix(angular0, angular1, angular2);
 	}
-	btVector3 a2 = pivotBInW - transB.getOrigin();
+	btVector3 a2 = pivotBInW - transB.m_origin;
 	{
 		btVector3* angular0 = (btVector3*)(info->m_J2angularAxis);
 		btVector3* angular1 = (btVector3*)(info->m_J2angularAxis + skip);
@@ -472,10 +472,10 @@ void btHingeConstraint::getInfo2Internal(btConstraintInfo2* info, const btTransf
 	// where p and q are unit vectors normal to the hinge axis, and w1 and w2
 	// are the angular velocity vectors of the two bodies.
 	// get hinge axis (Z)
-	btVector3 ax1 = trA.getBasis().getColumn(2);
+	btVector3 ax1 = trA.m_basis.getColumn(2);
 	// get 2 orthos to hinge axis (X, Y)
-	btVector3 p = trA.getBasis().getColumn(0);
-	btVector3 q = trA.getBasis().getColumn(1);
+	btVector3 p = trA.m_basis.getColumn(0);
+	btVector3 q = trA.m_basis.getColumn(1);
 	// set the two hinge angular rows
 	int s3 = 3 * info->rowskip;
 	int s4 = 4 * info->rowskip;
@@ -508,7 +508,7 @@ void btHingeConstraint::getInfo2Internal(btConstraintInfo2* info, const btTransf
 	//    angular_velocity  = (erp*fps) * (ax1 x ax2)
 	// ax1 x ax2 is in the plane space of ax1, so we project the angular
 	// velocity to p and q to find the right hand side.
-	btVector3 ax2 = trB.getBasis().getColumn(2);
+	btVector3 ax2 = trB.m_basis.getColumn(2);
 	btVector3 u = ax1.cross(ax2);
 	info->m_constraintError[s3] = k * u.dot(p);
 	info->m_constraintError[s4] = k * u.dot(q);
@@ -646,9 +646,9 @@ btScalar btHingeConstraint::getHingeAngle()
 
 btScalar btHingeConstraint::getHingeAngle(const btTransform& transA, const btTransform& transB)
 {
-	const btVector3 refAxis0 = transA.getBasis() * m_rbAFrame.getBasis().getColumn(0);
-	const btVector3 refAxis1 = transA.getBasis() * m_rbAFrame.getBasis().getColumn(1);
-	const btVector3 swingAxis = transB.getBasis() * m_rbBFrame.getBasis().getColumn(1);
+	const btVector3 refAxis0 = transA.m_basis * m_rbAFrame.m_basis.getColumn(0);
+	const btVector3 refAxis1 = transA.m_basis * m_rbAFrame.m_basis.getColumn(1);
+	const btVector3 swingAxis = transB.m_basis * m_rbBFrame.m_basis.getColumn(1);
 	//	btScalar angle = btAtan2Fast(swingAxis.dot(refAxis0), swingAxis.dot(refAxis1));
 	btScalar angle = btAtan2(swingAxis.dot(refAxis0), swingAxis.dot(refAxis1));
 	return m_referenceSign * angle;
@@ -739,11 +739,11 @@ void btHingeConstraint::getInfo2InternalUsingFrameOffset(btConstraintInfo2* info
 	btTransform trA = transA * m_rbAFrame;
 	btTransform trB = transB * m_rbBFrame;
 	// pivot point
-//	btVector3 pivotAInW = trA.getOrigin();
-//	btVector3 pivotBInW = trB.getOrigin();
+//	btVector3 pivotAInW = trA.m_origin;
+//	btVector3 pivotBInW = trB.m_origin;
 #if 1
 	// difference between frames in WCS
-	btVector3 ofs = trB.getOrigin() - trA.getOrigin();
+	btVector3 ofs = trB.m_origin - trA.m_origin;
 	// now get weight factors depending on masses
 	btScalar miA = getRigidBodyA().getInvMass();
 	btScalar miB = getRigidBodyB().getInvMass();
@@ -761,8 +761,8 @@ void btHingeConstraint::getInfo2InternalUsingFrameOffset(btConstraintInfo2* info
 	factB = btScalar(1.0f) - factA;
 	// get the desired direction of hinge axis
 	// as weighted sum of Z-orthos of frameA and frameB in WCS
-	btVector3 ax1A = trA.getBasis().getColumn(2);
-	btVector3 ax1B = trB.getBasis().getColumn(2);
+	btVector3 ax1A = trA.m_basis.getColumn(2);
+	btVector3 ax1B = trB.m_basis.getColumn(2);
 	btVector3 ax1 = ax1A * factA + ax1B * factB;
 	if (ax1.length2()<SIMD_EPSILON)
 	{
@@ -781,13 +781,13 @@ void btHingeConstraint::getInfo2InternalUsingFrameOffset(btConstraintInfo2* info
 	int nrow = 2;  // last filled row
 	btVector3 tmpA, tmpB, relA, relB, p, q;
 	// get vector from bodyB to frameB in WCS
-	relB = trB.getOrigin() - bodyB_trans.getOrigin();
+	relB = trB.m_origin - bodyB_trans.m_origin;
 	// get its projection to hinge axis
 	btVector3 projB = ax1 * relB.dot(ax1);
 	// get vector directed from bodyB to hinge axis (and orthogonal to it)
 	btVector3 orthoB = relB - projB;
 	// same for bodyA
-	relA = trA.getOrigin() - bodyA_trans.getOrigin();
+	relA = trA.m_origin - bodyA_trans.m_origin;
 	btVector3 projA = ax1 * relA.dot(ax1);
 	btVector3 orthoA = relA - projA;
 	btVector3 totalDist = projA - projB;
@@ -803,7 +803,7 @@ void btHingeConstraint::getInfo2InternalUsingFrameOffset(btConstraintInfo2* info
 	}
 	else
 	{
-		p = trA.getBasis().getColumn(1);
+		p = trA.m_basis.getColumn(1);
 	}
 	// make one more ortho
 	q = ax1.cross(p);

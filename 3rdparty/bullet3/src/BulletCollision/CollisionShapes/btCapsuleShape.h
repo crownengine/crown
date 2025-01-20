@@ -4,8 +4,8 @@ Copyright (c) 2003-2009 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -55,8 +55,8 @@ public:
 	{
 		btVector3 halfExtents(getRadius(), getRadius(), getRadius());
 		halfExtents[m_upAxis] = getRadius() + getHalfHeight();
-		btMatrix3x3 abs_b = t.getBasis().absolute();
-		btVector3 center = t.getOrigin();
+		btMatrix3x3 abs_b = t.m_basis.absolute();
+		btVector3 center = t.m_origin;
 		btVector3 extent = halfExtents.dot3(abs_b[0], abs_b[1], abs_b[2]);
 
 		aabbMin = center - extent;

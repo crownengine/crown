@@ -7,8 +7,8 @@
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -740,14 +740,14 @@ void btBoxBoxDetector::getClosestPoints(const ClosestPointInput& input, Result& 
 
 	for (int j = 0; j < 3; j++)
 	{
-		R1[0 + 4 * j] = transformA.getBasis()[j].x();
-		R2[0 + 4 * j] = transformB.getBasis()[j].x();
+		R1[0 + 4 * j] = transformA.m_basis[j].x();
+		R2[0 + 4 * j] = transformB.m_basis[j].x();
 
-		R1[1 + 4 * j] = transformA.getBasis()[j].y();
-		R2[1 + 4 * j] = transformB.getBasis()[j].y();
+		R1[1 + 4 * j] = transformA.m_basis[j].y();
+		R2[1 + 4 * j] = transformB.m_basis[j].y();
 
-		R1[2 + 4 * j] = transformA.getBasis()[j].z();
-		R2[2 + 4 * j] = transformB.getBasis()[j].z();
+		R1[2 + 4 * j] = transformA.m_basis[j].z();
+		R2[2 + 4 * j] = transformB.m_basis[j].z();
 	}
 
 	btVector3 normal;
@@ -755,10 +755,10 @@ void btBoxBoxDetector::getClosestPoints(const ClosestPointInput& input, Result& 
 	int return_code;
 	int maxc = 4;
 
-	dBoxBox2(transformA.getOrigin(),
+	dBoxBox2(transformA.m_origin,
 			 R1,
 			 2.f * m_box1->getHalfExtentsWithMargin(),
-			 transformB.getOrigin(),
+			 transformB.m_origin,
 			 R2,
 			 2.f * m_box2->getHalfExtentsWithMargin(),
 			 normal, &depth, &return_code,

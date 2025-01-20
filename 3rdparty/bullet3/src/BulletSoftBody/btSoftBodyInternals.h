@@ -1446,8 +1446,8 @@ struct btSoftColliders
 				btVector3 norm = res.normal;
 				norm.normalize();  //is it necessary?
 
-				const btVector3 ra = res.witnesses[0] - ba.xform().getOrigin();
-				const btVector3 rb = res.witnesses[1] - bb.xform().getOrigin();
+				const btVector3 ra = res.witnesses[0] - ba.xform().m_origin;
+				const btVector3 rb = res.witnesses[1] - bb.xform().m_origin;
 				const btVector3 va = ba.velocity(ra);
 				const btVector3 vb = bb.velocity(rb);
 				const btVector3 vrel = va - vb;
@@ -1459,8 +1459,8 @@ struct btSoftColliders
 				const btVector3 fv = vrel - iv;
 				joint.m_bodies[0] = ba;
 				joint.m_bodies[1] = bb;
-				joint.m_refs[0] = ra * ba.xform().getBasis();
-				joint.m_refs[1] = rb * bb.xform().getBasis();
+				joint.m_refs[0] = ra * ba.xform().m_basis;
+				joint.m_refs[1] = rb * bb.xform().m_basis;
 				joint.m_rpos[0] = ra;
 				joint.m_rpos[1] = rb;
 				joint.m_cfm = 1;
@@ -1626,7 +1626,7 @@ struct btSoftColliders
 					const btTransform& wtr = m_rigidBody ? m_rigidBody->getWorldTransform() : m_colObj1Wrap->getCollisionObject()->getWorldTransform();
 					static const btMatrix3x3 iwiStatic(0, 0, 0, 0, 0, 0, 0, 0, 0);
 					const btMatrix3x3& iwi = m_rigidBody ? m_rigidBody->getInvInertiaTensorWorld() : iwiStatic;
-					const btVector3 ra = n.m_x - wtr.getOrigin();
+					const btVector3 ra = n.m_x - wtr.m_origin;
 					const btVector3 va = m_rigidBody ? m_rigidBody->getVelocityInLocalPoint(ra) * psb->m_sst.sdt : btVector3(0, 0, 0);
 					const btVector3 vb = n.m_x - n.m_q;
 					const btVector3 vr = vb - va;
@@ -1691,7 +1691,7 @@ struct btSoftColliders
 						if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
 						{
 							const btTransform& wtr = m_rigidBody ? m_rigidBody->getWorldTransform() : m_colObj1Wrap->getCollisionObject()->getWorldTransform();
-							const btVector3 ra = n.m_x - wtr.getOrigin();
+							const btVector3 ra = n.m_x - wtr.m_origin;
 
 							static const btMatrix3x3 iwiStatic(0, 0, 0, 0, 0, 0, 0, 0, 0);
 							const btMatrix3x3& iwi = m_rigidBody ? m_rigidBody->getInvInertiaTensorWorld() : iwiStatic;
@@ -1811,7 +1811,7 @@ struct btSoftColliders
 						const btTransform& wtr = m_rigidBody ? m_rigidBody->getWorldTransform() : m_colObj1Wrap->getCollisionObject()->getWorldTransform();
 						static const btMatrix3x3 iwiStatic(0, 0, 0, 0, 0, 0, 0, 0, 0);
 						const btMatrix3x3& iwi = m_rigidBody ? m_rigidBody->getInvInertiaTensorWorld() : iwiStatic;
-						const btVector3 ra = contact_point - wtr.getOrigin();
+						const btVector3 ra = contact_point - wtr.m_origin;
 
 						// we do not scale the impulse matrix by dt
 						c.m_c0 = ImpulseMatrix(1, ima, imb, iwi, ra);

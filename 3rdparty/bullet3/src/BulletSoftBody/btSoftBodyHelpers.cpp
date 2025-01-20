@@ -409,8 +409,8 @@ void btSoftBodyHelpers::Draw(btSoftBody* psb,
 					const btSoftBody::LJoint* pjl = (const btSoftBody::LJoint*)pj;
 					const btVector3 a0 = pj->m_bodies[0].xform() * pjl->m_refs[0];
 					const btVector3 a1 = pj->m_bodies[1].xform() * pjl->m_refs[1];
-					idraw->drawLine(pj->m_bodies[0].xform().getOrigin(), a0, btVector3(1, 1, 0));
-					idraw->drawLine(pj->m_bodies[1].xform().getOrigin(), a1, btVector3(0, 1, 1));
+					idraw->drawLine(pj->m_bodies[0].xform().m_origin, a0, btVector3(1, 1, 0));
+					idraw->drawLine(pj->m_bodies[1].xform().m_origin, a1, btVector3(0, 1, 1));
 					drawVertex(idraw, a0, 0.25, btVector3(1, 1, 0));
 					drawVertex(idraw, a1, 0.25, btVector3(0, 1, 1));
 				}
@@ -418,10 +418,10 @@ void btSoftBodyHelpers::Draw(btSoftBody* psb,
 				case btSoftBody::Joint::eType::Angular:
 				{
 					//const btSoftBody::AJoint*	pja=(const btSoftBody::AJoint*)pj;
-					const btVector3 o0 = pj->m_bodies[0].xform().getOrigin();
-					const btVector3 o1 = pj->m_bodies[1].xform().getOrigin();
-					const btVector3 a0 = pj->m_bodies[0].xform().getBasis() * pj->m_refs[0];
-					const btVector3 a1 = pj->m_bodies[1].xform().getBasis() * pj->m_refs[1];
+					const btVector3 o0 = pj->m_bodies[0].xform().m_origin;
+					const btVector3 o1 = pj->m_bodies[1].xform().m_origin;
+					const btVector3 a0 = pj->m_bodies[0].xform().m_basis * pj->m_refs[0];
+					const btVector3 a1 = pj->m_bodies[1].xform().m_basis * pj->m_refs[1];
 					idraw->drawLine(o0, o0 + a0 * 10, btVector3(1, 1, 0));
 					idraw->drawLine(o0, o0 + a1 * 10, btVector3(1, 1, 0));
 					idraw->drawLine(o1, o1 + a0 * 10, btVector3(0, 1, 1));

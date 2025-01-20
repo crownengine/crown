@@ -914,7 +914,7 @@ static void Initialize(const btConvexShape* shape0, const btTransform& wtrs0,
 	/* Shape		*/
 	shape.m_shapes[0] = shape0;
 	shape.m_shapes[1] = shape1;
-	shape.m_toshape1 = wtrs1.getBasis().transposeTimes(wtrs0.getBasis());
+	shape.m_toshape1 = wtrs1.m_basis.transposeTimes(wtrs0.m_basis);
 	shape.m_toshape0 = wtrs0.inverseTimes(wtrs1);
 	shape.EnableMargin(withmargins);
 }

@@ -422,7 +422,7 @@ public:
 
 	const btVector3& getCenterOfMassPosition() const
 	{
-		return m_worldTransform.getOrigin();
+		return m_worldTransform.m_origin;
 	}
 	btQuaternion getOrientation() const;
 
@@ -474,7 +474,7 @@ public:
 
 	void translate(const btVector3& v)
 	{
-		m_worldTransform.getOrigin() += v;
+		m_worldTransform.m_origin += v;
 	}
 
 	void getAabb(btVector3& aabbMin, btVector3& aabbMax) const;

@@ -4,8 +4,8 @@ Copyright (c) 2003-2009 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -270,14 +270,14 @@ void btConvexTriangleMeshShape::calculatePrincipalAxisTransform(btTransform& pri
 	btVector3 aabbMax(btScalar(BT_LARGE_FLOAT), btScalar(BT_LARGE_FLOAT), btScalar(BT_LARGE_FLOAT));
 	m_stridingMesh->InternalProcessAllTriangles(&centerCallback, -aabbMax, aabbMax);
 	btVector3 center = centerCallback.getCenter();
-	principal.setOrigin(center);
+	principal.m_origin = center;
 	volume = centerCallback.getVolume();
 
 	InertiaCallback inertiaCallback(center);
 	m_stridingMesh->InternalProcessAllTriangles(&inertiaCallback, -aabbMax, aabbMax);
 
 	btMatrix3x3& i = inertiaCallback.getInertia();
-	i.diagonalize(principal.getBasis(), btScalar(0.00001), 20);
+	i.diagonalize(principal.m_basis, btScalar(0.00001), 20);
 	inertia.setValue(i[0][0], i[1][1], i[2][2]);
 	inertia /= volume;
 }

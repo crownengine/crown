@@ -109,10 +109,10 @@ static inline Quaternion to_quaternion(const btQuaternion &q)
 
 static inline Matrix4x4 to_matrix4x4(const btTransform &t)
 {
-	const btVector3 x = t.getBasis().getRow(0);
-	const btVector3 y = t.getBasis().getRow(1);
-	const btVector3 z = t.getBasis().getRow(2);
-	const btVector3 o = t.getOrigin();
+	const btVector3 x = t.m_basis.getRow(0);
+	const btVector3 y = t.m_basis.getRow(1);
+	const btVector3 z = t.m_basis.getRow(2);
+	const btVector3 o = t.m_origin;
 
 	Matrix4x4 m;
 	m.x.x = x.x();
@@ -582,7 +582,7 @@ struct PhysicsWorldImpl
 	void actor_teleport_world_position(ActorInstance actor, const Vector3 &p)
 	{
 		btTransform pose = _actor[actor.i].body->getCenterOfMassTransform();
-		pose.setOrigin(to_btVector3(p));
+		pose.m_origin = to_btVector3(p);
 		_actor[actor.i].body->setCenterOfMassTransform(pose);
 	}
 
@@ -600,13 +600,13 @@ struct PhysicsWorldImpl
 
 		btTransform pose = _actor[actor.i].body->getCenterOfMassTransform();
 		pose.setRotation(to_btQuaternion(rot));
-		pose.setOrigin(to_btVector3(pos));
+		pose.m_origin = to_btVector3(pos);
 		_actor[actor.i].body->setCenterOfMassTransform(pose);
 	}
 
 	Vector3 actor_center_of_mass(ActorInstance actor) const
 	{
-		return to_vector3(_actor[actor.i].body->getCenterOfMassTransform().getOrigin());
+		return to_vector3(_actor[actor.i].body->getCenterOfMassTransform().m_origin);
 	}
 
 	void actor_enable_gravity(ActorInstance actor)

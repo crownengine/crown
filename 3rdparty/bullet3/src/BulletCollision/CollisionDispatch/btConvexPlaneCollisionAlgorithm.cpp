@@ -66,11 +66,11 @@ void btConvexPlaneCollisionAlgorithm::collideSingleContact(const btQuaternion& p
 	btTransform convexInPlaneTrans;
 	convexInPlaneTrans = planeObjWrap->getWorldTransform().inverse() * convexWorldTransform;
 	//now perturbe the convex-world transform
-	convexWorldTransform.getBasis() *= btMatrix3x3(perturbeRot);
+	convexWorldTransform.m_basis *= btMatrix3x3(perturbeRot);
 	btTransform planeInConvex;
 	planeInConvex = convexWorldTransform.inverse() * planeObjWrap->getWorldTransform();
 
-	btVector3 vtx = convexShape->localGetSupportingVertex(planeInConvex.getBasis() * -planeNormal);
+	btVector3 vtx = convexShape->localGetSupportingVertex(planeInConvex.m_basis * -planeNormal);
 
 	btVector3 vtxInPlane = convexInPlaneTrans(vtx);
 	btScalar distance = (planeNormal.dot(vtxInPlane) - planeConstant);
@@ -83,7 +83,7 @@ void btConvexPlaneCollisionAlgorithm::collideSingleContact(const btQuaternion& p
 	if (hasCollision)
 	{
 		/// report a contact. internally this will be kept persistent, and contact reduction is done
-		btVector3 normalOnSurfaceB = planeObjWrap->getWorldTransform().getBasis() * planeNormal;
+		btVector3 normalOnSurfaceB = planeObjWrap->getWorldTransform().m_basis * planeNormal;
 		btVector3 pOnB = vtxInPlaneWorld;
 		resultOut->addContactPoint(normalOnSurfaceB, pOnB, distance);
 	}
@@ -109,7 +109,7 @@ void btConvexPlaneCollisionAlgorithm::processCollision(const btCollisionObjectWr
 	btTransform convexInPlaneTrans;
 	convexInPlaneTrans = planeObjWrap->getWorldTransform().inverse() * convexObjWrap->getWorldTransform();
 
-	btVector3 vtx = convexShape->localGetSupportingVertex(planeInConvex.getBasis() * -planeNormal);
+	btVector3 vtx = convexShape->localGetSupportingVertex(planeInConvex.m_basis * -planeNormal);
 	btVector3 vtxInPlane = convexInPlaneTrans(vtx);
 	btScalar distance = (planeNormal.dot(vtxInPlane) - planeConstant);
 
@@ -121,7 +121,7 @@ void btConvexPlaneCollisionAlgorithm::processCollision(const btCollisionObjectWr
 	if (hasCollision)
 	{
 		/// report a contact. internally this will be kept persistent, and contact reduction is done
-		btVector3 normalOnSurfaceB = planeObjWrap->getWorldTransform().getBasis() * planeNormal;
+		btVector3 normalOnSurfaceB = planeObjWrap->getWorldTransform().m_basis * planeNormal;
 		btVector3 pOnB = vtxInPlaneWorld;
 		resultOut->addContactPoint(normalOnSurfaceB, pOnB, distance);
 	}

@@ -80,9 +80,9 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(btMultiBodySolverConstra
 
 	btVector3 rel_pos1, rel_pos2;  //these two used to be inited to posAworld and posBworld (respectively) but it does not seem necessary
 	if (bodyA)
-		rel_pos1 = posAworld - bodyA->getWorldTransform().getOrigin();
+		rel_pos1 = posAworld - bodyA->getWorldTransform().m_origin;
 	if (bodyB)
-		rel_pos2 = posBworld - bodyB->getWorldTransform().getOrigin();
+		rel_pos2 = posBworld - bodyB->getWorldTransform().m_origin;
 
 	if (multiBodyA)
 	{
@@ -92,7 +92,7 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(btMultiBodySolverConstra
 		}
 		else
 		{
-			rel_pos1 = posAworld - multiBodyA->getLink(solverConstraint.m_linkA).m_cachedWorldTransform.getOrigin();
+			rel_pos1 = posAworld - multiBodyA->getLink(solverConstraint.m_linkA).m_cachedWorldTransform.m_origin;
 		}
 
 		const int ndofA = multiBodyA->getNumDofs() + 6;
@@ -171,7 +171,7 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(btMultiBodySolverConstra
 		}
 		else
 		{
-			rel_pos2 = posBworld - multiBodyB->getLink(solverConstraint.m_linkB).m_cachedWorldTransform.getOrigin();
+			rel_pos2 = posBworld - multiBodyB->getLink(solverConstraint.m_linkB).m_cachedWorldTransform.m_origin;
 		}
 
 		const int ndofB = multiBodyB->getNumDofs() + 6;

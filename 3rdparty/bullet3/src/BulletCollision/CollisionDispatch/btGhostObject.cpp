@@ -4,8 +4,8 @@ Copyright (c) 2003-2008 Erwin Coumans  http://bulletphysics.com
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -127,7 +127,7 @@ void btGhostObject::convexSweepTest(const btConvexShape* castShape, const btTran
 			AabbExpand(collisionObjectAabbMin, collisionObjectAabbMax, castShapeAabbMin, castShapeAabbMax);
 			btScalar hitLambda = btScalar(1.);  //could use resultCallback.m_closestHitFraction, but needs testing
 			btVector3 hitNormal;
-			if (btRayAabb(convexFromWorld.getOrigin(), convexToWorld.getOrigin(), collisionObjectAabbMin, collisionObjectAabbMax, hitLambda, hitNormal))
+			if (btRayAabb(convexFromWorld.m_origin, convexToWorld.m_origin, collisionObjectAabbMin, collisionObjectAabbMax, hitLambda, hitNormal))
 			{
 				btCollisionWorld::objectQuerySingle(castShape, convexFromTrans, convexToTrans,
 													collisionObject,
@@ -144,10 +144,10 @@ void btGhostObject::rayTest(const btVector3& rayFromWorld, const btVector3& rayT
 {
 	btTransform rayFromTrans;
 	rayFromTrans.setIdentity();
-	rayFromTrans.setOrigin(rayFromWorld);
+	rayFromTrans.m_origin = rayFromWorld;
 	btTransform rayToTrans;
 	rayToTrans.setIdentity();
-	rayToTrans.setOrigin(rayToWorld);
+	rayToTrans.m_origin = rayToWorld;
 
 	int i;
 	for (i = 0; i < m_overlappingObjects.size(); i++)

@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  https://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -87,8 +87,8 @@ void btConvexTriangleCallback::processTriangle(btVector3* triangle, int partId, 
 	btCollisionAlgorithmConstructionInfo ci;
 	ci.m_dispatcher1 = m_dispatcher;
 
-#if 0	
-	
+#if 0
+
 	///debug drawing of the overlapping triangles
 	if (m_dispatchInfoPtr && m_dispatchInfoPtr->m_debugDraw && (m_dispatchInfoPtr->m_debugDraw->getDebugMode() &btIDebugDraw::DBG_DrawWireframe ))
 	{
@@ -116,8 +116,8 @@ void btConvexTriangleCallback::processTriangle(btVector3* triangle, int partId, 
 			triangle_normal_world.normalize();
 
 		    btConvexShape* convex = (btConvexShape*)m_convexBodyWrap->getCollisionShape();
-			
-			btVector3 localPt = convex->localGetSupportingVertex(m_convexBodyWrap->getWorldTransform().getBasis().inverse()*triangle_normal_world);
+
+			btVector3 localPt = convex->localGetSupportingVertex(m_convexBodyWrap->getWorldTransform().m_basis.inverse()*triangle_normal_world);
 			btVector3 worldPt = m_convexBodyWrap->getWorldTransform()*localPt;
 			//now check if this is fully on one side of the triangle
 			btScalar proj_distPt = triangle_normal_world.dot(worldPt);
@@ -130,12 +130,12 @@ void btConvexTriangleCallback::processTriangle(btVector3* triangle, int partId, 
 			//also check the other side of the triangle
 			triangle_normal_world*=-1;
 
-			localPt = convex->localGetSupportingVertex(m_convexBodyWrap->getWorldTransform().getBasis().inverse()*triangle_normal_world);
+			localPt = convex->localGetSupportingVertex(m_convexBodyWrap->getWorldTransform().m_basis.inverse()*triangle_normal_world);
 			worldPt = m_convexBodyWrap->getWorldTransform()*localPt;
 			//now check if this is fully on one side of the triangle
 			proj_distPt = triangle_normal_world.dot(worldPt);
 			proj_distTr = triangle_normal_world.dot(v0);
-			
+
 			dist = proj_distTr - proj_distPt;
 			if (dist > contact_threshold)
 				return;
@@ -272,7 +272,7 @@ void btConvexConcaveCollisionAlgorithm::processCollision(const btCollisionObject
 							if (dist <= maxDist)
 							{
 								normalLocal.safeNormalize();
-								btVector3 normal = triBodyWrap->getWorldTransform().getBasis() * normalLocal;
+								btVector3 normal = triBodyWrap->getWorldTransform().m_basis * normalLocal;
 
 								if (convex->getShapeType() == SPHERE_SHAPE_PROXYTYPE)
 								{
@@ -322,14 +322,14 @@ btScalar btConvexConcaveCollisionAlgorithm::calculateTimeOfImpact(btCollisionObj
 
 	//only perform CCD above a certain threshold, this prevents blocking on the long run
 	//because object in a blocked ccd state (hitfraction<1) get their linear velocity halved each frame...
-	btScalar squareMot0 = (convexbody->getInterpolationWorldTransform().getOrigin() - convexbody->getWorldTransform().getOrigin()).length2();
+	btScalar squareMot0 = (convexbody->getInterpolationWorldTransform().m_origin - convexbody->getWorldTransform().m_origin).length2();
 	if (squareMot0 < convexbody->getCcdSquareMotionThreshold())
 	{
 		return btScalar(1.);
 	}
 
-	//const btVector3& from = convexbody->m_worldTransform.getOrigin();
-	//btVector3 to = convexbody->m_interpolationWorldTransform.getOrigin();
+	//const btVector3& from = convexbody->m_worldTransform.m_origin;
+	//btVector3 to = convexbody->m_interpolationWorldTransform.m_origin;
 	//todo: only do if the motion exceeds the 'radius'
 
 	btTransform triInv = triBody->getWorldTransform().inverse();
@@ -382,10 +382,10 @@ btScalar btConvexConcaveCollisionAlgorithm::calculateTimeOfImpact(btCollisionObj
 
 	if (triBody->getCollisionShape()->isConcave())
 	{
-		btVector3 rayAabbMin = convexFromLocal.getOrigin();
-		rayAabbMin.setMin(convexToLocal.getOrigin());
-		btVector3 rayAabbMax = convexFromLocal.getOrigin();
-		rayAabbMax.setMax(convexToLocal.getOrigin());
+		btVector3 rayAabbMin = convexFromLocal.m_origin;
+		rayAabbMin.setMin(convexToLocal.m_origin);
+		btVector3 rayAabbMax = convexFromLocal.m_origin;
+		rayAabbMax.setMax(convexToLocal.m_origin);
 		btScalar ccdRadius0 = convexbody->getCcdSweptSphereRadius();
 		rayAabbMin -= btVector3(ccdRadius0, ccdRadius0, ccdRadius0);
 		rayAabbMax += btVector3(ccdRadius0, ccdRadius0, ccdRadius0);

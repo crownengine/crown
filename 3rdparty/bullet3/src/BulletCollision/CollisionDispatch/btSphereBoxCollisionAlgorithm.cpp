@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  https://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -60,7 +60,7 @@ void btSphereBoxCollisionAlgorithm::processCollision(const btCollisionObjectWrap
 
 	btVector3 normalOnSurfaceB;
 	btScalar penetrationDepth;
-	btVector3 sphereCenter = sphereObjWrap->getWorldTransform().getOrigin();
+	btVector3 sphereCenter = sphereObjWrap->getWorldTransform().m_origin;
 	const btSphereShape* sphere0 = (const btSphereShape*)sphereObjWrap->getCollisionShape();
 	btScalar radius = sphere0->getRadius();
 	btScalar maxContactDistance = m_manifoldPtr->getContactBreakingThreshold();
@@ -146,7 +146,7 @@ bool btSphereBoxCollisionAlgorithm::getSphereDistance(const btCollisionObjectWra
 	pointOnBox = tmp;
 	//	tmp = m44T(v3PointOnSphere);
 	//	v3PointOnSphere = tmp;
-	tmp = m44T.getBasis() * normal;
+	tmp = m44T.m_basis * normal;
 	normal = tmp;
 
 	return true;

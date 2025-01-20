@@ -157,7 +157,7 @@ void btGeneric6DofSpringConstraint::setAxis(const btVector3& axis1, const btVect
 
 	btTransform frameInW;
 	frameInW.setIdentity();
-	frameInW.getBasis().setValue(xAxis[0], yAxis[0], zAxis[0],
+	frameInW.m_basis.setValue(xAxis[0], yAxis[0], zAxis[0],
 								 xAxis[1], yAxis[1], zAxis[1],
 								 xAxis[2], yAxis[2], zAxis[2]);
 

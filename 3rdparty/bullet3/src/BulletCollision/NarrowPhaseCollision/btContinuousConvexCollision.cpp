@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  https://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -71,14 +71,14 @@ void btContinuousConvexCollision::computeClosestPoints(const btTransform& transA
 		btTransform planeInConvex;
 		planeInConvex = convexWorldTransform.inverse() * transB;
 
-		btVector3 vtx = convexShape->localGetSupportingVertex(planeInConvex.getBasis() * -planeNormal);
+		btVector3 vtx = convexShape->localGetSupportingVertex(planeInConvex.m_basis * -planeNormal);
 
 		btVector3 vtxInPlane = convexInPlaneTrans(vtx);
 		btScalar distance = (planeNormal.dot(vtxInPlane) - planeConstant);
 
 		btVector3 vtxInPlaneProjected = vtxInPlane - distance * planeNormal;
 		btVector3 vtxInPlaneWorld = transB * vtxInPlaneProjected;
-		btVector3 normalOnSurfaceB = transB.getBasis() * planeNormal;
+		btVector3 normalOnSurfaceB = transB.m_basis * planeNormal;
 
 		pointCollector.addContactPoint(
 			normalOnSurfaceB,
@@ -184,7 +184,7 @@ bool btContinuousConvexCollision::calcTimeOfImpact(
 
 			if (result.m_debugDrawer)
 			{
-				result.m_debugDrawer->drawSphere(interpolatedTransA.getOrigin(), 0.2f, btVector3(1, 0, 0));
+				result.m_debugDrawer->drawSphere(interpolatedTransA.m_origin, 0.2f, btVector3(1, 0, 0));
 			}
 
 			result.DebugDraw(lambda);

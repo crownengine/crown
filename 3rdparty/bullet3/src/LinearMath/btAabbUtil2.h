@@ -3,8 +3,8 @@ Copyright (c) 2003-2006 Gino van den Bergen / Erwin Coumans  https://bulletphysi
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -172,8 +172,8 @@ SIMD_FORCE_INLINE bool btRayAabb(const btVector3& rayFrom,
 SIMD_FORCE_INLINE void btTransformAabb(const btVector3& halfExtents, btScalar margin, const btTransform& t, btVector3& aabbMinOut, btVector3& aabbMaxOut)
 {
 	btVector3 halfExtentsWithMargin = halfExtents + btVector3(margin, margin, margin);
-	btMatrix3x3 abs_b = t.getBasis().absolute();
-	btVector3 center = t.getOrigin();
+	btMatrix3x3 abs_b = t.m_basis.absolute();
+	btVector3 center = t.m_origin;
 	btVector3 extent = halfExtentsWithMargin.dot3(abs_b[0], abs_b[1], abs_b[2]);
 	aabbMinOut = center - extent;
 	aabbMaxOut = center + extent;
@@ -188,7 +188,7 @@ SIMD_FORCE_INLINE void btTransformAabb(const btVector3& localAabbMin, const btVe
 	localHalfExtents += btVector3(margin, margin, margin);
 
 	btVector3 localCenter = btScalar(0.5) * (localAabbMax + localAabbMin);
-	btMatrix3x3 abs_b = trans.getBasis().absolute();
+	btMatrix3x3 abs_b = trans.m_basis.absolute();
 	btVector3 center = trans(localCenter);
 	btVector3 extent = localHalfExtents.dot3(abs_b[0], abs_b[1], abs_b[2]);
 	aabbMinOut = center - extent;

@@ -4,8 +4,8 @@ Copyright (c) 2003-2009 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -85,7 +85,7 @@ void btUniformScalingShape::getAabbSlow(const btTransform& t, btVector3& aabbMin
 
 	for (int i = 0; i < 6; i++)
 	{
-		_directions[i] = _directions[i] * t.getBasis();
+		_directions[i] = _directions[i] * t.m_basis;
 	}
 
 	batchedUnitVectorGetSupportingVertexWithoutMargin(_directions, _supporting, 6);
@@ -108,11 +108,11 @@ void btUniformScalingShape::getAabbSlow(const btTransform& t, btVector3& aabbMin
 	{
 		btVector3 vec(btScalar(0.), btScalar(0.), btScalar(0.));
 		vec[i] = btScalar(1.);
-		btVector3 sv = localGetSupportingVertex(vec * t.getBasis());
+		btVector3 sv = localGetSupportingVertex(vec * t.m_basis);
 		btVector3 tmp = t(sv);
 		aabbMax[i] = tmp[i] + margin;
 		vec[i] = btScalar(-1.);
-		sv = localGetSupportingVertex(vec * t.getBasis());
+		sv = localGetSupportingVertex(vec * t.m_basis);
 		tmp = t(sv);
 		aabbMin[i] = tmp[i] - margin;
 	}

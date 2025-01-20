@@ -43,8 +43,8 @@ public:
 	// axis1 must be orthogonal to axis2
 	btUniversalConstraint(btRigidBody & rbA, btRigidBody & rbB, const btVector3& anchor, const btVector3& axis1, const btVector3& axis2);
 	// access
-	const btVector3& getAnchor() { return m_calculatedTransformA.getOrigin(); }
-	const btVector3& getAnchor2() { return m_calculatedTransformB.getOrigin(); }
+	const btVector3& getAnchor() { return m_calculatedTransformA.m_origin; }
+	const btVector3& getAnchor2() { return m_calculatedTransformB.m_origin; }
 	const btVector3& getAxis1() { return m_axis1; }
 	const btVector3& getAxis2() { return m_axis2; }
 	btScalar getAngle1() { return getAngle(2); }

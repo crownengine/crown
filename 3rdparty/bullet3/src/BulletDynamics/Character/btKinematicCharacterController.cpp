@@ -86,7 +86,7 @@ public:
 		else
 		{
 			///need to transform normal into worldspace
-			hitNormalWorld = convexResult.m_hitCollisionObject->getWorldTransform().getBasis() * convexResult.m_hitNormalLocal;
+			hitNormalWorld = convexResult.m_hitCollisionObject->getWorldTransform().m_basis * convexResult.m_hitNormalLocal;
 		}
 
 		btScalar dotUp = m_up.dot(hitNormalWorld);
@@ -195,7 +195,7 @@ bool btKinematicCharacterController::recoverFromPenetration(btCollisionWorld* co
 
 	collisionWorld->getDispatcher()->dispatchAllCollisionPairs(m_ghostObject->getOverlappingPairCache(), collisionWorld->getDispatchInfo(), collisionWorld->getDispatcher());
 
-	m_currentPosition = m_ghostObject->getWorldTransform().getOrigin();
+	m_currentPosition = m_ghostObject->getWorldTransform().m_origin;
 
 	//	btScalar maxPen = btScalar(0.0);
 	for (int i = 0; i < m_ghostObject->getOverlappingPairCache()->getNumOverlappingPairs(); i++)
@@ -248,7 +248,7 @@ bool btKinematicCharacterController::recoverFromPenetration(btCollisionWorld* co
 		}
 	}
 	btTransform newTrans = m_ghostObject->getWorldTransform();
-	newTrans.setOrigin(m_currentPosition);
+	newTrans.m_origin = (m_currentPosition);
 	m_ghostObject->setWorldTransform(newTrans);
 	//	printf("m_touchingNormal = %f,%f,%f\n",m_touchingNormal[0],m_touchingNormal[1],m_touchingNormal[2]);
 	return penetration;
@@ -267,12 +267,12 @@ void btKinematicCharacterController::stepUp(btCollisionWorld* world)
 	end.setIdentity();
 
 	/* FIXME: Handle penetration properly */
-	start.setOrigin(m_currentPosition);
+	start.m_origin = (m_currentPosition);
 
 	m_targetPosition = m_currentPosition + m_up * (stepHeight) + m_jumpAxis * ((m_verticalOffset > 0.f ? m_verticalOffset : 0.f));
 	m_currentPosition = m_targetPosition;
 
-	end.setOrigin(m_targetPosition);
+	end.m_origin = (m_targetPosition);
 
 	start.setRotation(m_currentOrientation);
 	end.setRotation(m_targetOrientation);
@@ -304,7 +304,7 @@ void btKinematicCharacterController::stepUp(btCollisionWorld* world)
 		}
 
 		btTransform& xform = m_ghostObject->getWorldTransform();
-		xform.setOrigin(m_currentPosition);
+		xform.m_origin = (m_currentPosition);
 		m_ghostObject->setWorldTransform(xform);
 
 		// fix penetration if we hit a ceiling for example
@@ -320,7 +320,7 @@ void btKinematicCharacterController::stepUp(btCollisionWorld* world)
 				break;
 			}
 		}
-		m_targetPosition = m_ghostObject->getWorldTransform().getOrigin();
+		m_targetPosition = m_ghostObject->getWorldTransform().m_origin;
 		m_currentPosition = m_targetPosition;
 
 		if (m_verticalOffset > 0)
@@ -401,8 +401,8 @@ void btKinematicCharacterController::stepForwardAndStrafe(btCollisionWorld* coll
 
 	while (fraction > btScalar(0.01) && maxIter-- > 0)
 	{
-		start.setOrigin(m_currentPosition);
-		end.setOrigin(m_targetPosition);
+		start.m_origin = (m_currentPosition);
+		end.m_origin = (m_targetPosition);
 		btVector3 sweepDirNegative(m_currentPosition - m_targetPosition);
 
 		start.setRotation(m_currentOrientation);
@@ -503,14 +503,14 @@ void btKinematicCharacterController::stepDown(btCollisionWorld* collisionWorld, 
 
 		end_double.setIdentity();
 
-		start.setOrigin(m_currentPosition);
-		end.setOrigin(m_targetPosition);
+		start.m_origin = (m_currentPosition);
+		end.m_origin = (m_targetPosition);
 
 		start.setRotation(m_currentOrientation);
 		end.setRotation(m_targetOrientation);
 
 		//set double test for 2x the step drop, to check for a large drop vs small drop
-		end_double.setOrigin(m_targetPosition - step_drop);
+		end_double.m_origin = (m_targetPosition - step_drop);
 
 		if (m_useGhostObjectSweepTest)
 		{
@@ -659,7 +659,7 @@ void btKinematicCharacterController::setLinearVelocity(const btVector3& velocity
 			if (c > 0.0f)
 			{
 				m_wasJumping = true;
-				m_jumpPosition = m_ghostObject->getWorldTransform().getOrigin();
+				m_jumpPosition = m_ghostObject->getWorldTransform().m_origin;
 			}
 		}
 	}
@@ -693,13 +693,13 @@ void btKinematicCharacterController::warp(const btVector3& origin)
 {
 	btTransform xform;
 	xform.setIdentity();
-	xform.setOrigin(origin);
+	xform.m_origin = (origin);
 	m_ghostObject->setWorldTransform(xform);
 }
 
 void btKinematicCharacterController::preStep(btCollisionWorld* collisionWorld)
 {
-	m_currentPosition = m_ghostObject->getWorldTransform().getOrigin();
+	m_currentPosition = m_ghostObject->getWorldTransform().m_origin;
 	m_targetPosition = m_currentPosition;
 
 	m_currentOrientation = m_ghostObject->getWorldTransform().getRotation();
@@ -730,7 +730,7 @@ void btKinematicCharacterController::playerStep(btCollisionWorld* collisionWorld
 		xform.setRotation(orn);
 		m_ghostObject->setWorldTransform(xform);
 
-		m_currentPosition = m_ghostObject->getWorldTransform().getOrigin();
+		m_currentPosition = m_ghostObject->getWorldTransform().m_origin;
 		m_targetPosition = m_currentPosition;
 		m_currentOrientation = m_ghostObject->getWorldTransform().getRotation();
 		m_targetOrientation = m_currentOrientation;
@@ -832,7 +832,7 @@ void btKinematicCharacterController::playerStep(btCollisionWorld* collisionWorld
 	//}
 	// printf("\n");
 
-	xform.setOrigin(m_currentPosition);
+	xform.m_origin = (m_currentPosition);
 	m_ghostObject->setWorldTransform(xform);
 
 	int numPenetrationLoops = 0;
@@ -878,13 +878,13 @@ void btKinematicCharacterController::jump(const btVector3& v)
 
 	m_jumpAxis = v.length2() == 0 ? m_up : v.normalized();
 
-	m_jumpPosition = m_ghostObject->getWorldTransform().getOrigin();
+	m_jumpPosition = m_ghostObject->getWorldTransform().m_origin;
 
 #if 0
 	currently no jumping.
 	btTransform xform;
 	m_rigidBody->getMotionState()->getWorldTransform (xform);
-	btVector3 up = xform.getBasis()[1];
+	btVector3 up = xform.m_basis[1];
 	up.normalize ();
 	btScalar magnitude = (btScalar(1.0)/m_rigidBody->getInvMass()) * btScalar(8.0);
 	m_rigidBody->applyCentralImpulse (up * magnitude);

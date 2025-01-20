@@ -248,7 +248,7 @@ void btRigidBody::setMassProps(btScalar mass, const btVector3& inertia)
 
 void btRigidBody::updateInertiaTensor()
 {
-	m_invInertiaTensorWorld = m_worldTransform.getBasis().scaled(m_invInertiaLocal) * m_worldTransform.getBasis().transpose();
+	m_invInertiaTensorWorld = m_worldTransform.m_basis.scaled(m_invInertiaLocal) * m_worldTransform.m_basis.transpose();
 }
 
 btVector3 btRigidBody::getLocalInertia() const
@@ -283,7 +283,7 @@ inline btMatrix3x3 evalEulerEqnDeriv(const btVector3& w1, const btVector3& w0, c
 btVector3 btRigidBody::computeGyroscopicForceExplicit(btScalar maxGyroscopicForce) const
 {
 	btVector3 inertiaLocal = getLocalInertia();
-	btMatrix3x3 inertiaTensorWorld = getWorldTransform().getBasis().scaled(inertiaLocal) * getWorldTransform().getBasis().transpose();
+	btMatrix3x3 inertiaTensorWorld = getWorldTransform().m_basis.scaled(inertiaLocal) * getWorldTransform().m_basis.transpose();
 	btVector3 tmp = inertiaTensorWorld * getAngularVelocity();
 	btVector3 gf = getAngularVelocity().cross(tmp);
 	btScalar l2 = gf.length2();
@@ -343,8 +343,8 @@ btVector3 btRigidBody::computeGyroscopicImpulseImplicit_World(btScalar step) con
 
 	btMatrix3x3 I;
 
-	I = m_worldTransform.getBasis().scaled(inertiaLocal) *
-		m_worldTransform.getBasis().transpose();
+	I = m_worldTransform.m_basis.scaled(inertiaLocal) *
+		m_worldTransform.m_basis.transpose();
 
 	// use newtons method to find implicit solution for new angular velocity (w')
 	// f(w') = -(T*step + Iw) + Iw' + w' + w'xIw'*step = 0
@@ -392,7 +392,7 @@ void btRigidBody::integrateVelocities(btScalar step)
 btQuaternion btRigidBody::getOrientation() const
 {
 	btQuaternion orn;
-	m_worldTransform.getBasis().getRotation(orn);
+	m_worldTransform.m_basis.getRotation(orn);
 	return orn;
 }
 

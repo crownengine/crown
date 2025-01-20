@@ -724,8 +724,8 @@ void btMultiBodyDynamicsWorld::debugDrawWorld()
 						btVector3 vec = quatRotate(tr.getRotation(), bod->getLink(m).m_axes[0].m_topVec) * 0.1;
 
 						btVector4 color(0, 0, 0, 1);  //1,1,1);
-						btVector3 from = vec + tr.getOrigin() - quatRotate(tr.getRotation(), bod->getLink(m).m_dVector);
-						btVector3 to = tr.getOrigin() - quatRotate(tr.getRotation(), bod->getLink(m).m_dVector);
+						btVector3 from = vec + tr.m_origin - quatRotate(tr.getRotation(), bod->getLink(m).m_dVector);
+						btVector3 to = tr.m_origin - quatRotate(tr.getRotation(), bod->getLink(m).m_dVector);
 						getDebugDrawer()->drawLine(from, to, color);
 					}
 					if (bod->getLink(m).m_jointType == btMultibodyLink::eFixed)
@@ -733,8 +733,8 @@ void btMultiBodyDynamicsWorld::debugDrawWorld()
 						btVector3 vec = quatRotate(tr.getRotation(), bod->getLink(m).m_axes[0].m_bottomVec) * 0.1;
 
 						btVector4 color(0, 0, 0, 1);  //1,1,1);
-						btVector3 from = vec + tr.getOrigin() - quatRotate(tr.getRotation(), bod->getLink(m).m_dVector);
-						btVector3 to = tr.getOrigin() - quatRotate(tr.getRotation(), bod->getLink(m).m_dVector);
+						btVector3 from = vec + tr.m_origin - quatRotate(tr.getRotation(), bod->getLink(m).m_dVector);
+						btVector3 to = tr.m_origin - quatRotate(tr.getRotation(), bod->getLink(m).m_dVector);
 						getDebugDrawer()->drawLine(from, to, color);
 					}
 					if (bod->getLink(m).m_jointType == btMultibodyLink::ePrismatic)
@@ -742,8 +742,8 @@ void btMultiBodyDynamicsWorld::debugDrawWorld()
 						btVector3 vec = quatRotate(tr.getRotation(), bod->getLink(m).m_axes[0].m_bottomVec) * 0.1;
 
 						btVector4 color(0, 0, 0, 1);  //1,1,1);
-						btVector3 from = vec + tr.getOrigin() - quatRotate(tr.getRotation(), bod->getLink(m).m_dVector);
-						btVector3 to = tr.getOrigin() - quatRotate(tr.getRotation(), bod->getLink(m).m_dVector);
+						btVector3 from = vec + tr.m_origin - quatRotate(tr.getRotation(), bod->getLink(m).m_dVector);
+						btVector3 to = tr.m_origin - quatRotate(tr.getRotation(), bod->getLink(m).m_dVector);
 						getDebugDrawer()->drawLine(from, to, color);
 					}
 				}

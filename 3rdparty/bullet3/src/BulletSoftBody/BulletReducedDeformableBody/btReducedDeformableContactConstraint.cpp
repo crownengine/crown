@@ -345,7 +345,7 @@ btReducedDeformableNodeRigidContactConstraint::btReducedDeformableNodeRigidConta
 	{
 		m_relPosA = btVector3(0,0,0);
 	}
-	m_relPosB = m_node->m_x - m_rsb->getRigidTransform().getOrigin();
+	m_relPosB = m_node->m_x - m_rsb->getRigidTransform().m_origin;
 
 	if (m_collideStatic)		// colliding with static object, only consider reduced deformable body's impulse factor
 	{

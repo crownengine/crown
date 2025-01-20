@@ -92,7 +92,7 @@ btSliderConstraint::btSliderConstraint(btRigidBody& rbB, const btTransform& fram
 {
 	///not providing rigidbody A means implicitly using worldspace for body A
 	m_frameInA = rbB.getCenterOfMassTransform() * m_frameInB;
-	//	m_frameInA.getOrigin() = m_rbA.getCenterOfMassTransform()(m_frameInA.getOrigin());
+	//	m_frameInA.m_origin = m_rbA.getCenterOfMassTransform()(m_frameInA.m_origin);
 
 	initParams();
 }
@@ -148,9 +148,9 @@ void btSliderConstraint::calculateTransforms(const btTransform& transA, const bt
 		m_calculatedTransformA = transB * m_frameInB;
 		m_calculatedTransformB = transA * m_frameInA;
 	}
-	m_realPivotAInW = m_calculatedTransformA.getOrigin();
-	m_realPivotBInW = m_calculatedTransformB.getOrigin();
-	m_sliderAxis = m_calculatedTransformA.getBasis().getColumn(0);  // along X
+	m_realPivotAInW = m_calculatedTransformA.m_origin;
+	m_realPivotBInW = m_calculatedTransformB.m_origin;
+	m_sliderAxis = m_calculatedTransformA.m_basis.getColumn(0);  // along X
 	if (m_useLinearReferenceFrameA || m_useSolveConstraintObsolete)
 	{
 		m_delta = m_realPivotBInW - m_realPivotAInW;
@@ -165,7 +165,7 @@ void btSliderConstraint::calculateTransforms(const btTransform& transA, const bt
 	//linear part
 	for (i = 0; i < 3; i++)
 	{
-		normalWorld = m_calculatedTransformA.getBasis().getColumn(i);
+		normalWorld = m_calculatedTransformA.m_basis.getColumn(i);
 		m_depth[i] = m_delta.dot(normalWorld);
 	}
 }
@@ -203,9 +203,9 @@ void btSliderConstraint::testAngLimits(void)
 	m_solveAngLim = false;
 	if (m_lowerAngLimit <= m_upperAngLimit)
 	{
-		const btVector3 axisA0 = m_calculatedTransformA.getBasis().getColumn(1);
-		const btVector3 axisA1 = m_calculatedTransformA.getBasis().getColumn(2);
-		const btVector3 axisB0 = m_calculatedTransformB.getBasis().getColumn(1);
+		const btVector3 axisA0 = m_calculatedTransformA.m_basis.getColumn(1);
+		const btVector3 axisA1 = m_calculatedTransformA.m_basis.getColumn(2);
+		const btVector3 axisB0 = m_calculatedTransformB.m_basis.getColumn(1);
 		//		btScalar rot = btAtan2Fast(axisB0.dot(axisA1), axisB0.dot(axisA0));
 		btScalar rot = btAtan2(axisB0.dot(axisA1), axisB0.dot(axisA0));
 		rot = btAdjustAngleToLimits(rot, m_lowerAngLimit, m_upperAngLimit);
@@ -234,7 +234,7 @@ btVector3 btSliderConstraint::getAncorInA(void)
 btVector3 btSliderConstraint::getAncorInB(void)
 {
 	btVector3 ancorInB;
-	ancorInB = m_frameInB.getOrigin();
+	ancorInB = m_frameInB.m_origin;
 	return ancorInB;
 }
 
@@ -249,7 +249,7 @@ void btSliderConstraint::getInfo2NonVirtual(btConstraintInfo2* info, const btTra
 	btScalar signFact = m_useLinearReferenceFrameA ? btScalar(1.0f) : btScalar(-1.0f);
 
 	// difference between frames in WCS
-	btVector3 ofs = trB.getOrigin() - trA.getOrigin();
+	btVector3 ofs = trB.m_origin - trA.m_origin;
 	// now get weight factors depending on masses
 	btScalar miA = rbAinvMass;
 	btScalar miB = rbBinvMass;
@@ -266,8 +266,8 @@ void btSliderConstraint::getInfo2NonVirtual(btConstraintInfo2* info, const btTra
 	}
 	factB = btScalar(1.0f) - factA;
 	btVector3 ax1, p, q;
-	btVector3 ax1A = trA.getBasis().getColumn(0);
-	btVector3 ax1B = trB.getBasis().getColumn(0);
+	btVector3 ax1A = trA.m_basis.getColumn(0);
+	btVector3 ax1B = trB.m_basis.getColumn(0);
 	if (m_useOffsetForConstraintFrame)
 	{
 		// get the desired direction of slider axis
@@ -279,10 +279,10 @@ void btSliderConstraint::getInfo2NonVirtual(btConstraintInfo2* info, const btTra
 	}
 	else
 	{  // old way - use frameA
-		ax1 = trA.getBasis().getColumn(0);
+		ax1 = trA.m_basis.getColumn(0);
 		// get 2 orthos to slider axis (Y, Z)
-		p = trA.getBasis().getColumn(1);
-		q = trA.getBasis().getColumn(2);
+		p = trA.m_basis.getColumn(1);
+		q = trA.m_basis.getColumn(2);
 	}
 	// make rotations around these orthos equal
 	// the slider axis should be the only unconstrained
@@ -352,13 +352,13 @@ void btSliderConstraint::getInfo2NonVirtual(btConstraintInfo2* info, const btTra
 	if (m_useOffsetForConstraintFrame)
 	{
 		// get vector from bodyB to frameB in WCS
-		relB = trB.getOrigin() - bodyB_trans.getOrigin();
+		relB = trB.m_origin - bodyB_trans.m_origin;
 		// get its projection to slider axis
 		btVector3 projB = ax1 * relB.dot(ax1);
 		// get vector directed from bodyB to slider axis (and orthogonal to it)
 		btVector3 orthoB = relB - projB;
 		// same for bodyA
-		relA = trA.getOrigin() - bodyA_trans.getOrigin();
+		relA = trA.m_origin - bodyA_trans.m_origin;
 		btVector3 projA = ax1 * relA.dot(ax1);
 		btVector3 orthoA = relA - projA;
 		// get desired offset between frames A and B along slider axis
@@ -377,7 +377,7 @@ void btSliderConstraint::getInfo2NonVirtual(btConstraintInfo2* info, const btTra
 		}
 		else
 		{
-			p = trA.getBasis().getColumn(1);
+			p = trA.m_basis.getColumn(1);
 		}
 		// make one more ortho
 		q = ax1.cross(p);
@@ -404,7 +404,7 @@ void btSliderConstraint::getInfo2NonVirtual(btConstraintInfo2* info, const btTra
 	else
 	{  // old way - maybe incorrect if bodies are not on the slider axis
 		// see discussion "Bug in slider constraint" http://bulletphysics.org/Bullet/phpBB3/viewtopic.php?f=9&t=4024&start=0
-		c = bodyB_trans.getOrigin() - bodyA_trans.getOrigin();
+		c = bodyB_trans.m_origin - bodyA_trans.m_origin;
 		btVector3 tmp = c.cross(p);
 		for (i = 0; i < 3; i++) info->m_J1angularAxis[s2 + i] = factA * tmp[i];
 		for (i = 0; i < 3; i++) info->m_J2angularAxis[s2 + i] = factB * tmp[i];

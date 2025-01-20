@@ -4,8 +4,8 @@ Copyright (c) 2003-2009 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -44,7 +44,7 @@ void btTriangleMeshShape::getAabb(const btTransform& trans, btVector3& aabbMin, 
 	localHalfExtents += btVector3(getMargin(), getMargin(), getMargin());
 	btVector3 localCenter = btScalar(0.5) * (m_localAabbMax + m_localAabbMin);
 
-	btMatrix3x3 abs_b = trans.getBasis().absolute();
+	btMatrix3x3 abs_b = trans.m_basis.absolute();
 
 	btVector3 center = trans(localCenter);
 
@@ -80,7 +80,7 @@ public:
 		: m_supportVertexLocal(btScalar(0.), btScalar(0.), btScalar(0.)), m_worldTrans(trans), m_maxDot(btScalar(-BT_LARGE_FLOAT))
 
 	{
-		m_supportVecLocal = supportVecWorld * m_worldTrans.getBasis();
+		m_supportVecLocal = supportVecWorld * m_worldTrans.m_basis;
 	}
 
 	virtual void processTriangle(btVector3* triangle, int partId, int triangleIndex)

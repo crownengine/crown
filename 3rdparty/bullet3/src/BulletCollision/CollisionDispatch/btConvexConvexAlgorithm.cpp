@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  https://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -127,10 +127,10 @@ static SIMD_FORCE_INLINE btScalar capsuleCapsuleDistance(
 	const btTransform& transformB,
 	btScalar distanceThreshold)
 {
-	btVector3 directionA = transformA.getBasis().getColumn(capsuleAxisA);
-	btVector3 translationA = transformA.getOrigin();
-	btVector3 directionB = transformB.getBasis().getColumn(capsuleAxisB);
-	btVector3 translationB = transformB.getOrigin();
+	btVector3 directionA = transformA.m_basis.getColumn(capsuleAxisA);
+	btVector3 translationA = transformA.m_origin;
+	btVector3 directionB = transformB.m_basis.getColumn(capsuleAxisB);
+	btVector3 translationB = transformB.m_origin;
 
 	// translation between centers
 
@@ -163,7 +163,7 @@ static SIMD_FORCE_INLINE btScalar capsuleCapsuleDistance(
 		// compute the contact normal
 		normalOnB = ptsVector * -btRecipSqrt(lenSqr);
 	}
-	pointOnB = transformB.getOrigin() + offsetB + normalOnB * capsuleRadiusB;
+	pointOnB = transformB.m_origin + offsetB + normalOnB * capsuleRadiusB;
 
 	return distance;
 }
@@ -752,7 +752,7 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 
 						if (perturbeA)
 						{
-							input.m_transformA.setBasis(btMatrix3x3(rotq.inverse() * perturbeRot * rotq) * body0Wrap->getWorldTransform().getBasis());
+							input.m_transformA.m_basis = btMatrix3x3(rotq.inverse() * perturbeRot * rotq) * body0Wrap->getWorldTransform().m_basis;
 							input.m_transformB = body1Wrap->getWorldTransform();
 #ifdef DEBUG_CONTACTS
 							dispatchInfo.m_debugDraw->drawTransform(input.m_transformA, 10.0);
@@ -761,7 +761,7 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 						else
 						{
 							input.m_transformA = body0Wrap->getWorldTransform();
-							input.m_transformB.setBasis(btMatrix3x3(rotq.inverse() * perturbeRot * rotq) * body1Wrap->getWorldTransform().getBasis());
+							input.m_transformB.m_basis = btMatrix3x3(rotq.inverse() * perturbeRot * rotq) * body1Wrap->getWorldTransform().m_basis;
 #ifdef DEBUG_CONTACTS
 							dispatchInfo.m_debugDraw->drawTransform(input.m_transformB, 10.0);
 #endif
@@ -799,8 +799,8 @@ btScalar btConvexConvexAlgorithm::calculateTimeOfImpact(btCollisionObject* col0,
 	///col0->m_worldTransform,
 	btScalar resultFraction = btScalar(1.);
 
-	btScalar squareMot0 = (col0->getInterpolationWorldTransform().getOrigin() - col0->getWorldTransform().getOrigin()).length2();
-	btScalar squareMot1 = (col1->getInterpolationWorldTransform().getOrigin() - col1->getWorldTransform().getOrigin()).length2();
+	btScalar squareMot0 = (col0->getInterpolationWorldTransform().m_origin - col0->getWorldTransform().m_origin).length2();
+	btScalar squareMot1 = (col1->getInterpolationWorldTransform().m_origin - col1->getWorldTransform().m_origin).length2();
 
 	if (squareMot0 < col0->getCcdSquareMotionThreshold() &&
 		squareMot1 < col1->getCcdSquareMotionThreshold())

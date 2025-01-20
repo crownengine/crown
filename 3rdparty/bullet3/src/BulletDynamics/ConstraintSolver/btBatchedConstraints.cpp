@@ -114,8 +114,8 @@ static void debugDrawSingleBatch(const btBatchedConstraints* bc,
 			const btSolverConstraint& con = constraints->at(iCon);
 			int iBody0 = con.m_solverBodyIdA;
 			int iBody1 = con.m_solverBodyIdB;
-			btVector3 pos0 = bodies[iBody0].getWorldTransform().getOrigin() + offset;
-			btVector3 pos1 = bodies[iBody1].getWorldTransform().getOrigin() + offset;
+			btVector3 pos0 = bodies[iBody0].getWorldTransform().m_origin + offset;
+			btVector3 pos1 = bodies[iBody1].getWorldTransform().m_origin + offset;
 			bc->m_debugDrawer->drawLine(pos0, pos1, color);
 		}
 	}
@@ -153,7 +153,7 @@ static void debugDrawAllBatches(const btBatchedConstraints* bc,
 		btVector3 bboxMax = -bboxMin;
 		for (int iBody = 0; iBody < bodies.size(); ++iBody)
 		{
-			const btVector3& pos = bodies[iBody].getWorldTransform().getOrigin();
+			const btVector3& pos = bodies[iBody].getWorldTransform().m_origin;
 			bboxMin.setMin(pos);
 			bboxMax.setMax(pos);
 		}
@@ -872,7 +872,7 @@ static void setupSpatialGridBatchesMt(
 	for (int i = 0; i < bodies.size(); ++i)
 	{
 		const btSolverBody& body = bodies[i];
-		btVector3 bodyPos = body.getWorldTransform().getOrigin();
+		btVector3 bodyPos = body.getWorldTransform().m_origin;
 		bool isDynamic = (body.internalGetInvMass().x() > btScalar(0));
 		bodyPositions[i] = bodyPos;
 		bodyDynamicFlags[i] = isDynamic;

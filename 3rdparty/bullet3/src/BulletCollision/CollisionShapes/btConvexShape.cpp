@@ -4,8 +4,8 @@ Copyright (c) 2003-2009 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -48,7 +48,7 @@ btConvexShape::~btConvexShape()
 
 void btConvexShape::project(const btTransform& trans, const btVector3& dir, btScalar& min, btScalar& max, btVector3& witnesPtMin, btVector3& witnesPtMax) const
 {
-	btVector3 localAxis = dir * trans.getBasis();
+	btVector3 localAxis = dir * trans.m_basis;
 	btVector3 vtx1 = trans(localGetSupportingVertex(localAxis));
 	btVector3 vtx2 = trans(localGetSupportingVertex(-localAxis));
 
@@ -380,7 +380,7 @@ void btConvexShape::getAabbNonVirtual(const btTransform& t, btVector3& aabbMin, 
 			btSphereShape* sphereShape = (btSphereShape*)this;
 			btScalar radius = sphereShape->getImplicitShapeDimensions().getX();  // * convexShape->getLocalScaling().getX();
 			btScalar margin = radius + sphereShape->getMarginNonVirtual();
-			const btVector3& center = t.getOrigin();
+			const btVector3& center = t.m_origin;
 			btVector3 extent(margin, margin, margin);
 			aabbMin = center - extent;
 			aabbMax = center + extent;
@@ -394,8 +394,8 @@ void btConvexShape::getAabbNonVirtual(const btTransform& t, btVector3& aabbMin, 
 			btScalar margin = convexShape->getMarginNonVirtual();
 			btVector3 halfExtents = convexShape->getImplicitShapeDimensions();
 			halfExtents += btVector3(margin, margin, margin);
-			btMatrix3x3 abs_b = t.getBasis().absolute();
-			btVector3 center = t.getOrigin();
+			btMatrix3x3 abs_b = t.m_basis.absolute();
+			btVector3 center = t.m_origin;
 			btVector3 extent = halfExtents.dot3(abs_b[0], abs_b[1], abs_b[2]);
 
 			aabbMin = center - extent;
@@ -411,12 +411,12 @@ void btConvexShape::getAabbNonVirtual(const btTransform& t, btVector3& aabbMin, 
 				btVector3 vec(btScalar(0.), btScalar(0.), btScalar(0.));
 				vec[i] = btScalar(1.);
 
-				btVector3 sv = localGetSupportVertexWithoutMarginNonVirtual(vec * t.getBasis());
+				btVector3 sv = localGetSupportVertexWithoutMarginNonVirtual(vec * t.m_basis);
 
 				btVector3 tmp = t(sv);
 				aabbMax[i] = tmp[i] + margin;
 				vec[i] = btScalar(-1.);
-				tmp = t(localGetSupportVertexWithoutMarginNonVirtual(vec * t.getBasis()));
+				tmp = t(localGetSupportVertexWithoutMarginNonVirtual(vec * t.m_basis));
 				aabbMin[i] = tmp[i] - margin;
 			}
 		}
@@ -427,8 +427,8 @@ void btConvexShape::getAabbNonVirtual(const btTransform& t, btVector3& aabbMin, 
 			btVector3 halfExtents(capsuleShape->getRadius(), capsuleShape->getRadius(), capsuleShape->getRadius());
 			int m_upAxis = capsuleShape->getUpAxis();
 			halfExtents[m_upAxis] = capsuleShape->getRadius() + capsuleShape->getHalfHeight();
-			btMatrix3x3 abs_b = t.getBasis().absolute();
-			btVector3 center = t.getOrigin();
+			btMatrix3x3 abs_b = t.m_basis.absolute();
+			btVector3 center = t.m_origin;
 			btVector3 extent = halfExtents.dot3(abs_b[0], abs_b[1], abs_b[2]);
 			aabbMin = center - extent;
 			aabbMax = center + extent;

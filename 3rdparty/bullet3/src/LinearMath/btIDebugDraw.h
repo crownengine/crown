@@ -91,9 +91,9 @@ public:
 
 	virtual void drawSphere(btScalar radius, const btTransform& transform, const btVector3& color)
 	{
-		btVector3 center = transform.getOrigin();
-		btVector3 up = transform.getBasis().getColumn(1);
-		btVector3 axis = transform.getBasis().getColumn(0);
+		btVector3 center = transform.m_origin;
+		btVector3 up = transform.m_basis.getColumn(1);
+		btVector3 axis = transform.m_basis.getColumn(0);
 		btScalar minTh = -SIMD_HALF_PI;
 		btScalar maxTh = SIMD_HALF_PI;
 		btScalar minPs = -SIMD_HALF_PI;
@@ -107,7 +107,7 @@ public:
 	{
 		btTransform tr;
 		tr.setIdentity();
-		tr.setOrigin(p);
+		tr.m_origin = p;
 		drawSphere(radius, tr, color);
 	}
 
@@ -162,10 +162,10 @@ public:
 	}
 	virtual void drawTransform(const btTransform& transform, btScalar orthoLen)
 	{
-		btVector3 start = transform.getOrigin();
-		drawLine(start, start + transform.getBasis() * btVector3(orthoLen, 0, 0), btVector3(btScalar(1.), btScalar(0.3), btScalar(0.3)));
-		drawLine(start, start + transform.getBasis() * btVector3(0, orthoLen, 0), btVector3(btScalar(0.3), btScalar(1.), btScalar(0.3)));
-		drawLine(start, start + transform.getBasis() * btVector3(0, 0, orthoLen), btVector3(btScalar(0.3), btScalar(0.3), btScalar(1.)));
+		btVector3 start = transform.m_origin;
+		drawLine(start, start + transform.m_basis * btVector3(orthoLen, 0, 0), btVector3(btScalar(1.), btScalar(0.3), btScalar(0.3)));
+		drawLine(start, start + transform.m_basis * btVector3(0, orthoLen, 0), btVector3(btScalar(0.3), btScalar(1.), btScalar(0.3)));
+		drawLine(start, start + transform.m_basis * btVector3(0, 0, orthoLen), btVector3(btScalar(0.3), btScalar(0.3), btScalar(1.)));
 	}
 
 	virtual void drawArc(const btVector3& center, const btVector3& normal, const btVector3& axis, btScalar radiusA, btScalar radiusB, btScalar minAngle, btScalar maxAngle,
@@ -345,11 +345,11 @@ public:
 		// Draw the ends
 		{
 			btTransform childTransform = transform;
-			childTransform.getOrigin() = transform * capStart;
+			childTransform.m_origin = transform * capStart;
 			{
-				btVector3 center = childTransform.getOrigin();
-				btVector3 up = childTransform.getBasis().getColumn((upAxis + 1) % 3);
-				btVector3 axis = -childTransform.getBasis().getColumn(upAxis);
+				btVector3 center = childTransform.m_origin;
+				btVector3 up = childTransform.m_basis.getColumn((upAxis + 1) % 3);
+				btVector3 axis = -childTransform.m_basis.getColumn(upAxis);
 				btScalar minTh = -SIMD_HALF_PI;
 				btScalar maxTh = SIMD_HALF_PI;
 				btScalar minPs = -SIMD_HALF_PI;
@@ -361,11 +361,11 @@ public:
 
 		{
 			btTransform childTransform = transform;
-			childTransform.getOrigin() = transform * capEnd;
+			childTransform.m_origin = transform * capEnd;
 			{
-				btVector3 center = childTransform.getOrigin();
-				btVector3 up = childTransform.getBasis().getColumn((upAxis + 1) % 3);
-				btVector3 axis = childTransform.getBasis().getColumn(upAxis);
+				btVector3 center = childTransform.m_origin;
+				btVector3 up = childTransform.m_basis.getColumn((upAxis + 1) % 3);
+				btVector3 axis = childTransform.m_basis.getColumn(upAxis);
 				btScalar minTh = -SIMD_HALF_PI;
 				btScalar maxTh = SIMD_HALF_PI;
 				btScalar minPs = -SIMD_HALF_PI;
@@ -375,19 +375,19 @@ public:
 		}
 
 		// Draw some additional lines
-		btVector3 start = transform.getOrigin();
+		btVector3 start = transform.m_origin;
 
 		for (int i = 0; i < 360; i += stepDegrees)
 		{
 			capEnd[(upAxis + 1) % 3] = capStart[(upAxis + 1) % 3] = btSin(btScalar(i) * SIMD_RADS_PER_DEG) * radius;
 			capEnd[(upAxis + 2) % 3] = capStart[(upAxis + 2) % 3] = btCos(btScalar(i) * SIMD_RADS_PER_DEG) * radius;
-			drawLine(start + transform.getBasis() * capStart, start + transform.getBasis() * capEnd, color);
+			drawLine(start + transform.m_basis * capStart, start + transform.m_basis * capEnd, color);
 		}
 	}
 
 	virtual void drawCylinder(btScalar radius, btScalar halfHeight, int upAxis, const btTransform& transform, const btVector3& color)
 	{
-		btVector3 start = transform.getOrigin();
+		btVector3 start = transform.m_origin;
 		btVector3 offsetHeight(0, 0, 0);
 		offsetHeight[upAxis] = halfHeight;
 		int stepDegrees = 30;
@@ -400,21 +400,21 @@ public:
 		{
 			capEnd[(upAxis + 1) % 3] = capStart[(upAxis + 1) % 3] = btSin(btScalar(i) * SIMD_RADS_PER_DEG) * radius;
 			capEnd[(upAxis + 2) % 3] = capStart[(upAxis + 2) % 3] = btCos(btScalar(i) * SIMD_RADS_PER_DEG) * radius;
-			drawLine(start + transform.getBasis() * capStart, start + transform.getBasis() * capEnd, color);
+			drawLine(start + transform.m_basis * capStart, start + transform.m_basis * capEnd, color);
 		}
 		// Drawing top and bottom caps of the cylinder
 		btVector3 yaxis(0, 0, 0);
 		yaxis[upAxis] = btScalar(1.0);
 		btVector3 xaxis(0, 0, 0);
 		xaxis[(upAxis + 1) % 3] = btScalar(1.0);
-		drawArc(start - transform.getBasis() * (offsetHeight), transform.getBasis() * yaxis, transform.getBasis() * xaxis, radius, radius, 0, SIMD_2_PI, color, false, btScalar(10.0));
-		drawArc(start + transform.getBasis() * (offsetHeight), transform.getBasis() * yaxis, transform.getBasis() * xaxis, radius, radius, 0, SIMD_2_PI, color, false, btScalar(10.0));
+		drawArc(start - transform.m_basis * (offsetHeight), transform.m_basis * yaxis, transform.m_basis * xaxis, radius, radius, 0, SIMD_2_PI, color, false, btScalar(10.0));
+		drawArc(start + transform.m_basis * (offsetHeight), transform.m_basis * yaxis, transform.m_basis * xaxis, radius, radius, 0, SIMD_2_PI, color, false, btScalar(10.0));
 	}
 
 	virtual void drawCone(btScalar radius, btScalar height, int upAxis, const btTransform& transform, const btVector3& color)
 	{
 		int stepDegrees = 30;
-		btVector3 start = transform.getOrigin();
+		btVector3 start = transform.m_origin;
 
 		btVector3 offsetHeight(0, 0, 0);
 		btScalar halfHeight = height * btScalar(0.5);
@@ -431,20 +431,20 @@ public:
 		{
 			capEnd[(upAxis + 1) % 3] = btSin(btScalar(i) * SIMD_RADS_PER_DEG) * radius;
 			capEnd[(upAxis + 2) % 3] = btCos(btScalar(i) * SIMD_RADS_PER_DEG) * radius;
-			drawLine(start + transform.getBasis() * (offsetHeight), start + transform.getBasis() * capEnd, color);
+			drawLine(start + transform.m_basis * (offsetHeight), start + transform.m_basis * capEnd, color);
 		}
 
-		drawLine(start + transform.getBasis() * (offsetHeight), start + transform.getBasis() * (-offsetHeight + offsetRadius), color);
-		drawLine(start + transform.getBasis() * (offsetHeight), start + transform.getBasis() * (-offsetHeight - offsetRadius), color);
-		drawLine(start + transform.getBasis() * (offsetHeight), start + transform.getBasis() * (-offsetHeight + offset2Radius), color);
-		drawLine(start + transform.getBasis() * (offsetHeight), start + transform.getBasis() * (-offsetHeight - offset2Radius), color);
+		drawLine(start + transform.m_basis * (offsetHeight), start + transform.m_basis * (-offsetHeight + offsetRadius), color);
+		drawLine(start + transform.m_basis * (offsetHeight), start + transform.m_basis * (-offsetHeight - offsetRadius), color);
+		drawLine(start + transform.m_basis * (offsetHeight), start + transform.m_basis * (-offsetHeight + offset2Radius), color);
+		drawLine(start + transform.m_basis * (offsetHeight), start + transform.m_basis * (-offsetHeight - offset2Radius), color);
 
 		// Drawing the base of the cone
 		btVector3 yaxis(0, 0, 0);
 		yaxis[upAxis] = btScalar(1.0);
 		btVector3 xaxis(0, 0, 0);
 		xaxis[(upAxis + 1) % 3] = btScalar(1.0);
-		drawArc(start - transform.getBasis() * (offsetHeight), transform.getBasis() * yaxis, transform.getBasis() * xaxis, radius, radius, 0, SIMD_2_PI, color, false, 10.0);
+		drawArc(start - transform.m_basis * (offsetHeight), transform.m_basis * yaxis, transform.m_basis * xaxis, radius, radius, 0, SIMD_2_PI, color, false, 10.0);
 	}
 
 	virtual void drawPlane(const btVector3& planeNormal, btScalar planeConst, const btTransform& transform, const btVector3& color)

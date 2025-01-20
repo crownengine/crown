@@ -190,9 +190,9 @@ struct btSoftSingleRayCallback : public btBroadphaseRayCallback
 		  m_resultCallback(resultCallback)
 	{
 		m_rayFromTrans.setIdentity();
-		m_rayFromTrans.setOrigin(m_rayFromWorld);
+		m_rayFromTrans.m_origin = (m_rayFromWorld);
 		m_rayToTrans.setIdentity();
-		m_rayToTrans.setOrigin(m_rayToWorld);
+		m_rayToTrans.m_origin = (m_rayToWorld);
 
 		btVector3 rayDir = (rayToWorld - rayFromWorld);
 
@@ -275,7 +275,7 @@ void btSoftRigidDynamicsWorld::rayTestSingle(const btTransform& rayFromTrans, co
 		if (softBody)
 		{
 			btSoftBody::sRayCast softResult;
-			if (softBody->rayTest(rayFromTrans.getOrigin(), rayToTrans.getOrigin(), softResult))
+			if (softBody->rayTest(rayFromTrans.m_origin, rayToTrans.m_origin, softResult))
 			{
 				if (softResult.fraction <= resultCallback.m_closestHitFraction)
 				{
@@ -283,7 +283,7 @@ void btSoftRigidDynamicsWorld::rayTestSingle(const btTransform& rayFromTrans, co
 					shapeInfo.m_shapePart = 0;
 					shapeInfo.m_triangleIndex = softResult.index;
 					// get the normal
-					btVector3 rayDir = rayToTrans.getOrigin() - rayFromTrans.getOrigin();
+					btVector3 rayDir = rayToTrans.m_origin - rayFromTrans.m_origin;
 					btVector3 normal = -rayDir;
 					normal.normalize();
 

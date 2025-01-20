@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  https://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -84,8 +84,8 @@ bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& s
 	for (i = 0; i < numSampleDirections; i++)
 	{
 		btVector3 norm = getPenetrationDirections()[i];
-		separatingAxisInABatch[i] = (-norm) * transA.getBasis();
-		separatingAxisInBBatch[i] = norm * transB.getBasis();
+		separatingAxisInABatch[i] = (-norm) * transA.m_basis;
+		separatingAxisInBBatch[i] = norm * transB.m_basis;
 	}
 
 	{
@@ -96,10 +96,10 @@ bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& s
 			{
 				btVector3 norm;
 				convexA->getPreferredPenetrationDirection(i, norm);
-				norm = transA.getBasis() * norm;
+				norm = transA.m_basis * norm;
 				getPenetrationDirections()[numSampleDirections] = norm;
-				separatingAxisInABatch[numSampleDirections] = (-norm) * transA.getBasis();
-				separatingAxisInBBatch[numSampleDirections] = norm * transB.getBasis();
+				separatingAxisInABatch[numSampleDirections] = (-norm) * transA.m_basis;
+				separatingAxisInBBatch[numSampleDirections] = norm * transB.m_basis;
 				numSampleDirections++;
 			}
 		}
@@ -113,10 +113,10 @@ bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& s
 			{
 				btVector3 norm;
 				convexB->getPreferredPenetrationDirection(i, norm);
-				norm = transB.getBasis() * norm;
+				norm = transB.m_basis * norm;
 				getPenetrationDirections()[numSampleDirections] = norm;
-				separatingAxisInABatch[numSampleDirections] = (-norm) * transA.getBasis();
-				separatingAxisInBBatch[numSampleDirections] = norm * transB.getBasis();
+				separatingAxisInABatch[numSampleDirections] = (-norm) * transA.m_basis;
+				separatingAxisInBBatch[numSampleDirections] = norm * transB.m_basis;
 				numSampleDirections++;
 			}
 		}
@@ -173,7 +173,7 @@ bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& s
 			{
 				btVector3 norm;
 				convexA->getPreferredPenetrationDirection(i, norm);
-				norm = transA.getBasis() * norm;
+				norm = transA.m_basis * norm;
 				getPenetrationDirections()[numSampleDirections] = norm;
 				numSampleDirections++;
 			}
@@ -188,7 +188,7 @@ bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& s
 			{
 				btVector3 norm;
 				convexB->getPreferredPenetrationDirection(i, norm);
-				norm = transB.getBasis() * norm;
+				norm = transB.m_basis * norm;
 				getPenetrationDirections()[numSampleDirections] = norm;
 				numSampleDirections++;
 			}
@@ -199,8 +199,8 @@ bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& s
 	for (int i = 0; i < numSampleDirections; i++)
 	{
 		const btVector3& norm = getPenetrationDirections()[i];
-		separatingAxisInA = (-norm) * transA.getBasis();
-		separatingAxisInB = norm * transB.getBasis();
+		separatingAxisInA = (-norm) * transA.m_basis;
+		separatingAxisInB = norm * transB.m_basis;
 		pInA = convexA->localGetSupportVertexWithoutMarginNonVirtual(separatingAxisInA);
 		qInB = convexB->localGetSupportVertexWithoutMarginNonVirtual(separatingAxisInB);
 		pWorld = transA(pInA);
@@ -249,10 +249,10 @@ bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& s
 
 	btGjkPairDetector::ClosestPointInput input;
 
-	btVector3 newOrg = transA.getOrigin() + offset;
+	btVector3 newOrg = transA.m_origin + offset;
 
 	btTransform displacedTrans = transA;
-	displacedTrans.setOrigin(newOrg);
+	displacedTrans.m_origin = newOrg;
 
 	input.m_transformA = displacedTrans;
 	input.m_transformB = transB;

@@ -268,7 +268,7 @@ bool btGeneric6DofSpring2Constraint::matrixToEulerZYX(const btMatrix3x3& mat, bt
 
 void btGeneric6DofSpring2Constraint::calculateAngleInfo()
 {
-	btMatrix3x3 relative_frame = m_calculatedTransformA.getBasis().inverse() * m_calculatedTransformB.getBasis();
+	btMatrix3x3 relative_frame = m_calculatedTransformA.m_basis.inverse() * m_calculatedTransformB.m_basis;
 	switch (m_rotateOrder)
 	{
 		case RO_XYZ:
@@ -327,8 +327,8 @@ void btGeneric6DofSpring2Constraint::calculateAngleInfo()
 			//third rotate around x" = X
 			//Original XYZ extrinsic rotation order.
 			//Planes: xy and YZ normals: z, X.  Plane intersection (N) is z.cross(X)
-			btVector3 axis0 = m_calculatedTransformB.getBasis().getColumn(0);
-			btVector3 axis2 = m_calculatedTransformA.getBasis().getColumn(2);
+			btVector3 axis0 = m_calculatedTransformB.m_basis.getColumn(0);
+			btVector3 axis2 = m_calculatedTransformA.m_basis.getColumn(2);
 			m_calculatedAxis[1] = axis2.cross(axis0);
 			m_calculatedAxis[0] = m_calculatedAxis[1].cross(axis2);
 			m_calculatedAxis[2] = axis0.cross(m_calculatedAxis[1]);
@@ -340,8 +340,8 @@ void btGeneric6DofSpring2Constraint::calculateAngleInfo()
 			//first rotate around y
 			//second rotate around z'= y.cross(X)
 			//third rotate around x" = X
-			btVector3 axis0 = m_calculatedTransformB.getBasis().getColumn(0);
-			btVector3 axis1 = m_calculatedTransformA.getBasis().getColumn(1);
+			btVector3 axis0 = m_calculatedTransformB.m_basis.getColumn(0);
+			btVector3 axis1 = m_calculatedTransformA.m_basis.getColumn(1);
 			m_calculatedAxis[2] = axis0.cross(axis1);
 			m_calculatedAxis[0] = axis1.cross(m_calculatedAxis[2]);
 			m_calculatedAxis[1] = m_calculatedAxis[2].cross(axis0);
@@ -353,8 +353,8 @@ void btGeneric6DofSpring2Constraint::calculateAngleInfo()
 			//first rotate around z
 			//second rotate around x'= z.cross(Y)
 			//third rotate around y" = Y
-			btVector3 axis1 = m_calculatedTransformB.getBasis().getColumn(1);
-			btVector3 axis2 = m_calculatedTransformA.getBasis().getColumn(2);
+			btVector3 axis1 = m_calculatedTransformB.m_basis.getColumn(1);
+			btVector3 axis2 = m_calculatedTransformA.m_basis.getColumn(2);
 			m_calculatedAxis[0] = axis1.cross(axis2);
 			m_calculatedAxis[1] = axis2.cross(m_calculatedAxis[0]);
 			m_calculatedAxis[2] = m_calculatedAxis[0].cross(axis1);
@@ -366,8 +366,8 @@ void btGeneric6DofSpring2Constraint::calculateAngleInfo()
 			//first rotate around x
 			//second rotate around z'= x.cross(Y)
 			//third rotate around y" = Y
-			btVector3 axis0 = m_calculatedTransformA.getBasis().getColumn(0);
-			btVector3 axis1 = m_calculatedTransformB.getBasis().getColumn(1);
+			btVector3 axis0 = m_calculatedTransformA.m_basis.getColumn(0);
+			btVector3 axis1 = m_calculatedTransformB.m_basis.getColumn(1);
 			m_calculatedAxis[2] = axis0.cross(axis1);
 			m_calculatedAxis[0] = axis1.cross(m_calculatedAxis[2]);
 			m_calculatedAxis[1] = m_calculatedAxis[2].cross(axis0);
@@ -379,8 +379,8 @@ void btGeneric6DofSpring2Constraint::calculateAngleInfo()
 			//first rotate around y
 			//second rotate around x'= y.cross(Z)
 			//third rotate around z" = Z
-			btVector3 axis1 = m_calculatedTransformA.getBasis().getColumn(1);
-			btVector3 axis2 = m_calculatedTransformB.getBasis().getColumn(2);
+			btVector3 axis1 = m_calculatedTransformA.m_basis.getColumn(1);
+			btVector3 axis2 = m_calculatedTransformB.m_basis.getColumn(2);
 			m_calculatedAxis[0] = axis1.cross(axis2);
 			m_calculatedAxis[1] = axis2.cross(m_calculatedAxis[0]);
 			m_calculatedAxis[2] = m_calculatedAxis[0].cross(axis1);
@@ -392,8 +392,8 @@ void btGeneric6DofSpring2Constraint::calculateAngleInfo()
 			//first rotate around x
 			//second rotate around y' = x.cross(Z)
 			//third rotate around z" = Z
-			btVector3 axis0 = m_calculatedTransformA.getBasis().getColumn(0);
-			btVector3 axis2 = m_calculatedTransformB.getBasis().getColumn(2);
+			btVector3 axis0 = m_calculatedTransformA.m_basis.getColumn(0);
+			btVector3 axis2 = m_calculatedTransformB.m_basis.getColumn(2);
 			m_calculatedAxis[1] = axis2.cross(axis0);
 			m_calculatedAxis[0] = m_calculatedAxis[1].cross(axis2);
 			m_calculatedAxis[2] = axis0.cross(m_calculatedAxis[1]);
@@ -513,7 +513,7 @@ int btGeneric6DofSpring2Constraint::setLinearLimits(btConstraintInfo2* info, int
 			limot.m_loLimit = m_linearLimits.m_lowerLimit[i];
 			limot.m_maxMotorForce = m_linearLimits.m_maxMotorForce[i];
 			limot.m_targetVelocity = m_linearLimits.m_targetVelocity[i];
-			btVector3 axis = m_calculatedTransformA.getBasis().getColumn(i);
+			btVector3 axis = m_calculatedTransformA.m_basis.getColumn(i);
 			int flags = m_flags >> (i * BT_6DOF_FLAGS_AXIS_SHIFT2);
 			limot.m_stopCFM = (flags & BT_6DOF_FLAGS_CFM_STOP2) ? m_linearLimits.m_stopCFM[i] : info->cfm[0];
 			limot.m_stopERP = (flags & BT_6DOF_FLAGS_ERP_STOP2) ? m_linearLimits.m_stopERP[i] : info->erp;
@@ -625,8 +625,8 @@ void btGeneric6DofSpring2Constraint::setFrames(const btTransform& frameA, const 
 
 void btGeneric6DofSpring2Constraint::calculateLinearInfo()
 {
-	m_calculatedLinearDiff = m_calculatedTransformB.getOrigin() - m_calculatedTransformA.getOrigin();
-	m_calculatedLinearDiff = m_calculatedTransformA.getBasis().inverse() * m_calculatedLinearDiff;
+	m_calculatedLinearDiff = m_calculatedTransformB.m_origin - m_calculatedTransformA.m_origin;
+	m_calculatedLinearDiff = m_calculatedTransformA.m_basis.inverse() * m_calculatedLinearDiff;
 	for (int i = 0; i < 3; i++)
 	{
 		m_linearLimits.m_currentLinearDiff[i] = m_calculatedLinearDiff[i];
@@ -651,9 +651,9 @@ void btGeneric6DofSpring2Constraint::calculateJacobi(btRotationalLimitMotor2* li
 	{
 		btVector3 tmpA, tmpB, relA, relB;
 		// get vector from bodyB to frameB in WCS
-		relB = m_calculatedTransformB.getOrigin() - transB.getOrigin();
+		relB = m_calculatedTransformB.m_origin - transB.m_origin;
 		// same for bodyA
-		relA = m_calculatedTransformA.getOrigin() - transA.getOrigin();
+		relA = m_calculatedTransformA.m_origin - transA.m_origin;
 		tmpA = relA.cross(ax1);
 		tmpB = relB.cross(ax1);
 		if (m_hasStaticBody && (!rotAllowed))
@@ -828,8 +828,8 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 		}
 		else
 		{
-			btVector3 tanVelA = angVelA.cross(m_calculatedTransformA.getOrigin() - transA.getOrigin());
-			btVector3 tanVelB = angVelB.cross(m_calculatedTransformB.getOrigin() - transB.getOrigin());
+			btVector3 tanVelA = angVelA.cross(m_calculatedTransformA.m_origin - transA.m_origin);
+			btVector3 tanVelB = angVelB.cross(m_calculatedTransformB.m_origin - transB.m_origin);
 			vel = (linVelA + tanVelA).dot(ax1) - (linVelB + tanVelB).dot(ax1);
 		}
 		btScalar cfm = BT_ZERO;
@@ -837,8 +837,8 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 		btScalar mB = BT_ONE / m_rbB.getInvMass();
 		if (rotational)
 		{
-			btScalar rrA = (m_calculatedTransformA.getOrigin() - transA.getOrigin()).length2();
-			btScalar rrB = (m_calculatedTransformB.getOrigin() - transB.getOrigin()).length2();
+			btScalar rrA = (m_calculatedTransformA.m_origin - transA.m_origin).length2();
+			btScalar rrB = (m_calculatedTransformB.m_origin - transB.m_origin).length2();
 			if (m_rbA.getInvMass()) mA = mA * rrA + 1 / (m_rbA.getInvInertiaTensorWorld() * ax1).length();
 			if (m_rbB.getInvMass()) mB = mB * rrB + 1 / (m_rbB.getInvInertiaTensorWorld() * ax1).length();
 		}
@@ -1027,7 +1027,7 @@ void btGeneric6DofSpring2Constraint::setAxis(const btVector3& axis1, const btVec
 
 	btTransform frameInW;
 	frameInW.setIdentity();
-	frameInW.getBasis().setValue(xAxis[0], yAxis[0], zAxis[0],
+	frameInW.m_basis.setValue(xAxis[0], yAxis[0], zAxis[0],
 								 xAxis[1], yAxis[1], zAxis[1],
 								 xAxis[2], yAxis[2], zAxis[2]);
 

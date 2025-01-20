@@ -4,8 +4,8 @@ Copyright (c) 2003-2009 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -36,12 +36,12 @@ void btConvexInternalShape::getAabbSlow(const btTransform& trans, btVector3& min
 		btVector3 vec(btScalar(0.), btScalar(0.), btScalar(0.));
 		vec[i] = btScalar(1.);
 
-		btVector3 sv = localGetSupportingVertex(vec * trans.getBasis());
+		btVector3 sv = localGetSupportingVertex(vec * trans.m_basis);
 
 		btVector3 tmp = trans(sv);
 		maxAabb[i] = tmp[i] + margin;
 		vec[i] = btScalar(-1.);
-		tmp = trans(localGetSupportingVertex(vec * trans.getBasis()));
+		tmp = trans(localGetSupportingVertex(vec * trans.m_basis));
 		minAabb[i] = tmp[i] - margin;
 	}
 #endif

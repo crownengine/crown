@@ -829,7 +829,7 @@ struct btDbvtBenchmark
 	static btTransform RandTransform(btScalar cs)
 	{
 		btTransform t;
-		t.setOrigin(RandVector3(cs));
+		t.m_origin = (RandVector3(cs));
 		t.setRotation(btQuaternion(RandUnit() * SIMD_PI * 2, RandUnit() * SIMD_PI * 2, RandUnit() * SIMD_PI * 2).normalized());
 		return (t);
 	}
