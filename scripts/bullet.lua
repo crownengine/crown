@@ -52,11 +52,4 @@ project "bullet"
 		BULLET_DIR .. "src/**.cpp",
 	}
 
-	removefiles {
-		BULLET_DIR .. "src/BulletDynamics/Vehicle/**.h",
-		BULLET_DIR .. "src/BulletDynamics/Vehicle/**.cpp",
-		BULLET_DIR .. "src/BulletSoftBody/**.h",
-		BULLET_DIR .. "src/BulletSoftBody/**.cpp",
-	}
-
 	configuration {}
