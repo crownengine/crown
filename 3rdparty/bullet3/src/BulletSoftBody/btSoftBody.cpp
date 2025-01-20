@@ -545,7 +545,7 @@ void btSoftBody::appendDeformableAnchor(int node, btRigidBody* body)
 			0);
 
 	c.m_cti.m_colObj = body;
-	c.m_cti.m_normal = wtr.getBasis() * nrm;
+	c.m_cti.m_normal = wtr.m_basis * nrm;
 	c.m_cti.m_offset = dst;
 	c.m_node = &m_nodes[node];
 	const btScalar fc = m_cfg.kDF * body->getFriction();
@@ -554,7 +554,7 @@ void btSoftBody::appendDeformableAnchor(int node, btRigidBody* body)
 	c.m_c4 = body->isStaticOrKinematicObject() ? m_cfg.kKHR : m_cfg.kCHR;
 	static const btMatrix3x3 iwiStatic(0, 0, 0, 0, 0, 0, 0, 0, 0);
 	const btMatrix3x3& iwi = body->getInvInertiaTensorWorld();
-	const btVector3 ra = n.m_x - wtr.getOrigin();
+	const btVector3 ra = n.m_x - wtr.m_origin;
 
 	c.m_c0 = ImpulseMatrix(1, ima, imb, iwi, ra);
 	c.m_c1 = ra;
@@ -596,7 +596,7 @@ void btSoftBody::appendDeformableAnchor(int node, btMultiBodyLinkCollider* link)
 			nrm,
 			0);
 	c.m_cti.m_colObj = link;
-	c.m_cti.m_normal = wtr.getBasis() * nrm;
+	c.m_cti.m_normal = wtr.m_basis * nrm;
 	c.m_cti.m_offset = dst;
 	c.m_node = &m_nodes[node];
 	const btScalar fc = m_cfg.kDF * link->getFriction();
@@ -630,7 +630,7 @@ void btSoftBody::appendDeformableAnchor(int node, btMultiBodyLinkCollider* link)
 	c.jacobianData_t2 = jacobianData_t2;
 	c.t1 = t1;
 	c.t2 = t2;
-	const btVector3 ra = n.m_x - wtr.getOrigin();
+	const btVector3 ra = n.m_x - wtr.m_origin;
 	c.m_c1 = ra;
 	c.m_local = link->getWorldTransform().inverse() * m_nodes[node].m_x;
 	c.m_node->m_battach = 1;
@@ -668,8 +668,8 @@ void btSoftBody::appendAngularJoint(const AJoint::Specs& specs, Cluster* body0, 
 	AJoint* pj = new (btAlignedAlloc(sizeof(AJoint), 16)) AJoint();
 	pj->m_bodies[0] = body0;
 	pj->m_bodies[1] = body1;
-	pj->m_refs[0] = pj->m_bodies[0].xform().inverse().getBasis() * specs.axis;
-	pj->m_refs[1] = pj->m_bodies[1].xform().inverse().getBasis() * specs.axis;
+	pj->m_refs[0] = pj->m_bodies[0].xform().inverse().m_basis * specs.axis;
+	pj->m_refs[1] = pj->m_bodies[1].xform().inverse().m_basis * specs.axis;
 	pj->m_cfm = specs.cfm;
 	pj->m_erp = specs.erp;
 	pj->m_split = specs.split;
@@ -1084,8 +1084,8 @@ btTransform btSoftBody::getRigidTransform()
 	btMatrix3x3 R = V * U.transpose();
 	btTransform trs;
 	trs.setIdentity();
-	trs.setOrigin(t);
-	trs.setBasis(R);
+	trs.m_origin = (t);
+	trs.m_basis = (R);
 	return trs;
 }
 
@@ -1111,7 +1111,7 @@ void btSoftBody::transform(const btTransform& trs)
 		Node& n = m_nodes[i];
 		n.m_x = trs * n.m_x;
 		n.m_q = trs * n.m_q;
-		n.m_n = trs.getBasis() * n.m_n;
+		n.m_n = trs.m_basis * n.m_n;
 		vol = btDbvtVolume::FromCR(n.m_x, margin);
 
 		m_ndbvt.update(n.m_leaf, vol);
@@ -1126,7 +1126,7 @@ void btSoftBody::translate(const btVector3& trs)
 {
 	btTransform t;
 	t.setIdentity();
-	t.setOrigin(trs);
+	t.m_origin = (trs);
 	transform(t);
 }
 
@@ -2223,7 +2223,7 @@ void btSoftBody::solveConstraints()
 	for (i = 0, ni = m_anchors.size(); i < ni; ++i)
 	{
 		Anchor& a = m_anchors[i];
-		const btVector3 ra = a.m_body->getWorldTransform().getBasis() * a.m_local;
+		const btVector3 ra = a.m_body->getWorldTransform().m_basis * a.m_local;
 		a.m_c0 = ImpulseMatrix(m_sst.sdt,
 							   a.m_node->m_im,
 							   a.m_body->getInvMass(),
@@ -2766,7 +2766,7 @@ bool btSoftBody::checkContact(const btCollisionObjectWrapper* colObjWrap,
 	if (dst < 0)
 	{
 		cti.m_colObj = colObjWrap->getCollisionObject();
-		cti.m_normal = wtr.getBasis() * nrm;
+		cti.m_normal = wtr.m_basis * nrm;
 		cti.m_offset = -btDot(cti.m_normal, x - cti.m_normal * dst);
 		return (true);
 	}
@@ -2796,7 +2796,7 @@ bool btSoftBody::checkDeformableContact(const btCollisionObjectWrapper* colObjWr
 	if (!predict)
 	{
 		cti.m_colObj = colObjWrap->getCollisionObject();
-		cti.m_normal = wtr.getBasis() * nrm;
+		cti.m_normal = wtr.m_basis * nrm;
 		cti.m_offset = dst;
 	}
 	if (dst < 0)
@@ -2879,7 +2879,7 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
 			if (!predict)
 			{
 				cti.m_colObj = colObjWrap->getCollisionObject();
-				cti.m_normal = wtr.getBasis() * nrm;
+				cti.m_normal = wtr.m_basis * nrm;
 				cti.m_offset = dst;
 			}
 		}
@@ -2890,7 +2890,7 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
 	// collision detection using x*
 	btTransform triangle_transform;
 	triangle_transform.setIdentity();
-	triangle_transform.setOrigin(f.m_n[0]->m_q);
+	triangle_transform.m_origin = (f.m_n[0]->m_q);
 	btTriangleShape triangle(btVector3(0, 0, 0), f.m_n[1]->m_q - f.m_n[0]->m_q, f.m_n[2]->m_q - f.m_n[0]->m_q);
 	btVector3 guess(0, 0, 0);
 	const btConvexShape* csh = static_cast<const btConvexShape*>(shp);
@@ -2917,7 +2917,7 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
 			//point-convex CD
 			wtr = colObjWrap->getWorldTransform();
 			btTriangleShape triangle2(btVector3(0, 0, 0), f.m_n[1]->m_x - f.m_n[0]->m_x, f.m_n[2]->m_x - f.m_n[0]->m_x);
-			triangle_transform.setOrigin(f.m_n[0]->m_x);
+			triangle_transform.m_origin = (f.m_n[0]->m_x);
 			btGjkEpaSolver2::SignedDistance(&triangle2, triangle_transform, csh, wtr, guess, results);
 
 			dst = results.distance - csh->getMargin() - margin;
@@ -2928,7 +2928,7 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
 	// Use triangle-convex CD.
 	wtr = colObjWrap->getWorldTransform();
 	btTriangleShape triangle2(btVector3(0, 0, 0), f.m_n[1]->m_x - f.m_n[0]->m_x, f.m_n[2]->m_x - f.m_n[0]->m_x);
-	triangle_transform.setOrigin(f.m_n[0]->m_x);
+	triangle_transform.m_origin = (f.m_n[0]->m_x);
 	btGjkEpaSolver2::SignedDistance(&triangle2, triangle_transform, csh, wtr, guess, results);
 	contact_point = results.witnesses[0];
 	getBarycentric(contact_point, f.m_n[0]->m_x, f.m_n[1]->m_x, f.m_n[2]->m_x, bary);
@@ -3222,7 +3222,7 @@ void btSoftBody::initializeClusters()
 
 		/* Frame	*/
 		c.m_framexform.setIdentity();
-		c.m_framexform.setOrigin(c.m_com);
+		c.m_framexform.m_origin = (c.m_com);
 		c.m_framerefs.resize(c.m_nodes.size());
 		{
 			int i;
@@ -3264,11 +3264,11 @@ void btSoftBody::updateClusters()
 				m[2] += a[2] * b;
 			}
 			PolarDecompose(m, r, s);
-			c.m_framexform.setOrigin(c.m_com);
-			c.m_framexform.setBasis(r);
+			c.m_framexform.m_origin = (c.m_com);
+			c.m_framexform.m_basis = (r);
 			/* Inertia			*/
 #if 1 /* Constant	*/
-			c.m_invwi = c.m_framexform.getBasis() * c.m_locii * c.m_framexform.getBasis().transpose();
+			c.m_invwi = c.m_framexform.m_basis * c.m_locii * c.m_framexform.m_basis.transpose();
 #else
 #if 0 /* Sphere	*/ 
 			const btScalar	rk=(2*c.m_extents.length2())/(5*c.m_imass);
@@ -3277,7 +3277,7 @@ void btSoftBody::updateClusters()
 				btFabs(inertia[1])>SIMD_EPSILON?1/inertia[1]:0,
 				btFabs(inertia[2])>SIMD_EPSILON?1/inertia[2]:0);
 
-			c.m_invwi=c.m_xform.getBasis().scaled(iin)*c.m_xform.getBasis().transpose();
+			c.m_invwi=c.m_xform.m_basis.scaled(iin)*c.m_xform.m_basis.transpose();
 #else /* Actual	*/
 			c.m_invwi[0] = c.m_invwi[1] = c.m_invwi[2] = btVector3(0, 0, 0);
 			for (int i = 0; i < n; ++i)
@@ -3591,8 +3591,8 @@ void btSoftBody::LJoint::Prepare(btScalar dt, int iterations)
 	m_rpos[0] = m_bodies[0].xform() * m_refs[0];
 	m_rpos[1] = m_bodies[1].xform() * m_refs[1];
 	m_drift = Clamp(m_rpos[0] - m_rpos[1], maxdrift) * m_erp / dt;
-	m_rpos[0] -= m_bodies[0].xform().getOrigin();
-	m_rpos[1] -= m_bodies[1].xform().getOrigin();
+	m_rpos[0] -= m_bodies[0].xform().m_origin;
+	m_rpos[1] -= m_bodies[1].xform().m_origin;
 	m_massmatrix = ImpulseMatrix(m_bodies[0].invMass(), m_bodies[0].invWorldInertia(), m_rpos[0],
 								 m_bodies[1].invMass(), m_bodies[1].invWorldInertia(), m_rpos[1]);
 	if (m_split > 0)
@@ -3632,8 +3632,8 @@ void btSoftBody::AJoint::Prepare(btScalar dt, int iterations)
 	static const btScalar maxdrift = SIMD_PI / 16;
 	m_icontrol->Prepare(this);
 	Joint::Prepare(dt, iterations);
-	m_axis[0] = m_bodies[0].xform().getBasis() * m_refs[0];
-	m_axis[1] = m_bodies[1].xform().getBasis() * m_refs[1];
+	m_axis[0] = m_bodies[0].xform().m_basis * m_refs[0];
+	m_axis[1] = m_bodies[1].xform().m_basis * m_refs[1];
 	m_drift = NormalizeAny(btCross(m_axis[1], m_axis[0]));
 	m_drift *= btMin(maxdrift, btAcos(Clamp<btScalar>(btDot(m_axis[0], m_axis[1]), -1, +1)));
 	m_drift *= m_erp / dt;
@@ -4093,7 +4093,7 @@ void btSoftBody::defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap
 			btTransform wtr = pcoWrap->getWorldTransform();
 
 			const btTransform ctr = pcoWrap->getWorldTransform();
-			const btScalar timemargin = (wtr.getOrigin() - ctr.getOrigin()).length();
+			const btScalar timemargin = (wtr.m_origin - ctr.m_origin).length();
 			const btScalar basemargin = getCollisionShape()->getMargin();
 			btVector3 mins;
 			btVector3 maxs;

@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  https://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -140,8 +140,8 @@ btScalar btConvex2dConvex2dAlgorithm::calculateTimeOfImpact(btCollisionObject* c
 	///col0->m_worldTransform,
 	btScalar resultFraction = btScalar(1.);
 
-	btScalar squareMot0 = (col0->getInterpolationWorldTransform().getOrigin() - col0->getWorldTransform().getOrigin()).length2();
-	btScalar squareMot1 = (col1->getInterpolationWorldTransform().getOrigin() - col1->getWorldTransform().getOrigin()).length2();
+	btScalar squareMot0 = (col0->getInterpolationWorldTransform().m_origin - col0->getWorldTransform().m_origin).length2();
+	btScalar squareMot1 = (col1->getInterpolationWorldTransform().m_origin - col1->getWorldTransform().m_origin).length2();
 
 	if (squareMot0 < col0->getCcdSquareMotionThreshold() &&
 		squareMot1 < col1->getCcdSquareMotionThreshold())

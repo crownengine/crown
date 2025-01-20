@@ -557,7 +557,7 @@ void btDeformableBodySolver::applyTransforms(btScalar timeStep)
 						shp,
 						nrm,
 						0);
-					a.m_cti.m_normal = wtr.getBasis() * nrm;
+					a.m_cti.m_normal = wtr.m_basis * nrm;
 					btVector3 normal = a.m_cti.m_normal;
 					btVector3 t1 = generateUnitOrthogonalVector(normal);
 					btVector3 t2 = btCross(normal, t1);

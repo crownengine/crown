@@ -122,8 +122,8 @@ void btRaycastVehicle::updateWheelTransform(int wheelIndex, bool interpolatedTra
 	basis2[1][m_indexForwardAxis] = fwd[1];
 	basis2[2][m_indexForwardAxis] = fwd[2];
 
-	wheel.m_worldTransform.setBasis(steeringMat * rotatingMat * basis2);
-	wheel.m_worldTransform.setOrigin(
+	wheel.m_worldTransform.m_basis = (steeringMat * rotatingMat * basis2);
+	wheel.m_worldTransform.m_origin = (
 		wheel.m_raycastInfo.m_hardPointWS + wheel.m_raycastInfo.m_wheelDirectionWS * wheel.m_raycastInfo.m_suspensionLength);
 }
 
@@ -153,8 +153,8 @@ void btRaycastVehicle::updateWheelTransformsWS(btWheelInfo& wheel, bool interpol
 	}
 
 	wheel.m_raycastInfo.m_hardPointWS = chassisTrans(wheel.m_chassisConnectionPointCS);
-	wheel.m_raycastInfo.m_wheelDirectionWS = chassisTrans.getBasis() * wheel.m_wheelDirectionCS;
-	wheel.m_raycastInfo.m_wheelAxleWS = chassisTrans.getBasis() * wheel.m_wheelAxleCS;
+	wheel.m_raycastInfo.m_wheelDirectionWS = chassisTrans.m_basis * wheel.m_wheelDirectionCS;
+	wheel.m_raycastInfo.m_wheelAxleWS = chassisTrans.m_basis * wheel.m_wheelAxleCS;
 }
 
 btScalar btRaycastVehicle::rayCast(btWheelInfo& wheel)
@@ -267,9 +267,9 @@ void btRaycastVehicle::updateVehicle(btScalar step)
 	const btTransform& chassisTrans = getChassisWorldTransform();
 
 	btVector3 forwardW(
-		chassisTrans.getBasis()[0][m_indexForwardAxis],
-		chassisTrans.getBasis()[1][m_indexForwardAxis],
-		chassisTrans.getBasis()[2][m_indexForwardAxis]);
+		chassisTrans.m_basis[0][m_indexForwardAxis],
+		chassisTrans.m_basis[1][m_indexForwardAxis],
+		chassisTrans.m_basis[2][m_indexForwardAxis]);
 
 	if (forwardW.dot(getRigidBody()->getLinearVelocity()) < btScalar(0.))
 	{
@@ -320,9 +320,9 @@ void btRaycastVehicle::updateVehicle(btScalar step)
 			const btTransform& chassisWorldTransform = getChassisWorldTransform();
 
 			btVector3 fwd(
-				chassisWorldTransform.getBasis()[0][m_indexForwardAxis],
-				chassisWorldTransform.getBasis()[1][m_indexForwardAxis],
-				chassisWorldTransform.getBasis()[2][m_indexForwardAxis]);
+				chassisWorldTransform.m_basis[0][m_indexForwardAxis],
+				chassisWorldTransform.m_basis[1][m_indexForwardAxis],
+				chassisWorldTransform.m_basis[2][m_indexForwardAxis]);
 
 			btScalar proj = fwd.dot(wheel.m_raycastInfo.m_contactNormalWS);
 			fwd -= wheel.m_raycastInfo.m_contactNormalWS * proj;
@@ -521,7 +521,7 @@ void btRaycastVehicle::updateFriction(btScalar timeStep)
 			{
 				const btTransform& wheelTrans = getWheelTransformWS(i);
 
-				btMatrix3x3 wheelBasis0 = wheelTrans.getBasis();
+				btMatrix3x3 wheelBasis0 = wheelTrans.m_basis;
 				m_axle[i] = -btVector3(
 					wheelBasis0[0][m_indexRightAxis],
 					wheelBasis0[1][m_indexRightAxis],
@@ -643,7 +643,7 @@ void btRaycastVehicle::updateFriction(btScalar timeStep)
 				btVector3 sideImp = m_axle[wheel] * m_sideImpulse[wheel];
 
 #if defined ROLLING_INFLUENCE_FIX  // fix. It only worked if car's up was along Y - VT.
-				btVector3 vChassisWorldUp = getRigidBody()->getCenterOfMassTransform().getBasis().getColumn(m_indexUpAxis);
+				btVector3 vChassisWorldUp = getRigidBody()->getCenterOfMassTransform().m_basis.getColumn(m_indexUpAxis);
 				rel_pos -= vChassisWorldUp * (vChassisWorldUp.dot(rel_pos) * (1.f - wheelInfo.m_rollInfluence));
 #else
 				rel_pos[m_indexUpAxis] *= wheelInfo.m_rollInfluence;
@@ -671,12 +671,12 @@ void btRaycastVehicle::debugDraw(btIDebugDraw* debugDrawer)
 			wheelColor.setValue(1, 0, 1);
 		}
 
-		btVector3 wheelPosWS = getWheelInfo(v).m_worldTransform.getOrigin();
+		btVector3 wheelPosWS = getWheelInfo(v).m_worldTransform.m_origin;
 
 		btVector3 axle = btVector3(
-			getWheelInfo(v).m_worldTransform.getBasis()[0][getRightAxis()],
-			getWheelInfo(v).m_worldTransform.getBasis()[1][getRightAxis()],
-			getWheelInfo(v).m_worldTransform.getBasis()[2][getRightAxis()]);
+			getWheelInfo(v).m_worldTransform.m_basis[0][getRightAxis()],
+			getWheelInfo(v).m_worldTransform.m_basis[1][getRightAxis()],
+			getWheelInfo(v).m_worldTransform.m_basis[2][getRightAxis()]);
 
 		//debug wheels (cylinders)
 		debugDrawer->drawLine(wheelPosWS, wheelPosWS + axle, wheelColor);

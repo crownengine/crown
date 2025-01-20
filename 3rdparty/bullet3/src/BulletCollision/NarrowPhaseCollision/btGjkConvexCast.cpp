@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  https://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -44,8 +44,8 @@ bool btGjkConvexCast::calcTimeOfImpact(
 	/// compute linear velocity for this interval, to interpolate
 	//assume no rotation/angular velocity, assert here?
 	btVector3 linVelA, linVelB;
-	linVelA = toA.getOrigin() - fromA.getOrigin();
-	linVelB = toB.getOrigin() - fromB.getOrigin();
+	linVelA = toA.m_origin - fromA.m_origin;
+	linVelB = toB.m_origin - fromB.m_origin;
 
 	btScalar radius = btScalar(0.001);
 	btScalar lambda = btScalar(0.);
@@ -124,8 +124,8 @@ bool btGjkConvexCast::calcTimeOfImpact(
 
 			//interpolate to next lambda
 			result.DebugDraw(lambda);
-			input.m_transformA.getOrigin().setInterpolate3(fromA.getOrigin(), toA.getOrigin(), lambda);
-			input.m_transformB.getOrigin().setInterpolate3(fromB.getOrigin(), toB.getOrigin(), lambda);
+			input.m_transformA.m_origin.setInterpolate3(fromA.m_origin, toA.m_origin, lambda);
+			input.m_transformB.m_origin.setInterpolate3(fromB.m_origin, toB.m_origin, lambda);
 
 			gjk.getClosestPoints(input, pointCollector, 0);
 			if (pointCollector.m_hasResult)

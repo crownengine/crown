@@ -3,8 +3,8 @@ Copyright (c) 2003-2006 Gino van den Bergen / Erwin Coumans  https://bulletphysi
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -31,7 +31,7 @@ class btTransformUtil
 public:
 	static void integrateTransform(const btTransform& curTrans, const btVector3& linvel, const btVector3& angvel, btScalar timeStep, btTransform& predictedTransform)
 	{
-		predictedTransform.setOrigin(curTrans.getOrigin() + linvel * timeStep);
+		predictedTransform.m_origin = curTrans.m_origin + linvel * timeStep;
 		//	#define QUATERNION_DERIVATIVE
 #ifdef QUATERNION_DERIVATIVE
 		btQuaternion predictedOrn = curTrans.getRotation();
@@ -77,7 +77,7 @@ public:
 		}
 		else
 		{
-			predictedTransform.setBasis(curTrans.getBasis());
+			predictedTransform.m_basis = curTrans.m_basis;
 		}
 	}
 
@@ -114,7 +114,7 @@ public:
 
 	static void calculateVelocity(const btTransform& transform0, const btTransform& transform1, btScalar timeStep, btVector3& linVel, btVector3& angVel)
 	{
-		linVel = (transform1.getOrigin() - transform0.getOrigin()) / timeStep;
+		linVel = (transform1.m_origin - transform0.m_origin) / timeStep;
 		btVector3 axis;
 		btScalar angle;
 		calculateDiffAxisAngle(transform0, transform1, axis, angle);
@@ -123,7 +123,7 @@ public:
 
 	static void calculateDiffAxisAngle(const btTransform& transform0, const btTransform& transform1, btVector3& axis, btScalar& angle)
 	{
-		btMatrix3x3 dmat = transform1.getBasis() * transform0.getBasis().inverse();
+		btMatrix3x3 dmat = transform1.m_basis * transform0.m_basis.inverse();
 		btQuaternion dorn;
 		dmat.getRotation(dorn);
 
@@ -172,8 +172,8 @@ public:
 
 	void updateSeparatingDistance(const btTransform& transA, const btTransform& transB)
 	{
-		const btVector3& toPosA = transA.getOrigin();
-		const btVector3& toPosB = transB.getOrigin();
+		const btVector3& toPosA = transA.m_origin;
+		const btVector3& toPosB = transB.m_origin;
 		btQuaternion toOrnA = transA.getRotation();
 		btQuaternion toOrnB = transB.getRotation();
 
@@ -208,8 +208,8 @@ public:
 		{
 			m_separatingNormal = separatingVector;
 
-			const btVector3& toPosA = transA.getOrigin();
-			const btVector3& toPosB = transB.getOrigin();
+			const btVector3& toPosA = transA.m_origin;
+			const btVector3& toPosB = transB.m_origin;
 			btQuaternion toOrnA = transA.getRotation();
 			btQuaternion toOrnB = transB.getRotation();
 			m_posA = toPosA;

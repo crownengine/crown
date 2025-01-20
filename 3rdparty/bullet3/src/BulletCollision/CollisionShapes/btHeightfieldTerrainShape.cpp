@@ -4,8 +4,8 @@ Copyright (c) 2003-2009 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -126,7 +126,7 @@ void btHeightfieldTerrainShape::initialize(
 	m_flipTriangleWinding = false;
 	m_upAxis = upAxis;
 	m_localScaling.setValue(btScalar(1.), btScalar(1.), btScalar(1.));
-	
+
 	m_vboundsChunkSize = 0;
 	m_vboundsGridWidth = 0;
 	m_vboundsGridLength = 0;
@@ -176,8 +176,8 @@ void btHeightfieldTerrainShape::getAabb(const btTransform& t, btVector3& aabbMin
 	localOrigin[m_upAxis] = (m_minHeight + m_maxHeight) * btScalar(0.5);
 	localOrigin *= m_localScaling;
 
-	btMatrix3x3 abs_b = t.getBasis().absolute();
-	btVector3 center = t.getOrigin();
+	btMatrix3x3 abs_b = t.m_basis.absolute();
+	btVector3 center = t.m_origin;
 	btVector3 extent = halfExtents.dot3(abs_b[0], abs_b[1], abs_b[2]);
 	extent += btVector3(getMargin(), getMargin(), getMargin());
 
@@ -412,7 +412,7 @@ void btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback
 	}
 
 	// TODO If m_vboundsGrid is available, use it to determine if we really need to process this area
-	
+
 	const Range aabbUpRange(aabbMin[m_upAxis], aabbMax[m_upAxis]);
 	for (int j = startJ; j < endJ; j++)
 	{
@@ -437,7 +437,7 @@ void btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback
 
 				if (upRange.overlaps(aabbUpRange))
 					callback->processTriangle(vertices, 2 * x, j);
-			
+
 				// already set: getVertex(x, j, vertices[indices[0]])
 
 				// equivalent to: getVertex(x + 1, j + 1, vertices[indices[1]]);
@@ -523,7 +523,7 @@ void gridRaycast(Action_T& quadAction, const btVector3& beginPos, const btVector
 		// Consider the ray is too small to hit anything
 		return;
 	}
-	
+
 
 	btScalar rayDirectionFlatX = endPos[indices[0]] - beginPos[indices[0]];
 	btScalar rayDirectionFlatZ = endPos[indices[2]] - beginPos[indices[2]];
@@ -813,7 +813,7 @@ void btHeightfieldTerrainShape::performRaycast(btTriangleCallback* callback, con
 		return;
 	}
 
-	
+
 
 	if (m_vboundsGrid.size()==0)
 	{
@@ -882,7 +882,7 @@ void btHeightfieldTerrainShape::buildAccelerator(int chunkSize)
 
 	// This data structure is only reallocated if the required size changed
 	m_vboundsGrid.resize(nChunksX * nChunksZ);
-	
+
 	// Compute min and max height for all chunks
 	for (int cz = 0; cz < nChunksZ; ++cz)
 	{

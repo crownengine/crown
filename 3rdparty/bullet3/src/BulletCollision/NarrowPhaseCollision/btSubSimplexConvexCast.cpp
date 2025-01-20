@@ -39,8 +39,8 @@ bool btSubsimplexConvexCast::calcTimeOfImpact(
 	m_simplexSolver->reset();
 
 	btVector3 linVelA, linVelB;
-	linVelA = toA.getOrigin() - fromA.getOrigin();
-	linVelB = toB.getOrigin() - fromB.getOrigin();
+	linVelA = toA.m_origin - fromA.m_origin;
+	linVelB = toB.m_origin - fromB.m_origin;
 
 	btScalar lambda = btScalar(0.);
 
@@ -51,8 +51,8 @@ bool btSubsimplexConvexCast::calcTimeOfImpact(
 	btVector3 r = (linVelA - linVelB);
 	btVector3 v;
 
-	btVector3 supVertexA = fromA(m_convexA->localGetSupportingVertex(-r * fromA.getBasis()));
-	btVector3 supVertexB = fromB(m_convexB->localGetSupportingVertex(r * fromB.getBasis()));
+	btVector3 supVertexA = fromA(m_convexA->localGetSupportingVertex(-r * fromA.m_basis));
+	btVector3 supVertexB = fromB(m_convexB->localGetSupportingVertex(r * fromB.m_basis));
 	v = supVertexA - supVertexB;
 	int maxIter = result.m_subSimplexCastMaxIterations;
 
@@ -70,8 +70,8 @@ bool btSubsimplexConvexCast::calcTimeOfImpact(
 
 	while ((dist2 > result.m_subSimplexCastEpsilon) && maxIter--)
 	{
-		supVertexA = interpolatedTransA(m_convexA->localGetSupportingVertex(-v * interpolatedTransA.getBasis()));
-		supVertexB = interpolatedTransB(m_convexB->localGetSupportingVertex(v * interpolatedTransB.getBasis()));
+		supVertexA = interpolatedTransA(m_convexA->localGetSupportingVertex(-v * interpolatedTransA.m_basis));
+		supVertexB = interpolatedTransB(m_convexB->localGetSupportingVertex(v * interpolatedTransB.m_basis));
 		w = supVertexA - supVertexB;
 
 		btScalar VdotW = v.dot(w);
@@ -92,8 +92,8 @@ bool btSubsimplexConvexCast::calcTimeOfImpact(
 				lambda = lambda - VdotW / VdotR;
 				//interpolate to next lambda
 				//	x = s + lambda * r;
-				interpolatedTransA.getOrigin().setInterpolate3(fromA.getOrigin(), toA.getOrigin(), lambda);
-				interpolatedTransB.getOrigin().setInterpolate3(fromB.getOrigin(), toB.getOrigin(), lambda);
+				interpolatedTransA.m_origin.setInterpolate3(fromA.m_origin, toA.m_origin, lambda);
+				interpolatedTransB.m_origin.setInterpolate3(fromB.m_origin, toB.m_origin, lambda);
 				//m_simplexSolver->reset();
 				//check next line
 				w = supVertexA - supVertexB;

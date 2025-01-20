@@ -69,8 +69,8 @@ btScalar resolveSingleCollision(
 
 	const btVector3& normal = contactNormalOnB;
 
-	btVector3 rel_pos1 = contactPositionWorld - body1->getWorldTransform().getOrigin();
-	btVector3 rel_pos2 = contactPositionWorld - colObj2->getWorldTransform().getOrigin();
+	btVector3 rel_pos1 = contactPositionWorld - body1->getWorldTransform().m_origin;
+	btVector3 rel_pos2 = contactPositionWorld - colObj2->getWorldTransform().m_origin;
 
 	btVector3 vel1 = body1->getVelocityInLocalPoint(rel_pos1);
 	btVector3 vel2 = body2 ? body2->getVelocityInLocalPoint(rel_pos2) : btVector3(0, 0, 0);
@@ -124,8 +124,8 @@ void resolveSingleBilateral(btRigidBody& body1, const btVector3& pos1,
 	btVector3 vel2 = body2.getVelocityInLocalPoint(rel_pos2);
 	btVector3 vel = vel1 - vel2;
 
-	btJacobianEntry jac(body1.getCenterOfMassTransform().getBasis().transpose(),
-						body2.getCenterOfMassTransform().getBasis().transpose(),
+	btJacobianEntry jac(body1.getCenterOfMassTransform().m_basis.transpose(),
+						body2.getCenterOfMassTransform().m_basis.transpose(),
 						rel_pos1, rel_pos2, normal, body1.getInvInertiaDiagLocal(), body1.getInvMass(),
 						body2.getInvInertiaDiagLocal(), body2.getInvMass());
 
@@ -134,9 +134,9 @@ void resolveSingleBilateral(btRigidBody& body1, const btVector3& pos1,
 
 	btScalar rel_vel = jac.getRelativeVelocity(
 		body1.getLinearVelocity(),
-		body1.getCenterOfMassTransform().getBasis().transpose() * body1.getAngularVelocity(),
+		body1.getCenterOfMassTransform().m_basis.transpose() * body1.getAngularVelocity(),
 		body2.getLinearVelocity(),
-		body2.getCenterOfMassTransform().getBasis().transpose() * body2.getAngularVelocity());
+		body2.getCenterOfMassTransform().m_basis.transpose() * body2.getAngularVelocity());
 
 	rel_vel = normal.dot(vel);
 

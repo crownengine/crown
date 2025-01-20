@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  https://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -38,18 +38,18 @@ void SphereTriangleDetector::getClosestPoints(const ClosestPointInput& input, Re
 	//move sphere into triangle space
 	btTransform sphereInTr = transformB.inverseTimes(transformA);
 
-	if (collide(sphereInTr.getOrigin(), point, normal, depth, timeOfImpact, m_contactBreakingThreshold))
+	if (collide(sphereInTr.m_origin, point, normal, depth, timeOfImpact, m_contactBreakingThreshold))
 	{
 		if (swapResults)
 		{
-			btVector3 normalOnB = transformB.getBasis() * normal;
+			btVector3 normalOnB = transformB.m_basis * normal;
 			btVector3 normalOnA = -normalOnB;
 			btVector3 pointOnA = transformB * point + normalOnB * depth;
 			output.addContactPoint(normalOnA, pointOnA, depth);
 		}
 		else
 		{
-			output.addContactPoint(transformB.getBasis() * normal, transformB * point, depth);
+			output.addContactPoint(transformB.m_basis * normal, transformB * point, depth);
 		}
 	}
 }

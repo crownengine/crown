@@ -176,7 +176,7 @@ void btSoftBodyTriangleCallback::setTimeStepAndCounters(btScalar collisionMargin
 
 	btTransform softTransform;
 	softTransform.setIdentity();
-	softTransform.setOrigin(softBodyCenter);
+	softTransform.m_origin = (softBodyCenter);
 
 	btTransform convexInTriangleSpace;
 	convexInTriangleSpace = triBodyWrap->getWorldTransform().inverse() * softTransform;
@@ -222,14 +222,14 @@ btScalar btSoftBodyConcaveCollisionAlgorithm::calculateTimeOfImpact(btCollisionO
 
 	//only perform CCD above a certain threshold, this prevents blocking on the long run
 	//because object in a blocked ccd state (hitfraction<1) get their linear velocity halved each frame...
-	btScalar squareMot0 = (convexbody->getInterpolationWorldTransform().getOrigin() - convexbody->getWorldTransform().getOrigin()).length2();
+	btScalar squareMot0 = (convexbody->getInterpolationWorldTransform().m_origin - convexbody->getWorldTransform().m_origin).length2();
 	if (squareMot0 < convexbody->getCcdSquareMotionThreshold())
 	{
 		return btScalar(1.);
 	}
 
-	//const btVector3& from = convexbody->m_worldTransform.getOrigin();
-	//btVector3 to = convexbody->m_interpolationWorldTransform.getOrigin();
+	//const btVector3& from = convexbody->m_worldTransform.m_origin;
+	//btVector3 to = convexbody->m_interpolationWorldTransform.m_origin;
 	//todo: only do if the motion exceeds the 'radius'
 
 	btTransform triInv = triBody->getWorldTransform().inverse();
@@ -281,10 +281,10 @@ btScalar btSoftBodyConcaveCollisionAlgorithm::calculateTimeOfImpact(btCollisionO
 
 	if (triBody->getCollisionShape()->isConcave())
 	{
-		btVector3 rayAabbMin = convexFromLocal.getOrigin();
-		rayAabbMin.setMin(convexToLocal.getOrigin());
-		btVector3 rayAabbMax = convexFromLocal.getOrigin();
-		rayAabbMax.setMax(convexToLocal.getOrigin());
+		btVector3 rayAabbMin = convexFromLocal.m_origin;
+		rayAabbMin.setMin(convexToLocal.m_origin);
+		btVector3 rayAabbMax = convexFromLocal.m_origin;
+		rayAabbMax.setMax(convexToLocal.m_origin);
 		btScalar ccdRadius0 = convexbody->getCcdSweptSphereRadius();
 		rayAabbMin -= btVector3(ccdRadius0, ccdRadius0, ccdRadius0);
 		rayAabbMax += btVector3(ccdRadius0, ccdRadius0, ccdRadius0);

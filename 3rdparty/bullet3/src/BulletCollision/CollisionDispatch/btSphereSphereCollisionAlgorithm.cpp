@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  https://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -53,7 +53,7 @@ void btSphereSphereCollisionAlgorithm::processCollision(const btCollisionObjectW
 	btSphereShape* sphere0 = (btSphereShape*)col0Wrap->getCollisionShape();
 	btSphereShape* sphere1 = (btSphereShape*)col1Wrap->getCollisionShape();
 
-	btVector3 diff = col0Wrap->getWorldTransform().getOrigin() - col1Wrap->getWorldTransform().getOrigin();
+	btVector3 diff = col0Wrap->getWorldTransform().m_origin - col1Wrap->getWorldTransform().m_origin;
 	btScalar len = diff.length();
 	btScalar radius0 = sphere0->getRadius();
 	btScalar radius1 = sphere1->getRadius();
@@ -80,9 +80,9 @@ void btSphereSphereCollisionAlgorithm::processCollision(const btCollisionObjectW
 	}
 
 	///point on A (worldspace)
-	///btVector3 pos0 = col0->getWorldTransform().getOrigin() - radius0 * normalOnSurfaceB;
+	///btVector3 pos0 = col0->getWorldTransform().m_origin - radius0 * normalOnSurfaceB;
 	///point on B (worldspace)
-	btVector3 pos1 = col1Wrap->getWorldTransform().getOrigin() + radius1 * normalOnSurfaceB;
+	btVector3 pos1 = col1Wrap->getWorldTransform().m_origin + radius1 * normalOnSurfaceB;
 
 	/// report a contact. internally this will be kept persistent, and contact reduction is done
 

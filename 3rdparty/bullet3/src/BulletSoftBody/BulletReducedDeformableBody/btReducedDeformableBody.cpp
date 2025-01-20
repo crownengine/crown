@@ -85,7 +85,7 @@ void btReducedDeformableBody::setInertiaProps()
   //   m_nodes[i].m_x -= m_initialCoM;
   // }
   // m_initialCoM.setZero();
-  m_rigidTransformWorld.setOrigin(m_initialCoM);
+  m_rigidTransformWorld.m_origin = (m_initialCoM);
   m_interpolationWorldTransform = m_rigidTransformWorld;
   
   updateLocalInertiaTensorFromNodes();
@@ -258,8 +258,8 @@ void btReducedDeformableBody::updateReducedDofs(btScalar solverdt)
 
 void btReducedDeformableBody::mapToFullPosition(const btTransform& ref_trans)
 {
-  btVector3 origin = ref_trans.getOrigin();
-  btMatrix3x3 rotation = ref_trans.getBasis();
+  btVector3 origin = ref_trans.m_origin;
+  btMatrix3x3 rotation = ref_trans.m_basis;
   
 
   for (int i = 0; i < m_nFull; ++i)
@@ -291,7 +291,7 @@ void btReducedDeformableBody::mapToFullVelocity(const btTransform& ref_trans)
   // m_angularVelocityFromReduced.setZero();
   // for (int i = 0; i < m_nFull; ++i)
   // {
-  //   btVector3 r_com = ref_trans.getBasis() * m_localMomentArm[i];
+  //   btVector3 r_com = ref_trans.m_basis * m_localMomentArm[i];
   //   btMatrix3x3 r_star = Cross(r_com);
 
   //   btVector3 v_from_reduced(0, 0, 0);
@@ -304,7 +304,7 @@ void btReducedDeformableBody::mapToFullVelocity(const btTransform& ref_trans)
   //   }
 
   //   btVector3 delta_linear = m_nodalMass[i] * v_from_reduced;
-  //   btVector3 delta_angular = m_nodalMass[i] * (r_star * ref_trans.getBasis() * v_from_reduced);
+  //   btVector3 delta_angular = m_nodalMass[i] * (r_star * ref_trans.m_basis * v_from_reduced);
   //   sum_linear += delta_linear;
   //   sum_angular += delta_angular;
   //   // std::cout << "delta_linear: " << delta_linear[0] << "\t" << delta_linear[1] << "\t" << delta_linear[2] << "\n";
@@ -312,7 +312,7 @@ void btReducedDeformableBody::mapToFullVelocity(const btTransform& ref_trans)
   //   // std::cout << "sum_linear: " << sum_linear[0] << "\t" << sum_linear[1] << "\t" << sum_linear[2] << "\n";
   //   // std::cout << "sum_angular: " << sum_angular[0] << "\t" << sum_angular[1] << "\t" << sum_angular[2] << "\n";
   // }
-  // m_linearVelocityFromReduced = 1.0 / m_mass * (ref_trans.getBasis() * sum_linear);
+  // m_linearVelocityFromReduced = 1.0 / m_mass * (ref_trans.m_basis * sum_linear);
   // m_angularVelocityFromReduced = m_interpolateInvInertiaTensorWorld * sum_angular;
 
   // m_linearVelocity -= m_linearVelocityFromReduced;
@@ -332,7 +332,7 @@ const btVector3 btReducedDeformableBody::computeTotalAngularMomentum() const
 
   for (int i = 0; i < m_nFull; ++i)
   {
-    btVector3 r_com = m_rigidTransformWorld.getBasis() * m_localMomentArm[i];
+    btVector3 r_com = m_rigidTransformWorld.m_basis * m_localMomentArm[i];
     btMatrix3x3 r_star = Cross(r_com);
 
     btVector3 v_from_reduced(0, 0, 0);
@@ -344,8 +344,8 @@ const btVector3 btReducedDeformableBody::computeTotalAngularMomentum() const
       }
     }
 
-    L_reduced += m_nodalMass[i] * (r_star * (m_rigidTransformWorld.getBasis() * v_from_reduced - omega_prime_star * r_com));
-    // L_reduced += m_nodalMass[i] * (r_star * (m_rigidTransformWorld.getBasis() * v_from_reduced));
+    L_reduced += m_nodalMass[i] * (r_star * (m_rigidTransformWorld.m_basis * v_from_reduced - omega_prime_star * r_com));
+    // L_reduced += m_nodalMass[i] * (r_star * (m_rigidTransformWorld.m_basis * v_from_reduced));
   }
   return L_rigid + L_reduced;
 }
@@ -353,7 +353,7 @@ const btVector3 btReducedDeformableBody::computeTotalAngularMomentum() const
 const btVector3 btReducedDeformableBody::computeNodeFullVelocity(const btTransform& ref_trans, int n_node) const
 {
   btVector3 v_from_reduced(0, 0, 0);
-  btVector3 r_com = ref_trans.getBasis() * m_localMomentArm[n_node];
+  btVector3 r_com = ref_trans.m_basis * m_localMomentArm[n_node];
   // compute velocity contributed by the reduced velocity
   for (int k = 0; k < 3; ++k)
   {
@@ -364,7 +364,7 @@ const btVector3 btReducedDeformableBody::computeNodeFullVelocity(const btTransfo
   }
   // get new velocity
   btVector3 vel = m_angularVelocity.cross(r_com) + 
-                  ref_trans.getBasis() * v_from_reduced +
+                  ref_trans.m_basis * v_from_reduced +
                   m_linearVelocity;
   return vel;
 }
@@ -372,7 +372,7 @@ const btVector3 btReducedDeformableBody::computeNodeFullVelocity(const btTransfo
 const btVector3 btReducedDeformableBody::internalComputeNodeDeltaVelocity(const btTransform& ref_trans, int n_node) const
 {
   btVector3 deltaV_from_reduced(0, 0, 0);
-  btVector3 r_com = ref_trans.getBasis() * m_localMomentArm[n_node];
+  btVector3 r_com = ref_trans.m_basis * m_localMomentArm[n_node];
 
   // compute velocity contributed by the reduced velocity
   for (int k = 0; k < 3; ++k)
@@ -385,7 +385,7 @@ const btVector3 btReducedDeformableBody::internalComputeNodeDeltaVelocity(const 
 
   // get delta velocity
   btVector3 deltaV = m_internalDeltaAngularVelocity.cross(r_com) + 
-                     ref_trans.getBasis() * deltaV_from_reduced +
+                     ref_trans.m_basis * deltaV_from_reduced +
                      m_internalDeltaLinearVelocity;
   return deltaV;
 }
@@ -394,7 +394,7 @@ void btReducedDeformableBody::proceedToTransform(btScalar dt, bool end_of_time_s
 {
   btTransformUtil::integrateTransform(m_rigidTransformWorld, m_linearVelocity, m_angularVelocity, dt, m_interpolationWorldTransform);
   updateInertiaTensor();
-  // m_interpolateInvInertiaTensorWorld = m_interpolationWorldTransform.getBasis().scaled(m_invInertiaLocal) * m_interpolationWorldTransform.getBasis().transpose();
+  // m_interpolateInvInertiaTensorWorld = m_interpolationWorldTransform.m_basis.scaled(m_invInertiaLocal) * m_interpolationWorldTransform.m_basis.transpose();
   m_rigidTransformWorld = m_interpolationWorldTransform;
   m_invInertiaTensorWorld = m_interpolateInvInertiaTensorWorld;
 }
@@ -402,8 +402,8 @@ void btReducedDeformableBody::proceedToTransform(btScalar dt, bool end_of_time_s
 void btReducedDeformableBody::transformTo(const btTransform& trs)
 {
 	btTransform current_transform = getRigidTransform();
-	btTransform new_transform(trs.getBasis() * current_transform.getBasis().transpose(),
-                            trs.getOrigin() - current_transform.getOrigin());
+	btTransform new_transform(trs.m_basis * current_transform.m_basis.transpose(),
+                            trs.m_origin - current_transform.m_origin);
   transform(new_transform);
 }
 
@@ -417,9 +417,9 @@ void btReducedDeformableBody::transform(const btTransform& trs)
     ATTRIBUTE_ALIGNED16(btDbvtVolume)
     vol;
 
-    btVector3 CoM = m_rigidTransformWorld.getOrigin();
-    btVector3 translation = trs.getOrigin();
-    btMatrix3x3 rotation = trs.getBasis();
+    btVector3 CoM = m_rigidTransformWorld.m_origin;
+    btVector3 translation = trs.m_origin;
+    btMatrix3x3 rotation = trs.m_basis;
 
     for (int i = 0; i < m_nodes.size(); ++i)
     {
@@ -437,17 +437,17 @@ void btReducedDeformableBody::transform(const btTransform& trs)
   }
 
   // update modes
-  updateModesByRotation(trs.getBasis());
+  updateModesByRotation(trs.m_basis);
 
   // update inertia tensor
-  updateInitialInertiaTensor(trs.getBasis());
+  updateInitialInertiaTensor(trs.m_basis);
   updateInertiaTensor();
   m_interpolateInvInertiaTensorWorld = m_invInertiaTensorWorld;
   
   // update rigid frame (No need to update the rotation. Nodes have already been updated.)
-  m_rigidTransformWorld.setOrigin(m_initialCoM + trs.getOrigin());
+  m_rigidTransformWorld.m_origin = (m_initialCoM + trs.m_origin);
   m_interpolationWorldTransform = m_rigidTransformWorld;
-  m_initialCoM = m_rigidTransformWorld.getOrigin();
+  m_initialCoM = m_rigidTransformWorld.m_origin;
 
   internalInitialization();
 }
@@ -463,7 +463,7 @@ void btReducedDeformableBody::scale(const btVector3& scl)
     ATTRIBUTE_ALIGNED16(btDbvtVolume)
     vol;
 
-    btVector3 CoM = m_rigidTransformWorld.getOrigin();
+    btVector3 CoM = m_rigidTransformWorld.m_origin;
 
     for (int i = 0; i < m_nodes.size(); ++i)
     {
@@ -584,7 +584,7 @@ void btReducedDeformableBody::updateModesByRotation(const btMatrix3x3& rotation)
 
 void btReducedDeformableBody::updateInertiaTensor()
 {
-	m_invInertiaTensorWorld = m_rigidTransformWorld.getBasis() * m_invInertiaTensorWorldInitial * m_rigidTransformWorld.getBasis().transpose();
+	m_invInertiaTensorWorld = m_rigidTransformWorld.m_basis * m_invInertiaTensorWorldInitial * m_rigidTransformWorld.m_basis.transpose();
 }
 
 void btReducedDeformableBody::applyDamping(btScalar timeStep)
@@ -625,7 +625,7 @@ void btReducedDeformableBody::internalApplyRigidImpulse(const btVector3& impulse
 
 btVector3 btReducedDeformableBody::getRelativePos(int n_node)
 {
-  btMatrix3x3 rotation = m_interpolationWorldTransform.getBasis();
+  btMatrix3x3 rotation = m_interpolationWorldTransform.m_basis;
   btVector3 ri = rotation * m_localMomentArm[n_node];
   return ri;
 }
@@ -633,7 +633,7 @@ btVector3 btReducedDeformableBody::getRelativePos(int n_node)
 btMatrix3x3 btReducedDeformableBody::getImpulseFactor(int n_node)
 {
   // relative position
-  btMatrix3x3 rotation = m_interpolationWorldTransform.getBasis();
+  btMatrix3x3 rotation = m_interpolationWorldTransform.m_basis;
   btVector3 ri = rotation * m_localMomentArm[n_node];
   btMatrix3x3 ri_skew = Cross(ri);
 
@@ -721,8 +721,8 @@ void btReducedDeformableBody::internalApplyFullSpaceImpulse(const btVector3& imp
 void btReducedDeformableBody::applyFullSpaceNodalForce(const btVector3& f_ext, int n_node)
 {
   // f_local = R^-1 * f_ext //TODO: interpoalted transfrom
-  // btVector3 f_local = m_rigidTransformWorld.getBasis().transpose() * f_ext;
-  btVector3 f_local = m_interpolationWorldTransform.getBasis().transpose() * f_ext;
+  // btVector3 f_local = m_rigidTransformWorld.m_basis.transpose() * f_ext;
+  btVector3 f_local = m_interpolationWorldTransform.m_basis.transpose() * f_ext;
 
   // f_ext_r = [S^T * P]_{n_node} * f_local
   tDenseArray f_ext_r;

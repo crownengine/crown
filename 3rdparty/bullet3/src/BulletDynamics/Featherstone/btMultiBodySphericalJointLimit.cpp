@@ -264,7 +264,7 @@ void btMultiBodySphericalJointLimit::debugDraw(class btIDebugDraw* drawer)
 	if (m_bodyB)
 	{
 		btVector3 pivotBworld = m_bodyB->localPosToWorld(m_linkB, m_pivotB);
-		tr.setOrigin(pivotBworld);
+		tr.m_origin = (pivotBworld);
 		drawer->drawTransform(tr, 0.1);
 	}
 }

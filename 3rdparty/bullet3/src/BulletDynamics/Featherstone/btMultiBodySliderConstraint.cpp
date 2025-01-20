@@ -209,26 +209,26 @@ void btMultiBodySliderConstraint::debugDraw(class btIDebugDraw* drawer)
 	if (m_rigidBodyA)
 	{
 		btVector3 pivot = m_rigidBodyA->getCenterOfMassTransform() * m_pivotInA;
-		tr.setOrigin(pivot);
+		tr.m_origin = (pivot);
 		drawer->drawTransform(tr, 0.1);
 	}
 	if (m_bodyA)
 	{
 		btVector3 pivotAworld = m_bodyA->localPosToWorld(m_linkA, m_pivotInA);
-		tr.setOrigin(pivotAworld);
+		tr.m_origin = (pivotAworld);
 		drawer->drawTransform(tr, 0.1);
 	}
 	if (m_rigidBodyB)
 	{
 		// that ideally should draw the same frame
 		btVector3 pivot = m_rigidBodyB->getCenterOfMassTransform() * m_pivotInB;
-		tr.setOrigin(pivot);
+		tr.m_origin = (pivot);
 		drawer->drawTransform(tr, 0.1);
 	}
 	if (m_bodyB)
 	{
 		btVector3 pivotBworld = m_bodyB->localPosToWorld(m_linkB, m_pivotInB);
-		tr.setOrigin(pivotBworld);
+		tr.m_origin = (pivotBworld);
 		drawer->drawTransform(tr, 0.1);
 	}
 }

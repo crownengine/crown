@@ -129,7 +129,7 @@ inline void BoxSupport(const btScalar extents[3], const btScalar sv[3], btScalar
 
 void InverseTransformPoint3x3(btVector3& out, const btVector3& in, const btTransform& tr)
 {
-	const btMatrix3x3& rot = tr.getBasis();
+	const btMatrix3x3& rot = tr.m_basis;
 	const btVector3& r0 = rot[0];
 	const btVector3& r1 = rot[1];
 	const btVector3& r2 = rot[2];
@@ -251,7 +251,7 @@ bool btPolyhedralContactClipping::findSeparatingAxis(const btConvexPolyhedron& h
 	for (int i = 0; i < numFacesA; i++)
 	{
 		const btVector3 Normal(hullA.m_faces[i].m_plane[0], hullA.m_faces[i].m_plane[1], hullA.m_faces[i].m_plane[2]);
-		btVector3 faceANormalWS = transA.getBasis() * Normal;
+		btVector3 faceANormalWS = transA.m_basis * Normal;
 		if (DeltaC2.dot(faceANormalWS) < 0)
 			faceANormalWS *= -1.f;
 
@@ -280,7 +280,7 @@ bool btPolyhedralContactClipping::findSeparatingAxis(const btConvexPolyhedron& h
 	for (int i = 0; i < numFacesB; i++)
 	{
 		const btVector3 Normal(hullB.m_faces[i].m_plane[0], hullB.m_faces[i].m_plane[1], hullB.m_faces[i].m_plane[2]);
-		btVector3 WorldNormal = transB.getBasis() * Normal;
+		btVector3 WorldNormal = transB.m_basis * Normal;
 		if (DeltaC2.dot(WorldNormal) < 0)
 			WorldNormal *= -1.f;
 
@@ -316,11 +316,11 @@ bool btPolyhedralContactClipping::findSeparatingAxis(const btConvexPolyhedron& h
 	for (int e0 = 0; e0 < hullA.m_uniqueEdges.size(); e0++)
 	{
 		const btVector3 edge0 = hullA.m_uniqueEdges[e0];
-		const btVector3 WorldEdge0 = transA.getBasis() * edge0;
+		const btVector3 WorldEdge0 = transA.m_basis * edge0;
 		for (int e1 = 0; e1 < hullB.m_uniqueEdges.size(); e1++)
 		{
 			const btVector3 edge1 = hullB.m_uniqueEdges[e1];
-			const btVector3 WorldEdge1 = transB.getBasis() * edge1;
+			const btVector3 WorldEdge1 = transB.m_basis * edge1;
 
 			btVector3 Cross = WorldEdge0.cross(WorldEdge1);
 			curEdgeEdge++;
@@ -415,7 +415,7 @@ void btPolyhedralContactClipping::clipFaceAgainstHull(const btVector3& separatin
 		for (int face = 0; face < hullA.m_faces.size(); face++)
 		{
 			const btVector3 Normal(hullA.m_faces[face].m_plane[0], hullA.m_faces[face].m_plane[1], hullA.m_faces[face].m_plane[2]);
-			const btVector3 faceANormalWS = transA.getBasis() * Normal;
+			const btVector3 faceANormalWS = transA.m_basis * Normal;
 
 			btScalar d = faceANormalWS.dot(separatingNormal);
 			if (d < dmin)
@@ -437,8 +437,8 @@ void btPolyhedralContactClipping::clipFaceAgainstHull(const btVector3& separatin
 		const btVector3& a = hullA.m_vertices[polyA.m_indices[e0]];
 		const btVector3& b = hullA.m_vertices[polyA.m_indices[(e0 + 1) % numVerticesA]];
 		const btVector3 edge0 = a - b;
-		const btVector3 WorldEdge0 = transA.getBasis() * edge0;
-		btVector3 worldPlaneAnormal1 = transA.getBasis() * btVector3(polyA.m_plane[0], polyA.m_plane[1], polyA.m_plane[2]);
+		const btVector3 WorldEdge0 = transA.m_basis * edge0;
+		btVector3 worldPlaneAnormal1 = transA.m_basis * btVector3(polyA.m_plane[0], polyA.m_plane[1], polyA.m_plane[2]);
 
 		btVector3 planeNormalWS1 = -WorldEdge0.cross(worldPlaneAnormal1);  //.cross(WorldEdge0);
 		btVector3 worldA1 = transA * a;
@@ -450,8 +450,8 @@ void btPolyhedralContactClipping::clipFaceAgainstHull(const btVector3& separatin
 		btVector3 localPlaneNormal(hullA.m_faces[otherFace].m_plane[0], hullA.m_faces[otherFace].m_plane[1], hullA.m_faces[otherFace].m_plane[2]);
 		btScalar localPlaneEq = hullA.m_faces[otherFace].m_plane[3];
 
-		btVector3 planeNormalWS = transA.getBasis() * localPlaneNormal;
-		btScalar planeEqWS = localPlaneEq - planeNormalWS.dot(transA.getOrigin());
+		btVector3 planeNormalWS = transA.m_basis * localPlaneNormal;
+		btScalar planeEqWS = localPlaneEq - planeNormalWS.dot(transA.m_origin);
 #else
 		btVector3 planeNormalWS = planeNormalWS1;
 		btScalar planeEqWS = planeEqWS1;
@@ -472,8 +472,8 @@ void btPolyhedralContactClipping::clipFaceAgainstHull(const btVector3& separatin
 	{
 		btVector3 localPlaneNormal(polyA.m_plane[0], polyA.m_plane[1], polyA.m_plane[2]);
 		btScalar localPlaneEq = polyA.m_plane[3];
-		btVector3 planeNormalWS = transA.getBasis() * localPlaneNormal;
-		btScalar planeEqWS = localPlaneEq - planeNormalWS.dot(transA.getOrigin());
+		btVector3 planeNormalWS = transA.m_basis * localPlaneNormal;
+		btScalar planeEqWS = localPlaneEq - planeNormalWS.dot(transA.m_origin);
 		for (int i = 0; i < pVtxIn->size(); i++)
 		{
 			btVector3 vtx = pVtxIn->at(i);
@@ -523,7 +523,7 @@ void btPolyhedralContactClipping::clipHullAgainstHull(const btVector3& separatin
 		for (int face = 0; face < hullB.m_faces.size(); face++)
 		{
 			const btVector3 Normal(hullB.m_faces[face].m_plane[0], hullB.m_faces[face].m_plane[1], hullB.m_faces[face].m_plane[2]);
-			const btVector3 WorldNormal = transB.getBasis() * Normal;
+			const btVector3 WorldNormal = transB.m_basis * Normal;
 			btScalar d = WorldNormal.dot(separatingNormal);
 			if (d > dmax)
 			{

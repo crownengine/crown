@@ -43,7 +43,7 @@ btConeTwistConstraint::btConeTwistConstraint(btRigidBody& rbA, const btTransform
 	: btTypedConstraint(CONETWIST_CONSTRAINT_TYPE, rbA), m_rbAFrame(rbAFrame), m_angularOnly(false), m_useSolveConstraintObsolete(CONETWIST_USE_OBSOLETE_SOLVER)
 {
 	m_rbBFrame = m_rbAFrame;
-	m_rbBFrame.setOrigin(btVector3(0., 0., 0.));
+	m_rbBFrame.m_origin = (btVector3(0., 0., 0.));
 	init();
 }
 
@@ -115,7 +115,7 @@ void btConeTwistConstraint::getInfo2NonVirtual(btConstraintInfo2* info, const bt
 	info->m_J1linearAxis[0] = 1;
 	info->m_J1linearAxis[info->rowskip + 1] = 1;
 	info->m_J1linearAxis[2 * info->rowskip + 2] = 1;
-	btVector3 a1 = transA.getBasis() * m_rbAFrame.getOrigin();
+	btVector3 a1 = transA.m_basis * m_rbAFrame.m_origin;
 	{
 		btVector3* angular0 = (btVector3*)(info->m_J1angularAxis);
 		btVector3* angular1 = (btVector3*)(info->m_J1angularAxis + info->rowskip);
@@ -126,7 +126,7 @@ void btConeTwistConstraint::getInfo2NonVirtual(btConstraintInfo2* info, const bt
 	info->m_J2linearAxis[0] = -1;
 	info->m_J2linearAxis[info->rowskip + 1] = -1;
 	info->m_J2linearAxis[2 * info->rowskip + 2] = -1;
-	btVector3 a2 = transB.getBasis() * m_rbBFrame.getOrigin();
+	btVector3 a2 = transB.m_basis * m_rbBFrame.m_origin;
 	{
 		btVector3* angular0 = (btVector3*)(info->m_J2angularAxis);
 		btVector3* angular1 = (btVector3*)(info->m_J2angularAxis + info->rowskip);
@@ -139,7 +139,7 @@ void btConeTwistConstraint::getInfo2NonVirtual(btConstraintInfo2* info, const bt
 	int j;
 	for (j = 0; j < 3; j++)
 	{
-		info->m_constraintError[j * info->rowskip] = k * (a2[j] + transB.getOrigin()[j] - a1[j] - transA.getOrigin()[j]);
+		info->m_constraintError[j * info->rowskip] = k * (a2[j] + transB.m_origin[j] - a1[j] - transA.m_origin[j]);
 		info->m_lowerLimit[j * info->rowskip] = -SIMD_INFINITY;
 		info->m_upperLimit[j * info->rowskip] = SIMD_INFINITY;
 		if (m_flags & BT_CONETWIST_FLAGS_LIN_CFM)
@@ -158,8 +158,8 @@ void btConeTwistConstraint::getInfo2NonVirtual(btConstraintInfo2* info, const bt
 		if ((m_swingSpan1 < m_fixThresh) && (m_swingSpan2 < m_fixThresh))
 		{
 			btTransform trA = transA * m_rbAFrame;
-			btVector3 p = trA.getBasis().getColumn(1);
-			btVector3 q = trA.getBasis().getColumn(2);
+			btVector3 p = trA.m_basis.getColumn(1);
+			btVector3 q = trA.m_basis.getColumn(2);
 			int srow1 = srow + info->rowskip;
 			J1[srow + 0] = p[0];
 			J1[srow + 1] = p[1];
@@ -254,8 +254,8 @@ void btConeTwistConstraint::buildJacobian()
 
 		if (!m_angularOnly)
 		{
-			btVector3 pivotAInW = m_rbA.getCenterOfMassTransform() * m_rbAFrame.getOrigin();
-			btVector3 pivotBInW = m_rbB.getCenterOfMassTransform() * m_rbBFrame.getOrigin();
+			btVector3 pivotAInW = m_rbA.getCenterOfMassTransform() * m_rbAFrame.m_origin;
+			btVector3 pivotBInW = m_rbB.getCenterOfMassTransform() * m_rbBFrame.m_origin;
 			btVector3 relPos = pivotBInW - pivotAInW;
 
 			btVector3 normal[3];
@@ -273,8 +273,8 @@ void btConeTwistConstraint::buildJacobian()
 			for (int i = 0; i < 3; i++)
 			{
 				new (&m_jac[i]) btJacobianEntry(
-					m_rbA.getCenterOfMassTransform().getBasis().transpose(),
-					m_rbB.getCenterOfMassTransform().getBasis().transpose(),
+					m_rbA.getCenterOfMassTransform().m_basis.transpose(),
+					m_rbB.getCenterOfMassTransform().m_basis.transpose(),
 					pivotAInW - m_rbA.getCenterOfMassPosition(),
 					pivotBInW - m_rbB.getCenterOfMassPosition(),
 					normal[i],
@@ -294,8 +294,8 @@ void btConeTwistConstraint::solveConstraintObsolete(btSolverBody& bodyA, btSolve
 #ifndef __SPU__
 	if (m_useSolveConstraintObsolete)
 	{
-		btVector3 pivotAInW = m_rbA.getCenterOfMassTransform() * m_rbAFrame.getOrigin();
-		btVector3 pivotBInW = m_rbB.getCenterOfMassTransform() * m_rbBFrame.getOrigin();
+		btVector3 pivotAInW = m_rbA.getCenterOfMassTransform() * m_rbAFrame.m_origin;
+		btVector3 pivotBInW = m_rbB.getCenterOfMassTransform() * m_rbBFrame.m_origin;
 
 		btScalar tau = btScalar(0.3);
 
@@ -522,8 +522,8 @@ void btConeTwistConstraint::calcAngleInfo()
 	btVector3 b1Axis1(0, 0, 0), b1Axis2(0, 0, 0), b1Axis3(0, 0, 0);
 	btVector3 b2Axis1(0, 0, 0), b2Axis2(0, 0, 0);
 
-	b1Axis1 = getRigidBodyA().getCenterOfMassTransform().getBasis() * this->m_rbAFrame.getBasis().getColumn(0);
-	b2Axis1 = getRigidBodyB().getCenterOfMassTransform().getBasis() * this->m_rbBFrame.getBasis().getColumn(0);
+	b1Axis1 = getRigidBodyA().getCenterOfMassTransform().m_basis * this->m_rbAFrame.m_basis.getColumn(0);
+	b2Axis1 = getRigidBodyB().getCenterOfMassTransform().m_basis * this->m_rbBFrame.m_basis.getColumn(0);
 
 	btScalar swing1 = btScalar(0.), swing2 = btScalar(0.);
 
@@ -534,7 +534,7 @@ void btConeTwistConstraint::calcAngleInfo()
 	// Get Frame into world space
 	if (m_swingSpan1 >= btScalar(0.05f))
 	{
-		b1Axis2 = getRigidBodyA().getCenterOfMassTransform().getBasis() * this->m_rbAFrame.getBasis().getColumn(1);
+		b1Axis2 = getRigidBodyA().getCenterOfMassTransform().m_basis * this->m_rbAFrame.m_basis.getColumn(1);
 		swx = b2Axis1.dot(b1Axis1);
 		swy = b2Axis1.dot(b1Axis2);
 		swing1 = btAtan2Fast(swy, swx);
@@ -545,7 +545,7 @@ void btConeTwistConstraint::calcAngleInfo()
 
 	if (m_swingSpan2 >= btScalar(0.05f))
 	{
-		b1Axis3 = getRigidBodyA().getCenterOfMassTransform().getBasis() * this->m_rbAFrame.getBasis().getColumn(2);
+		b1Axis3 = getRigidBodyA().getCenterOfMassTransform().m_basis * this->m_rbAFrame.m_basis.getColumn(2);
 		swx = b2Axis1.dot(b1Axis1);
 		swy = b2Axis1.dot(b1Axis3);
 		swing2 = btAtan2Fast(swy, swx);
@@ -572,7 +572,7 @@ void btConeTwistConstraint::calcAngleInfo()
 	// Twist limits
 	if (m_twistSpan >= btScalar(0.))
 	{
-		btVector3 b2Axis2 = getRigidBodyB().getCenterOfMassTransform().getBasis() * this->m_rbBFrame.getBasis().getColumn(1);
+		btVector3 b2Axis2 = getRigidBodyB().getCenterOfMassTransform().m_basis * this->m_rbBFrame.m_basis.getColumn(1);
 		btQuaternion rotationArc = shortestArcQuat(b2Axis1, b1Axis1);
 		btVector3 TwistRef = quatRotate(rotationArc, b2Axis2);
 		btScalar twist = btAtan2Fast(TwistRef.dot(b1Axis3), TwistRef.dot(b1Axis2));
@@ -689,10 +689,10 @@ void btConeTwistConstraint::calcAngleInfo2(const btTransform& transA, const btTr
 			// you haven't set any limits;
 			// or you're trying to set at least one of the swing limits too small. (if so, do you really want a conetwist constraint?)
 			// anyway, we have either hinge or fixed joint
-			btVector3 ivA = transA.getBasis() * m_rbAFrame.getBasis().getColumn(0);
-			btVector3 jvA = transA.getBasis() * m_rbAFrame.getBasis().getColumn(1);
-			btVector3 kvA = transA.getBasis() * m_rbAFrame.getBasis().getColumn(2);
-			btVector3 ivB = transB.getBasis() * m_rbBFrame.getBasis().getColumn(0);
+			btVector3 ivA = transA.m_basis * m_rbAFrame.m_basis.getColumn(0);
+			btVector3 jvA = transA.m_basis * m_rbAFrame.m_basis.getColumn(1);
+			btVector3 kvA = transA.m_basis * m_rbAFrame.m_basis.getColumn(2);
+			btVector3 ivB = transB.m_basis * m_rbBFrame.m_basis.getColumn(0);
 			btVector3 target;
 			btScalar x = ivB.dot(ivA);
 			btScalar y = ivB.dot(jvA);

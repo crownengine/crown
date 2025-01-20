@@ -4,8 +4,8 @@ Bullet Continuous Collision Detection and Physics Library
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -138,8 +138,8 @@ static btScalar EdgeSeparation(const btBox2dShape* poly1, const btTransform& xf1
 	btAssert(0 <= edge1 && edge1 < poly1->getVertexCount());
 
 	// Convert normal from poly1's frame into poly2's frame.
-	btVector3 normal1World = b2Mul(xf1.getBasis(), normals1[edge1]);
-	btVector3 normal1 = b2MulT(xf2.getBasis(), normal1World);
+	btVector3 normal1World = b2Mul(xf1.m_basis, normals1[edge1]);
+	btVector3 normal1 = b2MulT(xf2.m_basis, normal1World);
 
 	// Find support vertex on poly2 for -normal.
 	int index = 0;
@@ -164,7 +164,7 @@ static btScalar FindMaxSeparation(int* edgeIndex,
 
 	// Vector pointing from the centroid of poly1 to the centroid of poly2.
 	btVector3 d = b2Mul(xf2, poly2->getCentroid()) - b2Mul(xf1, poly1->getCentroid());
-	btVector3 dLocal1 = b2MulT(xf1.getBasis(), d);
+	btVector3 dLocal1 = b2MulT(xf1.m_basis, d);
 
 	// Find edge normal on poly1 that has the largest projection onto d.
 	int edge = 0;
@@ -259,7 +259,7 @@ static void FindIncidentEdge(ClipVertex c[2],
 	btAssert(0 <= edge1 && edge1 < poly1->getVertexCount());
 
 	// Get the normal of the reference edge in poly2's frame.
-	btVector3 normal1 = b2MulT(xf2.getBasis(), b2Mul(xf1.getBasis(), normals1[edge1]));
+	btVector3 normal1 = b2MulT(xf2.m_basis, b2Mul(xf1.m_basis, normals1[edge1]));
 
 	// Find the incident edge on poly2.
 	int index = 0;
@@ -348,7 +348,7 @@ void b2CollidePolygons(btManifoldResult* manifold,
 	btVector3 v12 = edge1 + 1 < count1 ? vertices1[edge1 + 1] : vertices1[0];
 
 	//btVector3 dv = v12 - v11;
-	btVector3 sideNormal = b2Mul(xf1.getBasis(), v12 - v11);
+	btVector3 sideNormal = b2Mul(xf1.m_basis, v12 - v11);
 	sideNormal.normalize();
 	btVector3 frontNormal = btCrossS(sideNormal, 1.0f);
 

@@ -42,10 +42,10 @@ btUniversalConstraint::btUniversalConstraint(btRigidBody& rbA, btRigidBody& rbB,
 	btVector3 xAxis = yAxis.cross(zAxis);  // we want right coordinate system
 	btTransform frameInW;
 	frameInW.setIdentity();
-	frameInW.getBasis().setValue(xAxis[0], yAxis[0], zAxis[0],
+	frameInW.m_basis.setValue(xAxis[0], yAxis[0], zAxis[0],
 								 xAxis[1], yAxis[1], zAxis[1],
 								 xAxis[2], yAxis[2], zAxis[2]);
-	frameInW.setOrigin(anchor);
+	frameInW.m_origin = (anchor);
 	// now get constraint frame in local coordinate systems
 	m_frameInA = rbA.getCenterOfMassTransform().inverse() * frameInW;
 	m_frameInB = rbB.getCenterOfMassTransform().inverse() * frameInW;
@@ -67,10 +67,10 @@ void btUniversalConstraint::setAxis(const btVector3& axis1, const btVector3& axi
 
 	btTransform frameInW;
 	frameInW.setIdentity();
-	frameInW.getBasis().setValue(xAxis[0], yAxis[0], zAxis[0],
+	frameInW.m_basis.setValue(xAxis[0], yAxis[0], zAxis[0],
 								 xAxis[1], yAxis[1], zAxis[1],
 								 xAxis[2], yAxis[2], zAxis[2]);
-	frameInW.setOrigin(m_anchor);
+	frameInW.m_origin = (m_anchor);
 
 	// now get constraint frame in local coordinate systems
 	m_frameInA = m_rbA.getCenterOfMassTransform().inverse() * frameInW;

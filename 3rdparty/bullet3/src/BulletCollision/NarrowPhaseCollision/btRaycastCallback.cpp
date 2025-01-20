@@ -159,7 +159,7 @@ void btTriangleConvexcastCallback::processTriangle(btVector3* triangle, int part
 				/*
 #ifdef USE_SUBSIMPLEX_CONVEX_CAST
 				//rotate normal into worldspace
-				castResult.m_normal = m_convexShapeFrom.getBasis() * castResult.m_normal;
+				castResult.m_normal = m_convexShapeFrom.m_basis * castResult.m_normal;
 #endif //USE_SUBSIMPLEX_CONVEX_CAST
 */
 				castResult.m_normal.normalize();

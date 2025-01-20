@@ -506,12 +506,12 @@ void btSequentialImpulseConstraintSolver::applyAnisotropicFriction(btCollisionOb
 	if (colObj && colObj->hasAnisotropicFriction(frictionMode))
 	{
 		// transform to local coordinates
-		btVector3 loc_lateral = frictionDirection * colObj->getWorldTransform().getBasis();
+		btVector3 loc_lateral = frictionDirection * colObj->getWorldTransform().m_basis;
 		const btVector3& friction_scaling = colObj->getAnisotropicFriction();
 		//apply anisotropic friction
 		loc_lateral *= friction_scaling;
 		// ... and transform it back to global coordinates
-		frictionDirection = colObj->getWorldTransform().getBasis() * loc_lateral;
+		frictionDirection = colObj->getWorldTransform().m_basis * loc_lateral;
 	}
 }
 
@@ -808,10 +808,10 @@ void btSequentialImpulseConstraintSolver::setupContactConstraint(btSolverConstra
 	btRigidBody* rb0 = bodyA->m_originalBody;
 	btRigidBody* rb1 = bodyB->m_originalBody;
 
-	//			btVector3 rel_pos1 = pos1 - colObj0->getWorldTransform().getOrigin();
-	//			btVector3 rel_pos2 = pos2 - colObj1->getWorldTransform().getOrigin();
-	//rel_pos1 = pos1 - bodyA->getWorldTransform().getOrigin();
-	//rel_pos2 = pos2 - bodyB->getWorldTransform().getOrigin();
+	//			btVector3 rel_pos1 = pos1 - colObj0->getWorldTransform().m_origin;
+	//			btVector3 rel_pos2 = pos2 - colObj1->getWorldTransform().m_origin;
+	//rel_pos1 = pos1 - bodyA->getWorldTransform().m_origin;
+	//rel_pos2 = pos2 - bodyB->getWorldTransform().m_origin;
 
 	relaxation = infoGlobal.m_sor;
 	btScalar invTimeStep = btScalar(1) / infoGlobal.m_timeStep;
@@ -1037,8 +1037,8 @@ void btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 			const btVector3& pos1 = cp.getPositionWorldOnA();
 			const btVector3& pos2 = cp.getPositionWorldOnB();
 
-			rel_pos1 = pos1 - colObj0->getWorldTransform().getOrigin();
-			rel_pos2 = pos2 - colObj1->getWorldTransform().getOrigin();
+			rel_pos1 = pos1 - colObj0->getWorldTransform().m_origin;
+			rel_pos2 = pos2 - colObj1->getWorldTransform().m_origin;
 
 			btVector3 vel1;
 			btVector3 vel2;

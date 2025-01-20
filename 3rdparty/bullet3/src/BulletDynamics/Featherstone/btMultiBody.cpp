@@ -1161,13 +1161,13 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 			{
 				if (isConstraintPass)
 				{
-					m_links[i].m_jointFeedback->m_reactionForces.m_bottomVec += m_links[i].m_cachedWorldTransform.getBasis() * angularBotVec;
-					m_links[i].m_jointFeedback->m_reactionForces.m_topVec += m_links[i].m_cachedWorldTransform.getBasis() * linearTopVec;
+					m_links[i].m_jointFeedback->m_reactionForces.m_bottomVec += m_links[i].m_cachedWorldTransform.m_basis * angularBotVec;
+					m_links[i].m_jointFeedback->m_reactionForces.m_topVec += m_links[i].m_cachedWorldTransform.m_basis * linearTopVec;
 				}
 				else
 				{
-					m_links[i].m_jointFeedback->m_reactionForces.m_bottomVec = m_links[i].m_cachedWorldTransform.getBasis() * angularBotVec;
-					m_links[i].m_jointFeedback->m_reactionForces.m_topVec = m_links[i].m_cachedWorldTransform.getBasis() * linearTopVec;
+					m_links[i].m_jointFeedback->m_reactionForces.m_bottomVec = m_links[i].m_cachedWorldTransform.m_basis * angularBotVec;
+					m_links[i].m_jointFeedback->m_reactionForces.m_topVec = m_links[i].m_cachedWorldTransform.m_basis * linearTopVec;
 				}
 			}
 			else
@@ -2168,7 +2168,7 @@ void btMultiBody::forwardKinematics(btAlignedObjectArray<btQuaternion> &world_to
 		btScalar quat[4] = {-world_to_local[index].x(), -world_to_local[index].y(), -world_to_local[index].z(), world_to_local[index].w()};
 		btTransform tr;
 		tr.setIdentity();
-		tr.setOrigin(posr);
+		tr.m_origin = (posr);
 		tr.setRotation(btQuaternion(quat[0], quat[1], quat[2], quat[3]));
 		getLink(link).m_cachedWorldTransform = tr;
 	}
@@ -2189,7 +2189,7 @@ void btMultiBody::updateCollisionObjectWorldTransforms(btAlignedObjectArray<btQu
 		btScalar quat[4] = {-world_to_local[0].x(), -world_to_local[0].y(), -world_to_local[0].z(), world_to_local[0].w()};
 		btTransform tr;
 		tr.setIdentity();
-		tr.setOrigin(posr);
+		tr.m_origin = (posr);
 		tr.setRotation(btQuaternion(quat[0], quat[1], quat[2], quat[3]));
 
 		getBaseCollider()->setWorldTransform(tr);
@@ -2218,7 +2218,7 @@ void btMultiBody::updateCollisionObjectWorldTransforms(btAlignedObjectArray<btQu
 			btScalar quat[4] = {-world_to_local[index].x(), -world_to_local[index].y(), -world_to_local[index].z(), world_to_local[index].w()};
 			btTransform tr;
 			tr.setIdentity();
-			tr.setOrigin(posr);
+			tr.m_origin = (posr);
 			tr.setRotation(btQuaternion(quat[0], quat[1], quat[2], quat[3]));
 
 			col->setWorldTransform(tr);
@@ -2249,7 +2249,7 @@ void btMultiBody::updateCollisionObjectInterpolationWorldTransforms(btAlignedObj
         btScalar quat[4] = {-world_to_local[0].x(), -world_to_local[0].y(), -world_to_local[0].z(), world_to_local[0].w()};
         btTransform tr;
         tr.setIdentity();
-        tr.setOrigin(posr);
+        tr.m_origin = (posr);
         tr.setRotation(btQuaternion(quat[0], quat[1], quat[2], quat[3]));
         
         getBaseCollider()->setInterpolationWorldTransform(tr);
@@ -2277,7 +2277,7 @@ void btMultiBody::updateCollisionObjectInterpolationWorldTransforms(btAlignedObj
             btScalar quat[4] = {-world_to_local[index].x(), -world_to_local[index].y(), -world_to_local[index].z(), world_to_local[index].w()};
             btTransform tr;
             tr.setIdentity();
-            tr.setOrigin(posr);
+            tr.m_origin = (posr);
             tr.setRotation(btQuaternion(quat[0], quat[1], quat[2], quat[3]));
             
             col->setInterpolationWorldTransform(tr);

@@ -305,7 +305,7 @@ btScalar btTranslationalLimitMotor::solveLinearAxis(
 
 void btGeneric6DofConstraint::calculateAngleInfo()
 {
-	btMatrix3x3 relative_frame = m_calculatedTransformA.getBasis().inverse() * m_calculatedTransformB.getBasis();
+	btMatrix3x3 relative_frame = m_calculatedTransformA.m_basis.inverse() * m_calculatedTransformB.m_basis;
 	matrixToEulerXYZ(relative_frame, m_calculatedAxisAngleDiff);
 	// in euler angle mode we do not actually constrain the angular velocity
 	// along the axes axis[0] and axis[2] (although we do use axis[1]) :
@@ -321,8 +321,8 @@ void btGeneric6DofConstraint::calculateAngleInfo()
 	// GetInfo1 then take the derivative. to prove this for angle[2] it is
 	// easier to take the euler rate expression for d(angle[2])/dt with respect
 	// to the components of w and set that to 0.
-	btVector3 axis0 = m_calculatedTransformB.getBasis().getColumn(0);
-	btVector3 axis2 = m_calculatedTransformA.getBasis().getColumn(2);
+	btVector3 axis0 = m_calculatedTransformB.m_basis.getColumn(0);
+	btVector3 axis2 = m_calculatedTransformA.m_basis.getColumn(2);
 
 	m_calculatedAxis[1] = axis2.cross(axis0);
 	m_calculatedAxis[0] = m_calculatedAxis[1].cross(axis2);
@@ -367,8 +367,8 @@ void btGeneric6DofConstraint::buildLinearJacobian(
 	const btVector3& pivotAInW, const btVector3& pivotBInW)
 {
 	new (&jacLinear) btJacobianEntry(
-		m_rbA.getCenterOfMassTransform().getBasis().transpose(),
-		m_rbB.getCenterOfMassTransform().getBasis().transpose(),
+		m_rbA.getCenterOfMassTransform().m_basis.transpose(),
+		m_rbB.getCenterOfMassTransform().m_basis.transpose(),
 		pivotAInW - m_rbA.getCenterOfMassPosition(),
 		pivotBInW - m_rbB.getCenterOfMassPosition(),
 		normalWorld,
@@ -382,8 +382,8 @@ void btGeneric6DofConstraint::buildAngularJacobian(
 	btJacobianEntry& jacAngular, const btVector3& jointAxisW)
 {
 	new (&jacAngular) btJacobianEntry(jointAxisW,
-									  m_rbA.getCenterOfMassTransform().getBasis().transpose(),
-									  m_rbB.getCenterOfMassTransform().getBasis().transpose(),
+									  m_rbA.getCenterOfMassTransform().m_basis.transpose(),
+									  m_rbB.getCenterOfMassTransform().m_basis.transpose(),
 									  m_rbA.getInvInertiaDiagLocal(),
 									  m_rbB.getInvInertiaDiagLocal());
 }
@@ -413,8 +413,8 @@ void btGeneric6DofConstraint::buildJacobian()
 		//calculates transform
 		calculateTransforms(m_rbA.getCenterOfMassTransform(), m_rbB.getCenterOfMassTransform());
 
-		//  const btVector3& pivotAInW = m_calculatedTransformA.getOrigin();
-		//  const btVector3& pivotBInW = m_calculatedTransformB.getOrigin();
+		//  const btVector3& pivotAInW = m_calculatedTransformA.m_origin;
+		//  const btVector3& pivotBInW = m_calculatedTransformB.m_origin;
 		calcAnchorPos();
 		btVector3 pivotAInW = m_AnchorPos;
 		btVector3 pivotBInW = m_AnchorPos;
@@ -430,9 +430,9 @@ void btGeneric6DofConstraint::buildJacobian()
 			if (m_linearLimits.isLimited(i))
 			{
 				if (m_useLinearReferenceFrameA)
-					normalWorld = m_calculatedTransformA.getBasis().getColumn(i);
+					normalWorld = m_calculatedTransformA.m_basis.getColumn(i);
 				else
-					normalWorld = m_calculatedTransformB.getBasis().getColumn(i);
+					normalWorld = m_calculatedTransformB.m_basis.getColumn(i);
 
 				buildLinearJacobian(
 					m_jacLinear[i], normalWorld,
@@ -573,7 +573,7 @@ int btGeneric6DofConstraint::setLinearLimits(btConstraintInfo2* info, int row, c
 			limot.m_maxLimitForce = btScalar(0.f);
 			limot.m_maxMotorForce = m_linearLimits.m_maxMotorForce[i];
 			limot.m_targetVelocity = m_linearLimits.m_targetVelocity[i];
-			btVector3 axis = m_calculatedTransformA.getBasis().getColumn(i);
+			btVector3 axis = m_calculatedTransformA.m_basis.getColumn(i);
 			int flags = m_flags >> (i * BT_6DOF_FLAGS_AXIS_SHIFT);
 			limot.m_normalCFM = (flags & BT_6DOF_FLAGS_CFM_NORM) ? m_linearLimits.m_normalCFM[i] : info->cfm[0];
 			limot.m_stopCFM = (flags & BT_6DOF_FLAGS_CFM_STOP) ? m_linearLimits.m_stopCFM[i] : info->cfm[0];
@@ -670,16 +670,16 @@ void btGeneric6DofConstraint::calcAnchorPos(void)
 	{
 		weight = imA / (imA + imB);
 	}
-	const btVector3& pA = m_calculatedTransformA.getOrigin();
-	const btVector3& pB = m_calculatedTransformB.getOrigin();
+	const btVector3& pA = m_calculatedTransformA.m_origin;
+	const btVector3& pB = m_calculatedTransformB.m_origin;
 	m_AnchorPos = pA * weight + pB * (btScalar(1.0) - weight);
 	return;
 }
 
 void btGeneric6DofConstraint::calculateLinearInfo()
 {
-	m_calculatedLinearDiff = m_calculatedTransformB.getOrigin() - m_calculatedTransformA.getOrigin();
-	m_calculatedLinearDiff = m_calculatedTransformA.getBasis().inverse() * m_calculatedLinearDiff;
+	m_calculatedLinearDiff = m_calculatedTransformB.m_origin - m_calculatedTransformA.m_origin;
+	m_calculatedLinearDiff = m_calculatedTransformA.m_basis.inverse() * m_calculatedLinearDiff;
 	for (int i = 0; i < 3; i++)
 	{
 		m_linearLimits.m_currentLinearDiff[i] = m_calculatedLinearDiff[i];
@@ -713,13 +713,13 @@ int btGeneric6DofConstraint::get_limit_motor_info2(
 			{
 				btVector3 tmpA, tmpB, relA, relB;
 				// get vector from bodyB to frameB in WCS
-				relB = m_calculatedTransformB.getOrigin() - transB.getOrigin();
+				relB = m_calculatedTransformB.m_origin - transB.m_origin;
 				// get its projection to constraint axis
 				btVector3 projB = ax1 * relB.dot(ax1);
 				// get vector directed from bodyB to constraint axis (and orthogonal to it)
 				btVector3 orthoB = relB - projB;
 				// same for bodyA
-				relA = m_calculatedTransformA.getOrigin() - transA.getOrigin();
+				relA = m_calculatedTransformA.m_origin - transA.m_origin;
 				btVector3 projA = ax1 * relA.dot(ax1);
 				btVector3 orthoA = relA - projA;
 				// get desired offset between frames A and B along constraint axis
@@ -743,13 +743,13 @@ int btGeneric6DofConstraint::get_limit_motor_info2(
 			else
 			{
 				btVector3 ltd;  // Linear Torque Decoupling vector
-				btVector3 c = m_calculatedTransformB.getOrigin() - transA.getOrigin();
+				btVector3 c = m_calculatedTransformB.m_origin - transA.m_origin;
 				ltd = c.cross(ax1);
 				info->m_J1angularAxis[srow + 0] = ltd[0];
 				info->m_J1angularAxis[srow + 1] = ltd[1];
 				info->m_J1angularAxis[srow + 2] = ltd[2];
 
-				c = m_calculatedTransformB.getOrigin() - transB.getOrigin();
+				c = m_calculatedTransformB.m_origin - transB.m_origin;
 				ltd = -c.cross(ax1);
 				info->m_J2angularAxis[srow + 0] = ltd[0];
 				info->m_J2angularAxis[srow + 1] = ltd[1];
@@ -963,7 +963,7 @@ void btGeneric6DofConstraint::setAxis(const btVector3& axis1, const btVector3& a
 
 	btTransform frameInW;
 	frameInW.setIdentity();
-	frameInW.getBasis().setValue(xAxis[0], yAxis[0], zAxis[0],
+	frameInW.m_basis.setValue(xAxis[0], yAxis[0], zAxis[0],
 								 xAxis[1], yAxis[1], zAxis[1],
 								 xAxis[2], yAxis[2], zAxis[2]);
 

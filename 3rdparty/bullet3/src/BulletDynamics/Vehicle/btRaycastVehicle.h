@@ -160,9 +160,9 @@ public:
 		const btTransform& chassisTrans = getChassisWorldTransform();
 
 		btVector3 forwardW(
-			chassisTrans.getBasis()[0][m_indexForwardAxis],
-			chassisTrans.getBasis()[1][m_indexForwardAxis],
-			chassisTrans.getBasis()[2][m_indexForwardAxis]);
+			chassisTrans.m_basis[0][m_indexForwardAxis],
+			chassisTrans.m_basis[1][m_indexForwardAxis],
+			chassisTrans.m_basis[2][m_indexForwardAxis]);
 
 		return forwardW;
 	}

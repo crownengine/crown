@@ -84,8 +84,8 @@ void btSequentialImpulseConstraintSolverMt::internalSetupContactConstraints(int 
 	const btVector3& pos1 = cp.getPositionWorldOnA();
 	const btVector3& pos2 = cp.getPositionWorldOnB();
 
-	rel_pos1 = pos1 - solverBodyA->getWorldTransform().getOrigin();
-	rel_pos2 = pos2 - solverBodyB->getWorldTransform().getOrigin();
+	rel_pos1 = pos1 - solverBodyA->getWorldTransform().m_origin;
+	rel_pos2 = pos2 - solverBodyB->getWorldTransform().m_origin;
 
 	btVector3 vel1;
 	btVector3 vel2;

@@ -30,7 +30,7 @@ bool btGjkEpaCalcPenDepth(const btConvexTemplate& a, const btConvexTemplate& b,
 
 	//	const btScalar				radialmargin(btScalar(0.));
 
-	btVector3 guessVector(b.getWorldTransform().getOrigin() - a.getWorldTransform().getOrigin());  //?? why not use the GJK input?
+	btVector3 guessVector(b.getWorldTransform().m_origin - a.getWorldTransform().m_origin);  //?? why not use the GJK input?
 
 	btGjkEpaSolver3::sResults results;
 
@@ -95,8 +95,8 @@ int btComputeGjkEpaPenetration(const btConvexTemplate& a, const btConvexTemplate
 		for (;;)
 		//while (true)
 		{
-			btVector3 separatingAxisInA = (-m_cachedSeparatingAxis) * localTransA.getBasis();
-			btVector3 separatingAxisInB = m_cachedSeparatingAxis * localTransB.getBasis();
+			btVector3 separatingAxisInA = (-m_cachedSeparatingAxis) * localTransA.m_basis;
+			btVector3 separatingAxisInB = m_cachedSeparatingAxis * localTransB.m_basis;
 
 			btVector3 pInA = a.getLocalSupportWithoutMargin(separatingAxisInA);
 			btVector3 qInB = b.getLocalSupportWithoutMargin(separatingAxisInB);

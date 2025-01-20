@@ -309,8 +309,8 @@ inline void btMprSupport(const btConvexTemplate &a, const btConvexTemplate &b,
 						 const btMprCollisionDescription &colDesc,
 						 const btVector3 &dir, btMprSupport_t *supp)
 {
-	btVector3 separatingAxisInA = dir * a.getWorldTransform().getBasis();
-	btVector3 separatingAxisInB = -dir * b.getWorldTransform().getBasis();
+	btVector3 separatingAxisInA = dir * a.getWorldTransform().m_basis;
+	btVector3 separatingAxisInB = -dir * b.getWorldTransform().m_basis;
 
 	btVector3 pInA = a.getLocalSupportWithMargin(separatingAxisInA);
 	btVector3 qInB = b.getLocalSupportWithMargin(separatingAxisInB);

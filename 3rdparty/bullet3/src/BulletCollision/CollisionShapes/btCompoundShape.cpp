@@ -4,8 +4,8 @@ Copyright (c) 2003-2009 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -171,7 +171,7 @@ void btCompoundShape::getAabb(const btTransform& trans, btVector3& aabbMin, btVe
 	}
 	localHalfExtents += btVector3(getMargin(), getMargin(), getMargin());
 
-	btMatrix3x3 abs_b = trans.getBasis().absolute();
+	btMatrix3x3 abs_b = trans.m_basis.absolute();
 
 	btVector3 center = trans(localCenter);
 
@@ -210,14 +210,14 @@ void btCompoundShape::calculatePrincipalAxisTransform(const btScalar* masses, bt
 	for (k = 0; k < n; k++)
 	{
 		btAssert(masses[k] > 0);
-		center += m_children[k].m_transform.getOrigin() * masses[k];
+		center += m_children[k].m_transform.m_origin * masses[k];
 		totalMass += masses[k];
 	}
 
 	btAssert(totalMass > 0);
 
 	center /= totalMass;
-	principal.setOrigin(center);
+	principal.m_origin = center;
 
 	btMatrix3x3 tensor(0, 0, 0, 0, 0, 0, 0, 0, 0);
 	for (k = 0; k < n; k++)
@@ -226,14 +226,14 @@ void btCompoundShape::calculatePrincipalAxisTransform(const btScalar* masses, bt
 		m_children[k].m_childShape->calculateLocalInertia(masses[k], i);
 
 		const btTransform& t = m_children[k].m_transform;
-		btVector3 o = t.getOrigin() - center;
+		btVector3 o = t.m_origin - center;
 
 		//compute inertia tensor in coordinate system of compound shape
-		btMatrix3x3 j = t.getBasis().transpose();
+		btMatrix3x3 j = t.m_basis.transpose();
 		j[0] *= i[0];
 		j[1] *= i[1];
 		j[2] *= i[2];
-		j = t.getBasis() * j;
+		j = t.m_basis * j;
 
 		//add inertia tensor
 		tensor[0] += j[0];
@@ -255,7 +255,7 @@ void btCompoundShape::calculatePrincipalAxisTransform(const btScalar* masses, bt
 		tensor[2] += masses[k] * j[2];
 	}
 
-	tensor.diagonalize(principal.getBasis(), btScalar(0.00001), 20);
+	tensor.diagonalize(principal.m_basis, btScalar(0.00001), 20);
 	inertia.setValue(tensor[0][0], tensor[1][1], tensor[2][2]);
 }
 
@@ -265,10 +265,10 @@ void btCompoundShape::setLocalScaling(const btVector3& scaling)
 	{
 		btTransform childTrans = getChildTransform(i);
 		btVector3 childScale = m_children[i].m_childShape->getLocalScaling();
-		//		childScale = childScale * (childTrans.getBasis() * scaling);
+		//		childScale = childScale * (childTrans.m_basis * scaling);
 		childScale = childScale * scaling / m_localScaling;
 		m_children[i].m_childShape->setLocalScaling(childScale);
-		childTrans.setOrigin((childTrans.getOrigin()) * scaling / m_localScaling);
+		childTrans.m_origin = (childTrans.m_origin) * scaling / m_localScaling;
 		updateChildTransform(i, childTrans, false);
 	}
 

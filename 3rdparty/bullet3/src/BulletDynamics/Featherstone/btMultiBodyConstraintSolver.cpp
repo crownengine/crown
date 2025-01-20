@@ -517,9 +517,9 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 	btRigidBody* rb1 = multiBodyB ? 0 : bodyB->m_originalBody;
 
 	if (bodyA)
-		rel_pos1 = pos1 - bodyA->getWorldTransform().getOrigin();
+		rel_pos1 = pos1 - bodyA->getWorldTransform().m_origin;
 	if (bodyB)
-		rel_pos2 = pos2 - bodyB->getWorldTransform().getOrigin();
+		rel_pos2 = pos2 - bodyB->getWorldTransform().m_origin;
 
 	relaxation = infoGlobal.m_sor;
 
@@ -572,7 +572,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 		}
 		else
 		{
-			rel_pos1 = pos1 - multiBodyA->getLink(solverConstraint.m_linkA).m_cachedWorldTransform.getOrigin();
+			rel_pos1 = pos1 - multiBodyA->getLink(solverConstraint.m_linkA).m_cachedWorldTransform.m_origin;
 		}
 		const int ndofA = multiBodyA->getNumDofs() + 6;
 
@@ -619,7 +619,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 		}
 		else
 		{
-			rel_pos2 = pos2 - multiBodyB->getLink(solverConstraint.m_linkB).m_cachedWorldTransform.getOrigin();
+			rel_pos2 = pos2 - multiBodyB->getLink(solverConstraint.m_linkB).m_cachedWorldTransform.m_origin;
 		}
 
 		const int ndofB = multiBodyB->getNumDofs() + 6;
@@ -910,9 +910,9 @@ void btMultiBodyConstraintSolver::setupMultiBodyTorsionalFrictionConstraint(btMu
 	btRigidBody* rb1 = multiBodyB ? 0 : bodyB->m_originalBody;
 
 	if (bodyA)
-		rel_pos1 = pos1 - bodyA->getWorldTransform().getOrigin();
+		rel_pos1 = pos1 - bodyA->getWorldTransform().m_origin;
 	if (bodyB)
-		rel_pos2 = pos2 - bodyB->getWorldTransform().getOrigin();
+		rel_pos2 = pos2 - bodyB->getWorldTransform().m_origin;
 
 	relaxation = infoGlobal.m_sor;
 
@@ -926,7 +926,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyTorsionalFrictionConstraint(btMu
 		}
 		else
 		{
-			rel_pos1 = pos1 - multiBodyA->getLink(solverConstraint.m_linkA).m_cachedWorldTransform.getOrigin();
+			rel_pos1 = pos1 - multiBodyA->getLink(solverConstraint.m_linkA).m_cachedWorldTransform.m_origin;
 		}
 		const int ndofA = multiBodyA->getNumDofs() + 6;
 
@@ -973,7 +973,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyTorsionalFrictionConstraint(btMu
 		}
 		else
 		{
-			rel_pos2 = pos2 - multiBodyB->getLink(solverConstraint.m_linkB).m_cachedWorldTransform.getOrigin();
+			rel_pos2 = pos2 - multiBodyB->getLink(solverConstraint.m_linkB).m_cachedWorldTransform.m_origin;
 		}
 
 		const int ndofB = multiBodyB->getNumDofs() + 6;

@@ -885,7 +885,7 @@ static void Initialize(const btConvexTemplate& a, const btConvexTemplate& b,
 	results.status = btGjkEpaSolver3::sResults::Separated;
 	/* Shape		*/
 
-	shape.m_toshape1 = b.getWorldTransform().getBasis().transposeTimes(a.getWorldTransform().getBasis());
+	shape.m_toshape1 = b.getWorldTransform().m_basis.transposeTimes(a.getWorldTransform().m_basis);
 	shape.m_toshape0 = a.getWorldTransform().inverseTimes(b.getWorldTransform());
 }
 

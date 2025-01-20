@@ -228,7 +228,7 @@ void btConvexHullShape::project(const btTransform& trans, const btVector3& dir, 
 		}
 	}
 #else
-	btVector3 localAxis = dir * trans.getBasis();
+	btVector3 localAxis = dir * trans.m_basis;
 	witnesPtMin = trans(localGetSupportingVertex(localAxis));
 	witnesPtMax = trans(localGetSupportingVertex(-localAxis));
 
