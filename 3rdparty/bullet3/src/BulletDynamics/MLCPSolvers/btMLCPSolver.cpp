@@ -4,8 +4,8 @@ Copyright (c) 2003-2013 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -117,7 +117,7 @@ bool btMLCPSolver::solveMLCP(const btContactSolverInfo& infoGlobal)
 {
 	bool result = true;
 
-	if (m_A.rows() == 0)
+	if (m_A.m_rows == 0)
 		return true;
 
 	//if using split impulse, we solve 2 separate (M)LCPs
@@ -421,7 +421,7 @@ void btMLCPSolver::createMLCPFast(const btContactSolverInfo& infoGlobal)
 	if (1)
 	{
 		// add cfm to the diagonal of m_A
-		for (int i = 0; i < m_A.rows(); ++i)
+		for (int i = 0; i < m_A.m_rows; ++i)
 		{
 			m_A.setElem(i, i, m_A(i, i) + infoGlobal.m_globalCfm / infoGlobal.m_timeStep);
 		}
@@ -547,7 +547,7 @@ void btMLCPSolver::createMLCP(const btContactSolverInfo& infoGlobal)
 	if (1)
 	{
 		// add cfm to the diagonal of m_A
-		for (int i = 0; i < m_A.rows(); ++i)
+		for (int i = 0; i < m_A.m_rows; ++i)
 		{
 			m_A.setElem(i, i, m_A(i, i) + infoGlobal.m_globalCfm / infoGlobal.m_timeStep);
 		}
@@ -572,7 +572,7 @@ btScalar btMLCPSolver::solveGroupCacheFriendlyIterations(btCollisionObject** bod
 	bool result = true;
 	{
 		BT_PROFILE("solveMLCP");
-		//		printf("m_A(%d,%d)\n", m_A.rows(),m_A.cols());
+		//		printf("m_A(%d,%d)\n", m_A.m_rows,m_A.m_cols);
 		result = solveMLCP(infoGlobal);
 	}
 

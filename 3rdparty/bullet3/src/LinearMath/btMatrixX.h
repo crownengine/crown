@@ -4,8 +4,8 @@ Copyright (c) 2003-2013 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -196,14 +196,7 @@ struct btMatrixX
 			m_storage.resize(rows * cols);
 		}
 	}
-	int cols() const
-	{
-		return m_cols;
-	}
-	int rows() const
-	{
-		return m_rows;
-	}
+
 	///we don't want this read/write operator(), because we cannot keep track of non-zero elements, use setElem instead
 	/*T& operator() (int row,int col)
 	{
@@ -243,7 +236,7 @@ struct btMatrixX
 	void copyLowerToUpperTriangle()
 	{
 		int count = 0;
-		for (int row = 0; row < rows(); row++)
+		for (int row = 0; row < m_rows; row++)
 		{
 			for (int col = 0; col < row; col++)
 			{
@@ -251,7 +244,7 @@ struct btMatrixX
 				count++;
 			}
 		}
-		//printf("copyLowerToUpperTriangle copied %d elements out of %dx%d=%d\n", count,rows(),cols(),cols()*rows());
+		//printf("copyLowerToUpperTriangle copied %d elements out of %dx%d=%d\n", count,m_rows,m_cols,m_cols*m_rows);
 	}
 
 	const T& operator()(int row, int col) const
@@ -275,10 +268,10 @@ struct btMatrixX
 
 	void setIdentity()
 	{
-		btAssert(rows() == cols());
+		btAssert(m_rows == m_cols);
 
 		setZero();
-		for (int row = 0; row < rows(); row++)
+		for (int row = 0; row < m_rows; row++)
 		{
 			setElem(row, row, 1);
 		}
@@ -287,10 +280,10 @@ struct btMatrixX
 	void printMatrix(const char* msg) const
 	{
 		printf("%s ---------------------\n", msg);
-		for (int i = 0; i < rows(); i++)
+		for (int i = 0; i < m_rows; i++)
 		{
 			printf("\n");
-			for (int j = 0; j < cols(); j++)
+			for (int j = 0; j < m_cols; j++)
 			{
 				printf("%2.1f\t", (*this)(i, j));
 			}
@@ -300,11 +293,11 @@ struct btMatrixX
 
 	void rowComputeNonZeroElements() const
 	{
-		m_rowNonZeroElements1.resize(rows());
-		for (int i = 0; i < rows(); i++)
+		m_rowNonZeroElements1.resize(m_rows);
+		for (int i = 0; i < m_rows; i++)
 		{
 			m_rowNonZeroElements1[i].resize(0);
-			for (int j = 0; j < cols(); j++)
+			for (int j = 0; j < m_cols; j++)
 			{
 				if ((*this)(i, j) != 0.f)
 				{
@@ -333,20 +326,20 @@ struct btMatrixX
 	btMatrixX operator*(const btMatrixX& other)
 	{
 		//btMatrixX*btMatrixX implementation, brute force
-		btAssert(cols() == other.rows());
+		btAssert(m_cols == other.m_rows);
 
-		btMatrixX res(rows(), other.cols());
+		btMatrixX res(m_rows, other.m_cols);
 		res.setZero();
 		//		BT_PROFILE("btMatrixX mul");
-		for (int i = 0; i < rows(); ++i)
+		for (int i = 0; i < m_rows; ++i)
 		{
 			{
-				for (int j = 0; j < other.cols(); ++j)
+				for (int j = 0; j < other.m_cols; ++j)
 				{
 					T dotProd = 0;
 					{
 						{
-							int c = cols();
+							int c = m_cols;
 
 							for (int k = 0; k < c; k++)
 							{
@@ -428,11 +421,11 @@ struct btMatrixX
 
 	void setSubMatrix(int rowstart, int colstart, int rowend, int colend, const btMatrixX& block)
 	{
-		btAssert(rowend + 1 - rowstart == block.rows());
-		btAssert(colend + 1 - colstart == block.cols());
-		for (int row = 0; row < block.rows(); row++)
+		btAssert(rowend + 1 - rowstart == block.m_rows);
+		btAssert(colend + 1 - colstart == block.m_cols);
+		for (int row = 0; row < block.m_rows; row++)
 		{
-			for (int col = 0; col < block.cols(); col++)
+			for (int col = 0; col < block.m_cols; col++)
 			{
 				setElem(rowstart + row, colstart + col, block(row, col));
 			}
@@ -453,9 +446,9 @@ struct btMatrixX
 
 	btMatrixX negative()
 	{
-		btMatrixX neg(rows(), cols());
-		for (int i = 0; i < rows(); i++)
-			for (int j = 0; j < cols(); j++)
+		btMatrixX neg(m_rows, m_cols);
+		for (int i = 0; i < m_rows; i++)
+			for (int j = 0; j < m_cols; j++)
 			{
 				T v = (*this)(i, j);
 				neg.setElem(i, j, -v);
@@ -476,13 +469,13 @@ std::ostream& operator<<(std::ostream& os, const btMatrixX<T>& mat)
 {
 	os << " [";
 	//printf("%s ---------------------\n",msg);
-	for (int i = 0; i < mat.rows(); i++)
+	for (int i = 0; i < mat.m_rows; i++)
 	{
-		for (int j = 0; j < mat.cols(); j++)
+		for (int j = 0; j < mat.m_cols; j++)
 		{
 			os << std::setw(12) << mat(i, j);
 		}
-		if (i != mat.rows() - 1)
+		if (i != mat.m_rows - 1)
 			os << std::endl
 			   << "  ";
 	}
