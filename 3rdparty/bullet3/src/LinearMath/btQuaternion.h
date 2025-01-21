@@ -3,8 +3,8 @@ Copyright (c) 2003-2006 Gino van den Bergen / Erwin Coumans  https://bulletphysi
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -16,7 +16,12 @@ subject to the following restrictions:
 #define BT_SIMD__QUATERNION_H_
 
 #include "btVector3.h"
-#include "btQuadWord.h"
+#include "btScalar.h"
+#include "btMinMax.h"
+
+#if defined(__CELLOS_LV2) && defined(__SPU__)
+#include <altivec.h>
+#endif
 
 #ifdef BT_USE_DOUBLE_PRECISION
 #define btQuaternionData btQuaternionDoubleData
@@ -46,8 +51,143 @@ const btSimdFloat4 ATTRIBUTE_ALIGNED16(vPPPM) = {+0.0f, +0.0f, +0.0f, -0.0f};
 #endif
 
 /**@brief The btQuaternion implements quaternion to perform linear algebra rotations in combination with btMatrix3x3, btVector3 and btTransform. */
-class btQuaternion : public btQuadWord
+#ifndef USE_LIBSPE2
+ATTRIBUTE_ALIGNED16(class)
+btQuaternion
+#else
+class btQuaternion
+#endif
 {
+public:
+#if defined(__SPU__) && defined(__CELLOS_LV2__)
+	union {
+		vec_float4 mVec128;
+		btScalar m_floats[4];
+	};
+
+public:
+	vec_float4 get128() const
+	{
+		return mVec128;
+	}
+
+protected:
+#else  //__CELLOS_LV2__ __SPU__
+
+#if defined(BT_USE_SSE) || defined(BT_USE_NEON)
+	union {
+		btSimdFloat4 mVec128;
+		btScalar m_floats[4];
+	};
+
+public:
+	SIMD_FORCE_INLINE btSimdFloat4 get128() const
+	{
+		return mVec128;
+	}
+	SIMD_FORCE_INLINE void set128(btSimdFloat4 v128)
+	{
+		mVec128 = v128;
+	}
+#else
+	btScalar m_floats[4];
+#endif  // BT_USE_SSE
+
+#endif  //__CELLOS_LV2__ __SPU__
+
+public:
+
+	//SIMD_FORCE_INLINE btScalar&       operator[](int i)       { return (&m_floats[0])[i];	}
+	//SIMD_FORCE_INLINE const btScalar& operator[](int i) const { return (&m_floats[0])[i]; }
+	///operator btScalar*() replaces operator[], using implicit conversion. We added operator != and operator == to avoid pointer comparisons.
+	SIMD_FORCE_INLINE operator btScalar*() { return &m_floats[0]; }
+	SIMD_FORCE_INLINE operator const btScalar*() const { return &m_floats[0]; }
+
+	SIMD_FORCE_INLINE bool operator==(const btQuaternion& other) const
+	{
+#ifdef BT_USE_SSE
+		return (0xf == _mm_movemask_ps((__m128)_mm_cmpeq_ps(mVec128, other.mVec128)));
+#else
+		return ((m_floats[3] == other.m_floats[3]) &&
+				(m_floats[2] == other.m_floats[2]) &&
+				(m_floats[1] == other.m_floats[1]) &&
+				(m_floats[0] == other.m_floats[0]));
+#endif
+	}
+
+	SIMD_FORCE_INLINE bool operator!=(const btQuaternion& other) const
+	{
+		return !(*this == other);
+	}
+
+	/**@brief Set x,y,z and zero w
+   * @param x Value of x
+   * @param y Value of y
+   * @param z Value of z
+   */
+	SIMD_FORCE_INLINE void setValue(const btScalar& _x, const btScalar& _y, const btScalar& _z)
+	{
+		m_floats[0] = _x;
+		m_floats[1] = _y;
+		m_floats[2] = _z;
+		m_floats[3] = 0.f;
+	}
+
+	/*		void getValue(btScalar *m) const
+		{
+			m[0] = m_floats[0];
+			m[1] = m_floats[1];
+			m[2] = m_floats[2];
+		}
+*/
+	/**@brief Set the values
+   * @param x Value of x
+   * @param y Value of y
+   * @param z Value of z
+   * @param w Value of w
+   */
+	SIMD_FORCE_INLINE void setValue(const btScalar& _x, const btScalar& _y, const btScalar& _z, const btScalar& _w)
+	{
+		m_floats[0] = _x;
+		m_floats[1] = _y;
+		m_floats[2] = _z;
+		m_floats[3] = _w;
+	}
+
+	/**@brief Set each element to the max of the current values and the values of another
+	 * btQuaternion
+   * @param other The other btQuaternion to compare with
+   */
+	SIMD_FORCE_INLINE void setMax(const btQuaternion& other)
+	{
+#ifdef BT_USE_SSE
+		mVec128 = _mm_max_ps(mVec128, other.mVec128);
+#elif defined(BT_USE_NEON)
+		mVec128 = vmaxq_f32(mVec128, other.mVec128);
+#else
+		btSetMax(m_floats[0], other.m_floats[0]);
+		btSetMax(m_floats[1], other.m_floats[1]);
+		btSetMax(m_floats[2], other.m_floats[2]);
+		btSetMax(m_floats[3], other.m_floats[3]);
+#endif
+	}
+	/**@brief Set each element to the min of the current values and the values of another
+	 * btQuaternion
+   * @param other The other btQuaternion to compare with
+   */
+	SIMD_FORCE_INLINE void setMin(const btQuaternion& other)
+	{
+#ifdef BT_USE_SSE
+		mVec128 = _mm_min_ps(mVec128, other.mVec128);
+#elif defined(BT_USE_NEON)
+		mVec128 = vminq_f32(mVec128, other.mVec128);
+#else
+		btSetMin(m_floats[0], other.m_floats[0]);
+		btSetMin(m_floats[1], other.m_floats[1]);
+		btSetMin(m_floats[2], other.m_floats[2]);
+		btSetMin(m_floats[3], other.m_floats[3]);
+#endif
+	}
 public:
 	/**@brief No initialization constructor */
 	btQuaternion() {}
@@ -80,8 +220,8 @@ public:
 	//		explicit Quaternion(const btScalar *v) : Tuple4<btScalar>(v) {}
 	/**@brief Constructor from scalars */
 	btQuaternion(const btScalar& _x, const btScalar& _y, const btScalar& _z, const btScalar& _w)
-		: btQuadWord(_x, _y, _z, _w)
 	{
+		m_floats[0] = _x, m_floats[1] = _y, m_floats[2] = _z, m_floats[3] = _w;
 	}
 	/**@brief Axis angle Constructor
    * @param axis The axis which the rotation is around
@@ -102,7 +242,7 @@ public:
 		setEulerZYX(yaw, pitch, roll);
 #endif
 	}
-	/**@brief Set the rotation using axis angle notation 
+	/**@brief Set the rotation using axis angle notation
    * @param axis The axis around which to rotate
    * @param angle The magnitude of the rotation in Radians */
 	void setRotation(const btVector3& axis, const btScalar& _angle)
@@ -133,7 +273,7 @@ public:
 				 sinRoll * cosPitch * cosYaw - cosRoll * sinPitch * sinYaw,
 				 cosRoll * cosPitch * cosYaw + sinRoll * sinPitch * sinYaw);
 	}
-	/**@brief Set the quaternion using euler angles 
+	/**@brief Set the quaternion using euler angles
    * @param yaw Angle around Z
    * @param pitch Angle around Y
    * @param roll Angle around X */
@@ -249,7 +389,7 @@ public:
 	}
 
 	/**@brief Multiply this quaternion by q on the right
-   * @param q The other quaternion 
+   * @param q The other quaternion
    * Equivilant to this = this * q */
 	btQuaternion& operator*=(const btQuaternion& q)
 	{
@@ -380,7 +520,7 @@ public:
 		}
 		return *this;
 	}
-	/**@brief Normalize the quaternion 
+	/**@brief Normalize the quaternion
    * Such that x^2 + y^2 + z^2 +w^2 = 1 */
 	btQuaternion& normalize()
 	{
@@ -505,7 +645,7 @@ public:
 #endif
 	}
 
-	/**@brief Return the sum of this quaternion and the other 
+	/**@brief Return the sum of this quaternion and the other
    * @param q2 The other quaternion */
 	SIMD_FORCE_INLINE btQuaternion
 	operator+(const btQuaternion& q2) const
@@ -520,7 +660,7 @@ public:
 #endif
 	}
 
-	/**@brief Return the difference between this quaternion and the other 
+	/**@brief Return the difference between this quaternion and the other
    * @param q2 The other quaternion */
 	SIMD_FORCE_INLINE btQuaternion
 	operator-(const btQuaternion& q2) const
@@ -535,7 +675,7 @@ public:
 #endif
 	}
 
-	/**@brief Return the negative of this quaternion 
+	/**@brief Return the negative of this quaternion
    * This simply negates each element */
 	SIMD_FORCE_INLINE btQuaternion operator-() const
 	{
@@ -571,7 +711,7 @@ public:
 	}
 
 	/**@brief Return the quaternion which is the result of Spherical Linear Interpolation between this and the other quaternion
-   * @param q The other quaternion to interpolate with 
+   * @param q The other quaternion to interpolate with
    * @param t The ratio between this and q to interpolate.  If t = 0 the result is this, if t=1 the result is q.
    * Slerp interpolates assuming constant velocity.  */
 	btQuaternion slerp(const btQuaternion& q, const btScalar& t) const
@@ -911,10 +1051,10 @@ inverse(const btQuaternion& q)
 	return q.inverse();
 }
 
-/**@brief Return the result of spherical linear interpolation betwen two quaternions 
+/**@brief Return the result of spherical linear interpolation betwen two quaternions
  * @param q1 The first quaternion
- * @param q2 The second quaternion 
- * @param t The ration between q1 and q2.  t = 0 return q1, t=1 returns q2 
+ * @param q2 The second quaternion
+ * @param t The ration between q1 and q2.  t = 0 return q1, t=1 returns q2
  * Slerp assumes constant velocity between positions. */
 SIMD_FORCE_INLINE btQuaternion
 slerp(const btQuaternion& q1, const btQuaternion& q2, const btScalar& t)
