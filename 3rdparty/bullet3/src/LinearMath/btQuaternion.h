@@ -110,7 +110,7 @@ public:
 		btScalar d = axis.length();
 		btAssert(d != btScalar(0.0));
 		btScalar s = btSin(_angle * btScalar(0.5)) / d;
-		setValue(axis.x() * s, axis.y() * s, axis.z() * s,
+		setValue(axis.m_floats[0] * s, axis.m_floats[1] * s, axis.m_floats[2] * s,
 				 btCos(_angle * btScalar(0.5)));
 	}
 	/**@brief Set the quaternion using Euler angles
@@ -204,9 +204,9 @@ public:
 #elif defined(BT_USE_NEON)
 		mVec128 = vaddq_f32(mVec128, q.mVec128);
 #else
-		m_floats[0] += q.x();
-		m_floats[1] += q.y();
-		m_floats[2] += q.z();
+		m_floats[0] += q.m_floats[0];
+		m_floats[1] += q.m_floats[1];
+		m_floats[2] += q.m_floats[2];
 		m_floats[3] += q.m_floats[3];
 #endif
 		return *this;
@@ -221,9 +221,9 @@ public:
 #elif defined(BT_USE_NEON)
 		mVec128 = vsubq_f32(mVec128, q.mVec128);
 #else
-		m_floats[0] -= q.x();
-		m_floats[1] -= q.y();
-		m_floats[2] -= q.z();
+		m_floats[0] -= q.m_floats[0];
+		m_floats[1] -= q.m_floats[1];
+		m_floats[2] -= q.m_floats[2];
 		m_floats[3] -= q.m_floats[3];
 #endif
 		return *this;
@@ -325,10 +325,10 @@ public:
 		mVec128 = A0;
 #else
 		setValue(
-			m_floats[3] * q.x() + m_floats[0] * q.m_floats[3] + m_floats[1] * q.z() - m_floats[2] * q.y(),
-			m_floats[3] * q.y() + m_floats[1] * q.m_floats[3] + m_floats[2] * q.x() - m_floats[0] * q.z(),
-			m_floats[3] * q.z() + m_floats[2] * q.m_floats[3] + m_floats[0] * q.y() - m_floats[1] * q.x(),
-			m_floats[3] * q.m_floats[3] - m_floats[0] * q.x() - m_floats[1] * q.y() - m_floats[2] * q.z());
+			m_floats[3] * q.m_floats[0] + m_floats[0] * q.m_floats[3] + m_floats[1] * q.m_floats[2] - m_floats[2] * q.m_floats[1],
+			m_floats[3] * q.m_floats[1] + m_floats[1] * q.m_floats[3] + m_floats[2] * q.m_floats[0] - m_floats[0] * q.m_floats[2],
+			m_floats[3] * q.m_floats[2] + m_floats[2] * q.m_floats[3] + m_floats[0] * q.m_floats[1] - m_floats[1] * q.m_floats[0],
+			m_floats[3] * q.m_floats[3] - m_floats[0] * q.m_floats[0] - m_floats[1] * q.m_floats[1] - m_floats[2] * q.m_floats[2]);
 #endif
 		return *this;
 	}
@@ -353,9 +353,9 @@ public:
 		x = vpadd_f32(x, x);
 		return vget_lane_f32(x, 0);
 #else
-		return m_floats[0] * q.x() +
-			   m_floats[1] * q.y() +
-			   m_floats[2] * q.z() +
+		return m_floats[0] * q.m_floats[0] +
+			   m_floats[1] * q.m_floats[1] +
+			   m_floats[2] * q.m_floats[2] +
 			   m_floats[3] * q.m_floats[3];
 #endif
 	}
@@ -418,7 +418,7 @@ public:
 #elif defined(BT_USE_NEON)
 		return btQuaternion(vmulq_n_f32(mVec128, s));
 #else
-		return btQuaternion(x() * s, y() * s, z() * s, m_floats[3] * s);
+		return btQuaternion(m_floats[0] * s, m_floats[1] * s, m_floats[2] * s, m_floats[3] * s);
 #endif
 	}
 
@@ -516,7 +516,7 @@ public:
 		return btQuaternion(vaddq_f32(mVec128, q2.mVec128));
 #else
 		const btQuaternion& q1 = *this;
-		return btQuaternion(q1.x() + q2.x(), q1.y() + q2.y(), q1.z() + q2.z(), q1.m_floats[3] + q2.m_floats[3]);
+		return btQuaternion(q1.m_floats[0] + q2.m_floats[0], q1.m_floats[1] + q2.m_floats[1], q1.m_floats[2] + q2.m_floats[2], q1.m_floats[3] + q2.m_floats[3]);
 #endif
 	}
 
@@ -531,7 +531,7 @@ public:
 		return btQuaternion(vsubq_f32(mVec128, q2.mVec128));
 #else
 		const btQuaternion& q1 = *this;
-		return btQuaternion(q1.x() - q2.x(), q1.y() - q2.y(), q1.z() - q2.z(), q1.m_floats[3] - q2.m_floats[3]);
+		return btQuaternion(q1.m_floats[0] - q2.m_floats[0], q1.m_floats[1] - q2.m_floats[1], q1.m_floats[2] - q2.m_floats[2], q1.m_floats[3] - q2.m_floats[3]);
 #endif
 	}
 
@@ -545,7 +545,7 @@ public:
 		return btQuaternion((btSimdFloat4)veorq_s32((int32x4_t)mVec128, (int32x4_t)btvMzeroMask));
 #else
 		const btQuaternion& q2 = *this;
-		return btQuaternion(-q2.x(), -q2.y(), -q2.z(), -q2.m_floats[3]);
+		return btQuaternion(-q2.m_floats[0], -q2.m_floats[1], -q2.m_floats[2], -q2.m_floats[3]);
 #endif
 	}
 	/**@todo document this and it's use */
@@ -594,10 +594,10 @@ public:
 			const btScalar s1 = btSin(sign * t * theta) / d;
 
 			return btQuaternion(
-				(m_floats[0] * s0 + q.x() * s1),
-				(m_floats[1] * s0 + q.y() * s1),
-				(m_floats[2] * s0 + q.z() * s1),
-				(m_floats[3] * s0 + q.w() * s1));
+				(m_floats[0] * s0 + q.m_floats[0] * s1),
+				(m_floats[1] * s0 + q.m_floats[1] * s1),
+				(m_floats[2] * s0 + q.m_floats[2] * s1),
+				(m_floats[3] * s0 + q.m_floats[3] * s1));
 		}
 		else
 		{
@@ -710,10 +710,10 @@ operator*(const btQuaternion& q1, const btQuaternion& q2)
 
 #else
 	return btQuaternion(
-		q1.w() * q2.x() + q1.x() * q2.w() + q1.y() * q2.z() - q1.z() * q2.y(),
-		q1.w() * q2.y() + q1.y() * q2.w() + q1.z() * q2.x() - q1.x() * q2.z(),
-		q1.w() * q2.z() + q1.z() * q2.w() + q1.x() * q2.y() - q1.y() * q2.x(),
-		q1.w() * q2.w() - q1.x() * q2.x() - q1.y() * q2.y() - q1.z() * q2.z());
+		q1.m_floats[3] * q2.m_floats[0] + q1.m_floats[0] * q2.m_floats[3] + q1.m_floats[1] * q2.m_floats[2] - q1.m_floats[2] * q2.m_floats[1],
+		q1.m_floats[3] * q2.m_floats[1] + q1.m_floats[1] * q2.m_floats[3] + q1.m_floats[2] * q2.m_floats[0] - q1.m_floats[0] * q2.m_floats[2],
+		q1.m_floats[3] * q2.m_floats[2] + q1.m_floats[2] * q2.m_floats[3] + q1.m_floats[0] * q2.m_floats[1] - q1.m_floats[1] * q2.m_floats[0],
+		q1.m_floats[3] * q2.m_floats[3] - q1.m_floats[0] * q2.m_floats[0] - q1.m_floats[1] * q2.m_floats[1] - q1.m_floats[2] * q2.m_floats[2]);
 #endif
 }
 
@@ -793,10 +793,10 @@ operator*(const btQuaternion& q, const btVector3& w)
 
 #else
 	return btQuaternion(
-		q.w() * w.x() + q.y() * w.z() - q.z() * w.y(),
-		q.w() * w.y() + q.z() * w.x() - q.x() * w.z(),
-		q.w() * w.z() + q.x() * w.y() - q.y() * w.x(),
-		-q.x() * w.x() - q.y() * w.y() - q.z() * w.z());
+		q.m_floats[3] * w.m_floats[0] + q.m_floats[1] * w.m_floats[2] - q.m_floats[2] * w.m_floats[1],
+		q.m_floats[3] * w.m_floats[1] + q.m_floats[2] * w.m_floats[0] - q.m_floats[0] * w.m_floats[2],
+		q.m_floats[3] * w.m_floats[2] + q.m_floats[0] * w.m_floats[1] - q.m_floats[1] * w.m_floats[0],
+		-q.m_floats[0] * w.m_floats[0] - q.m_floats[1] * w.m_floats[1] - q.m_floats[2] * w.m_floats[2]);
 #endif
 }
 
@@ -876,10 +876,10 @@ operator*(const btVector3& w, const btQuaternion& q)
 
 #else
 	return btQuaternion(
-		+w.x() * q.w() + w.y() * q.z() - w.z() * q.y(),
-		+w.y() * q.w() + w.z() * q.x() - w.x() * q.z(),
-		+w.z() * q.w() + w.x() * q.y() - w.y() * q.x(),
-		-w.x() * q.x() - w.y() * q.y() - w.z() * q.z());
+		+w.m_floats[0] * q.m_floats[3] + w.m_floats[1] * q.m_floats[2] - w.m_floats[2] * q.m_floats[1],
+		+w.m_floats[1] * q.m_floats[3] + w.m_floats[2] * q.m_floats[0] - w.m_floats[0] * q.m_floats[2],
+		+w.m_floats[2] * q.m_floats[3] + w.m_floats[0] * q.m_floats[1] - w.m_floats[1] * q.m_floats[0],
+		-w.m_floats[0] * q.m_floats[0] - w.m_floats[1] * q.m_floats[1] - w.m_floats[2] * q.m_floats[2]);
 #endif
 }
 
@@ -932,7 +932,7 @@ quatRotate(const btQuaternion& rotation, const btVector3& v)
 #elif defined(BT_USE_NEON)
 	return btVector3((float32x4_t)vandq_s32((int32x4_t)q.get128(), btvFFF0Mask));
 #else
-	return btVector3(q.getX(), q.getY(), q.getZ());
+	return btVector3(q.m_floats[0], q.m_floats[1], q.m_floats[2]);
 #endif
 }
 
@@ -946,13 +946,13 @@ shortestArcQuat(const btVector3& v0, const btVector3& v1)  // Game Programming G
 	{
 		btVector3 n, unused;
 		btPlaneSpace1(v0, n, unused);
-		return btQuaternion(n.x(), n.y(), n.z(), 0.0f);  // just pick any vector that is orthogonal to v0
+		return btQuaternion(n.m_floats[0], n.m_floats[1], n.m_floats[2], 0.0f);  // just pick any vector that is orthogonal to v0
 	}
 
 	btScalar s = btSqrt((1.0f + d) * 2.0f);
 	btScalar rs = 1.0f / s;
 
-	return btQuaternion(c.getX() * rs, c.getY() * rs, c.getZ() * rs, s * 0.5f);
+	return btQuaternion(c.m_floats[0] * rs, c.m_floats[1] * rs, c.m_floats[2] * rs, s * 0.5f);
 }
 
 SIMD_FORCE_INLINE btQuaternion

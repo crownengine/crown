@@ -238,17 +238,17 @@ class btReducedDeformableBody : public btSoftBody
 
   #if defined(BT_CLAMP_VELOCITY_TO) && BT_CLAMP_VELOCITY_TO > 0
   void clampVelocity(btVector3& v) const {
-      v.setX(
+      v.m_floats[0] = (
           fmax(-BT_CLAMP_VELOCITY_TO,
-                fmin(BT_CLAMP_VELOCITY_TO, v.getX()))
+                fmin(BT_CLAMP_VELOCITY_TO, v.m_floats[0]))
       );
-      v.setY(
+      v.m_floats[1] = (
           fmax(-BT_CLAMP_VELOCITY_TO,
-                fmin(BT_CLAMP_VELOCITY_TO, v.getY()))
+                fmin(BT_CLAMP_VELOCITY_TO, v.m_floats[1]))
       );
-      v.setZ(
+      v.m_floats[2] = (
           fmax(-BT_CLAMP_VELOCITY_TO,
-                fmin(BT_CLAMP_VELOCITY_TO, v.getZ()))
+                fmin(BT_CLAMP_VELOCITY_TO, v.m_floats[2]))
       );
   }
   #endif

@@ -138,7 +138,7 @@ void btSoftBodyTriangleCallback::processTriangle(btVector3* triangle, int partId
 							triangle[1] - normal,
 							triangle[2] - normal};
 
-		btConvexHullShape* tm = new btConvexHullShape(&pts[0].getX(), 6);
+		btConvexHullShape* tm = new btConvexHullShape(&pts[0].m_floats[0], 6);
 
 		//		btBU_Simplex1to4 tm(triangle[0],triangle[1],triangle[2],other);
 

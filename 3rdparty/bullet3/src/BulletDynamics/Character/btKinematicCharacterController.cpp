@@ -563,9 +563,9 @@ void btKinematicCharacterController::stepDown(btCollisionWorld* collisionWorld, 
 	if ((m_ghostObject->hasContactResponse() && (callback.hasHit() && needsCollision(m_ghostObject, callback.m_hitCollisionObject))) || runonce == true)
 	{
 		// we dropped a fraction of the height -> hit floor
-		btScalar fraction = (m_currentPosition.getY() - callback.m_hitPointWorld.getY()) / 2;
+		btScalar fraction = (m_currentPosition.m_floats[1] - callback.m_hitPointWorld.m_floats[1]) / 2;
 
-		//printf("hitpoint: %g - pos %g\n", callback.m_hitPointWorld.getY(), m_currentPosition.getY());
+		//printf("hitpoint: %g - pos %g\n", callback.m_hitPointWorld.m_floats[1], m_currentPosition.m_floats[1]);
 
 		if (bounce_fix == true)
 		{
@@ -601,7 +601,7 @@ void btKinematicCharacterController::stepDown(btCollisionWorld* collisionWorld, 
 				m_targetPosition -= step_drop;
 			}
 		}
-		//printf("full drop - %g, %g\n", m_currentPosition.getY(), m_targetPosition.getY());
+		//printf("full drop - %g, %g\n", m_currentPosition.m_floats[1], m_targetPosition.m_floats[1]);
 
 		m_currentPosition = m_targetPosition;
 	}
@@ -622,7 +622,7 @@ void btKinematicCharacterController::setVelocityForTimeInterval(
 	//	printf("setVelocity!\n");
 	//	printf("  interval: %f\n", timeInterval);
 	//	printf("  velocity: (%f, %f, %f)\n",
-	//		 velocity.x(), velocity.y(), velocity.z());
+	//		 velocity.m_floats[0], velocity.m_floats[1], velocity.m_floats[2]);
 
 	m_useWalkDirection = false;
 	m_walkDirection = velocity;

@@ -392,9 +392,9 @@ struct GJK
 	}
 	static btScalar det(const btVector3& a, const btVector3& b, const btVector3& c)
 	{
-		return (a.y() * b.z() * c.x() + a.z() * b.x() * c.y() -
-				a.x() * b.z() * c.y() - a.y() * b.x() * c.z() +
-				a.x() * b.y() * c.z() - a.z() * b.y() * c.x());
+		return (a.m_floats[1] * b.m_floats[2] * c.m_floats[0] + a.m_floats[2] * b.m_floats[0] * c.m_floats[1] -
+				a.m_floats[0] * b.m_floats[2] * c.m_floats[1] - a.m_floats[1] * b.m_floats[0] * c.m_floats[2] +
+				a.m_floats[0] * b.m_floats[1] * c.m_floats[2] - a.m_floats[2] * b.m_floats[1] * c.m_floats[0]);
 	}
 	static btScalar projectorigin(const btVector3& a,
 								  const btVector3& b,

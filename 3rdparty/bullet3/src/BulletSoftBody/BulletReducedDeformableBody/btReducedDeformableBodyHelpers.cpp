@@ -64,12 +64,12 @@ btReducedDeformableBody* btReducedDeformableBodyHelpers::createFromVtkFile(btSof
 		{
 			btScalar p;
 			ss >> p;
-			position.setX(p);
+			position.m_floats[0] = (p);
 			ss >> p;
-			position.setY(p);
+			position.m_floats[1] = (p);
 			ss >> p;
-			position.setZ(p);
-			//printf("v %f %f %f\n", position.getX(), position.getY(), position.getZ());
+			position.m_floats[2] = (p);
+			//printf("v %f %f %f\n", position.m_floats[0], position.m_floats[1], position.m_floats[2]);
 			X[x_count++] = position;
 		}
 		else if (reading_tets)

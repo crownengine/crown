@@ -195,9 +195,9 @@ int btComputeGjkEpaPenetration(const btConvexTemplate& a, const btConvexTemplate
 
 				printf("btGjkPairDetector maxIter exceeded:%i\n", m_curIter);
 				printf("sepAxis=(%f,%f,%f), squaredDistance = %f\n",
-					   m_cachedSeparatingAxis.getX(),
-					   m_cachedSeparatingAxis.getY(),
-					   m_cachedSeparatingAxis.getZ(),
+					   m_cachedSeparatingAxis.m_floats[0],
+					   m_cachedSeparatingAxis.m_floats[1],
+					   m_cachedSeparatingAxis.m_floats[2],
 					   squaredDistance);
 #endif
 

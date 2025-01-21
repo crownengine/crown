@@ -165,7 +165,7 @@ void btMultiBodySphericalJointLimit::createConstraintRows(btMultiBodyConstraintA
 		qMinTwist = -(qABTwist);
 		twistAngle = qMinTwist.getAngle();
 	}
-	btVector3 vTwistAxis = btVector3(qMinTwist.x(), qMinTwist.y(), qMinTwist.z());
+	btVector3 vTwistAxis = btVector3(qMinTwist.m_floats[0], qMinTwist.m_floats[1], qMinTwist.m_floats[2]);
 	if (twistAngle > SIMD_EPSILON)
 		vTwistAxis.normalize();
 	

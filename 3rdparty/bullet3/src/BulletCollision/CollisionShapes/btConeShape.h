@@ -62,9 +62,9 @@ public:
 
 		btScalar margin = getMargin();
 
-		btScalar lx = btScalar(2.) * (halfExtents.x() + margin);
-		btScalar ly = btScalar(2.) * (halfExtents.y() + margin);
-		btScalar lz = btScalar(2.) * (halfExtents.z() + margin);
+		btScalar lx = btScalar(2.) * (halfExtents.m_floats[0] + margin);
+		btScalar ly = btScalar(2.) * (halfExtents.m_floats[1] + margin);
+		btScalar lz = btScalar(2.) * (halfExtents.m_floats[2] + margin);
 		const btScalar x2 = lx * lx;
 		const btScalar y2 = ly * ly;
 		const btScalar z2 = lz * lz;
@@ -72,9 +72,9 @@ public:
 
 		inertia = scaledmass * (btVector3(y2 + z2, x2 + z2, x2 + y2));
 
-		//		inertia.x() = scaledmass * (y2+z2);
-		//		inertia.y() = scaledmass * (x2+z2);
-		//		inertia.z() = scaledmass * (x2+y2);
+		//		inertia.m_floats[0] = scaledmass * (y2+z2);
+		//		inertia.m_floats[1] = scaledmass * (x2+z2);
+		//		inertia.m_floats[2] = scaledmass * (x2+y2);
 	}
 
 	virtual const char* getName() const

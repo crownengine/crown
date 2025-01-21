@@ -42,14 +42,14 @@ static void drawBox(btIDebugDraw* idraw,
 					const btVector3& maxs,
 					const btVector3& color)
 {
-	const btVector3 c[] = {btVector3(mins.x(), mins.y(), mins.z()),
-						   btVector3(maxs.x(), mins.y(), mins.z()),
-						   btVector3(maxs.x(), maxs.y(), mins.z()),
-						   btVector3(mins.x(), maxs.y(), mins.z()),
-						   btVector3(mins.x(), mins.y(), maxs.z()),
-						   btVector3(maxs.x(), mins.y(), maxs.z()),
-						   btVector3(maxs.x(), maxs.y(), maxs.z()),
-						   btVector3(mins.x(), maxs.y(), maxs.z())};
+	const btVector3 c[] = {btVector3(mins.m_floats[0], mins.m_floats[1], mins.m_floats[2]),
+						   btVector3(maxs.m_floats[0], mins.m_floats[1], mins.m_floats[2]),
+						   btVector3(maxs.m_floats[0], maxs.m_floats[1], mins.m_floats[2]),
+						   btVector3(mins.m_floats[0], maxs.m_floats[1], mins.m_floats[2]),
+						   btVector3(mins.m_floats[0], mins.m_floats[1], maxs.m_floats[2]),
+						   btVector3(maxs.m_floats[0], mins.m_floats[1], maxs.m_floats[2]),
+						   btVector3(maxs.m_floats[0], maxs.m_floats[1], maxs.m_floats[2]),
+						   btVector3(mins.m_floats[0], maxs.m_floats[1], maxs.m_floats[2])};
 	idraw->drawLine(c[0], c[1], color);
 	idraw->drawLine(c[1], c[2], color);
 	idraw->drawLine(c[2], c[3], color);
@@ -205,7 +205,7 @@ void btSoftBodyHelpers::Draw(btSoftBody* psb,
 				int count = vertices.size();
 				btScalar shrink = 0.f;
 				btScalar shrinkClamp = 0.f;
-				computer.compute(&vertices[0].getX(), stride, count, shrink, shrinkClamp);
+				computer.compute(&vertices[0].m_floats[0], stride, count, shrink, shrinkClamp);
 				for (int i = 0; i < computer.faces.size(); i++)
 				{
 					int face = computer.faces[i];
@@ -750,10 +750,10 @@ btSoftBody* btSoftBodyHelpers::CreatePatch(btSoftBodyWorldInfo& worldInfo, const
 			const btScalar tx = ix / (btScalar)(rx - 1);
 			btScalar pert = perturbation * btScalar(rand()) / RAND_MAX;
 			btVector3 temp1 = py1;
-			temp1.setY(py1.getY() + pert);
+			temp1.m_floats[1] = (py1.m_floats[1] + pert);
 			btVector3 temp = py0;
 			pert = perturbation * btScalar(rand()) / RAND_MAX;
-			temp.setY(py0.getY() + pert);
+			temp.m_floats[1] = (py0.m_floats[1] + pert);
 			x[IDX(ix, iy)] = lerp(temp, temp1, tx);
 			m[IDX(ix, iy)] = 1;
 		}
@@ -1173,9 +1173,9 @@ btSoftBody* btSoftBodyHelpers::CreateFromTetGenData(btSoftBodyWorldInfo& worldIn
 		//if(hasbounds)
 		//	sn>>bound;
 
-		pos[index].setX(btScalar(x));
-		pos[index].setY(btScalar(y));
-		pos[index].setZ(btScalar(z));
+		pos[index].m_floats[0] = (btScalar(x));
+		pos[index].m_floats[1] = (btScalar(y));
+		pos[index].m_floats[2] = (btScalar(z));
 	}
 	btSoftBody* psb = new btSoftBody(&worldInfo, nnode, &pos[0], 0);
 #if 0
@@ -1292,12 +1292,12 @@ btSoftBody* btSoftBodyHelpers::CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo,
 		{
 			btScalar p;
 			ss >> p;
-			position.setX(p);
+			position.m_floats[0] = (p);
 			ss >> p;
-			position.setY(p);
+			position.m_floats[1] = (p);
 			ss >> p;
-			position.setZ(p);
-			//printf("v %f %f %f\n", position.getX(), position.getY(), position.getZ());
+			position.m_floats[2] = (p);
+			//printf("v %f %f %f\n", position.m_floats[0], position.m_floats[1], position.m_floats[2]);
 			X[x_count++] = position;
 		}
 		else if (reading_tets)

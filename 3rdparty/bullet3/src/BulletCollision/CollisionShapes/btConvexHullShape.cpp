@@ -116,7 +116,7 @@ btVector3 btConvexHullShape::localGetSupportingVertex(const btVector3& vec) cons
 void btConvexHullShape::optimizeConvexHull()
 {
 	btConvexHullComputer conv;
-	conv.compute(&m_unscaledPoints[0].getX(), sizeof(btVector3), m_unscaledPoints.size(), 0.f, 0.f);
+	conv.compute(&m_unscaledPoints[0].m_floats[0], sizeof(btVector3), m_unscaledPoints.size(), 0.f, 0.f);
 	int numVerts = conv.vertices.size();
 	m_unscaledPoints.resize(0);
 	for (int i = 0; i < numVerts; i++)
