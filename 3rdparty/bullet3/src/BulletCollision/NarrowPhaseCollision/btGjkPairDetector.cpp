@@ -215,17 +215,17 @@ inline int ccdEq(btScalar _a, btScalar _b)
 
 btScalar ccdVec3X(const btVector3 *v)
 {
-	return v->x();
+	return v->m_floats[0];
 }
 
 btScalar ccdVec3Y(const btVector3 *v)
 {
-	return v->y();
+	return v->m_floats[1];
 }
 
 btScalar ccdVec3Z(const btVector3 *v)
 {
-	return v->z();
+	return v->m_floats[2];
 }
 inline int btVec3Eq(const btVector3 *a, const btVector3 *b)
 {
@@ -945,9 +945,9 @@ void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput &inpu
 
 					printf("btGjkPairDetector maxIter exceeded:%i\n", m_curIter);
 					printf("sepAxis=(%f,%f,%f), squaredDistance = %f, shapeTypeA=%i,shapeTypeB=%i\n",
-						   m_cachedSeparatingAxis.getX(),
-						   m_cachedSeparatingAxis.getY(),
-						   m_cachedSeparatingAxis.getZ(),
+						   m_cachedSeparatingAxis.m_floats[0],
+						   m_cachedSeparatingAxis.m_floats[1],
+						   m_cachedSeparatingAxis.m_floats[2],
 						   squaredDistance,
 						   m_minkowskiA->getShapeType(),
 						   m_minkowskiB->getShapeType());

@@ -116,7 +116,7 @@ void btRigidBody::saveKinematicState(btScalar timeStep)
 		m_interpolationLinearVelocity = m_linearVelocity;
 		m_interpolationAngularVelocity = m_angularVelocity;
 		m_interpolationWorldTransform = m_worldTransform;
-		//printf("angular = %f %f %f\n",m_angularVelocity.getX(),m_angularVelocity.getY(),m_angularVelocity.getZ());
+		//printf("angular = %f %f %f\n",m_angularVelocity.m_floats[0],m_angularVelocity.m_floats[1],m_angularVelocity.m_floats[2]);
 	}
 }
 
@@ -239,9 +239,9 @@ void btRigidBody::setMassProps(btScalar mass, const btVector3& inertia)
 	//Fg = m * a
 	m_gravity = mass * m_gravity_acceleration;
 
-	m_invInertiaLocal.setValue(inertia.x() != btScalar(0.0) ? btScalar(1.0) / inertia.x() : btScalar(0.0),
-							   inertia.y() != btScalar(0.0) ? btScalar(1.0) / inertia.y() : btScalar(0.0),
-							   inertia.z() != btScalar(0.0) ? btScalar(1.0) / inertia.z() : btScalar(0.0));
+	m_invInertiaLocal.setValue(inertia.m_floats[0] != btScalar(0.0) ? btScalar(1.0) / inertia.m_floats[0] : btScalar(0.0),
+							   inertia.m_floats[1] != btScalar(0.0) ? btScalar(1.0) / inertia.m_floats[1] : btScalar(0.0),
+							   inertia.m_floats[2] != btScalar(0.0) ? btScalar(1.0) / inertia.m_floats[2] : btScalar(0.0));
 
 	m_invMass = m_linearFactor * m_inverseMass;
 }
@@ -255,9 +255,9 @@ btVector3 btRigidBody::getLocalInertia() const
 {
 	btVector3 inertiaLocal;
 	const btVector3 inertia = m_invInertiaLocal;
-	inertiaLocal.setValue(inertia.x() != btScalar(0.0) ? btScalar(1.0) / inertia.x() : btScalar(0.0),
-						  inertia.y() != btScalar(0.0) ? btScalar(1.0) / inertia.y() : btScalar(0.0),
-						  inertia.z() != btScalar(0.0) ? btScalar(1.0) / inertia.z() : btScalar(0.0));
+	inertiaLocal.setValue(inertia.m_floats[0] != btScalar(0.0) ? btScalar(1.0) / inertia.m_floats[0] : btScalar(0.0),
+						  inertia.m_floats[1] != btScalar(0.0) ? btScalar(1.0) / inertia.m_floats[1] : btScalar(0.0),
+						  inertia.m_floats[2] != btScalar(0.0) ? btScalar(1.0) / inertia.m_floats[2] : btScalar(0.0));
 	return inertiaLocal;
 }
 
@@ -303,9 +303,9 @@ btVector3 btRigidBody::computeGyroscopicImpulseImplicit_Body(btScalar step) cons
 	// Convert to body coordinates
 	btVector3 omegab = quatRotate(q.inverse(), omega1);
 	btMatrix3x3 Ib;
-	Ib.setValue(idl.x(), 0, 0,
-				0, idl.y(), 0,
-				0, 0, idl.z());
+	Ib.setValue(idl.m_floats[0], 0, 0,
+				0, idl.m_floats[1], 0,
+				0, 0, idl.m_floats[2]);
 
 	btVector3 ibo = Ib * omegab;
 

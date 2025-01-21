@@ -33,9 +33,9 @@ SIMD_FORCE_INLINE bool TestPointAgainstAabb2(const btVector3& aabbMin1, const bt
 											 const btVector3& point)
 {
 	bool overlap = true;
-	overlap = (aabbMin1.getX() > point.getX() || aabbMax1.getX() < point.getX()) ? false : overlap;
-	overlap = (aabbMin1.getZ() > point.getZ() || aabbMax1.getZ() < point.getZ()) ? false : overlap;
-	overlap = (aabbMin1.getY() > point.getY() || aabbMax1.getY() < point.getY()) ? false : overlap;
+	overlap = (aabbMin1.m_floats[0] > point.m_floats[0] || aabbMax1.m_floats[0] < point.m_floats[0]) ? false : overlap;
+	overlap = (aabbMin1.m_floats[2] > point.m_floats[2] || aabbMax1.m_floats[2] < point.m_floats[2]) ? false : overlap;
+	overlap = (aabbMin1.m_floats[1] > point.m_floats[1] || aabbMax1.m_floats[1] < point.m_floats[1]) ? false : overlap;
 	return overlap;
 }
 
@@ -44,9 +44,9 @@ SIMD_FORCE_INLINE bool TestAabbAgainstAabb2(const btVector3& aabbMin1, const btV
 											const btVector3& aabbMin2, const btVector3& aabbMax2)
 {
 	bool overlap = true;
-	overlap = (aabbMin1.getX() > aabbMax2.getX() || aabbMax1.getX() < aabbMin2.getX()) ? false : overlap;
-	overlap = (aabbMin1.getZ() > aabbMax2.getZ() || aabbMax1.getZ() < aabbMin2.getZ()) ? false : overlap;
-	overlap = (aabbMin1.getY() > aabbMax2.getY() || aabbMax1.getY() < aabbMin2.getY()) ? false : overlap;
+	overlap = (aabbMin1.m_floats[0] > aabbMax2.m_floats[0] || aabbMax1.m_floats[0] < aabbMin2.m_floats[0]) ? false : overlap;
+	overlap = (aabbMin1.m_floats[2] > aabbMax2.m_floats[2] || aabbMax1.m_floats[2] < aabbMin2.m_floats[2]) ? false : overlap;
+	overlap = (aabbMin1.m_floats[1] > aabbMax2.m_floats[1] || aabbMax1.m_floats[1] < aabbMin2.m_floats[1]) ? false : overlap;
 	return overlap;
 }
 
@@ -71,12 +71,12 @@ SIMD_FORCE_INLINE bool TestTriangleAgainstAabb2(const btVector3* vertices,
 
 SIMD_FORCE_INLINE int btOutcode(const btVector3& p, const btVector3& halfExtent)
 {
-	return (p.getX() < -halfExtent.getX() ? 0x01 : 0x0) |
-		   (p.getX() > halfExtent.getX() ? 0x08 : 0x0) |
-		   (p.getY() < -halfExtent.getY() ? 0x02 : 0x0) |
-		   (p.getY() > halfExtent.getY() ? 0x10 : 0x0) |
-		   (p.getZ() < -halfExtent.getZ() ? 0x4 : 0x0) |
-		   (p.getZ() > halfExtent.getZ() ? 0x20 : 0x0);
+	return (p.m_floats[0] < -halfExtent.m_floats[0] ? 0x01 : 0x0) |
+		   (p.m_floats[0] > halfExtent.m_floats[0] ? 0x08 : 0x0) |
+		   (p.m_floats[1] < -halfExtent.m_floats[1] ? 0x02 : 0x0) |
+		   (p.m_floats[1] > halfExtent.m_floats[1] ? 0x10 : 0x0) |
+		   (p.m_floats[2] < -halfExtent.m_floats[2] ? 0x4 : 0x0) |
+		   (p.m_floats[2] > halfExtent.m_floats[2] ? 0x20 : 0x0);
 }
 
 SIMD_FORCE_INLINE bool btRayAabb2(const btVector3& rayFrom,
@@ -88,10 +88,10 @@ SIMD_FORCE_INLINE bool btRayAabb2(const btVector3& rayFrom,
 								  btScalar lambda_max)
 {
 	btScalar tmax, tymin, tymax, tzmin, tzmax;
-	tmin = (bounds[raySign[0]].getX() - rayFrom.getX()) * rayInvDirection.getX();
-	tmax = (bounds[1 - raySign[0]].getX() - rayFrom.getX()) * rayInvDirection.getX();
-	tymin = (bounds[raySign[1]].getY() - rayFrom.getY()) * rayInvDirection.getY();
-	tymax = (bounds[1 - raySign[1]].getY() - rayFrom.getY()) * rayInvDirection.getY();
+	tmin = (bounds[raySign[0]].m_floats[0] - rayFrom.m_floats[0]) * rayInvDirection.m_floats[0];
+	tmax = (bounds[1 - raySign[0]].m_floats[0] - rayFrom.m_floats[0]) * rayInvDirection.m_floats[0];
+	tymin = (bounds[raySign[1]].m_floats[1] - rayFrom.m_floats[1]) * rayInvDirection.m_floats[1];
+	tymax = (bounds[1 - raySign[1]].m_floats[1] - rayFrom.m_floats[1]) * rayInvDirection.m_floats[1];
 
 	if ((tmin > tymax) || (tymin > tmax))
 		return false;
@@ -102,8 +102,8 @@ SIMD_FORCE_INLINE bool btRayAabb2(const btVector3& rayFrom,
 	if (tymax < tmax)
 		tmax = tymax;
 
-	tzmin = (bounds[raySign[2]].getZ() - rayFrom.getZ()) * rayInvDirection.getZ();
-	tzmax = (bounds[1 - raySign[2]].getZ() - rayFrom.getZ()) * rayInvDirection.getZ();
+	tzmin = (bounds[raySign[2]].m_floats[2] - rayFrom.m_floats[2]) * rayInvDirection.m_floats[2];
+	tzmax = (bounds[1 - raySign[2]].m_floats[2] - rayFrom.m_floats[2]) * rayInvDirection.m_floats[2];
 
 	if ((tmin > tzmax) || (tzmin > tmax))
 		return false;
@@ -181,9 +181,9 @@ SIMD_FORCE_INLINE void btTransformAabb(const btVector3& halfExtents, btScalar ma
 
 SIMD_FORCE_INLINE void btTransformAabb(const btVector3& localAabbMin, const btVector3& localAabbMax, btScalar margin, const btTransform& trans, btVector3& aabbMinOut, btVector3& aabbMaxOut)
 {
-	btAssert(localAabbMin.getX() <= localAabbMax.getX());
-	btAssert(localAabbMin.getY() <= localAabbMax.getY());
-	btAssert(localAabbMin.getZ() <= localAabbMax.getZ());
+	btAssert(localAabbMin.m_floats[0] <= localAabbMax.m_floats[0]);
+	btAssert(localAabbMin.m_floats[1] <= localAabbMax.m_floats[1]);
+	btAssert(localAabbMin.m_floats[2] <= localAabbMax.m_floats[2]);
 	btVector3 localHalfExtents = btScalar(0.5) * (localAabbMax - localAabbMin);
 	localHalfExtents += btVector3(margin, margin, margin);
 

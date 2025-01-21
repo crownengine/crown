@@ -31,7 +31,7 @@ public:
 		m_shapeType = SPHERE_SHAPE_PROXYTYPE;
 		m_localScaling.setValue(1.0, 1.0, 1.0);
 		m_implicitShapeDimensions.setZero();
-		m_implicitShapeDimensions.setX(radius);
+		m_implicitShapeDimensions.m_floats[0] = (radius);
 		m_collisionMargin = radius;
 		m_padding = 0;
 	}
@@ -45,11 +45,11 @@ public:
 
 	virtual void getAabb(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const;
 
-	btScalar getRadius() const { return m_implicitShapeDimensions.getX() * m_localScaling.getX(); }
+	btScalar getRadius() const { return m_implicitShapeDimensions.m_floats[0] * m_localScaling.m_floats[0]; }
 
 	void setUnscaledRadius(btScalar radius)
 	{
-		m_implicitShapeDimensions.setX(radius);
+		m_implicitShapeDimensions.m_floats[0] = (radius);
 		btConvexInternalShape::setMargin(radius);
 	}
 

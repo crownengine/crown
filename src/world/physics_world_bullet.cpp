@@ -99,12 +99,12 @@ static inline btTransform to_btTransform(const Matrix4x4 &m)
 
 static inline Vector3 to_vector3(const btVector3 &v)
 {
-	return vector3(v.x(), v.y(), v.z());
+	return vector3(v.m_floats[0], v.m_floats[1], v.m_floats[2]);
 }
 
 static inline Quaternion to_quaternion(const btQuaternion &q)
 {
-	return from_elements(q.x(), q.y(), q.z(), q.w());
+	return from_elements(q.m_floats[0], q.m_floats[1], q.m_floats[2], q.m_floats[3]);
 }
 
 static inline Matrix4x4 to_matrix4x4(const btTransform &t)
@@ -115,24 +115,24 @@ static inline Matrix4x4 to_matrix4x4(const btTransform &t)
 	const btVector3 o = t.m_origin;
 
 	Matrix4x4 m;
-	m.x.x = x.x();
-	m.x.y = y.x();
-	m.x.z = z.x();
+	m.x.x = x.m_floats[0];
+	m.x.y = y.m_floats[0];
+	m.x.z = z.m_floats[0];
 	m.x.w = 0.0f;
 
-	m.y.x = x.y();
-	m.y.y = y.y();
-	m.y.z = z.y();
+	m.y.x = x.m_floats[1];
+	m.y.y = y.m_floats[1];
+	m.y.z = z.m_floats[1];
 	m.y.w = 0.0f;
 
-	m.z.x = x.z();
-	m.z.y = y.z();
-	m.z.z = z.z();
+	m.z.x = x.m_floats[2];
+	m.z.y = y.m_floats[2];
+	m.z.z = z.m_floats[2];
 	m.z.w = 0.0f;
 
-	m.t.x = o.x();
-	m.t.y = o.y();
-	m.t.z = o.z();
+	m.t.x = o.m_floats[0];
+	m.t.y = o.m_floats[1];
+	m.t.z = o.m_floats[2];
 	m.t.w = 1.0f;
 
 	return m;

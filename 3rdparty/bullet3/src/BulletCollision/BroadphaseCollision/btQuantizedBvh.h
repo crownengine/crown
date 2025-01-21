@@ -329,13 +329,13 @@ public:
 	{
 		btAssert(m_useQuantization);
 
-		btAssert(point.getX() <= m_bvhAabbMax.getX());
-		btAssert(point.getY() <= m_bvhAabbMax.getY());
-		btAssert(point.getZ() <= m_bvhAabbMax.getZ());
+		btAssert(point.m_floats[0] <= m_bvhAabbMax.m_floats[0]);
+		btAssert(point.m_floats[1] <= m_bvhAabbMax.m_floats[1]);
+		btAssert(point.m_floats[2] <= m_bvhAabbMax.m_floats[2]);
 
-		btAssert(point.getX() >= m_bvhAabbMin.getX());
-		btAssert(point.getY() >= m_bvhAabbMin.getY());
-		btAssert(point.getZ() >= m_bvhAabbMin.getZ());
+		btAssert(point.m_floats[0] >= m_bvhAabbMin.m_floats[0]);
+		btAssert(point.m_floats[1] >= m_bvhAabbMin.m_floats[1]);
+		btAssert(point.m_floats[2] >= m_bvhAabbMin.m_floats[2]);
 
 		btVector3 v = (point - m_bvhAabbMin) * m_bvhQuantization;
 		///Make sure rounding is done in a way that unQuantize(quantizeWithClamp(...)) is conservative
@@ -343,47 +343,47 @@ public:
 		///@todo: double-check this
 		if (isMax)
 		{
-			out[0] = (unsigned short)(((unsigned short)(v.getX() + btScalar(1.)) | 1));
-			out[1] = (unsigned short)(((unsigned short)(v.getY() + btScalar(1.)) | 1));
-			out[2] = (unsigned short)(((unsigned short)(v.getZ() + btScalar(1.)) | 1));
+			out[0] = (unsigned short)(((unsigned short)(v.m_floats[0] + btScalar(1.)) | 1));
+			out[1] = (unsigned short)(((unsigned short)(v.m_floats[1] + btScalar(1.)) | 1));
+			out[2] = (unsigned short)(((unsigned short)(v.m_floats[2] + btScalar(1.)) | 1));
 		}
 		else
 		{
-			out[0] = (unsigned short)(((unsigned short)(v.getX()) & 0xfffe));
-			out[1] = (unsigned short)(((unsigned short)(v.getY()) & 0xfffe));
-			out[2] = (unsigned short)(((unsigned short)(v.getZ()) & 0xfffe));
+			out[0] = (unsigned short)(((unsigned short)(v.m_floats[0]) & 0xfffe));
+			out[1] = (unsigned short)(((unsigned short)(v.m_floats[1]) & 0xfffe));
+			out[2] = (unsigned short)(((unsigned short)(v.m_floats[2]) & 0xfffe));
 		}
 
 #ifdef DEBUG_CHECK_DEQUANTIZATION
 		btVector3 newPoint = unQuantize(out);
 		if (isMax)
 		{
-			if (newPoint.getX() < point.getX())
+			if (newPoint.m_floats[0] < point.m_floats[0])
 			{
-				printf("unconservative X, diffX = %f, oldX=%f,newX=%f\n", newPoint.getX() - point.getX(), newPoint.getX(), point.getX());
+				printf("unconservative X, diffX = %f, oldX=%f,newX=%f\n", newPoint.m_floats[0] - point.m_floats[0], newPoint.m_floats[0], point.m_floats[0]);
 			}
-			if (newPoint.getY() < point.getY())
+			if (newPoint.m_floats[1] < point.m_floats[1])
 			{
-				printf("unconservative Y, diffY = %f, oldY=%f,newY=%f\n", newPoint.getY() - point.getY(), newPoint.getY(), point.getY());
+				printf("unconservative Y, diffY = %f, oldY=%f,newY=%f\n", newPoint.m_floats[1] - point.m_floats[1], newPoint.m_floats[1], point.m_floats[1]);
 			}
-			if (newPoint.getZ() < point.getZ())
+			if (newPoint.m_floats[2] < point.m_floats[2])
 			{
-				printf("unconservative Z, diffZ = %f, oldZ=%f,newZ=%f\n", newPoint.getZ() - point.getZ(), newPoint.getZ(), point.getZ());
+				printf("unconservative Z, diffZ = %f, oldZ=%f,newZ=%f\n", newPoint.m_floats[2] - point.m_floats[2], newPoint.m_floats[2], point.m_floats[2]);
 			}
 		}
 		else
 		{
-			if (newPoint.getX() > point.getX())
+			if (newPoint.m_floats[0] > point.m_floats[0])
 			{
-				printf("unconservative X, diffX = %f, oldX=%f,newX=%f\n", newPoint.getX() - point.getX(), newPoint.getX(), point.getX());
+				printf("unconservative X, diffX = %f, oldX=%f,newX=%f\n", newPoint.m_floats[0] - point.m_floats[0], newPoint.m_floats[0], point.m_floats[0]);
 			}
-			if (newPoint.getY() > point.getY())
+			if (newPoint.m_floats[1] > point.m_floats[1])
 			{
-				printf("unconservative Y, diffY = %f, oldY=%f,newY=%f\n", newPoint.getY() - point.getY(), newPoint.getY(), point.getY());
+				printf("unconservative Y, diffY = %f, oldY=%f,newY=%f\n", newPoint.m_floats[1] - point.m_floats[1], newPoint.m_floats[1], point.m_floats[1]);
 			}
-			if (newPoint.getZ() > point.getZ())
+			if (newPoint.m_floats[2] > point.m_floats[2])
 			{
-				printf("unconservative Z, diffZ = %f, oldZ=%f,newZ=%f\n", newPoint.getZ() - point.getZ(), newPoint.getZ(), point.getZ());
+				printf("unconservative Z, diffZ = %f, oldZ=%f,newZ=%f\n", newPoint.m_floats[2] - point.m_floats[2], newPoint.m_floats[2], point.m_floats[2]);
 			}
 		}
 #endif  //DEBUG_CHECK_DEQUANTIZATION
@@ -404,9 +404,9 @@ public:
 	{
 		btVector3 vecOut;
 		vecOut.setValue(
-			(btScalar)(vecIn[0]) / (m_bvhQuantization.getX()),
-			(btScalar)(vecIn[1]) / (m_bvhQuantization.getY()),
-			(btScalar)(vecIn[2]) / (m_bvhQuantization.getZ()));
+			(btScalar)(vecIn[0]) / (m_bvhQuantization.m_floats[0]),
+			(btScalar)(vecIn[1]) / (m_bvhQuantization.m_floats[1]),
+			(btScalar)(vecIn[2]) / (m_bvhQuantization.m_floats[2]));
 		vecOut += m_bvhAabbMin;
 		return vecOut;
 	}

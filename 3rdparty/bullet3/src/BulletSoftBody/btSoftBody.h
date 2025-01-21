@@ -588,12 +588,12 @@ public:
 		{
 			if (impulse.m_asVelocity)
 			{
-				//				printf("impulse.m_velocity = %f,%f,%f\n",impulse.m_velocity.getX(),impulse.m_velocity.getY(),impulse.m_velocity.getZ());
+				//				printf("impulse.m_velocity = %f,%f,%f\n",impulse.m_velocity.m_floats[0],impulse.m_velocity.m_floats[1],impulse.m_velocity.m_floats[2]);
 				applyVImpulse(impulse.m_velocity, rpos);
 			}
 			if (impulse.m_asDrift)
 			{
-				//				printf("impulse.m_drift = %f,%f,%f\n",impulse.m_drift.getX(),impulse.m_drift.getY(),impulse.m_drift.getZ());
+				//				printf("impulse.m_drift = %f,%f,%f\n",impulse.m_drift.m_floats[0],impulse.m_drift.m_floats[1],impulse.m_drift.m_floats[2]);
 				applyDImpulse(impulse.m_drift, rpos);
 			}
 		}
@@ -1313,7 +1313,7 @@ public:
 							 const T& c,
 							 const btVector3& coord)
 	{
-		return (a * coord.x() + b * coord.y() + c * coord.z());
+		return (a * coord.m_floats[0] + b * coord.m_floats[1] + c * coord.m_floats[2]);
 	}
 
 	void applyRepulsionForce(btScalar timeStep, bool applySpringForce)

@@ -110,7 +110,7 @@ static int gActualSATPairTests = 0;
 
 inline bool IsAlmostZero(const btVector3& v)
 {
-	if (btFabs(v.x()) > 1e-6 || btFabs(v.y()) > 1e-6 || btFabs(v.z()) > 1e-6) return false;
+	if (btFabs(v.m_floats[0]) > 1e-6 || btFabs(v.m_floats[1]) > 1e-6 || btFabs(v.m_floats[2]) > 1e-6) return false;
 	return true;
 }
 
@@ -134,9 +134,9 @@ void InverseTransformPoint3x3(btVector3& out, const btVector3& in, const btTrans
 	const btVector3& r1 = rot[1];
 	const btVector3& r2 = rot[2];
 
-	const btScalar x = r0.x() * in.x() + r1.x() * in.y() + r2.x() * in.z();
-	const btScalar y = r0.y() * in.x() + r1.y() * in.y() + r2.y() * in.z();
-	const btScalar z = r0.z() * in.x() + r1.z() * in.y() + r2.z() * in.z();
+	const btScalar x = r0.m_floats[0] * in.m_floats[0] + r1.m_floats[0] * in.m_floats[1] + r2.m_floats[0] * in.m_floats[2];
+	const btScalar y = r0.m_floats[1] * in.m_floats[0] + r1.m_floats[1] * in.m_floats[1] + r2.m_floats[1] * in.m_floats[2];
+	const btScalar z = r0.m_floats[2] * in.m_floats[0] + r1.m_floats[2] * in.m_floats[1] + r2.m_floats[2] * in.m_floats[2];
 
 	out.setValue(x, y, z);
 }
@@ -155,8 +155,8 @@ bool TestInternalObjects(const btTransform& trans0, const btTransform& trans1, c
 	btScalar p1[3];
 	BoxSupport(convex1.m_extents, localAxis1, p1);
 
-	const btScalar Radius0 = p0[0] * localAxis0.x() + p0[1] * localAxis0.y() + p0[2] * localAxis0.z();
-	const btScalar Radius1 = p1[0] * localAxis1.x() + p1[1] * localAxis1.y() + p1[2] * localAxis1.z();
+	const btScalar Radius0 = p0[0] * localAxis0.m_floats[0] + p0[1] * localAxis0.m_floats[1] + p0[2] * localAxis0.m_floats[2];
+	const btScalar Radius1 = p1[0] * localAxis1.m_floats[0] + p1[1] * localAxis1.m_floats[1] + p1[2] * localAxis1.m_floats[2];
 
 	const btScalar MinRadius = Radius0 > convex0.m_radius ? Radius0 : convex0.m_radius;
 	const btScalar MaxRadius = Radius1 > convex1.m_radius ? Radius1 : convex1.m_radius;

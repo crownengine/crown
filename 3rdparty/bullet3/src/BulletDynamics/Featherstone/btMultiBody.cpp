@@ -704,17 +704,17 @@ void btMultiBody::setBaseDynamicType(int dynamicType)
 inline btMatrix3x3 outerProduct(const btVector3 &v0, const btVector3 &v1)  //renamed it from vecMulVecTranspose (http://en.wikipedia.org/wiki/Outer_product); maybe it should be moved to btVector3 like dot and cross?
 {
 	btVector3 row0 = btVector3(
-		v0.x() * v1.x(),
-		v0.x() * v1.y(),
-		v0.x() * v1.z());
+		v0.m_floats[0] * v1.m_floats[0],
+		v0.m_floats[0] * v1.m_floats[1],
+		v0.m_floats[0] * v1.m_floats[2]);
 	btVector3 row1 = btVector3(
-		v0.y() * v1.x(),
-		v0.y() * v1.y(),
-		v0.y() * v1.z());
+		v0.m_floats[1] * v1.m_floats[0],
+		v0.m_floats[1] * v1.m_floats[1],
+		v0.m_floats[1] * v1.m_floats[2]);
 	btVector3 row2 = btVector3(
-		v0.z() * v1.x(),
-		v0.z() * v1.y(),
-		v0.z() * v1.z());
+		v0.m_floats[2] * v1.m_floats[0],
+		v0.m_floats[2] * v1.m_floats[1],
+		v0.m_floats[2] * v1.m_floats[2]);
 
 	btMatrix3x3 m(row0[0], row0[1], row0[2],
 				  row1[0], row1[1], row1[2],
@@ -963,9 +963,9 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 												 0, m_links[i].m_inertiaLocal[1], 0,
 												 0, 0, m_links[i].m_inertiaLocal[2]));
 
-		//printf("w[%d] = [%.4f %.4f %.4f]\n", i, vel_top_angular[i+1].x(), vel_top_angular[i+1].y(), vel_top_angular[i+1].z());
-		//printf("v[%d] = [%.4f %.4f %.4f]\n", i, vel_bottom_linear[i+1].x(), vel_bottom_linear[i+1].y(), vel_bottom_linear[i+1].z());
-		//printf("c[%d] = [%.4f %.4f %.4f]\n", i, coriolis_bottom_linear[i].x(), coriolis_bottom_linear[i].y(), coriolis_bottom_linear[i].z());
+		//printf("w[%d] = [%.4f %.4f %.4f]\n", i, vel_top_angular[i+1].m_floats[0], vel_top_angular[i+1].m_floats[1], vel_top_angular[i+1].m_floats[2]);
+		//printf("v[%d] = [%.4f %.4f %.4f]\n", i, vel_bottom_linear[i+1].m_floats[0], vel_bottom_linear[i+1].m_floats[1], vel_bottom_linear[i+1].m_floats[2]);
+		//printf("c[%d] = [%.4f %.4f %.4f]\n", i, coriolis_bottom_linear[i].m_floats[0], coriolis_bottom_linear[i].m_floats[1], coriolis_bottom_linear[i].m_floats[2]);
 	}
 
 	// 'Downward' loop.
@@ -1199,7 +1199,7 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 
 	/////////////////
 	//printf("q = [");
-	//printf("%.6f, %.6f, %.6f, %.6f, %.6f, %.6f, %.6f ", m_baseQuat.x(), m_baseQuat.y(), m_baseQuat.z(), m_baseQuat.w(), m_basePos.x(), m_basePos.y(), m_basePos.z());
+	//printf("%.6f, %.6f, %.6f, %.6f, %.6f, %.6f, %.6f ", m_baseQuat.m_floats[0], m_baseQuat.m_floats[1], m_baseQuat.m_floats[2], m_baseQuat.m_floats[3], m_basePos.m_floats[0], m_basePos.m_floats[1], m_basePos.m_floats[2]);
 	//for(int link = 0; link < getNumLinks(); ++link)
 	//	for(int dof = 0; dof < m_links[link].m_dofCount; ++dof)
 	//		printf("%.6f ", m_links[link].m_jointPos[dof]);
@@ -1657,10 +1657,10 @@ void btMultiBody::predictPositionsMultiDof(btScalar dt)
             }
             
             if (!baseBody)
-                quat = btQuaternion(axis.x(), axis.y(), axis.z(), btCos(fAngle * dt * btScalar(0.5))) * quat;
+                quat = btQuaternion(axis.m_floats[0], axis.m_floats[1], axis.m_floats[2], btCos(fAngle * dt * btScalar(0.5))) * quat;
             else
-                quat = quat * btQuaternion(-axis.x(), -axis.y(), -axis.z(), btCos(fAngle * dt * btScalar(0.5)));
-            //equivalent to: quat = (btQuaternion(axis.x(),axis.y(),axis.z(),btCos( fAngle*dt*btScalar(0.5) )) * quat.inverse()).inverse();
+                quat = quat * btQuaternion(-axis.m_floats[0], -axis.m_floats[1], -axis.m_floats[2], btCos(fAngle * dt * btScalar(0.5)));
+            //equivalent to: quat = (btQuaternion(axis.m_floats[0],axis.m_floats[1],axis.m_floats[2],btCos( fAngle*dt*btScalar(0.5) )) * quat.inverse()).inverse();
             
             quat.normalize();
         }
@@ -1687,10 +1687,10 @@ void btMultiBody::predictPositionsMultiDof(btScalar dt)
         btVector3 baseOmega;
         baseOmega.setValue(pBaseOmega[0], pBaseOmega[1], pBaseOmega[2]);
         pQuatUpdateFun(baseOmega, baseQuat, true, dt);
-        pBaseQuat[0] = baseQuat.x();
-        pBaseQuat[1] = baseQuat.y();
-        pBaseQuat[2] = baseQuat.z();
-        pBaseQuat[3] = baseQuat.w();
+        pBaseQuat[0] = baseQuat.m_floats[0];
+        pBaseQuat[1] = baseQuat.m_floats[1];
+        pBaseQuat[2] = baseQuat.m_floats[2];
+        pBaseQuat[3] = baseQuat.m_floats[3];
 		}
 
     // Finally we can update m_jointPos for each of the m_links
@@ -1758,10 +1758,10 @@ void btMultiBody::predictPositionsMultiDof(btScalar dt)
                     btQuaternion jointOri;
                     jointOri.setValue(pJointPos[0], pJointPos[1], pJointPos[2], pJointPos[3]);
                     pQuatUpdateFun(jointVel, jointOri, false, dt);
-                    pJointPos[0] = jointOri.x();
-                    pJointPos[1] = jointOri.y();
-                    pJointPos[2] = jointOri.z();
-                    pJointPos[3] = jointOri.w();
+                    pJointPos[0] = jointOri.m_floats[0];
+                    pJointPos[1] = jointOri.m_floats[1];
+                    pJointPos[2] = jointOri.m_floats[2];
+                    pJointPos[3] = jointOri.m_floats[3];
                     break;
                 }
                 case btMultibodyLink::ePlanar:
@@ -1842,10 +1842,10 @@ void btMultiBody::stepPositionsMultiDof(btScalar dt, btScalar *pq, btScalar *pqd
 			}
 
 			if (!baseBody)
-				quat = btQuaternion(axis.x(), axis.y(), axis.z(), btCos(fAngle * dt * btScalar(0.5))) * quat;
+				quat = btQuaternion(axis.m_floats[0], axis.m_floats[1], axis.m_floats[2], btCos(fAngle * dt * btScalar(0.5))) * quat;
 			else
-				quat = quat * btQuaternion(-axis.x(), -axis.y(), -axis.z(), btCos(fAngle * dt * btScalar(0.5)));
-			//equivalent to: quat = (btQuaternion(axis.x(),axis.y(),axis.z(),btCos( fAngle*dt*btScalar(0.5) )) * quat.inverse()).inverse();
+				quat = quat * btQuaternion(-axis.m_floats[0], -axis.m_floats[1], -axis.m_floats[2], btCos(fAngle * dt * btScalar(0.5)));
+			//equivalent to: quat = (btQuaternion(axis.m_floats[0],axis.m_floats[1],axis.m_floats[2],btCos( fAngle*dt*btScalar(0.5) )) * quat.inverse()).inverse();
 
 			quat.normalize();
 		}
@@ -1864,14 +1864,14 @@ void btMultiBody::stepPositionsMultiDof(btScalar dt, btScalar *pq, btScalar *pqd
 		btVector3 baseOmega;
 		baseOmega.setValue(pBaseOmega[0], pBaseOmega[1], pBaseOmega[2]);
 		pQuatUpdateFun(baseOmega, baseQuat, true, dt);
-		pBaseQuat[0] = baseQuat.x();
-		pBaseQuat[1] = baseQuat.y();
-		pBaseQuat[2] = baseQuat.z();
-		pBaseQuat[3] = baseQuat.w();
+		pBaseQuat[0] = baseQuat.m_floats[0];
+		pBaseQuat[1] = baseQuat.m_floats[1];
+		pBaseQuat[2] = baseQuat.m_floats[2];
+		pBaseQuat[3] = baseQuat.m_floats[3];
 
-		//printf("pBaseOmega = %.4f %.4f %.4f\n", pBaseOmega->x(), pBaseOmega->y(), pBaseOmega->z());
-		//printf("pBaseVel = %.4f %.4f %.4f\n", pBaseVel->x(), pBaseVel->y(), pBaseVel->z());
-		//printf("baseQuat = %.4f %.4f %.4f %.4f\n", pBaseQuat->x(), pBaseQuat->y(), pBaseQuat->z(), pBaseQuat->w());
+		//printf("pBaseOmega = %.4f %.4f %.4f\n", pBaseOmega->m_floats[0], pBaseOmega->m_floats[1], pBaseOmega->m_floats[2]);
+		//printf("pBaseVel = %.4f %.4f %.4f\n", pBaseVel->m_floats[0], pBaseVel->m_floats[1], pBaseVel->m_floats[2]);
+		//printf("baseQuat = %.4f %.4f %.4f %.4f\n", pBaseQuat->m_floats[0], pBaseQuat->m_floats[1], pBaseQuat->m_floats[2], pBaseQuat->m_floats[3]);
 	}
 
 	if (pq)
@@ -1907,10 +1907,10 @@ void btMultiBody::stepPositionsMultiDof(btScalar dt, btScalar *pq, btScalar *pqd
 					btQuaternion jointOri;
 					jointOri.setValue(pJointPos[0], pJointPos[1], pJointPos[2], pJointPos[3]);
 					pQuatUpdateFun(jointVel, jointOri, false, dt);
-					pJointPos[0] = jointOri.x();
-					pJointPos[1] = jointOri.y();
-					pJointPos[2] = jointOri.z();
-					pJointPos[3] = jointOri.w();
+					pJointPos[0] = jointOri.m_floats[0];
+					pJointPos[1] = jointOri.m_floats[1];
+					pJointPos[2] = jointOri.m_floats[2];
+					pJointPos[3] = jointOri.m_floats[3];
 					break;
 				}
 				case btMultibodyLink::ePlanar:
@@ -2165,7 +2165,7 @@ void btMultiBody::forwardKinematics(btAlignedObjectArray<btQuaternion> &world_to
 		int index = link + 1;
 
 		btVector3 posr = local_origin[index];
-		btScalar quat[4] = {-world_to_local[index].x(), -world_to_local[index].y(), -world_to_local[index].z(), world_to_local[index].w()};
+		btScalar quat[4] = {-world_to_local[index].m_floats[0], -world_to_local[index].m_floats[1], -world_to_local[index].m_floats[2], world_to_local[index].m_floats[3]};
 		btTransform tr;
 		tr.setIdentity();
 		tr.m_origin = (posr);
@@ -2185,8 +2185,8 @@ void btMultiBody::updateCollisionObjectWorldTransforms(btAlignedObjectArray<btQu
 	if (getBaseCollider())
 	{
 		btVector3 posr = local_origin[0];
-		//	float pos[4]={posr.x(),posr.y(),posr.z(),1};
-		btScalar quat[4] = {-world_to_local[0].x(), -world_to_local[0].y(), -world_to_local[0].z(), world_to_local[0].w()};
+		//	float pos[4]={posr.m_floats[0],posr.m_floats[1],posr.m_floats[2],1};
+		btScalar quat[4] = {-world_to_local[0].m_floats[0], -world_to_local[0].m_floats[1], -world_to_local[0].m_floats[2], world_to_local[0].m_floats[3]};
 		btTransform tr;
 		tr.setIdentity();
 		tr.m_origin = (posr);
@@ -2214,8 +2214,8 @@ void btMultiBody::updateCollisionObjectWorldTransforms(btAlignedObjectArray<btQu
 			int index = link + 1;
 
 			btVector3 posr = local_origin[index];
-			//			float pos[4]={posr.x(),posr.y(),posr.z(),1};
-			btScalar quat[4] = {-world_to_local[index].x(), -world_to_local[index].y(), -world_to_local[index].z(), world_to_local[index].w()};
+			//			float pos[4]={posr.m_floats[0],posr.m_floats[1],posr.m_floats[2],1};
+			btScalar quat[4] = {-world_to_local[index].m_floats[0], -world_to_local[index].m_floats[1], -world_to_local[index].m_floats[2], world_to_local[index].m_floats[3]};
 			btTransform tr;
 			tr.setIdentity();
 			tr.m_origin = (posr);
@@ -2245,8 +2245,8 @@ void btMultiBody::updateCollisionObjectInterpolationWorldTransforms(btAlignedObj
     if (getBaseCollider())
     {
         btVector3 posr = local_origin[0];
-        //    float pos[4]={posr.x(),posr.y(),posr.z(),1};
-        btScalar quat[4] = {-world_to_local[0].x(), -world_to_local[0].y(), -world_to_local[0].z(), world_to_local[0].w()};
+        //    float pos[4]={posr.m_floats[0],posr.m_floats[1],posr.m_floats[2],1};
+        btScalar quat[4] = {-world_to_local[0].m_floats[0], -world_to_local[0].m_floats[1], -world_to_local[0].m_floats[2], world_to_local[0].m_floats[3]};
         btTransform tr;
         tr.setIdentity();
         tr.m_origin = (posr);
@@ -2273,8 +2273,8 @@ void btMultiBody::updateCollisionObjectInterpolationWorldTransforms(btAlignedObj
             int index = link + 1;
             
             btVector3 posr = local_origin[index];
-            //            float pos[4]={posr.x(),posr.y(),posr.z(),1};
-            btScalar quat[4] = {-world_to_local[index].x(), -world_to_local[index].y(), -world_to_local[index].z(), world_to_local[index].w()};
+            //            float pos[4]={posr.m_floats[0],posr.m_floats[1],posr.m_floats[2],1};
+            btScalar quat[4] = {-world_to_local[index].m_floats[0], -world_to_local[index].m_floats[1], -world_to_local[index].m_floats[2], world_to_local[index].m_floats[3]};
             btTransform tr;
             tr.setIdentity();
             tr.m_origin = (posr);

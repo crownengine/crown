@@ -158,8 +158,8 @@ static void debugDrawAllBatches(const btBatchedConstraints* bc,
 			bboxMax.setMax(pos);
 		}
 		btVector3 bboxExtent = bboxMax - bboxMin;
-		btVector3 offsetBase = btVector3(0, bboxExtent.y() * 1.1f, 0);
-		btVector3 offsetStep = btVector3(0, 0, bboxExtent.z() * 1.1f);
+		btVector3 offsetBase = btVector3(0, bboxExtent.m_floats[1] * 1.1f, 0);
+		btVector3 offsetStep = btVector3(0, 0, bboxExtent.m_floats[2] * 1.1f);
 		int numPhases = bc->m_phases.size();
 		for (int iPhase = 0; iPhase < numPhases; ++iPhase)
 		{
@@ -180,7 +180,7 @@ static void initBatchedBodyDynamicFlags(btAlignedObjectArray<bool>* outBodyDynam
 	for (int i = 0; i < bodies.size(); ++i)
 	{
 		const btSolverBody& body = bodies[i];
-		bodyDynamicFlags[i] = (body.internalGetInvMass().x() > btScalar(0));
+		bodyDynamicFlags[i] = (body.internalGetInvMass().m_floats[0] > btScalar(0));
 	}
 }
 
@@ -873,7 +873,7 @@ static void setupSpatialGridBatchesMt(
 	{
 		const btSolverBody& body = bodies[i];
 		btVector3 bodyPos = body.getWorldTransform().m_origin;
-		bool isDynamic = (body.internalGetInvMass().x() > btScalar(0));
+		bool isDynamic = (body.internalGetInvMass().m_floats[0] > btScalar(0));
 		bodyPositions[i] = bodyPos;
 		bodyDynamicFlags[i] = isDynamic;
 		if (isDynamic)
@@ -894,9 +894,9 @@ static void setupSpatialGridBatchesMt(
 
 	btVector3 gridCellSize = consExtent;
 	int gridDim[3];
-	gridDim[0] = int(1.0 + gridExtent.x() / gridCellSize.x());
-	gridDim[1] = int(1.0 + gridExtent.y() / gridCellSize.y());
-	gridDim[2] = int(1.0 + gridExtent.z() / gridCellSize.z());
+	gridDim[0] = int(1.0 + gridExtent.m_floats[0] / gridCellSize.m_floats[0]);
+	gridDim[1] = int(1.0 + gridExtent.m_floats[1] / gridCellSize.m_floats[1]);
+	gridDim[2] = int(1.0 + gridExtent.m_floats[2] / gridCellSize.m_floats[2]);
 
 	// if we can collapse an axis, it will cut our number of phases in half which could be more efficient
 	int phaseMask = 7;
@@ -924,9 +924,9 @@ static void setupSpatialGridBatchesMt(
 	btIntVec3 gridChunkDim;  // each chunk is 2x2x2 group of cells
 	while (true)
 	{
-		gridDim[0] = int(1.0 + gridExtent.x() / gridCellSize.x());
-		gridDim[1] = int(1.0 + gridExtent.y() / gridCellSize.y());
-		gridDim[2] = int(1.0 + gridExtent.z() / gridCellSize.z());
+		gridDim[0] = int(1.0 + gridExtent.m_floats[0] / gridCellSize.m_floats[0]);
+		gridDim[1] = int(1.0 + gridExtent.m_floats[1] / gridCellSize.m_floats[1]);
+		gridDim[2] = int(1.0 + gridExtent.m_floats[2] / gridCellSize.m_floats[2]);
 		gridChunkDim[0] = btMax(1, (gridDim[0] + 0) / 2);
 		gridChunkDim[1] = btMax(1, (gridDim[1] + 0) / 2);
 		gridChunkDim[2] = btMax(1, (gridDim[2] + 0) / 2);
@@ -950,9 +950,9 @@ static void setupSpatialGridBatchesMt(
 		if (bodyDynamicFlags[iBody])
 		{
 			btVector3 v = (bodyPositions[iBody] - bboxMin) * invGridCellSize;
-			coords.m_ints[0] = int(v.x());
-			coords.m_ints[1] = int(v.y());
-			coords.m_ints[2] = int(v.z());
+			coords.m_ints[0] = int(v.m_floats[0]);
+			coords.m_ints[1] = int(v.m_floats[1]);
+			coords.m_ints[2] = int(v.m_floats[2]);
 			btAssert(coords.m_ints[0] >= 0 && coords.m_ints[0] < gridDim[0]);
 			btAssert(coords.m_ints[1] >= 0 && coords.m_ints[1] < gridDim[1]);
 			btAssert(coords.m_ints[2] >= 0 && coords.m_ints[2] < gridDim[2]);

@@ -244,7 +244,7 @@ void btHeightfieldTerrainShape::getVertex(int x, int y, btVector3& vertex) const
 		case 0:
 		{
 			vertex.setValue(
-				height - m_localOrigin.getX(),
+				height - m_localOrigin.m_floats[0],
 				(-m_width / btScalar(2.0)) + x,
 				(-m_length / btScalar(2.0)) + y);
 			break;
@@ -253,7 +253,7 @@ void btHeightfieldTerrainShape::getVertex(int x, int y, btVector3& vertex) const
 		{
 			vertex.setValue(
 				(-m_width / btScalar(2.0)) + x,
-				height - m_localOrigin.getY(),
+				height - m_localOrigin.m_floats[1],
 				(-m_length / btScalar(2.0)) + y);
 			break;
 		};
@@ -262,7 +262,7 @@ void btHeightfieldTerrainShape::getVertex(int x, int y, btVector3& vertex) const
 			vertex.setValue(
 				(-m_width / btScalar(2.0)) + x,
 				(-m_length / btScalar(2.0)) + y,
-				height - m_localOrigin.getZ());
+				height - m_localOrigin.m_floats[2]);
 			break;
 		}
 		default:
@@ -325,9 +325,9 @@ void btHeightfieldTerrainShape::quantizeWithClamp(int* out, const btVector3& poi
 	clampedPoint.setMax(m_localAabbMin);
 	clampedPoint.setMin(m_localAabbMax);
 
-	out[0] = getQuantized(clampedPoint.getX());
-	out[1] = getQuantized(clampedPoint.getY());
-	out[2] = getQuantized(clampedPoint.getZ());
+	out[0] = getQuantized(clampedPoint.m_floats[0]);
+	out[1] = getQuantized(clampedPoint.m_floats[1]);
+	out[2] = getQuantized(clampedPoint.m_floats[2]);
 }
 
 /// process all triangles within the provided axis-aligned bounding box

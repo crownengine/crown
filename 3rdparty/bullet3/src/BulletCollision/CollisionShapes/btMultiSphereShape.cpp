@@ -131,9 +131,9 @@ void btMultiSphereShape::calculateLocalInertia(btScalar mass, btVector3& inertia
 	getCachedLocalAabb(localAabbMin, localAabbMax);
 	btVector3 halfExtents = (localAabbMax - localAabbMin) * btScalar(0.5);
 
-	btScalar lx = btScalar(2.) * (halfExtents.x());
-	btScalar ly = btScalar(2.) * (halfExtents.y());
-	btScalar lz = btScalar(2.) * (halfExtents.z());
+	btScalar lx = btScalar(2.) * (halfExtents.m_floats[0]);
+	btScalar ly = btScalar(2.) * (halfExtents.m_floats[1]);
+	btScalar lz = btScalar(2.) * (halfExtents.m_floats[2]);
 
 	inertia.setValue(mass / (btScalar(12.0)) * (ly * ly + lz * lz),
 					 mass / (btScalar(12.0)) * (lx * lx + lz * lz),

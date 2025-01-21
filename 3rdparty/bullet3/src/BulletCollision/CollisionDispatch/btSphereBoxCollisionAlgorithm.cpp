@@ -106,12 +106,12 @@ bool btSphereBoxCollisionAlgorithm::getSphereDistance(const btCollisionObjectWra
 
 	// Determine the closest point to the sphere center in the box
 	btVector3 closestPoint = sphereRelPos;
-	closestPoint.setX(btMin(boxHalfExtent.getX(), closestPoint.getX()));
-	closestPoint.setX(btMax(-boxHalfExtent.getX(), closestPoint.getX()));
-	closestPoint.setY(btMin(boxHalfExtent.getY(), closestPoint.getY()));
-	closestPoint.setY(btMax(-boxHalfExtent.getY(), closestPoint.getY()));
-	closestPoint.setZ(btMin(boxHalfExtent.getZ(), closestPoint.getZ()));
-	closestPoint.setZ(btMax(-boxHalfExtent.getZ(), closestPoint.getZ()));
+	closestPoint.m_floats[0] = (btMin(boxHalfExtent.m_floats[0], closestPoint.m_floats[0]));
+	closestPoint.m_floats[0] = (btMax(-boxHalfExtent.m_floats[0], closestPoint.m_floats[0]));
+	closestPoint.m_floats[1] = (btMin(boxHalfExtent.m_floats[1], closestPoint.m_floats[1]));
+	closestPoint.m_floats[1] = (btMax(-boxHalfExtent.m_floats[1], closestPoint.m_floats[1]));
+	closestPoint.m_floats[2] = (btMin(boxHalfExtent.m_floats[2], closestPoint.m_floats[2]));
+	closestPoint.m_floats[2] = (btMax(-boxHalfExtent.m_floats[2], closestPoint.m_floats[2]));
 
 	btScalar intersectionDist = fRadius + boxMargin;
 	btScalar contactDist = intersectionDist + maxContactDistance;
@@ -155,53 +155,53 @@ bool btSphereBoxCollisionAlgorithm::getSphereDistance(const btCollisionObjectWra
 btScalar btSphereBoxCollisionAlgorithm::getSpherePenetration(btVector3 const& boxHalfExtent, btVector3 const& sphereRelPos, btVector3& closestPoint, btVector3& normal)
 {
 	//project the center of the sphere on the closest face of the box
-	btScalar faceDist = boxHalfExtent.getX() - sphereRelPos.getX();
+	btScalar faceDist = boxHalfExtent.m_floats[0] - sphereRelPos.m_floats[0];
 	btScalar minDist = faceDist;
-	closestPoint.setX(boxHalfExtent.getX());
+	closestPoint.m_floats[0] = (boxHalfExtent.m_floats[0]);
 	normal.setValue(btScalar(1.0f), btScalar(0.0f), btScalar(0.0f));
 
-	faceDist = boxHalfExtent.getX() + sphereRelPos.getX();
+	faceDist = boxHalfExtent.m_floats[0] + sphereRelPos.m_floats[0];
 	if (faceDist < minDist)
 	{
 		minDist = faceDist;
 		closestPoint = sphereRelPos;
-		closestPoint.setX(-boxHalfExtent.getX());
+		closestPoint.m_floats[0] = (-boxHalfExtent.m_floats[0]);
 		normal.setValue(btScalar(-1.0f), btScalar(0.0f), btScalar(0.0f));
 	}
 
-	faceDist = boxHalfExtent.getY() - sphereRelPos.getY();
+	faceDist = boxHalfExtent.m_floats[1] - sphereRelPos.m_floats[1];
 	if (faceDist < minDist)
 	{
 		minDist = faceDist;
 		closestPoint = sphereRelPos;
-		closestPoint.setY(boxHalfExtent.getY());
+		closestPoint.m_floats[1] = (boxHalfExtent.m_floats[1]);
 		normal.setValue(btScalar(0.0f), btScalar(1.0f), btScalar(0.0f));
 	}
 
-	faceDist = boxHalfExtent.getY() + sphereRelPos.getY();
+	faceDist = boxHalfExtent.m_floats[1] + sphereRelPos.m_floats[1];
 	if (faceDist < minDist)
 	{
 		minDist = faceDist;
 		closestPoint = sphereRelPos;
-		closestPoint.setY(-boxHalfExtent.getY());
+		closestPoint.m_floats[1] = (-boxHalfExtent.m_floats[1]);
 		normal.setValue(btScalar(0.0f), btScalar(-1.0f), btScalar(0.0f));
 	}
 
-	faceDist = boxHalfExtent.getZ() - sphereRelPos.getZ();
+	faceDist = boxHalfExtent.m_floats[2] - sphereRelPos.m_floats[2];
 	if (faceDist < minDist)
 	{
 		minDist = faceDist;
 		closestPoint = sphereRelPos;
-		closestPoint.setZ(boxHalfExtent.getZ());
+		closestPoint.m_floats[2] = (boxHalfExtent.m_floats[2]);
 		normal.setValue(btScalar(0.0f), btScalar(0.0f), btScalar(1.0f));
 	}
 
-	faceDist = boxHalfExtent.getZ() + sphereRelPos.getZ();
+	faceDist = boxHalfExtent.m_floats[2] + sphereRelPos.m_floats[2];
 	if (faceDist < minDist)
 	{
 		minDist = faceDist;
 		closestPoint = sphereRelPos;
-		closestPoint.setZ(-boxHalfExtent.getZ());
+		closestPoint.m_floats[2] = (-boxHalfExtent.m_floats[2]);
 		normal.setValue(btScalar(0.0f), btScalar(0.0f), btScalar(-1.0f));
 	}
 
