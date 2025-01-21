@@ -4,8 +4,8 @@ Copyright (c) 2003-2013 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -34,15 +34,15 @@ public:
 
 	virtual bool solveMLCP(const btMatrixXu& A, const btVectorXu& b, btVectorXu& x, const btVectorXu& lo, const btVectorXu& hi, const btAlignedObjectArray<int>& limitDependency, int numIterations, bool useSparsity = true)
 	{
-		if (!A.rows())
+		if (!A.m_rows)
 			return true;
 		//the A matrix is sparse, so compute the non-zero elements
 		A.rowComputeNonZeroElements();
 
 		//A is a m-n matrix, m rows, n columns
-		btAssert(A.rows() == b.rows());
+		btAssert(A.m_rows == b.rows());
 
-		int i, j, numRows = A.rows();
+		int i, j, numRows = A.m_rows;
 
 		btScalar delta;
 

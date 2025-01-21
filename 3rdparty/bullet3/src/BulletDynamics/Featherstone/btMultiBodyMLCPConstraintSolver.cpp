@@ -519,7 +519,7 @@ void btMultiBodyMLCPConstraintSolver::createMLCPFastRigidBody(const btContactSol
 	if (1)
 	{
 		// add cfm to the diagonal of m_A
-		for (int i = 0; i < m_A.rows(); ++i)
+		for (int i = 0; i < m_A.m_rows; ++i)
 		{
 			m_A.setElem(i, i, m_A(i, i) + infoGlobal.m_globalCfm / infoGlobal.m_timeStep);
 		}
@@ -628,7 +628,7 @@ void btMultiBodyMLCPConstraintSolver::createMLCPFastMultiBody(const btContactSol
 	}
 
 	// Add CFM to the diagonal of m_A
-	for (int i = 0; i < m_multiBodyA.rows(); ++i)
+	for (int i = 0; i < m_multiBodyA.m_rows; ++i)
 	{
 		m_multiBodyA.setElem(i, i, m_multiBodyA(i, i) + infoGlobal.m_globalCfm / infoGlobal.m_timeStep);
 	}
@@ -658,7 +658,7 @@ bool btMultiBodyMLCPConstraintSolver::solveMLCP(const btContactSolverInfo& infoG
 {
 	bool result = true;
 
-	if (m_A.rows() != 0)
+	if (m_A.m_rows != 0)
 	{
 		// If using split impulse, we solve 2 separate (M)LCPs
 		if (infoGlobal.m_splitImpulse)
@@ -680,7 +680,7 @@ bool btMultiBodyMLCPConstraintSolver::solveMLCP(const btContactSolverInfo& infoG
 	if (!result)
 		return false;
 
-	if (m_multiBodyA.rows() != 0)
+	if (m_multiBodyA.m_rows != 0)
 	{
 		result = m_solver->solveMLCP(m_multiBodyA, m_multiBodyB, m_multiBodyX, m_multiBodyLo, m_multiBodyHi, m_multiBodyLimitDependencies, infoGlobal.m_numIterations);
 	}

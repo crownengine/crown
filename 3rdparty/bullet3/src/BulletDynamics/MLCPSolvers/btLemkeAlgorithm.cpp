@@ -4,8 +4,8 @@ Code was converted for the Bullet Continuous Collision Detection and Physics Lib
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -228,7 +228,7 @@ int btLemkeAlgorithm::findLexicographicMinimum(const btMatrixXu& A, const int& p
         bool firstRow = true;
 	btScalar currentMin = 0.0;
 
-	int dim = A.rows();
+	int dim = A.m_rows;
 
 	for (int row = 0; row < dim; row++)
 	{
@@ -323,11 +323,11 @@ void btLemkeAlgorithm::GaussJordanEliminationStep(btMatrixXu& A, int pivotRowInd
 	cout << A << std::endl;
 #endif
 
-	for (int i = 0; i < A.rows(); i++)
+	for (int i = 0; i < A.m_rows; i++)
 	{
 		if (i != pivotRowIndex)
 		{
-			for (int j = 0; j < A.cols(); j++)
+			for (int j = 0; j < A.m_cols; j++)
 			{
 				if (j != pivotColumnIndex)
 				{
@@ -342,7 +342,7 @@ void btLemkeAlgorithm::GaussJordanEliminationStep(btMatrixXu& A, int pivotRowInd
 #ifdef BT_DEBUG_OSTREAM
 	cout << A << std::endl;
 #endif  //BT_DEBUG_OSTREAM
-	for (int i = 0; i < A.cols(); i++)
+	for (int i = 0; i < A.m_cols; i++)
 	{
 		A.mulElem(pivotRowIndex, i, -a);
 	}
@@ -350,7 +350,7 @@ void btLemkeAlgorithm::GaussJordanEliminationStep(btMatrixXu& A, int pivotRowInd
 	cout << A << std::endl;
 #endif  //#ifdef BT_DEBUG_OSTREAM
 
-	for (int i = 0; i < A.rows(); i++)
+	for (int i = 0; i < A.m_rows; i++)
 	{
 		if (i != pivotRowIndex)
 		{
