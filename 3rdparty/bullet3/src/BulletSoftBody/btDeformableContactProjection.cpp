@@ -117,7 +117,7 @@ void btDeformableContactProjection::setConstraints(const btContactSolverInfo& in
 			{
 				continue;
 			}
-			anchor.m_c1 = anchor.m_cti.m_colObj->getWorldTransform().m_basis * anchor.m_local;
+			anchor.m_c1 = anchor.m_cti.m_colObj->m_worldTransform.m_basis * anchor.m_local;
 			btDeformableNodeAnchorConstraint constraint(anchor, infoGlobal);
 			m_nodeAnchorConstraints[i].push_back(constraint);
 		}

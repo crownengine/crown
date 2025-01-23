@@ -35,12 +35,12 @@ btVector3 btDeformableNodeAnchorConstraint::getVa() const
 		btMultiBodyLinkCollider* multibodyLinkCol = 0;
 
 		// grab the velocity of the rigid body
-		if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
+		if (cti.m_colObj->m_internalType == btCollisionObject::CO_RIGID_BODY)
 		{
 			rigidCol = (btRigidBody*)btRigidBody::upcast(cti.m_colObj);
 			va = rigidCol ? (rigidCol->getVelocityInLocalPoint(m_anchor->m_c1)) : btVector3(0, 0, 0);
 		}
-		else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
+		else if (cti.m_colObj->m_internalType == btCollisionObject::CO_FEATHERSTONE_LINK)
 		{
 			multibodyLinkCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(cti.m_colObj);
 			if (multibodyLinkCol)
@@ -83,7 +83,7 @@ btScalar btDeformableNodeAnchorConstraint::solveConstraint(const btContactSolver
 	btVector3 va = getVa();
 	btVector3 vb = getVb();
 	btVector3 vr = (vb - va);
-	// + (m_anchor->m_node->m_x - cti.m_colObj->getWorldTransform() * m_anchor->m_local) * 10.0
+	// + (m_anchor->m_node->m_x - cti.m_colObj->m_worldTransform * m_anchor->m_local) * 10.0
 	const btScalar dn = btDot(vr, vr);
 	// dn is the normal component of velocity diffrerence. Approximates the residual. // todo xuchenhan@: this prob needs to be scaled by dt
 	btScalar residualSquare = dn * dn;
@@ -92,7 +92,7 @@ btScalar btDeformableNodeAnchorConstraint::solveConstraint(const btContactSolver
 	applyImpulse(impulse);
 
 	// apply impulse to the rigid/multibodies involved and change their velocities
-	if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
+	if (cti.m_colObj->m_internalType == btCollisionObject::CO_RIGID_BODY)
 	{
 		btRigidBody* rigidCol = 0;
 		rigidCol = (btRigidBody*)btRigidBody::upcast(cti.m_colObj);
@@ -101,7 +101,7 @@ btScalar btDeformableNodeAnchorConstraint::solveConstraint(const btContactSolver
 			rigidCol->applyImpulse(impulse, m_anchor->m_c1);
 		}
 	}
-	else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
+	else if (cti.m_colObj->m_internalType == btCollisionObject::CO_FEATHERSTONE_LINK)
 	{
 		btMultiBodyLinkCollider* multibodyLinkCol = 0;
 		multibodyLinkCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(cti.m_colObj);
@@ -160,12 +160,12 @@ btVector3 btDeformableRigidContactConstraint::getVa() const
 		btMultiBodyLinkCollider* multibodyLinkCol = 0;
 
 		// grab the velocity of the rigid body
-		if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
+		if (cti.m_colObj->m_internalType == btCollisionObject::CO_RIGID_BODY)
 		{
 			rigidCol = (btRigidBody*)btRigidBody::upcast(cti.m_colObj);
 			va = rigidCol ? (rigidCol->getVelocityInLocalPoint(m_contact->m_c1)) : btVector3(0, 0, 0);
 		}
-		else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
+		else if (cti.m_colObj->m_internalType == btCollisionObject::CO_FEATHERSTONE_LINK)
 		{
 			multibodyLinkCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(cti.m_colObj);
 			if (multibodyLinkCol)
@@ -212,12 +212,12 @@ btVector3 btDeformableRigidContactConstraint::getSplitVa() const
 		btMultiBodyLinkCollider* multibodyLinkCol = 0;
 
 		// grab the velocity of the rigid body
-		if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
+		if (cti.m_colObj->m_internalType == btCollisionObject::CO_RIGID_BODY)
 		{
 			rigidCol = (btRigidBody*)btRigidBody::upcast(cti.m_colObj);
 			va = rigidCol ? (rigidCol->getPushVelocityInLocalPoint(m_contact->m_c1)) : btVector3(0, 0, 0);
 		}
-		else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
+		else if (cti.m_colObj->m_internalType == btCollisionObject::CO_FEATHERSTONE_LINK)
 		{
 			multibodyLinkCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(cti.m_colObj);
 			if (multibodyLinkCol)
@@ -322,7 +322,7 @@ btScalar btDeformableRigidContactConstraint::solveConstraint(const btContactSolv
 	// apply impulse to deformable nodes involved and change their velocities
 	applyImpulse(impulse);
 	// apply impulse to the rigid/multibodies involved and change their velocities
-	if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
+	if (cti.m_colObj->m_internalType == btCollisionObject::CO_RIGID_BODY)
 	{
 		btRigidBody* rigidCol = 0;
 		rigidCol = (btRigidBody*)btRigidBody::upcast(cti.m_colObj);
@@ -331,7 +331,7 @@ btScalar btDeformableRigidContactConstraint::solveConstraint(const btContactSolv
 			rigidCol->applyImpulse(impulse, m_contact->m_c1);
 		}
 	}
-	else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
+	else if (cti.m_colObj->m_internalType == btCollisionObject::CO_FEATHERSTONE_LINK)
 	{
 		btMultiBodyLinkCollider* multibodyLinkCol = 0;
 		multibodyLinkCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(cti.m_colObj);
@@ -385,7 +385,7 @@ btScalar btDeformableRigidContactConstraint::solveSplitImpulse(const btContactSo
 	applySplitImpulse(impulse);
 
 	// apply split impulse to the rigid/multibodies involved and change their velocities
-	if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
+	if (cti.m_colObj->m_internalType == btCollisionObject::CO_RIGID_BODY)
 	{
 		btRigidBody* rigidCol = 0;
 		rigidCol = (btRigidBody*)btRigidBody::upcast(cti.m_colObj);
@@ -394,7 +394,7 @@ btScalar btDeformableRigidContactConstraint::solveSplitImpulse(const btContactSo
 			rigidCol->applyPushImpulse(impulse, m_contact->m_c1);
 		}
 	}
-	else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
+	else if (cti.m_colObj->m_internalType == btCollisionObject::CO_FEATHERSTONE_LINK)
 	{
 		btMultiBodyLinkCollider* multibodyLinkCol = 0;
 		multibodyLinkCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(cti.m_colObj);

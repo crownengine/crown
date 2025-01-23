@@ -71,10 +71,10 @@ btPersistentManifold* btCollisionDispatcher::getNewManifold(const btCollisionObj
 
 	//optional relative contact breaking threshold, turned on by default (use setDispatcherFlags to switch off feature for improved performance)
 
-	btScalar contactBreakingThreshold = (m_dispatcherFlags & btCollisionDispatcher::CD_USE_RELATIVE_CONTACT_BREAKING_THRESHOLD) ? btMin(body0->getCollisionShape()->getContactBreakingThreshold(gContactBreakingThreshold), body1->getCollisionShape()->getContactBreakingThreshold(gContactBreakingThreshold))
+	btScalar contactBreakingThreshold = (m_dispatcherFlags & btCollisionDispatcher::CD_USE_RELATIVE_CONTACT_BREAKING_THRESHOLD) ? btMin(body0->m_collisionShape->getContactBreakingThreshold(gContactBreakingThreshold), body1->m_collisionShape->getContactBreakingThreshold(gContactBreakingThreshold))
 																																: gContactBreakingThreshold;
 
-	btScalar contactProcessingThreshold = btMin(body0->getContactProcessingThreshold(), body1->getContactProcessingThreshold());
+	btScalar contactProcessingThreshold = btMin(body0->m_contactProcessingThreshold, body1->m_contactProcessingThreshold);
 
 	void* mem = m_persistentManifoldPoolAllocator->allocate(sizeof(btPersistentManifold));
 	if (NULL == mem)
@@ -134,11 +134,11 @@ btCollisionAlgorithm* btCollisionDispatcher::findAlgorithm(const btCollisionObje
 	btCollisionAlgorithm* algo = 0;
 	if (algoType == BT_CONTACT_POINT_ALGORITHMS)
 	{
-		algo = m_doubleDispatchContactPoints[body0Wrap->getCollisionShape()->getShapeType()][body1Wrap->getCollisionShape()->getShapeType()]->CreateCollisionAlgorithm(ci, body0Wrap, body1Wrap);
+		algo = m_doubleDispatchContactPoints[body0Wrap->m_collisionShape->getShapeType()][body1Wrap->m_collisionShape->getShapeType()]->CreateCollisionAlgorithm(ci, body0Wrap, body1Wrap);
 	}
 	else
 	{
-		algo = m_doubleDispatchClosestPoints[body0Wrap->getCollisionShape()->getShapeType()][body1Wrap->getCollisionShape()->getShapeType()]->CreateCollisionAlgorithm(ci, body0Wrap, body1Wrap);
+		algo = m_doubleDispatchClosestPoints[body0Wrap->m_collisionShape->getShapeType()][body1Wrap->m_collisionShape->getShapeType()]->CreateCollisionAlgorithm(ci, body0Wrap, body1Wrap);
 	}
 
 	return algo;
@@ -235,8 +235,8 @@ void btCollisionDispatcher::defaultNearCallback(btBroadphasePair& collisionPair,
 
 	if (dispatcher.needsCollision(colObj0, colObj1))
 	{
-		btCollisionObjectWrapper obj0Wrap(0, colObj0->getCollisionShape(), colObj0, colObj0->getWorldTransform(), -1, -1);
-		btCollisionObjectWrapper obj1Wrap(0, colObj1->getCollisionShape(), colObj1, colObj1->getWorldTransform(), -1, -1);
+		btCollisionObjectWrapper obj0Wrap(0, colObj0->m_collisionShape, colObj0, colObj0->m_worldTransform, -1, -1);
+		btCollisionObjectWrapper obj1Wrap(0, colObj1->m_collisionShape, colObj1, colObj1->m_worldTransform, -1, -1);
 
 		//dispatcher will keep algorithms persistent in the collision pair
 		if (!collisionPair.m_algorithm)

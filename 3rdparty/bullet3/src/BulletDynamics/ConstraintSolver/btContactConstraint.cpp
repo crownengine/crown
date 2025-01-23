@@ -69,8 +69,8 @@ btScalar resolveSingleCollision(
 
 	const btVector3& normal = contactNormalOnB;
 
-	btVector3 rel_pos1 = contactPositionWorld - body1->getWorldTransform().m_origin;
-	btVector3 rel_pos2 = contactPositionWorld - colObj2->getWorldTransform().m_origin;
+	btVector3 rel_pos1 = contactPositionWorld - body1->m_worldTransform.m_origin;
+	btVector3 rel_pos2 = contactPositionWorld - colObj2->m_worldTransform.m_origin;
 
 	btVector3 vel1 = body1->getVelocityInLocalPoint(rel_pos1);
 	btVector3 vel2 = body2 ? body2->getVelocityInLocalPoint(rel_pos2) : btVector3(0, 0, 0);

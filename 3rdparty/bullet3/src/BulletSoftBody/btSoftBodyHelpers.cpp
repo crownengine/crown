@@ -360,7 +360,7 @@ void btSoftBodyHelpers::Draw(btSoftBody* psb,
 		for (i = 0; i < psb->m_anchors.size(); ++i)
 		{
 			const btSoftBody::Anchor& a = psb->m_anchors[i];
-			const btVector3 q = a.m_body->getWorldTransform() * a.m_local;
+			const btVector3 q = a.m_body->m_worldTransform * a.m_local;
 			drawVertex(idraw, a.m_node->m_x, 0.25, btVector3(1, 0, 0));
 			drawVertex(idraw, q, 0.25, btVector3(0, 1, 0));
 			idraw->drawLine(a.m_node->m_x, q, btVector3(1, 1, 1));

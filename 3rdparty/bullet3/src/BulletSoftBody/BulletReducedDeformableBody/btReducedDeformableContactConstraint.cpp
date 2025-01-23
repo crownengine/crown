@@ -52,7 +52,7 @@ void btReducedDeformableStaticConstraint::applyImpulse(const btVector3& impulse)
 
 btVector3 btReducedDeformableStaticConstraint::getDeltaVa() const
 {
-	return m_rsb->internalComputeNodeDeltaVelocity(m_rsb->getInterpolationWorldTransform(), m_node->index);
+	return m_rsb->internalComputeNodeDeltaVelocity(m_rsb->m_interpolationWorldTransform, m_node->index);
 }
 
 // ================= base contact constraints ===================
@@ -75,7 +75,7 @@ btReducedDeformableRigidContactConstraint::btReducedDeformableRigidContactConstr
 	m_friction = infoGlobal.m_friction;
 
 	m_collideStatic = m_contact->m_cti.m_colObj->isStaticObject();
-	m_collideMultibody = (m_contact->m_cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK);
+	m_collideMultibody = (m_contact->m_cti.m_colObj->m_internalType == btCollisionObject::CO_FEATHERSTONE_LINK);
 }
 
 void btReducedDeformableRigidContactConstraint::setSolverBody(const int bodyId, btSolverBody& solver_body)
@@ -337,7 +337,7 @@ btReducedDeformableNodeRigidContactConstraint::btReducedDeformableNodeRigidConta
 		m_nodeQueryIndex = m_node->index - rsb->m_nodeIndexOffset;
 	}
 
-	if (m_contact->m_cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
+	if (m_contact->m_cti.m_colObj->m_internalType == btCollisionObject::CO_RIGID_BODY)
 	{
 		m_relPosA = contact.m_c1;
 	}
@@ -442,7 +442,7 @@ void btReducedDeformableNodeRigidContactConstraint::warmStarting()
 	// if (!m_collideStatic)
 	// {
 	// 	const btSoftBody::sCti& cti = m_contact->m_cti;
-	// 	if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
+	// 	if (cti.m_colObj->m_internalType == btCollisionObject::CO_RIGID_BODY)
 	// 	{
 	// 		m_solverBody->internalApplyImpulse(m_linearComponentNormal, m_angularComponentNormal, -m_rhs);
 	// 	}
@@ -505,7 +505,7 @@ btVector3 btReducedDeformableNodeRigidContactConstraint::getDeltaVa() const
 btVector3 btReducedDeformableNodeRigidContactConstraint::getDeltaVb() const
 {	
 	// std::cout << "node: " << m_node->index << '\n';
-	return m_rsb->internalComputeNodeDeltaVelocity(m_rsb->getInterpolationWorldTransform(), m_nodeQueryIndex);
+	return m_rsb->internalComputeNodeDeltaVelocity(m_rsb->m_interpolationWorldTransform, m_nodeQueryIndex);
 }
 
 btVector3 btReducedDeformableNodeRigidContactConstraint::getSplitVb() const
@@ -522,7 +522,7 @@ void btReducedDeformableNodeRigidContactConstraint::applyImpulse(const btVector3
 {
   m_rsb->internalApplyFullSpaceImpulse(impulse, m_relPosB, m_nodeQueryIndex, m_dt);
 	// m_rsb->applyFullSpaceImpulse(impulse, m_relPosB, m_node->index, m_dt);
-	// m_rsb->mapToFullVelocity(m_rsb->getInterpolationWorldTransform());
+	// m_rsb->mapToFullVelocity(m_rsb->m_interpolationWorldTransform);
 	// if (!m_collideStatic)
 	// {
 	// 	// std::cout << "impulse applied: " << impulse[0] << '\t' << impulse[1] << '\t' << impulse[2] << '\n';

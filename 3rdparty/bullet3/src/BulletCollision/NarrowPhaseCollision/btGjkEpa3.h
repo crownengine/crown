@@ -885,8 +885,8 @@ static void Initialize(const btConvexTemplate& a, const btConvexTemplate& b,
 	results.status = btGjkEpaSolver3::sResults::Separated;
 	/* Shape		*/
 
-	shape.m_toshape1 = b.getWorldTransform().m_basis.transposeTimes(a.getWorldTransform().m_basis);
-	shape.m_toshape0 = a.getWorldTransform().inverseTimes(b.getWorldTransform());
+	shape.m_toshape1 = b.m_worldTransform.m_basis.transposeTimes(a.m_worldTransform.m_basis);
+	shape.m_toshape0 = a.m_worldTransform.inverseTimes(b.m_worldTransform);
 }
 
 //
@@ -913,8 +913,8 @@ bool btGjkEpaSolver3_Distance(const btConvexTemplate& a, const btConvexTemplate&
 			w0 += shape.Support(gjk.m_simplex->c[i]->d, 0) * p;
 			w1 += shape.Support(-gjk.m_simplex->c[i]->d, 1) * p;
 		}
-		results.witnesses[0] = a.getWorldTransform() * w0;
-		results.witnesses[1] = a.getWorldTransform() * w1;
+		results.witnesses[0] = a.m_worldTransform * w0;
+		results.witnesses[1] = a.m_worldTransform * w1;
 		results.normal = w0 - w1;
 		results.distance = results.normal.length();
 		results.normal /= results.distance > GJK_MIN_DISTANCE ? results.distance : 1;
@@ -951,8 +951,8 @@ bool btGjkEpaSolver3_Penetration(const btConvexTemplate& a,
 					w0 += shape.Support(epa.m_result.c[i]->d, 0) * epa.m_result.p[i];
 				}
 				results.status = btGjkEpaSolver3::sResults::Penetrating;
-				results.witnesses[0] = a.getWorldTransform() * w0;
-				results.witnesses[1] = a.getWorldTransform() * (w0 - epa.m_normal * epa.m_depth);
+				results.witnesses[0] = a.m_worldTransform * w0;
+				results.witnesses[1] = a.m_worldTransform * (w0 - epa.m_normal * epa.m_depth);
 				results.normal = -epa.m_normal;
 				results.distance = -epa.m_depth;
 				return (true);

@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  https://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -49,7 +49,7 @@ typedef btAlignedObjectArray<class btCollisionObject*> btCollisionObjectArray;
 ATTRIBUTE_ALIGNED16(class)
 btCollisionObject
 {
-protected:
+public:
 	btTransform m_worldTransform;
 
 	///m_interpolationWorldTransform is used for CCD and interpolation
@@ -62,6 +62,8 @@ protected:
 
 	btVector3 m_anisotropicFriction;
 	int m_hasAnisotropicFriction;
+	///the constraint solver can discard solving contacts, if the distance is above this threshold. 0 by default.
+	///Note that using contacts with positive distance can improve stability. It increases, however, the chance of colliding with degerate contacts, such as 'interior' triangle edges
 	btScalar m_contactProcessingThreshold;
 
 	btBroadphaseProxy* m_broadphaseHandle;
@@ -168,10 +170,6 @@ public:
 		return ((m_collisionFlags & (CF_STATIC_OBJECT | CF_KINEMATIC_OBJECT | CF_NO_CONTACT_RESPONSE)) == 0);
 	}
 
-	const btVector3& getAnisotropicFriction() const
-	{
-		return m_anisotropicFriction;
-	}
 	void setAnisotropicFriction(const btVector3& anisotropicFriction, int frictionMode = CF_ANISOTROPIC_FRICTION)
 	{
 		m_anisotropicFriction = anisotropicFriction;
@@ -181,17 +179,6 @@ public:
 	bool hasAnisotropicFriction(int frictionMode = CF_ANISOTROPIC_FRICTION) const
 	{
 		return (m_hasAnisotropicFriction & frictionMode) != 0;
-	}
-
-	///the constraint solver can discard solving contacts, if the distance is above this threshold. 0 by default.
-	///Note that using contacts with positive distance can improve stability. It increases, however, the chance of colliding with degerate contacts, such as 'interior' triangle edges
-	void setContactProcessingThreshold(btScalar contactProcessingThreshold)
-	{
-		m_contactProcessingThreshold = contactProcessingThreshold;
-	}
-	btScalar getContactProcessingThreshold() const
-	{
-		return m_contactProcessingThreshold;
 	}
 
 	SIMD_FORCE_INLINE bool isStaticObject() const
@@ -223,16 +210,6 @@ public:
 		m_updateRevision++;
 		m_collisionShape = collisionShape;
 		m_rootCollisionShape = collisionShape;
-	}
-
-	SIMD_FORCE_INLINE const btCollisionShape* getCollisionShape() const
-	{
-		return m_collisionShape;
-	}
-
-	SIMD_FORCE_INLINE btCollisionShape* getCollisionShape()
-	{
-		return m_collisionShape;
 	}
 
 	void setIgnoreCollisionCheck(const btCollisionObject* co, bool ignoreCollisionCheck)
@@ -273,31 +250,7 @@ public:
 		return true;
 	}
 
-	///Avoid using this internal API call, the extension pointer is used by some Bullet extensions.
-	///If you need to store your own user pointer, use 'setUserPointer/getUserPointer' instead.
-	void* internalGetExtensionPointer() const
-	{
-		return m_extensionPointer;
-	}
-	///Avoid using this internal API call, the extension pointer is used by some Bullet extensions
-	///If you need to store your own user pointer, use 'setUserPointer/getUserPointer' instead.
-	void internalSetExtensionPointer(void* pointer)
-	{
-		m_extensionPointer = pointer;
-	}
-
-	SIMD_FORCE_INLINE int getActivationState() const { return m_activationState1; }
-
 	void setActivationState(int newState) const;
-
-	void setDeactivationTime(btScalar time)
-	{
-		m_deactivationTime = time;
-	}
-	btScalar getDeactivationTime() const
-	{
-		return m_deactivationTime;
-	}
 
 	void forceActivationState(int newState) const;
 
@@ -305,7 +258,7 @@ public:
 
 	SIMD_FORCE_INLINE bool isActive() const
 	{
-		return ((getActivationState() != FIXED_BASE_MULTI_BODY) && (getActivationState() != ISLAND_SLEEPING) && (getActivationState() != DISABLE_SIMULATION));
+		return ((m_activationState1 != FIXED_BASE_MULTI_BODY) && (m_activationState1 != ISLAND_SLEEPING) && (m_activationState1 != DISABLE_SIMULATION));
 	}
 
 	void setRestitution(btScalar rest)
@@ -313,18 +266,10 @@ public:
 		m_updateRevision++;
 		m_restitution = rest;
 	}
-	btScalar getRestitution() const
-	{
-		return m_restitution;
-	}
 	void setFriction(btScalar frict)
 	{
 		m_updateRevision++;
 		m_friction = frict;
-	}
-	btScalar getFriction() const
-	{
-		return m_friction;
 	}
 
 	void setRollingFriction(btScalar frict)
@@ -332,18 +277,10 @@ public:
 		m_updateRevision++;
 		m_rollingFriction = frict;
 	}
-	btScalar getRollingFriction() const
-	{
-		return m_rollingFriction;
-	}
 	void setSpinningFriction(btScalar frict)
 	{
 		m_updateRevision++;
 		m_spinningFriction = frict;
-	}
-	btScalar getSpinningFriction() const
-	{
-		return m_spinningFriction;
 	}
 	void setContactStiffnessAndDamping(btScalar stiffness, btScalar damping)
 	{
@@ -360,61 +297,10 @@ public:
 		}
 	}
 
-	btScalar getContactStiffness() const
-	{
-		return m_contactStiffness;
-	}
-
-	btScalar getContactDamping() const
-	{
-		return m_contactDamping;
-	}
-
-	///reserved for Bullet internal usage
-	int getInternalType() const
-	{
-		return m_internalType;
-	}
-
-	btTransform& getWorldTransform()
-	{
-		return m_worldTransform;
-	}
-
-	const btTransform& getWorldTransform() const
-	{
-		return m_worldTransform;
-	}
-
 	void setWorldTransform(const btTransform& worldTrans)
 	{
 		m_updateRevision++;
 		m_worldTransform = worldTrans;
-	}
-
-	SIMD_FORCE_INLINE btBroadphaseProxy* getBroadphaseHandle()
-	{
-		return m_broadphaseHandle;
-	}
-
-	SIMD_FORCE_INLINE const btBroadphaseProxy* getBroadphaseHandle() const
-	{
-		return m_broadphaseHandle;
-	}
-
-	void setBroadphaseHandle(btBroadphaseProxy * handle)
-	{
-		m_broadphaseHandle = handle;
-	}
-
-	const btTransform& getInterpolationWorldTransform() const
-	{
-		return m_interpolationWorldTransform;
-	}
-
-	btTransform& getInterpolationWorldTransform()
-	{
-		return m_interpolationWorldTransform;
 	}
 
 	void setInterpolationWorldTransform(const btTransform& trans)
@@ -435,141 +321,9 @@ public:
 		m_interpolationAngularVelocity = angvel;
 	}
 
-	const btVector3& getInterpolationLinearVelocity() const
-	{
-		return m_interpolationLinearVelocity;
-	}
-
-	const btVector3& getInterpolationAngularVelocity() const
-	{
-		return m_interpolationAngularVelocity;
-	}
-
-	SIMD_FORCE_INLINE int getIslandTag() const
-	{
-		return m_islandTag1;
-	}
-
-	void setIslandTag(int tag)
-	{
-		m_islandTag1 = tag;
-	}
-
-	SIMD_FORCE_INLINE int getCompanionId() const
-	{
-		return m_companionId;
-	}
-
-	void setCompanionId(int id)
-	{
-		m_companionId = id;
-	}
-
-	SIMD_FORCE_INLINE int getWorldArrayIndex() const
-	{
-		return m_worldArrayIndex;
-	}
-
-	// only should be called by CollisionWorld
-	void setWorldArrayIndex(int ix)
-	{
-		m_worldArrayIndex = ix;
-	}
-
-	SIMD_FORCE_INLINE btScalar getHitFraction() const
-	{
-		return m_hitFraction;
-	}
-
-	void setHitFraction(btScalar hitFraction)
-	{
-		m_hitFraction = hitFraction;
-	}
-
-	SIMD_FORCE_INLINE int getCollisionFlags() const
-	{
-		return m_collisionFlags;
-	}
-
-	void setCollisionFlags(int flags)
-	{
-		m_collisionFlags = flags;
-	}
-
-	///Swept sphere radius (0.0 by default), see btConvexConvexAlgorithm::
-	btScalar getCcdSweptSphereRadius() const
-	{
-		return m_ccdSweptSphereRadius;
-	}
-
-	///Swept sphere radius (0.0 by default), see btConvexConvexAlgorithm::
-	void setCcdSweptSphereRadius(btScalar radius)
-	{
-		m_ccdSweptSphereRadius = radius;
-	}
-
-	btScalar getCcdMotionThreshold() const
-	{
-		return m_ccdMotionThreshold;
-	}
-
 	btScalar getCcdSquareMotionThreshold() const
 	{
 		return m_ccdMotionThreshold * m_ccdMotionThreshold;
-	}
-
-	/// Don't do continuous collision detection if the motion (in one step) is less then m_ccdMotionThreshold
-	void setCcdMotionThreshold(btScalar ccdMotionThreshold)
-	{
-		m_ccdMotionThreshold = ccdMotionThreshold;
-	}
-
-	///users can point to their objects, userPointer is not used by Bullet
-	void* getUserPointer() const
-	{
-		return m_userObjectPointer;
-	}
-
-	int getUserIndex() const
-	{
-		return m_userIndex;
-	}
-
-	int getUserIndex2() const
-	{
-		return m_userIndex2;
-	}
-
-	int getUserIndex3() const
-	{
-		return m_userIndex3;
-	}
-
-	///users can point to their objects, userPointer is not used by Bullet
-	void setUserPointer(void* userPointer)
-	{
-		m_userObjectPointer = userPointer;
-	}
-
-	///users can point to their objects, userPointer is not used by Bullet
-	void setUserIndex(int index)
-	{
-		m_userIndex = index;
-	}
-
-	void setUserIndex2(int index)
-	{
-		m_userIndex2 = index;
-	}
-
-	void setUserIndex3(int index)
-	{
-		m_userIndex3 = index;
-	}
-
-	int getUpdateRevisionInternal() const
-	{
-		return m_updateRevision;
 	}
 
 	void setCustomDebugColor(const btVector3& colorRGB)
@@ -624,14 +378,14 @@ struct	btCollisionObjectDoubleData
 	btVector3DoubleData		m_interpolationLinearVelocity;
 	btVector3DoubleData		m_interpolationAngularVelocity;
 	btVector3DoubleData		m_anisotropicFriction;
-	double					m_contactProcessingThreshold;	
+	double					m_contactProcessingThreshold;
 	double					m_deactivationTime;
 	double					m_friction;
 	double					m_rollingFriction;
 	double                  m_contactDamping;
 	double                  m_contactStiffness;
 	double					m_restitution;
-	double					m_hitFraction; 
+	double					m_hitFraction;
 	double					m_ccdSweptSphereRadius;
 	double					m_ccdMotionThreshold;
 	int						m_hasAnisotropicFriction;
@@ -659,14 +413,14 @@ struct	btCollisionObjectFloatData
 	btVector3FloatData		m_interpolationLinearVelocity;
 	btVector3FloatData		m_interpolationAngularVelocity;
 	btVector3FloatData		m_anisotropicFriction;
-	float					m_contactProcessingThreshold;	
+	float					m_contactProcessingThreshold;
 	float					m_deactivationTime;
 	float					m_friction;
 	float					m_rollingFriction;
 	float                   m_contactDamping;
     float                   m_contactStiffness;
 	float					m_restitution;
-	float					m_hitFraction; 
+	float					m_hitFraction;
 	float					m_ccdSweptSphereRadius;
 	float					m_ccdMotionThreshold;
 	int						m_hasAnisotropicFriction;

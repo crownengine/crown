@@ -25,7 +25,7 @@ SIMD_FORCE_INLINE int btGetConstraintIslandId2(const btTypedConstraint* lhs)
     
     const btCollisionObject& rcolObj0 = lhs->getRigidBodyA();
     const btCollisionObject& rcolObj1 = lhs->getRigidBodyB();
-    islandId = rcolObj0.getIslandTag() >= 0 ? rcolObj0.getIslandTag() : rcolObj1.getIslandTag();
+    islandId = rcolObj0.m_islandTag1 >= 0 ? rcolObj0.m_islandTag1 : rcolObj1.m_islandTag1;
     return islandId;
 }
 class btSortConstraintOnIslandPredicate2
@@ -190,7 +190,7 @@ struct MultiBodyInplaceSolverIslandCallback : public btSimulationIslandManager::
             {
                 for (i = 0; i < numBodies; i++)
 				{
-					bool isSoftBodyType = (bodies[i]->getInternalType() & btCollisionObject::CO_SOFT_BODY);
+					bool isSoftBodyType = (bodies[i]->m_internalType & btCollisionObject::CO_SOFT_BODY);
 					if (!isSoftBodyType)
 					{
 						m_bodies.push_back(bodies[i]);

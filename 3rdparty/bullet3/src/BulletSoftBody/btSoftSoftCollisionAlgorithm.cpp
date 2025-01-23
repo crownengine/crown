@@ -36,8 +36,8 @@ btSoftSoftCollisionAlgorithm::~btSoftSoftCollisionAlgorithm()
 
 void btSoftSoftCollisionAlgorithm::processCollision(const btCollisionObjectWrapper* body0Wrap, const btCollisionObjectWrapper* body1Wrap, const btDispatcherInfo& /*dispatchInfo*/, btManifoldResult* /*resultOut*/)
 {
-	btSoftBody* soft0 = (btSoftBody*)body0Wrap->getCollisionObject();
-	btSoftBody* soft1 = (btSoftBody*)body1Wrap->getCollisionObject();
+	btSoftBody* soft0 = (btSoftBody*)body0Wrap->m_collisionObject;
+	btSoftBody* soft1 = (btSoftBody*)body1Wrap->m_collisionObject;
 	soft0->getSoftBodySolver()->processCollision(soft0, soft1);
 }
 

@@ -84,8 +84,8 @@ void btSequentialImpulseConstraintSolverMt::internalSetupContactConstraints(int 
 	const btVector3& pos1 = cp.getPositionWorldOnA();
 	const btVector3& pos2 = cp.getPositionWorldOnB();
 
-	rel_pos1 = pos1 - solverBodyA->getWorldTransform().m_origin;
-	rel_pos2 = pos2 - solverBodyB->getWorldTransform().m_origin;
+	rel_pos1 = pos1 - solverBodyA->m_worldTransform.m_origin;
+	rel_pos2 = pos2 - solverBodyB->m_worldTransform.m_origin;
 
 	btVector3 vel1;
 	btVector3 vel2;
@@ -307,18 +307,18 @@ int btSequentialImpulseConstraintSolverMt::getOrInitSolverBodyThreadsafe(btColli
 	{
 		// dynamic body
 		// Dynamic bodies can only be in one island, so it's safe to write to the companionId
-		solverBodyId = body.getCompanionId();
+		solverBodyId = body.m_companionId;
 		if (solverBodyId < 0)
 		{
 			m_bodySolverArrayMutex.lock();
 			// now that we have the lock, check again
-			solverBodyId = body.getCompanionId();
+			solverBodyId = body.m_companionId;
 			if (solverBodyId < 0)
 			{
 				solverBodyId = m_tmpSolverBodyPool.size();
 				btSolverBody& solverBody = m_tmpSolverBodyPool.expand();
 				initSolverBody(&solverBody, &body, timeStep);
-				body.setCompanionId(solverBodyId);
+				body.m_companionId = (solverBodyId);
 			}
 			m_bodySolverArrayMutex.unlock();
 		}
@@ -332,7 +332,7 @@ int btSequentialImpulseConstraintSolverMt::getOrInitSolverBodyThreadsafe(btColli
 		// Kinematic bodies can be in multiple islands at once, so it is a
 		// race condition to write to them, so we use an alternate method
 		// to record the solverBodyId
-		int uniqueId = body.getWorldArrayIndex();
+		int uniqueId = body.m_worldArrayIndex;
 		const int INVALID_SOLVER_BODY_ID = -1;
 		if (m_kinematicBodyUniqueIdToSolverBodyTable.size() <= uniqueId)
 		{
@@ -750,7 +750,7 @@ void btSequentialImpulseConstraintSolverMt::internalConvertBodies(btCollisionObj
 	for (int i = iBegin; i < iEnd; i++)
 	{
 		btCollisionObject* obj = bodies[i];
-		obj->setCompanionId(i);
+		obj->m_companionId = (i);
 		btSolverBody& solverBody = m_tmpSolverBodyPool[i];
 		initSolverBody(&solverBody, obj, infoGlobal.m_timeStep);
 

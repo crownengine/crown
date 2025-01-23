@@ -440,7 +440,7 @@ void btDeformableBodySolver::predictDeformableMotion(btSoftBody* psb, btScalar d
 	psb->m_sst.sdt = dt * psb->m_cfg.timescale;
 	psb->m_sst.isdt = 1 / psb->m_sst.sdt;
 	psb->m_sst.velmrg = psb->m_sst.sdt * 3;
-	psb->m_sst.radmrg = psb->getCollisionShape()->getMargin();
+	psb->m_sst.radmrg = psb->m_collisionShape->getMargin();
 	psb->m_sst.updmrg = psb->m_sst.radmrg * (btScalar)0.25;
 	/* Bounds                */
 	psb->updateBounds();
@@ -541,17 +541,17 @@ void btDeformableBodySolver::applyTransforms(btScalar timeStep)
 		{
 			btSoftBody::DeformableNodeRigidAnchor& a = psb->m_deformableAnchors[j];
 			btSoftBody::Node* n = a.m_node;
-			n->m_x = a.m_cti.m_colObj->getWorldTransform() * a.m_local;
+			n->m_x = a.m_cti.m_colObj->m_worldTransform * a.m_local;
 
 			// update multibody anchor info
-			if (a.m_cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
+			if (a.m_cti.m_colObj->m_internalType == btCollisionObject::CO_FEATHERSTONE_LINK)
 			{
 				btMultiBodyLinkCollider* multibodyLinkCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(a.m_cti.m_colObj);
 				if (multibodyLinkCol)
 				{
 					btVector3 nrm;
-					const btCollisionShape* shp = multibodyLinkCol->getCollisionShape();
-					const btTransform& wtr = multibodyLinkCol->getWorldTransform();
+					const btCollisionShape* shp = multibodyLinkCol->m_collisionShape;
+					const btTransform& wtr = multibodyLinkCol->m_worldTransform;
 					psb->m_worldInfo->m_sparsesdf.Evaluate(
 						wtr.invXform(n->m_x),
 						shp,

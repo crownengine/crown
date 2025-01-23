@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  https://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -30,7 +30,7 @@ CalculateCombinedCallback gCalculateCombinedContactStiffnessCallback = &btManifo
 
 btScalar btManifoldResult::calculateCombinedRollingFriction(const btCollisionObject* body0, const btCollisionObject* body1)
 {
-	btScalar friction = body0->getRollingFriction() * body1->getFriction() + body1->getRollingFriction() * body0->getFriction();
+	btScalar friction = body0->m_rollingFriction * body1->m_friction + body1->m_rollingFriction * body0->m_friction;
 
 	const btScalar MAX_FRICTION = btScalar(10.);
 	if (friction < -MAX_FRICTION)
@@ -42,7 +42,7 @@ btScalar btManifoldResult::calculateCombinedRollingFriction(const btCollisionObj
 
 btScalar btManifoldResult::calculateCombinedSpinningFriction(const btCollisionObject* body0, const btCollisionObject* body1)
 {
-	btScalar friction = body0->getSpinningFriction() * body1->getFriction() + body1->getSpinningFriction() * body0->getFriction();
+	btScalar friction = body0->m_spinningFriction * body1->m_friction + body1->m_spinningFriction * body0->m_friction;
 
 	const btScalar MAX_FRICTION = btScalar(10.);
 	if (friction < -MAX_FRICTION)
@@ -55,7 +55,7 @@ btScalar btManifoldResult::calculateCombinedSpinningFriction(const btCollisionOb
 ///User can override this material combiner by implementing gContactAddedCallback and setting body0->m_collisionFlags |= btCollisionObject::customMaterialCallback;
 btScalar btManifoldResult::calculateCombinedFriction(const btCollisionObject* body0, const btCollisionObject* body1)
 {
-	btScalar friction = body0->getFriction() * body1->getFriction();
+	btScalar friction = body0->m_friction * body1->m_friction;
 
 	const btScalar MAX_FRICTION = btScalar(10.);
 	if (friction < -MAX_FRICTION)
@@ -67,18 +67,18 @@ btScalar btManifoldResult::calculateCombinedFriction(const btCollisionObject* bo
 
 btScalar btManifoldResult::calculateCombinedRestitution(const btCollisionObject* body0, const btCollisionObject* body1)
 {
-	return body0->getRestitution() * body1->getRestitution();
+	return body0->m_restitution * body1->m_restitution;
 }
 
 btScalar btManifoldResult::calculateCombinedContactDamping(const btCollisionObject* body0, const btCollisionObject* body1)
 {
-	return body0->getContactDamping() + body1->getContactDamping();
+	return body0->m_contactDamping + body1->m_contactDamping;
 }
 
 btScalar btManifoldResult::calculateCombinedContactStiffness(const btCollisionObject* body0, const btCollisionObject* body1)
 {
-	btScalar s0 = body0->getContactStiffness();
-	btScalar s1 = body1->getContactStiffness();
+	btScalar s0 = body0->m_contactStiffness;
+	btScalar s1 = body1->m_contactStiffness;
 
 	btScalar tmp0 = btScalar(1) / s0;
 	btScalar tmp1 = btScalar(1) / s1;
@@ -106,10 +106,10 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld, const 
 	//order in manifold needs to match
 
 	if (depth > m_manifoldPtr->getContactBreakingThreshold())
-		//	if (depth > m_manifoldPtr->getContactProcessingThreshold())
+		//	if (depth > m_manifoldPtr->m_contactProcessingThreshold)
 		return;
 
-	bool isSwapped = m_manifoldPtr->getBody0() != m_body0Wrap->getCollisionObject();
+	bool isSwapped = m_manifoldPtr->getBody0() != m_body0Wrap->m_collisionObject;
 	bool isNewCollision = m_manifoldPtr->getNumContacts() == 0;
 
 	btVector3 pointA = pointInWorld + normalOnBInWorld * depth;
@@ -119,13 +119,13 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld, const 
 
 	if (isSwapped)
 	{
-		localA = m_body1Wrap->getCollisionObject()->getWorldTransform().invXform(pointA);
-		localB = m_body0Wrap->getCollisionObject()->getWorldTransform().invXform(pointInWorld);
+		localA = m_body1Wrap->m_collisionObject->m_worldTransform.invXform(pointA);
+		localB = m_body0Wrap->m_collisionObject->m_worldTransform.invXform(pointInWorld);
 	}
 	else
 	{
-		localA = m_body0Wrap->getCollisionObject()->getWorldTransform().invXform(pointA);
-		localB = m_body1Wrap->getCollisionObject()->getWorldTransform().invXform(pointInWorld);
+		localA = m_body0Wrap->m_collisionObject->m_worldTransform.invXform(pointA);
+		localB = m_body1Wrap->m_collisionObject->m_worldTransform.invXform(pointInWorld);
 	}
 
 	btManifoldPoint newPt(localA, localB, normalOnBInWorld, depth);
@@ -134,21 +134,21 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld, const 
 
 	int insertIndex = m_manifoldPtr->getCacheEntry(newPt);
 
-	newPt.m_combinedFriction = gCalculateCombinedFrictionCallback(m_body0Wrap->getCollisionObject(), m_body1Wrap->getCollisionObject());
-	newPt.m_combinedRestitution = gCalculateCombinedRestitutionCallback(m_body0Wrap->getCollisionObject(), m_body1Wrap->getCollisionObject());
-	newPt.m_combinedRollingFriction = gCalculateCombinedRollingFrictionCallback(m_body0Wrap->getCollisionObject(), m_body1Wrap->getCollisionObject());
-	newPt.m_combinedSpinningFriction = gCalculateCombinedSpinningFrictionCallback(m_body0Wrap->getCollisionObject(), m_body1Wrap->getCollisionObject());
+	newPt.m_combinedFriction = gCalculateCombinedFrictionCallback(m_body0Wrap->m_collisionObject, m_body1Wrap->m_collisionObject);
+	newPt.m_combinedRestitution = gCalculateCombinedRestitutionCallback(m_body0Wrap->m_collisionObject, m_body1Wrap->m_collisionObject);
+	newPt.m_combinedRollingFriction = gCalculateCombinedRollingFrictionCallback(m_body0Wrap->m_collisionObject, m_body1Wrap->m_collisionObject);
+	newPt.m_combinedSpinningFriction = gCalculateCombinedSpinningFrictionCallback(m_body0Wrap->m_collisionObject, m_body1Wrap->m_collisionObject);
 
-	if ((m_body0Wrap->getCollisionObject()->getCollisionFlags() & btCollisionObject::CF_HAS_CONTACT_STIFFNESS_DAMPING) ||
-		(m_body1Wrap->getCollisionObject()->getCollisionFlags() & btCollisionObject::CF_HAS_CONTACT_STIFFNESS_DAMPING))
+	if ((m_body0Wrap->m_collisionObject->m_collisionFlags & btCollisionObject::CF_HAS_CONTACT_STIFFNESS_DAMPING) ||
+		(m_body1Wrap->m_collisionObject->m_collisionFlags & btCollisionObject::CF_HAS_CONTACT_STIFFNESS_DAMPING))
 	{
-		newPt.m_combinedContactDamping1 = gCalculateCombinedContactDampingCallback(m_body0Wrap->getCollisionObject(), m_body1Wrap->getCollisionObject());
-		newPt.m_combinedContactStiffness1 = gCalculateCombinedContactStiffnessCallback(m_body0Wrap->getCollisionObject(), m_body1Wrap->getCollisionObject());
+		newPt.m_combinedContactDamping1 = gCalculateCombinedContactDampingCallback(m_body0Wrap->m_collisionObject, m_body1Wrap->m_collisionObject);
+		newPt.m_combinedContactStiffness1 = gCalculateCombinedContactStiffnessCallback(m_body0Wrap->m_collisionObject, m_body1Wrap->m_collisionObject);
 		newPt.m_contactPointFlags |= BT_CONTACT_FLAG_CONTACT_STIFFNESS_DAMPING;
 	}
 
-	if ((m_body0Wrap->getCollisionObject()->getCollisionFlags() & btCollisionObject::CF_HAS_FRICTION_ANCHOR) ||
-		(m_body1Wrap->getCollisionObject()->getCollisionFlags() & btCollisionObject::CF_HAS_FRICTION_ANCHOR))
+	if ((m_body0Wrap->m_collisionObject->m_collisionFlags & btCollisionObject::CF_HAS_FRICTION_ANCHOR) ||
+		(m_body1Wrap->m_collisionObject->m_collisionFlags & btCollisionObject::CF_HAS_FRICTION_ANCHOR))
 	{
 		newPt.m_contactPointFlags |= BT_CONTACT_FLAG_FRICTION_ANCHOR;
 	}
@@ -185,8 +185,8 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld, const 
 	//User can override friction and/or restitution
 	if (gContactAddedCallback &&
 		//and if either of the two bodies requires custom material
-		((m_body0Wrap->getCollisionObject()->getCollisionFlags() & btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK) ||
-		 (m_body1Wrap->getCollisionObject()->getCollisionFlags() & btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK)))
+		((m_body0Wrap->m_collisionObject->m_collisionFlags & btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK) ||
+		 (m_body1Wrap->m_collisionObject->m_collisionFlags & btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK)))
 	{
 		//experimental feature info, for per-triangle material etc.
 		const btCollisionObjectWrapper* obj0Wrap = isSwapped ? m_body1Wrap : m_body0Wrap;

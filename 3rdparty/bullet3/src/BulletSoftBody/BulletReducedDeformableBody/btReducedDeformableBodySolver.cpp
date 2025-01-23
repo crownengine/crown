@@ -109,7 +109,7 @@ void btReducedDeformableBodySolver::predictReduceDeformableMotion(btScalar solve
     }
 
     // rigid motion: t, R at time^*
-    rsb->predictIntegratedTransform(solverdt, rsb->getInterpolationWorldTransform());
+    rsb->predictIntegratedTransform(solverdt, rsb->m_interpolationWorldTransform);
 
     // update reduced dofs at time^*
     // rsb->updateReducedDofs(solverdt);
@@ -119,10 +119,10 @@ void btReducedDeformableBodySolver::predictReduceDeformableMotion(btScalar solve
     // rsb->updateExternalForceProjectMatrix(true);
 
     // predict full space velocity at time^* (needed for constraints)
-    rsb->mapToFullVelocity(rsb->getInterpolationWorldTransform());
+    rsb->mapToFullVelocity(rsb->m_interpolationWorldTransform);
 
     // update full space nodal position at time^*
-    rsb->mapToFullPosition(rsb->getInterpolationWorldTransform());
+    rsb->mapToFullPosition(rsb->m_interpolationWorldTransform);
 
     // update bounding box
     rsb->updateBounds();

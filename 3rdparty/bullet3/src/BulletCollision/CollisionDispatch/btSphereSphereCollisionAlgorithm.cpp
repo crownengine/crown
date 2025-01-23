@@ -27,7 +27,7 @@ btSphereSphereCollisionAlgorithm::btSphereSphereCollisionAlgorithm(btPersistentM
 {
 	if (!m_manifoldPtr)
 	{
-		m_manifoldPtr = m_dispatcher->getNewManifold(col0Wrap->getCollisionObject(), col1Wrap->getCollisionObject());
+		m_manifoldPtr = m_dispatcher->getNewManifold(col0Wrap->m_collisionObject, col1Wrap->m_collisionObject);
 		m_ownManifold = true;
 	}
 }
@@ -50,10 +50,10 @@ void btSphereSphereCollisionAlgorithm::processCollision(const btCollisionObjectW
 
 	resultOut->setPersistentManifold(m_manifoldPtr);
 
-	btSphereShape* sphere0 = (btSphereShape*)col0Wrap->getCollisionShape();
-	btSphereShape* sphere1 = (btSphereShape*)col1Wrap->getCollisionShape();
+	btSphereShape* sphere0 = (btSphereShape*)col0Wrap->m_collisionShape;
+	btSphereShape* sphere1 = (btSphereShape*)col1Wrap->m_collisionShape;
 
-	btVector3 diff = col0Wrap->getWorldTransform().m_origin - col1Wrap->getWorldTransform().m_origin;
+	btVector3 diff = col0Wrap->m_worldTransform.m_origin - col1Wrap->m_worldTransform.m_origin;
 	btScalar len = diff.length();
 	btScalar radius0 = sphere0->getRadius();
 	btScalar radius1 = sphere1->getRadius();
@@ -80,9 +80,9 @@ void btSphereSphereCollisionAlgorithm::processCollision(const btCollisionObjectW
 	}
 
 	///point on A (worldspace)
-	///btVector3 pos0 = col0->getWorldTransform().m_origin - radius0 * normalOnSurfaceB;
+	///btVector3 pos0 = col0->m_worldTransform.m_origin - radius0 * normalOnSurfaceB;
 	///point on B (worldspace)
-	btVector3 pos1 = col1Wrap->getWorldTransform().m_origin + radius1 * normalOnSurfaceB;
+	btVector3 pos1 = col1Wrap->m_worldTransform.m_origin + radius1 * normalOnSurfaceB;
 
 	/// report a contact. internally this will be kept persistent, and contact reduction is done
 

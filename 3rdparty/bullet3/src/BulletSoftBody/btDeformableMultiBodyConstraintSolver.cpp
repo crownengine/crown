@@ -56,7 +56,7 @@ btScalar btDeformableMultiBodyConstraintSolver::solveDeformableGroupIterations(b
 				m_analyticsData.m_numIterationsUsed = iteration + 1;
 				m_analyticsData.m_islandId = -2;
 				if (numBodies > 0)
-					m_analyticsData.m_islandId = bodies[0]->getCompanionId();
+					m_analyticsData.m_islandId = bodies[0]->m_companionId;
 				m_analyticsData.m_numBodies = numBodies;
 				m_analyticsData.m_numContactManifolds = numManifolds;
 				m_analyticsData.m_remainingLeastSquaresResidual = m_leastSquaresResidual;

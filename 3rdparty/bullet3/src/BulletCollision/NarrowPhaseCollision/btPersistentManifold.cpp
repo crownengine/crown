@@ -314,7 +314,7 @@ const char* btPersistentManifold::serialize(const class btPersistentManifold* ma
 	dataOut->m_body0 = (btCollisionObjectData*)serializer->getUniquePointer((void*)manifold->getBody0());
 	dataOut->m_body1 = (btCollisionObjectData*)serializer->getUniquePointer((void*)manifold->getBody1());
 	dataOut->m_contactBreakingThreshold = manifold->getContactBreakingThreshold();
-	dataOut->m_contactProcessingThreshold = manifold->getContactProcessingThreshold();
+	dataOut->m_contactProcessingThreshold = manifold->m_contactProcessingThreshold;
 	dataOut->m_numCachedPoints = manifold->getNumContacts();
 	dataOut->m_companionIdA = manifold->m_companionIdA;
 	dataOut->m_companionIdB = manifold->m_companionIdB;

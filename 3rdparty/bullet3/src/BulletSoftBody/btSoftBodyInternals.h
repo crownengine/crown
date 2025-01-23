@@ -1496,24 +1496,24 @@ struct btSoftColliders
 			btSoftBody::Cluster* cluster = (btSoftBody::Cluster*)leaf->data;
 			btSoftClusterCollisionShape cshape(cluster);
 
-			const btConvexShape* rshape = (const btConvexShape*)m_colObjWrap->getCollisionShape();
+			const btConvexShape* rshape = (const btConvexShape*)m_colObjWrap->m_collisionShape;
 
 			///don't collide an anchored cluster with a static/kinematic object
-			if (m_colObjWrap->getCollisionObject()->isStaticOrKinematicObject() && cluster->m_containsAnchor)
+			if (m_colObjWrap->m_collisionObject->isStaticOrKinematicObject() && cluster->m_containsAnchor)
 				return;
 
 			btGjkEpaSolver2::sResults res;
 			if (btGjkEpaSolver2::SignedDistance(&cshape, btTransform::getIdentity(),
-												rshape, m_colObjWrap->getWorldTransform(),
+												rshape, m_colObjWrap->m_worldTransform,
 												btVector3(1, 0, 0), res))
 			{
 				btSoftBody::CJoint joint;
-				if (SolveContact(res, cluster, m_colObjWrap->getCollisionObject(), joint))  //prb,joint))
+				if (SolveContact(res, cluster, m_colObjWrap->m_collisionObject, joint))  //prb,joint))
 				{
 					btSoftBody::CJoint* pj = new (btAlignedAlloc(sizeof(btSoftBody::CJoint), 16)) btSoftBody::CJoint();
 					*pj = joint;
 					psb->m_joints.push_back(pj);
-					if (m_colObjWrap->getCollisionObject()->isStaticOrKinematicObject())
+					if (m_colObjWrap->m_collisionObject->isStaticOrKinematicObject())
 					{
 						pj->m_erp *= psb->m_cfg.kSKHR_CL;
 						pj->m_split *= psb->m_cfg.kSK_SPLT_CL;
@@ -1531,15 +1531,15 @@ struct btSoftColliders
 			psb = ps;
 			m_colObjWrap = colObWrap;
 			idt = ps->m_sst.isdt;
-			m_margin = m_colObjWrap->getCollisionShape()->getMargin() + psb->getCollisionShape()->getMargin();
+			m_margin = m_colObjWrap->m_collisionShape->getMargin() + psb->m_collisionShape->getMargin();
 			///Bullet rigid body uses multiply instead of minimum to determine combined friction. Some customization would be useful.
-			friction = btMin(psb->m_cfg.kDF, m_colObjWrap->getCollisionObject()->getFriction());
+			friction = btMin(psb->m_cfg.kDF, m_colObjWrap->m_collisionObject->m_friction);
 			btVector3 mins;
 			btVector3 maxs;
 
 			ATTRIBUTE_ALIGNED16(btDbvtVolume)
 			volume;
-			colObWrap->getCollisionShape()->getAabb(colObWrap->getWorldTransform(), mins, maxs);
+			colObWrap->m_collisionShape->getAabb(colObWrap->m_worldTransform, mins, maxs);
 			volume = btDbvtVolume::FromMM(mins, maxs);
 			volume.Expand(btVector3(1, 1, 1) * m_margin);
 			ps->m_cdbvt.collideTV(ps->m_cdbvt.m_root, volume, *this);
@@ -1592,8 +1592,8 @@ struct btSoftColliders
 		void ProcessSoftSoft(btSoftBody* psa, btSoftBody* psb)
 		{
 			idt = psa->m_sst.isdt;
-			//m_margin		=	(psa->getCollisionShape()->getMargin()+psb->getCollisionShape()->getMargin())/2;
-			m_margin = (psa->getCollisionShape()->getMargin() + psb->getCollisionShape()->getMargin());
+			//m_margin		=	(psa->m_collisionShape->getMargin()+psb->m_collisionShape->getMargin())/2;
+			m_margin = (psa->m_collisionShape->getMargin() + psb->m_collisionShape->getMargin());
 			friction = btMin(psa->m_cfg.kDF, psb->m_cfg.kDF);
 			bodies[0] = psa;
 			bodies[1] = psb;
@@ -1623,7 +1623,7 @@ struct btSoftColliders
 				const btScalar ms = ima + imb;
 				if (ms > 0)
 				{
-					const btTransform& wtr = m_rigidBody ? m_rigidBody->getWorldTransform() : m_colObj1Wrap->getCollisionObject()->getWorldTransform();
+					const btTransform& wtr = m_rigidBody ? m_rigidBody->m_worldTransform : m_colObj1Wrap->m_collisionObject->m_worldTransform;
 					static const btMatrix3x3 iwiStatic(0, 0, 0, 0, 0, 0, 0, 0, 0);
 					const btMatrix3x3& iwi = m_rigidBody ? m_rigidBody->getInvInertiaTensorWorld() : iwiStatic;
 					const btVector3 ra = n.m_x - wtr.m_origin;
@@ -1632,13 +1632,13 @@ struct btSoftColliders
 					const btVector3 vr = vb - va;
 					const btScalar dn = btDot(vr, c.m_cti.m_normal);
 					const btVector3 fv = vr - c.m_cti.m_normal * dn;
-					const btScalar fc = psb->m_cfg.kDF * m_colObj1Wrap->getCollisionObject()->getFriction();
+					const btScalar fc = psb->m_cfg.kDF * m_colObj1Wrap->m_collisionObject->m_friction;
 					c.m_node = &n;
 					c.m_c0 = ImpulseMatrix(psb->m_sst.sdt, ima, imb, iwi, ra);
 					c.m_c1 = ra;
 					c.m_c2 = ima * psb->m_sst.sdt;
 					c.m_c3 = fv.length2() < (dn * fc * dn * fc) ? 0 : 1 - fc;
-					c.m_c4 = m_colObj1Wrap->getCollisionObject()->isStaticOrKinematicObject() ? psb->m_cfg.kKHR : psb->m_cfg.kCHR;
+					c.m_c4 = m_colObj1Wrap->m_collisionObject->isStaticOrKinematicObject() ? psb->m_cfg.kKHR : psb->m_cfg.kCHR;
 					psb->m_rcontacts.push_back(c);
 					if (m_rigidBody)
 						m_rigidBody->activate();
@@ -1682,15 +1682,15 @@ struct btSoftColliders
 						psb->checkDeformableContact(m_colObj1Wrap, n.m_x, m, c.m_cti, /*predict = */ false);
 						btSoftBody::sCti& cti = c.m_cti;
 						c.m_node = &n;
-						const btScalar fc = psb->m_cfg.kDF * m_colObj1Wrap->getCollisionObject()->getFriction();
+						const btScalar fc = psb->m_cfg.kDF * m_colObj1Wrap->m_collisionObject->m_friction;
 						c.m_c2 = ima;
 						c.m_c3 = fc;
-						c.m_c4 = m_colObj1Wrap->getCollisionObject()->isStaticOrKinematicObject() ? psb->m_cfg.kKHR : psb->m_cfg.kCHR;
+						c.m_c4 = m_colObj1Wrap->m_collisionObject->isStaticOrKinematicObject() ? psb->m_cfg.kKHR : psb->m_cfg.kCHR;
 						c.m_c5 = n.m_effectiveMass_inv;
 
-						if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
+						if (cti.m_colObj->m_internalType == btCollisionObject::CO_RIGID_BODY)
 						{
-							const btTransform& wtr = m_rigidBody ? m_rigidBody->getWorldTransform() : m_colObj1Wrap->getCollisionObject()->getWorldTransform();
+							const btTransform& wtr = m_rigidBody ? m_rigidBody->m_worldTransform : m_colObj1Wrap->m_collisionObject->m_worldTransform;
 							const btVector3 ra = n.m_x - wtr.m_origin;
 
 							static const btMatrix3x3 iwiStatic(0, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -1706,7 +1706,7 @@ struct btSoftColliders
 							}
 							c.m_c1 = ra;
 						}
-						else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
+						else if (cti.m_colObj->m_internalType == btCollisionObject::CO_FEATHERSTONE_LINK)
 						{
 							btMultiBodyLinkCollider* multibodyLinkCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(cti.m_colObj);
 							if (multibodyLinkCol)
@@ -1798,17 +1798,17 @@ struct btSoftColliders
 					c.m_face = &f;
 					// friction is handled by the nodes to prevent sticking
 					//                    const btScalar fc = 0;
-					const btScalar fc = psb->m_cfg.kDF * m_colObj1Wrap->getCollisionObject()->getFriction();
+					const btScalar fc = psb->m_cfg.kDF * m_colObj1Wrap->m_collisionObject->m_friction;
 
 					// the effective inverse mass of the face as in https://graphics.stanford.edu/papers/cloth-sig02/cloth.pdf
 					ima = bary.m_floats[0] * c.m_weights.m_floats[0] * n0->m_im + bary.m_floats[1] * c.m_weights.m_floats[1] * n1->m_im + bary.m_floats[2] * c.m_weights.m_floats[2] * n2->m_im;
 					c.m_c2 = ima;
 					c.m_c3 = fc;
-					c.m_c4 = m_colObj1Wrap->getCollisionObject()->isStaticOrKinematicObject() ? psb->m_cfg.kKHR : psb->m_cfg.kCHR;
+					c.m_c4 = m_colObj1Wrap->m_collisionObject->isStaticOrKinematicObject() ? psb->m_cfg.kKHR : psb->m_cfg.kCHR;
 					c.m_c5 = Diagonal(ima);
-					if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
+					if (cti.m_colObj->m_internalType == btCollisionObject::CO_RIGID_BODY)
 					{
-						const btTransform& wtr = m_rigidBody ? m_rigidBody->getWorldTransform() : m_colObj1Wrap->getCollisionObject()->getWorldTransform();
+						const btTransform& wtr = m_rigidBody ? m_rigidBody->m_worldTransform : m_colObj1Wrap->m_collisionObject->m_worldTransform;
 						static const btMatrix3x3 iwiStatic(0, 0, 0, 0, 0, 0, 0, 0, 0);
 						const btMatrix3x3& iwi = m_rigidBody ? m_rigidBody->getInvInertiaTensorWorld() : iwiStatic;
 						const btVector3 ra = contact_point - wtr.m_origin;
@@ -1817,7 +1817,7 @@ struct btSoftColliders
 						c.m_c0 = ImpulseMatrix(1, ima, imb, iwi, ra);
 						c.m_c1 = ra;
 					}
-					else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
+					else if (cti.m_colObj->m_internalType == btCollisionObject::CO_FEATHERSTONE_LINK)
 					{
 						btMultiBodyLinkCollider* multibodyLinkCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(cti.m_colObj);
 						if (multibodyLinkCol)

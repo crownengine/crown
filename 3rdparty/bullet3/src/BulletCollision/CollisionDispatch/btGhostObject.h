@@ -81,13 +81,13 @@ public:
 
 	static const btGhostObject* upcast(const btCollisionObject* colObj)
 	{
-		if (colObj->getInternalType() == CO_GHOST_OBJECT)
+		if (colObj->m_internalType == CO_GHOST_OBJECT)
 			return (const btGhostObject*)colObj;
 		return 0;
 	}
 	static btGhostObject* upcast(btCollisionObject * colObj)
 	{
-		if (colObj->getInternalType() == CO_GHOST_OBJECT)
+		if (colObj->m_internalType == CO_GHOST_OBJECT)
 			return (btGhostObject*)colObj;
 		return 0;
 	}

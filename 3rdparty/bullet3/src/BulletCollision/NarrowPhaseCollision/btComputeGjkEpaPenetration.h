@@ -30,7 +30,7 @@ bool btGjkEpaCalcPenDepth(const btConvexTemplate& a, const btConvexTemplate& b,
 
 	//	const btScalar				radialmargin(btScalar(0.));
 
-	btVector3 guessVector(b.getWorldTransform().m_origin - a.getWorldTransform().m_origin);  //?? why not use the GJK input?
+	btVector3 guessVector(b.m_worldTransform.m_origin - a.m_worldTransform.m_origin);  //?? why not use the GJK input?
 
 	btGjkEpaSolver3::sResults results;
 
@@ -67,8 +67,8 @@ int btComputeGjkEpaPenetration(const btConvexTemplate& a, const btConvexTemplate
 	btVector3 normalInB(btScalar(0.), btScalar(0.), btScalar(0.));
 
 	btVector3 pointOnA, pointOnB;
-	btTransform localTransA = a.getWorldTransform();
-	btTransform localTransB = b.getWorldTransform();
+	btTransform localTransA = a.m_worldTransform;
+	btTransform localTransB = b.m_worldTransform;
 
 	btScalar marginA = a.getMargin();
 	btScalar marginB = b.getMargin();

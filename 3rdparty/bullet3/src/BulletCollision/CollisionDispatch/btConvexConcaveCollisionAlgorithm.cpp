@@ -56,7 +56,7 @@ btConvexTriangleCallback::btConvexTriangleCallback(btDispatcher* dispatcher, con
 	//
 	// create the manifold from the dispatcher 'manifold pool'
 	//
-	m_manifoldPtr = m_dispatcher->getNewManifold(m_convexBodyWrap->getCollisionObject(), m_triBodyWrap->getCollisionObject());
+	m_manifoldPtr = m_dispatcher->getNewManifold(m_convexBodyWrap->m_collisionObject, m_triBodyWrap->m_collisionObject);
 
 	clearCache();
 }
@@ -92,33 +92,33 @@ void btConvexTriangleCallback::processTriangle(btVector3* triangle, int partId, 
 	///debug drawing of the overlapping triangles
 	if (m_dispatchInfoPtr && m_dispatchInfoPtr->m_debugDraw && (m_dispatchInfoPtr->m_debugDraw->getDebugMode() &btIDebugDraw::DBG_DrawWireframe ))
 	{
-		const btCollisionObject* ob = const_cast<btCollisionObject*>(m_triBodyWrap->getCollisionObject());
+		const btCollisionObject* ob = const_cast<btCollisionObject*>(m_triBodyWrap->m_collisionObject);
 		btVector3 color(1,1,0);
-		btTransform& tr = ob->getWorldTransform();
+		btTransform& tr = ob->m_worldTransform;
 		m_dispatchInfoPtr->m_debugDraw->drawLine(tr(triangle[0]),tr(triangle[1]),color);
 		m_dispatchInfoPtr->m_debugDraw->drawLine(tr(triangle[1]),tr(triangle[2]),color);
 		m_dispatchInfoPtr->m_debugDraw->drawLine(tr(triangle[2]),tr(triangle[0]),color);
 	}
 #endif
 
-	if (m_convexBodyWrap->getCollisionShape()->isConvex())
+	if (m_convexBodyWrap->m_collisionShape->isConvex())
 	{
 #ifdef BT_ENABLE_CONVEX_CONCAVE_EARLY_OUT
     //todo: check this issue https://github.com/bulletphysics/bullet3/issues/4263
 		//an early out optimisation if the object is separated from the triangle
 		//projected on the triangle normal)
 		{
-			const btVector3 v0 = m_triBodyWrap->getWorldTransform()*triangle[0];
-			const btVector3 v1 = m_triBodyWrap->getWorldTransform()*triangle[1];
-			const btVector3 v2 = m_triBodyWrap->getWorldTransform()*triangle[2];
+			const btVector3 v0 = m_triBodyWrap->m_worldTransform*triangle[0];
+			const btVector3 v1 = m_triBodyWrap->m_worldTransform*triangle[1];
+			const btVector3 v2 = m_triBodyWrap->m_worldTransform*triangle[2];
 
 			btVector3 triangle_normal_world = ( v1 - v0).cross(v2 - v0);
 			triangle_normal_world.normalize();
 
-		    btConvexShape* convex = (btConvexShape*)m_convexBodyWrap->getCollisionShape();
+		    btConvexShape* convex = (btConvexShape*)m_convexBodyWrap->m_collisionShape;
 
-			btVector3 localPt = convex->localGetSupportingVertex(m_convexBodyWrap->getWorldTransform().m_basis.inverse()*triangle_normal_world);
-			btVector3 worldPt = m_convexBodyWrap->getWorldTransform()*localPt;
+			btVector3 localPt = convex->localGetSupportingVertex(m_convexBodyWrap->m_worldTransform.m_basis.inverse()*triangle_normal_world);
+			btVector3 worldPt = m_convexBodyWrap->m_worldTransform*localPt;
 			//now check if this is fully on one side of the triangle
 			btScalar proj_distPt = triangle_normal_world.dot(worldPt);
 			btScalar proj_distTr = triangle_normal_world.dot(v0);
@@ -130,8 +130,8 @@ void btConvexTriangleCallback::processTriangle(btVector3* triangle, int partId, 
 			//also check the other side of the triangle
 			triangle_normal_world*=-1;
 
-			localPt = convex->localGetSupportingVertex(m_convexBodyWrap->getWorldTransform().m_basis.inverse()*triangle_normal_world);
-			worldPt = m_convexBodyWrap->getWorldTransform()*localPt;
+			localPt = convex->localGetSupportingVertex(m_convexBodyWrap->m_worldTransform.m_basis.inverse()*triangle_normal_world);
+			worldPt = m_convexBodyWrap->m_worldTransform*localPt;
 			//now check if this is fully on one side of the triangle
 			proj_distPt = triangle_normal_world.dot(worldPt);
 			proj_distTr = triangle_normal_world.dot(v0);
@@ -145,7 +145,7 @@ void btConvexTriangleCallback::processTriangle(btVector3* triangle, int partId, 
 		btTriangleShape tm(triangle[0], triangle[1], triangle[2]);
 		tm.setMargin(m_collisionMarginTriangle);
 
-		btCollisionObjectWrapper triObWrap(m_triBodyWrap, &tm, m_triBodyWrap->getCollisionObject(), m_triBodyWrap->getWorldTransform(), partId, triangleIndex);  //correct transform?
+		btCollisionObjectWrapper triObWrap(m_triBodyWrap, &tm, m_triBodyWrap->m_collisionObject, m_triBodyWrap->m_worldTransform, partId, triangleIndex);  //correct transform?
 		btCollisionAlgorithm* colAlgo = 0;
 
 		if (m_resultOut->m_closestPointDistanceThreshold > 0)
@@ -158,7 +158,7 @@ void btConvexTriangleCallback::processTriangle(btVector3* triangle, int partId, 
 		}
 		const btCollisionObjectWrapper* tmpWrap = 0;
 
-		if (m_resultOut->getBody0Internal() == m_triBodyWrap->getCollisionObject())
+		if (m_resultOut->getBody0Internal() == m_triBodyWrap->m_collisionObject)
 		{
 			tmpWrap = m_resultOut->getBody0Wrap();
 			m_resultOut->setBody0Wrap(&triObWrap);
@@ -176,7 +176,7 @@ void btConvexTriangleCallback::processTriangle(btVector3* triangle, int partId, 
 			colAlgo->processCollision(m_convexBodyWrap, &triObWrap, *m_dispatchInfoPtr, m_resultOut);
 		}
 
-		if (m_resultOut->getBody0Internal() == m_triBodyWrap->getCollisionObject())
+		if (m_resultOut->getBody0Internal() == m_triBodyWrap->m_collisionObject)
 		{
 			m_resultOut->setBody0Wrap(tmpWrap);
 		}
@@ -201,8 +201,8 @@ void btConvexTriangleCallback::setTimeStepAndCounters(btScalar collisionMarginTr
 
 	//recalc aabbs
 	btTransform convexInTriangleSpace;
-	convexInTriangleSpace = m_triBodyWrap->getWorldTransform().inverse() * m_convexBodyWrap->getWorldTransform();
-	const btCollisionShape* convexShape = static_cast<const btCollisionShape*>(m_convexBodyWrap->getCollisionShape());
+	convexInTriangleSpace = m_triBodyWrap->m_worldTransform.inverse() * m_convexBodyWrap->m_worldTransform;
+	const btCollisionShape* convexShape = static_cast<const btCollisionShape*>(m_convexBodyWrap->m_collisionShape);
 	//CollisionShape* triangleShape = static_cast<btCollisionShape*>(triBody->m_collisionShape);
 	convexShape->getAabb(convexInTriangleSpace, m_aabbMin, m_aabbMax);
 	btScalar extraMargin = collisionMarginTriangle + resultOut->m_closestPointDistanceThreshold;
@@ -225,14 +225,14 @@ void btConvexConcaveCollisionAlgorithm::processCollision(const btCollisionObject
 	const btCollisionObjectWrapper* convexBodyWrap = m_isSwapped ? body1Wrap : body0Wrap;
 	const btCollisionObjectWrapper* triBodyWrap = m_isSwapped ? body0Wrap : body1Wrap;
 
-	if (triBodyWrap->getCollisionShape()->isConcave())
+	if (triBodyWrap->m_collisionShape->isConcave())
 	{
-		if (triBodyWrap->getCollisionShape()->getShapeType() == SDF_SHAPE_PROXYTYPE)
+		if (triBodyWrap->m_collisionShape->getShapeType() == SDF_SHAPE_PROXYTYPE)
 		{
-			btSdfCollisionShape* sdfShape = (btSdfCollisionShape*)triBodyWrap->getCollisionShape();
-			if (convexBodyWrap->getCollisionShape()->isConvex())
+			btSdfCollisionShape* sdfShape = (btSdfCollisionShape*)triBodyWrap->m_collisionShape;
+			if (convexBodyWrap->m_collisionShape->isConvex())
 			{
-				btConvexShape* convex = (btConvexShape*)convexBodyWrap->getCollisionShape();
+				btConvexShape* convex = (btConvexShape*)convexBodyWrap->m_collisionShape;
 				btAlignedObjectArray<btVector3> queryVertices;
 
 				if (convex->isPolyhedral())
@@ -262,8 +262,8 @@ void btConvexConcaveCollisionAlgorithm::processCollision(const btCollisionObject
 					for (int v = 0; v < queryVertices.size(); v++)
 					{
 						const btVector3& vtx = queryVertices[v];
-						btVector3 vtxWorldSpace = convexBodyWrap->getWorldTransform() * vtx;
-						btVector3 vtxInSdf = triBodyWrap->getWorldTransform().invXform(vtxWorldSpace);
+						btVector3 vtxWorldSpace = convexBodyWrap->m_worldTransform * vtx;
+						btVector3 vtxInSdf = triBodyWrap->m_worldTransform.invXform(vtxWorldSpace);
 
 						btVector3 normalLocal;
 						btScalar dist;
@@ -272,7 +272,7 @@ void btConvexConcaveCollisionAlgorithm::processCollision(const btCollisionObject
 							if (dist <= maxDist)
 							{
 								normalLocal.safeNormalize();
-								btVector3 normal = triBodyWrap->getWorldTransform().m_basis * normalLocal;
+								btVector3 normal = triBodyWrap->m_worldTransform.m_basis * normalLocal;
 
 								if (convex->getShapeType() == SPHERE_SHAPE_PROXYTYPE)
 								{
@@ -290,16 +290,16 @@ void btConvexConcaveCollisionAlgorithm::processCollision(const btCollisionObject
 		}
 		else
 		{
-			const btConcaveShape* concaveShape = static_cast<const btConcaveShape*>(triBodyWrap->getCollisionShape());
+			const btConcaveShape* concaveShape = static_cast<const btConcaveShape*>(triBodyWrap->m_collisionShape);
 
-			if (convexBodyWrap->getCollisionShape()->isConvex())
+			if (convexBodyWrap->m_collisionShape->isConvex())
 			{
 				btScalar collisionMarginTriangle = concaveShape->getMargin();
 
 				resultOut->setPersistentManifold(m_btConvexTriangleCallback.m_manifoldPtr);
 				m_btConvexTriangleCallback.setTimeStepAndCounters(collisionMarginTriangle, dispatchInfo, convexBodyWrap, triBodyWrap, resultOut);
 
-				m_btConvexTriangleCallback.m_manifoldPtr->setBodies(convexBodyWrap->getCollisionObject(), triBodyWrap->getCollisionObject());
+				m_btConvexTriangleCallback.m_manifoldPtr->setBodies(convexBodyWrap->m_collisionObject, triBodyWrap->m_collisionObject);
 
 				concaveShape->processAllTriangles(&m_btConvexTriangleCallback, m_btConvexTriangleCallback.getAabbMin(), m_btConvexTriangleCallback.getAabbMax());
 
@@ -322,7 +322,7 @@ btScalar btConvexConcaveCollisionAlgorithm::calculateTimeOfImpact(btCollisionObj
 
 	//only perform CCD above a certain threshold, this prevents blocking on the long run
 	//because object in a blocked ccd state (hitfraction<1) get their linear velocity halved each frame...
-	btScalar squareMot0 = (convexbody->getInterpolationWorldTransform().m_origin - convexbody->getWorldTransform().m_origin).length2();
+	btScalar squareMot0 = (convexbody->m_interpolationWorldTransform.m_origin - convexbody->m_worldTransform.m_origin).length2();
 	if (squareMot0 < convexbody->getCcdSquareMotionThreshold())
 	{
 		return btScalar(1.);
@@ -332,9 +332,9 @@ btScalar btConvexConcaveCollisionAlgorithm::calculateTimeOfImpact(btCollisionObj
 	//btVector3 to = convexbody->m_interpolationWorldTransform.m_origin;
 	//todo: only do if the motion exceeds the 'radius'
 
-	btTransform triInv = triBody->getWorldTransform().inverse();
-	btTransform convexFromLocal = triInv * convexbody->getWorldTransform();
-	btTransform convexToLocal = triInv * convexbody->getInterpolationWorldTransform();
+	btTransform triInv = triBody->m_worldTransform.inverse();
+	btTransform convexFromLocal = triInv * convexbody->m_worldTransform;
+	btTransform convexToLocal = triInv * convexbody->m_interpolationWorldTransform;
 
 	struct LocalTriangleSphereCastCallback : public btTriangleCallback
 	{
@@ -380,34 +380,34 @@ btScalar btConvexConcaveCollisionAlgorithm::calculateTimeOfImpact(btCollisionObj
 		}
 	};
 
-	if (triBody->getCollisionShape()->isConcave())
+	if (triBody->m_collisionShape->isConcave())
 	{
 		btVector3 rayAabbMin = convexFromLocal.m_origin;
 		rayAabbMin.setMin(convexToLocal.m_origin);
 		btVector3 rayAabbMax = convexFromLocal.m_origin;
 		rayAabbMax.setMax(convexToLocal.m_origin);
-		btScalar ccdRadius0 = convexbody->getCcdSweptSphereRadius();
+		btScalar ccdRadius0 = convexbody->m_ccdSweptSphereRadius;
 		rayAabbMin -= btVector3(ccdRadius0, ccdRadius0, ccdRadius0);
 		rayAabbMax += btVector3(ccdRadius0, ccdRadius0, ccdRadius0);
 
 		btScalar curHitFraction = btScalar(1.);  //is this available?
 		LocalTriangleSphereCastCallback raycastCallback(convexFromLocal, convexToLocal,
-														convexbody->getCcdSweptSphereRadius(), curHitFraction);
+														convexbody->m_ccdSweptSphereRadius, curHitFraction);
 
-		raycastCallback.m_hitFraction = convexbody->getHitFraction();
+		raycastCallback.m_hitFraction = convexbody->m_hitFraction;
 
 		btCollisionObject* concavebody = triBody;
 
-		btConcaveShape* triangleMesh = (btConcaveShape*)concavebody->getCollisionShape();
+		btConcaveShape* triangleMesh = (btConcaveShape*)concavebody->m_collisionShape;
 
 		if (triangleMesh)
 		{
 			triangleMesh->processAllTriangles(&raycastCallback, rayAabbMin, rayAabbMax);
 		}
 
-		if (raycastCallback.m_hitFraction < convexbody->getHitFraction())
+		if (raycastCallback.m_hitFraction < convexbody->m_hitFraction)
 		{
-			convexbody->setHitFraction(raycastCallback.m_hitFraction);
+			convexbody->m_hitFraction = (raycastCallback.m_hitFraction);
 			return raycastCallback.m_hitFraction;
 		}
 	}

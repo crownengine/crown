@@ -31,9 +31,9 @@ btBox2dBox2dCollisionAlgorithm::btBox2dBox2dCollisionAlgorithm(btPersistentManif
 	  m_ownManifold(false),
 	  m_manifoldPtr(mf)
 {
-	if (!m_manifoldPtr && m_dispatcher->needsCollision(obj0Wrap->getCollisionObject(), obj1Wrap->getCollisionObject()))
+	if (!m_manifoldPtr && m_dispatcher->needsCollision(obj0Wrap->m_collisionObject, obj1Wrap->m_collisionObject))
 	{
-		m_manifoldPtr = m_dispatcher->getNewManifold(obj0Wrap->getCollisionObject(), obj1Wrap->getCollisionObject());
+		m_manifoldPtr = m_dispatcher->getNewManifold(obj0Wrap->m_collisionObject, obj1Wrap->m_collisionObject);
 		m_ownManifold = true;
 	}
 }
@@ -55,12 +55,12 @@ void btBox2dBox2dCollisionAlgorithm::processCollision(const btCollisionObjectWra
 	if (!m_manifoldPtr)
 		return;
 
-	const btBox2dShape* box0 = (const btBox2dShape*)body0Wrap->getCollisionShape();
-	const btBox2dShape* box1 = (const btBox2dShape*)body1Wrap->getCollisionShape();
+	const btBox2dShape* box0 = (const btBox2dShape*)body0Wrap->m_collisionShape;
+	const btBox2dShape* box1 = (const btBox2dShape*)body1Wrap->m_collisionShape;
 
 	resultOut->setPersistentManifold(m_manifoldPtr);
 
-	b2CollidePolygons(resultOut, box0, body0Wrap->getWorldTransform(), box1, body1Wrap->getWorldTransform());
+	b2CollidePolygons(resultOut, box0, body0Wrap->m_worldTransform, box1, body1Wrap->m_worldTransform);
 
 	//  refreshContactPoints is only necessary when using persistent contact points. otherwise all points are newly added
 	if (m_ownManifold)

@@ -695,9 +695,9 @@ bool btMultiBody::isBaseKinematic() const
 void btMultiBody::setBaseDynamicType(int dynamicType)
 {
 	if(getBaseCollider()) {
-		int oldFlags = getBaseCollider()->getCollisionFlags();
+		int oldFlags = getBaseCollider()->m_collisionFlags;
 		oldFlags &= ~(btCollisionObject::CF_STATIC_OBJECT | btCollisionObject::CF_KINEMATIC_OBJECT);
-		getBaseCollider()->setCollisionFlags(oldFlags | dynamicType);
+		getBaseCollider()->m_collisionFlags = (oldFlags | dynamicType);
 	}
 }
 

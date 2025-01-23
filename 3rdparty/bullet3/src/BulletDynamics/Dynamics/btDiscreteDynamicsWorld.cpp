@@ -59,7 +59,7 @@ SIMD_FORCE_INLINE int btGetConstraintIslandId(const btTypedConstraint* lhs)
 
 	const btCollisionObject& rcolObj0 = lhs->getRigidBodyA();
 	const btCollisionObject& rcolObj1 = lhs->getRigidBodyB();
-	islandId = rcolObj0.getIslandTag() >= 0 ? rcolObj0.getIslandTag() : rcolObj1.getIslandTag();
+	islandId = rcolObj0.m_islandTag1 >= 0 ? rcolObj0.m_islandTag1 : rcolObj1.m_islandTag1;
 	return islandId;
 }
 
@@ -255,7 +255,7 @@ void btDiscreteDynamicsWorld::saveKinematicState(btScalar timeStep)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
 		btRigidBody* body = btRigidBody::upcast(colObj);
-		if (body && body->getActivationState() != ISLAND_SLEEPING)
+		if (body && body->m_activationState1 != ISLAND_SLEEPING)
 		{
 			if (body->isKinematicObject())
 			{
@@ -341,12 +341,12 @@ void btDiscreteDynamicsWorld::synchronizeSingleMotionState(btRigidBody* body)
 		//we need to call the update at least once, even for sleeping objects
 		//otherwise the 'graphics' transform never updates properly
 		///@todo: add 'dirty' flag
-		//if (body->getActivationState() != ISLAND_SLEEPING)
+		//if (body->m_activationState1 != ISLAND_SLEEPING)
 		{
 			btTransform interpolatedTransform;
-			btTransformUtil::integrateTransform(body->getInterpolationWorldTransform(),
-												body->getInterpolationLinearVelocity(), body->getInterpolationAngularVelocity(),
-												(m_latencyMotionStateInterpolation && m_fixedTimeStep) ? m_localTime - m_fixedTimeStep : m_localTime * body->getHitFraction(),
+			btTransformUtil::integrateTransform(body->m_interpolationWorldTransform,
+												body->m_interpolationLinearVelocity, body->m_interpolationAngularVelocity,
+												(m_latencyMotionStateInterpolation && m_fixedTimeStep) ? m_localTime - m_fixedTimeStep : m_localTime * body->m_hitFraction,
 												interpolatedTransform);
 			body->getMotionState()->setWorldTransform(interpolatedTransform);
 		}
@@ -541,7 +541,7 @@ void btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body)
 		body->setGravity(m_gravity);
 	}
 
-	if (body->getCollisionShape())
+	if (body->m_collisionShape)
 	{
 		if (!body->isStaticObject())
 		{
@@ -567,7 +567,7 @@ void btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body, int group, int mas
 		body->setGravity(m_gravity);
 	}
 
-	if (body->getCollisionShape())
+	if (body->m_collisionShape)
 	{
 		if (!body->isStaticObject())
 		{
@@ -610,9 +610,9 @@ void btDiscreteDynamicsWorld::updateActivationState(btScalar timeStep)
 				}
 				else
 				{
-					if (body->getActivationState() == ACTIVE_TAG)
+					if (body->m_activationState1 == ACTIVE_TAG)
 						body->setActivationState(WANTS_DEACTIVATION);
-					if (body->getActivationState() == ISLAND_SLEEPING)
+					if (body->m_activationState1 == ISLAND_SLEEPING)
 					{
 						body->setAngularVelocity(btVector3(0, 0, 0));
 						body->setLinearVelocity(btVector3(0, 0, 0));
@@ -621,7 +621,7 @@ void btDiscreteDynamicsWorld::updateActivationState(btScalar timeStep)
 			}
 			else
 			{
-				if (body->getActivationState() != DISABLE_DEACTIVATION)
+				if (body->m_activationState1 != DISABLE_DEACTIVATION)
 					body->setActivationState(ACTIVE_TAG);
 			}
 		}
@@ -724,7 +724,7 @@ void btDiscreteDynamicsWorld::calculateSimulationIslands()
 			if (((colObj0) && (!(colObj0)->isStaticOrKinematicObject())) &&
 				((colObj1) && (!(colObj1)->isStaticOrKinematicObject())))
 			{
-				getSimulationIslandManager()->getUnionFind().unite((colObj0)->getIslandTag(), (colObj1)->getIslandTag());
+				getSimulationIslandManager()->getUnionFind().unite((colObj0)->m_islandTag1, (colObj1)->m_islandTag1);
 			}
 		}
 	}
@@ -743,7 +743,7 @@ void btDiscreteDynamicsWorld::calculateSimulationIslands()
 				if (((colObj0) && (!(colObj0)->isStaticOrKinematicObject())) &&
 					((colObj1) && (!(colObj1)->isStaticOrKinematicObject())))
 				{
-					getSimulationIslandManager()->getUnionFind().unite((colObj0)->getIslandTag(), (colObj1)->getIslandTag());
+					getSimulationIslandManager()->getUnionFind().unite((colObj0)->m_islandTag1, (colObj1)->m_islandTag1);
 				}
 			}
 		}
@@ -801,7 +801,7 @@ public:
 		if (!ClosestConvexResultCallback::needsCollision(proxy0))
 			return false;
 		if (m_pairCache->getOverlapFilterCallback()) {
-			btBroadphaseProxy* proxy1 = m_me->getBroadphaseHandle();
+			btBroadphaseProxy* proxy1 = m_me->m_broadphaseHandle;
 			bool collides = m_pairCache->needsBroadphaseCollision(proxy0, proxy1);
 			if (!collides)
 			{
@@ -820,7 +820,7 @@ public:
 #if 0
 			///don't do CCD when there are already contact points (touching contact/penetration)
 			btAlignedObjectArray<btPersistentManifold*> manifoldArray;
-			btBroadphasePair* collisionPair = m_pairCache->findPair(m_me->getBroadphaseHandle(),proxy0);
+			btBroadphasePair* collisionPair = m_pairCache->findPair(m_me->m_broadphaseHandle,proxy0);
 			if (collisionPair)
 			{
 				if (collisionPair->m_algorithm)
@@ -852,18 +852,18 @@ void btDiscreteDynamicsWorld::createPredictiveContactsInternal(btRigidBody** bod
 	for (int i = 0; i < numBodies; i++)
 	{
 		btRigidBody* body = bodies[i];
-		body->setHitFraction(1.f);
+		body->m_hitFraction = (1.f);
 
 		if (body->isActive() && (!body->isStaticOrKinematicObject()))
 		{
 			body->predictIntegratedTransform(timeStep, predictedTrans);
 
-			btScalar squareMotion = (predictedTrans.m_origin - body->getWorldTransform().m_origin).length2();
+			btScalar squareMotion = (predictedTrans.m_origin - body->m_worldTransform.m_origin).length2();
 
 			if (getDispatchInfo().m_useContinuous && body->getCcdSquareMotionThreshold() && body->getCcdSquareMotionThreshold() < squareMotion)
 			{
 				BT_PROFILE("predictive convexSweepTest");
-				if (body->getCollisionShape()->isConvex())
+				if (body->m_collisionShape->isConvex())
 				{
 					gNumClampedCcdMotions++;
 #ifdef PREDICTIVE_CONTACT_USE_STATIC_ONLY
@@ -883,23 +883,23 @@ void btDiscreteDynamicsWorld::createPredictiveContactsInternal(btRigidBody** bod
 						}
 					};
 
-					StaticOnlyCallback sweepResults(body, body->getWorldTransform().m_origin, predictedTrans.m_origin, getBroadphase()->getOverlappingPairCache(), getDispatcher());
+					StaticOnlyCallback sweepResults(body, body->m_worldTransform.m_origin, predictedTrans.m_origin, getBroadphase()->getOverlappingPairCache(), getDispatcher());
 #else
-					btClosestNotMeConvexResultCallback sweepResults(body, body->getWorldTransform().m_origin, predictedTrans.m_origin, getBroadphase()->getOverlappingPairCache(), getDispatcher());
+					btClosestNotMeConvexResultCallback sweepResults(body, body->m_worldTransform.m_origin, predictedTrans.m_origin, getBroadphase()->getOverlappingPairCache(), getDispatcher());
 #endif
-					//btConvexShape* convexShape = static_cast<btConvexShape*>(body->getCollisionShape());
-					btSphereShape tmpSphere(body->getCcdSweptSphereRadius());  //btConvexShape* convexShape = static_cast<btConvexShape*>(body->getCollisionShape());
+					//btConvexShape* convexShape = static_cast<btConvexShape*>(body->m_collisionShape);
+					btSphereShape tmpSphere(body->m_ccdSweptSphereRadius);  //btConvexShape* convexShape = static_cast<btConvexShape*>(body->m_collisionShape);
 					sweepResults.m_allowedPenetration = getDispatchInfo().m_allowedCcdPenetration;
 
 					sweepResults.m_collisionFilterGroup = body->getBroadphaseProxy()->m_collisionFilterGroup;
 					sweepResults.m_collisionFilterMask = body->getBroadphaseProxy()->m_collisionFilterMask;
 					btTransform modifiedPredictedTrans = predictedTrans;
-					modifiedPredictedTrans.m_basis = (body->getWorldTransform().m_basis);
+					modifiedPredictedTrans.m_basis = (body->m_worldTransform.m_basis);
 
-					convexSweepTest(&tmpSphere, body->getWorldTransform(), modifiedPredictedTrans, sweepResults);
+					convexSweepTest(&tmpSphere, body->m_worldTransform, modifiedPredictedTrans, sweepResults);
 					if (sweepResults.hasHit() && (sweepResults.m_closestHitFraction < 1.f))
 					{
-						btVector3 distVec = (predictedTrans.m_origin - body->getWorldTransform().m_origin) * sweepResults.m_closestHitFraction;
+						btVector3 distVec = (predictedTrans.m_origin - body->m_worldTransform.m_origin) * sweepResults.m_closestHitFraction;
 						btScalar distance = distVec.dot(-sweepResults.m_hitNormalWorld);
 
 						btMutexLock(&m_predictiveManifoldsMutex);
@@ -907,8 +907,8 @@ void btDiscreteDynamicsWorld::createPredictiveContactsInternal(btRigidBody** bod
 						m_predictiveManifolds.push_back(manifold);
 						btMutexUnlock(&m_predictiveManifoldsMutex);
 
-						btVector3 worldPointB = body->getWorldTransform().m_origin + distVec;
-						btVector3 localPointB = sweepResults.m_hitCollisionObject->getWorldTransform().inverse() * worldPointB;
+						btVector3 worldPointB = body->m_worldTransform.m_origin + distVec;
+						btVector3 localPointB = sweepResults.m_hitCollisionObject->m_worldTransform.inverse() * worldPointB;
 
 						btManifoldPoint newPoint(btVector3(0, 0, 0), localPointB, sweepResults.m_hitNormalWorld, distance);
 
@@ -917,7 +917,7 @@ void btDiscreteDynamicsWorld::createPredictiveContactsInternal(btRigidBody** bod
 						btManifoldPoint& pt = manifold->getContactPoint(index);
 						pt.m_combinedRestitution = 0;
 						pt.m_combinedFriction = gCalculateCombinedFrictionCallback(body, sweepResults.m_hitCollisionObject);
-						pt.m_positionWorldOnA = body->getWorldTransform().m_origin;
+						pt.m_positionWorldOnA = body->m_worldTransform.m_origin;
 						pt.m_positionWorldOnB = worldPointB;
 					}
 				}
@@ -954,18 +954,18 @@ void btDiscreteDynamicsWorld::integrateTransformsInternal(btRigidBody** bodies, 
 	for (int i = 0; i < numBodies; i++)
 	{
 		btRigidBody* body = bodies[i];
-		body->setHitFraction(1.f);
+		body->m_hitFraction = (1.f);
 
 		if (body->isActive() && (!body->isStaticOrKinematicObject()))
 		{
 			body->predictIntegratedTransform(timeStep, predictedTrans);
 
-			btScalar squareMotion = (predictedTrans.m_origin - body->getWorldTransform().m_origin).length2();
+			btScalar squareMotion = (predictedTrans.m_origin - body->m_worldTransform.m_origin).length2();
 
 			if (getDispatchInfo().m_useContinuous && body->getCcdSquareMotionThreshold() && body->getCcdSquareMotionThreshold() < squareMotion)
 			{
 				BT_PROFILE("CCD motion clamping");
-				if (body->getCollisionShape()->isConvex())
+				if (body->m_collisionShape->isConvex())
 				{
 					gNumClampedCcdMotions++;
 #ifdef USE_STATIC_ONLY
@@ -985,26 +985,26 @@ void btDiscreteDynamicsWorld::integrateTransformsInternal(btRigidBody** bodies, 
 						}
 					};
 
-					StaticOnlyCallback sweepResults(body, body->getWorldTransform().m_origin, predictedTrans.m_origin, getBroadphase()->getOverlappingPairCache(), getDispatcher());
+					StaticOnlyCallback sweepResults(body, body->m_worldTransform.m_origin, predictedTrans.m_origin, getBroadphase()->getOverlappingPairCache(), getDispatcher());
 #else
-					btClosestNotMeConvexResultCallback sweepResults(body, body->getWorldTransform().m_origin, predictedTrans.m_origin, getBroadphase()->getOverlappingPairCache(), getDispatcher());
+					btClosestNotMeConvexResultCallback sweepResults(body, body->m_worldTransform.m_origin, predictedTrans.m_origin, getBroadphase()->getOverlappingPairCache(), getDispatcher());
 #endif
-					//btConvexShape* convexShape = static_cast<btConvexShape*>(body->getCollisionShape());
-					btSphereShape tmpSphere(body->getCcdSweptSphereRadius());  //btConvexShape* convexShape = static_cast<btConvexShape*>(body->getCollisionShape());
+					//btConvexShape* convexShape = static_cast<btConvexShape*>(body->m_collisionShape);
+					btSphereShape tmpSphere(body->m_ccdSweptSphereRadius);  //btConvexShape* convexShape = static_cast<btConvexShape*>(body->m_collisionShape);
 					sweepResults.m_allowedPenetration = getDispatchInfo().m_allowedCcdPenetration;
 
 					sweepResults.m_collisionFilterGroup = body->getBroadphaseProxy()->m_collisionFilterGroup;
 					sweepResults.m_collisionFilterMask = body->getBroadphaseProxy()->m_collisionFilterMask;
 					btTransform modifiedPredictedTrans = predictedTrans;
-					modifiedPredictedTrans.m_basis = (body->getWorldTransform().m_basis);
+					modifiedPredictedTrans.m_basis = (body->m_worldTransform.m_basis);
 
-					convexSweepTest(&tmpSphere, body->getWorldTransform(), modifiedPredictedTrans, sweepResults);
+					convexSweepTest(&tmpSphere, body->m_worldTransform, modifiedPredictedTrans, sweepResults);
 					if (sweepResults.hasHit() && (sweepResults.m_closestHitFraction < 1.f))
 					{
 						//printf("clamped integration to hit fraction = %f\n",fraction);
-						body->setHitFraction(sweepResults.m_closestHitFraction);
-						body->predictIntegratedTransform(timeStep * body->getHitFraction(), predictedTrans);
-						body->setHitFraction(0.f);
+						body->m_hitFraction = (sweepResults.m_closestHitFraction);
+						body->predictIntegratedTransform(timeStep * body->m_hitFraction, predictedTrans);
+						body->m_hitFraction = (0.f);
 						body->proceedToTransform(predictedTrans);
 
 #if 0
@@ -1020,7 +1020,7 @@ void btDiscreteDynamicsWorld::integrateTransformsInternal(btRigidBody** bodies, 
 							btScalar ms2 = body->getLinearVelocity().length2();
 							body->predictIntegratedTransform(timeStep, predictedTrans);
 
-							btScalar sm2 = (predictedTrans.m_origin-body->getWorldTransform().m_origin).length2();
+							btScalar sm2 = (predictedTrans.m_origin-body->m_worldTransform.m_origin).length2();
 							btScalar smt = body->getCcdSquareMotionThreshold();
 							printf("sm2=%f\n",sm2);
 						}
@@ -1075,8 +1075,8 @@ void btDiscreteDynamicsWorld::integrateTransforms(btScalar timeStep)
 					const btVector3& pos1 = pt.getPositionWorldOnA();
 					const btVector3& pos2 = pt.getPositionWorldOnB();
 
-					btVector3 rel_pos0 = pos1 - body0->getWorldTransform().m_origin;
-					btVector3 rel_pos1 = pos2 - body1->getWorldTransform().m_origin;
+					btVector3 rel_pos0 = pos1 - body0->m_worldTransform.m_origin;
+					btVector3 rel_pos1 = pos2 - body1->m_worldTransform.m_origin;
 
 					if (body0)
 						body0->applyImpulse(imp, rel_pos0);
@@ -1100,7 +1100,7 @@ void btDiscreteDynamicsWorld::predictUnconstraintMotion(btScalar timeStep)
 
 			body->applyDamping(timeStep);
 
-			body->predictIntegratedTransform(timeStep, body->getInterpolationWorldTransform());
+			body->predictIntegratedTransform(timeStep, body->m_interpolationWorldTransform);
 		}
 	}
 }
@@ -1383,7 +1383,7 @@ void btDiscreteDynamicsWorld::serializeRigidBodies(btSerializer* serializer)
 	for (i = 0; i < m_collisionObjects.size(); i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
-		if (colObj->getInternalType() & btCollisionObject::CO_RIGID_BODY)
+		if (colObj->m_internalType & btCollisionObject::CO_RIGID_BODY)
 		{
 			int len = colObj->calculateSerializeBufferSize();
 			btChunk* chunk = serializer->allocate(len, 1);

@@ -257,7 +257,7 @@ public:
 			else
 			{
 				///need to transform normal into worldspace
-				m_hitNormalWorld = m_collisionObject->getWorldTransform().m_basis * rayResult.m_hitNormalLocal;
+				m_hitNormalWorld = m_collisionObject->m_worldTransform.m_basis * rayResult.m_hitNormalLocal;
 			}
 			m_hitPointWorld.setInterpolate3(m_rayFromWorld, m_rayToWorld, rayResult.m_hitFraction);
 			return rayResult.m_hitFraction;
@@ -293,7 +293,7 @@ public:
 			else
 			{
 				///need to transform normal into worldspace
-				hitNormalWorld = m_collisionObject->getWorldTransform().m_basis * rayResult.m_hitNormalLocal;
+				hitNormalWorld = m_collisionObject->m_worldTransform.m_basis * rayResult.m_hitNormalLocal;
 			}
 			m_hitNormalWorld.push_back(hitNormalWorld);
 			btVector3 hitPointWorld;
@@ -389,7 +389,7 @@ public:
 			else
 			{
 				///need to transform normal into worldspace
-				m_hitNormalWorld = m_hitCollisionObject->getWorldTransform().m_basis * convexResult.m_hitNormalLocal;
+				m_hitNormalWorld = m_hitCollisionObject->m_worldTransform.m_basis * convexResult.m_hitNormalLocal;
 			}
 			m_hitPointWorld = convexResult.m_hitPointLocal;
 			return convexResult.m_hitFraction;

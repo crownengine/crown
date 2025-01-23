@@ -30,9 +30,9 @@ btSphereBoxCollisionAlgorithm::btSphereBoxCollisionAlgorithm(btPersistentManifol
 	const btCollisionObjectWrapper* sphereObjWrap = m_isSwapped ? col1Wrap : col0Wrap;
 	const btCollisionObjectWrapper* boxObjWrap = m_isSwapped ? col0Wrap : col1Wrap;
 
-	if (!m_manifoldPtr && m_dispatcher->needsCollision(sphereObjWrap->getCollisionObject(), boxObjWrap->getCollisionObject()))
+	if (!m_manifoldPtr && m_dispatcher->needsCollision(sphereObjWrap->m_collisionObject, boxObjWrap->m_collisionObject))
 	{
-		m_manifoldPtr = m_dispatcher->getNewManifold(sphereObjWrap->getCollisionObject(), boxObjWrap->getCollisionObject());
+		m_manifoldPtr = m_dispatcher->getNewManifold(sphereObjWrap->m_collisionObject, boxObjWrap->m_collisionObject);
 		m_ownManifold = true;
 	}
 }
@@ -60,8 +60,8 @@ void btSphereBoxCollisionAlgorithm::processCollision(const btCollisionObjectWrap
 
 	btVector3 normalOnSurfaceB;
 	btScalar penetrationDepth;
-	btVector3 sphereCenter = sphereObjWrap->getWorldTransform().m_origin;
-	const btSphereShape* sphere0 = (const btSphereShape*)sphereObjWrap->getCollisionShape();
+	btVector3 sphereCenter = sphereObjWrap->m_worldTransform.m_origin;
+	const btSphereShape* sphere0 = (const btSphereShape*)sphereObjWrap->m_collisionShape;
 	btScalar radius = sphere0->getRadius();
 	btScalar maxContactDistance = m_manifoldPtr->getContactBreakingThreshold();
 
@@ -95,13 +95,13 @@ btScalar btSphereBoxCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject*
 
 bool btSphereBoxCollisionAlgorithm::getSphereDistance(const btCollisionObjectWrapper* boxObjWrap, btVector3& pointOnBox, btVector3& normal, btScalar& penetrationDepth, const btVector3& sphereCenter, btScalar fRadius, btScalar maxContactDistance)
 {
-	const btBoxShape* boxShape = (const btBoxShape*)boxObjWrap->getCollisionShape();
+	const btBoxShape* boxShape = (const btBoxShape*)boxObjWrap->m_collisionShape;
 	btVector3 const& boxHalfExtent = boxShape->getHalfExtentsWithoutMargin();
 	btScalar boxMargin = boxShape->getMargin();
 	penetrationDepth = 1.0f;
 
 	// convert the sphere position to the box's local space
-	btTransform const& m44T = boxObjWrap->getWorldTransform();
+	btTransform const& m44T = boxObjWrap->m_worldTransform;
 	btVector3 sphereRelPos = m44T.invXform(sphereCenter);
 
 	// Determine the closest point to the sphere center in the box
