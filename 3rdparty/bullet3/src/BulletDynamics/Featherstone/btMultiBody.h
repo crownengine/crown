@@ -577,7 +577,7 @@ public:
 	}
 	void setCompanionId(int id)
 	{
-		//printf("for %p setCompanionId(%d)\n",this, id);
+		//printf("for %p m_companionId = (%d)\n",this, id);
 		m_companionId = id;
 	}
 

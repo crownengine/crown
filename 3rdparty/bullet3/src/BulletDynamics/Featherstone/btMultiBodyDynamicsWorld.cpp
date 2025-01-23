@@ -57,7 +57,7 @@ void btMultiBodyDynamicsWorld::calculateSimulationIslands()
 			if (((colObj0) && (!(colObj0)->isStaticOrKinematicObject())) &&
 				((colObj1) && (!(colObj1)->isStaticOrKinematicObject())))
 			{
-				getSimulationIslandManager()->getUnionFind().unite((colObj0)->getIslandTag(), (colObj1)->getIslandTag());
+				getSimulationIslandManager()->getUnionFind().unite((colObj0)->m_islandTag1, (colObj1)->m_islandTag1);
 			}
 		}
 	}
@@ -76,7 +76,7 @@ void btMultiBodyDynamicsWorld::calculateSimulationIslands()
 				if (((colObj0) && (!(colObj0)->isStaticOrKinematicObject())) &&
 					((colObj1) && (!(colObj1)->isStaticOrKinematicObject())))
 				{
-					getSimulationIslandManager()->getUnionFind().unite((colObj0)->getIslandTag(), (colObj1)->getIslandTag());
+					getSimulationIslandManager()->getUnionFind().unite((colObj0)->m_islandTag1, (colObj1)->m_islandTag1);
 				}
 			}
 		}
@@ -96,8 +96,8 @@ void btMultiBodyDynamicsWorld::calculateSimulationIslands()
 				if (((cur) && (!(cur)->isStaticOrKinematicObject())) &&
 					((prev) && (!(prev)->isStaticOrKinematicObject())))
 				{
-					int tagPrev = prev->getIslandTag();
-					int tagCur = cur->getIslandTag();
+					int tagPrev = prev->m_islandTag1;
+					int tagCur = cur->m_islandTag1;
 					getSimulationIslandManager()->getUnionFind().unite(tagPrev, tagCur);
 				}
 				if (cur && !cur->isStaticOrKinematicObject())
@@ -135,7 +135,7 @@ void btMultiBodyDynamicsWorld::updateActivationState(btScalar timeStep)
 			if (!body->isAwake())
 			{
 				btMultiBodyLinkCollider* col = body->getBaseCollider();
-				if (col && col->getActivationState() == ACTIVE_TAG)
+				if (col && col->m_activationState1 == ACTIVE_TAG)
 				{
                     if (body->hasFixedBase())
 					{
@@ -145,28 +145,28 @@ void btMultiBodyDynamicsWorld::updateActivationState(btScalar timeStep)
                         col->setActivationState(WANTS_DEACTIVATION);
                     }
 					
-					col->setDeactivationTime(0.f);
+					col->m_deactivationTime = (0.f);
 				}
 				for (int b = 0; b < body->getNumLinks(); b++)
 				{
 					btMultiBodyLinkCollider* col = body->getLink(b).m_collider;
-					if (col && col->getActivationState() == ACTIVE_TAG)
+					if (col && col->m_activationState1 == ACTIVE_TAG)
 					{
 						col->setActivationState(WANTS_DEACTIVATION);
-						col->setDeactivationTime(0.f);
+						col->m_deactivationTime = (0.f);
 					}
 				}
 			}
 			else
 			{
 				btMultiBodyLinkCollider* col = body->getBaseCollider();
-				if (col && col->getActivationState() != DISABLE_DEACTIVATION)
+				if (col && col->m_activationState1 != DISABLE_DEACTIVATION)
 					col->setActivationState(ACTIVE_TAG);
 
 				for (int b = 0; b < body->getNumLinks(); b++)
 				{
 					btMultiBodyLinkCollider* col = body->getLink(b).m_collider;
-					if (col && col->getActivationState() != DISABLE_DEACTIVATION)
+					if (col && col->m_activationState1 != DISABLE_DEACTIVATION)
 						col->setActivationState(ACTIVE_TAG);
 				}
 			}
@@ -245,13 +245,13 @@ void btMultiBodyDynamicsWorld::solveInternalConstraints(btContactSolverInfo& sol
             
             bool isSleeping = false;
             
-            if (bod->getBaseCollider() && bod->getBaseCollider()->getActivationState() == ISLAND_SLEEPING)
+            if (bod->getBaseCollider() && bod->getBaseCollider()->m_activationState1 == ISLAND_SLEEPING)
             {
                 isSleeping = true;
             }
             for (int b = 0; b < bod->getNumLinks(); b++)
             {
-                if (bod->getLink(b).m_collider && bod->getLink(b).m_collider->getActivationState() == ISLAND_SLEEPING)
+                if (bod->getLink(b).m_collider && bod->getLink(b).m_collider->m_activationState1 == ISLAND_SLEEPING)
                     isSleeping = true;
             }
             
@@ -323,13 +323,13 @@ void btMultiBodyDynamicsWorld::solveExternalForces(btContactSolverInfo& solverIn
             
             bool isSleeping = false;
             
-            if (bod->getBaseCollider() && bod->getBaseCollider()->getActivationState() == ISLAND_SLEEPING)
+            if (bod->getBaseCollider() && bod->getBaseCollider()->m_activationState1 == ISLAND_SLEEPING)
             {
                 isSleeping = true;
             }
             for (int b = 0; b < bod->getNumLinks(); b++)
             {
-                if (bod->getLink(b).m_collider && bod->getLink(b).m_collider->getActivationState() == ISLAND_SLEEPING)
+                if (bod->getLink(b).m_collider && bod->getLink(b).m_collider->m_activationState1 == ISLAND_SLEEPING)
                     isSleeping = true;
             }
             
@@ -359,13 +359,13 @@ void btMultiBodyDynamicsWorld::solveExternalForces(btContactSolverInfo& solverIn
             
             bool isSleeping = false;
             
-            if (bod->getBaseCollider() && bod->getBaseCollider()->getActivationState() == ISLAND_SLEEPING)
+            if (bod->getBaseCollider() && bod->getBaseCollider()->m_activationState1 == ISLAND_SLEEPING)
             {
                 isSleeping = true;
             }
             for (int b = 0; b < bod->getNumLinks(); b++)
             {
-                if (bod->getLink(b).m_collider && bod->getLink(b).m_collider->getActivationState() == ISLAND_SLEEPING)
+                if (bod->getLink(b).m_collider && bod->getLink(b).m_collider->m_activationState1 == ISLAND_SLEEPING)
                     isSleeping = true;
             }
             
@@ -587,13 +587,13 @@ void btMultiBodyDynamicsWorld::integrateMultiBodyTransforms(btScalar timeStep)
 		{
 			btMultiBody* bod = m_multiBodies[b];
 			bool isSleeping = false;
-			if (bod->getBaseCollider() && bod->getBaseCollider()->getActivationState() == ISLAND_SLEEPING)
+			if (bod->getBaseCollider() && bod->getBaseCollider()->m_activationState1 == ISLAND_SLEEPING)
 			{
 				isSleeping = true;
 			}
 			for (int b = 0; b < bod->getNumLinks(); b++)
 			{
-				if (bod->getLink(b).m_collider && bod->getLink(b).m_collider->getActivationState() == ISLAND_SLEEPING)
+				if (bod->getLink(b).m_collider && bod->getLink(b).m_collider->m_activationState1 == ISLAND_SLEEPING)
 					isSleeping = true;
 			}
 
@@ -636,13 +636,13 @@ void btMultiBodyDynamicsWorld::predictMultiBodyTransforms(btScalar timeStep)
     {
         btMultiBody* bod = m_multiBodies[b];
         bool isSleeping = false;
-        if (bod->getBaseCollider() && bod->getBaseCollider()->getActivationState() == ISLAND_SLEEPING)
+        if (bod->getBaseCollider() && bod->getBaseCollider()->m_activationState1 == ISLAND_SLEEPING)
         {
             isSleeping = true;
         }
         for (int b = 0; b < bod->getNumLinks(); b++)
         {
-            if (bod->getLink(b).m_collider && bod->getLink(b).m_collider->getActivationState() == ISLAND_SLEEPING)
+            if (bod->getLink(b).m_collider && bod->getLink(b).m_collider->m_activationState1 == ISLAND_SLEEPING)
                 isSleeping = true;
         }
         
@@ -763,13 +763,13 @@ void btMultiBodyDynamicsWorld::applyGravity()
 
 		bool isSleeping = false;
 
-		if (bod->getBaseCollider() && bod->getBaseCollider()->getActivationState() == ISLAND_SLEEPING)
+		if (bod->getBaseCollider() && bod->getBaseCollider()->m_activationState1 == ISLAND_SLEEPING)
 		{
 			isSleeping = true;
 		}
 		for (int b = 0; b < bod->getNumLinks(); b++)
 		{
-			if (bod->getLink(b).m_collider && bod->getLink(b).m_collider->getActivationState() == ISLAND_SLEEPING)
+			if (bod->getLink(b).m_collider && bod->getLink(b).m_collider->m_activationState1 == ISLAND_SLEEPING)
 				isSleeping = true;
 		}
 
@@ -804,13 +804,13 @@ void btMultiBodyDynamicsWorld::clearMultiBodyForces()
 
 			bool isSleeping = false;
 
-			if (bod->getBaseCollider() && bod->getBaseCollider()->getActivationState() == ISLAND_SLEEPING)
+			if (bod->getBaseCollider() && bod->getBaseCollider()->m_activationState1 == ISLAND_SLEEPING)
 			{
 				isSleeping = true;
 			}
 			for (int b = 0; b < bod->getNumLinks(); b++)
 			{
-				if (bod->getLink(b).m_collider && bod->getLink(b).m_collider->getActivationState() == ISLAND_SLEEPING)
+				if (bod->getLink(b).m_collider && bod->getLink(b).m_collider->m_activationState1 == ISLAND_SLEEPING)
 					isSleeping = true;
 			}
 
@@ -867,7 +867,7 @@ void btMultiBodyDynamicsWorld::serializeMultiBodies(btSerializer* serializer)
 	for (i = 0; i < m_collisionObjects.size(); i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
-		if (colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
+		if (colObj->m_internalType == btCollisionObject::CO_FEATHERSTONE_LINK)
 		{
 			int len = colObj->calculateSerializeBufferSize();
 			btChunk* chunk = serializer->allocate(len, 1);

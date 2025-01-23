@@ -67,7 +67,7 @@ btPairCachingGhostObject::~btPairCachingGhostObject()
 
 void btPairCachingGhostObject::addOverlappingObjectInternal(btBroadphaseProxy* otherProxy, btBroadphaseProxy* thisProxy)
 {
-	btBroadphaseProxy* actualThisProxy = thisProxy ? thisProxy : getBroadphaseHandle();
+	btBroadphaseProxy* actualThisProxy = thisProxy ? thisProxy : m_broadphaseHandle;
 	btAssert(actualThisProxy);
 
 	btCollisionObject* otherObject = (btCollisionObject*)otherProxy->m_clientObject;
@@ -83,7 +83,7 @@ void btPairCachingGhostObject::addOverlappingObjectInternal(btBroadphaseProxy* o
 void btPairCachingGhostObject::removeOverlappingObjectInternal(btBroadphaseProxy* otherProxy, btDispatcher* dispatcher, btBroadphaseProxy* thisProxy1)
 {
 	btCollisionObject* otherObject = (btCollisionObject*)otherProxy->m_clientObject;
-	btBroadphaseProxy* actualThisProxy = thisProxy1 ? thisProxy1 : getBroadphaseHandle();
+	btBroadphaseProxy* actualThisProxy = thisProxy1 ? thisProxy1 : m_broadphaseHandle;
 	btAssert(actualThisProxy);
 
 	btAssert(otherObject);
@@ -119,11 +119,11 @@ void btGhostObject::convexSweepTest(const btConvexShape* castShape, const btTran
 	{
 		btCollisionObject* collisionObject = m_overlappingObjects[i];
 		//only perform raycast if filterMask matches
-		if (resultCallback.needsCollision(collisionObject->getBroadphaseHandle()))
+		if (resultCallback.needsCollision(collisionObject->m_broadphaseHandle))
 		{
 			//RigidcollisionObject* collisionObject = ctrl->GetRigidcollisionObject();
 			btVector3 collisionObjectAabbMin, collisionObjectAabbMax;
-			collisionObject->getCollisionShape()->getAabb(collisionObject->getWorldTransform(), collisionObjectAabbMin, collisionObjectAabbMax);
+			collisionObject->m_collisionShape->getAabb(collisionObject->m_worldTransform, collisionObjectAabbMin, collisionObjectAabbMax);
 			AabbExpand(collisionObjectAabbMin, collisionObjectAabbMax, castShapeAabbMin, castShapeAabbMax);
 			btScalar hitLambda = btScalar(1.);  //could use resultCallback.m_closestHitFraction, but needs testing
 			btVector3 hitNormal;
@@ -131,8 +131,8 @@ void btGhostObject::convexSweepTest(const btConvexShape* castShape, const btTran
 			{
 				btCollisionWorld::objectQuerySingle(castShape, convexFromTrans, convexToTrans,
 													collisionObject,
-													collisionObject->getCollisionShape(),
-													collisionObject->getWorldTransform(),
+													collisionObject->m_collisionShape,
+													collisionObject->m_worldTransform,
 													resultCallback,
 													allowedCcdPenetration);
 			}
@@ -154,12 +154,12 @@ void btGhostObject::rayTest(const btVector3& rayFromWorld, const btVector3& rayT
 	{
 		btCollisionObject* collisionObject = m_overlappingObjects[i];
 		//only perform raycast if filterMask matches
-		if (resultCallback.needsCollision(collisionObject->getBroadphaseHandle()))
+		if (resultCallback.needsCollision(collisionObject->m_broadphaseHandle))
 		{
 			btCollisionWorld::rayTestSingle(rayFromTrans, rayToTrans,
 											collisionObject,
-											collisionObject->getCollisionShape(),
-											collisionObject->getWorldTransform(),
+											collisionObject->m_collisionShape,
+											collisionObject->m_worldTransform,
 											resultCallback);
 		}
 	}

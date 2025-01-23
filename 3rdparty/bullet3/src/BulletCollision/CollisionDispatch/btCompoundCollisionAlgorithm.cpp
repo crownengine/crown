@@ -33,9 +33,9 @@ btCompoundCollisionAlgorithm::btCompoundCollisionAlgorithm(const btCollisionAlgo
 	m_ownsManifold = false;
 
 	const btCollisionObjectWrapper* colObjWrap = m_isSwapped ? body1Wrap : body0Wrap;
-	btAssert(colObjWrap->getCollisionShape()->isCompound());
+	btAssert(colObjWrap->m_collisionShape->isCompound());
 
-	const btCompoundShape* compoundShape = static_cast<const btCompoundShape*>(colObjWrap->getCollisionShape());
+	const btCompoundShape* compoundShape = static_cast<const btCompoundShape*>(colObjWrap->m_collisionShape);
 	m_compoundShapeRevision = compoundShape->getUpdateRevision();
 
 	preallocateChildAlgorithms(body0Wrap, body1Wrap);
@@ -45,9 +45,9 @@ void btCompoundCollisionAlgorithm::preallocateChildAlgorithms(const btCollisionO
 {
 	const btCollisionObjectWrapper* colObjWrap = m_isSwapped ? body1Wrap : body0Wrap;
 	const btCollisionObjectWrapper* otherObjWrap = m_isSwapped ? body0Wrap : body1Wrap;
-	btAssert(colObjWrap->getCollisionShape()->isCompound());
+	btAssert(colObjWrap->m_collisionShape->isCompound());
 
-	const btCompoundShape* compoundShape = static_cast<const btCompoundShape*>(colObjWrap->getCollisionShape());
+	const btCompoundShape* compoundShape = static_cast<const btCompoundShape*>(colObjWrap->m_collisionShape);
 
 	int numChildren = compoundShape->getNumChildShapes();
 	int i;
@@ -63,7 +63,7 @@ void btCompoundCollisionAlgorithm::preallocateChildAlgorithms(const btCollisionO
 		{
 			const btCollisionShape* childShape = compoundShape->getChildShape(i);
 
-			btCollisionObjectWrapper childWrap(colObjWrap, childShape, colObjWrap->getCollisionObject(), colObjWrap->getWorldTransform(), -1, i);  //wrong child trans, but unused (hopefully)
+			btCollisionObjectWrapper childWrap(colObjWrap, childShape, colObjWrap->m_collisionObject, colObjWrap->m_worldTransform, -1, i);  //wrong child trans, but unused (hopefully)
 			m_childCollisionAlgorithms[i] = m_dispatcher->findAlgorithm(&childWrap, otherObjWrap, m_sharedManifold, BT_CONTACT_POINT_ALGORITHMS);
 
 			btAlignedObjectArray<btCollisionAlgorithm*> m_childCollisionAlgorithmsContact;
@@ -110,17 +110,17 @@ public:
 	void ProcessChildShape(const btCollisionShape* childShape, int index)
 	{
 		btAssert(index >= 0);
-		const btCompoundShape* compoundShape = static_cast<const btCompoundShape*>(m_compoundColObjWrap->getCollisionShape());
+		const btCompoundShape* compoundShape = static_cast<const btCompoundShape*>(m_compoundColObjWrap->m_collisionShape);
 		btAssert(index < compoundShape->getNumChildShapes());
 
 		if (gCompoundChildShapePairCallback)
 		{
-			if (!gCompoundChildShapePairCallback(m_otherObjWrap->getCollisionShape(), childShape))
+			if (!gCompoundChildShapePairCallback(m_otherObjWrap->m_collisionShape, childShape))
 				return;
 		}
 
 		//backup
-		btTransform orgTrans = m_compoundColObjWrap->getWorldTransform();
+		btTransform orgTrans = m_compoundColObjWrap->m_worldTransform;
 
 		const btTransform& childTrans = compoundShape->getChildTransform(index);
 		btTransform newChildWorldTrans = orgTrans * childTrans;
@@ -134,7 +134,7 @@ public:
 		aabbMax0 += extendAabb;
 
 		btVector3 aabbMin1, aabbMax1;
-		m_otherObjWrap->getCollisionShape()->getAabb(m_otherObjWrap->getWorldTransform(), aabbMin1, aabbMax1);
+		m_otherObjWrap->m_collisionShape->getAabb(m_otherObjWrap->m_worldTransform, aabbMin1, aabbMax1);
 
 
 		if (TestAabbAgainstAabb2(aabbMin0, aabbMax0, aabbMin1, aabbMax1))
@@ -144,7 +144,7 @@ public:
 			{
 				preTransform = preTransform *(*(this->m_compoundColObjWrap->m_preTransform));
 			}
-			btCollisionObjectWrapper compoundWrap(this->m_compoundColObjWrap, childShape, m_compoundColObjWrap->getCollisionObject(), newChildWorldTrans, preTransform, -1, index);
+			btCollisionObjectWrapper compoundWrap(this->m_compoundColObjWrap, childShape, m_compoundColObjWrap->m_collisionObject, newChildWorldTrans, preTransform, -1, index);
 
 			btCollisionAlgorithm* algo = 0;
 			bool allocatedAlgorithm = false;
@@ -167,7 +167,7 @@ public:
 			const btCollisionObjectWrapper* tmpWrap = 0;
 
 			///detect swapping case
-			if (m_resultOut->getBody0Internal() == m_compoundColObjWrap->getCollisionObject())
+			if (m_resultOut->getBody0Internal() == m_compoundColObjWrap->m_collisionObject)
 			{
 				tmpWrap = m_resultOut->getBody0Wrap();
 				m_resultOut->setBody0Wrap(&compoundWrap);
@@ -191,7 +191,7 @@ public:
 			}
 #endif
 
-			if (m_resultOut->getBody0Internal() == m_compoundColObjWrap->getCollisionObject())
+			if (m_resultOut->getBody0Internal() == m_compoundColObjWrap->m_collisionObject)
 			{
 				m_resultOut->setBody0Wrap(tmpWrap);
 			}
@@ -210,14 +210,14 @@ public:
 	{
 		int index = leaf->dataAsInt;
 
-		const btCompoundShape* compoundShape = static_cast<const btCompoundShape*>(m_compoundColObjWrap->getCollisionShape());
+		const btCompoundShape* compoundShape = static_cast<const btCompoundShape*>(m_compoundColObjWrap->m_collisionShape);
 		const btCollisionShape* childShape = compoundShape->getChildShape(index);
 
 #if 0
 		if (m_dispatchInfo.m_debugDraw && (m_dispatchInfo.m_debugDraw->getDebugMode() & btIDebugDraw::DBG_DrawAabb))
 		{
 			btVector3 worldAabbMin,worldAabbMax;
-			btTransform	orgTrans = m_compoundColObjWrap->getWorldTransform();
+			btTransform	orgTrans = m_compoundColObjWrap->m_worldTransform;
 			btTransformAabb(leaf->volume.Mins(),leaf->volume.Maxs(),0.,orgTrans,worldAabbMin,worldAabbMax);
 			m_dispatchInfo.m_debugDraw->drawAabb(worldAabbMin,worldAabbMax,btVector3(1,0,0));
 		}
@@ -232,8 +232,8 @@ void btCompoundCollisionAlgorithm::processCollision(const btCollisionObjectWrapp
 	const btCollisionObjectWrapper* colObjWrap = m_isSwapped ? body1Wrap : body0Wrap;
 	const btCollisionObjectWrapper* otherObjWrap = m_isSwapped ? body0Wrap : body1Wrap;
 
-	btAssert(colObjWrap->getCollisionShape()->isCompound());
-	const btCompoundShape* compoundShape = static_cast<const btCompoundShape*>(colObjWrap->getCollisionShape());
+	btAssert(colObjWrap->m_collisionShape->isCompound());
+	const btCompoundShape* compoundShape = static_cast<const btCompoundShape*>(colObjWrap->m_collisionShape);
 
 	///btCompoundShape might have changed:
 	////make sure the internal child collision algorithm caches are still valid
@@ -282,8 +282,8 @@ void btCompoundCollisionAlgorithm::processCollision(const btCollisionObjectWrapp
 	{
 		btVector3 localAabbMin, localAabbMax;
 		btTransform otherInCompoundSpace;
-		otherInCompoundSpace = colObjWrap->getWorldTransform().inverse() * otherObjWrap->getWorldTransform();
-		otherObjWrap->getCollisionShape()->getAabb(otherInCompoundSpace, localAabbMin, localAabbMax);
+		otherInCompoundSpace = colObjWrap->m_worldTransform.inverse() * otherObjWrap->m_worldTransform;
+		otherObjWrap->m_collisionShape->getAabb(otherInCompoundSpace, localAabbMin, localAabbMax);
 		btVector3 extraExtends(resultOut->m_closestPointDistanceThreshold, resultOut->m_closestPointDistanceThreshold, resultOut->m_closestPointDistanceThreshold);
 		localAabbMin -= extraExtends;
 		localAabbMax += extraExtends;
@@ -320,14 +320,14 @@ void btCompoundCollisionAlgorithm::processCollision(const btCollisionObjectWrapp
 			{
 				childShape = compoundShape->getChildShape(i);
 				//if not longer overlapping, remove the algorithm
-				orgTrans = colObjWrap->getWorldTransform();
+				orgTrans = colObjWrap->m_worldTransform;
 
 				const btTransform& childTrans = compoundShape->getChildTransform(i);
 				newChildWorldTrans = orgTrans * childTrans;
 
 				//perform an AABB check first
 				childShape->getAabb(newChildWorldTrans, aabbMin0, aabbMax0);
-				otherObjWrap->getCollisionShape()->getAabb(otherObjWrap->getWorldTransform(), aabbMin1, aabbMax1);
+				otherObjWrap->m_collisionShape->getAabb(otherObjWrap->m_worldTransform, aabbMin1, aabbMax1);
 
 				if (!TestAabbAgainstAabb2(aabbMin0, aabbMax0, aabbMin1, aabbMax1))
 				{
@@ -347,9 +347,9 @@ btScalar btCompoundCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* 
 	btCollisionObject* colObj = m_isSwapped ? body1 : body0;
 	btCollisionObject* otherObj = m_isSwapped ? body0 : body1;
 
-	btAssert(colObj->getCollisionShape()->isCompound());
+	btAssert(colObj->m_collisionShape->isCompound());
 
-	btCompoundShape* compoundShape = static_cast<btCompoundShape*>(colObj->getCollisionShape());
+	btCompoundShape* compoundShape = static_cast<btCompoundShape*>(colObj->m_collisionShape);
 
 	//We will use the OptimizedBVH, AABB tree to cull potential child-overlaps
 	//If both proxies are Compound, we will deal with that directly, by performing sequential/parallel tree traversals
@@ -369,13 +369,13 @@ btScalar btCompoundCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* 
 		//btCollisionShape* childShape = compoundShape->getChildShape(i);
 
 		//backup
-		orgTrans = colObj->getWorldTransform();
+		orgTrans = colObj->m_worldTransform;
 
 		const btTransform& childTrans = compoundShape->getChildTransform(i);
 		//btTransform	newChildWorldTrans = orgTrans*childTrans ;
 		colObj->setWorldTransform(orgTrans * childTrans);
 
-		//btCollisionShape* tmpShape = colObj->getCollisionShape();
+		//btCollisionShape* tmpShape = colObj->m_collisionShape;
 		//colObj->internalSetTemporaryCollisionShape( childShape );
 		frac = m_childCollisionAlgorithms[i]->calculateTimeOfImpact(colObj, otherObj, dispatchInfo, resultOut);
 		if (frac < hitFraction)

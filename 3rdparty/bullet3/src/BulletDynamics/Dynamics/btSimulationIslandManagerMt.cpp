@@ -61,7 +61,7 @@ inline int getIslandId(const btPersistentManifold* lhs)
 {
 	const btCollisionObject* rcolObj0 = static_cast<const btCollisionObject*>(lhs->getBody0());
 	const btCollisionObject* rcolObj1 = static_cast<const btCollisionObject*>(lhs->getBody1());
-	int islandId = rcolObj0->getIslandTag() >= 0 ? rcolObj0->getIslandTag() : rcolObj1->getIslandTag();
+	int islandId = rcolObj0->m_islandTag1 >= 0 ? rcolObj0->m_islandTag1 : rcolObj1->m_islandTag1;
 	return islandId;
 }
 
@@ -69,7 +69,7 @@ SIMD_FORCE_INLINE int btGetConstraintIslandId1(const btTypedConstraint* lhs)
 {
 	const btCollisionObject& rcolObj0 = lhs->getRigidBodyA();
 	const btCollisionObject& rcolObj1 = lhs->getRigidBodyB();
-	int islandId = rcolObj0.getIslandTag() >= 0 ? rcolObj0.getIslandTag() : rcolObj1.getIslandTag();
+	int islandId = rcolObj0.m_islandTag1 >= 0 ? rcolObj0.m_islandTag1 : rcolObj1.m_islandTag1;
 	return islandId;
 }
 
@@ -294,16 +294,16 @@ void btSimulationIslandManagerMt::buildIslands(btDispatcher* dispatcher, btColli
 			int i = getUnionFind().getElement(idx).m_sz;
 
 			btCollisionObject* colObj0 = collisionObjects[i];
-			if ((colObj0->getIslandTag() != islandId) && (colObj0->getIslandTag() != -1))
+			if ((colObj0->m_islandTag1 != islandId) && (colObj0->m_islandTag1 != -1))
 			{
 				//				printf("error in island management\n");
 			}
 
-			btAssert((colObj0->getIslandTag() == islandId) || (colObj0->getIslandTag() == -1));
-			if (colObj0->getIslandTag() == islandId)
+			btAssert((colObj0->m_islandTag1 == islandId) || (colObj0->m_islandTag1 == -1));
+			if (colObj0->m_islandTag1 == islandId)
 			{
-				if (colObj0->getActivationState() == ACTIVE_TAG ||
-					colObj0->getActivationState() == DISABLE_DEACTIVATION)
+				if (colObj0->m_activationState1 == ACTIVE_TAG ||
+					colObj0->m_activationState1 == DISABLE_DEACTIVATION)
 				{
 					allSleeping = false;
 					break;
@@ -318,14 +318,14 @@ void btSimulationIslandManagerMt::buildIslands(btDispatcher* dispatcher, btColli
 			{
 				int i = getUnionFind().getElement(idx).m_sz;
 				btCollisionObject* colObj0 = collisionObjects[i];
-				if ((colObj0->getIslandTag() != islandId) && (colObj0->getIslandTag() != -1))
+				if ((colObj0->m_islandTag1 != islandId) && (colObj0->m_islandTag1 != -1))
 				{
 					//					printf("error in island management\n");
 				}
 
-				btAssert((colObj0->getIslandTag() == islandId) || (colObj0->getIslandTag() == -1));
+				btAssert((colObj0->m_islandTag1 == islandId) || (colObj0->m_islandTag1 == -1));
 
-				if (colObj0->getIslandTag() == islandId)
+				if (colObj0->m_islandTag1 == islandId)
 				{
 					colObj0->setActivationState(ISLAND_SLEEPING);
 				}
@@ -339,19 +339,19 @@ void btSimulationIslandManagerMt::buildIslands(btDispatcher* dispatcher, btColli
 				int i = getUnionFind().getElement(idx).m_sz;
 
 				btCollisionObject* colObj0 = collisionObjects[i];
-				if ((colObj0->getIslandTag() != islandId) && (colObj0->getIslandTag() != -1))
+				if ((colObj0->m_islandTag1 != islandId) && (colObj0->m_islandTag1 != -1))
 				{
 					//					printf("error in island management\n");
 				}
 
-				btAssert((colObj0->getIslandTag() == islandId) || (colObj0->getIslandTag() == -1));
+				btAssert((colObj0->m_islandTag1 == islandId) || (colObj0->m_islandTag1 == -1));
 
-				if (colObj0->getIslandTag() == islandId)
+				if (colObj0->m_islandTag1 == islandId)
 				{
-					if (colObj0->getActivationState() == ISLAND_SLEEPING)
+					if (colObj0->m_activationState1 == ISLAND_SLEEPING)
 					{
 						colObj0->setActivationState(WANTS_DEACTIVATION);
-						colObj0->setDeactivationTime(0.f);
+						colObj0->m_deactivationTime = (0.f);
 					}
 				}
 			}
@@ -416,16 +416,16 @@ void btSimulationIslandManagerMt::addManifoldsToIslands(btDispatcher* dispatcher
 		const btCollisionObject* colObj1 = static_cast<const btCollisionObject*>(manifold->getBody1());
 
 		///@todo: check sleeping conditions!
-		if (((colObj0) && colObj0->getActivationState() != ISLAND_SLEEPING) ||
-			((colObj1) && colObj1->getActivationState() != ISLAND_SLEEPING))
+		if (((colObj0) && colObj0->m_activationState1 != ISLAND_SLEEPING) ||
+			((colObj1) && colObj1->m_activationState1 != ISLAND_SLEEPING))
 		{
 			//kinematic objects don't merge islands, but wake up all connected objects
-			if (colObj0->isKinematicObject() && colObj0->getActivationState() != ISLAND_SLEEPING)
+			if (colObj0->isKinematicObject() && colObj0->m_activationState1 != ISLAND_SLEEPING)
 			{
 				if (colObj0->hasContactResponse())
 					colObj1->activate();
 			}
-			if (colObj1->isKinematicObject() && colObj1->getActivationState() != ISLAND_SLEEPING)
+			if (colObj1->isKinematicObject() && colObj1->m_activationState1 != ISLAND_SLEEPING)
 			{
 				if (colObj1->hasContactResponse())
 					colObj0->activate();
@@ -645,16 +645,16 @@ void btSimulationIslandManagerMt::buildAndProcessIslands(btDispatcher* dispatche
 			const btCollisionObject* colObj1 = static_cast<const btCollisionObject*>(manifold->getBody1());
 
 			///@todo: check sleeping conditions!
-			if (((colObj0) && colObj0->getActivationState() != ISLAND_SLEEPING) ||
-				((colObj1) && colObj1->getActivationState() != ISLAND_SLEEPING))
+			if (((colObj0) && colObj0->m_activationState1 != ISLAND_SLEEPING) ||
+				((colObj1) && colObj1->m_activationState1 != ISLAND_SLEEPING))
 			{
 				//kinematic objects don't merge islands, but wake up all connected objects
-				if (colObj0->isKinematicObject() && colObj0->getActivationState() != ISLAND_SLEEPING)
+				if (colObj0->isKinematicObject() && colObj0->m_activationState1 != ISLAND_SLEEPING)
 				{
 					if (colObj0->hasContactResponse())
 						colObj1->activate();
 				}
-				if (colObj1->isKinematicObject() && colObj1->getActivationState() != ISLAND_SLEEPING)
+				if (colObj1->isKinematicObject() && colObj1->m_activationState1 != ISLAND_SLEEPING)
 				{
 					if (colObj1->hasContactResponse())
 						colObj0->activate();

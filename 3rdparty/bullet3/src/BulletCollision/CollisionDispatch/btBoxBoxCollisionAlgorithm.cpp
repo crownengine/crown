@@ -26,9 +26,9 @@ btBoxBoxCollisionAlgorithm::btBoxBoxCollisionAlgorithm(btPersistentManifold* mf,
 	  m_ownManifold(false),
 	  m_manifoldPtr(mf)
 {
-	if (!m_manifoldPtr && m_dispatcher->needsCollision(body0Wrap->getCollisionObject(), body1Wrap->getCollisionObject()))
+	if (!m_manifoldPtr && m_dispatcher->needsCollision(body0Wrap->m_collisionObject, body1Wrap->m_collisionObject))
 	{
-		m_manifoldPtr = m_dispatcher->getNewManifold(body0Wrap->getCollisionObject(), body1Wrap->getCollisionObject());
+		m_manifoldPtr = m_dispatcher->getNewManifold(body0Wrap->m_collisionObject, body1Wrap->m_collisionObject);
 		m_ownManifold = true;
 	}
 }
@@ -47,8 +47,8 @@ void btBoxBoxCollisionAlgorithm::processCollision(const btCollisionObjectWrapper
 	if (!m_manifoldPtr)
 		return;
 
-	const btBoxShape* box0 = (btBoxShape*)body0Wrap->getCollisionShape();
-	const btBoxShape* box1 = (btBoxShape*)body1Wrap->getCollisionShape();
+	const btBoxShape* box0 = (btBoxShape*)body0Wrap->m_collisionShape;
+	const btBoxShape* box1 = (btBoxShape*)body1Wrap->m_collisionShape;
 
 	/// report a contact. internally this will be kept persistent, and contact reduction is done
 	resultOut->setPersistentManifold(m_manifoldPtr);
@@ -58,8 +58,8 @@ void btBoxBoxCollisionAlgorithm::processCollision(const btCollisionObjectWrapper
 
 	btDiscreteCollisionDetectorInterface::ClosestPointInput input;
 	input.m_maximumDistanceSquared = BT_LARGE_FLOAT;
-	input.m_transformA = body0Wrap->getWorldTransform();
-	input.m_transformB = body1Wrap->getWorldTransform();
+	input.m_transformA = body0Wrap->m_worldTransform;
+	input.m_transformB = body1Wrap->m_worldTransform;
 
 	btBoxBoxDetector detector(box0, box1);
 	detector.getClosestPoints(input, *resultOut, dispatchInfo.m_debugDraw);

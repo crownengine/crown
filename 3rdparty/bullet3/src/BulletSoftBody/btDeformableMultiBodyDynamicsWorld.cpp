@@ -144,16 +144,16 @@ void btDeformableMultiBodyDynamicsWorld::updateActivationState(btScalar timeStep
 		psb->updateDeactivation(timeStep);
 		if (psb->wantsSleeping())
 		{
-			if (psb->getActivationState() == ACTIVE_TAG)
+			if (psb->m_activationState1 == ACTIVE_TAG)
 				psb->setActivationState(WANTS_DEACTIVATION);
-			if (psb->getActivationState() == ISLAND_SLEEPING)
+			if (psb->m_activationState1 == ISLAND_SLEEPING)
 			{
 				psb->setZeroVelocity();
 			}
 		}
 		else
 		{
-			if (psb->getActivationState() != DISABLE_DEACTIVATION)
+			if (psb->m_activationState1 != DISABLE_DEACTIVATION)
 				psb->setActivationState(ACTIVE_TAG);
 		}
 	}
@@ -285,7 +285,7 @@ void btDeformableMultiBodyDynamicsWorld::positionCorrection(btScalar timeStep)
 		btVector3 turnVelocity = rb->getTurnVelocity();
 		if (pushVelocity[0] != 0.f || pushVelocity[1] != 0 || pushVelocity[2] != 0 || turnVelocity[0] != 0.f || turnVelocity[1] != 0 || turnVelocity[2] != 0)
 		{
-			btTransformUtil::integrateTransform(rb->getWorldTransform(), pushVelocity, turnVelocity * infoGlobal.m_splitImpulseTurnErp, timeStep, newTransform);
+			btTransformUtil::integrateTransform(rb->m_worldTransform, pushVelocity, turnVelocity * infoGlobal.m_splitImpulseTurnErp, timeStep, newTransform);
 			rb->setWorldTransform(newTransform);
 			rb->setPushVelocity(zero);
 			rb->setTurnVelocity(zero);
@@ -382,13 +382,13 @@ void btDeformableMultiBodyDynamicsWorld::solveContactConstraints()
 
 			bool isSleeping = false;
 
-			if (bod->getBaseCollider() && bod->getBaseCollider()->getActivationState() == ISLAND_SLEEPING)
+			if (bod->getBaseCollider() && bod->getBaseCollider()->m_activationState1 == ISLAND_SLEEPING)
 			{
 				isSleeping = true;
 			}
 			for (int b = 0; b < bod->getNumLinks(); b++)
 			{
-				if (bod->getLink(b).m_collider && bod->getLink(b).m_collider->getActivationState() == ISLAND_SLEEPING)
+				if (bod->getLink(b).m_collider && bod->getLink(b).m_collider->m_activationState1 == ISLAND_SLEEPING)
 					isSleeping = true;
 			}
 
@@ -512,13 +512,13 @@ void btDeformableMultiBodyDynamicsWorld::applyRigidBodyGravity(btScalar timeStep
 
 				bool isSleeping = false;
 
-				if (bod->getBaseCollider() && bod->getBaseCollider()->getActivationState() == ISLAND_SLEEPING)
+				if (bod->getBaseCollider() && bod->getBaseCollider()->m_activationState1 == ISLAND_SLEEPING)
 				{
 					isSleeping = true;
 				}
 				for (int b = 0; b < bod->getNumLinks(); b++)
 				{
-					if (bod->getLink(b).m_collider && bod->getLink(b).m_collider->getActivationState() == ISLAND_SLEEPING)
+					if (bod->getLink(b).m_collider && bod->getLink(b).m_collider->m_activationState1 == ISLAND_SLEEPING)
 						isSleeping = true;
 				}
 
@@ -567,13 +567,13 @@ void btDeformableMultiBodyDynamicsWorld::clearGravity()
 
 		bool isSleeping = false;
 
-		if (bod->getBaseCollider() && bod->getBaseCollider()->getActivationState() == ISLAND_SLEEPING)
+		if (bod->getBaseCollider() && bod->getBaseCollider()->m_activationState1 == ISLAND_SLEEPING)
 		{
 			isSleeping = true;
 		}
 		for (int b = 0; b < bod->getNumLinks(); b++)
 		{
-			if (bod->getLink(b).m_collider && bod->getLink(b).m_collider->getActivationState() == ISLAND_SLEEPING)
+			if (bod->getLink(b).m_collider && bod->getLink(b).m_collider->m_activationState1 == ISLAND_SLEEPING)
 				isSleeping = true;
 		}
 

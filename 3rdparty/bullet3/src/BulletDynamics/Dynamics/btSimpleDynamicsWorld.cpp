@@ -139,7 +139,7 @@ void btSimpleDynamicsWorld::addRigidBody(btRigidBody* body)
 {
 	body->setGravity(m_gravity);
 
-	if (body->getCollisionShape())
+	if (body->m_collisionShape)
 	{
 		addCollisionObject(body);
 	}
@@ -149,7 +149,7 @@ void btSimpleDynamicsWorld::addRigidBody(btRigidBody* body, int group, int mask)
 {
 	body->setGravity(m_gravity);
 
-	if (body->getCollisionShape())
+	if (body->m_collisionShape)
 	{
 		addCollisionObject(body, group, mask);
 	}
@@ -179,9 +179,9 @@ void btSimpleDynamicsWorld::updateAabbs()
 			if (body->isActive() && (!body->isStaticObject()))
 			{
 				btVector3 minAabb, maxAabb;
-				colObj->getCollisionShape()->getAabb(colObj->getWorldTransform(), minAabb, maxAabb);
+				colObj->m_collisionShape->getAabb(colObj->m_worldTransform, minAabb, maxAabb);
 				btBroadphaseInterface* bp = getBroadphase();
-				bp->setAabb(body->getBroadphaseHandle(), minAabb, maxAabb, m_dispatcher1);
+				bp->setAabb(body->m_broadphaseHandle, minAabb, maxAabb, m_dispatcher1);
 			}
 		}
 	}
@@ -220,7 +220,7 @@ void btSimpleDynamicsWorld::predictUnconstraintMotion(btScalar timeStep)
 					body->applyGravity();
 					body->integrateVelocities(timeStep);
 					body->applyDamping(timeStep);
-					body->predictIntegratedTransform(timeStep, body->getInterpolationWorldTransform());
+					body->predictIntegratedTransform(timeStep, body->m_interpolationWorldTransform);
 				}
 			}
 		}
@@ -236,9 +236,9 @@ void btSimpleDynamicsWorld::synchronizeMotionStates()
 		btRigidBody* body = btRigidBody::upcast(colObj);
 		if (body && body->getMotionState())
 		{
-			if (body->getActivationState() != ISLAND_SLEEPING)
+			if (body->m_activationState1 != ISLAND_SLEEPING)
 			{
-				body->getMotionState()->setWorldTransform(body->getWorldTransform());
+				body->getMotionState()->setWorldTransform(body->m_worldTransform);
 			}
 		}
 	}

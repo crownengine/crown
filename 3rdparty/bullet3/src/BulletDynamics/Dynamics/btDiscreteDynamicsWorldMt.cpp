@@ -203,7 +203,7 @@ struct UpdaterUnconstrainedMotion : public btIParallelForBody
 			{
 				//don't integrate/update velocities here, it happens in the constraint solver
 				body->applyDamping(timeStep);
-				body->predictIntegratedTransform(timeStep, body->getInterpolationWorldTransform());
+				body->predictIntegratedTransform(timeStep, body->m_interpolationWorldTransform);
 			}
 		}
 	}

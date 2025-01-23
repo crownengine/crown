@@ -309,14 +309,14 @@ inline void btMprSupport(const btConvexTemplate &a, const btConvexTemplate &b,
 						 const btMprCollisionDescription &colDesc,
 						 const btVector3 &dir, btMprSupport_t *supp)
 {
-	btVector3 separatingAxisInA = dir * a.getWorldTransform().m_basis;
-	btVector3 separatingAxisInB = -dir * b.getWorldTransform().m_basis;
+	btVector3 separatingAxisInA = dir * a.m_worldTransform.m_basis;
+	btVector3 separatingAxisInB = -dir * b.m_worldTransform.m_basis;
 
 	btVector3 pInA = a.getLocalSupportWithMargin(separatingAxisInA);
 	btVector3 qInB = b.getLocalSupportWithMargin(separatingAxisInB);
 
-	supp->v1 = a.getWorldTransform()(pInA);
-	supp->v2 = b.getWorldTransform()(qInB);
+	supp->v1 = a.m_worldTransform(pInA);
+	supp->v2 = b.m_worldTransform(qInB);
 	supp->v = supp->v1 - supp->v2;
 }
 

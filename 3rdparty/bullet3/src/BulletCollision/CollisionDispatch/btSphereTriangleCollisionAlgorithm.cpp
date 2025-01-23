@@ -28,7 +28,7 @@ btSphereTriangleCollisionAlgorithm::btSphereTriangleCollisionAlgorithm(btPersist
 {
 	if (!m_manifoldPtr)
 	{
-		m_manifoldPtr = m_dispatcher->getNewManifold(body0Wrap->getCollisionObject(), body1Wrap->getCollisionObject());
+		m_manifoldPtr = m_dispatcher->getNewManifold(body0Wrap->m_collisionObject, body1Wrap->m_collisionObject);
 		m_ownManifold = true;
 	}
 }
@@ -50,8 +50,8 @@ void btSphereTriangleCollisionAlgorithm::processCollision(const btCollisionObjec
 	const btCollisionObjectWrapper* sphereObjWrap = m_swapped ? col1Wrap : col0Wrap;
 	const btCollisionObjectWrapper* triObjWrap = m_swapped ? col0Wrap : col1Wrap;
 
-	btSphereShape* sphere = (btSphereShape*)sphereObjWrap->getCollisionShape();
-	btTriangleShape* triangle = (btTriangleShape*)triObjWrap->getCollisionShape();
+	btSphereShape* sphere = (btSphereShape*)sphereObjWrap->m_collisionShape;
+	btTriangleShape* triangle = (btTriangleShape*)triObjWrap->m_collisionShape;
 
 	/// report a contact. internally this will be kept persistent, and contact reduction is done
 	resultOut->setPersistentManifold(m_manifoldPtr);
@@ -59,8 +59,8 @@ void btSphereTriangleCollisionAlgorithm::processCollision(const btCollisionObjec
 
 	btDiscreteCollisionDetectorInterface::ClosestPointInput input;
 	input.m_maximumDistanceSquared = btScalar(BT_LARGE_FLOAT);  ///@todo: tighter bounds
-	input.m_transformA = sphereObjWrap->getWorldTransform();
-	input.m_transformB = triObjWrap->getWorldTransform();
+	input.m_transformA = sphereObjWrap->m_worldTransform;
+	input.m_transformB = triObjWrap->m_worldTransform;
 
 	bool swapResults = m_swapped;
 

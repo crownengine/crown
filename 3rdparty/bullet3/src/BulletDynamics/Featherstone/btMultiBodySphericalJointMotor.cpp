@@ -65,13 +65,13 @@ int btMultiBodySphericalJointMotor::getIslandIdA() const
 	{
 		btMultiBodyLinkCollider* col = m_bodyA->getBaseCollider();
 		if (col)
-			return col->getIslandTag();
+			return col->m_islandTag1;
 	}
 	else
 	{
 		if (m_bodyA->getLink(m_linkA).m_collider)
 		{
-			return m_bodyA->getLink(m_linkA).m_collider->getIslandTag();
+			return m_bodyA->getLink(m_linkA).m_collider->m_islandTag1;
 		}
 	}
 	return -1;
@@ -83,13 +83,13 @@ int btMultiBodySphericalJointMotor::getIslandIdB() const
 	{
 		btMultiBodyLinkCollider* col = m_bodyB->getBaseCollider();
 		if (col)
-			return col->getIslandTag();
+			return col->m_islandTag1;
 	}
 	else
 	{
 		if (m_bodyB->getLink(m_linkB).m_collider)
 		{
-			return m_bodyB->getLink(m_linkB).m_collider->getIslandTag();
+			return m_bodyB->getLink(m_linkB).m_collider->m_islandTag1;
 		}
 	}
 	return -1;

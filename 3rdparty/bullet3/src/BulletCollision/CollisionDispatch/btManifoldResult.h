@@ -108,15 +108,15 @@ public:
 		if (!m_manifoldPtr->getNumContacts())
 			return;
 
-		bool isSwapped = m_manifoldPtr->getBody0() != m_body0Wrap->getCollisionObject();
+		bool isSwapped = m_manifoldPtr->getBody0() != m_body0Wrap->m_collisionObject;
 
 		if (isSwapped)
 		{
-			m_manifoldPtr->refreshContactPoints(m_body1Wrap->getCollisionObject()->getWorldTransform(), m_body0Wrap->getCollisionObject()->getWorldTransform());
+			m_manifoldPtr->refreshContactPoints(m_body1Wrap->m_collisionObject->m_worldTransform, m_body0Wrap->m_collisionObject->m_worldTransform);
 		}
 		else
 		{
-			m_manifoldPtr->refreshContactPoints(m_body0Wrap->getCollisionObject()->getWorldTransform(), m_body1Wrap->getCollisionObject()->getWorldTransform());
+			m_manifoldPtr->refreshContactPoints(m_body0Wrap->m_collisionObject->m_worldTransform, m_body1Wrap->m_collisionObject->m_worldTransform);
 		}
 	}
 
@@ -141,12 +141,12 @@ public:
 
 	const btCollisionObject* getBody0Internal() const
 	{
-		return m_body0Wrap->getCollisionObject();
+		return m_body0Wrap->m_collisionObject;
 	}
 
 	const btCollisionObject* getBody1Internal() const
 	{
-		return m_body1Wrap->getCollisionObject();
+		return m_body1Wrap->m_collisionObject;
 	}
 
 	btScalar m_closestPointDistanceThreshold;

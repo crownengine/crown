@@ -39,10 +39,10 @@ btPersistentManifold* btCollisionDispatcherMt::getNewManifold(const btCollisionO
 {
 	//optional relative contact breaking threshold, turned on by default (use setDispatcherFlags to switch off feature for improved performance)
 
-	btScalar contactBreakingThreshold = (m_dispatcherFlags & btCollisionDispatcher::CD_USE_RELATIVE_CONTACT_BREAKING_THRESHOLD) ? btMin(body0->getCollisionShape()->getContactBreakingThreshold(gContactBreakingThreshold), body1->getCollisionShape()->getContactBreakingThreshold(gContactBreakingThreshold))
+	btScalar contactBreakingThreshold = (m_dispatcherFlags & btCollisionDispatcher::CD_USE_RELATIVE_CONTACT_BREAKING_THRESHOLD) ? btMin(body0->m_collisionShape->getContactBreakingThreshold(gContactBreakingThreshold), body1->m_collisionShape->getContactBreakingThreshold(gContactBreakingThreshold))
 																																: gContactBreakingThreshold;
 
-	btScalar contactProcessingThreshold = btMin(body0->getContactProcessingThreshold(), body1->getContactProcessingThreshold());
+	btScalar contactProcessingThreshold = btMin(body0->m_contactProcessingThreshold, body1->m_contactProcessingThreshold);
 
 	void* mem = m_persistentManifoldPoolAllocator->allocate(sizeof(btPersistentManifold));
 	if (NULL == mem)

@@ -86,7 +86,7 @@ public:
 		else
 		{
 			///need to transform normal into worldspace
-			hitNormalWorld = convexResult.m_hitCollisionObject->getWorldTransform().m_basis * convexResult.m_hitNormalLocal;
+			hitNormalWorld = convexResult.m_hitCollisionObject->m_worldTransform.m_basis * convexResult.m_hitNormalLocal;
 		}
 
 		btScalar dotUp = m_up.dot(hitNormalWorld);
@@ -185,8 +185,8 @@ bool btKinematicCharacterController::recoverFromPenetration(btCollisionWorld* co
 	// paircache and the ghostobject's internal paircache at the same time.    /BW
 
 	btVector3 minAabb, maxAabb;
-	m_convexShape->getAabb(m_ghostObject->getWorldTransform(), minAabb, maxAabb);
-	collisionWorld->getBroadphase()->setAabb(m_ghostObject->getBroadphaseHandle(),
+	m_convexShape->getAabb(m_ghostObject->m_worldTransform, minAabb, maxAabb);
+	collisionWorld->getBroadphase()->setAabb(m_ghostObject->m_broadphaseHandle,
 											 minAabb,
 											 maxAabb,
 											 collisionWorld->getDispatcher());
@@ -195,7 +195,7 @@ bool btKinematicCharacterController::recoverFromPenetration(btCollisionWorld* co
 
 	collisionWorld->getDispatcher()->dispatchAllCollisionPairs(m_ghostObject->getOverlappingPairCache(), collisionWorld->getDispatchInfo(), collisionWorld->getDispatcher());
 
-	m_currentPosition = m_ghostObject->getWorldTransform().m_origin;
+	m_currentPosition = m_ghostObject->m_worldTransform.m_origin;
 
 	//	btScalar maxPen = btScalar(0.0);
 	for (int i = 0; i < m_ghostObject->getOverlappingPairCache()->getNumOverlappingPairs(); i++)
@@ -247,7 +247,7 @@ bool btKinematicCharacterController::recoverFromPenetration(btCollisionWorld* co
 			//manifold->clearManifold();
 		}
 	}
-	btTransform newTrans = m_ghostObject->getWorldTransform();
+	btTransform newTrans = m_ghostObject->m_worldTransform;
 	newTrans.m_origin = (m_currentPosition);
 	m_ghostObject->setWorldTransform(newTrans);
 	//	printf("m_touchingNormal = %f,%f,%f\n",m_touchingNormal[0],m_touchingNormal[1],m_touchingNormal[2]);
@@ -278,8 +278,8 @@ void btKinematicCharacterController::stepUp(btCollisionWorld* world)
 	end.setRotation(m_targetOrientation);
 
 	btKinematicClosestNotMeConvexResultCallback callback(m_ghostObject, -m_up, m_maxSlopeCosine);
-	callback.m_collisionFilterGroup = getGhostObject()->getBroadphaseHandle()->m_collisionFilterGroup;
-	callback.m_collisionFilterMask = getGhostObject()->getBroadphaseHandle()->m_collisionFilterMask;
+	callback.m_collisionFilterGroup = getGhostObject()->m_broadphaseHandle->m_collisionFilterGroup;
+	callback.m_collisionFilterMask = getGhostObject()->m_broadphaseHandle->m_collisionFilterMask;
 
 	if (m_useGhostObjectSweepTest)
 	{
@@ -303,7 +303,7 @@ void btKinematicCharacterController::stepUp(btCollisionWorld* world)
 				m_currentPosition = m_targetPosition;
 		}
 
-		btTransform& xform = m_ghostObject->getWorldTransform();
+		btTransform& xform = m_ghostObject->m_worldTransform;
 		xform.m_origin = (m_currentPosition);
 		m_ghostObject->setWorldTransform(xform);
 
@@ -320,7 +320,7 @@ void btKinematicCharacterController::stepUp(btCollisionWorld* world)
 				break;
 			}
 		}
-		m_targetPosition = m_ghostObject->getWorldTransform().m_origin;
+		m_targetPosition = m_ghostObject->m_worldTransform.m_origin;
 		m_currentPosition = m_targetPosition;
 
 		if (m_verticalOffset > 0)
@@ -339,8 +339,8 @@ void btKinematicCharacterController::stepUp(btCollisionWorld* world)
 
 bool btKinematicCharacterController::needsCollision(const btCollisionObject* body0, const btCollisionObject* body1)
 {
-	bool collides = (body0->getBroadphaseHandle()->m_collisionFilterGroup & body1->getBroadphaseHandle()->m_collisionFilterMask) != 0;
-	collides = collides && (body1->getBroadphaseHandle()->m_collisionFilterGroup & body0->getBroadphaseHandle()->m_collisionFilterMask);
+	bool collides = (body0->m_broadphaseHandle->m_collisionFilterGroup & body1->m_broadphaseHandle->m_collisionFilterMask) != 0;
+	collides = collides && (body1->m_broadphaseHandle->m_collisionFilterGroup & body0->m_broadphaseHandle->m_collisionFilterMask);
 	return collides;
 }
 
@@ -409,8 +409,8 @@ void btKinematicCharacterController::stepForwardAndStrafe(btCollisionWorld* coll
 		end.setRotation(m_targetOrientation);
 
 		btKinematicClosestNotMeConvexResultCallback callback(m_ghostObject, sweepDirNegative, btScalar(0.0));
-		callback.m_collisionFilterGroup = getGhostObject()->getBroadphaseHandle()->m_collisionFilterGroup;
-		callback.m_collisionFilterMask = getGhostObject()->getBroadphaseHandle()->m_collisionFilterMask;
+		callback.m_collisionFilterGroup = getGhostObject()->m_broadphaseHandle->m_collisionFilterGroup;
+		callback.m_collisionFilterMask = getGhostObject()->m_broadphaseHandle->m_collisionFilterMask;
 
 		btScalar margin = m_convexShape->getMargin();
 		m_convexShape->setMargin(margin + m_addedMargin);
@@ -489,12 +489,12 @@ void btKinematicCharacterController::stepDown(btCollisionWorld* collisionWorld, 
 	m_targetPosition -= step_drop;
 
 	btKinematicClosestNotMeConvexResultCallback callback(m_ghostObject, m_up, m_maxSlopeCosine);
-	callback.m_collisionFilterGroup = getGhostObject()->getBroadphaseHandle()->m_collisionFilterGroup;
-	callback.m_collisionFilterMask = getGhostObject()->getBroadphaseHandle()->m_collisionFilterMask;
+	callback.m_collisionFilterGroup = getGhostObject()->m_broadphaseHandle->m_collisionFilterGroup;
+	callback.m_collisionFilterMask = getGhostObject()->m_broadphaseHandle->m_collisionFilterMask;
 
 	btKinematicClosestNotMeConvexResultCallback callback2(m_ghostObject, m_up, m_maxSlopeCosine);
-	callback2.m_collisionFilterGroup = getGhostObject()->getBroadphaseHandle()->m_collisionFilterGroup;
-	callback2.m_collisionFilterMask = getGhostObject()->getBroadphaseHandle()->m_collisionFilterMask;
+	callback2.m_collisionFilterGroup = getGhostObject()->m_broadphaseHandle->m_collisionFilterGroup;
+	callback2.m_collisionFilterMask = getGhostObject()->m_broadphaseHandle->m_collisionFilterMask;
 
 	while (1)
 	{
@@ -659,7 +659,7 @@ void btKinematicCharacterController::setLinearVelocity(const btVector3& velocity
 			if (c > 0.0f)
 			{
 				m_wasJumping = true;
-				m_jumpPosition = m_ghostObject->getWorldTransform().m_origin;
+				m_jumpPosition = m_ghostObject->m_worldTransform.m_origin;
 			}
 		}
 	}
@@ -699,10 +699,10 @@ void btKinematicCharacterController::warp(const btVector3& origin)
 
 void btKinematicCharacterController::preStep(btCollisionWorld* collisionWorld)
 {
-	m_currentPosition = m_ghostObject->getWorldTransform().m_origin;
+	m_currentPosition = m_ghostObject->m_worldTransform.m_origin;
 	m_targetPosition = m_currentPosition;
 
-	m_currentOrientation = m_ghostObject->getWorldTransform().getRotation();
+	m_currentOrientation = m_ghostObject->m_worldTransform.getRotation();
 	m_targetOrientation = m_currentOrientation;
 	//	printf("m_targetPosition=%f,%f,%f\n",m_targetPosition[0],m_targetPosition[1],m_targetPosition[2]);
 }
@@ -721,7 +721,7 @@ void btKinematicCharacterController::playerStep(btCollisionWorld* collisionWorld
 	if (m_AngVel.length2() > 0.0f)
 	{
 		btTransform xform;
-		xform = m_ghostObject->getWorldTransform();
+		xform = m_ghostObject->m_worldTransform;
 
 		btQuaternion rot(m_AngVel.normalized(), m_AngVel.length() * dt);
 
@@ -730,9 +730,9 @@ void btKinematicCharacterController::playerStep(btCollisionWorld* collisionWorld
 		xform.setRotation(orn);
 		m_ghostObject->setWorldTransform(xform);
 
-		m_currentPosition = m_ghostObject->getWorldTransform().m_origin;
+		m_currentPosition = m_ghostObject->m_worldTransform.m_origin;
 		m_targetPosition = m_currentPosition;
-		m_currentOrientation = m_ghostObject->getWorldTransform().getRotation();
+		m_currentOrientation = m_ghostObject->m_worldTransform.getRotation();
 		m_targetOrientation = m_currentOrientation;
 	}
 
@@ -769,7 +769,7 @@ void btKinematicCharacterController::playerStep(btCollisionWorld* collisionWorld
 	m_verticalOffset = m_verticalVelocity * dt;
 
 	btTransform xform;
-	xform = m_ghostObject->getWorldTransform();
+	xform = m_ghostObject->m_worldTransform;
 
 	//	printf("walkDirection(%f,%f,%f)\n",walkDirection[0],walkDirection[1],walkDirection[2]);
 	//	printf("walkSpeed=%f\n",walkSpeed);
@@ -790,7 +790,7 @@ void btKinematicCharacterController::playerStep(btCollisionWorld* collisionWorld
 	//	}
 	//	m_verticalOffset = m_verticalVelocity * dt;
 
-	//	xform = m_ghostObject->getWorldTransform();
+	//	xform = m_ghostObject->m_worldTransform;
 	//}
 
 	if (m_useWalkDirection)
@@ -878,7 +878,7 @@ void btKinematicCharacterController::jump(const btVector3& v)
 
 	m_jumpAxis = v.length2() == 0 ? m_up : v.normalized();
 
-	m_jumpPosition = m_ghostObject->getWorldTransform().m_origin;
+	m_jumpPosition = m_ghostObject->m_worldTransform.m_origin;
 
 #if 0
 	currently no jumping.
@@ -978,7 +978,7 @@ void btKinematicCharacterController::setUpVector(const btVector3& up)
 
 	//set orientation with new up
 	btTransform xform;
-	xform = m_ghostObject->getWorldTransform();
+	xform = m_ghostObject->m_worldTransform;
 	btQuaternion orn = rot.inverse() * xform.getRotation();
 	xform.setRotation(orn);
 	m_ghostObject->setWorldTransform(xform);

@@ -548,7 +548,7 @@ public:
 		const btTransform& xform() const
 		{
 			static const btTransform identity = btTransform::getIdentity();
-			if (m_collisionObject) return (m_collisionObject->getWorldTransform());
+			if (m_collisionObject) return (m_collisionObject->m_worldTransform);
 			if (m_soft) return (m_soft->m_framexform);
 			return (identity);
 		}
@@ -1158,13 +1158,13 @@ public:
 
 	static const btSoftBody* upcast(const btCollisionObject* colObj)
 	{
-		if (colObj->getInternalType() == CO_SOFT_BODY)
+		if (colObj->m_internalType == CO_SOFT_BODY)
 			return (const btSoftBody*)colObj;
 		return 0;
 	}
 	static btSoftBody* upcast(btCollisionObject* colObj)
 	{
-		if (colObj->getInternalType() == CO_SOFT_BODY)
+		if (colObj->m_internalType == CO_SOFT_BODY)
 			return (btSoftBody*)colObj;
 		return 0;
 	}

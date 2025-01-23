@@ -122,7 +122,7 @@ void btRigidBody::saveKinematicState(btScalar timeStep)
 
 void btRigidBody::getAabb(btVector3& aabbMin, btVector3& aabbMax) const
 {
-	getCollisionShape()->getAabb(m_worldTransform, aabbMin, aabbMax);
+	m_collisionShape->getAabb(m_worldTransform, aabbMin, aabbMax);
 }
 
 void btRigidBody::setGravity(const btVector3& acceleration)
@@ -283,7 +283,7 @@ inline btMatrix3x3 evalEulerEqnDeriv(const btVector3& w1, const btVector3& w0, c
 btVector3 btRigidBody::computeGyroscopicForceExplicit(btScalar maxGyroscopicForce) const
 {
 	btVector3 inertiaLocal = getLocalInertia();
-	btMatrix3x3 inertiaTensorWorld = getWorldTransform().m_basis.scaled(inertiaLocal) * getWorldTransform().m_basis.transpose();
+	btMatrix3x3 inertiaTensorWorld = m_worldTransform.m_basis.scaled(inertiaLocal) * m_worldTransform.m_basis.transpose();
 	btVector3 tmp = inertiaTensorWorld * getAngularVelocity();
 	btVector3 gf = getAngularVelocity().cross(tmp);
 	btScalar l2 = gf.length2();
@@ -298,7 +298,7 @@ btVector3 btRigidBody::computeGyroscopicImpulseImplicit_Body(btScalar step) cons
 {
 	btVector3 idl = getLocalInertia();
 	btVector3 omega1 = getAngularVelocity();
-	btQuaternion q = getWorldTransform().getRotation();
+	btQuaternion q = m_worldTransform.getRotation();
 
 	// Convert to body coordinates
 	btVector3 omegab = quatRotate(q.inverse(), omega1);

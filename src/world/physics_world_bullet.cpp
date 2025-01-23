@@ -502,11 +502,11 @@ struct PhysicsWorldImpl
 		// Create rigid body
 		btRigidBody *body = CE_NEW(*_allocator, btRigidBody)(rbinfo);
 
-		int cflags = body->getCollisionFlags();
+		int cflags = body->m_collisionFlags;
 		cflags |= is_kinematic ? btCollisionObject::CF_KINEMATIC_OBJECT    : 0;
 		cflags |= is_static    ? btCollisionObject::CF_STATIC_OBJECT       : 0;
 		cflags |= is_trigger   ? btCollisionObject::CF_NO_CONTACT_RESPONSE : 0;
-		body->setCollisionFlags(cflags);
+		body->m_collisionFlags = (cflags);
 		if (is_kinematic)
 			body->setActivationState(DISABLE_DEACTIVATION);
 
@@ -521,7 +521,7 @@ struct PhysicsWorldImpl
 			));
 
 		const u32 last = array::size(_actor);
-		body->setUserPointer((void *)(uintptr_t)last);
+		body->m_userObjectPointer = ((void *)(uintptr_t)last);
 
 		// Set collision filters
 		const u32 me   = physics_config_resource::filter(_config_resource, ar->collision_filter)->me;
@@ -551,7 +551,7 @@ struct PhysicsWorldImpl
 		CE_DELETE(*_allocator, _actor[actor.i].body);
 
 		_actor[actor.i] = _actor[last];
-		_actor[actor.i].body->setUserPointer((void *)(uintptr_t)actor.i);
+		_actor[actor.i].body->m_userObjectPointer = ((void *)(uintptr_t)actor.i);
 
 		array::pop_back(_actor);
 
@@ -641,25 +641,25 @@ struct PhysicsWorldImpl
 	void actor_set_kinematic(ActorInstance actor, bool kinematic)
 	{
 		btRigidBody *body = _actor[actor.i].body;
-		int flags = body->getCollisionFlags();
+		int flags = body->m_collisionFlags;
 
 		if (kinematic) {
-			body->setCollisionFlags(flags | btCollisionObject::CF_KINEMATIC_OBJECT);
+			body->m_collisionFlags = (flags | btCollisionObject::CF_KINEMATIC_OBJECT);
 			body->setActivationState(DISABLE_DEACTIVATION);
 		} else {
-			body->setCollisionFlags(flags & ~btCollisionObject::CF_KINEMATIC_OBJECT);
+			body->m_collisionFlags = (flags & ~btCollisionObject::CF_KINEMATIC_OBJECT);
 			body->setActivationState(ACTIVE_TAG);
 		}
 	}
 
 	bool actor_is_static(ActorInstance actor) const
 	{
-		return _actor[actor.i].body->getCollisionFlags() & btCollisionObject::CF_STATIC_OBJECT;
+		return _actor[actor.i].body->m_collisionFlags & btCollisionObject::CF_STATIC_OBJECT;
 	}
 
 	bool actor_is_dynamic(ActorInstance actor) const
 	{
-		const int flags = _actor[actor.i].body->getCollisionFlags();
+		const int flags = _actor[actor.i].body->m_collisionFlags;
 		return !(flags & btCollisionObject::CF_STATIC_OBJECT)
 			&& !(flags & btCollisionObject::CF_KINEMATIC_OBJECT)
 			;
@@ -667,7 +667,7 @@ struct PhysicsWorldImpl
 
 	bool actor_is_kinematic(ActorInstance actor) const
 	{
-		const int flags = _actor[actor.i].body->getCollisionFlags();
+		const int flags = _actor[actor.i].body->m_collisionFlags;
 		return (flags & (btCollisionObject::CF_KINEMATIC_OBJECT)) != 0;
 	}
 
@@ -839,7 +839,7 @@ struct PhysicsWorldImpl
 		_dynamics_world->rayTest(aa, bb, cb);
 
 		if (cb.hasHit()) {
-			const u32 actor_i = (u32)(uintptr_t)btRigidBody::upcast(cb.m_collisionObject)->getUserPointer();
+			const u32 actor_i = (u32)(uintptr_t)btRigidBody::upcast(cb.m_collisionObject)->m_userObjectPointer;
 
 			hit.position = to_vector3(cb.m_hitPointWorld);
 			hit.normal   = to_vector3(cb.m_hitNormalWorld);
@@ -869,7 +869,7 @@ struct PhysicsWorldImpl
 			array::resize(hits, num);
 
 			for (int i = 0; i < num; ++i) {
-				const u32 actor_i = (u32)(uintptr_t)btRigidBody::upcast(cb.m_collisionObjects[i])->getUserPointer();
+				const u32 actor_i = (u32)(uintptr_t)btRigidBody::upcast(cb.m_collisionObjects[i])->m_userObjectPointer;
 
 				hits[i].position = to_vector3(cb.m_hitPointWorld[i]);
 				hits[i].normal   = to_vector3(cb.m_hitNormalWorld[i]);
@@ -896,7 +896,7 @@ struct PhysicsWorldImpl
 		_dynamics_world->convexSweepTest(shape, aa, bb, cb);
 
 		if (cb.hasHit()) {
-			const u32 actor_i = (u32)(uintptr_t)btRigidBody::upcast(cb.m_hitCollisionObject)->getUserPointer();
+			const u32 actor_i = (u32)(uintptr_t)btRigidBody::upcast(cb.m_hitCollisionObject)->m_userObjectPointer;
 
 			hit.position = to_vector3(cb.m_hitPointWorld);
 			hit.normal   = to_vector3(cb.m_hitNormalWorld);
@@ -956,7 +956,7 @@ struct PhysicsWorldImpl
 		const btCollisionObjectArray &collision_array = _dynamics_world->getCollisionObjectArray();
 		// Update actors
 		for (int i = 0; i < num; ++i) {
-			if ((uintptr_t)collision_array[i]->getUserPointer() == (uintptr_t)UINT32_MAX)
+			if ((uintptr_t)collision_array[i]->m_userObjectPointer == (uintptr_t)UINT32_MAX)
 				continue;
 
 			btRigidBody *body = btRigidBody::upcast(collision_array[i]);
@@ -964,7 +964,7 @@ struct PhysicsWorldImpl
 				&& body->getMotionState()
 				&& body->isActive()
 				) {
-				const UnitId unit_id = _actor[(u32)(uintptr_t)body->getUserPointer()].unit;
+				const UnitId unit_id = _actor[(u32)(uintptr_t)body->m_userObjectPointer].unit;
 
 				btTransform tr;
 				body->getMotionState()->getWorldTransform(tr);
@@ -1019,8 +1019,8 @@ struct PhysicsWorldImpl
 
 			const btCollisionObject *obj_a = manifold->getBody0();
 			const btCollisionObject *obj_b = manifold->getBody1();
-			const ActorInstance a0 = make_actor_instance((u32)(uintptr_t)obj_a->getUserPointer());
-			const ActorInstance a1 = make_actor_instance((u32)(uintptr_t)obj_b->getUserPointer());
+			const ActorInstance a0 = make_actor_instance((u32)(uintptr_t)obj_a->m_userObjectPointer);
+			const ActorInstance a1 = make_actor_instance((u32)(uintptr_t)obj_b->m_userObjectPointer);
 			const UnitId u0 = _actor[a0.i].unit;
 			const UnitId u1 = _actor[a1.i].unit;
 

@@ -55,8 +55,8 @@ void btSimulationIslandManager::findUnions(btDispatcher* /* dispatcher */, btCol
 				if (((colObj0) && ((colObj0)->mergesSimulationIslands())) &&
 					((colObj1) && ((colObj1)->mergesSimulationIslands())))
 				{
-					m_unionFind.unite((colObj0)->getIslandTag(),
-									  (colObj1)->getIslandTag());
+					m_unionFind.unite((colObj0)->m_islandTag1,
+									  (colObj1)->m_islandTag1);
 				}
 			}
 		}
@@ -76,10 +76,10 @@ void btSimulationIslandManager::updateActivationState(btCollisionWorld* colWorld
 			//Adding filtering here
 			if (!collisionObject->isStaticOrKinematicObject())
 			{
-				collisionObject->setIslandTag(index++);
+				collisionObject->m_islandTag1 = (index++);
 			}
-			collisionObject->setCompanionId(-1);
-			collisionObject->setHitFraction(btScalar(1.));
+			collisionObject->m_companionId = (-1);
+			collisionObject->m_hitFraction = (btScalar(1.));
 		}
 	}
 	// do the union find
@@ -100,16 +100,16 @@ void btSimulationIslandManager::storeIslandActivationState(btCollisionWorld* col
 			btCollisionObject* collisionObject = colWorld->getCollisionObjectArray()[i];
 			if (!collisionObject->isStaticOrKinematicObject())
 			{
-				collisionObject->setIslandTag(m_unionFind.find(index));
+				collisionObject->m_islandTag1 = (m_unionFind.find(index));
 				//Set the correct object offset in Collision Object Array
 				m_unionFind.getElement(index).m_sz = i;
-				collisionObject->setCompanionId(-1);
+				collisionObject->m_companionId = (-1);
 				index++;
 			}
 			else
 			{
-				collisionObject->setIslandTag(-1);
-				collisionObject->setCompanionId(-2);
+				collisionObject->m_islandTag1 = (-1);
+				collisionObject->m_companionId = (-2);
 			}
 		}
 	}
@@ -127,9 +127,9 @@ void btSimulationIslandManager::updateActivationState(btCollisionWorld* colWorld
 		for (i = 0; i < colWorld->getCollisionObjectArray().size(); i++)
 		{
 			btCollisionObject* collisionObject = colWorld->getCollisionObjectArray()[i];
-			collisionObject->setIslandTag(index);
-			collisionObject->setCompanionId(-1);
-			collisionObject->setHitFraction(btScalar(1.));
+			collisionObject->m_islandTag1 = (index);
+			collisionObject->m_companionId = (-1);
+			collisionObject->m_hitFraction = (btScalar(1.));
 			index++;
 		}
 	}
@@ -149,13 +149,13 @@ void btSimulationIslandManager::storeIslandActivationState(btCollisionWorld* col
 			btCollisionObject* collisionObject = colWorld->getCollisionObjectArray()[i];
 			if (!collisionObject->isStaticOrKinematicObject())
 			{
-				collisionObject->setIslandTag(m_unionFind.find(index));
-				collisionObject->setCompanionId(-1);
+				collisionObject->m_islandTag1 = (m_unionFind.find(index));
+				collisionObject->m_companionId = (-1);
 			}
 			else
 			{
-				collisionObject->setIslandTag(-1);
-				collisionObject->setCompanionId(-2);
+				collisionObject->m_islandTag1 = (-1);
+				collisionObject->m_companionId = (-2);
 			}
 			index++;
 		}
@@ -169,7 +169,7 @@ inline int getIslandId(const btPersistentManifold* lhs)
 	int islandId;
 	const btCollisionObject* rcolObj0 = static_cast<const btCollisionObject*>(lhs->getBody0());
 	const btCollisionObject* rcolObj1 = static_cast<const btCollisionObject*>(lhs->getBody1());
-	islandId = rcolObj0->getIslandTag() >= 0 ? rcolObj0->getIslandTag() : rcolObj1->getIslandTag();
+	islandId = rcolObj0->m_islandTag1 >= 0 ? rcolObj0->m_islandTag1 : rcolObj1->m_islandTag1;
 	return islandId;
 }
 
@@ -189,7 +189,7 @@ public:
 	SIMD_FORCE_INLINE bool operator()(const btPersistentManifold* lhs, const btPersistentManifold* rhs) const
 	{
 		return (
-			(getIslandId(lhs) < getIslandId(rhs)) || ((getIslandId(lhs) == getIslandId(rhs)) && lhs->getBody0()->getBroadphaseHandle()->m_uniqueId < rhs->getBody0()->getBroadphaseHandle()->m_uniqueId) || ((getIslandId(lhs) == getIslandId(rhs)) && (lhs->getBody0()->getBroadphaseHandle()->m_uniqueId == rhs->getBody0()->getBroadphaseHandle()->m_uniqueId) && (lhs->getBody1()->getBroadphaseHandle()->m_uniqueId < rhs->getBody1()->getBroadphaseHandle()->m_uniqueId)));
+			(getIslandId(lhs) < getIslandId(rhs)) || ((getIslandId(lhs) == getIslandId(rhs)) && lhs->getBody0()->m_broadphaseHandle->m_uniqueId < rhs->getBody0()->m_broadphaseHandle->m_uniqueId) || ((getIslandId(lhs) == getIslandId(rhs)) && (lhs->getBody0()->m_broadphaseHandle->m_uniqueId == rhs->getBody0()->m_broadphaseHandle->m_uniqueId) && (lhs->getBody1()->m_broadphaseHandle->m_uniqueId < rhs->getBody1()->m_broadphaseHandle->m_uniqueId)));
 	}
 };
 
@@ -228,16 +228,16 @@ void btSimulationIslandManager::buildIslands(btDispatcher* dispatcher, btCollisi
 			int i = getUnionFind().getElement(idx).m_sz;
 
 			btCollisionObject* colObj0 = collisionObjects[i];
-			if ((colObj0->getIslandTag() != islandId) && (colObj0->getIslandTag() != -1))
+			if ((colObj0->m_islandTag1 != islandId) && (colObj0->m_islandTag1 != -1))
 			{
 				//				printf("error in island management\n");
 			}
 
-            btAssert((colObj0->getIslandTag() == islandId) || (colObj0->getIslandTag() == -1));
-			if (colObj0->getIslandTag() == islandId)
+            btAssert((colObj0->m_islandTag1 == islandId) || (colObj0->m_islandTag1 == -1));
+			if (colObj0->m_islandTag1 == islandId)
 			{
-				if (colObj0->getActivationState() == ACTIVE_TAG ||
-					colObj0->getActivationState() == DISABLE_DEACTIVATION)
+				if (colObj0->m_activationState1 == ACTIVE_TAG ||
+					colObj0->m_activationState1 == DISABLE_DEACTIVATION)
 				{
 					allSleeping = false;
 					break;
@@ -252,14 +252,14 @@ void btSimulationIslandManager::buildIslands(btDispatcher* dispatcher, btCollisi
 			{
 				int i = getUnionFind().getElement(idx).m_sz;
 				btCollisionObject* colObj0 = collisionObjects[i];
-				if ((colObj0->getIslandTag() != islandId) && (colObj0->getIslandTag() != -1))
+				if ((colObj0->m_islandTag1 != islandId) && (colObj0->m_islandTag1 != -1))
 				{
 					//					printf("error in island management\n");
 				}
 
-                btAssert((colObj0->getIslandTag() == islandId) || (colObj0->getIslandTag() == -1));
+                btAssert((colObj0->m_islandTag1 == islandId) || (colObj0->m_islandTag1 == -1));
 
-				if (colObj0->getIslandTag() == islandId)
+				if (colObj0->m_islandTag1 == islandId)
 				{
 					colObj0->setActivationState(ISLAND_SLEEPING);
 				}
@@ -273,20 +273,20 @@ void btSimulationIslandManager::buildIslands(btDispatcher* dispatcher, btCollisi
 				int i = getUnionFind().getElement(idx).m_sz;
 
 				btCollisionObject* colObj0 = collisionObjects[i];
-				if ((colObj0->getIslandTag() != islandId) && (colObj0->getIslandTag() != -1))
+				if ((colObj0->m_islandTag1 != islandId) && (colObj0->m_islandTag1 != -1))
 				{
 					//					printf("error in island management\n");
 				}
 
-                 btAssert((colObj0->getIslandTag() == islandId) || (colObj0->getIslandTag() == -1));
+                 btAssert((colObj0->m_islandTag1 == islandId) || (colObj0->m_islandTag1 == -1));
 
 
-				if (colObj0->getIslandTag() == islandId)
+				if (colObj0->m_islandTag1 == islandId)
 				{
-					if (colObj0->getActivationState() == ISLAND_SLEEPING)
+					if (colObj0->m_activationState1 == ISLAND_SLEEPING)
 					{
 						colObj0->setActivationState(WANTS_DEACTIVATION);
-						colObj0->setDeactivationTime(0.f);
+						colObj0->m_deactivationTime = (0.f);
 					}
 				}
 			}
@@ -314,16 +314,16 @@ void btSimulationIslandManager::buildIslands(btDispatcher* dispatcher, btCollisi
 		const btCollisionObject* colObj1 = static_cast<const btCollisionObject*>(manifold->getBody1());
 
 		///@todo: check sleeping conditions!
-		if (((colObj0) && colObj0->getActivationState() != ISLAND_SLEEPING) ||
-			((colObj1) && colObj1->getActivationState() != ISLAND_SLEEPING))
+		if (((colObj0) && colObj0->m_activationState1 != ISLAND_SLEEPING) ||
+			((colObj1) && colObj1->m_activationState1 != ISLAND_SLEEPING))
 		{
 			//kinematic objects don't merge islands, but wake up all connected objects
-			if (colObj0->isKinematicObject() && colObj0->getActivationState() != ISLAND_SLEEPING)
+			if (colObj0->isKinematicObject() && colObj0->m_activationState1 != ISLAND_SLEEPING)
 			{
 				if (colObj0->hasContactResponse())
 					colObj1->activate();
 			}
-			if (colObj1->isKinematicObject() && colObj1->getActivationState() != ISLAND_SLEEPING)
+			if (colObj1->isKinematicObject() && colObj1->m_activationState1 != ISLAND_SLEEPING)
 			{
 				if (colObj1->hasContactResponse())
 					colObj0->activate();

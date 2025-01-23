@@ -60,13 +60,13 @@ public:
 	}
 	static btMultiBodyLinkCollider* upcast(btCollisionObject* colObj)
 	{
-		if (colObj->getInternalType() & btCollisionObject::CO_FEATHERSTONE_LINK)
+		if (colObj->m_internalType & btCollisionObject::CO_FEATHERSTONE_LINK)
 			return (btMultiBodyLinkCollider*)colObj;
 		return 0;
 	}
 	static const btMultiBodyLinkCollider* upcast(const btCollisionObject* colObj)
 	{
-		if (colObj->getInternalType() & btCollisionObject::CO_FEATHERSTONE_LINK)
+		if (colObj->m_internalType & btCollisionObject::CO_FEATHERSTONE_LINK)
 			return (btMultiBodyLinkCollider*)colObj;
 		return 0;
 	}
@@ -142,9 +142,9 @@ public:
 
 	void setDynamicType(int dynamicType)
 	{
-		int oldFlags = getCollisionFlags();
+		int oldFlags = m_collisionFlags;
 		oldFlags &= ~(btCollisionObject::CF_STATIC_OBJECT | btCollisionObject::CF_KINEMATIC_OBJECT);
-		setCollisionFlags(oldFlags | dynamicType);
+		m_collisionFlags = (oldFlags | dynamicType);
 	}
 
 	virtual int calculateSerializeBufferSize() const;

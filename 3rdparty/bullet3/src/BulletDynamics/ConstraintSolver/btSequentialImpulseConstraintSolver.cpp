@@ -467,7 +467,7 @@ void btSequentialImpulseConstraintSolver::initSolverBody(btSolverBody* solverBod
 
 	if (rb)
 	{
-		solverBody->m_worldTransform = rb->getWorldTransform();
+		solverBody->m_worldTransform = rb->m_worldTransform;
 		solverBody->internalSetInvMass(btVector3(rb->getInvMass(), rb->getInvMass(), rb->getInvMass()) * rb->getLinearFactor());
 		solverBody->m_originalBody = rb;
 		solverBody->m_angularFactor = rb->getAngularFactor();
@@ -506,12 +506,12 @@ void btSequentialImpulseConstraintSolver::applyAnisotropicFriction(btCollisionOb
 	if (colObj && colObj->hasAnisotropicFriction(frictionMode))
 	{
 		// transform to local coordinates
-		btVector3 loc_lateral = frictionDirection * colObj->getWorldTransform().m_basis;
-		const btVector3& friction_scaling = colObj->getAnisotropicFriction();
+		btVector3 loc_lateral = frictionDirection * colObj->m_worldTransform.m_basis;
+		const btVector3& friction_scaling = colObj->m_anisotropicFriction;
 		//apply anisotropic friction
 		loc_lateral *= friction_scaling;
 		// ... and transform it back to global coordinates
-		frictionDirection = colObj->getWorldTransform().m_basis * loc_lateral;
+		frictionDirection = colObj->m_worldTransform.m_basis * loc_lateral;
 	}
 }
 
@@ -699,13 +699,13 @@ int btSequentialImpulseConstraintSolver::getOrInitSolverBody(btCollisionObject& 
 	{
 		// dynamic body
 		// Dynamic bodies can only be in one island, so it's safe to write to the companionId
-		solverBodyId = body.getCompanionId();
+		solverBodyId = body.m_companionId;
 		if (solverBodyId < 0)
 		{
 			solverBodyId = m_tmpSolverBodyPool.size();
 			btSolverBody& solverBody = m_tmpSolverBodyPool.expand();
 			initSolverBody(&solverBody, &body, timeStep);
-			body.setCompanionId(solverBodyId);
+			body.m_companionId = (solverBodyId);
 		}
 	}
 	else if (isRigidBodyType && isKinematic)
@@ -717,7 +717,7 @@ int btSequentialImpulseConstraintSolver::getOrInitSolverBody(btCollisionObject& 
 		// Kinematic bodies can be in multiple islands at once, so it is a
 		// race condition to write to them, so we use an alternate method
 		// to record the solverBodyId
-		int uniqueId = body.getWorldArrayIndex();
+		int uniqueId = body.m_worldArrayIndex;
 		const int INVALID_SOLVER_BODY_ID = -1;
 		if (uniqueId >= m_kinematicBodyUniqueIdToSolverBodyTable.size())
 		{
@@ -736,7 +736,7 @@ int btSequentialImpulseConstraintSolver::getOrInitSolverBody(btCollisionObject& 
 	}
 	else
 	{
-		bool isMultiBodyType = (body.getInternalType() & btCollisionObject::CO_FEATHERSTONE_LINK);
+		bool isMultiBodyType = (body.m_internalType & btCollisionObject::CO_FEATHERSTONE_LINK);
 		// Incorrectly set collision object flags can degrade performance in various ways.
 		if (!isMultiBodyType)
 		{
@@ -758,10 +758,10 @@ int btSequentialImpulseConstraintSolver::getOrInitSolverBody(btCollisionObject& 
 
 	int solverBodyIdA = -1;
 
-	if (body.getCompanionId() >= 0)
+	if (body.m_companionId >= 0)
 	{
 		//body has already been converted
-		solverBodyIdA = body.getCompanionId();
+		solverBodyIdA = body.m_companionId;
 		btAssert(solverBodyIdA < m_tmpSolverBodyPool.size());
 	}
 	else
@@ -773,7 +773,7 @@ int btSequentialImpulseConstraintSolver::getOrInitSolverBody(btCollisionObject& 
 			solverBodyIdA = m_tmpSolverBodyPool.size();
 			btSolverBody& solverBody = m_tmpSolverBodyPool.expand();
 			initSolverBody(&solverBody, &body, timeStep);
-			body.setCompanionId(solverBodyIdA);
+			body.m_companionId = (solverBodyIdA);
 		}
 		else
 		{
@@ -808,10 +808,10 @@ void btSequentialImpulseConstraintSolver::setupContactConstraint(btSolverConstra
 	btRigidBody* rb0 = bodyA->m_originalBody;
 	btRigidBody* rb1 = bodyB->m_originalBody;
 
-	//			btVector3 rel_pos1 = pos1 - colObj0->getWorldTransform().m_origin;
-	//			btVector3 rel_pos2 = pos2 - colObj1->getWorldTransform().m_origin;
-	//rel_pos1 = pos1 - bodyA->getWorldTransform().m_origin;
-	//rel_pos2 = pos2 - bodyB->getWorldTransform().m_origin;
+	//			btVector3 rel_pos1 = pos1 - colObj0->m_worldTransform.m_origin;
+	//			btVector3 rel_pos2 = pos2 - colObj1->m_worldTransform.m_origin;
+	//rel_pos1 = pos1 - bodyA->m_worldTransform.m_origin;
+	//rel_pos2 = pos2 - bodyB->m_worldTransform.m_origin;
 
 	relaxation = infoGlobal.m_sor;
 	btScalar invTimeStep = btScalar(1) / infoGlobal.m_timeStep;
@@ -1037,8 +1037,8 @@ void btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 			const btVector3& pos1 = cp.getPositionWorldOnA();
 			const btVector3& pos2 = cp.getPositionWorldOnB();
 
-			rel_pos1 = pos1 - colObj0->getWorldTransform().m_origin;
-			rel_pos2 = pos2 - colObj1->getWorldTransform().m_origin;
+			rel_pos1 = pos1 - colObj0->m_worldTransform.m_origin;
+			rel_pos2 = pos2 - colObj1->m_worldTransform.m_origin;
 
 			btVector3 vel1;
 			btVector3 vel2;
@@ -1360,7 +1360,7 @@ void btSequentialImpulseConstraintSolver::convertBodies(btCollisionObject** bodi
 	BT_PROFILE("convertBodies");
 	for (int i = 0; i < numBodies; i++)
 	{
-		bodies[i]->setCompanionId(-1);
+		bodies[i]->m_companionId = (-1);
 	}
 #if BT_THREADSAFE
 	m_kinematicBodyUniqueIdToSolverBodyTable.resize(0);
@@ -1751,7 +1751,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyIterations(
 				m_analyticsData.m_numIterationsUsed = iteration+1;
 				m_analyticsData.m_islandId = -2;
 				if (numBodies>0)
-					m_analyticsData.m_islandId = bodies[0]->getCompanionId();
+					m_analyticsData.m_islandId = bodies[0]->m_companionId;
 				m_analyticsData.m_numBodies = numBodies;
 				m_analyticsData.m_numContactManifolds = numManifolds;
 				m_analyticsData.m_remainingLeastSquaresResidual = m_leastSquaresResidual;
@@ -1828,7 +1828,7 @@ void btSequentialImpulseConstraintSolver::writeBackBodies(int iBegin, int iEnd, 
 			if (infoGlobal.m_splitImpulse)
 				m_tmpSolverBodyPool[i].m_originalBody->setWorldTransform(m_tmpSolverBodyPool[i].m_worldTransform);
 
-			m_tmpSolverBodyPool[i].m_originalBody->setCompanionId(-1);
+			m_tmpSolverBodyPool[i].m_originalBody->m_companionId = (-1);
 		}
 	}
 }

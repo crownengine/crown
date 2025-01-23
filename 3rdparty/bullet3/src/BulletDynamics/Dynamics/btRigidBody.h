@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  https://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -188,13 +188,13 @@ public:
 	///but a rigidbody is derived from btCollisionObject, so we can safely perform an upcast
 	static const btRigidBody* upcast(const btCollisionObject* colObj)
 	{
-		if (colObj->getInternalType() & btCollisionObject::CO_RIGID_BODY)
+		if (colObj->m_internalType & btCollisionObject::CO_RIGID_BODY)
 			return (const btRigidBody*)colObj;
 		return 0;
 	}
 	static btRigidBody* upcast(btCollisionObject* colObj)
 	{
-		if (colObj->getInternalType() & btCollisionObject::CO_RIGID_BODY)
+		if (colObj->m_internalType & btCollisionObject::CO_RIGID_BODY)
 			return (btRigidBody*)colObj;
 		return 0;
 	}
@@ -205,7 +205,7 @@ public:
 	void saveKinematicState(btScalar step);
 
 	void applyGravity();
-    
+
     void clearGravity();
 
 	void setGravity(const btVector3& acceleration);
@@ -343,7 +343,7 @@ public:
 			}
 		}
 	}
-    
+
     void applyPushImpulse(const btVector3& impulse, const btVector3& rel_pos)
     {
         if (m_inverseMass != btScalar(0.))
@@ -355,17 +355,17 @@ public:
             }
         }
     }
-    
+
     btVector3 getPushVelocity() const
     {
         return m_pushVelocity;
     }
-    
+
     btVector3 getTurnVelocity() const
     {
         return m_turnVelocity;
     }
-    
+
     void setPushVelocity(const btVector3& v)
     {
         m_pushVelocity = v;
@@ -395,7 +395,7 @@ public:
         clampVelocity(m_turnVelocity);
         #endif
     }
-    
+
     void applyCentralPushImpulse(const btVector3& impulse)
     {
         m_pushVelocity += impulse * m_linearFactor * m_inverseMass;
@@ -403,7 +403,7 @@ public:
         clampVelocity(m_pushVelocity);
         #endif
     }
-    
+
     void applyTorqueTurnImpulse(const btVector3& torque)
     {
         m_turnVelocity += m_invInertiaTensorWorld * torque * m_angularFactor;
@@ -465,7 +465,7 @@ public:
 		//for kinematic objects, we could also use use:
 		//		return 	(m_worldTransform(rel_pos) - m_interpolationWorldTransform(rel_pos)) / m_kinematicTimeStep;
 	}
-    
+
     btVector3 getPushVelocityInLocalPoint(const btVector3& rel_pos) const
     {
         //we also calculate lin/ang velocity for kinematic objects
@@ -498,7 +498,7 @@ public:
 
 	SIMD_FORCE_INLINE void updateDeactivation(btScalar timeStep)
 	{
-		if ((getActivationState() == ISLAND_SLEEPING) || (getActivationState() == DISABLE_DEACTIVATION))
+		if ((m_activationState1 == ISLAND_SLEEPING) || (m_activationState1 == DISABLE_DEACTIVATION))
 			return;
 
 		if ((getLinearVelocity().length2() < m_linearSleepingThreshold * m_linearSleepingThreshold) &&
@@ -515,14 +515,14 @@ public:
 
 	SIMD_FORCE_INLINE bool wantsSleeping()
 	{
-		if (getActivationState() == DISABLE_DEACTIVATION)
+		if (m_activationState1 == DISABLE_DEACTIVATION)
 			return false;
 
 		//disable deactivation
 		if (gDisableDeactivation || (gDeactivationTime == btScalar(0.)))
 			return false;
 
-		if ((getActivationState() == ISLAND_SLEEPING) || (getActivationState() == WANTS_DEACTIVATION))
+		if ((m_activationState1 == ISLAND_SLEEPING) || (m_activationState1 == WANTS_DEACTIVATION))
 			return true;
 
 		if (m_deactivationTime > gDeactivationTime)

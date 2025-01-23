@@ -57,10 +57,10 @@ void btSoftRigidCollisionAlgorithm::processCollision(const btCollisionObjectWrap
 	//printf("btSoftRigidCollisionAlgorithm\n");
 	//	const btCollisionObjectWrapper* softWrap = m_isSwapped?body1Wrap:body0Wrap;
 	//	const btCollisionObjectWrapper* rigidWrap = m_isSwapped?body0Wrap:body1Wrap;
-	btSoftBody* softBody = m_isSwapped ? (btSoftBody*)body1Wrap->getCollisionObject() : (btSoftBody*)body0Wrap->getCollisionObject();
+	btSoftBody* softBody = m_isSwapped ? (btSoftBody*)body1Wrap->m_collisionObject : (btSoftBody*)body0Wrap->m_collisionObject;
 	const btCollisionObjectWrapper* rigidCollisionObjectWrap = m_isSwapped ? body0Wrap : body1Wrap;
 
-	if (softBody->m_collisionDisabledObjects.findLinearSearch(rigidCollisionObjectWrap->getCollisionObject()) == softBody->m_collisionDisabledObjects.size())
+	if (softBody->m_collisionDisabledObjects.findLinearSearch(rigidCollisionObjectWrap->m_collisionObject) == softBody->m_collisionDisabledObjects.size())
 	{
 		softBody->getSoftBodySolver()->processCollision(softBody, rigidCollisionObjectWrap);
 	}

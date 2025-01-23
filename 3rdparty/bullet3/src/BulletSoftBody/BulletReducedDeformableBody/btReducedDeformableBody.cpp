@@ -413,7 +413,7 @@ void btReducedDeformableBody::transform(const btTransform& trs)
 
   // transform mesh
   {
-    const btScalar margin = getCollisionShape()->getMargin();
+    const btScalar margin = m_collisionShape->getMargin();
     ATTRIBUTE_ALIGNED16(btDbvtVolume)
     vol;
 
@@ -459,7 +459,7 @@ void btReducedDeformableBody::scale(const btVector3& scl)
 
   // scale the mesh
   {
-    const btScalar margin = getCollisionShape()->getMargin();
+    const btScalar margin = m_collisionShape->getMargin();
     ATTRIBUTE_ALIGNED16(btDbvtVolume)
     vol;
 

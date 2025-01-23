@@ -60,7 +60,7 @@ btMultiBodyFixedConstraint::~btMultiBodyFixedConstraint()
 int btMultiBodyFixedConstraint::getIslandIdA() const
 {
 	if (m_rigidBodyA)
-		return m_rigidBodyA->getIslandTag();
+		return m_rigidBodyA->m_islandTag1;
 
 	if (m_bodyA)
 	{
@@ -68,12 +68,12 @@ int btMultiBodyFixedConstraint::getIslandIdA() const
 		{
 			btMultiBodyLinkCollider* col = m_bodyA->getBaseCollider();
 			if (col)
-				return col->getIslandTag();
+				return col->m_islandTag1;
 		}
 		else
 		{
 			if (m_bodyA->getLink(m_linkA).m_collider)
-				return m_bodyA->getLink(m_linkA).m_collider->getIslandTag();
+				return m_bodyA->getLink(m_linkA).m_collider->m_islandTag1;
 		}
 	}
 	return -1;
@@ -82,19 +82,19 @@ int btMultiBodyFixedConstraint::getIslandIdA() const
 int btMultiBodyFixedConstraint::getIslandIdB() const
 {
 	if (m_rigidBodyB)
-		return m_rigidBodyB->getIslandTag();
+		return m_rigidBodyB->m_islandTag1;
 	if (m_bodyB)
 	{
 		if (m_linkB < 0)
 		{
 			btMultiBodyLinkCollider* col = m_bodyB->getBaseCollider();
 			if (col)
-				return col->getIslandTag();
+				return col->m_islandTag1;
 		}
 		else
 		{
 			if (m_bodyB->getLink(m_linkB).m_collider)
-				return m_bodyB->getLink(m_linkB).m_collider->getIslandTag();
+				return m_bodyB->getLink(m_linkB).m_collider->m_islandTag1;
 		}
 	}
 	return -1;
@@ -123,7 +123,7 @@ void btMultiBodyFixedConstraint::createConstraintRows(btMultiBodyConstraintArray
 		btMatrix3x3 frameAworld = m_frameInA;
 		if (m_rigidBodyA)
 		{
-			constraintRow.m_solverBodyIdA = m_rigidBodyA->getCompanionId();
+			constraintRow.m_solverBodyIdA = m_rigidBodyA->m_companionId;
 			pivotAworld = m_rigidBodyA->getCenterOfMassTransform() * m_pivotInA;
 			frameAworld = frameAworld.transpose() * btMatrix3x3(m_rigidBodyA->getOrientation());
 		}
@@ -139,7 +139,7 @@ void btMultiBodyFixedConstraint::createConstraintRows(btMultiBodyConstraintArray
 		btMatrix3x3 frameBworld = m_frameInB;
 		if (m_rigidBodyB)
 		{
-			constraintRow.m_solverBodyIdB = m_rigidBodyB->getCompanionId();
+			constraintRow.m_solverBodyIdB = m_rigidBodyB->m_companionId;
 			pivotBworld = m_rigidBodyB->getCenterOfMassTransform() * m_pivotInB;
 			frameBworld = frameBworld.transpose() * btMatrix3x3(m_rigidBodyB->getOrientation());
 		}

@@ -39,8 +39,8 @@ void btGearConstraint::getInfo2(btConstraintInfo2* info)
 {
 	btVector3 globalAxisA, globalAxisB;
 
-	globalAxisA = m_rbA.getWorldTransform().m_basis * this->m_axisInA;
-	globalAxisB = m_rbB.getWorldTransform().m_basis * this->m_axisInB;
+	globalAxisA = m_rbA.m_worldTransform.m_basis * this->m_axisInA;
+	globalAxisB = m_rbB.m_worldTransform.m_basis * this->m_axisInB;
 
 	info->m_J1angularAxis[0] = globalAxisA[0];
 	info->m_J1angularAxis[1] = globalAxisA[1];
