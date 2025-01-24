@@ -56,7 +56,7 @@ void btCompoundShape::addChildShape(const btTransform& localTransform, btCollisi
 	child.m_node = 0;
 	child.m_transform = localTransform;
 	child.m_childShape = shape;
-	child.m_childShapeType = shape->getShapeType();
+	child.m_childShapeType = shape->m_shapeType;
 	child.m_childMargin = shape->getMargin();
 
 	//extend the local aabbMin/aabbMax

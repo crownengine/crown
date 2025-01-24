@@ -134,11 +134,11 @@ btCollisionAlgorithm* btCollisionDispatcher::findAlgorithm(const btCollisionObje
 	btCollisionAlgorithm* algo = 0;
 	if (algoType == BT_CONTACT_POINT_ALGORITHMS)
 	{
-		algo = m_doubleDispatchContactPoints[body0Wrap->m_collisionShape->getShapeType()][body1Wrap->m_collisionShape->getShapeType()]->CreateCollisionAlgorithm(ci, body0Wrap, body1Wrap);
+		algo = m_doubleDispatchContactPoints[body0Wrap->m_collisionShape->m_shapeType][body1Wrap->m_collisionShape->m_shapeType]->CreateCollisionAlgorithm(ci, body0Wrap, body1Wrap);
 	}
 	else
 	{
-		algo = m_doubleDispatchClosestPoints[body0Wrap->m_collisionShape->getShapeType()][body1Wrap->m_collisionShape->getShapeType()]->CreateCollisionAlgorithm(ci, body0Wrap, body1Wrap);
+		algo = m_doubleDispatchClosestPoints[body0Wrap->m_collisionShape->m_shapeType][body1Wrap->m_collisionShape->m_shapeType]->CreateCollisionAlgorithm(ci, body0Wrap, body1Wrap);
 	}
 
 	return algo;

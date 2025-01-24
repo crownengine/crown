@@ -50,7 +50,7 @@ void btContinuousConvexCollision::computeClosestPoints(const btTransform& transA
 	if (m_convexB1)
 	{
 		m_simplexSolver->reset();
-		btGjkPairDetector gjk(m_convexA, m_convexB1, m_convexA->getShapeType(), m_convexB1->getShapeType(), m_convexA->getMargin(), m_convexB1->getMargin(), m_simplexSolver, m_penetrationDepthSolver);
+		btGjkPairDetector gjk(m_convexA, m_convexB1, m_convexA->m_shapeType, m_convexB1->m_shapeType, m_convexA->getMargin(), m_convexB1->getMargin(), m_simplexSolver, m_penetrationDepthSolver);
 		btGjkPairDetector::ClosestPointInput input;
 		input.m_transformA = transA;
 		input.m_transformB = transB;

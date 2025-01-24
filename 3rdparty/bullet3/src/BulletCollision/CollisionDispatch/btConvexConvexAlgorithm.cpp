@@ -289,7 +289,7 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 	btVector3 normalOnB;
 	btVector3 pointOnBWorld;
 #ifndef BT_DISABLE_CAPSULE_CAPSULE_COLLIDER
-	if ((min0->getShapeType() == CAPSULE_SHAPE_PROXYTYPE) && (min1->getShapeType() == CAPSULE_SHAPE_PROXYTYPE))
+	if ((min0->m_shapeType == CAPSULE_SHAPE_PROXYTYPE) && (min1->m_shapeType == CAPSULE_SHAPE_PROXYTYPE))
 	{
 		//m_manifoldPtr->clearManifold();
 
@@ -311,7 +311,7 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 		return;
 	}
 
-	if ((min0->getShapeType() == CAPSULE_SHAPE_PROXYTYPE) && (min1->getShapeType() == SPHERE_SHAPE_PROXYTYPE))
+	if ((min0->m_shapeType == CAPSULE_SHAPE_PROXYTYPE) && (min1->m_shapeType == SPHERE_SHAPE_PROXYTYPE))
 	{
 		//m_manifoldPtr->clearManifold();
 
@@ -333,7 +333,7 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 		return;
 	}
 
-	if ((min0->getShapeType() == SPHERE_SHAPE_PROXYTYPE) && (min1->getShapeType() == CAPSULE_SHAPE_PROXYTYPE))
+	if ((min0->m_shapeType == SPHERE_SHAPE_PROXYTYPE) && (min1->m_shapeType == CAPSULE_SHAPE_PROXYTYPE))
 	{
 		//m_manifoldPtr->clearManifold();
 
@@ -471,8 +471,8 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 
 			///btBoxShape is an exception: its vertices are created WITH margin so don't subtract it
 
-			btScalar min0Margin = min0->getShapeType() == BOX_SHAPE_PROXYTYPE ? 0.f : min0->getMargin();
-			btScalar min1Margin = min1->getShapeType() == BOX_SHAPE_PROXYTYPE ? 0.f : min1->getMargin();
+			btScalar min0Margin = min0->m_shapeType == BOX_SHAPE_PROXYTYPE ? 0.f : min0->getMargin();
+			btScalar min1Margin = min1->m_shapeType == BOX_SHAPE_PROXYTYPE ? 0.f : min1->getMargin();
 
 			btWithoutMarginResult withoutMargin(resultOut, min0Margin, min1Margin);
 
@@ -537,7 +537,7 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 			else
 			{
 				//we can also deal with convex versus triangle (without connectivity data)
-				if (dispatchInfo.m_enableSatConvex && polyhedronA->getConvexPolyhedron() && polyhedronB->getShapeType() == TRIANGLE_SHAPE_PROXYTYPE)
+				if (dispatchInfo.m_enableSatConvex && polyhedronA->getConvexPolyhedron() && polyhedronB->m_shapeType == TRIANGLE_SHAPE_PROXYTYPE)
 				{
 					btVertexArray worldSpaceVertices;
 					btTriangleShape* tri = (btTriangleShape*)polyhedronB;

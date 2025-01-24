@@ -43,8 +43,8 @@ btGjkPairDetector::btGjkPairDetector(const btConvexShape *objectA, const btConve
 	  m_simplexSolver(simplexSolver),
 	  m_minkowskiA(objectA),
 	  m_minkowskiB(objectB),
-	  m_shapeTypeA(objectA->getShapeType()),
-	  m_shapeTypeB(objectB->getShapeType()),
+	  m_shapeTypeA(objectA->m_shapeType),
+	  m_shapeTypeB(objectB->m_shapeType),
 	  m_marginA(objectA->getMargin()),
 	  m_marginB(objectB->getMargin()),
 	  m_ignoreMargin(false),
@@ -949,8 +949,8 @@ void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput &inpu
 						   m_cachedSeparatingAxis.m_floats[1],
 						   m_cachedSeparatingAxis.m_floats[2],
 						   squaredDistance,
-						   m_minkowskiA->getShapeType(),
-						   m_minkowskiB->getShapeType());
+						   m_minkowskiA->m_shapeType,
+						   m_minkowskiB->m_shapeType);
 
 #endif
 					break;
