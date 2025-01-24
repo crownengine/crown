@@ -149,8 +149,8 @@ btScalar btRotationalLimitMotor::solveAngularLimits(
 
 	// current velocity difference
 
-	btVector3 angVelA = body0->getAngularVelocity();
-	btVector3 angVelB = body1->getAngularVelocity();
+	btVector3 angVelA = body0->m_angularVelocity;
+	btVector3 angVelB = body1->m_angularVelocity;
 
 	btVector3 vel_diff;
 	vel_diff = angVelA - angVelB;
@@ -346,8 +346,8 @@ void btGeneric6DofConstraint::calculateTransforms(const btTransform& transA, con
 	calculateAngleInfo();
 	if (m_useOffsetForConstraintFrame)
 	{  //  get weight factors depending on masses
-		btScalar miA = getRigidBodyA().getInvMass();
-		btScalar miB = getRigidBodyB().getInvMass();
+		btScalar miA = getRigidBodyA().m_inverseMass;
+		btScalar miB = getRigidBodyB().m_inverseMass;
 		m_hasStaticBody = (miA < SIMD_EPSILON) || (miB < SIMD_EPSILON);
 		btScalar miS = miA + miB;
 		if (miS > btScalar(0.f))
@@ -372,10 +372,10 @@ void btGeneric6DofConstraint::buildLinearJacobian(
 		pivotAInW - m_rbA.getCenterOfMassPosition(),
 		pivotBInW - m_rbB.getCenterOfMassPosition(),
 		normalWorld,
-		m_rbA.getInvInertiaDiagLocal(),
-		m_rbA.getInvMass(),
-		m_rbB.getInvInertiaDiagLocal(),
-		m_rbB.getInvMass());
+		m_rbA.m_invInertiaLocal,
+		m_rbA.m_inverseMass,
+		m_rbB.m_invInertiaLocal,
+		m_rbB.m_inverseMass);
 }
 
 void btGeneric6DofConstraint::buildAngularJacobian(
@@ -384,8 +384,8 @@ void btGeneric6DofConstraint::buildAngularJacobian(
 	new (&jacAngular) btJacobianEntry(jointAxisW,
 									  m_rbA.getCenterOfMassTransform().m_basis.transpose(),
 									  m_rbB.getCenterOfMassTransform().m_basis.transpose(),
-									  m_rbA.getInvInertiaDiagLocal(),
-									  m_rbB.getInvInertiaDiagLocal());
+									  m_rbA.m_invInertiaLocal,
+									  m_rbB.m_invInertiaLocal);
 }
 
 bool btGeneric6DofConstraint::testAngularLimitMotor(int axis_index)
@@ -511,10 +511,10 @@ void btGeneric6DofConstraint::getInfo2(btConstraintInfo2* info)
 
 	const btTransform& transA = m_rbA.getCenterOfMassTransform();
 	const btTransform& transB = m_rbB.getCenterOfMassTransform();
-	const btVector3& linVelA = m_rbA.getLinearVelocity();
-	const btVector3& linVelB = m_rbB.getLinearVelocity();
-	const btVector3& angVelA = m_rbA.getAngularVelocity();
-	const btVector3& angVelB = m_rbB.getAngularVelocity();
+	const btVector3& linVelA = m_rbA.m_linearVelocity;
+	const btVector3& linVelB = m_rbB.m_linearVelocity;
+	const btVector3& angVelA = m_rbA.m_angularVelocity;
+	const btVector3& angVelB = m_rbB.m_angularVelocity;
 
 	if (m_useOffsetForConstraintFrame)
 	{  // for stability better to solve angular limits first
@@ -659,8 +659,8 @@ btScalar btGeneric6DofConstraint::getAngle(int axisIndex) const
 
 void btGeneric6DofConstraint::calcAnchorPos(void)
 {
-	btScalar imA = m_rbA.getInvMass();
-	btScalar imB = m_rbB.getInvMass();
+	btScalar imA = m_rbA.m_inverseMass;
+	btScalar imB = m_rbB.m_inverseMass;
 	btScalar weight;
 	if (imB == btScalar(0.0))
 	{

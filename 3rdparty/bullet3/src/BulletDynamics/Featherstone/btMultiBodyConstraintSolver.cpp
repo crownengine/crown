@@ -608,7 +608,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 		btVector3 torqueAxis0 = rel_pos1.cross(contactNormal);
 		solverConstraint.m_relpos1CrossNormal = torqueAxis0;
 		solverConstraint.m_contactNormal1 = contactNormal;
-		solverConstraint.m_angularComponentA = rb0 ? rb0->getInvInertiaTensorWorld() * torqueAxis0 * rb0->getAngularFactor() : btVector3(0, 0, 0);
+		solverConstraint.m_angularComponentA = rb0 ? rb0->m_invInertiaTensorWorld * torqueAxis0 * rb0->m_angularFactor : btVector3(0, 0, 0);
 	}
 
 	if (multiBodyB)
@@ -651,7 +651,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 		solverConstraint.m_relpos2CrossNormal = -torqueAxis1;
 		solverConstraint.m_contactNormal2 = -contactNormal;
 
-		solverConstraint.m_angularComponentB = rb1 ? rb1->getInvInertiaTensorWorld() * -torqueAxis1 * rb1->getAngularFactor() : btVector3(0, 0, 0);
+		solverConstraint.m_angularComponentB = rb1 ? rb1->m_invInertiaTensorWorld * -torqueAxis1 * rb1->m_angularFactor : btVector3(0, 0, 0);
 	}
 
 	{
@@ -680,7 +680,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 			if (rb0)
 			{
 				vec = (solverConstraint.m_angularComponentA).cross(rel_pos1);
-				denom0 = rb0->getInvMass() + contactNormal.dot(vec);
+				denom0 = rb0->m_inverseMass + contactNormal.dot(vec);
 			}
 		}
 		if (multiBodyB)
@@ -700,7 +700,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 			if (rb1)
 			{
 				vec = (-solverConstraint.m_angularComponentB).cross(rel_pos2);
-				denom1 = rb1->getInvMass() + contactNormal.dot(vec);
+				denom1 = rb1->m_inverseMass + contactNormal.dot(vec);
 			}
 		}
 
@@ -749,8 +749,8 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 			if (rb0)
 			{
 				rel_vel += (rb0->getVelocityInLocalPoint(rel_pos1) +
-							(rb0->getTotalTorque() * rb0->getInvInertiaTensorWorld() * infoGlobal.m_timeStep).cross(rel_pos1) +
-							rb0->getTotalForce() * rb0->getInvMass() * infoGlobal.m_timeStep)
+							(rb0->m_totalTorque * rb0->m_invInertiaTensorWorld * infoGlobal.m_timeStep).cross(rel_pos1) +
+							rb0->m_totalForce * rb0->m_inverseMass * infoGlobal.m_timeStep)
 							   .dot(solverConstraint.m_contactNormal1);
 			}
 		}
@@ -766,8 +766,8 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 			if (rb1)
 			{
 				rel_vel += (rb1->getVelocityInLocalPoint(rel_pos2) +
-							(rb1->getTotalTorque() * rb1->getInvInertiaTensorWorld() * infoGlobal.m_timeStep).cross(rel_pos2) +
-							rb1->getTotalForce() * rb1->getInvMass() * infoGlobal.m_timeStep)
+							(rb1->m_totalTorque * rb1->m_invInertiaTensorWorld * infoGlobal.m_timeStep).cross(rel_pos2) +
+							rb1->m_totalForce * rb1->m_inverseMass * infoGlobal.m_timeStep)
 							   .dot(solverConstraint.m_contactNormal2);
 			}
 		}
@@ -862,7 +862,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 			else
 			{
 				if (rb0)
-					bodyA->internalApplyImpulse(solverConstraint.m_contactNormal1 * bodyA->internalGetInvMass() * rb0->getLinearFactor(), solverConstraint.m_angularComponentA, solverConstraint.m_appliedImpulse);
+					bodyA->internalApplyImpulse(solverConstraint.m_contactNormal1 * bodyA->internalGetInvMass() * rb0->m_linearFactor, solverConstraint.m_angularComponentA, solverConstraint.m_appliedImpulse);
 			}
 			if (multiBodyB)
 			{
@@ -874,7 +874,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 			else
 			{
 				if (rb1)
-					bodyB->internalApplyImpulse(-solverConstraint.m_contactNormal2 * bodyB->internalGetInvMass() * rb1->getLinearFactor(), -solverConstraint.m_angularComponentB, -(btScalar)solverConstraint.m_appliedImpulse);
+					bodyB->internalApplyImpulse(-solverConstraint.m_contactNormal2 * bodyB->internalGetInvMass() * rb1->m_linearFactor, -solverConstraint.m_angularComponentB, -(btScalar)solverConstraint.m_appliedImpulse);
 			}
 		}
 	}
@@ -962,7 +962,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyTorsionalFrictionConstraint(btMu
 		btVector3 torqueAxis0 = constraintNormal;
 		solverConstraint.m_relpos1CrossNormal = torqueAxis0;
 		solverConstraint.m_contactNormal1 = btVector3(0, 0, 0);
-		solverConstraint.m_angularComponentA = rb0 ? rb0->getInvInertiaTensorWorld() * torqueAxis0 * rb0->getAngularFactor() : btVector3(0, 0, 0);
+		solverConstraint.m_angularComponentA = rb0 ? rb0->m_invInertiaTensorWorld * torqueAxis0 * rb0->m_angularFactor : btVector3(0, 0, 0);
 	}
 
 	if (multiBodyB)
@@ -1005,7 +1005,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyTorsionalFrictionConstraint(btMu
 		solverConstraint.m_relpos2CrossNormal = torqueAxis1;
 		solverConstraint.m_contactNormal2 = -btVector3(0, 0, 0);
 
-		solverConstraint.m_angularComponentB = rb1 ? rb1->getInvInertiaTensorWorld() * torqueAxis1 * rb1->getAngularFactor() : btVector3(0, 0, 0);
+		solverConstraint.m_angularComponentB = rb1 ? rb1->m_invInertiaTensorWorld * torqueAxis1 * rb1->m_angularFactor : btVector3(0, 0, 0);
 	}
 
 	{
@@ -1032,7 +1032,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyTorsionalFrictionConstraint(btMu
 		{
 			if (rb0)
 			{
-				btVector3 iMJaA = rb0 ? rb0->getInvInertiaTensorWorld() * solverConstraint.m_relpos1CrossNormal : btVector3(0, 0, 0);
+				btVector3 iMJaA = rb0 ? rb0->m_invInertiaTensorWorld * solverConstraint.m_relpos1CrossNormal : btVector3(0, 0, 0);
 				denom0 = iMJaA.dot(solverConstraint.m_relpos1CrossNormal);
 			}
 		}
@@ -1052,7 +1052,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyTorsionalFrictionConstraint(btMu
 		{
 			if (rb1)
 			{
-				btVector3 iMJaB = rb1 ? rb1->getInvInertiaTensorWorld() * solverConstraint.m_relpos2CrossNormal : btVector3(0, 0, 0);
+				btVector3 iMJaB = rb1 ? rb1->m_invInertiaTensorWorld * solverConstraint.m_relpos2CrossNormal : btVector3(0, 0, 0);
 				denom1 = iMJaB.dot(solverConstraint.m_relpos2CrossNormal);
 			}
 		}
@@ -1717,10 +1717,10 @@ btScalar btMultiBodyConstraintSolver::solveGroupCacheFriendlyFinish(btCollisionO
 		btJointFeedback* fb = constr->getJointFeedback();
 		if (fb)
 		{
-			fb->m_appliedForceBodyA += c.m_contactNormal1*c.m_appliedImpulse*constr->getRigidBodyA().getLinearFactor()/infoGlobal.m_timeStep;
-			fb->m_appliedForceBodyB += c.m_contactNormal2*c.m_appliedImpulse*constr->getRigidBodyB().getLinearFactor()/infoGlobal.m_timeStep;
-			fb->m_appliedTorqueBodyA += c.m_relpos1CrossNormal* constr->getRigidBodyA().getAngularFactor()*c.m_appliedImpulse/infoGlobal.m_timeStep;
-			fb->m_appliedTorqueBodyB += c.m_relpos2CrossNormal* constr->getRigidBodyB().getAngularFactor()*c.m_appliedImpulse/infoGlobal.m_timeStep; /*RGM ???? */
+			fb->m_appliedForceBodyA += c.m_contactNormal1*c.m_appliedImpulse*constr->getRigidBodyA().m_linearFactor/infoGlobal.m_timeStep;
+			fb->m_appliedForceBodyB += c.m_contactNormal2*c.m_appliedImpulse*constr->getRigidBodyB().m_linearFactor/infoGlobal.m_timeStep;
+			fb->m_appliedTorqueBodyA += c.m_relpos1CrossNormal* constr->getRigidBodyA().m_angularFactor*c.m_appliedImpulse/infoGlobal.m_timeStep;
+			fb->m_appliedTorqueBodyB += c.m_relpos2CrossNormal* constr->getRigidBodyB().m_angularFactor*c.m_appliedImpulse/infoGlobal.m_timeStep; /*RGM ???? */
 			
 		}
 

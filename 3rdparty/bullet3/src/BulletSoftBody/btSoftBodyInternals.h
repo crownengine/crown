@@ -1619,13 +1619,13 @@ struct btSoftColliders
 				psb->checkContact(m_colObj1Wrap, n.m_x, m, c.m_cti))
 			{
 				const btScalar ima = n.m_im;
-				const btScalar imb = m_rigidBody ? m_rigidBody->getInvMass() : 0.f;
+				const btScalar imb = m_rigidBody ? m_rigidBody->m_inverseMass : 0.f;
 				const btScalar ms = ima + imb;
 				if (ms > 0)
 				{
 					const btTransform& wtr = m_rigidBody ? m_rigidBody->m_worldTransform : m_colObj1Wrap->m_collisionObject->m_worldTransform;
 					static const btMatrix3x3 iwiStatic(0, 0, 0, 0, 0, 0, 0, 0, 0);
-					const btMatrix3x3& iwi = m_rigidBody ? m_rigidBody->getInvInertiaTensorWorld() : iwiStatic;
+					const btMatrix3x3& iwi = m_rigidBody ? m_rigidBody->m_invInertiaTensorWorld : iwiStatic;
 					const btVector3 ra = n.m_x - wtr.m_origin;
 					const btVector3 va = m_rigidBody ? m_rigidBody->getVelocityInLocalPoint(ra) * psb->m_sst.sdt : btVector3(0, 0, 0);
 					const btVector3 vb = n.m_x - n.m_q;
@@ -1674,7 +1674,7 @@ struct btSoftColliders
 				{
 					const btScalar ima = n.m_im;
 					// todo: collision between multibody and fixed deformable node will be missed.
-					const btScalar imb = m_rigidBody ? m_rigidBody->getInvMass() : 0.f;
+					const btScalar imb = m_rigidBody ? m_rigidBody->m_inverseMass : 0.f;
 					const btScalar ms = ima + imb;
 					if (ms > 0)
 					{
@@ -1694,7 +1694,7 @@ struct btSoftColliders
 							const btVector3 ra = n.m_x - wtr.m_origin;
 
 							static const btMatrix3x3 iwiStatic(0, 0, 0, 0, 0, 0, 0, 0, 0);
-							const btMatrix3x3& iwi = m_rigidBody ? m_rigidBody->getInvInertiaTensorWorld() : iwiStatic;
+							const btMatrix3x3& iwi = m_rigidBody ? m_rigidBody->m_invInertiaTensorWorld : iwiStatic;
 							if (psb->m_reducedModel)
 							{
 								c.m_c0 = MassMatrix(imb, iwi, ra); //impulse factor K of the rigid body only (not the inverse)
@@ -1783,7 +1783,7 @@ struct btSoftColliders
 			if (psb->checkDeformableFaceContact(m_colObj1Wrap, f, contact_point, bary, m, c.m_cti, true))
 			{
 				btScalar ima = n0->m_im + n1->m_im + n2->m_im;
-				const btScalar imb = m_rigidBody ? m_rigidBody->getInvMass() : 0.f;
+				const btScalar imb = m_rigidBody ? m_rigidBody->m_inverseMass : 0.f;
 				// todo: collision between multibody and fixed deformable face will be missed.
 				const btScalar ms = ima + imb;
 				if (ms > 0)
@@ -1810,7 +1810,7 @@ struct btSoftColliders
 					{
 						const btTransform& wtr = m_rigidBody ? m_rigidBody->m_worldTransform : m_colObj1Wrap->m_collisionObject->m_worldTransform;
 						static const btMatrix3x3 iwiStatic(0, 0, 0, 0, 0, 0, 0, 0, 0);
-						const btMatrix3x3& iwi = m_rigidBody ? m_rigidBody->getInvInertiaTensorWorld() : iwiStatic;
+						const btMatrix3x3& iwi = m_rigidBody ? m_rigidBody->m_invInertiaTensorWorld : iwiStatic;
 						const btVector3 ra = contact_point - wtr.m_origin;
 
 						// we do not scale the impulse matrix by dt

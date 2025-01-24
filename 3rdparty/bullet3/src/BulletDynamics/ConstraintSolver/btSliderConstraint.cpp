@@ -133,7 +133,7 @@ void btSliderConstraint::getInfo1NonVirtual(btConstraintInfo1* info)
 
 void btSliderConstraint::getInfo2(btConstraintInfo2* info)
 {
-	getInfo2NonVirtual(info, m_rbA.getCenterOfMassTransform(), m_rbB.getCenterOfMassTransform(), m_rbA.getLinearVelocity(), m_rbB.getLinearVelocity(), m_rbA.getInvMass(), m_rbB.getInvMass());
+	getInfo2NonVirtual(info, m_rbA.getCenterOfMassTransform(), m_rbB.getCenterOfMassTransform(), m_rbA.m_linearVelocity, m_rbB.m_linearVelocity, m_rbA.m_inverseMass, m_rbB.m_inverseMass);
 }
 
 void btSliderConstraint::calculateTransforms(const btTransform& transA, const btTransform& transB)
@@ -635,8 +635,8 @@ void btSliderConstraint::getInfo2NonVirtual(btConstraintInfo2* info, const btTra
 			btScalar bounce = btFabs(btScalar(1.0) - getDampingLimAng());
 			if (bounce > btScalar(0.0))
 			{
-				btScalar vel = m_rbA.getAngularVelocity().dot(ax1);
-				vel -= m_rbB.getAngularVelocity().dot(ax1);
+				btScalar vel = m_rbA.m_angularVelocity.dot(ax1);
+				vel -= m_rbB.m_angularVelocity.dot(ax1);
 				// only apply bounce if the velocity is incoming, and if the
 				// resulting c[] exceeds what we already have.
 				if (limit == 1)

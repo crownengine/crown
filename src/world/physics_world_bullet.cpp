@@ -271,8 +271,8 @@ struct PhysicsWorldImpl
 			btRigidBody *body = _actor[i].body;
 
 			_dynamics_world->removeRigidBody(body);
-			CE_DELETE(*_allocator, body->getMotionState());
-			CE_DELETE(*_allocator, body->getCollisionShape());
+			CE_DELETE(*_allocator, body->m_optionalMotionState);
+			CE_DELETE(*_allocator, body->m_collisionShape);
 			CE_DELETE(*_allocator, body);
 		}
 
@@ -546,8 +546,8 @@ struct PhysicsWorldImpl
 		const UnitId last_u = _actor[last].unit;
 
 		_dynamics_world->removeRigidBody(_actor[actor.i].body);
-		CE_DELETE(*_allocator, _actor[actor.i].body->getMotionState());
-		CE_DELETE(*_allocator, _actor[actor.i].body->getCollisionShape());
+		CE_DELETE(*_allocator, _actor[actor.i].body->m_optionalMotionState);
+		CE_DELETE(*_allocator, _actor[actor.i].body->m_collisionShape);
 		CE_DELETE(*_allocator, _actor[actor.i].body);
 
 		_actor[actor.i] = _actor[last];
@@ -612,14 +612,14 @@ struct PhysicsWorldImpl
 	void actor_enable_gravity(ActorInstance actor)
 	{
 		btRigidBody *body = _actor[actor.i].body;
-		body->setFlags(body->getFlags() & ~BT_DISABLE_WORLD_GRAVITY);
+		body->m_rigidbodyFlags = (body->m_rigidbodyFlags & ~BT_DISABLE_WORLD_GRAVITY);
 		body->setGravity(_dynamics_world->getGravity());
 	}
 
 	void actor_disable_gravity(ActorInstance actor)
 	{
 		btRigidBody *body = _actor[actor.i].body;
-		body->setFlags(body->getFlags() | BT_DISABLE_WORLD_GRAVITY);
+		body->m_rigidbodyFlags = (body->m_rigidbodyFlags | BT_DISABLE_WORLD_GRAVITY);
 		body->setGravity(btVector3(0.0f, 0.0f, 0.0f));
 	}
 
@@ -678,27 +678,27 @@ struct PhysicsWorldImpl
 
 	f32 actor_linear_damping(ActorInstance actor) const
 	{
-		return _actor[actor.i].body->getLinearDamping();
+		return _actor[actor.i].body->m_linearDamping;
 	}
 
 	void actor_set_linear_damping(ActorInstance actor, f32 rate)
 	{
-		_actor[actor.i].body->setDamping(rate, _actor[actor.i].body->getAngularDamping());
+		_actor[actor.i].body->setDamping(rate, _actor[actor.i].body->m_angularDamping);
 	}
 
 	f32 actor_angular_damping(ActorInstance actor) const
 	{
-		return _actor[actor.i].body->getAngularDamping();
+		return _actor[actor.i].body->m_angularDamping;
 	}
 
 	void actor_set_angular_damping(ActorInstance actor, f32 rate)
 	{
-		_actor[actor.i].body->setDamping(_actor[actor.i].body->getLinearDamping(), rate);
+		_actor[actor.i].body->setDamping(_actor[actor.i].body->m_linearDamping, rate);
 	}
 
 	Vector3 actor_linear_velocity(ActorInstance actor) const
 	{
-		btVector3 v = _actor[actor.i].body->getLinearVelocity();
+		btVector3 v = _actor[actor.i].body->m_linearVelocity;
 		return to_vector3(v);
 	}
 
@@ -710,7 +710,7 @@ struct PhysicsWorldImpl
 
 	Vector3 actor_angular_velocity(ActorInstance actor) const
 	{
-		btVector3 v = _actor[actor.i].body->getAngularVelocity();
+		btVector3 v = _actor[actor.i].body->m_angularVelocity;
 		return to_vector3(v);
 	}
 
@@ -941,7 +941,7 @@ struct PhysicsWorldImpl
 			const Quaternion rot = rotation(*begin_world);
 			const Vector3 pos = translation(*begin_world);
 			// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/MotionStates
-			btMotionState *ms = _actor[ai].body->getMotionState();
+			btMotionState *ms = _actor[ai].body->m_optionalMotionState;
 			if (ms)
 				ms->setWorldTransform(btTransform(to_btQuaternion(rot), to_btVector3(pos)));
 		}
@@ -961,13 +961,13 @@ struct PhysicsWorldImpl
 
 			btRigidBody *body = btRigidBody::upcast(collision_array[i]);
 			if (body
-				&& body->getMotionState()
+				&& body->m_optionalMotionState
 				&& body->isActive()
 				) {
 				const UnitId unit_id = _actor[(u32)(uintptr_t)body->m_userObjectPointer].unit;
 
 				btTransform tr;
-				body->getMotionState()->getWorldTransform(tr);
+				body->m_optionalMotionState->getWorldTransform(tr);
 
 				// Post transform event
 				{
@@ -1005,7 +1005,7 @@ struct PhysicsWorldImpl
 		// Limit bodies velocity
 		for (u32 i = 0; i < array::size(_actor); ++i) {
 			CE_ENSURE(NULL != _actor[i].body);
-			const btVector3 velocity = _actor[i].body->getLinearVelocity();
+			const btVector3 velocity = _actor[i].body->m_linearVelocity;
 			const btScalar speed = velocity.length();
 
 			if (speed > 100.0f)

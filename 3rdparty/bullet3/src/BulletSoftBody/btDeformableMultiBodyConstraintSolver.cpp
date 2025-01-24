@@ -101,11 +101,11 @@ void btDeformableMultiBodyConstraintSolver::writeToSolverBody(btCollisionObject*
 		int bodyId = getOrInitSolverBody(*bodies[i], infoGlobal.m_timeStep);
 
 		btRigidBody* body = btRigidBody::upcast(bodies[i]);
-		if (body && body->getInvMass())
+		if (body && body->m_inverseMass)
 		{
 			btSolverBody& solverBody = m_tmpSolverBodyPool[bodyId];
-			solverBody.m_linearVelocity = body->getLinearVelocity() - solverBody.m_deltaLinearVelocity;
-			solverBody.m_angularVelocity = body->getAngularVelocity() - solverBody.m_deltaAngularVelocity;
+			solverBody.m_linearVelocity = body->m_linearVelocity - solverBody.m_deltaLinearVelocity;
+			solverBody.m_angularVelocity = body->m_angularVelocity - solverBody.m_deltaAngularVelocity;
 		}
 	}
 }
@@ -153,7 +153,7 @@ void btDeformableMultiBodyConstraintSolver::pairDeformableAndSolverBody(btCollis
 				int bodyId = getOrInitSolverBody(col_obj, infoGlobal.m_timeStep);
 				
 				const btRigidBody* body = btRigidBody::upcast(bodies[bodyId]);
-				if (body && body->getInvMass())
+				if (body && body->m_inverseMass)
 				{
 						// std::cout << "Node: " << constraint.m_node->index << ", body: " << bodyId << "\n";
 					btSolverBody& solverBody = m_tmpSolverBodyPool[bodyId];
@@ -167,7 +167,7 @@ void btDeformableMultiBodyConstraintSolver::pairDeformableAndSolverBody(btCollis
 		// 	int bodyId = getOrInitSolverBody(*bodies[j], infoGlobal.m_timeStep);
 
 		// 	btRigidBody* body = btRigidBody::upcast(bodies[j]);
-		// 	if (body && body->getInvMass())
+		// 	if (body && body->m_inverseMass)
 		// 	{
 		// 		btSolverBody& solverBody = m_tmpSolverBodyPool[bodyId];
 		// 		m_deformableSolver->pairConstraintWithSolverBody(i, bodyId, solverBody);

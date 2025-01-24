@@ -158,7 +158,7 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(btMultiBodySolverConstra
 		{
 			torqueAxis0 = rel_pos1.cross(constraintNormalLin);
 		}
-		solverConstraint.m_angularComponentA = rb0 ? rb0->getInvInertiaTensorWorld() * torqueAxis0 * rb0->getAngularFactor() : btVector3(0, 0, 0);
+		solverConstraint.m_angularComponentA = rb0 ? rb0->m_invInertiaTensorWorld * torqueAxis0 * rb0->m_angularFactor : btVector3(0, 0, 0);
 		solverConstraint.m_relpos1CrossNormal = torqueAxis0;
 		solverConstraint.m_contactNormal1 = constraintNormalLin;
 	}
@@ -231,7 +231,7 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(btMultiBodySolverConstra
 		{
 			torqueAxis1 = rel_pos2.cross(constraintNormalLin);
 		}
-		solverConstraint.m_angularComponentB = rb1 ? rb1->getInvInertiaTensorWorld() * -torqueAxis1 * rb1->getAngularFactor() : btVector3(0, 0, 0);
+		solverConstraint.m_angularComponentB = rb1 ? rb1->m_invInertiaTensorWorld * -torqueAxis1 * rb1->m_angularFactor : btVector3(0, 0, 0);
 		solverConstraint.m_relpos2CrossNormal = -torqueAxis1;
 		solverConstraint.m_contactNormal2 = -constraintNormalLin;
 	}
@@ -266,7 +266,7 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(btMultiBodySolverConstra
 			}
 			else
 			{
-				denom0 = rb0->getInvMass() + constraintNormalLin.dot(vec);
+				denom0 = rb0->m_inverseMass + constraintNormalLin.dot(vec);
 			}
 		}
 		//
@@ -291,7 +291,7 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(btMultiBodySolverConstra
 			}
 			else
 			{
-				denom1 = rb1->getInvMass() + constraintNormalLin.dot(vec);
+				denom1 = rb1->m_inverseMass + constraintNormalLin.dot(vec);
 			}
 		}
 
@@ -325,8 +325,8 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(btMultiBodySolverConstra
 		}
 		else if (rb0)
 		{
-			rel_vel += rb0->getLinearVelocity().dot(solverConstraint.m_contactNormal1);
-			rel_vel += rb0->getAngularVelocity().dot(solverConstraint.m_relpos1CrossNormal);
+			rel_vel += rb0->m_linearVelocity.dot(solverConstraint.m_contactNormal1);
+			rel_vel += rb0->m_angularVelocity.dot(solverConstraint.m_relpos1CrossNormal);
 		}
 		if (multiBodyB)
 		{
@@ -337,8 +337,8 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(btMultiBodySolverConstra
 		}
 		else if (rb1)
 		{
-			rel_vel += rb1->getLinearVelocity().dot(solverConstraint.m_contactNormal2);
-			rel_vel += rb1->getAngularVelocity().dot(solverConstraint.m_relpos2CrossNormal);
+			rel_vel += rb1->m_linearVelocity.dot(solverConstraint.m_contactNormal2);
+			rel_vel += rb1->m_angularVelocity.dot(solverConstraint.m_relpos2CrossNormal);
 		}
 
 		solverConstraint.m_friction = 0.f;  //cp.m_combinedFriction;

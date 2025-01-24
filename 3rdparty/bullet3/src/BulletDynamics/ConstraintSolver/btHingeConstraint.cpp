@@ -234,10 +234,10 @@ void btHingeConstraint::buildJacobian()
 					pivotAInW - m_rbA.getCenterOfMassPosition(),
 					pivotBInW - m_rbB.getCenterOfMassPosition(),
 					normal[i],
-					m_rbA.getInvInertiaDiagLocal(),
-					m_rbA.getInvMass(),
-					m_rbB.getInvInertiaDiagLocal(),
-					m_rbB.getInvMass());
+					m_rbA.m_invInertiaLocal,
+					m_rbA.m_inverseMass,
+					m_rbB.m_invInertiaLocal,
+					m_rbB.m_inverseMass);
 			}
 		}
 
@@ -257,20 +257,20 @@ void btHingeConstraint::buildJacobian()
 		new (&m_jacAng[0]) btJacobianEntry(jointAxis0,
 										   m_rbA.getCenterOfMassTransform().m_basis.transpose(),
 										   m_rbB.getCenterOfMassTransform().m_basis.transpose(),
-										   m_rbA.getInvInertiaDiagLocal(),
-										   m_rbB.getInvInertiaDiagLocal());
+										   m_rbA.m_invInertiaLocal,
+										   m_rbB.m_invInertiaLocal);
 
 		new (&m_jacAng[1]) btJacobianEntry(jointAxis1,
 										   m_rbA.getCenterOfMassTransform().m_basis.transpose(),
 										   m_rbB.getCenterOfMassTransform().m_basis.transpose(),
-										   m_rbA.getInvInertiaDiagLocal(),
-										   m_rbB.getInvInertiaDiagLocal());
+										   m_rbA.m_invInertiaLocal,
+										   m_rbB.m_invInertiaLocal);
 
 		new (&m_jacAng[2]) btJacobianEntry(hingeAxisWorld,
 										   m_rbA.getCenterOfMassTransform().m_basis.transpose(),
 										   m_rbB.getCenterOfMassTransform().m_basis.transpose(),
-										   m_rbA.getInvInertiaDiagLocal(),
-										   m_rbB.getInvInertiaDiagLocal());
+										   m_rbA.m_invInertiaLocal,
+										   m_rbB.m_invInertiaLocal);
 
 		// clear accumulator
 		m_accLimitImpulse = btScalar(0.);
@@ -373,11 +373,11 @@ void btHingeConstraint::getInfo2(btConstraintInfo2* info)
 {
 	if (m_useOffsetForConstraintFrame)
 	{
-		getInfo2InternalUsingFrameOffset(info, m_rbA.getCenterOfMassTransform(), m_rbB.getCenterOfMassTransform(), m_rbA.getAngularVelocity(), m_rbB.getAngularVelocity());
+		getInfo2InternalUsingFrameOffset(info, m_rbA.getCenterOfMassTransform(), m_rbB.getCenterOfMassTransform(), m_rbA.m_angularVelocity, m_rbB.m_angularVelocity);
 	}
 	else
 	{
-		getInfo2Internal(info, m_rbA.getCenterOfMassTransform(), m_rbB.getCenterOfMassTransform(), m_rbA.getAngularVelocity(), m_rbB.getAngularVelocity());
+		getInfo2Internal(info, m_rbA.getCenterOfMassTransform(), m_rbB.getCenterOfMassTransform(), m_rbA.m_angularVelocity, m_rbB.m_angularVelocity);
 	}
 }
 
@@ -745,8 +745,8 @@ void btHingeConstraint::getInfo2InternalUsingFrameOffset(btConstraintInfo2* info
 	// difference between frames in WCS
 	btVector3 ofs = trB.m_origin - trA.m_origin;
 	// now get weight factors depending on masses
-	btScalar miA = getRigidBodyA().getInvMass();
-	btScalar miB = getRigidBodyB().getInvMass();
+	btScalar miA = getRigidBodyA().m_inverseMass;
+	btScalar miB = getRigidBodyB().m_inverseMass;
 	bool hasStaticBody = (miA < SIMD_EPSILON) || (miB < SIMD_EPSILON);
 	btScalar miS = miA + miB;
 	btScalar factA, factB;

@@ -755,20 +755,20 @@ void btSequentialImpulseConstraintSolverMt::internalConvertBodies(btCollisionObj
 		initSolverBody(&solverBody, obj, infoGlobal.m_timeStep);
 
 		btRigidBody* body = btRigidBody::upcast(obj);
-		if (body && body->getInvMass())
+		if (body && body->m_inverseMass)
 		{
 			btVector3 gyroForce(0, 0, 0);
-			if (body->getFlags() & BT_ENABLE_GYROSCOPIC_FORCE_EXPLICIT)
+			if (body->m_rigidbodyFlags & BT_ENABLE_GYROSCOPIC_FORCE_EXPLICIT)
 			{
 				gyroForce = body->computeGyroscopicForceExplicit(infoGlobal.m_maxGyroscopicForce);
-				solverBody.m_externalTorqueImpulse -= gyroForce * body->getInvInertiaTensorWorld() * infoGlobal.m_timeStep;
+				solverBody.m_externalTorqueImpulse -= gyroForce * body->m_invInertiaTensorWorld * infoGlobal.m_timeStep;
 			}
-			if (body->getFlags() & BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_WORLD)
+			if (body->m_rigidbodyFlags & BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_WORLD)
 			{
 				gyroForce = body->computeGyroscopicImpulseImplicit_World(infoGlobal.m_timeStep);
 				solverBody.m_externalTorqueImpulse += gyroForce;
 			}
-			if (body->getFlags() & BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_BODY)
+			if (body->m_rigidbodyFlags & BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_BODY)
 			{
 				gyroForce = body->computeGyroscopicImpulseImplicit_Body(infoGlobal.m_timeStep);
 				solverBody.m_externalTorqueImpulse += gyroForce;

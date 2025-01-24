@@ -126,17 +126,17 @@ void resolveSingleBilateral(btRigidBody& body1, const btVector3& pos1,
 
 	btJacobianEntry jac(body1.getCenterOfMassTransform().m_basis.transpose(),
 						body2.getCenterOfMassTransform().m_basis.transpose(),
-						rel_pos1, rel_pos2, normal, body1.getInvInertiaDiagLocal(), body1.getInvMass(),
-						body2.getInvInertiaDiagLocal(), body2.getInvMass());
+						rel_pos1, rel_pos2, normal, body1.m_invInertiaLocal, body1.m_inverseMass,
+						body2.m_invInertiaLocal, body2.m_inverseMass);
 
 	btScalar jacDiagAB = jac.getDiagonal();
 	btScalar jacDiagABInv = btScalar(1.) / jacDiagAB;
 
 	btScalar rel_vel = jac.getRelativeVelocity(
-		body1.getLinearVelocity(),
-		body1.getCenterOfMassTransform().m_basis.transpose() * body1.getAngularVelocity(),
-		body2.getLinearVelocity(),
-		body2.getCenterOfMassTransform().m_basis.transpose() * body2.getAngularVelocity());
+		body1.m_linearVelocity,
+		body1.getCenterOfMassTransform().m_basis.transpose() * body1.m_angularVelocity,
+		body2.m_linearVelocity,
+		body2.getCenterOfMassTransform().m_basis.transpose() * body2.m_angularVelocity);
 
 	rel_vel = normal.dot(vel);
 
@@ -144,7 +144,7 @@ void resolveSingleBilateral(btRigidBody& body1, const btVector3& pos1,
 	btScalar contactDamping = btScalar(0.2);
 
 #ifdef ONLY_USE_LINEAR_MASS
-	btScalar massTerm = btScalar(1.) / (body1.getInvMass() + body2.getInvMass());
+	btScalar massTerm = btScalar(1.) / (body1.m_inverseMass + body2.m_inverseMass);
 	impulse = -contactDamping * rel_vel * massTerm;
 #else
 	btScalar velocityImpulse = -contactDamping * rel_vel * jacDiagABInv;

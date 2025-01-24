@@ -147,9 +147,9 @@ void btRaycastVehicle::updateWheelTransformsWS(btWheelInfo& wheel, bool interpol
 	wheel.m_raycastInfo.m_isInContact = false;
 
 	btTransform chassisTrans = getChassisWorldTransform();
-	if (interpolatedTransform && (getRigidBody()->getMotionState()))
+	if (interpolatedTransform && (getRigidBody()->m_optionalMotionState))
 	{
-		getRigidBody()->getMotionState()->getWorldTransform(chassisTrans);
+		getRigidBody()->m_optionalMotionState->getWorldTransform(chassisTrans);
 	}
 
 	wheel.m_raycastInfo.m_hardPointWS = chassisTrans(wheel.m_chassisConnectionPointCS);
@@ -242,10 +242,10 @@ btScalar btRaycastVehicle::rayCast(btWheelInfo& wheel)
 
 const btTransform& btRaycastVehicle::getChassisWorldTransform() const
 {
-	/*if (getRigidBody()->getMotionState())
+	/*if (getRigidBody()->m_optionalMotionState)
 	{
 		btTransform chassisWorldTrans;
-		getRigidBody()->getMotionState()->getWorldTransform(chassisWorldTrans);
+		getRigidBody()->m_optionalMotionState->getWorldTransform(chassisWorldTrans);
 		return chassisWorldTrans;
 	}
 	*/
@@ -262,7 +262,7 @@ void btRaycastVehicle::updateVehicle(btScalar step)
 		}
 	}
 
-	m_currentVehicleSpeedKmHour = btScalar(3.6) * getRigidBody()->getLinearVelocity().length();
+	m_currentVehicleSpeedKmHour = btScalar(3.6) * getRigidBody()->m_linearVelocity.length();
 
 	const btTransform& chassisTrans = getChassisWorldTransform();
 
@@ -271,7 +271,7 @@ void btRaycastVehicle::updateVehicle(btScalar step)
 		chassisTrans.m_basis[1][m_indexForwardAxis],
 		chassisTrans.m_basis[2][m_indexForwardAxis]);
 
-	if (forwardW.dot(getRigidBody()->getLinearVelocity()) < btScalar(0.))
+	if (forwardW.dot(getRigidBody()->m_linearVelocity) < btScalar(0.))
 	{
 		m_currentVehicleSpeedKmHour *= btScalar(-1.);
 	}
@@ -385,7 +385,7 @@ void btRaycastVehicle::updateSuspension(btScalar deltaTime)
 {
 	(void)deltaTime;
 
-	btScalar chassisMass = btScalar(1.) / m_chassisBody->getInvMass();
+	btScalar chassisMass = btScalar(1.) / m_chassisBody->m_inverseMass;
 
 	for (int w_it = 0; w_it < getNumWheels(); w_it++)
 	{

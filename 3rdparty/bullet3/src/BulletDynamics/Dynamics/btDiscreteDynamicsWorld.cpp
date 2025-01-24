@@ -336,7 +336,7 @@ void btDiscreteDynamicsWorld::synchronizeSingleMotionState(btRigidBody* body)
 {
 	btAssert(body);
 
-	if (body->getMotionState() && !body->isStaticOrKinematicObject())
+	if (body->m_optionalMotionState && !body->isStaticOrKinematicObject())
 	{
 		//we need to call the update at least once, even for sleeping objects
 		//otherwise the 'graphics' transform never updates properly
@@ -348,7 +348,7 @@ void btDiscreteDynamicsWorld::synchronizeSingleMotionState(btRigidBody* body)
 												body->m_interpolationLinearVelocity, body->m_interpolationAngularVelocity,
 												(m_latencyMotionStateInterpolation && m_fixedTimeStep) ? m_localTime - m_fixedTimeStep : m_localTime * body->m_hitFraction,
 												interpolatedTransform);
-			body->getMotionState()->setWorldTransform(interpolatedTransform);
+			body->m_optionalMotionState->setWorldTransform(interpolatedTransform);
 		}
 	}
 }
@@ -502,7 +502,7 @@ void btDiscreteDynamicsWorld::setGravity(const btVector3& gravity)
 	for (int i = 0; i < m_nonStaticRigidBodies.size(); i++)
 	{
 		btRigidBody* body = m_nonStaticRigidBodies[i];
-		if (body->isActive() && !(body->getFlags() & BT_DISABLE_WORLD_GRAVITY))
+		if (body->isActive() && !(body->m_rigidbodyFlags & BT_DISABLE_WORLD_GRAVITY))
 		{
 			body->setGravity(gravity);
 		}
@@ -536,7 +536,7 @@ void btDiscreteDynamicsWorld::removeRigidBody(btRigidBody* body)
 
 void btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body)
 {
-	if (!body->isStaticOrKinematicObject() && !(body->getFlags() & BT_DISABLE_WORLD_GRAVITY))
+	if (!body->isStaticOrKinematicObject() && !(body->m_rigidbodyFlags & BT_DISABLE_WORLD_GRAVITY))
 	{
 		body->setGravity(m_gravity);
 	}
@@ -562,7 +562,7 @@ void btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body)
 
 void btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body, int group, int mask)
 {
-	if (!body->isStaticOrKinematicObject() && !(body->getFlags() & BT_DISABLE_WORLD_GRAVITY))
+	if (!body->isStaticOrKinematicObject() && !(body->m_rigidbodyFlags & BT_DISABLE_WORLD_GRAVITY))
 	{
 		body->setGravity(m_gravity);
 	}
@@ -891,8 +891,8 @@ void btDiscreteDynamicsWorld::createPredictiveContactsInternal(btRigidBody** bod
 					btSphereShape tmpSphere(body->m_ccdSweptSphereRadius);  //btConvexShape* convexShape = static_cast<btConvexShape*>(body->m_collisionShape);
 					sweepResults.m_allowedPenetration = getDispatchInfo().m_allowedCcdPenetration;
 
-					sweepResults.m_collisionFilterGroup = body->getBroadphaseProxy()->m_collisionFilterGroup;
-					sweepResults.m_collisionFilterMask = body->getBroadphaseProxy()->m_collisionFilterMask;
+					sweepResults.m_collisionFilterGroup = body->m_broadphaseHandle->m_collisionFilterGroup;
+					sweepResults.m_collisionFilterMask = body->m_broadphaseHandle->m_collisionFilterMask;
 					btTransform modifiedPredictedTrans = predictedTrans;
 					modifiedPredictedTrans.m_basis = (body->m_worldTransform.m_basis);
 
@@ -993,8 +993,8 @@ void btDiscreteDynamicsWorld::integrateTransformsInternal(btRigidBody** bodies, 
 					btSphereShape tmpSphere(body->m_ccdSweptSphereRadius);  //btConvexShape* convexShape = static_cast<btConvexShape*>(body->m_collisionShape);
 					sweepResults.m_allowedPenetration = getDispatchInfo().m_allowedCcdPenetration;
 
-					sweepResults.m_collisionFilterGroup = body->getBroadphaseProxy()->m_collisionFilterGroup;
-					sweepResults.m_collisionFilterMask = body->getBroadphaseProxy()->m_collisionFilterMask;
+					sweepResults.m_collisionFilterGroup = body->m_broadphaseHandle->m_collisionFilterGroup;
+					sweepResults.m_collisionFilterMask = body->m_broadphaseHandle->m_collisionFilterMask;
 					btTransform modifiedPredictedTrans = predictedTrans;
 					modifiedPredictedTrans.m_basis = (body->m_worldTransform.m_basis);
 
@@ -1008,7 +1008,7 @@ void btDiscreteDynamicsWorld::integrateTransformsInternal(btRigidBody** bodies, 
 						body->proceedToTransform(predictedTrans);
 
 #if 0
-						btVector3 linVel = body->getLinearVelocity();
+						btVector3 linVel = body->m_linearVelocity;
 
 						btScalar maxSpeed = body->getCcdMotionThreshold()/getSolverInfo().m_timeStep;
 						btScalar maxSpeedSqr = maxSpeed*maxSpeed;
@@ -1017,7 +1017,7 @@ void btDiscreteDynamicsWorld::integrateTransformsInternal(btRigidBody** bodies, 
 							linVel.normalize();
 							linVel*= maxSpeed;
 							body->setLinearVelocity(linVel);
-							btScalar ms2 = body->getLinearVelocity().length2();
+							btScalar ms2 = body->m_linearVelocity.length2();
 							body->predictIntegratedTransform(timeStep, predictedTrans);
 
 							btScalar sm2 = (predictedTrans.m_origin-body->m_worldTransform.m_origin).length2();
@@ -1200,7 +1200,7 @@ void btDiscreteDynamicsWorld::debugDrawConstraint(btTypedConstraint* constraint)
 				}
 				btScalar tws = pCT->getTwistSpan();
 				btScalar twa = pCT->getTwistAngle();
-				bool useFrameB = (pCT->getRigidBodyB().getInvMass() > btScalar(0.f));
+				bool useFrameB = (pCT->getRigidBodyB().m_inverseMass > btScalar(0.f));
 				if (useFrameB)
 				{
 					tr = pCT->getRigidBodyB().getCenterOfMassTransform() * pCT->getBFrame();

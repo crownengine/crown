@@ -1,6 +1,6 @@
 /*
  Written by Xuchen Han <xuchenhan2015@u.northwestern.edu>
- 
+
  Bullet Continuous Collision Detection and Physics Library
  Copyright (c) 2019 Google Inc. http://bulletphysics.org
  This software is provided 'as-is', without any express or implied warranty.
@@ -281,14 +281,14 @@ void btDeformableMultiBodyDynamicsWorld::positionCorrection(btScalar timeStep)
 		btRigidBody* rb = m_nonStaticRigidBodies[i];
 		//correct the position/orientation based on push/turn recovery
 		btTransform newTransform;
-		btVector3 pushVelocity = rb->getPushVelocity();
-		btVector3 turnVelocity = rb->getTurnVelocity();
+		btVector3 pushVelocity = rb->m_pushVelocity;
+		btVector3 turnVelocity = rb->m_turnVelocity;
 		if (pushVelocity[0] != 0.f || pushVelocity[1] != 0 || pushVelocity[2] != 0 || turnVelocity[0] != 0.f || turnVelocity[1] != 0 || turnVelocity[2] != 0)
 		{
 			btTransformUtil::integrateTransform(rb->m_worldTransform, pushVelocity, turnVelocity * infoGlobal.m_splitImpulseTurnErp, timeStep, newTransform);
 			rb->setWorldTransform(newTransform);
-			rb->setPushVelocity(zero);
-			rb->setTurnVelocity(zero);
+			rb->m_pushVelocity = (zero);
+			rb->m_turnVelocity = (zero);
 		}
 	}
 }

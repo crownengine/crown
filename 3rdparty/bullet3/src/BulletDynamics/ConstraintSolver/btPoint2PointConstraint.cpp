@@ -44,10 +44,10 @@ void btPoint2PointConstraint::buildJacobian()
 				m_rbA.getCenterOfMassTransform() * m_pivotInA - m_rbA.getCenterOfMassPosition(),
 				m_rbB.getCenterOfMassTransform() * m_pivotInB - m_rbB.getCenterOfMassPosition(),
 				normal,
-				m_rbA.getInvInertiaDiagLocal(),
-				m_rbA.getInvMass(),
-				m_rbB.getInvInertiaDiagLocal(),
-				m_rbB.getInvMass());
+				m_rbA.m_invInertiaLocal,
+				m_rbA.m_inverseMass,
+				m_rbB.m_invInertiaLocal,
+				m_rbB.m_inverseMass);
 			normal[i] = 0;
 		}
 	}

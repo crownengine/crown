@@ -420,8 +420,8 @@ void btGeneric6DofSpring2Constraint::calculateTransforms(const btTransform& tran
 	calculateLinearInfo();
 	calculateAngleInfo();
 
-	btScalar miA = getRigidBodyA().getInvMass();
-	btScalar miB = getRigidBodyB().getInvMass();
+	btScalar miA = getRigidBodyA().m_inverseMass;
+	btScalar miB = getRigidBodyB().m_inverseMass;
 	m_hasStaticBody = (miA < SIMD_EPSILON) || (miB < SIMD_EPSILON);
 	btScalar miS = miA + miB;
 	if (miS > btScalar(0.f))
@@ -477,10 +477,10 @@ void btGeneric6DofSpring2Constraint::getInfo2(btConstraintInfo2* info)
 {
 	const btTransform& transA = m_rbA.getCenterOfMassTransform();
 	const btTransform& transB = m_rbB.getCenterOfMassTransform();
-	const btVector3& linVelA = m_rbA.getLinearVelocity();
-	const btVector3& linVelB = m_rbB.getLinearVelocity();
-	const btVector3& angVelA = m_rbA.getAngularVelocity();
-	const btVector3& angVelB = m_rbB.getAngularVelocity();
+	const btVector3& linVelA = m_rbA.m_linearVelocity;
+	const btVector3& linVelB = m_rbB.m_linearVelocity;
+	const btVector3& angVelA = m_rbA.m_angularVelocity;
+	const btVector3& angVelB = m_rbB.m_angularVelocity;
 
 	// for stability better to solve angular limits first
 	int row = setAngularLimits(info, 0, transA, transB, linVelA, linVelB, angVelA, angVelB);
@@ -833,18 +833,18 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 			vel = (linVelA + tanVelA).dot(ax1) - (linVelB + tanVelB).dot(ax1);
 		}
 		btScalar cfm = BT_ZERO;
-		btScalar mA = BT_ONE / m_rbA.getInvMass();
-		btScalar mB = BT_ONE / m_rbB.getInvMass();
+		btScalar mA = BT_ONE / m_rbA.m_inverseMass;
+		btScalar mB = BT_ONE / m_rbB.m_inverseMass;
 		if (rotational)
 		{
 			btScalar rrA = (m_calculatedTransformA.m_origin - transA.m_origin).length2();
 			btScalar rrB = (m_calculatedTransformB.m_origin - transB.m_origin).length2();
-			if (m_rbA.getInvMass()) mA = mA * rrA + 1 / (m_rbA.getInvInertiaTensorWorld() * ax1).length();
-			if (m_rbB.getInvMass()) mB = mB * rrB + 1 / (m_rbB.getInvInertiaTensorWorld() * ax1).length();
+			if (m_rbA.m_inverseMass) mA = mA * rrA + 1 / (m_rbA.m_invInertiaTensorWorld * ax1).length();
+			if (m_rbB.m_inverseMass) mB = mB * rrB + 1 / (m_rbB.m_invInertiaTensorWorld * ax1).length();
 		}
 		btScalar m;
-		if (m_rbA.getInvMass() == 0) m = mB; else
-		if (m_rbB.getInvMass() == 0) m = mA; else
+		if (m_rbA.m_inverseMass == 0) m = mB; else
+		if (m_rbB.m_inverseMass == 0) m = mA; else
 			m = mA*mB / (mA + mB);
 		btScalar angularfreq = btSqrt(ks / m);
 

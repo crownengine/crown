@@ -234,11 +234,11 @@ void btSimpleDynamicsWorld::synchronizeMotionStates()
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
 		btRigidBody* body = btRigidBody::upcast(colObj);
-		if (body && body->getMotionState())
+		if (body && body->m_optionalMotionState)
 		{
 			if (body->m_activationState1 != ISLAND_SLEEPING)
 			{
-				body->getMotionState()->setWorldTransform(body->m_worldTransform);
+				body->m_optionalMotionState->setWorldTransform(body->m_worldTransform);
 			}
 		}
 	}
