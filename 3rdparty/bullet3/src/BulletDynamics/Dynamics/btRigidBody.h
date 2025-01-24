@@ -58,6 +58,7 @@ enum btRigidBodyFlags
 ///Deactivated (sleeping) rigid bodies don't take any processing time, except a minor broadphase collision detection impact (to allow active objects to activate/wake up sleeping objects)
 class btRigidBody : public btCollisionObject
 {
+public:
 	btMatrix3x3 m_invInertiaTensorWorld;
 	btVector3 m_linearVelocity;
 	btVector3 m_angularVelocity;
@@ -92,7 +93,6 @@ class btRigidBody : public btCollisionObject
 
 	int m_debugBodyId;
 
-protected:
 	ATTRIBUTE_ALIGNED16(btVector3 m_deltaLinearVelocity);
 	btVector3 m_deltaAngularVelocity;
 	btVector3 m_angularFactor;
@@ -210,62 +210,18 @@ public:
 
 	void setGravity(const btVector3& acceleration);
 
-	const btVector3& getGravity() const
-	{
-		return m_gravity_acceleration;
-	}
-
 	void setDamping(btScalar lin_damping, btScalar ang_damping);
-
-	btScalar getLinearDamping() const
-	{
-		return m_linearDamping;
-	}
-
-	btScalar getAngularDamping() const
-	{
-		return m_angularDamping;
-	}
-
-	btScalar getLinearSleepingThreshold() const
-	{
-		return m_linearSleepingThreshold;
-	}
-
-	btScalar getAngularSleepingThreshold() const
-	{
-		return m_angularSleepingThreshold;
-	}
 
 	void applyDamping(btScalar timeStep);
 
-	SIMD_FORCE_INLINE const btCollisionShape* getCollisionShape() const
-	{
-		return m_collisionShape;
-	}
-
-	SIMD_FORCE_INLINE btCollisionShape* getCollisionShape()
-	{
-		return m_collisionShape;
-	}
-
 	void setMassProps(btScalar mass, const btVector3& inertia);
 
-	const btVector3& getLinearFactor() const
-	{
-		return m_linearFactor;
-	}
 	void setLinearFactor(const btVector3& linearFactor)
 	{
 		m_linearFactor = linearFactor;
 		m_invMass = m_linearFactor * m_inverseMass;
 	}
-	btScalar getInvMass() const { return m_inverseMass; }
 	btScalar getMass() const { return m_inverseMass == btScalar(0.) ? btScalar(0.) : btScalar(1.0) / m_inverseMass; }
-	const btMatrix3x3& getInvInertiaTensorWorld() const
-	{
-		return m_invInertiaTensorWorld;
-	}
 
 	void integrateVelocities(btScalar step);
 
@@ -274,26 +230,6 @@ public:
 	void applyCentralForce(const btVector3& force)
 	{
 		m_totalForce += force * m_linearFactor;
-	}
-
-	const btVector3& getTotalForce() const
-	{
-		return m_totalForce;
-	};
-
-	const btVector3& getTotalTorque() const
-	{
-		return m_totalTorque;
-	};
-
-	const btVector3& getInvInertiaDiagLocal() const
-	{
-		return m_invInertiaLocal;
-	};
-
-	void setInvInertiaDiagLocal(const btVector3& diagInvInertia)
-	{
-		m_invInertiaLocal = diagInvInertia;
 	}
 
 	void setSleepingThresholds(btScalar linear, btScalar angular)
@@ -356,21 +292,6 @@ public:
         }
     }
 
-    btVector3 getPushVelocity() const
-    {
-        return m_pushVelocity;
-    }
-
-    btVector3 getTurnVelocity() const
-    {
-        return m_turnVelocity;
-    }
-
-    void setPushVelocity(const btVector3& v)
-    {
-        m_pushVelocity = v;
-    }
-
     #if defined(BT_CLAMP_VELOCITY_TO) && BT_CLAMP_VELOCITY_TO > 0
     void clampVelocity(btVector3& v) const {
         v.m_floats[0] = (
@@ -430,14 +351,6 @@ public:
 	{
 		return m_worldTransform;
 	}
-	const btVector3& getLinearVelocity() const
-	{
-		return m_linearVelocity;
-	}
-	const btVector3& getAngularVelocity() const
-	{
-		return m_angularVelocity;
-	}
 
 	inline void setLinearVelocity(const btVector3& lin_vel)
 	{
@@ -485,14 +398,14 @@ public:
 
 		btVector3 c0 = (r0).cross(normal);
 
-		btVector3 vec = (c0 * getInvInertiaTensorWorld()).cross(r0);
+		btVector3 vec = (c0 * m_invInertiaTensorWorld).cross(r0);
 
 		return m_inverseMass + normal.dot(vec);
 	}
 
 	SIMD_FORCE_INLINE btScalar computeAngularImpulseDenominator(const btVector3& axis) const
 	{
-		btVector3 vec = axis * getInvInertiaTensorWorld();
+		btVector3 vec = axis * m_invInertiaTensorWorld;
 		return axis.dot(vec);
 	}
 
@@ -501,8 +414,8 @@ public:
 		if ((m_activationState1 == ISLAND_SLEEPING) || (m_activationState1 == DISABLE_DEACTIVATION))
 			return;
 
-		if ((getLinearVelocity().length2() < m_linearSleepingThreshold * m_linearSleepingThreshold) &&
-			(getAngularVelocity().length2() < m_angularSleepingThreshold * m_angularSleepingThreshold))
+		if ((m_linearVelocity.length2() < m_linearSleepingThreshold * m_linearSleepingThreshold) &&
+			(m_angularVelocity.length2() < m_angularSleepingThreshold * m_angularSleepingThreshold))
 		{
 			m_deactivationTime += timeStep;
 		}
@@ -532,28 +445,6 @@ public:
 		return false;
 	}
 
-	const btBroadphaseProxy* getBroadphaseProxy() const
-	{
-		return m_broadphaseHandle;
-	}
-	btBroadphaseProxy* getBroadphaseProxy()
-	{
-		return m_broadphaseHandle;
-	}
-	void setNewBroadphaseProxy(btBroadphaseProxy* broadphaseProxy)
-	{
-		m_broadphaseHandle = broadphaseProxy;
-	}
-
-	//btMotionState allows to automatic synchronize the world transform for active objects
-	btMotionState* getMotionState()
-	{
-		return m_optionalMotionState;
-	}
-	const btMotionState* getMotionState() const
-	{
-		return m_optionalMotionState;
-	}
 	void setMotionState(btMotionState* motionState)
 	{
 		m_optionalMotionState = motionState;
@@ -576,15 +467,11 @@ public:
 		m_updateRevision++;
 		m_angularFactor.setValue(angFac, angFac, angFac);
 	}
-	const btVector3& getAngularFactor() const
-	{
-		return m_angularFactor;
-	}
 
 	//is this rigidbody added to a btCollisionWorld/btDynamicsWorld/btBroadphase?
 	bool isInWorld() const
 	{
-		return (getBroadphaseProxy() != 0);
+		return (m_broadphaseHandle != 0);
 	}
 
 	void addConstraintRef(btTypedConstraint* c);
@@ -598,16 +485,6 @@ public:
 	int getNumConstraintRefs() const
 	{
 		return m_constraintRefs.size();
-	}
-
-	void setFlags(int flags)
-	{
-		m_rigidbodyFlags = flags;
-	}
-
-	int getFlags() const
-	{
-		return m_rigidbodyFlags;
 	}
 
 	///perform implicit force computation in world space

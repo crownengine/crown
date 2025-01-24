@@ -883,10 +883,10 @@ void btKinematicCharacterController::jump(const btVector3& v)
 #if 0
 	currently no jumping.
 	btTransform xform;
-	m_rigidBody->getMotionState()->getWorldTransform (xform);
+	m_rigidBody->m_optionalMotionState->getWorldTransform (xform);
 	btVector3 up = xform.m_basis[1];
 	up.normalize ();
-	btScalar magnitude = (btScalar(1.0)/m_rigidBody->getInvMass()) * btScalar(8.0);
+	btScalar magnitude = (btScalar(1.0)/m_rigidBody->m_inverseMass) * btScalar(8.0);
 	m_rigidBody->applyCentralImpulse (up * magnitude);
 #endif
 }

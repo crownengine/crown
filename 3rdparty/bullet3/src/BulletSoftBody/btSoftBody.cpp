@@ -533,7 +533,7 @@ void btSoftBody::appendDeformableAnchor(int node, btRigidBody* body)
 	DeformableNodeRigidAnchor c;
 	btSoftBody::Node& n = m_nodes[node];
 	const btScalar ima = n.m_im;
-	const btScalar imb = body->getInvMass();
+	const btScalar imb = body->m_inverseMass;
 	btVector3 nrm;
 	const btCollisionShape* shp = body->m_collisionShape;
 	const btTransform& wtr = body->m_worldTransform;
@@ -553,7 +553,7 @@ void btSoftBody::appendDeformableAnchor(int node, btRigidBody* body)
 	c.m_c3 = fc;
 	c.m_c4 = body->isStaticOrKinematicObject() ? m_cfg.kKHR : m_cfg.kCHR;
 	static const btMatrix3x3 iwiStatic(0, 0, 0, 0, 0, 0, 0, 0, 0);
-	const btMatrix3x3& iwi = body->getInvInertiaTensorWorld();
+	const btMatrix3x3& iwi = body->m_invInertiaTensorWorld;
 	const btVector3 ra = n.m_x - wtr.m_origin;
 
 	c.m_c0 = ImpulseMatrix(1, ima, imb, iwi, ra);
@@ -2226,8 +2226,8 @@ void btSoftBody::solveConstraints()
 		const btVector3 ra = a.m_body->m_worldTransform.m_basis * a.m_local;
 		a.m_c0 = ImpulseMatrix(m_sst.sdt,
 							   a.m_node->m_im,
-							   a.m_body->getInvMass(),
-							   a.m_body->getInvInertiaTensorWorld(),
+							   a.m_body->m_inverseMass,
+							   a.m_body->m_invInertiaTensorWorld,
 							   ra);
 		a.m_c1 = ra;
 		a.m_c2 = m_sst.sdt * a.m_node->m_im;

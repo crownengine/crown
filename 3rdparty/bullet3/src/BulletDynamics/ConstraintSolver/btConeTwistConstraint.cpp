@@ -75,7 +75,7 @@ void btConeTwistConstraint::getInfo1(btConstraintInfo1* info)
 	{
 		info->m_numConstraintRows = 3;
 		info->nub = 3;
-		calcAngleInfo2(m_rbA.getCenterOfMassTransform(), m_rbB.getCenterOfMassTransform(), m_rbA.getInvInertiaTensorWorld(), m_rbB.getInvInertiaTensorWorld());
+		calcAngleInfo2(m_rbA.getCenterOfMassTransform(), m_rbB.getCenterOfMassTransform(), m_rbA.m_invInertiaTensorWorld, m_rbB.m_invInertiaTensorWorld);
 		if (m_solveSwingLimit)
 		{
 			info->m_numConstraintRows++;
@@ -103,7 +103,7 @@ void btConeTwistConstraint::getInfo1NonVirtual(btConstraintInfo1* info)
 
 void btConeTwistConstraint::getInfo2(btConstraintInfo2* info)
 {
-	getInfo2NonVirtual(info, m_rbA.getCenterOfMassTransform(), m_rbB.getCenterOfMassTransform(), m_rbA.getInvInertiaTensorWorld(), m_rbB.getInvInertiaTensorWorld());
+	getInfo2NonVirtual(info, m_rbA.getCenterOfMassTransform(), m_rbB.getCenterOfMassTransform(), m_rbA.m_invInertiaTensorWorld, m_rbB.m_invInertiaTensorWorld);
 }
 
 void btConeTwistConstraint::getInfo2NonVirtual(btConstraintInfo2* info, const btTransform& transA, const btTransform& transB, const btMatrix3x3& invInertiaWorldA, const btMatrix3x3& invInertiaWorldB)
@@ -278,14 +278,14 @@ void btConeTwistConstraint::buildJacobian()
 					pivotAInW - m_rbA.getCenterOfMassPosition(),
 					pivotBInW - m_rbB.getCenterOfMassPosition(),
 					normal[i],
-					m_rbA.getInvInertiaDiagLocal(),
-					m_rbA.getInvMass(),
-					m_rbB.getInvInertiaDiagLocal(),
-					m_rbB.getInvMass());
+					m_rbA.m_invInertiaLocal,
+					m_rbA.m_inverseMass,
+					m_rbB.m_invInertiaLocal,
+					m_rbB.m_inverseMass);
 			}
 		}
 
-		calcAngleInfo2(m_rbA.getCenterOfMassTransform(), m_rbB.getCenterOfMassTransform(), m_rbA.getInvInertiaTensorWorld(), m_rbB.getInvInertiaTensorWorld());
+		calcAngleInfo2(m_rbA.getCenterOfMassTransform(), m_rbB.getCenterOfMassTransform(), m_rbA.m_invInertiaTensorWorld, m_rbB.m_invInertiaTensorWorld);
 	}
 }
 
@@ -325,8 +325,8 @@ void btConeTwistConstraint::solveConstraintObsolete(btSolverBody& bodyA, btSolve
 
 				btVector3 ftorqueAxis1 = rel_pos1.cross(normal);
 				btVector3 ftorqueAxis2 = rel_pos2.cross(normal);
-				bodyA.internalApplyImpulse(normal * m_rbA.getInvMass(), m_rbA.getInvInertiaTensorWorld() * ftorqueAxis1, impulse);
-				bodyB.internalApplyImpulse(normal * m_rbB.getInvMass(), m_rbB.getInvInertiaTensorWorld() * ftorqueAxis2, -impulse);
+				bodyA.internalApplyImpulse(normal * m_rbA.m_inverseMass, m_rbA.m_invInertiaTensorWorld * ftorqueAxis1, impulse);
+				bodyB.internalApplyImpulse(normal * m_rbB.m_inverseMass, m_rbB.m_invInertiaTensorWorld * ftorqueAxis2, -impulse);
 			}
 		}
 
@@ -415,8 +415,8 @@ void btConeTwistConstraint::solveConstraintObsolete(btSolverBody& bodyA, btSolve
 				btScalar impulseMag = impulse.length();
 				btVector3 impulseAxis = impulse / impulseMag;
 
-				bodyA.internalApplyImpulse(btVector3(0, 0, 0), m_rbA.getInvInertiaTensorWorld() * impulseAxis, impulseMag);
-				bodyB.internalApplyImpulse(btVector3(0, 0, 0), m_rbB.getInvInertiaTensorWorld() * impulseAxis, -impulseMag);
+				bodyA.internalApplyImpulse(btVector3(0, 0, 0), m_rbA.m_invInertiaTensorWorld * impulseAxis, impulseMag);
+				bodyB.internalApplyImpulse(btVector3(0, 0, 0), m_rbB.m_invInertiaTensorWorld * impulseAxis, -impulseMag);
 			}
 		}
 		else if (m_damping > SIMD_EPSILON)  // no motor: do a little damping
@@ -436,8 +436,8 @@ void btConeTwistConstraint::solveConstraintObsolete(btSolverBody& bodyA, btSolve
 
 				btScalar impulseMag = impulse.length();
 				btVector3 impulseAxis = impulse / impulseMag;
-				bodyA.internalApplyImpulse(btVector3(0, 0, 0), m_rbA.getInvInertiaTensorWorld() * impulseAxis, impulseMag);
-				bodyB.internalApplyImpulse(btVector3(0, 0, 0), m_rbB.getInvInertiaTensorWorld() * impulseAxis, -impulseMag);
+				bodyA.internalApplyImpulse(btVector3(0, 0, 0), m_rbA.m_invInertiaTensorWorld * impulseAxis, impulseMag);
+				bodyB.internalApplyImpulse(btVector3(0, 0, 0), m_rbB.m_invInertiaTensorWorld * impulseAxis, -impulseMag);
 			}
 		}
 
@@ -476,8 +476,8 @@ void btConeTwistConstraint::solveConstraintObsolete(btSolverBody& bodyA, btSolve
 				impulseMag = impulse.length();
 				btVector3 noTwistSwingAxis = impulse / impulseMag;
 
-				bodyA.internalApplyImpulse(btVector3(0, 0, 0), m_rbA.getInvInertiaTensorWorld() * noTwistSwingAxis, impulseMag);
-				bodyB.internalApplyImpulse(btVector3(0, 0, 0), m_rbB.getInvInertiaTensorWorld() * noTwistSwingAxis, -impulseMag);
+				bodyA.internalApplyImpulse(btVector3(0, 0, 0), m_rbA.m_invInertiaTensorWorld * noTwistSwingAxis, impulseMag);
+				bodyB.internalApplyImpulse(btVector3(0, 0, 0), m_rbB.m_invInertiaTensorWorld * noTwistSwingAxis, -impulseMag);
 			}
 
 			// solve twist limit
@@ -496,8 +496,8 @@ void btConeTwistConstraint::solveConstraintObsolete(btSolverBody& bodyA, btSolve
 
 				//		btVector3 impulse = m_twistAxis * impulseMag;
 
-				bodyA.internalApplyImpulse(btVector3(0, 0, 0), m_rbA.getInvInertiaTensorWorld() * m_twistAxis, impulseMag);
-				bodyB.internalApplyImpulse(btVector3(0, 0, 0), m_rbB.getInvInertiaTensorWorld() * m_twistAxis, -impulseMag);
+				bodyA.internalApplyImpulse(btVector3(0, 0, 0), m_rbA.m_invInertiaTensorWorld * m_twistAxis, impulseMag);
+				bodyB.internalApplyImpulse(btVector3(0, 0, 0), m_rbB.m_invInertiaTensorWorld * m_twistAxis, -impulseMag);
 			}
 		}
 	}

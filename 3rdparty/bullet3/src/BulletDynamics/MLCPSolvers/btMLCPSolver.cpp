@@ -261,8 +261,8 @@ void btMLCPSolver::createMLCPFast(const btContactSolverInfo& infoGlobal)
 				}
 				for (int row = 0; row < numRows; row++, cur++)
 				{
-					btVector3 normalInvMass = m_allConstraintPtrArray[i + row]->m_contactNormal1 * orgBodyA->getInvMass();
-					btVector3 relPosCrossNormalInvInertia = m_allConstraintPtrArray[i + row]->m_relpos1CrossNormal * orgBodyA->getInvInertiaTensorWorld();
+					btVector3 normalInvMass = m_allConstraintPtrArray[i + row]->m_contactNormal1 * orgBodyA->m_inverseMass;
+					btVector3 relPosCrossNormalInvInertia = m_allConstraintPtrArray[i + row]->m_relpos1CrossNormal * orgBodyA->m_invInertiaTensorWorld;
 
 					for (int r = 0; r < 3; r++)
 					{
@@ -298,8 +298,8 @@ void btMLCPSolver::createMLCPFast(const btContactSolverInfo& infoGlobal)
 
 				for (int row = 0; row < numRows; row++, cur++)
 				{
-					btVector3 normalInvMassB = m_allConstraintPtrArray[i + row]->m_contactNormal2 * orgBodyB->getInvMass();
-					btVector3 relPosInvInertiaB = m_allConstraintPtrArray[i + row]->m_relpos2CrossNormal * orgBodyB->getInvInertiaTensorWorld();
+					btVector3 normalInvMassB = m_allConstraintPtrArray[i + row]->m_contactNormal2 * orgBodyB->m_inverseMass;
+					btVector3 relPosInvInertiaB = m_allConstraintPtrArray[i + row]->m_relpos2CrossNormal * orgBodyB->m_invInertiaTensorWorld;
 
 					for (int r = 0; r < 3; r++)
 					{
@@ -491,7 +491,7 @@ void btMLCPSolver::createMLCP(const btContactSolverInfo& infoGlobal)
 
 		for (int r = 0; r < 3; r++)
 			for (int c = 0; c < 3; c++)
-				setElem(Minv, i * 6 + 3 + r, i * 6 + 3 + c, orgBody ? orgBody->getInvInertiaTensorWorld()[r][c] : 0);
+				setElem(Minv, i * 6 + 3 + r, i * 6 + 3 + c, orgBody ? orgBody->m_invInertiaTensorWorld[r][c] : 0);
 	}
 
 	btMatrixXu& J = m_scratchJ;

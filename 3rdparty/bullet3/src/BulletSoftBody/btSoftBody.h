@@ -535,13 +535,13 @@ public:
 		const btMatrix3x3& invWorldInertia() const
 		{
 			static const btMatrix3x3 iwi(0, 0, 0, 0, 0, 0, 0, 0, 0);
-			if (m_rigid) return (m_rigid->getInvInertiaTensorWorld());
+			if (m_rigid) return (m_rigid->m_invInertiaTensorWorld);
 			if (m_soft) return (m_soft->m_invwi);
 			return (iwi);
 		}
 		btScalar invMass() const
 		{
-			if (m_rigid) return (m_rigid->getInvMass());
+			if (m_rigid) return (m_rigid->m_inverseMass);
 			if (m_soft) return (m_soft->m_imass);
 			return (0);
 		}
@@ -554,19 +554,19 @@ public:
 		}
 		btVector3 linearVelocity() const
 		{
-			if (m_rigid) return (m_rigid->getLinearVelocity());
+			if (m_rigid) return (m_rigid->m_linearVelocity);
 			if (m_soft) return (m_soft->m_lv);
 			return (btVector3(0, 0, 0));
 		}
 		btVector3 angularVelocity(const btVector3& rpos) const
 		{
-			if (m_rigid) return (btCross(m_rigid->getAngularVelocity(), rpos));
+			if (m_rigid) return (btCross(m_rigid->m_angularVelocity, rpos));
 			if (m_soft) return (btCross(m_soft->m_av, rpos));
 			return (btVector3(0, 0, 0));
 		}
 		btVector3 angularVelocity() const
 		{
-			if (m_rigid) return (m_rigid->getAngularVelocity());
+			if (m_rigid) return (m_rigid->m_angularVelocity);
 			if (m_soft) return (m_soft->m_av);
 			return (btVector3(0, 0, 0));
 		}

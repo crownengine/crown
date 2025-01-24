@@ -86,11 +86,11 @@ void btReducedDeformableRigidContactConstraint::setSolverBody(const int bodyId, 
 		m_solverBody = &solver_body;
 		m_linearComponentNormal = -m_contactNormalA * m_solverBody->internalGetInvMass();
 		btVector3	torqueAxis = -m_relPosA.cross(m_contactNormalA);
-		m_angularComponentNormal = m_solverBody->m_originalBody->getInvInertiaTensorWorld() * torqueAxis;
+		m_angularComponentNormal = m_solverBody->m_originalBody->m_invInertiaTensorWorld * torqueAxis;
 		
 		m_linearComponentTangent = m_contactTangent * m_solverBody->internalGetInvMass();
 		btVector3 torqueAxisTangent = m_relPosA.cross(m_contactTangent);
-		m_angularComponentTangent = m_solverBody->m_originalBody->getInvInertiaTensorWorld() * torqueAxisTangent;
+		m_angularComponentTangent = m_solverBody->m_originalBody->m_invInertiaTensorWorld * torqueAxisTangent;
 	}
 }
 
@@ -112,9 +112,9 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 	// {
 		// std::cout << "moving collision!!!\n";
 		// std::cout << "relPosA: " << m_relPosA[0] << "\t" << m_relPosA[1] << "\t" << m_relPosA[2] << "\n";
-		// std::cout << "moving rigid linear_vel: " << m_solverBody->m_originalBody->getLinearVelocity()[0] << '\t'
-		//  << m_solverBody->m_originalBody->getLinearVelocity()[1] << '\t'
-		//   << m_solverBody->m_originalBody->getLinearVelocity()[2] << '\n';
+		// std::cout << "moving rigid linear_vel: " << m_solverBody->m_originalBody->m_linearVelocity[0] << '\t'
+		//  << m_solverBody->m_originalBody->m_linearVelocity[1] << '\t'
+		//   << m_solverBody->m_originalBody->m_linearVelocity[2] << '\n';
 	// }
 	btVector3 deltaVa = getDeltaVa();
 	btVector3 deltaVb = getDeltaVb();
