@@ -26,7 +26,7 @@ class btSerializer;
 ATTRIBUTE_ALIGNED16(class)
 btCollisionShape
 {
-protected:
+public:
 	int m_shapeType;
 	void* m_userPointer;
 	int m_userIndex;
@@ -59,40 +59,40 @@ public:
 
 	SIMD_FORCE_INLINE bool isPolyhedral() const
 	{
-		return btBroadphaseProxy::isPolyhedral(getShapeType());
+		return btBroadphaseProxy::isPolyhedral(m_shapeType);
 	}
 
 	SIMD_FORCE_INLINE bool isConvex2d() const
 	{
-		return btBroadphaseProxy::isConvex2d(getShapeType());
+		return btBroadphaseProxy::isConvex2d(m_shapeType);
 	}
 
 	SIMD_FORCE_INLINE bool isConvex() const
 	{
-		return btBroadphaseProxy::isConvex(getShapeType());
+		return btBroadphaseProxy::isConvex(m_shapeType);
 	}
 	SIMD_FORCE_INLINE bool isNonMoving() const
 	{
-		return btBroadphaseProxy::isNonMoving(getShapeType());
+		return btBroadphaseProxy::isNonMoving(m_shapeType);
 	}
 	SIMD_FORCE_INLINE bool isConcave() const
 	{
-		return btBroadphaseProxy::isConcave(getShapeType());
+		return btBroadphaseProxy::isConcave(m_shapeType);
 	}
 	SIMD_FORCE_INLINE bool isCompound() const
 	{
-		return btBroadphaseProxy::isCompound(getShapeType());
+		return btBroadphaseProxy::isCompound(m_shapeType);
 	}
 
 	SIMD_FORCE_INLINE bool isSoftBody() const
 	{
-		return btBroadphaseProxy::isSoftBody(getShapeType());
+		return btBroadphaseProxy::isSoftBody(m_shapeType);
 	}
 
 	///isInfinite is used to catch simulation error (aabb check)
 	SIMD_FORCE_INLINE bool isInfinite() const
 	{
-		return btBroadphaseProxy::isInfinite(getShapeType());
+		return btBroadphaseProxy::isInfinite(m_shapeType);
 	}
 
 #ifndef __SPU__
@@ -104,11 +104,6 @@ public:
 	virtual const char* getName() const = 0;
 #endif  //__SPU__
 
-	int getShapeType() const
-	{
-		return m_shapeType;
-	}
-
 	///the getAnisotropicRollingFrictionDirection can be used in combination with setAnisotropicFriction
 	///See Bullet/Demos/RollingFrictionDemo for an example
 	virtual btVector3 getAnisotropicRollingFrictionDirection() const
@@ -117,36 +112,6 @@ public:
 	}
 	virtual void setMargin(btScalar margin) = 0;
 	virtual btScalar getMargin() const = 0;
-
-	///optional user data pointer
-	void setUserPointer(void* userPtr)
-	{
-		m_userPointer = userPtr;
-	}
-
-	void* getUserPointer() const
-	{
-		return m_userPointer;
-	}
-	void setUserIndex(int index)
-	{
-		m_userIndex = index;
-	}
-
-	int getUserIndex() const
-	{
-		return m_userIndex;
-	}
-
-	void setUserIndex2(int index)
-	{
-		m_userIndex2 = index;
-	}
-
-	int getUserIndex2() const
-	{
-		return m_userIndex2;
-	}
 
 	virtual int calculateSerializeBufferSize() const;
 

@@ -227,7 +227,7 @@ void btConvexConcaveCollisionAlgorithm::processCollision(const btCollisionObject
 
 	if (triBodyWrap->m_collisionShape->isConcave())
 	{
-		if (triBodyWrap->m_collisionShape->getShapeType() == SDF_SHAPE_PROXYTYPE)
+		if (triBodyWrap->m_collisionShape->m_shapeType == SDF_SHAPE_PROXYTYPE)
 		{
 			btSdfCollisionShape* sdfShape = (btSdfCollisionShape*)triBodyWrap->m_collisionShape;
 			if (convexBodyWrap->m_collisionShape->isConvex())
@@ -247,7 +247,7 @@ void btConvexConcaveCollisionAlgorithm::processCollision(const btCollisionObject
 				}
 				btScalar maxDist = SIMD_EPSILON;
 
-				if (convex->getShapeType() == SPHERE_SHAPE_PROXYTYPE)
+				if (convex->m_shapeType == SPHERE_SHAPE_PROXYTYPE)
 				{
 					queryVertices.push_back(btVector3(0, 0, 0));
 					btSphereShape* sphere = (btSphereShape*)convex;
@@ -274,7 +274,7 @@ void btConvexConcaveCollisionAlgorithm::processCollision(const btCollisionObject
 								normalLocal.safeNormalize();
 								btVector3 normal = triBodyWrap->m_worldTransform.m_basis * normalLocal;
 
-								if (convex->getShapeType() == SPHERE_SHAPE_PROXYTYPE)
+								if (convex->m_shapeType == SPHERE_SHAPE_PROXYTYPE)
 								{
 									btSphereShape* sphere = (btSphereShape*)convex;
 									dist -= sphere->getRadius();

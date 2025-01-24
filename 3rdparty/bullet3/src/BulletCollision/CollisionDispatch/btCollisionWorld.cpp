@@ -109,7 +109,7 @@ void btCollisionWorld::refreshBroadphaseProxy(btCollisionObject* collisionObject
 		btVector3 maxAabb;
 		collisionObject->m_collisionShape->getAabb(trans, minAabb, maxAabb);
 
-		int type = collisionObject->m_collisionShape->getShapeType();
+		int type = collisionObject->m_collisionShape->m_shapeType;
 		collisionObject->m_broadphaseHandle = (getBroadphase()->createProxy(
 			minAabb,
 			maxAabb,
@@ -139,7 +139,7 @@ void btCollisionWorld::addCollisionObject(btCollisionObject* collisionObject, in
 	btVector3 maxAabb;
 	collisionObject->m_collisionShape->getAabb(trans, minAabb, maxAabb);
 
-	int type = collisionObject->m_collisionShape->getShapeType();
+	int type = collisionObject->m_collisionShape->m_shapeType;
 	collisionObject->m_broadphaseHandle = (getBroadphase()->createProxy(
 		minAabb,
 		maxAabb,
@@ -388,7 +388,7 @@ void btCollisionWorld::rayTestSingleInternal(const btTransform& rayFromTrans, co
 			btVector3 rayToLocal = worldTocollisionObject * rayToTrans.m_origin;
 
 			//			BT_PROFILE("rayTestConcave");
-			if (collisionShape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
+			if (collisionShape->m_shapeType == TRIANGLE_MESH_SHAPE_PROXYTYPE)
 			{
 				///optimized version for btBvhTriangleMeshShape
 				btBvhTriangleMeshShape* triangleMesh = (btBvhTriangleMeshShape*)collisionShape;
@@ -397,7 +397,7 @@ void btCollisionWorld::rayTestSingleInternal(const btTransform& rayFromTrans, co
 				rcb.m_hitFraction = resultCallback.m_closestHitFraction;
 				triangleMesh->performRaycast(&rcb, rayFromLocal, rayToLocal);
 			}
-			else if (collisionShape->getShapeType() == SCALED_TRIANGLE_MESH_SHAPE_PROXYTYPE)
+			else if (collisionShape->m_shapeType == SCALED_TRIANGLE_MESH_SHAPE_PROXYTYPE)
 			{
 				///optimized version for btScaledBvhTriangleMeshShape
 				btScaledBvhTriangleMeshShape* scaledTriangleMesh = (btScaledBvhTriangleMeshShape*)collisionShape;
@@ -414,7 +414,7 @@ void btCollisionWorld::rayTestSingleInternal(const btTransform& rayFromTrans, co
 				triangleMesh->performRaycast(&rcb, rayFromLocalScaled, rayToLocalScaled);
 			}
 			else if (((resultCallback.m_flags&btTriangleRaycastCallback::kF_DisableHeightfieldAccelerator)==0)
-				&& collisionShape->getShapeType() == TERRAIN_SHAPE_PROXYTYPE
+				&& collisionShape->m_shapeType == TERRAIN_SHAPE_PROXYTYPE
 				)
 			{
 				///optimized version for btHeightfieldTerrainShape
@@ -657,7 +657,7 @@ void btCollisionWorld::objectQuerySingleInternal(const btConvexShape* castShape,
 	{
 		if (collisionShape->isConcave())
 		{
-			if (collisionShape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
+			if (collisionShape->m_shapeType == TRIANGLE_MESH_SHAPE_PROXYTYPE)
 			{
 				//BT_PROFILE("convexSweepbtBvhTriangleMesh");
 				btBvhTriangleMeshShape* triangleMesh = (btBvhTriangleMeshShape*)collisionShape;
@@ -712,7 +712,7 @@ void btCollisionWorld::objectQuerySingleInternal(const btConvexShape* castShape,
 			}
 			else
 			{
-				if (collisionShape->getShapeType() == STATIC_PLANE_PROXYTYPE)
+				if (collisionShape->m_shapeType == STATIC_PLANE_PROXYTYPE)
 				{
 					btConvexCast::CastResult castResult;
 					castResult.m_allowedPenetration = allowedPenetration;
@@ -1305,7 +1305,7 @@ void btCollisionWorld::debugDrawObject(const btTransform& worldTransform, const 
 		getDebugDrawer()->drawTransform(worldTransform, .1);
 	}
 
-	if (shape->getShapeType() == COMPOUND_SHAPE_PROXYTYPE)
+	if (shape->m_shapeType == COMPOUND_SHAPE_PROXYTYPE)
 	{
 		const btCompoundShape* compoundShape = static_cast<const btCompoundShape*>(shape);
 		for (int i = compoundShape->getNumChildShapes() - 1; i >= 0; i--)
@@ -1317,7 +1317,7 @@ void btCollisionWorld::debugDrawObject(const btTransform& worldTransform, const 
 	}
 	else
 	{
-		switch (shape->getShapeType())
+		switch (shape->m_shapeType)
 		{
 			case BOX_SHAPE_PROXYTYPE:
 			{
@@ -1449,7 +1449,7 @@ void btCollisionWorld::debugDrawObject(const btTransform& worldTransform, const 
 					concaveMesh->processAllTriangles(&drawCallback, aabbMin, aabbMax);
 				}
 
-				if (shape->getShapeType() == CONVEX_TRIANGLEMESH_SHAPE_PROXYTYPE)
+				if (shape->m_shapeType == CONVEX_TRIANGLEMESH_SHAPE_PROXYTYPE)
 				{
 					btConvexTriangleMeshShape* convexMesh = (btConvexTriangleMeshShape*)shape;
 					//todo: pass camera for some culling

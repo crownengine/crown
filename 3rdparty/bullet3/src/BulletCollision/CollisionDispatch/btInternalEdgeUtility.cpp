@@ -485,14 +485,14 @@ bool btClampNormal(const btVector3& edge, const btVector3& tri_normal_org, const
 /// Changes a btManifoldPoint collision normal to the normal from the mesh.
 void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, const btCollisionObjectWrapper* colObj1Wrap, int partId0, int index0, int normalAdjustFlags)
 {
-	//btAssert(colObj0->m_collisionShape->getShapeType() == TRIANGLE_SHAPE_PROXYTYPE);
-	if (colObj0Wrap->m_collisionShape->getShapeType() != TRIANGLE_SHAPE_PROXYTYPE)
+	//btAssert(colObj0->m_collisionShape->m_shapeType == TRIANGLE_SHAPE_PROXYTYPE);
+	if (colObj0Wrap->m_collisionShape->m_shapeType != TRIANGLE_SHAPE_PROXYTYPE)
 		return;
 
 
 	btTriangleInfoMap* triangleInfoMapPtr = 0;
 
-	if (colObj0Wrap->m_collisionObject->m_collisionShape->getShapeType() == TERRAIN_SHAPE_PROXYTYPE)
+	if (colObj0Wrap->m_collisionObject->m_collisionShape->m_shapeType == TERRAIN_SHAPE_PROXYTYPE)
 	{
 		btHeightfieldTerrainShape* heightfield = (btHeightfieldTerrainShape*)colObj0Wrap->m_collisionObject->m_collisionShape;
 		triangleInfoMapPtr = heightfield->getTriangleInfoMap();
@@ -517,13 +517,13 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObjectWr
 
 	btBvhTriangleMeshShape* trimesh = 0;
 
-	if (colObj0Wrap->m_collisionObject->m_collisionShape->getShapeType() == SCALED_TRIANGLE_MESH_SHAPE_PROXYTYPE)
+	if (colObj0Wrap->m_collisionObject->m_collisionShape->m_shapeType == SCALED_TRIANGLE_MESH_SHAPE_PROXYTYPE)
 	{
 		trimesh = ((btScaledBvhTriangleMeshShape*)colObj0Wrap->m_collisionObject->m_collisionShape)->getChildShape();
 	}
 	else
 	{
-		if (colObj0Wrap->m_collisionObject->m_collisionShape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
+		if (colObj0Wrap->m_collisionObject->m_collisionShape->m_shapeType == TRIANGLE_MESH_SHAPE_PROXYTYPE)
 		{
 			trimesh = (btBvhTriangleMeshShape*)colObj0Wrap->m_collisionObject->m_collisionShape;
 		}
