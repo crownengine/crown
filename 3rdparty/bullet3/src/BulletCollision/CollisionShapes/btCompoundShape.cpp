@@ -190,9 +190,9 @@ void btCompoundShape::calculateLocalInertia(btScalar mass, btVector3& inertia) c
 
 	btVector3 halfExtents = (aabbMax - aabbMin) * btScalar(0.5);
 
-	btScalar lx = btScalar(2.) * (halfExtents.m_floats[0]);
-	btScalar ly = btScalar(2.) * (halfExtents.m_floats[1]);
-	btScalar lz = btScalar(2.) * (halfExtents.m_floats[2]);
+	btScalar lx = btScalar(2.) * (halfExtents.x);
+	btScalar ly = btScalar(2.) * (halfExtents.y);
+	btScalar lz = btScalar(2.) * (halfExtents.z);
 
 	inertia[0] = mass / (btScalar(12.0)) * (ly * ly + lz * lz);
 	inertia[1] = mass / (btScalar(12.0)) * (lx * lx + lz * lz);
@@ -245,9 +245,9 @@ void btCompoundShape::calculatePrincipalAxisTransform(const btScalar* masses, bt
 		j[0].setValue(o2, 0, 0);
 		j[1].setValue(0, o2, 0);
 		j[2].setValue(0, 0, o2);
-		j[0] += o * -o.m_floats[0];
-		j[1] += o * -o.m_floats[1];
-		j[2] += o * -o.m_floats[2];
+		j[0] += o * -o.x;
+		j[1] += o * -o.y;
+		j[2] += o * -o.z;
 
 		//add inertia tensor of pointmass
 		tensor[0] += masses[k] * j[0];

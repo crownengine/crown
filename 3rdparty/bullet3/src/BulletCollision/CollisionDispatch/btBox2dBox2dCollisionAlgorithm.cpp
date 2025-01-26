@@ -87,7 +87,7 @@ struct ClipVertex
 #define b2Mul(a, b) (a) * (b)
 #define b2MulT(a, b) (a).transpose() * (b)
 #define b2Cross(a, b) (a).cross(b)
-#define btCrossS(a, s) btVector3(s* a.m_floats[1], -s* a.m_floats[0], 0.f)
+#define btCrossS(a, s) btVector3(s* a.y, -s* a.x, 0.f)
 
 int b2_maxManifoldPoints = 2;
 

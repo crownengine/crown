@@ -47,7 +47,7 @@ struct btSimdScalar
 	}
 	union {
 		__m128 m_vec128;
-		float m_floats[4];
+		struct { float x, y, z, w; };
 		int m_ints[4];
 		btScalar m_unusedPadding;
 	};
@@ -77,7 +77,7 @@ struct btSimdScalar
 
 	SIMD_FORCE_INLINE operator float() const
 	{
-		return m_floats[0];
+		return x;
 	}
 };
 

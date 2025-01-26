@@ -142,9 +142,9 @@ inline void btVec3Copy(btVector3 *v, const btVector3 *w)
 
 inline void ccdVec3Add(btVector3 *v, const btVector3 *w)
 {
-	v->m_floats[0] += w->m_floats[0];
-	v->m_floats[1] += w->m_floats[1];
-	v->m_floats[2] += w->m_floats[2];
+	v->x += w->x;
+	v->y += w->y;
+	v->z += w->z;
 }
 
 inline void ccdVec3Sub(btVector3 *v, const btVector3 *w)
@@ -172,16 +172,16 @@ inline btScalar ccdVec3Dist2(const btVector3 *a, const btVector3 *b)
 
 inline void btVec3Scale(btVector3 *d, btScalar k)
 {
-	d->m_floats[0] *= k;
-	d->m_floats[1] *= k;
-	d->m_floats[2] *= k;
+	d->x *= k;
+	d->y *= k;
+	d->z *= k;
 }
 
 inline void btVec3Cross(btVector3 *d, const btVector3 *a, const btVector3 *b)
 {
-	d->m_floats[0] = (a->m_floats[1] * b->m_floats[2]) - (a->m_floats[2] * b->m_floats[1]);
-	d->m_floats[1] = (a->m_floats[2] * b->m_floats[0]) - (a->m_floats[0] * b->m_floats[2]);
-	d->m_floats[2] = (a->m_floats[0] * b->m_floats[1]) - (a->m_floats[1] * b->m_floats[0]);
+	d->x = (a->y * b->z) - (a->z * b->y);
+	d->y = (a->z * b->x) - (a->x * b->z);
+	d->z = (a->x * b->y) - (a->y * b->x);
 }
 
 inline void btTripleCross(const btVector3 *a, const btVector3 *b,
@@ -215,17 +215,17 @@ inline int ccdEq(btScalar _a, btScalar _b)
 
 btScalar ccdVec3X(const btVector3 *v)
 {
-	return v->m_floats[0];
+	return v->x;
 }
 
 btScalar ccdVec3Y(const btVector3 *v)
 {
-	return v->m_floats[1];
+	return v->y;
 }
 
 btScalar ccdVec3Z(const btVector3 *v)
 {
-	return v->m_floats[2];
+	return v->z;
 }
 inline int btVec3Eq(const btVector3 *a, const btVector3 *b)
 {
@@ -945,9 +945,9 @@ void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput &inpu
 
 					printf("btGjkPairDetector maxIter exceeded:%i\n", m_curIter);
 					printf("sepAxis=(%f,%f,%f), squaredDistance = %f, shapeTypeA=%i,shapeTypeB=%i\n",
-						   m_cachedSeparatingAxis.m_floats[0],
-						   m_cachedSeparatingAxis.m_floats[1],
-						   m_cachedSeparatingAxis.m_floats[2],
+						   m_cachedSeparatingAxis.x,
+						   m_cachedSeparatingAxis.y,
+						   m_cachedSeparatingAxis.z,
 						   squaredDistance,
 						   m_minkowskiA->m_shapeType,
 						   m_minkowskiB->m_shapeType);

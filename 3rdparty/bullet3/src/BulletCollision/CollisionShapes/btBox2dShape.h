@@ -54,18 +54,18 @@ public:
 		btVector3 margin(getMargin(), getMargin(), getMargin());
 		halfExtents += margin;
 
-		return btVector3(btFsels(vec.m_floats[0], halfExtents.m_floats[0], -halfExtents.m_floats[0]),
-						 btFsels(vec.m_floats[1], halfExtents.m_floats[1], -halfExtents.m_floats[1]),
-						 btFsels(vec.m_floats[2], halfExtents.m_floats[2], -halfExtents.m_floats[2]));
+		return btVector3(btFsels(vec.x, halfExtents.x, -halfExtents.x),
+						 btFsels(vec.y, halfExtents.y, -halfExtents.y),
+						 btFsels(vec.z, halfExtents.z, -halfExtents.z));
 	}
 
 	SIMD_FORCE_INLINE btVector3 localGetSupportingVertexWithoutMargin(const btVector3& vec) const
 	{
 		const btVector3& halfExtents = getHalfExtentsWithoutMargin();
 
-		return btVector3(btFsels(vec.m_floats[0], halfExtents.m_floats[0], -halfExtents.m_floats[0]),
-						 btFsels(vec.m_floats[1], halfExtents.m_floats[1], -halfExtents.m_floats[1]),
-						 btFsels(vec.m_floats[2], halfExtents.m_floats[2], -halfExtents.m_floats[2]));
+		return btVector3(btFsels(vec.x, halfExtents.x, -halfExtents.x),
+						 btFsels(vec.y, halfExtents.y, -halfExtents.y),
+						 btFsels(vec.z, halfExtents.z, -halfExtents.z));
 	}
 
 	virtual void batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors, btVector3* supportVerticesOut, int numVectors) const
@@ -75,9 +75,9 @@ public:
 		for (int i = 0; i < numVectors; i++)
 		{
 			const btVector3& vec = vectors[i];
-			supportVerticesOut[i].setValue(btFsels(vec.m_floats[0], halfExtents.m_floats[0], -halfExtents.m_floats[0]),
-										   btFsels(vec.m_floats[1], halfExtents.m_floats[1], -halfExtents.m_floats[1]),
-										   btFsels(vec.m_floats[2], halfExtents.m_floats[2], -halfExtents.m_floats[2]));
+			supportVerticesOut[i].setValue(btFsels(vec.x, halfExtents.x, -halfExtents.x),
+										   btFsels(vec.y, halfExtents.y, -halfExtents.y),
+										   btFsels(vec.z, halfExtents.z, -halfExtents.z));
 		}
 	}
 
@@ -86,19 +86,19 @@ public:
 		: btPolyhedralConvexShape(),
 		  m_centroid(0, 0, 0)
 	{
-		m_vertices[0].setValue(-boxHalfExtents.m_floats[0], -boxHalfExtents.m_floats[1], 0);
-		m_vertices[1].setValue(boxHalfExtents.m_floats[0], -boxHalfExtents.m_floats[1], 0);
-		m_vertices[2].setValue(boxHalfExtents.m_floats[0], boxHalfExtents.m_floats[1], 0);
-		m_vertices[3].setValue(-boxHalfExtents.m_floats[0], boxHalfExtents.m_floats[1], 0);
+		m_vertices[0].setValue(-boxHalfExtents.x, -boxHalfExtents.y, 0);
+		m_vertices[1].setValue(boxHalfExtents.x, -boxHalfExtents.y, 0);
+		m_vertices[2].setValue(boxHalfExtents.x, boxHalfExtents.y, 0);
+		m_vertices[3].setValue(-boxHalfExtents.x, boxHalfExtents.y, 0);
 
 		m_normals[0].setValue(0, -1, 0);
 		m_normals[1].setValue(1, 0, 0);
 		m_normals[2].setValue(0, 1, 0);
 		m_normals[3].setValue(-1, 0, 0);
 
-		btScalar minDimension = boxHalfExtents.m_floats[0];
-		if (minDimension > boxHalfExtents.m_floats[1])
-			minDimension = boxHalfExtents.m_floats[1];
+		btScalar minDimension = boxHalfExtents.x;
+		if (minDimension > boxHalfExtents.y)
+			minDimension = boxHalfExtents.y;
 
 		m_shapeType = BOX_2D_SHAPE_PROXYTYPE;
 		btVector3 margin(getMargin(), getMargin(), getMargin());
@@ -157,7 +157,7 @@ public:
 		//this plane might not be aligned...
 		btVector4 plane;
 		getPlaneEquation(plane, i);
-		planeNormal = btVector3(plane.m_floats[0], plane.m_floats[1], plane.m_floats[2]);
+		planeNormal = btVector3(plane.x, plane.y, plane.z);
 		planeSupport = localGetSupportingVertex(-planeNormal);
 	}
 
@@ -181,9 +181,9 @@ public:
 		btVector3 halfExtents = getHalfExtentsWithoutMargin();
 
 		vtx = btVector3(
-			halfExtents.m_floats[0] * (1 - (i & 1)) - halfExtents.m_floats[0] * (i & 1),
-			halfExtents.m_floats[1] * (1 - ((i & 2) >> 1)) - halfExtents.m_floats[1] * ((i & 2) >> 1),
-			halfExtents.m_floats[2] * (1 - ((i & 4) >> 2)) - halfExtents.m_floats[2] * ((i & 4) >> 2));
+			halfExtents.x * (1 - (i & 1)) - halfExtents.x * (i & 1),
+			halfExtents.y * (1 - ((i & 2) >> 1)) - halfExtents.y * ((i & 2) >> 1),
+			halfExtents.z * (1 - ((i & 4) >> 2)) - halfExtents.z * ((i & 4) >> 2));
 	}
 
 	virtual void getPlaneEquation(btVector4 & plane, int i) const
@@ -193,22 +193,22 @@ public:
 		switch (i)
 		{
 			case 0:
-				plane.setValue(btScalar(1.), btScalar(0.), btScalar(0.), -halfExtents.m_floats[0]);
+				plane.setValue(btScalar(1.), btScalar(0.), btScalar(0.), -halfExtents.x);
 				break;
 			case 1:
-				plane.setValue(btScalar(-1.), btScalar(0.), btScalar(0.), -halfExtents.m_floats[0]);
+				plane.setValue(btScalar(-1.), btScalar(0.), btScalar(0.), -halfExtents.x);
 				break;
 			case 2:
-				plane.setValue(btScalar(0.), btScalar(1.), btScalar(0.), -halfExtents.m_floats[1]);
+				plane.setValue(btScalar(0.), btScalar(1.), btScalar(0.), -halfExtents.y);
 				break;
 			case 3:
-				plane.setValue(btScalar(0.), btScalar(-1.), btScalar(0.), -halfExtents.m_floats[1]);
+				plane.setValue(btScalar(0.), btScalar(-1.), btScalar(0.), -halfExtents.y);
 				break;
 			case 4:
-				plane.setValue(btScalar(0.), btScalar(0.), btScalar(1.), -halfExtents.m_floats[2]);
+				plane.setValue(btScalar(0.), btScalar(0.), btScalar(1.), -halfExtents.z);
 				break;
 			case 5:
-				plane.setValue(btScalar(0.), btScalar(0.), btScalar(-1.), -halfExtents.m_floats[2]);
+				plane.setValue(btScalar(0.), btScalar(0.), btScalar(-1.), -halfExtents.z);
 				break;
 			default:
 				btAssert(0);
@@ -287,12 +287,12 @@ public:
 
 		//btScalar minDist = 2*tolerance;
 
-		bool result = (pt.m_floats[0] <= (halfExtents.m_floats[0] + tolerance)) &&
-					  (pt.m_floats[0] >= (-halfExtents.m_floats[0] - tolerance)) &&
-					  (pt.m_floats[1] <= (halfExtents.m_floats[1] + tolerance)) &&
-					  (pt.m_floats[1] >= (-halfExtents.m_floats[1] - tolerance)) &&
-					  (pt.m_floats[2] <= (halfExtents.m_floats[2] + tolerance)) &&
-					  (pt.m_floats[2] >= (-halfExtents.m_floats[2] - tolerance));
+		bool result = (pt.x <= (halfExtents.x + tolerance)) &&
+					  (pt.x >= (-halfExtents.x - tolerance)) &&
+					  (pt.y <= (halfExtents.y + tolerance)) &&
+					  (pt.y >= (-halfExtents.y - tolerance)) &&
+					  (pt.z <= (halfExtents.z + tolerance)) &&
+					  (pt.z >= (-halfExtents.z - tolerance));
 
 		return result;
 	}

@@ -294,17 +294,17 @@ public:
 
     #if defined(BT_CLAMP_VELOCITY_TO) && BT_CLAMP_VELOCITY_TO > 0
     void clampVelocity(btVector3& v) const {
-        v.m_floats[0] = (
+        v.x = (
             fmax(-BT_CLAMP_VELOCITY_TO,
-                 fmin(BT_CLAMP_VELOCITY_TO, v.m_floats[0]))
+                 fmin(BT_CLAMP_VELOCITY_TO, v.x))
         );
-        v.m_floats[1] = (
+        v.y = (
             fmax(-BT_CLAMP_VELOCITY_TO,
-                 fmin(BT_CLAMP_VELOCITY_TO, v.m_floats[1]))
+                 fmin(BT_CLAMP_VELOCITY_TO, v.y))
         );
-        v.m_floats[2] = (
+        v.z = (
             fmax(-BT_CLAMP_VELOCITY_TO,
-                 fmin(BT_CLAMP_VELOCITY_TO, v.m_floats[2]))
+                 fmin(BT_CLAMP_VELOCITY_TO, v.z))
         );
     }
     #endif

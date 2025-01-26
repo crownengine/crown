@@ -105,9 +105,9 @@ void btCylinderShape::calculateLocalInertia(btScalar mass, btVector3& inertia) c
 	//approximation of box shape
 	btVector3 halfExtents = getHalfExtentsWithMargin();
 
-	btScalar lx = btScalar(2.) * (halfExtents.m_floats[0]);
-	btScalar ly = btScalar(2.) * (halfExtents.m_floats[1]);
-	btScalar lz = btScalar(2.) * (halfExtents.m_floats[2]);
+	btScalar lx = btScalar(2.) * (halfExtents.x);
+	btScalar ly = btScalar(2.) * (halfExtents.y);
+	btScalar lz = btScalar(2.) * (halfExtents.z);
 
 	inertia.setValue(mass / (btScalar(12.0)) * (ly * ly + lz * lz),
 					 mass / (btScalar(12.0)) * (lx * lx + lz * lz),

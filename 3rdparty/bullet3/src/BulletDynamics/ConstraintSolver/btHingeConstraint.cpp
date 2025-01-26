@@ -67,18 +67,18 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA, btRigidBody& rbB, const b
 		rbAxisA1 = rbAxisA2.cross(axisInA);
 	}
 
-	m_rbAFrame.m_basis.setValue(rbAxisA1.m_floats[0], rbAxisA2.m_floats[0], axisInA.m_floats[0],
-								   rbAxisA1.m_floats[1], rbAxisA2.m_floats[1], axisInA.m_floats[1],
-								   rbAxisA1.m_floats[2], rbAxisA2.m_floats[2], axisInA.m_floats[2]);
+	m_rbAFrame.m_basis.setValue(rbAxisA1.x, rbAxisA2.x, axisInA.x,
+								   rbAxisA1.y, rbAxisA2.y, axisInA.y,
+								   rbAxisA1.z, rbAxisA2.z, axisInA.z);
 
 	btQuaternion rotationArc = shortestArcQuat(axisInA, axisInB);
 	btVector3 rbAxisB1 = quatRotate(rotationArc, rbAxisA1);
 	btVector3 rbAxisB2 = axisInB.cross(rbAxisB1);
 
 	m_rbBFrame.m_origin = pivotInB;
-	m_rbBFrame.m_basis.setValue(rbAxisB1.m_floats[0], rbAxisB2.m_floats[0], axisInB.m_floats[0],
-								   rbAxisB1.m_floats[1], rbAxisB2.m_floats[1], axisInB.m_floats[1],
-								   rbAxisB1.m_floats[2], rbAxisB2.m_floats[2], axisInB.m_floats[2]);
+	m_rbBFrame.m_basis.setValue(rbAxisB1.x, rbAxisB2.x, axisInB.x,
+								   rbAxisB1.y, rbAxisB2.y, axisInB.y,
+								   rbAxisB1.z, rbAxisB2.z, axisInB.z);
 
 #ifndef _BT_USE_CENTER_LIMIT_
 	//start with free
@@ -114,9 +114,9 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA, const btVector3& pivotInA
 	btPlaneSpace1(axisInA, rbAxisA1, rbAxisA2);
 
 	m_rbAFrame.m_origin = pivotInA;
-	m_rbAFrame.m_basis.setValue(rbAxisA1.m_floats[0], rbAxisA2.m_floats[0], axisInA.m_floats[0],
-								   rbAxisA1.m_floats[1], rbAxisA2.m_floats[1], axisInA.m_floats[1],
-								   rbAxisA1.m_floats[2], rbAxisA2.m_floats[2], axisInA.m_floats[2]);
+	m_rbAFrame.m_basis.setValue(rbAxisA1.x, rbAxisA2.x, axisInA.x,
+								   rbAxisA1.y, rbAxisA2.y, axisInA.y,
+								   rbAxisA1.z, rbAxisA2.z, axisInA.z);
 
 	btVector3 axisInB = rbA.getCenterOfMassTransform().m_basis * axisInA;
 
@@ -125,9 +125,9 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA, const btVector3& pivotInA
 	btVector3 rbAxisB2 = axisInB.cross(rbAxisB1);
 
 	m_rbBFrame.m_origin = rbA.getCenterOfMassTransform()(pivotInA);
-	m_rbBFrame.m_basis.setValue(rbAxisB1.m_floats[0], rbAxisB2.m_floats[0], axisInB.m_floats[0],
-								   rbAxisB1.m_floats[1], rbAxisB2.m_floats[1], axisInB.m_floats[1],
-								   rbAxisB1.m_floats[2], rbAxisB2.m_floats[2], axisInB.m_floats[2]);
+	m_rbBFrame.m_basis.setValue(rbAxisB1.x, rbAxisB2.x, axisInB.x,
+								   rbAxisB1.y, rbAxisB2.y, axisInB.y,
+								   rbAxisB1.z, rbAxisB2.z, axisInB.z);
 
 #ifndef _BT_USE_CENTER_LIMIT_
 	//start with free
@@ -706,7 +706,7 @@ void btHingeConstraint::setMotorTarget(const btQuaternion& qAinB, btScalar dt)
 		qHinge = -(qHinge);
 		targetAngle = qHinge.getAngle();
 	}
-	if (qHinge.m_floats[2] < 0)
+	if (qHinge.z < 0)
 		targetAngle = -targetAngle;
 
 	setMotorTarget(targetAngle, dt);

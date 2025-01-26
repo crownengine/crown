@@ -59,9 +59,9 @@ void btMinkowskiSumShape::calculateLocalInertia(btScalar mass, btVector3& inerti
 
 	btScalar margin = getMargin();
 
-	btScalar lx = btScalar(2.) * (halfExtents.m_floats[0] + margin);
-	btScalar ly = btScalar(2.) * (halfExtents.m_floats[1] + margin);
-	btScalar lz = btScalar(2.) * (halfExtents.m_floats[2] + margin);
+	btScalar lx = btScalar(2.) * (halfExtents.x + margin);
+	btScalar ly = btScalar(2.) * (halfExtents.y + margin);
+	btScalar lz = btScalar(2.) * (halfExtents.z + margin);
 	const btScalar x2 = lx * lx;
 	const btScalar y2 = ly * ly;
 	const btScalar z2 = lz * lz;

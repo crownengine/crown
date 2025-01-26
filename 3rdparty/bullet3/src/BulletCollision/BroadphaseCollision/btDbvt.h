@@ -520,29 +520,29 @@ DBVT_INLINE void btDbvtAabbMm::Expand(const btVector3& e)
 //
 DBVT_INLINE void btDbvtAabbMm::SignedExpand(const btVector3& e)
 {
-	if (e.m_floats[0] > 0)
-		mx.m_floats[0] = (mx.m_floats[0] + e[0]);
+	if (e.x > 0)
+		mx.x = (mx.x + e[0]);
 	else
-		mi.m_floats[0] = (mi.m_floats[0] + e[0]);
-	if (e.m_floats[1] > 0)
-		mx.m_floats[1] = (mx.m_floats[1] + e[1]);
+		mi.x = (mi.x + e[0]);
+	if (e.y > 0)
+		mx.y = (mx.y + e[1]);
 	else
-		mi.m_floats[1] = (mi.m_floats[1] + e[1]);
-	if (e.m_floats[2] > 0)
-		mx.m_floats[2] = (mx.m_floats[2] + e[2]);
+		mi.y = (mi.y + e[1]);
+	if (e.z > 0)
+		mx.z = (mx.z + e[2]);
 	else
-		mi.m_floats[2] = (mi.m_floats[2] + e[2]);
+		mi.z = (mi.z + e[2]);
 }
 
 //
 DBVT_INLINE bool btDbvtAabbMm::Contain(const btDbvtAabbMm& a) const
 {
-	return ((mi.m_floats[0] <= a.mi.m_floats[0]) &&
-			(mi.m_floats[1] <= a.mi.m_floats[1]) &&
-			(mi.m_floats[2] <= a.mi.m_floats[2]) &&
-			(mx.m_floats[0] >= a.mx.m_floats[0]) &&
-			(mx.m_floats[1] >= a.mx.m_floats[1]) &&
-			(mx.m_floats[2] >= a.mx.m_floats[2]));
+	return ((mi.x <= a.mi.x) &&
+			(mi.y <= a.mi.y) &&
+			(mi.z <= a.mi.z) &&
+			(mx.x >= a.mx.x) &&
+			(mx.y >= a.mx.y) &&
+			(mx.z >= a.mx.z));
 }
 
 //
@@ -552,36 +552,36 @@ DBVT_INLINE int btDbvtAabbMm::Classify(const btVector3& n, btScalar o, int s) co
 	switch (s)
 	{
 		case (0 + 0 + 0):
-			px = btVector3(mi.m_floats[0], mi.m_floats[1], mi.m_floats[2]);
-			pi = btVector3(mx.m_floats[0], mx.m_floats[1], mx.m_floats[2]);
+			px = btVector3(mi.x, mi.y, mi.z);
+			pi = btVector3(mx.x, mx.y, mx.z);
 			break;
 		case (1 + 0 + 0):
-			px = btVector3(mx.m_floats[0], mi.m_floats[1], mi.m_floats[2]);
-			pi = btVector3(mi.m_floats[0], mx.m_floats[1], mx.m_floats[2]);
+			px = btVector3(mx.x, mi.y, mi.z);
+			pi = btVector3(mi.x, mx.y, mx.z);
 			break;
 		case (0 + 2 + 0):
-			px = btVector3(mi.m_floats[0], mx.m_floats[1], mi.m_floats[2]);
-			pi = btVector3(mx.m_floats[0], mi.m_floats[1], mx.m_floats[2]);
+			px = btVector3(mi.x, mx.y, mi.z);
+			pi = btVector3(mx.x, mi.y, mx.z);
 			break;
 		case (1 + 2 + 0):
-			px = btVector3(mx.m_floats[0], mx.m_floats[1], mi.m_floats[2]);
-			pi = btVector3(mi.m_floats[0], mi.m_floats[1], mx.m_floats[2]);
+			px = btVector3(mx.x, mx.y, mi.z);
+			pi = btVector3(mi.x, mi.y, mx.z);
 			break;
 		case (0 + 0 + 4):
-			px = btVector3(mi.m_floats[0], mi.m_floats[1], mx.m_floats[2]);
-			pi = btVector3(mx.m_floats[0], mx.m_floats[1], mi.m_floats[2]);
+			px = btVector3(mi.x, mi.y, mx.z);
+			pi = btVector3(mx.x, mx.y, mi.z);
 			break;
 		case (1 + 0 + 4):
-			px = btVector3(mx.m_floats[0], mi.m_floats[1], mx.m_floats[2]);
-			pi = btVector3(mi.m_floats[0], mx.m_floats[1], mi.m_floats[2]);
+			px = btVector3(mx.x, mi.y, mx.z);
+			pi = btVector3(mi.x, mx.y, mi.z);
 			break;
 		case (0 + 2 + 4):
-			px = btVector3(mi.m_floats[0], mx.m_floats[1], mx.m_floats[2]);
-			pi = btVector3(mx.m_floats[0], mi.m_floats[1], mi.m_floats[2]);
+			px = btVector3(mi.x, mx.y, mx.z);
+			pi = btVector3(mx.x, mi.y, mi.z);
 			break;
 		case (1 + 2 + 4):
-			px = btVector3(mx.m_floats[0], mx.m_floats[1], mx.m_floats[2]);
-			pi = btVector3(mi.m_floats[0], mi.m_floats[1], mi.m_floats[2]);
+			px = btVector3(mx.x, mx.y, mx.z);
+			pi = btVector3(mi.x, mi.y, mi.z);
 			break;
 	}
 	if ((btDot(n, px) + o) < 0) return (-1);
@@ -593,9 +593,9 @@ DBVT_INLINE int btDbvtAabbMm::Classify(const btVector3& n, btScalar o, int s) co
 DBVT_INLINE btScalar btDbvtAabbMm::ProjectMinimum(const btVector3& v, unsigned signs) const
 {
 	const btVector3* b[] = {&mx, &mi};
-	const btVector3 p(b[(signs >> 0) & 1]->m_floats[0],
-					  b[(signs >> 1) & 1]->m_floats[1],
-					  b[(signs >> 2) & 1]->m_floats[2]);
+	const btVector3 p(b[(signs >> 0) & 1]->x,
+					  b[(signs >> 1) & 1]->y,
+					  b[(signs >> 2) & 1]->z);
 	return (btDot(p, v));
 }
 
@@ -631,12 +631,12 @@ DBVT_INLINE bool Intersect(const btDbvtAabbMm& a,
 #endif
 	return ((pu[0] | pu[1] | pu[2]) == 0);
 #else
-	return ((a.mi.m_floats[0] <= b.mx.m_floats[0]) &&
-			(a.mx.m_floats[0] >= b.mi.m_floats[0]) &&
-			(a.mi.m_floats[1] <= b.mx.m_floats[1]) &&
-			(a.mx.m_floats[1] >= b.mi.m_floats[1]) &&
-			(a.mi.m_floats[2] <= b.mx.m_floats[2]) &&
-			(a.mx.m_floats[2] >= b.mi.m_floats[2]));
+	return ((a.mi.x <= b.mx.x) &&
+			(a.mx.x >= b.mi.x) &&
+			(a.mi.y <= b.mx.y) &&
+			(a.mx.y >= b.mi.y) &&
+			(a.mi.z <= b.mx.z) &&
+			(a.mx.z >= b.mi.z));
 #endif
 }
 
@@ -644,12 +644,12 @@ DBVT_INLINE bool Intersect(const btDbvtAabbMm& a,
 DBVT_INLINE bool Intersect(const btDbvtAabbMm& a,
 						   const btVector3& b)
 {
-	return ((b.m_floats[0] >= a.mi.m_floats[0]) &&
-			(b.m_floats[1] >= a.mi.m_floats[1]) &&
-			(b.m_floats[2] >= a.mi.m_floats[2]) &&
-			(b.m_floats[0] <= a.mx.m_floats[0]) &&
-			(b.m_floats[1] <= a.mx.m_floats[1]) &&
-			(b.m_floats[2] <= a.mx.m_floats[2]));
+	return ((b.x >= a.mi.x) &&
+			(b.y >= a.mi.y) &&
+			(b.z >= a.mi.z) &&
+			(b.x <= a.mx.x) &&
+			(b.y <= a.mx.y) &&
+			(b.z <= a.mx.z));
 }
 
 //////////////////////////////////////
@@ -659,7 +659,7 @@ DBVT_INLINE btScalar Proximity(const btDbvtAabbMm& a,
 							   const btDbvtAabbMm& b)
 {
 	const btVector3 d = (a.mi + a.mx) - (b.mi + b.mx);
-	return (btFabs(d.m_floats[0]) + btFabs(d.m_floats[1]) + btFabs(d.m_floats[2]));
+	return (btFabs(d.x) + btFabs(d.y) + btFabs(d.z));
 }
 
 //
@@ -774,12 +774,12 @@ DBVT_INLINE void Merge(const btDbvtAabbMm& a,
 DBVT_INLINE bool NotEqual(const btDbvtAabbMm& a,
 						  const btDbvtAabbMm& b)
 {
-	return ((a.mi.m_floats[0] != b.mi.m_floats[0]) ||
-			(a.mi.m_floats[1] != b.mi.m_floats[1]) ||
-			(a.mi.m_floats[2] != b.mi.m_floats[2]) ||
-			(a.mx.m_floats[0] != b.mx.m_floats[0]) ||
-			(a.mx.m_floats[1] != b.mx.m_floats[1]) ||
-			(a.mx.m_floats[2] != b.mx.m_floats[2]));
+	return ((a.mi.x != b.mi.x) ||
+			(a.mi.y != b.mi.y) ||
+			(a.mi.z != b.mi.z) ||
+			(a.mx.x != b.mx.x) ||
+			(a.mx.y != b.mx.y) ||
+			(a.mx.z != b.mx.z));
 }
 
 //
@@ -1362,9 +1362,9 @@ inline void btDbvt::collideKDOP(const btDbvtNode* root,
 		btAssert(count < int(sizeof(signs) / sizeof(signs[0])));
 		for (int i = 0; i < count; ++i)
 		{
-			signs[i] = ((normals[i].m_floats[0] >= 0) ? 1 : 0) +
-					   ((normals[i].m_floats[1] >= 0) ? 2 : 0) +
-					   ((normals[i].m_floats[2] >= 0) ? 4 : 0);
+			signs[i] = ((normals[i].x >= 0) ? 1 : 0) +
+					   ((normals[i].y >= 0) ? 2 : 0) +
+					   ((normals[i].z >= 0) ? 4 : 0);
 		}
 		stack.reserve(SIMPLE_STACKSIZE);
 		stack.push_back(sStkNP(root, 0));
@@ -1429,9 +1429,9 @@ inline void btDbvt::collideOCL(const btDbvtNode* root,
 		btAssert(count < int(sizeof(signs) / sizeof(signs[0])));
 		for (int i = 0; i < count; ++i)
 		{
-			signs[i] = ((normals[i].m_floats[0] >= 0) ? 1 : 0) +
-					   ((normals[i].m_floats[1] >= 0) ? 2 : 0) +
-					   ((normals[i].m_floats[2] >= 0) ? 4 : 0);
+			signs[i] = ((normals[i].x >= 0) ? 1 : 0) +
+					   ((normals[i].y >= 0) ? 2 : 0) +
+					   ((normals[i].z >= 0) ? 4 : 0);
 		}
 		stock.reserve(SIMPLE_STACKSIZE);
 		stack.reserve(SIMPLE_STACKSIZE);

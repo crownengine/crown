@@ -160,9 +160,9 @@ public:
 		// populate dx with random vectors
 		for (int i = 0; i < dx.size(); ++i)
 		{
-			dx[i].m_floats[0] = (randomDouble(-1, 1));
-			dx[i].m_floats[1] = (randomDouble(-1, 1));
-			dx[i].m_floats[2] = (randomDouble(-1, 1));
+			dx[i].x = (randomDouble(-1, 1));
+			dx[i].y = (randomDouble(-1, 1));
+			dx[i].z = (randomDouble(-1, 1));
 		}
 
 		btAlignedObjectArray<double> errors;
@@ -269,9 +269,9 @@ public:
 		// populate dx with random vectors
 		for (int i = 0; i < dx.size(); ++i)
 		{
-			dx[i].m_floats[0] = (randomDouble(-1, 1));
-			dx[i].m_floats[1] = (randomDouble(-1, 1));
-			dx[i].m_floats[2] = (randomDouble(-1, 1));
+			dx[i].x = (randomDouble(-1, 1));
+			dx[i].y = (randomDouble(-1, 1));
+			dx[i].z = (randomDouble(-1, 1));
 		}
 
 		btAlignedObjectArray<double> errors;

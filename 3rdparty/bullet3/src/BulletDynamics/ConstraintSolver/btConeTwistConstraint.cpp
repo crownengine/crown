@@ -618,7 +618,7 @@ void btConeTwistConstraint::calcAngleInfo2(const btTransform& transA, const btTr
 		btTransform trB = transB * m_rbBFrame;
 		btTransform trDeltaAB = trB * trPose * trA.inverse();
 		btQuaternion qDeltaAB = trDeltaAB.getRotation();
-		btVector3 swingAxis = btVector3(qDeltaAB.m_floats[0], qDeltaAB.m_floats[1], qDeltaAB.m_floats[2]);
+		btVector3 swingAxis = btVector3(qDeltaAB.x, qDeltaAB.y, qDeltaAB.z);
 		btScalar swingAxisLen2 = swingAxis.length2();
 		if (btFuzzyZero(swingAxisLen2))
 		{
@@ -812,11 +812,11 @@ void btConeTwistConstraint::computeConeLimitInfo(const btQuaternion& qCone,
 	swingAngle = qCone.getAngle();
 	if (swingAngle > SIMD_EPSILON)
 	{
-		vSwingAxis = btVector3(qCone.m_floats[0], qCone.m_floats[1], qCone.m_floats[2]);
+		vSwingAxis = btVector3(qCone.x, qCone.y, qCone.z);
 		vSwingAxis.normalize();
 #if 0
         // non-zero twist?! this should never happen.
-       btAssert(fabs(vSwingAxis.m_floats[0]) <= SIMD_EPSILON));
+       btAssert(fabs(vSwingAxis.x) <= SIMD_EPSILON));
 #endif
 
 		// Compute limit for given swing. tricky:
@@ -826,8 +826,8 @@ void btConeTwistConstraint::computeConeLimitInfo(const btQuaternion& qCone,
 		// For starters, compute the direction from center to surface of ellipse.
 		// This is just the perpendicular (ie. rotate 2D vector by PI/2) of the swing axis.
 		// (vSwingAxis is the cone rotation (in z,y); change vars and rotate to (x,y) coords.)
-		btScalar xEllipse = vSwingAxis.m_floats[1];
-		btScalar yEllipse = -vSwingAxis.m_floats[2];
+		btScalar xEllipse = vSwingAxis.y;
+		btScalar yEllipse = -vSwingAxis.z;
 
 		// Now, we use the slope of the vector (using x/yEllipse) and find the length
 		// of the line that intersects the ellipse:
@@ -848,12 +848,12 @@ void btConeTwistConstraint::computeConeLimitInfo(const btQuaternion& qCone,
 
 		// test!
 		/*swingLimit = m_swingSpan2;
-		if (fabs(vSwingAxis.m_floats[2]) > SIMD_EPSILON)
+		if (fabs(vSwingAxis.z) > SIMD_EPSILON)
 		{
 		btScalar mag_2 = m_swingSpan1*m_swingSpan1 + m_swingSpan2*m_swingSpan2;
 		btScalar sinphi = m_swingSpan2 / sqrt(mag_2);
 		btScalar phi = asin(sinphi);
-		btScalar theta = atan2(fabs(vSwingAxis.m_floats[1]),fabs(vSwingAxis.m_floats[2]));
+		btScalar theta = atan2(fabs(vSwingAxis.y),fabs(vSwingAxis.z));
 		btScalar alpha = 3.14159f - theta - phi;
 		btScalar sinalpha = sin(alpha);
 		swingLimit = m_swingSpan1 * sinphi/sinalpha;
@@ -921,7 +921,7 @@ void btConeTwistConstraint::computeTwistLimitInfo(const btQuaternion& qTwist,
 #endif
 	}
 
-	vTwistAxis = btVector3(qMinTwist.m_floats[0], qMinTwist.m_floats[1], qMinTwist.m_floats[2]);
+	vTwistAxis = btVector3(qMinTwist.x, qMinTwist.y, qMinTwist.z);
 	if (twistAngle > SIMD_EPSILON)
 		vTwistAxis.normalize();
 }
@@ -935,8 +935,8 @@ void btConeTwistConstraint::adjustSwingAxisToUseEllipseNormal(btVector3& vSwingA
 
 	// convert swing axis to direction from center to surface of ellipse
 	// (ie. rotate 2D vector by PI/2)
-	btScalar y = -vSwingAxis.m_floats[2];
-	btScalar z = vSwingAxis.m_floats[1];
+	btScalar y = -vSwingAxis.z;
+	btScalar z = vSwingAxis.y;
 
 	// do the math...
 	if (fabs(z) > SIMD_EPSILON)  // avoid division by 0. and we don't need an update if z == 0.
@@ -952,8 +952,8 @@ void btConeTwistConstraint::adjustSwingAxisToUseEllipseNormal(btVector3& vSwingA
 			y = -fabs(grad * z);
 
 		// convert ellipse direction back to swing axis
-		vSwingAxis.m_floats[2] = (-y);
-		vSwingAxis.m_floats[1] = (z);
+		vSwingAxis.z = (-y);
+		vSwingAxis.y = (z);
 		vSwingAxis.normalize();
 	}
 }

@@ -174,7 +174,7 @@ static btScalar gResolveSingleConstraintRowGeneric_sse2(btSolverBody& bodyA, btS
 	bodyA.internalGetDeltaAngularVelocity().mVec128 = _mm_add_ps(bodyA.internalGetDeltaAngularVelocity().mVec128, _mm_mul_ps(c.m_angularComponentA.mVec128, impulseMagnitude));
 	bodyB.internalGetDeltaLinearVelocity().mVec128 = _mm_add_ps(bodyB.internalGetDeltaLinearVelocity().mVec128, _mm_mul_ps(linearComponentB, impulseMagnitude));
 	bodyB.internalGetDeltaAngularVelocity().mVec128 = _mm_add_ps(bodyB.internalGetDeltaAngularVelocity().mVec128, _mm_mul_ps(c.m_angularComponentB.mVec128, impulseMagnitude));
-	return deltaImpulse.m_floats[0] / c.m_jacDiagABInv;
+	return deltaImpulse.x / c.m_jacDiagABInv;
 }
 
 // Enhanced version of gResolveSingleConstraintRowGeneric_sse2 with SSE4.1 and FMA3
@@ -199,7 +199,7 @@ static btScalar gResolveSingleConstraintRowGeneric_sse4_1_fma3(btSolverBody& bod
 	bodyB.internalGetDeltaLinearVelocity().mVec128 = FMADD(_mm_mul_ps(c.m_contactNormal2.mVec128, bodyB.internalGetInvMass().mVec128), deltaImpulse, bodyB.internalGetDeltaLinearVelocity().mVec128);
 	bodyB.internalGetDeltaAngularVelocity().mVec128 = FMADD(c.m_angularComponentB.mVec128, deltaImpulse, bodyB.internalGetDeltaAngularVelocity().mVec128);
 	btSimdScalar deltaImp = deltaImpulse;
-	return deltaImp.m_floats[0] * (1. / c.m_jacDiagABInv);
+	return deltaImp.x * (1. / c.m_jacDiagABInv);
 #else
 	return gResolveSingleConstraintRowGeneric_sse2(bodyA, bodyB, c);
 #endif
@@ -229,7 +229,7 @@ static btScalar gResolveSingleConstraintRowLowerLimit_sse2(btSolverBody& bodyA, 
 	bodyA.internalGetDeltaAngularVelocity().mVec128 = _mm_add_ps(bodyA.internalGetDeltaAngularVelocity().mVec128, _mm_mul_ps(c.m_angularComponentA.mVec128, impulseMagnitude));
 	bodyB.internalGetDeltaLinearVelocity().mVec128 = _mm_add_ps(bodyB.internalGetDeltaLinearVelocity().mVec128, _mm_mul_ps(linearComponentB, impulseMagnitude));
 	bodyB.internalGetDeltaAngularVelocity().mVec128 = _mm_add_ps(bodyB.internalGetDeltaAngularVelocity().mVec128, _mm_mul_ps(c.m_angularComponentB.mVec128, impulseMagnitude));
-	return deltaImpulse.m_floats[0] / c.m_jacDiagABInv;
+	return deltaImpulse.x / c.m_jacDiagABInv;
 }
 
 // Enhanced version of gResolveSingleConstraintRowGeneric_sse2 with SSE4.1 and FMA3
@@ -252,7 +252,7 @@ static btScalar gResolveSingleConstraintRowLowerLimit_sse4_1_fma3(btSolverBody& 
 	bodyB.internalGetDeltaLinearVelocity().mVec128 = FMADD(_mm_mul_ps(c.m_contactNormal2.mVec128, bodyB.internalGetInvMass().mVec128), deltaImpulse, bodyB.internalGetDeltaLinearVelocity().mVec128);
 	bodyB.internalGetDeltaAngularVelocity().mVec128 = FMADD(c.m_angularComponentB.mVec128, deltaImpulse, bodyB.internalGetDeltaAngularVelocity().mVec128);
 	btSimdScalar deltaImp = deltaImpulse;
-	return deltaImp.m_floats[0] * (1. / c.m_jacDiagABInv);
+	return deltaImp.x * (1. / c.m_jacDiagABInv);
 #else
 	return gResolveSingleConstraintRowLowerLimit_sse2(bodyA, bodyB, c);
 #endif  //BT_ALLOW_SSE4
@@ -344,7 +344,7 @@ static btScalar gResolveSplitPenetrationImpulse_sse2(btSolverBody& bodyA, btSolv
 	bodyB.internalGetPushVelocity().mVec128 = _mm_add_ps(bodyB.internalGetPushVelocity().mVec128, _mm_mul_ps(linearComponentB, impulseMagnitude));
 	bodyB.internalGetTurnVelocity().mVec128 = _mm_add_ps(bodyB.internalGetTurnVelocity().mVec128, _mm_mul_ps(c.m_angularComponentB.mVec128, impulseMagnitude));
 	btSimdScalar deltaImp = deltaImpulse;
-	return deltaImp.m_floats[0] * (1. / c.m_jacDiagABInv);
+	return deltaImp.x * (1. / c.m_jacDiagABInv);
 #else
 	return gResolveSplitPenetrationImpulse_scalar_reference(bodyA, bodyB, c);
 #endif

@@ -52,8 +52,8 @@ static DBVT_INLINE btDbvtVolume merge(const btDbvtVolume& a,
 static DBVT_INLINE btScalar size(const btDbvtVolume& a)
 {
 	const btVector3 edges = a.Lengths();
-	return (edges.m_floats[0] * edges.m_floats[1] * edges.m_floats[2] +
-			edges.m_floats[0] + edges.m_floats[1] + edges.m_floats[2]);
+	return (edges.x * edges.y * edges.z +
+			edges.x + edges.y + edges.z);
 }
 
 //

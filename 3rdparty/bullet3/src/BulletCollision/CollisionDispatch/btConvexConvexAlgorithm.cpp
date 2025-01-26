@@ -520,7 +520,7 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 				}
 				if (foundSepAxis)
 				{
-					//				printf("sepNormalWorldSpace=%f,%f,%f\n",sepNormalWorldSpace.m_floats[0],sepNormalWorldSpace.m_floats[1],sepNormalWorldSpace.m_floats[2]);
+					//				printf("sepNormalWorldSpace=%f,%f,%f\n",sepNormalWorldSpace.x,sepNormalWorldSpace.y,sepNormalWorldSpace.z);
 
 					worldVertsB1.resize(0);
 					btPolyhedralContactClipping::clipHullAgainstHull(sepNormalWorldSpace, *polyhedronA->getConvexPolyhedron(), *polyhedronB->getConvexPolyhedron(),
@@ -638,7 +638,7 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 							body0Wrap->m_worldTransform,
 							body1Wrap->m_worldTransform,
 							sepNormalWorldSpace, *resultOut);
-						//	 printf("sepNormalWorldSpace=%f,%f,%f\n",sepNormalWorldSpace.m_floats[0],sepNormalWorldSpace.m_floats[1],sepNormalWorldSpace.m_floats[2]);
+						//	 printf("sepNormalWorldSpace=%f,%f,%f\n",sepNormalWorldSpace.x,sepNormalWorldSpace.y,sepNormalWorldSpace.z);
 					}
 					else
 					{

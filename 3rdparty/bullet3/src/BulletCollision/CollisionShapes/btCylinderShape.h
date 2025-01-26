@@ -100,7 +100,7 @@ public:
 
 	virtual btScalar getRadius() const
 	{
-		return getHalfExtentsWithMargin().m_floats[0];
+		return getHalfExtentsWithMargin().x;
 	}
 
 	virtual void setLocalScaling(const btVector3& scaling)
@@ -144,7 +144,7 @@ public:
 
 	virtual btScalar getRadius() const
 	{
-		return getHalfExtentsWithMargin().m_floats[1];
+		return getHalfExtentsWithMargin().y;
 	}
 };
 
@@ -166,7 +166,7 @@ public:
 
 	virtual btScalar getRadius() const
 	{
-		return getHalfExtentsWithMargin().m_floats[0];
+		return getHalfExtentsWithMargin().x;
 	}
 };
 

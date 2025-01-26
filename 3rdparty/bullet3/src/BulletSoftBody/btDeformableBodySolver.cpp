@@ -574,9 +574,9 @@ void btDeformableBodySolver::applyTransforms(btScalar timeStep)
 					btScalar* u_t1 = &jacobianData_t1.m_deltaVelocitiesUnitImpulse[0];
 					btScalar* u_t2 = &jacobianData_t2.m_deltaVelocitiesUnitImpulse[0];
 
-					btMatrix3x3 rot(normal.m_floats[0], normal.m_floats[1], normal.m_floats[2],
-									t1.m_floats[0], t1.m_floats[1], t1.m_floats[2],
-									t2.m_floats[0], t2.m_floats[1], t2.m_floats[2]);  // world frame to local frame
+					btMatrix3x3 rot(normal.x, normal.y, normal.z,
+									t1.x, t1.y, t1.z,
+									t2.x, t2.y, t2.z);  // world frame to local frame
 					const int ndof = multibodyLinkCol->m_multiBody->getNumDofs() + 6;
 					btMatrix3x3 local_impulse_matrix = (Diagonal(n->m_im) + OuterProduct(J_n, J_t1, J_t2, u_n, u_t1, u_t2, ndof)).inverse();
 					a.m_c0 = rot.transpose() * local_impulse_matrix * rot;

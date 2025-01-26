@@ -249,12 +249,12 @@ void btPersistentManifold::refreshContactPoints(const btTransform& trA, const bt
 	int i;
 #ifdef DEBUG_PERSISTENCY
 	printf("refreshContactPoints posA = (%f,%f,%f) posB = (%f,%f,%f)\n",
-		   trA.m_origin.m_floats[0],
-		   trA.m_origin.m_floats[1],
-		   trA.m_origin.m_floats[2],
-		   trB.m_origin.m_floats[0],
-		   trB.m_origin.m_floats[1],
-		   trB.m_origin.m_floats[2]);
+		   trA.m_origin.x,
+		   trA.m_origin.y,
+		   trA.m_origin.z,
+		   trB.m_origin.x,
+		   trB.m_origin.y,
+		   trB.m_origin.z);
 #endif  //DEBUG_PERSISTENCY
 	/// first refresh worldspace positions and distance
 	for (i = getNumContacts() - 1; i >= 0; i--)

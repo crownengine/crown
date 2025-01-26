@@ -62,7 +62,7 @@ public:
 #if defined(__SPU__) && defined(__CELLOS_LV2__)
 	union {
 		vec_float4 mVec128;
-		btScalar m_floats[4];
+		struct { btScalar x, y, z, w; };
 	};
 
 public:
@@ -77,7 +77,7 @@ protected:
 #if defined(BT_USE_SSE) || defined(BT_USE_NEON)
 	union {
 		btSimdFloat4 mVec128;
-		btScalar m_floats[4];
+		struct { btScalar x, y, z, w; };
 	};
 
 public:
@@ -90,28 +90,28 @@ public:
 		mVec128 = v128;
 	}
 #else
-	btScalar m_floats[4];
+	btScalar x, y, z, w;
 #endif  // BT_USE_SSE
 
 #endif  //__CELLOS_LV2__ __SPU__
 
 public:
 
-	//SIMD_FORCE_INLINE btScalar&       operator[](int i)       { return (&m_floats[0])[i];	}
-	//SIMD_FORCE_INLINE const btScalar& operator[](int i) const { return (&m_floats[0])[i]; }
+	//SIMD_FORCE_INLINE btScalar&       operator[](int i)       { return (&x)[i];	}
+	//SIMD_FORCE_INLINE const btScalar& operator[](int i) const { return (&x)[i]; }
 	///operator btScalar*() replaces operator[], using implicit conversion. We added operator != and operator == to avoid pointer comparisons.
-	SIMD_FORCE_INLINE operator btScalar*() { return &m_floats[0]; }
-	SIMD_FORCE_INLINE operator const btScalar*() const { return &m_floats[0]; }
+	SIMD_FORCE_INLINE operator btScalar*() { return &x; }
+	SIMD_FORCE_INLINE operator const btScalar*() const { return &x; }
 
 	SIMD_FORCE_INLINE bool operator==(const btQuaternion& other) const
 	{
 #ifdef BT_USE_SSE
 		return (0xf == _mm_movemask_ps((__m128)_mm_cmpeq_ps(mVec128, other.mVec128)));
 #else
-		return ((m_floats[3] == other.m_floats[3]) &&
-				(m_floats[2] == other.m_floats[2]) &&
-				(m_floats[1] == other.m_floats[1]) &&
-				(m_floats[0] == other.m_floats[0]));
+		return ((w == other.w) &&
+				(z == other.z) &&
+				(y == other.y) &&
+				(x == other.x));
 #endif
 	}
 
@@ -127,17 +127,17 @@ public:
    */
 	SIMD_FORCE_INLINE void setValue(const btScalar& _x, const btScalar& _y, const btScalar& _z)
 	{
-		m_floats[0] = _x;
-		m_floats[1] = _y;
-		m_floats[2] = _z;
-		m_floats[3] = 0.f;
+		x = _x;
+		y = _y;
+		z = _z;
+		w = 0.f;
 	}
 
 	/*		void getValue(btScalar *m) const
 		{
-			m[0] = m_floats[0];
-			m[1] = m_floats[1];
-			m[2] = m_floats[2];
+			m[0] = x;
+			m[1] = y;
+			m[2] = z;
 		}
 */
 	/**@brief Set the values
@@ -148,10 +148,10 @@ public:
    */
 	SIMD_FORCE_INLINE void setValue(const btScalar& _x, const btScalar& _y, const btScalar& _z, const btScalar& _w)
 	{
-		m_floats[0] = _x;
-		m_floats[1] = _y;
-		m_floats[2] = _z;
-		m_floats[3] = _w;
+		x = _x;
+		y = _y;
+		z = _z;
+		w = _w;
 	}
 
 	/**@brief Set each element to the max of the current values and the values of another
@@ -165,10 +165,10 @@ public:
 #elif defined(BT_USE_NEON)
 		mVec128 = vmaxq_f32(mVec128, other.mVec128);
 #else
-		btSetMax(m_floats[0], other.m_floats[0]);
-		btSetMax(m_floats[1], other.m_floats[1]);
-		btSetMax(m_floats[2], other.m_floats[2]);
-		btSetMax(m_floats[3], other.m_floats[3]);
+		btSetMax(x, other.x);
+		btSetMax(y, other.y);
+		btSetMax(z, other.z);
+		btSetMax(w, other.w);
 #endif
 	}
 	/**@brief Set each element to the min of the current values and the values of another
@@ -182,10 +182,10 @@ public:
 #elif defined(BT_USE_NEON)
 		mVec128 = vminq_f32(mVec128, other.mVec128);
 #else
-		btSetMin(m_floats[0], other.m_floats[0]);
-		btSetMin(m_floats[1], other.m_floats[1]);
-		btSetMin(m_floats[2], other.m_floats[2]);
-		btSetMin(m_floats[3], other.m_floats[3]);
+		btSetMin(x, other.x);
+		btSetMin(y, other.y);
+		btSetMin(z, other.z);
+		btSetMin(w, other.w);
 #endif
 	}
 public:
@@ -221,7 +221,7 @@ public:
 	/**@brief Constructor from scalars */
 	btQuaternion(const btScalar& _x, const btScalar& _y, const btScalar& _z, const btScalar& _w)
 	{
-		m_floats[0] = _x, m_floats[1] = _y, m_floats[2] = _z, m_floats[3] = _w;
+		x = _x, y = _y, z = _z, w = _w;
 	}
 	/**@brief Axis angle Constructor
    * @param axis The axis which the rotation is around
@@ -250,7 +250,7 @@ public:
 		btScalar d = axis.length();
 		btAssert(d != btScalar(0.0));
 		btScalar s = btSin(_angle * btScalar(0.5)) / d;
-		setValue(axis.m_floats[0] * s, axis.m_floats[1] * s, axis.m_floats[2] * s,
+		setValue(axis.x * s, axis.y * s, axis.z * s,
 				 btCos(_angle * btScalar(0.5)));
 	}
 	/**@brief Set the quaternion using Euler angles
@@ -305,11 +305,11 @@ public:
 		btScalar sqy;
 		btScalar sqz;
 		btScalar sarg;
-		sqx = m_floats[0] * m_floats[0];
-		sqy = m_floats[1] * m_floats[1];
-		sqz = m_floats[2] * m_floats[2];
-		squ = m_floats[3] * m_floats[3];
-		sarg = btScalar(-2.) * (m_floats[0] * m_floats[2] - m_floats[3] * m_floats[1]);
+		sqx = x * x;
+		sqy = y * y;
+		sqz = z * z;
+		squ = w * w;
+		sarg = btScalar(-2.) * (x * z - w * y);
 
 		// If the pitch angle is PI/2 or -PI/2, we can only compute
 		// the sum roll + yaw.  However, any combination that gives
@@ -319,19 +319,19 @@ public:
 		{
 			pitchY = btScalar(-0.5) * SIMD_PI;
 			rollX = 0;
-			yawZ = btScalar(2) * btAtan2(m_floats[0], -m_floats[1]);
+			yawZ = btScalar(2) * btAtan2(x, -y);
 		}
 		else if (sarg >= btScalar(0.99999))
 		{
 			pitchY = btScalar(0.5) * SIMD_PI;
 			rollX = 0;
-			yawZ = btScalar(2) * btAtan2(-m_floats[0], m_floats[1]);
+			yawZ = btScalar(2) * btAtan2(-x, y);
 		}
 		else
 		{
 			pitchY = btAsin(sarg);
-			rollX = btAtan2(2 * (m_floats[1] * m_floats[2] + m_floats[3] * m_floats[0]), squ - sqx - sqy + sqz);
-			yawZ = btAtan2(2 * (m_floats[0] * m_floats[1] + m_floats[3] * m_floats[2]), squ + sqx - sqy - sqz);
+			rollX = btAtan2(2 * (y * z + w * x), squ - sqx - sqy + sqz);
+			yawZ = btAtan2(2 * (x * y + w * z), squ + sqx - sqy - sqz);
 		}
 	}
 
@@ -344,10 +344,10 @@ public:
 #elif defined(BT_USE_NEON)
 		mVec128 = vaddq_f32(mVec128, q.mVec128);
 #else
-		m_floats[0] += q.m_floats[0];
-		m_floats[1] += q.m_floats[1];
-		m_floats[2] += q.m_floats[2];
-		m_floats[3] += q.m_floats[3];
+		x += q.x;
+		y += q.y;
+		z += q.z;
+		w += q.w;
 #endif
 		return *this;
 	}
@@ -361,10 +361,10 @@ public:
 #elif defined(BT_USE_NEON)
 		mVec128 = vsubq_f32(mVec128, q.mVec128);
 #else
-		m_floats[0] -= q.m_floats[0];
-		m_floats[1] -= q.m_floats[1];
-		m_floats[2] -= q.m_floats[2];
-		m_floats[3] -= q.m_floats[3];
+		x -= q.x;
+		y -= q.y;
+		z -= q.z;
+		w -= q.w;
 #endif
 		return *this;
 	}
@@ -380,10 +380,10 @@ public:
 #elif defined(BT_USE_NEON)
 		mVec128 = vmulq_n_f32(mVec128, s);
 #else
-		m_floats[0] *= s;
-		m_floats[1] *= s;
-		m_floats[2] *= s;
-		m_floats[3] *= s;
+		x *= s;
+		y *= s;
+		z *= s;
+		w *= s;
 #endif
 		return *this;
 	}
@@ -465,10 +465,10 @@ public:
 		mVec128 = A0;
 #else
 		setValue(
-			m_floats[3] * q.m_floats[0] + m_floats[0] * q.m_floats[3] + m_floats[1] * q.m_floats[2] - m_floats[2] * q.m_floats[1],
-			m_floats[3] * q.m_floats[1] + m_floats[1] * q.m_floats[3] + m_floats[2] * q.m_floats[0] - m_floats[0] * q.m_floats[2],
-			m_floats[3] * q.m_floats[2] + m_floats[2] * q.m_floats[3] + m_floats[0] * q.m_floats[1] - m_floats[1] * q.m_floats[0],
-			m_floats[3] * q.m_floats[3] - m_floats[0] * q.m_floats[0] - m_floats[1] * q.m_floats[1] - m_floats[2] * q.m_floats[2]);
+			w * q.x + x * q.w + y * q.z - z * q.y,
+			w * q.y + y * q.w + z * q.x - x * q.z,
+			w * q.z + z * q.w + x * q.y - y * q.x,
+			w * q.w - x * q.x - y * q.y - z * q.z);
 #endif
 		return *this;
 	}
@@ -493,10 +493,10 @@ public:
 		x = vpadd_f32(x, x);
 		return vget_lane_f32(x, 0);
 #else
-		return m_floats[0] * q.m_floats[0] +
-			   m_floats[1] * q.m_floats[1] +
-			   m_floats[2] * q.m_floats[2] +
-			   m_floats[3] * q.m_floats[3];
+		return x * q.x +
+			   y * q.y +
+			   z * q.z +
+			   w * q.w;
 #endif
 	}
 
@@ -558,7 +558,7 @@ public:
 #elif defined(BT_USE_NEON)
 		return btQuaternion(vmulq_n_f32(mVec128, s));
 #else
-		return btQuaternion(m_floats[0] * s, m_floats[1] * s, m_floats[2] * s, m_floats[3] * s);
+		return btQuaternion(x * s, y * s, z * s, w * s);
 #endif
 	}
 
@@ -607,7 +607,7 @@ public:
 	/**@brief Return the angle [0, 2Pi] of rotation represented by this quaternion */
 	btScalar getAngle() const
 	{
-		btScalar s = btScalar(2.) * btAcos(m_floats[3]);
+		btScalar s = btScalar(2.) * btAcos(w);
 		return s;
 	}
 
@@ -615,22 +615,22 @@ public:
 	btScalar getAngleShortestPath() const
 	{
 		btScalar s;
-		if (m_floats[3] >= 0)
-			s = btScalar(2.) * btAcos(m_floats[3]);
+		if (w >= 0)
+			s = btScalar(2.) * btAcos(w);
 		else
-			s = btScalar(2.) * btAcos(-m_floats[3]);
+			s = btScalar(2.) * btAcos(-w);
 		return s;
 	}
 
 	/**@brief Return the axis of the rotation represented by this quaternion */
 	btVector3 getAxis() const
 	{
-		btScalar s_squared = 1.f - m_floats[3] * m_floats[3];
+		btScalar s_squared = 1.f - w * w;
 
 		if (s_squared < btScalar(10.) * SIMD_EPSILON)  //Check for divide by zero
 			return btVector3(1.0, 0.0, 0.0);           // Arbitrary
 		btScalar s = 1.f / btSqrt(s_squared);
-		return btVector3(m_floats[0] * s, m_floats[1] * s, m_floats[2] * s);
+		return btVector3(x * s, y * s, z * s);
 	}
 
 	/**@brief Return the inverse of this quaternion */
@@ -641,7 +641,7 @@ public:
 #elif defined(BT_USE_NEON)
 		return btQuaternion((btSimdFloat4)veorq_s32((int32x4_t)mVec128, (int32x4_t)vQInv));
 #else
-		return btQuaternion(-m_floats[0], -m_floats[1], -m_floats[2], m_floats[3]);
+		return btQuaternion(-x, -y, -z, w);
 #endif
 	}
 
@@ -656,7 +656,7 @@ public:
 		return btQuaternion(vaddq_f32(mVec128, q2.mVec128));
 #else
 		const btQuaternion& q1 = *this;
-		return btQuaternion(q1.m_floats[0] + q2.m_floats[0], q1.m_floats[1] + q2.m_floats[1], q1.m_floats[2] + q2.m_floats[2], q1.m_floats[3] + q2.m_floats[3]);
+		return btQuaternion(q1.x + q2.x, q1.y + q2.y, q1.z + q2.z, q1.w + q2.w);
 #endif
 	}
 
@@ -671,7 +671,7 @@ public:
 		return btQuaternion(vsubq_f32(mVec128, q2.mVec128));
 #else
 		const btQuaternion& q1 = *this;
-		return btQuaternion(q1.m_floats[0] - q2.m_floats[0], q1.m_floats[1] - q2.m_floats[1], q1.m_floats[2] - q2.m_floats[2], q1.m_floats[3] - q2.m_floats[3]);
+		return btQuaternion(q1.x - q2.x, q1.y - q2.y, q1.z - q2.z, q1.w - q2.w);
 #endif
 	}
 
@@ -685,7 +685,7 @@ public:
 		return btQuaternion((btSimdFloat4)veorq_s32((int32x4_t)mVec128, (int32x4_t)btvMzeroMask));
 #else
 		const btQuaternion& q2 = *this;
-		return btQuaternion(-q2.m_floats[0], -q2.m_floats[1], -q2.m_floats[2], -q2.m_floats[3]);
+		return btQuaternion(-q2.x, -q2.y, -q2.z, -q2.w);
 #endif
 	}
 	/**@todo document this and it's use */
@@ -734,10 +734,10 @@ public:
 			const btScalar s1 = btSin(sign * t * theta) / d;
 
 			return btQuaternion(
-				(m_floats[0] * s0 + q.m_floats[0] * s1),
-				(m_floats[1] * s0 + q.m_floats[1] * s1),
-				(m_floats[2] * s0 + q.m_floats[2] * s1),
-				(m_floats[3] * s0 + q.m_floats[3] * s1));
+				(x * s0 + q.x * s1),
+				(y * s0 + q.y * s1),
+				(z * s0 + q.z * s1),
+				(w * s0 + q.w * s1));
 		}
 		else
 		{
@@ -751,7 +751,7 @@ public:
 		return identityQuat;
 	}
 
-	SIMD_FORCE_INLINE const btScalar& getW() const { return m_floats[3]; }
+	SIMD_FORCE_INLINE const btScalar& getW() const { return w; }
 
 	SIMD_FORCE_INLINE void serialize(struct btQuaternionData& dataOut) const;
 
@@ -850,10 +850,10 @@ operator*(const btQuaternion& q1, const btQuaternion& q2)
 
 #else
 	return btQuaternion(
-		q1.m_floats[3] * q2.m_floats[0] + q1.m_floats[0] * q2.m_floats[3] + q1.m_floats[1] * q2.m_floats[2] - q1.m_floats[2] * q2.m_floats[1],
-		q1.m_floats[3] * q2.m_floats[1] + q1.m_floats[1] * q2.m_floats[3] + q1.m_floats[2] * q2.m_floats[0] - q1.m_floats[0] * q2.m_floats[2],
-		q1.m_floats[3] * q2.m_floats[2] + q1.m_floats[2] * q2.m_floats[3] + q1.m_floats[0] * q2.m_floats[1] - q1.m_floats[1] * q2.m_floats[0],
-		q1.m_floats[3] * q2.m_floats[3] - q1.m_floats[0] * q2.m_floats[0] - q1.m_floats[1] * q2.m_floats[1] - q1.m_floats[2] * q2.m_floats[2]);
+		q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y,
+		q1.w * q2.y + q1.y * q2.w + q1.z * q2.x - q1.x * q2.z,
+		q1.w * q2.z + q1.z * q2.w + q1.x * q2.y - q1.y * q2.x,
+		q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z);
 #endif
 }
 
@@ -933,10 +933,10 @@ operator*(const btQuaternion& q, const btVector3& w)
 
 #else
 	return btQuaternion(
-		q.m_floats[3] * w.m_floats[0] + q.m_floats[1] * w.m_floats[2] - q.m_floats[2] * w.m_floats[1],
-		q.m_floats[3] * w.m_floats[1] + q.m_floats[2] * w.m_floats[0] - q.m_floats[0] * w.m_floats[2],
-		q.m_floats[3] * w.m_floats[2] + q.m_floats[0] * w.m_floats[1] - q.m_floats[1] * w.m_floats[0],
-		-q.m_floats[0] * w.m_floats[0] - q.m_floats[1] * w.m_floats[1] - q.m_floats[2] * w.m_floats[2]);
+		q.w * w.x + q.y * w.z - q.z * w.y,
+		q.w * w.y + q.z * w.x - q.x * w.z,
+		q.w * w.z + q.x * w.y - q.y * w.x,
+		-q.x * w.x - q.y * w.y - q.z * w.z);
 #endif
 }
 
@@ -1016,10 +1016,10 @@ operator*(const btVector3& w, const btQuaternion& q)
 
 #else
 	return btQuaternion(
-		+w.m_floats[0] * q.m_floats[3] + w.m_floats[1] * q.m_floats[2] - w.m_floats[2] * q.m_floats[1],
-		+w.m_floats[1] * q.m_floats[3] + w.m_floats[2] * q.m_floats[0] - w.m_floats[0] * q.m_floats[2],
-		+w.m_floats[2] * q.m_floats[3] + w.m_floats[0] * q.m_floats[1] - w.m_floats[1] * q.m_floats[0],
-		-w.m_floats[0] * q.m_floats[0] - w.m_floats[1] * q.m_floats[1] - w.m_floats[2] * q.m_floats[2]);
+		+w.x * q.w + w.y * q.z - w.z * q.y,
+		+w.y * q.w + w.z * q.x - w.x * q.z,
+		+w.z * q.w + w.x * q.y - w.y * q.x,
+		-w.x * q.x - w.y * q.y - w.z * q.z);
 #endif
 }
 
@@ -1072,7 +1072,7 @@ quatRotate(const btQuaternion& rotation, const btVector3& v)
 #elif defined(BT_USE_NEON)
 	return btVector3((float32x4_t)vandq_s32((int32x4_t)q.get128(), btvFFF0Mask));
 #else
-	return btVector3(q.m_floats[0], q.m_floats[1], q.m_floats[2]);
+	return btVector3(q.x, q.y, q.z);
 #endif
 }
 
@@ -1086,13 +1086,13 @@ shortestArcQuat(const btVector3& v0, const btVector3& v1)  // Game Programming G
 	{
 		btVector3 n, unused;
 		btPlaneSpace1(v0, n, unused);
-		return btQuaternion(n.m_floats[0], n.m_floats[1], n.m_floats[2], 0.0f);  // just pick any vector that is orthogonal to v0
+		return btQuaternion(n.x, n.y, n.z, 0.0f);  // just pick any vector that is orthogonal to v0
 	}
 
 	btScalar s = btSqrt((1.0f + d) * 2.0f);
 	btScalar rs = 1.0f / s;
 
-	return btQuaternion(c.m_floats[0] * rs, c.m_floats[1] * rs, c.m_floats[2] * rs, s * 0.5f);
+	return btQuaternion(c.x * rs, c.y * rs, c.z * rs, s * 0.5f);
 }
 
 SIMD_FORCE_INLINE btQuaternion
@@ -1105,57 +1105,71 @@ shortestArcQuatNormalize2(btVector3& v0, btVector3& v1)
 
 struct btQuaternionFloatData
 {
-	float m_floats[4];
+	float x, y, z, w;
 };
 
 struct btQuaternionDoubleData
 {
-	double m_floats[4];
+	float x, y, z, w;
 };
 
 SIMD_FORCE_INLINE void btQuaternion::serializeFloat(struct btQuaternionFloatData& dataOut) const
 {
 	///could also do a memcpy, check if it is worth it
-	for (int i = 0; i < 4; i++)
-		dataOut.m_floats[i] = float(m_floats[i]);
+	dataOut.x = float(x);
+	dataOut.y = float(y);
+	dataOut.z = float(z);
+	dataOut.w = float(w);
 }
 
 SIMD_FORCE_INLINE void btQuaternion::deSerializeFloat(const struct btQuaternionFloatData& dataIn)
 {
-	for (int i = 0; i < 4; i++)
-		m_floats[i] = btScalar(dataIn.m_floats[i]);
+	x = btScalar(dataIn.x);
+	y = btScalar(dataIn.y);
+	z = btScalar(dataIn.z);
+	w = btScalar(dataIn.w);
 }
 
 SIMD_FORCE_INLINE void btQuaternion::serializeDouble(struct btQuaternionDoubleData& dataOut) const
 {
 	///could also do a memcpy, check if it is worth it
-	for (int i = 0; i < 4; i++)
-		dataOut.m_floats[i] = double(m_floats[i]);
+	dataOut.x = double(x);
+	dataOut.y = double(y);
+	dataOut.z = double(z);
+	dataOut.w = double(w);
 }
 
 SIMD_FORCE_INLINE void btQuaternion::deSerializeDouble(const struct btQuaternionDoubleData& dataIn)
 {
-	for (int i = 0; i < 4; i++)
-		m_floats[i] = btScalar(dataIn.m_floats[i]);
+	x = btScalar(dataIn.x);
+	y = btScalar(dataIn.y);
+	z = btScalar(dataIn.z);
+	w = btScalar(dataIn.w);
 }
 
 SIMD_FORCE_INLINE void btQuaternion::serialize(struct btQuaternionData& dataOut) const
 {
 	///could also do a memcpy, check if it is worth it
-	for (int i = 0; i < 4; i++)
-		dataOut.m_floats[i] = m_floats[i];
+	dataOut.x = x;
+	dataOut.y = y;
+	dataOut.z = z;
+	dataOut.w = w;
 }
 
 SIMD_FORCE_INLINE void btQuaternion::deSerialize(const struct btQuaternionFloatData& dataIn)
 {
-	for (int i = 0; i < 4; i++)
-		m_floats[i] = (btScalar)dataIn.m_floats[i];
+	x = (btScalar)dataIn.x;
+	y = (btScalar)dataIn.y;
+	z = (btScalar)dataIn.z;
+	w = (btScalar)dataIn.w;
 }
 
 SIMD_FORCE_INLINE void btQuaternion::deSerialize(const struct btQuaternionDoubleData& dataIn)
 {
-	for (int i = 0; i < 4; i++)
-		m_floats[i] = (btScalar)dataIn.m_floats[i];
+	x = (btScalar)dataIn.x;
+	y = (btScalar)dataIn.y;
+	z = (btScalar)dataIn.z;
+	w = (btScalar)dataIn.w;
 }
 
 #endif  //BT_SIMD__QUATERNION_H_
