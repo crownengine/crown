@@ -89,11 +89,11 @@ bool btPolyhedralConvexShape::initializePolyhedralFeatures(int shiftVerticesByMa
 
 		btGeometryUtil::getVerticesFromPlaneEquations(shiftedPlaneEquations, tmpVertices);
 
-		conv.compute(&tmpVertices[0].m_floats[0], sizeof(btVector3), tmpVertices.size(), 0.f, 0.f);
+		conv.compute(&tmpVertices[0].x, sizeof(btVector3), tmpVertices.size(), 0.f, 0.f);
 	}
 	else
 	{
-		conv.compute(&orgVertices[0].m_floats[0], sizeof(btVector3), orgVertices.size(), 0.f, 0.f);
+		conv.compute(&orgVertices[0].x, sizeof(btVector3), orgVertices.size(), 0.f, 0.f);
 	}
 
 #ifndef BT_RECONSTRUCT_FACES
@@ -148,9 +148,9 @@ bool btPolyhedralConvexShape::initializePolyhedralFeatures(int shiftVerticesByMa
 				planeEq = eq;
 			}
 		}
-		combinedFace.m_plane[0] = faceNormal.m_floats[0];
-		combinedFace.m_plane[1] = faceNormal.m_floats[1];
-		combinedFace.m_plane[2] = faceNormal.m_floats[2];
+		combinedFace.m_plane[0] = faceNormal.x;
+		combinedFace.m_plane[1] = faceNormal.y;
+		combinedFace.m_plane[2] = faceNormal.z;
 		combinedFace.m_plane[3] = -planeEq;
 
 		m_polyhedron->m_faces.push_back(combinedFace);
@@ -206,9 +206,9 @@ bool btPolyhedralConvexShape::initializePolyhedralFeatures(int shiftVerticesByMa
 		{
 			faceNormals[i] = edges[0].cross(edges[1]);
 			faceNormals[i].normalize();
-			tmpFaces[i].m_plane[0] = faceNormals[i].m_floats[0];
-			tmpFaces[i].m_plane[1] = faceNormals[i].m_floats[1];
-			tmpFaces[i].m_plane[2] = faceNormals[i].m_floats[2];
+			tmpFaces[i].m_plane[0] = faceNormals[i].x;
+			tmpFaces[i].m_plane[1] = faceNormals[i].y;
+			tmpFaces[i].m_plane[2] = faceNormals[i].z;
 			tmpFaces[i].m_plane[3] = planeEq;
 		}
 		else
@@ -471,9 +471,9 @@ void btPolyhedralConvexShape::calculateLocalInertia(btScalar mass, btVector3& in
 	getAabb(ident, aabbMin, aabbMax);
 	btVector3 halfExtents = (aabbMax - aabbMin) * btScalar(0.5);
 
-	btScalar lx = btScalar(2.) * (halfExtents.m_floats[0] + margin);
-	btScalar ly = btScalar(2.) * (halfExtents.m_floats[1] + margin);
-	btScalar lz = btScalar(2.) * (halfExtents.m_floats[2] + margin);
+	btScalar lx = btScalar(2.) * (halfExtents.x + margin);
+	btScalar ly = btScalar(2.) * (halfExtents.y + margin);
+	btScalar lz = btScalar(2.) * (halfExtents.z + margin);
 	const btScalar x2 = lx * lx;
 	const btScalar y2 = ly * ly;
 	const btScalar z2 = lz * lz;

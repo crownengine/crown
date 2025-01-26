@@ -75,7 +75,7 @@ btVector3 ThreePlaneIntersection(const btPlane &p0, const btPlane &p1, const btP
 	potentialVertex += n1n2;
 	potentialVertex *= quotient;
 
-	btVector3 result(potentialVertex.m_floats[0], potentialVertex.m_floats[1], potentialVertex.m_floats[2]);
+	btVector3 result(potentialVertex.x, potentialVertex.y, potentialVertex.z);
 	return result;
 }
 
@@ -941,9 +941,9 @@ bool HullLibrary::CleanupVertices(unsigned int svcount,
 		const btVector3 *p = (const btVector3 *)vtx;
 		vtx += stride;
 
-		btScalar px = p->m_floats[0];
-		btScalar py = p->m_floats[1];
-		btScalar pz = p->m_floats[2];
+		btScalar px = p->x;
+		btScalar py = p->y;
+		btScalar pz = p->z;
 
 		if (scale)
 		{

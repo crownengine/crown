@@ -94,9 +94,9 @@ inline void btMprSimplexSetSize(btMprSimplex_t *s, int size)
 #ifdef DEBUG_MPR
 inline void btPrintPortalVertex(_btMprSimplex_t *portal, int index)
 {
-	printf("portal[%d].v = %f,%f,%f, v1=%f,%f,%f, v2=%f,%f,%f\n", index, portal->ps[index].v.m_floats[0], portal->ps[index].v.m_floats[1], portal->ps[index].v.m_floats[2],
-		   portal->ps[index].v1.m_floats[0], portal->ps[index].v1.m_floats[1], portal->ps[index].v1.m_floats[2],
-		   portal->ps[index].v2.m_floats[0], portal->ps[index].v2.m_floats[1], portal->ps[index].v2.m_floats[2]);
+	printf("portal[%d].v = %f,%f,%f, v1=%f,%f,%f, v2=%f,%f,%f\n", index, portal->ps[index].v.x, portal->ps[index].v.y, portal->ps[index].v.z,
+		   portal->ps[index].v1.x, portal->ps[index].v1.y, portal->ps[index].v1.z,
+		   portal->ps[index].v2.x, portal->ps[index].v2.y, portal->ps[index].v2.z);
 }
 #endif  //DEBUG_MPR
 
@@ -158,7 +158,7 @@ inline int btMprEq(float _a, float _b)
 
 inline int btMprVec3Eq(const btVector3 *a, const btVector3 *b)
 {
-	return btMprEq((*a).m_floats[0], (*b).m_floats[0]) && btMprEq((*a).m_floats[1], (*b).m_floats[1]) && btMprEq((*a).m_floats[2], (*b).m_floats[2]);
+	return btMprEq((*a).x, (*b).x) && btMprEq((*a).y, (*b).y) && btMprEq((*a).z, (*b).z);
 }
 
 template <typename btConvexTemplate>
@@ -754,7 +754,7 @@ static void btFindPenetr(const btConvexTemplate &a, const btConvexTemplate &b,
 			*depth = btMprVec3PointTriDist2(origin, &btMprSimplexPoint(portal, 1)->v, &btMprSimplexPoint(portal, 2)->v, &btMprSimplexPoint(portal, 3)->v, pdir);
 			*depth = BT_MPR_SQRT(*depth);
 
-			if (btMprIsZero((*pdir).m_floats[0]) && btMprIsZero((*pdir).m_floats[1]) && btMprIsZero((*pdir).m_floats[2]))
+			if (btMprIsZero((*pdir).x) && btMprIsZero((*pdir).y) && btMprIsZero((*pdir).z))
 			{
 				*pdir = dir;
 			}

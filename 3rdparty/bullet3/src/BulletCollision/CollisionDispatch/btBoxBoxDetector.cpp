@@ -740,14 +740,14 @@ void btBoxBoxDetector::getClosestPoints(const ClosestPointInput& input, Result& 
 
 	for (int j = 0; j < 3; j++)
 	{
-		R1[0 + 4 * j] = transformA.m_basis[j].m_floats[0];
-		R2[0 + 4 * j] = transformB.m_basis[j].m_floats[0];
+		R1[0 + 4 * j] = transformA.m_basis[j].x;
+		R2[0 + 4 * j] = transformB.m_basis[j].x;
 
-		R1[1 + 4 * j] = transformA.m_basis[j].m_floats[1];
-		R2[1 + 4 * j] = transformB.m_basis[j].m_floats[1];
+		R1[1 + 4 * j] = transformA.m_basis[j].y;
+		R2[1 + 4 * j] = transformB.m_basis[j].y;
 
-		R1[2 + 4 * j] = transformA.m_basis[j].m_floats[2];
-		R2[2 + 4 * j] = transformB.m_basis[j].m_floats[2];
+		R1[2 + 4 * j] = transformA.m_basis[j].z;
+		R2[2 + 4 * j] = transformB.m_basis[j].z;
 	}
 
 	btVector3 normal;

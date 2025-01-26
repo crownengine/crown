@@ -33,9 +33,9 @@ SIMD_FORCE_INLINE bool TestPointAgainstAabb2(const btVector3& aabbMin1, const bt
 											 const btVector3& point)
 {
 	bool overlap = true;
-	overlap = (aabbMin1.m_floats[0] > point.m_floats[0] || aabbMax1.m_floats[0] < point.m_floats[0]) ? false : overlap;
-	overlap = (aabbMin1.m_floats[2] > point.m_floats[2] || aabbMax1.m_floats[2] < point.m_floats[2]) ? false : overlap;
-	overlap = (aabbMin1.m_floats[1] > point.m_floats[1] || aabbMax1.m_floats[1] < point.m_floats[1]) ? false : overlap;
+	overlap = (aabbMin1.x > point.x || aabbMax1.x < point.x) ? false : overlap;
+	overlap = (aabbMin1.z > point.z || aabbMax1.z < point.z) ? false : overlap;
+	overlap = (aabbMin1.y > point.y || aabbMax1.y < point.y) ? false : overlap;
 	return overlap;
 }
 
@@ -44,9 +44,9 @@ SIMD_FORCE_INLINE bool TestAabbAgainstAabb2(const btVector3& aabbMin1, const btV
 											const btVector3& aabbMin2, const btVector3& aabbMax2)
 {
 	bool overlap = true;
-	overlap = (aabbMin1.m_floats[0] > aabbMax2.m_floats[0] || aabbMax1.m_floats[0] < aabbMin2.m_floats[0]) ? false : overlap;
-	overlap = (aabbMin1.m_floats[2] > aabbMax2.m_floats[2] || aabbMax1.m_floats[2] < aabbMin2.m_floats[2]) ? false : overlap;
-	overlap = (aabbMin1.m_floats[1] > aabbMax2.m_floats[1] || aabbMax1.m_floats[1] < aabbMin2.m_floats[1]) ? false : overlap;
+	overlap = (aabbMin1.x > aabbMax2.x || aabbMax1.x < aabbMin2.x) ? false : overlap;
+	overlap = (aabbMin1.z > aabbMax2.z || aabbMax1.z < aabbMin2.z) ? false : overlap;
+	overlap = (aabbMin1.y > aabbMax2.y || aabbMax1.y < aabbMin2.y) ? false : overlap;
 	return overlap;
 }
 
@@ -71,12 +71,12 @@ SIMD_FORCE_INLINE bool TestTriangleAgainstAabb2(const btVector3* vertices,
 
 SIMD_FORCE_INLINE int btOutcode(const btVector3& p, const btVector3& halfExtent)
 {
-	return (p.m_floats[0] < -halfExtent.m_floats[0] ? 0x01 : 0x0) |
-		   (p.m_floats[0] > halfExtent.m_floats[0] ? 0x08 : 0x0) |
-		   (p.m_floats[1] < -halfExtent.m_floats[1] ? 0x02 : 0x0) |
-		   (p.m_floats[1] > halfExtent.m_floats[1] ? 0x10 : 0x0) |
-		   (p.m_floats[2] < -halfExtent.m_floats[2] ? 0x4 : 0x0) |
-		   (p.m_floats[2] > halfExtent.m_floats[2] ? 0x20 : 0x0);
+	return (p.x < -halfExtent.x ? 0x01 : 0x0) |
+		   (p.x > halfExtent.x ? 0x08 : 0x0) |
+		   (p.y < -halfExtent.y ? 0x02 : 0x0) |
+		   (p.y > halfExtent.y ? 0x10 : 0x0) |
+		   (p.z < -halfExtent.z ? 0x4 : 0x0) |
+		   (p.z > halfExtent.z ? 0x20 : 0x0);
 }
 
 SIMD_FORCE_INLINE bool btRayAabb2(const btVector3& rayFrom,
@@ -88,10 +88,10 @@ SIMD_FORCE_INLINE bool btRayAabb2(const btVector3& rayFrom,
 								  btScalar lambda_max)
 {
 	btScalar tmax, tymin, tymax, tzmin, tzmax;
-	tmin = (bounds[raySign[0]].m_floats[0] - rayFrom.m_floats[0]) * rayInvDirection.m_floats[0];
-	tmax = (bounds[1 - raySign[0]].m_floats[0] - rayFrom.m_floats[0]) * rayInvDirection.m_floats[0];
-	tymin = (bounds[raySign[1]].m_floats[1] - rayFrom.m_floats[1]) * rayInvDirection.m_floats[1];
-	tymax = (bounds[1 - raySign[1]].m_floats[1] - rayFrom.m_floats[1]) * rayInvDirection.m_floats[1];
+	tmin = (bounds[raySign[0]].x - rayFrom.x) * rayInvDirection.x;
+	tmax = (bounds[1 - raySign[0]].x - rayFrom.x) * rayInvDirection.x;
+	tymin = (bounds[raySign[1]].y - rayFrom.y) * rayInvDirection.y;
+	tymax = (bounds[1 - raySign[1]].y - rayFrom.y) * rayInvDirection.y;
 
 	if ((tmin > tymax) || (tymin > tmax))
 		return false;
@@ -102,8 +102,8 @@ SIMD_FORCE_INLINE bool btRayAabb2(const btVector3& rayFrom,
 	if (tymax < tmax)
 		tmax = tymax;
 
-	tzmin = (bounds[raySign[2]].m_floats[2] - rayFrom.m_floats[2]) * rayInvDirection.m_floats[2];
-	tzmax = (bounds[1 - raySign[2]].m_floats[2] - rayFrom.m_floats[2]) * rayInvDirection.m_floats[2];
+	tzmin = (bounds[raySign[2]].z - rayFrom.z) * rayInvDirection.z;
+	tzmax = (bounds[1 - raySign[2]].z - rayFrom.z) * rayInvDirection.z;
 
 	if ((tmin > tzmax) || (tzmin > tmax))
 		return false;
@@ -181,9 +181,9 @@ SIMD_FORCE_INLINE void btTransformAabb(const btVector3& halfExtents, btScalar ma
 
 SIMD_FORCE_INLINE void btTransformAabb(const btVector3& localAabbMin, const btVector3& localAabbMax, btScalar margin, const btTransform& trans, btVector3& aabbMinOut, btVector3& aabbMaxOut)
 {
-	btAssert(localAabbMin.m_floats[0] <= localAabbMax.m_floats[0]);
-	btAssert(localAabbMin.m_floats[1] <= localAabbMax.m_floats[1]);
-	btAssert(localAabbMin.m_floats[2] <= localAabbMax.m_floats[2]);
+	btAssert(localAabbMin.x <= localAabbMax.x);
+	btAssert(localAabbMin.y <= localAabbMax.y);
+	btAssert(localAabbMin.z <= localAabbMax.z);
 	btVector3 localHalfExtents = btScalar(0.5) * (localAabbMax - localAabbMin);
 	localHalfExtents += btVector3(margin, margin, margin);
 

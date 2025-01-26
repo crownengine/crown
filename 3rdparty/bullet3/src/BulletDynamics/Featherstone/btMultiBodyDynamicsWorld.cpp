@@ -418,13 +418,13 @@ void btMultiBodyDynamicsWorld::solveExternalForces(btContactSolverInfo& solverIn
                         
                         /////
                         //copy q0 to scratch_q0 and qd0 to scratch_qd0
-                        scratch_q0[0] = bod->getWorldToBaseRot().m_floats[0];
-                        scratch_q0[1] = bod->getWorldToBaseRot().m_floats[1];
-                        scratch_q0[2] = bod->getWorldToBaseRot().m_floats[2];
-                        scratch_q0[3] = bod->getWorldToBaseRot().m_floats[3];
-                        scratch_q0[4] = bod->getBasePos().m_floats[0];
-                        scratch_q0[5] = bod->getBasePos().m_floats[1];
-                        scratch_q0[6] = bod->getBasePos().m_floats[2];
+                        scratch_q0[0] = bod->getWorldToBaseRot().x;
+                        scratch_q0[1] = bod->getWorldToBaseRot().y;
+                        scratch_q0[2] = bod->getWorldToBaseRot().z;
+                        scratch_q0[3] = bod->getWorldToBaseRot().w;
+                        scratch_q0[4] = bod->getBasePos().x;
+                        scratch_q0[5] = bod->getBasePos().y;
+                        scratch_q0[6] = bod->getBasePos().z;
                         //
                         for (int link = 0; link < bod->getNumLinks(); ++link)
                         {

@@ -200,9 +200,9 @@ struct btSparseSdf
 	{
 		/* Lookup cell			*/
 		const btVector3 scx = x / voxelsz;
-		const IntFrac ix = Decompose(scx.m_floats[0]);
-		const IntFrac iy = Decompose(scx.m_floats[1]);
-		const IntFrac iz = Decompose(scx.m_floats[2]);
+		const IntFrac ix = Decompose(scx.x);
+		const IntFrac iy = Decompose(scx.y);
+		const IntFrac iz = Decompose(scx.z);
 		const unsigned h = Hash(ix.b, iy.b, iz.b, shape);
 		Cell*& root = cells[static_cast<int>(h % cells.size())];
 		Cell* c = root;
@@ -268,11 +268,11 @@ struct btSparseSdf
 							   d[7] - d[4], d[6] - d[5]};
 		const btScalar gz[] = {d[4] - d[0], d[5] - d[1],
 							   d[7] - d[3], d[6] - d[2]};
-		normal.m_floats[0] = (Lerp(Lerp(gx[0], gx[1], iy.f),
+		normal.x = (Lerp(Lerp(gx[0], gx[1], iy.f),
 						 Lerp(gx[2], gx[3], iy.f), iz.f));
-		normal.m_floats[1] = (Lerp(Lerp(gy[0], gy[1], ix.f),
+		normal.y = (Lerp(Lerp(gy[0], gy[1], ix.f),
 						 Lerp(gy[2], gy[3], ix.f), iz.f));
-		normal.m_floats[2] = (Lerp(Lerp(gz[0], gz[1], ix.f),
+		normal.z = (Lerp(Lerp(gz[0], gz[1], ix.f),
 						 Lerp(gz[2], gz[3], ix.f), iy.f));
 		normal.safeNormalize();
 #else
@@ -294,13 +294,13 @@ struct btSparseSdf
 							  CELLSIZE * voxelsz;
 		for (int k = 0; k <= CELLSIZE; ++k)
 		{
-			const btScalar z = voxelsz * k + org.m_floats[2];
+			const btScalar z = voxelsz * k + org.z;
 			for (int j = 0; j <= CELLSIZE; ++j)
 			{
-				const btScalar y = voxelsz * j + org.m_floats[1];
+				const btScalar y = voxelsz * j + org.y;
 				for (int i = 0; i <= CELLSIZE; ++i)
 				{
-					const btScalar x = voxelsz * i + org.m_floats[0];
+					const btScalar x = voxelsz * i + org.x;
 					c.d[i][j][k] = DistanceToShape(btVector3(x, y, z),
 												   c.pclient);
 				}

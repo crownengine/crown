@@ -150,19 +150,19 @@ btVector3 btConvexShape::localGetSupportVertexWithoutMarginNonVirtual(const btVe
 #error unknown vector arch
 #endif
 #else
-			return btVector3(btFsels(localDir.m_floats[0], halfExtents.m_floats[0], -halfExtents.m_floats[0]),
-							 btFsels(localDir.m_floats[1], halfExtents.m_floats[1], -halfExtents.m_floats[1]),
-							 btFsels(localDir.m_floats[2], halfExtents.m_floats[2], -halfExtents.m_floats[2]));
+			return btVector3(btFsels(localDir.x, halfExtents.x, -halfExtents.x),
+							 btFsels(localDir.y, halfExtents.y, -halfExtents.y),
+							 btFsels(localDir.z, halfExtents.z, -halfExtents.z));
 #endif
 		}
 		case TRIANGLE_SHAPE_PROXYTYPE:
 		{
 			btTriangleShape* triangleShape = (btTriangleShape*)this;
-			btVector3 dir(localDir.m_floats[0], localDir.m_floats[1], localDir.m_floats[2]);
+			btVector3 dir(localDir.x, localDir.y, localDir.z);
 			btVector3* vertices = &triangleShape->m_vertices1[0];
 			btVector3 dots = dir.dot3(vertices[0], vertices[1], vertices[2]);
 			btVector3 sup = vertices[dots.maxAxis()];
-			return btVector3(sup.m_floats[0], sup.m_floats[1], sup.m_floats[2]);
+			return btVector3(sup.x, sup.y, sup.z);
 		}
 		case CYLINDER_SHAPE_PROXYTYPE:
 		{
@@ -170,7 +170,7 @@ btVector3 btConvexShape::localGetSupportVertexWithoutMarginNonVirtual(const btVe
 			//mapping of halfextents/dimension onto radius/height depends on how cylinder local orientation is (upAxis)
 
 			btVector3 halfExtents = cylShape->getImplicitShapeDimensions();
-			btVector3 v(localDir.m_floats[0], localDir.m_floats[1], localDir.m_floats[2]);
+			btVector3 v(localDir.x, localDir.y, localDir.z);
 			int cylinderUpAxis = cylShape->getUpAxis();
 			int XX(1), YY(0), ZZ(2);
 
@@ -215,19 +215,19 @@ btVector3 btConvexShape::localGetSupportVertexWithoutMarginNonVirtual(const btVe
 				tmp[XX] = v[XX] * d;
 				tmp[YY] = v[YY] < 0.0 ? -halfHeight : halfHeight;
 				tmp[ZZ] = v[ZZ] * d;
-				return btVector3(tmp.m_floats[0], tmp.m_floats[1], tmp.m_floats[2]);
+				return btVector3(tmp.x, tmp.y, tmp.z);
 			}
 			else
 			{
 				tmp[XX] = radius;
 				tmp[YY] = v[YY] < 0.0 ? -halfHeight : halfHeight;
 				tmp[ZZ] = btScalar(0.0);
-				return btVector3(tmp.m_floats[0], tmp.m_floats[1], tmp.m_floats[2]);
+				return btVector3(tmp.x, tmp.y, tmp.z);
 			}
 		}
 		case CAPSULE_SHAPE_PROXYTYPE:
 		{
-			btVector3 vec0(localDir.m_floats[0], localDir.m_floats[1], localDir.m_floats[2]);
+			btVector3 vec0(localDir.x, localDir.y, localDir.z);
 
 			btCapsuleShape* capsuleShape = (btCapsuleShape*)this;
 			btScalar halfHeight = capsuleShape->getHalfHeight();
@@ -275,7 +275,7 @@ btVector3 btConvexShape::localGetSupportVertexWithoutMarginNonVirtual(const btVe
 					supVec = vtx;
 				}
 			}
-			return btVector3(supVec.m_floats[0], supVec.m_floats[1], supVec.m_floats[2]);
+			return btVector3(supVec.x, supVec.y, supVec.z);
 		}
 		case CONVEX_POINT_CLOUD_SHAPE_PROXYTYPE:
 		{
@@ -378,7 +378,7 @@ void btConvexShape::getAabbNonVirtual(const btTransform& t, btVector3& aabbMin, 
 		case SPHERE_SHAPE_PROXYTYPE:
 		{
 			btSphereShape* sphereShape = (btSphereShape*)this;
-			btScalar radius = sphereShape->getImplicitShapeDimensions().m_floats[0];  // * convexShape->getLocalScaling().m_floats[0];
+			btScalar radius = sphereShape->getImplicitShapeDimensions().x;  // * convexShape->getLocalScaling().x;
 			btScalar margin = radius + sphereShape->getMarginNonVirtual();
 			const btVector3& center = t.m_origin;
 			btVector3 extent(margin, margin, margin);

@@ -111,20 +111,20 @@ void btOptimizedBvh::build(btStridingMeshInterface* triangles, bool useQuantized
 			//PCK: add these checks for zero dimensions of aabb
 			const btScalar MIN_AABB_DIMENSION = btScalar(0.002);
 			const btScalar MIN_AABB_HALF_DIMENSION = btScalar(0.001);
-			if (aabbMax.m_floats[0] - aabbMin.m_floats[0] < MIN_AABB_DIMENSION)
+			if (aabbMax.x - aabbMin.x < MIN_AABB_DIMENSION)
 			{
-				aabbMax.m_floats[0] = (aabbMax.m_floats[0] + MIN_AABB_HALF_DIMENSION);
-				aabbMin.m_floats[0] = (aabbMin.m_floats[0] - MIN_AABB_HALF_DIMENSION);
+				aabbMax.x = (aabbMax.x + MIN_AABB_HALF_DIMENSION);
+				aabbMin.x = (aabbMin.x - MIN_AABB_HALF_DIMENSION);
 			}
-			if (aabbMax.m_floats[1] - aabbMin.m_floats[1] < MIN_AABB_DIMENSION)
+			if (aabbMax.y - aabbMin.y < MIN_AABB_DIMENSION)
 			{
-				aabbMax.m_floats[1] = (aabbMax.m_floats[1] + MIN_AABB_HALF_DIMENSION);
-				aabbMin.m_floats[1] = (aabbMin.m_floats[1] - MIN_AABB_HALF_DIMENSION);
+				aabbMax.y = (aabbMax.y + MIN_AABB_HALF_DIMENSION);
+				aabbMin.y = (aabbMin.y - MIN_AABB_HALF_DIMENSION);
 			}
-			if (aabbMax.m_floats[2] - aabbMin.m_floats[2] < MIN_AABB_DIMENSION)
+			if (aabbMax.z - aabbMin.z < MIN_AABB_DIMENSION)
 			{
-				aabbMax.m_floats[2] = (aabbMax.m_floats[2] + MIN_AABB_HALF_DIMENSION);
-				aabbMin.m_floats[2] = (aabbMin.m_floats[2] - MIN_AABB_HALF_DIMENSION);
+				aabbMax.z = (aabbMax.z + MIN_AABB_HALF_DIMENSION);
+				aabbMin.z = (aabbMin.z - MIN_AABB_HALF_DIMENSION);
 			}
 
 			m_optimizedTree->quantize(&node.m_quantizedAabbMin[0], aabbMin, 0);
@@ -215,13 +215,13 @@ void btOptimizedBvh::refitPartial(btStridingMeshInterface* meshInterface, const 
 	//incrementally initialize quantization values
 	btAssert(m_useQuantization);
 
-	btAssert(aabbMin.m_floats[0] > m_bvhAabbMin.m_floats[0]);
-	btAssert(aabbMin.m_floats[1] > m_bvhAabbMin.m_floats[1]);
-	btAssert(aabbMin.m_floats[2] > m_bvhAabbMin.m_floats[2]);
+	btAssert(aabbMin.x > m_bvhAabbMin.x);
+	btAssert(aabbMin.y > m_bvhAabbMin.y);
+	btAssert(aabbMin.z > m_bvhAabbMin.z);
 
-	btAssert(aabbMax.m_floats[0] < m_bvhAabbMax.m_floats[0]);
-	btAssert(aabbMax.m_floats[1] < m_bvhAabbMax.m_floats[1]);
-	btAssert(aabbMax.m_floats[2] < m_bvhAabbMax.m_floats[2]);
+	btAssert(aabbMax.x < m_bvhAabbMax.x);
+	btAssert(aabbMax.y < m_bvhAabbMax.y);
+	btAssert(aabbMax.z < m_bvhAabbMax.z);
 
 	///we should update all quantization values, using updateBvhNodes(meshInterface);
 	///but we only update chunks that overlap the given aabb
@@ -304,14 +304,14 @@ void btOptimizedBvh::updateBvhNodes(btStridingMeshInterface* meshInterface, int 
 				{
 					float* graphicsbase = (float*)(vertexbase + graphicsindex * stride);
 					triangleVerts[j] = btVector3(
-						graphicsbase[0] * meshScaling.m_floats[0],
-						graphicsbase[1] * meshScaling.m_floats[1],
-						graphicsbase[2] * meshScaling.m_floats[2]);
+						graphicsbase[0] * meshScaling.x,
+						graphicsbase[1] * meshScaling.y,
+						graphicsbase[2] * meshScaling.z);
 				}
 				else
 				{
 					double* graphicsbase = (double*)(vertexbase + graphicsindex * stride);
-					triangleVerts[j] = btVector3(btScalar(graphicsbase[0] * meshScaling.m_floats[0]), btScalar(graphicsbase[1] * meshScaling.m_floats[1]), btScalar(graphicsbase[2] * meshScaling.m_floats[2]));
+					triangleVerts[j] = btVector3(btScalar(graphicsbase[0] * meshScaling.x), btScalar(graphicsbase[1] * meshScaling.y), btScalar(graphicsbase[2] * meshScaling.z));
 				}
 			}
 

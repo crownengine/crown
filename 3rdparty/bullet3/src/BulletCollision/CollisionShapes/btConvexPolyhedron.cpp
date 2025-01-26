@@ -29,7 +29,7 @@ btConvexPolyhedron::~btConvexPolyhedron()
 
 inline bool IsAlmostZero1(const btVector3& v)
 {
-	if (btFabs(v.m_floats[0]) > 1e-6 || btFabs(v.m_floats[1]) > 1e-6 || btFabs(v.m_floats[2]) > 1e-6) return false;
+	if (btFabs(v.x) > 1e-6 || btFabs(v.y) > 1e-6 || btFabs(v.z) > 1e-6) return false;
 	return true;
 }
 
@@ -218,12 +218,12 @@ void btConvexPolyhedron::initialize2()
 		for (int i = 0; i < m_vertices.size(); i++)
 		{
 			const btVector3& pt = m_vertices[i];
-			if (pt.m_floats[0] < MinX) MinX = pt.m_floats[0];
-			if (pt.m_floats[0] > MaxX) MaxX = pt.m_floats[0];
-			if (pt.m_floats[1] < MinY) MinY = pt.m_floats[1];
-			if (pt.m_floats[1] > MaxY) MaxY = pt.m_floats[1];
-			if (pt.m_floats[2] < MinZ) MinZ = pt.m_floats[2];
-			if (pt.m_floats[2] > MaxZ) MaxZ = pt.m_floats[2];
+			if (pt.x < MinX) MinX = pt.x;
+			if (pt.x > MaxX) MaxX = pt.x;
+			if (pt.y < MinY) MinY = pt.y;
+			if (pt.y > MaxY) MaxY = pt.y;
+			if (pt.z < MinZ) MinZ = pt.z;
+			if (pt.z > MaxZ) MaxZ = pt.z;
 		}
 		mC.setValue(MaxX + MinX, MaxY + MinY, MaxZ + MinZ);
 		mE.setValue(MaxX - MinX, MaxY - MinY, MaxZ - MinZ);

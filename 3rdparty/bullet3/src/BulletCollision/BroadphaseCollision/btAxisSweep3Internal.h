@@ -180,8 +180,8 @@ public:
 	{
 		/*		printf("btAxisSweep3.h\n");
 		printf("numHandles = %d, maxHandles = %d\n",m_numHandles,m_maxHandles);
-		printf("aabbMin=%f,%f,%f,aabbMax=%f,%f,%f\n",m_worldAabbMin.m_floats[0],m_worldAabbMin.m_floats[1],m_worldAabbMin.m_floats[2],
-			m_worldAabbMax.m_floats[0],m_worldAabbMax.m_floats[1],m_worldAabbMax.m_floats[2]);
+		printf("aabbMin=%f,%f,%f,aabbMax=%f,%f,%f\n",m_worldAabbMin.x,m_worldAabbMin.y,m_worldAabbMin.z,
+			m_worldAabbMax.x,m_worldAabbMax.y,m_worldAabbMax.z);
 			*/
 	}
 };
@@ -320,10 +320,10 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::unQuantize(btBroadphaseProxy* proxy, 
 	vecInMin[2] = m_pEdges[2][pHandle->m_minEdges[2]].m_pos;
 	vecInMax[2] = m_pEdges[2][pHandle->m_maxEdges[2]].m_pos + 1;
 
-	aabbMin.setValue((btScalar)(vecInMin[0]) / (m_quantize.m_floats[0]), (btScalar)(vecInMin[1]) / (m_quantize.m_floats[1]), (btScalar)(vecInMin[2]) / (m_quantize.m_floats[2]));
+	aabbMin.setValue((btScalar)(vecInMin[0]) / (m_quantize.x), (btScalar)(vecInMin[1]) / (m_quantize.y), (btScalar)(vecInMin[2]) / (m_quantize.z));
 	aabbMin += m_worldAabbMin;
 
-	aabbMax.setValue((btScalar)(vecInMax[0]) / (m_quantize.m_floats[0]), (btScalar)(vecInMax[1]) / (m_quantize.m_floats[1]), (btScalar)(vecInMax[2]) / (m_quantize.m_floats[2]));
+	aabbMax.setValue((btScalar)(vecInMax[0]) / (m_quantize.x), (btScalar)(vecInMax[1]) / (m_quantize.y), (btScalar)(vecInMax[2]) / (m_quantize.z));
 	aabbMax += m_worldAabbMin;
 }
 
@@ -442,9 +442,9 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::quantize(BP_FP_INT_TYPE* out, const b
 	clampedPoint.setMax(m_worldAabbMin);
 	clampedPoint.setMin(m_worldAabbMax);
 	btVector3 v = (clampedPoint - m_worldAabbMin) * m_quantize;
-	out[0] = (BP_FP_INT_TYPE)(((BP_FP_INT_TYPE)v.m_floats[0] & m_bpHandleMask) | isMax);
-	out[1] = (BP_FP_INT_TYPE)(((BP_FP_INT_TYPE)v.m_floats[1] & m_bpHandleMask) | isMax);
-	out[2] = (BP_FP_INT_TYPE)(((BP_FP_INT_TYPE)v.m_floats[2] & m_bpHandleMask) | isMax);
+	out[0] = (BP_FP_INT_TYPE)(((BP_FP_INT_TYPE)v.x & m_bpHandleMask) | isMax);
+	out[1] = (BP_FP_INT_TYPE)(((BP_FP_INT_TYPE)v.y & m_bpHandleMask) | isMax);
+	out[2] = (BP_FP_INT_TYPE)(((BP_FP_INT_TYPE)v.z & m_bpHandleMask) | isMax);
 #else
 	btVector3 v = (point - m_worldAabbMin) * m_quantize;
 	out[0] = (v[0] <= 0) ? (BP_FP_INT_TYPE)isMax : (v[0] >= m_handleSentinel) ? (BP_FP_INT_TYPE)((m_handleSentinel & m_bpHandleMask) | isMax) : (BP_FP_INT_TYPE)(((BP_FP_INT_TYPE)v[0] & m_bpHandleMask) | isMax);

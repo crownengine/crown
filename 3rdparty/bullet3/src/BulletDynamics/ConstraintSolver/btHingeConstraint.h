@@ -218,9 +218,9 @@ public:
 		btPlaneSpace1(axisInA, rbAxisA1, rbAxisA2);
 		btVector3 pivotInA = m_rbAFrame.m_origin;
 		//		m_rbAFrame.m_origin = pivotInA;
-		m_rbAFrame.m_basis.setValue(rbAxisA1.m_floats[0], rbAxisA2.m_floats[0], axisInA.m_floats[0],
-									   rbAxisA1.m_floats[1], rbAxisA2.m_floats[1], axisInA.m_floats[1],
-									   rbAxisA1.m_floats[2], rbAxisA2.m_floats[2], axisInA.m_floats[2]);
+		m_rbAFrame.m_basis.setValue(rbAxisA1.x, rbAxisA2.x, axisInA.x,
+									   rbAxisA1.y, rbAxisA2.y, axisInA.y,
+									   rbAxisA1.z, rbAxisA2.z, axisInA.z);
 
 		btVector3 axisInB = m_rbA.getCenterOfMassTransform().m_basis * axisInA;
 
@@ -230,9 +230,9 @@ public:
 
 		m_rbBFrame.m_origin = m_rbB.getCenterOfMassTransform().inverse()(m_rbA.getCenterOfMassTransform()(pivotInA));
 
-		m_rbBFrame.m_basis.setValue(rbAxisB1.m_floats[0], rbAxisB2.m_floats[0], axisInB.m_floats[0],
-									   rbAxisB1.m_floats[1], rbAxisB2.m_floats[1], axisInB.m_floats[1],
-									   rbAxisB1.m_floats[2], rbAxisB2.m_floats[2], axisInB.m_floats[2]);
+		m_rbBFrame.m_basis.setValue(rbAxisB1.x, rbAxisB2.x, axisInB.x,
+									   rbAxisB1.y, rbAxisB2.y, axisInB.y,
+									   rbAxisB1.z, rbAxisB2.z, axisInB.z);
 		m_rbBFrame.m_basis = m_rbB.getCenterOfMassTransform().m_basis.inverse() * m_rbBFrame.m_basis;
 	}
 

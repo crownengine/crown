@@ -59,28 +59,28 @@ void btCollisionShape::calculateTemporalAabb(const btTransform& curTrans, const 
 	//start with static aabb
 	getAabb(curTrans, temporalAabbMin, temporalAabbMax);
 
-	btScalar temporalAabbMaxx = temporalAabbMax.m_floats[0];
-	btScalar temporalAabbMaxy = temporalAabbMax.m_floats[1];
-	btScalar temporalAabbMaxz = temporalAabbMax.m_floats[2];
-	btScalar temporalAabbMinx = temporalAabbMin.m_floats[0];
-	btScalar temporalAabbMiny = temporalAabbMin.m_floats[1];
-	btScalar temporalAabbMinz = temporalAabbMin.m_floats[2];
+	btScalar temporalAabbMaxx = temporalAabbMax.x;
+	btScalar temporalAabbMaxy = temporalAabbMax.y;
+	btScalar temporalAabbMaxz = temporalAabbMax.z;
+	btScalar temporalAabbMinx = temporalAabbMin.x;
+	btScalar temporalAabbMiny = temporalAabbMin.y;
+	btScalar temporalAabbMinz = temporalAabbMin.z;
 
 	// add linear motion
 	btVector3 linMotion = linvel * timeStep;
 	///@todo: simd would have a vector max/min operation, instead of per-element access
-	if (linMotion.m_floats[0] > btScalar(0.))
-		temporalAabbMaxx += linMotion.m_floats[0];
+	if (linMotion.x > btScalar(0.))
+		temporalAabbMaxx += linMotion.x;
 	else
-		temporalAabbMinx += linMotion.m_floats[0];
-	if (linMotion.m_floats[1] > btScalar(0.))
-		temporalAabbMaxy += linMotion.m_floats[1];
+		temporalAabbMinx += linMotion.x;
+	if (linMotion.y > btScalar(0.))
+		temporalAabbMaxy += linMotion.y;
 	else
-		temporalAabbMiny += linMotion.m_floats[1];
-	if (linMotion.m_floats[2] > btScalar(0.))
-		temporalAabbMaxz += linMotion.m_floats[2];
+		temporalAabbMiny += linMotion.y;
+	if (linMotion.z > btScalar(0.))
+		temporalAabbMaxz += linMotion.z;
 	else
-		temporalAabbMinz += linMotion.m_floats[2];
+		temporalAabbMinz += linMotion.z;
 
 	//add conservative angular motion
 	btScalar angularMotion = angvel.length() * getAngularMotionDisc() * timeStep;

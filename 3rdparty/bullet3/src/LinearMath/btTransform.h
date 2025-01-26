@@ -127,9 +127,9 @@ public:
 	void getOpenGLMatrix(btScalar * m) const
 	{
 		m_basis.getOpenGLSubMatrix(m);
-		m[12] = m_origin.m_floats[0];
-		m[13] = m_origin.m_floats[1];
-		m[14] = m_origin.m_floats[2];
+		m[12] = m_origin.x;
+		m[13] = m_origin.y;
+		m[14] = m_origin.z;
 		m[15] = btScalar(1.0);
 	}
 

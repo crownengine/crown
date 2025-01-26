@@ -324,10 +324,10 @@ void btSoftBody::appendNote(const char* text,
 	n.m_rank = 0;
 	n.m_text = text;
 	n.m_offset = o;
-	n.m_coords[0] = c.m_floats[0];
-	n.m_coords[1] = c.m_floats[1];
-	n.m_coords[2] = c.m_floats[2];
-	n.m_coords[3] = c.m_floats[3];
+	n.m_coords[0] = c.x;
+	n.m_coords[1] = c.y;
+	n.m_coords[2] = c.z;
+	n.m_coords[3] = c.w;
 	n.m_nodes[0] = n0;
 	n.m_rank += n0 ? 1 : 0;
 	n.m_nodes[1] = n1;
@@ -619,9 +619,9 @@ void btSoftBody::appendDeformableAnchor(int node, btMultiBodyLinkCollider* link)
 	btScalar* u_t1 = &jacobianData_t1.m_deltaVelocitiesUnitImpulse[0];
 	btScalar* u_t2 = &jacobianData_t2.m_deltaVelocitiesUnitImpulse[0];
 
-	btMatrix3x3 rot(normal.m_floats[0], normal.m_floats[1], normal.m_floats[2],
-					t1.m_floats[0], t1.m_floats[1], t1.m_floats[2],
-					t2.m_floats[0], t2.m_floats[1], t2.m_floats[2]);  // world frame to local frame
+	btMatrix3x3 rot(normal.x, normal.y, normal.z,
+					t1.x, t1.y, t1.z,
+					t2.x, t2.y, t2.z);  // world frame to local frame
 	const int ndof = link->m_multiBody->getNumDofs() + 6;
 	btMatrix3x3 local_impulse_matrix = (Diagonal(n.m_im) + OuterProduct(J_n, J_t1, J_t2, u_n, u_t1, u_t2, ndof)).inverse();
 	c.m_c0 = rot.transpose() * local_impulse_matrix * rot;
@@ -1221,9 +1221,9 @@ void btSoftBody::setPose(bool bvolume, bool bframe)
 	{
 		const btVector3& q = m_pose.m_pos[i];
 		const btVector3 mq = m_pose.m_wgh[i] * q;
-		m_pose.m_aqq[0] += mq.m_floats[0] * q;
-		m_pose.m_aqq[1] += mq.m_floats[1] * q;
-		m_pose.m_aqq[2] += mq.m_floats[2] * q;
+		m_pose.m_aqq[0] += mq.x * q;
+		m_pose.m_aqq[1] += mq.y * q;
+		m_pose.m_aqq[2] += mq.z * q;
 	}
 	m_pose.m_aqq = m_pose.m_aqq.inverse();
 
@@ -2819,15 +2819,15 @@ static void getBarycentric(const btVector3& p, const btVector3& a, const btVecto
 	// In the case of a degenerate triangle, pick a vertex.
 	if (btFabs(denom) < SIMD_EPSILON) 
 	{
-		bary.m_floats[1] = (btScalar(0.0));
-		bary.m_floats[2] = (btScalar(0.0));
+		bary.y = (btScalar(0.0));
+		bary.z = (btScalar(0.0));
 	} 
 	else 
 	{
-		bary.m_floats[1] = ((d11 * d20 - d01 * d21) / denom);
-		bary.m_floats[2] = ((d00 * d21 - d01 * d20) / denom);
+		bary.y = ((d11 * d20 - d01 * d21) / denom);
+		bary.z = ((d00 * d21 - d01 * d20) / denom);
   	}
-	bary.m_floats[0] = (btScalar(1) - bary.m_floats[1] - bary.m_floats[2]);
+	bary.x = (btScalar(1) - bary.y - bary.z);
 }
 
 //
@@ -3058,16 +3058,16 @@ void btSoftBody::updatePose()
 		btMatrix3x3 Apq;
 		const btScalar eps = SIMD_EPSILON;
 		Apq[0] = Apq[1] = Apq[2] = btVector3(0, 0, 0);
-		Apq[0].m_floats[0] = (eps);
-		Apq[1].m_floats[1] = (eps * 2);
-		Apq[2].m_floats[2] = (eps * 3);
+		Apq[0].x = (eps);
+		Apq[1].y = (eps * 2);
+		Apq[2].z = (eps * 3);
 		for (int i = 0, ni = m_nodes.size(); i < ni; ++i)
 		{
 			const btVector3 a = pose.m_wgh[i] * (m_nodes[i].m_x - com);
 			const btVector3& b = pose.m_pos[i];
-			Apq[0] += a.m_floats[0] * b;
-			Apq[1] += a.m_floats[1] * b;
-			Apq[2] += a.m_floats[2] * b;
+			Apq[0] += a.x * b;
+			Apq[1] += a.y * b;
+			Apq[2] += a.z * b;
 		}
 		btMatrix3x3 r, s;
 		PolarDecompose(Apq, r, s);
@@ -3488,9 +3488,9 @@ void btSoftBody::initializeDmInverse()
 		btVector3 c1 = t.m_n[1]->m_x - t.m_n[0]->m_x;
 		btVector3 c2 = t.m_n[2]->m_x - t.m_n[0]->m_x;
 		btVector3 c3 = t.m_n[3]->m_x - t.m_n[0]->m_x;
-		btMatrix3x3 Dm(c1.m_floats[0], c2.m_floats[0], c3.m_floats[0],
-					   c1.m_floats[1], c2.m_floats[1], c3.m_floats[1],
-					   c1.m_floats[2], c2.m_floats[2], c3.m_floats[2]);
+		btMatrix3x3 Dm(c1.x, c2.x, c3.x,
+					   c1.y, c2.y, c3.y,
+					   c1.z, c2.z, c3.z);
 		t.m_element_measure = Dm.determinant() * unit_simplex_measure;
 		t.m_Dm_inverse = Dm.inverse();
 
@@ -3539,16 +3539,16 @@ void btSoftBody::updateDeformation()
 		btVector3 c1 = t.m_n[1]->m_q - t.m_n[0]->m_q;
 		btVector3 c2 = t.m_n[2]->m_q - t.m_n[0]->m_q;
 		btVector3 c3 = t.m_n[3]->m_q - t.m_n[0]->m_q;
-		btMatrix3x3 Ds(c1.m_floats[0], c2.m_floats[0], c3.m_floats[0],
-					   c1.m_floats[1], c2.m_floats[1], c3.m_floats[1],
-					   c1.m_floats[2], c2.m_floats[2], c3.m_floats[2]);
+		btMatrix3x3 Ds(c1.x, c2.x, c3.x,
+					   c1.y, c2.y, c3.y,
+					   c1.z, c2.z, c3.z);
 		t.m_F = Ds * t.m_Dm_inverse;
 
 		btSoftBody::TetraScratch& s = m_tetraScratches[i];
 		s.m_F = t.m_F;
 		s.m_J = t.m_F.determinant();
 		btMatrix3x3 C = t.m_F.transpose() * t.m_F;
-		s.m_trace = C[0].m_floats[0] + C[1].m_floats[1] + C[2].m_floats[2];
+		s.m_trace = C[0].x + C[1].y + C[2].z;
 		s.m_cofF = t.m_F.adjoint().transpose();
 
 		btVector3 a = t.m_n[0]->m_q;
@@ -3713,8 +3713,8 @@ void btSoftBody::CJoint::Solve(btScalar dt, btScalar sor)
 
 	if (m_bodies[0].m_soft == m_bodies[1].m_soft)
 	{
-		if ((impulse.m_velocity.m_floats[0] == impulse.m_velocity.m_floats[0]) && (impulse.m_velocity.m_floats[1] == impulse.m_velocity.m_floats[1]) &&
-			(impulse.m_velocity.m_floats[2] == impulse.m_velocity.m_floats[2]))
+		if ((impulse.m_velocity.x == impulse.m_velocity.x) && (impulse.m_velocity.y == impulse.m_velocity.y) &&
+			(impulse.m_velocity.z == impulse.m_velocity.z))
 		{
 			if (impulse.m_asVelocity)
 			{
@@ -3994,9 +3994,9 @@ void btSoftBody::PSolve_SContacts(btSoftBody* psb, btScalar, btScalar ti)
 		}
 		corr -= ProjectOnPlane(vr, nr) * c.m_friction;
 		n.m_x += corr * c.m_cfm[0];
-		f.m_n[0]->m_x -= corr * (c.m_cfm[1] * c.m_weights.m_floats[0]);
-		f.m_n[1]->m_x -= corr * (c.m_cfm[1] * c.m_weights.m_floats[1]);
-		f.m_n[2]->m_x -= corr * (c.m_cfm[1] * c.m_weights.m_floats[2]);
+		f.m_n[0]->m_x -= corr * (c.m_cfm[1] * c.m_weights.x);
+		f.m_n[1]->m_x -= corr * (c.m_cfm[1] * c.m_weights.y);
+		f.m_n[2]->m_x -= corr * (c.m_cfm[1] * c.m_weights.z);
 	}
 }
 
@@ -4670,8 +4670,8 @@ const char* btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 
 			for (int j = 0; j < 4; j++)
 			{
-				memPtr->m_relPosition[0].m_floats[j] = 0.f;
-				memPtr->m_relPosition[1].m_floats[j] = 0.f;
+				memPtr->m_relPosition[0].toPtr()[j] = 0.f;
+				memPtr->m_relPosition[1].toPtr()[j] = 0.f;
 			}
 			memPtr->m_bodyA = 0;
 			memPtr->m_bodyB = 0;

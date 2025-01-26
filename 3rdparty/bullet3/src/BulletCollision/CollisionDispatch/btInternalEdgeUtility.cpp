@@ -80,15 +80,15 @@ struct btConnectivityProcessor : public btTriangleCallback
 
 #if 0
 		printf("triangle A[0]	=	(%f,%f,%f)\ntriangle A[1]	=	(%f,%f,%f)\ntriangle A[2]	=	(%f,%f,%f)\n",
-			m_triangleVerticesA[0].m_floats[0],m_triangleVerticesA[0].m_floats[1],m_triangleVerticesA[0].m_floats[2],
-			m_triangleVerticesA[1].m_floats[0],m_triangleVerticesA[1].m_floats[1],m_triangleVerticesA[1].m_floats[2],
-			m_triangleVerticesA[2].m_floats[0],m_triangleVerticesA[2].m_floats[1],m_triangleVerticesA[2].m_floats[2]);
+			m_triangleVerticesA[0].x,m_triangleVerticesA[0].y,m_triangleVerticesA[0].z,
+			m_triangleVerticesA[1].x,m_triangleVerticesA[1].y,m_triangleVerticesA[1].z,
+			m_triangleVerticesA[2].x,m_triangleVerticesA[2].y,m_triangleVerticesA[2].z);
 
 		printf("partId=%d, triangleIndex=%d\n",partId,triangleIndex);
 		printf("triangle B[0]	=	(%f,%f,%f)\ntriangle B[1]	=	(%f,%f,%f)\ntriangle B[2]	=	(%f,%f,%f)\n",
-			triangle[0].m_floats[0],triangle[0].m_floats[1],triangle[0].m_floats[2],
-			triangle[1].m_floats[0],triangle[1].m_floats[1],triangle[1].m_floats[2],
-			triangle[2].m_floats[0],triangle[2].m_floats[1],triangle[2].m_floats[2]);
+			triangle[0].x,triangle[0].y,triangle[0].z,
+			triangle[1].x,triangle[1].y,triangle[1].z,
+			triangle[2].x,triangle[2].y,triangle[2].z);
 #endif
 
 		for (int i = 0; i < 3; i++)
@@ -372,14 +372,14 @@ void btGenerateInternalEdgeInfo(btBvhTriangleMeshShape* trimeshShape, btTriangle
 				{
 					float* graphicsbase = (float*)(vertexbase + graphicsindex * stride);
 					triangleVerts[j] = btVector3(
-						graphicsbase[0] * meshScaling.m_floats[0],
-						graphicsbase[1] * meshScaling.m_floats[1],
-						graphicsbase[2] * meshScaling.m_floats[2]);
+						graphicsbase[0] * meshScaling.x,
+						graphicsbase[1] * meshScaling.y,
+						graphicsbase[2] * meshScaling.z);
 				}
 				else
 				{
 					double* graphicsbase = (double*)(vertexbase + graphicsindex * stride);
-					triangleVerts[j] = btVector3(btScalar(graphicsbase[0] * meshScaling.m_floats[0]), btScalar(graphicsbase[1] * meshScaling.m_floats[1]), btScalar(graphicsbase[2] * meshScaling.m_floats[2]));
+					triangleVerts[j] = btVector3(btScalar(graphicsbase[0] * meshScaling.x), btScalar(graphicsbase[1] * meshScaling.y), btScalar(graphicsbase[2] * meshScaling.z));
 				}
 			}
 			aabbMin.setValue(btScalar(BT_LARGE_FLOAT), btScalar(BT_LARGE_FLOAT), btScalar(BT_LARGE_FLOAT));

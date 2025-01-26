@@ -46,9 +46,9 @@ static SIMD_FORCE_INLINE void findJacobian(const btMultiBodyLinkCollider* multib
 }
 static SIMD_FORCE_INLINE btVector3 generateUnitOrthogonalVector(const btVector3& u)
 {
-	btScalar ux = u.m_floats[0];
-	btScalar uy = u.m_floats[1];
-	btScalar uz = u.m_floats[2];
+	btScalar ux = u.x;
+	btScalar uy = u.y;
+	btScalar uz = u.z;
 	btScalar ax = std::abs(ux);
 	btScalar ay = std::abs(uy);
 	btScalar az = std::abs(uz);
@@ -686,14 +686,14 @@ public:
 		/* t is usually identity, except when colliding against btCompoundShape. See Issue 512 */
 		const btVector3 mins = m_body->m_bounds[0];
 		const btVector3 maxs = m_body->m_bounds[1];
-		const btVector3 crns[] = {t * btVector3(mins.m_floats[0], mins.m_floats[1], mins.m_floats[2]),
-								  t * btVector3(maxs.m_floats[0], mins.m_floats[1], mins.m_floats[2]),
-								  t * btVector3(maxs.m_floats[0], maxs.m_floats[1], mins.m_floats[2]),
-								  t * btVector3(mins.m_floats[0], maxs.m_floats[1], mins.m_floats[2]),
-								  t * btVector3(mins.m_floats[0], mins.m_floats[1], maxs.m_floats[2]),
-								  t * btVector3(maxs.m_floats[0], mins.m_floats[1], maxs.m_floats[2]),
-								  t * btVector3(maxs.m_floats[0], maxs.m_floats[1], maxs.m_floats[2]),
-								  t * btVector3(mins.m_floats[0], maxs.m_floats[1], maxs.m_floats[2])};
+		const btVector3 crns[] = {t * btVector3(mins.x, mins.y, mins.z),
+								  t * btVector3(maxs.x, mins.y, mins.z),
+								  t * btVector3(maxs.x, maxs.y, mins.z),
+								  t * btVector3(mins.x, maxs.y, mins.z),
+								  t * btVector3(mins.x, mins.y, maxs.z),
+								  t * btVector3(maxs.x, mins.y, maxs.z),
+								  t * btVector3(maxs.x, maxs.y, maxs.z),
+								  t * btVector3(mins.x, maxs.y, maxs.z)};
 		aabbMin = aabbMax = crns[0];
 		for (int i = 1; i < 8; ++i)
 		{
@@ -873,12 +873,12 @@ static inline btScalar ClusterMetric(const btVector3& x, const btVector3& y)
 //
 static inline btMatrix3x3 ScaleAlongAxis(const btVector3& a, btScalar s)
 {
-	const btScalar xx = a.m_floats[0] * a.m_floats[0];
-	const btScalar yy = a.m_floats[1] * a.m_floats[1];
-	const btScalar zz = a.m_floats[2] * a.m_floats[2];
-	const btScalar xy = a.m_floats[0] * a.m_floats[1];
-	const btScalar yz = a.m_floats[1] * a.m_floats[2];
-	const btScalar zx = a.m_floats[2] * a.m_floats[0];
+	const btScalar xx = a.x * a.x;
+	const btScalar yy = a.y * a.y;
+	const btScalar zz = a.z * a.z;
+	const btScalar xy = a.x * a.y;
+	const btScalar yz = a.y * a.z;
+	const btScalar zx = a.z * a.x;
 	btMatrix3x3 m;
 	m[0] = btVector3(1 - xx + xx * s, xy * s - xy, zx * s - zx);
 	m[1] = btVector3(xy * s - xy, 1 - yy + yy * s, yz * s - yz);
@@ -889,9 +889,9 @@ static inline btMatrix3x3 ScaleAlongAxis(const btVector3& a, btScalar s)
 static inline btMatrix3x3 Cross(const btVector3& v)
 {
 	btMatrix3x3 m;
-	m[0] = btVector3(0, -v.m_floats[2], +v.m_floats[1]);
-	m[1] = btVector3(+v.m_floats[2], 0, -v.m_floats[0]);
-	m[2] = btVector3(-v.m_floats[1], +v.m_floats[0], 0);
+	m[0] = btVector3(0, -v.z, +v.y);
+	m[1] = btVector3(+v.z, 0, -v.x);
+	m[2] = btVector3(-v.y, +v.x, 0);
 	return (m);
 }
 //
@@ -907,9 +907,9 @@ static inline btMatrix3x3 Diagonal(btScalar x)
 static inline btMatrix3x3 Diagonal(const btVector3& v)
 {
 	btMatrix3x3 m;
-	m[0] = btVector3(v.m_floats[0], 0, 0);
-	m[1] = btVector3(0, v.m_floats[1], 0);
-	m[2] = btVector3(0, 0, v.m_floats[2]);
+	m[0] = btVector3(v.x, 0, 0);
+	m[1] = btVector3(0, v.y, 0);
+	m[2] = btVector3(0, 0, v.z);
 	return (m);
 }
 
@@ -1180,7 +1180,7 @@ static inline T BaryEval(const T& a,
 						 const T& c,
 						 const btVector3& coord)
 {
-	return (a * coord.m_floats[0] + b * coord.m_floats[1] + c * coord.m_floats[2]);
+	return (a * coord.x + b * coord.y + c * coord.z);
 }
 //
 static inline btVector3 BaryCoord(const btVector3& a,
@@ -1472,7 +1472,7 @@ struct btSoftColliders
 				joint.m_drift = depth * norm;
 
 				joint.m_normal = norm;
-				//				printf("normal=%f,%f,%f\n",res.normal.m_floats[0],res.normal.m_floats[1],res.normal.m_floats[2]);
+				//				printf("normal=%f,%f,%f\n",res.normal.x,res.normal.y,res.normal.z);
 				joint.m_delete = false;
 				joint.m_friction = fv.length2() < (rvac * friction * rvac * friction) ? 1 : friction;
 				joint.m_massmatrix = ImpulseMatrix(ba.invMass(), ba.invWorldInertia(), joint.m_rpos[0],
@@ -1727,9 +1727,9 @@ struct btSoftColliders
 								btScalar* u_t1 = &jacobianData_t1.m_deltaVelocitiesUnitImpulse[0];
 								btScalar* u_t2 = &jacobianData_t2.m_deltaVelocitiesUnitImpulse[0];
 
-								btMatrix3x3 rot(normal.m_floats[0], normal.m_floats[1], normal.m_floats[2],
-												t1.m_floats[0], t1.m_floats[1], t1.m_floats[2],
-												t2.m_floats[0], t2.m_floats[1], t2.m_floats[2]);  // world frame to local frame
+								btMatrix3x3 rot(normal.x, normal.y, normal.z,
+												t1.x, t1.y, t1.z,
+												t2.x, t2.y, t2.z);  // world frame to local frame
 								const int ndof = multibodyLinkCol->m_multiBody->getNumDofs() + 6;
 								
 								btMatrix3x3 local_impulse_matrix;
@@ -1801,7 +1801,7 @@ struct btSoftColliders
 					const btScalar fc = psb->m_cfg.kDF * m_colObj1Wrap->m_collisionObject->m_friction;
 
 					// the effective inverse mass of the face as in https://graphics.stanford.edu/papers/cloth-sig02/cloth.pdf
-					ima = bary.m_floats[0] * c.m_weights.m_floats[0] * n0->m_im + bary.m_floats[1] * c.m_weights.m_floats[1] * n1->m_im + bary.m_floats[2] * c.m_weights.m_floats[2] * n2->m_im;
+					ima = bary.x * c.m_weights.x * n0->m_im + bary.y * c.m_weights.y * n1->m_im + bary.z * c.m_weights.z * n2->m_im;
 					c.m_c2 = ima;
 					c.m_c3 = fc;
 					c.m_c4 = m_colObj1Wrap->m_collisionObject->isStaticOrKinematicObject() ? psb->m_cfg.kKHR : psb->m_cfg.kCHR;
@@ -1838,9 +1838,9 @@ struct btSoftColliders
 							btScalar* u_t1 = &jacobianData_t1.m_deltaVelocitiesUnitImpulse[0];
 							btScalar* u_t2 = &jacobianData_t2.m_deltaVelocitiesUnitImpulse[0];
 
-							btMatrix3x3 rot(normal.m_floats[0], normal.m_floats[1], normal.m_floats[2],
-											t1.m_floats[0], t1.m_floats[1], t1.m_floats[2],
-											t2.m_floats[0], t2.m_floats[1], t2.m_floats[2]);  // world frame to local frame
+							btMatrix3x3 rot(normal.x, normal.y, normal.z,
+											t1.x, t1.y, t1.z,
+											t2.x, t2.y, t2.z);  // world frame to local frame
 							const int ndof = multibodyLinkCol->m_multiBody->getNumDofs() + 6;
 							btMatrix3x3 local_impulse_matrix = (Diagonal(ima) + OuterProduct(J_n, J_t1, J_t2, u_n, u_t1, u_t2, ndof)).inverse();
 							c.m_c0 = rot.transpose() * local_impulse_matrix * rot;
