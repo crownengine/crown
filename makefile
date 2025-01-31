@@ -123,13 +123,13 @@ build/mingw64/bin/shaderc.exe: \
 	-@install -m775 -D 3rdparty/bgfx/.build/win64_mingw-gcc/bin/shadercRelease.exe $@
 
 build/windows64/bin/texturec.exe: \
-	build/projects/vs2019
-	devenv.com 3rdparty/bimg/.build/projects/vs2019/bimg.sln $(ARG_PREFIX)Build "Release|x64" $(ARG_PREFIX)Project texturec.vcxproj
-	-@install -m775 -D 3rdparty/bimg/.build/win64_vs2019/bin/texturecRelease.exe $@
+	build/projects/vs2022
+	devenv.com 3rdparty/bimg/.build/projects/vs2022/bimg.sln $(ARG_PREFIX)Build "Release|x64" $(ARG_PREFIX)Project texturec.vcxproj
+	-@install -m775 -D 3rdparty/bimg/.build/win64_vs2022/bin/texturecRelease.exe $@
 build/windows64/bin/shaderc.exe: \
-	build/projects/vs2019
-	devenv.com 3rdparty/bgfx/.build/projects/vs2019/bgfx.sln $(ARG_PREFIX)Build "Release|x64" $(ARG_PREFIX)Project shaderc.vcxproj
-	-@install -m775 -D 3rdparty/bgfx/.build/win64_vs2019/bin/shadercRelease.exe $@
+	build/projects/vs2022
+	devenv.com 3rdparty/bgfx/.build/projects/vs2022/bgfx.sln $(ARG_PREFIX)Build "Release|x64" $(ARG_PREFIX)Project shaderc.vcxproj
+	-@install -m775 -D 3rdparty/bgfx/.build/win64_vs2022/bin/shadercRelease.exe $@
 
 build/projects/android-arm:
 	$(GENIE) --gfxapi=gles3 --compiler=android-arm gmake
@@ -229,22 +229,22 @@ mingw:                  \
 	mingw-development64 \
 	mingw-release64
 
-build/projects/vs2019:
-	$(GENIE) --file=3rdparty/bgfx/scripts/genie.lua --with-tools vs2019
-	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools vs2019
-	$(GENIE) --gfxapi=d3d11 --with-tools --no-editor vs2019
+build/projects/vs2022:
+	$(GENIE) --file=3rdparty/bgfx/scripts/genie.lua --with-tools vs2022
+	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools vs2022
+	$(GENIE) --gfxapi=d3d11 --with-tools --no-editor vs2022
 windows-debug64:          \
-	build/projects/vs2019 \
+	build/projects/vs2022 \
 	build/windows64/bin/luajit.exe
-	devenv.com build/projects/vs2019/crown.sln $(ARG_PREFIX)Build "debug|x64" $(ARG_PREFIX)Project crown
+	devenv.com build/projects/vs2022/crown.sln $(ARG_PREFIX)Build "debug|x64" $(ARG_PREFIX)Project crown
 windows-development64:    \
-	build/projects/vs2019 \
+	build/projects/vs2022 \
 	build/windows64/bin/luajit.exe
-	devenv.com build/projects/vs2019/crown.sln $(ARG_PREFIX)Build "development|x64" $(ARG_PREFIX)Project crown
+	devenv.com build/projects/vs2022/crown.sln $(ARG_PREFIX)Build "development|x64" $(ARG_PREFIX)Project crown
 windows-release64:        \
-	build/projects/vs2019 \
+	build/projects/vs2022 \
 	build/windows64/bin/luajit.exe
-	devenv.com build/projects/vs2019/crown.sln $(ARG_PREFIX)Build "release|x64" $(ARG_PREFIX)Project crown
+	devenv.com build/projects/vs2022/crown.sln $(ARG_PREFIX)Build "release|x64" $(ARG_PREFIX)Project crown
 
 crown-editor-theme:
 	cd tools/level_editor/resources/theme/Adwaita && ./parse-sass.sh
