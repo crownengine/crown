@@ -102,16 +102,16 @@ Windows (VS Code)
 
 4. :ref:`Build for Windows (VS Code) <build_vs_code>`.
 
-Windows (VS 2022)
+Windows (VS 2019)
 -----------------
 
-1. Install Visual Studio 2022:
+1. Install Visual Studio 2019:
 
 	* https://visualstudio.microsoft.com/downloads
 
 2. If you want to build tools, :ref:`install Windows (MSYS2) <pre_windows_msys2>`.
 
-3. :ref:`Build for Windows (VS 2022)<build_vs_2022>`.
+3. :ref:`Build for Windows (VS 2019)<build_vs_2019>`.
 
 Build
 =====
@@ -158,16 +158,16 @@ Open Visual Studio Code Shell:
 	$env:MINGW = "C:\\msys64\\mingw64"
 	make tools-mingw-release64 MAKE_JOBS=4
 
-.. _build_vs_2022:
+.. _build_vs_2019:
 
-Windows (VS 2022)
+Windows (VS 2019)
 -----------------
 
-1. Open Visual Studio 2022 Command Prompt:
+1. Open Visual Studio 2019 Command Prompt:
 
 .. code::
 
-	make tools-vs2022-release64 MAKE_JOBS=4
+	make tools-windows-release64 MAKE_JOBS=4
 
 2. To build tools, open a MSYS2 MINGW64 shell:
 

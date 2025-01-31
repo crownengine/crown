@@ -81,20 +81,6 @@ build/vs2019/bin/luajit.exe:
 	-@rm -f 3rdparty/luajit/src/luajit.lib
 	-@rm -f 3rdparty/luajit/src/minilua.*
 
-build/vs2022/bin/luajit.exe:
-	cd "3rdparty/luajit/src" && .\\msvcbuild.bat
-	-@install -m775 -D 3rdparty/luajit/src/luajit.exe $@
-	-@install -m664 -D 3rdparty/luajit/src/lua51.dll build/vs2022/bin/lua51.dll
-	-@install -m664 -D 3rdparty/luajit/src/lua51.lib build/vs2022/bin/lua51.lib
-	-@cp -r 3rdparty/luajit/src/jit build/vs2022/bin
-	-@rm -f 3rdparty/luajit/src/buildvm.*
-	-@rm -f 3rdparty/luajit/src/jit/vmdef.lua
-	-@rm -f 3rdparty/luajit/src/lua51.*
-	-@rm -f 3rdparty/luajit/src/luajit.exe
-	-@rm -f 3rdparty/luajit/src/luajit.exp
-	-@rm -f 3rdparty/luajit/src/luajit.lib
-	-@rm -f 3rdparty/luajit/src/minilua.*
-
 build/linux32/bin/luac: \
 	build/projects/linux
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux luac config=release32
@@ -131,15 +117,6 @@ build/vs2019/bin/shaderc.exe: \
 	build/projects/vs2019
 	devenv.com 3rdparty/bgfx/.build/projects/vs2019/bgfx.sln $(ARG_PREFIX)Build "Release|x64" $(ARG_PREFIX)Project shaderc.vcxproj
 	-@install -m775 -D 3rdparty/bgfx/.build/win64_vs2019/bin/shadercRelease.exe $@
-
-build/vs2022/bin/texturec.exe: \
-	build/projects/vs2022
-	devenv.com 3rdparty/bimg/.build/projects/vs2022/bimg.sln $(ARG_PREFIX)Build "Release|x64" $(ARG_PREFIX)Project texturec.vcxproj
-	-@install -m775 -D 3rdparty/bimg/.build/win64_vs2022/bin/texturecRelease.exe $@
-build/vs2022/bin/shaderc.exe: \
-	build/projects/vs2022
-	devenv.com 3rdparty/bgfx/.build/projects/vs2022/bgfx.sln $(ARG_PREFIX)Build "Release|x64" $(ARG_PREFIX)Project shaderc.vcxproj
-	-@install -m775 -D 3rdparty/bgfx/.build/win64_vs2022/bin/shadercRelease.exe $@
 
 build/projects/android-arm:
 	$(GENIE) --gfxapi=gles3 --compiler=android-arm gmake
@@ -256,23 +233,6 @@ vs2019-release64:         \
 	build/vs2019/bin/luajit.exe
 	devenv.com build/projects/vs2019/crown.sln $(ARG_PREFIX)Build "release|x64" $(ARG_PREFIX)Project crown
 
-build/projects/vs2022:
-	$(GENIE) --file=3rdparty/bgfx/scripts/genie.lua --with-tools vs2022
-	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools vs2022
-	$(GENIE) --gfxapi=d3d11 --with-tools --no-editor vs2022
-vs2022-debug64:           \
-	build/projects/vs2022 \
-	build/vs2022/bin/luajit.exe
-	devenv.com build/projects/vs2022/crown.sln $(ARG_PREFIX)Build "debug|x64" $(ARG_PREFIX)Project crown
-vs2022-development64:     \
-	build/projects/vs2022 \
-	build/vs2022/bin/luajit.exe
-	devenv.com build/projects/vs2022/crown.sln $(ARG_PREFIX)Build "development|x64" $(ARG_PREFIX)Project crown
-vs2022-release64:         \
-	build/projects/vs2022 \
-	build/vs2022/bin/luajit.exe
-	devenv.com build/projects/vs2022/crown.sln $(ARG_PREFIX)Build "release|x64" $(ARG_PREFIX)Project crown
-
 crown-editor-theme:
 	cd tools/level_editor/resources/theme/Adwaita && ./parse-sass.sh
 	cd tools/level_editor/resources && ./generate-resources.sh > resources.gresource.xml
@@ -327,15 +287,6 @@ tools-vs2019-release64:           \
 	build/vs2019/bin/texturec.exe \
 	build/vs2019/bin/shaderc.exe  \
 	vs2019-development64
-
-tools-vs2022-debug64:             \
-	build/vs2022/bin/texturec.exe \
-	build/vs2022/bin/shaderc.exe  \
-	vs2022-debug64
-tools-vs2022-release64:           \
-	build/vs2022/bin/texturec.exe \
-	build/vs2022/bin/shaderc.exe  \
-	vs2022-development64
 
 tools-mingw-release32: \
 	build/mingw32/bin/luac
