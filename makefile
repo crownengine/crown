@@ -67,12 +67,12 @@ build/mingw64/bin/luajit.exe:
 	-@rm 3rdparty/luajit/src/host/buildvm.exe
 	-@rm 3rdparty/luajit/src/host/minilua.exe
 
-build/windows64/bin/luajit.exe:
+build/vs2019/bin/luajit.exe:
 	cd "3rdparty/luajit/src" && .\\msvcbuild.bat
 	-@install -m775 -D 3rdparty/luajit/src/luajit.exe $@
-	-@install -m664 -D 3rdparty/luajit/src/lua51.dll build/windows64/bin/lua51.dll
-	-@install -m664 -D 3rdparty/luajit/src/lua51.lib build/windows64/bin/lua51.lib
-	-@cp -r 3rdparty/luajit/src/jit build/windows64/bin
+	-@install -m664 -D 3rdparty/luajit/src/lua51.dll build/vs2019/bin/lua51.dll
+	-@install -m664 -D 3rdparty/luajit/src/lua51.lib build/vs2019/bin/lua51.lib
+	-@cp -r 3rdparty/luajit/src/jit build/vs2019/bin
 	-@rm -f 3rdparty/luajit/src/buildvm.*
 	-@rm -f 3rdparty/luajit/src/jit/vmdef.lua
 	-@rm -f 3rdparty/luajit/src/lua51.*
@@ -109,11 +109,11 @@ build/mingw64/bin/shaderc.exe: \
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/bgfx/.build/projects/gmake-mingw-gcc config=release64 shaderc
 	-@install -m775 -D 3rdparty/bgfx/.build/win64_mingw-gcc/bin/shadercRelease.exe $@
 
-build/windows64/bin/texturec.exe: \
+build/vs2019/bin/texturec.exe: \
 	build/projects/vs2019
 	devenv.com 3rdparty/bimg/.build/projects/vs2019/bimg.sln $(ARG_PREFIX)Build "Release|x64" $(ARG_PREFIX)Project texturec.vcxproj
 	-@install -m775 -D 3rdparty/bimg/.build/win64_vs2019/bin/texturecRelease.exe $@
-build/windows64/bin/shaderc.exe: \
+build/vs2019/bin/shaderc.exe: \
 	build/projects/vs2019
 	devenv.com 3rdparty/bgfx/.build/projects/vs2019/bgfx.sln $(ARG_PREFIX)Build "Release|x64" $(ARG_PREFIX)Project shaderc.vcxproj
 	-@install -m775 -D 3rdparty/bgfx/.build/win64_vs2019/bin/shadercRelease.exe $@
@@ -220,17 +220,17 @@ build/projects/vs2019:
 	$(GENIE) --file=3rdparty/bgfx/scripts/genie.lua --with-tools vs2019
 	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools vs2019
 	$(GENIE) --gfxapi=d3d11 --with-tools --no-editor vs2019
-windows-debug64:          \
+vs2019-debug64:           \
 	build/projects/vs2019 \
-	build/windows64/bin/luajit.exe
+	build/vs2019/bin/luajit.exe
 	devenv.com build/projects/vs2019/crown.sln $(ARG_PREFIX)Build "debug|x64" $(ARG_PREFIX)Project crown
-windows-development64:    \
+vs2019-development64:     \
 	build/projects/vs2019 \
-	build/windows64/bin/luajit.exe
+	build/vs2019/bin/luajit.exe
 	devenv.com build/projects/vs2019/crown.sln $(ARG_PREFIX)Build "development|x64" $(ARG_PREFIX)Project crown
-windows-release64:        \
+vs2019-release64:         \
 	build/projects/vs2019 \
-	build/windows64/bin/luajit.exe
+	build/vs2019/bin/luajit.exe
 	devenv.com build/projects/vs2019/crown.sln $(ARG_PREFIX)Build "release|x64" $(ARG_PREFIX)Project crown
 
 crown-editor-theme:
@@ -279,14 +279,14 @@ tools-linux-release64:         \
 	linux-development64        \
 	crown-editor-linux-release64
 
-tools-windows-debug64:               \
-	build/windows64/bin/texturec.exe \
-	build/windows64/bin/shaderc.exe  \
-	windows-debug64
-tools-windows-release64:             \
-	build/windows64/bin/texturec.exe \
-	build/windows64/bin/shaderc.exe  \
-	windows-development64
+tools-vs2019-debug64:             \
+	build/vs2019/bin/texturec.exe \
+	build/vs2019/bin/shaderc.exe  \
+	vs2019-debug64
+tools-vs2019-release64:           \
+	build/vs2019/bin/texturec.exe \
+	build/vs2019/bin/shaderc.exe  \
+	vs2019-development64
 
 tools-mingw-release32: \
 	build/mingw32/bin/luac
