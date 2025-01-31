@@ -130,8 +130,8 @@ function toolchain(build_dir, lib_dir)
 			premake.gcc.llvm = true
 			location(build_dir .. "projects/wasm")
 	end
-	elseif _ACTION == "vs2019"
-		or _ACTION == "vs2022"
+	elseif _ACTION == "vs2017"
+		or _ACTION == "vs2019"
 		then
 
 		if not os.is("windows") then
