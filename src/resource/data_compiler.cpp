@@ -1127,6 +1127,20 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 			HashMap<DynamicString, u32> requirements_deffault(default_allocator());
 			hash_map::clear(hash_map::get(_data_requirements, id, requirements_deffault));
 			hash_map::set(_data_dependencies, id, new_dependencies);
+			{
+				// Add requirements from globs.
+				auto cur = hash_map::begin(_source_index._paths);
+				auto end = hash_map::end(_source_index._paths);
+				for (; cur != end; ++cur) {
+					HASH_MAP_SKIP_HOLE(_source_index._paths, cur);
+
+					const DynamicString &path = cur->first;
+					for (u32 ii = 0, nn = vector::size(opts._new_requirement_globs); ii < nn; ++ii) {
+						if (wildcmp(opts._new_requirement_globs[ii].c_str(), path.c_str()))
+							hash_map::set(new_requirements, path, 0u);
+					}
+				}
+			}
 			hash_map::set(_data_requirements, id, new_requirements);
 
 			// Write data to disk.
