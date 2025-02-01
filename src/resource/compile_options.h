@@ -28,6 +28,7 @@ struct CompileOptions
 	BinaryWriter _binary_writer;
 	HashMap<DynamicString, u32> &_new_dependencies;
 	HashMap<DynamicString, u32> &_new_requirements;
+	Vector<DynamicString> _new_requirement_globs;
 	DataCompiler &_data_compiler;
 	Filesystem &_output_filesystem;
 	Filesystem &_data_filesystem;
@@ -97,6 +98,9 @@ struct CompileOptions
 
 	///
 	void add_requirement(const char *type, const char *name);
+
+	/// Adds all the resources matching @a glob to the requirements.
+	void add_requirement_glob(const char *glob);
 
 	///
 	void absolute_path(DynamicString &abs, const char *path);

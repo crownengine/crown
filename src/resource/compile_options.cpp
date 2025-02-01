@@ -59,6 +59,7 @@ CompileOptions::CompileOptions(File &output
 	, _binary_writer(_file)
 	, _new_dependencies(new_dependencies)
 	, _new_requirements(new_requirements)
+	, _new_requirement_globs(default_allocator())
 	, _data_compiler(dc)
 	, _output_filesystem(output_filesystem)
 	, _data_filesystem(data_filesystem)
@@ -187,6 +188,15 @@ void CompileOptions::add_requirement(const char *type, const char *name)
 	path += type;
 
 	hash_map::set(_new_requirements, path, 0u);
+}
+
+void CompileOptions::add_requirement_glob(const char *glob)
+{
+	TempAllocator256 ta;
+	DynamicString str(ta);
+	str = glob;
+
+	vector::push_back(_new_requirement_globs, str);
 }
 
 void CompileOptions::absolute_path(DynamicString &abs, const char *path)
