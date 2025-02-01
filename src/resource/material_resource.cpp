@@ -293,6 +293,8 @@ namespace material_resource_internal
 		Array<char> names(default_allocator());
 		Array<char> dynblob(default_allocator());
 
+		opts.add_requirement_glob("*.shader");
+
 		DynamicString shader(ta);
 		RETURN_IF_ERROR(sjson::parse_string(shader, obj["shader"]), opts);
 
