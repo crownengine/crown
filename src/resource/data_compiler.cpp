@@ -1568,24 +1568,6 @@ int main_data_compiler(const DeviceOptions &opts)
 	dc->register_compiler("texture",          RESOURCE_VERSION_TEXTURE,          txr::compile);
 	dc->register_compiler("unit",             RESOURCE_VERSION_UNIT,             utr::compile);
 
-	dc->add_ignore_glob("*.bak");
-	dc->add_ignore_glob("*.dds");
-	dc->add_ignore_glob("*.goutputstream-*"); // https://askubuntu.com/questions/151101/why-are-goutputstream-xxxxx-files-created-in-home-folder
-	dc->add_ignore_glob("*.importer_settings");
-	dc->add_ignore_glob("*.ktx");
-	dc->add_ignore_glob("*.ogg");
-	dc->add_ignore_glob("*.png");
-	dc->add_ignore_glob("*.pvr");
-	dc->add_ignore_glob("*.swn"); // VIM swap file.
-	dc->add_ignore_glob("*.swo"); // VIM swap file.
-	dc->add_ignore_glob("*.swp"); // VIM swap file.
-	dc->add_ignore_glob("*.tga");
-	dc->add_ignore_glob("*.tmp");
-	dc->add_ignore_glob("*.wav");
-	dc->add_ignore_glob("*.fbx");
-	dc->add_ignore_glob("*~");
-	dc->add_ignore_glob(".*");
-
 	dc->map_source_dir("", opts._source_dir.c_str());
 
 	if (opts._map_source_dir_name) {
