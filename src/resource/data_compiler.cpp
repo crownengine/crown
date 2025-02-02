@@ -1010,10 +1010,12 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 			bool source_never_compiled_before    = hash_map::has(_data_index, id) == false;
 			bool source_dependency_changed       = dependency_changed(path, id, mtime);
 			bool data_version_dependency_changed = version_changed(path, id);
+			bool compile_always                  = data_version(resource_type(path.c_str())) == 0u;
 
 			if (source_never_compiled_before
 				|| source_dependency_changed
 				|| data_version_dependency_changed
+				|| compile_always
 				) {
 				vector::push_back(to_compile, path);
 			}
