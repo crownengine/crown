@@ -86,6 +86,7 @@ struct ResourceManager
 	void *reload(StringId64 type, StringId64 name);
 
 	/// Returns whether the manager has the resource (@a type, @a name).
+	/// @note Always returns true if autoload is enabled.
 	bool can_get(StringId64 type, StringId64 name);
 
 	/// Returns the data of the resource (@a type, @a name).
