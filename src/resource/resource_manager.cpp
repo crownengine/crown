@@ -127,8 +127,13 @@ bool ResourceManager::try_load(StringId64 package_name, StringId64 type, StringI
 	rr.data = NULL;
 
 	if (rd == ResourceData::NOT_FOUND) {
+		char buf[STRING_ID64_BUF_LEN];
 		ResourceTypeData rtd = hash_map::get(_types, type, ResourceTypeData::NOT_FOUND);
-		CE_ENSURE(rtd != ResourceTypeData::NOT_FOUND);
+		CE_ASSERT(rtd != ResourceTypeData::NOT_FOUND
+			, "Unregistered resource type '%s'"
+			, type.to_string(buf, sizeof(buf))
+			);
+		CE_UNUSED(buf);
 
 		rr.allocator = &_resource_heap;
 		rr.load_function = rtd.load;
