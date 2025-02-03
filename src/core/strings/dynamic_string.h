@@ -69,7 +69,7 @@ struct DynamicString
 	/// Returns whether the string starts with @a prefix.
 	bool has_prefix(const char *prefix) const;
 
-	/// Returns wheterh the string ends with @a suffix.
+	/// Returns whether the string ends with @a suffix.
 	bool has_suffix(const char *suffix) const;
 
 	/// Returns the StringId32 of the string.
