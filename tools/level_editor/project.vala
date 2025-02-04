@@ -563,6 +563,21 @@ public class Project
 		return result;
 	}
 
+	public class FileFilterFuncData
+	{
+		public string extension;
+
+		public FileFilterFuncData(string ext)
+		{
+			extension = ext;
+		}
+
+		public bool handler(Gtk.FileFilterInfo info)
+		{
+			return info.filename.down().has_suffix("." + extension);
+		}
+	}
+
 	// Returns a Gtk.FileFilter based on file @a extensions list.
 	public Gtk.FileFilter create_gtk_file_filter(string name, Gee.ArrayList<string> extensions)
 	{
@@ -571,7 +586,8 @@ public class Project
 		string extensions_comma_separated = "";
 		foreach (var ext in extensions) {
 			extensions_comma_separated += "*.%s, ".printf(ext);
-			filter.add_pattern("*.%s".printf(ext));
+			FileFilterFuncData data = new FileFilterFuncData(ext);
+			filter.add_custom(Gtk.FileFilterFlags.FILENAME, data.handler);
 		}
 		filter.set_filter_name(name + " (%s)".printf(extensions_comma_separated[0 : -2]));
 
