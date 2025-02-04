@@ -203,9 +203,10 @@ namespace MeshResource
 		SList<string> fbx_filenames = new SList<string>();
 		SList<string> mesh_filenames = new SList<string>();
 		foreach (unowned string filename_i in filenames) {
-			if (filename_i.has_suffix(".fbx"))
+			string fi = filename_i.down();
+			if (fi.has_suffix(".fbx"))
 				fbx_filenames.append(filename_i);
-			else if (filename_i.has_suffix(".mesh"))
+			else if (fi.has_suffix(".mesh"))
 				mesh_filenames.append(filename_i);
 			else
 				assert(false);

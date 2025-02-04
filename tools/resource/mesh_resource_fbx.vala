@@ -15,14 +15,13 @@ public static int get_destination_file(out GLib.File destination_file
 	return 0;
 }
 
-public static int get_resource_name(out string resource_name
+public static int get_resource_path(out string resource_path
 	, GLib.File destination_file
 	, Project project
 	)
 {
 	string resource_filename = project.resource_filename(destination_file.get_path());
-	string resource_path = ResourceId.normalize(resource_filename);
-	resource_name = ResourceId.name(resource_path);
+	resource_path = ResourceId.normalize(resource_filename);
 	return 0;
 }
 
@@ -176,9 +175,10 @@ public class FBXImportDialog : Gtk.Window
 
 		_options = new FBXImportOptions();
 		GLib.File file_dst;
-		string resource_name;
+		string resource_path;
 		get_destination_file(out file_dst, destination_dir, File.new_for_path(_filenames[0]));
-		get_resource_name(out resource_name, file_dst, _project);
+		get_resource_path(out resource_path, file_dst, _project);
+		string resource_name = ResourceId.name(resource_path);
 		_options_path = _project.absolute_path(resource_name) + ".importer_settings";
 		try {
 			_options.decode(SJSON.load_from_path(_options_path));
@@ -395,13 +395,15 @@ public class FBXImporter
 	public static ImportResult do_import(FBXImportOptions options, Project project, string destination_dir, Gee.ArrayList<string> filenames)
 	{
 		foreach (string filename_i in filenames) {
-			string resource_name;
+			string resource_path;
+			string resource_type;
 			GLib.File file_dst;
 			GLib.File file_src = File.new_for_path(filename_i);
 			if (get_destination_file(out file_dst, destination_dir, file_src) != 0)
 				return ImportResult.ERROR;
-			if (get_resource_name(out resource_name, file_dst, project) != 0)
+			if (get_resource_path(out resource_path, file_dst, project) != 0)
 				return ImportResult.ERROR;
+			string resource_name = ResourceId.name(resource_path);
 
 			// Copy FBX file.
 			try {
@@ -615,7 +617,7 @@ public class FBXImporter
 
 			Guid mesh_id = Guid.new_guid();
 			db.create(mesh_id, OBJECT_TYPE_MESH);
-			db.set_property_string(mesh_id, "source", resource_name + ".fbx");
+			db.set_property_string(mesh_id, "source", resource_path);
 			db.save(project.absolute_path(resource_name) + ".mesh", mesh_id);
 		}
 

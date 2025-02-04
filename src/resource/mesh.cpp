@@ -237,16 +237,8 @@ namespace mesh
 			RETURN_IF_ERROR(sjson::parse_string(source, obj["source"]), opts);
 
 			RETURN_IF_FILE_MISSING(source.c_str(), opts);
-			if (source.has_suffix(".fbx")) {
-				Buffer fbx_buf = opts.read(source.c_str());
-				return fbx::parse(m, fbx_buf, opts);
-			}
-
-			RETURN_IF_FALSE(false
-				, opts
-				, "Unknown source mesh '%s'"
-				, source.c_str()
-				);
+			Buffer fbx_buf = opts.read(source.c_str());
+			return fbx::parse(m, fbx_buf, opts);
 		} else {
 			return mesh::parse(m, buf, opts);
 		}
