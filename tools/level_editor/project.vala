@@ -41,8 +41,10 @@ public class Project
 
 		public bool can_import_extension(string extension)
 		{
+			string e = extension.down();
+
 			foreach (var ext in extensions) {
-				if (extension == ext)
+				if (e == ext)
 					return true;
 			}
 
