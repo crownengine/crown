@@ -394,7 +394,6 @@ public class FBXImporter
 	{
 		foreach (string filename_i in filenames) {
 			string resource_path;
-			string resource_type;
 			GLib.File file_dst;
 			GLib.File file_src = File.new_for_path(filename_i);
 			if (get_destination_file(out file_dst, destination_dir, file_src) != 0)
