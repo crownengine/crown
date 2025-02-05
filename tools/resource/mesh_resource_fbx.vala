@@ -215,9 +215,7 @@ public class FBXImportDialog : Gtk.Window
 			});
 		_import = new Gtk.Button.with_label("Import");
 		_import.get_style_context().add_class("suggested-action");
-		_import.clicked.connect(() => {
-				import();
-			});
+		_import.clicked.connect(import);
 
 		_header_bar = new Gtk.HeaderBar();
 		_header_bar.title = "Import FBX...";
