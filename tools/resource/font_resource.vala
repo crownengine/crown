@@ -7,8 +7,9 @@ namespace Crown
 {
 public class FontResource
 {
-	public static ImportResult import(Project project, string destination_dir, SList<string> filenames)
+	public static ImportResult import(ProjectStore project_store, string destination_dir, SList<string> filenames)
 	{
+		Project project = project_store._project;
 		Hashtable importer_settings = null;
 		string importer_settings_path = null;
 		string font_path;

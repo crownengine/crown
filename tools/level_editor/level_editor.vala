@@ -2413,7 +2413,10 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		string? destination_dir = param == null ? null : param.get_string();
 
-		ImportResult ec = _project.import(destination_dir, on_import_result, this.active_window);
+		ImportResult ec = _project.import(destination_dir
+			, on_import_result
+			, _project_store
+			);
 		if (ec != ImportResult.CALLBACK)
 			on_import_result(ec);
 	}

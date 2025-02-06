@@ -161,9 +161,9 @@ public class FBXImportDialog : Gtk.Window
 	public Gtk.Button _cancel;
 	public Gtk.HeaderBar _header_bar;
 
-	public FBXImportDialog(Project project, string destination_dir, GLib.SList<string> filenames, Import import_result)
+	public FBXImportDialog(ProjectStore project_store, string destination_dir, GLib.SList<string> filenames, Import import_result)
 	{
-		_project = project;
+		_project = project_store._project;
 		_destination_dir = destination_dir;
 		_filenames = new Gee.ArrayList<string>();
 		foreach (var f in filenames)
@@ -621,9 +621,9 @@ public class FBXImporter
 		return ImportResult.SUCCESS;
 	}
 
-	public static ImportResult import(Project project, string destination_dir, GLib.SList<string> filenames, Import import_result)
+	public static ImportResult import(ProjectStore project_store, string destination_dir, GLib.SList<string> filenames, Import import_result)
 	{
-		FBXImportDialog dialog = new FBXImportDialog(project, destination_dir, filenames, import_result);
+		FBXImportDialog dialog = new FBXImportDialog(project_store, destination_dir, filenames, import_result);
 		dialog.show_all();
 		dialog.present();
 		return ImportResult.CALLBACK;

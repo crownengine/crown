@@ -87,8 +87,10 @@ namespace MeshResource
 		}
 	}
 
-	public static ImportResult do_import(Project project, string destination_dir, SList<string> filenames)
+	public static ImportResult do_import(ProjectStore project_store, string destination_dir, SList<string> filenames)
 	{
+		Project project = project_store._project;
+
 		foreach (unowned string filename_i in filenames) {
 			GLib.File file_src = File.new_for_path(filename_i);
 
@@ -198,7 +200,7 @@ namespace MeshResource
 		return ImportResult.SUCCESS;
 	}
 
-	public static ImportResult import(Project project, string destination_dir, SList<string> filenames, Import import_result)
+	public static ImportResult import(ProjectStore project_store, string destination_dir, SList<string> filenames, Import import_result)
 	{
 		SList<string> fbx_filenames = new SList<string>();
 		SList<string> mesh_filenames = new SList<string>();
@@ -214,9 +216,9 @@ namespace MeshResource
 
 		ImportResult res = ImportResult.SUCCESS;
 		if (mesh_filenames != null)
-			res = MeshResource.do_import(project, destination_dir, mesh_filenames);
+			res = MeshResource.do_import(project_store, destination_dir, mesh_filenames);
 		if (res == ImportResult.SUCCESS && fbx_filenames != null)
-			res = FBXImporter.import(project, destination_dir, fbx_filenames, import_result);
+			res = FBXImporter.import(project_store, destination_dir, fbx_filenames, import_result);
 		return res;
 	}
 
