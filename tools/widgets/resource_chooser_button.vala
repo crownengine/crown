@@ -17,6 +17,8 @@ public class ResourceChooserButton : Gtk.Box
 	public Gtk.Button _selector;
 	public Gtk.Button _revealer;
 	public ProjectStore _project_store;
+	public ResourceChooser _chooser;
+	public Gtk.Dialog _dialog;
 
 	public string value
 	{
@@ -55,37 +57,47 @@ public class ResourceChooserButton : Gtk.Box
 		this.pack_end(_selector, false);
 
 		_project_store = store;
+
+		_chooser = new ResourceChooser(null, _project_store);
+		_chooser.set_type_filter(type_filter);
+	}
+
+	~ResourceChooserButton()
+	{
+		// Prevents a crash when the parent window gets destroyed.
+		_chooser.set_type_filter((type, name) => { return false; });
 	}
 
 	private void on_selector_clicked()
 	{
-		Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Select a %s".printf(_type)
-			, (Gtk.Window)this.get_toplevel()
-			, DialogFlags.MODAL
-			, null
-			);
+		if (_dialog == null) {
+			_dialog = new Gtk.Dialog.with_buttons("Select a %s".printf(_type)
+				, (Gtk.Window)this.get_toplevel()
+				, DialogFlags.MODAL
+				, null
+				);
+			_dialog.delete_event.connect(_dialog.hide_on_delete);
 
-		var rb = new ResourceChooser(null, _project_store);
-		rb.set_type_filter(type_filter);
-		rb.resource_selected.connect(() => {
-				_name.value = rb._name;
-				value_changed();
-				dg.response(ResponseType.OK);
-			});
+			_chooser.resource_selected.connect(() => {
+					_name.value = _chooser._name;
+					value_changed();
+					_dialog.hide();
+				});
 
-		dg.key_press_event.connect((ev) => {
-				if (ev.keyval == Gdk.Key.Escape) {
-					dg.destroy();
-					return Gdk.EVENT_STOP;
-				}
+			_dialog.key_press_event.connect((ev) => {
+					if (ev.keyval == Gdk.Key.Escape) {
+						_dialog.hide();
+						return Gdk.EVENT_STOP;
+					}
 
-				return Gdk.EVENT_PROPAGATE;
-			});
-		dg.skip_taskbar_hint = true;
-		dg.get_content_area().pack_start(rb, true, true, 0);
-		dg.show_all();
-		dg.run();
-		dg.destroy();
+					return Gdk.EVENT_PROPAGATE;
+				});
+			_dialog.skip_taskbar_hint = true;
+			_dialog.get_content_area().pack_start(_chooser, true, true, 0);
+		}
+
+		_dialog.show_all();
+		_dialog.present();
 	}
 
 	private void on_revealer_clicked()
