@@ -499,40 +499,46 @@ namespace shader_resource_internal
 		, const char *varying
 		, const char *type
 		, const char *platform
+		, const Vector<DynamicString> &defines
 		)
 	{
-		const char *argv[] =
-		{
-			shaderc,
-			"-f",
-			infile,
-			"-o",
-			outfile,
-			"--varyingdef",
-			varying,
-			"--type",
-			type,
-			"--platform",
-			platform,
-			NULL,
-			NULL,
-			NULL,
-		};
+		Array<const char *> argv(default_allocator());
+		array::push_back(argv, shaderc);
+		array::push_back(argv, (const char *)"-f");
+		array::push_back(argv, infile);
+		array::push_back(argv, (const char *)"-o");
+		array::push_back(argv, outfile);
+		array::push_back(argv, (const char *)"--varyingdef");
+		array::push_back(argv, varying);
+		array::push_back(argv, (const char *)"--type");
+		array::push_back(argv, type);
+		array::push_back(argv, (const char *)"--platform");
+		array::push_back(argv, platform);
+
+		StringStream defines_string(default_allocator());
+		for (u32 i = 0; i < vector::size(defines); ++i)
+			defines_string << defines[i].c_str() << ";";
+
+		if (array::size(defines_string) > 0) {
+			array::push_back(argv, (const char *)"--define");
+			array::push_back(argv, string_stream::c_str(defines_string));
+		}
 
 		if (strcmp(platform, "android") == 0 || strcmp(platform, "asm.js") == 0) {
-			argv[11] = "--profile";
-			argv[12] = "300_es"; // GLES3
+			array::push_back(argv, (const char *)"--profile");
+			array::push_back(argv, (const char *)"300_es"); // GLES
 		} else if (strcmp(platform, "linux") == 0) {
-			argv[11] = "--profile";
-			argv[12] = "150"; // OpenGL 3.2+
+			array::push_back(argv, (const char *)"--profile");
+			array::push_back(argv, (const char *)"150"); // OpenGL 3.2+
 		} else if (strcmp(platform, "windows") == 0) {
-			argv[11] = "--profile";
-			argv[12] = "s_4_0";
+			array::push_back(argv, (const char *)"--profile");
+			array::push_back(argv, (const char *)"s_4_0");
 		} else {
 			return -1;
 		}
 
-		return pr.spawn(argv, CROWN_PROCESS_STDOUT_PIPE | CROWN_PROCESS_STDERR_MERGE);
+		array::push_back(argv, (const char *)NULL);
+		return pr.spawn(array::begin(argv), CROWN_PROCESS_STDOUT_PIPE | CROWN_PROCESS_STDERR_MERGE);
 	}
 
 	struct RenderState
@@ -1549,26 +1555,26 @@ namespace shader_resource_internal
 				included_code = included._code;
 			}
 
+			// Generate final shader code.
+			StringStream varying_code(default_allocator());
 			StringStream vs_code(default_allocator());
 			StringStream fs_code(default_allocator());
+			// Generate varying.
+			varying_code << shader._varying.c_str();
+			// Generate vertex shader.
 			vs_code << shader._vs_input_output.c_str();
-			for (u32 i = 0; i < vector::size(defines); ++i) {
-				vs_code << "#define " << defines[i].c_str() << "\n";
-			}
 			vs_code << included_code.c_str();
 			vs_code << shader._code.c_str();
 			vs_code << shader._vs_code.c_str();
+			// Generate fragment shader.
 			fs_code << shader._fs_input_output.c_str();
-			for (u32 i = 0; i < vector::size(defines); ++i) {
-				fs_code << "#define " << defines[i].c_str() << "\n";
-			}
 			fs_code << included_code.c_str();
 			fs_code << shader._code.c_str();
 			fs_code << shader._fs_code.c_str();
 
 			_opts.write_temporary(_vs_src_path.c_str(), vs_code);
 			_opts.write_temporary(_fs_src_path.c_str(), fs_code);
-			_opts.write_temporary(_varying_path.c_str(), shader._varying.c_str(), shader._varying.length());
+			_opts.write_temporary(_varying_path.c_str(), varying_code);
 
 			const char *shaderc = _opts.exe_path(shaderc_paths, countof(shaderc_paths));
 			RETURN_IF_FALSE(shaderc != NULL, _opts, "shaderc not found");
@@ -1585,6 +1591,7 @@ namespace shader_resource_internal
 				, _varying_path.c_str()
 				, "vertex"
 				, shaderc_platform[_opts._platform]
+				, defines
 				);
 			if (sc != 0) {
 				delete_temp_files();
@@ -1602,6 +1609,7 @@ namespace shader_resource_internal
 				, _varying_path.c_str()
 				, "fragment"
 				, shaderc_platform[_opts._platform]
+				, defines
 				);
 			if (sc != 0) {
 				delete_temp_files();
