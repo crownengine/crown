@@ -22,9 +22,11 @@
 #include "core/math/aabb.inl"
 #include "core/math/color4.inl"
 #include "core/math/constants.h"
+#include "core/math/intersection.h"
 #include "core/math/math.h"
 #include "core/math/matrix3x3.inl"
 #include "core/math/matrix4x4.inl"
+#include "core/math/obb.inl"
 #include "core/math/quaternion.inl"
 #include "core/math/sphere.inl"
 #include "core/math/vector2.inl"
@@ -985,6 +987,41 @@ static void test_sphere()
 		ENSURE(!sphere::contains_point(a, vector3(-3.9f, 1.6f, -4.0f)));
 		ENSURE(!sphere::contains_point(a, vector3(-2.9f, 2.6f, -4.0f)));
 		ENSURE(!sphere::contains_point(a, vector3(-2.9f, 1.6f, -6.0f)));
+	}
+}
+
+static void test_obb()
+{
+	{
+		OBB a;
+		obb::reset(a);
+		ENSURE(a.tm == MATRIX4X4_IDENTITY);
+		ENSURE(fequal(a.half_extents.x, 0.0f, 0.00001f));
+		ENSURE(fequal(a.half_extents.y, 0.0f, 0.00001f));
+		ENSURE(fequal(a.half_extents.z, 0.0f, 0.00001f));
+	}
+	{
+		OBB a;
+		obb::reset(a);
+		a.half_extents = vector3(0.5f, 0.5f, 0.5f);
+
+		Vector3 ray_origin = vector3(0.0f, -2.0f, 0.25);
+		Vector3 ray_target = vector3(0.0f,  0.0f, 0.25);
+		Vector3 ray_direction = ray_target - ray_origin;
+		normalize(ray_direction);
+		ENSURE(ray_obb_intersection(ray_origin, ray_direction, a.tm, a.half_extents) != -1.0f);
+	}
+	{
+		OBB a;
+		obb::reset(a);
+		a.half_extents = vector3(0.5f, 0.5f, 0.5f);
+		set_scale(a.tm, vector3(0.01, 0.01, 0.01));
+
+		Vector3 ray_origin = vector3(0.0f, -2.0f, 0.25);
+		Vector3 ray_target = vector3(0.0f,  0.0f, 0.25);
+		Vector3 ray_direction = ray_target - ray_origin;
+		normalize(ray_direction);
+		ENSURE(ray_obb_intersection(ray_origin, ray_direction, a.tm, a.half_extents) == -1.0f);
 	}
 }
 
@@ -2114,6 +2151,7 @@ int main_unit_tests()
 	RUN_TEST(test_matrix4x4);
 	RUN_TEST(test_aabb);
 	RUN_TEST(test_sphere);
+	RUN_TEST(test_obb);
 	RUN_TEST(test_murmur);
 	RUN_TEST(test_string_id);
 	RUN_TEST(test_dynamic_string);

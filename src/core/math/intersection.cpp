@@ -61,16 +61,19 @@ f32 ray_obb_intersection(const Vector3 &from, const Vector3 &dir, const Matrix4x
 	f32 tmax = FLT_MAX;
 
 	const Vector3 obb_pos = vector3(tm.t.x, tm.t.y, tm.t.z);
+	const Vector3 obb_scl = scale(tm);
+	const Vector3 obb_world_half = vector3(half_extents.x * obb_scl.x, half_extents.y * obb_scl.y, half_extents.z * obb_scl.z);
 	const Vector3 delta = obb_pos - from;
 
 	{
-		const Vector3 xaxis = vector3(tm.x.x, tm.x.y, tm.x.z);
+		Vector3 xaxis = vector3(tm.x.x, tm.x.y, tm.x.z);
+		normalize(xaxis);
 		const f32 e = dot(xaxis, delta);
 		const f32 f = dot(dir, xaxis);
 
 		if (fabs(f) > 0.001f) {
-			f32 t1 = (e - half_extents.x)/f;
-			f32 t2 = (e + half_extents.x)/f;
+			f32 t1 = (e - obb_world_half.x)/f;
+			f32 t2 = (e + obb_world_half.x)/f;
 
 			if (t1 > t2)
 				exchange(t1, t2);
@@ -82,19 +85,20 @@ f32 ray_obb_intersection(const Vector3 &from, const Vector3 &dir, const Matrix4x
 			if (tmax < tmin)
 				return -1.0f;
 		} else {
-			if (-e - half_extents.x > 0.0f || -e + half_extents.x < 0.0f)
+			if (-e - obb_world_half.x > 0.0f || -e + obb_world_half.x < 0.0f)
 				return -1.0f;
 		}
 	}
 
 	{
-		const Vector3 yaxis = vector3(tm.y.x, tm.y.y, tm.y.z);
+		Vector3 yaxis = vector3(tm.y.x, tm.y.y, tm.y.z);
+		normalize(yaxis);
 		const f32 e = dot(yaxis, delta);
 		const f32 f = dot(dir, yaxis);
 
 		if (fabs(f) > 0.001f) {
-			f32 t1 = (e - half_extents.y)/f;
-			f32 t2 = (e + half_extents.y)/f;
+			f32 t1 = (e - obb_world_half.y)/f;
+			f32 t2 = (e + obb_world_half.y)/f;
 
 			if (t1 > t2)
 				exchange(t1, t2);
@@ -106,19 +110,20 @@ f32 ray_obb_intersection(const Vector3 &from, const Vector3 &dir, const Matrix4x
 			if (tmin > tmax)
 				return -1.0f;
 		} else {
-			if (-e - half_extents.y > 0.0f || -e + half_extents.y < 0.0f)
+			if (-e - obb_world_half.y > 0.0f || -e + obb_world_half.y < 0.0f)
 				return -1.0f;
 		}
 	}
 
 	{
-		const Vector3 zaxis = vector3(tm.z.x, tm.z.y, tm.z.z);
+		Vector3 zaxis = vector3(tm.z.x, tm.z.y, tm.z.z);
+		normalize(zaxis);
 		const f32 e = dot(zaxis, delta);
 		const f32 f = dot(dir, zaxis);
 
 		if (fabs(f) > 0.001f) {
-			f32 t1 = (e - half_extents.z)/f;
-			f32 t2 = (e + half_extents.z)/f;
+			f32 t1 = (e - obb_world_half.z)/f;
+			f32 t2 = (e + obb_world_half.z)/f;
 
 			if (t1 > t2)
 				exchange(t1, t2);
@@ -130,7 +135,7 @@ f32 ray_obb_intersection(const Vector3 &from, const Vector3 &dir, const Matrix4x
 			if (tmin > tmax)
 				return -1.0f;
 		} else {
-			if (-e - half_extents.z > 0.0f || -e + half_extents.z < 0.0f)
+			if (-e - obb_world_half.z > 0.0f || -e + obb_world_half.z < 0.0f)
 				return -1.0f;
 		}
 	}
