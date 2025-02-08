@@ -577,6 +577,22 @@ void load_api(LuaEnvironment &env)
 
 			return 8;
 		});
+	env.add_module_function("Math", "obb_merge", [](lua_State *L) {
+			LuaStack stack(L);
+			OBB a = { stack.get_matrix4x4(1), stack.get_vector3(2) };
+			OBB b = { stack.get_matrix4x4(3), stack.get_vector3(4) };
+			a = obb::merge(a, b);
+
+			int num = stack.num_args();
+			for (int i = 4; i < num; i += 2) {
+				b = { stack.get_matrix4x4(i + 1), stack.get_vector3(i + 2) };
+				a = obb::merge(a, b);
+			}
+
+			stack.push_matrix4x4(a.tm);
+			stack.push_vector3(a.half_extents);
+			return 2;
+		});
 
 	env.add_module_function("Vector3", "x", [](lua_State *L) {
 			LuaStack stack(L);

@@ -20,6 +20,7 @@ Changelog
 * Added support to shaders and materials hot-reloading.
 * Data Compiler: #defines are now correctly exposed in vs_input_output and fs_input_output.
 * Lua API: fixed ``Math.ray_obb_intersection()`` with scaled OBBs.
+* Lua API: added ``Math.obb_merge()``.
 
 0.54.0 --- 13 Jan 2025
 ----------------------

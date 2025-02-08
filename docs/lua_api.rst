@@ -889,6 +889,12 @@ Math
 **obb_vertices** (obb_tm, obb_half_extents) : v0, v1, v2, v3, v4, v5, v6, v7
 	Returns the vertices of the oriented bounding box (obb_tm, obb_half_extents).
 
+**obb_merge** (a_tm, a_half_extents, b_tm, b_half_extents, ...) : Matrix4x4, Vector3
+	Returns a new box which encloses both the box A (a_tm, a_half_extents) and B
+	(b_tm, b_half_extents) and any number of boxes after B.
+	Note that the returned OBB will have the same orientation as A and won't
+	necessarily be the smallest enclosing box.
+
 PhysicsWorld
 =============
 
