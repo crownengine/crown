@@ -530,6 +530,7 @@ struct PhysicsWorldImpl
 		ActorInstanceData aid;
 		aid.unit = unit;
 		aid.body = body;
+		aid.resource = ar;
 
 		array::push_back(_actor, aid);
 		hash_map::set(_actor_map, unit, last);
@@ -621,19 +622,29 @@ struct PhysicsWorldImpl
 		body->setGravity(btVector3(0.0f, 0.0f, 0.0f));
 	}
 
-	void actor_enable_collision(ActorInstance /*i*/)
+	void actor_enable_collision(ActorInstance actor)
 	{
-		CE_FATAL("Not implemented yet");
+		ActorInstanceData &a = _actor[actor.i];
+		const PhysicsCollisionFilter *f = physics_config_resource::filter(_config_resource, a.resource->collision_filter);
+		_dynamics_world->removeRigidBody(_actor[actor.i].body);
+		_dynamics_world->addRigidBody(a.body, f->me, f->mask);
 	}
 
-	void actor_disable_collision(ActorInstance /*i*/)
+	void actor_disable_collision(ActorInstance actor)
 	{
-		CE_FATAL("Not implemented yet");
+		ActorInstanceData &a = _actor[actor.i];
+		const PhysicsCollisionFilter *f = physics_config_resource::filter(_config_resource, a.resource->collision_filter);
+		// Disable collisions by setting collision mask to 0.
+		_dynamics_world->removeRigidBody(_actor[actor.i].body);
+		_dynamics_world->addRigidBody(a.body, f->me, 0);
 	}
 
-	void actor_set_collision_filter(ActorInstance /*i*/, StringId32 /*filter*/)
+	void actor_set_collision_filter(ActorInstance actor, StringId32 filter)
 	{
-		CE_FATAL("Not implemented yet");
+		ActorInstanceData &a = _actor[actor.i];
+		const PhysicsCollisionFilter *f = physics_config_resource::filter(_config_resource, filter);
+		_dynamics_world->removeRigidBody(_actor[actor.i].body);
+		_dynamics_world->addRigidBody(a.body, f->me, f->mask);
 	}
 
 	void actor_set_kinematic(ActorInstance actor, bool kinematic)
