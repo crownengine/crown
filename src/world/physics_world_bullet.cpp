@@ -209,6 +209,7 @@ struct PhysicsWorldImpl
 	{
 		UnitId unit;
 		btRigidBody *body;
+		const ActorResource *resource;
 	};
 
 	Allocator *_allocator;
@@ -523,11 +524,8 @@ struct PhysicsWorldImpl
 		const u32 last = array::size(_actor);
 		body->m_userObjectPointer = ((void *)(uintptr_t)last);
 
-		// Set collision filters
-		const u32 me   = physics_config_resource::filter(_config_resource, ar->collision_filter)->me;
-		const u32 mask = physics_config_resource::filter(_config_resource, ar->collision_filter)->mask;
-
-		_dynamics_world->addRigidBody(body, me, mask);
+		const PhysicsCollisionFilter *f = physics_config_resource::filter(_config_resource, ar->collision_filter);
+		_dynamics_world->addRigidBody(body, f->me, f->mask);
 
 		ActorInstanceData aid;
 		aid.unit = unit;
