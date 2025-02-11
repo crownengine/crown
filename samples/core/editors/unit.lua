@@ -29,6 +29,7 @@ function UnitUtils.freeze(world, unit_id)
 		local actor = PhysicsWorld.actor_instance(physics_world, child_id)
 		if actor ~= nil then
 			PhysicsWorld.actor_set_kinematic(physics_world, actor, true)
+			PhysicsWorld.actor_disable_collision(physics_world, actor)
 		end
 	end
 end
