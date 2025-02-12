@@ -155,19 +155,72 @@ function UnitBox:on_selected(selected)
 	RenderWorld.selection(self._rw, self._unit_id, selected);
 end
 
+function UnitBox:mesh_tree_obb()
+	local scene_graph = self._sg
+	local unit_id = self._unit_id
+	local obb_tm = self:local_pose()
+	local obb_he = Vector3(0.01, 0.01, 0.01)
+
+	local child_id = unit_id
+	local mesh = RenderWorld.mesh_instance(self._rw, child_id)
+	if mesh then
+		obb_tm, obb_he = Math.obb_merge(obb_tm, obb_he, RenderWorld.mesh_obb(self._rw, mesh))
+	end
+
+	local transform = SceneGraph.instance(scene_graph, unit_id)
+	if transform == nil then
+		return -1.0
+	end
+
+	local cur_child = SceneGraph.first_child(scene_graph, transform)
+	while cur_child ~= nil do
+		child_id = SceneGraph.owner(scene_graph, cur_child)
+		mesh = RenderWorld.mesh_instance(self._rw, child_id)
+		if mesh then
+			obb_tm, obb_he = Math.obb_merge(obb_tm, obb_he, RenderWorld.mesh_obb(self._rw, mesh))
+		end
+
+		cur_child = SceneGraph.next_sibling(scene_graph, cur_child)
+	end
+
+	return obb_tm, obb_he
+end
+
+function UnitBox:sprite_tree_obb()
+	local scene_graph = self._sg
+	local unit_id = self._unit_id
+	local obb_tm = self:local_pose()
+	local obb_he = Vector3(0.01, 0.01, 0.01)
+
+	local child_id = unit_id
+	local mesh = RenderWorld.sprite_instance(self._rw, child_id)
+	if mesh then
+		obb_tm, obb_he = Math.obb_merge(obb_tm, obb_he, RenderWorld.sprite_obb(self._rw, mesh))
+	end
+
+	local transform = SceneGraph.instance(scene_graph, unit_id)
+	if transform == nil then
+		return -1.0
+	end
+
+	local cur_child = SceneGraph.first_child(scene_graph, transform)
+	while cur_child ~= nil do
+		child_id = SceneGraph.owner(scene_graph, cur_child)
+		mesh = RenderWorld.sprite_instance(self._rw, child_id)
+		if mesh then
+			obb_tm, obb_he = Math.obb_merge(obb_tm, obb_he, RenderWorld.sprite_obb(self._rw, mesh))
+		end
+
+		cur_child = SceneGraph.next_sibling(scene_graph, cur_child)
+	end
+
+	return obb_tm, obb_he
+end
+
 -- Returns the Oriented Bounding-Box of the unit.
 function UnitBox:obb()
-	local mesh = RenderWorld.mesh_instance(self._rw, self._unit_id)
-	if mesh then
-		return RenderWorld.mesh_obb(self._rw, mesh)
-	end
-
-	local sprite = RenderWorld.sprite_instance(self._rw, self._unit_id)
-	if sprite then
-		return RenderWorld.sprite_obb(self._rw, sprite)
-	end
-
-	return Matrix4x4.identity(), Vector3(1, 1, 1)
+	local obb_tm, obb_he = self:mesh_tree_obb()
+	return Math.obb_merge(obb_tm, obb_he, self:sprite_tree_obb())
 end
 
 function UnitBox:raycast(pos, dir)
