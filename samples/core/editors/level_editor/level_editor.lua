@@ -669,17 +669,11 @@ function PlaceTool:mouse_up(x, y)
 	local level_object = nil
 	if self._placeable_type == "unit" then
 		local guid = Device.guid()
-		local unit = World.spawn_unit(LevelEditor._world, self._placeable_name, self:position())
-		level_object = UnitBox(LevelEditor._world, guid, unit, self._placeable_name)
-
-		LevelEditor._objects[guid] = level_object
+		level_object = LevelEditor:spawn_unit(guid, self._placeable_name, self:position(), Quaternion.identity(), Vector3(1,1,1))
 		level_object:send()
 	elseif self._placeable_type == "sound" then
 		local guid = Device.guid()
-		level_object = SoundObject(LevelEditor._world, guid, self._placeable_name, 10.0, 1.0, false)
-		level_object:set_local_position(self:position())
-		level_object:set_local_rotation(Quaternion.identity())
-		LevelEditor._objects[guid] = level_object
+		level_object = LevelEditor:spawn_sound(guid, self._placeable_name, self:position(), Quaternion.identity(), 10.0, 1.0, false)
 		level_object:send()
 	end
 
@@ -1704,12 +1698,14 @@ function LevelEditor:spawn_unit(id, name, pos, rot, scale)
 	local unit = World.spawn_unit(self._world, name, pos, rot, scale)
 	local unit_box = UnitBox(self._world, id, unit, name)
 	self._objects[id] = unit_box
+	return unit_box
 end
 
 function LevelEditor:spawn_empty_unit(id)
 	local unit = World.spawn_empty_unit(self._world)
 	local unit_box = UnitBox(self._world, id, unit, nil)
 	self._objects[id] = unit_box
+	return unit_box
 end
 
 function LevelEditor:spawn_sound(id, name, pos, rot, range, volume, loop)
@@ -1717,6 +1713,7 @@ function LevelEditor:spawn_sound(id, name, pos, rot, range, volume, loop)
 	sound:set_local_position(pos)
 	sound:set_local_rotation(rot)
 	self._objects[id] = sound
+	return sound
 end
 
 function LevelEditor:add_transform_component(id, component_id, pos, rot, scale)
