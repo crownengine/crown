@@ -135,6 +135,23 @@ end
 
 function UnitBox:on_selected(selected)
 	self._selected = selected
+
+	-- Select this unit and all its children.
+	local scene_graph = self._sg
+	local unit_id = self._unit_id
+
+	local transform = SceneGraph.instance(scene_graph, unit_id)
+	if transform == nil then
+		return
+	end
+
+	local cur_child = SceneGraph.first_child(scene_graph, transform)
+	while cur_child ~= nil do
+		local child_id = SceneGraph.owner(scene_graph, cur_child)
+		RenderWorld.selection(self._rw, child_id, selected);
+		cur_child = SceneGraph.next_sibling(scene_graph, cur_child)
+	end
+
 	RenderWorld.selection(self._rw, self._unit_id, selected);
 end
 
