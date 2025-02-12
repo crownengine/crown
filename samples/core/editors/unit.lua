@@ -296,6 +296,11 @@ function UnitBox:raycast_sprite_tree(pos, dir)
 end
 
 function UnitBox:raycast(pos, dir)
+	local obb_tm, obb_he = self:obb()
+	if Math.ray_obb_intersection(pos, dir, obb_tm, obb_he) == -1.0 then
+		return -1.0
+	end
+
 	local t = self:raycast_mesh_tree(pos, dir)
 	if t ~= -1.0 then
 		return t
