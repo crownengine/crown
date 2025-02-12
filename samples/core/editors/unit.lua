@@ -223,18 +223,85 @@ function UnitBox:obb()
 	return Math.obb_merge(obb_tm, obb_he, self:sprite_tree_obb())
 end
 
-function UnitBox:raycast(pos, dir)
-	local mesh = RenderWorld.mesh_instance(self._rw, self._unit_id)
+function UnitBox:raycast_mesh_tree(pos, dir)
+	local scene_graph = self._sg
+	local unit_id = self._unit_id
+	local t_min = math.huge
+
+	-- Raycast meshes in this unit and all its children.
+	local child_id = unit_id
+	local mesh = RenderWorld.mesh_instance(self._rw, child_id)
 	if mesh then
-		return RenderWorld.mesh_cast_ray(self._rw, mesh, pos, dir)
+		local t = RenderWorld.mesh_cast_ray(self._rw, mesh, pos, dir)
+		if t ~= -1.0 then
+			t_min = math.min(t, t_min)
+		end
 	end
 
-	local sprite = RenderWorld.sprite_instance(self._rw, self._unit_id)
-	if sprite then
-		return RenderWorld.sprite_cast_ray(self._rw, sprite, pos, dir)
+	local transform = SceneGraph.instance(scene_graph, unit_id)
+	if transform == nil then
+		return -1.0
 	end
 
-	return -1.0
+	local cur_child = SceneGraph.first_child(scene_graph, transform)
+	while cur_child ~= nil do
+		child_id = SceneGraph.owner(scene_graph, cur_child)
+		mesh = RenderWorld.mesh_instance(self._rw, child_id)
+		if mesh then
+			t = RenderWorld.mesh_cast_ray(self._rw, mesh, pos, dir)
+			if t ~= -1.0 then
+				t_min = math.min(t, t_min)
+			end
+		end
+		cur_child = SceneGraph.next_sibling(scene_graph, cur_child)
+	end
+
+	return t_min == math.huge and -1.0 or t_min
+end
+
+function UnitBox:raycast_sprite_tree(pos, dir)
+	local scene_graph = self._sg
+	local unit_id = self._unit_id
+	local t_min = math.huge
+
+	-- Raycast sprites in this unit and all its children.
+	local child_id = unit_id
+	local mesh = RenderWorld.sprite_instance(self._rw, child_id)
+	if mesh then
+		local t = RenderWorld.sprite_cast_ray(self._rw, mesh, pos, dir)
+		if t ~= -1.0 then
+			t_min = math.min(t, t_min)
+		end
+	end
+
+	local transform = SceneGraph.instance(scene_graph, unit_id)
+	if transform == nil then
+		return -1.0
+	end
+
+	local cur_child = SceneGraph.first_child(scene_graph, transform)
+	while cur_child ~= nil do
+		child_id = SceneGraph.owner(scene_graph, cur_child)
+		mesh = RenderWorld.sprite_instance(self._rw, child_id)
+		if mesh then
+			t = RenderWorld.sprite_cast_ray(self._rw, mesh, pos, dir)
+			if t ~= -1.0 then
+				t_min = math.min(t, t_min)
+			end
+		end
+		cur_child = SceneGraph.next_sibling(scene_graph, cur_child)
+	end
+
+	return t_min == math.huge and -1.0 or t_min
+end
+
+function UnitBox:raycast(pos, dir)
+	local t = self:raycast_mesh_tree(pos, dir)
+	if t ~= -1.0 then
+		return t
+	end
+
+	return self:raycast_sprite_tree(pos, dir)
 end
 
 function UnitBox:draw()
