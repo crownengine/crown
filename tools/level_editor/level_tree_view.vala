@@ -255,7 +255,7 @@ public class LevelTreeView : Gtk.Box
 					_tree_selection.selected_foreach((model, path, iter) => {
 							Value name;
 							model.get_value(iter, Column.NAME, out name);
-							sb.text = (string)name;
+							sb.value = (string)name;
 							return;
 						});
 					sb.activate.connect(() => { dg.response(ResponseType.OK); });
