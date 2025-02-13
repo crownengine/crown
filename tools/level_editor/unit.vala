@@ -406,6 +406,14 @@ public struct Unit
 		_component_registry[type] = depends_on;
 	}
 
+	public string? prefab()
+	{
+		return _db.has_property(_id, "prefab")
+			? _db.get_property_string(_id, "prefab")
+			: null
+			;
+	}
+
 	/// Returns whether the unit has a prefab.
 	public bool has_prefab()
 	{
@@ -543,61 +551,80 @@ public struct Unit
 
 				Guid unit_id = object_ids[i];
 				Unit unit = Unit(db, unit_id);
+				string? prefab = unit.prefab();
 
-				sb.append(LevelEditorApi.spawn_empty_unit(unit_id));
 				sb.append("editor_nv, editor_nq, editor_nm = Device.temp_count()");
 
-				Guid component_id;
-				if (unit.has_component(out component_id, "transform")) {
-					string s = LevelEditorApi.add_tranform_component(unit_id
-						, component_id
-						, unit.get_component_property_vector3   (component_id, "data.position")
-						, unit.get_component_property_quaternion(component_id, "data.rotation")
-						, unit.get_component_property_vector3   (component_id, "data.scale")
-						);
-					sb.append(s);
-				}
-				if (unit.has_component(out component_id, "camera")) {
-					string s = LevelEditorApi.add_camera_component(unit_id
-						, component_id
-						, unit.get_component_property_string(component_id, "data.projection")
-						, unit.get_component_property_double(component_id, "data.fov")
-						, unit.get_component_property_double(component_id, "data.far_range")
-						, unit.get_component_property_double(component_id, "data.near_range")
-						);
-					sb.append(s);
-				}
-				if (unit.has_component(out component_id, "mesh_renderer")) {
-					string s = LevelEditorApi.add_mesh_renderer_component(unit_id
-						, component_id
-						, unit.get_component_property_string(component_id, "data.mesh_resource")
-						, unit.get_component_property_string(component_id, "data.geometry_name")
-						, unit.get_component_property_string(component_id, "data.material")
-						, unit.get_component_property_bool  (component_id, "data.visible")
-						);
-					sb.append(s);
-				}
-				if (unit.has_component(out component_id, "sprite_renderer")) {
-					string s = LevelEditorApi.add_sprite_renderer_component(unit_id
-						, component_id
-						, unit.get_component_property_string(component_id, "data.sprite_resource")
-						, unit.get_component_property_string(component_id, "data.material")
-						, unit.get_component_property_double(component_id, "data.layer")
-						, unit.get_component_property_double(component_id, "data.depth")
-						, unit.get_component_property_bool  (component_id, "data.visible")
-						);
-					sb.append(s);
-				}
-				if (unit.has_component(out component_id, "light")) {
-					string s = LevelEditorApi.add_light_component(unit_id
-						, component_id
-						, unit.get_component_property_string (component_id, "data.type")
-						, unit.get_component_property_double (component_id, "data.range")
-						, unit.get_component_property_double (component_id, "data.intensity")
-						, unit.get_component_property_double (component_id, "data.spot_angle")
-						, unit.get_component_property_vector3(component_id, "data.color")
-						);
-					sb.append(s);
+				if (prefab != null) {
+					sb.append(LevelEditorApi.spawn_unit(unit_id
+						, prefab
+						, unit.local_position()
+						, unit.local_rotation()
+						, unit.local_scale()
+						));
+
+					foreach (var entry in Unit._component_registry.entries) {
+						Guid component_id;
+						if (!unit.has_component(out component_id, entry.key))
+							continue;
+
+						generate_change_commands(sb, { unit_id, component_id }, db);
+					}
+				} else {
+					sb.append(LevelEditorApi.spawn_empty_unit(unit_id));
+
+					Guid component_id;
+					if (unit.has_component(out component_id, "transform")) {
+						string s = LevelEditorApi.add_tranform_component(unit_id
+							, component_id
+							, unit.get_component_property_vector3   (component_id, "data.position")
+							, unit.get_component_property_quaternion(component_id, "data.rotation")
+							, unit.get_component_property_vector3   (component_id, "data.scale")
+							);
+						sb.append(s);
+					}
+					if (unit.has_component(out component_id, "camera")) {
+						string s = LevelEditorApi.add_camera_component(unit_id
+							, component_id
+							, unit.get_component_property_string(component_id, "data.projection")
+							, unit.get_component_property_double(component_id, "data.fov")
+							, unit.get_component_property_double(component_id, "data.far_range")
+							, unit.get_component_property_double(component_id, "data.near_range")
+							);
+						sb.append(s);
+					}
+					if (unit.has_component(out component_id, "mesh_renderer")) {
+						string s = LevelEditorApi.add_mesh_renderer_component(unit_id
+							, component_id
+							, unit.get_component_property_string(component_id, "data.mesh_resource")
+							, unit.get_component_property_string(component_id, "data.geometry_name")
+							, unit.get_component_property_string(component_id, "data.material")
+							, unit.get_component_property_bool  (component_id, "data.visible")
+							);
+						sb.append(s);
+					}
+					if (unit.has_component(out component_id, "sprite_renderer")) {
+						string s = LevelEditorApi.add_sprite_renderer_component(unit_id
+							, component_id
+							, unit.get_component_property_string(component_id, "data.sprite_resource")
+							, unit.get_component_property_string(component_id, "data.material")
+							, unit.get_component_property_double(component_id, "data.layer")
+							, unit.get_component_property_double(component_id, "data.depth")
+							, unit.get_component_property_bool  (component_id, "data.visible")
+							);
+						sb.append(s);
+					}
+					if (unit.has_component(out component_id, "light")) {
+						string s = LevelEditorApi.add_light_component(unit_id
+							, component_id
+							, unit.get_component_property_string (component_id, "data.type")
+							, unit.get_component_property_double (component_id, "data.range")
+							, unit.get_component_property_double (component_id, "data.intensity")
+							, unit.get_component_property_double (component_id, "data.spot_angle")
+							, unit.get_component_property_vector3(component_id, "data.color")
+							);
+						sb.append(s);
+					}
 				}
 
 				sb.append("Device.set_temp_count(editor_nv, editor_nq, editor_nm)");
