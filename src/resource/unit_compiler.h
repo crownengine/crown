@@ -9,6 +9,7 @@
 
 #if CROWN_CAN_COMPILE
 #include "core/containers/types.h"
+#include "core/guid.h"
 #include "core/json/types.h"
 #include "core/strings/string_id.h"
 #include "resource/types.h"
