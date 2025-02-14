@@ -19,6 +19,7 @@ Changelog
 * Fixed a crash when reloading unloaded or unsupported resources.
 * Added support to shaders and materials hot-reloading.
 * Data Compiler: #defines are now correctly exposed in vs_input_output and fs_input_output.
+* Fixed setting kinematic actor's position and rotation.
 * Lua API: fixed ``Math.ray_obb_intersection()`` with scaled OBBs.
 * Lua API: added ``Math.obb_merge()``.
 * Lua API: implemented ``PhysicsWorld.actor_{enable,disable}_collision()`` and ``PhysicsWorld.actor_set_collision_filter()``.

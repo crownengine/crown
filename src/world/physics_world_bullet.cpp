@@ -947,12 +947,16 @@ struct PhysicsWorldImpl
 			if (ai == UINT32_MAX)
 				continue;
 
-			const Quaternion rot = rotation(*begin_world);
-			const Vector3 pos = translation(*begin_world);
 			// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/MotionStates
-			btMotionState *ms = _actor[ai].body->m_optionalMotionState;
-			if (ms)
-				ms->setWorldTransform(btTransform(to_btQuaternion(rot), to_btVector3(pos)));
+			btRigidBody *body = _actor[ai].body;
+			btMotionState *motion_state = body->m_optionalMotionState;
+			if (motion_state) {
+				const Quaternion rot = rotation(*begin_world);
+				const Vector3 pos = translation(*begin_world);
+				const btTransform new_transform(to_btQuaternion(rot), to_btVector3(pos));
+				motion_state->setWorldTransform(new_transform);
+				body->activate();
+			}
 		}
 	}
 
