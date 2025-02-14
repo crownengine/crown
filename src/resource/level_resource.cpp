@@ -82,12 +82,12 @@ namespace level_resource_internal
 			}
 		}
 
-		UnitCompiler uc(default_allocator(), opts);
-		s32 err = unit_compiler::parse_unit_array_from_json(uc, obj["units"]);
+		UnitCompiler uc(default_allocator());
+		s32 err = unit_compiler::parse_unit_array_from_json(uc, obj["units"], opts);
 		ENSURE_OR_RETURN(err == 0, opts);
 
 		Buffer units_blob(default_allocator());
-		err = unit_compiler::blob(units_blob, uc);
+		err = unit_compiler::blob(units_blob, uc, opts);
 		ENSURE_OR_RETURN(err == 0, opts);
 
 		// Write

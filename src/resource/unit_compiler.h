@@ -64,7 +64,6 @@ struct Unit
 struct UnitCompiler
 {
 	HashMap<Guid, Unit *> _units;
-	CompileOptions &_opts;
 	Buffer _prefab_data;
 	Array<u32> _prefab_offsets;
 	Array<StringId64> _prefab_names;
@@ -75,7 +74,7 @@ struct UnitCompiler
 	u32 _num_units;
 
 	///
-	UnitCompiler(Allocator &a, CompileOptions &opts);
+	explicit UnitCompiler(Allocator &a);
 
 	///
 	~UnitCompiler();
@@ -84,13 +83,13 @@ struct UnitCompiler
 namespace unit_compiler
 {
 	///
-	s32 parse_unit(UnitCompiler &c, const char *path);
+	s32 parse_unit(UnitCompiler &c, const char *path, CompileOptions &opts);
 
 	///
-	s32 parse_unit_array_from_json(UnitCompiler &c, const char *units_array_json);
+	s32 parse_unit_array_from_json(UnitCompiler &c, const char *units_array_json, CompileOptions &opts);
 
 	///
-	s32 blob(Buffer &output, UnitCompiler &c);
+	s32 blob(Buffer &output, UnitCompiler &c, CompileOptions &opts);
 
 } // namespace unit_compiler
 
