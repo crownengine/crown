@@ -326,7 +326,7 @@ namespace unit_compiler
 	{
 		TempAllocator4096 ta;
 		JsonObject prefab(ta);
-		RETURN_IF_ERROR(RETURN_IF_ERROR(sjson::parse(prefab, unit_json), c._opts), c._opts);
+		RETURN_IF_ERROR(sjson::parse(prefab, unit_json), c._opts);
 
 		if (json_object::has(prefab, "children")) {
 			JsonArray children(ta);
