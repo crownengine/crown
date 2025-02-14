@@ -341,6 +341,7 @@ struct TransformDesc
 	Vector3 position;
 	Quaternion rotation;
 	Vector3 scale;
+	StringId32 name;
 };
 
 /// Camera description.
