@@ -181,7 +181,7 @@ public static void child_watch_function(GLib.Pid pid, int wait_status)
 
 public static int launcher_main(string[] args)
 {
-	loop = new GLib.MainLoop (null, false);
+	loop = new GLib.MainLoop(null, false);
 	subprocesses = new Gee.ArrayList<GLib.Subprocess?>();
 	GLib.Pid child_pid = 0;
 
