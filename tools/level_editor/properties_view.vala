@@ -70,6 +70,25 @@ public class PropertyGridSet : Gtk.Box
 
 		return e;
 	}
+
+	public Expander add_property_grid_optional(PropertyGrid cv, string label, CheckBox checkbox)
+	{
+		Gtk.Label l = new Gtk.Label(null);
+		l.set_markup("<b>%s</b>".printf(label));
+		l.set_alignment(0.0f, 0.5f);
+
+		Gtk.Box b = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 6);
+		b.pack_start(checkbox, false, false);
+		b.pack_start(l, false, false);
+
+		Expander e = new Expander();
+		e.custom_header = b;
+		e.expanded = true;
+		e.add(cv);
+		this.pack_start(e, false, true, 0);
+
+		return e;
+	}
 }
 
 public class TransformPropertyGrid : PropertyGrid
