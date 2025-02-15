@@ -56,19 +56,19 @@ public class PropertyGridSet : Gtk.Box
 		Object(orientation: Gtk.Orientation.VERTICAL, spacing: 0);
 	}
 
-	public Gtk.Expander add_property_grid(PropertyGrid cv, string label)
+	public Expander add_property_grid(PropertyGrid cv, string label)
 	{
-		Gtk.Label lb = new Gtk.Label(null);
-		lb.set_markup("<b>%s</b>".printf(label));
-		lb.set_alignment(0.0f, 0.5f);
+		Gtk.Label l = new Gtk.Label(null);
+		l.set_markup("<b>%s</b>".printf(label));
+		l.set_alignment(0.0f, 0.5f);
 
-		Gtk.Expander expander = new Gtk.Expander("");
-		expander.label_widget = lb;
-		expander.expanded = true;
-		expander.add(cv);
-		this.pack_start(expander, false, true, 0);
+		Expander e = new Expander();
+		e.custom_header = l;
+		e.expanded = true;
+		e.add(cv);
+		this.pack_start(e, false, true, 0);
 
-		return expander;
+		return e;
 	}
 }
 
@@ -950,7 +950,7 @@ public class PropertiesView : Gtk.Bin
 
 	// Data
 	private Database _db;
-	private HashMap<string, Gtk.Expander> _expanders;
+	private HashMap<string, Expander> _expanders;
 	private HashMap<string, PropertyGrid> _objects;
 	private ArrayList<ComponentEntry?> _entries;
 	private Gee.ArrayList<Guid?>? _selection;
@@ -971,7 +971,7 @@ public class PropertiesView : Gtk.Bin
 		// Data
 		_db = db;
 
-		_expanders = new HashMap<string, Gtk.Expander>();
+		_expanders = new HashMap<string, Expander>();
 		_objects = new HashMap<string, PropertyGrid>();
 		_entries = new ArrayList<ComponentEntry?>();
 		_selection = null;
@@ -1018,7 +1018,7 @@ public class PropertiesView : Gtk.Bin
 
 	private void register_object_type(string label, string object_type, int position, PropertyGrid cv, ContextMenu? action = null)
 	{
-		Gtk.Expander expander = _object_view.add_property_grid(cv, label);
+		Expander expander = _object_view.add_property_grid(cv, label);
 		if (action != null) {
 			expander.button_release_event.connect((ev) => {
 					if (ev.button == Gdk.BUTTON_SECONDARY) {
@@ -1042,7 +1042,7 @@ public class PropertiesView : Gtk.Bin
 		_stack.set_visible_child(_scrolled_window);
 
 		foreach (var entry in _entries) {
-			Gtk.Expander expander = _expanders[entry.type];
+			Expander expander = _expanders[entry.type];
 
 			Unit unit = Unit(_db, id);
 			Guid component_id;
@@ -1070,7 +1070,7 @@ public class PropertiesView : Gtk.Bin
 		_stack.set_visible_child(_scrolled_window);
 
 		foreach (var entry in _entries) {
-			Gtk.Expander expander = _expanders[entry.type];
+			Expander expander = _expanders[entry.type];
 
 			if (entry.type == "sound_transform" || entry.type == "sound_properties") {
 				PropertyGrid cv = _objects[entry.type];
