@@ -34,7 +34,8 @@ public enum VariableType
 
 [Compact]
 [CCode (cname = "te_expr", free_function = "te_free")]
-public class Expr {
+public class Expr
+{
 	int type;
 	[CCode (cname = "value")]
 	double value;

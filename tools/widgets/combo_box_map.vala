@@ -92,7 +92,7 @@ public class ComboBoxMap : Gtk.ComboBox, Property
 		this.id_column = 0;
 		this.entry_text_column = 1;
 
-		Gtk.CellRendererText renderer = new Gtk.CellRendererText ();
+		Gtk.CellRendererText renderer = new Gtk.CellRendererText();
 		this.pack_start(renderer, true);
 		this.add_attribute(renderer, "text", 1);
 
