@@ -22,6 +22,7 @@ Changelog
 * Fixed setting kinematic actor's position and rotation.
 * Lua API: fixed ``Math.ray_obb_intersection()`` with scaled OBBs.
 * Lua API: added ``Math.obb_merge()``.
+* Lua API: added ``SceneGraph.parent()``.
 * Lua API: implemented ``PhysicsWorld.actor_{enable,disable}_collision()`` and ``PhysicsWorld.actor_set_collision_filter()``.
 
 0.54.0 --- 13 Jan 2025

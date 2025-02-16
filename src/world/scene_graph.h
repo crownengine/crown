@@ -147,6 +147,10 @@ struct SceneGraph
 	/// pose of the @a child is set to its previous world pose.
 	void unlink(TransformInstance child);
 
+	/// Returns the parent of the instance @a child or an invalid
+	/// instance if @a child has no parent.
+	TransformInstance parent(TransformInstance child);
+
 	/// Returns the first child of the instance @a parent or an invalid
 	/// instance if @a parent has no children.
 	TransformInstance first_child(TransformInstance parent);
