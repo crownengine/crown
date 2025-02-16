@@ -655,13 +655,18 @@ namespace unit_compiler
 		return 0;
 	}
 
+	s32 flatten(UnitCompiler &c, CompileOptions &opts);
+
 	s32 parse_unit_from_json(UnitCompiler &c, const char *unit_json, CompileOptions &opts)
 	{
 		s32 err = collect_prefabs(c, StringId64(), unit_json, true, opts);
 		ENSURE_OR_RETURN(err == 0, opts);
 
 		u32 original_unit = c._prefab_offsets[array::size(c._prefab_offsets) - 1];
-		return parse_unit_internal(c, &c._prefab_data[original_unit], NULL, NULL, opts);
+		err = parse_unit_internal(c, &c._prefab_data[original_unit], NULL, NULL, opts);
+		ENSURE_OR_RETURN(err == 0, opts);
+
+		return flatten(c, opts);
 	}
 
 	s32 parse_unit(UnitCompiler &c, const char *path, CompileOptions &opts)
@@ -689,7 +694,7 @@ namespace unit_compiler
 			ENSURE_OR_RETURN(err == 0, opts);
 		}
 
-		return 0;
+		return flatten(c, opts);
 	}
 
 	s32 flatten_unit(UnitCompiler &c, Unit *unit, u32 parent_unit_index, CompileOptions &opts)
@@ -802,9 +807,6 @@ namespace unit_compiler
 	{
 		FileBuffer fb(output);
 		BinaryWriter bw(fb);
-
-		s32 err = flatten(c, opts);
-		ENSURE_OR_RETURN(err == 0, opts);
 
 		// Count component types.
 		u32 num_component_types = 0;
