@@ -387,6 +387,12 @@ void SceneGraph::unlink(TransformInstance child)
 	_data.prev_sibling[child.i].i = UINT32_MAX;
 }
 
+TransformInstance SceneGraph::parent(TransformInstance child)
+{
+	CE_ASSERT(child.i < _data.size, "Index out of bounds");
+	return _data.parent[child.i];
+}
+
 TransformInstance SceneGraph::first_child(TransformInstance parent)
 {
 	CE_ASSERT(parent.i < _data.size, "Index out of bounds");

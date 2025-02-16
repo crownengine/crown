@@ -1828,6 +1828,15 @@ void load_api(LuaEnvironment &env)
 			stack.get_scene_graph(1)->unlink(stack.get_transform_instance(2));
 			return 0;
 		});
+	env.add_module_function("SceneGraph", "parent", [](lua_State *L) {
+			LuaStack stack(L);
+			TransformInstance inst = stack.get_scene_graph(1)->parent(stack.get_transform_instance(2));
+			if (is_valid(inst))
+				stack.push_transform(inst);
+			else
+				stack.push_nil();
+			return 1;
+		});
 	env.add_module_function("SceneGraph", "first_child", [](lua_State *L) {
 			LuaStack stack(L);
 			TransformInstance inst = stack.get_scene_graph(1)->first_child(stack.get_transform_instance(2));
