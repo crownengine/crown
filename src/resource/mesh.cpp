@@ -62,6 +62,8 @@ namespace mesh
 		array::clear(g._uvs);
 		array::clear(g._tangents);
 		array::clear(g._bitangents);
+		array::clear(g._bones);
+		array::clear(g._weights);
 
 		array::clear(g._position_indices);
 		array::clear(g._normal_indices);
@@ -93,12 +95,18 @@ namespace mesh
 		return array::size(g._bitangents) != 0;
 	}
 
+	bool has_bones(Geometry &g)
+	{
+		return array::size(g._bones) != 0;
+	}
+
 	static u32 vertex_stride(Geometry &g)
 	{
 		u32 stride = 0;
 		stride += 3 * sizeof(f32);
 		stride += (has_normals(g) ? 3 * sizeof(f32) : 0);
 		stride += (has_uvs(g)     ? 2 * sizeof(f32) : 0);
+		stride += (has_bones(g)   ? 8 * sizeof(f32) : 0);
 		return stride;
 	}
 
@@ -115,6 +123,10 @@ namespace mesh
 		}
 		if (has_uvs(g)) {
 			layout.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float);
+		}
+		if (has_bones(g)) {
+			layout.add(bgfx::Attrib::Indices, 4, bgfx::AttribType::Float);
+			layout.add(bgfx::Attrib::Weight, 4, bgfx::AttribType::Float);
 		}
 
 		layout.end();
@@ -150,6 +162,23 @@ namespace mesh
 				uv.x = g._uvs[t_idx + 0];
 				uv.y = g._uvs[t_idx + 1];
 				array::push(g._vertex_buffer, (char *)&uv, sizeof(uv));
+			}
+			if (has_bones(g)) {
+				const u16 b_idx = g._bone_indices[i] * 4;
+				Vector4 b;
+				b.x = g._bones[b_idx + 0];
+				b.y = g._bones[b_idx + 1];
+				b.z = g._bones[b_idx + 2];
+				b.w = g._bones[b_idx + 3];
+				array::push(g._vertex_buffer, (char *)&b, sizeof(b));
+
+				Vector4 w;
+				const u16 w_idx = g._weight_indices[i] * 4;
+				w.x = g._weights[w_idx + 0];
+				w.y = g._weights[w_idx + 1];
+				w.z = g._weights[w_idx + 2];
+				w.w = g._weights[w_idx + 3];
+				array::push(g._vertex_buffer, (char *)&w, sizeof(w));
 			}
 		}
 	}
@@ -271,11 +300,15 @@ Geometry::Geometry(Allocator &a)
 	, _uvs(a)
 	, _tangents(a)
 	, _bitangents(a)
+	, _bones(a)
+	, _weights(a)
 	, _position_indices(a)
 	, _normal_indices(a)
 	, _uv_indices(a)
 	, _tangent_indices(a)
 	, _bitangent_indices(a)
+	, _bone_indices(a)
+	, _weight_indices(a)
 	, _vertex_buffer(a)
 	, _index_buffer(a)
 {

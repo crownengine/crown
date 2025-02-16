@@ -31,17 +31,23 @@ struct Geometry
 {
 	ALLOCATOR_AWARE;
 
+	enum { MAX_BONE_WEIGHTS = 4 };
+
 	Array<f32> _positions;
 	Array<f32> _normals;
 	Array<f32> _uvs;
 	Array<f32> _tangents;
 	Array<f32> _bitangents;
+	Array<f32> _bones;
+	Array<f32> _weights;
 
 	Array<u32> _position_indices;
 	Array<u32> _normal_indices;
 	Array<u32> _uv_indices;
 	Array<u32> _tangent_indices;
 	Array<u32> _bitangent_indices;
+	Array<u32> _bone_indices;
+	Array<u32> _weight_indices;
 
 	Array<char> _vertex_buffer;
 	Array<u16> _index_buffer;
@@ -72,6 +78,9 @@ namespace mesh
 
 	///
 	bool has_bitangents(Geometry &g);
+
+	///
+	bool has_bones(Geometry &g);
 
 	///
 	s32 parse(Mesh &m, const char *path, CompileOptions &opts);
