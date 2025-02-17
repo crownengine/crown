@@ -68,6 +68,38 @@ namespace fbx
 				array::push_back(g._positions, (f32)v.y);
 				array::push_back(g._positions, (f32)v.z);
 
+				// See: https://ufbx.github.io/elements/deformers/
+				if (mesh->skin_deformers.count == 1) {
+					ufbx_skin_deformer *skin = mesh->skin_deformers.data[0];
+
+					uint32_t vertex = mesh->vertex_indices.data[index];
+					ufbx_skin_vertex skin_vertex = skin->vertices.data[vertex];
+					f32 bones[Geometry::MAX_BONE_WEIGHTS] = { 0 };
+					f32 weights[Geometry::MAX_BONE_WEIGHTS] = { 0.0f };
+					u32 num_weights = min(u32(skin_vertex.num_weights), u32(Geometry::MAX_BONE_WEIGHTS));
+
+					// Read bone ID and weight.
+					f32 total_weight = 0.0f;
+					for (u32 i = 0; i < num_weights; i++) {
+						ufbx_skin_weight skin_weight = skin->weights.data[skin_vertex.weight_begin + i];
+						ufbx_skin_cluster *cluster = skin->clusters.data[skin_weight.cluster_index];
+
+						bones[i] = (f32)fbx::bone_id(fbx, cluster->bone_node->name.data);
+						weights[i] = (f32)skin_weight.weight;
+						total_weight += weights[i];
+					}
+
+					// FBX does not guarantee that skin weights are normalized, and we may even
+					// be dropping some, so we must renormalize them.
+					for (u32 i = 0; i < num_weights; i++)
+						weights[i] /= total_weight;
+
+					for (u32 i = 0; i < countof(bones); ++i) {
+						array::push_back(g._bones, bones[i]);
+						array::push_back(g._weights, weights[i]);
+					}
+				}
+
 				if (mesh->vertex_normal.exists) {
 					ufbx_vec3 v = ufbx_get_vertex_vec3(&mesh->vertex_normal, index);
 					array::push_back(g._normals, (f32)v.x);
@@ -131,6 +163,13 @@ namespace fbx
 		if (mesh::has_bitangents(g)) {
 			array::resize(g._bitangent_indices, (u32)num_indices);
 			generate_indices(g._bitangent_indices, g._bitangents, sizeof(f32)*3);
+		}
+
+		if (mesh::has_bones(g)) {
+			array::resize(g._bone_indices, (u32)num_indices);
+			array::resize(g._weight_indices, (u32)num_indices);
+			generate_indices(g._bone_indices, g._bones, sizeof(f32)*4);
+			generate_indices(g._weight_indices, g._weights, sizeof(f32)*4);
 		}
 
 		return 0;

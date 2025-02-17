@@ -22,6 +22,8 @@ namespace crown
 struct FBXDocument
 {
 	ufbx_scene *scene;
+	ufbx_node *skeleton_root_node;
+	HashMap<StringId32, u16> bone_ids;
 
 	///
 	explicit FBXDocument(Allocator &a);
@@ -32,6 +34,12 @@ struct FBXDocument
 
 namespace fbx
 {
+	/// Returns the node ID for @a bone_name.
+	u16 bone_id(const FBXDocument &fbx, StringId32 bone_name);
+
+	/// Returns the node ID for @a bone_name.
+	u16 bone_id(const FBXDocument &fbx, const char *bone_name);
+
 	///
 	s32 parse(FBXDocument &fbx, Buffer &buf, CompileOptions &opts);
 
