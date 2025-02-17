@@ -88,10 +88,12 @@ public class FBXImportOptions
 		import_cameras.value = true;
 		import_textures = new CheckBox();
 		import_textures.value = true;
+		import_textures.value_changed.connect(on_import_textures_changed);
 		create_textures_folder = new CheckBox();
 		create_textures_folder.value = true;
 		import_materials = new CheckBox();
 		import_materials.value = true;
+		import_materials.value_changed.connect(on_import_materials_changed);
 		create_materials_folder = new CheckBox();
 		create_materials_folder.value = true;
 		import_skeleton = new CheckBox();
@@ -110,6 +112,16 @@ public class FBXImportOptions
 		create_textures_folder.sensitive = import_units.value;
 		import_materials.sensitive = import_units.value;
 		create_materials_folder.sensitive = import_units.value;
+	}
+
+	public void on_import_textures_changed()
+	{
+		create_textures_folder.set_sensitive(import_textures.value);
+	}
+
+	public void on_import_materials_changed()
+	{
+		create_materials_folder.set_sensitive(import_materials.value);
 	}
 
 	public void decode(Hashtable json)
