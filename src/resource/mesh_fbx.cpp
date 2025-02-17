@@ -15,6 +15,7 @@
 #include "core/strings/dynamic_string.inl"
 #include "device/log.h"
 #include "resource/compile_options.inl"
+#include "resource/fbx_document.h"
 #include "resource/mesh_fbx.h"
 #include <stdlib.h>
 #include <ufbx.h>
@@ -43,7 +44,7 @@ namespace fbx
 	}
 
 	/// See: https://ufbx.github.io/elements/meshes/#example
-	size_t convert_mesh_part(Geometry &g, const ufbx_mesh *mesh, const ufbx_mesh_part *part)
+	size_t convert_mesh_part(Geometry &g, FBXDocument &fbx, const ufbx_mesh *mesh, const ufbx_mesh_part *part)
 	{
 		size_t num_triangles = part->num_triangles;
 
@@ -101,12 +102,12 @@ namespace fbx
 		return num_triangles * 3;
 	}
 
-	s32 parse_geometry(Geometry &g, const ufbx_mesh *mesh)
+	s32 parse_geometry(Geometry &g, FBXDocument &fbx, const ufbx_mesh *mesh, CompileOptions &opts)
 	{
 		size_t num_indices = 0;
 		for (size_t i = 0; i < mesh->material_parts.count; ++i) {
 			const ufbx_mesh_part *mesh_part = &mesh->material_parts.data[i];
-			num_indices += convert_mesh_part(g, mesh, mesh_part);
+			num_indices += convert_mesh_part(g, fbx, mesh, mesh_part);
 		}
 
 		array::resize(g._position_indices, (u32)num_indices);
@@ -135,13 +136,13 @@ namespace fbx
 		return 0;
 	}
 
-	s32 parse_geometries(Mesh &m, const ufbx_mesh_list *meshes, CompileOptions &opts)
+	s32 parse_geometries(Mesh &m, FBXDocument &fbx, const ufbx_mesh_list *meshes, CompileOptions &opts)
 	{
 		for (size_t i = 0; i < meshes->count; ++i) {
 			const ufbx_mesh *mesh = meshes->data[i];
 			Geometry geo(default_allocator());
 
-			s32 err = fbx::parse_geometry(geo, mesh);
+			s32 err = fbx::parse_geometry(geo, fbx, mesh, opts);
 			ENSURE_OR_RETURN(err == 0, opts);
 
 			DynamicString geometry_name(default_allocator());
@@ -206,44 +207,14 @@ namespace fbx
 
 	s32 parse(Mesh &m, Buffer &buf, CompileOptions &opts)
 	{
-		// Keep in sync with mesh_resource_fbx.vala!
-		ufbx_load_opts load_opts = {};
-		load_opts.target_camera_axes =
-		{
-			UFBX_COORDINATE_AXIS_POSITIVE_X,
-			UFBX_COORDINATE_AXIS_POSITIVE_Z,
-			UFBX_COORDINATE_AXIS_NEGATIVE_Y
-		};
-		load_opts.target_light_axes =
-		{
-			UFBX_COORDINATE_AXIS_POSITIVE_X,
-			UFBX_COORDINATE_AXIS_POSITIVE_Y,
-			UFBX_COORDINATE_AXIS_POSITIVE_Z
-		};
-		load_opts.target_axes = ufbx_axes_right_handed_z_up;
-		load_opts.target_unit_meters = 1.0f;
-		load_opts.space_conversion = UFBX_SPACE_CONVERSION_TRANSFORM_ROOT;
-
-		ufbx_error error;
-		ufbx_scene *scene = ufbx_load_memory(array::begin(buf)
-			, array::size(buf)
-			, &load_opts
-			, &error
-			);
-		RETURN_IF_FALSE(scene != NULL
-			, opts
-			, "ufbx: %s"
-			, error.description.data
-			);
-
-		s32 err = parse_geometries(m, &scene->meshes, opts);
+		FBXDocument fbx(default_allocator());
+		s32 err = fbx::parse(fbx, buf, opts);
 		ENSURE_OR_RETURN(err == 0, opts);
 
-		err = parse_nodes(m, &scene->nodes, opts);
+		err = parse_geometries(m, fbx, &fbx.scene->meshes, opts);
 		ENSURE_OR_RETURN(err == 0, opts);
 
-		ufbx_free_scene(scene);
-		return 0;
+		return parse_nodes(m, &fbx.scene->nodes, opts);
 	}
 
 } // namespace fbx
