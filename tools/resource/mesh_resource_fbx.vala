@@ -66,6 +66,7 @@ public static string projection_type(ufbx.ProjectionMode ufbx_mode)
 [Compact]
 public class FBXImportOptions
 {
+	public CheckBox import_units;
 	public CheckBox import_lights;
 	public CheckBox import_cameras;
 	public CheckBox import_textures;
@@ -78,6 +79,9 @@ public class FBXImportOptions
 
 	public FBXImportOptions()
 	{
+		import_units = new CheckBox();
+		import_units.value = true;
+		import_units.value_changed.connect(on_import_units_changed);
 		import_lights = new CheckBox();
 		import_lights.value = true;
 		import_cameras = new CheckBox();
@@ -96,6 +100,16 @@ public class FBXImportOptions
 		import_animations.value = false;
 		create_animations_folder = new CheckBox();
 		create_animations_folder.value = true;
+	}
+
+	public void on_import_units_changed()
+	{
+		import_lights.sensitive = import_units.value;
+		import_cameras.sensitive = import_units.value;
+		import_textures.sensitive = import_units.value;
+		create_textures_folder.sensitive = import_units.value;
+		import_materials.sensitive = import_units.value;
+		create_materials_folder.sensitive = import_units.value;
 	}
 
 	public void decode(Hashtable json)
@@ -124,18 +138,27 @@ public class FBXImportOptions
 
 				return true;
 			});
+
+		import_units.value = import_lights.value
+			|| import_cameras.value
+			|| import_textures.value
+			|| import_materials.value
+			;
+		import_units.value_changed();
 	}
 
 	public Hashtable encode()
 	{
+		bool skip_units = !import_units.value;
+
 		Hashtable obj = new Hashtable();
 
-		obj.set("import_lights", import_lights.value);
-		obj.set("import_cameras", import_cameras.value);
-		obj.set("import_textures", import_textures.value);
-		obj.set("create_textures_folder", create_textures_folder.value);
-		obj.set("import_materials", import_materials.value);
-		obj.set("create_materials_folder", create_materials_folder.value);
+		obj.set("import_lights", skip_units ? false : import_lights.value);
+		obj.set("import_cameras", skip_units ? false : import_cameras.value);
+		obj.set("import_textures", skip_units ? false : import_textures.value);
+		obj.set("create_textures_folder", skip_units ? false : create_textures_folder.value);
+		obj.set("import_materials", skip_units ? false : import_materials.value);
+		obj.set("create_materials_folder", skip_units ? false : create_materials_folder.value);
 		obj.set("import_skeleton", import_skeleton.value);
 		obj.set("import_animations", import_animations.value);
 		obj.set("create_animations_folder", create_animations_folder.value);
@@ -195,7 +218,7 @@ public class FBXImportDialog : Gtk.Window
 		cv.add_row("Create Textures Folder", _options.create_textures_folder);
 		cv.add_row("Import Materials", _options.import_materials);
 		cv.add_row("Create Materials Folder", _options.create_materials_folder);
-		_general_set.add_property_grid(cv, "Nodes");
+		_general_set.add_property_grid_optional(cv, "Units", _options.import_units);
 
 #if 0
 		cv = new PropertyGrid();
@@ -437,7 +460,7 @@ public class FBXImporter
 			Gee.HashMap<unowned ufbx.Material, string> imported_materials = new Gee.HashMap<unowned ufbx.Material, string>();
 
 			// Import textures.
-			if (options.import_textures.value) {
+			if (options.import_units.value && options.import_textures.value) {
 				// Create 'textures' folder.
 				string directory_name = "textures";
 				string textures_path = destination_dir;
@@ -498,7 +521,7 @@ public class FBXImporter
 			}
 
 			// Import materials.
-			if (options.import_materials.value) {
+			if (options.import_units.value && options.import_materials.value) {
 				// Create 'materials' folder.
 				string directory_name = "materials";
 				string materials_path = destination_dir;
@@ -599,23 +622,25 @@ public class FBXImporter
 				}
 			}
 
-			// Generate or modify existing .unit.
-			Guid unit_id = Guid.new_guid();
-			unit_create_components(options
-				, db
-				, GUID_ZERO
-				, unit_id
-				, resource_name
-				, scene.root_node
-				, imported_materials
-				);
+			if (options.import_units.value) {
+				// Generate or modify existing .unit.
+				Guid unit_id = Guid.new_guid();
+				unit_create_components(options
+					, db
+					, GUID_ZERO
+					, unit_id
+					, resource_name
+					, scene.root_node
+					, imported_materials
+					);
 
-			db.save(project.absolute_path(resource_name) + ".unit", unit_id);
+				db.save(project.absolute_path(resource_name) + ".unit", unit_id);
 
-			Guid mesh_id = Guid.new_guid();
-			db.create(mesh_id, OBJECT_TYPE_MESH);
-			db.set_property_string(mesh_id, "source", resource_path);
-			db.save(project.absolute_path(resource_name) + ".mesh", mesh_id);
+				Guid mesh_id = Guid.new_guid();
+				db.create(mesh_id, OBJECT_TYPE_MESH);
+				db.set_property_string(mesh_id, "source", resource_path);
+				db.save(project.absolute_path(resource_name) + ".mesh", mesh_id);
+			}
 		}
 
 		return ImportResult.SUCCESS;
