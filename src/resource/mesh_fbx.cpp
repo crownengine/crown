@@ -102,7 +102,7 @@ namespace fbx
 		return num_triangles * 3;
 	}
 
-	s32 parse_geometry(Geometry &g, FBXDocument &fbx, const ufbx_mesh *mesh, CompileOptions &opts)
+	s32 parse_geometry(Geometry &g, FBXDocument &fbx, const ufbx_mesh *mesh)
 	{
 		size_t num_indices = 0;
 		for (size_t i = 0; i < mesh->material_parts.count; ++i) {
@@ -142,7 +142,7 @@ namespace fbx
 			const ufbx_mesh *mesh = meshes->data[i];
 			Geometry geo(default_allocator());
 
-			s32 err = fbx::parse_geometry(geo, fbx, mesh, opts);
+			s32 err = fbx::parse_geometry(geo, fbx, mesh);
 			ENSURE_OR_RETURN(err == 0, opts);
 
 			DynamicString geometry_name(default_allocator());
