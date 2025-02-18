@@ -159,6 +159,9 @@ struct SceneGraph
 	/// instance if @a child has no sibling.
 	TransformInstance next_sibling(TransformInstance child);
 
+	/// Adds all the world transforms in the graph to @a debug_line.
+	void debug_draw(DebugLine &debug_line);
+
 	void clear_changed();
 	void get_changed(Array<UnitId> &units, Array<Matrix4x4> &world_poses);
 	void set_local(TransformInstance transform);
