@@ -23,6 +23,7 @@ public class Project
 		, string destination_dir
 		, SList<string> filenames
 		, Import import_result
+		, Gtk.Window? parent_window
 		);
 
 	[Compact]
@@ -522,7 +523,7 @@ public class Project
 		return Path.build_filename(prefix, resource_path);
 	}
 
-	public static ImportResult import_all_extensions(ProjectStore project_store, string destination_dir, SList<string> filenames, Import import_result)
+	public static ImportResult import_all_extensions(ProjectStore project_store, string destination_dir, SList<string> filenames, Import import_result, Gtk.Window? parent_window)
 	{
 		Project project = project_store._project;
 
@@ -565,7 +566,7 @@ public class Project
 			foreach (var item in importables)
 				importables_list.append(item);
 
-			result = importer.delegate(project_store, destination_dir, importables_list, import_result);
+			result = importer.delegate(project_store, destination_dir, importables_list, import_result, parent_window);
 		}
 
 		return result;
@@ -714,7 +715,7 @@ public class Project
 		if (importer == null)
 			importer = _all_extensions_importer_data.delegate;
 
-		return importer(project_store, out_dir, filenames, import_result);
+		return importer(project_store, out_dir, filenames, import_result, parent_window);
 	}
 
 	public void delete_tree(GLib.File file) throws Error
