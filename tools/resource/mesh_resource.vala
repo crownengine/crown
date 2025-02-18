@@ -200,7 +200,7 @@ namespace MeshResource
 		return ImportResult.SUCCESS;
 	}
 
-	public static ImportResult import(ProjectStore project_store, string destination_dir, SList<string> filenames, Import import_result)
+	public static ImportResult import(ProjectStore project_store, string destination_dir, SList<string> filenames, Import import_result, Gtk.Window? parent_window)
 	{
 		SList<string> fbx_filenames = new SList<string>();
 		SList<string> mesh_filenames = new SList<string>();
@@ -218,7 +218,7 @@ namespace MeshResource
 		if (mesh_filenames != null)
 			res = MeshResource.do_import(project_store, destination_dir, mesh_filenames);
 		if (res == ImportResult.SUCCESS && fbx_filenames != null)
-			res = FBXImporter.import(project_store, destination_dir, fbx_filenames, import_result);
+			res = FBXImporter.import(project_store, destination_dir, fbx_filenames, import_result, parent_window);
 		return res;
 	}
 

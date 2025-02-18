@@ -2416,6 +2416,7 @@ public class LevelEditorApplication : Gtk.Application
 		ImportResult ec = _project.import(destination_dir
 			, on_import_result
 			, _project_store
+			, this.active_window
 			);
 		if (ec != ImportResult.CALLBACK)
 			on_import_result(ec);
