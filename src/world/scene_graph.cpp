@@ -11,6 +11,7 @@
 #include "core/math/quaternion.inl"
 #include "core/math/vector3.inl"
 #include "core/memory/allocator.h"
+#include "world/debug_line.h"
 #include "world/scene_graph.h"
 #include "world/unit_manager.h"
 #include <stdint.h> // UINT_MAX
@@ -447,6 +448,12 @@ void SceneGraph::grow()
 {
 	// Allocate one extra slot to be used as a temporary storage.
 	allocate(2 + _data.capacity*2);
+}
+
+void SceneGraph::debug_draw(DebugLine &debug_line)
+{
+	for (u32 i = 0; i < _data.size; ++i)
+		debug_line.add_axes(_data.world[i], 1.0f);
 }
 
 } // namespace crown
