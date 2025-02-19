@@ -360,7 +360,7 @@ namespace unit_compiler
 
 		if (append_data) {
 			u32 prefab_offset = array::size(c._prefab_data);
-			array::push(c._prefab_data, unit_json, strlen32(unit_json));
+			array::push(c._prefab_data, unit_json, prefab._end - unit_json);
 			array::push_back(c._prefab_data, '\0');
 			array::push_back(c._prefab_offsets, prefab_offset);
 			array::push_back(c._prefab_names, unit_name);
