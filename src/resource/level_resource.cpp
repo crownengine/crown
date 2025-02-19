@@ -87,7 +87,7 @@ namespace level_resource_internal
 		ENSURE_OR_RETURN(err == 0, opts);
 
 		Buffer units_blob(default_allocator());
-		err = unit_compiler::blob(units_blob, uc, opts);
+		err = unit_compiler::blob(units_blob, uc);
 		ENSURE_OR_RETURN(err == 0, opts);
 
 		// Write
