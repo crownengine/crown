@@ -83,8 +83,9 @@ static s32 compile_transform(Buffer &output, const char *json, CompileOptions &o
 	td.position = RETURN_IF_ERROR(sjson::parse_vector3   (obj["position"]), opts);
 	td.rotation = RETURN_IF_ERROR(sjson::parse_quaternion(obj["rotation"]), opts);
 	td.scale    = RETURN_IF_ERROR(sjson::parse_vector3   (obj["scale"]), opts);
-	if (json_object::has(obj, "name"))
+	if (json_object::has(obj, "name")) {
 		td.name = RETURN_IF_ERROR(sjson::parse_string_id(obj["name"]), opts);
+	}
 
 	FileBuffer fb(output);
 	BinaryWriter bw(fb);
