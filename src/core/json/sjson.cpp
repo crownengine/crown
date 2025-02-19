@@ -403,6 +403,8 @@ namespace sjson
 			json = skip_value(json);
 			json = skip_spaces(json);
 		}
+
+		obj._end = json + 1;
 	}
 
 	void parse_object(JsonObject &obj, const char *json)
@@ -415,8 +417,10 @@ namespace sjson
 		if (*json == '{') {
 			json = skip_spaces(++json);
 
-			if (*json == '}')
+			if (*json == '}') {
+				obj._end = json + 1;
 				return;
+			}
 
 			while (*json) {
 				const char *key_begin = *json == '"' ? (json + 1) : json;
@@ -436,8 +440,10 @@ namespace sjson
 				json = skip_value(json);
 				json = skip_spaces(json);
 
-				if (*json == '}')
+				if (*json == '}') {
+					obj._end = json + 1;
 					return;
+				}
 
 				json = skip_spaces(json);
 			}

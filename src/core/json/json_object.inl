@@ -49,6 +49,7 @@ namespace json_object
 
 inline JsonObject::JsonObject(Allocator &a)
 	: _map(a)
+	, _end(NULL)
 {
 }
 
