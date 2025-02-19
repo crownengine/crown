@@ -22,7 +22,7 @@ namespace unit_resource_internal
 		s32 err = unit_compiler::parse_unit(uc, opts.source_path(), opts);
 		ENSURE_OR_RETURN(err == 0, opts);
 		Buffer blob(default_allocator());
-		err = unit_compiler::blob(blob, uc, opts);
+		err = unit_compiler::blob(blob, uc);
 		ENSURE_OR_RETURN(err == 0, opts);
 		opts.write(blob);
 		return 0;

@@ -301,7 +301,7 @@ static s32 compile_animation_state_machine(Buffer &output, const char *json, Com
 
 namespace unit_compiler
 {
-	Buffer read_unit(UnitCompiler &c, const char *path, CompileOptions &opts)
+	Buffer read_unit(const char *path, CompileOptions &opts)
 	{
 		Buffer buf = opts.read(path);
 		array::push_back(buf, '\0');
@@ -352,7 +352,7 @@ namespace unit_compiler
 			StringId64 name(path.c_str());
 			path += ".unit";
 
-			Buffer buf = read_unit(c, path.c_str(), opts);
+			Buffer buf = read_unit(path.c_str(), opts);
 			s32 err = collect_prefabs(c, name, array::begin(buf), true, opts);
 			ENSURE_OR_RETURN(err == 0, opts);
 		}
@@ -433,7 +433,7 @@ namespace unit_compiler
 		CE_DELETE(default_allocator(), unit);
 	}
 
-	s32 modify_unit_components(UnitCompiler &c, Unit *unit, const char *unit_json, CompileOptions &opts)
+	s32 modify_unit_components(Unit *unit, const char *unit_json, CompileOptions &opts)
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
@@ -576,7 +576,7 @@ namespace unit_compiler
 			ENSURE_OR_RETURN(err == 0, opts);
 		}
 
-		s32 err = modify_unit_components(c, unit, unit_json, opts);
+		s32 err = modify_unit_components(unit, unit_json, opts);
 		ENSURE_OR_RETURN(err == 0, opts);
 
 		if (json_object::has(obj, "children")) {
@@ -637,7 +637,7 @@ namespace unit_compiler
 					, guid::to_string(buf, sizeof(buf), id)
 					);
 
-				s32 err = modify_unit_components(c, child, modified_children[ii], opts);
+				s32 err = modify_unit_components(child, modified_children[ii], opts);
 				ENSURE_OR_RETURN(err == 0, opts);
 			}
 		}
@@ -671,7 +671,7 @@ namespace unit_compiler
 
 	s32 parse_unit(UnitCompiler &c, const char *path, CompileOptions &opts)
 	{
-		return parse_unit_from_json(c, array::begin(read_unit(c, path, opts)), opts);
+		return parse_unit_from_json(c, array::begin(read_unit(path, opts)), opts);
 	}
 
 	s32 parse_unit_array_from_json(UnitCompiler &c, const char *units_array_json, CompileOptions &opts)
@@ -803,7 +803,7 @@ namespace unit_compiler
 		return 0;
 	}
 
-	s32 blob(Buffer &output, UnitCompiler &c, CompileOptions &opts)
+	s32 blob(Buffer &output, UnitCompiler &c)
 	{
 		FileBuffer fb(output);
 		BinaryWriter bw(fb);

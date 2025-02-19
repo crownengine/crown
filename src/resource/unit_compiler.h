@@ -89,7 +89,7 @@ namespace unit_compiler
 	s32 parse_unit_array_from_json(UnitCompiler &c, const char *units_array_json, CompileOptions &opts);
 
 	///
-	s32 blob(Buffer &output, UnitCompiler &c, CompileOptions &opts);
+	s32 blob(Buffer &output, UnitCompiler &c);
 
 } // namespace unit_compiler
 
