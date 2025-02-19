@@ -242,8 +242,10 @@ namespace json
 		if (*json == '{') {
 			json = skip_spaces(++json);
 
-			if (*json == '}')
+			if (*json == '}') {
+				obj._end = json + 1;
 				return;
+			}
 
 			while (*json) {
 				const char *key_begin = *json == '"' ? (json + 1) : json;
@@ -264,8 +266,10 @@ namespace json
 				json = skip_value(json);
 				json = skip_spaces(json);
 
-				if (*json == '}')
+				if (*json == '}') {
+					obj._end = json + 1;
 					return;
+				}
 
 				json = next(json, ',');
 				json = skip_spaces(json);

@@ -39,6 +39,7 @@ typedef Array<const char *> JsonArray;
 struct JsonObject
 {
 	HashMap<StringView, const char *> _map;
+	const char *_end; ///< Points to the character following the the object's last character.
 
 	explicit JsonObject(Allocator &a);
 
