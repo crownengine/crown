@@ -19,8 +19,9 @@ Changelog
 * Fixed a crash when moving many objects simultaneusly.
 * Fixed a crash when reloading unloaded or unsupported resources.
 * Added support to shaders and materials hot-reloading.
-* Data Compiler: #defines are now correctly exposed in vs_input_output and fs_input_output.
 * Fixed setting kinematic actor's position and rotation.
+* Data Compiler: #defines are now correctly exposed in vs_input_output and fs_input_output.
+* Data Compiler: fixed and issue that caused OOM when compiling levels with many units.
 * Lua API: fixed ``Math.ray_obb_intersection()`` with scaled OBBs.
 * Lua API: added ``Math.obb_merge()``.
 * Lua API: added ``SceneGraph.parent()``.
