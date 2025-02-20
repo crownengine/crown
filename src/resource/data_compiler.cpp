@@ -36,6 +36,7 @@
 #include "resource/lua_resource.h"
 #include "resource/material_resource.h"
 #include "resource/mesh_resource.h"
+#include "resource/mesh_skeleton_resource.h"
 #include "resource/package_resource.h"
 #include "resource/physics_resource.h"
 #include "resource/resource_id.inl"
@@ -1540,6 +1541,7 @@ int main_data_compiler(const DeviceOptions &opts)
 	dc->register_compiler("level",            RESOURCE_VERSION_LEVEL,            level_resource_internal::compile);
 	dc->register_compiler("material",         RESOURCE_VERSION_MATERIAL,         material_resource_internal::compile);
 	dc->register_compiler("mesh",             RESOURCE_VERSION_MESH,             mesh_resource_internal::compile);
+	dc->register_compiler("mesh_skeleton",    RESOURCE_VERSION_MESH_SKELETON,    mesh_skeleton_resource_internal::compile);
 	dc->register_compiler("package",          RESOURCE_VERSION_PACKAGE,          package_resource_internal::compile);
 	dc->register_compiler("physics_config",   RESOURCE_VERSION_PHYSICS_CONFIG,   physics_config_resource_internal::compile);
 	dc->register_compiler("lua",              RESOURCE_VERSION_SCRIPT,           lua_resource_internal::compile);
