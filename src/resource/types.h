@@ -26,6 +26,7 @@ struct LuaResource;
 struct MaterialResource;
 struct MeshResource;
 struct MeshSkeletonResource;
+struct MeshAnimationResource;
 struct PackageResource;
 struct PhysicsConfigResource;
 struct ShaderResource;
@@ -62,6 +63,7 @@ struct Platform
 #define RESOURCE_TYPE_MATERIAL         STRING_ID_64("material",         UINT64_C(0xeac0b497876adedf))
 #define RESOURCE_TYPE_MESH             STRING_ID_64("mesh",             UINT64_C(0x48ff313713a997a1))
 #define RESOURCE_TYPE_MESH_SKELETON    STRING_ID_64("mesh_skeleton",    UINT64_C(0x2597bb272931eded))
+#define RESOURCE_TYPE_MESH_ANIMATION   STRING_ID_64("mesh_animation",   UINT64_C(0x7369558b842d5314))
 #define RESOURCE_TYPE_PACKAGE          STRING_ID_64("package",          UINT64_C(0xad9c6d9ed1e5e77a))
 #define RESOURCE_TYPE_PHYSICS_CONFIG   STRING_ID_64("physics_config",   UINT64_C(0x72e3cc03787a11a1))
 #define RESOURCE_TYPE_SCRIPT           STRING_ID_64("lua",              UINT64_C(0xa14e8dfa2cd117e2))
@@ -84,6 +86,7 @@ struct Platform
 #define RESOURCE_VERSION_MATERIAL         RESOURCE_VERSION(6)
 #define RESOURCE_VERSION_MESH             RESOURCE_VERSION(6)
 #define RESOURCE_VERSION_MESH_SKELETON    RESOURCE_VERSION(1)
+#define RESOURCE_VERSION_MESH_ANIMATION   RESOURCE_VERSION(1)
 #define RESOURCE_VERSION_PACKAGE          RESOURCE_VERSION(7)
 #define RESOURCE_VERSION_PHYSICS_CONFIG   RESOURCE_VERSION(3)
 #define RESOURCE_VERSION_SCRIPT           RESOURCE_VERSION(4)
