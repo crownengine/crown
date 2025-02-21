@@ -218,19 +218,36 @@ bgfx_shaders = {
 			vec3 a_position  : POSITION;
 			vec3 a_normal    : NORMAL;
 			vec2 a_texcoord0 : TEXCOORD0;
+			vec4 a_indices   : BLENDINDICES;
+			vec4 a_weight    : BLENDWEIGHT;
 		"""
 
 		vs_input_output = """
+		#if defined(SKINNING)
+			$input a_position, a_normal, a_texcoord0, a_indices, a_weight
+		#else
 			$input a_position, a_normal, a_texcoord0
+		#endif
 			$output v_normal, v_view, v_texcoord0
 		"""
 
 		vs_code = """
 			void main()
 			{
+		#if defined(SKINNING)
+				mat4 model;
+				model  = a_weight.x * u_model[int(a_indices.x)];
+				model += a_weight.y * u_model[int(a_indices.y)];
+				model += a_weight.z * u_model[int(a_indices.z)];
+				model += a_weight.w * u_model[int(a_indices.w)];
+				gl_Position = mul(mul(u_modelViewProj, model), vec4(a_position, 1.0));
+				v_view = mul(mul(u_modelView, model), vec4(a_position, 1.0));
+				v_normal = normalize(mul(mul(u_modelView, model), vec4(a_normal, 0.0)).xyz);
+		#else
 				gl_Position = mul(u_modelViewProj, vec4(a_position, 1.0));
 				v_view = mul(u_modelView, vec4(a_position, 1.0));
 				v_normal = normalize(mul(u_modelView, vec4(a_normal, 0.0)).xyz);
+		#endif
 
 				v_texcoord0 = a_texcoord0;
 			}
@@ -561,6 +578,8 @@ static_compile = [
 	{ shader = "sprite" defines = [] }
 	{ shader = "mesh" defines = [] }
 	{ shader = "mesh" defines = ["DIFFUSE_MAP"] }
+	{ shader = "mesh" defines = ["SKINNING"] }
+	{ shader = "mesh" defines = ["DIFFUSE_MAP" "SKINNING"] }
 	{ shader = "mesh" defines = ["DIFFUSE_MAP" "NO_LIGHT"] }
 	{ shader = "selection" defines = [] }
 	{ shader = "outline" defines = [] }
