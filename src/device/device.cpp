@@ -45,6 +45,7 @@
 #include "resource/material_resource.h"
 #include "resource/mesh_resource.h"
 #include "resource/mesh_skeleton_resource.h"
+#include "resource/mesh_animation_resource.h"
 #include "resource/package_resource.h"
 #include "resource/physics_resource.h"
 #include "resource/resource_id.inl"
@@ -586,6 +587,7 @@ void Device::run()
 	_resource_manager->register_type(RESOURCE_TYPE_MATERIAL,         RESOURCE_VERSION_MATERIAL,         NULL,      NULL,        mtr::online, mtr::offline);
 	_resource_manager->register_type(RESOURCE_TYPE_MESH,             RESOURCE_VERSION_MESH,             mhr::load, mhr::unload, mhr::online, mhr::offline);
 	_resource_manager->register_type(RESOURCE_TYPE_MESH_SKELETON,    RESOURCE_VERSION_MESH_SKELETON,    NULL,      NULL,        NULL,        NULL);
+	_resource_manager->register_type(RESOURCE_TYPE_MESH_ANIMATION,   RESOURCE_VERSION_MESH_ANIMATION,   NULL,      NULL,        NULL,        NULL);
 	_resource_manager->register_type(RESOURCE_TYPE_PACKAGE,          RESOURCE_VERSION_PACKAGE,          NULL,      NULL,        NULL,        NULL);
 	_resource_manager->register_type(RESOURCE_TYPE_PHYSICS_CONFIG,   RESOURCE_VERSION_PHYSICS_CONFIG,   NULL,      NULL,        NULL,        NULL);
 	_resource_manager->register_type(RESOURCE_TYPE_SCRIPT,           RESOURCE_VERSION_SCRIPT,           NULL,      NULL,        NULL,        NULL);
