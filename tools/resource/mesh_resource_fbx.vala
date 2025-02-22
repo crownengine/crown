@@ -73,11 +73,14 @@ public class FBXImportOptions
 	public CheckBox create_textures_folder;
 	public CheckBox import_materials;
 	public CheckBox create_materials_folder;
-	public CheckBox import_skeleton;
-	public CheckBox import_animations;
+
+	public CheckBox import_animation;
+	public CheckBox new_skeleton;
+	public ResourceChooserButton target_skeleton;
+	public CheckBox import_clips;
 	public CheckBox create_animations_folder;
 
-	public FBXImportOptions()
+	public FBXImportOptions(ProjectStore project_store)
 	{
 		import_units = new CheckBox();
 		import_units.value = true;
@@ -96,10 +99,17 @@ public class FBXImportOptions
 		import_materials.value_changed.connect(on_import_materials_changed);
 		create_materials_folder = new CheckBox();
 		create_materials_folder.value = true;
-		import_skeleton = new CheckBox();
-		import_skeleton.value = false;
-		import_animations = new CheckBox();
-		import_animations.value = false;
+		import_animation = new CheckBox();
+		import_animation.value = true;
+		import_animation.value_changed.connect(on_import_skeleton_and_animations_changed);
+		new_skeleton = new CheckBox();
+		new_skeleton.value = true;
+		new_skeleton.value_changed.connect(on_new_skeleton_changed);
+		target_skeleton = new ResourceChooserButton(project_store, OBJECT_TYPE_MESH_SKELETON);
+		target_skeleton.sensitive = false;
+		import_clips = new CheckBox();
+		import_clips.value = true;
+		import_clips.value_changed.connect(on_import_animations_changed);
 		create_animations_folder = new CheckBox();
 		create_animations_folder.value = true;
 	}
@@ -124,6 +134,24 @@ public class FBXImportOptions
 		create_materials_folder.set_sensitive(import_materials.value);
 	}
 
+	public void on_import_animations_changed()
+	{
+		create_animations_folder.set_sensitive(import_clips.value);
+	}
+
+	public void on_import_skeleton_and_animations_changed()
+	{
+		new_skeleton.sensitive = import_animation.value;
+		target_skeleton.sensitive = import_animation.value;
+		import_clips.sensitive = import_animation.value;
+		create_animations_folder.sensitive = import_animation.value;
+	}
+
+	public void on_new_skeleton_changed()
+	{
+		target_skeleton.sensitive = !new_skeleton.value;
+	}
+
 	public void decode(Hashtable json)
 	{
 		json.foreach((g) => {
@@ -139,10 +167,12 @@ public class FBXImportOptions
 					import_materials.value = (bool)g.value;
 				else if (g.key == "create_materials_folder")
 					create_materials_folder.value = (bool)g.value;
-				else if (g.key == "import_skeleton")
-					import_skeleton.value = (bool)g.value;
-				else if (g.key == "import_animations")
-					import_animations.value = (bool)g.value;
+				else if (g.key == "new_skeleton")
+					new_skeleton.value = (bool)g.value;
+				else if (g.key == "target_skeleton")
+					target_skeleton.value = (string)g.value;
+				else if (g.key == "import_clips")
+					import_clips.value = (bool)g.value;
 				else if (g.key == "create_animations_folder")
 					create_animations_folder.value = (bool)g.value;
 				else
@@ -157,11 +187,17 @@ public class FBXImportOptions
 			|| import_materials.value
 			;
 		import_units.value_changed();
+
+		import_animation.value = new_skeleton.value
+			|| import_clips.value
+			;
+		import_animation.value_changed();
 	}
 
 	public Hashtable encode()
 	{
 		bool skip_units = !import_units.value;
+		bool skip_anims = !import_animation.value;
 
 		Hashtable obj = new Hashtable();
 
@@ -171,9 +207,10 @@ public class FBXImportOptions
 		obj.set("create_textures_folder", skip_units ? false : create_textures_folder.value);
 		obj.set("import_materials", skip_units ? false : import_materials.value);
 		obj.set("create_materials_folder", skip_units ? false : create_materials_folder.value);
-		obj.set("import_skeleton", import_skeleton.value);
-		obj.set("import_animations", import_animations.value);
-		obj.set("create_animations_folder", create_animations_folder.value);
+		obj.set("new_skeleton", skip_anims ? false : new_skeleton.value);
+		obj.set("target_skeleton", skip_anims ? "" : target_skeleton.value);
+		obj.set("import_clips", skip_anims ? false : import_clips.value);
+		obj.set("create_animations_folder", skip_anims ? false : create_animations_folder.value);
 
 		return obj;
 	}
@@ -208,7 +245,7 @@ public class FBXImportDialog : Gtk.Window
 		_general_set = new PropertyGridSet();
 		_general_set.border_width = 12;
 
-		_options = new FBXImportOptions();
+		_options = new FBXImportOptions(project_store);
 		GLib.File file_dst;
 		string resource_path;
 		get_destination_file(out file_dst, destination_dir, File.new_for_path(_filenames[0]));
@@ -232,14 +269,13 @@ public class FBXImportDialog : Gtk.Window
 		cv.add_row("Create Materials Folder", _options.create_materials_folder);
 		_general_set.add_property_grid_optional(cv, "Units", _options.import_units);
 
-#if 0
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("Import Skeleton", _options.import_skeleton);
-		cv.add_row("Import Animations", _options.import_animations);
+		cv.add_row("New Skeleton", _options.new_skeleton);
+		cv.add_row("Target Skeleton", _options.target_skeleton);
+		cv.add_row("Import Animations", _options.import_clips);
 		cv.add_row("Create Animations Folder", _options.create_animations_folder);
-		_general_set.add_property_grid(cv, "Skeleton and Animations");
-#endif
+		_general_set.add_property_grid_optional(cv, "Animation", _options.import_animation);
 
 		_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		_box.pack_start(_general_set, false, false);
@@ -258,6 +294,11 @@ public class FBXImportDialog : Gtk.Window
 		_header_bar.pack_start(_cancel);
 		_header_bar.pack_end(_import);
 
+		_options.import_units.value_changed.connect(on_import_options_changed);
+		_options.import_animation.value_changed.connect(on_import_options_changed);
+		_options.new_skeleton.value_changed.connect(on_import_options_changed);
+		_options.target_skeleton.value_changed.connect(on_import_options_changed);
+
 		this.set_titlebar(_header_bar);
 		this.add(_box);
 	}
@@ -274,6 +315,19 @@ public class FBXImportDialog : Gtk.Window
 		}
 		_import_result(res);
 		close();
+	}
+
+	void on_import_options_changed()
+	{
+		bool target_skeleton_is_valid = _options.new_skeleton.value
+			|| _options.target_skeleton.value != ""
+			;
+
+		bool enable_import_button = (_options.import_units.value
+			|| _options.import_animation.value)
+			&& target_skeleton_is_valid
+			;
+		_import.set_sensitive(enable_import_button);
 	}
 }
 
@@ -391,8 +445,7 @@ public class FBXImporter
 				unit.set_component_property_double(component_id, "data.near_range", (double)node.camera.near_plane);
 			}
 		} else if (node.bone != null) {
-			if (!options.import_skeleton.value)
-				return;
+			return;
 		} else {
 			Unit unit = Unit(db, unit_id);
 			db.create(unit_id, OBJECT_TYPE_UNIT);
@@ -425,6 +478,52 @@ public class FBXImporter
 		}
 	}
 
+	public static unowned ufbx.Node? find_first_non_bone_parent(ufbx.Node? bone_node)
+	{
+		assert(bone_node != null);
+
+		while (bone_node.bone != null)
+			bone_node = bone_node.parent;
+
+		return bone_node;
+	}
+
+	public static unowned ufbx.Node? find_skeleton_root(ufbx.Node? node)
+	{
+		if (node.bone != null)
+			return node;
+
+		for (size_t i = 0; i < node.children.data.length; ++i) {
+			unowned ufbx.Node? n = find_skeleton_root(node.children.data[i]);
+			if (n != null)
+				return find_first_non_bone_parent(n);
+		}
+
+		return null;
+	}
+
+	public static void import_skeleton(FBXImportOptions options
+		, Database db
+		, Guid parent_bone_id
+		, Guid bone_id
+		, ufbx.Node node
+		)
+	{
+		db.create(bone_id, OBJECT_TYPE_MESH_BONE);
+		db.set_property_string(bone_id, "name", (string)node.name.data);
+		if (parent_bone_id != GUID_ZERO)
+			db.add_to_set(parent_bone_id, "children", bone_id);
+
+		for (size_t i = 0; i < node.children.data.length; ++i) {
+			import_skeleton(options
+				, db
+				, bone_id
+				, Guid.new_guid()
+				, node.children.data[i]
+				);
+		}
+	}
+
 	public static ImportResult do_import(FBXImportOptions options, Project project, string destination_dir, Gee.ArrayList<string> filenames)
 	{
 		foreach (string filename_i in filenames) {
@@ -436,6 +535,7 @@ public class FBXImporter
 			if (get_resource_path(out resource_path, file_dst, project) != 0)
 				return ImportResult.ERROR;
 			string resource_name = ResourceId.name(resource_path);
+			string resource_basename = GLib.File.new_for_path(resource_name).get_basename();
 
 			// Copy FBX file.
 			try {
@@ -631,6 +731,76 @@ public class FBXImporter
 					db.set_property_string(material_id, "shader", shader);
 					db.save(project.absolute_path(material_resource_name) + ".material", material_id);
 					imported_materials.set(material, material_resource_name);
+				}
+			}
+
+			string target_skeleton = options.target_skeleton.value;
+
+			// Import skeleton.
+			if (options.import_animation.value && options.new_skeleton.value) {
+				// Create .animation_skeleton resource.
+				unowned ufbx.Node? skeleton_root_node = find_skeleton_root(scene.root_node);
+				if (skeleton_root_node != null) {
+					Guid skeleton_hierarchy_id = Guid.new_guid();
+					import_skeleton(options
+						, db
+						, GUID_ZERO
+						, skeleton_hierarchy_id
+						, skeleton_root_node
+						);
+
+					Guid animation_skeleton_id = Guid.new_guid();
+					db.create(animation_skeleton_id, OBJECT_TYPE_MESH_SKELETON);
+					db.set_property_string(animation_skeleton_id, "source", resource_path);
+					db.add_to_set(animation_skeleton_id, "skeleton", skeleton_hierarchy_id);
+					db.save(project.absolute_path(resource_name) + "." + OBJECT_TYPE_MESH_SKELETON, animation_skeleton_id);
+					target_skeleton = resource_name;
+				}
+			}
+
+			// Import animations.
+			if (target_skeleton == "") {
+				logw("Animation must have a target skeleton.");
+			} else {
+				if (options.import_animation.value && options.import_clips.value) {
+					// Create 'animations' folder.
+					string directory_name = "animations";
+					string animations_path = destination_dir;
+					if (options.create_animations_folder.value && scene.anim_stacks.data.length != 0) {
+						GLib.File animations_file = File.new_for_path(Path.build_filename(destination_dir, directory_name));
+						try {
+							animations_file.make_directory();
+						} catch (GLib.IOError.EXISTS e) {
+							// Ignore.
+						} catch (GLib.Error e) {
+							loge(e.message);
+							return ImportResult.ERROR;
+						}
+
+						animations_path = animations_file.get_path();
+					}
+
+					// Extract clips.
+					if (scene.anim_stacks.data.length > 0) {
+						unowned ufbx.AnimStack anim_stack = scene.anim_stacks.data[0];
+						unowned ufbx.Anim anim = anim_stack.anim;
+
+						string anim_filename = Path.build_filename(animations_path, resource_basename + "." + OBJECT_TYPE_MESH_ANIMATION);
+						GLib.File anim_file  = GLib.File.new_for_path(anim_filename);
+						string anim_path     = anim_file.get_path();
+
+						string anim_resource_filename = project.resource_filename(anim_path);
+						string anim_resource_path     = ResourceId.normalize(anim_resource_filename);
+						string anim_resource_name     = ResourceId.name(anim_resource_path);
+
+						// Create .mesh_animation resource.
+						Guid anim_id = Guid.new_guid();
+						db.create(anim_id, "mesh_animation");
+						db.set_property_string(anim_id, "source", resource_path);
+						db.set_property_string(anim_id, "target_skeleton", target_skeleton);
+						db.set_property_string(anim_id, "stack_name", (string)anim_stack.name.data);
+						db.save(project.absolute_path(anim_resource_name) + "." + OBJECT_TYPE_MESH_ANIMATION, anim_id);
+					}
 				}
 			}
 
