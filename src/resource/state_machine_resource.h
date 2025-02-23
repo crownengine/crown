@@ -21,6 +21,8 @@ struct StateMachineResource
 	u32 variables_offset;
 	u32 bytecode_size;
 	u32 bytecode_offset;
+	StringId64 animation_type;
+	StringId64 skeleton_name;
 	// State[...]
 	// StringId32[num_variables]
 	// f32[num_variables]
