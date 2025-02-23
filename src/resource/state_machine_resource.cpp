@@ -227,6 +227,8 @@ namespace state_machine_internal
 		HashMap<Guid, u32> _offsets;
 		Vector<VariableInfo> _variables;
 		Array<u32> _byte_code;
+		DynamicString _animation_type;
+		StringId64 _skeleton_name;
 
 		explicit StateMachineCompiler(CompileOptions &opts)
 			: _opts(opts)
@@ -234,6 +236,7 @@ namespace state_machine_internal
 			, _offsets(default_allocator())
 			, _variables(default_allocator())
 			, _byte_code(default_allocator())
+			, _animation_type(default_allocator())
 		{
 		}
 
@@ -246,11 +249,11 @@ namespace state_machine_internal
 
 				DynamicString animation_resource(ta);
 				RETURN_IF_ERROR(sjson::parse_string(animation_resource, animation["name"]), _opts);
-				RETURN_IF_RESOURCE_MISSING("sprite_animation"
+				RETURN_IF_RESOURCE_MISSING(_animation_type.c_str()
 					, animation_resource.c_str()
 					, _opts
 					);
-				_opts.add_requirement("sprite_animation", animation_resource.c_str());
+				_opts.add_requirement(_animation_type.c_str(), animation_resource.c_str());
 
 				AnimationInfo ai(ta);
 				ai.name = RETURN_IF_ERROR(sjson::parse_resource_name(animation["name"]), _opts);
@@ -427,6 +430,19 @@ namespace state_machine_internal
 			RETURN_IF_ERROR(sjson::parse_array(states, obj["states"]), _opts);
 			RETURN_IF_ERROR(sjson::parse_array(variables, obj["variables"]), _opts);
 
+			// Parse animation type.
+			if (json_object::has(obj, "animation_type")) {
+				RETURN_IF_ERROR(sjson::parse_string(_animation_type, obj["animation_type"]), _opts);
+			} else {
+				_animation_type = "sprite_animation"; // For backwards compatibility.
+			}
+			RETURN_IF_FALSE(StringId64(_animation_type.c_str()) == RESOURCE_TYPE_SPRITE_ANIMATION
+				|| StringId64(_animation_type.c_str()) == RESOURCE_TYPE_MESH_ANIMATION
+				, _opts
+				, "Unknown animation type '%s'"
+				, _animation_type.c_str()
+				);
+
 			s32 err = 0;
 			err = parse_states(states);
 			ENSURE_OR_RETURN(err == 0, _opts);
@@ -440,6 +456,15 @@ namespace state_machine_internal
 				, _opts
 				, "Initial state references non-existing state"
 				);
+
+			// Parse skeleton, if any.
+			if (json_object::has(obj, "skeleton_name")) {
+				DynamicString skeleton_name(ta);
+				RETURN_IF_ERROR(sjson::parse_string(skeleton_name, obj["skeleton_name"]), _opts);
+				RETURN_IF_RESOURCE_MISSING("mesh_skeleton", skeleton_name.c_str(), _opts);
+				_opts.add_requirement("mesh_skeleton", skeleton_name.c_str());
+				_skeleton_name = StringId64(skeleton_name.c_str());
+			}
 
 			err = parse_variables(variables);
 			ENSURE_OR_RETURN(err == 0, _opts);
@@ -459,12 +484,16 @@ namespace state_machine_internal
 			smr.variables_offset = _offset_accumulator._offset; // Offset of last state + 1
 			smr.bytecode_size = array::size(_byte_code)*4;
 			smr.bytecode_offset = smr.variables_offset + smr.num_variables*4*2;
+			smr.animation_type = StringId64(_animation_type.c_str());
+			smr.skeleton_name = _skeleton_name;
 			_opts.write(smr.version);
 			_opts.write(smr.initial_state_offset);
 			_opts.write(smr.num_variables);
 			_opts.write(smr.variables_offset);
 			_opts.write(smr.bytecode_size);
 			_opts.write(smr.bytecode_offset);
+			_opts.write(smr.animation_type);
+			_opts.write(smr.skeleton_name);
 
 			// Write states
 			auto cur = hash_map::begin(_states);
