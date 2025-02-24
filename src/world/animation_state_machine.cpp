@@ -34,7 +34,7 @@ AnimationStateMachine::AnimationStateMachine(Allocator &a, ResourceManager &rm, 
 	, _resource_manager(&rm)
 	, _unit_manager(&um)
 	, _map(a)
-	, _animations(a)
+	, _machines(a)
 	, _events(a)
 {
 	_unit_destroy_callback.destroy = unit_destroyed_callback_bridge;
@@ -56,22 +56,22 @@ StateMachineInstance AnimationStateMachine::create(UnitId unit, const AnimationS
 
 	const StateMachineResource *smr = (StateMachineResource *)_resource_manager->get(RESOURCE_TYPE_STATE_MACHINE, desc.state_machine_resource);
 
-	Animation anim;
-	anim.unit          = unit;
-	anim.time          = 0.0f;
-	anim.time_total    = 0.0f;
-	anim.num_frames    = 0;
-	anim.frames        = NULL;
-	anim.resource      = NULL;
-	anim.state         = state_machine::initial_state(smr);
-	anim.state_next    = NULL;
-	anim.state_machine = smr;
-	anim.variables     = (f32 *)default_allocator().allocate(sizeof(*anim.variables)*smr->num_variables);
+	Machine m;
+	m.unit          = unit;
+	m.time          = 0.0f;
+	m.time_total    = 0.0f;
+	m.num_frames    = 0;
+	m.frames        = NULL;
+	m.resource      = NULL;
+	m.state         = state_machine::initial_state(smr);
+	m.state_next    = NULL;
+	m.state_machine = smr;
+	m.variables     = (f32 *)default_allocator().allocate(sizeof(*m.variables)*smr->num_variables);
 
-	memcpy(anim.variables, state_machine::variables(smr), sizeof(*anim.variables)*smr->num_variables);
+	memcpy(m.variables, state_machine::variables(smr), sizeof(*m.variables)*smr->num_variables);
 
-	u32 last = array::size(_animations);
-	array::push_back(_animations, anim);
+	u32 last = array::size(_machines);
+	array::push_back(_machines, m);
 	hash_map::set(_map, unit, last);
 
 	return make_instance(last);
@@ -79,14 +79,14 @@ StateMachineInstance AnimationStateMachine::create(UnitId unit, const AnimationS
 
 void AnimationStateMachine::destroy(StateMachineInstance state_machine)
 {
-	const u32 last_i = array::size(_animations) - 1;
-	const UnitId u = _animations[state_machine.i].unit;
-	const UnitId last_u = _animations[last_i].unit;
+	const u32 last_i = array::size(_machines) - 1;
+	const UnitId u = _machines[state_machine.i].unit;
+	const UnitId last_u = _machines[last_i].unit;
 
-	default_allocator().deallocate(_animations[state_machine.i].variables);
-	_animations[state_machine.i] = _animations[last_i];
+	default_allocator().deallocate(_machines[state_machine.i].variables);
+	_machines[state_machine.i] = _machines[last_i];
 
-	array::pop_back(_animations);
+	array::pop_back(_machines);
 	hash_map::set(_map, last_u, state_machine.i);
 	hash_map::remove(_map, u);
 }
@@ -103,27 +103,27 @@ bool AnimationStateMachine::has(UnitId unit)
 
 u32 AnimationStateMachine::variable_id(StateMachineInstance state_machine, StringId32 name)
 {
-	const u32 index = state_machine::variable_index(_animations[state_machine.i].state_machine, name);
+	const u32 index = state_machine::variable_index(_machines[state_machine.i].state_machine, name);
 	return index;
 }
 
 f32 AnimationStateMachine::variable(StateMachineInstance state_machine, u32 variable_id)
 {
 	CE_ENSURE(variable_id != UINT32_MAX);
-	return _animations[state_machine.i].variables[variable_id];
+	return _machines[state_machine.i].variables[variable_id];
 }
 
 void AnimationStateMachine::set_variable(StateMachineInstance state_machine, u32 variable_id, f32 value)
 {
 	CE_ENSURE(variable_id != UINT32_MAX);
-	_animations[state_machine.i].variables[variable_id] = value;
+	_machines[state_machine.i].variables[variable_id] = value;
 }
 
 void AnimationStateMachine::trigger(StateMachineInstance state_machine, StringId32 event)
 {
 	const Transition *transition;
-	const State *s = state_machine::trigger(_animations[state_machine.i].state_machine
-		, _animations[state_machine.i].state
+	const State *s = state_machine::trigger(_machines[state_machine.i].state_machine
+		, _machines[state_machine.i].state
 		, event
 		, &transition
 		);
@@ -132,9 +132,9 @@ void AnimationStateMachine::trigger(StateMachineInstance state_machine, StringId
 		return;
 
 	if (transition->mode == TransitionMode::IMMEDIATE)
-		_animations[state_machine.i].state = s;
+		_machines[state_machine.i].state = s;
 	else if (transition->mode == TransitionMode::WAIT_UNTIL_END)
-		_animations[state_machine.i].state_next = s;
+		_machines[state_machine.i].state_next = s;
 	else
 		CE_FATAL("Unknown transition mode");
 }
@@ -144,11 +144,11 @@ void AnimationStateMachine::update(float dt)
 	f32 stack_data[32];
 	expression_language::Stack stack(stack_data, countof(stack_data));
 
-	for (u32 ii = 0; ii < array::size(_animations); ++ii) {
-		Animation &anim_i = _animations[ii];
+	for (u32 ii = 0; ii < array::size(_machines); ++ii) {
+		Machine &mi = _machines[ii];
 
-		const f32 *variables = anim_i.variables;
-		const u32 *byte_code = state_machine::byte_code(anim_i.state_machine);
+		const f32 *variables = mi.variables;
+		const u32 *byte_code = state_machine::byte_code(mi.state_machine);
 
 		// Evaluate animation weights
 		f32 max_v = 0.0f;
@@ -156,7 +156,7 @@ void AnimationStateMachine::update(float dt)
 		StringId64 name;
 		name._id = 0;
 
-		const AnimationArray *aa = state_machine::state_animations(anim_i.state);
+		const AnimationArray *aa = state_machine::state_animations(mi.state);
 		for (u32 jj = 0; jj < aa->num; ++jj) {
 			const crown::Animation *animation = state_machine::animation(aa, jj);
 
@@ -175,54 +175,54 @@ void AnimationStateMachine::update(float dt)
 
 		// Evaluate animation speed
 		stack.size = 0;
-		expression_language::run(&byte_code[anim_i.state->speed_bytecode], variables, stack);
+		expression_language::run(&byte_code[mi.state->speed_bytecode], variables, stack);
 		const f32 speed = stack.size > 0 ? stack_data[stack.size - 1] : 1.0f;
 
 		// Advance animation
 		const SpriteAnimationResource *sar = (SpriteAnimationResource *)_resource_manager->get(RESOURCE_TYPE_SPRITE_ANIMATION, name);
-		if (anim_i.resource != sar) {
-			anim_i.time       = 0.0f;
-			anim_i.time_total = sar->total_time;
-			anim_i.num_frames = sar->num_frames;
-			anim_i.frames     = sprite_animation_resource::frames(sar);
-			anim_i.resource   = sar;
+		if (mi.resource != sar) {
+			mi.time       = 0.0f;
+			mi.time_total = sar->total_time;
+			mi.num_frames = sar->num_frames;
+			mi.frames     = sprite_animation_resource::frames(sar);
+			mi.resource   = sar;
 		}
 
-		if (!anim_i.resource)
+		if (!mi.resource)
 			continue;
 
-		const f32 frame_ratio     = anim_i.time / anim_i.time_total;
-		const u32 frame_unclamped = u32(frame_ratio * f32(anim_i.num_frames));
-		const u32 frame_index     = min(frame_unclamped, anim_i.num_frames - 1);
+		const f32 frame_ratio     = mi.time / mi.time_total;
+		const u32 frame_unclamped = u32(frame_ratio * f32(mi.num_frames));
+		const u32 frame_index     = min(frame_unclamped, mi.num_frames - 1);
 
-		anim_i.time += dt*speed;
+		mi.time += dt*speed;
 
 		// If animation finished playing
-		if (anim_i.time > anim_i.time_total) {
-			if (anim_i.state_next) {
-				anim_i.state = anim_i.state_next;
-				anim_i.state_next = NULL;
-				anim_i.time = 0.0f;
+		if (mi.time > mi.time_total) {
+			if (mi.state_next) {
+				mi.state = mi.state_next;
+				mi.state_next = NULL;
+				mi.time = 0.0f;
 			} else {
-				if (!!anim_i.state->loop) {
-					anim_i.time = anim_i.time - anim_i.time_total;
+				if (!!mi.state->loop) {
+					mi.time = mi.time - mi.time_total;
 				} else {
 					const Transition *dummy;
-					const State *s = state_machine::trigger(anim_i.state_machine
-						, anim_i.state
+					const State *s = state_machine::trigger(mi.state_machine
+						, mi.state
 						, STRING_ID_32("animation_end", UINT32_C(0x119d34e1))
 						, &dummy
 						);
-					anim_i.time = anim_i.state != s ? 0.0f : anim_i.time_total;
-					anim_i.state = s;
+					mi.time = mi.state != s ? 0.0f : mi.time_total;
+					mi.state = s;
 				}
 			}
 		}
 
 		// Emit events
 		SpriteFrameChangeEvent ev;
-		ev.unit      = anim_i.unit;
-		ev.frame_num = anim_i.frames[frame_index];
+		ev.unit      = mi.unit;
+		ev.frame_num = mi.frames[frame_index];
 		event_stream::write(_events, 0, ev);
 	}
 }

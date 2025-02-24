@@ -21,7 +21,7 @@ struct SpriteFrameChangeEvent
 
 struct AnimationStateMachine
 {
-	struct Animation
+	struct Machine
 	{
 		UnitId unit;
 		f32 time_total;
@@ -39,7 +39,7 @@ struct AnimationStateMachine
 	ResourceManager *_resource_manager;
 	UnitManager *_unit_manager;
 	HashMap<UnitId, u32> _map;
-	Array<Animation> _animations;
+	Array<Machine> _machines;
 	EventStream _events;
 	UnitDestroyCallback _unit_destroy_callback;
 
