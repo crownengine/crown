@@ -9,16 +9,11 @@
 #include "resource/state_machine_resource.h"
 #include "resource/types.h"
 #include "world/event_stream.h"
+#include "world/sprite_animation_player.h"
 #include "world/types.h"
 
 namespace crown
 {
-struct SpriteFrameChangeEvent
-{
-	UnitId unit;
-	u32 frame_num;
-};
-
 struct AnimationStateMachine
 {
 	struct Machine
@@ -26,9 +21,9 @@ struct AnimationStateMachine
 		UnitId unit;
 		f32 time_total;
 		f32 time;
-		u32 num_frames;
-		const u32 *frames;
-		const SpriteAnimationResource *resource;
+		StringId64 anim_type;
+		const void *anim_resource;
+		AnimationId anim_id;
 		const State *state;
 		const State *state_next;
 		const StateMachineResource *state_machine;
@@ -42,9 +37,14 @@ struct AnimationStateMachine
 	Array<Machine> _machines;
 	EventStream _events;
 	UnitDestroyCallback _unit_destroy_callback;
+	SpriteAnimationPlayer *_sprite_animation_player;
 
 	///
-	AnimationStateMachine(Allocator &a, ResourceManager &rm, UnitManager &um);
+	AnimationStateMachine(Allocator &a
+		, ResourceManager &rm
+		, UnitManager &um
+		, SpriteAnimationPlayer &sprite_player
+		);
 
 	///
 	~AnimationStateMachine();

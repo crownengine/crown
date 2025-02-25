@@ -68,7 +68,8 @@ World::World(Allocator &a
 	_physics_world = CE_NEW(*_allocator, PhysicsWorld)(*_allocator, rm, um, *_lines);
 	_sound_world   = CE_NEW(*_allocator, SoundWorld)(*_allocator);
 	_script_world  = CE_NEW(*_allocator, ScriptWorld)(*_allocator, um, rm, env, *this);
-	_animation_state_machine = CE_NEW(*_allocator, AnimationStateMachine)(*_allocator, rm, um);
+	_sprite_animation_player = CE_NEW(*_allocator, SpriteAnimationPlayer)(*_allocator);
+	_animation_state_machine = CE_NEW(*_allocator, AnimationStateMachine)(*_allocator, rm, um, *_sprite_animation_player);
 
 	_gui_buffer.create();
 
@@ -96,6 +97,7 @@ World::~World()
 
 	// Destroy subsystems
 	CE_DELETE(*_allocator, _animation_state_machine);
+	CE_DELETE(*_allocator, _sprite_animation_player);
 	CE_DELETE(*_allocator, _script_world);
 	CE_DELETE(*_allocator, _sound_world);
 	CE_DELETE(*_allocator, _physics_world);

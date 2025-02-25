@@ -477,4 +477,6 @@ struct PhysicsTransformEvent
 	Matrix4x4 world;
 };
 
+typedef u32 AnimationId;
+
 } // namespace crown
