@@ -13,6 +13,7 @@
 #include "resource/types.h"
 #include "world/event_stream.h"
 #include "world/gui.h"
+#include "world/sprite_animation_player.h"
 #include "world/types.h"
 
 namespace crown
@@ -50,6 +51,7 @@ struct World
 	PhysicsWorld *_physics_world;
 	SoundWorld *_sound_world;
 	ScriptWorld *_script_world;
+	SpriteAnimationPlayer *_sprite_animation_player;
 	AnimationStateMachine *_animation_state_machine;
 
 	Array<UnitId> _units;

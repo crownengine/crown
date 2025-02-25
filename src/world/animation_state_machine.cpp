@@ -29,13 +29,18 @@ static StateMachineInstance make_instance(u32 i)
 	StateMachineInstance inst = { i }; return inst;
 }
 
-AnimationStateMachine::AnimationStateMachine(Allocator &a, ResourceManager &rm, UnitManager &um)
+AnimationStateMachine::AnimationStateMachine(Allocator &a
+	, ResourceManager &rm
+	, UnitManager &um
+	, SpriteAnimationPlayer &sprite_player
+	)
 	: _marker(ANIMATION_STATE_MACHINE_MARKER)
 	, _resource_manager(&rm)
 	, _unit_manager(&um)
 	, _map(a)
 	, _machines(a)
 	, _events(a)
+	, _sprite_animation_player(&sprite_player)
 {
 	_unit_destroy_callback.destroy = unit_destroyed_callback_bridge;
 	_unit_destroy_callback.user_data = this;
@@ -60,9 +65,9 @@ StateMachineInstance AnimationStateMachine::create(UnitId unit, const AnimationS
 	m.unit          = unit;
 	m.time          = 0.0f;
 	m.time_total    = 0.0f;
-	m.num_frames    = 0;
-	m.frames        = NULL;
-	m.resource      = NULL;
+	m.anim_type     = smr->animation_type;
+	m.anim_resource = NULL;
+	m.anim_id       = UINT32_MAX;
 	m.state         = state_machine::initial_state(smr);
 	m.state_next    = NULL;
 	m.state_machine = smr;
@@ -178,22 +183,29 @@ void AnimationStateMachine::update(float dt)
 		expression_language::run(&byte_code[mi.state->speed_bytecode], variables, stack);
 		const f32 speed = stack.size > 0 ? stack_data[stack.size - 1] : 1.0f;
 
-		// Advance animation
-		const SpriteAnimationResource *sar = (SpriteAnimationResource *)_resource_manager->get(RESOURCE_TYPE_SPRITE_ANIMATION, name);
-		if (mi.resource != sar) {
-			mi.time       = 0.0f;
-			mi.time_total = sar->total_time;
-			mi.num_frames = sar->num_frames;
-			mi.frames     = sprite_animation_resource::frames(sar);
-			mi.resource   = sar;
-		}
-
-		if (!mi.resource)
+		// Advance animation.
+		const void *anim_resource = _resource_manager->get(mi.anim_type, name);
+		if (!anim_resource)
 			continue;
 
-		const f32 frame_ratio     = mi.time / mi.time_total;
-		const u32 frame_unclamped = u32(frame_ratio * f32(mi.num_frames));
-		const u32 frame_index     = min(frame_unclamped, mi.num_frames - 1);
+		if (mi.anim_resource != anim_resource) {
+			mi.anim_resource = anim_resource;
+			if (mi.anim_type == RESOURCE_TYPE_SPRITE_ANIMATION) {
+				sprite_animation_player::destroy(*_sprite_animation_player, mi.anim_id);
+				mi.anim_id = sprite_animation_player::create(*_sprite_animation_player, (const SpriteAnimationResource *)anim_resource);
+				mi.time = 0.0f;
+				mi.time_total = ((const SpriteAnimationResource *)anim_resource)->total_time;
+			}
+		}
+
+		if (mi.anim_type == RESOURCE_TYPE_SPRITE_ANIMATION) {
+			sprite_animation_player::evaluate(*_sprite_animation_player
+				, mi.anim_id
+				, mi.time
+				, mi.unit
+				, _events
+				);
+		}
 
 		mi.time += dt*speed;
 
@@ -218,12 +230,6 @@ void AnimationStateMachine::update(float dt)
 				}
 			}
 		}
-
-		// Emit events
-		SpriteFrameChangeEvent ev;
-		ev.unit      = mi.unit;
-		ev.frame_num = mi.frames[frame_index];
-		event_stream::write(_events, 0, ev);
 	}
 }
 
