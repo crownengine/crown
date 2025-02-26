@@ -53,11 +53,11 @@ namespace error
 		return "<addr2line missing>";
 	}
 
-	static void demangler_main()
+	static int demangler_main()
 	{
 		FILE *fp = fdopen(symbol_fds[0], "r");
 		if (fp == NULL)
-			return;
+			return EXIT_FAILURE;
 
 		while (true) {
 			fd_set fdset;
@@ -121,6 +121,7 @@ namespace error
 		}
 
 		fclose(fp);
+		return EXIT_SUCCESS;
 	}
 
 	void callstack_shutdown()
@@ -156,10 +157,15 @@ namespace error
 			close(exit_fds[1]);
 			return -1;
 		} else if (demangler == 0) {
+			// Block all signals.
+			sigset_t set;
+			sigfillset(&set);
+			sigprocmask(SIG_BLOCK, &set, NULL);
+
 			close(symbol_fds[1]);
 			close(demangled_fds[0]);
 			close(exit_fds[1]);
-			demangler_main();
+			exit(demangler_main());
 		} else {
 			ret = 0;
 		}
