@@ -54,6 +54,7 @@ function UnitBox:init(world, id, unit_id, prefab)
 	self._prefab = prefab
 	self._sg = World.scene_graph(world)
 	self._selected = false
+	self._obb = { pose = Matrix4x4Box(), half_extents = Vector3Box(), dirty = true }
 
 	UnitUtils.freeze(world, unit_id)
 end
@@ -115,22 +116,34 @@ end
 
 function UnitBox:set_local_position(pos)
 	local tr = SceneGraph.instance(self._sg, self._unit_id)
-	if tr then SceneGraph.set_local_position(self._sg, tr, pos) end
+	if tr then
+		SceneGraph.set_local_position(self._sg, tr, pos)
+		self._obb.dirty = true
+	end
 end
 
 function UnitBox:set_local_rotation(rot)
 	local tr = SceneGraph.instance(self._sg, self._unit_id)
-	if tr then SceneGraph.set_local_rotation(self._sg, tr, rot) end
+	if tr then
+		SceneGraph.set_local_rotation(self._sg, tr, rot)
+		self._obb.dirty = true
+	end
 end
 
 function UnitBox:set_local_scale(scale)
 	local tr = SceneGraph.instance(self._sg, self._unit_id)
-	if tr then SceneGraph.set_local_scale(self._sg, tr, scale) end
+	if tr then
+		SceneGraph.set_local_scale(self._sg, tr, scale)
+		self._obb.dirty = true
+	end
 end
 
 function UnitBox:set_local_pose(pose)
 	local tr = SceneGraph.instance(self._sg, self._unit_id)
-	if tr then SceneGraph.set_local_pose(self._sg, tr, pose) end
+	if tr then
+		SceneGraph.set_local_pose(self._sg, tr, pose)
+		self._obb.dirty = true
+	end
 end
 
 function UnitBox:on_selected(selected)
@@ -219,8 +232,15 @@ end
 
 -- Returns the Oriented Bounding-Box of the unit.
 function UnitBox:obb()
-	local obb_tm, obb_he = self:mesh_tree_obb()
-	return Math.obb_merge(obb_tm, obb_he, self:sprite_tree_obb())
+	if self._obb.dirty then
+		local obb_tm, obb_he = self:mesh_tree_obb()
+		obb_tm, obb_he = Math.obb_merge(obb_tm, obb_he, self:sprite_tree_obb())
+		self._obb.pose:store(obb_tm)
+		self._obb.half_extents:store(obb_he)
+		self._obb.dirty = false
+	end
+
+	return self._obb.pose:unbox(), self._obb.half_extents:unbox()
 end
 
 function UnitBox:raycast_mesh_tree(pos, dir)
@@ -332,6 +352,7 @@ function UnitBox:set_mesh(mesh_resource, geometry, material, visible)
 	RenderWorld.mesh_set_geometry(self._rw, mesh, mesh_resource, geometry)
 	RenderWorld.mesh_set_material(self._rw, mesh, material)
 	RenderWorld.mesh_set_visible(self._rw, mesh, visible)
+	self._obb.dirty = true
 end
 
 function UnitBox:set_sprite(sprite_resource_name, material, layer, depth, visible)
@@ -341,6 +362,7 @@ function UnitBox:set_sprite(sprite_resource_name, material, layer, depth, visibl
 	RenderWorld.sprite_set_layer(self._rw, sprite, layer)
 	RenderWorld.sprite_set_depth(self._rw, sprite, depth)
 	RenderWorld.sprite_set_visible(self._rw, sprite, visible)
+	self._obb.dirty = true
 end
 
 function UnitBox:set_camera(projection, fov, near_range, far_range)
