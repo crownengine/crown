@@ -1534,39 +1534,22 @@ int main_data_compiler(const DeviceOptions &opts)
 	if (opts._server)
 		console_server()->listen(CROWN_DEFAULT_COMPILER_PORT, opts._wait_console);
 
-	namespace cor = config_resource_internal;
-	namespace ftr = font_resource_internal;
-	namespace lur = lua_resource_internal;
-	namespace lvr = level_resource_internal;
-	namespace mhr = mesh_resource_internal;
-	namespace mtr = material_resource_internal;
-	namespace pcr = physics_config_resource_internal;
-	namespace phr = physics_resource_internal;
-	namespace pkr = package_resource_internal;
-	namespace sar = sprite_animation_resource_internal;
-	namespace sdr = sound_resource_internal;
-	namespace shr = shader_resource_internal;
-	namespace smr = state_machine_internal;
-	namespace spr = sprite_resource_internal;
-	namespace txr = texture_resource_internal;
-	namespace utr = unit_resource_internal;
-
 	DataCompiler *dc = CE_NEW(default_allocator(), DataCompiler)(opts, *console_server());
-	dc->register_compiler("config",           RESOURCE_VERSION_CONFIG,           cor::compile);
-	dc->register_compiler("font",             RESOURCE_VERSION_FONT,             ftr::compile);
-	dc->register_compiler("level",            RESOURCE_VERSION_LEVEL,            lvr::compile);
-	dc->register_compiler("material",         RESOURCE_VERSION_MATERIAL,         mtr::compile);
-	dc->register_compiler("mesh",             RESOURCE_VERSION_MESH,             mhr::compile);
-	dc->register_compiler("package",          RESOURCE_VERSION_PACKAGE,          pkr::compile);
-	dc->register_compiler("physics_config",   RESOURCE_VERSION_PHYSICS_CONFIG,   pcr::compile);
-	dc->register_compiler("lua",              RESOURCE_VERSION_SCRIPT,           lur::compile);
-	dc->register_compiler("shader",           RESOURCE_VERSION_SHADER,           shr::compile);
-	dc->register_compiler("sound",            RESOURCE_VERSION_SOUND,            sdr::compile);
-	dc->register_compiler("sprite",           RESOURCE_VERSION_SPRITE,           spr::compile);
-	dc->register_compiler("sprite_animation", RESOURCE_VERSION_SPRITE_ANIMATION, sar::compile);
-	dc->register_compiler("state_machine",    RESOURCE_VERSION_STATE_MACHINE,    smr::compile);
-	dc->register_compiler("texture",          RESOURCE_VERSION_TEXTURE,          txr::compile);
-	dc->register_compiler("unit",             RESOURCE_VERSION_UNIT,             utr::compile);
+	dc->register_compiler("config",           RESOURCE_VERSION_CONFIG,           config_resource_internal::compile);
+	dc->register_compiler("font",             RESOURCE_VERSION_FONT,             font_resource_internal::compile);
+	dc->register_compiler("level",            RESOURCE_VERSION_LEVEL,            level_resource_internal::compile);
+	dc->register_compiler("material",         RESOURCE_VERSION_MATERIAL,         material_resource_internal::compile);
+	dc->register_compiler("mesh",             RESOURCE_VERSION_MESH,             mesh_resource_internal::compile);
+	dc->register_compiler("package",          RESOURCE_VERSION_PACKAGE,          package_resource_internal::compile);
+	dc->register_compiler("physics_config",   RESOURCE_VERSION_PHYSICS_CONFIG,   physics_config_resource_internal::compile);
+	dc->register_compiler("lua",              RESOURCE_VERSION_SCRIPT,           lua_resource_internal::compile);
+	dc->register_compiler("shader",           RESOURCE_VERSION_SHADER,           shader_resource_internal::compile);
+	dc->register_compiler("sound",            RESOURCE_VERSION_SOUND,            sound_resource_internal::compile);
+	dc->register_compiler("sprite",           RESOURCE_VERSION_SPRITE,           sprite_resource_internal::compile);
+	dc->register_compiler("sprite_animation", RESOURCE_VERSION_SPRITE_ANIMATION, sprite_animation_resource_internal::compile);
+	dc->register_compiler("state_machine",    RESOURCE_VERSION_STATE_MACHINE,    state_machine_internal::compile);
+	dc->register_compiler("texture",          RESOURCE_VERSION_TEXTURE,          texture_resource_internal::compile);
+	dc->register_compiler("unit",             RESOURCE_VERSION_UNIT,             unit_resource_internal::compile);
 
 	dc->map_source_dir("", opts._source_dir.c_str());
 
