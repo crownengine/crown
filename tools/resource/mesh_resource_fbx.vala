@@ -728,6 +728,9 @@ public class FBXImporter
 						}
 					}
 
+					if (options.import_animation.value)
+						shader += "+SKINNING";
+
 					db.set_property_string(material_id, "shader", shader);
 					db.save(project.absolute_path(material_resource_name) + ".material", material_id);
 					imported_materials.set(material, material_resource_name);
