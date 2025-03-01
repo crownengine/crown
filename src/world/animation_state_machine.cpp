@@ -33,6 +33,7 @@ AnimationStateMachine::AnimationStateMachine(Allocator &a
 	, ResourceManager &rm
 	, UnitManager &um
 	, SpriteAnimationPlayer &sprite_player
+	, MeshAnimationPlayer &mesh_player
 	)
 	: _marker(ANIMATION_STATE_MACHINE_MARKER)
 	, _resource_manager(&rm)
@@ -41,6 +42,7 @@ AnimationStateMachine::AnimationStateMachine(Allocator &a
 	, _machines(a)
 	, _events(a)
 	, _sprite_animation_player(&sprite_player)
+	, _mesh_animation_player(&mesh_player)
 {
 	_unit_destroy_callback.destroy = unit_destroyed_callback_bridge;
 	_unit_destroy_callback.user_data = this;
@@ -190,15 +192,24 @@ void AnimationStateMachine::update(float dt)
 
 		if (mi.anim_resource != anim_resource) {
 			mi.anim_resource = anim_resource;
-			if (mi.anim_type == RESOURCE_TYPE_SPRITE_ANIMATION) {
-				sprite_animation_player::destroy(*_sprite_animation_player, mi.anim_id);
+			if (mi.anim_type == RESOURCE_TYPE_MESH_ANIMATION) {
+				if (mesh_animation_player::has(*_mesh_animation_player, mi.anim_id))
+					mesh_animation_player::destroy(*_mesh_animation_player, mi.anim_id);
+				mi.anim_id = mesh_animation_player::create(*_mesh_animation_player, (const MeshAnimationResource *)anim_resource);
+				mi.time = 0.0f;
+				mi.time_total = ((const MeshAnimationResource *)anim_resource)->total_time;
+			} else if (mi.anim_type == RESOURCE_TYPE_SPRITE_ANIMATION) {
+				if (sprite_animation_player::has(*_sprite_animation_player, mi.anim_id))
+					sprite_animation_player::destroy(*_sprite_animation_player, mi.anim_id);
 				mi.anim_id = sprite_animation_player::create(*_sprite_animation_player, (const SpriteAnimationResource *)anim_resource);
 				mi.time = 0.0f;
 				mi.time_total = ((const SpriteAnimationResource *)anim_resource)->total_time;
 			}
 		}
 
-		if (mi.anim_type == RESOURCE_TYPE_SPRITE_ANIMATION) {
+		if (mi.anim_type == RESOURCE_TYPE_MESH_ANIMATION) {
+			// TODO.
+		} else if (mi.anim_type == RESOURCE_TYPE_SPRITE_ANIMATION) {
 			sprite_animation_player::evaluate(*_sprite_animation_player
 				, mi.anim_id
 				, mi.time
