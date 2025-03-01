@@ -9,6 +9,7 @@
 #include "resource/state_machine_resource.h"
 #include "resource/types.h"
 #include "world/event_stream.h"
+#include "world/mesh_animation_player.h"
 #include "world/sprite_animation_player.h"
 #include "world/types.h"
 
@@ -38,12 +39,14 @@ struct AnimationStateMachine
 	EventStream _events;
 	UnitDestroyCallback _unit_destroy_callback;
 	SpriteAnimationPlayer *_sprite_animation_player;
+	MeshAnimationPlayer *_mesh_animation_player;
 
 	///
 	AnimationStateMachine(Allocator &a
 		, ResourceManager &rm
 		, UnitManager &um
 		, SpriteAnimationPlayer &sprite_player
+		, MeshAnimationPlayer &mesh_player
 		);
 
 	///
