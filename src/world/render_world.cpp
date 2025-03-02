@@ -21,6 +21,7 @@
 #include "world/material.h"
 #include "world/material_manager.h"
 #include "world/render_world.h"
+#include "world/scene_graph.h"
 #include "world/shader_manager.h"
 #include "world/unit_manager.h"
 #include <bgfx/bgfx.h>
@@ -64,6 +65,7 @@ RenderWorld::RenderWorld(Allocator &a
 	, MaterialManager &mm
 	, UnitManager &um
 	, Pipeline &pl
+	, SceneGraph &sg
 	)
 	: _marker(RENDER_WORLD_MARKER)
 	, _resource_manager(&rm)
@@ -71,6 +73,7 @@ RenderWorld::RenderWorld(Allocator &a
 	, _material_manager(&mm)
 	, _unit_manager(&um)
 	, _pipeline(&pl)
+	, _scene_graph(&sg)
 	, _debug_drawing(false)
 	, _mesh_manager(a, this)
 	, _sprite_manager(a, this)
@@ -136,6 +139,16 @@ void RenderWorld::mesh_set_geometry(MeshInstance mesh, StringId64 mesh_resource,
 	CE_ASSERT(mesh.i < _mesh_manager._data.size, "Index out of bounds");
 	const MeshResource *mr = (MeshResource *)_resource_manager->get(RESOURCE_TYPE_MESH, mesh_resource);
 	_mesh_manager.set_geometry(mesh, mr, geometry);
+}
+
+void RenderWorld::mesh_set_skeleton(MeshInstance mesh, const AnimationSkeletonInstance *bones)
+{
+	CE_ASSERT(mesh.i < _mesh_manager._data.size, "Index out of bounds");
+	_mesh_manager._data.skeleton[mesh.i] = (const AnimationSkeletonInstance *)bones;
+
+	UnitId unit = _mesh_manager._data.unit[mesh.i];
+	TransformInstance ti = _scene_graph->instance(unit);
+	_scene_graph->set_local_pose(ti, MATRIX4X4_IDENTITY);
 }
 
 Material *RenderWorld::mesh_material(MeshInstance mesh)
@@ -428,13 +441,13 @@ void RenderWorld::render(const Matrix4x4 &view)
 		bgfx::setUniform(_u_light_range, &lid.range[ll]);
 		bgfx::setUniform(_u_light_intensity, &lid.intensity[ll]);
 
-		_mesh_manager.draw(VIEW_MESH);
+		_mesh_manager.draw(VIEW_MESH, *_scene_graph);
 	}
 
 	_sprite_manager.draw(VIEW_SPRITE_0);
 
 	// Render outlines.
-	_mesh_manager.draw(VIEW_SELECTION, selection_draw_override);
+	_mesh_manager.draw(VIEW_SELECTION, *_scene_graph, selection_draw_override);
 	_sprite_manager.draw(VIEW_SELECTION, selection_draw_override);
 }
 
@@ -516,6 +529,7 @@ void RenderWorld::MeshManager::allocate(u32 num)
 		+ num*sizeof(Material *) + alignof(Material *)
 		+ num*sizeof(Matrix4x4) + alignof(Matrix4x4)
 		+ num*sizeof(OBB) + alignof(OBB)
+		+ num*sizeof(AnimationSkeletonInstance *) + alignof(AnimationSkeletonInstance *)
 #if CROWN_CAN_RELOAD
 		+ num*sizeof(MaterialResource *) + alignof(MaterialResource *)
 #endif
@@ -535,8 +549,9 @@ void RenderWorld::MeshManager::allocate(u32 num)
 	new_data.material      = (Material **          )memory::align_top(new_data.mesh + num,     alignof(Material *));
 	new_data.world         = (Matrix4x4 *          )memory::align_top(new_data.material + num, alignof(Matrix4x4));
 	new_data.obb           = (OBB *                )memory::align_top(new_data.world + num,    alignof(OBB));
+	new_data.skeleton      = (const AnimationSkeletonInstance **)memory::align_top(new_data.obb + num, alignof(AnimationSkeletonInstance *));
 #if CROWN_CAN_RELOAD
-	new_data.material_resource = (const MaterialResource **)memory::align_top(new_data.obb + num, alignof(MaterialResource *));
+	new_data.material_resource = (const MaterialResource **)memory::align_top(new_data.skeleton + num, alignof(MaterialResource *));
 #endif
 
 	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
@@ -546,6 +561,7 @@ void RenderWorld::MeshManager::allocate(u32 num)
 	memcpy(new_data.material, _data.material, _data.size * sizeof(Material *));
 	memcpy(new_data.world, _data.world, _data.size * sizeof(Matrix4x4));
 	memcpy(new_data.obb, _data.obb, _data.size * sizeof(OBB));
+	memcpy(new_data.skeleton, _data.skeleton, _data.size * sizeof(AnimationSkeletonInstance *));
 #if CROWN_CAN_RELOAD
 	memcpy(new_data.material_resource, _data.material_resource, _data.size * sizeof(MaterialResource *));
 #endif
@@ -579,6 +595,7 @@ MeshInstance RenderWorld::MeshManager::create(UnitId unit, const MeshResource *m
 	_data.material[last] = _render_world->_material_manager->get(mat_res);
 	_data.world[last]    = tr;
 	_data.obb[last]      = mg->obb;
+	_data.skeleton[last] = NULL;
 #if CROWN_CAN_RELOAD
 	_data.material_resource[last] = mat_res;
 #endif
@@ -616,6 +633,7 @@ void RenderWorld::MeshManager::destroy(MeshInstance inst)
 	_data.material[inst.i] = _data.material[last];
 	_data.world[inst.i]    = _data.world[last];
 	_data.obb[inst.i]      = _data.obb[last];
+	_data.skeleton[inst.i] = _data.skeleton[last];
 #if CROWN_CAN_RELOAD
 	_data.material_resource[inst.i] = _data.material_resource[last];
 #endif
@@ -650,6 +668,7 @@ void RenderWorld::MeshManager::swap(u32 inst_a, u32 inst_b)
 	exchange(_data.material[inst_a], _data.material[inst_b]);
 	exchange(_data.world[inst_a],    _data.world[inst_b]);
 	exchange(_data.obb[inst_a],      _data.obb[inst_b]);
+	exchange(_data.skeleton[inst_a], _data.skeleton[inst_b]);
 #if CROWN_CAN_RELOAD
 	exchange(_data.material_resource[inst_a], _data.material_resource[inst_b]);
 #endif
@@ -702,10 +721,28 @@ void RenderWorld::MeshManager::destroy()
 	_allocator->deallocate(_data.buffer);
 }
 
-void RenderWorld::MeshManager::draw(u8 view, DrawOverride draw_override)
+void RenderWorld::MeshManager::draw(u8 view, SceneGraph &scene_graph, DrawOverride draw_override)
 {
 	for (u32 ii = 0; ii < _data.first_hidden; ++ii) {
-		bgfx::setTransform(to_float_ptr(_data.world[ii]));
+		if (_data.skeleton[ii] != NULL) {
+			AnimationSkeletonInstance *skeleton = (AnimationSkeletonInstance *)_data.skeleton[ii];
+
+			for (u32 b = 0; b < skeleton->num_bones; ++b) {
+				TransformInstance bone_ti = scene_graph.instance(skeleton->bone_lookup[b]);
+				skeleton->bones[b] = skeleton->offsets[b] * scene_graph.world_pose(bone_ti);
+			}
+
+			TransformInstance ti = scene_graph.instance(_data.unit[ii]);
+			Matrix4x4 world_pose = scene_graph.world_pose(ti);
+			skeleton->bones[0] = world_pose;
+
+			bgfx::setTransform(skeleton->bones, skeleton->num_bones);
+		} else {
+			TransformInstance ti = scene_graph.instance(_data.unit[ii]);
+			Matrix4x4 world_pose = scene_graph.world_pose(ti);
+			bgfx::setTransform(to_float_ptr(world_pose));
+		}
+
 		bgfx::setVertexBuffer(0, _data.mesh[ii].vbh);
 		bgfx::setIndexBuffer(_data.mesh[ii].ibh);
 

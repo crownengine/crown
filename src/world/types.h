@@ -479,4 +479,12 @@ struct PhysicsTransformEvent
 
 typedef u32 AnimationId;
 
+struct AnimationSkeletonInstance
+{
+	u32 num_bones;
+	const Matrix4x4 *offsets;
+	UnitId *bone_lookup;
+	Matrix4x4 *bones;
+};
+
 } // namespace crown

@@ -8,7 +8,9 @@
 #include "core/containers/types.h"
 #include "core/math/types.h"
 #include "core/strings/string_id.h"
+#include "device/pipeline.h"
 #include "resource/mesh_resource.h"
+#include "resource/mesh_skeleton_resource.h"
 #include "resource/shader_resource.h"
 #include "resource/types.h"
 #include "world/types.h"
@@ -28,6 +30,7 @@ struct RenderWorld
 		, MaterialManager &mm
 		, UnitManager &um
 		, Pipeline &pl
+		, SceneGraph &sg
 		);
 
 	///
@@ -45,6 +48,9 @@ struct RenderWorld
 	/// Sets the @a geometry of the @a mesh. @a geometry must be a valid geometry name inside @a
 	/// mesh_resource.
 	void mesh_set_geometry(MeshInstance mesh, StringId64 mesh_resource, StringId32 geometry);
+
+	///
+	void mesh_set_skeleton(MeshInstance mesh, const AnimationSkeletonInstance *bones);
 
 	/// Returns the material of the @a mesh.
 	Material *mesh_material(MeshInstance mesh);
@@ -193,6 +199,7 @@ struct RenderWorld
 			Material **material;
 			Matrix4x4 *world;
 			OBB *obb;
+			const AnimationSkeletonInstance **skeleton;
 #if CROWN_CAN_RELOAD
 			const MaterialResource **material_resource;
 #endif
@@ -243,7 +250,7 @@ struct RenderWorld
 		void swap(u32 inst_a, u32 inst_b);
 
 		///
-		void draw(u8 view, DrawOverride draw_override = NULL);
+		void draw(u8 view, SceneGraph &scene_graph, DrawOverride draw_override = NULL);
 
 		///
 		MeshInstance make_instance(u32 i)
@@ -395,6 +402,7 @@ struct RenderWorld
 	MaterialManager *_material_manager;
 	UnitManager *_unit_manager;
 	Pipeline *_pipeline;
+	SceneGraph *_scene_graph;
 
 	bgfx::UniformHandle _u_light_position;
 	bgfx::UniformHandle _u_light_direction;
