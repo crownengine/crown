@@ -11,6 +11,7 @@
 #include "world/event_stream.h"
 #include "world/mesh_animation_player.h"
 #include "world/sprite_animation_player.h"
+#include "world/scene_graph.h"
 #include "world/types.h"
 
 namespace crown
@@ -29,6 +30,7 @@ struct AnimationStateMachine
 		const State *state_next;
 		const StateMachineResource *state_machine;
 		f32 *variables;
+		AnimationSkeletonInstance *skeleton;
 	};
 
 	u32 _marker;
@@ -53,7 +55,7 @@ struct AnimationStateMachine
 	~AnimationStateMachine();
 
 	/// Creates a new state machine instance for the @a unit.
-	StateMachineInstance create(UnitId unit, const AnimationStateMachineDesc &desc);
+	StateMachineInstance create(UnitId unit, const AnimationStateMachineDesc &desc, World &world);
 
 	/// Destroys the @a state_machine.
 	void destroy(StateMachineInstance state_machine);
@@ -77,7 +79,7 @@ struct AnimationStateMachine
 	void trigger(StateMachineInstance state_machine, StringId32 event);
 
 	///
-	void update(float dt);
+	void update(float dt, SceneGraph &scene_graph);
 
 	///
 	void unit_destroyed_callback(UnitId unit);

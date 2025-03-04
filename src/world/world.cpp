@@ -174,7 +174,7 @@ UnitId World::unit_by_name(StringId32 name)
 
 void World::update_animations(f32 dt)
 {
-	_animation_state_machine->update(dt);
+	_animation_state_machine->update(dt, *_scene_graph);
 }
 
 void World::update_scene(f32 dt)
@@ -696,7 +696,7 @@ void spawn_units(World &w, const UnitResource *ur, const Vector3 &pos, const Qua
 		} else if (component->type == STRING_ID_32("animation_state_machine", UINT32_C(0xe87992ac))) {
 			const AnimationStateMachineDesc *asmd = (const AnimationStateMachineDesc *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++asmd) {
-				animation_state_machine->create(unit_lookup[unit_index[i]], *asmd);
+				animation_state_machine->create(unit_lookup[unit_index[i]], *asmd, w);
 			}
 		} else {
 			CE_FATAL("Unknown component type");
