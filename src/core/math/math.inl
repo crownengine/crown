@@ -29,6 +29,11 @@ inline f32 fabs(f32 a)
 	return ::fabsf(a);
 }
 
+inline f32 fmod(f32 a, f32 b)
+{
+	return ::fmod(a, b);
+}
+
 inline f32 fsin(f32 a)
 {
 	return sinf(a);

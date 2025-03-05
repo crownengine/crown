@@ -26,6 +26,9 @@ f32 ffract(f32 a);
 /// Returns the absolute value of @a a.
 f32 fabs(f32 a);
 
+/// Returns the floating-point remainder of dividing a by b.
+f32 fmod(f32 a, f32 b);
+
 /// Returns the sine of @a a.
 f32 fsin(f32 a);
 
