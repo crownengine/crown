@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "core/math/math.h"
+#include "core/math/math.inl"
 #include "core/time.h"
 #include "device/delta_time_filter.h"
 #include <algorithm> // std::sort

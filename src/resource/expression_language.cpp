@@ -1,5 +1,5 @@
 #include "core/error/error.h"
-#include "core/math/math.h"
+#include "core/math/math.inl"
 #include "core/strings/string.inl"
 #include "resource/expression_language.inl"
 #include <alloca.h>
