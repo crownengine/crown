@@ -3,71 +3,11 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "core/math/math.h"
-#include "core/math/types.h"
-#include "core/types.h"
-#include <math.h>
+#include "core/math/math.inl"
 #include <stb_sprintf.h>
 
 namespace crown
 {
-bool fequal(f32 a, f32 b, f32 epsilon)
-{
-	return b <= (a + epsilon)
-		&& b >= (a - epsilon)
-		;
-}
-
-f32 ffract(f32 a)
-{
-	return a - floorf(a);
-}
-
-f32 fabs(f32 a)
-{
-	return ::fabsf(a);
-}
-
-f32 fsin(f32 a)
-{
-	return sinf(a);
-}
-
-f32 fcos(f32 a)
-{
-	return cosf(a);
-}
-
-f32 facos(f32 a)
-{
-	return ::acosf(a);
-}
-
-f32 ftan(f32 a)
-{
-	return tanf(a);
-}
-
-f32 fsqrt(f32 a)
-{
-	return sqrtf(a);
-}
-
-f32 frad(f32 deg)
-{
-	return deg * PI / 180.0f;
-}
-
-f32 fdeg(f32 rad)
-{
-	return rad * 180.0f / PI;
-}
-
-f32 lerp(const f32 p0, const f32 p1, f32 t)
-{
-	return (1.0f - t) * p0 + t * p1;
-}
-
 f32 cosine(const f32 p0, const f32 p1, f32 t)
 {
 	const f32 f = t * PI;
