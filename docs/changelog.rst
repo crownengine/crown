@@ -20,6 +20,7 @@ Changelog
 * Fixed a crash when reloading unloaded or unsupported resources.
 * Added support to shaders and materials hot-reloading.
 * Fixed setting kinematic actor's position and rotation.
+* Increased the maximum number of lines that can be drawn with DebugLine.
 * Data Compiler: #defines are now correctly exposed in vs_input_output and fs_input_output.
 * Data Compiler: fixed and issue that caused OOM when compiling levels with many units.
 * Lua API: fixed ``Math.ray_obb_intersection()`` with scaled OBBs.
