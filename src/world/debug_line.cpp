@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include "core/containers/array.inl"
 #include "core/math/color4.inl"
 #include "core/math/constants.h"
 #include "core/math/frustum.inl"
@@ -26,9 +27,9 @@ namespace crown
 {
 static bgfx::VertexLayout vertex_layout;
 
-DebugLine::DebugLine(ShaderData *shader)
+DebugLine::DebugLine(Allocator &a, ShaderData *shader)
 	: _marker(DEBUG_LINE_MARKER)
-	, _num(0)
+	, _lines(a)
 	, _shader(shader)
 {
 	if (vertex_layout.m_hash == 0) {
@@ -46,15 +47,13 @@ DebugLine::~DebugLine()
 
 void DebugLine::add_line(const Vector3 &start, const Vector3 &end, const Color4 &color)
 {
-	if (_num >= MAX_LINES)
-		return;
+	Line l;
+	l.p0 = start;
+	l.c0 = to_abgr(color);
+	l.p1 = end;
+	l.c1 = to_abgr(color);
 
-	_lines[_num].p0 = start;
-	_lines[_num].c0 = to_abgr(color);
-	_lines[_num].p1 = end;
-	_lines[_num].c1 = to_abgr(color);
-
-	++_num;
+	array::push_back(_lines, l);
 }
 
 void DebugLine::add_axes(const Matrix4x4 &m, f32 length)
@@ -204,22 +203,23 @@ void DebugLine::add_mesh(const Matrix4x4 &tm, const void *vertices, u32 stride, 
 
 void DebugLine::reset()
 {
-	_num = 0;
+	array::clear(_lines);
 }
 
 void DebugLine::submit(u8 view_id)
 {
-	if (!_num)
+	u32 num = array::size(_lines);
+	if (!num)
 		return;
 
-	if (!bgfx::getAvailTransientVertexBuffer(_num * 2, vertex_layout))
+	if (!bgfx::getAvailTransientVertexBuffer(num * 2, vertex_layout))
 		return;
 
 	bgfx::TransientVertexBuffer tvb;
-	bgfx::allocTransientVertexBuffer(&tvb, _num * 2, vertex_layout);
-	memcpy(tvb.data, _lines, sizeof(Line) * _num);
+	bgfx::allocTransientVertexBuffer(&tvb, num * 2, vertex_layout);
+	memcpy(tvb.data, array::begin(_lines), sizeof(Line) * num);
 
-	bgfx::setVertexBuffer(0, &tvb, 0, _num * 2);
+	bgfx::setVertexBuffer(0, &tvb, 0, num * 2);
 	bgfx::setState(_shader->state);
 	bgfx::submit(view_id, _shader->program);
 }
@@ -228,7 +228,7 @@ namespace debug_line
 {
 	DebugLine *create(Allocator &a, Pipeline &pl, bool depth_enabled)
 	{
-		return CE_NEW(a, DebugLine)(depth_enabled ? &pl._debug_line_depth_enabled_shader : &pl._debug_line_shader);
+		return CE_NEW(a, DebugLine)(a, depth_enabled ? &pl._debug_line_depth_enabled_shader : &pl._debug_line_shader);
 	}
 
 } // namespace debug_line

@@ -23,7 +23,6 @@ struct DebugLine
 {
 	/// Default number of segments.
 	static const u32 NUM_SEGMENTS = 36;
-	static const u32 MAX_LINES = 32768;
 
 	struct Line
 	{
@@ -34,12 +33,11 @@ struct DebugLine
 	};
 
 	u32 _marker;
-	u32 _num;
-	Line _lines[MAX_LINES];
+	Array<Line> _lines;
 	ShaderData *_shader;
 
 	/// Whether to enable @a depth_test
-	DebugLine(ShaderData *shader);
+	DebugLine(Allocator &a, ShaderData *shader);
 
 	///
 	~DebugLine();
