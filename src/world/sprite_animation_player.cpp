@@ -32,7 +32,8 @@ namespace sprite_animation_player
 	{
 		SpriteAnimationPlayer::Index &index = p._indices[anim_id & ANIMATION_INDEX_MASK];
 
-		SpriteAnimationPlayer::Animation &a = p._animations[array::size(p._animations) - 1];
+		SpriteAnimationPlayer::Animation &a = p._animations[index.index];
+		a = p._animations[array::size(p._animations) - 1];
 		array::pop_back(p._animations);
 		p._indices[a.id & ANIMATION_INDEX_MASK].index = index.index;
 
