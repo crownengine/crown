@@ -264,9 +264,6 @@ void AnimationStateMachine::update(float dt, SceneGraph &scene_graph)
 
 		// Advance animation.
 		const void *anim_resource = _resource_manager->get(mi.anim_type, name);
-		if (!anim_resource)
-			continue;
-
 		if (mi.anim_resource != anim_resource) {
 			mi.anim_resource = anim_resource;
 			if (mi.anim_type == RESOURCE_TYPE_MESH_ANIMATION) {
@@ -283,6 +280,9 @@ void AnimationStateMachine::update(float dt, SceneGraph &scene_graph)
 				mi.time_total = ((const SpriteAnimationResource *)anim_resource)->total_time;
 			}
 		}
+
+		if (!anim_resource)
+			continue;
 
 		if (mi.anim_type == RESOURCE_TYPE_MESH_ANIMATION) {
 			mesh_animation_player::evaluate(*_mesh_animation_player
