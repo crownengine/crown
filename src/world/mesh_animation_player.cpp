@@ -15,7 +15,6 @@
 #include "resource/resource_manager.h"
 #include "world/mesh_animation_player.h"
 #include "world/scene_graph.h"
-#include <stdio.h>
 
 namespace crown
 {
