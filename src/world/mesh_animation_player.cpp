@@ -104,24 +104,24 @@ namespace mesh_animation_player
 		CE_ENSURE(time <= anim.animation_resource->total_time);
 		u16 ts = time * 1000.0f;
 
-		const AnimationKey *first_key = mesh_animation_resource::animation_keys(anim.animation_resource);
-		if (anim.playhead - first_key == anim.animation_resource->num_keys) {
-			anim.playhead = first_key;
-			init(p, anim);
-			return;
-		}
-
 		// Fetch new keys until all tracks have enough data
 		// to interpolate values at current time.
 		u32 num_ok = 0;
 		while (num_ok != anim.num_tracks) {
+			const AnimationKey *first_key = mesh_animation_resource::animation_keys(anim.animation_resource);
+			if (anim.playhead - first_key == anim.animation_resource->num_keys) {
+				anim.playhead = first_key;
+				init(p, anim);
+			}
+
 			num_ok = 0;
 			for (u32 track_id = 0; track_id < anim.num_tracks; ++track_id) {
 				AnimationTrackSegment *track = &tracks[track_id];
 
 				if (track->keys[0].h.time > ts || ts > track->keys[1].h.time)
 					anim.playhead = fetch_keys(tracks, anim.playhead, 1, track_id);
-				else
+
+				if (track->keys[0].h.time <= ts && ts <= track->keys[1].h.time)
 					num_ok++;
 			}
 		}
