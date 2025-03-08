@@ -310,7 +310,7 @@ void AnimationStateMachine::update(float dt, SceneGraph &scene_graph)
 				mi.time = 0.0f;
 			} else {
 				if (!!mi.state->loop) {
-					mi.time = mi.time - mi.time_total;
+					mi.time = fmod(mi.time, mi.time_total);
 				} else {
 					const Transition *dummy;
 					const State *s = state_machine::trigger(mi.state_machine

@@ -101,6 +101,7 @@ namespace mesh_animation_player
 		MeshAnimation &anim = p._animations[index.index];
 		AnimationTrackSegment *tracks = &p._tracks[anim.tracks_offset];
 
+		CE_ENSURE(time <= anim.animation_resource->total_time);
 		u16 ts = time * 1000.0f;
 
 		const AnimationKey *first_key = mesh_animation_resource::animation_keys(anim.animation_resource);

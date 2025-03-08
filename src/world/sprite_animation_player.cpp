@@ -53,6 +53,7 @@ namespace sprite_animation_player
 		SpriteAnimationPlayer::Index &index = p._indices[anim_id & ANIMATION_INDEX_MASK];
 		SpriteAnimationPlayer::Animation &a = p._animations[index.index];
 
+		CE_ENSURE(time <= a.time_total);
 		const f32 frame_ratio     = time / a.time_total;
 		const u32 frame_unclamped = u32(frame_ratio * f32(a.num_frames));
 		const u32 frame_index     = min(frame_unclamped, a.num_frames - 1);
