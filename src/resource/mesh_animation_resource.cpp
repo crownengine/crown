@@ -4,19 +4,18 @@
  */
 
 #include "resource/mesh_animation_resource.h"
-
-#if CROWN_CAN_COMPILE
-#   include "core/json/json_object.inl"
-#   include "core/json/sjson.h"
-#   include "core/memory/globals.h"
-#   include "core/strings/dynamic_string.inl"
-#   include "core/strings/string_id.inl"
-#   include "resource/mesh_skeleton.h"
-#   include "resource/compile_options.inl"
-#   include "resource/mesh_animation.h"
+#include "core/json/json_object.inl"
+#include "core/json/sjson.h"
+#include "core/memory/globals.h"
+#include "core/strings/dynamic_string.inl"
+#include "core/strings/string_id.inl"
+#include "resource/compile_options.inl"
+#include "resource/mesh_animation.h"
+#include "resource/mesh_skeleton.h"
 
 namespace crown
 {
+#if CROWN_CAN_COMPILE
 namespace mesh_animation_resource_internal
 {
 	static s32 write(MeshAnimation &ma, CompileOptions &opts)
@@ -62,6 +61,7 @@ namespace mesh_animation_resource_internal
 	}
 
 } // namespace mesh_animation_resource_internal
+#endif // if CROWN_CAN_COMPILE
 
 namespace mesh_animation_resource
 {
@@ -78,4 +78,3 @@ namespace mesh_animation_resource
 } // namespace mesh_animation_resource
 
 } // namespace crown
-#endif // if CROWN_CAN_COMPILE
