@@ -559,7 +559,8 @@ public class LevelEditorApplication : Gtk.Application
 		{ "create-script",    on_create_script,    "(ssb)", null },
 		{ "create-unit",      on_create_unit,      "(ss)",  null },
 		{ "open-containing",  on_open_containing,  "s",     null },
-		{ "texture-settings", on_texture_settings, "s",     null }
+		{ "texture-settings", on_texture_settings, "s",     null },
+		{ "reveal-resource",  on_reveal,           "(ss)",  null }
 	};
 
 	private const GLib.ActionEntry[] action_entries_package =
@@ -2460,6 +2461,17 @@ public class LevelEditorApplication : Gtk.Application
 		_texture_settings_dialog.set_texture(texture_name);
 		_texture_settings_dialog.show_all();
 		_texture_settings_dialog.present();
+	}
+
+	private void on_reveal(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string type = (string)param.get_child_value(0);
+		string name = (string)param.get_child_value(1);
+
+		if (!_project_notebook.is_visible())
+			_project_notebook.show_all();
+
+		_project_browser.reveal(type, name);
 	}
 
 	private int run_level_changed_dialog(Gtk.Window? parent)

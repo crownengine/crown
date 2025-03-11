@@ -1217,7 +1217,6 @@ public class ProjectBrowser : Gtk.Bin
 		// Actions.
 		GLib.ActionEntry[] action_entries =
 		{
-			{ "reveal-resource",     on_reveal,              "(ss)", null },
 			{ "open-directory",      on_open_directory,      "s",    null },
 			{ "favorite-resource",   on_favorite_resource,   "(ss)", null },
 			{ "unfavorite-resource", on_unfavorite_resource, "(ss)", null }
@@ -1267,8 +1266,13 @@ public class ProjectBrowser : Gtk.Bin
 			;
 	}
 
-	private void reveal(string type, string name)
+	public void reveal(string type, string name)
 	{
+		if (name.has_prefix("core/")) {
+			_hide_core_resources = false;
+			_tree_filter.refilter();
+		}
+
 		string parent_type = type;
 		string parent_name = name;
 		Gtk.TreePath filter_path = null;
@@ -1297,19 +1301,6 @@ public class ProjectBrowser : Gtk.Bin
 			_tree_view.scroll_to_cell(sort_path, null, false, 0.0f, 0.0f);
 			_folder_view.reveal(type, name);
 		} while (filter_path == null);
-	}
-
-	private void on_reveal(GLib.SimpleAction action, GLib.Variant? param)
-	{
-		string type = (string)param.get_child_value(0);
-		string name = (string)param.get_child_value(1);
-
-		if (name.has_prefix("core/")) {
-			_hide_core_resources = false;
-			_tree_filter.refilter();
-		}
-
-		reveal(type, name);
 	}
 
 	private void on_open_directory(GLib.SimpleAction action, GLib.Variant? param)
