@@ -5,6 +5,7 @@
 
 #include "config.h"
 #include "core/containers/hash_map.inl"
+#include "core/containers/hash_set.inl"
 #include "core/containers/vector.inl"
 #include "core/filesystem/filesystem.h"
 #include "core/json/json_object.inl"
@@ -787,6 +788,7 @@ namespace shader_resource_internal
 	struct ShaderCompiler
 	{
 		CompileOptions &_opts;
+		HashSet<DynamicString> _parsed_includes;
 		HashMap<DynamicString, RenderState> _render_states;
 		HashMap<DynamicString, SamplerState> _sampler_states;
 		HashMap<DynamicString, BgfxShader> _bgfx_shaders;
@@ -801,6 +803,7 @@ namespace shader_resource_internal
 
 		explicit ShaderCompiler(CompileOptions &opts)
 			: _opts(opts)
+			, _parsed_includes(default_allocator())
 			, _render_states(default_allocator())
 			, _sampler_states(default_allocator())
 			, _bgfx_shaders(default_allocator())
@@ -821,7 +824,17 @@ namespace shader_resource_internal
 
 		s32 parse(const char *path)
 		{
-			return parse(_opts.read(path));
+			TempAllocator256 ta;
+			DynamicString path_str(ta);
+			path_str = path;
+
+			if (hash_set::has(_parsed_includes, path_str))
+				return 0;
+
+			s32 err = parse(_opts.read(path));
+			ENSURE_OR_RETURN(err == 0, _opts);
+			hash_set::insert(_parsed_includes, path_str);
+			return err;
 		}
 
 		s32 parse(Buffer buf)
