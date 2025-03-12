@@ -8,6 +8,7 @@
 #include "core/containers/hash_set.inl"
 #include "core/containers/vector.inl"
 #include "core/filesystem/filesystem.h"
+#include "core/json/json.h"
 #include "core/json/json_object.inl"
 #include "core/json/sjson.h"
 #include "core/memory/temp_allocator.inl"
@@ -735,7 +736,7 @@ namespace shader_resource_internal
 	{
 		ALLOCATOR_AWARE;
 
-		DynamicString _includes;
+		Vector<DynamicString> _includes;
 		DynamicString _code;
 		DynamicString _vs_code;
 		DynamicString _fs_code;
@@ -1330,7 +1331,8 @@ namespace shader_resource_internal
 
 				BgfxShader bgfxshader(default_allocator());
 				if (json_object::has(shader, "includes")) {
-					RETURN_IF_ERROR(sjson::parse_string(bgfxshader._includes, shader["includes"]), _opts);
+					s32 err = parse_bgfx_includes(bgfxshader, shader["includes"]);
+					ENSURE_OR_RETURN(err == 0, _opts);
 				}
 				if (json_object::has(shader, "code")) {
 					RETURN_IF_ERROR(sjson::parse_verbatim(bgfxshader._code, shader["code"]), _opts);
@@ -1404,6 +1406,31 @@ namespace shader_resource_internal
 			}
 
 			return 0;
+		}
+
+		s32 parse_bgfx_includes(BgfxShader &bgfxshader, const char *json)
+		{
+			if (json::type(json) == JsonValueType::STRING) {
+				TempAllocator256 ta;
+				DynamicString inc(ta);
+				RETURN_IF_ERROR(sjson::parse_string(inc, json), _opts);
+				vector::push_back(bgfxshader._includes, inc);
+				return 0;
+			} else if (json::type(json) == JsonValueType::ARRAY) {
+				TempAllocator1024 ta;
+				JsonArray includes(ta);
+
+				RETURN_IF_ERROR(sjson::parse_array(includes, json), _opts);
+
+				for (u32 i = 0; i < array::size(includes); ++i) {
+					DynamicString inc(ta);
+					RETURN_IF_ERROR(sjson::parse_string(inc, includes[i]), _opts);
+					vector::push_back(bgfxshader._includes, inc);
+				}
+				return 0;
+			}
+
+			RETURN_IF_FALSE(false, _opts, "'includes' must be either an array of strings or a string");
 		}
 
 		s32 parse_shaders(const char *json)
@@ -1562,11 +1589,11 @@ namespace shader_resource_internal
 			const BgfxShader shader_default(default_allocator());
 			const BgfxShader &shader = hash_map::get(_bgfx_shaders, key, shader_default);
 
-			DynamicString included_code(default_allocator());
-			if (!(shader._includes == "")) {
+			StringStream included_code(default_allocator());
+			for (u32 i = 0; i < vector::size(shader._includes); ++i) {
 				const BgfxShader included_default(default_allocator());
-				const BgfxShader &included = hash_map::get(_bgfx_shaders, shader._includes, included_default);
-				included_code = included._code;
+				const BgfxShader &included = hash_map::get(_bgfx_shaders, shader._includes[i], included_default);
+				included_code << included._code.c_str();
 			}
 
 			// Generate final shader code.
@@ -1577,12 +1604,12 @@ namespace shader_resource_internal
 			varying_code << shader._varying.c_str();
 			// Generate vertex shader.
 			vs_code << shader._vs_input_output.c_str();
-			vs_code << included_code.c_str();
+			vs_code << string_stream::c_str(included_code);
 			vs_code << shader._code.c_str();
 			vs_code << shader._vs_code.c_str();
 			// Generate fragment shader.
 			fs_code << shader._fs_input_output.c_str();
-			fs_code << included_code.c_str();
+			fs_code << string_stream::c_str(included_code);
 			fs_code << shader._code.c_str();
 			fs_code << shader._fs_code.c_str();
 
