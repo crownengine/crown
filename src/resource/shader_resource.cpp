@@ -837,7 +837,8 @@ namespace shader_resource_internal
 				for (u32 i = 0; i < array::size(arr); ++i) {
 					DynamicString path(ta);
 					RETURN_IF_ERROR(sjson::parse_string(path, arr[i]), _opts);
-					parse(path.c_str());
+					s32 err = parse(path.c_str());
+					ENSURE_OR_RETURN(err == 0, _opts);
 				}
 			}
 
