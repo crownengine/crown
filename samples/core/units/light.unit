@@ -34,9 +34,9 @@ components = [
 				1
 			]
 			intensity = 1
-			range = 1
+			range = 15
 			spot_angle = 0.52359900000000004
-			type = "directional"
+			type = "omni"
 		}
 		type = "light"
 	}
