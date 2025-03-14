@@ -33,7 +33,7 @@ struct ShaderResource
 	{
 		StringId32 name;
 		u64 state;
-		Sampler samplers[4];
+		Sampler samplers[16];
 		const bgfx::Memory *vsmem;
 		const bgfx::Memory *fsmem;
 	};
