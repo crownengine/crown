@@ -22,6 +22,7 @@ Changelog
 * Fixed a crash when moving many objects simultaneusly.
 * Fixed a crash when reloading unloaded or unsupported resources.
 * Fixed setting kinematic actor's position and rotation.
+* Fixed an issue that caused all samplers in a material to be set to the same texture.
 * Data Compiler: 'includes' key in shaders can now be specified as an array to include code from multiple locations.
 * Data Compiler: shader #defines are now correctly exposed in vs_input_output and fs_input_output.
 * Data Compiler: fixed shader compiler ignoring errors when parsing included files.

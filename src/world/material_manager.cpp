@@ -56,7 +56,7 @@ void MaterialManager::online(StringId64 id, ResourceManager &rm)
 	const TextureData *td = texture_data_array(mr);
 	for (u32 i = 0; i < mr->num_textures; ++i) {
 		TextureHandle *th   = texture_handle(td, i, material->_data);
-		TextureResource *tr = (TextureResource *)rm.get(RESOURCE_TYPE_TEXTURE, td->id);
+		TextureResource *tr = (TextureResource *)rm.get(RESOURCE_TYPE_TEXTURE, td[i].id);
 		th->sampler_handle = bgfx::createUniform(texture_name(mr, td, i), bgfx::UniformType::Sampler).idx;
 		th->texture_handle = tr->handle.idx;
 #if CROWN_CAN_RELOAD
