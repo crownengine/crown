@@ -59,19 +59,19 @@ namespace mesh
 	{
 		array::clear(g._positions);
 		array::clear(g._normals);
-		array::clear(g._uvs);
 		array::clear(g._tangents);
 		array::clear(g._bitangents);
 		array::clear(g._bones);
 		array::clear(g._weights);
+		array::clear(g._uvs);
 
 		array::clear(g._position_indices);
 		array::clear(g._normal_indices);
-		array::clear(g._uv_indices);
 		array::clear(g._tangent_indices);
 		array::clear(g._bitangent_indices);
 		array::clear(g._bone_indices);
 		array::clear(g._weight_indices);
+		array::clear(g._uv_indices);
 
 		array::clear(g._vertex_buffer);
 		array::clear(g._index_buffer);
@@ -80,11 +80,6 @@ namespace mesh
 	bool has_normals(Geometry &g)
 	{
 		return array::size(g._normals) != 0;
-	}
-
-	bool has_uvs(Geometry &g)
-	{
-		return array::size(g._uvs) != 0;
 	}
 
 	bool has_tangents(Geometry &g)
@@ -102,13 +97,18 @@ namespace mesh
 		return array::size(g._bones) != 0;
 	}
 
+	bool has_uvs(Geometry &g)
+	{
+		return array::size(g._uvs) != 0;
+	}
+
 	static u32 vertex_stride(Geometry &g)
 	{
 		u32 stride = 0;
 		stride += 3 * sizeof(f32);
-		stride += (has_normals(g) ? 3 * sizeof(f32) : 0);
-		stride += (has_uvs(g)     ? 2 * sizeof(f32) : 0);
-		stride += (has_bones(g)   ? 8 * sizeof(f32) : 0);
+		stride += has_normals(g) ? 3*sizeof(f32) : 0;
+		stride += has_bones(g) ? 8*sizeof(f32) : 0;
+		stride += has_uvs(g) ? 2*sizeof(f32) : 0;
 		return stride;
 	}
 
@@ -120,16 +120,16 @@ namespace mesh
 		layout.begin();
 		layout.add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float);
 
-		if (has_normals(g)) {
+		if (has_normals(g))
 			layout.add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float, true);
-		}
-		if (has_uvs(g)) {
-			layout.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float);
-		}
+
 		if (has_bones(g)) {
 			layout.add(bgfx::Attrib::Indices, 4, bgfx::AttribType::Float);
 			layout.add(bgfx::Attrib::Weight, 4, bgfx::AttribType::Float);
 		}
+
+		if (has_uvs(g))
+			layout.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float);
 
 		layout.end();
 		return layout;
@@ -143,44 +143,47 @@ namespace mesh
 		for (u32 i = 0; i < array::size(g._position_indices); ++i) {
 			g._index_buffer[i] = index++;
 
-			const u16 p_idx = g._position_indices[i] * 3;
-			Vector3 xyz;
-			xyz.x = g._positions[p_idx + 0];
-			xyz.y = g._positions[p_idx + 1];
-			xyz.z = g._positions[p_idx + 2];
-			array::push(g._vertex_buffer, (char *)&xyz, sizeof(xyz));
+			const u16 idx = g._position_indices[i] * 3;
+			Vector3 v;
+			v.x = g._positions[idx + 0];
+			v.y = g._positions[idx + 1];
+			v.z = g._positions[idx + 2];
+			array::push(g._vertex_buffer, (char *)&v, sizeof(v));
 
 			if (has_normals(g)) {
-				const u16 n_idx = g._normal_indices[i] * 3;
-				Vector3 n;
-				n.x = g._normals[n_idx + 0];
-				n.y = g._normals[n_idx + 1];
-				n.z = g._normals[n_idx + 2];
-				array::push(g._vertex_buffer, (char *)&n, sizeof(n));
+				const u16 idx = g._normal_indices[i] * 3;
+				Vector3 v;
+				v.x = g._normals[idx + 0];
+				v.y = g._normals[idx + 1];
+				v.z = g._normals[idx + 2];
+				array::push(g._vertex_buffer, (char *)&v, sizeof(v));
 			}
-			if (has_uvs(g)) {
-				const u16 t_idx = g._uv_indices[i] * 2;
-				Vector2 uv;
-				uv.x = g._uvs[t_idx + 0];
-				uv.y = g._uvs[t_idx + 1];
-				array::push(g._vertex_buffer, (char *)&uv, sizeof(uv));
-			}
+
 			if (has_bones(g)) {
-				const u16 b_idx = g._bone_indices[i] * 4;
+				const u16 bidx = g._bone_indices[i] * 4;
 				Vector4 b;
-				b.x = g._bones[b_idx + 0];
-				b.y = g._bones[b_idx + 1];
-				b.z = g._bones[b_idx + 2];
-				b.w = g._bones[b_idx + 3];
+				b.x = g._bones[bidx + 0];
+				b.y = g._bones[bidx + 1];
+				b.z = g._bones[bidx + 2];
+				b.w = g._bones[bidx + 3];
 				array::push(g._vertex_buffer, (char *)&b, sizeof(b));
 
+				const u16 widx = g._weight_indices[i] * 4;
 				Vector4 w;
-				const u16 w_idx = g._weight_indices[i] * 4;
-				w.x = g._weights[w_idx + 0];
-				w.y = g._weights[w_idx + 1];
-				w.z = g._weights[w_idx + 2];
-				w.w = g._weights[w_idx + 3];
+				w.x = g._weights[widx + 0];
+				w.y = g._weights[widx + 1];
+				w.z = g._weights[widx + 2];
+				w.w = g._weights[widx + 3];
 				array::push(g._vertex_buffer, (char *)&w, sizeof(w));
+			}
+
+			if (has_uvs(g)) {
+				const u16 idx = g._uv_indices[i] * 2;
+				CE_ENSURE(idx < array::size(g._uvs));
+				Vector2 v;
+				v.x = g._uvs[idx + 0];
+				v.y = g._uvs[idx + 1];
+				array::push(g._vertex_buffer, (char *)&v, sizeof(v));
 			}
 		}
 	}
@@ -306,11 +309,11 @@ Geometry::Geometry(Allocator &a)
 	, _weights(a)
 	, _position_indices(a)
 	, _normal_indices(a)
-	, _uv_indices(a)
 	, _tangent_indices(a)
 	, _bitangent_indices(a)
 	, _bone_indices(a)
 	, _weight_indices(a)
+	, _uv_indices(a)
 	, _vertex_buffer(a)
 	, _index_buffer(a)
 {

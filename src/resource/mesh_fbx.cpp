@@ -107,12 +107,6 @@ namespace fbx
 					array::push_back(g._normals, (f32)v.z);
 				}
 
-				if (mesh->vertex_uv.exists) {
-					ufbx_vec2 v = ufbx_get_vertex_vec2(&mesh->vertex_uv, index);
-					array::push_back(g._uvs,        (f32)v.x);
-					array::push_back(g._uvs, 1.0f - (f32)v.y);
-				}
-
 				if (mesh->vertex_tangent.exists) {
 					ufbx_vec3 v = ufbx_get_vertex_vec3(&mesh->vertex_tangent, index);
 					array::push_back(g._tangents, (f32)v.x);
@@ -125,6 +119,12 @@ namespace fbx
 					array::push_back(g._bitangents, (f32)v.x);
 					array::push_back(g._bitangents, (f32)v.y);
 					array::push_back(g._bitangents, (f32)v.z);
+				}
+
+				if (mesh->vertex_uv.exists) {
+					ufbx_vec2 v = ufbx_get_vertex_vec2(&mesh->vertex_uv, index);
+					array::push_back(g._uvs,        (f32)v.x);
+					array::push_back(g._uvs, 1.0f - (f32)v.y);
 				}
 			}
 		}
@@ -150,11 +150,6 @@ namespace fbx
 			generate_indices(g._normal_indices, g._normals, sizeof(f32)*3);
 		}
 
-		if (mesh::has_uvs(g)) {
-			array::resize(g._uv_indices, (u32)num_indices);
-			generate_indices(g._uv_indices, g._uvs, sizeof(f32)*2);
-		}
-
 		if (mesh::has_tangents(g)) {
 			array::resize(g._tangent_indices, (u32)num_indices);
 			generate_indices(g._tangent_indices, g._tangents, sizeof(f32)*3);
@@ -170,6 +165,11 @@ namespace fbx
 			array::resize(g._weight_indices, (u32)num_indices);
 			generate_indices(g._bone_indices, g._bones, sizeof(f32)*4);
 			generate_indices(g._weight_indices, g._weights, sizeof(f32)*4);
+		}
+
+		if (mesh::has_uvs(g)) {
+			array::resize(g._uv_indices, (u32)num_indices);
+			generate_indices(g._uv_indices, g._uvs, sizeof(f32)*2);
 		}
 
 		return 0;
