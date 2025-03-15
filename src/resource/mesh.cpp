@@ -70,6 +70,8 @@ namespace mesh
 		array::clear(g._uv_indices);
 		array::clear(g._tangent_indices);
 		array::clear(g._bitangent_indices);
+		array::clear(g._bone_indices);
+		array::clear(g._weight_indices);
 
 		array::clear(g._vertex_buffer);
 		array::clear(g._index_buffer);
