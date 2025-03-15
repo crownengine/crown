@@ -246,11 +246,19 @@ namespace mesh
 
 		parse_index_array(g._position_indices, data_json[0], opts);
 
+		u32 idx = 1;
+
 		if (has_normals(g))
-			parse_index_array(g._normal_indices, data_json[1], opts);
+			parse_index_array(g._normal_indices, data_json[idx++], opts);
 
 		if (has_uvs(g))
-			parse_index_array(g._uv_indices, data_json[2], opts);
+			parse_index_array(g._uv_indices, data_json[idx++], opts);
+
+		if (has_tangents(g))
+			parse_index_array(g._tangent_indices, data_json[idx++], opts);
+
+		if (has_bitangents(g))
+			parse_index_array(g._bitangent_indices, data_json[idx++], opts);
 
 		return 0;
 	}
@@ -268,6 +276,17 @@ namespace mesh
 			err = parse_float_array(g._normals, obj["normal"], opts);
 			ENSURE_OR_RETURN(err == 0, opts);
 		}
+
+		if (json_object::has(obj, "tangent")) {
+			err = parse_float_array(g._tangents, obj["tangent"], opts);
+			ENSURE_OR_RETURN(err == 0, opts);
+		}
+
+		if (json_object::has(obj, "bitangent")) {
+			err = parse_float_array(g._bitangents, obj["bitangent"], opts);
+			ENSURE_OR_RETURN(err == 0, opts);
+		}
+
 		if (json_object::has(obj, "texcoord")) {
 			err = parse_float_array(g._uvs, obj["texcoord"], opts);
 			ENSURE_OR_RETURN(err == 0, opts);

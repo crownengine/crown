@@ -20,6 +20,7 @@ Changelog
 * Added support to shaders and materials hot-reloading.
 * Increased the maximum number of lines that can be drawn with DebugLine.
 * Increased the maximum number of texture samplers per shader to 16.
+* Added tangent/bitangent vertex attributes support in .mesh resources.
 * Fixed a crash when moving many objects simultaneusly.
 * Fixed a crash when reloading unloaded or unsupported resources.
 * Fixed setting kinematic actor's position and rotation.
