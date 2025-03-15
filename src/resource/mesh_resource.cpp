@@ -246,12 +246,11 @@ namespace mesh
 
 		parse_index_array(g._position_indices, data_json[0], opts);
 
-		if (has_normals(g)) {
+		if (has_normals(g))
 			parse_index_array(g._normal_indices, data_json[1], opts);
-		}
-		if (has_uvs(g)) {
+
+		if (has_uvs(g))
 			parse_index_array(g._uv_indices, data_json[2], opts);
-		}
 
 		return 0;
 	}

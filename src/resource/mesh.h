@@ -43,11 +43,11 @@ struct Geometry
 
 	Array<u32> _position_indices;
 	Array<u32> _normal_indices;
-	Array<u32> _uv_indices;
 	Array<u32> _tangent_indices;
 	Array<u32> _bitangent_indices;
 	Array<u32> _bone_indices;
 	Array<u32> _weight_indices;
+	Array<u32> _uv_indices;
 
 	Array<char> _vertex_buffer;
 	Array<u16> _index_buffer;
@@ -71,9 +71,6 @@ namespace mesh
 	bool has_normals(Geometry &g);
 
 	///
-	bool has_uvs(Geometry &g);
-
-	///
 	bool has_tangents(Geometry &g);
 
 	///
@@ -81,6 +78,9 @@ namespace mesh
 
 	///
 	bool has_bones(Geometry &g);
+
+	///
+	bool has_uvs(Geometry &g);
 
 	///
 	s32 parse(Mesh &m, const char *path, CompileOptions &opts);
