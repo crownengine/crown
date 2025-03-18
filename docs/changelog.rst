@@ -6,23 +6,27 @@ Changelog
 
 **Tools**
 
+* Added the ability to import skeletons and animation clips from FBX files.
+* Added the ability to skip creating units when importing FBX files.
 * Fixed a crash when editing many objects simultaneusly.
 * Fixed a crash when trying to load levels with many objects.
 * Fixed an issue that prevented undo/redo operations to be executed in bulk.
 * Fixed an issue that caused large levels to load slowly.
 * Fixed an issue that prevented importing DCC data with funny extensions.
-* Added the ability to skip creating units when importing FBX files.
+* Fixed revealing resources while the Project Browser was hidden.
 
 **Runtime**
 
-* Lua: fixed max temporaries check failing to trigger in some circumnstances.
+* Added support to shaders and materials hot-reloading.
+* Increased the maximum number of lines that can be drawn with DebugLine.
 * Fixed a crash when moving many objects simultaneusly.
 * Fixed a crash when reloading unloaded or unsupported resources.
-* Added support to shaders and materials hot-reloading.
 * Fixed setting kinematic actor's position and rotation.
-* Increased the maximum number of lines that can be drawn with DebugLine.
-* Data Compiler: #defines are now correctly exposed in vs_input_output and fs_input_output.
+* Data Compiler: 'includes' key in shaders can now be specified as an array to include code from multiple locations.
+* Data Compiler: shader #defines are now correctly exposed in vs_input_output and fs_input_output.
+* Data Compiler: fixed shader compiler ignoring errors when parsing included files.
 * Data Compiler: fixed and issue that caused OOM when compiling levels with many units.
+* Lua: fixed max temporaries check failing to trigger in some circumnstances.
 * Lua API: fixed ``Math.ray_obb_intersection()`` with scaled OBBs.
 * Lua API: added ``Math.obb_merge()``.
 * Lua API: added ``SceneGraph.parent()``.
