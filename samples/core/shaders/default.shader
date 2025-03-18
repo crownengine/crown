@@ -93,7 +93,7 @@ bgfx_shaders = {
 			void main()
 			{
 				gl_Position = mul(u_modelViewProj, vec4(a_position, 1.0));
-				v_color0 = toLinearAccurate(a_color0);
+				v_color0 = a_color0;
 			}
 		"""
 
@@ -137,7 +137,7 @@ bgfx_shaders = {
 		#if defined(DIFFUSE_MAP)
 				v_texcoord0 = a_texcoord0;
 		#endif // DIFFUSE_MAP
-				v_color0 = toLinearAccurate(a_color0);
+				v_color0 = a_color0;
 			}
 		"""
 
@@ -153,7 +153,7 @@ bgfx_shaders = {
 			void main()
 			{
 		#if defined(DIFFUSE_MAP)
-				gl_FragColor = texture2D(u_albedo, v_texcoord0) * v_color0;
+				gl_FragColor = toGammaAccurate(texture2D(u_albedo, v_texcoord0) * toLinearAccurate(v_color0));
 		#else
 				gl_FragColor = v_color0;
 		#endif // DIFFUSE_MAP
@@ -198,7 +198,7 @@ bgfx_shaders = {
 
 			void main()
 			{
-				gl_FragColor = texture2D(u_albedo, v_texcoord0) * toLinearAccurate(u_color);
+				gl_FragColor = toGammaAccurate(texture2D(u_albedo, v_texcoord0) * toLinearAccurate(u_color));
 			}
 		"""
 	}
@@ -291,11 +291,10 @@ bgfx_shaders = {
 		#endif // !defined(NO_LIGHT)
 
 		#if defined(DIFFUSE_MAP)
-				gl_FragColor.rgb = color * texture2D(u_albedo, v_texcoord0).rgb;
-		#else
-				gl_FragColor.rgb = color;
-		#endif // DIFFUSE_MAP
-				gl_FragColor.a = 1.0;
+				color = color * texture2D(u_albedo, v_texcoord0).rgb;
+		#endif
+
+				gl_FragColor = vec4(toGammaAccurate(color), 1.0);
 			}
 		"""
 	}
@@ -414,7 +413,7 @@ bgfx_shaders = {
 				if (s_depth > m_depth)
 					alpha *= 0.35;
 
-				gl_FragColor = vec4(toLinearAccurate(u_outline_color.xyz), alpha);
+				gl_FragColor = vec4(u_outline_color.xyz, alpha);
 			}
 		#else
 			void main()
@@ -457,7 +456,7 @@ bgfx_shaders = {
 
 			void main()
 			{
-				gl_FragColor = toGammaAccurate(texture2D(s_color, v_texcoord0));
+				gl_FragColor = texture2D(s_color, v_texcoord0);
 			}
 		"""
 	}
@@ -486,7 +485,7 @@ bgfx_shaders = {
 		fs_code = """
 			void main()
 			{
-				gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+				gl_FragColor = toGammaAccurate(vec4(1.0, 0.0, 1.0, 1.0));
 			}
 		"""
 	}
