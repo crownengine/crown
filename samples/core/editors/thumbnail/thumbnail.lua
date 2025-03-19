@@ -90,10 +90,14 @@ function Thumbnail:init()
 	self._requests = {}
 	self._pending = {}
 
-	World.spawn_unit(self._world, "core/units/light"
+	local light_unit = World.spawn_unit(self._world, "core/units/light"
 		, Vector3(1000, 0, 0)
 		, Quaternion.from_axis_angle(Vector3.forward(), 45.0 * (math.pi / 180.0))
 		)
+	local light = RenderWorld.light_instance(self._rw, light_unit)
+	if light ~= nil then
+		RenderWorld.light_set_type(self._rw, light, "directional")
+	end
 end
 
 function Thumbnail:thumbnail_ready(screenshot_path)
