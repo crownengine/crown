@@ -370,6 +370,21 @@ public class Project
 		return 0;
 	}
 
+	public int create_state_machine(string directory, string name)
+	{
+		string resource_name = Path.build_filename(directory, name);
+
+		Database db = new Database(this, null);
+		Guid node_id = Guid.new_guid();
+		StateMachineNode sm_node = StateMachineNode(db, node_id);
+		Guid machine_id = Guid.new_guid();
+		StateMachineResource machine = StateMachineResource(db, machine_id, sm_node);
+		machine.add_node(sm_node);
+
+		machine.save(this, resource_name);
+		return 0;
+	}
+
 	// Returns the absolute path to the source directory.
 	public string source_dir()
 	{

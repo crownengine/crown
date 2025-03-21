@@ -215,6 +215,41 @@ private Gtk.Menu? project_entry_menu_create(string type, string name)
 				GLib.Application.get_default().activate_action("delete-file", new GLib.Variant.string(path));
 			});
 		menu.add(mi);
+
+		if (type == "animation_skeleton") {
+			mi = new Gtk.MenuItem.with_label("New State Machine...");
+			mi.activate.connect(() => {
+					Gtk.Dialog dg = new Gtk.Dialog.with_buttons("State Machine Name"
+						, ((Gtk.Application)GLib.Application.get_default()).active_window
+						, DialogFlags.MODAL
+						, "Cancel"
+						, ResponseType.CANCEL
+						, "Ok"
+						, ResponseType.OK
+						, null
+						);
+
+					EntryText sb = new EntryText();
+					sb.value = GLib.Path.get_basename((string)name);
+					sb.activate.connect(() => { dg.response(ResponseType.OK); });
+					dg.get_content_area().add(sb);
+					dg.skip_taskbar_hint = true;
+					dg.show_all();
+
+					if (dg.run() == (int)ResponseType.OK) {
+						if (sb.text.strip() == "") {
+							dg.destroy();
+							return;
+						}
+
+						var tuple = new GLib.Variant.tuple({ResourceId.parent_folder(name), sb.text});
+						GLib.Application.get_default().activate_action("create-state-machine", tuple);
+					}
+
+					dg.destroy();
+				});
+			menu.add(mi);
+		}
 	}
 
 	// Add shared menu items.
