@@ -553,14 +553,15 @@ public class LevelEditorApplication : Gtk.Application
 
 	private const GLib.ActionEntry[] action_entries_project =
 	{
-		{ "delete-file",      on_delete_file,      "s",     null },
-		{ "delete-directory", on_delete_directory, "s",     null },
-		{ "create-directory", on_create_directory, "(ss)",  null },
-		{ "create-script",    on_create_script,    "(ssb)", null },
-		{ "create-unit",      on_create_unit,      "(ss)",  null },
-		{ "open-containing",  on_open_containing,  "s",     null },
-		{ "texture-settings", on_texture_settings, "s",     null },
-		{ "reveal-resource",  on_reveal,           "(ss)",  null }
+		{ "delete-file",          on_delete_file,          "s",     null },
+		{ "delete-directory",     on_delete_directory,     "s",     null },
+		{ "create-directory",     on_create_directory,     "(ss)",  null },
+		{ "create-script",        on_create_script,        "(ssb)", null },
+		{ "create-unit",          on_create_unit,          "(ss)",  null },
+		{ "create-state-machine", on_create_state_machine, "(ss)",  null },
+		{ "open-containing",      on_open_containing,      "s",     null },
+		{ "texture-settings",     on_texture_settings,     "s",     null },
+		{ "reveal-resource",      on_reveal,               "(ss)",  null }
 	};
 
 	private const GLib.ActionEntry[] action_entries_package =
@@ -3029,6 +3030,22 @@ public class LevelEditorApplication : Gtk.Application
 		int ec = _project.create_unit(dir_name, unit_name);
 		if (ec < 0) {
 			loge("Failed to create unit %s".printf(unit_name));
+			return;
+		}
+
+		_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
+				_data_compiler.compile.end(res);
+			});
+	}
+
+	private void on_create_state_machine(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string dir_name = (string)param.get_child_value(0);
+		string state_machine_name = (string)param.get_child_value(1);
+
+		int ec = _project.create_state_machine(dir_name, state_machine_name);
+		if (ec < 0) {
+			loge("Failed to create state machine %s".printf(state_machine_name));
 			return;
 		}
 
