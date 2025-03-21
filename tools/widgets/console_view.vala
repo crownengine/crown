@@ -136,7 +136,7 @@ public class ConsoleView : Gtk.Box
 
 		_text_view = new Gtk.TextView();
 		_text_view.editable = false;
-		_text_view.can_focus = false;
+		_text_view.can_focus = true;
 
 		// Create tags for color-formatted text.
 		Gtk.TextBuffer tb = _text_view.buffer;
