@@ -880,6 +880,7 @@ public class LevelEditorApplication : Gtk.Application
 		_combo.append("editor", "Editor");
 		_combo.append("game", "Game");
 		_combo.set_active_id("editor");
+		_combo.set_size_request(50, -1);
 
 		_console_view = new ConsoleView(_project, _combo, _preferences_dialog);
 		_thumbnail_cache = new ThumbnailCache(_project, _thumbnail, (uint)_preferences_dialog._thumbnail_cache_max_size.value * 1024 * 1024);
