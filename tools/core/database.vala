@@ -835,7 +835,7 @@ public class Database
 		key_changed(id, key);
 	}
 
-	private void create_empty_set(int dir, Guid id, string key)
+	public void create_empty_set(int dir, Guid id, string key)
 	{
 		assert(has_object(id));
 		assert(is_valid_key(key));
