@@ -164,9 +164,18 @@ public class ConsoleView : Gtk.Box
 		_entry_hbox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
 		_entry_hbox.pack_start(_entry, true, true);
 		_entry_hbox.pack_end(combo, false, false);
+	
+		Gtk.Button clear_button = new Gtk.Button.with_label("Clear");
+		clear_button.clicked.connect(() => {
+			_text_view.buffer.set_text("");
+		});
+	
+		Gtk.Box hbox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		hbox.pack_start(_entry_hbox, true, true, 0);
+		hbox.pack_start(clear_button, false, false, 0);
 
 		this.pack_start(_scrolled_window, true, true, 0);
-		this.pack_start(_entry_hbox, false, true, 0);
+		this.pack_start(hbox, false, true, 0);
 
 		this.destroy.connect(on_destroy);
 
