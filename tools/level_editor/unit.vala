@@ -116,44 +116,53 @@ public struct Unit
 		if (all_components.size > 0) {
 			foreach (Guid? component_id in all_components) {
 				if (component_id == null) continue;
-				
+		
 				string component_type = _db.object_type(component_id);
-				
+		
 				sb.append("\t{\n");
 				sb.append("\t\t_guid = \"%s\"\n".printf(component_id.to_string()));
 				sb.append("\t\t_type = \"%s\"\n".printf(component_type));
-				
+		
 				sb.append("\t\tdata = {\n");
-				string[] keys = _db.get_keys(component_id);
-				foreach (string key in keys) {
-					if (key == "_type" || key == "_guid" || key == "type") continue;
-					
-					string cleaned_key = key.replace("data.", "");
-					Value? val = get_component_property(component_id, key);
-					if (val != null) {
-						sb.append("\t\t\t%s = %s\n".printf(cleaned_key, value_to_lua(val)));
-						
-						// Si c'est un mesh_renderer, collecte les ressources
-						if (component_type == "mesh_renderer" && (cleaned_key == "mesh_resource" || cleaned_key == "material")) {
-							string resource_path = (string)val;
-						
-							// Add .mesh or .material extension if missing
-							if (cleaned_key == "mesh_resource" && !resource_path.has_suffix(".mesh")) {
-								resource_path += ".mesh";
-							} else if (cleaned_key == "material" && !resource_path.has_suffix(".material")) {
-								resource_path += ".material";
+		
+				if (component_type == "transform") {
+					// Set default transform values
+					sb.append("\t\t\tposition = [0.000, 0.000, 0.000]\n");
+					sb.append("\t\t\trotation = [0.000, 0.000, 0.000, 1.000]\n");
+					sb.append("\t\t\tscale = [1.000, 1.000, 1.000]\n");
+				} else {
+					// Iterate over keys for other component types
+					string[] keys = _db.get_keys(component_id);
+					foreach (string key in keys) {
+						if (key == "_type" || key == "_guid" || key == "type") continue;
+
+						string cleaned_key = key.replace("data.", "");
+						Value? val = get_component_property(component_id, key);
+						if (val != null) {
+							sb.append("\t\t\t%s = %s\n".printf(cleaned_key, value_to_lua(val)));
+
+							// If it's a mesh_renderer, collect resources
+							if (component_type == "mesh_renderer" && (cleaned_key == "mesh_resource" || cleaned_key == "material")) {
+								string resource_path = (string)val;
+		
+								// Add .mesh or .material extension if missing
+								if (cleaned_key == "mesh_resource" && !resource_path.has_suffix(".mesh")) {
+									resource_path += ".mesh";
+								} else if (cleaned_key == "material" && !resource_path.has_suffix(".material")) {
+									resource_path += ".material";
+								}
+		
+								resources.add(resource_path);
 							}
-						
-							resources.add(resource_path);
-						}						
+						}
 					}
 				}
+
 				sb.append("\t\t}\n");
-				
 				sb.append("\t\ttype = \"%s\"\n".printf(component_type));
 				sb.append("\t},\n");
 			}
-		}
+		}		
 		
 		sb.append("]\n");
 		return sb.str;
