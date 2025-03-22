@@ -46,124 +46,81 @@ public struct Unit
 		set_local_rotation(rot);
 		set_local_scale(scl);
 	}
-	public bool export_to_file(string path)
-	{
-		try
-		{
+	
+	public bool export_to_file(string path) {
+		try {
 			Gee.ArrayList<string> resources_to_export = new Gee.ArrayList<string>();
-			string unit_data = generate_export_data(resources_to_export); // [!] Add 'project'
-			
-			// Write the unit data to the export file
+			string unit_data = generate_export_data(resources_to_export);
+			// Write the unit data to the specified file
 			FileUtils.set_contents(path, unit_data);
-			
-			// Get the export directory and the base name of the unit (without extension)
 			string export_dir = Path.get_dirname(path);
-			string unit_basename = Path.get_basename(path).replace(".unit", "");  // Base name of the .unit file (without extension)
-	
-			print("Export directory: " + export_dir);
-	
-			foreach (string resource_path in resources_to_export)
-			{
-				// Resolve the absolute path of the resource (if relative)
-				string abs_path = resource_path;
-				if (!Path.is_absolute(abs_path))
-				{
-					abs_path = _db.get_project().absolute_path(resource_path);
-				}
-	
-				print("Resource absolute path: " + abs_path);
-				
-				// Manually get the file extension using Path (rindex_of for the last dot)
-				string ext = abs_path.substring(abs_path.last_index_of_char('.') + 1);  // Get the extension manually
-				
-				// Rename the resource to match the unit's base name (preserving the extension)
+			string unit_basename = Path.get_basename(path).replace(".unit", ""); // Remove the ".unit" extension
+			foreach (string resource_path in resources_to_export) {
+				string abs_path = Path.is_absolute(resource_path) ? resource_path : _db.get_project().absolute_path(resource_path);
+				// Extract the file extension
+				string ext = abs_path.substring(abs_path.last_index_of_char('.') + 1);
+				// Create the new filename based on the unit's base name and resource extension
 				string new_filename = unit_basename + "." + ext;
-				
-				// Create the destination path using the new filename
 				string dest_path = Path.build_filename(export_dir, new_filename);
-				print("Destination path: " + dest_path);
-				
-				// Copy the resource file to the new destination
+				// Copy the resource to the destination with overwrite flag
 				File src = File.new_for_path(abs_path);
 				File dest = File.new_for_path(dest_path);
-	
-				// Copy with overwrite option
 				src.copy(dest, FileCopyFlags.OVERWRITE);
-				print("Copied from: " + abs_path + " to: " + dest_path);
 			}
-	
 			return true;
-		}
-		catch (Error e)
-		{
+		} catch (Error e) {
 			loge("Failed to export unit: " + e.message);
 			return false;
 		}
 	}
-	
-	private string generate_export_data(Gee.List<string> resources)
-	{
+
+	private string generate_export_data(Gee.List<string> resources) {
 		StringBuilder sb = new StringBuilder();
-		
+		// Write unit metadata
 		sb.append("_guid = \"%s\"\n".printf(_id.to_string()));
 		sb.append("_type = \"unit\"\n");
-		
 		sb.append("components = [\n");
-		
+		// Collect and process all components linked to the unit
 		HashSet<Guid?> all_components = new HashSet<Guid?>(Guid.hash_func, Guid.equal_func);
 		collect_all_components(_id, all_components);
-		
+		// Process each component
 		if (all_components.size > 0) {
 			foreach (Guid? component_id in all_components) {
 				if (component_id == null) continue;
-		
 				string component_type = _db.object_type(component_id);
-		
 				sb.append("\t{\n");
 				sb.append("\t\t_guid = \"%s\"\n".printf(component_id.to_string()));
 				sb.append("\t\t_type = \"%s\"\n".printf(component_type));
-		
 				sb.append("\t\tdata = {\n");
-		
 				if (component_type == "transform") {
-					// Set default transform values
 					sb.append("\t\t\tposition = [0.000, 0.000, 0.000]\n");
 					sb.append("\t\t\trotation = [0.000, 0.000, 0.000, 1.000]\n");
 					sb.append("\t\t\tscale = [1.000, 1.000, 1.000]\n");
 				} else {
-					// Iterate over keys for other component types
 					string[] keys = _db.get_keys(component_id);
 					foreach (string key in keys) {
 						if (key == "_type" || key == "_guid" || key == "type") continue;
-
 						string cleaned_key = key.replace("data.", "");
 						Value? val = get_component_property(component_id, key);
 						if (val != null) {
 							sb.append("\t\t\t%s = %s\n".printf(cleaned_key, value_to_lua(val)));
-
-							// If it's a mesh_renderer, collect resources
 							if (component_type == "mesh_renderer" && (cleaned_key == "mesh_resource" || cleaned_key == "material")) {
 								string resource_path = (string)val;
-		
-								// Add .mesh or .material extension if missing
 								if (cleaned_key == "mesh_resource" && !resource_path.has_suffix(".mesh")) {
 									resource_path += ".mesh";
 								} else if (cleaned_key == "material" && !resource_path.has_suffix(".material")) {
 									resource_path += ".material";
 								}
-		
 								resources.add(resource_path);
 							}
 						}
 					}
 				}
-
 				sb.append("\t\t}\n");
 				sb.append("\t\ttype = \"%s\"\n".printf(component_type));
 				sb.append("\t},\n");
 			}
-		}		
-		
+		}
 		sb.append("]\n");
 		return sb.str;
 	}
