@@ -421,7 +421,6 @@ public class Database
 
 		reset();
 	}
-
 	/// Resets database to clean state.
 	public void reset()
 	{
@@ -1158,7 +1157,10 @@ public class Database
 	{
 		return get_property(id, key) != null;
 	}
-
+    public Project get_project()
+    {
+        return _project;
+    }
 	public Value? get_property(Guid id, string key)
 	{
 		assert(has_object(id));

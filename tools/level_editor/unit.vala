@@ -48,16 +48,60 @@ public struct Unit
 	}
 	public bool export_to_file(string path)
 	{
-		try {
-			FileUtils.set_contents(path, generate_export_data());
+		try
+		{
+			Gee.ArrayList<string> resources_to_export = new Gee.ArrayList<string>();
+			string unit_data = generate_export_data(resources_to_export); // [!] Add 'project'
+			
+			// Write the unit data to the export file
+			FileUtils.set_contents(path, unit_data);
+			
+			// Get the export directory and the base name of the unit (without extension)
+			string export_dir = Path.get_dirname(path);
+			string unit_basename = Path.get_basename(path).replace(".unit", "");  // Base name of the .unit file (without extension)
+	
+			print("Export directory: " + export_dir);
+	
+			foreach (string resource_path in resources_to_export)
+			{
+				// Resolve the absolute path of the resource (if relative)
+				string abs_path = resource_path;
+				if (!Path.is_absolute(abs_path))
+				{
+					abs_path = _db.get_project().absolute_path(resource_path);
+				}
+	
+				print("Resource absolute path: " + abs_path);
+				
+				// Manually get the file extension using Path (rindex_of for the last dot)
+				string ext = abs_path.substring(abs_path.last_index_of_char('.') + 1);  // Get the extension manually
+				
+				// Rename the resource to match the unit's base name (preserving the extension)
+				string new_filename = unit_basename + "." + ext;
+				
+				// Create the destination path using the new filename
+				string dest_path = Path.build_filename(export_dir, new_filename);
+				print("Destination path: " + dest_path);
+				
+				// Copy the resource file to the new destination
+				File src = File.new_for_path(abs_path);
+				File dest = File.new_for_path(dest_path);
+	
+				// Copy with overwrite option
+				src.copy(dest, FileCopyFlags.OVERWRITE);
+				print("Copied from: " + abs_path + " to: " + dest_path);
+			}
+	
 			return true;
-		} catch (Error e) {
+		}
+		catch (Error e)
+		{
 			loge("Failed to export unit: " + e.message);
 			return false;
 		}
 	}
 	
-	private string generate_export_data()
+	private string generate_export_data(Gee.List<string> resources)
 	{
 		StringBuilder sb = new StringBuilder();
 		
@@ -71,10 +115,7 @@ public struct Unit
 		
 		if (all_components.size > 0) {
 			foreach (Guid? component_id in all_components) {
-				if (component_id == null) {
-					print("Skipping null component_id!\n");
-					continue;
-				}
+				if (component_id == null) continue;
 				
 				string component_type = _db.object_type(component_id);
 				
@@ -86,10 +127,25 @@ public struct Unit
 				string[] keys = _db.get_keys(component_id);
 				foreach (string key in keys) {
 					if (key == "_type" || key == "_guid" || key == "type") continue;
+					
 					string cleaned_key = key.replace("data.", "");
 					Value? val = get_component_property(component_id, key);
 					if (val != null) {
 						sb.append("\t\t\t%s = %s\n".printf(cleaned_key, value_to_lua(val)));
+						
+						// Si c'est un mesh_renderer, collecte les ressources
+						if (component_type == "mesh_renderer" && (cleaned_key == "mesh_resource" || cleaned_key == "material")) {
+							string resource_path = (string)val;
+						
+							// Add .mesh or .material extension if missing
+							if (cleaned_key == "mesh_resource" && !resource_path.has_suffix(".mesh")) {
+								resource_path += ".mesh";
+							} else if (cleaned_key == "material" && !resource_path.has_suffix(".material")) {
+								resource_path += ".material";
+							}
+						
+							resources.add(resource_path);
+						}						
 					}
 				}
 				sb.append("\t\t}\n");
