@@ -52,7 +52,7 @@ public struct Unit
 		{
 			Gee.ArrayList<string> resources_to_export = new Gee.ArrayList<string>();
 			string unit_data = generate_export_data(resources_to_export); // [!] Add 'project'
-			
+	
 			// Write the unit data to the export file
 			FileUtils.set_contents(path, unit_data);
 			
@@ -61,6 +61,10 @@ public struct Unit
 			string unit_basename = Path.get_basename(path).replace(".unit", "");  // Base name of the .unit file (without extension)
 	
 			print("Export directory: " + export_dir);
+	
+			set_local_position(new Vector3(0, 0, 0));  
+			set_local_rotation(new Quaternion(0, 0, 0, 1));  
+			set_local_scale(new Vector3(1, 1, 1)); 
 	
 			foreach (string resource_path in resources_to_export)
 			{
