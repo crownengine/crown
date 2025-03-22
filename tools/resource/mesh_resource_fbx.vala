@@ -589,8 +589,7 @@ public class FBXImporter
 					textures_path = textures_file.get_path();
 				}
 
-				// Extract embedded texture data or copy external
-				// texture files into textures_path.
+				// Import textures.
 				for (size_t i = 0; i < scene.textures.data.length; ++i) {
 					unowned ufbx.Texture texture = scene.textures.data[i];
 
@@ -598,13 +597,12 @@ public class FBXImporter
 					GLib.File source_image_file  = GLib.File.new_for_path(source_image_filename);
 					string source_image_path     = source_image_file.get_path();
 
-					string texture_resource_filename = project.resource_filename(source_image_path);
-					string texture_resource_path     = ResourceId.normalize(texture_resource_filename);
-					string texture_resource_name     = ResourceId.name(texture_resource_path);
-
+					FileStream fs;
+					// Extract embedded texture data or copy external
+					// texture files into textures_path.
 					if (texture.content.data.length > 0) {
 						// Extract embedded PNG data.
-						FileStream fs = FileStream.open(source_image_path, "wb");
+						fs = FileStream.open(source_image_path, "wb");
 						if (fs == null) {
 							loge("Failed to open texture '%s'".printf(source_image_path));
 							return ImportResult.ERROR;
@@ -616,18 +614,28 @@ public class FBXImporter
 							return ImportResult.ERROR;
 						}
 					} else {
-						// Copy external texture file.
+						// TODO: Copy external texture file.
+						fs = null;
 					}
 
-					// Create .texture resource.
-					Guid texture_id = Guid.new_guid();
-					// FIXME: detect texture type.
-					TextureResource texture_resource = TextureResource.color_map(db
-						, texture_id
-						, texture_resource_name + ".png"
-						);
-					texture_resource.save(project, texture_resource_name);
-					imported_textures.set(texture, texture_resource_name);
+					// Only create .texture resource if source image exists.
+					if (fs == null) {
+						logw("'%s' references non-existing texture '%s'".printf(filename_i, (string)texture.name.data));
+					} else {
+						string texture_resource_filename = project.resource_filename(source_image_path);
+						string texture_resource_path     = ResourceId.normalize(texture_resource_filename);
+						string texture_resource_name     = ResourceId.name(texture_resource_path);
+
+						// Create .texture resource.
+						Guid texture_id = Guid.new_guid();
+						// FIXME: detect texture type.
+						TextureResource texture_resource = TextureResource.color_map(db
+							, texture_id
+							, texture_resource_name + ".png"
+							);
+						texture_resource.save(project, texture_resource_name);
+						imported_textures.set(texture, texture_resource_name);
+					}
 				}
 			}
 

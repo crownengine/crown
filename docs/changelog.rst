@@ -14,6 +14,7 @@ Changelog
 * Fixed an issue that caused large levels to load slowly.
 * Fixed an issue that prevented importing DCC data with funny extensions.
 * Fixed revealing resources while the Project Browser was hidden.
+* Fixed importing FBX files with references to non-existing textures.
 
 **Runtime**
 
