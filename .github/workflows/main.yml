@@ -133,13 +133,13 @@ jobs:
       run: |
         make MAKE_JOBS=2 crown-launcher-linux-release64
   windows:
-    runs-on: windows-2019
+    runs-on: windows-2022
     steps:
     - uses: actions/checkout@v4
     - name: luajit
       shell: cmd
       run: |
-        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
+        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
         cd "3rdparty\luajit\src"
         .\msvcbuild.bat
     - name: luajit-copy-libs
@@ -150,13 +150,13 @@ jobs:
     - name: windows-generate-projects
       shell: cmd
       run: |
-        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-        scripts\genie\bin\windows\genie --file=scripts\genie.lua --with-tools --no-editor vs2019
+        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
+        scripts\genie\bin\windows\genie --file=scripts\genie.lua --with-tools --no-editor vs2022
     - name: windows-make-debug64
       shell: cmd
       run: |
-        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-        devenv build/projects/vs2019/crown.sln /Build "debug|x64" /Project crown
+        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
+        devenv build/projects/vs2022/crown.sln /Build "debug|x64" /Project crown
     - name: windows-test-debug64
       shell: cmd
       run: |
@@ -164,8 +164,8 @@ jobs:
     - name: windows-make-development64
       shell: cmd
       run: |
-        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-        devenv build/projects/vs2019/crown.sln /Build "development|x64" /Project crown
+        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
+        devenv build/projects/vs2022/crown.sln /Build "development|x64" /Project crown
     - name: windows-test-development64
       shell: cmd
       run: |
@@ -173,8 +173,8 @@ jobs:
     - name: windows-make-release64
       shell: cmd
       run: |
-        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-        devenv build/projects/vs2019/crown.sln /Build "release|x64" /Project crown
+        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
+        devenv build/projects/vs2022/crown.sln /Build "release|x64" /Project crown
     - name: windows-test-release64
       shell: cmd
       run: |
