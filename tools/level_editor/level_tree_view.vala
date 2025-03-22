@@ -221,7 +221,7 @@ public class LevelTreeView : Gtk.Box
 		this.pack_start(tree_control, false, true, 0);
 		this.pack_start(_scrolled_window, true, true, 0);
 	}
-
+	
 	private bool on_button_pressed(Gdk.EventButton ev)
 	{
 		if (ev.button == Gdk.BUTTON_SECONDARY) {
@@ -239,6 +239,63 @@ public class LevelTreeView : Gtk.Box
 			Gtk.Menu menu = new Gtk.Menu();
 			Gtk.MenuItem mi;
 
+			mi = new Gtk.MenuItem.with_label("Export Unit...");
+			mi.activate.connect(() => {
+				Guid unit_id = GUID_ZERO;
+				string unit_name = "";
+				
+				// Get selected unit GUID and name
+				_tree_selection.selected_foreach((model, path, iter) => {
+					Value guid_val;
+					model.get_value(iter, Column.GUID, out guid_val);
+					unit_id = (Guid)guid_val;
+			
+					Value name_val;
+					model.get_value(iter, Column.NAME, out name_val);
+					unit_name = (string)name_val;
+				});
+			
+				if (unit_id == GUID_ZERO) return;
+			
+				// Create save dialog
+				var dialog = new Gtk.FileChooserDialog("Export Unit",
+					(Gtk.Window)this.get_toplevel(),
+					Gtk.FileChooserAction.SAVE,
+					"Cancel", Gtk.ResponseType.CANCEL,
+					"Export", Gtk.ResponseType.ACCEPT);
+			
+				// Set default name
+				dialog.set_current_name(unit_name.has_suffix(".unit") ? unit_name : unit_name + ".unit");
+				
+				// File filter
+				var filter = new Gtk.FileFilter();
+				filter.add_pattern("*.unit");
+				dialog.set_filter(filter);
+			
+				if (dialog.run() == (int)Gtk.ResponseType.ACCEPT) {
+					string export_path = dialog.get_filename();
+					if (!export_path.has_suffix(".unit")) {
+						export_path += ".unit";
+					}
+					
+					// Get unit and export
+					Unit unit = Unit(_db, unit_id);
+					if (!unit.export_to_file(export_path)) {
+						// Show error message
+						var err_dialog = new Gtk.MessageDialog(dialog,
+							Gtk.DialogFlags.MODAL,
+							Gtk.MessageType.ERROR,
+							Gtk.ButtonsType.OK,
+							"Failed to export unit!");
+						err_dialog.run();
+						err_dialog.destroy();
+					}
+				}
+			
+				dialog.destroy();
+			});
+			menu.add(mi);
+			
 			mi = new Gtk.MenuItem.with_label("Rename...");
 			mi.activate.connect(() => {
 					Gtk.Dialog dg = new Gtk.Dialog.with_buttons("New Name"

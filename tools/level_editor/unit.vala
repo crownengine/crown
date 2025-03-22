@@ -46,7 +46,116 @@ public struct Unit
 		set_local_rotation(rot);
 		set_local_scale(scl);
 	}
+	public bool export_to_file(string path)
+	{
+		try {
+			FileUtils.set_contents(path, generate_export_data());
+			return true;
+		} catch (Error e) {
+			loge("Failed to export unit: " + e.message);
+			return false;
+		}
+	}
+	
+	private string generate_export_data()
+	{
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("_guid = \"%s\"\n".printf(_id.to_string()));
+		sb.append("_type = \"unit\"\n");
+		
+		sb.append("components = [\n");
+		
+		HashSet<Guid?> all_components = new HashSet<Guid?>(Guid.hash_func, Guid.equal_func);
+		collect_all_components(_id, all_components);
+		
+		if (all_components.size > 0) {
+			foreach (Guid? component_id in all_components) {
+				if (component_id == null) {
+					print("Skipping null component_id!\n");
+					continue;
+				}
+				
+				string component_type = _db.object_type(component_id);
+				
+				sb.append("\t{\n");
+				sb.append("\t\t_guid = \"%s\"\n".printf(component_id.to_string()));
+				sb.append("\t\t_type = \"%s\"\n".printf(component_type));
+				
+				sb.append("\t\tdata = {\n");
+				string[] keys = _db.get_keys(component_id);
+				foreach (string key in keys) {
+					if (key == "_type" || key == "_guid" || key == "type") continue;
+					string cleaned_key = key.replace("data.", "");
+					Value? val = get_component_property(component_id, key);
+					if (val != null) {
+						sb.append("\t\t\t%s = %s\n".printf(cleaned_key, value_to_lua(val)));
+					}
+				}
+				sb.append("\t\t}\n");
+				
+				sb.append("\t\ttype = \"%s\"\n".printf(component_type));
+				sb.append("\t},\n");
+			}
+		}
+		
+		sb.append("]\n");
+		return sb.str;
+	}
 
+	private string value_to_lua(Value val)
+	{
+		Type type = val.type();
+		if (type == typeof(string)) {
+			return "\"%s\"".printf((string)val);
+		}
+		if (type == typeof(Guid)) {
+			return "\"%s\"".printf(((Guid)val).to_string());
+		}
+		if (type == typeof(bool)) {
+			return ((bool)val) ? "true" : "false";
+		}
+		if (type == typeof(double)) {
+			return ((double)val).to_string();
+		}
+		if (type == typeof(Vector3)) {
+			Vector3 v = (Vector3)val;
+			return "[%.3f, %.3f, %.3f]".printf(v.x, v.y, v.z);
+		}
+		if (type == typeof(Quaternion)) {
+			Quaternion q = (Quaternion)val;
+			return "[%.3f, %.3f, %.3f, %.3f]".printf(q.x, q.y, q.z, q.w); 
+		}
+		return "nil";
+	}
+	
+	private void collect_all_components(Guid unit_id, Gee.Set<Guid?> components)
+	{
+		Value? direct_components = _db.get_property(unit_id, "components");
+		if (direct_components != null) {
+			var component_set = direct_components as Gee.HashSet<Guid?>;
+			if (component_set != null) {
+				components.add_all(component_set);
+			}
+		}
+		
+		Value? prefab = _db.get_property(unit_id, "prefab");
+		if (prefab != null) {
+			string prefab_path = (string)prefab;
+			Unit.load_unit(_db, prefab_path);
+			Guid prefab_id = _db.get_property_guid(GUID_ZERO, prefab_path + ".unit");
+			collect_all_components(prefab_id, components);
+		}
+		
+		string[] deleted_keys = _db.get_keys(unit_id);
+		foreach (string key in deleted_keys) {
+			if (key.has_prefix("deleted_components.#")) {
+				Guid deleted_id = Guid.parse(key.split("#")[1]);
+				components.remove(deleted_id);
+			}
+		}
+	}
+	
 	public Value? get_component_property(Guid component_id, string key)
 	{
 		Value? val;
