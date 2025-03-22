@@ -77,7 +77,8 @@ public struct Unit
 	private string generate_export_data(Gee.List<string> resources) {
 		StringBuilder sb = new StringBuilder();
 		// Write unit metadata
-		sb.append("_guid = \"%s\"\n".printf(_id.to_string()));
+		Guid new_guid = Guid.new_guid();
+		sb.append("_guid = \"%s\"\n".printf(new_guid.to_string()));
 		sb.append("_type = \"unit\"\n");
 		sb.append("components = [\n");
 		// Collect and process all components linked to the unit
