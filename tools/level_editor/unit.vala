@@ -53,79 +53,251 @@ public struct Unit
 			string unit_data = generate_export_data(resources_to_export);
 			// Write the unit data to the specified file
 			FileUtils.set_contents(path, unit_data);
+	
 			string export_dir = Path.get_dirname(path);
-			string unit_basename = Path.get_basename(path).replace(".unit", ""); // Remove the ".unit" extension
+			string unit_basename = Path.get_basename(path).replace(".unit", "");
+	
 			foreach (string resource_path in resources_to_export) {
-				string abs_path = Path.is_absolute(resource_path) ? resource_path : _db.get_project().absolute_path(resource_path);
-				// Extract the file extension
+				string abs_path = Path.is_absolute(resource_path) 
+					? resource_path 
+					: _db.get_project().absolute_path(resource_path);
+	
 				string ext = abs_path.substring(abs_path.last_index_of_char('.') + 1);
-				// Create the new filename based on the unit's base name and resource extension
 				string new_filename = unit_basename + "." + ext;
 				string dest_path = Path.build_filename(export_dir, new_filename);
-				// Copy the resource to the destination with overwrite flag
 				File src = File.new_for_path(abs_path);
 				File dest = File.new_for_path(dest_path);
 				src.copy(dest, FileCopyFlags.OVERWRITE);
+	
+				if (ext == "mesh") {
+					try {
+						string mesh_content;
+						if (FileUtils.get_contents(abs_path, out mesh_content)) {
+							print("Mesh file content successfully read from: %s".printf(abs_path));
+							foreach (string line in mesh_content.split("\n")) {
+								if (line.contains("source =")) {
+									print("Found 'source =' line: %s".printf(line));
+	
+									// Extract source path
+									string[] parts = line.split("=", 2);
+									if (parts.length == 2) {
+										string source_path = parts[1]
+											.strip()
+											.replace("\"", "")
+											.replace("'", "");
+										print("Extracted source path: %s".printf(source_path));
+	
+										// Check if it ends with .fbx
+										if (source_path.has_suffix(".fbx")) {
+											print("Source path has .fbx suffix.");
+	
+											// Resolve absolute path for the FBX
+											string abs_fbx = Path.is_absolute(source_path)
+												? source_path
+												: _db.get_project().absolute_path(source_path);
+											print("Resolved absolute FBX path: %s".printf(abs_fbx));
+	
+											// Validate the existence of the FBX file
+											if (FileUtils.test(abs_fbx, FileTest.EXISTS)) {
+												print("FBX file exists: %s".printf(abs_fbx));
+	
+												// Rename FBX file to match unit's name
+												string new_fbx_filename = unit_basename + ".fbx";  // Rename FBX to match the unit name
+												string fbx_dest_path = Path.build_filename(export_dir, new_fbx_filename);
+												File fbx_src = File.new_for_path(abs_fbx);
+												File fbx_dest = File.new_for_path(fbx_dest_path);
+												print("Copying FBX file to: %s".printf(fbx_dest.get_path()));
+												fbx_src.copy(fbx_dest, FileCopyFlags.OVERWRITE);
+	
+												// Modify the mesh file's source path
+												mesh_content = mesh_content.replace(source_path, new_fbx_filename);
+												FileUtils.set_contents(dest_path, mesh_content);  // Write the updated content back to the .mesh file
+	
+												// Handle importer settings
+												string fbx_basename_without_extension = Path.get_basename(abs_fbx).replace(".fbx", "");
+												string importer_src_path = Path.build_filename(Path.get_dirname(abs_fbx), fbx_basename_without_extension + ".importer_settings");
+												print("Checking for importer settings file: %s".printf(importer_src_path));
+												if (FileUtils.test(importer_src_path, FileTest.EXISTS)) {
+													print("Importer settings file exists: %s".printf(importer_src_path));
+													
+													// Corrected: Rename the importer settings to match the unit's base name
+													string importer_dest_filename = unit_basename + ".importer_settings";
+													string importer_dest_path = Path.build_filename(export_dir, importer_dest_filename);
+													
+													File importer_file_src = File.new_for_path(importer_src_path);
+													File importer_file_dest = File.new_for_path(importer_dest_path);
+													
+													print("Copying importer settings file to: %s".printf(importer_file_dest.get_path()));
+													importer_file_src.copy(importer_file_dest, FileCopyFlags.OVERWRITE);
+												} else {
+													print("Importer settings file does not exist.");
+												}
+											} else {
+												print("FBX file does not exist at path: %s".printf(abs_fbx));
+											}
+										} else {
+											print("Source path does not end with .fbx: %s".printf(source_path));
+										}
+									} else {
+										print("Malformed 'source =' line: %s".printf(line));
+									}
+								}
+							}
+						} else {
+							print("Failed to read mesh file content: %s".printf(abs_path));
+						}
+					} catch (Error e) {
+						warning("Error processing .mesh file: %s".printf(e.message));
+					}
+				}
 			}
 			return true;
 		} catch (Error e) {
-			loge("Failed to export unit: " + e.message);
-			return false;
+			error("Export failed: %s", e.message);
 		}
 	}
+	
 
 	private string generate_export_data(Gee.List<string> resources) {
 		StringBuilder sb = new StringBuilder();
-		// Write unit metadata
-		Guid new_guid = Guid.new_guid();
-		sb.append("_guid = \"%s\"\n".printf(new_guid.to_string()));
+		sb.append("_guid = \"%s\"\n".printf(Guid.new_guid().to_string()));
 		sb.append("_type = \"unit\"\n");
+	
+		process_components_section(_id, sb, resources);
+	
+		process_children_section(_id, sb, resources);
+	
+		return sb.str;
+	}
+	
+	private void process_components_section(Guid unit_id, StringBuilder sb, Gee.List<string> resources) {
 		sb.append("components = [\n");
-		// Collect and process all components linked to the unit
-		HashSet<Guid?> all_components = new HashSet<Guid?>(Guid.hash_func, Guid.equal_func);
-		collect_all_components(_id, all_components);
-		// Process each component
-		if (all_components.size > 0) {
-			foreach (Guid? component_id in all_components) {
-				if (component_id == null) continue;
-				string component_type = _db.object_type(component_id);
-				sb.append("\t{\n");
-				sb.append("\t\t_guid = \"%s\"\n".printf(component_id.to_string()));
-				sb.append("\t\t_type = \"%s\"\n".printf(component_type));
-				sb.append("\t\tdata = {\n");
-				if (component_type == "transform") {
-					sb.append("\t\t\tposition = [0.000, 0.000, 0.000]\n");
-					sb.append("\t\t\trotation = [0.000, 0.000, 0.000, 1.000]\n");
-					sb.append("\t\t\tscale = [1.000, 1.000, 1.000]\n");
-				} else {
-					string[] keys = _db.get_keys(component_id);
-					foreach (string key in keys) {
-						if (key == "_type" || key == "_guid" || key == "type") continue;
-						string cleaned_key = key.replace("data.", "");
-						Value? val = get_component_property(component_id, key);
-						if (val != null) {
-							sb.append("\t\t\t%s = %s\n".printf(cleaned_key, value_to_lua(val)));
-							if (component_type == "mesh_renderer" && (cleaned_key == "mesh_resource" || cleaned_key == "material")) {
-								string resource_path = (string)val;
-								if (cleaned_key == "mesh_resource" && !resource_path.has_suffix(".mesh")) {
-									resource_path += ".mesh";
-								} else if (cleaned_key == "material" && !resource_path.has_suffix(".material")) {
-									resource_path += ".material";
-								}
-								resources.add(resource_path);
+		
+		HashSet<Guid?> components = new HashSet<Guid?>(Guid.hash_func, Guid.equal_func);
+		collect_direct_components(unit_id, components);
+		
+		foreach (Guid? component_id in components) {
+			if (component_id == null) continue;
+			string component_type = _db.object_type(component_id);
+			sb.append("\t{\n");
+			sb.append("\t\t_guid = \"%s\"\n".printf(component_id.to_string()));
+			sb.append("\t\t_type = \"%s\"\n".printf(component_type));
+			sb.append("\t\tdata = {\n");
+			if (component_type == "transform") {
+				sb.append("\t\t\tposition = [0.000, 0.000, 0.000]\n");
+				sb.append("\t\t\trotation = [0.000, 0.000, 0.000, 1.000]\n");
+				sb.append("\t\t\tscale = [1.000, 1.000, 1.000]\n");
+			} else {
+				string[] keys = _db.get_keys(component_id);
+				foreach (string key in keys) {
+					if (key == "_type" || key == "_guid" || key == "type") continue;
+					string cleaned_key = key.replace("data.", "");
+					Value? val = get_component_property(component_id, key);
+					if (val != null) {
+						sb.append("\t\t\t%s = %s\n".printf(cleaned_key, value_to_lua(val)));
+						if (component_type == "mesh_renderer" && (cleaned_key == "mesh_resource" || cleaned_key == "material")) {
+							string resource_path = (string)val;
+							if (cleaned_key == "mesh_resource" && !resource_path.has_suffix(".mesh")) {
+								resource_path += ".mesh";
+							} else if (cleaned_key == "material" && !resource_path.has_suffix(".material")) {
+								resource_path += ".material";
 							}
+							resources.add(resource_path);
 						}
 					}
 				}
-				sb.append("\t\t}\n");
-				sb.append("\t\ttype = \"%s\"\n".printf(component_type));
+			}
+			sb.append("\t\t}\n");
+			sb.append("\t\ttype = \"%s\"\n".printf(component_type));
+			sb.append("\t},\n");
+		}
+		
+		sb.append("]\n");
+	}
+	
+	private void process_children_section(Guid unit_id, StringBuilder sb, Gee.List<string> resources) {
+		Gee.Collection<Guid?> children = get_all_children(unit_id);
+	
+		if (children.size > 0) {
+			sb.append("children = [\n");
+	
+			foreach (Guid? child_id in children) {
+				if (child_id == null) continue;
+	
+				Unit child_unit = new Unit(_db, child_id);
+				string child_data = child_unit.generate_export_data(resources);
+				
+				string[] lines = child_data.split("\n");
+				sb.append("\t{\n");
+				foreach (string line in lines) {
+					if (line.strip().length == 0) continue;
+					sb.append("\t\t%s\n".printf(line));
+				}
 				sb.append("\t},\n");
 			}
+	
+			sb.append("]\n");
 		}
-		sb.append("]\n");
-		return sb.str;
 	}
-
+	private Gee.Collection<Guid?> get_all_children(Guid unit_id) {
+		Gee.ArrayList<Guid?> children = new Gee.ArrayList<Guid?>();
+		
+		Value? direct_children = _db.get_property(unit_id, "children");
+		if (direct_children != null) {
+			children.add_all((Gee.Collection<Guid?>)direct_children);
+		}
+		
+		Value? prefab = _db.get_property(unit_id, "prefab");
+		if (prefab != null) {
+			string prefab_path = (string)prefab;
+			Guid prefab_id = resolve_prefab_id(prefab_path);
+			if (prefab_id != GUID_ZERO) {
+				children.add_all(get_all_children(prefab_id));
+			}
+		}
+		
+		return children;
+	}
+	private Guid resolve_prefab_id(string prefab_path) {
+		string unit_path = prefab_path.has_suffix(".unit") 
+			? prefab_path 
+			: prefab_path + ".unit";
+		
+		Guid guid = _db.get_property_guid(GUID_ZERO, unit_path);
+		
+		if (guid == GUID_ZERO) {
+			warning("Prefab non trouvé: %s", prefab_path);
+		}
+		
+		return guid;
+	}
+	private void collect_direct_components(Guid unit_id, Gee.Set<Guid?> components) {
+		Value? direct = _db.get_property(unit_id, "components");
+		if (direct != null) {
+			components.add_all((Gee.Collection<Guid?>)direct);
+		}
+		
+		Value? prefab = _db.get_property(unit_id, "prefab");
+		if (prefab != null) {
+			string prefab_path = (string)prefab;
+			Guid prefab_id = resolve_prefab_id(prefab_path);
+			if (prefab_id != GUID_ZERO) {
+				collect_direct_components(prefab_id, components);
+			}
+		}
+		
+		remove_deleted_components(unit_id, components);
+	}
+	private void remove_deleted_components(Guid unit_id, Gee.Set<Guid?> components) {
+		string[] deleted_keys = _db.get_keys(unit_id);
+		foreach (string key in deleted_keys) {
+			if (key.has_prefix("deleted_components.#")) {
+				Guid deleted_id = Guid.parse(key.split("#")[1]);
+				components.remove(deleted_id);
+			}
+		}
+	}
+	
 	private string value_to_lua(Value val)
 	{
 		Type type = val.type();
@@ -152,24 +324,40 @@ public struct Unit
 		return "nil";
 	}
 	
-	private void collect_all_components(Guid unit_id, Gee.Set<Guid?> components)
-	{
+	private void collect_all_components(Guid unit_id, Gee.Set<Guid?> components, Gee.List<Guid?> children_components) {
 		Value? direct_components = _db.get_property(unit_id, "components");
 		if (direct_components != null) {
-			var component_set = direct_components as Gee.HashSet<Guid?>;
+			var component_set = direct_components as Gee.Collection<Guid?>;
 			if (component_set != null) {
 				components.add_all(component_set);
 			}
 		}
-		
+	
+		// Composants des enfants récursivement
+		Value? children_value = _db.get_property(unit_id, "children");
+		if (children_value != null) {
+			var children = children_value as Gee.Collection<Guid?>;
+			if (children != null) {
+				foreach (Guid? child_id in children) {
+					if (child_id != null) {
+						children_components.add(child_id);  
+						collect_all_components(child_id, components, children_components); 
+					}
+				}
+			}
+		}
+	
+		// Gestion des prefabs
 		Value? prefab = _db.get_property(unit_id, "prefab");
 		if (prefab != null) {
 			string prefab_path = (string)prefab;
 			Unit.load_unit(_db, prefab_path);
 			Guid prefab_id = _db.get_property_guid(GUID_ZERO, prefab_path + ".unit");
-			collect_all_components(prefab_id, components);
+			if (prefab_id != GUID_ZERO) {
+				collect_all_components(prefab_id, components, children_components); 
+			}
 		}
-		
+	
 		string[] deleted_keys = _db.get_keys(unit_id);
 		foreach (string key in deleted_keys) {
 			if (key.has_prefix("deleted_components.#")) {
@@ -178,6 +366,7 @@ public struct Unit
 			}
 		}
 	}
+	
 	
 	public Value? get_component_property(Guid component_id, string key)
 	{
