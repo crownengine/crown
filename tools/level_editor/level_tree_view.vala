@@ -281,7 +281,7 @@ public class LevelTreeView : Gtk.Box
 					
 					// Get unit and export
 					Unit unit = Unit(_db, unit_id);
-					if (!unit.export_to_file(export_path)) {
+					if (!UnitExporter.export_to_file(unit,export_path)) {
 						// Show error message
 						var err_dialog = new Gtk.MessageDialog(dialog,
 							Gtk.DialogFlags.MODAL,
