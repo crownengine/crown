@@ -33,14 +33,13 @@ namespace fbx
 			{ array::begin(vertex_data), array::size(vertex_data), vertex_size },
 		};
 
-		size_t num_vertices = ufbx_generate_indices(streams
+		ufbx_generate_indices(streams
 			, 1
 			, array::begin(triangle_indices)
 			, array::size(triangle_indices)
 			, NULL
 			, NULL
 			);
-		array::resize(vertex_data, (u32)num_vertices * vertex_size);
 	}
 
 	/// See: https://ufbx.github.io/elements/meshes/#example
