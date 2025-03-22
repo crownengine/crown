@@ -101,7 +101,7 @@ public class FBXImportOptions
 		create_materials_folder.value = true;
 		import_animation = new CheckBox();
 		import_animation.value = true;
-		import_animation.value_changed.connect(on_import_skeleton_and_animations_changed);
+		import_animation.value_changed.connect(on_import_animation_changed);
 		new_skeleton = new CheckBox();
 		new_skeleton.value = true;
 		new_skeleton.value_changed.connect(on_new_skeleton_changed);
@@ -139,12 +139,11 @@ public class FBXImportOptions
 		create_animations_folder.set_sensitive(import_clips.value);
 	}
 
-	public void on_import_skeleton_and_animations_changed()
+	public void on_import_animation_changed()
 	{
 		new_skeleton.sensitive = import_animation.value;
-		target_skeleton.sensitive = import_animation.value;
 		import_clips.sensitive = import_animation.value;
-		create_animations_folder.sensitive = import_animation.value;
+		create_animations_folder.sensitive = import_clips.value;
 	}
 
 	public void on_new_skeleton_changed()
