@@ -263,7 +263,8 @@ public class LevelTreeView : Gtk.Box
 					Gtk.FileChooserAction.SAVE,
 					"Cancel", Gtk.ResponseType.CANCEL,
 					"Export", Gtk.ResponseType.ACCEPT);
-			
+				// Set the initial folder to _db.get_project().source_dir()
+				dialog.set_current_folder(_db.get_project().source_dir());
 				// Set default name
 				dialog.set_current_name(unit_name.has_suffix(".unit") ? unit_name : unit_name + ".unit");
 				
