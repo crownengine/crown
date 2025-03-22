@@ -11,25 +11,41 @@ namespace Crown
         public static bool export_to_file(Unit unit, string path) {
             try {
                 Gee.ArrayList<string> resources_to_export = new Gee.ArrayList<string>();
-                string unit_data = generate_export_data(unit,resources_to_export);
-                // Write the unit data to the specified file
-                FileUtils.set_contents(path, unit_data);
-
+                string unit_data = generate_export_data(unit, resources_to_export);
+        
                 string export_dir = Path.get_dirname(path);
                 string unit_basename = Path.get_basename(path).replace(".unit", "");
-
+                string project_dir = unit._db.get_project().source_dir();
+                Gee.HashMap<string, string> path_map = new Gee.HashMap<string, string>();
+        
+                // Detect original name
+                string original_name = "";
+                if (resources_to_export.size > 0) {
+                    string first_resource = resources_to_export[0];
+                    original_name = Path.get_basename(first_resource).split(".")[0];
+                }
                 foreach (string resource_path in resources_to_export) {
                     string abs_path = Path.is_absolute(resource_path) 
                         ? resource_path 
                         : unit._db.get_project().absolute_path(resource_path);
-
+        
+                    // Original Relative Path
+                    string original_relative_path = abs_path.replace(project_dir + GLib.Path.DIR_SEPARATOR_S, "");
+                    original_relative_path = original_relative_path.replace("\\", "/");
+                    string original_without_ext = original_relative_path.substring(0, original_relative_path.last_index_of_char('.'));
+        
+                    // Exported Relative Path
+                    string exported_path = Path.build_filename(export_dir, unit_basename);
+                    string new_relative_path = exported_path.replace(project_dir + GLib.Path.DIR_SEPARATOR_S, "");
+                    path_map[original_without_ext] = new_relative_path;
+        
+                    // Copying and processing files
                     string ext = abs_path.substring(abs_path.last_index_of_char('.') + 1);
                     string new_filename = unit_basename + "." + ext;
                     string dest_path = Path.build_filename(export_dir, new_filename);
                     File src = File.new_for_path(abs_path);
                     File dest = File.new_for_path(dest_path);
-                    src.copy(dest, FileCopyFlags.OVERWRITE);
-
+                    src.copy(dest, FileCopyFlags.OVERWRITE);        
                     if (ext == "mesh") {
                         try {
                             string mesh_content;
@@ -57,7 +73,7 @@ namespace Crown
                                                     ? source_path
                                                     : unit._db.get_project().absolute_path(source_path);
                                                 print("Resolved absolute FBX path: %s".printf(abs_fbx));
-
+    
                                                 // Validate the existence of the FBX file
                                                 if (FileUtils.test(abs_fbx, FileTest.EXISTS)) {
                                                     print("FBX file exists: %s".printf(abs_fbx));
@@ -71,9 +87,17 @@ namespace Crown
                                                     fbx_src.copy(fbx_dest, FileCopyFlags.OVERWRITE);
 
                                                     // Modify the mesh file's source path
-                                                    mesh_content = mesh_content.replace(source_path, new_fbx_filename);
-                                                    FileUtils.set_contents(dest_path, mesh_content);  // Write the updated content back to the .mesh file
+                                                    new_relative_path = fbx_dest_path.replace(project_dir + GLib.Path.DIR_SEPARATOR_S, "");
+                                                    print("Relative path: %s".printf(new_relative_path));
 
+                                                    // Replace old source path with the new relative path
+                                                    string new_source = Path.build_filename(Path.get_dirname(new_relative_path), unit_basename + ".fbx");
+                                                    // Ensure all backslashes are replaced with forward slashes
+                                                    new_source = new_source.replace("\\", "/");                                  
+                                                    // Update the mesh content
+                                                    mesh_content = mesh_content.replace(source_path, new_source);
+                                                    FileUtils.set_contents(dest_path, mesh_content);  // Write the updated content back to the .mesh file
+                                                    
                                                     // Handle importer settings
                                                     string fbx_basename_without_extension = Path.get_basename(abs_fbx).replace(".fbx", "");
                                                     string importer_src_path = Path.build_filename(Path.get_dirname(abs_fbx), fbx_basename_without_extension + ".importer_settings");
@@ -112,12 +136,25 @@ namespace Crown
                         }
                     }
                 }
+                unit_data = unit_data.replace(original_name, unit_basename);
+        
+                var entries = new Gee.ArrayList<Gee.Map.Entry<string, string>>();
+                entries.add_all(path_map.entries);
+                entries.sort((a, b) => b.key.length - a.key.length);
+        
+                foreach (var entry in entries) {
+                    string key_normalized = entry.key.replace("\\", "/");
+                    unit_data = unit_data.replace(key_normalized, entry.value);
+                    unit_data = unit_data.replace(entry.key, entry.value);
+                }
+        
+                FileUtils.set_contents(path, unit_data);
+        
                 return true;
             } catch (Error e) {
                 error("Export failed: %s", e.message);
             }
         }
-
 
         private static string generate_export_data(Unit unit,Gee.List<string> resources) {
             StringBuilder sb = new StringBuilder();
