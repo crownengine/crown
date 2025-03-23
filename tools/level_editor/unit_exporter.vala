@@ -18,7 +18,6 @@ namespace Crown
                 string project_dir = unit._db.get_project().source_dir();
                 Gee.HashMap<string, string> path_map = new Gee.HashMap<string, string>();
         
-                // Detect original name
                 string original_name = "";
                 if (resources_to_export.size > 0) {
                     string first_resource = resources_to_export[0];
@@ -29,19 +28,15 @@ namespace Crown
                         ? resource_path 
                         : unit._db.get_project().absolute_path(resource_path);
         
-                    // Original Relative Path
                     string original_relative_path = abs_path.replace(project_dir + GLib.Path.DIR_SEPARATOR_S, "");
                     original_relative_path = original_relative_path.replace("\\", "/");
                     string original_without_ext = original_relative_path.substring(0, original_relative_path.last_index_of_char('.'));
         
-                    // Exported Relative Path
                     string exported_path = Path.build_filename(export_dir, unit_basename);
                     string new_relative_path = exported_path.replace(project_dir + GLib.Path.DIR_SEPARATOR_S, "");
                     new_relative_path = new_relative_path.replace("\\", "/"); 
         
                     path_map[original_without_ext] = new_relative_path;
-                    print("Adding path to map: Original: %s -> Exported: %s".printf(original_without_ext, new_relative_path));
-                    // Copying and processing files
                     string ext = abs_path.substring(abs_path.last_index_of_char('.') + 1);
                     string new_filename = unit_basename + "." + ext;
                     string dest_path = Path.build_filename(export_dir, new_filename);
@@ -52,103 +47,56 @@ namespace Crown
                         try {
                             string mesh_content;
                             if (FileUtils.get_contents(abs_path, out mesh_content)) {
-                                print("Mesh file content successfully read from: %s".printf(abs_path));
                                 foreach (string line in mesh_content.split("\n")) {
                                     if (line.contains("_guid =")) {
-                                        print("Found '_guid =' line: %s".printf(line));
-                    
-                                        // Extract the old GUID
                                         string[] parts = line.split("=", 2);
                                         if (parts.length == 2) {
                                             string old_guid = parts[1].strip().replace("\"", "").replace("'", "");
-                                            print("Original GUID: %s".printf(old_guid));
-                    
-                                            // Generate a new GUID
                                             string new_guid = Guid.new_guid().to_string();
-                                            print("Generated new GUID: %s".printf(new_guid));
-                    
-                                            // Replace the old GUID in the mesh content
                                             string new_guid_line = "_guid = \"" + new_guid + "\"";
                                             mesh_content = mesh_content.replace(line, new_guid_line);
-                                            print("Updated '_guid =' line: %s".printf(new_guid_line));
                                         }
                                     }
                     
                                     if (line.contains("source =")) {
-                                        print("Found 'source =' line: %s".printf(line));
-
-                                        // Extract source path
                                         string[] parts = line.split("=", 2);
                                         if (parts.length == 2) {
                                             string source_path = parts[1]
                                                 .strip()
                                                 .replace("\"", "")
                                                 .replace("'", "");
-                                            print("Extracted source path: %s".printf(source_path));
-
-                                            // Check if it ends with .fbx
+                                    
                                             if (source_path.has_suffix(".fbx")) {
-                                                print("Source path has .fbx suffix.");
-
-                                                // Resolve absolute path for the FBX
                                                 string abs_fbx = Path.is_absolute(source_path)
                                                     ? source_path
                                                     : unit._db.get_project().absolute_path(source_path);
-                                                print("Resolved absolute FBX path: %s".printf(abs_fbx));
-    
-                                                // Validate the existence of the FBX file
+                                    
                                                 if (FileUtils.test(abs_fbx, FileTest.EXISTS)) {
-                                                    print("FBX file exists: %s".printf(abs_fbx));
-
-                                                    // Rename FBX file to match unit's name
-                                                    string new_fbx_filename = unit_basename + ".fbx";  // Rename FBX to match the unit name
+                                                    string new_fbx_filename = unit_basename + ".fbx"; 
                                                     string fbx_dest_path = Path.build_filename(export_dir, new_fbx_filename);
                                                     File fbx_src = File.new_for_path(abs_fbx);
                                                     File fbx_dest = File.new_for_path(fbx_dest_path);
-                                                    print("Copying FBX file to: %s".printf(fbx_dest.get_path()));
                                                     fbx_src.copy(fbx_dest, FileCopyFlags.OVERWRITE);
-
-                                                    // Modify the mesh file's source path
+                                    
                                                     string fbx_new_relative_path = fbx_dest_path.replace(project_dir + GLib.Path.DIR_SEPARATOR_S, "");
-                                                    print("Relative path: %s".printf(fbx_new_relative_path));
-
-                                                    // Replace old source path with the new relative path
-                                                    string new_source = Path.build_filename(Path.get_dirname(fbx_new_relative_path), unit_basename + ".fbx");
-                                                    // Ensure all backslashes are replaced with forward slashes
-                                                    new_source = new_source.replace("\\", "/");                                  
-                                                    // Update the mesh content
+                                                    string new_source = Path.build_filename(Path.get_dirname(fbx_new_relative_path), unit_basename + ".fbx").replace("\\", "/");
                                                     mesh_content = mesh_content.replace(source_path, new_source);
-                                                    FileUtils.set_contents(dest_path, mesh_content);  // Write the updated content back to the .mesh file
-                                                    
-                                                    // Handle importer settings
+                                                    FileUtils.set_contents(dest_path, mesh_content);
+                                    
                                                     string fbx_basename_without_extension = Path.get_basename(abs_fbx).replace(".fbx", "");
                                                     string importer_src_path = Path.build_filename(Path.get_dirname(abs_fbx), fbx_basename_without_extension + ".importer_settings");
-                                                    print("Checking for importer settings file: %s".printf(importer_src_path));
                                                     if (FileUtils.test(importer_src_path, FileTest.EXISTS)) {
-                                                        print("Importer settings file exists: %s".printf(importer_src_path));
-                                                        
-                                                        // Rename the importer settings to match the unit's base name
                                                         string importer_dest_filename = unit_basename + ".importer_settings";
                                                         string importer_dest_path = Path.build_filename(export_dir, importer_dest_filename);
-                                                        
+                                    
                                                         File importer_file_src = File.new_for_path(importer_src_path);
                                                         File importer_file_dest = File.new_for_path(importer_dest_path);
-                                                        
-                                                        print("Copying importer settings file to: %s".printf(importer_file_dest.get_path()));
                                                         importer_file_src.copy(importer_file_dest, FileCopyFlags.OVERWRITE);
-                                                    } else {
-                                                        print("Importer settings file does not exist.");
                                                     }
-                                                } else {
-                                                    print("FBX file does not exist at path: %s".printf(abs_fbx));
                                                 }
-                                            } else {
-                                                print("Source path does not end with .fbx: %s".printf(source_path));
                                             }
-                                        } else {
-                                            print("Malformed 'source =' line: %s".printf(line));
                                         }
-                                    }
+                                    }                                    
                                 }
                             } else {
                                 print("Failed to read mesh file content: %s".printf(abs_path));
@@ -202,26 +150,7 @@ namespace Crown
                 sb.append("\t\t_type = \"%s\"\n".printf(component_type));
                 sb.append("\t\tdata = {\n");
                 if (component_type == "transform") {
-                    // Set position explicitly
-                    sb.append("\t\t\tposition = [0.000, 0.000, 0.000]\n");
-                
-                    // Fetch and append rotation, leaving it as-is
-                    Value? rotation = unit.get_component_property(component_id, "data.rotation");
-                    if (rotation != null) {
-                        sb.append("\t\t\trotation = %s\n".printf(value_to_lua(rotation)));
-                    } else {
-                        // Default rotation if no value exists
-                        sb.append("\t\t\trotation = [0.000, 0.000, 0.000, 1.000]\n");
-                    }
-                
-                    // Fetch and append scale, leaving it as-is
-                    Value? scale = unit.get_component_property(component_id, "data.scale");
-                    if (scale != null) {
-                        sb.append("\t\t\tscale = %s\n".printf(value_to_lua(scale)));
-                    } else {
-                        // Default scale if no value exists
-                        sb.append("\t\t\tscale = [1.000, 1.000, 1.000]\n");
-                    }
+                    process_transform_data(sb, unit, component_id);
                 } else {
                     string[] keys = unit._db.get_keys(component_id);
                     foreach (string key in keys) {
@@ -269,26 +198,7 @@ namespace Crown
                         if (line.strip().length == 0) continue;
                         
                         if (line.contains("_type = \"transform\"")) {
-                            // Set position explicitly
-                            sb.append("\t\t\tposition = [0.000, 0.000, 0.000]\n");
-                        
-                            // Fetch and append rotation, leaving it as-is
-                            Value? rotation = unit.get_component_property(child_id, "data.rotation");
-                            if (rotation != null) {
-                                sb.append("\t\t\trotation = %s\n".printf(value_to_lua(rotation)));
-                            } else {
-                                // Default rotation if no value exists
-                                sb.append("\t\t\trotation = [0.000, 0.000, 0.000, 1.000]\n");
-                            }
-                        
-                            // Fetch and append scale, leaving it as-is
-                            Value? scale = unit.get_component_property(child_id, "data.scale");
-                            if (scale != null) {
-                                sb.append("\t\t\tscale = %s\n".printf(value_to_lua(scale)));
-                            } else {
-                                // Default scale if no value exists
-                                sb.append("\t\t\tscale = [1.000, 1.000, 1.000]\n");
-                            }
+                            process_transform_data(sb, unit, child_id);
                         }
     
                         sb.append("\t\t%s\n".printf(line));
@@ -299,24 +209,37 @@ namespace Crown
                 sb.append("]\n");
             }
         }
+        private static void process_transform_data(StringBuilder sb, Unit unit, Guid? component_id) {
+            sb.append("\t\t\tposition = [0.000, 0.000, 0.000]\n");
+        
+            Value? rotation = unit.get_component_property(component_id, "data.rotation");
+            if (rotation != null) {
+                sb.append("\t\t\trotation = %s\n".printf(value_to_lua(rotation)));
+            } else {
+                sb.append("\t\t\trotation = [0.000, 0.000, 0.000, 1.000]\n");
+            }
+        
+            Value? scale = unit.get_component_property(component_id, "data.scale");
+            if (scale != null) {
+                sb.append("\t\t\tscale = %s\n".printf(value_to_lua(scale)));
+            } else {
+                sb.append("\t\t\tscale = [1.000, 1.000, 1.000]\n");
+            }
+        }
         
         private static Gee.Collection<Guid?> get_all_children(Unit unit) {
             Gee.ArrayList<Guid?> children = new Gee.ArrayList<Guid?>();
-            // Get direct children from the unit
             Value? direct_children = unit._db.get_property(unit._id, "children");
             if (direct_children != null) {
                 children.add_all((Gee.Collection<Guid?>)direct_children);
             }
-            // Check for a prefab associated with the unit
             Value? prefab = unit._db.get_property(unit._id, "prefab");
             if (prefab != null) {
-                string prefab_path = (string)prefab;  // Get the prefab path
+                string prefab_path = (string)prefab;
                 Guid prefab_id = resolve_prefab_id(unit, prefab_path);
 
                 if (prefab_id != GUID_ZERO) {
-                    // Create a Unit from the prefab ID
                     Unit prefab_unit = new Unit(unit._db, prefab_id);
-                    // Recursively get children from the prefab unit
                     children.add_all(get_all_children(prefab_unit));
                 }
             }
@@ -331,7 +254,7 @@ namespace Crown
             Guid guid = unit._db.get_property_guid(GUID_ZERO, unit_path);
             
             if (guid == GUID_ZERO) {
-                warning("Prefab non trouvé: %s", prefab_path);
+                warning("Prefab not found: %s", prefab_path);
             }
             
             return guid;
@@ -351,7 +274,7 @@ namespace Crown
                 }
             }
             
-            remove_deleted_components(unit,unit_id, components);
+            remove_deleted_components(unit,unit_id, components); 
         }
         private static void remove_deleted_components(Unit unit,Guid unit_id, Gee.Set<Guid?> components) {
             string[] deleted_keys = unit._db.get_keys(unit_id);
@@ -363,30 +286,25 @@ namespace Crown
             }
         }
 
-        private static string value_to_lua(Value val)
-        {
+        private static string value_to_lua(Value val) {
             Type type = val.type();
             if (type == typeof(string)) {
                 return "\"%s\"".printf((string)val);
-            }
-            if (type == typeof(Guid)) {
+            } else if (type == typeof(Guid)) {
                 return "\"%s\"".printf(((Guid)val).to_string());
-            }
-            if (type == typeof(bool)) {
+            } else if (type == typeof(bool)) {
                 return ((bool)val) ? "true" : "false";
-            }
-            if (type == typeof(double)) {
+            } else if (type == typeof(double)) {
                 return ((double)val).to_string();
-            }
-            if (type == typeof(Vector3)) {
+            } else if (type == typeof(Vector3)) {
                 Vector3 v = (Vector3)val;
                 return "[%.3f, %.3f, %.3f]".printf(v.x, v.y, v.z);
-            }
-            if (type == typeof(Quaternion)) {
+            } else if (type == typeof(Quaternion)) {
                 Quaternion q = (Quaternion)val;
-                return "[%.3f, %.3f, %.3f, %.3f]".printf(q.x, q.y, q.z, q.w); 
+                return "[%.3f, %.3f, %.3f, %.3f]".printf(q.x, q.y, q.z, q.w);
+            } else {
+                return "nil";
             }
-            return "nil";
-        }
+        }        
     }
 }
