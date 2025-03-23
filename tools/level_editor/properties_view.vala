@@ -1009,21 +1009,31 @@ public class PropertiesView : Gtk.Bin
 
 	public void show_sound_source(Guid id)
 	{
-		_stack.set_visible_child(_scrolled_window);
-
 		foreach (var entry in _entries) {
 			Expander expander = _expanders[entry.type];
-
+			_expander_states[entry.type] = expander.expanded;
+		}
+	
+		_stack.set_visible_child(_scrolled_window);
+	
+		foreach (var entry in _entries) {
+			Expander expander = _expanders[entry.type];
+	
 			if (entry.type == "sound_transform" || entry.type == "sound_properties") {
+				bool was_expanded = _expander_states.has_key(entry.type) ? _expander_states[entry.type] : false;
+	
 				PropertyGrid cv = _objects[entry.type];
 				cv._id = id;
 				cv.update();
-				expander.show_all();
+	
+				expander.show();
+				expander.expanded = was_expanded;
 			} else {
 				expander.hide();
 			}
 		}
 	}
+	
 
 	public void show_or_hide_properties()
 	{
