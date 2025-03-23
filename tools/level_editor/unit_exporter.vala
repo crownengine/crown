@@ -44,7 +44,7 @@ namespace Crown
                     File dest = File.new_for_path(dest_path);
                     src.copy(dest, FileCopyFlags.OVERWRITE);        
                     if (ext == "mesh") {
-                        process_mesh_file(unit,abs_path, export_dir, unit_basename, project_dir);
+                        process_mesh_file(unit,abs_path, export_dir, dest_path, unit_basename, project_dir);
                     }                    
                 }
                 var entries = new Gee.ArrayList<Gee.Map.Entry<string, string>>();
@@ -65,7 +65,7 @@ namespace Crown
             }
         }
 
-        private static void process_mesh_file(Unit unit, string abs_path, string export_dir, string unit_basename, string project_dir) {
+        private static void process_mesh_file(Unit unit, string abs_path, string export_dir,string dest_path, string unit_basename, string project_dir) {
             try {
                 string mesh_content;
         
@@ -96,23 +96,23 @@ namespace Crown
                                             : unit._db.get_project().absolute_path(source_path);
         
                                         if (FileUtils.test(abs_fbx, FileTest.EXISTS)) {
-                                            string new_fbx_filename = unit_basename + ".fbx";
+                                            string new_fbx_filename = unit_basename + ".fbx"; 
                                             string fbx_dest_path = Path.build_filename(export_dir, new_fbx_filename);
                                             File fbx_src = File.new_for_path(abs_fbx);
                                             File fbx_dest = File.new_for_path(fbx_dest_path);
                                             fbx_src.copy(fbx_dest, FileCopyFlags.OVERWRITE);
-        
+                            
                                             string fbx_new_relative_path = fbx_dest_path.replace(project_dir + GLib.Path.DIR_SEPARATOR_S, "");
                                             string new_source = Path.build_filename(Path.get_dirname(fbx_new_relative_path), unit_basename + ".fbx").replace("\\", "/");
                                             mesh_content = mesh_content.replace(source_path, new_source);
-                                            FileUtils.set_contents(fbx_dest_path, mesh_content);
-        
+                                            FileUtils.set_contents(dest_path, mesh_content);
+                            
                                             string fbx_basename_without_extension = Path.get_basename(abs_fbx).replace(".fbx", "");
                                             string importer_src_path = Path.build_filename(Path.get_dirname(abs_fbx), fbx_basename_without_extension + ".importer_settings");
                                             if (FileUtils.test(importer_src_path, FileTest.EXISTS)) {
                                                 string importer_dest_filename = unit_basename + ".importer_settings";
                                                 string importer_dest_path = Path.build_filename(export_dir, importer_dest_filename);
-        
+                            
                                                 File importer_file_src = File.new_for_path(importer_src_path);
                                                 File importer_file_dest = File.new_for_path(importer_dest_path);
                                                 importer_file_src.copy(importer_file_dest, FileCopyFlags.OVERWRITE);
