@@ -182,9 +182,26 @@ namespace Crown
                 sb.append("\t\t_type = \"%s\"\n".printf(component_type));
                 sb.append("\t\tdata = {\n");
                 if (component_type == "transform") {
+                    // Set position explicitly
                     sb.append("\t\t\tposition = [0.000, 0.000, 0.000]\n");
-                    sb.append("\t\t\trotation = [0.000, 0.000, 0.000, 1.000]\n");
-                    sb.append("\t\t\tscale = [1.000, 1.000, 1.000]\n");
+                
+                    // Fetch and append rotation, leaving it as-is
+                    Value? rotation = unit.get_component_property(component_id, "data.rotation");
+                    if (rotation != null) {
+                        sb.append("\t\t\trotation = %s\n".printf(value_to_lua(rotation)));
+                    } else {
+                        // Default rotation if no value exists
+                        sb.append("\t\t\trotation = [0.000, 0.000, 0.000, 1.000]\n");
+                    }
+                
+                    // Fetch and append scale, leaving it as-is
+                    Value? scale = unit.get_component_property(component_id, "data.scale");
+                    if (scale != null) {
+                        sb.append("\t\t\tscale = %s\n".printf(value_to_lua(scale)));
+                    } else {
+                        // Default scale if no value exists
+                        sb.append("\t\t\tscale = [1.000, 1.000, 1.000]\n");
+                    }
                 } else {
                     string[] keys = unit._db.get_keys(component_id);
                     foreach (string key in keys) {
@@ -232,9 +249,26 @@ namespace Crown
                         if (line.strip().length == 0) continue;
                         
                         if (line.contains("_type = \"transform\"")) {
+                            // Set position explicitly
                             sb.append("\t\t\tposition = [0.000, 0.000, 0.000]\n");
-                            sb.append("\t\t\trotation = [0.000, 0.000, 0.000, 1.000]\n");
-                            sb.append("\t\t\tscale = [1.000, 1.000, 1.000]\n");
+                        
+                            // Fetch and append rotation, leaving it as-is
+                            Value? rotation = unit.get_component_property(child_id, "data.rotation");
+                            if (rotation != null) {
+                                sb.append("\t\t\trotation = %s\n".printf(value_to_lua(rotation)));
+                            } else {
+                                // Default rotation if no value exists
+                                sb.append("\t\t\trotation = [0.000, 0.000, 0.000, 1.000]\n");
+                            }
+                        
+                            // Fetch and append scale, leaving it as-is
+                            Value? scale = unit.get_component_property(child_id, "data.scale");
+                            if (scale != null) {
+                                sb.append("\t\t\tscale = %s\n".printf(value_to_lua(scale)));
+                            } else {
+                                // Default scale if no value exists
+                                sb.append("\t\t\tscale = [1.000, 1.000, 1.000]\n");
+                            }
                         }
     
                         sb.append("\t\t%s\n".printf(line));
