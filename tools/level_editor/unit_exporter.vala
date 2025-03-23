@@ -7,15 +7,17 @@ using Gee;
 namespace Crown
 {
     public class UnitExporter
-    {
+    {        
         public static bool export_to_file(Unit unit, string path) {
             try {
+                Project project = unit._db.get_project();
+
                 Gee.ArrayList<string> resources_to_export = new Gee.ArrayList<string>();
                 string unit_data = generate_export_data(unit, resources_to_export);
         
                 string export_dir = Path.get_dirname(path);
                 string unit_basename = Path.get_basename(path).replace(".unit", "");
-                string project_dir = unit._db.get_project().source_dir();
+                string project_dir = project.source_dir();
                 Gee.HashMap<string, string> path_map = new Gee.HashMap<string, string>();
         
                 string original_name = "";
@@ -26,7 +28,7 @@ namespace Crown
                 foreach (string resource_path in resources_to_export) {
                     string abs_path = Path.is_absolute(resource_path) 
                         ? resource_path 
-                        : unit._db.get_project().absolute_path(resource_path);
+                        : project.absolute_path(resource_path);
         
                     string original_relative_path = abs_path.replace(project_dir + GLib.Path.DIR_SEPARATOR_S, "");
                     original_relative_path = original_relative_path.replace("\\", "/");
@@ -58,7 +60,15 @@ namespace Crown
                 }
         
                 FileUtils.set_contents(path, unit_data);
-        
+                var app = (LevelEditorApplication)GLib.Application.get_default();
+                DataCompiler dc = app.get_data_compiler();
+                dc.compile.begin(project.data_dir(), project.platform(), (obj, res) => {
+                    try {
+                        dc.compile.end(res);
+                    } catch (Error e) {
+                        error("Data compilation failed after export: %s", e.message);
+                    }
+                });
                 return true;
             } catch (Error e) {
                 error("Export failed: %s", e.message);

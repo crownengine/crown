@@ -1117,6 +1117,10 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
+	public DataCompiler get_data_compiler() {
+		return _data_compiler;
+	}
+
 	protected override void activate()
 	{
 		if (this.active_window == null) {
