@@ -10,6 +10,10 @@ namespace Crown
 {
 public class LevelTreeView : Gtk.Box
 {
+	private const Gtk.TargetEntry[] TARGET_ENTRIES = {
+		{ "GTK_TREE_MODEL_ROW", Gtk.TargetFlags.SAME_APP, 0 }
+	};
+
 	private enum ItemType
 	{
 		FOLDER,
@@ -191,6 +195,12 @@ public class LevelTreeView : Gtk.Box
 		_tree_view.model = _tree_sort;
 		_tree_view.button_press_event.connect(on_button_pressed);
 
+		// Enable drag and drop
+		_tree_view.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, TARGET_ENTRIES, Gdk.DragAction.MOVE);
+		_tree_view.enable_model_drag_dest(TARGET_ENTRIES, Gdk.DragAction.MOVE);
+		_tree_view.drag_data_get.connect(on_drag_data_get);
+		_tree_view.drag_data_received.connect(on_drag_data_received);
+
 		_tree_selection = _tree_view.get_selection();
 		_tree_selection.set_mode(Gtk.SelectionMode.MULTIPLE);
 		_tree_selection.changed.connect(on_tree_selection_changed);
@@ -286,7 +296,7 @@ public class LevelTreeView : Gtk.Box
 							if (base_store.iter_is_valid(parent_iter)) {
 								create_new_folder(parent_iter);
 							} else {
-								create_new_folder(null); 
+								create_new_folder(); 
 							}
 						});
 						menu.add(menu_item);
@@ -416,6 +426,91 @@ public class LevelTreeView : Gtk.Box
 		}
 	}
 	
+	private void on_drag_data_get(Gtk.Widget widget, Gdk.DragContext context, Gtk.SelectionData selection_data, uint info, uint time) {
+		Gtk.TreeModel model;
+		GLib.List<Gtk.TreePath> paths = _tree_selection.get_selected_rows(out model);
+		string source_set = null;
+		StringBuilder data_builder = new StringBuilder();
+	
+		foreach (Gtk.TreePath path in paths) {
+			Gtk.TreeIter iter;
+			model.get_iter(out iter, path);
+	
+			Gtk.TreeIter parent_iter;
+			if (model.iter_parent(out parent_iter, iter)) {
+				Value parent_name_val;
+				model.get_value(parent_iter, Column.NAME, out parent_name_val);
+				string parent_name = (string)parent_name_val;
+	
+				if (parent_name == "Units") {
+					source_set = "units";
+				} else if (parent_name == "Sounds") {
+					source_set = "sounds";
+				}
+	
+				Value guid_val;
+				model.get_value(iter, Column.GUID, out guid_val);
+				Guid guid = (Guid)guid_val;
+				data_builder.append(guid.to_string() + ",");
+			}
+		}
+	
+		if (source_set != null) {
+			string data_str = source_set + ";" + data_builder.str;
+			selection_data.set(selection_data.get_target(), 8, data_str.data);
+		}
+	}
+	private void on_drag_data_received(Gtk.Widget widget, Gdk.DragContext context, int x, int y, Gtk.SelectionData selection_data, uint info, uint time) {
+		// 1. Stop IMMÉDIATEMENT le handler par défaut
+		Signal.stop_emission_by_name(_tree_view, "drag-data-received");
+		
+		// 2. Traitement des données
+		string[] data = ((string)selection_data.get_data()).split(";");
+		if (data.length != 2) return;
+	
+		string source_set = data[0];
+		string[] guids = data[1].split(",");
+	
+		// 3. Détection de la cible
+		Gtk.TreePath path;
+		Gtk.TreeViewDropPosition pos;
+		if (!_tree_view.get_dest_row_at_pos(x, y, out path, out pos)) return;
+	
+		// 4. Détermination du set cible
+		Gtk.TreeIter target_iter;
+		_tree_sort.get_iter(out target_iter, path);
+		
+		string target_set = null;
+		Gtk.TreeIter parent_iter;
+		if (_tree_sort.iter_parent(out parent_iter, target_iter)) {
+			Value parent_name_val;
+			_tree_sort.get_value(parent_iter, Column.NAME, out parent_name_val);
+			string parent_name = (string)parent_name_val;
+	
+			target_set = (parent_name == "Units") ? "units" : "sounds";
+		} else {
+			Value name_val;
+			_tree_sort.get_value(target_iter, Column.NAME, out name_val);
+			string name = (string)name_val;
+			
+			target_set = (name == "Units") ? "units" : "sounds";
+		}
+	
+		// 5. Validation finale
+		if (target_set == null || target_set == source_set) return;
+	
+		// 6. Mise à jour de la base
+		foreach (string guid_str in guids) {
+			if (guid_str == "") continue;
+			Guid guid = Guid.parse(guid_str);
+			_db.remove_from_set(_level._id, source_set, guid);
+			_db.add_to_set(_level._id, target_set, guid);
+		}
+	
+		// 7. Finalisation du drag
+		Gtk.drag_finish(context, true, false, time);
+	}
+
 	private void on_tree_selection_changed()
 	{
 		_level.selection_changed.disconnect(on_level_selection_changed);
