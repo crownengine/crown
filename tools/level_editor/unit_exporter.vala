@@ -54,6 +54,26 @@ namespace Crown
                             if (FileUtils.get_contents(abs_path, out mesh_content)) {
                                 print("Mesh file content successfully read from: %s".printf(abs_path));
                                 foreach (string line in mesh_content.split("\n")) {
+                                    if (line.contains("_guid =")) {
+                                        print("Found '_guid =' line: %s".printf(line));
+                    
+                                        // Extract the old GUID
+                                        string[] parts = line.split("=", 2);
+                                        if (parts.length == 2) {
+                                            string old_guid = parts[1].strip().replace("\"", "").replace("'", "");
+                                            print("Original GUID: %s".printf(old_guid));
+                    
+                                            // Generate a new GUID
+                                            string new_guid = Guid.new_guid().to_string();
+                                            print("Generated new GUID: %s".printf(new_guid));
+                    
+                                            // Replace the old GUID in the mesh content
+                                            string new_guid_line = "_guid = \"" + new_guid + "\"";
+                                            mesh_content = mesh_content.replace(line, new_guid_line);
+                                            print("Updated '_guid =' line: %s".printf(new_guid_line));
+                                        }
+                                    }
+                    
                                     if (line.contains("source =")) {
                                         print("Found 'source =' line: %s".printf(line));
 
@@ -178,7 +198,7 @@ namespace Crown
                 if (component_id == null) continue;
                 string component_type = unit._db.object_type(component_id);
                 sb.append("\t{\n");
-                sb.append("\t\t_guid = \"%s\"\n".printf(component_id.to_string()));
+                sb.append("\t\t_guid = \"%s\"\n".printf(Guid.new_guid().to_string()));
                 sb.append("\t\t_type = \"%s\"\n".printf(component_type));
                 sb.append("\t\tdata = {\n");
                 if (component_type == "transform") {
