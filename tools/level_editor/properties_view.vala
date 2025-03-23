@@ -889,6 +889,7 @@ public class PropertiesView : Gtk.Bin
 	private HashMap<string, PropertyGrid> _objects;
 	private ArrayList<ComponentEntry?> _entries;
 	private Gee.ArrayList<Guid?>? _selection;
+	private HashMap<string, bool> _expander_states = new HashMap<string, bool>();
 
 	// Widgets
 	private Gtk.Label _nothing_to_show;
@@ -974,11 +975,16 @@ public class PropertiesView : Gtk.Bin
 
 	public void show_unit(Guid id)
 	{
+		foreach (var entry in _entries) {
+			Expander expander = _expanders[entry.type];
+			_expander_states[entry.type] = expander.expanded;
+		}
 		_stack.set_visible_child(_scrolled_window);
 
 		foreach (var entry in _entries) {
 			Expander expander = _expanders[entry.type];
-
+			bool was_expanded = _expander_states.has_key(entry.type) ? _expander_states[entry.type] : false;
+	
 			Unit unit = Unit(_db, id);
 			Guid component_id;
 			Guid owner_id;
@@ -993,7 +999,8 @@ public class PropertiesView : Gtk.Bin
 				else
 					expander.get_style_context().add_class("inherited");
 
-				expander.show_all();
+				expander.show();
+				expander.expanded = was_expanded;
 			} else {
 				expander.hide();
 			}
