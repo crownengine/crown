@@ -66,8 +66,12 @@ public class Expander : Gtk.Box
 
 	private bool on_header_clicked(Gtk.Widget widget, Gdk.EventButton event)
 	{
-		expanded = !expanded;
-		return Gdk.EVENT_STOP;
+		if (event.button == Gdk.BUTTON_PRIMARY) {
+			expanded = !expanded;
+			return Gdk.EVENT_STOP;
+		}
+
+		return Gdk.EVENT_PROPAGATE;
 	}
 
 	public string label
