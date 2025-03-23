@@ -44,11 +44,7 @@ namespace Crown
                     File dest = File.new_for_path(dest_path);
                     src.copy(dest, FileCopyFlags.OVERWRITE);        
                     if (ext == "mesh") {
-                        try {
-                            process_mesh_file(unit,abs_path, export_dir, unit_basename, project_dir);
-                        } catch (Error e) {
-                            warning("Error processing .mesh file: %s".printf(e.message));
-                        }
+                        process_mesh_file(unit,abs_path, export_dir, unit_basename, project_dir);
                     }                    
                 }
                 var entries = new Gee.ArrayList<Gee.Map.Entry<string, string>>();
@@ -69,65 +65,73 @@ namespace Crown
             }
         }
 
-        private static void process_mesh_file(Unit unit,string abs_path, string export_dir, string unit_basename, string project_dir) {
-            string mesh_content;
-            if (FileUtils.get_contents(abs_path, out mesh_content)) {
-                foreach (string line in mesh_content.split("\n")) {
-                    if (line.contains("_guid =")) {
-                        string[] parts = line.split("=", 2);
-                        if (parts.length == 2) {
-                            string old_guid = parts[1].strip().replace("\"", "").replace("'", "");
-                            string new_guid = Guid.new_guid().to_string();
-                            string new_guid_line = "_guid = \"" + new_guid + "\"";
-                            mesh_content = mesh_content.replace(line, new_guid_line);
-                        }
-                    }
-            
-                    if (line.contains("source =")) {
-                        string[] parts = line.split("=", 2);
-                        if (parts.length == 2) {
-                            string source_path = parts[1]
-                                .strip()
-                                .replace("\"", "")
-                                .replace("'", "");
-                        
-                            if (source_path.has_suffix(".fbx")) {
-                                string abs_fbx = Path.is_absolute(source_path)
-                                    ? source_path
-                                    : unit._db.get_project().absolute_path(source_path);
-                            
-                                if (FileUtils.test(abs_fbx, FileTest.EXISTS)) {
-                                    string new_fbx_filename = unit_basename + ".fbx"; 
-                                    string fbx_dest_path = Path.build_filename(export_dir, new_fbx_filename);
-                                    File fbx_src = File.new_for_path(abs_fbx);
-                                    File fbx_dest = File.new_for_path(fbx_dest_path);
-                                    fbx_src.copy(fbx_dest, FileCopyFlags.OVERWRITE);
-                            
-                                    string fbx_new_relative_path = fbx_dest_path.replace(project_dir + GLib.Path.DIR_SEPARATOR_S, "");
-                                    string new_source = Path.build_filename(Path.get_dirname(fbx_new_relative_path), unit_basename + ".fbx").replace("\\", "/");
-                                    mesh_content = mesh_content.replace(source_path, new_source);
-                                    FileUtils.set_contents(fbx_dest_path, mesh_content);
-                            
-                                    string fbx_basename_without_extension = Path.get_basename(abs_fbx).replace(".fbx", "");
-                                    string importer_src_path = Path.build_filename(Path.get_dirname(abs_fbx), fbx_basename_without_extension + ".importer_settings");
-                                    if (FileUtils.test(importer_src_path, FileTest.EXISTS)) {
-                                        string importer_dest_filename = unit_basename + ".importer_settings";
-                                        string importer_dest_path = Path.build_filename(export_dir, importer_dest_filename);
-                            
-                                        File importer_file_src = File.new_for_path(importer_src_path);
-                                        File importer_file_dest = File.new_for_path(importer_dest_path);
-                                        importer_file_src.copy(importer_file_dest, FileCopyFlags.OVERWRITE);
+        private static void process_mesh_file(Unit unit, string abs_path, string export_dir, string unit_basename, string project_dir) {
+            try {
+                string mesh_content;
+        
+                // Handle potential file read exceptions
+                if (FileUtils.get_contents(abs_path, out mesh_content)) {
+                    foreach (string line in mesh_content.split("\n")) {
+                        try {
+                            if (line.contains("_guid =")) {
+                                string[] parts = line.split("=", 2);
+                                if (parts.length == 2) {
+                                    string new_guid = Guid.new_guid().to_string();
+                                    string new_guid_line = "_guid = \"" + new_guid + "\"";
+                                    mesh_content = mesh_content.replace(line, new_guid_line);
+                                }
+                            }
+        
+                            if (line.contains("source =")) {
+                                string[] parts = line.split("=", 2);
+                                if (parts.length == 2) {
+                                    string source_path = parts[1]
+                                        .strip()
+                                        .replace("\"", "")
+                                        .replace("'", "");
+        
+                                    if (source_path.has_suffix(".fbx")) {
+                                        string abs_fbx = Path.is_absolute(source_path)
+                                            ? source_path
+                                            : unit._db.get_project().absolute_path(source_path);
+        
+                                        if (FileUtils.test(abs_fbx, FileTest.EXISTS)) {
+                                            string new_fbx_filename = unit_basename + ".fbx";
+                                            string fbx_dest_path = Path.build_filename(export_dir, new_fbx_filename);
+                                            File fbx_src = File.new_for_path(abs_fbx);
+                                            File fbx_dest = File.new_for_path(fbx_dest_path);
+                                            fbx_src.copy(fbx_dest, FileCopyFlags.OVERWRITE);
+        
+                                            string fbx_new_relative_path = fbx_dest_path.replace(project_dir + GLib.Path.DIR_SEPARATOR_S, "");
+                                            string new_source = Path.build_filename(Path.get_dirname(fbx_new_relative_path), unit_basename + ".fbx").replace("\\", "/");
+                                            mesh_content = mesh_content.replace(source_path, new_source);
+                                            FileUtils.set_contents(fbx_dest_path, mesh_content);
+        
+                                            string fbx_basename_without_extension = Path.get_basename(abs_fbx).replace(".fbx", "");
+                                            string importer_src_path = Path.build_filename(Path.get_dirname(abs_fbx), fbx_basename_without_extension + ".importer_settings");
+                                            if (FileUtils.test(importer_src_path, FileTest.EXISTS)) {
+                                                string importer_dest_filename = unit_basename + ".importer_settings";
+                                                string importer_dest_path = Path.build_filename(export_dir, importer_dest_filename);
+        
+                                                File importer_file_src = File.new_for_path(importer_src_path);
+                                                File importer_file_dest = File.new_for_path(importer_dest_path);
+                                                importer_file_src.copy(importer_file_dest, FileCopyFlags.OVERWRITE);
+                                            }
+                                        }
                                     }
                                 }
                             }
+                        } catch (Error e) {
+                            warning("Error processing line in mesh content: %s".printf(e.message));
                         }
-                    }                                    
+                    }
+                } else {
+                    error("Failed to read mesh file content: %s".printf(abs_path));
                 }
-            } else {
-                print("Failed to read mesh file content: %s".printf(abs_path));
+            } catch (FileError e) {
+                error("File error encountered while processing mesh file: %s".printf(e.message));
             }
         }
-        
         
         private static string generate_export_data(Unit unit,Gee.List<string> resources) {
             StringBuilder sb = new StringBuilder();
@@ -193,7 +197,7 @@ namespace Crown
                 foreach (Guid? child_id in children) {
                     if (child_id == null) continue;
         
-                    Unit child_unit = new Unit(unit._db, child_id);
+                    Unit child_unit = Unit(unit._db, child_id);
                     string child_data = generate_export_data(child_unit,resources);
                     
                     string[] lines = child_data.split("\n");
@@ -214,6 +218,7 @@ namespace Crown
                 sb.append("]\n");
             }
         }
+
         private static void process_transform_data(StringBuilder sb, Unit unit, Guid? component_id) {
             sb.append("\t\t\tposition = [0.000, 0.000, 0.000]\n");
         
@@ -244,7 +249,7 @@ namespace Crown
                 Guid prefab_id = resolve_prefab_id(unit, prefab_path);
 
                 if (prefab_id != GUID_ZERO) {
-                    Unit prefab_unit = new Unit(unit._db, prefab_id);
+                    Unit prefab_unit = Unit(unit._db, prefab_id);
                     children.add_all(get_all_children(prefab_unit));
                 }
             }
@@ -264,6 +269,7 @@ namespace Crown
             
             return guid;
         }
+
         private static void collect_direct_components(Unit unit,Guid unit_id, Gee.Set<Guid?> components) {
             Value? direct = unit._db.get_property(unit_id, "components");
             if (direct != null) {
@@ -281,6 +287,7 @@ namespace Crown
             
             remove_deleted_components(unit,unit_id, components); 
         }
+
         private static void remove_deleted_components(Unit unit,Guid unit_id, Gee.Set<Guid?> components) {
             string[] deleted_keys = unit._db.get_keys(unit_id);
             foreach (string key in deleted_keys) {
