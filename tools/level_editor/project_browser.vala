@@ -216,7 +216,7 @@ private Gtk.Menu? project_entry_menu_create(string type, string name)
 			});
 		menu.add(mi);
 
-		if (type == "animation_skeleton") {
+		if (type == OBJECT_TYPE_MESH_SKELETON || type == OBJECT_TYPE_SPRITE) {
 			mi = new Gtk.MenuItem.with_label("New State Machine...");
 			mi.activate.connect(() => {
 					Gtk.Dialog dg = new Gtk.Dialog.with_buttons("State Machine Name"
@@ -242,7 +242,13 @@ private Gtk.Menu? project_entry_menu_create(string type, string name)
 							return;
 						}
 
-						var tuple = new GLib.Variant.tuple({ResourceId.parent_folder(name), sb.text});
+						string skeleton_name;
+						if (type == OBJECT_TYPE_SPRITE)
+							skeleton_name = "";
+						else
+							skeleton_name = name;
+
+						var tuple = new GLib.Variant.tuple({ResourceId.parent_folder(name), sb.text, skeleton_name});
 						GLib.Application.get_default().activate_action("create-state-machine", tuple);
 					}
 

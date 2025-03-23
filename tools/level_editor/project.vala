@@ -370,7 +370,7 @@ public class Project
 		return 0;
 	}
 
-	public int create_state_machine(string directory, string name)
+	public int create_state_machine(string directory, string name, string? skeleton_name)
 	{
 		string resource_name = Path.build_filename(directory, name);
 
@@ -378,9 +378,14 @@ public class Project
 		Guid node_id = Guid.new_guid();
 		StateMachineNode sm_node = StateMachineNode(db, node_id);
 		Guid machine_id = Guid.new_guid();
-		StateMachineResource machine = StateMachineResource(db, machine_id, sm_node);
-		machine.add_node(sm_node);
 
+		StateMachineResource machine;
+		if (skeleton_name == null)
+			machine = StateMachineResource.sprite(db, machine_id, sm_node);
+		else
+			machine = StateMachineResource.mesh(db, machine_id, sm_node, skeleton_name);
+
+		machine.add_node(sm_node);
 		machine.save(this, resource_name);
 		return 0;
 	}

@@ -50,7 +50,12 @@ public struct StateMachineResource
 	public Database _db;
 	public Guid _id;
 
-	public StateMachineResource(Database db, Guid id, StateMachineNode initial_state)
+	public StateMachineResource(Database db
+		, Guid id
+		, StateMachineNode initial_state
+		, string animation_type
+		, string? skeleton_name
+		)
 	{
 		_db = db;
 		_id = id;
@@ -59,6 +64,19 @@ public struct StateMachineResource
 		add_node(initial_state);
 		_db.set_property_guid(_id, "initial_state", initial_state._id);
 		_db.create_empty_set(0, _id, "variables");
+		_db.set_property_string(_id, "animation_type", animation_type);
+		if (skeleton_name != null)
+			_db.set_property_string(_id, "skeleton_name", skeleton_name);
+	}
+
+	public StateMachineResource.mesh(Database db, Guid id, StateMachineNode initial_state, string skeleton_name)
+	{
+		this(db, id, initial_state, OBJECT_TYPE_MESH_ANIMATION, skeleton_name);
+	}
+
+	public StateMachineResource.sprite(Database db, Guid id, StateMachineNode initial_state)
+	{
+		this(db, id, initial_state, OBJECT_TYPE_SPRITE_ANIMATION, null);
 	}
 
 	public void add_node(StateMachineNode node)
