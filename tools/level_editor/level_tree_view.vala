@@ -225,6 +225,8 @@ public class LevelTreeView : Gtk.Box
 	private bool on_button_pressed(Gdk.EventButton ev)
 	{
 		if (ev.button == Gdk.BUTTON_SECONDARY) {
+			Gtk.Menu menu = new Gtk.Menu();
+			Gtk.MenuItem mi = null;
 			Gtk.TreePath path;
 			Gtk.TreeViewColumn column;
 			if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, out column, null, null)) {
@@ -233,12 +235,67 @@ public class LevelTreeView : Gtk.Box
 					_tree_selection.select_path(path);
 				}
 			} else { // Clicked on empty space.
-				return Gdk.EVENT_PROPAGATE;
+				mi = new Gtk.MenuItem.with_label("Create New Folder");
+				mi.activate.connect(() => {
+					create_new_folder();
+				});
+				menu.add(mi);
+				menu.show_all();
+				menu.popup_at_pointer(ev);
+				return Gdk.EVENT_STOP;
 			}
-
-			Gtk.Menu menu = new Gtk.Menu();
-			Gtk.MenuItem mi;
-
+			_tree_selection.selected_foreach((model, path, iter) => {
+				Value type;
+				model.get_value(iter, Column.TYPE, out type);
+				
+				if ((int)type == ItemType.FOLDER) {
+					Gtk.TreeIter parent_iter = Gtk.TreeIter();
+					Gtk.TreeStore base_store = null;
+					bool valid_conversion = true;
+			
+					if (model is Gtk.TreeModelSort) {
+						Gtk.TreeModelSort sort_model = (Gtk.TreeModelSort)model;
+						Gtk.TreeModel base_model = sort_model.model;
+					
+						if (base_model is Gtk.TreeModelFilter) {
+							Gtk.TreeModelFilter filter_model = (Gtk.TreeModelFilter)base_model;
+							Gtk.TreeModel inner_model = filter_model.get_model();
+							if (inner_model is Gtk.TreeStore) {
+								base_store = (Gtk.TreeStore)inner_model;
+							} else {
+								print("The internal model of the filter is not a TreeStore.\n");
+								return;
+							}
+					
+							Gtk.TreePath child_path = sort_model.convert_path_to_child_path(path);
+							if (child_path != null) {
+								valid_conversion = base_store.get_iter(out parent_iter, child_path);
+							} else {
+								valid_conversion = false;
+							}
+						} else {
+							valid_conversion = false;
+						}
+					} else {
+						valid_conversion = false;
+					}
+					
+					if (valid_conversion && base_store.iter_is_valid(parent_iter)) {
+						var menu_item = new Gtk.MenuItem.with_label("Create Subfolder");
+						menu_item.activate.connect(() => {
+							if (base_store.iter_is_valid(parent_iter)) {
+								create_new_folder(parent_iter);
+							} else {
+								create_new_folder(null); 
+							}
+						});
+						menu.add(menu_item);
+					} else {
+						print("Failed to convert path to base template\n");
+					}
+				}
+			});
+			
 			mi = new Gtk.MenuItem.with_label("Rename...");
 			mi.activate.connect(() => {
 					Gtk.Dialog dg = new Gtk.Dialog.with_buttons("New Name"
@@ -313,7 +370,52 @@ public class LevelTreeView : Gtk.Box
 
 		return Gdk.EVENT_PROPAGATE;
 	}
-
+	private void create_new_folder(Gtk.TreeIter? parent_iter = null)
+	{
+		Gtk.Dialog dialog = new Gtk.Dialog.with_buttons(
+			"New Folder Name",
+			((Gtk.Application)GLib.Application.get_default()).active_window,
+			Gtk.DialogFlags.MODAL,
+			"Cancel", Gtk.ResponseType.CANCEL,
+			"OK", Gtk.ResponseType.OK
+		);
+	
+		Gtk.Entry entry = new Gtk.Entry();
+		entry.set_placeholder_text("Enter folder name");
+		dialog.get_content_area().pack_start(entry, true, true, 0);
+		dialog.show_all();
+	
+		if (dialog.run() == Gtk.ResponseType.OK) {
+			string folder_name = entry.get_text().strip();
+			if (folder_name == "") {
+				folder_name = "Folder Name";
+			}
+			dialog.destroy();
+			add_folder_to_tree(parent_iter, folder_name);
+		} else {
+			dialog.destroy();
+		}
+	}
+	
+	private void add_folder_to_tree(Gtk.TreeIter? parent_iter, string folder_name)
+	{
+		Guid folder_guid = Guid.new_guid();
+		Gtk.TreeIter iter;
+	
+		bool parent_valid = parent_iter != null && _tree_store.iter_is_valid(parent_iter);
+		
+		_tree_store.insert_with_values(out iter, parent_valid ? parent_iter : null, -1,
+			Column.TYPE, ItemType.FOLDER,
+			Column.GUID, folder_guid,
+			Column.NAME, folder_name
+		);
+	
+		if (parent_valid) {
+			Gtk.TreePath parent_path = _tree_store.get_path(parent_iter);
+			_tree_view.expand_row(parent_path, false);
+		}
+	}
+	
 	private void on_tree_selection_changed()
 	{
 		_level.selection_changed.disconnect(on_level_selection_changed);
