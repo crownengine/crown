@@ -604,81 +604,86 @@ public class LevelTreeView : Gtk.Box
 		else
 			return ItemType.UNIT;
 	}
-
-	private void on_database_key_changed(Guid id, string key)
-	{
-		if (id != _level._id)
-			return;
-
-		if (key != "units" && key != "sounds")
-			return;
-
+	
+	private void on_database_key_changed(Guid id, string key) {
+		if (id != _level._id || (key != "units" && key != "sounds")) return;
+	
 		_tree_selection.changed.disconnect(on_tree_selection_changed);
-		_tree_view.model = null;
-		_tree_store.clear();
-
-		Gtk.TreeIter units_iter;
-		_tree_store.insert_with_values(out units_iter
-			, null
-			, -1
-			, Column.TYPE
-			, ItemType.FOLDER
-			, Column.GUID
-			, GUID_ZERO
-			, Column.NAME
-			, "Units"
-			, -1
-			);
-		Gtk.TreeIter sounds_iter;
-		_tree_store.insert_with_values(out sounds_iter
-			, null
-			, -1
-			, Column.TYPE
-			, ItemType.FOLDER
-			, Column.GUID
-			, GUID_ZERO
-			, Column.NAME
-			, "Sounds"
-			, -1
-			);
-
-		HashSet<Guid?> units  = _db.get_property_set(_level._id, "units", new HashSet<Guid?>());
-		HashSet<Guid?> sounds = _db.get_property_set(_level._id, "sounds", new HashSet<Guid?>());
-
-		foreach (Guid unit_id in units) {
-			Unit u = Unit(_level._db, unit_id);
-
+	
+		string[] required_sections = {"Units", "Sounds"};
+		Gtk.TreeIter[] section_iters = new Gtk.TreeIter[2];
+	
+		for (int i = 0; i < required_sections.length; i++) {
+			bool exists = false;
 			Gtk.TreeIter iter;
-			_tree_store.insert_with_values(out iter
-				, units_iter
-				, -1
-				, Column.TYPE
-				, item_type(u)
-				, Column.GUID
-				, unit_id
-				, Column.NAME
-				, _level.object_editor_name(unit_id)
-				, -1
+			
+			// Search folder
+			if (_tree_store.get_iter_first(out iter)) {
+				do {
+					Value v;
+					_tree_store.get_value(iter, Column.NAME, out v);
+					if ((string)v == required_sections[i]) {
+						section_iters[i] = iter;
+						exists = true;
+						break;
+					}
+				} while (_tree_store.iter_next(ref iter));
+			}
+			
+			// Create folder if not exist
+			if (!exists) {
+				_tree_store.append(out section_iters[i], null);
+				_tree_store.set(
+					section_iters[i],
+					Column.TYPE, ItemType.FOLDER,
+					Column.GUID, GUID_ZERO,
+					Column.NAME, required_sections[i],
+					-1
 				);
+			}
 		}
-		foreach (Guid sound in sounds) {
-			Gtk.TreeIter iter;
-			_tree_store.insert_with_values(out iter
-				, sounds_iter
-				, -1
-				, Column.TYPE
-				, ItemType.SOUND
-				, Column.GUID
-				, sound
-				, Column.NAME
-				, _level.object_editor_name(sound)
-				, -1
+	
+		// Synchronize only modified keys
+		int target_index = (key == "units") ? 0 : 1;
+		Gtk.TreeIter target_iter = section_iters[target_index];
+		
+		var current_guids = _db.get_property_set(id, key, new HashSet<Guid?>());
+		var existing_guids = new HashTable<Guid?, Gtk.TreeIter?>(Guid.hash_func, Guid.equal_func);
+	
+		// Update elements
+		Gtk.TreeIter child;
+		if (_tree_store.iter_children(out child, target_iter)) {
+			do {
+				Value v;
+				_tree_store.get_value(child, Column.GUID, out v);
+				if (v.holds(typeof(Guid))) {
+					existing_guids[(Guid)v] = child;
+				}
+			} while (_tree_store.iter_next(ref child));
+		}
+	
+		existing_guids.foreach((guid, iter) => {
+			if (!current_guids.contains(guid)) {
+				_tree_store.remove(ref iter);
+			}
+		});
+	
+		foreach (Guid guid in current_guids) {
+			if (!existing_guids.contains(guid)) {
+				Gtk.TreeIter new_iter;
+				ItemType type = (key == "units") ? item_type(Unit(_level._db, guid)) : ItemType.SOUND;
+				_tree_store.append(out new_iter, target_iter);
+				_tree_store.set(
+					new_iter,
+					Column.TYPE, type,
+					Column.GUID, guid,
+					Column.NAME, _level.object_editor_name(guid),
+					-1
 				);
+			}
 		}
-
 		_tree_view.model = _tree_sort;
 		_tree_view.expand_all();
-
 		_tree_selection.changed.connect(on_tree_selection_changed);
 	}
 
