@@ -37,8 +37,10 @@ namespace Crown
                     // Exported Relative Path
                     string exported_path = Path.build_filename(export_dir, unit_basename);
                     string new_relative_path = exported_path.replace(project_dir + GLib.Path.DIR_SEPARATOR_S, "");
-                    path_map[original_without_ext] = new_relative_path;
+                    new_relative_path = new_relative_path.replace("\\", "/"); 
         
+                    path_map[original_without_ext] = new_relative_path;
+                    print("Adding path to map: Original: %s -> Exported: %s".printf(original_without_ext, new_relative_path));
                     // Copying and processing files
                     string ext = abs_path.substring(abs_path.last_index_of_char('.') + 1);
                     string new_filename = unit_basename + "." + ext;
@@ -87,11 +89,11 @@ namespace Crown
                                                     fbx_src.copy(fbx_dest, FileCopyFlags.OVERWRITE);
 
                                                     // Modify the mesh file's source path
-                                                    new_relative_path = fbx_dest_path.replace(project_dir + GLib.Path.DIR_SEPARATOR_S, "");
-                                                    print("Relative path: %s".printf(new_relative_path));
+                                                    string fbx_new_relative_path = fbx_dest_path.replace(project_dir + GLib.Path.DIR_SEPARATOR_S, "");
+                                                    print("Relative path: %s".printf(fbx_new_relative_path));
 
                                                     // Replace old source path with the new relative path
-                                                    string new_source = Path.build_filename(Path.get_dirname(new_relative_path), unit_basename + ".fbx");
+                                                    string new_source = Path.build_filename(Path.get_dirname(fbx_new_relative_path), unit_basename + ".fbx");
                                                     // Ensure all backslashes are replaced with forward slashes
                                                     new_source = new_source.replace("\\", "/");                                  
                                                     // Update the mesh content
@@ -136,8 +138,6 @@ namespace Crown
                         }
                     }
                 }
-                unit_data = unit_data.replace(original_name, unit_basename);
-        
                 var entries = new Gee.ArrayList<Gee.Map.Entry<string, string>>();
                 entries.add_all(path_map.entries);
                 entries.sort((a, b) => b.key.length - a.key.length);
