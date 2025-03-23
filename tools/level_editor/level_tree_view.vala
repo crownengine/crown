@@ -124,9 +124,14 @@ public class LevelTreeView : Gtk.Box
 				Value type_b;
 				model.get_value(iter_a, Column.TYPE, out type_a);
 				model.get_value(iter_b, Column.TYPE, out type_b);
-				if ((int)type_a == ItemType.FOLDER || (int)type_b == ItemType.FOLDER)
-					return -1;
-
+				
+				// Ensure folders come first (prioritize folders over units/sounds)
+				if ((ItemType)type_a == ItemType.FOLDER && (ItemType)type_b != ItemType.FOLDER)
+					return -1; // folder should be before non-folder
+				if ((ItemType)type_b == ItemType.FOLDER && (ItemType)type_a != ItemType.FOLDER)
+					return 1; // folder should be after non-folder
+				
+				// If both are folders, or both are non-folders, sort by the usual criteria
 				switch (_sort_mode) {
 				case SortMode.NAME_AZ:
 				case SortMode.NAME_ZA: {
@@ -134,22 +139,20 @@ public class LevelTreeView : Gtk.Box
 					Value name_b;
 					model.get_value(iter_a, Column.NAME, out name_a);
 					model.get_value(iter_b, Column.NAME, out name_b);
-
+		
 					int cmp = strcmp((string)name_a, (string)name_b);
 					return _sort_mode == SortMode.NAME_AZ ? cmp : -cmp;
 				}
-
 				case SortMode.TYPE_AZ:
 				case SortMode.TYPE_ZA: {
 					int cmp = (int)type_a - (int)type_b;
 					return _sort_mode == SortMode.TYPE_AZ ? cmp : -cmp;
 				}
-
 				default:
 					return 0;
 				}
 			});
-
+			
 		Gtk.TreeViewColumn column = new Gtk.TreeViewColumn();
 		Gtk.CellRendererPixbuf cell_pixbuf = new Gtk.CellRendererPixbuf();
 		Gtk.CellRendererText cell_text = new Gtk.CellRendererText();
@@ -687,7 +690,6 @@ public class LevelTreeView : Gtk.Box
 				);
 			}
 		}
-		_tree_view.model = _tree_sort;
 		_tree_view.expand_all();
 		_tree_selection.changed.connect(on_tree_selection_changed);
 	}
