@@ -654,14 +654,19 @@ public class LevelTreeView : Gtk.Box
 		Gtk.TreeIter child;
 		if (_tree_store.iter_children(out child, target_iter)) {
 			do {
-				Value v;
-				_tree_store.get_value(child, Column.GUID, out v);
-				if (v.holds(typeof(Guid))) {
-					existing_guids[(Guid)v] = child;
+				Value type_val;
+				_tree_store.get_value(child, Column.TYPE, out type_val);
+								
+				if ((ItemType)type_val.get_int() == ItemType.FOLDER) continue;
+
+				Value guid_val;
+				_tree_store.get_value(child, Column.GUID, out guid_val);
+				if (guid_val.holds(typeof(Guid))) {
+					existing_guids[(Guid)guid_val] = child;
 				}
 			} while (_tree_store.iter_next(ref child));
 		}
-	
+			
 		existing_guids.foreach((guid, iter) => {
 			if (!current_guids.contains(guid)) {
 				_tree_store.remove(ref iter);
