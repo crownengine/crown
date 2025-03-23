@@ -558,7 +558,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "create-directory",     on_create_directory,     "(ss)",  null },
 		{ "create-script",        on_create_script,        "(ssb)", null },
 		{ "create-unit",          on_create_unit,          "(ss)",  null },
-		{ "create-state-machine", on_create_state_machine, "(ss)",  null },
+		{ "create-state-machine", on_create_state_machine, "(sss)", null },
 		{ "open-containing",      on_open_containing,      "s",     null },
 		{ "texture-settings",     on_texture_settings,     "s",     null },
 		{ "reveal-resource",      on_reveal,               "(ss)",  null }
@@ -3043,8 +3043,9 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		string dir_name = (string)param.get_child_value(0);
 		string state_machine_name = (string)param.get_child_value(1);
+		string skeleton_name = (string)param.get_child_value(2);
 
-		int ec = _project.create_state_machine(dir_name, state_machine_name);
+		int ec = _project.create_state_machine(dir_name, state_machine_name, skeleton_name != "" ? skeleton_name : null);
 		if (ec < 0) {
 			loge("Failed to create state machine %s".printf(state_machine_name));
 			return;
