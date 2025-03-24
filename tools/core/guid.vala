@@ -13,23 +13,34 @@ public struct Guid
 
 	public static Guid new_guid()
 	{
-		// FIXME: Replace Rand with something better.
-		Rand rnd = new Rand();
-		uint64 a = rnd.next_int();
-		uint64 b = rnd.next_int();
-		uint64 c = rnd.next_int();
-		uint64 d = rnd.next_int();
+		Guid new_guid = { 0, 0 }; 
 
-		uint64 d1;
-		d1  = a << 32;
-		d1 |= b <<  0;
-		uint64 d2;
-		d2  = c << 32;
-		d2 |= d <<  0;
+		do
+			{
+				// FIXME: Replace Rand with something better.
+				Rand rnd = new Rand();
+				uint64 a = rnd.next_int();
+				uint64 b = rnd.next_int();
+				uint64 c = rnd.next_int();
+				uint64 d = rnd.next_int();
 
-		d1 = (d1 & 0xffffffffffff4fffu) | 0x4000u;
-		d2 = (d2 & 0x3fffffffffffffffu) | 0x8000000000000000u;
-		return { d1, d2 };
+				uint64 d1;
+				d1  = a << 32;
+				d1 |= b <<  0;
+				uint64 d2;
+				d2  = c << 32;
+				d2 |= d <<  0;
+
+				d1 = (d1 & 0xffffffffffff4fffu) | 0x4000u;
+				d2 = (d2 & 0x3fffffffffffffffu) | 0x8000000000000000u;
+
+				new_guid = { d1, d2 };
+		} 
+		while (new_guid == GUID_NONE_FOLDER 
+			|| new_guid == GUID_UNIT_FOLDER
+			|| new_guid == GUID_SOUND_FOLDER);
+
+		return new_guid;
 	}
 
 	public static Guid parse(string guid)

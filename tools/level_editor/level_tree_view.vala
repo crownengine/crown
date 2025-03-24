@@ -14,7 +14,7 @@ public class LevelTreeView : Gtk.Box
 		{ "GTK_TREE_MODEL_ROW", Gtk.TargetFlags.SAME_APP, 0 }
 	};
 
-	private enum ItemType
+	public enum ItemType
 	{
 		FOLDER,
 		CAMERA,
@@ -23,7 +23,7 @@ public class LevelTreeView : Gtk.Box
 		UNIT
 	}
 
-	private enum Column
+	public enum Column
 	{
 		TYPE,
 		GUID,
@@ -233,13 +233,15 @@ public class LevelTreeView : Gtk.Box
 
 		this.pack_start(tree_control, false, true, 0);
 		this.pack_start(_scrolled_window, true, true, 0);
+
+		_level.level_loaded.connect(() => {
+			rebuild_tree();
+		});
 	}
 
 	private bool on_button_pressed(Gdk.EventButton ev)
 	{
 		if (ev.button == Gdk.BUTTON_SECONDARY) {
-			Gtk.Menu menu = new Gtk.Menu();
-			Gtk.MenuItem mi = null;
 			Gtk.TreePath path;
 			Gtk.TreeViewColumn column;
 			if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, out column, null, null)) {
@@ -248,15 +250,10 @@ public class LevelTreeView : Gtk.Box
 					_tree_selection.select_path(path);
 				}
 			} else { // Clicked on empty space.
-				mi = new Gtk.MenuItem.with_label("Create New Folder");
-				mi.activate.connect(() => {
-					create_new_folder();
-				});
-				menu.add(mi);
-				menu.show_all();
-				menu.popup_at_pointer(ev);
 				return Gdk.EVENT_STOP;
 			}
+			Gtk.Menu menu = new Gtk.Menu();
+			Gtk.MenuItem mi = null;
 			_tree_selection.selected_foreach((model, path, iter) => {
 				Value type;
 				model.get_value(iter, Column.TYPE, out type);
@@ -404,31 +401,59 @@ public class LevelTreeView : Gtk.Box
 				folder_name = "Folder Name";
 			}
 			dialog.destroy();
-			add_folder_to_tree(parent_iter, folder_name);
+			Guid folder_guid = Guid.new_guid();
+			add_folder_to_tree(true,parent_iter, folder_name, folder_guid);
 		} else {
 			dialog.destroy();
 		}
 	}
-	
-	private void add_folder_to_tree(Gtk.TreeIter? parent_iter, string folder_name)
+
+	private Gtk.TreeIter? find_parent_iter(Guid parent_id)
 	{
-		Guid folder_guid = Guid.new_guid();
-		Gtk.TreeIter iter;
-	
-		bool parent_valid = parent_iter != null && _tree_store.iter_is_valid(parent_iter);
-		
-		_tree_store.insert_with_values(out iter, parent_valid ? parent_iter : null, -1,
-			Column.TYPE, ItemType.FOLDER,
-			Column.GUID, folder_guid,
-			Column.NAME, folder_name
-		);
-	
-		if (parent_valid) {
-			Gtk.TreePath parent_path = _tree_store.get_path(parent_iter);
-			_tree_view.expand_row(parent_path, false);
-		}
+		Gtk.TreeIter? found = null;
+		_tree_store.foreach((model, path, iter) => {
+			Value val;
+			model.get_value(iter, Column.GUID, out val);
+			if (val.holds(typeof(Guid))) {
+				Guid guid = (Guid)val;
+				if (guid == parent_id) {
+					found = iter;
+					return true;
+				}
+			}
+			return false;
+		});		
+		return found;
 	}
 	
+	private Guid get_parent_guid(Gtk.TreeIter? parent_iter)
+	{
+		if (parent_iter == null)
+			return GUID_NONE_FOLDER;
+
+		Value val;
+		_tree_store.get_value(parent_iter, Column.GUID, out val);
+		return (Guid)val;
+	}
+	private void add_folder_to_tree(bool save_to_file,Gtk.TreeIter? parent_iter, string name, Guid guid)
+	{
+		if (save_to_file) {
+			Guid parent_guid = get_parent_guid(parent_iter);
+			_level.add_folder(guid, name, parent_guid);
+		}
+	
+		Gtk.TreeIter iter;
+		_tree_store.insert_with_values(out iter, parent_iter, -1,
+			Column.TYPE, ItemType.FOLDER,
+			Column.GUID, guid,
+			Column.NAME, name
+		);
+	
+		if (parent_iter != null) {
+			Gtk.TreePath path = _tree_store.get_path(parent_iter);
+			_tree_view.expand_row(path, false);
+		}
+	}
 	private void on_drag_data_get(Gtk.Widget widget, Gdk.DragContext context, Gtk.SelectionData selection_data, uint info, uint time) {
 		Gtk.TreeModel model;
 		GLib.List<Gtk.TreePath> paths = _tree_selection.get_selected_rows(out model);
@@ -464,22 +489,18 @@ public class LevelTreeView : Gtk.Box
 		}
 	}
 	private void on_drag_data_received(Gtk.Widget widget, Gdk.DragContext context, int x, int y, Gtk.SelectionData selection_data, uint info, uint time) {
-		// 1. Stop IMMÉDIATEMENT le handler par défaut
 		Signal.stop_emission_by_name(_tree_view, "drag-data-received");
 		
-		// 2. Traitement des données
 		string[] data = ((string)selection_data.get_data()).split(";");
 		if (data.length != 2) return;
 	
 		string source_set = data[0];
 		string[] guids = data[1].split(",");
 	
-		// 3. Détection de la cible
 		Gtk.TreePath path;
 		Gtk.TreeViewDropPosition pos;
 		if (!_tree_view.get_dest_row_at_pos(x, y, out path, out pos)) return;
 	
-		// 4. Détermination du set cible
 		Gtk.TreeIter target_iter;
 		_tree_sort.get_iter(out target_iter, path);
 		
@@ -499,10 +520,8 @@ public class LevelTreeView : Gtk.Box
 			target_set = (name == "Units") ? "units" : "sounds";
 		}
 	
-		// 5. Validation finale
 		if (target_set == null || target_set == source_set) return;
 	
-		// 6. Mise à jour de la base
 		foreach (string guid_str in guids) {
 			if (guid_str == "") continue;
 			Guid guid = Guid.parse(guid_str);
@@ -510,7 +529,6 @@ public class LevelTreeView : Gtk.Box
 			_db.add_to_set(_level._id, target_set, guid);
 		}
 	
-		// 7. Finalisation du drag
 		Gtk.drag_finish(context, true, false, time);
 	}
 
@@ -608,11 +626,95 @@ public class LevelTreeView : Gtk.Box
 			return ItemType.UNIT;
 	}
 	
+	private void add_folders_recursively(string parent_guid, HashTable<string, Gtk.TreeIter?> folder_map) {
+		foreach (var folder in _level._folders) {
+			if (folder.parent_id.to_string() == parent_guid) {
+				Gtk.TreeIter iter;
+				Gtk.TreeIter? parent_iter = folder_map[parent_guid];
+				_tree_store.append(out iter, parent_iter);
+				
+				_tree_store.set(
+					iter,
+					Column.TYPE, (int)ItemType.FOLDER,  
+					Column.GUID, folder.id,
+					Column.NAME, folder.name,
+					-1
+				);
+				
+				folder_map[folder.id.to_string()] = iter;
+				add_folders_recursively(folder.id.to_string(), folder_map);
+			}
+		}
+	}
+	
+	public void rebuild_tree() {
+		_tree_store.clear();
+	
+		var folder_map = new HashTable<string, Gtk.TreeIter?>(str_hash, str_equal);
+	
+		Gtk.TreeIter units_iter, sounds_iter;
+		_tree_store.append(out units_iter, null);
+		_tree_store.set(units_iter, Column.TYPE, ItemType.FOLDER, Column.GUID, GUID_UNIT_FOLDER, Column.NAME, "Units", -1);
+		folder_map[GUID_UNIT_FOLDER.to_string()] = units_iter;
+	
+		_tree_store.append(out sounds_iter, null);
+		_tree_store.set(sounds_iter, Column.TYPE, ItemType.FOLDER, Column.GUID, GUID_SOUND_FOLDER, Column.NAME, "Sounds", -1);
+		folder_map[GUID_SOUND_FOLDER.to_string()] = sounds_iter;
+	
+		// Add all folders hierarchically
+		add_folders_recursively(GUID_UNIT_FOLDER.to_string(), folder_map);
+		add_folders_recursively(GUID_SOUND_FOLDER.to_string(), folder_map);
+	
+		sync_existing_units_and_sounds();
+	}
+	
+	private void sync_existing_units_and_sounds()
+	{
+		sync_items("units", GUID_UNIT_FOLDER, ItemType.UNIT);
+		sync_items("sounds", GUID_SOUND_FOLDER, ItemType.SOUND);
+	}
+	
+	private void sync_items(string property_name, Guid default_folder, ItemType item_type)
+	{
+		var items = _db.get_property_set(_level._id, property_name, new HashSet<Guid?>());
+		foreach (Guid guid in items)
+		{
+			string item_name = _level.object_editor_name(guid); 
+			
+			var parent_id = _db.get_property_guid(guid, "parent_folder");
+		
+			if (parent_id == GUID_ZERO)
+			{
+				parent_id = default_folder;
+			}
+			
+			Gtk.TreeIter? parent_iter = find_parent_iter(parent_id);
+		
+			if (parent_iter != null)
+			{
+				Gtk.TreeIter iter;
+				_tree_store.append(out iter, parent_iter);
+				_tree_store.set(
+					iter,
+					Column.TYPE, item_type,
+					Column.GUID, guid,
+					Column.NAME, item_name,
+					-1
+				);
+			}
+			else
+			{
+				print("ERROR: Parent iter for " + item_type.to_string() + " GUID " + guid.to_string() + " not found!");
+			}
+		}
+	}	
+
 	private void on_database_key_changed(Guid id, string key) {
 		if (id != _level._id || (key != "units" && key != "sounds")) return;
 	
+
 		_tree_selection.changed.disconnect(on_tree_selection_changed);
-	
+
 		string[] required_sections = {"Units", "Sounds"};
 		Gtk.TreeIter[] section_iters = new Gtk.TreeIter[2];
 	
@@ -645,11 +747,10 @@ public class LevelTreeView : Gtk.Box
 				);
 			}
 		}
-	
 		// Synchronize only modified keys
 		int target_index = (key == "units") ? 0 : 1;
 		Gtk.TreeIter target_iter = section_iters[target_index];
-		
+	
 		var current_guids = _db.get_property_set(id, key, new HashSet<Guid?>());
 		var existing_guids = new HashTable<Guid?, Gtk.TreeIter?>(Guid.hash_func, Guid.equal_func);
 	
@@ -659,9 +760,9 @@ public class LevelTreeView : Gtk.Box
 			do {
 				Value type_val;
 				_tree_store.get_value(child, Column.TYPE, out type_val);
-								
+				
 				if ((ItemType)type_val.get_int() == ItemType.FOLDER) continue;
-
+	
 				Value guid_val;
 				_tree_store.get_value(child, Column.GUID, out guid_val);
 				if (guid_val.holds(typeof(Guid))) {
@@ -669,7 +770,7 @@ public class LevelTreeView : Gtk.Box
 				}
 			} while (_tree_store.iter_next(ref child));
 		}
-			
+	
 		existing_guids.foreach((guid, iter) => {
 			if (!current_guids.contains(guid)) {
 				_tree_store.remove(ref iter);
@@ -692,7 +793,7 @@ public class LevelTreeView : Gtk.Box
 		}
 		_tree_view.expand_all();
 		_tree_selection.changed.connect(on_tree_selection_changed);
-	}
+	}	
 
 	private void on_filter_entry_text_changed()
 	{

@@ -2,7 +2,6 @@
  * Copyright (c) 2012-2025 Daniele Bartolini et al.
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-
 using Gee;
 
 namespace Crown
@@ -10,6 +9,21 @@ namespace Crown
 /// Manages objects in a level.
 public class Level
 {
+	public class Folder
+	{
+		public Guid id { get; set; } 
+		public string name { get; set; }
+		public Guid parent_id { get; set; }
+	
+		// Constructor
+		public Folder(Guid id, string name, Guid parent_id = GUID_ZERO)
+		{
+			this.id = id;
+			this.name = name;
+			this.parent_id = parent_id;
+		}
+	}
+	
 	public Project _project;
 
 	// Engine connections
@@ -31,13 +45,17 @@ public class Level
 	public double _camera_orthographic_size;
 	public double _camera_target_distance;
 	public CameraViewType _camera_view_type;
+	public Gee.ArrayList<Folder> _folders;
 
 	// Signals
 	public signal void selection_changed(Gee.ArrayList<Guid?> selection);
 	public signal void object_editor_name_changed(Guid object_id, string name);
+	public signal void level_loaded();
 
 	public Level(Database db, RuntimeInstance runtime, Project project)
 	{
+		_folders = new Gee.ArrayList<Folder>();
+		
 		_project = project;
 
 		// Engine connections
@@ -86,8 +104,10 @@ public class Level
 		if (ret != 0)
 			return ret;
 
+		load_folders();
 		camera_decode();
 		GLib.Application.get_default().activate_action("camera-view", new GLib.Variant.int32(_camera_view_type));
+
 
 		_name = name;
 		_path = path;
@@ -103,12 +123,33 @@ public class Level
 		// FIXME: hack to keep the LevelTreeView working.
 		_db.key_changed(_id, "units");
 
+		level_loaded();
+
 		return 0;
 	}
+    public void load_folders()
+    {
+        _folders.clear();
+        
+        HashSet<Guid?> folder_ids = _db.get_property_set(_id, "folders", new HashSet<Guid?>());
+        
+        foreach (Guid folder_id in folder_ids) {
+            if (!_db.has_object(folder_id))
+                continue;
+
+            _folders.add(new Folder(
+                folder_id,
+                _db.get_property_string(folder_id, "editor.name"),
+                _db.get_property_guid(folder_id, "parent_folder")
+            ));
+        }
+    }
 
 	public void save(string name)
 	{
 		string path = Path.build_filename(_project.source_dir(), name + ".level");
+
+		save_folders();
 
 		camera_encode();
 		_db.save(path, _id);
@@ -116,6 +157,22 @@ public class Level
 		_name = name;
 	}
 
+    public void save_folders()
+    {
+        foreach (Folder folder in _folders) {
+            _db.set_property_string(folder.id, "editor.name", folder.name);
+            _db.set_property_guid(folder.id, "parent_folder", folder.parent_id);
+            _db.add_to_set(_id, "folders", folder.id);
+        }
+    }
+	public void add_folder(Guid id, string name, Guid parent_id = GUID_ZERO)
+	{
+		_db.create(id, OBJECT_TYPE_UNIT);
+		_db.set_property_string(id, "editor.name", name);
+		_db.set_property_guid(id, "parent_folder", parent_id);
+		_db.add_to_set(_id, "folders", id);
+		_folders.add(new Folder(id, name, parent_id));
+	}
 	public void spawn_empty_unit()
 	{
 		Guid id = Guid.new_guid();
@@ -176,14 +233,16 @@ public class Level
 		selection_set(ids);
 	}
 
-	public void on_unit_spawned(Guid id, string? name, Vector3 pos, Quaternion rot, Vector3 scl)
-	{
-		Unit unit = Unit(_db, id);
-		unit.create(name, pos, rot, scl);
-
-		_db.set_property_string(id, "editor.name", "unit_%04u".printf(_num_units++));
-		_db.add_to_set(_id, "units", id);
-	}
+    public void on_unit_spawned(Guid id, string? name, Vector3 pos, Quaternion rot, Vector3 scl)
+    {
+        Unit unit = Unit(_db, id);
+        unit.create(name, pos, rot, scl);
+        
+        _db.set_property_string(id, "editor.name", "unit_%04u".printf(_num_units++));
+        _db.add_to_set(_id, "units", id);
+        
+		_db.set_property_guid(id, "parent_folder", GUID_UNIT_FOLDER);
+    }
 
 	public void on_sound_spawned(Guid id, string name, Vector3 pos, Quaternion rot, Vector3 scl, double range, double volume, bool loop)
 	{
@@ -192,6 +251,8 @@ public class Level
 
 		_db.set_property_string    (id, "editor.name", "sound_%04u".printf(_num_sounds++));
 		_db.add_to_set(_id, "sounds", id);
+
+		_db.set_property_guid(id, "parent_folder", GUID_SOUND_FOLDER);
 	}
 
 	public void on_move_objects(Guid?[] ids, Vector3[] positions, Quaternion[] rotations, Vector3[] scales)
