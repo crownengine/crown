@@ -659,11 +659,11 @@ public class LevelTreeView : Gtk.Box
 				return;
 			}
 
-			_db.set_property_guid(guid, "parent_folder", target_guid);
+			_db.set_property(guid, "parent_folder", target_guid);
 		}
 
-		Gtk.drag_finish(context, true, false, time);
 		_tree_selection.changed.connect(on_tree_selection_changed);
+		Gtk.drag_finish(context, true, false, time);
 	}
 	
 	private void on_tree_selection_changed()
@@ -853,45 +853,53 @@ public class LevelTreeView : Gtk.Box
 	private void on_database_key_changed(Guid id, string key) {
 		if (id != _level._id || (key != "units" && key != "sounds")) return;
 	
-
 		_tree_selection.changed.disconnect(on_tree_selection_changed);
-
-		string[] required_sections = {"Units", "Sounds"};
-		Gtk.TreeIter[] section_iters = new Gtk.TreeIter[2];
 	
-		for (int i = 0; i < required_sections.length; i++) {
-			bool exists = false;
-			Gtk.TreeIter iter;
-			
-			// Search folder
-			if (_tree_store.get_iter_first(out iter)) {
-				do {
-					Value v;
-					_tree_store.get_value(iter, Column.NAME, out v);
-					if ((string)v == required_sections[i]) {
-						section_iters[i] = iter;
-						exists = true;
+		// Define target folder and item type based on the key
+		Guid target_folder = (key == "units") ? GUID_UNIT_FOLDER : GUID_SOUND_FOLDER;
+		ItemType item_type = (key == "units") ? ItemType.UNIT : ItemType.SOUND;
+	
+		// Track existing GUIDs within the folder
+		var existing_guids = new HashTable<Guid?, Gtk.TreeIter?>(Guid.hash_func, Guid.equal_func);
+		Gtk.TreeIter target_iter;
+		bool folder_exists = false;
+	
+		// Check if the target folder already exists
+		if (_tree_store.get_iter_first(out target_iter)) {
+			do {
+				Value guid_val;
+				_tree_store.get_value(target_iter, Column.GUID, out guid_val);
+	
+				// Ensure the value holds a Guid
+				if (guid_val.holds(typeof(Guid))) {
+					Guid guid = (Guid)guid_val;
+	
+					// Check if the extracted Guid matches the target folder
+					if (guid == target_folder) {
+						folder_exists = true;
 						break;
 					}
-				} while (_tree_store.iter_next(ref iter));
-			}
+				}
+			} while (_tree_store.iter_next(ref target_iter));
 		}
-		// Synchronize only modified keys
-		int target_index = (key == "units") ? 0 : 1;
-		Gtk.TreeIter target_iter = section_iters[target_index];
 	
-		var current_guids = _db.get_property_set(id, key, new HashSet<Guid?>());
-		var existing_guids = new HashTable<Guid?, Gtk.TreeIter?>(Guid.hash_func, Guid.equal_func);
 	
-		// Update elements
+		// If the folder doesn't exist, create it
+		if (!folder_exists) {
+			_tree_store.append(out target_iter, null);
+			_tree_store.set(
+				target_iter,
+				Column.TYPE, ItemType.FOLDER,
+				Column.GUID, target_folder,
+				Column.NAME, (key == "units") ? "Units" : "Sounds",
+				-1
+			);
+		}
+	
+		// Populate existing GUIDs in the folder
 		Gtk.TreeIter child;
 		if (_tree_store.iter_children(out child, target_iter)) {
 			do {
-				Value type_val;
-				_tree_store.get_value(child, Column.TYPE, out type_val);
-				
-				if (type_val == ItemType.FOLDER) continue;
-	
 				Value guid_val;
 				_tree_store.get_value(child, Column.GUID, out guid_val);
 				if (guid_val.holds(typeof(Guid))) {
@@ -900,32 +908,77 @@ public class LevelTreeView : Gtk.Box
 			} while (_tree_store.iter_next(ref child));
 		}
 	
+		// Retrieve updated GUIDs from the database
+		var current_guids = _db.get_property_set(id, key, new HashSet<Guid?>());
+	
+		// Remove outdated items but avoid removing subfolders
 		existing_guids.foreach((guid, iter) => {
-			if (!current_guids.contains(guid)) {
-				_tree_store.remove(ref iter);
+			// Only remove items that are not folders
+			Value item_type_val;
+			_tree_store.get_value(iter, Column.TYPE, out item_type_val);
+			if (item_type_val.holds(typeof(ItemType)) && (ItemType)item_type_val != ItemType.FOLDER) {
+				if (!current_guids.contains(guid)) {
+					_tree_store.remove(ref iter);
+				}
 			}
 		});
 	
+		// Synchronize parent folders and add missing items
 		foreach (Guid guid in current_guids) {
+			// Check if the GUID is already present in the folder
 			if (!existing_guids.contains(guid)) {
-				Gtk.TreeIter new_iter;
-		
-				ItemType type = (key == "units") ? item_type(Unit(_level._db, guid)) : ItemType.SOUND;
-				_tree_store.append(out new_iter, target_iter);
-				_tree_store.set(
-					new_iter,
-					Column.TYPE, type,
-					Column.GUID, guid,
-					Column.NAME, _level.object_editor_name(guid),
-					-1
-				);
+				string item_name = _level.object_editor_name(guid);
+
+				Value? parent_value = _db.get_property(guid, "parent_folder");
+				Guid parent_id = (parent_value != null) ? (Guid)parent_value : target_folder;
+
+				// Check if we have the correct parent iter for the item
+				Gtk.TreeIter? parent_iter = find_parent_iter(parent_id);
+
+				if (parent_iter != null) {
+					// Ensure we don't duplicate this item under the same parent
+					bool is_duplicate = false;
+
+					// Check if the GUID is already under the parent folder
+					Gtk.TreeIter sibling_iter;
+					if (_tree_store.iter_children(out sibling_iter, parent_iter)) {
+						do {
+							Value sibling_guid_val;
+							_tree_store.get_value(sibling_iter, Column.GUID, out sibling_guid_val);
+
+							Guid sibling_guid;
+							if (sibling_guid_val.holds(typeof(Guid))) {
+								sibling_guid = (Guid)sibling_guid_val;  // Cast the Value directly to Guid
+								if (sibling_guid == guid) {
+									is_duplicate = true;
+									break;  // If found, don't add it again
+								}
+							}
+							
+						} while (_tree_store.iter_next(ref sibling_iter));
+					}
+					// Add the item if it is not a duplicate
+					if (!is_duplicate) {
+						Gtk.TreeIter iter;
+						_tree_store.append(out iter, parent_iter);
+						_tree_store.set(
+							iter,
+							Column.TYPE, item_type,
+							Column.GUID, guid,
+							Column.NAME, item_name,
+							-1
+						);
+					}
+				} else {
+					print("ERROR: Parent iter for GUID %s not found in the tree!\n", guid.to_string());
+				}
 			}
 		}
 		
 		_tree_view.expand_all();
 		_tree_selection.changed.connect(on_tree_selection_changed);
-	}	
-
+	}
+	
 	private void on_filter_entry_text_changed()
 	{
 		_tree_selection.changed.disconnect(on_tree_selection_changed);
