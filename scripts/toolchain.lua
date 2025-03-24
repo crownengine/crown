@@ -4,6 +4,22 @@
 --
 -- Based on 3rdparty/bx/scripts/toolchain.lua by Branimir Karadzic.
 
+local android = {};
+
+local function androidToolchainRoot()
+	if android.toolchainRoot == nil then
+		local hostTags = {
+			windows = "windows-x86_64",
+			linux   = "linux-x86_64",
+			macosx  = "darwin-x86_64"
+		}
+
+		android.toolchainRoot = "$(ANDROID_NDK_ROOT)/toolchains/llvm/prebuilt/" .. hostTags[os.get()]
+	end
+
+	return android.toolchainRoot;
+end
+
 function toolchain(build_dir, lib_dir)
 
 	newoption
@@ -55,9 +71,9 @@ function toolchain(build_dir, lib_dir)
 				print("Set ANDROID_NDK_ROOT environment variable.")
 			end
 
-			premake.gcc.cc  = "$(ANDROID_NDK_ROOT)/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi$(ANDROID_NDK_ABI)-clang"
-			premake.gcc.cxx = "$(ANDROID_NDK_ROOT)/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi$(ANDROID_NDK_ABI)-clang++"
-			premake.gcc.ar  = "$(ANDROID_NDK_ROOT)/toolchains/llvm/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ar"
+			premake.gcc.cc  = androidToolchainRoot() .. "/bin/clang"
+			premake.gcc.cxx = androidToolchainRoot() .. "/bin/clang++"
+			premake.gcc.ar  = androidToolchainRoot() .. "/bin/llvm-ar"
 
 			premake.gcc.llvm = true
 			location(build_dir .. "projects/android-arm")
@@ -72,9 +88,9 @@ function toolchain(build_dir, lib_dir)
 				print("Set ANDROID_NDK_ROOT environment variable.")
 			end
 
-			premake.gcc.cc  = "$(ANDROID_NDK_ROOT)/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android$(ANDROID_NDK_ABI)-clang"
-			premake.gcc.cxx = "$(ANDROID_NDK_ROOT)/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android$(ANDROID_NDK_ABI)-clang++"
-			premake.gcc.ar  = "$(ANDROID_NDK_ROOT)/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar"
+			premake.gcc.cc  = androidToolchainRoot() .. "/bin/clang"
+			premake.gcc.cxx = androidToolchainRoot() .. "/bin/clang++"
+			premake.gcc.ar  = androidToolchainRoot() .. "/bin/llvm-ar"
 
 			premake.gcc.llvm = true
 			location(build_dir .. "projects/android-arm64")
@@ -254,12 +270,6 @@ function toolchain(build_dir, lib_dir)
 		flags {
 			"NoImportLib"
 		}
-		includedirs {
-			"$(ANDROID_NDK_ROOT)/sources/android/native_app_glue",
-		}
-		linkoptions {
-			"-nostdlib",
-		}
 		links {
 			"c",
 			"dl",
@@ -267,9 +277,11 @@ function toolchain(build_dir, lib_dir)
 			"android",
 			"log",
 			"c++_shared",
-			"gcc",
 		}
 		buildoptions {
+			"--gcc-toolchain=" .. androidToolchainRoot(),
+			"--sysroot=" .. androidToolchainRoot() .. "/sysroot",
+			--"-DANDROID",
 			"-fPIC",
 			"-no-canonical-prefixes",
 			"-Wa,--noexecstack",
@@ -289,58 +301,26 @@ function toolchain(build_dir, lib_dir)
 	configuration { "android-arm" }
 		targetdir (build_dir .. "android-arm/bin")
 		objdir (build_dir .. "android-arm/obj")
-		libdirs {
-			lib_dir .. "../build/android-arm/bin",
-			"$(ANDROID_NDK_ROOT)/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a",
-		}
-		includedirs {
-			"$(ANDROID_NDK_ROOT)/sysroot/usr/include/arm-linux-androideabi", -- <asm/...>
-		}
 		buildoptions {
-			"--target=armv7-none-linux-androideabi$(ANDROID_NDK_ABI)",
-			"--gcc-toolchain=$(ANDROID_NDK_ROOT)/toolchains/llvm/prebuilt/linux-x86_64",
-			"--sysroot=$(ANDROID_NDK_ROOT)/toolchains/llvm/prebuilt/linux-x86_64/sysroot",
+			"--target=armv7-none-linux-android" .. "$(ANDROID_NDK_ABI)",
 			"-mthumb",
 			"-march=armv7-a",
 			"-mfloat-abi=softfp",
 			"-mfpu=neon",
-			"-Wunused-value",
-			"-Wundef",
 		}
 		linkoptions {
-			"--target=armv7-none-linux-androideabi$(ANDROID_NDK_ABI)",
-			"--gcc-toolchain=$(ANDROID_NDK_ROOT)/toolchains/llvm/prebuilt/linux-x86_64",
-			"--sysroot=$(ANDROID_NDK_ROOT)/toolchains/llvm/prebuilt/linux-x86_64/sysroot",
-			"$(ANDROID_NDK_ROOT)/platforms/android-$(ANDROID_NDK_ABI)/arch-arm/usr/lib/crtbegin_so.o",
-			"$(ANDROID_NDK_ROOT)/platforms/android-$(ANDROID_NDK_ABI)/arch-arm/usr/lib/crtend_so.o",
+			"--target=armv7-none-linux-android" .. "$(ANDROID_NDK_ABI)",
 			"-march=armv7-a",
-			"-Wl,--fix-cortex-a8",
 		}
 
 	configuration { "android-arm64" }
 		targetdir (build_dir .. "android-arm64/bin")
 		objdir (build_dir .. "android-arm64/obj")
-		libdirs {
-			"$(ANDROID_NDK_ROOT)/sources/cxx-stl/llvm-libc++/libs/arm64-v8a",
-		}
-		includedirs {
-			"$(ANDROID_NDK_ROOT)/sysroot/usr/include/aarch64-linux-android",
-		}
 		buildoptions {
-			"--target=aarch64-none-linux-androideabi$(ANDROID_NDK_ABI)",
-			"--gcc-toolchain=$(ANDROID_NDK_ROOT)/toolchains/llvm/prebuilt/linux-x86_64",
-			"--sysroot=$(ANDROID_NDK_ROOT)/toolchains/llvm/prebuilt/linux-x86_64/sysroot",
-			"-march=armv8-a",
-			"-Wunused-value",
-			"-Wundef",
+			"--target=aarch64-none-linux-android" .. "$(ANDROID_NDK_ABI)",
 		}
 		linkoptions {
-			"--target=aarch64-none-linux-androideabi$(ANDROID_NDK_ABI)",
-			"--gcc-toolchain=$(ANDROID_NDK_ROOT)/toolchains/llvm/prebuilt/linux-x86_64",
-			"--sysroot=$(ANDROID_NDK_ROOT)/toolchains/llvm/prebuilt/linux-x86_64/sysroot",
-			"$(ANDROID_NDK_ROOT)/platforms/android-$(ANDROID_NDK_ABI)/arch-arm64/usr/lib/crtbegin_so.o",
-			"$(ANDROID_NDK_ROOT)/platforms/android-$(ANDROID_NDK_ABI)/arch-arm64/usr/lib/crtend_so.o",
-			"-march=armv8-a",
+			"--target=aarch64-none-linux-android" .. "$(ANDROID_NDK_ABI)",
 		}
 
 	configuration { "mingw-*" }
@@ -430,16 +410,10 @@ end
 
 function strip()
 
-	configuration { "android-arm", "release"}
+	configuration { "android-*", "release"}
 		postbuildcommands {
 			"$(SILENT) echo Stripping symbols",
-			"$(SILENT) $(ANDROID_NDK_ROOT)/toolchains/llvm/prebuilt/linux-x86_64/bin/arm-linux-androideabi-strip -s \"$(TARGET)\""
-		}
-
-	configuration { "android-arm64", "release"}
-		postbuildcommands {
-			"$(SILENT) echo Stripping symbols",
-			"$(SILENT) $(ANDROID_NDK_ROOT)/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-strip -s \"$(TARGET)\""
+			"$(SILENT) " .. androidToolchainRoot() .. "/bin/llvm-strip -s \"$(TARGET)\""
 		}
 
 	configuration { "linux-*", "release" }

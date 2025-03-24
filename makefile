@@ -37,12 +37,25 @@ NDKCROSS64=$(NDKBIN)/aarch64-linux-android-
 NDKCC64=$(NDKBIN)/aarch64-linux-android$(NDKABI)-clang
 
 build/android-arm/bin/libluajit.a:
-	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src HOST_CC="gcc -m32" CROSS=$(NDKCROSS) STATIC_CC=$(NDKCC) DYNAMIC_CC="$(NDKCC) -fPIC" TARGET_LD=$(NDKCC)
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src \
+		HOST_CC="gcc -m32"                             \
+		CROSS=$(NDKCROSS)                              \
+		STATIC_CC=$(NDKCC)                             \
+		DYNAMIC_CC="$(NDKCC) -fPIC"                    \
+		TARGET_LD=$(NDKCC)                             \
+		TARGET_STRIP=$(NDKBIN)/llvm-strip              \
+		TARGET_AR="$(NDKBIN)/llvm-ar rcus"
 	-@install -m775 -D 3rdparty/luajit/src/libluajit.a $@
 	-@"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
 
 build/android-arm64/bin/libluajit.a:
-	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src CROSS=$(NDKCROSS64) STATIC_CC=$(NDKCC64) DYNAMIC_CC="$(NDKCC64) -fPIC" TARGET_LD=$(NDKCC64)
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src \
+		CROSS=$(NDKCROSS64)                            \
+		STATIC_CC=$(NDKCC64)                           \
+		DYNAMIC_CC="$(NDKCC64) -fPIC"                  \
+		TARGET_LD=$(NDKCC64)                           \
+		TARGET_STRIP=$(NDKBIN)/llvm-strip              \
+		TARGET_AR="$(NDKBIN)/llvm-ar rcus"
 	-@install -m775 -D 3rdparty/luajit/src/libluajit.a $@
 	-@"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
 

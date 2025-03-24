@@ -88,11 +88,13 @@ function crown_project(_name, _kind, _defines)
 				"-shared"
 			}
 			links {
-				"gcc",
 				"EGL",
 				"GLESv2",
 				"OpenSLES",
 				"openal",
+			}
+			includedirs {
+				CROWN_DIR .. "3rdparty/android",
 			}
 
 		configuration { "linux-*" }
