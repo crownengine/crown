@@ -165,9 +165,9 @@ public class Level
             _db.add_to_set(_id, "folders", folder.id);
         }
     }
-	public void add_folder(Guid id, string name, Guid parent_id = GUID_ZERO)
+	public void add_folder(Guid id, string name,string type, Guid parent_id = GUID_ZERO)
 	{
-		_db.create(id, OBJECT_TYPE_UNIT);
+		_db.create(id, type);
 		_db.set_property_string(id, "editor.name", name);
 		_db.set_property_guid(id, "parent_folder", parent_id);
 		_db.add_to_set(_id, "folders", id);
