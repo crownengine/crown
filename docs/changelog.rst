@@ -15,6 +15,7 @@ Changelog
 * Fixed an issue that prevented importing DCC data with funny extensions.
 * Fixed revealing resources while the Project Browser was hidden.
 * Fixed importing FBX files with references to non-existing textures.
+* Fixed an issue that caused level's editor camera to be saved incorrectly in some cases.
 
 **Runtime**
 

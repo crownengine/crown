@@ -1378,7 +1378,8 @@ public class LevelEditorApplication : Gtk.Application
 
 			_level.on_selection(ids);
 		} else if (msg_type == "camera") {
-			_level.on_camera(msg);
+			if (ri == _editor)
+				_level.on_camera(msg);
 		} else if (msg_type == "error") {
 			loge((string)msg["message"]);
 		} else if (msg_type == "thumbnail") {
