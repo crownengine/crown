@@ -244,7 +244,9 @@ end
 
 function Selection:clear()
 	for k, v in pairs(self._ids) do
-		LevelEditor._objects[v]:on_selected(false)
+		if LevelEditor._objects[v] ~= nil then
+			LevelEditor._objects[v]:on_selected(false)
+		end
 	end
 	self._ids = {}
 end
@@ -285,7 +287,9 @@ end
 function Selection:set(ids)
 	self:clear()
 	for k, v in pairs(ids) do
-		LevelEditor._objects[v]:on_selected(true)
+		if LevelEditor._objects[v] ~= nil then
+			LevelEditor._objects[v]:on_selected(true)
+		end		
 	end
 	self._ids = ids
 end
