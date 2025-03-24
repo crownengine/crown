@@ -61,7 +61,7 @@ struct AndroidDevice
 		while (app->destroyRequested == 0) {
 			s32 num;
 			android_poll_source *source;
-			ALooper_pollAll(-1, NULL, &num, (void **)&source);
+			ALooper_pollOnce(-1, NULL, &num, (void **)&source);
 
 			if (source != NULL)
 				source->process(app, source);
