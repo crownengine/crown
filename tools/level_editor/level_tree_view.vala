@@ -277,7 +277,7 @@ public class LevelTreeView : Gtk.Box
 							if (inner_model is Gtk.TreeStore) {
 								base_store = (Gtk.TreeStore)inner_model;
 							} else {
-								print("The internal model of the filter is not a TreeStore.\n");
+								print("The internal model of the filter is not a TreeStore.");
 								return;
 							}
 					
@@ -297,12 +297,12 @@ public class LevelTreeView : Gtk.Box
 						var menu_item = new Gtk.MenuItem.with_label("Create Subfolder");
 						menu_item.activate.connect(() => {					
 							Guid parent_guid = get_parent_guid(parent_iter); 
-							print("Retrieved parent GUID: %s\n", parent_guid.to_string());
+							print("Retrieved parent GUID: %s", parent_guid.to_string());
 							Value? parent_type_val = null;
 							if (parent_guid == GUID_UNIT_FOLDER) {
-								parent_type_val = "unit"; 
+								parent_type_val = "unit_folder"; 
 							} else if (parent_guid == GUID_SOUND_FOLDER) {
-								parent_type_val = "sound"; 
+								parent_type_val = "sound_folder"; 
 							} else {
 								parent_type_val = _db.get_property(parent_guid, "_type"); 
 							}
@@ -311,23 +311,23 @@ public class LevelTreeView : Gtk.Box
 								string parent_type_str = (string)parent_type_val;
 					
 								switch (parent_type_str) {
-									case "unit":
+									case "unit_folder":
 										create_new_folder(parent_iter, OBJECT_TYPE_FOLDER_UNIT);
 										break;
-									case "sound":
+									case "sound_folder":
 										create_new_folder(parent_iter, OBJECT_TYPE_FOLDER_SOUND);
 										break;
 									default:
-										print("Unmanaged or invalid type: %s\n", parent_type_str);
+										print("Unmanaged or invalid type: %s", parent_type_str);
 										break;
 								}
 							} else {
-								print("Error: Parent type is not a string. Type found: %s\n", parent_type_val.type().name());
+								print("Error: Parent type is not a string. Type found: %s", parent_type_val.type().name());
 							}
 						});
 						menu.add(menu_item);
 					} else {
-						print("Error: Invalid conversion or iterator\n");
+						print("Error: Invalid conversion or iterator");
 					}								
 				}
 			});
@@ -508,70 +508,96 @@ public class LevelTreeView : Gtk.Box
 		return false;
 	}
 
-	private void on_drag_data_get(Gtk.Widget widget, Gdk.DragContext context, Gtk.SelectionData selection_data, uint info, uint time) {		
+	private void on_drag_data_get(Gtk.Widget widget, Gdk.DragContext context, Gtk.SelectionData selection_data, uint info, uint time) {
 		_tree_selection.changed.disconnect(on_tree_selection_changed);
 		Gtk.TreeModel model;
 		GLib.List<Gtk.TreePath> paths = _tree_selection.get_selected_rows(out model);
-		string source_set = null;
 		StringBuilder data_builder = new StringBuilder();
-		
+		string source_set = null;
+
 		foreach (Gtk.TreePath path in paths) {
 			Gtk.TreeIter iter;
 			model.get_iter(out iter, path);
+			// Get GUID of the selected item
+			Value guid_val;
+            model.get_value(iter, Column.GUID, out guid_val);
+			Guid guid = (Guid) guid_val;
 			
-			// Get parent information
-			Gtk.TreeIter parent_iter;
-			bool has_parent = model.iter_parent(out parent_iter, iter);
-	
-			if (has_parent) {
-				Value parent_name_val;
-				model.get_value(parent_iter, Column.NAME, out parent_name_val);
-				string parent_name = (string)parent_name_val;
-	
-				if (parent_name == "Units") {
-					source_set = "units";
-				} else if (parent_name == "Sounds") {
-					source_set = "sounds";
+			if (guid == GUID_ZERO) {
+				print("Warning: GUID is GUID_ZERO, skipping...\n");
+				continue;
+			}
+			Value? item_type = null;
+			if (guid == GUID_UNIT_FOLDER) {
+				item_type = "unit_folder";
+			} else if (guid == GUID_SOUND_FOLDER) {
+				item_type = "sound_folder";
+			} else {
+				item_type = _db.get_property(guid, "_type");
+			}
+		
+			if (item_type != null) {
+				string type_str = (string)item_type; 
+				switch (type_str) {
+					case "unit":
+						source_set = "units"; 
+						break;
+					case "sound":
+						source_set = "sounds"; 
+						break;
+					default:
+						continue;
 				}
 			} else {
-				print("Item has no parent (root level)\n");
+				print("Error: Item type is not a string or is null for GUID: %s\n", guid.to_string());
+				continue;
 			}
-	
-			Value guid_val;
-			model.get_value(iter, Column.GUID, out guid_val);
-			Guid guid = (Guid)guid_val;
 			data_builder.append(guid.to_string() + ",");
 		}
-		
-	    // REMOVE TRAILING COMMA
+	
+		// REMOVE TRAILING COMMA
 		if (data_builder.len > 0) {
 			data_builder.truncate(data_builder.len - 1);
 		}
-
-		if (source_set != null) {
-			string data_str = source_set + ";" + data_builder.str;			
-			var target = Gdk.Atom.intern(CROWN_DND_TARGET, false);
+	
+		if (data_builder.len > 0) {
+            string data_str = @"$source_set;$(data_builder.str)";
+            var target = Gdk.Atom.intern(CROWN_DND_TARGET, false);
 			selection_data.set(target, 8, data_str.data);
+		} else {
+			print("Invalid data: no GUIDs found.");
+			Gtk.drag_finish(context, false, false, time);
+			_tree_selection.changed.connect(on_tree_selection_changed);
+			return;
 		}
+
 		_tree_selection.changed.connect(on_tree_selection_changed);
 	}
+	
 	
 	private void on_drag_data_received(Gtk.Widget widget, Gdk.DragContext context, int x, int y, Gtk.SelectionData selection_data, uint info, uint time) {		
 		_tree_selection.changed.disconnect(on_tree_selection_changed);
 		Signal.stop_emission_by_name(_tree_view, "drag-data-received");
 		
 		var expected_target = Gdk.Atom.intern(CROWN_DND_TARGET, false);
+		if (selection_data.get_target() != expected_target) {
+			Gtk.drag_finish(context, false, false, time);
+			return;
+		}
 
 		string raw_data = (string)selection_data.get_data();
-		string[] data = raw_data.split(";");
-			
-		string source_set = data[0];
+		
+		raw_data = raw_data.strip(); 
+
+		string[] data = raw_data.split(";", 2);
+
+		string source_set = data[0].strip();
 		string[] guids = data[1].split(",");
-	
+
 		Gtk.TreePath path;
 		Gtk.TreeViewDropPosition pos;
 		if (!_tree_view.get_dest_row_at_pos(x, y, out path, out pos)) {
-			_tree_selection.changed.connect(on_tree_selection_changed);
+			Gtk.drag_finish(context, false, false, time);
 			return;
 		}
 
@@ -581,90 +607,127 @@ public class LevelTreeView : Gtk.Box
 		string target_parent_guid = "";
 		Value target_guid_val;
 		Value target_type_val;
-		
+	
 		_tree_sort.get_value(target_iter, Column.TYPE, out target_type_val);
-		if ((ItemType)target_type_val == ItemType.FOLDER) {
+		if (target_type_val == ItemType.FOLDER) {
 			_tree_sort.get_value(target_iter, Column.GUID, out target_guid_val);
 			target_parent_guid = ((Guid)target_guid_val).to_string();
-		}
-		else {
-			Gtk.TreeIter parent_iter;
-			if (_tree_sort.iter_parent(out parent_iter, target_iter)) {
-				_tree_sort.get_value(parent_iter, Column.GUID, out target_guid_val);
-				target_parent_guid = ((Guid)target_guid_val).to_string();
-			}
-			else {
-				Value name_val;
-				_tree_sort.get_value(target_iter, Column.NAME, out name_val);
-				target_parent_guid = ((string)name_val == "Units") 
-					? GUID_UNIT_FOLDER.to_string() 
-					: GUID_SOUND_FOLDER.to_string();
-			}
+		} else {
+			return;
 		}
 	
 		string? moving_type = null;
 		foreach (string guid_str in guids) {
-			if (guid_str.strip().length == 0) continue;
-		
+			if (guid_str.strip().length == 0) continue;	
 			Guid guid = Guid.parse(guid_str);
 	
 			Value? parent_guid_val = _db.get_property(guid, "parent_folder");
 			Guid parent_guid;
 	
-
 			if (parent_guid_val == null) {
-				if (_db.has_property(guid, "_type")) {
-					string item_type = (string)_db.get_property(guid, "_type");
-					if (item_type == "unit") {
-						parent_guid = GUID_UNIT_FOLDER; 
-					} else if (item_type == "sound") {
-						parent_guid = GUID_SOUND_FOLDER; 
-					} else {
-						print("Error: Unable to determine the root parent of the element %s\n", guid.to_string());
-						continue; 
-					}
+				string item_type = (string)_db.get_property(guid, "_type");
+				if (item_type == "unit") {
+					parent_guid = GUID_UNIT_FOLDER;
+				} else if (item_type == "sound") {
+					parent_guid = GUID_SOUND_FOLDER;
 				} else {
-					print("Error: Unable to retrieve element type %s\n", guid.to_string());
-					continue; 
+					print("Error: Unable to determine the root parent of element %s", guid.to_string());
+					continue;
 				}
 			} else {
 				parent_guid = (Guid)parent_guid_val;
 			}
-		
+	
 			Value? parent_type_val = null;
 			if (parent_guid == GUID_UNIT_FOLDER) {
-				parent_type_val = "unit"; 
+				parent_type_val = "unit";
 			} else if (parent_guid == GUID_SOUND_FOLDER) {
-				parent_type_val = "sound"; 
+				parent_type_val = "sound";
 			} else {
-				parent_type_val = _db.get_property(parent_guid, "_type"); 
+				parent_type_val = _db.get_property(parent_guid, "_type");
 			}
-			
+	
 			string parent_type = (string)parent_type_val;
-			if (moving_type == null) {
-				moving_type = parent_type; 
-			} else if (moving_type != parent_type) {
-				print("Movement prohibited: mix between %s et %s\n", moving_type, parent_type);
-				return;
-			}
-					
+			moving_type = parent_type;
+	
 			if (target_parent_guid == null || target_parent_guid.strip().length == 0) {
-				print("Error: Invalid target GUID (NULL or empty)\n");
+				print("Error: Invalid target GUID (NULL or empty)");
+				_tree_selection.changed.connect(on_tree_selection_changed);
 				return;
 			}
-
+	
 			Guid target_guid;
 			if (!Guid.try_parse(target_parent_guid, out target_guid)) {
-				print("Error: Invalid target GUID for parent %s\n", target_parent_guid);
+				print("Error: Invalid target GUID for parent %s", target_parent_guid);
+				_tree_selection.changed.connect(on_tree_selection_changed);
 				return;
 			}
-
-			_db.set_property(guid, "parent_folder", target_guid);
+			
+			Value? target_type_val_db = null;
+			string target_type;
+			
+			if (target_guid == GUID_UNIT_FOLDER) {
+				target_type = "unit_folder";
+			} else if (target_guid == GUID_SOUND_FOLDER) {
+				target_type = "sound_folder";
+			} else {
+				target_type_val_db = _db.get_property(target_guid, "_type");
+			
+				if (target_type_val_db != null) {
+					target_type = (string)target_type_val_db;
+				} else {
+					print("Error: Unable to determine target type for GUID %s\n", target_guid.to_string());
+					_tree_selection.changed.connect(on_tree_selection_changed);
+					return;
+				}
+			}
+			
+			string current_item_type = (string)_db.get_property(guid, "_type");
+			if (current_item_type == "unit_folder" || current_item_type == "sound_folder") {
+				continue;
+			}
+		
+			if (!((current_item_type == "unit" && target_type == "unit_folder") || 
+				(current_item_type == "sound" && target_type == "sound_folder"))) {
+				print("Error: Cannot move a %s into %s", current_item_type, target_type);
+				_tree_selection.changed.connect(on_tree_selection_changed);
+			  	return;
+		  	}
+			
+			if (target_guid != GUID_UNIT_FOLDER && target_guid != GUID_SOUND_FOLDER) {
+				_db.set_property(guid, "parent_folder", target_guid);
+			}
+			TreeIter? parent_iter = find_parent_iter(target_guid);
+			if (parent_iter != null) {
+				Gtk.TreeIter iter;
+				if (target_type == "unit_folder") {
+					_tree_store.append(out iter, parent_iter);
+					_tree_store.set(
+						iter,
+						Column.TYPE, ItemType.UNIT,
+						Column.GUID, guid,
+						Column.NAME, _level.object_editor_name(guid),
+						-1
+					);
+				} else if (target_type == "sound_folder") {
+					_tree_store.append(out iter, parent_iter);
+					_tree_store.set(
+						iter,
+						Column.TYPE, ItemType.SOUND,
+						Column.GUID, guid,
+						Column.NAME, _level.object_editor_name(guid),
+						-1
+					);
+				} else {
+					print("target_type folder : " + target_type + " not managed");
+				}
+			}
+			
+			_tree_view.expand_all();  
 		}
-
-		_tree_selection.changed.connect(on_tree_selection_changed);
+		_tree_selection.changed.connect(on_tree_selection_changed);	
 		Gtk.drag_finish(context, true, false, time);
-	}
+	}	
 	
 	private void on_tree_selection_changed()
 	{
@@ -970,7 +1033,7 @@ public class LevelTreeView : Gtk.Box
 						);
 					}
 				} else {
-					print("ERROR: Parent iter for GUID %s not found in the tree!\n", guid.to_string());
+					print("ERROR: Parent iter for GUID %s not found in the tree!", guid.to_string());
 				}
 			}
 		}
