@@ -1,6 +1,20 @@
 _guid = "b8c5fcbd-9a99-4c1a-a25b-1a24d4482008"
 _type = "material"
-shader = "mesh+DIFFUSE_MAP+NO_LIGHT"
+shader = "mesh+NO_LIGHT"
 textures = {
-	u_albedo = "units/skydome"
+	u_albedo_map = "units/skydome"
+}
+uniforms = {
+	u_albedo = {
+		type = "vector3"
+		value = [
+			1
+			1
+			1
+		]
+	}
+	u_use_albedo_map = {
+		type = "float"
+		value = 1
+	}
 }

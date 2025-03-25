@@ -25,6 +25,7 @@
 #include "world/shader_manager.h"
 #include "world/unit_manager.h"
 #include <bgfx/bgfx.h>
+#include <algorithm> // std::sort
 
 namespace crown
 {
@@ -86,25 +87,16 @@ RenderWorld::RenderWorld(Allocator &a
 	_unit_destroy_callback.node.prev = NULL;
 	um.register_destroy_callback(&_unit_destroy_callback);
 
-	_u_light_position  = bgfx::createUniform("u_light_position", bgfx::UniformType::Vec4);
-	_u_light_direction = bgfx::createUniform("u_light_direction", bgfx::UniformType::Vec4);
-	_u_light_color     = bgfx::createUniform("u_light_color", bgfx::UniformType::Vec4);
-	_u_light_range     = bgfx::createUniform("u_light_range", bgfx::UniformType::Vec4);
-	_u_light_intensity = bgfx::createUniform("u_light_intensity", bgfx::UniformType::Vec4);
-
-	// Selection.
-	_u_unit_id = bgfx::createUniform("u_unit_id", bgfx::UniformType::Vec4);
+	_u_lights_num = bgfx::createUniform("u_lights_num", bgfx::UniformType::Vec4, 1);
+	_u_lights_data = bgfx::createUniform("u_lights_data", bgfx::UniformType::Vec4, 3*32);
+	_u_unit_id = bgfx::createUniform("u_unit_id", bgfx::UniformType::Vec4); // Selection.
 }
 
 RenderWorld::~RenderWorld()
 {
+	bgfx::destroy(_u_lights_data);
+	bgfx::destroy(_u_lights_num);
 	bgfx::destroy(_u_unit_id);
-
-	bgfx::destroy(_u_light_intensity);
-	bgfx::destroy(_u_light_range);
-	bgfx::destroy(_u_light_color);
-	bgfx::destroy(_u_light_direction);
-	bgfx::destroy(_u_light_position);
 
 	_unit_manager->unregister_destroy_callback(&_unit_destroy_callback);
 
@@ -340,61 +332,68 @@ LightInstance RenderWorld::light_instance(UnitId unit)
 Color4 RenderWorld::light_color(LightInstance light)
 {
 	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
-	return _light_manager._data.color[light.i];
+	Vector3 c = _light_manager._data.shader[light.i].color;
+	return { c.x, c.y, c.z, 0.0f };
 }
 
 LightType::Enum RenderWorld::light_type(LightInstance light)
 {
 	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
-	return (LightType::Enum)_light_manager._data.type[light.i];
+	return (LightType::Enum)_light_manager._data.index[light.i].type;
 }
 
 f32 RenderWorld::light_range(LightInstance light)
 {
 	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
-	return _light_manager._data.range[light.i];
+	return _light_manager._data.shader[light.i].range;
 }
 
 f32 RenderWorld::light_intensity(LightInstance light)
 {
 	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
-	return _light_manager._data.intensity[light.i];
+	return _light_manager._data.shader[light.i].intensity;
 }
 
 f32 RenderWorld::light_spot_angle(LightInstance light)
 {
 	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
-	return _light_manager._data.spot_angle[light.i];
+	return _light_manager._data.shader[light.i].spot_angle;
 }
 
 void RenderWorld::light_set_color(LightInstance light, const Color4 &col)
 {
 	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
-	_light_manager._data.color[light.i] = col;
+	_light_manager._data.shader[light.i].color = { col.x, col.y, col.z };
 }
 
 void RenderWorld::light_set_type(LightInstance light, LightType::Enum type)
 {
 	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
-	_light_manager._data.type[light.i] = type;
+
+	u32 cur_type = _light_manager._data.index[light.i].type;
+	_light_manager._data.index[light.i].type = type;
+
+	_light_manager._data.num[cur_type]--;
+	_light_manager._data.num[type]++;
+	_light_manager._data.dirty = true;
 }
 
 void RenderWorld::light_set_range(LightInstance light, f32 range)
 {
 	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
-	_light_manager._data.range[light.i] = range;
+	_light_manager._data.shader[light.i].range = range;
 }
 
 void RenderWorld::light_set_intensity(LightInstance light, f32 intensity)
 {
 	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
-	_light_manager._data.intensity[light.i] = intensity;
+	_light_manager._data.shader[light.i].intensity = intensity;
 }
 
 void RenderWorld::light_set_spot_angle(LightInstance light, f32 angle)
 {
 	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
-	_light_manager._data.spot_angle[light.i] = angle;
+	_light_manager._data.shader[light.i].spot_angle = angle;
 }
 
 void RenderWorld::light_debug_draw(LightInstance light, DebugLine &dl)
@@ -422,28 +421,36 @@ void RenderWorld::update_transforms(const UnitId *begin, const UnitId *end, cons
 
 		if (_light_manager.has(*begin)) {
 			LightInstance light = _light_manager.light(*begin);
-			lid.world[light.i] = *world;
+
+			Vector3 pos = translation(*world);
+			Vector3 dir = -z(*world);
+			normalize(dir);
+
+			lid.shader[light.i].position = pos;
+			lid.shader[light.i].direction = dir;
 		}
 	}
 }
+
+void sort(RenderWorld::LightManager &m);
 
 void RenderWorld::render(const Matrix4x4 &view)
 {
 	LightManager::LightInstanceData &lid = _light_manager._data;
 
-	for (u32 ll = 0; ll < lid.size; ++ll) {
-		const Vector4 ldir = normalize(lid.world[ll].z) * view;
-		const Vector3 lpos = translation(lid.world[ll]);
+	// Set lighting data.
+	sort(_light_manager);
 
-		bgfx::setUniform(_u_light_position, to_float_ptr(lpos));
-		bgfx::setUniform(_u_light_direction, to_float_ptr(ldir));
-		bgfx::setUniform(_u_light_color, to_float_ptr(lid.color[ll]));
-		bgfx::setUniform(_u_light_range, &lid.range[ll]);
-		bgfx::setUniform(_u_light_intensity, &lid.intensity[ll]);
+	Vector4 h;
+	h.x = lid.num[LightType::DIRECTIONAL];
+	h.y = lid.num[LightType::OMNI];
+	h.z = lid.num[LightType::SPOT];
+	h.w = 0.0f;
+	bgfx::setUniform(_u_lights_num, &h);
+	bgfx::setUniform(_u_lights_data, (char *)lid.shader, lid.size*sizeof(*lid.shader) / sizeof(Vector4));
 
-		_mesh_manager.draw(VIEW_MESH, *_scene_graph);
-	}
-
+	// Render objects.
+	_mesh_manager.draw(VIEW_MESH, *_scene_graph);
 	_sprite_manager.draw(VIEW_SPRITE_0);
 
 	// Render outlines.
@@ -1055,35 +1062,28 @@ void RenderWorld::LightManager::allocate(u32 num)
 	CE_ENSURE(num > _data.size);
 
 	const u32 bytes = 0
-		+ num*sizeof(UnitId) + alignof(UnitId)
-		+ num*sizeof(Matrix4x4) + alignof(Matrix4x4)
-		+ num*sizeof(f32) + alignof(f32)
-		+ num*sizeof(f32) + alignof(f32)
-		+ num*sizeof(f32) + alignof(f32)
-		+ num*sizeof(Color4) + alignof(Color4)
-		+ num*sizeof(u32) + alignof(u32)
+		+ num*sizeof(Index) + alignof(Index)
+		+ num*sizeof(ShaderData) + alignof(ShaderData)
+		+ num*sizeof(ShaderData) + alignof(ShaderData)
 		;
 
 	LightInstanceData new_data;
 	new_data.size = _data.size;
+	memcpy(new_data.num, _data.num, sizeof(new_data.num));
+	new_data.dirty = _data.dirty;
 	new_data.capacity = num;
 	new_data.buffer = _allocator->allocate(bytes);
 
-	new_data.unit       = (UnitId *   )memory::align_top(new_data.buffer,           alignof(UnitId));
-	new_data.world      = (Matrix4x4 *)memory::align_top(new_data.unit + num,       alignof(Matrix4x4));
-	new_data.range      = (f32 *      )memory::align_top(new_data.world + num,      alignof(f32));
-	new_data.intensity  = (f32 *      )memory::align_top(new_data.range + num,      alignof(f32));
-	new_data.spot_angle = (f32 *      )memory::align_top(new_data.intensity + num,  alignof(f32));
-	new_data.color      = (Color4 *   )memory::align_top(new_data.spot_angle + num, alignof(Color4));
-	new_data.type       = (u32 *      )memory::align_top(new_data.color + num,      alignof(u32));
+	new_data.index    = (Index *     )memory::align_top(new_data.buffer,         alignof(Index));
+	new_data.shader_a = (ShaderData *)memory::align_top(new_data.index + num,    alignof(ShaderData));
+	new_data.shader_b = (ShaderData *)memory::align_top(new_data.shader_a + num, alignof(ShaderData));
 
-	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
-	memcpy(new_data.world, _data.world, _data.size * sizeof(Matrix4x4));
-	memcpy(new_data.range, _data.range, _data.size * sizeof(f32));
-	memcpy(new_data.intensity, _data.intensity, _data.size * sizeof(f32));
-	memcpy(new_data.spot_angle, _data.spot_angle, _data.size * sizeof(f32));
-	memcpy(new_data.color, _data.color, _data.size * sizeof(Color4));
-	memcpy(new_data.type, _data.type, _data.size * sizeof(u32));
+	new_data.shader = new_data.shader_a;
+	new_data.new_shader = new_data.shader_b;
+
+	memcpy(new_data.index, _data.index, _data.size * sizeof(*new_data.index));
+	memcpy(new_data.shader_a, _data.shader_a, _data.size * sizeof(ShaderData));
+	memcpy(new_data.shader_b, _data.shader_b, _data.size * sizeof(ShaderData));
 
 	_allocator->deallocate(_data.buffer);
 	_data = new_data;
@@ -1103,15 +1103,22 @@ LightInstance RenderWorld::LightManager::create(UnitId unit, const LightDesc &ld
 
 	const u32 last = _data.size;
 
-	_data.unit[last]       = unit;
-	_data.world[last]      = tr;
-	_data.range[last]      = ld.range;
-	_data.intensity[last]  = ld.intensity;
-	_data.spot_angle[last] = ld.spot_angle;
-	_data.color[last]      = vector4(ld.color.x, ld.color.y, ld.color.z, 1.0f);
-	_data.type[last]       = ld.type;
+	Vector3 dir = -z(tr);
+	normalize(dir);
+
+	_data.index[last].unit        = unit;
+	_data.index[last].type        = ld.type;
+	_data.index[last].index       = last;
+	_data.shader[last].color      = ld.color;
+	_data.shader[last].intensity  = ld.intensity;
+	_data.shader[last].position   = translation(tr);
+	_data.shader[last].range      = ld.range;
+	_data.shader[last].direction  = dir;
+	_data.shader[last].spot_angle = ld.spot_angle;
 
 	++_data.size;
+	++_data.num[ld.type];
+	_data.dirty = true;
 
 	hash_map::set(_map, unit, last);
 	return make_instance(last);
@@ -1122,18 +1129,17 @@ void RenderWorld::LightManager::destroy(LightInstance light)
 	CE_ASSERT(light.i < _data.size, "Index out of bounds");
 
 	const u32 last      = _data.size - 1;
-	const UnitId u      = _data.unit[light.i];
-	const UnitId last_u = _data.unit[last];
+	const UnitId u      = _data.index[light.i].unit;
+	const u32 t         = _data.index[light.i].type;
+	const UnitId last_u = _data.index[last].unit;
 
-	_data.unit[light.i]       = _data.unit[last];
-	_data.world[light.i]      = _data.world[last];
-	_data.range[light.i]      = _data.range[last];
-	_data.intensity[light.i]  = _data.intensity[last];
-	_data.spot_angle[light.i] = _data.spot_angle[last];
-	_data.color[light.i]      = _data.color[last];
-	_data.type[light.i]       = _data.type[last];
+	_data.index[light.i]    = _data.index[last];
+	_data.shader_a[light.i] = _data.shader_a[last];
+	_data.shader_b[light.i] = _data.shader_b[last];
 
 	--_data.size;
+	--_data.num[t];
+	_data.dirty = true;
 
 	hash_map::set(_map, last_u, light.i);
 	hash_map::remove(_map, u);
@@ -1157,10 +1163,10 @@ void RenderWorld::LightManager::destroy()
 void RenderWorld::LightManager::debug_draw(u32 start_index, u32 num, DebugLine &dl)
 {
 	for (u32 i = start_index; i < start_index + num; ++i) {
-		const Vector3 pos = translation(_data.world[i]);
-		const Vector3 dir = -z(_data.world[i]);
+		const Vector3 pos = _data.shader[i].position;
+		const Vector3 dir = _data.shader[i].direction;
 
-		switch (_data.type[i]) {
+		switch (_data.index[i].type) {
 		case LightType::DIRECTIONAL: {
 			const Vector3 end = pos + dir*3.0f;
 			dl.add_line(pos, end, COLOR4_YELLOW);
@@ -1169,12 +1175,12 @@ void RenderWorld::LightManager::debug_draw(u32 start_index, u32 num, DebugLine &
 		}
 
 		case LightType::OMNI:
-			dl.add_sphere(pos, _data.range[i], COLOR4_YELLOW);
+			dl.add_sphere(pos, _data.shader[i].range, COLOR4_YELLOW);
 			break;
 
 		case LightType::SPOT: {
-			const f32 angle  = _data.spot_angle[i];
-			const f32 range  = _data.range[i];
+			const f32 angle  = _data.shader[i].spot_angle;
+			const f32 range  = _data.shader[i].range;
 			const f32 radius = ftan(angle)*range;
 			dl.add_cone(pos + range*dir, pos, radius, COLOR4_YELLOW);
 			break;
@@ -1185,6 +1191,26 @@ void RenderWorld::LightManager::debug_draw(u32 start_index, u32 num, DebugLine &
 			break;
 		}
 	}
+}
+
+void sort(RenderWorld::LightManager &m)
+{
+	if (!m._data.dirty)
+		return;
+
+	std::sort(m._data.index
+		, m._data.index + m._data.size
+		, [](const RenderWorld::LightManager::Index &in_a, const RenderWorld::LightManager::Index &in_b) { return in_a.type < in_b.type; });
+
+	for (u32 i = 0; i < m._data.size; ++i) {
+		m._data.new_shader[i] = m._data.shader[m._data.index[i].index];
+
+		m._data.index[i].index = i;
+		hash_map::set(m._map, m._data.index[i].unit, i);
+	}
+
+	exchange(m._data.new_shader, m._data.shader);
+	m._data.dirty = false;
 }
 
 } // namespace crown

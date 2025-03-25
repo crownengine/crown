@@ -338,19 +338,39 @@ struct RenderWorld
 
 	struct LightManager
 	{
+		// This data is fed to the shader as-is.
+		// Keep it in sync with "core/shaders/lighting.shader"!
+		struct ShaderData
+		{
+			Vector3 color;
+			f32 intensity;
+			Vector3 position;
+			f32 range;
+			Vector3 direction;
+			f32 spot_angle;
+		};
+
+		struct Index
+		{
+			UnitId unit;
+			u32 type  : 4;  // LightType::Enum
+			u32 index : 28; // Maps from light-index to sorted light-index.
+		};
+
 		struct LightInstanceData
 		{
 			u32 size;
+			u32 num[LightType::COUNT]; // Number of lights for each type.
+			bool dirty;                // true if data (potentially) unsorted.
 			u32 capacity;
 			void *buffer;
 
-			UnitId *unit;
-			Matrix4x4 *world;
-			f32 *range;
-			f32 *intensity;
-			f32 *spot_angle;
-			Color4 *color;
-			u32 *type; // LightType::Enum
+			Index *index;
+			ShaderData *shader_a;
+			ShaderData *shader_b;
+
+			ShaderData *shader; // After sort(), it points to the sorted shader array.
+			ShaderData *new_shader; // Temporary storage for sort().
 		};
 
 		Allocator *_allocator;
@@ -404,12 +424,6 @@ struct RenderWorld
 	Pipeline *_pipeline;
 	SceneGraph *_scene_graph;
 
-	bgfx::UniformHandle _u_light_position;
-	bgfx::UniformHandle _u_light_direction;
-	bgfx::UniformHandle _u_light_color;
-	bgfx::UniformHandle _u_light_range;
-	bgfx::UniformHandle _u_light_intensity;
-
 	bool _debug_drawing;
 	MeshManager _mesh_manager;
 	SpriteManager _sprite_manager;
@@ -419,6 +433,8 @@ struct RenderWorld
 
 	HashSet<UnitId> _selection;
 	bgfx::UniformHandle _u_unit_id;
+	bgfx::UniformHandle _u_lights_num;
+	bgfx::UniformHandle _u_lights_data;
 };
 
 } // namespace crown
