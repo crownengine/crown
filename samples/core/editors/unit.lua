@@ -326,11 +326,13 @@ function UnitBox:raycast(pos, dir)
 end
 
 function UnitBox:draw()
-	if self._selected then
-		local light = RenderWorld.light_instance(self._rw, self._unit_id)
-		if light then
-			RenderWorld.light_debug_draw(self._rw, light, LevelEditor._lines)
-		end
+	if not self._selected then
+		return
+	end
+
+	local light = RenderWorld.light_instance(self._rw, self._unit_id)
+	if light then
+		RenderWorld.light_debug_draw(self._rw, light, LevelEditor._lines)
 	end
 end
 
