@@ -1,4 +1,7 @@
-include = ["core/shaders/common.shader"]
+include = [
+	"core/shaders/common.shader"
+	"core/shaders/lighting.shader"
+]
 
 render_states = {
 	debug_line = {
@@ -204,34 +207,45 @@ bgfx_shaders = {
 	}
 
 	mesh = {
-		includes = "common"
+		includes = [ "common" "lighting" ]
 
 		samplers = {
 			u_albedo_map = { sampler_state = "mirror_anisotropic" }
+			u_normal_map = { sampler_state = "mirror_anisotropic" }
+			u_metallic_map = { sampler_state = "mirror_anisotropic" }
+			u_roughness_map = { sampler_state = "mirror_anisotropic" }
+			u_ao_map = { sampler_state = "mirror_anisotropic" }
 		}
 
 		varying = """
+			vec3 v_position  : POSITION  = vec3(0.0, 0.0, 0.0);
 			vec3 v_normal    : NORMAL    = vec3(0.0, 0.0, 0.0);
-			vec4 v_view      : TEXCOORD0 = vec4(0.0, 0.0, 0.0, 0.0);
-			vec2 v_texcoord0 : TEXCOORD1 = vec2(0.0, 0.0);
+			vec3 v_tangent   : TANGENT   = vec3(0.0, 0.0, 0.0);
+			vec3 v_bitangent : BINORMAL  = vec3(0.0, 0.0, 0.0);
+			vec2 v_texcoord0 : TEXCOORD0 = vec2(0.0, 0.0);
+			vec3 v_camera    : TEXCOORD1 = vec3(0.0, 0.0, 0.0);
 
 			vec3 a_position  : POSITION;
 			vec3 a_normal    : NORMAL;
-			vec2 a_texcoord0 : TEXCOORD0;
+			vec3 a_tangent   : TANGENT;
+			vec3 a_bitangent : BINORMAL;
 			vec4 a_indices   : BLENDINDICES;
 			vec4 a_weight    : BLENDWEIGHT;
+			vec2 a_texcoord0 : TEXCOORD0;
 		"""
 
 		vs_input_output = """
 		#if defined(SKINNING)
-			$input a_position, a_normal, a_texcoord0, a_indices, a_weight
+			$input a_position, a_normal, a_tangent, a_bitangent, a_texcoord0, a_indices, a_weight
 		#else
-			$input a_position, a_normal, a_texcoord0
+			$input a_position, a_normal, a_tangent, a_bitangent, a_texcoord0
 		#endif
-			$output v_normal, v_view, v_texcoord0
+			$output v_position, v_normal, v_tangent, v_bitangent, v_texcoord0, v_camera
 		"""
 
 		vs_code = """
+			uniform vec4 u_use_normal_map;
+
 			void main()
 			{
 		#if defined(SKINNING)
@@ -241,60 +255,81 @@ bgfx_shaders = {
 				model += a_weight.z * u_model[int(a_indices.z)];
 				model += a_weight.w * u_model[int(a_indices.w)];
 				gl_Position = mul(mul(u_modelViewProj, model), vec4(a_position, 1.0));
-				v_view = mul(mul(u_modelView, model), vec4(a_position, 1.0));
-				v_normal = normalize(mul(mul(u_modelView, model), vec4(a_normal, 0.0)).xyz);
+				model = mul(u_model[0], model);
 		#else
-				gl_Position = mul(u_modelViewProj, vec4(a_position, 1.0));
-				v_view = mul(u_modelView, vec4(a_position, 1.0));
-				v_normal = normalize(mul(u_modelView, vec4(a_normal, 0.0)).xyz);
+				gl_Position = mul(mul(u_viewProj, u_model[0]), vec4(a_position, 1.0));
+				mat4 model = u_model[0];
 		#endif
+
+				v_position = mul(model, vec4(a_position, 1.0)).xyz;
+				v_normal = normalize(mul(model, vec4(a_normal, 0.0))).xyz;
+				v_tangent = normalize(mul(model, vec4(a_tangent, 0.0))).xyz;
+				v_bitangent = normalize(mul(model, vec4(a_bitangent, 0.0))).xyz;
+
+				mat3 tbn;
+				if (u_use_normal_map.r == 1.0)
+					tbn = mtxFromCols(v_tangent, v_bitangent, v_normal);
+				else
+					tbn = mtxFromCols(vec3(1.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0), vec3(0.0, 0.0, 1.0));
+
+				v_camera = mul(u_invView, vec4(0.0, 0.0, 0.0, 1.0)).xyz;
+				v_camera = mul(v_camera - v_position, tbn);
+				v_position = mul(v_position, tbn);
 
 				v_texcoord0 = a_texcoord0;
 			}
 		"""
 
 		fs_input_output = """
-			$input v_normal, v_view, v_texcoord0
+			$input v_position, v_normal, v_tangent, v_bitangent, v_texcoord0, v_camera
 		"""
 
 		fs_code = """
-		#if !defined(NO_LIGHT)
-			uniform vec4 u_light_position;  // In world-space
-			uniform vec4 u_light_direction; // In view-space
-			uniform vec4 u_light_color;
-			uniform vec4 u_light_range;
-			uniform vec4 u_light_intensity;
-
-			uniform vec4 u_ambient;
-			uniform vec4 u_diffuse;
-			uniform vec4 u_specular;
-		#endif
-
-		#if defined(DIFFUSE_MAP)
 			SAMPLER2D(u_albedo_map, 0);
-		#endif // DIFFUSE_MAP
+			SAMPLER2D(u_normal_map, 1);
+			SAMPLER2D(u_metallic_map, 2);
+			SAMPLER2D(u_roughness_map, 3);
+			SAMPLER2D(u_ao_map, 4);
+
+			uniform vec4 u_albedo;
+			uniform vec4 u_metallic;
+			uniform vec4 u_roughness;
+			uniform vec4 u_use_albedo_map;
+			uniform vec4 u_use_normal_map;
+			uniform vec4 u_use_metallic_map;
+			uniform vec4 u_use_roughness_map;
+			uniform vec4 u_use_ao_map;
+
+			vec3 decode_versor(vec3 rgb)
+			{
+				return rgb * 2.0 - 1.0;
+			}
+
+			vec3 albedo = u_use_albedo_map.r == 1.0 ? texture2D(u_albedo_map, v_texcoord0).rgb : u_albedo.rgb;
+			vec3 normal = u_use_normal_map.r == 1.0 ? decode_versor(texture2D(u_normal_map, v_texcoord0).rgb) : v_normal;
+			float metallic = u_use_metallic_map.r == 1.0 ? texture2D(u_metallic_map, v_texcoord0).r : u_metallic.r;
+			float roughness = u_use_roughness_map.r == 1.0 ? texture2D(u_roughness_map, v_texcoord0).r: u_roughness.r;
+			float ao = u_use_ao_map.r == 1.0 ? texture2D(u_ao_map, v_texcoord0).r : 0.0;
 
 			void main()
 			{
-		#if !defined(NO_LIGHT)
-				// normalize both input vectors
-				vec3 n = normalize(v_normal);
-				vec3 e = normalize(v_view.xyz);
-				vec3 l = u_light_direction.xyz;
-
-				float nl = max(0.0, dot(n, l));
-				vec3 light_diffuse = nl * toLinearAccurate(u_light_color.rgb) * u_light_intensity.x;
-
-				vec3 color = max(u_diffuse.rgb * light_diffuse, u_ambient.rgb);
+		#if defined(NO_LIGHT)
+				vec3 radiance = albedo;
 		#else
-				vec3 color = vec3(1.0f, 1.0f, 1.0f);
+				mat3 tbn;
+				if (u_use_normal_map.r == 1.0)
+					tbn = mtxFromCols(v_tangent, v_bitangent, v_normal);
+				else
+					tbn = mtxFromCols(vec3(1.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0), vec3(0.0, 0.0, 1.0));
+
+				vec3 n = normalize(normal); // Fragment normal.
+				vec3 v = normalize(v_camera); // Versor from fragment to camera pos.
+				vec3 f0 = mix(vec3_splat(0.04), albedo, metallic);
+				vec3 radiance = calc_lighting(tbn, n, v, albedo, metallic, roughness, f0);
+				radiance = radiance / (radiance + vec3_splat(1.0)); // Tone-mapping.
 		#endif // !defined(NO_LIGHT)
 
-		#if defined(DIFFUSE_MAP)
-				color = color * texture2D(u_albedo_map, v_texcoord0).rgb;
-		#endif
-
-				gl_FragColor = vec4(toGammaAccurate(color), 1.0);
+				gl_FragColor = vec4(toGammaAccurate(radiance), 1.0);
 			}
 		"""
 	}
@@ -578,6 +613,7 @@ static_compile = [
 	{ shader = "mesh" defines = [] }
 	{ shader = "mesh" defines = ["DIFFUSE_MAP"] }
 	{ shader = "mesh" defines = ["SKINNING"] }
+	{ shader = "mesh" defines = ["NO_LIGHT"] }
 	{ shader = "mesh" defines = ["DIFFUSE_MAP" "SKINNING"] }
 	{ shader = "mesh" defines = ["DIFFUSE_MAP" "NO_LIGHT"] }
 	{ shader = "selection" defines = [] }

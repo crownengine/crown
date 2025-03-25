@@ -2,7 +2,7 @@ _guid = "f174f984-efac-446c-9dcc-ca8c2f78cb52"
 _type = "material"
 shader = "sprite"
 textures = {
-	u_albedo = "units/environment/tree"
+	u_albedo_map = "units/environment/tree"
 }
 uniforms = {
 	u_color = {

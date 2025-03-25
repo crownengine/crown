@@ -19,6 +19,7 @@ Changelog
 
 **Runtime**
 
+* Added physically-based rendering (PBR) pipeline.
 * Added support to shaders and materials hot-reloading.
 * Increased the maximum number of lines that can be drawn with DebugLine.
 * Increased the maximum number of texture samplers per shader to 16.

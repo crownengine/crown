@@ -2,7 +2,7 @@ _guid = "58493d47-df7b-4a20-bc98-391394f152fe"
 _type = "material"
 shader = "sprite"
 textures = {
-	u_albedo = "units/soldier"
+	u_albedo_map = "units/soldier"
 }
 uniforms = {
 	u_color = {

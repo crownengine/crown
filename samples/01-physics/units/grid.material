@@ -1,19 +1,11 @@
 _guid = "7dfad1f5-f17d-409e-a885-2d7b072f8630"
 _type = "material"
-shader = "mesh+DIFFUSE_MAP"
+shader = "mesh"
 textures = {
-	u_albedo = "units/grid"
+	u_albedo_map = "units/grid"
 }
 uniforms = {
-	u_ambient = {
-		type = "vector3"
-		value = [
-			0.40000000000000002
-			0.40000000000000002
-			0.40000000000000002
-		]
-	}
-	u_diffuse = {
+	u_albedo = {
 		type = "vector3"
 		value = [
 			1
@@ -21,16 +13,32 @@ uniforms = {
 			1
 		]
 	}
-	u_shininess = {
+	u_metallic = {
 		type = "float"
 		value = 0
 	}
-	u_specular = {
-		type = "vector3"
-		value = [
-			0
-			0
-			0
-		]
+	u_roughness = {
+		type = "float"
+		value = 1
+	}
+	u_use_albedo_map = {
+		type = "float"
+		value = 1
+	}
+	u_use_normal_map = {
+		type = "float"
+		value = 0
+	}
+	u_use_metallic_map = {
+		type = "float"
+		value = 0
+	}
+	u_use_roughness_map = {
+		type = "float"
+		value = 0
+	}
+	u_use_ao_map = {
+		type = "float"
+		value = 0
 	}
 }
