@@ -181,19 +181,17 @@ function UnitBox:mesh_tree_obb()
 	end
 
 	local transform = SceneGraph.instance(scene_graph, unit_id)
-	if transform == nil then
-		return -1.0
-	end
+	if transform ~= nil then
+		local cur_child = SceneGraph.first_child(scene_graph, transform)
+		while cur_child ~= nil do
+			child_id = SceneGraph.owner(scene_graph, cur_child)
+			mesh = RenderWorld.mesh_instance(self._rw, child_id)
+			if mesh then
+				obb_tm, obb_he = Math.obb_merge(obb_tm, obb_he, RenderWorld.mesh_obb(self._rw, mesh))
+			end
 
-	local cur_child = SceneGraph.first_child(scene_graph, transform)
-	while cur_child ~= nil do
-		child_id = SceneGraph.owner(scene_graph, cur_child)
-		mesh = RenderWorld.mesh_instance(self._rw, child_id)
-		if mesh then
-			obb_tm, obb_he = Math.obb_merge(obb_tm, obb_he, RenderWorld.mesh_obb(self._rw, mesh))
+			cur_child = SceneGraph.next_sibling(scene_graph, cur_child)
 		end
-
-		cur_child = SceneGraph.next_sibling(scene_graph, cur_child)
 	end
 
 	return obb_tm, obb_he
@@ -212,19 +210,17 @@ function UnitBox:sprite_tree_obb()
 	end
 
 	local transform = SceneGraph.instance(scene_graph, unit_id)
-	if transform == nil then
-		return -1.0
-	end
+	if transform ~= nil then
+		local cur_child = SceneGraph.first_child(scene_graph, transform)
+		while cur_child ~= nil do
+			child_id = SceneGraph.owner(scene_graph, cur_child)
+			mesh = RenderWorld.sprite_instance(self._rw, child_id)
+			if mesh then
+				obb_tm, obb_he = Math.obb_merge(obb_tm, obb_he, RenderWorld.sprite_obb(self._rw, mesh))
+			end
 
-	local cur_child = SceneGraph.first_child(scene_graph, transform)
-	while cur_child ~= nil do
-		child_id = SceneGraph.owner(scene_graph, cur_child)
-		mesh = RenderWorld.sprite_instance(self._rw, child_id)
-		if mesh then
-			obb_tm, obb_he = Math.obb_merge(obb_tm, obb_he, RenderWorld.sprite_obb(self._rw, mesh))
+			cur_child = SceneGraph.next_sibling(scene_graph, cur_child)
 		end
-
-		cur_child = SceneGraph.next_sibling(scene_graph, cur_child)
 	end
 
 	return obb_tm, obb_he
