@@ -113,7 +113,7 @@ bgfx_shaders = {
 		includes = "common"
 
 		samplers = {
-			u_albedo = { sampler_state = "clamp_anisotropic" }
+			u_albedo_map = { sampler_state = "clamp_anisotropic" }
 		}
 
 		varying = """
@@ -147,13 +147,13 @@ bgfx_shaders = {
 
 		fs_code = """
 		#if defined(DIFFUSE_MAP)
-			SAMPLER2D(u_albedo, 0);
+			SAMPLER2D(u_albedo_map, 0);
 		#endif // DIFFUSE_MAP
 
 			void main()
 			{
 		#if defined(DIFFUSE_MAP)
-				gl_FragColor = toGammaAccurate(texture2D(u_albedo, v_texcoord0) * toLinearAccurate(v_color0));
+				gl_FragColor = toGammaAccurate(texture2D(u_albedo_map, v_texcoord0) * toLinearAccurate(v_color0));
 		#else
 				gl_FragColor = v_color0;
 		#endif // DIFFUSE_MAP
@@ -165,7 +165,7 @@ bgfx_shaders = {
 		includes = "common"
 
 		samplers = {
-			u_albedo = { sampler_state = "clamp_point" }
+			u_albedo_map = { sampler_state = "clamp_point" }
 		}
 
 		varying = """
@@ -193,12 +193,12 @@ bgfx_shaders = {
 		"""
 
 		fs_code = """
+			SAMPLER2D(u_albedo_map, 0);
 			uniform vec4 u_color;
-			SAMPLER2D(u_albedo, 0);
 
 			void main()
 			{
-				gl_FragColor = toGammaAccurate(texture2D(u_albedo, v_texcoord0) * toLinearAccurate(u_color));
+				gl_FragColor = toGammaAccurate(texture2D(u_albedo_map, v_texcoord0) * toLinearAccurate(u_color));
 			}
 		"""
 	}
@@ -207,7 +207,7 @@ bgfx_shaders = {
 		includes = "common"
 
 		samplers = {
-			u_albedo = { sampler_state = "mirror_anisotropic" }
+			u_albedo_map = { sampler_state = "mirror_anisotropic" }
 		}
 
 		varying = """
@@ -271,7 +271,7 @@ bgfx_shaders = {
 		#endif
 
 		#if defined(DIFFUSE_MAP)
-			SAMPLER2D(u_albedo, 0);
+			SAMPLER2D(u_albedo_map, 0);
 		#endif // DIFFUSE_MAP
 
 			void main()
@@ -291,7 +291,7 @@ bgfx_shaders = {
 		#endif // !defined(NO_LIGHT)
 
 		#if defined(DIFFUSE_MAP)
-				color = color * texture2D(u_albedo, v_texcoord0).rgb;
+				color = color * texture2D(u_albedo_map, v_texcoord0).rgb;
 		#endif
 
 				gl_FragColor = vec4(toGammaAccurate(color), 1.0);

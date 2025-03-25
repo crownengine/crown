@@ -50,7 +50,7 @@ function TexturePreview:destroy()
 end
 
 function TexturePreview:render(camera)
-	Material.set_texture(self._material, "u_albedo", self._texture_name)
+	Material.set_texture(self._material, "u_albedo_map", self._texture_name)
 	Gui.image(Thumbnail._gui, Vector2(0, 0), Vector2(128, 128), self._material_name, Color4.white())
 end
 
