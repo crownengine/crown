@@ -338,37 +338,45 @@ end
 
 function UnitBox:set_light(type, range, intensity, angle, color)
 	local light = RenderWorld.light_instance(self._rw, self._unit_id)
-	RenderWorld.light_set_type(self._rw, light, type)
-	RenderWorld.light_set_color(self._rw, light, color)
-	RenderWorld.light_set_range(self._rw, light, range)
-	RenderWorld.light_set_intensity(self._rw, light, intensity)
-	RenderWorld.light_set_spot_angle(self._rw, light, angle)
+	if light then
+		RenderWorld.light_set_type(self._rw, light, type)
+		RenderWorld.light_set_color(self._rw, light, color)
+		RenderWorld.light_set_range(self._rw, light, range)
+		RenderWorld.light_set_intensity(self._rw, light, intensity)
+		RenderWorld.light_set_spot_angle(self._rw, light, angle)
+	end
 end
 
 function UnitBox:set_mesh(mesh_resource, geometry, material, visible)
 	local mesh = RenderWorld.mesh_instance(self._rw, self._unit_id)
-	RenderWorld.mesh_set_geometry(self._rw, mesh, mesh_resource, geometry)
-	RenderWorld.mesh_set_material(self._rw, mesh, material)
-	RenderWorld.mesh_set_visible(self._rw, mesh, visible)
-	self._obb.dirty = true
+	if mesh then
+		RenderWorld.mesh_set_geometry(self._rw, mesh, mesh_resource, geometry)
+		RenderWorld.mesh_set_material(self._rw, mesh, material)
+		RenderWorld.mesh_set_visible(self._rw, mesh, visible)
+		self._obb.dirty = true
+	end
 end
 
 function UnitBox:set_sprite(sprite_resource_name, material, layer, depth, visible)
 	local sprite = RenderWorld.sprite_instance(self._rw, self._unit_id)
-	RenderWorld.sprite_set_sprite(self._rw, sprite, sprite_resource_name)
-	RenderWorld.sprite_set_material(self._rw, sprite, material)
-	RenderWorld.sprite_set_layer(self._rw, sprite, layer)
-	RenderWorld.sprite_set_depth(self._rw, sprite, depth)
-	RenderWorld.sprite_set_visible(self._rw, sprite, visible)
-	self._obb.dirty = true
+	if sprite then
+		RenderWorld.sprite_set_sprite(self._rw, sprite, sprite_resource_name)
+		RenderWorld.sprite_set_material(self._rw, sprite, material)
+		RenderWorld.sprite_set_layer(self._rw, sprite, layer)
+		RenderWorld.sprite_set_depth(self._rw, sprite, depth)
+		RenderWorld.sprite_set_visible(self._rw, sprite, visible)
+		self._obb.dirty = true
+	end
 end
 
 function UnitBox:set_camera(projection, fov, near_range, far_range)
 	local camera = World.camera_instance(self._world, self._unit_id)
-	World.camera_set_projection_type(self._world, camera, projection)
-	World.camera_set_fov(self._world, camera, fov)
-	World.camera_set_near_clip_distance(self._world, camera, near_range)
-	World.camera_set_far_clip_distance(self._world, camera, far_range)
+	if camera then
+		World.camera_set_projection_type(self._world, camera, projection)
+		World.camera_set_fov(self._world, camera, fov)
+		World.camera_set_near_clip_distance(self._world, camera, near_range)
+		World.camera_set_far_clip_distance(self._world, camera, far_range)
+	end
 end
 
 function UnitBox:send()
