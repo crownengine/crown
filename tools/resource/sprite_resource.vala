@@ -113,26 +113,11 @@ public class SpriteResource
 				return ImportResult.ERROR;
 			}
 
-			Hashtable textures = new Hashtable();
-			textures["u_albedo"] = resource_name;
+			Database db = new Database(project);
 
-			Hashtable uniform = new Hashtable();
-			uniform["type"]  = "vector4";
-			uniform["value"] = Vector4(1.0, 1.0, 1.0, 1.0).to_array();
-
-			Hashtable uniforms = new Hashtable();
-			uniforms["u_color"] = uniform;
-
-			Hashtable material = new Hashtable();
-			material["shader"]   = "sprite";
-			material["textures"] = textures;
-			material["uniforms"] = uniforms;
-			try {
-				SJSON.save(material, project.absolute_path(resource_name) + ".material");
-			} catch (JsonWriteError e) {
-				loge(e.message);
+			MaterialResource material_resource = new MaterialResource.sprite(db, Guid.new_guid(), resource_name);
+			if (material_resource.save(project, resource_name) != 0)
 				return ImportResult.ERROR;
-			}
 
 			try {
 				file_src.copy(file_dst, FileCopyFlags.OVERWRITE);
@@ -140,8 +125,6 @@ public class SpriteResource
 				loge(e.message);
 				return ImportResult.ERROR;
 			}
-
-			Database db = new Database(project);
 
 			var texture_resource = TextureResource.sprite(db, Guid.new_guid(), resource_path);
 			texture_resource.save(project, resource_name);

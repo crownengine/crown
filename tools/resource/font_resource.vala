@@ -98,17 +98,9 @@ public class FontResource
 			db.reset();
 
 			// Generate .material resource.
-			Hashtable textures = new Hashtable();
-			textures["u_albedo"] = resource_name;
-
-			Hashtable material = new Hashtable();
-			material["shader"]   = "gui+DIFFUSE_MAP";
-			material["textures"] = textures;
-			try {
-				SJSON.save(material, project.absolute_path(resource_name) + ".material");
-			} catch (JsonWriteError e) {
+			MaterialResource material_resource = MaterialResource.gui(db, Guid.new_guid(), resource_name);
+			if (material_resource.save(project, resource_name) != 0)
 				return ImportResult.ERROR;
-			}
 
 			// Generate .font resource.
 			Guid font_id = Guid.new_guid();

@@ -115,22 +115,17 @@ namespace MeshResource
 			fltr.add_pattern("*.material");
 			mtl.add_filter(fltr);
 
+			Database db = new Database(project);
+
 			string material_name = resource_name;
 			if (mtl.run() == (int)Gtk.ResponseType.ACCEPT) {
 				string material_filename = project.resource_filename(mtl.get_filename());
 				string material_path     = ResourceId.normalize(material_filename);
 				material_name            = ResourceId.name(material_path);
 			} else {
-				Hashtable material = new Hashtable();
-				material["shader"]   = "mesh+DIFFUSE_MAP";
-				material["textures"] = new Hashtable();
-				material["uniforms"] = new Hashtable();
-				try {
-					SJSON.save(material, project.absolute_path(material_name) + ".material");
-				} catch (JsonWriteError e) {
-					loge(e.message);
+				MaterialResource material_resource = MaterialResource.mesh(db, Guid.new_guid());
+				if (material_resource.save(project, material_name) != 0)
 					return ImportResult.ERROR;
-				}
 			}
 			mtl.destroy();
 
@@ -140,8 +135,6 @@ namespace MeshResource
 				loge(e.message);
 				return ImportResult.ERROR;
 			}
-
-			Database db = new Database(project);
 
 			// Generate or modify existing .unit.
 			Guid unit_id;
