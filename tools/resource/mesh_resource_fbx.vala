@@ -670,64 +670,78 @@ public class FBXImporter
 					string material_resource_path     = ResourceId.normalize(material_resource_filename);
 					string material_resource_name     = ResourceId.name(material_resource_path);
 
-					// Create .texture resource.
-					Guid material_id = Guid.new_guid();
-					db.create(material_id, "material");
-
 					string shader = "mesh";
+					Vector3 albedo = Vector3(1, 1, 1);
+					double metallic = 0.0;
+					double roughness = 1.0;
+					string? albedo_map = null;
+					string? normal_map = null;
+					string? metallic_map = null;
+					string? roughness_map = null;
+					string? ao_map = null;
 
-					for (int mm = 0; mm < ufbx.MaterialFbxMap.MAP_COUNT; ++mm) {
-						unowned ufbx.MaterialMap material_map = material.fbx.maps[mm];
+					for (int mm = 0; mm < ufbx.MaterialPbrMap.MAP_COUNT; ++mm) {
+						unowned ufbx.MaterialMap map = material.pbr.maps[mm];
 
 						switch (mm) {
-						case ufbx.MaterialFbxMap.DIFFUSE_COLOR: {
-								string uniform_name = "u_diffuse";
-								db.set_property_string(material_id
-									, "uniforms.%s.type".printf(uniform_name)
-									, "vector3"
-									);
-								db.set_property_vector3(material_id
-									, "uniforms.%s.value".printf(uniform_name)
-									, vector3(material_map.value_vec3)
-									);
+						case ufbx.MaterialPbrMap.BASE_COLOR: {
+							albedo = vector3(map.value_vec3);
 
-								if (material_map.texture_enabled
-									&& material_map.texture != null
-									&& imported_textures.has_key(material_map.texture)
-									) {
-									// Lookup matching imported texture.
-									string texture_resource_name = imported_textures[material_map.texture];
-									shader += "+DIFFUSE_MAP";
-									db.set_property_string(material_id
-										, "textures.u_albedo"
-										, texture_resource_name
-										);
-								}
-
-								break;
-						}
-						case ufbx.MaterialFbxMap.SPECULAR_COLOR: {
-							string uniform_name = "u_specular";
-							db.set_property_string(material_id
-								, "uniforms.%s.type".printf(uniform_name)
-								, "vector3"
-								);
-							db.set_property_vector3(material_id
-								, "uniforms.%s.value".printf(uniform_name)
-								, vector3(material_map.value_vec3)
-								);
+							// Lookup matching imported texture, if any.
+							if (map.texture_enabled
+								&& map.texture != null
+								&& imported_textures.has_key(map.texture)
+								) {
+								albedo_map = imported_textures[map.texture];
+							}
 							break;
 						}
-						case ufbx.MaterialFbxMap.AMBIENT_COLOR: {
-							string uniform_name = "u_ambient";
-							db.set_property_string(material_id
-								, "uniforms.%s.type".printf(uniform_name)
-								, "vector3"
-								);
-							db.set_property_vector3(material_id
-								, "uniforms.%s.value".printf(uniform_name)
-								, vector3(material_map.value_vec3)
-								);
+
+						case ufbx.MaterialPbrMap.NORMAL_MAP: {
+							// Lookup matching imported texture, if any.
+							if (map.texture_enabled
+								&& map.texture != null
+								&& imported_textures.has_key(map.texture)
+								) {
+								normal_map = imported_textures[map.texture];
+							}
+							break;
+						}
+
+						case ufbx.MaterialPbrMap.METALNESS: {
+							metallic = map.value_real;
+
+							// Lookup matching imported texture, if any.
+							if (map.texture_enabled
+								&& map.texture != null
+								&& imported_textures.has_key(map.texture)
+								) {
+								metallic_map = imported_textures[map.texture];
+							}
+							break;
+						}
+
+						case ufbx.MaterialPbrMap.ROUGHNESS: {
+							roughness = map.value_real;
+
+							// Lookup matching imported texture, if any.
+							if (map.texture_enabled
+								&& map.texture != null
+								&& imported_textures.has_key(map.texture)
+								) {
+								roughness_map = imported_textures[map.texture];
+							}
+							break;
+						}
+
+						case ufbx.MaterialPbrMap.AMBIENT_OCCLUSION: {
+							// Lookup matching imported texture, if any.
+							if (map.texture_enabled
+								&& map.texture != null
+								&& imported_textures.has_key(map.texture)
+								) {
+								ao_map = imported_textures[map.texture];
+							}
 							break;
 						}
 						default:
@@ -738,8 +752,19 @@ public class FBXImporter
 					if (options.import_animation.value)
 						shader += "+SKINNING";
 
-					db.set_property_string(material_id, "shader", shader);
-					db.save(project.absolute_path(material_resource_name) + ".material", material_id);
+					// Create .material resource.
+					MaterialResource material_resource = MaterialResource.mesh(db
+						, Guid.new_guid()
+						, albedo_map
+						, normal_map
+						, metallic_map
+						, roughness_map
+						, ao_map
+						, albedo
+						, metallic
+						, roughness
+						);
+					material_resource.save(project, material_resource_name);
 					imported_materials.set(material, material_resource_name);
 				}
 			}
