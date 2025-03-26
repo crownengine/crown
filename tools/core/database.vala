@@ -455,10 +455,13 @@ public class Database
 	}
 
 	/// Saves database to path.
-	public void save(string path, Guid id)
+	public int save(string path, Guid id)
 	{
-		dump(path, id);
-		_distance_from_last_sync = 0;
+		int err = dump(path, id);
+		if (err == 0)
+			_distance_from_last_sync = 0;
+
+		return err;
 	}
 
 	// See: add_from_path().
