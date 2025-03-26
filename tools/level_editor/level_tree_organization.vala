@@ -232,7 +232,6 @@ namespace Crown
 
         public static void on_database_key_changed_internal(LevelTreeView view_i, Guid id, string key) {
             if (id != view_i.level._id || (key != "units" && key != "sounds")) return;
-        
             view_i.tree_selection.changed.disconnect(view_i.on_tree_selection_changed);
         
             // Define target folder and item type based on the key
@@ -286,7 +285,6 @@ namespace Crown
         
             // Remove outdated items but avoid removing subfolders
             existing_guids.foreach((guid, iter) => {
-                // Only remove items that are not folders
                 Value item_type_val;
                 view_i.tree_store.get_value(iter, LevelTreeView.Column.TYPE, out item_type_val);
                 if (item_type_val.holds(typeof(LevelTreeView.ItemType)) && (LevelTreeView.ItemType)item_type_val != LevelTreeView.ItemType.FOLDER) {
@@ -294,6 +292,7 @@ namespace Crown
                         view_i.tree_store.remove(ref iter);
                     }
                 }
+                remove_outdated_items_in_subfolders(view_i, iter, current_guids);
             });
         
             // Synchronize parent folders and add missing items
@@ -343,7 +342,34 @@ namespace Crown
             view_i.tree_view.expand_all();
             view_i.tree_selection.changed.connect(view_i.on_tree_selection_changed);
         }
-
+        private static void remove_outdated_items_in_subfolders(LevelTreeView view_i, Gtk.TreeIter iter, HashSet<Guid?> current_guids) {
+            // Iterate over all children (subfolders and items) under the current iter
+            Gtk.TreeIter child_iter;
+            if (view_i.tree_store.iter_children(out child_iter, iter)) {
+                do {
+                    // Get the GUID and item type of the current child
+                    Value guid_val;
+                    view_i.tree_store.get_value(child_iter, LevelTreeView.Column.GUID, out guid_val);
+                    Value item_type_val;
+                    view_i.tree_store.get_value(child_iter, LevelTreeView.Column.TYPE, out item_type_val);
+        
+                    if (guid_val.holds(typeof(Guid)) && item_type_val.holds(typeof(LevelTreeView.ItemType))) {
+                        Guid guid = (Guid)guid_val;
+                        LevelTreeView.ItemType item_type = (LevelTreeView.ItemType)item_type_val;
+        
+                        // If this item is not a folder, check if it's outdated and remove it
+                        if (item_type != LevelTreeView.ItemType.FOLDER) {
+                            if (!current_guids.contains(guid)) {
+                                view_i.tree_store.remove(ref child_iter);
+                            }
+                        } else {
+                            // If it's a folder, recursively check for outdated items inside it
+                            remove_outdated_items_in_subfolders(view_i, child_iter, current_guids);
+                        }
+                    }
+                } while (view_i.tree_store.iter_next(ref child_iter));
+            }
+        }
         public static void rebuild_tree(LevelTreeView view_i) {
             view_i.tree_store.clear();
             var folder_map = new HashTable<string, Gtk.TreeIter?>(str_hash, str_equal);
@@ -448,7 +474,7 @@ namespace Crown
             view_i.tree_store.get_value(parent_iter, LevelTreeView.Column.GUID, out val);
             return (Guid)val;
         }
-        public static Gtk.TreeIter? find_parent_iter(LevelTreeView view_i, Guid parent_id)
+        private static Gtk.TreeIter? find_parent_iter(LevelTreeView view_i, Guid parent_id)
         {
             Gtk.TreeIter? found = null;
             view_i.tree_store.foreach((model, path, iter) => {
