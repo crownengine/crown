@@ -97,6 +97,7 @@ function Thumbnail:init()
 	local light = RenderWorld.light_instance(self._rw, light_unit)
 	if light ~= nil then
 		RenderWorld.light_set_type(self._rw, light, "directional")
+		RenderWorld.light_set_intensity(self._rw, light, 3)
 	end
 end
 
