@@ -34,6 +34,21 @@ Android
 
 4. :ref:`Build for Android<build_android>`.
 
+HTML5
+-----
+
+1. Install emsdk:
+
+   * https://emscripten.org/docs/getting_started/downloads.html
+
+2. Set emsdk path:
+
+.. code::
+
+	export EMSCRIPTEN=<path/to/emsdk>/upstream/emscripten
+
+3. :ref:`Build for HTML5<build_html5>`.
+
 Linux (Ubuntu >= 20.04)
 -----------------------
 
@@ -124,6 +139,15 @@ Android
 .. code::
 
 	make android-arm-release MAKE_JOBS=4
+
+.. _build_html5:
+
+HTML5
+-----
+
+.. code::
+
+	make wasm-release MAKE_JOBS=4
 
 .. _build_linux:
 
