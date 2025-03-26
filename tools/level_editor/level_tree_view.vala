@@ -310,40 +310,39 @@ public class LevelTreeView : Gtk.Box
 					}
 					if (valid_conversion && base_store.iter_is_valid(parent_iter)) {
 						var menu_item = new Gtk.MenuItem.with_label("Create Subfolder");
-						menu_item.activate.connect(() => {					
+						menu_item.activate.connect(() => {                    
 							Guid parent_guid = LevelTreeOrganization.get_parent_guid(this, parent_iter); 
 							print("Retrieved parent GUID: %s", parent_guid.to_string());
-							Value? parent_type_val = null;
-							if (parent_guid == GUID_UNIT_FOLDER) {
-								parent_type_val = "unit_folder"; 
-							} else if (parent_guid == GUID_SOUND_FOLDER) {
-								parent_type_val = "sound_folder"; 
-							} else {
-								parent_type_val = _db.get_property(parent_guid, "_type"); 
-							}
-				
-							if (parent_type_val.holds(typeof(string))) {
-								string parent_type_str = (string)parent_type_val;
-					
-								switch (parent_type_str) {
-									case "unit_folder":
-										create_new_folder(parent_iter, OBJECT_TYPE_FOLDER_UNIT);
-										break;
-									case "sound_folder":
-										create_new_folder(parent_iter, OBJECT_TYPE_FOLDER_SOUND);
-										break;
-									default:
-										print("Unmanaged or invalid type: %s", parent_type_str);
-										break;
+							
+							string? parent_type_str = null;
+							foreach (var root_info in get_root_folder_info()) {
+								if (parent_guid == root_info.guid) {
+									parent_type_str = root_info.item_type_str;
+									break;
 								}
-							} else {
-								print("Error: Parent type is not a string. Type found: %s", parent_type_val.type().name());
+							}
+							if (parent_type_str == null) {
+								Value parent_type_val = _db.get_property(parent_guid, "_type");
+								parent_type_str = parent_type_val.holds(typeof(string)) ? (string)parent_type_val : null;
+							}
+							if (parent_type_str != null) {
+								foreach (var root_info in get_root_folder_info()) {
+									if (parent_type_str == root_info.item_type_str) {
+										create_new_folder(parent_iter, root_info.object_type);
+										return;
+									}
+								}
+								print("Unmanaged or invalid type: %s", parent_type_str);
+							}
+							else {
+								print("Error: Parent type is not a string. Type found: %s", parent_guid.to_string());
 							}
 						});
 						menu.add(menu_item);
-					} else {
+					}
+					else {
 						print("Error: Invalid conversion or iterator");
-					}								
+					}						
 				}
 			});
 			
