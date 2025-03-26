@@ -1,3 +1,11 @@
+/*TODOS
+fix ctrl + z and probably ctrl + y causing crash if i move an object into a subfolder and click on ctrl + z
+support can drag and drop multiple elements at once easily
+
+made can dupplicate folder (like unit)
+made can remove folder (like unit)
+support undo/redo feature 
+support folder drag and drop
 /*
 * Copyright (c) 2012-2025 Daniele Bartolini et al.
 * SPDX-License-Identifier: GPL-3.0-or-later
