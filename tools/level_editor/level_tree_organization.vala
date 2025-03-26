@@ -407,51 +407,50 @@ namespace Crown
         }
         public static void sync_existing_units_and_sounds(LevelTreeView view_i)
         {
-            sync_items(view_i, "units", GUID_UNIT_FOLDER, LevelTreeView.ItemType.UNIT);
-            sync_items(view_i, "sounds", GUID_SOUND_FOLDER, LevelTreeView.ItemType.SOUND);
+            foreach (var folder in get_root_folder_info())
+            {
+                sync_items(view_i, folder.contains_source_set_str, folder.guid, folder.contains_item_type);
+            }
         }
-    
+        
         public static void sync_items(LevelTreeView view_i, string property_name, Guid default_folder, LevelTreeView.ItemType item_type)
         {
             var items = view_i.db.get_property_set(view_i.level._id, property_name, new HashSet<Guid?>());
-            foreach (Guid guid in items)
-            {
-                string item_name = view_i.level.object_editor_name(guid); 
-    
-                Value? parent_value = view_i.db.get_property(guid, "parent_folder");
-    
-                Guid parent_id = GUID_ZERO;
-    
-                if (parent_value != null)
-                {
-                    parent_id = (Guid)parent_value;
+            if (items.size == 0) return;
+        
+            // Cache parent GUID -> TreeIter mappings
+            var parent_iter_cache = new Gee.HashMap<Guid?, Gtk.TreeIter?>(Guid.hash_func, Guid.equal_func);
+        
+            foreach (Guid guid in items) {
+                // Get parent GUID (with default fallback)
+                var parent_value = view_i.db.get_property(guid, "parent_folder");
+                Guid parent_id = (parent_value != null) ? (Guid)parent_value : default_folder;
+                if (parent_id == GUID_ZERO) parent_id = default_folder;
+        
+                // Cache lookup/creation
+                Gtk.TreeIter? parent_iter = null;
+                if (!parent_iter_cache.has_key(parent_id)) {
+                    parent_iter = LevelTreeOrganization.find_parent_iter(view_i, parent_id);
+                    parent_iter_cache[parent_id] = parent_iter;
+                } else {
+                    parent_iter = parent_iter_cache[parent_id];
                 }
-    
-                if (parent_id == GUID_ZERO)
-                {
-                    parent_id = default_folder;
-                }
-    
-                Gtk.TreeIter? parent_iter = LevelTreeOrganization.find_parent_iter(view_i, parent_id);
-            
-                if (parent_iter != null)
-                {
+        
+                if (parent_iter != null) {
                     Gtk.TreeIter iter;
                     view_i.tree_store.append(out iter, parent_iter);
                     view_i.tree_store.set(
                         iter,
                         LevelTreeView.Column.TYPE, item_type,
                         LevelTreeView.Column.GUID, guid,
-                        LevelTreeView.Column.NAME, item_name,
+                        LevelTreeView.Column.NAME, view_i.level.object_editor_name(guid),
                         -1
                     );
-                }
-                else
-                {
+                } else {
                     print("ERROR: Parent iter for " + item_type.to_string() + " GUID " + guid.to_string() + " not found!");
                 }
             }
-        }	
+        }
         private static void add_folders_recursively(LevelTreeView view_i, string parent_guid, HashTable<string, Gtk.TreeIter?> folder_map) {
             foreach (var folder in view_i.level._folders) {
                 if (folder.parent_id.to_string() == parent_guid) {

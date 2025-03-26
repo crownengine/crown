@@ -14,12 +14,13 @@ namespace Crown {
         public LevelTreeView.ItemType item_type;
         public LevelTreeView.ItemType contains_item_type;
         public string contains_item_type_str;
+        public string contains_source_set_str;
     }
 
     static RootFolderInfo[] get_root_folder_info() {
         return new RootFolderInfo[] {
-            { GUID_UNIT_FOLDER,  "Units",  OBJECT_TYPE_FOLDER_UNIT,  LevelTreeView.ItemType.FOLDER, LevelTreeView.ItemType.UNIT, "unit"},
-            { GUID_SOUND_FOLDER, "Sounds", OBJECT_TYPE_FOLDER_SOUND, LevelTreeView.ItemType.FOLDER, LevelTreeView.ItemType.SOUND, "sound"}
+            { GUID_UNIT_FOLDER,  "Units",  OBJECT_TYPE_FOLDER_UNIT,  LevelTreeView.ItemType.FOLDER, LevelTreeView.ItemType.UNIT, "unit", "units"},
+            { GUID_SOUND_FOLDER, "Sounds", OBJECT_TYPE_FOLDER_SOUND, LevelTreeView.ItemType.FOLDER, LevelTreeView.ItemType.SOUND, "sound", "sounds"}
         };
     }
 
