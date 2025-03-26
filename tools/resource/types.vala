@@ -28,5 +28,6 @@ const string OBJECT_TYPE_SPRITE                  = "sprite";
 const string OBJECT_TYPE_SPRITE_ANIMATION        = "sprite_animation";
 const string OBJECT_TYPE_FONT                    = "font";
 const string OBJECT_TYPE_MESH                    = "mesh";
+const string OBJECT_TYPE_MATERIAL                = "material";
 
 } /* namespace Crown */
