@@ -168,6 +168,7 @@ public class Level
 		} else {
 			foreach (var root_info in get_root_folder_info()) {
 				if (folder_id == root_info.guid) {
+					// TODO AVOID THIS TO PREVENT "NEED TO SAVE TRIGGER" , but for now its needed to fix crash at Value? item_type = view_i.db.get_property(guid, "_type"); from on_drag_data_get_internal
 					_db.create(folder_id,root_info.object_type);
 					_db.set_property(folder_id, "editor.name", root_info.name);
 					_db.set_property(folder_id, "parent_folder", GUID_ZERO);
