@@ -454,12 +454,16 @@ public class LevelTreeView : Gtk.Box
 		Gtk.TreeIter base_iter = iter;
 		bool conversion_valide = true;
 	
-		if (model is Gtk.TreeModelSort sort_model)
+		if (model is Gtk.TreeModelSort)
 		{
-			if (sort_model.model is Gtk.TreeModelFilter filter_model)
+			Gtk.TreeModelSort sort_model = (Gtk.TreeModelSort)model;
+			Gtk.TreeModelFilter filter_model = sort_model.model as Gtk.TreeModelFilter;
+			
+			if (filter_model != null)
 			{
 				base_store = filter_model.get_model() as Gtk.TreeStore;
-				sort_model.convert_iter_to_child_iter(out Gtk.TreeIter filter_iter, iter);
+				Gtk.TreeIter filter_iter;
+				sort_model.convert_iter_to_child_iter(out filter_iter, iter);
 				filter_model.convert_iter_to_child_iter(out base_iter, filter_iter);
 			}
 			else
@@ -469,15 +473,18 @@ public class LevelTreeView : Gtk.Box
 		}
 		else if (model is Gtk.TreeStore)
 		{
-			base_store = (Gtk.TreeStore)model;
+			base_store = model as Gtk.TreeStore;
 		}
 		else
 		{
 			conversion_valide = false;
 		}
-		base_store.get_value(base_iter, Column.NAME, out Value name_value);
+	
+		Value name_value;
+		base_store.get_value(base_iter, Column.NAME, out name_value);
 		string current_name = (string)name_value;
-		var dialog = new Gtk.Dialog.with_buttons(
+	
+		Gtk.Dialog dialog = new Gtk.Dialog.with_buttons(
 			"New Name",
 			(Gtk.Window)get_toplevel(),
 			Gtk.DialogFlags.MODAL,
@@ -485,31 +492,35 @@ public class LevelTreeView : Gtk.Box
 			"Ok", Gtk.ResponseType.OK,
 			null
 		);
-		var entry = new Gtk.Entry { text = current_name };
+	
+		Gtk.Entry entry = new Gtk.Entry();
+		entry.text = current_name;
 		dialog.get_content_area().add(entry);
 		dialog.show_all();
 	
 		if (dialog.run() == Gtk.ResponseType.OK)
 		{
 			string new_name = entry.text.strip();
-	
-			if (!string.IsNullOrEmpty(new_name) && new_name != current_name)
+			
+			if (new_name != "" && new_name != current_name)
 			{
 				base_store.set_value(base_iter, Column.NAME, new_name);
-	
-				base_store.get_value(base_iter, Column.GUID, out Value guid_value);
+				
+				Value guid_value;
+				base_store.get_value(base_iter, Column.GUID, out guid_value);
 				Guid folder_guid = (Guid)guid_value;
-	
-				var folder = _level._folders.FirstOrDefault(f => f.id == folder_guid);
-				if (folder != null)
+				
+				foreach (var folder in _level._folders)
 				{
-					folder.name = new_name;
+					if (folder.id == folder_guid)
+					{
+						folder.name = new_name;
+						break;
+					}
 				}
-	
 				_level._db.set_property_string(folder_guid, "editor.name", new_name);
 			}
 		}
-	
 		dialog.destroy();
 	}
 	
