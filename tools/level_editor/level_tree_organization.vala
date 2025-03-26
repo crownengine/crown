@@ -11,12 +11,7 @@ namespace Crown
     public class LevelTreeOrganization
     {
         public static bool on_drag_drop_internal(LevelTreeView view_i, string d_target, Gtk.Widget widget, Gdk.DragContext context, int x, int y, uint time) {
-            Gtk.drag_get_data(
-                widget,         // will receive 'drag-data-received' signal
-                context,
-                Gdk.Atom.intern(d_target, false),
-                time
-            );
+            Gtk.drag_get_data(widget, context, Gdk.Atom.intern(d_target, false), time);
             Signal.stop_emission_by_name(view_i.tree_view, "drag-drop");
             return true;
         }
@@ -164,13 +159,7 @@ namespace Crown
                 Value? parent_type_val = view_i.db.get_property(parent_guid, "_type");
                 string parent_type = (string)parent_type_val;
                 moving_type = parent_type;
-        
-                if (target_parent_guid == null || target_parent_guid.strip().length == 0) {
-                    print("Error: Invalid target GUID (NULL or empty)");
-                    view_i.tree_selection.changed.connect(view_i.on_tree_selection_changed);
-                    return;
-                }
-        
+                
                 Guid target_guid;
                 if (!Guid.try_parse(target_parent_guid, out target_guid)) {
                     print("Error: Invalid target GUID for parent %s", target_parent_guid);
@@ -195,10 +184,7 @@ namespace Crown
                     }
                 }  
                 string current_item_type = (string)view_i.db.get_property(guid, "_type");
-                if (current_item_type == "unit_folder" || current_item_type == "sound_folder") {
-                    continue;
-                }
-        
+         
                 bool valid_move = false;
                 foreach (var root_info in get_root_folder_info()) {
                     if (target_type == root_info.object_type && current_item_type == root_info.contains_item_type_str) {
@@ -268,8 +254,7 @@ namespace Crown
                     }
                 } while (view_i.tree_store.iter_next(ref target_iter));
             }
-        
-        
+
             // If the folder doesn't exist, create it
             if (!folder_exists) {
                 append_to_tree_store(view_i, null, LevelTreeView.ItemType.FOLDER, target_folder, (key == "units") ? "Units" : "Sounds");
