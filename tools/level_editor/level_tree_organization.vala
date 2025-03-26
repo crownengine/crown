@@ -50,14 +50,7 @@ namespace Crown
                     print("Warning: GUID is GUID_ZERO, skipping...\n");
                     continue;
                 }
-                Value? item_type = null;
-                if (guid == GUID_UNIT_FOLDER) {
-                    item_type = "unit_folder";
-                } else if (guid == GUID_SOUND_FOLDER) {
-                    item_type = "sound_folder";
-                } else {
-                    item_type = view_i.db.get_property(guid, "_type");
-                }
+                Value? item_type = view_i.db.get_property(guid, "_type");
             
                 if (item_type != null) {
                     string type_str = (string)item_type; 
@@ -160,14 +153,7 @@ namespace Crown
                     parent_guid = (Guid)parent_guid_val;
                 }
         
-                Value? parent_type_val = null;
-                if (parent_guid == GUID_UNIT_FOLDER) {
-                    parent_type_val = "unit";
-                } else if (parent_guid == GUID_SOUND_FOLDER) {
-                    parent_type_val = "sound";
-                } else {
-                    parent_type_val = view_i.db.get_property(parent_guid, "_type");
-                }
+                Value? parent_type_val = view_i.db.get_property(parent_guid, "_type");
         
                 string parent_type = (string)parent_type_val;
                 moving_type = parent_type;
@@ -215,31 +201,31 @@ namespace Crown
                     view_i.tree_selection.changed.connect(view_i.on_tree_selection_changed);
                     return;
                 }
-                
-                view_i.db.set_property(guid, "parent_folder", target_guid);
-
+                if (parent_guid != target_guid) {
+                    view_i.db.set_property(guid, "parent_folder", target_guid); 
+                }
+    
                 TreeIter? parent_iter = find_parent_iter(view_i, target_guid);
                 if (parent_iter != null) {
                     Gtk.TreeIter iter;
-                    if (target_type == "unit_folder") {
-                        view_i.tree_store.append(out iter, parent_iter);
-                        view_i.tree_store.set(
-                            iter,
-                            LevelTreeView.Column.TYPE, LevelTreeView.ItemType.UNIT,
-                            LevelTreeView.Column.GUID, guid,
-                            LevelTreeView.Column.NAME, view_i.level.object_editor_name(guid),
-                            -1
-                        );
-                    } else if (target_type == "sound_folder") {
-                        view_i.tree_store.append(out iter, parent_iter);
-                        view_i.tree_store.set(
-                            iter,
-                            LevelTreeView.Column.TYPE, LevelTreeView.ItemType.SOUND,
-                            LevelTreeView.Column.GUID, guid,
-                            LevelTreeView.Column.NAME, view_i.level.object_editor_name(guid),
-                            -1
-                        );
-                    } else {
+                    bool type_managed = false;
+                
+                    foreach (var root_info in get_root_folder_info()) {
+                        if (root_info.object_type == target_type) {
+                            view_i.tree_store.append(out iter, parent_iter);
+                            view_i.tree_store.set(
+                                iter,
+                                LevelTreeView.Column.TYPE, root_info.contains_item_type,
+                                LevelTreeView.Column.GUID, guid,
+                                LevelTreeView.Column.NAME, view_i.level.object_editor_name(guid),
+                                -1
+                            );
+                            type_managed = true;
+                            break;
+                        }
+                    }
+                
+                    if (!type_managed) {
                         print("target_type folder : " + target_type + " not managed");
                     }
                 }
@@ -380,28 +366,45 @@ namespace Crown
             view_i.tree_selection.changed.connect(view_i.on_tree_selection_changed);
         }
 
-
         public static void rebuild_tree(LevelTreeView view_i) {
             view_i.tree_store.clear();
-        
             var folder_map = new HashTable<string, Gtk.TreeIter?>(str_hash, str_equal);
-            Gtk.TreeIter units_iter, sounds_iter;
-    
-            view_i.tree_store.append(out units_iter, null);
-            view_i.tree_store.set(units_iter, LevelTreeView.Column.TYPE, LevelTreeView.ItemType.FOLDER, LevelTreeView.Column.GUID, GUID_UNIT_FOLDER, LevelTreeView.Column.NAME, "Units", -1);
-            folder_map[GUID_UNIT_FOLDER.to_string()] = units_iter;
-    
-            view_i.tree_store.append(out sounds_iter, null);
-            view_i.tree_store.set(sounds_iter, LevelTreeView.Column.TYPE, LevelTreeView.ItemType.FOLDER, LevelTreeView.Column.GUID, GUID_SOUND_FOLDER, LevelTreeView.Column.NAME, "Sounds", -1);
-            folder_map[GUID_SOUND_FOLDER.to_string()] = sounds_iter;
         
-            // Add all folders hierarchically
-            add_folders_recursively(view_i, GUID_UNIT_FOLDER.to_string(), folder_map);
-            add_folders_recursively(view_i, GUID_SOUND_FOLDER.to_string(), folder_map);
+            foreach (var root_info in get_root_folder_info()) {
+                Gtk.TreeIter iter;
+                view_i.tree_store.append(out iter, null);
+                view_i.tree_store.set(
+                    iter,
+                    LevelTreeView.Column.TYPE, root_info.item_type,
+                    LevelTreeView.Column.GUID, root_info.guid,
+                    LevelTreeView.Column.NAME, root_info.name,
+                    -1
+                );
+                folder_map[root_info.guid.to_string()] = iter;
+            }
+
+            foreach (var folder in view_i.level._folders) {
+                if (folder.id in get_root_folder_guids()) {
+                    continue;
+                }
+        
+                Gtk.TreeIter iter;
+                Gtk.TreeIter? parent_iter = folder_map[folder.parent_id.to_string()];
+        
+                view_i.tree_store.append(out iter, parent_iter);
+                view_i.tree_store.set(
+                    iter,
+                    LevelTreeView.Column.TYPE, LevelTreeView.ItemType.FOLDER,
+                    LevelTreeView.Column.GUID, folder.id,
+                    LevelTreeView.Column.NAME, folder.name,
+                    -1
+                );
+        
+                folder_map[folder.id.to_string()] = iter;
+            }
         
             sync_existing_units_and_sounds(view_i);
         }
-        
         public static void sync_existing_units_and_sounds(LevelTreeView view_i)
         {
             sync_items(view_i, "units", GUID_UNIT_FOLDER, LevelTreeView.ItemType.UNIT);

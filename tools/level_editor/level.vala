@@ -104,7 +104,6 @@ public class Level
 		if (ret != 0)
 			return ret;
 
-		load_folders();
 		camera_decode();
 		GLib.Application.get_default().activate_action("camera-view", new GLib.Variant.int32(_camera_view_type));
 
@@ -123,28 +122,60 @@ public class Level
 		// FIXME: hack to keep the LevelTreeView working.
 		_db.key_changed(_id, "units");
 
+		load_folders();
+
 		level_loaded();
 
 		return 0;
 	}
-    public void load_folders()
-    {
-        _folders.clear();
-        
-        HashSet<Guid?> folder_ids = _db.get_property_set(_id, "folders", new HashSet<Guid?>());
-        
-        foreach (Guid folder_id in folder_ids) {
-            if (!_db.has_object(folder_id))
-                continue;
+	public void load_folders() {
+		_folders.clear();
+	
+		HashSet<Guid?> folder_ids = _db.get_property_set(_id, "folders", new HashSet<Guid?>());
+		bool needToSave = false;
+	
+		foreach (var root_info in get_root_folder_info()) {
+			needToSave |= ensure_root_folder(folder_ids, root_info.guid, root_info.name, root_info.object_type);
+		}
 
-            _folders.add(new Folder(
-                folder_id,
-                _db.get_property_string(folder_id, "editor.name"),
-                _db.get_property_guid(folder_id, "parent_folder")
-            ));
-        }
-    }
-
+		if (_path != null && needToSave) {
+			_db.save(_path, _id);
+		}
+	
+		foreach (Guid folder_id in folder_ids) {
+			_folders.add(load_or_create_folder(folder_id));
+		}
+	}
+	
+	private bool ensure_root_folder(HashSet<Guid?> folder_ids, Guid folder_id, string name, string type) {
+		if (!folder_ids.contains(folder_id)) {
+			if (_path != null) {
+				add_folder(folder_id, name, type, GUID_ZERO);
+			}
+			folder_ids.add(folder_id);
+			return true;
+		}
+		return false;
+	}
+	
+	private Folder load_or_create_folder(Guid folder_id) {
+		if (_db.has_object(folder_id)) {
+			return new Folder(
+				folder_id,
+				_db.get_property_string(folder_id, "editor.name"),
+				_db.get_property_guid(folder_id, "parent_folder")
+			);
+		} else {
+			foreach (var root_info in get_root_folder_info()) {
+				if (folder_id == root_info.guid) {
+					return new Folder(folder_id, root_info.name, GUID_ZERO);
+				}
+			} 
+			print("ERROR: Unknown Folder ID - %s", folder_id.to_string());
+			return null;
+		}
+	}
+	
 	public void save(string name)
 	{
 		string path = Path.build_filename(_project.source_dir(), name + ".level");
@@ -165,7 +196,7 @@ public class Level
             _db.add_to_set(_id, "folders", folder.id);
         }
     }
-	public void add_folder(Guid id, string name,string type, Guid parent_id = GUID_ZERO)
+	public void add_folder(Guid id, string name, string type, Guid parent_id = GUID_ZERO)
 	{
 		_db.create(id, type);
 		_db.set_property_string(id, "editor.name", name);
@@ -173,6 +204,7 @@ public class Level
 		_db.add_to_set(_id, "folders", id);
 		_folders.add(new Folder(id, name, parent_id));
 	}
+	
 	public void spawn_empty_unit()
 	{
 		Guid id = Guid.new_guid();
