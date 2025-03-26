@@ -76,6 +76,21 @@ public class LevelTreeView : Gtk.Box
 	private Gtk.Popover _sort_items_popover;
 	private Gtk.MenuButton _sort_items;
 
+	// Getters
+	public Level level { get { return _level; } }
+	public Database db { get { return _db; } }
+	public EntrySearch filter_entry { get { return _filter_entry; } }
+	public Gtk.TreeStore tree_store { get { return _tree_store; } }
+	public Gtk.TreeModelFilter tree_filter { get { return _tree_filter; } }
+	public Gtk.TreeModelSort tree_sort { get { return _tree_sort; } }
+	public Gtk.TreeView tree_view { get { return _tree_view; } }
+	public Gtk.TreeSelection tree_selection { get { return _tree_selection; } }
+	public Gtk.ScrolledWindow scrolled_window { get { return _scrolled_window; } }
+	public SortMode sort_mode { get { return _sort_mode; } }
+	public Gtk.Box sort_items_box { get { return _sort_items_box; } }
+	public Gtk.Popover sort_items_popover { get { return _sort_items_popover; } }
+	public Gtk.MenuButton sort_items { get { return _sort_items; } }
+
 	public LevelTreeView(Database db, Level level)
 	{
 		Object(orientation: Gtk.Orientation.VERTICAL, spacing: 0);
@@ -238,9 +253,9 @@ public class LevelTreeView : Gtk.Box
 		this.pack_start(_scrolled_window, true, true, 0);
 
 		_level.level_loaded.connect(() => {
-			rebuild_tree();
+			LevelTreeOrganization.rebuild_tree(this);
 		});
-		rebuild_tree();
+		LevelTreeOrganization.rebuild_tree(this);
 	}
 
 	private bool on_button_pressed(Gdk.EventButton ev)
@@ -296,7 +311,7 @@ public class LevelTreeView : Gtk.Box
 					if (valid_conversion && base_store.iter_is_valid(parent_iter)) {
 						var menu_item = new Gtk.MenuItem.with_label("Create Subfolder");
 						menu_item.activate.connect(() => {					
-							Guid parent_guid = get_parent_guid(parent_iter); 
+							Guid parent_guid = LevelTreeOrganization.get_parent_guid(this, parent_iter); 
 							print("Retrieved parent GUID: %s", parent_guid.to_string());
 							Value? parent_type_val = null;
 							if (parent_guid == GUID_UNIT_FOLDER) {
@@ -428,308 +443,29 @@ public class LevelTreeView : Gtk.Box
 			}
 			dialog.destroy();
 			Guid folder_guid = Guid.new_guid();
-			add_folder_to_tree(true,parent_iter, folder_name,type, folder_guid);
+			LevelTreeOrganization.add_folder_to_tree(this, true, parent_iter, folder_name,type, folder_guid);
 		} else {
 			dialog.destroy();
 		}
 	}
-
-	private Gtk.TreeIter? find_parent_iter(Guid parent_id)
-	{
-		Gtk.TreeIter? found = null;
-		_tree_store.foreach((model, path, iter) => {
-			Value val;
-			model.get_value(iter, Column.GUID, out val);
-			if (val.holds(typeof(Guid))) {
-				Guid guid = (Guid)val;
-				if (guid == parent_id) {
-					found = iter;
-					return true;
-				}
-			}
-			return false;
-		});		
-		return found;
-	}
 	
-	private Guid get_parent_guid(Gtk.TreeIter? parent_iter)
-	{
-		if (parent_iter == null)
-			return GUID_NONE_FOLDER;
-
-		Value val;
-		_tree_store.get_value(parent_iter, Column.GUID, out val);
-		return (Guid)val;
-	}
-	private void add_folder_to_tree(bool save_to_file,Gtk.TreeIter? parent_iter, string name,string type, Guid guid)
-	{
-		if (save_to_file) {
-			Guid parent_guid = get_parent_guid(parent_iter);
-			_level.add_folder(guid, name,type, parent_guid);
-		}
-	
-		Gtk.TreeIter iter;
-		_tree_store.insert_with_values(out iter, parent_iter, -1,
-			Column.TYPE, ItemType.FOLDER,
-			Column.GUID, guid,
-			Column.NAME, name
-		);
-	
-		if (parent_iter != null) {
-			Gtk.TreePath path = _tree_store.get_path(parent_iter);
-			_tree_view.expand_row(path, false);
-		}
-	}
-
 	private bool on_drag_drop(Gtk.Widget widget, Gdk.DragContext context, int x, int y, uint time) {
-		_tree_selection.changed.disconnect(on_tree_selection_changed);
-		Gtk.drag_get_data(
-			widget,         // will receive 'drag-data-received' signal
-			context,
-			Gdk.Atom.intern(CROWN_DND_TARGET, false),
-			time
-		);
-		Signal.stop_emission_by_name(_tree_view, "drag-drop");
-		_tree_selection.changed.connect(on_tree_selection_changed);
-		return true;
+		return LevelTreeOrganization.on_drag_drop_internal(this, CROWN_DND_TARGET, widget, context, x, y, time);
 	}
 	
 	private bool on_drag_motion(Gtk.Widget widget, Gdk.DragContext context, int x, int y, uint time) {
-		_tree_selection.changed.disconnect(on_tree_selection_changed);
-		Gtk.TreePath path;
-		Gtk.TreeViewDropPosition pos;
-		if (_tree_view.get_dest_row_at_pos(x, y, out path, out pos)) {
-			_tree_view.set_drag_dest_row(path, pos);
-			Gdk.drag_status(context, Gdk.DragAction.MOVE, time);
-			_tree_selection.changed.connect(on_tree_selection_changed);
-			return true;
-		}
-		_tree_selection.changed.connect(on_tree_selection_changed);
-		return false;
+		return LevelTreeOrganization.on_drag_motion_internal(this, widget, context, x, y, time);
 	}
 
 	private void on_drag_data_get(Gtk.Widget widget, Gdk.DragContext context, Gtk.SelectionData selection_data, uint info, uint time) {
-		_tree_selection.changed.disconnect(on_tree_selection_changed);
-		Gtk.TreeModel model;
-		GLib.List<Gtk.TreePath> paths = _tree_selection.get_selected_rows(out model);
-		StringBuilder data_builder = new StringBuilder();
-		string source_set = null;
-
-		foreach (Gtk.TreePath path in paths) {
-			Gtk.TreeIter iter;
-			model.get_iter(out iter, path);
-			// Get GUID of the selected item
-			Value guid_val;
-            model.get_value(iter, Column.GUID, out guid_val);
-			Guid guid = (Guid) guid_val;
-			
-			if (guid == GUID_ZERO) {
-				print("Warning: GUID is GUID_ZERO, skipping...\n");
-				continue;
-			}
-			Value? item_type = null;
-			if (guid == GUID_UNIT_FOLDER) {
-				item_type = "unit_folder";
-			} else if (guid == GUID_SOUND_FOLDER) {
-				item_type = "sound_folder";
-			} else {
-				item_type = _db.get_property(guid, "_type");
-			}
-		
-			if (item_type != null) {
-				string type_str = (string)item_type; 
-				switch (type_str) {
-					case "unit":
-						source_set = "units"; 
-						break;
-					case "sound":
-						source_set = "sounds"; 
-						break;
-					default:
-						continue;
-				}
-			} else {
-				print("Error: Item type is not a string or is null for GUID: %s\n", guid.to_string());
-				continue;
-			}
-			data_builder.append(guid.to_string() + ",");
-		}
-	
-		// REMOVE TRAILING COMMA
-		if (data_builder.len > 0) {
-			data_builder.truncate(data_builder.len - 1);
-		}
-	
-		if (data_builder.len > 0) {
-            string data_str = @"$source_set;$(data_builder.str)";
-            var target = Gdk.Atom.intern(CROWN_DND_TARGET, false);
-			selection_data.set(target, 8, data_str.data);
-		} else {
-			print("Invalid data: no GUIDs found.");
-			Gtk.drag_finish(context, false, false, time);
-			_tree_selection.changed.connect(on_tree_selection_changed);
-			return;
-		}
-
-		_tree_selection.changed.connect(on_tree_selection_changed);
+		LevelTreeOrganization.on_drag_data_get_internal(this, CROWN_DND_TARGET,widget, context, selection_data, info, time);
 	}
 	
-	
 	private void on_drag_data_received(Gtk.Widget widget, Gdk.DragContext context, int x, int y, Gtk.SelectionData selection_data, uint info, uint time) {		
-		_tree_selection.changed.disconnect(on_tree_selection_changed);
-		Signal.stop_emission_by_name(_tree_view, "drag-data-received");
-		
-		var expected_target = Gdk.Atom.intern(CROWN_DND_TARGET, false);
-		if (selection_data.get_target() != expected_target) {
-			Gtk.drag_finish(context, false, false, time);
-			return;
-		}
-
-		string raw_data = (string)selection_data.get_data();
-		
-		raw_data = raw_data.strip(); 
-
-		string[] data = raw_data.split(";", 2);
-
-		string source_set = data[0].strip();
-		string[] guids = data[1].split(",");
-
-		Gtk.TreePath path;
-		Gtk.TreeViewDropPosition pos;
-		if (!_tree_view.get_dest_row_at_pos(x, y, out path, out pos)) {
-			Gtk.drag_finish(context, false, false, time);
-			return;
-		}
-
-		Gtk.TreeIter target_iter;
-		_tree_sort.get_iter(out target_iter, path);
-	
-		string target_parent_guid = "";
-		Value target_guid_val;
-		Value target_type_val;
-	
-		_tree_sort.get_value(target_iter, Column.TYPE, out target_type_val);
-		if (target_type_val == ItemType.FOLDER) {
-			_tree_sort.get_value(target_iter, Column.GUID, out target_guid_val);
-			target_parent_guid = ((Guid)target_guid_val).to_string();
-		} else {
-			return;
-		}
-	
-		string? moving_type = null;
-		foreach (string guid_str in guids) {
-			if (guid_str.strip().length == 0) continue;	
-			Guid guid = Guid.parse(guid_str);
-	
-			Value? parent_guid_val = _db.get_property(guid, "parent_folder");
-			Guid parent_guid;
-	
-			if (parent_guid_val == null) {
-				string item_type = (string)_db.get_property(guid, "_type");
-				if (item_type == "unit") {
-					parent_guid = GUID_UNIT_FOLDER;
-				} else if (item_type == "sound") {
-					parent_guid = GUID_SOUND_FOLDER;
-				} else {
-					print("Error: Unable to determine the root parent of element %s", guid.to_string());
-					continue;
-				}
-			} else {
-				parent_guid = (Guid)parent_guid_val;
-			}
-	
-			Value? parent_type_val = null;
-			if (parent_guid == GUID_UNIT_FOLDER) {
-				parent_type_val = "unit";
-			} else if (parent_guid == GUID_SOUND_FOLDER) {
-				parent_type_val = "sound";
-			} else {
-				parent_type_val = _db.get_property(parent_guid, "_type");
-			}
-	
-			string parent_type = (string)parent_type_val;
-			moving_type = parent_type;
-	
-			if (target_parent_guid == null || target_parent_guid.strip().length == 0) {
-				print("Error: Invalid target GUID (NULL or empty)");
-				_tree_selection.changed.connect(on_tree_selection_changed);
-				return;
-			}
-	
-			Guid target_guid;
-			if (!Guid.try_parse(target_parent_guid, out target_guid)) {
-				print("Error: Invalid target GUID for parent %s", target_parent_guid);
-				_tree_selection.changed.connect(on_tree_selection_changed);
-				return;
-			}
-			
-			Value? target_type_val_db = null;
-			string target_type;
-			
-			if (target_guid == GUID_UNIT_FOLDER) {
-				target_type = "unit_folder";
-			} else if (target_guid == GUID_SOUND_FOLDER) {
-				target_type = "sound_folder";
-			} else {
-				target_type_val_db = _db.get_property(target_guid, "_type");
-			
-				if (target_type_val_db != null) {
-					target_type = (string)target_type_val_db;
-				} else {
-					print("Error: Unable to determine target type for GUID %s\n", target_guid.to_string());
-					_tree_selection.changed.connect(on_tree_selection_changed);
-					return;
-				}
-			}
-			
-			string current_item_type = (string)_db.get_property(guid, "_type");
-			if (current_item_type == "unit_folder" || current_item_type == "sound_folder") {
-				continue;
-			}
-		
-			if (!((current_item_type == "unit" && target_type == "unit_folder") || 
-				(current_item_type == "sound" && target_type == "sound_folder"))) {
-				print("Error: Cannot move a %s into %s", current_item_type, target_type);
-				_tree_selection.changed.connect(on_tree_selection_changed);
-			  	return;
-		  	}
-			
-			if (target_guid != GUID_UNIT_FOLDER && target_guid != GUID_SOUND_FOLDER) {
-				_db.set_property(guid, "parent_folder", target_guid);
-			}
-			TreeIter? parent_iter = find_parent_iter(target_guid);
-			if (parent_iter != null) {
-				Gtk.TreeIter iter;
-				if (target_type == "unit_folder") {
-					_tree_store.append(out iter, parent_iter);
-					_tree_store.set(
-						iter,
-						Column.TYPE, ItemType.UNIT,
-						Column.GUID, guid,
-						Column.NAME, _level.object_editor_name(guid),
-						-1
-					);
-				} else if (target_type == "sound_folder") {
-					_tree_store.append(out iter, parent_iter);
-					_tree_store.set(
-						iter,
-						Column.TYPE, ItemType.SOUND,
-						Column.GUID, guid,
-						Column.NAME, _level.object_editor_name(guid),
-						-1
-					);
-				} else {
-					print("target_type folder : " + target_type + " not managed");
-				}
-			}
-			
-			_tree_view.expand_all();  
-		}
-		_tree_selection.changed.connect(on_tree_selection_changed);	
-		Gtk.drag_finish(context, true, false, time);
+		LevelTreeOrganization.on_drag_data_received_internal(this, CROWN_DND_TARGET, widget, context, x, y, selection_data, info, time);
 	}	
 	
-	private void on_tree_selection_changed()
+	public void on_tree_selection_changed()
 	{
 		_level.selection_changed.disconnect(on_level_selection_changed);
 
@@ -823,223 +559,8 @@ public class LevelTreeView : Gtk.Box
 			return ItemType.UNIT;
 	}
 	
-	private void add_folders_recursively(string parent_guid, HashTable<string, Gtk.TreeIter?> folder_map) {
-		foreach (var folder in _level._folders) {
-			if (folder.parent_id.to_string() == parent_guid) {
-				Gtk.TreeIter iter;
-				Gtk.TreeIter? parent_iter = folder_map[parent_guid];
-				_tree_store.append(out iter, parent_iter);
-				
-				_tree_store.set(
-					iter,
-					Column.TYPE, ItemType.FOLDER,  
-					Column.GUID, folder.id,
-					Column.NAME, folder.name,
-					-1
-				);
-				
-				folder_map[folder.id.to_string()] = iter;
-				add_folders_recursively(folder.id.to_string(), folder_map);
-			}
-		}
-	}
-	
-	public void rebuild_tree() {
-		_tree_store.clear();
-	
-		var folder_map = new HashTable<string, Gtk.TreeIter?>(str_hash, str_equal);
-		Gtk.TreeIter units_iter, sounds_iter;
-
-		_tree_store.append(out units_iter, null);
-		_tree_store.set(units_iter, Column.TYPE, ItemType.FOLDER, Column.GUID, GUID_UNIT_FOLDER, Column.NAME, "Units", -1);
-		folder_map[GUID_UNIT_FOLDER.to_string()] = units_iter;
-
-		_tree_store.append(out sounds_iter, null);
-		_tree_store.set(sounds_iter, Column.TYPE, ItemType.FOLDER, Column.GUID, GUID_SOUND_FOLDER, Column.NAME, "Sounds", -1);
-		folder_map[GUID_SOUND_FOLDER.to_string()] = sounds_iter;
-	
-		// Add all folders hierarchically
-		add_folders_recursively(GUID_UNIT_FOLDER.to_string(), folder_map);
-		add_folders_recursively(GUID_SOUND_FOLDER.to_string(), folder_map);
-	
-		sync_existing_units_and_sounds();
-	}
-	
-	private void sync_existing_units_and_sounds()
-	{
-		sync_items("units", GUID_UNIT_FOLDER, ItemType.UNIT);
-		sync_items("sounds", GUID_SOUND_FOLDER, ItemType.SOUND);
-	}
-
-	private void sync_items(string property_name, Guid default_folder, ItemType item_type)
-	{
-		var items = _db.get_property_set(_level._id, property_name, new HashSet<Guid?>());
-		foreach (Guid guid in items)
-		{
-			string item_name = _level.object_editor_name(guid); 
-
-			Value? parent_value = _db.get_property(guid, "parent_folder");
-
-			Guid parent_id = GUID_ZERO;
-
-			if (parent_value != null)
-			{
-				parent_id = (Guid)parent_value;
-			}
-
-			if (parent_id == GUID_ZERO)
-			{
-				parent_id = default_folder;
-			}
-
-			Gtk.TreeIter? parent_iter = find_parent_iter(parent_id);
-		
-			if (parent_iter != null)
-			{
-				Gtk.TreeIter iter;
-				_tree_store.append(out iter, parent_iter);
-				_tree_store.set(
-					iter,
-					Column.TYPE, item_type,
-					Column.GUID, guid,
-					Column.NAME, item_name,
-					-1
-				);
-			}
-			else
-			{
-				print("ERROR: Parent iter for " + item_type.to_string() + " GUID " + guid.to_string() + " not found!");
-			}
-		}
-	}	 
-
 	private void on_database_key_changed(Guid id, string key) {
-		if (id != _level._id || (key != "units" && key != "sounds")) return;
-	
-		_tree_selection.changed.disconnect(on_tree_selection_changed);
-	
-		// Define target folder and item type based on the key
-		Guid target_folder = (key == "units") ? GUID_UNIT_FOLDER : GUID_SOUND_FOLDER;
-		ItemType item_type = (key == "units") ? ItemType.UNIT : ItemType.SOUND;
-	
-		// Track existing GUIDs within the folder
-		var existing_guids = new HashTable<Guid?, Gtk.TreeIter?>(Guid.hash_func, Guid.equal_func);
-		Gtk.TreeIter target_iter;
-		bool folder_exists = false;
-	
-		// Check if the target folder already exists
-		if (_tree_store.get_iter_first(out target_iter)) {
-			do {
-				Value guid_val;
-				_tree_store.get_value(target_iter, Column.GUID, out guid_val);
-	
-				// Ensure the value holds a Guid
-				if (guid_val.holds(typeof(Guid))) {
-					Guid guid = (Guid)guid_val;
-	
-					// Check if the extracted Guid matches the target folder
-					if (guid == target_folder) {
-						folder_exists = true;
-						break;
-					}
-				}
-			} while (_tree_store.iter_next(ref target_iter));
-		}
-	
-	
-		// If the folder doesn't exist, create it
-		if (!folder_exists) {
-			_tree_store.append(out target_iter, null);
-			_tree_store.set(
-				target_iter,
-				Column.TYPE, ItemType.FOLDER,
-				Column.GUID, target_folder,
-				Column.NAME, (key == "units") ? "Units" : "Sounds",
-				-1
-			);
-		}
-	
-		// Populate existing GUIDs in the folder
-		Gtk.TreeIter child;
-		if (_tree_store.iter_children(out child, target_iter)) {
-			do {
-				Value guid_val;
-				_tree_store.get_value(child, Column.GUID, out guid_val);
-				if (guid_val.holds(typeof(Guid))) {
-					existing_guids[(Guid)guid_val] = child;
-				}
-			} while (_tree_store.iter_next(ref child));
-		}
-	
-		// Retrieve updated GUIDs from the database
-		var current_guids = _db.get_property_set(id, key, new HashSet<Guid?>());
-	
-		// Remove outdated items but avoid removing subfolders
-		existing_guids.foreach((guid, iter) => {
-			// Only remove items that are not folders
-			Value item_type_val;
-			_tree_store.get_value(iter, Column.TYPE, out item_type_val);
-			if (item_type_val.holds(typeof(ItemType)) && (ItemType)item_type_val != ItemType.FOLDER) {
-				if (!current_guids.contains(guid)) {
-					_tree_store.remove(ref iter);
-				}
-			}
-		});
-	
-		// Synchronize parent folders and add missing items
-		foreach (Guid guid in current_guids) {
-			// Check if the GUID is already present in the folder
-			if (!existing_guids.contains(guid)) {
-				string item_name = _level.object_editor_name(guid);
-
-				Value? parent_value = _db.get_property(guid, "parent_folder");
-				Guid parent_id = (parent_value != null) ? (Guid)parent_value : target_folder;
-
-				// Check if we have the correct parent iter for the item
-				Gtk.TreeIter? parent_iter = find_parent_iter(parent_id);
-
-				if (parent_iter != null) {
-					// Ensure we don't duplicate this item under the same parent
-					bool is_duplicate = false;
-
-					// Check if the GUID is already under the parent folder
-					Gtk.TreeIter sibling_iter;
-					if (_tree_store.iter_children(out sibling_iter, parent_iter)) {
-						do {
-							Value sibling_guid_val;
-							_tree_store.get_value(sibling_iter, Column.GUID, out sibling_guid_val);
-
-							Guid sibling_guid;
-							if (sibling_guid_val.holds(typeof(Guid))) {
-								sibling_guid = (Guid)sibling_guid_val;  // Cast the Value directly to Guid
-								if (sibling_guid == guid) {
-									is_duplicate = true;
-									break;  // If found, don't add it again
-								}
-							}
-							
-						} while (_tree_store.iter_next(ref sibling_iter));
-					}
-					// Add the item if it is not a duplicate
-					if (!is_duplicate) {
-						Gtk.TreeIter iter;
-						_tree_store.append(out iter, parent_iter);
-						_tree_store.set(
-							iter,
-							Column.TYPE, item_type,
-							Column.GUID, guid,
-							Column.NAME, item_name,
-							-1
-						);
-					}
-				} else {
-					print("ERROR: Parent iter for GUID %s not found in the tree!", guid.to_string());
-				}
-			}
-		}
-		
-		_tree_view.expand_all();
-		_tree_selection.changed.connect(on_tree_selection_changed);
+		LevelTreeOrganization.on_database_key_changed_internal(this, id, key);
 	}
 	
 	private void on_filter_entry_text_changed()
