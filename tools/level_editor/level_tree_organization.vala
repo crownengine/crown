@@ -214,13 +214,7 @@ namespace Crown
                     bool type_managed = false;
                     foreach (var root_info in get_root_folder_info()) {
                         if (root_info.object_type == target_type) {
-                            view_i.tree_store.append(out iter, parent_iter);
-                            view_i.tree_store.set(
-                                iter,
-                                LevelTreeView.Column.TYPE, root_info.contains_item_type,
-                                LevelTreeView.Column.GUID, guid,
-                                LevelTreeView.Column.NAME, view_i.level.object_editor_name(guid),
-                                -1
+                            append_to_tree_store(view_i, parent_iter, root_info.contains_item_type, guid, view_i.level.object_editor_name(guid)
                             );
                             type_managed = true;
                             break;
@@ -272,14 +266,7 @@ namespace Crown
         
             // If the folder doesn't exist, create it
             if (!folder_exists) {
-                view_i.tree_store.append(out target_iter, null);
-                view_i.tree_store.set(
-                    target_iter,
-                    LevelTreeView.Column.TYPE, LevelTreeView.ItemType.FOLDER,
-                    LevelTreeView.Column.GUID, target_folder,
-                    LevelTreeView.Column.NAME, (key == "units") ? "Units" : "Sounds",
-                    -1
-                );
+                append_to_tree_store(view_i, null, LevelTreeView.ItemType.FOLDER, target_folder, (key == "units") ? "Units" : "Sounds");
             }
         
             // Populate existing GUIDs in the folder
@@ -345,15 +332,7 @@ namespace Crown
                         }
                         // Add the item if it is not a duplicate
                         if (!is_duplicate) {
-                            Gtk.TreeIter iter;
-                            view_i.tree_store.append(out iter, parent_iter);
-                            view_i.tree_store.set(
-                                iter,
-                                LevelTreeView.Column.TYPE, item_type,
-                                LevelTreeView.Column.GUID, guid,
-                                LevelTreeView.Column.NAME, item_name,
-                                -1
-                            );
+                            append_to_tree_store(view_i, parent_iter, item_type, guid, item_name);
                         }
                     } else {
                         print("ERROR: Parent iter for GUID %s not found in the tree!", guid.to_string());
@@ -370,15 +349,7 @@ namespace Crown
             var folder_map = new HashTable<string, Gtk.TreeIter?>(str_hash, str_equal);
         
             foreach (var root_info in get_root_folder_info()) {
-                Gtk.TreeIter iter;
-                view_i.tree_store.append(out iter, null);
-                view_i.tree_store.set(
-                    iter,
-                    LevelTreeView.Column.TYPE, root_info.item_type,
-                    LevelTreeView.Column.GUID, root_info.guid,
-                    LevelTreeView.Column.NAME, root_info.name,
-                    -1
-                );
+                Gtk.TreeIter iter = append_to_tree_store(view_i, null, root_info.item_type, root_info.guid, root_info.name);
                 folder_map[root_info.guid.to_string()] = iter;
             }
 
@@ -386,19 +357,8 @@ namespace Crown
                 if (folder.id in get_root_folder_guids()) {
                     continue;
                 }
-        
-                Gtk.TreeIter iter;
                 Gtk.TreeIter? parent_iter = folder_map[folder.parent_id.to_string()];
-        
-                view_i.tree_store.append(out iter, parent_iter);
-                view_i.tree_store.set(
-                    iter,
-                    LevelTreeView.Column.TYPE, LevelTreeView.ItemType.FOLDER,
-                    LevelTreeView.Column.GUID, folder.id,
-                    LevelTreeView.Column.NAME, folder.name,
-                    -1
-                );
-        
+                Gtk.TreeIter iter = append_to_tree_store(view_i, parent_iter, LevelTreeView.ItemType.FOLDER, folder.id, folder.name);
                 folder_map[folder.id.to_string()] = iter;
             }
         
@@ -436,40 +396,30 @@ namespace Crown
                 }
         
                 if (parent_iter != null) {
-                    Gtk.TreeIter iter;
-                    view_i.tree_store.append(out iter, parent_iter);
-                    view_i.tree_store.set(
-                        iter,
-                        LevelTreeView.Column.TYPE, item_type,
-                        LevelTreeView.Column.GUID, guid,
-                        LevelTreeView.Column.NAME, view_i.level.object_editor_name(guid),
-                        -1
-                    );
+                    append_to_tree_store(view_i, parent_iter, item_type, guid, view_i.level.object_editor_name(guid));
                 } else {
                     print("ERROR: Parent iter for " + item_type.to_string() + " GUID " + guid.to_string() + " not found!");
                 }
             }
         }
+        private static Gtk.TreeIter append_to_tree_store(LevelTreeView view_i, Gtk.TreeIter? parent_iter, LevelTreeView.ItemType type, Guid guid, string name) {
+            Gtk.TreeIter iter;
+            view_i.tree_store.append(out iter, parent_iter);
+            view_i.tree_store.set(iter, LevelTreeView.Column.TYPE, type, LevelTreeView.Column.GUID, guid, LevelTreeView.Column.NAME, name, -1);
+            return iter; 
+        }
+        
         private static void add_folders_recursively(LevelTreeView view_i, string parent_guid, HashTable<string, Gtk.TreeIter?> folder_map) {
             foreach (var folder in view_i.level._folders) {
                 if (folder.parent_id.to_string() == parent_guid) {
-                    Gtk.TreeIter iter;
                     Gtk.TreeIter? parent_iter = folder_map[parent_guid];
-                    view_i.tree_store.append(out iter, parent_iter);
-                    
-                    view_i.tree_store.set(
-                        iter,
-                        LevelTreeView.Column.TYPE, LevelTreeView.ItemType.FOLDER,  
-                        LevelTreeView.Column.GUID, folder.id,
-                        LevelTreeView.Column.NAME, folder.name,
-                        -1
-                    );
-                    
+                    Gtk.TreeIter iter = append_to_tree_store(view_i, parent_iter, LevelTreeView.ItemType.FOLDER, folder.id, folder.name);
                     folder_map[folder.id.to_string()] = iter;
                     add_folders_recursively(view_i, folder.id.to_string(), folder_map);
                 }
             }
-        }     
+        }
+        
         public static void add_folder_to_tree(LevelTreeView view_i, bool save_to_file, Gtk.TreeIter? parent_iter, string name,string type, Guid guid)
         {
             if (save_to_file) {
