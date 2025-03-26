@@ -37,75 +37,83 @@ namespace Crown
             GLib.List<Gtk.TreePath> paths = view_i.tree_selection.get_selected_rows(out model);
             StringBuilder data_builder = new StringBuilder();
             string source_set = null;
-
+        
             foreach (Gtk.TreePath path in paths) {
                 Gtk.TreeIter iter;
                 model.get_iter(out iter, path);
-                // Get GUID of the selected item
+        
+                // Retrieve the GUID
                 Value guid_val;
                 model.get_value(iter, LevelTreeView.Column.GUID, out guid_val);
-                Guid guid = (Guid) guid_val;
-                
-                if (guid == GUID_ZERO) {
-                    print("Warning: GUID is GUID_ZERO, skipping...\n");
-                    continue;
-                }
+                Guid guid = (Guid)guid_val;
+        
                 Value? item_type = view_i.db.get_property(guid, "_type");
-            
-                if (item_type != null) {
-                    string type_str = (string)item_type; 
-                    source_set = null;
-                    foreach (var root_info in get_root_folder_info()) {
-                        if (type_str == root_info.contains_item_type_str) {
-                            source_set = root_info.contains_source_set_str;
-                            break;
-                        }
+        
+                string type_str = (string)item_type;
+        
+                if (type_str.has_suffix("_folder")) {
+                    print("Folder drag ignored: %s\n", type_str);
+                    Gtk.drag_cancel(context);
+                    return;
+                }
+        
+                // Find the corresponding source_set
+                bool type_found = false;
+                foreach (var root_info in get_root_folder_info()) {
+                    if (type_str == root_info.contains_item_type_str) {
+                        source_set = root_info.contains_source_set_str;
+                        type_found = true;
+                        break;
                     }
-
-                    if (source_set == null) {
-                        continue; 
-                    }
-                } else {
-                    print("Error: Item type is not a string or is null for GUID: %s\n", guid.to_string());
+                }
+        
+                if (!type_found) {
+                    print("Unhandled type: %s\n", type_str);
                     continue;
                 }
+        
                 data_builder.append(guid.to_string() + ",");
             }
         
-            // REMOVE TRAILING COMMA
             if (data_builder.len > 0) {
-                data_builder.truncate(data_builder.len - 1);
-            }
-        
-            if (data_builder.len > 0) {
+                data_builder.truncate(data_builder.len - 1); // Remove trailing comma
                 string data_str = @"$source_set;$(data_builder.str)";
                 var target = Gdk.Atom.intern(d_target, false);
                 selection_data.set(target, 8, data_str.data);
             } else {
-                print("Invalid data: no GUIDs found.");
+                print("No draggable items - cancelling drag operation.");
                 Gtk.drag_finish(context, false, false, time);
-                return;
             }
-        }
+        }        
         
-        public static void on_drag_data_received_internal(LevelTreeView view_i, string d_target, Gtk.Widget widget, Gdk.DragContext context, int x, int y, Gtk.SelectionData selection_data, uint info, uint time) {		
+        // TODO SUPPORT FOLDER DRAG AND DROPPING LATER
+        public static void on_drag_data_received_internal(LevelTreeView view_i, string d_target, Gtk.Widget widget, Gdk.DragContext context, int x, int y, Gtk.SelectionData selection_data, uint info, uint time) {        
             view_i.tree_selection.changed.disconnect(view_i.on_tree_selection_changed);
             Signal.stop_emission_by_name(view_i.tree_view, "drag-data-received");
-            
+        
             var expected_target = Gdk.Atom.intern(d_target, false);
             if (selection_data.get_target() != expected_target) {
                 Gtk.drag_finish(context, false, false, time);
                 view_i.tree_selection.changed.connect(view_i.on_tree_selection_changed);
                 return;
             }
-
+        
             string raw_data = (string)selection_data.get_data();
+            if (raw_data == null || raw_data.strip() == null) {
+                print("ERROR: Received empty or null drag data (if you tried to drag and dropped a folder its normal that you had this error ,for now its not supported).\n");
+                Gtk.drag_finish(context, false, false, time);
+                view_i.tree_selection.changed.connect(view_i.on_tree_selection_changed);
+                return;
+            }
+        
             raw_data = raw_data.strip(); 
-
+        
             string[] data = raw_data.split(";", 2);
+        
             string source_set = data[0].strip();
-            string[] guids = data[1].split(",");
 
+            string[] guids = data[1].split(",");
+        
             Gtk.TreePath path;
             Gtk.TreeViewDropPosition pos;
             if (!view_i.tree_view.get_dest_row_at_pos(x, y, out path, out pos)) {
@@ -113,7 +121,6 @@ namespace Crown
                 view_i.tree_selection.changed.connect(view_i.on_tree_selection_changed);
                 return;
             }
-
             Gtk.TreeIter target_iter;
             view_i.tree_sort.get_iter(out target_iter, path);
             string target_parent_guid = "";
@@ -284,6 +291,7 @@ namespace Crown
             var current_guids = view_i.db.get_property_set(id, key, new HashSet<Guid?>());
         
             // Remove outdated items but avoid removing subfolders
+            // TODO SUPPORT FOLDER REMOVING LATER
             existing_guids.foreach((guid, iter) => {
                 Value item_type_val;
                 view_i.tree_store.get_value(iter, LevelTreeView.Column.TYPE, out item_type_val);

@@ -168,9 +168,13 @@ public class Level
 		} else {
 			foreach (var root_info in get_root_folder_info()) {
 				if (folder_id == root_info.guid) {
+					_db.create(folder_id,root_info.object_type);
+					_db.set_property(folder_id, "editor.name", root_info.name);
+					_db.set_property(folder_id, "parent_folder", GUID_ZERO);
+					_db.set_property(folder_id, "_type", root_info.object_type);
 					return new Folder(folder_id, root_info.name, GUID_ZERO);
 				}
-			} 
+			}
 			print("ERROR: Unknown Folder ID - %s", folder_id.to_string());
 			return null;
 		}
