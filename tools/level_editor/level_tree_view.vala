@@ -253,9 +253,9 @@ public class LevelTreeView : Gtk.Box
 		this.pack_start(_scrolled_window, true, true, 0);
 
 		_level.level_loaded.connect(() => {
-			LevelTreeOrganization.rebuild_tree(this);
+			LevelTreeSynching.rebuild_tree(this);
 		});
-		LevelTreeOrganization.rebuild_tree(this);
+		LevelTreeSynching.rebuild_tree(this);
 	}
 
 	private bool on_button_pressed(Gdk.EventButton ev)
@@ -559,7 +559,7 @@ public class LevelTreeView : Gtk.Box
 	}
 	
 	private void on_database_key_changed(Guid id, string key) {
-		LevelTreeOrganization.on_database_key_changed_internal(this, id, key);
+		LevelTreeSynching.on_database_key_changed_internal(this, id, key);
 	}
 	
 	private void on_filter_entry_text_changed()
