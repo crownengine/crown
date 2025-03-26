@@ -312,7 +312,6 @@ public class LevelTreeView : Gtk.Box
 						var menu_item = new Gtk.MenuItem.with_label("Create Subfolder");
 						menu_item.activate.connect(() => {                    
 							Guid parent_guid = LevelTreeOrganization.get_parent_guid(this, parent_iter); 
-							print("Retrieved parent GUID: %s", parent_guid.to_string());
 							
 							string? parent_type_str = null;
 							foreach (var root_info in get_root_folder_info()) {
@@ -348,56 +347,85 @@ public class LevelTreeView : Gtk.Box
 			
 			mi = new Gtk.MenuItem.with_label("Rename...");
 			mi.activate.connect(() => {
-					Gtk.Dialog dg = new Gtk.Dialog.with_buttons("New Name"
-						, (Gtk.Window)this.get_toplevel()
-						, DialogFlags.MODAL
-						, "Cancel"
-						, ResponseType.CANCEL
-						, "Ok"
-						, ResponseType.OK
-						, null
-						);
-
-					EntryText sb = new EntryText();
-					_tree_selection.selected_foreach((model, path, iter) => {
-							Value name;
-							model.get_value(iter, Column.NAME, out name);
-							sb.value = (string)name;
-							return;
-						});
-					sb.activate.connect(() => { dg.response(ResponseType.OK); });
-					dg.get_content_area().add(sb);
-					dg.skip_taskbar_hint = true;
-					dg.show_all();
-
-					if (dg.run() == (int)ResponseType.OK) {
-						string cur_name = "";
-						string new_name = "";
-						Guid object_id = GUID_ZERO;
-
-						_tree_selection.selected_foreach((model, path, iter) => {
-								Value type;
-								model.get_value(iter, Column.TYPE, out type);
-								if (type == ItemType.FOLDER)
-									return;
-
-								Value name;
-								model.get_value(iter, Column.NAME, out name);
-								cur_name = (string)name;
-
+				GLib.List<Gtk.TreePath> selectedPaths = null;
+			    Gtk.TreeModel model = null;
+				selectedPaths = _tree_selection.get_selected_rows(out model);
+			
+				if (selectedPaths != null) {
+					foreach (Gtk.TreePath selectedPath in selectedPaths) {
+						Gtk.TreeIter iter;
+			
+						if (model.get_iter(out iter, selectedPath)) {
+							Value type;
+							model.get_value(iter, Column.TYPE, out type);
+			
+							if ((ItemType)type == ItemType.FOLDER) {
 								Value guid;
 								model.get_value(iter, Column.GUID, out guid);
-								object_id = (Guid)guid;
-
-								new_name = sb.text.strip();
-							});
-
-						if (new_name != "" && new_name != cur_name)
-							_level.object_set_editor_name(object_id, new_name);
+								Guid object_id = (Guid)guid;
+				
+								bool can_rename = true;
+								foreach (var root_folder in Crown.get_root_folder_info()) {
+									if (root_folder.guid == object_id) {
+										can_rename = false;
+										break;
+									}
+								}
+				
+								if (can_rename) {
+									rename_folder(model, iter);
+								} else {
+									Gtk.MessageDialog dialog = new Gtk.MessageDialog(
+										(Gtk.Window)this.get_toplevel(),
+										Gtk.DialogFlags.MODAL,
+										Gtk.MessageType.WARNING,
+										Gtk.ButtonsType.OK,
+										"You cannot rename this folder, it's a predefined root folder."
+									);
+									dialog.run();
+									dialog.destroy();
+								}
+							} else {
+								Gtk.Dialog dg = new Gtk.Dialog.with_buttons("New Name"
+									, (Gtk.Window)this.get_toplevel()
+									, DialogFlags.MODAL
+									, "Cancel"
+									, ResponseType.CANCEL
+									, "Ok"
+									, ResponseType.OK
+									, null
+								);
+			
+								EntryText sb = new EntryText();
+			
+								Value name;
+								model.get_value(iter, Column.NAME, out name);
+								sb.value = (string)name;
+			
+								sb.activate.connect(() => { dg.response(ResponseType.OK); });
+								dg.get_content_area().add(sb);
+								dg.skip_taskbar_hint = true;
+								dg.show_all();
+			
+								if (dg.run() == (int)ResponseType.OK) {
+									string cur_name = (string)name;
+									string new_name = sb.text.strip();
+									Guid object_id = GUID_ZERO;
+			
+									Value guid;
+									model.get_value(iter, Column.GUID, out guid);
+									object_id = (Guid)guid;
+			
+									if (new_name != "" && new_name != cur_name)
+										_level.object_set_editor_name(object_id, new_name);
+								}
+								dg.destroy();
+							}
+						}
 					}
-
-					dg.destroy();
-				});
+				}
+			});
+			
 			if (_tree_selection.count_selected_rows() == 1)
 				menu.add(mi);
 
@@ -420,6 +448,71 @@ public class LevelTreeView : Gtk.Box
 
 		return Gdk.EVENT_PROPAGATE;
 	}
+	private void rename_folder(Gtk.TreeModel model, Gtk.TreeIter iter)
+	{
+		Gtk.TreeStore base_store = null;
+		Gtk.TreeIter base_iter = iter;
+		bool conversion_valide = true;
+	
+		if (model is Gtk.TreeModelSort sort_model)
+		{
+			if (sort_model.model is Gtk.TreeModelFilter filter_model)
+			{
+				base_store = filter_model.get_model() as Gtk.TreeStore;
+				sort_model.convert_iter_to_child_iter(out Gtk.TreeIter filter_iter, iter);
+				filter_model.convert_iter_to_child_iter(out base_iter, filter_iter);
+			}
+			else
+			{
+				conversion_valide = false;
+			}
+		}
+		else if (model is Gtk.TreeStore)
+		{
+			base_store = (Gtk.TreeStore)model;
+		}
+		else
+		{
+			conversion_valide = false;
+		}
+		base_store.get_value(base_iter, Column.NAME, out Value name_value);
+		string current_name = (string)name_value;
+		var dialog = new Gtk.Dialog.with_buttons(
+			"New Name",
+			(Gtk.Window)get_toplevel(),
+			Gtk.DialogFlags.MODAL,
+			"Cancel", Gtk.ResponseType.CANCEL,
+			"Ok", Gtk.ResponseType.OK,
+			null
+		);
+		var entry = new Gtk.Entry { text = current_name };
+		dialog.get_content_area().add(entry);
+		dialog.show_all();
+	
+		if (dialog.run() == Gtk.ResponseType.OK)
+		{
+			string new_name = entry.text.strip();
+	
+			if (!string.IsNullOrEmpty(new_name) && new_name != current_name)
+			{
+				base_store.set_value(base_iter, Column.NAME, new_name);
+	
+				base_store.get_value(base_iter, Column.GUID, out Value guid_value);
+				Guid folder_guid = (Guid)guid_value;
+	
+				var folder = _level._folders.FirstOrDefault(f => f.id == folder_guid);
+				if (folder != null)
+				{
+					folder.name = new_name;
+				}
+	
+				_level._db.set_property_string(folder_guid, "editor.name", new_name);
+			}
+		}
+	
+		dialog.destroy();
+	}
+	
 	private void create_new_folder(Gtk.TreeIter? parent_iter = null,string type)
 	{
 		Gtk.Dialog dialog = new Gtk.Dialog.with_buttons(
