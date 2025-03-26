@@ -54,15 +54,16 @@ namespace Crown
             
                 if (item_type != null) {
                     string type_str = (string)item_type; 
-                    switch (type_str) {
-                        case "unit":
-                            source_set = "units"; 
+                    source_set = null;
+                    foreach (var root_info in get_root_folder_info()) {
+                        if (type_str == root_info.contains_item_type_str) {
+                            source_set = root_info.contains_source_set_str;
                             break;
-                        case "sound":
-                            source_set = "sounds"; 
-                            break;
-                        default:
-                            continue;
+                        }
+                    }
+
+                    if (source_set == null) {
+                        continue; 
                     }
                 } else {
                     print("Error: Item type is not a string or is null for GUID: %s\n", guid.to_string());
