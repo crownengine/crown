@@ -100,11 +100,9 @@ namespace Crown
             }
 
             string raw_data = (string)selection_data.get_data();
-            
             raw_data = raw_data.strip(); 
 
             string[] data = raw_data.split(";", 2);
-
             string source_set = data[0].strip();
             string[] guids = data[1].split(",");
 
@@ -118,11 +116,9 @@ namespace Crown
 
             Gtk.TreeIter target_iter;
             view_i.tree_sort.get_iter(out target_iter, path);
-        
             string target_parent_guid = "";
             Value target_guid_val;
             Value target_type_val;
-        
             view_i.tree_sort.get_value(target_iter, LevelTreeView.Column.TYPE, out target_type_val);
             if (target_type_val == LevelTreeView.ItemType.FOLDER) {
                 view_i.tree_sort.get_value(target_iter, LevelTreeView.Column.GUID, out target_guid_val);
@@ -134,7 +130,7 @@ namespace Crown
         
             string? moving_type = null;
             foreach (string guid_str in guids) {
-                if (guid_str.strip().length == 0) continue;	
+                if (guid_str.strip().length == 0) continue;
                 Guid guid = Guid.parse(guid_str);
         
                 Value? parent_guid_val = view_i.db.get_property(guid, "parent_folder");
@@ -142,11 +138,15 @@ namespace Crown
         
                 if (parent_guid_val == null) {
                     string item_type = (string)view_i.db.get_property(guid, "_type");
-                    if (item_type == "unit") {
-                        parent_guid = GUID_UNIT_FOLDER;
-                    } else if (item_type == "sound") {
-                        parent_guid = GUID_SOUND_FOLDER;
-                    } else {
+                    parent_guid = GUID_ZERO;
+                    foreach (var root_info in get_root_folder_info()) {
+                        if (item_type == root_info.contains_item_type_str) {
+                            parent_guid = root_info.guid;
+                            break;
+                        }
+                    }
+        
+                    if (parent_guid == GUID_ZERO) {
                         print("Error: Unable to determine the root parent of element %s", guid.to_string());
                         continue;
                     }
@@ -155,7 +155,6 @@ namespace Crown
                 }
         
                 Value? parent_type_val = view_i.db.get_property(parent_guid, "_type");
-        
                 string parent_type = (string)parent_type_val;
                 moving_type = parent_type;
         
@@ -171,46 +170,48 @@ namespace Crown
                     view_i.tree_selection.changed.connect(view_i.on_tree_selection_changed);
                     return;
                 }
-                
-                Value? target_type_val_db = null;
-                string target_type;
-                
-                if (target_guid == GUID_UNIT_FOLDER) {
-                    target_type = "unit_folder";
-                } else if (target_guid == GUID_SOUND_FOLDER) {
-                    target_type = "sound_folder";
-                } else {
-                    target_type_val_db = view_i.db.get_property(target_guid, "_type");
-                
+                string target_type = null;
+                foreach (var root_info in get_root_folder_info()) {
+                    if (Guid.equal_func(target_guid, root_info.guid)) {
+                        target_type = root_info.object_type;
+                        break;
+                    }
+                }
+                if (target_type == null || target_type.strip().length == 0) {
+                    Value? target_type_val_db = view_i.db.get_property(target_guid, "_type");
                     if (target_type_val_db != null) {
                         target_type = (string)target_type_val_db;
                     } else {
-                        print("Error: Unable to determine target type for GUID %s\n", target_guid.to_string());
+                        print("Error: Unable to determine target type for GUID %s", target_guid.to_string());
                         view_i.tree_selection.changed.connect(view_i.on_tree_selection_changed);
                         return;
                     }
-                }
-                
+                }  
                 string current_item_type = (string)view_i.db.get_property(guid, "_type");
                 if (current_item_type == "unit_folder" || current_item_type == "sound_folder") {
                     continue;
                 }
-            
-                if (!((current_item_type == "unit" && target_type == "unit_folder") || 
-                    (current_item_type == "sound" && target_type == "sound_folder"))) {
-                    print("Error: Cannot move a %s into %s", current_item_type, target_type);
+        
+                bool valid_move = false;
+                foreach (var root_info in get_root_folder_info()) {
+                    if (target_type == root_info.object_type && current_item_type == root_info.contains_item_type_str) {
+                        valid_move = true;
+                        break;
+                    }
+                }
+
+                if (!valid_move) {
+                    print("Error: Cannot move %s into %s", current_item_type, target_type);
                     view_i.tree_selection.changed.connect(view_i.on_tree_selection_changed);
                     return;
                 }
                 if (parent_guid != target_guid) {
                     view_i.db.set_property(guid, "parent_folder", target_guid); 
                 }
-    
                 TreeIter? parent_iter = find_parent_iter(view_i, target_guid);
                 if (parent_iter != null) {
                     Gtk.TreeIter iter;
                     bool type_managed = false;
-                
                     foreach (var root_info in get_root_folder_info()) {
                         if (root_info.object_type == target_type) {
                             view_i.tree_store.append(out iter, parent_iter);
@@ -225,18 +226,15 @@ namespace Crown
                             break;
                         }
                     }
-                
                     if (!type_managed) {
                         print("target_type folder : " + target_type + " not managed");
                     }
                 }
-                
                 view_i.tree_view.expand_all();  
             }
             Gtk.drag_finish(context, true, false, time);
             view_i.tree_selection.changed.connect(view_i.on_tree_selection_changed);
         }  
-
 
         public static void on_database_key_changed_internal(LevelTreeView view_i, Guid id, string key) {
             if (id != view_i.level._id || (key != "units" && key != "sounds")) return;
