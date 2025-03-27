@@ -16,6 +16,7 @@ Changelog
 * Fixed revealing resources while the Project Browser was hidden.
 * Fixed importing FBX files with references to non-existing textures.
 * Fixed an issue that caused level's editor camera to be saved incorrectly in some cases.
+* The HTML5 deployer will now use EMSCRIPTEN environment variable to locate emsdk.
 
 **Runtime**
 
