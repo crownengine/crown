@@ -3693,9 +3693,13 @@ public class LevelEditorApplication : Gtk.Application
 			var dst = File.new_for_path(runtime_name_dst + ".js");
 			src.copy(dst, FileCopyFlags.OVERWRITE);
 
-			src = File.new_for_path(runtime_path_src + ".worker.js");
-			dst = File.new_for_path(runtime_name_dst + ".worker.js");
-			src.copy(dst, FileCopyFlags.OVERWRITE);
+			try {
+				src = File.new_for_path(runtime_path_src + ".worker.js");
+				dst = File.new_for_path(runtime_name_dst + ".worker.js");
+				src.copy(dst, FileCopyFlags.OVERWRITE);
+			} catch (GLib.Error e) {
+				// NOOP: newer emscripten versions embed .worker.js into main .js.
+			}
 
 			src = File.new_for_path(runtime_path_src + ".wasm");
 			dst = File.new_for_path(runtime_name_dst + ".wasm");
