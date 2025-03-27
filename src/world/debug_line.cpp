@@ -212,12 +212,10 @@ void DebugLine::submit(u8 view_id)
 	if (!num)
 		return;
 
-	if (!bgfx::getAvailTransientVertexBuffer(num * 2, vertex_layout))
-		return;
-
 	bgfx::TransientVertexBuffer tvb;
-	bgfx::allocTransientVertexBuffer(&tvb, num * 2, vertex_layout);
-	memcpy(tvb.data, array::begin(_lines), sizeof(Line) * num);
+	uint32_t num_vertices = bgfx::getAvailTransientVertexBuffer(2*num, vertex_layout);
+	bgfx::allocTransientVertexBuffer(&tvb, num_vertices, vertex_layout);
+	memcpy(tvb.data, array::begin(_lines), sizeof(Line)/2 * num_vertices);
 
 	bgfx::setVertexBuffer(0, &tvb, 0, num * 2);
 	bgfx::setState(_shader->state);
