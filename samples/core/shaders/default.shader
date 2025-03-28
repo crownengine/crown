@@ -218,17 +218,17 @@ bgfx_shaders = {
 		}
 
 		varying = """
-			vec3 v_position  : POSITION  = vec3(0.0, 0.0, 0.0);
 			vec3 v_normal    : NORMAL    = vec3(0.0, 0.0, 0.0);
 			vec3 v_tangent   : TANGENT   = vec3(0.0, 0.0, 0.0);
-			vec3 v_bitangent : BINORMAL  = vec3(0.0, 0.0, 0.0);
+			vec3 v_bitangent : BITANGENT = vec3(0.0, 0.0, 0.0);
 			vec2 v_texcoord0 : TEXCOORD0 = vec2(0.0, 0.0);
-			vec3 v_camera    : TEXCOORD1 = vec3(0.0, 0.0, 0.0);
+			vec3 v_position  : TEXCOORD1 = vec3(0.0, 0.0, 0.0);
+			vec3 v_camera    : TEXCOORD2 = vec3(0.0, 0.0, 0.0);
 
 			vec3 a_position  : POSITION;
 			vec3 a_normal    : NORMAL;
 			vec3 a_tangent   : TANGENT;
-			vec3 a_bitangent : BINORMAL;
+			vec3 a_bitangent : BITANGENT;
 			vec4 a_indices   : BLENDINDICES;
 			vec4 a_weight    : BLENDWEIGHT;
 			vec2 a_texcoord0 : TEXCOORD0;
@@ -240,7 +240,7 @@ bgfx_shaders = {
 		#else
 			$input a_position, a_normal, a_tangent, a_bitangent, a_texcoord0
 		#endif
-			$output v_position, v_normal, v_tangent, v_bitangent, v_texcoord0, v_camera
+			$output v_normal, v_tangent, v_bitangent, v_texcoord0, v_position, v_camera
 		"""
 
 		vs_code = """
@@ -281,7 +281,7 @@ bgfx_shaders = {
 		"""
 
 		fs_input_output = """
-			$input v_position, v_normal, v_tangent, v_bitangent, v_texcoord0, v_camera
+			$input v_normal, v_tangent, v_bitangent, v_texcoord0, v_position, v_camera
 		"""
 
 		fs_code = """
@@ -305,17 +305,18 @@ bgfx_shaders = {
 				return rgb * 2.0 - 1.0;
 			}
 
-			vec3 albedo = u_use_albedo_map.r == 1.0 ? texture2D(u_albedo_map, v_texcoord0).rgb : u_albedo.rgb;
-			vec3 normal = u_use_normal_map.r == 1.0 ? decode_versor(texture2D(u_normal_map, v_texcoord0).rgb) : v_normal;
-			float metallic = u_use_metallic_map.r == 1.0 ? texture2D(u_metallic_map, v_texcoord0).r : u_metallic.r;
-			float roughness = u_use_roughness_map.r == 1.0 ? texture2D(u_roughness_map, v_texcoord0).r: u_roughness.r;
-			float ao = u_use_ao_map.r == 1.0 ? texture2D(u_ao_map, v_texcoord0).r : 0.0;
-
 			void main()
 			{
+				vec3 albedo = u_use_albedo_map.r == 1.0 ? texture2D(u_albedo_map, v_texcoord0).rgb : u_albedo.rgb;
+
 		#if defined(NO_LIGHT)
 				vec3 radiance = albedo;
 		#else
+				vec3 normal = u_use_normal_map.r == 1.0 ? decode_versor(texture2D(u_normal_map, v_texcoord0).rgb) : v_normal;
+				float metallic = u_use_metallic_map.r == 1.0 ? texture2D(u_metallic_map, v_texcoord0).r : u_metallic.r;
+				float roughness = u_use_roughness_map.r == 1.0 ? texture2D(u_roughness_map, v_texcoord0).r: u_roughness.r;
+				float ao = u_use_ao_map.r == 1.0 ? texture2D(u_ao_map, v_texcoord0).r : 0.0;
+
 				mat3 tbn;
 				if (u_use_normal_map.r == 1.0)
 					tbn = mtxFromCols(v_tangent, v_bitangent, v_normal);
@@ -325,7 +326,7 @@ bgfx_shaders = {
 				vec3 n = normalize(normal); // Fragment normal.
 				vec3 v = normalize(v_camera); // Versor from fragment to camera pos.
 				vec3 f0 = mix(vec3_splat(0.04), albedo, metallic);
-				vec3 radiance = calc_lighting(tbn, n, v, albedo, metallic, roughness, f0);
+				vec3 radiance = calc_lighting(tbn, n, v, v_position, albedo, metallic, roughness, f0);
 				radiance = radiance / (radiance + vec3_splat(1.0)); // Tone-mapping.
 		#endif // !defined(NO_LIGHT)
 
