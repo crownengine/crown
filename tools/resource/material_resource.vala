@@ -71,8 +71,8 @@ public struct MaterialResource
 
 		this(db, material_id, shader);
 
-		if (albedo_map != null);
-		set_texture("u_albedo_map", albedo_map);
+		if (albedo_map != null)
+			set_texture("u_albedo_map", albedo_map);
 	}
 
 	public void set_float(string uniform_name, double value)
