@@ -62,6 +62,7 @@ public enum TargetConfig
 {
 	RELEASE,
 	DEVELOPMENT,
+	DEBUG,
 
 	COUNT;
 
@@ -72,6 +73,8 @@ public enum TargetConfig
 			return "release";
 		case DEVELOPMENT:
 			return "development";
+		case DEBUG:
+			return "debug";
 		default:
 			return "unknown";
 		}
@@ -84,6 +87,8 @@ public enum TargetConfig
 			return "Release";
 		case DEVELOPMENT:
 			return "Development";
+		case DEBUG:
+			return "Debug";
 		default:
 			return "unknown";
 		}
@@ -3111,8 +3116,11 @@ public class LevelEditorApplication : Gtk.Application
 
 		string config_name[] =
 		{
-			"release",    // TargetConfig.RELEASE
-			"development" // TargetConfig.DEVELOPMENT
+			"release",     // TargetConfig.RELEASE
+			"development", // TargetConfig.DEVELOPMENT
+#if CROWN_DEBUG
+			"debug"        // TargetConfig.DEBUG
+#endif
 		};
 
 		string platform_path = Path.build_path(Path.DIR_SEPARATOR_S, output_path, platform_name[platform], arch_name[arch]);
@@ -3159,7 +3167,10 @@ public class LevelEditorApplication : Gtk.Application
 		string config_name[] =
 		{
 			"release",
-			"development"
+			"development",
+#if CROWN_DEBUG
+			"debug"
+#endif
 		};
 
 		var output_path = (string)param.get_child_value(0);
@@ -3621,7 +3632,10 @@ public class LevelEditorApplication : Gtk.Application
 		string config_name[] =
 		{
 			"release",
-			"development"
+			"development",
+#if CROWN_DEBUG
+			"debug"
+#endif
 		};
 
 		var output_path = (string)param.get_child_value(0);
@@ -3798,7 +3812,10 @@ public class LevelEditorApplication : Gtk.Application
 		string config_name[] =
 		{
 			"release",
-			"development"
+			"development",
+#if CROWN_DEBUG
+			"debug"
+#endif
 		};
 
 		var output_path = (string)param.get_child_value(0);
@@ -3870,7 +3887,10 @@ public class LevelEditorApplication : Gtk.Application
 		string config_name[] =
 		{
 			"release",
-			"development"
+			"development",
+#if CROWN_DEBUG
+			"debug"
+#endif
 		};
 
 		var output_path = (string)param.get_child_value(0);

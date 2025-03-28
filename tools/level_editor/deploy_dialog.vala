@@ -10,10 +10,25 @@ namespace Crown
 {
 public ComboBoxMap make_deploy_config_combo()
 {
-	return new ComboBoxMap(0
-		, new string?[] { TargetConfig.RELEASE.to_label(), TargetConfig.DEVELOPMENT.to_label() }
-		, new string?[] { ((int)TargetConfig.RELEASE).to_string(), ((int)TargetConfig.DEVELOPMENT).to_string() }
-		);
+	string? labels[] =
+	{
+		TargetConfig.RELEASE.to_label(),
+		TargetConfig.DEVELOPMENT.to_label(),
+#if CROWN_DEBUG
+		TargetConfig.DEBUG.to_label(),
+#endif
+	};
+
+	string? ids[] =
+	{
+		((int)TargetConfig.RELEASE).to_string(),
+		((int)TargetConfig.DEVELOPMENT).to_string(),
+#if CROWN_DEBUG
+		((int)TargetConfig.DEBUG).to_string(),
+#endif
+	};
+
+	return new ComboBoxMap(0, labels, ids);
 }
 
 public Gtk.Button make_deploy_button(TargetPlatform platform)
