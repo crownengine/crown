@@ -8,6 +8,7 @@ Changelog
 
 * Added the ability to import skeletons and animation clips from FBX files.
 * Added the ability to skip creating units when importing FBX files.
+* Added the ability to create new materials from the Project Browser.
 * Fixed a crash when editing many objects simultaneusly.
 * Fixed a crash when trying to load levels with many objects.
 * Fixed an issue that prevented undo/redo operations to be executed in bulk.
