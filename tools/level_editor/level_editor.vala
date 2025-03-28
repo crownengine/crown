@@ -564,6 +564,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "create-script",        on_create_script,        "(ssb)", null },
 		{ "create-unit",          on_create_unit,          "(ss)",  null },
 		{ "create-state-machine", on_create_state_machine, "(sss)", null },
+		{ "create-material",      on_create_material,      "(ss)",  null },
 		{ "open-containing",      on_open_containing,      "s",     null },
 		{ "texture-settings",     on_texture_settings,     "s",     null },
 		{ "reveal-resource",      on_reveal,               "(ss)",  null }
@@ -3054,6 +3055,22 @@ public class LevelEditorApplication : Gtk.Application
 		int ec = _project.create_state_machine(dir_name, state_machine_name, skeleton_name != "" ? skeleton_name : null);
 		if (ec < 0) {
 			loge("Failed to create state machine %s".printf(state_machine_name));
+			return;
+		}
+
+		_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
+				_data_compiler.compile.end(res);
+			});
+	}
+
+	private void on_create_material(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string dir_name = (string)param.get_child_value(0);
+		string material_name = (string)param.get_child_value(1);
+
+		int ec = _project.create_material(dir_name, material_name);
+		if (ec < 0) {
+			loge("Failed to create material %s".printf(material_name));
 			return;
 		}
 

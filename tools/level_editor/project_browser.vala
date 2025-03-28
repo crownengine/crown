@@ -142,6 +142,38 @@ private Gtk.Menu? project_entry_menu_create(string type, string name)
 			});
 		menu.add(mi);
 
+		mi = new Gtk.MenuItem.with_label("New Material...");
+		mi.activate.connect(() => {
+				Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Material Name"
+					, ((Gtk.Application)GLib.Application.get_default()).active_window
+					, DialogFlags.MODAL
+					, "Cancel"
+					, ResponseType.CANCEL
+					, "Ok"
+					, ResponseType.OK
+					, null
+					);
+
+				EntryText sb = new EntryText();
+				sb.activate.connect(() => { dg.response(ResponseType.OK); });
+				dg.get_content_area().add(sb);
+				dg.skip_taskbar_hint = true;
+				dg.show_all();
+
+				if (dg.run() == (int)ResponseType.OK) {
+					if (sb.text.strip() == "") {
+						dg.destroy();
+						return;
+					}
+
+					var tuple = new GLib.Variant.tuple({(string)name, sb.text});
+					GLib.Application.get_default().activate_action("create-material", tuple);
+				}
+
+				dg.destroy();
+			});
+		menu.add(mi);
+
 		mi = new Gtk.SeparatorMenuItem();
 		menu.add(mi);
 

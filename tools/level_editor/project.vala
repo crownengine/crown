@@ -390,6 +390,16 @@ public class Project
 		return 0;
 	}
 
+	public int create_material(string directory, string name)
+	{
+		string resource_name = Path.build_filename(directory, name);
+
+		Database db = new Database(this, null);
+		Guid material_id = Guid.new_guid();
+		MaterialResource material_resource = MaterialResource.mesh(db, material_id);
+		return material_resource.save(this, resource_name);
+	}
+
 	// Returns the absolute path to the source directory.
 	public string source_dir()
 	{
