@@ -115,7 +115,7 @@ public class SpriteResource
 
 			Database db = new Database(project);
 
-			MaterialResource material_resource = new MaterialResource.sprite(db, Guid.new_guid(), resource_name);
+			MaterialResource material_resource = MaterialResource.sprite(db, Guid.new_guid(), resource_name);
 			if (material_resource.save(project, resource_name) != 0)
 				return ImportResult.ERROR;
 
