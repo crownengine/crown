@@ -448,6 +448,7 @@ void RenderWorld::render(const Matrix4x4 &view)
 	h.w = 0.0f;
 	bgfx::setUniform(_u_lights_num, &h);
 	bgfx::setUniform(_u_lights_data, (char *)lid.shader, lid.size*sizeof(*lid.shader) / sizeof(Vector4));
+	bgfx::touch(VIEW_LIGHTS);
 
 	// Render objects.
 	_mesh_manager.draw(VIEW_MESH, *_scene_graph);
