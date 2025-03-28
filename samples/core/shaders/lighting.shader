@@ -7,9 +7,7 @@ bgfx_shaders = {
 			uniform vec4 u_lights_num;        // num_dir, num_omni, num_spot
 			uniform vec4 u_lights_data[3*32]; // dir_0, .., dir_n-1, omni_0, .., omni_n-1, spot_0, .., spot_n-1
 
-			int num_dir = int(u_lights_num.x);
-			int num_omni = int(u_lights_num.y);
-			int num_spot = int(u_lights_num.z);
+			CONST(float PI) = 3.14159265358979323846;
 
 			float length_squared(vec3 a)
 			{
@@ -21,8 +19,6 @@ bgfx_shaders = {
 				float a = clamp(1.0 - dot, 0.0, 1.0);
 				return f0 + (1.0 - f0) * (a*a*a*a*a);
 			}
-
-			const float PI = 3.14159265358979323846;
 
 			float dist_GGX(float ndoth, float roughness)
 			{
@@ -76,9 +72,9 @@ bgfx_shaders = {
 				return calc_radiance(n, l, v, h, albedo, radiance, metallic, roughness, f0);
 			}
 
-			vec3 calc_omni_light(vec3 n, vec3 v, vec3 color, float intensity, vec3 position, float range, vec3 albedo, float metallic, float roughness, vec3 f0)
+			vec3 calc_omni_light(vec3 n, vec3 v, vec3 frag_pos, vec3 color, float intensity, vec3 position, float range, vec3 albedo, float metallic, float roughness, vec3 f0)
 			{
-				vec3 dpos = position - v_position;
+				vec3 dpos = position - frag_pos;
 				vec3 l = normalize(dpos);  // Direction to light.
 				vec3 h = normalize(v + l); // Half-vector betwen v and l.
 				float dd = length_squared(dpos);
@@ -93,6 +89,7 @@ bgfx_shaders = {
 
 			vec3 calc_spot_light(vec3 n
 				, vec3 v
+				, vec3 frag_pos
 				, vec3 color
 				, float intensity
 				, vec3 direction
@@ -105,7 +102,7 @@ bgfx_shaders = {
 				, vec3 f0
 				)
 			{
-				vec3 dpos = position - v_position;
+				vec3 dpos = position - frag_pos;
 				vec3 l = normalize(dpos);  // Direction to light.
 				vec3 h = normalize(v + l); // Half-vector betwen v and l.
 				float dd = length_squared(dpos);
@@ -127,11 +124,15 @@ bgfx_shaders = {
 				}
 			}
 
-			vec3 calc_lighting(mat3 tbn, vec3 n, vec3 v, vec3 albedo, float metallic, float roughness, vec3 f0)
+			vec3 calc_lighting(mat3 tbn, vec3 n, vec3 v, vec3 frag_pos, vec3 albedo, float metallic, float roughness, vec3 f0)
 			{
 				vec3 radiance = vec3_splat(0.0);
 
 				int loffset = 0;
+				int num_dir = int(u_lights_num.x);
+				int num_omni = int(u_lights_num.y);
+				int num_spot = int(u_lights_num.z);
+
 				for (int di = 0; di < num_dir; ++di, loffset += 3) {
 					vec3 light_color = u_lights_data[loffset + 0].rgb;
 					float intensity  = u_lights_data[loffset + 0].w;
@@ -155,6 +156,7 @@ bgfx_shaders = {
 					float range      = u_lights_data[loffset + 1].w;
 					radiance += calc_omni_light(n
 						, v
+						, frag_pos
 						, toLinearAccurate(light_color)
 						, intensity
 						, mul(position, tbn)
@@ -175,6 +177,7 @@ bgfx_shaders = {
 					float spot_angle = u_lights_data[loffset + 2].w;
 					radiance += calc_spot_light(n
 						, v
+						, frag_pos
 						, toLinearAccurate(light_color)
 						, intensity
 						, mul(direction, tbn)
