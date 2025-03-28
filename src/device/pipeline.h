@@ -17,6 +17,7 @@
 #define VIEW_SPRITE_5     6
 #define VIEW_SPRITE_6     7
 #define VIEW_SPRITE_7     8
+#define VIEW_LIGHTS      15 // Global lighting data.
 #define VIEW_MESH        16
 #define VIEW_WORLD_GUI   17
 #define VIEW_SELECTION   32
