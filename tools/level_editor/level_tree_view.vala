@@ -10,7 +10,12 @@ namespace Crown
 {
 public class LevelTreeView : Gtk.Box
 {
-	private enum ItemType
+	private const Gtk.TargetEntry[] TARGET_ENTRIES = {
+		{ CROWN_DND_TARGET, Gtk.TargetFlags.SAME_APP, 0 }
+	};	
+	private const string CROWN_DND_TARGET = "application/x-crown-set";
+
+	public enum ItemType
 	{
 		FOLDER,
 		CAMERA,
@@ -19,7 +24,7 @@ public class LevelTreeView : Gtk.Box
 		UNIT
 	}
 
-	private enum Column
+	public enum Column
 	{
 		TYPE,
 		GUID,
@@ -71,6 +76,21 @@ public class LevelTreeView : Gtk.Box
 	private Gtk.Popover _sort_items_popover;
 	private Gtk.MenuButton _sort_items;
 
+	// Getters
+	public Level level { get { return _level; } }
+	public Database db { get { return _db; } }
+	public EntrySearch filter_entry { get { return _filter_entry; } }
+	public Gtk.TreeStore tree_store { get { return _tree_store; } }
+	public Gtk.TreeModelFilter tree_filter { get { return _tree_filter; } }
+	public Gtk.TreeModelSort tree_sort { get { return _tree_sort; } }
+	public Gtk.TreeView tree_view { get { return _tree_view; } }
+	public Gtk.TreeSelection tree_selection { get { return _tree_selection; } }
+	public Gtk.ScrolledWindow scrolled_window { get { return _scrolled_window; } }
+	public SortMode sort_mode { get { return _sort_mode; } }
+	public Gtk.Box sort_items_box { get { return _sort_items_box; } }
+	public Gtk.Popover sort_items_popover { get { return _sort_items_popover; } }
+	public Gtk.MenuButton sort_items { get { return _sort_items; } }
+
 	public LevelTreeView(Database db, Level level)
 	{
 		Object(orientation: Gtk.Orientation.VERTICAL, spacing: 0);
@@ -89,9 +109,9 @@ public class LevelTreeView : Gtk.Box
 		_filter_entry.search_changed.connect(on_filter_entry_text_changed);
 
 		_tree_store = new Gtk.TreeStore(Column.COUNT
-			, typeof(int)    // Column.TYPE
-			, typeof(Guid)   // Column.GUID
-			, typeof(string) // Column.NAME
+			, typeof(ItemType)// Column.TYPE
+			, typeof(Guid)    // Column.GUID
+			, typeof(string)  // Column.NAME
 			);
 
 		_tree_filter = new Gtk.TreeModelFilter(_tree_store, null);
@@ -103,7 +123,7 @@ public class LevelTreeView : Gtk.Box
 				model.get_value(iter, Column.TYPE, out type);
 				model.get_value(iter, Column.NAME, out name);
 
-				if ((int)type == ItemType.FOLDER)
+				if (type == ItemType.FOLDER)
 					return true;
 
 				string name_str = (string)name;
@@ -120,9 +140,14 @@ public class LevelTreeView : Gtk.Box
 				Value type_b;
 				model.get_value(iter_a, Column.TYPE, out type_a);
 				model.get_value(iter_b, Column.TYPE, out type_b);
-				if ((int)type_a == ItemType.FOLDER || (int)type_b == ItemType.FOLDER)
-					return -1;
-
+				
+				// Ensure folders come first (prioritize folders over units/sounds)
+				if ((ItemType)type_a == ItemType.FOLDER && (ItemType)type_b != ItemType.FOLDER)
+					return -1; // folder should be before non-folder
+				if ((ItemType)type_b == ItemType.FOLDER && (ItemType)type_a != ItemType.FOLDER)
+					return 1; // folder should be after non-folder
+				
+				// If both are folders, or both are non-folders, sort by the usual criteria
 				switch (_sort_mode) {
 				case SortMode.NAME_AZ:
 				case SortMode.NAME_ZA: {
@@ -130,22 +155,20 @@ public class LevelTreeView : Gtk.Box
 					Value name_b;
 					model.get_value(iter_a, Column.NAME, out name_a);
 					model.get_value(iter_b, Column.NAME, out name_b);
-
+		
 					int cmp = strcmp((string)name_a, (string)name_b);
 					return _sort_mode == SortMode.NAME_AZ ? cmp : -cmp;
 				}
-
 				case SortMode.TYPE_AZ:
 				case SortMode.TYPE_ZA: {
 					int cmp = (int)type_a - (int)type_b;
 					return _sort_mode == SortMode.TYPE_AZ ? cmp : -cmp;
 				}
-
 				default:
 					return 0;
 				}
 			});
-
+			
 		Gtk.TreeViewColumn column = new Gtk.TreeViewColumn();
 		Gtk.CellRendererPixbuf cell_pixbuf = new Gtk.CellRendererPixbuf();
 		Gtk.CellRendererText cell_text = new Gtk.CellRendererText();
@@ -153,24 +176,24 @@ public class LevelTreeView : Gtk.Box
 		column.pack_start(cell_text, true);
 		column.set_cell_data_func(cell_pixbuf, (cell_layout, cell, model, iter) => {
 				Value type;
-				model.get_value(iter, LevelTreeView.Column.TYPE, out type);
+				model.get_value(iter, Column.TYPE, out type);
 
-				if ((int)type == LevelTreeView.ItemType.FOLDER)
+				if (type == ItemType.FOLDER)
 					cell.set_property("icon-name", "browser-folder-symbolic");
-				else if ((int)type == LevelTreeView.ItemType.UNIT)
+				else if (type == ItemType.UNIT)
 					cell.set_property("icon-name", "level-object-unit");
-				else if ((int)type == LevelTreeView.ItemType.SOUND)
+				else if (type == ItemType.SOUND)
 					cell.set_property("icon-name", "level-object-sound");
-				else if ((int)type == LevelTreeView.ItemType.LIGHT)
+				else if (type == ItemType.LIGHT)
 					cell.set_property("icon-name", "level-object-light");
-				else if ((int)type == LevelTreeView.ItemType.CAMERA)
+				else if (type == ItemType.CAMERA)
 					cell.set_property("icon-name", "level-object-camera");
 				else
 					cell.set_property("icon-name", "level-object-unknown");
 			});
 		column.set_cell_data_func(cell_text, (cell_layout, cell, model, iter) => {
 				Value name;
-				model.get_value(iter, LevelTreeView.Column.NAME, out name);
+				model.get_value(iter, Column.NAME, out name);
 
 				cell.set_property("text", (string)name);
 			});
@@ -190,6 +213,14 @@ public class LevelTreeView : Gtk.Box
 		_tree_view.headers_visible = false;
 		_tree_view.model = _tree_sort;
 		_tree_view.button_press_event.connect(on_button_pressed);
+
+		// Enable drag and drop
+		_tree_view.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, TARGET_ENTRIES, Gdk.DragAction.MOVE);
+		_tree_view.enable_model_drag_dest(TARGET_ENTRIES, Gdk.DragAction.MOVE);
+		_tree_view.drag_data_get.connect(on_drag_data_get);
+		_tree_view.drag_data_received.connect(on_drag_data_received);
+		_tree_view.drag_drop.connect(on_drag_drop);
+		_tree_view.drag_motion.connect(on_drag_motion);
 
 		_tree_selection = _tree_view.get_selection();
 		_tree_selection.set_mode(Gtk.SelectionMode.MULTIPLE);
@@ -220,6 +251,11 @@ public class LevelTreeView : Gtk.Box
 
 		this.pack_start(tree_control, false, true, 0);
 		this.pack_start(_scrolled_window, true, true, 0);
+
+		_level.level_loaded.connect(() => {
+			LevelTreeSynching.rebuild_tree(this);
+		});
+		LevelTreeSynching.rebuild_tree(this);
 	}
 
 	private bool on_button_pressed(Gdk.EventButton ev)
@@ -233,64 +269,163 @@ public class LevelTreeView : Gtk.Box
 					_tree_selection.select_path(path);
 				}
 			} else { // Clicked on empty space.
-				return Gdk.EVENT_PROPAGATE;
+				return Gdk.EVENT_STOP;
 			}
-
 			Gtk.Menu menu = new Gtk.Menu();
-			Gtk.MenuItem mi;
-
+			Gtk.MenuItem mi = null;
+			_tree_selection.selected_foreach((model, path, iter) => {
+				Value type;
+				model.get_value(iter, Column.TYPE, out type);
+				
+				if (type == ItemType.FOLDER) {
+					Gtk.TreeIter parent_iter = Gtk.TreeIter();
+					Gtk.TreeStore base_store = null;
+					bool valid_conversion = true;
+			
+					if (model is Gtk.TreeModelSort) {
+						Gtk.TreeModelSort sort_model = (Gtk.TreeModelSort)model;
+						Gtk.TreeModel base_model = sort_model.model;
+					
+						if (base_model is Gtk.TreeModelFilter) {
+							Gtk.TreeModelFilter filter_model = (Gtk.TreeModelFilter)base_model;
+							Gtk.TreeModel inner_model = filter_model.get_model();
+							if (inner_model is Gtk.TreeStore) {
+								base_store = (Gtk.TreeStore)inner_model;
+							} else {
+								print("The internal model of the filter is not a TreeStore.");
+								return;
+							}
+					
+							Gtk.TreePath child_path = sort_model.convert_path_to_child_path(path);
+							if (child_path != null) {
+								valid_conversion = base_store.get_iter(out parent_iter, child_path);
+							} else {
+								valid_conversion = false;
+							}
+						} else {
+							valid_conversion = false;
+						}
+					} else {
+						valid_conversion = false;
+					}
+					if (valid_conversion && base_store.iter_is_valid(parent_iter)) {
+						var menu_item = new Gtk.MenuItem.with_label("Create Subfolder");
+						menu_item.activate.connect(() => {                    
+							Guid parent_guid = LevelTreeOrganization.get_parent_guid(this, parent_iter); 
+							
+							string? parent_type_str = null;
+							foreach (var root_info in get_root_folder_info()) {
+								if (parent_guid == root_info.guid) {
+									parent_type_str = root_info.item_type_str;
+									break;
+								}
+							}
+							if (parent_type_str == null) {
+								Value parent_type_val = _db.get_property(parent_guid, "_type");
+								parent_type_str = parent_type_val.holds(typeof(string)) ? (string)parent_type_val : null;
+							}
+							if (parent_type_str != null) {
+								foreach (var root_info in get_root_folder_info()) {
+									if (parent_type_str == root_info.item_type_str) {
+										create_new_folder(parent_iter, root_info.object_type);
+										return;
+									}
+								}
+								print("Unmanaged or invalid type: %s", parent_type_str);
+							}
+							else {
+								print("Error: Parent type is not a string. Type found: %s", parent_guid.to_string());
+							}
+						});
+						menu.add(menu_item);
+					}
+					else {
+						print("Error: Invalid conversion or iterator");
+					}						
+				}
+			});
+			
 			mi = new Gtk.MenuItem.with_label("Rename...");
 			mi.activate.connect(() => {
-					Gtk.Dialog dg = new Gtk.Dialog.with_buttons("New Name"
-						, (Gtk.Window)this.get_toplevel()
-						, DialogFlags.MODAL
-						, "Cancel"
-						, ResponseType.CANCEL
-						, "Ok"
-						, ResponseType.OK
-						, null
-						);
-
-					EntryText sb = new EntryText();
-					_tree_selection.selected_foreach((model, path, iter) => {
-							Value name;
-							model.get_value(iter, Column.NAME, out name);
-							sb.value = (string)name;
-							return;
-						});
-					sb.activate.connect(() => { dg.response(ResponseType.OK); });
-					dg.get_content_area().add(sb);
-					dg.skip_taskbar_hint = true;
-					dg.show_all();
-
-					if (dg.run() == (int)ResponseType.OK) {
-						string cur_name = "";
-						string new_name = "";
-						Guid object_id = GUID_ZERO;
-
-						_tree_selection.selected_foreach((model, path, iter) => {
-								Value type;
-								model.get_value(iter, Column.TYPE, out type);
-								if ((int)type == ItemType.FOLDER)
-									return;
-
-								Value name;
-								model.get_value(iter, Column.NAME, out name);
-								cur_name = (string)name;
-
+				GLib.List<Gtk.TreePath> selectedPaths = null;
+			    Gtk.TreeModel model = null;
+				selectedPaths = _tree_selection.get_selected_rows(out model);
+			
+				if (selectedPaths != null) {
+					foreach (Gtk.TreePath selectedPath in selectedPaths) {
+						Gtk.TreeIter iter;
+			
+						if (model.get_iter(out iter, selectedPath)) {
+							Value type;
+							model.get_value(iter, Column.TYPE, out type);
+			
+							if ((ItemType)type == ItemType.FOLDER) {
 								Value guid;
 								model.get_value(iter, Column.GUID, out guid);
-								object_id = (Guid)guid;
-
-								new_name = sb.text.strip();
-							});
-
-						if (new_name != "" && new_name != cur_name)
-							_level.object_set_editor_name(object_id, new_name);
+								Guid object_id = (Guid)guid;
+				
+								bool can_rename = true;
+								foreach (var root_folder in Crown.get_root_folder_info()) {
+									if (root_folder.guid == object_id) {
+										can_rename = false;
+										break;
+									}
+								}
+				
+								if (can_rename) {
+									rename_folder(model, iter);
+								} else {
+									Gtk.MessageDialog dialog = new Gtk.MessageDialog(
+										(Gtk.Window)this.get_toplevel(),
+										Gtk.DialogFlags.MODAL,
+										Gtk.MessageType.WARNING,
+										Gtk.ButtonsType.OK,
+										"You cannot rename this folder, it's a predefined root folder."
+									);
+									dialog.run();
+									dialog.destroy();
+								}
+							} else {
+								Gtk.Dialog dg = new Gtk.Dialog.with_buttons("New Name"
+									, (Gtk.Window)this.get_toplevel()
+									, DialogFlags.MODAL
+									, "Cancel"
+									, ResponseType.CANCEL
+									, "Ok"
+									, ResponseType.OK
+									, null
+								);
+			
+								EntryText sb = new EntryText();
+			
+								Value name;
+								model.get_value(iter, Column.NAME, out name);
+								sb.value = (string)name;
+			
+								sb.activate.connect(() => { dg.response(ResponseType.OK); });
+								dg.get_content_area().add(sb);
+								dg.skip_taskbar_hint = true;
+								dg.show_all();
+			
+								if (dg.run() == (int)ResponseType.OK) {
+									string cur_name = (string)name;
+									string new_name = sb.text.strip();
+									Guid object_id = GUID_ZERO;
+			
+									Value guid;
+									model.get_value(iter, Column.GUID, out guid);
+									object_id = (Guid)guid;
+			
+									if (new_name != "" && new_name != cur_name)
+										_level.object_set_editor_name(object_id, new_name);
+								}
+								dg.destroy();
+							}
+						}
 					}
-
-					dg.destroy();
-				});
+				}
+			});
+			
 			if (_tree_selection.count_selected_rows() == 1)
 				menu.add(mi);
 
@@ -313,8 +448,127 @@ public class LevelTreeView : Gtk.Box
 
 		return Gdk.EVENT_PROPAGATE;
 	}
+	private void rename_folder(Gtk.TreeModel model, Gtk.TreeIter iter)
+	{
+		Gtk.TreeStore base_store = null;
+		Gtk.TreeIter base_iter = iter;
+		bool conversion_valide = true;
+	
+		if (model is Gtk.TreeModelSort)
+		{
+			Gtk.TreeModelSort sort_model = (Gtk.TreeModelSort)model;
+			Gtk.TreeModelFilter filter_model = sort_model.model as Gtk.TreeModelFilter;
+			
+			if (filter_model != null)
+			{
+				base_store = filter_model.get_model() as Gtk.TreeStore;
+				Gtk.TreeIter filter_iter;
+				sort_model.convert_iter_to_child_iter(out filter_iter, iter);
+				filter_model.convert_iter_to_child_iter(out base_iter, filter_iter);
+			}
+			else
+			{
+				conversion_valide = false;
+			}
+		}
+		else if (model is Gtk.TreeStore)
+		{
+			base_store = model as Gtk.TreeStore;
+		}
+		else
+		{
+			conversion_valide = false;
+		}
+	
+		Value name_value;
+		base_store.get_value(base_iter, Column.NAME, out name_value);
+		string current_name = (string)name_value;
+	
+		Gtk.Dialog dialog = new Gtk.Dialog.with_buttons(
+			"New Name",
+			(Gtk.Window)get_toplevel(),
+			Gtk.DialogFlags.MODAL,
+			"Cancel", Gtk.ResponseType.CANCEL,
+			"Ok", Gtk.ResponseType.OK,
+			null
+		);
+	
+		Gtk.Entry entry = new Gtk.Entry();
+		entry.text = current_name;
+		dialog.get_content_area().add(entry);
+		dialog.show_all();
+	
+		if (dialog.run() == Gtk.ResponseType.OK)
+		{
+			string new_name = entry.text.strip();
+			
+			if (new_name != "" && new_name != current_name)
+			{
+				base_store.set_value(base_iter, Column.NAME, new_name);
+				
+				Value guid_value;
+				base_store.get_value(base_iter, Column.GUID, out guid_value);
+				Guid folder_guid = (Guid)guid_value;
+				
+				foreach (var folder in _level._folders)
+				{
+					if (folder.id == folder_guid)
+					{
+						folder.name = new_name;
+						break;
+					}
+				}
+				_level._db.set_property_string(folder_guid, "editor.name", new_name);
+			}
+		}
+		dialog.destroy();
+	}
+	
+	private void create_new_folder(Gtk.TreeIter? parent_iter = null,string type)
+	{
+		Gtk.Dialog dialog = new Gtk.Dialog.with_buttons(
+			"New Folder Name",
+			((Gtk.Application)GLib.Application.get_default()).active_window,
+			Gtk.DialogFlags.MODAL,
+			"Cancel", Gtk.ResponseType.CANCEL,
+			"OK", Gtk.ResponseType.OK
+		);
+	
+		Gtk.Entry entry = new Gtk.Entry();
+		entry.set_placeholder_text("Enter folder name");
+		dialog.get_content_area().pack_start(entry, true, true, 0);
+		dialog.show_all();
+	
+		if (dialog.run() == Gtk.ResponseType.OK) {
+			string folder_name = entry.get_text().strip();
+			if (folder_name == "") {
+				folder_name = "Folder Name";
+			}
+			dialog.destroy();
+			Guid folder_guid = Guid.new_guid();
+			LevelTreeOrganization.add_folder_to_tree(this, true, parent_iter, folder_name,type, folder_guid);
+		} else {
+			dialog.destroy();
+		}
+	}
+	
+	private bool on_drag_drop(Gtk.Widget widget, Gdk.DragContext context, int x, int y, uint time) {
+		return LevelTreeOrganization.on_drag_drop_internal(this, CROWN_DND_TARGET, widget, context, x, y, time);
+	}
+	
+	private bool on_drag_motion(Gtk.Widget widget, Gdk.DragContext context, int x, int y, uint time) {
+		return LevelTreeOrganization.on_drag_motion_internal(this, widget, context, x, y, time);
+	}
 
-	private void on_tree_selection_changed()
+	private void on_drag_data_get(Gtk.Widget widget, Gdk.DragContext context, Gtk.SelectionData selection_data, uint info, uint time) {
+		LevelTreeOrganization.on_drag_data_get_internal(this, CROWN_DND_TARGET,widget, context, selection_data, info, time);
+	}
+	
+	private void on_drag_data_received(Gtk.Widget widget, Gdk.DragContext context, int x, int y, Gtk.SelectionData selection_data, uint info, uint time) {		
+		LevelTreeOrganization.on_drag_data_received_internal(this, CROWN_DND_TARGET, widget, context, x, y, selection_data, info, time);
+	}	
+	
+	public void on_tree_selection_changed()
 	{
 		_level.selection_changed.disconnect(on_level_selection_changed);
 
@@ -322,7 +576,7 @@ public class LevelTreeView : Gtk.Box
 		_tree_selection.selected_foreach((model, path, iter) => {
 				Value type;
 				model.get_value(iter, Column.TYPE, out type);
-				if ((int)type == ItemType.FOLDER)
+				if (type == ItemType.FOLDER)
 					return;
 
 				Value id;
@@ -344,7 +598,7 @@ public class LevelTreeView : Gtk.Box
 		_tree_sort.foreach ((model, path, iter) => {
 				Value type;
 				model.get_value(iter, Column.TYPE, out type);
-				if ((int)type == ItemType.FOLDER)
+				if (type == ItemType.FOLDER)
 					return false;
 
 				Value id;
@@ -372,7 +626,7 @@ public class LevelTreeView : Gtk.Box
 		_tree_sort.foreach ((model, path, iter) => {
 				Value type;
 				model.get_value(iter, Column.TYPE, out type);
-				if ((int)type == ItemType.FOLDER)
+				if (type == ItemType.FOLDER)
 					return false;
 
 				Value guid;
@@ -407,84 +661,11 @@ public class LevelTreeView : Gtk.Box
 		else
 			return ItemType.UNIT;
 	}
-
-	private void on_database_key_changed(Guid id, string key)
-	{
-		if (id != _level._id)
-			return;
-
-		if (key != "units" && key != "sounds")
-			return;
-
-		_tree_selection.changed.disconnect(on_tree_selection_changed);
-		_tree_view.model = null;
-		_tree_store.clear();
-
-		Gtk.TreeIter units_iter;
-		_tree_store.insert_with_values(out units_iter
-			, null
-			, -1
-			, Column.TYPE
-			, ItemType.FOLDER
-			, Column.GUID
-			, GUID_ZERO
-			, Column.NAME
-			, "Units"
-			, -1
-			);
-		Gtk.TreeIter sounds_iter;
-		_tree_store.insert_with_values(out sounds_iter
-			, null
-			, -1
-			, Column.TYPE
-			, ItemType.FOLDER
-			, Column.GUID
-			, GUID_ZERO
-			, Column.NAME
-			, "Sounds"
-			, -1
-			);
-
-		HashSet<Guid?> units  = _db.get_property_set(_level._id, "units", new HashSet<Guid?>());
-		HashSet<Guid?> sounds = _db.get_property_set(_level._id, "sounds", new HashSet<Guid?>());
-
-		foreach (Guid unit_id in units) {
-			Unit u = Unit(_level._db, unit_id);
-
-			Gtk.TreeIter iter;
-			_tree_store.insert_with_values(out iter
-				, units_iter
-				, -1
-				, Column.TYPE
-				, item_type(u)
-				, Column.GUID
-				, unit_id
-				, Column.NAME
-				, _level.object_editor_name(unit_id)
-				, -1
-				);
-		}
-		foreach (Guid sound in sounds) {
-			Gtk.TreeIter iter;
-			_tree_store.insert_with_values(out iter
-				, sounds_iter
-				, -1
-				, Column.TYPE
-				, ItemType.SOUND
-				, Column.GUID
-				, sound
-				, Column.NAME
-				, _level.object_editor_name(sound)
-				, -1
-				);
-		}
-
-		_tree_view.model = _tree_sort;
-		_tree_view.expand_all();
-
-		_tree_selection.changed.connect(on_tree_selection_changed);
+	
+	private void on_database_key_changed(Guid id, string key) {
+		LevelTreeSynching.on_database_key_changed_internal(this, id, key);
 	}
-
+	
 	private void on_filter_entry_text_changed()
 	{
 		_tree_selection.changed.disconnect(on_tree_selection_changed);

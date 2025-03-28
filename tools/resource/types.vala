@@ -30,4 +30,6 @@ const string OBJECT_TYPE_FONT                    = "font";
 const string OBJECT_TYPE_MESH                    = "mesh";
 const string OBJECT_TYPE_MATERIAL                = "material";
 
+const string OBJECT_TYPE_FOLDER_UNIT             = "unit_folder";
+const string OBJECT_TYPE_FOLDER_SOUND            = "sound_folder";
 } /* namespace Crown */
