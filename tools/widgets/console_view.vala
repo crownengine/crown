@@ -167,8 +167,8 @@ public class ConsoleView : Gtk.Box
 
 		Gtk.Button clear_button = new Gtk.Button.with_label("Clear");
 		clear_button.clicked.connect(() => {
-			reset();
-		});
+				reset();
+			});
 
 		Gtk.Box hbox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
 		hbox.pack_start(_entry_hbox, true, true, 0);
@@ -190,21 +190,16 @@ public class ConsoleView : Gtk.Box
 
 	public void reset()
 	{
-		Gtk.TextBuffer buffer = _text_view.buffer;
-	
-		buffer.set_text("");
-	
-		Gtk.TextIter new_end;
-		buffer.get_end_iter(out new_end);
-		_scroll_mark = buffer.create_mark("scroll", new_end, true);
-		_time_mark = buffer.create_mark("time", new_end, true);
-	
-		_last_message = LastMsg() {
+		_text_view.buffer.set_text("");
+
+		_last_message = LastMsg()
+		{
 			text = "",
 			num_repetitions = 0,
 			anchor = null
 		};
 	}
+
 	private void on_entry_activated()
 	{
 		string text = _entry.text;
