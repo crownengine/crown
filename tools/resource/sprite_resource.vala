@@ -127,7 +127,9 @@ public class SpriteResource
 			}
 
 			var texture_resource = TextureResource.sprite(db, Guid.new_guid(), resource_path);
-			texture_resource.save(project, resource_name);
+			if (texture_resource.save(project, resource_name) != 0)
+				return ImportResult.ERROR;
+
 			db.reset();
 
 			Guid sprite_id = Guid.new_guid();
@@ -164,7 +166,9 @@ public class SpriteResource
 				}
 			}
 
-			db.save(project.absolute_path(resource_name) + ".sprite", sprite_id);
+			if (db.save(project.absolute_path(resource_name) + ".sprite", sprite_id) != 0)
+				return ImportResult.ERROR;
+
 			db.reset();
 
 			// Generate or modify existing .unit.
@@ -285,7 +289,8 @@ public class SpriteResource
 				}
 			}
 
-			db.save(project.absolute_path(resource_name) + ".unit", unit_id);
+			if (db.save(project.absolute_path(resource_name) + ".unit", unit_id) != 0)
+				return ImportResult.ERROR;
 		}
 
 		return ImportResult.SUCCESS;

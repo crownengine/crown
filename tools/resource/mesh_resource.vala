@@ -183,7 +183,8 @@ namespace MeshResource
 						);
 				}
 
-				db.save(project.absolute_path(resource_name) + ".unit", unit_id);
+				if (db.save(project.absolute_path(resource_name) + ".unit", unit_id) != 0)
+					return ImportResult.ERROR;
 			} catch (JsonSyntaxError e) {
 				loge(e.message);
 				return ImportResult.ERROR;

@@ -84,9 +84,9 @@ public struct StateMachineResource
 		_db.add_to_set(_id, "states", node._id);
 	}
 
-	public void save(Project project, string resource_name)
+	public int save(Project project, string resource_name)
 	{
-		_db.save(project.absolute_path(resource_name) + "." + OBJECT_TYPE_STATE_MACHINE, _id);
+		return _db.save(project.absolute_path(resource_name) + "." + OBJECT_TYPE_STATE_MACHINE, _id);
 	}
 }
 

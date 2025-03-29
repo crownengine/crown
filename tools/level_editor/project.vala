@@ -366,8 +366,7 @@ public class Project
 		Unit unit = Unit(db, unit_id);
 		unit.create_empty();
 
-		db.dump(path, unit_id);
-		return 0;
+		return db.dump(path, unit_id);
 	}
 
 	public int create_state_machine(string directory, string name, string? skeleton_name)
@@ -386,8 +385,7 @@ public class Project
 			machine = StateMachineResource.mesh(db, machine_id, sm_node, skeleton_name);
 
 		machine.add_node(sm_node);
-		machine.save(this, resource_name);
-		return 0;
+		return machine.save(this, resource_name);
 	}
 
 	public int create_material(string directory, string name)
