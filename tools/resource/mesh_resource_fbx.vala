@@ -826,7 +826,6 @@ public class FBXImporter
 						// Extract clips.
 						if (scene.anim_stacks.data.length > 0) {
 							unowned ufbx.AnimStack anim_stack = scene.anim_stacks.data[0];
-							unowned ufbx.Anim anim = anim_stack.anim;
 
 							string anim_filename = Path.build_filename(animations_path, resource_basename + "." + OBJECT_TYPE_MESH_ANIMATION);
 							GLib.File anim_file  = GLib.File.new_for_path(anim_filename);
