@@ -88,9 +88,12 @@ public class SJSON
 	{
 		FileStream fs = FileStream.open(path, "wb");
 		if (fs == null)
-			return;
+			throw new JsonWriteError.FILE_OPEN("Unable to open '%s'".printf(path));
 
-		fs.write(encode(h).data);
+		uint8[] data = encode(h).data;
+		size_t len = data.length;
+		if (fs.write(data) != len)
+			throw new JsonWriteError.FILE_WRITE("Error while writing '%s'".printf(path));
 	}
 
 	static void write_root_object(Hashtable t, StringBuilder builder) throws JsonWriteError
