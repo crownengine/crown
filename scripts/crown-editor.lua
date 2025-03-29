@@ -62,6 +62,7 @@ project "crown-editor"
 		"-Wno-cast-function-type",
 		"-Wno-missing-field-initializers",
 		"-Wno-incompatible-pointer-types",
+		"-Wno-unused-value",
 		"-D VALA_STRICT_C",
 	}
 
