@@ -633,7 +633,9 @@ public class FBXImporter
 							, texture_id
 							, texture_resource_name + ".png"
 							);
-						texture_resource.save(project, texture_resource_name);
+						if (texture_resource.save(project, texture_resource_name) != 0)
+							return ImportResult.ERROR;
+
 						imported_textures.set(texture, texture_resource_name);
 					}
 				}
@@ -764,7 +766,9 @@ public class FBXImporter
 						, metallic
 						, roughness
 						);
-					material_resource.save(project, material_resource_name);
+					if (material_resource.save(project, material_resource_name) != 0)
+						return ImportResult.ERROR;
+
 					imported_materials.set(material, material_resource_name);
 				}
 			}
@@ -790,7 +794,9 @@ public class FBXImporter
 						db.create(animation_skeleton_id, OBJECT_TYPE_MESH_SKELETON);
 						db.set_property_string(animation_skeleton_id, "source", resource_path);
 						db.add_to_set(animation_skeleton_id, "skeleton", skeleton_hierarchy_id);
-						db.save(project.absolute_path(resource_name) + "." + OBJECT_TYPE_MESH_SKELETON, animation_skeleton_id);
+						if (db.save(project.absolute_path(resource_name) + "." + OBJECT_TYPE_MESH_SKELETON, animation_skeleton_id) != 0)
+							return ImportResult.ERROR;
+
 						target_skeleton = resource_name;
 					}
 				}
@@ -836,7 +842,8 @@ public class FBXImporter
 							db.set_property_string(anim_id, "source", resource_path);
 							db.set_property_string(anim_id, "target_skeleton", target_skeleton);
 							db.set_property_string(anim_id, "stack_name", (string)anim_stack.name.data);
-							db.save(project.absolute_path(anim_resource_name) + "." + OBJECT_TYPE_MESH_ANIMATION, anim_id);
+							if (db.save(project.absolute_path(anim_resource_name) + "." + OBJECT_TYPE_MESH_ANIMATION, anim_id) != 0)
+								return ImportResult.ERROR;
 						}
 					}
 				}
@@ -854,12 +861,14 @@ public class FBXImporter
 					, imported_materials
 					);
 
-				db.save(project.absolute_path(resource_name) + ".unit", unit_id);
+				if (db.save(project.absolute_path(resource_name) + ".unit", unit_id) != 0)
+					return ImportResult.ERROR;
 
 				Guid mesh_id = Guid.new_guid();
 				db.create(mesh_id, OBJECT_TYPE_MESH);
 				db.set_property_string(mesh_id, "source", resource_path);
-				db.save(project.absolute_path(resource_name) + ".mesh", mesh_id);
+				if (db.save(project.absolute_path(resource_name) + ".mesh", mesh_id) != 0)
+					return ImportResult.ERROR;
 			}
 		}
 

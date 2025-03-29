@@ -94,7 +94,9 @@ public class FontResource
 
 			// Generate .texture resource.
 			var texture_resource = TextureResource.font_atlas(db, Guid.new_guid(), resource_name + ".png");
-			texture_resource.save(project, resource_name);
+			if (texture_resource.save(project, resource_name) != 0)
+				return ImportResult.ERROR;
+
 			db.reset();
 
 			// Generate .material resource.
@@ -125,7 +127,8 @@ public class FontResource
 				db.add_to_set(font_id, "glyphs", glyph_id);
 			}
 
-			db.save(project.absolute_path(resource_name) + ".font", font_id);
+			if (db.save(project.absolute_path(resource_name) + ".font", font_id) != 0)
+				return ImportResult.ERROR;
 		}
 
 		dlg.destroy();

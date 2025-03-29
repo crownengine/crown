@@ -93,9 +93,9 @@ public struct TextureResource
 		this(db, texture_id, source_image, TextureFormat.RGBA8, false, false);
 	}
 
-	public void save(Project project, string resource_name)
+	public int save(Project project, string resource_name)
 	{
-		_db.save(project.absolute_path(resource_name) + ".texture", _id);
+		return _db.save(project.absolute_path(resource_name) + ".texture", _id);
 	}
 
 	public static ImportResult import(ProjectStore project_store, string destination_dir, SList<string> filenames)

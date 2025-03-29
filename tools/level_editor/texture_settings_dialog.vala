@@ -344,8 +344,8 @@ public class TextureSettingsDialog : Gtk.Window
 		if (_texture_id == GUID_ZERO)
 			return;
 
-		_texture_database.dump(_project.absolute_path(_texture_path), _texture_id);
-		texture_saved();
+		if (_texture_database.dump(_project.absolute_path(_texture_path), _texture_id) == 0)
+			texture_saved();
 	}
 
 	public string platform_property(string platform_name, string property)
