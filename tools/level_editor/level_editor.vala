@@ -2157,7 +2157,21 @@ public class LevelEditorApplication : Gtk.Application
 		string resource_path     = ResourceId.normalize(resource_filename);
 		string resource_name     = ResourceId.name(resource_path);
 
-		_level.save(resource_name);
+		if (_level.save(resource_name) != 0) {
+			Gtk.MessageDialog md = new Gtk.MessageDialog(this.active_window
+				, Gtk.DialogFlags.MODAL
+				, Gtk.MessageType.ERROR
+				, Gtk.ButtonsType.NONE
+				, "Unable to save level '%s'".printf(resource_name)
+				);
+			md.add_button("_Ok", ResponseType.OK);
+			md.set_default_response(ResponseType.OK);
+
+			md.run();
+			md.destroy();
+			return false;
+		}
+
 		_statusbar.set_temporary_message("Saved %s".printf(_level._path));
 		update_active_window_title();
 		return true;

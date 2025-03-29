@@ -106,14 +106,15 @@ public class Level
 		return 0;
 	}
 
-	public void save(string name)
+	public int save(string name)
 	{
 		string path = Path.build_filename(_project.source_dir(), name + ".level");
 
 		camera_encode();
-		_db.save(path, _id);
+		int err = _db.save(path, _id);
 		_path = path;
 		_name = name;
+		return err;
 	}
 
 	public void spawn_empty_unit()
