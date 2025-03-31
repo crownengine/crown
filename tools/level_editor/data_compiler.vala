@@ -15,6 +15,20 @@ public class DataCompiler
 	private Gee.ArrayList<Value?> _refresh_list;
 	public uint _revision;
 
+	public signal void start();
+	public signal void finished(bool success);
+
+	public void message(Hashtable msg)
+	{
+		// Guid id = Guid.parse((string)msg["id"]);
+
+		if (msg.has_key("start")) {
+			start();
+		} else if (msg.has_key("success")) {
+			compile_finished((bool)msg["success"], (uint)(double)msg["revision"]);
+		}
+	}
+
 	public DataCompiler(RuntimeInstance runtime)
 	{
 		_runtime = runtime;
@@ -38,6 +52,7 @@ public class DataCompiler
 		_compile_callback = compile.callback;
 		yield;
 
+		finished(_success);
 		return _success;
 	}
 
