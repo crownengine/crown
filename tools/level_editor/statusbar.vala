@@ -17,6 +17,7 @@ public class Statusbar : Gtk.Box
 	public Gtk.Label _temporary_message;
 	public Gtk.Button _donate;
 	public Gtk.Button _version;
+	public const string IDLE_STATUS = "Idle";
 
 	public Statusbar()
 	{
@@ -28,7 +29,7 @@ public class Statusbar : Gtk.Box
 		_timer_id = 0;
 
 		// Widgets
-		_status = new Gtk.Label("Idle");
+		clear_status();
 		_temporary_message = new Gtk.Label("");
 		_donate = new Gtk.Button.from_icon_name("hearth-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
 		_donate.get_style_context().add_class("flat");
@@ -70,6 +71,19 @@ public class Statusbar : Gtk.Box
 				_timer_id = 0;
 				return GLib.Source.REMOVE;
 			});
+	}
+
+	public void set_status(string status)
+	{
+		_status.set_text(status);
+	}
+
+	public void clear_status()
+	{
+		if (_status == null)
+			_status = new Gtk.Label(IDLE_STATUS);
+		else
+			_status.set_text(IDLE_STATUS);
 	}
 }
 
