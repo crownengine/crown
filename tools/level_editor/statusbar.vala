@@ -32,11 +32,13 @@ public class Statusbar : Gtk.Box
 		clear_status();
 		_temporary_message = new Gtk.Label("");
 		_donate = new Gtk.Button.from_icon_name("hearth-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
+		_donate.can_focus = false;
 		_donate.get_style_context().add_class("flat");
 		_donate.clicked.connect(() => {
 				GLib.Application.get_default().activate_action("donate", null);
 			});
 		_version = new Gtk.Label(null);
+		_version.can_focus = false;
 		_version.track_visited_links = false;
 		_version.set_markup("<a href=\"\">" + CROWN_VERSION + "</a>");
 		_version.activate_link.connect(() => {
