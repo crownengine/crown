@@ -16,7 +16,7 @@ public class Statusbar : Gtk.Box
 	public Gtk.Label _status;
 	public Gtk.Label _temporary_message;
 	public Gtk.Button _donate;
-	public Gtk.Button _version;
+	public Gtk.Label _version;
 	public const string IDLE_STATUS = "Idle";
 
 	public Statusbar()
@@ -36,11 +36,12 @@ public class Statusbar : Gtk.Box
 		_donate.clicked.connect(() => {
 				GLib.Application.get_default().activate_action("donate", null);
 			});
-		_version = new Gtk.Button.with_label(CROWN_VERSION);
-		_version.get_style_context().add_class("flat");
-		_version.get_style_context().add_class("compact");
-		_version.clicked.connect(() => {
+		_version = new Gtk.Label(null);
+		_version.track_visited_links = false;
+		_version.set_markup("<a href=\"\">" + CROWN_VERSION + "</a>");
+		_version.activate_link.connect(() => {
 				GLib.Application.get_default().activate_action("changelog", null);
+				return true;
 			});
 
 		this.pack_start(_status, false, false, 0);
