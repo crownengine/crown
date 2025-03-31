@@ -803,6 +803,8 @@ public class LevelEditorApplication : Gtk.Application
 		_compiler.disconnected_unexpected.connect(on_data_compiler_disconnected_unexpected);
 
 		_data_compiler = new DataCompiler(_compiler);
+		_data_compiler.start.connect(on_data_compiler_start);
+		_data_compiler.finished.connect(on_data_compiler_finished);
 
 		_project = new Project();
 		_project.set_toolchain_dir(_toolchain_dir.get_path());
@@ -1213,6 +1215,27 @@ public class LevelEditorApplication : Gtk.Application
 		_inspector_stack.set_visible_child(_inspector_stack_compiler_crashed_label);
 	}
 
+	private void on_data_compiler_start()
+	{
+		_statusbar.set_status("Compiling data...");
+	}
+
+	private void on_data_compiler_finished(bool success)
+	{
+		_statusbar.clear_status();
+
+		if (!success) {
+			_statusbar.set_temporary_message("Failed to compile data");
+			return;
+		}
+
+		refresh_all_clients.begin((obj, res) => {
+				refresh_all_clients.end(res);
+				_project.data_compiled();
+				_project_browser.queue_draw();
+			});
+	}
+
 	private void on_editor_connected(RuntimeInstance ri, string address, int port)
 	{
 		on_runtime_connected(ri, address, port);
@@ -1293,19 +1316,7 @@ public class LevelEditorApplication : Gtk.Application
 
 			_project.change_file(path, size, mtime);
 		} else if (msg_type == "compile") {
-			// Guid id = Guid.parse((string)msg["id"]);
-
-			if (msg.has_key("start")) {
-				// FIXME
-			} else if (msg.has_key("success")) {
-				_data_compiler.compile_finished((bool)msg["success"], (uint)(double)msg["revision"]);
-
-				refresh_all_clients.begin((obj, res) => {
-						refresh_all_clients.end(res);
-						_project.data_compiled();
-						_project_browser.queue_draw();
-					});
-			}
+			_data_compiler.message(msg);
 		} else if (msg_type == "refresh") {
 			ri.refresh_finished((bool)msg["success"]);
 		} else if (msg_type == "refresh_list") {
