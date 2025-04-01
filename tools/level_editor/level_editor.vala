@@ -3509,9 +3509,9 @@ public class LevelEditorApplication : Gtk.Application
 						"javac",
 						"-verbose",
 						"-source",
-						"1.7",
+						"8", // https://docs.oracle.com/javase/1.5.0/docs/relnotes/version-5.0.html
 						"-target",
-						"1.7",
+						"8", // https://docs.oracle.com/javase/1.5.0/docs/relnotes/version-5.0.html
 						"-d",
 						obj_path,
 						"-classpath",
