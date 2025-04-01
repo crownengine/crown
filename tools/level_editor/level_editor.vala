@@ -3564,7 +3564,7 @@ public class LevelEditorApplication : Gtk.Application
 				try {
 					args = new string[]
 					{
-						"dx",
+						android._dx_path,
 						"--dex",
 						"--output",
 						classes_dex_path,
@@ -3580,7 +3580,7 @@ public class LevelEditorApplication : Gtk.Application
 
 					args = new string[]
 					{
-						"aapt",
+						android._aapt_path,
 						"package",
 						"-f",
 						"-m",
@@ -3605,7 +3605,7 @@ public class LevelEditorApplication : Gtk.Application
 
 					args = new string[]
 					{
-						"aapt",
+						android._aapt_path,
 						"add",
 						unaligned_apk,
 						"classes.dex"
@@ -3620,7 +3620,7 @@ public class LevelEditorApplication : Gtk.Application
 
 					args = new string[]
 					{
-						"aapt",
+						android._aapt_path,
 						"add",
 						unaligned_apk,
 						libcrown_path_relative,
@@ -3658,7 +3658,7 @@ public class LevelEditorApplication : Gtk.Application
 
 					args = new string[]
 					{
-						"zipalign",
+						android._zipalign_path,
 						"-f",
 						"4",
 						signed_apk,
