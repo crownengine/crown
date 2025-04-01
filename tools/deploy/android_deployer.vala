@@ -8,6 +8,7 @@ namespace Crown
 public class AndroidDeployer
 {
 	public string? _sdk_path;
+	public string? _sdk_api_level;
 	public string? _ndk_root_path;
 	public string? _build_tools_path;
 	public string _dx_path;
@@ -27,6 +28,10 @@ public class AndroidDeployer
 	{
 		_sdk_path = GLib.Environment.get_variable("ANDROID_SDK_PATH");
 		if (_sdk_path == null)
+			return -1;
+
+		_sdk_api_level = GLib.Environment.get_variable("ANDROID_API_LEVEL");
+		if (_sdk_api_level == null)
 			return -1;
 
 		_ndk_root_path = GLib.Environment.get_variable("ANDROID_NDK_ROOT");
