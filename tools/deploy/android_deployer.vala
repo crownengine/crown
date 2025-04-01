@@ -55,20 +55,28 @@ public class AndroidDeployer
 #endif
 
 		_sdk_path = GLib.Environment.get_variable("ANDROID_SDK_PATH");
-		if (_sdk_path == null)
+		if (_sdk_path == null) {
+			loge("Set ANDROID_SDK_PATH environment variable.");
 			return -1;
+		}
 
 		_sdk_api_level = GLib.Environment.get_variable("ANDROID_API_LEVEL");
-		if (_sdk_api_level == null)
+		if (_sdk_api_level == null) {
+			loge("Set ANDROID_API_LEVEL environment variable.");
 			return -1;
+		}
 
 		_ndk_root_path = GLib.Environment.get_variable("ANDROID_NDK_ROOT");
-		if (_ndk_root_path == null)
+		if (_ndk_root_path == null) {
+			loge("Set ANDROID_NDK_ROOT environment variable.");
 			return -1;
+		}
 
 		_build_tools_path = GLib.Environment.get_variable("ANDROID_BUILD_TOOLS");
-		if (_build_tools_path == null)
+		if (_build_tools_path == null) {
+			loge("Set ANDROID_BUILD_TOOLS environment variable.");
 			return -1;
+		}
 
 		_d8_path = Path.build_path(Path.DIR_SEPARATOR_S
 			, _build_tools_path
