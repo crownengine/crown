@@ -3369,6 +3369,8 @@ public class LevelEditorApplication : Gtk.Application
 		android_manifest += "\n  android:versionCode=\"%u\"".printf(app_version_code);
 		android_manifest += "\n  android:versionName=\"%s\">".printf(app_version_name);
 		android_manifest += "\n";
+		android_manifest += "\n  <uses-sdk android:minSdkVersion=\"23\" />";
+		android_manifest += "\n";
 		android_manifest += "\n  <!-- For ConsoleServer -->";
 		android_manifest += "\n  <uses-permission android:name=\"android.permission.INTERNET\" />";
 		android_manifest += "\n";
