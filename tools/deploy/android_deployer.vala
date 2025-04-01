@@ -7,6 +7,10 @@ namespace Crown
 {
 public class AndroidDeployer
 {
+	public string? _java_home;
+	public string _javac_path;
+	public string _jarsigner_path;
+
 	public string? _sdk_path;
 	public string? _sdk_api_level;
 	public string? _ndk_root_path;
@@ -26,6 +30,30 @@ public class AndroidDeployer
 
 	public int check_config()
 	{
+		_java_home = GLib.Environment.get_variable("JAVA_HOME");
+#if CROWN_PLATFORM_WINDOWS
+		// JAVA_HOME must be defined.
+		if (_java_home == null) {
+			loge("Set JAVA_HOME environment variable.");
+			return -1;
+		}
+
+		_javac_path = Path.build_path(Path.DIR_SEPARATOR_S
+			, _java_home
+			, "bin"
+			, "javac"
+			);
+
+		_jarsigner_path = Path.build_path(Path.DIR_SEPARATOR_S
+			, _java_home
+			, "bin"
+			, "jarsigner"
+			);
+#elif CROWN_PLATFORM_LINUX
+		_javac_path = "javac";
+		_jarsigner_path = "jarsigner";
+#endif
+
 		_sdk_path = GLib.Environment.get_variable("ANDROID_SDK_PATH");
 		if (_sdk_path == null)
 			return -1;

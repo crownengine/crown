@@ -3506,7 +3506,7 @@ public class LevelEditorApplication : Gtk.Application
 				try {
 					string[] args = new string[]
 					{
-						"javac",
+						android._javac_path,
 						"-verbose",
 						"-source",
 						"8", // https://docs.oracle.com/javase/1.5.0/docs/relnotes/version-5.0.html
@@ -3635,7 +3635,7 @@ public class LevelEditorApplication : Gtk.Application
 
 					args = new string[]
 					{
-						"jarsigner",
+						android._jarsigner_path,
 						"-keystore",
 						keystore_path,
 						"-storepass",
