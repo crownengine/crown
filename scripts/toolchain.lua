@@ -291,6 +291,8 @@ function toolchain(build_dir, lib_dir)
 			"-Wundef",
 		}
 		linkoptions {
+			"--gcc-toolchain=" .. androidToolchainRoot(),
+			"--sysroot=" .. androidToolchainRoot() .. "/sysroot",
 			"-no-canonical-prefixes",
 			"-Wl,--no-undefined",
 			"-Wl,-z,noexecstack",
