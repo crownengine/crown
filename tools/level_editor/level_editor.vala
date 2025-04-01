@@ -3230,17 +3230,8 @@ public class LevelEditorApplication : Gtk.Application
 		var apk_name = app_identifier + "-" + app_version_name;
 		var activity_name = "MainActivity";
 
-		string? android_sdk_path = GLib.Environment.get_variable("ANDROID_SDK_PATH");
-		if (android_sdk_path == null) {
-			loge("Please set a valid ANDROID_SDK_PATH environment variable.");
-			return;
-		}
-
-		string? android_ndk_root_path = GLib.Environment.get_variable("ANDROID_NDK_ROOT");
-		if (android_ndk_root_path == null) {
-			loge("Please set a valid ANDROID_NDK_ROOT environment variable.");
-			return;
-		}
+		AndroidDeployer android = new AndroidDeployer();
+		android.check_config();
 
 		string config_path;
 		string package_path;
@@ -3271,7 +3262,7 @@ public class LevelEditorApplication : Gtk.Application
 		var manifest_xml_path = Path.build_path(Path.DIR_SEPARATOR_S, manifests_path, "AndroidManifest.xml");
 		var strings_xml_path = Path.build_path(Path.DIR_SEPARATOR_S, res_path, "values", "strings.xml");
 		var activity_java_path = Path.build_path(Path.DIR_SEPARATOR_S, app_sources_path, "%s.java".printf(activity_name));
-		var android_jar_path = Path.build_path(Path.DIR_SEPARATOR_S, android_sdk_path, "platforms", "android-24", "android.jar");
+		var android_jar_path = Path.build_path(Path.DIR_SEPARATOR_S, android._sdk_path, "platforms", "android-24", "android.jar");
 		var libcrown_src_name = "libcrown-" + config_name[config] + ".so";
 		var libcpp_name = "libc++_shared.so";
 		var signed_apk = Path.build_path(Path.DIR_SEPARATOR_S, bin_path, apk_name + ".signed.apk");
@@ -3297,7 +3288,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 
 		var libcrown_src_path = Path.build_path(Path.DIR_SEPARATOR_S, "..", "..", bin_folder, "bin", libcrown_src_name);
-		var libcpp_src_path   = Path.build_path(Path.DIR_SEPARATOR_S, android_ndk_root_path, "sources", "cxx-stl", "llvm-libc++", "libs", apk_arch, libcpp_name);
+		var libcpp_src_path   = Path.build_path(Path.DIR_SEPARATOR_S, android._ndk_root_path, "sources", "cxx-stl", "llvm-libc++", "libs", apk_arch, libcpp_name);
 		var lib_path_relative      = Path.build_path(Path.DIR_SEPARATOR_S, "lib", apk_arch);
 		var lib_path               = Path.build_path(Path.DIR_SEPARATOR_S, package_path, lib_path_relative);
 		var libcrown_path_relative = Path.build_path(Path.DIR_SEPARATOR_S, lib_path_relative, "libcrown.so");
