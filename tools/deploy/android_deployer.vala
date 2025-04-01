@@ -11,7 +11,7 @@ public class AndroidDeployer
 	public string? _sdk_api_level;
 	public string? _ndk_root_path;
 	public string? _build_tools_path;
-	public string _dx_path;
+	public string _d8_path;
 	public string _aapt_path;
 	public string _zipalign_path;
 
@@ -42,9 +42,9 @@ public class AndroidDeployer
 		if (_build_tools_path == null)
 			return -1;
 
-		_dx_path = Path.build_path(Path.DIR_SEPARATOR_S
+		_d8_path = Path.build_path(Path.DIR_SEPARATOR_S
 			, _build_tools_path
-			, "dx"
+			, "d8"
 			);
 
 		_aapt_path = Path.build_path(Path.DIR_SEPARATOR_S

@@ -3268,7 +3268,6 @@ public class LevelEditorApplication : Gtk.Application
 		var signed_apk = Path.build_path(Path.DIR_SEPARATOR_S, bin_path, apk_name + ".signed.apk");
 		var unaligned_apk = Path.build_path(Path.DIR_SEPARATOR_S, bin_path, apk_name + ".unaligned.apk");
 		var final_apk = Path.build_path(Path.DIR_SEPARATOR_S, config_path, apk_name + ".apk");
-		var classes_dex_path = Path.build_path(Path.DIR_SEPARATOR_S, bin_path, "classes.dex");
 
 #if CROWN_PLATFORM_LINUX
 		string host_platform = "linux-x86_64";
@@ -3564,11 +3563,11 @@ public class LevelEditorApplication : Gtk.Application
 				try {
 					args = new string[]
 					{
-						android._dx_path,
-						"--dex",
+						android._d8_path,
 						"--output",
-						classes_dex_path,
-						obj_path
+						bin_path,
+						class_path,
+						"--no-desugaring"
 					};
 
 					pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
