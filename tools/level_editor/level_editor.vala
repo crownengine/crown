@@ -3686,11 +3686,8 @@ public class LevelEditorApplication : Gtk.Application
 
 		var exe_name = app_title.replace(" ", "_").down();
 
-		string? emscripten_sdk_path = GLib.Environment.get_variable("EMSCRIPTEN");
-		if (emscripten_sdk_path == null) {
-			loge("Please set a valid EMSCRIPTEN environment variable.");
-			return;
-		}
+		HTML5Deployer html5 = new HTML5Deployer();
+		html5.check_config();
 
 		string config_path;
 		string package_path;
@@ -3764,7 +3761,7 @@ public class LevelEditorApplication : Gtk.Application
 			// Package bundle data with emscripten's file_packager.
 			args = new string[]
 			{
-				Path.build_path(Path.DIR_SEPARATOR_S, emscripten_sdk_path, "tools", "file_packager"),
+				Path.build_path(Path.DIR_SEPARATOR_S, html5._emscripten_sdk_path, "tools", "file_packager"),
 				Path.build_path(Path.DIR_SEPARATOR_S, package_path, "data.bin"),
 				"--preload",
 				"./data",
