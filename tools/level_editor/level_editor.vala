@@ -3270,25 +3270,45 @@ public class LevelEditorApplication : Gtk.Application
 		var final_apk = Path.build_path(Path.DIR_SEPARATOR_S, config_path, apk_name + ".apk");
 		var classes_dex_path = Path.build_path(Path.DIR_SEPARATOR_S, bin_path, "classes.dex");
 
+#if CROWN_PLATFORM_LINUX
+		string host_platform = "linux-x86_64";
+#elif CROWN_PLATFORM_WINDOWS
+		string host_platform = "windows-x86_64";
+#endif
+
 		// Architecture-specific paths.
 		string dc_platform = null;
 		string bin_folder  = null;
 		string apk_arch    = null;
+		string llvm_arch   = null;
 		if (arch == TargetArch.ARM) {
 			dc_platform = "android";
 			bin_folder  = "android-arm";
 			apk_arch    = "armeabi-v7a";
+			llvm_arch   = "arm-linux-androideabi";
 		} else if (arch == TargetArch.ARM64) {
 			dc_platform = "android-arm64";
 			bin_folder  = "android-arm64";
 			apk_arch    = "arm64-v8a";
+			llvm_arch   = "aarch64-linux-android";
 		} else {
 			loge("Invalid architecture");
 			return;
 		}
 
 		var libcrown_src_path = Path.build_path(Path.DIR_SEPARATOR_S, "..", "..", bin_folder, "bin", libcrown_src_name);
-		var libcpp_src_path   = Path.build_path(Path.DIR_SEPARATOR_S, android._ndk_root_path, "sources", "cxx-stl", "llvm-libc++", "libs", apk_arch, libcpp_name);
+		var libcpp_src_path   = Path.build_path(Path.DIR_SEPARATOR_S
+			, android._ndk_root_path
+			, "toolchains"
+			, "llvm"
+			, "prebuilt"
+			, host_platform
+			, "sysroot"
+			, "usr"
+			, "lib"
+			, llvm_arch
+			, libcpp_name
+			);
 		var lib_path_relative      = Path.build_path(Path.DIR_SEPARATOR_S, "lib", apk_arch);
 		var lib_path               = Path.build_path(Path.DIR_SEPARATOR_S, package_path, lib_path_relative);
 		var libcrown_path_relative = Path.build_path(Path.DIR_SEPARATOR_S, lib_path_relative, "libcrown.so");
