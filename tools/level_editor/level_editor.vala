@@ -2609,16 +2609,27 @@ public class LevelEditorApplication : Gtk.Application
 			app = _preferences_dialog._image_external_tool_button.get_app_info();
 		}
 
+		GLib.File file = GLib.File.new_for_path(_project.absolute_path(resource_path));
 		try {
-			GLib.File file = GLib.File.new_for_path(_project.absolute_path(resource_path));
 			if (app == null)
 				app = file.query_default_handler();
+		} catch (GLib.Error e) {
+			// Ignore.
+		}
 
+		if (app == null)
+			app = GLib.AppInfo.get_default_for_type("text/plain", false);
+
+		if (app != null) {
 			GLib.List<GLib.File> files = new GLib.List<GLib.File>();
 			files.append(file);
-			app.launch(files, null);
-		} catch (Error e) {
-			loge(e.message);
+			try {
+				app.launch(files, null);
+			} catch (GLib.Error e) {
+				open_text_editor(file.get_path());
+			}
+		} else {
+			open_text_editor(file.get_path());
 		}
 	}
 
@@ -4300,6 +4311,18 @@ public void open_directory(string directory)
 	GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(subprocess_flags());
 	try {
 		sl.spawnv({ "explorer.exe", directory, null });
+	} catch (Error e) {
+		loge(e.message);
+	}
+#endif
+}
+
+public void open_text_editor(string path)
+{
+#if CROWN_PLATFORM_WINDOWS
+	GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(subprocess_flags());
+	try {
+		sl.spawnv({ "notepad.exe", path, null });
 	} catch (Error e) {
 		loge(e.message);
 	}
