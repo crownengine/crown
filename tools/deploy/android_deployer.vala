@@ -52,7 +52,7 @@ public class AndroidDeployer
 #elif CROWN_PLATFORM_LINUX
 		_javac_path = "javac";
 		_jarsigner_path = "jarsigner";
-#endif
+#endif /* if CROWN_PLATFORM_WINDOWS */
 
 		_sdk_path = GLib.Environment.get_variable("ANDROID_SDK_PATH");
 		if (_sdk_path == null) {
