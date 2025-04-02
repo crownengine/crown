@@ -18,6 +18,7 @@ Changelog
 * Fixed importing FBX files with references to non-existing textures.
 * Fixed an issue that caused level's editor camera to be saved incorrectly in some cases.
 * The HTML5 deployer will now use EMSCRIPTEN environment variable to locate emsdk.
+* Windows: fixed the Android deployer generating bad native library folder.
 
 **Runtime**
 
