@@ -3622,8 +3622,8 @@ public class LevelEditorApplication : Gtk.Application
 						android._aapt_path,
 						"add",
 						unaligned_apk,
-						libcrown_path_relative,
-						libcpp_path_relative
+						libcrown_path_relative.replace("\\", "/"),
+						libcpp_path_relative.replace("\\", "/")
 					};
 
 					pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, package_path);
