@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lua API reference &mdash; Crown 0.54.0 Manual 0.54.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <title>Lua API reference &mdash; Crown 0.55.0 Manual 0.55.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" /><link rel="shortcut icon" href="_static/crown-black-socket.svg"/>
   <!--[if lt IE 9]>
@@ -30,7 +30,7 @@
             <a href="index.html"><img src="_static/crown-black-socket.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                Crown 0.54.0 Manual
+                Crown 0.55.0 Manual
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installing_crown/index.html">Installing Crown</a></li>
 <li class="toctree-l1"><a class="reference internal" href="getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploying/index.html">Deploying</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/index.html">Reference</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Lua API reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#animationstatemachine">AnimationStateMachine</a></li>
@@ -152,7 +153,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Crown 0.54.0 Manual</a>
+          <a href="index.html">Crown 0.55.0 Manual</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -916,6 +917,11 @@ the frustum defined by the planes ((n0, d0), (n1, d1), …, (n5, d5)). The
 planes be given in BRTLNF order, where B = bottom plane, R = right plane etc.</dd>
 <dt><strong>obb_vertices</strong> (obb_tm, obb_half_extents) <span class="classifier-delimiter">:</span> <span class="classifier">v0, v1, v2, v3, v4, v5, v6, v7</span></dt>
 <dd>Returns the vertices of the oriented bounding box (obb_tm, obb_half_extents).</dd>
+<dt><strong>obb_merge</strong> (a_tm, a_half_extents, b_tm, b_half_extents, …) <span class="classifier-delimiter">:</span> <span class="classifier">Matrix4x4, Vector3</span></dt>
+<dd>Returns a new box which encloses both the box A (a_tm, a_half_extents) and B
+(b_tm, b_half_extents) and any number of boxes after B.
+Note that the returned OBB will have the same orientation as A and won’t
+necessarily be the smallest enclosing box.</dd>
 </dl>
 </div>
 </div>
@@ -1236,6 +1242,9 @@ location of its parent.</dd>
 <dt><strong>unlink</strong> (sg, child)</dt>
 <dd>Unlinks <em>child</em> from its parent if it has any. After unlinking, the local
 pose of the <em>child</em> is set to its previous world pose.</dd>
+<dt><strong>parent</strong> (sg, child) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
+<dd>Returns the parent of the instance <em>child</em> or <code class="docutils literal notranslate"><span class="pre">nil</span></code>
+if <em>child</em> has no parent.</dd>
 <dt><strong>first_child</strong> (sg, parent) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
 <dd>Returns the first child of the instance <em>parent</em> or <code class="docutils literal notranslate"><span class="pre">nil</span></code>
 if <em>parent</em> has no children.</dd>

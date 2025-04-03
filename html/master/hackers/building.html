@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Building &mdash; Crown 0.54.0 Manual 0.54.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <title>Building &mdash; Crown 0.55.0 Manual 0.55.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" /><link rel="shortcut icon" href="../_static/crown-black-socket.svg"/>
   <!--[if lt IE 9]>
@@ -30,7 +30,7 @@
             <a href="../index.html"><img src="../_static/crown-black-socket.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                Crown 0.54.0 Manual
+                Crown 0.55.0 Manual
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installing_crown/index.html">Installing Crown</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploying/index.html">Deploying</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../lua_api.html">Lua API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
@@ -54,6 +55,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#getting-source">Getting Source</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#prerequisites">Prerequisites</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#android">Android</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#html5">HTML5</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#linux-ubuntu-20-04">Linux (Ubuntu &gt;= 20.04)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#windows-msys2">Windows (MSYS2)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#windows-vs-code">Windows (VS Code)</a></li>
@@ -62,6 +64,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#build">Build</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#build-android">Android</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#build-html5">HTML5</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#linux">Linux</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#build-msys2">Windows (MSYS2)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#build-vs-code">Windows (VS Code)</a></li>
@@ -81,7 +84,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">Crown 0.54.0 Manual</a>
+          <a href="../index.html">Crown 0.55.0 Manual</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -123,7 +126,7 @@
 <li><p class="first">Set NDK path and ABI version:</p>
 </li>
 </ol>
-<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">ANDROID_NDK_ROOT</span><span class="o">=&lt;</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">android_ndk</span><span class="o">&gt;</span>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">ANDROID_NDK_ROOT</span><span class="o">=&lt;</span><span class="n">android_ndk</span><span class="o">&gt;</span>
 <span class="n">export</span> <span class="n">ANDROID_NDK_ABI</span><span class="o">=</span><span class="mi">23</span>
 </pre></div>
 </div>
@@ -135,6 +138,22 @@
 </div>
 <ol class="arabic simple" start="4">
 <li><a class="reference internal" href="#build-android"><span class="std std-ref">Build for Android</span></a>.</li>
+</ol>
+</div>
+<div class="section" id="html5">
+<h3>HTML5<a class="headerlink" href="#html5" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic simple">
+<li>Install emsdk:<ul>
+<li><a class="reference external" href="https://emscripten.org/docs/getting_started/downloads.html">https://emscripten.org/docs/getting_started/downloads.html</a></li>
+</ul>
+</li>
+<li>Set emsdk path:</li>
+</ol>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">EMSCRIPTEN</span><span class="o">=&lt;</span><span class="n">emsdk</span><span class="o">&gt;/</span><span class="n">upstream</span><span class="o">/</span><span class="n">emscripten</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><a class="reference internal" href="#build-html5"><span class="std std-ref">Build for HTML5</span></a>.</li>
 </ol>
 </div>
 <div class="section" id="linux-ubuntu-20-04">
@@ -239,6 +258,12 @@
 </pre></div>
 </div>
 </div>
+<div class="section" id="build-html5">
+<span id="id2"></span><h3>HTML5<a class="headerlink" href="#build-html5" title="Permalink to this headline">¶</a></h3>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">wasm</span><span class="o">-</span><span class="n">release</span> <span class="n">MAKE_JOBS</span><span class="o">=</span><span class="mi">4</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="linux">
 <span id="build-linux"></span><h3>Linux<a class="headerlink" href="#linux" title="Permalink to this headline">¶</a></h3>
 <div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">tools</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">release64</span> <span class="n">MAKE_JOBS</span><span class="o">=</span><span class="mi">4</span>
@@ -246,7 +271,7 @@
 </div>
 </div>
 <div class="section" id="build-msys2">
-<span id="id2"></span><h3>Windows (MSYS2)<a class="headerlink" href="#build-msys2" title="Permalink to this headline">¶</a></h3>
+<span id="id3"></span><h3>Windows (MSYS2)<a class="headerlink" href="#build-msys2" title="Permalink to this headline">¶</a></h3>
 <p>Open MSYS2 MINGW64 shell:</p>
 <div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">MINGW</span><span class="o">=/</span><span class="n">mingw64</span>
 <span class="n">make</span> <span class="n">tools</span><span class="o">-</span><span class="n">mingw</span><span class="o">-</span><span class="n">release64</span> <span class="n">MAKE_JOBS</span><span class="o">=</span><span class="mi">4</span>
@@ -254,7 +279,7 @@
 </div>
 </div>
 <div class="section" id="build-vs-code">
-<span id="id3"></span><h3>Windows (VS Code)<a class="headerlink" href="#build-vs-code" title="Permalink to this headline">¶</a></h3>
+<span id="id4"></span><h3>Windows (VS Code)<a class="headerlink" href="#build-vs-code" title="Permalink to this headline">¶</a></h3>
 <p>Open Visual Studio Code Shell:</p>
 <div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>$env:MINGW = &quot;C:\\msys64\\mingw64&quot;
 make tools-mingw-release64 MAKE_JOBS=4
@@ -262,7 +287,7 @@ make tools-mingw-release64 MAKE_JOBS=4
 </div>
 </div>
 <div class="section" id="build-vs-2019">
-<span id="id4"></span><h3>Windows (VS 2019)<a class="headerlink" href="#build-vs-2019" title="Permalink to this headline">¶</a></h3>
+<span id="id5"></span><h3>Windows (VS 2019)<a class="headerlink" href="#build-vs-2019" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic simple">
 <li>Open Visual Studio 2019 Command Prompt:</li>
 </ol>

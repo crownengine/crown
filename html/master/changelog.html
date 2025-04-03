@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Changelog &mdash; Crown 0.54.0 Manual 0.54.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <title>Changelog &mdash; Crown 0.55.0 Manual 0.55.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" /><link rel="shortcut icon" href="_static/crown-black-socket.svg"/>
   <!--[if lt IE 9]>
@@ -19,7 +19,7 @@
     <link rel="search" title="Search" href="search.html" />
     <link rel="copyright" title="Copyright" href="copyright.html" />
     <link rel="next" title="Introduction" href="introduction.html" />
-    <link rel="prev" title="Crown 0.54.0 Manual" href="index.html" /> 
+    <link rel="prev" title="Crown 0.55.0 Manual" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -30,7 +30,7 @@
             <a href="index.html"><img src="_static/crown-black-socket.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                Crown 0.54.0 Manual
+                Crown 0.55.0 Manual
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -42,7 +42,8 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#dd-mmm-yyyy">0.54.0 — DD MMM YYYY</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dd-mmm-yyyy">0.55.0 — DD MMM YYYY</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#jan-2025">0.54.0 — 13 Jan 2025</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#nov-2024">0.53.0 — 30 Nov 2024</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id1">0.52.0 — 11 Nov 2024</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#oct-2024">0.51.0 — 28 Oct 2024</a></li>
@@ -65,6 +66,7 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installing_crown/index.html">Installing Crown</a></li>
 <li class="toctree-l1"><a class="reference internal" href="getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploying/index.html">Deploying</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/index.html">Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="lua_api.html">Lua API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
@@ -78,7 +80,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Crown 0.54.0 Manual</a>
+          <a href="index.html">Crown 0.55.0 Manual</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -99,7 +101,48 @@
   <div class="section" id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="dd-mmm-yyyy">
-<h2>0.54.0 — DD MMM YYYY<a class="headerlink" href="#dd-mmm-yyyy" title="Permalink to this headline">¶</a></h2>
+<h2>0.55.0 — DD MMM YYYY<a class="headerlink" href="#dd-mmm-yyyy" title="Permalink to this headline">¶</a></h2>
+<p><strong>Tools</strong></p>
+<ul class="simple">
+<li>Added the ability to import skeletons and animation clips from FBX files.</li>
+<li>Added the ability to skip creating units when importing FBX files.</li>
+<li>Added the ability to create new materials from the Project Browser.</li>
+<li>Fixed a crash when editing many objects simultaneusly.</li>
+<li>Fixed a crash when trying to load levels with many objects.</li>
+<li>Fixed an issue that prevented undo/redo operations to be executed in bulk.</li>
+<li>Fixed an issue that caused large levels to load slowly.</li>
+<li>Fixed an issue that prevented importing DCC data with funny extensions.</li>
+<li>Fixed revealing resources while the Project Browser was hidden.</li>
+<li>Fixed importing FBX files with references to non-existing textures.</li>
+<li>Fixed an issue that caused level’s editor camera to be saved incorrectly in some cases.</li>
+<li>The HTML5 deployer will now use EMSCRIPTEN environment variable to locate emsdk.</li>
+<li>Windows: fixed the Android deployer generating bad native library folder.</li>
+</ul>
+<p><strong>Runtime</strong></p>
+<ul class="simple">
+<li>Added physically-based rendering (PBR) pipeline.</li>
+<li>Added support to shaders and materials hot-reloading.</li>
+<li>Increased the maximum number of lines that can be drawn with DebugLine.</li>
+<li>Increased the maximum number of texture samplers per shader to 16.</li>
+<li>Added tangent/bitangent vertex attributes support in .mesh resources.</li>
+<li>Fixed a crash when moving many objects simultaneusly.</li>
+<li>Fixed a crash when reloading unloaded or unsupported resources.</li>
+<li>Fixed setting kinematic actor’s position and rotation.</li>
+<li>Fixed an issue that caused all samplers in a material to be set to the same texture.</li>
+<li>Fixed GL_INVALID_OPERATION on HTML5.</li>
+<li>Data Compiler: ‘includes’ key in shaders can now be specified as an array to include code from multiple locations.</li>
+<li>Data Compiler: shader #defines are now correctly exposed in vs_input_output and fs_input_output.</li>
+<li>Data Compiler: fixed shader compiler ignoring errors when parsing included files.</li>
+<li>Data Compiler: fixed and issue that caused OOM when compiling levels with many units.</li>
+<li>Lua: fixed max temporaries check failing to trigger in some circumnstances.</li>
+<li>Lua API: fixed <code class="docutils literal notranslate"><span class="pre">Math.ray_obb_intersection()</span></code> with scaled OBBs.</li>
+<li>Lua API: added <code class="docutils literal notranslate"><span class="pre">Math.obb_merge()</span></code>.</li>
+<li>Lua API: added <code class="docutils literal notranslate"><span class="pre">SceneGraph.parent()</span></code>.</li>
+<li>Lua API: implemented <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_{enable,disable}_collision()</span></code> and <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_set_collision_filter()</span></code>.</li>
+</ul>
+</div>
+<div class="section" id="jan-2025">
+<h2>0.54.0 — 13 Jan 2025<a class="headerlink" href="#jan-2025" title="Permalink to this headline">¶</a></h2>
 <p><strong>General</strong></p>
 <ul class="simple">
 <li>Switched to right-handed Z-up coordinate system.</li>
@@ -646,7 +689,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="Crown 0.54.0 Manual" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Crown 0.55.0 Manual" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="introduction.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

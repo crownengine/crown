@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Reference &mdash; Crown 0.55.0 Manual 0.55.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <title>Deploying to HTML5 &mdash; Crown 0.55.0 Manual 0.55.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" /><link rel="shortcut icon" href="../_static/crown-black-socket.svg"/>
   <!--[if lt IE 9]>
@@ -18,8 +18,8 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="copyright" title="Copyright" href="../copyright.html" />
-    <link rel="next" title="Console commands" href="console_commands.html" />
-    <link rel="prev" title="Deploying to Desktop Platforms" href="../deploying/desktop.html" /> 
+    <link rel="next" title="Deploying to Desktop Platforms" href="desktop.html" />
+    <link rel="prev" title="Deploying to Android" href="android.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -45,13 +45,18 @@
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installing_crown/index.html">Installing Crown</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../deploying/index.html">Deploying</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="console_commands.html">Console commands</a></li>
-<li class="toctree-l2"><a class="reference internal" href="boot_config.html">boot.config reference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="command_line.html">Command line</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Deploying</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="android.html">Deploying to Android</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Deploying to HTML5</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#install-emscripten">Install emscripten</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#set-environment-variables">Set environment variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#running-the-generated-output">Running the generated output</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="desktop.html">Deploying to Desktop Platforms</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../lua_api.html">Lua API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../copyright.html">License</a></li>
@@ -72,9 +77,10 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Reference</li>
+          <li><a href="index.html">Deploying</a> &raquo;</li>
+      <li>Deploying to HTML5</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/reference/index.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/deploying/html5.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -82,30 +88,30 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="reference">
-<h1>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h1>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="console_commands.html">Console commands</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="console_commands.html#crash">crash</a></li>
-<li class="toctree-l2"><a class="reference internal" href="console_commands.html#game">game</a></li>
-<li class="toctree-l2"><a class="reference internal" href="console_commands.html#help">help</a></li>
-<li class="toctree-l2"><a class="reference internal" href="console_commands.html#unpause">unpause</a></li>
-<li class="toctree-l2"><a class="reference internal" href="console_commands.html#pause">pause</a></li>
-<li class="toctree-l2"><a class="reference internal" href="console_commands.html#graph">graph</a></li>
+  <div class="section" id="deploying-to-html5">
+<h1>Deploying to HTML5<a class="headerlink" href="#deploying-to-html5" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="install-emscripten">
+<h2>Install emscripten<a class="headerlink" href="#install-emscripten" title="Permalink to this headline">¶</a></h2>
+<p>Install emscripten:</p>
+<blockquote>
+<div><ul class="simple">
+<li><a class="reference external" href="https://emscripten.org/docs/getting_started/downloads.html">https://emscripten.org/docs/getting_started/downloads.html</a></li>
 </ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="boot_config.html">boot.config reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="boot_config.html#generic-configurations">Generic configurations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="boot_config.html#platform-specific-configurations">Platform-specific configurations</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="command_line.html">Command line</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="command_line.html#examples">Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="command_line.html#options">Options</a></li>
-</ul>
-</li>
-</ul>
+</div></blockquote>
+</div>
+<div class="section" id="set-environment-variables">
+<h2>Set environment variables<a class="headerlink" href="#set-environment-variables" title="Permalink to this headline">¶</a></h2>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">EMSCRIPTEN</span><span class="o">=&lt;</span><span class="n">emsdk</span><span class="o">&gt;/</span><span class="n">upstream</span><span class="o">/</span><span class="n">emscripten</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="running-the-generated-output">
+<h2>Running the generated output<a class="headerlink" href="#running-the-generated-output" title="Permalink to this headline">¶</a></h2>
+<p>Use <cite>emrun</cite> to run the generated <cite>index.html</cite>:</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">&lt;</span><span class="n">output_dir</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">emsdk</span><span class="o">&gt;/</span><span class="n">upstream</span><span class="o">/</span><span class="n">emscripten</span><span class="o">/</span><span class="n">emrun</span> <span class="n">index</span><span class="o">.</span><span class="n">html</span>
+</pre></div>
+</div>
 </div>
 </div>
 
@@ -113,8 +119,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../deploying/desktop.html" class="btn btn-neutral float-left" title="Deploying to Desktop Platforms" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="console_commands.html" class="btn btn-neutral float-right" title="Console commands" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="android.html" class="btn btn-neutral float-left" title="Deploying to Android" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="desktop.html" class="btn btn-neutral float-right" title="Deploying to Desktop Platforms" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

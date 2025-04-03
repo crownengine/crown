@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Console commands &mdash; Crown 0.54.0 Manual 0.54.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <title>Console commands &mdash; Crown 0.55.0 Manual 0.55.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" /><link rel="shortcut icon" href="../_static/crown-black-socket.svg"/>
   <!--[if lt IE 9]>
@@ -30,7 +30,7 @@
             <a href="../index.html"><img src="../_static/crown-black-socket.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                Crown 0.54.0 Manual
+                Crown 0.55.0 Manual
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -45,8 +45,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installing_crown/index.html">Installing Crown</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploying/index.html">Deploying</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Console commands</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#crash">crash</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#game">game</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#help">help</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#unpause">unpause</a></li>
@@ -70,7 +72,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">Crown 0.54.0 Manual</a>
+          <a href="../index.html">Crown 0.55.0 Manual</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -95,6 +97,22 @@
 command to be interpreted as such, you must prefix it with a colon symbol when
 entering it in the command prompt:</p>
 <img alt="../_images/console_command.png" src="../_images/console_command.png" />
+<div class="section" id="crash">
+<h2>crash<a class="headerlink" href="#crash" title="Permalink to this headline">¶</a></h2>
+<p>Crash the engine for testing purposes. Accepts the following parameters:</p>
+<dl class="docutils">
+<dt><code class="docutils literal notranslate"><span class="pre">div_by_zero</span></code></dt>
+<dd>Divide a number by zero.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">unaligned</span></code></dt>
+<dd>Do an unaligned memory access.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">segfault</span></code></dt>
+<dd>Trigger a segmentation fault.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">oom</span></code></dt>
+<dd>Allocate too much memory.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">assert</span></code></dt>
+<dd>Call CE_ASSERT(false).</dd>
+</dl>
+</div>
 <div class="section" id="game">
 <h2>game<a class="headerlink" href="#game" title="Permalink to this headline">¶</a></h2>
 <p>Pause/resume the game. Accepts one of the following parameters:</p>
