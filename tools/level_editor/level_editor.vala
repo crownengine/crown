@@ -3687,7 +3687,7 @@ public class LevelEditorApplication : Gtk.Application
 					return -1;
 				}
 
-				logi("Done: #FILE(%s)".printf(package_path));
+				logi("Done: #FILE(%s)".printf(config_path));
 				return 0;
 			});
 	}
