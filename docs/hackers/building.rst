@@ -23,7 +23,7 @@ Android
 
 .. code::
 
-	export ANDROID_NDK_ROOT=<path/to/android_ndk>
+	export ANDROID_NDK_ROOT=<android_ndk>
 	export ANDROID_NDK_ABI=23
 
 3. Install LuaJIT dependencies:
@@ -45,7 +45,7 @@ HTML5
 
 .. code::
 
-	export EMSCRIPTEN=<path/to/emsdk>/upstream/emscripten
+	export EMSCRIPTEN=<emsdk>/upstream/emscripten
 
 3. :ref:`Build for HTML5<build_html5>`.
 
