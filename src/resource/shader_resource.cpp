@@ -1582,6 +1582,20 @@ namespace shader_resource_internal
 			}
 		}
 
+		// Collects code from @a shader and its includes recursively.
+		s32 bgfx_shader_collect_code(StringStream &code, const BgfxShader &shader)
+		{
+			for (u32 i = 0; i < vector::size(shader._includes); ++i) {
+				const BgfxShader included_default(default_allocator());
+				const BgfxShader &included = hash_map::get(_bgfx_shaders, shader._includes[i], included_default);
+				s32 err = bgfx_shader_collect_code(code, included);
+				ENSURE_OR_RETURN(err == 0, _opts);
+			}
+
+			code << shader._code.c_str();
+			return 0;
+		}
+
 		s32 compile_bgfx_shader(const char *bgfx_shader, const Vector<DynamicString> &defines)
 		{
 			TempAllocator512 taa;
@@ -1590,12 +1604,9 @@ namespace shader_resource_internal
 			const BgfxShader shader_default(default_allocator());
 			const BgfxShader &shader = hash_map::get(_bgfx_shaders, key, shader_default);
 
-			StringStream included_code(default_allocator());
-			for (u32 i = 0; i < vector::size(shader._includes); ++i) {
-				const BgfxShader included_default(default_allocator());
-				const BgfxShader &included = hash_map::get(_bgfx_shaders, shader._includes[i], included_default);
-				included_code << included._code.c_str();
-			}
+			StringStream code(default_allocator());
+			s32 err = bgfx_shader_collect_code(code, shader);
+			ENSURE_OR_RETURN(err == 0, _opts);
 
 			// Generate final shader code.
 			StringStream varying_code(default_allocator());
@@ -1605,13 +1616,11 @@ namespace shader_resource_internal
 			varying_code << shader._varying.c_str();
 			// Generate vertex shader.
 			vs_code << shader._vs_input_output.c_str();
-			vs_code << string_stream::c_str(included_code);
-			vs_code << shader._code.c_str();
+			vs_code << string_stream::c_str(code);
 			vs_code << shader._vs_code.c_str();
 			// Generate fragment shader.
 			fs_code << shader._fs_input_output.c_str();
-			fs_code << string_stream::c_str(included_code);
-			fs_code << shader._code.c_str();
+			fs_code << string_stream::c_str(code);
 			fs_code << shader._fs_code.c_str();
 
 			_opts.write_temporary(_vs_src_path.c_str(), vs_code);
