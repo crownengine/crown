@@ -1415,6 +1415,7 @@ namespace shader_resource_internal
 				DynamicString inc(ta);
 				RETURN_IF_ERROR(sjson::parse_string(inc, json), _opts);
 				vector::push_back(bgfxshader._includes, inc);
+				logw(SHADER_RESOURCE, "'includes' string format is deprecated. Use array-of-strings format instead.");
 				return 0;
 			} else if (json::type(json) == JsonValueType::ARRAY) {
 				TempAllocator1024 ta;
@@ -1430,7 +1431,7 @@ namespace shader_resource_internal
 				return 0;
 			}
 
-			RETURN_IF_FALSE(false, _opts, "'includes' must be either an array of strings or a string");
+			RETURN_IF_FALSE(false, _opts, "'includes' must be either an array-of-strings or a string");
 		}
 
 		s32 parse_shaders(const char *json)
