@@ -78,7 +78,7 @@ render_states = {
 
 bgfx_shaders = {
 	debug_line = {
-		includes = "common"
+		includes = [ "common" ]
 
 		varying = """
 			vec4 v_color0   : COLOR0 = vec4(0.0, 0.0, 0.0, 0.0);
@@ -113,7 +113,7 @@ bgfx_shaders = {
 	}
 
 	gui = {
-		includes = "common"
+		includes = [ "common" ]
 
 		samplers = {
 			u_albedo_map = { sampler_state = "clamp_anisotropic" }
@@ -165,7 +165,7 @@ bgfx_shaders = {
 	}
 
 	sprite = {
-		includes = "common"
+		includes = [ "common" ]
 
 		samplers = {
 			u_albedo_map = { sampler_state = "clamp_point" }
@@ -331,7 +331,7 @@ bgfx_shaders = {
 	}
 
 	selection = {
-		includes = "common"
+		includes = [ "common" ]
 
 		varying = """
 			vec3 a_position  : POSITION;
@@ -362,7 +362,7 @@ bgfx_shaders = {
 	}
 
 	outline = {
-		includes = "common"
+		includes = [ "common" ]
 
 		varying = """
 			vec2 v_texcoord0 : TEXCOORD0 = vec2(0.0, 0.0);
@@ -456,7 +456,7 @@ bgfx_shaders = {
 	}
 
 	blit = {
-		includes = "common"
+		includes = [ "common" ]
 
 		varying = """
 			vec2 v_texcoord0 : TEXCOORD0 = vec2(0.0, 0.0);
@@ -493,7 +493,7 @@ bgfx_shaders = {
 	}
 
 	fallback = {
-		includes = "common"
+		includes = [ "common" ]
 
 		varying = """
 			vec3 a_position  : POSITION;
@@ -522,7 +522,7 @@ bgfx_shaders = {
 	}
 
 	noop = {
-		includes = "common"
+		includes = [ "common" ]
 
 		varying = """
 		"""
