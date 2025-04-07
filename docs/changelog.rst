@@ -4,6 +4,10 @@ Changelog
 0.56.0 --- DD MMM YYYY
 ----------------------
 
+**Runtime**
+
+* Data Compiler: fixed shaders not including code in some circumnstances.
+
 0.55.0 --- 03 Apr 2025
 ----------------------
 
