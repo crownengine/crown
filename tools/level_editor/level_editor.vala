@@ -3348,8 +3348,6 @@ public class LevelEditorApplication : Gtk.Application
 
 			string[] args;
 
-			string tmp_data_dir = GLib.DirUtils.make_tmp("XXXXXX");
-
 			// Populate Android assets folder with data.
 			args = new string[]
 			{
@@ -3359,8 +3357,6 @@ public class LevelEditorApplication : Gtk.Application
 				"--map-source-dir",
 				"core",
 				_project.toolchain_dir(),
-				"--data-dir",
-				tmp_data_dir,
 				"--bundle-dir",
 				assets_path,
 				"--compile",
@@ -3371,7 +3367,6 @@ public class LevelEditorApplication : Gtk.Application
 
 			uint32 pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
 			int exit_status = _subprocess_launcher.wait(pid);
-			delete_tree(GLib.File.new_for_path(tmp_data_dir));
 
 			if (exit_status != 0) {
 				loge("Failed to compile data. exit_status = %d".printf(exit_status));
@@ -3730,7 +3725,6 @@ public class LevelEditorApplication : Gtk.Application
 		// Create data bundle.
 		try {
 			string[] args;
-			string tmp_data_dir = GLib.DirUtils.make_tmp("XXXXXX");
 			string tmp_bundle_dir = GLib.DirUtils.make_tmp("XXXXXX");
 
 			args = new string[]
@@ -3741,8 +3735,6 @@ public class LevelEditorApplication : Gtk.Application
 				"--map-source-dir",
 				"core",
 				_project.toolchain_dir(),
-				"--data-dir",
-				tmp_data_dir,
 				"--bundle-dir",
 				tmp_bundle_dir,
 				"--compile",
@@ -3753,7 +3745,6 @@ public class LevelEditorApplication : Gtk.Application
 
 			var pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
 			var exit_status = _subprocess_launcher.wait(pid);
-			delete_tree(GLib.File.new_for_path(tmp_data_dir));
 
 			if (exit_status != 0) {
 				loge("Failed to compile data. exit_status = %d".printf(exit_status));
@@ -3903,8 +3894,6 @@ public class LevelEditorApplication : Gtk.Application
 
 		// Create data bundle.
 		try {
-			string tmp_data_dir = GLib.DirUtils.make_tmp("XXXXXX");
-
 			string args[] =
 			{
 				ENGINE_EXE,
@@ -3913,8 +3902,6 @@ public class LevelEditorApplication : Gtk.Application
 				"--map-source-dir",
 				"core",
 				_project.toolchain_dir(),
-				"--data-dir",
-				tmp_data_dir,
 				"--bundle-dir",
 				package_path,
 				"--compile",
@@ -3925,7 +3912,6 @@ public class LevelEditorApplication : Gtk.Application
 
 			uint32 compiler = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
 			int exit_status = _subprocess_launcher.wait(compiler);
-			delete_tree(GLib.File.new_for_path(tmp_data_dir));
 
 			if (exit_status != 0) {
 				loge("Failed to compile data. exit_status = %d".printf(exit_status));
@@ -3978,8 +3964,6 @@ public class LevelEditorApplication : Gtk.Application
 
 		// Create data bundle.
 		try {
-			string tmp_data_dir = GLib.DirUtils.make_tmp("XXXXXX");
-
 			string args[] =
 			{
 				ENGINE_EXE,
@@ -3988,8 +3972,6 @@ public class LevelEditorApplication : Gtk.Application
 				"--map-source-dir",
 				"core",
 				_project.toolchain_dir(),
-				"--data-dir",
-				tmp_data_dir,
 				"--bundle-dir",
 				package_path,
 				"--compile",
@@ -4000,7 +3982,6 @@ public class LevelEditorApplication : Gtk.Application
 
 			uint32 compiler = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
 			int exit_status = _subprocess_launcher.wait(compiler);
-			delete_tree(GLib.File.new_for_path(tmp_data_dir));
 
 			if (exit_status != 0) {
 				loge("Failed to compile data. exit_status = %d".printf(exit_status));
