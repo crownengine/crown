@@ -6,6 +6,7 @@ Changelog
 
 **Runtime**
 
+* HTML5: fixed GL_INVALID_OPERATION (or missing geometry) when rendering untextured meshes.
 * Data Compiler: fixed shaders not including code in some circumnstances.
 
 0.55.0 --- 03 Apr 2025

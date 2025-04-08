@@ -52,6 +52,12 @@ struct Pipeline
 	bgfx::UniformHandle _selection_depth_texture_sampler;
 	bgfx::UniformHandle _outline_color_uniform;
 
+	// Default sampler/texture to keep WebGL renderer running
+	// when a shader references a texture (even if unused) but
+	// none are set via setTexture().
+	bgfx::UniformHandle _html5_default_sampler;
+	bgfx::TextureHandle _html5_default_texture;
+
 	// Default shaders.
 	ShaderData _blit_shader;
 	ShaderData _gui_shader;
