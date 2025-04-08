@@ -4,6 +4,10 @@ Changelog
 0.56.0 --- DD MMM YYYY
 ----------------------
 
+**Tools**
+
+* Sped up deployers by enabling incremental data compilation.
+
 **Runtime**
 
 * HTML5: fixed GL_INVALID_OPERATION (or missing geometry) when rendering untextured meshes.
