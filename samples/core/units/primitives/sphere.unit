@@ -50,6 +50,7 @@ components = [
 		_guid = "ce881722-b0da-41ea-b29b-b26b85cf61b5"
 		_type = "mesh_renderer"
 		data = {
+			cast_shadows = true
 			geometry_name = "Sphere"
 			material = "core/units/primitives/primitive"
 			mesh_resource = "core/units/primitives/sphere"

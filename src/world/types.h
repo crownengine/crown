@@ -288,7 +288,8 @@ struct MeshRendererDesc
 	StringId64 material_resource; ///< Name of .material resource.
 	StringId32 geometry_name;     ///< Name of geometry inside .mesh resource.
 	bool visible;                 ///< Whether mesh is visible.
-	char _pad0[3];
+	bool cast_shadows;            ///<
+	char _pad0[2];
 };
 
 /// Sprite renderer description.
@@ -318,11 +319,14 @@ struct AnimationStateMachineDesc
 /// @ingroup World
 struct LightDesc
 {
-	u32 type;       ///< LightType::Enum
-	f32 range;      ///< In meters.
-	f32 intensity;  ///<
-	f32 spot_angle; ///< In radians.
-	Vector3 color;  ///< Color of the light.
+	u32 type;          ///< LightType::Enum
+	f32 range;         ///< In meters.
+	f32 intensity;     ///<
+	f32 spot_angle;    ///< In radians.
+	Vector3 color;     ///< Color of the light.
+	f32 shadow_bias;   ///<
+	bool cast_shadows; ///<
+	char _pad[3];
 };
 
 /// Script description.

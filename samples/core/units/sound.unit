@@ -5,6 +5,7 @@ components = [
 		_guid = "3371ebe2-5dd3-4e37-bc1f-d63a34096c02"
 		_type = "mesh_renderer"
 		data = {
+			cast_shadows = false
 			geometry_name = "Cylinder"
 			material = "core/units/sound"
 			mesh_resource = "core/units/sound"

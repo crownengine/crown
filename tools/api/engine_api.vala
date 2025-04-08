@@ -295,14 +295,22 @@ namespace LevelEditorApi
 			);
 	}
 
-	public string add_mesh_renderer_component(Guid id, Guid component_id, string mesh_resource, string geometry_name, string material_resource, bool visible)
+	public string add_mesh_renderer_component(Guid id
+		, Guid component_id
+		, string mesh_resource
+		, string geometry_name
+		, string material_resource
+		, bool visible
+		, bool cast_shadows
+		)
 	{
-		return "LevelEditor:add_mesh_component(\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", %s)".printf(id.to_string()
+		return "LevelEditor:add_mesh_component(\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", %s, %s)".printf(id.to_string()
 			, component_id.to_string()
 			, mesh_resource
 			, geometry_name
 			, material_resource
 			, Lua.bool(visible)
+			, Lua.bool(cast_shadows)
 			);
 	}
 
@@ -318,15 +326,26 @@ namespace LevelEditorApi
 			);
 	}
 
-	public string add_light_component(Guid id, Guid component_id, string type, double range, double intensity, double spot_angle, Vector3 color)
+	public string add_light_component(Guid id
+		, Guid component_id
+		, string type
+		, double range
+		, double intensity
+		, double spot_angle
+		, Vector3 color
+		, double shadow_bias
+		, bool cast_shadows
+		)
 	{
-		return "LevelEditor:add_light_component(\"%s\", \"%s\", \"%s\", %.17g, %.17g, %.17g, %s)".printf(id.to_string()
+		return "LevelEditor:add_light_component(\"%s\", \"%s\", \"%s\", %.17g, %.17g, %.17g, %s, %.17g, %s)".printf(id.to_string()
 			, component_id.to_string()
 			, type
 			, range
 			, intensity
 			, spot_angle
 			, Lua.vector3(color)
+			, shadow_bias
+			, Lua.bool(cast_shadows)
 			);
 	}
 
@@ -346,14 +365,24 @@ namespace LevelEditorApi
 			);
 	}
 
-	public string set_light(Guid id, string type, double range, double intensity, double spot_angle, Vector3 color)
+	public string set_light(Guid id
+		, string type
+		, double range
+		, double intensity
+		, double spot_angle
+		, Vector3 color
+		, double shadow_bias
+		, bool cast_shadows
+		)
 	{
-		return "LevelEditor._objects[\"%s\"]:set_light(\"%s\", %.17g, %.17g, %.17g, %s)".printf(id.to_string()
+		return "LevelEditor._objects[\"%s\"]:set_light(\"%s\", %.17g, %.17g, %.17g, %s, %.17g, %s)".printf(id.to_string()
 			, type
 			, range
 			, intensity
 			, spot_angle
 			, Lua.quaternion({color.x, color.y, color.z, 1.0})
+			, shadow_bias
+			, Lua.bool(cast_shadows)
 			);
 	}
 
@@ -364,13 +393,20 @@ namespace LevelEditorApi
 			);
 	}
 
-	public string set_mesh(Guid id, string mesh_resource, string geometry, string material, bool visible)
+	public string set_mesh(Guid id
+		, string mesh_resource
+		, string geometry
+		, string material
+		, bool visible
+		, bool cast_shadows
+		)
 	{
-		return "LevelEditor._objects[\"%s\"]:set_mesh(\"%s\", \"%s\", \"%s\", %s)".printf(id.to_string()
+		return "LevelEditor._objects[\"%s\"]:set_mesh(\"%s\", \"%s\", \"%s\", %s, %s)".printf(id.to_string()
 			, mesh_resource
 			, geometry
 			, material
 			, Lua.bool(visible)
+			, Lua.bool(cast_shadows)
 			);
 	}
 

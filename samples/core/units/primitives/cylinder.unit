@@ -50,6 +50,7 @@ components = [
 		_guid = "fca524d9-aaa4-4db7-b594-c39049e394b4"
 		_type = "mesh_renderer"
 		data = {
+			cast_shadows = true
 			geometry_name = "Cylinder"
 			material = "core/units/primitives/primitive"
 			mesh_resource = "core/units/primitives/cylinder"

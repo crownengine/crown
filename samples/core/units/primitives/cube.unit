@@ -39,6 +39,7 @@ components = [
 		_guid = "49753fff-34ea-4aff-8bcf-5116f1c1519a"
 		_type = "mesh_renderer"
 		data = {
+			cast_shadows = true
 			geometry_name = "Cube"
 			material = "core/units/primitives/primitive"
 			mesh_resource = "core/units/primitives/cube"

@@ -327,6 +327,7 @@ public struct Unit
 			_db.set_property_string(component_id, "data.geometry_name", "Noop");
 			_db.set_property_string(component_id, "data.material", "core/components/noop");
 			_db.set_property_bool  (component_id, "data.visible", true);
+			_db.set_property_bool  (component_id, "data.cast_shadows", true);
 		} else if (component_type == OBJECT_TYPE_SPRITE_RENDERER) {
 			_db.set_property_string(component_id, "data.sprite_resource", "core/components/noop");
 			_db.set_property_string(component_id, "data.material", "core/components/noop");
@@ -339,6 +340,8 @@ public struct Unit
 			_db.set_property_double (component_id, "data.intensity", 1.0);
 			_db.set_property_double (component_id, "data.spot_angle", 45.0 * (Math.PI/180.0));
 			_db.set_property_vector3(component_id, "data.color", VECTOR3_ONE);
+			_db.set_property_double (component_id, "data.shadow_bias", 0.0001);
+			_db.set_property_bool   (component_id, "data.cast_shadows", true);
 		} else if (component_type == OBJECT_TYPE_SCRIPT) {
 			_db.set_property_string(component_id, "data.script_resource", "core/components/noop");
 		} else if (component_type == OBJECT_TYPE_COLLIDER) {
@@ -472,6 +475,7 @@ public struct Unit
 						, unit.get_component_property_string(component_id, "data.geometry_name")
 						, unit.get_component_property_string(component_id, "data.material")
 						, unit.get_component_property_bool  (component_id, "data.visible")
+						, unit.get_component_property_bool  (component_id, "data.cast_shadows", true)
 						));
 				} else if (component_type == OBJECT_TYPE_SPRITE_RENDERER) {
 					sb.append(LevelEditorApi.add_sprite_renderer_component(unit_id
@@ -490,6 +494,8 @@ public struct Unit
 						, unit.get_component_property_double (component_id, "data.intensity")
 						, unit.get_component_property_double (component_id, "data.spot_angle")
 						, unit.get_component_property_vector3(component_id, "data.color")
+						, unit.get_component_property_double (component_id, "data.shadow_bias", 0.0001)
+						, unit.get_component_property_bool   (component_id, "data.cast_shadows", true)
 						));
 				} else if (component_type == OBJECT_TYPE_SCRIPT) {
 					/*
@@ -600,6 +606,7 @@ public struct Unit
 							, unit.get_component_property_string(component_id, "data.geometry_name")
 							, unit.get_component_property_string(component_id, "data.material")
 							, unit.get_component_property_bool  (component_id, "data.visible")
+							, unit.get_component_property_bool  (component_id, "data.cast_shadows", true)
 							);
 						sb.append(s);
 					}
@@ -622,6 +629,8 @@ public struct Unit
 							, unit.get_component_property_double (component_id, "data.intensity")
 							, unit.get_component_property_double (component_id, "data.spot_angle")
 							, unit.get_component_property_vector3(component_id, "data.color")
+							, unit.get_component_property_double (component_id, "data.shadow_bias", 0.0001)
+							, unit.get_component_property_bool   (component_id, "data.cast_shadows", true)
 							);
 						sb.append(s);
 					}
@@ -696,6 +705,7 @@ public struct Unit
 						, unit.get_component_property_string(component_id, "data.geometry_name")
 						, unit.get_component_property_string(component_id, "data.material")
 						, unit.get_component_property_bool  (component_id, "data.visible")
+						, unit.get_component_property_bool  (component_id, "data.cast_shadows", true)
 						));
 				} else if (component_type == OBJECT_TYPE_SPRITE_RENDERER) {
 					sb.append(LevelEditorApi.set_sprite(unit_id
@@ -712,6 +722,8 @@ public struct Unit
 						, unit.get_component_property_double (component_id, "data.intensity")
 						, unit.get_component_property_double (component_id, "data.spot_angle")
 						, unit.get_component_property_vector3(component_id, "data.color")
+						, unit.get_component_property_double (component_id, "data.shadow_bias", 0.0001)
+						, unit.get_component_property_bool   (component_id, "data.cast_shadows", true)
 						));
 				} else if (component_type == OBJECT_TYPE_SCRIPT) {
 					/* No sync. */

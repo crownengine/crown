@@ -5,7 +5,7 @@ bgfx_shaders = {
 		code = """
 		#if !defined(NO_LIGHT)
 			uniform vec4 u_lights_num;        // num_dir, num_omni, num_spot
-			uniform vec4 u_lights_data[3*32]; // dir_0, .., dir_n-1, omni_0, .., omni_n-1, spot_0, .., spot_n-1
+			uniform vec4 u_lights_data[4*32]; // dir_0, .., dir_n-1, omni_0, .., omni_n-1, spot_0, .., spot_n-1
 
 			CONST(float PI) = 3.14159265358979323846;
 
@@ -133,10 +133,11 @@ bgfx_shaders = {
 				int num_omni = int(u_lights_num.y);
 				int num_spot = int(u_lights_num.z);
 
-				for (int di = 0; di < num_dir; ++di, loffset += 3) {
-					vec3 light_color = u_lights_data[loffset + 0].rgb;
-					float intensity  = u_lights_data[loffset + 0].w;
-					vec3 direction   = u_lights_data[loffset + 2].xyz;
+				for (int di = 0; di < num_dir; ++di, loffset += 4) {
+					vec3 light_color  = u_lights_data[loffset + 0].rgb;
+					float intensity   = u_lights_data[loffset + 0].w;
+					vec3 direction    = u_lights_data[loffset + 2].xyz;
+					float shadow_bias = u_lights_data[loffset + 3].r;
 					radiance += calc_dir_light(n
 						, v
 						, toLinearAccurate(light_color)
@@ -149,11 +150,12 @@ bgfx_shaders = {
 						);
 				}
 
-				for (int oi = 0; oi < num_omni; ++oi, loffset += 3) {
-					vec3 light_color = u_lights_data[loffset + 0].rgb;
-					float intensity  = u_lights_data[loffset + 0].w;
-					vec3 position    = u_lights_data[loffset + 1].xyz;
-					float range      = u_lights_data[loffset + 1].w;
+				for (int oi = 0; oi < num_omni; ++oi, loffset += 4) {
+					vec3 light_color  = u_lights_data[loffset + 0].rgb;
+					float intensity   = u_lights_data[loffset + 0].w;
+					vec3 position     = u_lights_data[loffset + 1].xyz;
+					float range       = u_lights_data[loffset + 1].w;
+					float shadow_bias = u_lights_data[loffset + 3].r;
 					radiance += calc_omni_light(n
 						, v
 						, frag_pos
@@ -168,13 +170,14 @@ bgfx_shaders = {
 						);
 				}
 
-				for (int si = 0; si < num_spot; ++si, loffset += 3) {
-					vec3 light_color = u_lights_data[loffset + 0].rgb;
-					float intensity  = u_lights_data[loffset + 0].w;
-					vec3 position    = u_lights_data[loffset + 1].xyz;
-					float range      = u_lights_data[loffset + 1].w;
-					vec3 direction   = u_lights_data[loffset + 2].xyz;
-					float spot_angle = u_lights_data[loffset + 2].w;
+				for (int si = 0; si < num_spot; ++si, loffset += 4) {
+					vec3 light_color  = u_lights_data[loffset + 0].rgb;
+					float intensity   = u_lights_data[loffset + 0].w;
+					vec3 position     = u_lights_data[loffset + 1].xyz;
+					float range       = u_lights_data[loffset + 1].w;
+					vec3 direction    = u_lights_data[loffset + 2].xyz;
+					float spot_angle  = u_lights_data[loffset + 2].w;
+					float shadow_bias = u_lights_data[loffset + 3].r;
 					radiance += calc_spot_light(n
 						, v
 						, frag_pos
