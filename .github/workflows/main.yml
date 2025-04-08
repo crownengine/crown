@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   docs:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v4
     - name: prepare
@@ -19,7 +19,7 @@ jobs:
       run: |
         make docs
   android-arm:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v4
     - name: prepare
@@ -60,7 +60,7 @@ jobs:
         export ANDROID_NDK_ABI=23
         make MAKE_JOBS=2 android-arm64-release
   html5:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v4
     - name: prepare
@@ -91,7 +91,7 @@ jobs:
       run: |
         cd ./build/wasm/bin && node crown-release --run-unit-tests
   linux:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v4
     - name: prepare
@@ -205,7 +205,7 @@ jobs:
         export MINGW=/mingw64
         make MAKE_JOBS=2 crown-launcher-mingw-release64
   code-style:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: [android-arm, html5, linux, windows]
     steps:
     - uses: actions/checkout@v4
