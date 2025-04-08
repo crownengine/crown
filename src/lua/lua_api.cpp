@@ -2102,6 +2102,11 @@ void load_api(LuaEnvironment &env)
 			stack.push_float(stack.get_render_world(1)->light_spot_angle(stack.get_light_instance(2)));
 			return 1;
 		});
+	env.add_module_function("RenderWorld", "light_shadow_bias", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.push_float(stack.get_render_world(1)->light_shadow_bias(stack.get_light_instance(2)));
+			return 1;
+		});
 	env.add_module_function("RenderWorld", "light_set_type", [](lua_State *L) {
 			LuaStack stack(L);
 
@@ -2130,6 +2135,11 @@ void load_api(LuaEnvironment &env)
 	env.add_module_function("RenderWorld", "light_set_spot_angle", [](lua_State *L) {
 			LuaStack stack(L);
 			stack.get_render_world(1)->light_set_spot_angle(stack.get_light_instance(2), stack.get_float(3));
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "light_set_shadow_bias", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->light_set_shadow_bias(stack.get_light_instance(2), stack.get_float(3));
 			return 0;
 		});
 	env.add_module_function("RenderWorld", "light_debug_draw", [](lua_State *L) {

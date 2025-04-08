@@ -366,6 +366,12 @@ f32 RenderWorld::light_spot_angle(LightInstance light)
 	return _light_manager._data.shader[light.i].spot_angle;
 }
 
+f32 RenderWorld::light_shadow_bias(LightInstance light)
+{
+	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
+	return _light_manager._data.shader[light.i].shadow_bias;
+}
+
 void RenderWorld::light_set_color(LightInstance light, const Color4 &col)
 {
 	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
@@ -400,6 +406,12 @@ void RenderWorld::light_set_spot_angle(LightInstance light, f32 angle)
 {
 	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
 	_light_manager._data.shader[light.i].spot_angle = angle;
+}
+
+void RenderWorld::light_set_shadow_bias(LightInstance light, f32 bias)
+{
+	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
+	_light_manager._data.shader[light.i].shadow_bias = bias;
 }
 
 void RenderWorld::light_debug_draw(LightInstance light, DebugLine &dl)
@@ -1113,15 +1125,16 @@ LightInstance RenderWorld::LightManager::create(UnitId unit, const LightDesc &ld
 	Vector3 dir = -z(tr);
 	normalize(dir);
 
-	_data.index[last].unit        = unit;
-	_data.index[last].type        = ld.type;
-	_data.index[last].index       = last;
-	_data.shader[last].color      = ld.color;
-	_data.shader[last].intensity  = ld.intensity;
-	_data.shader[last].position   = translation(tr);
-	_data.shader[last].range      = ld.range;
-	_data.shader[last].direction  = dir;
-	_data.shader[last].spot_angle = ld.spot_angle;
+	_data.index[last].unit         = unit;
+	_data.index[last].type         = ld.type;
+	_data.index[last].index        = last;
+	_data.shader[last].color       = ld.color;
+	_data.shader[last].intensity   = ld.intensity;
+	_data.shader[last].position    = translation(tr);
+	_data.shader[last].range       = ld.range;
+	_data.shader[last].direction   = dir;
+	_data.shader[last].spot_angle  = ld.spot_angle;
+	_data.shader[last].shadow_bias = ld.shadow_bias;
 
 	++_data.size;
 	++_data.num[ld.type];

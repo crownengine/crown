@@ -336,7 +336,7 @@ function UnitBox:draw()
 	end
 end
 
-function UnitBox:set_light(type, range, intensity, angle, color)
+function UnitBox:set_light(type, range, intensity, angle, color, bias)
 	local light = RenderWorld.light_instance(self._rw, self._unit_id)
 	if light then
 		RenderWorld.light_set_type(self._rw, light, type)
@@ -344,6 +344,7 @@ function UnitBox:set_light(type, range, intensity, angle, color)
 		RenderWorld.light_set_range(self._rw, light, range)
 		RenderWorld.light_set_intensity(self._rw, light, intensity)
 		RenderWorld.light_set_spot_angle(self._rw, light, angle)
+		RenderWorld.light_set_shadow_bias(self._rw, light, bias)
 	end
 end
 

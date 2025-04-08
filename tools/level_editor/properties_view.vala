@@ -58,6 +58,7 @@ public class MeshRendererPropertyGrid : PropertyGrid
 	private ComboBoxMap _node;
 	private ResourceChooserButton _material;
 	private CheckBox _visible;
+	private CheckBox _cast_shadows;
 
 	private void decode(Hashtable mesh_resource)
 	{
@@ -98,11 +99,14 @@ public class MeshRendererPropertyGrid : PropertyGrid
 		_material.value_changed.connect(on_value_changed);
 		_visible = new CheckBox();
 		_visible.value_changed.connect(on_value_changed);
+		_cast_shadows = new CheckBox();
+		_cast_shadows.value_changed.connect(on_value_changed);
 
 		add_row("Scene", _scene);
 		add_row("Node", _node);
 		add_row("Material", _material);
 		add_row("Visible", _visible);
+		add_row("Cast Shadows", _cast_shadows);
 	}
 
 	private void on_scene_value_changed()
@@ -119,6 +123,7 @@ public class MeshRendererPropertyGrid : PropertyGrid
 		unit.set_component_property_string(_component_id, "data.geometry_name", _node.value);
 		unit.set_component_property_string(_component_id, "data.material", _material.value);
 		unit.set_component_property_bool  (_component_id, "data.visible", _visible.value);
+		unit.set_component_property_bool  (_component_id, "data.cast_shadows", _cast_shadows.value);
 
 		_db.add_restore_point((int)ActionType.SET_MESH, new Guid?[] { _id, _component_id });
 	}
@@ -136,6 +141,7 @@ public class MeshRendererPropertyGrid : PropertyGrid
 		update_mesh_and_geometry(unit);
 		_material.value = unit.get_component_property_string(_component_id, "data.material");
 		_visible.value  = unit.get_component_property_bool  (_component_id, "data.visible");
+		_cast_shadows.value = unit.get_component_property_bool(_component_id, "data.cast_shadows", true);
 	}
 }
 
@@ -202,6 +208,8 @@ public class LightPropertyGrid : PropertyGrid
 	private EntryDouble _intensity;
 	private EntryDouble _spot_angle;
 	private ColorButtonVector3 _color;
+	private EntryDouble _shadow_bias;
+	private CheckBox _cast_shadows;
 
 	public LightPropertyGrid(Database db)
 	{
@@ -221,22 +229,30 @@ public class LightPropertyGrid : PropertyGrid
 		_spot_angle.value_changed.connect(on_value_changed);
 		_color = new ColorButtonVector3();
 		_color.value_changed.connect(on_value_changed);
+		_shadow_bias = new EntryDouble(0.0001, 0.0, 1.0);
+		_shadow_bias.value_changed.connect(on_value_changed);
+		_cast_shadows = new CheckBox();
+		_cast_shadows.value_changed.connect(on_value_changed);
 
 		add_row("Type", _type);
 		add_row("Range", _range);
 		add_row("Intensity", _intensity);
 		add_row("Spot Angle", _spot_angle);
 		add_row("Color", _color);
+		add_row("Shadow Bias", _shadow_bias);
+		add_row("Cast Shadows", _cast_shadows);
 	}
 
 	private void on_value_changed()
 	{
 		Unit unit = Unit(_db, _id);
-		unit.set_component_property_string (_component_id, "data.type",       _type.value);
-		unit.set_component_property_double (_component_id, "data.range",      _range.value);
-		unit.set_component_property_double (_component_id, "data.intensity",  _intensity.value);
-		unit.set_component_property_double (_component_id, "data.spot_angle", _spot_angle.value * (Math.PI/180.0));
-		unit.set_component_property_vector3(_component_id, "data.color",      _color.value);
+		unit.set_component_property_string (_component_id, "data.type",        _type.value);
+		unit.set_component_property_double (_component_id, "data.range",       _range.value);
+		unit.set_component_property_double (_component_id, "data.intensity",   _intensity.value);
+		unit.set_component_property_double (_component_id, "data.spot_angle",  _spot_angle.value * (Math.PI/180.0));
+		unit.set_component_property_vector3(_component_id, "data.color",       _color.value);
+		unit.set_component_property_double (_component_id, "data.shadow_bias", _shadow_bias.value);
+		unit.set_component_property_bool   (_component_id, "data.cast_shadows", _cast_shadows.value);
 
 		_db.add_restore_point((int)ActionType.SET_LIGHT, new Guid?[] { _id, _component_id });
 	}
@@ -244,11 +260,13 @@ public class LightPropertyGrid : PropertyGrid
 	public override void update()
 	{
 		Unit unit = Unit(_db, _id);
-		_type.value       = unit.get_component_property_string (_component_id, "data.type");
-		_range.value      = unit.get_component_property_double (_component_id, "data.range");
-		_intensity.value  = unit.get_component_property_double (_component_id, "data.intensity");
-		_spot_angle.value = unit.get_component_property_double (_component_id, "data.spot_angle") * (180.0/Math.PI);
-		_color.value      = unit.get_component_property_vector3(_component_id, "data.color");
+		_type.value        = unit.get_component_property_string (_component_id, "data.type");
+		_range.value       = unit.get_component_property_double (_component_id, "data.range");
+		_intensity.value   = unit.get_component_property_double (_component_id, "data.intensity");
+		_spot_angle.value  = unit.get_component_property_double (_component_id, "data.spot_angle") * (180.0/Math.PI);
+		_color.value       = unit.get_component_property_vector3(_component_id, "data.color");
+		_shadow_bias.value = unit.get_component_property_double (_component_id, "data.shadow_bias");
+		_cast_shadows.value = unit.get_component_property_bool  (_component_id, "data.cast_shadows");
 	}
 }
 

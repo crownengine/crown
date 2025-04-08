@@ -144,9 +144,11 @@ static s32 compile_mesh_renderer(Buffer &output, FlatJsonObject &obj, CompileOpt
 	mrd.material_resource = RETURN_IF_ERROR(sjson::parse_resource_name(flat_json_object::get(obj, "data.material")), opts);
 	mrd.geometry_name     = RETURN_IF_ERROR(sjson::parse_string_id    (flat_json_object::get(obj, "data.geometry_name")), opts);
 	mrd.visible           = RETURN_IF_ERROR(sjson::parse_bool         (flat_json_object::get(obj, "data.visible")), opts);
-	mrd._pad0[0]          = 0;
-	mrd._pad0[1]          = 0;
-	mrd._pad0[2]          = 0;
+	mrd.cast_shadows = true;
+	if (flat_json_object::has(obj, "data.cast_shadows")) {
+		mrd.cast_shadows = RETURN_IF_ERROR(sjson::parse_bool(flat_json_object::get(obj, "data.cast_shadows")), opts);
+	}
+	memset(&mrd._pad0, 0, sizeof(mrd._pad0));
 
 	FileBuffer fb(output);
 	BinaryWriter bw(fb);
@@ -154,9 +156,8 @@ static s32 compile_mesh_renderer(Buffer &output, FlatJsonObject &obj, CompileOpt
 	bw.write(mrd.material_resource);
 	bw.write(mrd.geometry_name);
 	bw.write(mrd.visible);
-	bw.write(mrd._pad0[0]);
-	bw.write(mrd._pad0[1]);
-	bw.write(mrd._pad0[2]);
+	bw.write(mrd.cast_shadows);
+	bw.write(mrd._pad0);
 	return 0;
 }
 
@@ -229,6 +230,15 @@ static s32 compile_light(Buffer &output, FlatJsonObject &obj, CompileOptions &op
 	ld.intensity   = RETURN_IF_ERROR(sjson::parse_float  (flat_json_object::get(obj, "data.intensity")), opts);
 	ld.spot_angle  = RETURN_IF_ERROR(sjson::parse_float  (flat_json_object::get(obj, "data.spot_angle")), opts);
 	ld.color       = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.color")), opts);
+	ld.shadow_bias = 0.0001f;
+	if (flat_json_object::has(obj, "data.shadow_bias")) {
+		ld.shadow_bias = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.shadow_bias")), opts);
+	}
+	ld.cast_shadows = true;
+	if (flat_json_object::has(obj, "data.cast_shadows")) {
+		ld.cast_shadows = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.cast_shadows")), opts);
+	}
+	memset(ld._pad, 0, sizeof(ld._pad));
 
 	FileBuffer fb(output);
 	BinaryWriter bw(fb);
@@ -237,6 +247,9 @@ static s32 compile_light(Buffer &output, FlatJsonObject &obj, CompileOptions &op
 	bw.write(ld.intensity);
 	bw.write(ld.spot_angle);
 	bw.write(ld.color);
+	bw.write(ld.shadow_bias);
+	bw.write(ld.cast_shadows);
+	bw.write(ld._pad);
 	return 0;
 }
 

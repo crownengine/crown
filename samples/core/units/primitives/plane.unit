@@ -39,6 +39,7 @@ components = [
 		_guid = "add86f5b-267a-4aa8-954c-385d2fcda2be"
 		_type = "mesh_renderer"
 		data = {
+			cast_shadows = true
 			geometry_name = "Plane"
 			material = "core/units/primitives/primitive"
 			mesh_resource = "core/units/primitives/plane"

@@ -137,6 +137,9 @@ struct RenderWorld
 	/// Returns the spot angle of the @a light.
 	f32 light_spot_angle(LightInstance light);
 
+	/// Returns the shadow bias of the @a light.
+	f32 light_shadow_bias(LightInstance light);
+
 	/// Sets the @a type of the @a light.
 	void light_set_type(LightInstance light, LightType::Enum type);
 
@@ -151,6 +154,9 @@ struct RenderWorld
 
 	/// Sets the spot @a angle of the @a light.
 	void light_set_spot_angle(LightInstance light, f32 angle);
+
+	/// Sets the shadow @a bias of the @a light.
+	void light_set_shadow_bias(LightInstance light, f32 bias);
 
 	/// Fills @a dl with debug lines from the @a light.
 	void light_debug_draw(LightInstance light, DebugLine &dl);
@@ -348,6 +354,8 @@ struct RenderWorld
 			f32 range;
 			Vector3 direction;
 			f32 spot_angle;
+			f32 shadow_bias;
+			f32 pad[3];
 		};
 
 		struct Index

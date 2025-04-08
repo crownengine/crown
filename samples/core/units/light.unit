@@ -28,6 +28,7 @@ components = [
 		_guid = "45e54fbe-018c-4ee2-917d-398c13bd3e7e"
 		_type = "light"
 		data = {
+			cast_shadows = true
 			color = [
 				1
 				1
@@ -35,6 +36,7 @@ components = [
 			]
 			intensity = 500
 			range = 15
+			shadow_bias = 0.0001
 			spot_angle = 0.52359900000000004
 			type = "omni"
 		}
@@ -44,6 +46,7 @@ components = [
 		_guid = "65f81abd-43ea-4c15-8d96-b82fec868bcd"
 		_type = "mesh_renderer"
 		data = {
+			cast_shadows = false
 			geometry_name = "Icosphere"
 			material = "core/units/light"
 			mesh_resource = "core/units/light"
