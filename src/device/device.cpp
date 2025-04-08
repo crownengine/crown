@@ -892,6 +892,10 @@ void Device::render(World &world, UnitId camera_unit)
 	bgfx::touch(VIEW_GRAPH);
 	bgfx::touch(VIEW_BLIT);
 
+#if CROWN_PLATFORM_EMSCRIPTEN
+	bgfx::setTexture(0, _pipeline->_html5_default_sampler, _pipeline->_html5_default_texture);
+#endif
+
 	world.render(view);
 }
 

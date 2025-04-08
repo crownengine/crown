@@ -133,11 +133,21 @@ void Pipeline::create(uint16_t width, uint16_t height)
 
 	_outline_color_uniform = bgfx::createUniform("u_outline_color", bgfx::UniformType::Vec4);
 
+#if CROWN_PLATFORM_EMSCRIPTEN
+	_html5_default_sampler = bgfx::createUniform("s_webgl_hack", bgfx::UniformType::Sampler);
+	_html5_default_texture = bgfx::createTexture2D(1, 1, false, 1, bgfx::TextureFormat::R8);
+#endif
+
 	PosTexCoord0Vertex::init();
 }
 
 void Pipeline::destroy()
 {
+#if CROWN_PLATFORM_EMSCRIPTEN
+	bgfx::destroy(_html5_default_sampler);
+	bgfx::destroy(_html5_default_texture);
+#endif
+
 	bgfx::destroy(_outline_color_uniform);
 
 	bgfx::destroy(_selection_depth_texture_sampler);
