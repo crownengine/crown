@@ -34,7 +34,7 @@ static void unit_destroyed_callback_bridge(UnitId unit, void *user_ptr)
 	((RenderWorld *)user_ptr)->unit_destroyed_callback(unit);
 }
 
-static void selection_draw_override(UnitId unit_id, RenderWorld *rw)
+static void selection_draw_override(u8 view_id, UnitId unit_id, RenderWorld *rw)
 {
 	// FIXME: add support to multi-pass shaders and remove this function.
 	if (!hash_set::has(rw->_selection, unit_id)) {
@@ -57,7 +57,7 @@ static void selection_draw_override(UnitId unit_id, RenderWorld *rw)
 	bgfx::setUniform(rw->_u_unit_id, &data);
 
 	bgfx::setState(rw->_pipeline->_selection_shader.state);
-	bgfx::submit(VIEW_SELECTION, rw->_pipeline->_selection_shader.program);
+	bgfx::submit(view_id, rw->_pipeline->_selection_shader.program);
 }
 
 RenderWorld::RenderWorld(Allocator &a
@@ -747,7 +747,7 @@ void RenderWorld::MeshManager::destroy()
 	_allocator->deallocate(_data.buffer);
 }
 
-void RenderWorld::MeshManager::draw(u8 view, SceneGraph &scene_graph, DrawOverride draw_override)
+void RenderWorld::MeshManager::draw(u8 view_id, SceneGraph &scene_graph, DrawOverride draw_override)
 {
 	for (u32 ii = 0; ii < _data.first_hidden; ++ii) {
 		if (_data.skeleton[ii] != NULL) {
@@ -773,9 +773,9 @@ void RenderWorld::MeshManager::draw(u8 view, SceneGraph &scene_graph, DrawOverri
 		bgfx::setIndexBuffer(_data.mesh[ii].ibh);
 
 		if (draw_override)
-			draw_override(_data.unit[ii], _render_world);
+			draw_override(view_id, _data.unit[ii], _render_world);
 		else
-			_data.material[ii]->bind(view);
+			_data.material[ii]->bind(view_id);
 	}
 }
 
@@ -980,7 +980,7 @@ void RenderWorld::SpriteManager::destroy()
 	_allocator->deallocate(_data.buffer);
 }
 
-void RenderWorld::SpriteManager::draw(u8 view, DrawOverride draw_override)
+void RenderWorld::SpriteManager::draw(u8 view_id, DrawOverride draw_override)
 {
 	bgfx::VertexLayout layout;
 	bgfx::TransientVertexBuffer tvb;
@@ -1070,9 +1070,9 @@ void RenderWorld::SpriteManager::draw(u8 view, DrawOverride draw_override)
 		bgfx::setIndexBuffer(&tib, ii*6, 6);
 
 		if (draw_override)
-			draw_override(_data.unit[ii], _render_world);
+			draw_override(view_id, _data.unit[ii], _render_world);
 		else
-			_data.material[ii]->bind(_data.layer[ii] + view, _data.depth[ii]);
+			_data.material[ii]->bind(_data.layer[ii] + view_id, _data.depth[ii]);
 	}
 }
 
