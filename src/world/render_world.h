@@ -179,7 +179,7 @@ struct RenderWorld
 	void reload_materials(const MaterialResource *old_resource, const MaterialResource *new_resource);
 
 	/// Callback to customize drawing of objects.
-	typedef void (*DrawOverride)(UnitId unit_id, RenderWorld *rw);
+	typedef void (*DrawOverride)(u8 view_id, UnitId unit_id, RenderWorld *rw);
 
 	/// List of meshes to be rendered.
 	struct MeshManager
