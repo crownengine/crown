@@ -876,8 +876,10 @@ int main(int argc, char **argv)
 		for (u32 i = 0; i < countof(handles); ++i) {
 			HANDLE out = GetStdHandle(handles[i]);
 			int fd = _open_osfhandle((intptr_t)out, _O_TEXT);
-			*stdfds[i] = *_fdopen(fd, modes[i]);
-			setvbuf(stdfds[i], NULL, _IONBF, 0); // No buffering.
+			if (fd != -1) {
+				*stdfds[i] = *_fdopen(fd, modes[i]);
+				setvbuf(stdfds[i], NULL, _IONBF, 0); // No buffering.
+			}
 		}
 	}
 
