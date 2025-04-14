@@ -431,8 +431,11 @@ struct RenderWorld
 
 	UnitDestroyCallback _unit_destroy_callback;
 
+	// Outlines.
 	HashSet<UnitId> _selection;
 	bgfx::UniformHandle _u_unit_id;
+
+	// Lighting.
 	bgfx::UniformHandle _u_lights_num;
 	bgfx::UniformHandle _u_lights_data;
 };

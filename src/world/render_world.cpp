@@ -87,15 +87,21 @@ RenderWorld::RenderWorld(Allocator &a
 	_unit_destroy_callback.node.prev = NULL;
 	um.register_destroy_callback(&_unit_destroy_callback);
 
+	// Outlines.
+	_u_unit_id = bgfx::createUniform("u_unit_id", bgfx::UniformType::Vec4);
+
+	// Lighting.
 	_u_lights_num = bgfx::createUniform("u_lights_num", bgfx::UniformType::Vec4, 1);
 	_u_lights_data = bgfx::createUniform("u_lights_data", bgfx::UniformType::Vec4, 3*32);
-	_u_unit_id = bgfx::createUniform("u_unit_id", bgfx::UniformType::Vec4); // Selection.
 }
 
 RenderWorld::~RenderWorld()
 {
+	// Destroy lighting uniforms.
 	bgfx::destroy(_u_lights_data);
 	bgfx::destroy(_u_lights_num);
+
+	// Destroy outlines uniforms.
 	bgfx::destroy(_u_unit_id);
 
 	_unit_manager->unregister_destroy_callback(&_unit_destroy_callback);
