@@ -823,7 +823,7 @@ namespace shader_resource_internal
 			_opts.temporary_path(_fs_out_path, "fs_out.bin");
 		}
 
-		s32 parse(const char *path)
+		s32 parse(const char *path, bool is_include)
 		{
 			TempAllocator256 ta;
 			DynamicString path_str(ta);
@@ -832,13 +832,13 @@ namespace shader_resource_internal
 			if (hash_set::has(_parsed_includes, path_str))
 				return 0;
 
-			s32 err = parse(_opts.read(path));
+			s32 err = parse(_opts.read(path), is_include);
 			ENSURE_OR_RETURN(err == 0, _opts);
 			hash_set::insert(_parsed_includes, path_str);
 			return err;
 		}
 
-		s32 parse(Buffer buf)
+		s32 parse(Buffer buf, bool is_include)
 		{
 			TempAllocator4096 ta;
 			JsonObject obj(ta);
@@ -851,7 +851,7 @@ namespace shader_resource_internal
 				for (u32 i = 0; i < array::size(arr); ++i) {
 					DynamicString path(ta);
 					RETURN_IF_ERROR(sjson::parse_string(path, arr[i]), _opts);
-					s32 err = parse(path.c_str());
+					s32 err = parse(path.c_str(), true);
 					ENSURE_OR_RETURN(err == 0, _opts);
 				}
 			}
@@ -876,9 +876,11 @@ namespace shader_resource_internal
 				ENSURE_OR_RETURN(err == 0, _opts);
 			}
 
-			if (json_object::has(obj, "static_compile")) {
-				s32 err = parse_static_compile(obj["static_compile"]);
-				ENSURE_OR_RETURN(err == 0, _opts);
+			if (!is_include) { // Do not merge static_compile entries.
+				if (json_object::has(obj, "static_compile")) {
+					s32 err = parse_static_compile(obj["static_compile"]);
+					ENSURE_OR_RETURN(err == 0, _opts);
+				}
 			}
 
 			return 0;
@@ -1830,7 +1832,7 @@ namespace shader_resource_internal
 	s32 compile(CompileOptions &opts)
 	{
 		ShaderCompiler sc(opts);
-		s32 err = sc.parse(opts.source_path());
+		s32 err = sc.parse(opts.source_path(), false);
 		ENSURE_OR_RETURN(err == 0, opts);
 
 		return sc.compile();
