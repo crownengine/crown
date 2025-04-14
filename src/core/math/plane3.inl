@@ -6,6 +6,7 @@
 #pragma once
 
 #include "core/math/vector3.inl"
+#include "core/math/vector4.inl"
 
 namespace crown
 {
@@ -37,6 +38,21 @@ namespace plane3
 	inline f32 distance_to_point(const Plane3 &p, const Vector3 &point)
 	{
 		return dot(p.n, point) - p.d;
+	}
+
+	inline Plane3 transform(const Plane3 &p, const Matrix4x4 &m)
+	{
+		Vector4 n = { p.n.x, p.n.y, p.n.z, 0.0f };
+		Vector4 o = n * p.d;
+		o.w = 1.0f;
+
+		n = n * m;
+		o = o * m;
+
+		Plane3 out;
+		out.n = { n.x, n.y, n.z };
+		out.d = dot(out.n, { o.x, o.y, o.z });
+		return out;
 	}
 
 } // namespace plane3
