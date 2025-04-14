@@ -1,3 +1,20 @@
+render_states = {
+	opacity = {
+		states = {
+			cull_mode = "none"
+			depth_write_enable = true
+			depth_enable = false
+			blend_enable = true
+			blend_src = "src_alpha"
+			blend_dst = "inv_src_alpha"
+			"defined(DEPTH_ENABLED)" = {
+				depth_enable = true
+			}
+		}
+	}
+
+}
+
 sampler_states = {
 	clamp_point = {
 		wrap_u = "clamp"
