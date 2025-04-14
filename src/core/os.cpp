@@ -86,9 +86,6 @@ namespace os
 		fputs(msg, stdout);
 		fflush(stdout);
 #endif
-#if CROWN_PLATFORM_WINDOWS
-		OutputDebugStringA(msg);
-#endif
 	}
 
 #if CROWN_PLATFORM_POSIX
