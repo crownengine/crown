@@ -7,6 +7,7 @@
 #include "core/guid.h"
 #include "core/math/color4.inl"
 #include "core/math/constants.h"
+#include "core/math/frustum.inl"
 #include "core/math/intersection.h"
 #include "core/math/math.h"
 #include "core/math/matrix4x4.inl"
@@ -2780,9 +2781,9 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("DebugLine", "add_frustum", [](lua_State *L) {
 			LuaStack stack(L);
-			stack.get_debug_line(1)->add_frustum(stack.get_matrix4x4(2)
-				, stack.get_color4(3)
-				);
+			Frustum f;
+			frustum::from_matrix(f, stack.get_matrix4x4(2));
+			stack.get_debug_line(1)->add_frustum(f, stack.get_color4(3));
 			return 0;
 		});
 	env.add_module_function("DebugLine", "reset", [](lua_State *L) {

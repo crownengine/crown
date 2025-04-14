@@ -138,11 +138,8 @@ void DebugLine::add_sphere(const Vector3 &center, const f32 radius, const Color4
 	add_circle(center, radius, VECTOR3_ZAXIS, color, segments);
 }
 
-void DebugLine::add_frustum(const Matrix4x4 &mvp, const Color4 &color)
+void DebugLine::add_frustum(const Frustum &f, const Color4 &color)
 {
-	Frustum f;
-	frustum::from_matrix(f, mvp);
-
 	Vector3 pt[8];
 	frustum::vertices(pt, f);
 
