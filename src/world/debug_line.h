@@ -64,8 +64,8 @@ struct DebugLine
 	/// the box. @a half_extents describes the size of the box along the axis.
 	void add_obb(const Matrix4x4 &tm, const Vector3 &half_extents, const Color4 &color);
 
-	/// Adds a frustum defined by @mvp.
-	void add_frustum(const Matrix4x4 &mvp, const Color4 &color);
+	/// Adds the frustum @f.
+	void add_frustum(const Frustum &f, const Color4 &color);
 
 	/// Adds the mesh described by (vertices, stride, indices, num).
 	void add_mesh(const Matrix4x4 &tm, const void *vertices, u32 stride, const u16 *indices, u32 num, const Color4 &color);
