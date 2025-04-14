@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include "core/error/error.inl"
 #include "core/math/frustum.inl"
 
 namespace crown
@@ -61,6 +62,38 @@ namespace frustum
 		f.planes[5].n.z = handedness == 0 ? -far_z : far_z;
 		f.planes[5].d   = handedness == 0 ? -far_d : far_d;
 		plane3::normalize(f.planes[5]);
+	}
+
+	void split(Frustum *splits, u32 num, const Frustum &f, f32 weight, f32 overlap)
+	{
+		CE_ENSURE(num > 1);
+
+		// See: https://developer.download.nvidia.com/SDK/10.5/opengl/src/cascaded_shadow_maps/doc/cascaded_shadow_maps.pdf
+		const f32 ratio = fabs(f.planes[5].d / f.planes[4].d);
+		const f32 diff  = fabs(f.planes[5].d - f.planes[4].d);
+
+		splits[0].planes[0] = f.planes[0];
+		splits[0].planes[1] = f.planes[1];
+		splits[0].planes[2] = f.planes[2];
+		splits[0].planes[3] = f.planes[3];
+		splits[0].planes[4] = f.planes[4];
+
+		for (u32 i = 1; i < num; ++i) {
+			const f32 si = i / f32(num);
+
+			splits[i].planes[0]   = f.planes[0];
+			splits[i].planes[1]   = f.planes[1];
+			splits[i].planes[2]   = f.planes[2];
+			splits[i].planes[3]   = f.planes[3];
+			splits[i].planes[4].n = f.planes[4].n;
+			splits[i].planes[4].d = weight * (f.planes[4].d * fpow(ratio, si)) + (1 - weight) * (f.planes[4].d + diff * si);
+			splits[i].planes[5].n = f.planes[5].n;
+
+			splits[i - 1].planes[5].n = f.planes[5].n;
+			splits[i - 1].planes[5].d = -splits[i].planes[4].d * overlap;
+		}
+
+		splits[num - 1].planes[5] = f.planes[5];
 	}
 
 } // namespace frustum
