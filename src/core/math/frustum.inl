@@ -90,6 +90,16 @@ namespace frustum
 		return true;
 	}
 
+	inline void transform(Frustum &out, const Frustum &f, const Matrix4x4 &m)
+	{
+		out.planes[0] = plane3::transform(f.planes[0], m);
+		out.planes[1] = plane3::transform(f.planes[1], m);
+		out.planes[2] = plane3::transform(f.planes[2], m);
+		out.planes[3] = plane3::transform(f.planes[3], m);
+		out.planes[4] = plane3::transform(f.planes[4], m);
+		out.planes[5] = plane3::transform(f.planes[5], m);
+	}
+
 	inline void vertices(Vector3 vertices[8], const Frustum &f)
 	{
 		// p3 ---- p2  Front face.
