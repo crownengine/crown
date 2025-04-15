@@ -107,7 +107,7 @@ struct Device
 	/// Returns command line parameters.
 	const char **argv() const;
 
-	/// Quits the application. On platorms that support it, @a exit_code is
+	/// Quits the application. On platforms that support it, @a exit_code is
 	/// returned to the system after the application exits.
 	void quit(int exit_code = EXIT_SUCCESS);
 
