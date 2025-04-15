@@ -59,6 +59,11 @@ inline f32 fsqrt(f32 a)
 	return sqrtf(a);
 }
 
+inline f32 fpow(f32 x, f32 y)
+{
+	return powf(x, y);
+}
+
 inline f32 frad(f32 deg)
 {
 	return deg * PI / 180.0f;
