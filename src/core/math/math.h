@@ -44,6 +44,9 @@ f32 ftan(f32 a);
 /// Returns the nonnegative square root of @a a.
 f32 fsqrt(f32 a);
 
+/// Returns the value of @a x raised to the power of @a y.
+f32 fpow(f32 x, f32 y);
+
 /// Returns @a deg in radians.
 f32 frad(f32 deg);
 
