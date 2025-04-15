@@ -72,8 +72,9 @@ Device
 	Returns a string identifying the engine version.
 	The form is "major.minor.micro".
 
-**quit** ()
-	Quits the application.
+**quit** ([exit_code])
+	Quits the application. On platforms that support it, *exit_code* is
+	returned to the system after the application exits.
 
 **resolution** () : float, float
 	Returns the main window resolution (width, height).

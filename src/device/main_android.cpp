@@ -87,8 +87,7 @@ struct AndroidDevice
 
 			if (!_main_thread.is_running()) {
 				_main_thread.start([](void *user_data) {
-						crown::run(*((DeviceOptions *)user_data));
-						return EXIT_SUCCESS;
+						return crown::run(*((DeviceOptions *)user_data));
 					}
 					, _opts
 					);

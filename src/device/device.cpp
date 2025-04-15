@@ -352,6 +352,7 @@ Device::Device(const DeviceOptions &opts, ConsoleServer &cs)
 	, _timestep_policy(TimestepPolicy::VARIABLE)
 	, _width(CROWN_DEFAULT_WINDOW_WIDTH)
 	, _height(CROWN_DEFAULT_WINDOW_HEIGHT)
+	, _exit_code(EXIT_SUCCESS)
 	, _quit(0)
 	, _paused(0)
 	, _needs_draw(1)
@@ -508,7 +509,7 @@ bool Device::frame()
 	return false;
 }
 
-void Device::run()
+int Device::run()
 {
 	s64 run_t0 = time::now();
 
@@ -746,11 +747,12 @@ void Device::run()
 	profiler_globals::shutdown();
 
 	_allocator.clear();
+	return _exit_code;
 }
 
-void Device::quit()
+void Device::quit(int exit_code)
 {
-	_quit = true;
+	_exit_code = exit_code & 0xff;
 	_quit = 1;
 }
 
@@ -999,15 +1001,16 @@ void Device::screenshot(const char *path)
 
 Device *_device = NULL;
 
-void run(const DeviceOptions &opts)
+int run(const DeviceOptions &opts)
 {
 	CE_ASSERT(_device == NULL, "Crown already initialized");
 	console_server_globals::init();
 	_device = CE_NEW(default_allocator(), Device)(opts, *console_server());
-	_device->run();
+	int ec = _device->run();
 	CE_DELETE(default_allocator(), _device);
 	_device = NULL;
 	console_server_globals::shutdown();
+	return ec;
 }
 
 Device *device()

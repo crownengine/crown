@@ -2565,8 +2565,12 @@ void load_api(LuaEnvironment &env)
 			stack.push_string(CROWN_VERSION);
 			return 1;
 		});
-	env.add_module_function("Device", "quit", [](lua_State * /*L*/) {
-			device()->quit();
+	env.add_module_function("Device", "quit", [](lua_State * L) {
+			LuaStack stack(L);
+			if (stack.num_args() > 0)
+				device()->quit(stack.get_int(1));
+			else
+				device()->quit();
 			return 0;
 		});
 	env.add_module_function("Device", "resolution", [](lua_State *L) {
