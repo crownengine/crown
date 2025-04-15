@@ -509,7 +509,7 @@ bool Device::frame()
 	return false;
 }
 
-int Device::run()
+int Device::main_loop()
 {
 	s64 run_t0 = time::now();
 
@@ -1001,12 +1001,12 @@ void Device::screenshot(const char *path)
 
 Device *_device = NULL;
 
-int run(const DeviceOptions &opts)
+int main_runtime(const DeviceOptions &opts)
 {
 	CE_ASSERT(_device == NULL, "Crown already initialized");
 	console_server_globals::init();
 	_device = CE_NEW(default_allocator(), Device)(opts, *console_server());
-	int ec = _device->run();
+	int ec = _device->main_loop();
 	CE_DELETE(default_allocator(), _device);
 	_device = NULL;
 	console_server_globals::shutdown();
