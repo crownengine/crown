@@ -5,6 +5,7 @@ include = [
 
 render_states = {
 	debug_line = {
+		inherit = "default"
 		states = {
 			blend_enable = true
 			blend_src = "src_alpha"
@@ -21,6 +22,7 @@ render_states = {
 	}
 
 	blit = {
+		inherit = "default"
 		states = {
 			cull_mode = "none"
 			depth_write_enable = false;
@@ -30,6 +32,7 @@ render_states = {
 	}
 
 	sprite = {
+		inherit = "default"
 		states = {
 			depth_func = "always"
 			blend_enable = true
@@ -40,9 +43,11 @@ render_states = {
 	}
 
 	mesh = {
+		inherit = "default"
 	}
 
 	noop = {
+		inherit = "default"
 		states = {
 			rgb_write_enable = false
 			alpha_write_enable = false
