@@ -66,8 +66,9 @@ struct Device
 	u16 _prev_height;
 	s64 _last_time;
 
-	s16 _quit   : 1;
-	s16 _paused : 1;
+	s16 _exit_code : 8;
+	s16 _quit      : 1;
+	s16 _paused    : 1;
 
 	std::atomic_int _needs_draw;
 
@@ -97,8 +98,8 @@ struct Device
 	/// Simulate one frame.
 	bool frame();
 
-	/// Runs the engine.
-	void run();
+	/// Runs the application until quit() is called.
+	int run();
 
 	/// Returns the number of command line parameters.
 	int argc() const;
@@ -106,8 +107,9 @@ struct Device
 	/// Returns command line parameters.
 	const char **argv() const;
 
-	/// Quits the application.
-	void quit();
+	/// Quits the application. On platorms that support it, @a exit_code is
+	/// returned to the system after the application exits.
+	void quit(int exit_code = EXIT_SUCCESS);
 
 	/// Pauses the engine.
 	void pause();
@@ -144,7 +146,7 @@ struct Device
 };
 
 /// Runs the engine.
-void run(const DeviceOptions &opts);
+int run(const DeviceOptions &opts);
 
 /// Returns the device.
 Device *device();

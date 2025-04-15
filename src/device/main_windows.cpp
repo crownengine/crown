@@ -416,10 +416,10 @@ struct WindowsDevice
 		Thread main_thread;
 		main_thread.start([](void *user_data) {
 				WindowsDevice *win = (WindowsDevice *)user_data;
-				crown::run(*win->_options);
+				int ec = crown::run(*win->_options);
 				s_exit = true;
 				PostMessageA(win->_hwnd, WM_USER + 1, 0, 0);
-				return EXIT_SUCCESS;
+				return ec;
 			}
 			, this
 			);
@@ -461,7 +461,7 @@ struct WindowsDevice
 
 		DestroyWindow(_hwnd);
 
-		return EXIT_SUCCESS;
+		return main_thread.exit_code();
 	}
 
 	LRESULT pump_events(HWND hwnd, UINT id, WPARAM wparam, LPARAM lparam)

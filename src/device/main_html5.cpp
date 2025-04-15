@@ -442,8 +442,7 @@ struct EmscriptenDevice
 		emscripten_get_element_css_size("#" CROWN_HTML5_CANVAS_NAME, &width, &height);
 		_queue.push_resolution_event(width, height);
 
-		crown::run(*opts);
-		return EXIT_SUCCESS;
+		return crown::run(*opts);
 	}
 };
 
