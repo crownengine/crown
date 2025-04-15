@@ -501,7 +501,7 @@ struct LinuxDevice
 		// Start main thread
 		Thread main_thread;
 		main_thread.start([](void *user_data) {
-				int ec = crown::run(*((DeviceOptions *)user_data));
+				int ec = crown::main_runtime(*((DeviceOptions *)user_data));
 				s_exit = true;
 				// Write something just to unlock the listening select().
 				write(exit_pipe[1], &s_exit, sizeof(s_exit));

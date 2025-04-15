@@ -416,7 +416,7 @@ struct WindowsDevice
 		Thread main_thread;
 		main_thread.start([](void *user_data) {
 				WindowsDevice *win = (WindowsDevice *)user_data;
-				int ec = crown::run(*win->_options);
+				int ec = crown::main_runtime(*win->_options);
 				s_exit = true;
 				PostMessageA(win->_hwnd, WM_USER + 1, 0, 0);
 				return ec;

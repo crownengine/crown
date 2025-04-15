@@ -99,7 +99,7 @@ struct Device
 	bool frame();
 
 	/// Runs the application until quit() is called.
-	int run();
+	int main_loop();
 
 	/// Returns the number of command line parameters.
 	int argc() const;
@@ -145,8 +145,7 @@ struct Device
 	void screenshot(const char *path);
 };
 
-/// Runs the engine.
-int run(const DeviceOptions &opts);
+int main_runtime(const DeviceOptions &opts);
 
 /// Returns the device.
 Device *device();
