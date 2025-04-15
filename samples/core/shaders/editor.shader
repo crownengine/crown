@@ -2,6 +2,7 @@ include = [ "core/shaders/common.shader" ]
 
 render_states = {
 	selection = {
+		inherit = "default"
 		states = {
 			alpha_write_enable = false
 		}

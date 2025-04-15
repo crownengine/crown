@@ -1,5 +1,22 @@
 render_states = {
+	default = {
+		states = {
+			rgb_write_enable = true
+			alpha_write_enable = true
+			depth_write_enable = true
+			depth_enable = true
+			blend_enable = false
+			depth_func = "lequal"
+			blend_src = "src_alpha"
+			blend_dst = "inv_src_alpha"
+			blend_equation = "add"
+			cull_mode = "cw"
+			primitive_type = "pt_triangles"
+		}
+	}
+
 	opacity = {
+		inherit = "default"
 		states = {
 			cull_mode = "none"
 			depth_write_enable = true
