@@ -352,8 +352,8 @@ Device::Device(const DeviceOptions &opts, ConsoleServer &cs)
 	, _timestep_policy(TimestepPolicy::VARIABLE)
 	, _width(CROWN_DEFAULT_WINDOW_WIDTH)
 	, _height(CROWN_DEFAULT_WINDOW_HEIGHT)
-	, _quit(false)
-	, _paused(false)
+	, _quit(0)
+	, _paused(0)
 	, _needs_draw(1)
 {
 	list::init_head(_worlds);
@@ -416,7 +416,7 @@ void Device::set_timestep_smoothing(u32 num_samples, u32 num_outliers, f32 avera
 
 bool Device::frame()
 {
-	if (CE_UNLIKELY(process_events() || _quit))
+	if (CE_UNLIKELY(process_events() || _quit != 0))
 		return true;
 
 	const s64 time = time::now();
@@ -461,7 +461,7 @@ bool Device::frame()
 	if (CE_UNLIKELY(!_needs_draw))
 		return false;
 
-	if (CE_LIKELY(!_paused)) {
+	if (CE_LIKELY(_paused == 0)) {
 		_resource_manager->complete_requests();
 
 		{
@@ -751,6 +751,7 @@ void Device::run()
 void Device::quit()
 {
 	_quit = true;
+	_quit = 1;
 }
 
 int Device::argc() const
@@ -765,13 +766,13 @@ const char **Device::argv() const
 
 void Device::pause()
 {
-	_paused = true;
+	_paused = 1;
 	logi(DEVICE, "Paused");
 }
 
 void Device::unpause()
 {
-	_paused = false;
+	_paused = 0;
 	logi(DEVICE, "Unpaused");
 }
 
