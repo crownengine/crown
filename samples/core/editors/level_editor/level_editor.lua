@@ -1490,7 +1490,7 @@ function LevelEditor:update(dt)
 	self._mouse.y_last = self._mouse.y
 
 	self._camera:mouse_wheel(self._mouse.wheel.delta)
-	self._camera:update(dt, self._mouse.dx, self._mouse.dy, self._keyboard, self._mouse)
+	self._camera:update(dt, self._mouse.x, self._mouse.y, self._mouse.dx, self._mouse.dy)
 
 	self:draw_camera_compass()
 

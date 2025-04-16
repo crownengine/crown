@@ -49,7 +49,7 @@ function UnitPreview:update(dt)
 		self._camera:frame_obb(obb_tm, obb_he)
 	end
 
-	self._camera:update(dt, 0, 0, {})
+	self._camera:update(dt, 0, 0, 0, 0)
 end
 
 function UnitPreview:render(dt)

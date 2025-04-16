@@ -222,14 +222,14 @@ function Camera:screen_length_to_world_length(position, length)
 	return length / Vector3.distance(a, b)
 end
 
-function Camera:update(dt, dx, dy, keyboard, mouse)
+function Camera:update(dt, x, y, dx, dy)
 	local old_pose = self:local_pose()
 	local old_target_distance = self._target_distance
 	local old_orthographic_size = self._orthographic_size
 
 	if dx ~= 0 or dy ~= 0 then
 		if self._move_callback ~= nil then
-			self._move_callback(self, mouse.x, mouse.y)
+			self._move_callback(self, x, y)
 		end
 	end
 
