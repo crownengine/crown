@@ -138,7 +138,7 @@ function Thumbnail:update(dt)
 		self._object:render(self._camera)
 	end
 
-	self._camera:update(dt, 0, 0, {})
+	self._camera:update(dt, 0, 0, 0, 0)
 	Device.render(self._world, self._camera:unit())
 	table.insert(self._pending, req)
 	Device.screenshot(req.path)
