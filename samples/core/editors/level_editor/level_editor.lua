@@ -1828,6 +1828,10 @@ function LevelEditor:camera_drag_start(mode)
 	self._camera:set_mode(mode, self._mouse.x, self._mouse.y)
 end
 
+function LevelEditor:camera_drag_start_relative(mode)
+	self._camera:set_mode(mode, 0, 0)
+end
+
 function LevelEditor:frame_objects(ids)
 	local num_objects = #ids
 

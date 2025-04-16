@@ -217,6 +217,8 @@ public class EditorView : Gtk.EventBox
 		if (camera_modifier_pressed()) {
 			if (!_mouse_left || !_mouse_middle || !_mouse_right)
 				str += "LevelEditor:camera_drag_start('idle')";
+		} else if (!_mouse_middle) {
+			str += "LevelEditor:camera_drag_start('idle')";
 		}
 
 		if (str.length != 0) {
@@ -250,6 +252,8 @@ public class EditorView : Gtk.EventBox
 				str += "LevelEditor:camera_drag_start('track')";
 			if (_mouse_right)
 				str += "LevelEditor:camera_drag_start('dolly')";
+		} else if (_mouse_middle) {
+			str += "LevelEditor:camera_drag_start('tumble')";
 		}
 
 		if (ev.button == Gdk.BUTTON_PRIMARY)
@@ -339,7 +343,15 @@ public class EditorView : Gtk.EventBox
 		else if (ev.direction == Gdk.ScrollDirection.DOWN)
 			scroll_y = 1.0;
 
-		_runtime.send_script(LevelEditorApi.mouse_wheel(ev.delta_y));
+		if (camera_modifier_pressed()) {
+			_runtime.send_script(LevelEditorApi.mouse_wheel(ev.delta_y));
+		} else {
+			_runtime.send_script("LevelEditor:camera_drag_start_relative('dolly')");
+			_runtime.send_script("LevelEditor._camera:update(1,0,%.17f,1,1)".printf(-ev.delta_y * 32.0));
+			_runtime.send_script("LevelEditor:camera_drag_start('idle')");
+			_runtime.send(DeviceApi.frame());
+		}
+
 		return Gdk.EVENT_PROPAGATE;
 	}
 

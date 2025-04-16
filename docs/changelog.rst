@@ -7,6 +7,7 @@ Changelog
 **Tools**
 
 * Sped up deployers by enabling incremental data compilation.
+* Added mouse-only shortcuts (middle-button/wheel) to tumble/dolly the camera.
 
 **Runtime**
 
