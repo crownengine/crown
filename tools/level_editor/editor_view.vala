@@ -330,7 +330,16 @@ public class EditorView : Gtk.EventBox
 
 	private bool on_scroll(Gdk.EventScroll ev)
 	{
-		_runtime.send_script(LevelEditorApi.mouse_wheel(ev.direction == Gdk.ScrollDirection.UP ? 1.0 : -1.0));
+		double scroll_y = 0.0;
+
+		if (ev.direction == Gdk.ScrollDirection.SMOOTH)
+			scroll_y = ev.delta_y;
+		else if (ev.direction == Gdk.ScrollDirection.UP)
+			scroll_y = -1.0;
+		else if (ev.direction == Gdk.ScrollDirection.DOWN)
+			scroll_y = 1.0;
+
+		_runtime.send_script(LevelEditorApi.mouse_wheel(ev.delta_y));
 		return Gdk.EVENT_PROPAGATE;
 	}
 
