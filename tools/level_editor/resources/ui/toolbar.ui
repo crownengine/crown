@@ -175,28 +175,5 @@
         <property name="homogeneous">True</property>
       </packing>
     </child>
-    <child>
-      <object class="GtkSeparatorToolItem">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-      </object>
-      <packing>
-        <property name="expand">False</property>
-        <property name="homogeneous">True</property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkToolButton" id="run">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="action_name">app.test-level</property>
-        <property name="use_underline">True</property>
-        <property name="icon_name">game-run</property>
-      </object>
-      <packing>
-        <property name="expand">False</property>
-        <property name="homogeneous">True</property>
-      </packing>
-    </child>
   </object>
 </interface>

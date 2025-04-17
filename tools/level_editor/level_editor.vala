@@ -309,11 +309,12 @@ public class LevelEditorWindow : Gtk.ApplicationWindow
 
 	public bool _fullscreen;
 
-	public LevelEditorWindow(Gtk.Application app)
+	public LevelEditorWindow(Gtk.Application app, Gtk.HeaderBar header_bar)
 	{
 		Object(application: app);
 
 		this.add_action_entries(action_entries, this);
+		this.set_titlebar(header_bar);
 
 		this.title = CROWN_EDITOR_MAIN_WINDOW_TITLE;
 		this.key_press_event.connect(this.on_key_press);
@@ -686,7 +687,9 @@ public class LevelEditorApplication : Gtk.Application
 	private Gtk.Label _inspector_stack_stopping_backend_label;
 
 	private Gtk.Toolbar _toolbar;
-	private Gtk.ToolButton _toolbar_run;
+	private Gtk.Image _run_game_image;
+	private Gtk.Image _stop_game_image;
+	private Gtk.Button _game_run;
 	private Gtk.Notebook _level_tree_view_notebook;
 	private Gtk.Notebook _console_notebook;
 	private Gtk.Notebook _project_notebook;
@@ -703,6 +706,7 @@ public class LevelEditorApplication : Gtk.Application
 	private PanelProjectsList _panel_projects_list;
 	private PanelWelcome _panel_welcome;
 	private Gtk.Stack _main_stack;
+	private Gtk.HeaderBar _header_bar;
 
 	private uint _save_timer_id;
 
@@ -964,7 +968,17 @@ public class LevelEditorApplication : Gtk.Application
 
 		Gtk.Builder builder = new Gtk.Builder.from_resource("/org/crownengine/Crown/ui/toolbar.ui");
 		_toolbar = builder.get_object("toolbar") as Gtk.Toolbar;
-		_toolbar_run = builder.get_object("run") as Gtk.ToolButton;
+
+		// Game run/stop button.
+		_run_game_image = new Gtk.Image.from_icon_name("game-run", Gtk.IconSize.MENU);
+		_run_game_image.margin = 8;
+		_stop_game_image = new Gtk.Image.from_icon_name("game-stop", Gtk.IconSize.MENU);
+		_stop_game_image.margin = 8;
+		_game_run = new Gtk.Button.from_icon_name("game-run");
+		_game_run.get_style_context().add_class("suggested-action");
+		_game_run.action_name = "app.test-level";
+		_game_run.image = _run_game_image;
+		_game_run.can_focus = false;
 
 		_editor_view_overlay = new Gtk.Overlay();
 		_editor_view_overlay.add_overlay(_toolbar);
@@ -1080,6 +1094,11 @@ public class LevelEditorApplication : Gtk.Application
 		_main_stack.add_named(_panel_new_project, "panel_new_project");
 		_main_stack.add_named(_main_vbox, "main_vbox");
 
+		_header_bar = new Gtk.HeaderBar();
+		_header_bar.show_close_button = true;
+		_header_bar.has_subtitle = false;
+		_header_bar.pack_start(_game_run);
+
 		// Delete expired logs
 		if (_preferences_dialog._log_delete_after_days.value != 0) {
 			try {
@@ -1129,7 +1148,7 @@ public class LevelEditorApplication : Gtk.Application
 	protected override void activate()
 	{
 		if (this.active_window == null) {
-			LevelEditorWindow win = new LevelEditorWindow(this);
+			LevelEditorWindow win = new LevelEditorWindow(this, _header_bar);
 			if (_window_state.has_key("level_editor_window"))
 				win.decode((Hashtable)_window_state["level_editor_window"]);
 			win.add(_main_stack);
@@ -1273,7 +1292,7 @@ public class LevelEditorApplication : Gtk.Application
 		on_runtime_disconnected(ri);
 
 		_combo.set_active_id("editor");
-		_toolbar_run.icon_name = "game-run";
+		_game_run.image = _run_game_image;
 	}
 
 	private void on_message_received(RuntimeInstance ri, ConsoleClient client, uint8[] json)
@@ -1873,7 +1892,7 @@ public class LevelEditorApplication : Gtk.Application
 		_project.delete_garbage();
 
 		if (!success) {
-			_toolbar_run.icon_name = "game-run";
+			_game_run.image = _run_game_image;
 			return;
 		}
 
@@ -2872,14 +2891,14 @@ public class LevelEditorApplication : Gtk.Application
 		if (focus != null)
 			focus.grab_focus();
 
-		string icon_name_displayed = _toolbar_run.icon_name;
+		var image_displayed = _game_run.image;
 
 		stop_game.begin((obj, res) => {
 				stop_game.end(res);
 
-				if (icon_name_displayed == "game-run") {
-					// Always change icon state regardless of failures
-					_toolbar_run.icon_name = "game-stop";
+				if (image_displayed == _run_game_image) {
+					// Always change icon state regardless of failures.
+					_game_run.image = _stop_game_image;
 
 					start_game.begin(action.name == "test-level" ? StartGame.TEST : StartGame.NORMAL);
 				}
