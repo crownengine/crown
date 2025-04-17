@@ -686,7 +686,7 @@ public class LevelEditorApplication : Gtk.Application
 	private Gtk.Label _inspector_stack_compiler_failed_compilation_label;
 	private Gtk.Label _inspector_stack_stopping_backend_label;
 
-	private Gtk.Toolbar _toolbar;
+	private Toolbar _toolbar;
 	private Gtk.Image _run_game_image;
 	private Gtk.Image _stop_game_image;
 	private Gtk.Button _game_run;
@@ -966,8 +966,7 @@ public class LevelEditorApplication : Gtk.Application
 		_inspector_stack_stopping_backend_label = stopping_backend_label();
 		_inspector_stack.add(_inspector_stack_stopping_backend_label);
 
-		Gtk.Builder builder = new Gtk.Builder.from_resource("/org/crownengine/Crown/ui/toolbar.ui");
-		_toolbar = builder.get_object("toolbar") as Gtk.Toolbar;
+		_toolbar = new Toolbar();
 
 		// Game run/stop button.
 		_run_game_image = new Gtk.Image.from_icon_name("game-run", Gtk.IconSize.MENU);
