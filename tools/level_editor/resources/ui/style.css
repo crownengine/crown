@@ -81,3 +81,7 @@ notebook > header tab {
 button.compact {
 	padding: 0px 2px 0px 2px;
 }
+
+.version-label link {
+	color: @theme_fg_color;
+}

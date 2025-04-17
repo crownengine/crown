@@ -40,6 +40,7 @@ public class Statusbar : Gtk.Box
 		_version = new Gtk.Label(null);
 		_version.track_visited_links = false;
 		_version.set_markup("<a href=\"\">" + CROWN_VERSION + "</a>");
+		_version.get_style_context().add_class("version-label");
 		_version.can_focus = false;
 		_version.activate_link.connect(() => {
 				GLib.Application.get_default().activate_action("changelog", null);
