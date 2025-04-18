@@ -113,6 +113,7 @@ public class ConsoleView : Gtk.Box
 	public Gdk.Cursor _pointer_cursor;
 	public bool _cursor_is_hovering_link;
 	public Gtk.TextView _text_view;
+	public Gtk.Overlay _text_view_overlay;
 	public Gtk.ScrolledWindow _scrolled_window;
 	public EntryText _entry;
 	public Gtk.Box _entry_hbox;
@@ -138,6 +139,15 @@ public class ConsoleView : Gtk.Box
 		_text_view.editable = false;
 		_text_view.can_focus = true;
 
+		Gtk.Button clear_button = new Gtk.Button.from_icon_name("edit-clear");
+		clear_button.margin_top = 8;
+		clear_button.margin_end = 16;
+		clear_button.valign = Gtk.Align.START;
+		clear_button.halign = Gtk.Align.END;
+		clear_button.clicked.connect(() => {
+				reset();
+			});
+
 		// Create tags for color-formatted text.
 		Gtk.TextBuffer tb = _text_view.buffer;
 		tb.tag_table.add(new Gtk.TextTag("info"));
@@ -157,24 +167,22 @@ public class ConsoleView : Gtk.Box
 		_scrolled_window.vscrollbar_policy = Gtk.PolicyType.ALWAYS;
 		_scrolled_window.add(_text_view);
 
+		_text_view_overlay = new Gtk.Overlay();
+		_text_view_overlay.add(_scrolled_window);
+		_text_view_overlay.add_overlay(clear_button);
+
 		_entry = new EntryText();
 		_entry.key_press_event.connect(on_entry_key_pressed);
 		_entry.activate.connect(on_entry_activated);
 
 		_entry_hbox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		_entry_hbox.pack_start(combo, false, false);
 		_entry_hbox.pack_start(_entry, true, true);
-		_entry_hbox.pack_end(combo, false, false);
-
-		Gtk.Button clear_button = new Gtk.Button.with_label("Clear");
-		clear_button.clicked.connect(() => {
-				reset();
-			});
 
 		Gtk.Box hbox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
 		hbox.pack_start(_entry_hbox, true, true, 0);
-		hbox.pack_start(clear_button, false, false, 0);
 
-		this.pack_start(_scrolled_window, true, true, 0);
+		this.pack_start(_text_view_overlay, true, true, 0);
 		this.pack_start(hbox, false, true, 0);
 
 		this.destroy.connect(on_destroy);
