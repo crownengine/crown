@@ -4,6 +4,7 @@
  */
 
 #include "core/debug/callstack.h"
+#include "core/debug/debug.h"
 #include "core/error/error.h"
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/string_stream.inl"
@@ -25,7 +26,7 @@ namespace error
 		loge(ERROR, buf);
 		loge(ERROR, "Stacktrace:");
 		debug::callstack(ERROR, LogSeverity::LOG_ERROR);
-		exit(EXIT_FAILURE);
+		debug::breakpoint();
 	}
 
 	void abort(const char *format, ...)
