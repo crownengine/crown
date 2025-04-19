@@ -141,10 +141,6 @@
     <file compressed="true" preprocess="xml-stripblanks">icons/browser-icon-view-symbolic.svg</file>
     <file compressed="true" preprocess="xml-stripblanks">icons/browser-list-view-symbolic.svg</file>
     <file compressed="true" preprocess="xml-stripblanks">icons/crown-black-socket.svg</file>
-    <file compressed="true" preprocess="xml-stripblanks">icons/crown-black.svg</file>
-    <file compressed="true" preprocess="xml-stripblanks">icons/crown-logo-black.svg</file>
-    <file compressed="true" preprocess="xml-stripblanks">icons/crown-logo-white.svg</file>
-    <file compressed="true" preprocess="xml-stripblanks">icons/crown-logo.svg</file>
     <file compressed="true" preprocess="xml-stripblanks">icons/crown.svg</file>
     <file compressed="true" preprocess="xml-stripblanks">icons/game-run-symbolic.svg</file>
     <file compressed="true" preprocess="xml-stripblanks">icons/game-stop-symbolic.svg</file>
