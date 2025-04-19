@@ -6,7 +6,7 @@
 #include "core/platform.h"
 
 #if CROWN_PLATFORM_WINDOWS
-#include "core/error/callstack.h"
+#include "core/debug/callstack.h"
 #ifndef WIN32_LEAN_AND_MEAN
 	#define WIN32_LEAN_AND_MEAN
 #endif
@@ -19,7 +19,7 @@
 
 namespace crown
 {
-namespace error
+namespace debug
 {
 	s32 callstack_init()
 	{
@@ -116,7 +116,7 @@ namespace error
 		SymCleanup(GetCurrentProcess());
 	}
 
-} // namespace error
+} // namespace debug
 
 } // namespace crown
 

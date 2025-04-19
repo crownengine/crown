@@ -6,14 +6,14 @@
 #include "core/platform.h"
 
 #if CROWN_PLATFORM_EMSCRIPTEN
-#include "core/error/callstack.h"
+#include "core/debug/callstack.h"
 #include "core/memory/allocator.h"
 #include "core/memory/globals.h"
 #include <emscripten/emscripten.h>
 
 namespace crown
 {
-namespace error
+namespace debug
 {
 	s32 callstack_init()
 	{
@@ -35,7 +35,7 @@ namespace error
 		default_allocator().deallocate(data);
 	}
 
-} // namespace error
+} // namespace debug
 
 } // namespace crown
 
