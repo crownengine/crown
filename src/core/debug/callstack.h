@@ -10,7 +10,7 @@
 
 namespace crown
 {
-namespace error
+namespace debug
 {
 	/// Initializes the callstack subsystem.
 	s32 callstack_init();
@@ -21,6 +21,6 @@ namespace error
 	/// Logs the current call stack.
 	void callstack(log_internal::System system, LogSeverity::Enum severity = LogSeverity::LOG_INFO);
 
-} // namespace error
+} // namespace debug
 
 } // namespace crown

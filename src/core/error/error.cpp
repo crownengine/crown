@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "core/error/callstack.h"
+#include "core/debug/callstack.h"
 #include "core/error/error.h"
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/string_stream.inl"
@@ -24,7 +24,7 @@ namespace error
 		stbsp_vsnprintf(buf, sizeof(buf), format, args);
 		loge(ERROR, buf);
 		loge(ERROR, "Stacktrace:");
-		callstack(ERROR, LogSeverity::LOG_ERROR);
+		debug::callstack(ERROR, LogSeverity::LOG_ERROR);
 		exit(EXIT_FAILURE);
 	}
 

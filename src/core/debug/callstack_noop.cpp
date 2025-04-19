@@ -6,11 +6,11 @@
 #include "core/platform.h"
 
 #if CROWN_PLATFORM_ANDROID
-#include "core/error/callstack.h"
+#include "core/debug/callstack.h"
 
 namespace crown
 {
-namespace error
+namespace debug
 {
 	s32 callstack_init()
 	{
@@ -27,7 +27,7 @@ namespace error
 		log_internal::logx(severity, system, "Callstack not supported on this platform.");
 	}
 
-} // namespace error
+} // namespace debug
 
 } // namespace crown
 

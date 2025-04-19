@@ -38,6 +38,7 @@ project ("crown-launcher")
 	configuration {}
 
 	files {
+		CROWN_DIR .. "src/core/debug/**.cpp",
 		CROWN_DIR .. "src/core/error/**.cpp",
 		CROWN_DIR .. "src/core/memory/globals.cpp",
 		CROWN_DIR .. "src/core/os.cpp",

@@ -6,7 +6,7 @@
 #include "core/platform.h"
 
 #if CROWN_PLATFORM_LINUX && (CROWN_COMPILER_GCC || CROWN_COMPILER_CLANG)
-#include "core/error/callstack.h"
+#include "core/debug/callstack.h"
 #include "core/process.h"
 #include "core/strings/string.inl"
 #include <cxxabi.h>   // __cxa_demangle
@@ -20,7 +20,7 @@
 
 namespace crown
 {
-namespace error
+namespace debug
 {
 	static int symbol_fds[2];
 	static int demangled_fds[2];
@@ -203,7 +203,7 @@ namespace error
 		}
 	}
 
-} // namespace error
+} // namespace debug
 
 } // namespace crown
 
