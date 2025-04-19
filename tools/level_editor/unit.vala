@@ -46,7 +46,7 @@ public struct Unit
 		set_local_rotation(rot);
 		set_local_scale(scl);
 	}
-
+		
 	public Value? get_component_property(Guid component_id, string key)
 	{
 		Value? val;
