@@ -1,7 +1,22 @@
 Changelog
 =========
 
-0.55.0 --- DD MMM YYYY
+0.56.0 --- DD MMM YYYY
+----------------------
+
+**Tools**
+
+* Sped up deployers by enabling incremental data compilation.
+* Added mouse-only shortcuts (middle-button/wheel) to tumble/dolly the camera.
+
+**Runtime**
+
+* HTML5: fixed GL_INVALID_OPERATION (or missing geometry) when rendering untextured meshes.
+* Data Compiler: fixed shaders not including code in some circumnstances.
+* Lua API: added an optional exit_code parameter to ``Device.quit()``.
+* Data Compiler: fixed 'static_compile' being visible to external shader resources.
+
+0.55.0 --- 03 Apr 2025
 ----------------------
 
 **Tools**

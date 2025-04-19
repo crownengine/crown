@@ -84,11 +84,14 @@ Features
 
 * Graphics
 	* High-level 3D & 2D objects (meshes, cameras, lights and sprites).
+	* Physically-based rendering pipeline.
 	* Cross-platform GLSL-like shader programming language.
+	* 3D skeletal animation.
 	* Animation state machine with events, variables and blending with simple expressions evaluator.
 	* Immediate-mode GUI API with customizable materials.
 	* TrueType text rendering via texture atlas.
 	* Flipbook sprite animation.
+	* FBX and custom mesh formats.
 	* PNG, TGA, DDS, KTX and PVR texture formats.
 	* D3D11, GL 3.2 and GLES 2.0 render backends.
 
