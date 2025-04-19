@@ -1,53 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="82"
-   height="82.000275"
+   width="64"
+   height="64"
    version="1.1"
-   viewBox="0 0 82 82.000275"
+   viewBox="0 0 64 64"
    xml:space="preserve"
    id="svg895"
-   sodipodi:docname="crown-black-socket.svg"
-   inkscape:export-filename="/home/michela/git/crown/tools/level_editor/resources/icons/512x512/apps/crown-black-socket.png"
-   inkscape:export-xdpi="599.40997"
-   inkscape:export-ydpi="599.40997"
-   inkscape:version="1.0.2 (e86c870879, 2021-01-15)"><defs
-   id="defs899" /><sodipodi:namedview
-   pagecolor="#272727"
-   bordercolor="#666666"
-   borderopacity="1"
-   objecttolerance="10"
-   gridtolerance="10"
-   guidetolerance="10"
-   inkscape:pageopacity="0"
-   inkscape:pageshadow="2"
-   inkscape:window-width="1366"
-   inkscape:window-height="704"
-   id="namedview897"
-   showgrid="false"
-   inkscape:pagecheckerboard="false"
-   showguides="false"
-   fit-margin-top="0"
-   fit-margin-left="0"
-   fit-margin-right="0"
-   fit-margin-bottom="0"
-   inkscape:zoom="2.99"
-   inkscape:cx="61.911721"
-   inkscape:cy="46.572438"
-   inkscape:window-x="0"
-   inkscape:window-y="27"
-   inkscape:window-maximized="1"
-   inkscape:current-layer="svg895"
-   inkscape:document-rotation="0" /><metadata
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"><defs
+   id="defs899" /><metadata
    id="metadata885"><rdf:RDF><cc:Work
        rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
-         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata>
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /></cc:Work></rdf:RDF></metadata>
 <style
    type="text/css"
    id="style887">
@@ -60,7 +27,7 @@
 
 <g
    id="g1614"
-   transform="translate(3)"><rect
+   transform="matrix(0.7804878,0,0,0.7804852,2.3414634,-6.5671199e-7)"><rect
      x="-3"
      y="0.0001373291"
      width="82"
