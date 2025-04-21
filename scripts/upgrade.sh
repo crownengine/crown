@@ -510,6 +510,51 @@ update_ufbx () {
 	git commit -m "3rdparty: update ufbx"
 }
 
+update_stb () {
+	# Download latest stb libs.
+	local REPO=https://github.com/nothings/stb
+	local DEST=3rdparty/stb
+	local BRANCH=master
+
+	rm -rf "${DEST}"
+	git_clone "${DEST}" "${REPO}" "${BRANCH}"
+
+	# Cleanup.
+	rm -r "${DEST}"/.git
+	rm -r "${DEST}"/.github
+	rm -r "${DEST}"/data
+	rm -r "${DEST}"/deprecated
+	rm -r "${DEST}"/docs
+	rm -r "${DEST}"/stb_image_resize_test
+	rm -r "${DEST}"/tests
+	rm -r "${DEST}"/tools
+	rm "${DEST}"/.gitignore
+	rm "${DEST}"/.travis.yml
+	rm "${DEST}"/.gitignore
+	rm "${DEST}"/README.md
+	rm "${DEST}"/stb_c_lexer.h
+	rm "${DEST}"/stb_connected_components.h
+	rm "${DEST}"/stb_divide.h
+	rm "${DEST}"/stb_ds.h
+	rm "${DEST}"/stb_dxt.h
+	rm "${DEST}"/stb_easy_font.h
+	rm "${DEST}"/stb_herringbone_wang_tile.h
+	rm "${DEST}"/stb_hexwave.h
+	rm "${DEST}"/stb_image.h
+	rm "${DEST}"/stb_image_resize2.h
+	rm "${DEST}"/stb_image_write.h
+	rm "${DEST}"/stb_include.h
+	rm "${DEST}"/stb_leakcheck.h
+	rm "${DEST}"/stb_perlin.h
+	rm "${DEST}"/stb_textedit.h
+	rm "${DEST}"/stb_tilemap_editor.h
+	rm "${DEST}"/stb_voxel_render.h
+
+	# Add changes and commit.
+	git add -f "${DEST}"
+	git commit -m "3rdparty: update stb"
+}
+
 print_help () {
 	echo "Usage: scripts/upgrade.sh <dependency-name>"
 }
@@ -546,6 +591,10 @@ while true; do
 		;;
 	ufbx)
 		update_ufbx
+		exit $?
+		;;
+	stb)
+		update_stb
 		exit $?
 		;;
 	*)
