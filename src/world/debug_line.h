@@ -55,7 +55,7 @@ struct DebugLine
 	void add_circle(const Vector3 &center, f32 radius, const Vector3 &normal, const Color4 &color, u32 segments = NUM_SEGMENTS);
 
 	/// Adds a cone with the base centered at @a base_center and the tip at @a tip.
-	void add_cone(const Vector3 &base_center, const Vector3 &tip, f32 radius, const Color4 &color, u32 segments = NUM_SEGMENTS);
+	void add_cone(const Vector3 &base_center, const Vector3 &tip, f32 radius, const Color4 &color, u32 segments = NUM_SEGMENTS, u32 rays = NUM_SEGMENTS);
 
 	/// Adds a sphere at @a center with the given @a radius and @a color.
 	void add_sphere(const Vector3 &center, const f32 radius, const Color4 &color, u32 segments = NUM_SEGMENTS);
