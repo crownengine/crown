@@ -2750,11 +2750,16 @@ void load_api(LuaEnvironment &env)
 				? stack.get_int(6)
 				: DebugLine::NUM_SEGMENTS
 				;
+			const u32 rays = stack.num_args() >= 7
+				? stack.get_int(7)
+				: DebugLine::NUM_SEGMENTS
+				;
 			stack.get_debug_line(1)->add_cone(stack.get_vector3(2)
 				, stack.get_vector3(3)
 				, stack.get_float(4)
 				, stack.get_color4(5)
 				, segments
+				, rays
 				);
 			return 0;
 		});

@@ -104,7 +104,7 @@ void DebugLine::add_circle(const Vector3 &center, f32 radius, const Vector3 &nor
 	}
 }
 
-void DebugLine::add_cone(const Vector3 &base_center, const Vector3 &tip, f32 radius, const Color4 &color, u32 segments)
+void DebugLine::add_cone(const Vector3 &base_center, const Vector3 &tip, f32 radius, const Color4 &color, u32 segments, u32 rays)
 {
 	Vector3 normal = tip - base_center;
 	normalize(normal);
@@ -119,13 +119,24 @@ void DebugLine::add_cone(const Vector3 &base_center, const Vector3 &tip, f32 rad
 
 	const Vector3 x = right * radius;
 	const Vector3 y = cross(right, normal) * radius;
-	const f32 step = PI_TWO / (f32)(segments > 3 ? segments : 3);
-	Vector3 from = base_center - y;
+	Vector3 from;
 
+	// Draw base.
+	const f32 base_step = PI_TWO / (f32)(segments > 3 ? segments : 3);
+	from = base_center - y;
 	for (u32 i = 0; i <= segments; ++i) {
-		const f32 t = step * i - PI_HALF;
+		const f32 t = base_step * i - PI_HALF;
 		const Vector3 to = base_center + x*fcos(t) + y*fsin(t);
 		add_line(from, to, color);
+		from = to;
+	}
+
+	// Draw rays.
+	const f32 ray_step = PI_TWO / (f32)(rays > 1 ? rays : 1);
+	from = base_center - y;
+	for (u32 i = 0; i <= rays; ++i) {
+		const f32 t = ray_step * i - PI_HALF;
+		const Vector3 to = base_center + x*fcos(t) + y*fsin(t);
 		add_line(from, tip, color);
 		from = to;
 	}

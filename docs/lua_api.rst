@@ -35,7 +35,7 @@ DebugLine
 **add_circle** (debug_line, center, radius, normal, color, [segments = 36])
 	Adds a circle at *center* with the given *radius* and *normal* vector.
 
-**add_cone** (debug_line, from, to, radius, color, [segments = 36])
+**add_cone** (debug_line, from, to, radius, color, [segments = 36, rays = 36])
 	Adds a cone with the base centered at *from* and the tip at *to*.
 
 **add_sphere** (debug_line, center, radius, color, [segments = 36])
