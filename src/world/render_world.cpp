@@ -1189,7 +1189,7 @@ void RenderWorld::LightManager::debug_draw(u32 start_index, u32 num, DebugLine &
 			const f32 angle  = _data.shader[i].spot_angle;
 			const f32 range  = _data.shader[i].range;
 			const f32 radius = ftan(angle)*range;
-			dl.add_cone(pos + range*dir, pos, radius, COLOR4_YELLOW);
+			dl.add_cone(pos + range*dir, pos, radius, COLOR4_YELLOW, 36, 4);
 			break;
 		}
 
