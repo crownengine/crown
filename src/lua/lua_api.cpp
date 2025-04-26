@@ -2875,7 +2875,7 @@ void load_api(LuaEnvironment &env)
 			stack.get_gui(1)->triangle(stack.get_vector2(2)
 				, stack.get_vector2(3)
 				, stack.get_vector2(4)
-				, stack.get_color4(5)
+				, stack.num_args() > 4 ? stack.get_color4(5) : COLOR4_WHITE
 				, stack.num_args() > 5 ? stack.get_float(6) : 0.0f
 				);
 			return 0;
@@ -2886,7 +2886,7 @@ void load_api(LuaEnvironment &env)
 				, stack.get_vector3(3)
 				, stack.get_vector3(4)
 				, stack.get_vector3(5)
-				, stack.get_color4(6)
+				, stack.num_args() > 5 ? stack.get_color4(6) : COLOR4_WHITE
 				, stack.num_args() > 6 ? stack.get_float(7) : 0.0f
 				);
 			return 0;
@@ -2895,7 +2895,7 @@ void load_api(LuaEnvironment &env)
 			LuaStack stack(L);
 			stack.get_gui(1)->rect(stack.get_vector3(2)
 				, stack.get_vector2(3)
-				, stack.get_color4(4)
+				, stack.num_args() > 3 ? stack.get_color4(4) : COLOR4_WHITE
 				);
 			return 0;
 		});
@@ -2904,7 +2904,7 @@ void load_api(LuaEnvironment &env)
 			stack.get_gui(1)->rect_3d(stack.get_matrix4x4(2)
 				, stack.get_vector3(3)
 				, stack.get_vector2(4)
-				, stack.get_color4(5)
+				, stack.num_args() > 4 ? stack.get_color4(5) : COLOR4_WHITE
 				, stack.num_args() > 5 ? stack.get_float(6) : 0.0f
 				);
 			return 0;
@@ -2914,7 +2914,7 @@ void load_api(LuaEnvironment &env)
 			stack.get_gui(1)->image(stack.get_vector3(2)
 				, stack.get_vector2(3)
 				, stack.get_resource_name(4)
-				, stack.get_color4(5)
+				, stack.num_args() > 4 ? stack.get_color4(5) : COLOR4_WHITE
 				);
 			return 0;
 		});
@@ -2924,7 +2924,7 @@ void load_api(LuaEnvironment &env)
 				, stack.get_vector3(3)
 				, stack.get_vector2(4)
 				, stack.get_resource_name(5)
-				, stack.get_color4(6)
+				, stack.num_args() > 5 ? stack.get_color4(6) : COLOR4_WHITE
 				, stack.num_args() > 6 ? stack.get_float(7) : 0.0f
 				);
 			return 0;
@@ -2936,7 +2936,7 @@ void load_api(LuaEnvironment &env)
 				, stack.get_vector2(4)
 				, stack.get_vector2(5)
 				, stack.get_resource_name(6)
-				, stack.get_color4(7)
+				, stack.num_args() > 6 ? stack.get_color4(7) : COLOR4_WHITE
 				);
 			return 0;
 		});
@@ -2948,7 +2948,7 @@ void load_api(LuaEnvironment &env)
 				, stack.get_vector2(5)
 				, stack.get_vector2(6)
 				, stack.get_resource_name(7)
-				, stack.get_color4(8)
+				, stack.num_args() > 7 stack.get_color4(8) : COLOR4_WHITE
 				, stack.num_args() > 8 ? stack.get_float(9) : 0.0f
 				);
 			return 0;
@@ -2960,7 +2960,7 @@ void load_api(LuaEnvironment &env)
 				, stack.get_string(4)
 				, stack.get_resource_name(5)
 				, stack.get_resource_name(6)
-				, stack.get_color4(7)
+				, stack.num_args() > 6 ? stack.get_color4(7) : COLOR4_WHITE
 				);
 			return 0;
 		});
@@ -2972,7 +2972,7 @@ void load_api(LuaEnvironment &env)
 				, stack.get_string(5)
 				, stack.get_resource_name(6)
 				, stack.get_resource_name(7)
-				, stack.get_color4(8)
+				, stack.num_args() > 7 ? stack.get_color4(8) : COLOR4_WHITE
 				, stack.num_args() > 8 ? stack.get_float(9) : 0.0f
 				);
 			return 0;

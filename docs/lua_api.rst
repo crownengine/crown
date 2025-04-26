@@ -170,48 +170,48 @@ Gui
 **move** (gui, pos)
 	Moves the Gui to *pos*.
 
-**triangle** (gui, a, b, c, color [, depth])
+**triangle** (gui, a, b, c [, color, depth])
 	Draws a triangle defined by vertices *a*, *b* and *c*.
 	Objects with a lower depth are drawn in front. If depth is omitted its value
 	is set to 0.
 
-**triangle_3d** (gui, local_pose, a, b, c, color [, depth])
+**triangle_3d** (gui, local_pose, a, b, c [, color, depth])
 	Draws a 3D triangle defined by vertices *a*, *b* and *c*.
 
-**rect** (gui, pos, size, color)
+**rect** (gui, pos, size [, color])
 	Draws a rectangle.
 	If pos is a Vector3, the z element specifies the drawing depth. Objects with
 	a lower depth are drawn in front. If pos is a Vector2, the z elements is set
 	to 0.
 
-**rect_3d** (gui, local_pose, pos, size, color [, depth])
+**rect_3d** (gui, local_pose, pos, size [, color, depth])
 	Draws a 3D rectangle.
 
-**image** (gui, pos, size, material_resource, color)
+**image** (gui, pos, size, material_resource [, color])
 	Draws an image.
 	If pos is a Vector3, the z element specifies the drawing depth. Objects with
 	a lower depth are drawn in front. If pos is a Vector2, the z elements is set
 	to 0.
 
-**image_3d** (gui, local_pose, pos, size, material_resource, color [, depth])
+**image_3d** (gui, local_pose, pos, size, material_resource [, color, depth])
 	Draws a 3D image.
 
-**image_uv** (gui, pos, size, uv0, uv1, material_resource, color)
+**image_uv** (gui, pos, size, uv0, uv1, material_resource [, color])
 	Draws an image with explicit UV coordinates.
 	If pos is a Vector3, the z element specifies the drawing depth. Objects with
 	a lower depth are drawn in front. If pos is a Vector2, the z elements is set
 	to 0.
 
-**image_3d_uv** (gui, local_pose, pos, size, uv0, uv1, material_resource, color [, depth])
+**image_3d_uv** (gui, local_pose, pos, size, uv0, uv1, material_resource [, color, depth])
 	Draws a 3D image with explicit UV coordinates.
 
-**text** (gui, pos, font_size, str, font_resource, material_resource, color)
+**text** (gui, pos, font_size, str, font_resource, material_resource [, color])
 	Draws text.
 	If pos is a Vector3, the z element specifies the drawing depth. Objects with
 	a lower depth are drawn in front. If pos is a Vector2, the z elements is set
 	to 0.
 
-**text_3d** (gui, local_pose, pos, font_size, str, font_resource, material_resource, color [, depth])
+**text_3d** (gui, local_pose, pos, font_size, str, font_resource, material_resource [, color, depth])
 	Draws 3D text.
 
 **material** (material_resource) : Material

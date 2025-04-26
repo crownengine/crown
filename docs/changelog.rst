@@ -17,6 +17,7 @@ Changelog
 * Data Compiler: fixed 'static_compile' being visible to external shader resources.
 * Lua API: added an optional exit_code parameter to ``Device.quit()``.
 * Lua API: added an optional rays parameter to ``DebugLine.add_cone()``.
+* Lua API: the color parameter in all ``Gui`` functions is now optional and defaults to ``Color4.white()``.
 
 0.55.0 --- 03 Apr 2025
 ----------------------
