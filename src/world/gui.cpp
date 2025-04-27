@@ -309,98 +309,91 @@ void Gui::text_3d(const Matrix4x4 &local_pose, const Vector3 &pos, u32 font_size
 	const FontResource *fr = (FontResource *)_resource_manager->get(RESOURCE_TYPE_FONT, font);
 	const f32 scale = (f32)font_size / (f32)fr->font_size;
 
-	f32 pen_x;
-	f32 pen_y;
-	f32 pen_advance_x = 0.0f;
-	f32 pen_advance_y = 0.0f;
-
 	VertexData *vd = (VertexData *)_buffer->vertex_buffer_end();
 	u16 *id = (u16 *)_buffer->index_buffer_end();
 
-	const u32 len = strlen32(str);
 	u32 num_vertices = 0;
 	u32 num_indices = 0;
-	for (u32 i = 0; i < len; ++i) {
-		switch (str[i]) {
-		case '\n':
-			pen_advance_x = 0.0f;
-			pen_advance_y -= scale*fr->font_size;
+
+	u32 cp;
+	u32 state = 0;
+	f32 pen_x = 0.0f;
+	f32 pen_y = 0.0f;
+	const GlyphData deffault_glyph = {};
+
+	for (const u8 *ch = (const u8 *)str; *ch; ++ch) {
+		if (utf8::decode(&state, &cp, *ch) != UTF8_ACCEPT)
 			continue;
 
-		case '\t':
-			pen_advance_x += scale*font_size*4;
+		if (cp == '\n') {
+			pen_x = 0.0f;
+			pen_y -= scale*fr->font_size;
+			continue;
+		} else if (cp == '\t') {
+			pen_x += scale*font_size*4;
 			continue;
 		}
 
-		u32 state = 0;
-		u32 code_point = 0;
-		if (utf8::decode(&state, &code_point, str[i]) == UTF8_ACCEPT) {
-			const GlyphData deffault_glyph = {};
-			const GlyphData *glyph = font_resource::glyph(fr, code_point, &deffault_glyph);
+		const GlyphData *glyph = font_resource::glyph(fr, cp, &deffault_glyph);
+		const f32 baseline = glyph->height - glyph->y_offset;
 
-			const f32 baseline = glyph->height - glyph->y_offset;
+		// Glyph position coords.
+		const f32 x0 = pen_x + pos.x + scale*glyph->x_offset;
+		const f32 y0 = pen_y + pos.y - scale*baseline;
+		const f32 x1 = x0 + scale*glyph->width;
+		const f32 y1 = y0 + scale*glyph->height;
 
-			// Set pen position
-			pen_x = pos.x + scale*glyph->x_offset;
-			pen_y = pos.y - scale*baseline;
+		pen_x += scale*glyph->x_advance;
 
-			// Position coords
-			const f32 x0 = (pen_x + pen_advance_x);
-			const f32 y0 = (pen_y + pen_advance_y);
-			const f32 x1 = (pen_x + pen_advance_x + scale*glyph->width);
-			const f32 y1 = (pen_y + pen_advance_y + scale*glyph->height);
+		// Glyph atlas coords.
+		const f32 u0 = glyph->x / fr->texture_size;
+		const f32 v1 = glyph->y / fr->texture_size; // Upper-left char corner
+		const f32 u1 = glyph->width  / fr->texture_size + u0;
+		const f32 v0 = glyph->height / fr->texture_size + v1; // Bottom-left char corner
 
-			// Texture coords
-			const f32 u0 = glyph->x / fr->texture_size;
-			const f32 v1 = glyph->y / fr->texture_size; // Upper-left char corner
-			const f32 u1 = glyph->width  / fr->texture_size + u0;
-			const f32 v0 = glyph->height / fr->texture_size + v1; // Bottom-left char corner
+		const u32 abgr = to_abgr(color);
 
-			// Fill vertex buffer
-			vd[0].pos.x = x0;
-			vd[0].pos.y = y0;
-			vd[0].pos.z = pos.z;
-			vd[0].uv.x  = u0;
-			vd[0].uv.y  = v0;
-			vd[0].col   = to_abgr(color);
+		// Fill vertex buffer.
+		vd[0].pos.x = x0;
+		vd[0].pos.y = y0;
+		vd[0].pos.z = pos.z;
+		vd[0].uv.x  = u0;
+		vd[0].uv.y  = v0;
+		vd[0].col   = abgr;
 
-			vd[1].pos.x = x1;
-			vd[1].pos.y = y0;
-			vd[1].pos.z = pos.z;
-			vd[1].uv.x  = u1;
-			vd[1].uv.y  = v0;
-			vd[1].col   = to_abgr(color);
+		vd[1].pos.x = x1;
+		vd[1].pos.y = y0;
+		vd[1].pos.z = pos.z;
+		vd[1].uv.x  = u1;
+		vd[1].uv.y  = v0;
+		vd[1].col   = abgr;
 
-			vd[2].pos.x = x1;
-			vd[2].pos.y = y1;
-			vd[2].pos.z = pos.z;
-			vd[2].uv.x  = u1;
-			vd[2].uv.y  = v1;
-			vd[2].col   = to_abgr(color);
+		vd[2].pos.x = x1;
+		vd[2].pos.y = y1;
+		vd[2].pos.z = pos.z;
+		vd[2].uv.x  = u1;
+		vd[2].uv.y  = v1;
+		vd[2].col   = abgr;
 
-			vd[3].pos.x = x0;
-			vd[3].pos.y = y1;
-			vd[3].pos.z = pos.z;
-			vd[3].uv.x  = u0;
-			vd[3].uv.y  = v1;
-			vd[3].col   = to_abgr(color);
+		vd[3].pos.x = x0;
+		vd[3].pos.y = y1;
+		vd[3].pos.z = pos.z;
+		vd[3].uv.x  = u0;
+		vd[3].uv.y  = v1;
+		vd[3].col   = abgr;
 
-			// Fill index buffer
-			id[0] = num_vertices + 0;
-			id[1] = num_vertices + 1;
-			id[2] = num_vertices + 2;
-			id[3] = num_vertices + 0;
-			id[4] = num_vertices + 2;
-			id[5] = num_vertices + 3;
+		// Fill index buffer.
+		id[0] = num_vertices + 0;
+		id[1] = num_vertices + 1;
+		id[2] = num_vertices + 2;
+		id[3] = num_vertices + 0;
+		id[4] = num_vertices + 2;
+		id[5] = num_vertices + 3;
 
-			// Advance pen position
-			pen_advance_x += scale*glyph->x_advance;
-
-			vd += 4;
-			id += 6;
-			num_vertices += 4;
-			num_indices  += 6;
-		}
+		vd += 4;
+		id += 6;
+		num_vertices += 4;
+		num_indices  += 6;
 	}
 
 	_buffer->submit_with_material(num_vertices
