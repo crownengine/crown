@@ -121,6 +121,9 @@ struct Gui
 	///
 	void text(const Vector3 &pos, u32 font_size, const char *str, StringId64 font, StringId64 material, const Color4 &color = COLOR4_WHITE);
 
+	///
+	Vector2 text_extents(const u32 font_size, const char *str, StringId64 font);
+
 	/// Returns the material @a material_resource.
 	Material *material(ResourceId material_resource);
 };
