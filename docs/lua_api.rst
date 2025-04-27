@@ -211,6 +211,10 @@ Gui
 	a lower depth are drawn in front. If pos is a Vector2, the z elements is set
 	to 0.
 
+**text_extents** (gui, font_size, str, font_resource) : Vector2
+	Returns the extents of the text *str* if drawn using *font_resource* at size
+	*font_size*.
+
 **text_3d** (gui, local_pose, pos, font_size, str, font_resource, material_resource [, color, depth])
 	Draws 3D text.
 

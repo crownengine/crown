@@ -2964,6 +2964,15 @@ void load_api(LuaEnvironment &env)
 				);
 			return 0;
 		});
+	env.add_module_function("Gui", "text_extents", [](lua_State *L) {
+			LuaStack stack(L);
+			Vector2 e = stack.get_gui(1)->text_extents(stack.get_int(2)
+				, stack.get_string(3)
+				, stack.get_resource_name(4)
+				);
+			stack.push_vector2(e);
+			return 1;
+		});
 	env.add_module_function("Gui", "text_3d", [](lua_State *L) {
 			LuaStack stack(L);
 			stack.get_gui(1)->text_3d(stack.get_matrix4x4(2)

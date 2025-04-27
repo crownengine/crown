@@ -19,6 +19,7 @@ Changelog
 * Lua API: added an optional rays parameter to ``DebugLine.add_cone()``.
 * Lua API: the color parameter in all ``Gui`` functions is now optional and defaults to ``Color4.white()``.
 * Lua API: fixed several issues when calling ``Gui.text*()`` with utf8-encoded strings.
+* Lua API: added ``Gui.text_extents()``.
 
 0.55.0 --- 03 Apr 2025
 ----------------------
