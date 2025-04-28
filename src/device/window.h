@@ -96,11 +96,11 @@ struct Window
 	virtual void set_fullscreen(bool fullscreen) = 0;
 
 	/// Sets the mouse @a cursor on this window. Setting the mode to
-	/// CursorMode::DISABLED hides the cursor and automatically re-centers it
-	/// every time is moved.
 	virtual void set_cursor(MouseCursor::Enum cursor) = 0;
 
-	/// Sets the mouse cursor @a mode on this window
+	/// Sets the mouse cursor @a mode on this window.
+	/// CursorMode::DISABLED hides the cursor and automatically re-centers it
+	/// every time it is moved.
 	virtual void set_cursor_mode(CursorMode::Enum mode) = 0;
 
 	/// Returns the native window handle or NULL if the platform does not support it.
