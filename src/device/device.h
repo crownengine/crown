@@ -66,9 +66,10 @@ struct Device
 	u16 _prev_height;
 	s64 _last_time;
 
-	u16 _exit_code : 8;
-	u16 _quit      : 1;
-	u16 _paused    : 1;
+	u16 _exit_code   : 8;
+	u16 _quit        : 1;
+	u16 _paused      : 1;
+	u16 _last_paused : 1;
 
 	std::atomic_int _needs_draw;
 
