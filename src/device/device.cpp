@@ -427,6 +427,11 @@ bool Device::frame()
 	} else if (CE_UNLIKELY(_paused == 1 && _last_paused == 0)) {
 		_last_paused = 1;
 		logi(DEVICE, "Paused");
+
+		// Having the cursor hidden while the game is paused
+		// is confusing and should be avoided.
+		if (_window)
+			_window->set_cursor_mode(CursorMode::NORMAL);
 	}
 
 	const s64 time = time::now();
