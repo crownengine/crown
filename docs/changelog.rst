@@ -9,6 +9,7 @@ Changelog
 * Sped up deployers by enabling incremental data compilation.
 * Added mouse-only shortcuts (middle-button/wheel) to tumble/dolly the camera.
 * Added support to JPEG image format for textures.
+* Fixed importing sounds.
 
 **Runtime**
 
