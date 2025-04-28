@@ -1363,14 +1363,15 @@ Window
 	Sets whether the window is *fullscreen*.
 
 **set_cursor** (cursor)
-	Sets the mouse *cursor* on this window. Cursor can be any of ``arrow``, ``hand``,
-	``text_input``, ``corner_top_left``, ``corner_top_right``, ``corner_bottom_left``,
-	``corner_bottom_right``, ``size_horizontal``, ``size_vertical`` or ``wait``.
+	Sets the mouse *cursor* on this window. Cursor can be any of ``arrow``,
+	``hand``, ``text_input``, ``corner_top_left``, ``corner_top_right``,
+	``corner_bottom_left``, ``corner_bottom_right``, ``size_horizontal``,
+	``size_vertical`` or ``wait``.
 
 **set_cursor_mode** (cursor, mode)
-	Sets the mouse cursor *mode* on this window.  Mode can be either ``normal`` or ``disabled``.
-	Setting the mode to ``disabled`` hides the cursor and automatically re-centers it every time it
-	is moved.
+	Sets the mouse cursor *mode* on this window.  Mode can be either ``normal``
+	or ``disabled``.  Setting the mode to ``disabled`` hides the cursor and
+	automatically re-centers it every time it is moved.
 
 World
 =====
