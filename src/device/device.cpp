@@ -344,6 +344,7 @@ Device::Device(const DeviceOptions &opts, ConsoleServer &cs)
 	, _exit_code(EXIT_SUCCESS)
 	, _quit(0)
 	, _paused(0)
+	, _last_paused(0)
 	, _needs_draw(1)
 {
 	list::init_head(_worlds);
@@ -408,6 +409,14 @@ bool Device::frame()
 {
 	if (CE_UNLIKELY(process_events() || _quit != 0))
 		return true;
+
+	if (CE_UNLIKELY(_paused == 0 && _last_paused == 1)) {
+		_last_paused = 0;
+		logi(DEVICE, "Resumed");
+	} else if (CE_UNLIKELY(_paused == 1 && _last_paused == 0)) {
+		_last_paused = 1;
+		logi(DEVICE, "Paused");
+	}
 
 	const s64 time = time::now();
 	const s64 raw_dt_ticks = time - _last_time;
@@ -758,13 +767,11 @@ const char **Device::argv() const
 void Device::pause()
 {
 	_paused = 1;
-	logi(DEVICE, "Paused");
 }
 
 void Device::unpause()
 {
 	_paused = 0;
-	logi(DEVICE, "Unpaused");
 }
 
 void Device::resolution(u16 &width, u16 &height)
