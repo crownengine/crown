@@ -5,6 +5,7 @@
 
 #include "config.h"
 #include "core/containers/array.inl"
+#include "core/debug/debug.h"
 #include "core/filesystem/file.h"
 #include "core/filesystem/filesystem.h"
 #include "core/filesystem/filesystem_apk.h"
@@ -234,32 +235,19 @@ static void device_command_crash(ConsoleServer &cs, u32 client_id, const JsonArr
 	CE_UNUSED(user_data);
 	TempAllocator1024 ta;
 
-	struct CrashType
-	{
-		enum Enum
-		{
-			DIVISION_BY_ZERO,
-			UNALIGNED_ACCESS,
-			SEGMENTATION_FAULT,
-			OUT_OF_MEMORY,
-			ASSERT,
-
-			COUNT
-		};
-	};
-
 	struct
 	{
-		const char *type;
+		const char *type_name;
 		const char *desc;
+		CrashType::Enum type;
 	}
 	crash_info[] =
 	{
-		{ "div_by_zero", "Divide a number by zero." },
-		{ "unaligned", "Do an unaligned memory access." },
-		{ "segfault", "Trigger a segmentation fault." },
-		{ "oom", "Allocate too much memory." },
-		{ "assert", "Call CE_ASSERT(false)." }
+		{ "div_by_zero", "Divide a number by zero.",       CrashType::DIVISION_BY_ZERO   },
+		{ "unaligned",   "Do an unaligned memory access.", CrashType::UNALIGNED_ACCESS   },
+		{ "segfault",    "Trigger a segmentation fault.",  CrashType::SEGMENTATION_FAULT },
+		{ "oom",         "Allocate too much memory.",      CrashType::OUT_OF_MEMORY      },
+		{ "assert",      "Call CE_ASSERT(false).",         CrashType::ASSERT             }
 	};
 	CE_STATIC_ASSERT(countof(crash_info) == CrashType::COUNT);
 
@@ -270,24 +258,25 @@ static void device_command_crash(ConsoleServer &cs, u32 client_id, const JsonArr
 
 	DynamicString subcmd(ta);
 	sjson::parse_string(subcmd, args[1]);
-	if (subcmd == crash_info[CrashType::DIVISION_BY_ZERO].type) {
-		f32(time::now()) / 0.0f;
-	} else if (subcmd == crash_info[CrashType::UNALIGNED_ACCESS].type) {
-		CE_ALIGN_DECL(alignof(s64), u8 buf[16]);
-		*((s64 *)&buf[1]) = time::now();
-	} else if (subcmd == crash_info[CrashType::SEGMENTATION_FAULT].type) {
-		*((s64 *)(uintptr_t)time::now()) = time::now();
-	} else if (subcmd == crash_info[CrashType::OUT_OF_MEMORY].type) {
-		while (s64 t = time::now())
-			*((s64 *)malloc(1024*1024)) = t;
-	} else if (subcmd == crash_info[CrashType::ASSERT].type) {
-		CE_ASSERT(false, "False");
-	} else if (subcmd == "help") {
-		for (u32 i = 0; i < CrashType::COUNT; ++i) {
-			logi(DEVICE, "%s %s", crash_info[i].type, crash_info[i].desc);
+
+	if (subcmd == "help") {
+		for (u32 i = 0; i < countof(crash_info); ++i) {
+			logi(DEVICE, "%s %s", crash_info[i].type_name, crash_info[i].desc);
 		}
 	} else {
-		loge(DEVICE, "Unknown crash parameter");
+		// Decode crash type.
+		CrashType::Enum crash_type = CrashType::COUNT;
+		for (u32 i = 0; i < countof(crash_info); ++i) {
+			if (subcmd == crash_info[i].type_name) {
+				crash_type = crash_info[i].type;
+				break;
+			}
+		}
+
+		if (crash_type == CrashType::COUNT)
+			loge(DEVICE, "Unknown crash parameter");
+		else
+			debug::crash(crash_type);
 	}
 }
 
