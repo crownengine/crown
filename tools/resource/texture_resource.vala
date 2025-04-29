@@ -61,11 +61,11 @@ public struct TextureResource
 		_db = db;
 		_id = id;
 
-		_db.create(_id, "texture");
+		_db.create(_id, OBJECT_TYPE_TEXTURE);
+		_db.set_property_string(_id, "source", source_image);
 
 		for (int tp = 0; tp < TargetPlatform.COUNT; ++tp) {
 			string platform = ((TargetPlatform)tp).to_key();
-			_db.set_property_string(_id, "source", source_image);
 			_db.set_property_string(_id, "output." + platform + ".format", output_format.to_key());
 			_db.set_property_bool(_id, "output." + platform + ".generate_mips", generate_mips);
 			_db.set_property_bool(_id, "output." + platform + ".normal_map", is_normal_map);
@@ -95,7 +95,7 @@ public struct TextureResource
 
 	public int save(Project project, string resource_name)
 	{
-		return _db.save(project.absolute_path(resource_name) + ".texture", _id);
+		return _db.save(project.absolute_path(resource_name) + "." + OBJECT_TYPE_TEXTURE, _id);
 	}
 
 	public static ImportResult import(ProjectStore project_store, string destination_dir, SList<string> filenames)
