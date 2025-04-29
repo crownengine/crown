@@ -16,7 +16,7 @@ namespace crown
 /// @ingroup Debug
 namespace debug
 {
-	///
+	/// Triggers a breakpoint.
 	void breakpoint();
 
 } // namespace debug
