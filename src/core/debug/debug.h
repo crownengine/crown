@@ -11,6 +11,20 @@
 /// @ingroup Core
 namespace crown
 {
+struct CrashType
+{
+	enum Enum
+	{
+		DIVISION_BY_ZERO,
+		UNALIGNED_ACCESS,
+		SEGMENTATION_FAULT,
+		OUT_OF_MEMORY,
+		ASSERT,
+
+		COUNT
+	};
+};
+
 /// Debug utils.
 ///
 /// @ingroup Debug
@@ -18,6 +32,9 @@ namespace debug
 {
 	/// Triggers a breakpoint.
 	void breakpoint();
+
+	/// Crashes the application.
+	void crash(CrashType::Enum type);
 
 } // namespace debug
 
