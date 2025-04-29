@@ -7,8 +7,28 @@ using Gee;
 
 namespace Crown
 {
-public class SoundResource
+public struct SoundResource
 {
+	public Database _db;
+	public Guid _id;
+
+	public SoundResource(Database db
+		, Guid id
+		, string source_sound
+		)
+	{
+		_db = db;
+		_id = id;
+
+		_db.create(_id, OBJECT_TYPE_SOUND);
+		_db.set_property_string(_id, "source", source_sound);
+	}
+
+	public int save(Project project, string resource_name)
+	{
+		return _db.save(project.absolute_path(resource_name) + "." + OBJECT_TYPE_SOUND, _id);
+	}
+
 	public static ImportResult import(ProjectStore project_store, string destination_dir, SList<string> filenames)
 	{
 		Project project = project_store._project;
@@ -28,14 +48,10 @@ public class SoundResource
 				return ImportResult.ERROR;
 			}
 
-			Hashtable sound = new Hashtable();
-			sound["source"] = resource_path;
-
-			try {
-				SJSON.save(sound, project.absolute_path(resource_name) + ".sound");
-			} catch (JsonWriteError e) {
+			Database db = new Database(project);
+			var sound_resource = SoundResource(db, Guid.new_guid(), resource_path);
+			if (sound_resource.save(project, resource_name) != 0)
 				return ImportResult.ERROR;
-			}
 		}
 
 		return ImportResult.SUCCESS;

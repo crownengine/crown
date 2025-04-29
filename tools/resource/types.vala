@@ -17,6 +17,7 @@ const string OBJECT_TYPE_MESH_BONE               = "mesh_bone";
 const string OBJECT_TYPE_MESH_SKELETON           = "mesh_skeleton";
 const string OBJECT_TYPE_MESH_ANIMATION          = "mesh_animation";
 const string OBJECT_TYPE_SCRIPT                  = "script";
+const string OBJECT_TYPE_SOUND                   = "sound";
 const string OBJECT_TYPE_SOUND_SOURCE            = "sound_source";
 const string OBJECT_TYPE_SPRITE_RENDERER         = "sprite_renderer";
 const string OBJECT_TYPE_STATE_MACHINE           = "state_machine";
