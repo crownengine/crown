@@ -21,6 +21,7 @@ const string OBJECT_TYPE_MESH_RENDERER           = "mesh_renderer";
 const string OBJECT_TYPE_MESH_SKELETON           = "mesh_skeleton";
 const string OBJECT_TYPE_NODE_ANIMATION          = "node_animation";
 const string OBJECT_TYPE_SCRIPT                  = "script";
+const string OBJECT_TYPE_SOUND                   = "sound";
 const string OBJECT_TYPE_SOUND_SOURCE            = "sound_source";
 const string OBJECT_TYPE_SPRITE                  = "sprite";
 const string OBJECT_TYPE_SPRITE_ANIMATION        = "sprite_animation";
