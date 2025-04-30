@@ -106,7 +106,7 @@ struct SoundInstance
 		CE_ASSERT(alIsBuffer(_buffer), "alGenBuffers: error");
 
 		ALenum fmt = AL_INVALID_ENUM;
-		switch (sr.bits_ps) {
+		switch (sr.bit_depth) {
 		case  8: fmt = sr.channels > 1 ? AL_FORMAT_STEREO8  : AL_FORMAT_MONO8; break;
 		case 16: fmt = sr.channels > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16; break;
 		default: CE_FATAL("Number of bits per sample not supported."); break;

@@ -58,29 +58,24 @@ namespace sound_resource_internal
 
 		Buffer sound = opts.read(name.c_str());
 		const WAVHeader *wav = (const WAVHeader *)array::begin(sound);
-		const char *wavdata = (const char *)&wav[1];
 
-		// Write
+		// Write.
 		SoundResource sr;
-		sr.version      = RESOURCE_HEADER(RESOURCE_VERSION_SOUND);
-		sr.size         = wav->data_size;
-		sr.sample_rate  = wav->fmt_sample_rate;
-		sr.avg_bytes_ps = wav->fmt_avarage;
-		sr.channels     = wav->fmt_channels;
-		sr.block_size   = wav->fmt_block_align;
-		sr.bits_ps      = wav->fmt_bits_ps;
-		sr.sound_type   = SoundType::WAV;
+		sr.version     = RESOURCE_HEADER(RESOURCE_VERSION_SOUND);
+		sr.type        = SoundType::WAV;
+		sr.size        = wav->data_size;
+		sr.sample_rate = wav->fmt_sample_rate;
+		sr.channels    = wav->fmt_channels;
+		sr.bit_depth   = wav->fmt_bits_ps;
 
 		opts.write(sr.version);
+		opts.write(sr.type);
 		opts.write(sr.size);
 		opts.write(sr.sample_rate);
-		opts.write(sr.avg_bytes_ps);
 		opts.write(sr.channels);
-		opts.write(sr.block_size);
-		opts.write(sr.bits_ps);
-		opts.write(sr.sound_type);
+		opts.write(sr.bit_depth);
 
-		opts.write(wavdata, wav->data_size);
+		opts.write(&wav[1], sr.size);
 
 		return 0;
 	}
