@@ -18,21 +18,20 @@ struct SoundType
 {
 	enum Enum
 	{
-		WAV,
-		OGG
+		WAV, ///< Waveform Audio File Format.
+		OGG  ///< Ogg Vorbis audio files.
 	};
 };
 
 struct SoundResource
 {
 	u32 version;
-	u32 size;
-	u32 sample_rate;
-	u32 avg_bytes_ps;
-	u32 channels;
-	u16 block_size;
-	u16 bits_ps;
-	u32 sound_type;
+	u32 type;        ///< SoundType::Enum
+	u32 size;        ///< Audio data size in bytes.
+	u32 sample_rate; ///< Sampling rate in Hz.
+	u16 channels;    ///< Number of audio channels.
+	u16 bit_depth;   ///< Audio samples resolution in bits.
+	// u8 data[size]
 };
 
 namespace sound_resource_internal
