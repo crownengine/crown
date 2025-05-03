@@ -55,8 +55,8 @@ CompileOptions::CompileOptions(File &output
 	, Platform::Enum platform
 	, bool bundle
 	)
-	: _file(output)
-	, _binary_writer(_file)
+	: _output(output)
+	, _binary_writer(_output)
 	, _new_dependencies(new_dependencies)
 	, _new_requirements(new_requirements)
 	, _new_requirement_globs(default_allocator())

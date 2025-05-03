@@ -64,7 +64,7 @@ namespace config_resource_internal
 			destination_path(dest, opts._resource_id);
 
 			File *config = opts._data_filesystem.open(dest.c_str(), FileOpenMode::READ);
-			file::copy(opts._file, *config, config->size());
+			file::copy(opts._output, *config, config->size());
 			opts._data_filesystem.close(*config);
 		} else {
 			opts.write(buf);
