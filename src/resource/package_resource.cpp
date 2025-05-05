@@ -238,32 +238,50 @@ namespace package_resource_internal
 			for (u32 ii = 0; ii < array::size(resources); ++ii) {
 				ResourceId id = resource_id(resources[ii].type, resources[ii].name);
 
-				// Append data to bundle.
-				TempAllocator256 ta;
-				DynamicString dest(ta);
-				destination_path(dest, id);
+				{
+					// Append data to bundle.
+					TempAllocator256 ta;
+					DynamicString dest(ta);
+					destination_path(dest, id);
 
-				File *data_file = opts._data_filesystem.open(dest.c_str(), FileOpenMode::READ);
-				if (!data_file->is_open()) {
+					File *data_file = opts._data_filesystem.open(dest.c_str(), FileOpenMode::READ);
+					if (!data_file->is_open()) {
+						opts._data_filesystem.close(*data_file);
+						RETURN_IF_FALSE(false, opts, "Failed to open data");
+					}
+
+					// Align data to a 16-bytes boundary.
+					bundle.align(16);
+					const u32 data_offset = array::size(bundle_data);
+					const u32 data_size = data_file->size();
+
+					file::copy(bundle_file, *data_file, data_size);
 					opts._data_filesystem.close(*data_file);
-					RETURN_IF_FALSE(false, opts, "Failed to open data");
+
+					// Write ResourceOffset.
+					opts.write(resources[ii].type);
+					opts.write(resources[ii].name);
+					opts.write(data_offset);
+					opts.write(data_size);
+					opts.write(resources[ii].online_order);
+					opts.write(resources[ii]._pad);
 				}
 
-				// Align data to a 16-bytes boundary.
-				bundle.align(16);
-				const u32 data_offset = array::size(bundle_data);
-				const u32 data_size = data_file->size();
+				{
+					// Copy stream data, if any, to bundle dir.
+					TempAllocator256 ta;
+					DynamicString stream_dest(ta);
+					stream_destination_path(stream_dest, id);
 
-				file::copy(bundle_file, *data_file, data_size);
-				opts._data_filesystem.close(*data_file);
-
-				// Write ResourceOffset.
-				opts.write(resources[ii].type);
-				opts.write(resources[ii].name);
-				opts.write(data_offset);
-				opts.write(data_size);
-				opts.write(resources[ii].online_order);
-				opts.write(resources[ii]._pad);
+					File *stream = opts._data_filesystem.open(stream_dest.c_str(), FileOpenMode::READ);
+					if (stream->is_open()) {
+						File *bundle_stream = opts._output_filesystem.open(stream_dest.c_str(), FileOpenMode::WRITE);
+						RETURN_IF_FALSE(bundle_stream->is_open(), opts, "Failed to open bundle stream");
+						file::copy(*bundle_stream, *stream, stream->size());
+						opts._output_filesystem.close(*bundle_stream);
+					}
+					opts._data_filesystem.close(*stream);
+				}
 			}
 
 			// Write bundled data.

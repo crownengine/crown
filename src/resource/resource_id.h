@@ -39,4 +39,7 @@ ResourceId resource_id(const char *path);
 /// Returns the destination @a path of the resource @a id.
 void destination_path(DynamicString &path, ResourceId id);
 
+/// Returns the stream destination @a path of the resource @a id.
+void stream_destination_path(DynamicString &path, ResourceId id);
+
 } // namespace crown

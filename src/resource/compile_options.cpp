@@ -45,6 +45,7 @@ static void sjson_error(const char *msg, void *user_data)
 }
 
 CompileOptions::CompileOptions(File &output
+	, File &stream_output
 	, HashMap<DynamicString, u32> &new_dependencies
 	, HashMap<DynamicString, u32> &new_requirements
 	, DataCompiler &dc
@@ -56,6 +57,7 @@ CompileOptions::CompileOptions(File &output
 	, bool bundle
 	)
 	: _output(output)
+	, _stream_output(stream_output)
 	, _binary_writer(_output)
 	, _new_dependencies(new_dependencies)
 	, _new_requirements(new_requirements)

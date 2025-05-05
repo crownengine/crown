@@ -59,6 +59,19 @@ void ResourceLoader::register_fallback(StringId64 type, StringId64 name)
 	hash_map::set(_fallback, type, name);
 }
 
+File *ResourceLoader::open_stream(StringId64 type, StringId64 name)
+{
+	TempAllocator256 ta;
+	DynamicString stream_dest(ta);
+	stream_destination_path(stream_dest, resource_id(type, name));
+	return _data_filesystem.open(stream_dest.c_str(), FileOpenMode::READ);
+}
+
+void ResourceLoader::close_stream(File *stream)
+{
+	_data_filesystem.close(*stream);
+}
+
 s32 ResourceLoader::run()
 {
 	while (1) {

@@ -92,6 +92,12 @@ struct ResourceManager
 	/// Returns the data of the resource (@a type, @a name).
 	const void *get(StringId64 type, StringId64 name);
 
+	/// Opens the stream of the resource (@a type, @a name).
+	File *open_stream(StringId64 type, StringId64 name);
+
+	/// Closes a stream opened by open_stream().
+	void close_stream(File *stream);
+
 	/// Sets whether resources should be automatically loaded when accessed.
 	void enable_autoload(bool enable);
 

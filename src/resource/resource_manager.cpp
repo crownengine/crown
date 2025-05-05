@@ -219,6 +219,18 @@ const void *ResourceManager::get(StringId64 type, StringId64 name)
 	return hash_map::get(_resources, id, ResourceData::NOT_FOUND).data;
 }
 
+File *ResourceManager::open_stream(StringId64 type, StringId64 name)
+{
+	CE_ASSERT(can_get(type, name), "Resource not loaded: " RESOURCE_ID_FMT, resource_id(type, name)._id);
+	return _resource_loader->open_stream(type, name);
+}
+
+void ResourceManager::close_stream(File *stream)
+{
+	CE_ENSURE(stream != NULL);
+	return _resource_loader->close_stream(stream);
+}
+
 void ResourceManager::enable_autoload(bool enable)
 {
 	_autoload = enable;

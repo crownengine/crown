@@ -1109,7 +1109,10 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 
 		Buffer output_buffer(default_allocator());
 		FileBuffer output(output_buffer);
+		Buffer stream_output_buffer(default_allocator());
+		FileBuffer stream_output(stream_output_buffer);
 		CompileOptions opts(output
+			, stream_output
 			, new_dependencies
 			, new_requirements
 			, *this
@@ -1171,6 +1174,31 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 			if (success) {
 				RenameResult rr = data_fs.rename(temp_dest.c_str(), dest.c_str());
 				success = rr.error == RenameResult::SUCCESS;
+			}
+
+			if (success) {
+				// Write streaming output data to disk, if any.
+				if (array::size(stream_output_buffer) != 0) {
+					DynamicString temp_dest(default_allocator());
+					File *outf = data_fs.open_temporary(temp_dest);
+					if (outf->is_open()) {
+						u32 size = array::size(stream_output_buffer);
+						u32 written = outf->write(array::begin(stream_output_buffer), size);
+						success = size == written;
+					} else {
+						loge(DATA_COMPILER, "Failed to write streaming data to disk");
+						success = false;
+					}
+					data_fs.close(*outf);
+
+					if (success) {
+						TempAllocator256 ta;
+						DynamicString stream_dest(ta);
+						stream_destination_path(stream_dest, id);
+						RenameResult rr = data_fs.rename(temp_dest.c_str(), stream_dest.c_str());
+						success = rr.error == RenameResult::SUCCESS;
+					}
+				}
 			}
 		}
 
@@ -1254,7 +1282,10 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 				HashMap<DynamicString, u32> new_requirements(default_allocator());
 				Buffer ouput_buffer(default_allocator());
 				FileBuffer output(ouput_buffer);
+				Buffer stream_ouput_buffer(default_allocator());
+				FileBuffer stream_output(stream_ouput_buffer);
 				CompileOptions opts(output
+					, stream_output
 					, new_dependencies
 					, new_requirements
 					, *this
