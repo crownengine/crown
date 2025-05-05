@@ -66,7 +66,7 @@ World::World(Allocator &a
 	_scene_graph   = CE_NEW(*_allocator, SceneGraph)(*_allocator, um);
 	_render_world  = CE_NEW(*_allocator, RenderWorld)(*_allocator, rm, sm, mm, um, pl, *_scene_graph);
 	_physics_world = CE_NEW(*_allocator, PhysicsWorld)(*_allocator, rm, um, *_lines);
-	_sound_world   = CE_NEW(*_allocator, SoundWorld)(*_allocator);
+	_sound_world   = CE_NEW(*_allocator, SoundWorld)(*_allocator, rm);
 	_script_world  = CE_NEW(*_allocator, ScriptWorld)(*_allocator, um, rm, env, *this);
 	_sprite_animation_player = CE_NEW(*_allocator, SpriteAnimationPlayer)(*_allocator);
 	_mesh_animation_player = CE_NEW(*_allocator, MeshAnimationPlayer)(*_allocator);
@@ -473,15 +473,9 @@ Vector3 World::camera_world_to_screen(CameraInstance camera, const Vector3 &pos)
 	return screen;
 }
 
-SoundInstanceId World::play_sound(const SoundResource &sr, const bool loop, const f32 volume, const Vector3 &pos, const f32 range)
-{
-	return _sound_world->play(sr, loop, volume, range, pos);
-}
-
 SoundInstanceId World::play_sound(StringId64 name, const bool loop, const f32 volume, const Vector3 &pos, const f32 range)
 {
-	const SoundResource *sr = (const SoundResource *)_resource_manager->get(RESOURCE_TYPE_SOUND, name);
-	return play_sound(*sr, loop, volume, pos, range);
+	return _sound_world->play(name, loop, volume, range, pos);
 }
 
 void World::stop_sound(SoundInstanceId id)

@@ -168,10 +168,6 @@ struct World
 	/// Renders the world using @a view.
 	void render(const Matrix4x4 &view);
 
-	/// Plays the sound @a sr at the given @a position, with the given
-	/// @a volume and @a range. @a loop controls whether the sound must loop or not.
-	SoundInstanceId play_sound(const SoundResource &sr, bool loop = false, f32 volume = 1.0f, const Vector3 &position = VECTOR3_ZERO, f32 range = 50.0f);
-
 	/// Plays the sound with the given @a name at the given @a position, with the given
 	/// @a volume and @a range. @a loop controls whether the sound must loop or not.
 	SoundInstanceId play_sound(StringId64 name, const bool loop, const f32 volume, const Vector3 &pos, const f32 range);
