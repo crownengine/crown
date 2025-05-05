@@ -1102,9 +1102,9 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 		HashMap<DynamicString, u32> new_dependencies(default_allocator());
 		HashMap<DynamicString, u32> new_requirements(default_allocator());
 
-		Buffer output(default_allocator());
-		FileBuffer file_buffer(output);
-		CompileOptions opts(file_buffer
+		Buffer output_buffer(default_allocator());
+		FileBuffer output(output_buffer);
+		CompileOptions opts(output
 			, new_dependencies
 			, new_requirements
 			, *this
@@ -1147,12 +1147,12 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 			}
 			hash_map::set(_data_requirements, id, new_requirements);
 
-			// Write data to disk.
+			// Write output data to disk.
 			DynamicString temp_dest(default_allocator());
 			File *outf = data_fs.open_temporary(temp_dest);
 			if (outf->is_open()) {
-				u32 size = array::size(output);
-				u32 written = outf->write(array::begin(output), size);
+				u32 size = array::size(output_buffer);
+				u32 written = outf->write(array::begin(output_buffer), size);
 				success = size == written;
 			} else {
 				loge(DATA_COMPILER, "Failed to write data to disk");
@@ -1250,9 +1250,9 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 
 				HashMap<DynamicString, u32> new_dependencies(default_allocator());
 				HashMap<DynamicString, u32> new_requirements(default_allocator());
-				Buffer output(default_allocator());
-				FileBuffer file_buffer(output);
-				CompileOptions opts(file_buffer
+				Buffer ouput_buffer(default_allocator());
+				FileBuffer output(ouput_buffer);
+				CompileOptions opts(output
 					, new_dependencies
 					, new_requirements
 					, *this
@@ -1273,8 +1273,8 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 					DynamicString temp_dest(default_allocator());
 					File *outf = bundle_fs.open_temporary(temp_dest);
 					if (outf->is_open()) {
-						u32 size = array::size(output);
-						u32 written = outf->write(array::begin(output), size);
+						u32 size = array::size(ouput_buffer);
+						u32 written = outf->write(array::begin(ouput_buffer), size);
 						success = size == written;
 					} else {
 						loge(DATA_COMPILER, "Failed to write data to disk");
