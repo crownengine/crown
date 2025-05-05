@@ -25,6 +25,7 @@ namespace crown
 struct CompileOptions
 {
 	File &_output;
+	File &_stream_output;
 	BinaryWriter _binary_writer;
 	HashMap<DynamicString, u32> &_new_dependencies;
 	HashMap<DynamicString, u32> &_new_requirements;
@@ -41,6 +42,7 @@ struct CompileOptions
 
 	///
 	CompileOptions(File &output
+		, File &stream_output
 		, HashMap<DynamicString, u32> &new_dependencies
 		, HashMap<DynamicString, u32> &new_requirements
 		, DataCompiler &dc

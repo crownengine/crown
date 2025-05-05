@@ -73,6 +73,12 @@ struct ResourceLoader
 
 	/// Registers a fallback resource @a name for the given resource @a type.
 	void register_fallback(StringId64 type, StringId64 name);
+
+	///
+	File *open_stream(StringId64 type, StringId64 name);
+
+	///
+	void close_stream(File *stream);
 };
 
 } // namespace crown
