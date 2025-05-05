@@ -113,7 +113,7 @@ struct SoundInstance
 		case 16: fmt = sr->channels > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16; break;
 		default: CE_FATAL("Number of bits per sample not supported."); break;
 		}
-		AL_CHECK(alBufferData(_buffer, fmt, data(sr), sr->size, sr->sample_rate));
+		AL_CHECK(alBufferData(_buffer, fmt, pcm_data(sr), sr->size, sr->sample_rate));
 
 		_resource = sr;
 		set_position(pos);

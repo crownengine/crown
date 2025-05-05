@@ -14,11 +14,11 @@
 
 namespace crown
 {
-struct SoundType
+struct SoundFormat
 {
 	enum Enum
 	{
-		WAV, ///< Waveform Audio File Format.
+		PCM, ///< Raw PCM audio samples.
 		OGG  ///< Ogg Vorbis audio files.
 	};
 };
@@ -26,12 +26,12 @@ struct SoundType
 struct SoundResource
 {
 	u32 version;
-	u32 type;        ///< SoundType::Enum
-	u32 size;        ///< Audio data size in bytes.
+	u32 format;      ///< SoundFormat::Enum
+	u32 size;        ///< PCM data size in bytes.
 	u32 sample_rate; ///< Sampling rate in Hz.
 	u16 channels;    ///< Number of audio channels.
 	u16 bit_depth;   ///< Audio samples resolution in bits.
-	// u8 data[size]
+	// u8 pcm_data[size]
 };
 
 namespace sound_resource_internal
@@ -42,8 +42,8 @@ namespace sound_resource_internal
 
 namespace sound_resource
 {
-	/// Returns the sound data.
-	const char *data(const SoundResource *sr);
+	/// Returns the raw PCM data.
+	const u8 *pcm_data(const SoundResource *sr);
 
 } // namespace sound_resource
 
