@@ -41,12 +41,14 @@ struct SoundWorldImpl
 		return 0;
 	}
 
-	void stop(SoundInstanceId /*id*/)
+	void stop(SoundInstanceId id)
 	{
+		CE_UNUSED(id);
 	}
 
-	bool is_playing(SoundInstanceId /*id*/)
+	bool is_playing(SoundInstanceId id)
 	{
+		CE_UNUSED(id);
 		return false;
 	}
 
@@ -62,16 +64,19 @@ struct SoundWorldImpl
 	{
 	}
 
-	void set_sound_positions(u32 /*num*/, const SoundInstanceId * /*ids*/, const Vector3 * /*positions*/)
+	void set_sound_positions(u32 num, const SoundInstanceId *ids, const Vector3 *positions)
 	{
+		CE_UNUSED_3(num, ids, positions);
 	}
 
-	void set_sound_ranges(u32 /*num*/, const SoundInstanceId * /*ids*/, const f32 * /*ranges*/)
+	void set_sound_ranges(u32 num, const SoundInstanceId *ids, const f32 *ranges)
 	{
+		CE_UNUSED_3(num, ids, ranges);
 	}
 
-	void set_sound_volumes(u32 /*num*/, const SoundInstanceId * /*ids*/, const f32 * /*volumes*/)
+	void set_sound_volumes(u32 num, const SoundInstanceId *ids, const f32 *volumes)
 	{
+		CE_UNUSED_3(num, ids, volumes);
 	}
 
 	void reload_sounds(const SoundResource *old_sr, const SoundResource *new_sr)
@@ -79,8 +84,9 @@ struct SoundWorldImpl
 		CE_UNUSED_2(old_sr, new_sr);
 	}
 
-	void set_listener_pose(const Matrix4x4 & /*pose*/)
+	void set_listener_pose(const Matrix4x4 &pose)
 	{
+		CE_UNUSED(pose);
 	}
 
 	void update()
