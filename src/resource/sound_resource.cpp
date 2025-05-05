@@ -18,9 +18,9 @@ namespace crown
 {
 namespace sound_resource
 {
-	const char *data(const SoundResource *sr)
+	const u8 *pcm_data(const SoundResource *sr)
 	{
-		return (char *)&sr[1];
+		return (u8 *)&sr[1];
 	}
 
 } // namespace sound_resource
@@ -62,14 +62,14 @@ namespace sound_resource_internal
 		// Write.
 		SoundResource sr;
 		sr.version     = RESOURCE_HEADER(RESOURCE_VERSION_SOUND);
-		sr.type        = SoundType::WAV;
+		sr.format      = SoundFormat::PCM;
 		sr.size        = wav->data_size;
 		sr.sample_rate = wav->fmt_sample_rate;
 		sr.channels    = wav->fmt_channels;
 		sr.bit_depth   = wav->fmt_bits_ps;
 
 		opts.write(sr.version);
-		opts.write(sr.type);
+		opts.write(sr.format);
 		opts.write(sr.size);
 		opts.write(sr.sample_rate);
 		opts.write(sr.channels);
