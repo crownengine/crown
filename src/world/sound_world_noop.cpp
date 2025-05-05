@@ -73,8 +73,9 @@ struct SoundWorldImpl
 	{
 	}
 
-	void reload_sounds(const SoundResource & /*old_sr*/, const SoundResource & /*new_sr*/)
+	void reload_sounds(const SoundResource *old_sr, const SoundResource *new_sr)
 	{
+		CE_UNUSED_2(old_sr, new_sr);
 	}
 
 	void set_listener_pose(const Matrix4x4 & /*pose*/)

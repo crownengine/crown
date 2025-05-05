@@ -66,7 +66,7 @@ struct SoundWorld
 	void set_sound_volumes(u32 num, const SoundInstanceId *ids, const f32 *volumes);
 
 	///
-	void reload_sounds(const SoundResource &old_sr, const SoundResource &new_sr);
+	void reload_sounds(const SoundResource *old_sr, const SoundResource *new_sr);
 
 	/// Sets the @a pose of the listener in world space.
 	void set_listener_pose(const Matrix4x4 &pose);
