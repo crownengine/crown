@@ -125,7 +125,7 @@ struct SoundInstance
 		AL_CHECK(alDeleteSources(1, &_source));
 	}
 
-	void reload(const SoundResource &new_sr)
+	void reload(const SoundResource *new_sr)
 	{
 		destroy();
 		create(new_sr, position(), range());
@@ -341,10 +341,10 @@ struct SoundWorldImpl
 		}
 	}
 
-	void reload_sounds(const SoundResource &old_sr, const SoundResource &new_sr)
+	void reload_sounds(const SoundResource *old_sr, const SoundResource *new_sr)
 	{
 		for (u32 i = 0; i < _num_objects; ++i) {
-			if (_playing_sounds[i]._resource == &old_sr) {
+			if (_playing_sounds[i]._resource == old_sr) {
 				_playing_sounds[i].reload(new_sr);
 			}
 		}
@@ -443,7 +443,7 @@ void SoundWorld::set_sound_volumes(u32 num, const SoundInstanceId *ids, const f3
 	_impl->set_sound_volumes(num, ids, volumes);
 }
 
-void SoundWorld::reload_sounds(const SoundResource &old_sr, const SoundResource &new_sr)
+void SoundWorld::reload_sounds(const SoundResource *old_sr, const SoundResource *new_sr)
 {
 	_impl->reload_sounds(old_sr, new_sr);
 }
