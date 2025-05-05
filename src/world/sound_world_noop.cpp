@@ -35,8 +35,9 @@ struct SoundWorldImpl
 	{
 	}
 
-	SoundInstanceId play(const SoundResource & /*sr*/, bool /*loop*/, f32 /*volume*/, f32 /*range*/, const Vector3 & /*pos*/)
+	SoundInstanceId play(const StringId64 name, bool loop, f32 volume, f32 range, const Vector3 &pos)
 	{
+		CE_UNUSED_5(name, loop, volume, range, pos);
 		return 0;
 	}
 
@@ -101,9 +102,9 @@ SoundWorld::~SoundWorld()
 	_marker = 0;
 }
 
-SoundInstanceId SoundWorld::play(const SoundResource &sr, bool loop, f32 volume, f32 range, const Vector3 &pos)
+SoundInstanceId SoundWorld::play(StringId64 name, bool loop, f32 volume, f32 range, const Vector3 &pos)
 {
-	return _impl->play(sr, loop, volume, range, pos);
+	return _impl->play(name, loop, volume, range, pos);
 }
 
 void SoundWorld::stop(SoundInstanceId id)

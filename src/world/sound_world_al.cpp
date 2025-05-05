@@ -9,9 +9,11 @@
 #include "core/containers/array.inl"
 #include "core/math/constants.h"
 #include "core/math/matrix4x4.inl"
+#include "core/strings/string_id.inl"
 #include "core/math/vector3.inl"
 #include "core/memory/temp_allocator.inl"
 #include "device/log.h"
+#include "resource/resource_manager.h"
 #include "resource/sound_resource.h"
 #include "world/audio.h"
 #include "world/sound_world.h"
@@ -90,7 +92,7 @@ struct SoundInstance
 	ALuint _buffer;
 	ALuint _source;
 
-	void create(const SoundResource &sr, const Vector3 &pos, f32 range)
+	void create(const SoundResource *sr, const Vector3 &pos, f32 range)
 	{
 		using namespace sound_resource;
 
@@ -106,14 +108,14 @@ struct SoundInstance
 		CE_ASSERT(alIsBuffer(_buffer), "alGenBuffers: error");
 
 		ALenum fmt = AL_INVALID_ENUM;
-		switch (sr.bit_depth) {
-		case  8: fmt = sr.channels > 1 ? AL_FORMAT_STEREO8  : AL_FORMAT_MONO8; break;
-		case 16: fmt = sr.channels > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16; break;
+		switch (sr->bit_depth) {
+		case  8: fmt = sr->channels > 1 ? AL_FORMAT_STEREO8  : AL_FORMAT_MONO8; break;
+		case 16: fmt = sr->channels > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16; break;
 		default: CE_FATAL("Number of bits per sample not supported."); break;
 		}
-		AL_CHECK(alBufferData(_buffer, fmt, data(&sr), sr.size, sr.sample_rate));
+		AL_CHECK(alBufferData(_buffer, fmt, data(sr), sr->size, sr->sample_rate));
 
-		_resource = &sr;
+		_resource = sr;
 		set_position(pos);
 	}
 
@@ -219,6 +221,7 @@ struct SoundWorldImpl
 		u16 next;
 	};
 
+	ResourceManager *_resource_manager;
 	u32 _num_objects;
 	SoundInstance _playing_sounds[MAX_OBJECTS];
 	Index _indices[MAX_OBJECTS];
@@ -261,7 +264,8 @@ struct SoundWorldImpl
 		_freelist_enqueue = id & INDEX_MASK;
 	}
 
-	SoundWorldImpl()
+	SoundWorldImpl(ResourceManager &rm)
+		: _resource_manager(&rm)
 	{
 		_num_objects = 0;
 		for (u32 i = 0; i < MAX_OBJECTS; ++i) {
@@ -278,8 +282,10 @@ struct SoundWorldImpl
 
 	SoundWorldImpl &operator=(const SoundWorldImpl &) = delete;
 
-	SoundInstanceId play(const SoundResource &sr, bool loop, f32 volume, f32 range, const Vector3 &pos)
+	SoundInstanceId play(StringId64 name, bool loop, f32 volume, f32 range, const Vector3 &pos)
 	{
+		const SoundResource *sr = (SoundResource *)_resource_manager->get(RESOURCE_TYPE_SOUND, name);
+
 		SoundInstanceId id = add();
 		SoundInstance &si = lookup(id);
 		si.create(sr, pos, range);
@@ -384,12 +390,12 @@ struct SoundWorldImpl
 	}
 };
 
-SoundWorld::SoundWorld(Allocator &a)
+SoundWorld::SoundWorld(Allocator &a, ResourceManager &rm)
 	: _marker(SOUND_WORLD_MARKER)
 	, _allocator(&a)
 	, _impl(NULL)
 {
-	_impl = CE_NEW(*_allocator, SoundWorldImpl)();
+	_impl = CE_NEW(*_allocator, SoundWorldImpl)(rm);
 }
 
 SoundWorld::~SoundWorld()
@@ -398,9 +404,9 @@ SoundWorld::~SoundWorld()
 	_marker = 0;
 }
 
-SoundInstanceId SoundWorld::play(const SoundResource &sr, bool loop, f32 volume, f32 range, const Vector3 &pos)
+SoundInstanceId SoundWorld::play(StringId64 name, bool loop, f32 volume, f32 range, const Vector3 &pos)
 {
-	return _impl->play(sr, loop, volume, range, pos);
+	return _impl->play(name, loop, volume, range, pos);
 }
 
 void SoundWorld::stop(SoundInstanceId id)
