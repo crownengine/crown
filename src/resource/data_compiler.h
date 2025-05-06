@@ -48,19 +48,20 @@ struct DataCompiler
 	{
 		u32 version;
 		CompileFunction compiler;
+		const char *type_str;
 	};
 
 	const DeviceOptions *_options;
 	ConsoleServer *_console_server;
 	FilesystemDisk _source_fs;
 	HashMap<DynamicString, DynamicString> _source_dirs;
-	HashMap<DynamicString, ResourceTypeData> _compilers;
+	HashMap<StringId64, ResourceTypeData> _compilers;
 	Vector<DynamicString> _globs;
 	HashMap<StringId64, DynamicString> _data_index;
 	HashMap<StringId64, u64> _data_mtimes;
 	HashMap<StringId64, HashMap<DynamicString, u32>> _data_dependencies;
 	HashMap<StringId64, HashMap<DynamicString, u32>> _data_requirements;
-	HashMap<DynamicString, u32> _data_versions;
+	HashMap<StringId64, u32> _data_versions;
 	FileMonitor _file_monitor;
 	SourceIndex _source_index;
 	HashMap<StringId64, u32> _data_revisions;
@@ -102,14 +103,14 @@ struct DataCompiler
 	void register_compiler(const char *type, u32 version, CompileFunction compiler);
 
 	/// Returns whether there is a compiler for the resource @a type.
-	bool can_compile(const char *type);
+	bool can_compile(StringId64 type);
 
 	/// Returns the version of the compiler for @a type or COMPILER_NOT_FOUND if no compiler
 	/// is found.
-	u32 data_version(const char *type);
+	u32 data_version(StringId64 type);
 
 	///
-	u32 data_version_stored(const char *type);
+	u32 data_version_stored(StringId64 type);
 
 	/// Returns whether any dependency of @a path, including itself, has changed
 	/// since last call to compile().

@@ -314,7 +314,7 @@ static Buffer read(FilesystemDisk &data_fs, const char *filename)
 	return buffer;
 }
 
-static void parse_data_versions(HashMap<DynamicString, u32> &versions
+static void parse_data_versions(HashMap<StringId64, u32> &versions
 	, Buffer &json
 	)
 {
@@ -328,14 +328,14 @@ static void parse_data_versions(HashMap<DynamicString, u32> &versions
 		JSON_OBJECT_SKIP_HOLE(obj, cur);
 
 		TempAllocator256 ta;
-		DynamicString type(ta);
-		type.set(cur->first.data(), cur->first.length());
+		DynamicString type_str(ta);
+		type_str.set(cur->first.data(), cur->first.length());
 
-		hash_map::set(versions, type, (u32)sjson::parse_int(cur->second));
+		hash_map::set(versions, StringId64(type_str.c_str()), (u32)sjson::parse_int(cur->second));
 	}
 }
 
-static void read_data_versions(HashMap<DynamicString, u32> &versions
+static void read_data_versions(HashMap<StringId64, u32> &versions
 	, FilesystemDisk &data_fs
 	, const char *filename
 	)
@@ -513,7 +513,11 @@ static s32 write_data_index(FilesystemDisk &data_fs, const char *filename, const
 	return rr.error == RenameResult::SUCCESS ? 0 : -1;
 }
 
-static s32 write_data_versions(FilesystemDisk &data_fs, const char *filename, const HashMap<DynamicString, u32> &versions)
+static s32 write_data_versions(FilesystemDisk &data_fs
+	, const char *filename
+	, const HashMap<StringId64, u32> &versions
+	, const HashMap<StringId64, DataCompiler::ResourceTypeData> &compilers
+	)
 {
 	StringStream ss(default_allocator());
 	DynamicString temp_filename(default_allocator());
@@ -525,7 +529,11 @@ static s32 write_data_versions(FilesystemDisk &data_fs, const char *filename, co
 		for (; cur != end; ++cur) {
 			HASH_MAP_SKIP_HOLE(versions, cur);
 
-			ss << cur->first.c_str() << " = " << cur->second << "\n";
+			DataCompiler::ResourceTypeData rtd;
+			rtd.type_str = NULL;
+			rtd = hash_map::get(compilers, cur->first, rtd);
+			if (rtd.type_str != NULL)
+				ss << rtd.type_str << " = " << cur->second << "\n";
 		}
 
 		u32 ss_len = strlen32(string_stream::c_str(ss));
@@ -900,7 +908,7 @@ bool DataCompiler::dependency_changed(const DynamicString &path, ResourceId id, 
 
 bool DataCompiler::version_changed(const DynamicString &path, ResourceId id)
 {
-	const char *type = resource_type(path.c_str());
+	const StringId64 type(resource_type(path.c_str()));
 	const u32 dv = data_version(type);
 	const u32 ds = data_version_stored(type);
 
@@ -1001,7 +1009,8 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 			if (path_matches_ignore_glob(path.c_str()))
 				continue;
 
-			if (resource_type(path.c_str()) == NULL)
+			const char *type_str = resource_type(path.c_str());
+			if (type_str == NULL)
 				continue;
 
 			const ResourceId id = resource_id(path.c_str());
@@ -1012,7 +1021,7 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 			bool source_never_compiled_before    = hash_map::has(_data_index, id) == false;
 			bool source_dependency_changed       = dependency_changed(path, id, mtime);
 			bool data_version_dependency_changed = version_changed(path, id);
-			bool compile_always                  = data_version(resource_type(path.c_str())) == 0u;
+			bool compile_always                  = data_version(StringId64(type_str)) == 0u;
 
 			if (source_never_compiled_before
 				|| source_dependency_changed
@@ -1074,25 +1083,21 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 	for (u32 i = 0; i < vector::size(to_compile); ++i) {
 		const DynamicString &path = to_compile[i];
 
-		const char *type = resource_type(path.c_str());
-		if (type == NULL || !can_compile(type))
+		const char *type_str = resource_type(path.c_str());
+		if (type_str == NULL)
+			continue;
+
+		const StringId64 type(type_str);
+		if (!can_compile(type))
 			continue;
 
 		logi(DATA_COMPILER, _options->_server ? RESOURCE_ID_FMT_STR : "%s", path.c_str());
 
 		// Build destination file path
-		ResourceId id = resource_id(path.c_str());
+		const ResourceId id = resource_id(path.c_str());
 		TempAllocator256 ta;
 		DynamicString dest(ta);
 		destination_path(dest, id);
-
-		// Compile data.
-		ResourceTypeData rtd;
-		rtd.version = 0;
-		rtd.compiler = NULL;
-
-		DynamicString type_str(ta);
-		type_str = type;
 
 		// Dependencies and requirements lists must be regenerated each time
 		// the resource is being compiled. For example, if you delete
@@ -1116,8 +1121,11 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 			, false
 			);
 
-		// Invoke compiler.
-		rtd = hash_map::get(_compilers, type_str, rtd);
+		// Compile data.
+		ResourceTypeData rtd;
+		rtd.version = 0;
+		rtd.compiler = NULL;
+		rtd = hash_map::get(_compilers, type, rtd);
 		success = rtd.compiler(opts) == 0;
 
 		if (success) {
@@ -1240,13 +1248,7 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 				DynamicString dest(ta);
 				destination_path(dest, id);
 
-				// Bundle data.
-				ResourceTypeData rtd;
-				rtd.version = 0;
-				rtd.compiler = NULL;
-
-				DynamicString type_str(ta);
-				type_str = resource_type(path.c_str());
+				const StringId64 type(resource_type(path.c_str()));
 
 				HashMap<DynamicString, u32> new_dependencies(default_allocator());
 				HashMap<DynamicString, u32> new_requirements(default_allocator());
@@ -1264,8 +1266,11 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 					, true
 					);
 
-				// Invoke compiler.
-				rtd = hash_map::get(_compilers, type_str, rtd);
+				// Bundle data.
+				ResourceTypeData rtd;
+				rtd.version = 0;
+				rtd.compiler = NULL;
+				rtd = hash_map::get(_compilers, type, rtd);
 				success = rtd.compiler(opts) == 0;
 
 				if (success) {
@@ -1323,7 +1328,7 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 		return false;
 	}
 
-	res = write_data_versions(data_fs, CROWN_DATA_VERSIONS, _data_versions);
+	res = write_data_versions(data_fs, CROWN_DATA_VERSIONS, _data_versions, _compilers);
 	if (res != 0) {
 		loge(DATA_COMPILER, "Failed to save: %s", CROWN_DATA_VERSIONS);
 		return false;
@@ -1332,51 +1337,38 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 	return success;
 }
 
-void DataCompiler::register_compiler(const char *type, u32 version, CompileFunction compiler)
+void DataCompiler::register_compiler(const char *type_str, u32 version, CompileFunction compiler)
 {
-	TempAllocator64 ta;
-	DynamicString type_str(ta);
-	type_str = type;
+	StringId64 type(type_str);
 
-	CE_ASSERT(!hash_map::has(_compilers, type_str), "Type already registered");
+	CE_ASSERT(!hash_map::has(_compilers, type), "Type already registered");
 	CE_ENSURE(NULL != compiler);
 
 	ResourceTypeData rtd;
 	rtd.version = version;
 	rtd.compiler = compiler;
+	rtd.type_str = type_str;
 
-	hash_map::set(_compilers, type_str, rtd);
+	hash_map::set(_compilers, type, rtd);
 }
 
-u32 DataCompiler::data_version(const char *type)
+u32 DataCompiler::data_version(StringId64 type)
 {
-	TempAllocator64 ta;
-	DynamicString type_str(ta);
-	type_str = type;
-
 	ResourceTypeData rtd;
 	rtd.version = COMPILER_NOT_FOUND;
 	rtd.compiler = NULL;
-	return hash_map::get(_compilers, type_str, rtd).version;
+	return hash_map::get(_compilers, type, rtd).version;
 }
 
-u32 DataCompiler::data_version_stored(const char *type)
+u32 DataCompiler::data_version_stored(StringId64 type)
 {
-	TempAllocator256 ta;
-	DynamicString ds(ta);
-	ds = type;
-
 	u32 version = UINT32_MAX;
-	return hash_map::get(_data_versions, ds, version);
+	return hash_map::get(_data_versions, type, version);
 }
 
-bool DataCompiler::can_compile(const char *type)
+bool DataCompiler::can_compile(StringId64 type)
 {
-	TempAllocator64 ta;
-	DynamicString type_str(ta);
-	type_str = type;
-
-	return hash_map::has(_compilers, type_str);
+	return hash_map::has(_compilers, type);
 }
 
 void DataCompiler::error(const char *msg, va_list args)
