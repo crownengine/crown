@@ -32,6 +32,10 @@
 	#define CROWN_HTML5_CANVAS_NAME "canvas"
 #endif
 
+// See: https://emscripten.org/docs/api_reference/html5.h.html#callback-functions
+#define EM_EVENT_STOP      true  // The handler consumed the event (calls .preventDefault()).
+#define EM_EVENT_PROPAGATE false // Event not consumed (carries default browser event action).
+
 namespace crown
 {
 // code-format off
@@ -293,7 +297,7 @@ struct EmscriptenDevice
 	{
 	}
 
-	static EM_BOOL key_callback(int event_type, const EmscriptenKeyboardEvent *key_event, void *user_data)
+	static bool key_callback(int event_type, const EmscriptenKeyboardEvent *key_event, void *user_data)
 	{
 		EmscriptenDevice *ed = (EmscriptenDevice *)user_data;
 
@@ -306,7 +310,7 @@ struct EmscriptenDevice
 		}
 
 		if (kb == KeyboardButton::COUNT)
-			return false;
+			return EM_EVENT_PROPAGATE;
 
 		switch (event_type) {
 		case EMSCRIPTEN_EVENT_KEYPRESS:
@@ -317,13 +321,13 @@ struct EmscriptenDevice
 				, kb
 				, event_type != EMSCRIPTEN_EVENT_KEYUP
 				);
-			return true;
+			return EM_EVENT_STOP;
 		}
 
-		return false;
+		return EM_EVENT_PROPAGATE;
 	}
 
-	static EM_BOOL mouse_callback(int event_type, const EmscriptenMouseEvent *event, void *user_data)
+	static bool mouse_callback(int event_type, const EmscriptenMouseEvent *event, void *user_data)
 	{
 		EmscriptenDevice *ed = (EmscriptenDevice *)user_data;
 
@@ -343,7 +347,7 @@ struct EmscriptenDevice
 				, mb
 				, event_type == EMSCRIPTEN_EVENT_MOUSEDOWN
 				);
-			return true;
+			return EM_EVENT_STOP;
 		}
 
 		case EMSCRIPTEN_EVENT_MOUSEMOVE:
@@ -364,13 +368,13 @@ struct EmscriptenDevice
 				, (s16)event->movementY
 				, 0
 				);
-			return true;
+			return EM_EVENT_STOP;
 		}
 
-		return false;
+		return EM_EVENT_PROPAGATE;
 	}
 
-	static EM_BOOL wheel_callback(int event_type, const EmscriptenWheelEvent *event, void *user_data)
+	static bool wheel_callback(int event_type, const EmscriptenWheelEvent *event, void *user_data)
 	{
 		EmscriptenDevice *ed = (EmscriptenDevice *)user_data;
 
@@ -382,31 +386,31 @@ struct EmscriptenDevice
 				, event->deltaY > 0.0 ? -1.0f : event->deltaY != 0.0 ? 1.0f : 0.0f
 				, event->deltaZ > 0.0 ? -1.0f : event->deltaZ != 0.0 ? 1.0f : 0.0f
 				);
-			return true;
+			return EM_EVENT_STOP;
 		}
 
-		return false;
+		return EM_EVENT_PROPAGATE;
 	}
 
-	static EM_BOOL pointerlockchange_callback(int event_type, const EmscriptenPointerlockChangeEvent *event, void *user_data)
+	static bool pointerlockchange_callback(int event_type, const EmscriptenPointerlockChangeEvent *event, void *user_data)
 	{
 		EmscriptenDevice *ed = (EmscriptenDevice *)user_data;
 
 		if (event_type == EMSCRIPTEN_EVENT_POINTERLOCKCHANGE) {
 			ed->_pointer_locked = event->isActive;
-			return true;
+			return EM_EVENT_STOP;
 		}
 
-		return false;
+		return EM_EVENT_PROPAGATE;
 	}
 
-	static EM_BOOL pointerlockerror_callback(int event_type, const void *reserved, void *user_data)
+	static bool pointerlockerror_callback(int event_type, const void *reserved, void *user_data)
 	{
 		CE_UNUSED_3(event_type, reserved, user_data);
-		return true;
+		return EM_EVENT_STOP;
 	}
 
-	static EM_BOOL resize_callback(int event_type, const EmscriptenUiEvent *event, void *user_data)
+	static bool resize_callback(int event_type, const EmscriptenUiEvent *event, void *user_data)
 	{
 		EmscriptenDevice *ed = (EmscriptenDevice *)user_data;
 
@@ -415,10 +419,10 @@ struct EmscriptenDevice
 			double height;
 			emscripten_get_element_css_size("#" CROWN_HTML5_CANVAS_NAME, &width, &height);
 			ed->_queue.push_resolution_event(width, height);
-			return true;
+			return EM_EVENT_STOP;
 		}
 
-		return false;
+		return EM_EVENT_PROPAGATE;
 	}
 
 	int run(DeviceOptions *opts)
