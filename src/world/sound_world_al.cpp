@@ -19,6 +19,7 @@
 #include "world/sound_world.h"
 #include <AL/al.h>
 #include <AL/alc.h>
+#include <AL/alext.h>
 
 LOG_SYSTEM(SOUND, "sound")
 
@@ -111,6 +112,7 @@ struct SoundInstance
 		switch (sr->bit_depth) {
 		case  8: fmt = sr->channels > 1 ? AL_FORMAT_STEREO8  : AL_FORMAT_MONO8; break;
 		case 16: fmt = sr->channels > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16; break;
+		case 32: fmt = sr->channels > 1 ? AL_FORMAT_STEREO_FLOAT32 : AL_FORMAT_MONO_FLOAT32; break;
 		default: CE_FATAL("Number of bits per sample not supported."); break;
 		}
 		AL_CHECK(alBufferData(_buffer, fmt, pcm_data(sr), sr->size, sr->sample_rate));
