@@ -13,6 +13,7 @@ Changelog
 
 **Runtime**
 
+* HTML5: added Touch input device support.
 * HTML5: fixed GL_INVALID_OPERATION (or missing geometry) when rendering untextured meshes.
 * Data Compiler: fixed shaders not including code in some circumnstances.
 * Data Compiler: fixed 'static_compile' being visible to external shader resources.

@@ -392,6 +392,70 @@ struct EmscriptenDevice
 		return EM_EVENT_PROPAGATE;
 	}
 
+	static bool touch_callback(int event_type, const EmscriptenTouchEvent *event, void *user_data)
+	{
+		EmscriptenDevice *ed = (EmscriptenDevice *)user_data;
+
+		switch (event_type) {
+		case EMSCRIPTEN_EVENT_TOUCHSTART:
+		case EMSCRIPTEN_EVENT_TOUCHEND:
+			for (int i = 0; i < event->numTouches; ++i) {
+				const EmscriptenTouchPoint *touch = &event->touches[i];
+
+				if (touch->identifier < TouchAxis::COUNT) {
+					ed->_queue.push_axis_event(InputDeviceType::TOUCHSCREEN
+						, 0
+						, touch->identifier
+						, touch->targetX
+						, touch->targetY
+						, 0
+						);
+				}
+
+				if (touch->identifier < TouchButton::COUNT) {
+					ed->_queue.push_button_event(InputDeviceType::TOUCHSCREEN
+						, 0
+						, touch->identifier
+						, event_type == EMSCRIPTEN_EVENT_TOUCHSTART
+						);
+				}
+			}
+			return EM_EVENT_STOP;
+
+		case EMSCRIPTEN_EVENT_TOUCHMOVE:
+			for (int i = 0; i < event->numTouches; ++i) {
+				const EmscriptenTouchPoint *touch = &event->touches[i];
+
+				if (touch->identifier < TouchAxis::COUNT) {
+					ed->_queue.push_axis_event(InputDeviceType::TOUCHSCREEN
+						, 0
+						, touch->identifier
+						, touch->targetX
+						, touch->targetY
+						, 0
+						);
+				}
+			}
+			return EM_EVENT_STOP;
+
+		case EMSCRIPTEN_EVENT_TOUCHCANCEL:
+			for (int i = 0; i < event->numTouches; ++i) {
+				const EmscriptenTouchPoint *touch = &event->touches[i];
+
+				if (touch->identifier < TouchButton::COUNT) {
+					ed->_queue.push_button_event(InputDeviceType::TOUCHSCREEN
+						, 0
+						, touch->identifier
+						, false
+						);
+				}
+			}
+			return EM_EVENT_STOP;
+		}
+
+		return EM_EVENT_PROPAGATE;
+	}
+
 	static bool pointerlockchange_callback(int event_type, const EmscriptenPointerlockChangeEvent *event, void *user_data)
 	{
 		EmscriptenDevice *ed = (EmscriptenDevice *)user_data;
@@ -435,6 +499,11 @@ struct EmscriptenDevice
 		emscripten_set_mouseup_callback(CROWN_HTML5_CANVAS_NAME, this, true, EmscriptenDevice::mouse_callback);
 		emscripten_set_mousemove_callback(CROWN_HTML5_CANVAS_NAME, this, true, EmscriptenDevice::mouse_callback);
 		emscripten_set_wheel_callback(CROWN_HTML5_CANVAS_NAME, this, true, EmscriptenDevice::wheel_callback);
+
+		emscripten_set_touchstart_callback(CROWN_HTML5_CANVAS_NAME, this, true, EmscriptenDevice::touch_callback);
+		emscripten_set_touchend_callback(CROWN_HTML5_CANVAS_NAME, this, true, EmscriptenDevice::touch_callback);
+		emscripten_set_touchmove_callback(CROWN_HTML5_CANVAS_NAME, this, true, EmscriptenDevice::touch_callback);
+		emscripten_set_touchcancel_callback(CROWN_HTML5_CANVAS_NAME, this, true, EmscriptenDevice::touch_callback);
 
 		emscripten_set_pointerlockchange_callback(EMSCRIPTEN_EVENT_TARGET_DOCUMENT, this, true, EmscriptenDevice::pointerlockchange_callback);
 		emscripten_set_pointerlockerror_callback(EMSCRIPTEN_EVENT_TARGET_DOCUMENT, this, true, EmscriptenDevice::pointerlockerror_callback);
