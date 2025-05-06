@@ -205,7 +205,7 @@ Gui
 **image_3d_uv** (gui, local_pose, pos, size, uv0, uv1, material_resource [, color, depth])
 	Draws a 3D image with explicit UV coordinates.
 
-**text** (gui, pos, font_size, str, font_resource, material_resource [, color])
+**text** (gui, pos, font_size, str, font_resource [, material_resource , color])
 	Draws text.
 	If pos is a Vector3, the z element specifies the drawing depth. Objects with
 	a lower depth are drawn in front. If pos is a Vector2, the z elements is set
@@ -215,7 +215,7 @@ Gui
 	Returns the extents of the text *str* if drawn using *font_resource* at size
 	*font_size*.
 
-**text_3d** (gui, local_pose, pos, font_size, str, font_resource, material_resource [, color, depth])
+**text_3d** (gui, local_pose, pos, font_size, str, font_resource [, material_resource, color, depth])
 	Draws 3D text.
 
 **material** (material_resource) : Material

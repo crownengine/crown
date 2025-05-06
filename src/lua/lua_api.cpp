@@ -2959,7 +2959,7 @@ void load_api(LuaEnvironment &env)
 				, stack.get_int(3)
 				, stack.get_string(4)
 				, stack.get_resource_name(5)
-				, stack.get_resource_name(6)
+				, stack.num_args() > 5 ? stack.get_resource_name(6) : stack.get_resource_name(5)
 				, stack.num_args() > 6 ? stack.get_color4(7) : COLOR4_WHITE
 				);
 			return 0;
@@ -2980,7 +2980,7 @@ void load_api(LuaEnvironment &env)
 				, stack.get_int(4)
 				, stack.get_string(5)
 				, stack.get_resource_name(6)
-				, stack.get_resource_name(7)
+				, stack.num_args() > 6 ? stack.get_resource_name(7) : stack.get_resource_name(6)
 				, stack.num_args() > 7 ? stack.get_color4(8) : COLOR4_WHITE
 				, stack.num_args() > 8 ? stack.get_float(9) : 0.0f
 				);
