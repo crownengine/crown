@@ -20,6 +20,7 @@ Changelog
 * Lua API: added an optional exit_code parameter to ``Device.quit()``.
 * Lua API: added an optional rays parameter to ``DebugLine.add_cone()``.
 * Lua API: the color parameter in all ``Gui`` functions is now optional and defaults to ``Color4.white()``.
+* Lua API: the material_resource parameter in ``Gui.text()`` and ``Gui.text_3d()`` is now optional.
 * Lua API: fixed several issues when calling ``Gui.text*()`` with utf8-encoded strings.
 * Lua API: added ``Gui.text_extents()``.
 
