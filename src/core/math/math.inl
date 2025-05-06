@@ -19,6 +19,11 @@ inline bool fequal(f32 a, f32 b, f32 epsilon)
 		;
 }
 
+inline f32 fsign(f32 a)
+{
+	return (a > 0.0f) - (a < 0.0f);
+}
+
 inline f32 ffract(f32 a)
 {
 	return a - floorf(a);

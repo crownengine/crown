@@ -337,9 +337,10 @@ void Gui::text_3d(const Matrix4x4 &local_pose, const Vector3 &pos, u32 font_size
 
 		const GlyphData *glyph = font_resource::glyph(fr, cp, &deffault_glyph);
 		const f32 baseline = glyph->height - glyph->y_offset;
+		const f32 x_offset = fsign(pen_x) * scale*glyph->x_offset;
 
 		// Glyph position coords.
-		const f32 x0 = pen_x + pos.x + scale*glyph->x_offset;
+		const f32 x0 = pen_x + pos.x + x_offset;
 		const f32 y0 = pen_y + pos.y - scale*baseline;
 		const f32 x1 = x0 + scale*glyph->width;
 		const f32 y1 = y0 + scale*glyph->height;
@@ -447,9 +448,10 @@ Vector2 Gui::text_extents(const u32 font_size, const char *str, StringId64 font)
 
 		const GlyphData *glyph = font_resource::glyph(fr, cp, &deffault_glyph);
 		const f32 baseline = glyph->height - glyph->y_offset;
+		const f32 x_offset = fsign(pen_x) * scale*glyph->x_offset;
 
 		// Glyph position coords.
-		const f32 x0 = pen_x + scale*glyph->x_offset;
+		const f32 x0 = pen_x + x_offset;
 		const f32 y0 = pen_y - scale*baseline;
 		const f32 x1 = x0 + scale*glyph->width;
 		const f32 y1 = y0 + scale*glyph->height;
