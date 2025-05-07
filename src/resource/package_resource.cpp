@@ -236,19 +236,23 @@ namespace package_resource_internal
 			BinaryWriter bundle(bundle_file);
 
 			for (u32 ii = 0; ii < array::size(resources); ++ii) {
-				// Read the resource's compiled data.
 				ResourceId id = resource_id(resources[ii].type, resources[ii].name);
+
+				// Append data to bundle.
 				TempAllocator256 ta;
 				DynamicString dest(ta);
 				destination_path(dest, id);
 
-				// Append data to bundle.
 				File *data_file = opts._data_filesystem.open(dest.c_str(), FileOpenMode::READ);
-				const u32 data_size = data_file->size();
+				if (!data_file->is_open()) {
+					opts._data_filesystem.close(*data_file);
+					RETURN_IF_FALSE(false, opts, "Failed to open data");
+				}
 
 				// Align data to a 16-bytes boundary.
 				bundle.align(16);
 				const u32 data_offset = array::size(bundle_data);
+				const u32 data_size = data_file->size();
 
 				file::copy(bundle_file, *data_file, data_size);
 				opts._data_filesystem.close(*data_file);
