@@ -409,14 +409,106 @@ void Gui::text_3d(const Matrix4x4 &local_pose, const Vector3 &pos, u32 font_size
 
 void Gui::text(const Vector3 &pos, u32 font_size, const char *str, StringId64 font, StringId64 material, const Color4 &color)
 {
-	text_3d(MATRIX4X4_IDENTITY
-		, vector3(pos.x, pos.y, 0.0f)
-		, font_size
-		, str
-		, font
-		, material
-		, color
-		, pos.z
+	const MaterialResource *mr = (MaterialResource *)_resource_manager->get(RESOURCE_TYPE_MATERIAL, material);
+	_material_manager->create_material(mr);
+
+	const FontResource *fr = (FontResource *)_resource_manager->get(RESOURCE_TYPE_FONT, font);
+	const f32 scale = (f32)font_size / (f32)fr->font_size;
+
+	VertexData *vd = (VertexData *)_buffer->vertex_buffer_end();
+	u16 *id = (u16 *)_buffer->index_buffer_end();
+
+	u32 num_vertices = 0;
+	u32 num_indices = 0;
+
+	u32 cp;
+	u32 state = 0;
+	f32 pen_x = 0.0f;
+	f32 pen_y = 0.0f;
+	const GlyphData deffault_glyph = {};
+
+	for (const u8 *ch = (const u8 *)str; *ch; ++ch) {
+		if (utf8::decode(&state, &cp, *ch) != UTF8_ACCEPT)
+			continue;
+
+		if (cp == '\n') {
+			pen_x = 0.0f;
+			pen_y -= scale*fr->font_size;
+			continue;
+		} else if (cp == '\t') {
+			pen_x += scale*font_size*4;
+			continue;
+		}
+
+		const GlyphData *glyph = font_resource::glyph(fr, cp, &deffault_glyph);
+		const f32 baseline = glyph->height - glyph->y_offset;
+		const f32 x_offset = fsign(pen_x) * scale*glyph->x_offset;
+
+		// Glyph position coords.
+		const f32 x0 = pen_x + pos.x + x_offset;
+		const f32 y0 = pen_y + pos.y - scale*baseline;
+		const f32 x1 = fround(x0 + scale*glyph->width);
+		const f32 y1 = fround(y0 + scale*glyph->height);
+
+		pen_x += scale*glyph->x_advance;
+
+		// Glyph atlas coords.
+		const f32 u0 = glyph->x / fr->texture_size;
+		const f32 v1 = glyph->y / fr->texture_size; // Upper-left char corner
+		const f32 u1 = glyph->width  / fr->texture_size + u0;
+		const f32 v0 = glyph->height / fr->texture_size + v1; // Bottom-left char corner
+
+		const u32 abgr = to_abgr(color);
+
+		// Fill vertex buffer.
+		vd[0].pos.x = x0;
+		vd[0].pos.y = y0;
+		vd[0].pos.z = 0.0f;
+		vd[0].uv.x  = u0;
+		vd[0].uv.y  = v0;
+		vd[0].col   = abgr;
+
+		vd[1].pos.x = x1;
+		vd[1].pos.y = y0;
+		vd[1].pos.z = 0.0f;
+		vd[1].uv.x  = u1;
+		vd[1].uv.y  = v0;
+		vd[1].col   = abgr;
+
+		vd[2].pos.x = x1;
+		vd[2].pos.y = y1;
+		vd[2].pos.z = 0.0f;
+		vd[2].uv.x  = u1;
+		vd[2].uv.y  = v1;
+		vd[2].col   = abgr;
+
+		vd[3].pos.x = x0;
+		vd[3].pos.y = y1;
+		vd[3].pos.z = 0.0f;
+		vd[3].uv.x  = u0;
+		vd[3].uv.y  = v1;
+		vd[3].col   = abgr;
+
+		// Fill index buffer.
+		id[0] = num_vertices + 0;
+		id[1] = num_vertices + 1;
+		id[2] = num_vertices + 2;
+		id[3] = num_vertices + 0;
+		id[4] = num_vertices + 2;
+		id[5] = num_vertices + 3;
+
+		vd += 4;
+		id += 6;
+		num_vertices += 4;
+		num_indices  += 6;
+	}
+
+	_buffer->submit_with_material(num_vertices
+		, num_indices
+		, _world
+		, _view
+		, depth_u32(pos.z)
+		, _material_manager->get(mr)
 		);
 }
 
@@ -453,8 +545,8 @@ Vector2 Gui::text_extents(const u32 font_size, const char *str, StringId64 font)
 		// Glyph position coords.
 		const f32 x0 = pen_x + x_offset;
 		const f32 y0 = pen_y - scale*baseline;
-		const f32 x1 = x0 + scale*glyph->width;
-		const f32 y1 = y0 + scale*glyph->height;
+		const f32 x1 = fround(x0 + scale*glyph->width);
+		const f32 y1 = fround(y0 + scale*glyph->height);
 
 		box_min = min(box_min, { x0, y0 });
 		box_max = max(box_max, { x1, y1 });
