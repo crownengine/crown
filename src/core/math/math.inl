@@ -24,9 +24,24 @@ inline f32 fsign(f32 a)
 	return (a > 0.0f) - (a < 0.0f);
 }
 
+inline f32 fceil(f32 a)
+{
+	return ceilf(a);
+}
+
+inline f32 ffloor(f32 a)
+{
+	return floorf(a);
+}
+
+inline f32 fround(f32 a)
+{
+	return ffloor(0.5f + a);
+}
+
 inline f32 ffract(f32 a)
 {
-	return a - floorf(a);
+	return a - ffloor(a);
 }
 
 inline f32 fabs(f32 a)
