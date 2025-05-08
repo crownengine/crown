@@ -398,6 +398,29 @@ struct EmscriptenDevice
 
 		switch (event_type) {
 		case EMSCRIPTEN_EVENT_TOUCHSTART:
+			for (int i = 0; i < event->numTouches; ++i) {
+				const EmscriptenTouchPoint *touch = &event->touches[i];
+
+				if (touch->identifier < TouchButton::COUNT) {
+					ed->_queue.push_button_event(InputDeviceType::TOUCHSCREEN
+						, 0
+						, touch->identifier
+						, true
+						);
+				}
+
+				if (touch->identifier < TouchAxis::COUNT) {
+					ed->_queue.push_axis_event(InputDeviceType::TOUCHSCREEN
+						, 0
+						, touch->identifier
+						, touch->targetX
+						, touch->targetY
+						, 0
+						);
+				}
+			}
+			return EM_EVENT_STOP;
+
 		case EMSCRIPTEN_EVENT_TOUCHEND:
 			for (int i = 0; i < event->numTouches; ++i) {
 				const EmscriptenTouchPoint *touch = &event->touches[i];
@@ -416,7 +439,7 @@ struct EmscriptenDevice
 					ed->_queue.push_button_event(InputDeviceType::TOUCHSCREEN
 						, 0
 						, touch->identifier
-						, event_type == EMSCRIPTEN_EVENT_TOUCHSTART
+						, false
 						);
 				}
 			}
