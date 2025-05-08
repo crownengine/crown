@@ -131,27 +131,34 @@ struct AndroidDevice
 			switch (action) {
 			case AMOTION_EVENT_ACTION_DOWN:
 			case AMOTION_EVENT_ACTION_POINTER_DOWN:
-				_queue.push_button_event(InputDeviceType::TOUCHSCREEN, 0, pointer_id, true);
-				_queue.push_axis_event(InputDeviceType::TOUCHSCREEN, 0, pointer_id, x, y, 0);
+				if (pointer_id < TouchButton::COUNT)
+					_queue.push_button_event(InputDeviceType::TOUCHSCREEN, 0, pointer_id, true);
+				if (pointer_id < TouchAxis::COUNT)
+					_queue.push_axis_event(InputDeviceType::TOUCHSCREEN, 0, pointer_id, x, y, 0);
 				break;
 
 			case AMOTION_EVENT_ACTION_UP:
 			case AMOTION_EVENT_ACTION_POINTER_UP:
-				_queue.push_axis_event(InputDeviceType::TOUCHSCREEN, 0, pointer_id, x, y, 0);
-				_queue.push_button_event(InputDeviceType::TOUCHSCREEN, 0, pointer_id, false);
+				if (pointer_id < TouchAxis::COUNT)
+					_queue.push_axis_event(InputDeviceType::TOUCHSCREEN, 0, pointer_id, x, y, 0);
+				if (pointer_id < TouchButton::COUNT)
+					_queue.push_button_event(InputDeviceType::TOUCHSCREEN, 0, pointer_id, false);
 				break;
 
 			case AMOTION_EVENT_ACTION_OUTSIDE:
 			case AMOTION_EVENT_ACTION_CANCEL:
-				_queue.push_button_event(InputDeviceType::TOUCHSCREEN, 0, pointer_id, false);
+				if (pointer_id < TouchButton::COUNT)
+					_queue.push_button_event(InputDeviceType::TOUCHSCREEN, 0, pointer_id, false);
 				break;
 
 			case AMOTION_EVENT_ACTION_MOVE:
 				for (int index = 0; index < pointer_count; index++) {
-					const f32 xx = AMotionEvent_getX(event, index);
-					const f32 yy = AMotionEvent_getY(event, index);
 					const s32 id = AMotionEvent_getPointerId(event, index);
-					_queue.push_axis_event(InputDeviceType::TOUCHSCREEN, 0, id, xx, yy, 0);
+					if (id < TouchAxis::COUNT) {
+						const f32 xx = AMotionEvent_getX(event, index);
+						const f32 yy = AMotionEvent_getY(event, index);
+						_queue.push_axis_event(InputDeviceType::TOUCHSCREEN, 0, id, xx, yy, 0);
+					}
 				}
 				break;
 			}
