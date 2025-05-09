@@ -64,6 +64,8 @@ project "crown-editor"
 		"-Wno-incompatible-pointer-types",
 		"-Wno-unused-value",
 		"-D VALA_STRICT_C",
+		"-D GDK_DISABLE_DEPRECATED",
+		"-D GTK_DISABLE_DEPRECATED",
 	}
 
 	linkoptions {
