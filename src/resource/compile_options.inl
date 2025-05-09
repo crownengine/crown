@@ -10,6 +10,7 @@
 #if CROWN_CAN_COMPILE
 #include "core/filesystem/reader_writer.inl"
 #include "resource/compile_options.h"
+#include "resource/resource_id.inl"
 
 #define RETURN_IF_FALSE(condition, opts, msg, ...) \
 	do                                             \
