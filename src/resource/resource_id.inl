@@ -7,6 +7,12 @@
 
 #include "core/filesystem/path.h"
 #include "resource/resource_id.h"
+#include <inttypes.h> // PRIx64
+
+#define RESOURCE_ID_FMT "#ID(%.16" PRIx64 ")"
+#define RESOURCE_ID_FMT_STR "#ID(%s)"
+#define RESOURCE_ID_FMT_STR_PAIR "#ID(%s.%s)"
+#define RESOURCE_ID_BUF_LEN 17
 
 namespace crown
 {
