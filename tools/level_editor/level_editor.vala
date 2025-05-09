@@ -716,6 +716,7 @@ public class LevelEditorApplication : Gtk.Application
 			, flags: GLib.ApplicationFlags.FLAGS_NONE
 			);
 
+		GLib.Environment.set_prgname(this.application_id); // FIXME: Drop after GTK4 port.
 		_subprocess_launcher = subprocess_launcher;
 	}
 
