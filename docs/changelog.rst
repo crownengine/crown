@@ -15,6 +15,7 @@ Changelog
 
 * HTML5: added Touch input device support.
 * HTML5: fixed GL_INVALID_OPERATION (or missing geometry) when rendering untextured meshes.
+* Fixed spurious activations of physics bodies.
 * Data Compiler: fixed shaders not including code in some circumnstances.
 * Data Compiler: fixed 'static_compile' being visible to external shader resources.
 * Lua API: added an optional exit_code parameter to ``Device.quit()``.
