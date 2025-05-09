@@ -626,7 +626,7 @@ struct PhysicsWorldImpl
 	{
 		ActorInstanceData &a = _actor[actor.i];
 		const PhysicsCollisionFilter *f = physics_config_resource::filter(_config_resource, a.resource->collision_filter);
-		_dynamics_world->removeRigidBody(_actor[actor.i].body);
+		_dynamics_world->removeRigidBody(a.body);
 		_dynamics_world->addRigidBody(a.body, f->me, f->mask);
 	}
 
@@ -635,7 +635,7 @@ struct PhysicsWorldImpl
 		ActorInstanceData &a = _actor[actor.i];
 		const PhysicsCollisionFilter *f = physics_config_resource::filter(_config_resource, a.resource->collision_filter);
 		// Disable collisions by setting collision mask to 0.
-		_dynamics_world->removeRigidBody(_actor[actor.i].body);
+		_dynamics_world->removeRigidBody(a.body);
 		_dynamics_world->addRigidBody(a.body, f->me, 0);
 	}
 
@@ -643,7 +643,7 @@ struct PhysicsWorldImpl
 	{
 		ActorInstanceData &a = _actor[actor.i];
 		const PhysicsCollisionFilter *f = physics_config_resource::filter(_config_resource, filter);
-		_dynamics_world->removeRigidBody(_actor[actor.i].body);
+		_dynamics_world->removeRigidBody(a.body);
 		_dynamics_world->addRigidBody(a.body, f->me, f->mask);
 	}
 
