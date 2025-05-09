@@ -262,6 +262,9 @@ void World::update_scene(f32 dt)
 		, array::begin(_changed_world)
 		);
 
+	array::clear(_changed_units);
+	array::clear(_changed_world);
+
 	_sound_world->update();
 
 	_gui_buffer.reset();
