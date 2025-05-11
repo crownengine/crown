@@ -9,13 +9,12 @@ namespace Crown
 {
 public class ComboBoxMap : Gtk.ComboBox, Property
 {
-	// Data
 	public bool _stop_emit;
 	public bool _inconsistent;
 	public Gtk.ListStore _store;
 	public Gtk.TreeModelFilter _filter;
+	public Gtk.EventControllerScroll _controller_scroll;
 
-	// Signals
 	public signal void value_changed();
 
 	public void set_inconsistent(bool inconsistent)
@@ -77,7 +76,6 @@ public class ComboBoxMap : Gtk.ComboBox, Property
 
 	public ComboBoxMap(int default_id = 0, string[]? labels = null, string[]? ids = null)
 	{
-		// Data
 		_stop_emit = false;
 		_inconsistent = false;
 
@@ -108,9 +106,14 @@ public class ComboBoxMap : Gtk.ComboBox, Property
 				this.value = ids[default_id];
 		}
 
-		// Widgets
 		this.changed.connect(on_changed);
-		this.scroll_event.connect(on_scroll);
+
+		_controller_scroll = new Gtk.EventControllerScroll(this, Gtk.EventControllerScrollFlags.BOTH_AXES);
+		_controller_scroll.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
+		_controller_scroll.scroll.connect(() => {
+				// Do nothing, just consume the event to stop
+				// the annoying scroll default behavior.
+			});
 	}
 
 	public void append(string? id, string label)
@@ -160,12 +163,6 @@ public class ComboBoxMap : Gtk.ComboBox, Property
 			}
 			value_changed();
 		}
-	}
-
-	private bool on_scroll(Gdk.EventScroll ev)
-	{
-		GLib.Signal.stop_emission_by_name(this, "scroll-event");
-		return Gdk.EVENT_PROPAGATE;
 	}
 
 	private void insert_special_values()

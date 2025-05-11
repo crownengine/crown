@@ -479,6 +479,8 @@ public class ProjectFolderView : Gtk.Bin
 	public Gtk.ScrolledWindow _icon_view_window;
 	public Gtk.ScrolledWindow _list_view_window;
 	public Gtk.Stack _stack;
+	public Gtk.GestureMultiPress _icon_view_gesture_click;
+	public Gtk.GestureMultiPress _list_view_gesture_click;
 
 	public ProjectFolderView(ProjectStore project_store, ThumbnailCache thumbnail_cache)
 	{
@@ -496,13 +498,26 @@ public class ProjectFolderView : Gtk.Bin
 		_icon_view = new Gtk.IconView();
 		_icon_view.set_model(_list_store);
 		_icon_view.set_item_width(80);
-		_icon_view.button_press_event.connect(on_button_pressed);
 		_icon_view.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, dnd_targets, Gdk.DragAction.COPY);
 		_icon_view.drag_data_get.connect(on_drag_data_get);
 		_icon_view.drag_begin.connect_after(on_drag_begin);
 		_icon_view.drag_end.connect(on_drag_end);
 		_icon_view.has_tooltip = true;
 		_icon_view.query_tooltip.connect(on_icon_view_query_tooltip);
+
+		/*
+		_icon_view_gesture_click = new Gtk.GestureMultiPress(_icon_view);
+		_icon_view_gesture_click.set_button(0);
+		_icon_view_gesture_click.pressed.connect((n_press, x, y) => {
+				on_button_pressed(_icon_view_gesture_click.get_current_button(), n_press, x, y);
+			});
+		*/
+		_icon_view.button_press_event.connect((ev) => {
+				int n_press = 1;
+				if (ev.type == Gdk.EventType.@2BUTTON_PRESS)
+					n_press = 2;
+				return on_button_pressed(ev.button, n_press, ev.x, ev.y);
+			});
 
 		// https://gitlab.gnome.org/GNOME/gtk/-/blob/3.24.43/gtk/gtkiconview.c#L5147
 		_cell_renderer_text = new Gtk.CellRendererText();
@@ -524,11 +539,16 @@ public class ProjectFolderView : Gtk.Bin
 
 		_list_view = new Gtk.TreeView();
 		_list_view.set_model(_list_store);
-		_list_view.button_press_event.connect(on_button_pressed);
 		_list_view.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, dnd_targets, Gdk.DragAction.COPY);
 		_list_view.drag_data_get.connect(on_drag_data_get);
 		_list_view.drag_begin.connect_after(on_drag_begin);
 		_list_view.drag_end.connect(on_drag_end);
+
+		_list_view_gesture_click = new Gtk.GestureMultiPress(_list_view);
+		_list_view_gesture_click.set_button(0);
+		_list_view_gesture_click.pressed.connect((n_press, x, y) => {
+				on_button_pressed(_list_view_gesture_click.get_current_button(), n_press, x, y);
+			});
 
 		var cell_pixbuf = new Gtk.CellRendererPixbuf();
 		cell_pixbuf.stock_size = Gtk.IconSize.DND;
@@ -622,20 +642,20 @@ public class ProjectFolderView : Gtk.Bin
 		GLib.Application.get_default().activate_action("cancel-place", null);
 	}
 
-	private bool on_button_pressed(Gdk.EventButton ev)
+	private bool on_button_pressed(uint button, int n_press, double x, double y)
 	{
 		Gtk.TreePath? path;
 		if (_stack.get_visible_child() == _icon_view_window) {
-			path = _icon_view.get_path_at_pos((int)ev.x, (int)ev.y);
+			path = _icon_view.get_path_at_pos((int)x, (int)y);
 		} else if (_stack.get_visible_child() == _list_view_window) {
-			if (!_list_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, null, null, null))
+			if (!_list_view.get_path_at_pos((int)x, (int)y, out path, null, null, null))
 				path = null;
 		} else {
 			assert(false);
 			return Gdk.EVENT_PROPAGATE;
 		}
 
-		if (ev.button == Gdk.BUTTON_SECONDARY) {
+		if (button == Gdk.BUTTON_SECONDARY) {
 			string type;
 			string name;
 
@@ -666,9 +686,9 @@ public class ProjectFolderView : Gtk.Bin
 
 			if (menu != null) {
 				menu.show_all();
-				menu.popup_at_pointer(ev);
+				menu.popup_at_pointer();
 			}
-		} else if (ev.button == Gdk.BUTTON_PRIMARY && ev.type == Gdk.EventType.@2BUTTON_PRESS) {
+		} else if (button == Gdk.BUTTON_PRIMARY && n_press == 2) {
 			if (path != null) {
 				Gtk.TreeIter iter;
 				_list_store.get_iter(out iter, path);
@@ -935,6 +955,7 @@ public class ProjectBrowser : Gtk.Bin
 	public Gtk.Box _folder_view_content;
 	public Gtk.ScrolledWindow _scrolled_window;
 	public Gtk.Paned _paned;
+	public Gtk.GestureMultiPress _tree_view_gesture_click;
 
 	public bool _hide_core_resources;
 
@@ -1042,7 +1063,10 @@ public class ProjectBrowser : Gtk.Bin
 #endif /* if 0 */
 		_tree_view.model = _tree_sort;
 		_tree_view.headers_visible = false;
-		_tree_view.button_press_event.connect(on_button_pressed);
+
+		_tree_view_gesture_click = new Gtk.GestureMultiPress(_tree_view);
+		_tree_view_gesture_click.set_button(0);
+		_tree_view_gesture_click.pressed.connect(on_button_pressed);
 
 		_tree_view.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, dnd_targets, Gdk.DragAction.COPY);
 		_tree_view.drag_data_get.connect(on_drag_data_get);
@@ -1415,11 +1439,13 @@ public class ProjectBrowser : Gtk.Bin
 		_project_store.remove_from_favorites(type, name);
 	}
 
-	private bool on_button_pressed(Gdk.EventButton ev)
+	private void on_button_pressed(int n_press, double x, double y)
 	{
-		if (ev.button == Gdk.BUTTON_SECONDARY) {
+		uint button = _tree_view_gesture_click.get_current_button();
+
+		if (button == Gdk.BUTTON_SECONDARY) {
 			Gtk.TreePath path;
-			if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, null, null, null)) {
+			if (_tree_view.get_path_at_pos((int)x, (int)y, out path, null, null, null)) {
 				Gtk.TreeIter iter;
 				_tree_view.model.get_iter(out iter, path);
 
@@ -1440,19 +1466,19 @@ public class ProjectBrowser : Gtk.Bin
 
 				if (menu != null) {
 					menu.show_all();
-					menu.popup_at_pointer(ev);
+					menu.popup_at_pointer();
 				}
 			}
-		} else if (ev.button == Gdk.BUTTON_PRIMARY && ev.type == Gdk.EventType.@2BUTTON_PRESS) {
+		} else if (button == Gdk.BUTTON_PRIMARY && n_press == 2) {
 			Gtk.TreePath path;
-			if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, null, null, null)) {
+			if (_tree_view.get_path_at_pos((int)x, (int)y, out path, null, null, null)) {
 				Gtk.TreeIter iter;
 				_tree_view.model.get_iter(out iter, path);
 
 				Value type;
 				_tree_view.model.get_value(iter, ProjectStore.Column.TYPE, out type);
 				if ((string)type == "<folder>")
-					return Gdk.EVENT_PROPAGATE;
+					return;
 
 				Value name;
 				_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
@@ -1461,7 +1487,7 @@ public class ProjectBrowser : Gtk.Bin
 			}
 		}
 
-		return Gdk.EVENT_PROPAGATE;
+		return;
 	}
 
 	private void update_folder_view()

@@ -7,12 +7,11 @@ namespace Crown
 {
 public class EntryText : Gtk.Entry, Property
 {
-	// Data
 	public bool _inconsistent;
 	public bool _stop_emit;
 	public string _value;
+	public Gtk.GestureMultiPress _gesture_click;
 
-	// Signals
 	public signal void value_changed();
 
 	public void set_inconsistent(bool inconsistent)
@@ -65,35 +64,36 @@ public class EntryText : Gtk.Entry, Property
 		_inconsistent = false;
 		_value = "";
 
+		_gesture_click = new Gtk.GestureMultiPress(this);
+		_gesture_click.pressed.connect(on_button_pressed);
+		_gesture_click.released.connect(on_button_released);
+
 		this.activate.connect(on_activate);
-		this.button_press_event.connect(on_button_press);
-		this.button_release_event.connect(on_button_release);
 		this.focus_in_event.connect(on_focus_in);
 		this.focus_out_event.connect(on_focus_out);
 	}
 
-	private bool on_button_press(Gdk.EventButton ev)
+	private void on_button_pressed(int n_press, double x, double y)
 	{
 		this.grab_focus();
-
-		return Gdk.EVENT_PROPAGATE;
 	}
 
-	private bool on_button_release(Gdk.EventButton ev)
+	private void on_button_released(int n_press, double x, double y)
 	{
-		if (ev.button == Gdk.BUTTON_PRIMARY) {
+		uint button = _gesture_click.get_current_button();
+
+		if (button == Gdk.BUTTON_PRIMARY) {
 			if (_inconsistent)
 				this.text = "";
 			else
 				this.text = _value;
 
-			this.set_position(-1);
-			this.select_region(0, -1);
-
-			return Gdk.EVENT_STOP;
+			GLib.Idle.add(() => {
+					this.set_position(-1);
+					this.select_region(0, -1);
+					return GLib.Source.REMOVE;
+				});
 		}
-
-		return Gdk.EVENT_PROPAGATE;
 	}
 
 	private void on_activate()

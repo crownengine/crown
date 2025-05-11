@@ -21,6 +21,8 @@ public class AppChooserButton : Gtk.AppChooserButton
 		NAME
 	}
 
+	public Gtk.EventControllerScroll _controller_scroll;
+
 	public AppChooserButton(string mime_type)
 	{
 		Object(content_type: mime_type);
@@ -28,7 +30,12 @@ public class AppChooserButton : Gtk.AppChooserButton
 		this.append_custom_item(APP_DEFAULT, "Open by extension", null);
 		this.set_active_custom_item(APP_DEFAULT);
 
-		this.scroll_event.connect(on_scroll);
+		_controller_scroll = new Gtk.EventControllerScroll(this, Gtk.EventControllerScrollFlags.BOTH_AXES);
+		_controller_scroll.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
+		_controller_scroll.scroll.connect(() => {
+				// Do nothing, just consume the event to stop
+				// the annoying scroll default behavior.
+			});
 	}
 
 	/// Sets the app to @a app_name. If @a app_name is APP_PREDEFINED, it tries
@@ -81,12 +88,6 @@ public class AppChooserButton : Gtk.AppChooserButton
 		}
 
 		return APP_DEFAULT;
-	}
-
-	private bool on_scroll(Gdk.EventScroll ev)
-	{
-		GLib.Signal.stop_emission_by_name(this, "scroll-event");
-		return Gdk.EVENT_PROPAGATE;
 	}
 }
 

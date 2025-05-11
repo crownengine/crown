@@ -19,6 +19,7 @@ public class ResourceChooserButton : Gtk.Box
 	public ProjectStore _project_store;
 	public ResourceChooser _chooser;
 	public Gtk.Dialog _dialog;
+	public Gtk.EventControllerKey _dialog_controller_key;
 
 	public string value
 	{
@@ -84,8 +85,10 @@ public class ResourceChooserButton : Gtk.Box
 					_dialog.hide();
 				});
 
-			_dialog.key_press_event.connect((ev) => {
-					if (ev.keyval == Gdk.Key.Escape) {
+			_dialog_controller_key = new Gtk.EventControllerKey(_dialog);
+			_dialog_controller_key.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
+			_dialog_controller_key.key_pressed.connect((keyval) => {
+					if (keyval == Gdk.Key.Escape) {
 						_dialog.hide();
 						return Gdk.EVENT_STOP;
 					}

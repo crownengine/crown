@@ -28,9 +28,11 @@ public class ResourceChooser : Gtk.Box
 
 	// Widgets
 	public EntrySearch _filter_entry;
+	public Gtk.EventControllerKey _filter_entry_controller_key;
 	public Gtk.TreeModelFilter _tree_filter;
 	public Gtk.TreeModelSort _tree_sort;
 	public Gtk.TreeView _tree_view;
+	public Gtk.GestureMultiPress _tree_view_gesture_click;
 	public Gtk.TreeSelection _tree_selection;
 	public Gtk.ScrolledWindow _scrolled_window;
 
@@ -57,7 +59,9 @@ public class ResourceChooser : Gtk.Box
 		_filter_entry = new EntrySearch();
 		_filter_entry.set_placeholder_text("Search...");
 		_filter_entry.search_changed.connect(on_filter_entry_text_changed);
-		_filter_entry.key_press_event.connect(on_filter_entry_key_pressed);
+
+		_filter_entry_controller_key = new Gtk.EventControllerKey(_filter_entry);
+		_filter_entry_controller_key.key_pressed.connect(on_filter_entry_key_pressed);
 
 		_tree_filter = new Gtk.TreeModelFilter(_list_store, null);
 		_tree_filter.set_visible_func((model, iter) => {
@@ -107,7 +111,10 @@ public class ResourceChooser : Gtk.Box
 		_tree_view.headers_visible = false;
 		_tree_view.can_focus = false;
 		_tree_view.row_activated.connect(on_row_activated);
-		_tree_view.button_release_event.connect(on_button_released);
+
+		_tree_view_gesture_click = new Gtk.GestureMultiPress(_tree_view);
+		_tree_view_gesture_click.set_button(0);
+		_tree_view_gesture_click.released.connect(on_button_released);
 
 		_tree_selection = _tree_view.get_selection();
 		_tree_selection.set_mode(Gtk.SelectionMode.BROWSE);
@@ -140,11 +147,13 @@ public class ResourceChooser : Gtk.Box
 		}
 	}
 
-	private bool on_button_released(Gdk.EventButton ev)
+	private void on_button_released(int n_press, double x, double y)
 	{
-		if (ev.button == Gdk.BUTTON_PRIMARY) {
+		uint button = _tree_view_gesture_click.get_current_button();
+
+		if (button == Gdk.BUTTON_PRIMARY) {
 			Gtk.TreePath path;
-			if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, null, null, null)) {
+			if (_tree_view.get_path_at_pos((int)x, (int)y, out path, null, null, null)) {
 				if (_tree_view.get_selection().path_is_selected(path)) {
 					Gtk.TreePath filter_path = _tree_sort.convert_path_to_child_path(path);
 					Gtk.TreePath child_path = _tree_filter.convert_path_to_child_path(filter_path);
@@ -160,8 +169,6 @@ public class ResourceChooser : Gtk.Box
 				}
 			}
 		}
-
-		return Gdk.EVENT_PROPAGATE;
 	}
 
 	private void on_unmap()
@@ -177,27 +184,27 @@ public class ResourceChooser : Gtk.Box
 		_tree_view.set_cursor(new Gtk.TreePath.first(), null, false);
 	}
 
-	private bool on_filter_entry_key_pressed(Gdk.EventKey ev)
+	private bool on_filter_entry_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)
 	{
 		Gtk.TreeModel model;
 		Gtk.TreeIter iter;
 		bool selected = _tree_selection.get_selected(out model, out iter);
 
-		if (ev.keyval == Gdk.Key.Down) {
+		if (keyval == Gdk.Key.Down) {
 			if (selected && model.iter_next(ref iter)) {
 				_tree_selection.select_iter(iter);
 				_tree_view.scroll_to_cell(model.get_path(iter), null, true, 1.0f, 0.0f);
 			}
 
 			return Gdk.EVENT_STOP;
-		} else if (ev.keyval == Gdk.Key.Up) {
+		} else if (keyval == Gdk.Key.Up) {
 			if (selected && model.iter_previous(ref iter)) {
 				_tree_selection.select_iter(iter);
 				_tree_view.scroll_to_cell(model.get_path(iter), null, true, 1.0f, 0.0f);
 			}
 
 			return Gdk.EVENT_STOP;
-		} else if (ev.keyval == Gdk.Key.Return) {
+		} else if (keyval == Gdk.Key.Return) {
 			if (selected) {
 				Value name;
 				Value type;
