@@ -50,7 +50,7 @@ namespace wav
 		// Validate header chunk.
 		RETURN_IF_FALSE(strncmp(wav->riff, "RIFF", 4) == 0, opts, "Bad header chunk");
 		RETURN_IF_FALSE(strncmp(wav->wave, "WAVE", 4) == 0, opts, "Bad header chunk");
-		RETURN_IF_FALSE(array::size(buf) == wav->file_size + 8, opts, "Truncated source");
+		RETURN_IF_FALSE((s32)array::size(buf) == wav->file_size + 8, opts, "Truncated source");
 
 		// Validate format chunk.
 		RETURN_IF_FALSE(strncmp(wav->fmt, "fmt ", 4) == 0, opts, "Bad data format chunk");
@@ -71,14 +71,14 @@ namespace wav
 
 		// Validate data chunk.
 		RETURN_IF_FALSE(strncmp(wav->data, "data", 4) == 0, opts, "Bad data chunk");
-		RETURN_IF_FALSE(wav->data_size <= array::size(buf) - sizeof(*wav), opts, "Bad data chunk size");
+		RETURN_IF_FALSE(wav->data_size <= s32(array::size(buf) - sizeof(*wav)), opts, "Bad data chunk size");
 
 		// Convert to intermediate 32-bit float.
 		if (wav->bit_depth == 8) {
 			const f32 scale = 255.0f;
 			const u8 *data = (u8 *)&wav[1];
-			for (u32 i = 0; i < wav->data_size; i += wav->byte_per_block) {
-				for (u32 c = 0; c < wav->channels; ++c) {
+			for (s32 i = 0; i < wav->data_size; i += wav->byte_per_block) {
+				for (s16 c = 0; c < wav->channels; ++c) {
 					const f32 conv = *data++ / scale * 2.0f - 1.0f;
 					array::push_back(s._samples, clamp(conv, -1.0f, 1.0f));
 				}
@@ -86,8 +86,8 @@ namespace wav
 		} else if (wav->bit_depth == 16) {
 			const f32 scale = 32768.0f;
 			const s16 *data = (s16 *)&wav[1];
-			for (u32 i = 0; i < wav->data_size; i += wav->byte_per_block) {
-				for (u32 c = 0; c < wav->channels; ++c) {
+			for (s32 i = 0; i < wav->data_size; i += wav->byte_per_block) {
+				for (s16 c = 0; c < wav->channels; ++c) {
 					const f32 conv = *data++ / scale;
 					array::push_back(s._samples, clamp(conv, -1.0f, 1.0f));
 				}
