@@ -26,21 +26,27 @@ namespace sound
 {
 	s32 write(Sound &s, CompileOptions &opts)
 	{
-		// Write.
 		SoundResource sr;
-		sr.version     = RESOURCE_HEADER(RESOURCE_VERSION_SOUND);
-		sr.format      = s._format;
-		sr.size        = array::size(s._samples) * s._bit_depth / 8;
-		sr.sample_rate = s._sample_rate;
-		sr.channels    = s._channels;
-		sr.bit_depth   = s._bit_depth;
+		sr.version              = RESOURCE_HEADER(RESOURCE_VERSION_SOUND);
+		sr.sample_rate          = s._sample_rate;
+		sr.channels             = s._channels;
+		sr.bit_depth            = s._bit_depth;
+		sr.stream_format        = s._stream_format;
+		sr.stream_metadata_size = array::size(s._stream_metadata);
+		sr.pcm_offset           = sizeof(sr) + sr.stream_metadata_size;
+		sr.pcm_size             = array::size(s._samples) * s._bit_depth / 8;
 
 		opts.write(sr.version);
-		opts.write(sr.format);
-		opts.write(sr.size);
 		opts.write(sr.sample_rate);
 		opts.write(sr.channels);
 		opts.write(sr.bit_depth);
+		opts.write(sr.stream_format);
+		opts.write(sr.stream_metadata_size);
+		opts.write(sr.pcm_offset);
+		opts.write(sr.pcm_size);
+		opts.write(sr._pad);
+
+		opts.write(array::begin(s._stream_metadata), array::size(s._stream_metadata));
 
 		// Convert samples.
 		if (sr.bit_depth == 8) {
@@ -56,7 +62,7 @@ namespace sound
 				opts.write((s16)clamp(conv, -scale, scale));
 			}
 		} else if (sr.bit_depth == 32) {
-			opts.write(array::begin(s._samples), sr.size);
+			opts.write(array::begin(s._samples), sr.pcm_size);
 		} else {
 			RETURN_IF_FALSE(false, opts, "Unsupported bit depth");
 		}
@@ -98,10 +104,11 @@ namespace sound
 } // namespace mesh
 
 Sound::Sound(Allocator &a)
-	: _format(SoundFormat::PCM)
-	, _sample_rate(0)
+	: _sample_rate(0)
 	, _channels(0)
 	, _bit_depth(0)
+	, _stream_format(StreamFormat::NONE)
+	, _stream_metadata(a)
 	, _samples(a)
 {
 }
