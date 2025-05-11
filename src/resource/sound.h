@@ -17,10 +17,11 @@ namespace crown
 {
 struct Sound
 {
-	u32 _format;
 	u32 _sample_rate;
 	u32 _channels;
 	u32 _bit_depth;
+	u32 _stream_format;
+	Buffer _stream_metadata;
 	Array<f32> _samples;
 
 	///
