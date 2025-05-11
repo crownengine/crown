@@ -14,8 +14,9 @@ public class EntryDouble : Gtk.Entry, Property
 	public bool _stop_emit;
 	public string _preview_fmt;
 	public string _edit_fmt;
+	public Gtk.GestureMultiPress _gesture_click;
+	public Gtk.EventControllerScroll _controller_scroll;
 
-	// Signals
 	public signal void value_changed();
 
 	public void set_inconsistent(bool inconsistent)
@@ -67,9 +68,6 @@ public class EntryDouble : Gtk.Entry, Property
 		this.input_purpose = Gtk.InputPurpose.NUMBER;
 		this.set_width_chars(1);
 
-		this.scroll_event.connect(on_scroll);
-		this.button_press_event.connect(on_button_press);
-		this.button_release_event.connect(on_button_release);
 		this.activate.connect(on_activate);
 		this.focus_in_event.connect(on_focus_in);
 		this.focus_out_event.connect(on_focus_out);
@@ -83,36 +81,40 @@ public class EntryDouble : Gtk.Entry, Property
 		_stop_emit = true;
 		set_value_safe(val);
 		_stop_emit = false;
+
+		_gesture_click = new Gtk.GestureMultiPress(this);
+		_gesture_click.pressed.connect(on_button_pressed);
+		_gesture_click.released.connect(on_button_released);
+
+		_controller_scroll = new Gtk.EventControllerScroll(this, Gtk.EventControllerScrollFlags.BOTH_AXES);
+		_controller_scroll.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
+		_controller_scroll.scroll.connect(() => {
+				// Do nothing, just consume the event to stop
+				// the annoying scroll default behavior.
+			});
 	}
 
-	private bool on_scroll(Gdk.EventScroll ev)
-	{
-		GLib.Signal.stop_emission_by_name(this, "scroll-event");
-		return Gdk.EVENT_PROPAGATE;
-	}
-
-	private bool on_button_press(Gdk.EventButton ev)
+	private void on_button_pressed(int n_press, double x, double y)
 	{
 		this.grab_focus();
-
-		return Gdk.EVENT_PROPAGATE;
 	}
 
-	private bool on_button_release(Gdk.EventButton ev)
+	private void on_button_released(int n_press, double x, double y)
 	{
-		if (ev.button == Gdk.BUTTON_PRIMARY && this.has_focus) {
+		uint button = _gesture_click.get_current_button();
+
+		if (button == Gdk.BUTTON_PRIMARY && this.has_focus) {
 			if (_inconsistent)
 				this.text = "";
 			else
 				this.text = _edit_fmt.printf(_value);
 
-			this.set_position(-1);
-			this.select_region(0, -1);
-
-			return Gdk.EVENT_STOP;
+			GLib.Idle.add(() => {
+					this.set_position(-1);
+					this.select_region(0, -1);
+					return GLib.Source.REMOVE;
+				});
 		}
-
-		return Gdk.EVENT_PROPAGATE;
 	}
 
 	private void on_activate()

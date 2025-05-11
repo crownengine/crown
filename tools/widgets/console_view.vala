@@ -113,9 +113,12 @@ public class ConsoleView : Gtk.Box
 	public Gdk.Cursor _pointer_cursor;
 	public bool _cursor_is_hovering_link;
 	public Gtk.TextView _text_view;
+	public Gtk.GestureMultiPress _text_view_gesture_click;
+	public Gtk.EventControllerMotion _text_view_controller_motion;
 	public Gtk.Overlay _text_view_overlay;
 	public Gtk.ScrolledWindow _scrolled_window;
 	public EntryText _entry;
+	public Gtk.EventControllerKey _entry_controller_key;
 	public Gtk.Box _entry_hbox;
 	public Gtk.TextMark _scroll_mark;
 	public Gtk.TextMark _time_mark;
@@ -172,8 +175,10 @@ public class ConsoleView : Gtk.Box
 		_text_view_overlay.add_overlay(clear_button);
 
 		_entry = new EntryText();
-		_entry.key_press_event.connect(on_entry_key_pressed);
 		_entry.activate.connect(on_entry_activated);
+
+		_entry_controller_key = new Gtk.EventControllerKey(_entry);
+		_entry_controller_key.key_pressed.connect(on_entry_key_pressed);
 
 		_entry_hbox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
 		_entry_hbox.pack_start(combo, false, false);
@@ -187,9 +192,14 @@ public class ConsoleView : Gtk.Box
 
 		this.destroy.connect(on_destroy);
 
-		_text_view.button_press_event.connect(on_button_pressed);
-		_text_view.button_release_event.connect(on_button_released);
-		_text_view.motion_notify_event.connect(on_motion_notify);
+		_text_view_gesture_click = new Gtk.GestureMultiPress(_text_view);
+		_text_view_gesture_click.set_button(0);
+		_text_view_gesture_click.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
+		_text_view_gesture_click.pressed.connect(on_button_pressed);
+		_text_view_gesture_click.released.connect(on_button_released);
+
+		_text_view_controller_motion = new Gtk.EventControllerMotion(_text_view);
+		_text_view_controller_motion.motion.connect(on_motion_notify);
 
 		this.get_style_context().add_class("console-view");
 
@@ -240,9 +250,9 @@ public class ConsoleView : Gtk.Box
 		_entry.text = "";
 	}
 
-	private bool on_entry_key_pressed(Gdk.EventKey ev)
+	private bool on_entry_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)
 	{
-		if (ev.keyval == Gdk.Key.Down) {
+		if (keyval == Gdk.Key.Down) {
 			if (_distance > 1) {
 				--_distance;
 				_entry.text = _entry_history.element(_distance);
@@ -252,7 +262,7 @@ public class ConsoleView : Gtk.Box
 
 			_entry.set_position(_entry.text.length);
 			return Gdk.EVENT_STOP;
-		} else if (ev.keyval == Gdk.Key.Up) {
+		} else if (keyval == Gdk.Key.Up) {
 			if (_distance < _entry_history._size) {
 				++_distance;
 				_entry.text = _entry_history.element(_distance);
@@ -270,19 +280,21 @@ public class ConsoleView : Gtk.Box
 		_console_view_valid = false;
 	}
 
-	private bool on_button_pressed(Gdk.EventButton ev)
+	private void on_button_pressed(int n_press, double x, double y)
 	{
-		if (ev.button == Gdk.BUTTON_SECONDARY) {
+		uint button = _text_view_gesture_click.get_current_button();
+
+		if (button == Gdk.BUTTON_SECONDARY) {
 			// Do not handle click if some text is selected.
 			Gtk.TextIter dummy_iter;
 			if (_text_view.buffer.get_selection_bounds(out dummy_iter, out dummy_iter))
-				return Gdk.EVENT_PROPAGATE;
+				return;
 
 			int buffer_x;
 			int buffer_y;
 			_text_view.window_to_buffer_coords(Gtk.TextWindowType.WIDGET
-				, (int)ev.x
-				, (int)ev.y
+				, (int)x
+				, (int)y
 				, out buffer_x
 				, out buffer_y
 				);
@@ -322,30 +334,31 @@ public class ConsoleView : Gtk.Box
 						menu.add(mi);
 
 						menu.show_all();
-						menu.popup_at_pointer(ev);
+						menu.popup_at_pointer();
 
-						return Gdk.EVENT_STOP;
+						_text_view_gesture_click.set_state(Gtk.EventSequenceState.CLAIMED);
+						return;
 					}
 				}
 			}
 		}
-
-		return Gdk.EVENT_PROPAGATE;
 	}
 
-	private bool on_button_released(Gdk.EventButton ev)
+	private void on_button_released(int n_press, double x, double y)
 	{
-		if (ev.button == Gdk.BUTTON_PRIMARY) {
+		uint button = _text_view_gesture_click.get_current_button();
+
+		if (button == Gdk.BUTTON_PRIMARY) {
 			// Do not handle click if some text is selected.
 			Gtk.TextIter dummy_iter;
 			if (_text_view.buffer.get_selection_bounds(out dummy_iter, out dummy_iter))
-				return Gdk.EVENT_PROPAGATE;
+				return;
 
 			int buffer_x;
 			int buffer_y;
 			_text_view.window_to_buffer_coords(Gtk.TextWindowType.WIDGET
-				, (int)ev.x
-				, (int)ev.y
+				, (int)x
+				, (int)y
 				, out buffer_x
 				, out buffer_y
 				);
@@ -372,19 +385,17 @@ public class ConsoleView : Gtk.Box
 				}
 			}
 		}
-
-		return Gdk.EVENT_PROPAGATE;
 	}
 
-	private bool on_motion_notify(Gdk.EventMotion ev)
+	private void on_motion_notify(double x, double y)
 	{
 		bool hovering = false;
 
 		int buffer_x;
 		int buffer_y;
 		_text_view.window_to_buffer_coords(TextWindowType.WIDGET
-			, (int)ev.x
-			, (int)ev.y
+			, (int)x
+			, (int)y
 			, out buffer_x
 			, out buffer_y
 			);
@@ -407,8 +418,6 @@ public class ConsoleView : Gtk.Box
 			else
 				_text_view.get_window(Gtk.TextWindowType.TEXT).set_cursor(_text_cursor);
 		}
-
-		return Gdk.EVENT_PROPAGATE;
 	}
 
 	public void log(string time, string severity, string message)

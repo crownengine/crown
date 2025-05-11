@@ -38,6 +38,11 @@ public class EditorView : Gtk.EventBox
 
 	private GLib.StringBuilder _buffer;
 
+	private Gtk.EventControllerKey _controller_key;
+	private Gtk.GestureMultiPress _gesture_click;
+	private Gtk.EventControllerMotion _controller_motion;
+	private Gtk.EventControllerScroll _controller_scroll;
+
 	// Signals
 	public signal void native_window_ready(uint window_id, int width, int height);
 
@@ -107,12 +112,21 @@ public class EditorView : Gtk.EventBox
 		this.size_allocate.connect(on_size_allocate);
 
 		if (input_enabled) {
-			this.button_release_event.connect(on_button_release);
-			this.button_press_event.connect(on_button_press);
-			this.key_press_event.connect(on_key_press);
-			this.key_release_event.connect(on_key_release);
-			this.motion_notify_event.connect(on_motion_notify);
-			this.scroll_event.connect(on_scroll);
+			_controller_key = new Gtk.EventControllerKey(this);
+			_controller_key.key_pressed.connect(on_key_pressed);
+			_controller_key.key_released.connect(on_key_released);
+
+			_gesture_click = new Gtk.GestureMultiPress(this);
+			_gesture_click.set_button(0);
+			_gesture_click.pressed.connect(on_button_pressed);
+			_gesture_click.released.connect(on_button_released);
+
+			_controller_motion = new Gtk.EventControllerMotion(this);
+			_controller_motion.enter.connect(on_enter);
+			_controller_motion.motion.connect(on_motion);
+
+			_controller_scroll = new Gtk.EventControllerScroll(this, Gtk.EventControllerScrollFlags.BOTH_AXES);
+			_controller_scroll.scroll.connect(on_scroll);
 		}
 
 		this.realize.connect(on_event_box_realized);
@@ -122,7 +136,6 @@ public class EditorView : Gtk.EventBox
 				device_frame_delayed(16, _runtime);
 				return Gdk.EVENT_PROPAGATE;
 			});
-		this.enter_notify_event.connect(on_enter_notify_event);
 
 		Gtk.drag_dest_set(this, Gtk.DestDefaults.MOTION, dnd_targets, Gdk.DragAction.COPY);
 		this.drag_data_received.connect(on_drag_data_received);
@@ -200,23 +213,24 @@ public class EditorView : Gtk.EventBox
 		_drag_enter = false;
 	}
 
-	private bool on_button_release(Gdk.EventButton ev)
+	private void on_button_released(int n_press, double x, double y)
 	{
+		uint button = _gesture_click.get_current_button();
 		int scale = this.get_scale_factor();
 
-		_mouse_left   = ev.button == Gdk.BUTTON_PRIMARY   ? false : _mouse_left;
-		_mouse_middle = ev.button == Gdk.BUTTON_MIDDLE    ? false : _mouse_middle;
-		_mouse_right  = ev.button == Gdk.BUTTON_SECONDARY ? false : _mouse_right;
+		_mouse_left   = button == Gdk.BUTTON_PRIMARY   ? false : _mouse_left;
+		_mouse_middle = button == Gdk.BUTTON_MIDDLE    ? false : _mouse_middle;
+		_mouse_right  = button == Gdk.BUTTON_SECONDARY ? false : _mouse_right;
 
-		_buffer.append(LevelEditorApi.set_mouse_state((int)ev.x*scale
-			, (int)ev.y*scale
+		_buffer.append(LevelEditorApi.set_mouse_state((int)x*scale
+			, (int)y*scale
 			, _mouse_left
 			, _mouse_middle
 			, _mouse_right
 			));
 
-		if (ev.button == Gdk.BUTTON_PRIMARY)
-			_buffer.append(LevelEditorApi.mouse_up((int)ev.x*scale, (int)ev.y*scale));
+		if (button == Gdk.BUTTON_PRIMARY)
+			_buffer.append(LevelEditorApi.mouse_up((int)x*scale, (int)y*scale));
 
 		if (camera_modifier_pressed()) {
 			if (!_mouse_left || !_mouse_middle || !_mouse_right)
@@ -230,21 +244,21 @@ public class EditorView : Gtk.EventBox
 			_buffer.erase();
 			_runtime.send(DeviceApi.frame());
 		}
-		return Gdk.EVENT_PROPAGATE;
 	}
 
-	private bool on_button_press(Gdk.EventButton ev)
+	private void on_button_pressed(int n_press, double x, double y)
 	{
+		uint button = _gesture_click.get_current_button();
 		int scale = this.get_scale_factor();
 
 		this.grab_focus();
 
-		_mouse_left   = ev.button == Gdk.BUTTON_PRIMARY   ? true : _mouse_left;
-		_mouse_middle = ev.button == Gdk.BUTTON_MIDDLE    ? true : _mouse_middle;
-		_mouse_right  = ev.button == Gdk.BUTTON_SECONDARY ? true : _mouse_right;
+		_mouse_left   = button == Gdk.BUTTON_PRIMARY   ? true : _mouse_left;
+		_mouse_middle = button == Gdk.BUTTON_MIDDLE    ? true : _mouse_middle;
+		_mouse_right  = button == Gdk.BUTTON_SECONDARY ? true : _mouse_right;
 
-		_buffer.append(LevelEditorApi.set_mouse_state((int)ev.x*scale
-			, (int)ev.y*scale
+		_buffer.append(LevelEditorApi.set_mouse_state((int)x*scale
+			, (int)y*scale
 			, _mouse_left
 			, _mouse_middle
 			, _mouse_right
@@ -261,36 +275,35 @@ public class EditorView : Gtk.EventBox
 			_buffer.append("LevelEditor:camera_drag_start('tumble')");
 		}
 
-		if (ev.button == Gdk.BUTTON_PRIMARY)
-			_buffer.append(LevelEditorApi.mouse_down((int)ev.x*scale, (int)ev.y*scale));
+		if (button == Gdk.BUTTON_PRIMARY)
+			_buffer.append(LevelEditorApi.mouse_down((int)x*scale, (int)y*scale));
 
 		if (_buffer.len != 0) {
 			_runtime.send_script(_buffer.str);
 			_buffer.erase();
 			_runtime.send(DeviceApi.frame());
 		}
-		return Gdk.EVENT_PROPAGATE;
 	}
 
-	private bool on_key_press(Gdk.EventKey ev)
+	private bool on_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)
 	{
-		if (ev.keyval == Gdk.Key.Escape)
+		if (keyval == Gdk.Key.Escape)
 			GLib.Application.get_default().activate_action("cancel-place", null);
 
-		if (ev.keyval == Gdk.Key.Up)
+		if (keyval == Gdk.Key.Up)
 			_buffer.append("LevelEditor:key_down(\"move_up\")");
-		if (ev.keyval == Gdk.Key.Down)
+		if (keyval == Gdk.Key.Down)
 			_buffer.append("LevelEditor:key_down(\"move_down\")");
-		if (ev.keyval == Gdk.Key.Right)
+		if (keyval == Gdk.Key.Right)
 			_buffer.append("LevelEditor:key_down(\"move_right\")");
-		if (ev.keyval == Gdk.Key.Left)
+		if (keyval == Gdk.Key.Left)
 			_buffer.append("LevelEditor:key_down(\"move_left\")");
 
-		if (_keys.has_key(ev.keyval)) {
-			if (!_keys[ev.keyval])
-				_buffer.append(LevelEditorApi.key_down(key_to_string(ev.keyval)));
+		if (_keys.has_key(keyval)) {
+			if (!_keys[keyval])
+				_buffer.append(LevelEditorApi.key_down(key_to_string(keyval)));
 
-			_keys[ev.keyval] = true;
+			_keys[keyval] = true;
 		}
 
 		if (_buffer.len != 0) {
@@ -301,16 +314,16 @@ public class EditorView : Gtk.EventBox
 		return Gdk.EVENT_PROPAGATE;
 	}
 
-	private bool on_key_release(Gdk.EventKey ev)
+	private void on_key_released(uint keyval, uint keycode, Gdk.ModifierType state)
 	{
-		if ((ev.keyval == Gdk.Key.Alt_L || ev.keyval == Gdk.Key.Alt_R))
+		if ((keyval == Gdk.Key.Alt_L || keyval == Gdk.Key.Alt_R))
 			_buffer.append("LevelEditor:camera_drag_start('idle')");
 
-		if (_keys.has_key(ev.keyval)) {
-			if (_keys[ev.keyval])
-				_buffer.append(LevelEditorApi.key_up(key_to_string(ev.keyval)));
+		if (_keys.has_key(keyval)) {
+			if (_keys[keyval])
+				_buffer.append(LevelEditorApi.key_up(key_to_string(keyval)));
 
-			_keys[ev.keyval] = false;
+			_keys[keyval] = false;
 		}
 
 		if (_buffer.len != 0) {
@@ -318,36 +331,32 @@ public class EditorView : Gtk.EventBox
 			_buffer.erase();
 			_runtime.send(DeviceApi.frame());
 		}
-		return Gdk.EVENT_PROPAGATE;
 	}
 
-	private bool on_motion_notify(Gdk.EventMotion ev)
+	private void on_motion(double x, double y)
 	{
 		int scale = this.get_scale_factor();
 
-		_runtime.send_script(LevelEditorApi.set_mouse_state((int)ev.x*scale
-			, (int)ev.y*scale
+		_runtime.send_script(LevelEditorApi.set_mouse_state((int)x*scale
+			, (int)y*scale
 			, _mouse_left
 			, _mouse_middle
 			, _mouse_right
 			));
 
 		_runtime.send(DeviceApi.frame());
-		return Gdk.EVENT_PROPAGATE;
 	}
 
-	private bool on_scroll(Gdk.EventScroll ev)
+	private void on_scroll(double dx, double dy)
 	{
 		if (camera_modifier_pressed()) {
-			_runtime.send_script(LevelEditorApi.mouse_wheel(ev.delta_y));
+			_runtime.send_script(LevelEditorApi.mouse_wheel(dy));
 		} else {
 			_runtime.send_script("LevelEditor:camera_drag_start_relative('dolly')");
-			_runtime.send_script("LevelEditor._camera:update(1,0,%.17f,1,1)".printf(-ev.delta_y * 32.0));
+			_runtime.send_script("LevelEditor._camera:update(1,0,%.17f,1,1)".printf(-dy * 32.0));
 			_runtime.send_script("LevelEditor:camera_drag_start('idle')");
 			_runtime.send(DeviceApi.frame());
 		}
-
-		return Gdk.EVENT_PROPAGATE;
 	}
 
 	private bool on_event_box_focus_out_event(Gdk.EventFocus ev)
@@ -396,12 +405,9 @@ public class EditorView : Gtk.EventBox
 #endif
 	}
 
-	bool on_enter_notify_event(Gdk.EventCrossing event)
+	private void on_enter(double x, double y)
 	{
-		if (_input_enabled)
-			this.grab_focus();
-
-		return Gdk.EVENT_PROPAGATE;
+		this.grab_focus();
 	}
 }
 

@@ -70,6 +70,7 @@ public class LevelTreeView : Gtk.Box
 	private Gtk.Box _sort_items_box;
 	private Gtk.Popover _sort_items_popover;
 	private Gtk.MenuButton _sort_items;
+	private Gtk.GestureMultiPress _gesture_click;
 
 	public LevelTreeView(Database db, Level level)
 	{
@@ -189,7 +190,10 @@ public class LevelTreeView : Gtk.Box
 		_tree_view.headers_clickable = false;
 		_tree_view.headers_visible = false;
 		_tree_view.model = _tree_sort;
-		_tree_view.button_press_event.connect(on_button_pressed);
+
+		_gesture_click = new Gtk.GestureMultiPress(_tree_view);
+		_gesture_click.set_button(0);
+		_gesture_click.pressed.connect(on_button_pressed);
 
 		_tree_selection = _tree_view.get_selection();
 		_tree_selection.set_mode(Gtk.SelectionMode.MULTIPLE);
@@ -222,18 +226,18 @@ public class LevelTreeView : Gtk.Box
 		this.pack_start(_scrolled_window, true, true, 0);
 	}
 
-	private bool on_button_pressed(Gdk.EventButton ev)
+	private void on_button_pressed(int n_press, double x, double y)
 	{
-		if (ev.button == Gdk.BUTTON_SECONDARY) {
+		if (_gesture_click.get_current_button() == Gdk.BUTTON_SECONDARY) {
 			Gtk.TreePath path;
 			Gtk.TreeViewColumn column;
-			if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, out column, null, null)) {
+			if (_tree_view.get_path_at_pos((int)x, (int)y, out path, out column, null, null)) {
 				if (!_tree_selection.path_is_selected(path)) {
 					_tree_selection.unselect_all();
 					_tree_selection.select_path(path);
 				}
 			} else { // Clicked on empty space.
-				return Gdk.EVENT_PROPAGATE;
+				return;
 			}
 
 			Gtk.Menu menu = new Gtk.Menu();
@@ -307,11 +311,11 @@ public class LevelTreeView : Gtk.Box
 			menu.add(mi);
 
 			menu.show_all();
-			menu.popup_at_pointer(ev);
-			return Gdk.EVENT_STOP;
+			menu.popup_at_pointer(null);
+			return;
 		}
 
-		return Gdk.EVENT_PROPAGATE;
+		return;
 	}
 
 	private void on_tree_selection_changed()

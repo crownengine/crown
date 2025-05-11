@@ -11,6 +11,7 @@ public class Expander : Gtk.Box
 {
 	private bool _expanded = false;
 	private Gtk.EventBox _header_event_box;
+	private Gtk.GestureMultiPress _gesture_click;
 	private Gtk.Box _header_box;
 	private Gtk.Image _arrow_image;
 	private Gtk.Widget _header_widget;
@@ -21,7 +22,9 @@ public class Expander : Gtk.Box
 		Object(orientation: Gtk.Orientation.VERTICAL, spacing: 0);
 
 		_header_event_box = new Gtk.EventBox();
-		_header_event_box.button_press_event.connect(on_header_clicked);
+
+		_gesture_click = new Gtk.GestureMultiPress(_header_event_box);
+		_gesture_click.pressed.connect(on_header_button_pressed);
 
 		_header_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 6);
 		_header_box.homogeneous = false;
@@ -64,14 +67,12 @@ public class Expander : Gtk.Box
 		}
 	}
 
-	private bool on_header_clicked(Gtk.Widget widget, Gdk.EventButton event)
+	private void on_header_button_pressed(int n_press, double x, double y)
 	{
-		if (event.button == Gdk.BUTTON_PRIMARY) {
-			expanded = !expanded;
-			return Gdk.EVENT_STOP;
-		}
+		uint button = _gesture_click.get_current_button();
 
-		return Gdk.EVENT_PROPAGATE;
+		if (button == Gdk.BUTTON_PRIMARY)
+			expanded = !expanded;
 	}
 
 	public string label
