@@ -14,6 +14,10 @@
 
 namespace crown
 {
+#define SOUND_MAX_BUFFERS   4 ///< Maximum number of streaming buffers.
+#define SOUND_BUFFER_MS   200 ///< Capacity of a sound buffer in milliseconds.
+#define SOUND_PCM_MS      (SOUND_MAX_BUFFERS*SOUND_BUFFER_MS) ///< Maximum size of decoded PCM data in milliseconds.
+
 struct StreamFormat
 {
 	enum Enum
