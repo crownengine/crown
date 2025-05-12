@@ -649,23 +649,15 @@ struct PhysicsWorldImpl
 
 	void actor_set_kinematic(ActorInstance actor, bool kinematic)
 	{
-		ActorInstanceData &a = _actor[actor.i];
+		btRigidBody *body = _actor[actor.i].body;
+		int flags = body->m_collisionFlags;
 
 		if (kinematic) {
-			if (actor_is_static(actor)) {
-				const btTransform tr = to_btTransform(actor_world_pose(actor));
-				btDefaultMotionState *ms = CE_NEW(*_allocator, btDefaultMotionState)(tr);
-				a.body->setMotionState(ms);
-			}
-
-			a.body->m_collisionFlags |= btCollisionObject::CF_KINEMATIC_OBJECT;
-			a.body->setActivationState(DISABLE_DEACTIVATION);
+			body->m_collisionFlags = (flags | btCollisionObject::CF_KINEMATIC_OBJECT);
+			body->setActivationState(DISABLE_DEACTIVATION);
 		} else {
-			if (actor_is_static(actor))
-				CE_DELETE(*_allocator, a.body->m_optionalMotionState);
-
-			a.body->m_collisionFlags &= ~btCollisionObject::CF_KINEMATIC_OBJECT;
-			a.body->setActivationState(ACTIVE_TAG);
+			body->m_collisionFlags = (flags & ~btCollisionObject::CF_KINEMATIC_OBJECT);
+			body->setActivationState(ACTIVE_TAG);
 		}
 	}
 
