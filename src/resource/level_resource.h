@@ -34,6 +34,8 @@ struct LevelSound
 	f32 volume;
 	f32 range;
 	u32 loop;
+	StringId32 group;
+	u8 _pad[4];
 };
 
 namespace level_resource_internal

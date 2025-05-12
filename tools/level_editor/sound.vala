@@ -27,6 +27,7 @@ public struct Sound
 		set_range(range);
 		set_volume(volume);
 		set_loop(loop);
+		set_group("music");
 	}
 
 	public Vector3 local_position()
@@ -87,6 +88,11 @@ public struct Sound
 	public void set_loop(bool loop)
 	{
 		_db.set_property_bool(_id, "loop", loop);
+	}
+
+	public void set_group(string group)
+	{
+		_db.set_property_string(_id, "group", group);
 	}
 
 	public static int generate_spawn_sound_commands(StringBuilder sb, Guid?[] object_ids, Database db)

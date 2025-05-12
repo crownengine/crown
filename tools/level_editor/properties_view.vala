@@ -835,6 +835,7 @@ public class SoundView : PropertyGrid
 	private EntryDouble _range;
 	private EntryDouble _volume;
 	private CheckBox _loop;
+	private EntryText _group;
 
 	public SoundView(Database db, ProjectStore store)
 	{
@@ -849,11 +850,14 @@ public class SoundView : PropertyGrid
 		_volume.value_changed.connect(on_value_changed);
 		_loop   = new CheckBox();
 		_loop.value_changed.connect(on_value_changed);
+		_group  = new EntryText();
+		_group.value_changed.connect(on_value_changed);
 
 		add_row("Name", _name);
 		add_row("Range", _range);
 		add_row("Volume", _volume);
 		add_row("Loop", _loop);
+		add_row("Group", _group);
 	}
 
 	private void on_value_changed()
@@ -862,6 +866,7 @@ public class SoundView : PropertyGrid
 		_db.set_property_double(_id, "range", _range.value);
 		_db.set_property_double(_id, "volume", _volume.value);
 		_db.set_property_bool  (_id, "loop", _loop.value);
+		_db.set_property_string(_id, "group", _group.value);
 
 		_db.add_restore_point((int)ActionType.SET_SOUND, new Guid?[] { _id });
 	}
@@ -872,6 +877,7 @@ public class SoundView : PropertyGrid
 		_range.value  = _db.get_property_double(_id, "range");
 		_volume.value = _db.get_property_double(_id, "volume");
 		_loop.value   = _db.get_property_bool  (_id, "loop");
+		_group.value  = _db.get_property_string(_id, "group");
 	}
 }
 

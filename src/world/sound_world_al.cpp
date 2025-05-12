@@ -99,6 +99,7 @@ struct SoundInstance
 	StringId64 _name;
 	bool _loop;
 	f32 _volume;
+	StringId32 _group;
 
 	ALuint _buffer[SOUND_MAX_BUFFERS];
 	u32 _num_buffers;
@@ -119,13 +120,15 @@ struct SoundInstance
 	unsigned char *_vorbis_headers;
 	stb_vorbis *_vorbis;
 
-	void create(const SoundResource *sr, File *stream, bool loop, f32 volume, f32 range, const Vector3 &pos)
+	void create(const SoundResource *sr, File *stream, bool loop, f32 range, const Vector3 &pos, StringId32 group)
 	{
 		_resource = sr;
 		_loop = loop;
 		_stream_data = NULL;
 		_stream = stream;
 		_vorbis = NULL;
+		_volume = 1.0f;
+		_group = group;
 
 		// Create source.
 		AL_CHECK(alGenSources(1, &_source));
@@ -134,7 +137,6 @@ struct SoundInstance
 		AL_CHECK(alSourcef(_source, AL_REFERENCE_DISTANCE, 0.01f));
 		AL_CHECK(alSourcef(_source, AL_MAX_DISTANCE, range));
 		AL_CHECK(alSourcef(_source, AL_PITCH, 1.0f));
-		set_volume(volume);
 		set_position(pos);
 
 		switch (sr->bit_depth) {
@@ -176,7 +178,7 @@ struct SoundInstance
 		}
 	}
 
-	void create(ResourceManager *rm, StringId64 name, bool loop, f32 volume, f32 range, const Vector3 &pos)
+	void create(ResourceManager *rm, StringId64 name, bool loop, f32 range, const Vector3 &pos, StringId32 group)
 	{
 		const SoundResource *sr = (SoundResource *)rm->get(RESOURCE_TYPE_SOUND, name);
 
@@ -185,7 +187,7 @@ struct SoundInstance
 			stream = rm->open_stream(RESOURCE_TYPE_SOUND, name);
 
 		_name = name;
-		return create(sr, stream, loop, volume, range, pos);
+		return create(sr, stream, loop, range, pos, group);
 	}
 
 	/// Decodes a block of samples of size BLOCK_MS or less, and feeds it to AL.
@@ -349,12 +351,7 @@ struct SoundInstance
 	void reload(ResourceManager *rm)
 	{
 		destroy(rm);
-		create(rm, _name, _loop, _volume, range(), position());
-	}
-
-	void play()
-	{
-		AL_CHECK(alSourcePlay(_source));
+		create(rm, _name, _loop, range(), position(), _group);
 	}
 
 	void pause()
@@ -417,12 +414,6 @@ struct SoundInstance
 	{
 		AL_CHECK(alSourcef(_source, AL_MAX_DISTANCE, range));
 	}
-
-	void set_volume(f32 volume)
-	{
-		_volume = volume;
-		AL_CHECK(alSourcef(_source, AL_GAIN, volume));
-	}
 };
 
 #define MAX_OBJECTS       1024
@@ -438,6 +429,12 @@ struct SoundWorldImpl
 		u16 next;
 	};
 
+	struct SoundGroup
+	{
+		StringId32 name;
+		f32 volume;
+	};
+
 	ResourceManager *_resource_manager;
 	u32 _num_objects;
 	SoundInstance _playing_sounds[MAX_OBJECTS];
@@ -445,6 +442,7 @@ struct SoundWorldImpl
 	u16 _freelist_enqueue;
 	u16 _freelist_dequeue;
 	Matrix4x4 _listener_pose;
+	Array<SoundGroup> _groups;
 
 	bool has(SoundInstanceId id)
 	{
@@ -481,8 +479,9 @@ struct SoundWorldImpl
 		_freelist_enqueue = id & INDEX_MASK;
 	}
 
-	SoundWorldImpl(ResourceManager &rm)
+	SoundWorldImpl(Allocator &a, ResourceManager &rm)
 		: _resource_manager(&rm)
+		, _groups(a)
 	{
 		_num_objects = 0;
 		for (u32 i = 0; i < MAX_OBJECTS; ++i) {
@@ -507,12 +506,23 @@ struct SoundWorldImpl
 
 	SoundWorldImpl &operator=(const SoundWorldImpl &) = delete;
 
-	SoundInstanceId play(StringId64 name, bool loop, f32 volume, f32 range, const Vector3 &pos)
+	SoundInstanceId play(StringId64 name, bool loop, f32 volume, f32 range, const Vector3 &pos, StringId32 group)
 	{
+		// Create sound group if it does not exist.
+		u32 i, n;
+		for (i = 0, n = array::size(_groups); i < n; ++i) {
+			if (_groups[i].name == group && group != StringId32(0u))
+				break;
+		}
+		if (i == n)
+			array::push_back(_groups, { group, 1.0f });
+
+		// Spawn sound instance.
 		SoundInstanceId id = add();
 		SoundInstance &si = lookup(id);
-		si.create(_resource_manager, name, loop, volume, range, pos);
-		si.play();
+		si.create(_resource_manager, name, loop, range, pos, group);
+		set_sound_volumes(1, &id, &volume);
+		AL_CHECK(alSourcePlay(si._source));
 		return id;
 	}
 
@@ -566,7 +576,20 @@ struct SoundWorldImpl
 	void set_sound_volumes(u32 num, const SoundInstanceId *ids, const f32 *volumes)
 	{
 		for (u32 i = 0; i < num; i++) {
-			lookup(ids[i]).set_volume(volumes[i]);
+			SoundInstance &inst = lookup(ids[i]);
+			f32 volume = clamp(volumes[i], 0.0f, 1.0f);
+			f32 group_volume = 1.0f;
+
+			// Find group's volume.
+			for (u32 i = 0; i < array::size(_groups); ++i) {
+				if (_groups[i].name == inst._group) {
+					group_volume = _groups[i].volume;
+					break;
+				}
+			}
+
+			AL_CHECK(alSourcef(inst._source, AL_GAIN, volume * group_volume));
+			inst._volume = volume;
 		}
 	}
 
@@ -595,6 +618,24 @@ struct SoundWorldImpl
 		_listener_pose = pose;
 	}
 
+	void set_group_volume(StringId32 group, f32 volume)
+	{
+		u32 i, n;
+		for (i = 0, n = array::size(_groups); i < n; ++i) {
+			if (_groups[i].name == group) {
+				_groups[i].volume = volume;
+				break;
+			}
+		}
+		if (i == n)
+			array::push_back(_groups, { group, volume });
+
+		for (u32 i = 0; i < _num_objects; ++i) {
+			SoundInstance &inst = _playing_sounds[i];
+			set_sound_volumes(1, &inst._id, &inst._volume);
+		}
+	}
+
 	void update()
 	{
 		TempAllocator256 alloc;
@@ -621,7 +662,7 @@ SoundWorld::SoundWorld(Allocator &a, ResourceManager &rm)
 	, _allocator(&a)
 	, _impl(NULL)
 {
-	_impl = CE_NEW(*_allocator, SoundWorldImpl)(rm);
+	_impl = CE_NEW(*_allocator, SoundWorldImpl)(a, rm);
 }
 
 SoundWorld::~SoundWorld()
@@ -630,9 +671,9 @@ SoundWorld::~SoundWorld()
 	_marker = 0;
 }
 
-SoundInstanceId SoundWorld::play(StringId64 name, bool loop, f32 volume, f32 range, const Vector3 &pos)
+SoundInstanceId SoundWorld::play(StringId64 name, bool loop, f32 volume, f32 range, const Vector3 &pos, StringId32 group)
 {
-	return _impl->play(name, loop, volume, range, pos);
+	return _impl->play(name, loop, volume, range, pos, group);
 }
 
 void SoundWorld::stop(SoundInstanceId id)
@@ -683,6 +724,11 @@ void SoundWorld::reload_sounds(const SoundResource *old_sr, const SoundResource 
 void SoundWorld::set_listener_pose(const Matrix4x4 &pose)
 {
 	_impl->set_listener_pose(pose);
+}
+
+void SoundWorld::set_group_volume(StringId32 group, f32 volume)
+{
+	_impl->set_group_volume(group, volume);
 }
 
 void SoundWorld::update()

@@ -55,6 +55,7 @@ void Level::load(const Vector3 &pos, const Quaternion &rot)
 			, ls->volume
 			, ls->position
 			, ls->range
+			, ls->group
 			);
 	}
 }

@@ -168,11 +168,10 @@ struct World
 	/// Renders the world using @a view.
 	void render(const Matrix4x4 &view);
 
-	/// Plays the sound with the given @a name at the given @a position, with the given
-	/// @a volume and @a range. @a loop controls whether the sound must loop or not.
-	SoundInstanceId play_sound(StringId64 name, const bool loop, const f32 volume, const Vector3 &pos, const f32 range);
+	/// @copydoc SoundWorld::play().
+	SoundInstanceId play_sound(StringId64 name, const bool loop, const f32 volume, const Vector3 &pos, const f32 range, StringId32 group);
 
-	/// Stops the sound with the given @a id.
+	/// @copydoc SoundWorld::stop().
 	void stop_sound(SoundInstanceId id);
 
 	/// Links the sound @a id to the @a node of the given @a unit.
