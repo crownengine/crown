@@ -1589,13 +1589,14 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("World", "play_sound", [](lua_State *L) {
 			LuaStack stack(L);
-			const s32 nargs       = stack.num_args();
-			World *world          = stack.get_world(1);
-			const StringId64 name = stack.get_resource_name(2);
-			const bool loop       = nargs > 2 ? stack.get_bool(3)    : false;
-			const f32 volume      = nargs > 3 ? stack.get_float(4)   : 1.0f;
-			const Vector3 &pos    = nargs > 4 ? stack.get_vector3(5) : VECTOR3_ZERO;
-			const f32 range       = nargs > 5 ? stack.get_float(6)   : 1000.0f;
+			const s32 nargs        = stack.num_args();
+			World *world           = stack.get_world(1);
+			const StringId64 name  = stack.get_resource_name(2);
+			const bool loop        = nargs > 2 ? stack.get_bool(3)    : false;
+			const f32 volume       = nargs > 3 ? stack.get_float(4)   : 1.0f;
+			const Vector3 &pos     = nargs > 4 ? stack.get_vector3(5) : VECTOR3_ZERO;
+			const f32 range        = nargs > 5 ? stack.get_float(6)   : 1000.0f;
+			const StringId32 group = nargs > 6 ? stack.get_string_id_32(7) : StringId32(0u);
 
 			char name_str[RESOURCE_ID_BUF_LEN];
 			LUA_ASSERT(device()->_resource_manager->can_get(RESOURCE_TYPE_SOUND, name)
@@ -1605,7 +1606,7 @@ void load_api(LuaEnvironment &env)
 				);
 			CE_UNUSED(name_str);
 
-			stack.push_sound_instance_id(world->play_sound(name, loop, volume, pos, range));
+			stack.push_sound_instance_id(world->play_sound(name, loop, volume, pos, range, group));
 			return 1;
 		});
 	env.add_module_function("World", "stop_sound", [](lua_State *L) {
@@ -2489,6 +2490,11 @@ void load_api(LuaEnvironment &env)
 			LuaStack stack(L);
 			stack.push_bool(stack.get_sound_world(1)->is_playing(stack.get_sound_instance_id(2)));
 			return 1;
+		});
+	env.add_module_function("SoundWorld", "set_group_volume", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_sound_world(1)->set_group_volume(stack.get_string_id_32(2), stack.get_float(3));
+			return 0;
 		});
 	env.add_module_metafunction("SoundWorld", "__tostring", [](lua_State *L) {
 			LuaStack stack(L);

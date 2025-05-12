@@ -20,13 +20,14 @@ Changelog
 * HTML5: fixed GL_INVALID_OPERATION (or missing geometry) when rendering untextured meshes.
 * Data Compiler: fixed shaders not including code in some circumnstances.
 * Data Compiler: fixed 'static_compile' being visible to external shader resources.
+* Lua API: added ``Gui.text_extents()``.
+* Lua API: added ``SoundWorld.set_group_volume()`` and a corresponding group parameter to ``World.play_sound()``.
 * Lua API: added an optional exit_code parameter to ``Device.quit()``.
 * Lua API: added an optional rays parameter to ``DebugLine.add_cone()``.
 * Lua API: the color parameter in all ``Gui`` functions is now optional and defaults to ``Color4.white()``.
 * Lua API: the material_resource parameter in ``Gui.text()`` and ``Gui.text_3d()`` is now optional.
 * Lua API: fixed start-of-line character placement and some other rendering issues in ``Gui.text*()``.
 * Lua API: fixed several issues when calling ``Gui.text*()`` with utf8-encoded strings.
-* Lua API: added ``Gui.text_extents()``.
 
 0.55.0 --- 03 Apr 2025
 ----------------------

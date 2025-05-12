@@ -1313,6 +1313,10 @@ SoundWorld
 **is_playing** (sound_world, id) : bool
 	Returns whether the sound *id* is playing.
 
+**set_group_volume** (sound_world, group, volume)
+	Sets the *volume* of the sound *group*. The volume of the sounds within
+	*group* is multiplied by the group's volume.
+
 UnitManager
 ===========
 
@@ -1487,9 +1491,10 @@ Camera
 Sound
 -----
 
-**play_sound** (world, name, [loop, volume, position, range]) : SoundInstanceId
+**play_sound** (world, name, [loop, volume, position, range, group]) : SoundInstanceId
 	Plays the sound with the given *name* at the given *position*, with the given
 	*volume* and *range*. *loop* controls whether the sound must loop or not.
+	*group* is a string that identifies the sound's group, see SoundWorld.set_group_volume().
 
 **stop_sound** (world, id)
 	Stops the sound with the given *id*.

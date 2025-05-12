@@ -77,6 +77,9 @@ namespace level_resource_internal
 				ls.volume   = RETURN_IF_ERROR(sjson::parse_float        (sound["volume"]), opts);
 				ls.range    = RETURN_IF_ERROR(sjson::parse_float        (sound["range"]), opts);
 				ls.loop     = RETURN_IF_ERROR(sjson::parse_bool         (sound["loop"]), opts);
+				ls.group    = StringId32(0u);
+				if (json_object::has(sound, "group"))
+					ls.group = RETURN_IF_ERROR(sjson::parse_string_id(sound["group"]), opts);
 
 				array::push_back(sounds, ls);
 			}
@@ -114,6 +117,8 @@ namespace level_resource_internal
 			opts.write(sounds[i].volume);
 			opts.write(sounds[i].range);
 			opts.write(sounds[i].loop);
+			opts.write(sounds[i].group);
+			opts.write(sounds[i]._pad);
 		}
 
 		// Write unit names

@@ -30,8 +30,10 @@ struct SoundWorld
 	///
 	~SoundWorld();
 
-	/// Plays the sound @a name.
-	SoundInstanceId play(StringId64 name, bool loop, f32 volume, f32 range, const Vector3 &pos);
+	/// Plays the sound with the given @a name at the given @a position, with the given
+	/// @a volume and @a range. @a loop controls whether the sound must loop or not.
+	/// @a group identifies the sound's group, see SoundWorld::set_group_volume().
+	SoundInstanceId play(StringId64 name, bool loop, f32 volume, f32 range, const Vector3 &pos, StringId32 group);
 
 	///
 	SoundWorld(const SoundWorld &) = delete;
@@ -69,6 +71,10 @@ struct SoundWorld
 
 	/// Sets the @a pose of the listener in world space.
 	void set_listener_pose(const Matrix4x4 &pose);
+
+	/// Sets the @a volume of the sound @a group. The volume of the sounds within
+	/// @a group is multiplied by the group's volume.
+	void set_group_volume(StringId32 group, f32 volume);
 
 	///
 	void update();
