@@ -142,7 +142,7 @@ public class EditorView : Gtk.EventBox
 		string type = ResourceId.type(resource_path);
 		string name = ResourceId.name(resource_path);
 
-		if (type == OBJECT_TYPE_UNIT || type == OBJECT_TYPE_SOUND_SOURCE) {
+		if (type == OBJECT_TYPE_UNIT || type == OBJECT_TYPE_SOUND) {
 			GLib.Application.get_default().activate_action("set-placeable", new GLib.Variant.tuple({ type, name }));
 
 			int scale = this.get_scale_factor();

@@ -10,6 +10,7 @@ Changelog
 * Added mouse-only shortcuts (middle-button/wheel) to tumble/dolly the camera.
 * Added support to JPEG image format for textures.
 * Fixed importing sounds.
+* Fixed drag & drop of sound resources into the Editor View.
 
 **Runtime**
 
