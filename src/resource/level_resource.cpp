@@ -78,8 +78,9 @@ namespace level_resource_internal
 				ls.range    = RETURN_IF_ERROR(sjson::parse_float        (sound["range"]), opts);
 				ls.loop     = RETURN_IF_ERROR(sjson::parse_bool         (sound["loop"]), opts);
 				ls.group    = StringId32(0u);
-				if (json_object::has(sound, "group"))
+				if (json_object::has(sound, "group")) {
 					ls.group = RETURN_IF_ERROR(sjson::parse_string_id(sound["group"]), opts);
+				}
 
 				array::push_back(sounds, ls);
 			}
