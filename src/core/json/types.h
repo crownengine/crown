@@ -41,9 +41,13 @@ struct JsonObject
 	HashMap<StringView, const char *> _map;
 	const char *_end; ///< Points to the character following the the object's last character.
 
+	///
 	explicit JsonObject(Allocator &a);
 
+	///
 	const char *operator[](const char *key) const;
+
+	///
 	const char *operator[](const StringView &key) const;
 };
 
