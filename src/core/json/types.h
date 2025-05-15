@@ -6,6 +6,8 @@
 #pragma once
 
 #include "core/containers/types.h"
+#include "core/memory/temp_allocator.inl"
+#include "core/strings/dynamic_string.inl"
 #include "core/strings/string_view.h"
 
 /// @defgroup JSON
@@ -50,5 +52,10 @@ struct JsonObject
 	///
 	const char *operator[](const StringView &key) const;
 };
+
+/// Map from flattened key to pointers to json-encoded data.
+///
+/// @ingroup JSON
+typedef HashMap<DynamicString, const char *> FlatJsonObject;
 
 } // namespace crown

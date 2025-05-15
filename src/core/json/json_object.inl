@@ -68,3 +68,30 @@ inline const char *JsonObject::operator[](const StringView &key) const
 } // namespace crown
 
 #define JSON_OBJECT_SKIP_HOLE(jo, cur) HASH_MAP_SKIP_HOLE(jo._map, cur)
+
+namespace crown
+{
+/// Functions to manipulate FlatJsonObject.
+///
+/// @ingroup JSON
+namespace flat_json_object
+{
+	inline bool has(const FlatJsonObject &obj, const char *key)
+	{
+		TempAllocator512 ta;
+		DynamicString k(ta);
+		k = key;
+		return hash_map::has(obj, k);
+	}
+
+	inline const char *get(FlatJsonObject &obj, const char *key)
+	{
+		TempAllocator512 ta;
+		DynamicString k(ta);
+		k = key;
+		return hash_map::get(obj, k, (const char *)NULL);
+	}
+
+} // namespace flat_json_object
+
+} // namespace crown
