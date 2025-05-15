@@ -47,7 +47,7 @@ public struct Unit
 		set_local_scale(scl);
 	}
 
-	public Value? get_component_property(Guid component_id, string key)
+	public Value? get_component_property(Guid component_id, string key, Value? deffault = null)
 	{
 		Value? val;
 
@@ -55,7 +55,7 @@ public struct Unit
 		val = _db.get_property(_id, "components");
 		if (val != null) {
 			if (((HashSet<Guid?>)val).contains(component_id))
-				return _db.get_property(component_id, key);
+				return _db.get_property(component_id, key, deffault);
 		}
 
 		// Search in modified_components
@@ -72,40 +72,40 @@ public struct Unit
 			Guid prefab_id = _db.get_property_guid(GUID_ZERO, prefab + ".unit");
 
 			Unit unit = Unit(_db, prefab_id);
-			return unit.get_component_property(component_id, key);
+			return unit.get_component_property(component_id, key, deffault);
 		}
 
-		return null;
+		return deffault;
 	}
 
-	public bool get_component_property_bool(Guid component_id, string key)
+	public bool get_component_property_bool(Guid component_id, string key, bool deffault = false)
 	{
-		return (bool)get_component_property(component_id, key);
+		return (bool)get_component_property(component_id, key, deffault);
 	}
 
-	public double get_component_property_double(Guid component_id, string key)
+	public double get_component_property_double(Guid component_id, string key, double deffault = 0.0)
 	{
-		return (double)get_component_property(component_id, key);
+		return (double)get_component_property(component_id, key, deffault);
 	}
 
-	public string get_component_property_string(Guid component_id, string key)
+	public string get_component_property_string(Guid component_id, string key, string deffault = "")
 	{
-		return (string)get_component_property(component_id, key);
+		return (string)get_component_property(component_id, key, deffault);
 	}
 
-	public Guid get_component_property_guid(Guid component_id, string key)
+	public Guid get_component_property_guid(Guid component_id, string key, Guid deffault = GUID_ZERO)
 	{
-		return (Guid)get_component_property(component_id, key);
+		return (Guid)get_component_property(component_id, key, deffault);
 	}
 
-	public Vector3 get_component_property_vector3(Guid component_id, string key)
+	public Vector3 get_component_property_vector3(Guid component_id, string key, Vector3 deffault = VECTOR3_ZERO)
 	{
-		return (Vector3)get_component_property(component_id, key);
+		return (Vector3)get_component_property(component_id, key, deffault);
 	}
 
-	public Quaternion get_component_property_quaternion(Guid component_id, string key)
+	public Quaternion get_component_property_quaternion(Guid component_id, string key, Quaternion deffault = QUATERNION_IDENTITY)
 	{
-		return (Quaternion)get_component_property(component_id, key);
+		return (Quaternion)get_component_property(component_id, key, deffault);
 	}
 
 	public void set_component_property_bool(Guid component_id, string key, bool val)

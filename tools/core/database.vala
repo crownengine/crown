@@ -1162,13 +1162,13 @@ public class Database
 		return get_property(id, key) != null;
 	}
 
-	public Value? get_property(Guid id, string key)
+	public Value? get_property(Guid id, string key, Value? val = null)
 	{
 		assert(has_object(id));
 		assert(is_valid_key(key));
 
 		HashMap<string, Value?> ob = get_data(id);
-		Value? value = (ob.has_key(key) ? ob[key] : null);
+		Value? value = (ob.has_key(key) ? ob[key] : val);
 
 		if (_debug_getters)
 			logi("get_property %s %s %s".printf(id.to_string(), key, value_to_string(value)));
@@ -1176,34 +1176,34 @@ public class Database
 		return value;
 	}
 
-	public bool get_property_bool(Guid id, string key)
+	public bool get_property_bool(Guid id, string key, bool deffault = false)
 	{
-		return (bool)get_property(id, key);
+		return (bool)get_property(id, key, deffault);
 	}
 
-	public double get_property_double(Guid id, string key)
+	public double get_property_double(Guid id, string key, double deffault = 0.0)
 	{
-		return (double)get_property(id, key);
+		return (double)get_property(id, key, deffault);
 	}
 
-	public string get_property_string(Guid id, string key)
+	public string get_property_string(Guid id, string key, string deffault = "")
 	{
-		return (string)get_property(id, key);
+		return (string)get_property(id, key, deffault);
 	}
 
-	public Guid get_property_guid(Guid id, string key)
+	public Guid get_property_guid(Guid id, string key, Guid deffault = GUID_ZERO)
 	{
-		return (Guid)get_property(id, key);
+		return (Guid)get_property(id, key, deffault);
 	}
 
-	public Vector3 get_property_vector3(Guid id, string key)
+	public Vector3 get_property_vector3(Guid id, string key, Vector3 deffault = VECTOR3_ZERO)
 	{
-		return (Vector3)get_property(id, key);
+		return (Vector3)get_property(id, key, deffault);
 	}
 
-	public Quaternion get_property_quaternion(Guid id, string key)
+	public Quaternion get_property_quaternion(Guid id, string key, Quaternion deffault = QUATERNION_IDENTITY)
 	{
-		return (Quaternion)get_property(id, key);
+		return (Quaternion)get_property(id, key, deffault);
 	}
 
 	public HashSet<Guid?> get_property_set(Guid id, string key, HashSet<Guid?> deffault)
