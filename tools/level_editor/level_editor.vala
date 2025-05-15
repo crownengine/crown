@@ -1576,16 +1576,6 @@ public class LevelEditorApplication : Gtk.Application
 		_properties_view.show_or_hide_properties();
 	}
 
-	private bool on_button_press(Gdk.EventButton ev)
-	{
-		return Gdk.EVENT_STOP;
-	}
-
-	private bool on_button_release(Gdk.EventButton ev)
-	{
-		return Gdk.EVENT_STOP;
-	}
-
 	Gtk.Label compiling_data_label()
 	{
 		return new Gtk.Label("Compiling resources, please wait...");
@@ -1835,8 +1825,6 @@ public class LevelEditorApplication : Gtk.Application
 
 		_editor_view = new EditorView(_editor);
 		_editor_view.native_window_ready.connect(on_editor_view_realized);
-		_editor_view.button_press_event.connect(on_button_press);
-		_editor_view.button_release_event.connect(on_button_release);
 
 		_editor_view_overlay.add(_editor_view);
 		_editor_view_overlay.show_all();
