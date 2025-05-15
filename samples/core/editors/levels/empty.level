@@ -33,14 +33,7 @@ units = [
 			}
 			#45e54fbe-018c-4ee2-917d-398c13bd3e7e = {
 				data = {
-					color = [
-						1
-						1
-						1
-					]
 					intensity = 1
-					range = 15
-					spot_angle = 0.52359900000000004
 					type = "directional"
 				}
 			}
