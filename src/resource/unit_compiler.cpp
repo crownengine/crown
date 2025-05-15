@@ -8,8 +8,10 @@
 #if CROWN_CAN_COMPILE
 #include "core/containers/array.inl"
 #include "core/containers/hash_map.inl"
+#include "core/containers/vector.inl"
 #include "core/filesystem/file_buffer.inl"
 #include "core/guid.inl"
+#include "core/json/json.h"
 #include "core/json/json_object.inl"
 #include "core/json/sjson.h"
 #include "core/math/math.h"
@@ -73,18 +75,14 @@ static LightType::Enum light_name_to_enum(const char *name)
 	return LightType::COUNT;
 }
 
-static s32 compile_transform(Buffer &output, const char *json, CompileOptions &opts)
+static s32 compile_transform(Buffer &output, FlatJsonObject &obj, CompileOptions &opts)
 {
-	TempAllocator4096 ta;
-	JsonObject obj(ta);
-	RETURN_IF_ERROR(sjson::parse(obj, json), opts);
-
 	TransformDesc td;
-	td.position = RETURN_IF_ERROR(sjson::parse_vector3   (obj["position"]), opts);
-	td.rotation = RETURN_IF_ERROR(sjson::parse_quaternion(obj["rotation"]), opts);
-	td.scale    = RETURN_IF_ERROR(sjson::parse_vector3   (obj["scale"]), opts);
-	if (json_object::has(obj, "name")) {
-		td.name = RETURN_IF_ERROR(sjson::parse_string_id(obj["name"]), opts);
+	td.position = RETURN_IF_ERROR(sjson::parse_vector3   (flat_json_object::get(obj, "data.position")), opts);
+	td.rotation = RETURN_IF_ERROR(sjson::parse_quaternion(flat_json_object::get(obj, "data.rotation")), opts);
+	td.scale    = RETURN_IF_ERROR(sjson::parse_vector3   (flat_json_object::get(obj, "data.scale")), opts);
+	if (flat_json_object::has(obj, "data.name")) {
+		td.name = RETURN_IF_ERROR(sjson::parse_string_id(flat_json_object::get(obj, "data.name")), opts);
 	}
 
 	FileBuffer fb(output);
@@ -96,14 +94,11 @@ static s32 compile_transform(Buffer &output, const char *json, CompileOptions &o
 	return 0;
 }
 
-static s32 compile_camera(Buffer &output, const char *json, CompileOptions &opts)
+static s32 compile_camera(Buffer &output, FlatJsonObject &obj, CompileOptions &opts)
 {
 	TempAllocator4096 ta;
-	JsonObject obj(ta);
-	RETURN_IF_ERROR(sjson::parse(obj, json), opts);
-
 	DynamicString type(ta);
-	RETURN_IF_ERROR(sjson::parse_string(type, obj["projection"]), opts);
+	RETURN_IF_ERROR(sjson::parse_string(type, flat_json_object::get(obj, "data.projection")), opts);
 
 	ProjectionType::Enum pt = projection_name_to_enum(type.c_str());
 	RETURN_IF_FALSE(pt != ProjectionType::COUNT
@@ -114,9 +109,9 @@ static s32 compile_camera(Buffer &output, const char *json, CompileOptions &opts
 
 	CameraDesc cd;
 	cd.type       = pt;
-	cd.fov        = RETURN_IF_ERROR(sjson::parse_float(obj["fov"]), opts);
-	cd.near_range = RETURN_IF_ERROR(sjson::parse_float(obj["near_range"]), opts);
-	cd.far_range  = RETURN_IF_ERROR(sjson::parse_float(obj["far_range"]), opts);
+	cd.fov        = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.fov")), opts);
+	cd.near_range = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.near_range")), opts);
+	cd.far_range  = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.far_range")), opts);
 
 	FileBuffer fb(output);
 	BinaryWriter bw(fb);
@@ -127,20 +122,17 @@ static s32 compile_camera(Buffer &output, const char *json, CompileOptions &opts
 	return 0;
 }
 
-static s32 compile_mesh_renderer(Buffer &output, const char *json, CompileOptions &opts)
+static s32 compile_mesh_renderer(Buffer &output, FlatJsonObject &obj, CompileOptions &opts)
 {
 	TempAllocator4096 ta;
-	JsonObject obj(ta);
-	RETURN_IF_ERROR(sjson::parse(obj, json), opts);
-
 	DynamicString mesh_resource(ta);
-	RETURN_IF_ERROR(sjson::parse_string(mesh_resource, obj["mesh_resource"]), opts);
+	RETURN_IF_ERROR(sjson::parse_string(mesh_resource, flat_json_object::get(obj, "data.mesh_resource")), opts);
 
 	RETURN_IF_RESOURCE_MISSING("mesh", mesh_resource.c_str(), opts);
 	opts.add_requirement("mesh", mesh_resource.c_str());
 
 	DynamicString material(ta);
-	RETURN_IF_ERROR(sjson::parse_string(material, obj["material"]), opts);
+	RETURN_IF_ERROR(sjson::parse_string(material, flat_json_object::get(obj, "data.material")), opts);
 	RETURN_IF_RESOURCE_MISSING("material"
 		, material.c_str()
 		, opts
@@ -148,10 +140,10 @@ static s32 compile_mesh_renderer(Buffer &output, const char *json, CompileOption
 	opts.add_requirement("material", material.c_str());
 
 	MeshRendererDesc mrd;
-	mrd.mesh_resource     = RETURN_IF_ERROR(sjson::parse_resource_name(obj["mesh_resource"]), opts);
-	mrd.material_resource = RETURN_IF_ERROR(sjson::parse_resource_name(obj["material"]), opts);
-	mrd.geometry_name     = RETURN_IF_ERROR(sjson::parse_string_id    (obj["geometry_name"]), opts);
-	mrd.visible           = RETURN_IF_ERROR(sjson::parse_bool         (obj["visible"]), opts);
+	mrd.mesh_resource     = RETURN_IF_ERROR(sjson::parse_resource_name(flat_json_object::get(obj, "data.mesh_resource")), opts);
+	mrd.material_resource = RETURN_IF_ERROR(sjson::parse_resource_name(flat_json_object::get(obj, "data.material")), opts);
+	mrd.geometry_name     = RETURN_IF_ERROR(sjson::parse_string_id    (flat_json_object::get(obj, "data.geometry_name")), opts);
+	mrd.visible           = RETURN_IF_ERROR(sjson::parse_bool         (flat_json_object::get(obj, "data.visible")), opts);
 	mrd._pad0[0]          = 0;
 	mrd._pad0[1]          = 0;
 	mrd._pad0[2]          = 0;
@@ -168,14 +160,11 @@ static s32 compile_mesh_renderer(Buffer &output, const char *json, CompileOption
 	return 0;
 }
 
-static s32 compile_sprite_renderer(Buffer &output, const char *json, CompileOptions &opts)
+static s32 compile_sprite_renderer(Buffer &output, FlatJsonObject &obj, CompileOptions &opts)
 {
 	TempAllocator4096 ta;
-	JsonObject obj(ta);
-	RETURN_IF_ERROR(sjson::parse(obj, json), opts);
-
 	DynamicString sprite_resource(ta);
-	RETURN_IF_ERROR(sjson::parse_string(sprite_resource, obj["sprite_resource"]), opts);
+	RETURN_IF_ERROR(sjson::parse_string(sprite_resource, flat_json_object::get(obj, "data.sprite_resource")), opts);
 	RETURN_IF_RESOURCE_MISSING("sprite"
 		, sprite_resource.c_str()
 		, opts
@@ -183,7 +172,7 @@ static s32 compile_sprite_renderer(Buffer &output, const char *json, CompileOpti
 	opts.add_requirement("sprite", sprite_resource.c_str());
 
 	DynamicString material(ta);
-	RETURN_IF_ERROR(sjson::parse_string(material, obj["material"]), opts);
+	RETURN_IF_ERROR(sjson::parse_string(material, flat_json_object::get(obj, "data.material")), opts);
 	RETURN_IF_RESOURCE_MISSING("material"
 		, material.c_str()
 		, opts
@@ -191,11 +180,11 @@ static s32 compile_sprite_renderer(Buffer &output, const char *json, CompileOpti
 	opts.add_requirement("material", material.c_str());
 
 	SpriteRendererDesc srd;
-	srd.sprite_resource   = RETURN_IF_ERROR(sjson::parse_resource_name(obj["sprite_resource"]), opts);
-	srd.material_resource = RETURN_IF_ERROR(sjson::parse_resource_name(obj["material"]), opts);
-	srd.layer             = RETURN_IF_ERROR(sjson::parse_int          (obj["layer"]), opts);
-	srd.depth             = RETURN_IF_ERROR(sjson::parse_int          (obj["depth"]), opts);
-	srd.visible           = RETURN_IF_ERROR(sjson::parse_bool         (obj["visible"]), opts);
+	srd.sprite_resource   = RETURN_IF_ERROR(sjson::parse_resource_name(flat_json_object::get(obj, "data.sprite_resource")), opts);
+	srd.material_resource = RETURN_IF_ERROR(sjson::parse_resource_name(flat_json_object::get(obj, "data.material")), opts);
+	srd.layer             = RETURN_IF_ERROR(sjson::parse_int          (flat_json_object::get(obj, "data.layer")), opts);
+	srd.depth             = RETURN_IF_ERROR(sjson::parse_int          (flat_json_object::get(obj, "data.depth")), opts);
+	srd.visible           = RETURN_IF_ERROR(sjson::parse_bool         (flat_json_object::get(obj, "data.visible")), opts);
 	srd._pad0[0]          = 0;
 	srd._pad0[1]          = 0;
 	srd._pad0[2]          = 0;
@@ -221,14 +210,11 @@ static s32 compile_sprite_renderer(Buffer &output, const char *json, CompileOpti
 	return 0;
 }
 
-static s32 compile_light(Buffer &output, const char *json, CompileOptions &opts)
+static s32 compile_light(Buffer &output, FlatJsonObject &obj, CompileOptions &opts)
 {
 	TempAllocator4096 ta;
-	JsonObject obj(ta);
-	RETURN_IF_ERROR(sjson::parse(obj, json), opts);
-
 	DynamicString type(ta);
-	RETURN_IF_ERROR(sjson::parse_string(type, obj["type"]), opts);
+	RETURN_IF_ERROR(sjson::parse_string(type, flat_json_object::get(obj, "data.type")), opts);
 
 	LightType::Enum lt = light_name_to_enum(type.c_str());
 	RETURN_IF_FALSE(lt != LightType::COUNT
@@ -238,11 +224,11 @@ static s32 compile_light(Buffer &output, const char *json, CompileOptions &opts)
 		);
 
 	LightDesc ld;
-	ld.type       = lt;
-	ld.range      = RETURN_IF_ERROR(sjson::parse_float  (obj["range"]), opts);
-	ld.intensity  = RETURN_IF_ERROR(sjson::parse_float  (obj["intensity"]), opts);
-	ld.spot_angle = RETURN_IF_ERROR(sjson::parse_float  (obj["spot_angle"]), opts);
-	ld.color      = RETURN_IF_ERROR(sjson::parse_vector3(obj["color"]), opts);
+	ld.type        = lt;
+	ld.range       = RETURN_IF_ERROR(sjson::parse_float  (flat_json_object::get(obj, "data.range")), opts);
+	ld.intensity   = RETURN_IF_ERROR(sjson::parse_float  (flat_json_object::get(obj, "data.intensity")), opts);
+	ld.spot_angle  = RETURN_IF_ERROR(sjson::parse_float  (flat_json_object::get(obj, "data.spot_angle")), opts);
+	ld.color       = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.color")), opts);
 
 	FileBuffer fb(output);
 	BinaryWriter bw(fb);
@@ -254,14 +240,11 @@ static s32 compile_light(Buffer &output, const char *json, CompileOptions &opts)
 	return 0;
 }
 
-static s32 compile_script(Buffer &output, const char *json, CompileOptions &opts)
+static s32 compile_script(Buffer &output, FlatJsonObject &obj, CompileOptions &opts)
 {
 	TempAllocator4096 ta;
-	JsonObject obj(ta);
-	RETURN_IF_ERROR(sjson::parse(obj, json), opts);
-
 	DynamicString script_resource(ta);
-	RETURN_IF_ERROR(sjson::parse_string(script_resource, obj["script_resource"]), opts);
+	RETURN_IF_ERROR(sjson::parse_string(script_resource, flat_json_object::get(obj, "data.script_resource")), opts);
 	RETURN_IF_RESOURCE_MISSING("lua"
 		, script_resource.c_str()
 		, opts
@@ -269,7 +252,7 @@ static s32 compile_script(Buffer &output, const char *json, CompileOptions &opts
 	opts.add_requirement("lua", script_resource.c_str());
 
 	ScriptDesc sd;
-	sd.script_resource = RETURN_IF_ERROR(sjson::parse_resource_name(obj["script_resource"]), opts);
+	sd.script_resource = RETURN_IF_ERROR(sjson::parse_resource_name(flat_json_object::get(obj, "data.script_resource")), opts);
 
 	FileBuffer fb(output);
 	BinaryWriter bw(fb);
@@ -277,14 +260,11 @@ static s32 compile_script(Buffer &output, const char *json, CompileOptions &opts
 	return 0;
 }
 
-static s32 compile_animation_state_machine(Buffer &output, const char *json, CompileOptions &opts)
+static s32 compile_animation_state_machine(Buffer &output, FlatJsonObject &obj, CompileOptions &opts)
 {
 	TempAllocator4096 ta;
-	JsonObject obj(ta);
-	RETURN_IF_ERROR(sjson::parse(obj, json), opts);
-
 	DynamicString state_machine_resource(ta);
-	RETURN_IF_ERROR(sjson::parse_string(state_machine_resource, obj["state_machine_resource"]), opts);
+	RETURN_IF_ERROR(sjson::parse_string(state_machine_resource, flat_json_object::get(obj, "data.state_machine_resource")), opts);
 	RETURN_IF_RESOURCE_MISSING("state_machine"
 		, state_machine_resource.c_str()
 		, opts
@@ -292,7 +272,7 @@ static s32 compile_animation_state_machine(Buffer &output, const char *json, Com
 	opts.add_requirement("state_machine", state_machine_resource.c_str());
 
 	AnimationStateMachineDesc asmd;
-	asmd.state_machine_resource = RETURN_IF_ERROR(sjson::parse_resource_name(obj["state_machine_resource"]), opts);
+	asmd.state_machine_resource = RETURN_IF_ERROR(sjson::parse_resource_name(flat_json_object::get(obj, "data.state_machine_resource")), opts);
 
 	FileBuffer fb(output);
 	BinaryWriter bw(fb);
@@ -434,6 +414,33 @@ namespace unit_compiler
 		CE_DELETE(default_allocator(), unit);
 	}
 
+	void to_flat(FlatJsonObject &obj, const char *json_object, DynamicString &prefix)
+	{
+		TempAllocator4096 ta;
+		JsonObject jo(ta);
+		sjson::parse_object(jo, json_object);
+
+		auto cur = json_object::begin(jo);
+		auto end = json_object::end(jo);
+		for (; cur != end; ++cur) {
+			JSON_OBJECT_SKIP_HOLE(jo, cur);
+
+			DynamicString key(default_allocator());
+			key = prefix;
+			if (key.length() != 0)
+				key += ".";
+			key += cur->first;
+
+			if (json::type(cur->second) == JsonValueType::OBJECT) {
+				hash_map::set(obj, key, cur->second);
+				DynamicString new_prefix(default_allocator());
+				to_flat(obj, cur->second, key);
+			} else {
+				hash_map::set(obj, key, cur->second);
+			}
+		}
+	}
+
 	s32 modify_unit_components(Unit *unit, const char *unit_json, CompileOptions &opts)
 	{
 		TempAllocator4096 ta;
@@ -446,11 +453,12 @@ namespace unit_compiler
 
 			// Add components.
 			for (u32 cc = 0; cc < array::size(components); ++cc) {
-				JsonObject component(ta);
-				RETURN_IF_ERROR(sjson::parse_object(component, components[cc]), opts);
+				FlatJsonObject flat_comp(default_allocator());
+				DynamicString empty(default_allocator());
+				to_flat(flat_comp, components[cc], empty);
 
 				array::push_back(unit->_merged_components, components[cc]);
-				array::push_back(unit->_merged_components_data, component["data"]);
+				vector::push_back(unit->_flattened_components, flat_comp);
 			}
 		}
 
@@ -477,8 +485,8 @@ namespace unit_compiler
 					u32 comp_last = array::size(unit->_merged_components) - 1;
 					unit->_merged_components[comp_idx] = unit->_merged_components[comp_last];
 					array::pop_back(unit->_merged_components);
-					unit->_merged_components_data[comp_idx] = unit->_merged_components_data[comp_last];
-					array::pop_back(unit->_merged_components_data);
+					unit->_flattened_components[comp_idx] = unit->_flattened_components[comp_last];
+					vector::pop_back(unit->_flattened_components);
 				} else {
 					char buf[GUID_BUF_LEN];
 					RETURN_IF_FALSE(false
@@ -500,22 +508,17 @@ namespace unit_compiler
 			for (; cur != end; ++cur) {
 				JSON_OBJECT_SKIP_HOLE(modified_components, cur);
 
-				auto key = cur->first;
-				auto val = cur->second;
-
 				// Extract GUID from key "#xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".
 				char guid[37];
-				strncpy(guid, key.data() + 1, sizeof(guid) - 1);
+				strncpy(guid, cur->first.data() + 1, sizeof(guid) - 1);
 				guid[36] = '\0';
 				Guid component_id = guid::parse(guid);
 
-				// Patch component "data" key.
+				// Patch flattened component's keys.
 				u32 comp_idx = object_index(unit->_merged_components, component_id, opts);
 				if (comp_idx != UINT32_MAX) {
-					JsonObject modified_component(ta);
-					RETURN_IF_ERROR(sjson::parse_object(modified_component, val), opts);
-
-					unit->_merged_components_data[comp_idx] = modified_component["data"];
+					DynamicString empty(default_allocator());
+					to_flat(unit->_flattened_components[comp_idx], cur->second, empty);
 				} else {
 					char buf[GUID_BUF_LEN];
 					RETURN_IF_FALSE(false
@@ -729,7 +732,7 @@ namespace unit_compiler
 
 			// Compile component.
 			Buffer comp_data(default_allocator());
-			s32 err = ctd._compiler(comp_data, unit->_merged_components_data[cc], opts);
+			s32 err = ctd._compiler(comp_data, unit->_flattened_components[cc], opts);
 			ENSURE_OR_RETURN(err == 0, opts);
 
 			// One component per unit max.
@@ -866,7 +869,7 @@ namespace unit_compiler
 
 Unit::Unit(Allocator &a)
 	: _merged_components(a)
-	, _merged_components_data(a)
+	, _flattened_components(a)
 	, _children(a)
 	, _parent(NULL)
 {
