@@ -156,14 +156,11 @@ namespace physics_resource_internal
 		sd.box.half_size = (aabb.max - aabb.min) * 0.5f;
 	}
 
-	s32 compile_collider(Buffer &output, const char *json, CompileOptions &opts)
+	s32 compile_collider(Buffer &output, FlatJsonObject &obj, CompileOptions &opts)
 	{
 		TempAllocator4096 ta;
-		JsonObject obj(ta);
-		RETURN_IF_ERROR(sjson::parse(obj, json), opts);
-
 		DynamicString type(ta);
-		RETURN_IF_ERROR(sjson::parse_string(type, obj["shape"]), opts);
+		RETURN_IF_ERROR(sjson::parse_string(type, flat_json_object::get(obj, "data.shape")), opts);
 
 		ColliderType::Enum st = shape_type_to_enum(type.c_str());
 		RETURN_IF_FALSE(st != ColliderType::COUNT
@@ -182,17 +179,17 @@ namespace physics_resource_internal
 		Array<u32> point_indices(default_allocator());
 
 		DynamicString source(ta);
-		if (json_object::has(obj, "source")) {
-			RETURN_IF_ERROR(sjson::parse_string(source, obj["source"]), opts);
+		if (flat_json_object::has(obj, "data.source")) {
+			RETURN_IF_ERROR(sjson::parse_string(source, flat_json_object::get(obj, "data.source")), opts);
 		}
 		bool explicit_collider = source == "mesh"
-			|| (source != "inline" && json_object::has(obj, "scene"));
+			|| (source != "inline" && flat_json_object::has(obj, "data.scene"));
 
 		if (explicit_collider) {
 			DynamicString scene(ta);
 			DynamicString name(ta);
-			RETURN_IF_ERROR(sjson::parse_string(scene, obj["scene"]), opts);
-			RETURN_IF_ERROR(sjson::parse_string(name, obj["name"]), opts);
+			RETURN_IF_ERROR(sjson::parse_string(scene, flat_json_object::get(obj, "data.scene")), opts);
+			RETURN_IF_ERROR(sjson::parse_string(name, flat_json_object::get(obj, "data.name")), opts);
 
 			// Parse mesh resource.
 			RETURN_IF_RESOURCE_MISSING("mesh", scene.c_str(), opts);
@@ -246,25 +243,22 @@ namespace physics_resource_internal
 				break;
 			}
 		} else {
-			JsonObject collider_data(ta);
-			JsonArray org(ta);
-			RETURN_IF_FALSE(json_object::has(obj, "collider_data")
+			RETURN_IF_FALSE(flat_json_object::has(obj, "data.collider_data")
 				, opts
 				, "No collider_data found"
 				);
-			RETURN_IF_ERROR(sjson::parse_object(collider_data, obj["collider_data"]), opts);
-			Quaternion rotation = RETURN_IF_ERROR(sjson::parse_quaternion(collider_data["rotation"]), opts);
-			Vector3 position = RETURN_IF_ERROR(sjson::parse_vector3(collider_data["position"]), opts);
+			Quaternion rotation = RETURN_IF_ERROR(sjson::parse_quaternion(flat_json_object::get(obj, "data.collider_data.rotation")), opts);
+			Vector3 position = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.collider_data.position")), opts);
 			Matrix4x4 matrix_local = from_quaternion_translation(rotation, position);
 			cd.local_tm = matrix_local;
 
 			if (cd.type == ColliderType::SPHERE) {
-				cd.sphere.radius = RETURN_IF_ERROR(sjson::parse_float(collider_data["radius"]), opts);
+				cd.sphere.radius = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.collider_data.radius")), opts);
 			} else if (cd.type == ColliderType::BOX) {
-				cd.box.half_size = RETURN_IF_ERROR(sjson::parse_vector3(collider_data["half_extents"]), opts);
+				cd.box.half_size = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.collider_data.half_extents")), opts);
 			} else if (cd.type == ColliderType::CAPSULE) {
-				cd.capsule.radius = RETURN_IF_ERROR(sjson::parse_float(collider_data["radius"]), opts);
-				cd.capsule.height = RETURN_IF_ERROR(sjson::parse_float(collider_data["height"]), opts);
+				cd.capsule.radius = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.collider_data.radius")), opts);
+				cd.capsule.height = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.collider_data.height")), opts);
 			} else {
 				RETURN_IF_FALSE(false, opts, "Invalid collider type");
 			}
@@ -307,44 +301,40 @@ namespace physics_resource_internal
 		return 0;
 	}
 
-	s32 compile_actor(Buffer &output, const char *json, CompileOptions &opts)
+	s32 compile_actor(Buffer &output, FlatJsonObject &obj, CompileOptions &opts)
 	{
-		TempAllocator4096 ta;
-		JsonObject obj(ta);
-		RETURN_IF_ERROR(sjson::parse(obj, json), opts);
-
 		u32 flags = 0;
-		if (json_object::has(obj, "lock_translation_x")) {
-			bool lock = RETURN_IF_ERROR(sjson::parse_bool(obj["lock_translation_x"]), opts);
+		if (flat_json_object::has(obj, "data.lock_translation_x")) {
+			bool lock = RETURN_IF_ERROR(sjson::parse_bool(flat_json_object::get(obj, "data.lock_translation_x")), opts);
 			flags |= lock ? ActorFlags::LOCK_TRANSLATION_X : 0u;
 		}
-		if (json_object::has(obj, "lock_translation_y")) {
-			bool lock = RETURN_IF_ERROR(sjson::parse_bool(obj["lock_translation_y"]), opts);
+		if (flat_json_object::has(obj, "data.lock_translation_y")) {
+			bool lock = RETURN_IF_ERROR(sjson::parse_bool(flat_json_object::get(obj, "data.lock_translation_y")), opts);
 			flags |= lock ? ActorFlags::LOCK_TRANSLATION_Y : 0u;
 		}
-		if (json_object::has(obj, "lock_translation_z")) {
-			bool lock = RETURN_IF_ERROR(sjson::parse_bool(obj["lock_translation_z"]), opts);
+		if (flat_json_object::has(obj, "data.lock_translation_z")) {
+			bool lock = RETURN_IF_ERROR(sjson::parse_bool(flat_json_object::get(obj, "data.lock_translation_z")), opts);
 			flags |= lock ? ActorFlags::LOCK_TRANSLATION_Z : 0u;
 		}
-		if (json_object::has(obj, "lock_rotation_x")) {
-			bool lock = RETURN_IF_ERROR(sjson::parse_bool(obj["lock_rotation_x"]), opts);
+		if (flat_json_object::has(obj, "data.lock_rotation_x")) {
+			bool lock = RETURN_IF_ERROR(sjson::parse_bool(flat_json_object::get(obj, "data.lock_rotation_x")), opts);
 			flags |= lock ? ActorFlags::LOCK_ROTATION_X : 0u;
 		}
-		if (json_object::has(obj, "lock_rotation_y")) {
-			bool lock = RETURN_IF_ERROR(sjson::parse_bool(obj["lock_rotation_y"]), opts);
+		if (flat_json_object::has(obj, "data.lock_rotation_y")) {
+			bool lock = RETURN_IF_ERROR(sjson::parse_bool(flat_json_object::get(obj, "data.lock_rotation_y")), opts);
 			flags |= lock ? ActorFlags::LOCK_ROTATION_Y : 0u;
 		}
-		if (json_object::has(obj, "lock_rotation_z")) {
-			bool lock = RETURN_IF_ERROR(sjson::parse_bool(obj["lock_rotation_z"]), opts);
+		if (flat_json_object::has(obj, "data.lock_rotation_z")) {
+			bool lock = RETURN_IF_ERROR(sjson::parse_bool(flat_json_object::get(obj, "data.lock_rotation_z")), opts);
 			flags |= lock ? ActorFlags::LOCK_ROTATION_Z : 0u;
 		}
 
 		ActorResource ar;
-		ar.actor_class      = RETURN_IF_ERROR(sjson::parse_string_id(obj["class"]), opts);
-		ar.mass             = RETURN_IF_ERROR(sjson::parse_float    (obj["mass"]), opts);
+		ar.actor_class      = RETURN_IF_ERROR(sjson::parse_string_id(flat_json_object::get(obj, "data.class")), opts);
+		ar.mass             = RETURN_IF_ERROR(sjson::parse_float    (flat_json_object::get(obj, "data.mass")), opts);
 		ar.flags            = flags;
-		ar.collision_filter = RETURN_IF_ERROR(sjson::parse_string_id(obj["collision_filter"]), opts);
-		ar.material         = RETURN_IF_ERROR(sjson::parse_string_id(obj["material"]), opts);
+		ar.collision_filter = RETURN_IF_ERROR(sjson::parse_string_id(flat_json_object::get(obj, "data.collision_filter")), opts);
+		ar.material         = RETURN_IF_ERROR(sjson::parse_string_id(flat_json_object::get(obj, "data.material")), opts);
 
 		FileBuffer fb(output);
 		BinaryWriter bw(fb);
@@ -356,14 +346,11 @@ namespace physics_resource_internal
 		return 0;
 	}
 
-	s32 compile_joint(Buffer &output, const char *json, CompileOptions &opts)
+	s32 compile_joint(Buffer &output, FlatJsonObject &obj, CompileOptions &opts)
 	{
 		TempAllocator4096 ta;
-		JsonObject obj(ta);
-		RETURN_IF_ERROR(sjson::parse(obj, json), opts);
-
 		DynamicString type(ta);
-		RETURN_IF_ERROR(sjson::parse_string(type, obj["type"]), opts);
+		RETURN_IF_ERROR(sjson::parse_string(type, flat_json_object::get(obj, "data.type")), opts);
 
 		JointType::Enum jt = joint_type_to_enum(type.c_str());
 		RETURN_IF_FALSE(jt != JointType::COUNT
@@ -374,17 +361,17 @@ namespace physics_resource_internal
 
 		JointDesc jd;
 		jd.type     = jt;
-		jd.anchor_0 = RETURN_IF_ERROR(sjson::parse_vector3(obj["anchor_0"]), opts);
-		jd.anchor_1 = RETURN_IF_ERROR(sjson::parse_vector3(obj["anchor_1"]), opts);
+		jd.anchor_0 = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.anchor_0")), opts);
+		jd.anchor_1 = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.anchor_1")), opts);
 
 		switch (jd.type) {
 		case JointType::HINGE:
-			jd.hinge.use_motor         = RETURN_IF_ERROR(sjson::parse_bool (obj["use_motor"]), opts);
-			jd.hinge.target_velocity   = RETURN_IF_ERROR(sjson::parse_float(obj["target_velocity"]), opts);
-			jd.hinge.max_motor_impulse = RETURN_IF_ERROR(sjson::parse_float(obj["max_motor_impulse"]), opts);
-			jd.hinge.lower_limit       = RETURN_IF_ERROR(sjson::parse_float(obj["lower_limit"]), opts);
-			jd.hinge.upper_limit       = RETURN_IF_ERROR(sjson::parse_float(obj["upper_limit"]), opts);
-			jd.hinge.bounciness        = RETURN_IF_ERROR(sjson::parse_float(obj["bounciness"]), opts);
+			jd.hinge.use_motor         = RETURN_IF_ERROR(sjson::parse_bool (flat_json_object::get(obj, "data.use_motor")), opts);
+			jd.hinge.target_velocity   = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.target_velocity")), opts);
+			jd.hinge.max_motor_impulse = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.max_motor_impulse")), opts);
+			jd.hinge.lower_limit       = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.lower_limit")), opts);
+			jd.hinge.upper_limit       = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.upper_limit")), opts);
+			jd.hinge.bounciness        = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.bounciness")), opts);
 			break;
 		}
 

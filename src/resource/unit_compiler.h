@@ -16,7 +16,7 @@
 
 namespace crown
 {
-typedef s32 (*CompileFunction)(Buffer &output, const char *json, CompileOptions &opts);
+typedef s32 (*CompileFunction)(Buffer &output, FlatJsonObject &obj, CompileOptions &opts);
 
 struct ComponentTypeData
 {
@@ -53,7 +53,7 @@ struct Unit
 
 	StringId32 _editor_name;
 	JsonArray _merged_components;
-	JsonArray _merged_components_data;
+	Vector<FlatJsonObject> _flattened_components;
 	HashMap<Guid, Unit *> _children;
 	Unit *_parent;
 

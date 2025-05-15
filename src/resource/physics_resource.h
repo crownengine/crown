@@ -7,19 +7,19 @@
 
 #include "core/containers/types.h"
 #include "core/filesystem/types.h"
+#include "core/json/types.h"
 #include "core/math/types.h"
 #include "core/memory/types.h"
 #include "core/strings/string_id.h"
-#include "resource/types.h"
 #include "resource/types.h"
 
 namespace crown
 {
 namespace physics_resource_internal
 {
-	s32 compile_collider(Buffer &output, const char *json, CompileOptions &opts);
-	s32 compile_actor(Buffer &output, const char *json, CompileOptions &opts);
-	s32 compile_joint(Buffer &output, const char *json, CompileOptions &opts);
+	s32 compile_collider(Buffer &output, FlatJsonObject &obj, CompileOptions &opts);
+	s32 compile_actor(Buffer &output, FlatJsonObject &obj, CompileOptions &opts);
+	s32 compile_joint(Buffer &output, FlatJsonObject &obj, CompileOptions &opts);
 
 } // namespace physics_resource_internal
 
