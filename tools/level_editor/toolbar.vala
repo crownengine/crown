@@ -66,10 +66,11 @@ public class Toolbar : Gtk.Box
 			btn.action_target = action_target;
 		btn.can_focus = false;
 		btn.get_style_context().add_class("flat");
+		btn.get_style_context().add_class("image-button");
 
 		var img = new Gtk.Image.from_icon_name(icon_name, icon_size);
 		img.margin = 8;
-		btn.set_image(img);
+		btn.add(img);
 
 		return btn;
 	}
