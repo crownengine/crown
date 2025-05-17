@@ -941,8 +941,10 @@ public class ProjectBrowser : Gtk.Bin
 	public Gdk.Pixbuf _empty_pixbuf;
 	public ProjectFolderView _folder_view;
 	public bool _show_folder_view;
+	public Gtk.Image _toggle_folder_view_image;
 	public Gtk.Button _toggle_folder_view;
 	public Gtk.Box _tree_view_content;
+	public Gtk.Image _toggle_icon_view_image;
 	public Gtk.Button _toggle_icon_view;
 	public Gtk.ListStore _folder_list_store;
 	public Gtk.TreeModelSort _folder_list_sort;
@@ -1088,8 +1090,11 @@ public class ProjectBrowser : Gtk.Bin
 
 		// Create switch button.
 		_show_folder_view = true;
-		_toggle_folder_view = new Gtk.Button.from_icon_name("level-tree-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
+		_toggle_folder_view_image = new Gtk.Image.from_icon_name("level-tree-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
+		_toggle_folder_view = new Gtk.Button();
+		_toggle_folder_view.add(_toggle_folder_view_image);
 		_toggle_folder_view.get_style_context().add_class("flat");
+		_toggle_folder_view.get_style_context().add_class("image-button");
 		_toggle_folder_view.can_focus = false;
 		_toggle_folder_view.clicked.connect(() => {
 				_show_folder_view = !_show_folder_view;
@@ -1125,7 +1130,7 @@ public class ProjectBrowser : Gtk.Bin
 					}
 
 					_folder_view_content.show_all();
-					_toggle_folder_view.set_image(new Gtk.Image.from_icon_name("level-tree-symbolic", Gtk.IconSize.SMALL_TOOLBAR));
+					_toggle_folder_view_image.set_from_icon_name("level-tree-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
 				} else {
 					// Save the currently selected resource. This will be used later, after the tree
 					// has been refiltered, to reveal the selected resource in the tree view.
@@ -1151,7 +1156,7 @@ public class ProjectBrowser : Gtk.Bin
 					}
 
 					_folder_view_content.hide();
-					_toggle_folder_view.set_image(new Gtk.Image.from_icon_name("browser-icon-view", Gtk.IconSize.SMALL_TOOLBAR));
+					_toggle_folder_view_image.set_from_icon_name("browser-icon-view", Gtk.IconSize.SMALL_TOOLBAR);
 
 					_tree_view.queue_draw(); // It doesn't draw by itself sometimes...
 				}
@@ -1186,8 +1191,11 @@ public class ProjectBrowser : Gtk.Bin
 		_sort_items.set_popover(_sort_items_popover);
 
 		bool _show_icon_view = true;
-		_toggle_icon_view = new Gtk.Button.from_icon_name("browser-list-view", Gtk.IconSize.SMALL_TOOLBAR);
+		_toggle_icon_view_image = new Gtk.Image.from_icon_name("browser-list-view", Gtk.IconSize.SMALL_TOOLBAR);
+		_toggle_icon_view = new Gtk.Button();
+		_toggle_icon_view.add(_toggle_icon_view_image);
 		_toggle_icon_view.get_style_context().add_class("flat");
+		_toggle_icon_view.get_style_context().add_class("image-button");
 		_toggle_icon_view.can_focus = false;
 		_toggle_icon_view.clicked.connect(() => {
 				Gtk.TreePath path;
@@ -1201,13 +1209,13 @@ public class ProjectBrowser : Gtk.Bin
 					}
 
 					_folder_view._stack.set_visible_child_full("list-view", Gtk.StackTransitionType.NONE);
-					_toggle_icon_view.set_image(new Gtk.Image.from_icon_name("browser-icon-view", Gtk.IconSize.SMALL_TOOLBAR));
+					_toggle_icon_view_image.set_from_icon_name("browser-icon-view", Gtk.IconSize.SMALL_TOOLBAR);
 				} else {
 					if (any_selected)
 						_folder_view._icon_view.select_path(path);
 
 					_folder_view._stack.set_visible_child_full("icon-view", Gtk.StackTransitionType.NONE);
-					_toggle_icon_view.set_image(new Gtk.Image.from_icon_name("browser-list-view", Gtk.IconSize.SMALL_TOOLBAR));
+					_toggle_icon_view_image.set_from_icon_name("browser-list-view", Gtk.IconSize.SMALL_TOOLBAR);
 				}
 
 				_show_icon_view = !_show_icon_view;

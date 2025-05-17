@@ -689,8 +689,7 @@ public class LevelEditorApplication : Gtk.Application
 	private Gtk.Label _inspector_stack_stopping_backend_label;
 
 	private Toolbar _toolbar;
-	private Gtk.Image _run_game_image;
-	private Gtk.Image _stop_game_image;
+	private Gtk.Image _game_run_stop_image;
 	private Gtk.Button _game_run;
 	private Gtk.Notebook _level_tree_view_notebook;
 	private Gtk.Notebook _console_notebook;
@@ -972,14 +971,13 @@ public class LevelEditorApplication : Gtk.Application
 		_toolbar = new Toolbar();
 
 		// Game run/stop button.
-		_run_game_image = new Gtk.Image.from_icon_name("game-run", Gtk.IconSize.MENU);
-		_run_game_image.margin = 8;
-		_stop_game_image = new Gtk.Image.from_icon_name("game-stop", Gtk.IconSize.MENU);
-		_stop_game_image.margin = 8;
-		_game_run = new Gtk.Button.from_icon_name("game-run");
+		_game_run_stop_image = new Gtk.Image.from_icon_name("game-run", Gtk.IconSize.MENU);
+		_game_run_stop_image.margin = 8;
+		_game_run = new Gtk.Button();
+		_game_run.add(_game_run_stop_image);
 		_game_run.get_style_context().add_class("suggested-action");
+		_game_run.get_style_context().add_class("image-button");
 		_game_run.action_name = "app.test-level";
-		_game_run.image = _run_game_image;
 		_game_run.can_focus = false;
 
 		_editor_view_overlay = new Gtk.Overlay();
@@ -1276,7 +1274,7 @@ public class LevelEditorApplication : Gtk.Application
 		on_runtime_disconnected(ri);
 
 		_combo.set_active_id("editor");
-		_game_run.image = _run_game_image;
+		_game_run_stop_image.set_from_icon_name("game-run", Gtk.IconSize.MENU);
 	}
 
 	private void on_message_received(RuntimeInstance ri, ConsoleClient client, uint8[] json)
@@ -1864,7 +1862,7 @@ public class LevelEditorApplication : Gtk.Application
 		_project.delete_garbage();
 
 		if (!success) {
-			_game_run.image = _run_game_image;
+			_game_run_stop_image.set_from_icon_name("game-run", Gtk.IconSize.MENU);
 			return;
 		}
 
@@ -2863,14 +2861,13 @@ public class LevelEditorApplication : Gtk.Application
 		if (focus != null)
 			focus.grab_focus();
 
-		var image_displayed = _game_run.image;
+		var icon_displayed = _game_run_stop_image.icon_name;
 
 		stop_game.begin((obj, res) => {
 				stop_game.end(res);
-
-				if (image_displayed == _run_game_image) {
+				if (icon_displayed == "game-run") {
 					// Always change icon state regardless of failures.
-					_game_run.image = _stop_game_image;
+					_game_run_stop_image.set_from_icon_name("game-stop", Gtk.IconSize.MENU);
 
 					start_game.begin(action.name == "test-level" ? StartGame.TEST : StartGame.NORMAL);
 				}
