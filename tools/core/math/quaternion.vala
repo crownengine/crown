@@ -198,6 +198,15 @@ public struct Quaternion
 	{
 		return "%f, %f, %f, %f".printf(x, y, z, w);
 	}
+
+	public static bool equal_func(Quaternion? a, Quaternion? b)
+	{
+		return a.x == b.x
+			&& a.y == b.y
+			&& a.z == b.z
+			&& a.w == b.w
+			;
+	}
 }
 
 public const Quaternion QUATERNION_IDENTITY = { 0.0, 0.0, 0.0, 1.0 };
