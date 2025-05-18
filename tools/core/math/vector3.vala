@@ -82,6 +82,14 @@ public struct Vector3
 	{
 		return "%f, %f, %f".printf(x, y, z);
 	}
+
+	public static bool equal_func(Vector3? a, Vector3? b)
+	{
+		return a.x == b.x
+			&& a.y == b.y
+			&& a.z == b.z
+			;
+	}
 }
 
 public const Vector3 VECTOR3_ZERO = { 0.0, 0.0, 0.0 };
