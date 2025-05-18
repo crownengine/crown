@@ -248,7 +248,7 @@ windows-release64:        \
 
 crown-editor-theme:
 	cd tools/level_editor/resources/theme/Adwaita && ./parse-sass.sh
-	cd tools/level_editor/resources && ./generate-resources.sh > resources.gresource.xml
+	cd tools/level_editor/resources && ./generate-resources.sh > org.crownengine.Crown.gresource.xml
 
 crown-editor-linux-debug64: \
 	build/projects/linux
