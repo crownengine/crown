@@ -94,7 +94,7 @@ project "crown-editor"
 	files {
 		CROWN_DIR .. "tools/**.vala",
 		CROWN_DIR .. "tools/**.c",
-		CROWN_DIR .. "tools/level_editor/resources/resources.gresource.xml",
+		CROWN_DIR .. "tools/level_editor/resources/org.crownengine.Crown.gresource.xml",
 		CROWN_DIR .. "3rdparty/tinyexpr/tinyexpr.c",
 		CROWN_DIR .. "3rdparty/md5/md5.c",
 		CROWN_DIR .. "3rdparty/ufbx/ufbx.c",

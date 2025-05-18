@@ -195,8 +195,8 @@ if [ "${PLATFORM}" = "linux" ] || [ "${PLATFORM}" = "windows" ]; then
 		mv "${PACKAGENAME}"/platforms/linux64/bin/crown-launcher-release "${PACKAGENAME}"/crown-launcher
 
 		# Copy app icon and .desktop file.
-		cp scripts/dist/linux/org.crownengine.Crown.desktop "${PACKAGENAME}"
-		cp tools/level_editor/resources/icons/crown-black-socket.svg "${PACKAGENAME}"/org.crownengine.Crown.svg
+		cp tools/level_editor/resources/org.crownengine.Crown.desktop "${PACKAGENAME}"
+		cp tools/level_editor/resources/icons/hicolor/scalable/apps/org.crownengine.Crown.svg "${PACKAGENAME}"
 	elif [ "${PLATFORM}" = "windows" ]; then
 		# Copy crown-launcher.
 		mv "${PACKAGENAME}"/platforms/windows64/bin/crown-launcher-release.exe "${PACKAGENAME}"/crown-launcher.exe

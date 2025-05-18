@@ -13,7 +13,7 @@ const int WINDOW_DEFAULT_WIDTH = 1280;
 const int WINDOW_DEFAULT_HEIGHT = 720;
 const string CROWN_EDITOR_NAME = "Crown Editor";
 const string CROWN_EDITOR_MAIN_WINDOW_TITLE = CROWN_EDITOR_NAME + " " + CROWN_VERSION;
-const string CROWN_EDITOR_ICON_NAME = "crown-black-socket";
+const string CROWN_EDITOR_ICON_NAME = "org.crownengine.Crown";
 
 public enum Theme
 {
