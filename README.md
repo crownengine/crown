@@ -1,5 +1,6 @@
 <p align="left">
   <a title="Build Status" href="https://github.com/crownengine/crown/actions?query=workflow%3Abuild_and_test"><img alt="build_and_test status" src="https://img.shields.io/github/actions/workflow/status/crownengine/crown/main.yml?branch=master&longCache=true&style=flat-square&label=build&logo=github"></a>
+  <a title="Downloads" href="https://github.com/crownengine/crown/releases/latest"><img src="https://img.shields.io/github/downloads/crownengine/crown/total?style=flat-square&color=blue"></a>
   <a title="Join our Discord" href="https://discord.gg/invite/CeXVWCT"><img src="https://img.shields.io/discord/572468149358690314?color=5865F2&label=Discord&logo=discord&logoColor=white&style=flat-square"></a>
   <a title="Follow Crown on X" href="https://x.com/crown_engine"><img src="https://img.shields.io/twitter/follow/crown_engine?style=flat-square&logo=x&logoColor=white"></a>
   <a title="Follow Crown on Bluesky" href="https://bsky.app/profile/crownengine.org"><img src="https://img.shields.io/twitter/follow/crownengine.org?style=flat-square&logo=bluesky&logoColor=white&color=0087ff"></a>
