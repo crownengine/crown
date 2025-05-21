@@ -63,6 +63,7 @@ namespace spv {
 #include <stack>
 #include <unordered_map>
 #include <map>
+#include <cstdint>
 
 namespace spv {
 
