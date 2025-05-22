@@ -9,13 +9,10 @@ namespace Crown
 {
 public class ComboBoxMap : Gtk.ComboBox, Property
 {
-	public bool _stop_emit;
 	public bool _inconsistent;
 	public Gtk.ListStore _store;
 	public Gtk.TreeModelFilter _filter;
 	public Gtk.EventControllerScroll _controller_scroll;
-
-	public signal void value_changed();
 
 	public void set_inconsistent(bool inconsistent)
 	{
@@ -25,9 +22,7 @@ public class ComboBoxMap : Gtk.ComboBox, Property
 			_filter.refilter();
 
 			if (_inconsistent) {
-				_stop_emit = true;
 				this.set_active_id(INCONSISTENT_ID);
-				_stop_emit = false;
 			}
 		}
 	}
@@ -37,17 +32,17 @@ public class ComboBoxMap : Gtk.ComboBox, Property
 		return _inconsistent;
 	}
 
-	public Value? generic_value()
+	public GLib.Value union_value()
 	{
 		return this.value;
 	}
 
-	public void set_generic_value(Value? val)
+	public void set_union_value(GLib.Value v)
 	{
-		this.value = (string)val;
+		this.value = (string)v;
 	}
 
-	public string? value
+	public string value
 	{
 		get
 		{
@@ -55,10 +50,8 @@ public class ComboBoxMap : Gtk.ComboBox, Property
 		}
 		set
 		{
-			_stop_emit = true;
 			_filter.refilter();
-			bool success = this.set_active_id((string)value);
-			_stop_emit = false;
+			bool success = this.set_active_id(value);
 			set_inconsistent(!success);
 		}
 	}
@@ -74,9 +67,8 @@ public class ComboBoxMap : Gtk.ComboBox, Property
 		return true;
 	}
 
-	public ComboBoxMap(int default_id = 0, string[]? labels = null, string[]? ids = null)
+	public ComboBoxMap(string default_id = "DEFAULT", string[]? labels = null, string[]? ids = null)
 	{
-		_stop_emit = false;
 		_inconsistent = false;
 
 		_store = new Gtk.ListStore(2
@@ -102,8 +94,8 @@ public class ComboBoxMap : Gtk.ComboBox, Property
 				unowned string? id = ids != null ? ids[ii] : null;
 				_store.insert_with_values(out iter, -1, 0, id, 1, labels[ii], -1);
 			}
-			if (ids != null && default_id < ids.length)
-				this.value = ids[default_id];
+			// if (ids != null && default_id < ids.length)
+			this.value = default_id;
 		}
 
 		this.changed.connect(on_changed);
@@ -118,17 +110,19 @@ public class ComboBoxMap : Gtk.ComboBox, Property
 
 	public void append(string? id, string label)
 	{
+		this.changed.disconnect(on_changed);
 		Gtk.TreeIter iter;
 		_store.insert_with_values(out iter, -1, 0, id, 1, label, -1);
+		this.changed.connect(on_changed);
 	}
 
 	public void clear()
 	{
-		_stop_emit = true;
+		this.changed.disconnect(on_changed);
 		_store.clear();
 		insert_special_values();
 		_inconsistent = false;
-		_stop_emit = false;
+		this.changed.connect(on_changed);
 	}
 
 	public string any_valid_id()
@@ -153,16 +147,18 @@ public class ComboBoxMap : Gtk.ComboBox, Property
 
 	private void on_changed()
 	{
+		if (this.get_active_id() == null)
+			return;
+
 		if (_inconsistent && this.get_active_id() == INCONSISTENT_ID)
 			return;
 
-		if (!_stop_emit) {
-			if (_inconsistent) {
-				_inconsistent = false;
-				_filter.refilter();
-			}
-			value_changed();
+		if (_inconsistent) {
+			_inconsistent = false;
+			_filter.refilter();
 		}
+
+		value_changed(this);
 	}
 
 	private void insert_special_values()

@@ -121,7 +121,7 @@ public class Level
 	{
 		Guid id = Guid.new_guid();
 		on_unit_spawned(id, null, VECTOR3_ZERO, QUATERNION_IDENTITY, VECTOR3_ONE);
-		_db.add_restore_point((int)ActionType.SPAWN_UNIT, new Guid?[] { id });
+		_db.add_restore_point((int)ActionType.CREATE_OBJECTS, new Guid?[] { id });
 
 		selection_set(new Guid?[] { id });
 	}
@@ -172,7 +172,7 @@ public class Level
 				_db.add_to_set(_id, "sounds", new_ids[i]);
 			}
 		}
-		_db.add_restore_point((int)ActionType.DUPLICATE_OBJECTS, new_ids);
+		_db.add_restore_point((int)ActionType.CREATE_OBJECTS, new_ids);
 
 		selection_set(ids);
 	}

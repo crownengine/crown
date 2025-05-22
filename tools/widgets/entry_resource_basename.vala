@@ -11,10 +11,8 @@ public class EntryResourceBasename : EntryText
 {
 	public EntryResourceBasename(string basename)
 	{
-		_stop_emit = true;
 		_value = "unset";
 		set_value_safe(basename);
-		_stop_emit = false;
 	}
 
 	public override void set_value_safe(string val)

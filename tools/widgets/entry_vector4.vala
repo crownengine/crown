@@ -7,7 +7,7 @@ using Gtk;
 
 namespace Crown
 {
-public class EntryVector4 : Gtk.Box
+public class EntryVector4 : Property, Gtk.Box
 {
 	// Data
 	public bool _stop_emit;
@@ -26,6 +26,25 @@ public class EntryVector4 : Gtk.Box
 	public Gtk.Box _z_box;
 	public Gtk.Box _w_box;
 
+	public void set_inconsistent(bool inconsistent)
+	{
+	}
+
+	public bool is_inconsistent()
+	{
+		return false;
+	}
+
+	public GLib.Value union_value()
+	{
+		return this.value;
+	}
+
+	public void set_union_value(GLib.Value v)
+	{
+		this.value = (Vector4)v;
+	}
+
 	public Vector4 value
 	{
 		get
@@ -43,9 +62,6 @@ public class EntryVector4 : Gtk.Box
 			_stop_emit = false;
 		}
 	}
-
-	// Signals
-	public signal void value_changed();
 
 	public EntryVector4(Vector4 xyz, Vector4 min, Vector4 max, string preview_fmt = "%.4g")
 	{
@@ -103,7 +119,7 @@ public class EntryVector4 : Gtk.Box
 	private void on_value_changed()
 	{
 		if (!_stop_emit)
-			value_changed();
+			value_changed(this);
 	}
 }
 

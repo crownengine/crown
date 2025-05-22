@@ -7,7 +7,7 @@ using Gtk;
 
 namespace Crown
 {
-public class ResourceChooserButton : Gtk.Box
+public class ResourceChooserButton : Property, Gtk.Box
 {
 	// Data
 	public string _type;
@@ -21,6 +21,25 @@ public class ResourceChooserButton : Gtk.Box
 	public Gtk.Dialog _dialog;
 	public Gtk.EventControllerKey _dialog_controller_key;
 
+	public void set_inconsistent(bool inconsistent)
+	{
+	}
+
+	public bool is_inconsistent()
+	{
+		return false;
+	}
+
+	public GLib.Value union_value()
+	{
+		return this.value;
+	}
+
+	public void set_union_value(GLib.Value v)
+	{
+		this.value = (string)v;
+	}
+
 	public string value
 	{
 		get
@@ -33,9 +52,6 @@ public class ResourceChooserButton : Gtk.Box
 		}
 	}
 
-	// Signals
-	public signal void value_changed();
-
 	public ResourceChooserButton(ProjectStore store, string type)
 	{
 		Object(orientation: Gtk.Orientation.HORIZONTAL, spacing: 0);
@@ -47,6 +63,7 @@ public class ResourceChooserButton : Gtk.Box
 		_name = new EntryText();
 		_name.set_editable(false);
 		_name.hexpand = true;
+		_name.value_changed.connect(on_name_value_changed);
 		this.pack_start(_name, true, true);
 
 		_revealer = new Gtk.Button.from_icon_name("go-jump-symbolic");
@@ -61,6 +78,10 @@ public class ResourceChooserButton : Gtk.Box
 
 		_chooser = new ResourceChooser(null, _project_store);
 		_chooser.set_type_filter(type_filter);
+
+		_project_store._project.file_added.connect(on_file_added_or_changed);
+		_project_store._project.file_changed.connect(on_file_added_or_changed);
+		_project_store._project.file_removed.connect(on_file_removed);
 	}
 
 	~ResourceChooserButton()
@@ -81,7 +102,6 @@ public class ResourceChooserButton : Gtk.Box
 
 			_chooser.resource_selected.connect(() => {
 					_name.value = _chooser._name;
-					value_changed();
 					_dialog.hide();
 				});
 
@@ -112,6 +132,23 @@ public class ResourceChooserButton : Gtk.Box
 	private bool type_filter(string type, string name)
 	{
 		return _type == type;
+	}
+
+	private void on_name_value_changed()
+	{
+		value_changed(this);
+	}
+
+	private void on_file_added_or_changed(string type, string name, uint64 size, uint64 mtime)
+	{
+		if (type == _type && name == _name.value)
+			value_changed(this);
+	}
+
+	private void on_file_removed(string type, string name)
+	{
+		if (type == _type && name == _name.value)
+			value_changed(this);
 	}
 }
 

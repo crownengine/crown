@@ -7,6 +7,48 @@ using Gee;
 
 namespace Crown
 {
+public enum PropertyType
+{
+	NULL,
+	BOOL,
+	DOUBLE,
+	STRING,
+	GUID,
+	VECTOR3,
+	QUATERNION
+}
+
+public enum PropertyEditorType
+{
+	DEFAULT,  ///< Default editor for the property type.
+	ENUM,     ///< A string selected from a list.
+	RESOURCE, ///< A resource name selected from a project.
+	ANGLE,    ///< An angle value displayed in degrees.
+}
+
+public delegate void EnumCallback(Property enum_property, ComboBoxMap property, Project project);
+public delegate void ResourceCallback(Property enum_property, ResourceChooserButton property, Project project);
+
+public struct PropertyDefinition
+{
+	public PropertyType type;
+	public string name;
+	public string? label;
+
+	public PropertyEditorType editor;
+	public Value? min;
+	public Value? max;
+	public Value? deffault;
+	public string[] enum_values;
+	public string[] enum_labels;
+	public string? enum_property;
+	public unowned EnumCallback? enum_callback;
+	public unowned ResourceCallback? resource_callback;
+	public string? resource_type;
+
+	public bool hidden;
+}
+
 public enum UndoRedoAction
 {
 	RESTORE_POINT = int.MAX;

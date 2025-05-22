@@ -3,726 +3,579 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-using Gee;
-
 namespace Crown
 {
 public class TransformPropertyGrid : PropertyGrid
 {
-	// Widgets
-	private EntryPosition _position;
-	private EntryRotation _rotation;
-	private EntryScale _scale;
-
 	public TransformPropertyGrid(Database db)
 	{
 		base(db);
 
-		// Widgets
-		_position = new EntryPosition();
-		_position.value_changed.connect(on_value_changed);
-		_rotation = new EntryRotation();
-		_rotation.value_changed.connect(on_value_changed);
-		_scale = new EntryScale();
-		_scale.value_changed.connect(on_value_changed);
+		PropertyDefinition[] properties =
+		{
+			PropertyDefinition()
+			{
+				type = PropertyType.VECTOR3,
+				name = "data.position",
+				label = "Position",
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.QUATERNION,
+				name = "data.rotation",
+				label = "Rotation",
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.VECTOR3,
+				name = "data.scale",
+				label = "Scale",
+				min = VECTOR3_ZERO,
+				deffault = VECTOR3_ONE,
+			},
+		};
 
-		add_row("Position", _position);
-		add_row("Rotation", _rotation);
-		add_row("Scale", _scale);
-	}
-
-	private void on_value_changed()
-	{
-		Unit unit = Unit(_db, _id);
-		unit.set_component_property_vector3   (_component_id, "data.position", _position.value);
-		unit.set_component_property_quaternion(_component_id, "data.rotation", _rotation.value);
-		unit.set_component_property_vector3   (_component_id, "data.scale", _scale.value);
-
-		_db.add_restore_point((int)ActionType.SET_TRANSFORM, new Guid?[] { _id, _component_id });
-	}
-
-	public override void update()
-	{
-		Unit unit = Unit(_db, _id);
-		_position.value = unit.get_component_property_vector3   (_component_id, "data.position");
-		_rotation.value = unit.get_component_property_quaternion(_component_id, "data.rotation");
-		_scale.value    = unit.get_component_property_vector3   (_component_id, "data.scale");
+		add_object_type(properties);
 	}
 }
 
 public class MeshRendererPropertyGrid : PropertyGrid
 {
-	// Widgets
-	private Project _project;
-	private ResourceChooserButton _scene;
-	private ComboBoxMap _node;
-	private ResourceChooserButton _material;
-	private CheckBox _visible;
-	private CheckBox _cast_shadows;
-
-	private void decode(Hashtable mesh_resource)
-	{
-		const string keys[] = { "nodes" };
-		ComboBoxMap combos[] = { _node };
-
-		for (int i = 0; i < keys.length; ++i) {
-			combos[i].clear();
-
-			Mesh mesh = Mesh();
-			mesh.decode(mesh_resource);
-			foreach (var node in mesh._nodes)
-				combos[i].append(node, node);
-		}
-	}
-
-	private void decode_from_resource(string type, string name)
-	{
-		try {
-			string path = ResourceId.path(type, name);
-			decode(SJSON.load_from_path(_project.absolute_path(path)));
-		} catch (JsonSyntaxError e) {
-			loge(e.message);
-		}
-	}
-
 	public MeshRendererPropertyGrid(Database db, ProjectStore store)
 	{
-		base(db);
+		base(db, store);
 
-		_project = store._project;
+		PropertyDefinition[] properties =
+		{
+			PropertyDefinition()
+			{
+				type = PropertyType.STRING,
+				name = "data.mesh_resource",
+				label = "Scene",
+				editor = PropertyEditorType.RESOURCE,
+				resource_type = OBJECT_TYPE_MESH,
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.STRING,
+				name = "data.geometry_name",
+				label = "Node",
+				editor = PropertyEditorType.ENUM,
+				enum_property = "data.mesh_resource",
+				enum_callback = node_name_enum_callback,
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.STRING,
+				name = "data.material",
+				label = "Material",
+				editor = PropertyEditorType.RESOURCE,
+				resource_type = OBJECT_TYPE_MATERIAL,
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.BOOL,
+				name = "data.visible",
+				label = "Visible",
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.BOOL,
+				name = "data.cast_shadows",
+				label = "Cast Shadows",
+			},
+		};
 
-		// Widgets
-		_scene = new ResourceChooserButton(store, "mesh");
-		_scene.value_changed.connect(on_scene_value_changed);
-		_node = new ComboBoxMap();
-		_material = new ResourceChooserButton(store, "material");
-		_material.value_changed.connect(on_value_changed);
-		_visible = new CheckBox();
-		_visible.value_changed.connect(on_value_changed);
-		_cast_shadows = new CheckBox();
-		_cast_shadows.value_changed.connect(on_value_changed);
-
-		add_row("Scene", _scene);
-		add_row("Node", _node);
-		add_row("Material", _material);
-		add_row("Visible", _visible);
-		add_row("Cast Shadows", _cast_shadows);
+		add_object_type(properties);
 	}
+}
 
-	private void on_scene_value_changed()
-	{
-		decode_from_resource("mesh", _scene.value);
-		_node.value = _node.any_valid_id();
-		on_value_changed();
-	}
+public void node_name_enum_callback(Property enum_property, ComboBoxMap combo, Project project)
+{
+	try {
+		string path = ResourceId.path(OBJECT_TYPE_MESH, (string)enum_property.union_value());
+		Hashtable mesh_resource = SJSON.load_from_path(project.absolute_path(path));
 
-	private void on_value_changed()
-	{
-		Unit unit = Unit(_db, _id);
-		unit.set_component_property_string(_component_id, "data.mesh_resource", _scene.value);
-		unit.set_component_property_string(_component_id, "data.geometry_name", _node.value);
-		unit.set_component_property_string(_component_id, "data.material", _material.value);
-		unit.set_component_property_bool  (_component_id, "data.visible", _visible.value);
-		unit.set_component_property_bool  (_component_id, "data.cast_shadows", _cast_shadows.value);
+		combo.clear();
+		Mesh mesh = Mesh();
+		mesh.decode(mesh_resource);
+		foreach (var node in mesh._nodes)
+			combo.append(node, node);
 
-		_db.add_restore_point((int)ActionType.SET_MESH, new Guid?[] { _id, _component_id });
-	}
-
-	private void update_mesh_and_geometry(Unit unit)
-	{
-		_scene.value = unit.get_component_property_string(_component_id, "data.mesh_resource");
-		decode_from_resource("mesh", _scene.value);
-		_node.value = unit.get_component_property_string(_component_id, "data.geometry_name");
-	}
-
-	public override void update()
-	{
-		Unit unit = Unit(_db, _id);
-		update_mesh_and_geometry(unit);
-		_material.value = unit.get_component_property_string(_component_id, "data.material");
-		_visible.value  = unit.get_component_property_bool  (_component_id, "data.visible");
-		_cast_shadows.value = unit.get_component_property_bool(_component_id, "data.cast_shadows", true);
+		combo.value = combo.any_valid_id();
+	} catch (JsonSyntaxError e) {
+		loge(e.message);
 	}
 }
 
 public class SpriteRendererPropertyGrid : PropertyGrid
 {
-	// Widgets
-	private ResourceChooserButton _sprite_resource;
-	private ResourceChooserButton _material;
-	private EntryDouble _layer;
-	private EntryDouble _depth;
-	private CheckBox _visible;
-
 	public SpriteRendererPropertyGrid(Database db, ProjectStore store)
 	{
-		base(db);
+		base(db, store);
 
-		// Widgets
-		_sprite_resource = new ResourceChooserButton(store, "sprite");
-		_sprite_resource.value_changed.connect(on_value_changed);
-		_material = new ResourceChooserButton(store, "material");
-		_material.value_changed.connect(on_value_changed);
-		_layer = new EntryDouble(0.0, 0.0, 7.0);
-		_layer.value_changed.connect(on_value_changed);
-		_depth = new EntryDouble(0.0, 0.0, (double)uint32.MAX);
-		_depth.value_changed.connect(on_value_changed);
-		_visible = new CheckBox();
-		_visible.value_changed.connect(on_value_changed);
+		PropertyDefinition[] properties =
+		{
+			PropertyDefinition()
+			{
+				type = PropertyType.STRING,
+				name = "data.sprite_resource",
+				label = "Sprite",
+				editor = PropertyEditorType.RESOURCE,
+				resource_type = OBJECT_TYPE_SPRITE,
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.STRING,
+				name = "data.material",
+				label = "Material",
+				editor = PropertyEditorType.RESOURCE,
+				resource_type = OBJECT_TYPE_MATERIAL,
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.DOUBLE,
+				name = "data.layer",
+				label = "Layer",
+				min = 0.0,
+				max = 7.0,
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.DOUBLE,
+				name = "data.layer",
+				label = "Depth",
+				min = 0.0,
+				max = (double)uint32.MAX,
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.BOOL,
+				name = "data.visible",
+				label = "Visible",
+			},
+		};
 
-		add_row("Sprite", _sprite_resource);
-		add_row("Material", _material);
-		add_row("Layer", _layer);
-		add_row("Depth", _depth);
-		add_row("Visible", _visible);
-	}
-
-	private void on_value_changed()
-	{
-		Unit unit = Unit(_db, _id);
-		unit.set_component_property_string(_component_id, "data.sprite_resource", _sprite_resource.value);
-		unit.set_component_property_string(_component_id, "data.material", _material.value);
-		unit.set_component_property_double(_component_id, "data.layer", _layer.value);
-		unit.set_component_property_double(_component_id, "data.depth", _depth.value);
-		unit.set_component_property_bool  (_component_id, "data.visible", _visible.value);
-
-		_db.add_restore_point((int)ActionType.SET_SPRITE, new Guid?[] { _id, _component_id });
-	}
-
-	public override void update()
-	{
-		Unit unit = Unit(_db, _id);
-		_sprite_resource.value = unit.get_component_property_string(_component_id, "data.sprite_resource");
-		_material.value        = unit.get_component_property_string(_component_id, "data.material");
-		_layer.value           = unit.get_component_property_double(_component_id, "data.layer");
-		_depth.value           = unit.get_component_property_double(_component_id, "data.depth");
-		_visible.value         = unit.get_component_property_bool  (_component_id, "data.visible");
+		add_object_type(properties);
 	}
 }
 
 public class LightPropertyGrid : PropertyGrid
 {
-	// Widgets
-	private ComboBoxMap _type;
-	private EntryDouble _range;
-	private EntryDouble _intensity;
-	private EntryDouble _spot_angle;
-	private ColorButtonVector3 _color;
-	private EntryDouble _shadow_bias;
-	private CheckBox _cast_shadows;
-
 	public LightPropertyGrid(Database db)
 	{
 		base(db);
 
-		// Widgets
-		_type = new ComboBoxMap();
-		_type.value_changed.connect(on_value_changed);
-		_type.append("directional", "Directional");
-		_type.append("omni", "Omni");
-		_type.append("spot", "Spot");
-		_range = new EntryDouble(0.0, 0.0, double.MAX);
-		_range.value_changed.connect(on_value_changed);
-		_intensity = new EntryDouble(0.0, 0.0,  double.MAX);
-		_intensity.value_changed.connect(on_value_changed);
-		_spot_angle = new EntryDouble(0.0, 0.0,  90.0);
-		_spot_angle.value_changed.connect(on_value_changed);
-		_color = new ColorButtonVector3();
-		_color.value_changed.connect(on_value_changed);
-		_shadow_bias = new EntryDouble(0.0001, 0.0, 1.0);
-		_shadow_bias.value_changed.connect(on_value_changed);
-		_cast_shadows = new CheckBox();
-		_cast_shadows.value_changed.connect(on_value_changed);
+		PropertyDefinition[] properties =
+		{
+			PropertyDefinition()
+			{
+				type = PropertyType.STRING,
+				name = "data.type",
+				label = "Type",
+				editor = PropertyEditorType.ENUM,
+				enum_values = { "directional", "omni", "spot" },
+				enum_labels = { "Directional", "Omni", "Spot" },
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.DOUBLE,
+				name =  "data.range",
+				label =  "Range",
+				min = 0.0,
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.DOUBLE,
+				name = "data.intensity",
+				label = "Intensity",
+				min = 0.0,
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.DOUBLE,
+				name = "data.spot_angle",
+				label =  "Spot Angle",
+				editor = PropertyEditorType.ANGLE,
+				min = 0.0,
+				max = 90.0,
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.VECTOR3,
+				name =  "data.color",
+				label =  "Color",
+				min = VECTOR3_ZERO,
+				max = VECTOR3_ONE,
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.DOUBLE,
+				name = "data.shadow_bias",
+				label =  "Shadow Bias",
+				min =  0.0,
+				max =  1.0,
+				deffault = 0.0001,
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.BOOL,
+				name =  "data.cast_shadows",
+				label =  "Cast Shadows",
+				deffault = true,
+			},
+		};
 
-		add_row("Type", _type);
-		add_row("Range", _range);
-		add_row("Intensity", _intensity);
-		add_row("Spot Angle", _spot_angle);
-		add_row("Color", _color);
-		add_row("Shadow Bias", _shadow_bias);
-		add_row("Cast Shadows", _cast_shadows);
-	}
-
-	private void on_value_changed()
-	{
-		Unit unit = Unit(_db, _id);
-		unit.set_component_property_string (_component_id, "data.type",        _type.value);
-		unit.set_component_property_double (_component_id, "data.range",       _range.value);
-		unit.set_component_property_double (_component_id, "data.intensity",   _intensity.value);
-		unit.set_component_property_double (_component_id, "data.spot_angle",  _spot_angle.value * (Math.PI/180.0));
-		unit.set_component_property_vector3(_component_id, "data.color",       _color.value);
-		unit.set_component_property_double (_component_id, "data.shadow_bias", _shadow_bias.value);
-		unit.set_component_property_bool   (_component_id, "data.cast_shadows", _cast_shadows.value);
-
-		_db.add_restore_point((int)ActionType.SET_LIGHT, new Guid?[] { _id, _component_id });
-	}
-
-	public override void update()
-	{
-		Unit unit = Unit(_db, _id);
-		_type.value        = unit.get_component_property_string (_component_id, "data.type");
-		_range.value       = unit.get_component_property_double (_component_id, "data.range");
-		_intensity.value   = unit.get_component_property_double (_component_id, "data.intensity");
-		_spot_angle.value  = unit.get_component_property_double (_component_id, "data.spot_angle") * (180.0/Math.PI);
-		_color.value       = unit.get_component_property_vector3(_component_id, "data.color");
-		_shadow_bias.value = unit.get_component_property_double (_component_id, "data.shadow_bias");
-		_cast_shadows.value = unit.get_component_property_bool  (_component_id, "data.cast_shadows");
+		add_object_type(properties);
 	}
 }
 
 public class CameraPropertyGrid : PropertyGrid
 {
-	// Widgets
-	private ComboBoxMap _projection;
-	private EntryDouble _fov;
-	private EntryDouble _near_range;
-	private EntryDouble _far_range;
-
 	public CameraPropertyGrid(Database db)
 	{
 		base(db);
 
-		// Widgets
-		_projection = new ComboBoxMap();
-		_projection.append("orthographic", "Orthographic");
-		_projection.append("perspective", "Perspective");
-		_projection.value_changed.connect(on_value_changed);
-		_fov = new EntryDouble(0.0, 1.0,   90.0);
-		_fov.value_changed.connect(on_value_changed);
-		_near_range = new EntryDouble(0.001, double.MIN, double.MAX);
-		_near_range.value_changed.connect(on_value_changed);
-		_far_range  = new EntryDouble(1000.000, double.MIN, double.MAX);
-		_far_range.value_changed.connect(on_value_changed);
+		PropertyDefinition[] properties =
+		{
+			PropertyDefinition()
+			{
+				type = PropertyType.STRING,
+				name = "data.projection",
+				label = "Projection",
+				editor = PropertyEditorType.ENUM,
+				enum_values = { "orthographic", "perspective" },
+				enum_labels = { "Orthographic", "Perspective" },
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.DOUBLE,
+				name = "data.fov",
+				label = "FOV",
+				editor = PropertyEditorType.ANGLE,
+				min = 0.0,
+				max = 90.0
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.DOUBLE,
+				name = "data.near_range",
+				label = "Near Range",
+				deffault = 0.1,
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.DOUBLE,
+				name = "data.far_range",
+				label = "Far Range",
+				deffault = 1000.0,
+			},
+		};
 
-		add_row("Projection", _projection);
-		add_row("FOV", _fov);
-		add_row("Near Range", _near_range);
-		add_row("Far Range", _far_range);
-	}
-
-	private void on_value_changed()
-	{
-		Unit unit = Unit(_db, _id);
-		unit.set_component_property_string(_component_id, "data.projection", _projection.value);
-		unit.set_component_property_double(_component_id, "data.fov", _fov.value * (Math.PI/180.0));
-		unit.set_component_property_double(_component_id, "data.near_range", _near_range.value);
-		unit.set_component_property_double(_component_id, "data.far_range", _far_range.value);
-
-		_db.add_restore_point((int)ActionType.SET_CAMERA, new Guid?[] { _id, _component_id });
-	}
-
-	public override void update()
-	{
-		Unit unit = Unit(_db, _id);
-		_projection.value = unit.get_component_property_string(_component_id, "data.projection");
-		_fov.value        = unit.get_component_property_double(_component_id, "data.fov") * (180.0/Math.PI);
-		_near_range.value = unit.get_component_property_double(_component_id, "data.near_range");
-		_far_range.value  = unit.get_component_property_double(_component_id, "data.far_range");
+		add_object_type(properties);
 	}
 }
 
 public class ColliderPropertyGrid : PropertyGrid
 {
-	// Widgets.
-	private Project _project;
-	private ComboBoxMap _source;
-	private ResourceChooserButton _scene;
-	private ComboBoxMap _node;
-	private ComboBoxMap _shape;
-	// Inline colliders.
-	private EntryPosition _position;
-	private EntryRotation _rotation;
-	private EntryVector3 _half_extents; // Box only.
-	private EntryDouble _radius;        // Sphere and capsule only.
-	private EntryDouble _height;        // Capsule only.
-
-	private void decode(Hashtable mesh_resource)
-	{
-		const string keys[] = { "nodes" };
-		ComboBoxMap combos[] = { _node };
-
-		for (int i = 0; i < keys.length; ++i) {
-			combos[i].clear();
-
-			Mesh mesh = Mesh();
-			mesh.decode(mesh_resource);
-			foreach (var node in mesh._nodes)
-				combos[i].append(node, node);
-		}
-	}
-
-	private void decode_from_resource(string type, string name)
-	{
-		try {
-			string path = ResourceId.path(type, name);
-			decode(SJSON.load_from_path(_project.absolute_path(path)));
-		} catch (JsonSyntaxError e) {
-			loge(e.message);
-		}
-	}
-
 	public ColliderPropertyGrid(Database db, ProjectStore store)
 	{
-		base(db);
+		base(db, store);
 
-		_project = store._project;
+		PropertyDefinition[] properties =
+		{
+			PropertyDefinition()
+			{
+				type = PropertyType.STRING,
+				name = "data.source",
+				label = "Source",
+				editor = PropertyEditorType.ENUM,
+				enum_values = { "mesh", "inline" },
+				enum_labels = { "Mesh", "Inline" },
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.STRING,
+				name = "data.scene",
+				label = "Scene",
+				editor = PropertyEditorType.RESOURCE,
+				resource_type = OBJECT_TYPE_MESH,
+				enum_property = "data.source",
+				resource_callback = scene_resource_callback
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.STRING,
+				name = "data.name",
+				label = "Node",
+				editor = PropertyEditorType.ENUM,
+				enum_property = "data.scene",
+				enum_callback = node_name_enum_callback,
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.STRING,
+				name = "data.shape",
+				label = "Shape",
+				editor = PropertyEditorType.ENUM,
+				enum_values = { "sphere", "capsule", "box", "convex_hull", "mesh" },
+				enum_labels = { "Sphere", "Capsule", "Box", "Convex Hull", "Mesh" },
+				enum_property = "data.source",
+				enum_callback = shape_resource_callback,
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.VECTOR3,
+				name = "data.collider_data.position",
+				label = "Position",
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.QUATERNION,
+				name = "data.collider_data.rotation",
+				label = "Rotation",
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.VECTOR3,
+				name = "data.collider_data.half_extents", // Box only.
+				label = "Half Extents",
+				min = VECTOR3_ZERO,
+				deffault = Vector3(0.5, 0.5, 0.5),
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.DOUBLE,
+				name = "data.collider_data.radius", // Sphere and capsule only.
+				label = "Radius",
+				min = 0.0,
+				deffault = 0.5,
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.DOUBLE,
+				name = "data.collider_data.height", // Capsule only.
+				label = "Radius",
+				min = 0.0,
+				deffault = 1.0,
+			},
+		};
 
-		// Widgets.
-		_source = new ComboBoxMap();
-		_source.append("inline", "inline");
-		_source.append("mesh", "mesh");
-		_source.value_changed.connect(on_source_value_changed);
-		_scene = new ResourceChooserButton(store, "mesh");
-		_scene.value_changed.connect(on_scene_value_changed);
-		_node = new ComboBoxMap();
-		_node.value_changed.connect(on_value_changed);
-		_shape = new ComboBoxMap();
-		_shape.append("sphere", "sphere");
-		_shape.append("capsule", "capsule");
-		_shape.append("box", "box");
-		_shape.append("convex_hull", "convex_hull");
-		_shape.append("mesh", "mesh");
-		_shape.value_changed.connect(on_shape_value_changed);
-
-		_position = new EntryPosition();
-		_position.value_changed.connect(on_value_changed);
-		_rotation = new EntryRotation();
-		_rotation.value_changed.connect(on_value_changed);
-		_half_extents = new EntryVector3(Vector3(0.5, 0.5, 0.5), VECTOR3_ZERO, VECTOR3_MAX);
-		_half_extents.value_changed.connect(on_value_changed);
-		_radius = new EntryDouble(0.5, 0.0, double.MAX);
-		_radius.value_changed.connect(on_value_changed);
-		_height = new EntryDouble(1.0, 0.0, double.MAX);
-		_height.value_changed.connect(on_value_changed);
-
-		add_row("Source", _source);
-		add_row("Scene", _scene);
-		add_row("Node", _node);
-
-		add_row("Shape", _shape);
-		add_row("Position", _position);
-		add_row("Rotation", _rotation);
-		add_row("Half Extents", _half_extents);
-		add_row("Radius", _radius);
-		add_row("Height", _height);
+		add_object_type(properties);
 	}
 
-	private void on_source_value_changed()
+	public void scene_resource_callback(Property enum_property, ResourceChooserButton chooser, Project project)
 	{
-		if (_source.value == "inline") {
-			_shape.value = _shape.any_valid_id();
-		} else if (_source.value == "mesh") {
-			_scene.value = "core/units/primitives/cube";
-			decode_from_resource("mesh", _scene.value);
-			_node.value = "Cube";
-			_shape.value = "mesh";
-		} else {
-			assert(false);
-		}
-
-		enable_disable_properties();
-		on_value_changed();
+		if (enum_property.union_value() == "mesh")
+			chooser.set_union_value("core/units/primitives/cube");
 	}
 
-	private void on_scene_value_changed()
+	public void shape_resource_callback(Property enum_property, ComboBoxMap combo, Project project)
 	{
-		decode_from_resource("mesh", _scene.value);
-		_node.value = _node.any_valid_id();
-
-		on_value_changed();
-	}
-
-	private void on_shape_value_changed()
-	{
-		enable_disable_properties();
-		on_value_changed();
-	}
-
-	private void enable_disable_properties()
-	{
-		if (_source.value == "inline") {
-			_scene.sensitive = false;
-			_node.sensitive = false;
-			_position.sensitive = true;
-			_rotation.sensitive = true;
-
-			if (_shape.value == "sphere") {
-				_half_extents.sensitive = false;
-				_radius.sensitive = true;
-				_height.sensitive = false;
-			} else if (_shape.value == "capsule") {
-				_half_extents.sensitive = false;
-				_radius.sensitive = true;
-				_height.sensitive = true;
-			} else if (_shape.value == "box") {
-				_half_extents.sensitive = true;
-				_radius.sensitive = false;
-				_height.sensitive = false;
-			} else {
-				_position.sensitive = false;
-				_rotation.sensitive = false;
-				_half_extents.sensitive = false;
-				_radius.sensitive = false;
-				_height.sensitive = false;
-			}
-		} else if (_source.value == "mesh") {
-			_scene.sensitive = true;
-			_node.sensitive = true;
-			_position.sensitive = false;
-			_rotation.sensitive = false;
-			_half_extents.sensitive = false;
-			_radius.sensitive = false;
-			_height.sensitive = false;
-		} else {
-			assert(false);
-		}
-	}
-
-	private void on_value_changed()
-	{
-		Unit unit = Unit(_db, _id);
-		unit.set_component_property_string(_component_id, "data.source", _source.value);
-		unit.set_component_property_string(_component_id, "data.scene", _scene.value);
-		unit.set_component_property_string(_component_id, "data.name", _node.value);
-		unit.set_component_property_string(_component_id, "data.shape", _shape.value);
-		unit.set_component_property_vector3(_component_id, "data.collider_data.position", _position.value);
-		unit.set_component_property_quaternion(_component_id, "data.collider_data.rotation", _rotation.value);
-		unit.set_component_property_vector3(_component_id, "data.collider_data.half_extents", _half_extents.value);
-		unit.set_component_property_double(_component_id, "data.collider_data.radius", _radius.value);
-		unit.set_component_property_double(_component_id, "data.collider_data.height", _height.value);
-
-		_db.add_restore_point((int)ActionType.SET_COLLIDER, new Guid?[] { _id, _component_id });
-	}
-
-	public override void update()
-	{
-		Unit unit = Unit(_db, _id);
-
-		if (unit.get_component_property(_component_id, "data.source") == null)
-			_source.value = "mesh";
-		else
-			_source.value = unit.get_component_property_string(_component_id, "data.source");
-
-		if (unit.get_component_property(_component_id, "data.scene") == null) {
-			_scene.value = "core/units/primitives/cube";
-			decode_from_resource("mesh", _scene.value);
-			_node.value  = _node.any_valid_id();
-		} else {
-			_scene.value = unit.get_component_property_string(_component_id, "data.scene");
-			decode_from_resource("mesh", _scene.value);
-			_node.value = unit.get_component_property_string(_component_id, "data.name");
-		}
-
-		_shape.value = unit.get_component_property_string(_component_id, "data.shape");
-
-		if (unit.get_component_property(_component_id, "data.collider_data.position") != null)
-			_position.value = unit.get_component_property_vector3(_component_id, "data.collider_data.position");
-		if (unit.get_component_property(_component_id, "data.collider_data.rotation") != null)
-			_rotation.value = unit.get_component_property_quaternion(_component_id, "data.collider_data.rotation");
-		if (unit.get_component_property(_component_id, "data.collider_data.half_extents") != null)
-			_half_extents.value = unit.get_component_property_vector3(_component_id, "data.collider_data.half_extents");
-		if (unit.get_component_property(_component_id, "data.collider_data.radius") != null)
-			_radius.value = unit.get_component_property_double(_component_id, "data.collider_data.radius");
-		if (unit.get_component_property(_component_id, "data.collider_data.height") != null)
-			_height.value = unit.get_component_property_double(_component_id, "data.collider_data.height");
-
-		enable_disable_properties();
+		if (enum_property.union_value() == "inline")
+			combo.set_union_value("box");
 	}
 }
 
 public class ActorPropertyGrid : PropertyGrid
 {
-	// Widgets
-	private Project _project;
-	private ComboBoxMap _class;
-	private ComboBoxMap _collision_filter;
-	private EntryDouble _mass;
-	private ComboBoxMap _material;
-	private CheckBox3 _lock_translation;
-	private CheckBox3 _lock_rotation;
-
-	private void decode_global_physics_config(Hashtable global)
+	public ActorPropertyGrid(Database db, ProjectStore store)
 	{
-		const string keys[] = { "actors", "collision_filters", "materials" };
-		ComboBoxMap combos[] = { _class, _collision_filter, _material };
+		base(db, store);
 
-		for (int i = 0; i < keys.length; ++i) {
-			combos[i].clear();
-			if (global.has_key(keys[i])) {
-				Hashtable obj = (Hashtable)global[keys[i]];
-				foreach (var e in obj)
-					combos[i].append(e.key, e.key);
-			}
-		}
+		PropertyDefinition[] properties =
+		{
+			PropertyDefinition()
+			{
+				type = PropertyType.STRING,
+				name = "_global_physics_config",
+				label = "Physics Resource",
+				deffault = "global",
+				editor = PropertyEditorType.RESOURCE,
+				resource_type = "physics_config",
+				hidden = true,
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.STRING,
+				name = "data.class",
+				label = "Class",
+				editor = PropertyEditorType.ENUM,
+				enum_property = "_global_physics_config",
+				enum_callback = class_enum_callback
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.STRING,
+				name = "data.collision_filter",
+				label = "Collision Filter",
+				editor = PropertyEditorType.ENUM,
+				enum_property = "_global_physics_config",
+				enum_callback = collision_filter_enum_callback
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.STRING,
+				name = "data.material",
+				label = "Material",
+				editor = PropertyEditorType.ENUM,
+				enum_property = "_global_physics_config",
+				enum_callback = material_enum_callback
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.DOUBLE,
+				name = "data.mass",
+				label = "Mass",
+				min = 0.0,
+				deffault = 1.0,
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.BOOL,
+				name = "data.lock_translation_x",
+				label = "Lock Translation X",
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.BOOL,
+				name = "data.lock_translation_y",
+				label = "Lock Translation Y",
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.BOOL,
+				name = "data.lock_translation_z",
+				label = "Lock Translation Z",
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.BOOL,
+				name = "data.lock_rotation_x",
+				label = "Lock Rotation X",
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.BOOL,
+				name = "data.lock_rotation_y",
+				label = "Lock Rotation Y",
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.BOOL,
+				name = "data.lock_rotation_z",
+				label = "Lock Rotation Z",
+			},
+		};
 
-		if (_id != GUID_ZERO)
-			update();
+		add_object_type(properties);
 	}
 
-	private void on_project_file_added_or_changed(string type, string name, uint64 size, uint64 mtime)
+	private void class_enum_callback(Property property_enum, ComboBoxMap combo, Project project)
 	{
-		if (type != "physics_config" || name != "global")
-			return;
-
-		string path = ResourceId.path("physics_config", "global");
 		try {
-			Hashtable global = SJSON.load_from_path(_project.absolute_path(path));
-			decode_global_physics_config(global);
+			string path = ResourceId.path("physics_config", "global");
+			Hashtable global = SJSON.load_from_path(project.absolute_path(path));
+
+			string prev_enum = combo.value;
+			combo.clear();
+			if (global.has_key("actors")) {
+				Hashtable obj = (Hashtable)global["actors"];
+				foreach (var e in obj)
+					combo.append(e.key, e.key);
+			}
+			combo.value = prev_enum;
 		} catch (JsonSyntaxError e) {
 			loge(e.message);
 		}
 	}
 
-	private void on_project_file_removed(string type, string name)
+	private void collision_filter_enum_callback(Property property_enum, ComboBoxMap combo, Project project)
 	{
-		if (type != "physics_config" || name != "global")
-			return;
+		try {
+			string path = ResourceId.path("physics_config", "global");
+			Hashtable global = SJSON.load_from_path(project.absolute_path(path));
 
-		decode_global_physics_config(new Hashtable());
+			string prev_enum = combo.value;
+			combo.clear();
+			if (global.has_key("collision_filters")) {
+				Hashtable obj = (Hashtable)global["collision_filters"];
+				foreach (var e in obj)
+					combo.append(e.key, e.key);
+			}
+			combo.value = prev_enum;
+		} catch (JsonSyntaxError e) {
+			loge(e.message);
+		}
 	}
 
-	public ActorPropertyGrid(Database db, Project prj)
+	private void material_enum_callback(Property property_enum, ComboBoxMap combo, Project project)
 	{
-		base(db);
+		try {
+			string path = ResourceId.path("physics_config", "global");
+			Hashtable global = SJSON.load_from_path(project.absolute_path(path));
 
-		_project = prj;
-
-		// Widgets
-		_class = new ComboBoxMap();
-		_class.value_changed.connect(on_value_changed);
-		_collision_filter = new ComboBoxMap();
-		_collision_filter.value_changed.connect(on_value_changed);
-		_material = new ComboBoxMap();
-		_material.value_changed.connect(on_value_changed);
-		_mass = new EntryDouble(1.0, 0.0, double.MAX);
-		_mass.value_changed.connect(on_value_changed);
-		_lock_translation = new CheckBox3();
-		_lock_translation.value_changed.connect(on_value_changed);
-		_lock_rotation = new CheckBox3();
-		_lock_rotation.value_changed.connect(on_value_changed);
-
-		add_row("Class", _class);
-		add_row("Collision Filter", _collision_filter);
-		add_row("Material", _material);
-		add_row("Mass", _mass);
-		add_row("Lock Translation", _lock_translation);
-		add_row("Lock Rotation", _lock_rotation);
-
-		prj.file_added.connect(on_project_file_added_or_changed);
-		prj.file_changed.connect(on_project_file_added_or_changed);
-		prj.file_removed.connect(on_project_file_removed);
-	}
-
-	private bool get_component_property_bool_optional(Unit unit, Guid component_id, string key)
-	{
-		return unit.get_component_property(component_id, key) != null
-			? (bool)unit.get_component_property_bool(component_id, key)
-			: false
-			;
-	}
-
-	private void on_value_changed()
-	{
-		Unit unit = Unit(_db, _id);
-		if (!_class.is_inconsistent() && _class.value != null)
-			unit.set_component_property_string(_component_id, "data.class", _class.value);
-		if (!_collision_filter.is_inconsistent() && _collision_filter.value != null)
-			unit.set_component_property_string(_component_id, "data.collision_filter", _collision_filter.value);
-		if (!_material.is_inconsistent() && _material.value != null)
-			unit.set_component_property_string(_component_id, "data.material", _material.value);
-		unit.set_component_property_double(_component_id, "data.mass", _mass.value);
-		unit.set_component_property_bool  (_component_id, "data.lock_translation_x", _lock_translation._x.value);
-		unit.set_component_property_bool  (_component_id, "data.lock_translation_y", _lock_translation._y.value);
-		unit.set_component_property_bool  (_component_id, "data.lock_translation_z", _lock_translation._z.value);
-		unit.set_component_property_bool  (_component_id, "data.lock_rotation_x", _lock_rotation._x.value);
-		unit.set_component_property_bool  (_component_id, "data.lock_rotation_y", _lock_rotation._y.value);
-		unit.set_component_property_bool  (_component_id, "data.lock_rotation_z", _lock_rotation._z.value);
-
-		_db.add_restore_point((int)ActionType.SET_ACTOR, new Guid?[] { _id, _component_id });
-	}
-
-	public override void update()
-	{
-		Unit unit = Unit(_db, _id);
-		_class.value               = unit.get_component_property_string(_component_id, "data.class");
-		_collision_filter.value    = unit.get_component_property_string(_component_id, "data.collision_filter");
-		_material.value            = unit.get_component_property_string(_component_id, "data.material");
-		_mass.value                = unit.get_component_property_double(_component_id, "data.mass");
-		_lock_translation._x.value = get_component_property_bool_optional(unit, _component_id, "data.lock_translation_x");
-		_lock_translation._y.value = get_component_property_bool_optional(unit, _component_id, "data.lock_translation_y");
-		_lock_translation._z.value = get_component_property_bool_optional(unit, _component_id, "data.lock_translation_z");
-		_lock_rotation._x.value    = get_component_property_bool_optional(unit, _component_id, "data.lock_rotation_x");
-		_lock_rotation._y.value    = get_component_property_bool_optional(unit, _component_id, "data.lock_rotation_y");
-		_lock_rotation._z.value    = get_component_property_bool_optional(unit, _component_id, "data.lock_rotation_z");
+			string prev_enum = combo.value;
+			combo.clear();
+			if (global.has_key("materials")) {
+				Hashtable obj = (Hashtable)global["materials"];
+				foreach (var e in obj)
+					combo.append(e.key, e.key);
+			}
+			combo.value = prev_enum;
+		} catch (JsonSyntaxError e) {
+			loge(e.message);
+		}
 	}
 }
 
 public class ScriptPropertyGrid : PropertyGrid
 {
-	// Widgets
-	private ResourceChooserButton _script_resource;
-
 	public ScriptPropertyGrid(Database db, ProjectStore store)
 	{
-		base(db);
+		base(db, store);
 
-		// Widgets
-		_script_resource = new ResourceChooserButton(store, "lua");
-		_script_resource.value_changed.connect(on_value_changed);
+		PropertyDefinition[] properties =
+		{
+			PropertyDefinition()
+			{
+				type = PropertyType.STRING,
+				name = "data.script_resource",
+				label = "Script",
+				editor = PropertyEditorType.RESOURCE,
+				resource_type = "lua"
+			},
+		};
 
-		add_row("Script", _script_resource);
-	}
-
-	private void on_value_changed()
-	{
-		Unit unit = Unit(_db, _id);
-		unit.set_component_property_string(_component_id, "data.script_resource", _script_resource.value);
-
-		_db.add_restore_point((int)ActionType.SET_SCRIPT, new Guid?[] { _id, _component_id });
-	}
-
-	public override void update()
-	{
-		Unit unit = Unit(_db, _id);
-		_script_resource.value = unit.get_component_property_string(_component_id, "data.script_resource");
+		add_object_type(properties);
 	}
 }
 
 public class AnimationStateMachine : PropertyGrid
 {
-	// Widgets
-	private ResourceChooserButton _state_machine_resource;
-
 	public AnimationStateMachine(Database db, ProjectStore store)
 	{
-		base(db);
+		base(db, store);
 
-		// Widgets
-		_state_machine_resource = new ResourceChooserButton(store, "state_machine");
-		_state_machine_resource.value_changed.connect(on_value_changed);
+		PropertyDefinition[] properties =
+		{
+			PropertyDefinition()
+			{
+				type = PropertyType.STRING,
+				name = "data.state_machine_resource",
+				label = "State Machine",
+				editor = PropertyEditorType.RESOURCE,
+				resource_type = OBJECT_TYPE_ANIMATION_STATE_MACHINE
+			},
+		};
 
-		add_row("State Machine", _state_machine_resource);
-	}
-
-	private void on_value_changed()
-	{
-		Unit unit = Unit(_db, _id);
-		unit.set_component_property_string(_component_id, "data.state_machine_resource", _state_machine_resource.value);
-
-		_db.add_restore_point((int)ActionType.SET_ANIMATION_STATE_MACHINE, new Guid?[] { _id, _component_id });
-	}
-
-	public override void update()
-	{
-		Unit unit = Unit(_db, _id);
-		_state_machine_resource.value = unit.get_component_property_string(_component_id, "data.state_machine_resource");
+		add_object_type(properties);
 	}
 }
 
 public class UnitView : PropertyGrid
 {
 	// Widgets
-	private ProjectStore _store;
 	private ResourceChooserButton _prefab;
 	private Gtk.MenuButton _component_add;
 	private Gtk.Box _components;
@@ -752,9 +605,7 @@ public class UnitView : PropertyGrid
 
 	public UnitView(Database db, ProjectStore store)
 	{
-		base(db);
-
-		_store = store;
+		base(db, store);
 
 		// Widgets
 		_prefab = new ResourceChooserButton(store, "unit");
@@ -807,95 +658,67 @@ public class UnitView : PropertyGrid
 	}
 }
 
-public class SoundTransformView : PropertyGrid
+public class SoundSourcePropertyGrid : PropertyGrid
 {
-	// Widgets
-	private EntryVector3 _position;
-	private EntryRotation _rotation;
-
-	public SoundTransformView(Database db)
+	public SoundSourcePropertyGrid(Database db, ProjectStore store)
 	{
-		base(db);
+		base(db, store);
 
-		// Widgets
-		_position = new EntryPosition();
-		_rotation = new EntryRotation();
+		PropertyDefinition[] properties =
+		{
+			PropertyDefinition()
+			{
+				type = PropertyType.VECTOR3,
+				name = "position",
+				label = "Position",
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.QUATERNION,
+				name = "rotation",
+				label = "Rotation",
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.STRING,
+				name = "name",
+				label = "Name",
+				editor = PropertyEditorType.RESOURCE,
+				resource_type = OBJECT_TYPE_SOUND,
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.DOUBLE,
+				name = "range",
+				label = "Range",
+				min = 0.0,
+				deffault = 10.0,
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.DOUBLE,
+				name = "volume",
+				label = "Volume",
+				min = 0.0,
+				max = 1.0,
+				deffault = 1.0,
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.BOOL,
+				name = "loop",
+				label = "Loop",
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.STRING,
+				name = "group",
+				label = "Group",
+				deffault = "music",
+			},
+		};
 
-		_position.value_changed.connect(on_value_changed);
-		_rotation.value_changed.connect(on_value_changed);
-
-		add_row("Position", _position);
-		add_row("Rotation", _rotation);
-	}
-
-	private void on_value_changed()
-	{
-		_db.set_property_vector3   (_id, "position", _position.value);
-		_db.set_property_quaternion(_id, "rotation", _rotation.value);
-
-		_db.add_restore_point((int)ActionType.SET_SOUND, new Guid?[] { _id });
-	}
-
-	public override void update()
-	{
-		Vector3 pos    = _db.get_property_vector3   (_id, "position");
-		Quaternion rot = _db.get_property_quaternion(_id, "rotation");
-
-		_position.value = pos;
-		_rotation.value = rot;
-	}
-}
-
-public class SoundView : PropertyGrid
-{
-	// Widgets
-	private ResourceChooserButton _name;
-	private EntryDouble _range;
-	private EntryDouble _volume;
-	private CheckBox _loop;
-	private EntryText _group;
-
-	public SoundView(Database db, ProjectStore store)
-	{
-		base(db);
-
-		// Widgets
-		_name   = new ResourceChooserButton(store, "sound");
-		_name.value_changed.connect(on_value_changed);
-		_range  = new EntryDouble(1.0, 0.0, double.MAX);
-		_range.value_changed.connect(on_value_changed);
-		_volume = new EntryDouble(1.0, 0.0, 1.0);
-		_volume.value_changed.connect(on_value_changed);
-		_loop   = new CheckBox();
-		_loop.value_changed.connect(on_value_changed);
-		_group  = new EntryText();
-		_group.value_changed.connect(on_value_changed);
-
-		add_row("Name", _name);
-		add_row("Range", _range);
-		add_row("Volume", _volume);
-		add_row("Loop", _loop);
-		add_row("Group", _group);
-	}
-
-	private void on_value_changed()
-	{
-		_db.set_property_string(_id, "name", _name.value);
-		_db.set_property_double(_id, "range", _range.value);
-		_db.set_property_double(_id, "volume", _volume.value);
-		_db.set_property_bool  (_id, "loop", _loop.value);
-		_db.set_property_string(_id, "group", _group.value);
-
-		_db.add_restore_point((int)ActionType.SET_SOUND, new Guid?[] { _id });
-	}
-
-	public override void update()
-	{
-		_name.value   = _db.get_property_string(_id, "name");
-		_range.value  = _db.get_property_double(_id, "range");
-		_volume.value = _db.get_property_double(_id, "volume");
-		_loop.value   = _db.get_property_bool  (_id, "loop");
-		_group.value  = _db.get_property_string(_id, "group");
+		add_object_type(properties);
 	}
 }
 
@@ -909,10 +732,10 @@ public class PropertiesView : Gtk.Bin
 
 	// Data
 	private Database _db;
-	private HashMap<string, Expander> _expanders;
-	private HashMap<string, bool> _expander_states;
-	private HashMap<string, PropertyGrid> _objects;
-	private ArrayList<ComponentEntry?> _entries;
+	private Gee.HashMap<string, Expander> _expanders;
+	private Gee.HashMap<string, bool> _expander_states;
+	private Gee.HashMap<string, PropertyGrid> _objects;
+	private Gee.ArrayList<ComponentEntry?> _entries;
 	private Gee.ArrayList<Guid?>? _selection;
 
 	// Widgets
@@ -931,10 +754,10 @@ public class PropertiesView : Gtk.Bin
 		// Data
 		_db = db;
 
-		_expanders = new HashMap<string, Expander>();
-		_expander_states = new HashMap<string, bool>();
-		_objects = new HashMap<string, PropertyGrid>();
-		_entries = new ArrayList<ComponentEntry?>();
+		_expanders = new Gee.HashMap<string, Expander>();
+		_expander_states = new Gee.HashMap<string, bool>();
+		_objects = new Gee.HashMap<string, PropertyGrid>();
+		_entries = new Gee.ArrayList<ComponentEntry?>();
 		_selection = null;
 
 		// Widgets
@@ -949,13 +772,10 @@ public class PropertiesView : Gtk.Bin
 		register_object_type("Mesh Renderer",           OBJECT_TYPE_MESH_RENDERER,           3, new MeshRendererPropertyGrid(_db, store),   UnitView.component_menu);
 		register_object_type("Sprite Renderer",         OBJECT_TYPE_SPRITE_RENDERER,         3, new SpriteRendererPropertyGrid(_db, store), UnitView.component_menu);
 		register_object_type("Collider",                OBJECT_TYPE_COLLIDER,                3, new ColliderPropertyGrid(_db, store),       UnitView.component_menu);
-		register_object_type("Actor",                   OBJECT_TYPE_ACTOR,                   3, new ActorPropertyGrid(_db, store._project), UnitView.component_menu);
+		register_object_type("Actor",                   OBJECT_TYPE_ACTOR,                   3, new ActorPropertyGrid(_db, store),          UnitView.component_menu);
 		register_object_type("Script",                  OBJECT_TYPE_SCRIPT,                  3, new ScriptPropertyGrid(_db, store),         UnitView.component_menu);
 		register_object_type("Animation State Machine", OBJECT_TYPE_ANIMATION_STATE_MACHINE, 3, new AnimationStateMachine(_db, store),      UnitView.component_menu);
-
-		// Sound
-		register_object_type("Transform", "sound_transform",  0, new SoundTransformView(_db));
-		register_object_type("Sound",     "sound_properties", 1, new SoundView(_db, store));
+		register_object_type("Sound",                   OBJECT_TYPE_SOUND_SOURCE,            0, new SoundSourcePropertyGrid(_db, store));
 
 		_nothing_to_show = new Gtk.Label("Select an object to start editing");
 		_unknown_object_type = new Gtk.Label("Unknown object type");
@@ -1044,7 +864,7 @@ public class PropertiesView : Gtk.Bin
 		foreach (var entry in _entries) {
 			Expander expander = _expanders[entry.type];
 
-			if (entry.type == "sound_transform" || entry.type == "sound_properties") {
+			if (entry.type == OBJECT_TYPE_SOUND_SOURCE) {
 				bool was_expanded = _expander_states.has_key(entry.type) ? _expander_states[entry.type] : false;
 
 				PropertyGrid cv = _objects[entry.type];

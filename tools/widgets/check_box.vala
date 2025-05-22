@@ -7,11 +7,8 @@ using Gtk;
 
 namespace Crown
 {
-public class CheckBox : Gtk.CheckButton, Property
+public class CheckBox : Property, Gtk.CheckButton
 {
-	// Data
-	public bool _stop_emit;
-
 	public new void set_inconsistent(bool inconsistent)
 	{
 		base.set_inconsistent(inconsistent);
@@ -22,14 +19,14 @@ public class CheckBox : Gtk.CheckButton, Property
 		return this.get_inconsistent();
 	}
 
-	public Value? generic_value()
+	public GLib.Value union_value()
 	{
 		return this.value;
 	}
 
-	public void set_generic_value(Value? val)
+	public void set_union_value(GLib.Value v)
 	{
-		this.value = (bool)val;
+		this.value = (bool)v;
 	}
 
 	public bool value
@@ -40,20 +37,13 @@ public class CheckBox : Gtk.CheckButton, Property
 		}
 		set
 		{
-			_stop_emit = true;
 			this.active = value;
-			_stop_emit = false;
 		}
 	}
-
-	// Signals
-	public signal void value_changed();
 
 	public CheckBox()
 	{
 		// Data
-		_stop_emit = false;
-
 		this.toggled.connect(on_value_changed);
 	}
 
@@ -64,8 +54,7 @@ public class CheckBox : Gtk.CheckButton, Property
 			this.value = true;
 		}
 
-		if (!_stop_emit)
-			value_changed();
+		value_changed(this);
 	}
 }
 

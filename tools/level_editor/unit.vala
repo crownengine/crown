@@ -396,7 +396,7 @@ public struct Unit
 				}
 			}
 
-			_db.add_restore_point((int)ActionType.UNIT_REMOVE_COMPONENT, new Guid?[] { _id, component_id });
+			_db.add_restore_point((int)ActionType.DESTROY_OBJECTS, new Guid?[] { _id, component_id });
 		} else {
 			logw("The unit has no such component type `%s`".printf(component_type));
 		}

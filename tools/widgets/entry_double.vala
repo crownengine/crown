@@ -11,26 +11,21 @@ public class EntryDouble : Gtk.Entry, Property
 	public double _min;
 	public double _max;
 	public double _value;
-	public bool _stop_emit;
 	public string _preview_fmt;
 	public string _edit_fmt;
 	public Gtk.GestureMultiPress _gesture_click;
 	public Gtk.EventControllerScroll _controller_scroll;
-
-	public signal void value_changed();
 
 	public void set_inconsistent(bool inconsistent)
 	{
 		if (_inconsistent != inconsistent) {
 			_inconsistent = inconsistent;
 
-			_stop_emit = true;
 			if (_inconsistent) {
 				this.text = INCONSISTENT_LABEL;
 			} else {
 				set_value_safe(string_to_double(this.text, _value));
 			}
-			_stop_emit = false;
 		}
 	}
 
@@ -39,14 +34,14 @@ public class EntryDouble : Gtk.Entry, Property
 		return _inconsistent;
 	}
 
-	public Value? generic_value()
+	public GLib.Value union_value()
 	{
 		return this.value;
 	}
 
-	public void set_generic_value(Value? val)
+	public void set_union_value(GLib.Value v)
 	{
-		this.value = (double)val;
+		this.value = (double)v;
 	}
 
 	public double value
@@ -57,9 +52,7 @@ public class EntryDouble : Gtk.Entry, Property
 		}
 		set
 		{
-			_stop_emit = true;
 			set_value_safe(value);
-			_stop_emit = false;
 		}
 	}
 
@@ -78,9 +71,7 @@ public class EntryDouble : Gtk.Entry, Property
 		_preview_fmt = preview_fmt;
 		_edit_fmt = edit_fmt;
 
-		_stop_emit = true;
 		set_value_safe(val);
-		_stop_emit = false;
 
 		_gesture_click = new Gtk.GestureMultiPress(this);
 		_gesture_click.pressed.connect(on_button_pressed);
@@ -172,8 +163,7 @@ public class EntryDouble : Gtk.Entry, Property
 		// Notify value changed.
 		if (_value != clamped) {
 			_value = clamped;
-			if (!_stop_emit)
-				value_changed();
+			value_changed(this);
 		}
 	}
 

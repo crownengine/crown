@@ -1335,7 +1335,7 @@ public class LevelEditorApplication : Gtk.Application
 				, Quaternion.from_array(rot)
 				, Vector3.from_array(scl)
 				);
-			_database.add_restore_point((int)ActionType.SPAWN_UNIT, new Guid?[] { id }, ActionTypeFlags.FROM_SERVER);
+			_database.add_restore_point((int)ActionType.CREATE_OBJECTS, new Guid?[] { id }, ActionTypeFlags.FROM_SERVER);
 		} else if (msg_type == "sound_spawned") {
 			Guid id               = Guid.parse((string)msg["id"]);
 			string name           = (string)msg["name"];
@@ -1355,7 +1355,7 @@ public class LevelEditorApplication : Gtk.Application
 				, volume
 				, loop
 				);
-			_database.add_restore_point((int)ActionType.SPAWN_SOUND, new Guid?[] { id }, ActionTypeFlags.FROM_SERVER);
+			_database.add_restore_point((int)ActionType.CREATE_OBJECTS, new Guid?[] { id }, ActionTypeFlags.FROM_SERVER);
 		} else if (msg_type == "move_objects") {
 			Hashtable ids           = (Hashtable)msg["ids"];
 			Hashtable new_positions = (Hashtable)msg["new_positions"];
@@ -1380,7 +1380,7 @@ public class LevelEditorApplication : Gtk.Application
 			}
 
 			_level.on_move_objects(n_ids, n_positions, n_rotations, n_scales);
-			_database.add_restore_point((int)ActionType.MOVE_OBJECTS, n_ids, ActionTypeFlags.FROM_SERVER);
+			_database.add_restore_point((int)ActionType.CHANGE_OBJECTS, n_ids, ActionTypeFlags.FROM_SERVER);
 		} else if (msg_type == "selection") {
 			Hashtable objects = (Hashtable)msg["objects"];
 
@@ -1468,31 +1468,17 @@ public class LevelEditorApplication : Gtk.Application
 	private void on_restore_point_added(int id, Guid?[] data, uint32 flags)
 	{
 		switch (id) {
-		case ActionType.SPAWN_UNIT:
-		case ActionType.SPAWN_SOUND:
-		case ActionType.DUPLICATE_OBJECTS:
-		case ActionType.UNIT_ADD_COMPONENT:
+		case ActionType.CREATE_OBJECTS:
 			if ((flags & ActionTypeFlags.FROM_SERVER) == 0)
 				on_objects_created(data);
 			break;
 
 		case ActionType.DESTROY_OBJECTS:
-		case ActionType.UNIT_REMOVE_COMPONENT:
 			if ((flags & ActionTypeFlags.FROM_SERVER) == 0)
 				on_objects_destroyed(data);
 			break;
 
-		case ActionType.MOVE_OBJECTS:
-		case ActionType.SET_TRANSFORM:
-		case ActionType.SET_LIGHT:
-		case ActionType.SET_MESH:
-		case ActionType.SET_SPRITE:
-		case ActionType.SET_CAMERA:
-		case ActionType.SET_COLLIDER:
-		case ActionType.SET_ACTOR:
-		case ActionType.SET_SCRIPT:
-		case ActionType.SET_ANIMATION_STATE_MACHINE:
-		case ActionType.SET_SOUND:
+		case ActionType.CHANGE_OBJECTS:
 			if ((flags & ActionTypeFlags.FROM_SERVER) == 0)
 				on_objects_changed(data);
 			break;
@@ -1513,10 +1499,7 @@ public class LevelEditorApplication : Gtk.Application
 	private void on_undo_redo(bool undo, uint32 id, Guid?[] data)
 	{
 		switch (id) {
-		case ActionType.SPAWN_UNIT:
-		case ActionType.SPAWN_SOUND:
-		case ActionType.DUPLICATE_OBJECTS:
-		case ActionType.UNIT_ADD_COMPONENT:
+		case ActionType.CREATE_OBJECTS:
 			if (undo)
 				on_objects_destroyed(data);
 			else
@@ -1524,24 +1507,13 @@ public class LevelEditorApplication : Gtk.Application
 			break;
 
 		case ActionType.DESTROY_OBJECTS:
-		case ActionType.UNIT_REMOVE_COMPONENT:
 			if (undo)
 				on_objects_created(data);
 			else
 				on_objects_destroyed(data);
 			break;
 
-		case ActionType.MOVE_OBJECTS:
-		case ActionType.SET_TRANSFORM:
-		case ActionType.SET_LIGHT:
-		case ActionType.SET_MESH:
-		case ActionType.SET_SPRITE:
-		case ActionType.SET_CAMERA:
-		case ActionType.SET_COLLIDER:
-		case ActionType.SET_ACTOR:
-		case ActionType.SET_SCRIPT:
-		case ActionType.SET_ANIMATION_STATE_MACHINE:
-		case ActionType.SET_SOUND:
+		case ActionType.CHANGE_OBJECTS:
 			on_objects_changed(data);
 			break;
 
@@ -4010,7 +3982,7 @@ public class LevelEditorApplication : Gtk.Application
 		components_added.add(unit_id);
 		unit.add_component_type_dependencies(ref components_added, component_type);
 
-		_database.add_restore_point((int)ActionType.UNIT_ADD_COMPONENT, components_added.to_array());
+		_database.add_restore_point((int)ActionType.CREATE_OBJECTS, components_added.to_array());
 	}
 
 	private void on_unit_remove_component(GLib.SimpleAction action, GLib.Variant? param)

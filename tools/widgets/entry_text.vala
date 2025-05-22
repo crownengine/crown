@@ -8,24 +8,19 @@ namespace Crown
 public class EntryText : Gtk.Entry, Property
 {
 	public bool _inconsistent;
-	public bool _stop_emit;
 	public string _value;
 	public Gtk.GestureMultiPress _gesture_click;
-
-	public signal void value_changed();
 
 	public void set_inconsistent(bool inconsistent)
 	{
 		if (_inconsistent != inconsistent) {
 			_inconsistent = inconsistent;
 
-			_stop_emit = true;
 			if (_inconsistent) {
 				this.text = INCONSISTENT_LABEL;
 			} else {
 				this.text = _value;
 			}
-			_stop_emit = false;
 		}
 	}
 
@@ -34,14 +29,14 @@ public class EntryText : Gtk.Entry, Property
 		return _inconsistent;
 	}
 
-	public Value? generic_value()
+	public GLib.Value union_value()
 	{
 		return this.value;
 	}
 
-	public void set_generic_value(Value? val)
+	public void set_union_value(GLib.Value v)
 	{
-		this.value = (string)val;
+		this.value = (string)v;
 	}
 
 	public string value
@@ -52,15 +47,12 @@ public class EntryText : Gtk.Entry, Property
 		}
 		set
 		{
-			_stop_emit = true;
 			set_value_safe(value);
-			_stop_emit = false;
 		}
 	}
 
 	public EntryText()
 	{
-		_stop_emit = false;
 		_inconsistent = false;
 		_value = "";
 
@@ -148,8 +140,7 @@ public class EntryText : Gtk.Entry, Property
 		// Notify value changed.
 		if (_value != text) {
 			_value = text;
-			if (!_stop_emit)
-				value_changed();
+			value_changed(this);
 		}
 	}
 }
