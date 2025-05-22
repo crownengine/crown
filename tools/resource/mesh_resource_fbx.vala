@@ -185,12 +185,12 @@ public class FBXImportOptions
 			|| import_textures.value
 			|| import_materials.value
 			;
-		import_units.value_changed();
+		import_units.value_changed(import_animation);
 
 		import_animation.value = new_skeleton.value
 			|| import_clips.value
 			;
-		import_animation.value_changed();
+		import_animation.value_changed(import_animation);
 	}
 
 	public Hashtable encode()

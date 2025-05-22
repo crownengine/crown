@@ -5,15 +5,17 @@
 
 namespace Crown
 {
-public interface Property : GLib.Object
+public interface Property : Gtk.Widget
 {
 	public const string INCONSISTENT_ID = "-";
 	public const string INCONSISTENT_LABEL = "—";
 
 	public abstract void set_inconsistent(bool inconsistent);
 	public abstract bool is_inconsistent();
-	public abstract Value? generic_value();
-	public abstract void set_generic_value(Value? val);
+	public abstract GLib.Value union_value();
+	public abstract void set_union_value(GLib.Value v);
+
+	public signal void value_changed(Property p);
 }
 
 } /* namespace Crown */

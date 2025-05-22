@@ -28,7 +28,7 @@ public ComboBoxMap make_deploy_config_combo()
 #endif
 	};
 
-	return new ComboBoxMap(0, labels, ids);
+	return new ComboBoxMap(ids[0], labels, ids);
 }
 
 public Gtk.Button make_deploy_button(TargetPlatform platform)

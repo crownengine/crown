@@ -7,46 +7,20 @@ namespace Crown
 {
 public enum ActionType
 {
-	SPAWN_UNIT,
-	SPAWN_SOUND,
+	CREATE_OBJECTS,
 	DESTROY_OBJECTS,
-	MOVE_OBJECTS,
-	DUPLICATE_OBJECTS,
+	CHANGE_OBJECTS,
 	OBJECT_SET_EDITOR_NAME,
-	SET_TRANSFORM,
-	SET_LIGHT,
-	SET_MESH,
-	SET_SPRITE,
-	SET_CAMERA,
-	SET_COLLIDER,
-	SET_ACTOR,
-	SET_SCRIPT,
-	SET_ANIMATION_STATE_MACHINE,
-	SET_SOUND,
-	UNIT_ADD_COMPONENT,
-	UNIT_REMOVE_COMPONENT
+
+	COUNT
 }
 
 public const string ActionNames[] =
 {
-	"Spawn Unit",
-	"Spawn Sound",
+	"Create Objects",
 	"Destroy Objects",
-	"Move Objects",
-	"Duplicate Objects",
+	"Change Objects",
 	"Set Object Name",
-	"Set Transform Parameter",
-	"Set Light Parameter",
-	"Set Mesh Parameter",
-	"Set Sprite Parameter",
-	"Set Camera Parameter",
-	"Set Collider Parameter",
-	"Set Actor Parameter",
-	"Set Script Parameter",
-	"Set Animation State Machine Parameter",
-	"Set Sound Parameter",
-	"Add Unit Component",
-	"Remove Unit Component"
 };
 
 public enum ActionTypeFlags

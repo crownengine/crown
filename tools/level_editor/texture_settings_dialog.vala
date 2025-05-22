@@ -98,7 +98,7 @@ public class TextureSettingsDialog : Gtk.Window
 		for (int tf = 0; tf < TextureFormat.COUNT; ++tf)
 			texture_formats[tf] = ((TextureFormat)tf).to_key();
 
-		_format = new ComboBoxMap(TextureFormat.BC1
+		_format = new ComboBoxMap(texture_formats[TextureFormat.BC1]
 			, texture_formats
 			, texture_formats
 			);
@@ -280,9 +280,9 @@ public class TextureSettingsDialog : Gtk.Window
 
 						if (!init) {
 							properties[i].set_data("init", true);
-							properties[i].set_generic_value(val);
+							properties[i].set_union_value(val);
 							properties[i].set_inconsistent(false);
-						} else if (!are_values_equal(val, properties[i].generic_value())) {
+						} else if (!are_values_equal(val, properties[i].union_value())) {
 							properties[i].set_inconsistent(true);
 						}
 					} else {
@@ -321,7 +321,7 @@ public class TextureSettingsDialog : Gtk.Window
 		if (_texture_id == GUID_ZERO)
 			return;
 
-		Value? val = property_value.generic_value();
+		Value val = property_value.union_value();
 
 		// For backward compatibility.
 		if (property_name == "generate_mips" || property_name == "normal_map") {

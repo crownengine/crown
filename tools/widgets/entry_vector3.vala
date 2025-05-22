@@ -7,12 +7,8 @@ using Gtk;
 
 namespace Crown
 {
-public class EntryVector3 : Gtk.Box
+public class EntryVector3 : Property, Gtk.Box
 {
-	// Data
-	public bool _stop_emit;
-
-	// Widgets
 	public EntryDouble _x;
 	public EntryDouble _y;
 	public EntryDouble _z;
@@ -23,6 +19,25 @@ public class EntryVector3 : Gtk.Box
 	public Gtk.Box _y_box;
 	public Gtk.Box _z_box;
 
+	public void set_inconsistent(bool inconsistent)
+	{
+	}
+
+	public bool is_inconsistent()
+	{
+		return false;
+	}
+
+	public GLib.Value union_value()
+	{
+		return this.value;
+	}
+
+	public void set_union_value(GLib.Value v)
+	{
+		this.value = (Vector3)v;
+	}
+
 	public Vector3 value
 	{
 		get
@@ -31,26 +46,24 @@ public class EntryVector3 : Gtk.Box
 		}
 		set
 		{
-			_stop_emit = true;
-			Vector3 val = (Vector3)value;
+			Vector3 val = value;
+			_x.value_changed.disconnect(on_value_changed);
+			_y.value_changed.disconnect(on_value_changed);
+			_z.value_changed.disconnect(on_value_changed);
 			_x.value = val.x;
 			_y.value = val.y;
 			_z.value = val.z;
-			_stop_emit = false;
+			_x.value_changed.connect(on_value_changed);
+			_y.value_changed.connect(on_value_changed);
+			_z.value_changed.connect(on_value_changed);
+			value_changed(this);
 		}
 	}
-
-	// Signals
-	public signal void value_changed();
 
 	public EntryVector3(Vector3 xyz, Vector3 min, Vector3 max, string preview_fmt = "%.4g")
 	{
 		Object(orientation: Gtk.Orientation.HORIZONTAL, spacing: 4);
 
-		// Data
-		_stop_emit = false;
-
-		// Widgets
 		_x = new EntryDouble(xyz.x, min.x, max.x, preview_fmt);
 		_y = new EntryDouble(xyz.y, min.y, max.y, preview_fmt);
 		_z = new EntryDouble(xyz.z, min.z, max.z, preview_fmt);
@@ -88,8 +101,7 @@ public class EntryVector3 : Gtk.Box
 
 	private void on_value_changed()
 	{
-		if (!_stop_emit)
-			value_changed();
+		value_changed(this);
 	}
 }
 

@@ -97,7 +97,7 @@ public class PreferencesDialog : Gtk.Dialog
 		_gizmo_size_spin_button = new EntryDouble(85, 10, 200);
 		_gizmo_size_spin_button.value_changed.connect(on_gizmo_size_value_changed);
 
-		_theme_combo = new ComboBoxMap(Theme.DARK
+		_theme_combo = new ComboBoxMap("dark"
 			, new string[] { "Dark", "Light" }
 			, new string[] { "dark", "light" }
 			);
