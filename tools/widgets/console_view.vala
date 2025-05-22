@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-using Gtk;
-
 namespace Crown
 {
 public class CounterLabel : Gtk.Label
@@ -302,7 +300,7 @@ public class ConsoleView : Gtk.Box
 			Gtk.TextIter iter;
 			if (_text_view.get_iter_at_location(out iter, buffer_x, buffer_y)) {
 				// Check whether the text under the mouse pointer has a link tag.
-				GLib.SList<unowned TextTag> tags = iter.get_tags();
+				GLib.SList<unowned Gtk.TextTag> tags = iter.get_tags();
 				foreach (var item in tags) {
 					string item_data;
 					if ((item_data = item.get_data<string>("uri")) == null)
@@ -366,7 +364,7 @@ public class ConsoleView : Gtk.Box
 			Gtk.TextIter iter;
 			if (_text_view.get_iter_at_location(out iter, buffer_x, buffer_y)) {
 				// Check whether the text under the mouse pointer has a link tag.
-				GLib.SList<unowned TextTag> tags = iter.get_tags();
+				GLib.SList<unowned Gtk.TextTag> tags = iter.get_tags();
 				foreach (var item in tags) {
 					string item_data;
 					if ((item_data = item.get_data<string>("uri")) != null) {
@@ -393,7 +391,7 @@ public class ConsoleView : Gtk.Box
 
 		int buffer_x;
 		int buffer_y;
-		_text_view.window_to_buffer_coords(TextWindowType.WIDGET
+		_text_view.window_to_buffer_coords(Gtk.TextWindowType.WIDGET
 			, (int)x
 			, (int)y
 			, out buffer_x
@@ -403,7 +401,7 @@ public class ConsoleView : Gtk.Box
 		Gtk.TextIter iter;
 		if (_text_view.get_iter_at_location(out iter, buffer_x, buffer_y)) {
 			// Check whether the text under the mouse pointer has a link tag.
-			GLib.SList<unowned TextTag> tags = iter.get_tags();
+			GLib.SList<unowned Gtk.TextTag> tags = iter.get_tags();
 			foreach (var item in tags) {
 				if (item.get_data<string>("uri") != null)
 					hovering = true;
@@ -469,7 +467,7 @@ public class ConsoleView : Gtk.Box
 
 			const int MAX_REPETITIONS = 1000;
 			if (_last_message.num_repetitions < MAX_REPETITIONS) {
-				List<unowned Widget> widgets = _last_message.anchor.get_widgets();
+				List<unowned Gtk.Widget> widgets = _last_message.anchor.get_widgets();
 				unowned var label_widget = widgets.first();
 				var cl = (CounterLabel)label_widget.data;
 

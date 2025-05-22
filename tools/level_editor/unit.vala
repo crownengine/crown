@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-using Gee;
-
 namespace Crown
 {
 public struct Unit
@@ -54,7 +52,7 @@ public struct Unit
 		// Search in components
 		val = _db.get_property(_id, "components");
 		if (val != null) {
-			if (((HashSet<Guid?>)val).contains(component_id))
+			if (((Gee.HashSet<Guid?>)val).contains(component_id))
 				return _db.get_property(component_id, key, deffault);
 		}
 
@@ -112,7 +110,7 @@ public struct Unit
 	{
 		// Search in components
 		Value? components = _db.get_property(_id, "components");
-		if (components != null && ((HashSet<Guid?>)components).contains(component_id)) {
+		if (components != null && ((Gee.HashSet<Guid?>)components).contains(component_id)) {
 			_db.set_property_bool(component_id, key, val);
 			return;
 		}
@@ -124,7 +122,7 @@ public struct Unit
 	{
 		// Search in components
 		Value? components = _db.get_property(_id, "components");
-		if (components != null && ((HashSet<Guid?>)components).contains(component_id)) {
+		if (components != null && ((Gee.HashSet<Guid?>)components).contains(component_id)) {
 			_db.set_property_double(component_id, key, val);
 			return;
 		}
@@ -136,7 +134,7 @@ public struct Unit
 	{
 		// Search in components
 		Value? components = _db.get_property(_id, "components");
-		if (components != null && ((HashSet<Guid?>)components).contains(component_id)) {
+		if (components != null && ((Gee.HashSet<Guid?>)components).contains(component_id)) {
 			_db.set_property_string(component_id, key, val);
 			return;
 		}
@@ -148,7 +146,7 @@ public struct Unit
 	{
 		// Search in components
 		Value? components = _db.get_property(_id, "components");
-		if (components != null && ((HashSet<Guid?>)components).contains(component_id)) {
+		if (components != null && ((Gee.HashSet<Guid?>)components).contains(component_id)) {
 			_db.set_property_guid(component_id, key, val);
 			return;
 		}
@@ -160,7 +158,7 @@ public struct Unit
 	{
 		// Search in components
 		Value? components = _db.get_property(_id, "components");
-		if (components != null && ((HashSet<Guid?>)components).contains(component_id)) {
+		if (components != null && ((Gee.HashSet<Guid?>)components).contains(component_id)) {
 			_db.set_property_vector3(component_id, key, val);
 			return;
 		}
@@ -172,7 +170,7 @@ public struct Unit
 	{
 		// Search in components
 		Value? components = _db.get_property(_id, "components");
-		if (components != null && ((HashSet<Guid?>)components).contains(component_id)) {
+		if (components != null && ((Gee.HashSet<Guid?>)components).contains(component_id)) {
 			_db.set_property_quaternion(component_id, key, val);
 			return;
 		}
@@ -192,7 +190,7 @@ public struct Unit
 		// and it owns it.
 		val = db.get_property(unit_id, "components");
 		if (val != null) {
-			foreach (Guid id in (HashSet<Guid?>)val) {
+			foreach (Guid id in (Gee.HashSet<Guid?>)val) {
 				if ((string)db.object_type(id) == component_type) {
 					component_id = id;
 					owner_id = unit_id;
@@ -776,7 +774,7 @@ public struct Unit
 			;
 	}
 
-	public void add_component_type_dependencies(ref ArrayList<Guid?> components_added, string component_type)
+	public void add_component_type_dependencies(ref Gee.ArrayList<Guid?> components_added, string component_type)
 	{
 		Guid dummy;
 		if (has_component(out dummy, component_type))

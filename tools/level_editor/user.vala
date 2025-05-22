@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-using Gee;
-
 namespace Crown
 {
 public class User
@@ -27,7 +25,7 @@ public class User
 
 		_data.foreach((ee) => {
 				if (ee.key == "recent_projects") {
-					var recent_projects = ee.value as ArrayList<Value?>;
+					var recent_projects = ee.value as Gee.ArrayList<Value?>;
 					for (int ii = 0; ii < recent_projects.size; ++ii) {
 						Hashtable rp = recent_projects[ii] as Hashtable;
 
@@ -75,7 +73,7 @@ public class User
 
 		_data.foreach ((ee) => {
 				if (ee.key == "recent_projects") {
-					recent_projects = ee.value as ArrayList<Value?>;
+					recent_projects = ee.value as Gee.ArrayList<Value?>;
 					for (int ii = 0; ii < recent_projects.size; ++ii) {
 						Hashtable rp = recent_projects[ii] as Hashtable;
 
@@ -90,7 +88,7 @@ public class User
 			});
 
 		if (recent_projects == null) {
-			recent_projects = new ArrayList<Value?>();
+			recent_projects = new Gee.ArrayList<Value?>();
 			_data["recent_projects"] = recent_projects;
 		}
 
@@ -113,7 +111,7 @@ public class User
 	{
 		_data.foreach((ee) => {
 				if (ee.key == "recent_projects") {
-					var recent_projects = ee.value as ArrayList<Value?>;
+					var recent_projects = ee.value as Gee.ArrayList<Value?>;
 					var it = recent_projects.iterator();
 					for (var has_next = it.next(); has_next; has_next = it.next()) {
 						Hashtable rp = it.get() as Hashtable;

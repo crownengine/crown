@@ -3,9 +3,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-using Gtk;
-using Gee;
-
 namespace Crown
 {
 public class PanelNewProject : Gtk.Viewport
@@ -71,7 +68,7 @@ public class PanelNewProject : Gtk.Viewport
 		_button_back = new Gtk.Button.with_label("Back");
 		_button_back.clicked.connect(() => {
 				var app = (LevelEditorApplication)GLib.Application.get_default();
-				app.show_panel("panel_welcome", StackTransitionType.SLIDE_UP);
+				app.show_panel("panel_welcome", Gtk.StackTransitionType.SLIDE_UP);
 			});
 
 		_button_create = new Gtk.Button.with_label("Create");

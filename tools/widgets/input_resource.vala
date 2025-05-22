@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-using Gtk;
-
 namespace Crown
 {
 public class InputResource : InputField, Gtk.Box
@@ -95,7 +93,7 @@ public class InputResource : InputField, Gtk.Box
 		if (_dialog == null) {
 			_dialog = new Gtk.Dialog.with_buttons("Select a %s".printf(_type)
 				, (Gtk.Window)this.get_toplevel()
-				, DialogFlags.MODAL
+				, Gtk.DialogFlags.MODAL
 				, null
 				);
 			_dialog.delete_event.connect(_dialog.hide_on_delete);

@@ -3,9 +3,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-using Gtk;
-using Gdk;
-
 namespace Crown
 {
 public class AppChooserButton : Gtk.AppChooserButton

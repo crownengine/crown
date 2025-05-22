@@ -3,9 +3,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-using Gtk;
-using Gee;
-
 namespace Crown
 {
 public class ProjectRow : Gtk.ListBoxRow
@@ -161,11 +158,11 @@ public class PanelProjectsList : Gtk.ScrolledWindow
 					, Gtk.ButtonsType.NONE
 					, "Remove \"%s\" from the list?\n\nThis action removes the project from the list only, files on disk will not be deleted.".printf(source_dir)
 					);
-				md.add_button("_Cancel", ResponseType.CANCEL);
-				md.add_button("_Remove", ResponseType.YES);
-				md.set_default_response(ResponseType.CANCEL);
+				md.add_button("_Cancel", Gtk.ResponseType.CANCEL);
+				md.add_button("_Remove", Gtk.ResponseType.YES);
+				md.set_default_response(Gtk.ResponseType.CANCEL);
 
-				if (md.run() == ResponseType.YES) {
+				if (md.run() == Gtk.ResponseType.YES) {
 					_user.remove_recent_project(row.get_data("source_dir"));
 					_list_projects.remove(row);
 				}

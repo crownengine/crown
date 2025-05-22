@@ -3,9 +3,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-using Gtk;
-using Gee;
-
 namespace Crown
 {
 public const Gtk.TargetEntry[] dnd_targets =
@@ -47,21 +44,21 @@ private Gtk.Menu? project_entry_menu_create(string type, string name)
 		mi.activate.connect(() => {
 				Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Script Name"
 					, ((Gtk.Application)GLib.Application.get_default()).active_window
-					, DialogFlags.MODAL
+					, Gtk.DialogFlags.MODAL
 					, "Cancel"
-					, ResponseType.CANCEL
+					, Gtk.ResponseType.CANCEL
 					, "Ok"
-					, ResponseType.OK
+					, Gtk.ResponseType.OK
 					, null
 					);
 
 				InputString sb = new InputString();
-				sb.activate.connect(() => { dg.response(ResponseType.OK); });
+				sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
 				dg.get_content_area().add(sb);
 				dg.skip_taskbar_hint = true;
 				dg.show_all();
 
-				if (dg.run() == (int)ResponseType.OK) {
+				if (dg.run() == (int)Gtk.ResponseType.OK) {
 					if (sb.text.strip() == "") {
 						dg.destroy();
 						return;
@@ -79,21 +76,21 @@ private Gtk.Menu? project_entry_menu_create(string type, string name)
 		mi.activate.connect(() => {
 				Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Script Name"
 					, ((Gtk.Application)GLib.Application.get_default()).active_window
-					, DialogFlags.MODAL
+					, Gtk.DialogFlags.MODAL
 					, "Cancel"
-					, ResponseType.CANCEL
+					, Gtk.ResponseType.CANCEL
 					, "Ok"
-					, ResponseType.OK
+					, Gtk.ResponseType.OK
 					, null
 					);
 
 				InputString sb = new InputString();
-				sb.activate.connect(() => { dg.response(ResponseType.OK); });
+				sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
 				dg.get_content_area().add(sb);
 				dg.skip_taskbar_hint = true;
 				dg.show_all();
 
-				if (dg.run() == (int)ResponseType.OK) {
+				if (dg.run() == (int)Gtk.ResponseType.OK) {
 					if (sb.text.strip() == "") {
 						dg.destroy();
 						return;
@@ -114,21 +111,21 @@ private Gtk.Menu? project_entry_menu_create(string type, string name)
 		mi.activate.connect(() => {
 				Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Unit Name"
 					, ((Gtk.Application)GLib.Application.get_default()).active_window
-					, DialogFlags.MODAL
+					, Gtk.DialogFlags.MODAL
 					, "Cancel"
-					, ResponseType.CANCEL
+					, Gtk.ResponseType.CANCEL
 					, "Ok"
-					, ResponseType.OK
+					, Gtk.ResponseType.OK
 					, null
 					);
 
 				InputString sb = new InputString();
-				sb.activate.connect(() => { dg.response(ResponseType.OK); });
+				sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
 				dg.get_content_area().add(sb);
 				dg.skip_taskbar_hint = true;
 				dg.show_all();
 
-				if (dg.run() == (int)ResponseType.OK) {
+				if (dg.run() == (int)Gtk.ResponseType.OK) {
 					if (sb.text.strip() == "") {
 						dg.destroy();
 						return;
@@ -146,21 +143,21 @@ private Gtk.Menu? project_entry_menu_create(string type, string name)
 		mi.activate.connect(() => {
 				Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Material Name"
 					, ((Gtk.Application)GLib.Application.get_default()).active_window
-					, DialogFlags.MODAL
+					, Gtk.DialogFlags.MODAL
 					, "Cancel"
-					, ResponseType.CANCEL
+					, Gtk.ResponseType.CANCEL
 					, "Ok"
-					, ResponseType.OK
+					, Gtk.ResponseType.OK
 					, null
 					);
 
 				InputString sb = new InputString();
-				sb.activate.connect(() => { dg.response(ResponseType.OK); });
+				sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
 				dg.get_content_area().add(sb);
 				dg.skip_taskbar_hint = true;
 				dg.show_all();
 
-				if (dg.run() == (int)ResponseType.OK) {
+				if (dg.run() == (int)Gtk.ResponseType.OK) {
 					if (sb.text.strip() == "") {
 						dg.destroy();
 						return;
@@ -181,21 +178,21 @@ private Gtk.Menu? project_entry_menu_create(string type, string name)
 		mi.activate.connect(() => {
 				Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Folder Name"
 					, ((Gtk.Application)GLib.Application.get_default()).active_window
-					, DialogFlags.MODAL
+					, Gtk.DialogFlags.MODAL
 					, "Cancel"
-					, ResponseType.CANCEL
+					, Gtk.ResponseType.CANCEL
 					, "Ok"
-					, ResponseType.OK
+					, Gtk.ResponseType.OK
 					, null
 					);
 
 				InputString sb = new InputString();
-				sb.activate.connect(() => { dg.response(ResponseType.OK); });
+				sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
 				dg.get_content_area().add(sb);
 				dg.skip_taskbar_hint = true;
 				dg.show_all();
 
-				if (dg.run() == (int)ResponseType.OK) {
+				if (dg.run() == (int)Gtk.ResponseType.OK) {
 					if (sb.text.strip() == "") {
 						dg.destroy();
 						return;
@@ -220,16 +217,16 @@ private Gtk.Menu? project_entry_menu_create(string type, string name)
 						);
 
 					Gtk.Widget btn;
-					md.add_button("_Cancel", ResponseType.CANCEL);
-					btn = md.add_button("_Delete", ResponseType.YES);
+					md.add_button("_Cancel", Gtk.ResponseType.CANCEL);
+					btn = md.add_button("_Delete", Gtk.ResponseType.YES);
 					btn.get_style_context().add_class(Gtk.STYLE_CLASS_DESTRUCTIVE_ACTION);
 
-					md.set_default_response(ResponseType.CANCEL);
+					md.set_default_response(Gtk.ResponseType.CANCEL);
 
 					int rt = md.run();
 					md.destroy();
 
-					if (rt != (int)ResponseType.YES)
+					if (rt != (int)Gtk.ResponseType.YES)
 						return;
 
 					GLib.Application.get_default().activate_action("delete-directory", new GLib.Variant.string((string)name));
@@ -253,22 +250,22 @@ private Gtk.Menu? project_entry_menu_create(string type, string name)
 			mi.activate.connect(() => {
 					Gtk.Dialog dg = new Gtk.Dialog.with_buttons("State Machine Name"
 						, ((Gtk.Application)GLib.Application.get_default()).active_window
-						, DialogFlags.MODAL
+						, Gtk.DialogFlags.MODAL
 						, "Cancel"
-						, ResponseType.CANCEL
+						, Gtk.ResponseType.CANCEL
 						, "Ok"
-						, ResponseType.OK
+						, Gtk.ResponseType.OK
 						, null
 						);
 
 					InputString sb = new InputString();
 					sb.value = GLib.Path.get_basename((string)name);
-					sb.activate.connect(() => { dg.response(ResponseType.OK); });
+					sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
 					dg.get_content_area().add(sb);
 					dg.skip_taskbar_hint = true;
 					dg.show_all();
 
-					if (dg.run() == (int)ResponseType.OK) {
+					if (dg.run() == (int)Gtk.ResponseType.OK) {
 						if (sb.text.strip() == "") {
 							dg.destroy();
 							return;

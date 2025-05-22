@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-using Gee;
-
 namespace Crown
 {
 /// Manages objects in a level.
@@ -308,13 +306,13 @@ public class Level
 
 	public void units(ref Gee.ArrayList<Guid?> ids)
 	{
-		HashSet<Guid?> units = _db.get_property_set(_id, "units", new HashSet<Guid?>());
+		Gee.HashSet<Guid?> units = _db.get_property_set(_id, "units", new Gee.HashSet<Guid?>());
 		ids.add_all(units);
 	}
 
 	public void sounds(ref Gee.ArrayList<Guid?> ids)
 	{
-		HashSet<Guid?> sounds = _db.get_property_set(_id, "sounds", new HashSet<Guid?>());
+		Gee.HashSet<Guid?> sounds = _db.get_property_set(_id, "sounds", new Gee.HashSet<Guid?>());
 		ids.add_all(sounds);
 	}
 
@@ -368,8 +366,8 @@ public class Level
 
 	public void on_camera(Hashtable msg)
 	{
-		_camera_position = Vector3.from_array((ArrayList<Value?>)msg["position"]);
-		_camera_rotation = Quaternion.from_array((ArrayList<Value?>)msg["rotation"]);
+		_camera_position = Vector3.from_array((Gee.ArrayList<Value?>)msg["position"]);
+		_camera_rotation = Quaternion.from_array((Gee.ArrayList<Value?>)msg["rotation"]);
 		_camera_orthographic_size = (double)msg["orthographic_size"];
 		_camera_target_distance = (double)msg["target_distance"];
 	}
