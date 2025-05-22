@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-using Gee;
-
 namespace Crown
 {
 [Compact]
@@ -23,7 +21,7 @@ public struct Quaternion
 		this.w = w;
 	}
 
-	public Quaternion.from_array(ArrayList<Value?> arr)
+	public Quaternion.from_array(Gee.ArrayList<Value?> arr)
 	{
 		this.x = (double)arr[0];
 		this.y = (double)arr[1];
@@ -157,9 +155,9 @@ public struct Quaternion
 		this.w *= inv_len;
 	}
 
-	public ArrayList<Value?> to_array()
+	public Gee.ArrayList<Value?> to_array()
 	{
-		ArrayList<Value?> arr = new ArrayList<Value?>();
+		Gee.ArrayList<Value?> arr = new Gee.ArrayList<Value?>();
 		arr.add(this.x);
 		arr.add(this.y);
 		arr.add(this.z);

@@ -3,9 +3,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-using Gee;
-using Gtk;
-
 namespace Crown
 {
 public class LevelTreeView : Gtk.Box
@@ -248,11 +245,11 @@ public class LevelTreeView : Gtk.Box
 			mi.activate.connect(() => {
 					Gtk.Dialog dg = new Gtk.Dialog.with_buttons("New Name"
 						, (Gtk.Window)this.get_toplevel()
-						, DialogFlags.MODAL
+						, Gtk.DialogFlags.MODAL
 						, "Cancel"
-						, ResponseType.CANCEL
+						, Gtk.ResponseType.CANCEL
 						, "Ok"
-						, ResponseType.OK
+						, Gtk.ResponseType.OK
 						, null
 						);
 
@@ -263,12 +260,12 @@ public class LevelTreeView : Gtk.Box
 							sb.value = (string)name;
 							return;
 						});
-					sb.activate.connect(() => { dg.response(ResponseType.OK); });
+					sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
 					dg.get_content_area().add(sb);
 					dg.skip_taskbar_hint = true;
 					dg.show_all();
 
-					if (dg.run() == (int)ResponseType.OK) {
+					if (dg.run() == (int)Gtk.ResponseType.OK) {
 						string cur_name = "";
 						string new_name = "";
 						Guid object_id = GUID_ZERO;
@@ -450,8 +447,8 @@ public class LevelTreeView : Gtk.Box
 			, -1
 			);
 
-		HashSet<Guid?> units  = _db.get_property_set(_level._id, "units", new HashSet<Guid?>());
-		HashSet<Guid?> sounds = _db.get_property_set(_level._id, "sounds", new HashSet<Guid?>());
+		Gee.HashSet<Guid?> units  = _db.get_property_set(_level._id, "units", new Gee.HashSet<Guid?>());
+		Gee.HashSet<Guid?> sounds = _db.get_property_set(_level._id, "sounds", new Gee.HashSet<Guid?>());
 
 		foreach (Guid unit_id in units) {
 			Unit u = Unit(_level._db, unit_id);

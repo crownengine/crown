@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-using Gee;
-
 namespace Crown
 {
 [Compact]
@@ -23,7 +21,7 @@ public struct Matrix4x4
 		this.t = t;
 	}
 
-	public Matrix4x4.from_array(ArrayList<Value?> arr)
+	public Matrix4x4.from_array(Gee.ArrayList<Value?> arr)
 	{
 		this.x.x = (double)arr[ 0];
 		this.x.y = (double)arr[ 1];

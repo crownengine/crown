@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-using Gee;
-
 namespace Crown
 {
 public enum PropertyType
@@ -439,7 +437,7 @@ public class Database
 	}
 
 	// Data
-	private HashMap<Guid?, HashMap<string, Value?>> _data;
+	private Gee.HashMap<Guid?, Gee.HashMap<string, Value?>> _data;
 	private UndoRedo? _undo_redo;
 	private Project _project;
 	// The number of changes to the database since the last successful state
@@ -457,7 +455,7 @@ public class Database
 
 	public Database(Project project, UndoRedo? undo_redo = null)
 	{
-		_data = new HashMap<Guid?, HashMap<string, Value?>>(Guid.hash_func, Guid.equal_func);
+		_data = new Gee.HashMap<Guid?, Gee.HashMap<string, Value?>>(Guid.hash_func, Guid.equal_func);
 		_project = project;
 		_undo_redo = undo_redo;
 
@@ -475,7 +473,7 @@ public class Database
 		_distance_from_last_sync = 0;
 
 		// This is a special field which stores all objects
-		_data[GUID_ZERO] = new HashMap<string, Value?>();
+		_data[GUID_ZERO] = new Gee.HashMap<string, Value?>();
 	}
 
 	/// Returns whether the database has been changed since last call to Save().
@@ -619,7 +617,7 @@ public class Database
 			return ((Vector3)value).to_string();
 		if (value.holds(typeof(Quaternion)))
 			return ((Quaternion)value).to_string();
-		if (value.holds(typeof(HashSet)))
+		if (value.holds(typeof(Gee.HashSet)))
 			return "Set<Guid>";
 
 		return "<invalid>";
@@ -650,8 +648,8 @@ public class Database
 			if (val.holds(typeof(Hashtable))) {
 				Hashtable ht = (Hashtable)val;
 				decode_object(id, owner_id, k, ht);
-			} else if (val.holds(typeof(ArrayList))) {
-				ArrayList<Value?> arr = (ArrayList<Value?>)val;
+			} else if (val.holds(typeof(Gee.ArrayList))) {
+				Gee.ArrayList<Value?> arr = (Gee.ArrayList<Value?>)val;
 				if (arr.size > 0
 					&& arr[0].holds(typeof(double))
 					&& k != "frames" // sprite_animation
@@ -667,7 +665,7 @@ public class Database
 		}
 	}
 
-	private void decode_set(Guid owner_id, string key, ArrayList<Value?> json)
+	private void decode_set(Guid owner_id, string key, Gee.ArrayList<Value?> json)
 	{
 		// Set should be created even if it is empty.
 		create_empty_set(0, owner_id, key);
@@ -738,8 +736,8 @@ public class Database
 
 	private Value? decode_value(Value? value)
 	{
-		if (value.holds(typeof(ArrayList))) {
-			ArrayList<Value?> al = (ArrayList<Value?>)value;
+		if (value.holds(typeof(Gee.ArrayList))) {
+			Gee.ArrayList<Value?> al = (Gee.ArrayList<Value?>)value;
 			if (al.size == 1)
 				return Vector3((double)al[0], 0.0, 0.0);
 			else if (al.size == 2)
@@ -764,7 +762,7 @@ public class Database
 		}
 	}
 
-	private Hashtable encode_object(Guid id, HashMap<string, Value?> db)
+	private Hashtable encode_object(Guid id, Gee.HashMap<string, Value?> db)
 	{
 		Hashtable obj = new Hashtable();
 		if (id != GUID_ZERO)
@@ -800,18 +798,18 @@ public class Database
 
 	private Value? encode_value(Value? value)
 	{
-		assert(is_valid_value(value) || value.holds(typeof(HashSet)));
+		assert(is_valid_value(value) || value.holds(typeof(Gee.HashSet)));
 
 		if (value.holds(typeof(Vector3))) {
 			Vector3 v = (Vector3)value;
-			ArrayList<Value?> arr = new Gee.ArrayList<Value?>();
+			Gee.ArrayList<Value?> arr = new Gee.ArrayList<Value?>();
 			arr.add(v.x);
 			arr.add(v.y);
 			arr.add(v.z);
 			return arr;
 		} else if (value.holds(typeof(Quaternion))) {
 			Quaternion q = (Quaternion)value;
-			ArrayList<Value?> arr = new Gee.ArrayList<Value?>();
+			Gee.ArrayList<Value?> arr = new Gee.ArrayList<Value?>();
 			arr.add(q.x);
 			arr.add(q.y);
 			arr.add(q.z);
@@ -820,9 +818,9 @@ public class Database
 		} else if (value.holds(typeof(Guid))) {
 			Guid id = (Guid)value;
 			return id.to_string();
-		} else if (value.holds(typeof(HashSet))) {
-			HashSet<Guid?> hs = (HashSet<Guid?>)value;
-			ArrayList<Value?> arr = new Gee.ArrayList<Value?>();
+		} else if (value.holds(typeof(Gee.HashSet))) {
+			Gee.HashSet<Guid?> hs = (Gee.HashSet<Guid?>)value;
+			Gee.ArrayList<Value?> arr = new Gee.ArrayList<Value?>();
 			foreach (Guid id in hs) {
 				arr.add(encode_object(id, get_data(id)));
 			}
@@ -832,7 +830,7 @@ public class Database
 		}
 	}
 
-	private HashMap<string, Value?> get_data(Guid id)
+	private Gee.HashMap<string, Value?> get_data(Guid id)
 	{
 		assert(has_object(id));
 
@@ -846,7 +844,7 @@ public class Database
 		if (_debug)
 			logi("create %s".printf(id.to_string()));
 
-		_data[id] = new HashMap<string, Value?>();
+		_data[id] = new Gee.HashMap<string, Value?>();
 
 		_distance_from_last_sync += dir;
 		object_created(id);
@@ -873,7 +871,7 @@ public class Database
 		if (_debug)
 			logi("set_property %s %s %s".printf(id.to_string(), key, value_to_string(value)));
 
-		HashMap<string, Value?> ob = get_data(id);
+		Gee.HashMap<string, Value?> ob = get_data(id);
 		ob[key] = value;
 
 		_distance_from_last_sync += dir;
@@ -885,10 +883,10 @@ public class Database
 		assert(has_object(id));
 		assert(is_valid_key(key));
 
-		HashMap<string, Value?> ob = get_data(id);
+		Gee.HashMap<string, Value?> ob = get_data(id);
 		assert(!ob.has_key(key));
 
-		ob[key] = new HashSet<Guid?>(Guid.hash_func, Guid.equal_func);
+		ob[key] = new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func);
 	}
 
 	private void add_to_set_internal(int dir, Guid id, string key, Guid item_id)
@@ -901,14 +899,14 @@ public class Database
 		if (_debug)
 			logi("add_to_set %s %s %s".printf(id.to_string(), key, item_id.to_string()));
 
-		HashMap<string, Value?> ob = get_data(id);
+		Gee.HashMap<string, Value?> ob = get_data(id);
 
 		if (!ob.has_key(key)) {
-			HashSet<Guid?> hs = new HashSet<Guid?>(Guid.hash_func, Guid.equal_func);
+			Gee.HashSet<Guid?> hs = new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func);
 			hs.add(item_id);
 			ob[key] = hs;
 		} else {
-			((HashSet<Guid?>)ob[key]).add(item_id);
+			((Gee.HashSet<Guid?>)ob[key]).add(item_id);
 		}
 
 		_distance_from_last_sync += dir;
@@ -924,8 +922,8 @@ public class Database
 		if (_debug)
 			logi("remove_from_set %s %s %s".printf(id.to_string(), key, item_id.to_string()));
 
-		HashMap<string, Value?> ob = get_data(id);
-		((HashSet<Guid?>)ob[key]).remove(item_id);
+		Gee.HashMap<string, Value?> ob = get_data(id);
+		((Gee.HashSet<Guid?>)ob[key]).remove(item_id);
 
 		_distance_from_last_sync += dir;
 		key_changed(id, key);
@@ -974,13 +972,13 @@ public class Database
 
 		string obj_type = object_type(id);
 
-		HashMap<string, Value?> o = get_data(id);
+		Gee.HashMap<string, Value?> o = get_data(id);
 		string[] keys = o.keys.to_array();
 
 		foreach (string key in keys) {
 			Value? value = o[key];
-			if (value.holds(typeof(HashSet))) {
-				HashSet<Guid?> hs = (HashSet<Guid?>)value;
+			if (value.holds(typeof(Gee.HashSet))) {
+				Gee.HashSet<Guid?> hs = (Gee.HashSet<Guid?>)value;
 				Guid?[] ids = hs.to_array();
 				foreach (Guid item_id in ids) {
 					remove_from_set(id, key, item_id);
@@ -1007,7 +1005,7 @@ public class Database
 		assert(is_valid_value(null));
 
 		if (_undo_redo != null) {
-			HashMap<string, Value?> ob = get_data(id);
+			Gee.HashMap<string, Value?> ob = get_data(id);
 			if (ob.has_key(key) && ob[key] != null) {
 				if (ob[key].holds(typeof(bool)))
 					_undo_redo._undo.write_set_property_bool_action(Action.SET_PROPERTY_BOOL, id, key, (bool)ob[key]);
@@ -1038,7 +1036,7 @@ public class Database
 		assert(is_valid_value(val));
 
 		if (_undo_redo != null) {
-			HashMap<string, Value?> ob = get_data(id);
+			Gee.HashMap<string, Value?> ob = get_data(id);
 			if (ob.has_key(key) && ob[key] != null)
 				_undo_redo._undo.write_set_property_bool_action(Action.SET_PROPERTY_BOOL, id, key, (bool)ob[key]);
 			else
@@ -1057,7 +1055,7 @@ public class Database
 		assert(is_valid_value(val));
 
 		if (_undo_redo != null) {
-			HashMap<string, Value?> ob = get_data(id);
+			Gee.HashMap<string, Value?> ob = get_data(id);
 			if (ob.has_key(key) && ob[key] != null)
 				_undo_redo._undo.write_set_property_double_action(Action.SET_PROPERTY_DOUBLE, id, key, (double)ob[key]);
 			else
@@ -1076,7 +1074,7 @@ public class Database
 		assert(is_valid_value(val));
 
 		if (_undo_redo != null) {
-			HashMap<string, Value?> ob = get_data(id);
+			Gee.HashMap<string, Value?> ob = get_data(id);
 			if (ob.has_key(key) && ob[key] != null)
 				_undo_redo._undo.write_set_property_string_action(Action.SET_PROPERTY_STRING, id, key, (string)ob[key]);
 			else
@@ -1095,7 +1093,7 @@ public class Database
 		assert(is_valid_value(val));
 
 		if (_undo_redo != null) {
-			HashMap<string, Value?> ob = get_data(id);
+			Gee.HashMap<string, Value?> ob = get_data(id);
 			if (ob.has_key(key) && ob[key] != null)
 				_undo_redo._undo.write_set_property_guid_action(Action.SET_PROPERTY_GUID, id, key, (Guid)ob[key]);
 			else
@@ -1114,7 +1112,7 @@ public class Database
 		assert(is_valid_value(val));
 
 		if (_undo_redo != null) {
-			HashMap<string, Value?> ob = get_data(id);
+			Gee.HashMap<string, Value?> ob = get_data(id);
 			if (ob.has_key(key) && ob[key] != null)
 				_undo_redo._undo.write_set_property_vector3_action(Action.SET_PROPERTY_VECTOR3, id, key, (Vector3)ob[key]);
 			else
@@ -1133,7 +1131,7 @@ public class Database
 		assert(is_valid_value(val));
 
 		if (_undo_redo != null) {
-			HashMap<string, Value?> ob = get_data(id);
+			Gee.HashMap<string, Value?> ob = get_data(id);
 			if (ob.has_key(key) && ob[key] != null)
 				_undo_redo._undo.write_set_property_quaternion_action(Action.SET_PROPERTY_QUATERNION, id, key, (Quaternion)ob[key]);
 			else
@@ -1209,7 +1207,7 @@ public class Database
 		assert(has_object(id));
 		assert(is_valid_key(key));
 
-		HashMap<string, Value?> ob = get_data(id);
+		Gee.HashMap<string, Value?> ob = get_data(id);
 		Value? value = (ob.has_key(key) ? ob[key] : val);
 
 		if (_debug_getters)
@@ -1248,15 +1246,15 @@ public class Database
 		return (Quaternion)get_property(id, key, deffault);
 	}
 
-	public HashSet<Guid?> get_property_set(Guid id, string key, HashSet<Guid?> deffault)
+	public Gee.HashSet<Guid?> get_property_set(Guid id, string key, Gee.HashSet<Guid?> deffault)
 	{
 		assert(has_object(id));
 		assert(is_valid_key(key));
 
-		HashMap<string, Value?> ob = get_data(id);
-		HashSet<Guid?> value;
+		Gee.HashMap<string, Value?> ob = get_data(id);
+		Gee.HashSet<Guid?> value;
 		if (ob.has_key(key))
-			value = ob[key] as HashSet<Guid?>;
+			value = ob[key] as Gee.HashSet<Guid?>;
 		else
 			value = deffault;
 
@@ -1266,14 +1264,14 @@ public class Database
 		return value;
 	}
 
-	public HashMap<string, Value?> get_object(Guid id)
+	public Gee.HashMap<string, Value?> get_object(Guid id)
 	{
-		return (HashMap<string, Value?>)get_data(GUID_ZERO)[id.to_string()];
+		return (Gee.HashMap<string, Value?>)get_data(GUID_ZERO)[id.to_string()];
 	}
 
 	public string[] get_keys(Guid id)
 	{
-		HashMap<string, Value?> data = get_data(id);
+		Gee.HashMap<string, Value?> data = get_data(id);
 		return data.keys.to_array();
 	}
 
@@ -1299,12 +1297,12 @@ public class Database
 
 		create(new_id, object_type(id));
 
-		HashMap<string, Value?> ob = get_data(id);
+		Gee.HashMap<string, Value?> ob = get_data(id);
 		string[] keys = ob.keys.to_array();
 		foreach (string key in keys) {
 			Value? val = ob[key];
-			if (val.holds(typeof(HashSet))) {
-				HashSet<Guid?> hs = (HashSet<Guid?>)val;
+			if (val.holds(typeof(Gee.HashSet))) {
+				Gee.HashSet<Guid?> hs = (Gee.HashSet<Guid?>)val;
 				foreach (Guid j in hs) {
 					Guid x = Guid.new_guid();
 					duplicate(j, x);
@@ -1340,12 +1338,12 @@ public class Database
 
 	public void copy_deep(Database db, Guid id, string new_key)
 	{
-		HashMap<string, Value?> ob = get_data(id);
+		Gee.HashMap<string, Value?> ob = get_data(id);
 		string[] keys = ob.keys.to_array();
 		foreach (string key in keys) {
 			Value? value = ob[key];
-			if (value.holds(typeof(HashSet))) {
-				HashSet<Guid?> hs = (HashSet<Guid?>)value;
+			if (value.holds(typeof(Gee.HashSet))) {
+				Gee.HashSet<Guid?> hs = (Gee.HashSet<Guid?>)value;
 				foreach (Guid j in hs) {
 					db.create(j, object_type(j));
 					copy_deep(db, j, "");

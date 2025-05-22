@@ -3,9 +3,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-using Gtk;
-using Gee;
-
 namespace Crown
 {
 // Returns true if the item should be filtered out
@@ -132,7 +129,7 @@ public class ResourceChooser : Gtk.Box
 		this.unmap.connect(on_unmap);
 	}
 
-	private void on_row_activated(Gtk.TreePath path, TreeViewColumn column)
+	private void on_row_activated(Gtk.TreePath path, Gtk.TreeViewColumn column)
 	{
 		Gtk.TreePath filter_path = _tree_sort.convert_path_to_child_path(path);
 		Gtk.TreePath child_path = _tree_filter.convert_path_to_child_path(filter_path);
