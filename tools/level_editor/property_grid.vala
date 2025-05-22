@@ -110,7 +110,10 @@ public class PropertyGrid : Gtk.Grid
 				assert(def.min.holds(typeof(Vector3)));
 				assert(def.max.holds(typeof(Vector3)));
 
-				p = new InputVector3((Vector3)def.deffault, (Vector3)def.min, (Vector3)def.max);
+				if (def.editor == PropertyEditorType.COLOR)
+					p = new InputColor3();
+				else
+					p = new InputVector3((Vector3)def.deffault, (Vector3)def.min, (Vector3)def.max);
 				break;
 			case PropertyType.QUATERNION:
 				if (def.deffault == null)
