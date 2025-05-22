@@ -7,18 +7,24 @@ using Gtk;
 
 namespace Crown
 {
-public class EntryRotation : Property, Gtk.Box
+public class InputVector4 : InputField, Gtk.Box
 {
-	public Quaternion _rotation;
-	public EntryDouble _x;
-	public EntryDouble _y;
-	public EntryDouble _z;
+	// Data
+	public bool _stop_emit;
+
+	// Widgets
+	public InputDouble _x;
+	public InputDouble _y;
+	public InputDouble _z;
+	public InputDouble _w;
 	public Gtk.Label _x_label;
 	public Gtk.Label _y_label;
 	public Gtk.Label _z_label;
+	public Gtk.Label _w_label;
 	public Gtk.Box _x_box;
 	public Gtk.Box _y_box;
 	public Gtk.Box _z_box;
+	public Gtk.Box _w_box;
 
 	public void set_inconsistent(bool inconsistent)
 	{
@@ -36,47 +42,44 @@ public class EntryRotation : Property, Gtk.Box
 
 	public void set_union_value(GLib.Value v)
 	{
-		this.value = (Quaternion)v;
+		this.value = (Vector4)v;
 	}
 
-	public Quaternion value
+	public Vector4 value
 	{
 		get
 		{
-			return _rotation;
+			return Vector4(_x.value, _y.value, _z.value, _w.value);
 		}
 		set
 		{
-			_rotation = value;
-
-			// Convert to Euler for displaying.
-			Vector3 euler = value.to_euler();
-
-			_x.value_changed.disconnect(on_value_changed);
-			_y.value_changed.disconnect(on_value_changed);
-			_z.value_changed.disconnect(on_value_changed);
-			_x.value = MathUtils.deg(euler.x);
-			_y.value = MathUtils.deg(euler.y);
-			_z.value = MathUtils.deg(euler.z);
-			_x.value_changed.connect(on_value_changed);
-			_y.value_changed.connect(on_value_changed);
-			_z.value_changed.connect(on_value_changed);
-			value_changed(this);
+			_stop_emit = true;
+			Vector4 val = (Vector4)value;
+			_x.value = val.x;
+			_y.value = val.y;
+			_z.value = val.z;
+			_w.value = val.w;
+			_stop_emit = false;
 		}
 	}
 
-	public EntryRotation()
+	public InputVector4(Vector4 xyz, Vector4 min, Vector4 max, string preview_fmt = "%.4g")
 	{
 		Object(orientation: Gtk.Orientation.HORIZONTAL, spacing: 4);
 
-		_rotation = QUATERNION_IDENTITY;
-		_x = new EntryDouble(0.0, -180.0, 180.0, "%.4g");
-		_y = new EntryDouble(0.0, -180.0, 180.0, "%.4g");
-		_z = new EntryDouble(0.0, -180.0, 180.0, "%.4g");
+		// Data
+		_stop_emit = false;
+
+		// Widgets
+		_x = new InputDouble(xyz.x, min.x, max.x, preview_fmt);
+		_y = new InputDouble(xyz.y, min.y, max.y, preview_fmt);
+		_z = new InputDouble(xyz.z, min.z, max.z, preview_fmt);
+		_w = new InputDouble(xyz.w, min.w, max.w, preview_fmt);
 
 		_x.value_changed.connect(on_value_changed);
 		_y.value_changed.connect(on_value_changed);
 		_z.value_changed.connect(on_value_changed);
+		_w.value_changed.connect(on_value_changed);
 
 		_x_label = new Gtk.Label("X");
 		_x_label.get_style_context().add_class("axis");
@@ -87,6 +90,9 @@ public class EntryRotation : Property, Gtk.Box
 		_z_label = new Gtk.Label("Z");
 		_z_label.get_style_context().add_class("axis");
 		_z_label.get_style_context().add_class("z");
+		_w_label = new Gtk.Label("Z");
+		_w_label.get_style_context().add_class("axis");
+		_w_label.get_style_context().add_class("w");
 
 		_x_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
 		_x_box.pack_start(_x_label, false);
@@ -100,22 +106,20 @@ public class EntryRotation : Property, Gtk.Box
 		_z_box.pack_start(_z_label, false);
 		_z_box.pack_start(_z, true);
 
+		_w_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		_w_box.pack_start(_w_label, false);
+		_w_box.pack_start(_w, true);
+
 		this.pack_start(_x_box, true);
 		this.pack_start(_y_box, true);
 		this.pack_start(_z_box, true);
+		this.pack_start(_w_box, true);
 	}
 
-	private void on_value_changed(Property p)
+	private void on_value_changed()
 	{
-		double x = MathUtils.rad((double)_x.value);
-		double y = MathUtils.rad((double)_y.value);
-		double z = MathUtils.rad((double)_z.value);
-		Quaternion new_rotation = Quaternion.from_euler(x, y, z);
-
-		if (_rotation != new_rotation) {
-			_rotation = new_rotation;
+		if (!_stop_emit)
 			value_changed(this);
-		}
 	}
 }
 

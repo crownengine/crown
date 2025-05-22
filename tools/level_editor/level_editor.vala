@@ -1992,7 +1992,7 @@ public class LevelEditorApplication : Gtk.Application
 			, null
 			);
 
-		EntryDouble sb = new EntryDouble(_grid_size, 0.1, 1000);
+		InputDouble sb = new InputDouble(_grid_size, 0.1, 1000);
 		sb.activate.connect(() => { dg.response(ResponseType.OK); });
 		dg.get_content_area().add(sb);
 		dg.skip_taskbar_hint = true;
@@ -2645,7 +2645,7 @@ public class LevelEditorApplication : Gtk.Application
 			, null
 			);
 
-		EntryDouble sb = new EntryDouble(_rotation_snap, 1.0, 180.0);
+		InputDouble sb = new InputDouble(_rotation_snap, 1.0, 180.0);
 		sb.activate.connect(() => { dg.response(ResponseType.OK); });
 		dg.get_content_area().add(sb);
 		dg.skip_taskbar_hint = true;

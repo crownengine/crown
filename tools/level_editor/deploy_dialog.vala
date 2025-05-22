@@ -8,7 +8,7 @@ using Gee;
 
 namespace Crown
 {
-public ComboBoxMap make_deploy_config_combo()
+public InputEnum make_deploy_config_combo()
 {
 	string? labels[] =
 	{
@@ -28,7 +28,7 @@ public ComboBoxMap make_deploy_config_combo()
 #endif
 	};
 
-	return new ComboBoxMap(ids[0], labels, ids);
+	return new InputEnum(ids[0], labels, ids);
 }
 
 public Gtk.Button make_deploy_button(TargetPlatform platform)
@@ -123,10 +123,10 @@ public class DeployDialog : Gtk.Dialog
 	// Android page.
 	public Gtk.Button _android_deploy_button;
 	public Gtk.FileChooserButton _android_output_path;
-	public ComboBoxMap _android_config;
-	public CheckBox _android_armv7;
-	public CheckBox _android_armv8;
-	public CheckBox _android_use_debug_keystore;
+	public InputEnum _android_config;
+	public InputBool _android_armv7;
+	public InputBool _android_armv8;
+	public InputBool _android_use_debug_keystore;
 	public Gtk.FileChooserButton _android_keystore;
 	public Gtk.Entry _android_keystore_password;
 	public Gtk.Entry _android_key_alias;
@@ -143,7 +143,7 @@ public class DeployDialog : Gtk.Dialog
 	// HTML5 page.
 	public Gtk.Button _html5_deploy_button;
 	public Gtk.FileChooserButton _html5_output_path;
-	public ComboBoxMap _html5_config;
+	public InputEnum _html5_config;
 	public Gtk.Entry _html5_app_title;
 	public PropertyGridSet _html5_set;
 	public Gtk.Box _html5_box;
@@ -153,7 +153,7 @@ public class DeployDialog : Gtk.Dialog
 	// Linux page.
 	public Gtk.Button _linux_deploy_button;
 	public Gtk.FileChooserButton _linux_output_path;
-	public ComboBoxMap _linux_config;
+	public InputEnum _linux_config;
 	public Gtk.Entry _linux_app_title;
 	public PropertyGridSet _linux_set;
 	public Gtk.Box _linux_box;
@@ -162,8 +162,8 @@ public class DeployDialog : Gtk.Dialog
 	// Windows page.
 	public Gtk.Button _windows_deploy_button;
 	public Gtk.FileChooserButton _windows_output_path;
-	public ComboBoxMap _windows_config;
-	public EntryText _windows_app_title;
+	public InputEnum _windows_config;
+	public InputString _windows_app_title;
 	public PropertyGridSet _windows_set;
 	public Gtk.Box _windows_box;
 	public DeployerPage _windows_page;
@@ -284,11 +284,11 @@ public class DeployDialog : Gtk.Dialog
 
 		_android_output_path = new Gtk.FileChooserButton("Select folder", Gtk.FileChooserAction.SELECT_FOLDER);
 		_android_config = make_deploy_config_combo();
-		_android_armv7 = new CheckBox();
+		_android_armv7 = new InputBool();
 		_android_armv7.value = false;
-		_android_armv8 = new CheckBox();
+		_android_armv8 = new InputBool();
 		_android_armv8.value = true;
-		_android_use_debug_keystore = new CheckBox();
+		_android_use_debug_keystore = new InputBool();
 		_android_use_debug_keystore.value_changed.connect(() => { android_set_debug_keystore(); });
 		_android_use_debug_keystore.value = true;
 		_android_keystore = new Gtk.FileChooserButton("Select file", Gtk.FileChooserAction.OPEN);
@@ -299,7 +299,7 @@ public class DeployDialog : Gtk.Dialog
 		_android_key_password = new Gtk.Entry();
 		_android_key_password.set_visibility(false);
 		_android_key_password.input_purpose = Gtk.InputPurpose.PASSWORD;
-		_android_app_title = new EntryText();
+		_android_app_title = new InputString();
 		_android_app_title.placeholder_text = "My Application";
 		_android_app_title.text = _project.name();
 		_android_app_identifier = new Gtk.Entry();
@@ -382,7 +382,7 @@ public class DeployDialog : Gtk.Dialog
 
 		_html5_output_path = new Gtk.FileChooserButton("Select folder", Gtk.FileChooserAction.SELECT_FOLDER);
 		_html5_config = make_deploy_config_combo();
-		_html5_app_title = new EntryText();
+		_html5_app_title = new InputString();
 		_html5_app_title.placeholder_text = "My Application";
 		_html5_app_title.text = _project.name();
 
@@ -439,7 +439,7 @@ public class DeployDialog : Gtk.Dialog
 
 		_linux_output_path = new Gtk.FileChooserButton("Select folder", Gtk.FileChooserAction.SELECT_FOLDER);
 		_linux_config = make_deploy_config_combo();
-		_linux_app_title = new EntryText();
+		_linux_app_title = new InputString();
 		_linux_app_title.placeholder_text = "My Application";
 		_linux_app_title.text = _project.name();
 
@@ -495,7 +495,7 @@ public class DeployDialog : Gtk.Dialog
 
 		_windows_output_path = new Gtk.FileChooserButton("Select folder", Gtk.FileChooserAction.SELECT_FOLDER);
 		_windows_config = make_deploy_config_combo();
-		_windows_app_title = new EntryText();
+		_windows_app_title = new InputString();
 		_windows_app_title.placeholder_text = "My Application";
 		_windows_app_title.text = _project.name();
 

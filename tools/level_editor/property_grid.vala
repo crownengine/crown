@@ -13,8 +13,8 @@ public class PropertyGrid : Gtk.Grid
 	public int _rows;
 
 	public ProjectStore _store;
-	public Gee.HashMap<string, Property> _widgets;
-	public Gee.HashMap<Property, PropertyDefinition?> _definitions;
+	public Gee.HashMap<string, InputField> _widgets;
+	public Gee.HashMap<InputField, PropertyDefinition?> _definitions;
 
 	public PropertyGrid(Database? db = null, ProjectStore? store = null)
 	{
@@ -28,8 +28,8 @@ public class PropertyGrid : Gtk.Grid
 		_component_id = GUID_ZERO;
 		_rows = 0;
 		_store = store;
-		_widgets = new Gee.HashMap<string, Property>();
-		_definitions = new Gee.HashMap<Property, PropertyDefinition?>();
+		_widgets = new Gee.HashMap<string, InputField>();
+		_definitions = new Gee.HashMap<InputField, PropertyDefinition?>();
 	}
 
 	public Gtk.Widget add_row(string label, Gtk.Widget w)
@@ -50,7 +50,7 @@ public class PropertyGrid : Gtk.Grid
 	public void add_object_type(PropertyDefinition[] properties)
 	{
 		foreach (PropertyDefinition def in properties) {
-			Property? p = null;
+			InputField? p = null;
 
 			switch (def.type) {
 			case PropertyType.BOOL:
@@ -59,7 +59,7 @@ public class PropertyGrid : Gtk.Grid
 
 				assert(def.deffault.holds(typeof(bool)));
 
-				p = new CheckBox();
+				p = new InputBool();
 				break;
 			case PropertyType.DOUBLE:
 				if (def.deffault == null)
@@ -74,9 +74,9 @@ public class PropertyGrid : Gtk.Grid
 				assert(def.max.holds(typeof(double)));
 
 				if (def.editor == PropertyEditorType.ANGLE)
-					p = new EntryAngle((double)def.deffault, (double)def.min, (double)def.max);
+					p = new InputAngle((double)def.deffault, (double)def.min, (double)def.max);
 				else
-					p = new EntryDouble((double)def.deffault, (double)def.min, (double)def.max);
+					p = new InputDouble((double)def.deffault, (double)def.min, (double)def.max);
 				break;
 			case PropertyType.STRING:
 				if (def.deffault == null) {
@@ -89,14 +89,14 @@ public class PropertyGrid : Gtk.Grid
 				assert(def.deffault.holds(typeof(string)));
 
 				if (def.editor == PropertyEditorType.ENUM)
-					p = new ComboBoxMap((string)def.deffault, def.enum_labels, def.enum_values);
+					p = new InputEnum((string)def.deffault, def.enum_labels, def.enum_values);
 				else if (def.editor == PropertyEditorType.RESOURCE)
-					p = new ResourceChooserButton(_store, def.resource_type);
+					p = new InputResource(_store, def.resource_type);
 				else
-					p = new EntryText();
+					p = new InputString();
 				break;
 			case PropertyType.GUID:
-				p = new EntryText();
+				p = new InputString();
 				break;
 			case PropertyType.VECTOR3:
 				if (def.deffault == null)
@@ -110,7 +110,7 @@ public class PropertyGrid : Gtk.Grid
 				assert(def.min.holds(typeof(Vector3)));
 				assert(def.max.holds(typeof(Vector3)));
 
-				p = new EntryVector3((Vector3)def.deffault, (Vector3)def.min, (Vector3)def.max);
+				p = new InputVector3((Vector3)def.deffault, (Vector3)def.min, (Vector3)def.max);
 				break;
 			case PropertyType.QUATERNION:
 				if (def.deffault == null)
@@ -118,7 +118,7 @@ public class PropertyGrid : Gtk.Grid
 
 				assert(def.deffault.holds(typeof(Quaternion)));
 
-				p = new EntryRotation();
+				p = new InputQuaternion();
 				break;
 			default:
 			case PropertyType.NULL:
@@ -136,7 +136,7 @@ public class PropertyGrid : Gtk.Grid
 		}
 	}
 
-	public void on_property_value_changed(Property p)
+	public void on_property_value_changed(InputField p)
 	{
 		if (p.is_inconsistent())
 			return;
@@ -231,9 +231,9 @@ public class PropertyGrid : Gtk.Grid
 
 			if (other_def.enum_property == def.name) {
 				if (other_def.enum_callback != null)
-					other_def.enum_callback(p, (ComboBoxMap)_widgets[other_def.name], _store._project);
+					other_def.enum_callback(p, (InputEnum)_widgets[other_def.name], _store._project);
 				if (other_def.resource_callback != null)
-					other_def.resource_callback(p, (ResourceChooserButton)_widgets[other_def.name], _store._project);
+					other_def.resource_callback(p, (InputResource)_widgets[other_def.name], _store._project);
 			}
 		}
 
@@ -248,7 +248,7 @@ public class PropertyGrid : Gtk.Grid
 	public virtual void update()
 	{
 		foreach (var e in _definitions) {
-			Property p = e.key;
+			InputField p = e.key;
 			PropertyDefinition def = e.value;
 
 			if (def.type == PropertyType.BOOL) {
@@ -322,14 +322,14 @@ public class PropertyGridSet : Gtk.Box
 		return e;
 	}
 
-	public Expander add_property_grid_optional(PropertyGrid cv, string label, CheckBox checkbox)
+	public Expander add_property_grid_optional(PropertyGrid cv, string label, InputBool InputBool)
 	{
 		Gtk.Label l = new Gtk.Label(null);
 		l.set_markup("<b>%s</b>".printf(label));
 		l.set_alignment(0.0f, 0.5f);
 
 		Gtk.Box b = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 6);
-		b.pack_start(checkbox, false, false);
+		b.pack_start(InputBool, false, false);
 		b.pack_start(l, false, false);
 
 		Expander e = new Expander();

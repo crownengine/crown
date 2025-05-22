@@ -117,7 +117,7 @@ public class ConsoleView : Gtk.Box
 	public Gtk.EventControllerMotion _text_view_controller_motion;
 	public Gtk.Overlay _text_view_overlay;
 	public Gtk.ScrolledWindow _scrolled_window;
-	public EntryText _entry;
+	public InputString _entry;
 	public Gtk.EventControllerKey _entry_controller_key;
 	public Gtk.Box _entry_hbox;
 	public Gtk.TextMark _scroll_mark;
@@ -174,7 +174,7 @@ public class ConsoleView : Gtk.Box
 		_text_view_overlay.add(_scrolled_window);
 		_text_view_overlay.add_overlay(clear_button);
 
-		_entry = new EntryText();
+		_entry = new InputString();
 		_entry.activate.connect(on_entry_activated);
 
 		_entry_controller_key = new Gtk.EventControllerKey(_entry);

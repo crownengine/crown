@@ -96,38 +96,38 @@ public class SpriteImportDialog : Gtk.Dialog
 {
 	public Gdk.Pixbuf _pixbuf;
 
-	public EntryResourceBasename _unit_name;
+	public InputResourceBasename _unit_name;
 	public Gtk.Label resolution;
-	public EntryVector2 cells;
+	public InputVector2 cells;
 	public Gtk.CheckButton cell_wh_auto;
-	public EntryVector2 cell;
-	public EntryVector2 offset;
-	public EntryVector2 spacing;
+	public InputVector2 cell;
+	public InputVector2 offset;
+	public InputVector2 spacing;
 	public Gtk.ComboBoxText pivot;
-	public EntryDouble layer;
-	public EntryDouble depth;
+	public InputDouble layer;
+	public InputDouble depth;
 
 	public Gtk.CheckButton collision_enabled;
 	public string shape_active_name;
 	public Gtk.StackSwitcher shape_switcher;
 	public Gtk.Stack shape;
 
-	public EntryVector2 circle_collision_center;
-	public EntryDouble circle_collision_radius;
+	public InputVector2 circle_collision_center;
+	public InputDouble circle_collision_radius;
 
-	public EntryVector2 capsule_collision_center;
-	public EntryDouble capsule_collision_height;
-	public EntryDouble capsule_collision_radius;
+	public InputVector2 capsule_collision_center;
+	public InputDouble capsule_collision_height;
+	public InputDouble capsule_collision_radius;
 
-	public EntryVector2 collision_xy;
-	public EntryVector2 collision_wh;
-	public ComboBoxMap actor_class;
-	public EntryDouble mass;
+	public InputVector2 collision_xy;
+	public InputVector2 collision_wh;
+	public InputEnum actor_class;
+	public InputDouble mass;
 	public Gtk.CheckButton lock_rotation_y;
 
 	public Gtk.Button _previous_frame;
 	public Gtk.Button _next_frame;
-	public EntryDouble _current_frame;
+	public InputDouble _current_frame;
 	public Gtk.Box _frame_selector_box;
 	public Gtk.Overlay _preview_overlay;
 	public PixbufView _slices;
@@ -149,24 +149,24 @@ public class SpriteImportDialog : Gtk.Dialog
 			loge(e.message);
 		}
 
-		_unit_name = new EntryResourceBasename(unit_name);
+		_unit_name = new InputResourceBasename(unit_name);
 
 		resolution = new Gtk.Label(_pixbuf.width.to_string() + " × " + _pixbuf.height.to_string());
 		resolution.halign = Gtk.Align.START;
 
-		cells = new EntryVector2(Vector2(4.0, 4.0), Vector2(1.0, 1.0), Vector2(256.0, 256.0));
+		cells = new InputVector2(Vector2(4.0, 4.0), Vector2(1.0, 1.0), Vector2(256.0, 256.0));
 		cell_wh_auto = new Gtk.CheckButton();
 		cell_wh_auto.active = true;
-		cell = new EntryVector2(Vector2(_pixbuf.width / cells.value.x, _pixbuf.height / cells.value.y), Vector2(1.0, 1.0), Vector2(double.MAX, double.MAX));
+		cell = new InputVector2(Vector2(_pixbuf.width / cells.value.x, _pixbuf.height / cells.value.y), Vector2(1.0, 1.0), Vector2(double.MAX, double.MAX));
 		cell.sensitive = !cell_wh_auto.active;
-		offset = new EntryVector2(Vector2(0.0, 0.0), Vector2(0.0, 0.0), Vector2(double.MAX, double.MAX));
-		spacing = new EntryVector2(Vector2(0.0, 0.0), Vector2(0.0, 0.0), Vector2(double.MAX, double.MAX));
+		offset = new InputVector2(Vector2(0.0, 0.0), Vector2(0.0, 0.0), Vector2(double.MAX, double.MAX));
+		spacing = new InputVector2(Vector2(0.0, 0.0), Vector2(0.0, 0.0), Vector2(double.MAX, double.MAX));
 
 		collision_enabled = new Gtk.CheckButton();
 		collision_enabled.active = true;
-		collision_xy = new EntryVector2(Vector2(0.0, 0.0), Vector2(-double.MAX, -double.MAX), Vector2(double.MAX, double.MAX));
-		collision_wh = new EntryVector2(Vector2(32.0, 32.0), Vector2(-double.MAX, -double.MAX), Vector2(double.MAX, double.MAX));
-		actor_class = new ComboBoxMap();
+		collision_xy = new InputVector2(Vector2(0.0, 0.0), Vector2(-double.MAX, -double.MAX), Vector2(double.MAX, double.MAX));
+		collision_wh = new InputVector2(Vector2(32.0, 32.0), Vector2(-double.MAX, -double.MAX), Vector2(double.MAX, double.MAX));
+		actor_class = new InputEnum();
 		actor_class.append("static", "static");
 		actor_class.append("dynamic", "dynamic");
 		actor_class.append("keyframed", "keyframed");
@@ -174,14 +174,14 @@ public class SpriteImportDialog : Gtk.Dialog
 		actor_class.value = "static";
 		lock_rotation_y = new Gtk.CheckButton();
 		lock_rotation_y.active = true;
-		mass = new EntryDouble(10.0, 0.0, double.MAX);
+		mass = new InputDouble(10.0, 0.0, double.MAX);
 
-		circle_collision_center = new EntryVector2(Vector2(cell.value.x/2.0, cell.value.y/2.0), Vector2(-double.MAX, -double.MAX), Vector2(double.MAX, double.MAX));
-		circle_collision_radius = new EntryDouble(32.0, 0.5, double.MAX);
+		circle_collision_center = new InputVector2(Vector2(cell.value.x/2.0, cell.value.y/2.0), Vector2(-double.MAX, -double.MAX), Vector2(double.MAX, double.MAX));
+		circle_collision_radius = new InputDouble(32.0, 0.5, double.MAX);
 
-		capsule_collision_center = new EntryVector2(Vector2(cell.value.x/2.0, cell.value.y/2.0), Vector2(-double.MAX, -double.MAX), Vector2(double.MAX, double.MAX));
-		capsule_collision_radius = new EntryDouble(32.0, 0.5, double.MAX);
-		capsule_collision_height = new EntryDouble(64.0, 2.0*capsule_collision_radius.value, double.MAX);
+		capsule_collision_center = new InputVector2(Vector2(cell.value.x/2.0, cell.value.y/2.0), Vector2(-double.MAX, -double.MAX), Vector2(double.MAX, double.MAX));
+		capsule_collision_radius = new InputDouble(32.0, 0.5, double.MAX);
+		capsule_collision_height = new InputDouble(64.0, 2.0*capsule_collision_radius.value, double.MAX);
 
 		cells.value_changed.connect(() => {
 				if (cell_wh_auto.active)
@@ -281,8 +281,8 @@ public class SpriteImportDialog : Gtk.Dialog
 				_preview.queue_draw();
 			});
 
-		layer = new EntryDouble(0.0, 0.0, 7.0);
-		depth = new EntryDouble(0.0, 0.0, 9999.0);
+		layer = new InputDouble(0.0, 0.0, 7.0);
+		depth = new InputDouble(0.0, 0.0, 9999.0);
 
 		PropertyGridSet sprite_set = new PropertyGridSet();
 		sprite_set.border_width = 6;
@@ -357,7 +357,7 @@ public class SpriteImportDialog : Gtk.Dialog
 				set_preview_frame();
 				_preview.queue_draw();
 			});
-		_current_frame = new EntryDouble(0.0, 0.0, cells.value.x * cells.value.y - 1);
+		_current_frame = new InputDouble(0.0, 0.0, cells.value.x * cells.value.y - 1);
 		_current_frame.value_changed.connect(() => {
 				set_preview_frame();
 				_preview.queue_draw();

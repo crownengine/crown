@@ -256,7 +256,7 @@ public class LevelTreeView : Gtk.Box
 						, null
 						);
 
-					EntryText sb = new EntryText();
+					InputString sb = new InputString();
 					_tree_selection.selected_foreach((model, path, iter) => {
 							Value name;
 							model.get_value(iter, Column.NAME, out name);

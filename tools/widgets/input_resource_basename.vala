@@ -7,9 +7,9 @@ using Gtk;
 
 namespace Crown
 {
-public class EntryResourceBasename : EntryText
+public class InputResourceBasename : InputString
 {
-	public EntryResourceBasename(string basename)
+	public InputResourceBasename(string basename)
 	{
 		_value = "unset";
 		set_value_safe(basename);

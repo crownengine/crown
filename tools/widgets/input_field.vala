@@ -5,7 +5,7 @@
 
 namespace Crown
 {
-public interface Property : Gtk.Widget
+public interface InputField : Gtk.Widget
 {
 	public const string INCONSISTENT_ID = "-";
 	public const string INCONSISTENT_LABEL = "—";
@@ -15,7 +15,7 @@ public interface Property : Gtk.Widget
 	public abstract GLib.Value union_value();
 	public abstract void set_union_value(GLib.Value v);
 
-	public signal void value_changed(Property p);
+	public signal void value_changed(InputField p);
 }
 
 } /* namespace Crown */

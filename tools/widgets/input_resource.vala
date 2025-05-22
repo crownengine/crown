@@ -7,13 +7,13 @@ using Gtk;
 
 namespace Crown
 {
-public class ResourceChooserButton : Property, Gtk.Box
+public class InputResource : InputField, Gtk.Box
 {
 	// Data
 	public string _type;
 
 	// Widgets
-	public EntryText _name;
+	public InputString _name;
 	public Gtk.Button _selector;
 	public Gtk.Button _revealer;
 	public ProjectStore _project_store;
@@ -52,7 +52,7 @@ public class ResourceChooserButton : Property, Gtk.Box
 		}
 	}
 
-	public ResourceChooserButton(ProjectStore store, string type)
+	public InputResource(ProjectStore store, string type)
 	{
 		Object(orientation: Gtk.Orientation.HORIZONTAL, spacing: 0);
 
@@ -60,7 +60,7 @@ public class ResourceChooserButton : Property, Gtk.Box
 		_type = type;
 
 		// Widgets
-		_name = new EntryText();
+		_name = new InputString();
 		_name.set_editable(false);
 		_name.hexpand = true;
 		_name.value_changed.connect(on_name_value_changed);
@@ -84,7 +84,7 @@ public class ResourceChooserButton : Property, Gtk.Box
 		_project_store._project.file_removed.connect(on_file_removed);
 	}
 
-	~ResourceChooserButton()
+	~InputResource()
 	{
 		// Prevents a crash when the parent window gets destroyed.
 		_chooser.set_type_filter((type, name) => { return false; });

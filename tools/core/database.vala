@@ -26,8 +26,8 @@ public enum PropertyEditorType
 	ANGLE,    ///< An angle value displayed in degrees.
 }
 
-public delegate void EnumCallback(Property enum_property, ComboBoxMap property, Project project);
-public delegate void ResourceCallback(Property enum_property, ResourceChooserButton property, Project project);
+public delegate void EnumCallback(InputField enum_property, InputEnum property, Project project);
+public delegate void ResourceCallback(InputField enum_property, InputResource property, Project project);
 
 public struct PropertyDefinition
 {

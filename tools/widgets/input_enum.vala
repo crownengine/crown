@@ -7,7 +7,7 @@ using Gtk;
 
 namespace Crown
 {
-public class ComboBoxMap : Gtk.ComboBox, Property
+public class InputEnum : InputField, Gtk.ComboBox
 {
 	public bool _inconsistent;
 	public Gtk.ListStore _store;
@@ -67,7 +67,7 @@ public class ComboBoxMap : Gtk.ComboBox, Property
 		return true;
 	}
 
-	public ComboBoxMap(string default_id = "DEFAULT", string[]? labels = null, string[]? ids = null)
+	public InputEnum(string default_id = "DEFAULT", string[]? labels = null, string[]? ids = null)
 	{
 		_inconsistent = false;
 
