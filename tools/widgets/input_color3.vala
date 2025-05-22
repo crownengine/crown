@@ -7,7 +7,7 @@ using Gtk;
 
 namespace Crown
 {
-public class ColorButtonVector3 : Gtk.ColorButton
+public class InputColor3 : Gtk.ColorButton
 {
 	// Data
 	public bool _stop_emit;
@@ -38,7 +38,7 @@ public class ColorButtonVector3 : Gtk.ColorButton
 		}
 	}
 
-	public ColorButtonVector3()
+	public InputColor3()
 	{
 		_stop_emit = false;
 

@@ -19,13 +19,13 @@ public class TextureSettingsDialog : Gtk.Window
 	public bool _never_opened_before;
 	public string _texture_path;
 	// Input page.
-	public ResourceChooserButton _texture_name;
-	public EntryText _source;
+	public InputResource _texture_name;
+	public InputString _source;
 	// Output page.
-	public ComboBoxMap _format;
-	public CheckBox _generate_mips;
-	public EntryDouble _mip_skip_smallest;
-	public CheckBox _normal_map;
+	public InputEnum _format;
+	public InputBool _generate_mips;
+	public InputDouble _mip_skip_smallest;
+	public InputBool _normal_map;
 	public Gtk.Box _box;
 	public Gtk.EventControllerKey _controller_key;
 	public Gtk.Button _cancel;
@@ -76,10 +76,10 @@ public class TextureSettingsDialog : Gtk.Window
 		_texture_path = "";
 
 		// Input grid.
-		_texture_name = new ResourceChooserButton(_store, "texture");
+		_texture_name = new InputResource(_store, "texture");
 		_texture_name.value_changed.connect(on_texture_resource_value_changed);
 
-		_source = new EntryText();
+		_source = new InputString();
 		_source.sensitive = false;
 
 		PropertyGrid cv;
@@ -98,20 +98,20 @@ public class TextureSettingsDialog : Gtk.Window
 		for (int tf = 0; tf < TextureFormat.COUNT; ++tf)
 			texture_formats[tf] = ((TextureFormat)tf).to_key();
 
-		_format = new ComboBoxMap(texture_formats[TextureFormat.BC1]
+		_format = new InputEnum(texture_formats[TextureFormat.BC1]
 			, texture_formats
 			, texture_formats
 			);
 		_format.value_changed.connect(on_format_value_changed);
 
-		_generate_mips = new CheckBox();
+		_generate_mips = new InputBool();
 		_generate_mips.value = true;
 		_generate_mips.value_changed.connect(on_generate_mips_value_changed);
 
-		_mip_skip_smallest = new EntryDouble(0, 0, 32);
+		_mip_skip_smallest = new InputDouble(0, 0, 32);
 		_mip_skip_smallest.value_changed.connect(on_mip_skip_smallest_value_changed);
 
-		_normal_map = new CheckBox();
+		_normal_map = new InputBool();
 		_normal_map.value = false;
 		_normal_map.value_changed.connect(on_normal_map_value_changed);
 
@@ -259,7 +259,7 @@ public class TextureSettingsDialog : Gtk.Window
 		}
 
 		string property_names[] = { "source", "format", "generate_mips", "mip_skip_smallest", "normal_map" };
-		Property properties[] = { _source, _format, _generate_mips, _mip_skip_smallest, _normal_map };
+		InputField properties[] = { _source, _format, _generate_mips, _mip_skip_smallest, _normal_map };
 
 		for (int i = 0; i < properties.length; ++i)
 			properties[i].set_data("init", false);
@@ -316,7 +316,7 @@ public class TextureSettingsDialog : Gtk.Window
 		on_property_value_changed("normal_map", _normal_map);
 	}
 
-	public void on_property_value_changed(string property_name, Property property_value)
+	public void on_property_value_changed(string property_name, InputField property_value)
 	{
 		if (_texture_id == GUID_ZERO)
 			return;

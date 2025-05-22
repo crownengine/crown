@@ -5,11 +5,16 @@
 
 namespace Crown
 {
-public class EntryText : Gtk.Entry, Property
+public class InputDouble : InputField, Gtk.Entry
 {
 	public bool _inconsistent;
-	public string _value;
+	public double _min;
+	public double _max;
+	public double _value;
+	public string _preview_fmt;
+	public string _edit_fmt;
 	public Gtk.GestureMultiPress _gesture_click;
+	public Gtk.EventControllerScroll _controller_scroll;
 
 	public void set_inconsistent(bool inconsistent)
 	{
@@ -19,7 +24,7 @@ public class EntryText : Gtk.Entry, Property
 			if (_inconsistent) {
 				this.text = INCONSISTENT_LABEL;
 			} else {
-				this.text = _value;
+				set_value_safe(string_to_double(this.text, _value));
 			}
 		}
 	}
@@ -36,10 +41,10 @@ public class EntryText : Gtk.Entry, Property
 
 	public void set_union_value(GLib.Value v)
 	{
-		this.value = (string)v;
+		this.value = (double)v;
 	}
 
-	public string value
+	public double value
 	{
 		get
 		{
@@ -51,18 +56,33 @@ public class EntryText : Gtk.Entry, Property
 		}
 	}
 
-	public EntryText()
+	public InputDouble(double val, double min, double max, string preview_fmt = "%.6g", string edit_fmt = "%.17g")
 	{
+		this.input_purpose = Gtk.InputPurpose.NUMBER;
+		this.set_width_chars(1);
+
+		this.activate.connect(on_activate);
+		this.focus_in_event.connect(on_focus_in);
+		this.focus_out_event.connect(on_focus_out);
+
 		_inconsistent = false;
-		_value = "";
+		_min = min;
+		_max = max;
+		_preview_fmt = preview_fmt;
+		_edit_fmt = edit_fmt;
+
+		set_value_safe(val);
 
 		_gesture_click = new Gtk.GestureMultiPress(this);
 		_gesture_click.pressed.connect(on_button_pressed);
 		_gesture_click.released.connect(on_button_released);
 
-		this.activate.connect(on_activate);
-		this.focus_in_event.connect(on_focus_in);
-		this.focus_out_event.connect(on_focus_out);
+		_controller_scroll = new Gtk.EventControllerScroll(this, Gtk.EventControllerScrollFlags.BOTH_AXES);
+		_controller_scroll.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
+		_controller_scroll.scroll.connect(() => {
+				// Do nothing, just consume the event to stop
+				// the annoying scroll default behavior.
+			});
 	}
 
 	private void on_button_pressed(int n_press, double x, double y)
@@ -74,11 +94,11 @@ public class EntryText : Gtk.Entry, Property
 	{
 		uint button = _gesture_click.get_current_button();
 
-		if (button == Gdk.BUTTON_PRIMARY) {
+		if (button == Gdk.BUTTON_PRIMARY && this.has_focus) {
 			if (_inconsistent)
 				this.text = "";
 			else
-				this.text = _value;
+				this.text = _edit_fmt.printf(_value);
 
 			GLib.Idle.add(() => {
 					this.set_position(-1);
@@ -92,7 +112,7 @@ public class EntryText : Gtk.Entry, Property
 	{
 		this.select_region(0, 0);
 		this.set_position(-1);
-		set_value_safe(this.text);
+		set_value_safe(string_to_double(this.text, _value));
 	}
 
 	private bool on_focus_in(Gdk.EventFocus ev)
@@ -103,7 +123,7 @@ public class EntryText : Gtk.Entry, Property
 		if (_inconsistent)
 			this.text = "";
 		else
-			this.text = _value;
+			this.text = _edit_fmt.printf(_value);
 
 		this.set_position(-1);
 		this.select_region(0, -1);
@@ -118,12 +138,12 @@ public class EntryText : Gtk.Entry, Property
 
 		if (_inconsistent) {
 			if (this.text != "") {
-				set_value_safe(this.text);
+				set_value_safe(string_to_double(this.text, _value));
 			} else {
 				this.text = INCONSISTENT_LABEL;
 			}
 		} else {
-			set_value_safe(this.text);
+			set_value_safe(string_to_double(this.text, _value));
 		}
 
 		this.select_region(0, 0);
@@ -131,17 +151,46 @@ public class EntryText : Gtk.Entry, Property
 		return Gdk.EVENT_PROPAGATE;
 	}
 
-	protected virtual void set_value_safe(string text)
+	private void set_value_safe(double val)
 	{
-		this.text = text;
+		double clamped = val.clamp(_min, _max);
+
+		// Convert to text for displaying.
+		this.text = _preview_fmt.printf(clamped);
 
 		_inconsistent = false;
 
 		// Notify value changed.
-		if (_value != text) {
-			_value = text;
+		if (_value != clamped) {
+			_value = clamped;
 			value_changed(this);
 		}
+	}
+
+	/// Returns @a str as double or @a deffault if conversion fails.
+	private double string_to_double(string str, double deffault)
+	{
+		TinyExpr.Variable vars[] =
+		{
+			{ "x", &_value }
+		};
+
+		int err;
+		TinyExpr.Expr expr = TinyExpr.compile(str, vars, out err);
+
+		return err == 0 ? TinyExpr.eval(expr) : deffault;
+	}
+
+	public void set_min(double min)
+	{
+		_min = min;
+		set_value_safe(_value);
+	}
+
+	public void set_max(double max)
+	{
+		_max = max;
+		set_value_safe(_value);
 	}
 }
 

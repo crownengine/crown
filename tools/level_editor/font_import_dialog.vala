@@ -73,11 +73,11 @@ public class FontImportDialog : Gtk.Dialog
 
 	public Gtk.Label _atlas_size;
 	public Gtk.Label _font_path;
-	public EntryResourceBasename _font_name;
-	public EntryDouble _font_size;
+	public InputResourceBasename _font_name;
+	public InputDouble _font_size;
 	public Gtk.ComboBoxText _font_chars;
-	public EntryDouble _font_range_min;
-	public EntryDouble _font_range_max;
+	public InputDouble _font_range_min;
+	public InputDouble _font_range_max;
 
 	public void set_font_range(int min, int max)
 	{
@@ -147,11 +147,11 @@ public class FontImportDialog : Gtk.Dialog
 		_atlas_size = new Gtk.Label("? × ?");
 		_atlas_size.halign = Gtk.Align.START;
 		_font_path = new Gtk.Label(font_path);
-		_font_name = new EntryResourceBasename(font_name);
-		_font_size = new EntryDouble(24.0, 1.0, 999.0);
-		_font_range_min = new EntryDouble(32.0, 0.0, int32.MAX);
+		_font_name = new InputResourceBasename(font_name);
+		_font_size = new InputDouble(24.0, 1.0, 999.0);
+		_font_range_min = new InputDouble(32.0, 0.0, int32.MAX);
 		_font_range_min.sensitive = false;
-		_font_range_max = new EntryDouble(126.0, 0.0, int32.MAX);
+		_font_range_max = new InputDouble(126.0, 0.0, int32.MAX);
 		_font_range_max.sensitive = false;
 		_font_chars = new Gtk.ComboBoxText();
 		_font_chars.append_text("ASCII Printable"); // FontChars.ASCII_PRINTABLE

@@ -13,25 +13,25 @@ public class PreferencesDialog : Gtk.Dialog
 	public RuntimeInstance _editor;
 
 	// Document page.
-	public ColorButtonVector3 _grid_color_button;
-	public ColorButtonVector3 _grid_disabled_color_button;
-	public ColorButtonVector3 _axis_x_color_button;
-	public ColorButtonVector3 _axis_y_color_button;
-	public ColorButtonVector3 _axis_z_color_button;
-	public ColorButtonVector3 _axis_selected_color_button;
-	public EntryDouble _gizmo_size_spin_button;
-	public ComboBoxMap _theme_combo;
+	public InputColor3 _grid_color_button;
+	public InputColor3 _grid_disabled_color_button;
+	public InputColor3 _axis_x_color_button;
+	public InputColor3 _axis_y_color_button;
+	public InputColor3 _axis_z_color_button;
+	public InputColor3 _axis_selected_color_button;
+	public InputDouble _gizmo_size_spin_button;
+	public InputEnum _theme_combo;
 	public PropertyGridSet _document_set;
 
 	// Viewport page.
-	public EntryDouble _level_autosave_spin_button;
+	public InputDouble _level_autosave_spin_button;
 	public PropertyGridSet _viewport_set;
 
 	// System page.
-	public EntryDouble _undo_redo_max_size;
-	public EntryDouble _log_delete_after_days;
-	public EntryDouble _console_max_lines;
-	public EntryDouble _thumbnail_cache_max_size;
+	public InputDouble _undo_redo_max_size;
+	public InputDouble _log_delete_after_days;
+	public InputDouble _console_max_lines;
+	public InputDouble _thumbnail_cache_max_size;
 	public PropertyGridSet _system_set;
 
 	// External Tools page.
@@ -60,22 +60,22 @@ public class PreferencesDialog : Gtk.Dialog
 		_external_tools_set.border_width = 12;
 
 		// Document page.
-		_grid_color_button = new ColorButtonVector3();
+		_grid_color_button = new InputColor3();
 		_grid_color_button.value = Vector3(102.0/255.0, 102.0/255.0, 102.0/255.0);
 		_grid_color_button.value_changed.connect(on_color_set);
-		_grid_disabled_color_button = new ColorButtonVector3();
+		_grid_disabled_color_button = new InputColor3();
 		_grid_disabled_color_button.value = Vector3(102.0/255.0, 102.0/255.0, 102.0/255.0);
 		_grid_disabled_color_button.value_changed.connect(on_color_set);
-		_axis_x_color_button = new ColorButtonVector3();
+		_axis_x_color_button = new InputColor3();
 		_axis_x_color_button.value = Vector3(217.0/255.0, 0.0/255.0, 0.0/255.0);
 		_axis_x_color_button.value_changed.connect(on_color_set);
-		_axis_y_color_button = new ColorButtonVector3();
+		_axis_y_color_button = new InputColor3();
 		_axis_y_color_button.value = Vector3(0.0/255.0, 217.0/255.0, 0.0/255.0);
 		_axis_y_color_button.value_changed.connect(on_color_set);
-		_axis_z_color_button = new ColorButtonVector3();
+		_axis_z_color_button = new InputColor3();
 		_axis_z_color_button.value = Vector3(0.0/255.0, 0.0/255.0, 217.0/255.0);
 		_axis_z_color_button.value_changed.connect(on_color_set);
-		_axis_selected_color_button = new ColorButtonVector3();
+		_axis_selected_color_button = new InputColor3();
 		_axis_selected_color_button.value = Vector3(217.0/255.0, 217.0/255.0, 0.0/255.0);
 		_axis_selected_color_button.value_changed.connect(on_color_set);
 
@@ -94,10 +94,10 @@ public class PreferencesDialog : Gtk.Dialog
 		cv.add_row("Selected", _axis_selected_color_button);
 		_document_set.add_property_grid(cv, "Axes");
 
-		_gizmo_size_spin_button = new EntryDouble(85, 10, 200);
+		_gizmo_size_spin_button = new InputDouble(85, 10, 200);
 		_gizmo_size_spin_button.value_changed.connect(on_gizmo_size_value_changed);
 
-		_theme_combo = new ComboBoxMap("dark"
+		_theme_combo = new InputEnum("dark"
 			, new string[] { "Dark", "Light" }
 			, new string[] { "dark", "light" }
 			);
@@ -117,7 +117,7 @@ public class PreferencesDialog : Gtk.Dialog
 		_document_set.add_property_grid(cv, "UI");
 
 		// Level page.
-		_level_autosave_spin_button = new EntryDouble(5, 1, 60);
+		_level_autosave_spin_button = new InputDouble(5, 1, 60);
 		_level_autosave_spin_button.value_changed.connect(on_level_autosave_value_changed);
 
 		cv = new PropertyGrid();
@@ -126,10 +126,10 @@ public class PreferencesDialog : Gtk.Dialog
 		_viewport_set.add_property_grid(cv, "Level");
 
 		// Memory and limits page.
-		_undo_redo_max_size = new EntryDouble(8, 1, 2048);
-		_log_delete_after_days = new EntryDouble(10, 0, 90);
-		_console_max_lines = new EntryDouble(256, 10, 1024);
-		_thumbnail_cache_max_size = new EntryDouble(32, 1, 128);
+		_undo_redo_max_size = new InputDouble(8, 1, 2048);
+		_log_delete_after_days = new InputDouble(10, 0, 90);
+		_console_max_lines = new InputDouble(256, 10, 1024);
+		_thumbnail_cache_max_size = new InputDouble(32, 1, 128);
 
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;

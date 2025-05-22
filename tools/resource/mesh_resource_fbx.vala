@@ -66,51 +66,51 @@ public static string projection_type(ufbx.ProjectionMode ufbx_mode)
 [Compact]
 public class FBXImportOptions
 {
-	public CheckBox import_units;
-	public CheckBox import_lights;
-	public CheckBox import_cameras;
-	public CheckBox import_textures;
-	public CheckBox create_textures_folder;
-	public CheckBox import_materials;
-	public CheckBox create_materials_folder;
+	public InputBool import_units;
+	public InputBool import_lights;
+	public InputBool import_cameras;
+	public InputBool import_textures;
+	public InputBool create_textures_folder;
+	public InputBool import_materials;
+	public InputBool create_materials_folder;
 
-	public CheckBox import_animation;
-	public CheckBox new_skeleton;
-	public ResourceChooserButton target_skeleton;
-	public CheckBox import_clips;
-	public CheckBox create_animations_folder;
+	public InputBool import_animation;
+	public InputBool new_skeleton;
+	public InputResource target_skeleton;
+	public InputBool import_clips;
+	public InputBool create_animations_folder;
 
 	public FBXImportOptions(ProjectStore project_store)
 	{
-		import_units = new CheckBox();
+		import_units = new InputBool();
 		import_units.value = true;
 		import_units.value_changed.connect(on_import_units_changed);
-		import_lights = new CheckBox();
+		import_lights = new InputBool();
 		import_lights.value = true;
-		import_cameras = new CheckBox();
+		import_cameras = new InputBool();
 		import_cameras.value = true;
-		import_textures = new CheckBox();
+		import_textures = new InputBool();
 		import_textures.value = true;
 		import_textures.value_changed.connect(on_import_textures_changed);
-		create_textures_folder = new CheckBox();
+		create_textures_folder = new InputBool();
 		create_textures_folder.value = true;
-		import_materials = new CheckBox();
+		import_materials = new InputBool();
 		import_materials.value = true;
 		import_materials.value_changed.connect(on_import_materials_changed);
-		create_materials_folder = new CheckBox();
+		create_materials_folder = new InputBool();
 		create_materials_folder.value = true;
-		import_animation = new CheckBox();
+		import_animation = new InputBool();
 		import_animation.value = true;
 		import_animation.value_changed.connect(on_import_animation_changed);
-		new_skeleton = new CheckBox();
+		new_skeleton = new InputBool();
 		new_skeleton.value = true;
 		new_skeleton.value_changed.connect(on_new_skeleton_changed);
-		target_skeleton = new ResourceChooserButton(project_store, OBJECT_TYPE_MESH_SKELETON);
+		target_skeleton = new InputResource(project_store, OBJECT_TYPE_MESH_SKELETON);
 		target_skeleton.sensitive = false;
-		import_clips = new CheckBox();
+		import_clips = new InputBool();
 		import_clips.value = true;
 		import_clips.value_changed.connect(on_import_animations_changed);
-		create_animations_folder = new CheckBox();
+		create_animations_folder = new InputBool();
 		create_animations_folder.value = true;
 	}
 

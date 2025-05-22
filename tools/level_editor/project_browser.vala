@@ -55,7 +55,7 @@ private Gtk.Menu? project_entry_menu_create(string type, string name)
 					, null
 					);
 
-				EntryText sb = new EntryText();
+				InputString sb = new InputString();
 				sb.activate.connect(() => { dg.response(ResponseType.OK); });
 				dg.get_content_area().add(sb);
 				dg.skip_taskbar_hint = true;
@@ -87,7 +87,7 @@ private Gtk.Menu? project_entry_menu_create(string type, string name)
 					, null
 					);
 
-				EntryText sb = new EntryText();
+				InputString sb = new InputString();
 				sb.activate.connect(() => { dg.response(ResponseType.OK); });
 				dg.get_content_area().add(sb);
 				dg.skip_taskbar_hint = true;
@@ -122,7 +122,7 @@ private Gtk.Menu? project_entry_menu_create(string type, string name)
 					, null
 					);
 
-				EntryText sb = new EntryText();
+				InputString sb = new InputString();
 				sb.activate.connect(() => { dg.response(ResponseType.OK); });
 				dg.get_content_area().add(sb);
 				dg.skip_taskbar_hint = true;
@@ -154,7 +154,7 @@ private Gtk.Menu? project_entry_menu_create(string type, string name)
 					, null
 					);
 
-				EntryText sb = new EntryText();
+				InputString sb = new InputString();
 				sb.activate.connect(() => { dg.response(ResponseType.OK); });
 				dg.get_content_area().add(sb);
 				dg.skip_taskbar_hint = true;
@@ -189,7 +189,7 @@ private Gtk.Menu? project_entry_menu_create(string type, string name)
 					, null
 					);
 
-				EntryText sb = new EntryText();
+				InputString sb = new InputString();
 				sb.activate.connect(() => { dg.response(ResponseType.OK); });
 				dg.get_content_area().add(sb);
 				dg.skip_taskbar_hint = true;
@@ -261,7 +261,7 @@ private Gtk.Menu? project_entry_menu_create(string type, string name)
 						, null
 						);
 
-					EntryText sb = new EntryText();
+					InputString sb = new InputString();
 					sb.value = GLib.Path.get_basename((string)name);
 					sb.activate.connect(() => { dg.response(ResponseType.OK); });
 					dg.get_content_area().add(sb);

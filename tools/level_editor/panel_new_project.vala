@@ -17,13 +17,13 @@ public class PanelNewProject : Gtk.Viewport
 	// Widgets
 	public Gtk.Label _new_project_label;
 	public Gtk.Label _name_label;
-	public EntryText _entry_name;
+	public InputString _entry_name;
 	public Gtk.Label _create_folder_label;
 	public Gtk.CheckButton _create_folder;
 	public Gtk.Label _location_label;
 	public Gtk.FileChooserButton _file_chooser_button_location;
 	public Gtk.Label _template_label;
-	public ComboBoxMap _combo_box_map_template;
+	public InputEnum _combo_box_map_template;
 	public Gtk.Label _label_message;
 	public Gtk.Button _button_back;
 	public Gtk.Button _button_create;
@@ -46,7 +46,7 @@ public class PanelNewProject : Gtk.Viewport
 
 		_name_label = new Gtk.Label("Name");
 		_name_label.xalign = 1;
-		_entry_name = new EntryText();
+		_entry_name = new InputString();
 
 		_location_label = new Gtk.Label("Location");
 		_location_label.xalign = 1;
@@ -60,7 +60,7 @@ public class PanelNewProject : Gtk.Viewport
 
 		_template_label = new Gtk.Label("Template");
 		_template_label.xalign = 1;
-		_combo_box_map_template = new ComboBoxMap();
+		_combo_box_map_template = new InputEnum();
 		_combo_box_map_template.hexpand = true;
 		_combo_box_map_template.append("", "None");
 		_combo_box_map_template.value = "";

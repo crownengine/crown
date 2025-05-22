@@ -7,7 +7,7 @@ using Gtk;
 
 namespace Crown
 {
-public class CheckBox : Property, Gtk.CheckButton
+public class InputBool : InputField, Gtk.CheckButton
 {
 	public new void set_inconsistent(bool inconsistent)
 	{
@@ -41,7 +41,7 @@ public class CheckBox : Property, Gtk.CheckButton
 		}
 	}
 
-	public CheckBox()
+	public InputBool()
 	{
 		// Data
 		this.toggled.connect(on_value_changed);

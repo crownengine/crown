@@ -90,7 +90,7 @@ public class MeshRendererPropertyGrid : PropertyGrid
 	}
 }
 
-public void node_name_enum_callback(Property enum_property, ComboBoxMap combo, Project project)
+public void node_name_enum_callback(InputField enum_property, InputEnum combo, Project project)
 {
 	try {
 		string path = ResourceId.path(OBJECT_TYPE_MESH, (string)enum_property.union_value());
@@ -364,13 +364,13 @@ public class ColliderPropertyGrid : PropertyGrid
 		add_object_type(properties);
 	}
 
-	public void scene_resource_callback(Property enum_property, ResourceChooserButton chooser, Project project)
+	public void scene_resource_callback(InputField enum_property, InputResource chooser, Project project)
 	{
 		if (enum_property.union_value() == "mesh")
 			chooser.set_union_value("core/units/primitives/cube");
 	}
 
-	public void shape_resource_callback(Property enum_property, ComboBoxMap combo, Project project)
+	public void shape_resource_callback(InputField enum_property, InputEnum combo, Project project)
 	{
 		if (enum_property.union_value() == "inline")
 			combo.set_union_value("box");
@@ -471,7 +471,7 @@ public class ActorPropertyGrid : PropertyGrid
 		add_object_type(properties);
 	}
 
-	private void class_enum_callback(Property property_enum, ComboBoxMap combo, Project project)
+	private void class_enum_callback(InputField property_enum, InputEnum combo, Project project)
 	{
 		try {
 			string path = ResourceId.path("physics_config", "global");
@@ -490,7 +490,7 @@ public class ActorPropertyGrid : PropertyGrid
 		}
 	}
 
-	private void collision_filter_enum_callback(Property property_enum, ComboBoxMap combo, Project project)
+	private void collision_filter_enum_callback(InputField property_enum, InputEnum combo, Project project)
 	{
 		try {
 			string path = ResourceId.path("physics_config", "global");
@@ -509,7 +509,7 @@ public class ActorPropertyGrid : PropertyGrid
 		}
 	}
 
-	private void material_enum_callback(Property property_enum, ComboBoxMap combo, Project project)
+	private void material_enum_callback(InputField property_enum, InputEnum combo, Project project)
 	{
 		try {
 			string path = ResourceId.path("physics_config", "global");
@@ -576,7 +576,7 @@ public class AnimationStateMachine : PropertyGrid
 public class UnitView : PropertyGrid
 {
 	// Widgets
-	private ResourceChooserButton _prefab;
+	private InputResource _prefab;
 	private Gtk.MenuButton _component_add;
 	private Gtk.Box _components;
 	private Gtk.Popover _add_popover;
@@ -608,7 +608,7 @@ public class UnitView : PropertyGrid
 		base(db, store);
 
 		// Widgets
-		_prefab = new ResourceChooserButton(store, "unit");
+		_prefab = new InputResource(store, "unit");
 		_prefab._selector.sensitive = false;
 
 		// List of component types.
