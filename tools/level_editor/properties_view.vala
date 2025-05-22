@@ -205,6 +205,7 @@ public class LightPropertyGrid : PropertyGrid
 				type = PropertyType.VECTOR3,
 				name =  "data.color",
 				label =  "Color",
+				editor = PropertyEditorType.COLOR,
 				min = VECTOR3_ZERO,
 				max = VECTOR3_ONE,
 			},

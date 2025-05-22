@@ -5,48 +5,49 @@
 
 namespace Crown
 {
-public class InputColor3 : Gtk.ColorButton
+public class InputColor3 : InputField, Gtk.ColorButton
 {
-	// Data
-	public bool _stop_emit;
+	public void set_inconsistent(bool inconsistent)
+	{
+	}
 
-	// Signals
-	public signal void value_changed();
+	public bool is_inconsistent()
+	{
+		return false;
+	}
+
+	public GLib.Value union_value()
+	{
+		return this.value;
+	}
+
+	public void set_union_value(GLib.Value v)
+	{
+		this.value = (Vector3)v;
+	}
 
 	public Vector3 value
 	{
 		get
 		{
 			Gdk.RGBA rgba = this.get_rgba();
-			double r = rgba.red;
-			double g = rgba.green;
-			double b = rgba.blue;
-			return Vector3(r, g, b);
+			return Vector3(rgba.red, rgba.green, rgba.blue);
 		}
 		set
 		{
-			_stop_emit = true;
-			Vector3 val = (Vector3)value;
-			double r = val.x;
-			double g = val.y;
-			double b = val.z;
-			double a = 1.0;
-			this.set_rgba({ r, g, b, a });
-			_stop_emit = false;
+			Vector3 rgb = (Vector3)value;
+			this.set_rgba({ rgb.x, rgb.y, rgb.z, 1.0 });
 		}
 	}
 
 	public InputColor3()
 	{
-		_stop_emit = false;
-
 		this.color_set.connect(on_color_set);
 	}
 
 	private void on_color_set()
 	{
-		if (!_stop_emit)
-			value_changed();
+		value_changed(this);
 	}
 }
 

@@ -22,6 +22,7 @@ public enum PropertyEditorType
 	ENUM,     ///< A string selected from a list.
 	RESOURCE, ///< A resource name selected from a project.
 	ANGLE,    ///< An angle value displayed in degrees.
+	COLOR,    ///< An RGB color from a color picker.
 }
 
 public delegate void EnumCallback(InputField enum_property, InputEnum property, Project project);
