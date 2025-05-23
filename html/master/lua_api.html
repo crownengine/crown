@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lua API reference &mdash; Crown 0.56.0 Manual 0.56.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" /><link rel="shortcut icon" href="_static/crown-black-socket.svg"/>
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" /><link rel="shortcut icon" href="_static/org.crownengine.Crown.svg"/>
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -27,7 +27,7 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html"><img src="_static/crown-black-socket.svg" class="logo" alt="Logo"/>
+            <a href="index.html"><img src="_static/org.crownengine.Crown.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 Crown 0.56.0 Manual
@@ -199,7 +199,7 @@
 <dd>Adds an arc at <em>center</em> with the given <em>radius</em> and <em>plane_normal</em> and <em>midpoint_normal</em> vectors.</dd>
 <dt><strong>add_circle</strong> (debug_line, center, radius, normal, color, [segments = 36])</dt>
 <dd>Adds a circle at <em>center</em> with the given <em>radius</em> and <em>normal</em> vector.</dd>
-<dt><strong>add_cone</strong> (debug_line, from, to, radius, color, [segments = 36])</dt>
+<dt><strong>add_cone</strong> (debug_line, from, to, radius, color, [segments = 36, rays = 36])</dt>
 <dd>Adds a cone with the base centered at <em>from</em> and the tip at <em>to</em>.</dd>
 <dt><strong>add_sphere</strong> (debug_line, center, radius, color, [segments = 36])</dt>
 <dd>Adds a sphere at <em>center</em> with the given <em>radius</em>.</dd>
@@ -319,39 +319,42 @@ The initial display mode is automatically reset when the program terminates.</dd
 <dl class="docutils">
 <dt><strong>move</strong> (gui, pos)</dt>
 <dd>Moves the Gui to <em>pos</em>.</dd>
-<dt><strong>triangle</strong> (gui, a, b, c, color [, depth])</dt>
+<dt><strong>triangle</strong> (gui, a, b, c [, color, depth])</dt>
 <dd>Draws a triangle defined by vertices <em>a</em>, <em>b</em> and <em>c</em>.
 Objects with a lower depth are drawn in front. If depth is omitted its value
 is set to 0.</dd>
-<dt><strong>triangle_3d</strong> (gui, local_pose, a, b, c, color [, depth])</dt>
+<dt><strong>triangle_3d</strong> (gui, local_pose, a, b, c [, color, depth])</dt>
 <dd>Draws a 3D triangle defined by vertices <em>a</em>, <em>b</em> and <em>c</em>.</dd>
-<dt><strong>rect</strong> (gui, pos, size, color)</dt>
+<dt><strong>rect</strong> (gui, pos, size [, color])</dt>
 <dd>Draws a rectangle.
 If pos is a Vector3, the z element specifies the drawing depth. Objects with
 a lower depth are drawn in front. If pos is a Vector2, the z elements is set
 to 0.</dd>
-<dt><strong>rect_3d</strong> (gui, local_pose, pos, size, color [, depth])</dt>
+<dt><strong>rect_3d</strong> (gui, local_pose, pos, size [, color, depth])</dt>
 <dd>Draws a 3D rectangle.</dd>
-<dt><strong>image</strong> (gui, pos, size, material_resource, color)</dt>
+<dt><strong>image</strong> (gui, pos, size, material_resource [, color])</dt>
 <dd>Draws an image.
 If pos is a Vector3, the z element specifies the drawing depth. Objects with
 a lower depth are drawn in front. If pos is a Vector2, the z elements is set
 to 0.</dd>
-<dt><strong>image_3d</strong> (gui, local_pose, pos, size, material_resource, color [, depth])</dt>
+<dt><strong>image_3d</strong> (gui, local_pose, pos, size, material_resource [, color, depth])</dt>
 <dd>Draws a 3D image.</dd>
-<dt><strong>image_uv</strong> (gui, pos, size, uv0, uv1, material_resource, color)</dt>
+<dt><strong>image_uv</strong> (gui, pos, size, uv0, uv1, material_resource [, color])</dt>
 <dd>Draws an image with explicit UV coordinates.
 If pos is a Vector3, the z element specifies the drawing depth. Objects with
 a lower depth are drawn in front. If pos is a Vector2, the z elements is set
 to 0.</dd>
-<dt><strong>image_3d_uv</strong> (gui, local_pose, pos, size, uv0, uv1, material_resource, color [, depth])</dt>
+<dt><strong>image_3d_uv</strong> (gui, local_pose, pos, size, uv0, uv1, material_resource [, color, depth])</dt>
 <dd>Draws a 3D image with explicit UV coordinates.</dd>
-<dt><strong>text</strong> (gui, pos, font_size, str, font_resource, material_resource, color)</dt>
+<dt><strong>text</strong> (gui, pos, font_size, str, font_resource [, material_resource , color])</dt>
 <dd>Draws text.
 If pos is a Vector3, the z element specifies the drawing depth. Objects with
 a lower depth are drawn in front. If pos is a Vector2, the z elements is set
 to 0.</dd>
-<dt><strong>text_3d</strong> (gui, local_pose, pos, font_size, str, font_resource, material_resource, color [, depth])</dt>
+<dt><strong>text_extents</strong> (gui, font_size, str, font_resource) <span class="classifier-delimiter">:</span> <span class="classifier">Vector2</span></dt>
+<dd>Returns the extents of the text <em>str</em> if drawn using <em>font_resource</em> at size
+<em>font_size</em>.</dd>
+<dt><strong>text_3d</strong> (gui, local_pose, pos, font_size, str, font_resource [, material_resource, color, depth])</dt>
 <dd>Draws 3D text.</dd>
 <dt><strong>material</strong> (material_resource) <span class="classifier-delimiter">:</span> <span class="classifier">Material</span></dt>
 <dd>Returns the material <em>material_resource</em>.</dd>
@@ -1168,6 +1171,8 @@ It can be either <code class="docutils literal notranslate"><span class="pre">di
 <dd>Returns the intensity of the <em>light</em>.</dd>
 <dt><strong>light_spot_angle</strong> (rw, light) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
 <dd>Returns the spot angle of the <em>light</em>.</dd>
+<dt><strong>light_shadow_bias</strong> (rw, light) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the shadow bias of the <em>light</em>.</dd>
 <dt><strong>light_set_type</strong> (rw, light, type)</dt>
 <dd>Sets the <em>type</em> of the <em>light</em>.</dd>
 <dt><strong>light_set_color</strong> (rw, light, color)</dt>
@@ -1178,6 +1183,8 @@ It can be either <code class="docutils literal notranslate"><span class="pre">di
 <dd>Sets the <em>intensity</em> of the <em>light</em>.</dd>
 <dt><strong>light_set_spot_angle</strong> (rw, light, angle)</dt>
 <dd>Sets the spot <em>angle</em> of the <em>light</em>.</dd>
+<dt><strong>light_set_shadow_bias</strong> (rw, light, bias)</dt>
+<dd>Sets the shadow <em>bias</em> of the <em>light</em>.</dd>
 <dt><strong>light_debug_draw</strong> (rw, light, debug_line)</dt>
 <dd>Fills <em>debug_line</em> with debug lines from the <em>light</em>.</dd>
 </dl>
@@ -1265,6 +1272,9 @@ if <em>child</em> has no sibling.</dd>
 <dd>Resumes all previously paused sounds in the world.</dd>
 <dt><strong>is_playing</strong> (sound_world, id) <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
 <dd>Returns whether the sound <em>id</em> is playing.</dd>
+<dt><strong>set_group_volume</strong> (sound_world, group, volume)</dt>
+<dd>Sets the <em>volume</em> of the sound <em>group</em>. The volume of the sounds within
+<em>group</em> is multiplied by the group’s volume.</dd>
 </dl>
 </div>
 <div class="section" id="unitmanager">
@@ -1305,13 +1315,14 @@ that world.</dd>
 <dt><strong>set_fullscreen</strong> (fullscreen)</dt>
 <dd>Sets whether the window is <em>fullscreen</em>.</dd>
 <dt><strong>set_cursor</strong> (cursor)</dt>
-<dd>Sets the mouse <em>cursor</em> on this window. Cursor can be any of <code class="docutils literal notranslate"><span class="pre">arrow</span></code>, <code class="docutils literal notranslate"><span class="pre">hand</span></code>,
-<code class="docutils literal notranslate"><span class="pre">text_input</span></code>, <code class="docutils literal notranslate"><span class="pre">corner_top_left</span></code>, <code class="docutils literal notranslate"><span class="pre">corner_top_right</span></code>, <code class="docutils literal notranslate"><span class="pre">corner_bottom_left</span></code>,
-<code class="docutils literal notranslate"><span class="pre">corner_bottom_right</span></code>, <code class="docutils literal notranslate"><span class="pre">size_horizontal</span></code>, <code class="docutils literal notranslate"><span class="pre">size_vertical</span></code> or <code class="docutils literal notranslate"><span class="pre">wait</span></code>.</dd>
+<dd>Sets the mouse <em>cursor</em> on this window. Cursor can be any of <code class="docutils literal notranslate"><span class="pre">arrow</span></code>,
+<code class="docutils literal notranslate"><span class="pre">hand</span></code>, <code class="docutils literal notranslate"><span class="pre">text_input</span></code>, <code class="docutils literal notranslate"><span class="pre">corner_top_left</span></code>, <code class="docutils literal notranslate"><span class="pre">corner_top_right</span></code>,
+<code class="docutils literal notranslate"><span class="pre">corner_bottom_left</span></code>, <code class="docutils literal notranslate"><span class="pre">corner_bottom_right</span></code>, <code class="docutils literal notranslate"><span class="pre">size_horizontal</span></code>,
+<code class="docutils literal notranslate"><span class="pre">size_vertical</span></code> or <code class="docutils literal notranslate"><span class="pre">wait</span></code>.</dd>
 <dt><strong>set_cursor_mode</strong> (cursor, mode)</dt>
-<dd>Sets the mouse cursor <em>mode</em> on this window.  Mode can be either <code class="docutils literal notranslate"><span class="pre">normal</span></code> or <code class="docutils literal notranslate"><span class="pre">disabled</span></code>.
-Setting the mode to <code class="docutils literal notranslate"><span class="pre">disabled</span></code> hides the cursor and automatically re-centers it every time it
-is moved.</dd>
+<dd>Sets the mouse cursor <em>mode</em> on this window.  Mode can be either <code class="docutils literal notranslate"><span class="pre">normal</span></code>
+or <code class="docutils literal notranslate"><span class="pre">disabled</span></code>.  Setting the mode to <code class="docutils literal notranslate"><span class="pre">disabled</span></code> hides the cursor and
+automatically re-centers it every time it is moved.</dd>
 </dl>
 </div>
 <div class="section" id="world">
@@ -1398,9 +1409,10 @@ The horizontal size is proportional to the viewport’s aspect ratio.</dd>
 <div class="section" id="sound">
 <h3>Sound<a class="headerlink" href="#sound" title="Permalink to this headline">¶</a></h3>
 <dl class="docutils">
-<dt><strong>play_sound</strong> (world, name, [loop, volume, position, range]) <span class="classifier-delimiter">:</span> <span class="classifier">SoundInstanceId</span></dt>
+<dt><strong>play_sound</strong> (world, name, [loop, volume, position, range, group]) <span class="classifier-delimiter">:</span> <span class="classifier">SoundInstanceId</span></dt>
 <dd>Plays the sound with the given <em>name</em> at the given <em>position</em>, with the given
-<em>volume</em> and <em>range</em>. <em>loop</em> controls whether the sound must loop or not.</dd>
+<em>volume</em> and <em>range</em>. <em>loop</em> controls whether the sound must loop or not.
+<em>group</em> is a string that identifies the sound’s group, see SoundWorld.set_group_volume().</dd>
 <dt><strong>stop_sound</strong> (world, id)</dt>
 <dd>Stops the sound with the given <em>id</em>.</dd>
 <dt><strong>link_sound</strong> (world, id, unit, node)</dt>

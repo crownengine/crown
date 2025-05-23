@@ -35,7 +35,7 @@ DebugLine
 **add_circle** (debug_line, center, radius, normal, color, [segments = 36])
 	Adds a circle at *center* with the given *radius* and *normal* vector.
 
-**add_cone** (debug_line, from, to, radius, color, [segments = 36])
+**add_cone** (debug_line, from, to, radius, color, [segments = 36, rays = 36])
 	Adds a cone with the base centered at *from* and the tip at *to*.
 
 **add_sphere** (debug_line, center, radius, color, [segments = 36])
@@ -170,48 +170,52 @@ Gui
 **move** (gui, pos)
 	Moves the Gui to *pos*.
 
-**triangle** (gui, a, b, c, color [, depth])
+**triangle** (gui, a, b, c [, color, depth])
 	Draws a triangle defined by vertices *a*, *b* and *c*.
 	Objects with a lower depth are drawn in front. If depth is omitted its value
 	is set to 0.
 
-**triangle_3d** (gui, local_pose, a, b, c, color [, depth])
+**triangle_3d** (gui, local_pose, a, b, c [, color, depth])
 	Draws a 3D triangle defined by vertices *a*, *b* and *c*.
 
-**rect** (gui, pos, size, color)
+**rect** (gui, pos, size [, color])
 	Draws a rectangle.
 	If pos is a Vector3, the z element specifies the drawing depth. Objects with
 	a lower depth are drawn in front. If pos is a Vector2, the z elements is set
 	to 0.
 
-**rect_3d** (gui, local_pose, pos, size, color [, depth])
+**rect_3d** (gui, local_pose, pos, size [, color, depth])
 	Draws a 3D rectangle.
 
-**image** (gui, pos, size, material_resource, color)
+**image** (gui, pos, size, material_resource [, color])
 	Draws an image.
 	If pos is a Vector3, the z element specifies the drawing depth. Objects with
 	a lower depth are drawn in front. If pos is a Vector2, the z elements is set
 	to 0.
 
-**image_3d** (gui, local_pose, pos, size, material_resource, color [, depth])
+**image_3d** (gui, local_pose, pos, size, material_resource [, color, depth])
 	Draws a 3D image.
 
-**image_uv** (gui, pos, size, uv0, uv1, material_resource, color)
+**image_uv** (gui, pos, size, uv0, uv1, material_resource [, color])
 	Draws an image with explicit UV coordinates.
 	If pos is a Vector3, the z element specifies the drawing depth. Objects with
 	a lower depth are drawn in front. If pos is a Vector2, the z elements is set
 	to 0.
 
-**image_3d_uv** (gui, local_pose, pos, size, uv0, uv1, material_resource, color [, depth])
+**image_3d_uv** (gui, local_pose, pos, size, uv0, uv1, material_resource [, color, depth])
 	Draws a 3D image with explicit UV coordinates.
 
-**text** (gui, pos, font_size, str, font_resource, material_resource, color)
+**text** (gui, pos, font_size, str, font_resource [, material_resource , color])
 	Draws text.
 	If pos is a Vector3, the z element specifies the drawing depth. Objects with
 	a lower depth are drawn in front. If pos is a Vector2, the z elements is set
 	to 0.
 
-**text_3d** (gui, local_pose, pos, font_size, str, font_resource, material_resource, color [, depth])
+**text_extents** (gui, font_size, str, font_resource) : Vector2
+	Returns the extents of the text *str* if drawn using *font_resource* at size
+	*font_size*.
+
+**text_3d** (gui, local_pose, pos, font_size, str, font_resource [, material_resource, color, depth])
 	Draws 3D text.
 
 **material** (material_resource) : Material
@@ -1187,6 +1191,9 @@ Light
 **light_spot_angle** (rw, light) : float
 	Returns the spot angle of the *light*.
 
+**light_shadow_bias** (rw, light) : float
+	Returns the shadow bias of the *light*.
+
 **light_set_type** (rw, light, type)
 	Sets the *type* of the *light*.
 
@@ -1201,6 +1208,9 @@ Light
 
 **light_set_spot_angle** (rw, light, angle)
 	Sets the spot *angle* of the *light*.
+
+**light_set_shadow_bias** (rw, light, bias)
+	Sets the shadow *bias* of the *light*.
 
 **light_debug_draw** (rw, light, debug_line)
 	Fills *debug_line* with debug lines from the *light*.
@@ -1309,6 +1319,10 @@ SoundWorld
 **is_playing** (sound_world, id) : bool
 	Returns whether the sound *id* is playing.
 
+**set_group_volume** (sound_world, group, volume)
+	Sets the *volume* of the sound *group*. The volume of the sounds within
+	*group* is multiplied by the group's volume.
+
 UnitManager
 ===========
 
@@ -1359,14 +1373,15 @@ Window
 	Sets whether the window is *fullscreen*.
 
 **set_cursor** (cursor)
-	Sets the mouse *cursor* on this window. Cursor can be any of ``arrow``, ``hand``,
-	``text_input``, ``corner_top_left``, ``corner_top_right``, ``corner_bottom_left``,
-	``corner_bottom_right``, ``size_horizontal``, ``size_vertical`` or ``wait``.
+	Sets the mouse *cursor* on this window. Cursor can be any of ``arrow``,
+	``hand``, ``text_input``, ``corner_top_left``, ``corner_top_right``,
+	``corner_bottom_left``, ``corner_bottom_right``, ``size_horizontal``,
+	``size_vertical`` or ``wait``.
 
 **set_cursor_mode** (cursor, mode)
-	Sets the mouse cursor *mode* on this window.  Mode can be either ``normal`` or ``disabled``.
-	Setting the mode to ``disabled`` hides the cursor and automatically re-centers it every time it
-	is moved.
+	Sets the mouse cursor *mode* on this window.  Mode can be either ``normal``
+	or ``disabled``.  Setting the mode to ``disabled`` hides the cursor and
+	automatically re-centers it every time it is moved.
 
 World
 =====
@@ -1482,9 +1497,10 @@ Camera
 Sound
 -----
 
-**play_sound** (world, name, [loop, volume, position, range]) : SoundInstanceId
+**play_sound** (world, name, [loop, volume, position, range, group]) : SoundInstanceId
 	Plays the sound with the given *name* at the given *position*, with the given
 	*volume* and *range*. *loop* controls whether the sound must loop or not.
+	*group* is a string that identifies the sound's group, see SoundWorld.set_group_volume().
 
 **stop_sound** (world, id)
 	Stops the sound with the given *id*.

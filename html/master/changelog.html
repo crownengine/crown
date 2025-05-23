@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Changelog &mdash; Crown 0.56.0 Manual 0.56.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" /><link rel="shortcut icon" href="_static/crown-black-socket.svg"/>
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" /><link rel="shortcut icon" href="_static/org.crownengine.Crown.svg"/>
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -27,7 +27,7 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html"><img src="_static/crown-black-socket.svg" class="logo" alt="Logo"/>
+            <a href="index.html"><img src="_static/org.crownengine.Crown.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 Crown 0.56.0 Manual
@@ -107,13 +107,26 @@
 <ul class="simple">
 <li>Sped up deployers by enabling incremental data compilation.</li>
 <li>Added mouse-only shortcuts (middle-button/wheel) to tumble/dolly the camera.</li>
+<li>Added support to JPEG image format for textures.</li>
+<li>Fixed importing sounds.</li>
+<li>Fixed drag &amp; drop of sound resources into the Editor View.</li>
 </ul>
 <p><strong>Runtime</strong></p>
 <ul class="simple">
+<li>Added sounds streaming and OGG/Vorbis audio files support.</li>
+<li>Fixed spurious activations of physics bodies.</li>
+<li>HTML5: added Touch input device support.</li>
 <li>HTML5: fixed GL_INVALID_OPERATION (or missing geometry) when rendering untextured meshes.</li>
 <li>Data Compiler: fixed shaders not including code in some circumnstances.</li>
-<li>Lua API: added an optional exit_code parameter to <code class="docutils literal notranslate"><span class="pre">Device.quit()</span></code>.</li>
 <li>Data Compiler: fixed ‘static_compile’ being visible to external shader resources.</li>
+<li>Lua API: added <code class="docutils literal notranslate"><span class="pre">Gui.text_extents()</span></code>.</li>
+<li>Lua API: added <code class="docutils literal notranslate"><span class="pre">SoundWorld.set_group_volume()</span></code> and a corresponding group parameter to <code class="docutils literal notranslate"><span class="pre">World.play_sound()</span></code>.</li>
+<li>Lua API: added an optional exit_code parameter to <code class="docutils literal notranslate"><span class="pre">Device.quit()</span></code>.</li>
+<li>Lua API: added an optional rays parameter to <code class="docutils literal notranslate"><span class="pre">DebugLine.add_cone()</span></code>.</li>
+<li>Lua API: the color parameter in all <code class="docutils literal notranslate"><span class="pre">Gui</span></code> functions is now optional and defaults to <code class="docutils literal notranslate"><span class="pre">Color4.white()</span></code>.</li>
+<li>Lua API: the material_resource parameter in <code class="docutils literal notranslate"><span class="pre">Gui.text()</span></code> and <code class="docutils literal notranslate"><span class="pre">Gui.text_3d()</span></code> is now optional.</li>
+<li>Lua API: fixed start-of-line character placement and some other rendering issues in <code class="docutils literal notranslate"><span class="pre">Gui.text*()</span></code>.</li>
+<li>Lua API: fixed several issues when calling <code class="docutils literal notranslate"><span class="pre">Gui.text*()</span></code> with utf8-encoded strings.</li>
 </ul>
 </div>
 <div class="section" id="apr-2025">

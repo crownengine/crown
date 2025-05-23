@@ -92,7 +92,7 @@ Features
 	* TrueType text rendering via texture atlas.
 	* Flipbook sprite animation.
 	* FBX and custom mesh formats.
-	* PNG, TGA, DDS, KTX and PVR texture formats.
+	* DDS, JPG, KTX, PNG, PVR and TGA texture formats.
 	* D3D11, GL 3.2 and GLES 2.0 render backends.
 
 * Physics
