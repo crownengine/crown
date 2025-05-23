@@ -1289,14 +1289,17 @@ public class Database
 	}
 
 	/// Duplicates the object specified by id and assign new_id to the duplicated object.
-	public void duplicate(Guid id, Guid new_id)
+	public void duplicate(Guid id, Guid new_id, Database? dest = null)
 	{
 		assert(id != GUID_ZERO);
 		assert(new_id != GUID_ZERO);
 		assert(id != new_id);
 		assert(has_object(id));
 
-		create(new_id, object_type(id));
+		if (dest == null)
+			dest = this;
+
+		dest.create(new_id, object_type(id));
 
 		Gee.HashMap<string, Value?> ob = get_data(id);
 		string[] keys = ob.keys.to_array();
@@ -1306,24 +1309,26 @@ public class Database
 				Gee.HashSet<Guid?> hs = (Gee.HashSet<Guid?>)val;
 				foreach (Guid j in hs) {
 					Guid x = Guid.new_guid();
-					duplicate(j, x);
-					add_to_set(new_id, key, x);
+					duplicate(j, x, dest);
+					dest.add_to_set(new_id, key, x);
 				}
 			} else {
 				if (ob[key] == null)
-					set_property_null(new_id, key);
-				if (ob[key].holds(typeof(bool)))
-					set_property_bool(new_id, key, (bool)ob[key]);
-				if (ob[key].holds(typeof(double)))
-					set_property_double(new_id, key, (double)ob[key]);
-				if (ob[key].holds(typeof(string)))
-					set_property_string(new_id, key, (string)ob[key]);
-				if (ob[key].holds(typeof(Guid)))
-					set_property_guid(new_id, key, (Guid)ob[key]);
-				if (ob[key].holds(typeof(Vector3)))
-					set_property_vector3(new_id, key, (Vector3)ob[key]);
-				if (ob[key].holds(typeof(Quaternion)))
-					set_property_quaternion(new_id, key, (Quaternion)ob[key]);
+					dest.set_property_null(new_id, key);
+				else if (ob[key].holds(typeof(bool)))
+					dest.set_property_bool(new_id, key, (bool)ob[key]);
+				else if (ob[key].holds(typeof(double)))
+					dest.set_property_double(new_id, key, (double)ob[key]);
+				else if (ob[key].holds(typeof(string)))
+					dest.set_property_string(new_id, key, (string)ob[key]);
+				else if (ob[key].holds(typeof(Guid)))
+					dest.set_property_guid(new_id, key, (Guid)ob[key]);
+				else if (ob[key].holds(typeof(Vector3)))
+					dest.set_property_vector3(new_id, key, (Vector3)ob[key]);
+				else if (ob[key].holds(typeof(Quaternion)))
+					dest.set_property_quaternion(new_id, key, (Quaternion)ob[key]);
+				else
+					assert(false);
 			}
 		}
 	}
