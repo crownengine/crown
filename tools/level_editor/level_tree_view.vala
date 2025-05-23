@@ -308,6 +308,30 @@ public class LevelTreeView : Gtk.Box
 				});
 			menu.add(mi);
 
+			if (_tree_selection.count_selected_rows() == 1) {
+				GLib.List<Gtk.TreePath> selected_paths = _tree_selection.get_selected_rows(null);
+
+				Gtk.TreeIter iter;
+				if (_tree_view.model.get_iter(out iter, selected_paths.nth(0).data)) {
+					Value val;
+					_tree_view.model.get_value(iter, Column.GUID, out val);
+					Guid object_id = (Guid)val;
+
+					if (_db.object_type(object_id) == OBJECT_TYPE_UNIT) {
+						mi = new Gtk.MenuItem.with_label("Save as Prefab...");
+						mi.activate.connect(() => {
+								_tree_view.model.get_value(iter, Column.NAME, out val);
+								string object_name = (string)val;
+
+								GLib.Application.get_default().activate_action("unit-save-as-prefab"
+									, new GLib.Variant.tuple({ object_id.to_string(), object_name })
+									);
+							});
+							menu.add(mi);
+					}
+				}
+			}
+
 			menu.show_all();
 			menu.popup_at_pointer(null);
 			_gesture_click.set_state(Gtk.EventSequenceState.CLAIMED);

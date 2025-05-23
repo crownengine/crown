@@ -577,8 +577,9 @@ public class LevelEditorApplication : Gtk.Application
 
 	private const GLib.ActionEntry[] action_entries_unit =
 	{
-		{ "unit-add-component",    on_unit_add_component,    "s", null },
-		{ "unit-remove-component", on_unit_remove_component, "s", null }
+		{ "unit-add-component",    on_unit_add_component,    "s",    null },
+		{ "unit-remove-component", on_unit_remove_component, "s",    null },
+		{ "unit-save-as-prefab",   on_unit_save_as_prefab,   "(ss)", null },
 	};
 
 	// Command line options
@@ -4026,6 +4027,38 @@ public class LevelEditorApplication : Gtk.Application
 		} else {
 			unit.remove_component_type(component_type);
 		}
+	}
+
+	private void on_unit_save_as_prefab(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string guid = (string)param.get_child_value(0);
+		string name = (string)param.get_child_value(1);
+
+		SaveResourceDialog srd = new SaveResourceDialog("Save Prefab As..."
+			, this.active_window
+			, OBJECT_TYPE_UNIT
+			, name
+			, _project
+			);
+		srd.safer_response.connect((response_id, path) => {
+				if (response_id == Gtk.ResponseType.ACCEPT && path != null) {
+					Guid unit_id = Guid.parse(guid);
+					if (_database.has_object(unit_id)) {
+						Guid prefab_id = Guid.new_guid();
+						Database new_database = new Database(_project);
+						_database.duplicate(unit_id, prefab_id, new_database);
+						new_database.save(path, prefab_id);
+
+						_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
+								_data_compiler.compile.end(res);
+							});
+					}
+				}
+
+				srd.destroy();
+			});
+		srd.show_all();
+		srd.present();
 	}
 
 	public void set_autosave_timer(uint minutes)
