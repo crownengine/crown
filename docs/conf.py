@@ -84,9 +84,9 @@ todo_include_todos = False
 #
 html_theme = 'sphinx_rtd_theme'
 
-html_logo = '../tools/level_editor/resources/icons/org.crownengine.Crown.svg'
+html_logo = '../tools/level_editor/resources/icons/hicolor/scalable/apps/org.crownengine.Crown.svg'
 
-html_favicon = '../tools/level_editor/resources/icons/org.crownengine.Crown.svg'
+html_favicon = '../tools/level_editor/resources/icons/hicolor/scalable/apps/org.crownengine.Crown.svg'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
