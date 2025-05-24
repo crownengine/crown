@@ -27,7 +27,7 @@ public struct SoundResource
 		return _db.save(project.absolute_path(resource_name) + "." + OBJECT_TYPE_SOUND, _id);
 	}
 
-	public static ImportResult import(ProjectStore project_store, string destination_dir, SList<string> filenames)
+	public static void import(Import import_result, ProjectStore project_store, string destination_dir, SList<string> filenames)
 	{
 		Project project = project_store._project;
 
@@ -43,16 +43,19 @@ public struct SoundResource
 				file_src.copy(file_dst, FileCopyFlags.OVERWRITE);
 			} catch (Error e) {
 				loge(e.message);
-				return ImportResult.ERROR;
+				import_result(ImportResult.ERROR);
+				return;
 			}
 
 			Database db = new Database(project);
 			var sound_resource = SoundResource(db, Guid.new_guid(), resource_path);
-			if (sound_resource.save(project, resource_name) != 0)
-				return ImportResult.ERROR;
+			if (sound_resource.save(project, resource_name) != 0) {
+				import_result(ImportResult.ERROR);
+				return;
+			}
 		}
 
-		return ImportResult.SUCCESS;
+		import_result(ImportResult.SUCCESS);
 	}
 }
 

@@ -337,11 +337,7 @@ public class LevelEditorWindow : Gtk.ApplicationWindow
 
 	private bool on_delete_event()
 	{
-		LevelEditorApplication app = (LevelEditorApplication)application;
-
-		if (app.should_quit())
-			app.stop_backend_and_quit();
-
+		GLib.Application.get_default().activate_action("quit", null);
 		return Gdk.EVENT_STOP; // Keep window alive.
 	}
 
@@ -430,6 +426,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "redo",               on_redo,               null,   null    },
 		{ "duplicate",          on_duplicate,          null,   null    },
 		{ "delete",             on_delete,             null,   null    },
+		{ "rename",             on_rename,             "(ss)", null    },
 		{ "tool",               on_tool,               "i",    "1"     }, // See: Crown.ToolType
 		{ "set-placeable",      on_set_placeable,      "(ss)", null    },
 		{ "cancel-place",       on_cancel_place,       null,   null    },
@@ -1940,21 +1937,23 @@ public class LevelEditorApplication : Gtk.Application
 			, Gtk.ResponseType.OK
 			, null
 			);
+		dg.skip_taskbar_hint = true;
 
 		InputDouble sb = new InputDouble(_grid_size, 0.1, 1000);
 		sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
 		dg.get_content_area().add(sb);
-		dg.skip_taskbar_hint = true;
+
+		dg.response.connect((response_id) => {
+			if (response_id == Gtk.ResponseType.OK) {
+				_grid_size = sb.value;
+				send_state();
+				_editor.send(DeviceApi.frame());
+				action.set_state(param);
+			}
+			dg.destroy();
+		});
+
 		dg.show_all();
-
-		if (dg.run() == Gtk.ResponseType.OK) {
-			_grid_size = sb.value;
-			send_state();
-			_editor.send(DeviceApi.frame());
-			action.set_state(param);
-		}
-
-		dg.destroy();
 	}
 
 	private void new_level()
@@ -2002,78 +2001,8 @@ public class LevelEditorApplication : Gtk.Application
 		update_active_window_title();
 	}
 
-	private bool save_as(string? filename)
+	private bool do_save(string path)
 	{
-		string path = filename;
-
-		if (path == null) {
-			Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Save As..."
-				, this.active_window
-				, Gtk.FileChooserAction.SAVE
-				, "Cancel"
-				, Gtk.ResponseType.CANCEL
-				, "Save"
-				, Gtk.ResponseType.ACCEPT
-				);
-			fcd.add_filter(_file_filter);
-			fcd.set_current_folder(_project.source_dir());
-
-			int rt = Gtk.ResponseType.CANCEL;
-			do {
-				// Select the file
-				rt = fcd.run();
-				if (rt != Gtk.ResponseType.ACCEPT) {
-					fcd.destroy();
-					return false;
-				}
-				path = fcd.get_filename();
-
-				// Append file extension
-				if (!path.has_suffix(".level"))
-					path += ".level";
-
-				// Check if the file is within the source directory
-				if (!_project.path_is_within_source_dir(path)) {
-					Gtk.MessageDialog md = new Gtk.MessageDialog(fcd
-						, Gtk.DialogFlags.MODAL
-						, Gtk.MessageType.WARNING
-						, Gtk.ButtonsType.OK
-						, "The file must be within the source directory."
-						);
-					md.set_default_response(Gtk.ResponseType.OK);
-
-					md.run();
-					md.destroy();
-					fcd.set_current_folder(_project.source_dir());
-					continue;
-				}
-
-				// Check if the file already exists
-				rt = Gtk.ResponseType.YES;
-				if (GLib.FileUtils.test(path, FileTest.EXISTS)) {
-					Gtk.MessageDialog md = new Gtk.MessageDialog(fcd
-						, Gtk.DialogFlags.MODAL
-						, Gtk.MessageType.QUESTION
-						, Gtk.ButtonsType.NONE
-						, "A file named `%s` already exists.\nOverwrite?".printf(GLib.Path.get_basename(path))
-						);
-
-					Gtk.Widget btn;
-					md.add_button("_No", Gtk.ResponseType.NO);
-					btn = md.add_button("_Yes", Gtk.ResponseType.YES);
-					btn.get_style_context().add_class(Gtk.STYLE_CLASS_DESTRUCTIVE_ACTION);
-
-					md.set_default_response(Gtk.ResponseType.NO);
-
-					rt = md.run();
-					md.destroy();
-				}
-			} while (rt != Gtk.ResponseType.YES);
-
-			fcd.destroy();
-		}
-
-		// Save level
 		string resource_filename = _project.resource_filename(path);
 		string resource_path     = ResourceId.normalize(resource_filename);
 		string resource_name     = ResourceId.name(resource_path);
@@ -2087,9 +2016,8 @@ public class LevelEditorApplication : Gtk.Application
 				);
 			md.add_button("_Ok", Gtk.ResponseType.OK);
 			md.set_default_response(Gtk.ResponseType.OK);
-
-			md.run();
-			md.destroy();
+			md.response.connect(() => { md.destroy(); });
+			md.show_all();
 			return false;
 		}
 
@@ -2098,9 +2026,34 @@ public class LevelEditorApplication : Gtk.Application
 		return true;
 	}
 
-	private bool save()
+	private void save_as(string? filename, string? success_action = null, GLib.Variant? variant = null)
 	{
-		return save_as(_level._path);
+		string path = filename;
+
+		if (path != null) {
+			if (do_save(path) && success_action != null)
+				GLib.Application.get_default().activate_action(success_action, variant);
+		} else {
+			SaveResourceDialog srd = new SaveResourceDialog("Save As..."
+				, this.active_window
+				, OBJECT_TYPE_LEVEL
+				, ""
+				, _project
+				);
+			srd.safer_response.connect((response_id, path) => {
+					if (response_id == Gtk.ResponseType.ACCEPT && path != null) {
+						if (do_save(path) && success_action != null)
+							GLib.Application.get_default().activate_action(success_action, variant);
+					}
+					srd.destroy();
+				});
+			srd.show_all();
+		}
+	}
+
+	private void save(string? success_action = null, GLib.Variant? variant = null)
+	{
+		save_as(_level._path, success_action, variant);
 	}
 
 	private bool save_timeout()
@@ -2149,88 +2102,32 @@ public class LevelEditorApplication : Gtk.Application
 		base.shutdown();
 	}
 
-	// Returns true if the level has been saved or the user decided it
-	// should be discarded.
-	public bool should_quit()
+	private void do_new_level()
 	{
-		int rt = Gtk.ResponseType.YES;
-
-		if (_database.changed())
-			rt = run_level_changed_dialog(this.active_window);
-
-		if (!_database.changed() || rt == Gtk.ResponseType.YES && save() || rt == Gtk.ResponseType.NO)
-			return true;
-
-		return false;
+		new_level();
+		send_state();
+		_editor.send(DeviceApi.frame());
 	}
 
 	private void on_new_level(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		int rt = Gtk.ResponseType.YES;
-
-		if (_database.changed())
-			rt = run_level_changed_dialog(this.active_window);
-
-		if (!_database.changed() || rt == Gtk.ResponseType.YES && save() || rt == Gtk.ResponseType.NO) {
-			new_level();
-			send_state();
-			_editor.send(DeviceApi.frame());
+		if (!_database.changed()) {
+			do_new_level();
+		} else {
+			Gtk.Dialog dlg = new_level_changed_dialog(this.active_window);
+			dlg.response.connect((response_id) => {
+					if (response_id == Gtk.ResponseType.NO)
+						do_new_level();
+					else if (response_id == Gtk.ResponseType.YES)
+						save("new-level");
+					dlg.destroy();
+				});
+			dlg.show_all();
 		}
 	}
 
-	private void on_open_level_from_menubar(GLib.SimpleAction action, GLib.Variant? param)
+	private void do_open_level(string path)
 	{
-		string path = "";
-
-		Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Open Level..."
-			, this.active_window
-			, Gtk.FileChooserAction.OPEN
-			, "Cancel"
-			, Gtk.ResponseType.CANCEL
-			, "Open"
-			, Gtk.ResponseType.ACCEPT
-			);
-		fcd.add_filter(_file_filter);
-		fcd.set_current_folder(_project.source_dir());
-
-		int err = 1;
-		int rt = Gtk.ResponseType.CANCEL;
-		do {
-			// Select the file
-			rt = fcd.run();
-			if (rt != Gtk.ResponseType.ACCEPT) {
-				fcd.destroy();
-				return;
-			}
-			path = fcd.get_filename();
-			err = 0;
-
-			// Append file extension
-			if (!path.has_suffix(".level"))
-				path += ".level";
-
-			if (!_project.path_is_within_source_dir(path)) {
-				Gtk.MessageDialog md = new Gtk.MessageDialog(fcd
-					, Gtk.DialogFlags.MODAL
-					, Gtk.MessageType.WARNING
-					, Gtk.ButtonsType.OK
-					, "The file must be within the source directory."
-					);
-				md.set_default_response(Gtk.ResponseType.OK);
-
-				md.run();
-				md.destroy();
-				fcd.set_current_folder(_project.source_dir());
-				err = 1;
-				continue;
-			}
-		} while (err != 0);
-
-		fcd.destroy();
-
-		assert(path != "");
-
-		// Load level
 		string resource_filename = _project.resource_filename(path);
 		string resource_path     = ResourceId.normalize(resource_filename);
 		string resource_name     = ResourceId.name(resource_path);
@@ -2238,95 +2135,149 @@ public class LevelEditorApplication : Gtk.Application
 		load_level(resource_name);
 	}
 
+	private void on_open_level_from_menubar(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		OpenResourceDialog dlg = new OpenResourceDialog("Open Level..."
+			, this.active_window
+			, OBJECT_TYPE_LEVEL
+			, _project
+			);
+		dlg.safer_response.connect((response_id, path) => {
+				if (response_id == Gtk.ResponseType.ACCEPT && path != null)
+					do_open_level(path);
+				dlg.destroy();
+			});
+		dlg.show_all();
+	}
+
 	private void on_open_level(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		int rt = Gtk.ResponseType.YES;
-
 		string level_name = param.get_string();
 		if (level_name != "" && level_name == _level._name)
 			return;
 
-		if (_database.changed())
-			rt = run_level_changed_dialog(this.active_window);
-
-		if (!_database.changed() || rt == Gtk.ResponseType.YES && save() || rt == Gtk.ResponseType.NO) {
+		if (!_database.changed()) {
 			if (level_name != "")
 				load_level(level_name);
 			else // Action invoked from menubar File > Open Level...
 				on_open_level_from_menubar(action, param);
+		} else {
+			Gtk.Dialog dlg = new_level_changed_dialog(this.active_window);
+			dlg.response.connect((response_id) => {
+					if (response_id == Gtk.ResponseType.NO) {
+						if (level_name != "")
+							load_level(level_name);
+						else // Action invoked from menubar File > Open Level...
+							on_open_level_from_menubar(action, param);
+					} else if (response_id == Gtk.ResponseType.YES) {
+						save("open-level", param);
+					}
+					dlg.destroy();
+				});
+			dlg.show_all();
+		}
+	}
+
+	private void do_open_project(string source_dir)
+	{
+		if (_project.source_dir() == source_dir)
+			return;
+
+		// Naively check whether the selected folder contains a Crown project.
+		if (!GLib.File.new_for_path(GLib.Path.build_filename(source_dir, "boot.config")).query_exists()
+			|| !GLib.File.new_for_path(GLib.Path.build_filename(source_dir, "global.physics_config")).query_exists()
+			) {
+			Gtk.MessageDialog md = new Gtk.MessageDialog(this.active_window
+				, Gtk.DialogFlags.MODAL
+				, Gtk.MessageType.INFO
+				, Gtk.ButtonsType.OK
+				, "The selected folder does not appear to be a valid Crown project."
+				);
+			md.set_default_response(Gtk.ResponseType.OK);
+			md.response.connect(() => { md.destroy(); });
+			md.show_all();
+			return;
+		}
+
+		this.show_panel("main_vbox", Gtk.StackTransitionType.NONE);
+		_user.add_or_touch_recent_project(source_dir, source_dir);
+		_console_view.reset();
+
+		restart_backend.begin(source_dir, LEVEL_NONE, (obj, res) => {
+				restart_backend.end(res);
+			});
+	}
+
+	private void open_project(string source_dir)
+	{
+		if (source_dir != "") {
+			do_open_project(source_dir);
+		} else {
+			Gtk.FileChooserDialog dlg = new_open_project_dialog(this.active_window);
+			dlg.response.connect((response_id) => {
+					if (response_id == Gtk.ResponseType.ACCEPT)
+						do_open_project(dlg.get_filename());
+					dlg.destroy();
+				});
+			dlg.show_all();
 		}
 	}
 
 	private void on_open_project(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		int rt = Gtk.ResponseType.YES;
+		string source_dir = param.get_string();
 
-		if (_database.changed())
-			rt = run_level_changed_dialog(this.active_window);
-
-		if (!_database.changed() || rt == Gtk.ResponseType.YES && save() || rt == Gtk.ResponseType.NO) {
-			string source_dir;
-			source_dir = param.get_string();
-			if (source_dir == "") {
-				// Project opened from menubar.
-				rt = run_open_project_dialog(out source_dir, this.active_window);
-				if (rt != Gtk.ResponseType.ACCEPT)
-					return;
-			}
-
-			if (_project.source_dir() == source_dir)
-				return;
-
-			// Naively check whether the selected folder contains a Crown project.
-			if (!GLib.File.new_for_path(GLib.Path.build_filename(source_dir, "boot.config")).query_exists()
-				|| !GLib.File.new_for_path(GLib.Path.build_filename(source_dir, "global.physics_config")).query_exists()
-				) {
-				Gtk.MessageDialog md = new Gtk.MessageDialog(this.active_window
-					, Gtk.DialogFlags.MODAL
-					, Gtk.MessageType.INFO
-					, Gtk.ButtonsType.OK
-					, "The selected folder does not appear to be a valid Crown project."
-					);
-
-				md.set_default_response(Gtk.ResponseType.OK);
-				md.run();
-				md.destroy();
-				return;
-			}
-
-			this.show_panel("main_vbox", Gtk.StackTransitionType.NONE);
-			_user.add_or_touch_recent_project(source_dir, source_dir);
-			_console_view.reset();
-
-			restart_backend.begin(source_dir, LEVEL_NONE, (obj, res) => {
-					restart_backend.end(res);
+		if (!_database.changed()) {
+			open_project(source_dir);
+		} else {
+			Gtk.Dialog dlg = new_level_changed_dialog(this.active_window);
+			dlg.response.connect((response_id) => {
+					if (response_id == Gtk.ResponseType.NO)
+						open_project(source_dir);
+					else if (response_id == Gtk.ResponseType.YES)
+						save("open-project", new GLib.Variant.string(source_dir));
+					dlg.destroy();
 				});
+			dlg.show_all();
 		}
+	}
+
+	private void do_new_project()
+	{
+		stop_backend.begin((obj, res) => {
+				stop_backend.end(res);
+				show_panel("panel_new_project");
+			});
 	}
 
 	private void on_new_project(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		int rt = Gtk.ResponseType.YES;
-
-		if (_database.changed())
-			rt = run_level_changed_dialog(this.active_window);
-
-		if (!_database.changed() || rt == Gtk.ResponseType.YES && save() || rt == Gtk.ResponseType.NO) {
-			stop_backend.begin((obj, res) => {
-					stop_backend.end(res);
-					show_panel("panel_new_project");
+		if (!_database.changed()) {
+			do_new_project();
+		} else {
+			Gtk.Dialog dlg = new_level_changed_dialog(this.active_window);
+			dlg.response.connect((response_id) => {
+					if (response_id == Gtk.ResponseType.NO)
+						do_new_project();
+					else if (response_id == Gtk.ResponseType.YES)
+						save("new-project");
+					dlg.destroy();
 				});
+			dlg.show_all();
 		}
 	}
 
 	private void on_add_project(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		string source_dir;
-		int rt = run_open_project_dialog(out source_dir, this.active_window);
-		if (rt != Gtk.ResponseType.ACCEPT)
-			return;
-
-		_user.add_or_touch_recent_project(source_dir, source_dir);
+		Gtk.FileChooserDialog dlg = new_open_project_dialog(this.active_window);
+		dlg.response.connect((response_id) => {
+				if (response_id == Gtk.ResponseType.ACCEPT) {
+					string source_dir = dlg.get_filename();
+					_user.add_or_touch_recent_project(source_dir, source_dir);
+				}
+				dlg.destroy();
+			});
+		dlg.show_all();
 	}
 
 	private void on_save(GLib.SimpleAction action, GLib.Variant? param)
@@ -2358,13 +2309,11 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		string? destination_dir = param == null ? null : param.get_string();
 
-		ImportResult ec = _project.import(destination_dir
+		_project.import(destination_dir
 			, on_import_result
 			, _project_store
 			, this.active_window
 			);
-		if (ec != ImportResult.CALLBACK)
-			on_import_result(ec);
 	}
 
 	private void on_preferences(GLib.SimpleAction action, GLib.Variant? param)
@@ -2418,7 +2367,7 @@ public class LevelEditorApplication : Gtk.Application
 		_project_browser.reveal(type, name);
 	}
 
-	private int run_level_changed_dialog(Gtk.Window? parent)
+	private Gtk.Dialog new_level_changed_dialog(Gtk.Window? parent)
 	{
 		Gtk.MessageDialog md = new Gtk.MessageDialog(parent
 			, Gtk.DialogFlags.MODAL
@@ -2426,23 +2375,18 @@ public class LevelEditorApplication : Gtk.Application
 			, Gtk.ButtonsType.NONE
 			, "Save changes to Level before closing?"
 			);
-
 		Gtk.Widget btn;
 		btn = md.add_button("Close _without Saving", Gtk.ResponseType.NO);
 		btn.get_style_context().add_class(Gtk.STYLE_CLASS_DESTRUCTIVE_ACTION);
 		md.add_button("_Cancel", Gtk.ResponseType.CANCEL);
 		md.add_button("_Save", Gtk.ResponseType.YES);
-
 		md.set_default_response(Gtk.ResponseType.YES);
-
-		int rt = md.run();
-		md.destroy();
-		return rt;
+		return md;
 	}
 
-	public int run_open_project_dialog(out string source_dir, Gtk.Window? parent)
+	public Gtk.FileChooserDialog new_open_project_dialog(Gtk.Window? parent)
 	{
-		Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Open Project..."
+		return new Gtk.FileChooserDialog("Open Project..."
 			, parent
 			, Gtk.FileChooserAction.SELECT_FOLDER
 			, "Cancel"
@@ -2450,24 +2394,30 @@ public class LevelEditorApplication : Gtk.Application
 			, "Open"
 			, Gtk.ResponseType.ACCEPT
 			);
-		int rt = fcd.run();
-		source_dir = fcd.get_filename();
-		fcd.destroy();
-		return rt;
+	}
+
+	private void do_close_project()
+	{
+		stop_backend.begin((obj, res) => {
+				stop_backend.end(res);
+				show_panel("panel_welcome");
+			});
 	}
 
 	private void on_close_project(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		int rt = Gtk.ResponseType.YES;
-
-		if (_database.changed())
-			rt = run_level_changed_dialog(this.active_window);
-
-		if (!_database.changed() || rt == Gtk.ResponseType.YES && save() || rt == Gtk.ResponseType.NO) {
-			stop_backend.begin((obj, res) => {
-					stop_backend.end(res);
-					show_panel("panel_welcome");
+		if (!_database.changed()) {
+			do_close_project();
+		} else {
+			Gtk.Dialog dlg = new_level_changed_dialog(this.active_window);
+			dlg.response.connect((response_id) => {
+					if (response_id == Gtk.ResponseType.NO)
+						do_close_project();
+					else if (response_id == Gtk.ResponseType.YES)
+						save("close-project");
+					dlg.destroy();
 				});
+			dlg.show_all();
 		}
 	}
 
@@ -2481,8 +2431,19 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_quit(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		if (should_quit())
+		if (!_database.changed()) {
 			stop_backend_and_quit();
+		} else {
+			Gtk.Dialog dlg = new_level_changed_dialog(this.active_window);
+			dlg.response.connect((response_id) => {
+					if (response_id == Gtk.ResponseType.NO)
+						stop_backend_and_quit();
+					else if (response_id == Gtk.ResponseType.YES)
+						save("quit");
+					dlg.destroy();
+				});
+			dlg.show_all();
+		}
 	}
 
 	public static bool is_image_file(string path)
@@ -2593,21 +2554,23 @@ public class LevelEditorApplication : Gtk.Application
 			, Gtk.ResponseType.OK
 			, null
 			);
+		dg.skip_taskbar_hint = true;
 
 		InputDouble sb = new InputDouble(_rotation_snap, 1.0, 180.0);
 		sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
 		dg.get_content_area().add(sb);
-		dg.skip_taskbar_hint = true;
+
+		dg.response.connect((response_id) => {
+				if (response_id == Gtk.ResponseType.OK) {
+					_rotation_snap = sb.value;
+					send_state();
+					_editor.send(DeviceApi.frame());
+					action.set_state(param);
+				}
+				dg.destroy();
+			});
+
 		dg.show_all();
-
-		if (dg.run() == Gtk.ResponseType.OK) {
-			_rotation_snap = sb.value;
-			send_state();
-			_editor.send(DeviceApi.frame());
-			action.set_state(param);
-		}
-
-		dg.destroy();
 	}
 
 	private void on_spawn_primitive(GLib.SimpleAction action, GLib.Variant? param)
@@ -2825,6 +2788,45 @@ public class LevelEditorApplication : Gtk.Application
 		_editor.send(DeviceApi.frame());
 	}
 
+	private void do_rename(Guid object_id, string new_name)
+	{
+		if (new_name != "" && _level.object_editor_name(object_id) != new_name)
+			_level.object_set_editor_name(object_id, new_name);
+	}
+
+	private void on_rename(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		Guid object_id = Guid.parse((string)param.get_child_value(0));
+		string new_name = (string)param.get_child_value(1);
+
+		if (new_name != "") {
+			do_rename(object_id, new_name);
+		} else {
+			Gtk.Dialog dg = new Gtk.Dialog.with_buttons("New Name"
+				, this.active_window
+				, Gtk.DialogFlags.MODAL
+				, "Cancel"
+				, Gtk.ResponseType.CANCEL
+				, "Ok"
+				, Gtk.ResponseType.OK
+				, null
+				);
+			dg.skip_taskbar_hint = true;
+
+			InputString sb = new InputString();
+			sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
+			sb.value = _level.object_editor_name(object_id);
+
+			dg.get_content_area().add(sb);
+			dg.response.connect((response_id) => {
+					if (response_id == Gtk.ResponseType.OK)
+						do_rename(object_id, sb.text.strip());
+					dg.destroy();
+				});
+			dg.show_all();
+		}
+	}
+
 	private void on_manual(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		try {
@@ -2892,8 +2894,19 @@ public class LevelEditorApplication : Gtk.Application
 			"Giulia Gazzoli - Crown logo"
 		};
 
-		dlg.run();
-		dlg.destroy();
+		dlg.response.connect(() => { dlg.destroy(); });
+		dlg.show_all();
+	}
+
+	private void do_delete_file(string resource_path)
+	{
+		string path = _project.absolute_path(resource_path);
+
+		try {
+			GLib.File.new_for_path(path).delete();
+		} catch (Error e) {
+			loge(e.message);
+		}
 	}
 
 	private void on_delete_file(GLib.SimpleAction action, GLib.Variant? param)
@@ -2904,32 +2917,41 @@ public class LevelEditorApplication : Gtk.Application
 		string resource_path  = param.get_string();
 		string? resource_type = ResourceId.type(resource_path);
 		string? resource_name = ResourceId.name(resource_path);
-		bool do_delete = true;
 
 		if (resource_type != null && resource_name != null) {
 			if (resource_name == _level._name) {
-				int rt = Gtk.ResponseType.YES;
-
-				if (_database.changed())
-					rt = run_level_changed_dialog(this.active_window);
-
-				if (!_database.changed() || rt == Gtk.ResponseType.YES && save() || rt == Gtk.ResponseType.NO) {
-					new_level();
-					send_state();
-					_editor.send(DeviceApi.frame());
+				if (!_database.changed()) {
+					do_delete_file(resource_path);
+					GLib.Application.get_default().activate_action("new-level", null);
 				} else {
-					do_delete = false;
+					Gtk.Dialog dlg = new_level_changed_dialog(this.active_window);
+					dlg.response.connect((response_id) => {
+							if (response_id == Gtk.ResponseType.NO) {
+								do_delete_file(resource_path);
+								do_new_level();
+							} else if (response_id == Gtk.ResponseType.YES) {
+								save("new-level");
+							}
+							dlg.destroy();
+						});
+					dlg.show_all();
 				}
+			} else {
+				do_delete_file(resource_path);
 			}
 		}
+	}
 
-		if (do_delete) {
-			string path = _project.absolute_path(resource_path);
-			try {
-				GLib.File.new_for_path(path).delete();
-			} catch (Error e) {
-				loge(e.message);
-			}
+	private void do_delete_directory(string dir_name)
+	{
+		if (dir_name == "")
+			return;
+
+		var path = _project.absolute_path(dir_name);
+		try {
+			_project.delete_tree(GLib.File.new_for_path(path));
+		} catch (Error e) {
+			loge(e.message);
 		}
 	}
 
@@ -2937,9 +2959,37 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		string dir_name = param.get_string();
 
-		var path = _project.absolute_path(dir_name);
+		Gtk.MessageDialog md = new Gtk.MessageDialog(this.active_window
+			, Gtk.DialogFlags.MODAL
+			, Gtk.MessageType.WARNING
+			, Gtk.ButtonsType.NONE
+			, "Delete Folder " + dir_name + "?"
+			);
+		md.skip_taskbar_hint = true;
+
+		Gtk.Widget btn;
+		md.add_button("_Cancel", Gtk.ResponseType.CANCEL);
+		btn = md.add_button("_Delete", Gtk.ResponseType.YES);
+		btn.get_style_context().add_class(Gtk.STYLE_CLASS_DESTRUCTIVE_ACTION);
+		md.set_default_response(Gtk.ResponseType.CANCEL);
+
+		md.response.connect((response_id) => {
+			if (response_id == Gtk.ResponseType.YES)
+				do_delete_directory(dir_name);
+			md.destroy();
+		});
+
+		md.show_all();
+	}
+
+	private void do_create_directory(string parent_dir_name, string dir_name)
+	{
+		if (dir_name == "")
+			return;
+
+		var path = _project.absolute_path(GLib.Path.build_filename(parent_dir_name, dir_name));
 		try {
-			_project.delete_tree(GLib.File.new_for_path(path));
+			GLib.File.new_for_path(path).make_directory();
 		} catch (Error e) {
 			loge(e.message);
 		}
@@ -2950,12 +3000,48 @@ public class LevelEditorApplication : Gtk.Application
 		string parent_dir_name = (string)param.get_child_value(0);
 		string dir_name = (string)param.get_child_value(1);
 
-		var path = _project.absolute_path(GLib.Path.build_filename(parent_dir_name, dir_name));
-		try {
-			GLib.File.new_for_path(path).make_directory();
-		} catch (Error e) {
-			loge(e.message);
+		if (dir_name != "") {
+			do_create_directory(parent_dir_name, dir_name);
+		} else {
+			Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Folder Name"
+				, this.active_window
+				, Gtk.DialogFlags.MODAL
+				, "Cancel"
+				, Gtk.ResponseType.CANCEL
+				, "Ok"
+				, Gtk.ResponseType.OK
+				, null
+				);
+			dg.skip_taskbar_hint = true;
+
+			InputString sb = new InputString();
+			sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
+			dg.get_content_area().add(sb);
+
+			dg.response.connect((response_id) => {
+					if (response_id == Gtk.ResponseType.OK)
+						do_create_directory(parent_dir_name, sb.text.strip());
+					dg.destroy();
+				});
+
+			dg.show_all();
 		}
+	}
+
+	private void do_create_script(string dir_name, string script_name, bool empty)
+	{
+		if (script_name == "")
+			return;
+
+		int ec = _project.create_script(dir_name, script_name, empty);
+		if (ec < 0) {
+			loge("Failed to create script %s".printf(script_name));
+			return;
+		}
+
+		_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
+				_data_compiler.compile.end(res);
+			});
 	}
 
 	private void on_create_script(GLib.SimpleAction action, GLib.Variant? param)
@@ -2964,9 +3050,42 @@ public class LevelEditorApplication : Gtk.Application
 		string script_name = (string)param.get_child_value(1);
 		bool empty = (bool)param.get_child_value(2);
 
-		int ec = _project.create_script(dir_name, script_name, empty);
+		if (script_name != "") {
+			do_create_script(dir_name, script_name, empty);
+		} else {
+			Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Script Name"
+				, this.active_window
+				, Gtk.DialogFlags.MODAL
+				, "Cancel"
+				, Gtk.ResponseType.CANCEL
+				, "Ok"
+				, Gtk.ResponseType.OK
+				, null
+				);
+			dg.skip_taskbar_hint = true;
+
+			InputString sb = new InputString();
+			sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
+			dg.get_content_area().add(sb);
+
+			dg.response.connect((response_id) => {
+					if (response_id == Gtk.ResponseType.OK)
+						do_create_script(dir_name, sb.text.strip(), empty);
+					dg.destroy();
+				});
+
+			dg.show_all();
+		}
+	}
+
+	private void do_create_unit(string dir_name, string unit_name)
+	{
+		if (unit_name == "")
+			return;
+
+		int ec = _project.create_unit(dir_name, unit_name);
 		if (ec < 0) {
-			loge("Failed to create script %s".printf(script_name));
+			loge("Failed to create unit %s".printf(unit_name));
 			return;
 		}
 
@@ -2980,9 +3099,42 @@ public class LevelEditorApplication : Gtk.Application
 		string dir_name = (string)param.get_child_value(0);
 		string unit_name = (string)param.get_child_value(1);
 
-		int ec = _project.create_unit(dir_name, unit_name);
+		if (unit_name != "") {
+			do_create_unit(dir_name, unit_name);
+		} else {
+			Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Unit Name"
+				, this.active_window
+				, Gtk.DialogFlags.MODAL
+				, "Cancel"
+				, Gtk.ResponseType.CANCEL
+				, "Ok"
+				, Gtk.ResponseType.OK
+				, null
+				);
+			dg.skip_taskbar_hint = true;
+
+			InputString sb = new InputString();
+			sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
+			dg.get_content_area().add(sb);
+
+			dg.response.connect((response_id) => {
+					if (response_id == Gtk.ResponseType.OK)
+						do_create_unit(dir_name, sb.text.strip());
+					dg.destroy();
+				});
+
+			dg.show_all();
+		}
+	}
+
+	private void do_create_state_machine(string dir_name, string state_machine_name, string skeleton_name)
+	{
+		if (state_machine_name == "")
+			return;
+
+		int ec = _project.create_state_machine(dir_name, state_machine_name, skeleton_name != "" ? skeleton_name : null);
 		if (ec < 0) {
-			loge("Failed to create unit %s".printf(unit_name));
+			loge("Failed to create state machine %s".printf(state_machine_name));
 			return;
 		}
 
@@ -2997,9 +3149,43 @@ public class LevelEditorApplication : Gtk.Application
 		string state_machine_name = (string)param.get_child_value(1);
 		string skeleton_name = (string)param.get_child_value(2);
 
-		int ec = _project.create_state_machine(dir_name, state_machine_name, skeleton_name != "" ? skeleton_name : null);
+		if (state_machine_name != "") {
+			do_create_state_machine(dir_name, state_machine_name, skeleton_name);
+		} else {
+			Gtk.Dialog dg = new Gtk.Dialog.with_buttons("State Machine Name"
+				, this.active_window
+				, Gtk.DialogFlags.MODAL
+				, "Cancel"
+				, Gtk.ResponseType.CANCEL
+				, "Ok"
+				, Gtk.ResponseType.OK
+				, null
+				);
+			dg.skip_taskbar_hint = true;
+
+			InputString sb = new InputString();
+			sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
+			dg.get_content_area().add(sb);
+
+			dg.response.connect((response_id) => {
+					if (response_id == Gtk.ResponseType.OK)
+						do_create_state_machine(dir_name, sb.text.strip(), skeleton_name);
+					dg.destroy();
+				});
+
+			dg.show_all();
+		}
+
+	}
+
+	private void do_create_material(string dir_name, string material_name)
+	{
+		if (material_name == "")
+			return;
+
+		int ec = _project.create_material(dir_name, material_name);
 		if (ec < 0) {
-			loge("Failed to create state machine %s".printf(state_machine_name));
+			loge("Failed to create material %s".printf(material_name));
 			return;
 		}
 
@@ -3013,15 +3199,32 @@ public class LevelEditorApplication : Gtk.Application
 		string dir_name = (string)param.get_child_value(0);
 		string material_name = (string)param.get_child_value(1);
 
-		int ec = _project.create_material(dir_name, material_name);
-		if (ec < 0) {
-			loge("Failed to create material %s".printf(material_name));
-			return;
-		}
+		if (material_name != "") {
+			do_create_material(dir_name, material_name);
+		} else {
+			Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Material Name"
+				, this.active_window
+				, Gtk.DialogFlags.MODAL
+				, "Cancel"
+				, Gtk.ResponseType.CANCEL
+				, "Ok"
+				, Gtk.ResponseType.OK
+				, null
+				);
+			dg.skip_taskbar_hint = true;
 
-		_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
-				_data_compiler.compile.end(res);
-			});
+			InputString sb = new InputString();
+			sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
+			dg.get_content_area().add(sb);
+
+			dg.response.connect((response_id) => {
+					if (response_id == Gtk.ResponseType.OK)
+						do_create_material(dir_name, sb.text.strip());
+					dg.destroy();
+				});
+
+			dg.show_all();
+		}
 	}
 
 	private void on_open_containing(GLib.SimpleAction action, GLib.Variant? param)
@@ -3057,7 +3260,24 @@ public class LevelEditorApplication : Gtk.Application
 		file.delete();
 	}
 
-	private int deploy_create_package_folder(out string config_path, out string package_path, string output_path, string app_identifier, TargetPlatform platform, TargetArch arch, TargetConfig config)
+	private Gtk.Dialog new_package_dir_exists_dialog(string package_dir)
+	{
+		Gtk.MessageDialog md = new Gtk.MessageDialog(_deploy_dialog
+			, Gtk.DialogFlags.MODAL
+			, Gtk.MessageType.QUESTION
+			, Gtk.ButtonsType.NONE
+			, "A file named `%s` already exists.\nOverwrite?".printf(package_dir)
+			);
+		md.set_default_response(Gtk.ResponseType.NO);
+
+		Gtk.Widget btn;
+		md.add_button("_No", Gtk.ResponseType.NO);
+		btn = md.add_button("_Yes", Gtk.ResponseType.YES);
+		btn.get_style_context().add_class(Gtk.STYLE_CLASS_DESTRUCTIVE_ACTION);
+		return md;
+	}
+
+	private GLib.File deploy_package_dir(out string config_path, string output_path, string app_identifier, TargetPlatform platform, TargetArch arch, TargetConfig config)
 	{
 		string platform_name[] =
 		{
@@ -3087,44 +3307,24 @@ public class LevelEditorApplication : Gtk.Application
 
 		string platform_path = Path.build_path(Path.DIR_SEPARATOR_S, output_path, platform_name[platform], arch_name[arch]);
 		config_path = Path.build_path(Path.DIR_SEPARATOR_S, platform_path, config_name[config]);
-		package_path = Path.build_path(Path.DIR_SEPARATOR_S, config_path, app_identifier);
-
-		try {
-			int rt = Gtk.ResponseType.CANCEL;
-			if (GLib.File.new_for_path(package_path).query_exists()) {
-				Gtk.MessageDialog md = new Gtk.MessageDialog(_deploy_dialog
-					, Gtk.DialogFlags.MODAL
-					, Gtk.MessageType.QUESTION
-					, Gtk.ButtonsType.NONE
-					, "A file named `%s` already exists.\nOverwrite?".printf(package_path)
-					);
-
-				Gtk.Widget btn;
-				md.add_button("_No", Gtk.ResponseType.NO);
-				btn = md.add_button("_Yes", Gtk.ResponseType.YES);
-				btn.get_style_context().add_class(Gtk.STYLE_CLASS_DESTRUCTIVE_ACTION);
-
-				md.set_default_response(Gtk.ResponseType.NO);
-
-				rt = md.run();
-				md.destroy();
-
-				if (rt == Gtk.ResponseType.YES)
-					delete_tree(GLib.File.new_for_path(package_path));
-				else
-					return -1;
-			}
-
-			GLib.File.new_for_path(package_path).make_directory_with_parents();
-		} catch (Error e) {
-			loge(e.message);
-			return -1;
-		}
-
-		return 0;
+		return GLib.File.new_for_path(Path.build_path(Path.DIR_SEPARATOR_S, config_path, app_identifier));
 	}
 
-	private void on_create_package_android(GLib.SimpleAction action, GLib.Variant? param)
+	private void do_create_package_android(GLib.File package_dir
+		, string config_path
+		, string output_path
+		, int config
+		, string app_title
+		, string app_identifier
+		, int app_version_code
+		, string app_version_name
+		, string keystore_path
+		, string keystore_pass
+		, string key_alias
+		, string key_pass
+		, int arch
+		, string apk_name
+		)
 	{
 		string config_name[] =
 		{
@@ -3135,38 +3335,13 @@ public class LevelEditorApplication : Gtk.Application
 #endif
 		};
 
-		var output_path = (string)param.get_child_value(0);
-		var config = (int)param.get_child_value(1);
-		var app_title = (string)param.get_child_value(2);
-		var app_identifier = (string)param.get_child_value(3);
-		var app_version_code = (int)param.get_child_value(4);
-		var app_version_name = (string)param.get_child_value(5);
-		var keystore_path = (string)param.get_child_value(6);
-		var keystore_pass = (string)param.get_child_value(7);
-		var key_alias = (string)param.get_child_value(8);
-		var key_pass = (string)param.get_child_value(9);
-		var arch = (int)param.get_child_value(10);
-
-		var apk_name = app_identifier + "-" + app_version_name;
-		var activity_name = "MainActivity";
-
 		AndroidDeployer android = new AndroidDeployer();
 		android.check_config();
 
-		string config_path;
-		string package_path;
-		int err = deploy_create_package_folder(out config_path
-			, out package_path
-			, output_path
-			, apk_name
-			, TargetPlatform.ANDROID
-			, arch
-			, (TargetConfig)config
-			);
-		if (err != 0)
-			return;
-
 		logi("Creating Android package (%s)...".printf(arch == TargetArch.ARM ? "ARMv7-A" : "ARMv8-A"));
+
+		var activity_name = "MainActivity";
+		var package_path = package_dir.get_path();
 
 		// Architecture-agnostic paths.
 		var manifests_path = Path.build_path(Path.DIR_SEPARATOR_S, package_path, "manifests");
@@ -3596,7 +3771,90 @@ public class LevelEditorApplication : Gtk.Application
 			});
 	}
 
-	private void on_create_package_html5(GLib.SimpleAction action, GLib.Variant? param)
+	private void on_create_package_android(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		var output_path = (string)param.get_child_value(0);
+		var config = (int)param.get_child_value(1);
+		var app_title = (string)param.get_child_value(2);
+		var app_identifier = (string)param.get_child_value(3);
+		var app_version_code = (int)param.get_child_value(4);
+		var app_version_name = (string)param.get_child_value(5);
+		var keystore_path = (string)param.get_child_value(6);
+		var keystore_pass = (string)param.get_child_value(7);
+		var key_alias = (string)param.get_child_value(8);
+		var key_pass = (string)param.get_child_value(9);
+		var arch = (int)param.get_child_value(10);
+
+		var apk_name = app_identifier + "-" + app_version_name;
+
+		string config_path;
+		GLib.File package_dir = deploy_package_dir(out config_path
+			, output_path
+			, apk_name
+			, TargetPlatform.ANDROID
+			, arch
+			, (TargetConfig)config
+			);
+
+		if (package_dir.query_exists()) {
+			Gtk.Dialog dlg = new_package_dir_exists_dialog(package_dir.get_basename());
+			dlg.response.connect((response_id) => {
+					if (response_id == Gtk.ResponseType.YES) {
+						try {
+							delete_tree(package_dir);
+							package_dir.make_directory_with_parents();
+							do_create_package_android(package_dir
+								, config_path
+								, output_path
+								, config
+								, app_title
+								, app_identifier
+								, app_version_code
+								, app_version_name
+								, keystore_path
+								, keystore_pass
+								, key_alias
+								, key_pass
+								, arch
+								, apk_name
+								);
+						} catch (Error e) {
+							loge(e.message);
+						}
+					}
+					dlg.destroy();
+				});
+			dlg.show_all();
+		} else {
+			try {
+				package_dir.make_directory_with_parents();
+				do_create_package_android(package_dir
+					, config_path
+					, output_path
+					, config
+					, app_title
+					, app_identifier
+					, app_version_code
+					, app_version_name
+					, keystore_path
+					, keystore_pass
+					, key_alias
+					, key_pass
+					, arch
+					, apk_name
+					);
+			} catch (Error e) {
+				loge(e.message);
+			}
+		}
+	}
+
+	private void do_create_package_html5(GLib.File package_dir
+		, string output_path
+		, int config
+		, string app_title
+		, string exe_name
+		)
 	{
 		string config_name[] =
 		{
@@ -3607,29 +3865,12 @@ public class LevelEditorApplication : Gtk.Application
 #endif
 		};
 
-		var output_path = (string)param.get_child_value(0);
-		var config = (int)param.get_child_value(1);
-		var app_title = (string)param.get_child_value(2);
-
-		var exe_name = app_title.replace(" ", "_").down();
-
 		HTML5Deployer html5 = new HTML5Deployer();
 		html5.check_config();
 
-		string config_path;
-		string package_path;
-		int err = deploy_create_package_folder(out config_path
-			, out package_path
-			, output_path
-			, exe_name
-			, TargetPlatform.HTML5
-			, TargetArch.WASM
-			, (TargetConfig)config
-			);
-		if (err != 0)
-			return;
-
 		logi("Creating HTML5 package...");
+
+		string package_path = package_dir.get_path();
 
 		// Create data bundle.
 		try {
@@ -3769,7 +4010,54 @@ public class LevelEditorApplication : Gtk.Application
 		logi("Done: #FILE(%s)".printf(package_path));
 	}
 
-	private void on_create_package_linux(GLib.SimpleAction action, GLib.Variant? param)
+	private void on_create_package_html5(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		var output_path = (string)param.get_child_value(0);
+		var config = (int)param.get_child_value(1);
+		var app_title = (string)param.get_child_value(2);
+
+		var exe_name = app_title.replace(" ", "_").down();
+
+		string config_path;
+		GLib.File package_dir = deploy_package_dir(out config_path
+			, output_path
+			, exe_name
+			, TargetPlatform.HTML5
+			, TargetArch.WASM
+			, (TargetConfig)config
+			);
+
+		if (package_dir.query_exists()) {
+			Gtk.Dialog dlg = new_package_dir_exists_dialog(package_dir.get_basename());
+			dlg.response.connect((response_id) => {
+					if (response_id == Gtk.ResponseType.YES) {
+						try {
+							delete_tree(package_dir);
+							package_dir.make_directory_with_parents();
+							do_create_package_html5(package_dir, output_path, config, app_title, exe_name);
+						} catch (Error e) {
+							loge(e.message);
+						}
+					}
+					dlg.destroy();
+				});
+			dlg.show_all();
+		} else {
+			try {
+				package_dir.make_directory_with_parents();
+				do_create_package_html5(package_dir, output_path, config, app_title, exe_name);
+			} catch (Error e) {
+				loge(e.message);
+			}
+		}
+	}
+
+	private void do_create_package_linux(GLib.File package_dir
+		, string output_path
+		, int config
+		, string app_title
+		, string exe_name
+		)
 	{
 		string config_name[] =
 		{
@@ -3780,26 +4068,9 @@ public class LevelEditorApplication : Gtk.Application
 #endif
 		};
 
-		var output_path = (string)param.get_child_value(0);
-		var config = (int)param.get_child_value(1);
-		var app_title = (string)param.get_child_value(2);
-
-		var exe_name = app_title.replace(" ", "_").down();
-
-		string config_path;
-		string package_path;
-		int err = deploy_create_package_folder(out config_path
-			, out package_path
-			, output_path
-			, exe_name
-			, TargetPlatform.LINUX
-			, TargetArch.X64
-			, (TargetConfig)config
-			);
-		if (err != 0)
-			return;
-
 		logi("Creating Linux package...");
+
+		string package_path = package_dir.get_path();
 
 		// Create data bundle.
 		try {
@@ -3839,7 +4110,54 @@ public class LevelEditorApplication : Gtk.Application
 		logi("Done: #FILE(%s)".printf(package_path));
 	}
 
-	private void on_create_package_windows(GLib.SimpleAction action, GLib.Variant? param)
+	private void on_create_package_linux(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		var output_path = (string)param.get_child_value(0);
+		var config = (int)param.get_child_value(1);
+		var app_title = (string)param.get_child_value(2);
+
+		var exe_name = app_title.replace(" ", "_").down();
+
+		string config_path;
+		GLib.File package_dir = deploy_package_dir(out config_path
+			, output_path
+			, exe_name
+			, TargetPlatform.LINUX
+			, TargetArch.X64
+			, (TargetConfig)config
+			);
+
+		if (package_dir.query_exists()) {
+			Gtk.Dialog dlg = new_package_dir_exists_dialog(package_dir.get_basename());
+			dlg.response.connect((response_id) => {
+					if (response_id == Gtk.ResponseType.YES) {
+						try {
+							delete_tree(package_dir);
+							package_dir.make_directory_with_parents();
+							do_create_package_linux(package_dir, output_path, config, app_title, exe_name);
+						} catch (Error e) {
+							loge(e.message);
+						}
+					}
+					dlg.destroy();
+				});
+			dlg.show_all();
+		} else {
+			try {
+				package_dir.make_directory_with_parents();
+				do_create_package_linux(package_dir, output_path, config, app_title, exe_name);
+			} catch (Error e) {
+				loge(e.message);
+			}
+		}
+	}
+
+	void do_create_package_windows(GLib.File package_dir
+		, string output_path
+		, int config
+		, string app_title
+		, string exe_name
+		)
 	{
 		string config_name[] =
 		{
@@ -3850,26 +4168,9 @@ public class LevelEditorApplication : Gtk.Application
 #endif
 		};
 
-		var output_path = (string)param.get_child_value(0);
-		var config = (int)param.get_child_value(1);
-		var app_title = (string)param.get_child_value(2);
-
-		var exe_name = app_title.replace(" ", "_").down();
-
-		string config_path;
-		string package_path;
-		int err = deploy_create_package_folder(out config_path
-			, out package_path
-			, output_path
-			, exe_name
-			, TargetPlatform.WINDOWS
-			, TargetArch.X64
-			, (TargetConfig)config
-			);
-		if (err != 0)
-			return;
-
 		logi("Creating Windows package");
+
+		string package_path = package_dir.get_path();
 
 		// Create data bundle.
 		try {
@@ -3917,6 +4218,48 @@ public class LevelEditorApplication : Gtk.Application
 		}
 
 		logi("Done: #FILE(%s)".printf(package_path));
+	}
+
+	private void on_create_package_windows(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		var output_path = (string)param.get_child_value(0);
+		var config = (int)param.get_child_value(1);
+		var app_title = (string)param.get_child_value(2);
+
+		var exe_name = app_title.replace(" ", "_").down();
+
+		string config_path;
+		GLib.File package_dir = deploy_package_dir(out config_path
+			, output_path
+			, exe_name
+			, TargetPlatform.WINDOWS
+			, TargetArch.X64
+			, (TargetConfig)config
+			);
+
+		if (package_dir.query_exists()) {
+			Gtk.Dialog dlg = new_package_dir_exists_dialog(package_dir.get_basename());
+			dlg.response.connect((response_id) => {
+					if (response_id == Gtk.ResponseType.YES) {
+						try {
+							delete_tree(package_dir);
+							package_dir.make_directory_with_parents();
+							do_create_package_windows(package_dir, output_path, config, app_title, exe_name);
+						} catch (Error e) {
+							loge(e.message);
+						}
+					}
+					dlg.destroy();
+				});
+			dlg.show_all();
+		} else {
+			try {
+				package_dir.make_directory_with_parents();
+				do_create_package_windows(package_dir, output_path, config, app_title, exe_name);
+			} catch (Error e) {
+				loge(e.message);
+			}
+		}
 	}
 
 	private void on_unit_add_component(GLib.SimpleAction action, GLib.Variant? param)
@@ -3973,8 +4316,8 @@ public class LevelEditorApplication : Gtk.Application
 				);
 			md.set_default_response(Gtk.ResponseType.OK);
 
-			md.run();
-			md.destroy();
+			md.response.connect(() => { md.destroy(); });
+			md.show_all();
 			return;
 		} else {
 			unit.remove_component_type(component_type);

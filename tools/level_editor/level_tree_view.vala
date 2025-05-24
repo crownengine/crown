@@ -241,60 +241,25 @@ public class LevelTreeView : Gtk.Box
 			Gtk.Menu menu = new Gtk.Menu();
 			Gtk.MenuItem mi;
 
-			mi = new Gtk.MenuItem.with_label("Rename...");
-			mi.activate.connect(() => {
-					Gtk.Dialog dg = new Gtk.Dialog.with_buttons("New Name"
-						, (Gtk.Window)this.get_toplevel()
-						, Gtk.DialogFlags.MODAL
-						, "Cancel"
-						, Gtk.ResponseType.CANCEL
-						, "Ok"
-						, Gtk.ResponseType.OK
-						, null
-						);
-
-					InputString sb = new InputString();
+			if (_tree_selection.count_selected_rows() == 1) {
+				mi = new Gtk.MenuItem.with_label("Rename...");
+				mi.activate.connect(() => {
 					_tree_selection.selected_foreach((model, path, iter) => {
-							Value name;
-							model.get_value(iter, Column.NAME, out name);
-							sb.value = (string)name;
-							return;
+							Value type;
+							model.get_value(iter, Column.TYPE, out type);
+							if ((int)type == ItemType.FOLDER)
+								return;
+
+							Value object_id;
+							model.get_value(iter, Column.GUID, out object_id);
+
+							GLib.Application.get_default().activate_action("rename"
+								, new GLib.Variant.tuple({ ((Guid)object_id).to_string(), "" })
+								);
 						});
-					sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
-					dg.get_content_area().add(sb);
-					dg.skip_taskbar_hint = true;
-					dg.show_all();
-
-					if (dg.run() == (int)Gtk.ResponseType.OK) {
-						string cur_name = "";
-						string new_name = "";
-						Guid object_id = GUID_ZERO;
-
-						_tree_selection.selected_foreach((model, path, iter) => {
-								Value type;
-								model.get_value(iter, Column.TYPE, out type);
-								if ((int)type == ItemType.FOLDER)
-									return;
-
-								Value name;
-								model.get_value(iter, Column.NAME, out name);
-								cur_name = (string)name;
-
-								Value guid;
-								model.get_value(iter, Column.GUID, out guid);
-								object_id = (Guid)guid;
-
-								new_name = sb.text.strip();
-							});
-
-						if (new_name != "" && new_name != cur_name)
-							_level.object_set_editor_name(object_id, new_name);
-					}
-
-					dg.destroy();
-				});
-			if (_tree_selection.count_selected_rows() == 1)
-				menu.add(mi);
+					});
+					menu.add(mi);
+			}
 
 			mi = new Gtk.MenuItem.with_label("Duplicate");
 			mi.activate.connect(() => {

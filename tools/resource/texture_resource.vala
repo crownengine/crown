@@ -96,7 +96,7 @@ public struct TextureResource
 		return _db.save(project.absolute_path(resource_name) + "." + OBJECT_TYPE_TEXTURE, _id);
 	}
 
-	public static ImportResult import(ProjectStore project_store, string destination_dir, SList<string> filenames)
+	public static void import(Import import_result, ProjectStore project_store, string destination_dir, SList<string> filenames)
 	{
 		Project project = project_store._project;
 
@@ -112,7 +112,8 @@ public struct TextureResource
 				file_src.copy(file_dst, FileCopyFlags.OVERWRITE);
 			} catch (Error e) {
 				loge(e.message);
-				return ImportResult.ERROR;
+				import_result(ImportResult.ERROR);
+				return;
 			}
 
 			Database db = new Database(project);
@@ -120,7 +121,7 @@ public struct TextureResource
 			texture_resource.save(project, resource_name);
 		}
 
-		return ImportResult.SUCCESS;
+		import_result(ImportResult.SUCCESS);
 	}
 }
 

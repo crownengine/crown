@@ -5,29 +5,166 @@
 
 namespace Crown
 {
-public class FontResource
+[SimpleType]
+[CCode (cname = "GlyphData", has_type_id = false)]
+public struct GlyphData
 {
-	public static ImportResult import(ProjectStore project_store, string destination_dir, SList<string> filenames)
+	int id;
+	int x;         ///< X-position inside the atlas.
+	int y;         ///< Y-position inside the atlas.
+	int width;     ///< In pixels.
+	int height;    ///< In pixels.
+	int x_offset;  ///< In pixels.
+	int y_offset;  ///< In pixels.
+	int x_advance; ///< In pixels.
+}
+
+[SimpleType]
+[CCode (cname = "FontAtlas", has_type_id = false)]
+public struct FontAtlas
+{
+	uchar* image_data;
+	int size;
+	GlyphData* glyphs;
+	int num_glyphs;
+}
+
+[CCode (cname = "crown_font_atlas_free")]
+extern void font_atlas_free(FontAtlas* atlas);
+
+[CCode (cname = "crown_font_atlas_generate")]
+extern void* font_atlas_generate(string font_path, int font_size, int range_min, int range_max);
+
+public enum FontChars
+{
+	ASCII_PRINTABLE,
+	ASCII_NUMBERS,
+	ASCII_LETTERS,
+	CUSTOM_RANGE
+}
+
+// Copies @a src alpha to @a dst BRGA channels.
+private void copy_alpha_to_argb32(Cairo.ImageSurface dst, Cairo.ImageSurface src)
+{
+	unowned uchar[] dst_data = dst.get_data();
+	unowned uchar[] src_data = src.get_data();
+	int src_stride = src.get_stride();
+	int dst_stride = dst.get_stride();
+	int width  = src.get_width();
+	int height = src.get_height();
+
+	for (int yy = 0; yy < height; yy++) {
+		for (int xx = 0; xx < width; xx++) {
+			uint8 alpha = src_data[yy * src_stride + xx];
+			dst_data[yy * dst_stride + 4 * xx + 0] = alpha; // B
+			dst_data[yy * dst_stride + 4 * xx + 1] = alpha; // G
+			dst_data[yy * dst_stride + 4 * xx + 2] = alpha; // R
+			dst_data[yy * dst_stride + 4 * xx + 3] = alpha; // A
+		}
+	}
+}
+
+public class FontImportDialog : Gtk.Dialog
+{
+	public Project _project;
+	public string _destination_dir;
+	public GLib.SList<string> _filenames;
+	public unowned Import _import_result;
+
+	public string _font_type;
+
+	public FontAtlas* _font_atlas;
+	public Cairo.ImageSurface _atlas;
+	public PixbufView _drawing_area;
+	public Gtk.ScrolledWindow _scrolled_window;
+
+	public Gtk.Label _atlas_size;
+	public Gtk.Label _font_path;
+	public InputResourceBasename _font_name;
+	public InputDouble _font_size;
+	public Gtk.ComboBoxText _font_chars;
+	public InputDouble _font_range_min;
+	public InputDouble _font_range_max;
+
+	public void set_font_range(int min, int max)
 	{
-		Project project = project_store._project;
-		Hashtable importer_settings = null;
-		string importer_settings_path = null;
-		string font_path;
-		string font_type;
+		if (min > max || max < min)
+			max = min;
+
+		_font_range_min.value = min;
+		_font_range_max.value = max;
+	}
+
+	public int atlas_size()
+	{
+		return _font_atlas.size;
+	}
+
+	public void generate_atlas()
+	{
+		font_atlas_free(_font_atlas);
+		_font_atlas = (FontAtlas*)font_atlas_generate(_font_path.get_text()
+			, (int)_font_size.value
+			, (int)_font_range_min.value
+			, (int)_font_range_max.value
+			);
+
+		_atlas = new Cairo.ImageSurface.for_data((uchar[])_font_atlas.image_data
+			, Cairo.Format.A8
+			, _font_atlas.size
+			, _font_atlas.size
+			, Cairo.Format.A8.stride_for_width(_font_atlas.size)
+			);
+
+		_atlas_size.set_text(_atlas.get_width().to_string() + " × " + _atlas.get_height().to_string());
+		_drawing_area.set_pixbuf(Gdk.pixbuf_get_from_surface(_atlas, 0, 0, _atlas.get_width(), _atlas.get_height()));
+		_drawing_area._zoom = 1.0;
+	}
+
+	public GlyphData* glyph_data(int index)
+	{
+		return &_font_atlas.glyphs[index];
+	}
+
+	public void save_png(string path)
+	{
+		var argb32 = new Cairo.ImageSurface(Cairo.Format.ARGB32
+			, _atlas.get_width()
+			, _atlas.get_height()
+			);
+		copy_alpha_to_argb32(argb32, _atlas);
+		argb32.write_to_png(path);
+	}
+
+	public FontImportDialog(ProjectStore store, string destination_dir, GLib.SList<string> filenames, Import import_result)
+	{
+		this.border_width = 4;
+		this.title = "Import Font...";
+		this.set_icon_name(CROWN_EDITOR_ICON_NAME);
+
+		_project = store._project;
+		_destination_dir = destination_dir;
+		_filenames = new GLib.SList<string>();
+		foreach (var f in filenames)
+			_filenames.append(f);
+		_import_result = import_result;
+
+		string settings_path;
 		string font_name;
+		string font_path;
 		{
 			GLib.File file_src = File.new_for_path(filenames.nth_data(0));
 			font_path = file_src.get_path();
-			font_type = font_path.substring(font_path.last_index_of_char('.') + 1
+			_font_type = font_path.substring(font_path.last_index_of_char('.') + 1
 				, font_path.length - font_path.last_index_of_char('.') - 1
 				);
 
 			GLib.File file_dst       = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
-			string resource_filename = project.resource_filename(file_dst.get_path());
+			string resource_filename = _project.resource_filename(file_dst.get_path());
 			string resource_path     = ResourceId.normalize(resource_filename);
 			string resource_name     = ResourceId.name(resource_path);
 
-			importer_settings_path = project.absolute_path(resource_name) + ".importer_settings";
+			settings_path = _project.absolute_path(resource_name) + ".importer_settings";
 
 			font_path = file_src.get_path();
 
@@ -38,41 +175,170 @@ public class FontResource
 				font_name = resource_name.substring(last_slash + 1, resource_name.length - last_slash - 1);
 		}
 
-		FontImportDialog dlg = new FontImportDialog(font_path, font_name);
-		dlg._font_name.sensitive = filenames.length() == 1;
-		dlg.show_all();
+		_drawing_area = new PixbufView();
+		_drawing_area._filter = Cairo.Filter.BILINEAR;
+		_drawing_area._extend = Cairo.Extend.NONE;
 
-		if (File.new_for_path(importer_settings_path).query_exists()) {
+		_scrolled_window = new Gtk.ScrolledWindow(null, null);
+		_scrolled_window.min_content_width = 640;
+		_scrolled_window.min_content_height = 640;
+		_scrolled_window.add(_drawing_area);
+
+		_atlas_size = new Gtk.Label("? × ?");
+		_atlas_size.halign = Gtk.Align.START;
+		_font_path = new Gtk.Label(font_path);
+		_font_name = new InputResourceBasename(font_name);
+		_font_name.sensitive = filenames.length() == 1;
+		_font_size = new InputDouble(24.0, 1.0, 999.0);
+		_font_range_min = new InputDouble(32.0, 0.0, int32.MAX);
+		_font_range_min.sensitive = false;
+		_font_range_max = new InputDouble(126.0, 0.0, int32.MAX);
+		_font_range_max.sensitive = false;
+		_font_chars = new Gtk.ComboBoxText();
+		_font_chars.append_text("ASCII Printable"); // FontChars.ASCII_PRINTABLE
+		_font_chars.append_text("ASCII Numbers");   // FontChars.ASCII_NUMBERS
+		_font_chars.append_text("ASCII Letters");   // FontChars.ASCII_LETTERS
+		_font_chars.append_text("Custom Range");    // FontChars.CUSTOM_RANGE
+		_font_chars.active = FontChars.ASCII_PRINTABLE;
+		_font_chars.changed.connect(() => {
+				// code-format off
+				switch (_font_chars.active) {
+				case FontChars.ASCII_PRINTABLE:
+					set_font_range(32, 126);
+					_font_range_min.sensitive = false;
+					_font_range_max.sensitive = false;
+					break;
+				case FontChars.ASCII_NUMBERS:
+					set_font_range(48, 57);
+					_font_range_min.sensitive = false;
+					_font_range_max.sensitive = false;
+					break;
+				case FontChars.ASCII_LETTERS:
+					set_font_range(97, 122);
+					_font_range_min.sensitive = false;
+					_font_range_max.sensitive = false;
+					break;
+				case FontChars.CUSTOM_RANGE:
+					_font_range_min.sensitive = true;
+					_font_range_max.sensitive = true;
+					break;
+				default:
+					break;
+				}
+				// code-format on
+
+				generate_atlas();
+				_drawing_area.queue_draw();
+			});
+
+		_font_size.value_changed.connect(() => {
+				generate_atlas();
+				_drawing_area.queue_draw();
+			});
+
+		_font_range_min.value_changed.connect(() => {
+				set_font_range((int)_font_range_min.value, (int)_font_range_max.value);
+				generate_atlas();
+				_drawing_area.queue_draw();
+			});
+		_font_range_max.value_changed.connect(() => {
+				set_font_range((int)_font_range_min.value, (int)_font_range_max.value);
+				generate_atlas();
+				_drawing_area.queue_draw();
+			});
+
+		PropertyGridSet sprite_set = new PropertyGridSet();
+		sprite_set.border_width = 12;
+
+		PropertyGrid cv;
+		cv = new PropertyGrid();
+		cv.add_row("Source path", _font_path);
+		sprite_set.add_property_grid(cv, "File");
+
+		cv = new PropertyGrid();
+		cv.add_row("Name", _font_name);
+		cv.add_row("Atlas size", _atlas_size);
+		cv.add_row("Size", _font_size);
+		cv.add_row("Charset", _font_chars);
+		cv.add_row("Range min", _font_range_min);
+		cv.add_row("Range max", _font_range_max);
+		sprite_set.add_property_grid(cv, "Font");
+
+		Gtk.Box box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		box.pack_start(_scrolled_window, true, true);
+
+		Gtk.Paned pane;
+		pane = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
+		pane.pack1(box, false, false);
+		pane.pack2(sprite_set, true, false);
+
+		this.get_content_area().add(pane);
+		this.add_button("Cancel", Gtk.ResponseType.CANCEL);
+		this.add_button("OK", Gtk.ResponseType.OK);
+		this.response.connect(on_response);
+		this.destroy.connect(on_destroy);
+		this.map_event.connect(on_map_event);
+
+		if (File.new_for_path(settings_path).query_exists()) {
 			try {
-				importer_settings = SJSON.load_from_path(importer_settings_path);
-				dlg.load(importer_settings);
+				decode(SJSON.load_from_path(settings_path));
 			} catch (JsonSyntaxError e) {
-				importer_settings = new Hashtable();
+				// No-op.
 			}
-		} else {
-			importer_settings = new Hashtable();
 		}
 
-		dlg.generate_atlas();
+		generate_atlas();
+	}
 
-		if (dlg.run() != Gtk.ResponseType.OK) {
-			dlg.destroy();
-			return ImportResult.CANCEL;
-		}
+	private bool on_map_event(Gdk.EventAny ev)
+	{
+		_font_name.grab_focus();
+		return Gdk.EVENT_PROPAGATE;
+	}
 
-		dlg.save(importer_settings);
+	private void on_destroy()
+	{
+		font_atlas_free(_font_atlas);
+	}
 
+	public void decode(Hashtable obj)
+	{
+		_font_chars.active = FontChars.CUSTOM_RANGE;
+		_font_size.value = (double)obj["size"];
+		set_font_range((int)(double)obj["range_min"], (int)(double)obj["range_max"]);
+	}
+
+	public Hashtable encode()
+	{
+		Hashtable obj = new Hashtable();
+
+		obj["size"]      = _font_size.value;
+		obj["range_min"] = _font_range_min.value;
+		obj["range_max"] = _font_range_max.value;
+
+		return obj;
+	}
+
+	public void on_response(int response_id)
+	{
+		if (response_id == Gtk.ResponseType.OK)
+			_import_result(FontResource.do_import(this, _project, _destination_dir, _filenames));
+		destroy();
+	}
+}
+
+public class FontResource
+{
+	public static ImportResult do_import(FontImportDialog dlg, Project project, string destination_dir, GLib.SList<string> filenames)
+	{
 		int size      = (int)dlg.atlas_size();
 		int font_size = (int)dlg._font_size.value;
-		font_name     = dlg._font_name.value;
-
-		dlg.hide();
 
 		foreach (unowned string filename_i in filenames) {
 			GLib.File file_src = File.new_for_path(filename_i);
 			string resource_basename;
 			if (filenames.length() == 1)
-				resource_basename = font_name + "." + font_type;
+				resource_basename = dlg._font_name.value + "." + dlg._font_type;
 			else
 				resource_basename = file_src.get_basename();
 
@@ -82,7 +348,7 @@ public class FontResource
 			string resource_name     = ResourceId.name(resource_path);
 
 			try {
-				SJSON.save(importer_settings, project.absolute_path(resource_name) + ".importer_settings");
+				SJSON.save(dlg.encode(), project.absolute_path(resource_name) + ".importer_settings");
 			} catch (JsonWriteError e) {
 				return ImportResult.ERROR;
 			}
@@ -133,6 +399,14 @@ public class FontResource
 
 		dlg.destroy();
 		return ImportResult.SUCCESS;
+	}
+
+	public static void import(Import import_result, ProjectStore store, string destination_dir, SList<string> filenames, Gtk.Window? parent_window)
+	{
+		FontImportDialog dlg = new FontImportDialog(store, destination_dir, filenames, import_result);
+		dlg.set_transient_for(parent_window);
+		dlg.set_modal(true);
+		dlg.show_all();
 	}
 }
 

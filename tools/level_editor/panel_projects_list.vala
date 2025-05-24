@@ -13,11 +13,13 @@ public class ProjectRow : Gtk.ListBoxRow
 	public Gtk.Label _source_dir;
 	public Gtk.Button _remove_button;
 	public Gtk.Button _open_button;
+	public PanelProjectsList _projects_list;
 
-	public ProjectRow(string source_dir, string time, string name)
+	public ProjectRow(string source_dir, string time, string name, PanelProjectsList pl)
 	{
 		this.set_data("source_dir", source_dir);
 		this.set_data("mtime", time);
+		_projects_list = pl;
 
 		_vbox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 
@@ -56,14 +58,48 @@ public class ProjectRow : Gtk.ListBoxRow
 		// _open_button.set_margin_end(12);
 		_hbox.pack_end(_open_button, false, false, 0);
 
+		_remove_button.clicked.connect(on_remove_button_clicked);
+		_open_button.clicked.connect(on_open_button_clicked);
+
 		this.add(_hbox);
+	}
+
+	public void on_remove_button_clicked()
+	{
+		string source_dir = this.get_data("source_dir");
+
+		Gtk.MessageDialog md = new Gtk.MessageDialog((Gtk.Window)this.get_toplevel()
+			, Gtk.DialogFlags.MODAL
+			, Gtk.MessageType.WARNING
+			, Gtk.ButtonsType.NONE
+			, "Remove \"%s\" from the list?\n\nThis action removes the project from the list only, files on disk will not be deleted.".printf(source_dir)
+			);
+		md.add_button("_Cancel", Gtk.ResponseType.CANCEL);
+		md.add_button("_Remove", Gtk.ResponseType.YES);
+		md.set_default_response(Gtk.ResponseType.CANCEL);
+		md.response.connect((response_id) => {
+				if (response_id == Gtk.ResponseType.YES) {
+					_projects_list._user.remove_recent_project(source_dir);
+					_projects_list._list_projects.remove(this);
+				}
+
+				md.destroy();
+			});
+		md.show_all();
+	}
+
+	public void on_open_button_clicked()
+	{
+		string source_dir = this.get_data("source_dir");
+
+		GLib.Application.get_default().activate_action("open-project", new GLib.Variant.string(source_dir));
 	}
 }
 
 public class PanelProjectsList : Gtk.ScrolledWindow
 {
 	// Data
-	User _user;
+	public User _user;
 
 	// Widgets
 	public Gtk.Label _projects_list_label;
@@ -149,30 +185,7 @@ public class PanelProjectsList : Gtk.ScrolledWindow
 	public void on_recent_project_added(string source_dir, string name, string time)
 	{
 		// Add project row.
-		var row = new ProjectRow(source_dir, time, name);
-
-		row._remove_button.clicked.connect(() => {
-				Gtk.MessageDialog md = new Gtk.MessageDialog((Gtk.Window)this.get_toplevel()
-					, Gtk.DialogFlags.MODAL
-					, Gtk.MessageType.WARNING
-					, Gtk.ButtonsType.NONE
-					, "Remove \"%s\" from the list?\n\nThis action removes the project from the list only, files on disk will not be deleted.".printf(source_dir)
-					);
-				md.add_button("_Cancel", Gtk.ResponseType.CANCEL);
-				md.add_button("_Remove", Gtk.ResponseType.YES);
-				md.set_default_response(Gtk.ResponseType.CANCEL);
-
-				if (md.run() == Gtk.ResponseType.YES) {
-					_user.remove_recent_project(row.get_data("source_dir"));
-					_list_projects.remove(row);
-				}
-
-				md.destroy();
-			});
-
-		row._open_button.clicked.connect(() => {
-				GLib.Application.get_default().activate_action("open-project", new GLib.Variant.string(source_dir));
-			});
+		var row = new ProjectRow(source_dir, time, name, this);
 
 		_list_projects.add(row);
 		_list_projects.show_all(); // Otherwise the list is not always updated...
