@@ -49,13 +49,15 @@ public class EditorView : Gtk.EventBox
 	private string key_to_string(uint k)
 	{
 		switch (k) {
-		case Gdk.Key.w:     return "w";
-		case Gdk.Key.a:     return "a";
-		case Gdk.Key.s:     return "s";
-		case Gdk.Key.d:     return "d";
-		case Gdk.Key.Alt_L: return "alt_left";
-		case Gdk.Key.Alt_R: return "alt_right";
-		default:            return "<unknown>";
+		case Gdk.Key.w:         return "w";
+		case Gdk.Key.a:         return "a";
+		case Gdk.Key.s:         return "s";
+		case Gdk.Key.d:         return "d";
+		case Gdk.Key.Control_L: return "ctrl_left";
+		case Gdk.Key.Shift_L:   return "shift_left";
+		case Gdk.Key.Alt_L:     return "alt_left";
+		case Gdk.Key.Alt_R:     return "alt_right";
+		default:                return "<unknown>";
 		}
 	}
 
@@ -91,6 +93,8 @@ public class EditorView : Gtk.EventBox
 		_keys[Gdk.Key.a] = false;
 		_keys[Gdk.Key.s] = false;
 		_keys[Gdk.Key.d] = false;
+		_keys[Gdk.Key.Control_L] = false;
+		_keys[Gdk.Key.Shift_L] = false;
 		_keys[Gdk.Key.Alt_L] = false;
 		_keys[Gdk.Key.Alt_R] = false;
 
@@ -362,6 +366,12 @@ public class EditorView : Gtk.EventBox
 	private bool on_event_box_focus_out_event(Gdk.EventFocus ev)
 	{
 		camera_modifier_reset();
+
+		_keys[Gdk.Key.Control_L] = false;
+		_keys[Gdk.Key.Shift_L] = false;
+		_runtime.send_script(LevelEditorApi.key_up(key_to_string(Gdk.Key.Control_L)));
+		_runtime.send_script(LevelEditorApi.key_up(key_to_string(Gdk.Key.Shift_L)));
+
 		return Gdk.EVENT_PROPAGATE;
 	}
 
