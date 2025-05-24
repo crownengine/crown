@@ -304,7 +304,6 @@ public class LevelEditorWindow : Gtk.ApplicationWindow
 	};
 
 	public bool _fullscreen;
-	public Gtk.EventControllerKey _controller_key;
 
 	public LevelEditorWindow(Gtk.Application app, Gtk.HeaderBar header_bar)
 	{
@@ -318,10 +317,6 @@ public class LevelEditorWindow : Gtk.ApplicationWindow
 		this.delete_event.connect(this.on_delete_event);
 
 		_fullscreen = false;
-		_controller_key = new Gtk.EventControllerKey(this);
-		_controller_key.key_pressed.connect(on_key_pressed);
-		_controller_key.key_released.connect(on_key_released);
-		_controller_key.focus_out.connect(on_focus_out);
 
 		this.set_default_size(WINDOW_DEFAULT_WIDTH, WINDOW_DEFAULT_HEIGHT);
 	}
@@ -332,46 +327,6 @@ public class LevelEditorWindow : Gtk.ApplicationWindow
 			unfullscreen();
 		else
 			fullscreen();
-	}
-
-	private bool on_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)
-	{
-		LevelEditorApplication app = (LevelEditorApplication)application;
-
-		string str = "";
-
-		if (keyval == Gdk.Key.Control_L)
-			str += LevelEditorApi.key_down("ctrl_left");
-		else if (keyval == Gdk.Key.Shift_L)
-			str += LevelEditorApi.key_down("shift_left");
-		else if (keyval == Gdk.Key.Alt_L)
-			str += LevelEditorApi.key_down("alt_left");
-
-		if (str.length != 0) {
-			app._editor.send_script(str);
-			app._editor.send(DeviceApi.frame());
-		}
-
-		return Gdk.EVENT_PROPAGATE;
-	}
-
-	private void on_key_released(uint keyval, uint keycode, Gdk.ModifierType state)
-	{
-		LevelEditorApplication app = (LevelEditorApplication)application;
-
-		string str = "";
-
-		if (keyval == Gdk.Key.Control_L)
-			str += LevelEditorApi.key_up("ctrl_left");
-		else if (keyval == Gdk.Key.Shift_L)
-			str += LevelEditorApi.key_up("shift_left");
-		else if (keyval == Gdk.Key.Alt_L)
-			str += LevelEditorApi.key_up("alt_left");
-
-		if (str.length != 0) {
-			app._editor.send_script(str);
-			app._editor.send(DeviceApi.frame());
-		}
 	}
 
 	private bool on_window_state_event(Gdk.EventWindowState ev)
@@ -388,15 +343,6 @@ public class LevelEditorWindow : Gtk.ApplicationWindow
 			app.stop_backend_and_quit();
 
 		return Gdk.EVENT_STOP; // Keep window alive.
-	}
-
-	private void on_focus_out()
-	{
-		LevelEditorApplication app = (LevelEditorApplication)application;
-
-		app._editor.send_script(LevelEditorApi.key_up("ctrl_left"));
-		app._editor.send_script(LevelEditorApi.key_up("shift_left"));
-		app._editor.send_script(LevelEditorApi.key_up("alt_left"));
 	}
 
 	public Hashtable encode()
