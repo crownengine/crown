@@ -123,7 +123,7 @@ public class SpriteImportDialog : Gtk.Dialog
 	public InputVector2 collision_wh;
 	public InputEnum actor_class;
 	public InputDouble mass;
-	public Gtk.CheckButton lock_rotation_y;
+	public Gtk.CheckButton lock_rotation_z;
 
 	public Gtk.Button _previous_frame;
 	public Gtk.Button _next_frame;
@@ -172,8 +172,8 @@ public class SpriteImportDialog : Gtk.Dialog
 		actor_class.append("keyframed", "keyframed");
 		actor_class.append("trigger", "trigger");
 		actor_class.value = "static";
-		lock_rotation_y = new Gtk.CheckButton();
-		lock_rotation_y.active = true;
+		lock_rotation_z = new Gtk.CheckButton();
+		lock_rotation_z.active = true;
 		mass = new InputDouble(10.0, 0.0, double.MAX);
 
 		circle_collision_center = new InputVector2(Vector2(cell.value.x/2.0, cell.value.y/2.0), Vector2(-double.MAX, -double.MAX), Vector2(double.MAX, double.MAX));
@@ -232,7 +232,7 @@ public class SpriteImportDialog : Gtk.Dialog
 				capsule_collision_height.sensitive = !capsule_collision_height.sensitive;
 				actor_class.sensitive = !actor_class.sensitive;
 				mass.sensitive = !mass.sensitive;
-				lock_rotation_y.sensitive = !lock_rotation_y.sensitive;
+				lock_rotation_z.sensitive = !lock_rotation_z.sensitive;
 			});
 
 		collision_xy.value_changed.connect(() => {
@@ -342,7 +342,7 @@ public class SpriteImportDialog : Gtk.Dialog
 		cv = new PropertyGrid();
 		cv.add_row("Class", actor_class);
 		cv.add_row("Mass", mass);
-		cv.add_row("Lock Rotation", lock_rotation_y);
+		cv.add_row("Lock Rotation", lock_rotation_z);
 		sprite_set.add_property_grid(cv, "Actor");
 
 		_previous_frame = new Gtk.Button.from_icon_name("go-previous-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
@@ -572,7 +572,7 @@ public class SpriteImportDialog : Gtk.Dialog
 
 		shape.visible_child_name = importer_settings.has_key("shape_active_name") ? (string)importer_settings["shape_active_name"] : "square_collider";
 		actor_class.value        = importer_settings.has_key("actor_class") ? (string)importer_settings["actor_class"] : "static";
-		lock_rotation_y.active   = importer_settings.has_key("lock_rotation_y") ? (bool)importer_settings["lock_rotation_y"] : true;
+		lock_rotation_z.active   = importer_settings.has_key("lock_rotation_z") ? (bool)importer_settings["lock_rotation_z"] : true;
 		mass.value               = importer_settings.has_key("mass") ? (double)importer_settings["mass"] : 10.0;
 	}
 
@@ -603,7 +603,7 @@ public class SpriteImportDialog : Gtk.Dialog
 		importer_settings["capsule_collision_height"]   = capsule_collision_height.value;
 		importer_settings["shape_active_name"]          = shape.visible_child_name;
 		importer_settings["actor_class"]                = actor_class.value;
-		importer_settings["lock_rotation_y"]            = lock_rotation_y.active;
+		importer_settings["lock_rotation_z"]            = lock_rotation_z.active;
 		importer_settings["mass"]                       = mass.value;
 	}
 }

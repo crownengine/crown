@@ -10,6 +10,7 @@ Changelog
 * Sped up deployers by enabling incremental data compilation.
 * Added mouse-only shortcuts (middle-button/wheel) to tumble/dolly the camera.
 * Added support to JPEG image format for textures.
+* Fixed collider generation when importing sprites.
 * Fixed importing sounds.
 * Fixed drag & drop of sound resources into the Editor View.
 

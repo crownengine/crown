@@ -87,7 +87,7 @@ public class SpriteResource
 		int collision_w                = (int)dlg.collision_wh.value.x;
 		int collision_h                = (int)dlg.collision_wh.value.y;
 		string actor_class             = (string)dlg.actor_class.value;
-		bool lock_rotation_y           = dlg.lock_rotation_y.active;
+		bool lock_rotation_z           = dlg.lock_rotation_z.active;
 		double mass                    = (double)dlg.mass.value;
 		image_name                     = dlg._unit_name.value;
 
@@ -227,8 +227,8 @@ public class SpriteResource
 					if (shape_active_name == "square_collider") {
 						double pos_x =  (collision_x + collision_w/2.0 - pivot_xy.x) / PIXELS_PER_METER;
 						double pos_y = -(collision_y + collision_h/2.0 - pivot_xy.y) / PIXELS_PER_METER;
-						Vector3 position = Vector3(pos_x, 0, pos_y);
-						Vector3 half_extents = Vector3(collision_w/2/PIXELS_PER_METER, 0.5/PIXELS_PER_METER, collision_h/2/PIXELS_PER_METER);
+						Vector3 position = Vector3(pos_x, pos_y, 0);
+						Vector3 half_extents = Vector3(collision_w/2/PIXELS_PER_METER, collision_h/2/PIXELS_PER_METER, 0.5/PIXELS_PER_METER);
 						unit.set_component_property_vector3   (component_id, "data.collider_data.position", position);
 						unit.set_component_property_quaternion(component_id, "data.collider_data.rotation", rotation);
 						unit.set_component_property_string    (component_id, "data.shape", "box");
@@ -236,7 +236,7 @@ public class SpriteResource
 					} else if (shape_active_name == "circle_collider") {
 						double pos_x =  (circle_collision_center_x - pivot_xy.x) / PIXELS_PER_METER;
 						double pos_y = -(circle_collision_center_y - pivot_xy.y) / PIXELS_PER_METER;
-						Vector3 position = Vector3(pos_x, 0, pos_y);
+						Vector3 position = Vector3(pos_x, pos_y, 0);
 						double radius = circle_collision_radius / PIXELS_PER_METER;
 						unit.set_component_property_vector3   (component_id, "data.collider_data.position", position);
 						unit.set_component_property_quaternion(component_id, "data.collider_data.rotation", rotation);
@@ -245,7 +245,7 @@ public class SpriteResource
 					} else if (shape_active_name == "capsule_collider") {
 						double pos_x =  (capsule_collision_center_x - pivot_xy.x) / PIXELS_PER_METER;
 						double pos_y = -(capsule_collision_center_y - pivot_xy.y) / PIXELS_PER_METER;
-						Vector3 position = Vector3(pos_x, 0, pos_y);
+						Vector3 position = Vector3(pos_x, pos_y, 0);
 						double radius = capsule_collision_radius / PIXELS_PER_METER;
 						double capsule_height = (capsule_collision_height - 2*capsule_collision_radius) / PIXELS_PER_METER;
 						unit.set_component_property_vector3   (component_id, "data.collider_data.position", position);
@@ -268,11 +268,11 @@ public class SpriteResource
 					unit.set_component_property_string(component_id, "data.class", actor_class);
 					unit.set_component_property_string(component_id, "data.collision_filter", "default");
 					unit.set_component_property_bool  (component_id, "data.lock_rotation_x", true);
-					unit.set_component_property_bool  (component_id, "data.lock_rotation_y", lock_rotation_y);
-					unit.set_component_property_bool  (component_id, "data.lock_rotation_z", true);
+					unit.set_component_property_bool  (component_id, "data.lock_rotation_y", true);
+					unit.set_component_property_bool  (component_id, "data.lock_rotation_z", lock_rotation_z);
 					unit.set_component_property_bool  (component_id, "data.lock_translation_x", false);
-					unit.set_component_property_bool  (component_id, "data.lock_translation_y", true);
-					unit.set_component_property_bool  (component_id, "data.lock_translation_z", false);
+					unit.set_component_property_bool  (component_id, "data.lock_translation_y", false);
+					unit.set_component_property_bool  (component_id, "data.lock_translation_z", true);
 					unit.set_component_property_double(component_id, "data.mass", mass);
 					unit.set_component_property_string(component_id, "data.material", "default");
 				}
