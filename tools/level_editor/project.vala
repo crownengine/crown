@@ -10,7 +10,6 @@ public enum ImportResult
 	SUCCESS, ///< Data imported successfully.
 	ERROR,   ///< Error during import or elsewhere.
 	CANCEL,  ///< User cancelled the import.
-	CALLBACK ///< The actual importing will happen in the provided callback.
 }
 
 public delegate void Import(ImportResult result);
@@ -19,10 +18,10 @@ public class Project
 {
 	public const string LEVEL_EDITOR_TEST_NAME = "_level_editor_test";
 
-	public delegate ImportResult ImporterDelegate(ProjectStore project_store
+	public delegate void ImporterDelegate(Import import_result
+		, ProjectStore project_store
 		, string destination_dir
 		, SList<string> filenames
-		, Import import_result
 		, Gtk.Window? parent_window
 		);
 
@@ -551,7 +550,12 @@ public class Project
 		return Path.build_filename(prefix, resource_path);
 	}
 
-	public static ImportResult import_all_extensions(ProjectStore project_store, string destination_dir, SList<string> filenames, Import import_result, Gtk.Window? parent_window)
+	public static void import_all_extensions(Import import_result
+		, ProjectStore project_store
+		, string destination_dir
+		, SList<string> filenames
+		, Gtk.Window? parent_window
+		)
 	{
 		Project project = project_store._project;
 
@@ -565,12 +569,13 @@ public class Project
 				return strcmp(a[ext_a : a.length], b[ext_b : b.length]);
 			});
 
-		int result = 0;
-		while (paths.size != 0 && result == ImportResult.SUCCESS) {
+		while (paths.size != 0) {
 			// Find importer for the first file in the list of selected filenames.
 			ImporterData? importer = project.find_importer_for_path(paths[0]);
-			if (importer == null)
-				return ImportResult.ERROR;
+			if (importer == null) {
+				import_result(ImportResult.ERROR);
+				return;
+			}
 
 			// Create the list of all filenames importable by importer.
 			Gee.ArrayList<string> importables = new Gee.ArrayList<string>();
@@ -586,18 +591,18 @@ public class Project
 
 			// If importables is empty, filenames must have been filled with
 			// un-importable filenames...
-			if (importables.size == 0)
-				return ImportResult.ERROR;
+			if (importables.size == 0) {
+				import_result(ImportResult.ERROR);
+				return;
+			}
 
 			// Convert importables to SList<string> to be used as delegate param.
 			SList<string> importables_list = new SList<string>();
 			foreach (var item in importables)
 				importables_list.append(item);
 
-			result = importer.delegate(project_store, destination_dir, importables_list, import_result, parent_window);
+			importer.delegate(import_result, project_store, destination_dir, importables_list, parent_window);
 		}
-
-		return result;
 	}
 
 	public class FileFilterFuncData
@@ -682,30 +687,22 @@ public class Project
 		return find_importer_for_extension(type) != null;
 	}
 
-	public ImportResult import(string? destination_dir, Import import_result, ProjectStore project_store, Gtk.Window? parent_window = null)
+	public void import_filenames(string? destination_dir
+		, GLib.SList<string> filenames
+		, Import import_result
+		, ImporterDelegate? importer
+		, ProjectStore project_store
+		, Gtk.Window? parent_window = null
+		)
 	{
-		Gtk.FileChooserDialog src = new Gtk.FileChooserDialog("Import..."
-			, parent_window
-			, Gtk.FileChooserAction.OPEN
-			, "Cancel"
-			, Gtk.ResponseType.CANCEL
-			, "Open"
-			, Gtk.ResponseType.ACCEPT
-			);
-		src.select_multiple = true;
-		foreach (var importer in _importers)
-			src.add_filter(importer._filter);
-		src.add_filter(_all_extensions_importer_data._filter);
-		src.set_filter(_all_extensions_importer_data._filter);
+		GLib.SList<string> _filenames = new GLib.SList<string>();
+		foreach (string s in filenames)
+			_filenames.append(s);
 
-		if (src.run() != (int)Gtk.ResponseType.ACCEPT) {
-			src.destroy();
-			return ImportResult.CANCEL;
-		}
-
-		string out_dir = "";
-		if (destination_dir == null) {
-			Gtk.FileChooserDialog dst = new Gtk.FileChooserDialog("Select destination folder..."
+		if (destination_dir != null) {
+			importer(import_result, project_store, this.absolute_path(destination_dir), filenames, parent_window);
+		} else {
+			Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Select destination folder..."
 				, parent_window
 				, Gtk.FileChooserAction.SELECT_FOLDER
 				, "Cancel"
@@ -713,37 +710,57 @@ public class Project
 				, "Select"
 				, Gtk.ResponseType.ACCEPT
 				);
-			dst.set_current_folder(this.source_dir());
+			fcd.set_current_folder(this.source_dir());
 
-			if (dst.run() != (int)Gtk.ResponseType.ACCEPT) {
-				dst.destroy();
-				src.destroy();
-				return ImportResult.CANCEL;
-			}
+			fcd.response.connect((response_id) => {
+					if (response_id == Gtk.ResponseType.ACCEPT)
+						importer(import_result, project_store, fcd.get_filename(), _filenames, parent_window);
+					fcd.destroy();
+				});
 
-			out_dir = dst.get_filename();
-			dst.destroy();
-		} else {
-			out_dir = this.absolute_path(destination_dir);
+			fcd.show_all();
 		}
+	}
 
-		Gtk.FileFilter? current_filter = src.get_filter();
-		GLib.SList<string> filenames = src.get_filenames();
-		src.destroy();
+	public void import(string? destination_dir, Import import_result, ProjectStore project_store, Gtk.Window? parent_window = null)
+	{
+		Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Import..."
+			, parent_window
+			, Gtk.FileChooserAction.OPEN
+			, "Cancel"
+			, Gtk.ResponseType.CANCEL
+			, "Open"
+			, Gtk.ResponseType.ACCEPT
+			);
+		fcd.select_multiple = true;
+		fcd.add_filter(_all_extensions_importer_data._filter);
+		fcd.set_filter(_all_extensions_importer_data._filter);
+		foreach (var importer in _importers)
+			fcd.add_filter(importer._filter);
 
-		// Find importer callback.
-		unowned ImporterDelegate? importer = null;
-		foreach (var imp in _importers) {
-			if (imp._filter == current_filter && imp.can_import_filenames(filenames)) {
-				importer = imp.delegate;
-				break;
-			}
-		}
-		// Fallback if no importer found.
-		if (importer == null)
-			importer = _all_extensions_importer_data.delegate;
+		fcd.response.connect((response_id) => {
+				if (response_id == Gtk.ResponseType.ACCEPT) {
+					GLib.SList<string> filenames = fcd.get_filenames();
 
-		return importer(project_store, out_dir, filenames, import_result, parent_window);
+					// Find importer callback.
+					unowned ImporterDelegate? importer = null;
+					foreach (var imp in _importers) {
+						if (imp._filter == fcd.get_filter() && imp.can_import_filenames(filenames)) {
+							importer = imp.delegate;
+							break;
+						}
+					}
+
+					// Fallback if no importer found.
+					if (importer == null)
+						importer = _all_extensions_importer_data.delegate;
+
+					import_filenames(destination_dir, filenames, import_result, importer, project_store, parent_window);
+				}
+				fcd.destroy();
+			});
+
+		fcd.show_all();
 	}
 
 	public void delete_tree(GLib.File file) throws Error

@@ -42,65 +42,15 @@ private Gtk.Menu? project_entry_menu_create(string type, string name)
 
 		mi = new Gtk.MenuItem.with_label("New Script...");
 		mi.activate.connect(() => {
-				Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Script Name"
-					, ((Gtk.Application)GLib.Application.get_default()).active_window
-					, Gtk.DialogFlags.MODAL
-					, "Cancel"
-					, Gtk.ResponseType.CANCEL
-					, "Ok"
-					, Gtk.ResponseType.OK
-					, null
-					);
-
-				InputString sb = new InputString();
-				sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
-				dg.get_content_area().add(sb);
-				dg.skip_taskbar_hint = true;
-				dg.show_all();
-
-				if (dg.run() == (int)Gtk.ResponseType.OK) {
-					if (sb.text.strip() == "") {
-						dg.destroy();
-						return;
-					}
-
-					var tuple = new GLib.Variant.tuple({(string)name, sb.text, true});
-					GLib.Application.get_default().activate_action("create-script", tuple);
-				}
-
-				dg.destroy();
+				var tuple = new GLib.Variant.tuple({(string)name, "", true});
+				GLib.Application.get_default().activate_action("create-script", tuple);
 			});
 		menu.add(mi);
 
 		mi = new Gtk.MenuItem.with_label("New Script (Unit)...");
 		mi.activate.connect(() => {
-				Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Script Name"
-					, ((Gtk.Application)GLib.Application.get_default()).active_window
-					, Gtk.DialogFlags.MODAL
-					, "Cancel"
-					, Gtk.ResponseType.CANCEL
-					, "Ok"
-					, Gtk.ResponseType.OK
-					, null
-					);
-
-				InputString sb = new InputString();
-				sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
-				dg.get_content_area().add(sb);
-				dg.skip_taskbar_hint = true;
-				dg.show_all();
-
-				if (dg.run() == (int)Gtk.ResponseType.OK) {
-					if (sb.text.strip() == "") {
-						dg.destroy();
-						return;
-					}
-
-					var tuple = new GLib.Variant.tuple({(string)name, sb.text, false});
-					GLib.Application.get_default().activate_action("create-script", tuple);
-				}
-
-				dg.destroy();
+				var tuple = new GLib.Variant.tuple({(string)name, "", false});
+				GLib.Application.get_default().activate_action("create-script", tuple);
 			});
 		menu.add(mi);
 
@@ -109,65 +59,15 @@ private Gtk.Menu? project_entry_menu_create(string type, string name)
 
 		mi = new Gtk.MenuItem.with_label("New Unit...");
 		mi.activate.connect(() => {
-				Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Unit Name"
-					, ((Gtk.Application)GLib.Application.get_default()).active_window
-					, Gtk.DialogFlags.MODAL
-					, "Cancel"
-					, Gtk.ResponseType.CANCEL
-					, "Ok"
-					, Gtk.ResponseType.OK
-					, null
-					);
-
-				InputString sb = new InputString();
-				sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
-				dg.get_content_area().add(sb);
-				dg.skip_taskbar_hint = true;
-				dg.show_all();
-
-				if (dg.run() == (int)Gtk.ResponseType.OK) {
-					if (sb.text.strip() == "") {
-						dg.destroy();
-						return;
-					}
-
-					var tuple = new GLib.Variant.tuple({(string)name, sb.text});
-					GLib.Application.get_default().activate_action("create-unit", tuple);
-				}
-
-				dg.destroy();
+				var tuple = new GLib.Variant.tuple({(string)name, ""});
+				GLib.Application.get_default().activate_action("create-unit", tuple);
 			});
 		menu.add(mi);
 
 		mi = new Gtk.MenuItem.with_label("New Material...");
 		mi.activate.connect(() => {
-				Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Material Name"
-					, ((Gtk.Application)GLib.Application.get_default()).active_window
-					, Gtk.DialogFlags.MODAL
-					, "Cancel"
-					, Gtk.ResponseType.CANCEL
-					, "Ok"
-					, Gtk.ResponseType.OK
-					, null
-					);
-
-				InputString sb = new InputString();
-				sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
-				dg.get_content_area().add(sb);
-				dg.skip_taskbar_hint = true;
-				dg.show_all();
-
-				if (dg.run() == (int)Gtk.ResponseType.OK) {
-					if (sb.text.strip() == "") {
-						dg.destroy();
-						return;
-					}
-
-					var tuple = new GLib.Variant.tuple({(string)name, sb.text});
-					GLib.Application.get_default().activate_action("create-material", tuple);
-				}
-
-				dg.destroy();
+				var tuple = new GLib.Variant.tuple({(string)name, ""});
+				GLib.Application.get_default().activate_action("create-material", tuple);
 			});
 		menu.add(mi);
 
@@ -176,59 +76,14 @@ private Gtk.Menu? project_entry_menu_create(string type, string name)
 
 		mi = new Gtk.MenuItem.with_label("New Folder...");
 		mi.activate.connect(() => {
-				Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Folder Name"
-					, ((Gtk.Application)GLib.Application.get_default()).active_window
-					, Gtk.DialogFlags.MODAL
-					, "Cancel"
-					, Gtk.ResponseType.CANCEL
-					, "Ok"
-					, Gtk.ResponseType.OK
-					, null
-					);
-
-				InputString sb = new InputString();
-				sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
-				dg.get_content_area().add(sb);
-				dg.skip_taskbar_hint = true;
-				dg.show_all();
-
-				if (dg.run() == (int)Gtk.ResponseType.OK) {
-					if (sb.text.strip() == "") {
-						dg.destroy();
-						return;
-					}
-
-					var tuple = new GLib.Variant.tuple({(string)name, sb.text});
-					GLib.Application.get_default().activate_action("create-directory", tuple);
-				}
-
-				dg.destroy();
+				var tuple = new GLib.Variant.tuple({(string)name, ""});
+				GLib.Application.get_default().activate_action("create-directory", tuple);
 			});
 		menu.add(mi);
 
 		if ((string)name != ProjectStore.ROOT_FOLDER) {
 			mi = new Gtk.MenuItem.with_label("Delete Folder");
 			mi.activate.connect(() => {
-					Gtk.MessageDialog md = new Gtk.MessageDialog(((Gtk.Application)GLib.Application.get_default()).active_window
-						, Gtk.DialogFlags.MODAL
-						, Gtk.MessageType.WARNING
-						, Gtk.ButtonsType.NONE
-						, "Delete Folder " + (string)name + "?"
-						);
-
-					Gtk.Widget btn;
-					md.add_button("_Cancel", Gtk.ResponseType.CANCEL);
-					btn = md.add_button("_Delete", Gtk.ResponseType.YES);
-					btn.get_style_context().add_class(Gtk.STYLE_CLASS_DESTRUCTIVE_ACTION);
-
-					md.set_default_response(Gtk.ResponseType.CANCEL);
-
-					int rt = md.run();
-					md.destroy();
-
-					if (rt != (int)Gtk.ResponseType.YES)
-						return;
-
 					GLib.Application.get_default().activate_action("delete-directory", new GLib.Variant.string((string)name));
 				});
 			menu.add(mi);
@@ -248,40 +103,14 @@ private Gtk.Menu? project_entry_menu_create(string type, string name)
 		if (type == OBJECT_TYPE_MESH_SKELETON || type == OBJECT_TYPE_SPRITE) {
 			mi = new Gtk.MenuItem.with_label("New State Machine...");
 			mi.activate.connect(() => {
-					Gtk.Dialog dg = new Gtk.Dialog.with_buttons("State Machine Name"
-						, ((Gtk.Application)GLib.Application.get_default()).active_window
-						, Gtk.DialogFlags.MODAL
-						, "Cancel"
-						, Gtk.ResponseType.CANCEL
-						, "Ok"
-						, Gtk.ResponseType.OK
-						, null
-						);
+					string skeleton_name;
+					if (type == OBJECT_TYPE_SPRITE)
+						skeleton_name = "";
+					else
+						skeleton_name = name;
 
-					InputString sb = new InputString();
-					sb.value = GLib.Path.get_basename((string)name);
-					sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
-					dg.get_content_area().add(sb);
-					dg.skip_taskbar_hint = true;
-					dg.show_all();
-
-					if (dg.run() == (int)Gtk.ResponseType.OK) {
-						if (sb.text.strip() == "") {
-							dg.destroy();
-							return;
-						}
-
-						string skeleton_name;
-						if (type == OBJECT_TYPE_SPRITE)
-							skeleton_name = "";
-						else
-							skeleton_name = name;
-
-						var tuple = new GLib.Variant.tuple({ResourceId.parent_folder(name), sb.text, skeleton_name});
-						GLib.Application.get_default().activate_action("create-state-machine", tuple);
-					}
-
-					dg.destroy();
+					var tuple = new GLib.Variant.tuple({ResourceId.parent_folder(name), "", skeleton_name});
+					GLib.Application.get_default().activate_action("create-state-machine", tuple);
 				});
 			menu.add(mi);
 		}

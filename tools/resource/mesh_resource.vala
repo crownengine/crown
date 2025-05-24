@@ -99,35 +99,12 @@ namespace MeshResource
 			string resource_path     = ResourceId.normalize(resource_filename);
 			string resource_name     = ResourceId.name(resource_path);
 
-			// Choose material or create new one
-			Gtk.FileChooserDialog mtl = new Gtk.FileChooserDialog("Select material... (Cancel to create a new one)"
-				, null
-				, Gtk.FileChooserAction.OPEN
-				, "Cancel"
-				, Gtk.ResponseType.CANCEL
-				, "Select"
-				, Gtk.ResponseType.ACCEPT
-				);
-			mtl.set_current_folder(project.source_dir());
-
-			Gtk.FileFilter fltr = new Gtk.FileFilter();
-			fltr.set_filter_name("Material (*.material)");
-			fltr.add_pattern("*.material");
-			mtl.add_filter(fltr);
-
 			Database db = new Database(project);
 
 			string material_name = resource_name;
-			if (mtl.run() == (int)Gtk.ResponseType.ACCEPT) {
-				string material_filename = project.resource_filename(mtl.get_filename());
-				string material_path     = ResourceId.normalize(material_filename);
-				material_name            = ResourceId.name(material_path);
-			} else {
-				MaterialResource material_resource = MaterialResource.mesh(db, Guid.new_guid());
-				if (material_resource.save(project, material_name) != 0)
-					return ImportResult.ERROR;
-			}
-			mtl.destroy();
+			MaterialResource material_resource = MaterialResource.mesh(db, Guid.new_guid());
+			if (material_resource.save(project, material_name) != 0)
+				return ImportResult.ERROR;
 
 			try {
 				file_src.copy(file_dst, FileCopyFlags.OVERWRITE);
@@ -194,7 +171,7 @@ namespace MeshResource
 		return ImportResult.SUCCESS;
 	}
 
-	public static ImportResult import(ProjectStore project_store, string destination_dir, SList<string> filenames, Import import_result, Gtk.Window? parent_window)
+	public static void import(Import import_result, ProjectStore project_store, string destination_dir, SList<string> filenames, Gtk.Window? parent_window)
 	{
 		SList<string> fbx_filenames = new SList<string>();
 		SList<string> mesh_filenames = new SList<string>();
@@ -212,8 +189,9 @@ namespace MeshResource
 		if (mesh_filenames != null)
 			res = MeshResource.do_import(project_store, destination_dir, mesh_filenames);
 		if (res == ImportResult.SUCCESS && fbx_filenames != null)
-			res = FBXImporter.import(project_store, destination_dir, fbx_filenames, import_result, parent_window);
-		return res;
+			FBXImporter.import(import_result, project_store, destination_dir, fbx_filenames, parent_window);
+		else
+			import_result(res);
 	}
 
 } /* namespace MeshResource */

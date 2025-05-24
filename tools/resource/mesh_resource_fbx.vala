@@ -876,14 +876,13 @@ public class FBXImporter
 		return ImportResult.SUCCESS;
 	}
 
-	public static ImportResult import(ProjectStore project_store, string destination_dir, GLib.SList<string> filenames, Import import_result, Gtk.Window? parent_window)
+	public static void import(Import import_result, ProjectStore project_store, string destination_dir, GLib.SList<string> filenames, Gtk.Window? parent_window)
 	{
 		FBXImportDialog dialog = new FBXImportDialog(project_store, destination_dir, filenames, import_result);
 		dialog.set_transient_for(parent_window);
 		dialog.set_modal(true);
 		dialog.show_all();
 		dialog.present();
-		return ImportResult.CALLBACK;
 	}
 }
 
