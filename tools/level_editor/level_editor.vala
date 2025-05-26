@@ -1386,8 +1386,10 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		StringBuilder sb = new StringBuilder();
 		_level.generate_spawn_objects(sb, object_ids);
-		_editor.send_script(sb.str);
-		_editor.send(DeviceApi.frame());
+		if (sb.len > 0) {
+			_editor.send_script(sb.str);
+			_editor.send(DeviceApi.frame());
+		}
 		_level.selection_changed(_level._selection);
 	}
 
@@ -1395,8 +1397,10 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		StringBuilder sb = new StringBuilder();
 		_level.generate_destroy_objects(sb, object_ids);
-		_editor.send_script(sb.str);
-		_editor.send(DeviceApi.frame());
+		if (sb.len > 0) {
+			_editor.send_script(sb.str);
+			_editor.send(DeviceApi.frame());
+		}
 		_level.selection_changed(_level._selection);
 	}
 
@@ -1404,8 +1408,10 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		StringBuilder sb = new StringBuilder();
 		_level.generate_change_objects(sb, object_ids);
-		_editor.send_script(sb.str);
-		_editor.send(DeviceApi.frame());
+		if (sb.len > 0) {
+			_editor.send_script(sb.str);
+			_editor.send(DeviceApi.frame());
+		}
 	}
 
 	private void on_restore_point_added(int id, Guid?[] data, uint32 flags)
