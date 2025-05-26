@@ -5,6 +5,7 @@
 __pycache__
 
 /samples/*_android
+/samples/*_html5
 /samples/*_linux
 /samples/*_windows
 
