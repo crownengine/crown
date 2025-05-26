@@ -258,6 +258,8 @@ public class Level
 				i += Unit.generate_spawn_unit_commands(sb, object_ids[i:object_ids.length], _db);
 			} else if (_db.object_type(object_ids[i]) == OBJECT_TYPE_SOUND_SOURCE) {
 				i += Sound.generate_spawn_sound_commands(sb, object_ids[i:object_ids.length], _db);
+			} else {
+				++i; // Skip object.
 			}
 		}
 	}
@@ -271,6 +273,8 @@ public class Level
 			} else if (_db.object_type(object_ids[i]) == OBJECT_TYPE_SOUND_SOURCE) {
 				sb.append(LevelEditorApi.destroy(object_ids[i]));
 				++i;
+			} else {
+				++i; // Skip object.
 			}
 		}
 	}
@@ -283,6 +287,8 @@ public class Level
 				i += Unit.generate_change_commands(sb, object_ids[i:object_ids.length], _db);
 			} else if (_db.object_type(object_ids[i]) == OBJECT_TYPE_SOUND_SOURCE) {
 				i += Sound.generate_change_sound_commands(sb, object_ids[i:object_ids.length], _db);
+			} else {
+				++i; // Skip object.
 			}
 		}
 	}
