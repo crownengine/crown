@@ -787,114 +787,117 @@ void Device::resolution(u16 &width, u16 &height)
 
 void Device::render(World &world, UnitId camera_unit)
 {
+	const bgfx::Caps *caps = bgfx::getCaps();
+	CameraInstance camera = world.camera_instance(camera_unit);
+
 	const f32 aspect_ratio = (_boot_config.aspect_ratio == -1.0f
 		? (f32)_width/(f32)_height
 		: _boot_config.aspect_ratio
 		);
-	CameraInstance camera = world.camera_instance(camera_unit);
 	const Matrix4x4 view = world.camera_view_matrix(camera);
 	const Matrix4x4 proj = world.camera_projection_matrix(camera, aspect_ratio);
 
-	const bgfx::Caps *caps = bgfx::getCaps();
-	f32 bx_ortho[16];
-	bx::mtxOrtho(bx_ortho, 0, _width, 0, _height, 0.0f, 1.0f, 0.0f, caps->homogeneousDepth, bx::Handedness::Right);
-	Matrix4x4 ortho_proj = from_array(bx_ortho);
+	for (u32 id = 0; id < View::COUNT; ++id) {
+		const char *view_name;
 
+		if (id >= View::SPRITE_0 && id < View::SPRITE_LAST) {
+			view_name = "sprite";
+			if (id == View::SPRITE_0)
+				bgfx::setViewClear(id, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x323232ff, 1.0f, 0);
+
+			bgfx::setViewTransform(id, to_float_ptr(view), to_float_ptr(proj));
+			bgfx::setViewRect(id, 0, 0, _width, _height);
+			bgfx::setViewMode(id, bgfx::ViewMode::DepthAscending);
+			bgfx::setViewFrameBuffer(id, _pipeline->_main_frame_buffer);
+			bgfx::touch(id);
+		} else if (id == View::LIGHTS) {
+			view_name = "lights_data";
+		} else if (id == View::MESH) {
+			view_name = "mesh";
+			bgfx::setViewTransform(id, to_float_ptr(view), to_float_ptr(proj));
+			bgfx::setViewRect(id, 0, 0, _width, _height);
+			bgfx::setViewFrameBuffer(id, _pipeline->_main_frame_buffer);
+			bgfx::touch(id);
+		} else if (id == View::WORLD_GUI) {
+			view_name = "world_gui";
+			bgfx::setViewTransform(id, to_float_ptr(view), to_float_ptr(proj));
+			bgfx::setViewRect(id, 0, 0, _width, _height);
+			bgfx::setViewMode(id, bgfx::ViewMode::DepthDescending);
+			bgfx::setViewFrameBuffer(id, _pipeline->_main_frame_buffer);
+			bgfx::touch(id);
+		} else if (id == View::SELECTION) {
+			view_name = "selection";
 #if !CROWN_PLATFORM_EMSCRIPTEN
-	bgfx::setViewClear(VIEW_SELECTION, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, UNIT_INVALID._idx, 1.0f, 0);
-	bgfx::setViewTransform(VIEW_SELECTION, to_float_ptr(view), to_float_ptr(proj));
-	bgfx::setViewRect(VIEW_SELECTION, 0, 0, _width, _height);
-	bgfx::setViewFrameBuffer(VIEW_SELECTION, _pipeline->_selection_frame_buffer);
-	bgfx::touch(VIEW_SELECTION);
-
-	bgfx::setViewFrameBuffer(VIEW_OUTLINE, _pipeline->_main_frame_buffer);
-	bgfx::setViewRect(VIEW_OUTLINE, 0, 0, _width, _height);
-	bgfx::touch(VIEW_OUTLINE);
+			bgfx::setViewClear(id, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, UNIT_INVALID._idx, 1.0f, 0);
+			bgfx::setViewTransform(id, to_float_ptr(view), to_float_ptr(proj));
+			bgfx::setViewRect(id, 0, 0, _width, _height);
+			bgfx::setViewFrameBuffer(id, _pipeline->_selection_frame_buffer);
+			bgfx::touch(id);
 #endif
+		} else if (id == View::OUTLINE) {
+			view_name = "outline";
+#if !CROWN_PLATFORM_EMSCRIPTEN
+			bgfx::setViewFrameBuffer(id, _pipeline->_main_frame_buffer);
+			bgfx::setViewRect(id, 0, 0, _width, _height);
+			bgfx::touch(id);
+#endif
+		} else if (id == View::DEBUG) {
+			view_name = "debug";
+			bgfx::setViewTransform(id, to_float_ptr(view), to_float_ptr(proj));
+			bgfx::setViewRect(id, 0, 0, _width, _height);
+			bgfx::setViewFrameBuffer(id, _pipeline->_main_frame_buffer);
+			bgfx::touch(id);
+		} else if (id == View::SCREEN_GUI) {
+			view_name = "screen_gui";
+			f32 bx_ortho[16];
+			bx::mtxOrtho(bx_ortho
+				, 0
+				, _width
+				, 0
+				, _height
+				, 0.0f
+				, 1.0f
+				, 0.0f
+				, caps->homogeneousDepth
+				, bx::Handedness::Right
+				);
+			Matrix4x4 ortho_proj = from_array(bx_ortho);
+			bgfx::setViewTransform(id, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(ortho_proj));
+			bgfx::setViewRect(id, 0, 0, _width, _height);
+			bgfx::setViewMode(id, bgfx::ViewMode::DepthDescending);
+			bgfx::setViewFrameBuffer(id, _pipeline->_main_frame_buffer);
+			bgfx::touch(id);
+		} else if (id == View::GRAPH) {
+			view_name = "graph";
+			f32 graph_ortho[16];
+			bx::mtxOrtho(graph_ortho
+				, -_width / 2.0f
+				,  _width / 2.0f
+				, -_height / 2.0f
+				,  _height / 2.0f
+				, 0.0f
+				, 1.0f
+				, 0.0f
+				, caps->homogeneousDepth
+				, bx::Handedness::Right
+				);
+			bgfx::setViewTransform(id, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(from_array(graph_ortho)));
+			bgfx::setViewRect(id, 0, 0, _width, _height);
+			bgfx::setViewFrameBuffer(id, _pipeline->_main_frame_buffer);
+			bgfx::touch(id);
+		} else if (id == View::BLIT) {
+			view_name = "blit";
+			bgfx::setViewMode(id, bgfx::ViewMode::Sequential);
+			bgfx::setViewFrameBuffer(id, BGFX_INVALID_HANDLE);
+			bgfx::touch(id);
+		} else if (id == View::IMGUI) {
+			view_name = "imgui";
+		} else {
+			view_name = "unknown";
+		}
 
-	bgfx::setViewClear(VIEW_SPRITE_0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x323232ff, 1.0f, 0);
-	bgfx::setViewTransform(VIEW_SPRITE_0, to_float_ptr(view), to_float_ptr(proj));
-	bgfx::setViewTransform(VIEW_SPRITE_1, to_float_ptr(view), to_float_ptr(proj));
-	bgfx::setViewTransform(VIEW_SPRITE_2, to_float_ptr(view), to_float_ptr(proj));
-	bgfx::setViewTransform(VIEW_SPRITE_3, to_float_ptr(view), to_float_ptr(proj));
-	bgfx::setViewTransform(VIEW_SPRITE_4, to_float_ptr(view), to_float_ptr(proj));
-	bgfx::setViewTransform(VIEW_SPRITE_5, to_float_ptr(view), to_float_ptr(proj));
-	bgfx::setViewTransform(VIEW_SPRITE_6, to_float_ptr(view), to_float_ptr(proj));
-	bgfx::setViewTransform(VIEW_SPRITE_7, to_float_ptr(view), to_float_ptr(proj));
-	bgfx::setViewTransform(VIEW_MESH, to_float_ptr(view), to_float_ptr(proj));
-	bgfx::setViewTransform(VIEW_WORLD_GUI, to_float_ptr(view), to_float_ptr(proj));
-	bgfx::setViewTransform(VIEW_DEBUG, to_float_ptr(view), to_float_ptr(proj));
-	bgfx::setViewTransform(VIEW_SCREEN_GUI, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(ortho_proj));
-
-	f32 graph_ortho[16];
-	bx::mtxOrtho(graph_ortho
-		, -_width / 2.0f
-		,  _width / 2.0f
-		, -_height / 2.0f
-		,  _height / 2.0f
-		, 0.0f
-		, 1.0f
-		, 0.0f
-		, caps->homogeneousDepth
-		, bx::Handedness::Right
-		);
-	bgfx::setViewTransform(VIEW_GRAPH, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(from_array(graph_ortho)));
-
-	bgfx::setViewRect(VIEW_SPRITE_0, 0, 0, _width, _height);
-	bgfx::setViewRect(VIEW_SPRITE_1, 0, 0, _width, _height);
-	bgfx::setViewRect(VIEW_SPRITE_2, 0, 0, _width, _height);
-	bgfx::setViewRect(VIEW_SPRITE_3, 0, 0, _width, _height);
-	bgfx::setViewRect(VIEW_SPRITE_4, 0, 0, _width, _height);
-	bgfx::setViewRect(VIEW_SPRITE_5, 0, 0, _width, _height);
-	bgfx::setViewRect(VIEW_SPRITE_6, 0, 0, _width, _height);
-	bgfx::setViewRect(VIEW_SPRITE_7, 0, 0, _width, _height);
-	bgfx::setViewRect(VIEW_MESH, 0, 0, _width, _height);
-	bgfx::setViewRect(VIEW_WORLD_GUI, 0, 0, _width, _height);
-	bgfx::setViewRect(VIEW_DEBUG, 0, 0, _width, _height);
-	bgfx::setViewRect(VIEW_SCREEN_GUI, 0, 0, _width, _height);
-	bgfx::setViewRect(VIEW_GRAPH, 0, 0, _width, _height);
-
-	bgfx::setViewMode(VIEW_SPRITE_0, bgfx::ViewMode::DepthAscending);
-	bgfx::setViewMode(VIEW_SPRITE_1, bgfx::ViewMode::DepthAscending);
-	bgfx::setViewMode(VIEW_SPRITE_2, bgfx::ViewMode::DepthAscending);
-	bgfx::setViewMode(VIEW_SPRITE_3, bgfx::ViewMode::DepthAscending);
-	bgfx::setViewMode(VIEW_SPRITE_4, bgfx::ViewMode::DepthAscending);
-	bgfx::setViewMode(VIEW_SPRITE_5, bgfx::ViewMode::DepthAscending);
-	bgfx::setViewMode(VIEW_SPRITE_6, bgfx::ViewMode::DepthAscending);
-	bgfx::setViewMode(VIEW_SPRITE_7, bgfx::ViewMode::DepthAscending);
-	bgfx::setViewMode(VIEW_WORLD_GUI, bgfx::ViewMode::DepthDescending);
-	bgfx::setViewMode(VIEW_SCREEN_GUI, bgfx::ViewMode::DepthDescending);
-	bgfx::setViewMode(VIEW_BLIT, bgfx::ViewMode::Sequential);
-
-	bgfx::setViewFrameBuffer(VIEW_SPRITE_0, _pipeline->_main_frame_buffer);
-	bgfx::setViewFrameBuffer(VIEW_SPRITE_1, _pipeline->_main_frame_buffer);
-	bgfx::setViewFrameBuffer(VIEW_SPRITE_2, _pipeline->_main_frame_buffer);
-	bgfx::setViewFrameBuffer(VIEW_SPRITE_3, _pipeline->_main_frame_buffer);
-	bgfx::setViewFrameBuffer(VIEW_SPRITE_4, _pipeline->_main_frame_buffer);
-	bgfx::setViewFrameBuffer(VIEW_SPRITE_5, _pipeline->_main_frame_buffer);
-	bgfx::setViewFrameBuffer(VIEW_SPRITE_6, _pipeline->_main_frame_buffer);
-	bgfx::setViewFrameBuffer(VIEW_SPRITE_7, _pipeline->_main_frame_buffer);
-	bgfx::setViewFrameBuffer(VIEW_MESH, _pipeline->_main_frame_buffer);
-	bgfx::setViewFrameBuffer(VIEW_WORLD_GUI, _pipeline->_main_frame_buffer);
-	bgfx::setViewFrameBuffer(VIEW_DEBUG, _pipeline->_main_frame_buffer);
-	bgfx::setViewFrameBuffer(VIEW_SCREEN_GUI, _pipeline->_main_frame_buffer);
-	bgfx::setViewFrameBuffer(VIEW_GRAPH, _pipeline->_main_frame_buffer);
-	bgfx::setViewFrameBuffer(VIEW_BLIT, BGFX_INVALID_HANDLE);
-
-	bgfx::touch(VIEW_SPRITE_0);
-	bgfx::touch(VIEW_SPRITE_1);
-	bgfx::touch(VIEW_SPRITE_2);
-	bgfx::touch(VIEW_SPRITE_3);
-	bgfx::touch(VIEW_SPRITE_4);
-	bgfx::touch(VIEW_SPRITE_5);
-	bgfx::touch(VIEW_SPRITE_6);
-	bgfx::touch(VIEW_SPRITE_7);
-	bgfx::touch(VIEW_MESH);
-	bgfx::touch(VIEW_WORLD_GUI);
-	bgfx::touch(VIEW_DEBUG);
-	bgfx::touch(VIEW_SCREEN_GUI);
-	bgfx::touch(VIEW_GRAPH);
-	bgfx::touch(VIEW_BLIT);
+		bgfx::setViewName(id, view_name);
+	}
 
 #if CROWN_PLATFORM_EMSCRIPTEN
 	bgfx::setTexture(0, _pipeline->_html5_default_sampler, _pipeline->_html5_default_texture);

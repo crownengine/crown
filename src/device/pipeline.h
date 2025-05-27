@@ -9,24 +9,28 @@
 #include "resource/shader_resource.h"
 #include <bgfx/bgfx.h>
 
-#define VIEW_SPRITE_0     1
-#define VIEW_SPRITE_1     2
-#define VIEW_SPRITE_2     3
-#define VIEW_SPRITE_3     4
-#define VIEW_SPRITE_4     5
-#define VIEW_SPRITE_5     6
-#define VIEW_SPRITE_6     7
-#define VIEW_SPRITE_7     8
-#define VIEW_LIGHTS      15 // Global lighting data.
-#define VIEW_MESH        16
-#define VIEW_WORLD_GUI   17
-#define VIEW_SELECTION   32
-#define VIEW_OUTLINE     33
-#define VIEW_DEBUG      100
-#define VIEW_SCREEN_GUI 128
-#define VIEW_GRAPH      200
-#define VIEW_BLIT       254
-#define VIEW_IMGUI      255
+#define MAX_NUM_SPRITE_LAYERS 8
+
+struct View
+{
+	enum Enum
+	{
+		SPRITE_0,
+		SPRITE_LAST = SPRITE_0 + MAX_NUM_SPRITE_LAYERS,
+		LIGHTS      = SPRITE_LAST,
+		MESH,
+		WORLD_GUI,
+		SELECTION,
+		OUTLINE,
+		DEBUG,
+		SCREEN_GUI,
+		GRAPH,
+		BLIT,
+		IMGUI,
+
+		COUNT
+	};
+};
 
 namespace crown
 {
