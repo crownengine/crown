@@ -74,7 +74,7 @@ struct DebugLine
 	void reset();
 
 	/// Submits the lines to renderer for drawing.
-	void submit(u8 view_id = VIEW_DEBUG);
+	void submit(u8 view_id = View::DEBUG);
 };
 
 namespace debug_line

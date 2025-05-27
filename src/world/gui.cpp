@@ -582,7 +582,7 @@ namespace gui
 			, shader_manager
 			, material_manager
 			, shader
-			, VIEW_SCREEN_GUI
+			, View::SCREEN_GUI
 			);
 		return gui;
 	}
@@ -600,7 +600,7 @@ namespace gui
 			, shader_manager
 			, material_manager
 			, shader
-			, VIEW_WORLD_GUI
+			, View::WORLD_GUI
 			);
 		return gui;
 	}

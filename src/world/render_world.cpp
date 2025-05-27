@@ -466,15 +466,15 @@ void RenderWorld::render(const Matrix4x4 &view)
 	h.w = 0.0f;
 	bgfx::setUniform(_u_lights_num, &h);
 	bgfx::setUniform(_u_lights_data, (char *)lid.shader, lid.size*sizeof(*lid.shader) / sizeof(Vector4));
-	bgfx::touch(VIEW_LIGHTS);
+	bgfx::touch(View::LIGHTS);
 
 	// Render objects.
-	_mesh_manager.draw(VIEW_MESH, *_scene_graph);
-	_sprite_manager.draw(VIEW_SPRITE_0);
+	_mesh_manager.draw(View::MESH, *_scene_graph);
+	_sprite_manager.draw(View::SPRITE_0);
 
 	// Render outlines.
-	_mesh_manager.draw(VIEW_SELECTION, *_scene_graph, selection_draw_override);
-	_sprite_manager.draw(VIEW_SELECTION, selection_draw_override);
+	_mesh_manager.draw(View::SELECTION, *_scene_graph, selection_draw_override);
+	_sprite_manager.draw(View::SELECTION, selection_draw_override);
 }
 
 void RenderWorld::debug_draw(DebugLine &dl)

@@ -231,8 +231,8 @@ void Pipeline::render(u16 width, u16 height)
 	f32 ortho[16];
 	bx::mtxOrtho(ortho, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 100.0f, 0.0f, caps->homogeneousDepth, bx::Handedness::Right);
 
-	bgfx::setViewRect(VIEW_BLIT, 0, 0, width, height);
-	bgfx::setViewTransform(VIEW_BLIT, NULL, ortho);
+	bgfx::setViewRect(View::BLIT, 0, 0, width, height);
+	bgfx::setViewTransform(View::BLIT, NULL, ortho);
 
 	const u32 samplerFlags = 0
 		| BGFX_SAMPLER_MIN_POINT
@@ -245,19 +245,19 @@ void Pipeline::render(u16 width, u16 height)
 	bgfx::setTexture(0, _main_color_texture_sampler, _main_color_texture, samplerFlags);
 	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
 	bgfx::setState(_blit_shader.state);
-	bgfx::submit(VIEW_BLIT, _blit_shader.program);
+	bgfx::submit(View::BLIT, _blit_shader.program);
 
 #if !CROWN_PLATFORM_EMSCRIPTEN
 	bgfx::setTexture(0, _selection_texture_sampler, _selection_texture, samplerFlags);
 	bgfx::setTexture(1, _selection_depth_texture_sampler, _selection_depth_texture, samplerFlags);
 	bgfx::setTexture(2, _main_depth_texture_sampler, _main_depth_texture, samplerFlags);
-	bgfx::setViewRect(VIEW_OUTLINE, 0, 0, width, height);
-	bgfx::setViewTransform(VIEW_OUTLINE, NULL, ortho);
+	bgfx::setViewRect(View::OUTLINE, 0, 0, width, height);
+	bgfx::setViewTransform(View::OUTLINE, NULL, ortho);
 	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
 	const f32 outline_color[] = { 1.0f, 0.37f, 0.05f, 1.0f };
 	bgfx::setUniform(_outline_color_uniform, outline_color);
 	bgfx::setState(_outline_shader.state);
-	bgfx::submit(VIEW_OUTLINE, _outline_shader.program);
+	bgfx::submit(View::OUTLINE, _outline_shader.program);
 #endif
 }
 

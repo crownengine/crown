@@ -460,7 +460,7 @@ struct Graph
 		stbsp_snprintf(buf, sizeof(buf), "%g", _range_max);
 		draw_string(dl, buf, str_x, y_max - TEXT_PADDING - 32.0f);
 
-		dl.submit(VIEW_GRAPH);
+		dl.submit(View::GRAPH);
 	}
 };
 
