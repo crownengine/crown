@@ -247,7 +247,7 @@
       </submenu>
     </submenu>
     <submenu>
-      <attribute name="label" translatable="yes">Create</attribute>
+      <attribute name="label" translatable="yes">Spawn</attribute>
       <attribute name="action">app.menu-create</attribute>
       <submenu>
         <attribute name="label" translatable="yes">Primitives</attribute>
