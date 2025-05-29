@@ -18,7 +18,7 @@ public class PanelNewProject : Gtk.Viewport
 	public Gtk.Label _create_folder_label;
 	public Gtk.CheckButton _create_folder;
 	public Gtk.Label _location_label;
-	public Gtk.FileChooserButton _file_chooser_button_location;
+	public InputFile _file_chooser_button_location;
 	public Gtk.Label _template_label;
 	public InputEnum _combo_box_map_template;
 	public Gtk.Label _label_message;
@@ -47,8 +47,8 @@ public class PanelNewProject : Gtk.Viewport
 
 		_location_label = new Gtk.Label("Location");
 		_location_label.xalign = 1;
-		_file_chooser_button_location = new Gtk.FileChooserButton("Select Folder", Gtk.FileChooserAction.SELECT_FOLDER);
-		_file_chooser_button_location.set_current_folder(_documents_dir.get_path());
+		_file_chooser_button_location = new InputFile(Gtk.FileChooserAction.SELECT_FOLDER);
+		_file_chooser_button_location.value = _documents_dir.get_path();
 
 		_create_folder_label = new Gtk.Label("Create Project Folder");
 		_create_folder_label.xalign = 1;
@@ -79,8 +79,7 @@ public class PanelNewProject : Gtk.Viewport
 					return;
 				}
 
-				GLib.File location = _file_chooser_button_location.get_file();
-				string? source_dir = location.get_path();
+				string? source_dir = _file_chooser_button_location.value;
 
 				if (source_dir == null) {
 					_label_message.label = "Location is not valid";
