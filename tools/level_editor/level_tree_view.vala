@@ -238,40 +238,35 @@ public class LevelTreeView : Gtk.Box
 				_tree_selection.select_path(path);
 			}
 
-			Gtk.Menu menu = new Gtk.Menu();
-			Gtk.MenuItem mi;
+			GLib.Menu menu_model = new GLib.Menu();
+			GLib.MenuItem mi;
 
 			if (_tree_selection.count_selected_rows() == 1) {
-				mi = new Gtk.MenuItem.with_label("Rename...");
-				mi.activate.connect(() => {
-					_tree_selection.selected_foreach((model, path, iter) => {
-							Value type;
-							model.get_value(iter, Column.TYPE, out type);
-							if ((int)type == ItemType.FOLDER)
-								return;
+				GLib.List<Gtk.TreePath> selected_paths = _tree_selection.get_selected_rows(null);
 
-							Value object_id;
-							model.get_value(iter, Column.GUID, out object_id);
+				Gtk.TreeIter iter;
+				if (_tree_view.model.get_iter(out iter, selected_paths.nth(0).data)) {
+					Value val;
+					_tree_view.model.get_value(iter, Column.TYPE, out val);
 
-							GLib.Application.get_default().activate_action("rename"
-								, new GLib.Variant.tuple({ ((Guid)object_id).to_string(), "" })
-								);
-						});
-					});
-					menu.add(mi);
+					if ((int)val != ItemType.FOLDER) {
+						_tree_view.model.get_value(iter, Column.GUID, out val);
+						Guid object_id = (Guid)val;
+
+						mi = new GLib.MenuItem("Rename...", null);
+						mi.set_action_and_target_value("app.rename", new GLib.Variant.tuple({ object_id.to_string(), "" }));
+						menu_model.append_item(mi);
+					}
+				}
 			}
 
-			mi = new Gtk.MenuItem.with_label("Duplicate");
-			mi.activate.connect(() => {
-					GLib.Application.get_default().activate_action("duplicate", null);
-				});
-			menu.add(mi);
+			mi = new GLib.MenuItem("Duplicate", null);
+			mi.set_action_and_target_value("app.duplicate", null);
+			menu_model.append_item(mi);
 
-			mi = new Gtk.MenuItem.with_label("Delete");
-			mi.activate.connect(() => {
-					GLib.Application.get_default().activate_action("delete", null);
-				});
-			menu.add(mi);
+			mi = new GLib.MenuItem("Delete", null);
+			mi.set_action_and_target_value("app.delete", null);
+			menu_model.append_item(mi);
 
 			if (_tree_selection.count_selected_rows() == 1) {
 				GLib.List<Gtk.TreePath> selected_paths = _tree_selection.get_selected_rows(null);
@@ -281,24 +276,23 @@ public class LevelTreeView : Gtk.Box
 					Value val;
 					_tree_view.model.get_value(iter, Column.GUID, out val);
 					Guid object_id = (Guid)val;
+					_tree_view.model.get_value(iter, Column.NAME, out val);
+					string object_name = (string)val;
 
 					if (_db.object_type(object_id) == OBJECT_TYPE_UNIT) {
-						mi = new Gtk.MenuItem.with_label("Save as Prefab...");
-						mi.activate.connect(() => {
-								_tree_view.model.get_value(iter, Column.NAME, out val);
-								string object_name = (string)val;
-
-								GLib.Application.get_default().activate_action("unit-save-as-prefab"
-									, new GLib.Variant.tuple({ object_id.to_string(), object_name })
-									);
-							});
-							menu.add(mi);
+						mi = new GLib.MenuItem("Save as Prefab...", null);
+						mi.set_action_and_target_value("app.unit-save-as-prefab", new GLib.Variant.tuple({ object_id.to_string(), object_name }));
+						menu_model.append_item(mi);
 					}
 				}
 			}
 
-			menu.show_all();
-			menu.popup_at_pointer(null);
+			Gtk.Popover menu = new Gtk.Popover.from_model(null, menu_model);
+			menu.set_relative_to(_tree_view);
+			menu.set_pointing_to({ (int)x, (int)y, 1, 1 });
+			menu.set_position(Gtk.PositionType.BOTTOM);
+			menu.popup();
+
 			_gesture_click.set_state(Gtk.EventSequenceState.CLAIMED);
 		}
 	}
