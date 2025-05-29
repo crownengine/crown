@@ -19,184 +19,132 @@ private string project_path(string type, string name)
 }
 
 // Menu to open when clicking on project's files and folders.
-private Gtk.Menu? project_entry_menu_create(string type, string name)
+private GLib.Menu? project_entry_menu_create(string type, string name)
 {
-	Gtk.Menu? menu;
+	GLib.Menu menu = new GLib.Menu();
+	GLib.MenuItem mi;
 
 	if (type == "<folder>") {
 		if (name == "..")
 			return null;
 
-		menu = new Gtk.Menu();
+		GLib.Menu import_menu = new GLib.Menu();
 
-		Gtk.MenuItem mi;
+		mi = new GLib.MenuItem("Import...", null);
+		mi.set_action_and_target_value("app.import", new GLib.Variant.string((string)name));
+		import_menu.append_item(mi);
 
-		mi = new Gtk.MenuItem.with_label("Import...");
-		mi.activate.connect(() => {
-				GLib.Application.get_default().activate_action("import", new GLib.Variant.string((string)name));
-			});
-		menu.add(mi);
+		menu.append_section(null, import_menu);
 
-		mi = new Gtk.SeparatorMenuItem();
-		menu.add(mi);
+		GLib.Menu create_menu = new GLib.Menu();
 
-		mi = new Gtk.MenuItem.with_label("New Script...");
-		mi.activate.connect(() => {
-				var tuple = new GLib.Variant.tuple({(string)name, "", true});
-				GLib.Application.get_default().activate_action("create-script", tuple);
-			});
-		menu.add(mi);
+		mi = new GLib.MenuItem("New Script...", null);
+		mi.set_action_and_target_value("app.create-script", new GLib.Variant.tuple({(string)name, "", true}));
+		create_menu.append_item(mi);
 
-		mi = new Gtk.MenuItem.with_label("New Script (Unit)...");
-		mi.activate.connect(() => {
-				var tuple = new GLib.Variant.tuple({(string)name, "", false});
-				GLib.Application.get_default().activate_action("create-script", tuple);
-			});
-		menu.add(mi);
+		mi = new GLib.MenuItem("New Script (Unit)...", null);
+		mi.set_action_and_target_value("app.create-script", new GLib.Variant.tuple({(string)name, "", false}));
+		create_menu.append_item(mi);
 
-		mi = new Gtk.SeparatorMenuItem();
-		menu.add(mi);
+		mi = new GLib.MenuItem("New Unit...", null);
+		mi.set_action_and_target_value("app.create-unit", new GLib.Variant.tuple({(string)name, ""}));
+		create_menu.append_item(mi);
 
-		mi = new Gtk.MenuItem.with_label("New Unit...");
-		mi.activate.connect(() => {
-				var tuple = new GLib.Variant.tuple({(string)name, ""});
-				GLib.Application.get_default().activate_action("create-unit", tuple);
-			});
-		menu.add(mi);
+		mi = new GLib.MenuItem("New Material...", null);
+		mi.set_action_and_target_value("app.create-material", new GLib.Variant.tuple({(string)name, ""}));
+		create_menu.append_item(mi);
 
-		mi = new Gtk.MenuItem.with_label("New Material...");
-		mi.activate.connect(() => {
-				var tuple = new GLib.Variant.tuple({(string)name, ""});
-				GLib.Application.get_default().activate_action("create-material", tuple);
-			});
-		menu.add(mi);
+		mi = new GLib.MenuItem("New Folder...", null);
+		mi.set_action_and_target_value("app.create-directory", new GLib.Variant.tuple({(string)name, ""}));
+		create_menu.append_item(mi);
 
-		mi = new Gtk.SeparatorMenuItem();
-		menu.add(mi);
+		menu.append_section(null, create_menu);
 
-		mi = new Gtk.MenuItem.with_label("New Folder...");
-		mi.activate.connect(() => {
-				var tuple = new GLib.Variant.tuple({(string)name, ""});
-				GLib.Application.get_default().activate_action("create-directory", tuple);
-			});
-		menu.add(mi);
+		GLib.Menu destroy_menu = new GLib.Menu();
 
 		if ((string)name != ProjectStore.ROOT_FOLDER) {
-			mi = new Gtk.MenuItem.with_label("Delete Folder");
-			mi.activate.connect(() => {
-					GLib.Application.get_default().activate_action("delete-directory", new GLib.Variant.string((string)name));
-				});
-			menu.add(mi);
+			mi = new GLib.MenuItem("Delete Folder", null);
+			mi.set_action_and_target_value("app.delete-directory", new GLib.Variant.string((string)name));
+			destroy_menu.append_item(mi);
 		}
+
+		menu.append_section(null, destroy_menu);
 	} else { // If file
-		menu = new Gtk.Menu();
+		menu = new GLib.Menu();
 
-		Gtk.MenuItem mi;
-
-		mi = new Gtk.MenuItem.with_label("Delete File");
-		mi.activate.connect(() => {
-				string path = project_path(type, name);
-				GLib.Application.get_default().activate_action("delete-file", new GLib.Variant.string(path));
-			});
-		menu.add(mi);
+		mi = new GLib.MenuItem("Delete File", null);
+		mi.set_action_and_target_value("app.delete-file", new GLib.Variant.string(project_path(type, name)));
+		menu.append_item(mi);
 
 		if (type == OBJECT_TYPE_MESH_SKELETON || type == OBJECT_TYPE_SPRITE) {
-			mi = new Gtk.MenuItem.with_label("New State Machine...");
-			mi.activate.connect(() => {
-					string skeleton_name;
-					if (type == OBJECT_TYPE_SPRITE)
-						skeleton_name = "";
-					else
-						skeleton_name = name;
+			mi = new GLib.MenuItem("New State Machine...", null);
+			string skeleton_name;
+			if (type == OBJECT_TYPE_SPRITE)
+				skeleton_name = "";
+			else
+				skeleton_name = name;
 
-					var tuple = new GLib.Variant.tuple({ResourceId.parent_folder(name), "", skeleton_name});
-					GLib.Application.get_default().activate_action("create-state-machine", tuple);
-				});
-			menu.add(mi);
+			mi.set_action_and_target_value("app.create-state-machine", new GLib.Variant.tuple({ResourceId.parent_folder(name), "", skeleton_name}));
+			menu.append_item(mi);
 		}
 	}
 
-	// Add shared menu items.
-	Gtk.MenuItem mi;
+	// Add common menu items.
+	GLib.Menu common_menu = new GLib.Menu();
 
-	mi = new Gtk.SeparatorMenuItem();
-	menu.add(mi);
+	mi = new GLib.MenuItem("Copy Path", null);
+	mi.set_action_and_target_value("app.copy-path", new GLib.Variant.string(project_path(type, name)));
+	common_menu.append_item(mi);
 
-	mi = new Gtk.MenuItem.with_label("Copy Path");
-	mi.activate.connect(() => {
-			string path = project_path(type, name);
-			GLib.Application.get_default().activate_action("copy-path", new GLib.Variant.string(path));
-		});
-	menu.add(mi);
+	mi = new GLib.MenuItem("Copy Name", null);
+	mi.set_action_and_target_value("app.copy-name", new GLib.Variant.string(name));
+	common_menu.append_item(mi);
 
-	mi = new Gtk.MenuItem.with_label("Copy Name");
-	mi.activate.connect(() => {
-			GLib.Application.get_default().activate_action("copy-name", new GLib.Variant.string(name));
-		});
-	menu.add(mi);
-
-	mi = new Gtk.MenuItem.with_label("Open Containing Folder...");
-	mi.activate.connect(() => {
-			GLib.Application.get_default().activate_action("open-containing", new GLib.Variant.string(name));
-		});
-	menu.add(mi);
+	mi = new GLib.MenuItem("Open Containing Folder...", null);
+	mi.set_action_and_target_value("app.open-containing", new GLib.Variant.string(name));
+	common_menu.append_item(mi);
 
 	if (type != "<folder>" || name != "") {
-		mi = new Gtk.MenuItem.with_label("Add to Favorites");
-		mi.activate.connect(() => {
-				var tuple = new GLib.Variant.tuple({type, name});
-				GLib.Application.get_default().activate_action("favorite-resource", tuple);
-			});
-		menu.add(mi);
+		mi = new GLib.MenuItem("Add to Favorites", null);
+		mi.set_action_and_target_value("app.favorite-resource", new GLib.Variant.tuple({type, name}));
+		common_menu.append_item(mi);
 	}
+
+	menu.append_section(null, common_menu);
 
 	return menu;
 }
 
 // Menu to open when clicking on favorites' entries.
-private Gtk.Menu? favorites_entry_menu_create(string type, string name)
+private GLib.Menu? favorites_entry_menu_create(string type, string name)
 {
-	Gtk.Menu? menu;
+	GLib.Menu menu = new GLib.Menu();
+	GLib.MenuItem mi;
 
-	menu = new Gtk.Menu();
+	mi = new GLib.MenuItem("Open Containing Folder...", null);
+	mi.set_action_and_target_value("app.open-containing", new GLib.Variant.string(name));
+	menu.append_item(mi);
 
-	Gtk.MenuItem mi;
+	GLib.Menu common_menu = new GLib.Menu();
 
-	mi = new Gtk.MenuItem.with_label("Open Containing Folder...");
-	mi.activate.connect(() => {
-			GLib.Application.get_default().activate_action("open-containing", new GLib.Variant.string(name));
-		});
-	menu.add(mi);
+	mi = new GLib.MenuItem("Copy Path", null);
+	string path = project_path(type, name);
+	mi.set_action_and_target_value("app.copy-path", new GLib.Variant.string(path));
+	common_menu.append_item(mi);
 
-	mi = new Gtk.SeparatorMenuItem();
-	menu.add(mi);
+	mi = new GLib.MenuItem("Copy Name", null);
+	mi.set_action_and_target_value("app.copy-name", new GLib.Variant.string(name));
+	common_menu.append_item(mi);
 
-	mi = new Gtk.MenuItem.with_label("Copy Path");
-	mi.activate.connect(() => {
-			string path = project_path(type, name);
-			GLib.Application.get_default().activate_action("copy-path", new GLib.Variant.string(path));
-		});
-	menu.add(mi);
+	mi = new GLib.MenuItem("Remove from Favorites", null);
+	mi.set_action_and_target_value("app.unfavorite-resource", new GLib.Variant.tuple({type, name}));
+	common_menu.append_item(mi);
 
-	mi = new Gtk.MenuItem.with_label("Copy Name");
-	mi.activate.connect(() => {
-			GLib.Application.get_default().activate_action("copy-name", new GLib.Variant.string(name));
-		});
-	menu.add(mi);
+	mi = new GLib.MenuItem("Reveal", null);
+	mi.set_action_and_target_value("app.reveal-resource", new GLib.Variant.tuple({type, name}));
+	common_menu.append_item(mi);
 
-	mi = new Gtk.MenuItem.with_label("Remove from Favorites");
-	mi.activate.connect(() => {
-			var tuple = new GLib.Variant.tuple({type, name});
-			GLib.Application.get_default().activate_action("unfavorite-resource", tuple);
-		});
-	menu.add(mi);
-
-	mi = new Gtk.MenuItem.with_label("Reveal");
-	mi.activate.connect(() => {
-			var tuple = new GLib.Variant.tuple({type, name});
-			GLib.Application.get_default().activate_action("reveal-resource", tuple);
-		});
-	menu.add(mi);
+	menu.append_section(null, common_menu);
 
 	return menu;
 }
@@ -503,17 +451,27 @@ public class ProjectFolderView : Gtk.Bin
 				name = _selected_name;
 			}
 
-			Gtk.Menu? menu;
-			menu = project_entry_menu_create(type, name);
+			GLib.Menu? menu_model;
 			if (_showing_project_folder)
-				menu = project_entry_menu_create(type, name);
+				menu_model = project_entry_menu_create(type, name);
 			else
-				menu = favorites_entry_menu_create(type, name);
+				menu_model = favorites_entry_menu_create(type, name);
 
-			if (menu != null) {
-				menu.show_all();
-				menu.popup_at_pointer();
+			if (menu_model != null) {
+				Gtk.Popover menu = new Gtk.Popover.from_model(_stack, menu_model);
+				if (_stack.get_visible_child() == _icon_view_window) {
+					// Adjust for scroll offset since IconView fails to do it itself.
+					var new_x = x - _icon_view_window.get_hadjustment().get_value();
+					var new_y = y - _icon_view_window.get_vadjustment().get_value();
+					menu.set_pointing_to({ (int)new_x, (int)new_y, 1, 1 });
+				} else {
+					menu.set_pointing_to({ (int)x, (int)y, 1, 1 });
+				}
+				menu.set_position(Gtk.PositionType.BOTTOM);
+				menu.popup();
 			}
+
+			return Gdk.EVENT_STOP; // Stop the event. Otherwise, popover menu won't show on _icon_view.
 		} else if (button == Gdk.BUTTON_PRIMARY && n_press == 2) {
 			if (path != null) {
 				Gtk.TreeIter iter;
@@ -1291,17 +1249,19 @@ public class ProjectBrowser : Gtk.Bin
 
 				Gtk.TreePath? filter_path = _tree_sort.convert_path_to_child_path(path);
 				Gtk.TreePath? store_path = _tree_filter.convert_path_to_child_path(filter_path);
-				Gtk.Menu? menu;
+				GLib.Menu? menu_model;
 				if (store_path.is_descendant(_project_store.project_root_path()) || store_path.compare(_project_store.project_root_path()) == 0)
-					menu = project_entry_menu_create((string)type, (string)name);
+					menu_model = project_entry_menu_create((string)type, (string)name);
 				else if (store_path.is_descendant(_project_store.favorites_root_path()))
-					menu = favorites_entry_menu_create((string)type, (string)name);
+					menu_model = favorites_entry_menu_create((string)type, (string)name);
 				else
-					menu = null;
+					menu_model = null;
 
-				if (menu != null) {
-					menu.show_all();
-					menu.popup_at_pointer();
+				if (menu_model != null) {
+					Gtk.Popover menu = new Gtk.Popover.from_model(_tree_view, menu_model);
+					menu.set_pointing_to({ (int)x, (int)y, 1, 1 });
+					menu.set_position(Gtk.PositionType.BOTTOM);
+					menu.popup();
 				}
 			}
 		} else if (button == Gdk.BUTTON_PRIMARY && n_press == 2) {

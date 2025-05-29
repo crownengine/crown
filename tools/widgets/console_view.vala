@@ -307,32 +307,28 @@ public class ConsoleView : Gtk.Box
 						continue;
 
 					if (item_data.has_prefix("resource_id:")) {
-						Gtk.Menu menu = new Gtk.Menu();
-						Gtk.MenuItem mi;
+						GLib.Menu menu_model = new GLib.Menu();
+						GLib.MenuItem mi;
 
-						mi = new Gtk.MenuItem.with_label("Reveal in Project Browser");
-						mi.activate.connect(() => {
-								string resource_path  = item_data[12 : item_data.length];
-								string? resource_type = ResourceId.type(resource_path);
-								string? resource_name = ResourceId.name(resource_path);
+						string resource_path  = item_data[12 : item_data.length];
+						string? resource_type = ResourceId.type(resource_path);
+						string? resource_name = ResourceId.name(resource_path);
 
-								if (resource_type == null || resource_name == null)
-									return;
+						if (resource_type != null && resource_name != null) {
+							mi = new GLib.MenuItem("Reveal in Project Browser", null);
+							mi.set_action_and_target_value("app.reveal-resource", new GLib.Variant.tuple({ resource_type, resource_name }));
+							menu_model.append_item(mi);
+						}
 
-								GLib.Variant paramz[] = { resource_type, resource_name };
-								GLib.Application.get_default().activate_action("reveal-resource", new GLib.Variant.tuple(paramz));
-							});
-						menu.add(mi);
+						mi = new GLib.MenuItem("Open Containing Folder...", null);
+						mi.set_action_and_target_value("app.open-containing", new GLib.Variant.string(resource_path));
+						menu_model.append_item(mi);
 
-						mi = new Gtk.MenuItem.with_label("Open Containing Folder...");
-						mi.activate.connect(() => {
-								string resource_path = item_data[12 : item_data.length];
-								GLib.Application.get_default().activate_action("open-containing", new GLib.Variant.string(resource_path));
-							});
-						menu.add(mi);
-
-						menu.show_all();
-						menu.popup_at_pointer();
+						Gtk.Popover menu = new Gtk.Popover.from_model(null, menu_model);
+						menu.set_relative_to(_text_view);
+						menu.set_pointing_to({ (int)x, (int)y, 1, 1 });
+						menu.set_position(Gtk.PositionType.BOTTOM);
+						menu.popup();
 
 						_text_view_gesture_click.set_state(Gtk.EventSequenceState.CLAIMED);
 						return;

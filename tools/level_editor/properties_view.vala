@@ -590,16 +590,14 @@ public class UnitView : PropertyGrid
 		_add_popover.hide();
 	}
 
-	public static Gtk.Menu component_menu(string object_type)
+	public static GLib.Menu component_menu(string object_type)
 	{
-		Gtk.Menu menu = new Gtk.Menu();
-		Gtk.MenuItem mi;
+		GLib.Menu menu = new GLib.Menu();
+		GLib.MenuItem mi;
 
-		mi = new Gtk.MenuItem.with_label("Remove Component");
-		mi.activate.connect(() => {
-				GLib.Application.get_default().activate_action("unit-remove-component", new GLib.Variant.string(object_type));
-			});
-		menu.add(mi);
+		mi = new GLib.MenuItem("Remove Component", null);
+		mi.set_action_and_target_value("app.unit-remove-component", new GLib.Variant.string(object_type));
+		menu.append_item(mi);
 
 		return menu;
 	}
@@ -748,7 +746,7 @@ public class PropertiesView : Gtk.Bin
 	private Gtk.Stack _stack;
 
 	[CCode (has_target = false)]
-	public delegate Gtk.Menu ContextMenu(string object_type);
+	public delegate GLib.Menu ContextMenu(string object_type);
 
 	public PropertiesView(Database db, ProjectStore store)
 	{
@@ -798,15 +796,17 @@ public class PropertiesView : Gtk.Bin
 		store._project.project_reset.connect(on_project_reset);
 	}
 
-	private void register_object_type(string label, string object_type, int position, PropertyGrid cv, ContextMenu? action = null)
+	private void register_object_type(string label, string object_type, int position, PropertyGrid cv, ContextMenu? context_menu = null)
 	{
 		Expander expander = _object_view.add_property_grid(cv, label);
-		if (action != null) {
+		if (context_menu != null) {
 			expander.button_release_event.connect((ev) => {
 					if (ev.button == Gdk.BUTTON_SECONDARY) {
-						Gtk.Menu menu = action(object_type);
-						menu.show_all();
-						menu.popup_at_pointer(ev);
+						Gtk.Popover menu = new Gtk.Popover.from_model(null, context_menu(object_type));
+						menu.set_relative_to(expander);
+						menu.set_pointing_to({ (int)ev.x, (int)ev.y, 1, 1 });
+						menu.set_position(Gtk.PositionType.BOTTOM);
+						menu.popup();
 						return Gdk.EVENT_STOP;
 					}
 
