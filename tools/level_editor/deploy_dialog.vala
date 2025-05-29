@@ -119,12 +119,12 @@ public class DeployDialog : Gtk.Dialog
 
 	// Android page.
 	public Gtk.Button _android_deploy_button;
-	public Gtk.FileChooserButton _android_output_path;
+	public InputFile _android_output_path;
 	public InputEnum _android_config;
 	public InputBool _android_armv7;
 	public InputBool _android_armv8;
 	public InputBool _android_use_debug_keystore;
-	public Gtk.FileChooserButton _android_keystore;
+	public InputFile _android_keystore;
 	public Gtk.Entry _android_keystore_password;
 	public Gtk.Entry _android_key_alias;
 	public Gtk.Entry _android_key_password;
@@ -139,7 +139,7 @@ public class DeployDialog : Gtk.Dialog
 
 	// HTML5 page.
 	public Gtk.Button _html5_deploy_button;
-	public Gtk.FileChooserButton _html5_output_path;
+	public InputFile _html5_output_path;
 	public InputEnum _html5_config;
 	public Gtk.Entry _html5_app_title;
 	public PropertyGridSet _html5_set;
@@ -149,7 +149,7 @@ public class DeployDialog : Gtk.Dialog
 
 	// Linux page.
 	public Gtk.Button _linux_deploy_button;
-	public Gtk.FileChooserButton _linux_output_path;
+	public InputFile _linux_output_path;
 	public InputEnum _linux_config;
 	public Gtk.Entry _linux_app_title;
 	public PropertyGridSet _linux_set;
@@ -158,7 +158,7 @@ public class DeployDialog : Gtk.Dialog
 
 	// Windows page.
 	public Gtk.Button _windows_deploy_button;
-	public Gtk.FileChooserButton _windows_output_path;
+	public InputFile _windows_output_path;
 	public InputEnum _windows_config;
 	public InputString _windows_app_title;
 	public PropertyGridSet _windows_set;
@@ -180,7 +180,7 @@ public class DeployDialog : Gtk.Dialog
 		_android_deploy_button = make_deploy_button(TargetPlatform.ANDROID);
 		_android_deploy_button.clicked.connect(() => {
 				// Validate input fields.
-				string? output_path = _android_output_path.get_filename();
+				string? output_path = _android_output_path.value;
 				if (output_path == null) {
 					loge("Select a valid output Destination");
 					return;
@@ -212,7 +212,7 @@ public class DeployDialog : Gtk.Dialog
 
 				string? keystore_path = _android_use_debug_keystore.get_active()
 					? GLib.Path.build_filename(GLib.Environment.get_home_dir(), ".android", "debug.keystore")
-					: _android_keystore.get_filename()
+					: _android_keystore.value
 					;
 				if (keystore_path == null) {
 					loge("Enter a valid Keystore file");
@@ -279,7 +279,7 @@ public class DeployDialog : Gtk.Dialog
 				}
 			});
 
-		_android_output_path = new Gtk.FileChooserButton("Select folder", Gtk.FileChooserAction.SELECT_FOLDER);
+		_android_output_path = new InputFile(Gtk.FileChooserAction.SELECT_FOLDER);
 		_android_config = make_deploy_config_combo();
 		_android_armv7 = new InputBool();
 		_android_armv7.value = false;
@@ -288,7 +288,7 @@ public class DeployDialog : Gtk.Dialog
 		_android_use_debug_keystore = new InputBool();
 		_android_use_debug_keystore.value_changed.connect(() => { android_set_debug_keystore(); });
 		_android_use_debug_keystore.value = true;
-		_android_keystore = new Gtk.FileChooserButton("Select file", Gtk.FileChooserAction.OPEN);
+		_android_keystore = new InputFile(Gtk.FileChooserAction.OPEN);
 		_android_keystore_password = new Gtk.Entry();
 		_android_keystore_password.set_visibility(false);
 		_android_keystore_password.input_purpose = Gtk.InputPurpose.PASSWORD;
@@ -353,7 +353,7 @@ public class DeployDialog : Gtk.Dialog
 		_html5_deploy_button = make_deploy_button(TargetPlatform.HTML5);
 		_html5_deploy_button.clicked.connect(() => {
 				// Validate input fields.
-				string? output_path = _html5_output_path.get_filename();
+				string? output_path = _html5_output_path.value;
 				if (output_path == null) {
 					loge("Select a valid output Destination");
 					return;
@@ -377,7 +377,7 @@ public class DeployDialog : Gtk.Dialog
 					, new GLib.Variant.tuple(paramz));
 			});
 
-		_html5_output_path = new Gtk.FileChooserButton("Select folder", Gtk.FileChooserAction.SELECT_FOLDER);
+		_html5_output_path = new InputFile(Gtk.FileChooserAction.SELECT_FOLDER);
 		_html5_config = make_deploy_config_combo();
 		_html5_app_title = new InputString();
 		_html5_app_title.placeholder_text = "My Application";
@@ -410,7 +410,7 @@ public class DeployDialog : Gtk.Dialog
 		_linux_deploy_button = make_deploy_button(TargetPlatform.LINUX);
 		_linux_deploy_button.clicked.connect(() => {
 				// Validate input fields.
-				string? output_path = _linux_output_path.get_filename();
+				string? output_path = _linux_output_path.value;
 				if (output_path == null) {
 					loge("Select a valid output Destination");
 					return;
@@ -434,7 +434,7 @@ public class DeployDialog : Gtk.Dialog
 					, new GLib.Variant.tuple(paramz));
 			});
 
-		_linux_output_path = new Gtk.FileChooserButton("Select folder", Gtk.FileChooserAction.SELECT_FOLDER);
+		_linux_output_path = new InputFile(Gtk.FileChooserAction.SELECT_FOLDER);
 		_linux_config = make_deploy_config_combo();
 		_linux_app_title = new InputString();
 		_linux_app_title.placeholder_text = "My Application";
@@ -466,7 +466,7 @@ public class DeployDialog : Gtk.Dialog
 		_windows_deploy_button = make_deploy_button(TargetPlatform.WINDOWS);
 		_windows_deploy_button.clicked.connect(() => {
 				// Validate input fields.
-				string? output_path = _windows_output_path.get_filename();
+				string? output_path = _windows_output_path.value;
 				if (output_path == null) {
 					loge("Select a valid output Destination");
 					return;
@@ -490,7 +490,7 @@ public class DeployDialog : Gtk.Dialog
 					, new GLib.Variant.tuple(paramz));
 			});
 
-		_windows_output_path = new Gtk.FileChooserButton("Select folder", Gtk.FileChooserAction.SELECT_FOLDER);
+		_windows_output_path = new InputFile(Gtk.FileChooserAction.SELECT_FOLDER);
 		_windows_config = make_deploy_config_combo();
 		_windows_app_title = new InputString();
 		_windows_app_title.placeholder_text = "My Application";
