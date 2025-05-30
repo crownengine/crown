@@ -112,7 +112,7 @@ public bool can_build_32bit_arm = false;
 public bool can_build_32bit_arm = true;
 #endif
 
-public class DeployDialog : Gtk.Dialog
+public class DeployDialog : Gtk.Window
 {
 	public RuntimeInstance _editor;
 	public Project _project;
@@ -166,6 +166,7 @@ public class DeployDialog : Gtk.Dialog
 	public DeployerPage _windows_page;
 
 	public Gtk.Notebook _notebook;
+	public Gtk.EventControllerKey _controller_key;
 
 	public DeployDialog(Project project, RuntimeInstance editor)
 	{
@@ -530,8 +531,19 @@ public class DeployDialog : Gtk.Dialog
 		_notebook.vexpand = true;
 		_notebook.show_border = false;
 
-		this.get_content_area().border_width = 0;
-		this.get_content_area().add(_notebook);
+		_controller_key = new Gtk.EventControllerKey(this);
+		_controller_key.key_pressed.connect(on_key_pressed);
+
+		this.border_width = 0;
+		this.add(_notebook);
+	}
+
+	private bool on_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)
+	{
+		if (keyval == Gdk.Key.Escape)
+			this.close();
+
+		return Gdk.EVENT_PROPAGATE;
 	}
 
 	public void android_set_debug_keystore()

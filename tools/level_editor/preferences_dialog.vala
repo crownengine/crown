@@ -5,7 +5,7 @@
 
 namespace Crown
 {
-public class PreferencesDialog : Gtk.Dialog
+public class PreferencesDialog : Gtk.Window
 {
 	public RuntimeInstance _editor;
 
@@ -37,6 +37,7 @@ public class PreferencesDialog : Gtk.Dialog
 	public PropertyGridSet _external_tools_set;
 
 	public Gtk.Notebook _notebook;
+	public Gtk.EventControllerKey _controller_key;
 
 	public PreferencesDialog(RuntimeInstance editor)
 	{
@@ -158,8 +159,19 @@ public class PreferencesDialog : Gtk.Dialog
 		_notebook.vexpand = true;
 		_notebook.show_border = false;
 
-		this.get_content_area().border_width = 0;
-		this.get_content_area().add(_notebook);
+		_controller_key = new Gtk.EventControllerKey(this);
+		_controller_key.key_pressed.connect(on_key_pressed);
+
+		this.border_width = 0;
+		this.add(_notebook);
+	}
+
+	private bool on_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)
+	{
+		if (keyval == Gdk.Key.Escape)
+			this.close();
+
+		return Gdk.EVENT_PROPAGATE;
 	}
 
 	private void on_color_set()
