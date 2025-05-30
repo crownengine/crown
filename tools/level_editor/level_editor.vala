@@ -2894,8 +2894,7 @@ public class LevelEditorApplication : Gtk.Application
 			"Giulia Gazzoli - Crown logo"
 		};
 
-		dlg.response.connect(() => { dlg.destroy(); });
-		dlg.show_all();
+		dlg.present();
 	}
 
 	private void do_delete_file(string resource_path)
