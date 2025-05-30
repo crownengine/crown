@@ -90,9 +90,9 @@ public class ProjectRow : Gtk.ListBoxRow
 
 	public void on_open_button_clicked()
 	{
-		string source_dir = this.get_data("source_dir");
-
-		GLib.Application.get_default().activate_action("open-project", new GLib.Variant.string(source_dir));
+		GLib.Application.get_default().activate_action("open-project"
+			, new GLib.Variant.string(this.get_data("source_dir"))
+			);
 	}
 }
 
