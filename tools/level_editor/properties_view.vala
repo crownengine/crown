@@ -584,8 +584,7 @@ public class UnitView : PropertyGrid
 
 	private void on_add_component_clicked(Gtk.Button button)
 	{
-		Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
-		app.activate_action("unit-add-component", new GLib.Variant.string(button.label));
+		GLib.Application.get_default().activate_action("unit-add-component", new GLib.Variant.string(button.label));
 
 		_add_popover.hide();
 	}
