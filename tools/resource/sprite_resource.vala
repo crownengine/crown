@@ -92,7 +92,7 @@ void sprite_cell_from_index(out int r, out int c, int num_cols, int index)
 	c = index - r * num_cols;
 }
 
-public class SpriteImportDialog : Gtk.Dialog
+public class SpriteImportDialog : Gtk.Window
 {
 	public Project _project;
 	public string _destination_dir;
@@ -143,10 +143,14 @@ public class SpriteImportDialog : Gtk.Dialog
 
 	public Gtk.Notebook _notebook;
 
+	public Gtk.Box _box;
+	public Gtk.Button _import;
+	public Gtk.Button _cancel;
+	public Gtk.HeaderBar _header_bar;
+
 	public SpriteImportDialog(ProjectStore project_store, string destination_dir, GLib.SList<string> filenames, Import import_result)
 	{
 		this.border_width = 4;
-		this.title = "Import Sprite...";
 		this.set_icon_name(CROWN_EDITOR_ICON_NAME);
 
 		_project = project_store._project;
@@ -531,10 +535,25 @@ public class SpriteImportDialog : Gtk.Dialog
 		pane.pack1(_notebook, false, false);
 		pane.pack2(sprite_set, true, false);
 
-		this.get_content_area().add(pane);
-		this.add_button("Cancel", Gtk.ResponseType.CANCEL);
-		this.add_button("OK", Gtk.ResponseType.OK);
-		this.response.connect(on_response);
+		_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+		_box.pack_start(pane, false, false);
+
+		_cancel = new Gtk.Button.with_label("Cancel");
+		_cancel.clicked.connect(() => {
+				close();
+			});
+		_import = new Gtk.Button.with_label("Import");
+		_import.get_style_context().add_class("suggested-action");
+		_import.clicked.connect(on_import);
+
+		_header_bar = new Gtk.HeaderBar();
+		_header_bar.title = "Import Sprite...";
+		_header_bar.show_close_button = true;
+		_header_bar.pack_start(_cancel);
+		_header_bar.pack_end(_import);
+
+		this.set_titlebar(_header_bar);
+		this.add(_box);
 		this.map_event.connect(on_map_event);
 
 		if (File.new_for_path(settings_path).query_exists()) {
@@ -645,11 +664,10 @@ public class SpriteImportDialog : Gtk.Dialog
 		return obj;
 	}
 
-	private void on_response(int response_id)
+	private void on_import()
 	{
-		if (response_id == Gtk.ResponseType.OK)
-			_import_result(SpriteResource.do_import(this, _project, _destination_dir, _filenames));
-		destroy();
+		_import_result(SpriteResource.do_import(this, _project, _destination_dir, _filenames));
+		close();
 	}
 }
 

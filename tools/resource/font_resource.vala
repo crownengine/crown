@@ -64,7 +64,7 @@ private void copy_alpha_to_argb32(Cairo.ImageSurface dst, Cairo.ImageSurface src
 	}
 }
 
-public class FontImportDialog : Gtk.Dialog
+public class FontImportDialog : Gtk.Window
 {
 	public Project _project;
 	public string _destination_dir;
@@ -85,6 +85,11 @@ public class FontImportDialog : Gtk.Dialog
 	public Gtk.ComboBoxText _font_chars;
 	public InputDouble _font_range_min;
 	public InputDouble _font_range_max;
+
+	public Gtk.Box _box;
+	public Gtk.Button _import;
+	public Gtk.Button _cancel;
+	public Gtk.HeaderBar _header_bar;
 
 	public void set_font_range(int min, int max)
 	{
@@ -139,7 +144,6 @@ public class FontImportDialog : Gtk.Dialog
 	public FontImportDialog(ProjectStore store, string destination_dir, GLib.SList<string> filenames, Import import_result)
 	{
 		this.border_width = 4;
-		this.title = "Import Font...";
 		this.set_icon_name(CROWN_EDITOR_ICON_NAME);
 
 		_project = store._project;
@@ -272,12 +276,28 @@ public class FontImportDialog : Gtk.Dialog
 		pane.pack1(box, false, false);
 		pane.pack2(sprite_set, true, false);
 
-		this.get_content_area().add(pane);
-		this.add_button("Cancel", Gtk.ResponseType.CANCEL);
-		this.add_button("OK", Gtk.ResponseType.OK);
-		this.response.connect(on_response);
 		this.destroy.connect(on_destroy);
 		this.map_event.connect(on_map_event);
+
+		_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+		_box.pack_start(pane, false, false);
+
+		_cancel = new Gtk.Button.with_label("Cancel");
+		_cancel.clicked.connect(() => {
+				close();
+			});
+		_import = new Gtk.Button.with_label("Import");
+		_import.get_style_context().add_class("suggested-action");
+		_import.clicked.connect(on_import);
+
+		_header_bar = new Gtk.HeaderBar();
+		_header_bar.title = "Import Font...";
+		_header_bar.show_close_button = true;
+		_header_bar.pack_start(_cancel);
+		_header_bar.pack_end(_import);
+
+		this.set_titlebar(_header_bar);
+		this.add(_box);
 
 		if (File.new_for_path(settings_path).query_exists()) {
 			try {
@@ -319,10 +339,9 @@ public class FontImportDialog : Gtk.Dialog
 		return obj;
 	}
 
-	public void on_response(int response_id)
+	public void on_import()
 	{
-		if (response_id == Gtk.ResponseType.OK)
-			_import_result(FontResource.do_import(this, _project, _destination_dir, _filenames));
+		_import_result(FontResource.do_import(this, _project, _destination_dir, _filenames));
 		destroy();
 	}
 }
