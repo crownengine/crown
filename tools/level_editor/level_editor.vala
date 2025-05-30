@@ -397,26 +397,27 @@ public class LevelEditorApplication : Gtk.Application
 	// Constants
 	private const GLib.ActionEntry[] action_entries_file =
 	{
-		//                                   parameter type
-		// name            activate()        |     state
-		// |               |                 |     |
-		{ "menu-file",     null,             null, null },
-		{ "new-level",     on_new_level,     null, null },
-		{ "open-level",    on_open_level,    "s",  null },
-		{ "new-project",   on_new_project,   null, null },
-		{ "add-project",   on_add_project,   null, null },
-		{ "open-project",  on_open_project,  "s",  null },
-		{ "save",          on_save,          null, null },
-		{ "save-as",       on_save_as,       null, null },
-		{ "import",        on_import,        "s",  null },
-		{ "import-null",   on_import,        null, null },
-		{ "preferences",   on_preferences,   null, null },
-		{ "deploy",        on_deploy,        null, null },
-		{ "close-project", on_close_project, null, null },
-		{ "quit",          on_quit,          null, null },
-		{ "open-resource", on_open_resource, "s",  null },
-		{ "copy-path",     on_copy_path,     "s",  null },
-		{ "copy-name",     on_copy_name,     "s",  null }
+		//                                     parameter type
+		// name             activate()         |     state
+		// |                |                  |     |
+		{ "menu-file",      null,              null, null },
+		{ "new-level",      on_new_level,      null, null },
+		{ "open-level",     on_open_level,     "s",  null },
+		{ "new-project",    on_new_project,    null, null },
+		{ "add-project",    on_add_project,    null, null },
+		{ "remove-project", on_remove_project, "s",  null },
+		{ "open-project",   on_open_project,   "s",  null },
+		{ "save",           on_save,           null, null },
+		{ "save-as",        on_save_as,        null, null },
+		{ "import",         on_import,         "s",  null },
+		{ "import-null",    on_import,         null, null },
+		{ "preferences",    on_preferences,    null, null },
+		{ "deploy",         on_deploy,         null, null },
+		{ "close-project",  on_close_project,  null, null },
+		{ "quit",           on_quit,           null, null },
+		{ "open-resource",  on_open_resource,  "s",  null },
+		{ "copy-path",      on_copy_path,      "s",  null },
+		{ "copy-name",      on_copy_name,      "s",  null }
 	};
 
 	private const GLib.ActionEntry[] action_entries_edit =
@@ -2278,6 +2279,29 @@ public class LevelEditorApplication : Gtk.Application
 				dlg.destroy();
 			});
 		dlg.show_all();
+	}
+
+	private void on_remove_project(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string source_dir = param.get_string();
+
+		Gtk.MessageDialog md = new Gtk.MessageDialog(this.active_window
+			, Gtk.DialogFlags.MODAL
+			, Gtk.MessageType.WARNING
+			, Gtk.ButtonsType.NONE
+			, "Remove \"%s\" from the list?\n\nThis action removes the project from the list only, files on disk will not be deleted.".printf(source_dir)
+			);
+		md.add_button("_Cancel", Gtk.ResponseType.CANCEL);
+		md.add_button("_Remove", Gtk.ResponseType.YES);
+		md.set_default_response(Gtk.ResponseType.CANCEL);
+		md.response.connect((response_id) => {
+				if (response_id == Gtk.ResponseType.YES) {
+					_user.remove_recent_project(source_dir);
+				}
+
+				md.destroy();
+			});
+		md.show_all();
 	}
 
 	private void on_save(GLib.SimpleAction action, GLib.Variant? param)
@@ -4452,7 +4476,7 @@ public class LevelEditorApplication : Gtk.Application
 			|| name == "panel_new_project"
 			|| name == "panel_projects_list"
 			) {
-			menu_set_enabled(false, action_entries_file, {"new-project", "add-project", "open-project", "quit"});
+			menu_set_enabled(false, action_entries_file, {"new-project", "add-project", "open-project", "remove-project", "quit"});
 			menu_set_enabled(false, action_entries_edit);
 			menu_set_enabled(false, action_entries_create);
 			menu_set_enabled(false, action_entries_camera);
