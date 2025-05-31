@@ -16,6 +16,7 @@ Changelog
 
 **Runtime**
 
+* Added cascaded shadow mapping.
 * Added sounds streaming and OGG/Vorbis audio files support.
 * Fixed spurious activations of physics bodies.
 * HTML5: added Touch input device support.

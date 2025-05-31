@@ -164,7 +164,7 @@ struct RenderWorld
 	void update_transforms(const UnitId *begin, const UnitId *end, const Matrix4x4 *world);
 
 	///
-	void render(const Matrix4x4 &view);
+	void render(const Matrix4x4 &view, const Matrix4x4 &proj);
 
 	/// Sets whether to @a enable debug drawing
 	void enable_debug_drawing(bool enable);
@@ -256,7 +256,7 @@ struct RenderWorld
 		void swap(u32 inst_a, u32 inst_b);
 
 		///
-		void draw(u8 view, SceneGraph &scene_graph, DrawOverride draw_override = NULL);
+		void draw(u8 view, SceneGraph &scene_graph, const Matrix4x4 *cascaded_lights = NULL, DrawOverride draw_override = NULL);
 
 		///
 		MeshInstance make_instance(u32 i)
@@ -355,7 +355,9 @@ struct RenderWorld
 			Vector3 direction;
 			f32 spot_angle;
 			f32 shadow_bias;
-			f32 pad[3];
+			f32 atlas_u;   // U-coord in shadow map atlas.
+			f32 atlas_v;   // V-coord in shadow map atlas.
+			f32 map_size;  // Tile size in shadow map atlas.
 		};
 
 		struct Index
@@ -446,6 +448,12 @@ struct RenderWorld
 	// Lighting.
 	bgfx::UniformHandle _u_lights_num;
 	bgfx::UniformHandle _u_lights_data;
+
+	// Shadow mapping.
+	bgfx::FrameBufferHandle _cascaded_shadow_map_frame_buffer;
+	bgfx::UniformHandle _u_cascaded_shadow_map;
+	bgfx::UniformHandle _u_cascaded_texel_size;
+	bgfx::UniformHandle _u_cascaded_lights;
 };
 
 } // namespace crown

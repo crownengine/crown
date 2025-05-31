@@ -280,9 +280,9 @@ void World::update(f32 dt)
 	update_scene(dt);
 }
 
-void World::render(const Matrix4x4 &view)
+void World::render(const Matrix4x4 &view, const Matrix4x4 &proj)
 {
-	_render_world->render(view);
+	_render_world->render(view, proj);
 
 	_physics_world->debug_draw();
 	_render_world->debug_draw(*_lines);

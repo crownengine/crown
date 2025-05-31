@@ -11,14 +11,18 @@
 
 #define MAX_NUM_LIGHTS 32
 #define MAX_NUM_SPRITE_LAYERS 8
+#define MAX_NUM_CASCADES 4
+#define CASCADED_SHADOW_MAP_SLOT 10
 
 struct View
 {
 	enum Enum
 	{
 		SPRITE_0,
-		SPRITE_LAST = SPRITE_0 + MAX_NUM_SPRITE_LAYERS,
-		LIGHTS      = SPRITE_LAST,
+		SPRITE_LAST  = SPRITE_0 + MAX_NUM_SPRITE_LAYERS,
+		CASCADE_0    = SPRITE_LAST,
+		CASCADE_LAST = CASCADE_0 + MAX_NUM_CASCADES,
+		LIGHTS       = CASCADE_LAST,
 		MESH,
 		WORLD_GUI,
 		SELECTION,
@@ -71,6 +75,10 @@ struct Pipeline
 	ShaderData _debug_line_shader;
 	ShaderData _outline_shader;
 	ShaderData _selection_shader;
+	ShaderData _shadow_shader;
+
+	// Global settings.
+	u16 _cascaded_shadow_map_size;
 
 	///
 	Pipeline(ShaderManager &sm);

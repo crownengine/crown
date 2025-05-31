@@ -810,6 +810,8 @@ void Device::render(World &world, UnitId camera_unit)
 			bgfx::setViewMode(id, bgfx::ViewMode::DepthAscending);
 			bgfx::setViewFrameBuffer(id, _pipeline->_main_frame_buffer);
 			bgfx::touch(id);
+		} else if (id >= View::CASCADE_0 && id < View::CASCADE_LAST) {
+			view_name = "sm_cascade";
 		} else if (id == View::LIGHTS) {
 			view_name = "lights_data";
 		} else if (id == View::MESH) {
@@ -903,7 +905,7 @@ void Device::render(World &world, UnitId camera_unit)
 	bgfx::setTexture(0, _pipeline->_html5_default_sampler, _pipeline->_html5_default_texture);
 #endif
 
-	world.render(view);
+	world.render(view, proj);
 }
 
 World *Device::create_world()

@@ -166,7 +166,7 @@ struct World
 	void update(f32 dt);
 
 	/// Renders the world using @a view.
-	void render(const Matrix4x4 &view);
+	void render(const Matrix4x4 &view, const Matrix4x4 &proj);
 
 	/// @copydoc SoundWorld::play().
 	SoundInstanceId play_sound(StringId64 name, const bool loop, const f32 volume, const Vector3 &pos, const f32 range, StringId32 group);
