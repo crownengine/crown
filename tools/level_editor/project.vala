@@ -696,7 +696,7 @@ public class Project
 		)
 	{
 		GLib.SList<string> _filenames = new GLib.SList<string>();
-		foreach (string s in filenames)
+		foreach (var s in filenames)
 			_filenames.append(s);
 
 		if (destination_dir != null) {
@@ -714,7 +714,7 @@ public class Project
 
 			fcd.response.connect((response_id) => {
 					if (response_id == Gtk.ResponseType.ACCEPT)
-						importer(import_result, project_store, fcd.get_filename(), _filenames, parent_window);
+						importer(import_result, project_store, fcd.get_file().get_path(), _filenames, parent_window);
 					fcd.destroy();
 				});
 
@@ -740,7 +740,9 @@ public class Project
 
 		fcd.response.connect((response_id) => {
 				if (response_id == Gtk.ResponseType.ACCEPT) {
-					GLib.SList<string> filenames = fcd.get_filenames();
+					GLib.SList<string> filenames = new GLib.SList<string>();
+					foreach (var f in fcd.get_files())
+						filenames.append(f.get_path());
 
 					// Find importer callback.
 					unowned ImporterDelegate? importer = null;
