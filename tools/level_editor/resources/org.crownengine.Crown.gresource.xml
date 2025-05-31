@@ -134,8 +134,10 @@
     <file>theme/Adwaita/assets/text-select-start-hover-dark.png</file>
     <file>theme/Adwaita/assets/text-select-start-hover.png</file>
     <file>theme/Adwaita/assets/text-select-start.png</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/crown.svg</file>
     <file compressed="true" preprocess="xml-stripblanks">icons/hicolor/scalable/apps/crown.svg</file>
     <file compressed="true" preprocess="xml-stripblanks">icons/hicolor/scalable/apps/org.crownengine.Crown.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/org.crownengine.Crown.svg</file>
     <file compressed="true" preprocess="xml-stripblanks">icons/scalable/actions/axis-local-symbolic.svg</file>
     <file compressed="true" preprocess="xml-stripblanks">icons/scalable/actions/axis-world-symbolic.svg</file>
     <file compressed="true" preprocess="xml-stripblanks">icons/scalable/actions/browser-favorites-symbolic.svg</file>
