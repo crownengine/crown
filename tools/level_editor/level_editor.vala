@@ -2217,7 +2217,7 @@ public class LevelEditorApplication : Gtk.Application
 			Gtk.FileChooserDialog dlg = new_open_project_dialog(this.active_window);
 			dlg.response.connect((response_id) => {
 					if (response_id == Gtk.ResponseType.ACCEPT)
-						do_open_project(dlg.get_filename());
+						do_open_project(dlg.get_file().get_path());
 					dlg.destroy();
 				});
 			dlg.show_all();
@@ -2273,7 +2273,7 @@ public class LevelEditorApplication : Gtk.Application
 		Gtk.FileChooserDialog dlg = new_open_project_dialog(this.active_window);
 		dlg.response.connect((response_id) => {
 				if (response_id == Gtk.ResponseType.ACCEPT) {
-					string source_dir = dlg.get_filename();
+					string source_dir = dlg.get_file().get_path();
 					_user.add_or_touch_recent_project(source_dir, source_dir);
 				}
 				dlg.destroy();
