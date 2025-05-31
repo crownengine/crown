@@ -578,7 +578,11 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj)
 			CE_STATIC_ASSERT(countof(rects) == MAX_NUM_CASCADES);
 
 			lid.shader[0].atlas_u = rects[0].x / _pipeline->_cascaded_shadow_map_size;
+#if CROWN_PLATFORM_WINDOWS
+			lid.shader[0].atlas_v = rects[0].y / _pipeline->_cascaded_shadow_map_size;
+#else
 			lid.shader[0].atlas_v = 1.0f - ((rects[0].y + rects[0].z) / _pipeline->_cascaded_shadow_map_size);
+#endif
 			lid.shader[0].map_size = rects[0].w / _pipeline->_cascaded_shadow_map_size;
 
 			bgfx::setViewRect(View::CASCADE_0 + i, rects[i].x, rects[i].y, rects[i].z, rects[i].w);
