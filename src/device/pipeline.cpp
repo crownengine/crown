@@ -102,6 +102,7 @@ static void lookup_default_shaders(Pipeline &pl)
 	pl._debug_line_shader = pl._shader_manager->shader(STRING_ID_32("debug_line", UINT32_C(0xbc06e973)));
 	pl._outline_shader = pl._shader_manager->shader(STRING_ID_32("outline", UINT32_C(0xb6b58d80)));
 	pl._selection_shader = pl._shader_manager->shader(STRING_ID_32("selection", UINT32_C(0x17c0bc11)));
+	pl._shadow_shader = pl._shader_manager->shader(STRING_ID_32("shadow", UINT32_C(0xaceb94a8)));
 }
 
 Pipeline::Pipeline(ShaderManager &sm)
@@ -117,6 +118,7 @@ Pipeline::Pipeline(ShaderManager &sm)
 	, _selection_texture_sampler(BGFX_INVALID_HANDLE)
 	, _selection_depth_texture_sampler(BGFX_INVALID_HANDLE)
 	, _outline_color_uniform(BGFX_INVALID_HANDLE)
+	, _cascaded_shadow_map_size(4096)
 {
 	lookup_default_shaders(*this);
 }

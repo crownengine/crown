@@ -1,13 +1,23 @@
-include = ["core/shaders/common.shader"]
+include = [
+	"core/shaders/common.shader"
+	"core/shaders/shadow_map.shader"
+]
 
 bgfx_shaders = {
 	lighting = {
+		includes = [ "shadow_mapping" ]
+
 		code = """
 		#if !defined(NO_LIGHT)
 		#	define LIGHT_SIZE 4 // In vec4 units.
 		#	define MAX_NUM_LIGHTS 32
+		#	define MAX_NUM_CASCADES 4
+		#	define CASCADED_SHADOW_MAP_SLOT 10
 			uniform vec4 u_lights_num;        // num_dir, num_omni, num_spot
 			uniform vec4 u_lights_data[LIGHT_SIZE * MAX_NUM_LIGHTS]; // dir_0, .., dir_n-1, omni_0, .., omni_n-1, spot_0, .., spot_n-1
+			uniform mat4 u_cascaded_lights[MAX_NUM_CASCADES]; // View-proj-crop matrices for cascaded shadow maps.
+			uniform vec4 u_cascaded_texel_size;
+			SAMPLER2DSHADOW(u_cascaded_shadow_map, CASCADED_SHADOW_MAP_SLOT);
 
 			CONST(float PI) = 3.14159265358979323846;
 
@@ -126,7 +136,19 @@ bgfx_shaders = {
 				}
 			}
 
-			vec3 calc_lighting(mat3 tbn, vec3 n, vec3 v, vec3 frag_pos, vec3 albedo, float metallic, float roughness, vec3 f0)
+			vec3 calc_lighting(mat3 tbn
+				, vec3 n
+				, vec3 v
+				, vec3 frag_pos
+				, vec4 shadow_pos0
+				, vec4 shadow_pos1
+				, vec4 shadow_pos2
+				, vec4 shadow_pos3
+				, vec3 albedo
+				, float metallic
+				, float roughness
+				, vec3 f0
+				)
 			{
 				vec3 radiance = vec3_splat(0.0);
 
@@ -135,6 +157,53 @@ bgfx_shaders = {
 				int num_omni = int(u_lights_num.y);
 				int num_spot = int(u_lights_num.z);
 
+				if (num_dir > 0) {
+					// Brightest directional light (index == 0) generates cascaded shadow maps.
+					vec3 light_color  = u_lights_data[loffset + 0].rgb;
+					float intensity   = u_lights_data[loffset + 0].w;
+					vec3 direction    = u_lights_data[loffset + 2].xyz;
+					float shadow_bias = u_lights_data[loffset + 3].r;
+					float atlas_u     = u_lights_data[loffset + 3].g;
+					float atlas_v     = u_lights_data[loffset + 3].b;
+					float atlas_size  = u_lights_data[loffset + 3].a;
+					loffset += LIGHT_SIZE;
+
+					vec3 local_radiance = calc_dir_light(n
+						, v
+						, toLinearAccurate(light_color)
+						, intensity
+						, mul(direction, tbn)
+						, albedo
+						, metallic
+						, roughness
+						, f0
+						);
+
+					vec2 shadow0 = shadow_pos0.xy/shadow_pos0.w;
+					vec2 shadow1 = shadow_pos1.xy/shadow_pos1.w;
+					vec2 shadow2 = shadow_pos2.xy/shadow_pos2.w;
+					vec2 shadow3 = shadow_pos3.xy/shadow_pos3.w;
+
+					bool atlas0 = all(lessThan(shadow0, vec2_splat(0.99))) && all(greaterThan(shadow0, vec2_splat(0.01)));
+					bool atlas1 = all(lessThan(shadow1, vec2_splat(0.99))) && all(greaterThan(shadow1, vec2_splat(0.01)));
+					bool atlas2 = all(lessThan(shadow2, vec2_splat(0.99))) && all(greaterThan(shadow2, vec2_splat(0.01)));
+					bool atlas3 = all(lessThan(shadow3, vec2_splat(0.99))) && all(greaterThan(shadow3, vec2_splat(0.01)));
+
+					vec2 texel_size = vec2_splat(1.0/u_cascaded_texel_size.x);
+
+					if (atlas0)
+						local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos0, shadow_bias, texel_size, vec3(atlas_u             , atlas_v             , atlas_size));
+					else if (atlas1)
+						local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos1, shadow_bias, texel_size, vec3(atlas_u + atlas_size, atlas_v             , atlas_size));
+					else if (atlas2)
+						local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos2, shadow_bias, texel_size, vec3(atlas_u             , atlas_v + atlas_size, atlas_size));
+					else if (atlas3)
+						local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos3, shadow_bias, texel_size, vec3(atlas_u + atlas_size, atlas_v + atlas_size, atlas_size));
+
+					radiance += local_radiance;
+				}
+
+				// Others directional lights just add to radiance.
 				for (int di = 1; di < num_dir; ++di, loffset += LIGHT_SIZE) {
 					vec3 light_color  = u_lights_data[loffset + 0].rgb;
 					float intensity   = u_lights_data[loffset + 0].w;
