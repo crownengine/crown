@@ -41,11 +41,10 @@ public Gtk.Button make_deploy_button(TargetPlatform platform)
 
 public delegate int DeployerCheckConfig();
 
-public class DeployerPage : Gtk.Bin
+public class DeployerPage : Gtk.Stack
 {
 	public Gtk.Box _check_config_box;
 	public Gtk.Widget _deployer_options;
-	public Gtk.Stack _stack;
 	public unowned DeployerCheckConfig _check_config;
 
 	public DeployerPage(TargetPlatform target_platform, Gtk.Widget deployer_options, DeployerCheckConfig? check_config = null)
@@ -85,23 +84,21 @@ public class DeployerPage : Gtk.Bin
 		_check_config_box.pack_start(p1l);
 		_check_config_box.pack_start(p2l);
 
-		_stack = new Gtk.Stack();
-		_stack.add(_check_config_box);
-		_stack.add(_deployer_options);
+		this.add(_check_config_box);
+		this.add(_deployer_options);
 
 		this.map.connect(on_map);
-		this.add(_stack);
 	}
 
 	private void on_map()
 	{
 		if (_check_config != null) {
 			if (_check_config() != 0)
-				_stack.set_visible_child(_check_config_box);
+				this.set_visible_child(_check_config_box);
 			else
-				_stack.set_visible_child(_deployer_options);
+				this.set_visible_child(_deployer_options);
 		} else {
-				_stack.set_visible_child(_deployer_options);
+				this.set_visible_child(_deployer_options);
 		}
 	}
 }

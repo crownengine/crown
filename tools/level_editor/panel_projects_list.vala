@@ -156,7 +156,7 @@ public class PanelProjectsList : Gtk.ScrolledWindow
 		_projects_box.pack_start(_list_projects, false, true);
 
 		_clamp = new Clamp();
-		_clamp.add(_projects_box);
+		_clamp.set_child(_projects_box);
 
 		this.add(_clamp);
 

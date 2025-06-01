@@ -163,7 +163,7 @@ public class PanelNewProject : Gtk.Viewport
 		_box.pack_start(_label_message, false, true);
 
 		_clamp = new Clamp();
-		_clamp.add(_box);
+		_clamp.set_child(_box);
 
 		this.add(_clamp);
 	}
