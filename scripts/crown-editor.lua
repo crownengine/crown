@@ -35,6 +35,10 @@ project "crown-editor"
 
 	configuration {}
 
+	defines {
+		"CROWN_GTK3"
+	}
+
 	removelinkoptions {
 		"-static"
 	}

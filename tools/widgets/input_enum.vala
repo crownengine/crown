@@ -98,12 +98,19 @@ public class InputEnum : InputField, Gtk.ComboBox
 
 		this.changed.connect(on_changed);
 
+#if CROWN_GTK3
+		this.scroll_event.connect(() => {
+				GLib.Signal.stop_emission_by_name(this, "scroll-event");
+				return Gdk.EVENT_PROPAGATE;
+			});
+#else
 		_controller_scroll = new Gtk.EventControllerScroll(this, Gtk.EventControllerScrollFlags.BOTH_AXES);
 		_controller_scroll.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
 		_controller_scroll.scroll.connect(() => {
 				// Do nothing, just consume the event to stop
 				// the annoying scroll default behavior.
 			});
+#endif
 	}
 
 	public void append(string? id, string label)
