@@ -77,12 +77,19 @@ public class InputDouble : InputField, Gtk.Entry
 		_gesture_click.pressed.connect(on_button_pressed);
 		_gesture_click.released.connect(on_button_released);
 
+#if CROWN_GTK3
+		this.scroll_event.connect(() => {
+				GLib.Signal.stop_emission_by_name(this, "scroll-event");
+				return Gdk.EVENT_PROPAGATE;
+			});
+#else
 		_controller_scroll = new Gtk.EventControllerScroll(this, Gtk.EventControllerScrollFlags.BOTH_AXES);
 		_controller_scroll.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
 		_controller_scroll.scroll.connect(() => {
 				// Do nothing, just consume the event to stop
 				// the annoying scroll default behavior.
 			});
+#endif
 	}
 
 	private void on_button_pressed(int n_press, double x, double y)
