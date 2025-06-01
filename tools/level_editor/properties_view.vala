@@ -720,7 +720,7 @@ public class SoundSourcePropertyGrid : PropertyGrid
 	}
 }
 
-public class PropertiesView : Gtk.Bin
+public class PropertiesView : Gtk.Stack
 {
 	public struct ComponentEntry
 	{
@@ -742,7 +742,6 @@ public class PropertiesView : Gtk.Bin
 	private Gtk.Viewport _viewport;
 	private Gtk.ScrolledWindow _scrolled_window;
 	private PropertyGridSet _object_view;
-	private Gtk.Stack _stack;
 
 	[CCode (has_target = false)]
 	public delegate GLib.Menu ContextMenu(string object_type);
@@ -784,12 +783,10 @@ public class PropertiesView : Gtk.Bin
 		_scrolled_window = new Gtk.ScrolledWindow(null, null);
 		_scrolled_window.add(_viewport);
 
-		_stack = new Gtk.Stack();
-		_stack.add(_nothing_to_show);
-		_stack.add(_scrolled_window);
-		_stack.add(_unknown_object_type);
+		this.add(_nothing_to_show);
+		this.add(_scrolled_window);
+		this.add(_unknown_object_type);
 
-		this.add(_stack);
 		this.get_style_context().add_class("properties-view");
 
 		store._project.project_reset.connect(on_project_reset);
@@ -824,7 +821,7 @@ public class PropertiesView : Gtk.Bin
 			Expander expander = _expanders[entry.type];
 			_expander_states[entry.type] = expander.expanded;
 		}
-		_stack.set_visible_child(_scrolled_window);
+		this.set_visible_child(_scrolled_window);
 
 		foreach (var entry in _entries) {
 			Expander expander = _expanders[entry.type];
@@ -859,7 +856,7 @@ public class PropertiesView : Gtk.Bin
 			_expander_states[entry.type] = expander.expanded;
 		}
 
-		_stack.set_visible_child(_scrolled_window);
+		this.set_visible_child(_scrolled_window);
 
 		foreach (var entry in _entries) {
 			Expander expander = _expanders[entry.type];
@@ -882,7 +879,7 @@ public class PropertiesView : Gtk.Bin
 	public void show_or_hide_properties()
 	{
 		if (_selection == null || _selection.size != 1) {
-			_stack.set_visible_child(_nothing_to_show);
+			this.set_visible_child(_nothing_to_show);
 			return;
 		}
 
@@ -895,7 +892,7 @@ public class PropertiesView : Gtk.Bin
 		else if (_db.object_type(id) == OBJECT_TYPE_SOUND_SOURCE)
 			show_sound_source(id);
 		else
-			_stack.set_visible_child(_unknown_object_type);
+			this.set_visible_child(_unknown_object_type);
 	}
 
 	public void on_selection_changed(Gee.ArrayList<Guid?> selection)
