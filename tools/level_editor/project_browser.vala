@@ -191,43 +191,6 @@ private void set_thumbnail(Gtk.CellRenderer cell, string type, string name, int 
 }
 public class ProjectFolderView : Gtk.Bin
 {
-	private static string prettify_type(string type)
-	{
-		if (type == "<folder>")
-			return "Folder";
-		else
-			return type;
-	}
-
-	private static string prettify_size(uint64 size)
-	{
-		uint64 si_size;
-		string si_unit;
-
-		if (size >= 1024*1024*1024) {
-			si_size = size / (1024*1024*1024);
-			si_unit = "GiB";
-		} else if (size >= 1024*1024) {
-			si_size = size / (1024*1024);
-			si_unit = "MiB";
-		} else if (size >= 1024) {
-			si_size = size / 1024;
-			si_unit = "KiB";
-		} else {
-			si_size = size;
-			si_unit = size > 1 ? "bytes" : "byte";
-		}
-
-		return "%d %s".printf((int)si_size, si_unit);
-	}
-
-	private static string prettify_time(uint64 time)
-	{
-		int64 mtime_secs = (int64)(time / (1000*1000*1000));
-		GLib.DateTime date_time = new GLib.DateTime.from_unix_local(mtime_secs);
-		return date_time.format("%d %b %Y; %H:%M:%S");
-	}
-
 	public enum Column
 	{
 		TYPE,
@@ -671,6 +634,42 @@ public class ProjectFolderView : Gtk.Bin
 		return true;
 	}
 
+	private static string prettify_type(string type)
+	{
+		if (type == "<folder>")
+			return "Folder";
+		else
+			return type;
+	}
+
+	private static string prettify_size(uint64 size)
+	{
+		uint64 si_size;
+		string si_unit;
+
+		if (size >= 1024*1024*1024) {
+			si_size = size / (1024*1024*1024);
+			si_unit = "GiB";
+		} else if (size >= 1024*1024) {
+			si_size = size / (1024*1024);
+			si_unit = "MiB";
+		} else if (size >= 1024) {
+			si_size = size / 1024;
+			si_unit = "KiB";
+		} else {
+			si_size = size;
+			si_unit = size > 1 ? "bytes" : "byte";
+		}
+
+		return "%d %s".printf((int)si_size, si_unit);
+	}
+
+	private static string prettify_time(uint64 time)
+	{
+		int64 mtime_secs = (int64)(time / (1000*1000*1000));
+		GLib.DateTime date_time = new GLib.DateTime.from_unix_local(mtime_secs);
+		return date_time.format("%d %b %Y; %H:%M:%S");
+	}
 }
 
 public class ProjectBrowser : Gtk.Bin
