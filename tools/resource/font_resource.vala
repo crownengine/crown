@@ -251,7 +251,6 @@ public class FontImportDialog : Gtk.Window
 			});
 
 		PropertyGridSet sprite_set = new PropertyGridSet();
-		sprite_set.border_width = 12;
 
 		PropertyGrid cv;
 		cv = new PropertyGrid();

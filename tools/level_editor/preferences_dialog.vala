@@ -42,20 +42,15 @@ public class PreferencesDialog : Gtk.Window
 	public PreferencesDialog(RuntimeInstance editor)
 	{
 		this.title = "Preferences";
-		this.border_width = 0;
 		this.set_icon_name(CROWN_EDITOR_ICON_NAME);
 
 		_editor = editor;
 
 		// Widgets
 		_document_set = new PropertyGridSet();
-		_document_set.border_width = 12;
 		_viewport_set = new PropertyGridSet();
-		_viewport_set.border_width = 12;
 		_system_set = new PropertyGridSet();
-		_system_set.border_width = 12;
 		_external_tools_set = new PropertyGridSet();
-		_external_tools_set.border_width = 12;
 
 		// Document page.
 		_grid_color_button = new InputColor3();
@@ -162,7 +157,6 @@ public class PreferencesDialog : Gtk.Window
 		_controller_key = new Gtk.EventControllerKey(this);
 		_controller_key.key_pressed.connect(on_key_pressed);
 
-		this.border_width = 0;
 		this.add(_notebook);
 	}
 

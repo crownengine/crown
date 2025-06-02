@@ -67,11 +67,9 @@ public class TextureSettingsDialog : Gtk.Window
 		_platforms.get_selection().set_mode(Gtk.SelectionMode.MULTIPLE);
 		_platforms.get_selection().changed.connect(on_platforms_selection_changed);
 
-		this.border_width = 0;
 		this.set_icon_name(CROWN_EDITOR_ICON_NAME);
 
 		_texture_set = new PropertyGridSet();
-		_texture_set.border_width = 12;
 
 		_texture_path = "";
 

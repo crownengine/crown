@@ -326,7 +326,6 @@ public class SpriteImportDialog : Gtk.Window
 		depth = new InputDouble(0.0, 0.0, 9999.0);
 
 		PropertyGridSet sprite_set = new PropertyGridSet();
-		sprite_set.border_width = 6;
 
 		// Slices.
 		PropertyGrid cv;
