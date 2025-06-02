@@ -65,7 +65,7 @@ public class DeployerPage : Gtk.Stack
 		p1l.valign = Gtk.Align.CENTER;
 
 		var p2l = new Gtk.Label(null);
-		p2l.track_visited_links = false;
+		p2l.get_style_context().add_class("colorfast-link");
 		p2l.set_markup(p2);
 		p2l.valign = Gtk.Align.CENTER;
 		p2l.activate_link.connect(() => {
