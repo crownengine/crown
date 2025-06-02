@@ -150,7 +150,6 @@ public class SpriteImportDialog : Gtk.Window
 
 	public SpriteImportDialog(ProjectStore project_store, string destination_dir, GLib.SList<string> filenames, Import import_result)
 	{
-		this.border_width = 4;
 		this.set_icon_name(CROWN_EDITOR_ICON_NAME);
 
 		_project = project_store._project;
@@ -529,6 +528,7 @@ public class SpriteImportDialog : Gtk.Window
 		_notebook = new Gtk.Notebook();
 		_notebook.append_page(_preview_overlay, new Gtk.Label("Preview"));
 		_notebook.append_page(_scrolled_window, new Gtk.Label("Slices"));
+		_notebook.show_border = false;
 
 		Gtk.Paned pane;
 		pane = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);

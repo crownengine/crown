@@ -143,7 +143,6 @@ public class FontImportDialog : Gtk.Window
 
 	public FontImportDialog(ProjectStore store, string destination_dir, GLib.SList<string> filenames, Import import_result)
 	{
-		this.border_width = 4;
 		this.set_icon_name(CROWN_EDITOR_ICON_NAME);
 
 		_project = store._project;
