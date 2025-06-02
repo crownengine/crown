@@ -75,7 +75,7 @@ public class SaveResourceDialog : Gtk.FileChooserDialog
 				Gtk.Widget btn;
 				md.add_button("_No", Gtk.ResponseType.NO);
 				btn = md.add_button("_Yes", Gtk.ResponseType.YES);
-				btn.get_style_context().add_class(Gtk.STYLE_CLASS_DESTRUCTIVE_ACTION);
+				btn.get_style_context().add_class("destructive-action");
 
 				md.set_default_response(Gtk.ResponseType.NO);
 				md.response.connect((response_id) => {

@@ -2401,7 +2401,7 @@ public class LevelEditorApplication : Gtk.Application
 			);
 		Gtk.Widget btn;
 		btn = md.add_button("Close _without Saving", Gtk.ResponseType.NO);
-		btn.get_style_context().add_class(Gtk.STYLE_CLASS_DESTRUCTIVE_ACTION);
+		btn.get_style_context().add_class("destructive-action");
 		md.add_button("_Cancel", Gtk.ResponseType.CANCEL);
 		md.add_button("_Save", Gtk.ResponseType.YES);
 		md.set_default_response(Gtk.ResponseType.YES);
@@ -2993,7 +2993,7 @@ public class LevelEditorApplication : Gtk.Application
 		Gtk.Widget btn;
 		md.add_button("_Cancel", Gtk.ResponseType.CANCEL);
 		btn = md.add_button("_Delete", Gtk.ResponseType.YES);
-		btn.get_style_context().add_class(Gtk.STYLE_CLASS_DESTRUCTIVE_ACTION);
+		btn.get_style_context().add_class("destructive-action");
 		md.set_default_response(Gtk.ResponseType.CANCEL);
 
 		md.response.connect((response_id) => {
@@ -3296,7 +3296,7 @@ public class LevelEditorApplication : Gtk.Application
 		Gtk.Widget btn;
 		md.add_button("_No", Gtk.ResponseType.NO);
 		btn = md.add_button("_Yes", Gtk.ResponseType.YES);
-		btn.get_style_context().add_class(Gtk.STYLE_CLASS_DESTRUCTIVE_ACTION);
+		btn.get_style_context().add_class("destructive-action");
 		return md;
 	}
 
