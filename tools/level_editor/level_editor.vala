@@ -2385,7 +2385,6 @@ public class LevelEditorApplication : Gtk.Application
 	private void on_preferences(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		_preferences_dialog.set_transient_for(this.active_window);
-		_preferences_dialog.set_position(Gtk.WindowPosition.CENTER_ON_PARENT);
 		_preferences_dialog.show_all();
 		_preferences_dialog.present();
 	}
@@ -2395,7 +2394,6 @@ public class LevelEditorApplication : Gtk.Application
 		if (_deploy_dialog == null) {
 			_deploy_dialog = new DeployDialog(_project, _editor);
 			_deploy_dialog.set_transient_for(this.active_window);
-			_deploy_dialog.set_position(Gtk.WindowPosition.CENTER_ON_PARENT);
 			_deploy_dialog.delete_event.connect(_deploy_dialog.hide_on_delete);
 		}
 
@@ -2410,7 +2408,6 @@ public class LevelEditorApplication : Gtk.Application
 		if (_texture_settings_dialog == null) {
 			_texture_settings_dialog = new TextureSettingsDialog(_project, _database);
 			_texture_settings_dialog.set_transient_for(this.active_window);
-			_texture_settings_dialog.set_position(Gtk.WindowPosition.CENTER_ON_PARENT);
 			_texture_settings_dialog.delete_event.connect(_texture_settings_dialog.hide_on_delete);
 			_texture_settings_dialog.texture_saved.connect(() => {
 						_data_compiler.compile.begin(_project.data_dir(), _project.platform());
