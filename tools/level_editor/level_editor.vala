@@ -913,7 +913,12 @@ public class LevelEditorApplication : Gtk.Application
 
 		// Game run/stop button.
 		_game_run_stop_image = new Gtk.Image.from_icon_name("game-run", Gtk.IconSize.MENU);
-		_game_run_stop_image.margin = 8;
+		_game_run_stop_image.margin_bottom
+			= _game_run_stop_image.margin_end
+			= _game_run_stop_image.margin_start
+			= _game_run_stop_image.margin_top
+			= 8
+			;
 		_game_run = new Gtk.Button();
 		_game_run.add(_game_run_stop_image);
 		_game_run.get_style_context().add_class("suggested-action");

@@ -759,7 +759,12 @@ public class PropertiesView : Gtk.Stack
 
 		// Widgets
 		_object_view = new PropertyGridSet();
-		_object_view.margin = 6;
+		_object_view.margin_bottom
+			= _object_view.margin_end
+			= _object_view.margin_start
+			= _object_view.margin_top
+			= 6
+			;
 
 		// Unit
 		register_object_type("Unit",                    "name",                              0, new UnitView(_db, store));
