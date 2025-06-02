@@ -168,7 +168,6 @@ public class DeployDialog : Gtk.Window
 	public DeployDialog(Project project, RuntimeInstance editor)
 	{
 		this.title = "Deploy";
-		this.border_width = 0;
 		this.set_icon_name(CROWN_EDITOR_ICON_NAME);
 
 		_project = project;
@@ -308,7 +307,6 @@ public class DeployDialog : Gtk.Window
 		android_set_debug_keystore();
 
 		_android_set = new PropertyGridSet();
-		_android_set.border_width = 12;
 
 		// Android Output grid.
 		PropertyGrid cv;
@@ -382,7 +380,6 @@ public class DeployDialog : Gtk.Window
 		_html5_app_title.text = _project.name();
 
 		_html5_set = new PropertyGridSet();
-		_html5_set.border_width = 12;
 
 		// HTML5 box.
 		_html5_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
@@ -439,7 +436,6 @@ public class DeployDialog : Gtk.Window
 		_linux_app_title.text = _project.name();
 
 		_linux_set = new PropertyGridSet();
-		_linux_set.border_width = 12;
 
 		// Linux box.
 		_linux_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
@@ -495,7 +491,6 @@ public class DeployDialog : Gtk.Window
 		_windows_app_title.text = _project.name();
 
 		_windows_set = new PropertyGridSet();
-		_windows_set.border_width = 12;
 
 		// Windows box.
 		_windows_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
@@ -531,7 +526,6 @@ public class DeployDialog : Gtk.Window
 		_controller_key = new Gtk.EventControllerKey(this);
 		_controller_key.key_pressed.connect(on_key_pressed);
 
-		this.border_width = 0;
 		this.add(_notebook);
 	}
 

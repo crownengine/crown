@@ -242,7 +242,6 @@ public class FBXImportDialog : Gtk.Window
 		_import_result = import_result;
 
 		_general_set = new PropertyGridSet();
-		_general_set.border_width = 12;
 
 		_options = new FBXImportOptions(project_store);
 		GLib.File file_dst;
