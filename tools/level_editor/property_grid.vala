@@ -308,7 +308,12 @@ public class PropertyGridSet : Gtk.Box
 	public PropertyGridSet()
 	{
 		Object(orientation: Gtk.Orientation.VERTICAL, spacing: 0);
-		this.margin = 12;
+		this.margin_bottom
+			= this.margin_end
+			= this.margin_start
+			= this.margin_top
+			= 12
+			;
 	}
 
 	public Expander add_property_grid(PropertyGrid cv, string label)
