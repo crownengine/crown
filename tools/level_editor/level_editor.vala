@@ -1982,7 +1982,6 @@ public class LevelEditorApplication : Gtk.Application
 			, Gtk.ResponseType.OK
 			, null
 			);
-		dg.skip_taskbar_hint = true;
 
 		InputDouble sb = new InputDouble(_grid_size, 0.1, 1000);
 		sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
@@ -2621,7 +2620,6 @@ public class LevelEditorApplication : Gtk.Application
 			, Gtk.ResponseType.OK
 			, null
 			);
-		dg.skip_taskbar_hint = true;
 
 		InputDouble sb = new InputDouble(_rotation_snap, 1.0, 180.0);
 		sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
@@ -2887,7 +2885,6 @@ public class LevelEditorApplication : Gtk.Application
 				, Gtk.ResponseType.OK
 				, null
 				);
-			dg.skip_taskbar_hint = true;
 
 			InputString sb = new InputString();
 			sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
@@ -3020,7 +3017,6 @@ public class LevelEditorApplication : Gtk.Application
 			, Gtk.ButtonsType.NONE
 			, "Delete Folder " + dir_name + "?"
 			);
-		md.skip_taskbar_hint = true;
 
 		Gtk.Widget btn;
 		md.add_button("_Cancel", Gtk.ResponseType.CANCEL);
@@ -3067,7 +3063,6 @@ public class LevelEditorApplication : Gtk.Application
 				, Gtk.ResponseType.OK
 				, null
 				);
-			dg.skip_taskbar_hint = true;
 
 			InputString sb = new InputString();
 			sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
@@ -3117,7 +3112,6 @@ public class LevelEditorApplication : Gtk.Application
 				, Gtk.ResponseType.OK
 				, null
 				);
-			dg.skip_taskbar_hint = true;
 
 			InputString sb = new InputString();
 			sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
@@ -3166,7 +3160,6 @@ public class LevelEditorApplication : Gtk.Application
 				, Gtk.ResponseType.OK
 				, null
 				);
-			dg.skip_taskbar_hint = true;
 
 			InputString sb = new InputString();
 			sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
@@ -3216,7 +3209,6 @@ public class LevelEditorApplication : Gtk.Application
 				, Gtk.ResponseType.OK
 				, null
 				);
-			dg.skip_taskbar_hint = true;
 
 			InputString sb = new InputString();
 			sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
@@ -3266,7 +3258,6 @@ public class LevelEditorApplication : Gtk.Application
 				, Gtk.ResponseType.OK
 				, null
 				);
-			dg.skip_taskbar_hint = true;
 
 			InputString sb = new InputString();
 			sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
