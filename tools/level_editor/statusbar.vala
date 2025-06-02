@@ -36,7 +36,7 @@ public class Statusbar : Gtk.Box
 				GLib.Application.get_default().activate_action("donate", null);
 			});
 		_version = new Gtk.Label(null);
-		_version.track_visited_links = false;
+		_version.get_style_context().add_class("colorfast-link");
 		_version.set_markup("<a href=\"\">" + CROWN_VERSION + "</a>");
 		_version.get_style_context().add_class("version-label");
 		_version.can_focus = false;

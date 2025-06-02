@@ -82,6 +82,6 @@ button.compact {
 	padding: 0px 2px 0px 2px;
 }
 
-.version-label link {
+.colorfast-link link {
 	color: @theme_fg_color;
 }
