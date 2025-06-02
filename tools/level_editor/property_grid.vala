@@ -36,7 +36,8 @@ public class PropertyGrid : Gtk.Grid
 	{
 		Gtk.Label l = new Gtk.Label(label);
 		l.width_chars = 13;
-		l.set_alignment(1.0f, 0.5f);
+		l.xalign = 1.0f;
+		l.yalign = 0.5f;
 
 		w.hexpand = true;
 
@@ -320,7 +321,8 @@ public class PropertyGridSet : Gtk.Box
 	{
 		Gtk.Label l = new Gtk.Label(null);
 		l.set_markup("<b>%s</b>".printf(label));
-		l.set_alignment(0.0f, 0.5f);
+		l.xalign = 0.0f;
+		l.yalign = 0.5f;
 
 		Expander e = new Expander();
 		e.custom_header = l;
@@ -335,7 +337,8 @@ public class PropertyGridSet : Gtk.Box
 	{
 		Gtk.Label l = new Gtk.Label(null);
 		l.set_markup("<b>%s</b>".printf(label));
-		l.set_alignment(0.0f, 0.5f);
+		l.xalign = 0.0f;
+		l.yalign = 0.5f;
 
 		Gtk.Box b = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 6);
 		b.pack_start(InputBool, false, false);
