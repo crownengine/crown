@@ -35,7 +35,7 @@ public Gtk.Button make_deploy_button(TargetPlatform platform)
 	btn.margin_start = 12;
 	btn.margin_end = 12;
 	btn.margin_top = 12;
-	btn.get_style_context().add_class(Gtk.STYLE_CLASS_SUGGESTED_ACTION);
+	btn.get_style_context().add_class("suggested-action");
 	return btn;
 }
 
