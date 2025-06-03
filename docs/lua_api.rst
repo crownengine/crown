@@ -1111,6 +1111,9 @@ Mesh
 **mesh_set_visible** (rw, mesh, visible)
 	Sets whether the *mesh* is *visible*.
 
+**mesh_set_cast_shadows** (rw, mesh, cast_shadows)
+	Sets whether the *mesh* cast shadows.
+
 **mesh_obb** (rw, mesh) : Matrix4x4, Vector3
 	Returns the Oriented-Bounding-Box of the *mesh* as (pose, half_extents).
 
