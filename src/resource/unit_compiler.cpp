@@ -143,21 +143,24 @@ static s32 compile_mesh_renderer(Buffer &output, FlatJsonObject &obj, CompileOpt
 	mrd.mesh_resource     = RETURN_IF_ERROR(sjson::parse_resource_name(flat_json_object::get(obj, "data.mesh_resource")), opts);
 	mrd.material_resource = RETURN_IF_ERROR(sjson::parse_resource_name(flat_json_object::get(obj, "data.material")), opts);
 	mrd.geometry_name     = RETURN_IF_ERROR(sjson::parse_string_id    (flat_json_object::get(obj, "data.geometry_name")), opts);
-	mrd.visible           = RETURN_IF_ERROR(sjson::parse_bool         (flat_json_object::get(obj, "data.visible")), opts);
-	mrd.cast_shadows = true;
-	if (flat_json_object::has(obj, "data.cast_shadows")) {
-		mrd.cast_shadows = RETURN_IF_ERROR(sjson::parse_bool(flat_json_object::get(obj, "data.cast_shadows")), opts);
+	mrd.flags = 0u;
+	{
+		bool visible = RETURN_IF_ERROR(sjson::parse_bool(flat_json_object::get(obj, "data.visible")), opts);
+		mrd.flags |= visible ? RenderableFlags::VISIBLE : 0u;
 	}
-	memset(&mrd._pad0, 0, sizeof(mrd._pad0));
+	if (flat_json_object::has(obj, "data.cast_shadows")) {
+		bool cast_shadows = RETURN_IF_ERROR(sjson::parse_bool(flat_json_object::get(obj, "data.cast_shadows")), opts);
+		mrd.flags |= cast_shadows ? RenderableFlags::SHADOW_CASTER : 0u;
+	} else {
+		mrd.flags |= RenderableFlags::SHADOW_CASTER;
+	}
 
 	FileBuffer fb(output);
 	BinaryWriter bw(fb);
 	bw.write(mrd.mesh_resource);
 	bw.write(mrd.material_resource);
 	bw.write(mrd.geometry_name);
-	bw.write(mrd.visible);
-	bw.write(mrd.cast_shadows);
-	bw.write(mrd._pad0);
+	bw.write(mrd.flags);
 	return 0;
 }
 
@@ -185,14 +188,12 @@ static s32 compile_sprite_renderer(Buffer &output, FlatJsonObject &obj, CompileO
 	srd.material_resource = RETURN_IF_ERROR(sjson::parse_resource_name(flat_json_object::get(obj, "data.material")), opts);
 	srd.layer             = RETURN_IF_ERROR(sjson::parse_int          (flat_json_object::get(obj, "data.layer")), opts);
 	srd.depth             = RETURN_IF_ERROR(sjson::parse_int          (flat_json_object::get(obj, "data.depth")), opts);
-	srd.visible           = RETURN_IF_ERROR(sjson::parse_bool         (flat_json_object::get(obj, "data.visible")), opts);
-	srd._pad0[0]          = 0;
-	srd._pad0[1]          = 0;
-	srd._pad0[2]          = 0;
-	srd._pad1[0]          = 0;
-	srd._pad1[1]          = 0;
-	srd._pad1[2]          = 0;
-	srd._pad1[3]          = 0;
+	srd.flags = 0u;
+	{
+		bool visible = RETURN_IF_ERROR(sjson::parse_bool(flat_json_object::get(obj, "data.visible")), opts);
+		srd.flags = visible ? RenderableFlags::VISIBLE : 0u;
+	}
+	memset(srd._pad, 0, sizeof(srd._pad));
 
 	FileBuffer fb(output);
 	BinaryWriter bw(fb);
@@ -200,14 +201,8 @@ static s32 compile_sprite_renderer(Buffer &output, FlatJsonObject &obj, CompileO
 	bw.write(srd.material_resource);
 	bw.write(srd.layer);
 	bw.write(srd.depth);
-	bw.write(srd.visible);
-	bw.write(srd._pad0[0]);
-	bw.write(srd._pad0[1]);
-	bw.write(srd._pad0[2]);
-	bw.write(srd._pad1[0]);
-	bw.write(srd._pad1[1]);
-	bw.write(srd._pad1[2]);
-	bw.write(srd._pad1[3]);
+	bw.write(srd.flags);
+	bw.write(srd._pad);
 	return 0;
 }
 
@@ -234,11 +229,13 @@ static s32 compile_light(Buffer &output, FlatJsonObject &obj, CompileOptions &op
 	if (flat_json_object::has(obj, "data.shadow_bias")) {
 		ld.shadow_bias = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.shadow_bias")), opts);
 	}
-	ld.cast_shadows = true;
+	ld.flags = 0u;
 	if (flat_json_object::has(obj, "data.cast_shadows")) {
-		ld.cast_shadows = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.cast_shadows")), opts);
+		bool cast_shadows = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.cast_shadows")), opts);
+		ld.flags |= cast_shadows ? RenderableFlags::SHADOW_CASTER : 0u;
+	} else {
+		ld.flags |= RenderableFlags::SHADOW_CASTER;
 	}
-	memset(ld._pad, 0, sizeof(ld._pad));
 
 	FileBuffer fb(output);
 	BinaryWriter bw(fb);
@@ -248,8 +245,7 @@ static s32 compile_light(Buffer &output, FlatJsonObject &obj, CompileOptions &op
 	bw.write(ld.spot_angle);
 	bw.write(ld.color);
 	bw.write(ld.shadow_bias);
-	bw.write(ld.cast_shadows);
-	bw.write(ld._pad);
+	bw.write(ld.flags);
 	return 0;
 }
 
