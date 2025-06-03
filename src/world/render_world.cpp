@@ -36,39 +36,6 @@ static void unit_destroyed_callback_bridge(UnitId unit, void *user_ptr)
 	((RenderWorld *)user_ptr)->unit_destroyed_callback(unit);
 }
 
-static void selection_draw_override(u8 view_id, UnitId unit_id, RenderWorld *rw)
-{
-	// FIXME: add support to multi-pass shaders and remove this function.
-	if (!hash_set::has(rw->_selection, unit_id)) {
-		bgfx::discard();
-		return;
-	}
-
-	union
-	{
-		u32 u;
-		f32 f;
-	} u2f;
-	u2f.u = unit_id._idx;
-
-	Vector4 data;
-	data.x = u2f.f;
-	data.y = 0.0f;
-	data.z = 0.0f;
-	data.w = 0.0f;
-	bgfx::setUniform(rw->_u_unit_id, &data);
-
-	bgfx::setState(rw->_pipeline->_selection_shader.state);
-	bgfx::submit(view_id, rw->_pipeline->_selection_shader.program);
-}
-
-static void shadow_draw_override(u8 view_id, UnitId unit_id, RenderWorld *rw)
-{
-	CE_UNUSED(unit_id);
-	bgfx::setState(rw->_pipeline->_shadow_shader.state);
-	bgfx::submit(view_id, rw->_pipeline->_shadow_shader.program);
-}
-
 RenderWorld::RenderWorld(Allocator &a
 	, ResourceManager &rm
 	, ShaderManager &sm
@@ -591,7 +558,7 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj)
 
 			bgfx::setViewTransform(View::CASCADE_0 + i, to_float_ptr(light_view), to_float_ptr(light_proj));
 
-			_mesh_manager.draw(View::CASCADE_0 + i, *_scene_graph, NULL, shadow_draw_override);
+			_mesh_manager.draw_shadow_casters(View::CASCADE_0 + i, *_scene_graph);
 		}
 	}
 
@@ -606,12 +573,12 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj)
 	bgfx::touch(View::LIGHTS);
 
 	// Render objects.
-	_mesh_manager.draw(View::MESH, *_scene_graph, &cascaded_lights[0]);
-	_sprite_manager.draw(View::SPRITE_0);
+	_mesh_manager.draw_visibles(View::MESH, *_scene_graph, &cascaded_lights[0]);
+	_sprite_manager.draw_visibles(View::SPRITE_0);
 
 	// Render outlines.
-	_mesh_manager.draw(View::SELECTION, *_scene_graph, NULL, selection_draw_override);
-	_sprite_manager.draw(View::SELECTION, selection_draw_override);
+	_mesh_manager.draw_selected(View::SELECTION, *_scene_graph);
+	_sprite_manager.draw_selected(View::SELECTION);
 }
 
 void RenderWorld::debug_draw(DebugLine &dl)
@@ -884,41 +851,75 @@ void RenderWorld::MeshManager::destroy()
 	_allocator->deallocate(_data.buffer);
 }
 
-void RenderWorld::MeshManager::draw(u8 view_id, SceneGraph &scene_graph, const Matrix4x4 *cascaded_lights, DrawOverride draw_override)
+void RenderWorld::MeshManager::set_instance_data(u32 ii, SceneGraph &scene_graph)
+{
+	if (_data.skeleton[ii] != NULL) {
+		AnimationSkeletonInstance *skeleton = (AnimationSkeletonInstance *)_data.skeleton[ii];
+
+		for (u32 b = 0; b < skeleton->num_bones; ++b) {
+			TransformInstance bone_ti = scene_graph.instance(skeleton->bone_lookup[b]);
+			skeleton->bones[b] = skeleton->offsets[b] * scene_graph.world_pose(bone_ti);
+		}
+
+		TransformInstance ti = scene_graph.instance(_data.unit[ii]);
+		Matrix4x4 world_pose = scene_graph.world_pose(ti);
+		skeleton->bones[0] = world_pose;
+
+		bgfx::setTransform(skeleton->bones, skeleton->num_bones);
+	} else {
+		TransformInstance ti = scene_graph.instance(_data.unit[ii]);
+		Matrix4x4 world_pose = scene_graph.world_pose(ti);
+		bgfx::setTransform(to_float_ptr(world_pose));
+	}
+
+	bgfx::setVertexBuffer(0, _data.mesh[ii].vbh);
+	bgfx::setIndexBuffer(_data.mesh[ii].ibh);
+}
+
+void RenderWorld::MeshManager::draw_shadow_casters(u8 view_id, SceneGraph &scene_graph)
 {
 	for (u32 ii = 0; ii < _data.first_hidden; ++ii) {
-		if (_data.skeleton[ii] != NULL) {
-			AnimationSkeletonInstance *skeleton = (AnimationSkeletonInstance *)_data.skeleton[ii];
+		set_instance_data(ii, scene_graph);
 
-			for (u32 b = 0; b < skeleton->num_bones; ++b) {
-				TransformInstance bone_ti = scene_graph.instance(skeleton->bone_lookup[b]);
-				skeleton->bones[b] = skeleton->offsets[b] * scene_graph.world_pose(bone_ti);
-			}
+		bgfx::setState(_render_world->_pipeline->_shadow_shader.state);
+		bgfx::submit(view_id, _render_world->_pipeline->_shadow_shader.program);
+	}
+}
 
-			TransformInstance ti = scene_graph.instance(_data.unit[ii]);
-			Matrix4x4 world_pose = scene_graph.world_pose(ti);
-			skeleton->bones[0] = world_pose;
+void RenderWorld::MeshManager::draw_visibles(u8 view_id, SceneGraph &scene_graph, const Matrix4x4 *cascaded_lights)
+{
+	const Vector4 texel_size = { (f32)_render_world->_pipeline->_cascaded_shadow_map_size, 0.0f, 0.0f, 0.0f };
 
-			bgfx::setTransform(skeleton->bones, skeleton->num_bones);
-		} else {
-			TransformInstance ti = scene_graph.instance(_data.unit[ii]);
-			Matrix4x4 world_pose = scene_graph.world_pose(ti);
-			bgfx::setTransform(to_float_ptr(world_pose));
-		}
+	for (u32 ii = 0; ii < _data.first_hidden; ++ii) {
+		bgfx::setTexture(CASCADED_SHADOW_MAP_SLOT, _render_world->_u_cascaded_shadow_map, bgfx::getTexture(_render_world->_cascaded_shadow_map_frame_buffer));
+		bgfx::setUniform(_render_world->_u_cascaded_texel_size, &texel_size);
+		bgfx::setUniform(_render_world->_u_cascaded_lights, cascaded_lights, MAX_NUM_CASCADES);
 
-		bgfx::setVertexBuffer(0, _data.mesh[ii].vbh);
-		bgfx::setIndexBuffer(_data.mesh[ii].ibh);
+		set_instance_data(ii, scene_graph);
+		_data.material[ii]->bind(view_id);
+	}
+}
 
-		if (draw_override) {
-			draw_override(view_id, _data.unit[ii], _render_world);
-		} else {
-			bgfx::setTexture(CASCADED_SHADOW_MAP_SLOT, _render_world->_u_cascaded_shadow_map, bgfx::getTexture(_render_world->_cascaded_shadow_map_frame_buffer));
-			Vector4 size = { (f32)_render_world->_pipeline->_cascaded_shadow_map_size, 0.0f, 0.0f, 0.0f };
-			bgfx::setUniform(_render_world->_u_cascaded_texel_size, &size);
-			bgfx::setUniform(_render_world->_u_cascaded_lights, cascaded_lights, MAX_NUM_CASCADES);
+void RenderWorld::MeshManager::draw_selected(u8 view_id, SceneGraph &scene_graph)
+{
+	union
+	{
+		u32 u;
+		f32 f;
+	} u2f;
 
-			_data.material[ii]->bind(view_id);
-		}
+	for (u32 ii = 0; ii < _data.size; ++ii) {
+		UnitId unit_id = _data.unit[ii];
+		if (!hash_set::has(_render_world->_selection, unit_id)) // FIXME: put selected objects in a separate list.
+			continue;
+
+		u2f.u = unit_id._idx;
+		Vector4 data = { u2f.f, 0.0f, 0.0f, 0.0f };
+		bgfx::setUniform(_render_world->_u_unit_id, &data);
+
+		set_instance_data(ii, scene_graph);
+		bgfx::setState(_render_world->_pipeline->_selection_shader.state);
+		bgfx::submit(view_id, _render_world->_pipeline->_selection_shader.program);
 	}
 }
 
@@ -1123,7 +1124,80 @@ void RenderWorld::SpriteManager::destroy()
 	_allocator->deallocate(_data.buffer);
 }
 
-void RenderWorld::SpriteManager::draw(u8 view_id, DrawOverride draw_override)
+void RenderWorld::SpriteManager::set_instance_data(f32 **vdata_, u16 **idata_, bgfx::TransientVertexBuffer &tvb, bgfx::TransientIndexBuffer &tib, u32 ii)
+{
+	f32 *vdata = *vdata_;
+	u16 *idata = *idata_;
+
+	const f32 *frame = sprite_resource::frame_data(_data.resource[ii]
+		, _data.frame[ii] % _data.resource[ii]->num_frames
+		);
+
+	f32 u0 = frame[ 3]; // u
+	f32 v0 = frame[ 4]; // v
+
+	f32 u1 = frame[ 8]; // u
+	f32 v1 = frame[ 9]; // v
+
+	f32 u2 = frame[13]; // u
+	f32 v2 = frame[14]; // v
+
+	f32 u3 = frame[18]; // u
+	f32 v3 = frame[19]; // v
+
+	if (_data.flip_x[ii]) {
+		f32 u;
+		u = u0; u0 = u1; u1 = u;
+		u = u2; u2 = u3; u3 = u;
+	}
+
+	if (_data.flip_y[ii]) {
+		f32 v;
+		v = v0; v0 = v2; v2 = v;
+		v = v1; v1 = v3; v3 = v;
+	}
+
+	vdata[ 0] = frame[ 0]; // x
+	vdata[ 1] = frame[ 1]; // y
+	vdata[ 2] = frame[ 2]; // z
+	vdata[ 3] = u0;
+	vdata[ 4] = v0;
+
+	vdata[ 5] = frame[ 5]; // x
+	vdata[ 6] = frame[ 6]; // y
+	vdata[ 7] = frame[ 7]; // z
+	vdata[ 8] = u1;
+	vdata[ 9] = v1;
+
+	vdata[10] = frame[10]; // x
+	vdata[11] = frame[11]; // y
+	vdata[12] = frame[12]; // z
+	vdata[13] = u2;
+	vdata[14] = v2;
+
+	vdata[15] = frame[15]; // x
+	vdata[16] = frame[16]; // y
+	vdata[17] = frame[17]; // z
+	vdata[18] = u3;
+	vdata[19] = v3;
+
+	*vdata_ += 20;
+
+	idata[0] = ii*4 + 0;
+	idata[1] = ii*4 + 1;
+	idata[2] = ii*4 + 2;
+	idata[3] = ii*4 + 0;
+	idata[4] = ii*4 + 2;
+	idata[5] = ii*4 + 3;
+
+	*idata_ += 6;
+
+	bgfx::setTransform(to_float_ptr(_data.world[ii]));
+	bgfx::setVertexBuffer(0, &tvb);
+	bgfx::setIndexBuffer(&tib, ii*6, 6);
+}
+
+void RenderWorld::SpriteManager::draw_visibles(u8 view_id)
 {
 	bgfx::VertexLayout layout;
 	bgfx::TransientVertexBuffer tvb;
@@ -1147,75 +1221,55 @@ void RenderWorld::SpriteManager::draw(u8 view_id, DrawOverride draw_override)
 
 	// Render all sprites.
 	for (u32 ii = 0; ii < _data.first_hidden; ++ii) {
-		const f32 *frame = sprite_resource::frame_data(_data.resource[ii]
-			, _data.frame[ii] % _data.resource[ii]->num_frames
-			);
+		set_instance_data(&vdata, &idata, tvb, tib, ii);
+		_data.material[ii]->bind(_data.layer[ii] + view_id, _data.depth[ii]);
+	}
+}
 
-		f32 u0 = frame[ 3]; // u
-		f32 v0 = frame[ 4]; // v
+void RenderWorld::SpriteManager::draw_selected(u8 view_id)
+{
+	union
+	{
+		u32 u;
+		f32 f;
+	} u2f;
 
-		f32 u1 = frame[ 8]; // u
-		f32 v1 = frame[ 9]; // v
+	bgfx::VertexLayout layout;
+	bgfx::TransientVertexBuffer tvb;
+	bgfx::TransientIndexBuffer tib;
+	f32 *vdata;
+	u16 *idata;
 
-		f32 u2 = frame[13]; // u
-		f32 v2 = frame[14]; // v
+	// Allocate vertex and index buffers.
+	if (_data.size) {
+		layout.begin();
+		layout.add(bgfx::Attrib::Position,  3, bgfx::AttribType::Float);
+		layout.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float, false);
+		layout.end();
 
-		f32 u3 = frame[18]; // u
-		f32 v3 = frame[19]; // v
+		bgfx::allocTransientVertexBuffer(&tvb, 4*_data.size, layout);
+		bgfx::allocTransientIndexBuffer(&tib, 6*_data.size);
 
-		if (_data.flip_x[ii]) {
-			f32 u;
-			u = u0; u0 = u1; u1 = u;
-			u = u2; u2 = u3; u3 = u;
+		vdata = (f32 *)tvb.data;
+		idata = (u16 *)tib.data;
+	}
+
+	// Render all sprites.
+	for (u32 ii = 0; ii < _data.size; ++ii) {
+		set_instance_data(&vdata, &idata, tvb, tib, ii);
+
+		UnitId unit_id = _data.unit[ii];
+		if (!hash_set::has(_render_world->_selection, unit_id)) { // FIXME: put selected objects in a separate list.
+			bgfx::discard();
+			continue;
 		}
 
-		if (_data.flip_y[ii]) {
-			f32 v;
-			v = v0; v0 = v2; v2 = v;
-			v = v1; v1 = v3; v3 = v;
-		}
+		u2f.u = unit_id._idx;
+		Vector4 data = { u2f.f, 0.0f, 0.0f, 0.0f };
+		bgfx::setUniform(_render_world->_u_unit_id, &data);
 
-		vdata[ 0] = frame[ 0]; // x
-		vdata[ 1] = frame[ 1]; // y
-		vdata[ 2] = frame[ 2]; // z
-		vdata[ 3] = u0;
-		vdata[ 4] = v0;
-
-		vdata[ 5] = frame[ 5]; // x
-		vdata[ 6] = frame[ 6]; // y
-		vdata[ 7] = frame[ 7]; // z
-		vdata[ 8] = u1;
-		vdata[ 9] = v1;
-
-		vdata[10] = frame[10]; // x
-		vdata[11] = frame[11]; // y
-		vdata[12] = frame[12]; // z
-		vdata[13] = u2;
-		vdata[14] = v2;
-
-		vdata[15] = frame[15]; // x
-		vdata[16] = frame[16]; // y
-		vdata[17] = frame[17]; // z
-		vdata[18] = u3;
-		vdata[19] = v3;
-
-		vdata += 20;
-
-		*idata++ = ii*4 + 0;
-		*idata++ = ii*4 + 1;
-		*idata++ = ii*4 + 2;
-		*idata++ = ii*4 + 0;
-		*idata++ = ii*4 + 2;
-		*idata++ = ii*4 + 3;
-
-		bgfx::setTransform(to_float_ptr(_data.world[ii]));
-		bgfx::setVertexBuffer(0, &tvb);
-		bgfx::setIndexBuffer(&tib, ii*6, 6);
-
-		if (draw_override)
-			draw_override(view_id, _data.unit[ii], _render_world);
-		else
-			_data.material[ii]->bind(_data.layer[ii] + view_id, _data.depth[ii]);
+		bgfx::setState(_render_world->_pipeline->_selection_shader.state);
+		bgfx::submit(view_id, _render_world->_pipeline->_selection_shader.program);
 	}
 }
 

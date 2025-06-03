@@ -256,7 +256,16 @@ struct RenderWorld
 		void swap(u32 inst_a, u32 inst_b);
 
 		///
-		void draw(u8 view, SceneGraph &scene_graph, const Matrix4x4 *cascaded_lights = NULL, DrawOverride draw_override = NULL);
+		void set_instance_data(u32 ii, SceneGraph &scene_graph);
+
+		///
+		void draw_shadow_casters(u8 view, SceneGraph &scene_graph);
+
+		///
+		void draw_visibles(u8 view, SceneGraph &scene_graph, const Matrix4x4 *cascaded_lights);
+
+		///
+		void draw_selected(u8 view, SceneGraph &scene_graph);
 
 		///
 		MeshInstance make_instance(u32 i)
@@ -333,7 +342,13 @@ struct RenderWorld
 		void swap(u32 inst_a, u32 inst_b);
 
 		///
-		void draw(u8 view, DrawOverride draw_override = NULL);
+		void set_instance_data(f32 **vdata, u16 **idata, bgfx::TransientVertexBuffer &tvb, bgfx::TransientIndexBuffer &tib, u32 ii);
+
+		///
+		void draw_visibles(u8 view);
+
+		///
+		void draw_selected(u8 view);
 
 		///
 		SpriteInstance make_instance(u32 i)
