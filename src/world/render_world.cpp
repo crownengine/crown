@@ -165,6 +165,15 @@ void RenderWorld::mesh_set_visible(MeshInstance mesh, bool visible)
 	_mesh_manager.set_visible(mesh, visible);
 }
 
+void RenderWorld::mesh_set_cast_shadows(MeshInstance mesh, bool cast_shadows)
+{
+	CE_ASSERT(mesh.i < _mesh_manager._data.size, "Index out of bounds");
+	if (cast_shadows)
+		_mesh_manager._data.flags[mesh.i] |= RenderableFlags::SHADOW_CASTER;
+	else
+		_mesh_manager._data.flags[mesh.i] &= ~RenderableFlags::SHADOW_CASTER;
+}
+
 OBB RenderWorld::mesh_obb(MeshInstance mesh)
 {
 	CE_ASSERT(mesh.i < _mesh_manager._data.size, "Index out of bounds");
@@ -885,6 +894,9 @@ void RenderWorld::MeshManager::set_instance_data(u32 ii, SceneGraph &scene_graph
 void RenderWorld::MeshManager::draw_shadow_casters(u8 view_id, SceneGraph &scene_graph)
 {
 	for (u32 ii = 0; ii < _data.first_hidden; ++ii) {
+		if ((_data.flags[ii] & RenderableFlags::SHADOW_CASTER) == 0) // FIXME: put in a separate list.
+			continue;
+
 		set_instance_data(ii, scene_graph);
 
 		bgfx::setState(_render_world->_pipeline->_shadow_shader.state);

@@ -348,12 +348,13 @@ function UnitBox:set_light(type, range, intensity, angle, color, bias)
 	end
 end
 
-function UnitBox:set_mesh(mesh_resource, geometry, material, visible)
+function UnitBox:set_mesh(mesh_resource, geometry, material, visible, cast_shadows)
 	local mesh = RenderWorld.mesh_instance(self._rw, self._unit_id)
 	if mesh then
 		RenderWorld.mesh_set_geometry(self._rw, mesh, mesh_resource, geometry)
 		RenderWorld.mesh_set_material(self._rw, mesh, material)
 		RenderWorld.mesh_set_visible(self._rw, mesh, visible)
+		RenderWorld.mesh_set_cast_shadows(self._rw, mesh, cast_shadows)
 		self._obb.dirty = true
 	end
 end

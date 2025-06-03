@@ -61,6 +61,9 @@ struct RenderWorld
 	/// Sets whether the @a mesh is @a visible.
 	void mesh_set_visible(MeshInstance mesh, bool visible);
 
+	/// Sets whether the @a mesh casts shadows.
+	void mesh_set_cast_shadows(MeshInstance mesh, bool cast_shadows);
+
 	/// Returns the OBB of the @a mesh.
 	OBB mesh_obb(MeshInstance mesh);
 

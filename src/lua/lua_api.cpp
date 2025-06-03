@@ -1945,6 +1945,11 @@ void load_api(LuaEnvironment &env)
 			stack.get_render_world(1)->mesh_set_visible(stack.get_mesh_instance(2), stack.get_bool(3));
 			return 0;
 		});
+	env.add_module_function("RenderWorld", "mesh_set_cast_shadows", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->mesh_set_cast_shadows(stack.get_mesh_instance(2), stack.get_bool(3));
+			return 0;
+		});
 	env.add_module_function("RenderWorld", "sprite_create", [](lua_State *L) {
 			LuaStack stack(L);
 			RenderWorld *rw = stack.get_render_world(1);
