@@ -4,36 +4,36 @@ Changelog
 0.56.0 --- DD MMM YYYY
 ----------------------
 
-**Tools**
+**New Features and Improvements**
 
-* Added the ability to save level units as prefabs.
-* Sped up deployers by enabling incremental data compilation.
-* Added mouse-only shortcuts (middle-button/wheel) to tumble/dolly the camera.
-* Added support to JPEG image format for textures.
-* Fixed collider generation when importing sprites.
-* Fixed importing sounds.
-* Fixed missing outlines on invisible objects.
-* Fixed drag & drop of sound resources into the Editor View.
+* Runtime: added cascaded shadow mapping.
+* Runtime: added sounds streaming and OGG/Vorbis audio files support.
+* Runtime: HTML5: added Touch input device support.
+* Tools: added the ability to save level units as prefabs.
+* Tools: added mouse-only shortcuts (middle-button/wheel) to tumble/dolly the camera.
+* Tools: sped up deployers by enabling incremental data compilation.
+* Tools: added support to JPEG image format for textures.
+* Lua: added ``Gui.text_extents()``.
+* Lua: added ``Light.set_cast_shadows()``.
+* Lua: added ``Mesh.set_cast_shadows()``.
+* Lua: added ``SoundWorld.set_group_volume()`` and a corresponding group parameter to ``World.play_sound()``.
+* Lua: added an optional exit_code parameter to ``Device.quit()``.
+* Lua: added an optional rays parameter to ``DebugLine.add_cone()``.
+* Lua: the color parameter in all ``Gui`` functions is now optional and defaults to ``Color4.white()``.
+* Lua: the material_resource parameter in ``Gui.text()`` and ``Gui.text_3d()`` is now optional.
 
-**Runtime**
+**Fixes**
 
-* Added cascaded shadow mapping.
-* Added sounds streaming and OGG/Vorbis audio files support.
-* Fixed spurious activations of physics bodies.
-* HTML5: added Touch input device support.
-* HTML5: fixed GL_INVALID_OPERATION (or missing geometry) when rendering untextured meshes.
-* Data Compiler: fixed shaders not including code in some circumnstances.
-* Data Compiler: fixed 'static_compile' being visible to external shader resources.
-* Lua API: added ``Gui.text_extents()``.
-* Lua API: added ``SoundWorld.set_group_volume()`` and a corresponding group parameter to ``World.play_sound()``.
-* Lua API: added an optional exit_code parameter to ``Device.quit()``.
-* Lua API: added an optional rays parameter to ``DebugLine.add_cone()``.
-* Lua API: the color parameter in all ``Gui`` functions is now optional and defaults to ``Color4.white()``.
-* Lua API: the material_resource parameter in ``Gui.text()`` and ``Gui.text_3d()`` is now optional.
-* Lua API: fixed start-of-line character placement and some other rendering issues in ``Gui.text*()``.
-* Lua API: fixed several issues when calling ``Gui.text*()`` with utf8-encoded strings.
-* Lua API: added ``Mesh.set_cast_shadows()``.
-* Lua API: added ``Light.set_cast_shadows()``.
+* Runtime: fixed spurious activations of physics bodies.
+* Runtime: HTML5: fixed GL_INVALID_OPERATION (or missing geometry) when rendering untextured meshes.
+* Compiler: fixed 'static_compile' being visible to external shader resources.
+* Compiler: fixed shaders not including code in some circumnstances.
+* Tools: fixed collider generation when importing sprites.
+* Tools: fixed missing outlines on invisible objects.
+* Tools: fixed importing sounds.
+* Tools: fixed drag & drop of sound resources into the Editor View.
+* Lua: fixed several issues when calling ``Gui.text*()`` with utf8-encoded strings.
+* Lua: fixed start-of-line character placement and some other rendering issues in ``Gui.text*()``.
 
 0.55.0 --- 03 Apr 2025
 ----------------------
