@@ -12,6 +12,7 @@ Changelog
 * Added support to JPEG image format for textures.
 * Fixed collider generation when importing sprites.
 * Fixed importing sounds.
+* Fixed missing outlines on invisible objects.
 * Fixed drag & drop of sound resources into the Editor View.
 
 **Runtime**
