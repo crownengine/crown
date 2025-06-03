@@ -2150,6 +2150,11 @@ void load_api(LuaEnvironment &env)
 			stack.get_render_world(1)->light_set_shadow_bias(stack.get_light_instance(2), stack.get_float(3));
 			return 0;
 		});
+	env.add_module_function("RenderWorld", "light_set_cast_shadows", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->light_set_cast_shadows(stack.get_light_instance(2), stack.get_bool(3));
+			return 0;
+		});
 	env.add_module_function("RenderWorld", "light_debug_draw", [](lua_State *L) {
 			LuaStack stack(L);
 			stack.get_render_world(1)->light_debug_draw(stack.get_light_instance(2), *stack.get_debug_line(3));

@@ -161,6 +161,9 @@ struct RenderWorld
 	/// Sets the shadow @a bias of the @a light.
 	void light_set_shadow_bias(LightInstance light, f32 bias);
 
+	/// Sets whether the @a light casts shadows.
+	void light_set_cast_shadows(LightInstance light, bool cast_shadows);
+
 	/// Fills @a dl with debug lines from the @a light.
 	void light_debug_draw(LightInstance light, DebugLine &dl);
 

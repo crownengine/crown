@@ -420,6 +420,17 @@ void RenderWorld::light_set_shadow_bias(LightInstance light, f32 bias)
 	_light_manager._data.shader[light.i].shadow_bias = bias;
 }
 
+void RenderWorld::light_set_cast_shadows(LightInstance light, bool cast_shadows)
+{
+	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
+	if (cast_shadows)
+		_light_manager._data.index[light.i].flags |= RenderableFlags::SHADOW_CASTER;
+	else
+		_light_manager._data.index[light.i].flags &= ~RenderableFlags::SHADOW_CASTER;
+
+	_light_manager._data.dirty = true;
+}
+
 void RenderWorld::light_debug_draw(LightInstance light, DebugLine &dl)
 {
 	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
@@ -471,7 +482,7 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj)
 
 	// Render cascaded shadow maps.
 	// CSMs are only computed for the brightest directional light (index = 0) in the scene.
-	if (lid.num[LightType::DIRECTIONAL] > 0) {
+	if (lid.num[LightType::DIRECTIONAL] > 0 && (lid.index[0].flags & RenderableFlags::SHADOW_CASTER) != 0) {
 		Matrix4x4 light_proj;
 		Matrix4x4 light_view;
 		Frustum splits[MAX_NUM_CASCADES];
@@ -1440,10 +1451,23 @@ void sort(RenderWorld::LightManager &m)
 			const RenderWorld::LightManager::ShaderData &a = m._data.shader[in_a.index];
 			const RenderWorld::LightManager::ShaderData &b = m._data.shader[in_b.index];
 
-			if (in_a.type == in_b.type)
-				return a.intensity > b.intensity;
+			// Sort key:
+			//
+			//  +------------------------------------------- type
+			//  |+------------------------------------------ cast shadows
+			//  ||                                        +- intensity
+			//  ||                                        |
+			// 0000 0000 0000 0000 0000 0000 0000 0000 0000
+			//
+			u32 key_a = u32(a.intensity * 1000.0f) & 0x1FFFFFFF;
+			key_a |= u32((in_a.flags & RenderableFlags::SHADOW_CASTER) != 0) << 29;
+			key_a |= u32(LightType::COUNT - in_a.type) << 30;
 
-			return in_a.type < in_b.type;
+			u32 key_b = u32(b.intensity * 1000.0f) & 0x1FFFFFFF;
+			key_b |= u32((in_b.flags & RenderableFlags::SHADOW_CASTER) != 0) << 29;
+			key_b |= u32(LightType::COUNT - in_b.type) << 30;
+
+			return key_a > key_b;
 		});
 
 	for (u32 i = 0; i < m._data.size; ++i) {
