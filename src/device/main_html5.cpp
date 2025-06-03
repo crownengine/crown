@@ -297,7 +297,7 @@ struct EmscriptenDevice
 	{
 	}
 
-	static bool key_callback(int event_type, const EmscriptenKeyboardEvent *key_event, void *user_data)
+	static EM_BOOL key_callback(int event_type, const EmscriptenKeyboardEvent *key_event, void *user_data)
 	{
 		EmscriptenDevice *ed = (EmscriptenDevice *)user_data;
 
@@ -327,7 +327,7 @@ struct EmscriptenDevice
 		return EM_EVENT_PROPAGATE;
 	}
 
-	static bool mouse_callback(int event_type, const EmscriptenMouseEvent *event, void *user_data)
+	static EM_BOOL mouse_callback(int event_type, const EmscriptenMouseEvent *event, void *user_data)
 	{
 		EmscriptenDevice *ed = (EmscriptenDevice *)user_data;
 
@@ -374,7 +374,7 @@ struct EmscriptenDevice
 		return EM_EVENT_PROPAGATE;
 	}
 
-	static bool wheel_callback(int event_type, const EmscriptenWheelEvent *event, void *user_data)
+	static EM_BOOL wheel_callback(int event_type, const EmscriptenWheelEvent *event, void *user_data)
 	{
 		EmscriptenDevice *ed = (EmscriptenDevice *)user_data;
 
@@ -392,7 +392,7 @@ struct EmscriptenDevice
 		return EM_EVENT_PROPAGATE;
 	}
 
-	static bool touch_callback(int event_type, const EmscriptenTouchEvent *event, void *user_data)
+	static EM_BOOL touch_callback(int event_type, const EmscriptenTouchEvent *event, void *user_data)
 	{
 		EmscriptenDevice *ed = (EmscriptenDevice *)user_data;
 
@@ -479,7 +479,7 @@ struct EmscriptenDevice
 		return EM_EVENT_PROPAGATE;
 	}
 
-	static bool pointerlockchange_callback(int event_type, const EmscriptenPointerlockChangeEvent *event, void *user_data)
+	static EM_BOOL pointerlockchange_callback(int event_type, const EmscriptenPointerlockChangeEvent *event, void *user_data)
 	{
 		EmscriptenDevice *ed = (EmscriptenDevice *)user_data;
 
@@ -491,13 +491,13 @@ struct EmscriptenDevice
 		return EM_EVENT_PROPAGATE;
 	}
 
-	static bool pointerlockerror_callback(int event_type, const void *reserved, void *user_data)
+	static EM_BOOL pointerlockerror_callback(int event_type, const void *reserved, void *user_data)
 	{
 		CE_UNUSED_3(event_type, reserved, user_data);
 		return EM_EVENT_STOP;
 	}
 
-	static bool resize_callback(int event_type, const EmscriptenUiEvent *event, void *user_data)
+	static EM_BOOL resize_callback(int event_type, const EmscriptenUiEvent *event, void *user_data)
 	{
 		EmscriptenDevice *ed = (EmscriptenDevice *)user_data;
 
