@@ -33,6 +33,7 @@ Changelog
 * Lua API: fixed start-of-line character placement and some other rendering issues in ``Gui.text*()``.
 * Lua API: fixed several issues when calling ``Gui.text*()`` with utf8-encoded strings.
 * Lua API: added ``Mesh.set_cast_shadows()``.
+* Lua API: added ``Light.set_cast_shadows()``.
 
 0.55.0 --- 03 Apr 2025
 ----------------------
