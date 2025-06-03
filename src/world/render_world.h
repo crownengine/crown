@@ -206,6 +206,7 @@ struct RenderWorld
 			Matrix4x4 *world;
 			OBB *obb;
 			const AnimationSkeletonInstance **skeleton;
+			u32 *flags;
 #if CROWN_CAN_RELOAD
 			const MaterialResource **material_resource;
 #endif
@@ -378,6 +379,7 @@ struct RenderWorld
 		struct Index
 		{
 			UnitId unit;
+			u32 flags;
 			u32 type  : 4;  // LightType::Enum
 			u32 index : 28; // Maps from light-index to sorted light-index.
 		};

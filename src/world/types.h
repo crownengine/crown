@@ -178,6 +178,18 @@ struct CollisionGroup
 	};
 };
 
+/// Enumerates renderable flags.
+///
+/// @ingroup World
+struct RenderableFlags
+{
+	enum Enum : u32
+	{
+		VISIBLE       = u32(1) << 0,
+		SHADOW_CASTER = u32(1) << 1
+	};
+};
+
 /// Enumerates world event types.
 ///
 /// @ingroup World
@@ -287,9 +299,7 @@ struct MeshRendererDesc
 	StringId64 mesh_resource;     ///< Name of .mesh resource.
 	StringId64 material_resource; ///< Name of .material resource.
 	StringId32 geometry_name;     ///< Name of geometry inside .mesh resource.
-	bool visible;                 ///< Whether mesh is visible.
-	bool cast_shadows;            ///<
-	char _pad0[2];
+	u32 flags;                    ///< RenderableFlags::Enum
 };
 
 /// Sprite renderer description.
@@ -301,9 +311,8 @@ struct SpriteRendererDesc
 	StringId64 material_resource; ///< Name of .material resource.
 	u32 layer;                    ///< Sort layer
 	u32 depth;                    ///< Depth in layer
-	bool visible;                 ///< Whether sprite is visible.
-	char _pad0[3];
-	char _pad1[4];
+	u32 flags;                    ////< RenderableFlags::Enum
+	char _pad[4];
 };
 
 /// Animation state machine description.
@@ -325,8 +334,7 @@ struct LightDesc
 	f32 spot_angle;    ///< In radians.
 	Vector3 color;     ///< Color of the light.
 	f32 shadow_bias;   ///<
-	bool cast_shadows; ///<
-	char _pad[3];
+	u32 flags;         ///< RenderableFlags::Enum
 };
 
 /// Script description.

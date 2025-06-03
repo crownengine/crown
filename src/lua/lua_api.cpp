@@ -1883,7 +1883,9 @@ void load_api(LuaEnvironment &env)
 			desc.mesh_resource     = stack.get_resource_name(3);
 			desc.geometry_name     = stack.get_string_id_32(4);
 			desc.material_resource = stack.get_resource_name(5);
-			desc.visible           = stack.get_bool(6);
+			desc.flags = 0u;
+			desc.flags |= RenderableFlags::SHADOW_CASTER;
+			desc.flags |= stack.get_bool(6) ? RenderableFlags::VISIBLE : 0u;
 
 			Matrix4x4 pose = stack.get_matrix4x4(7);
 
@@ -1953,7 +1955,8 @@ void load_api(LuaEnvironment &env)
 			desc.material_resource = stack.get_resource_name(4);
 			desc.layer = stack.get_int(5);
 			desc.depth = stack.get_int(6);
-			desc.visible = stack.get_bool(7);
+			desc.flags = 0u;
+			desc.flags |= stack.get_bool(7) ? RenderableFlags::VISIBLE : 0u;
 
 			Matrix4x4 pose = stack.get_matrix4x4(8);
 

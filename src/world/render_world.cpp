@@ -660,6 +660,7 @@ void RenderWorld::MeshManager::allocate(u32 num)
 		+ num*sizeof(Matrix4x4) + alignof(Matrix4x4)
 		+ num*sizeof(OBB) + alignof(OBB)
 		+ num*sizeof(AnimationSkeletonInstance *) + alignof(AnimationSkeletonInstance *)
+		+ num*sizeof(u32) + alignof(u32)
 #if CROWN_CAN_RELOAD
 		+ num*sizeof(MaterialResource *) + alignof(MaterialResource *)
 #endif
@@ -680,8 +681,9 @@ void RenderWorld::MeshManager::allocate(u32 num)
 	new_data.world         = (Matrix4x4 *          )memory::align_top(new_data.material + num, alignof(Matrix4x4));
 	new_data.obb           = (OBB *                )memory::align_top(new_data.world + num,    alignof(OBB));
 	new_data.skeleton      = (const AnimationSkeletonInstance **)memory::align_top(new_data.obb + num, alignof(AnimationSkeletonInstance *));
+	new_data.flags         = (u32 *                )memory::align_top(new_data.skeleton + num, alignof(u32));
 #if CROWN_CAN_RELOAD
-	new_data.material_resource = (const MaterialResource **)memory::align_top(new_data.skeleton + num, alignof(MaterialResource *));
+	new_data.material_resource = (const MaterialResource **)memory::align_top(new_data.flags + num, alignof(MaterialResource *));
 #endif
 
 	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
@@ -692,6 +694,7 @@ void RenderWorld::MeshManager::allocate(u32 num)
 	memcpy(new_data.world, _data.world, _data.size * sizeof(Matrix4x4));
 	memcpy(new_data.obb, _data.obb, _data.size * sizeof(OBB));
 	memcpy(new_data.skeleton, _data.skeleton, _data.size * sizeof(AnimationSkeletonInstance *));
+	memcpy(new_data.flags, _data.flags, _data.size * sizeof(u32));
 #if CROWN_CAN_RELOAD
 	memcpy(new_data.material_resource, _data.material_resource, _data.size * sizeof(MaterialResource *));
 #endif
@@ -726,6 +729,7 @@ MeshInstance RenderWorld::MeshManager::create(UnitId unit, const MeshResource *m
 	_data.world[last]    = tr;
 	_data.obb[last]      = mg->obb;
 	_data.skeleton[last] = NULL;
+	_data.flags[last]    = mrd.flags;
 #if CROWN_CAN_RELOAD
 	_data.material_resource[last] = mat_res;
 #endif
@@ -733,7 +737,7 @@ MeshInstance RenderWorld::MeshManager::create(UnitId unit, const MeshResource *m
 	hash_map::set(_map, unit, last);
 	++_data.size;
 
-	if (mrd.visible) {
+	if (mrd.flags & RenderableFlags::VISIBLE) {
 		if (last >= _data.first_hidden) {
 			// _data now contains a visible item in its hidden partition.
 			swap(last, _data.first_hidden);
@@ -764,6 +768,7 @@ void RenderWorld::MeshManager::destroy(MeshInstance inst)
 	_data.world[inst.i]    = _data.world[last];
 	_data.obb[inst.i]      = _data.obb[last];
 	_data.skeleton[inst.i] = _data.skeleton[last];
+	_data.flags[inst.i]    = _data.flags[last];
 #if CROWN_CAN_RELOAD
 	_data.material_resource[inst.i] = _data.material_resource[last];
 #endif
@@ -799,6 +804,7 @@ void RenderWorld::MeshManager::swap(u32 inst_a, u32 inst_b)
 	exchange(_data.world[inst_a],    _data.world[inst_b]);
 	exchange(_data.obb[inst_a],      _data.obb[inst_b]);
 	exchange(_data.skeleton[inst_a], _data.skeleton[inst_b]);
+	exchange(_data.flags[inst_a],    _data.flags[inst_b]);
 #if CROWN_CAN_RELOAD
 	exchange(_data.material_resource[inst_a], _data.material_resource[inst_b]);
 #endif
@@ -1015,7 +1021,7 @@ SpriteInstance RenderWorld::SpriteManager::create(UnitId unit, const SpriteResou
 	hash_map::set(_map, unit, last);
 	++_data.size;
 
-	if (srd.visible) {
+	if (srd.flags & RenderableFlags::VISIBLE) {
 		if (last >= _data.first_hidden) {
 			// _data now contains a visible item in its hidden partition.
 			swap(last, _data.first_hidden);
@@ -1325,6 +1331,7 @@ LightInstance RenderWorld::LightManager::create(UnitId unit, const LightDesc &ld
 	_data.index[last].unit         = unit;
 	_data.index[last].type         = ld.type;
 	_data.index[last].index        = last;
+	_data.index[last].flags        = ld.flags;
 	_data.shader[last].color       = ld.color;
 	_data.shader[last].intensity   = ld.intensity;
 	_data.shader[last].position    = translation(tr);
