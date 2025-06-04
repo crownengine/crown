@@ -186,10 +186,18 @@ public class FontImportDialog : Gtk.Window
 		_drawing_area._filter = Cairo.Filter.BILINEAR;
 		_drawing_area._extend = Cairo.Extend.NONE;
 
+#if CROWN_GTK3
 		_scrolled_window = new Gtk.ScrolledWindow(null, null);
+#else
+		_scrolled_window = new Gtk.ScrolledWindow();
+#endif
 		_scrolled_window.min_content_width = 640;
 		_scrolled_window.min_content_height = 640;
+#if CROWN_GTK3
 		_scrolled_window.add(_drawing_area);
+#else
+		_scrolled_window.set_child(_drawing_area);
+#endif
 
 		_atlas_size = new Gtk.Label("? × ?");
 		_atlas_size.halign = Gtk.Align.START;
@@ -271,36 +279,61 @@ public class FontImportDialog : Gtk.Window
 		sprite_set.add_property_grid(cv, _("Font"));
 
 		Gtk.Box box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+#if CROWN_GTK3
 		box.pack_start(_scrolled_window, true, true);
+#else
+		box.append(_scrolled_window);
+#endif
 
 		Gtk.Paned pane;
 		pane = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
+#if CROWN_GTK3
 		pane.pack1(box, false, false);
 		pane.pack2(sprite_set, true, false);
 
 		this.destroy.connect(on_destroy);
 		this.map_event.connect(on_map_event);
+#else
+		pane.set_start_child(box);
+		pane.set_end_child(sprite_set);
+#endif
 
 		_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+#if CROWN_GTK3
 		_box.pack_start(pane, false, false);
+#else
+		_box.append(pane);
+#endif
 
 		_cancel = new Gtk.Button.with_label(_("Cancel"));
 		_cancel.clicked.connect(() => {
 				close();
 			});
 		_import = new Gtk.Button.with_label(_("Import"));
+#if CROWN_GTK3
 		_import.get_style_context().add_class("suggested-action");
+#else
+		_import.add_css_class("suggested-action");
+#endif
 		_import.clicked.connect(on_import);
 
 		_header_bar = new Gtk.HeaderBar();
+#if CROWN_GTK3
 		_header_bar.title = _("Import Font...");
 		_header_bar.show_close_button = true;
+#else
+		_header_bar.show_title_buttons = true;
+#endif
 		_header_bar.pack_start(_cancel);
 		_header_bar.pack_end(_import);
-
+		this.title = _("Import Font...");
 		this.set_titlebar(_header_bar);
 		this.set_default_size(1025, 650);
+#if CROWN_GTK3
 		this.add(_box);
+#else
+		this.set_child(_box);
+#endif
 
 		if (_options.options_loaded) {
 			_font_chars.active = FontChars.CUSTOM_RANGE;
@@ -311,16 +344,28 @@ public class FontImportDialog : Gtk.Window
 		generate_atlas();
 	}
 
+#if CROWN_GTK3
 	public bool on_map_event(Gdk.EventAny ev)
 	{
 		_font_name.grab_focus();
 		return Gdk.EVENT_PROPAGATE;
 	}
+#endif
 
+#if CROWN_GTK3
 	public void on_destroy()
 	{
 		font_atlas_free(_font_atlas);
 	}
+#endif
+
+#if !CROWN_GTK3
+	public override void dispose()
+	{
+		font_atlas_free(_font_atlas);
+		base.dispose();
+	}
+#endif
 
 	public void read_options()
 	{
@@ -513,7 +558,11 @@ public class FontResource
 			FontImportDialog dlg = new FontImportDialog(database, destination_dir, filenames, import_result, (owned)options);
 			dlg.set_transient_for(parent_window);
 			dlg.set_modal(true);
+#if CROWN_GTK3
 			dlg.show_all();
+#else
+			dlg.present();
+#endif
 		}
 	}
 }

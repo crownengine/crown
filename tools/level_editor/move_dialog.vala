@@ -41,6 +41,12 @@ public class MoveDialog : Gtk.Window
 
 	public signal void response(int response_id);
 
+	public bool on_close_request()
+	{
+		response(Gtk.ResponseType.DELETE_EVENT);
+		return Gdk.EVENT_STOP;
+	}
+
 	public MoveDialog(Gtk.Window? parent
 		, ProjectBrowser project_browser
 		, ThumbnailCache thumbnail_cache
@@ -58,12 +64,15 @@ public class MoveDialog : Gtk.Window
 		this.set_default_size(920, 520);
 		this.set_transient_for(parent);
 		this.set_modal(true);
-		this.delete_event.connect(() => {
-				response(Gtk.ResponseType.DELETE_EVENT);
-				return Gdk.EVENT_STOP;
-			});
+#if CROWN_GTK3
+		this.delete_event.connect(on_close_request);
 
 		_controller_key = new Gtk.EventControllerKey(this);
+#else
+		this.close_request.connect(on_close_request);
+
+		_controller_key = new Gtk.EventControllerKey();
+#endif
 		_controller_key.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
 		_controller_key.key_pressed.connect((keyval) => {
 				if (keyval == Gdk.Key.Escape) {
@@ -73,10 +82,18 @@ public class MoveDialog : Gtk.Window
 
 				return Gdk.EVENT_PROPAGATE;
 			});
+#if !CROWN_GTK3
+		((Gtk.Widget)this).add_controller(_controller_key);
+#endif
 
 		Gtk.HeaderBar header_bar = new Gtk.HeaderBar();
+#if CROWN_GTK3
 		header_bar.title = title;
 		header_bar.show_close_button = true;
+#else
+		header_bar.set_title_widget(new Gtk.Label(title));
+		header_bar.show_title_buttons = true;
+#endif
 		this.set_titlebar(header_bar);
 
 		Gtk.Button cancel_button = new Gtk.Button.with_label(_("Cancel"));
@@ -86,18 +103,32 @@ public class MoveDialog : Gtk.Window
 		header_bar.pack_start(cancel_button);
 
 		Gtk.Button action_button = new Gtk.Button.with_label(_("Move"));
+#if CROWN_GTK3
 		action_button.get_style_context().add_class("suggested-action");
+#else
+		action_button.add_css_class("suggested-action");
+#endif
 		action_button.clicked.connect(() => {
 				this.response(Gtk.ResponseType.ACCEPT);
 			});
 		header_bar.pack_end(action_button);
 
 		Gtk.Box content = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
-		content.border_width = 12;
+		content.set_margin_top(12);
+		content.set_margin_bottom(12);
+		content.set_margin_start(12);
+		content.set_margin_end(12);
+#if CROWN_GTK3
 		this.add(content);
+#else
+		this.set_child(content);
+#endif
 
 		Gtk.Box list = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
-		list.border_width = 6;
+		list.set_margin_top(6);
+		list.set_margin_bottom(6);
+		list.set_margin_start(6);
+		list.set_margin_end(6);
 		list.hexpand = true;
 		list.vexpand = true;
 
@@ -170,7 +201,11 @@ public class MoveDialog : Gtk.Window
 				);
 		}
 
+#if CROWN_GTK3
 		content.pack_start(list, true, true, 0);
+#else
+		content.append(list);
+#endif
 		action_button.sensitive = has_move_paths;
 	}
 
@@ -446,13 +481,21 @@ public class MoveDialog : Gtk.Window
 		Gtk.TreeView tree_view = create_tree_view(store, flags);
 		tree_view.set_tooltip_text(tooltip);
 
+#if CROWN_GTK3
 		Gtk.ScrolledWindow scrolled = new Gtk.ScrolledWindow(null, null);
+#else
+		Gtk.ScrolledWindow scrolled = new Gtk.ScrolledWindow();
+#endif
 		scrolled.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC);
 		scrolled.min_content_width = 360;
 		scrolled.min_content_height = 120;
 		scrolled.hexpand = true;
 		scrolled.vexpand = expand && !collapsed;
+#if CROWN_GTK3
 		scrolled.add(tree_view);
+#else
+		scrolled.set_child(tree_view);
+#endif
 
 		if (collapsed) {
 			Expander expander = new Expander();
@@ -462,16 +505,26 @@ public class MoveDialog : Gtk.Window
 
 			scrolled.set_margin_top(8);
 			expander.add(scrolled);
+#if CROWN_GTK3
 			box.pack_start(expander, false, true, 0);
+#else
+			box.append(expander);
+#endif
 			return;
 		}
 
 		Gtk.Box group = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		group.set_margin_bottom(12);
 		header.set_margin_bottom(8);
+#if CROWN_GTK3
 		group.pack_start(header, false, false, 0);
 		group.pack_start(scrolled, expand, true, 0);
 		box.pack_start(group, expand, true, 0);
+#else
+		group.append(header);
+		group.append(scrolled);
+		box.append(group);
+#endif
 	}
 
 	public void selected(out string[] checked_from, out string[] checked_to)

@@ -26,13 +26,21 @@ public class SelectResourceDialog : Gtk.Window
 	public Gtk.TreeModelFilter _tree_filter;
 	public Gtk.TreeModelSort _tree_sort;
 	public Gtk.TreeView _tree_view;
+#if CROWN_GTK3
 	public Gtk.GestureMultiPress _tree_view_gesture_click;
+#else
+	public Gtk.GestureClick _tree_view_gesture_click;
+#endif
 	public Gtk.TreeSelection _tree_selection;
 	public Gtk.ScrolledWindow _tree_view_window;
 	public Gtk.IconView _icon_view;
 	public Gtk.TreePath? _first_visible_path;
 	public Gtk.TreePath? _last_visible_path;
+#if CROWN_GTK3
 	public Gtk.GestureMultiPress _icon_view_gesture_click;
+#else
+	public Gtk.GestureClick _icon_view_gesture_click;
+#endif
 	public Gtk.ScrolledWindow _icon_view_window;
 	public Gtk.Stack _view_stack;
 	public Gtk.Button _view_toggle;
@@ -59,24 +67,43 @@ public class SelectResourceDialog : Gtk.Window
 			this.set_transient_for(parent);
 			this.set_modal(true);
 		}
+#if CROWN_GTK3
 		this.delete_event.connect(on_close);
 
 		_controller_key = new Gtk.EventControllerKey(this);
+#else
+		this.close_request.connect(on_close);
+
+		_controller_key = new Gtk.EventControllerKey();
+#endif
 		_controller_key.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
 		_controller_key.key_pressed.connect(on_key_pressed);
 
 		Gtk.HeaderBar header_bar = new Gtk.HeaderBar();
+#if CROWN_GTK3
 		header_bar.show_close_button = true;
+#else
+		header_bar.show_title_buttons = true;
+#endif
 		this.set_titlebar(header_bar);
 
 		_filter_entry = new EntrySearch();
 		_filter_entry.set_placeholder_text(_("Search %s...").printf(resource_type));
 		_filter_entry.hexpand = true;
 		_filter_entry.search_changed.connect(refilter);
+#if CROWN_GTK3
 		header_bar.custom_title = _filter_entry;
 
 		_filter_entry_controller_key = new Gtk.EventControllerKey(_filter_entry._entry);
+#else
+		header_bar.set_title_widget(_filter_entry);
+
+		_filter_entry_controller_key = new Gtk.EventControllerKey();
+#endif
 		_filter_entry_controller_key.key_pressed.connect(on_filter_entry_key_pressed);
+#if !CROWN_GTK3
+		_filter_entry._entry.add_controller(_filter_entry_controller_key);
+#endif
 
 		_tree_filter = new Gtk.TreeModelFilter(project_store._list_store, null);
 		_tree_filter.set_visible_func(filter_visible_func);
@@ -87,12 +114,20 @@ public class SelectResourceDialog : Gtk.Window
 		_tree_view = new Gtk.TreeView();
 		_tree_view.model = _tree_sort;
 		_tree_view.headers_visible = false;
+#if CROWN_GTK3
 		_tree_view.can_focus = false;
+#else
+		_tree_view.focusable = false;
+#endif
 		_tree_view.row_activated.connect(on_tree_view_row_activated);
 
 		Gtk.TreeViewColumn name_column = new Gtk.TreeViewColumn();
 		var thumbnail_renderer = new Gtk.CellRendererPixbuf();
+#if CROWN_GTK3
 		thumbnail_renderer.stock_size = Gtk.IconSize.DND;
+#else
+		thumbnail_renderer.icon_size = Gtk.IconSize.INHERIT;
+#endif
 		thumbnail_renderer.set_fixed_size(32, 32);
 		name_column.pack_start(thumbnail_renderer, false);
 		name_column.set_cell_data_func(thumbnail_renderer, list_view_thumbnail_func);
@@ -102,15 +137,27 @@ public class SelectResourceDialog : Gtk.Window
 		name_column.add_attribute(name_renderer, "text", ProjectStore.Column.NAME);
 		_tree_view.append_column(name_column);
 
+#if CROWN_GTK3
 		_tree_view_gesture_click = new Gtk.GestureMultiPress(_tree_view);
+#else
+		_tree_view_gesture_click = new Gtk.GestureClick();
+#endif
 		_tree_view_gesture_click.set_button(0);
 		_tree_view_gesture_click.released.connect(on_tree_view_button_released);
+#if !CROWN_GTK3
+		_tree_view.add_controller(_tree_view_gesture_click);
+#endif
 
 		_tree_selection = _tree_view.get_selection();
 		_tree_selection.set_mode(Gtk.SelectionMode.BROWSE);
 
+#if CROWN_GTK3
 		_tree_view_window = new Gtk.ScrolledWindow(null, null);
 		_tree_view_window.add(_tree_view);
+#else
+		_tree_view_window = new Gtk.ScrolledWindow();
+		_tree_view_window.set_child(_tree_view);
+#endif
 		_tree_view_window.set_size_request(300, 400);
 
 		_view_store = new Gtk.ListStore(5
@@ -130,11 +177,17 @@ public class SelectResourceDialog : Gtk.Window
 		_icon_view.set_row_spacing(0);
 		_icon_view.set_selection_mode(Gtk.SelectionMode.BROWSE);
 		_icon_view.set_tooltip_column(ProjectStore.Column.NAME);
+#if CROWN_GTK3
 		_icon_view.draw.connect(on_icon_view_draw);
+#endif
 		_icon_view.item_activated.connect(confirm_path);
 
 		var icon_renderer = new Gtk.CellRendererPixbuf();
+#if CROWN_GTK3
 		icon_renderer.stock_size = Gtk.IconSize.DIALOG;
+#else
+		icon_renderer.icon_size = Gtk.IconSize.INHERIT;
+#endif
 		icon_renderer.set_fixed_size(64, 64);
 		_icon_view.pack_start(icon_renderer, false);
 		_icon_view.set_cell_data_func(icon_renderer, icon_view_thumbnail_func);
@@ -151,29 +204,57 @@ public class SelectResourceDialog : Gtk.Window
 		_icon_view.pack_end(basename_renderer, false);
 		_icon_view.set_cell_data_func(basename_renderer, icon_view_text_func);
 
+#if CROWN_GTK3
 		_icon_view_gesture_click = new Gtk.GestureMultiPress(_icon_view);
+#else
+		_icon_view_gesture_click = new Gtk.GestureClick();
+#endif
 		_icon_view_gesture_click.set_button(0);
 		_icon_view_gesture_click.released.connect(on_icon_view_button_released);
+#if !CROWN_GTK3
+		_icon_view.add_controller(_icon_view_gesture_click);
+#endif
 
+#if CROWN_GTK3
 		_icon_view_window = new Gtk.ScrolledWindow(null, null);
 		_icon_view_window.add(_icon_view);
+#else
+		_icon_view_window = new Gtk.ScrolledWindow();
+		_icon_view_window.set_child(_icon_view);
+#endif
 		_icon_view_window.set_size_request(300, 400);
 
 		_view_stack = new Gtk.Stack();
 		_view_stack.add_named(_icon_view_window, "icon-view");
 		_view_stack.add_named(_tree_view_window, "list-view");
 		_view_stack.set_visible_child_full("icon-view", Gtk.StackTransitionType.NONE);
+#if CROWN_GTK3
 		this.add(_view_stack);
 
 		_view_toggle_image = new Gtk.Image.from_icon_name(IconTheme.BROWSER_LIST_VIEW, Gtk.IconSize.SMALL_TOOLBAR);
+#else
+		this.set_child(_view_stack);
+
+		_view_toggle_image = new Gtk.Image.from_icon_name(IconTheme.BROWSER_LIST_VIEW);
+#endif
 		_view_toggle = new Gtk.Button();
 		_view_toggle.set_tooltip_text(_("List view."));
+#if CROWN_GTK3
 		_view_toggle.add(_view_toggle_image);
 		_view_toggle.get_style_context().add_class("flat");
 		_view_toggle.get_style_context().add_class("image-button");
 		_view_toggle.can_focus = false;
+#else
+		_view_toggle.set_child(_view_toggle_image);
+		_view_toggle.add_css_class("flat");
+		_view_toggle.add_css_class("image-button");
+		_view_toggle.focusable = false;
+#endif
 		_view_toggle.clicked.connect(on_view_toggle_clicked);
 		header_bar.pack_end(_view_toggle);
+#if !CROWN_GTK3
+		((Gtk.Widget)this).add_controller(_controller_key);
+#endif
 
 		_thumbnail_cache.changed.connect(on_thumbnail_cache_changed);
 		project_store._project.file_added.connect(on_project_files_changed);
@@ -202,16 +283,26 @@ public class SelectResourceDialog : Gtk.Window
 		if (keyval == Gdk.Key.Tab
 			|| keyval == Gdk.Key.KP_Tab
 			|| keyval == Gdk.Key.ISO_Left_Tab) {
+#if CROWN_GTK3
 			_filter_entry._entry.grab_focus_without_selecting();
+#else
+			_filter_entry._entry.grab_focus();
+#endif
 			return Gdk.EVENT_STOP;
 		}
 
 		if (!_filter_entry._entry.has_focus) {
+#if CROWN_GTK3
 			Gdk.Event? event = Gtk.get_current_event();
 			if (event != null && _filter_entry._entry.handle_event(event)) {
 				_filter_entry._entry.grab_focus_without_selecting();
 				return Gdk.EVENT_STOP;
 			}
+#else
+			_filter_entry._entry.grab_focus();
+			if (_controller_key.forward(_filter_entry._entry))
+				return Gdk.EVENT_STOP;
+#endif
 		}
 
 		return Gdk.EVENT_PROPAGATE;
@@ -243,7 +334,11 @@ public class SelectResourceDialog : Gtk.Window
 		return strcmp((string)name_a, (string)name_b);
 	}
 
+#if CROWN_GTK3
 	public void on_tree_view_row_activated(Gtk.TreePath path, Gtk.TreeViewColumn column)
+#else
+	public void on_tree_view_row_activated(Gtk.TreeView tree_view, Gtk.TreePath path, Gtk.TreeViewColumn? column)
+#endif
 	{
 		confirm_path(path);
 	}
@@ -255,6 +350,9 @@ public class SelectResourceDialog : Gtk.Window
 
 	public void icon_view_thumbnail_func(Gtk.CellLayout layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
+#if !CROWN_GTK3
+		update_icon_view_visible_range();
+#endif
 		Gtk.TreePath path = model.get_path(iter);
 		if (_first_visible_path != null
 			&& path.compare(_first_visible_path) >= 0
@@ -291,10 +389,14 @@ public class SelectResourceDialog : Gtk.Window
 		if (_icon_view_gesture_click.get_current_button() != Gdk.BUTTON_PRIMARY)
 			return;
 
+#if CROWN_GTK3
 		int bx;
 		int by;
 		_icon_view.convert_widget_to_bin_window_coords((int)x, (int)y, out bx, out by);
 		Gtk.TreePath? path = _icon_view.get_path_at_pos(bx, by);
+#else
+		Gtk.TreePath? path = _icon_view.get_path_at_pos((int)x, (int)y);
+#endif
 		if (path != null && _icon_view.path_is_selected(path))
 			confirm_path(path);
 	}
@@ -313,7 +415,11 @@ public class SelectResourceDialog : Gtk.Window
 		_tree_view.queue_draw();
 	}
 
+#if CROWN_GTK3
 	public bool on_icon_view_draw(Cairo.Context cr)
+#else
+	public void update_icon_view_visible_range()
+#endif
 	{
 		Gtk.TreePath first_path;
 		Gtk.TreePath last_path;
@@ -324,8 +430,9 @@ public class SelectResourceDialog : Gtk.Window
 			_first_visible_path = null;
 			_last_visible_path = null;
 		}
-
+#if CROWN_GTK3
 		return Gdk.EVENT_PROPAGATE;
+#endif
 	}
 
 	public void on_project_files_changed()
@@ -541,7 +648,11 @@ public class SelectResourceDialog : Gtk.Window
 				: 1;
 
 			_icon_view.grab_focus();
+#if CROWN_GTK3
 			_icon_view.move_cursor(step, count);
+#else
+			_icon_view.move_cursor(step, count, false, false);
+#endif
 			_filter_entry._entry.grab_focus();
 			return Gdk.EVENT_STOP;
 		}
@@ -575,12 +686,20 @@ public class SelectResourceDialog : Gtk.Window
 		if (view == View.LIST) {
 			_tree_view_window.set_visible(true);
 			_view_stack.set_visible_child_full("list-view", Gtk.StackTransitionType.NONE);
+#if CROWN_GTK3
 			_view_toggle_image.set_from_icon_name(IconTheme.BROWSER_ICON_VIEW, Gtk.IconSize.SMALL_TOOLBAR);
+#else
+			_view_toggle_image.set_from_icon_name(IconTheme.BROWSER_ICON_VIEW);
+#endif
 			_view_toggle.set_tooltip_text(_("Icon view."));
 		} else if (view == View.ICON) {
 			_icon_view_window.set_visible(true);
 			_view_stack.set_visible_child_full("icon-view", Gtk.StackTransitionType.NONE);
+#if CROWN_GTK3
 			_view_toggle_image.set_from_icon_name(IconTheme.BROWSER_LIST_VIEW, Gtk.IconSize.SMALL_TOOLBAR);
+#else
+			_view_toggle_image.set_from_icon_name(IconTheme.BROWSER_LIST_VIEW);
+#endif
 			_view_toggle.set_tooltip_text(_("List view."));
 		}
 

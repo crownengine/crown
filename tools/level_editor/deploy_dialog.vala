@@ -35,7 +35,12 @@ public Gtk.Button make_deploy_button(TargetPlatform platform)
 	btn.margin_start = 12;
 	btn.margin_end = 12;
 	btn.margin_top = 12;
+#if CROWN_GTK3
 	btn.get_style_context().add_class("suggested-action");
+#else
+	btn.halign = Gtk.Align.FILL;
+	btn.add_css_class("suggested-action");
+#endif
 	return btn;
 }
 
@@ -76,7 +81,11 @@ public class DeployerPage : Gtk.Box
 		p1l.valign = Gtk.Align.CENTER;
 
 		var p2l = new Gtk.Label(null);
+#if CROWN_GTK3
 		p2l.get_style_context().add_class("colorfast-link");
+#else
+		p2l.add_css_class("colorfast-link");
+#endif
 		p2l.set_markup(p2);
 		p2l.valign = Gtk.Align.CENTER;
 		p2l.activate_link.connect(() => {
@@ -91,43 +100,69 @@ public class DeployerPage : Gtk.Box
 			});
 		_check_config_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 12);
 		_check_config_box.valign = Gtk.Align.CENTER;
+#if CROWN_GTK3
 		_check_config_box.pack_start(h1l);
 		_check_config_box.pack_start(p1l);
 		_check_config_box.pack_start(p2l);
+#else
+		_check_config_box.append(h1l);
+		_check_config_box.append(p1l);
+		_check_config_box.append(p2l);
+#endif
 
 		_deploying_title = new Gtk.Label(null);
 		_deploying_title.set_markup("<span font_weight=\"bold\" size=\"x-large\">Deploying</span>");
 		_deploying_title.valign = Gtk.Align.CENTER;
 
 		_deploying_spinner = new Gtk.Spinner();
-		_deploying_spinner.active = true;
+		_deploying_spinner.start();
 
 		_deploying_message = new Gtk.Label("");
 		_deploying_message.valign = Gtk.Align.CENTER;
 
 		_deploying_back = new Gtk.Button.with_label("Back");
+#if CROWN_GTK3
 		_deploying_back.no_show_all = true;
+#else
+		_deploying_back.visible = false;
+#endif
 		_deploying_back.clicked.connect(() => { _stack.set_visible_child(_deployer_options); });
 
 		_deploying_open = new Gtk.Button.with_label("Open Folder");
+#if CROWN_GTK3
 		_deploying_open.no_show_all = true;
+#else
+		_deploying_open.visible = false;
+#endif
 		_deploying_open.clicked.connect(() => {
 				if (_deploying_path != null)
 					open_directory(_deploying_path);
 			});
 
 		_deploying_repeat = new Gtk.Button.with_label("Package Again");
+#if CROWN_GTK3
 		_deploying_repeat.no_show_all = true;
 		_deploying_repeat.get_style_context().add_class("suggested-action");
+#else
+		_deploying_repeat.visible = false;
+		_deploying_repeat.add_css_class("suggested-action");
+#endif
 
 		var deploying_buttons = new Gtk.Box(Gtk.Orientation.VERTICAL, 6);
 		deploying_buttons.halign = Gtk.Align.CENTER;
+#if CROWN_GTK3
 		deploying_buttons.pack_start(_deploying_open, false, true, 0);
 		deploying_buttons.pack_start(_deploying_repeat, false, true, 0);
 		deploying_buttons.pack_start(_deploying_back, false, true, 0);
+#else
+		deploying_buttons.append(_deploying_open);
+		deploying_buttons.append(_deploying_repeat);
+		deploying_buttons.append(_deploying_back);
+#endif
 
 		_deploying_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 12);
 		_deploying_box.valign = Gtk.Align.CENTER;
+#if CROWN_GTK3
 		_deploying_box.pack_start(_deploying_title);
 		_deploying_box.pack_start(_deploying_spinner);
 		_deploying_box.pack_start(_deploying_message);
@@ -138,6 +173,18 @@ public class DeployerPage : Gtk.Box
 		_stack.add(_deployer_options);
 
 		this.pack_start(_stack);
+#else
+		_deploying_box.append(_deploying_title);
+		_deploying_box.append(_deploying_spinner);
+		_deploying_box.append(_deploying_message);
+		_deploying_box.append(deploying_buttons);
+
+		_stack.add_child(_check_config_box);
+		_stack.add_child(_deploying_box);
+		_stack.add_child(_deployer_options);
+
+		this.append(_stack);
+#endif
 
 		this.map.connect(on_map);
 	}
@@ -163,7 +210,7 @@ public class DeployerPage : Gtk.Box
 		_deploying_path = null;
 		_deploying_title.set_markup("<span font_weight=\"bold\" size=\"x-large\">Deploying</span>");
 		_deploying_spinner.visible = true;
-		_deploying_spinner.active = true;
+		_deploying_spinner.start();
 		_deploying_message.label = "";
 		_deploying_back.visible = false;
 		_deploying_open.visible = false;
@@ -175,7 +222,7 @@ public class DeployerPage : Gtk.Box
 	{
 		bool success = status == 0;
 		_deploying_path = success ? path : null;
-		_deploying_spinner.active = false;
+		_deploying_spinner.stop();
 		_deploying_spinner.visible = false;
 		_deploying_title.set_markup(success
 			? "<span font_weight=\"bold\" size=\"x-large\">Deployment completed</span>"
@@ -422,7 +469,11 @@ public class DeployDialog : Gtk.Window
 		_android_target_sdk_version.text = "34";
 		_android_manifest = new InputFile(Gtk.FileChooserAction.OPEN);
 
+#if CROWN_GTK3
 		Gtk.Button android_manifest_save = new Gtk.Button.from_icon_name("document-save-as-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
+#else
+		Gtk.Button android_manifest_save = new Gtk.Button.from_icon_name("document-save-as-symbolic");
+#endif
 		android_manifest_save.set_can_focus(false);
 		android_manifest_save.set_tooltip_text("Save generated AndroidManifest.xml");
 		android_manifest_save.clicked.connect(() => {
@@ -434,7 +485,9 @@ public class DeployDialog : Gtk.Window
 					, "Save"
 					, Gtk.ResponseType.ACCEPT
 					);
+#if CROWN_GTK3
 				dlg.set_do_overwrite_confirmation(true);
+#endif
 				dlg.set_current_name("AndroidManifest.xml");
 				dlg.response.connect((response_id) => {
 						if (response_id == Gtk.ResponseType.ACCEPT) {
@@ -475,7 +528,11 @@ public class DeployDialog : Gtk.Window
 						}
 						dlg.destroy();
 					});
+#if CROWN_GTK3
 				dlg.show_all();
+#else
+				dlg.show();
+#endif
 			});
 
 		_android_use_debug_keystore.value = true;
@@ -514,8 +571,13 @@ public class DeployDialog : Gtk.Window
 		cv.add_row(_("Min SDK Version"), _android_min_sdk_version);
 		cv.add_row(_("Target SDK Version"), _android_target_sdk_version);
 		Gtk.Box android_manifest_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 4);
+#if CROWN_GTK3
 		android_manifest_box.pack_start(_android_manifest, true, true, 0);
 		android_manifest_box.pack_start(android_manifest_save, false, false, 0);
+#else
+		android_manifest_box.append(_android_manifest);
+		android_manifest_box.append(android_manifest_save);
+#endif
 		cv.add_row(_("Manifest"), android_manifest_box);
 		_android_set.add_property_grid(cv, _("Application"));
 
@@ -531,8 +593,13 @@ public class DeployDialog : Gtk.Window
 
 		// Android box.
 		_android_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+#if CROWN_GTK3
 		_android_box.pack_start(_android_deploy_button, false, true, 0);
 		_android_box.pack_start(_android_set, false, true, 0);
+#else
+		_android_box.append(_android_deploy_button);
+		_android_box.append(_android_set);
+#endif
 		_android = new AndroidDeployer();
 		_android_page = new DeployerPage(TargetPlatform.ANDROID, _android_box, _android.check_config);
 		_android_page._deploying_repeat.clicked.connect(() => { _android_deploy_button.clicked(); });
@@ -576,7 +643,11 @@ public class DeployDialog : Gtk.Window
 				_html5_config.sensitive = _html5_index.value == null;
 			});
 
+#if CROWN_GTK3
 		Gtk.Button html5_index_save = new Gtk.Button.from_icon_name("document-save-as-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
+#else
+		Gtk.Button html5_index_save = new Gtk.Button.from_icon_name("document-save-as-symbolic");
+#endif
 		html5_index_save.set_can_focus(false);
 		html5_index_save.set_tooltip_text("Save generated index.html");
 		html5_index_save.clicked.connect(() => {
@@ -588,7 +659,9 @@ public class DeployDialog : Gtk.Window
 					, "Save"
 					, Gtk.ResponseType.ACCEPT
 					);
+#if CROWN_GTK3
 				dlg.set_do_overwrite_confirmation(true);
+#endif
 				dlg.set_current_name("index.html");
 				dlg.response.connect((response_id) => {
 						if (response_id == Gtk.ResponseType.ACCEPT) {
@@ -608,15 +681,24 @@ public class DeployDialog : Gtk.Window
 						}
 						dlg.destroy();
 					});
+#if CROWN_GTK3
 				dlg.show_all();
+#else
+				dlg.show();
+#endif
 			});
 
 		_html5_set = new PropertyGridSet();
 
 		// HTML5 box.
 		_html5_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+#if CROWN_GTK3
 		_html5_box.pack_start(_html5_deploy_button, false, true, 0);
 		_html5_box.pack_start(_html5_set, false, true, 0);
+#else
+		_html5_box.append(_html5_deploy_button);
+		_html5_box.append(_html5_set);
+#endif
 		_html5 = new HTML5Deployer();
 		_html5_page = new DeployerPage(TargetPlatform.HTML5, _html5_box, _html5.check_config);
 		_html5_page._deploying_repeat.clicked.connect(() => { _html5_deploy_button.clicked(); });
@@ -633,8 +715,13 @@ public class DeployDialog : Gtk.Window
 		cv.column_homogeneous = true;
 		cv.add_row(_("Title"), _html5_app_title);
 		Gtk.Box html5_index_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 4);
+#if CROWN_GTK3
 		html5_index_box.pack_start(_html5_index, true, true, 0);
 		html5_index_box.pack_start(html5_index_save, false, false, 0);
+#else
+		html5_index_box.append(_html5_index);
+		html5_index_box.append(html5_index_save);
+#endif
 		cv.add_row(_("Index"), html5_index_box);
 		_html5_set.add_property_grid(cv, _("Application"));
 
@@ -673,8 +760,13 @@ public class DeployDialog : Gtk.Window
 
 		// Linux box.
 		_linux_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+#if CROWN_GTK3
 		_linux_box.pack_start(_linux_deploy_button, false, true, 0);
 		_linux_box.pack_start(_linux_set, false, true, 0);
+#else
+		_linux_box.append(_linux_deploy_button);
+		_linux_box.append(_linux_set);
+#endif
 		_linux_page = new DeployerPage(TargetPlatform.LINUX, _linux_box);
 		_linux_page._deploying_repeat.clicked.connect(() => { _linux_deploy_button.clicked(); });
 
@@ -726,8 +818,13 @@ public class DeployDialog : Gtk.Window
 
 		// Windows box.
 		_windows_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+#if CROWN_GTK3
 		_windows_box.pack_start(_windows_deploy_button, false, true, 0);
 		_windows_box.pack_start(_windows_set, false, true, 0);
+#else
+		_windows_box.append(_windows_deploy_button);
+		_windows_box.append(_windows_set);
+#endif
 		_windows_page = new DeployerPage(TargetPlatform.LINUX, _windows_box);
 		_windows_page._deploying_repeat.clicked.connect(() => { _windows_deploy_button.clicked(); });
 
@@ -756,11 +853,22 @@ public class DeployDialog : Gtk.Window
 		_notebook.vexpand = true;
 		_notebook.show_border = false;
 
+#if CROWN_GTK3
 		_controller_key = new Gtk.EventControllerKey(this);
+#else
+		_controller_key = new Gtk.EventControllerKey();
+#endif
 		_controller_key.key_pressed.connect(on_key_pressed);
+#if !CROWN_GTK3
+		((Gtk.Widget)this).add_controller(_controller_key);
+#endif
 
 		this.set_default_size(464, 623);
+#if CROWN_GTK3
 		this.add(_notebook);
+#else
+		this.set_child(_notebook);
+#endif
 	}
 
 	public bool on_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)

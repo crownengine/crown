@@ -5,18 +5,47 @@ echo "<!-- See: ${0} -->"
 echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 echo "<gresources>"
 echo "  <gresource prefix=\"/org/crownengine/Crown\">"
-echo "    <file compressed=\"true\">theme/Adwaita/gtk-contained-dark.css</file>"
-echo "    <file compressed=\"true\">theme/Adwaita/gtk-contained.css</file>"
-echo "    <file compressed=\"true\">theme/Adwaita/gtk-dark.css</file>"
-echo "    <file compressed=\"true\">theme/Adwaita/gtk.css</file>"
-echo "    <file compressed=\"true\">ui/style.css</file>"
-echo "    <file compressed=\"true\">ui/style-light.css</file>"
-echo "    <file compressed=\"true\">ui/style-dark.css</file>"
 
-find theme/Adwaita/assets -name '*.png' \
-	| sort                              \
-	| tr '\n' '\0'                      \
-	| xargs -0 -n1 printf "    <file>%s</file>\n"
+case "${1:-gtk3}" in
+	gtk3)
+		echo "    <file compressed=\"true\">theme/Adwaita/gtk-contained-dark.css</file>"
+		echo "    <file compressed=\"true\">theme/Adwaita/gtk-contained.css</file>"
+		echo "    <file compressed=\"true\">theme/Adwaita/gtk-dark.css</file>"
+		echo "    <file compressed=\"true\">theme/Adwaita/gtk.css</file>"
+		echo "    <file compressed=\"true\">ui/style.css</file>"
+		echo "    <file compressed=\"true\">ui/style-light.css</file>"
+		echo "    <file compressed=\"true\">ui/style-dark.css</file>"
+
+		find theme/Adwaita/assets -name '*.png' \
+			| sort                              \
+			| tr '\n' '\0'                      \
+			| xargs -0 -n1 printf "    <file>%s</file>\n"
+		;;
+	gtk4)
+		echo "    <file compressed=\"true\">theme/Default/gtk-dark.css</file>"
+		echo "    <file compressed=\"true\">theme/Default/gtk-hc-dark.css</file>"
+		echo "    <file compressed=\"true\">theme/Default/gtk-hc.css</file>"
+		echo "    <file compressed=\"true\">theme/Default/gtk-light.css</file>"
+		echo "    <file compressed=\"true\">theme/Default/gtk.css</file>"
+		echo "    <file compressed=\"true\">theme/Default/Default-dark.css</file>"
+		echo "    <file compressed=\"true\">theme/Default/Default-hc-dark.css</file>"
+		echo "    <file compressed=\"true\">theme/Default/Default-hc.css</file>"
+		echo "    <file compressed=\"true\">theme/Default/Default-light.css</file>"
+		echo "    <file compressed=\"true\">ui/style.css</file>"
+		echo "    <file compressed=\"true\">ui/style-gtk4.css</file>"
+		echo "    <file compressed=\"true\">ui/style-gtk4-light.css</file>"
+		echo "    <file compressed=\"true\">ui/style-gtk4-dark.css</file>"
+
+		find theme/Default/assets theme/Default/assets-hc -name '*.png' -o -name '*.svg' \
+			| sort                                                                       \
+			| tr '\n' '\0'                                                               \
+			| xargs -0 -n1 printf "    <file>%s</file>\n"
+		;;
+	*)
+		echo "Usage: ${0} [gtk3|gtk4]" >&2
+		exit 1
+		;;
+esac
 
 find icons -name '*.svg' \
 	| sort               \

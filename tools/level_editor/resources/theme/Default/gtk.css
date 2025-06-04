@@ -1,0 +1,15 @@
+@media (prefers-color-scheme: light) and (not (prefers-contrast: more)) {
+  @import url("resource:///org/crownengine/Crown/theme/Default/Default-light.css");
+}
+
+@media (prefers-color-scheme: dark) and (not (prefers-contrast: more)) {
+  @import url("resource:///org/crownengine/Crown/theme/Default/Default-dark.css");
+}
+
+@media (prefers-color-scheme: light) and (prefers-contrast: more) {
+  @import url("resource:///org/crownengine/Crown/theme/Default/Default-hc.css");
+}
+
+@media (prefers-color-scheme: dark) and (prefers-contrast: more) {
+  @import url("resource:///org/crownengine/Crown/theme/Default/Default-hc-dark.css");
+}

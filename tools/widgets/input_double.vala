@@ -28,13 +28,12 @@ public class InputDouble : InputField
 	public double _snap_multiplier;
 	public Gtk.Entry _entry;
 	public Gtk.Label _label;
-	public Gtk.EventBox _event_box;
+	public Gtk.Widget _drag_widget;
 	public Gtk.Overlay _overlay;
-	public Gtk.EventControllerKey _event_box_controller_key;
-	public Gtk.EventControllerMotion _controller_motion;
-	public Gtk.GestureMultiPress _gesture_click;
 	public Gtk.EventControllerKey _controller_key;
-	public Gtk.EventControllerScroll _controller_scroll;
+	public Gtk.EventControllerKey _drag_controller_key;
+	public Gtk.EventControllerMotion _controller_motion;
+	public Gtk.GestureSingle _gesture_click;
 
 	public InfiniteDragController _drag;
 	public double _drag_start_value;
@@ -91,23 +90,27 @@ public class InputDouble : InputField
 		_entry.input_purpose = Gtk.InputPurpose.FREE_FORM;
 		_entry.set_width_chars(0);
 		_entry.editable = false;
-
 		_entry.activate.connect(on_activate);
-		_entry.focus_in_event.connect(on_focus_in);
-		_entry.focus_out_event.connect(on_focus_out);
+		_entry.notify["has-focus"].connect(on_focus_changed);
 
 		_label = new Gtk.Label(_entry.text);
 		_label.ellipsize = Pango.EllipsizeMode.END;
 		_label.halign = Gtk.Align.FILL;
 		_label.xalign = 0.0f;
+#if CROWN_GTK3
 		_label.get_style_context().add_class("label-button");
 
-		_event_box = new Gtk.EventBox();
-		_event_box.add(_label);
-		_event_box.can_focus = false;
-		_event_box.set_visible_window(false);
-
-		_drag = new InfiniteDragController(_event_box);
+		Gtk.EventBox event_box = new Gtk.EventBox();
+		event_box.add(_label);
+		event_box.can_focus = false;
+		event_box.set_visible_window(false);
+		_drag_widget = event_box;
+#else
+		_label.add_css_class("label-button");
+		_label.focusable = false;
+		_drag_widget = _label;
+#endif
+		_drag = new InfiniteDragController(_drag_widget);
 		_drag.activation_margin = DRAG_ACTIVATION_MARGIN;
 		_drag.activation_poll_ms = DRAG_ACTIVATION_INTERVAL_MS;
 		_drag.update_interval_ms = DRAG_UPDATE_INTERVAL_MS;
@@ -122,8 +125,12 @@ public class InputDouble : InputField
 		_drag.release_detected_externally.connect(reset_click_gesture_after_sampler_release);
 
 		_overlay = new Gtk.Overlay();
+#if CROWN_GTK3
 		_overlay.add(_entry);
-		_overlay.add_overlay(_event_box);
+#else
+		_overlay.set_child(_entry);
+#endif
+		_overlay.add_overlay(_drag_widget);
 
 		_inconsistent = false;
 		_min = min;
@@ -137,36 +144,52 @@ public class InputDouble : InputField
 		drag_reset();
 		set_value_safe(val);
 
-		_gesture_click = new Gtk.GestureMultiPress(_event_box);
-		_gesture_click.pressed.connect(on_button_pressed);
-		_gesture_click.released.connect(on_button_released);
-		_gesture_click.cancel.connect(on_gesture_cancelled);
+#if CROWN_GTK3
+		Gtk.GestureMultiPress gesture_click = new Gtk.GestureMultiPress(_drag_widget);
+#else
+		Gtk.GestureClick gesture_click = new Gtk.GestureClick();
+		_drag_widget.add_controller(gesture_click);
+#endif
+		gesture_click.pressed.connect(on_button_pressed);
+		gesture_click.released.connect(on_button_released);
+		gesture_click.cancel.connect(on_gesture_cancelled);
+		_gesture_click = gesture_click;
 
+#if CROWN_GTK3
 		_controller_key = new Gtk.EventControllerKey(_entry);
+#else
+		_controller_key = new Gtk.EventControllerKey();
+		_entry.add_controller(_controller_key);
+#endif
 		_controller_key.key_pressed.connect(on_key_pressed);
 
-		_controller_motion = new Gtk.EventControllerMotion(_event_box);
+#if CROWN_GTK3
+		_controller_motion = new Gtk.EventControllerMotion(_drag_widget);
+#else
+		_controller_motion = new Gtk.EventControllerMotion();
+		_drag_widget.add_controller(_controller_motion);
+#endif
 		_controller_motion.enter.connect(on_enter);
 		_controller_motion.leave.connect(on_leave);
 
-		_event_box_controller_key = new Gtk.EventControllerKey(_event_box);
-		_event_box_controller_key.key_pressed.connect(on_event_box_key_pressed);
-		_event_box_controller_key.key_released.connect(on_event_box_key_released);
+#if CROWN_GTK3
+		_drag_controller_key = new Gtk.EventControllerKey(_drag_widget);
+#else
+		_drag_controller_key = new Gtk.EventControllerKey();
+		_drag_widget.add_controller(_drag_controller_key);
+#endif
+		_drag_controller_key.key_pressed.connect(on_event_box_key_pressed);
+		_drag_controller_key.key_released.connect(on_event_box_key_released);
 
 #if CROWN_GTK3
-		_entry.scroll_event.connect(() => {
-				GLib.Signal.stop_emission_by_name(_entry, "scroll-event");
-				return Gdk.EVENT_PROPAGATE;
-			});
-#else
-		_controller_scroll = new Gtk.EventControllerScroll(_entry, Gtk.EventControllerScrollFlags.BOTH_AXES);
-		_controller_scroll.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
-		_controller_scroll.scroll.connect(() => {
-				// Consume the event to avoid GTK changing values when scrolling over the widget.
-			});
+		_entry.scroll_event.connect(on_scroll_event);
 #endif
 
+#if CROWN_GTK3
 		this.add(_overlay);
+#else
+		this.set_child(_overlay);
+#endif
 	}
 
 	public void set_increments(double regular, double precision)
@@ -178,9 +201,22 @@ public class InputDouble : InputField
 
 	public void clear_focus()
 	{
+#if CROWN_GTK3
 		var window = get_toplevel() as Gtk.Window;
 		if (window != null && window.get_focus() != null)
 			window.set_focus(null);
+#else
+		Gtk.Root? root = this.get_root();
+		if (root != null && root.get_focus() != null)
+			root.set_focus(null);
+#endif
+	}
+
+	public bool on_scroll_event()
+	{
+		// Consume the event to avoid GTK changing values when scrolling over the widget.
+		GLib.Signal.stop_emission_by_name(_entry, "scroll-event");
+		return Gdk.EVENT_PROPAGATE;
 	}
 
 	public bool on_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)
@@ -260,7 +296,7 @@ public class InputDouble : InputField
 		if (_drag.dragging)
 			return;
 
-		_event_box.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "ew-resize"));
+		set_drag_cursor("ew-resize");
 	}
 
 	public void on_leave()
@@ -268,7 +304,16 @@ public class InputDouble : InputField
 		if (_drag.dragging)
 			return;
 
-		_event_box.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "default"));
+		set_drag_cursor("default");
+	}
+
+	public void set_drag_cursor(string name)
+	{
+#if CROWN_GTK3
+		_drag_widget.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), name));
+#else
+		_drag_widget.set_cursor_from_name(name);
+#endif
 	}
 
 	public void drag_reset()
@@ -304,7 +349,7 @@ public class InputDouble : InputField
 	public void on_drag_started()
 	{
 		_drag_offset = -_drag._total_dx;
-		_event_box.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "none"));
+		set_drag_cursor("none");
 	}
 
 	public void on_drag_delta(double dx, double dy, double total_dx, double total_dy)
@@ -318,14 +363,14 @@ public class InputDouble : InputField
 		double drag_end_value = _value;
 		set_value_safe(_drag_start_value, -1);             // avoid a redundant undo entry
 		set_value_safe(drag_end_value);                    // fires the real commit
-		_event_box.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "ew-resize"));
+		set_drag_cursor("ew-resize");
 	}
 
 	public void on_drag_cancelled()
 	{
 		drag_reset();
 		set_value_safe(_drag_start_value, 0);              // revert, undo disabled
-		_event_box.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "ew-resize"));
+		set_drag_cursor("ew-resize");
 	}
 
 	public void on_drag_finished(bool was_dragging)
@@ -335,7 +380,7 @@ public class InputDouble : InputField
 
 		drag_reset();
 
-		_event_box.visible = false;
+		_drag_widget.visible = false;
 		_entry.editable = true;
 		_entry.grab_focus();
 
@@ -365,13 +410,23 @@ public class InputDouble : InputField
 		clear_focus();
 	}
 
-	public bool on_focus_in(Gdk.EventFocus ev)
+	public void on_focus_changed(GLib.ParamSpec pspec)
+	{
+		if (!_entry.has_focus) {
+			on_focus_out();
+			return;
+		}
+
+		on_focus_in();
+	}
+
+	public void on_focus_in()
 	{
 		var app = (LevelEditorApplication)GLib.Application.get_default();
 		app.entry_any_focus_in(_entry);
 
-		if (_event_box.visible)
-			_event_box.visible = false;
+		if (_drag_widget.visible)
+			_drag_widget.visible = false;
 
 		_entry.editable = true;
 
@@ -382,11 +437,9 @@ public class InputDouble : InputField
 
 		_entry.set_position(-1);
 		_entry.select_region(0, -1);
-
-		return Gdk.EVENT_PROPAGATE;
 	}
 
-	public bool on_focus_out(Gdk.EventFocus ef)
+	public void on_focus_out()
 	{
 		var app = (LevelEditorApplication)GLib.Application.get_default();
 		app.entry_any_focus_out(_entry);
@@ -407,9 +460,7 @@ public class InputDouble : InputField
 		_entry.select_region(0, 0);
 		_entry.editable = false;
 		_label.set_text(format_value(_value, _preview_decimals));
-		_event_box.visible = true;
-
-		return Gdk.EVENT_PROPAGATE;
+		_drag_widget.visible = true;
 	}
 
 	public void set_value_safe(double val, int undo_redo = (int)!_drag.dragging)

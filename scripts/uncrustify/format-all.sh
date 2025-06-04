@@ -17,14 +17,13 @@ format_tools_c () {
 
 format_tools_vala () {
 	find tools/ -iname '*.vala' -o -iname '*.vapi' \
-		| grep -v 'data_compiler.vala'             \
 		| grep -v 'deploy_dialog.vala'             \
-		| grep -v 'level.vala'                     \
 		| grep -v 'level_editor.vala'              \
 		| grep -v 'level_tree_view.vala'           \
 		| grep -v 'project_browser.vala'           \
 		| grep -v 'user.vala'                      \
 		| grep -v 'mesh_resource_fbx.vala'         \
+		| grep -v 'property_grid.vala'             \
 		| tr '\n' '\0'                             \
 		| xargs -0 -n1 -P"$1" ./scripts/uncrustify/uncrustify-wrapper.sh scripts/uncrustify/vala.cfg
 }

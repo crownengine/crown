@@ -7,11 +7,13 @@ namespace Crown
 {
 public class LevelTreeView : Gtk.Box
 {
+#if CROWN_GTK3
 	public const Gtk.TargetEntry[] DND_TARGETS =
 	{
 		{ "GUID", Gtk.TargetFlags.SAME_APP, TargetInfo.GUID },
 	};
 
+#endif
 	public enum ItemType
 	{
 		FOLDER,
@@ -85,9 +87,16 @@ public class LevelTreeView : Gtk.Box
 	public Gtk.Box _sort_items_box;
 	public Gtk.Popover _sort_items_popover;
 	public Gtk.MenuButton _sort_items;
+#if CROWN_GTK3
 	public Gtk.GestureMultiPress _gesture_click;
 	public Gtk.TreeIter _units_root;
 	public Gtk.TreeIter _sounds_root;
+#else
+	public Gtk.GestureClick _gesture_click;
+	public Gtk.DragSource _drag_source;
+	public Gtk.TreeRowReference _units_root;
+	public Gtk.TreeRowReference _sounds_root;
+#endif
 	public Gtk.TreeViewColumn _name_column;
 	public Gtk.TreeViewColumn _visibility_column;
 	public Gtk.TreeViewColumn _lock_column;
@@ -120,6 +129,8 @@ public class LevelTreeView : Gtk.Box
 		_filter_entry.set_placeholder_text(_("Search..."));
 		_filter_entry.search_changed.connect(on_filter_entry_text_changed);
 		_filter_entry._entry.stop_search.connect(on_stop_search);
+		_filter_entry.halign = Gtk.Align.FILL;
+		_filter_entry.hexpand = true;
 
 		_tree_store = new Gtk.TreeStore(Column.COUNT
 			, typeof(int)    // Column.TYPE
@@ -263,48 +274,99 @@ public class LevelTreeView : Gtk.Box
 				return true;
 			});
 
+#if CROWN_GTK3
 		Gtk.drag_source_set(_tree_view, Gdk.ModifierType.BUTTON1_MASK, DND_TARGETS, Gdk.DragAction.COPY);
 		_tree_view.drag_begin.connect(on_drag_begin);
 		_tree_view.drag_data_get.connect(on_drag_data_get);
 
 		_gesture_click = new Gtk.GestureMultiPress(_tree_view);
+#else
+		_drag_source = new Gtk.DragSource();
+		_drag_source.actions = Gdk.DragAction.COPY;
+		_drag_source.prepare.connect(on_drag_source_prepare);
+		_tree_view.add_controller(_drag_source);
+
+		_gesture_click = new Gtk.GestureClick();
+#endif
 		_gesture_click.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
 		_gesture_click.set_button(0);
 		_gesture_click.pressed.connect(on_button_pressed);
 		_gesture_click.released.connect(on_button_released);
 		_gesture_click.update.connect(on_button_update);
+#if !CROWN_GTK3
+		_tree_view.add_controller(_gesture_click);
+#endif
 
 		_tree_selection = _tree_view.get_selection();
 		_tree_selection.set_mode(Gtk.SelectionMode.MULTIPLE);
 		_selection_changed_id = _tree_selection.changed.connect(on_tree_selection_changed);
 		_selection_changed_blocked = false;
 
+#if CROWN_GTK3
 		_scrolled_window = new Gtk.ScrolledWindow(null, null);
 		_scrolled_window.add(_tree_view);
+#else
+		_scrolled_window = new Gtk.ScrolledWindow();
+		_scrolled_window.set_child(_tree_view);
+		_scrolled_window.valign = Gtk.Align.FILL;
+		_scrolled_window.vexpand = true;
+#endif
 
 		// Setup sort menu button popover.
 		_sort_items_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+#if CROWN_GTK3
 		_sort_items_popover = new Gtk.Popover(null);
 		_sort_items_popover.add(_sort_items_box);
+#else
+		_sort_items_popover = new Gtk.Popover();
+		_sort_items_popover.set_child(_sort_items_box);
+#endif
 		_sort_items = new Gtk.MenuButton();
 		_sort_items.set_tooltip_text(_("Sort items."));
+#if CROWN_GTK3
 		_sort_items.add(new Gtk.Image.from_icon_name(IconTheme.LIST_SORT, Gtk.IconSize.SMALL_TOOLBAR));
 		_sort_items.get_style_context().add_class("flat");
 		_sort_items.get_style_context().add_class("image-button");
 		_sort_items.can_focus = false;
+#else
+		_sort_items.set_child(new Gtk.Image.from_icon_name(IconTheme.LIST_SORT));
+		_sort_items.add_css_class("flat");
+		_sort_items.add_css_class("image-button");
+		_sort_items.focusable = false;
+#endif
 		_sort_items.set_popover(_sort_items_popover);
 
+#if CROWN_GTK3
 		Gtk.RadioButton? button = null;
-		for (int i = 0; i < SortMode.COUNT; ++i)
+#else
+		Gtk.CheckButton? button = null;
+#endif
+		for (int i = 0; i < SortMode.COUNT; ++i) {
 			button = add_sort_item(button, (SortMode)i);
+#if !CROWN_GTK3
+			if (i == SortMode.NAME_AZ)
+				button.set_active(true);
+#endif
+		}
+
+#if CROWN_GTK3
 		_sort_items_box.show_all();
+#endif
 
 		var tree_control = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+#if CROWN_GTK3
 		tree_control.pack_start(_filter_entry, true, true);
 		tree_control.pack_end(_sort_items, false, false);
 
 		this.pack_start(tree_control, false, true, 0);
 		this.pack_start(_scrolled_window, true, true, 0);
+#else
+		tree_control.append(_filter_entry);
+		tree_control.append(_sort_items);
+
+		this.append(tree_control);
+		this.append(_scrolled_window);
+#endif
 	}
 
 	public void on_button_pressed(int n_press, double x, double y)
@@ -348,7 +410,11 @@ public class LevelTreeView : Gtk.Box
 				_toggle_drag_last_x = x;
 				_toggle_drag_last_y = y;
 
+#if CROWN_GTK3
 				Gtk.drag_source_unset(_tree_view);
+#else
+				_drag_source.actions = 0;
+#endif
 				toggle_drag_at(x, y);
 				_gesture_click.set_state(Gtk.EventSequenceState.CLAIMED);
 				return;
@@ -428,8 +494,13 @@ public class LevelTreeView : Gtk.Box
 				}
 			}
 
+#if CROWN_GTK3
 			Gtk.Popover menu = new Gtk.Popover.from_model(null, menu_model);
 			menu.set_relative_to(_tree_view);
+#else
+			Gtk.PopoverMenu menu = new Gtk.PopoverMenu.from_model(menu_model);
+			menu.set_parent(_tree_view);
+#endif
 			menu.set_pointing_to({ (int)x, (int)y, 1, 1 });
 			menu.set_position(Gtk.PositionType.BOTTOM);
 			menu.popup();
@@ -451,7 +522,11 @@ public class LevelTreeView : Gtk.Box
 
 			_toggle_drag_column = null;
 			_toggle_drag_changed.length = 0;
+#if CROWN_GTK3
 			Gtk.drag_source_set(_tree_view, Gdk.ModifierType.BUTTON1_MASK, DND_TARGETS, Gdk.DragAction.COPY);
+#else
+			_drag_source.actions = Gdk.DragAction.COPY;
+#endif
 			return;
 		}
 
@@ -537,7 +612,7 @@ public class LevelTreeView : Gtk.Box
 		_db.objects_changed(new Guid?[] { object_id }, 0u);
 	}
 
-	public void on_drag_begin(Gdk.DragContext ctx)
+	public void prepare_drag()
 	{
 		_drag_started = true;
 
@@ -565,10 +640,10 @@ public class LevelTreeView : Gtk.Box
 		});
 	}
 
-	public void on_drag_data_get(Gdk.DragContext ctx, Gtk.SelectionData data, uint info, uint time_)
+	public Guid? drag_guid()
 	{
 		if (_drag_path == null)
-			return;
+			return null;
 
 		Gtk.TreeIter iter;
 		if (_tree_view.model.get_iter(out iter, _drag_path)) {
@@ -579,12 +654,47 @@ public class LevelTreeView : Gtk.Box
 
 			Value guid_val;
 			_tree_store.get_value(iter_model, Column.GUID, out guid_val);
-			Guid guid = (Guid)guid_val;
-			uint8[] buf = new uint8[sizeof(Guid)];
-			Memory.copy(buf, &guid, sizeof(Guid));
-			data.set(data.get_target(), 8, buf);
+			return (Guid)guid_val;
 		}
+
+		return null;
 	}
+
+#if CROWN_GTK3
+	public void on_drag_begin(Gdk.DragContext ctx)
+	{
+		prepare_drag();
+	}
+#endif
+
+#if !CROWN_GTK3
+	public Gdk.ContentProvider? on_drag_source_prepare(double x, double y)
+	{
+		prepare_drag();
+		Guid? guid = drag_guid();
+		if (guid == null)
+			return null;
+		Guid drag_id = (Guid)guid;
+
+		GLib.Value value = GLib.Value(typeof(string));
+		value.set_string(drag_id.to_string());
+		return new Gdk.ContentProvider.for_value(value);
+	}
+#endif
+
+#if CROWN_GTK3
+	public void on_drag_data_get(Gdk.DragContext ctx, Gtk.SelectionData data, uint info, uint time_)
+	{
+		Guid? guid = drag_guid();
+		if (guid == null)
+			return;
+		Guid drag_id = (Guid)guid;
+
+		uint8[] buf = new uint8[sizeof(Guid)];
+		Memory.copy(buf, &drag_id, sizeof(Guid));
+		data.set(data.get_target(), 8, buf);
+	}
+#endif
 
 	public void on_tree_selection_changed()
 	{
@@ -716,7 +826,11 @@ public class LevelTreeView : Gtk.Box
 			, false
 			, -1
 			);
+#if CROWN_GTK3
 		_units_root = iter;
+#else
+		_units_root = new Gtk.TreeRowReference(_tree_store, _tree_store.get_path(iter));
+#endif
 
 		_tree_store.insert_with_values(out iter
 			, null
@@ -737,7 +851,11 @@ public class LevelTreeView : Gtk.Box
 			, false
 			, -1
 			);
+#if CROWN_GTK3
 		_sounds_root = iter;
+#else
+		_sounds_root = new Gtk.TreeRowReference(_tree_store, _tree_store.get_path(iter));
+#endif
 
 		_tree_view.model = _tree_sort;
 
@@ -765,7 +883,12 @@ public class LevelTreeView : Gtk.Box
 				Unit u = Unit(_level._db, object_ids[i]);
 					bool object_visible = !_level.object_hidden(u._id);
 					bool selection_locked = _level.object_locked(u._id);
+#if CROWN_GTK3
 				Gtk.TreeIter units_iter = _units_root;
+#else
+				Gtk.TreeIter units_iter;
+				_tree_store.get_iter(out units_iter, _units_root.get_path());
+#endif
 				_tree_store.insert_with_values(out iter
 					, units_iter
 					, -1
@@ -802,7 +925,12 @@ public class LevelTreeView : Gtk.Box
 			bool object_visible = !_level.object_hidden(object_ids[i]);
 			bool selection_locked = _level.object_locked(object_ids[i]);
 
+#if CROWN_GTK3
 			Gtk.TreeIter sounds_iter = _sounds_root;
+#else
+			Gtk.TreeIter sounds_iter;
+			_tree_store.get_iter(out sounds_iter, _sounds_root.get_path());
+#endif
 			Gtk.TreeIter iter;
 
 			_tree_store.insert_with_values(out iter
@@ -919,9 +1047,18 @@ public class LevelTreeView : Gtk.Box
 		_tree_store.remove(ref iter);
 	}
 
+#if CROWN_GTK3
 	public Gtk.RadioButton add_sort_item(Gtk.RadioButton? group, SortMode mode)
+#else
+	public Gtk.CheckButton add_sort_item(Gtk.CheckButton? group, SortMode mode)
+#endif
 	{
+#if CROWN_GTK3
 		var button = new Gtk.RadioButton.with_label_from_widget(group, mode.to_label());
+#else
+		var button = new Gtk.CheckButton.with_label(mode.to_label());
+		button.set_group(group);
+#endif
 		button.toggled.connect(() => {
 				if (mode == SortMode.NAME_AZ)
 					_tree_sort.set_sort_column_id(Column.NAME, Gtk.SortType.ASCENDING);
@@ -935,7 +1072,11 @@ public class LevelTreeView : Gtk.Box
 				_tree_filter.refilter();
 				_sort_items_popover.popdown();
 			});
+#if CROWN_GTK3
 		_sort_items_box.pack_start(button, false, false);
+#else
+		_sort_items_box.append(button);
+#endif
 		return button;
 	}
 
@@ -1112,7 +1253,6 @@ public class LevelTreeView : Gtk.Box
 			on_search_changed();
 		}
 	}
-
 }
 
 } /* namespace Crown */

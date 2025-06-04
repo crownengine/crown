@@ -3,21 +3,26 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#if CROWN_PLATFORM_LINUX
+#if CROWN_GTK3 && CROWN_PLATFORM_LINUX
 extern uint gdk_x11_window_get_xid(Gdk.Window window);
-#elif CROWN_PLATFORM_WINDOWS
+#elif CROWN_GTK3 && CROWN_PLATFORM_WINDOWS
 extern uint gdk_win32_window_get_handle(Gdk.Window window);
 #endif
 
 namespace Crown
 {
+#if CROWN_GTK3
 public class EditorView : Gtk.EventBox
+#else
+public class EditorView : Gtk.Box
+#endif
 {
+#if CROWN_GTK3
 	public const Gtk.TargetEntry[] DND_TARGETS =
 	{
 		{ "RESOURCE_PATH", Gtk.TargetFlags.SAME_APP, TargetInfo.RESOURCE_PATH },
 	};
-
+#endif
 	// Data
 	public RuntimeInstance _runtime;
 
@@ -38,18 +43,20 @@ public class EditorView : Gtk.EventBox
 	public GLib.HashTable<uint, bool> _keys;
 	public bool _input_enabled;
 	public bool _drag_enter;
-	public uint _drag_last_time;
+	public int64 _drag_last_time;
 	public int64 _motion_last_time;
 	public const int MOTION_EVENTS_RATE_HZ = 75;
 
 	public GLib.StringBuilder _buffer;
 
 	public Gtk.EventControllerKey _controller_key;
-	public Gtk.GestureMultiPress _gesture_click;
+	public Gtk.GestureSingle _gesture_click;
 	public Gtk.EventControllerMotion _controller_motion;
 	public Gtk.EventControllerScroll _controller_scroll;
 #if !CROWN_GTK3
 	public Gtk.EventControllerLegacy _controller_legacy;
+	public Gtk.EventControllerFocus _controller_focus;
+	public Gtk.DropTarget _drop_target;
 #endif
 
 	public InfiniteDragController _flythrough_drag;
@@ -136,12 +143,11 @@ public class EditorView : Gtk.EventBox
 		_buffer = new GLib.StringBuilder();
 
 		// Widgets
+#if CROWN_GTK3
 		this.can_focus = true;
 		this.events |= 0
-#if CROWN_GTK3
 			| Gdk.EventMask.BUTTON_PRESS_MASK
 			| Gdk.EventMask.BUTTON_RELEASE_MASK
-#endif
 			| Gdk.EventMask.POINTER_MOTION_MASK
 			| Gdk.EventMask.KEY_PRESS_MASK
 			| Gdk.EventMask.KEY_RELEASE_MASK
@@ -150,47 +156,61 @@ public class EditorView : Gtk.EventBox
 			;
 		this.focus_out_event.connect(on_event_box_focus_out_event);
 		this.size_allocate.connect(on_size_allocate);
+#else
+		this.focusable = true;
+
+		_controller_focus = new Gtk.EventControllerFocus();
+		_controller_focus.leave.connect(on_event_box_focus_leave);
+		this.add_controller(_controller_focus);
+#endif /* if CROWN_GTK3 */
 
 		if (input_enabled) {
+			_flythrough_drag = new InfiniteDragController(this);
+			_flythrough_drag.axis_mode = InfiniteDragController.Axis.XY;
+			_flythrough_drag.activation_margin = 0.0;
+			_flythrough_drag.trigger_button = Gdk.BUTTON_SECONDARY; // must match the button start()
+			_flythrough_drag.cancel_button = 0; // rmb itself drives flythrough; no separate abort button
+			_flythrough_drag.preserve_legacy_events = true; // let GTK observe the matching rmb release
+
 #if CROWN_GTK3
 			this.button_press_event.connect(on_event_box_button_event);
 			this.button_release_event.connect(on_event_box_button_event);
+			_controller_key = new Gtk.EventControllerKey(this);
+			Gtk.GestureMultiPress gesture_click = new Gtk.GestureMultiPress(this);
+			_controller_motion = new Gtk.EventControllerMotion(this);
+			_controller_scroll = new Gtk.EventControllerScroll(this, Gtk.EventControllerScrollFlags.BOTH_AXES);
+			_flythrough_drag.drag_scroll.connect(on_scroll);
 #else
 			_controller_legacy = new Gtk.EventControllerLegacy();
 			_controller_legacy.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
 			_controller_legacy.event.connect(on_event_controller_legacy_event);
 			this.add_controller(_controller_legacy);
-#endif
-
-			_controller_key = new Gtk.EventControllerKey(this);
+			_controller_key = new Gtk.EventControllerKey();
+			Gtk.GestureClick gesture_click = new Gtk.GestureClick();
+			_controller_motion = new Gtk.EventControllerMotion();
+			_controller_scroll = new Gtk.EventControllerScroll(Gtk.EventControllerScrollFlags.BOTH_AXES);
+			this.add_controller(_controller_key);
+			this.add_controller(_gesture_click);
+			this.add_controller(_controller_motion);
+			this.add_controller(_controller_scroll);
+			_flythrough_drag.drag_scroll.connect(on_flythrough_scroll);
+#endif /* if CROWN_GTK3 */
+			gesture_click.pressed.connect(on_button_pressed);
+			gesture_click.released.connect(on_button_released);
+			_gesture_click = gesture_click;
 			_controller_key.key_pressed.connect(on_key_pressed);
 			_controller_key.key_released.connect(on_key_released);
-
-			_gesture_click = new Gtk.GestureMultiPress(this);
 			_gesture_click.set_button(0);
-			_gesture_click.pressed.connect(on_button_pressed);
-			_gesture_click.released.connect(on_button_released);
 			_gesture_click.cancel.connect(on_gesture_cancelled);
-
-			_flythrough_drag = new InfiniteDragController(this);
-			_flythrough_drag.axis_mode = InfiniteDragController.Axis.XY;
-			_flythrough_drag.activation_margin = 0.0;
-			_flythrough_drag.trigger_button = Gdk.BUTTON_SECONDARY; // must match the button start()
-			_flythrough_drag.cancel_button = 0; // rmb itself drives flythrought; no separate abort button
-			_flythrough_drag.preserve_legacy_events = true; // let GTK observe the matching rmb release
 			_flythrough_drag.drag_delta.connect(on_flythrough_drag_delta);
-			_flythrough_drag.drag_scroll.connect(on_scroll);
 			_flythrough_drag.drag_finished.connect(on_flythrough_drag_finished);
 			_flythrough_drag.release_detected_externally.connect(on_flythrough_release_detected_externally);
-
-			_controller_motion = new Gtk.EventControllerMotion(this);
 			_controller_motion.enter.connect(on_enter);
 			_controller_motion.motion.connect(on_motion);
-
-			_controller_scroll = new Gtk.EventControllerScroll(this, Gtk.EventControllerScrollFlags.BOTH_AXES);
 			_controller_scroll.scroll.connect(on_scroll);
 		}
 
+#if CROWN_GTK3
 		this.realize.connect(on_event_box_realized);
 		this.set_visual(Gdk.Screen.get_default().get_system_visual());
 		this.events |= Gdk.EventMask.STRUCTURE_MASK; // map_event
@@ -198,14 +218,39 @@ public class EditorView : Gtk.EventBox
 				device_frame_delayed(16, _runtime);
 				return Gdk.EVENT_PROPAGATE;
 			});
-
 		Gtk.drag_dest_set(this, Gtk.DestDefaults.MOTION, DND_TARGETS, Gdk.DragAction.COPY);
 		this.drag_data_received.connect(on_drag_data_received);
 		this.drag_motion.connect(on_drag_motion);
 		this.drag_drop.connect(on_drag_drop);
 		this.drag_leave.connect(on_drag_leave);
+#else
+		_drop_target = new Gtk.DropTarget(typeof(string), Gdk.DragAction.COPY);
+		_drop_target.preload = true;
+		_drop_target.accept.connect(on_drag_accept);
+		_drop_target.enter.connect(on_drag_enter);
+		_drop_target.motion.connect(on_drag_motion);
+		_drop_target.drop.connect(on_drag_drop);
+		_drop_target.leave.connect(on_drag_leave);
+		this.add_controller(_drop_target);
+		Gtk.Label placeholder = new Gtk.Label("EditorView");
+		placeholder.hexpand = true;
+		this.append(placeholder);
+#endif /* if CROWN_GTK3 */
 	}
 
+	public void place_drag_resource_path(string resource_path, double x, double y)
+	{
+		string type = ResourceId.type(resource_path);
+		string name = ResourceId.name(resource_path);
+		if (type == OBJECT_TYPE_UNIT || type == OBJECT_TYPE_SOUND) {
+			GLib.Application.get_default().activate_action("set-placeable", new GLib.Variant.tuple({ type, name }));
+
+			int scale = this.get_scale_factor();
+			_runtime.send_script(LevelEditorApi.mouse_down((int)x*scale, (int)y*scale));
+		}
+	}
+
+#if CROWN_GTK3
 	public void on_drag_data_received(Gdk.DragContext context, int x, int y, Gtk.SelectionData data, uint info, uint time_)
 	{
 		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_data_received.html
@@ -213,48 +258,88 @@ public class EditorView : Gtk.EventBox
 		if (raw_data.length == -1)
 			return;
 
-		string resource_path = (string)raw_data;
+		place_drag_resource_path((string)raw_data, x, y);
+	}
+#endif
+
+	public bool can_drop_resource_path(string resource_path)
+	{
 		string type = ResourceId.type(resource_path);
-		string name = ResourceId.name(resource_path);
-
-		if (type == OBJECT_TYPE_UNIT || type == OBJECT_TYPE_SOUND) {
-			GLib.Application.get_default().activate_action("set-placeable", new GLib.Variant.tuple({ type, name }));
-
-			int scale = this.get_scale_factor();
-			_runtime.send_script(LevelEditorApi.mouse_down(x*scale, y*scale));
-		}
+		return type == OBJECT_TYPE_UNIT || type == OBJECT_TYPE_SOUND;
 	}
 
-	public bool on_drag_motion(Gdk.DragContext context, int x, int y, uint _time)
+#if !CROWN_GTK3
+	public bool has_drag_resource_path()
+	{
+		Gdk.Drop? drop = _drop_target.get_current_drop();
+		if (drop == null)
+			return false;
+
+		Gdk.ContentFormats? formats = drop.get_formats();
+		return formats != null && formats.contain_gtype(typeof(string));
+	}
+#endif
+
+#if !CROWN_GTK3
+	public string? drag_resource_path()
+	{
+		if (!has_drag_resource_path())
+			return null;
+
+		unowned GLib.Value? value = _drop_target.get_value();
+		if (value == null)
+			return null;
+
+		if (value.type() != typeof(string))
+			return null;
+
+		return (string)value;
+	}
+#endif
+
+#if !CROWN_GTK3
+	public void update_drag_placeable(double x, double y)
+	{
+		string? resource_path = drag_resource_path();
+		if (resource_path == null || !can_drop_resource_path(resource_path))
+			return;
+
+		place_drag_resource_path(resource_path, x, y);
+	}
+#endif
+
+	public void update_drag_control(Gdk.ModifierType state)
+	{
+		bool control_pressed = (state & Gdk.ModifierType.CONTROL_MASK) != 0;
+		if (_keys[Gdk.Key.Control_L] == control_pressed)
+			return;
+
+		if (control_pressed)
+			on_key_pressed(Gdk.Key.Control_L, 0, state);
+		else
+			on_key_released(Gdk.Key.Control_L, 0, state);
+	}
+
+#if CROWN_GTK3
+	public bool on_drag_motion(Gdk.DragContext context, int x, int y, uint time_)
 	{
 		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_motion.html
-		Gdk.Atom target;
-
-		target = Gtk.drag_dest_find_target(this, context, null);
+		Gdk.Atom target = Gtk.drag_dest_find_target(this, context, null);
 		if (target == Gdk.Atom.NONE) {
-			Gdk.drag_status(context, 0, _time);
+			Gdk.drag_status(context, 0, time_);
 		} else {
 			if (_drag_enter == false) {
-				Gtk.drag_get_data(this, context, target, _time);
+				Gtk.drag_get_data(this, context, target, time_);
 				_drag_enter = true;
 			}
 
-#if CROWN_GTK3
 			Gdk.ModifierType state;
 			context.get_device().get_state(this.get_window(), null, out state);
-			bool control_pressed = (state & Gdk.ModifierType.CONTROL_MASK) != 0;
-			if (_keys[Gdk.Key.Control_L] != control_pressed) {
-				if (control_pressed)
-					on_key_pressed(Gdk.Key.Control_L, 0, state);
-				else
-					on_key_released(Gdk.Key.Control_L, 0, state);
-			}
-#endif
-
-			if (_time - _drag_last_time >= 1000/MOTION_EVENTS_RATE_HZ) {
+			update_drag_control(state);
+			if (time_ - (uint)_drag_last_time >= 1000/MOTION_EVENTS_RATE_HZ) {
 				// Drag motion events seem to fire at a very high frequency compared to regular
 				// motion notify events. Limit them to MOTION_EVENTS_RATE_HZ.
-				_drag_last_time = _time;
+				_drag_last_time = time_;
 				int scale = this.get_scale_factor();
 				_runtime.send_script(LevelEditorApi.set_mouse_state(x*scale
 					, y*scale
@@ -269,20 +354,97 @@ public class EditorView : Gtk.EventBox
 
 		return true;
 	}
+#endif /* if CROWN_GTK3 */
 
+#if !CROWN_GTK3
+	public bool on_drag_accept(Gdk.Drop drop)
+	{
+		return true;
+	}
+#endif
+
+#if !CROWN_GTK3
+	public Gdk.DragAction on_drag_enter(double x, double y)
+	{
+		_drag_enter = true;
+		if (has_drag_resource_path())
+			update_drag_placeable(x, y);
+		_drag_last_time = 0;
+
+		string? resource_path = drag_resource_path();
+		return resource_path != null && can_drop_resource_path(resource_path) ? Gdk.DragAction.COPY : 0;
+	}
+#endif
+
+#if !CROWN_GTK3
+	public Gdk.DragAction on_drag_motion(double x, double y)
+	{
+		string? resource_path = drag_resource_path();
+		if (resource_path == null || !can_drop_resource_path(resource_path))
+			return 0;
+
+		if (!_drag_enter) {
+			_drag_enter = true;
+			update_drag_placeable(x, y);
+		}
+
+		Gdk.Drop? drop = _drop_target.get_current_drop();
+		if (drop != null)
+			update_drag_control(drop.get_device().get_modifier_state());
+
+		int64 time = GLib.get_monotonic_time();
+		if (time - _drag_last_time >= 1000000 / MOTION_EVENTS_RATE_HZ) {
+			_drag_last_time = time;
+			int scale = this.get_scale_factor();
+			_runtime.send_script(LevelEditorApi.set_mouse_state((int)x*scale
+				, (int)y*scale
+				, _mouse_left
+				, _mouse_middle
+				, _mouse_right
+				));
+
+			_runtime.send(DeviceApi.frame());
+		}
+
+		return Gdk.DragAction.COPY;
+	}
+#endif /* if !CROWN_GTK3 */
+
+	public void finish_drag_placeable(double x, double y)
+	{
+		int scale = this.get_scale_factor();
+		_runtime.send_script(LevelEditorApi.mouse_up((int)x*scale, (int)y*scale));
+		GLib.Application.get_default().activate_action("cancel-place", null);
+		_runtime.send(DeviceApi.frame());
+	}
+
+#if CROWN_GTK3
 	public bool on_drag_drop(Gdk.DragContext context, int x, int y, uint time_)
 	{
 		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_drop.html
-		int scale = this.get_scale_factor();
-		_runtime.send_script(LevelEditorApi.mouse_up(x*scale, y*scale));
-		GLib.Application.get_default().activate_action("cancel-place", null);
-		_runtime.send(DeviceApi.frame());
+		finish_drag_placeable(x, y);
 		Gtk.drag_finish(context, true, false, time_);
 		if (_keys[Gdk.Key.Control_L])
 			on_key_released(Gdk.Key.Control_L, 0, 0);
 		return true;
 	}
+#endif
 
+#if !CROWN_GTK3
+	public bool on_drag_drop(GLib.Value value, double x, double y)
+	{
+		string? resource_path = value.type() == typeof(string) ? (string)value : null;
+		if (resource_path == null || !can_drop_resource_path(resource_path))
+			return false;
+
+		finish_drag_placeable(x, y);
+		if (_keys[Gdk.Key.Control_L])
+			on_key_released(Gdk.Key.Control_L, 0, 0);
+		return true;
+	}
+#endif
+
+#if CROWN_GTK3
 	public void on_drag_leave(Gdk.DragContext context, uint time_)
 	{
 		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_leave.html
@@ -290,6 +452,17 @@ public class EditorView : Gtk.EventBox
 		if (_keys[Gdk.Key.Control_L])
 			on_key_released(Gdk.Key.Control_L, 0, 0);
 	}
+#endif
+
+#if !CROWN_GTK3
+	public void on_drag_leave()
+	{
+		_drag_enter = false;
+		GLib.Application.get_default().activate_action("cancel-place", null);
+		if (_keys[Gdk.Key.Control_L])
+			on_key_released(Gdk.Key.Control_L, 0, 0);
+	}
+#endif
 
 	public bool on_button_event(uint button)
 	{
@@ -323,7 +496,9 @@ public class EditorView : Gtk.EventBox
 	{
 		return on_button_event(ev.button);
 	}
-#else
+#endif
+
+#if !CROWN_GTK3
 	public bool on_event_controller_legacy_event(Gdk.Event ev)
 	{
 		Gdk.EventType type = ev.get_event_type();
@@ -564,21 +739,12 @@ public class EditorView : Gtk.EventBox
 		_flythrough_mouse_y += dy;
 	}
 
-	public void on_scroll(double dx, double dy)
+	public bool handle_scroll(double dx, double dy, Gdk.ModifierType state)
 	{
-		Gdk.ModifierType state = 0;
-		bool has_state = true;
-#if CROWN_GTK3
-		has_state = Gtk.get_current_event_state(out state);
-#else
-		state = _controller_scroll.get_current_event_state();
-#endif
-
 		if (_tick_callback_id == 0
-			&& has_state
 			&& (state & (Gdk.ModifierType.BUTTON1_MASK | Gdk.ModifierType.BUTTON2_MASK | Gdk.ModifierType.BUTTON3_MASK)) != 0
 			)
-			return;
+			return false;
 
 		if (_tick_callback_id != 0 || _keys[Gdk.Key.Shift_L] || _keys[Gdk.Key.Shift_R]) {
 			_runtime.send_script(LevelEditorApi.mouse_wheel(-dy));
@@ -588,9 +754,35 @@ public class EditorView : Gtk.EventBox
 			_runtime.send_script("LevelEditor:camera_drag_start('idle')");
 			_runtime.send(DeviceApi.frame());
 		}
+		return true;
 	}
 
-	public bool on_event_box_focus_out_event(Gdk.EventFocus ev)
+#if CROWN_GTK3
+	public void on_scroll(double dx, double dy)
+	{
+		Gdk.ModifierType state = 0;
+		if (!Gtk.get_current_event_state(out state))
+			state = 0;
+		handle_scroll(dx, dy, state);
+	}
+#endif
+
+	public void on_flythrough_scroll(double dx, double dy)
+	{
+		on_scroll(dx, dy);
+	}
+
+#if !CROWN_GTK3
+	public bool on_scroll(double dx, double dy)
+	{
+		return handle_scroll(dx, dy, _controller_scroll.get_current_event_state())
+			? Gdk.EVENT_PROPAGATE
+			: Gdk.EVENT_STOP
+			;
+	}
+#endif
+
+	public void handle_focus_leave()
 	{
 		camera_modifier_reset();
 
@@ -602,10 +794,22 @@ public class EditorView : Gtk.EventBox
 		_runtime.send_script(LevelEditorApi.key_up(key_to_string(Gdk.Key.Control_L)));
 		_runtime.send_script(LevelEditorApi.key_up(key_to_string(Gdk.Key.Shift_L)));
 		_runtime.send_script(LevelEditorApi.key_up(key_to_string(Gdk.Key.Shift_R)));
-
-		return Gdk.EVENT_PROPAGATE;
 	}
 
+#if CROWN_GTK3
+	public bool on_event_box_focus_out_event(Gdk.EventFocus ev)
+	{
+		handle_focus_leave();
+		return Gdk.EVENT_PROPAGATE;
+	}
+#endif
+
+	public void on_event_box_focus_leave()
+	{
+		handle_focus_leave();
+	}
+
+#if CROWN_GTK3
 	public void on_size_allocate(Gtk.Allocation ev)
 	{
 		int scale = this.get_scale_factor();
@@ -634,7 +838,9 @@ public class EditorView : Gtk.EventBox
 				});
 		}
 	}
+#endif /* if CROWN_GTK3 */
 
+#if CROWN_GTK3
 	public void on_event_box_realized()
 	{
 		this.get_window().ensure_native();
@@ -645,6 +851,7 @@ public class EditorView : Gtk.EventBox
 		_window_id = gdk_win32_window_get_handle(this.get_window());
 #endif
 	}
+#endif
 
 	public void on_enter(double x, double y)
 	{

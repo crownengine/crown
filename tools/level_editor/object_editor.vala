@@ -54,27 +54,52 @@ public class ObjectEditor : Gtk.ApplicationWindow
 		_statusbar = new Statusbar();
 
 		_save = new Gtk.Button.with_label(_("Save & Reload"));
+#if CROWN_GTK3
 		_save.get_style_context().add_class("suggested-action");
 		_save.clicked.connect(() => {
 				save();
 			});
+#else
+		_save.add_css_class("suggested-action");
+		_save.clicked.connect(() => save());
+#endif
 
 		_header_bar = new Gtk.HeaderBar();
+#if CROWN_GTK3
 		_header_bar.title = _("Object Editor");
 		_header_bar.show_close_button = true;
+#else
+		_header_bar.title_widget = new Gtk.Label(_("Object Editor"));
+		_header_bar.show_title_buttons = true;
+#endif
 		_header_bar.pack_end(_save);
 
 		_paned = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
+#if CROWN_GTK3
 		_paned.pack1(_objects_tree, true, false);
 		_paned.pack2(_objects_properties, true, false);
+#else
+		_paned.set_start_child(_objects_tree);
+		_paned.set_end_child(_objects_properties);
+		_paned.resize_start_child = true;
+		_paned.shrink_start_child = false;
+		_paned.resize_end_child = true;
+		_paned.shrink_end_child = false;
+		_paned.vexpand = true;
+#endif
 
+		this.title = "Object Editor";
 		this.set_titlebar(_header_bar);
 		this.set_default_size(1000, 600);
 
+#if CROWN_GTK3
 		int win_w;
 		int win_h;
 		this.get_size(out win_w, out win_h);
 		_paned.set_position(win_w/2);
+#else
+		_paned.set_position(this.default_width / 2);
+#endif
 
 		GLib.Menu menu = new GLib.Menu();
 		GLib.MenuItem mi = null;
@@ -83,15 +108,29 @@ public class ObjectEditor : Gtk.ApplicationWindow
 		mi.set_submenu(make_database_editor_menu());
 		menu.append_item(mi);
 
+#if CROWN_GTK3
 		Gtk.MenuBar menubar = new Gtk.MenuBar.from_model(menu);
 		_header_bar.pack_start(menubar);
+#else
+		this.show_menubar = false;
+		Gtk.PopoverMenuBar menubar = new Gtk.PopoverMenuBar.from_model(menu);
+#endif
 
 		_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+#if CROWN_GTK3
 		_box.pack_start(_paned);
 		_box.pack_start(_statusbar, false);
 
 		this.delete_event.connect(on_close_request);
 		this.add(_box);
+#else
+		_box.append(menubar);
+		_box.append(_paned);
+		_box.append(_statusbar);
+
+		this.close_request.connect(on_close_request);
+		this.set_child(_box);
+#endif
 
 		reset();
 	}
@@ -150,7 +189,11 @@ public class ObjectEditor : Gtk.ApplicationWindow
 			md.add_button(_("_Ok"), Gtk.ResponseType.OK);
 			md.set_default_response(Gtk.ResponseType.OK);
 			md.response.connect(() => { md.destroy(); });
+#if CROWN_GTK3
 			md.show_all();
+#else
+			md.show();
+#endif
 			update_window_title();
 			return false;
 		}
@@ -184,7 +227,11 @@ public class ObjectEditor : Gtk.ApplicationWindow
 				}
 				srd.destroy();
 			});
+#if CROWN_GTK3
 		srd.show_all();
+#else
+		srd.show();
+#endif
 	}
 
 	public void save(owned ObjectEditorSaveCallback? on_save_success = null)
@@ -266,7 +313,11 @@ public class ObjectEditor : Gtk.ApplicationWindow
 					}
 					dlg.destroy();
 				});
+#if CROWN_GTK3
 			dlg.show_all();
+#else
+			dlg.show();
+#endif
 		}
 	}
 
@@ -291,7 +342,11 @@ public class ObjectEditor : Gtk.ApplicationWindow
 		unload();
 	}
 
+#if CROWN_GTK3
 	public bool on_close_request(Gdk.EventAny event)
+#else
+	public bool on_close_request()
+#endif
 	{
 		if (!_database.changed()) {
 			close_and_unload();
@@ -309,7 +364,11 @@ public class ObjectEditor : Gtk.ApplicationWindow
 				}
 				dlg.destroy();
 			});
+#if CROWN_GTK3
 		dlg.show_all();
+#else
+		dlg.present();
+#endif
 		return Gdk.EVENT_STOP;
 	}
 }

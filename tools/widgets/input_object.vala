@@ -7,11 +7,12 @@ namespace Crown
 {
 public class InputObject : InputField
 {
+#if CROWN_GTK3
 	public const Gtk.TargetEntry[] DND_TARGETS =
 	{
 		{ "GUID", Gtk.TargetFlags.SAME_APP, TargetInfo.GUID },
 	};
-
+#endif
 	public const string UNSET_OBJECT = _("(None)");
 	public const string MISSING_OBJECT = _("(Missing)");
 
@@ -22,7 +23,11 @@ public class InputObject : InputField
 	public Gtk.Button _selector;
 	public SelectObjectDialog _dialog;
 	public Gtk.EventControllerKey _controller_key;
-	public Gtk.GestureMultiPress _gesture_click;
+	public Gtk.GestureSingle _gesture_click;
+#if !CROWN_GTK3
+	public Gtk.EventControllerFocus _controller_focus;
+	public Gtk.DropTarget _drop_target;
+#endif
 	public Gtk.Box _box;
 
 	public override void set_inconsistent(bool inconsistent)
@@ -76,31 +81,59 @@ public class InputObject : InputField
 		_database = database;
 
 		_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+#if CROWN_GTK3
 		_box.get_style_context().add_class(Gtk.STYLE_CLASS_LINKED);
-
+#else
+		_box.add_css_class("linked");
+#endif
 		_name = new Gtk.Entry();
 		_name.set_width_chars(0);
 		_name.set_editable(false);
 		_name.hexpand = true;
 		_name.changed.connect(on_name_value_changed);
 		_name.activate.connect(on_name_activate);
+#if CROWN_GTK3
 		_name.focus_in_event.connect(on_name_focus_in);
 		_name.focus_out_event.connect(on_name_focus_out);
 		_box.pack_start(_name, true, true);
+#else
+		_controller_focus = new Gtk.EventControllerFocus();
+		_controller_focus.enter.connect(on_name_focus_enter);
+		_controller_focus.leave.connect(on_name_focus_leave);
+		_name.add_controller(_controller_focus);
+		_box.append(_name);
+#endif
 
-		_gesture_click = new Gtk.GestureMultiPress(_name);
-		_gesture_click.pressed.connect(on_name_button_pressed);
-		_gesture_click.released.connect(on_name_button_released);
+#if CROWN_GTK3
+		Gtk.GestureMultiPress gesture_click = new Gtk.GestureMultiPress(_name);
+#else
+		Gtk.GestureClick gesture_click = new Gtk.GestureClick();
+		_name.add_controller(gesture_click);
+#endif
+		gesture_click.pressed.connect(on_name_button_pressed);
+		gesture_click.released.connect(on_name_button_released);
+		_gesture_click = gesture_click;
 
 		_selector = new Gtk.Button.from_icon_name("document-open-symbolic");
 		_selector.set_tooltip_text(_("Select a resource."));
 		_selector.clicked.connect(on_selector_clicked);
+#if CROWN_GTK3
 		_selector.set_can_focus(false);
 		_box.pack_end(_selector, false);
 
 		_controller_key = new Gtk.EventControllerKey(_name);
-		_controller_key.key_pressed.connect(on_key_pressed);
+#else
+		_selector.focusable = false;
+		_box.append(_selector);
 
+		_controller_key = new Gtk.EventControllerKey();
+#endif
+		_controller_key.key_pressed.connect(on_key_pressed);
+#if !CROWN_GTK3
+		_name.add_controller(_controller_key);
+#endif
+
+#if CROWN_GTK3
 		Gtk.drag_dest_set(_name
 			, Gtk.DestDefaults.MOTION
 			| Gtk.DestDefaults.HIGHLIGHT
@@ -110,9 +143,18 @@ public class InputObject : InputField
 		_name.drag_data_received.connect(on_drag_data_received);
 		_name.drag_motion.connect(on_drag_motion);
 		_name.drag_drop.connect(on_drag_drop);
+#else
+		_drop_target = new Gtk.DropTarget(typeof(string), Gdk.DragAction.COPY);
+		_drop_target.drop.connect(on_drag_drop);
+		_name.add_controller(_drop_target);
+#endif
 
 		this.value = GUID_ZERO;
+#if CROWN_GTK3
 		this.add(_box);
+#else
+		this.set_child(_box);
+#endif
 	}
 
 	public void on_selector_clicked()
@@ -122,7 +164,11 @@ public class InputObject : InputField
 			_dialog.object_selected.connect(on_select_object_dialog_object_selected);
 		}
 
+#if CROWN_GTK3
 		_dialog.show_all();
+#else
+		_dialog.show();
+#endif
 		_dialog.present();
 	}
 
@@ -161,26 +207,52 @@ public class InputObject : InputField
 		_name.set_position(-1);
 	}
 
-	public bool on_name_focus_in(Gdk.EventFocus ev)
+	public void name_focus_in()
 	{
 		var app = (LevelEditorApplication)GLib.Application.get_default();
 		app.entry_any_focus_in(_name);
 
 		_name.set_position(-1);
 		_name.select_region(0, -1);
-
-		return Gdk.EVENT_PROPAGATE;
 	}
 
-	public bool on_name_focus_out(Gdk.EventFocus ev)
+	public void name_focus_out()
 	{
 		var app = (LevelEditorApplication)GLib.Application.get_default();
 		app.entry_any_focus_out(_name);
 
 		_name.select_region(0, 0);
+	}
 
+#if CROWN_GTK3
+	public bool on_name_focus_in(Gdk.EventFocus ev)
+	{
+		name_focus_in();
 		return Gdk.EVENT_PROPAGATE;
 	}
+#endif
+
+#if CROWN_GTK3
+	public bool on_name_focus_out(Gdk.EventFocus ev)
+	{
+		name_focus_out();
+		return Gdk.EVENT_PROPAGATE;
+	}
+#endif
+
+#if !CROWN_GTK3
+	public void on_name_focus_enter()
+	{
+		name_focus_in();
+	}
+#endif /* if !CROWN_GTK3 */
+
+#if !CROWN_GTK3
+	public void on_name_focus_leave()
+	{
+		name_focus_out();
+	}
+#endif /* if !CROWN_GTK3 */
 
 	public bool on_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)
 	{
@@ -190,13 +262,16 @@ public class InputObject : InputField
 		return Gdk.EVENT_PROPAGATE;
 	}
 
+#if CROWN_GTK3
 	public bool on_drag_motion(Gdk.DragContext context, int x, int y, uint time_)
 	{
 		Gdk.Atom target = Gtk.drag_dest_find_target(_name, context, null);
 		Gdk.drag_status(context, target != Gdk.Atom.NONE ? Gdk.DragAction.COPY : 0, time_);
 		return true;
 	}
+#endif
 
+#if CROWN_GTK3
 	public bool on_drag_drop(Gdk.DragContext context, int x, int y, uint time_)
 	{
 		Gdk.Atom target = Gtk.drag_dest_find_target(_name, context, null);
@@ -206,7 +281,25 @@ public class InputObject : InputField
 		Gtk.drag_get_data(_name, context, target, time_);
 		return true;
 	}
+#endif
 
+#if !CROWN_GTK3
+	public bool on_drag_drop(GLib.Value value, double x, double y)
+	{
+		Guid object_id;
+		if (!Guid.try_parse(out object_id, (string)value))
+			return false;
+
+		StringId64 object_type = StringId64(_database.object_type(object_id));
+		if (object_type != _type)
+			return false;
+
+		this.value = object_id;
+		return true;
+	}
+#endif
+
+#if CROWN_GTK3
 	public void on_drag_data_received(Gdk.DragContext context, int x, int y, Gtk.SelectionData data, uint info, uint time_)
 	{
 		bool success = false;
@@ -225,6 +318,7 @@ public class InputObject : InputField
 
 		Gtk.drag_finish(context, success, false, time_);
 	}
+#endif /* if CROWN_GTK3 */
 }
 
 } /* namespace Crown */

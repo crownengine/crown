@@ -26,9 +26,15 @@ public class SelectObjectDialog : Gtk.Window
 			this.set_transient_for(parent);
 			this.set_modal(true);
 		}
+#if CROWN_GTK3
 		this.delete_event.connect(on_close);
 
 		_controller_key = new Gtk.EventControllerKey(this);
+#else
+		this.close_request.connect(on_close);
+
+		_controller_key = new Gtk.EventControllerKey();
+#endif
 		_controller_key.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
 		_controller_key.key_pressed.connect((keyval) => {
 				if (keyval == Gdk.Key.Escape) {
@@ -38,16 +44,28 @@ public class SelectObjectDialog : Gtk.Window
 
 				return Gdk.EVENT_PROPAGATE;
 			});
+#if !CROWN_GTK3
+		((Gtk.Widget)this).add_controller(_controller_key);
+#endif
 
 		_header_bar = new Gtk.HeaderBar();
+#if CROWN_GTK3
 		_header_bar.title = _("Select a %s").printf(_database.type_name(obj_type));
 		_header_bar.show_close_button = true;
+#else
+		_header_bar.set_title_widget(new Gtk.Label(_("Select a %s").printf(_database.type_name(obj_type))));
+		_header_bar.show_title_buttons = true;
+#endif
 		this.set_titlebar(_header_bar);
 
 		_chooser = new ObjectChooser(database);
 		_chooser.set_type_filter(on_object_chooser_filter);
 		_chooser.object_selected.connect(on_object_chooser_object_selected);
+#if CROWN_GTK3
 		this.add(_chooser);
+#else
+		this.set_child(_chooser);
+#endif
 	}
 
 	public bool on_close()

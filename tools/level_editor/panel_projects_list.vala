@@ -22,9 +22,14 @@ public class ProjectRow : Gtk.ListBoxRow
 	public Gtk.Label _source_dir;
 	public Gtk.Button _remove_button;
 	public Gtk.Button _open_button;
+#if CROWN_GTK3
 	public Gtk.EventBox _event_box;
 	public Gtk.Popover _menu;
 	public Gtk.GestureMultiPress _gesture_click;
+#else
+	public Gtk.PopoverMenu _menu;
+	public Gtk.GestureClick _gesture_click;
+#endif
 	public ProjectsList _projects_list;
 
 	public ProjectRow(string source_dir, string time, string name, ProjectsList pl)
@@ -37,6 +42,7 @@ public class ProjectRow : Gtk.ListBoxRow
 		this.insert_action_group("project", _action_group);
 
 		_vbox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+		_vbox.hexpand = true;
 
 		_name = new Gtk.Label(null);
 		_name.set_margin_start(12);
@@ -45,7 +51,11 @@ public class ProjectRow : Gtk.ListBoxRow
 		_name.set_margin_bottom(8);
 		_name.set_markup("<b>%s</b>".printf(name));
 		_name.set_xalign(0.0f);
+#if CROWN_GTK3
 		_vbox.pack_start(_name);
+#else
+		_vbox.append(_name);
+#endif
 
 		_source_dir = new Gtk.Label(null);
 		_source_dir.set_margin_start(12);
@@ -53,29 +63,53 @@ public class ProjectRow : Gtk.ListBoxRow
 		_source_dir.set_margin_bottom(8);
 		_source_dir.set_markup("<small>%s</small>".printf(source_dir));
 		_source_dir.set_xalign(0.0f);
+#if CROWN_GTK3
 		_vbox.pack_start(_source_dir);
+#else
+		_vbox.append(_source_dir);
+#endif
 
 		_hbox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 6);
+#if CROWN_GTK3
 		_hbox.pack_start(_vbox);
+#else
+		_hbox.append(_vbox);
+#endif
 
 		_remove_button = new Gtk.Button.from_icon_name("list-remove-symbolic");
 		_remove_button.set_tooltip_text(_("Remove the project from the list."));
+#if CROWN_GTK3
 		_remove_button.get_style_context().add_class("flat");
 		_remove_button.get_style_context().add_class("destructive-action");
+#else
+		_remove_button.add_css_class("flat");
+		_remove_button.add_css_class("destructive-action");
+#endif
 		_remove_button.set_halign(Gtk.Align.CENTER);
 		_remove_button.set_valign(Gtk.Align.CENTER);
 		_remove_button.set_margin_end(12);
 		_remove_button.action_name = "project.remove";
+#if CROWN_GTK3
 		_hbox.pack_end(_remove_button, false, false, 0);
+#endif
 
 		_open_button = new Gtk.Button.with_label(_("Open"));
 		_open_button.set_tooltip_text(_("Open the project."));
+#if CROWN_GTK3
 		_open_button.get_style_context().add_class("flat");
+#else
+		_open_button.add_css_class("flat");
+#endif
 		_open_button.set_halign(Gtk.Align.CENTER);
 		_open_button.set_valign(Gtk.Align.CENTER);
 		// _open_button.set_margin_end(12);
 		_open_button.action_name = "project.open";
+#if CROWN_GTK3
 		_hbox.pack_end(_open_button, false, false, 0);
+#else
+		_hbox.append(_open_button);
+		_hbox.append(_remove_button);
+#endif
 
 		GLib.Menu menu_model = new GLib.Menu();
 		GLib.MenuItem mi = null;
@@ -103,6 +137,7 @@ public class ProjectRow : Gtk.ListBoxRow
 		menu_remove.append_item(mi);
 		menu_model.append_section(null, menu_remove);
 
+#if CROWN_GTK3
 		_event_box = new Gtk.EventBox();
 		_event_box.add(_hbox);
 		this.add(_event_box);
@@ -110,6 +145,13 @@ public class ProjectRow : Gtk.ListBoxRow
 		_menu = new Gtk.Popover.from_model(_event_box, menu_model);
 
 		_gesture_click = new Gtk.GestureMultiPress(_event_box);
+#else
+		this.set_child(_hbox);
+		_menu = new Gtk.PopoverMenu.from_model(menu_model);
+		_menu.set_parent(this);
+
+		_gesture_click = new Gtk.GestureClick();
+#endif
 		_gesture_click.set_button(0);
 		_gesture_click.pressed.connect((n_press, x, y) => {
 				if (_gesture_click.get_current_button() == Gdk.BUTTON_SECONDARY) {
@@ -121,6 +163,9 @@ public class ProjectRow : Gtk.ListBoxRow
 					_gesture_click.set_state(Gtk.EventSequenceState.CLAIMED);
 				}
 			});
+#if !CROWN_GTK3
+		this.add_controller(_gesture_click);
+#endif
 	}
 
 	public void set_project_exists(bool exists)
@@ -199,6 +244,8 @@ public class ProjectsList : Gtk.Box
 		_projects_list_label.set_markup("<span font_weight=\"bold\" size=\"x-large\">%s</span>".printf(_("Projects")));
 
 		_local_label = new Gtk.Label(_("Local"));
+		_local_label.halign = Gtk.Align.START;
+		_local_label.hexpand = true;
 		_local_label.set_markup("<span font_weight=\"bold\">%s</span>".printf(_("Local")));
 
 		_project_list_empty = new Gtk.Box(Gtk.Orientation.VERTICAL, 6);
@@ -206,11 +253,19 @@ public class ProjectsList : Gtk.Box
 		_project_list_empty.margin_bottom = 12;
 		var label = new Gtk.Label(null);
 		label.set_markup("<span font_size=\"large\"><b>%s</b></span>".printf(_("No projects found")));
+#if CROWN_GTK3
 		_project_list_empty.pack_start(label, false, false);
+#else
+		_project_list_empty.append(label);
+#endif
 		label = new Gtk.Label(null);
 		label.set_markup(_("Use the buttons above to create a new project or import an already existing one."));
+#if CROWN_GTK3
 		_project_list_empty.pack_start(label, false, false);
 		_project_list_empty.show_all();
+#else
+		_project_list_empty.append(label);
+#endif
 
 		_list_projects = new Gtk.ListBox();
 		_list_projects.set_placeholder(_project_list_empty);
@@ -226,26 +281,47 @@ public class ProjectsList : Gtk.Box
 
 		_button_new_project = new Gtk.Button.with_label(_("Create New"));
 		_button_new_project.set_tooltip_text(_("Create a new project."));
+#if CROWN_GTK3
 		_button_new_project.get_style_context().add_class("suggested-action");
+#else
+		_button_new_project.halign = Gtk.Align.END;
+		_button_new_project.add_css_class("suggested-action");
+#endif
 		_button_new_project.action_name = "app.new-project";
 
 		GLib.Menu menu_new_project = new GLib.Menu();
 		menu_new_project.append(_("Temporary Project"), "app.new-temporary-project");
 
 		_button_new_project_menu = new Gtk.MenuButton();
+#if CROWN_GTK3
 		_button_new_project_menu.get_style_context().add_class("suggested-action");
+#else
+		_button_new_project_menu.add_css_class("suggested-action");
+#endif
 		_button_new_project_menu.set_menu_model(menu_new_project);
 
 		_button_new_project_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+#if CROWN_GTK3
 		_button_new_project_box.get_style_context().add_class(Gtk.STYLE_CLASS_LINKED);
 		_button_new_project_box.pack_start(_button_new_project, true, true, 0);
 		_button_new_project_box.pack_start(_button_new_project_menu, false, false, 0);
+#else
+		_button_new_project_box.add_css_class("linked");
+		_button_new_project_box.append(_button_new_project);
+		_button_new_project_box.append(_button_new_project_menu);
+#endif
 
 		_buttons_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
 		_buttons_box.spacing = 6;
+#if CROWN_GTK3
 		_buttons_box.pack_start(_local_label, false, true);
 		_buttons_box.pack_end(_button_new_project_box, false, true);
 		_buttons_box.pack_end(_button_import_project, false, true);
+#else
+		_buttons_box.append(_local_label);
+		_buttons_box.append(_button_import_project);
+		_buttons_box.append(_button_new_project_box);
+#endif
 
 		_projects_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		_projects_box.margin_start = 12;
@@ -253,14 +329,24 @@ public class ProjectsList : Gtk.Box
 		_projects_box.margin_top = 32;
 		_projects_box.margin_bottom = 32;
 		_projects_box.spacing = 12;
+#if CROWN_GTK3
 		_projects_box.pack_start(_projects_list_label, false, true);
 		_projects_box.pack_start(_buttons_box, false, true);
 		_projects_box.pack_start(_list_projects, false, true);
+#else
+		_projects_box.append(_projects_list_label);
+		_projects_box.append(_buttons_box);
+		_projects_box.append(_list_projects);
+#endif
 
 		_clamp = new Clamp();
 		_clamp.set_child(_projects_box);
 
+#if CROWN_GTK3
 		this.add(_clamp);
+#else
+		this.append(_clamp);
+#endif
 
 		_user.recent_project_added.connect(on_recent_project_added);
 		_user.recent_project_touched.connect(on_recent_project_touched);
@@ -272,8 +358,12 @@ public class ProjectsList : Gtk.Box
 		// Add project row.
 		var row = new ProjectRow(source_dir, time, name, this);
 
+#if CROWN_GTK3
 		_list_projects.add(row);
 		_list_projects.show_all(); // Otherwise the list is not always updated...
+#else
+		_list_projects.append(row);
+#endif
 
 		GLib.Idle.add(() => {
 				row.set_project_exists(GLib.FileUtils.test(source_dir, FileTest.EXISTS));
@@ -286,24 +376,44 @@ public class ProjectsList : Gtk.Box
 
 	public void on_recent_project_touched(string source_dir, string mtime)
 	{
+#if CROWN_GTK3
 		_list_projects.foreach((row) => {
 				if (row.get_data<string>("source_dir") == source_dir) {
 					row.set_data("mtime", mtime);
 					return;
 				}
 			});
+#else
+		for (var child = _list_projects.get_first_child(); child != null; child = child.get_next_sibling()) {
+			var row = (Gtk.ListBoxRow)child;
+			if (row != null && row.get_data<string>("source_dir") == source_dir) {
+				row.set_data("mtime", mtime);
+				return;
+			}
+		}
+#endif
 
 		invalidate_sort();
 	}
 
 	public void on_recent_project_removed(string source_dir)
 	{
+#if CROWN_GTK3
 		_list_projects.foreach((row) => {
 				if (row.get_data<string>("source_dir") == source_dir) {
 					_list_projects.remove(row);
 					return;
 				}
 			});
+#else
+		for (var child = _list_projects.get_first_child(); child != null; child = child.get_next_sibling()) {
+			var row = (Gtk.ListBoxRow)child;
+			if (row != null && row.get_data<string>("source_dir") == source_dir) {
+				_list_projects.remove(row);
+				return;
+			}
+		}
+#endif
 	}
 
 	public void invalidate_sort()
@@ -313,12 +423,12 @@ public class ProjectsList : Gtk.Box
 		if (_grab_focus != 0)
 			GLib.Source.remove(_grab_focus);
 
-		GLib.Idle.add(() => {
+		_grab_focus = GLib.Idle.add(() => {
 				// Give focus to most recent project's open button.
 				ProjectRow? first_row = (ProjectRow?)_list_projects.get_row_at_index(0);
 				if (first_row != null)
 					first_row._open_button.grab_focus();
-
+				_grab_focus = 0;
 				return GLib.Source.REMOVE;
 			});
 	}

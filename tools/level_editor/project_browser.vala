@@ -304,6 +304,7 @@ public enum BrowseMode
 
 public class ProjectFolderView : Gtk.Box
 {
+#if CROWN_GTK3
 	public const Gtk.TargetEntry[] DND_TARGETS_SOURCE =
 	{
 		{ "RESOURCE_PATH", Gtk.TargetFlags.SAME_APP, TargetInfo.RESOURCE_PATH },
@@ -313,6 +314,7 @@ public class ProjectFolderView : Gtk.Box
 	{
 		{ "text/uri-list", 0, TargetInfo.URI_LIST },
 	};
+#endif
 
 	public string _selected_type;
 	public string _selected_name;
@@ -330,10 +332,21 @@ public class ProjectFolderView : Gtk.Box
 	public bool _showing_project_folder;
 	public Gtk.ScrolledWindow _icon_view_window;
 	public Gtk.ScrolledWindow _list_view_window;
+#if CROWN_GTK3
 	public Gtk.GestureMultiPress _icon_view_gesture_click;
 	public Gtk.GestureMultiPress _list_view_gesture_click;
+#else
+	public Gtk.GestureClick _icon_view_gesture_click;
+	public Gtk.GestureClick _list_view_gesture_click;
+#endif
 	public Gtk.Stack _stack;
 	public BrowseMode _browse_mode;
+#if !CROWN_GTK3
+	public Gtk.DragSource _icon_view_drag_source;
+	public Gtk.DragSource _list_view_drag_source;
+	public Gtk.DropTarget _icon_view_drop_target;
+	public Gtk.DropTarget _list_view_drop_target;
+#endif
 
 	public ProjectFolderView(ProjectBrowser project_browser, ProjectStore project_store, ThumbnailCache thumbnail_cache)
 	{
@@ -352,11 +365,13 @@ public class ProjectFolderView : Gtk.Box
 			);
 
 		_icon_view = new Gtk.IconView();
+		_icon_view.vexpand = true;
 		_icon_view.set_model(_list_store);
 		_icon_view.set_item_width(80);
 		_icon_view.set_item_padding(2);
 		_icon_view.set_column_spacing(0);
 		_icon_view.set_row_spacing(0);
+#if CROWN_GTK3
 		_icon_view.draw.connect(on_icon_view_draw);
 		_icon_view.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, DND_TARGETS_SOURCE, Gdk.DragAction.COPY);
 		_icon_view.enable_model_drag_dest(DND_TARGETS_DEST, Gdk.DragAction.COPY | Gdk.DragAction.MOVE);
@@ -364,23 +379,35 @@ public class ProjectFolderView : Gtk.Box
 		_icon_view.drag_begin.connect_after(on_drag_begin);
 		_icon_view.drag_end.connect(on_drag_end);
 		_icon_view.drag_data_received.connect(on_drag_data_received);
+#else
+		_icon_view.add_css_class("folderview");
+		_icon_view_drag_source = new Gtk.DragSource();
+		_icon_view_drag_source.actions = Gdk.DragAction.COPY;
+		_icon_view_drag_source.prepare.connect(on_drag_source_prepare);
+		_icon_view_drag_source.drag_end.connect(on_drag_source_end);
+		_icon_view.add_controller(_icon_view_drag_source);
+
+		_icon_view_drop_target = new Gtk.DropTarget(typeof(Gdk.FileList), Gdk.DragAction.COPY);
+		_icon_view_drop_target.drop.connect(on_files_dropped);
+		_icon_view.add_controller(_icon_view_drop_target);
+#endif
 		_icon_view.has_tooltip = true;
 		_icon_view.query_tooltip.connect(on_icon_view_query_tooltip);
 		_icon_view.item_activated.connect(activate_path);
 
-		/*
-		_icon_view_gesture_click = new Gtk.GestureMultiPress(_icon_view);
-		_icon_view_gesture_click.set_button(0);
-		_icon_view_gesture_click.pressed.connect((n_press, x, y) => {
-				on_button_pressed(_icon_view_gesture_click.get_current_button(), n_press, x, y);
-			});
-		*/
+#if CROWN_GTK3
 		_icon_view.button_press_event.connect((ev) => {
 				int n_press = 1;
 				if (ev.type == Gdk.EventType.@2BUTTON_PRESS)
 					n_press = 2;
 				return on_button_pressed(ev.button, n_press, ev.x, ev.y);
 			});
+#else
+		_icon_view_gesture_click = new Gtk.GestureClick();
+		_icon_view_gesture_click.set_button(0);
+		_icon_view_gesture_click.pressed.connect(on_button_pressed);
+		_icon_view.add_controller(_icon_view_gesture_click);
+#endif
 
 		// https://gitlab.gnome.org/GNOME/gtk/-/blob/3.24.43/gtk/gtkiconview.c#L5147
 		_cell_renderer_text = new Gtk.CellRendererText();
@@ -396,28 +423,57 @@ public class ProjectFolderView : Gtk.Box
 		_icon_view.set_cell_data_func(_cell_renderer_text, icon_view_text_func);
 
 		_cell_renderer_pixbuf = new Gtk.CellRendererPixbuf();
+#if CROWN_GTK3
 		_cell_renderer_pixbuf.stock_size = Gtk.IconSize.DIALOG;
+#else
+		_cell_renderer_pixbuf.icon_size = Gtk.IconSize.INHERIT;
+#endif
 		_cell_renderer_pixbuf.set_fixed_size(64, 64);
 		_icon_view.pack_start(_cell_renderer_pixbuf, false);
 		_icon_view.set_cell_data_func(_cell_renderer_pixbuf, icon_view_pixbuf_func);
 
 		_list_view = new Gtk.TreeView();
 		_list_view.set_model(_list_store);
+#if CROWN_GTK3
 		_list_view.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, DND_TARGETS_SOURCE, Gdk.DragAction.COPY);
 		_list_view.drag_data_get.connect(on_drag_data_get);
 		_list_view.drag_begin.connect_after(on_drag_begin);
 		_list_view.drag_end.connect(on_drag_end);
+#else
+		_list_view_drag_source = new Gtk.DragSource();
+		_list_view_drag_source.actions = Gdk.DragAction.COPY;
+		_list_view_drag_source.prepare.connect(on_drag_source_prepare);
+		_list_view_drag_source.drag_end.connect(on_drag_source_end);
+		_list_view.add_controller(_list_view_drag_source);
+
+		_list_view_drop_target = new Gtk.DropTarget(typeof(Gdk.FileList), Gdk.DragAction.COPY);
+		_list_view_drop_target.drop.connect(on_files_dropped);
+		_list_view.add_controller(_list_view_drop_target);
+#endif
 		_list_view.row_activated.connect(on_row_activated);
 
+#if CROWN_GTK3
 		_list_view_gesture_click = new Gtk.GestureMultiPress(_list_view);
+#else
+		_list_view_gesture_click = new Gtk.GestureClick();
+#endif
 		_list_view_gesture_click.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
 		_list_view_gesture_click.set_button(0);
+#if CROWN_GTK3
 		_list_view_gesture_click.pressed.connect((n_press, x, y) => {
 				on_button_pressed(_list_view_gesture_click.get_current_button(), n_press, x, y);
 			});
+#else
+		_list_view_gesture_click.pressed.connect(on_button_pressed);
+		_list_view.add_controller(_list_view_gesture_click);
+#endif
 
 		var cell_pixbuf = new Gtk.CellRendererPixbuf();
+#if CROWN_GTK3
 		cell_pixbuf.stock_size = Gtk.IconSize.DND;
+#else
+		cell_pixbuf.icon_size = Gtk.IconSize.INHERIT;
+#endif
 		cell_pixbuf.set_fixed_size(32, 32);
 		var cell_text = new Gtk.CellRendererText();
 		cell_text.ellipsize = Pango.EllipsizeMode.END;
@@ -463,10 +519,17 @@ public class ProjectFolderView : Gtk.Box
 
 		_showing_project_folder = true;
 
+#if CROWN_GTK3
 		_icon_view_window = new Gtk.ScrolledWindow(null, null);
 		_icon_view_window.add(_icon_view);
 		_list_view_window = new Gtk.ScrolledWindow(null, null);
 		_list_view_window.add(_list_view);
+#else
+		_icon_view_window = new Gtk.ScrolledWindow();
+		_icon_view_window.set_child(_icon_view);
+		_list_view_window = new Gtk.ScrolledWindow();
+		_list_view_window.set_child(_list_view);
+#endif
 
 		_stack = new Gtk.Stack();
 		_stack.hhomogeneous = false;
@@ -474,7 +537,11 @@ public class ProjectFolderView : Gtk.Box
 		_stack.add_named(_list_view_window, "list-view");
 		_stack.set_visible_child_full("icon-view", Gtk.StackTransitionType.NONE);
 
+#if CROWN_GTK3
 		this.pack_start(_stack);
+#else
+		this.append(_stack);
+#endif
 
 		_browse_mode = BrowseMode.REGULAR;
 	}
@@ -493,7 +560,11 @@ public class ProjectFolderView : Gtk.Box
 		_list_view.set_model(null);
 	}
 
+#if CROWN_GTK3
 	public bool on_icon_view_draw(Cairo.Context cr)
+#else
+	public void update_icon_view_visible_range()
+#endif
 	{
 		Gtk.TreePath first_path;
 		Gtk.TreePath last_path;
@@ -504,16 +575,28 @@ public class ProjectFolderView : Gtk.Box
 			_first_visible_path = null;
 			_last_visible_path = null;
 		}
+#if CROWN_GTK3
 
 		return Gdk.EVENT_PROPAGATE;
+#endif
 	}
 
+#if CROWN_GTK3
 	public void on_drag_data_get(Gdk.DragContext context, Gtk.SelectionData data, uint info, uint time_)
+#else
+	public Gdk.ContentProvider? prepare_drag_content()
+#endif
 	{
+#if CROWN_GTK3
 		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_data_get.html
+#endif
 		Gtk.TreePath path;
 		if (!selected_path(out path))
+#if CROWN_GTK3
 			return;
+#else
+			return null;
+#endif
 
 		ProjectStore.RowKind kind;
 		string type;
@@ -521,21 +604,52 @@ public class ProjectFolderView : Gtk.Box
 		resource_at_path(out kind, out type, out name, path);
 
 		string resource_path = ResourceId.path(type, name);
+#if CROWN_GTK3
 		data.set(Gdk.Atom.intern_static_string("RESOURCE_PATH"), 8, resource_path.data);
+#else
+		GLib.Value value = GLib.Value(typeof(string));
+		value.set_string(resource_path);
+		return new Gdk.ContentProvider.for_value(value);
+#endif
 	}
 
+#if CROWN_GTK3
 	public void on_drag_begin(Gdk.DragContext context)
+#else
+	public Gdk.ContentProvider? on_drag_source_prepare(double x, double y)
+#endif
 	{
+#if CROWN_GTK3
 		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_begin.html
 		Gtk.drag_set_icon_pixbuf(context, _empty_pixbuf, 0, 0);
+#else
+		return prepare_drag_content();
+#endif
 	}
 
+#if CROWN_GTK3
 	public void on_drag_end(Gdk.DragContext context)
+#else
+	public void on_drag_end()
+#endif
 	{
+#if CROWN_GTK3
 		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_end.html
+#endif
 		GLib.Application.get_default().activate_action("cancel-place", null);
 	}
 
+	public Gtk.TreePath? select_drop_path(int x, int y)
+	{
+		Gtk.TreePath? path = path_at_pos(x, y);
+		if (path != null) {
+			_icon_view.select_path(path);
+			_icon_view.scroll_to_path(path, false, 0.0f, 0.0f);
+		}
+		return path;
+	}
+
+#if CROWN_GTK3
 	public void on_drag_data_received(Gdk.DragContext context, int x, int y, Gtk.SelectionData selection_data, uint info, uint time_)
 	{
 		if (_browse_mode == BrowseMode.SEARCH || !_showing_project_folder) {
@@ -543,12 +657,7 @@ public class ProjectFolderView : Gtk.Box
 			return;
 		}
 
-		Gtk.TreePath? path = path_at_pos(x, y);
-
-		if (path != null) {
-			_icon_view.select_path(path);
-			_icon_view.scroll_to_path(path, false, 0.0f, 0.0f);
-		}
+		Gtk.TreePath? path = select_drop_path(x, y);
 
 		ProjectStore.RowKind kind;
 		string type;
@@ -571,13 +680,81 @@ public class ProjectFolderView : Gtk.Box
 
 		Gtk.drag_finish(context, true, false, time_);
 	}
+#endif
 
-	public bool on_button_pressed(uint button, int n_press, double x, double y)
+#if !CROWN_GTK3
+	public void on_drag_source_end(Gdk.Drag drag, bool delete_data)
 	{
+		on_drag_end();
+	}
+#endif
+
+#if !CROWN_GTK3
+	public bool on_files_dropped(GLib.Value value, double x, double y)
+	{
+		if (_browse_mode == BrowseMode.SEARCH || !_showing_project_folder || value.type() != typeof(Gdk.FileList))
+			return false;
+
+		Gtk.TreePath? path = select_drop_path((int)x, (int)y);
+		ProjectStore.RowKind kind;
+		string type;
+		string name;
+		resource_at_path(out kind, out type, out name, path);
+
+		if (kind != ProjectStore.RowKind.FOLDER)
+			return false;
+
+		Gdk.FileList file_list = (Gdk.FileList)value;
+		string[] filenames = {};
+		try {
+			GLib.SList<weak GLib.File> files = file_list.get_files();
+			for (unowned GLib.SList<weak GLib.File> cur = files; cur != null; cur = cur.next) {
+				GLib.File file = (GLib.File)cur.data;
+				string? path_string = file.get_path();
+				if (path_string != null)
+					filenames += path_string;
+			}
+
+			GLib.Application.get_default().activate_action("import", new GLib.Variant.tuple({name, filenames}));
+		} catch (Error e) {
+			loge(e.message);
+		}
+		return true;
+	}
+#endif
+
+#if CROWN_GTK3
+	public bool on_button_pressed(uint button, int n_press, double x, double y)
+#else
+	public void on_button_pressed(int n_press, double x, double y)
+#endif
+	{
+#if CROWN_GTK3
 		if (_project_browser.handle_navigation_mouse_button(button))
 			return Gdk.EVENT_STOP;
-
+#else
 		Gtk.TreePath? path = path_at_pos((int)x, (int)y);
+#endif
+
+#if CROWN_GTK3
+		Gtk.TreePath? path = path_at_pos((int)x, (int)y);
+#else
+		uint button;
+		if (_stack.get_visible_child() == _icon_view_window)
+			button = _icon_view_gesture_click.get_current_button();
+		else if (_stack.get_visible_child() == _list_view_window)
+			button = _list_view_gesture_click.get_current_button();
+		else
+			return;
+
+		if (_project_browser.handle_navigation_mouse_button(button)) {
+			if (_stack.get_visible_child() == _icon_view_window)
+				_icon_view_gesture_click.set_state(Gtk.EventSequenceState.CLAIMED);
+			else
+				_list_view_gesture_click.set_state(Gtk.EventSequenceState.CLAIMED);
+			return;
+		}
+#endif
 
 		if (button == Gdk.BUTTON_SECONDARY) {
 			ProjectStore.RowKind kind;
@@ -593,7 +770,11 @@ public class ProjectFolderView : Gtk.Box
 					_list_view.scroll_to_cell(path, null, false, 0.0f, 0.0f);
 				}
 			} else if (_browse_mode == BrowseMode.SEARCH) {
+#if CROWN_GTK3
 				return Gdk.EVENT_PROPAGATE;
+#else
+				return;
+#endif
 			}
 
 			resource_at_path(out kind, out type, out name, path);
@@ -605,7 +786,12 @@ public class ProjectFolderView : Gtk.Box
 				menu_model = favorites_entry_menu_create(kind, type, name);
 
 			if (menu_model != null) {
+#if CROWN_GTK3
 				Gtk.Popover menu = new Gtk.Popover.from_model(this, menu_model);
+#else
+				Gtk.PopoverMenu menu = new Gtk.PopoverMenu.from_model(menu_model);
+				menu.set_parent(_stack.get_visible_child());
+#endif
 				if (_stack.get_visible_child() == _icon_view_window) {
 					// Adjust for scroll offset since IconView fails to do it itself.
 					var new_x = x - _icon_view_window.get_hadjustment().get_value();
@@ -618,13 +804,27 @@ public class ProjectFolderView : Gtk.Box
 				menu.popup();
 			}
 
+#if CROWN_GTK3
 			return Gdk.EVENT_STOP; // Stop the event. Otherwise, popover menu won't show on _icon_view.
+#else
+			if (_stack.get_visible_child() == _icon_view_window)
+				_icon_view_gesture_click.set_state(Gtk.EventSequenceState.CLAIMED);
+			else
+				_list_view_gesture_click.set_state(Gtk.EventSequenceState.CLAIMED);
+			return;
+#endif
 		}
+#if CROWN_GTK3
 
 		return Gdk.EVENT_PROPAGATE;
+#endif
 	}
 
+#if CROWN_GTK3
 	public void on_row_activated(Gtk.TreePath path, Gtk.TreeViewColumn column)
+#else
+	public void on_row_activated(Gtk.TreeView tree_view, Gtk.TreePath path, Gtk.TreeViewColumn? column)
+#endif
 	{
 		activate_path(path);
 	}
@@ -651,6 +851,10 @@ public class ProjectFolderView : Gtk.Box
 
 	public void icon_view_pixbuf_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
+#if !CROWN_GTK3
+		update_icon_view_visible_range();
+
+#endif
 		Value val;
 		ProjectStore.RowKind kind;
 		string type;
@@ -829,10 +1033,15 @@ public class ProjectFolderView : Gtk.Box
 
 	public bool on_icon_view_query_tooltip(int x, int y, bool keyboard_tooltip, Gtk.Tooltip tooltip)
 	{
+#if CROWN_GTK3
 		int bx;
 		int by;
 		_icon_view.convert_widget_to_bin_window_coords((int)x, (int)y, out bx, out by);
 		Gtk.TreePath? path = _icon_view.get_path_at_pos(bx, by);
+#else
+		// GTK4: No need for bin window coordinate conversion
+		Gtk.TreePath? path = _icon_view.get_path_at_pos(x, y);
+#endif
 		if (path == null)
 			return false;
 
@@ -975,11 +1184,13 @@ public class ProjectFolderView : Gtk.Box
 
 public class ProjectBrowser : Gtk.Box
 {
+#if CROWN_GTK3
 	public const Gtk.TargetEntry[] DND_TARGETS =
 	{
 		{ "RESOURCE_PATH", Gtk.TargetFlags.SAME_APP, TargetInfo.RESOURCE_PATH },
 	};
 
+#endif
 	public enum SortMode
 	{
 		NAME_AZ,
@@ -1024,7 +1235,9 @@ public class ProjectBrowser : Gtk.Box
 	public GLib.GenericArray<string> _nav_history_forward;
 	public bool _navigating_history;
 	public string _needle;
+#if CROWN_GTK3
 	public Gtk.EntryBuffer _filter_buffer;
+#endif
 	public EntrySearch _filter_entry_tree;
 	public EntrySearch _filter_entry_folder;
 	public Gtk.TreeModelFilter _tree_search;
@@ -1054,7 +1267,12 @@ public class ProjectBrowser : Gtk.Box
 	public Gtk.Box _folder_view_content;
 	public Gtk.ScrolledWindow _scrolled_window;
 	public Gtk.Paned _paned;
+#if CROWN_GTK3
 	public Gtk.GestureMultiPress _tree_view_gesture_click;
+#else
+	public Gtk.GestureClick _tree_view_gesture_click;
+	public Gtk.DragSource _tree_view_drag_source;
+#endif
 	public Gtk.Button _btn_back;
 	public Gtk.Button _btn_forward;
 	public Gtk.Entry _address_bar;
@@ -1142,12 +1360,61 @@ public class ProjectBrowser : Gtk.Box
 		_tree_filter = null;
 	}
 
+	public void address_bar_focus_in()
+	{
+		var app = (LevelEditorApplication)GLib.Application.get_default();
+		app.entry_any_focus_in(_address_bar);
+	}
+
+	public void address_bar_focus_out()
+	{
+		var app = (LevelEditorApplication)GLib.Application.get_default();
+		app.entry_any_focus_out(_address_bar);
+	}
+
+#if CROWN_GTK3
+	public bool on_address_bar_focus_in(Gdk.EventFocus event)
+	{
+		address_bar_focus_in();
+		return Gdk.EVENT_PROPAGATE;
+	}
+#endif
+
+#if CROWN_GTK3
+	public bool on_address_bar_focus_out(Gdk.EventFocus event)
+	{
+		address_bar_focus_out();
+		return Gdk.EVENT_PROPAGATE;
+	}
+#endif
+
+#if !CROWN_GTK3
+	public void on_address_bar_focus_enter()
+	{
+		address_bar_focus_in();
+	}
+#endif
+
+#if !CROWN_GTK3
+	public void on_address_bar_focus_leave()
+	{
+		address_bar_focus_out();
+	}
+#endif
+
 	public ProjectBrowser(ProjectStore project_store, ThumbnailCache thumbnail_cache)
 	{
 		Object(orientation: Gtk.Orientation.VERTICAL);
 
+#if CROWN_GTK3
 		_controller_key = new Gtk.EventControllerKey(this);
+#else
+		_controller_key = new Gtk.EventControllerKey();
+#endif
 		_controller_key.key_pressed.connect(on_key_pressed);
+#if !CROWN_GTK3
+		this.add_controller(_controller_key);
+#endif
 
 		// Data
 		_project_store = project_store;
@@ -1160,21 +1427,31 @@ public class ProjectBrowser : Gtk.Box
 
 		_needle = "";
 
+#if CROWN_GTK3
 		_filter_buffer = new Gtk.EntryBuffer();
 
+#endif
 		_filter_entry_tree = new EntrySearch();
+#if CROWN_GTK3
 		_filter_entry_tree._entry.set_buffer(_filter_buffer);
+#endif
 		_filter_entry_tree.set_placeholder_text(_("Search..."));
 		_filter_entry_tree._entry.stop_search.connect(on_stop_search);
 
 		_filter_entry_folder = new EntrySearch();
+#if CROWN_GTK3
 		_filter_entry_folder._entry.set_buffer(_filter_buffer);
+#endif
 		_filter_entry_folder.set_placeholder_text(_("Search..."));
 		_filter_entry_folder.search_changed.connect(on_filter_entry_text_changed);
 		_filter_entry_folder._entry.stop_search.connect(on_stop_search);
 
 		Gtk.CellRendererPixbuf cell_pixbuf = new Gtk.CellRendererPixbuf();
+#if CROWN_GTK3
 		cell_pixbuf.stock_size = Gtk.IconSize.SMALL_TOOLBAR;
+#else
+		cell_pixbuf.icon_size = Gtk.IconSize.INHERIT;
+#endif
 		cell_pixbuf.set_fixed_size(16, 16);
 		Gtk.CellRendererText cell_text = new Gtk.CellRendererText();
 		cell_text.ellipsize = Pango.EllipsizeMode.END;
@@ -1212,15 +1489,30 @@ public class ProjectBrowser : Gtk.Box
 		_tree_view.headers_visible = false;
 		_tree_view.row_activated.connect(on_tree_row_activated);
 
+#if CROWN_GTK3
 		_tree_view_gesture_click = new Gtk.GestureMultiPress(_tree_view);
+#else
+		_tree_view_gesture_click = new Gtk.GestureClick();
+#endif
 		_tree_view_gesture_click.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
 		_tree_view_gesture_click.set_button(0);
 		_tree_view_gesture_click.pressed.connect(on_button_pressed);
+#if !CROWN_GTK3
+		_tree_view.add_controller(_tree_view_gesture_click);
+#endif
 
+#if CROWN_GTK3
 		_tree_view.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, DND_TARGETS, Gdk.DragAction.COPY);
 		_tree_view.drag_data_get.connect(on_drag_data_get);
 		_tree_view.drag_begin.connect_after(on_drag_begin);
 		_tree_view.drag_end.connect(on_drag_end);
+#else
+		_tree_view_drag_source = new Gtk.DragSource();
+		_tree_view_drag_source.actions = Gdk.DragAction.COPY;
+		_tree_view_drag_source.prepare.connect(on_tree_drag_source_prepare);
+		_tree_view_drag_source.drag_end.connect(on_tree_drag_source_end);
+		_tree_view.add_controller(_tree_view_drag_source);
+#endif
 
 		_tree_selection = _tree_view.get_selection();
 		_tree_selection.set_mode(Gtk.SelectionMode.BROWSE);
@@ -1268,13 +1560,24 @@ public class ProjectBrowser : Gtk.Box
 
 		// Create switch button.
 		_show_folder_view = true;
+#if CROWN_GTK3
 		_toggle_folder_view_image = new Gtk.Image.from_icon_name(IconTheme.LEVEL_TREE, Gtk.IconSize.SMALL_TOOLBAR);
+#else
+		_toggle_folder_view_image = new Gtk.Image.from_icon_name(IconTheme.LEVEL_TREE);
+#endif
 		_toggle_folder_view = new Gtk.Button();
 		_toggle_folder_view.set_tooltip_text(_("Tree view."));
+#if CROWN_GTK3
 		_toggle_folder_view.add(_toggle_folder_view_image);
 		_toggle_folder_view.get_style_context().add_class("flat");
 		_toggle_folder_view.get_style_context().add_class("image-button");
 		_toggle_folder_view.can_focus = false;
+#else
+		_toggle_folder_view.set_child(_toggle_folder_view_image);
+		_toggle_folder_view.add_css_class("flat");
+		_toggle_folder_view.add_css_class("image-button");
+		_toggle_folder_view.focusable = false;
+#endif
 		_toggle_folder_view.clicked.connect(() => {
 				_show_folder_view = !_show_folder_view;
 				_toggle_folder_view.set_tooltip_text(_show_folder_view ? _("Tree view.") : _("Folder view."));
@@ -1312,11 +1615,23 @@ public class ProjectBrowser : Gtk.Box
 						_folder_view.select_resource(selected_kind, selected_type, selected_name);
 					}
 
+#if CROWN_GTK3
 					_folder_view_content.show_all();
 					_toggle_folder_view_image.set_from_icon_name(IconTheme.LEVEL_TREE, Gtk.IconSize.SMALL_TOOLBAR);
+#else
+					_folder_view_content.show();
+					_toggle_folder_view_image.set_from_icon_name(IconTheme.LEVEL_TREE);
+#endif
 
 					_filter_entry_tree.search_changed.disconnect(on_filter_entry_text_changed);
+#if !CROWN_GTK3
+					_filter_entry_folder.text = _filter_entry_tree.text;
+					_filter_entry_tree.text = "";
+#endif
 					_filter_entry_folder.search_changed.connect(on_filter_entry_text_changed);
+
+					_toggle_folder_view.halign = Gtk.Align.END;
+					_toggle_folder_view.hexpand = true;
 					_filter_entry_tree.hide();
 				} else { // Switch from folder view to regular tree view.
 					// Save the currently selected resource. This will be used later, after the tree
@@ -1339,35 +1654,76 @@ public class ProjectBrowser : Gtk.Box
 						select_resource(selected_kind, selected_type, selected_name);
 
 					_folder_view_content.hide();
+#if CROWN_GTK3
 					_toggle_folder_view_image.set_from_icon_name(IconTheme.BROWSER_ICON_VIEW, Gtk.IconSize.SMALL_TOOLBAR);
+#else
+					_toggle_folder_view_image.set_from_icon_name(IconTheme.BROWSER_ICON_VIEW);
+#endif
 
 					_tree_view.queue_draw(); // It doesn't draw by itself sometimes...
 
 					_filter_entry_folder.search_changed.disconnect(on_filter_entry_text_changed);
+#if !CROWN_GTK3
+					_filter_entry_tree.text = _filter_entry_folder.text;
+					_filter_entry_folder.text = "";
+#endif
 					_filter_entry_tree.search_changed.connect(on_filter_entry_text_changed);
+
+					_toggle_folder_view.halign = Gtk.Align.FILL;
+					_toggle_folder_view.hexpand = false;
 					_filter_entry_tree.show();
 				}
 			});
 
 		// Create paned split-view.
+#if CROWN_GTK3
 		_scrolled_window = new Gtk.ScrolledWindow(null, null);
 		_scrolled_window.add(_tree_view);
+#else
+		_scrolled_window = new Gtk.ScrolledWindow();
+		_scrolled_window.set_child(_tree_view);
+		_scrolled_window.valign = Gtk.Align.FILL;
+		_scrolled_window.vexpand = true;
+#endif
 
 		var _tree_view_control = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+#if CROWN_GTK3
 		_tree_view_control.pack_start(_filter_entry_tree, true, true);
+#else
+		_filter_entry_tree.hexpand = true;
+		_tree_view_control.append(_filter_entry_tree);
+#endif
 
 		// Create back/forward buttons
+#if CROWN_GTK3
 		_btn_back = new Gtk.Button.from_icon_name("go-previous-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
+#else
+		_btn_back = new Gtk.Button.from_icon_name("go-previous-symbolic");
+#endif
 		_btn_back.set_tooltip_text(_("Go Back"));
+#if CROWN_GTK3
 		_btn_back.get_style_context().add_class("flat");
 		_btn_back.can_focus = false;
+#else
+		_btn_back.add_css_class("flat");
+		_btn_back.focusable = false;
+#endif
 		_btn_back.sensitive = false;
 		_btn_back.clicked.connect(navigate_back);
 
+#if CROWN_GTK3
 		_btn_forward = new Gtk.Button.from_icon_name("go-next-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
+#else
+		_btn_forward = new Gtk.Button.from_icon_name("go-next-symbolic");
+#endif
 		_btn_forward.set_tooltip_text(_("Go Forward"));
+#if CROWN_GTK3
 		_btn_forward.get_style_context().add_class("flat");
 		_btn_forward.can_focus = false;
+#else
+		_btn_forward.add_css_class("flat");
+		_btn_forward.focusable = false;
+#endif
 		_btn_forward.sensitive = false;
 		_btn_forward.clicked.connect(navigate_forward);
 
@@ -1394,27 +1750,39 @@ public class ProjectBrowser : Gtk.Box
 					loge(_("Project browser: folder not found: %s").printf(input));
 				}
 			});
-		_address_bar.focus_in_event.connect((ev) => {
-				var app = (LevelEditorApplication)GLib.Application.get_default();
-				app.entry_any_focus_in(_address_bar);
-				return Gdk.EVENT_PROPAGATE;
-			});
-		_address_bar.focus_out_event.connect((ev) => {
-				var app = (LevelEditorApplication)GLib.Application.get_default();
-				app.entry_any_focus_out(_address_bar);
-				return Gdk.EVENT_PROPAGATE;
-			});
+#if CROWN_GTK3
+		_address_bar.focus_in_event.connect(on_address_bar_focus_in);
+		_address_bar.focus_out_event.connect(on_address_bar_focus_out);
+#else
+		var address_bar_focus = new Gtk.EventControllerFocus();
+		address_bar_focus.enter.connect(on_address_bar_focus_enter);
+		address_bar_focus.leave.connect(on_address_bar_focus_leave);
+		_address_bar.add_controller(address_bar_focus);
+#endif
 
 		var _nav_bar = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+#if CROWN_GTK3
 		_nav_bar.pack_start(_btn_back, false, false, 0);
 		_nav_bar.pack_start(_btn_forward, false, false, 0);
 		_nav_bar.pack_start(_address_bar, true, true, 0);
 		_nav_bar.pack_end(_toggle_folder_view, false, false, 0);
+#else
+		_nav_bar.append(_btn_back);
+		_nav_bar.append(_btn_forward);
+		_nav_bar.append(_address_bar);
+		_nav_bar.append(_toggle_folder_view);
+#endif
 
 		_tree_view_content = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+#if CROWN_GTK3
 		_tree_view_content.pack_start(_nav_bar, false);
 		_tree_view_content.pack_start(_tree_view_control, false);
 		_tree_view_content.pack_start(_scrolled_window, true, true);
+#else
+		_tree_view_content.append(_nav_bar);
+		_tree_view_content.append(_tree_view_control);
+		_tree_view_content.append(_scrolled_window);
+#endif
 
 		// Setup sort menu button popover.
 		_show_all_files = new Gtk.CheckButton.with_label(_("Show all files"));
@@ -1433,33 +1801,71 @@ public class ProjectBrowser : Gtk.Box
 		_show_mapped_dirs.toggled.connect(on_show_mapped_dirs_toggled);
 
 		_sort_items_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+#if CROWN_GTK3
 		_sort_items_popover = new Gtk.Popover(null);
 		_sort_items_popover.add(_sort_items_box);
+#else
+		_sort_items_popover = new Gtk.Popover();
+		_sort_items_popover.set_child(_sort_items_box);
+#endif
 		_sort_items = new Gtk.MenuButton();
 		_sort_items.set_tooltip_text(_("Sort and filter items."));
+#if CROWN_GTK3
 		_sort_items.add(new Gtk.Image.from_icon_name(IconTheme.LIST_SORT, Gtk.IconSize.SMALL_TOOLBAR));
 		_sort_items.get_style_context().add_class("flat");
 		_sort_items.get_style_context().add_class("image-button");
 		_sort_items.can_focus = false;
+#else
+		_sort_items.set_child(new Gtk.Image.from_icon_name(IconTheme.LIST_SORT));
+		_sort_items.add_css_class("flat");
+		_sort_items.add_css_class("image-button");
+		_sort_items.focusable = false;
+#endif
 		_sort_items.set_popover(_sort_items_popover);
 
+#if CROWN_GTK3
 		Gtk.RadioButton? button = null;
-		for (int i = 0; i < SortMode.COUNT; ++i)
+#else
+		Gtk.CheckButton? button = null;
+#endif
+		for (int i = 0; i < SortMode.COUNT; ++i) {
 			button = add_sort_item(button, (SortMode)i);
+#if !CROWN_GTK3
+			if (i == SortMode.NAME_AZ)
+				button.set_active(true);
+#endif
+		}
 
+#if CROWN_GTK3
 		_sort_items_box.pack_start(_show_mapped_dirs, false, false);
 		_sort_items_box.pack_start(_show_all_files, false, false);
 		_sort_items_box.pack_start(_show_files_extension, false, false);
 		_sort_items_box.show_all();
+#else
+		_sort_items_box.append(_show_mapped_dirs);
+		_sort_items_box.append(_show_all_files);
+		_sort_items_box.append(_show_files_extension);
+#endif
 
 		bool _show_icon_view = true;
+#if CROWN_GTK3
 		_toggle_icon_view_image = new Gtk.Image.from_icon_name(IconTheme.BROWSER_LIST_VIEW, Gtk.IconSize.SMALL_TOOLBAR);
+#else
+		_toggle_icon_view_image = new Gtk.Image.from_icon_name(IconTheme.BROWSER_LIST_VIEW);
+#endif
 		_toggle_icon_view = new Gtk.Button();
 		_toggle_icon_view.set_tooltip_text(_("List view."));
+#if CROWN_GTK3
 		_toggle_icon_view.add(_toggle_icon_view_image);
 		_toggle_icon_view.get_style_context().add_class("flat");
 		_toggle_icon_view.get_style_context().add_class("image-button");
 		_toggle_icon_view.can_focus = false;
+#else
+		_toggle_icon_view.set_child(_toggle_icon_view_image);
+		_toggle_icon_view.add_css_class("flat");
+		_toggle_icon_view.add_css_class("image-button");
+		_toggle_icon_view.focusable = false;
+#endif
 		_toggle_icon_view.clicked.connect(() => {
 				Gtk.TreePath path;
 				bool any_selected = _folder_view.selected_path(out path);
@@ -1472,13 +1878,21 @@ public class ProjectBrowser : Gtk.Box
 					}
 
 					_folder_view._stack.set_visible_child_full("list-view", Gtk.StackTransitionType.NONE);
+#if CROWN_GTK3
 					_toggle_icon_view_image.set_from_icon_name(IconTheme.BROWSER_ICON_VIEW, Gtk.IconSize.SMALL_TOOLBAR);
+#else
+					_toggle_icon_view_image.set_from_icon_name(IconTheme.BROWSER_ICON_VIEW);
+#endif
 				} else {
 					if (any_selected)
 						_folder_view._icon_view.select_path(path);
 
 					_folder_view._stack.set_visible_child_full("icon-view", Gtk.StackTransitionType.NONE);
+#if CROWN_GTK3
 					_toggle_icon_view_image.set_from_icon_name(IconTheme.BROWSER_LIST_VIEW, Gtk.IconSize.SMALL_TOOLBAR);
+#else
+					_toggle_icon_view_image.set_from_icon_name(IconTheme.BROWSER_LIST_VIEW);
+#endif
 				}
 
 				_show_icon_view = !_show_icon_view;
@@ -1486,30 +1900,62 @@ public class ProjectBrowser : Gtk.Box
 			});
 
 		var _folder_view_control = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+#if CROWN_GTK3
 		_folder_view_control.pack_start(_filter_entry_folder, true, true);
 		_folder_view_control.pack_end(_toggle_icon_view, false, false);
 		_folder_view_control.pack_end(_sort_items, false, false);
+#else
+		_filter_entry_folder.hexpand = true;
+		_folder_view_control.append(_filter_entry_folder);
+		_folder_view_control.append(_sort_items);
+		_folder_view_control.append(_toggle_icon_view);
+#endif
 
 		_empty_favorites_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		_empty_favorites_box.valign = Gtk.Align.CENTER;
+#if CROWN_GTK3
 		_empty_favorites_box.pack_start(new Gtk.Image.from_icon_name(IconTheme.BROWSER_FAVORITES, Gtk.IconSize.DIALOG), false, false);
+#else
+		_empty_favorites_box.append(new Gtk.Image.from_icon_name(IconTheme.BROWSER_FAVORITES));
+#endif
 		Gtk.Label empty_favorites_label = new Gtk.Label(_("Favorites is empty"));
 		empty_favorites_label.ellipsize = Pango.EllipsizeMode.END;
+#if CROWN_GTK3
 		_empty_favorites_box.pack_start(empty_favorites_label, false, false);
+#else
+		_empty_favorites_box.append(empty_favorites_label);
+#endif
 
 		_folder_stack = new Gtk.Stack();
 		_folder_stack.hhomogeneous = false;
 		_folder_stack.add_named(_folder_view, "folder-view");
 		_folder_stack.add_named(_empty_favorites_box, "empty-favorites");
 		_folder_stack.set_visible_child_full("folder-view", Gtk.StackTransitionType.NONE);
+		_folder_stack.valign = Gtk.Align.FILL;
+		_folder_stack.vexpand = true;
 
 		_folder_view_content = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+#if CROWN_GTK3
 		_folder_view_content.pack_start(_folder_view_control, false);
 		_folder_view_content.pack_start(_folder_stack, true, true);
+#else
+		_folder_view_content.append(_folder_view_control);
+		_folder_view_content.append(_folder_stack);
+#endif
 
 		_paned = new Gtk.Paned(Gtk.Orientation.VERTICAL);
+#if CROWN_GTK3
 		_paned.pack1(_tree_view_content, true, false);
 		_paned.pack2(_folder_view_content, true, false);
+#else
+		_paned.set_start_child(_tree_view_content);
+		_paned.set_end_child(_folder_view_content);
+		_paned.resize_start_child = true;
+		_paned.shrink_start_child = false;
+		_paned.resize_end_child = true;
+		_paned.shrink_end_child = false;
+		_paned.vexpand = true;
+#endif
 		_paned.set_position(400);
 
 		_hide_core_resources = true;
@@ -1604,8 +2050,13 @@ public class ProjectBrowser : Gtk.Box
 		create_tree_models();
 		_project_store.reset_started.connect(on_project_store_reset_started);
 		_project_store.reset_finished.connect(on_project_store_reset_finished);
+#if CROWN_GTK3
 		this.pack_start(_paned);
 		this.show.connect(on_show);
+#else
+		this.append(_paned);
+		this.map.connect(on_show);
+#endif
 	}
 
 	public void on_thumbnail_cache_changed()
@@ -1631,40 +2082,89 @@ public class ProjectBrowser : Gtk.Box
 		return Gdk.EVENT_PROPAGATE;
 	}
 
+#if CROWN_GTK3
 	public void on_drag_data_get(Gdk.DragContext context, Gtk.SelectionData data, uint info, uint time_)
+#else
+	public Gdk.ContentProvider? prepare_tree_drag_content()
+#endif
 	{
+#if CROWN_GTK3
 		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_data_get.html
+#endif
 		Gtk.TreeModel selected_model;
 		Gtk.TreeIter selected_iter;
 		if (!_tree_selection.get_selected(out selected_model, out selected_iter))
+#if CROWN_GTK3
 			return;
+#else
+			return null;
+#endif
 
 		Value val;
+#if CROWN_GTK3
 		ProjectStore.RowKind kind;
+#endif
 		string type;
 		string name;
 		selected_model.get_value(selected_iter, ProjectStore.Column.TYPE, out val);
 		type = (string)val;
 		selected_model.get_value(selected_iter, ProjectStore.Column.NAME, out val);
 		name = (string)val;
+#if CROWN_GTK3
 		selected_model.get_value(selected_iter, ProjectStore.Column.KIND, out val);
 		kind = (ProjectStore.RowKind)val;
 
+#endif
 		string resource_path = ResourceId.path(type, name);
+#if CROWN_GTK3
 		data.set(Gdk.Atom.intern_static_string("RESOURCE_PATH"), 8, resource_path.data);
+#else
+		GLib.Value value = GLib.Value(typeof(string));
+		value.set_string(resource_path);
+		return new Gdk.ContentProvider.for_value(value);
+#endif
 	}
 
+#if CROWN_GTK3
 	public void on_drag_begin(Gdk.DragContext context)
+#else
+	public Gdk.ContentProvider? on_tree_drag_source_prepare(double x, double y)
+#endif
 	{
+#if CROWN_GTK3
 		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_begin.html
 		Gtk.drag_set_icon_pixbuf(context, _empty_pixbuf, 0, 0);
+#else
+		return prepare_tree_drag_content();
+#endif
 	}
 
+	public void cancel_tree_drag()
+	{
+		GLib.Application.get_default().activate_action("cancel-place", null);
+	}
+
+#if CROWN_GTK3
 	public void on_drag_end(Gdk.DragContext context)
 	{
 		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_end.html
-		GLib.Application.get_default().activate_action("cancel-place", null);
+		cancel_tree_drag();
 	}
+#endif
+
+#if !CROWN_GTK3
+	public void on_tree_drag_end()
+	{
+		cancel_tree_drag();
+	}
+#endif
+
+#if !CROWN_GTK3
+	public void on_tree_drag_source_end(Gdk.Drag drag, bool delete_data)
+	{
+		on_tree_drag_end();
+	}
+#endif
 
 	// Returns true if the row should be hidden.
 	public bool row_should_be_hidden(ProjectStore.RowKind kind, string type, string name)
@@ -1873,17 +2373,30 @@ public class ProjectBrowser : Gtk.Box
 				menu_model = null;
 
 			if (menu_model != null) {
+#if CROWN_GTK3
 				Gtk.Popover menu = new Gtk.Popover.from_model(_tree_view, menu_model);
+#else
+				Gtk.PopoverMenu menu = new Gtk.PopoverMenu.from_model(menu_model);
+				menu.set_parent(_tree_view);
+#endif
 				menu.set_pointing_to({ (int)x, (int)y, 1, 1 });
 				menu.set_position(Gtk.PositionType.BOTTOM);
 				menu.popup();
 			}
+#if !CROWN_GTK3
+
+			_tree_view_gesture_click.set_state(Gtk.EventSequenceState.CLAIMED);
+#endif
 		}
 
 		return;
 	}
 
+#if CROWN_GTK3
 	public void on_tree_row_activated(Gtk.TreePath path, Gtk.TreeViewColumn column)
+#else
+	public void on_tree_row_activated(Gtk.TreeView tree_view, Gtk.TreePath path, Gtk.TreeViewColumn? column)
+#endif
 	{
 		Gtk.TreeIter iter;
 		_tree_view.model.get_iter(out iter, path);
@@ -2215,15 +2728,28 @@ public class ProjectBrowser : Gtk.Box
 		}
 	}
 
+#if CROWN_GTK3
 	public Gtk.RadioButton add_sort_item(Gtk.RadioButton? group, SortMode mode)
+#else
+	public Gtk.CheckButton add_sort_item(Gtk.CheckButton? group, SortMode mode)
+#endif
 	{
+#if CROWN_GTK3
 		var button = new Gtk.RadioButton.with_label_from_widget(group, mode.to_label());
+#else
+		var button = new Gtk.CheckButton.with_label(mode.to_label());
+		button.set_group(group);
+#endif
 		button.toggled.connect(() => {
 				_sort_mode = mode;
 				update_folder_view();
 				_sort_items_popover.popdown();
 			});
+#if CROWN_GTK3
 		_sort_items_box.pack_start(button, false, false);
+#else
+		_sort_items_box.append(button);
+#endif
 		return button;
 	}
 
@@ -2323,8 +2849,13 @@ public class ProjectBrowser : Gtk.Box
 
 	public void exit_search()
 	{
+#if CROWN_GTK3
 		uint8 empty[] = { '\0' };
 		_filter_buffer.set_text(empty);
+#else
+		_filter_entry_tree.text = "";
+		_filter_entry_folder.text = "";
+#endif
 	}
 
 	public void on_search_started()
@@ -2394,10 +2925,18 @@ public class ProjectBrowser : Gtk.Box
 		exit_search();
 	}
 
+#if CROWN_GTK3
 	public void on_filter_entry_text_changed()
+#else
+	public void on_filter_entry_text_changed(EntrySearch entry)
+#endif
 	{
 		string old_needle = _needle;
+#if CROWN_GTK3
 		_needle = _filter_buffer.text.strip().down();
+#else
+		_needle = entry.text.strip().down();
+#endif
 
 		if (old_needle == "" && _needle != "") {
 			on_search_started();

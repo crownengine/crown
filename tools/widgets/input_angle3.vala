@@ -60,29 +60,55 @@ public class InputAngle3 : InputField
 		_x = new InputDouble(MathUtils.deg(xyz.x), MathUtils.deg(min.x), MathUtils.deg(max.x), preview_decimals, edit_decimals);
 		_x.set_increments(1.0, 0.1);
 		_x._snap_multiplier = 10.0;
+#if CROWN_GTK3
 		_x.get_style_context().add_class("axis");
 		_x.get_style_context().add_class("x");
+#else
+		_x.hexpand = true;
+		_x.add_css_class("axis");
+		_x.add_css_class("x");
+#endif
 		_y = new InputDouble(MathUtils.deg(xyz.y), MathUtils.deg(min.y), MathUtils.deg(max.y), preview_decimals, edit_decimals);
 		_y.set_increments(1.0, 0.1);
 		_y._snap_multiplier = 10.0;
+#if CROWN_GTK3
 		_y.get_style_context().add_class("axis");
 		_y.get_style_context().add_class("y");
+#else
+		_y.hexpand = true;
+		_y.add_css_class("axis");
+		_y.add_css_class("y");
+#endif
 		_z = new InputDouble(MathUtils.deg(xyz.z), MathUtils.deg(min.z), MathUtils.deg(max.z), preview_decimals, edit_decimals);
 		_z.set_increments(1.0, 0.1);
 		_z._snap_multiplier = 10.0;
+#if CROWN_GTK3
 		_z.get_style_context().add_class("axis");
 		_z.get_style_context().add_class("z");
+#else
+		_z.hexpand = true;
+		_z.add_css_class("axis");
+		_z.add_css_class("z");
+#endif
 
 		_x.value_changed.connect(on_value_changed);
 		_y.value_changed.connect(on_value_changed);
 		_z.value_changed.connect(on_value_changed);
 
 		_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 4);
+#if CROWN_GTK3
 		_box.pack_start(_x, true);
 		_box.pack_start(_y, true);
 		_box.pack_start(_z, true);
 
 		this.add(_box);
+#else
+		_box.append(_x);
+		_box.append(_y);
+		_box.append(_z);
+
+		this.set_child(_box);
+#endif
 	}
 
 	public void on_value_changed(InputField p, int undo_redo)

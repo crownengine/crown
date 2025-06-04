@@ -27,7 +27,11 @@ public class ObjectChooser : Gtk.Box
 	public Gtk.TreeModelFilter _tree_filter;
 	public Gtk.TreeModelSort _tree_sort;
 	public Gtk.TreeView _tree_view;
+#if CROWN_GTK3
 	public Gtk.GestureMultiPress _tree_view_gesture_click;
+#else
+	public Gtk.GestureClick _tree_view_gesture_click;
+#endif
 	public Gtk.TreeSelection _tree_selection;
 	public Gtk.ScrolledWindow _scrolled_window;
 
@@ -51,8 +55,15 @@ public class ObjectChooser : Gtk.Box
 		_filter_entry.set_placeholder_text(_("Search..."));
 		_filter_entry.search_changed.connect(on_filter_entry_text_changed);
 
+#if CROWN_GTK3
 		_filter_entry_controller_key = new Gtk.EventControllerKey(_filter_entry);
+#else
+		_filter_entry_controller_key = new Gtk.EventControllerKey();
+#endif
 		_filter_entry_controller_key.key_pressed.connect(on_filter_entry_key_pressed);
+#if !CROWN_GTK3
+		_filter_entry.add_controller(_filter_entry_controller_key);
+#endif
 
 		_tree_filter = new Gtk.TreeModelFilter(_list_store, null);
 		_tree_filter.set_visible_func((model, iter) => {
@@ -105,29 +116,58 @@ public class ObjectChooser : Gtk.Box
 
 		_tree_view.model = _tree_sort;
 		_tree_view.headers_visible = false;
+#if CROWN_GTK3
 		_tree_view.can_focus = false;
+#else
+		_tree_view.focusable = false;
+#endif
 		_tree_view.row_activated.connect(on_row_activated);
 
+#if CROWN_GTK3
 		_tree_view_gesture_click = new Gtk.GestureMultiPress(_tree_view);
+#else
+		_tree_view_gesture_click = new Gtk.GestureClick();
+#endif
 		_tree_view_gesture_click.set_button(0);
 		_tree_view_gesture_click.released.connect(on_button_released);
+#if !CROWN_GTK3
+		_tree_view.add_controller(_tree_view_gesture_click);
+#endif
 
 		_tree_selection = _tree_view.get_selection();
 		_tree_selection.set_mode(Gtk.SelectionMode.BROWSE);
 
+#if CROWN_GTK3
 		_scrolled_window = new Gtk.ScrolledWindow(null, null);
 		_scrolled_window.add(_tree_view);
+#else
+		_scrolled_window = new Gtk.ScrolledWindow();
+		_scrolled_window.set_child(_tree_view);
+#endif
 		_scrolled_window.set_size_request(300, 400);
 
+#if CROWN_GTK3
 		this.pack_start(_filter_entry, false, true, 0);
+#else
+		this.append(_filter_entry);
+#endif
 		if (_editor_stack != null)
+#if CROWN_GTK3
 			this.pack_start(_editor_stack, true, true, 0);
 		this.pack_start(_scrolled_window, true, true, 0);
+#else
+			this.append(_editor_stack);
+		this.append(_scrolled_window);
+#endif
 
 		this.unmap.connect(on_unmap);
 	}
 
+#if CROWN_GTK3
 	public void on_row_activated(Gtk.TreePath path, Gtk.TreeViewColumn column)
+#else
+	public void on_row_activated(Gtk.TreeView tree_view, Gtk.TreePath path, Gtk.TreeViewColumn? column)
+#endif
 	{
 		Gtk.TreePath filter_path = _tree_sort.convert_path_to_child_path(path);
 		Gtk.TreePath child_path = _tree_filter.convert_path_to_child_path(filter_path);

@@ -55,7 +55,11 @@ public class InputAngle : InputField
 		_radians = MathUtils.rad(_degrees.value);
 		_degrees.value_changed.connect(on_value_changed);
 
+#if CROWN_GTK3
 		this.add(_degrees);
+#else
+		this.set_child(_degrees);
+#endif
 	}
 
 	public void on_value_changed(InputField p, int undo_redo)

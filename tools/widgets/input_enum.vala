@@ -108,14 +108,37 @@ public class InputEnum : InputField
 				return Gdk.EVENT_PROPAGATE;
 			});
 #else
-		_controller_scroll = new Gtk.EventControllerScroll(_combo, Gtk.EventControllerScrollFlags.BOTH_AXES);
+		_controller_scroll = new Gtk.EventControllerScroll(Gtk.EventControllerScrollFlags.BOTH_AXES);
 		_controller_scroll.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
-		_controller_scroll.scroll.connect(() => {
+		_controller_scroll.scroll.connect((_, dx, dy) => {
 				// Consume the event to avoid GTK changing values when scrolling over the widget.
-			});
-#endif
+				Gtk.Scrollable scrollable = (Gtk.Scrollable)this.get_ancestor(typeof(Gtk.Scrollable));
 
+				if (scrollable != null) {
+					Gtk.Adjustment vadj = scrollable.vadjustment;
+					double vmin = vadj.lower;
+					double vmax = vadj.upper - vadj.page_size;
+					double v = vadj.value + dy * vadj.step_increment;
+					vadj.value = v.clamp(vmin, vmax);
+
+					Gtk.Adjustment hadj = scrollable.hadjustment;
+					double hmin = hadj.lower;
+					double hmax = hadj.upper - hadj.page_size;
+					double h = hadj.value - dx * hadj.step_increment;
+					hadj.value = h.clamp(hmin, hmax);
+				}
+
+				return Gdk.EVENT_STOP;
+			});
+#endif /* if CROWN_GTK3 */
+
+#if CROWN_GTK3
 		this.add(_combo);
+#else
+		_combo.add_controller(_controller_scroll);
+
+		this.set_child(_combo);
+#endif
 	}
 
 	public void append(string? id, string label)

@@ -40,18 +40,31 @@ public class ObjectProperties : Gtk.Box
 			;
 
 		_viewport = new Gtk.Viewport(null, null);
+#if CROWN_GTK3
 		_viewport.add(_object_view);
 
 		_scrolled_window = new Gtk.ScrolledWindow(null, null);
 		_scrolled_window.add(_viewport);
+#else
+		_viewport.set_child(_object_view);
+
+		_scrolled_window = new Gtk.ScrolledWindow();
+		_scrolled_window.set_child(_viewport);
+#endif
 
 		_stack = new Gtk.Stack();
 		_stack.add_named(new Gtk.Label(_("Select an object to start editing")), NOTHING_TO_SHOW);
 		_stack.add_named(new Gtk.Label(_("Unknown object type")), UNKNOWN_OBJECT_TYPE);
 		_stack.add_named(_scrolled_window, PROPERTIES);
+		_stack.vexpand = true;
 
+#if CROWN_GTK3
 		this.pack_start(_stack);
 		this.get_style_context().add_class("properties-view");
+#else
+		this.append(_stack);
+		this.add_css_class("properties-view");
+#endif
 	}
 
 	public void set_object(Guid id)
@@ -96,7 +109,9 @@ public class ObjectProperties : Gtk.Box
 
 		_object_view._list_box.invalidate_filter();
 		_object_view._list_box.invalidate_sort();
+#if CROWN_GTK3
 		_object_view.show_all();
+#endif
 	}
 
 	public void on_database_selection_changed()
