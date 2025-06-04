@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html class="writer-html4" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Command line &mdash; Crown 0.56.0 Manual 0.56.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" /><link rel="shortcut icon" href="../_static/org.crownengine.Crown.svg"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="copyright" title="Copyright" href="../copyright.html" />
+    <link rel="next" title="Lua API reference" href="../lua_api.html" />
+    <link rel="prev" title="boot.config reference" href="boot_config.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html"><img src="../_static/org.crownengine.Crown.svg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                Crown 0.56.0 Manual
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installing_crown/index.html">Installing Crown</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploying/index.html">Deploying</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="console_commands.html">Console commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="boot_config.html">boot.config reference</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Command line</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#options">Options</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../lua_api.html">Lua API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../copyright.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hackers/index.html">Hackers</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Crown 0.56.0 Manual</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">Reference</a> &raquo;</li>
+      <li>Command line</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/reference/command_line.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="command-line">
+<h1>Command line<a class="headerlink" href="#command-line" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>Compile and run the project <code class="docutils literal notranslate"><span class="pre">/home/user/crown/samples/01-physics</span></code> using a mapped <code class="docutils literal notranslate"><span class="pre">core</span></code> folder:</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>export CROWN=/home/user/crown
+cd $CROWN/platforms/linux64/bin
+./crown-development --compile --continue --source-dir $CROWN/samples/01-physics --map-source-dir core $CROWN/samples
+</pre></div>
+</div>
+<p>Compile and run for HTML5:</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>./crown-development --compile --continue --platform html5 --source-dir $CROWN/samples/01-physics --map-source-dir core $CROWN/samples
+</pre></div>
+</div>
+<p>Compile a “bundled” version of the project:</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>./crown-development --compile --bundle --source-dir $CROWN/samples/01-physics --map-source-dir core $CROWN/samples
+</pre></div>
+</div>
+<p>Run the project from bundled data:</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>./crown-development --data-dir $CROWN/samples/01-physics_linux
+</pre></div>
+</div>
+<p>Customize the data directory name:</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>./crown-development --compile --data-dir $CROWN/samples/01-physics_custom --source-dir $CROWN/samples/01-physics --map-source-dir core $CROWN/samples
+</pre></div>
+</div>
+</div>
+<div class="section" id="options">
+<h2>Options<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><code class="docutils literal notranslate"><span class="pre">-h</span></code> <code class="docutils literal notranslate"><span class="pre">--help</span></code></dt>
+<dd>Display the help and quit.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-v</span></code> <code class="docutils literal notranslate"><span class="pre">--version</span></code></dt>
+<dd>Display engine version and quit.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--source-dir</span> <span class="pre">&lt;path&gt;</span></code></dt>
+<dd><p class="first">Use &lt;path&gt; as the source directory for resource compilation.</p>
+<p class="last">The &lt;path&gt; must be absolute.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--data-dir</span> <span class="pre">&lt;path&gt;</span></code></dt>
+<dd><p class="first">Run with the data located at &lt;path&gt;.</p>
+<p class="last">The &lt;path&gt; must be absolute.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--bundle-dir</span> <span class="pre">&lt;path&gt;</span></code></dt>
+<dd><p class="first">Run with the bundles located at &lt;path&gt;.</p>
+<p class="last">The &lt;path&gt; must be absolute.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--map-source-dir</span> <span class="pre">&lt;name&gt;</span> <span class="pre">&lt;path&gt;</span></code></dt>
+<dd><p class="first">Mount &lt;path&gt;/&lt;name&gt; at &lt;source-dir&gt;/&lt;name&gt;.</p>
+<p class="last">The &lt;path&gt; must be absolute.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--boot-dir</span> <span class="pre">&lt;path&gt;</span></code></dt>
+<dd><p class="first">Boot the engine with the <code class="docutils literal notranslate"><span class="pre">boot.config</span></code> from given &lt;path&gt;.</p>
+<p class="last">The &lt;path&gt; must be relative.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--compile</span></code></dt>
+<dd><p class="first">Do a full compile of the resources.</p>
+<p class="last">When using this option you must also specify <code class="docutils literal notranslate"><span class="pre">--source-dir</span></code>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--bundle</span></code></dt>
+<dd>Generate bundles after the data has been compiled.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--platform</span> <span class="pre">&lt;platform&gt;</span></code></dt>
+<dd><p class="first">Compile resources for the given &lt;platform&gt;.
+Possible values for &lt;platform&gt; are:</p>
+<ul class="last simple">
+<li><code class="docutils literal notranslate"><span class="pre">android</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">html5</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">linux</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">windows</span></code></li>
+</ul>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--continue</span></code></dt>
+<dd>Run the engine after resource compilation.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--console-port</span> <span class="pre">&lt;port&gt;</span></code></dt>
+<dd><p class="first">Set port of the console.</p>
+<p class="last">When no port is specified, the engine uses the port 10001.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--wait-console</span></code></dt>
+<dd>Wait for a console connection before starting up.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--parent-window</span> <span class="pre">&lt;handle&gt;</span></code></dt>
+<dd><p class="first">Set the parent window &lt;handle&gt; of the main window.</p>
+<p class="last">This option should be used only by the tools.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--server</span></code></dt>
+<dd><p class="first">Run the engine in server mode.</p>
+<p class="last">When using this option you must also specify <code class="docutils literal notranslate"><span class="pre">--source-dir</span></code>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--pumped</span></code></dt>
+<dd>Do not advance the renderer unless explicitly requested via console.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--hidden</span></code></dt>
+<dd>Make the main window initially invisible.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--window-rect</span> <span class="pre">&lt;x</span> <span class="pre">y</span> <span class="pre">w</span> <span class="pre">h&gt;</span></code></dt>
+<dd>Sets the main window’s position and size.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--string-id</span> <span class="pre">&lt;string&gt;</span></code></dt>
+<dd>Print the 32- and 64-bits IDs of &lt;string&gt;.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--run-unit-tests</span></code></dt>
+<dd>Run unit tests and quit.</dd>
+</dl>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="boot_config.html" class="btn btn-neutral float-left" title="boot.config reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../lua_api.html" class="btn btn-neutral float-right" title="Lua API reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XNVGCMNDZH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-XNVGCMNDZH', {
+          'anonymize_ip': true,
+      });
+    </script> 
+
+</body>
+</html>
