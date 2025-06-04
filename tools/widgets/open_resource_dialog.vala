@@ -23,7 +23,11 @@ public class OpenResourceDialog : Gtk.FileChooserDialog
 		this.set_action(Gtk.FileChooserAction.OPEN);
 		this.add_button("Cancel", Gtk.ResponseType.CANCEL);
 		this.add_button("Open", Gtk.ResponseType.ACCEPT);
-		this.set_current_folder(p.source_dir());
+		try {
+			this.set_current_folder_file(GLib.File.new_for_path(p.source_dir()));
+		} catch (GLib.Error e) {
+			loge(e.message);
+		}
 		this.set_modal(true);
 		this.response.connect(on_response);
 
@@ -55,7 +59,11 @@ public class OpenResourceDialog : Gtk.FileChooserDialog
 					);
 				md.set_default_response(Gtk.ResponseType.OK);
 				md.response.connect(() => {
-						this.set_current_folder(_project.source_dir());
+						try {
+							this.set_current_folder_file(GLib.File.new_for_path(_project.source_dir()));
+						} catch (GLib.Error e) {
+							loge(e.message);
+						}
 						md.destroy();
 					});
 				md.show_all();

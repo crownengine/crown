@@ -710,7 +710,11 @@ public class Project
 				, "Select"
 				, Gtk.ResponseType.ACCEPT
 				);
-			fcd.set_current_folder(this.source_dir());
+			try {
+				fcd.set_current_folder_file(GLib.File.new_for_path(this.source_dir()));
+			} catch (GLib.Error e) {
+				loge(e.message);
+			}
 
 			fcd.response.connect((response_id) => {
 					if (response_id == Gtk.ResponseType.ACCEPT)
