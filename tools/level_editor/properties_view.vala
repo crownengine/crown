@@ -801,17 +801,16 @@ public class PropertiesView : Gtk.Stack
 	{
 		Expander expander = _object_view.add_property_grid(cv, label);
 		if (context_menu != null) {
-			expander.button_release_event.connect((ev) => {
-					if (ev.button == Gdk.BUTTON_SECONDARY) {
+			Gtk.GestureMultiPress _controller_click = new Gtk.GestureMultiPress(expander);
+			_controller_click.set_button(0);
+			_controller_click.released.connect((n_press, x, y) => {
+					if (_controller_click.get_current_button() == Gdk.BUTTON_SECONDARY) {
 						Gtk.Popover menu = new Gtk.Popover.from_model(null, context_menu(object_type));
 						menu.set_relative_to(expander);
-						menu.set_pointing_to({ (int)ev.x, (int)ev.y, 1, 1 });
+						menu.set_pointing_to({ (int)x, (int)y, 1, 1 });
 						menu.set_position(Gtk.PositionType.BOTTOM);
 						menu.popup();
-						return Gdk.EVENT_STOP;
 					}
-
-					return Gdk.EVENT_PROPAGATE;
 				});
 		}
 
