@@ -21,6 +21,40 @@ public class DependenciesDialog : Gtk.Window
 	public ThumbnailCache _thumbnail_cache;
 	public Gtk.Box _content;
 
+	public void reveal_dependency(Gtk.TreeView tree_view, Gtk.TreePath path)
+	{
+		Gtk.TreeIter iter;
+		Gtk.TreeModel store = tree_view.get_model();
+		if (!store.get_iter(out iter, path) || store.iter_has_child(iter))
+			return;
+
+		Value val;
+		store.get_value(iter, DependenciesDialogColumn.TYPE, out val);
+		string type = (string)val;
+		store.get_value(iter, DependenciesDialogColumn.NAME, out val);
+		string name = (string)val;
+		ProjectStore.RowKind kind = type == ""
+			? ProjectStore.RowKind.FOLDER
+			: ProjectStore.RowKind.RESOURCE
+			;
+
+		_project_browser.reveal(kind, type, name);
+	}
+
+#if CROWN_GTK3
+	public void on_row_activated(Gtk.TreePath path, Gtk.TreeViewColumn column)
+	{
+		reveal_dependency((Gtk.TreeView)column.get_tree_view(), path);
+	}
+#endif
+
+#if !CROWN_GTK3
+	public void on_row_activated(Gtk.TreeView tree_view, Gtk.TreePath path, Gtk.TreeViewColumn? column)
+	{
+		reveal_dependency(tree_view, path);
+	}
+#endif
+
 	public uint append_items(Gtk.TreeStore store, string label, GLib.GenericArray<Value?> items)
 	{
 		if (items.length == 0)
@@ -106,30 +140,18 @@ public class DependenciesDialog : Gtk.Window
 		header.set_xalign(0.0f);
 		header.set_margin_bottom(8);
 		header.set_tooltip_text(tooltip);
+#if CROWN_GTK3
 		group.pack_start(header, false, false, 0);
+#else
+		group.append(header);
+#endif
 
 		Gtk.TreeView tree_view = new Gtk.TreeView.with_model(store);
 		tree_view.headers_visible = true;
 		tree_view.enable_search = true;
 		tree_view.search_column = DependenciesDialogColumn.PATH;
 		tree_view.set_tooltip_text(tooltip);
-		tree_view.row_activated.connect((path, column) => {
-				Gtk.TreeIter iter;
-				if (!store.get_iter(out iter, path) || store.iter_has_child(iter))
-					return;
-
-				Value val;
-				store.get_value(iter, DependenciesDialogColumn.TYPE, out val);
-				string type = (string)val;
-				store.get_value(iter, DependenciesDialogColumn.NAME, out val);
-				string name = (string)val;
-				ProjectStore.RowKind kind = type == ""
-					? ProjectStore.RowKind.FOLDER
-					: ProjectStore.RowKind.RESOURCE
-					;
-
-				_project_browser.reveal(kind, type, name);
-			});
+		tree_view.row_activated.connect(on_row_activated);
 
 		Gtk.CellRendererPixbuf cell_pixbuf = new Gtk.CellRendererPixbuf();
 		cell_pixbuf.set_property("width", 16);
@@ -186,16 +208,27 @@ public class DependenciesDialog : Gtk.Window
 		tree_view.expander_column = path_column;
 		tree_view.expand_all();
 
+#if CROWN_GTK3
 		Gtk.ScrolledWindow scrolled = new Gtk.ScrolledWindow(null, null);
+#else
+		Gtk.ScrolledWindow scrolled = new Gtk.ScrolledWindow();
+#endif
 		scrolled.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC);
 		scrolled.min_content_width = 360;
 		scrolled.min_content_height = 120;
 		scrolled.hexpand = true;
 		scrolled.vexpand = true;
+#if CROWN_GTK3
 		scrolled.add(tree_view);
 		group.pack_start(scrolled, true, true, 0);
 
 		box.pack_start(group, true, true, 0);
+#else
+		scrolled.set_child(tree_view);
+		group.append(scrolled);
+
+		box.append(group);
+#endif
 	}
 
 	public DependenciesDialog(Gtk.Window? parent, ProjectBrowser project_browser, ThumbnailCache thumbnail_cache)
@@ -208,8 +241,13 @@ public class DependenciesDialog : Gtk.Window
 		this.set_default_size(920, 520);
 
 		Gtk.HeaderBar header_bar = new Gtk.HeaderBar();
+#if CROWN_GTK3
 		header_bar.title = _("Resource Dependencies");
 		header_bar.show_close_button = true;
+#else
+		header_bar.set_title_widget(new Gtk.Label(_("Resource Dependencies")));
+		header_bar.show_title_buttons = true;
+#endif
 		this.set_titlebar(header_bar);
 		this.set_transient_for(parent);
 		this.set_modal(true);
@@ -221,14 +259,30 @@ public class DependenciesDialog : Gtk.Window
 		header_bar.pack_start(close_button);
 
 		_content = new Gtk.Box(Gtk.Orientation.VERTICAL, 12);
-		_content.border_width = 12;
+		_content.set_margin_top(12);
+		_content.set_margin_bottom(12);
+		_content.set_margin_start(12);
+		_content.set_margin_end(12);
+#if CROWN_GTK3
 		this.add(_content);
+#else
+		this.set_child(_content);
+#endif
 	}
 
 	public void set_content(string resource_path, GLib.HashTable<string, Value?> dependencies)
 	{
+#if CROWN_GTK3
 		foreach (Gtk.Widget child in _content.get_children())
 			child.destroy();
+#else
+		Gtk.Widget? child = _content.get_first_child();
+		while (child != null) {
+			Gtk.Widget? next = child.get_next_sibling();
+			_content.remove(child);
+			child = next;
+		}
+#endif
 
 		GLib.GenericArray<Value?> dependency_items = (GLib.GenericArray<Value?>)dependencies["dependencies"];
 		GLib.GenericArray<Value?> reference_items = (GLib.GenericArray<Value?>)dependencies["references"];
@@ -237,13 +291,20 @@ public class DependenciesDialog : Gtk.Window
 
 		Gtk.Label path_label = new Gtk.Label(resource_path);
 		path_label.set_xalign(0.0f);
-		path_label.set_line_wrap(true);
-		path_label.set_line_wrap_mode(Pango.WrapMode.CHAR);
+		path_label.wrap = true;
+		path_label.wrap_mode = Pango.WrapMode.CHAR;
 		path_label.set_selectable(true);
+#if CROWN_GTK3
 		_content.pack_start(path_label, false, false, 0);
+#else
+		_content.append(path_label);
+#endif
 
 		Gtk.Box columns = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 12);
-		columns.border_width = 6;
+		columns.set_margin_top(6);
+		columns.set_margin_bottom(6);
+		columns.set_margin_start(6);
+		columns.set_margin_end(6);
 
 		Gtk.Box left = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		left.hexpand = true;
@@ -253,8 +314,13 @@ public class DependenciesDialog : Gtk.Window
 		right.hexpand = true;
 		right.vexpand = true;
 
+#if CROWN_GTK3
 		columns.pack_start(left, true, true, 0);
 		columns.pack_start(right, true, true, 0);
+#else
+		columns.append(left);
+		columns.append(right);
+#endif
 
 		append_group(left
 			, _("Uses")
@@ -280,9 +346,14 @@ public class DependenciesDialog : Gtk.Window
 			) {
 			Gtk.Label empty = new Gtk.Label(_("No direct dependencies or references."));
 			empty.set_xalign(0.0f);
+#if CROWN_GTK3
 			left.pack_start(empty, false, false, 0);
+#else
+			left.append(empty);
+#endif
 		}
 
+#if CROWN_GTK3
 		if (left.get_children().length() != 0 || right.get_children().length() != 0) {
 			if (left.get_children().length() == 0) {
 				left.no_show_all = true;
@@ -296,6 +367,11 @@ public class DependenciesDialog : Gtk.Window
 
 		_content.pack_start(columns, true, true, 0);
 		_content.show_all();
+#else
+		left.visible = left.get_first_child() != null;
+		right.visible = right.get_first_child() != null;
+		_content.append(columns);
+#endif /* if CROWN_GTK3 */
 	}
 }
 

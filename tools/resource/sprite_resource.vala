@@ -5,7 +5,7 @@
 
 namespace Crown
 {
-public Gdk.RGBA collider_color = { 1.0, 0.5, 0.0, 1.0 };
+public Gdk.RGBA collider_color = { 1.0f, 0.5f, 0.0f, 1.0f };
 
 public enum Pivot
 {
@@ -492,13 +492,21 @@ public class SpriteImportDialog : Gtk.Window
 		cv.add_row(_("Lock Rotation"), lock_rotation_z, _("Prevent the actor from rotating around the Z axis."));
 		sprite_set.add_property_grid(cv, _("Actor"));
 
+#if CROWN_GTK3
 		_previous_frame = new Gtk.Button.from_icon_name("go-previous-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
+#else
+		_previous_frame = new Gtk.Button.from_icon_name("go-previous-symbolic");
+#endif
 		_previous_frame.clicked.connect(() => {
 				_current_frame.value -= 1;
 				set_preview_frame();
 				_preview.queue_draw();
 			});
+#if CROWN_GTK3
 		_next_frame = new Gtk.Button.from_icon_name("go-next-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
+#else
+		_next_frame = new Gtk.Button.from_icon_name("go-next-symbolic");
+#endif
 		_next_frame.clicked.connect(() => {
 				_current_frame.value += 1;
 				set_preview_frame();
@@ -514,115 +522,36 @@ public class SpriteImportDialog : Gtk.Window
 		_frame_selector_box.halign = Gtk.Align.CENTER;
 		_frame_selector_box.valign = Gtk.Align.END;
 		_frame_selector_box.margin_bottom = 24;
+#if CROWN_GTK3
 		_frame_selector_box.pack_start(_previous_frame);
 		_frame_selector_box.pack_start(_current_frame);
 		_frame_selector_box.pack_end(_next_frame);
+#else
+		_frame_selector_box.append(_previous_frame);
+		_frame_selector_box.append(_current_frame);
+		_frame_selector_box.append(_next_frame);
+#endif
 
 		_slices = new PixbufView();
 		_slices.set_size_request(_pixbuf.width, _pixbuf.height);
 		_slices.set_pixbuf(_pixbuf);
 
-		_slices.draw.connect((cr) => {
-				int allocated_width = _preview.get_allocated_width();
-				int allocated_height = _preview.get_allocated_height();
-				double original_line_width = cr.get_line_width();
-
-				cr.translate(allocated_width * 0.5, allocated_height * 0.5);
-				cr.scale(_slices._zoom, _slices._zoom);
-				cr.set_line_width(original_line_width / _slices._zoom);
-				cr.translate(-_pixbuf.width * 0.5, -_pixbuf.height * 0.5);
-
-				int num_v = (int)cells.value.y;
-				int num_h = (int)cells.value.x;
-
-				for (int h = 0; h < num_v; ++h) {
-					for (int w = 0; w < num_h; ++w) {
-						Vector2 sc = sprite_cell_xy(h
-							, w
-							, (int)offset.value.x
-							, (int)offset.value.y
-							, (int)cell.value.x
-							, (int)cell.value.y
-							, (int)spacing.value.x
-							, (int)spacing.value.y
-							);
-
-						int x0 = (int)sc.x;
-						int y0 = (int)sc.y;
-						int x1 = x0 + (int)cell.value.x;
-						int y1 = y0;
-						int x2 = x1;
-						int y2 = y0 + (int)cell.value.y;
-						int x3 = x0;
-						int y3 = y2;
-						// https://www.cairographics.org/FAQ/#sharp_lines
-						cr.move_to((double)x0,       (double)y0 + 0.5);
-						cr.line_to((double)x1,       (double)y1 + 0.5);
-						cr.move_to((double)x1 + 0.5, (double)y1);
-						cr.line_to((double)x2 + 0.5, (double)y2);
-						cr.move_to((double)x2,       (double)y2 + 0.5);
-						cr.line_to((double)x3,       (double)y3 + 0.5);
-						cr.move_to((double)x3 + 0.5, (double)y3);
-						cr.line_to((double)x0 + 0.5, (double)y0);
-
-						cr.set_source_rgba(0.9, 0.1, 0.1, 0.9);
-						cr.stroke();
-					}
-				}
-
-				return Gdk.EVENT_STOP;
-			});
+#if CROWN_GTK3
+		_slices.draw.connect(on_slices_draw);
+#else
+		_slices.set_draw_func(on_slices_draw);
+#endif
 
 		_preview = new PixbufView();
 		_preview._zoom = 4.0;
 		_preview.set_size_request(128, 128);
 		set_preview_frame();
 
-		_preview.draw.connect((cr) => {
-				int allocated_width = _preview.get_allocated_width();
-				int allocated_height = _preview.get_allocated_height();
-				double original_line_width = cr.get_line_width();
-
-				cr.translate(allocated_width * 0.5, allocated_height * 0.5);
-				cr.scale(_preview._zoom, _preview._zoom);
-				cr.set_line_width(original_line_width / _preview._zoom);
-				cr.translate(-cell.value.x * 0.5, -cell.value.y * 0.5);
-
-				// Draw collider.
-				if (collision_enabled.active) {
-					if (shape.visible_child_name == "square_collider") {
-						cr.rectangle(collision_xy.value.x, collision_xy.value.y, collision_wh.value.x, collision_wh.value.y);
-						cr.set_source_rgba(collider_color.red, collider_color.green, collider_color.blue, collider_color.alpha);
-						cr.stroke();
-					} else if (shape.visible_child_name == "circle_collider") {
-						cr.arc(circle_collision_center.value.x, circle_collision_center.value.y, circle_collision_radius.value, 0, 2*Math.PI);
-						cr.set_source_rgba(collider_color.red, collider_color.green, collider_color.blue, collider_color.alpha);
-						cr.stroke();
-					} else if (shape.visible_child_name == "capsule_collider") {
-						double x = capsule_collision_center.value.x;
-						double y = capsule_collision_center.value.y;
-						double radius = capsule_collision_radius.value;
-						double height = capsule_collision_height.value - 2*radius;
-						cr.arc(x - height/2, y, radius, Math.PI/2, 3*Math.PI/2);
-						cr.rectangle(x - height/2, y - radius, height, 2*radius);
-						cr.arc(x + height/2, y, radius, 3*Math.PI/2, Math.PI/2);
-						cr.set_source_rgba(collider_color.red, collider_color.green, collider_color.blue, collider_color.alpha);
-						cr.stroke();
-					}
-				}
-
-				// Draw pivot.
-				// Pivot is relative to the top-left corner of the cell.
-				Vector2 pivot = sprite_cell_pivot_xy((int)cell.value.x
-					, (int)cell.value.y
-					, (int)pivot.active
-					);
-				cr.arc(pivot.x, pivot.y, 5.0, 0, 2*Math.PI);
-				cr.set_source_rgba(0.1, 0.1, 0.9, 0.6);
-				cr.fill();
-
-				return Gdk.EVENT_STOP;
-			});
+#if CROWN_GTK3
+		_preview.draw.connect(on_preview_draw);
+#else
+		_preview.set_draw_func(on_preview_draw);
+#endif
 
 		shape.notify["visible-child"].connect(() => {
 				calc_collider_shape();
@@ -630,13 +559,25 @@ public class SpriteImportDialog : Gtk.Window
 			});
 
 		_preview_overlay = new Gtk.Overlay();
+#if CROWN_GTK3
 		_preview_overlay.add(_preview);
+#else
+		_preview_overlay.set_child(_preview);
+#endif
 		_preview_overlay.add_overlay(_frame_selector_box);
 
+#if CROWN_GTK3
 		_scrolled_window = new Gtk.ScrolledWindow(null, null);
+#else
+		_scrolled_window = new Gtk.ScrolledWindow();
+#endif
 		_scrolled_window.min_content_width = 640;
 		_scrolled_window.min_content_height = 640;
+#if CROWN_GTK3
 		_scrolled_window.add(_slices);
+#else
+		_scrolled_window.set_child(_slices);
+#endif
 
 		_notebook = new Gtk.Notebook();
 		_notebook.append_page(_preview_overlay, new Gtk.Label(_("Preview")));
@@ -645,30 +586,51 @@ public class SpriteImportDialog : Gtk.Window
 
 		Gtk.Paned pane;
 		pane = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
+#if CROWN_GTK3
 		pane.pack1(_notebook, false, false);
 		pane.pack2(sprite_set, true, false);
+#else
+		pane.set_start_child(_notebook);
+		pane.set_end_child(sprite_set);
+#endif
 
 		_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+#if CROWN_GTK3
 		_box.pack_start(pane, false, false);
+#else
+		_box.append(pane);
+#endif
 
 		_cancel = new Gtk.Button.with_label(_("Cancel"));
 		_cancel.clicked.connect(() => {
 				close();
 			});
 		_import = new Gtk.Button.with_label(_("Import"));
+#if CROWN_GTK3
 		_import.get_style_context().add_class("suggested-action");
+#else
+		_import.add_css_class("suggested-action");
+#endif
 		_import.clicked.connect(on_import);
 
 		_header_bar = new Gtk.HeaderBar();
+#if CROWN_GTK3
 		_header_bar.title = _("Import Sprite...");
 		_header_bar.show_close_button = true;
+#else
+		_header_bar.show_title_buttons = true;
+#endif
 		_header_bar.pack_start(_cancel);
 		_header_bar.pack_end(_import);
-
+		this.title = _("Import Sprite...");
 		this.set_titlebar(_header_bar);
 		this.set_default_size(1149, 681);
+#if CROWN_GTK3
 		this.add(_box);
 		this.map_event.connect(on_map_event);
+#else
+		this.set_child(_box);
+#endif
 
 		if (_options.options_loaded) {
 			_unit_name.value              = _options.unit_name;
@@ -699,11 +661,138 @@ public class SpriteImportDialog : Gtk.Window
 		}
 	}
 
+#if CROWN_GTK3
 	public bool on_map_event(Gdk.EventAny ev)
 	{
 		_unit_name.grab_focus();
 		return Gdk.EVENT_PROPAGATE;
 	}
+#endif
+
+	public void draw_slices(Cairo.Context cr)
+	{
+		int allocated_width = _preview.get_allocated_width();
+		int allocated_height = _preview.get_allocated_height();
+		double original_line_width = cr.get_line_width();
+
+		cr.translate(allocated_width * 0.5, allocated_height * 0.5);
+		cr.scale(_slices._zoom, _slices._zoom);
+		cr.set_line_width(original_line_width / _slices._zoom);
+		cr.translate(-_pixbuf.width * 0.5, -_pixbuf.height * 0.5);
+
+		int num_v = (int)cells.value.y;
+		int num_h = (int)cells.value.x;
+
+		for (int h = 0; h < num_v; ++h) {
+			for (int w = 0; w < num_h; ++w) {
+				Vector2 sc = sprite_cell_xy(h
+					, w
+					, (int)offset.value.x
+					, (int)offset.value.y
+					, (int)cell.value.x
+					, (int)cell.value.y
+					, (int)spacing.value.x
+					, (int)spacing.value.y
+					);
+
+				int x0 = (int)sc.x;
+				int y0 = (int)sc.y;
+				int x1 = x0 + (int)cell.value.x;
+				int y1 = y0;
+				int x2 = x1;
+				int y2 = y0 + (int)cell.value.y;
+				int x3 = x0;
+				int y3 = y2;
+				// https://www.cairographics.org/FAQ/#sharp_lines
+				cr.move_to((double)x0,       (double)y0 + 0.5);
+				cr.line_to((double)x1,       (double)y1 + 0.5);
+				cr.move_to((double)x1 + 0.5, (double)y1);
+				cr.line_to((double)x2 + 0.5, (double)y2);
+				cr.move_to((double)x2,       (double)y2 + 0.5);
+				cr.line_to((double)x3,       (double)y3 + 0.5);
+				cr.move_to((double)x3 + 0.5, (double)y3);
+				cr.line_to((double)x0 + 0.5, (double)y0);
+
+				cr.set_source_rgba(0.9, 0.1, 0.1, 0.9);
+				cr.stroke();
+			}
+		}
+	}
+
+#if CROWN_GTK3
+	public bool on_slices_draw(Cairo.Context cr)
+	{
+		draw_slices(cr);
+		return Gdk.EVENT_STOP;
+	}
+#endif
+
+#if !CROWN_GTK3
+	public void on_slices_draw(Gtk.DrawingArea area, Cairo.Context cr, int width, int height)
+	{
+		draw_slices(cr);
+	}
+#endif
+
+	public void draw_preview(Cairo.Context cr)
+	{
+		int allocated_width = _preview.get_allocated_width();
+		int allocated_height = _preview.get_allocated_height();
+		double original_line_width = cr.get_line_width();
+
+		cr.translate(allocated_width * 0.5, allocated_height * 0.5);
+		cr.scale(_preview._zoom, _preview._zoom);
+		cr.set_line_width(original_line_width / _preview._zoom);
+		cr.translate(-cell.value.x * 0.5, -cell.value.y * 0.5);
+
+		// Draw collider.
+		if (collision_enabled.active) {
+			if (shape.visible_child_name == "square_collider") {
+				cr.rectangle(collision_xy.value.x, collision_xy.value.y, collision_wh.value.x, collision_wh.value.y);
+				cr.set_source_rgba(collider_color.red, collider_color.green, collider_color.blue, collider_color.alpha);
+				cr.stroke();
+			} else if (shape.visible_child_name == "circle_collider") {
+				cr.arc(circle_collision_center.value.x, circle_collision_center.value.y, circle_collision_radius.value, 0, 2*Math.PI);
+				cr.set_source_rgba(collider_color.red, collider_color.green, collider_color.blue, collider_color.alpha);
+				cr.stroke();
+			} else if (shape.visible_child_name == "capsule_collider") {
+				double x = capsule_collision_center.value.x;
+				double y = capsule_collision_center.value.y;
+				double radius = capsule_collision_radius.value;
+				double height = capsule_collision_height.value - 2*radius;
+				cr.arc(x - height/2, y, radius, Math.PI/2, 3*Math.PI/2);
+				cr.rectangle(x - height/2, y - radius, height, 2*radius);
+				cr.arc(x + height/2, y, radius, 3*Math.PI/2, Math.PI/2);
+				cr.set_source_rgba(collider_color.red, collider_color.green, collider_color.blue, collider_color.alpha);
+				cr.stroke();
+			}
+		}
+
+		// Draw pivot.
+		// Pivot is relative to the top-left corner of the cell.
+		Vector2 pivot = sprite_cell_pivot_xy((int)cell.value.x
+			, (int)cell.value.y
+			, (int)pivot.active
+			);
+		cr.arc(pivot.x, pivot.y, 5.0, 0, 2*Math.PI);
+		cr.set_source_rgba(0.1, 0.1, 0.9, 0.6);
+		cr.fill();
+	}
+
+#if CROWN_GTK3
+	public bool on_preview_draw(Cairo.Context cr)
+	{
+		draw_preview(cr);
+		return Gdk.EVENT_STOP;
+	}
+#endif
+
+#if !CROWN_GTK3
+	public void on_preview_draw(Gtk.DrawingArea area, Cairo.Context cr, int width, int height)
+	{
+		draw_preview(cr);
+	}
+#endif
 
 	public void set_preview_frame()
 	{
@@ -1188,7 +1277,11 @@ public class SpriteResource
 			SpriteImportDialog dlg = new SpriteImportDialog(database, destination_dir, filenames, import_result, (owned)options, pixbuf);
 			dlg.set_transient_for(parent_window);
 			dlg.set_modal(true);
+#if CROWN_GTK3
 			dlg.show_all();
+#else
+			dlg.present();
+#endif
 		}
 	}
 }

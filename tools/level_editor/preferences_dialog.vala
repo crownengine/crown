@@ -204,11 +204,19 @@ public class PreferencesDialog : Gtk.Window
 		_notebook.vexpand = true;
 		_notebook.show_border = false;
 
+#if CROWN_GTK3
 		_controller_key = new Gtk.EventControllerKey(this);
+#else
+		_controller_key = new Gtk.EventControllerKey();
+#endif
 		_controller_key.key_pressed.connect(on_key_pressed);
 
 		this.set_default_size(600, 470);
+#if CROWN_GTK3
 		this.add(_notebook);
+#else
+		this.set_child(_notebook);
+#endif
 	}
 
 	public void set_runtime(RuntimeInstance editor)

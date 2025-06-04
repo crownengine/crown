@@ -26,6 +26,7 @@ public class AppChooserButton : Gtk.Box
 		Object(orientation: Gtk.Orientation.HORIZONTAL);
 
 		_app_chooser_button = new Gtk.AppChooserButton(mime_type);
+		_app_chooser_button.hexpand = true;
 		_app_chooser_button.append_custom_item(APP_DEFAULT, _("Open by extension"), (GLib.Icon?)null);
 		_app_chooser_button.set_active_custom_item(APP_DEFAULT);
 #if CROWN_PLATFORM_LINUX
@@ -42,11 +43,16 @@ public class AppChooserButton : Gtk.Box
 		_controller_scroll.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
 		_controller_scroll.scroll.connect(() => {
 				// Consume the event to avoid GTK changing values when scrolling over the widget.
+				return Gdk.EVENT_STOP;
 			});
 		_app_chooser_button.add_controller(_controller_scroll);
 #endif
 
+#if CROWN_GTK3
 		this.pack_start(_app_chooser_button);
+#else
+		this.append(_app_chooser_button);
+#endif
 	}
 
 	public GLib.AppInfo? get_app_info()
@@ -68,6 +74,7 @@ public class AppChooserButton : Gtk.Box
 			return;
 		}
 
+#if CROWN_GTK3
 		_app_chooser_button.model.foreach((model, path, iter) => {
 				Value val;
 				model.get_value(iter, ModelColumn.APP_INFO, out val);
@@ -80,6 +87,7 @@ public class AppChooserButton : Gtk.Box
 
 				return false;
 			});
+#endif
 	}
 
 	/// Returns the item name of the selected application. If the application is predefined,
@@ -88,6 +96,7 @@ public class AppChooserButton : Gtk.Box
 	{
 		app_id = null;
 
+#if CROWN_GTK3
 		Gtk.TreeIter iter;
 		if (_app_chooser_button.get_active_iter(out iter)) {
 			Value val;
@@ -102,6 +111,7 @@ public class AppChooserButton : Gtk.Box
 				return AppChooserButton.APP_PREDEFINED;
 			}
 		}
+#endif
 
 		return APP_DEFAULT;
 	}

@@ -279,19 +279,32 @@ public class OBJImportDialog : Gtk.Window
 		_general_set.add_property_grid(cv, _("Units"));
 
 		_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+#if CROWN_GTK3
 		_box.pack_start(_general_set, false, false);
+#else
+		_box.append(_general_set);
+#endif
 
 		_cancel = new Gtk.Button.with_label(_("Cancel"));
 		_cancel.clicked.connect(() => {
 				close();
 			});
 		_import = new Gtk.Button.with_label(_("Import"));
+#if CROWN_GTK3
 		_import.get_style_context().add_class("suggested-action");
+#else
+		_import.add_css_class("suggested-action");
+#endif
 		_import.clicked.connect(import);
 
 		_header_bar = new Gtk.HeaderBar();
+#if CROWN_GTK3
 		_header_bar.title = _("Import OBJ...");
 		_header_bar.show_close_button = true;
+#else
+		_header_bar.set_title_widget(new Gtk.Label(_("Import OBJ...")));
+		_header_bar.show_title_buttons = true;
+#endif
 		_header_bar.pack_start(_cancel);
 		_header_bar.pack_end(_import);
 
@@ -303,7 +316,11 @@ public class OBJImportDialog : Gtk.Window
 
 		this.set_titlebar(_header_bar);
 		this.set_default_size(391, 258);
+#if CROWN_GTK3
 		this.add(_box);
+#else
+		this.set_child(_box);
+#endif
 	}
 
 	void import()
@@ -976,7 +993,11 @@ public class OBJImporter
 			OBJImportDialog dialog = new OBJImportDialog(database, destination_dir, filenames, import_result, (owned)options, options_path);
 			dialog.set_transient_for(parent_window);
 			dialog.set_modal(true);
+#if CROWN_GTK3
 			dialog.show_all();
+#else
+			dialog.show();
+#endif
 			dialog.present();
 		}
 	}

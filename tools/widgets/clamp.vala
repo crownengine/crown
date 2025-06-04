@@ -6,21 +6,45 @@
 namespace Crown
 {
 // Drop-in replacement (sort-of) for HdyClamp from libhandy1.
+#if CROWN_GTK3
 public class Clamp : Gtk.Container
+#else
+public class Clamp : Gtk.Widget
+#endif
 {
 	const int MAXIMUM_SIZE = 600;
 
+#if CROWN_GTK3
 	public Gtk.Widget _child;
+#else
+	public Gtk.Widget? _child;
+#endif
 
+#if CROWN_GTK3
 	public Clamp()
 	{
 		base.set_has_window(false);
 		base.set_can_focus(false);
 		base.set_redraw_on_allocate(false);
-
 		this._child = null;
 	}
+#endif
 
+#if !CROWN_GTK3
+	public void set_child(Gtk.Widget? widget)
+	{
+		if (_child != null)
+			_child.unparent();
+
+		_child = widget;
+		if (_child != null)
+			_child.set_parent(this);
+
+		this.queue_resize();
+	}
+#endif
+
+#if CROWN_GTK3
 	public void set_child(Gtk.Widget widget)
 	{
 		if (this._child == null) {
@@ -28,7 +52,40 @@ public class Clamp : Gtk.Container
 			this._child = widget;
 		}
 	}
+#endif
 
+#if !CROWN_GTK3
+	public override void measure(Gtk.Orientation orientation
+		, int for_size
+		, out int minimum
+		, out int natural
+		, out int minimum_baseline
+		, out int natural_baseline
+		)
+	{
+		minimum_baseline = -1;
+		natural_baseline = -1;
+
+		if (_child == null) {
+			minimum = 0;
+			natural = 0;
+		} else {
+			int child_min;
+			int child_nat;
+			int dummy;
+			_child.measure(orientation, for_size, out child_min, out child_nat, out dummy, out dummy);
+			if (orientation == Gtk.Orientation.HORIZONTAL) {
+				minimum = child_min;
+				natural = int.max(child_min, int.min(child_nat, MAXIMUM_SIZE));
+			} else {
+				minimum = child_min;
+				natural = child_nat;
+			}
+		}
+	}
+#endif /* if !CROWN_GTK3 */
+
+#if CROWN_GTK3
 	public override void remove(Gtk.Widget widget)
 	{
 		if (this._child == widget) {
@@ -38,23 +95,44 @@ public class Clamp : Gtk.Container
 				this.queue_resize_no_redraw();
 		}
 	}
+#endif
 
+#if !CROWN_GTK3
+	public override void size_allocate(int width, int height, int baseline)
+	{
+		if (_child != null) {
+			int child_width = int.min(width, MAXIMUM_SIZE);
+			int child_height = height;
+			float child_x = (float)(width - child_width) * 0.5f;
+			Gsk.Transform transform = new Gsk.Transform().translate({ child_x, 0.0f });
+			_child.allocate(child_width, child_height, baseline, transform);
+		}
+	}
+#endif
+
+#if CROWN_GTK3
 	public override void forall_internal(bool include_internals, Gtk.Callback callback)
 	{
 		if (this._child != null)
 			callback(this._child);
 	}
+#endif
 
+#if CROWN_GTK3
 	public override Gtk.SizeRequestMode get_request_mode()
 	{
 		return Gtk.SizeRequestMode.HEIGHT_FOR_WIDTH;
 	}
+#endif
 
+#if CROWN_GTK3
 	public Gtk.Widget get_child()
 	{
 		return this._child;
 	}
+#endif
 
+#if CROWN_GTK3
 	public override void size_allocate(Gtk.Allocation alloc)
 	{
 		this.set_allocation(alloc);
@@ -76,7 +154,9 @@ public class Clamp : Gtk.Container
 
 		this._child.size_allocate_with_baseline(child_alloc, this.get_allocated_baseline());
 	}
+#endif /* if CROWN_GTK3 */
 
+#if CROWN_GTK3
 	int clamp_child_width(int clamp_width)
 	{
 		if (this._child == null || !this._child.get_visible())
@@ -95,7 +175,9 @@ public class Clamp : Gtk.Container
 
 		return int.min(clamp_width, child_max_width);
 	}
+#endif /* if CROWN_GTK3 */
 
+#if CROWN_GTK3
 	public override void get_preferred_width(out int minimum_width, out int natural_width)
 	{
 		if (this._child == null || !this._child.get_visible()) {
@@ -107,7 +189,9 @@ public class Clamp : Gtk.Container
 		this._child.get_preferred_width(out minimum_width, out natural_width);
 		natural_width = int.max(minimum_width, int.min(natural_width, MAXIMUM_SIZE));
 	}
+#endif
 
+#if CROWN_GTK3
 	public override void get_preferred_height(out int minimum_height, out int natural_height)
 	{
 		if (this._child == null || !this._child.get_visible()) {
@@ -118,7 +202,9 @@ public class Clamp : Gtk.Container
 
 		this._child.get_preferred_height(out minimum_height, out natural_height);
 	}
+#endif
 
+#if CROWN_GTK3
 	public override void get_preferred_height_for_width(int width, out int minimum_height, out int natural_height)
 	{
 		if (this._child == null || !this._child.get_visible()) {
@@ -130,6 +216,7 @@ public class Clamp : Gtk.Container
 		int child_width = clamp_child_width(width);
 		this._child.get_preferred_height_for_width(child_width, out minimum_height, out natural_height);
 	}
+#endif
 }
 
 } /* namespace Crown */

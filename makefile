@@ -271,22 +271,50 @@ windows-release64:        \
 	build/windows64/bin/luajit.exe
 	devenv.com build/projects/vs2022/crown.sln $(ARG_PREFIX)Build "release|x64" $(ARG_PREFIX)Project crown
 
+.PHONY: crown-editor-theme crown-editor-theme-gtk4
 crown-editor-theme:
 	cd tools/level_editor/resources/theme/Adwaita && ./parse-sass.sh
 	cd tools/level_editor/resources && ./generate-resources.sh > org.crownengine.Crown.gresource.xml
+crown-editor-theme-gtk4:
+	cd tools/level_editor/resources/theme/Default && ./parse-sass.sh
+	cd tools/level_editor/resources && ./generate-resources.sh gtk4 > org.crownengine.Crown.gresource.xml
+
+.PHONY: crown-editor-projects-linux crown-editor-projects-linux-gtk4
+crown-editor-projects-linux: build/projects/linux
+	"$(GENIE)" --gfxapi=vulkan-gl32 --with-tools --compiler=linux-gcc gmake
+crown-editor-projects-linux-gtk4: build/projects/linux
+	"$(GENIE)" --gfxapi=vulkan-gl32 --with-tools --compiler=linux-gcc --with-gtk4 gmake
+
+.PHONY: crown-editor-projects-mingw crown-editor-projects-mingw-gtk4
+crown-editor-projects-mingw: build/projects/mingw
+	"$(GENIE)" --gfxapi=d3d11 --with-tools --compiler=mingw-gcc gmake
+crown-editor-projects-mingw-gtk4: build/projects/mingw
+	"$(GENIE)" --gfxapi=d3d11 --with-tools --compiler=mingw-gcc --with-gtk4 gmake
 
 crown-editor-linux-debug64: \
-	build/projects/linux
+	crown-editor-projects-linux
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux crown-editor config=debug64
 crown-editor-linux-release64: \
-	build/projects/linux
+	crown-editor-projects-linux
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux crown-editor config=release64
+crown-editor-linux-debug64-gtk4: \
+	crown-editor-projects-linux-gtk4
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux crown-editor config=debug64
+crown-editor-linux-release64-gtk4: \
+	crown-editor-projects-linux-gtk4
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux crown-editor config=release64
 
 crown-editor-mingw-debug64: \
-	build/projects/mingw
+	crown-editor-projects-mingw
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw crown-editor config=debug64
 crown-editor-mingw-release64: \
-	build/projects/mingw
+	crown-editor-projects-mingw
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw crown-editor config=release64
+crown-editor-mingw-debug64-gtk4: \
+	crown-editor-projects-mingw-gtk4
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw crown-editor config=debug64
+crown-editor-mingw-release64-gtk4: \
+	crown-editor-projects-mingw-gtk4
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw crown-editor config=release64
 
 crown-launcher-linux-debug64: \
@@ -310,6 +338,13 @@ tools-linux-release64:  \
 	linux-development64 \
 	crown-editor-linux-release64
 
+tools-linux-debug64-gtk4: \
+	linux-debug64    \
+	crown-editor-linux-debug64-gtk4
+tools-linux-release64-gtk4:  \
+	linux-development64 \
+	crown-editor-linux-release64-gtk4
+
 tools-windows-debug64: \
 	windows-debug64
 tools-windows-release64: \
@@ -321,6 +356,13 @@ tools-mingw-debug64: \
 tools-mingw-release64:  \
 	mingw-development64 \
 	crown-editor-mingw-release64
+
+tools-mingw-debug64-gtk4: \
+	mingw-debug64    \
+	crown-editor-mingw-debug64-gtk4
+tools-mingw-release64-gtk4:  \
+	mingw-development64 \
+	crown-editor-mingw-release64-gtk4
 
 .PHONY: docs
 docs:
@@ -381,7 +423,7 @@ clean-docs:
 codespell:
 	@codespell docs src tools \
 		--ignore-words=scripts/codespell-dictionary.txt \
-		--skip "*.ttf.h,*.css,*.jpg,*.png,*.svg,*.xcf,docs/_*,tools/level_editor/resources/theme/Adwaita,tools/po" \
+		--skip "*.ttf.h,*.css,*.jpg,*.png,*.svg,*.xcf,docs/_themes,tools/level_editor/resources/theme/Adwaita,tools/level_editor/resources/theme/Default,tools/po" \
 		-q4 # 4: omit warnings about automatic fixes that were disabled in the dictionary.
 
 .PHONY: cppcheck

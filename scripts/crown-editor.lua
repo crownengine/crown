@@ -33,10 +33,16 @@ project "crown-editor"
 		targetdir (CROWN_BUILD_DIR .. "linux64" .. "/bin")
 		objdir (CROWN_BUILD_DIR .. "linux64" .. "/obj")
 		buildoptions_vala { "--pkg posix" }
+		if _OPTIONS["with-gtk4"] then
+			links { "gtk4-x11" }
+		end
 
 	configuration { "mingw*" }
 		targetdir (CROWN_BUILD_DIR .. "mingw64" .. "/bin")
 		objdir (CROWN_BUILD_DIR .. "mingw64" .. "/obj")
+		linkoptions {
+			"-lgdi32", -- gtkcolorpickerwin32.c
+		}
 
 	configuration {}
 
@@ -48,22 +54,32 @@ project "crown-editor"
 		"FatalWarnings"
 	}
 
-	defines {
-		"CROWN_GTK3"
-	}
-
 	removelinkoptions {
 		"-static"
 	}
 	removelinks {
 		"dl"
 	}
-	links {
-		"gdk-3.0",
-		"gio-2.0",
-		"glib-2.0",
-		"gtk+-3.0",
-	}
+	if _OPTIONS["with-gtk4"] then
+		links {
+			"gio-2.0",
+			"glib-2.0",
+			"gtk4",
+		}
+	else
+		defines {
+			"CROWN_GTK3"
+		}
+		buildoptions {
+			"-D CROWN_GTK3",
+		}
+		links {
+			"gdk-3.0",
+			"gio-2.0",
+			"glib-2.0",
+			"gtk+-3.0",
+		}
+	end
 
 	buildoptions {
 		"-Wno-deprecated-declarations",
@@ -99,6 +115,11 @@ project "crown-editor"
 		"--pkg md5",
 		"--pkg ufbx",
 	}
+	if _OPTIONS["with-gtk4"] then
+		buildoptions_vala {
+			"--disable-warnings",
+		}
+	end
 
 	vapidirs {
 		CROWN_DIR .. "tools/vapi"

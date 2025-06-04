@@ -29,6 +29,11 @@ newoption {
 }
 
 newoption {
+	trigger = "with-gtk4",
+	description = "Build tools with GTK4."
+}
+
+newoption {
 	trigger = "no-editor",
 	description = "Do not build the Editor."
 }

@@ -83,30 +83,62 @@ public class UnitEditor : Gtk.ApplicationWindow
 		_statusbar = new Statusbar();
 
 		_save = new Gtk.Button.with_label(_("Save & Reload"));
+#if CROWN_GTK3
 		_save.get_style_context().add_class("suggested-action");
 		_save.clicked.connect(() => {
 				save();
 			});
+#else
+		_save.add_css_class("suggested-action");
+		_save.clicked.connect(() => save());
+#endif
 
 		_header_bar = new Gtk.HeaderBar();
+#if CROWN_GTK3
 		_header_bar.title = _("Unit Editor");
 		_header_bar.show_close_button = true;
+#else
+		_header_bar.show_title_buttons = true;
+#endif
 		_header_bar.pack_end(_save);
+		this.title = _("Unit Editor");
 
 		_paned_inspector = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
+#if CROWN_GTK3
 		_paned_inspector.pack1(_editor_viewport, false, false);
 		_paned_inspector.pack2(_properties_view, false, false);
+#else
+		_paned_inspector.set_start_child(_editor_viewport);
+		_paned_inspector.set_end_child(_properties_view);
+		_paned_inspector.resize_start_child = true;
+		_paned_inspector.shrink_start_child = false;
+		_paned_inspector.resize_end_child = false;
+		_paned_inspector.shrink_end_child = false;
+#endif
 
 		_paned_object = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
+#if CROWN_GTK3
 		_paned_object.pack1(_objects_tree, false, false);
 		_paned_object.pack2(_paned_inspector, true, false);
+#else
+		_paned_object.set_start_child(_objects_tree);
+		_paned_object.set_end_child(_paned_inspector);
+		_paned_object.resize_start_child = false;
+		_paned_object.shrink_start_child = false;
+		_paned_object.resize_end_child = true;
+		_paned_object.shrink_end_child = false;
+		_paned_object.vexpand = true;
+#endif
 
 		this.set_titlebar(_header_bar);
 		this.set_default_size(1280, 720);
-
 		int win_w;
 		int win_h;
+#if CROWN_GTK3
 		this.get_size(out win_w, out win_h);
+#else
+		this.get_default_size(out win_w, out win_h);
+#endif
 		int object_panel_width = (int)(win_w * (220.0 / 1280.0));
 		int inspector_panel_width = int.max((int)(win_w * (375.0 / 2560.0)), 232);
 		_paned_object.set_position(object_panel_width);
@@ -123,15 +155,29 @@ public class UnitEditor : Gtk.ApplicationWindow
 		mi.set_submenu(make_camera_view_menu());
 		menu.append_item(mi);
 
+#if CROWN_GTK3
 		Gtk.MenuBar menubar = new Gtk.MenuBar.from_model(menu);
 		_header_bar.pack_start(menubar);
+#else
+		this.show_menubar = false;
+		Gtk.PopoverMenuBar menubar = new Gtk.PopoverMenuBar.from_model(menu);
+#endif
 
 		_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+#if CROWN_GTK3
 		_box.pack_start(_paned_object);
 		_box.pack_start(_statusbar, false);
 
 		this.delete_event.connect(on_close_request);
 		this.add(_box);
+#else
+		_box.append(menubar);
+		_box.append(_paned_object);
+		_box.append(_statusbar);
+
+		this.close_request.connect(on_close_request);
+		this.set_child(_box);
+#endif
 
 		reset();
 
@@ -237,7 +283,11 @@ public class UnitEditor : Gtk.ApplicationWindow
 			md.add_button(_("_Ok"), Gtk.ResponseType.OK);
 			md.set_default_response(Gtk.ResponseType.OK);
 			md.response.connect(() => { md.destroy(); });
+#if CROWN_GTK3
 			md.show_all();
+#else
+			md.show();
+#endif
 			update_window_title();
 			return false;
 		}
@@ -271,7 +321,11 @@ public class UnitEditor : Gtk.ApplicationWindow
 				}
 				srd.destroy();
 			});
+#if CROWN_GTK3
 		srd.show_all();
+#else
+		srd.show();
+#endif
 	}
 
 	public void save(owned UnitEditorSaveCallback? on_save_success = null)
@@ -427,7 +481,11 @@ public class UnitEditor : Gtk.ApplicationWindow
 					}
 					dlg.destroy();
 				});
+#if CROWN_GTK3
 			dlg.show_all();
+#else
+			dlg.show();
+#endif
 		}
 	}
 
@@ -447,7 +505,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 		unload();
 	}
 
-	public bool on_close_request(Gdk.EventAny event)
+	public bool handle_close_request()
 	{
 		if (!_database.changed()) {
 			close_and_unload();
@@ -465,9 +523,27 @@ public class UnitEditor : Gtk.ApplicationWindow
 				}
 				dlg.destroy();
 			});
+#if CROWN_GTK3
 		dlg.show_all();
+#else
+		dlg.present();
+#endif
 		return Gdk.EVENT_STOP;
 	}
+
+#if CROWN_GTK3
+	public bool on_close_request(Gdk.EventAny event)
+	{
+		return handle_close_request();
+	}
+#endif
+
+#if !CROWN_GTK3
+	public bool on_close_request()
+	{
+		return handle_close_request();
+	}
+#endif
 }
 
 } /* namespace Crown */

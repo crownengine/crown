@@ -7,6 +7,7 @@
 #include <gdk/gdk.h>
 #include <stdint.h>
 
+#if defined(CROWN_GTK3)
 #if defined(_WIN32)
 #   define WIN32_LEAN_AND_MEAN
 #   include <windows.h>
@@ -21,6 +22,22 @@
 #   include <X11/extensions/XInput2.h>
 #   include <X11/extensions/Xfixes.h>
 #endif /* if defined(_WIN32) */
+#else
+#if defined(_WIN32)
+#   define WIN32_LEAN_AND_MEAN
+#   include <windows.h>
+#elif defined(__linux__)
+#   include <errno.h>
+#   include <gdk/x11/gdkx.h>
+#   include <poll.h>
+#   include <sys/eventfd.h>
+#   include <unistd.h>
+#   include <X11/X.h>
+#   include <X11/Xlib.h>
+#   include <X11/extensions/XInput2.h>
+#   include <X11/extensions/Xfixes.h>
+#endif /* if defined(_WIN32) */
+#endif /* if defined(CROWN_GTK3) */
 
 #if defined(__linux__)
 static void initialize_xlib_threads(void) __attribute__((constructor));
@@ -565,7 +582,11 @@ static gpointer sample_pointer(gpointer data)
 	return NULL;
 }
 
+#if defined(CROWN_GTK3)
 void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkWindow *window, GdkDevice *device, gint trigger_button, gint cancel_button, gboolean preserve_legacy_events)
+#else
+void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkSurface *surface, GdkDevice *device, gint trigger_button, gint cancel_button, gboolean preserve_legacy_events)
+#endif
 {
 	struct CrownInfiniteDragSampler *sampler = g_new0(struct CrownInfiniteDragSampler, 1);
 	g_mutex_init(&sampler->mutex);
@@ -576,6 +597,7 @@ void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkWindow *window, 
 	sampler->trigger_button = trigger_button;
 	sampler->cancel_button = cancel_button;
 	sampler->preserve_legacy_events = preserve_legacy_events;
+#if defined(CROWN_GTK3)
 #if defined(_WIN32)
 	(void)display;
 	(void)window;
@@ -637,6 +659,63 @@ void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkWindow *window, 
 	(void)window;
 	(void)device;
 #endif /* if defined(_WIN32) */
+#else
+#if defined(_WIN32)
+	(void)display;
+	(void)surface;
+	(void)device;
+	POINT cursor_position;
+	if (!GetCursorPos(&cursor_position)) {
+		g_mutex_clear(&sampler->mutex);
+		g_free(sampler);
+		return NULL;
+	}
+	sampler->anchor_x = cursor_position.x;
+	sampler->anchor_y = cursor_position.y;
+	sampler->windows_stop_event = CreateEventW(NULL, TRUE, FALSE, NULL);
+	if (sampler->windows_stop_event == NULL) {
+		g_mutex_clear(&sampler->mutex);
+		g_free(sampler);
+		return NULL;
+	}
+	/* ShowCursor's counter is thread-local, so change it on GTK's UI thread. */
+	ShowCursor(FALSE);
+	sampler->windows_cursor_hidden = TRUE;
+#elif defined(__linux__)
+	sampler->x11_wake_fd = eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK);
+	if (sampler->x11_wake_fd < 0) {
+		g_mutex_clear(&sampler->mutex);
+		g_free(sampler);
+		return NULL;
+	}
+	sampler->x11_window = gdk_x11_surface_get_xid(surface);
+	Display *xdisplay = gdk_x11_display_get_xdisplay(display);
+	Window query_root;
+	Window query_child;
+	int window_x;
+	int window_y;
+	unsigned int mask;
+	if (!XQueryPointer(xdisplay
+		, sampler->x11_window
+		, &query_root
+		, &query_child
+		, &sampler->anchor_x
+		, &sampler->anchor_y
+		, &window_x
+		, &window_y
+		, &mask
+		)) {
+		close(sampler->x11_wake_fd);
+		g_mutex_clear(&sampler->mutex);
+		g_free(sampler);
+		return NULL;
+	}
+#else
+	(void)display;
+	(void)surface;
+	(void)device;
+#endif /* if defined(_WIN32) */
+#endif /* if defined(CROWN_GTK3) */
 	sampler->thread = g_thread_new("infinite-drag", sample_pointer, sampler);
 	return sampler;
 }

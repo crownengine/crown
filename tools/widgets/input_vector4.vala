@@ -58,17 +58,37 @@ public class InputVector4 : InputField
 
 		// Widgets
 		_x = new InputDouble(xyz.x, min.x, max.x, preview_decimals);
+#if CROWN_GTK3
 		_x.get_style_context().add_class("axis");
 		_x.get_style_context().add_class("x");
+#else
+		_x.add_css_class("axis");
+		_x.add_css_class("x");
+#endif
 		_y = new InputDouble(xyz.y, min.y, max.y, preview_decimals);
+#if CROWN_GTK3
 		_y.get_style_context().add_class("axis");
 		_y.get_style_context().add_class("y");
+#else
+		_y.add_css_class("axis");
+		_y.add_css_class("y");
+#endif
 		_z = new InputDouble(xyz.z, min.z, max.z, preview_decimals);
+#if CROWN_GTK3
 		_z.get_style_context().add_class("axis");
 		_z.get_style_context().add_class("z");
+#else
+		_z.add_css_class("axis");
+		_z.add_css_class("z");
+#endif
 		_w = new InputDouble(xyz.w, min.w, max.w, preview_decimals);
+#if CROWN_GTK3
 		_w.get_style_context().add_class("axis");
 		_w.get_style_context().add_class("w");
+#else
+		_w.add_css_class("axis");
+		_w.add_css_class("w");
+#endif
 
 		_x.value_changed.connect(on_value_changed);
 		_y.value_changed.connect(on_value_changed);
@@ -76,12 +96,21 @@ public class InputVector4 : InputField
 		_w.value_changed.connect(on_value_changed);
 
 		_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 4);
+#if CROWN_GTK3
 		_box.pack_start(_x, true);
 		_box.pack_start(_y, true);
 		_box.pack_start(_z, true);
 		_box.pack_start(_w, true);
 
 		this.add(_box);
+#else
+		_box.append(_x);
+		_box.append(_y);
+		_box.append(_z);
+		_box.append(_w);
+
+		this.set_child(_box);
+#endif
 	}
 
 	public void on_value_changed(InputField p, int undo_redo)

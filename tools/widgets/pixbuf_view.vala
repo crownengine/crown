@@ -46,37 +46,76 @@ public class PixbufView : Gtk.DrawingArea
 		_zoom = 1.0;
 		_zoom_speed = 0.2;
 
+#if CROWN_GTK3
 		_controller_scroll = new Gtk.EventControllerScroll(this, Gtk.EventControllerScrollFlags.VERTICAL);
+		this.draw.connect(on_draw);
+#else
+		_controller_scroll = new Gtk.EventControllerScroll(Gtk.EventControllerScrollFlags.VERTICAL);
+		this.add_controller(_controller_scroll);
+#endif
 		_controller_scroll.scroll.connect(on_scroll);
 
 		_filter = Cairo.Filter.NEAREST;
 		_extend = Cairo.Extend.NONE;
-
-		this.draw.connect(on_draw);
 	}
 
 	public void set_pixbuf(Gdk.Pixbuf pixbuf)
 	{
 		_pixbuf = pixbuf;
+#if CROWN_GTK3
 		_pixbuf_pattern = new Cairo.Pattern.for_surface(Gdk.cairo_surface_create_from_pixbuf(_pixbuf, 1, null));
+#else
+		int width = _pixbuf.get_width();
+		int height = _pixbuf.get_height();
+		var surface = new Cairo.ImageSurface(Cairo.Format.ARGB32, width, height);
+		var cr = new Cairo.Context(surface);
+		Gdk.cairo_set_source_pixbuf(cr, _pixbuf, 0, 0);
+		cr.paint();
+		_pixbuf_pattern = new Cairo.Pattern.for_surface(surface);
+#endif
 		_pixbuf_pattern.set_filter(Cairo.Filter.NEAREST);
 		_pixbuf_pattern.set_filter(_filter);
 		_pixbuf_pattern.set_extend(_extend);
 	}
 
+#if CROWN_GTK3
 	public void on_scroll(double dx, double dy)
+#else
+	public bool on_scroll(double dx, double dy)
+#endif
 	{
 		_zoom = double.min(10.0, double.max(0.25, _zoom - dy * _zoom_speed));
 		this.queue_draw();
+#if !CROWN_GTK3
+		return Gdk.EVENT_PROPAGATE;
+#endif
 	}
 
+#if CROWN_GTK3
 	public bool on_draw(Cairo.Context cr)
+#else
+	public override void snapshot(Gtk.Snapshot snapshot)
+#endif
 	{
+#if CROWN_GTK3
 		if (_pixbuf == null)
 			return Gdk.EVENT_PROPAGATE;
+#else
+		if (_pixbuf == null) {
+			base.snapshot(snapshot);
+			return;
+		}
+#endif
 
 		int allocated_width = this.get_allocated_width();
 		int allocated_height = this.get_allocated_height();
+#if !CROWN_GTK3
+		var cr = snapshot.append_cairo(Graphene.Rect()
+			{
+				origin = { 0, 0 },
+				size = { allocated_width, allocated_height }
+			});
+#endif
 
 		cr.set_source_rgb(0.1, 0.1, 0.1);
 		cr.paint();
@@ -97,7 +136,11 @@ public class PixbufView : Gtk.DrawingArea
 		cr.set_source(_pixbuf_pattern);
 		cr.paint();
 
+#if CROWN_GTK3
 		return Gdk.EVENT_PROPAGATE;
+#else
+		base.snapshot(snapshot);
+#endif
 	}
 }
 

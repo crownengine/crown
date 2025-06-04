@@ -542,6 +542,34 @@ update_gtk_theme () {
 	git commit -m "tools: update GTK theme"
 }
 
+update_gtk4_theme () {
+	local REPO=https://gitlab.gnome.org/GNOME/gtk.git
+	local DEST=tools/level_editor/resources/theme/Default
+	local BRANCH=gtk-4-20
+
+	local GTK_THEME=$(mktemp -d)
+
+	# Download latest GTK4 theme.
+	git_clone "${GTK_THEME}" "${REPO}" "${BRANCH}"
+
+	rm -rf "${DEST}"
+	mv "${GTK_THEME}"/gtk/theme/Default "${DEST}"
+
+	sed -i 's/resource:\/\/\/org\/gtk\/libgtk\/theme\/Default\/Default-light.css/resource:\/\/\/org\/crownengine\/Crown\/theme\/Default\/Default-light.css/' "${DEST}"/gtk.css
+	sed -i 's/resource:\/\/\/org\/gtk\/libgtk\/theme\/Default\/Default-dark.css/resource:\/\/\/org\/crownengine\/Crown\/theme\/Default\/Default-dark.css/' "${DEST}"/gtk.css
+	sed -i 's/resource:\/\/\/org\/gtk\/libgtk\/theme\/Default\/Default-hc.css/resource:\/\/\/org\/crownengine\/Crown\/theme\/Default\/Default-hc.css/' "${DEST}"/gtk.css
+	sed -i 's/resource:\/\/\/org\/gtk\/libgtk\/theme\/Default\/Default-hc-dark.css/resource:\/\/\/org\/crownengine\/Crown\/theme\/Default\/Default-hc-dark.css/' "${DEST}"/gtk.css
+
+	sed -i 's/resource:\/\/\/org\/gtk\/libgtk\/theme\/Default\/Default-light.css/resource:\/\/\/org\/crownengine\/Crown\/theme\/Default\/Default-light.css/' "${DEST}"/gtk-light.css
+	sed -i 's/resource:\/\/\/org\/gtk\/libgtk\/theme\/Default\/Default-dark.css/resource:\/\/\/org\/crownengine\/Crown\/theme\/Default\/Default-dark.css/' "${DEST}"/gtk-dark.css
+	sed -i 's/resource:\/\/\/org\/gtk\/libgtk\/theme\/Default\/Default-hc.css/resource:\/\/\/org\/crownengine\/Crown\/theme\/Default\/Default-hc.css/' "${DEST}"/gtk-hc.css
+	sed -i 's/resource:\/\/\/org\/gtk\/libgtk\/theme\/Default\/Default-hc-dark.css/resource:\/\/\/org\/crownengine\/Crown\/theme\/Default\/Default-hc-dark.css/' "${DEST}"/gtk-hc-dark.css
+
+	# Add changes and commit.
+	git add -f "${DEST}"
+	git commit -m "tools: update GTK4 theme"
+}
+
 update_tinyexpr () {
 	# Download latest tinyexpr.
 	local REPO=https://github.com/codeplea/tinyexpr
@@ -790,6 +818,10 @@ while true; do
 		;;
 	gtk_theme)
 		update_gtk_theme
+		exit $?
+		;;
+	gtk4_theme)
+		update_gtk4_theme
 		exit $?
 		;;
 	ufbx)

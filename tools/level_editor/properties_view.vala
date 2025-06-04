@@ -27,7 +27,11 @@ public class UnitComponentRow : Gtk.ListBoxRow
 		label.margin_end = 6;
 		label.margin_top = 3;
 		label.margin_bottom = 3;
+#if CROWN_GTK3
 		this.add(label);
+#else
+		this.set_child(label);
+#endif
 	}
 }
 
@@ -54,6 +58,30 @@ public class UnitView : PropertyGrid
 
 		if (unit.add_component_type_dependencies(component_type))
 			_db.add_restore_point((int)ActionType.CHANGE_OBJECTS, { unit_id });
+	}
+
+	public bool select_component_if_visible(Gtk.ListBox component_list, Gtk.Widget child)
+	{
+		if (!child.get_child_visible())
+			return false;
+
+		component_list.select_row((Gtk.ListBoxRow)child);
+		return true;
+	}
+
+	public void select_first_visible_component(Gtk.ListBox component_list)
+	{
+#if CROWN_GTK3
+		foreach (Gtk.Widget child in component_list.get_children()) {
+			if (select_component_if_visible(component_list, child))
+				break;
+		}
+#else
+		for (Gtk.Widget? child = component_list.get_first_child(); child != null; child = child.get_next_sibling()) {
+			if (select_component_if_visible(component_list, child))
+				break;
+		}
+#endif
 	}
 
 	public UnitView(Database db)
@@ -99,7 +127,11 @@ public class UnitView : PropertyGrid
 				? category_orders[info.ui_category]
 				: double.MAX;
 
+#if CROWN_GTK3
 				component_list.add(new UnitComponentRow(info, category, category_order));
+#else
+				component_list.append(new UnitComponentRow(info, category, category_order));
+#endif
 			});
 
 		component_list.set_sort_func((row_a, row_b) => {
@@ -135,18 +167,29 @@ public class UnitView : PropertyGrid
 				if (before_row == null || component_row._ui_category != before_row._ui_category) {
 					Gtk.Box header = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 					if (before != null)
+#if CROWN_GTK3
 						header.pack_start(new Gtk.Separator(Gtk.Orientation.HORIZONTAL), false, false, 0);
+#else
+						header.append(new Gtk.Separator(Gtk.Orientation.HORIZONTAL));
+#endif
 
 					Gtk.Label label = new Gtk.Label(component_row._ui_category);
 					label.xalign = 0.0f;
 					label.margin_start = 6;
 					label.margin_top = 3;
 					label.margin_bottom = 3;
+#if CROWN_GTK3
 					label.get_style_context().add_class(Gtk.STYLE_CLASS_DIM_LABEL);
 					header.pack_start(label, false, false, 0);
+#else
+					label.add_css_class("dim-label");
+					header.append(label);
+#endif
 
 					row.set_header(header);
+#if CROWN_GTK3
 					header.show_all();
+#endif
 				} else {
 					row.set_header(null);
 				}
@@ -158,25 +201,28 @@ public class UnitView : PropertyGrid
 				_add_popover.popdown();
 			});
 
+#if CROWN_GTK3
 		Gtk.ScrolledWindow component_scroller = new Gtk.ScrolledWindow(null, null);
+#else
+		Gtk.ScrolledWindow component_scroller = new Gtk.ScrolledWindow();
+#endif
 		component_scroller.hscrollbar_policy = Gtk.PolicyType.NEVER;
 		component_scroller.vscrollbar_policy = Gtk.PolicyType.AUTOMATIC;
 		component_scroller.set_min_content_width(300);
 		component_scroller.set_max_content_height(400);
 		component_scroller.set_propagate_natural_height(true);
+#if CROWN_GTK3
 		component_scroller.add(component_list);
+#else
+		component_scroller.set_child(component_list);
+#endif
 		component_list.set_adjustment(component_scroller.get_vadjustment());
 
 		search_entry.search_changed.connect(() => {
 				component_list.invalidate_filter();
 				component_list.invalidate_headers();
 				component_list.unselect_all();
-				foreach (Gtk.Widget child in component_list.get_children()) {
-					if (child.get_child_visible()) {
-						component_list.select_row((Gtk.ListBoxRow)child);
-						break;
-					}
-				}
+				select_first_visible_component(component_list);
 			});
 		search_entry._entry.activate.connect(() => {
 				Gtk.ListBoxRow? row = component_list.get_selected_row();
@@ -184,7 +230,11 @@ public class UnitView : PropertyGrid
 					component_list.row_activated(row);
 			});
 
+#if CROWN_GTK3
 		_component_search_controller_key = new Gtk.EventControllerKey(search_entry._entry);
+#else
+		_component_search_controller_key = new Gtk.EventControllerKey();
+#endif
 		_component_search_controller_key.key_pressed.connect((keyval, keycode, state) => {
 				if (keyval == Gdk.Key.Down || keyval == Gdk.Key.Up) {
 					int delta = keyval == Gdk.Key.Down ? 1 : -1;
@@ -200,7 +250,11 @@ public class UnitView : PropertyGrid
 					if (row != null) {
 						component_list.select_row(row);
 						row.grab_focus();
+#if CROWN_GTK3
 						search_entry._entry.grab_focus_without_selecting();
+#else
+						search_entry._entry.grab_focus();
+#endif
 					}
 					return Gdk.EVENT_STOP;
 				}
@@ -212,23 +266,45 @@ public class UnitView : PropertyGrid
 
 				return Gdk.EVENT_PROPAGATE;
 			});
+#if !CROWN_GTK3
+		search_entry._entry.add_controller(_component_search_controller_key);
+#endif
 
 		Gtk.Box popover_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 6);
+#if CROWN_GTK3
 		popover_box.margin = 6;
 		popover_box.pack_start(search_entry, false, false);
 		popover_box.pack_start(component_scroller);
 
 		_add_popover = new Gtk.Popover(null);
 		_add_popover.add(popover_box);
+#else
+		popover_box.margin_bottom = 6;
+		popover_box.margin_end = 6;
+		popover_box.margin_start = 6;
+		popover_box.margin_top = 6;
+		popover_box.append(search_entry);
+		popover_box.append(component_scroller);
+
+		_add_popover = new Gtk.Popover();
+		_add_popover.set_child(popover_box);
+#endif /* if CROWN_GTK3 */
 		_add_popover.map.connect(() => {
+#if CROWN_GTK3
 				search_entry._entry.grab_focus_without_selecting();
 				search_entry.search_changed();
+#else
+				search_entry._entry.grab_focus();
+				search_entry.search_changed(search_entry);
+#endif
 			});
 		_add_popover.closed.connect(() => {
 				search_entry.text = "";
 				component_list.unselect_all();
 			});
+#if CROWN_GTK3
 		popover_box.show_all();
+#endif
 
 		_component_add = new Gtk.MenuButton();
 		_component_add.label = _("Add Component");
@@ -238,7 +314,11 @@ public class UnitView : PropertyGrid
 
 		_components = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 6);
 		_components.homogeneous = true;
+#if CROWN_GTK3
 		_components.pack_start(_component_add);
+#else
+		_components.append(_component_add);
+#endif
 
 		add_row(_("Prefab"), _prefab);
 		add_row(_("Prefab"), _open_prefab);
@@ -312,12 +392,20 @@ public class PropertiesView : Gtk.Box
 			= _object_view.margin_top
 			= 6
 			;
+		_object_view.vexpand = true;
 
 		_viewport = new Gtk.Viewport(null, null);
+#if CROWN_GTK3
 		_viewport.add(_object_view);
 
 		_scrolled_window = new Gtk.ScrolledWindow(null, null);
 		_scrolled_window.add(_viewport);
+#else
+		_viewport.set_child(_object_view);
+
+		_scrolled_window = new Gtk.ScrolledWindow();
+		_scrolled_window.set_child(_viewport);
+#endif
 
 		_stack = new Gtk.Stack();
 		_stack.hhomogeneous = false;
@@ -328,9 +416,15 @@ public class PropertiesView : Gtk.Box
 		unknown_object_type.ellipsize = Pango.EllipsizeMode.END;
 		_stack.add_named(unknown_object_type, UNKNOWN_OBJECT_TYPE);
 		_stack.add_named(_scrolled_window, PROPERTIES);
+		_stack.vexpand = true;
 
+#if CROWN_GTK3
 		this.pack_start(_stack);
 		this.get_style_context().add_class("properties-view");
+#else
+		this.append(_stack);
+		this.add_css_class("properties-view");
+#endif
 
 		_database._project.project_reset.connect(on_project_reset);
 	}
@@ -364,9 +458,17 @@ public class PropertiesView : Gtk.Box
 
 					if (component_id != GUID_ZERO) {
 						if (id == _database.owner(component_id))
+#if CROWN_GTK3
 							cv._expander.get_style_context().remove_class("inherited");
+#else
+							cv._expander.remove_css_class("inherited");
+#endif
 						else
+#if CROWN_GTK3
 							cv._expander.get_style_context().add_class("inherited");
+#else
+							cv._expander.add_css_class("inherited");
+#endif
 					}
 
 					cv._expander.expanded = was_expanded;
@@ -395,7 +497,9 @@ public class PropertiesView : Gtk.Box
 					cv.show_grid();
 					cv.read_properties();
 
+#if CROWN_GTK3
 					cv._expander.show();
+#endif
 					cv._expander.expanded = was_expanded;
 				} else {
 					cv.hide_grid();

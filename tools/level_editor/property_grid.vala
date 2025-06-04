@@ -34,7 +34,11 @@ class ObjectsSetEditor : Gtk.Box
 		_read_only_note.wrap = true;
 		_read_only_note.xalign = 0.0f;
 		_read_only_note.visible = false;
+#if CROWN_GTK3
 		_read_only_note.get_style_context().add_class("dim-label");
+#else
+		_read_only_note.add_css_class("dim-label");
+#endif
 
 		_list = new Gtk.ListBox();
 		_list.selection_mode = Gtk.SelectionMode.SINGLE;
@@ -42,10 +46,17 @@ class ObjectsSetEditor : Gtk.Box
 
 		_editor = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 
+#if CROWN_GTK3
 		this.pack_start(_add, false, false);
 		this.pack_start(_read_only_note, false, false);
 		this.pack_start(_list, false, true);
 		this.pack_start(_editor, false, true);
+#else
+		this.append(_add);
+		this.append(_read_only_note);
+		this.append(_list);
+		this.append(_editor);
+#endif
 
 		_grid._db.objects_created.connect((object_ids, flags) => { read(); });
 		_grid._db.objects_destroyed.connect((object_ids, flags) => { read(); });
@@ -107,39 +118,85 @@ class ObjectsSetEditor : Gtk.Box
 		if (row == null) {
 			_object_id = GUID_ZERO;
 			_editor_grid = null;
+#if CROWN_GTK3
 			_editor.foreach((widget) => {
 					widget.destroy();
 				});
+#else
+			clear_box(_editor);
+#endif
 			return;
 		}
 
 		_object_id = Guid.parse(row.get_data<string>("id"));
 		if (_editor_grid == null || !Guid.equal_func(_editor_grid._id, _object_id)) {
+#if CROWN_GTK3
 			_editor.foreach((widget) => {
 					widget.destroy();
 				});
+#else
+			clear_box(_editor);
+#endif
 
 			Guid selection_anchor_id = _grid._selection_anchor_id != GUID_ZERO ? _grid._selection_anchor_id : _grid._id;
 			_editor_grid = new PropertyGrid.from_object(_object_id, _grid._db, _grid._database_editor, selection_anchor_id);
+#if CROWN_GTK3
 			_editor.pack_start(_editor_grid, false, true);
+#else
+			_editor.append(_editor_grid);
+#endif
 		}
 		_editor_grid.sensitive = !is_read_only();
 		_editor_grid.read_properties();
+#if CROWN_GTK3
 		_editor.show_all();
+#endif
 	}
+
+#if !CROWN_GTK3
+	public void clear_box(Gtk.Box box)
+	{
+		Gtk.Widget? child = box.get_first_child();
+		while (child != null) {
+			Gtk.Widget? next = child.get_next_sibling();
+			box.remove(child);
+			child = next;
+		}
+	}
+#endif
+
+#if !CROWN_GTK3
+	public void clear_list()
+	{
+		Gtk.Widget? child = _list.get_first_child();
+		while (child != null) {
+			Gtk.Widget? next = child.get_next_sibling();
+			_list.remove(child);
+			child = next;
+		}
+	}
+#endif
 
 	public void read()
 	{
 		_refreshing = true;
+#if CROWN_GTK3
 		_list.foreach((widget) => {
 				widget.destroy();
 			});
+#else
+		clear_list();
+#endif
 
 		if (_grid._id == GUID_ZERO || !_grid._db.is_alive(_grid._id)) {
 			_editor_grid = null;
+#if CROWN_GTK3
 			_editor.foreach((widget) => {
 					widget.destroy();
 				});
+#else
+			clear_box(_editor);
+#endif
 			_refreshing = false;
 			return;
 		}
@@ -177,23 +234,36 @@ class ObjectsSetEditor : Gtk.Box
 			Gtk.Label label = new Gtk.Label(object_name(child_id));
 			label.hexpand = true;
 			label.xalign = 0.0f;
+#if CROWN_GTK3
 			box.pack_start(label, true, true);
+#else
+			box.append(label);
+#endif
 
 			Gtk.Button remove = new Gtk.Button.from_icon_name("list-remove-symbolic");
 			remove.sensitive = !read_only;
 			remove.clicked.connect(() => {
 					on_delete_clicked(child_id);
 				});
+#if CROWN_GTK3
 			box.pack_end(remove, false);
 
 			row.add(box);
 			_list.add(row);
+#else
+			box.append(remove);
+
+			row.set_child(box);
+			_list.append(row);
+#endif
 
 			if (Guid.equal_func(_object_id, child_id))
 				row_to_select = row;
 		}
 
+#if CROWN_GTK3
 		_list.show_all();
+#endif
 		_refreshing = false;
 		if (row_to_select != null) {
 			_list.select_row(row_to_select);
@@ -201,9 +271,13 @@ class ObjectsSetEditor : Gtk.Box
 		} else {
 			_object_id = GUID_ZERO;
 			_editor_grid = null;
+#if CROWN_GTK3
 			_editor.foreach((widget) => {
 					widget.destroy();
 				});
+#else
+			clear_box(_editor);
+#endif
 		}
 	}
 }
@@ -217,7 +291,11 @@ public class PropertyGrid : Gtk.Grid
 	};
 
 	public Expander? _expander;
+#if CROWN_GTK3
 	public Gtk.GestureMultiPress _controller_click;
+#else
+	public Gtk.GestureClick _controller_click;
+#endif
 	public GLib.SimpleActionGroup _action_group;
 	public Database? _db;
 	public StringId64 _type;
@@ -230,7 +308,11 @@ public class PropertyGrid : Gtk.Grid
 	public DatabaseEditor? _database_editor;
 	public Guid _selection_anchor_id;
 
+#if CROWN_GTK3
 	public GLib.HashTable<string, Gtk.GestureMultiPress> _gestures;
+#else
+	public GLib.HashTable<string, Gtk.GestureClick> _gestures;
+#endif
 	public GLib.HashTable<string, InputField> _widgets;
 	public GLib.HashTable<InputField, PropertyDefinition?> _definitions;
 	GLib.GenericArray<ObjectsSetEditor> _object_sets;
@@ -272,7 +354,11 @@ public class PropertyGrid : Gtk.Grid
 			md.set_default_response(Gtk.ResponseType.OK);
 
 			md.response.connect(() => { md.destroy(); });
+#if CROWN_GTK3
 			md.show_all();
+#else
+			md.show();
+#endif
 			return;
 		} else {
 			unit.remove_component_type(component_type);
@@ -301,8 +387,13 @@ public class PropertyGrid : Gtk.Grid
 			}
 
 			if (menu.get_n_items() > 0) {
+#if CROWN_GTK3
 				Gtk.Popover popover = new Gtk.Popover.from_model(null, menu);
 				popover.set_relative_to(this);
+#else
+				Gtk.PopoverMenu popover = new Gtk.PopoverMenu.from_model(menu);
+				popover.set_parent(_expander);
+#endif
 				popover.set_pointing_to({ (int)x, (int)y, 1, 1 });
 				popover.set_position(Gtk.PositionType.BOTTOM);
 				popover.popup();
@@ -328,7 +419,11 @@ public class PropertyGrid : Gtk.Grid
 		_label_size_group = null;
 		_selection_anchor_id = selection_anchor_id;
 
+#if CROWN_GTK3
 		_gestures = new GLib.HashTable<string, Gtk.GestureMultiPress>(GLib.str_hash, GLib.str_equal);
+#else
+		_gestures = new GLib.HashTable<string, Gtk.GestureClick>(GLib.str_hash, GLib.str_equal);
+#endif
 		_widgets = new GLib.HashTable<string, InputField>(GLib.str_hash, GLib.str_equal);
 		_definitions = new GLib.HashTable<InputField, PropertyDefinition?>(GLib.direct_hash, GLib.direct_equal);
 		_object_sets = new GLib.GenericArray<ObjectsSetEditor>();
@@ -359,9 +454,16 @@ public class PropertyGrid : Gtk.Grid
 
 		_expander = e;
 
+#if CROWN_GTK3
 		_controller_click = new Gtk.GestureMultiPress(e);
+#else
+		_controller_click = new Gtk.GestureClick();
+#endif
 		_controller_click.set_button(0);
 		_controller_click.released.connect(on_expander_button_released);
+#if !CROWN_GTK3
+		e.add_controller(_controller_click);
+#endif
 	}
 
 	public void set_label_size_group(Gtk.SizeGroup size_group)
@@ -497,7 +599,11 @@ public class PropertyGrid : Gtk.Grid
 
 			p.value_changed.connect(on_property_value_changed);
 
+#if CROWN_GTK3
 			Gtk.GestureMultiPress click = new Gtk.GestureMultiPress(p);
+#else
+			Gtk.GestureClick click = new Gtk.GestureClick();
+#endif
 			click.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
 			click.set_button(Gdk.BUTTON_SECONDARY);
 			click.pressed.connect((n_press, x, y) => {
@@ -514,12 +620,19 @@ public class PropertyGrid : Gtk.Grid
 					}
 
 					if (menu.get_n_items() > 0) {
+#if CROWN_GTK3
 						Gtk.Popover popover = new Gtk.Popover.from_model(null, menu);
 						popover.set_relative_to(p);
+#else
+						Gtk.PopoverMenu popover = new Gtk.PopoverMenu.from_model(menu);
+#endif
 						popover.set_position(Gtk.PositionType.BOTTOM);
 						popover.popup();
 					}
 				});
+#if !CROWN_GTK3
+			p.add_controller(click);
+#endif
 
 			_gestures[def.name] = click;
 			_widgets[def.name] = p;
@@ -669,7 +782,10 @@ public class PropertyGrid : Gtk.Grid
 
 	public void read_all_properties()
 	{
-		_definitions.foreach((p, def) => {
+		GLib.HashTableIter<InputField, PropertyDefinition?> iter = GLib.HashTableIter<InputField, PropertyDefinition?>(_definitions);
+		unowned InputField p;
+		unowned PropertyDefinition? def;
+		while (iter.next(out p, out def)) {
 				p.value_changed.disconnect(on_property_value_changed);
 
 				if (def.type == PropertyType.BOOL) {
@@ -725,8 +841,8 @@ public class PropertyGrid : Gtk.Grid
 					loge("Unknown property value type");
 				}
 
-				p.value_changed.connect(on_property_value_changed);
-			});
+			p.value_changed.connect(on_property_value_changed);
+		}
 	}
 
 	public virtual void read_properties()
@@ -740,7 +856,10 @@ public class PropertyGrid : Gtk.Grid
 
 	public void read_dynamic_properties_ranges_except(PropertyDefinition[] excluded)
 	{
-		_definitions.foreach((p, def) => {
+		GLib.HashTableIter<InputField, PropertyDefinition?> iter = GLib.HashTableIter<InputField, PropertyDefinition?>(_definitions);
+		unowned InputField p;
+		unowned PropertyDefinition? def;
+		while (iter.next(out p, out def)) {
 				int i;
 
 				// Skip if excluded.
@@ -749,7 +868,7 @@ public class PropertyGrid : Gtk.Grid
 						break;
 				}
 				if (i != excluded.length)
-					return;
+					continue;
 
 				// Read range.
 				if (def.enum_callback != null) {
@@ -766,8 +885,8 @@ public class PropertyGrid : Gtk.Grid
 					field.value_changed.disconnect(on_property_value_changed);
 					def.resource_callback(parent_p, (InputResource)field, _db._project);
 					field.value_changed.connect(on_property_value_changed);
-				}
-			});
+			}
+		}
 	}
 
 	public void read_dynamic_properties_ranges()
@@ -780,7 +899,10 @@ public class PropertyGrid : Gtk.Grid
 		GLib.GenericArray<PropertyDefinition?> properties_local = properties;
 		GLib.GenericArray<GLib.Value?> values_local = values;
 
-		_definitions.foreach((p, def) => {
+		GLib.HashTableIter<InputField, PropertyDefinition?> iter = GLib.HashTableIter<InputField, PropertyDefinition?>(_definitions);
+		unowned InputField p;
+		unowned PropertyDefinition? def;
+		while (iter.next(out p, out def)) {
 				if (def.enum_callback != null) {
 					InputField field = _widgets[def.name];
 
@@ -791,8 +913,8 @@ public class PropertyGrid : Gtk.Grid
 
 					properties_local.add(def);
 					values_local.add(field.union_value());
-				}
-			});
+			}
+		}
 	}
 
 	public bool restore_dynamic_properties_values_except(GLib.GenericArray<PropertyDefinition?> properties, GLib.GenericArray<GLib.Value?> values, PropertyDefinition[] excluded)
@@ -861,7 +983,11 @@ public class PropertyGridSet : Gtk.Box
 		_list_box.set_sort_func(sort_function);
 		_list_box.set_filter_func(filter_function);
 
+#if CROWN_GTK3
 		this.pack_start(_list_box);
+#else
+		this.append(_list_box);
+#endif
 	}
 
 	public static int sort_function(Gtk.ListBoxRow row1, Gtk.ListBoxRow row2)
@@ -894,10 +1020,17 @@ public class PropertyGridSet : Gtk.Box
 		cv.set_label_size_group(_label_size_group);
 
 		Gtk.ListBoxRow row = new Gtk.ListBoxRow();
+#if CROWN_GTK3
 		row.can_focus = false;
 		row.add(e);
 
 		_list_box.add(row);
+#else
+		row.focusable = false;
+		row.set_child(e);
+
+		_list_box.append(row);
+#endif
 
 		return e;
 	}
@@ -911,8 +1044,14 @@ public class PropertyGridSet : Gtk.Box
 		l.set_tooltip_text(tooltip);
 
 		Gtk.Box b = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 6);
+		InputBool.hexpand = false;
+#if CROWN_GTK3
 		b.pack_start(InputBool, false, false);
 		b.pack_start(l, false, false);
+#else
+		b.append(InputBool);
+		b.append(l);
+#endif
 
 		Expander e = new Expander();
 		e.custom_header = b;
@@ -922,10 +1061,17 @@ public class PropertyGridSet : Gtk.Box
 		cv.set_label_size_group(_label_size_group);
 
 		Gtk.ListBoxRow row = new Gtk.ListBoxRow();
+#if CROWN_GTK3
 		row.can_focus = false;
 		row.add(e);
 
 		_list_box.add(row);
+#else
+		row.focusable = false;
+		row.set_child(e);
+
+		_list_box.append(row);
+#endif
 
 		return e;
 	}

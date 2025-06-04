@@ -728,6 +728,7 @@ public class Project
 		}
 	}
 
+#if CROWN_GTK3
 	public class FileFilterFuncData
 	{
 		public string extension;
@@ -742,6 +743,7 @@ public class Project
 			return info.filename.down().has_suffix("." + extension);
 		}
 	}
+#endif
 
 	// Returns a Gtk.FileFilter based on file @a extensions list.
 	public Gtk.FileFilter create_gtk_file_filter(string name, GLib.GenericArray<string> extensions)
@@ -752,8 +754,10 @@ public class Project
 		for (int i = 0; i < extensions.length; ++i) {
 			string ext = extensions[i];
 			extensions_comma_separated += "*.%s, ".printf(ext);
+#if CROWN_GTK3
 			FileFilterFuncData data = new FileFilterFuncData(ext);
 			filter.add_custom(Gtk.FileFilterFlags.FILENAME, data.handler);
+#endif
 		}
 		filter.set_filter_name(name + " (%s)".printf(extensions_comma_separated[0 : -2]));
 
@@ -898,7 +902,11 @@ public class Project
 				, Gtk.ResponseType.ACCEPT
 				);
 			try {
+#if CROWN_GTK3
 				fcd.set_current_folder_file(GLib.File.new_for_path(this.source_dir()));
+#else
+				fcd.set_current_folder(GLib.File.new_for_path(this.source_dir()));
+#endif
 			} catch (GLib.Error e) {
 				loge(e.message);
 			}
@@ -909,7 +917,11 @@ public class Project
 					fcd.destroy();
 				});
 
+#if CROWN_GTK3
 			fcd.show_all();
+#else
+			fcd.show();
+#endif
 		}
 	}
 
@@ -949,8 +961,17 @@ public class Project
 
 			fcd.response.connect((response_id) => {
 					if (response_id == Gtk.ResponseType.ACCEPT) {
-						foreach (var f in fcd.get_files())
+#if CROWN_GTK3
+						foreach (var f in fcd.get_files()) {
 							filenames.append(f.get_path());
+						}
+#else
+						var file_list = fcd.get_files();
+						for (uint i = 0; i < file_list.get_n_items(); i++) {
+							var f = (GLib.File)file_list.get_item(i);
+							filenames.append(f.get_path());
+						}
+#endif
 
 						// Find importer callback.
 						selected_importer_name = _all_extensions_importer_data.name;
@@ -967,7 +988,11 @@ public class Project
 					fcd.destroy();
 				});
 
+#if CROWN_GTK3
 			fcd.show_all();
+#else
+			fcd.show();
+#endif
 		} else {
 			foreach (var f in files)
 				filenames.append(f);

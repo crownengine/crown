@@ -97,13 +97,8 @@ jobs:
     - name: prepare
       run: |
         sudo apt-get update
-        sudo apt-get install mesa-common-dev libgl1-mesa-dev libpulse-dev libxrandr-dev libdecor-0-dev
+        sudo apt-get install mesa-common-dev libgl1-mesa-dev libpulse-dev libxkbcommon-dev libxrandr-dev libdecor-0-dev
         sudo apt-get install gcc-multilib g++-multilib libc6-dev-i386
-        sudo apt-get install libgtk-3-dev
-        sudo add-apt-repository ppa:vala-team
-        sudo apt-get install valac
-        sudo apt-get install libxml2-utils # xml-stripblanks
-        sudo apt-get install gettext
     - name: linux-make-debug64
       run: |
         make MAKE_JOBS=4 linux-debug64
@@ -137,18 +132,6 @@ jobs:
     - name: linux-compile-samples-linux
       run: |
         make MAKE_JOBS=4 samples SAMPLES_PLATFORM=linux
-    - name: linux-make-crown-editor-debug64
-      run: |
-        make MAKE_JOBS=4 crown-editor-linux-debug64
-    - name: linux-test-crown-editor-debug64
-      run: |
-        cd ./build/linux64/bin && ./crown-editor-debug --run-unit-tests
-    - name: linux-make-crown-editor-release64
-      run: |
-        make MAKE_JOBS=4 crown-editor-linux-release64
-    - name: linux-test-crown-editor-release64
-      run: |
-        cd ./build/linux64/bin && ./crown-editor-release --run-unit-tests
     - name: linux-make-crown-launcher-debug64
       run: |
         make MAKE_JOBS=4 crown-launcher-linux-debug64
@@ -196,24 +179,6 @@ jobs:
       run: |
         export MINGW=/mingw64
         make MAKE_JOBS=4 samples SAMPLES_PLATFORM=windows
-    - name: mingw-make-crown-editor-debug64
-      shell: msys2 {0}
-      run: |
-        export MINGW=/mingw64
-        make MAKE_JOBS=4 crown-editor-mingw-debug64
-    - name: mingw-test-crown-editor-debug64
-      shell: msys2 {0}
-      run: |
-        build/mingw64/bin/crown-editor-debug.exe --run-unit-tests
-    - name: mingw-make-crown-editor-release64
-      shell: msys2 {0}
-      run: |
-        export MINGW=/mingw64
-        make MAKE_JOBS=4 crown-editor-mingw-release64
-    - name: mingw-test-crown-editor-release64
-      shell: msys2 {0}
-      run: |
-        build/mingw64/bin/crown-editor-release.exe --run-unit-tests
     - name: mingw-make-crown-launcher-debug64
       shell: msys2 {0}
       run: |
@@ -224,6 +189,79 @@ jobs:
       run: |
         export MINGW=/mingw64
         make MAKE_JOBS=4 crown-launcher-mingw-release64
+  linux-tools:
+    name: linux-tools-${{ matrix.toolkit }}
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        include:
+        - toolkit: gtk3
+          package: libgtk-3-dev
+          target_suffix: ""
+        - toolkit: gtk4
+          package: libgtk-4-dev
+          target_suffix: -gtk4
+    steps:
+    - uses: actions/checkout@v6
+    - name: prepare
+      run: |
+        sudo apt-get update
+        sudo apt-get install ${{ matrix.package }}
+        sudo add-apt-repository ppa:vala-team
+        sudo apt-get install valac sassc libxml2-utils gettext
+    - name: linux-make-crown-editor-debug64
+      run: |
+        make MAKE_JOBS=4 crown-editor-theme${{ matrix.target_suffix }}
+        make MAKE_JOBS=4 crown-editor-linux-debug64${{ matrix.target_suffix }}
+    - name: linux-test-crown-editor-debug64
+      run: |
+        cd ./build/linux64/bin && ./crown-editor-debug --run-unit-tests
+    - name: linux-make-crown-editor-release64
+      run: |
+        make MAKE_JOBS=4 crown-editor-theme${{ matrix.target_suffix }}
+        make MAKE_JOBS=4 crown-editor-linux-release64${{ matrix.target_suffix }}
+    - name: linux-test-crown-editor-release64
+      run: |
+        cd ./build/linux64/bin && ./crown-editor-release --run-unit-tests
+  mingw-tools:
+    name: mingw-tools-${{ matrix.toolkit }}
+    runs-on: windows-2022
+    strategy:
+      matrix:
+        include:
+        - toolkit: gtk3
+          package: mingw-w64-x86_64-gtk3
+          target_suffix: ""
+        - toolkit: gtk4
+          package: mingw-w64-x86_64-gtk4
+          target_suffix: -gtk4
+    steps:
+    - uses: actions/checkout@v6
+    - uses: msys2/setup-msys2@v2
+    - name: prepare
+      shell: msys2 {0}
+      run: |
+        pacman --noconfirm -S make mingw-w64-x86_64-gcc mingw-w64-x86_64-pkgconf ${{ matrix.package }} mingw-w64-x86_64-vala mingw-w64-x86_64-sassc gettext
+    - name: mingw-make-crown-editor-debug64
+      shell: msys2 {0}
+      run: |
+        export MINGW=/mingw64
+        make MAKE_JOBS=4 crown-editor-theme${{ matrix.target_suffix }}
+        make MAKE_JOBS=4 crown-editor-mingw-debug64${{ matrix.target_suffix }}
+    - name: mingw-test-crown-editor-debug64
+      shell: msys2 {0}
+      run: |
+        build/mingw64/bin/crown-editor-debug.exe --run-unit-tests
+    - name: mingw-make-crown-editor-release64
+      shell: msys2 {0}
+      run: |
+        export MINGW=/mingw64
+        make MAKE_JOBS=4 crown-editor-theme${{ matrix.target_suffix }}
+        make MAKE_JOBS=4 crown-editor-mingw-release64${{ matrix.target_suffix }}
+    - name: mingw-test-crown-editor-release64
+      shell: msys2 {0}
+      run: |
+        build/mingw64/bin/crown-editor-release.exe --run-unit-tests
   code-style:
     runs-on: ubuntu-22.04
     steps:

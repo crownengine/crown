@@ -22,7 +22,11 @@ public class LevelLayersTreeView : Gtk.Box
 	public Gtk.ListStore _list_store;
 	public Gtk.TreeModelFilter _tree_filter;
 	public Gtk.TreeView _tree_view;
+#if CROWN_GTK3
 	public Gtk.GestureMultiPress _tree_view_gesture_click;
+#else
+	public Gtk.GestureClick _tree_view_gesture_click;
+#endif
 	public Gtk.TreeSelection _tree_selection;
 	public Gtk.ScrolledWindow _scrolled_window;
 
@@ -65,18 +69,33 @@ public class LevelLayersTreeView : Gtk.Box
 		_tree_view.headers_visible = false;
 		_tree_view.model = _tree_filter;
 
+#if CROWN_GTK3
 		_tree_view_gesture_click = new Gtk.GestureMultiPress(_tree_view);
+#else
+		_tree_view_gesture_click = new Gtk.GestureClick();
+#endif
 		_tree_view_gesture_click.set_button(0);
 		_tree_view_gesture_click.pressed.connect(on_button_pressed);
+#if !CROWN_GTK3
+		_tree_view.add_controller(_tree_view_gesture_click);
+#endif
 
 		_tree_selection = _tree_view.get_selection();
 		_tree_selection.set_mode(Gtk.SelectionMode.MULTIPLE);
 
+#if CROWN_GTK3
 		_scrolled_window = new Gtk.ScrolledWindow(null, null);
 		_scrolled_window.add(_tree_view);
 
 		this.pack_start(_filter_entry, false, true, 0);
 		this.pack_start(_scrolled_window, true, true, 0);
+#else
+		_scrolled_window = new Gtk.ScrolledWindow();
+		_scrolled_window.set_child(_tree_view);
+
+		this.append(_filter_entry);
+		this.append(_scrolled_window);
+#endif
 	}
 
 	public void on_button_pressed(int n_press, double x, double y)

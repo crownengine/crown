@@ -72,7 +72,11 @@ public class NewProject : Gtk.Box
 
 		_button_create = new Gtk.Button.with_label(_("Create"));
 		_button_create.set_tooltip_text(_("Create the project."));
+#if CROWN_GTK3
 		_button_create.get_style_context().add_class("suggested-action");
+#else
+		_button_create.add_css_class("suggested-action");
+#endif
 		_button_create.clicked.connect(() => {
 				if (_entry_name.value == "") {
 					_label_message.label = _("Choose project name");
@@ -114,8 +118,14 @@ public class NewProject : Gtk.Box
 
 		_buttons_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
 		_buttons_box.spacing = 6;
+		_buttons_box.halign = Gtk.Align.END;
+#if CROWN_GTK3
 		_buttons_box.pack_end(_button_create, false, true);
 		_buttons_box.pack_end(_button_back, false, true);
+#else
+		_buttons_box.append(_button_back);
+		_buttons_box.append(_button_create);
+#endif
 
 		_grid = new Gtk.Grid();
 		_grid.hexpand = true;
@@ -137,14 +147,23 @@ public class NewProject : Gtk.Box
 		_box.margin_top = 32;
 		_box.margin_bottom = 32;
 		_box.spacing = 12;
+#if CROWN_GTK3
 		_box.pack_start(_new_project_label, false, true);
 		_box.pack_start(_grid, false, true);
 		_box.pack_start(_label_message, false, true);
-
+#else
+		_box.append(_new_project_label);
+		_box.append(_grid);
+		_box.append(_label_message);
+#endif
 		_clamp = new Clamp();
 		_clamp.set_child(_box);
 
+#if CROWN_GTK3
 		this.add(_clamp);
+#else
+		this.append(_clamp);
+#endif
 	}
 
 	public void fill_templates_list(string path)

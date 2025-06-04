@@ -39,17 +39,32 @@ public class InputVector2 : Gtk.Box
 
 		// Widgets
 		_x = new InputDouble(xyz.x, min.x, max.x, preview_decimals);
+#if CROWN_GTK3
 		_x.get_style_context().add_class("axis");
 		_x.get_style_context().add_class("x");
+#else
+		_x.add_css_class("axis");
+		_x.add_css_class("x");
+#endif
 		_y = new InputDouble(xyz.y, min.y, max.y, preview_decimals);
+#if CROWN_GTK3
 		_y.get_style_context().add_class("axis");
 		_y.get_style_context().add_class("y");
+#else
+		_y.add_css_class("axis");
+		_y.add_css_class("y");
+#endif
 
 		_x.value_changed.connect(on_value_changed);
 		_y.value_changed.connect(on_value_changed);
 
+#if CROWN_GTK3
 		this.pack_start(_x, true);
 		this.pack_start(_y, true);
+#else
+		this.append(_x);
+		this.append(_y);
+#endif
 	}
 
 	public void on_value_changed(InputField p, int undo_redo)
