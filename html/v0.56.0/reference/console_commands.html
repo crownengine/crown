@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html class="writer-html4" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Console commands &mdash; Crown 0.56.0 Manual 0.56.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" /><link rel="shortcut icon" href="../_static/org.crownengine.Crown.svg"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="copyright" title="Copyright" href="../copyright.html" />
+    <link rel="next" title="boot.config reference" href="boot_config.html" />
+    <link rel="prev" title="Reference" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html"><img src="../_static/org.crownengine.Crown.svg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                Crown 0.56.0 Manual
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installing_crown/index.html">Installing Crown</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploying/index.html">Deploying</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Console commands</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#crash">crash</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#game">game</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#help">help</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#unpause">unpause</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pause">pause</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#graph">graph</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="boot_config.html">boot.config reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="command_line.html">Command line</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../lua_api.html">Lua API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../copyright.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hackers/index.html">Hackers</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Crown 0.56.0 Manual</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">Reference</a> &raquo;</li>
+      <li>Console commands</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/reference/console_commands.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="console-commands">
+<h1>Console commands<a class="headerlink" href="#console-commands" title="Permalink to this headline">¶</a></h1>
+<p>The following are commands that can be typed in the Console tab. In order for a
+command to be interpreted as such, you must prefix it with a colon symbol when
+entering it in the command prompt:</p>
+<img alt="../_images/console_command.png" src="../_images/console_command.png" />
+<div class="section" id="crash">
+<h2>crash<a class="headerlink" href="#crash" title="Permalink to this headline">¶</a></h2>
+<p>Crash the engine for testing purposes. Accepts the following parameters:</p>
+<dl class="docutils">
+<dt><code class="docutils literal notranslate"><span class="pre">div_by_zero</span></code></dt>
+<dd>Divide a number by zero.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">unaligned</span></code></dt>
+<dd>Do an unaligned memory access.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">segfault</span></code></dt>
+<dd>Trigger a segmentation fault.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">oom</span></code></dt>
+<dd>Allocate too much memory.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">assert</span></code></dt>
+<dd>Call CE_ASSERT(false).</dd>
+</dl>
+</div>
+<div class="section" id="game">
+<h2>game<a class="headerlink" href="#game" title="Permalink to this headline">¶</a></h2>
+<p>Pause/resume the game. Accepts one of the following parameters:</p>
+<dl class="docutils">
+<dt><code class="docutils literal notranslate"><span class="pre">pause</span></code></dt>
+<dd>Pause the game.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">resume</span></code></dt>
+<dd>Resume the game.</dd>
+</dl>
+</div>
+<div class="section" id="help">
+<h2>help<a class="headerlink" href="#help" title="Permalink to this headline">¶</a></h2>
+<p>List all commands.</p>
+</div>
+<div class="section" id="unpause">
+<h2>unpause<a class="headerlink" href="#unpause" title="Permalink to this headline">¶</a></h2>
+<p>Resume the engine. Deprecated, use <a class="reference internal" href="#game"><span class="std std-ref">game</span></a> instead.</p>
+</div>
+<div class="section" id="pause">
+<h2>pause<a class="headerlink" href="#pause" title="Permalink to this headline">¶</a></h2>
+<p>Pause the engine. Deprecated, use <a class="reference internal" href="#game"><span class="std std-ref">game</span></a> instead.</p>
+</div>
+<div class="section" id="graph">
+<h2>graph<a class="headerlink" href="#graph" title="Permalink to this headline">¶</a></h2>
+<p>Plot selected profiler data over time. The &lt;field&gt; parameter must be the name
+of a profiler record that the engine provides itself or one that you recorded
+via the <a class="reference internal" href="../lua_api.html#profiler"><span class="std std-ref">Profiler</span></a> API. The command accepts the following
+parameters:</p>
+<dl class="docutils">
+<dt><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">&lt;name&gt;</span></code></dt>
+<dd>Create a new graph.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">list</span></code></dt>
+<dd>List all the graphs.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">range</span> <span class="pre">&lt;graph&gt;</span> <span class="pre">[min</span> <span class="pre">max]</span></code></dt>
+<dd>Set the range of a graph. If the range is omitted, it will be automatically
+computed.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">add</span> <span class="pre">&lt;graph&gt;</span> <span class="pre">&lt;field&gt;</span></code></dt>
+<dd>Add a field to a graph.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">remove</span> <span class="pre">&lt;graph&gt;</span> <span class="pre">&lt;field&gt;</span></code></dt>
+<dd>Remove a field from a graph.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">hide</span> <span class="pre">&lt;graph&gt;</span></code></dt>
+<dd>Hide a graph.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">show</span> <span class="pre">&lt;graph&gt;</span></code></dt>
+<dd>Show a graph.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">layout</span> <span class="pre">&lt;graph&gt;</span> <span class="pre">&lt;type&gt;</span></code></dt>
+<dd>Set the layout of a graph.
+Type can be one of: <code class="docutils literal notranslate"><span class="pre">fill</span></code>, <code class="docutils literal notranslate"><span class="pre">left</span></code>, <code class="docutils literal notranslate"><span class="pre">right</span></code>, <code class="docutils literal notranslate"><span class="pre">bottom</span></code> or <code class="docutils literal notranslate"><span class="pre">top</span></code>.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">color</span> <span class="pre">&lt;graph&gt;</span> <span class="pre">&lt;field&gt;</span> <span class="pre">&lt;color&gt;</span></code></dt>
+<dd>Set the color of a field in a graph. Color can be specified as a 3- or
+6-digits hexadecimal RGB number or can be any of: <code class="docutils literal notranslate"><span class="pre">yellow</span></code>, <code class="docutils literal notranslate"><span class="pre">red</span></code>, <code class="docutils literal notranslate"><span class="pre">green</span></code>
+or <code class="docutils literal notranslate"><span class="pre">blue</span></code>.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">samples</span> <span class="pre">&lt;graph&gt;</span> <span class="pre">&lt;samples&gt;</span></code></dt>
+<dd>Set the number of samples to show in a graph.</dd>
+</dl>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="boot_config.html" class="btn btn-neutral float-right" title="boot.config reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XNVGCMNDZH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-XNVGCMNDZH', {
+          'anonymize_ip': true,
+      });
+    </script> 
+
+</body>
+</html>
