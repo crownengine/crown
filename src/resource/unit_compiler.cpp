@@ -231,7 +231,7 @@ static s32 compile_light(Buffer &output, FlatJsonObject &obj, CompileOptions &op
 	}
 	ld.flags = 0u;
 	if (flat_json_object::has(obj, "data.cast_shadows")) {
-		bool cast_shadows = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.cast_shadows")), opts);
+		bool cast_shadows = RETURN_IF_ERROR(sjson::parse_bool(flat_json_object::get(obj, "data.cast_shadows")), opts);
 		ld.flags |= cast_shadows ? RenderableFlags::SHADOW_CASTER : 0u;
 	} else {
 		ld.flags |= RenderableFlags::SHADOW_CASTER;

@@ -9,6 +9,7 @@ Changelog
 
 **Fixes**
 
+* Compiler: fixed lights not generating shadows.
 * Tools: fixed a variety of issues with units-with-children.
 
 **New Features and Improvements**
