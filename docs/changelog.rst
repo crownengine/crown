@@ -7,6 +7,10 @@ Changelog
 0.56.0 --- 04 Jun 2025
 ----------------------
 
+**Fixes**
+
+* Tools: fixed a variety of issues with units-with-children.
+
 **New Features and Improvements**
 
 * Runtime: added cascaded shadow mapping.
