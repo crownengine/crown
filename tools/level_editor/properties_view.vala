@@ -94,11 +94,9 @@ public void node_name_enum_callback(InputField enum_property, InputEnum combo, P
 {
 	try {
 		string path = ResourceId.path(OBJECT_TYPE_MESH, (string)enum_property.union_value());
-		Hashtable mesh_resource = SJSON.load_from_path(project.absolute_path(path));
+		Mesh mesh = Mesh.load_from_path(project, path);
 
 		combo.clear();
-		Mesh mesh = Mesh();
-		mesh.decode(mesh_resource);
 		foreach (var node in mesh._nodes)
 			combo.append(node, node);
 
