@@ -132,6 +132,7 @@ namespace json
 			}
 		}
 
+		CE_ASSERT(array::size(number) != 0, "Invalid number");
 		array::push_back(number, '\0');
 
 		errno = 0;

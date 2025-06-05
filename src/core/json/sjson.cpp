@@ -262,6 +262,10 @@ namespace sjson
 			}
 		}
 
+		if (array::size(number) == 0) {
+			fatal("Invalid number");
+			return 0.0f;
+		}
 		array::push_back(number, '\0');
 
 		errno = 0;
