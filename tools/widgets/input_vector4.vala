@@ -7,22 +7,11 @@ namespace Crown
 {
 public class InputVector4 : InputField, Gtk.Box
 {
-	// Data
 	public bool _stop_emit;
-
-	// Widgets
 	public InputDouble _x;
 	public InputDouble _y;
 	public InputDouble _z;
 	public InputDouble _w;
-	public Gtk.Label _x_label;
-	public Gtk.Label _y_label;
-	public Gtk.Label _z_label;
-	public Gtk.Label _w_label;
-	public Gtk.Box _x_box;
-	public Gtk.Box _y_box;
-	public Gtk.Box _z_box;
-	public Gtk.Box _w_box;
 
 	public void set_inconsistent(bool inconsistent)
 	{
@@ -70,48 +59,27 @@ public class InputVector4 : InputField, Gtk.Box
 
 		// Widgets
 		_x = new InputDouble(xyz.x, min.x, max.x, preview_fmt);
+		_x.get_style_context().add_class("axis");
+		_x.get_style_context().add_class("x");
 		_y = new InputDouble(xyz.y, min.y, max.y, preview_fmt);
+		_y.get_style_context().add_class("axis");
+		_y.get_style_context().add_class("y");
 		_z = new InputDouble(xyz.z, min.z, max.z, preview_fmt);
+		_z.get_style_context().add_class("axis");
+		_z.get_style_context().add_class("z");
 		_w = new InputDouble(xyz.w, min.w, max.w, preview_fmt);
+		_w.get_style_context().add_class("axis");
+		_w.get_style_context().add_class("w");
 
 		_x.value_changed.connect(on_value_changed);
 		_y.value_changed.connect(on_value_changed);
 		_z.value_changed.connect(on_value_changed);
 		_w.value_changed.connect(on_value_changed);
 
-		_x_label = new Gtk.Label("X");
-		_x_label.get_style_context().add_class("axis");
-		_x_label.get_style_context().add_class("x");
-		_y_label = new Gtk.Label("Y");
-		_y_label.get_style_context().add_class("axis");
-		_y_label.get_style_context().add_class("y");
-		_z_label = new Gtk.Label("Z");
-		_z_label.get_style_context().add_class("axis");
-		_z_label.get_style_context().add_class("z");
-		_w_label = new Gtk.Label("Z");
-		_w_label.get_style_context().add_class("axis");
-		_w_label.get_style_context().add_class("w");
-
-		_x_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
-		_x_box.pack_start(_x_label, false);
-		_x_box.pack_start(_x, true);
-
-		_y_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
-		_y_box.pack_start(_y_label, false);
-		_y_box.pack_start(_y, true);
-
-		_z_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
-		_z_box.pack_start(_z_label, false);
-		_z_box.pack_start(_z, true);
-
-		_w_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
-		_w_box.pack_start(_w_label, false);
-		_w_box.pack_start(_w, true);
-
-		this.pack_start(_x_box, true);
-		this.pack_start(_y_box, true);
-		this.pack_start(_z_box, true);
-		this.pack_start(_w_box, true);
+		this.pack_start(_x, true);
+		this.pack_start(_y, true);
+		this.pack_start(_z, true);
+		this.pack_start(_w, true);
 	}
 
 	private void on_value_changed()
