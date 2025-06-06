@@ -118,7 +118,8 @@ Features
 
 * Audio
 	* 3D audio sources with position and range-based attenuation.
-	* Formats: WAV.
+	* Audio streaming.
+	* Formats: WAV and OGG.
 
 Contact
 -------
