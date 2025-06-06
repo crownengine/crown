@@ -12,6 +12,7 @@ Changelog
 * Compiler: fixed lights not generating shadows.
 * Tools: fixed a variety of issues with units-with-children.
 * Tools: fixed inability of selecting FBX nodes in the Inspector.
+* Tools: fixed misdetected clicks in the Project Browser in some circumnstances.
 
 **New Features and Improvements**
 

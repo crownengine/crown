@@ -149,8 +149,11 @@ public class ResourceChooser : Gtk.Box
 		uint button = _tree_view_gesture_click.get_current_button();
 
 		if (button == Gdk.BUTTON_PRIMARY) {
+			int bx;
+			int by;
 			Gtk.TreePath path;
-			if (_tree_view.get_path_at_pos((int)x, (int)y, out path, null, null, null)) {
+			_tree_view.convert_widget_to_bin_window_coords((int)x, (int)y, out bx, out by);
+			if (_tree_view.get_path_at_pos(bx, by, out path, null, null, null)) {
 				if (_tree_view.get_selection().path_is_selected(path)) {
 					Gtk.TreePath filter_path = _tree_sort.convert_path_to_child_path(path);
 					Gtk.TreePath child_path = _tree_filter.convert_path_to_child_path(filter_path);

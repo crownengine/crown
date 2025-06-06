@@ -228,9 +228,12 @@ public class LevelTreeView : Gtk.Box
 	private void on_button_pressed(int n_press, double x, double y)
 	{
 		if (_gesture_click.get_current_button() == Gdk.BUTTON_SECONDARY) {
+			int bx;
+			int by;
 			Gtk.TreePath path;
 			Gtk.TreeViewColumn column;
-			if (!_tree_view.get_path_at_pos((int)x, (int)y, out path, out column, null, null))
+			_tree_view.convert_widget_to_bin_window_coords((int)x, (int)y, out bx, out by);
+			if (!_tree_view.get_path_at_pos(bx, by, out path, out column, null, null))
 				return; // Clicked on empty space.
 
 			if (!_tree_selection.path_is_selected(path)) {
