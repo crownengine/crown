@@ -1228,52 +1228,50 @@ public class ProjectBrowser : Gtk.Paned
 
 	private void on_button_pressed(int n_press, double x, double y)
 	{
+		Gtk.TreePath path;
+		if (!_tree_view.get_path_at_pos((int)x, (int)y, out path, null, null, null))
+			return;
+
 		uint button = _tree_view_gesture_click.get_current_button();
 
 		if (button == Gdk.BUTTON_SECONDARY) {
-			Gtk.TreePath path;
-			if (_tree_view.get_path_at_pos((int)x, (int)y, out path, null, null, null)) {
-				Gtk.TreeIter iter;
-				_tree_view.model.get_iter(out iter, path);
+			Gtk.TreeIter iter;
+			_tree_view.model.get_iter(out iter, path);
 
-				Value type;
-				Value name;
-				_tree_view.model.get_value(iter, ProjectStore.Column.TYPE, out type);
-				_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
+			Value type;
+			Value name;
+			_tree_view.model.get_value(iter, ProjectStore.Column.TYPE, out type);
+			_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
 
-				Gtk.TreePath? filter_path = _tree_sort.convert_path_to_child_path(path);
-				Gtk.TreePath? store_path = _tree_filter.convert_path_to_child_path(filter_path);
-				GLib.Menu? menu_model;
-				if (store_path.is_descendant(_project_store.project_root_path()) || store_path.compare(_project_store.project_root_path()) == 0)
-					menu_model = project_entry_menu_create((string)type, (string)name);
-				else if (store_path.is_descendant(_project_store.favorites_root_path()))
-					menu_model = favorites_entry_menu_create((string)type, (string)name);
-				else
-					menu_model = null;
+			Gtk.TreePath? filter_path = _tree_sort.convert_path_to_child_path(path);
+			Gtk.TreePath? store_path = _tree_filter.convert_path_to_child_path(filter_path);
+			GLib.Menu? menu_model;
+			if (store_path.is_descendant(_project_store.project_root_path()) || store_path.compare(_project_store.project_root_path()) == 0)
+				menu_model = project_entry_menu_create((string)type, (string)name);
+			else if (store_path.is_descendant(_project_store.favorites_root_path()))
+				menu_model = favorites_entry_menu_create((string)type, (string)name);
+			else
+				menu_model = null;
 
-				if (menu_model != null) {
-					Gtk.Popover menu = new Gtk.Popover.from_model(_tree_view, menu_model);
-					menu.set_pointing_to({ (int)x, (int)y, 1, 1 });
-					menu.set_position(Gtk.PositionType.BOTTOM);
-					menu.popup();
-				}
+			if (menu_model != null) {
+				Gtk.Popover menu = new Gtk.Popover.from_model(_tree_view, menu_model);
+				menu.set_pointing_to({ (int)x, (int)y, 1, 1 });
+				menu.set_position(Gtk.PositionType.BOTTOM);
+				menu.popup();
 			}
 		} else if (button == Gdk.BUTTON_PRIMARY && n_press == 2) {
-			Gtk.TreePath path;
-			if (_tree_view.get_path_at_pos((int)x, (int)y, out path, null, null, null)) {
-				Gtk.TreeIter iter;
-				_tree_view.model.get_iter(out iter, path);
+			Gtk.TreeIter iter;
+			_tree_view.model.get_iter(out iter, path);
 
-				Value type;
-				_tree_view.model.get_value(iter, ProjectStore.Column.TYPE, out type);
-				if ((string)type == "<folder>")
-					return;
+			Value type;
+			_tree_view.model.get_value(iter, ProjectStore.Column.TYPE, out type);
+			if ((string)type == "<folder>")
+				return;
 
-				Value name;
-				_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
+			Value name;
+			_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
 
-				GLib.Application.get_default().activate_action("open-resource", ResourceId.path((string)type, (string)name));
-			}
+			GLib.Application.get_default().activate_action("open-resource", ResourceId.path((string)type, (string)name));
 		}
 
 		return;
