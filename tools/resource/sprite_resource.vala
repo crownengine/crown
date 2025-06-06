@@ -352,6 +352,7 @@ public class SpriteImportDialog : Gtk.Window
 
 		// Collider.
 		shape = new Gtk.Stack();
+		shape.homogeneous = false;
 		shape.notify["visible-child"].connect(() => { _preview.queue_draw(); });
 
 		cv = new PropertyGrid();
@@ -374,6 +375,7 @@ public class SpriteImportDialog : Gtk.Window
 		shape_switcher.set_stack(shape);
 
 		cv = new PropertyGrid();
+		cv.row_homogeneous = false;
 		cv.add_row("Shape Type", shape_switcher);
 		cv.add_row("Shape Data", shape);
 		sprite_set.add_property_grid(cv, "Collider");
