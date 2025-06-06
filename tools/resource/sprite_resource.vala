@@ -195,7 +195,7 @@ public class SpriteImportDialog : Gtk.Window
 		resolution = new Gtk.Label(_pixbuf.width.to_string() + " × " + _pixbuf.height.to_string());
 		resolution.halign = Gtk.Align.START;
 
-		cells = new InputVector2(Vector2(4.0, 4.0), Vector2(1.0, 1.0), Vector2(256.0, 256.0));
+		cells = new InputVector2(Vector2(1.0, 1.0), Vector2(1.0, 1.0), Vector2(256.0, 256.0));
 		cell_wh_auto = new Gtk.CheckButton();
 		cell_wh_auto.active = true;
 		cell = new InputVector2(Vector2(_pixbuf.width / cells.value.x, _pixbuf.height / cells.value.y), Vector2(1.0, 1.0), Vector2(double.MAX, double.MAX));
