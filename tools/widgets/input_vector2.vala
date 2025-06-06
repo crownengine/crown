@@ -7,16 +7,9 @@ namespace Crown
 {
 public class InputVector2 : Gtk.Box
 {
-	// Data
 	public bool _stop_emit;
-
-	// Widgets
 	public InputDouble _x;
 	public InputDouble _y;
-	public Gtk.Label _x_label;
-	public Gtk.Label _y_label;
-	public Gtk.Box _x_box;
-	public Gtk.Box _y_box;
 
 	public Vector2 value
 	{
@@ -46,28 +39,17 @@ public class InputVector2 : Gtk.Box
 
 		// Widgets
 		_x = new InputDouble(xyz.x, min.x, max.x, preview_fmt);
+		_x.get_style_context().add_class("axis");
+		_x.get_style_context().add_class("x");
 		_y = new InputDouble(xyz.y, min.y, max.y, preview_fmt);
+		_y.get_style_context().add_class("axis");
+		_y.get_style_context().add_class("y");
 
 		_x.value_changed.connect(on_value_changed);
 		_y.value_changed.connect(on_value_changed);
 
-		_x_label = new Gtk.Label("X");
-		_x_label.get_style_context().add_class("axis");
-		_x_label.get_style_context().add_class("x");
-		_y_label = new Gtk.Label("Y");
-		_y_label.get_style_context().add_class("axis");
-		_y_label.get_style_context().add_class("y");
-
-		_x_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
-		_x_box.pack_start(_x_label, false);
-		_x_box.pack_start(_x, true);
-
-		_y_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
-		_y_box.pack_start(_y_label, false);
-		_y_box.pack_start(_y, true);
-
-		this.pack_start(_x_box, true);
-		this.pack_start(_y_box, true);
+		this.pack_start(_x, true);
+		this.pack_start(_y, true);
 	}
 
 	private void on_value_changed()
