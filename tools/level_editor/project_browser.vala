@@ -381,7 +381,8 @@ public class ProjectFolderView : Gtk.Stack
 		int by;
 		Gtk.TreePath? path;
 		if (this.get_visible_child() == _icon_view_window) {
-			path = _icon_view.get_path_at_pos((int)x, (int)y);
+			_icon_view.convert_widget_to_bin_window_coords((int)x, (int)y, out bx, out by);
+			path = _icon_view.get_path_at_pos(bx, by);
 		} else if (this.get_visible_child() == _list_view_window) {
 			_list_view.convert_widget_to_bin_window_coords((int)x, (int)y, out bx, out by);
 			if (!_list_view.get_path_at_pos(bx, by, out path, null, null, null))
@@ -606,7 +607,10 @@ public class ProjectFolderView : Gtk.Stack
 
 	private bool on_icon_view_query_tooltip(int x, int y, bool keyboard_tooltip, Gtk.Tooltip tooltip)
 	{
-		Gtk.TreePath? path = _icon_view.get_path_at_pos(x, y);
+		int bx;
+		int by;
+		_icon_view.convert_widget_to_bin_window_coords((int)x, (int)y, out bx, out by);
+		Gtk.TreePath? path = _icon_view.get_path_at_pos(bx, by);
 		if (path == null)
 			return false;
 
@@ -1231,8 +1235,11 @@ public class ProjectBrowser : Gtk.Paned
 
 	private void on_button_pressed(int n_press, double x, double y)
 	{
+		int bx;
+		int by;
 		Gtk.TreePath path;
-		if (!_tree_view.get_path_at_pos((int)x, (int)y, out path, null, null, null))
+		_tree_view.convert_widget_to_bin_window_coords((int)x, (int)y, out bx, out by);
+		if (!_tree_view.get_path_at_pos(bx, by, out path, null, null, null))
 			return;
 
 		uint button = _tree_view_gesture_click.get_current_button();
