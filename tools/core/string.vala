@@ -27,4 +27,26 @@ public static string print_max_decimals(double num, int max_decimals)
 	return (dot >= 0) ? formatted.substring(0, dot) : formatted;
 }
 
+public static string camel_case(string str)
+{
+	int len = str.length;
+	GLib.StringBuilder sb = new GLib.StringBuilder.sized(len);
+	bool capitalize = true;
+
+	for (int i = 0; i < len; i++) {
+		char c = str[i];
+
+		if (c.isalnum()) {
+			sb.append_c(capitalize ? c.toupper() : c.tolower());
+			capitalize = false;
+		} else {
+			if (sb.len > 0 && sb.str[sb.len - 1] != ' ')
+				sb.append_c(' ');
+			capitalize = true;
+		}
+	}
+
+	return sb.str;
+}
+
 } /* namespace Crown */
