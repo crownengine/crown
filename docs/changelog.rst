@@ -4,8 +4,9 @@ Changelog
 0.57.0 --- DD MMM YYYY
 ----------------------
 
-0.56.0 --- 04 Jun 2025
-----------------------
+**New Features and Improvements**
+
+* Tools: improved the way numerical inputs show decimals.
 
 **Fixes**
 
@@ -13,6 +14,9 @@ Changelog
 * Tools: fixed a variety of issues with units-with-children.
 * Tools: fixed inability of selecting FBX nodes in the Inspector.
 * Tools: fixed misdetected clicks in the Project Browser in some circumnstances.
+
+0.56.0 --- 04 Jun 2025
+----------------------
 
 **New Features and Improvements**
 

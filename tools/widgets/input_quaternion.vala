@@ -57,18 +57,18 @@ public class InputQuaternion : InputField, Gtk.Box
 		}
 	}
 
-	public InputQuaternion()
+	public InputQuaternion(int preview_decimals = 2, int edit_decimals = 3)
 	{
 		Object(orientation: Gtk.Orientation.HORIZONTAL, spacing: 4);
 
 		_rotation = QUATERNION_IDENTITY;
-		_x = new InputDouble(0.0, -180.0, 180.0, "%.4g");
+		_x = new InputDouble(0.0, -180.0, 180.0, preview_decimals, edit_decimals);
 		_x.get_style_context().add_class("axis");
 		_x.get_style_context().add_class("x");
-		_y = new InputDouble(0.0, -180.0, 180.0, "%.4g");
+		_y = new InputDouble(0.0, -180.0, 180.0, preview_decimals, edit_decimals);
 		_y.get_style_context().add_class("axis");
 		_y.get_style_context().add_class("y");
-		_z = new InputDouble(0.0, -180.0, 180.0, "%.4g");
+		_z = new InputDouble(0.0, -180.0, 180.0, preview_decimals, edit_decimals);
 		_z.get_style_context().add_class("axis");
 		_z.get_style_context().add_class("z");
 

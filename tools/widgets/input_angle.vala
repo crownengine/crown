@@ -51,7 +51,7 @@ public class InputAngle : InputField, Gtk.Box
 	{
 		Object(orientation: Gtk.Orientation.HORIZONTAL, spacing: 4);
 
-		_degrees = new InputDouble(val, min, max, "%.4g");
+		_degrees = new InputDouble(val, min, max);
 		_degrees.value_changed.connect(on_value_changed);
 
 		this.pack_start(_degrees, true);

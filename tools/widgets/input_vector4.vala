@@ -50,7 +50,7 @@ public class InputVector4 : InputField, Gtk.Box
 		}
 	}
 
-	public InputVector4(Vector4 xyz, Vector4 min, Vector4 max, string preview_fmt = "%.4g")
+	public InputVector4(Vector4 xyz, Vector4 min, Vector4 max, int preview_decimals = 4)
 	{
 		Object(orientation: Gtk.Orientation.HORIZONTAL, spacing: 4);
 
@@ -58,16 +58,16 @@ public class InputVector4 : InputField, Gtk.Box
 		_stop_emit = false;
 
 		// Widgets
-		_x = new InputDouble(xyz.x, min.x, max.x, preview_fmt);
+		_x = new InputDouble(xyz.x, min.x, max.x, preview_decimals);
 		_x.get_style_context().add_class("axis");
 		_x.get_style_context().add_class("x");
-		_y = new InputDouble(xyz.y, min.y, max.y, preview_fmt);
+		_y = new InputDouble(xyz.y, min.y, max.y, preview_decimals);
 		_y.get_style_context().add_class("axis");
 		_y.get_style_context().add_class("y");
-		_z = new InputDouble(xyz.z, min.z, max.z, preview_fmt);
+		_z = new InputDouble(xyz.z, min.z, max.z, preview_decimals);
 		_z.get_style_context().add_class("axis");
 		_z.get_style_context().add_class("z");
-		_w = new InputDouble(xyz.w, min.w, max.w, preview_fmt);
+		_w = new InputDouble(xyz.w, min.w, max.w, preview_decimals);
 		_w.get_style_context().add_class("axis");
 		_w.get_style_context().add_class("w");
 
