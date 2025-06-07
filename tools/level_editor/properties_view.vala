@@ -580,13 +580,6 @@ public class UnitView : PropertyGrid
 	private Gtk.Box _components;
 	private Gtk.Popover _add_popover;
 
-	private void on_add_component_clicked(Gtk.Button button)
-	{
-		GLib.Application.get_default().activate_action("unit-add-component", new GLib.Variant.string(button.label));
-
-		_add_popover.hide();
-	}
-
 	public static GLib.Menu component_menu(string object_type)
 	{
 		GLib.Menu menu = new GLib.Menu();
@@ -621,16 +614,18 @@ public class UnitView : PropertyGrid
 			OBJECT_TYPE_ANIMATION_STATE_MACHINE
 		};
 
-		Gtk.Box add_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+		// Construct 'add components' button.
+		GLib.Menu menu_model = new GLib.Menu();
+		GLib.MenuItem mi;
+
 		for (int cc = 0; cc < components.length; ++cc) {
-			Gtk.Button mb;
-			mb = new Gtk.Button.with_label(components[cc]);
-			mb.clicked.connect(on_add_component_clicked);
-			add_box.pack_start(mb);
+			mi = new GLib.MenuItem(camel_case(components[cc]), null);
+			mi.set_action_and_target_value("app.unit-add-component"
+				, new GLib.Variant.string(components[cc])
+				);
+			menu_model.append_item(mi);
 		}
-		add_box.show_all();
-		_add_popover = new Gtk.Popover(null);
-		_add_popover.add(add_box);
+		_add_popover = new Gtk.Popover.from_model(null, menu_model);
 
 		_component_add = new Gtk.MenuButton();
 		_component_add.label = "Add Component";
