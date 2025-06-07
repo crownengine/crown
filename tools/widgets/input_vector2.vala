@@ -30,7 +30,7 @@ public class InputVector2 : Gtk.Box
 	// Signals
 	public signal void value_changed();
 
-	public InputVector2(Vector2 xyz, Vector2 min, Vector2 max, string preview_fmt = "%.4g")
+	public InputVector2(Vector2 xyz, Vector2 min, Vector2 max, int preview_decimals = 4)
 	{
 		Object(orientation: Gtk.Orientation.HORIZONTAL, spacing: 4);
 
@@ -38,10 +38,10 @@ public class InputVector2 : Gtk.Box
 		_stop_emit = false;
 
 		// Widgets
-		_x = new InputDouble(xyz.x, min.x, max.x, preview_fmt);
+		_x = new InputDouble(xyz.x, min.x, max.x, preview_decimals);
 		_x.get_style_context().add_class("axis");
 		_x.get_style_context().add_class("x");
-		_y = new InputDouble(xyz.y, min.y, max.y, preview_fmt);
+		_y = new InputDouble(xyz.y, min.y, max.y, preview_decimals);
 		_y.get_style_context().add_class("axis");
 		_y.get_style_context().add_class("y");
 

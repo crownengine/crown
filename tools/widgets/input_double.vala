@@ -5,14 +5,36 @@
 
 namespace Crown
 {
+public static string print_max_decimals(double num, int max_decimals)
+{
+	string formatted = "%.*f".printf(max_decimals, num);
+	int len = formatted.length;
+
+	if (max_decimals > 0) {
+		// Trim trailing zeroes.
+		while (len > 0 && formatted[len - 1] == '0')
+			len--;
+
+		// Remove trailing decimal point, if any.
+		if (len > 0 && formatted[len - 1] == '.')
+			len--;
+
+		return formatted.substring(0, len);
+	}
+
+	// Strip the decimal point and anything after.
+	int dot = formatted.index_of_char('.');
+	return (dot >= 0) ? formatted.substring(0, dot) : formatted;
+}
+
 public class InputDouble : InputField, Gtk.Entry
 {
 	public bool _inconsistent;
 	public double _min;
 	public double _max;
 	public double _value;
-	public string _preview_fmt;
-	public string _edit_fmt;
+	public int _preview_decimals;
+	public int _edit_decimals;
 	public Gtk.GestureMultiPress _gesture_click;
 	public Gtk.EventControllerScroll _controller_scroll;
 
@@ -56,7 +78,7 @@ public class InputDouble : InputField, Gtk.Entry
 		}
 	}
 
-	public InputDouble(double val, double min, double max, string preview_fmt = "%.6g", string edit_fmt = "%.17g")
+	public InputDouble(double val, double min, double max, int preview_decimals = 4, int edit_decimals = 5)
 	{
 		this.input_purpose = Gtk.InputPurpose.NUMBER;
 		this.set_width_chars(1);
@@ -68,8 +90,8 @@ public class InputDouble : InputField, Gtk.Entry
 		_inconsistent = false;
 		_min = min;
 		_max = max;
-		_preview_fmt = preview_fmt;
-		_edit_fmt = edit_fmt;
+		_preview_decimals = preview_decimals;
+		_edit_decimals = edit_decimals;
 
 		set_value_safe(val);
 
@@ -105,7 +127,7 @@ public class InputDouble : InputField, Gtk.Entry
 			if (_inconsistent)
 				this.text = "";
 			else
-				this.text = _edit_fmt.printf(_value);
+				this.text = print_max_decimals(_value, _edit_decimals);
 
 			GLib.Idle.add(() => {
 					this.set_position(-1);
@@ -130,7 +152,7 @@ public class InputDouble : InputField, Gtk.Entry
 		if (_inconsistent)
 			this.text = "";
 		else
-			this.text = _edit_fmt.printf(_value);
+			this.text = print_max_decimals(_value, _edit_decimals);
 
 		this.set_position(-1);
 		this.select_region(0, -1);
@@ -163,7 +185,7 @@ public class InputDouble : InputField, Gtk.Entry
 		double clamped = val.clamp(_min, _max);
 
 		// Convert to text for displaying.
-		this.text = _preview_fmt.printf(clamped);
+		this.text = print_max_decimals(clamped, _preview_decimals);
 
 		_inconsistent = false;
 
