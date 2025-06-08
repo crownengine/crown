@@ -17,19 +17,16 @@ public class TransformPropertyGrid : PropertyGrid
 			{
 				type = PropertyType.VECTOR3,
 				name = "data.position",
-				label = "Position",
 			},
 			PropertyDefinition()
 			{
 				type = PropertyType.QUATERNION,
 				name = "data.rotation",
-				label = "Rotation",
 			},
 			PropertyDefinition()
 			{
 				type = PropertyType.VECTOR3,
 				name = "data.scale",
-				label = "Scale",
 				min = VECTOR3_ZERO,
 				deffault = VECTOR3_ONE,
 			},
@@ -68,7 +65,6 @@ public class MeshRendererPropertyGrid : PropertyGrid
 			{
 				type = PropertyType.STRING,
 				name = "data.material",
-				label = "Material",
 				editor = PropertyEditorType.RESOURCE,
 				resource_type = OBJECT_TYPE_MATERIAL,
 			},
@@ -76,13 +72,11 @@ public class MeshRendererPropertyGrid : PropertyGrid
 			{
 				type = PropertyType.BOOL,
 				name = "data.visible",
-				label = "Visible",
 			},
 			PropertyDefinition()
 			{
 				type = PropertyType.BOOL,
 				name = "data.cast_shadows",
-				label = "Cast Shadows",
 			},
 		};
 
@@ -126,7 +120,6 @@ public class SpriteRendererPropertyGrid : PropertyGrid
 			{
 				type = PropertyType.STRING,
 				name = "data.material",
-				label = "Material",
 				editor = PropertyEditorType.RESOURCE,
 				resource_type = OBJECT_TYPE_MATERIAL,
 			},
@@ -134,7 +127,6 @@ public class SpriteRendererPropertyGrid : PropertyGrid
 			{
 				type = PropertyType.DOUBLE,
 				name = "data.layer",
-				label = "Layer",
 				min = 0.0,
 				max = 7.0,
 			},
@@ -142,7 +134,6 @@ public class SpriteRendererPropertyGrid : PropertyGrid
 			{
 				type = PropertyType.DOUBLE,
 				name = "data.depth",
-				label = "Depth",
 				min = 0.0,
 				max = (double)uint32.MAX,
 			},
@@ -150,7 +141,6 @@ public class SpriteRendererPropertyGrid : PropertyGrid
 			{
 				type = PropertyType.BOOL,
 				name = "data.visible",
-				label = "Visible",
 			},
 		};
 
@@ -170,7 +160,6 @@ public class LightPropertyGrid : PropertyGrid
 			{
 				type = PropertyType.STRING,
 				name = "data.type",
-				label = "Type",
 				editor = PropertyEditorType.ENUM,
 				enum_values = { "directional", "omni", "spot" },
 				enum_labels = { "Directional", "Omni", "Spot" },
@@ -179,21 +168,18 @@ public class LightPropertyGrid : PropertyGrid
 			{
 				type = PropertyType.DOUBLE,
 				name =  "data.range",
-				label =  "Range",
 				min = 0.0,
 			},
 			PropertyDefinition()
 			{
 				type = PropertyType.DOUBLE,
 				name = "data.intensity",
-				label = "Intensity",
 				min = 0.0,
 			},
 			PropertyDefinition()
 			{
 				type = PropertyType.DOUBLE,
 				name = "data.spot_angle",
-				label =  "Spot Angle",
 				editor = PropertyEditorType.ANGLE,
 				min = 0.0,
 				max = 90.0,
@@ -202,7 +188,6 @@ public class LightPropertyGrid : PropertyGrid
 			{
 				type = PropertyType.VECTOR3,
 				name =  "data.color",
-				label =  "Color",
 				editor = PropertyEditorType.COLOR,
 				min = VECTOR3_ZERO,
 				max = VECTOR3_ONE,
@@ -211,7 +196,6 @@ public class LightPropertyGrid : PropertyGrid
 			{
 				type = PropertyType.DOUBLE,
 				name = "data.shadow_bias",
-				label =  "Shadow Bias",
 				min =  0.0,
 				max =  1.0,
 				deffault = 0.0001,
@@ -220,7 +204,6 @@ public class LightPropertyGrid : PropertyGrid
 			{
 				type = PropertyType.BOOL,
 				name =  "data.cast_shadows",
-				label =  "Cast Shadows",
 				deffault = true,
 			},
 		};
@@ -241,7 +224,6 @@ public class CameraPropertyGrid : PropertyGrid
 			{
 				type = PropertyType.STRING,
 				name = "data.projection",
-				label = "Projection",
 				editor = PropertyEditorType.ENUM,
 				enum_values = { "orthographic", "perspective" },
 				enum_labels = { "Orthographic", "Perspective" },
@@ -259,14 +241,12 @@ public class CameraPropertyGrid : PropertyGrid
 			{
 				type = PropertyType.DOUBLE,
 				name = "data.near_range",
-				label = "Near Range",
 				deffault = 0.1,
 			},
 			PropertyDefinition()
 			{
 				type = PropertyType.DOUBLE,
 				name = "data.far_range",
-				label = "Far Range",
 				deffault = 1000.0,
 			},
 		};
@@ -287,7 +267,6 @@ public class ColliderPropertyGrid : PropertyGrid
 			{
 				type = PropertyType.STRING,
 				name = "data.source",
-				label = "Source",
 				editor = PropertyEditorType.ENUM,
 				enum_values = { "mesh", "inline" },
 				enum_labels = { "Mesh", "Inline" },
@@ -296,7 +275,6 @@ public class ColliderPropertyGrid : PropertyGrid
 			{
 				type = PropertyType.STRING,
 				name = "data.scene",
-				label = "Scene",
 				editor = PropertyEditorType.RESOURCE,
 				resource_type = OBJECT_TYPE_MESH,
 				enum_property = "data.source",
@@ -315,7 +293,6 @@ public class ColliderPropertyGrid : PropertyGrid
 			{
 				type = PropertyType.STRING,
 				name = "data.shape",
-				label = "Shape",
 				editor = PropertyEditorType.ENUM,
 				enum_values = { "sphere", "capsule", "box", "convex_hull", "mesh" },
 				enum_labels = { "Sphere", "Capsule", "Box", "Convex Hull", "Mesh" },
@@ -326,19 +303,16 @@ public class ColliderPropertyGrid : PropertyGrid
 			{
 				type = PropertyType.VECTOR3,
 				name = "data.collider_data.position",
-				label = "Position",
 			},
 			PropertyDefinition()
 			{
 				type = PropertyType.QUATERNION,
 				name = "data.collider_data.rotation",
-				label = "Rotation",
 			},
 			PropertyDefinition()
 			{
 				type = PropertyType.VECTOR3,
 				name = "data.collider_data.half_extents", // Box only.
-				label = "Half Extents",
 				min = VECTOR3_ZERO,
 				deffault = Vector3(0.5, 0.5, 0.5),
 			},
@@ -346,7 +320,6 @@ public class ColliderPropertyGrid : PropertyGrid
 			{
 				type = PropertyType.DOUBLE,
 				name = "data.collider_data.radius", // Sphere and capsule only.
-				label = "Radius",
 				min = 0.0,
 				deffault = 0.5,
 			},
@@ -354,7 +327,6 @@ public class ColliderPropertyGrid : PropertyGrid
 			{
 				type = PropertyType.DOUBLE,
 				name = "data.collider_data.height", // Capsule only.
-				label = "Radius",
 				min = 0.0,
 				deffault = 1.0,
 			},
@@ -388,7 +360,6 @@ public class ActorPropertyGrid : PropertyGrid
 			{
 				type = PropertyType.STRING,
 				name = "_global_physics_config",
-				label = "Physics Resource",
 				deffault = "global",
 				editor = PropertyEditorType.RESOURCE,
 				resource_type = "physics_config",
@@ -398,7 +369,6 @@ public class ActorPropertyGrid : PropertyGrid
 			{
 				type = PropertyType.STRING,
 				name = "data.class",
-				label = "Class",
 				editor = PropertyEditorType.ENUM,
 				enum_property = "_global_physics_config",
 				enum_callback = class_enum_callback
@@ -407,7 +377,6 @@ public class ActorPropertyGrid : PropertyGrid
 			{
 				type = PropertyType.STRING,
 				name = "data.collision_filter",
-				label = "Collision Filter",
 				editor = PropertyEditorType.ENUM,
 				enum_property = "_global_physics_config",
 				enum_callback = collision_filter_enum_callback
@@ -416,7 +385,6 @@ public class ActorPropertyGrid : PropertyGrid
 			{
 				type = PropertyType.STRING,
 				name = "data.material",
-				label = "Material",
 				editor = PropertyEditorType.ENUM,
 				enum_property = "_global_physics_config",
 				enum_callback = material_enum_callback
@@ -425,7 +393,6 @@ public class ActorPropertyGrid : PropertyGrid
 			{
 				type = PropertyType.DOUBLE,
 				name = "data.mass",
-				label = "Mass",
 				min = 0.0,
 				deffault = 1.0,
 			},
@@ -433,37 +400,31 @@ public class ActorPropertyGrid : PropertyGrid
 			{
 				type = PropertyType.BOOL,
 				name = "data.lock_translation_x",
-				label = "Lock Translation X",
 			},
 			PropertyDefinition()
 			{
 				type = PropertyType.BOOL,
 				name = "data.lock_translation_y",
-				label = "Lock Translation Y",
 			},
 			PropertyDefinition()
 			{
 				type = PropertyType.BOOL,
 				name = "data.lock_translation_z",
-				label = "Lock Translation Z",
 			},
 			PropertyDefinition()
 			{
 				type = PropertyType.BOOL,
 				name = "data.lock_rotation_x",
-				label = "Lock Rotation X",
 			},
 			PropertyDefinition()
 			{
 				type = PropertyType.BOOL,
 				name = "data.lock_rotation_y",
-				label = "Lock Rotation Y",
 			},
 			PropertyDefinition()
 			{
 				type = PropertyType.BOOL,
 				name = "data.lock_rotation_z",
-				label = "Lock Rotation Z",
 			},
 		};
 
@@ -661,19 +622,16 @@ public class SoundSourcePropertyGrid : PropertyGrid
 			{
 				type = PropertyType.VECTOR3,
 				name = "position",
-				label = "Position",
 			},
 			PropertyDefinition()
 			{
 				type = PropertyType.QUATERNION,
 				name = "rotation",
-				label = "Rotation",
 			},
 			PropertyDefinition()
 			{
 				type = PropertyType.STRING,
 				name = "name",
-				label = "Name",
 				editor = PropertyEditorType.RESOURCE,
 				resource_type = OBJECT_TYPE_SOUND,
 			},
@@ -681,7 +639,6 @@ public class SoundSourcePropertyGrid : PropertyGrid
 			{
 				type = PropertyType.DOUBLE,
 				name = "range",
-				label = "Range",
 				min = 0.0,
 				deffault = 10.0,
 			},
@@ -689,7 +646,6 @@ public class SoundSourcePropertyGrid : PropertyGrid
 			{
 				type = PropertyType.DOUBLE,
 				name = "volume",
-				label = "Volume",
 				min = 0.0,
 				max = 1.0,
 				deffault = 1.0,
@@ -698,13 +654,11 @@ public class SoundSourcePropertyGrid : PropertyGrid
 			{
 				type = PropertyType.BOOL,
 				name = "loop",
-				label = "Loop",
 			},
 			PropertyDefinition()
 			{
 				type = PropertyType.STRING,
 				name = "group",
-				label = "Group",
 				deffault = "music",
 			},
 		};
