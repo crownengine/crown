@@ -76,7 +76,7 @@ notebook > header tab {
 	min-height: 28px
 }
 
-.properties-view expander.inherited title label {
+.properties-view #expander2.inherited .header > label {
 	color: rgb(150, 100, 0);
 }
 
