@@ -134,25 +134,10 @@ public static void wait_async_ready_callback(Object? source_object, AsyncResult 
 	}
 }
 
-public static void child_watch_function(GLib.Pid pid, int wait_status)
+public static void monitored_process_exited(GLib.Pid pid, int wait_status)
 {
-	// When the monitored child terminates, terminate all the
-	// processes it spawned.
-	try {
-		if (GLib.Process.check_exit_status(wait_status)) {
-			int exit_status;
-#if CROWN_PLATFORM_WINDOWS
-			exit_status = wait_status;
-#else
-			exit_status = Process.exit_status(wait_status);
-#endif
-			logi("Child PID %s terminated with status %d".printf(pid.to_string(), exit_status));
-		}
-	} catch (GLib.Error e) {
-		loge(e.message);
-	}
-	GLib.Process.close_pid(pid);
-
+	// The monitord process exited.
+	// Terminate any leftover subprocesses it spawned.
 	uint wait_timer_id = 0;
 	GLib.Cancellable cancellable = new GLib.Cancellable();
 	if (subprocesses.size > 0) {
@@ -183,20 +168,27 @@ public static int launcher_main(string[] args)
 {
 	loop = new GLib.MainLoop(null, false);
 	subprocesses = new Gee.ArrayList<GLib.Subprocess?>();
-	GLib.Pid child_pid = 0;
+	GLib.Pid monitored_pid = 0;
+
+	for (int i = 0; i < args.length; ++i) {
+		if (args[i] == "--launcher") {
+			monitored_pid = int.parse(args[i + 1]);
+			break;
+		}
+	}
 
 #if CROWN_PLATFORM_LINUX
 	// Signal handlers.
 	GLib.Unix.signal_add(Posix.Signal.INT, () => {
-			if (child_pid != 0)
-				Posix.kill(child_pid, Posix.Signal.INT);
-			// Try to not terminate prior to the child.
+			if (monitored_pid != 0)
+				Posix.kill(monitored_pid, Posix.Signal.INT);
+			// Try to not terminate prior to the watched process.
 			return GLib.Source.CONTINUE;
 		});
 	GLib.Unix.signal_add(Posix.Signal.TERM, () => {
-			if (child_pid != 0)
-				Posix.kill(child_pid, Posix.Signal.TERM);
-			// Try to not terminate prior to the child.
+			if (monitored_pid != 0)
+				Posix.kill(monitored_pid, Posix.Signal.TERM);
+			// Try to not terminate prior to the watched process.
 			return GLib.Source.CONTINUE;
 		});
 #endif
@@ -210,34 +202,23 @@ public static int launcher_main(string[] args)
 		, on_name_lost
 		);
 
-	// Spawn child process with the same args plus --child.
-	try {
-		string[] child_args = args;
-		child_args += "--child";
-
-		GLib.Process.spawn_async(null
-			, child_args
-			, null
-			, GLib.SpawnFlags.DO_NOT_REAP_CHILD
-			, null
-			, out child_pid
-			);
-	} catch (GLib.SpawnError e) {
-		loge("%s".printf(e.message));
-		return 1;
+	uint event_source = 0;
+	if (monitored_pid != 0) {
+		// It is unclear whether ChildWatch is intended to work with PIDs
+		// not coming from GLib.Process.spawn*(). It seems to work fine regardless
+		// but we get a suspicious warning at exit. We might have to replace it
+		// with something else in the future:
+		//
+		// WARN launcher: ../glib/glib/gmain.c:5933: waitid(pid:988061, pidfd=8) failed: No child processes (10).
+		event_source = GLib.ChildWatch.add(monitored_pid, monitored_process_exited);
 	}
 
-	// Monitor child for termination.
-	// This requires one of GLib.Process.spawn*().
-	uint event_source = GLib.ChildWatch.add(child_pid, child_watch_function);
-
 	if (event_source <= 0) {
-		loge("Failed to create child watch");
+		loge("Failed to start monitoring PID %d".printf(monitored_pid));
 		return -1;
 	}
 
 	loop.run();
-	logi("Bye");
 	return 0;
 }
 

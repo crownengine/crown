@@ -3,6 +3,13 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+#if CROWN_PLATFORM_WINDOWS
+extern uint GetCurrentProcessId();
+extern uintptr OpenProcess(uint dwDesiredAccess, bool bInheritHandle, uint dwProcessId);
+#elif CROWN_PLATFORM_LINUX
+extern pid_t getpid();
+#endif
+
 namespace Crown
 {
 const int WINDOW_DEFAULT_WIDTH = 1280;
@@ -10,6 +17,7 @@ const int WINDOW_DEFAULT_HEIGHT = 720;
 const string CROWN_EDITOR_NAME = "Crown Editor";
 const string CROWN_EDITOR_MAIN_WINDOW_TITLE = CROWN_EDITOR_NAME + " " + CROWN_VERSION;
 const string CROWN_EDITOR_ICON_NAME = "org.crownengine.Crown";
+const string CROWN_SUBPROCESS_LAUNCHER = "org.crownengine.SubprocessLauncher";
 
 public enum Theme
 {
@@ -144,7 +152,6 @@ public enum TargetArch
 
 public class RuntimeInstance
 {
-	public SubprocessLauncher _subprocess_launcher;
 	public string _name;
 	public uint32 _process_id;
 	public uint _revision;
@@ -158,9 +165,8 @@ public class RuntimeInstance
 	public signal void disconnected_unexpected(RuntimeInstance ri);
 	public signal void message_received(RuntimeInstance ri, ConsoleClient client, uint8[] json);
 
-	public RuntimeInstance(SubprocessLauncher sl, string name)
+	public RuntimeInstance(string name)
 	{
-		_subprocess_launcher = sl;
 		_name = name;
 		_process_id = uint32.MAX;
 		_revision = 0;
@@ -527,14 +533,12 @@ public class LevelEditorApplication : Gtk.Application
 	};
 
 	// Command line options
+	private uint _launcher_watch_id;
 	private string? _source_dir = null;
 	private string _level_resource = "";
 	private User _user;
 	private Hashtable _settings;
 	private Hashtable _window_state;
-
-	// Subprocess launcher service.
-	private SubprocessLauncher _subprocess_launcher;
 
 	// Editor state
 	private double _grid_size;
@@ -652,14 +656,13 @@ public class LevelEditorApplication : Gtk.Application
 
 	private uint _save_timer_id;
 
-	public LevelEditorApplication(SubprocessLauncher subprocess_launcher)
+	public LevelEditorApplication()
 	{
 		Object(application_id: "org.crownengine.Crown"
 			, flags: GLib.ApplicationFlags.FLAGS_NONE
 			);
 
 		GLib.Environment.set_prgname(this.application_id); // FIXME: Drop after GTK4 port.
-		_subprocess_launcher = subprocess_launcher;
 	}
 
 	public Theme theme_name_to_enum(string theme)
@@ -743,7 +746,7 @@ public class LevelEditorApplication : Gtk.Application
 		_camera_frame_selected_accels = this.get_accels_for_action("app.camera-frame-selected");
 		_camera_frame_all_accels = this.get_accels_for_action("app.camera-frame-all");
 
-		_compiler = new RuntimeInstance(_subprocess_launcher, "data_compiler");
+		_compiler = new RuntimeInstance("data_compiler");
 		_compiler.message_received.connect(on_message_received);
 		_compiler.connected.connect(on_runtime_connected);
 		_compiler.disconnected.connect(on_runtime_disconnected);
@@ -763,7 +766,7 @@ public class LevelEditorApplication : Gtk.Application
 		_project.project_reset.connect(on_project_reset);
 		_project.project_loaded.connect(on_project_loaded);
 
-		_editor = new RuntimeInstance(_subprocess_launcher, "editor");
+		_editor = new RuntimeInstance("editor");
 		_editor.message_received.connect(on_message_received);
 		_editor.connected.connect(on_editor_connected);
 		_editor.disconnected.connect(on_runtime_disconnected);
@@ -775,19 +778,19 @@ public class LevelEditorApplication : Gtk.Application
 
 		set_theme_from_name(_preferences_dialog._theme_combo.value);
 
-		_resource_preview = new RuntimeInstance(_subprocess_launcher, "resource_preview");
+		_resource_preview = new RuntimeInstance("resource_preview");
 		_resource_preview.message_received.connect(on_message_received);
 		_resource_preview.connected.connect(on_runtime_connected);
 		_resource_preview.disconnected.connect(on_runtime_disconnected);
 		_resource_preview.disconnected_unexpected.connect(on_resource_preview_disconnected_unexpected);
 
-		_game = new RuntimeInstance(_subprocess_launcher, "game");
+		_game = new RuntimeInstance("game");
 		_game.message_received.connect(on_message_received);
 		_game.connected.connect(on_game_connected);
 		_game.disconnected.connect(on_game_disconnected);
 		_game.disconnected_unexpected.connect(on_game_disconnected);
 
-		_thumbnail = new RuntimeInstance(_subprocess_launcher, "thumbnail");
+		_thumbnail = new RuntimeInstance("thumbnail");
 		_thumbnail.message_received.connect(on_message_received);
 		_thumbnail.connected.connect(on_runtime_connected);
 		_thumbnail.disconnected.connect(on_runtime_disconnected);
@@ -1018,6 +1021,7 @@ public class LevelEditorApplication : Gtk.Application
 		_panel_welcome.set_visible(true); // To make Gtk.Stack work...
 
 		_main_stack = new Gtk.Stack();
+		_main_stack.add_named(new Gtk.Label("Waiting for %s...".printf(CROWN_SUBPROCESS_LAUNCHER)), "panel_waiting");
 		_main_stack.add_named(_panel_welcome, "panel_welcome");
 		_main_stack.add_named(_panel_new_project, "panel_new_project");
 		_main_stack.add_named(_main_vbox, "main_vbox");
@@ -1065,12 +1069,7 @@ public class LevelEditorApplication : Gtk.Application
 		_user.load(_user_file.get_path());
 		_console_view._entry_history.load(_console_history_file.get_path());
 
-		if (_source_dir == null) {
-			show_panel("panel_welcome");
-		} else {
-			show_panel("main_vbox");
-			restart_backend.begin(_source_dir, _level_resource);
-		}
+		show_panel("panel_waiting");
 	}
 
 	protected override void activate()
@@ -1089,6 +1088,35 @@ public class LevelEditorApplication : Gtk.Application
 		}
 
 		this.active_window.show_all();
+
+		// Register a callback to be called when SubprocessLauncher service 'appears'.
+		_launcher_watch_id = GLib.Bus.watch_name(GLib.BusType.SESSION
+			, CROWN_SUBPROCESS_LAUNCHER
+			, GLib.BusNameWatcherFlags.NONE
+			, on_subprocess_launcher_appeared
+			);
+	}
+
+	private void on_subprocess_launcher_appeared(GLib.DBusConnection connection, string name, string name_owner)
+	{
+		try {
+			GLib.Bus.unwatch_name(_launcher_watch_id);
+
+			// Connect to SubprocessLauncher service.
+			_subprocess_launcher = GLib.Bus.get_proxy_sync(GLib.BusType.SESSION
+				, CROWN_SUBPROCESS_LAUNCHER
+				, "/org/crownengine/subprocess_launcher"
+				);
+
+			if (_source_dir == null) {
+				show_panel("panel_welcome");
+			} else {
+				show_panel("main_vbox");
+				restart_backend.begin(_source_dir, _level_resource);
+			}
+		} catch (IOError e) {
+			loge(e.message);
+		}
 	}
 
 	protected override bool local_command_line(ref unowned string[] args, out int exit_status)
@@ -4552,6 +4580,8 @@ public static ConsoleView _console_view;
 public static bool _console_view_valid = false;
 public static string _log_prefix;
 
+public static SubprocessLauncher _subprocess_launcher;
+
 public static void log(string system, string severity, string message)
 {
 	GLib.DateTime now = new GLib.DateTime.now_local();
@@ -4661,15 +4691,15 @@ public static int main(string[] args)
 	// If args does not contain --child, spawn the launcher.
 	int ii;
 	for (ii = 0; ii < args.length; ++ii) {
-		if (args[ii] == "--child") {
+		if (args[ii] == "--launcher") {
 			break;
 		}
 	}
 
 	if (ii == args.length) {
-		_log_prefix = "launcher";
-	} else {
 		_log_prefix = "editor";
+	} else {
+		_log_prefix = "launcher";
 
 		// Remove --child from args for backward compatibility.
 		if (args.length > 1)
@@ -4763,22 +4793,33 @@ public static int main(string[] args)
 	if (_log_prefix == "launcher")
 		return launcher_main(args);
 
+	// Spawn launcher process.
+	try {
+		string[] child_args = args;
+		child_args += "--launcher";
+#if CROWN_PLATFORM_WINDOWS
+		child_args += ((uint64)OpenProcess(0x00100000 /* SYNCHRONIZE */, true, GetCurrentProcessId())).to_string();
+#elif CROWN_PLATFORM_LINUX
+		child_args += ((uint64)getpid()).to_string();
+#endif
+		GLib.Pid launcher_pid;
+
+		GLib.Process.spawn_async(null
+			, child_args
+			, null
+			, 0
+			, null
+			, out launcher_pid
+			);
+	} catch (GLib.SpawnError e) {
+		loge("%s".printf(e.message));
+		return 1;
+	}
+
 	_settings_file = GLib.File.new_for_path(GLib.Path.build_filename(_config_dir.get_path(), "settings.sjson"));
 	_window_state_file = GLib.File.new_for_path(GLib.Path.build_filename(_data_dir.get_path(), "window.sjson"));
 	_user_file = GLib.File.new_for_path(GLib.Path.build_filename(_data_dir.get_path(), "user.sjson"));
 	_console_history_file = GLib.File.new_for_path(GLib.Path.build_filename(_data_dir.get_path(), "console_history.txt"));
-
-	// Connect to SubprocessLauncher service.
-	SubprocessLauncher subprocess_launcher;
-	try {
-		subprocess_launcher = GLib.Bus.get_proxy_sync(GLib.BusType.SESSION
-			, "org.crownengine.SubprocessLauncher"
-			, "/org/crownengine/subprocess_launcher"
-			);
-	} catch (IOError e) {
-		loge(e.message);
-		return 1;
-	}
 
 	// Find toolchain path, more desirable paths come first.
 	ii = 0;
@@ -4821,7 +4862,8 @@ public static int main(string[] args)
 #if CROWN_PLATFORM_LINUX
 	Gdk.set_allowed_backends("x11");
 #endif
-	LevelEditorApplication app = new LevelEditorApplication(subprocess_launcher);
+
+	LevelEditorApplication app = new LevelEditorApplication();
 	return app.run(args);
 }
 
