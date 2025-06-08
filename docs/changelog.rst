@@ -8,6 +8,7 @@ Changelog
 
 * Tools: improved the way numerical inputs show decimals.
 * Tools: fixed sorting of items in the Level Tree.
+* Tools: fixed sprite depth property not being saved when modified in the Inspector.
 
 **Fixes**
 

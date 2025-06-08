@@ -141,7 +141,7 @@ public class SpriteRendererPropertyGrid : PropertyGrid
 			PropertyDefinition()
 			{
 				type = PropertyType.DOUBLE,
-				name = "data.layer",
+				name = "data.depth",
 				label = "Depth",
 				min = 0.0,
 				max = (double)uint32.MAX,
