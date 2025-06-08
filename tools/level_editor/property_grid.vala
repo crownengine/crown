@@ -135,8 +135,15 @@ public class PropertyGrid : Gtk.Grid
 			_widgets[def.name] = p;
 			_definitions[p] = def;
 
-			if (!def.hidden)
+			if (!def.hidden) {
+				if (def.label == null) {
+					int ld = def.name.last_index_of_char('.');
+					string label = ld == -1 ? def.name : def.name.substring(ld + 1);
+					def.label = camel_case(label);
+				}
+
 				add_row(def.label, p);
+			}
 		}
 	}
 
