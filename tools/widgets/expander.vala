@@ -20,6 +20,7 @@ public class Expander : Gtk.Box
 	public Expander(string? label = null)
 	{
 		Object(orientation: Gtk.Orientation.VERTICAL, spacing: 0);
+		this.name = "expander2";
 
 		_header_event_box = new Gtk.EventBox();
 
@@ -34,7 +35,7 @@ public class Expander : Gtk.Box
 
 		_header_widget = new Gtk.Label(label);
 		_header_box.pack_start(_header_widget, true, true, 0);
-
+		_header_box.get_style_context().add_class("header");
 		_header_event_box.add(_header_box);
 
 		this.pack_start(_header_event_box, false, false, 0);
