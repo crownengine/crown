@@ -7,6 +7,7 @@ Changelog
 **New Features and Improvements**
 
 * Tools: improved the way numerical inputs show decimals.
+* Tools: fixed sorting of items in the Level Tree.
 
 **Fixes**
 

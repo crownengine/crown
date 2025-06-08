@@ -63,7 +63,6 @@ public class LevelTreeView : Gtk.Box
 	private Gtk.TreeView _tree_view;
 	private Gtk.TreeSelection _tree_selection;
 	private Gtk.ScrolledWindow _scrolled_window;
-	private SortMode _sort_mode;
 	private Gtk.Box _sort_items_box;
 	private Gtk.Popover _sort_items_popover;
 	private Gtk.MenuButton _sort_items;
@@ -113,36 +112,7 @@ public class LevelTreeView : Gtk.Box
 			});
 
 		_tree_sort = new Gtk.TreeModelSort.with_model(_tree_filter);
-		_tree_sort.set_default_sort_func((model, iter_a, iter_b) => {
-				Value type_a;
-				Value type_b;
-				model.get_value(iter_a, Column.TYPE, out type_a);
-				model.get_value(iter_b, Column.TYPE, out type_b);
-				if ((int)type_a == ItemType.FOLDER || (int)type_b == ItemType.FOLDER)
-					return -1;
-
-				switch (_sort_mode) {
-				case SortMode.NAME_AZ:
-				case SortMode.NAME_ZA: {
-					Value name_a;
-					Value name_b;
-					model.get_value(iter_a, Column.NAME, out name_a);
-					model.get_value(iter_b, Column.NAME, out name_b);
-
-					int cmp = strcmp((string)name_a, (string)name_b);
-					return _sort_mode == SortMode.NAME_AZ ? cmp : -cmp;
-				}
-
-				case SortMode.TYPE_AZ:
-				case SortMode.TYPE_ZA: {
-					int cmp = (int)type_a - (int)type_b;
-					return _sort_mode == SortMode.TYPE_AZ ? cmp : -cmp;
-				}
-
-				default:
-					return 0;
-				}
-			});
+		_tree_sort.set_sort_column_id(Column.NAME, Gtk.SortType.ASCENDING);
 
 		Gtk.TreeViewColumn column = new Gtk.TreeViewColumn();
 		Gtk.CellRendererPixbuf cell_pixbuf = new Gtk.CellRendererPixbuf();
@@ -482,7 +452,15 @@ public class LevelTreeView : Gtk.Box
 	{
 		var button = new Gtk.RadioButton.with_label_from_widget(group, mode.to_label());
 		button.toggled.connect(() => {
-				_sort_mode = mode;
+				if (mode == SortMode.NAME_AZ)
+					_tree_sort.set_sort_column_id(Column.NAME, Gtk.SortType.ASCENDING);
+				else if (mode == SortMode.NAME_ZA)
+					_tree_sort.set_sort_column_id(Column.NAME, Gtk.SortType.DESCENDING);
+				else if (mode == SortMode.TYPE_AZ)
+					_tree_sort.set_sort_column_id(Column.TYPE, Gtk.SortType.ASCENDING);
+				else if (mode == SortMode.TYPE_ZA)
+					_tree_sort.set_sort_column_id(Column.TYPE, Gtk.SortType.DESCENDING);
+
 				_tree_filter.refilter();
 				_sort_items_popover.popdown();
 			});
