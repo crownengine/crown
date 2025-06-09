@@ -800,6 +800,8 @@ public class LevelEditorApplication : Gtk.Application
 		_database.restore_point_added.connect(on_restore_point_added);
 		_database.undo_redo.connect(on_undo_redo);
 
+		create_object_types(_database);
+
 		_level = new Level(_database, _editor, _project);
 
 		// Editor state
@@ -2652,9 +2654,9 @@ public class LevelEditorApplication : Gtk.Application
 			paramz = { OBJECT_TYPE_UNIT, "core/units/primitives/cylinder" };
 		else if (action.name == "primitive-plane")
 			paramz = { OBJECT_TYPE_UNIT, "core/units/primitives/plane" };
-		else if (action.name == OBJECT_TYPE_CAMERA)
+		else if (action.name == "camera")
 			paramz = { OBJECT_TYPE_UNIT, "core/units/camera" };
-		else if (action.name == OBJECT_TYPE_LIGHT)
+		else if (action.name == "light")
 			paramz = { OBJECT_TYPE_UNIT, "core/units/light" };
 		else if (action.name == "sound-source")
 			paramz = { OBJECT_TYPE_SOUND, "" };
