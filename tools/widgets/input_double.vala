@@ -119,7 +119,11 @@ public class InputDouble : InputField, Gtk.Entry
 	{
 		this.select_region(0, 0);
 		this.set_position(-1);
-		set_value_safe(string_to_double(this.text, _value));
+
+		if (this.text != print_max_decimals(_value, _edit_decimals))
+			set_value_safe(string_to_double(this.text, _value));
+		else
+			this.text = print_max_decimals(_value, _preview_decimals);
 	}
 
 	private bool on_focus_in(Gdk.EventFocus ev)
@@ -150,7 +154,10 @@ public class InputDouble : InputField, Gtk.Entry
 				this.text = INCONSISTENT_LABEL;
 			}
 		} else {
-			set_value_safe(string_to_double(this.text, _value));
+			if (this.text != print_max_decimals(_value, _edit_decimals))
+				set_value_safe(string_to_double(this.text, _value));
+			else
+				this.text = print_max_decimals(_value, _preview_decimals);
 		}
 
 		this.select_region(0, 0);
