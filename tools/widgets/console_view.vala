@@ -120,6 +120,7 @@ public class ConsoleView : Gtk.Box
 	public Gtk.Box _entry_hbox;
 	public Gtk.TextMark _scroll_mark;
 	public Gtk.TextMark _time_mark;
+	public GLib.Mutex _mutex;
 
 	public ConsoleView(Project project, Gtk.ComboBoxText combo, PreferencesDialog preferences_dialog)
 	{
@@ -414,7 +415,7 @@ public class ConsoleView : Gtk.Box
 		}
 	}
 
-	public void log(string time, string severity, string message)
+	public void do_log(string time, string severity, string message)
 	{
 		Gtk.TextBuffer buffer = _text_view.buffer;
 
@@ -584,6 +585,13 @@ public class ConsoleView : Gtk.Box
 		} while (id_index++ >= 0);
 
 		scroll_to_bottom();
+	}
+
+	public void log(string time, string severity, string message)
+	{
+		_mutex.lock();
+		do_log(time, severity, message);
+		_mutex.unlock();
 	}
 
 	private void scroll_to_bottom()
