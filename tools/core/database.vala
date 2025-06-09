@@ -13,7 +13,8 @@ public enum PropertyType
 	STRING,
 	GUID,
 	VECTOR3,
-	QUATERNION
+	QUATERNION,
+	OBJECTS_SET
 }
 
 public enum PropertyEditorType
@@ -44,6 +45,7 @@ public struct PropertyDefinition
 	public unowned EnumCallback? enum_callback;
 	public unowned ResourceCallback? resource_callback;
 	public string? resource_type;
+	public StringId64 object_type;
 
 	public bool hidden;
 }
@@ -437,7 +439,15 @@ public class Database
 		REMOVE_FROM_SET
 	}
 
+	private struct PropertiesSlice
+	{
+		int start; // Index of first property.
+		int end;   // Index of last property + 1.
+	}
+
 	// Data
+	private PropertyDefinition[] _property_definitions;
+	private Gee.HashMap<StringId64?, PropertiesSlice?> _object_definitions;
 	private Gee.HashMap<Guid?, Gee.HashMap<string, Value?>> _data;
 	private UndoRedo? _undo_redo;
 	public Project _project;
@@ -453,6 +463,8 @@ public class Database
 
 	public Database(Project project, UndoRedo? undo_redo = null)
 	{
+		_property_definitions = new PropertyDefinition[0];
+		_object_definitions = new Gee.HashMap<StringId64?, PropertiesSlice?>(StringId64.hash_func, StringId64.equal_func);
 		_data = new Gee.HashMap<Guid?, Gee.HashMap<string, Value?>>(Guid.hash_func, Guid.equal_func);
 		_project = project;
 		_undo_redo = undo_redo;
@@ -1546,6 +1558,102 @@ public class Database
 				remove_from_set_internal(dir, id, key, item_id);
 			}
 		}
+	}
+
+	// Creates a new object @a type with the specified @a properties and returns its ID.
+	public StringId64 create_object_type(string type, PropertyDefinition[] properties)
+	{
+		StringId64 type_hash = StringId64(type);
+		assert(!_object_definitions.has_key(type_hash));
+
+		assert(properties.length > 0);
+		int start = _property_definitions.length;
+		_object_definitions[type_hash] = { start, start + properties.length };
+
+		foreach (PropertyDefinition def in properties) {
+			// Generate labels if missing.
+			if (def.label == null) {
+				int ld = def.name.last_index_of_char('.');
+				string label = ld == -1 ? def.name : def.name.substring(ld + 1);
+				def.label = camel_case(label);
+			}
+			if (def.enum_labels.length == 0) {
+				string[] labels = new string[def.enum_values.length];
+				for (int i = 0; i < def.enum_values.length; ++i)
+					labels[i] = camel_case(def.enum_values[i]);
+				def.enum_labels = labels;
+			}
+
+			// Assign default/min/max values.
+			switch (def.type) {
+			case PropertyType.BOOL:
+				if (def.deffault == null)
+					def.deffault = false;
+				assert(def.deffault.holds(typeof(bool)));
+				break;
+			case PropertyType.DOUBLE:
+				if (def.deffault == null)
+					def.deffault = 0.0;
+				if (def.min == null)
+					def.min = double.MIN;
+				if (def.max == null)
+					def.max = double.MAX;
+
+				assert(def.deffault.holds(typeof(double)));
+				assert(def.min.holds(typeof(double)));
+				assert(def.max.holds(typeof(double)));
+				break;
+			case PropertyType.STRING:
+				if (def.deffault == null) {
+					if (def.enum_values.length > 0)
+						def.deffault = def.enum_values[0];
+					else
+						def.deffault = "";
+				}
+
+				assert(def.deffault.holds(typeof(string)));
+				break;
+			case PropertyType.GUID:
+				break;
+			case PropertyType.VECTOR3:
+				if (def.deffault == null)
+					def.deffault = VECTOR3_ZERO;
+				if (def.min == null)
+					def.min = VECTOR3_MIN;
+				if (def.max == null)
+					def.max = VECTOR3_MAX;
+
+				assert(def.deffault.holds(typeof(Vector3)));
+				assert(def.min.holds(typeof(Vector3)));
+				assert(def.max.holds(typeof(Vector3)));
+				break;
+			case PropertyType.QUATERNION:
+				if (def.deffault == null)
+					def.deffault = QUATERNION_IDENTITY;
+
+				assert(def.deffault.holds(typeof(Quaternion)));
+				break;
+				default:
+			case PropertyType.OBJECTS_SET:
+				break;
+			case PropertyType.NULL:
+				assert(false);
+				break;
+			}
+
+			_property_definitions += def;
+		}
+
+		return type_hash;
+	}
+
+	// Returns the array of properties (i.e. its definition) of the object @a type.
+	public unowned PropertyDefinition[] object_definition(StringId64 type)
+	{
+		assert(_object_definitions.has_key(type));
+
+		PropertiesSlice ps = _object_definitions[type];
+		return _property_definitions[ps.start : ps.end];
 	}
 }
 

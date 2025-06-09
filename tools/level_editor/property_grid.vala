@@ -30,6 +30,23 @@ public class PropertyGrid : Gtk.Grid
 		_definitions = new Gee.HashMap<InputField, PropertyDefinition?>();
 	}
 
+	public PropertyGrid.from_object_type(StringId64 type, Database db)
+	{
+		this.row_spacing = 4;
+		this.row_homogeneous = true;
+		this.column_spacing = 12;
+
+		// Data
+		_db = db;
+		_id = GUID_ZERO;
+		_component_id = GUID_ZERO;
+		_rows = 0;
+		_widgets = new Gee.HashMap<string, InputField>();
+		_definitions = new Gee.HashMap<InputField, PropertyDefinition?>();
+
+		add_object_type(db.object_definition(type));
+	}
+
 	public Gtk.Widget add_row(string label, Gtk.Widget w)
 	{
 		Gtk.Label l = new Gtk.Label(label);
@@ -49,58 +66,20 @@ public class PropertyGrid : Gtk.Grid
 	public void add_object_type(PropertyDefinition[] properties)
 	{
 		foreach (PropertyDefinition def in properties) {
-			// Generate labels if missing.
-			if (def.label == null) {
-				int ld = def.name.last_index_of_char('.');
-				string label = ld == -1 ? def.name : def.name.substring(ld + 1);
-				def.label = camel_case(label);
-			}
-			if (def.enum_labels.length == 0) {
-				string[] labels = new string[def.enum_values.length];
-				for (int i = 0; i < def.enum_values.length; ++i)
-					labels[i] = camel_case(def.enum_values[i]);
-				def.enum_labels = labels;
-			}
-
 			// Create input field.
 			InputField? p = null;
 
 			switch (def.type) {
 			case PropertyType.BOOL:
-				if (def.deffault == null)
-					def.deffault = false;
-
-				assert(def.deffault.holds(typeof(bool)));
-
 				p = new InputBool();
 				break;
 			case PropertyType.DOUBLE:
-				if (def.deffault == null)
-					def.deffault = 0.0;
-				if (def.min == null)
-					def.min = double.MIN;
-				if (def.max == null)
-					def.max = double.MAX;
-
-				assert(def.deffault.holds(typeof(double)));
-				assert(def.min.holds(typeof(double)));
-				assert(def.max.holds(typeof(double)));
-
 				if (def.editor == PropertyEditorType.ANGLE)
 					p = new InputAngle((double)def.deffault, (double)def.min, (double)def.max);
 				else
 					p = new InputDouble((double)def.deffault, (double)def.min, (double)def.max);
 				break;
 			case PropertyType.STRING:
-				if (def.deffault == null) {
-					if (def.enum_values.length > 0)
-						def.deffault = def.enum_values[0];
-					else
-						def.deffault = "";
-				}
-
-				assert(def.deffault.holds(typeof(string)));
-
 				if (def.editor == PropertyEditorType.ENUM)
 					p = new InputEnum((string)def.deffault, def.enum_labels, def.enum_values);
 				else if (def.editor == PropertyEditorType.RESOURCE)
@@ -112,30 +91,16 @@ public class PropertyGrid : Gtk.Grid
 				p = new InputString();
 				break;
 			case PropertyType.VECTOR3:
-				if (def.deffault == null)
-					def.deffault = VECTOR3_ZERO;
-				if (def.min == null)
-					def.min = VECTOR3_MIN;
-				if (def.max == null)
-					def.max = VECTOR3_MAX;
-
-				assert(def.deffault.holds(typeof(Vector3)));
-				assert(def.min.holds(typeof(Vector3)));
-				assert(def.max.holds(typeof(Vector3)));
-
 				if (def.editor == PropertyEditorType.COLOR)
 					p = new InputColor3();
 				else
 					p = new InputVector3((Vector3)def.deffault, (Vector3)def.min, (Vector3)def.max);
 				break;
 			case PropertyType.QUATERNION:
-				if (def.deffault == null)
-					def.deffault = QUATERNION_IDENTITY;
-
-				assert(def.deffault.holds(typeof(Quaternion)));
-
 				p = new InputQuaternion();
 				break;
+			case PropertyType.OBJECTS_SET:
+				continue;
 			default:
 			case PropertyType.NULL:
 				assert(false);
