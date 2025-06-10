@@ -162,7 +162,6 @@ public class LightPropertyGrid : PropertyGrid
 				name = "data.type",
 				editor = PropertyEditorType.ENUM,
 				enum_values = { "directional", "omni", "spot" },
-				enum_labels = { "Directional", "Omni", "Spot" },
 			},
 			PropertyDefinition()
 			{
@@ -226,7 +225,6 @@ public class CameraPropertyGrid : PropertyGrid
 				name = "data.projection",
 				editor = PropertyEditorType.ENUM,
 				enum_values = { "orthographic", "perspective" },
-				enum_labels = { "Orthographic", "Perspective" },
 			},
 			PropertyDefinition()
 			{
@@ -269,7 +267,6 @@ public class ColliderPropertyGrid : PropertyGrid
 				name = "data.source",
 				editor = PropertyEditorType.ENUM,
 				enum_values = { "mesh", "inline" },
-				enum_labels = { "Mesh", "Inline" },
 			},
 			PropertyDefinition()
 			{
@@ -295,7 +292,6 @@ public class ColliderPropertyGrid : PropertyGrid
 				name = "data.shape",
 				editor = PropertyEditorType.ENUM,
 				enum_values = { "sphere", "capsule", "box", "convex_hull", "mesh" },
-				enum_labels = { "Sphere", "Capsule", "Box", "Convex Hull", "Mesh" },
 				enum_property = "data.source",
 				enum_callback = shape_resource_callback,
 			},
