@@ -51,6 +51,20 @@ public class PropertyGrid : Gtk.Grid
 	public void add_object_type(PropertyDefinition[] properties)
 	{
 		foreach (PropertyDefinition def in properties) {
+			// Generate labels if missing.
+			if (def.label == null) {
+				int ld = def.name.last_index_of_char('.');
+				string label = ld == -1 ? def.name : def.name.substring(ld + 1);
+				def.label = camel_case(label);
+			}
+			if (def.enum_labels.length == 0) {
+				string[] labels = new string[def.enum_values.length];
+				for (int i = 0; i < def.enum_values.length; ++i)
+					labels[i] = camel_case(def.enum_values[i]);
+				def.enum_labels = labels;
+			}
+
+			// Create input field.
 			InputField? p = null;
 
 			switch (def.type) {
@@ -135,15 +149,8 @@ public class PropertyGrid : Gtk.Grid
 			_widgets[def.name] = p;
 			_definitions[p] = def;
 
-			if (!def.hidden) {
-				if (def.label == null) {
-					int ld = def.name.last_index_of_char('.');
-					string label = ld == -1 ? def.name : def.name.substring(ld + 1);
-					def.label = camel_case(label);
-				}
-
+			if (!def.hidden)
 				add_row(def.label, p);
-			}
 		}
 	}
 
