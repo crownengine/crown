@@ -798,7 +798,6 @@ public class LevelEditorApplication : Gtk.Application
 
 		_undo_redo = new UndoRedo((uint)_preferences_dialog._undo_redo_max_size.value * 1024 * 1024);
 		_database = new Database(_project, _undo_redo);
-		_database.key_changed.connect(() => { update_active_window_title(); });
 		_database.restore_point_added.connect(on_restore_point_added);
 		_database.undo_redo.connect(on_undo_redo);
 
@@ -1413,35 +1412,45 @@ public class LevelEditorApplication : Gtk.Application
 		_editor.send_script(sb.str);
 	}
 
-	private void on_objects_created(Guid?[] object_ids)
+	private void on_objects_created(Guid?[] object_ids, uint32 flags = 0)
 	{
-		StringBuilder sb = new StringBuilder();
-		_level.generate_spawn_objects(sb, object_ids);
-		if (sb.len > 0) {
-			_editor.send_script(sb.str);
-			_editor.send(DeviceApi.frame());
+		if ((flags & ActionTypeFlags.FROM_SERVER) == 0) {
+			StringBuilder sb = new StringBuilder();
+			_level.generate_spawn_objects(sb, object_ids);
+			if (sb.len > 0) {
+				_editor.send_script(sb.str);
+				_editor.send(DeviceApi.frame());
+			}
 		}
+
+		_level_treeview.on_objects_created(object_ids);
 		_level.selection_changed(_level._selection);
 	}
 
-	private void on_objects_destroyed(Guid?[] object_ids)
+	private void on_objects_destroyed(Guid?[] object_ids, uint32 flags = 0)
 	{
-		StringBuilder sb = new StringBuilder();
-		_level.generate_destroy_objects(sb, object_ids);
-		if (sb.len > 0) {
-			_editor.send_script(sb.str);
-			_editor.send(DeviceApi.frame());
-		}
+		_level_treeview.on_objects_destroyed(object_ids);
 		_level.selection_changed(_level._selection);
+
+		if ((flags & ActionTypeFlags.FROM_SERVER) == 0) {
+			StringBuilder sb = new StringBuilder();
+			_level.generate_destroy_objects(sb, object_ids);
+			if (sb.len > 0) {
+				_editor.send_script(sb.str);
+				_editor.send(DeviceApi.frame());
+			}
+		}
 	}
 
-	private void on_objects_changed(Guid?[] object_ids)
+	private void on_objects_changed(Guid?[] object_ids, uint32 flags = 0)
 	{
-		StringBuilder sb = new StringBuilder();
-		_level.generate_change_objects(sb, object_ids);
-		if (sb.len > 0) {
-			_editor.send_script(sb.str);
-			_editor.send(DeviceApi.frame());
+		if ((flags & ActionTypeFlags.FROM_SERVER) == 0) {
+			StringBuilder sb = new StringBuilder();
+			_level.generate_change_objects(sb, object_ids);
+			if (sb.len > 0) {
+				_editor.send_script(sb.str);
+				_editor.send(DeviceApi.frame());
+			}
 		}
 	}
 
@@ -1449,22 +1458,19 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		switch (id) {
 		case ActionType.CREATE_OBJECTS:
-			if ((flags & ActionTypeFlags.FROM_SERVER) == 0)
-				on_objects_created(data);
+			on_objects_created(data, flags);
 			break;
 
 		case ActionType.DESTROY_OBJECTS:
-			if ((flags & ActionTypeFlags.FROM_SERVER) == 0)
-				on_objects_destroyed(data);
+			on_objects_destroyed(data, flags);
 			break;
 
 		case ActionType.CHANGE_OBJECTS:
-			if ((flags & ActionTypeFlags.FROM_SERVER) == 0)
-				on_objects_changed(data);
+			on_objects_changed(data, flags);
 			break;
 
 		case ActionType.OBJECT_SET_EDITOR_NAME:
-			on_objects_changed(data);
+			on_objects_changed(data, flags);
 			_level.object_editor_name_changed(data[0], _level.object_editor_name(data[0]));
 			break;
 
@@ -1474,6 +1480,8 @@ public class LevelEditorApplication : Gtk.Application
 		}
 
 		_properties_view.show_or_hide_properties();
+
+		update_active_window_title();
 	}
 
 	private void on_undo_redo(bool undo, uint32 id, Guid?[] data)
@@ -2033,6 +2041,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 
 		update_active_window_title();
+		_level_treeview.set_level(_level);
 	}
 
 	private bool do_save(string path)

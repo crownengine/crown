@@ -448,7 +448,6 @@ public class Database
 	public int _distance_from_last_sync;
 
 	// Signals
-	public signal void key_changed(Guid id, string key);
 	public signal void undo_redo(bool undo, uint32 id, Guid?[] data);
 	public signal void restore_point_added(int id, Guid?[] data, uint32 flags);
 
@@ -872,7 +871,6 @@ public class Database
 		ob[key] = value;
 
 		_distance_from_last_sync += dir;
-		key_changed(id, key);
 	}
 
 	public void create_empty_set(int dir, Guid id, string key)
@@ -907,7 +905,6 @@ public class Database
 		}
 
 		_distance_from_last_sync += dir;
-		key_changed(id, key);
 	}
 
 	private void remove_from_set_internal(int dir, Guid id, string key, Guid item_id)
@@ -923,7 +920,6 @@ public class Database
 		((Gee.HashSet<Guid?>)ob[key]).remove(item_id);
 
 		_distance_from_last_sync += dir;
-		key_changed(id, key);
 	}
 
 	// Returns the type of the object @a id.
