@@ -11,7 +11,6 @@ public class TextureSettingsDialog : Gtk.Window
 	public Database _database;
 	public Database _texture_database;
 	public Guid _texture_id;
-	public ProjectStore _store;
 	public PropertyGridSet _texture_set;
 	public Gtk.ListStore _platforms_store;
 	public Gtk.TreeView _platforms;
@@ -42,13 +41,12 @@ public class TextureSettingsDialog : Gtk.Window
 		cell.set_property("text", ((TargetPlatform)platform).to_label());
 	}
 
-	public TextureSettingsDialog(Project project, ProjectStore store, Database database)
+	public TextureSettingsDialog(Project project, Database database)
 	{
 		_project = project;
 		_database = database;
 		_texture_database = new Database(project);
 		_texture_id = GUID_ZERO;
-		_store = store;
 
 		_platforms_store = new Gtk.ListStore(1
 			, typeof(TargetPlatform) // platform name

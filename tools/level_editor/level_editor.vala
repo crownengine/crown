@@ -2408,7 +2408,7 @@ public class LevelEditorApplication : Gtk.Application
 		string texture_name = param.get_string();
 
 		if (_texture_settings_dialog == null) {
-			_texture_settings_dialog = new TextureSettingsDialog(_project, _project_store, _database);
+			_texture_settings_dialog = new TextureSettingsDialog(_project, _database);
 			_texture_settings_dialog.set_transient_for(this.active_window);
 			_texture_settings_dialog.set_position(Gtk.WindowPosition.CENTER_ON_PARENT);
 			_texture_settings_dialog.delete_event.connect(_texture_settings_dialog.hide_on_delete);
