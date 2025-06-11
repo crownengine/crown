@@ -38,9 +38,9 @@ public class TransformPropertyGrid : PropertyGrid
 
 public class MeshRendererPropertyGrid : PropertyGrid
 {
-	public MeshRendererPropertyGrid(Database db, ProjectStore store)
+	public MeshRendererPropertyGrid(Database db)
 	{
-		base(db, store);
+		base(db);
 
 		PropertyDefinition[] properties =
 		{
@@ -102,9 +102,9 @@ public void node_name_enum_callback(InputField enum_property, InputEnum combo, P
 
 public class SpriteRendererPropertyGrid : PropertyGrid
 {
-	public SpriteRendererPropertyGrid(Database db, ProjectStore store)
+	public SpriteRendererPropertyGrid(Database db)
 	{
-		base(db, store);
+		base(db);
 
 		PropertyDefinition[] properties =
 		{
@@ -255,9 +255,9 @@ public class CameraPropertyGrid : PropertyGrid
 
 public class ColliderPropertyGrid : PropertyGrid
 {
-	public ColliderPropertyGrid(Database db, ProjectStore store)
+	public ColliderPropertyGrid(Database db)
 	{
-		base(db, store);
+		base(db);
 
 		PropertyDefinition[] properties =
 		{
@@ -346,9 +346,9 @@ public class ColliderPropertyGrid : PropertyGrid
 
 public class ActorPropertyGrid : PropertyGrid
 {
-	public ActorPropertyGrid(Database db, ProjectStore store)
+	public ActorPropertyGrid(Database db)
 	{
-		base(db, store);
+		base(db);
 
 		PropertyDefinition[] properties =
 		{
@@ -487,9 +487,9 @@ public class ActorPropertyGrid : PropertyGrid
 
 public class ScriptPropertyGrid : PropertyGrid
 {
-	public ScriptPropertyGrid(Database db, ProjectStore store)
+	public ScriptPropertyGrid(Database db)
 	{
-		base(db, store);
+		base(db);
 
 		PropertyDefinition[] properties =
 		{
@@ -509,9 +509,9 @@ public class ScriptPropertyGrid : PropertyGrid
 
 public class AnimationStateMachine : PropertyGrid
 {
-	public AnimationStateMachine(Database db, ProjectStore store)
+	public AnimationStateMachine(Database db)
 	{
-		base(db, store);
+		base(db);
 
 		PropertyDefinition[] properties =
 		{
@@ -549,12 +549,12 @@ public class UnitView : PropertyGrid
 		return menu;
 	}
 
-	public UnitView(Database db, ProjectStore store)
+	public UnitView(Database db)
 	{
-		base(db, store);
+		base(db);
 
 		// Widgets
-		_prefab = new InputResource(store, "unit");
+		_prefab = new InputResource("unit", db);
 		_prefab._selector.sensitive = false;
 
 		// List of component types.
@@ -608,9 +608,9 @@ public class UnitView : PropertyGrid
 
 public class SoundSourcePropertyGrid : PropertyGrid
 {
-	public SoundSourcePropertyGrid(Database db, ProjectStore store)
+	public SoundSourcePropertyGrid(Database db)
 	{
-		base(db, store);
+		base(db);
 
 		PropertyDefinition[] properties =
 		{
@@ -689,7 +689,7 @@ public class PropertiesView : Gtk.Stack
 	[CCode (has_target = false)]
 	public delegate GLib.Menu ContextMenu(string object_type);
 
-	public PropertiesView(Database db, ProjectStore store)
+	public PropertiesView(Database db)
 	{
 		// Data
 		_db = db;
@@ -710,17 +710,17 @@ public class PropertiesView : Gtk.Stack
 			;
 
 		// Unit
-		register_object_type("Unit",                    "name",                              0, new UnitView(_db, store));
-		register_object_type("Transform",               OBJECT_TYPE_TRANSFORM,               0, new TransformPropertyGrid(_db),             UnitView.component_menu);
-		register_object_type("Light",                   OBJECT_TYPE_LIGHT,                   1, new LightPropertyGrid(_db),                 UnitView.component_menu);
-		register_object_type("Camera",                  OBJECT_TYPE_CAMERA,                  2, new CameraPropertyGrid(_db),                UnitView.component_menu);
-		register_object_type("Mesh Renderer",           OBJECT_TYPE_MESH_RENDERER,           3, new MeshRendererPropertyGrid(_db, store),   UnitView.component_menu);
-		register_object_type("Sprite Renderer",         OBJECT_TYPE_SPRITE_RENDERER,         3, new SpriteRendererPropertyGrid(_db, store), UnitView.component_menu);
-		register_object_type("Collider",                OBJECT_TYPE_COLLIDER,                3, new ColliderPropertyGrid(_db, store),       UnitView.component_menu);
-		register_object_type("Actor",                   OBJECT_TYPE_ACTOR,                   3, new ActorPropertyGrid(_db, store),          UnitView.component_menu);
-		register_object_type("Script",                  OBJECT_TYPE_SCRIPT,                  3, new ScriptPropertyGrid(_db, store),         UnitView.component_menu);
-		register_object_type("Animation State Machine", OBJECT_TYPE_ANIMATION_STATE_MACHINE, 3, new AnimationStateMachine(_db, store),      UnitView.component_menu);
-		register_object_type("Sound",                   OBJECT_TYPE_SOUND_SOURCE,            0, new SoundSourcePropertyGrid(_db, store));
+		register_object_type("Unit",                    "name",                              0, new UnitView(_db));
+		register_object_type("Transform",               OBJECT_TYPE_TRANSFORM,               0, new TransformPropertyGrid(_db),      UnitView.component_menu);
+		register_object_type("Light",                   OBJECT_TYPE_LIGHT,                   1, new LightPropertyGrid(_db),          UnitView.component_menu);
+		register_object_type("Camera",                  OBJECT_TYPE_CAMERA,                  2, new CameraPropertyGrid(_db),         UnitView.component_menu);
+		register_object_type("Mesh Renderer",           OBJECT_TYPE_MESH_RENDERER,           3, new MeshRendererPropertyGrid(_db),   UnitView.component_menu);
+		register_object_type("Sprite Renderer",         OBJECT_TYPE_SPRITE_RENDERER,         3, new SpriteRendererPropertyGrid(_db), UnitView.component_menu);
+		register_object_type("Collider",                OBJECT_TYPE_COLLIDER,                3, new ColliderPropertyGrid(_db),       UnitView.component_menu);
+		register_object_type("Actor",                   OBJECT_TYPE_ACTOR,                   3, new ActorPropertyGrid(_db),          UnitView.component_menu);
+		register_object_type("Script",                  OBJECT_TYPE_SCRIPT,                  3, new ScriptPropertyGrid(_db),         UnitView.component_menu);
+		register_object_type("Animation State Machine", OBJECT_TYPE_ANIMATION_STATE_MACHINE, 3, new AnimationStateMachine(_db),      UnitView.component_menu);
+		register_object_type("Sound",                   OBJECT_TYPE_SOUND_SOURCE,            0, new SoundSourcePropertyGrid(_db));
 
 		_nothing_to_show = new Gtk.Label("Select an object to start editing");
 		_unknown_object_type = new Gtk.Label("Unknown object type");
@@ -737,7 +737,7 @@ public class PropertiesView : Gtk.Stack
 
 		this.get_style_context().add_class("properties-view");
 
-		store._project.project_reset.connect(on_project_reset);
+		db._project.project_reset.connect(on_project_reset);
 	}
 
 	private void register_object_type(string label, string object_type, int position, PropertyGrid cv, ContextMenu? context_menu = null)

@@ -141,11 +141,11 @@ public class FontImportDialog : Gtk.Window
 		argb32.write_to_png(path);
 	}
 
-	public FontImportDialog(ProjectStore store, string destination_dir, GLib.SList<string> filenames, Import import_result)
+	public FontImportDialog(Database database, string destination_dir, GLib.SList<string> filenames, Import import_result)
 	{
 		this.set_icon_name(CROWN_EDITOR_ICON_NAME);
 
-		_project = store._project;
+		_project = database._project;
 		_destination_dir = destination_dir;
 		_filenames = new GLib.SList<string>();
 		foreach (var f in filenames)
@@ -418,9 +418,9 @@ public class FontResource
 		return ImportResult.SUCCESS;
 	}
 
-	public static void import(Import import_result, ProjectStore store, string destination_dir, SList<string> filenames, Gtk.Window? parent_window)
+	public static void import(Import import_result, Database database, string destination_dir, SList<string> filenames, Gtk.Window? parent_window)
 	{
-		FontImportDialog dlg = new FontImportDialog(store, destination_dir, filenames, import_result);
+		FontImportDialog dlg = new FontImportDialog(database, destination_dir, filenames, import_result);
 		dlg.set_transient_for(parent_window);
 		dlg.set_modal(true);
 		dlg.show_all();

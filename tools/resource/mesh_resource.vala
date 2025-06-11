@@ -87,9 +87,9 @@ namespace MeshResource
 		}
 	}
 
-	public static ImportResult do_import(ProjectStore project_store, string destination_dir, SList<string> filenames)
+	public static ImportResult do_import(Database database, string destination_dir, SList<string> filenames)
 	{
-		Project project = project_store._project;
+		Project project = database._project;
 
 		foreach (unowned string filename_i in filenames) {
 			GLib.File file_src = File.new_for_path(filename_i);
@@ -171,7 +171,7 @@ namespace MeshResource
 		return ImportResult.SUCCESS;
 	}
 
-	public static void import(Import import_result, ProjectStore project_store, string destination_dir, SList<string> filenames, Gtk.Window? parent_window)
+	public static void import(Import import_result, Database database, string destination_dir, SList<string> filenames, Gtk.Window? parent_window)
 	{
 		SList<string> fbx_filenames = new SList<string>();
 		SList<string> mesh_filenames = new SList<string>();
@@ -187,9 +187,9 @@ namespace MeshResource
 
 		ImportResult res = ImportResult.SUCCESS;
 		if (mesh_filenames != null)
-			res = MeshResource.do_import(project_store, destination_dir, mesh_filenames);
+			res = MeshResource.do_import(database, destination_dir, mesh_filenames);
 		if (res == ImportResult.SUCCESS && fbx_filenames != null)
-			FBXImporter.import(import_result, project_store, destination_dir, fbx_filenames, parent_window);
+			FBXImporter.import(import_result, database, destination_dir, fbx_filenames, parent_window);
 		else
 			import_result(res);
 	}

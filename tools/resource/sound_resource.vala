@@ -27,9 +27,9 @@ public struct SoundResource
 		return _db.save(project.absolute_path(resource_name) + "." + OBJECT_TYPE_SOUND, _id);
 	}
 
-	public static void import(Import import_result, ProjectStore project_store, string destination_dir, SList<string> filenames)
+	public static void import(Import import_result, Database database, string destination_dir, SList<string> filenames)
 	{
-		Project project = project_store._project;
+		Project project = database._project;
 
 		foreach (unowned string filename_i in filenames) {
 			GLib.File file_src = File.new_for_path(filename_i);

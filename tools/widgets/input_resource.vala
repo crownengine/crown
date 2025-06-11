@@ -14,10 +14,7 @@ public class InputResource : InputField, Gtk.Box
 	public InputString _name;
 	public Gtk.Button _selector;
 	public Gtk.Button _revealer;
-	public ProjectStore _project_store;
-	public ResourceChooser _chooser;
-	public Gtk.Dialog _dialog;
-	public Gtk.EventControllerKey _dialog_controller_key;
+	public SelectResourceDialog _dialog;
 
 	public void set_inconsistent(bool inconsistent)
 	{
@@ -50,7 +47,7 @@ public class InputResource : InputField, Gtk.Box
 		}
 	}
 
-	public InputResource(ProjectStore store, string type)
+	public InputResource(string type, Database db)
 	{
 		Object(orientation: Gtk.Orientation.HORIZONTAL, spacing: 0);
 
@@ -72,64 +69,32 @@ public class InputResource : InputField, Gtk.Box
 		_selector.clicked.connect(on_selector_clicked);
 		this.pack_end(_selector, false);
 
-		_project_store = store;
-
-		_chooser = new ResourceChooser(null, _project_store);
-		_chooser.set_type_filter(type_filter);
-
-		_project_store._project.file_added.connect(on_file_added_or_changed);
-		_project_store._project.file_changed.connect(on_file_added_or_changed);
-		_project_store._project.file_removed.connect(on_file_removed);
-	}
-
-	~InputResource()
-	{
-		// Prevents a crash when the parent window gets destroyed.
-		_chooser.set_type_filter((type, name) => { return false; });
+		db._project.file_added.connect(on_file_added_or_changed);
+		db._project.file_changed.connect(on_file_added_or_changed);
+		db._project.file_removed.connect(on_file_removed);
 	}
 
 	private void on_selector_clicked()
 	{
 		if (_dialog == null) {
-			_dialog = new Gtk.Dialog.with_buttons("Select a %s".printf(_type)
-				, (Gtk.Window)this.get_toplevel()
-				, Gtk.DialogFlags.MODAL
-				, null
-				);
-			_dialog.delete_event.connect(_dialog.hide_on_delete);
-
-			_chooser.resource_selected.connect(() => {
-					_name.value = _chooser._name;
-					_dialog.hide();
-				});
-
-			_dialog_controller_key = new Gtk.EventControllerKey(_dialog);
-			_dialog_controller_key.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
-			_dialog_controller_key.key_pressed.connect((keyval) => {
-					if (keyval == Gdk.Key.Escape) {
-						_dialog.hide();
-						return Gdk.EVENT_STOP;
-					}
-
-					return Gdk.EVENT_PROPAGATE;
-				});
-			_dialog.skip_taskbar_hint = true;
-			_dialog.get_content_area().pack_start(_chooser, true, true, 0);
+			_dialog = ((LevelEditorApplication)GLib.Application.get_default()).new_select_resource_dialog(_type);
+			_dialog.resource_selected.connect(on_select_resource_dialog_resource_selected);
 		}
 
 		_dialog.show_all();
 		_dialog.present();
 	}
 
+	private void on_select_resource_dialog_resource_selected(string type, string name)
+	{
+		_name.value = name;
+		_dialog.hide();
+	}
+
 	private void on_revealer_clicked()
 	{
 		var tuple = new GLib.Variant.tuple({_type, _name.value});
 		GLib.Application.get_default().activate_action("reveal-resource", tuple);
-	}
-
-	private bool type_filter(string type, string name)
-	{
-		return _type == type;
 	}
 
 	private void on_name_value_changed()

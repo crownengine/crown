@@ -19,7 +19,7 @@ public class Project
 	public const string LEVEL_EDITOR_TEST_NAME = "_level_editor_test";
 
 	public delegate void ImporterDelegate(Import import_result
-		, ProjectStore project_store
+		, Database database
 		, string destination_dir
 		, SList<string> filenames
 		, Gtk.Window? parent_window
@@ -551,13 +551,13 @@ public class Project
 	}
 
 	public static void import_all_extensions(Import import_result
-		, ProjectStore project_store
+		, Database database
 		, string destination_dir
 		, SList<string> filenames
 		, Gtk.Window? parent_window
 		)
 	{
-		Project project = project_store._project;
+		Project project = database._project;
 
 		Gee.ArrayList<string> paths = new Gee.ArrayList<string>();
 		foreach (var item in filenames)
@@ -601,7 +601,7 @@ public class Project
 			foreach (var item in importables)
 				importables_list.append(item);
 
-			importer.delegate(import_result, project_store, destination_dir, importables_list, parent_window);
+			importer.delegate(import_result, database, destination_dir, importables_list, parent_window);
 		}
 	}
 
@@ -691,7 +691,7 @@ public class Project
 		, GLib.SList<string> filenames
 		, Import import_result
 		, ImporterDelegate? importer
-		, ProjectStore project_store
+		, Database database
 		, Gtk.Window? parent_window = null
 		)
 	{
@@ -700,7 +700,7 @@ public class Project
 			_filenames.append(s);
 
 		if (destination_dir != null) {
-			importer(import_result, project_store, this.absolute_path(destination_dir), filenames, parent_window);
+			importer(import_result, database, this.absolute_path(destination_dir), filenames, parent_window);
 		} else {
 			Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Select destination folder..."
 				, parent_window
@@ -718,7 +718,7 @@ public class Project
 
 			fcd.response.connect((response_id) => {
 					if (response_id == Gtk.ResponseType.ACCEPT)
-						importer(import_result, project_store, fcd.get_file().get_path(), _filenames, parent_window);
+						importer(import_result, database, fcd.get_file().get_path(), _filenames, parent_window);
 					fcd.destroy();
 				});
 
@@ -726,7 +726,7 @@ public class Project
 		}
 	}
 
-	public void import(string? destination_dir, Import import_result, ProjectStore project_store, Gtk.Window? parent_window = null)
+	public void import(string? destination_dir, Import import_result, Database database, Gtk.Window? parent_window = null)
 	{
 		Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Import..."
 			, parent_window
@@ -761,7 +761,7 @@ public class Project
 					if (importer == null)
 						importer = _all_extensions_importer_data.delegate;
 
-					import_filenames(destination_dir, filenames, import_result, importer, project_store, parent_window);
+					import_filenames(destination_dir, filenames, import_result, importer, database, parent_window);
 				}
 				fcd.destroy();
 			});

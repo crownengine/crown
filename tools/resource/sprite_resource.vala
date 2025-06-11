@@ -148,11 +148,11 @@ public class SpriteImportDialog : Gtk.Window
 	public Gtk.Button _cancel;
 	public Gtk.HeaderBar _header_bar;
 
-	public SpriteImportDialog(ProjectStore project_store, string destination_dir, GLib.SList<string> filenames, Import import_result)
+	public SpriteImportDialog(Database database, string destination_dir, GLib.SList<string> filenames, Import import_result)
 	{
 		this.set_icon_name(CROWN_EDITOR_ICON_NAME);
 
-		_project = project_store._project;
+		_project = database._project;
 		_destination_dir = destination_dir;
 		_filenames = new GLib.SList<string>();
 		foreach (var f in filenames)
@@ -911,9 +911,9 @@ public class SpriteResource
 		return ImportResult.SUCCESS;
 	}
 
-	public static void import(Import import_result, ProjectStore project_store, string destination_dir, SList<string> filenames, Gtk.Window? parent_window)
+	public static void import(Import import_result, Database database, string destination_dir, SList<string> filenames, Gtk.Window? parent_window)
 	{
-		SpriteImportDialog dlg = new SpriteImportDialog(project_store, destination_dir, filenames, import_result);
+		SpriteImportDialog dlg = new SpriteImportDialog(database, destination_dir, filenames, import_result);
 		dlg.set_transient_for(parent_window);
 		dlg.set_modal(true);
 		dlg.show_all();

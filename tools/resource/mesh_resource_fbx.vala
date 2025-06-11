@@ -80,7 +80,7 @@ public class FBXImportOptions
 	public InputBool import_clips;
 	public InputBool create_animations_folder;
 
-	public FBXImportOptions(ProjectStore project_store)
+	public FBXImportOptions(Database db)
 	{
 		import_units = new InputBool();
 		import_units.value = true;
@@ -105,7 +105,7 @@ public class FBXImportOptions
 		new_skeleton = new InputBool();
 		new_skeleton.value = true;
 		new_skeleton.value_changed.connect(on_new_skeleton_changed);
-		target_skeleton = new InputResource(project_store, OBJECT_TYPE_MESH_SKELETON);
+		target_skeleton = new InputResource(OBJECT_TYPE_MESH_SKELETON, db);
 		target_skeleton.sensitive = false;
 		import_clips = new InputBool();
 		import_clips.value = true;
@@ -232,9 +232,9 @@ public class FBXImportDialog : Gtk.Window
 	public Gtk.Button _cancel;
 	public Gtk.HeaderBar _header_bar;
 
-	public FBXImportDialog(ProjectStore project_store, string destination_dir, GLib.SList<string> filenames, Import import_result)
+	public FBXImportDialog(Database database, string destination_dir, GLib.SList<string> filenames, Import import_result)
 	{
-		_project = project_store._project;
+		_project = database._project;
 		_destination_dir = destination_dir;
 		_filenames = new Gee.ArrayList<string>();
 		foreach (var f in filenames)
@@ -243,7 +243,7 @@ public class FBXImportDialog : Gtk.Window
 
 		_general_set = new PropertyGridSet();
 
-		_options = new FBXImportOptions(project_store);
+		_options = new FBXImportOptions(database);
 		GLib.File file_dst;
 		string resource_path;
 		get_destination_file(out file_dst, destination_dir, File.new_for_path(_filenames[0]));
@@ -875,9 +875,9 @@ public class FBXImporter
 		return ImportResult.SUCCESS;
 	}
 
-	public static void import(Import import_result, ProjectStore project_store, string destination_dir, GLib.SList<string> filenames, Gtk.Window? parent_window)
+	public static void import(Import import_result, Database database, string destination_dir, GLib.SList<string> filenames, Gtk.Window? parent_window)
 	{
-		FBXImportDialog dialog = new FBXImportDialog(project_store, destination_dir, filenames, import_result);
+		FBXImportDialog dialog = new FBXImportDialog(database, destination_dir, filenames, import_result);
 		dialog.set_transient_for(parent_window);
 		dialog.set_modal(true);
 		dialog.show_all();

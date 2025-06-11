@@ -12,11 +12,10 @@ public class PropertyGrid : Gtk.Grid
 	public Guid _component_id;
 	public int _rows;
 
-	public ProjectStore _store;
 	public Gee.HashMap<string, InputField> _widgets;
 	public Gee.HashMap<InputField, PropertyDefinition?> _definitions;
 
-	public PropertyGrid(Database? db = null, ProjectStore? store = null)
+	public PropertyGrid(Database? db = null)
 	{
 		this.row_spacing = 4;
 		this.row_homogeneous = true;
@@ -27,7 +26,6 @@ public class PropertyGrid : Gtk.Grid
 		_id = GUID_ZERO;
 		_component_id = GUID_ZERO;
 		_rows = 0;
-		_store = store;
 		_widgets = new Gee.HashMap<string, InputField>();
 		_definitions = new Gee.HashMap<InputField, PropertyDefinition?>();
 	}
@@ -106,7 +104,7 @@ public class PropertyGrid : Gtk.Grid
 				if (def.editor == PropertyEditorType.ENUM)
 					p = new InputEnum((string)def.deffault, def.enum_labels, def.enum_values);
 				else if (def.editor == PropertyEditorType.RESOURCE)
-					p = new InputResource(_store, def.resource_type);
+					p = new InputResource(def.resource_type, _db);
 				else
 					p = new InputString();
 				break;
@@ -249,9 +247,9 @@ public class PropertyGrid : Gtk.Grid
 
 			if (other_def.enum_property == def.name) {
 				if (other_def.enum_callback != null)
-					other_def.enum_callback(p, (InputEnum)_widgets[other_def.name], _store._project);
+					other_def.enum_callback(p, (InputEnum)_widgets[other_def.name], _db._project);
 				if (other_def.resource_callback != null)
-					other_def.resource_callback(p, (InputResource)_widgets[other_def.name], _store._project);
+					other_def.resource_callback(p, (InputResource)_widgets[other_def.name], _db._project);
 			}
 		}
 
