@@ -67,6 +67,8 @@ public class LevelTreeView : Gtk.Box
 	private Gtk.Popover _sort_items_popover;
 	private Gtk.MenuButton _sort_items;
 	private Gtk.GestureMultiPress _gesture_click;
+	private Gtk.TreeRowReference _units_root;
+	private Gtk.TreeRowReference _sounds_root;
 
 	public LevelTreeView(Database db, Level level)
 	{
@@ -78,7 +80,6 @@ public class LevelTreeView : Gtk.Box
 		_level.object_editor_name_changed.connect(on_object_editor_name_changed);
 
 		_db = db;
-		_db.key_changed.connect(on_database_key_changed);
 
 		// Widgets
 		_filter_entry = new EntrySearch();
@@ -364,20 +365,15 @@ public class LevelTreeView : Gtk.Box
 			return ItemType.UNIT;
 	}
 
-	private void on_database_key_changed(Guid id, string key)
+	// Sets the level object to show.
+	public void set_level(Level level)
 	{
-		if (id != _level._id)
-			return;
+		Gtk.TreeIter iter;
 
-		if (key != "units" && key != "sounds")
-			return;
-
-		_tree_selection.changed.disconnect(on_tree_selection_changed);
 		_tree_view.model = null;
 		_tree_store.clear();
 
-		Gtk.TreeIter units_iter;
-		_tree_store.insert_with_values(out units_iter
+		_tree_store.insert_with_values(out iter
 			, null
 			, -1
 			, Column.TYPE
@@ -388,8 +384,9 @@ public class LevelTreeView : Gtk.Box
 			, "Units"
 			, -1
 			);
-		Gtk.TreeIter sounds_iter;
-		_tree_store.insert_with_values(out sounds_iter
+		_units_root = new Gtk.TreeRowReference(_tree_store, _tree_store.get_path(iter));
+
+		_tree_store.insert_with_values(out iter
 			, null
 			, -1
 			, Column.TYPE
@@ -400,45 +397,91 @@ public class LevelTreeView : Gtk.Box
 			, "Sounds"
 			, -1
 			);
-
-		Gee.HashSet<Guid?> units  = _db.get_property_set(_level._id, "units", new Gee.HashSet<Guid?>());
-		Gee.HashSet<Guid?> sounds = _db.get_property_set(_level._id, "sounds", new Gee.HashSet<Guid?>());
-
-		foreach (Guid unit_id in units) {
-			Unit u = Unit(_level._db, unit_id);
-
-			Gtk.TreeIter iter;
-			_tree_store.insert_with_values(out iter
-				, units_iter
-				, -1
-				, Column.TYPE
-				, item_type(u)
-				, Column.GUID
-				, unit_id
-				, Column.NAME
-				, _level.object_editor_name(unit_id)
-				, -1
-				);
-		}
-		foreach (Guid sound in sounds) {
-			Gtk.TreeIter iter;
-			_tree_store.insert_with_values(out iter
-				, sounds_iter
-				, -1
-				, Column.TYPE
-				, ItemType.SOUND
-				, Column.GUID
-				, sound
-				, Column.NAME
-				, _level.object_editor_name(sound)
-				, -1
-				);
-		}
+		_sounds_root = new Gtk.TreeRowReference(_tree_store, _tree_store.get_path(iter));
 
 		_tree_view.model = _tree_sort;
 		_tree_view.expand_all();
 
-		_tree_selection.changed.connect(on_tree_selection_changed);
+		_level = level;
+		on_objects_created(_db.get_property_set(_level._id, "units", new Gee.HashSet<Guid?>()).to_array());
+		on_objects_created(_db.get_property_set(_level._id, "sounds", new Gee.HashSet<Guid?>()).to_array());
+	}
+
+	public void on_objects_created(Guid?[] object_ids)
+	{
+		Gee.HashSet<Guid?> units  = _db.get_property_set(_level._id, "units", new Gee.HashSet<Guid?>());
+		Gee.HashSet<Guid?> sounds = _db.get_property_set(_level._id, "sounds", new Gee.HashSet<Guid?>());
+		Gtk.TreeIter iter;
+
+		foreach (Guid id in object_ids) {
+			if (_db.object_type(id) == OBJECT_TYPE_UNIT && units.contains(id)) {
+				Unit u = Unit(_level._db, id);
+				Gtk.TreeIter units_iter;
+
+				_tree_store.get_iter(out units_iter, _units_root.get_path());
+				_tree_store.insert_with_values(out iter
+					, units_iter
+					, -1
+					, Column.TYPE
+					, item_type(u)
+					, Column.GUID
+					, id
+					, Column.NAME
+					, _level.object_editor_name(id)
+					, -1
+					);
+			} else if (_db.object_type(id) == OBJECT_TYPE_SOUND && sounds.contains(id)) {
+				Gtk.TreeIter sounds_iter;
+
+				_tree_store.get_iter(out sounds_iter, _sounds_root.get_path());
+				_tree_store.insert_with_values(out iter
+					, sounds_iter
+					, -1
+					, Column.TYPE
+					, ItemType.SOUND
+					, Column.GUID
+					, id
+					, Column.NAME
+					, _level.object_editor_name(id)
+					, -1
+					);
+			}
+		}
+	}
+
+	public void on_objects_destroyed(Guid?[] object_ids)
+	{
+		foreach (Guid id in object_ids) {
+			Gtk.TreeIter parent_iter;
+			if (_db.object_type(id) == OBJECT_TYPE_UNIT)
+				_tree_store.get_iter(out parent_iter, _units_root.get_path());
+			else if (_db.object_type(id) == OBJECT_TYPE_SOUND)
+				_tree_store.get_iter(out parent_iter, _sounds_root.get_path());
+			else
+				continue;
+
+			remove_item(id, parent_iter);
+		}
+	}
+
+	private void remove_item(Guid id, Gtk.TreeIter parent_iter)
+	{
+		Gtk.TreeIter child;
+
+		if (_tree_store.iter_children(out child, parent_iter)) {
+			Value column_id;
+
+			while (true) {
+				_tree_store.get_value(child, Column.GUID, out column_id);
+				if (Guid.equal_func((Guid)column_id, id)) {
+					_tree_store.remove(ref child);
+					break;
+				} else {
+					if (!_tree_store.iter_next(ref child))
+						break;
+				}
+			}
+		}
 	}
 
 	private void on_filter_entry_text_changed()

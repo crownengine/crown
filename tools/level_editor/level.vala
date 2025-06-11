@@ -98,9 +98,6 @@ public class Level
 		if (!_project.path_is_within_source_dir(path))
 			_path = null;
 
-		// FIXME: hack to keep the LevelTreeView working.
-		_db.key_changed(_id, "units");
-
 		return 0;
 	}
 
