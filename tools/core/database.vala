@@ -449,8 +449,6 @@ public class Database
 
 	// Signals
 	public signal void key_changed(Guid id, string key);
-	public signal void object_created(Guid id);
-	public signal void object_destroyed(Guid id);
 	public signal void undo_redo(bool undo, uint32 id, Guid?[] data);
 	public signal void restore_point_added(int id, Guid?[] data, uint32 flags);
 
@@ -848,7 +846,6 @@ public class Database
 		_data[id] = new Gee.HashMap<string, Value?>();
 
 		_distance_from_last_sync += dir;
-		object_created(id);
 	}
 
 	private void destroy_internal(int dir, Guid id)
@@ -859,7 +856,6 @@ public class Database
 		if (_debug)
 			logi("destroy %s".printf(id.to_string()));
 
-		object_destroyed(id);
 		_distance_from_last_sync += dir;
 	}
 
@@ -963,7 +959,6 @@ public class Database
 
 		create_internal(1, id);
 		set_object_type(id, type);
-		object_created(id);
 	}
 
 	public void destroy(Guid id)
