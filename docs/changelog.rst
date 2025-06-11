@@ -7,12 +7,12 @@ Changelog
 **New Features and Improvements**
 
 * Tools: improved the way numerical inputs show decimals.
-* Tools: fixed sorting of items in the Level Tree.
-* Tools: fixed sprite depth property not being saved when modified in the Inspector.
 
 **Fixes**
 
 * Compiler: fixed lights not generating shadows.
+* Tools: fixed sorting of items in the Level Tree.
+* Tools: fixed sprite depth property not being saved when modified in the Inspector.
 * Tools: fixed a variety of issues with units-with-children.
 * Tools: fixed inability of selecting FBX nodes in the Inspector.
 * Tools: fixed misdetected clicks in the Project Browser in some circumnstances.
