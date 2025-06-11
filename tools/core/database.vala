@@ -440,7 +440,7 @@ public class Database
 	// Data
 	private Gee.HashMap<Guid?, Gee.HashMap<string, Value?>> _data;
 	private UndoRedo? _undo_redo;
-	private Project _project;
+	public Project _project;
 	// The number of changes to the database since the last successful state
 	// synchronization (load(), save() etc.). If it is less than 0, the changes
 	// came from undo(), otherwise they came from redo() or from regular calls to

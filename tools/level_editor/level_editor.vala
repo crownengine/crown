@@ -844,7 +844,7 @@ public class LevelEditorApplication : Gtk.Application
 		_project_browser = new ProjectBrowser(_project_store, _thumbnail_cache);
 		_level_treeview = new LevelTreeView(_database, _level);
 		_level_layers_treeview = new LevelLayersTreeView(_database, _level);
-		_properties_view = new PropertiesView(_database, _project_store);
+		_properties_view = new PropertiesView(_database);
 		_level.selection_changed.connect(_properties_view.on_selection_changed);
 
 		_project_stack = new Gtk.Stack();
@@ -2377,7 +2377,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		_project.import(destination_dir
 			, on_import_result
-			, _project_store
+			, _database
 			, this.active_window
 			);
 	}
@@ -4565,6 +4565,11 @@ public class LevelEditorApplication : Gtk.Application
 		catch (JsonSyntaxError e) {
 			// No-op.
 		}
+	}
+
+	public SelectResourceDialog new_select_resource_dialog(string resource_type)
+	{
+		return new SelectResourceDialog(resource_type, _project_store, this.active_window);
 	}
 }
 
