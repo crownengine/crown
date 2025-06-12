@@ -255,10 +255,14 @@ bgfx_shaders = {
 				mat4 model = u_model[0];
 		#endif
 
+				vec3 normal = decodeNormalUint(a_normal);
+				vec3 tangent = decodeNormalUint(a_tangent);
+				vec3 bitangent = decodeNormalUint(a_bitangent);
+
 				v_position = mul(model, vec4(a_position, 1.0)).xyz;
-				v_normal = normalize(mul(model, vec4(a_normal, 0.0))).xyz;
-				v_tangent = normalize(mul(model, vec4(a_tangent, 0.0))).xyz;
-				v_bitangent = normalize(mul(model, vec4(a_bitangent, 0.0))).xyz;
+				v_normal = normalize(mul(model, normal)).xyz;
+				v_tangent = normalize(mul(model, tangent)).xyz;
+				v_bitangent = normalize(mul(model, bitangent)).xyz;
 
 				mat3 tbn;
 				if (u_use_normal_map.r == 1.0)
@@ -273,7 +277,7 @@ bgfx_shaders = {
 				v_texcoord0 = (a_texcoord0 - vec2_splat(0.5))*u_uv_scale.xy + vec2_splat(0.5) + u_uv_offset.xy;
 
 		#if !defined(NO_LIGHT)
-				vec3 pos_offset = a_position + a_normal * 0.01;
+				vec3 pos_offset = a_position + normal * 0.01;
 				v_shadow0 = mul(mul(u_cascaded_lights[0], model), vec4(pos_offset, 1.0));
 				v_shadow1 = mul(mul(u_cascaded_lights[1], model), vec4(pos_offset, 1.0));
 				v_shadow2 = mul(mul(u_cascaded_lights[2], model), vec4(pos_offset, 1.0));
