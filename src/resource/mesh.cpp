@@ -109,9 +109,9 @@ namespace mesh
 	{
 		u32 stride = 0;
 		stride += 3 * sizeof(f32);
-		stride += has_normals(g) ? 3*sizeof(f32) : 0;
-		stride += has_tangents(g) ? 3*sizeof(f32) : 0;
-		stride += has_bitangents(g) ? 3*sizeof(f32) : 0;
+		stride += has_normals(g) ? sizeof(u32) : 0;
+		stride += has_tangents(g) ? sizeof(u32) : 0;
+		stride += has_bitangents(g) ? sizeof(u32) : 0;
 		stride += has_bones(g) ? 8*sizeof(f32) : 0;
 		stride += has_uvs(g) ? 2*sizeof(f32) : 0;
 		return stride;
@@ -126,13 +126,13 @@ namespace mesh
 		layout.add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float);
 
 		if (has_normals(g))
-			layout.add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float, true);
+			layout.add(bgfx::Attrib::Normal, 4, bgfx::AttribType::Uint8, true, true);
 
 		if (has_tangents(g))
-			layout.add(bgfx::Attrib::Tangent, 3, bgfx::AttribType::Float, true);
+			layout.add(bgfx::Attrib::Tangent, 4, bgfx::AttribType::Uint8, true, true);
 
 		if (has_bitangents(g))
-			layout.add(bgfx::Attrib::Bitangent, 3, bgfx::AttribType::Float, true);
+			layout.add(bgfx::Attrib::Bitangent, 4, bgfx::AttribType::Uint8, true, true);
 
 		if (has_bones(g)) {
 			layout.add(bgfx::Attrib::Indices, 4, bgfx::AttribType::Float);
@@ -144,6 +144,21 @@ namespace mesh
 
 		layout.end();
 		return layout;
+	}
+
+	static u32 to_unorm(f32 val, f32 scale)
+	{
+		return u32(fround(clamp(val, 0.0f, 1.0f) * scale));
+	}
+
+	static u32 to_uint(const Vector3 normal)
+	{
+		u32 n;
+		n  = to_unorm(normal.x * 0.5f + 0.5f, 255.0f) <<  0;
+		n |= to_unorm(normal.y * 0.5f + 0.5f, 255.0f) <<  8;
+		n |= to_unorm(normal.z * 0.5f + 0.5f, 255.0f) << 16;
+		n |= to_unorm(0.0f     * 0.5f + 0.5f, 255.0f) << 24;
+		return n;
 	}
 
 	static void generate_vertex_and_index_buffers(Geometry &g)
@@ -168,7 +183,8 @@ namespace mesh
 				v.x = g._normals[idx + 0];
 				v.y = g._normals[idx + 1];
 				v.z = g._normals[idx + 2];
-				array::push(vertex, (char *)&v, sizeof(v));
+				u32 vu = to_uint(v);
+				array::push(vertex, (char *)&vu, sizeof(vu));
 			}
 
 			if (has_tangents(g)) {
@@ -178,7 +194,8 @@ namespace mesh
 				v.x = g._tangents[idx + 0];
 				v.y = g._tangents[idx + 1];
 				v.z = g._tangents[idx + 2];
-				array::push(vertex, (char *)&v, sizeof(v));
+				u32 vu = to_uint(v);
+				array::push(vertex, (char *)&vu, sizeof(vu));
 			}
 
 			if (has_bitangents(g)) {
@@ -188,7 +205,8 @@ namespace mesh
 				v.x = g._bitangents[idx + 0];
 				v.y = g._bitangents[idx + 1];
 				v.z = g._bitangents[idx + 2];
-				array::push(vertex, (char *)&v, sizeof(v));
+				u32 vu = to_uint(v);
+				array::push(vertex, (char *)&vu, sizeof(vu));
 			}
 
 			if (has_bones(g)) {
