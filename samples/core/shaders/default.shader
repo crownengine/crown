@@ -22,12 +22,11 @@ render_states = {
 	}
 
 	blit = {
-		inherit = "default"
+		inherit = "opacity"
 		states = {
-			cull_mode = "none"
-			depth_write_enable = false;
-			depth_enable = false;
-			blend_enable = false;
+			"!defined(BLEND_ENABLED)" = {
+				blend_enable = false;
+			}
 		}
 	}
 
@@ -475,6 +474,7 @@ static_compile = [
 	{ shader = "mesh" defines = ["DIFFUSE_MAP" "SKINNING"] }
 	{ shader = "mesh" defines = ["DIFFUSE_MAP" "NO_LIGHT"] }
 	{ shader = "blit" defines = [] }
+	{ shader = "blit" defines = ["BLEND_ENABLED"] }
 	{ shader = "fallback" defines = [] }
 	{ shader = "noop" defines = [] }
 
