@@ -1,17 +1,13 @@
-include = [ "core/shaders/common.shader" ]
+include = [
+	"core/shaders/common.shader"
+	"core/shaders/default.shader"
+]
 
 render_states = {
 	selection = {
 		inherit = "default"
 		states = {
 			alpha_write_enable = false
-		}
-	}
-
-	outline = {
-		inherit = "opacity"
-		states = {
-			depth_write_enable = false
 		}
 	}
 
@@ -153,7 +149,7 @@ shaders = {
 
 	outline = {
 		bgfx_shader = "outline"
-		render_state = "outline"
+		render_state = "blit"
 	}
 
 }

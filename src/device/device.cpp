@@ -839,6 +839,14 @@ void Device::render(World &world, UnitId camera_unit)
 		} else if (id == View::OUTLINE) {
 			view_name = "outline";
 #if !CROWN_PLATFORM_EMSCRIPTEN
+			bgfx::setViewClear(id, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0xffffffff);
+			bgfx::setViewFrameBuffer(id, _pipeline->_outline_frame_buffer);
+			bgfx::setViewRect(id, 0, 0, _width, _height);
+			bgfx::touch(id);
+#endif
+		} else if (id == View::OUTLINE_BLIT) {
+			view_name = "outline_blit";
+#if !CROWN_PLATFORM_EMSCRIPTEN
 			bgfx::setViewFrameBuffer(id, _pipeline->_main_frame_buffer);
 			bgfx::setViewRect(id, 0, 0, _width, _height);
 			bgfx::touch(id);

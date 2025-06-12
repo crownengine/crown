@@ -27,6 +27,7 @@ struct View
 		WORLD_GUI,
 		SELECTION,
 		OUTLINE,
+		OUTLINE_BLIT,
 		DEBUG,
 		SCREEN_GUI,
 		GRAPH,
@@ -46,19 +47,22 @@ struct Pipeline
 {
 	ShaderManager *_shader_manager;
 
-	// Main output color/depth buffers.
+	// Main output color/depth handles.
 	bgfx::TextureHandle _main_color_texture;
 	bgfx::TextureHandle _main_depth_texture;
 	bgfx::FrameBufferHandle _main_frame_buffer;
 	bgfx::UniformHandle _main_color_texture_sampler;
 	bgfx::UniformHandle _main_depth_texture_sampler;
 
-	// Selection id/depth buffers.
+	// Selection/outline handles.
 	bgfx::TextureHandle _selection_texture;
 	bgfx::TextureHandle _selection_depth_texture;
 	bgfx::FrameBufferHandle _selection_frame_buffer;
 	bgfx::UniformHandle _selection_texture_sampler;
 	bgfx::UniformHandle _selection_depth_texture_sampler;
+	bgfx::TextureHandle _outline_color_texture;
+	bgfx::FrameBufferHandle _outline_frame_buffer;
+	bgfx::UniformHandle _outline_color_texture_sampler;
 	bgfx::UniformHandle _outline_color_uniform;
 
 	// Default sampler/texture to keep WebGL renderer running
@@ -69,6 +73,7 @@ struct Pipeline
 
 	// Default shaders.
 	ShaderData _blit_shader;
+	ShaderData _blit_blend_shader;
 	ShaderData _gui_shader;
 	ShaderData _gui_3d_shader;
 	ShaderData _debug_line_depth_enabled_shader;
