@@ -10,6 +10,7 @@ Changelog
 
 **Fixes**
 
+* Runtime: Windows: fixed reloading of resources.
 * Compiler: fixed lights not generating shadows.
 * Tools: fixed sorting of items in the Level Tree.
 * Tools: fixed sprite depth property not being saved when modified in the Inspector.

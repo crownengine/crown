@@ -56,7 +56,7 @@ struct FileDisk : public File
 #if CROWN_PLATFORM_WINDOWS
 		_file = CreateFile(path
 			, (mode == FileOpenMode::READ) ? GENERIC_READ : GENERIC_WRITE
-			, 0
+			, (mode == FileOpenMode::READ) ? FILE_SHARE_READ : 0 /* Exclusive write access. */
 			, NULL
 			, (mode == FileOpenMode::READ) ? OPEN_EXISTING : CREATE_ALWAYS
 			, FILE_ATTRIBUTE_NORMAL
