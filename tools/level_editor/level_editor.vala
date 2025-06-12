@@ -15,7 +15,6 @@ namespace Crown
 const int WINDOW_DEFAULT_WIDTH = 1280;
 const int WINDOW_DEFAULT_HEIGHT = 720;
 const string CROWN_EDITOR_NAME = "Crown Editor";
-const string CROWN_EDITOR_MAIN_WINDOW_TITLE = CROWN_EDITOR_NAME + " " + CROWN_VERSION;
 const string CROWN_EDITOR_ICON_NAME = "org.crownengine.Crown";
 const string CROWN_SUBPROCESS_LAUNCHER = "org.crownengine.SubprocessLauncher";
 
@@ -318,7 +317,7 @@ public class LevelEditorWindow : Gtk.ApplicationWindow
 		this.add_action_entries(action_entries, this);
 		this.set_titlebar(header_bar);
 
-		this.title = CROWN_EDITOR_MAIN_WINDOW_TITLE;
+		this.title = CROWN_EDITOR_NAME;
 		this.window_state_event.connect(this.on_window_state_event);
 		this.delete_event.connect(this.on_delete_event);
 
@@ -1650,7 +1649,7 @@ public class LevelEditorApplication : Gtk.Application
 		_level.reset();
 		_project.reset();
 
-		this.active_window.title = CROWN_EDITOR_MAIN_WINDOW_TITLE;
+		this.active_window.title = CROWN_EDITOR_NAME;
 	}
 
 	private async void stop_data_compiler()
@@ -2017,7 +2016,7 @@ public class LevelEditorApplication : Gtk.Application
 			title += " - ";
 		}
 
-		title += CROWN_EDITOR_MAIN_WINDOW_TITLE;
+		title += CROWN_EDITOR_NAME;
 
 		if (this.active_window.title != title)
 			this.active_window.title = title;
