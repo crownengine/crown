@@ -24,6 +24,7 @@ Changelog
 * Tools: fixed meshes nodes being reset unexpectedly when selecting the corresponding unit in the Inspector.
 * Tools: fixed some properties unnecessarily requiring multiple undo steps to be set to their previous value.
 * Tools: fixed importing non-animated FBX files in some circumnstances.
+* Runtime: fixed shading of meshes with non-uniform scaling.
 * Runtime: Windows: fixed a number of misdetected keyboard keys.
 * Runtime: Windows: fixed windows firewall popping up at startup.
 * Runtime: Linux: fixed a crash at startup due to some X11 libraries not being found.
