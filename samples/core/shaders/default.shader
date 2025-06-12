@@ -258,11 +258,12 @@ bgfx_shaders = {
 				vec3 normal = decodeNormalUint(a_normal);
 				vec3 tangent = decodeNormalUint(a_tangent);
 				vec3 bitangent = decodeNormalUint(a_bitangent);
+				mat3 normal_matrix = cofactor(model);
 
 				v_position = mul(model, vec4(a_position, 1.0)).xyz;
-				v_normal = normalize(mul(model, normal)).xyz;
-				v_tangent = normalize(mul(model, tangent)).xyz;
-				v_bitangent = normalize(mul(model, bitangent)).xyz;
+				v_normal = normalize(mul(normal_matrix, normal)).xyz;
+				v_tangent = normalize(mul(normal_matrix, tangent)).xyz;
+				v_bitangent = normalize(mul(normal_matrix, bitangent)).xyz;
 
 				mat3 tbn;
 				if (u_use_normal_map.r == 1.0)
