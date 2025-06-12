@@ -12,6 +12,7 @@ Changelog
 
 * Runtime: Windows: fixed reloading of resources.
 * Compiler: fixed lights not generating shadows.
+* Compiler: fixed excessive amount of vertex data being generated when compiling meshes.
 * Tools: fixed sorting of items in the Level Tree.
 * Tools: fixed sprite depth property not being saved when modified in the Inspector.
 * Tools: fixed a variety of issues with units-with-children.

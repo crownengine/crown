@@ -145,18 +145,19 @@ namespace mesh
 
 	static void generate_vertex_and_index_buffers(Geometry &g)
 	{
-		array::resize(g._index_buffer, array::size(g._position_indices));
+		TempAllocator512 ta;
+		Buffer vertex(ta);
 
 		u16 index = 0;
 		for (u32 i = 0; i < array::size(g._position_indices); ++i) {
-			g._index_buffer[i] = index++;
+			array::clear(vertex);
 
 			const u16 idx = g._position_indices[i] * 3;
 			Vector3 v;
 			v.x = g._positions[idx + 0];
 			v.y = g._positions[idx + 1];
 			v.z = g._positions[idx + 2];
-			array::push(g._vertex_buffer, (char *)&v, sizeof(v));
+			array::push(vertex, (char *)&v, sizeof(v));
 
 			if (has_normals(g)) {
 				const u16 idx = g._normal_indices[i] * 3;
@@ -164,7 +165,7 @@ namespace mesh
 				v.x = g._normals[idx + 0];
 				v.y = g._normals[idx + 1];
 				v.z = g._normals[idx + 2];
-				array::push(g._vertex_buffer, (char *)&v, sizeof(v));
+				array::push(vertex, (char *)&v, sizeof(v));
 			}
 
 			if (has_tangents(g)) {
@@ -174,7 +175,7 @@ namespace mesh
 				v.x = g._tangents[idx + 0];
 				v.y = g._tangents[idx + 1];
 				v.z = g._tangents[idx + 2];
-				array::push(g._vertex_buffer, (char *)&v, sizeof(v));
+				array::push(vertex, (char *)&v, sizeof(v));
 			}
 
 			if (has_bitangents(g)) {
@@ -184,7 +185,7 @@ namespace mesh
 				v.x = g._bitangents[idx + 0];
 				v.y = g._bitangents[idx + 1];
 				v.z = g._bitangents[idx + 2];
-				array::push(g._vertex_buffer, (char *)&v, sizeof(v));
+				array::push(vertex, (char *)&v, sizeof(v));
 			}
 
 			if (has_bones(g)) {
@@ -194,7 +195,7 @@ namespace mesh
 				b.y = g._bones[bidx + 1];
 				b.z = g._bones[bidx + 2];
 				b.w = g._bones[bidx + 3];
-				array::push(g._vertex_buffer, (char *)&b, sizeof(b));
+				array::push(vertex, (char *)&b, sizeof(b));
 
 				const u16 widx = g._weight_indices[i] * 4;
 				Vector4 w;
@@ -202,7 +203,7 @@ namespace mesh
 				w.y = g._weights[widx + 1];
 				w.z = g._weights[widx + 2];
 				w.w = g._weights[widx + 3];
-				array::push(g._vertex_buffer, (char *)&w, sizeof(w));
+				array::push(vertex, (char *)&w, sizeof(w));
 			}
 
 			if (has_uvs(g)) {
@@ -211,7 +212,24 @@ namespace mesh
 				Vector2 v;
 				v.x = g._uvs[idx + 0];
 				v.y = g._uvs[idx + 1];
-				array::push(g._vertex_buffer, (char *)&v, sizeof(v));
+				array::push(vertex, (char *)&v, sizeof(v));
+			}
+
+			// Insert vertex in vertex buffer if not duplicated.
+			u32 vertex_size = array::size(vertex);
+			char *vertex_data = array::begin(vertex);
+			u32 j = 0;
+			u32 n = array::size(g._vertex_buffer);
+			for (; j < n; j += vertex_size) {
+				if (memcmp(vertex_data, &g._vertex_buffer[j], vertex_size) == 0)
+					break;
+			}
+
+			if (j == n) {
+				array::push(g._vertex_buffer, vertex_data, vertex_size);
+				array::push_back(g._index_buffer, index++);
+			} else {
+				array::push_back(g._index_buffer, u16(j / vertex_size));
 			}
 		}
 	}
