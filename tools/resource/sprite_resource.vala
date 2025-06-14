@@ -748,7 +748,7 @@ public class SpriteResource
 			db.reset();
 
 			Guid sprite_id = Guid.new_guid();
-			db.create(sprite_id, "sprite");
+			db.create(sprite_id, OBJECT_TYPE_SPRITE);
 			db.set_property_double(sprite_id, "width", width);
 			db.set_property_double(sprite_id, "height", height);
 

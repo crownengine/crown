@@ -72,7 +72,7 @@ public class TextureSettingsDialog : Gtk.Window
 		_texture_path = "";
 
 		// Input grid.
-		_texture_name = new InputResource("texture", database);
+		_texture_name = new InputResource(OBJECT_TYPE_TEXTURE, database);
 		_texture_name.value_changed.connect(on_texture_resource_value_changed);
 
 		_source = new InputString();

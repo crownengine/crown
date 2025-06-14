@@ -554,7 +554,7 @@ public class UnitView : PropertyGrid
 		base(db);
 
 		// Widgets
-		_prefab = new InputResource("unit", db);
+		_prefab = new InputResource(OBJECT_TYPE_UNIT, db);
 		_prefab._selector.sensitive = false;
 
 		// List of component types.

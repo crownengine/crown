@@ -1565,7 +1565,7 @@ public class LevelEditorApplication : Gtk.Application
 		yield stop_backend();
 
 		// Reset project state.
-		_placeable_type = "unit";
+		_placeable_type = OBJECT_TYPE_UNIT;
 		_placeable_name = "core/units/primitives/cube";
 
 		// Load project and level if any.
@@ -2529,10 +2529,10 @@ public class LevelEditorApplication : Gtk.Application
 		if (resource_type == null || resource_name == null)
 			return;
 
-		if (resource_type == "level") {
+		if (resource_type == OBJECT_TYPE_LEVEL) {
 			activate_action("open-level", resource_name);
 			return;
-		} else if (resource_type == "texture") {
+		} else if (resource_type == OBJECT_TYPE_TEXTURE) {
 			activate_action("texture-settings", resource_name);
 			return;
 		}
@@ -2643,23 +2643,23 @@ public class LevelEditorApplication : Gtk.Application
 		GLib.Variant[] paramz;
 
 		if (action.name == "primitive-cube")
-			paramz = { "unit", "core/units/primitives/cube" };
+			paramz = { OBJECT_TYPE_UNIT, "core/units/primitives/cube" };
 		else if (action.name == "primitive-sphere")
-			paramz = { "unit", "core/units/primitives/sphere" };
+			paramz = { OBJECT_TYPE_UNIT, "core/units/primitives/sphere" };
 		else if (action.name == "primitive-cone")
-			paramz = { "unit", "core/units/primitives/cone" };
+			paramz = { OBJECT_TYPE_UNIT, "core/units/primitives/cone" };
 		else if (action.name == "primitive-cylinder")
-			paramz = { "unit", "core/units/primitives/cylinder" };
+			paramz = { OBJECT_TYPE_UNIT, "core/units/primitives/cylinder" };
 		else if (action.name == "primitive-plane")
-			paramz = { "unit", "core/units/primitives/plane" };
-		else if (action.name == "camera")
-			paramz = { "unit", "core/units/camera" };
-		else if (action.name == "light")
-			paramz = { "unit", "core/units/light" };
+			paramz = { OBJECT_TYPE_UNIT, "core/units/primitives/plane" };
+		else if (action.name == OBJECT_TYPE_CAMERA)
+			paramz = { OBJECT_TYPE_UNIT, "core/units/camera" };
+		else if (action.name == OBJECT_TYPE_LIGHT)
+			paramz = { OBJECT_TYPE_UNIT, "core/units/light" };
 		else if (action.name == "sound-source")
-			paramz = { "sound", "" };
+			paramz = { OBJECT_TYPE_SOUND, "" };
 		else
-			paramz = { "unit", "core/units/primitives/cube" };
+			paramz = { OBJECT_TYPE_UNIT, "core/units/primitives/cube" };
 
 		activate_action("set-placeable", new GLib.Variant.tuple(paramz));
 	}

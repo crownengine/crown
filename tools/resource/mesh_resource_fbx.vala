@@ -838,7 +838,7 @@ public class FBXImporter
 
 							// Create .mesh_animation resource.
 							Guid anim_id = Guid.new_guid();
-							db.create(anim_id, "mesh_animation");
+							db.create(anim_id, OBJECT_TYPE_MESH_ANIMATION);
 							db.set_property_string(anim_id, "source", resource_path);
 							db.set_property_string(anim_id, "target_skeleton", target_skeleton);
 							db.set_property_string(anim_id, "stack_name", (string)anim_stack.name.data);

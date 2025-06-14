@@ -8,7 +8,7 @@ namespace Crown
 // Returns true if the item should be filtered out
 private bool user_filter(string type, string name)
 {
-	return (type == "unit" || type == "sound") && !name.has_prefix("core/");
+	return (type == OBJECT_TYPE_UNIT || type == OBJECT_TYPE_SOUND) && !name.has_prefix("core/");
 }
 
 public delegate bool UserFilter(string type, string name);
