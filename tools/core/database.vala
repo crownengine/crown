@@ -671,14 +671,14 @@ public class Database
 		for (int i = 0; i < json.size; ++i) {
 			Hashtable obj;
 			string owner_type = object_type(owner_id);
-			if (owner_type == "sprite_animation")
+			if (owner_type == OBJECT_TYPE_SPRITE_ANIMATION)
 				obj = new Hashtable();
 			else
 				obj = (Hashtable)json[i];
 
 			// Decode object ID.
 			Guid obj_id;
-			if (obj.has_key("id") && owner_type != "font")
+			if (obj.has_key("id") && owner_type != OBJECT_TYPE_FONT)
 				obj_id = Guid.parse((string)obj["id"]);
 			else if (obj.has_key("_guid"))
 				obj_id = Guid.parse((string)obj["_guid"]);
@@ -698,27 +698,27 @@ public class Database
 					set_object_type(obj_id, "undefined");
 			} else if (owner_type == OBJECT_TYPE_STATE_MACHINE) {
 				if (key == "states")
-					set_object_type(obj_id, "state_machine_node");
+					set_object_type(obj_id, OBJECT_TYPE_STATE_MACHINE_NODE);
 				else if (key == "variables")
-					set_object_type(obj_id, "state_machine_variable");
+					set_object_type(obj_id, OBJECT_TYPE_STATE_MACHINE_VARIABLE);
 				else
 					set_object_type(obj_id, "undefined");
-			} else if (owner_type == "state_machine_node") {
+			} else if (owner_type == OBJECT_TYPE_STATE_MACHINE_NODE) {
 				if (key == "animations")
-					set_object_type(obj_id, "node_animation");
+					set_object_type(obj_id, OBJECT_TYPE_NODE_ANIMATION);
 				else if (key == "transitions")
-					set_object_type(obj_id, "node_transition");
+					set_object_type(obj_id, OBJECT_TYPE_NODE_TRANSITION);
 			} else if (owner_type == OBJECT_TYPE_SPRITE) {
 				if (key == "frames") {
 					set_object_type(obj_id, "sprite_frame");
 					set_property_internal(0, obj_id, "index", (double)i);
 				}
-			} else if (owner_type == "sprite_animation") {
+			} else if (owner_type == OBJECT_TYPE_SPRITE_ANIMATION) {
 				if (key == "frames") {
 					set_object_type(obj_id, "animation_frame");
 					set_property_internal(0, obj_id, "index", (double)json[i]);
 				}
-			} else if (owner_type == "font") {
+			} else if (owner_type == OBJECT_TYPE_FONT) {
 				if (key == "glyphs") {
 					set_object_type(obj_id, "font_glyph");
 					set_property_internal(0, obj_id, "cp", (double)obj["id"]);

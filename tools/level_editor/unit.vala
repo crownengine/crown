@@ -578,7 +578,7 @@ public struct Unit
 					sb.append(LevelEditorApi.spawn_empty_unit(unit_id));
 
 					Guid component_id;
-					if (unit.has_component(out component_id, "transform")) {
+					if (unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM)) {
 						string s = LevelEditorApi.add_tranform_component(unit_id
 							, component_id
 							, unit.get_component_property_vector3   (component_id, "data.position")
@@ -587,7 +587,7 @@ public struct Unit
 							);
 						sb.append(s);
 					}
-					if (unit.has_component(out component_id, "camera")) {
+					if (unit.has_component(out component_id, OBJECT_TYPE_CAMERA)) {
 						string s = LevelEditorApi.add_camera_component(unit_id
 							, component_id
 							, unit.get_component_property_string(component_id, "data.projection")
@@ -597,7 +597,7 @@ public struct Unit
 							);
 						sb.append(s);
 					}
-					if (unit.has_component(out component_id, "mesh_renderer")) {
+					if (unit.has_component(out component_id, OBJECT_TYPE_MESH_RENDERER)) {
 						string s = LevelEditorApi.add_mesh_renderer_component(unit_id
 							, component_id
 							, unit.get_component_property_string(component_id, "data.mesh_resource")
@@ -608,7 +608,7 @@ public struct Unit
 							);
 						sb.append(s);
 					}
-					if (unit.has_component(out component_id, "sprite_renderer")) {
+					if (unit.has_component(out component_id, OBJECT_TYPE_SPRITE_RENDERER)) {
 						string s = LevelEditorApi.add_sprite_renderer_component(unit_id
 							, component_id
 							, unit.get_component_property_string(component_id, "data.sprite_resource")
@@ -619,7 +619,7 @@ public struct Unit
 							);
 						sb.append(s);
 					}
-					if (unit.has_component(out component_id, "light")) {
+					if (unit.has_component(out component_id, OBJECT_TYPE_LIGHT)) {
 						string s = LevelEditorApi.add_light_component(unit_id
 							, component_id
 							, unit.get_component_property_string (component_id, "data.type")
