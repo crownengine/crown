@@ -48,22 +48,22 @@ struct Pipeline
 	ShaderManager *_shader_manager;
 
 	// Main output color/depth handles.
-	bgfx::TextureHandle _main_color_texture;
-	bgfx::TextureHandle _main_depth_texture;
-	bgfx::FrameBufferHandle _main_frame_buffer;
-	bgfx::UniformHandle _main_color_texture_sampler;
-	bgfx::UniformHandle _main_depth_texture_sampler;
+	bgfx::TextureHandle _color_texture;
+	bgfx::TextureHandle _depth_texture;
+	bgfx::FrameBufferHandle _frame_buffer;
+	bgfx::UniformHandle _color_map;
+	bgfx::UniformHandle _depth_map;
 
 	// Selection/outline handles.
 	bgfx::TextureHandle _selection_texture;
 	bgfx::TextureHandle _selection_depth_texture;
 	bgfx::FrameBufferHandle _selection_frame_buffer;
-	bgfx::UniformHandle _selection_texture_sampler;
-	bgfx::UniformHandle _selection_depth_texture_sampler;
+	bgfx::UniformHandle _selection_map;
+	bgfx::UniformHandle _selection_depth_map;
 	bgfx::TextureHandle _outline_color_texture;
 	bgfx::FrameBufferHandle _outline_frame_buffer;
-	bgfx::UniformHandle _outline_color_texture_sampler;
-	bgfx::UniformHandle _outline_color_uniform;
+	bgfx::UniformHandle _outline_color_map;
+	bgfx::UniformHandle _outline_color;
 
 	// Default sampler/texture to keep WebGL renderer running
 	// when a shader references a texture (even if unused) but

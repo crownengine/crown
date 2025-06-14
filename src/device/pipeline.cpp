@@ -108,20 +108,20 @@ static void lookup_default_shaders(Pipeline &pl)
 
 Pipeline::Pipeline(ShaderManager &sm)
 	: _shader_manager(&sm)
-	, _main_color_texture(BGFX_INVALID_HANDLE)
-	, _main_depth_texture(BGFX_INVALID_HANDLE)
-	, _main_frame_buffer(BGFX_INVALID_HANDLE)
-	, _main_color_texture_sampler(BGFX_INVALID_HANDLE)
-	, _main_depth_texture_sampler(BGFX_INVALID_HANDLE)
+	, _color_texture(BGFX_INVALID_HANDLE)
+	, _depth_texture(BGFX_INVALID_HANDLE)
+	, _frame_buffer(BGFX_INVALID_HANDLE)
+	, _color_map(BGFX_INVALID_HANDLE)
+	, _depth_map(BGFX_INVALID_HANDLE)
 	, _selection_texture(BGFX_INVALID_HANDLE)
 	, _selection_depth_texture(BGFX_INVALID_HANDLE)
 	, _selection_frame_buffer(BGFX_INVALID_HANDLE)
-	, _selection_texture_sampler(BGFX_INVALID_HANDLE)
-	, _selection_depth_texture_sampler(BGFX_INVALID_HANDLE)
+	, _selection_map(BGFX_INVALID_HANDLE)
+	, _selection_depth_map(BGFX_INVALID_HANDLE)
 	, _outline_color_texture(BGFX_INVALID_HANDLE)
 	, _outline_frame_buffer(BGFX_INVALID_HANDLE)
-	, _outline_color_texture_sampler(BGFX_INVALID_HANDLE)
-	, _outline_color_uniform(BGFX_INVALID_HANDLE)
+	, _outline_color_map(BGFX_INVALID_HANDLE)
+	, _outline_color(BGFX_INVALID_HANDLE)
 	, _cascaded_shadow_map_size(4096)
 {
 	lookup_default_shaders(*this);
@@ -131,14 +131,14 @@ void Pipeline::create(uint16_t width, uint16_t height)
 {
 	reset(width, height);
 
-	_main_color_texture_sampler = bgfx::createUniform("s_color", bgfx::UniformType::Sampler);
-	_main_depth_texture_sampler = bgfx::createUniform("s_main_depth", bgfx::UniformType::Sampler);
+	_color_map = bgfx::createUniform("s_color_map", bgfx::UniformType::Sampler);
+	_depth_map = bgfx::createUniform("s_depth_map", bgfx::UniformType::Sampler);
 
-	_selection_texture_sampler = bgfx::createUniform("s_selection", bgfx::UniformType::Sampler);
-	_selection_depth_texture_sampler = bgfx::createUniform("s_selection_depth", bgfx::UniformType::Sampler);
+	_selection_map = bgfx::createUniform("s_selection_map", bgfx::UniformType::Sampler);
+	_selection_depth_map = bgfx::createUniform("s_selection_depth_map", bgfx::UniformType::Sampler);
 
-	_outline_color_texture_sampler = bgfx::createUniform("s_color", bgfx::UniformType::Sampler);
-	_outline_color_uniform = bgfx::createUniform("u_outline_color", bgfx::UniformType::Vec4);
+	_outline_color_map = bgfx::createUniform("s_color_map", bgfx::UniformType::Sampler);
+	_outline_color = bgfx::createUniform("u_outline_color", bgfx::UniformType::Vec4);
 
 #if CROWN_PLATFORM_EMSCRIPTEN
 	_html5_default_sampler = bgfx::createUniform("s_webgl_hack", bgfx::UniformType::Sampler);
@@ -155,42 +155,42 @@ void Pipeline::destroy()
 	bgfx::destroy(_html5_default_texture);
 #endif
 
-	bgfx::destroy(_outline_color_uniform);
-	bgfx::destroy(_outline_color_texture_sampler);
+	bgfx::destroy(_outline_color);
+	bgfx::destroy(_outline_color_map);
 
 	bgfx::destroy(_outline_frame_buffer);
 	bgfx::destroy(_outline_color_texture);
 
-	bgfx::destroy(_selection_depth_texture_sampler);
-	bgfx::destroy(_selection_texture_sampler);
+	bgfx::destroy(_selection_depth_map);
+	bgfx::destroy(_selection_map);
 
-	bgfx::destroy(_main_depth_texture_sampler);
-	bgfx::destroy(_main_color_texture_sampler);
+	bgfx::destroy(_depth_map);
+	bgfx::destroy(_color_map);
 
 	bgfx::destroy(_selection_frame_buffer);
 	bgfx::destroy(_selection_depth_texture);
 	bgfx::destroy(_selection_texture);
 
-	bgfx::destroy(_main_frame_buffer);
-	bgfx::destroy(_main_depth_texture);
-	bgfx::destroy(_main_color_texture);
+	bgfx::destroy(_frame_buffer);
+	bgfx::destroy(_depth_texture);
+	bgfx::destroy(_color_texture);
 }
 
 void Pipeline::reset(u16 width, u16 height)
 {
 	// Create main frame buffer.
-	if (bgfx::isValid(_main_color_texture))
-		bgfx::destroy(_main_color_texture);
-	_main_color_texture = bgfx::createTexture2D(width
+	if (bgfx::isValid(_color_texture))
+		bgfx::destroy(_color_texture);
+	_color_texture = bgfx::createTexture2D(width
 		, height
 		, false
 		, 1
 		, bgfx::TextureFormat::BGRA8
 		, BGFX_TEXTURE_RT
 		);
-	if (bgfx::isValid(_main_depth_texture))
-		bgfx::destroy(_main_depth_texture);
-	_main_depth_texture = bgfx::createTexture2D(width
+	if (bgfx::isValid(_depth_texture))
+		bgfx::destroy(_depth_texture);
+	_depth_texture = bgfx::createTexture2D(width
 		, height
 		, false
 		, 1
@@ -199,12 +199,12 @@ void Pipeline::reset(u16 width, u16 height)
 		);
 	const bgfx::TextureHandle _main_frame_buffer_attachments[] =
 	{
-		_main_color_texture,
-		_main_depth_texture
+		_color_texture,
+		_depth_texture
 	};
-	if (bgfx::isValid(_main_frame_buffer))
-		bgfx::destroy(_main_frame_buffer);
-	_main_frame_buffer = bgfx::createFrameBuffer(countof(_main_frame_buffer_attachments), _main_frame_buffer_attachments);
+	if (bgfx::isValid(_frame_buffer))
+		bgfx::destroy(_frame_buffer);
+	_frame_buffer = bgfx::createFrameBuffer(countof(_main_frame_buffer_attachments), _main_frame_buffer_attachments);
 
 	// Create selection frame buffer.
 	if (bgfx::isValid(_selection_texture))
@@ -272,24 +272,24 @@ void Pipeline::render(u16 width, u16 height)
 		| BGFX_SAMPLER_V_CLAMP
 		;
 
-	bgfx::setTexture(0, _main_color_texture_sampler, _main_color_texture, samplerFlags);
+	bgfx::setTexture(0, _color_map, _color_texture, samplerFlags);
 	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
 	bgfx::setState(_blit_shader.state);
 	bgfx::submit(View::BLIT, _blit_shader.program);
 
 #if !CROWN_PLATFORM_EMSCRIPTEN
-	bgfx::setTexture(0, _selection_texture_sampler, _selection_texture, samplerFlags);
-	bgfx::setTexture(1, _selection_depth_texture_sampler, _selection_depth_texture, samplerFlags);
-	bgfx::setTexture(2, _main_depth_texture_sampler, _main_depth_texture, samplerFlags);
+	bgfx::setTexture(0, _selection_map, _selection_texture, samplerFlags);
+	bgfx::setTexture(1, _selection_depth_map, _selection_depth_texture, samplerFlags);
+	bgfx::setTexture(2, _depth_map, _depth_texture, samplerFlags);
 	bgfx::setViewRect(View::OUTLINE, 0, 0, width, height);
 	bgfx::setViewTransform(View::OUTLINE, NULL, ortho);
 	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
 	const f32 outline_color[] = { 1.0f, 0.37f, 0.05f, 1.0f };
-	bgfx::setUniform(_outline_color_uniform, outline_color);
+	bgfx::setUniform(_outline_color, outline_color);
 	bgfx::setState(_outline_shader.state);
 	bgfx::submit(View::OUTLINE, _outline_shader.program);
 
-	bgfx::setTexture(0, _outline_color_texture_sampler, _outline_color_texture, samplerFlags);
+	bgfx::setTexture(0, _outline_color_map, _outline_color_texture, samplerFlags);
 	bgfx::setViewRect(View::OUTLINE_BLIT, 0, 0, width, height);
 	bgfx::setViewTransform(View::OUTLINE_BLIT, NULL, ortho);
 	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);

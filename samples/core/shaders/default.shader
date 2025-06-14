@@ -354,11 +354,11 @@ bgfx_shaders = {
 		"""
 
 		fs_code = """
-			SAMPLER2D(s_color, 0);
+			SAMPLER2D(s_color_map, 0);
 
 			void main()
 			{
-				gl_FragColor = texture2D(s_color, v_texcoord0);
+				gl_FragColor = texture2D(s_color_map, v_texcoord0);
 			}
 		"""
 	}
