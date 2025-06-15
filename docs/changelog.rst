@@ -4,6 +4,10 @@ Changelog
 0.58.0 --- DD MMM YYYY
 ----------------------
 
+**Fixes**
+
+* Tools: fixed missing sounds in the Level Tree.
+
 0.57.0 --- 13 Jun 2025
 ----------------------
 
