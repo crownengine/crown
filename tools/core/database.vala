@@ -419,6 +419,8 @@ public class UndoRedo
 	}
 }
 
+const string OBJECT_NAME_UNNAMED = "Unnamed";
+
 public class Database
 {
 	private static bool _debug = false;
@@ -1655,6 +1657,25 @@ public class Database
 		PropertiesSlice ps = _object_definitions[type];
 		return _property_definitions[ps.start : ps.end];
 	}
+
+	// Returns the name of the object @id. If the object has no name set, it returns
+	// OBJECT_NAME_UNNAMED.
+	public string object_name(Guid id)
+	{
+		string name = get_property_string(id, "editor.name", OBJECT_NAME_UNNAMED);
+
+		if (name == OBJECT_NAME_UNNAMED)
+			return get_property_string(id, "name", OBJECT_NAME_UNNAMED);
+
+		return name;
+	}
+
+	// Sets the @a name of the object @a id.
+	public void set_object_name(Guid id, string name)
+	{
+		set_property_string(id, "editor.name", name);
+	}
+
 }
 
 } /* namespace Crown */
