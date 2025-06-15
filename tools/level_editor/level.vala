@@ -177,7 +177,7 @@ public class Level
 		Unit unit = Unit(_db, id);
 		unit.create(name, pos, rot, scl);
 
-		_db.set_property_string(id, "editor.name", "unit_%04u".printf(_num_units++));
+		_db.set_object_name(id, "unit_%04u".printf(_num_units++));
 		_db.add_to_set(_id, "units", id);
 	}
 
@@ -186,7 +186,7 @@ public class Level
 		Sound sound = Sound(_db, id);
 		sound.create(name, pos, rot, scl, range, volume, loop);
 
-		_db.set_property_string    (id, "editor.name", "sound_%04u".printf(_num_sounds++));
+		_db.set_object_name(id, "sound_%04u".printf(_num_sounds++));
 		_db.add_to_set(_id, "sounds", id);
 	}
 
@@ -235,15 +235,12 @@ public class Level
 
 	public string object_editor_name(Guid object_id)
 	{
-		if (_db.has_property(object_id, "editor.name"))
-			return _db.get_property_string(object_id, "editor.name");
-		else
-			return "<unnamed>";
+		return _db.object_name(object_id);
 	}
 
 	public void object_set_editor_name(Guid object_id, string name)
 	{
-		_db.set_property_string(object_id, "editor.name", name);
+		_db.set_object_name(object_id, name);
 		_db.add_restore_point((int)ActionType.OBJECT_SET_EDITOR_NAME, new Guid?[] { object_id });
 	}
 
