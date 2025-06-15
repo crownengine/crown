@@ -430,7 +430,7 @@ public class LevelTreeView : Gtk.Box
 					, _level.object_editor_name(id)
 					, -1
 					);
-			} else if (_db.object_type(id) == OBJECT_TYPE_SOUND && sounds.contains(id)) {
+			} else if (_db.object_type(id) == OBJECT_TYPE_SOUND_SOURCE && sounds.contains(id)) {
 				Gtk.TreeIter sounds_iter;
 
 				_tree_store.get_iter(out sounds_iter, _sounds_root.get_path());
@@ -455,7 +455,7 @@ public class LevelTreeView : Gtk.Box
 			Gtk.TreeIter parent_iter;
 			if (_db.object_type(id) == OBJECT_TYPE_UNIT)
 				_tree_store.get_iter(out parent_iter, _units_root.get_path());
-			else if (_db.object_type(id) == OBJECT_TYPE_SOUND)
+			else if (_db.object_type(id) == OBJECT_TYPE_SOUND_SOURCE)
 				_tree_store.get_iter(out parent_iter, _sounds_root.get_path());
 			else
 				continue;
