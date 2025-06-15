@@ -1675,7 +1675,6 @@ public class Database
 	{
 		set_property_string(id, "editor.name", name);
 	}
-
 }
 
 } /* namespace Crown */
