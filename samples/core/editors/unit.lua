@@ -298,7 +298,7 @@ function UnitBox:set_mesh(mesh_resource, geometry, material, visible, cast_shado
 	end
 end
 
-function UnitBox:set_sprite(sprite_resource_name, material, layer, depth, visible)
+function UnitBox:set_sprite(sprite_resource_name, material, layer, depth, visible, flip_x, flip_y)
 	local sprite = RenderWorld.sprite_instance(self._rw, self._unit_id)
 	if sprite then
 		RenderWorld.sprite_set_sprite(self._rw, sprite, sprite_resource_name)
@@ -306,6 +306,8 @@ function UnitBox:set_sprite(sprite_resource_name, material, layer, depth, visibl
 		RenderWorld.sprite_set_layer(self._rw, sprite, layer)
 		RenderWorld.sprite_set_depth(self._rw, sprite, depth)
 		RenderWorld.sprite_set_visible(self._rw, sprite, visible)
+		RenderWorld.sprite_flip_x(self._rw, sprite, flip_x)
+		RenderWorld.sprite_flip_y(self._rw, sprite, flip_y)
 		self._obb.dirty = true
 	end
 end

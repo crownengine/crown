@@ -483,6 +483,8 @@ public struct Unit
 						, unit.get_component_property_double(component_id, "data.layer")
 						, unit.get_component_property_double(component_id, "data.depth")
 						, unit.get_component_property_bool  (component_id, "data.visible")
+						, unit.get_component_property_bool  (component_id, "data.flip_x")
+						, unit.get_component_property_bool  (component_id, "data.flip_y")
 						));
 				} else if (component_type == OBJECT_TYPE_LIGHT) {
 					sb.append(LevelEditorApi.add_light_component(unit_id
@@ -616,6 +618,8 @@ public struct Unit
 							, unit.get_component_property_double(component_id, "data.layer")
 							, unit.get_component_property_double(component_id, "data.depth")
 							, unit.get_component_property_bool  (component_id, "data.visible")
+							, unit.get_component_property_bool  (component_id, "data.flip_x")
+							, unit.get_component_property_bool  (component_id, "data.flip_y")
 							);
 						sb.append(s);
 					}
@@ -712,6 +716,8 @@ public struct Unit
 						, unit.get_component_property_double(component_id, "data.layer")
 						, unit.get_component_property_double(component_id, "data.depth")
 						, unit.get_component_property_bool  (component_id, "data.visible")
+						, unit.get_component_property_bool  (component_id, "data.flip_x")
+						, unit.get_component_property_bool  (component_id, "data.flip_y")
 						));
 				} else if (component_type == OBJECT_TYPE_LIGHT) {
 					sb.append(LevelEditorApi.set_light(unit_id

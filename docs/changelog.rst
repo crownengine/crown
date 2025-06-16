@@ -4,6 +4,10 @@ Changelog
 0.58.0 --- DD MMM YYYY
 ----------------------
 
+**New Features and Improvements**
+
+* Tools: added the ability to set the Sprite Renderer's `flip_x` and `flip_y` properties in the Inspector.
+
 **Fixes**
 
 * Tools: fixed missing sounds in the Level Tree.
