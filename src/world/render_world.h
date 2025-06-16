@@ -298,8 +298,7 @@ struct RenderWorld
 			u32 *frame;
 			Matrix4x4 *world;
 			AABB *aabb;
-			bool *flip_x;
-			bool *flip_y;
+			u32 *flags;
 			u32 *layer;
 			u32 *depth;
 #if CROWN_CAN_RELOAD
