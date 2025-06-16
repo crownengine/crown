@@ -680,7 +680,7 @@ public class Database
 	private void decode_set(Guid owner_id, string key, Gee.ArrayList<Value?> json)
 	{
 		// Set should be created even if it is empty.
-		create_empty_set(0, owner_id, key);
+		create_empty_set(owner_id, key);
 
 		for (int i = 0; i < json.size; ++i) {
 			Hashtable obj;
@@ -887,7 +887,7 @@ public class Database
 		_distance_from_last_sync += dir;
 	}
 
-	public void create_empty_set(int dir, Guid id, string key)
+	public void create_empty_set(Guid id, string key)
 	{
 		assert(has_object(id));
 		assert(is_valid_key(key));
@@ -957,6 +957,37 @@ public class Database
 		get_data(id)["_type"] = type;
 	}
 
+	public void _init_object(Guid id, PropertyDefinition[] properties)
+	{
+		foreach (PropertyDefinition def in properties) {
+			switch (def.type) {
+			case PropertyType.BOOL:
+				set_property_bool(id, def.name, (bool)def.deffault);
+				break;
+			case PropertyType.DOUBLE:
+				set_property_double(id, def.name, (double)def.deffault);
+				break;
+			case PropertyType.STRING:
+				set_property_string(id, def.name, (string)def.deffault);
+				break;
+			case PropertyType.GUID:
+				set_property_guid(id, def.name, (Guid)def.deffault);
+				break;
+			case PropertyType.VECTOR3:
+				set_property_vector3(id, def.name, (Vector3)def.deffault);
+				break;
+			case PropertyType.QUATERNION:
+				set_property_quaternion(id, def.name, (Quaternion)def.deffault);
+				break;
+			case PropertyType.OBJECTS_SET:
+				create_empty_set(id, def.name);
+				break;
+			case PropertyType.NULL:
+				break;
+			}
+		}
+	}
+
 	public void create(Guid id, string type)
 	{
 		assert(id != GUID_ZERO);
@@ -969,6 +1000,10 @@ public class Database
 
 		create_internal(1, id);
 		set_object_type(id, type);
+
+		StringId64 type_hash = StringId64(type);
+		if (has_object_type(type_hash))
+			_init_object(id, object_definition(type_hash));
 	}
 
 	public void destroy(Guid id)
@@ -1674,6 +1709,12 @@ public class Database
 	public void set_object_name(Guid id, string name)
 	{
 		set_property_string(id, "editor.name", name);
+	}
+
+	// Returns whether the object @a type exists (i.e. has been created with create_object_type()).
+	public bool has_object_type(StringId64 type)
+	{
+		return _object_definitions.has_key(type);
 	}
 }
 

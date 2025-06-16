@@ -38,8 +38,8 @@ public struct StateMachineNode
 		_db.create(_id, OBJECT_TYPE_STATE_MACHINE_NODE);
 		_db.set_property_bool(_id, "loop", true);
 		_db.set_property_string(_id, "speed", "1");
-		_db.create_empty_set(0, _id, "animations");
-		_db.create_empty_set(0, _id, "transitions");
+		_db.create_empty_set(_id, "animations");
+		_db.create_empty_set(_id, "transitions");
 	}
 }
 
@@ -61,7 +61,7 @@ public struct StateMachineResource
 		_db.create(_id, OBJECT_TYPE_STATE_MACHINE);
 		add_node(initial_state);
 		_db.set_property_guid(_id, "initial_state", initial_state._id);
-		_db.create_empty_set(0, _id, "variables");
+		_db.create_empty_set(_id, "variables");
 		_db.set_property_string(_id, "animation_type", animation_type);
 		if (skeleton_name != null)
 			_db.set_property_string(_id, "skeleton_name", skeleton_name);
