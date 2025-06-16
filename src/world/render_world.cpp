@@ -256,13 +256,19 @@ void RenderWorld::sprite_set_visible(SpriteInstance sprite, bool visible)
 void RenderWorld::sprite_flip_x(SpriteInstance sprite, bool flip)
 {
 	CE_ASSERT(sprite.i < _sprite_manager._data.size, "Index out of bounds");
-	_sprite_manager._data.flip_x[sprite.i] = flip;
+	if (flip)
+		_sprite_manager._data.flags[sprite.i] |= SpriteFlags::FLIP_X;
+	else
+		_sprite_manager._data.flags[sprite.i] &= ~SpriteFlags::FLIP_X;
 }
 
 void RenderWorld::sprite_flip_y(SpriteInstance sprite, bool flip)
 {
 	CE_ASSERT(sprite.i < _sprite_manager._data.size, "Index out of bounds");
-	_sprite_manager._data.flip_y[sprite.i] = flip;
+	if (flip)
+		_sprite_manager._data.flags[sprite.i] |= SpriteFlags::FLIP_Y;
+	else
+		_sprite_manager._data.flags[sprite.i] &= ~SpriteFlags::FLIP_Y;
 }
 
 void RenderWorld::sprite_set_layer(SpriteInstance sprite, u32 layer)
@@ -963,8 +969,7 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 		+ num*sizeof(u32) + alignof(u32)
 		+ num*sizeof(Matrix4x4) + alignof(Matrix4x4)
 		+ num*sizeof(AABB) + alignof(AABB)
-		+ num*sizeof(bool) + alignof(bool)
-		+ num*sizeof(bool) + alignof(bool)
+		+ num*sizeof(u32) + alignof(u32)
 		+ num*sizeof(u32) + alignof(u32)
 		+ num*sizeof(u32) + alignof(u32)
 #if CROWN_CAN_RELOAD
@@ -985,9 +990,8 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 	new_data.frame    = (u32 *                  )memory::align_top(new_data.material + num, alignof(u32));
 	new_data.world    = (Matrix4x4 *            )memory::align_top(new_data.frame + num,    alignof(Matrix4x4));
 	new_data.aabb     = (AABB *                 )memory::align_top(new_data.world + num,    alignof(AABB));
-	new_data.flip_x   = (bool *                 )memory::align_top(new_data.aabb + num,     alignof(bool));
-	new_data.flip_y   = (bool *                 )memory::align_top(new_data.flip_x + num,   alignof(bool));
-	new_data.layer    = (u32 *                  )memory::align_top(new_data.flip_y + num,   alignof(u32));
+	new_data.flags    = (u32 *                  )memory::align_top(new_data.aabb + num,     alignof(u32));
+	new_data.layer    = (u32 *                  )memory::align_top(new_data.flags + num,    alignof(u32));
 	new_data.depth    = (u32 *                  )memory::align_top(new_data.layer + num,    alignof(u32));
 #if CROWN_CAN_RELOAD
 	new_data.material_resource = (const MaterialResource **)memory::align_top(new_data.depth + num, alignof(MaterialResource *));
@@ -999,8 +1003,7 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 	memcpy(new_data.frame, _data.frame, _data.size * sizeof(u32));
 	memcpy(new_data.world, _data.world, _data.size * sizeof(Matrix4x4));
 	memcpy(new_data.aabb, _data.aabb, _data.size * sizeof(AABB));
-	memcpy(new_data.flip_x, _data.flip_x, _data.size * sizeof(bool));
-	memcpy(new_data.flip_y, _data.flip_y, _data.size * sizeof(bool));
+	memcpy(new_data.flags, _data.flags, _data.size * sizeof(u32));
 	memcpy(new_data.layer, _data.layer, _data.size * sizeof(u32));
 	memcpy(new_data.depth, _data.depth, _data.size * sizeof(u32));
 #if CROWN_CAN_RELOAD
@@ -1033,8 +1036,7 @@ SpriteInstance RenderWorld::SpriteManager::create(UnitId unit, const SpriteResou
 	_data.frame[last]    = 0;
 	_data.world[last]    = tr;
 	_data.aabb[last]     = AABB();
-	_data.flip_x[last]   = false;
-	_data.flip_y[last]   = false;
+	_data.flags[last]    = srd.flags;
 	_data.layer[last]    = srd.layer;
 	_data.depth[last]    = srd.depth;
 #if CROWN_CAN_RELOAD
@@ -1072,8 +1074,7 @@ void RenderWorld::SpriteManager::destroy(SpriteInstance inst)
 	_data.frame[inst.i]    = _data.frame[last];
 	_data.world[inst.i]    = _data.world[last];
 	_data.aabb[inst.i]     = _data.aabb[last];
-	_data.flip_x[inst.i]   = _data.flip_x[last];
-	_data.flip_y[inst.i]   = _data.flip_y[last];
+	_data.flags[inst.i]    = _data.flags[last];
 	_data.layer[inst.i]    = _data.layer[last];
 	_data.depth[inst.i]    = _data.depth[last];
 #if CROWN_CAN_RELOAD
@@ -1109,8 +1110,7 @@ void RenderWorld::SpriteManager::swap(u32 inst_a, u32 inst_b)
 	exchange(_data.frame[inst_a],    _data.frame[inst_b]);
 	exchange(_data.world[inst_a],    _data.world[inst_b]);
 	exchange(_data.aabb[inst_a],     _data.aabb[inst_b]);
-	exchange(_data.flip_x[inst_a],   _data.flip_x[inst_b]);
-	exchange(_data.flip_y[inst_a],   _data.flip_y[inst_b]);
+	exchange(_data.flags[inst_a],    _data.flags[inst_b]);
 	exchange(_data.layer[inst_a],    _data.layer[inst_b]);
 	exchange(_data.depth[inst_a],    _data.depth[inst_b]);
 #if CROWN_CAN_RELOAD
@@ -1174,13 +1174,13 @@ void RenderWorld::SpriteManager::set_instance_data(f32 **vdata_, u16 **idata_, b
 	f32 u3 = frame[18]; // u
 	f32 v3 = frame[19]; // v
 
-	if (_data.flip_x[ii]) {
+	if ((_data.flags[ii] & SpriteFlags::FLIP_X) != 0) {
 		f32 u;
 		u = u0; u0 = u1; u1 = u;
 		u = u2; u2 = u3; u3 = u;
 	}
 
-	if (_data.flip_y[ii]) {
+	if ((_data.flags[ii] & SpriteFlags::FLIP_Y) != 0) {
 		f32 v;
 		v = v0; v0 = v2; v2 = v;
 		v = v1; v1 = v3; v3 = v;

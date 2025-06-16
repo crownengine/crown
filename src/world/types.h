@@ -190,6 +190,18 @@ struct RenderableFlags
 	};
 };
 
+/// Enumerates sprite flags.
+///
+/// @ingroup World
+struct SpriteFlags
+{
+	enum Enum : u32
+	{
+		FLIP_X = u32(1) << 31,
+		FLIP_Y = u32(1) << 30
+	};
+};
+
 /// Enumerates world event types.
 ///
 /// @ingroup World
@@ -311,7 +323,7 @@ struct SpriteRendererDesc
 	StringId64 material_resource; ///< Name of .material resource.
 	u32 layer;                    ///< Sort layer
 	u32 depth;                    ///< Depth in layer
-	u32 flags;                    ////< RenderableFlags::Enum
+	u32 flags;                    ///< SpriteFlags::Enum | RenderableFlags::Enum
 	char _pad[4];
 };
 
