@@ -18,6 +18,7 @@
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string_id.inl"
+#include "device/log.h"
 #include "resource/compile_options.inl"
 #include "resource/physics_resource.h"
 #include "resource/resource_id.inl"
@@ -25,6 +26,8 @@
 #include "resource/unit_resource.h"
 #include "world/types.h"
 #include <algorithm>
+
+LOG_SYSTEM(UNIT_COMPILER, "unit_compiler")
 
 namespace crown
 {
@@ -725,8 +728,9 @@ namespace unit_compiler
 			RETURN_IF_ERROR(sjson::parse(component, component_json), opts);
 
 			StringId32 comp_type;
-			if (json_object::has(component, "type")) {
+			if (!json_object::has(component, "_type")) {
 				comp_type = RETURN_IF_ERROR(sjson::parse_string_id(component["type"]), opts);
+				logw(UNIT_COMPILER, "'type' property is deprecated: replace with equivalent '_type'");
 			} else {
 				comp_type = RETURN_IF_ERROR(sjson::parse_string_id(component["_type"]), opts);
 			}
