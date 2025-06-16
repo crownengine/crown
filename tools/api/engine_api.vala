@@ -314,15 +314,26 @@ namespace LevelEditorApi
 			);
 	}
 
-	public string add_sprite_renderer_component(Guid id, Guid component_id, string sprite_resource, string material_resource, double layer, double depth, bool visible)
+	public string add_sprite_renderer_component(Guid id
+		, Guid component_id
+		, string sprite_resource
+		, string material_resource
+		, double layer
+		, double depth
+		, bool visible
+		, bool flip_x
+		, bool flip_y
+		)
 	{
-		return "LevelEditor:add_sprite_component(\"%s\", \"%s\", \"%s\", \"%s\", %.17g, %.17g, %s)".printf(id.to_string()
+		return "LevelEditor:add_sprite_component(\"%s\", \"%s\", \"%s\", \"%s\", %.17g, %.17g, %s, %s, %s)".printf(id.to_string()
 			, component_id.to_string()
 			, sprite_resource
 			, material_resource
 			, layer
 			, depth
 			, Lua.bool(visible)
+			, Lua.bool(flip_x)
+			, Lua.bool(flip_y)
 			);
 	}
 
@@ -410,14 +421,24 @@ namespace LevelEditorApi
 			);
 	}
 
-	public string set_sprite(Guid id, string sprite_resource_name, string material, double layer, double depth, bool visible)
+	public string set_sprite(Guid id
+		, string sprite_resource_name
+		, string material
+		, double layer
+		, double depth
+		, bool visible
+		, bool flip_x
+		, bool flip_y
+		)
 	{
-		return "LevelEditor._objects[\"%s\"]:set_sprite(\"%s\", \"%s\", %.17g, %.17g, %s)".printf(id.to_string()
+		return "LevelEditor._objects[\"%s\"]:set_sprite(\"%s\", \"%s\", %.17g, %.17g, %s, %s, %s)".printf(id.to_string()
 			, sprite_resource_name
 			, material
 			, layer
 			, depth
 			, Lua.bool(visible)
+			, Lua.bool(flip_x)
+			, Lua.bool(flip_y)
 			);
 	}
 

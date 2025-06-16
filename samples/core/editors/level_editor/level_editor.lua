@@ -1734,10 +1734,11 @@ function LevelEditor:add_mesh_component(id, component_id, mesh_resource, geometr
 	RenderWorld.mesh_create(self._rw, unit_id, mesh_resource, geometry_name, material_resource, visible, unit_box:world_pose())
 end
 
-function LevelEditor:add_sprite_component(id, component_id, sprite_resource, material_resource, layer, depth, visible)
+function LevelEditor:add_sprite_component(id, component_id, sprite_resource, material_resource, layer, depth, visible, flip_x, flip_y)
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id();
 	RenderWorld.sprite_create(self._rw, unit_id, sprite_resource, material_resource, layer, depth, visible, unit_box:world_pose())
+	unit_box:set_sprite(sprite_resource, material_resource, layer, depth, visible, flip_x, flip_y)
 end
 
 function LevelEditor:add_light_component(id, component_id, type, range, intensity, spot_angle, color)

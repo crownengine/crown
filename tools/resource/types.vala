@@ -220,6 +220,16 @@ public static void create_object_types(Database database)
 			type = PropertyType.BOOL,
 			name = "data.visible",
 		},
+		PropertyDefinition()
+		{
+			type = PropertyType.BOOL,
+			name = "data.flip_x",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.BOOL,
+			name = "data.flip_y",
+		},
 	};
 	database.create_object_type(OBJECT_TYPE_SPRITE_RENDERER, properties);
 
