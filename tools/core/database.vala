@@ -450,6 +450,7 @@ public class Database
 	// Data
 	private PropertyDefinition[] _property_definitions;
 	private Gee.HashMap<StringId64?, PropertiesSlice?> _object_definitions;
+	private Gee.HashMap<StringId64?, string> _object_type_names;
 	private Gee.HashMap<Guid?, Gee.HashMap<string, Value?>> _data;
 	private UndoRedo? _undo_redo;
 	public Project _project;
@@ -467,6 +468,7 @@ public class Database
 	{
 		_property_definitions = new PropertyDefinition[0];
 		_object_definitions = new Gee.HashMap<StringId64?, PropertiesSlice?>(StringId64.hash_func, StringId64.equal_func);
+		_object_type_names = new Gee.HashMap<StringId64?, string>(StringId64.hash_func, StringId64.equal_func);
 		_data = new Gee.HashMap<Guid?, Gee.HashMap<string, Value?>>(Guid.hash_func, Guid.equal_func);
 		_project = project;
 		_undo_redo = undo_redo;
@@ -1606,6 +1608,7 @@ public class Database
 		assert(properties.length > 0);
 		int start = _property_definitions.length;
 		_object_definitions[type_hash] = { start, start + properties.length };
+		_object_type_names[type_hash] = type;
 
 		foreach (PropertyDefinition def in properties) {
 			// Generate labels if missing.
@@ -1715,6 +1718,11 @@ public class Database
 	public bool has_object_type(StringId64 type)
 	{
 		return _object_definitions.has_key(type);
+	}
+
+	public string object_type_name(StringId64 type)
+	{
+		return _object_type_names[type];
 	}
 }
 
