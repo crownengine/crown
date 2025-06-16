@@ -476,7 +476,7 @@ public static void create_object_types(Database database)
 			name = "data.state_machine_resource",
 			label = "State Machine",
 			editor = PropertyEditorType.RESOURCE,
-			resource_type = OBJECT_TYPE_ANIMATION_STATE_MACHINE
+			resource_type = OBJECT_TYPE_STATE_MACHINE
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_ANIMATION_STATE_MACHINE, properties);
