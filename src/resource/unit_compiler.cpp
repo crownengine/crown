@@ -196,6 +196,15 @@ static s32 compile_sprite_renderer(Buffer &output, FlatJsonObject &obj, CompileO
 		bool visible = RETURN_IF_ERROR(sjson::parse_bool(flat_json_object::get(obj, "data.visible")), opts);
 		srd.flags = visible ? RenderableFlags::VISIBLE : 0u;
 	}
+	if (flat_json_object::has(obj, "data.flip_x")) {
+		bool flip = RETURN_IF_ERROR(sjson::parse_bool(flat_json_object::get(obj, "data.flip_x")), opts);
+		srd.flags |= flip ? SpriteFlags::FLIP_X : 0u;
+	}
+	if (flat_json_object::has(obj, "data.flip_y")) {
+		bool flip = RETURN_IF_ERROR(sjson::parse_bool(flat_json_object::get(obj, "data.flip_y")), opts);
+		srd.flags |= flip ? SpriteFlags::FLIP_Y : 0u;
+	}
+
 	memset(srd._pad, 0, sizeof(srd._pad));
 
 	FileBuffer fb(output);
