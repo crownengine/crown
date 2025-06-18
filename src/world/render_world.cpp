@@ -916,8 +916,12 @@ void RenderWorld::MeshManager::draw_shadow_casters(u8 view_id, SceneGraph &scene
 
 		set_instance_data(ii, scene_graph);
 
-		bgfx::setState(_render_world->_pipeline->_shadow_shader.state);
-		bgfx::submit(view_id, _render_world->_pipeline->_shadow_shader.program);
+		ShaderData sd = _data.skeleton[ii] != NULL
+			? _render_world->_pipeline->_shadow_skinning_shader
+			: _render_world->_pipeline->_shadow_shader
+			;
+		bgfx::setState(sd.state);
+		bgfx::submit(view_id, sd.program);
 	}
 }
 
