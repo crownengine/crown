@@ -81,6 +81,7 @@ struct Pipeline
 	ShaderData _outline_shader;
 	ShaderData _selection_shader;
 	ShaderData _shadow_shader;
+	ShaderData _shadow_skinning_shader;
 
 	// Global settings.
 	u16 _cascaded_shadow_map_size;
