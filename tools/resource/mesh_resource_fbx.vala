@@ -361,6 +361,7 @@ public class FBXImporter
 				unit.set_component_property_vector3   (component_id, "data.position", pos);
 				unit.set_component_property_quaternion(component_id, "data.rotation", rot);
 				unit.set_component_property_vector3   (component_id, "data.scale", scl);
+				unit.set_component_property_string    (component_id, "data.name", (string)node.name.data);
 			}
 
 			if (node.mesh.num_faces > 0) {

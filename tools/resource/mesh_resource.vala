@@ -28,6 +28,7 @@ namespace MeshResource
 			unit.set_component_property_vector3   (component_id, "data.position", position);
 			unit.set_component_property_quaternion(component_id, "data.rotation", rotation);
 			unit.set_component_property_vector3   (component_id, "data.scale", scale);
+			unit.set_component_property_string    (component_id, "data.name", node_name);
 		}
 
 		// Create mesh_renderer
