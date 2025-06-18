@@ -12,6 +12,7 @@ Changelog
 
 * Tools: fixed missing sounds in the Level Tree.
 * Tools: fixed inability to select state machines from the "Animation State Machine" component in the Inspector.
+* Tools: fixed missing SKINNING define in materials when importing animated FBX meshes.
 
 0.57.0 --- 13 Jun 2025
 ----------------------

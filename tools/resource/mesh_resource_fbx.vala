@@ -766,6 +766,7 @@ public class FBXImporter
 						, albedo
 						, metallic
 						, roughness
+						, shader
 						);
 					if (material_resource.save(project, material_resource_name) != 0)
 						return ImportResult.ERROR;
