@@ -29,9 +29,10 @@ public struct MaterialResource
 		, Vector3 albedo = VECTOR3_ONE
 		, double metallic = 0.0
 		, double roughness = 1.0
+		, string? shader = null
 		)
 	{
-		this(db, material_id, "mesh");
+		this(db, material_id, shader != null ? shader : "mesh");
 
 		set_vector3("u_albedo", albedo);
 		set_float("u_metallic", metallic);
