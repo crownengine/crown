@@ -7,6 +7,7 @@ Changelog
 **New Features and Improvements**
 
 * Tools: added the ability to set the Sprite Renderer's `flip_x` and `flip_y` properties in the Inspector.
+* Tools: upgraded FBX loader library (ufbx) to v0.20.0.
 
 **Fixes**
 

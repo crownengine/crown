@@ -182,12 +182,12 @@ public enum DomValueType
 {
 	NUMBER,
 	STRING,
-	ARRAY_I8,
+	BLOB,
 	ARRAY_I32,
 	ARRAY_I64,
 	ARRAY_F32,
 	ARRAY_F64,
-	ARRAY_RAW_STRING,
+	ARRAY_BLOB,
 	ARRAY_IGNORED,
 	TYPE_COUNT
 }
@@ -223,6 +223,41 @@ public class DomNode
 	public String name;
 	public DomNodeList children;
 	public DomValueList values;
+}
+
+[CCode (cname = "ufbx_int32_list", destroy_function = "", has_type_id = false)]
+public struct Int32List
+{
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public int32[] data;
+}
+
+[CCode (cname = "ufbx_int64_list", destroy_function = "", has_type_id = false)]
+public struct Int64List
+{
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public int64[] data;
+}
+
+[CCode (cname = "ufbx_float_list", destroy_function = "", has_type_id = false)]
+public struct FloatList
+{
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public float[] data;
+}
+
+[CCode (cname = "ufbx_double_list", destroy_function = "", has_type_id = false)]
+public struct DoubleList
+{
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public double[] data;
+}
+
+[CCode (cname = "ufbx_blob_list", destroy_function = "", has_type_id = false)]
+public struct BlobList
+{
+	[CCode (array_length_cname = "count", array_length_type = "size_t")]
+	public Blob[] data;
 }
 
 [CCode (cname = "ufbx_prop_type", cprefix = "UFBX_PROP_", has_type_id = false)]
@@ -1706,6 +1741,7 @@ public class BlendShape
 	public Uint32List offset_vertices;
 	public Vec3List position_offsets;
 	public Vec3List normal_offsets;
+	public RealList offset_weights;
 }
 
 [CCode (cname = "ufbx_cache_file_format", cprefix = "UFBX_CACHE_FILE_FORMAT_", has_type_id = false)]
@@ -1898,6 +1934,7 @@ public enum ShaderType
 	3DS_MAX_PBR_METAL_ROUGH,
 	3DS_MAX_PBR_SPEC_GLOSS,
 	GLTF_MATERIAL,
+	OPENPBR_MATERIAL,
 	SHADERFX_GRAPH,
 	BLENDER_PHONG,
 	WAVEFRONT_MTL,
@@ -1972,6 +2009,7 @@ public enum MaterialPbrMap
 	COAT_NORMAL,
 	COAT_AFFECT_BASE_COLOR,
 	COAT_AFFECT_BASE_ROUGHNESS,
+	THIN_FILM_FACTOR,
 	THIN_FILM_THICKNESS,
 	THIN_FILM_IOR,
 	EMISSION_FACTOR,
@@ -1989,6 +2027,25 @@ public enum MaterialPbrMap
 	COAT_GLOSSINESS,
 	TRANSMISSION_GLOSSINESS,
 	MAP_COUNT
+}
+
+[CCode (cname = "ufbx_extrapolation_mode", cprefix = "UFBX_EXTRAPOLATION_", has_type_id = false)]
+public enum ExtrapolationMode
+{
+	CONSTANT,
+	REPEAT,
+	MIRROR,
+	SLOPE,
+	REPEAT_RELATIVE,
+	COUNT
+}
+
+[SimpleType]
+[CCode (cname = "ufbx_extrapolation", destroy_function = "", has_type_id = false)]
+public struct Extrapolation
+{
+	public ExtrapolationMode mode;
+	public int32 repeat_count;
 }
 
 [CCode (cname = "ufbx_material_feature", cprefix = "UFBX_MATERIAL_FEATURE_", has_type_id = false)]
@@ -2698,8 +2755,12 @@ public class AnimCurve
 	[CCode (cname = "typed_id")]
 	public uint32 typed_id;
 	public KeyframeList keyframes;
+	public Extrapolation pre_extrapolation;
+	public Extrapolation post_extrapolation;
 	public Real min_value;
 	public Real max_value;
+	public double min_time;
+	public double max_time;
 }
 
 [Compact]
@@ -3004,8 +3065,10 @@ public enum WarningType
 	DUPLICATE_CONNECTION,
 	BAD_VERTEX_W_ATTRIBUTE,
 	MISSING_POLYGON_MAPPING,
+	UNSUPPORTED_VERSION,
 	INDEX_CLAMPED,
 	BAD_UNICODE,
+	BAD_BASE64_CONTENT,
 	BAD_ELEMENT_CONNECTED_TO_ROOT,
 	DUPLICATE_OBJECT_ID,
 	EMPTY_FACE_REMOVED,
@@ -3046,6 +3109,36 @@ public enum SpaceConversion
 	TRANSFORM_ROOT,
 	ADJUST_TRANSFORMS,
 	MODIFY_GEOMETRY,
+	COUNT
+}
+
+[CCode (cname = "ufbx_geometry_transform_handling", cprefix = "UFBX_GEOMETRY_TRANSFORM_HANDLING_", has_type_id = false)]
+public enum GeometryTransformHandling
+{
+	PRESERVE,
+	HELPER_NODES,
+	MODIFY_GEOMETRY,
+	MODIFY_GEOMETRY_NO_FALLBACK,
+	COUNT
+}
+
+[CCode (cname = "ufbx_inherit_mode_handling", cprefix = "UFBX_INHERIT_MODE_HANDLING_", has_type_id = false)]
+public enum InheritModeHandling
+{
+	PRESERVE,
+	HELPER_NODES,
+	COMPENSATE,
+	COMPENSATE_NO_FALLBACK,
+	IGNORE,
+	COUNT
+}
+
+[CCode (cname = "ufbx_pivot_handling", cprefix = "UFBX_PIVOT_HANDLING_", has_type_id = false)]
+public enum PivotHandling
+{
+	RETAIN,
+	ADJUST_TO_PIVOT,
+	ADJUST_TO_ROTATION_PIVOT,
 	COUNT
 }
 
@@ -3100,6 +3193,10 @@ public struct Metadata
 	public String original_file_path;
 	public Blob raw_original_file_path;
 	public SpaceConversion space_conversion;
+	public GeometryTransformHandling geometry_transform_handling;
+	public InheritModeHandling inherit_mode_handling;
+	public PivotHandling pivot_handling;
+	public MirrorAxis handedness_conversion_axis;
 	public Quat root_rotation;
 	public Real root_scale;
 	public MirrorAxis mirror_axis;
@@ -3457,6 +3554,7 @@ public enum ErrorType
 	THREADED_ASCII_PARSE,
 	UNSAFE_OPTIONS,
 	DUPLICATE_OVERRIDE,
+	UNSUPPORTED_VERSION,
 	TYPE_COUNT
 }
 
@@ -3540,35 +3638,6 @@ public enum UnicodeErrorHandling
 	REMOVE,
 	ABORT_LOADING,
 	UNSAFE_IGNORE,
-	COUNT
-}
-
-[CCode (cname = "ufbx_geometry_transform_handling", cprefix = "UFBX_GEOMETRY_TRANSFORM_HANDLING_", has_type_id = false)]
-public enum GeometryTransformHandling
-{
-	PRESERVE,
-	HELPER_NODES,
-	MODIFY_GEOMETRY,
-	MODIFY_GEOMETRY_NO_FALLBACK,
-	COUNT
-}
-
-[CCode (cname = "ufbx_inherit_mode_handling", cprefix = "UFBX_INHERIT_MODE_HANDLING_", has_type_id = false)]
-public enum InheritModeHandling
-{
-	PRESERVE,
-	HELPER_NODES,
-	COMPENSATE,
-	COMPENSATE_NO_FALLBACK,
-	IGNORE,
-	COUNT
-}
-
-[CCode (cname = "ufbx_pivot_handling", cprefix = "UFBX_PIVOT_HANDLING_", has_type_id = false)]
-public enum PivotHandling
-{
-	RETAIN,
-	ADJUST_TO_PIVOT,
 	COUNT
 }
 
@@ -3729,6 +3798,12 @@ public struct ThreadOpts
 	public size_t memory_limit;
 }
 
+[CCode (cname = "ufbx_evaluate_flags", cprefix = "UFBX_EVALUATE_FLAG_", has_type_id = false)]
+public enum EvaluateFlags
+{
+	NO_EXTRAPOLATION,
+}
+
 [CCode (cname = "ufbx_load_opts", destroy_function = "", has_type_id = false)]
 public struct LoadOpts
 {
@@ -3770,8 +3845,9 @@ public struct LoadOpts
 	public OpenFileCb open_file_cb;
 	public GeometryTransformHandling geometry_transform_handling;
 	public InheritModeHandling inherit_mode_handling;
-	public PivotHandling pivot_handling;
 	public SpaceConversion space_conversion;
+	public PivotHandling pivot_handling;
+	public bool pivot_handling_retain_empties;
 	public MirrorAxis handedness_conversion_axis;
 	public bool handedness_conversion_retain_winding;
 	public bool reverse_winding;
@@ -3812,6 +3888,7 @@ public struct EvaluateOpts
 	public AllocatorOpts result_allocator;
 	public bool evaluate_skinning;
 	public bool evaluate_caches;
+	public uint32 evaluate_flags;
 	public bool load_external_files;
 	public OpenFileCb open_file_cb;
 	public uint32 _end_zero;
@@ -3898,6 +3975,7 @@ public struct BakeOpts
 	public BakeStepHandling step_handling;
 	public double step_custom_duration;
 	public double step_custom_epsilon;
+	public uint32 evaluate_flags;
 	public bool key_reduction_enabled;
 	public bool key_reduction_rotation;
 	public double key_reduction_threshold;
