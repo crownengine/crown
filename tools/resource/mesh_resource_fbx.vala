@@ -801,6 +801,15 @@ public class FBXImporter
 							return ImportResult.ERROR;
 
 						target_skeleton = resource_name;
+
+						// Create .state_machine resource to drive the skeleton.
+						Guid state_machine_id = Guid.new_guid();
+						StateMachineResource smr = StateMachineResource.mesh(db
+							, state_machine_id
+							, target_skeleton
+							);
+						if (smr.save(project, resource_name) != 0)
+							return ImportResult.ERROR;
 					}
 				}
 
@@ -862,6 +871,20 @@ public class FBXImporter
 					, scene.root_node
 					, imported_materials
 					);
+
+				if (options.new_skeleton.value) {
+					// Create animation_state_machine component.
+					Unit unit = Unit(db, unit_id);
+
+					Guid component_id;
+					if (!unit.has_component(out component_id, OBJECT_TYPE_ANIMATION_STATE_MACHINE)) {
+						component_id = Guid.new_guid();
+						db.create(component_id, OBJECT_TYPE_ANIMATION_STATE_MACHINE);
+						db.add_to_set(unit_id, "components", component_id);
+					}
+
+					unit.set_component_property_string(component_id, "data.state_machine_resource", resource_name);
+				}
 
 				if (db.save(project.absolute_path(resource_name) + ".unit", unit_id) != 0)
 					return ImportResult.ERROR;
