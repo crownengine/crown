@@ -14,6 +14,7 @@ Changelog
 * Tools: fixed inability to select state machines from the "Animation State Machine" component in the Inspector.
 * Tools: fixed missing SKINNING define in materials when importing animated FBX meshes.
 * Tools: fixed shadows when rendering animated meshes.
+* Compiler: the compiler will now return with an error if any source dir does not exist.
 
 0.57.0 --- 13 Jun 2025
 ----------------------

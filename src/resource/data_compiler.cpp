@@ -759,14 +759,21 @@ void DataCompiler::remove_file_or_tree(const char *path)
 		remove_tree(path);
 }
 
-void DataCompiler::map_source_dir(const char *name, const char *source_dir)
+s32 DataCompiler::map_source_dir(const char *name, const char *source_dir)
 {
 	TempAllocator256 ta;
 	DynamicString sname(ta);
 	DynamicString sdir(ta);
+
+	Stat st;
+	os::stat(st, source_dir);
+	if (st.file_type != Stat::DIRECTORY)
+		return -1;
+
 	sname.set(name, strlen32(name));
 	sdir.set(source_dir, strlen32(source_dir));
 	hash_map::set(_source_dirs, sname, sdir);
+	return 0;
 }
 
 void DataCompiler::source_dir(const char *resource_name, DynamicString &source_dir)
@@ -1578,26 +1585,38 @@ int main_data_compiler(const DeviceOptions &opts)
 	dc->register_compiler("texture",          RESOURCE_VERSION_TEXTURE,          texture_resource_internal::compile);
 	dc->register_compiler("unit",             RESOURCE_VERSION_UNIT,             unit_resource_internal::compile);
 
-	dc->map_source_dir("", opts._source_dir.c_str());
+	s32 err = 0;
+
+	if (dc->map_source_dir("", opts._source_dir.c_str()) != 0) {
+		loge(DATA_COMPILER, "Cannot map source directory `%s`", opts._source_dir.c_str());
+		err = EXIT_FAILURE;
+		goto delete_dc;
+	}
 
 	if (opts._map_source_dir_name) {
-		dc->map_source_dir(opts._map_source_dir_name
+		if (dc->map_source_dir(opts._map_source_dir_name
 			, opts._map_source_dir_prefix.c_str()
-			);
+			) != 0) {
+			loge(DATA_COMPILER, "Cannot map source directory `%s`", opts._map_source_dir_prefix.c_str());
+			err = EXIT_FAILURE;
+			goto delete_dc;
+		}
 	}
 
 	dc->scan_and_restore(opts._data_dir.c_str());
-
-	bool success = true;
 
 	if (opts._server) {
 		while (!_quit) {
 			console_server()->execute_message_handlers(true);
 		}
 	} else {
-		success = dc->compile(opts._data_dir.c_str(), opts._platform);
+		err = dc->compile(opts._data_dir.c_str(), opts._platform) == true
+			? EXIT_SUCCESS
+			: EXIT_FAILURE
+			;
 	}
 
+delete_dc:
 	CE_DELETE(default_allocator(), dc);
 	console_server_globals::shutdown();
 
@@ -1609,7 +1628,7 @@ int main_data_compiler(const DeviceOptions &opts)
 	sigaction(SIGTERM, &old_SIGTERM, NULL);
 #endif
 
-	return success ? EXIT_SUCCESS : EXIT_FAILURE;
+	return err;
 }
 
 } // namespace crown
