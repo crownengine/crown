@@ -373,17 +373,14 @@ public class Project
 		string resource_name = Path.build_filename(directory, name);
 
 		Database db = new Database(this, null);
-		Guid node_id = Guid.new_guid();
-		StateMachineNode sm_node = StateMachineNode(db, node_id);
 		Guid machine_id = Guid.new_guid();
 
 		StateMachineResource machine;
 		if (skeleton_name == null)
-			machine = StateMachineResource.sprite(db, machine_id, sm_node);
+			machine = StateMachineResource.sprite(db, machine_id);
 		else
-			machine = StateMachineResource.mesh(db, machine_id, sm_node, skeleton_name);
+			machine = StateMachineResource.mesh(db, machine_id, skeleton_name);
 
-		machine.add_node(sm_node);
 		return machine.save(this, resource_name);
 	}
 
