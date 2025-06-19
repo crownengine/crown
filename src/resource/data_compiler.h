@@ -82,8 +82,8 @@ struct DataCompiler
 	///
 	~DataCompiler();
 
-	///
-	void map_source_dir(const char *name, const char *source_dir);
+	/// Maps @a source_dir to @a name and returns 0 on success or a negative number on error.
+	s32 map_source_dir(const char *name, const char *source_dir);
 
 	///
 	void source_dir(const char *resource_name, DynamicString &source_dir);
