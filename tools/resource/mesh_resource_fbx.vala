@@ -872,7 +872,7 @@ public class FBXImporter
 					, imported_materials
 					);
 
-				if (options.new_skeleton.value) {
+				if (options.import_animation.value && options.new_skeleton.value) {
 					// Create animation_state_machine component.
 					Unit unit = Unit(db, unit_id);
 
