@@ -1999,13 +1999,6 @@ public class LevelEditorApplication : Gtk.Application
 		dg.show_all();
 	}
 
-	private void new_level()
-	{
-		_level.load_from_path(LEVEL_EMPTY);
-		_level.send_level();
-		_editor.send(DeviceApi.frame());
-	}
-
 	private void update_active_window_title()
 	{
 		string title = "";
@@ -2026,7 +2019,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void load_level(string name)
 	{
-		if (name == _level._name)
+		if (name == _level._name && name != LEVEL_EMPTY)
 			return;
 
 		string resource_name = name != "" ? name : LEVEL_EMPTY;
@@ -2148,9 +2141,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void do_new_level()
 	{
-		new_level();
-		send_state();
-		_editor.send(DeviceApi.frame());
+		load_level(LEVEL_EMPTY);
 	}
 
 	private void on_new_level(GLib.SimpleAction action, GLib.Variant? param)
