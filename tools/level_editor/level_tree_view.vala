@@ -370,8 +370,8 @@ public class LevelTreeView : Gtk.Box
 	{
 		Gtk.TreeIter iter;
 
-		_tree_store.clear();
 		_tree_view.model = null;
+		_tree_store.clear();
 
 		_tree_store.insert_with_values(out iter
 			, null
