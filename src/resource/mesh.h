@@ -9,6 +9,7 @@
 
 #if CROWN_CAN_COMPILE
 #   include "core/filesystem/types.h"
+#   include "core/list.h"
 #   include "core/math/types.h"
 #   include "core/memory/types.h"
 #   include "core/strings/dynamic_string.h"
@@ -58,6 +59,8 @@ struct Geometry
 
 struct Mesh
 {
+	ListNode _cache_node;
+	StringId64 _path;
 	HashMap<DynamicString, Geometry> _geometries;
 	HashMap<DynamicString, Node> _nodes;
 
@@ -92,6 +95,27 @@ namespace mesh
 	s32 write(Mesh &m, CompileOptions &opts);
 
 } // namespace mesh
+
+struct MeshCache
+{
+	ListNode _meshes;
+
+	///
+	MeshCache();
+
+	///
+	~MeshCache();
+};
+
+namespace mesh_cache
+{
+	///
+	Mesh *get(MeshCache &cache, const char *path);
+
+	///
+	void add(MeshCache &cache, Mesh *mesh);
+
+} // namespace mesh_cache
 
 } // namespace crown
 

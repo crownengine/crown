@@ -1576,12 +1576,14 @@ int main_data_compiler(const DeviceOptions &opts)
 	if (opts._server)
 		console_server()->listen(CROWN_DEFAULT_COMPILER_PORT, opts._wait_console);
 
+	MeshCache mesh_cache;
+
 	DataCompiler *dc = CE_NEW(default_allocator(), DataCompiler)(opts, *console_server());
 	dc->register_compiler("config",           RESOURCE_VERSION_CONFIG,           config_resource_internal::compile);
 	dc->register_compiler("font",             RESOURCE_VERSION_FONT,             font_resource_internal::compile);
 	dc->register_compiler("level",            RESOURCE_VERSION_LEVEL,            level_resource_internal::compile);
 	dc->register_compiler("material",         RESOURCE_VERSION_MATERIAL,         material_resource_internal::compile);
-	dc->register_compiler("mesh",             RESOURCE_VERSION_MESH,             mesh_resource_internal::compile);
+	dc->register_compiler("mesh",             RESOURCE_VERSION_MESH,             mesh_resource_internal::compile, &mesh_cache);
 	dc->register_compiler("mesh_skeleton",    RESOURCE_VERSION_MESH_SKELETON,    mesh_skeleton_resource_internal::compile);
 	dc->register_compiler("mesh_animation",   RESOURCE_VERSION_MESH_ANIMATION,   mesh_animation_resource_internal::compile);
 	dc->register_compiler("package",          RESOURCE_VERSION_PACKAGE,          package_resource_internal::compile);
