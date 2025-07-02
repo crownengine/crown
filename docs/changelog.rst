@@ -9,6 +9,7 @@ Changelog
 * Tools: added the ability to set the Sprite Renderer's `flip_x` and `flip_y` properties in the Inspector.
 * Tools: the FBX importer will now create a state machine resource and component when 'Unit' and 'New Skeleton' options are selected.
 * Tools: upgraded FBX loader library (ufbx) to v0.20.0.
+* Compiler: optimized mesh data compilation times.
 
 **Fixes**
 

@@ -11,6 +11,7 @@
 #   include "core/filesystem/filesystem.h"
 #   include "core/json/json_object.inl"
 #   include "core/json/sjson.h"
+#   include "core/list.inl"
 #   include "core/math/aabb.inl"
 #   include "core/math/constants.h"
 #   include "core/math/matrix4x4.inl"
@@ -18,7 +19,9 @@
 #   include "core/math/vector3.inl"
 #   include "core/memory/temp_allocator.inl"
 #   include "core/strings/dynamic_string.inl"
+#   include "core/strings/string_id.inl"
 #   include "resource/compile_options.inl"
+#   include "resource/data_compiler.h"
 #   include "resource/mesh.h"
 #   include "resource/mesh_fbx.h"
 #   include "resource/mesh_resource.h"
@@ -326,9 +329,29 @@ namespace mesh
 
 	s32 parse(Mesh &m, const char *path, CompileOptions &opts)
 	{
-		RETURN_IF_FILE_MISSING(path, opts);
-		Buffer buf = opts.read(path);
-		return parse_internal(m, buf, opts);
+		MeshCache *cache = (MeshCache *)opts._data_compiler.user_data(RESOURCE_TYPE_MESH);
+
+		if (cache == NULL) {
+			RETURN_IF_FILE_MISSING(path, opts);
+			Buffer buf = opts.read(path);
+			return parse_internal(m, buf, opts);
+		} else {
+			s32 err = 0;
+			StringId64 path_id(path);
+			Mesh *mesh = mesh_cache::get(*cache, path);
+			if (mesh == NULL) {
+				mesh = CE_NEW(default_allocator(), Mesh)(default_allocator());
+				RETURN_IF_FILE_MISSING(path, opts);
+				Buffer buf = opts.read(path);
+				err = parse_internal(*mesh, buf, opts);
+				ENSURE_OR_RETURN(err == 0, opts);
+				mesh->_path = path_id;
+				mesh_cache::add(*cache, mesh);
+			}
+
+			m = *mesh;
+			return err;
+		}
 	}
 
 	s32 parse(Mesh &m, CompileOptions &opts)
@@ -370,6 +393,50 @@ Mesh::Mesh(Allocator &a)
 	: _geometries(a)
 	, _nodes(a)
 {
+	_cache_node.next = NULL;
+	_cache_node.prev = NULL;
+}
+
+namespace mesh_cache
+{
+	Mesh *get(MeshCache &cache, const char *path)
+	{
+		StringId64 path_id(path);
+
+		ListNode *cur;
+		list_for_each(cur, &cache._meshes)
+		{
+			Mesh *mesh = (Mesh *)container_of(cur, Mesh, _cache_node);
+
+			if (mesh->_path == path_id)
+				return mesh;
+		}
+
+		return NULL;
+	}
+
+	void add(MeshCache &cache, Mesh *mesh)
+	{
+		list::add(mesh->_cache_node, cache._meshes);
+	}
+
+} // namespace mesh_cache
+
+MeshCache::MeshCache()
+{
+	list::init_head(_meshes);
+}
+
+MeshCache::~MeshCache()
+{
+	// Destroy meshes.
+	ListNode *cur;
+	ListNode *tmp;
+	list_for_each_safe(cur, tmp, &_meshes)
+	{
+		Mesh *m = (Mesh *)container_of(cur, Mesh, _cache_node);
+		CE_DELETE(default_allocator(), m);
+	}
 }
 
 } // namespace crown
