@@ -1114,6 +1114,12 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 		HashMap<DynamicString, u32> new_dependencies(default_allocator());
 		HashMap<DynamicString, u32> new_requirements(default_allocator());
 
+		// Compile data.
+		ResourceTypeData rtd;
+		rtd.version = 0;
+		rtd.compiler = NULL;
+		rtd = hash_map::get(_compilers, type, rtd);
+
 		Buffer output_buffer(default_allocator());
 		FileBuffer output(output_buffer);
 		Buffer stream_output_buffer(default_allocator());
@@ -1131,11 +1137,6 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 			, false
 			);
 
-		// Compile data.
-		ResourceTypeData rtd;
-		rtd.version = 0;
-		rtd.compiler = NULL;
-		rtd = hash_map::get(_compilers, type, rtd);
 		success = rtd.compiler(opts) == 0;
 
 		if (success) {
