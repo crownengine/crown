@@ -1376,7 +1376,7 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 	return success;
 }
 
-void DataCompiler::register_compiler(const char *type_str, u32 version, CompileFunction compiler)
+void DataCompiler::register_compiler(const char *type_str, u32 version, CompileFunction compiler, void *user_data)
 {
 	StringId64 type(type_str);
 
@@ -1387,6 +1387,7 @@ void DataCompiler::register_compiler(const char *type_str, u32 version, CompileF
 	rtd.version = version;
 	rtd.compiler = compiler;
 	rtd.type_str = type_str;
+	rtd.user_data = user_data;
 
 	hash_map::set(_compilers, type, rtd);
 }
@@ -1403,6 +1404,14 @@ u32 DataCompiler::data_version_stored(StringId64 type)
 {
 	u32 version = UINT32_MAX;
 	return hash_map::get(_data_versions, type, version);
+}
+
+void *DataCompiler::user_data(StringId64 type)
+{
+	ResourceTypeData rtd;
+	rtd.version = COMPILER_NOT_FOUND;
+	rtd.compiler = NULL;
+	return hash_map::get(_compilers, type, rtd).user_data;
 }
 
 bool DataCompiler::can_compile(StringId64 type)

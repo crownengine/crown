@@ -49,6 +49,7 @@ struct DataCompiler
 		u32 version;
 		CompileFunction compiler;
 		const char *type_str;
+		void *user_data;
 	};
 
 	const DeviceOptions *_options;
@@ -100,7 +101,10 @@ struct DataCompiler
 	bool compile(const char *data_dir, const char *platform_name);
 
 	/// Registers the resource @a compiler for the given resource @a type and @a version.
-	void register_compiler(const char *type, u32 version, CompileFunction compiler);
+	void register_compiler(const char *type, u32 version, CompileFunction compiler, void *user_data = NULL);
+
+	/// Returns the user data for @a type that has been registered via DataCompiler::register_compiler().
+	void *user_data(StringId64 type);
 
 	/// Returns whether there is a compiler for the resource @a type.
 	bool can_compile(StringId64 type);
