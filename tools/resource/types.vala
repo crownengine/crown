@@ -6,6 +6,7 @@
 namespace Crown
 {
 const string OBJECT_TYPE_ACTOR                   = "actor";
+const string OBJECT_TYPE_ANIMATION_FRAME         = "animation_frame";
 const string OBJECT_TYPE_ANIMATION_STATE_MACHINE = "animation_state_machine";
 const string OBJECT_TYPE_CAMERA                  = "camera";
 const string OBJECT_TYPE_COLLIDER                = "collider";

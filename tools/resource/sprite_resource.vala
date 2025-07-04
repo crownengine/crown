@@ -747,10 +747,15 @@ public class SpriteResource
 
 			db.reset();
 
+			// Generate .sprite.
 			Guid sprite_id = Guid.new_guid();
 			db.create(sprite_id, OBJECT_TYPE_SPRITE);
 			db.set_property_double(sprite_id, "width", width);
 			db.set_property_double(sprite_id, "height", height);
+
+			// Generate .sprite_animation.
+			Guid sprite_animation_id = Guid.new_guid();
+			SpriteAnimation sa = SpriteAnimation(db, sprite_animation_id);
 
 			double frame_index = 0.0;
 
@@ -775,13 +780,32 @@ public class SpriteResource
 					db.set_property_string    (frame_id, "name", "sprite_%d".printf(c + num_h*r));
 					db.set_property_quaternion(frame_id, "region", Quaternion(x, y, cell_w, cell_h));
 					db.set_property_vector3   (frame_id, "pivot", Vector3(x + pivot_xy.x, y + pivot_xy.y, 0.0));
-					db.set_property_double    (frame_id, "index", frame_index++);
+					db.set_property_double    (frame_id, "index", frame_index);
 
 					db.add_to_set(sprite_id, "frames", frame_id);
+
+					Guid anim_frame = Guid.new_guid();
+					AnimationFrame af = AnimationFrame(db
+						, anim_frame
+						, (int)frame_index
+						, (int)frame_index
+						);
+					sa.add_frame(af);
+
+					frame_index++;
 				}
 			}
 
 			if (db.save(project.absolute_path(resource_name) + ".sprite", sprite_id) != 0)
+				return ImportResult.ERROR;
+
+			if (sa.save(project, resource_name) != 0)
+				return ImportResult.ERROR;
+
+			// Generate .state_machine.
+			Guid state_machine_id = Guid.new_guid();
+			StateMachineResource smr = StateMachineResource.sprite(db, state_machine_id, resource_name);
+			if (smr.save(project, resource_name) != 0)
 				return ImportResult.ERROR;
 
 			db.reset();
@@ -823,6 +847,18 @@ public class SpriteResource
 				unit.set_component_property_double(component_id, "data.layer", layer);
 				unit.set_component_property_double(component_id, "data.depth", depth);
 				unit.set_component_property_bool  (component_id, "data.visible", true);
+			}
+
+			// Create state_machine_component.
+			{
+				Guid component_id;
+				if (!unit.has_component(out component_id, OBJECT_TYPE_ANIMATION_STATE_MACHINE)) {
+					component_id = Guid.new_guid();
+					db.create(component_id, OBJECT_TYPE_ANIMATION_STATE_MACHINE);
+					db.add_to_set(unit_id, "components", component_id);
+				}
+
+				unit.set_component_property_string(component_id, "data.state_machine_resource", resource_name);
 			}
 
 			if (collision_enabled) {
