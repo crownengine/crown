@@ -115,6 +115,7 @@ public class SpriteImportDialog : Gtk.Window
 	public InputDouble depth;
 
 	public Gtk.CheckButton collision_enabled;
+	public Gtk.CheckButton mirror_cell;
 	public string shape_active_name;
 	public Gtk.StackSwitcher shape_switcher;
 	public Gtk.Stack shape;
@@ -205,6 +206,8 @@ public class SpriteImportDialog : Gtk.Window
 
 		collision_enabled = new Gtk.CheckButton();
 		collision_enabled.active = true;
+		mirror_cell = new Gtk.CheckButton();
+		mirror_cell.active = true;
 		collision_xy = new InputVector2(Vector2(0.0, 0.0), Vector2(-double.MAX, -double.MAX), Vector2(double.MAX, double.MAX));
 		collision_wh = new InputVector2(Vector2(32.0, 32.0), Vector2(-double.MAX, -double.MAX), Vector2(double.MAX, double.MAX));
 		actor_class = new InputEnum();
@@ -228,6 +231,7 @@ public class SpriteImportDialog : Gtk.Window
 				if (cell_wh_auto.active)
 					cell.value = Vector2(_pixbuf.width / cells.value.x, _pixbuf.height / cells.value.y);
 
+				calc_collider_shape();
 				_current_frame.set_max(cells.value.x * cells.value.y - 1);
 
 				_slices.queue_draw();
@@ -243,8 +247,7 @@ public class SpriteImportDialog : Gtk.Window
 			});
 
 		cell.value_changed.connect(() => {
-				circle_collision_center.value = Vector2(cell.value.x/2.0, cell.value.y/2.0);
-				capsule_collision_center.value = Vector2(cell.value.x/2.0, cell.value.y/2.0);
+				calc_collider_shape();
 				_slices.queue_draw();
 				set_preview_frame();
 				_preview.queue_draw();
@@ -266,6 +269,7 @@ public class SpriteImportDialog : Gtk.Window
 				collision_xy.sensitive = !collision_xy.sensitive;
 				collision_wh.sensitive = !collision_wh.sensitive;
 				shape_switcher.sensitive = !shape_switcher.sensitive;
+				mirror_cell.sensitive = !mirror_cell.sensitive;
 				circle_collision_center.sensitive = !circle_collision_center.sensitive;
 				circle_collision_radius.sensitive = !circle_collision_radius.sensitive;
 				capsule_collision_center.sensitive = !capsule_collision_center.sensitive;
@@ -352,8 +356,12 @@ public class SpriteImportDialog : Gtk.Window
 
 		// Collider.
 		shape = new Gtk.Stack();
+		shape.sensitive = false;
 		shape.homogeneous = false;
-		shape.notify["visible-child"].connect(() => { _preview.queue_draw(); });
+		shape.notify["visible-child"].connect(() => {
+				calc_collider_shape();
+				_preview.queue_draw();
+			});
 
 		cv = new PropertyGrid();
 		cv.add_row("Origin", collision_xy);
@@ -377,8 +385,16 @@ public class SpriteImportDialog : Gtk.Window
 		cv = new PropertyGrid();
 		cv.row_homogeneous = false;
 		cv.add_row("Shape Type", shape_switcher);
+		cv.add_row("Mirror Cell", mirror_cell);
 		cv.add_row("Shape Data", shape);
 		sprite_set.add_property_grid(cv, "Collider");
+
+		mirror_cell.toggled.connect(() => {
+				shape.sensitive = !shape.sensitive;
+				calc_collider_shape();
+				_slices.queue_draw();
+				_preview.queue_draw();
+			});
 
 		// Actor.
 		cv = new PropertyGrid();
@@ -601,6 +617,24 @@ public class SpriteImportDialog : Gtk.Window
 			);
 
 		_preview.set_pixbuf(frame_pixbuf);
+	}
+
+	public void calc_collider_shape()
+	{
+		if (!mirror_cell.active)
+			return;
+
+		if (shape.visible_child_name == "square_collider") {
+			collision_xy.value = Vector2(0, 0);
+			collision_wh.value = cell.value;
+		} else if (shape.visible_child_name == "circle_collider") {
+			circle_collision_center.value = Vector2(cell.value.x * 0.5, cell.value.y * 0.5);
+			circle_collision_radius.value = double.min(cell.value.x * 0.5, cell.value.y * 0.5);
+		} else if (shape.visible_child_name == "capsule_collider") {
+			capsule_collision_center.value = Vector2(cell.value.x * 0.5, cell.value.y * 0.5);
+			capsule_collision_radius.value = double.min(cell.value.x * 0.5, cell.value.y * 0.5);
+			capsule_collision_height.value = cell.value.y;
+		}
 	}
 
 	public void decode(Hashtable obj)
