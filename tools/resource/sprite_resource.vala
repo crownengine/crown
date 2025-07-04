@@ -753,6 +753,23 @@ public class SpriteResource
 			db.set_property_double(sprite_id, "width", width);
 			db.set_property_double(sprite_id, "height", height);
 
+			// Create 'animations' folder.
+			string directory_name = "animations";
+			string animations_path = destination_dir;
+			{
+				GLib.File animations_file = File.new_for_path(Path.build_filename(destination_dir, directory_name));
+				try {
+					animations_file.make_directory();
+				} catch (GLib.IOError.EXISTS e) {
+					// Ignore.
+				} catch (GLib.Error e) {
+					loge(e.message);
+					return ImportResult.ERROR;
+				}
+
+				animations_path = animations_file.get_path();
+			}
+
 			// Generate .sprite_animation.
 			Guid sprite_animation_id = Guid.new_guid();
 			SpriteAnimation sa = SpriteAnimation(db, sprite_animation_id);
@@ -799,12 +816,21 @@ public class SpriteResource
 			if (db.save(project.absolute_path(resource_name) + ".sprite", sprite_id) != 0)
 				return ImportResult.ERROR;
 
-			if (sa.save(project, resource_name) != 0)
+			string anim_basename = GLib.File.new_for_path(resource_name).get_basename();
+			string anim_filename = Path.build_filename(animations_path, anim_basename + "_default" + "." + OBJECT_TYPE_SPRITE_ANIMATION);
+			GLib.File anim_file  = GLib.File.new_for_path(anim_filename);
+			string anim_path     = anim_file.get_path();
+
+			string anim_resource_filename = project.resource_filename(anim_path);
+			string anim_resource_path     = ResourceId.normalize(anim_resource_filename);
+			string anim_resource_name     = ResourceId.name(anim_resource_path);
+
+			if (sa.save(project, anim_resource_name) != 0)
 				return ImportResult.ERROR;
 
 			// Generate .state_machine.
 			Guid state_machine_id = Guid.new_guid();
-			StateMachineResource smr = StateMachineResource.sprite(db, state_machine_id, resource_name);
+			StateMachineResource smr = StateMachineResource.sprite(db, state_machine_id, anim_resource_name);
 			if (smr.save(project, resource_name) != 0)
 				return ImportResult.ERROR;
 
