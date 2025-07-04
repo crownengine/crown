@@ -41,6 +41,11 @@ public struct StateMachineNode
 		_db.create_empty_set(_id, "animations");
 		_db.create_empty_set(_id, "transitions");
 	}
+
+	public void add_animation(NodeAnimation anim)
+	{
+		_db.add_to_set(_id, "animations", anim._id);
+	}
 }
 
 public struct StateMachineResource
@@ -51,6 +56,7 @@ public struct StateMachineResource
 	public StateMachineResource(Database db
 		, Guid id
 		, string animation_type
+		, string? initial_animation_name
 		, string? skeleton_name
 		)
 	{
@@ -59,6 +65,11 @@ public struct StateMachineResource
 
 		Guid initial_state_id = Guid.new_guid();
 		StateMachineNode initial_state = StateMachineNode(db, initial_state_id);
+
+		if (initial_animation_name != null) {
+			NodeAnimation na = NodeAnimation(db, Guid.new_guid(), initial_animation_name, "1");
+			initial_state.add_animation(na);
+		}
 
 		_db.create(_id, OBJECT_TYPE_STATE_MACHINE);
 		add_node(initial_state);
@@ -71,12 +82,12 @@ public struct StateMachineResource
 
 	public StateMachineResource.mesh(Database db, Guid id, string skeleton_name)
 	{
-		this(db, id, OBJECT_TYPE_MESH_ANIMATION, skeleton_name);
+		this(db, id, OBJECT_TYPE_MESH_ANIMATION, null, skeleton_name);
 	}
 
-	public StateMachineResource.sprite(Database db, Guid id)
+	public StateMachineResource.sprite(Database db, Guid id, string? initial_animation_name)
 	{
-		this(db, id, OBJECT_TYPE_SPRITE_ANIMATION, null);
+		this(db, id, OBJECT_TYPE_SPRITE_ANIMATION, initial_animation_name, null);
 	}
 
 	public void add_node(StateMachineNode node)

@@ -377,7 +377,7 @@ public class Project
 
 		StateMachineResource machine;
 		if (skeleton_name == null)
-			machine = StateMachineResource.sprite(db, machine_id);
+			machine = StateMachineResource.sprite(db, machine_id, null);
 		else
 			machine = StateMachineResource.mesh(db, machine_id, skeleton_name);
 
