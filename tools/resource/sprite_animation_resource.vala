@@ -36,7 +36,6 @@ public struct SpriteAnimation
 		_id = id;
 
 		_db.create(_id, OBJECT_TYPE_SPRITE_ANIMATION);
-		_db.set_property_double(_id, "total_time", 0.5);
 		_db.set_property_double(_id, "frames_per_second", 16.0);
 		_db.create_empty_set(_id, "frames");
 	}
