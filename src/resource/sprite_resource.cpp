@@ -15,10 +15,13 @@
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/string.inl"
 #include "core/strings/string_id.inl"
+#include "device/log.h"
 #include "resource/compile_options.inl"
 #include "resource/resource_manager.h"
 #include "resource/sprite_resource.h"
 #include <algorithm>
+
+LOG_SYSTEM(SPRITE_ANIMATION_RESOURCE, "sprite_animation_resource")
 
 namespace crown
 {
@@ -240,7 +243,15 @@ namespace sprite_animation_resource_internal
 				return frame_a.index < frame_b.index;
 			});
 
-		total_time = RETURN_IF_ERROR(sjson::parse_float(obj["total_time"]), opts);
+		if (json_object::has(obj, "total_time"))
+			logw(SPRITE_ANIMATION_RESOURCE, "'total_time' property is deprecated, use 'frames_per_second' instead");
+
+		if (json_object::has(obj, "frames_per_second")) {
+			f32 fps = RETURN_IF_ERROR(sjson::parse_float(obj["frames_per_second"]), opts);
+			total_time = array::size(frames) / fps;
+		} else {
+			total_time = RETURN_IF_ERROR(sjson::parse_float(obj["total_time"]), opts);
+		}
 
 		// Write
 		SpriteAnimationResource sar;

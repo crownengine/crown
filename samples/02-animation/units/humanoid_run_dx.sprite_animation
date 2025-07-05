@@ -50,4 +50,4 @@ frames = [
 		index = 7
 	}
 ]
-total_time = 0.5
+frames_per_second = 16
