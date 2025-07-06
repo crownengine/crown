@@ -304,43 +304,49 @@ public class Project
 
 	public int create_script(string directory, string name, bool empty)
 	{
-		string script_path = Path.build_filename(directory, name + ".lua");
+		string script_name = Path.build_filename(directory, name);
+		string script_path = script_name + ".lua";
 		string path = this.absolute_path(script_path);
+		string behavior_name = camel_case(script_name.replace("/", " ")).replace(" ", "");
 
 		FileStream fs = FileStream.open(path, "wb");
 		if (fs != null) {
 			if (empty) {
 				return fs.puts("\n");
 			} else {
-				string text = "local Behavior = Behavior or {}"
-					+ "\nlocal Data = Data or {}"
+				string text = "-- Note: the following table must be global and uniquely named."
+					+ "\nBehavior = Behavior or {"
+					+ "\n	data = {}"
+					+ "\n}"
+					+ "\n"
+					+ "\nlocal data = Behavior.data"
 					+ "\n"
 					+ "\nfunction Behavior.spawned(world, units)"
-					+ "\n	if Data[world] == nil then"
-					+ "\n		Data[world] = {}"
+					+ "\n	if data[world] == nil then"
+					+ "\n		data[world] = {}"
 					+ "\n	end"
 					+ "\n"
 					+ "\n	for uu = 1, #units do"
 					+ "\n		local unit = units[uu]"
 					+ "\n"
-					+ "\n		-- Store instance-specific data"
-					+ "\n		if Data[world][unit] == nil then"
-					+ "\n			-- Data[world][unit] = {}"
+					+ "\n		-- Store instance-specific data."
+					+ "\n		if data[world][unit] == nil then"
+					+ "\n			-- data[world][unit] = {}"
 					+ "\n		end"
 					+ "\n"
-					+ "\n		-- Do something with the unit"
+					+ "\n		-- Do something with the unit."
 					+ "\n	end"
 					+ "\nend"
 					+ "\n"
 					+ "\nfunction Behavior.update(world, dt)"
-					+ "\n	-- Update all units"
+					+ "\n	-- Called once per frame."
 					+ "\nend"
 					+ "\n"
 					+ "\nfunction Behavior.unspawned(world, units)"
-					+ "\n	-- Cleanup"
+					+ "\n	-- Cleanup."
 					+ "\n	for uu = 1, #units do"
-					+ "\n		if Data[world][units] then"
-					+ "\n			Data[world][units] = nil"
+					+ "\n		if data[world][units] then"
+					+ "\n			data[world][units] = nil"
 					+ "\n		end"
 					+ "\n	end"
 					+ "\nend"
@@ -348,7 +354,7 @@ public class Project
 					+ "\nreturn Behavior"
 					+ "\n"
 					;
-				return fs.puts(text);
+				return fs.puts(text.replace("Behavior", behavior_name));
 			}
 		}
 
