@@ -1,20 +1,23 @@
 -- Copyright (c) 2012-2025 Daniele Bartolini et al.
 -- SPDX-License-Identifier: MIT
 
-local Behavior = Behavior or {}
-local Data = Data or {}
+Tree = Tree or {
+	data = {}
+}
 
-function Behavior.spawned(world, units)
-	if Data[world] == nil then
-		Data[world] = {}
+local data = Tree.data
+
+function Tree.spawned(world, units)
+	if data[world] == nil then
+		data[world] = {}
 	end
 
 	for uu = 1, #units do
 		local unit = units[uu]
 
-		if Data[world][unit] == nil then
+		if data[world][unit] == nil then
 			-- Store instance-specific data.
-			-- Data[world][unit] = {}
+			-- data[world][unit] = {}
 		end
 
 		-- Set sprite depth based on unit's position.
@@ -28,17 +31,17 @@ function Behavior.spawned(world, units)
 	end
 end
 
-function Behavior.unspawned(world, units)
+function Tree.unspawned(world, units)
 	-- Cleanup.
 	for uu = 1, #units do
-		if Data[world][units] then
-			Data[world][units] = nil
+		if data[world][units] then
+			data[world][units] = nil
 		end
 	end
 end
 
-function Behavior.update(world, dt)
+function Tree.update(world, dt)
 	-- Do nothing.
 end
 
-return Behavior
+return Tree
