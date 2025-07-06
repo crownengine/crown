@@ -301,19 +301,20 @@ void LuaEnvironment::do_file(const char *name)
 	CE_ASSERT(lua_gettop(L) == 0, "Stack not clean");
 }
 
-void LuaEnvironment::require(const char *name)
+LuaStack LuaEnvironment::require(const char *name, int nres)
 {
+	LuaStack stack(L);
 	int status;
 
 	lua_getglobal(L, "require");
 	lua_pushstring(L, name);
-	status = this->call(1, 0);
+	status = this->call(1, nres);
 	if (status != LUA_OK) {
 		report(L, status);
 		device()->pause();
 	}
 
-	CE_ASSERT(lua_gettop(L) == 0, "Stack not clean");
+	return stack;
 }
 
 LuaStack LuaEnvironment::execute(const LuaResource *lr, int nres)

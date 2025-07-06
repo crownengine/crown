@@ -68,7 +68,7 @@ struct LuaEnvironment
 	void do_file(const char *name);
 
 	/// Equivalent to calling `require "name"` from Lua.
-	void require(const char *name);
+	LuaStack require(const char *name, int nres = 0);
 
 	/// Executes the lua resource @a lr.
 	LuaStack execute(const LuaResource *lr, int nres);
