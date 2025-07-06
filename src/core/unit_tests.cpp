@@ -1473,6 +1473,13 @@ static void test_sjson()
 		JsonObject obj(ta);
 		sjson::parse_object(obj, "{foo=[//]\n]}");
 	}
+	{
+		TempAllocator1024 ta;
+		JsonObject obj(ta);
+		sjson::parse_object(obj, "{foo=\"\"\"verbatim1\"\"\" bar=\"\"\"verbatim2\"\"\"}");
+		ENSURE(json_object::has(obj, "foo"));
+		ENSURE(json_object::has(obj, "bar"));
+	}
 	memory_globals::shutdown();
 }
 

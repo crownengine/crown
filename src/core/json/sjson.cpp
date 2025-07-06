@@ -141,7 +141,7 @@ namespace sjson
 					return NULL;
 				}
 
-				while (strstr(json + 1, "\"\"\"") != NULL)
+				while (strncmp(json + 1, "\"\"\"", 3) == 0)
 					++json;
 
 				json += 3;
