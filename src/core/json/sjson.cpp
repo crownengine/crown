@@ -134,14 +134,23 @@ namespace sjson
 
 		switch (*json) {
 		case '"':
-			json = skip_string(json);
-			if (*json == '"') {
-				json = strstr(json + 1, "\"\"\"");
+			if (strncmp(json, "\"\"\"", 3) == 0) {
+				json = strstr(json + 3, "\"\"\"");
 				if (json == NULL) {
 					fatal("Bad verbatim string");
 					return NULL;
 				}
+
+				while (strstr(json + 1, "\"\"\"") != NULL)
+					++json;
+
 				json += 3;
+			} else {
+				json = skip_string(json);
+				if (*json == '"') {
+					fatal("Bad string");
+					return NULL;
+				}
 			}
 			break;
 

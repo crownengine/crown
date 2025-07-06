@@ -1456,6 +1456,11 @@ static void test_sjson()
 	{
 		TempAllocator1024 ta;
 		JsonObject obj(ta);
+		sjson::parse_object(obj, "{\"foo\":\"\"\"a\"\"\"\"}");
+	}
+	{
+		TempAllocator1024 ta;
+		JsonObject obj(ta);
 		sjson::parse_object(obj, "{foo=[\"]\"]}");
 	}
 	{
