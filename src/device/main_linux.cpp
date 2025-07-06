@@ -881,6 +881,7 @@ struct WindowX11 : public Window
 		xev.xclient.data.l[0] = full ? 1 : 0;
 		xev.xclient.data.l[1] = s_linux_device->_net_wm_state_fullscreen;
 		XSendEvent(s_linux_device->_x11_display, DefaultRootWindow(s_linux_device->_x11_display), False, SubstructureNotifyMask | SubstructureRedirectMask, &xev);
+		XFlush(s_linux_device->_x11_display);
 	}
 
 	void set_cursor(MouseCursor::Enum cursor) override
