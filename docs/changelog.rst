@@ -21,6 +21,7 @@ Changelog
 * Tools: fixed missing SKINNING define in materials when importing animated FBX meshes.
 * Tools: fixed shadows when rendering animated meshes.
 * Tools: fixed Level Tree showing previous objects when creating new levels.
+* Runtime: Linux: fixed ``Window.set_fullscreen()`` to put the window fullscreen without delays.
 * Compiler: the compiler will now return with an error if any source dir does not exist.
 
 0.57.0 --- 13 Jun 2025
