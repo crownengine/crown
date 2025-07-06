@@ -54,9 +54,7 @@ namespace script_world
 		} else {
 			script_i = array::size(sw._script);
 
-			const LuaResource *lr = (LuaResource *)sw._resource_manager->get(RESOURCE_TYPE_SCRIPT, desc.script_resource);
-
-			LuaStack stack = sw._lua_environment->execute(lr, 1);
+			LuaStack stack = sw._lua_environment->require(desc.script_resource_name, 1);
 			stack.push_value(0);
 			sd.module_ref = luaL_ref(stack.L, LUA_REGISTRYINDEX);
 			stack.pop(1);

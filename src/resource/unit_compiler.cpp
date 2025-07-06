@@ -274,10 +274,12 @@ static s32 compile_script(Buffer &output, FlatJsonObject &obj, CompileOptions &o
 
 	ScriptDesc sd;
 	sd.script_resource = RETURN_IF_ERROR(sjson::parse_resource_name(flat_json_object::get(obj, "data.script_resource")), opts);
+	strcpy(sd.script_resource_name, script_resource.c_str());
 
 	FileBuffer fb(output);
 	BinaryWriter bw(fb);
 	bw.write(sd.script_resource);
+	bw.write(sd.script_resource_name);
 	return 0;
 }
 

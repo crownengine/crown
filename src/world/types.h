@@ -354,7 +354,8 @@ struct LightDesc
 /// @ingroup World
 struct ScriptDesc
 {
-	StringId64 script_resource; ///< Name of .lua resource.
+	StringId64 script_resource;     ///< Name of .lua resource.
+	char script_resource_name[256]; ///< Name of .lua resource (plain text).
 };
 
 /// Transform description.
