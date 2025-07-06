@@ -206,6 +206,9 @@ public class SpriteImportDialog : Gtk.Window
 
 		collision_enabled = new Gtk.CheckButton();
 		collision_enabled.active = true;
+		collision_enabled.toggled.connect(() => {
+				_preview.queue_draw();
+			});
 		mirror_cell = new Gtk.CheckButton();
 		mirror_cell.active = true;
 		collision_xy = new InputVector2(Vector2(0.0, 0.0), Vector2(-double.MAX, -double.MAX), Vector2(double.MAX, double.MAX));
@@ -500,24 +503,26 @@ public class SpriteImportDialog : Gtk.Window
 				cr.translate(-cell.value.x * 0.5, -cell.value.y * 0.5);
 
 				// Draw collider.
-				if (shape.visible_child_name == "square_collider") {
-					cr.rectangle(collision_xy.value.x, collision_xy.value.y, collision_wh.value.x, collision_wh.value.y);
-					cr.set_source_rgba(collider_color.red, collider_color.green, collider_color.blue, collider_color.alpha);
-					cr.stroke();
-				} else if (shape.visible_child_name == "circle_collider") {
-					cr.arc(circle_collision_center.value.x, circle_collision_center.value.y, circle_collision_radius.value, 0, 2*Math.PI);
-					cr.set_source_rgba(collider_color.red, collider_color.green, collider_color.blue, collider_color.alpha);
-					cr.stroke();
-				} else if (shape.visible_child_name == "capsule_collider") {
-					double x = capsule_collision_center.value.x;
-					double y = capsule_collision_center.value.y;
-					double radius = capsule_collision_radius.value;
-					double height = capsule_collision_height.value - 2*radius;
-					cr.arc(x - height/2, y, radius, Math.PI/2, 3*Math.PI/2);
-					cr.rectangle(x - height/2, y - radius, height, 2*radius);
-					cr.arc(x + height/2, y, radius, 3*Math.PI/2, Math.PI/2);
-					cr.set_source_rgba(collider_color.red, collider_color.green, collider_color.blue, collider_color.alpha);
-					cr.stroke();
+				if (collision_enabled.active) {
+					if (shape.visible_child_name == "square_collider") {
+						cr.rectangle(collision_xy.value.x, collision_xy.value.y, collision_wh.value.x, collision_wh.value.y);
+						cr.set_source_rgba(collider_color.red, collider_color.green, collider_color.blue, collider_color.alpha);
+						cr.stroke();
+					} else if (shape.visible_child_name == "circle_collider") {
+						cr.arc(circle_collision_center.value.x, circle_collision_center.value.y, circle_collision_radius.value, 0, 2*Math.PI);
+						cr.set_source_rgba(collider_color.red, collider_color.green, collider_color.blue, collider_color.alpha);
+						cr.stroke();
+					} else if (shape.visible_child_name == "capsule_collider") {
+						double x = capsule_collision_center.value.x;
+						double y = capsule_collision_center.value.y;
+						double radius = capsule_collision_radius.value;
+						double height = capsule_collision_height.value - 2*radius;
+						cr.arc(x - height/2, y, radius, Math.PI/2, 3*Math.PI/2);
+						cr.rectangle(x - height/2, y - radius, height, 2*radius);
+						cr.arc(x + height/2, y, radius, 3*Math.PI/2, Math.PI/2);
+						cr.set_source_rgba(collider_color.red, collider_color.green, collider_color.blue, collider_color.alpha);
+						cr.stroke();
+					}
 				}
 
 				// Draw pivot.
