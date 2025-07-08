@@ -238,6 +238,7 @@ public class ProjectFolderView : Gtk.Stack
 		_icon_view.drag_data_get.connect(on_drag_data_get);
 		_icon_view.drag_begin.connect_after(on_drag_begin);
 		_icon_view.drag_end.connect(on_drag_end);
+		_icon_view.drag_data_received.connect(on_drag_data_received);
 		_icon_view.has_tooltip = true;
 		_icon_view.query_tooltip.connect(on_icon_view_query_tooltip);
 
@@ -254,6 +255,15 @@ public class ProjectFolderView : Gtk.Stack
 					n_press = 2;
 				return on_button_pressed(ev.button, n_press, ev.x, ev.y);
 			});
+
+		const Gtk.TargetEntry targets[] =
+		{
+			{ "text/uri-list", 0, 0 },
+		};
+		_icon_view.enable_model_drag_dest(targets
+			, Gdk.DragAction.COPY
+			| Gdk.DragAction.MOVE
+			);
 
 		// https://gitlab.gnome.org/GNOME/gtk/-/blob/3.24.43/gtk/gtkiconview.c#L5147
 		_cell_renderer_text = new Gtk.CellRendererText();
@@ -373,6 +383,33 @@ public class ProjectFolderView : Gtk.Stack
 	{
 		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_end.html
 		GLib.Application.get_default().activate_action("cancel-place", null);
+	}
+
+	private void on_drag_data_received(Gdk.DragContext context, int x, int y, Gtk.SelectionData selection_data, uint info, uint time_)
+	{
+		Gtk.TreePath? path = path_at_pos(x, y);
+
+		if (path != null) {
+			_icon_view.select_path(path);
+			_icon_view.scroll_to_path(path, false, 0.0f, 0.0f);
+		}
+
+		string type;
+		string name;
+		resource_at_path(out type, out name, path);
+
+		if (type == "<folder>") {
+			string[] uris = selection_data.get_uris();
+			string[] filenames = new string[uris.length];
+
+			// Convert URIs to filenames.
+			for (int i = 0; i < uris.length; ++i)
+				filenames[i] = GLib.Filename.from_uri(uris[i]);
+
+			GLib.Application.get_default().activate_action("import", new GLib.Variant.tuple({name, filenames}));
+		}
+
+		Gtk.drag_finish(context, true, false, time_);
 	}
 
 	private bool on_button_pressed(uint button, int n_press, double x, double y)
