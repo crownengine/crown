@@ -386,20 +386,9 @@ public class ProjectFolderView : Gtk.Stack
 			if (path != null) {
 				_icon_view.select_path(path);
 				_icon_view.scroll_to_path(path, false, 0.0f, 0.0f);
-
-				Gtk.TreeIter iter;
-				_list_store.get_iter(out iter, path);
-
-				Value val;
-				_list_store.get_value(iter, Column.TYPE, out val);
-				type = (string)val;
-				_list_store.get_value(iter, Column.NAME, out val);
-				name = (string)val;
-
-			} else {
-				type = _selected_type;
-				name = _selected_name;
 			}
+
+			resource_at_path(out type, out name, path);
 
 			GLib.Menu? menu_model;
 			if (_showing_project_folder)
@@ -678,6 +667,23 @@ public class ProjectFolderView : Gtk.Stack
 		}
 
 		return path;
+	}
+
+	private void resource_at_path(out string type, out string name, Gtk.TreePath? path)
+	{
+		if (path != null) {
+			Gtk.TreeIter iter;
+			_list_store.get_iter(out iter, path);
+
+			Value val;
+			_list_store.get_value(iter, Column.TYPE, out val);
+			type = (string)val;
+			_list_store.get_value(iter, Column.NAME, out val);
+			name = (string)val;
+		} else {
+			type = _selected_type;
+			name = _selected_name;
+		}
 	}
 }
 
