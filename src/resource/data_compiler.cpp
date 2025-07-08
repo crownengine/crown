@@ -1061,6 +1061,7 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 		hash_map::remove(_data_mtimes, id);
 		hash_map::remove(_data_dependencies, id);
 		hash_map::remove(_data_requirements, id);
+		hash_map::remove(_data_revisions, id);
 
 		// If present, remove from data folder because we do not want the
 		// runtime to accidentally load stale data compiled from resources that
