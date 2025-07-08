@@ -377,19 +377,7 @@ public class ProjectFolderView : Gtk.Stack
 
 	private bool on_button_pressed(uint button, int n_press, double x, double y)
 	{
-		Gtk.TreePath? path;
-		if (this.get_visible_child() == _icon_view_window) {
-			path = _icon_view.get_path_at_pos((int)x, (int)y);
-		} else if (this.get_visible_child() == _list_view_window) {
-			int bx;
-			int by;
-			_list_view.convert_widget_to_bin_window_coords((int)x, (int)y, out bx, out by);
-			if (!_list_view.get_path_at_pos(bx, by, out path, null, null, null))
-				path = null;
-		} else {
-			assert(false);
-			return Gdk.EVENT_PROPAGATE;
-		}
+		Gtk.TreePath? path = path_at_pos((int)x, (int)y);
 
 		if (button == Gdk.BUTTON_SECONDARY) {
 			string type;
@@ -671,6 +659,25 @@ public class ProjectFolderView : Gtk.Stack
 		int64 mtime_secs = (int64)(time / (1000*1000*1000));
 		GLib.DateTime date_time = new GLib.DateTime.from_unix_local(mtime_secs);
 		return date_time.format("%d %b %Y; %H:%M:%S");
+	}
+
+	private Gtk.TreePath? path_at_pos(int x, int y)
+	{
+		Gtk.TreePath? path = null;
+		if (this.get_visible_child() == _icon_view_window) {
+			path = _icon_view.get_path_at_pos(x, y);
+		} else if (this.get_visible_child() == _list_view_window) {
+			int bx;
+			int by;
+			_list_view.convert_widget_to_bin_window_coords(x, y, out bx, out by);
+			if (!_list_view.get_path_at_pos(bx, by, out path, null, null, null))
+				path = null;
+		} else {
+			assert(false);
+			return null;
+		}
+
+		return path;
 	}
 }
 
