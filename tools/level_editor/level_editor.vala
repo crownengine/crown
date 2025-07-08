@@ -403,26 +403,26 @@ public class LevelEditorApplication : Gtk.Application
 	private const GLib.ActionEntry[] action_entries_file =
 	{
 		//                                     parameter type
-		// name             activate()         |     state
-		// |                |                  |     |
-		{ "menu-file",      null,              null, null },
-		{ "new-level",      on_new_level,      null, null },
-		{ "open-level",     on_open_level,     "s",  null },
-		{ "new-project",    on_new_project,    null, null },
-		{ "add-project",    on_add_project,    null, null },
-		{ "remove-project", on_remove_project, "s",  null },
-		{ "open-project",   on_open_project,   "s",  null },
-		{ "save",           on_save,           null, null },
-		{ "save-as",        on_save_as,        null, null },
-		{ "import",         on_import,         "s",  null },
-		{ "import-null",    on_import,         null, null },
-		{ "preferences",    on_preferences,    null, null },
-		{ "deploy",         on_deploy,         null, null },
-		{ "close-project",  on_close_project,  null, null },
-		{ "quit",           on_quit,           null, null },
-		{ "open-resource",  on_open_resource,  "s",  null },
-		{ "copy-path",      on_copy_path,      "s",  null },
-		{ "copy-name",      on_copy_name,      "s",  null }
+		// name             activate()         |        state
+		// |                |                  |        |
+		{ "menu-file",      null,              null,    null },
+		{ "new-level",      on_new_level,      null,    null },
+		{ "open-level",     on_open_level,     "s",     null },
+		{ "new-project",    on_new_project,    null,    null },
+		{ "add-project",    on_add_project,    null,    null },
+		{ "remove-project", on_remove_project, "s",     null },
+		{ "open-project",   on_open_project,   "s",     null },
+		{ "save",           on_save,           null,    null },
+		{ "save-as",        on_save_as,        null,    null },
+		{ "import",         on_import,         "(sas)", null },
+		{ "import-null",    on_import,         null,    null },
+		{ "preferences",    on_preferences,    null,    null },
+		{ "deploy",         on_deploy,         null,    null },
+		{ "close-project",  on_close_project,  null,    null },
+		{ "quit",           on_quit,           null,    null },
+		{ "open-resource",  on_open_resource,  "s",     null },
+		{ "copy-path",      on_copy_path,      "s",     null },
+		{ "copy-name",      on_copy_name,      "s",     null }
 	};
 
 	private const GLib.ActionEntry[] action_entries_edit =
@@ -2365,9 +2365,16 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_import(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		string? destination_dir = param == null ? null : param.get_string();
+		string? destination_dir = null;
+		string[] filenames = {};
+
+		if (param != null) {
+			destination_dir = (string)param.get_child_value(0);
+			filenames = (string[])param.get_child_value(1);
+		}
 
 		_project.import(destination_dir
+			, filenames
 			, on_import_result
 			, _database
 			, this.active_window
