@@ -729,47 +729,59 @@ public class Project
 		}
 	}
 
-	public void import(string? destination_dir, Import import_result, Database database, Gtk.Window? parent_window = null)
+	public void import(string? destination_dir
+		, string[] files
+		, Import import_result
+		, Database database
+		, Gtk.Window? parent_window = null
+		)
 	{
-		Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Import..."
-			, parent_window
-			, Gtk.FileChooserAction.OPEN
-			, "Cancel"
-			, Gtk.ResponseType.CANCEL
-			, "Open"
-			, Gtk.ResponseType.ACCEPT
-			);
-		fcd.select_multiple = true;
-		fcd.add_filter(_all_extensions_importer_data._filter);
-		fcd.set_filter(_all_extensions_importer_data._filter);
-		foreach (var importer in _importers)
-			fcd.add_filter(importer._filter);
+		GLib.SList<string> filenames = new GLib.SList<string>();
 
-		fcd.response.connect((response_id) => {
-				if (response_id == Gtk.ResponseType.ACCEPT) {
-					GLib.SList<string> filenames = new GLib.SList<string>();
-					foreach (var f in fcd.get_files())
-						filenames.append(f.get_path());
+		if (files.length == 0) {
+			Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Import..."
+				, parent_window
+				, Gtk.FileChooserAction.OPEN
+				, "Cancel"
+				, Gtk.ResponseType.CANCEL
+				, "Open"
+				, Gtk.ResponseType.ACCEPT
+				);
+			fcd.select_multiple = true;
+			fcd.add_filter(_all_extensions_importer_data._filter);
+			fcd.set_filter(_all_extensions_importer_data._filter);
+			foreach (var importer in _importers)
+				fcd.add_filter(importer._filter);
 
-					// Find importer callback.
-					unowned ImporterDelegate? importer = null;
-					foreach (var imp in _importers) {
-						if (imp._filter == fcd.get_filter() && imp.can_import_filenames(filenames)) {
-							importer = imp.delegate;
-							break;
+			fcd.response.connect((response_id) => {
+					if (response_id == Gtk.ResponseType.ACCEPT) {
+						foreach (var f in fcd.get_files())
+							filenames.append(f.get_path());
+
+						// Find importer callback.
+						unowned ImporterDelegate? importer = null;
+						foreach (var imp in _importers) {
+							if (imp._filter == fcd.get_filter() && imp.can_import_filenames(filenames)) {
+								importer = imp.delegate;
+								break;
+							}
 						}
+
+						// Fallback if no importer found.
+						if (importer == null)
+							importer = _all_extensions_importer_data.delegate;
+
+						import_filenames(destination_dir, filenames, import_result, importer, database, parent_window);
 					}
+					fcd.destroy();
+				});
 
-					// Fallback if no importer found.
-					if (importer == null)
-						importer = _all_extensions_importer_data.delegate;
-
-					import_filenames(destination_dir, filenames, import_result, importer, database, parent_window);
-				}
-				fcd.destroy();
-			});
-
-		fcd.show_all();
+			fcd.show_all();
+		} else {
+			foreach (var f in files)
+				filenames.append(f);
+			import_filenames(destination_dir, filenames, import_result, _all_extensions_importer_data.delegate, database, parent_window);
+		}
 	}
 
 	public void delete_tree(GLib.File file) throws Error

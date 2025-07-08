@@ -31,7 +31,7 @@ private GLib.Menu? project_entry_menu_create(string type, string name)
 		GLib.Menu import_menu = new GLib.Menu();
 
 		mi = new GLib.MenuItem("Import...", null);
-		mi.set_action_and_target_value("app.import", new GLib.Variant.string((string)name));
+		mi.set_action_and_target_value("app.import", new GLib.Variant.tuple({(string)name, new string[] {}}));
 		import_menu.append_item(mi);
 
 		menu.append_section(null, import_menu);
