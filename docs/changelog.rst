@@ -24,6 +24,7 @@ Changelog
 * Tools: fixed a crash when sending malformed scripts via Console.
 * Runtime: Linux: fixed ``Window.set_fullscreen()`` to put the window fullscreen without delays.
 * Compiler: the compiler will now return with an error if any source dir does not exist.
+* Compiler: fixed an issue that caused a crash in the runtime when trying to reload a resource after deleting it.
 
 0.57.0 --- 13 Jun 2025
 ----------------------
