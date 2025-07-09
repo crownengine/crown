@@ -12,17 +12,6 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
-/// Returns a new color from individual elements.
-inline Color4 color4(f32 r, f32 g, f32 b, f32 a)
-{
-	Color4 c;
-	c.x = r;
-	c.y = g;
-	c.z = b;
-	c.w = a;
-	return c;
-}
-
 /// Returns a new color from individual elements. Alpha is set to 255.
 inline Color4 from_rgb(u8 r, u8 g, u8 b)
 {

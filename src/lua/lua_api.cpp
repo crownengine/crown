@@ -177,9 +177,7 @@ static int vector3box_store(lua_State *L)
 	if (stack.num_args() == 2)
 		v = stack.get_vector3(2);
 	else
-		v = vector3(stack.get_float(2)
-			, stack.get_float(3)
-			, stack.get_float(4));
+		v = { stack.get_float(2), stack.get_float(3), stack.get_float(4) };
 
 	return 0;
 }
@@ -222,11 +220,7 @@ static int quaternionbox_store(lua_State *L)
 	if (stack.num_args() == 2)
 		q = stack.get_quaternion(2);
 	else
-		q = from_elements(stack.get_float(2)
-			, stack.get_float(3)
-			, stack.get_float(4)
-			, stack.get_float(5)
-			);
+		q = { stack.get_float(2), stack.get_float(3), stack.get_float(4), stack.get_float(5) };
 
 	return 0;
 }
@@ -985,7 +979,7 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("Quaternion", "from_elements", [](lua_State *L) {
 			LuaStack stack(L);
-			stack.push_quaternion(from_elements(stack.get_float(1), stack.get_float(2), stack.get_float(3), stack.get_float(4)));
+			stack.push_quaternion({ stack.get_float(1), stack.get_float(2), stack.get_float(3), stack.get_float(4) });
 			return 1;
 		});
 	env.add_module_function("Quaternion", "negate", [](lua_State *L) {
@@ -1099,11 +1093,11 @@ void load_api(LuaEnvironment &env)
 			} else if (stack.num_args() == 1 + 1) {
 				stack.push_quaternionbox(stack.get_quaternion(1 + 1));
 			} else {
-				Quaternion q = from_elements(stack.get_float(1 + 1)
+				Quaternion q = { stack.get_float(1 + 1)
 					, stack.get_float(2 + 1)
 					, stack.get_float(3 + 1)
 					, stack.get_float(4 + 1)
-					);
+					};
 				stack.push_quaternionbox(q);
 			}
 
@@ -2354,10 +2348,10 @@ void load_api(LuaEnvironment &env)
 			LuaStack stack(L);
 			JointDesc jd;
 			jd.type = JointType::SPRING;
-			jd.anchor_0 = vector3(0, -2, 0);
-			jd.anchor_1 = vector3(0, 2, 0);
+			jd.anchor_0 = { 0.0f, -2.0f, 0.0f };
+			jd.anchor_1 = { 0.0f,  2.0f, 0.0f };
 			jd.break_force = 999999.0f;
-			jd.hinge.axis = vector3(1, 0, 0);
+			jd.hinge.axis = { 1.0f, 0.0f, 0.0f };
 			jd.hinge.lower_limit = -3.14f / 4.0f;
 			jd.hinge.upper_limit = 3.14f / 4.0f;
 			jd.hinge.bounciness = 12.0f;

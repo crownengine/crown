@@ -60,13 +60,13 @@ f32 ray_obb_intersection(const Vector3 &from, const Vector3 &dir, const Matrix4x
 	f32 tmin = 0.0f;
 	f32 tmax = FLT_MAX;
 
-	const Vector3 obb_pos = vector3(tm.t.x, tm.t.y, tm.t.z);
+	const Vector3 obb_pos = { tm.t.x, tm.t.y, tm.t.z };
 	const Vector3 obb_scl = scale(tm);
-	const Vector3 obb_world_half = vector3(half_extents.x * obb_scl.x, half_extents.y * obb_scl.y, half_extents.z * obb_scl.z);
+	const Vector3 obb_world_half = { half_extents.x * obb_scl.x, half_extents.y * obb_scl.y, half_extents.z * obb_scl.z };
 	const Vector3 delta = obb_pos - from;
 
 	{
-		Vector3 xaxis = vector3(tm.x.x, tm.x.y, tm.x.z);
+		Vector3 xaxis = { tm.x.x, tm.x.y, tm.x.z };
 		normalize(xaxis);
 		const f32 e = dot(xaxis, delta);
 		const f32 f = dot(dir, xaxis);
@@ -91,7 +91,7 @@ f32 ray_obb_intersection(const Vector3 &from, const Vector3 &dir, const Matrix4x
 	}
 
 	{
-		Vector3 yaxis = vector3(tm.y.x, tm.y.y, tm.y.z);
+		Vector3 yaxis = { tm.y.x, tm.y.y, tm.y.z };
 		normalize(yaxis);
 		const f32 e = dot(yaxis, delta);
 		const f32 f = dot(dir, yaxis);
@@ -116,7 +116,7 @@ f32 ray_obb_intersection(const Vector3 &from, const Vector3 &dir, const Matrix4x
 	}
 
 	{
-		Vector3 zaxis = vector3(tm.z.x, tm.z.y, tm.z.z);
+		Vector3 zaxis = { tm.z.x, tm.z.y, tm.z.z };
 		normalize(zaxis);
 		const f32 e = dot(zaxis, delta);
 		const f32 f = dot(dir, zaxis);
@@ -245,10 +245,10 @@ bool sphere_intersects_frustum(const Sphere &s, const Frustum &f)
 
 bool obb_intersects_frustum(const OBB &obb, const Frustum &f)
 {
-	const Vector3 obb_x = vector3(obb.tm.x.x, obb.tm.x.y, obb.tm.x.z);
-	const Vector3 obb_y = vector3(obb.tm.y.x, obb.tm.y.y, obb.tm.y.z);
-	const Vector3 obb_z = vector3(obb.tm.z.x, obb.tm.z.y, obb.tm.z.z);
-	const Vector3 obb_p = vector3(obb.tm.t.x, obb.tm.t.y, obb.tm.t.z);
+	const Vector3 obb_x = { obb.tm.x.x, obb.tm.x.y, obb.tm.x.z };
+	const Vector3 obb_y = { obb.tm.y.x, obb.tm.y.y, obb.tm.y.z };
+	const Vector3 obb_z = { obb.tm.z.x, obb.tm.z.y, obb.tm.z.z };
+	const Vector3 obb_p = { obb.tm.t.x, obb.tm.t.y, obb.tm.t.z };
 
 	const Vector3 bx = obb_x * obb.half_extents.x;
 	const Vector3 by = obb_y * obb.half_extents.y;

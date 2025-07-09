@@ -353,7 +353,7 @@ void InputManager::read(const OsEvent &event)
 			if (ev.axis_num == MouseAxis::CURSOR_DELTA) {
 				const Vector3 delta = _has_delta_axis_event ?
 					dev->axis(MouseAxis::CURSOR_DELTA)
-					: vector3(0, 0, 0)
+					: VECTOR3_ZERO
 					;
 
 				axis.x = delta.x + ev.axis_x;

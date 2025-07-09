@@ -395,7 +395,7 @@ struct SoundInstance
 	{
 		ALfloat pos[3];
 		AL_CHECK(alGetSourcefv(_source, AL_POSITION, pos));
-		return vector3(pos[0], pos[1], pos[2]);
+		return { pos[0], pos[1], pos[2] };
 	}
 
 	float range()

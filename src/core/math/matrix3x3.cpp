@@ -7,23 +7,6 @@
 
 namespace crown
 {
-Matrix3x3 from_elements(f32 xx, f32 xy, f32 xz, f32 yx, f32 yy, f32 yz, f32 zx, f32 zy, f32 zz)
-{
-	Matrix3x3 m;
-	m.x.x = xx;
-	m.x.y = xy;
-	m.x.z = xz;
-
-	m.y.x = yx;
-	m.y.y = yy;
-	m.y.z = yz;
-
-	m.z.x = zx;
-	m.z.y = zy;
-	m.z.z = zz;
-	return m;
-}
-
 Matrix3x3 from_axes(const Vector3 &x, const Vector3 &y, const Vector3 &z)
 {
 	Matrix3x3 m;

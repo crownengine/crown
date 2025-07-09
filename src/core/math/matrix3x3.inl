@@ -13,9 +13,6 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
-/// Returns a new matrix from individual elements.
-Matrix3x3 from_elements(f32 xx, f32 xy, f32 xz, f32 yx, f32 yy, f32 yz, f32 zx, f32 zy, f32 zz);
-
 /// Returns a new matrix from axes @a x, @a y and @a z.
 Matrix3x3 from_axes(const Vector3 &x, const Vector3 &y, const Vector3 &z);
 

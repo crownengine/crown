@@ -18,13 +18,6 @@ namespace crown
 /// @{
 
 /// Returns a new matrix from individual elements.
-Matrix4x4 from_elements(f32 xx, f32 xy, f32 xz, f32 xw
-	, f32 yx, f32 yy, f32 yz, f32 yw
-	, f32 zx, f32 zy, f32 zz, f32 zw
-	, f32 tx, f32 ty, f32 tz, f32 tw
-	);
-
-/// Returns a new matrix from individual elements.
 Matrix4x4 from_array(const f32 a[16]);
 
 /// Returns a new matrix from axes @a x, @a y and @a z and translation @a t.

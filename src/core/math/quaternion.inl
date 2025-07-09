@@ -14,17 +14,6 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
-/// Returns a new quaternion from individual elements.
-inline Quaternion from_elements(f32 x, f32 y, f32 z, f32 w)
-{
-	Quaternion q;
-	q.x = x;
-	q.y = y;
-	q.z = z;
-	q.w = w;
-	return q;
-}
-
 /// Returns a new quaternion from @a axis and @a angle.
 inline Quaternion from_axis_angle(const Vector3 &axis, f32 angle)
 {

@@ -7,35 +7,6 @@
 
 namespace crown
 {
-Matrix4x4 from_elements(f32 xx, f32 xy, f32 xz, f32 xw
-	, f32 yx, f32 yy, f32 yz, f32 yw
-	, f32 zx, f32 zy, f32 zz, f32 zw
-	, f32 tx, f32 ty, f32 tz, f32 tw
-	)
-{
-	Matrix4x4 m;
-	m.x.x = xx;
-	m.x.y = xy;
-	m.x.z = xz;
-	m.x.w = xw;
-
-	m.y.x = yx;
-	m.y.y = yy;
-	m.y.z = yz;
-	m.y.w = yw;
-
-	m.z.x = zx;
-	m.z.y = zy;
-	m.z.z = zz;
-	m.z.w = zw;
-
-	m.t.x = tx;
-	m.t.y = ty;
-	m.t.z = tz;
-	m.t.w = tw;
-	return m;
-}
-
 Matrix4x4 from_array(const f32 a[16])
 {
 	Matrix4x4 m;
