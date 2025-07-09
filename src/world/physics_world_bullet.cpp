@@ -99,12 +99,12 @@ static inline btTransform to_btTransform(const Matrix4x4 &m)
 
 static inline Vector3 to_vector3(const btVector3 &v)
 {
-	return vector3(v.x, v.y, v.z);
+	return { v.x, v.y, v.z };
 }
 
 static inline Quaternion to_quaternion(const btQuaternion &q)
 {
-	return from_elements(q.x, q.y, q.z, q.w);
+	return { q.x, q.y, q.z, q.w };
 }
 
 static inline Matrix4x4 to_matrix4x4(const btTransform &t)

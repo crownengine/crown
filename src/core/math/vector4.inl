@@ -13,17 +13,6 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
-/// Returns a new vector from individual elements.
-inline Vector4 vector4(f32 x, f32 y, f32 z, f32 w)
-{
-	Vector4 v;
-	v.x = x;
-	v.y = y;
-	v.z = z;
-	v.w = w;
-	return v;
-}
-
 /// Adds the vector @a a to @a b and returns the result.
 inline Vector4 &operator+=(Vector4 &a, const Vector4 &b)
 {

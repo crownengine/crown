@@ -127,7 +127,7 @@ namespace physics_resource_internal
 		aabb::from_points(aabb, array::size(points), array::begin(points));
 
 		const Vector3 origin = aabb::center(aabb);
-		sd.local_tm.t = vector4(origin.x, origin.y, origin.z, 1.0f);
+		sd.local_tm.t = { origin.x, origin.y, origin.z, 1.0f };
 
 		sd.sphere.radius = max(0.0f, aabb.max.x - aabb.min.x);
 		sd.sphere.radius = max(sd.sphere.radius, aabb.max.y - aabb.min.y);
@@ -141,7 +141,7 @@ namespace physics_resource_internal
 		aabb::from_points(aabb, array::size(points), array::begin(points));
 
 		const Vector3 origin = aabb::center(aabb);
-		sd.local_tm.t = vector4(origin.x, origin.y, origin.z, 1.0f);
+		sd.local_tm.t = { origin.x, origin.y, origin.z, 1.0f };
 		sd.capsule.radius = aabb::radius(aabb) / 2.0f;
 		sd.capsule.height = (aabb.max.y - aabb.min.y) / 2.0f;
 	}
@@ -152,7 +152,7 @@ namespace physics_resource_internal
 		aabb::from_points(aabb, array::size(points), array::begin(points));
 
 		const Vector3 origin = aabb::center(aabb);
-		sd.local_tm.t = vector4(origin.x, origin.y, origin.z, 1.0f);
+		sd.local_tm.t = { origin.x, origin.y, origin.z, 1.0f };
 		sd.box.half_size = (aabb.max - aabb.min) * 0.5f;
 	}
 
@@ -601,7 +601,7 @@ namespace physics_config_resource_internal
 		if (json_object::has(obj, "gravity")) {
 			pcr.gravity = RETURN_IF_ERROR(sjson::parse_vector3(obj["gravity"]), opts);
 		} else {
-			pcr.gravity = vector3(0.0f, 0.0f, -10.0f);
+			pcr.gravity = { 0.0f, 0.0f, -10.0f };
 		}
 
 		// Setup struct for writing

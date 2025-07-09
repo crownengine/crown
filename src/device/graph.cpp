@@ -273,7 +273,7 @@ struct Graph
 	{
 		ChannelData &cd = _channels[samples_index];
 		cd.type = ProfilerEventType::RECORD_FLOAT;
-		cd.samples[cd.head] = vector3(value, 0.0f, 0.0f);
+		cd.samples[cd.head] = { value, 0.0f, 0.0f };
 		cd.head = (cd.head + 1) % ChannelData::MAX_SAMPLES;
 		cd.size = min(cd.size + 1, (u32)ChannelData::MAX_SAMPLES);
 
@@ -399,23 +399,23 @@ struct Graph
 		f32 x_end = x_start + x_step*(_num_samples - 1);
 
 		// Draw margin top.
-		dl.add_line(vector3(x_start, y_max, 0.0f)
-			, vector3(x_end, y_max, 0.0f)
+		dl.add_line({ x_start, y_max, 0.0f }
+			, { x_end, y_max, 0.0f }
 			, COLOR4_ORANGE
 			);
 		// Draw margin right.
-		dl.add_line(vector3(x_end, y_max, 0.0f)
-			, vector3(x_end, y_min, 0.0f)
+		dl.add_line({ x_end, y_max, 0.0f }
+			, { x_end, y_min, 0.0f }
 			, COLOR4_ORANGE
 			);
 		// Draw margin bottom.
-		dl.add_line(vector3(x_end, y_min, 0.0f)
-			, vector3(x_start, y_min, 0.0f)
+		dl.add_line({ x_end, y_min, 0.0f }
+			, { x_start, y_min, 0.0f }
 			, COLOR4_ORANGE
 			);
 		// Draw margin left.
-		dl.add_line(vector3(x_start, y_min, 0.0f)
-			, vector3(x_start, y_max, 0.0f)
+		dl.add_line({ x_start, y_min, 0.0f }
+			, { x_start, y_max, 0.0f }
 			, COLOR4_ORANGE
 			);
 

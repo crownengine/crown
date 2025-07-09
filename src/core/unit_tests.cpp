@@ -240,68 +240,68 @@ static void test_hash_set()
 static void test_vector2()
 {
 	{
-		const Vector2 a = vector2(1.2f,  4.2f);
-		const Vector2 b = vector2(2.7f, -1.9f);
+		const Vector2 a = { 1.2f,  4.2f };
+		const Vector2 b = { 2.7f, -1.9f };
 		const Vector2 c = a - b;
 		ENSURE(fequal(c.x, -1.5f, 0.0001f));
 		ENSURE(fequal(c.y,  6.1f, 0.0001f));
 	}
 	{
-		const Vector2 a = vector2(1.2f,  4.2f);
-		const Vector2 b = vector2(2.7f, -1.9f);
+		const Vector2 a = { 1.2f,  4.2f };
+		const Vector2 b = { 2.7f, -1.9f };
 		const Vector2 c = a + b;
 		ENSURE(fequal(c.x,  3.9f, 0.0001f));
 		ENSURE(fequal(c.y,  2.3f, 0.0001f));
 	}
 	{
-		const Vector2 a = vector2(1.2f,  4.2f);
+		const Vector2 a = { 1.2f,  4.2f };
 		const Vector2 b = a * 2.0f;
 		ENSURE(fequal(b.x,  2.4f, 0.0001f));
 		ENSURE(fequal(b.y,  8.4f, 0.0001f));
 	}
 	{
-		const Vector2 a = vector2(1.2f,  4.2f);
-		const Vector2 b = vector2(2.7f, -1.9f);
+		const Vector2 a = { 1.2f,  4.2f };
+		const Vector2 b = { 2.7f, -1.9f };
 		const f32 c = dot(a, b);
 		ENSURE(fequal(c,  -4.74f, 0.0001f));
 	}
 	{
-		const Vector2 a = vector2(1.2f,  4.2f);
+		const Vector2 a = { 1.2f,  4.2f };
 		const f32 c = length_squared(a);
 		ENSURE(fequal(c, 19.08f, 0.0001f));
 	}
 	{
-		const Vector2 a = vector2(1.2f,  4.2f);
+		const Vector2 a = { 1.2f,  4.2f };
 		const f32 c = length(a);
 		ENSURE(fequal(c,  4.36806f, 0.0001f));
 	}
 	{
-		Vector2 a = vector2(1.2f,  4.2f);
+		Vector2 a = { 1.2f,  4.2f };
 		normalize(a);
 		ENSURE(fequal(length(a), 1.0f, 0.00001f));
 	}
 	{
-		const Vector2 a = vector2(1.2f,  4.2f);
-		const Vector2 b = vector2(2.7f, -1.9f);
+		const Vector2 a = { 1.2f,  4.2f };
+		const Vector2 b = { 2.7f, -1.9f };
 		const float c = distance_squared(a, b);
 		ENSURE(fequal(c, 39.46f, 0.00001f));
 	}
 	{
-		const Vector2 a = vector2(1.2f,  4.2f);
-		const Vector2 b = vector2(2.7f, -1.9f);
+		const Vector2 a = { 1.2f,  4.2f };
+		const Vector2 b = { 2.7f, -1.9f };
 		const float c = distance(a, b);
 		ENSURE(fequal(c, 6.28171f, 0.00001f));
 	}
 	{
-		const Vector2 a = vector2(1.2f,  4.2f);
-		const Vector2 b = vector2(2.7f, -1.9f);
+		const Vector2 a = { 1.2f,  4.2f };
+		const Vector2 b = { 2.7f, -1.9f };
 		const Vector2 c = max(a, b);
 		ENSURE(fequal(c.x,  2.7f, 0.00001f));
 		ENSURE(fequal(c.y,  4.2f, 0.00001f));
 	}
 	{
-		const Vector2 a = vector2(1.2f,  4.2f);
-		const Vector2 b = vector2(2.7f, -1.9f);
+		const Vector2 a = { 1.2f,  4.2f };
+		const Vector2 b = { 2.7f, -1.9f };
 		const Vector2 c = min(a, b);
 		ENSURE(fequal(c.x,  1.2f, 0.00001f));
 		ENSURE(fequal(c.y, -1.9f, 0.00001f));
@@ -311,31 +311,31 @@ static void test_vector2()
 static void test_vector3()
 {
 	{
-		const Vector3 a = vector3(1.2f,  4.2f, -2.3f);
-		const Vector3 b = vector3(2.7f, -1.9f, -4.1f);
+		const Vector3 a = { 1.2f,  4.2f, -2.3f };
+		const Vector3 b = { 2.7f, -1.9f, -4.1f };
 		const Vector3 c = a - b;
 		ENSURE(fequal(c.x, -1.5f, 0.0001f));
 		ENSURE(fequal(c.y,  6.1f, 0.0001f));
 		ENSURE(fequal(c.z,  1.8f, 0.0001f));
 	}
 	{
-		const Vector3 a = vector3(1.2f,  4.2f, -2.3f);
-		const Vector3 b = vector3(2.7f, -1.9f, -4.1f);
+		const Vector3 a = { 1.2f,  4.2f, -2.3f };
+		const Vector3 b = { 2.7f, -1.9f, -4.1f };
 		const Vector3 c = a + b;
 		ENSURE(fequal(c.x,  3.9f, 0.0001f));
 		ENSURE(fequal(c.y,  2.3f, 0.0001f));
 		ENSURE(fequal(c.z, -6.4f, 0.0001f));
 	}
 	{
-		const Vector3 a = vector3(1.2f,  4.2f, -2.3f);
+		const Vector3 a = { 1.2f,  4.2f, -2.3f };
 		const Vector3 b = a * 2.0f;
 		ENSURE(fequal(b.x,  2.4f, 0.0001f));
 		ENSURE(fequal(b.y,  8.4f, 0.0001f));
 		ENSURE(fequal(b.z, -4.6f, 0.0001f));
 	}
 	{
-		const Vector3 a = vector3(1.2f,  4.2f, -2.3f);
-		const Vector3 b = vector3(2.7f, -1.9f, -4.1f);
+		const Vector3 a = { 1.2f,  4.2f, -2.3f };
+		const Vector3 b = { 2.7f, -1.9f, -4.1f };
 		const f32 c = dot(a, b);
 		ENSURE(fequal(c,  4.69f, 0.0001f));
 	}
@@ -356,43 +356,43 @@ static void test_vector3()
 		ENSURE(fequal(y_axis.z, VECTOR3_YAXIS.z, 0.0001f));
 	}
 	{
-		const Vector3 a = vector3(1.2f,  4.2f, -2.3f);
+		const Vector3 a = { 1.2f,  4.2f, -2.3f };
 		const f32 c = length_squared(a);
 		ENSURE(fequal(c, 24.37f, 0.0001f));
 	}
 	{
-		const Vector3 a = vector3(1.2f,  4.2f, -2.3f);
+		const Vector3 a = { 1.2f,  4.2f, -2.3f };
 		const f32 c = length(a);
 		ENSURE(fequal(c,  4.93659f, 0.0001f));
 	}
 	{
-		Vector3 a = vector3(1.2f,  4.2f, -2.3f);
+		Vector3 a = { 1.2f,  4.2f, -2.3f };
 		normalize(a);
 		ENSURE(fequal(length(a), 1.0f, 0.00001f));
 	}
 	{
-		const Vector3 a = vector3(1.2f,  4.2f, -2.3f);
-		const Vector3 b = vector3(2.7f, -1.9f, -4.1f);
+		const Vector3 a = { 1.2f,  4.2f, -2.3f };
+		const Vector3 b = { 2.7f, -1.9f, -4.1f };
 		const float c = distance_squared(a, b);
 		ENSURE(fequal(c, 42.70f, 0.00001f));
 	}
 	{
-		const Vector3 a = vector3(1.2f,  4.2f, -2.3f);
-		const Vector3 b = vector3(2.7f, -1.9f, -4.1f);
+		const Vector3 a = { 1.2f,  4.2f, -2.3f };
+		const Vector3 b = { 2.7f, -1.9f, -4.1f };
 		const float c = distance(a, b);
 		ENSURE(fequal(c, 6.53452f, 0.00001f));
 	}
 	{
-		const Vector3 a = vector3(1.2f,  4.2f, -2.3f);
-		const Vector3 b = vector3(2.7f, -1.9f, -4.1f);
+		const Vector3 a = { 1.2f,  4.2f, -2.3f };
+		const Vector3 b = { 2.7f, -1.9f, -4.1f };
 		const Vector3 c = max(a, b);
 		ENSURE(fequal(c.x,  2.7f, 0.00001f));
 		ENSURE(fequal(c.y,  4.2f, 0.00001f));
 		ENSURE(fequal(c.z, -2.3f, 0.00001f));
 	}
 	{
-		const Vector3 a = vector3(1.2f,  4.2f, -2.3f);
-		const Vector3 b = vector3(2.7f, -1.9f, -4.1f);
+		const Vector3 a = { 1.2f,  4.2f, -2.3f };
+		const Vector3 b = { 2.7f, -1.9f, -4.1f };
 		const Vector3 c = min(a, b);
 		ENSURE(fequal(c.x,  1.2f, 0.00001f));
 		ENSURE(fequal(c.y, -1.9f, 0.00001f));
@@ -403,8 +403,8 @@ static void test_vector3()
 static void test_vector4()
 {
 	{
-		const Vector4 a = vector4(1.2f,  4.2f, -2.3f, 5.5f);
-		const Vector4 b = vector4(2.7f, -1.9f, -4.1f, 1.0f);
+		const Vector4 a = { 1.2f,  4.2f, -2.3f, 5.5f };
+		const Vector4 b = { 2.7f, -1.9f, -4.1f, 1.0f };
 		const Vector4 c = a - b;
 		ENSURE(fequal(c.x, -1.5f, 0.0001f));
 		ENSURE(fequal(c.y,  6.1f, 0.0001f));
@@ -412,8 +412,8 @@ static void test_vector4()
 		ENSURE(fequal(c.w,  4.5f, 0.0001f));
 	}
 	{
-		const Vector4 a = vector4(1.2f,  4.2f, -2.3f, 5.5f);
-		const Vector4 b = vector4(2.7f, -1.9f, -4.1f, 1.0f);
+		const Vector4 a = { 1.2f,  4.2f, -2.3f, 5.5f };
+		const Vector4 b = { 2.7f, -1.9f, -4.1f, 1.0f };
 		const Vector4 c = a + b;
 		ENSURE(fequal(c.x,  3.9f, 0.0001f));
 		ENSURE(fequal(c.y,  2.3f, 0.0001f));
@@ -421,7 +421,7 @@ static void test_vector4()
 		ENSURE(fequal(c.w,  6.5f, 0.0001f));
 	}
 	{
-		const Vector4 a = vector4(1.2f,  4.2f, -2.3f, 1.5f);
+		const Vector4 a = { 1.2f,  4.2f, -2.3f, 1.5f };
 		const Vector4 b = a * 2.0f;
 		ENSURE(fequal(b.x,  2.4f, 0.0001f));
 		ENSURE(fequal(b.y,  8.4f, 0.0001f));
@@ -429,41 +429,41 @@ static void test_vector4()
 		ENSURE(fequal(b.w,  3.0f, 0.0001f));
 	}
 	{
-		const Vector4 a = vector4(1.2f,  4.2f, -2.3f, 5.5f);
-		const Vector4 b = vector4(2.7f, -1.9f, -4.1f, 1.0f);
+		const Vector4 a = { 1.2f,  4.2f, -2.3f, 5.5f };
+		const Vector4 b = { 2.7f, -1.9f, -4.1f, 1.0f };
 		const f32 c = dot(a, b);
 		ENSURE(fequal(c,  10.19f, 0.0001f));
 	}
 	{
-		const Vector4 a = vector4(1.2f,  4.2f, -2.3f, 5.5f);
+		const Vector4 a = { 1.2f,  4.2f, -2.3f, 5.5f };
 		const f32 c = length_squared(a);
 		ENSURE(fequal(c, 54.62f, 0.0001f));
 	}
 	{
-		const Vector4 a = vector4(1.2f,  4.2f, -2.3f, 5.5f);
+		const Vector4 a = { 1.2f,  4.2f, -2.3f, 5.5f };
 		const f32 c = length(a);
 		ENSURE(fequal(c,  7.39053f, 0.0001f));
 	}
 	{
-		Vector4 a = vector4(1.2f,  4.2f, -2.3f, 5.5f);
+		Vector4 a = { 1.2f,  4.2f, -2.3f, 5.5f };
 		normalize(a);
 		ENSURE(fequal(length(a), 1.0f, 0.00001f));
 	}
 	{
-		const Vector4 a = vector4(1.2f,  4.2f, -2.3f, 5.5f);
-		const Vector4 b = vector4(2.7f, -1.9f, -4.1f, 1.0f);
+		const Vector4 a = { 1.2f,  4.2f, -2.3f, 5.5f };
+		const Vector4 b = { 2.7f, -1.9f, -4.1f, 1.0f };
 		const float c = distance_squared(a, b);
 		ENSURE(fequal(c, 62.95f, 0.00001f));
 	}
 	{
-		const Vector4 a = vector4(1.2f,  4.2f, -2.3f, 5.5f);
-		const Vector4 b = vector4(2.7f, -1.9f, -4.1f, 1.0f);
+		const Vector4 a = { 1.2f,  4.2f, -2.3f, 5.5f };
+		const Vector4 b = { 2.7f, -1.9f, -4.1f, 1.0f };
 		const float c = distance(a, b);
 		ENSURE(fequal(c, 7.93410f, 0.00001f));
 	}
 	{
-		const Vector4 a = vector4(1.2f,  4.2f, -2.3f, 5.5f);
-		const Vector4 b = vector4(2.7f, -1.9f, -4.1f, 1.0f);
+		const Vector4 a = { 1.2f,  4.2f, -2.3f, 5.5f };
+		const Vector4 b = { 2.7f, -1.9f, -4.1f, 1.0f };
 		const Vector4 c = max(a, b);
 		ENSURE(fequal(c.x,  2.7f, 0.00001f));
 		ENSURE(fequal(c.y,  4.2f, 0.00001f));
@@ -471,8 +471,8 @@ static void test_vector4()
 		ENSURE(fequal(c.w,  5.5f, 0.00001f));
 	}
 	{
-		const Vector4 a = vector4(1.2f,  4.2f, -2.3f, 5.5f);
-		const Vector4 b = vector4(2.7f, -1.9f, -4.1f, 1.0f);
+		const Vector4 a = { 1.2f,  4.2f, -2.3f, 5.5f };
+		const Vector4 b = { 2.7f, -1.9f, -4.1f, 1.0f };
 		const Vector4 c = min(a, b);
 		ENSURE(fequal(c.x,  1.2f, 0.00001f));
 		ENSURE(fequal(c.y, -1.9f, 0.00001f));
@@ -484,7 +484,7 @@ static void test_vector4()
 static void test_quaternion()
 {
 	{
-		const Quaternion a = from_elements(0.0f, 0.0f, 0.0f, 1.0f);
+		const Quaternion a = { 0.0f, 0.0f, 0.0f, 1.0f };
 		ENSURE(fequal(a.x, 0.0f, 0.00001f));
 		ENSURE(fequal(a.y, 0.0f, 0.00001f));
 		ENSURE(fequal(a.z, 0.0f, 0.00001f));
@@ -495,7 +495,7 @@ static void test_quaternion()
 static void test_color4()
 {
 	{
-		const Color4 a = color4(1.3f, 2.6f, 0.2f, 0.6f);
+		const Color4 a = { 1.3f, 2.6f, 0.2f, 0.6f };
 		ENSURE(fequal(a.x, 1.3f, 0.00001f));
 		ENSURE(fequal(a.y, 2.6f, 0.00001f));
 		ENSURE(fequal(a.z, 0.2f, 0.00001f));
@@ -549,14 +549,16 @@ static void test_color4()
 static void test_matrix3x3()
 {
 	{
-		const Matrix3x3 a = from_elements(1.2f, -2.3f, 5.1f
-			,  2.2f, -5.1f,  1.1f
-			,  3.2f,  3.3f, -3.8f
-			);
-		const Matrix3x3 b = from_elements(3.2f, 4.8f, 6.0f
-			, -1.6f, -7.1f, -2.4f
-			, -3.1f, -2.2f,  8.9f
-			);
+		const Matrix3x3 a = {
+			1.2f, -2.3f, 5.1f,
+			2.2f, -5.1f,  1.1f,
+			3.2f,  3.3f, -3.8f
+		};
+		const Matrix3x3 b = {
+			3.2f, 4.8f, 6.0f,
+			-1.6f, -7.1f, -2.4f,
+			-3.1f, -2.2f,  8.9f
+		};
 		const Matrix3x3 c = a + b;
 		ENSURE(fequal(c.x.x,   4.4f, 0.00001f));
 		ENSURE(fequal(c.x.y,   2.5f, 0.00001f));
@@ -569,14 +571,16 @@ static void test_matrix3x3()
 		ENSURE(fequal(c.z.z,   5.1f, 0.00001f));
 	}
 	{
-		const Matrix3x3 a = from_elements(1.2f, -2.3f, 5.1f
-			,  2.2f, -5.1f,  1.1f
-			,  3.2f,  3.3f, -3.8f
-			);
-		const Matrix3x3 b = from_elements(3.2f, 4.8f, 6.0f
-			, -1.6f, -7.1f, -2.4f
-			, -3.1f, -2.2f,  8.9f
-			);
+		const Matrix3x3 a = {
+			1.2f, -2.3f, 5.1f,
+			2.2f, -5.1f,  1.1f,
+			3.2f,  3.3f, -3.8f
+		};
+		const Matrix3x3 b = {
+			3.2f, 4.8f, 6.0f,
+			-1.6f, -7.1f, -2.4f,
+			-3.1f, -2.2f,  8.9f
+		};
 		const Matrix3x3 c = a - b;
 		ENSURE(fequal(c.x.x,  -2.0f, 0.00001f));
 		ENSURE(fequal(c.x.y,  -7.1f, 0.00001f));
@@ -589,14 +593,16 @@ static void test_matrix3x3()
 		ENSURE(fequal(c.z.z, -12.7f, 0.00001f));
 	}
 	{
-		const Matrix3x3 a = from_elements(1.2f, -2.3f, 5.1f
-			,  2.2f, -5.1f,  1.1f
-			,  3.2f,  3.3f, -3.8f
-			);
-		const Matrix3x3 b = from_elements(3.2f, 4.8f, 6.0f
-			, -1.6f, -7.1f, -2.4f
-			, -3.1f, -2.2f,  8.9f
-			);
+		const Matrix3x3 a = {
+			1.2f, -2.3f, 5.1f,
+			2.2f, -5.1f,  1.1f,
+			3.2f,  3.3f, -3.8f
+		};
+		const Matrix3x3 b = {
+			3.2f, 4.8f, 6.0f,
+			-1.6f, -7.1f, -2.4f,
+			-3.1f, -2.2f,  8.9f
+		};
 		const Matrix3x3 c = a * b;
 		ENSURE(fequal(c.x.x,  -8.29f, 0.00001f));
 		ENSURE(fequal(c.x.y,  10.87f, 0.00001f));
@@ -609,10 +615,11 @@ static void test_matrix3x3()
 		ENSURE(fequal(c.z.z, -22.54f, 0.00001f));
 	}
 	{
-		const Matrix3x3 a = from_elements(1.2f, -2.3f, 5.1f
-			,  2.2f, -5.1f,  1.1f
-			,  3.2f,  3.3f, -3.8f
-			);
+		const Matrix3x3 a = {
+			1.2f, -2.3f, 5.1f,
+			2.2f, -5.1f,  1.1f,
+			3.2f,  3.3f, -3.8f
+		};
 		const Matrix3x3 b = get_inverted(a);
 		ENSURE(fequal(b.x.x,  0.140833f, 0.00001f));
 		ENSURE(fequal(b.x.y,  0.072339f, 0.00001f));
@@ -625,10 +632,11 @@ static void test_matrix3x3()
 		ENSURE(fequal(b.z.z, -0.009478f, 0.00001f));
 	}
 	{
-		const Matrix3x3 a = from_elements(1.2f, -2.3f, 5.1f
-			,  2.2f, -5.1f,  1.1f
-			,  3.2f,  3.3f, -3.8f
-			);
+		const Matrix3x3 a = {
+			1.2f, -2.3f, 5.1f,
+			2.2f, -5.1f,  1.1f,
+			3.2f,  3.3f, -3.8f
+		};
 		const Matrix3x3 b = get_transposed(a);
 		ENSURE(fequal(b.x.x,  1.2f, 0.00001f));
 		ENSURE(fequal(b.x.y,  2.2f, 0.00001f));
@@ -645,7 +653,7 @@ static void test_matrix3x3()
 		Matrix3x3 a;
 		Matrix3x3 b;
 
-		a = from_quaternion(from_axis_angle(vector3(1.0f, 0.0f, 0.0f), angle));
+		a = from_quaternion(from_axis_angle({ 1.0f, 0.0f, 0.0f }, angle));
 		b = from_x_axis_angle(angle);
 		ENSURE(fequal(a.x.x, b.x.x, 0.00001f));
 		ENSURE(fequal(a.x.y, b.x.y, 0.00001f));
@@ -657,7 +665,7 @@ static void test_matrix3x3()
 		ENSURE(fequal(a.z.y, b.z.y, 0.00001f));
 		ENSURE(fequal(a.z.z, b.z.z, 0.00001f));
 
-		a = from_quaternion(from_axis_angle(vector3(0.0f, 1.0f, 0.0f), angle));
+		a = from_quaternion(from_axis_angle({ 0.0f, 1.0f, 0.0f }, angle));
 		b = from_y_axis_angle(angle);
 		ENSURE(fequal(a.x.x, b.x.x, 0.00001f));
 		ENSURE(fequal(a.x.y, b.x.y, 0.00001f));
@@ -669,7 +677,7 @@ static void test_matrix3x3()
 		ENSURE(fequal(a.z.y, b.z.y, 0.00001f));
 		ENSURE(fequal(a.z.z, b.z.z, 0.00001f));
 
-		a = from_quaternion(from_axis_angle(vector3(0.0f, 0.0f, 1.0f), angle));
+		a = from_quaternion(from_axis_angle({ 0.0f, 0.0f, 1.0f }, angle));
 		b = from_z_axis_angle(angle);
 		ENSURE(fequal(a.x.x, b.x.x, 0.00001f));
 		ENSURE(fequal(a.x.y, b.x.y, 0.00001f));
@@ -686,16 +694,18 @@ static void test_matrix3x3()
 static void test_matrix4x4()
 {
 	{
-		const Matrix4x4 a = from_elements(1.2f, -2.3f, 5.1f, -1.2f
-			,  2.2f, -5.1f,  1.1f, -7.4f
-			,  3.2f,  3.3f, -3.8f, -9.2f
-			, -6.8f, -2.9f,  1.0f,  4.9f
-			);
-		const Matrix4x4 b = from_elements(3.2f, 4.8f, 6.0f, 5.3f
-			, -1.6f, -7.1f, -2.4f, -6.2f
-			, -3.1f, -2.2f,  8.9f,  8.3f
-			,  3.8f,  9.1f, -3.1f, -7.1f
-			);
+		const Matrix4x4 a = {
+			1.2f, -2.3f, 5.1f, -1.2f,
+			2.2f, -5.1f,  1.1f, -7.4f,
+			3.2f,  3.3f, -3.8f, -9.2f,
+			-6.8f, -2.9f,  1.0f,  4.9f
+		};
+		const Matrix4x4 b = {
+			3.2f, 4.8f, 6.0f, 5.3f,
+			-1.6f, -7.1f, -2.4f, -6.2f,
+			-3.1f, -2.2f,  8.9f,  8.3f,
+			3.8f,  9.1f, -3.1f, -7.1f
+		};
 		const Matrix4x4 c = a + b;
 		ENSURE(fequal(c.x.x,   4.4f, 0.00001f));
 		ENSURE(fequal(c.x.y,   2.5f, 0.00001f));
@@ -715,16 +725,18 @@ static void test_matrix4x4()
 		ENSURE(fequal(c.t.w,  -2.2f, 0.00001f));
 	}
 	{
-		const Matrix4x4 a = from_elements(1.2f, -2.3f, 5.1f, -1.2f
-			,  2.2f, -5.1f,  1.1f, -7.4f
-			,  3.2f,  3.3f, -3.8f, -9.2f
-			, -6.8f, -2.9f,  1.0f,  4.9f
-			);
-		const Matrix4x4 b = from_elements(3.2f, 4.8f, 6.0f, 5.3f
-			, -1.6f, -7.1f, -2.4f, -6.2f
-			, -3.1f, -2.2f,  8.9f,  8.3f
-			,  3.8f,  9.1f, -3.1f, -7.1f
-			);
+		const Matrix4x4 a = {
+			1.2f, -2.3f, 5.1f, -1.2f,
+			2.2f, -5.1f,  1.1f, -7.4f,
+			3.2f,  3.3f, -3.8f, -9.2f,
+			-6.8f, -2.9f,  1.0f,  4.9f
+		};
+		const Matrix4x4 b = {
+			3.2f, 4.8f, 6.0f, 5.3f,
+			-1.6f, -7.1f, -2.4f, -6.2f,
+			-3.1f, -2.2f,  8.9f,  8.3f,
+			3.8f,  9.1f, -3.1f, -7.1f
+		};
 		const Matrix4x4 c = a - b;
 		ENSURE(fequal(c.x.x,  -2.0f, 0.00001f));
 		ENSURE(fequal(c.x.y,  -7.1f, 0.00001f));
@@ -744,16 +756,18 @@ static void test_matrix4x4()
 		ENSURE(fequal(c.t.w,  12.0f, 0.00001f));
 	}
 	{
-		const Matrix4x4 a = from_elements(1.2f, -2.3f, 5.1f, -1.2f
-			,  2.2f, -5.1f,  1.1f, -7.4f
-			,  3.2f,  3.3f, -3.8f, -9.2f
-			, -6.8f, -2.9f,  1.0f,  4.9f
-			);
-		const Matrix4x4 b = from_elements(3.2f, 4.8f, 6.0f, 5.3f
-			, -1.6f, -7.1f, -2.4f, -6.2f
-			, -3.1f, -2.2f,  8.9f,  8.3f
-			,  3.8f,  9.1f, -3.1f, -7.1f
-			);
+		const Matrix4x4 a = {
+			1.2f, -2.3f, 5.1f, -1.2f,
+			2.2f, -5.1f,  1.1f, -7.4f,
+			3.2f,  3.3f, -3.8f, -9.2f,
+			-6.8f, -2.9f,  1.0f,  4.9f
+		};
+		const Matrix4x4 b = {
+			3.2f, 4.8f, 6.0f, 5.3f,
+			-1.6f, -7.1f, -2.4f, -6.2f,
+			-3.1f, -2.2f,  8.9f,  8.3f,
+			3.8f,  9.1f, -3.1f, -7.1f
+		};
 		const Matrix4x4 c = a * b;
 		ENSURE(fequal(c.x.x, -12.85f, 0.00001f));
 		ENSURE(fequal(c.x.y,  -0.05f, 0.00001f));
@@ -773,11 +787,12 @@ static void test_matrix4x4()
 		ENSURE(fequal(c.t.w, -44.55f, 0.00001f));
 	}
 	{
-		const Matrix4x4 a = from_elements(1.2f, -2.3f, 5.1f, -1.2f
-			,  2.2f, -5.1f,  1.1f, -7.4f
-			,  3.2f,  3.3f, -3.8f, -9.2f
-			, -6.8f, -2.9f,  1.0f,  4.9f
-			);
+		const Matrix4x4 a = {
+			1.2f, -2.3f, 5.1f, -1.2f,
+			2.2f, -5.1f,  1.1f, -7.4f,
+			3.2f,  3.3f, -3.8f, -9.2f,
+			-6.8f, -2.9f,  1.0f,  4.9f
+		};
 		const Matrix4x4 b = get_inverted(a);
 		ENSURE(fequal(b.x.x, -0.08464f, 0.00001f));
 		ENSURE(fequal(b.x.y,  0.06129f, 0.00001f));
@@ -797,11 +812,12 @@ static void test_matrix4x4()
 		ENSURE(fequal(b.t.w, -0.08108f, 0.00001f));
 	}
 	{
-		const Matrix4x4 a = from_elements(1.2f, -2.3f, 5.1f, -1.2f
-			,  2.2f, -5.1f,  1.1f, -7.4f
-			,  3.2f,  3.3f, -3.8f, -9.2f
-			, -6.8f, -2.9f,  1.0f,  4.9f
-			);
+		const Matrix4x4 a = {
+			1.2f, -2.3f, 5.1f, -1.2f,
+			2.2f, -5.1f,  1.1f, -7.4f,
+			3.2f,  3.3f, -3.8f, -9.2f,
+			-6.8f, -2.9f,  1.0f,  4.9f
+		};
 		const Matrix4x4 b = get_transposed(a);
 		ENSURE(fequal(b.x.x,  1.2f, 0.00001f));
 		ENSURE(fequal(b.x.y,  2.2f, 0.00001f));
@@ -849,8 +865,8 @@ static void test_aabb()
 	}
 	{
 		AABB a;
-		a.min = vector3(-2.3f, 1.2f, -4.5f);
-		a.max = vector3(3.7f, 5.3f, -2.9f);
+		a.min = { -2.3f, 1.2f, -4.5f };
+		a.max = { 3.7f, 5.3f, -2.9f };
 		const Vector3 c = aabb::center(a);
 		ENSURE(fequal(c.x,  0.70f, 0.00001f));
 		ENSURE(fequal(c.y,  3.25f, 0.00001f));
@@ -858,8 +874,8 @@ static void test_aabb()
 	}
 	{
 		AABB a;
-		a.min = vector3(-2.3f, 1.2f, -4.5f);
-		a.max = vector3(3.7f, 5.3f, -2.9f);
+		a.min = { -2.3f, 1.2f, -4.5f };
+		a.max = { 3.7f, 5.3f, -2.9f };
 		const float c = aabb::volume(a);
 		ENSURE(fequal(c, 39.36f, 0.00001f));
 	}
@@ -910,12 +926,12 @@ static void test_aabb()
 	}
 	{
 		AABB a;
-		a.min = vector3(-2.3f, 1.2f, -4.5f);
-		a.max = vector3(3.7f, 5.3f, -2.9f);
-		ENSURE(aabb::contains_point(a, vector3(1.2f,  3.0f, -4.4f)));
-		ENSURE(!aabb::contains_point(a, vector3(3.8f,  3.0f, -4.4f)));
-		ENSURE(!aabb::contains_point(a, vector3(1.2f, -1.0f, -4.4f)));
-		ENSURE(!aabb::contains_point(a, vector3(1.2f,  3.0f, -4.6f)));
+		a.min = { -2.3f, 1.2f, -4.5f };
+		a.max = { 3.7f, 5.3f, -2.9f };
+		ENSURE(aabb::contains_point(a, { 1.2f,  3.0f, -4.4f }));
+		ENSURE(!aabb::contains_point(a, { 3.8f,  3.0f, -4.4f }));
+		ENSURE(!aabb::contains_point(a, { 1.2f, -1.0f, -4.4f }));
+		ENSURE(!aabb::contains_point(a, { 1.2f,  3.0f, -4.6f }));
 	}
 }
 
@@ -981,12 +997,12 @@ static void test_sphere()
 	}
 	{
 		Sphere a;
-		a.c = vector3(-2.3f, 1.2f, -4.5f);
+		a.c = { -2.3f, 1.2f, -4.5f };
 		a.r = 1.0f;
-		ENSURE(sphere::contains_point(a, vector3(-2.9f, 1.6f, -4.0f)));
-		ENSURE(!sphere::contains_point(a, vector3(-3.9f, 1.6f, -4.0f)));
-		ENSURE(!sphere::contains_point(a, vector3(-2.9f, 2.6f, -4.0f)));
-		ENSURE(!sphere::contains_point(a, vector3(-2.9f, 1.6f, -6.0f)));
+		ENSURE(sphere::contains_point(a, { -2.9f, 1.6f, -4.0f }));
+		ENSURE(!sphere::contains_point(a, { -3.9f, 1.6f, -4.0f }));
+		ENSURE(!sphere::contains_point(a, { -2.9f, 2.6f, -4.0f }));
+		ENSURE(!sphere::contains_point(a, { -2.9f, 1.6f, -6.0f }));
 	}
 }
 
@@ -1003,10 +1019,10 @@ static void test_obb()
 	{
 		OBB a;
 		obb::reset(a);
-		a.half_extents = vector3(0.5f, 0.5f, 0.5f);
+		a.half_extents = { 0.5f, 0.5f, 0.5f };
 
-		Vector3 ray_origin = vector3(0.0f, -2.0f, 0.25);
-		Vector3 ray_target = vector3(0.0f,  0.0f, 0.25);
+		Vector3 ray_origin = { 0.0f, -2.0f, 0.25 };
+		Vector3 ray_target = { 0.0f,  0.0f, 0.25 };
 		Vector3 ray_direction = ray_target - ray_origin;
 		normalize(ray_direction);
 		ENSURE(ray_obb_intersection(ray_origin, ray_direction, a.tm, a.half_extents) != -1.0f);
@@ -1014,11 +1030,11 @@ static void test_obb()
 	{
 		OBB a;
 		obb::reset(a);
-		a.half_extents = vector3(0.5f, 0.5f, 0.5f);
-		set_scale(a.tm, vector3(0.01, 0.01, 0.01));
+		a.half_extents = { 0.5f, 0.5f, 0.5f };
+		set_scale(a.tm, { 0.01, 0.01, 0.01 });
 
-		Vector3 ray_origin = vector3(0.0f, -2.0f, 0.25);
-		Vector3 ray_target = vector3(0.0f,  0.0f, 0.25);
+		Vector3 ray_origin = { 0.0f, -2.0f, 0.25 };
+		Vector3 ray_target = { 0.0f,  0.0f, 0.25 };
 		Vector3 ray_direction = ray_target - ray_origin;
 		normalize(ray_direction);
 		ENSURE(ray_obb_intersection(ray_origin, ray_direction, a.tm, a.half_extents) == -1.0f);

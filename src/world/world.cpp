@@ -446,7 +446,7 @@ Vector3 World::camera_screen_to_world(CameraInstance camera, const Vector3 &pos)
 	Vector4 tmp = ndc * camera_view_proj;
 	tmp *= 1.0f / tmp.w;
 
-	return vector3(tmp.x, tmp.y, tmp.z);
+	return { tmp.x, tmp.y, tmp.z };
 }
 
 Vector3 World::camera_world_to_screen(CameraInstance camera, const Vector3 &pos)
@@ -463,7 +463,7 @@ Vector3 World::camera_world_to_screen(CameraInstance camera, const Vector3 &pos)
 	Matrix4x4 camera_view = camera_view_matrix(camera);
 	Matrix4x4 camera_view_proj = camera_view * camera_proj;
 
-	Vector4 pos4 = vector4(pos.x, pos.y, pos.z, 1.0f);
+	Vector4 pos4 = { pos.x, pos.y, pos.z, 1.0f };
 	Vector4 ndc  = pos4 * camera_view_proj;
 	ndc.x *= 1.0 / ndc.w;
 	ndc.y *= 1.0 / ndc.w;
@@ -635,10 +635,7 @@ void spawn_units(World &w, const UnitResource *ur, const Vector3 &pos, const Qua
 					TransformInstance parent_ti = scene_graph->instance(unit_lookup[unit_parents[unit_index[i]]]);
 					scene_graph->link(parent_ti, ti, td->position, td->rotation, td->scale);
 				} else {
-					const Vector3 scale = vector3(td->scale.x * scl.x
-						, td->scale.y * scl.y
-						, td->scale.z * scl.z
-						);
+					const Vector3 scale = { td->scale.x * scl.x, td->scale.y * scl.y, td->scale.z * scl.z };
 					Matrix4x4 tr = from_quaternion_translation(rot, pos);
 					scene_graph->set_local_pose(ti, scene_graph->local_pose(ti) * tr);
 					scene_graph->set_local_scale(ti, scale);

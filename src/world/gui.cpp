@@ -117,7 +117,7 @@ Gui::~Gui()
 
 void Gui::move(const Vector2 &pos)
 {
-	set_translation(_world, vector3(pos.x, pos.y, 0));
+	set_translation(_world, { pos.x, pos.y, 0 });
 }
 
 void Gui::triangle_3d(const Matrix4x4 &local_pose, const Vector3 &a, const Vector3 &b, const Vector3 &c, const Color4 &color, f32 depth)
@@ -155,9 +155,9 @@ void Gui::triangle_3d(const Matrix4x4 &local_pose, const Vector3 &a, const Vecto
 void Gui::triangle(const Vector2 &a, const Vector2 &b, const Vector2 &c, const Color4 &color, f32 depth)
 {
 	triangle_3d(MATRIX4X4_IDENTITY
-		, vector3(a.x, a.y, 0.0f)
-		, vector3(b.x, b.y, 0.0f)
-		, vector3(c.x, c.y, 0.0f)
+		, { a.x, a.y, 0.0f }
+		, { b.x, b.y, 0.0f }
+		, { c.x, c.y, 0.0f }
 		, color
 		, depth
 		);
@@ -208,7 +208,7 @@ void Gui::rect_3d(const Matrix4x4 &local_pose, const Vector3 &pos, const Vector2
 void Gui::rect(const Vector3 &pos, const Vector2 &size, const Color4 &color)
 {
 	rect_3d(MATRIX4X4_IDENTITY
-		, vector3(pos.x, pos.y, 0.0f)
+		, { pos.x, pos.y, 0.0f }
 		, size
 		, color
 		, pos.z
@@ -268,7 +268,7 @@ void Gui::image_3d_uv(const Matrix4x4 &local_pose, const Vector3 &pos, const Vec
 void Gui::image_uv(const Vector3 &pos, const Vector2 &size, const Vector2 &uv0, const Vector2 &uv1, StringId64 material, const Color4 &color)
 {
 	image_3d_uv(MATRIX4X4_IDENTITY
-		, vector3(pos.x, pos.y, 0.0f)
+		, { pos.x, pos.y, 0.0f }
 		, size
 		, uv0
 		, uv1
@@ -294,7 +294,7 @@ void Gui::image_3d(const Matrix4x4 &local_pose, const Vector3 &pos, const Vector
 void Gui::image(const Vector3 &pos, const Vector2 &size, StringId64 material, const Color4 &color)
 {
 	image_3d(MATRIX4X4_IDENTITY
-		, vector3(pos.x, pos.y, 0.0f)
+		, { pos.x, pos.y, 0.0f }
 		, size
 		, material
 		, color

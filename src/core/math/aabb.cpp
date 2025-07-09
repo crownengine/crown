@@ -69,14 +69,14 @@ namespace aabb
 		CE_ASSERT(index < 8, "Index out of bounds");
 
 		switch (index) {
-		case 0: return vector3(b.min.x, b.min.y, b.min.z);
-		case 1: return vector3(b.max.x, b.min.y, b.min.z);
-		case 2: return vector3(b.max.x, b.min.y, b.max.z);
-		case 3: return vector3(b.min.x, b.min.y, b.max.z);
-		case 4: return vector3(b.min.x, b.max.y, b.min.z);
-		case 5: return vector3(b.max.x, b.max.y, b.min.z);
-		case 6: return vector3(b.max.x, b.max.y, b.max.z);
-		case 7: return vector3(b.min.x, b.max.y, b.max.z);
+		case 0: return { b.min.x, b.min.y, b.min.z };
+		case 1: return { b.max.x, b.min.y, b.min.z };
+		case 2: return { b.max.x, b.min.y, b.max.z };
+		case 3: return { b.min.x, b.min.y, b.max.z };
+		case 4: return { b.min.x, b.max.y, b.min.z };
+		case 5: return { b.max.x, b.max.y, b.min.z };
+		case 6: return { b.max.x, b.max.y, b.max.z };
+		case 7: return { b.min.x, b.max.y, b.max.z };
 		default: return VECTOR3_ZERO;
 		}
 	}
