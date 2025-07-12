@@ -2667,7 +2667,14 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_spawn_unit(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		_level.spawn_empty_unit();
+		string? unit_name;
+
+		if (action.name == "empty-unit")
+			unit_name = null;
+		else
+			unit_name = null;
+
+		_level.spawn_unit(unit_name);
 		_editor.send(DeviceApi.frame());
 	}
 
