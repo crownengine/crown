@@ -112,10 +112,10 @@ public class Level
 		return err;
 	}
 
-	public void spawn_empty_unit()
+	public void spawn_unit(string? name)
 	{
 		Guid id = Guid.new_guid();
-		on_unit_spawned(id, null, VECTOR3_ZERO, QUATERNION_IDENTITY, VECTOR3_ONE);
+		on_unit_spawned(id, name, VECTOR3_ZERO, QUATERNION_IDENTITY, VECTOR3_ONE);
 		_db.add_restore_point((int)ActionType.CREATE_OBJECTS, new Guid?[] { id });
 
 		selection_set(new Guid?[] { id });
