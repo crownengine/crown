@@ -407,15 +407,22 @@ public class LevelTreeView : Gtk.Box
 		on_objects_created(_db.get_property_set(_level._id, "sounds", new Gee.HashSet<Guid?>()).to_array());
 	}
 
-	public void on_objects_created(Guid?[] object_ids)
+	public int insert_units(Guid?[] object_ids)
 	{
-		Gee.HashSet<Guid?> units  = _db.get_property_set(_level._id, "units", new Gee.HashSet<Guid?>());
-		Gee.HashSet<Guid?> sounds = _db.get_property_set(_level._id, "sounds", new Gee.HashSet<Guid?>());
 		Gtk.TreeIter iter;
+		int i;
 
-		foreach (Guid id in object_ids) {
-			if (_db.object_type(id) == OBJECT_TYPE_UNIT && units.contains(id)) {
-				Unit u = Unit(_level._db, id);
+		if (object_ids.length > 1 && Unit.is_component(object_ids[1], _db)) {
+			for (i = 1; i < object_ids.length; ++i) {
+				if (!Unit.is_component(object_ids[i], _db))
+					break;
+			}
+		} else {
+			for (i = 0; i < object_ids.length; ++i) {
+				if (_db.object_type(object_ids[i]) != OBJECT_TYPE_UNIT)
+					break;
+
+				Unit u = Unit(_level._db, object_ids[i]);
 				Gtk.TreeIter units_iter;
 
 				_tree_store.get_iter(out units_iter, _units_root.get_path());
@@ -425,42 +432,110 @@ public class LevelTreeView : Gtk.Box
 					, Column.TYPE
 					, item_type(u)
 					, Column.GUID
-					, id
+					, u._id
 					, Column.NAME
-					, _level.object_editor_name(id)
-					, -1
-					);
-			} else if (_db.object_type(id) == OBJECT_TYPE_SOUND_SOURCE && sounds.contains(id)) {
-				Gtk.TreeIter sounds_iter;
-
-				_tree_store.get_iter(out sounds_iter, _sounds_root.get_path());
-				_tree_store.insert_with_values(out iter
-					, sounds_iter
-					, -1
-					, Column.TYPE
-					, ItemType.SOUND
-					, Column.GUID
-					, id
-					, Column.NAME
-					, _level.object_editor_name(id)
+					, _level.object_editor_name(u._id)
 					, -1
 					);
 			}
 		}
+
+		return i;
+	}
+
+	public int insert_sounds(Guid?[] object_ids)
+	{
+		int i;
+
+		for (i = 0; i < object_ids.length; ++i) {
+			if (_db.object_type(object_ids[i]) != OBJECT_TYPE_SOUND_SOURCE)
+				break;
+
+			Gtk.TreeIter sounds_iter;
+			Gtk.TreeIter iter;
+
+			_tree_store.get_iter(out sounds_iter, _sounds_root.get_path());
+			_tree_store.insert_with_values(out iter
+				, sounds_iter
+				, -1
+				, Column.TYPE
+				, ItemType.SOUND
+				, Column.GUID
+				, object_ids[i]
+				, Column.NAME
+				, _level.object_editor_name(object_ids[i])
+				, -1
+				);
+		}
+
+		return i;
+	}
+
+	public void on_objects_created(Guid?[] object_ids)
+	{
+		int i = 0;
+		while (i < object_ids.length) {
+			if (_db.object_type(object_ids[i]) == OBJECT_TYPE_UNIT) {
+				i += insert_units(object_ids[i:object_ids.length]);
+			} else if (_db.object_type(object_ids[i]) == OBJECT_TYPE_SOUND_SOURCE) {
+				i += insert_sounds(object_ids[i:object_ids.length]);
+			} else {
+				++i; // Skip object.
+			}
+		}
+	}
+
+	public int remove_units(Guid?[] object_ids)
+	{
+		int i;
+
+		if (object_ids.length > 1 && Unit.is_component(object_ids[1], _db)) {
+			for (i = 1; i < object_ids.length; ++i) {
+				if (!Unit.is_component(object_ids[i], _db))
+					break;
+			}
+		} else {
+			for (i = 0; i < object_ids.length; ++i) {
+				if (_db.object_type(object_ids[i]) != OBJECT_TYPE_UNIT)
+					break;
+
+				Gtk.TreeIter parent_iter;
+				_tree_store.get_iter(out parent_iter, _units_root.get_path());
+				remove_item(object_ids[i], parent_iter);
+			}
+		}
+
+		return i;
+	}
+
+	public int remove_sounds(Guid?[] object_ids)
+	{
+		int i;
+
+		for (i = 0; i < object_ids.length; ++i) {
+			if (_db.object_type(object_ids[i]) != OBJECT_TYPE_SOUND_SOURCE)
+				break;
+
+			Gtk.TreeIter parent_iter;
+			_tree_store.get_iter(out parent_iter, _sounds_root.get_path());
+			remove_item(object_ids[i], parent_iter);
+		}
+
+		return i;
 	}
 
 	public void on_objects_destroyed(Guid?[] object_ids)
 	{
-		foreach (Guid id in object_ids) {
-			Gtk.TreeIter parent_iter;
-			if (_db.object_type(id) == OBJECT_TYPE_UNIT)
-				_tree_store.get_iter(out parent_iter, _units_root.get_path());
-			else if (_db.object_type(id) == OBJECT_TYPE_SOUND_SOURCE)
-				_tree_store.get_iter(out parent_iter, _sounds_root.get_path());
-			else
-				continue;
+		int i = 0;
 
-			remove_item(id, parent_iter);
+		while (i < object_ids.length) {
+			if (_db.object_type(object_ids[i]) == OBJECT_TYPE_UNIT) {
+				i += remove_units(object_ids[i:object_ids.length]);
+			} else if (_db.object_type(object_ids[i]) == OBJECT_TYPE_SOUND_SOURCE) {
+				i += remove_sounds(object_ids[i:object_ids.length]);
+			} else {
+				++i; // Skip object.
+			}
 		}
 	}
 
