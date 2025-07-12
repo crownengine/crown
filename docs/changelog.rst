@@ -18,6 +18,7 @@ Changelog
 
 * Tools: fixed hot-reloading of Unit scripts.
 * Tools: fixed missing sounds in the Level Tree.
+* Tools: fixed a number of issues in the Level Tree when adding/removing components to units.
 * Tools: fixed inability to select state machines from the "Animation State Machine" component in the Inspector.
 * Tools: fixed missing SKINNING define in materials when importing animated FBX meshes.
 * Tools: fixed shadows when rendering animated meshes.
