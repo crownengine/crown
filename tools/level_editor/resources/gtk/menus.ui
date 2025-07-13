@@ -289,11 +289,17 @@
           <attribute name="action">app.sound-source</attribute>
         </item>
       </section>
+      <section>
         <item>
           <attribute name="label" translatable="yes">Empty Unit</attribute>
           <attribute name="action">app.unit-empty</attribute>
         </item>
+      </section>
       <section>
+        <item>
+          <attribute name="label" translatable="yes">Shading Environment</attribute>
+          <attribute name="action">app.shading-environment</attribute>
+        </item>
       </section>
     </submenu>
     <submenu>

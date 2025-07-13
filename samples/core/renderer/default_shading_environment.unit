@@ -1,0 +1,23 @@
+_guid = "4dc8e9d8-9527-4901-97b1-d1aa5161797f"
+_type = "unit"
+components = [
+	{
+		_guid = "01669b61-1acb-4c6d-bef5-98ddf699a895"
+		_type = "fog"
+		data = {
+			color = [
+				0.82745098039215681
+				0.82745098039215681
+				0.82745098039215681
+			]
+			density = 0.02
+			enabled = false
+			range_max = 1000
+			range_min = 0
+			sun_blend = 0
+		}
+	}
+]
+editor = {
+	name = "shading_environment"
+}
