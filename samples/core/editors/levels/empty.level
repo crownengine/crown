@@ -7,7 +7,7 @@ units = [
 		_guid = "20e3d0f7-28a0-4ceb-8232-c977b858c97d"
 		_type = "unit"
 		editor = {
-			name = "light_0000"
+			name = "sun"
 		}
 		modified_components = {
 			#3f6f6b7c-b4cf-4173-aab0-288a63d7c73a = {
