@@ -2154,6 +2154,56 @@ void load_api(LuaEnvironment &env)
 			stack.get_render_world(1)->light_debug_draw(stack.get_light_instance(2), *stack.get_debug_line(3));
 			return 0;
 		});
+	env.add_module_function("RenderWorld", "fog_create", [](lua_State *L) {
+			LuaStack stack(L);
+			FogDesc fd;
+			stack.push_fog_instance(stack.get_render_world(1)->fog_create(stack.get_unit(2), fd));
+			return 1;
+		});
+	env.add_module_function("RenderWorld", "fog_destroy", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->fog_destroy(stack.get_fog_instance(2));
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "fog_instance", [](lua_State *L) {
+			LuaStack stack(L);
+			FogInstance inst = stack.get_render_world(1)->fog_instance(stack.get_unit(2));
+			if (is_valid(inst))
+				stack.push_fog_instance(inst);
+			else
+				stack.push_nil();
+			return 1;
+		});
+	env.add_module_function("RenderWorld", "fog_set_enabled", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->fog_set_enabled(stack.get_fog_instance(2), stack.get_bool(3));
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "fog_set_range_min", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->fog_set_range_min(stack.get_fog_instance(2), stack.get_float(3));
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "fog_set_range_max", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->fog_set_range_max(stack.get_fog_instance(2), stack.get_float(3));
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "fog_set_density", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->fog_set_density(stack.get_fog_instance(2), stack.get_float(3));
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "fog_set_color", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->fog_set_color(stack.get_fog_instance(2), stack.get_vector3(3));
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "fog_set_sun_blend", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->fog_set_sun_blend(stack.get_fog_instance(2), stack.get_float(3));
+			return 0;
+		});
 	env.add_module_function("RenderWorld", "enable_debug_drawing", [](lua_State *L) {
 			LuaStack stack(L);
 			stack.get_render_world(1)->enable_debug_drawing(stack.get_bool(2));

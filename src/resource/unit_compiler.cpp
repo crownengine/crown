@@ -303,6 +303,29 @@ static s32 compile_animation_state_machine(Buffer &output, FlatJsonObject &obj, 
 	return 0;
 }
 
+static s32 compile_fog(Buffer &output, FlatJsonObject &obj, CompileOptions &opts)
+{
+	TempAllocator4096 ta;
+
+	FogDesc fd;
+	fd.color     = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.color")), opts);
+	fd.density   = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.density")), opts);
+	fd.range_min = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.range_min")), opts);
+	fd.range_max = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.range_max")), opts);
+	fd.sun_blend = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.sun_blend")), opts);
+	fd.enabled   = (f32)RETURN_IF_ERROR(sjson::parse_bool(flat_json_object::get(obj, "data.enabled")), opts);
+
+	FileBuffer fb(output);
+	BinaryWriter bw(fb);
+	bw.write(fd.color);
+	bw.write(fd.density);
+	bw.write(fd.range_min);
+	bw.write(fd.range_max);
+	bw.write(fd.sun_blend);
+	bw.write(fd.enabled);
+	return 0;
+}
+
 namespace unit_compiler
 {
 	Buffer read_unit(const char *path, CompileOptions &opts)
@@ -920,6 +943,7 @@ UnitCompiler::UnitCompiler(Allocator &a)
 	unit_compiler::register_component_compiler(*this, "actor",                   &physics_resource_internal::compile_actor,    2.0f);
 	unit_compiler::register_component_compiler(*this, "joint",                   &physics_resource_internal::compile_joint,    3.0f);
 	unit_compiler::register_component_compiler(*this, "animation_state_machine", &compile_animation_state_machine,             3.0f);
+	unit_compiler::register_component_compiler(*this, "fog",                     &compile_fog,                                 0.0f);
 }
 
 UnitCompiler::~UnitCompiler()

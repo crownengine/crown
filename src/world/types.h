@@ -295,6 +295,7 @@ INSTANCE_ID(CameraInstance)
 INSTANCE_ID(MeshInstance)
 INSTANCE_ID(SpriteInstance)
 INSTANCE_ID(LightInstance)
+INSTANCE_ID(FogInstance)
 INSTANCE_ID(ColliderInstance)
 INSTANCE_ID(ActorInstance)
 INSTANCE_ID(JointInstance)
@@ -347,6 +348,19 @@ struct LightDesc
 	Vector3 color;     ///< Color of the light.
 	f32 shadow_bias;   ///<
 	u32 flags;         ///< RenderableFlags::Enum
+};
+
+/// Fog description.
+///
+/// @ingroup World
+struct FogDesc
+{
+	Vector3 color; ///< Color of the fog.
+	f32 density;   ///< Density of the fog.
+	f32 range_min; ///< Distance from the camera's near plane where the fog starts to appear.
+	f32 range_max; ///< Distance from the camera's near plane where the fog stops.
+	f32 sun_blend; ///< How much the sun color blends into the fog color.
+	f32 enabled;   ///< Whether the fog simulation is enabled.
 };
 
 /// Script description.

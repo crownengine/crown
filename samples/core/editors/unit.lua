@@ -287,6 +287,18 @@ function UnitBox:set_light(type, range, intensity, angle, color, bias, cast_shad
 	end
 end
 
+function UnitBox:set_fog(color, density, range_min, range_max, sun_blend, enabled)
+	local fog = RenderWorld.fog_instance(self._rw, self._unit_id)
+	if fog then
+		RenderWorld.fog_set_color(self._rw, fog, color)
+		RenderWorld.fog_set_density(self._rw, fog, density)
+		RenderWorld.fog_set_range_min(self._rw, fog, range_min)
+		RenderWorld.fog_set_range_max(self._rw, fog, range_max)
+		RenderWorld.fog_set_sun_blend(self._rw, fog, sun_blend)
+		RenderWorld.fog_set_enabled(self._rw, fog, enabled)
+	end
+end
+
 function UnitBox:set_mesh(mesh_resource, geometry, material, visible, cast_shadows)
 	local mesh = RenderWorld.mesh_instance(self._rw, self._unit_id)
 	if mesh then

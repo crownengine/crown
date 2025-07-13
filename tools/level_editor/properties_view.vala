@@ -44,7 +44,8 @@ public class UnitView : PropertyGrid
 			OBJECT_TYPE_COLLIDER,
 			OBJECT_TYPE_ACTOR,
 			OBJECT_TYPE_SCRIPT,
-			OBJECT_TYPE_ANIMATION_STATE_MACHINE
+			OBJECT_TYPE_ANIMATION_STATE_MACHINE,
+			OBJECT_TYPE_FOG
 		};
 
 		// Construct 'add components' button.
@@ -156,6 +157,7 @@ public class PropertiesView : Gtk.Stack
 		register_object_type(OBJECT_TYPE_SCRIPT,                  3, null, UnitView.component_menu);
 		register_object_type(OBJECT_TYPE_ANIMATION_STATE_MACHINE, 3, null, UnitView.component_menu);
 		register_object_type(OBJECT_TYPE_SOUND_SOURCE,            0, null, UnitView.component_menu);
+		register_object_type(OBJECT_TYPE_FOG,                     0, null, UnitView.component_menu);
 	}
 
 	private void register_object_type(string object_type, int position, PropertyGrid? cv = null, ContextMenu? context_menu = null)

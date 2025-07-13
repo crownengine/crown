@@ -11,6 +11,7 @@ const string OBJECT_TYPE_ANIMATION_STATE_MACHINE = "animation_state_machine";
 const string OBJECT_TYPE_CAMERA                  = "camera";
 const string OBJECT_TYPE_COLLIDER                = "collider";
 const string OBJECT_TYPE_FILE                    = "file";
+const string OBJECT_TYPE_FOG                     = "fog";
 const string OBJECT_TYPE_FONT                    = "font";
 const string OBJECT_TYPE_LEVEL                   = "level";
 const string OBJECT_TYPE_LIGHT                   = "light";
@@ -539,6 +540,54 @@ public static void create_object_types(Database database)
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_SOUND_SOURCE, properties);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.VECTOR3,
+			name =  "data.color",
+			editor = PropertyEditorType.COLOR,
+			min = VECTOR3_ZERO,
+			max = VECTOR3_ONE,
+			deffault = VECTOR3_ONE,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.density",
+			min = 0.0,
+			deffault = 0.02
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name =  "data.range_min",
+			min = 0.0,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name =  "data.range_max",
+			min = 0.0,
+			deffault = 1000.0
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.sun_blend",
+			min =  0.0,
+			max =  1.0,
+			deffault = 0.0
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.BOOL,
+			name = "data.enabled",
+			deffault = true,
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_FOG, properties);
 }
 
 } /* namespace Crown */

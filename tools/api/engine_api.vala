@@ -360,6 +360,11 @@ namespace LevelEditorApi
 			);
 	}
 
+	public string add_fog_component(Guid id, Guid component_id)
+	{
+		return "LevelEditor:add_fog_component(\"%s\", \"%s\")".printf(id.to_string(), component_id.to_string());
+	}
+
 	public string unit_destroy_component_type(Guid id, string component_type)
 	{
 		return "LevelEditor:unit_destroy_component_type(\"%s\", \"%s\")".printf(id.to_string()
@@ -394,6 +399,25 @@ namespace LevelEditorApi
 			, Lua.quaternion({color.x, color.y, color.z, 1.0})
 			, shadow_bias
 			, Lua.bool(cast_shadows)
+			);
+	}
+
+	public string set_fog(Guid id
+		, Vector3 color
+		, double density
+		, double range_min
+		, double range_max
+		, double sun_blend
+		, bool enabled
+		)
+	{
+		return "LevelEditor._objects[\"%s\"]:set_fog(%s, %.17g, %.17g, %.17g, %.17g, %s)".printf(id.to_string()
+			, Lua.vector3(color)
+			, density
+			, range_min
+			, range_max
+			, sun_blend
+			, Lua.bool(enabled)
 			);
 	}
 

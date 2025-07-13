@@ -5,7 +5,7 @@ include = [
 
 bgfx_shaders = {
 	lighting = {
-		includes = [ "shadow_mapping" ]
+		includes = [ "shadow_mapping" "fog" ]
 
 		code = """
 		#if !defined(NO_LIGHT)
@@ -139,6 +139,7 @@ bgfx_shaders = {
 				, vec3 n
 				, vec3 v
 				, vec3 frag_pos
+				, vec3 camera_pos
 				, vec4 shadow_pos0
 				, vec4 shadow_pos1
 				, vec4 shadow_pos2
@@ -156,6 +157,8 @@ bgfx_shaders = {
 				int num_omni = int(u_lights_num.y);
 				int num_spot = int(u_lights_num.z);
 
+				vec3 sun_color = vec3(1, 1, 1);
+
 				if (num_dir > 0) {
 					// Brightest directional light (index == 0) generates cascaded shadow maps.
 					vec3 light_color  = u_lights_data[loffset + 0].rgb;
@@ -166,6 +169,8 @@ bgfx_shaders = {
 					float atlas_v     = u_lights_data[loffset + 3].b;
 					float atlas_size  = u_lights_data[loffset + 3].a;
 					loffset += LIGHT_SIZE;
+
+					sun_color = light_color;
 
 					vec3 local_radiance = calc_dir_light(n
 						, v
@@ -264,10 +269,35 @@ bgfx_shaders = {
 						);
 				}
 
-				return radiance;
+				return apply_fog(radiance, length(v_camera), sun_color);
 			}
 		#endif
 		"""
 	}
-}
 
+	fog = {
+		code = """
+			uniform vec4 u_fog_data[2];
+
+		#define fog_color     u_fog_data[0].rgb
+		#define fog_density   u_fog_data[0].w
+		#define fog_range_min u_fog_data[1].x
+		#define fog_range_max u_fog_data[1].y
+		#define fog_sun_blend u_fog_data[1].z
+		#define fog_enabled   u_fog_data[1].w
+
+			vec3 apply_fog(vec3 radiance, float d, vec3 sun_color)
+			{
+				if (fog_enabled == 0.0)
+					return radiance;
+
+				if (d < fog_range_min || d > fog_range_max)
+					return radiance;
+
+				float d2 = d - fog_range_min;
+				float f = exp(-fog_density * d2);
+				return mix(mix(fog_color, sun_color, fog_sun_blend), radiance, f);
+			}
+		"""
+	}
+}

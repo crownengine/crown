@@ -175,6 +175,9 @@ struct LuaStack
 	LightInstance get_light_instance(int i);
 
 	///
+	FogInstance get_fog_instance(int i);
+
+	///
 	StateMachineInstance get_state_machine_instance(int i);
 
 	///
@@ -325,6 +328,9 @@ struct LuaStack
 
 	///
 	void push_light_instance(LightInstance i);
+
+	///
+	void push_fog_instance(FogInstance i);
 
 	///
 	void push_state_machine_instance(StateMachineInstance i);
