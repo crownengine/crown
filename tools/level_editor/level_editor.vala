@@ -458,7 +458,8 @@ public class LevelEditorApplication : Gtk.Application
 		{ "camera",             on_spawn_primitive, null, null },
 		{ "light",              on_spawn_primitive, null, null },
 		{ "sound-source",       on_spawn_primitive, null, null },
-		{ "unit-empty",         on_spawn_unit,      null, null }
+		{ "unit-empty",         on_spawn_unit,      null, null },
+		{ "shading-environment",on_spawn_unit,      null, null },
 	};
 
 	private const GLib.ActionEntry[] action_entries_camera =
@@ -2671,6 +2672,8 @@ public class LevelEditorApplication : Gtk.Application
 
 		if (action.name == "empty-unit")
 			unit_name = null;
+		else if (action.name == "shading-environment")
+			unit_name = "core/renderer/default_shading_environment";
 		else
 			unit_name = null;
 

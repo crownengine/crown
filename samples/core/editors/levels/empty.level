@@ -40,4 +40,12 @@ units = [
 		}
 		prefab = "core/units/light"
 	}
+	{
+		_guid = "b4c8b719-6ade-45a2-bff3-cdca02599263"
+		_type = "unit"
+		editor = {
+			name = "shading_environment"
+		}
+		prefab = "core/renderer/default_shading_environment"
+	}
 ]
