@@ -139,7 +139,7 @@ bgfx_shaders = {
 				, vec3 n
 				, vec3 v
 				, vec3 frag_pos
-				, vec3 camera_pos
+				, vec3 camera_frag_pos
 				, vec4 shadow_pos0
 				, vec4 shadow_pos1
 				, vec4 shadow_pos2
@@ -269,7 +269,7 @@ bgfx_shaders = {
 						);
 				}
 
-				return apply_fog(radiance, length(v_camera), sun_color);
+				return apply_fog(radiance, length(camera_frag_pos), sun_color);
 			}
 		#endif
 		"""
