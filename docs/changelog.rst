@@ -6,6 +6,7 @@ Changelog
 
 **New Features and Improvements**
 
+* Tools: added Fog component.
 * Tools: the sprite importer will now generate a default sprite_animation and state_machine for all imported sprites.
 * Tools: added an option to automatically compute the collider shape when importing sprites.
 * Tools: added the ability to set the Sprite Renderer's `flip_x` and `flip_y` properties in the Inspector.

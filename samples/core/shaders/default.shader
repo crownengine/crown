@@ -317,7 +317,8 @@ bgfx_shaders = {
 				vec3 n = normalize(normal); // Fragment normal.
 				vec3 v = normalize(v_camera); // Versor from fragment to camera pos.
 				vec3 f0 = mix(vec3_splat(0.04), albedo, metallic);
-				vec3 radiance = calc_lighting(tbn, n, v, v_position, v_shadow0, v_shadow1, v_shadow2, v_shadow3, albedo, metallic, roughness, f0);
+				vec3 radiance = calc_lighting(tbn, n, v, v_position, v_camera, v_shadow0, v_shadow1, v_shadow2, v_shadow3, albedo, metallic, roughness, f0);
+
 				radiance = radiance / (radiance + vec3_splat(1.0)); // Tone-mapping.
 		#endif // !defined(NO_LIGHT)
 

@@ -167,6 +167,37 @@ struct RenderWorld
 	/// Fills @a dl with debug lines from the @a light.
 	void light_debug_draw(LightInstance light, DebugLine &dl);
 
+	/// Creates a new fog instance for the @a unit and returns its id.
+	/// Note that the fog component is limited to one instance per
+	/// World. Every call to this function will overwrite any
+	/// previously created fog instance.
+	FogInstance fog_create(UnitId unit, const FogDesc &desc);
+
+	/// Destroys the @a fog instance.
+	void fog_destroy(FogInstance fog);
+
+	/// Returns the ID of the fog owned by the @a unit.
+	FogInstance fog_instance(UnitId unit);
+
+	/// Sets the @a color of the @a fog.
+	void fog_set_color(FogInstance fog, Vector3 color);
+
+	/// Sets the @a density of the @a fog.
+	void fog_set_density(FogInstance fog, float density);
+
+	/// Sets the minimum @a range of the @a fog.
+	void fog_set_range_min(FogInstance fog, float range);
+
+	/// Sets the maximum @a range of the @a fog.
+	void fog_set_range_max(FogInstance fog, float range);
+
+	/// Sets the sun @a blend of the @a fog.
+	void fog_set_sun_blend(FogInstance fog, float sun_blend);
+
+	/// Sets whether the @a fog is @a enabled.
+	void fog_set_enabled(FogInstance fog, bool enable);
+
+	///
 	void update_transforms(const UnitId *begin, const UnitId *end, const Matrix4x4 *world);
 
 	///
@@ -476,6 +507,12 @@ struct RenderWorld
 	bgfx::UniformHandle _u_cascaded_shadow_map;
 	bgfx::UniformHandle _u_cascaded_texel_size;
 	bgfx::UniformHandle _u_cascaded_lights;
+
+	// Fog.
+	UnitId _fog_unit;
+	FogInstance _fog;
+	FogDesc _fog_desc;
+	bgfx::UniformHandle _u_fog_data;
 };
 
 } // namespace crown

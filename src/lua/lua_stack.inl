@@ -293,6 +293,12 @@ inline LightInstance LuaStack::get_light_instance(int i)
 	return inst;
 }
 
+inline FogInstance LuaStack::get_fog_instance(int i)
+{
+	FogInstance inst = { get_id(i) };
+	return inst;
+}
+
 inline StateMachineInstance LuaStack::get_state_machine_instance(int i)
 {
 	StateMachineInstance inst = { get_id(i) };
@@ -569,6 +575,11 @@ inline void LuaStack::push_sprite_instance(SpriteInstance i)
 }
 
 inline void LuaStack::push_light_instance(LightInstance i)
+{
+	push_id(i.i);
+}
+
+inline void LuaStack::push_fog_instance(FogInstance i)
 {
 	push_id(i.i);
 }

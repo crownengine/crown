@@ -56,6 +56,7 @@ RenderWorld::RenderWorld(Allocator &a
 	, _sprite_manager(a, this)
 	, _light_manager(a)
 	, _selection(a)
+	, _fog_unit(UNIT_INVALID)
 {
 	_unit_destroy_callback.destroy = unit_destroyed_callback_bridge;
 	_unit_destroy_callback.user_data = this;
@@ -84,10 +85,17 @@ RenderWorld::RenderWorld(Allocator &a
 	_u_cascaded_shadow_map = bgfx::createUniform("u_cascaded_shadow_map", bgfx::UniformType::Sampler);
 	_u_cascaded_texel_size = bgfx::createUniform("u_cascaded_texel_size", bgfx::UniformType::Vec4);
 	_u_cascaded_lights = bgfx::createUniform("u_cascaded_lights", bgfx::UniformType::Mat4, MAX_NUM_CASCADES);
+
+	// Fog.
+	memset(&_fog_desc, 0, sizeof(_fog_desc));
+	_u_fog_data = bgfx::createUniform("u_fog_data", bgfx::UniformType::Vec4, 2);
 }
 
 RenderWorld::~RenderWorld()
 {
+	// Destroy fog uniform.
+	bgfx::destroy(_u_fog_data);
+
 	// Destroy cascaded shadow map resources.
 	bgfx::destroy(_u_cascaded_lights);
 	bgfx::destroy(_u_cascaded_texel_size);
@@ -441,6 +449,66 @@ void RenderWorld::light_debug_draw(LightInstance light, DebugLine &dl)
 {
 	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
 	_light_manager.debug_draw(light.i, 1, dl);
+}
+
+FogInstance RenderWorld::fog_create(UnitId unit, const FogDesc &desc)
+{
+	_fog_unit = unit;
+	_fog = { 0u };
+	_fog_desc = desc;
+	return _fog;
+}
+
+void RenderWorld::fog_destroy(FogInstance fog)
+{
+	CE_ASSERT(fog.i == _fog.i, "Instance not found");
+	_fog_desc = {};
+	_fog = { UINT32_MAX };
+	_fog_unit = UNIT_INVALID;
+}
+
+FogInstance RenderWorld::fog_instance(UnitId unit)
+{
+	if (_fog_unit == unit)
+		return _fog;
+
+	return { UINT32_MAX };
+}
+
+void RenderWorld::fog_set_color(FogInstance fog, Vector3 color)
+{
+	CE_ASSERT(fog.i == _fog.i, "Instance not found");
+	_fog_desc.color = color;
+}
+
+void RenderWorld::fog_set_density(FogInstance fog, float density)
+{
+	CE_ASSERT(fog.i == _fog.i, "Instance not found");
+	_fog_desc.density = density;
+}
+
+void RenderWorld::fog_set_range_min(FogInstance fog, float range)
+{
+	CE_ASSERT(fog.i == _fog.i, "Instance not found");
+	_fog_desc.range_min = range;
+}
+
+void RenderWorld::fog_set_range_max(FogInstance fog, float range)
+{
+	CE_ASSERT(fog.i == _fog.i, "Instance not found");
+	_fog_desc.range_max = range;
+}
+
+void RenderWorld::fog_set_sun_blend(FogInstance fog, float sun_blend)
+{
+	CE_ASSERT(fog.i == _fog.i, "Instance not found");
+	_fog_desc.sun_blend = sun_blend;
+}
+
+void RenderWorld::fog_set_enabled(FogInstance fog, bool enable)
+{
+	CE_ASSERT(fog.i == _fog.i, "Instance not found");
+	_fog_desc.enabled = (f32)enable;
 }
 
 void RenderWorld::update_transforms(const UnitId *begin, const UnitId *end, const Matrix4x4 *world)
@@ -933,6 +1001,7 @@ void RenderWorld::MeshManager::draw_visibles(u8 view_id, SceneGraph &scene_graph
 		bgfx::setTexture(CASCADED_SHADOW_MAP_SLOT, _render_world->_u_cascaded_shadow_map, bgfx::getTexture(_render_world->_cascaded_shadow_map_frame_buffer));
 		bgfx::setUniform(_render_world->_u_cascaded_texel_size, &texel_size);
 		bgfx::setUniform(_render_world->_u_cascaded_lights, cascaded_lights, MAX_NUM_CASCADES);
+		bgfx::setUniform(_render_world->_u_fog_data, (char *)&_render_world->_fog_desc, sizeof(_render_world->_fog_desc) / sizeof(Vector4));
 
 		set_instance_data(ii, scene_graph);
 		_data.material[ii]->bind(view_id);

@@ -340,6 +340,13 @@ public struct Unit
 			_db.set_property_vector3(component_id, "data.color", VECTOR3_ONE);
 			_db.set_property_double (component_id, "data.shadow_bias", 0.0001);
 			_db.set_property_bool   (component_id, "data.cast_shadows", true);
+		} else if (component_type == OBJECT_TYPE_FOG) {
+			_db.set_property_vector3(component_id, "data.color", Vector3(0.83, 0.83, 0.83));
+			_db.set_property_double (component_id, "data.density", 0.02);
+			_db.set_property_double (component_id, "data.range_min", 0.0);
+			_db.set_property_double (component_id, "data.range_max", 1000.0);
+			_db.set_property_double (component_id, "data.sun_blend", 0.0);
+			_db.set_property_bool   (component_id, "data.enabled", false);
 		} else if (component_type == OBJECT_TYPE_SCRIPT) {
 			_db.set_property_string(component_id, "data.script_resource", "core/components/noop");
 		} else if (component_type == OBJECT_TYPE_COLLIDER) {
@@ -497,6 +504,16 @@ public struct Unit
 						, unit.get_component_property_double (component_id, "data.shadow_bias", 0.0001)
 						, unit.get_component_property_bool   (component_id, "data.cast_shadows", true)
 						));
+				} else if (component_type == OBJECT_TYPE_FOG) {
+					sb.append(LevelEditorApi.add_fog_component(unit_id, component_id));
+					sb.append(LevelEditorApi.set_fog(unit_id
+						, unit.get_component_property_vector3(component_id, "data.color")
+						, unit.get_component_property_double (component_id, "data.density")
+						, unit.get_component_property_double (component_id, "data.range_min")
+						, unit.get_component_property_double (component_id, "data.range_max")
+						, unit.get_component_property_double (component_id, "data.sun_blend")
+						, unit.get_component_property_bool   (component_id, "data.enabled")
+						));
 				} else if (component_type == OBJECT_TYPE_SCRIPT) {
 					/*
 					 * sb.append(LevelEditorApi.add_script_component(unit_id
@@ -636,6 +653,17 @@ public struct Unit
 							);
 						sb.append(s);
 					}
+					if (unit.has_component(out component_id, OBJECT_TYPE_FOG)) {
+						sb.append(LevelEditorApi.add_fog_component(unit_id, component_id));
+						sb.append(LevelEditorApi.set_fog(unit_id
+							, unit.get_component_property_vector3(component_id, "data.color")
+							, unit.get_component_property_double (component_id, "data.density")
+							, unit.get_component_property_double (component_id, "data.range_min")
+							, unit.get_component_property_double (component_id, "data.range_max")
+							, unit.get_component_property_double (component_id, "data.sun_blend")
+							, unit.get_component_property_bool   (component_id, "data.enabled")
+							));
+					}
 				}
 
 				sb.append("Device.set_temp_count(editor_nv, editor_nq, editor_nm)");
@@ -729,6 +757,15 @@ public struct Unit
 						, unit.get_component_property_double (component_id, "data.shadow_bias", 0.0001)
 						, unit.get_component_property_bool   (component_id, "data.cast_shadows", true)
 						));
+				} else if (component_type == OBJECT_TYPE_FOG) {
+					sb.append(LevelEditorApi.set_fog(unit_id
+						, unit.get_component_property_vector3(component_id, "data.color")
+						, unit.get_component_property_double (component_id, "data.density")
+						, unit.get_component_property_double (component_id, "data.range_min")
+						, unit.get_component_property_double (component_id, "data.range_max")
+						, unit.get_component_property_double (component_id, "data.sun_blend")
+						, unit.get_component_property_bool   (component_id, "data.enabled")
+						));
 				} else if (component_type == OBJECT_TYPE_SCRIPT) {
 					/* No sync. */
 				} else if (component_type == OBJECT_TYPE_COLLIDER) {
@@ -773,6 +810,7 @@ public struct Unit
 			|| type == OBJECT_TYPE_MESH_RENDERER
 			|| type == OBJECT_TYPE_SPRITE_RENDERER
 			|| type == OBJECT_TYPE_LIGHT
+			|| type == OBJECT_TYPE_FOG
 			|| type == OBJECT_TYPE_SCRIPT
 			|| type == OBJECT_TYPE_COLLIDER
 			|| type == OBJECT_TYPE_ACTOR

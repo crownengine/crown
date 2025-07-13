@@ -1221,6 +1221,38 @@ Light
 **light_debug_draw** (rw, light, debug_line)
 	Fills *debug_line* with debug lines from the *light*.
 
+Fog
+---
+
+**fog_create** (rw, unit) : Id
+	Creates a new fog instance for the *unit* and returns its id.
+	Note that the fog component is limited to one instance per World. Every call
+	to this function will overwrite any previously created fog instance.
+
+**fog_destroy** (rw, fog)
+	Destroys the *fog* instance.
+
+**fog_instance** (rw, unit) : Id
+	Returns the ID of the fog owned by the *unit*, or ``nil``.
+
+**fog_set_color** (rw, fog, color)
+	Sets the *color* of the *fog*.
+
+**fog_set_density** (rw, fog, density)
+	Sets the *density* of the *fog*.
+
+**fog_set_range_min** (rw, fog, range)
+	Sets the minimum *range* of the *fog*.
+
+**fog_set_range_max** (rw, fog, range)
+	Sets the maximum *range* of the *fog*.
+
+**fog_set_sun_blend** (rw, fog, sun_blend)
+	Sets the sun *blend* of the *fog*.
+
+**fog_set_enabled** (rw, fog, enable)
+	Sets whether the *fog* is *enabled*.
+
 ResourcePackage
 ===============
 
