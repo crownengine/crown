@@ -8,4 +8,4 @@ frames = [
 		index = 0
 	}
 ]
-total_time = 0.5
+frames_per_second = 1
