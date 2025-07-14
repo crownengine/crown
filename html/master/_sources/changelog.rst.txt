@@ -1,33 +1,86 @@
 Changelog
 =========
 
-0.56.0 --- DD MMM YYYY
+0.58.0 --- DD MMM YYYY
 ----------------------
 
-**Tools**
+**New Features and Improvements**
 
-* Sped up deployers by enabling incremental data compilation.
-* Added mouse-only shortcuts (middle-button/wheel) to tumble/dolly the camera.
-* Added support to JPEG image format for textures.
-* Fixed importing sounds.
-* Fixed drag & drop of sound resources into the Editor View.
+* Tools: added Fog component.
+* Tools: the sprite importer will now generate a default sprite_animation and state_machine for all imported sprites.
+* Tools: added an option to automatically compute the collider shape when importing sprites.
+* Tools: added the ability to set the Sprite Renderer's `flip_x` and `flip_y` properties in the Inspector.
+* Tools: the FBX importer will now create a state machine resource and component when 'Unit' and 'New Skeleton' options are selected.
+* Tools: resources can now be imported directly by dragging files into the Project Browser.
+* Tools: upgraded FBX loader library (ufbx) to v0.20.0.
+* Compiler: optimized mesh data compilation times.
 
-**Runtime**
+**Fixes**
 
-* Added sounds streaming and OGG/Vorbis audio files support.
-* Fixed spurious activations of physics bodies.
-* HTML5: added Touch input device support.
-* HTML5: fixed GL_INVALID_OPERATION (or missing geometry) when rendering untextured meshes.
-* Data Compiler: fixed shaders not including code in some circumnstances.
-* Data Compiler: fixed 'static_compile' being visible to external shader resources.
-* Lua API: added ``Gui.text_extents()``.
-* Lua API: added ``SoundWorld.set_group_volume()`` and a corresponding group parameter to ``World.play_sound()``.
-* Lua API: added an optional exit_code parameter to ``Device.quit()``.
-* Lua API: added an optional rays parameter to ``DebugLine.add_cone()``.
-* Lua API: the color parameter in all ``Gui`` functions is now optional and defaults to ``Color4.white()``.
-* Lua API: the material_resource parameter in ``Gui.text()`` and ``Gui.text_3d()`` is now optional.
-* Lua API: fixed start-of-line character placement and some other rendering issues in ``Gui.text*()``.
-* Lua API: fixed several issues when calling ``Gui.text*()`` with utf8-encoded strings.
+* Tools: fixed hot-reloading of Unit scripts.
+* Tools: fixed missing sounds in the Level Tree.
+* Tools: fixed a number of issues in the Level Tree when adding/removing components to units.
+* Tools: fixed inability to select state machines from the "Animation State Machine" component in the Inspector.
+* Tools: fixed missing SKINNING define in materials when importing animated FBX meshes.
+* Tools: fixed shadows when rendering animated meshes.
+* Tools: fixed Level Tree showing previous objects when creating new levels.
+* Tools: fixed a crash when sending malformed scripts via Console.
+* Runtime: Linux: fixed ``Window.set_fullscreen()`` to put the window fullscreen without delays.
+* Compiler: the compiler will now return with an error if any source dir does not exist.
+* Compiler: fixed an issue that caused a crash in the runtime when trying to reload a resource after deleting it.
+
+0.57.0 --- 13 Jun 2025
+----------------------
+
+**New Features and Improvements**
+
+* Tools: improved the way numerical inputs show decimals.
+
+**Fixes**
+
+* Runtime: Windows: fixed reloading of resources.
+* Compiler: fixed lights not generating shadows.
+* Compiler: fixed excessive amount of vertex data being generated when compiling meshes.
+* Tools: fixed sorting of items in the Level Tree.
+* Tools: fixed sprite depth property not being saved when modified in the Inspector.
+* Tools: fixed a variety of issues with units-with-children.
+* Tools: fixed inability of selecting FBX nodes in the Inspector.
+* Tools: fixed misdetected clicks in the Project Browser in some circumnstances.
+* Tools: Windows: fixed rendering of selected objects' outlines.
+
+0.56.0 --- 04 Jun 2025
+----------------------
+
+**New Features and Improvements**
+
+* Runtime: added cascaded shadow mapping.
+* Runtime: added sounds streaming and OGG/Vorbis audio files support.
+* Runtime: HTML5: added Touch input device support.
+* Tools: added the ability to save level units as prefabs.
+* Tools: added mouse-only shortcuts (middle-button/wheel) to tumble/dolly the camera.
+* Tools: sped up deployers by enabling incremental data compilation.
+* Tools: added support to JPEG image format for textures.
+* Lua: added ``Gui.text_extents()``.
+* Lua: added ``Light.set_cast_shadows()``.
+* Lua: added ``Mesh.set_cast_shadows()``.
+* Lua: added ``SoundWorld.set_group_volume()`` and a corresponding group parameter to ``World.play_sound()``.
+* Lua: added an optional exit_code parameter to ``Device.quit()``.
+* Lua: added an optional rays parameter to ``DebugLine.add_cone()``.
+* Lua: the color parameter in all ``Gui`` functions is now optional and defaults to ``Color4.white()``.
+* Lua: the material_resource parameter in ``Gui.text()`` and ``Gui.text_3d()`` is now optional.
+
+**Fixes**
+
+* Runtime: fixed spurious activations of physics bodies.
+* Runtime: HTML5: fixed GL_INVALID_OPERATION (or missing geometry) when rendering untextured meshes.
+* Compiler: fixed 'static_compile' being visible to external shader resources.
+* Compiler: fixed shaders not including code in some circumnstances.
+* Tools: fixed collider generation when importing sprites.
+* Tools: fixed missing outlines on invisible objects.
+* Tools: fixed importing sounds.
+* Tools: fixed drag & drop of sound resources into the Editor View.
+* Lua: fixed several issues when calling ``Gui.text*()`` with utf8-encoded strings.
+* Lua: fixed start-of-line character placement and some other rendering issues in ``Gui.text*()``.
 
 0.55.0 --- 03 Apr 2025
 ----------------------

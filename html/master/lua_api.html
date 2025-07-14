@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lua API reference &mdash; Crown 0.56.0 Manual 0.56.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <title>Lua API reference &mdash; Crown 0.58.0 Manual 0.58.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" /><link rel="shortcut icon" href="_static/org.crownengine.Crown.svg"/>
   <!--[if lt IE 9]>
@@ -30,7 +30,7 @@
             <a href="index.html"><img src="_static/org.crownengine.Crown.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                Crown 0.56.0 Manual
+                Crown 0.58.0 Manual
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -127,6 +127,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#mesh">Mesh</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#sprite">Sprite</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#light">Light</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fog">Fog</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#resourcepackage">ResourcePackage</a></li>
@@ -153,7 +154,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Crown 0.56.0 Manual</a>
+          <a href="index.html">Crown 0.58.0 Manual</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -1110,6 +1111,8 @@ travelling at the given <em>velocity</em>.</p>
 <dd>Sets the <em>material</em> of the <em>mesh</em>.</dd>
 <dt><strong>mesh_set_visible</strong> (rw, mesh, visible)</dt>
 <dd>Sets whether the <em>mesh</em> is <em>visible</em>.</dd>
+<dt><strong>mesh_set_cast_shadows</strong> (rw, mesh, cast_shadows)</dt>
+<dd>Sets whether the <em>mesh</em> cast shadows.</dd>
 <dt><strong>mesh_obb</strong> (rw, mesh) <span class="classifier-delimiter">:</span> <span class="classifier">Matrix4x4, Vector3</span></dt>
 <dd>Returns the Oriented-Bounding-Box of the <em>mesh</em> as (pose, half_extents).</dd>
 <dt><strong>mesh_cast_ray</strong> (rw, mesh, from, dir) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
@@ -1185,8 +1188,35 @@ It can be either <code class="docutils literal notranslate"><span class="pre">di
 <dd>Sets the spot <em>angle</em> of the <em>light</em>.</dd>
 <dt><strong>light_set_shadow_bias</strong> (rw, light, bias)</dt>
 <dd>Sets the shadow <em>bias</em> of the <em>light</em>.</dd>
+<dt><strong>light_set_cast_shadows</strong> (rw, light, cast_shadows)</dt>
+<dd>Sets whether the <em>light</em> casts shadows.</dd>
 <dt><strong>light_debug_draw</strong> (rw, light, debug_line)</dt>
 <dd>Fills <em>debug_line</em> with debug lines from the <em>light</em>.</dd>
+</dl>
+</div>
+<div class="section" id="fog">
+<h3>Fog<a class="headerlink" href="#fog" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt><strong>fog_create</strong> (rw, unit) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
+<dd>Creates a new fog instance for the <em>unit</em> and returns its id.
+Note that the fog component is limited to one instance per World. Every call
+to this function will overwrite any previously created fog instance.</dd>
+<dt><strong>fog_destroy</strong> (rw, fog)</dt>
+<dd>Destroys the <em>fog</em> instance.</dd>
+<dt><strong>fog_instance</strong> (rw, unit) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
+<dd>Returns the ID of the fog owned by the <em>unit</em>, or <code class="docutils literal notranslate"><span class="pre">nil</span></code>.</dd>
+<dt><strong>fog_set_color</strong> (rw, fog, color)</dt>
+<dd>Sets the <em>color</em> of the <em>fog</em>.</dd>
+<dt><strong>fog_set_density</strong> (rw, fog, density)</dt>
+<dd>Sets the <em>density</em> of the <em>fog</em>.</dd>
+<dt><strong>fog_set_range_min</strong> (rw, fog, range)</dt>
+<dd>Sets the minimum <em>range</em> of the <em>fog</em>.</dd>
+<dt><strong>fog_set_range_max</strong> (rw, fog, range)</dt>
+<dd>Sets the maximum <em>range</em> of the <em>fog</em>.</dd>
+<dt><strong>fog_set_sun_blend</strong> (rw, fog, sun_blend)</dt>
+<dd>Sets the sun <em>blend</em> of the <em>fog</em>.</dd>
+<dt><strong>fog_set_enabled</strong> (rw, fog, enable)</dt>
+<dd>Sets whether the <em>fog</em> is <em>enabled</em>.</dd>
 </dl>
 </div>
 </div>
