@@ -107,7 +107,7 @@ bgfx_shaders = {
 					gl_FragColor = vec4(0, 0, 0, 0);
 					return;
 				}
-				alpha = max(0.5, alpha);
+				alpha = max(0.6, alpha);
 
 				// Scan the depth around the center and choose the value closest
 				// to the viewer. This is to avoid getting depth = 1.0.
