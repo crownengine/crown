@@ -503,7 +503,7 @@ units = [
 		_guid = "683c5131-06e1-4dad-96cd-3ef6d573d9bf"
 		_type = "unit"
 		editor = {
-			name = "light_0000"
+			name = "sun"
 		}
 		modified_components = {
 			#3f6f6b7c-b4cf-4173-aab0-288a63d7c73a = {
