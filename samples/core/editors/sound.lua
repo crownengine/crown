@@ -33,6 +33,10 @@ function SoundObject:name()
 	return self._name
 end
 
+function SoundObject:is_spatial()
+	return true
+end
+
 function SoundObject:local_position()
 	local tr = SceneGraph.instance(self._sg, self._unit_id)
 	return tr and SceneGraph.local_position(self._sg, tr) or Vector3.zero()
