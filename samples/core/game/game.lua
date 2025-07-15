@@ -18,12 +18,6 @@ function GameBase.init()
 	-- Create world.
 	GameBase.world = Device.create_world()
 
-	-- Create default camera.
-	GameBase.camera_unit = World.spawn_unit(GameBase.world, "core/units/camera")
-	local scene_graph = World.scene_graph(GameBase.world)
-	local camera_transform = SceneGraph.instance(scene_graph, GameBase.camera_unit)
-	SceneGraph.set_local_position(scene_graph, camera_transform, Vector3(0, -30, 6.5))
-
 	if GameBase.game and GameBase.game.init then
 		GameBase.game.init()
 	end
@@ -38,6 +32,15 @@ function GameBase.init()
 		if GameBase.game_level then
 			World.load_level(GameBase.world, GameBase.game_level)
 		end
+	end
+
+	-- Create default camera if it doesn't exist.
+	GameBase.camera_unit = World.unit_by_name(GameBase.world, "camera")
+	if GameBase.camera_unit == nil then
+		GameBase.camera_unit = World.spawn_unit(GameBase.world, "core/units/camera")
+		local scene_graph = World.scene_graph(GameBase.world)
+		local camera_transform = SceneGraph.instance(scene_graph, GameBase.camera_unit)
+		SceneGraph.set_local_position(scene_graph, camera_transform, Vector3(0, -15, 6.5))
 	end
 
 	if GameBase.game and GameBase.game.level_loaded then

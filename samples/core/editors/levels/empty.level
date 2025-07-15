@@ -13,9 +13,9 @@ units = [
 			#3f6f6b7c-b4cf-4173-aab0-288a63d7c73a = {
 				data = {
 					position = [
-						0
-						-10
-						10
+						12
+						6.5
+						14
 					]
 					rotation = [
 						0.35355433800000002
@@ -47,5 +47,35 @@ units = [
 			name = "shading_environment"
 		}
 		prefab = "core/renderer/default_shading_environment"
+	}
+	{
+		_guid = "d19b201e-b7c8-4d62-8522-cc6a1325a3ef"
+		_type = "unit"
+		editor = {
+			name = "camera"
+		}
+		modified_components = {
+			#1d578001-d96b-4b0e-90a9-181b32161a7d = {
+				data = {
+					position = [
+						0
+						-15
+						6.5
+					]
+					rotation = [
+						-0.17364817766693033
+						0
+						0
+						0.98480775301220802
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+		}
+		prefab = "core/units/camera"
 	}
 ]
