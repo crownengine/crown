@@ -211,26 +211,28 @@ function raycast(objects, pos, dir)
 	local sprite_z = 0
 
 	for k, v in pairs(objects) do
-		local nv, nq, nm = Device.temp_count()
-		local t, l, d = v:raycast(pos, dir)
-		if t ~= -1.0 then
-			-- If intersection.
-			if l and d then
-				-- If sprite.
-				local new_z = math.pow(2, 32)*l + d
-				if new_z >= sprite_z then
-					sprite_z = new_z
-					nearest = t
-					object = v
-				end
-			else
-				if t <= nearest then
-					nearest = t
-					object = v
+		if v:is_spatial() then
+			local nv, nq, nm = Device.temp_count()
+			local t, l, d = v:raycast(pos, dir)
+			if t ~= -1.0 then
+				-- If intersection.
+				if l and d then
+					-- If sprite.
+					local new_z = math.pow(2, 32)*l + d
+					if new_z >= sprite_z then
+						sprite_z = new_z
+						nearest = t
+						object = v
+					end
+				else
+					if t <= nearest then
+						nearest = t
+						object = v
+					end
 				end
 			end
+			Device.set_temp_count(nv, nq, nm)
 		end
-		Device.set_temp_count(nv, nq, nm)
 	end
 
 	return object, nearest
@@ -327,10 +329,12 @@ function Selection:send_move_objects()
 
 	local objs = self:objects()
 	for k, v in ipairs(objs) do
-		table.insert(ids, v:id())
-		table.insert(new_positions, v:local_position())
-		table.insert(new_rotations, v:local_rotation())
-		table.insert(new_scales, v:local_scale())
+		if v:is_spatial() then
+			table.insert(ids, v:id())
+			table.insert(new_positions, v:local_position())
+			table.insert(new_rotations, v:local_rotation())
+			table.insert(new_scales, v:local_scale())
+		end
 	end
 
 	Device.console_send { type = "move_objects"
@@ -423,34 +427,36 @@ function SelectTool:mouse_move(x, y)
 		-- adds/removes them to/from the selection.
 		local function objects_in_frustum(n0, d0, n1, d1, n2, d2, n3, d3, n4, d4, n5, d5)
 			for k, obj in pairs(LevelEditor._objects) do
-				local nv, nq, nm = Device.temp_count()
-				local obb_tm, obb_he = obj:obb()
-				local obj_intersects = Math.obb_intersects_frustum(obb_tm, obb_he, n0, d0, n1, d1, n2, d2, n3, d3, n4, d4, n5, d5)
+				if obj:is_spatial() then
+					local nv, nq, nm = Device.temp_count()
+					local obb_tm, obb_he = obj:obb()
+					local obj_intersects = Math.obb_intersects_frustum(obb_tm, obb_he, n0, d0, n1, d1, n2, d2, n3, d3, n4, d4, n5, d5)
 
-				if obj_intersects then
-					if LevelEditor:multiple_selection_enabled() then
-						-- If the object was not selected at mouse_down() time.
-						if self._selected_ids_start[obj:id()] == nil then
-							LevelEditor._selection:add(obj:id())
-						else
-							LevelEditor._selection:remove(obj:id())
-						end
-					else
-						LevelEditor._selection:add(obj:id())
-					end
-				else
-					if LevelEditor:multiple_selection_enabled() then
-						-- If the object was not selected at mouse_down() time.
-						if self._selected_ids_start[obj:id()] == nil then
-							LevelEditor._selection:remove(obj:id())
+					if obj_intersects then
+						if LevelEditor:multiple_selection_enabled() then
+							-- If the object was not selected at mouse_down() time.
+							if self._selected_ids_start[obj:id()] == nil then
+								LevelEditor._selection:add(obj:id())
+							else
+								LevelEditor._selection:remove(obj:id())
+							end
 						else
 							LevelEditor._selection:add(obj:id())
 						end
 					else
-						LevelEditor._selection:remove(obj:id())
+						if LevelEditor:multiple_selection_enabled() then
+							-- If the object was not selected at mouse_down() time.
+							if self._selected_ids_start[obj:id()] == nil then
+								LevelEditor._selection:remove(obj:id())
+							else
+								LevelEditor._selection:add(obj:id())
+							end
+						else
+							LevelEditor._selection:remove(obj:id())
+						end
 					end
+					Device.set_temp_count(nv, nq, nm)
 				end
-				Device.set_temp_count(nv, nq, nm)
 			end
 		end
 

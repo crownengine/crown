@@ -75,6 +75,10 @@ function UnitBox:destroy()
 	UnitUtils.destroy_tree(self._world, self._unit_id)
 end
 
+function UnitBox:is_spatial()
+	return SceneGraph.instance(self._sg, self._unit_id) ~= nil
+end
+
 function UnitBox:local_position()
 	local tr = SceneGraph.instance(self._sg, self._unit_id)
 	return tr and SceneGraph.local_position(self._sg, tr) or Vector3.zero()
