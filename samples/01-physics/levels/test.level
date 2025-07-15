@@ -916,6 +916,36 @@ units = [
 		prefab = "units/cube"
 	}
 	{
+		_guid = "b1cbf05e-c348-41a0-8677-eff4e1d35987"
+		_type = "unit"
+		editor = {
+			name = "camera"
+		}
+		modified_components = {
+			#1d578001-d96b-4b0e-90a9-181b32161a7d = {
+				data = {
+					position = [
+						0
+						-30
+						6.5
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+		}
+		prefab = "core/units/camera"
+	}
+	{
 		_guid = "b38e2246-4aa1-4fea-954b-71c21b39415f"
 		_type = "unit"
 		editor = {
