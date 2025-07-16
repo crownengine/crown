@@ -454,17 +454,17 @@
           <attribute name="accel">F1</attribute>
         </item>
         <item>
-          <attribute name="label" translatable="yes">Report an Issue...</attribute>
+          <attribute name="label" translatable="yes">Report an Issue</attribute>
           <attribute name="action">app.report-issue</attribute>
         </item>
       </section>
       <section>
         <item>
-          <attribute name="label" translatable="yes">Changelog...</attribute>
+          <attribute name="label" translatable="yes">Changelog</attribute>
           <attribute name="action">app.changelog</attribute>
         </item>
         <item>
-          <attribute name="label" translatable="yes">Donate...</attribute>
+          <attribute name="label" translatable="yes">Donate</attribute>
           <attribute name="action">app.donate</attribute>
         </item>
         <item>
