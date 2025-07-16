@@ -12,6 +12,7 @@ const string CROWN_DOCS_URL = "https://docs.crownengine.org";
 const string CROWN_LATEST_DOCS_URL = CROWN_DOCS_URL + "/html/v" + CROWN_VERSION;
 const string CROWN_LATEST_CHANGELOG_URL = CROWN_LATEST_DOCS_URL + "/changelog.html#changelog";
 const string CROWN_FUND_URL = CROWN_WWW_URL + "/fund";
+const string CROWN_CREDITS_URL = CROWN_WWW_URL + "/about/credits";
 
 #if CROWN_PLATFORM_LINUX
 const string ENGINE_DIR = ".";

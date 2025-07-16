@@ -500,7 +500,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "browse-logs",  on_browse_logs,  null, null },
 		{ "changelog",    on_changelog,    null, null },
 		{ "donate",       on_donate,       null, null },
-		{ "about",        on_about,        null, null }
+		{ "credits",      on_credits,      null, null }
 	};
 
 	private const GLib.ActionEntry[] action_entries_project =
@@ -2944,33 +2944,13 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void on_about(GLib.SimpleAction action, GLib.Variant? param)
+	private void on_credits(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		Gtk.AboutDialog dlg = new Gtk.AboutDialog();
-		dlg.set_destroy_with_parent(true);
-		dlg.set_transient_for(this.active_window);
-		dlg.set_modal(true);
-		dlg.set_logo_icon_name(CROWN_EDITOR_ICON_NAME);
-
-		dlg.program_name = CROWN_EDITOR_NAME;
-		dlg.version = CROWN_VERSION;
-		dlg.website = CROWN_WWW_URL;
-		dlg.copyright = "Copyright (c) 2012-2025 Daniele Bartolini et al.";
-		dlg.license_type = GPL_3_0;
-		dlg.authors =
-		{
-			"Daniele Bartolini",
-			"Simone Boscaratto",
-			"Michele Rossi",
-			"Raphael de Vasconcelos Nascimento"
-		};
-		dlg.artists =
-		{
-			"Michela Iacchelli - Pepper logo",
-			"Giulia Gazzoli - Crown logo"
-		};
-
-		dlg.present();
+		try {
+			AppInfo.launch_default_for_uri(CROWN_CREDITS_URL, null);
+		} catch (Error e) {
+			loge(e.message);
+		}
 	}
 
 	private void do_delete_file(string resource_path)

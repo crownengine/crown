@@ -468,8 +468,8 @@
           <attribute name="action">app.donate</attribute>
         </item>
         <item>
-          <attribute name="label" translatable="yes">About</attribute>
-          <attribute name="action">app.about</attribute>
+          <attribute name="label" translatable="yes">Credits</attribute>
+          <attribute name="action">app.credits</attribute>
         </item>
       </section>
     </submenu>
