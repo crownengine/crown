@@ -54,4 +54,7 @@ makefile eol=lf
 
 3rdparty/**                     linguist-vendored
 docs/**                         linguist-vendored
+exporters/**                    linguist-vendored
+makefile                        linguist-vendored
+scripts/**                      linguist-vendored
 tools/level_editor/resources/** linguist-vendored
