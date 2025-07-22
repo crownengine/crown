@@ -157,13 +157,13 @@ private void set_thumbnail(Gtk.CellRenderer cell, string type, string name, int 
 	else if ((string)type == "<favorites>")
 		cell.set_property("icon-name", "browser-favorites");
 	else if ((string)type == OBJECT_TYPE_STATE_MACHINE)
-		cell.set_property("icon-name", "text-x-generic-symbolic");
+		cell.set_property("icon-name", "object-state-machine");
 	else if ((string)type == "config")
 		cell.set_property("icon-name", "text-x-generic-symbolic");
 	else if ((string)type == OBJECT_TYPE_FONT)
-		cell.set_property("icon-name", "font-x-generic-symbolic");
+		cell.set_property("icon-name", "object-font");
 	else if ((string)type == OBJECT_TYPE_LEVEL)
-		cell.set_property("icon-name", "text-x-generic-symbolic");
+		cell.set_property("icon-name", "object-level");
 	else if ((string)type == OBJECT_TYPE_MATERIAL)
 		cell.set_property("pixbuf", thumbnail_cache.get(type, name, icon_size));
 	else if ((string)type == OBJECT_TYPE_MESH)
@@ -173,7 +173,7 @@ private void set_thumbnail(Gtk.CellRenderer cell, string type, string name, int 
 	else if ((string)type == "physics_config")
 		cell.set_property("icon-name", "text-x-generic-symbolic");
 	else if ((string)type == "lua")
-		cell.set_property("icon-name", "x-office-document-symbolic");
+		cell.set_property("icon-name", "object-script");
 	else if ((string)type == OBJECT_TYPE_UNIT)
 		cell.set_property("pixbuf", thumbnail_cache.get(type, name, icon_size));
 	else if ((string)type == "shader")
@@ -181,11 +181,15 @@ private void set_thumbnail(Gtk.CellRenderer cell, string type, string name, int 
 	else if ((string)type == OBJECT_TYPE_SOUND)
 		cell.set_property("pixbuf", thumbnail_cache.get(type, name, icon_size));
 	else if ((string)type == OBJECT_TYPE_SPRITE_ANIMATION)
-		cell.set_property("icon-name", "text-x-generic-symbolic");
+		cell.set_property("icon-name", "object-animation");
 	else if ((string)type == OBJECT_TYPE_SPRITE)
-		cell.set_property("icon-name", "text-x-generic-symbolic");
+		cell.set_property("icon-name", "object-sprite");
 	else if ((string)type == OBJECT_TYPE_TEXTURE)
 		cell.set_property("pixbuf", thumbnail_cache.get(type, name, icon_size));
+	else if ((string)type == OBJECT_TYPE_MESH_ANIMATION)
+		cell.set_property("icon-name", "object-animation");
+	else if ((string)type == OBJECT_TYPE_MESH_SKELETON)
+		cell.set_property("icon-name", "object-skeleton");
 	else
 		cell.set_property("icon-name", "text-x-generic-symbolic");
 }

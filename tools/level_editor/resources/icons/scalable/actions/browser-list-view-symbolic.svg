@@ -1,99 +1,15 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg
-   width="16"
-   height="16"
-   viewBox="0 0 16 16"
-   id="svg4213"
-   version="1.1"
-   sodipodi:docname="browser-list-view-symbolic.svg"
-   inkscape:version="1.4 (e7c3feb100, 2024-10-09)"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:dc="http://purl.org/dc/elements/1.1/">
-  <sodipodi:namedview
-     id="namedview1"
-     pagecolor="#ffffff"
-     bordercolor="#000000"
-     borderopacity="0.25"
-     inkscape:showpageshadow="2"
-     inkscape:pageopacity="0.0"
-     inkscape:pagecheckerboard="0"
-     inkscape:deskcolor="#d1d1d1"
-     inkscape:zoom="62.625"
-     inkscape:cx="7.992016"
-     inkscape:cy="7.992016"
-     inkscape:window-width="2560"
-     inkscape:window-height="1365"
-     inkscape:window-x="0"
-     inkscape:window-y="38"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="layer1" />
-  <defs
-     id="defs4215" />
-  <metadata
-     id="metadata4218">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <g
-     id="layer1"
-     transform="translate(0,-1156.3622)"
-     style="display:inline">
-    <g
-       id="g10"
-       transform="translate(-20)">
-      <rect
-         style="display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.99999"
-         id="rect33-3"
-         width="4"
-         height="4"
-         x="21"
-         y="1157.3622" />
-      <rect
-         style="display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.894427"
-         id="rect34-6"
-         width="8"
-         height="2"
-         x="27"
-         y="1158.3622" />
-      <rect
-         style="display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.99999"
-         id="rect40-7"
-         width="4"
-         height="4"
-         x="21"
-         y="1162.3622" />
-      <rect
-         style="display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.894428"
-         id="rect41-5"
-         width="8"
-         height="2"
-         x="27"
-         y="1163.3622" />
-      <rect
-         style="display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.99999"
-         id="rect42-3"
-         width="4"
-         height="4"
-         x="21"
-         y="1167.3622" />
-      <rect
-         style="display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.894428"
-         id="rect43-5"
-         width="8"
-         height="2"
-         x="27"
-         y="1168.3622" />
+<?xml version="1.0" encoding="UTF-8"?>
+<svg height="16px" viewBox="0 0 16 16" width="16px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <clipPath id="a">
+        <path d="m 0 0 h 512 v 512 h -512 z"/>
+    </clipPath>
+    <path d="m 1 1 h 4 v 4 h -4 z m 0 0"/>
+    <path d="m 7 2 h 8 v 2 h -8 z m 0 0"/>
+    <path d="m 1 6 h 4 v 4 h -4 z m 0 0"/>
+    <path d="m 7 7 h 8 v 2 h -8 z m 0 0"/>
+    <path d="m 1 11 h 4 v 4 h -4 z m 0 0"/>
+    <path d="m 7 12 h 8 v 2 h -8 z m 0 0"/>
+    <g clip-path="url(#a)" transform="matrix(1 0 0 1 0 -120)">
+        <path d="m 42.570312 90 h 7.859376 c 0.316406 0 0.570312 0.253906 0.570312 0.570312 v 3.847657 c 0 0.316406 -0.253906 0.570312 -0.570312 0.570312 h -7.859376 c -0.316406 0 -0.570312 -0.253906 -0.570312 -0.570312 v -3.847657 c 0 -0.316406 0.253906 -0.570312 0.570312 -0.570312 z m 0 0"/>
     </g>
-  </g>
 </svg>
