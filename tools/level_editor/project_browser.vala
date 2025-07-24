@@ -159,7 +159,7 @@ private void set_thumbnail(Gtk.CellRenderer cell, string type, string name, int 
 	else if ((string)type == OBJECT_TYPE_STATE_MACHINE)
 		cell.set_property("icon-name", "object-state-machine");
 	else if ((string)type == "config")
-		cell.set_property("icon-name", "text-x-generic-symbolic");
+		cell.set_property("icon-name", "object-config");
 	else if ((string)type == OBJECT_TYPE_FONT)
 		cell.set_property("icon-name", "object-font");
 	else if ((string)type == OBJECT_TYPE_LEVEL)
@@ -171,13 +171,13 @@ private void set_thumbnail(Gtk.CellRenderer cell, string type, string name, int 
 	else if ((string)type == "package")
 		cell.set_property("icon-name", "package-x-generic-symbolic");
 	else if ((string)type == "physics_config")
-		cell.set_property("icon-name", "text-x-generic-symbolic");
+		cell.set_property("icon-name", "object-config");
 	else if ((string)type == "lua")
 		cell.set_property("icon-name", "object-script");
 	else if ((string)type == OBJECT_TYPE_UNIT)
 		cell.set_property("pixbuf", thumbnail_cache.get(type, name, icon_size));
 	else if ((string)type == "shader")
-		cell.set_property("icon-name", "text-x-generic-symbolic");
+		cell.set_property("icon-name", "object-shader");
 	else if ((string)type == OBJECT_TYPE_SOUND)
 		cell.set_property("pixbuf", thumbnail_cache.get(type, name, icon_size));
 	else if ((string)type == OBJECT_TYPE_SPRITE_ANIMATION)
