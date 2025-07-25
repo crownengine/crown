@@ -18,6 +18,7 @@ Changelog
 **Fixes**
 
 * Tools: fixed hot-reloading of Unit scripts.
+* Tools: fixed Editor Viewport lag when using pointing devices with high polling rate.
 * Tools: fixed missing sounds in the Level Tree.
 * Tools: fixed a number of issues in the Level Tree when adding/removing components to units.
 * Tools: fixed inability to select state machines from the "Animation State Machine" component in the Inspector.
