@@ -35,6 +35,8 @@ public class EditorView : Gtk.EventBox
 	private bool _input_enabled;
 	private bool _drag_enter;
 	private uint _last_time;
+	private int64 _motion_last_time;
+	private const int MOTION_EVENTS_RATE = 75;
 
 	private GLib.StringBuilder _buffer;
 
@@ -101,6 +103,7 @@ public class EditorView : Gtk.EventBox
 		_input_enabled = input_enabled;
 		_drag_enter = false;
 		_last_time = 0;
+		_motion_last_time = 0;
 
 		_buffer = new GLib.StringBuilder();
 
@@ -339,16 +342,19 @@ public class EditorView : Gtk.EventBox
 
 	private void on_motion(double x, double y)
 	{
-		int scale = this.get_scale_factor();
+		int64 now = GLib.get_monotonic_time();
 
-		_runtime.send_script(LevelEditorApi.set_mouse_state((int)x*scale
-			, (int)y*scale
-			, _mouse_left
-			, _mouse_middle
-			, _mouse_right
-			));
-
-		_runtime.send(DeviceApi.frame());
+		if (now - _motion_last_time >= (1000*1000)/MOTION_EVENTS_RATE) {
+			_motion_last_time = now;
+			int scale = this.get_scale_factor();
+			_runtime.send_script(LevelEditorApi.set_mouse_state((int)x*scale
+				, (int)y*scale
+				, _mouse_left
+				, _mouse_middle
+				, _mouse_right
+				));
+			_runtime.send(DeviceApi.frame());
+		}
 	}
 
 	private void on_scroll(double dx, double dy)
