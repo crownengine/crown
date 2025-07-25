@@ -34,7 +34,7 @@ public class EditorView : Gtk.EventBox
 	private Gee.HashMap<uint, bool> _keys;
 	private bool _input_enabled;
 	private bool _drag_enter;
-	private uint _last_time;
+	private uint _drag_last_time;
 	private int64 _motion_last_time;
 	private const int MOTION_EVENTS_RATE = 75;
 
@@ -102,7 +102,7 @@ public class EditorView : Gtk.EventBox
 
 		_input_enabled = input_enabled;
 		_drag_enter = false;
-		_last_time = 0;
+		_drag_last_time = 0;
 		_motion_last_time = 0;
 
 		_buffer = new GLib.StringBuilder();
@@ -184,10 +184,10 @@ public class EditorView : Gtk.EventBox
 				_drag_enter = true;
 			}
 
-			if (_time - _last_time >= 16) {
+			if (_time - _drag_last_time >= 1000/MOTION_EVENTS_RATE) {
 				// Drag motion events seem to fire at a very high frequency compared to regular
 				// motion notify events. Limit them to 60 hz.
-				_last_time = _time;
+				_drag_last_time = _time;
 				int scale = this.get_scale_factor();
 				_runtime.send_script(LevelEditorApi.set_mouse_state(x*scale
 					, y*scale
