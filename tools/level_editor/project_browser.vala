@@ -167,9 +167,9 @@ private void set_thumbnail(Gtk.CellRenderer cell, string type, string name, int 
 	else if ((string)type == OBJECT_TYPE_MATERIAL)
 		cell.set_property("pixbuf", thumbnail_cache.get(type, name, icon_size));
 	else if ((string)type == OBJECT_TYPE_MESH)
-		cell.set_property("icon-name", "text-x-generic-symbolic");
+		cell.set_property("icon-name", "object-mesh");
 	else if ((string)type == "package")
-		cell.set_property("icon-name", "package-x-generic-symbolic");
+		cell.set_property("icon-name", "object-package");
 	else if ((string)type == "physics_config")
 		cell.set_property("icon-name", "object-config");
 	else if ((string)type == "lua")
