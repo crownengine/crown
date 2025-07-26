@@ -360,7 +360,7 @@ public class SpriteImportDialog : Gtk.Window
 		// Collider.
 		shape = new Gtk.Stack();
 		shape.sensitive = false;
-		shape.homogeneous = false;
+		shape.vhomogeneous = false;
 		shape.notify["visible-child"].connect(() => {
 				calc_collider_shape();
 				_preview.queue_draw();
