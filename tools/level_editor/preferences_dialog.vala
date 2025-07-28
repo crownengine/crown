@@ -135,10 +135,7 @@ public class PreferencesDialog : Gtk.Window
 		// External tools page.
 		_lua_external_tool_button = new AppChooserButton("text/plain");
 		_image_external_tool_button = new AppChooserButton("image/*");
-#if CROWN_PLATFORM_LINUX
-		_lua_external_tool_button.show_dialog_item = true;
-		_image_external_tool_button.show_dialog_item = true;
-#endif
+
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
 		cv.add_row("External Lua editor", _lua_external_tool_button);
@@ -317,7 +314,7 @@ public class PreferencesDialog : Gtk.Window
 
 	public void apply()
 	{
-		GLib.Signal.emit_by_name(_grid_color_button, "color-set");
+		GLib.Signal.emit_by_name(_grid_color_button, "value-changed");
 		GLib.Signal.emit_by_name(_gizmo_size_spin_button, "value-changed");
 		GLib.Signal.emit_by_name(_level_autosave_spin_button, "value-changed");
 		GLib.Signal.emit_by_name(_log_delete_after_days, "value-changed");

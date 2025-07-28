@@ -193,7 +193,7 @@ private void set_thumbnail(Gtk.CellRenderer cell, string type, string name, int 
 	else
 		cell.set_property("icon-name", "text-x-generic-symbolic");
 }
-public class ProjectFolderView : Gtk.Stack
+public class ProjectFolderView : Gtk.Box
 {
 	public enum Column
 	{
@@ -221,9 +221,12 @@ public class ProjectFolderView : Gtk.Stack
 	public Gtk.ScrolledWindow _list_view_window;
 	public Gtk.GestureMultiPress _icon_view_gesture_click;
 	public Gtk.GestureMultiPress _list_view_gesture_click;
+	public Gtk.Stack _stack;
 
 	public ProjectFolderView(ProjectStore project_store, ThumbnailCache thumbnail_cache)
 	{
+		Object(orientation: Gtk.Orientation.VERTICAL);
+
 		_project_store = project_store;
 		_thumbnail_cache = thumbnail_cache;
 
@@ -350,9 +353,12 @@ public class ProjectFolderView : Gtk.Stack
 		_list_view_window = new Gtk.ScrolledWindow(null, null);
 		_list_view_window.add(_list_view);
 
-		this.add_named(_icon_view_window, "icon-view");
-		this.add_named(_list_view_window, "list-view");
-		this.set_visible_child_full("icon-view", Gtk.StackTransitionType.NONE);
+		_stack = new Gtk.Stack();
+		_stack.add_named(_icon_view_window, "icon-view");
+		_stack.add_named(_list_view_window, "list-view");
+		_stack.set_visible_child_full("icon-view", Gtk.StackTransitionType.NONE);
+
+		this.pack_start(_stack);
 	}
 
 	private void on_drag_data_get(Gdk.DragContext context, Gtk.SelectionData data, uint info, uint time_)
@@ -439,7 +445,7 @@ public class ProjectFolderView : Gtk.Stack
 
 			if (menu_model != null) {
 				Gtk.Popover menu = new Gtk.Popover.from_model(this, menu_model);
-				if (this.get_visible_child() == _icon_view_window) {
+				if (_stack.get_visible_child() == _icon_view_window) {
 					// Adjust for scroll offset since IconView fails to do it itself.
 					var new_x = x - _icon_view_window.get_hadjustment().get_value();
 					var new_y = y - _icon_view_window.get_vadjustment().get_value();
@@ -597,7 +603,7 @@ public class ProjectFolderView : Gtk.Stack
 
 	public bool selected_path(out Gtk.TreePath? path)
 	{
-		if (this.get_visible_child() == _icon_view_window) {
+		if (_stack.get_visible_child() == _icon_view_window) {
 			GLib.List<Gtk.TreePath> selected_paths = _icon_view.get_selected_items();
 			if (selected_paths.length() == 0u) {
 				path = null;
@@ -606,7 +612,7 @@ public class ProjectFolderView : Gtk.Stack
 
 			path = selected_paths.nth(0).data;
 			return true;
-		} else if (this.get_visible_child() == _list_view_window) {
+		} else if (_stack.get_visible_child() == _list_view_window) {
 			Gtk.TreeModel selected_model;
 			Gtk.TreeIter iter;
 			if (!_list_view.get_selection().get_selected(out selected_model, out iter)) {
@@ -694,9 +700,9 @@ public class ProjectFolderView : Gtk.Stack
 	private Gtk.TreePath? path_at_pos(int x, int y)
 	{
 		Gtk.TreePath? path = null;
-		if (this.get_visible_child() == _icon_view_window) {
+		if (_stack.get_visible_child() == _icon_view_window) {
 			path = _icon_view.get_path_at_pos(x, y);
-		} else if (this.get_visible_child() == _list_view_window) {
+		} else if (_stack.get_visible_child() == _list_view_window) {
 			int bx;
 			int by;
 			_list_view.convert_widget_to_bin_window_coords(x, y, out bx, out by);
@@ -728,7 +734,7 @@ public class ProjectFolderView : Gtk.Stack
 	}
 }
 
-public class ProjectBrowser : Gtk.Paned
+public class ProjectBrowser : Gtk.Box
 {
 	public enum SortMode
 	{
@@ -1049,13 +1055,13 @@ public class ProjectBrowser : Gtk.Paned
 						_folder_view._list_view.get_selection().select_iter(iter);
 					}
 
-					_folder_view.set_visible_child_full("list-view", Gtk.StackTransitionType.NONE);
+					_folder_view._stack.set_visible_child_full("list-view", Gtk.StackTransitionType.NONE);
 					_toggle_icon_view_image.set_from_icon_name("browser-icon-view", Gtk.IconSize.SMALL_TOOLBAR);
 				} else {
 					if (any_selected)
 						_folder_view._icon_view.select_path(path);
 
-					_folder_view.set_visible_child_full("icon-view", Gtk.StackTransitionType.NONE);
+					_folder_view._stack.set_visible_child_full("icon-view", Gtk.StackTransitionType.NONE);
 					_toggle_icon_view_image.set_from_icon_name("browser-list-view", Gtk.IconSize.SMALL_TOOLBAR);
 				}
 
@@ -1080,9 +1086,10 @@ public class ProjectBrowser : Gtk.Paned
 		_folder_view_content.pack_start(_folder_view_control, false);
 		_folder_view_content.pack_start(_folder_stack, true, true);
 
-		this.pack1(_tree_view_content, true, false);
-		this.pack2(_folder_view_content, true, false);
-		this.set_position(400);
+		_paned = new Gtk.Paned(Gtk.Orientation.VERTICAL);
+		_paned.pack1(_tree_view_content, true, false);
+		_paned.pack2(_folder_view_content, true, false);
+		_paned.set_position(400);
 
 		_hide_core_resources = true;
 
@@ -1166,6 +1173,8 @@ public class ProjectBrowser : Gtk.Paned
 			{ "unfavorite-resource", on_unfavorite_resource, "(ss)", null }
 		};
 		GLib.Application.get_default().add_action_entries(action_entries, this);
+
+		this.pack_start(_paned);
 	}
 
 	private void on_drag_data_get(Gdk.DragContext context, Gtk.SelectionData data, uint info, uint time_)

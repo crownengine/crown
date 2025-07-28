@@ -5,7 +5,7 @@
 
 namespace Crown
 {
-public class PanelNewProject : Gtk.Viewport
+public class PanelNewProject : Gtk.Box
 {
 	// Data
 	User _user;
@@ -31,7 +31,7 @@ public class PanelNewProject : Gtk.Viewport
 
 	public PanelNewProject(User user, Project project)
 	{
-		this.shadow_type = Gtk.ShadowType.NONE;
+		Object(orientation: Gtk.Orientation.VERTICAL);
 
 		// Data
 		_user = user;

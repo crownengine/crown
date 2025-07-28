@@ -83,7 +83,7 @@ public class UnitView : PropertyGrid
 	}
 }
 
-public class PropertiesView : Gtk.Stack
+public class PropertiesView : Gtk.Box
 {
 	public struct ComponentEntry
 	{
@@ -105,12 +105,15 @@ public class PropertiesView : Gtk.Stack
 	private Gtk.Viewport _viewport;
 	private Gtk.ScrolledWindow _scrolled_window;
 	private PropertyGridSet _object_view;
+	private Gtk.Stack _stack;
 
 	[CCode (has_target = false)]
 	public delegate GLib.Menu ContextMenu(string object_type);
 
 	public PropertiesView(Database db)
 	{
+		Object(orientation: Gtk.Orientation.VERTICAL);
+
 		// Data
 		_db = db;
 
@@ -138,10 +141,12 @@ public class PropertiesView : Gtk.Stack
 		_scrolled_window = new Gtk.ScrolledWindow(null, null);
 		_scrolled_window.add(_viewport);
 
-		this.add(_nothing_to_show);
-		this.add(_scrolled_window);
-		this.add(_unknown_object_type);
+		_stack = new Gtk.Stack();
+		_stack.add(_nothing_to_show);
+		_stack.add(_scrolled_window);
+		_stack.add(_unknown_object_type);
 
+		this.pack_start(_stack);
 		this.get_style_context().add_class("properties-view");
 
 		db._project.project_reset.connect(on_project_reset);
@@ -192,7 +197,7 @@ public class PropertiesView : Gtk.Stack
 			Expander expander = _expanders[entry.type];
 			_expander_states[entry.type] = expander.expanded;
 		}
-		this.set_visible_child(_scrolled_window);
+		_stack.set_visible_child(_scrolled_window);
 
 		foreach (var entry in _entries) {
 			Expander expander = _expanders[entry.type];
@@ -227,7 +232,7 @@ public class PropertiesView : Gtk.Stack
 			_expander_states[entry.type] = expander.expanded;
 		}
 
-		this.set_visible_child(_scrolled_window);
+		_stack.set_visible_child(_scrolled_window);
 
 		foreach (var entry in _entries) {
 			Expander expander = _expanders[entry.type];
@@ -250,7 +255,7 @@ public class PropertiesView : Gtk.Stack
 	public void show_or_hide_properties()
 	{
 		if (_selection == null || _selection.size != 1) {
-			this.set_visible_child(_nothing_to_show);
+			_stack.set_visible_child(_nothing_to_show);
 			return;
 		}
 
@@ -263,7 +268,7 @@ public class PropertiesView : Gtk.Stack
 		else if (_db.object_type(id) == OBJECT_TYPE_SOUND_SOURCE)
 			show_sound_source(id);
 		else
-			this.set_visible_child(_unknown_object_type);
+			_stack.set_visible_child(_unknown_object_type);
 	}
 
 	public void on_selection_changed(Gee.ArrayList<Guid?> selection)
