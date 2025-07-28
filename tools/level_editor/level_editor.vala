@@ -7,7 +7,7 @@
 extern uint GetCurrentProcessId();
 extern uintptr OpenProcess(uint dwDesiredAccess, bool bInheritHandle, uint dwProcessId);
 #elif CROWN_PLATFORM_LINUX
-extern pid_t getpid();
+extern Posix.pid_t getpid();
 #endif
 
 namespace Crown
