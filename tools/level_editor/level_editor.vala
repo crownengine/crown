@@ -714,12 +714,6 @@ public class LevelEditorApplication : Gtk.Application
 			loge(e.message);
 		}
 
-		// HACK: register CrownClamp type within GObject's type system to
-		// make GtkBuilder able to find it when creating the widget from
-		// .ui files.
-		// https://stackoverflow.com/questions/24235937/custom-gtk-widget-with-template-ui
-		new Clamp().get_type().ensure();
-
 		this.add_action_entries(action_entries_file, this);
 		this.add_action_entries(action_entries_edit, this);
 		this.add_action_entries(action_entries_create, this);
