@@ -5,12 +5,30 @@
 
 namespace Crown
 {
-public class CounterLabel : Gtk.Label
+public class CounterLabel : Gtk.Box
 {
+	private Gtk.Label _label;
+
 	public CounterLabel()
 	{
-		this.get_style_context().add_class("counter-label");
-		this.set_visible(true);
+		Object(orientation: Gtk.Orientation.HORIZONTAL);
+
+		_label = new Gtk.Label("");
+		_label.get_style_context().add_class("counter-label");
+		_label.set_visible(true);
+
+		this.pack_start(_label);
+		this.show_all();
+	}
+
+	public void set_text(string str)
+	{
+		_label.set_text(str);
+	}
+
+	public void set_markup(string str)
+	{
+		_label.set_markup(str);
 	}
 
 	protected override void get_preferred_height(out int minimum_height, out int natural_height)

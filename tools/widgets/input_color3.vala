@@ -5,8 +5,10 @@
 
 namespace Crown
 {
-public class InputColor3 : InputField, Gtk.ColorButton
+public class InputColor3 : Gtk.Box, InputField
 {
+	private Gtk.ColorButton _color_button;
+
 	public void set_inconsistent(bool inconsistent)
 	{
 	}
@@ -30,19 +32,24 @@ public class InputColor3 : InputField, Gtk.ColorButton
 	{
 		get
 		{
-			Gdk.RGBA rgba = this.get_rgba();
+			Gdk.RGBA rgba = _color_button.get_rgba();
 			return Vector3(rgba.red, rgba.green, rgba.blue);
 		}
 		set
 		{
 			Vector3 rgb = (Vector3)value;
-			this.set_rgba({ rgb.x, rgb.y, rgb.z, 1.0 });
+			_color_button.set_rgba({ rgb.x, rgb.y, rgb.z, 1.0 });
 		}
 	}
 
 	public InputColor3()
 	{
-		this.color_set.connect(on_color_set);
+		Object(orientation: Gtk.Orientation.HORIZONTAL);
+
+		_color_button = new Gtk.ColorButton();
+		_color_button.color_set.connect(on_color_set);
+
+		this.pack_start(_color_button);
 	}
 
 	private void on_color_set()

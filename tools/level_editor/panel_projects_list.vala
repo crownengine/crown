@@ -79,7 +79,7 @@ public class ProjectRow : Gtk.ListBoxRow
 	}
 }
 
-public class PanelProjectsList : Gtk.ScrolledWindow
+public class PanelProjectsList : Gtk.Box
 {
 	// Data
 	public User _user;
@@ -97,7 +97,7 @@ public class PanelProjectsList : Gtk.ScrolledWindow
 
 	public PanelProjectsList(User user)
 	{
-		this.shadow_type = Gtk.ShadowType.NONE;
+		Object(orientation: Gtk.Orientation.VERTICAL);
 
 		// Data
 		_user = user;
