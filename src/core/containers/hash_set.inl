@@ -341,6 +341,8 @@ inline HashSet<TKey, Hash, KeyEqual>::~HashSet()
 template<typename TKey, typename Hash, typename KeyEqual>
 HashSet<TKey, Hash, KeyEqual> &HashSet<TKey, Hash, KeyEqual>::operator=(const HashSet<TKey, Hash, KeyEqual> &other)
 {
+	CE_ASSERT(this != &other, "Self-assignment");
+
 	for (u32 i = 0; i < _capacity; ++i) {
 		if (_index[i].index == 0x0123abcd)
 			_data[i].~TKey();

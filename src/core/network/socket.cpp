@@ -227,8 +227,7 @@ TCPSocket::TCPSocket(const TCPSocket &other)
 
 TCPSocket &TCPSocket::operator=(const TCPSocket &other)
 {
-	if (CE_UNLIKELY(this == &other))
-		return *this;
+	CE_ASSERT(this != &other, "Self-assignment");
 
 	_priv = new (_data) Private();
 	memcpy(_data, other._data, sizeof(_data));
@@ -380,6 +379,8 @@ SocketSet::~SocketSet()
 
 SocketSet &SocketSet::operator=(const SocketSet &other)
 {
+	CE_ASSERT(this != &other, "Self-assignment");
+
 	_priv->fdset = other._priv->fdset;
 #if CROWN_PLATFORM_POSIX
 	_priv->maxfd = other._priv->maxfd;
