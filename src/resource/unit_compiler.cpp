@@ -529,9 +529,11 @@ namespace unit_compiler
 				u32 comp_idx = object_index(unit->_merged_components, component_id, opts);
 				if (comp_idx != UINT32_MAX) {
 					u32 comp_last = array::size(unit->_merged_components) - 1;
-					unit->_merged_components[comp_idx] = unit->_merged_components[comp_last];
+					if (comp_idx != comp_last) {
+						unit->_merged_components[comp_idx] = unit->_merged_components[comp_last];
+						unit->_flattened_components[comp_idx] = unit->_flattened_components[comp_last];
+					}
 					array::pop_back(unit->_merged_components);
-					unit->_flattened_components[comp_idx] = unit->_flattened_components[comp_last];
 					vector::pop_back(unit->_flattened_components);
 				} else {
 					char buf[GUID_BUF_LEN];
