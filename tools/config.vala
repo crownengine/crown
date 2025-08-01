@@ -5,7 +5,7 @@
 
 namespace Crown
 {
-const string CROWN_VERSION = "0.58.0";
+const string CROWN_VERSION = "0.59.0";
 
 const string CROWN_WWW_URL = "https://www.crownengine.org";
 const string CROWN_DOCS_URL = "https://docs.crownengine.org";
