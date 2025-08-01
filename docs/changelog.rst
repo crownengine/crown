@@ -43,6 +43,7 @@ Changelog
 
 **Fixes**
 
+* Runtime: fixed shading of meshes with non-uniform scaling.
 * Runtime: Windows: fixed reloading of resources.
 * Compiler: fixed lights not generating shadows.
 * Compiler: fixed excessive amount of vertex data being generated when compiling meshes.
