@@ -17,6 +17,7 @@ namespace crown
 BootConfig::BootConfig(Allocator &a)
 	: boot_script_name(a)
 	, boot_package_name(u64(0))
+	, render_config_name(u64(0))
 	, window_title(a)
 	, window_w(CROWN_DEFAULT_WINDOW_WIDTH)
 	, window_h(CROWN_DEFAULT_WINDOW_HEIGHT)
@@ -39,7 +40,13 @@ bool BootConfig::parse(const char *json)
 	if (json_object::has(cfg, "window_title"))
 		sjson::parse_string(window_title, cfg["window_title"]);
 
-	// Platform-specific configs
+	if (json_object::has(cfg, "render_config")) {
+		render_config_name = sjson::parse_resource_name(cfg["render_config"]);
+	} else {
+		render_config_name = STRING_ID_64("core/renderer/default", UINT64_C(0x1b92f3ff7ca4157c));
+	}
+
+	// Platform-specific configs.
 	if (json_object::has(cfg, CROWN_PLATFORM_NAME)) {
 		JsonObject platform(ta);
 		sjson::parse(platform, cfg[CROWN_PLATFORM_NAME]);
