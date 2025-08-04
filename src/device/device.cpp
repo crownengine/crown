@@ -49,6 +49,7 @@
 #include "resource/mesh_animation_resource.h"
 #include "resource/package_resource.h"
 #include "resource/physics_resource.h"
+#include "resource/render_config_resource.h"
 #include "resource/resource_id.inl"
 #include "resource/resource_loader.h"
 #include "resource/resource_manager.h"
@@ -594,6 +595,7 @@ int Device::main_loop()
 	_resource_manager->register_type(RESOURCE_TYPE_MESH_ANIMATION,   RESOURCE_VERSION_MESH_ANIMATION,   NULL,      NULL,        NULL,        NULL);
 	_resource_manager->register_type(RESOURCE_TYPE_PACKAGE,          RESOURCE_VERSION_PACKAGE,          NULL,      NULL,        NULL,        NULL);
 	_resource_manager->register_type(RESOURCE_TYPE_PHYSICS_CONFIG,   RESOURCE_VERSION_PHYSICS_CONFIG,   NULL,      NULL,        NULL,        NULL);
+	_resource_manager->register_type(RESOURCE_TYPE_RENDER_CONFIG,    RESOURCE_VERSION_RENDER_CONFIG,    NULL,      NULL,        NULL,        NULL);
 	_resource_manager->register_type(RESOURCE_TYPE_SCRIPT,           RESOURCE_VERSION_SCRIPT,           NULL,      NULL,        NULL,        NULL);
 	_resource_manager->register_type(RESOURCE_TYPE_SHADER,           RESOURCE_VERSION_SHADER,           shr::load, shr::unload, shr::online, shr::offline);
 	_resource_manager->register_type(RESOURCE_TYPE_SOUND,            RESOURCE_VERSION_SOUND,            NULL,      NULL,        NULL,        NULL);
