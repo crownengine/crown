@@ -40,6 +40,7 @@
 #include "resource/mesh_animation_resource.h"
 #include "resource/package_resource.h"
 #include "resource/physics_resource.h"
+#include "resource/render_config_resource.h"
 #include "resource/resource_id.inl"
 #include "resource/shader_resource.h"
 #include "resource/sound_resource.h"
@@ -1589,6 +1590,7 @@ int main_data_compiler(const DeviceOptions &opts)
 	dc->register_compiler("mesh_animation",   RESOURCE_VERSION_MESH_ANIMATION,   mesh_animation_resource_internal::compile);
 	dc->register_compiler("package",          RESOURCE_VERSION_PACKAGE,          package_resource_internal::compile);
 	dc->register_compiler("physics_config",   RESOURCE_VERSION_PHYSICS_CONFIG,   physics_config_resource_internal::compile);
+	dc->register_compiler("render_config",    RESOURCE_VERSION_RENDER_CONFIG,    render_config_resource_internal::compile);
 	dc->register_compiler("lua",              RESOURCE_VERSION_SCRIPT,           lua_resource_internal::compile);
 	dc->register_compiler("shader",           RESOURCE_VERSION_SHADER,           shader_resource_internal::compile);
 	dc->register_compiler("sound",            RESOURCE_VERSION_SOUND,            sound_resource_internal::compile);

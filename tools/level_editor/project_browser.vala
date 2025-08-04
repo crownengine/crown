@@ -172,6 +172,8 @@ private void set_thumbnail(Gtk.CellRenderer cell, string type, string name, int 
 		cell.set_property("icon-name", "object-package");
 	else if ((string)type == "physics_config")
 		cell.set_property("icon-name", "object-config");
+	else if ((string)type == "render_config")
+		cell.set_property("icon-name", "object-config");
 	else if ((string)type == "lua")
 		cell.set_property("icon-name", "object-script");
 	else if ((string)type == OBJECT_TYPE_UNIT)
