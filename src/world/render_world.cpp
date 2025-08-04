@@ -71,21 +71,6 @@ RenderWorld::RenderWorld(Allocator &a
 	_u_lights_num = bgfx::createUniform("u_lights_num", bgfx::UniformType::Vec4, 1);
 	_u_lights_data = bgfx::createUniform("u_lights_data", bgfx::UniformType::Vec4, 3*32);
 
-	// Create cascaded shadow map resources.
-	bgfx::TextureHandle fbtex = bgfx::createTexture2D(pl._cascaded_shadow_map_size
-		, pl._cascaded_shadow_map_size
-		, false
-		, 1
-		, bgfx::TextureFormat::D32F
-		, BGFX_TEXTURE_RT | BGFX_SAMPLER_COMPARE_LEQUAL
-		);
-	bgfx::TextureHandle fbtextures[] = { fbtex };
-	_cascaded_shadow_map_frame_buffer = bgfx::createFrameBuffer(countof(fbtextures), fbtextures, true);
-
-	_u_cascaded_shadow_map = bgfx::createUniform("u_cascaded_shadow_map", bgfx::UniformType::Sampler);
-	_u_cascaded_texel_size = bgfx::createUniform("u_cascaded_texel_size", bgfx::UniformType::Vec4);
-	_u_cascaded_lights = bgfx::createUniform("u_cascaded_lights", bgfx::UniformType::Mat4, MAX_NUM_CASCADES);
-
 	// Fog.
 	memset(&_fog_desc, 0, sizeof(_fog_desc));
 	_u_fog_data = bgfx::createUniform("u_fog_data", bgfx::UniformType::Vec4, 2);
@@ -95,12 +80,6 @@ RenderWorld::~RenderWorld()
 {
 	// Destroy fog uniform.
 	bgfx::destroy(_u_fog_data);
-
-	// Destroy cascaded shadow map resources.
-	bgfx::destroy(_u_cascaded_lights);
-	bgfx::destroy(_u_cascaded_texel_size);
-	bgfx::destroy(_u_cascaded_shadow_map);
-	bgfx::destroy(_cascaded_shadow_map_frame_buffer);
 
 	// Destroy lighting uniforms.
 	bgfx::destroy(_u_lights_data);
@@ -647,7 +626,7 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj)
 			lid.shader[0].map_size = rects[0].w / _pipeline->_cascaded_shadow_map_size;
 
 			bgfx::setViewRect(View::CASCADE_0 + i, rects[i].x, rects[i].y, rects[i].z, rects[i].w);
-			bgfx::setViewFrameBuffer(View::CASCADE_0 + i, _cascaded_shadow_map_frame_buffer);
+			bgfx::setViewFrameBuffer(View::CASCADE_0 + i, _pipeline->_sun_shadow_map_frame_buffer);
 			bgfx::setViewClear(View::CASCADE_0 + i, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0xffffffff, 1.0f, 0);
 
 			bgfx::setViewTransform(View::CASCADE_0 + i, to_float_ptr(light_view), to_float_ptr(light_proj));
@@ -998,9 +977,9 @@ void RenderWorld::MeshManager::draw_visibles(u8 view_id, SceneGraph &scene_graph
 	const Vector4 texel_size = { (f32)_render_world->_pipeline->_cascaded_shadow_map_size, 0.0f, 0.0f, 0.0f };
 
 	for (u32 ii = 0; ii < _data.first_hidden; ++ii) {
-		bgfx::setTexture(CASCADED_SHADOW_MAP_SLOT, _render_world->_u_cascaded_shadow_map, bgfx::getTexture(_render_world->_cascaded_shadow_map_frame_buffer));
-		bgfx::setUniform(_render_world->_u_cascaded_texel_size, &texel_size);
-		bgfx::setUniform(_render_world->_u_cascaded_lights, cascaded_lights, MAX_NUM_CASCADES);
+		bgfx::setTexture(CASCADED_SHADOW_MAP_SLOT, _render_world->_pipeline->_u_cascaded_shadow_map, _render_world->_pipeline->_sun_shadow_map_texture);
+		bgfx::setUniform(_render_world->_pipeline->_u_cascaded_texel_size, &texel_size);
+		bgfx::setUniform(_render_world->_pipeline->_u_cascaded_lights, cascaded_lights, MAX_NUM_CASCADES);
 		bgfx::setUniform(_render_world->_u_fog_data, (char *)&_render_world->_fog_desc, sizeof(_render_world->_fog_desc) / sizeof(Vector4));
 
 		set_instance_data(ii, scene_graph);
