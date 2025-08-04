@@ -65,6 +65,13 @@ struct Pipeline
 	bgfx::UniformHandle _outline_color_map;
 	bgfx::UniformHandle _outline_color;
 
+	// Shadow mapping.
+	bgfx::TextureHandle _sun_shadow_map_texture;
+	bgfx::FrameBufferHandle _sun_shadow_map_frame_buffer;
+	bgfx::UniformHandle _u_cascaded_shadow_map;
+	bgfx::UniformHandle _u_cascaded_texel_size;
+	bgfx::UniformHandle _u_cascaded_lights;
+
 	// Default sampler/texture to keep WebGL renderer running
 	// when a shader references a texture (even if unused) but
 	// none are set via setTexture().

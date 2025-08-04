@@ -502,12 +502,6 @@ struct RenderWorld
 	bgfx::UniformHandle _u_lights_num;
 	bgfx::UniformHandle _u_lights_data;
 
-	// Shadow mapping.
-	bgfx::FrameBufferHandle _cascaded_shadow_map_frame_buffer;
-	bgfx::UniformHandle _u_cascaded_shadow_map;
-	bgfx::UniformHandle _u_cascaded_texel_size;
-	bgfx::UniformHandle _u_cascaded_lights;
-
 	// Fog.
 	UnitId _fog_unit;
 	FogInstance _fog;

@@ -123,6 +123,8 @@ Pipeline::Pipeline(ShaderManager &sm)
 	, _outline_frame_buffer(BGFX_INVALID_HANDLE)
 	, _outline_color_map(BGFX_INVALID_HANDLE)
 	, _outline_color(BGFX_INVALID_HANDLE)
+	, _sun_shadow_map_texture(BGFX_INVALID_HANDLE)
+	, _sun_shadow_map_frame_buffer(BGFX_INVALID_HANDLE)
 	, _cascaded_shadow_map_size(4096)
 {
 	lookup_default_shaders(*this);
@@ -141,6 +143,28 @@ void Pipeline::create(uint16_t width, uint16_t height)
 	_outline_color_map = bgfx::createUniform("s_color_map", bgfx::UniformType::Sampler);
 	_outline_color = bgfx::createUniform("u_outline_color", bgfx::UniformType::Vec4);
 
+	_u_cascaded_shadow_map = bgfx::createUniform("u_cascaded_shadow_map", bgfx::UniformType::Sampler);
+	_u_cascaded_texel_size = bgfx::createUniform("u_cascaded_texel_size", bgfx::UniformType::Vec4);
+	_u_cascaded_lights = bgfx::createUniform("u_cascaded_lights", bgfx::UniformType::Mat4, MAX_NUM_CASCADES);
+
+	// Create cascaded shadow map frame buffer.
+	if (bgfx::isValid(_sun_shadow_map_texture))
+		bgfx::destroy(_sun_shadow_map_texture);
+	_sun_shadow_map_texture = bgfx::createTexture2D(_cascaded_shadow_map_size
+		, _cascaded_shadow_map_size
+		, false
+		, 1
+		, bgfx::TextureFormat::D32F
+		, BGFX_TEXTURE_RT | BGFX_SAMPLER_COMPARE_LEQUAL
+		);
+	const bgfx::TextureHandle fbtextures[] =
+	{
+		_sun_shadow_map_texture
+	};
+	if (bgfx::isValid(_sun_shadow_map_frame_buffer))
+		bgfx::destroy(_sun_shadow_map_frame_buffer);
+	_sun_shadow_map_frame_buffer = bgfx::createFrameBuffer(countof(fbtextures), fbtextures);
+
 #if CROWN_PLATFORM_EMSCRIPTEN
 	_html5_default_sampler = bgfx::createUniform("s_webgl_hack", bgfx::UniformType::Sampler);
 	_html5_default_texture = bgfx::createTexture2D(1, 1, false, 1, bgfx::TextureFormat::R8);
@@ -153,28 +177,55 @@ void Pipeline::destroy()
 {
 #if CROWN_PLATFORM_EMSCRIPTEN
 	bgfx::destroy(_html5_default_sampler);
+	_html5_default_sampler = BGFX_INVALID_HANDLE;
 	bgfx::destroy(_html5_default_texture);
+	_html5_default_texture = BGFX_INVALID_HANDLE;
 #endif
+	// Destroy cascaded shadow map resources.
+	bgfx::destroy(_u_cascaded_lights);
+	_u_cascaded_lights = BGFX_INVALID_HANDLE;
+	bgfx::destroy(_u_cascaded_texel_size);
+	_u_cascaded_texel_size = BGFX_INVALID_HANDLE;
+	bgfx::destroy(_u_cascaded_shadow_map);
+	_u_cascaded_shadow_map = BGFX_INVALID_HANDLE;
+	bgfx::destroy(_sun_shadow_map_frame_buffer);
+	_sun_shadow_map_frame_buffer = BGFX_INVALID_HANDLE;
+	bgfx::destroy(_sun_shadow_map_texture);
+	_sun_shadow_map_texture = BGFX_INVALID_HANDLE;
 
 	bgfx::destroy(_outline_color);
+	_outline_color = BGFX_INVALID_HANDLE;
 	bgfx::destroy(_outline_color_map);
+	_outline_color_map = BGFX_INVALID_HANDLE;
 
 	bgfx::destroy(_outline_frame_buffer);
+	_outline_frame_buffer = BGFX_INVALID_HANDLE;
 	bgfx::destroy(_outline_color_texture);
+	_outline_color_texture = BGFX_INVALID_HANDLE;
 
 	bgfx::destroy(_selection_depth_map);
+	_selection_depth_map = BGFX_INVALID_HANDLE;
 	bgfx::destroy(_selection_map);
+	_selection_map = BGFX_INVALID_HANDLE;
 
 	bgfx::destroy(_depth_map);
+	_depth_map = BGFX_INVALID_HANDLE;
 	bgfx::destroy(_color_map);
+	_color_map = BGFX_INVALID_HANDLE;
 
 	bgfx::destroy(_selection_frame_buffer);
+	_selection_frame_buffer = BGFX_INVALID_HANDLE;
 	bgfx::destroy(_selection_depth_texture);
+	_selection_depth_texture = BGFX_INVALID_HANDLE;
 	bgfx::destroy(_selection_texture);
+	_selection_texture = BGFX_INVALID_HANDLE;
 
 	bgfx::destroy(_frame_buffer);
+	_frame_buffer = BGFX_INVALID_HANDLE;
 	bgfx::destroy(_depth_texture);
+	_depth_texture = BGFX_INVALID_HANDLE;
 	bgfx::destroy(_color_texture);
+	_color_texture = BGFX_INVALID_HANDLE;
 }
 
 void Pipeline::reset(u16 width, u16 height)
