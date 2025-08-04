@@ -125,13 +125,14 @@ Pipeline::Pipeline(ShaderManager &sm)
 	, _outline_color(BGFX_INVALID_HANDLE)
 	, _sun_shadow_map_texture(BGFX_INVALID_HANDLE)
 	, _sun_shadow_map_frame_buffer(BGFX_INVALID_HANDLE)
-	, _cascaded_shadow_map_size(4096)
 {
 	lookup_default_shaders(*this);
 }
 
-void Pipeline::create(uint16_t width, uint16_t height)
+void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settings)
 {
+	_render_settings = render_settings;
+
 	reset(width, height);
 
 	_color_map = bgfx::createUniform("s_color_map", bgfx::UniformType::Sampler);
@@ -150,8 +151,8 @@ void Pipeline::create(uint16_t width, uint16_t height)
 	// Create cascaded shadow map frame buffer.
 	if (bgfx::isValid(_sun_shadow_map_texture))
 		bgfx::destroy(_sun_shadow_map_texture);
-	_sun_shadow_map_texture = bgfx::createTexture2D(_cascaded_shadow_map_size
-		, _cascaded_shadow_map_size
+	_sun_shadow_map_texture = bgfx::createTexture2D(_render_settings.sun_shadow_map_size.x
+		, _render_settings.sun_shadow_map_size.y
 		, false
 		, 1
 		, bgfx::TextureFormat::D32F

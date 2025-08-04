@@ -6,6 +6,7 @@
 #pragma once
 
 #include "world/types.h"
+#include "resource/render_config_resource.h"
 #include "resource/shader_resource.h"
 #include <bgfx/bgfx.h>
 
@@ -46,6 +47,7 @@ namespace crown
 struct Pipeline
 {
 	ShaderManager *_shader_manager;
+	RenderSettings _render_settings;
 
 	// Main output color/depth handles.
 	bgfx::TextureHandle _color_texture;
@@ -90,14 +92,11 @@ struct Pipeline
 	ShaderData _shadow_shader;
 	ShaderData _shadow_skinning_shader;
 
-	// Global settings.
-	u16 _cascaded_shadow_map_size;
-
 	///
 	Pipeline(ShaderManager &sm);
 
 	///
-	void create(u16 width, u16 height);
+	void create(u16 width, u16 height, const RenderSettings &render_settings);
 
 	///
 	void destroy();

@@ -59,6 +59,7 @@ struct Device
 	ListNode _worlds;
 	TimestepPolicy::Enum _timestep_policy;
 	DeltaTimeFilter _delta_time_filter;
+	const RenderConfigResource *_render_config_resource;
 
 	u16 _width;
 	u16 _height;
