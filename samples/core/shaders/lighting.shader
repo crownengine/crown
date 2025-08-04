@@ -193,7 +193,7 @@ bgfx_shaders = {
 					bool atlas2 = all(lessThan(shadow2, vec2_splat(0.99))) && all(greaterThan(shadow2, vec2_splat(0.01)));
 					bool atlas3 = all(lessThan(shadow3, vec2_splat(0.99))) && all(greaterThan(shadow3, vec2_splat(0.01)));
 
-					vec2 texel_size = vec2_splat(1.0/u_cascaded_texel_size.x);
+					vec2 texel_size = u_cascaded_texel_size.xy;
 
 					if (atlas0)
 						local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos0, shadow_bias, texel_size, vec3(atlas_u             , atlas_v             , atlas_size));

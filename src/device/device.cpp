@@ -340,6 +340,7 @@ Device::Device(const DeviceOptions &opts, ConsoleServer &cs)
 	, _display(NULL)
 	, _window(NULL)
 	, _timestep_policy(TimestepPolicy::VARIABLE)
+	, _render_config_resource(NULL)
 	, _width(CROWN_DEFAULT_WINDOW_WIDTH)
 	, _height(CROWN_DEFAULT_WINDOW_HEIGHT)
 	, _exit_code(EXIT_SUCCESS)
@@ -693,16 +694,24 @@ int Device::main_loop()
 	audio_globals::init();
 	physics_globals::init(_allocator);
 
+	// Load boot package.
 	ResourcePackage *boot_package = create_resource_package(_boot_config.boot_package_name);
 	boot_package->load();
 	boot_package->flush();
+
+	// Load render config package.
+	ResourcePackage *render_config_package = create_resource_package(_boot_config.render_config_name);
+	render_config_package->load();
+	render_config_package->flush();
+
+	_render_config_resource = (RenderConfigResource *)_resource_manager->get(RESOURCE_TYPE_RENDER_CONFIG, _boot_config.render_config_name);
 
 	_lua_environment->load_libs();
 	_lua_environment->require(_boot_config.boot_script_name.c_str());
 	_lua_environment->execute_string(_options._lua_string.c_str());
 
 	_pipeline = CE_NEW(_allocator, Pipeline)(*_shader_manager);
-	_pipeline->create(_width, _height);
+	_pipeline->create(_width, _height, _render_config_resource->render_settings);
 
 	graph_globals::init(_allocator, *_pipeline, *_console_server);
 
@@ -721,6 +730,9 @@ int Device::main_loop()
 #endif
 
 	_lua_environment->call_global("shutdown");
+
+	render_config_package->unload();
+	destroy_resource_package(*render_config_package);
 
 	boot_package->unload();
 	destroy_resource_package(*boot_package);
@@ -973,6 +985,7 @@ void Device::refresh(const char *json)
 			|| resource_type == RESOURCE_TYPE_TEXTURE
 			|| resource_type == RESOURCE_TYPE_SHADER
 			|| resource_type == RESOURCE_TYPE_MATERIAL
+			|| resource_type == RESOURCE_TYPE_RENDER_CONFIG
 			;
 
 		if (is_type_reloadable && _resource_manager->can_get(resource_type, resource_name)) {
@@ -992,6 +1005,12 @@ void Device::refresh(const char *json)
 				{
 					World *w = (World *)container_of(cur, World, _node);
 					w->reload_materials((MaterialResource *)old_resource, (MaterialResource *)new_resource);
+				}
+			} else if (resource_type == RESOURCE_TYPE_RENDER_CONFIG) {
+				if (_render_config_resource == old_resource) {
+					_render_config_resource = (RenderConfigResource *)new_resource;
+					_pipeline->destroy();
+					_pipeline->create(_width, _height, _render_config_resource->render_settings);
 				}
 			}
 		}

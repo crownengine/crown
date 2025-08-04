@@ -16,6 +16,7 @@
 #include "core/strings/string_id.inl"
 #include "device/pipeline.h"
 #include "resource/mesh_resource.h"
+#include "resource/render_config_resource.h"
 #include "resource/resource_manager.h"
 #include "resource/sprite_resource.h"
 #include "world/debug_line.h"
@@ -535,7 +536,9 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj)
 
 	// Render cascaded shadow maps.
 	// CSMs are only computed for the brightest directional light (index = 0) in the scene.
-	if (lid.num[LightType::DIRECTIONAL] > 0 && (lid.index[0].flags & RenderableFlags::SHADOW_CASTER) != 0) {
+	if (lid.num[LightType::DIRECTIONAL] > 0
+		&& (lid.index[0].flags & RenderableFlags::SHADOW_CASTER) != 0
+		&& (_pipeline->_render_settings.flags & RenderSettingsFlags::SUN_SHADOWS) != 0) {
 		Matrix4x4 light_proj;
 		Matrix4x4 light_view;
 		Frustum splits[MAX_NUM_CASCADES];
@@ -607,23 +610,24 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj)
 			//   |                +------>
 			// (0;h)            (0;0)  (1;0)
 			//
-			const f32 tile_size = 0.5f * _pipeline->_cascaded_shadow_map_size;
+			const f32 tile_size_x = 0.5f * _pipeline->_render_settings.sun_shadow_map_size.x;
+			const f32 tile_size_y = 0.5f * _pipeline->_render_settings.sun_shadow_map_size.y;
 			Vector4 rects[] =
 			{
-				{         0, tile_size, tile_size, tile_size },
-				{ tile_size, tile_size, tile_size, tile_size },
-				{         0,    0,      tile_size, tile_size },
-				{ tile_size,    0,      tile_size, tile_size },
+				{           0, tile_size_y, tile_size_x, tile_size_y },
+				{ tile_size_x, tile_size_y, tile_size_x, tile_size_y },
+				{           0,           0, tile_size_x, tile_size_y },
+				{ tile_size_x,           0, tile_size_x, tile_size_y },
 			};
 			CE_STATIC_ASSERT(countof(rects) == MAX_NUM_CASCADES);
 
-			lid.shader[0].atlas_u = rects[0].x / _pipeline->_cascaded_shadow_map_size;
+			lid.shader[0].atlas_u = 0.0f;
 #if CROWN_PLATFORM_WINDOWS
-			lid.shader[0].atlas_v = rects[0].y / _pipeline->_cascaded_shadow_map_size;
+			lid.shader[0].atlas_v = 1.0f;
 #else
-			lid.shader[0].atlas_v = 1.0f - ((rects[0].y + rects[0].z) / _pipeline->_cascaded_shadow_map_size);
+			lid.shader[0].atlas_v = 0.0f;
 #endif
-			lid.shader[0].map_size = rects[0].w / _pipeline->_cascaded_shadow_map_size;
+			lid.shader[0].map_size = 0.5f;
 
 			bgfx::setViewRect(View::CASCADE_0 + i, rects[i].x, rects[i].y, rects[i].z, rects[i].w);
 			bgfx::setViewFrameBuffer(View::CASCADE_0 + i, _pipeline->_sun_shadow_map_frame_buffer);
@@ -974,7 +978,13 @@ void RenderWorld::MeshManager::draw_shadow_casters(u8 view_id, SceneGraph &scene
 
 void RenderWorld::MeshManager::draw_visibles(u8 view_id, SceneGraph &scene_graph, const Matrix4x4 *cascaded_lights)
 {
-	const Vector4 texel_size = { (f32)_render_world->_pipeline->_cascaded_shadow_map_size, 0.0f, 0.0f, 0.0f };
+	const Vector4 texel_size =
+	{
+		1.0f/_render_world->_pipeline->_render_settings.sun_shadow_map_size.x,
+		1.0f/_render_world->_pipeline->_render_settings.sun_shadow_map_size.y,
+		0.0f,
+		0.0f
+	};
 
 	for (u32 ii = 0; ii < _data.first_hidden; ++ii) {
 		bgfx::setTexture(CASCADED_SHADOW_MAP_SLOT, _render_world->_pipeline->_u_cascaded_shadow_map, _render_world->_pipeline->_sun_shadow_map_texture);
