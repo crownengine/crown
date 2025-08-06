@@ -4,6 +4,10 @@ Changelog
 0.59.0 --- DD MMM YYYY
 ----------------------
 
+**New Features and Improvements**
+
+* Runtime: added a new .render_config resource for configuring the renderer, along with a `render_config` property in the boot files to allow selecting the desired config.
+
 0.58.0 --- 01 Aug 2025
 ----------------------
 

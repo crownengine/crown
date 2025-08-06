@@ -10,6 +10,9 @@ Generic configurations
 ``boot_package = "boot"``
 	Package to load on boot.
 
+``render_config = "core/renderer/default"``
+	Render configuration to use.
+
 ``window_title = "My window"``
 	Title of the main window on platforms that support it.
 
