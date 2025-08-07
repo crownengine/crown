@@ -40,6 +40,7 @@ struct PhysicsMaterial
 	StringId32 name;
 	f32 friction;
 	f32 rolling_friction;
+	f32 spinning_friction;
 	f32 restitution;
 };
 

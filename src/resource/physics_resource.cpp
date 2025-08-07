@@ -423,6 +423,11 @@ namespace physics_config_resource_internal
 			mat.friction         = RETURN_IF_ERROR(sjson::parse_float(material["friction"]), opts);
 			mat.rolling_friction = RETURN_IF_ERROR(sjson::parse_float(material["rolling_friction"]), opts);
 			mat.restitution      = RETURN_IF_ERROR(sjson::parse_float(material["restitution"]), opts);
+			if (json_object::has(material, "spinning_friction")) {
+				mat.spinning_friction = RETURN_IF_ERROR(sjson::parse_float(material["spinning_friction"]), opts);
+			} else {
+				mat.spinning_friction = 0.5f;
+			}
 
 			array::push_back(objects, mat);
 		}
@@ -634,6 +639,7 @@ namespace physics_config_resource_internal
 			opts.write(materials[i].name._id);
 			opts.write(materials[i].friction);
 			opts.write(materials[i].rolling_friction);
+			opts.write(materials[i].spinning_friction);
 			opts.write(materials[i].restitution);
 		}
 
