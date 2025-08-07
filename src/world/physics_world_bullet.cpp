@@ -497,6 +497,7 @@ struct PhysicsWorldImpl
 		rbinfo.m_restitution              = material->restitution;
 		rbinfo.m_friction                 = material->friction;
 		rbinfo.m_rollingFriction          = material->rolling_friction;
+		rbinfo.m_spinningFriction         = material->spinning_friction;
 		rbinfo.m_linearSleepingThreshold  = 0.5f; // FIXME
 		rbinfo.m_angularSleepingThreshold = 0.7f; // FIXME
 
