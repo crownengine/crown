@@ -20,7 +20,7 @@ struct FileMemory : public File
 	u32 _position;
 
 	explicit FileMemory(const void *mem, u32 size)
-		: _memory((const u8 *)mem)
+		: _memory((u8 *)mem)
 		, _size(size)
 		, _position(0)
 	{

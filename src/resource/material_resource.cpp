@@ -42,7 +42,7 @@ namespace material_resource
 
 	const char *uniform_name(const MaterialResource *mr, const UniformData *ud, u32 i)
 	{
-		return (const char *)mr + mr->names_data_offset + ud[i].name_offset;
+		return (char *)mr + mr->names_data_offset + ud[i].name_offset;
 	}
 
 	TextureData *texture_data_array(const MaterialResource *mr)
@@ -63,7 +63,7 @@ namespace material_resource
 
 	const char *texture_name(const MaterialResource *mr, const TextureData *td, u32 i)
 	{
-		return (const char *)mr + mr->names_data_offset + td[i].sampler_name_offset;
+		return (char *)mr + mr->names_data_offset + td[i].sampler_name_offset;
 	}
 
 	UniformHandle *uniform_handle(const UniformData *ud, u32 i, char *dynamic)

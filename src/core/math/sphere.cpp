@@ -20,9 +20,9 @@ namespace sphere
 	{
 		float rr = s.r*s.r;
 
-		const char *pts = (const char *)points;
+		const char *pts = (char *)points;
 		for (u32 i = 0; i < num; ++i, pts += stride) {
-			const Vector3 &pi = *(const Vector3 *)pts;
+			const Vector3 &pi = *(Vector3 *)pts;
 
 			rr = max(rr, length_squared(pi - s.c));
 		}

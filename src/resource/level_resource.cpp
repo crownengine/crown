@@ -22,12 +22,12 @@ namespace level_resource
 {
 	const StringId32 *unit_names(const LevelResource *lr)
 	{
-		return (const StringId32 *)((char *)lr + lr->unit_names_offset);
+		return (StringId32 *)((char *)lr + lr->unit_names_offset);
 	}
 
 	const UnitResource *unit_resource(const LevelResource *lr)
 	{
-		return (const UnitResource *)((char *)lr + lr->units_offset);
+		return (UnitResource *)((char *)lr + lr->units_offset);
 	}
 
 	u32 num_sounds(const LevelResource *lr)

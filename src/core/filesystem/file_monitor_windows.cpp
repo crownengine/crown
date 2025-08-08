@@ -204,7 +204,7 @@ struct FileMonitorImpl
 			DynamicString path_old_name(default_allocator());
 			char *cur = (char *)wh->_buffer;
 			for (;;) {
-				const FILE_NOTIFY_INFORMATION *fni = (const FILE_NOTIFY_INFORMATION *)cur;
+				const FILE_NOTIFY_INFORMATION *fni = (FILE_NOTIFY_INFORMATION *)cur;
 
 				TempAllocator512 ta;
 				DynamicString path(ta);

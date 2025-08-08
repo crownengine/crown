@@ -160,9 +160,9 @@ f32 ray_mesh_intersection(const Vector3 &from, const Vector3 &dir, const Matrix4
 		const u32 i1 = indices[i + 1];
 		const u32 i2 = indices[i + 2];
 
-		const Vector3 &v0 = *(const Vector3 *)((const char *)vertices + i0*stride) * tm;
-		const Vector3 &v1 = *(const Vector3 *)((const char *)vertices + i1*stride) * tm;
-		const Vector3 &v2 = *(const Vector3 *)((const char *)vertices + i2*stride) * tm;
+		const Vector3 &v0 = *(Vector3 *)((char *)vertices + i0*stride) * tm;
+		const Vector3 &v1 = *(Vector3 *)((char *)vertices + i1*stride) * tm;
+		const Vector3 &v2 = *(Vector3 *)((char *)vertices + i2*stride) * tm;
 
 		// https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
 

@@ -100,7 +100,7 @@ RenderWorld::~RenderWorld()
 
 MeshInstance RenderWorld::mesh_create(UnitId unit, const MeshRendererDesc &mrd, const Matrix4x4 &tr)
 {
-	const MeshResource *mr = (const MeshResource *)_resource_manager->get(RESOURCE_TYPE_MESH, mrd.mesh_resource);
+	const MeshResource *mr = (MeshResource *)_resource_manager->get(RESOURCE_TYPE_MESH, mrd.mesh_resource);
 	const MaterialResource *mat_res = (MaterialResource *)_resource_manager->get(RESOURCE_TYPE_MATERIAL, mrd.material_resource);
 	_material_manager->create_material(mat_res);
 	return _mesh_manager.create(unit, mr, mrd, tr);
@@ -127,7 +127,7 @@ void RenderWorld::mesh_set_geometry(MeshInstance mesh, StringId64 mesh_resource,
 void RenderWorld::mesh_set_skeleton(MeshInstance mesh, const AnimationSkeletonInstance *bones)
 {
 	CE_ASSERT(mesh.i < _mesh_manager._data.size, "Index out of bounds");
-	_mesh_manager._data.skeleton[mesh.i] = (const AnimationSkeletonInstance *)bones;
+	_mesh_manager._data.skeleton[mesh.i] = (AnimationSkeletonInstance *)bones;
 
 	UnitId unit = _mesh_manager._data.unit[mesh.i];
 	TransformInstance ti = _scene_graph->instance(unit);
@@ -192,7 +192,7 @@ f32 RenderWorld::mesh_cast_ray(MeshInstance mesh, const Vector3 &from, const Vec
 
 SpriteInstance RenderWorld::sprite_create(UnitId unit, const SpriteRendererDesc &srd, const Matrix4x4 &tr)
 {
-	const SpriteResource *sr = (const SpriteResource *)_resource_manager->get(RESOURCE_TYPE_SPRITE, srd.sprite_resource);
+	const SpriteResource *sr = (SpriteResource *)_resource_manager->get(RESOURCE_TYPE_SPRITE, srd.sprite_resource);
 	const MaterialResource *mat_res = (MaterialResource *)_resource_manager->get(RESOURCE_TYPE_MATERIAL, srd.material_resource);
 	_material_manager->create_material(mat_res);
 	return _sprite_manager.create(unit, sr, srd, tr);
