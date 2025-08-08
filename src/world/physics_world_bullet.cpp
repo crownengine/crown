@@ -460,8 +460,16 @@ struct PhysicsWorldImpl
 	{
 		CE_ASSERT(!hash_map::has(_actor_map, unit), "Unit already has an actor component");
 
-		const PhysicsActor *actor_class = physics_config_resource::actor(_config_resource, ar->actor_class);
-		const PhysicsMaterial *material = physics_config_resource::material(_config_resource, ar->material);
+		const PhysicsActor *actors = physics_config_resource::actors_array(_config_resource);
+		const PhysicsMaterial *materials = physics_config_resource::materials_array(_config_resource);
+		const PhysicsCollisionFilter *filters = physics_config_resource::filters_array(_config_resource);
+		u32 actor_i = physics_config_resource::actor_index(actors, _config_resource->num_actors, ar->actor_class);
+		u32 material_i = physics_config_resource::material_index(materials, _config_resource->num_materials, ar->material);
+		u32 filter_i = physics_config_resource::filter_index(filters, _config_resource->num_filters, ar->collision_filter);
+
+		const PhysicsActor *actor_class = &actors[actor_i];
+		const PhysicsMaterial *material = &materials[material_i];
+		const PhysicsCollisionFilter *filter = &filters[filter_i];
 
 		const bool is_kinematic = (actor_class->flags & CROWN_PHYSICS_ACTOR_KINEMATIC) != 0;
 		const bool is_dynamic   = (actor_class->flags & CROWN_PHYSICS_ACTOR_DYNAMIC) != 0;
@@ -525,8 +533,7 @@ struct PhysicsWorldImpl
 		const u32 last = array::size(_actor);
 		body->m_userObjectPointer = ((void *)(uintptr_t)last);
 
-		const PhysicsCollisionFilter *f = physics_config_resource::filter(_config_resource, ar->collision_filter);
-		_dynamics_world->addRigidBody(body, f->me, f->mask);
+		_dynamics_world->addRigidBody(body, filter->me, filter->mask);
 
 		ActorInstanceData aid;
 		aid.unit = unit;
@@ -626,7 +633,10 @@ struct PhysicsWorldImpl
 	void actor_enable_collision(ActorInstance actor)
 	{
 		ActorInstanceData &a = _actor[actor.i];
-		const PhysicsCollisionFilter *f = physics_config_resource::filter(_config_resource, a.resource->collision_filter);
+		const PhysicsCollisionFilter *filters = physics_config_resource::filters_array(_config_resource);
+		u32 filter_i = physics_config_resource::filter_index(filters, _config_resource->num_filters, a.resource->collision_filter);
+		const PhysicsCollisionFilter *f = &filters[filter_i];
+
 		_dynamics_world->removeRigidBody(a.body);
 		_dynamics_world->addRigidBody(a.body, f->me, f->mask);
 	}
@@ -634,7 +644,10 @@ struct PhysicsWorldImpl
 	void actor_disable_collision(ActorInstance actor)
 	{
 		ActorInstanceData &a = _actor[actor.i];
-		const PhysicsCollisionFilter *f = physics_config_resource::filter(_config_resource, a.resource->collision_filter);
+		const PhysicsCollisionFilter *filters = physics_config_resource::filters_array(_config_resource);
+		u32 filter_i = physics_config_resource::filter_index(filters, _config_resource->num_filters, a.resource->collision_filter);
+		const PhysicsCollisionFilter *f = &filters[filter_i];
+
 		// Disable collisions by setting collision mask to 0.
 		_dynamics_world->removeRigidBody(a.body);
 		_dynamics_world->addRigidBody(a.body, f->me, 0);
@@ -643,7 +656,10 @@ struct PhysicsWorldImpl
 	void actor_set_collision_filter(ActorInstance actor, StringId32 filter)
 	{
 		ActorInstanceData &a = _actor[actor.i];
-		const PhysicsCollisionFilter *f = physics_config_resource::filter(_config_resource, filter);
+		const PhysicsCollisionFilter *filters = physics_config_resource::filters_array(_config_resource);
+		u32 filter_i = physics_config_resource::filter_index(filters, _config_resource->num_filters, filter);
+		const PhysicsCollisionFilter *f = &filters[filter_i];
+
 		_dynamics_world->removeRigidBody(a.body);
 		_dynamics_world->addRigidBody(a.body, f->me, f->mask);
 	}

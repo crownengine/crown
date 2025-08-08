@@ -72,14 +72,23 @@ namespace physics_config_resource_internal
 
 namespace physics_config_resource
 {
-	/// Returns the material @a name.
-	const PhysicsMaterial *material(const PhysicsConfigResource *pcr, StringId32 name);
+	/// Returns the material at @a index.
+	const PhysicsMaterial *materials_array(const PhysicsConfigResource *pcr);
 
-	/// Returns the actor @a name.
-	const PhysicsActor *actor(const PhysicsConfigResource *pcr, StringId32 name);
+	/// Returns the index of the material @a name.
+	u32 material_index(const PhysicsMaterial *materials, u32 num, StringId32 name);
 
-	/// Returns the collision filter @a name.
-	const PhysicsCollisionFilter *filter(const PhysicsConfigResource *pcr, StringId32 name);
+	/// Returns the actor at @a index.
+	const PhysicsActor *actors_array(const PhysicsConfigResource *pcr);
+
+	/// Returns the index of the actor @a name.
+	u32 actor_index(const PhysicsActor *actors, u32 num, StringId32 name);
+
+	/// Returns the collision filter at @a index.
+	const PhysicsCollisionFilter *filters_array(const PhysicsConfigResource *pcr);
+
+	/// Returns the index of the collision filter @a name.
+	u32 filter_index(const PhysicsCollisionFilter *filters, u32 num, StringId32 name);
 
 } // namespace physics_config_resource
 
