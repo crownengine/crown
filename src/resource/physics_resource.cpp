@@ -29,40 +29,52 @@ namespace crown
 {
 namespace physics_config_resource
 {
-	const PhysicsMaterial *material(const PhysicsConfigResource *pcr, StringId32 name)
+	const PhysicsMaterial *materials_array(const PhysicsConfigResource *pcr)
 	{
-		const PhysicsMaterial *begin = (PhysicsMaterial *)((char *)pcr + pcr->materials_offset);
-		for (u32 i = 0; i < pcr->num_materials; ++i) {
-			if (begin[i].name == name)
-				return &begin[i];
+		return (const PhysicsMaterial *)((char *)pcr + pcr->materials_offset);
+	}
+
+	u32 material_index(const PhysicsMaterial *materials, u32 num, StringId32 name)
+	{
+		for (u32 i = 0; i < num; ++i) {
+			if (materials[i].name == name)
+				return i;
 		}
 
 		CE_FATAL("Material not found");
-		return NULL;
+		return UINT32_MAX;
 	}
 
-	const PhysicsActor *actor(const PhysicsConfigResource *pcr, StringId32 name)
+	const PhysicsActor *actors_array(const PhysicsConfigResource *pcr)
 	{
-		const PhysicsActor *begin = (PhysicsActor *)((char *)pcr + pcr->actors_offset);
-		for (u32 i = 0; i < pcr->num_actors; ++i) {
-			if (begin[i].name == name)
-				return &begin[i];
+		return (const PhysicsActor *)((char *)pcr + pcr->actors_offset);
+	}
+
+	u32 actor_index(const PhysicsActor *actors, u32 num, StringId32 name)
+	{
+		for (u32 i = 0; i < num; ++i) {
+			if (actors[i].name == name)
+				return i;
 		}
 
 		CE_FATAL("Actor not found");
-		return NULL;
+		return UINT32_MAX;
 	}
 
-	const PhysicsCollisionFilter *filter(const PhysicsConfigResource *pcr, StringId32 name)
+	const PhysicsCollisionFilter *filters_array(const PhysicsConfigResource *pcr)
 	{
-		const PhysicsCollisionFilter *begin = (PhysicsCollisionFilter *)((char *)pcr + pcr->filters_offset);
-		for (u32 i = 0; i < pcr->num_filters; ++i) {
-			if (begin[i].name == name)
-				return &begin[i];
+		return (const PhysicsCollisionFilter *)((char *)pcr + pcr->filters_offset);
+	}
+
+	u32 filter_index(const PhysicsCollisionFilter *filters, u32 num, StringId32 name)
+	{
+		for (u32 i = 0; i < num; ++i) {
+			if (filters[i].name == name)
+				return i;
 		}
 
 		CE_FATAL("Filter not found");
-		return NULL;
+		return UINT32_MAX;
 	}
 
 } // namespace physics_config_resource
