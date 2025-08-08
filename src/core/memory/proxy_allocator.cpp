@@ -25,7 +25,7 @@ void *ProxyAllocator::allocate(u32 size, u32 align)
 
 void ProxyAllocator::deallocate(void *data)
 {
-	DEALLOCATE_MEMORY(_name, (data == NULL) ? 0 :_allocator.allocated_size((const void *)data));
+	DEALLOCATE_MEMORY(_name, (data == NULL) ? 0 :_allocator.allocated_size((void *)data));
 	_allocator.deallocate(data);
 }
 

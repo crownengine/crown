@@ -89,7 +89,7 @@ struct FileBuffer : public File
 	virtual u32 write(const void *data, u32 size) override
 	{
 		_buffer->_size = _position;
-		array::push(*_buffer, (const char *)data, size);
+		array::push(*_buffer, (char *)data, size);
 		_position += size;
 		return size;
 	}

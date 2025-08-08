@@ -28,7 +28,7 @@ u64 murmur64(const void *key, u32 len, u64 seed)
 
 	u64 h = seed ^ (len * m);
 
-	const u64 *data = (const u64 *)key;
+	const u64 *data = (u64 *)key;
 	const u64 *end = data + (len/8);
 
 	while (data != end) {

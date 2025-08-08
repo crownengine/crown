@@ -322,7 +322,7 @@ void Gui::text_3d(const Matrix4x4 &local_pose, const Vector3 &pos, u32 font_size
 	f32 pen_y = 0.0f;
 	const GlyphData deffault_glyph = {};
 
-	for (const u8 *ch = (const u8 *)str; *ch; ++ch) {
+	for (const u8 *ch = (u8 *)str; *ch; ++ch) {
 		if (utf8::decode(&state, &cp, *ch) != UTF8_ACCEPT)
 			continue;
 
@@ -427,7 +427,7 @@ void Gui::text(const Vector3 &pos, u32 font_size, const char *str, StringId64 fo
 	f32 pen_y = 0.0f;
 	const GlyphData deffault_glyph = {};
 
-	for (const u8 *ch = (const u8 *)str; *ch; ++ch) {
+	for (const u8 *ch = (u8 *)str; *ch; ++ch) {
 		if (utf8::decode(&state, &cp, *ch) != UTF8_ACCEPT)
 			continue;
 
@@ -525,7 +525,7 @@ Vector2 Gui::text_extents(const u32 font_size, const char *str, StringId64 font)
 	Vector2 box_min = { FLT_MAX, FLT_MAX };
 	Vector2 box_max = { -FLT_MAX, -FLT_MAX };
 
-	for (const u8 *ch = (const u8 *)str; *ch; ++ch) {
+	for (const u8 *ch = (u8 *)str; *ch; ++ch) {
 		if (utf8::decode(&state, &cp, *ch) != UTF8_ACCEPT)
 			continue;
 

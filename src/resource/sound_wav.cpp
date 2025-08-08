@@ -45,7 +45,7 @@ namespace wav
 	s32 parse(Sound &s, Buffer &buf, CompileOptions &opts)
 	{
 		RETURN_IF_FALSE(array::size(buf) >= sizeof(WavHeader), opts, "Malformed source");
-		const WavHeader *wav = (const WavHeader *)array::begin(buf);
+		const WavHeader *wav = (WavHeader *)array::begin(buf);
 
 		// Validate header chunk.
 		RETURN_IF_FALSE(strncmp(wav->riff, "RIFF", 4) == 0, opts, "Bad header chunk");

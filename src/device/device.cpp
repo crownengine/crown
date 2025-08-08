@@ -633,7 +633,7 @@ int Device::main_loop()
 #endif
 		}
 
-		_boot_config.parse((const char *)_resource_manager->get(RESOURCE_TYPE_CONFIG, config_name));
+		_boot_config.parse((char *)_resource_manager->get(RESOURCE_TYPE_CONFIG, config_name));
 		_resource_manager->unload(RESOURCE_TYPE_CONFIG, config_name);
 	}
 

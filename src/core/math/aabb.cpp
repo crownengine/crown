@@ -22,7 +22,7 @@ namespace aabb
 		CE_ENSURE(num > 0);
 		CE_ENSURE(points != NULL);
 
-		const char *pts = (const char *)points;
+		const char *pts = (char *)points;
 		const f32 *point = (f32 *)pts;
 
 		b.min.x = b.max.x = point[0];
