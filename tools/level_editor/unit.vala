@@ -317,7 +317,7 @@ public struct Unit
 			_db.set_property_vector3   (component_id, "data.scale", VECTOR3_ONE);
 		} else if (component_type == OBJECT_TYPE_CAMERA) {
 			_db.set_property_string(component_id, "data.projection", "perspective");
-			_db.set_property_double(component_id, "data.fov", 45.0 * (Math.PI/180.0));
+			_db.set_property_double(component_id, "data.fov", MathUtils.rad(45.0));
 			_db.set_property_double(component_id, "data.far_range", 0.01);
 			_db.set_property_double(component_id, "data.near_range", 1000.0);
 		} else if (component_type == OBJECT_TYPE_MESH_RENDERER) {
@@ -336,7 +336,7 @@ public struct Unit
 			_db.set_property_string (component_id, "data.type", "directional");
 			_db.set_property_double (component_id, "data.range", 1.0);
 			_db.set_property_double (component_id, "data.intensity", 1.0);
-			_db.set_property_double (component_id, "data.spot_angle", 45.0 * (Math.PI/180.0));
+			_db.set_property_double (component_id, "data.spot_angle", MathUtils.rad(45.0));
 			_db.set_property_vector3(component_id, "data.color", VECTOR3_ONE);
 			_db.set_property_double (component_id, "data.shadow_bias", 0.0001);
 			_db.set_property_bool   (component_id, "data.cast_shadows", true);
