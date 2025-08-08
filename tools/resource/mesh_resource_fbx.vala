@@ -426,7 +426,7 @@ public class FBXImporter
 				unit.set_component_property_string (component_id, "data.type", light_type(node.light.type));
 				unit.set_component_property_double (component_id, "data.range", 10.0);
 				unit.set_component_property_double (component_id, "data.intensity", (double)node.light.intensity);
-				unit.set_component_property_double (component_id, "data.spot_angle", 0.5 * (double)node.light.outer_angle * (Math.PI/180.0));
+				unit.set_component_property_double (component_id, "data.spot_angle", 0.5 * MathUtils.rad((double)node.light.outer_angle));
 				unit.set_component_property_vector3(component_id, "data.color", vector3(node.light.color));
 				unit.set_component_property_double (component_id, "data.shadow_bias", 0.0001);
 				unit.set_component_property_bool   (component_id, "data.cast_shadows", node.light.cast_shadows);
@@ -441,7 +441,7 @@ public class FBXImporter
 			Guid component_id;
 			if (unit.has_component(out component_id, OBJECT_TYPE_CAMERA)) {
 				unit.set_component_property_string(component_id, "data.projection", projection_type(node.camera.projection_mode));
-				unit.set_component_property_double(component_id, "data.fov", (double)node.camera.field_of_view_deg.y * (Math.PI/180.0));
+				unit.set_component_property_double(component_id, "data.fov", MathUtils.rad((double)node.camera.field_of_view_deg.y));
 				unit.set_component_property_double(component_id, "data.far_range", (double)node.camera.far_plane);
 				unit.set_component_property_double(component_id, "data.near_range", (double)node.camera.near_plane);
 			}
