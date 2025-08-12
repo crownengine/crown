@@ -316,6 +316,12 @@ inline ActorInstance LuaStack::get_actor_instance(int i)
 	return inst;
 }
 
+inline MoverInstance LuaStack::get_mover_instance(int i)
+{
+	MoverInstance inst = { get_id(i) };
+	return inst;
+}
+
 inline SoundInstanceId LuaStack::get_sound_instance_id(int i)
 {
 	return get_id(i);
@@ -595,6 +601,11 @@ inline void LuaStack::push_material(Material *material)
 }
 
 inline void LuaStack::push_actor(ActorInstance i)
+{
+	push_id(i.i);
+}
+
+inline void LuaStack::push_mover(MoverInstance i)
 {
 	push_id(i.i);
 }

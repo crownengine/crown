@@ -187,6 +187,9 @@ struct LuaStack
 	ActorInstance get_actor_instance(int i);
 
 	///
+	MoverInstance get_mover_instance(int i);
+
+	///
 	SoundInstanceId get_sound_instance_id(int i);
 
 	///
@@ -340,6 +343,9 @@ struct LuaStack
 
 	///
 	void push_actor(ActorInstance i);
+
+	///
+	void push_mover(MoverInstance i);
 
 	///
 	void push_sound_instance_id(SoundInstanceId id);

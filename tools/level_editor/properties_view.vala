@@ -43,6 +43,7 @@ public class UnitView : PropertyGrid
 			OBJECT_TYPE_SPRITE_RENDERER,
 			OBJECT_TYPE_COLLIDER,
 			OBJECT_TYPE_ACTOR,
+			OBJECT_TYPE_MOVER,
 			OBJECT_TYPE_SCRIPT,
 			OBJECT_TYPE_ANIMATION_STATE_MACHINE,
 			OBJECT_TYPE_FOG
@@ -159,6 +160,7 @@ public class PropertiesView : Gtk.Box
 		register_object_type(OBJECT_TYPE_SPRITE_RENDERER,         3, null, UnitView.component_menu);
 		register_object_type(OBJECT_TYPE_COLLIDER,                3, null, UnitView.component_menu);
 		register_object_type(OBJECT_TYPE_ACTOR,                   3, null, UnitView.component_menu);
+		register_object_type(OBJECT_TYPE_MOVER,                   3, null, UnitView.component_menu);
 		register_object_type(OBJECT_TYPE_SCRIPT,                  3, null, UnitView.component_menu);
 		register_object_type(OBJECT_TYPE_ANIMATION_STATE_MACHINE, 3, null, UnitView.component_menu);
 		register_object_type(OBJECT_TYPE_SOUND_SOURCE,            0, null, UnitView.component_menu);

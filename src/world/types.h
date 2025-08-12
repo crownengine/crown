@@ -298,6 +298,7 @@ INSTANCE_ID(LightInstance)
 INSTANCE_ID(FogInstance)
 INSTANCE_ID(ColliderInstance)
 INSTANCE_ID(ActorInstance)
+INSTANCE_ID(MoverInstance)
 INSTANCE_ID(JointInstance)
 INSTANCE_ID(ScriptInstance)
 INSTANCE_ID(StateMachineInstance)
@@ -441,6 +442,13 @@ struct ColliderDesc
 	HeightfieldShape heightfield; ///<
 	u32 size;                     ///< Size of additional data.
 //	char data[size]               ///< Convex Hull, Mesh, Heightfield data.
+};
+
+struct MoverDesc
+{
+	CapsuleShape capsule;        ///<
+	f32 max_slope_angle;         ///< Maximum slope angle the mover is allowed to climb.
+	StringId32 collision_filter; ///< Name of collision filter in global.physics_config resource.
 };
 
 struct HingeJoint

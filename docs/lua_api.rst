@@ -1072,6 +1072,49 @@ Actor
 **actor_wake_up** (pw, actor)
 	Wakes the *actor* up.
 
+Mover
+-----
+
+**mover_create** (pw, unit, height, radius, max_slope_angle, collision_filter, pose) : Id
+	Creates a new mover instance for the *unit*.
+
+**mover_destroy** (pw, mover)
+	Destroys the *mover*.
+
+**mover** (pw, unit) : Id
+	Returns the ID of the mover owned by the *unit*.
+
+**mover_radius** (pw, mover) : number
+	Returns the radius of the *mover* capsule.
+
+**mover_max_slope_angle** (pw, mover) : number
+	Returns the max slope angle of the *mover*.
+
+**mover_set_max_slope_angle** (pw, mover, angle)
+	Sets the max slope *angle* of the *mover*.
+
+**mover_set_collision_filter** (pw, mover, filter)
+	Sets the collision *filter* of the *mover*.
+
+**mover_position** (pw, mover) : Vector3
+	Returns the position of the *mover*.
+
+**mover_set_position** (pw, mover, position)
+	Teleports the *mover* to the specified *position*.
+
+**mover_move** (pw, mover, delta)
+	Attempts to move the *mover* by the specified *delta* vector.
+	The *mover* will slide against physical actors.
+
+**mover_collides_sides** (pw, mover) : bool
+	Returns whether the *mover* collides sideways.
+
+**mover_collides_up** (pw, mover) : bool
+	Returns whether the *mover* collides upwards.
+
+**mover_collides_down** (pw, mover) : bool
+	Returns whether the *mover* collides downwards.
+
 Profiler
 ========
 
