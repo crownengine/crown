@@ -160,6 +160,46 @@ struct PhysicsWorld
 	/// Wakes the @a actor up.
 	void actor_wake_up(ActorInstance actor);
 
+	/// Creates a new mover instance for the @a unit.
+	MoverInstance mover_create(UnitId unit, const MoverDesc *desc, const Matrix4x4 &tm);
+
+	/// Destroys the @a mover.
+	void mover_destroy(MoverInstance mover);
+
+	/// Returns the ID of the mover owned by the *unit*.
+	MoverInstance mover(UnitId unit);
+
+	/// Returns the radius of the @a mover capsule.
+	f32 mover_radius(MoverInstance mover);
+
+	/// Returns the max slope angle of the @a mover.
+	f32 mover_max_slope_angle(MoverInstance mover);
+
+	/// Sets the max slope @a angle of the @a mover.
+	void mover_set_max_slope_angle(MoverInstance mover, f32 angle);
+
+	/// Sets the collision @a filter of the @a mover.
+	void mover_set_collision_filter(MoverInstance mover, StringId32 filter);
+
+	/// Returns the position of the @a mover.
+	Vector3 mover_position(MoverInstance mover);
+
+	/// Teleports the @a mover to the specified @a position.
+	void mover_set_position(MoverInstance mover, const Vector3 &position);
+
+	/// Attempts to move the @a mover by the specified @a delta vector.
+	/// The @a mover will slide against physical actors.
+	void mover_move(MoverInstance mover, const Vector3 &delta);
+
+	/// Returns whether the @a mover collides sideways.
+	bool mover_collides_sides(MoverInstance mover);
+
+	/// Returns whether the @a mover collides upwards.
+	bool mover_collides_up(MoverInstance mover);
+
+	/// Returns whether the @a mover collides downwards.
+	bool mover_collides_down(MoverInstance mover);
+
 	/// Creates joint
 	JointInstance joint_create(ActorInstance a0, ActorInstance a1, const JointDesc &jd);
 

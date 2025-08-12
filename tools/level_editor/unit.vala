@@ -372,6 +372,11 @@ public struct Unit
 			_db.set_property_double(component_id, "data.mass", 1.0);
 			_db.set_property_string(component_id, "data.collision_filter", "default");
 			_db.set_property_string(component_id, "data.material", "default");
+		} else if (component_type == OBJECT_TYPE_MOVER) {
+			_db.set_property_double(component_id, "data.height", 1.80);
+			_db.set_property_double(component_id, "data.radius", 0.50);
+			_db.set_property_double(component_id, "data.max_slope_angle", MathUtils.rad(45.0f));
+			_db.set_property_string(component_id, "data.collision_filter", "default");
 		} else if (component_type == OBJECT_TYPE_ANIMATION_STATE_MACHINE) {
 			_db.set_property_string(component_id, "data.state_machine_resource", "core/components/noop");
 		} else {
@@ -554,6 +559,14 @@ public struct Unit
 					 *  , unit.get_component_property_string(component_id, "data.material")
 					 *  ));
 					 */
+				} else if (component_type == OBJECT_TYPE_MOVER) {
+					sb.append(LevelEditorApi.add_mover_component(unit_id
+						, component_id
+						, unit.get_component_property_double(component_id, "data.height")
+						, unit.get_component_property_double(component_id, "data.radius")
+						, unit.get_component_property_double(component_id, "data.max_slope_angle")
+						, unit.get_component_property_string(component_id, "data.collision_filter")
+						));
 				} else if (component_type == OBJECT_TYPE_ANIMATION_STATE_MACHINE) {
 					/*
 					 * sb.append(LevelEditorApi.add_animation_state_machine_component(unit_id
@@ -652,6 +665,15 @@ public struct Unit
 							, unit.get_component_property_bool   (component_id, "data.cast_shadows", true)
 							);
 						sb.append(s);
+					}
+					if (unit.has_component(out component_id, OBJECT_TYPE_MOVER)) {
+						sb.append(LevelEditorApi.add_mover_component(unit_id
+							, component_id
+							, unit.get_component_property_double(component_id, "data.height")
+							, unit.get_component_property_double(component_id, "data.radius")
+							, unit.get_component_property_double(component_id, "data.max_slope_angle")
+							, unit.get_component_property_string(component_id, "data.collision_filter")
+							));
 					}
 					if (unit.has_component(out component_id, OBJECT_TYPE_FOG)) {
 						sb.append(LevelEditorApi.add_fog_component(unit_id, component_id));
@@ -772,6 +794,8 @@ public struct Unit
 					/* No sync. */
 				} else if (component_type == OBJECT_TYPE_ACTOR) {
 					/* No sync. */
+				} else if (component_type == OBJECT_TYPE_MOVER) {
+					/* No sync. */
 				} else if (component_type == OBJECT_TYPE_ANIMATION_STATE_MACHINE) {
 					/* No sync. */
 				} else {
@@ -814,6 +838,7 @@ public struct Unit
 			|| type == OBJECT_TYPE_SCRIPT
 			|| type == OBJECT_TYPE_COLLIDER
 			|| type == OBJECT_TYPE_ACTOR
+			|| type == OBJECT_TYPE_MOVER
 			|| type == OBJECT_TYPE_ANIMATION_STATE_MACHINE
 			;
 	}

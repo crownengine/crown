@@ -661,6 +661,13 @@ void spawn_units(World &w, const UnitResource *ur, const Vector3 &pos, const Qua
 				Matrix4x4 tm = scene_graph->world_pose(ti);
 				physics_world->actor_create(unit_lookup[unit_index[i]], ar, from_quaternion_translation(rotation(tm), translation(tm)));
 			}
+		} else if (component->type == STRING_ID_32("mover", UINT32_C(0xac07d371))) {
+			const MoverDesc *md = (MoverDesc *)data;
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++md) {
+				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
+				Matrix4x4 tm = scene_graph->world_pose(ti);
+				physics_world->mover_create(unit_lookup[unit_index[i]], md, tm);
+			}
 		} else if (component->type == STRING_ID_32("mesh_renderer", UINT32_C(0xdf017893))) {
 			const MeshRendererDesc *mrd = (MeshRendererDesc *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++mrd) {

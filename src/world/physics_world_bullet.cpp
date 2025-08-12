@@ -23,6 +23,7 @@
 #include "world/physics.h"
 #include "world/physics_world.h"
 #include "world/unit_manager.h"
+#include <BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h>
 #include <BulletCollision/BroadphaseCollision/btDbvtBroadphase.h>
 #include <BulletCollision/CollisionDispatch/btCollisionObject.h>
 #include <BulletCollision/CollisionDispatch/btDefaultCollisionConfiguration.h>
@@ -191,8 +192,530 @@ struct MyFilterCallback : public btOverlapFilterCallback
 	{
 		bool collides = (proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask) != 0;
 		collides = collides && (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask);
-
 		return collides;
+	}
+};
+
+/// @todo Interact with dynamic objects,
+/// Ride kinematicly animated platforms properly
+/// More realistic (or maybe just a config option) falling
+/// -> Should integrate falling velocity manually and use that in stepDown()
+/// Support jumping
+/// Support ducking
+class btKinematicClosestNotMeRayResultCallback : public btCollisionWorld::ClosestRayResultCallback
+{
+public:
+	btCollisionObject *_me;
+
+	btKinematicClosestNotMeRayResultCallback(btCollisionObject *me)
+		: btCollisionWorld::ClosestRayResultCallback(btVector3(0.0, 0.0, 0.0), btVector3(0.0, 0.0, 0.0))
+	{
+		_me = me;
+	}
+
+	virtual btScalar addSingleResult(btCollisionWorld::LocalRayResult &ray_result, bool normal_in_world_space)
+	{
+		if (ray_result.m_collisionObject == _me)
+			return 1.0;
+
+		return ClosestRayResultCallback::addSingleResult(ray_result, normal_in_world_space);
+	}
+};
+
+class btKinematicClosestNotMeConvexResultCallback : public btCollisionWorld::ClosestConvexResultCallback
+{
+public:
+	btCollisionObject *_me;
+	const btVector3 _up;
+	btScalar _min_slope_dot;
+
+	btKinematicClosestNotMeConvexResultCallback(btCollisionObject *me, const btVector3 &up, btScalar min_slope_dot)
+		: btCollisionWorld::ClosestConvexResultCallback(btVector3(0.0, 0.0, 0.0), btVector3(0.0, 0.0, 0.0))
+		, _me(me)
+		, _up(up)
+		, _min_slope_dot(min_slope_dot)
+	{
+	}
+
+	virtual btScalar addSingleResult(btCollisionWorld::LocalConvexResult &convex_result, bool normal_in_world_space)
+	{
+		if (convex_result.m_hitCollisionObject == _me)
+			return btScalar(1.0);
+
+		if (!convex_result.m_hitCollisionObject->hasContactResponse())
+			return btScalar(1.0);
+
+		btVector3 hit_normal_world;
+		if (normal_in_world_space)
+			hit_normal_world = convex_result.m_hitNormalLocal;
+		else // Need to transform normal into world-space.
+			hit_normal_world = convex_result.m_hitCollisionObject->m_worldTransform.m_basis * convex_result.m_hitNormalLocal;
+
+		if (_up.dot(hit_normal_world) < _min_slope_dot)
+			return btScalar(1.0);
+
+		return ClosestConvexResultCallback::addSingleResult(convex_result, normal_in_world_space);
+	}
+};
+
+struct MoverFlags
+{
+	enum Enum : u32
+	{
+		COLLIDES_SIDES = u32(1) << 0,
+		COLLIDES_UP    = u32(1) << 1,
+		COLLIDES_DOWN  = u32(1) << 2
+	};
+};
+
+// Mover is a modified version of btKinematicCharacterController.
+struct Mover
+{
+	u32 _flags;                  // MoverFlags::Enum
+	btCollisionWorld *_collision_world;
+	btPairCachingGhostObject *_ghost;
+	btConvexShape *_shape;       // _ghost's shape, cached to avoid upcast.
+	btScalar _max_penetration_depth;
+	btScalar _vertical_delta;
+	btScalar _max_slope_radians;
+	btScalar _max_slope_cosine;  // cosf(_max_slope_radians).
+	btScalar _step_height;
+	btVector3 _move_delta;
+	btVector3 _move_delta_normalized;
+	btVector3 _current_position;
+	btVector3 _target_position;
+	btScalar _current_step_offset;
+	btManifoldArray _manifold_array;
+	bool _was_on_ground;
+	btVector3 _up;
+
+	BT_DECLARE_ALIGNED_ALLOCATOR();
+
+	Mover(btCollisionWorld *collision_world, btPairCachingGhostObject *ghost, btConvexShape *shape, const btVector3 &up)
+	{
+		_flags = 0;
+		_collision_world = collision_world;
+		_ghost = ghost;
+		_up.setValue(0.0f, 0.0f, 1.0f);
+		_move_delta.setValue(0.0, 0.0, 0.0);
+		_shape = shape;
+		_vertical_delta = 0.0;
+		_was_on_ground = false;
+		_current_step_offset = 0.0;
+		_max_penetration_depth = 0.2;
+		_step_height = 0.02; // FIXME: remove since we only use capsule colliders?
+
+		set_up_direction(up);
+		set_max_slope(btRadians(45.0));
+	}
+
+	static btVector3 normalized(const btVector3 &v)
+	{
+		btVector3 n(0, 0, 0);
+
+		if (v.length() > SIMD_EPSILON) {
+			n = v.normalized();
+		}
+		return n;
+	}
+
+	// Returns the reflection direction of a ray going 'direction' hitting a surface with normal 'normal'.
+	// See: http://www-cs-students.stanford.edu/~adityagp/final/node3.html
+	btVector3 reflection_direction(const btVector3 &direction, const btVector3 &normal)
+	{
+		return direction - (btScalar(2.0) * direction.dot(normal)) * normal;
+	}
+
+	// Returns the portion of 'direction' that is parallel to 'normal'.
+	btVector3 parallel_component(const btVector3 &direction, const btVector3 &normal)
+	{
+		btScalar magnitude = direction.dot(normal);
+		return normal * magnitude;
+	}
+
+	// Returns the portion of 'direction' that is perpendicular to 'normal'.
+	btVector3 perpendicular_component(const btVector3 &direction, const btVector3 &normal)
+	{
+		return direction - parallel_component(direction, normal);
+	}
+
+	bool recover_from_penetration()
+	{
+		// Here we must refresh the overlapping paircache as the penetrating movement itself or the
+		// previous recovery iteration might have used setWorldTransform and pushed us into an object
+		// that is not in the previous cache contents from the last timestep, as will happen if we
+		// are pushed into a new AABB overlap. Unhandled this means the next convex sweep gets stuck.
+		//
+		// Do this by calling the broadphase's setAabb with the moved AABB, this will update the broadphase
+		// paircache and the ghost's internal paircache at the same time.    /BW
+
+		btVector3 min_aabb;
+		btVector3 max_aabb;
+		_shape->getAabb(_ghost->m_worldTransform, min_aabb, max_aabb);
+		_collision_world->getBroadphase()->setAabb(_ghost->m_broadphaseHandle, min_aabb, max_aabb, _collision_world->getDispatcher());
+
+		bool penetration = false;
+
+		_collision_world->getDispatcher()->dispatchAllCollisionPairs(_ghost->getOverlappingPairCache(), _collision_world->getDispatchInfo(), _collision_world->getDispatcher());
+
+		_current_position = _ghost->m_worldTransform.m_origin;
+
+		for (int i = 0; i < _ghost->getOverlappingPairCache()->getNumOverlappingPairs(); i++) {
+			_manifold_array.resize(0);
+
+			btBroadphasePair *collisionPair = &_ghost->getOverlappingPairCache()->getOverlappingPairArray()[i];
+
+			btCollisionObject *obj0 = static_cast<btCollisionObject *>(collisionPair->m_pProxy0->m_clientObject);
+			btCollisionObject *obj1 = static_cast<btCollisionObject *>(collisionPair->m_pProxy1->m_clientObject);
+
+			if ((obj0 && !obj0->hasContactResponse()) || (obj1 && !obj1->hasContactResponse()))
+				continue;
+
+			if (!needs_collision(obj0, obj1))
+				continue;
+
+			if (collisionPair->m_algorithm)
+				collisionPair->m_algorithm->getAllContactManifolds(_manifold_array);
+
+			for (int j = 0; j < _manifold_array.size(); j++) {
+				btPersistentManifold *manifold = _manifold_array[j];
+				btScalar directionSign = manifold->getBody0() == _ghost ? btScalar(-1.0) : btScalar(1.0);
+				for (int p = 0; p < manifold->getNumContacts(); p++) {
+					const btManifoldPoint &pt = manifold->getContactPoint(p);
+
+					btScalar dist = pt.getDistance();
+
+					if (dist < -_max_penetration_depth) {
+						_current_position += pt.m_normalWorldOnB * directionSign * dist * btScalar(0.2);
+						penetration = true;
+					}
+				}
+			}
+		}
+
+		btTransform new_trans = _ghost->m_worldTransform;
+		new_trans.m_origin = (_current_position);
+		_ghost->setWorldTransform(new_trans);
+		return penetration;
+	}
+
+	bool needs_collision(const btCollisionObject *body0, const btCollisionObject *body1)
+	{
+		bool collides = (body0->m_broadphaseHandle->m_collisionFilterGroup & body1->m_broadphaseHandle->m_collisionFilterMask) != 0;
+		collides = collides && (body1->m_broadphaseHandle->m_collisionFilterGroup & body0->m_broadphaseHandle->m_collisionFilterMask);
+		return collides;
+	}
+
+	void step_up()
+	{
+		btScalar step_height = 0.0f;
+		if (_vertical_delta < 0.0)
+			step_height = _step_height;
+
+		btTransform start;
+		btTransform end;
+
+		start.setIdentity();
+		end.setIdentity();
+
+		// FIXME: Handle penetration properly (?).
+		start.m_origin = _current_position;
+
+		_target_position = _current_position + _up * (step_height + _vertical_delta);
+		_current_position = _target_position;
+
+		end.m_origin = _target_position;
+
+		btKinematicClosestNotMeConvexResultCallback callback(_ghost, -_up, _max_slope_cosine);
+		callback.m_collisionFilterGroup = _ghost->m_broadphaseHandle->m_collisionFilterGroup;
+		callback.m_collisionFilterMask = _ghost->m_broadphaseHandle->m_collisionFilterMask;
+
+		_ghost->convexSweepTest(_shape, start, end, callback, _collision_world->getDispatchInfo().m_allowedCcdPenetration);
+
+		if (callback.hasHit() && _ghost->hasContactResponse() && needs_collision(_ghost, callback.m_hitCollisionObject)) {
+			_flags |= MoverFlags::COLLIDES_UP;
+
+			// Only modify the position if the hit was a slope and not a wall or ceiling.
+			if (callback.m_hitNormalWorld.dot(_up) > 0.0) {
+				// We moved up only a fraction of the step height.
+				_current_step_offset = step_height * callback.m_closestHitFraction;
+				_current_position.setInterpolate3(_current_position, _target_position, callback.m_closestHitFraction);
+			}
+
+			btTransform &xform = _ghost->m_worldTransform;
+			xform.m_origin = _current_position;
+			_ghost->setWorldTransform(xform);
+
+			// Fix penetration if we hit a ceiling for example.
+			int num_penetration_loops = 0;
+			while (recover_from_penetration()) {
+				num_penetration_loops++;
+				if (num_penetration_loops > 4) {
+					break; // Character could not recover from penetration.
+				}
+			}
+			_target_position = _ghost->m_worldTransform.m_origin;
+			_current_position = _target_position;
+
+			if (_vertical_delta > 0) {
+				_vertical_delta = 0.0;
+				_current_step_offset = _step_height;
+			}
+		} else {
+			_current_step_offset = step_height;
+			_current_position = _target_position;
+		}
+	}
+
+	void step_forward_and_strafe(const btVector3 &delta)
+	{
+		btTransform start;
+		btTransform end;
+
+		_target_position = _current_position + delta;
+
+		start.setIdentity();
+		end.setIdentity();
+
+		btScalar fraction = 1.0;
+		int maxIter = 10;
+
+		while (fraction > btScalar(0.01) && maxIter-- > 0) {
+			start.m_origin = _current_position;
+			end.m_origin   = _target_position;
+			btVector3 sweepDirNegative(_current_position - _target_position);
+
+			btKinematicClosestNotMeConvexResultCallback callback(_ghost, sweepDirNegative, btScalar(0.0));
+			callback.m_collisionFilterGroup = _ghost->m_broadphaseHandle->m_collisionFilterGroup;
+			callback.m_collisionFilterMask = _ghost->m_broadphaseHandle->m_collisionFilterMask;
+
+			if (!(start == end))
+				_ghost->convexSweepTest(_shape, start, end, callback, _collision_world->getDispatchInfo().m_allowedCcdPenetration);
+
+			fraction -= callback.m_closestHitFraction;
+
+			if (callback.hasHit() && _ghost->hasContactResponse() && needs_collision(_ghost, callback.m_hitCollisionObject)) {
+				// We moved only a fraction.
+				_flags |= MoverFlags::COLLIDES_SIDES;
+
+				// Update target position based on collision.
+				const btVector3 hit_normal = callback.m_hitNormalWorld;
+				const btScalar normal_mag = btScalar(1.0);
+				btVector3 movement_dir = _target_position - _current_position;
+				btScalar movement_length = movement_dir.length();
+				if (movement_length > SIMD_EPSILON) {
+					movement_dir.normalize();
+
+					btVector3 reflect_dir = reflection_direction(movement_dir, hit_normal);
+					reflect_dir.normalize();
+
+					// btVector3 parallel_dir = parallel_component(reflect_dir, hit_normal);
+					btVector3 perpendicular_dir = perpendicular_component(reflect_dir, hit_normal);
+
+					_target_position = _current_position;
+
+					if (normal_mag != 0.0) {
+						btVector3 perp_component = perpendicular_dir * btScalar(normal_mag * movement_length);
+						_target_position += perp_component;
+					}
+				}
+
+				btVector3 current_dir = _target_position - _current_position;
+				btScalar distance2 = current_dir.length2();
+				if (distance2 <= SIMD_EPSILON)
+					break;
+
+				current_dir.normalize();
+				// See Quake2: "If velocity is against original velocity, stop ead to avoid tiny oscilations in sloping corners."
+				if (current_dir.dot(_move_delta_normalized) <= btScalar(0.0))
+					break;
+			} else {
+				_current_position = _target_position;
+			}
+		}
+	}
+
+	void step_down()
+	{
+		btTransform start;
+		btTransform end;
+		btTransform end_double;
+		bool runonce = false;
+
+		btVector3 orig_position = _target_position;
+		btScalar down_velocity = (_vertical_delta < 0.f ? -_vertical_delta : 0.f);
+
+		if (_vertical_delta > 0.0)
+			return;
+
+		btVector3 step_drop = _up * (_current_step_offset + down_velocity);
+		_target_position -= step_drop;
+
+		btKinematicClosestNotMeConvexResultCallback callback(_ghost, _up, _max_slope_cosine);
+		callback.m_collisionFilterGroup = _ghost->m_broadphaseHandle->m_collisionFilterGroup;
+		callback.m_collisionFilterMask = _ghost->m_broadphaseHandle->m_collisionFilterMask;
+
+		btKinematicClosestNotMeConvexResultCallback callback2(_ghost, _up, _max_slope_cosine);
+		callback2.m_collisionFilterGroup = _ghost->m_broadphaseHandle->m_collisionFilterGroup;
+		callback2.m_collisionFilterMask = _ghost->m_broadphaseHandle->m_collisionFilterMask;
+
+		while (1) {
+			start.setIdentity();
+			end.setIdentity();
+
+			end_double.setIdentity();
+
+			start.m_origin = _current_position;
+			end.m_origin   = _target_position;
+
+			// Set double test for 2x the step drop, to check for a large drop vs small drop.
+			end_double.m_origin = _target_position - step_drop;
+
+			_ghost->convexSweepTest(_shape, start, end, callback, _collision_world->getDispatchInfo().m_allowedCcdPenetration);
+
+			// Test a double fall height, to see if the character should interpolate it's fall (full) or not (partial).
+			if (!callback.hasHit() && _ghost->hasContactResponse())
+				_ghost->convexSweepTest(_shape, start, end_double, callback2, _collision_world->getDispatchInfo().m_allowedCcdPenetration);
+
+			btScalar down_vel2 = (_vertical_delta < 0.f ? -_vertical_delta : 0.f);
+			bool has_hit = callback2.hasHit() && _ghost->hasContactResponse() && needs_collision(_ghost, callback2.m_hitCollisionObject);
+
+			btScalar step_height = 0.0f;
+			if (_vertical_delta < 0.0)
+				step_height = _step_height;
+
+			if (down_vel2 > 0.0 && down_vel2 < step_height && has_hit == true && runonce == false && _was_on_ground) {
+				// redo the velocity calculation when falling a small amount, for fast stairs motion
+				// for larger falls, use the smoother/slower interpolated movement by not touching
+				// the target position.
+
+				_target_position = orig_position;
+				down_velocity = step_height;
+
+				step_drop = _up * (_current_step_offset + down_velocity);
+				_target_position -= step_drop;
+				runonce = true;
+				continue; // Re-run previous tests.
+			}
+			break;
+		}
+
+		if ((_ghost->hasContactResponse() && (callback.hasHit() && needs_collision(_ghost, callback.m_hitCollisionObject))) || runonce == true) {
+			// We dropped a fraction of the height -> hit floor.
+			// btScalar fraction = (_current_position.y - callback.m_hitPointWorld.y) / 2;
+
+			_current_position.setInterpolate3(_current_position, _target_position, callback.m_closestHitFraction);
+			_flags |= MoverFlags::COLLIDES_DOWN;
+		} else {
+			// We dropped the full height.
+			_current_position = _target_position;
+		}
+	}
+
+	void move(const btVector3 &delta)
+	{
+		_move_delta = delta;
+		_move_delta_normalized = normalized(delta);
+
+		_current_position = _ghost->m_worldTransform.m_origin;
+		_target_position = _current_position;
+
+		_was_on_ground = onGround();
+		_flags = 0u;
+
+		// Split move delta into vertical and perpendicular components.
+		// FIXME: generalize by projecting _move_delta onto _up?
+		_vertical_delta = _move_delta.z;
+		btVector3 perpendicular_offset = btVector3(_move_delta.x, _move_delta.y, 0.0f);
+
+		btTransform xform;
+		xform = _ghost->m_worldTransform;
+
+		step_up();
+		step_forward_and_strafe(perpendicular_offset);
+		step_down();
+
+		xform.m_origin = _current_position;
+		_ghost->setWorldTransform(xform);
+
+		int num_penetration_loops = 0;
+		while (recover_from_penetration()) {
+			num_penetration_loops++;
+			if (num_penetration_loops > 4)
+				break; // Character could not recover from penetration.
+		}
+	}
+
+	void set_up_direction(const btVector3 &up)
+	{
+		if (_up == up)
+			return;
+
+		btVector3 u = _up;
+
+		if (up.length2() > 0)
+			_up = up.normalized();
+		else
+			_up = btVector3(0.0, 0.0, 0.0);
+
+		if (!_ghost) return;
+		btQuaternion rot = rotation(_up, u);
+
+		// set orientation with new up
+		btTransform xform;
+		xform = _ghost->m_worldTransform;
+		btQuaternion orn = rot.inverse() * xform.getRotation();
+		xform.setRotation(orn);
+		_ghost->setWorldTransform(xform);
+	}
+
+	btQuaternion rotation(btVector3 &v0, btVector3 &v1) const
+	{
+		if (v0.length2() == 0.0f || v1.length2() == 0.0f) {
+			btQuaternion q;
+			return q;
+		}
+
+		return shortestArcQuatNormalize2(v0, v1);
+	}
+
+	void reset()
+	{
+		_vertical_delta = 0.0;
+		_was_on_ground = false;
+		_move_delta.setValue(0, 0, 0);
+
+		// clear pair cache
+		btHashedOverlappingPairCache *cache = _ghost->getOverlappingPairCache();
+		while (cache->getOverlappingPairArray().size() > 0) {
+			cache->removeOverlappingPair(cache->getOverlappingPairArray()[0].m_pProxy0, cache->getOverlappingPairArray()[0].m_pProxy1, _collision_world->getDispatcher());
+		}
+	}
+
+	void set_position(const btVector3 &origin)
+	{
+		btTransform xform;
+		xform.setIdentity();
+		xform.m_origin = (origin);
+		_ghost->setWorldTransform(xform);
+	}
+
+	/// The max slope determines the maximum angle that the controller can walk up.
+	/// The slope angle is measured in radians.
+	void set_max_slope(btScalar angle)
+	{
+		_max_slope_radians = angle;
+		_max_slope_cosine = btCos(angle);
+	}
+
+	btScalar max_slope() const
+	{
+		return _max_slope_radians;
+	}
+
+	bool onGround() const
+	{
+		return fabs(_vertical_delta) < SIMD_EPSILON;
 	}
 };
 
@@ -214,16 +737,27 @@ struct PhysicsWorldImpl
 		const ActorResource *resource;
 	};
 
+	struct MoverInstanceData
+	{
+		UnitId unit;
+		btConvexShape *collider;
+		btPairCachingGhostObject *ghost;
+		Mover *mover;
+	};
+
 	Allocator *_allocator;
 	UnitManager *_unit_manager;
 
 	HashMap<UnitId, u32> _collider_map;
 	HashMap<UnitId, u32> _actor_map;
+	HashMap<UnitId, u32> _mover_map;
 	Array<ColliderInstanceData> _collider;
 	Array<ActorInstanceData> _actor;
+	Array<MoverInstanceData> _mover;
 	Array<btTypedConstraint *> _joints;
 
 	MyFilterCallback _filter_callback;
+	btGhostPairCallback _ghost_pair_callback;
 	btDiscreteDynamicsWorld *_dynamics_world;
 	MyDebugDrawer _debug_drawer;
 
@@ -238,8 +772,10 @@ struct PhysicsWorldImpl
 		, _unit_manager(&um)
 		, _collider_map(a)
 		, _actor_map(a)
+		, _mover_map(a)
 		, _collider(a)
 		, _actor(a)
+		, _mover(a)
 		, _joints(a)
 		, _dynamics_world(NULL)
 		, _debug_drawer(dl)
@@ -257,6 +793,7 @@ struct PhysicsWorldImpl
 		_dynamics_world->setGravity(to_btVector3(_config_resource->gravity));
 		_dynamics_world->getCollisionWorld()->setDebugDrawer(&_debug_drawer);
 		_dynamics_world->setInternalTickCallback(tick_cb, this);
+		_dynamics_world->getPairCache()->setInternalGhostPairCallback(&_ghost_pair_callback);
 		_dynamics_world->getPairCache()->setOverlapFilterCallback(&_filter_callback);
 
 		_unit_destroy_callback.destroy = PhysicsWorldImpl::unit_destroyed_callback;
@@ -269,6 +806,15 @@ struct PhysicsWorldImpl
 	~PhysicsWorldImpl()
 	{
 		_unit_manager->unregister_destroy_callback(&_unit_destroy_callback);
+
+		for (u32 i = 0; i < array::size(_mover); ++i) {
+			MoverInstanceData *inst = &_mover[i];
+
+			CE_DELETE(*_allocator, inst->mover);
+			_dynamics_world->removeCollisionObject(inst->ghost);
+			CE_DELETE(*_allocator, inst->ghost);
+			CE_DELETE(*_allocator, inst->collider);
+		}
 
 		for (u32 i = 0; i < array::size(_actor); ++i) {
 			btRigidBody *body = _actor[i].body;
@@ -787,6 +1333,132 @@ struct PhysicsWorldImpl
 		_actor[actor.i].body->activate(true);
 	}
 
+	MoverInstance mover_create(UnitId unit, const MoverDesc *desc, const Matrix4x4 &tm)
+	{
+		CE_ASSERT(!hash_map::has(_mover_map, unit), "Unit already has a mover component");
+
+		const PhysicsCollisionFilter *filters = physics_config_resource::filters_array(_config_resource);
+		u32 filter_i = physics_config_resource::filter_index(filters, _config_resource->num_filters, desc->collision_filter);
+		const PhysicsCollisionFilter *f = &filters[filter_i];
+
+		const btTransform pose(to_btQuaternion(QUATERNION_IDENTITY), to_btVector3(translation(tm)));
+
+		btConvexShape *capsule = CE_NEW(*_allocator, btCapsuleShapeZ)(desc->capsule.radius, desc->capsule.height);
+
+		btPairCachingGhostObject *ghost = CE_NEW(*_allocator, btPairCachingGhostObject)();
+		ghost->setWorldTransform(pose);
+		ghost->setCollisionShape(capsule);
+
+		Mover *mover = CE_NEW(*_allocator, Mover)(_dynamics_world
+			, ghost
+			, capsule
+			, to_btVector3({ 0.0f, 0.0f, 1.0f })
+			);
+		mover->set_max_slope(desc->max_slope_angle);
+
+		_dynamics_world->addCollisionObject(ghost
+			, f->me
+			, f->mask
+			);
+
+		MoverInstanceData mid;
+		mid.unit = unit;
+		mid.collider = capsule;
+		mid.ghost = ghost;
+		mid.mover = mover;
+
+		const u32 last = array::size(_mover);
+
+		array::push_back(_mover, mid);
+		hash_map::set(_mover_map, unit, last);
+
+		return make_mover_instance(last);
+	}
+
+	void mover_destroy(MoverInstance mover)
+	{
+		const u32 last      = array::size(_mover) - 1;
+		const UnitId u      = _mover[mover.i].unit;
+		const UnitId last_u = _mover[last].unit;
+
+		CE_DELETE(*_allocator, _mover[mover.i].mover);
+		_dynamics_world->removeCollisionObject(_mover[mover.i].ghost);
+		CE_DELETE(*_allocator, _mover[mover.i].ghost);
+		CE_DELETE(*_allocator, _mover[mover.i].collider);
+
+		_mover[mover.i] = _mover[last];
+		array::pop_back(_mover);
+
+		hash_map::set(_mover_map, last_u, mover.i);
+		hash_map::remove(_mover_map, u);
+	}
+
+	MoverInstance mover(UnitId unit)
+	{
+		return make_mover_instance(hash_map::get(_mover_map, unit, UINT32_MAX));
+	}
+
+	f32 mover_radius(MoverInstance mover)
+	{
+		CE_ASSERT(mover.i < array::size(_mover), "Index out of bounds");
+		return ((btCapsuleShapeZ *)_mover[mover.i].collider)->getRadius();
+	}
+
+	f32 mover_max_slope_angle(MoverInstance mover)
+	{
+		CE_ASSERT(mover.i < array::size(_mover), "Index out of bounds");
+		return _mover[mover.i].mover->max_slope();
+	}
+
+	void mover_set_max_slope_angle(MoverInstance mover, f32 angle)
+	{
+		CE_ASSERT(mover.i < array::size(_mover), "Index out of bounds");
+		return _mover[mover.i].mover->set_max_slope(angle);
+	}
+
+	void mover_set_collision_filter(MoverInstance mover, StringId32 filter)
+	{
+		CE_ASSERT(mover.i < array::size(_mover), "Index out of bounds");
+
+		const PhysicsCollisionFilter *filters = physics_config_resource::filters_array(_config_resource);
+		u32 filter_i = physics_config_resource::filter_index(filters, _config_resource->num_filters, filter);
+		const PhysicsCollisionFilter *f = &filters[filter_i];
+
+		_dynamics_world->removeCollisionObject(_mover[mover.i].ghost);
+		_dynamics_world->addCollisionObject(_mover[mover.i].ghost, f->me, f->mask);
+	}
+
+	Vector3 mover_position(MoverInstance mover)
+	{
+		return to_vector3(_mover[mover.i].mover->_current_position);
+	}
+
+	void mover_set_position(MoverInstance mover, const Vector3 &position)
+	{
+		_mover[mover.i].mover->reset();
+		_mover[mover.i].mover->set_position(to_btVector3(position));
+	}
+
+	void mover_move(MoverInstance mover, const Vector3 &delta)
+	{
+		_mover[mover.i].mover->move(to_btVector3(delta));
+	}
+
+	bool mover_collides_sides(MoverInstance mover)
+	{
+		return (_mover[mover.i].mover->_flags & MoverFlags::COLLIDES_SIDES) != 0;
+	}
+
+	bool mover_collides_up(MoverInstance mover)
+	{
+		return (_mover[mover.i].mover->_flags & MoverFlags::COLLIDES_UP) != 0;
+	}
+
+	bool mover_collides_down(MoverInstance mover)
+	{
+		return (_mover[mover.i].mover->_flags & MoverFlags::COLLIDES_DOWN) != 0;
+	}
+
 	JointInstance joint_create(ActorInstance a0, ActorInstance a1, const JointDesc &jd)
 	{
 		const btVector3 anchor_0 = to_btVector3(jd.anchor_0);
@@ -1096,6 +1768,12 @@ struct PhysicsWorldImpl
 				curr = next;
 			}
 		}
+
+		{
+			MoverInstance mi = mover(unit);
+			if (is_valid(mi))
+				mover_destroy(mi);
+		}
 	}
 
 	static void tick_cb(btDynamicsWorld *world, btScalar dt)
@@ -1117,6 +1795,11 @@ struct PhysicsWorldImpl
 	static ActorInstance make_actor_instance(u32 i)
 	{
 		ActorInstance inst = { i }; return inst;
+	}
+
+	static MoverInstance make_mover_instance(u32 i)
+	{
+		MoverInstance inst = { i }; return inst;
 	}
 
 	static JointInstance make_joint_instance(u32 i)
@@ -1332,6 +2015,71 @@ bool PhysicsWorld::actor_is_sleeping(ActorInstance actor)
 void PhysicsWorld::actor_wake_up(ActorInstance actor)
 {
 	_impl->actor_wake_up(actor);
+}
+
+MoverInstance PhysicsWorld::mover_create(UnitId unit, const MoverDesc *desc, const Matrix4x4 &tm)
+{
+	return _impl->mover_create(unit, desc, tm);
+}
+
+void PhysicsWorld::mover_destroy(MoverInstance actor)
+{
+	_impl->mover_destroy(actor);
+}
+
+MoverInstance PhysicsWorld::mover(UnitId unit)
+{
+	return _impl->mover(unit);
+}
+
+f32 PhysicsWorld::mover_radius(MoverInstance mover)
+{
+	return _impl->mover_radius(mover);
+}
+
+f32 PhysicsWorld::mover_max_slope_angle(MoverInstance mover)
+{
+	return _impl->mover_max_slope_angle(mover);
+}
+
+void PhysicsWorld::mover_set_max_slope_angle(MoverInstance mover, f32 angle)
+{
+	_impl->mover_set_max_slope_angle(mover, angle);
+}
+
+void PhysicsWorld::mover_set_collision_filter(MoverInstance mover, StringId32 filter)
+{
+	_impl->mover_set_collision_filter(mover, filter);
+}
+
+Vector3 PhysicsWorld::mover_position(MoverInstance mover)
+{
+	return _impl->mover_position(mover);
+}
+
+void PhysicsWorld::mover_set_position(MoverInstance mover, const Vector3 &position)
+{
+	return _impl->mover_set_position(mover, position);
+}
+
+void PhysicsWorld::mover_move(MoverInstance mover, const Vector3 &delta)
+{
+	_impl->mover_move(mover, delta);
+}
+
+bool PhysicsWorld::mover_collides_sides(MoverInstance mover)
+{
+	return _impl->mover_collides_sides(mover);
+}
+
+bool PhysicsWorld::mover_collides_up(MoverInstance mover)
+{
+	return _impl->mover_collides_up(mover);
+}
+
+bool PhysicsWorld::mover_collides_down(MoverInstance mover)
+{
+	return _impl->mover_collides_down(mover);
 }
 
 JointInstance PhysicsWorld::joint_create(ActorInstance a0, ActorInstance a1, const JointDesc &jd)

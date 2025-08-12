@@ -1753,6 +1753,12 @@ function LevelEditor:add_light_component(id, component_id, type, range, intensit
 	RenderWorld.light_create(self._rw, unit_id, type, range, intensity, spot_angle, color, unit_box:world_pose())
 end
 
+function LevelEditor:add_mover_component(id, component_id, height, radius, max_slope_angle, filter)
+	local unit_box = self._objects[id]
+	local unit_id = unit_box:unit_id()
+	PhysicsWorld.mover_create(self._pw, unit_id, height, radius, max_slope_angle, filter, unit_box:world_pose())
+end
+
 function LevelEditor:add_fog_component(id, component_id)
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id()
@@ -1787,6 +1793,9 @@ function LevelEditor:unit_destroy_component_type(id, component_type)
 		-- Nothing to do.
 	elseif component_type == "actor" then
 		-- Nothing to do.
+	elseif component_type == "mover" then
+		local inst = PhysicsWorld.mover_instance(self._pw, unit_id)
+		PhysicsWorld.mover_destroy(self._pw, inst)
 	elseif component_type == "animation_state_machine" then
 		-- Nothing to do.
 	else

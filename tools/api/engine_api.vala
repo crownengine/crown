@@ -360,6 +360,23 @@ namespace LevelEditorApi
 			);
 	}
 
+	public string add_mover_component(Guid id
+		, Guid component_id
+		, double height
+		, double radius
+		, double max_slope_angle
+		, string collision_filter
+		)
+	{
+		return "LevelEditor:add_mover_component(\"%s\", \"%s\", %.17g, %.17g, %.17g, \"%s\")".printf(id.to_string()
+			, component_id.to_string()
+			, height
+			, radius
+			, max_slope_angle
+			, collision_filter
+			);
+	}
+
 	public string add_fog_component(Guid id, Guid component_id)
 	{
 		return "LevelEditor:add_fog_component(\"%s\", \"%s\")".printf(id.to_string(), component_id.to_string());

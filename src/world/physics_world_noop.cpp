@@ -9,6 +9,7 @@
 #include "core/containers/array.inl"
 #include "core/math/constants.h"
 #include "core/memory/memory.inl"
+#include "world/physics.h"
 #include "world/physics_world.h"
 
 namespace crown
@@ -214,6 +215,79 @@ struct PhysicsWorldImpl
 	{
 	}
 
+	MoverInstance mover_create(UnitId unit, const MoverDesc *desc, const Matrix4x4 &tm)
+	{
+		CE_UNUSED_3(unit, desc, tm);
+		return make_mover_instance(UINT32_MAX);
+	}
+
+	void mover_destroy(MoverInstance mover)
+	{
+		CE_UNUSED(mover);
+	}
+
+	MoverInstance mover(UnitId unit)
+	{
+		CE_UNUSED(unit);
+		return make_mover_instance(UINT32_MAX);
+	}
+
+	f32 mover_radius(MoverInstance mover)
+	{
+		CE_UNUSED(mover);
+		return 0.0f;
+	}
+
+	f32 mover_max_slope_angle(MoverInstance mover)
+	{
+		CE_UNUSED(mover);
+		return 0.0f;
+	}
+
+	void mover_set_max_slope_angle(MoverInstance mover, f32 angle)
+	{
+		CE_UNUSED_2(mover, angle);
+	}
+
+	void mover_set_collision_filter(MoverInstance mover, StringId32 filter)
+	{
+		CE_UNUSED_2(mover, filter);
+	}
+
+	Vector3 mover_position(MoverInstance mover)
+	{
+		CE_UNUSED(mover);
+		return VECTOR3_ZERO;
+	}
+
+	void mover_set_position(MoverInstance mover, const Vector3 &position)
+	{
+		CE_UNUSED_2(mover, position);
+	}
+
+	void mover_move(MoverInstance mover, const Vector3 &delta)
+	{
+		CE_UNUSED_2(mover, delta);
+	}
+
+	bool mover_collides_sides(MoverInstance mover)
+	{
+		CE_UNUSED(mover);
+		return false;
+	}
+
+	bool mover_collides_up(MoverInstance mover)
+	{
+		CE_UNUSED(mover);
+		return false;
+	}
+
+	bool mover_collides_down(MoverInstance mover)
+	{
+		CE_UNUSED(mover);
+		return false;
+	}
+
 	JointInstance joint_create(ActorInstance /*a0*/, ActorInstance /*a1*/, const JointDesc & /*jd*/)
 	{
 		return make_joint_instance(UINT32_MAX);
@@ -281,6 +355,11 @@ struct PhysicsWorldImpl
 	ActorInstance make_actor_instance(u32 i)
 	{
 		ActorInstance inst = { i }; return inst;
+	}
+
+	MoverInstance make_mover_instance(u32 i)
+	{
+		MoverInstance inst = { i }; return inst;
 	}
 
 	JointInstance make_joint_instance(u32 i)
@@ -496,6 +575,71 @@ bool PhysicsWorld::actor_is_sleeping(ActorInstance actor)
 void PhysicsWorld::actor_wake_up(ActorInstance actor)
 {
 	_impl->actor_wake_up(actor);
+}
+
+MoverInstance PhysicsWorld::mover_create(UnitId unit, const MoverDesc *desc, const Matrix4x4 &tm)
+{
+	return _impl->mover_create(unit, desc, tm);
+}
+
+void PhysicsWorld::mover_destroy(MoverInstance actor)
+{
+	_impl->mover_destroy(actor);
+}
+
+MoverInstance PhysicsWorld::mover(UnitId unit)
+{
+	return _impl->mover(unit);
+}
+
+f32 PhysicsWorld::mover_radius(MoverInstance mover)
+{
+	return _impl->mover_radius(mover);
+}
+
+f32 PhysicsWorld::mover_max_slope_angle(MoverInstance mover)
+{
+	return _impl->mover_max_slope_angle(mover);
+}
+
+void PhysicsWorld::mover_set_max_slope_angle(MoverInstance mover, f32 angle)
+{
+	_impl->mover_set_max_slope_angle(mover, angle);
+}
+
+void PhysicsWorld::mover_set_collision_filter(MoverInstance mover, StringId32 filter)
+{
+	_impl->mover_set_collision_filter(mover, filter);
+}
+
+Vector3 PhysicsWorld::mover_position(MoverInstance mover)
+{
+	return _impl->mover_position(mover);
+}
+
+void PhysicsWorld::mover_set_position(MoverInstance mover, const Vector3 &position)
+{
+	return _impl->mover_set_position(mover, position);
+}
+
+void PhysicsWorld::mover_move(MoverInstance mover, const Vector3 &delta)
+{
+	_impl->mover_move(mover, delta);
+}
+
+bool PhysicsWorld::mover_collides_sides(MoverInstance mover)
+{
+	return _impl->mover_collides_sides(mover);
+}
+
+bool PhysicsWorld::mover_collides_up(MoverInstance mover)
+{
+	return _impl->mover_collides_up(mover);
+}
+
+bool PhysicsWorld::mover_collides_down(MoverInstance mover)
+{
+	return _impl->mover_collides_down(mover);
 }
 
 JointInstance PhysicsWorld::joint_create(ActorInstance a0, ActorInstance a1, const JointDesc &jd)

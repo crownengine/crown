@@ -358,6 +358,23 @@ namespace physics_resource_internal
 		return 0;
 	}
 
+	s32 compile_mover(Buffer &output, FlatJsonObject &obj, CompileOptions &opts)
+	{
+		MoverDesc md;
+		md.capsule.radius   = RETURN_IF_ERROR(sjson::parse_float    (flat_json_object::get(obj, "data.radius")), opts);
+		md.capsule.height   = RETURN_IF_ERROR(sjson::parse_float    (flat_json_object::get(obj, "data.height")), opts);
+		md.max_slope_angle  = RETURN_IF_ERROR(sjson::parse_float    (flat_json_object::get(obj, "data.max_slope_angle")), opts);
+		md.collision_filter = RETURN_IF_ERROR(sjson::parse_string_id(flat_json_object::get(obj, "data.collision_filter")), opts);
+
+		FileBuffer fb(output);
+		BinaryWriter bw(fb);
+		bw.write(md.capsule.radius);
+		bw.write(md.capsule.height);
+		bw.write(md.max_slope_angle);
+		bw.write(md.collision_filter);
+		return 0;
+	}
+
 	s32 compile_joint(Buffer &output, FlatJsonObject &obj, CompileOptions &opts)
 	{
 		TempAllocator4096 ta;

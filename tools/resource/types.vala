@@ -21,6 +21,7 @@ const string OBJECT_TYPE_MESH_ANIMATION          = "mesh_animation";
 const string OBJECT_TYPE_MESH_BONE               = "mesh_bone";
 const string OBJECT_TYPE_MESH_RENDERER           = "mesh_renderer";
 const string OBJECT_TYPE_MESH_SKELETON           = "mesh_skeleton";
+const string OBJECT_TYPE_MOVER                   = "mover";
 const string OBJECT_TYPE_NODE_ANIMATION          = "node_animation";
 const string OBJECT_TYPE_NODE_TRANSITION         = "node_transition";
 const string OBJECT_TYPE_SCRIPT                  = "script";
@@ -588,6 +589,51 @@ public static void create_object_types(Database database)
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_FOG, properties);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "_global_physics_config",
+			deffault = "global",
+			editor = PropertyEditorType.RESOURCE,
+			resource_type = "physics_config",
+			hidden = true,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.height",
+			min = 0.0,
+			deffault = 1.80,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.radius",
+			min = 0.0,
+			deffault = 0.50,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.max_slope_angle",
+			editor = PropertyEditorType.ANGLE,
+			min = 0.0,
+			max = 90.0,
+			deffault = 45.0,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "data.collision_filter",
+			editor = PropertyEditorType.ENUM,
+			enum_property = "_global_physics_config",
+			enum_callback = collision_filter_enum_callback
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_MOVER, properties);
 }
 
 } /* namespace Crown */
