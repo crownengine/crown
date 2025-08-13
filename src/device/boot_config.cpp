@@ -11,6 +11,9 @@
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string_id.inl"
 #include "device/boot_config.h"
+#include "device/log.h"
+
+LOG_SYSTEM(BOOT_CONFIG, "boot_config")
 
 namespace crown
 {
@@ -24,7 +27,29 @@ BootConfig::BootConfig(Allocator &a)
 	, aspect_ratio(-1.0f)
 	, vsync(true)
 	, fullscreen(false)
+	, physics_settings({ 60, 4 })
 {
+}
+
+static void parse_physics(PhysicsSettings *settings, const char *json)
+{
+	TempAllocator1024 ta;
+	JsonObject obj(ta);
+	sjson::parse(obj, json);
+
+	auto cur = json_object::begin(obj);
+	auto end = json_object::end(obj);
+	for (; cur != end; ++cur) {
+		JSON_OBJECT_SKIP_HOLE(obj, cur);
+
+		if (cur->first == "step_frequency") {
+			settings->step_frequency = sjson::parse_int(cur->second);
+		} else if (cur->first == "max_substeps") {
+			settings->max_substeps = sjson::parse_int(cur->second);
+		} else {
+			logw(BOOT_CONFIG, "Unknown physics property '%s'", cur->second);
+		}
+	}
 }
 
 bool BootConfig::parse(const char *json)
@@ -45,6 +70,9 @@ bool BootConfig::parse(const char *json)
 	} else {
 		render_config_name = STRING_ID_64("core/renderer/default", UINT64_C(0x1b92f3ff7ca4157c));
 	}
+
+	if (json_object::has(cfg, "physics"))
+		parse_physics(&physics_settings, cfg["physics"]);
 
 	// Platform-specific configs.
 	if (json_object::has(cfg, CROWN_PLATFORM_NAME)) {

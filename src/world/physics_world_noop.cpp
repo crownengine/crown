@@ -15,12 +15,14 @@ namespace crown
 {
 namespace physics_globals
 {
-	void init(Allocator & /*a*/)
+	void init(Allocator &a, const PhysicsSettings *settings)
 	{
+		CE_UNUSED_2(a, settings);
 	}
 
-	void shutdown(Allocator & /*a*/)
+	void shutdown(Allocator &a)
 	{
+		CE_UNUSED(a);
 	}
 
 } // namespace physics_globals

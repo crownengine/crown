@@ -692,7 +692,6 @@ int Device::main_loop()
 	_lua_environment->register_console_commands(*_console_server);
 
 	audio_globals::init();
-	physics_globals::init(_allocator);
 
 	// Load boot package.
 	ResourcePackage *boot_package = create_resource_package(_boot_config.boot_package_name);
@@ -705,6 +704,8 @@ int Device::main_loop()
 	render_config_package->flush();
 
 	_render_config_resource = (RenderConfigResource *)_resource_manager->get(RESOURCE_TYPE_RENDER_CONFIG, _boot_config.render_config_name);
+
+	physics_globals::init(_allocator, &_boot_config.physics_settings);
 
 	_lua_environment->load_libs();
 	_lua_environment->require(_boot_config.boot_script_name.c_str());

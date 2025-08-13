@@ -54,13 +54,15 @@ namespace crown
 {
 namespace physics_globals
 {
+	static PhysicsSettings _settings;
 	static btDefaultCollisionConfiguration *_bt_configuration;
 	static btCollisionDispatcher *_bt_dispatcher;
 	static btBroadphaseInterface *_bt_interface;
 	static btSequentialImpulseConstraintSolver *_bt_solver;
 
-	void init(Allocator &a)
+	void init(Allocator &a, const PhysicsSettings *settings)
 	{
+		_settings         = *settings;
 		_bt_configuration = CE_NEW(a, btDefaultCollisionConfiguration);
 		_bt_dispatcher    = CE_NEW(a, btCollisionDispatcher)(_bt_configuration);
 		_bt_interface     = CE_NEW(a, btDbvtBroadphase);
@@ -979,8 +981,10 @@ struct PhysicsWorldImpl
 
 	void update(f32 dt)
 	{
-		// 12Hz to 120Hz
-		_dynamics_world->stepSimulation(dt, 7, 1.0f/60.0f);
+		_dynamics_world->stepSimulation(dt
+			, physics_globals::_settings.max_substeps
+			, 1.0f/physics_globals::_settings.step_frequency
+			);
 
 		const int num = _dynamics_world->getNumCollisionObjects();
 		const btCollisionObjectArray &collision_array = _dynamics_world->getCollisionObjectArray();

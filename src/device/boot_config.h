@@ -8,6 +8,7 @@
 #include "core/strings/dynamic_string.h"
 #include "core/strings/string_id.h"
 #include "core/types.h"
+#include "world/physics.h"
 
 namespace crown
 {
@@ -25,6 +26,7 @@ struct BootConfig
 	float aspect_ratio;
 	bool vsync;
 	bool fullscreen;
+	PhysicsSettings physics_settings;
 
 	///
 	explicit BootConfig(Allocator &a);
