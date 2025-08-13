@@ -363,6 +363,8 @@ inline HashMap<TKey, TValue, Hash, KeyEqual>::~HashMap()
 template<typename TKey, typename TValue, typename Hash, typename KeyEqual>
 HashMap<TKey, TValue, Hash, KeyEqual> &HashMap<TKey, TValue, Hash, KeyEqual>::operator=(const HashMap<TKey, TValue, Hash, KeyEqual> &other)
 {
+	CE_ASSERT(this != &other, "Self-assignment");
+
 	_capacity = other._capacity;
 	_size = other._size;
 	_mask = other._mask;
