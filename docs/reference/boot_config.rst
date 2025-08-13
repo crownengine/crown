@@ -49,3 +49,15 @@ Renderer configurations
 ``fullscreen = false``
 	Sets whether to enable fullscreen.
 
+Physics configurations
+~~~~~~~~~~~~~~~~~~~~~~
+
+``step_frequency = 60``
+	The frequency at which the physics simulation is stepped.
+	Higher values means a more accurate simulation at the expense of compute time.
+
+``max_substeps = 4``
+	Maximum number of physics sub-steps allowed in a frame.
+	A value of 4 at 60 Hz means the physics simulation is allowed to simulate up to ~0.067 seconds (4/60) worth of physics per frame.
+	If one frame takes longer than `max_substep/step_frequency` then physics will appear slowed down.
+

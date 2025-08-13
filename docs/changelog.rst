@@ -8,6 +8,7 @@ Changelog
 
 * Runtime: added a new .render_config resource for configuring the renderer, along with a `render_config` property in the boot files to allow selecting the desired config.
 * Runtime: added a new `spinning_friction` property to physics materials that you can specify in `global.physics_config`.
+* Runtime: added configurable physics `step_frequency` and `max_substeps` via the `physics` property in the boot files.
 
 0.58.0 --- 01 Aug 2025
 ----------------------
