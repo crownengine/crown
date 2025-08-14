@@ -41,7 +41,9 @@ cp -r build/docs/html/* html/"${VERSION}"
 
 # Update 'latest' only in stable releases.
 if [ "${VERSION}" != "master" ]; then
-	rm html/latest && ln -s html/"${VERSION}" html/latest
+	rm -r html/latest
+	mkdir html/latest
+	cp -r build/docs/html/* html/latest
 	git add html/latest
 fi
 
