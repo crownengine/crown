@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Changelog &mdash; Crown 0.58.0 Manual 0.58.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <title>Changelog &mdash; Crown 0.59.0 Manual 0.59.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" /><link rel="shortcut icon" href="_static/org.crownengine.Crown.svg"/>
   <!--[if lt IE 9]>
@@ -19,7 +19,7 @@
     <link rel="search" title="Search" href="search.html" />
     <link rel="copyright" title="Copyright" href="copyright.html" />
     <link rel="next" title="Introduction" href="introduction.html" />
-    <link rel="prev" title="Crown 0.58.0 Manual" href="index.html" /> 
+    <link rel="prev" title="Crown 0.59.0 Manual" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -30,7 +30,7 @@
             <a href="index.html"><img src="_static/org.crownengine.Crown.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                Crown 0.58.0 Manual
+                Crown 0.59.0 Manual
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -42,7 +42,8 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#dd-mmm-yyyy">0.58.0 — DD MMM YYYY</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dd-mmm-yyyy">0.59.0 — DD MMM YYYY</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#aug-2025">0.58.0 — 01 Aug 2025</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#jun-2025">0.57.0 — 13 Jun 2025</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id1">0.56.0 — 04 Jun 2025</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#apr-2025">0.55.0 — 03 Apr 2025</a></li>
@@ -83,7 +84,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Crown 0.58.0 Manual</a>
+          <a href="index.html">Crown 0.59.0 Manual</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -104,7 +105,16 @@
   <div class="section" id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="dd-mmm-yyyy">
-<h2>0.58.0 — DD MMM YYYY<a class="headerlink" href="#dd-mmm-yyyy" title="Permalink to this headline">¶</a></h2>
+<h2>0.59.0 — DD MMM YYYY<a class="headerlink" href="#dd-mmm-yyyy" title="Permalink to this headline">¶</a></h2>
+<p><strong>New Features and Improvements</strong></p>
+<ul class="simple">
+<li>Runtime: added a new .render_config resource for configuring the renderer, along with a <cite>render_config</cite> property in the boot files to allow selecting the desired config.</li>
+<li>Runtime: added a new <cite>spinning_friction</cite> property to physics materials that you can specify in <cite>global.physics_config</cite>.</li>
+<li>Runtime: added configurable physics <cite>step_frequency</cite> and <cite>max_substeps</cite> via the <cite>physics</cite> property in the boot files.</li>
+</ul>
+</div>
+<div class="section" id="aug-2025">
+<h2>0.58.0 — 01 Aug 2025<a class="headerlink" href="#aug-2025" title="Permalink to this headline">¶</a></h2>
 <p><strong>New Features and Improvements</strong></p>
 <ul class="simple">
 <li>Tools: added Fog component.</li>
@@ -119,6 +129,7 @@
 <p><strong>Fixes</strong></p>
 <ul class="simple">
 <li>Tools: fixed hot-reloading of Unit scripts.</li>
+<li>Tools: fixed Editor Viewport lag when using pointing devices with high polling rate.</li>
 <li>Tools: fixed missing sounds in the Level Tree.</li>
 <li>Tools: fixed a number of issues in the Level Tree when adding/removing components to units.</li>
 <li>Tools: fixed inability to select state machines from the “Animation State Machine” component in the Inspector.</li>
@@ -129,6 +140,7 @@
 <li>Runtime: Linux: fixed <code class="docutils literal notranslate"><span class="pre">Window.set_fullscreen()</span></code> to put the window fullscreen without delays.</li>
 <li>Compiler: the compiler will now return with an error if any source dir does not exist.</li>
 <li>Compiler: fixed an issue that caused a crash in the runtime when trying to reload a resource after deleting it.</li>
+<li>Compiler: fixed a memory leak when deleting components in a Unit in some cases.</li>
 </ul>
 </div>
 <div class="section" id="jun-2025">
@@ -773,7 +785,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="Crown 0.58.0 Manual" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Crown 0.59.0 Manual" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="introduction.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

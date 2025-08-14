@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>boot.config reference &mdash; Crown 0.58.0 Manual 0.58.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <title>boot.config reference &mdash; Crown 0.59.0 Manual 0.59.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" /><link rel="shortcut icon" href="../_static/org.crownengine.Crown.svg"/>
   <!--[if lt IE 9]>
@@ -30,7 +30,7 @@
             <a href="../index.html"><img src="../_static/org.crownengine.Crown.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                Crown 0.58.0 Manual
+                Crown 0.59.0 Manual
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -52,6 +52,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#generic-configurations">Generic configurations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#platform-specific-configurations">Platform-specific configurations</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#renderer-configurations">Renderer configurations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#physics-configurations">Physics configurations</a></li>
 </ul>
 </li>
 </ul>
@@ -71,7 +72,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">Crown 0.58.0 Manual</a>
+          <a href="../index.html">Crown 0.59.0 Manual</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -99,6 +100,8 @@
 <dd>Lua script to launch on boot.</dd>
 <dt><code class="docutils literal notranslate"><span class="pre">boot_package</span> <span class="pre">=</span> <span class="pre">&quot;boot&quot;</span></code></dt>
 <dd>Package to load on boot.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">render_config</span> <span class="pre">=</span> <span class="pre">&quot;core/renderer/default&quot;</span></code></dt>
+<dd>Render configuration to use.</dd>
 <dt><code class="docutils literal notranslate"><span class="pre">window_title</span> <span class="pre">=</span> <span class="pre">&quot;My</span> <span class="pre">window&quot;</span></code></dt>
 <dd>Title of the main window on platforms that support it.</dd>
 </dl>
@@ -128,6 +131,18 @@ If the value is set to <code class="docutils literal notranslate"><span class="p
 <dd>Sets whether to enable the vsync.</dd>
 <dt><code class="docutils literal notranslate"><span class="pre">fullscreen</span> <span class="pre">=</span> <span class="pre">false</span></code></dt>
 <dd>Sets whether to enable fullscreen.</dd>
+</dl>
+</div>
+<div class="section" id="physics-configurations">
+<h3>Physics configurations<a class="headerlink" href="#physics-configurations" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt><code class="docutils literal notranslate"><span class="pre">step_frequency</span> <span class="pre">=</span> <span class="pre">60</span></code></dt>
+<dd>The frequency at which the physics simulation is stepped.
+Higher values means a more accurate simulation at the expense of compute time.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">max_substeps</span> <span class="pre">=</span> <span class="pre">4</span></code></dt>
+<dd>Maximum number of physics sub-steps allowed in a frame.
+A value of 4 at 60 Hz means the physics simulation is allowed to simulate up to ~0.067 seconds (4/60) worth of physics per frame.
+If one frame takes longer than <cite>max_substep/step_frequency</cite> then physics will appear slowed down.</dd>
 </dl>
 </div>
 </div>
