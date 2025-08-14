@@ -59,5 +59,5 @@ Physics configurations
 ``max_substeps = 4``
 	Maximum number of physics sub-steps allowed in a frame.
 	A value of 4 at 60 Hz means the physics simulation is allowed to simulate up to ~0.067 seconds (4/60) worth of physics per frame.
-	If one frame takes longer than `max_substep/step_frequency` then physics will appear slowed down.
+	If one frame takes longer than ``max_substeps/step_frequency`` then physics will appear slowed down.
 
