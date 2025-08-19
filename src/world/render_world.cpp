@@ -991,6 +991,7 @@ void RenderWorld::MeshManager::draw_visibles(u8 view_id, SceneGraph &scene_graph
 		bgfx::setUniform(_render_world->_pipeline->_u_cascaded_texel_size, &texel_size);
 		bgfx::setUniform(_render_world->_pipeline->_u_cascaded_lights, cascaded_lights, MAX_NUM_CASCADES);
 		bgfx::setUniform(_render_world->_u_fog_data, (char *)&_render_world->_fog_desc, sizeof(_render_world->_fog_desc) / sizeof(Vector4));
+		_render_world->_pipeline->set_local_lights_params_uniform();
 
 		set_instance_data(ii, scene_graph);
 		_data.material[ii]->bind(view_id);

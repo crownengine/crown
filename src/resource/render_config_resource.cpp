@@ -48,6 +48,16 @@ namespace render_config_resource_internal
 					rs.flags |= RenderSettingsFlags::LOCAL_LIGHTS_SHADOWS;
 				else
 					rs.flags &= ~RenderSettingsFlags::LOCAL_LIGHTS_SHADOWS;
+			} else if (cur->first == "local_lights_distance_culling") {
+				bool en = RETURN_IF_ERROR(sjson::parse_bool(cur->second), opts);
+				if (en)
+					rs.flags |= RenderSettingsFlags::LOCAL_LIGHTS_DISTANCE_CULLING;
+				else
+					rs.flags &= ~RenderSettingsFlags::LOCAL_LIGHTS_DISTANCE_CULLING;
+			} else if (cur->first == "local_lights_distance_culling_fade") {
+				rs.local_lights_distance_culling_fade = RETURN_IF_ERROR(sjson::parse_float(cur->second), opts);
+			} else if (cur->first == "local_lights_distance_culling_cutoff") {
+				rs.local_lights_distance_culling_cutoff = RETURN_IF_ERROR(sjson::parse_float(cur->second), opts);
 			} else {
 				logw(RENDER_CONFIG_RESOURCE
 					, "Unknown render_settings property '%.*s'"
@@ -76,6 +86,8 @@ namespace render_config_resource_internal
 			;
 		rcr.render_settings.sun_shadow_map_size = { 2048.0f, 2048.0f };
 		rcr.render_settings.local_lights_shadow_map_size = { 2048.0f, 2048.0f };
+		rcr.render_settings.local_lights_distance_culling_fade = 30.0f;
+		rcr.render_settings.local_lights_distance_culling_cutoff = 60.0f;
 
 		// Parse.
 		if (json_object::has(obj, "render_settings")) {
@@ -88,6 +100,8 @@ namespace render_config_resource_internal
 		opts.write(rcr.render_settings.flags);
 		opts.write(rcr.render_settings.sun_shadow_map_size);
 		opts.write(rcr.render_settings.local_lights_shadow_map_size);
+		opts.write(rcr.render_settings.local_lights_distance_culling_fade);
+		opts.write(rcr.render_settings.local_lights_distance_culling_cutoff);
 
 		return 0;
 	}

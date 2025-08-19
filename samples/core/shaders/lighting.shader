@@ -17,6 +17,10 @@ bgfx_shaders = {
 			uniform mat4 u_cascaded_lights[MAX_NUM_CASCADES]; // View-proj-crop matrices for cascaded shadow maps.
 			uniform vec4 u_cascaded_texel_size;
 			SAMPLER2DSHADOW(u_cascaded_shadow_map, 10);
+			uniform vec4 u_local_lights_params;
+		#	define local_lights_distance_culling u_local_lights_params.x
+		#	define local_lights_distance_culling_fade u_local_lights_params.y
+		#	define local_lights_distance_culling_cutoff u_local_lights_params.z
 
 			CONST(float PI) = 3.14159265358979323846;
 
@@ -135,11 +139,32 @@ bgfx_shaders = {
 				}
 			}
 
+			float fade_smoothstep(float camera_dist, float fade_dist, float cutoff_dist)
+			{
+				if (cutoff_dist == fade_dist)
+					return camera_dist <= fade_dist ? 1.0 : 0.0;
+
+				return 1.0 - smoothstep(fade_dist, cutoff_dist, camera_dist);
+			}
+
+			vec3 apply_distance_fading(vec3 radiance, vec3 light_pos, vec3 camera_pos)
+			{
+				if (local_lights_distance_culling == 0.0)
+					return radiance;
+
+				float fade_dist   = local_lights_distance_culling_fade;
+				float cutoff_dist = local_lights_distance_culling_cutoff;
+				float camera_dist = length(light_pos - camera_pos);
+
+				return mix(vec3_splat(0.0), radiance, fade_smoothstep(camera_dist, fade_dist, cutoff_dist));
+			}
+
 			vec3 calc_lighting(mat3 tbn
 				, vec3 n
 				, vec3 v
 				, vec3 frag_pos
 				, vec3 camera_frag_pos
+				, vec3 camera_pos
 				, vec4 shadow_pos0
 				, vec4 shadow_pos1
 				, vec4 shadow_pos2
@@ -231,7 +256,8 @@ bgfx_shaders = {
 					vec3 position     = u_lights_data[loffset + 1].xyz;
 					float range       = u_lights_data[loffset + 1].w;
 					float shadow_bias = u_lights_data[loffset + 3].r;
-					radiance += calc_omni_light(n
+
+					vec3 local_radiance = calc_omni_light(n
 						, v
 						, frag_pos
 						, toLinearAccurate(light_color)
@@ -243,6 +269,8 @@ bgfx_shaders = {
 						, roughness
 						, f0
 						);
+
+					radiance += apply_distance_fading(local_radiance, position, camera_pos);
 				}
 
 				for (int si = 0; si < num_spot; ++si, loffset += LIGHT_SIZE) {
@@ -253,7 +281,8 @@ bgfx_shaders = {
 					vec3 direction    = u_lights_data[loffset + 2].xyz;
 					float spot_angle  = u_lights_data[loffset + 2].w;
 					float shadow_bias = u_lights_data[loffset + 3].r;
-					radiance += calc_spot_light(n
+
+					vec3 local_radiance = calc_spot_light(n
 						, v
 						, frag_pos
 						, toLinearAccurate(light_color)
@@ -267,6 +296,8 @@ bgfx_shaders = {
 						, roughness
 						, f0
 						);
+
+					radiance += apply_distance_fading(local_radiance, position, camera_pos);
 				}
 
 				return apply_fog(radiance, length(camera_frag_pos), sun_color);

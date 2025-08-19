@@ -73,6 +73,7 @@ struct Pipeline
 	bgfx::UniformHandle _u_cascaded_shadow_map;
 	bgfx::UniformHandle _u_cascaded_texel_size;
 	bgfx::UniformHandle _u_cascaded_lights;
+	bgfx::UniformHandle _u_local_lights_params;
 
 	// Default sampler/texture to keep WebGL renderer running
 	// when a shader references a texture (even if unused) but
@@ -109,6 +110,9 @@ struct Pipeline
 
 	///
 	void reload_shaders(const ShaderResource *old_resource, const ShaderResource *new_resource);
+
+	///
+	void set_local_lights_params_uniform();
 };
 
 } // namespace crown

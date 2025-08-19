@@ -166,6 +166,7 @@ void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settin
 		bgfx::destroy(_sun_shadow_map_frame_buffer);
 	_sun_shadow_map_frame_buffer = bgfx::createFrameBuffer(countof(fbtextures), fbtextures);
 
+	_u_local_lights_params = bgfx::createUniform("u_local_lights_params", bgfx::UniformType::Vec4);
 #if CROWN_PLATFORM_EMSCRIPTEN
 	_html5_default_sampler = bgfx::createUniform("s_webgl_hack", bgfx::UniformType::Sampler);
 	_html5_default_texture = bgfx::createTexture2D(1, 1, false, 1, bgfx::TextureFormat::R8);
@@ -182,6 +183,9 @@ void Pipeline::destroy()
 	bgfx::destroy(_html5_default_texture);
 	_html5_default_texture = BGFX_INVALID_HANDLE;
 #endif
+	bgfx::destroy(_u_local_lights_params);
+	_u_local_lights_params = BGFX_INVALID_HANDLE;
+
 	// Destroy cascaded shadow map resources.
 	bgfx::destroy(_u_cascaded_lights);
 	_u_cascaded_lights = BGFX_INVALID_HANDLE;
@@ -355,6 +359,16 @@ void Pipeline::reload_shaders(const ShaderResource *old_resource, const ShaderRe
 {
 	CE_UNUSED_2(old_resource, new_resource);
 	lookup_default_shaders(*this);
+}
+
+void Pipeline::set_local_lights_params_uniform()
+{
+	Vector4 params;
+	params.x = _render_settings.flags & RenderSettingsFlags::LOCAL_LIGHTS_DISTANCE_CULLING;
+	params.y = _render_settings.local_lights_distance_culling_fade;
+	params.z = _render_settings.local_lights_distance_culling_cutoff;
+
+	bgfx::setUniform(_u_local_lights_params, &params, sizeof(params)/sizeof(Vector4));
 }
 
 } // namespace crown
