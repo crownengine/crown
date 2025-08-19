@@ -14,8 +14,9 @@ struct RenderSettingsFlags
 {
 	enum Enum : u32
 	{
-		SUN_SHADOWS          = u32(1) << 0, ///< Whether shadows for the sun are enabled.
-		LOCAL_LIGHTS_SHADOWS = u32(1) << 1  ///< Whether shadows for local lights are enabled.
+		SUN_SHADOWS                   = u32(1) << 0, ///< Whether shadows for the sun are enabled.
+		LOCAL_LIGHTS_SHADOWS          = u32(1) << 1, ///< Whether shadows for local lights are enabled.
+		LOCAL_LIGHTS_DISTANCE_CULLING = u32(1) << 2  ///< Whether distance culling for local lights is enabled.
 	};
 };
 
@@ -24,6 +25,8 @@ struct RenderSettings
 	u32 flags;
 	Vector2 sun_shadow_map_size;
 	Vector2 local_lights_shadow_map_size;
+	f32 local_lights_distance_culling_fade;   ///< Distance from camera at which local lights start to fade.
+	f32 local_lights_distance_culling_cutoff; ///< Distance from camera at which local lights disappear.
 };
 
 struct RenderConfigResource
