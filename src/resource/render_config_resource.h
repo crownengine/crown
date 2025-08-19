@@ -15,8 +15,9 @@ struct RenderSettingsFlags
 	enum Enum : u32
 	{
 		SUN_SHADOWS                   = u32(1) << 0, ///< Whether shadows for the sun are enabled.
-		LOCAL_LIGHTS_SHADOWS          = u32(1) << 1, ///< Whether shadows for local lights are enabled.
-		LOCAL_LIGHTS_DISTANCE_CULLING = u32(1) << 2  ///< Whether distance culling for local lights is enabled.
+		LOCAL_LIGHTS                  = u32(1) << 1, ///< Whether local lights are enabled.
+		LOCAL_LIGHTS_SHADOWS          = u32(1) << 2, ///< Whether shadows for local lights are enabled.
+		LOCAL_LIGHTS_DISTANCE_CULLING = u32(1) << 3  ///< Whether distance culling for local lights is enabled.
 	};
 };
 

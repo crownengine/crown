@@ -1,6 +1,8 @@
 render_settings = {
 	sun_shadows = true
 	sun_shadow_map_size = [ 4096 4096 ]
+
+	local_lights = true
 	local_lights_shadows = true
 	local_lights_shadow_map_size = [ 2048 2048 ]
 	local_lights_distance_culling = false

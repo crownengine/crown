@@ -660,34 +660,36 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj)
 	}
 
 	// Render local lights.
-	// Sort culled (local) lights by distance to camera.
-	// TODO: no culling is performed yet, culled lights here means *all* local lights.
-	std::sort(array::begin(lm._local_lights)
-		, array::end(lm._local_lights)
-		, [lm, camera_pos](const u32 &in_a, const u32 &in_b) {
-			const f32 dist_a = distance_squared(camera_pos, lm._data.shader[in_a].position);
-			const f32 dist_b = distance_squared(camera_pos, lm._data.shader[in_b].position);
-			return dist_a < dist_b;
-		});
+	if (_pipeline->_render_settings.flags & RenderSettingsFlags::LOCAL_LIGHTS) {
+		// Sort culled (local) lights by distance to camera.
+		// TODO: no culling is performed yet, culled lights here means *all* local lights.
+		std::sort(array::begin(lm._local_lights)
+			, array::end(lm._local_lights)
+			, [lm, camera_pos](const u32 &in_a, const u32 &in_b) {
+				const f32 dist_a = distance_squared(camera_pos, lm._data.shader[in_a].position);
+				const f32 dist_b = distance_squared(camera_pos, lm._data.shader[in_b].position);
+				return dist_a < dist_b;
+			});
 
-	for (u32 i = 0; i < array::size(lm._local_lights) && num_lights < MAX_NUM_LIGHTS; ++i) {
-		LightManager::ShaderData &shader = lid.shader[lm._local_lights[i]];
+		for (u32 i = 0; i < array::size(lm._local_lights) && num_lights < MAX_NUM_LIGHTS; ++i) {
+			LightManager::ShaderData &shader = lid.shader[lm._local_lights[i]];
 
-		if (lid.type[lm._local_lights[i]] == LightType::SPOT) {
-			array::push_back(lm._local_lights_spot, lm._local_lights[i]);
-		} else if (lid.type[lm._local_lights[i]] == LightType::OMNI) {
-			array::push_back(lm._local_lights_omni, lm._local_lights[i]);
-		} else {
-			CE_FATAL("Unknown local light type");
+			if (lid.type[lm._local_lights[i]] == LightType::SPOT) {
+				array::push_back(lm._local_lights_spot, lm._local_lights[i]);
+			} else if (lid.type[lm._local_lights[i]] == LightType::OMNI) {
+				array::push_back(lm._local_lights_omni, lm._local_lights[i]);
+			} else {
+				CE_FATAL("Unknown local light type");
+			}
+
+			++num_lights;
 		}
 
-		++num_lights;
+		for (u32 i = 0; i < array::size(lm._local_lights_omni); ++i)
+			array::push_back(lm._lights_data, lid.shader[lm._local_lights_omni[i]]);
+		for (u32 i = 0; i < array::size(lm._local_lights_spot); ++i)
+			array::push_back(lm._lights_data, lid.shader[lm._local_lights_spot[i]]);
 	}
-
-	for (u32 i = 0; i < array::size(lm._local_lights_omni); ++i)
-		array::push_back(lm._lights_data, lid.shader[lm._local_lights_omni[i]]);
-	for (u32 i = 0; i < array::size(lm._local_lights_spot); ++i)
-		array::push_back(lm._lights_data, lid.shader[lm._local_lights_spot[i]]);
 
 	// Send lights data to GPU.
 	Vector4 h;
