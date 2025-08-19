@@ -345,7 +345,7 @@ Color4 RenderWorld::light_color(LightInstance light)
 LightType::Enum RenderWorld::light_type(LightInstance light)
 {
 	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
-	return (LightType::Enum)_light_manager._data.index[light.i].type;
+	return (LightType::Enum)_light_manager._data.type[light.i];
 }
 
 f32 RenderWorld::light_range(LightInstance light)
@@ -381,13 +381,7 @@ void RenderWorld::light_set_color(LightInstance light, const Color4 &col)
 void RenderWorld::light_set_type(LightInstance light, LightType::Enum type)
 {
 	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
-
-	u32 cur_type = _light_manager._data.index[light.i].type;
-	_light_manager._data.index[light.i].type = type;
-
-	_light_manager._data.num[cur_type]--;
-	_light_manager._data.num[type]++;
-	_light_manager._data.dirty = true;
+	_light_manager._data.type[light.i] = type;
 }
 
 void RenderWorld::light_set_range(LightInstance light, f32 range)
@@ -418,11 +412,9 @@ void RenderWorld::light_set_cast_shadows(LightInstance light, bool cast_shadows)
 {
 	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
 	if (cast_shadows)
-		_light_manager._data.index[light.i].flags |= RenderableFlags::SHADOW_CASTER;
+		_light_manager._data.flag[light.i] |= RenderableFlags::SHADOW_CASTER;
 	else
-		_light_manager._data.index[light.i].flags &= ~RenderableFlags::SHADOW_CASTER;
-
-	_light_manager._data.dirty = true;
+		_light_manager._data.flag[light.i] &= ~RenderableFlags::SHADOW_CASTER;
 }
 
 void RenderWorld::light_debug_draw(LightInstance light, DebugLine &dl)
@@ -521,132 +513,191 @@ void RenderWorld::update_transforms(const UnitId *begin, const UnitId *end, cons
 	}
 }
 
-void sort(RenderWorld::LightManager &m);
-
 void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj)
 {
-	LightManager::LightInstanceData &lid = _light_manager._data;
-
-	sort(_light_manager);
+	LightManager &lm = _light_manager;
+	LightManager::LightInstanceData &lid = lm._data;
 
 	const bgfx::Caps *caps = bgfx::getCaps();
-	Matrix4x4 cascaded_lights[MAX_NUM_CASCADES];
 	Matrix4x4 inv_view = view;
 	invert(inv_view);
+	const Vector3 camera_pos = translation(inv_view);
 
-	// Render cascaded shadow maps.
-	// CSMs are only computed for the brightest directional light (index = 0) in the scene.
-	if (lid.num[LightType::DIRECTIONAL] > 0
-		&& (lid.index[0].flags & RenderableFlags::SHADOW_CASTER) != 0
-		&& (_pipeline->_render_settings.flags & RenderSettingsFlags::SUN_SHADOWS) != 0) {
-		Matrix4x4 light_proj;
-		Matrix4x4 light_view;
-		Frustum splits[MAX_NUM_CASCADES];
-		Frustum frustum;
+	const float sy = caps->originBottomLeft ? 0.5f : -0.5f;
+	const float sz = caps->homogeneousDepth ? 0.5f :  1.0f;
+	const float tz = caps->homogeneousDepth ? 0.5f :  0.0f;
+	Matrix4x4 crop = {
+		{ 0.5f, 0.0f, 0.0f, 0.0f },
+		{ 0.0f,   sy, 0.0f, 0.0f },
+		{ 0.0f, 0.0f, sz,   0.0f },
+		{ 0.5f, 0.5f, tz,   1.0f }
+	};
 
-		// Compute light view matrix.
-		const Vector3 &light_dir = lid.shader[0].direction;
-		const bx::Vec3 at  = { -light_dir.x,  -light_dir.y, -light_dir.z };
-		const bx::Vec3 eye = { 0.0, 0.0, 0.0 };
-		const bx::Vec3 up = { 0.0f, 0.0f, 1.0f };
-		bx::mtxLookAt(to_float_ptr(light_view), eye, at, up, bx::Handedness::Right);
+	Matrix4x4 cascaded_lights[MAX_NUM_CASCADES];
 
-		// Split the view frustum into MAX_NUM_CASCADES frustums.
-		frustum::from_matrix(frustum, proj, caps->homogeneousDepth, bx::Handedness::Right);
-		frustum::split(splits, MAX_NUM_CASCADES, frustum, 0.75f);
+	array::clear(lm._directional_lights);
+	array::clear(lm._local_lights);
+	array::clear(lm._local_lights_spot);
+	array::clear(lm._local_lights_omni);
+	array::clear(lm._lights_data);
+	u32 num_lights = 0; // Total lights to render this frame.
 
-		// Render the scene once per cascade.
-		for (u32 i = 0; i < MAX_NUM_CASCADES; ++i) {
-			Frustum split_i_world;
-			frustum::transform(split_i_world, splits[i], inv_view);
-
-			// Compute light projection matrix.
-			// Get frustum corners in view space.
-			Vector3 vertices[8];
-			frustum::vertices(vertices, splits[i]);
-
-			for (u32 j = 0; j < 8; ++j) {
-				// Transform frustum corners to light space.
-				vertices[j] = vertices[j] * inv_view;   // To world space.
-				vertices[j] = vertices[j] * light_view; // To light space.
-			}
-
-			// Compute frustum bounding box in light space.
-			AABB box;
-			aabb::from_points(box, countof(vertices), vertices);
-
-			bx::mtxOrtho(to_float_ptr(light_proj)
-				, box.min.x
-				, box.max.x
-				, box.min.y
-				, box.max.y
-				, -1000.0f
-				,  1000.0f
-				, 0.0f
-				, caps->homogeneousDepth
-				, bx::Handedness::Right
-				);
-
-			const float sy = caps->originBottomLeft ? 0.5f : -0.5f;
-			const float sz = caps->homogeneousDepth ? 0.5f :  1.0f;
-			const float tz = caps->homogeneousDepth ? 0.5f :  0.0f;
-			Matrix4x4 crop = {
-				{ 0.5f, 0.0f, 0.0f, 0.0f },
-				{ 0.0f,   sy, 0.0f, 0.0f },
-				{ 0.0f, 0.0f, sz,   0.0f },
-				{ 0.5f, 0.5f, tz,   1.0f }
-			};
-
-			cascaded_lights[i] = light_view * light_proj * crop;
-
-			// Render scene into atlas.
-			//
-			// Screen-space     Texture-space
-			//
-			// (0;0)  (w;0)     (0;1)
-			//   +------>         |
-			//   |                |
-			//   |                |
-			//   |                +------>
-			// (0;h)            (0;0)  (1;0)
-			//
-			const f32 tile_size_x = 0.5f * _pipeline->_render_settings.sun_shadow_map_size.x;
-			const f32 tile_size_y = 0.5f * _pipeline->_render_settings.sun_shadow_map_size.y;
-			Vector4 rects[] =
-			{
-				{           0, tile_size_y, tile_size_x, tile_size_y },
-				{ tile_size_x, tile_size_y, tile_size_x, tile_size_y },
-				{           0,           0, tile_size_x, tile_size_y },
-				{ tile_size_x,           0, tile_size_x, tile_size_y },
-			};
-			CE_STATIC_ASSERT(countof(rects) == MAX_NUM_CASCADES);
-
-			lid.shader[0].atlas_u = 0.0f;
-#if CROWN_PLATFORM_WINDOWS
-			lid.shader[0].atlas_v = 1.0f;
-#else
-			lid.shader[0].atlas_v = 0.0f;
-#endif
-			lid.shader[0].map_size = 0.5f;
-
-			bgfx::setViewRect(View::CASCADE_0 + i, rects[i].x, rects[i].y, rects[i].z, rects[i].w);
-			bgfx::setViewFrameBuffer(View::CASCADE_0 + i, _pipeline->_sun_shadow_map_frame_buffer);
-			bgfx::setViewClear(View::CASCADE_0 + i, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0xffffffff, 1.0f, 0);
-
-			bgfx::setViewTransform(View::CASCADE_0 + i, to_float_ptr(light_view), to_float_ptr(light_proj));
-
-			_mesh_manager.draw_shadow_casters(View::CASCADE_0 + i, *_scene_graph);
-		}
+	// Collect indices to all directional and local lights.
+	for (u32 i = 0; i < lid.size; ++i) {
+		if (lid.type[i] == LightType::DIRECTIONAL)
+			array::push_back(lm._directional_lights, i);
+		else
+			array::push_back(lm._local_lights, i);
 	}
 
-	// Set lighting data.
+	// Sort directional lights by intensity.
+	std::sort(array::begin(lm._directional_lights)
+		, array::end(lm._directional_lights)
+		, [lm](const u32 &in_a, const u32 &in_b) {
+			return lm._data.shader[in_a].intensity > lm._data.shader[in_b].intensity;
+		});
+
+	// Render directional lights.
+	for (u32 i = 0; i < array::size(lm._directional_lights) && num_lights < MAX_NUM_LIGHTS; ++i) {
+		u32 L = lm._directional_lights[i];
+
+		// CSMs are only computed for the brightest directional light (index = 0) in the scene.
+		if (i == 0 && (lid.flag[L] & RenderableFlags::SHADOW_CASTER) != 0
+			&& (_pipeline->_render_settings.flags & RenderSettingsFlags::SUN_SHADOWS) != 0) {
+			Matrix4x4 light_proj;
+			Matrix4x4 light_view;
+			Frustum splits[MAX_NUM_CASCADES];
+			Frustum frustum;
+
+			// Compute light view matrix.
+			const Vector3 &light_dir = lid.shader[L].direction;
+			const bx::Vec3 at  = { -light_dir.x,  -light_dir.y, -light_dir.z };
+			const bx::Vec3 eye = { 0.0, 0.0, 0.0 };
+			const bx::Vec3 up = { 0.0f, 0.0f, 1.0f };
+			bx::mtxLookAt(to_float_ptr(light_view), eye, at, up, bx::Handedness::Right);
+
+			// Split the view frustum into MAX_NUM_CASCADES frustums.
+			frustum::from_matrix(frustum, proj, caps->homogeneousDepth, bx::Handedness::Right);
+			frustum::split(splits, MAX_NUM_CASCADES, frustum, 0.75f);
+
+			// Render the scene once per cascade.
+			for (u32 i = 0; i < MAX_NUM_CASCADES; ++i) {
+				Frustum split_i_world;
+				frustum::transform(split_i_world, splits[i], inv_view);
+
+				// Compute light projection matrix.
+				// Get frustum corners in view space.
+				Vector3 vertices[8];
+				frustum::vertices(vertices, splits[i]);
+
+				for (u32 j = 0; j < 8; ++j) {
+					// Transform frustum corners to light space.
+					vertices[j] = vertices[j] * inv_view;   // To world space.
+					vertices[j] = vertices[j] * light_view; // To light space.
+				}
+
+				// Compute frustum bounding box in light space.
+				AABB box;
+				aabb::from_points(box, countof(vertices), vertices);
+				// debug_draw_box(box, get_inverted(light_view), _lines, COLOR4_YELLOW); // Debug draw in world space.
+
+				bx::mtxOrtho(to_float_ptr(light_proj)
+					, box.min.x
+					, box.max.x
+					, box.min.y
+					, box.max.y
+					, -1000.0f
+					,  1000.0f
+					, 0.0f
+					, caps->homogeneousDepth
+					, bx::Handedness::Right
+					);
+
+				cascaded_lights[i] = light_view * light_proj * crop;
+
+				// Render scene into atlas.
+				//
+				// Screen-space     Texture-space
+				//
+				// (0;0)  (w;0)     (0;1)
+				//   +------>         |
+				//   |                |
+				//   |                |
+				//   |                +------>
+				// (0;h)            (0;0)  (1;0)
+				//
+				const f32 tile_size_x = 0.5f * _pipeline->_render_settings.sun_shadow_map_size.x;
+				const f32 tile_size_y = 0.5f * _pipeline->_render_settings.sun_shadow_map_size.y;
+				Vector4 rects[] =
+				{
+					{           0, tile_size_y, tile_size_x, tile_size_y },
+					{ tile_size_x, tile_size_y, tile_size_x, tile_size_y },
+					{           0,           0, tile_size_x, tile_size_y },
+					{ tile_size_x,           0, tile_size_x, tile_size_y },
+				};
+				CE_STATIC_ASSERT(countof(rects) == MAX_NUM_CASCADES);
+
+				lid.shader[L].atlas_u = 0.0f;
+#if CROWN_PLATFORM_WINDOWS
+				lid.shader[L].atlas_v = 1.0f;
+#else
+				lid.shader[L].atlas_v = 0.0f;
+#endif
+				lid.shader[L].map_size = 0.5f;
+
+				bgfx::setViewRect(View::CASCADE_0 + i, rects[i].x, rects[i].y, rects[i].z, rects[i].w);
+				bgfx::setViewFrameBuffer(View::CASCADE_0 + i, _pipeline->_sun_shadow_map_frame_buffer);
+				bgfx::setViewClear(View::CASCADE_0 + i, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0xffffffff, 1.0f, 0);
+
+				bgfx::setViewTransform(View::CASCADE_0 + i, to_float_ptr(light_view), to_float_ptr(light_proj));
+
+				_mesh_manager.draw_shadow_casters(View::CASCADE_0 + i, *_scene_graph);
+			}
+		}
+
+		array::push_back(lm._lights_data, lid.shader[L]);
+		++num_lights;
+	}
+
+	// Render local lights.
+	// Sort culled (local) lights by distance to camera.
+	// TODO: no culling is performed yet, culled lights here means *all* local lights.
+	std::sort(array::begin(lm._local_lights)
+		, array::end(lm._local_lights)
+		, [lm, camera_pos](const u32 &in_a, const u32 &in_b) {
+			const f32 dist_a = distance_squared(camera_pos, lm._data.shader[in_a].position);
+			const f32 dist_b = distance_squared(camera_pos, lm._data.shader[in_b].position);
+			return dist_a < dist_b;
+		});
+
+	for (u32 i = 0; i < array::size(lm._local_lights) && num_lights < MAX_NUM_LIGHTS; ++i) {
+		LightManager::ShaderData &shader = lid.shader[lm._local_lights[i]];
+
+		if (lid.type[lm._local_lights[i]] == LightType::SPOT) {
+			array::push_back(lm._local_lights_spot, lm._local_lights[i]);
+		} else if (lid.type[lm._local_lights[i]] == LightType::OMNI) {
+			array::push_back(lm._local_lights_omni, lm._local_lights[i]);
+		} else {
+			CE_FATAL("Unknown local light type");
+		}
+
+		++num_lights;
+	}
+
+	for (u32 i = 0; i < array::size(lm._local_lights_omni); ++i)
+		array::push_back(lm._lights_data, lid.shader[lm._local_lights_omni[i]]);
+	for (u32 i = 0; i < array::size(lm._local_lights_spot); ++i)
+		array::push_back(lm._lights_data, lid.shader[lm._local_lights_spot[i]]);
+
+	// Send lights data to GPU.
 	Vector4 h;
-	h.x = lid.num[LightType::DIRECTIONAL];
-	h.y = lid.num[LightType::OMNI];
-	h.z = lid.num[LightType::SPOT];
+	h.x = array::size(lm._directional_lights);
+	h.y = array::size(lm._local_lights_omni);
+	h.z = array::size(lm._local_lights_spot);
 	h.w = 0.0f;
 	bgfx::setUniform(_u_lights_num, &h);
-	bgfx::setUniform(_u_lights_data, (char *)lid.shader, lid.size*sizeof(*lid.shader) / sizeof(Vector4));
+	CE_ENSURE(array::size(lm._lights_data) <= MAX_NUM_LIGHTS);
+	bgfx::setUniform(_u_lights_data, (char *)array::begin(lm._lights_data), array::size(lm._lights_data)*sizeof(LightManager::ShaderData)/sizeof(Vector4));
 	bgfx::touch(View::LIGHTS);
 
 	// Render objects.
@@ -1370,28 +1421,28 @@ void RenderWorld::LightManager::allocate(u32 num)
 	CE_ENSURE(num > _data.size);
 
 	const u32 bytes = 0
-		+ num*sizeof(Index) + alignof(Index)
+		+ num*sizeof(UnitId) + alignof(UnitId)
+		+ num*sizeof(u32) + alignof(u32)
+		+ num*sizeof(u32) + alignof(u32)
 		+ num*sizeof(ShaderData) + alignof(ShaderData)
-		+ num*sizeof(ShaderData) + alignof(ShaderData)
+		+ num*sizeof(f32) + alignof(f32)
+		+ num*sizeof(u32) + alignof(u32)
 		;
 
 	LightInstanceData new_data;
 	new_data.size = _data.size;
-	memcpy(new_data.num, _data.num, sizeof(new_data.num));
-	new_data.dirty = _data.dirty;
 	new_data.capacity = num;
 	new_data.buffer = _allocator->allocate(bytes);
 
-	new_data.index    = (Index *     )memory::align_top(new_data.buffer,         alignof(Index));
-	new_data.shader_a = (ShaderData *)memory::align_top(new_data.index + num,    alignof(ShaderData));
-	new_data.shader_b = (ShaderData *)memory::align_top(new_data.shader_a + num, alignof(ShaderData));
+	new_data.unit = (UnitId *)memory::align_top(new_data.buffer, alignof(UnitId));
+	new_data.flag = (u32 *)memory::align_top(new_data.unit + num, alignof(u32));
+	new_data.type = (u32 *)memory::align_top(new_data.flag + num, alignof(u32));
+	new_data.shader = (ShaderData *)memory::align_top(new_data.type + num, alignof(ShaderData));
 
-	new_data.shader = new_data.shader_a;
-	new_data.new_shader = new_data.shader_b;
-
-	memcpy(new_data.index, _data.index, _data.size * sizeof(*new_data.index));
-	memcpy(new_data.shader_a, _data.shader_a, _data.size * sizeof(ShaderData));
-	memcpy(new_data.shader_b, _data.shader_b, _data.size * sizeof(ShaderData));
+	memcpy(new_data.unit, _data.unit, _data.size * sizeof(*new_data.unit));
+	memcpy(new_data.flag, _data.flag, _data.size * sizeof(*new_data.flag));
+	memcpy(new_data.type, _data.type, _data.size * sizeof(*new_data.type));
+	memcpy(new_data.shader, _data.shader, _data.size * sizeof(ShaderData));
 
 	_allocator->deallocate(_data.buffer);
 	_data = new_data;
@@ -1414,10 +1465,9 @@ LightInstance RenderWorld::LightManager::create(UnitId unit, const LightDesc &ld
 	Vector3 dir = -z(tr);
 	normalize(dir);
 
-	_data.index[last].unit         = unit;
-	_data.index[last].type         = ld.type;
-	_data.index[last].index        = last;
-	_data.index[last].flags        = ld.flags;
+	_data.unit[last]               = unit;
+	_data.flag[last]               = ld.flags;
+	_data.type[last]               = ld.type;
 	_data.shader[last].color       = ld.color;
 	_data.shader[last].intensity   = ld.intensity;
 	_data.shader[last].position    = translation(tr);
@@ -1427,8 +1477,6 @@ LightInstance RenderWorld::LightManager::create(UnitId unit, const LightDesc &ld
 	_data.shader[last].shadow_bias = ld.shadow_bias;
 
 	++_data.size;
-	++_data.num[ld.type];
-	_data.dirty = true;
 
 	hash_map::set(_map, unit, last);
 	return make_instance(last);
@@ -1439,17 +1487,15 @@ void RenderWorld::LightManager::destroy(LightInstance light)
 	CE_ASSERT(light.i < _data.size, "Index out of bounds");
 
 	const u32 last      = _data.size - 1;
-	const UnitId u      = _data.index[light.i].unit;
-	const u32 t         = _data.index[light.i].type;
-	const UnitId last_u = _data.index[last].unit;
+	const UnitId u      = _data.unit[light.i];
+	const UnitId last_u = _data.unit[last];
 
-	_data.index[light.i]    = _data.index[last];
-	_data.shader_a[light.i] = _data.shader_a[last];
-	_data.shader_b[light.i] = _data.shader_b[last];
+	_data.unit[light.i] = _data.unit[last];
+	_data.flag[light.i] = _data.flag[last];
+	_data.type[light.i] = _data.type[last];
+	_data.shader[light.i] = _data.shader[last];
 
 	--_data.size;
-	--_data.num[t];
-	_data.dirty = true;
 
 	hash_map::set(_map, last_u, light.i);
 	hash_map::remove(_map, u);
@@ -1476,7 +1522,7 @@ void RenderWorld::LightManager::debug_draw(u32 start_index, u32 num, DebugLine &
 		const Vector3 pos = _data.shader[i].position;
 		const Vector3 dir = _data.shader[i].direction;
 
-		switch (_data.index[i].type) {
+		switch (_data.type[i]) {
 		case LightType::DIRECTIONAL: {
 			const Vector3 end = pos + dir*3.0f;
 			dl.add_line(pos, end, COLOR4_YELLOW);
@@ -1501,47 +1547,6 @@ void RenderWorld::LightManager::debug_draw(u32 start_index, u32 num, DebugLine &
 			break;
 		}
 	}
-}
-
-void sort(RenderWorld::LightManager &m)
-{
-	if (!m._data.dirty)
-		return;
-
-	std::sort(m._data.index
-		, m._data.index + m._data.size
-		, [m](const RenderWorld::LightManager::Index &in_a, const RenderWorld::LightManager::Index &in_b) {
-			const RenderWorld::LightManager::ShaderData &a = m._data.shader[in_a.index];
-			const RenderWorld::LightManager::ShaderData &b = m._data.shader[in_b.index];
-
-			// Sort key:
-			//
-			//  +------------------------------------------- type
-			//  |+------------------------------------------ cast shadows
-			//  ||                                        +- intensity
-			//  ||                                        |
-			// 0000 0000 0000 0000 0000 0000 0000 0000 0000
-			//
-			u32 key_a = u32(a.intensity * 1000.0f) & 0x1FFFFFFF;
-			key_a |= u32((in_a.flags & RenderableFlags::SHADOW_CASTER) != 0) << 29;
-			key_a |= u32(LightType::COUNT - in_a.type) << 30;
-
-			u32 key_b = u32(b.intensity * 1000.0f) & 0x1FFFFFFF;
-			key_b |= u32((in_b.flags & RenderableFlags::SHADOW_CASTER) != 0) << 29;
-			key_b |= u32(LightType::COUNT - in_b.type) << 30;
-
-			return key_a > key_b;
-		});
-
-	for (u32 i = 0; i < m._data.size; ++i) {
-		m._data.new_shader[i] = m._data.shader[m._data.index[i].index];
-
-		m._data.index[i].index = i;
-		hash_map::set(m._map, m._data.index[i].unit, i);
-	}
-
-	exchange(m._data.new_shader, m._data.shader);
-	m._data.dirty = false;
 }
 
 } // namespace crown

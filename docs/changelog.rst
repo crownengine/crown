@@ -11,6 +11,10 @@ Changelog
 * Runtime: added a new `spinning_friction` property to physics materials that you can specify in `global.physics_config`.
 * Runtime: added configurable physics `step_frequency` and `max_substeps` via the `physics` property in the boot files.
 
+**Fixes**
+
+* Runtime: fixed a crash when too many lights were spawned in a level.
+
 0.58.0 --- 01 Aug 2025
 ----------------------
 
