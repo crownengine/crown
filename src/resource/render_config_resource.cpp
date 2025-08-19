@@ -42,6 +42,12 @@ namespace render_config_resource_internal
 					rs.flags &= ~RenderSettingsFlags::SUN_SHADOWS;
 			} else if (cur->first == "local_lights_shadow_map_size") {
 				rs.local_lights_shadow_map_size = RETURN_IF_ERROR(sjson::parse_vector2(cur->second), opts);
+			} else if (cur->first == "local_lights") {
+				bool en = RETURN_IF_ERROR(sjson::parse_bool(cur->second), opts);
+				if (en)
+					rs.flags |= RenderSettingsFlags::LOCAL_LIGHTS;
+				else
+					rs.flags &= ~RenderSettingsFlags::LOCAL_LIGHTS;
 			} else if (cur->first == "local_lights_shadows") {
 				bool en = RETURN_IF_ERROR(sjson::parse_bool(cur->second), opts);
 				if (en)
@@ -82,6 +88,7 @@ namespace render_config_resource_internal
 		rcr.version = RESOURCE_HEADER(RESOURCE_VERSION_RENDER_CONFIG);
 		rcr.render_settings.flags = 0u
 			| RenderSettingsFlags::SUN_SHADOWS
+			| RenderSettingsFlags::LOCAL_LIGHTS
 			| RenderSettingsFlags::LOCAL_LIGHTS_SHADOWS
 			;
 		rcr.render_settings.sun_shadow_map_size = { 2048.0f, 2048.0f };
