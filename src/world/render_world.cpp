@@ -70,7 +70,7 @@ RenderWorld::RenderWorld(Allocator &a
 
 	// Lighting.
 	_u_lights_num = bgfx::createUniform("u_lights_num", bgfx::UniformType::Vec4, 1);
-	_u_lights_data = bgfx::createUniform("u_lights_data", bgfx::UniformType::Vec4, 3*32);
+	_u_lights_data = bgfx::createUniform("u_lights_data", bgfx::UniformType::Vec4, LIGHT_SIZE*MAX_NUM_LIGHTS);
 
 	// Fog.
 	memset(&_fog_desc, 0, sizeof(_fog_desc));
