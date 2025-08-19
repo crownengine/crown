@@ -10,7 +10,8 @@
 #include "resource/shader_resource.h"
 #include <bgfx/bgfx.h>
 
-#define MAX_NUM_LIGHTS 32
+#define LIGHT_SIZE 4      // Size of a light in vec4 units.
+#define MAX_NUM_LIGHTS 32 // Maximum number of lights per frame.
 #define MAX_NUM_SPRITE_LAYERS 8
 #define MAX_NUM_CASCADES 4
 #define CASCADED_SHADOW_MAP_SLOT 10
