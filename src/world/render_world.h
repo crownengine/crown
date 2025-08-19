@@ -412,38 +412,36 @@ struct RenderWorld
 			f32 map_size;  // Tile size in shadow map atlas.
 		};
 
-		struct Index
-		{
-			UnitId unit;
-			u32 flags;
-			u32 type  : 4;  // LightType::Enum
-			u32 index : 28; // Maps from light-index to sorted light-index.
-		};
-
 		struct LightInstanceData
 		{
 			u32 size;
-			u32 num[LightType::COUNT]; // Number of lights for each type.
-			bool dirty;                // true if data (potentially) unsorted.
 			u32 capacity;
 			void *buffer;
 
-			Index *index;
-			ShaderData *shader_a;
-			ShaderData *shader_b;
-
-			ShaderData *shader; // After sort(), it points to the sorted shader array.
-			ShaderData *new_shader; // Temporary storage for sort().
+			UnitId *unit;
+			u32 *flag;            // RenderableFlags::Enum
+			u32 *type;            // LightType::Enum
+			ShaderData *shader;
 		};
 
 		Allocator *_allocator;
 		HashMap<UnitId, u32> _map;
 		LightInstanceData _data;
+		Array<ShaderData> _lights_data; // Shader array to send to GPU.
+		Array<u32> _directional_lights; // Indices to directional lights sorted by intensity.
+		Array<u32> _local_lights;       // Indices to local lights sorted by distance to camera.
+		Array<u32> _local_lights_omni;  // Indices to spot lights that will be rendered this frame.
+		Array<u32> _local_lights_spot;  // Indices to omni lights that will be rendered this frame.
 
 		///
 		explicit LightManager(Allocator &a)
 			: _allocator(&a)
 			, _map(a)
+			, _lights_data(a)
+			, _directional_lights(a)
+			, _local_lights(a)
+			, _local_lights_omni(a)
+			, _local_lights_spot(a)
 		{
 			memset(&_data, 0, sizeof(_data));
 		}
