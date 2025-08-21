@@ -45,6 +45,10 @@ render_states = {
 		inherit = "default"
 	}
 
+	skydome = {
+		inherit = "default"
+	}
+
 	noop = {
 		inherit = "default"
 		states = {
@@ -327,6 +331,51 @@ bgfx_shaders = {
 		"""
 	}
 
+	skydome = {
+		includes = [ "common" ]
+
+		samplers = {
+			u_skydome_map = { sampler_state = "clamp_anisotropic" }
+		}
+
+		varying = """
+			vec2 v_texcoord0 : TEXCOORD0 = vec2(0.0, 0.0);
+
+			vec3 a_position  : POSITION;
+			vec2 a_texcoord0 : TEXCOORD0;
+		"""
+
+		vs_input_output = """
+			$input a_position, a_texcoord0
+			$output v_texcoord0
+		"""
+
+		vs_code = """
+			void main()
+			{
+				vec4 world_pos = mul(u_modelViewProj, vec4(a_position, 1.0));
+				world_pos.z = world_pos.w; // Project to far plane.
+
+				gl_Position = world_pos;
+				v_texcoord0 = a_texcoord0;
+			}
+		"""
+
+		fs_input_output = """
+			$input v_texcoord0
+		"""
+
+		fs_code = """
+			SAMPLER2D(u_skydome_map, 0);
+			uniform vec4 u_skydome_intensity;
+
+			void main()
+			{
+				gl_FragColor = toGammaAccurate(texture2D(u_skydome_map, v_texcoord0) * u_skydome_intensity.x);
+			}
+		"""
+	}
+
 	blit = {
 		includes = [ "common" ]
 
@@ -443,6 +492,11 @@ shaders = {
 		render_state = "mesh"
 	}
 
+	skydome = {
+		bgfx_shader = "skydome"
+		render_state = "skydome"
+	}
+
 	blit = {
 		bgfx_shader = "blit"
 		render_state = "blit"
@@ -474,6 +528,7 @@ static_compile = [
 	{ shader = "mesh" defines = ["NO_LIGHT"] }
 	{ shader = "mesh" defines = ["DIFFUSE_MAP" "SKINNING"] }
 	{ shader = "mesh" defines = ["DIFFUSE_MAP" "NO_LIGHT"] }
+	{ shader = "skydome" defines = [] }
 	{ shader = "blit" defines = [] }
 	{ shader = "blit" defines = ["BLEND_ENABLED"] }
 	{ shader = "fallback" defines = [] }

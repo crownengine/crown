@@ -1714,6 +1714,10 @@ function LevelEditor:spawn_empty_unit(id)
 	return unit_box
 end
 
+function LevelEditor:spawn_skydome(name)
+	World.spawn_skydome(self._world, name)
+end
+
 function LevelEditor:spawn_sound(id, name, pos, rot, range, volume, loop)
 	local sound = SoundObject(self._world, id, name, range, volume, loop)
 	sound:set_local_position(pos)

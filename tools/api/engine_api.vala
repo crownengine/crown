@@ -262,6 +262,11 @@ namespace LevelEditorApi
 		return "LevelEditor:spawn_empty_unit(\"%s\")".printf(id.to_string());
 	}
 
+	public string spawn_skydome(string skydome_name)
+	{
+		return "LevelEditor:spawn_skydome(\"%s\")".printf(skydome_name);
+	}
+
 	public string spawn_sound(Guid id, string name, Vector3 pos, Quaternion rot, double range, double volume, bool loop)
 	{
 		return "LevelEditor:spawn_sound(\"%s\", \"%s\", %s, %s, %.17g, %.17g, %s)".printf(id.to_string()

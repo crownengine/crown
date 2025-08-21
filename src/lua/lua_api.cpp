@@ -1436,6 +1436,11 @@ void load_api(LuaEnvironment &env)
 			stack.push_unit(stack.get_world(1)->spawn_empty_unit());
 			return 1;
 		});
+	env.add_module_function("World", "spawn_skydome", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.push_unit(stack.get_world(1)->spawn_skydome(stack.get_resource_name(2)));
+			return 1;
+		});
 	env.add_module_function("World", "destroy_unit", [](lua_State *L) {
 			LuaStack stack(L);
 			stack.get_world(1)->destroy_unit(stack.get_unit(2));

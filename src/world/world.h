@@ -69,6 +69,7 @@ struct World
 	ListNode _levels;
 
 	ListNode _node;
+	UnitId _skydome_unit;
 
 	CameraInstance camera_make_instance(u32 i)
 	{
@@ -93,6 +94,9 @@ struct World
 
 	/// Spawns a new empty unit and returns its id.
 	UnitId spawn_empty_unit();
+
+	/// Spawns a new skydome.
+	UnitId spawn_skydome(StringId64 skydome_name);
 
 	/// Destroys the unit with the given @a id.
 	void destroy_unit(UnitId unit);

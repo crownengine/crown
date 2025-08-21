@@ -1,0 +1,12 @@
+_guid = "8089c619-c761-4096-8e9a-8f0a1ee1f656"
+_type = "material"
+shader = "skydome"
+textures = {
+	u_skydome_map = "core/units/skydome/skydome"
+}
+uniforms = {
+	u_skydome_intensity = {
+		type = "float"
+		value = 1
+	}
+}

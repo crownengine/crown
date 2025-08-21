@@ -1,0 +1,38 @@
+_guid = "6bea6c0e-c405-4953-bc83-bb0dd80244d6"
+_type = "unit"
+components = [
+	{
+		_guid = "63e61b73-f4d6-4b7f-ac35-0a948f4adb0c"
+		_type = "transform"
+		data = {
+			name = "Skydome"
+			position = [
+				0
+				0
+				0
+			]
+			rotation = [
+				0
+				0
+				0
+				1
+			]
+			scale = [
+				1
+				1
+				1
+			]
+		}
+	}
+	{
+		_guid = "e09d9042-87d2-4b7f-96c5-8d39524586be"
+		_type = "mesh_renderer"
+		data = {
+			cast_shadows = false
+			geometry_name = "Skydome"
+			material = "core/units/skydome/skydome"
+			mesh_resource = "core/units/skydome/skydome"
+			visible = true
+		}
+	}
+]
