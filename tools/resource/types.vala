@@ -13,6 +13,7 @@ const string OBJECT_TYPE_COLLIDER                = "collider";
 const string OBJECT_TYPE_FILE                    = "file";
 const string OBJECT_TYPE_FOG                     = "fog";
 const string OBJECT_TYPE_FONT                    = "font";
+const string OBJECT_TYPE_GLOBAL_LIGHTING         = "global_lighting";
 const string OBJECT_TYPE_LEVEL                   = "level";
 const string OBJECT_TYPE_LIGHT                   = "light";
 const string OBJECT_TYPE_MATERIAL                = "material";
@@ -634,6 +635,35 @@ public static void create_object_types(Database database)
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_MOVER, properties);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "data.skydome_map",
+			label = "Skydome Map",
+			editor = PropertyEditorType.RESOURCE,
+			resource_type = OBJECT_TYPE_TEXTURE,
+			deffault = "core/units/skydome/skydome"
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.skydome_intensity",
+			min = 0.0,
+			deffault = 1.0,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.VECTOR3,
+			name =  "data.ambient_color",
+			editor = PropertyEditorType.COLOR,
+			min = VECTOR3_ZERO,
+			max = VECTOR3_ONE,
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_GLOBAL_LIGHTING, properties);
 }
 
 } /* namespace Crown */

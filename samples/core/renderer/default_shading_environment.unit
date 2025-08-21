@@ -17,6 +17,19 @@ components = [
 			sun_blend = 0
 		}
 	}
+	{
+		_guid = "6603b89f-a049-4c18-a9de-7fc31368eeb5"
+		_type = "global_lighting"
+		data = {
+			ambient_color = [
+				0
+				0
+				0
+			]
+			skydome_intensity = 1
+			skydome_map = "core/units/skydome/skydome"
+		}
+	}
 ]
 editor = {
 	name = "shading_environment"

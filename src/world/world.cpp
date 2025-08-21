@@ -706,6 +706,11 @@ void spawn_units(World &w, const UnitResource *ur, const Vector3 &pos, const Qua
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++fd) {
 				render_world->fog_create(unit_lookup[unit_index[i]], *fd);
 			}
+		} else if (component->type == STRING_ID_32("global_lighting", UINT32_C(0x718af7fe))) {
+			const GlobalLightingDesc *desc = (GlobalLightingDesc *)data;
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++desc) {
+				render_world->global_lighting_create(unit_lookup[unit_index[i]], *desc);
+			}
 		} else if (component->type == STRING_ID_32("script", UINT32_C(0xd18f8ad6))) {
 			const ScriptDesc *sd = (ScriptDesc *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++sd) {

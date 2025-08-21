@@ -1769,6 +1769,12 @@ function LevelEditor:add_fog_component(id, component_id)
 	RenderWorld.fog_create(self._rw, unit_id)
 end
 
+function LevelEditor:add_global_lighting_component(id, component_id)
+	local unit_box = self._objects[id]
+	local unit_id = unit_box:unit_id()
+	RenderWorld.global_lighting_create(self._rw, unit_id)
+end
+
 function LevelEditor:unit_destroy_component_type(id, component_type)
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id()
@@ -1791,6 +1797,9 @@ function LevelEditor:unit_destroy_component_type(id, component_type)
 	elseif component_type == "fog" then
 		local inst = RenderWorld.fog_instance(self._rw, unit_id)
 		RenderWorld.fog_destroy(self._rw, inst)
+	elseif component_type == "global_lighting" then
+		local inst = RenderWorld.global_lighting_instance(self._rw, unit_id)
+		RenderWorld.global_lighting_destroy(self._rw, inst)
 	elseif component_type == "script" then
 		-- Nothing to do.
 	elseif component_type == "collider" then

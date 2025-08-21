@@ -168,6 +168,9 @@ void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settin
 	_sun_shadow_map_frame_buffer = bgfx::createFrameBuffer(countof(fbtextures), fbtextures);
 
 	_u_local_lights_params = bgfx::createUniform("u_local_lights_params", bgfx::UniformType::Vec4);
+
+	_u_lighting_params = bgfx::createUniform("u_lighting_params", bgfx::UniformType::Vec4);
+
 #if CROWN_PLATFORM_EMSCRIPTEN
 	_html5_default_sampler = bgfx::createUniform("s_webgl_hack", bgfx::UniformType::Sampler);
 	_html5_default_texture = bgfx::createTexture2D(1, 1, false, 1, bgfx::TextureFormat::R8);
@@ -184,6 +187,9 @@ void Pipeline::destroy()
 	bgfx::destroy(_html5_default_texture);
 	_html5_default_texture = BGFX_INVALID_HANDLE;
 #endif
+	bgfx::destroy(_u_lighting_params);
+	_u_lighting_params = BGFX_INVALID_HANDLE;
+
 	bgfx::destroy(_u_local_lights_params);
 	_u_local_lights_params = BGFX_INVALID_HANDLE;
 
@@ -370,6 +376,16 @@ void Pipeline::set_local_lights_params_uniform()
 	params.z = _render_settings.local_lights_distance_culling_cutoff;
 
 	bgfx::setUniform(_u_local_lights_params, &params, sizeof(params)/sizeof(Vector4));
+}
+
+void Pipeline::set_global_lighting_params(GlobalLightingDesc *global_lighting)
+{
+	Vector4 params;
+	params.x = global_lighting->ambient_color.x;
+	params.y = global_lighting->ambient_color.y;
+	params.z = global_lighting->ambient_color.z;
+
+	bgfx::setUniform(_u_lighting_params, &params, sizeof(params)/sizeof(Vector4));
 }
 
 } // namespace crown
