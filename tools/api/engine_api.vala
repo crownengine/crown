@@ -387,6 +387,11 @@ namespace LevelEditorApi
 		return "LevelEditor:add_fog_component(\"%s\", \"%s\")".printf(id.to_string(), component_id.to_string());
 	}
 
+	public string add_global_lighting_component(Guid id, Guid component_id)
+	{
+		return "LevelEditor:add_global_lighting_component(\"%s\", \"%s\")".printf(id.to_string(), component_id.to_string());
+	}
+
 	public string unit_destroy_component_type(Guid id, string component_type)
 	{
 		return "LevelEditor:unit_destroy_component_type(\"%s\", \"%s\")".printf(id.to_string()
@@ -440,6 +445,19 @@ namespace LevelEditorApi
 			, range_max
 			, sun_blend
 			, Lua.bool(enabled)
+			);
+	}
+
+	public string set_global_lighting(Guid id
+		, string skydome_map
+		, double skydome_intensity
+		, Vector3 ambient_color
+		)
+	{
+		return "LevelEditor._objects[\"%s\"]:set_global_lighting(\"%s\", %.17g, %s)".printf(id.to_string()
+			, skydome_map
+			, skydome_intensity
+			, Lua.quaternion({ambient_color.x, ambient_color.y, ambient_color.z, 1.0})
 			);
 	}
 

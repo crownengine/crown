@@ -326,6 +326,31 @@ static s32 compile_fog(Buffer &output, FlatJsonObject &obj, CompileOptions &opts
 	return 0;
 }
 
+static s32 compile_global_lighting(Buffer &output, FlatJsonObject &obj, CompileOptions &opts)
+{
+	TempAllocator4096 ta;
+
+	DynamicString skydome_map(ta);
+	RETURN_IF_ERROR(sjson::parse_string(skydome_map, flat_json_object::get(obj, "data.skydome_map")), opts);
+	RETURN_IF_RESOURCE_MISSING("texture"
+		, skydome_map.c_str()
+		, opts
+		);
+	opts.add_requirement("texture", skydome_map.c_str());
+
+	GlobalLightingDesc ld;
+	ld.skydome_map       = RETURN_IF_ERROR(sjson::parse_resource_name(flat_json_object::get(obj, "data.skydome_map")), opts);
+	ld.skydome_intensity = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.skydome_intensity")), opts);
+	ld.ambient_color     = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.ambient_color")), opts);
+
+	FileBuffer fb(output);
+	BinaryWriter bw(fb);
+	bw.write(ld.skydome_map);
+	bw.write(ld.skydome_intensity);
+	bw.write(ld.ambient_color);
+	return 0;
+}
+
 namespace unit_compiler
 {
 	Buffer read_unit(const char *path, CompileOptions &opts)
@@ -947,6 +972,7 @@ UnitCompiler::UnitCompiler(Allocator &a)
 	unit_compiler::register_component_compiler(*this, "joint",                   &physics_resource_internal::compile_joint,    3.0f);
 	unit_compiler::register_component_compiler(*this, "animation_state_machine", &compile_animation_state_machine,             3.0f);
 	unit_compiler::register_component_compiler(*this, "fog",                     &compile_fog,                                 0.0f);
+	unit_compiler::register_component_compiler(*this, "global_lighting",         &compile_global_lighting,                     0.0f);
 }
 
 UnitCompiler::~UnitCompiler()

@@ -2209,6 +2209,41 @@ void load_api(LuaEnvironment &env)
 			stack.get_render_world(1)->fog_set_sun_blend(stack.get_fog_instance(2), stack.get_float(3));
 			return 0;
 		});
+	env.add_module_function("RenderWorld", "global_lighting_create", [](lua_State *L) {
+			LuaStack stack(L);
+			GlobalLightingDesc desc;
+			stack.push_id(stack.get_render_world(1)->global_lighting_create(stack.get_unit(2), desc));
+			return 1;
+		});
+	env.add_module_function("RenderWorld", "global_lighting_destroy", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->global_lighting_destroy(stack.get_id(2));
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "global_lighting_instance", [](lua_State *L) {
+			LuaStack stack(L);
+			GlobalLightingInstance inst = stack.get_render_world(1)->global_lighting_instance(stack.get_unit(2));
+			if (is_valid(inst))
+				stack.push_id(inst.i);
+			else
+				stack.push_nil();
+			return 1;
+		});
+	env.add_module_function("RenderWorld", "global_lighting_set_skydome_map", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->global_lighting_set_skydome_map(stack.get_resource_name(2));
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "global_lighting_set_skydome_intensity", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->global_lighting_set_skydome_intensity(stack.get_float(2));
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "global_lighting_set_ambient_color", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->global_lighting_set_ambient_color(stack.get_color4(2));
+			return 0;
+		});
 	env.add_module_function("RenderWorld", "enable_debug_drawing", [](lua_State *L) {
 			LuaStack stack(L);
 			stack.get_render_world(1)->enable_debug_drawing(stack.get_bool(2));

@@ -347,6 +347,10 @@ public struct Unit
 			_db.set_property_double (component_id, "data.range_max", 1000.0);
 			_db.set_property_double (component_id, "data.sun_blend", 0.0);
 			_db.set_property_bool   (component_id, "data.enabled", false);
+		} else if (component_type == OBJECT_TYPE_GLOBAL_LIGHTING) {
+			_db.set_property_string (component_id, "data.skydome_map", "core/units/skydome/skydome");
+			_db.set_property_double (component_id, "data.skydome_intensity", 1.0);
+			_db.set_property_vector3(component_id, "data.ambient_color", Vector3(0.0, 0.0, 0.0));
 		} else if (component_type == OBJECT_TYPE_SCRIPT) {
 			_db.set_property_string(component_id, "data.script_resource", "core/components/noop");
 		} else if (component_type == OBJECT_TYPE_COLLIDER) {
@@ -519,6 +523,13 @@ public struct Unit
 						, unit.get_component_property_double (component_id, "data.sun_blend")
 						, unit.get_component_property_bool   (component_id, "data.enabled")
 						));
+				} else if (component_type == OBJECT_TYPE_GLOBAL_LIGHTING) {
+					sb.append(LevelEditorApi.add_global_lighting_component(unit_id, component_id));
+					sb.append(LevelEditorApi.set_global_lighting(unit_id
+						, unit.get_component_property_string (component_id, "data.skydome_map")
+						, unit.get_component_property_double (component_id, "data.skydome_intensity")
+						, unit.get_component_property_vector3(component_id, "data.ambient_color")
+						));
 				} else if (component_type == OBJECT_TYPE_SCRIPT) {
 					/*
 					 * sb.append(LevelEditorApi.add_script_component(unit_id
@@ -686,6 +697,14 @@ public struct Unit
 							, unit.get_component_property_bool   (component_id, "data.enabled")
 							));
 					}
+					if (unit.has_component(out component_id, OBJECT_TYPE_GLOBAL_LIGHTING)) {
+						sb.append(LevelEditorApi.add_global_lighting_component(unit_id, component_id));
+						sb.append(LevelEditorApi.set_global_lighting(unit_id
+							, unit.get_component_property_string (component_id, "data.skydome_map")
+							, unit.get_component_property_double (component_id, "data.skydome_intensity")
+							, unit.get_component_property_vector3(component_id, "data.ambient_color")
+							));
+					}
 				}
 
 				sb.append("Device.set_temp_count(editor_nv, editor_nq, editor_nm)");
@@ -788,6 +807,12 @@ public struct Unit
 						, unit.get_component_property_double (component_id, "data.sun_blend")
 						, unit.get_component_property_bool   (component_id, "data.enabled")
 						));
+				} else if (component_type == OBJECT_TYPE_GLOBAL_LIGHTING) {
+					sb.append(LevelEditorApi.set_global_lighting(unit_id
+						, unit.get_component_property_string (component_id, "data.skydome_map")
+						, unit.get_component_property_double (component_id, "data.skydome_intensity")
+						, unit.get_component_property_vector3(component_id, "data.ambient_color")
+						));
 				} else if (component_type == OBJECT_TYPE_SCRIPT) {
 					/* No sync. */
 				} else if (component_type == OBJECT_TYPE_COLLIDER) {
@@ -835,6 +860,7 @@ public struct Unit
 			|| type == OBJECT_TYPE_SPRITE_RENDERER
 			|| type == OBJECT_TYPE_LIGHT
 			|| type == OBJECT_TYPE_FOG
+			|| type == OBJECT_TYPE_GLOBAL_LIGHTING
 			|| type == OBJECT_TYPE_SCRIPT
 			|| type == OBJECT_TYPE_COLLIDER
 			|| type == OBJECT_TYPE_ACTOR

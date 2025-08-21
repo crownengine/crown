@@ -58,6 +58,7 @@ RenderWorld::RenderWorld(Allocator &a
 	, _light_manager(a)
 	, _selection(a)
 	, _fog_unit(UNIT_INVALID)
+	, _global_lighting_unit(UNIT_INVALID)
 {
 	_unit_destroy_callback.destroy = unit_destroyed_callback_bridge;
 	_unit_destroy_callback.user_data = this;
@@ -75,6 +76,9 @@ RenderWorld::RenderWorld(Allocator &a
 	// Fog.
 	memset(&_fog_desc, 0, sizeof(_fog_desc));
 	_u_fog_data = bgfx::createUniform("u_fog_data", bgfx::UniformType::Vec4, 2);
+
+	// Global lighting.
+	memset((void *)&_global_lighting_desc, 0, sizeof(_global_lighting_desc));
 }
 
 RenderWorld::~RenderWorld()
@@ -483,6 +487,43 @@ void RenderWorld::fog_set_enabled(FogInstance fog, bool enable)
 	_fog_desc.enabled = (f32)enable;
 }
 
+u32 RenderWorld::global_lighting_create(UnitId unit, const GlobalLightingDesc &desc)
+{
+	_global_lighting_desc = desc;
+	_global_lighting_unit = unit;
+	return 0;
+}
+
+GlobalLightingInstance RenderWorld::global_lighting_instance(UnitId unit)
+{
+	if (_global_lighting_unit == unit)
+		return { 0 };
+
+	return { UINT32_MAX };
+}
+
+void RenderWorld::global_lighting_destroy(u32 global_lighting)
+{
+	CE_UNUSED(global_lighting);
+	_global_lighting_desc = {};
+	_global_lighting_unit = UNIT_INVALID;
+}
+
+void RenderWorld::global_lighting_set_skydome_map(StringId64 texture_name)
+{
+	_global_lighting_desc.skydome_map = texture_name;
+}
+
+void RenderWorld::global_lighting_set_skydome_intensity(f32 intensity)
+{
+	_global_lighting_desc.skydome_intensity = intensity;
+}
+
+void RenderWorld::global_lighting_set_ambient_color(Color4 color)
+{
+	_global_lighting_desc.ambient_color = { color.x, color.y, color.z };
+}
+
 void RenderWorld::update_transforms(const UnitId *begin, const UnitId *end, const Matrix4x4 *world)
 {
 	MeshManager::MeshInstanceData &mid = _mesh_manager._data;
@@ -707,6 +748,14 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, UnitId sk
 		// Copy camera pos to skydome.
 		TransformInstance skydome_tr = _scene_graph->instance(skydome_unit);
 		_scene_graph->set_local_position(skydome_tr, camera_pos);
+
+		// Override skydome texture from global lighting.
+		if (_global_lighting_unit.is_valid()) {
+			MeshInstance skydome_mesh = mesh_instance(skydome_unit);
+			Material *skydome_material = mesh_material(skydome_mesh);
+			skydome_material->set_texture(STRING_ID_32("u_skydome_map", UINT32_C(0x90e2fdaa)), _global_lighting_desc.skydome_map);
+			skydome_material->set_float(STRING_ID_32("u_skydome_intensity", UINT32_C(0x539e93b8)), _global_lighting_desc.skydome_intensity);
+		}
 	}
 
 	// Render objects.
@@ -1052,6 +1101,7 @@ void RenderWorld::MeshManager::draw_visibles(u8 view_id, SceneGraph &scene_graph
 		bgfx::setUniform(_render_world->_pipeline->_u_cascaded_lights, cascaded_lights, MAX_NUM_CASCADES);
 		bgfx::setUniform(_render_world->_u_fog_data, (char *)&_render_world->_fog_desc, sizeof(_render_world->_fog_desc) / sizeof(Vector4));
 		_render_world->_pipeline->set_local_lights_params_uniform();
+		_render_world->_pipeline->set_global_lighting_params(&_render_world->_global_lighting_desc);
 
 		set_instance_data(ii, scene_graph);
 		_data.material[ii]->bind(view_id);

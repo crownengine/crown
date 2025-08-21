@@ -76,6 +76,8 @@ struct Pipeline
 	bgfx::UniformHandle _u_cascaded_lights;
 	bgfx::UniformHandle _u_local_lights_params;
 
+	bgfx::UniformHandle _u_lighting_params;
+
 	// Default sampler/texture to keep WebGL renderer running
 	// when a shader references a texture (even if unused) but
 	// none are set via setTexture().
@@ -115,6 +117,9 @@ struct Pipeline
 
 	///
 	void set_local_lights_params_uniform();
+
+	///
+	void set_global_lighting_params(GlobalLightingDesc *global_lighting);
 };
 
 } // namespace crown

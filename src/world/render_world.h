@@ -197,6 +197,24 @@ struct RenderWorld
 	/// Sets whether the @a fog is @a enabled.
 	void fog_set_enabled(FogInstance fog, bool enable);
 
+	/// Creates a new global lighting instance for @a unit and returns its id.
+	u32 global_lighting_create(UnitId unit, const GlobalLightingDesc &desc);
+
+	///
+	void global_lighting_destroy(u32 global_lighting);
+
+	///
+	GlobalLightingInstance global_lighting_instance(UnitId unit);
+
+	///
+	void global_lighting_set_skydome_map(StringId64 texture_name);
+
+	///
+	void global_lighting_set_skydome_intensity(f32 intensity);
+
+	///
+	void global_lighting_set_ambient_color(Color4 color);
+
 	///
 	void update_transforms(const UnitId *begin, const UnitId *end, const Matrix4x4 *world);
 
@@ -505,6 +523,10 @@ struct RenderWorld
 	FogInstance _fog;
 	FogDesc _fog_desc;
 	bgfx::UniformHandle _u_fog_data;
+
+	// Global lighting.
+	UnitId _global_lighting_unit;
+	GlobalLightingDesc _global_lighting_desc;
 };
 
 } // namespace crown

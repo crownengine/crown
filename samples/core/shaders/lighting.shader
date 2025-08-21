@@ -21,6 +21,8 @@ bgfx_shaders = {
 		#	define local_lights_distance_culling u_local_lights_params.x
 		#	define local_lights_distance_culling_fade u_local_lights_params.y
 		#	define local_lights_distance_culling_cutoff u_local_lights_params.z
+			uniform vec4 u_lighting_params;
+		#	define ambient_color u_lighting_params.xyz
 
 			CONST(float PI) = 3.14159265358979323846;
 
@@ -300,7 +302,7 @@ bgfx_shaders = {
 					radiance += apply_distance_fading(local_radiance, position, camera_pos);
 				}
 
-				return apply_fog(radiance, length(camera_frag_pos), sun_color);
+				return apply_fog(toLinearAccurate(ambient_color) + radiance, length(camera_frag_pos), sun_color);
 			}
 		#endif
 		"""

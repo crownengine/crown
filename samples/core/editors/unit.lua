@@ -303,6 +303,15 @@ function UnitBox:set_fog(color, density, range_min, range_max, sun_blend, enable
 	end
 end
 
+function UnitBox:set_global_lighting(skydome_map, skydome_intensity, ambient_color)
+	local gl = RenderWorld.global_lighting_instance(self._rw, self._unit_id)
+	if gl then
+		RenderWorld.global_lighting_set_skydome_map(self._rw, skydome_map)
+		RenderWorld.global_lighting_set_skydome_intensity(self._rw, skydome_intensity)
+		RenderWorld.global_lighting_set_ambient_color(self._rw, ambient_color)
+	end
+end
+
 function UnitBox:set_mesh(mesh_resource, geometry, material, visible, cast_shadows)
 	local mesh = RenderWorld.mesh_instance(self._rw, self._unit_id)
 	if mesh then

@@ -296,6 +296,7 @@ INSTANCE_ID(MeshInstance)
 INSTANCE_ID(SpriteInstance)
 INSTANCE_ID(LightInstance)
 INSTANCE_ID(FogInstance)
+INSTANCE_ID(GlobalLightingInstance)
 INSTANCE_ID(ColliderInstance)
 INSTANCE_ID(ActorInstance)
 INSTANCE_ID(MoverInstance)
@@ -349,6 +350,16 @@ struct LightDesc
 	Vector3 color;     ///< Color of the light.
 	f32 shadow_bias;   ///<
 	u32 flags;         ///< RenderableFlags::Enum
+};
+
+/// Global lighting description.
+///
+/// @ingroup World
+struct GlobalLightingDesc
+{
+	StringId64 skydome_map; ///< Texture to use for skydome rendering.
+	f32 skydome_intensity;  ///< Skydome color intensity multiplier.
+	Vector3 ambient_color;  ///<
 };
 
 /// Fog description.
