@@ -513,7 +513,7 @@ void RenderWorld::update_transforms(const UnitId *begin, const UnitId *end, cons
 	}
 }
 
-void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj)
+void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, UnitId skydome_unit)
 {
 	LightManager &lm = _light_manager;
 	LightManager::LightInstanceData &lid = lm._data;
@@ -701,6 +701,13 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj)
 	CE_ENSURE(array::size(lm._lights_data) <= MAX_NUM_LIGHTS);
 	bgfx::setUniform(_u_lights_data, (char *)array::begin(lm._lights_data), array::size(lm._lights_data)*sizeof(LightManager::ShaderData)/sizeof(Vector4));
 	bgfx::touch(View::LIGHTS);
+
+	// Skydome.
+	if (skydome_unit.is_valid()) {
+		// Copy camera pos to skydome.
+		TransformInstance skydome_tr = _scene_graph->instance(skydome_unit);
+		_scene_graph->set_local_position(skydome_tr, camera_pos);
+	}
 
 	// Render objects.
 	_mesh_manager.draw_visibles(View::MESH, *_scene_graph, &cascaded_lights[0]);

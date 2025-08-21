@@ -61,6 +61,7 @@ World::World(Allocator &a
 	, _changed_units(a)
 	, _changed_world(a)
 	, _gui_buffer(sm)
+	, _skydome_unit(UNIT_INVALID)
 {
 	_lines = create_debug_line(true);
 	_scene_graph   = CE_NEW(*_allocator, SceneGraph)(*_allocator, um);
@@ -93,6 +94,9 @@ World::~World()
 	}
 
 	// Destroy units
+	if (_skydome_unit.is_valid())
+		_unit_manager->destroy(_skydome_unit);
+
 	for (u32 i = 0; i < array::size(_units); ++i)
 		_unit_manager->destroy(_units[i]);
 
@@ -131,6 +135,14 @@ UnitId World::spawn_empty_unit()
 	array::push_back(_units, unit);
 	post_unit_spawned_event(unit);
 	return unit;
+}
+
+UnitId World::spawn_skydome(StringId64 skydome_name)
+{
+	if (!_skydome_unit.is_valid())
+		_skydome_unit = spawn_unit(skydome_name);
+
+	return _skydome_unit;
 }
 
 void World::destroy_unit(UnitId unit)
@@ -282,7 +294,7 @@ void World::update(f32 dt)
 
 void World::render(const Matrix4x4 &view, const Matrix4x4 &proj)
 {
-	_render_world->render(view, proj);
+	_render_world->render(view, proj, _skydome_unit);
 
 	_physics_world->debug_draw();
 	_render_world->debug_draw(*_lines);

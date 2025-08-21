@@ -22,6 +22,7 @@ struct LevelResource
 	u32 units_offset;
 	u32 num_sounds;
 	u32 sounds_offset;
+	StringId64 skydome_unit;
 	// StringId32[num_units]  <-- unit_names_offset
 	// UnitResource           <-- units_offset
 	// LevelSound[num_sounds] <-- sounds_offset

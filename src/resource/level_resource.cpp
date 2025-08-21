@@ -94,6 +94,23 @@ namespace level_resource_internal
 		err = unit_compiler::blob(units_blob, uc);
 		ENSURE_OR_RETURN(err == 0, opts);
 
+		StringId64 skydome_unit;
+		if (json_object::has(obj, "skydome_unit")) {
+			TempAllocator256 ta;
+			DynamicString skydome_unit_name(ta);
+
+			RETURN_IF_ERROR(sjson::parse_string(skydome_unit_name, obj["skydome_unit"]), opts);
+			RETURN_IF_RESOURCE_MISSING("unit"
+				, skydome_unit_name.c_str()
+				, opts
+				);
+			opts.add_requirement("unit", skydome_unit_name.c_str());
+			skydome_unit = RETURN_IF_ERROR(sjson::parse_resource_name(obj["skydome_unit"]), opts);
+		} else {
+			opts.add_requirement("unit", "core/units/skydome/skydome");
+			skydome_unit = STRING_ID_64("core/units/skydome/skydome", UINT64_C(0x60bc932e8c477ec2));
+		}
+
 		// Write
 		LevelResource lr;
 		lr.version           = RESOURCE_HEADER(RESOURCE_VERSION_LEVEL);
@@ -103,6 +120,7 @@ namespace level_resource_internal
 		lr.unit_names_offset = lr.sounds_offset + sizeof(LevelSound) * lr.num_sounds;
 		lr.units_offset      = lr.unit_names_offset + sizeof(StringId32) * lr.num_units;
 		lr.units_offset      = (u32)(uintptr_t)memory::align_top((void *)(uintptr_t)lr.units_offset, 16);
+		lr.skydome_unit      = skydome_unit;
 
 		opts.write(lr.version);
 		opts.write(lr.num_units);
@@ -110,6 +128,7 @@ namespace level_resource_internal
 		opts.write(lr.units_offset);
 		opts.write(lr.num_sounds);
 		opts.write(lr.sounds_offset);
+		opts.write(lr.skydome_unit);
 
 		// Write level sounds
 		for (u32 i = 0; i < array::size(sounds); ++i) {

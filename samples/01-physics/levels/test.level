@@ -314,37 +314,6 @@ units = [
 		prefab = "units/cube"
 	}
 	{
-		_guid = "2a450c56-45db-4226-8ddc-bf26b04dd5d5"
-		_type = "unit"
-		editor = {
-			name = "skydome"
-		}
-		modified_components = {
-			#6ef7e034-8519-4189-9527-04dfe17aebca = {
-				data = {
-					position = [
-						0
-						30
-						0
-					]
-					rotation = [
-						6.123233995736766e-17
-						6.123233995736766e-17
-						-1
-						-6.123487680622105e-17
-					]
-					scale = [
-						512.00000000000193
-						512
-						512.00000000000193
-					]
-				}
-				type = "transform"
-			}
-		}
-		prefab = "units/skydome"
-	}
-	{
 		_guid = "3282fd34-1c42-49cc-8014-4a1e941de86a"
 		_type = "unit"
 		editor = {

@@ -1,0 +1,29 @@
+_guid = "6776fb8a-1944-4a5f-9a8c-422a5d4b4bc9"
+_type = "texture"
+output = {
+	android = {
+		format = "RGB8"
+		generate_mips = false
+		mip_skip_smallest = 0
+		normal_map = false
+	}
+	html5 = {
+		format = "RGB8"
+		generate_mips = false
+		mip_skip_smallest = 0
+		normal_map = false
+	}
+	linux = {
+		format = "RGB8"
+		generate_mips = false
+		mip_skip_smallest = 0
+		normal_map = false
+	}
+	windows = {
+		format = "RGB8"
+		generate_mips = false
+		mip_skip_smallest = 0
+		normal_map = false
+	}
+}
+source = "core/units/skydome/skydome.png"

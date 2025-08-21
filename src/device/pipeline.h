@@ -93,6 +93,7 @@ struct Pipeline
 	ShaderData _selection_shader;
 	ShaderData _shadow_shader;
 	ShaderData _shadow_skinning_shader;
+	ShaderData _skydome_shader;
 
 	///
 	Pipeline(ShaderManager &sm);

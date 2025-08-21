@@ -46,6 +46,9 @@ void Level::load(const Vector3 &pos, const Quaternion &rot)
 
 	spawn_units(*_world, ur, pos, rot, VECTOR3_ONE, array::begin(_unit_lookup));
 
+	// Spawn skydome.
+	_world->spawn_skydome(_resource->skydome_unit);
+
 	// Play sounds
 	const u32 num_sounds = level_resource::num_sounds(_resource);
 	for (u32 i = 0; i < num_sounds; ++i) {
