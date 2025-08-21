@@ -36,7 +36,7 @@ namespace material_resource
 				return i;
 		}
 
-		CE_FATAL("Unknown uniform");
+		CE_FATAL("Unknown uniform name");
 		return UINT32_MAX;
 	}
 
@@ -57,7 +57,7 @@ namespace material_resource
 				return i;
 		}
 
-		CE_FATAL("Unknown texture");
+		CE_FATAL("Unknown texture name");
 		return UINT32_MAX;
 	}
 
