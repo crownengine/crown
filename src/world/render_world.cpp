@@ -680,9 +680,9 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, UnitId sk
 
 				lid.shader[L].atlas_u = 0.0f;
 #if CROWN_PLATFORM_WINDOWS
-				lid.shader[L].atlas_v = 1.0f;
+				lid.shader[L].atlas_v = rects[0].y / _pipeline->_render_settings.sun_shadow_map_size.y;
 #else
-				lid.shader[L].atlas_v = 0.0f;
+				lid.shader[L].atlas_v = 1.0f - ((rects[0].y + rects[0].w) / _pipeline->_render_settings.sun_shadow_map_size.y);
 #endif
 				lid.shader[L].map_size = 0.5f;
 
