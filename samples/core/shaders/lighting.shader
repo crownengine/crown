@@ -174,6 +174,7 @@ bgfx_shaders = {
 				, vec3 albedo
 				, float metallic
 				, float roughness
+				, float ao
 				, vec3 f0
 				)
 			{
@@ -302,7 +303,7 @@ bgfx_shaders = {
 					radiance += apply_distance_fading(local_radiance, position, camera_pos);
 				}
 
-				return apply_fog(toLinearAccurate(ambient_color) + radiance, length(camera_frag_pos), sun_color);
+				return apply_fog(ao * toLinearAccurate(ambient_color) + radiance, length(camera_frag_pos), sun_color);
 			}
 		#endif
 		"""
