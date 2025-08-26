@@ -311,7 +311,7 @@ bgfx_shaders = {
 				vec3 normal = u_use_normal_map.r == 1.0 ? decodeNormalUint(texture2D(u_normal_map, v_texcoord0).rgb) : v_normal;
 				float metallic = u_use_metallic_map.r == 1.0 ? texture2D(u_metallic_map, v_texcoord0).r : u_metallic.r;
 				float roughness = u_use_roughness_map.r == 1.0 ? texture2D(u_roughness_map, v_texcoord0).r: u_roughness.r;
-				float ao = u_use_ao_map.r == 1.0 ? texture2D(u_ao_map, v_texcoord0).r : 0.0;
+				float ao = u_use_ao_map.r == 1.0 ? texture2D(u_ao_map, v_texcoord0).r : 1.0;
 
 				mat3 tbn;
 				if (u_use_normal_map.r == 1.0)
@@ -322,7 +322,7 @@ bgfx_shaders = {
 				vec3 n = normalize(normal); // Fragment normal.
 				vec3 v = normalize(v_camera); // Versor from fragment to camera pos.
 				vec3 f0 = mix(vec3_splat(0.04), albedo, metallic);
-				vec3 radiance = calc_lighting(tbn, n, v, v_position, v_camera, v_camera_pos, v_shadow0, v_shadow1, v_shadow2, v_shadow3, albedo, metallic, roughness, f0);
+				vec3 radiance = calc_lighting(tbn, n, v, v_position, v_camera, v_camera_pos, v_shadow0, v_shadow1, v_shadow2, v_shadow3, albedo, metallic, roughness, ao, f0);
 				radiance = radiance / (radiance + vec3_splat(1.0)); // Tone-mapping.
 		#endif // !defined(NO_LIGHT)
 
