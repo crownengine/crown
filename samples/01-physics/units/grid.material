@@ -13,6 +13,18 @@ uniforms = {
 			1
 		]
 	}
+	u_emission_color = {
+		type = "vector3"
+		value = [
+			0
+			0
+			0
+		]
+	}
+	u_emission_intensity = {
+		type = "float"
+		value = 1
+	}
 	u_metallic = {
 		type = "float"
 		value = 0
@@ -38,6 +50,10 @@ uniforms = {
 		value = 0
 	}
 	u_use_ao_map = {
+		type = "float"
+		value = 0
+	}
+	u_use_emission_map = {
 		type = "float"
 		value = 0
 	}
