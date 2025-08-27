@@ -26,9 +26,12 @@ public struct MaterialResource
 		, string? metallic_map = null
 		, string? roughness_map = null
 		, string? ao_map = null
+		, string? emission_map = null
 		, Vector3 albedo = VECTOR3_ONE
 		, double metallic = 0.0
 		, double roughness = 1.0
+		, Vector3 emission_color = VECTOR3_ZERO
+		, double emission_intensity = 1.0
 		, string? shader = null
 		)
 	{
@@ -37,18 +40,22 @@ public struct MaterialResource
 		set_vector3("u_albedo", albedo);
 		set_float("u_metallic", metallic);
 		set_float("u_roughness", roughness);
+		set_vector3("u_emission_color", emission_color);
+		set_float("u_emission_intensity", emission_intensity);
 
 		if (albedo_map != null) set_texture("u_albedo_map", albedo_map);
 		if (normal_map != null) set_texture("u_normal_map", normal_map);
 		if (metallic_map != null) set_texture("u_metallic_map", metallic_map);
 		if (roughness_map != null) set_texture("u_roughness_map", roughness_map);
 		if (ao_map != null) set_texture("u_ao_map", ao_map);
+		if (emission_map != null) set_texture("u_emission_map", emission_map);
 
 		set_float("u_use_albedo_map", (double)(albedo_map != null));
 		set_float("u_use_normal_map", (double)(normal_map != null));
 		set_float("u_use_metallic_map", (double)(metallic_map != null));
 		set_float("u_use_roughness_map", (double)(roughness_map != null));
 		set_float("u_use_ao_map", (double)(ao_map != null));
+		set_float("u_use_emission_map", (double)(emission_map != null));
 	}
 
 	public MaterialResource.sprite(Database db

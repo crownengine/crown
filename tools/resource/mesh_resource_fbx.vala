@@ -678,11 +678,14 @@ public class FBXImporter
 					Vector3 albedo = Vector3(1, 1, 1);
 					double metallic = 0.0;
 					double roughness = 1.0;
+					Vector3 emission_color = Vector3(0, 0, 0);
+					double emission_intensity = 1.0;
 					string? albedo_map = null;
 					string? normal_map = null;
 					string? metallic_map = null;
 					string? roughness_map = null;
 					string? ao_map = null;
+					string? emission_map = null;
 
 					for (int mm = 0; mm < ufbx.MaterialPbrMap.MAP_COUNT; ++mm) {
 						unowned ufbx.MaterialMap map = material.pbr.maps[mm];
@@ -748,6 +751,24 @@ public class FBXImporter
 							}
 							break;
 						}
+
+						case ufbx.MaterialPbrMap.EMISSION_COLOR: {
+							emission_color = vector3(map.value_vec3);
+
+							// Lookup matching imported texture, if any.
+							if (map.texture_enabled
+								&& map.texture != null
+								&& imported_textures.has_key(map.texture)
+								) {
+								emission_map = imported_textures[map.texture];
+							}
+							break;
+						}
+
+						case ufbx.MaterialPbrMap.EMISSION_FACTOR:
+							emission_intensity = (double)map.value_real;
+							break;
+
 						default:
 							break;
 						}
@@ -764,9 +785,12 @@ public class FBXImporter
 						, metallic_map
 						, roughness_map
 						, ao_map
+						, emission_map
 						, albedo
 						, metallic
 						, roughness
+						, emission_color
+						, emission_intensity
 						, shader
 						);
 					if (material_resource.save(project, material_resource_name) != 0)
