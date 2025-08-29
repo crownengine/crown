@@ -179,7 +179,7 @@ bgfx_shaders = {
 				, vec3 f0
 				)
 			{
-				vec3 radiance = vec3_splat(0.0);
+				vec3 radiance = ao * toLinearAccurate(ambient_color) * albedo;
 
 				int loffset = 0;
 				int num_dir = int(u_lights_num.x);
@@ -304,7 +304,7 @@ bgfx_shaders = {
 					radiance += apply_distance_fading(local_radiance, position, camera_pos);
 				}
 
-				return apply_fog(emission + ao * toLinearAccurate(ambient_color) + radiance, length(camera_frag_pos), sun_color);
+				return apply_fog(emission + radiance, length(camera_frag_pos), sun_color);
 			}
 		#endif
 		"""
