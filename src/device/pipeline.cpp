@@ -106,13 +106,12 @@ static void lookup_default_shaders(Pipeline &pl)
 	pl._shadow_shader = pl._shader_manager->shader(STRING_ID_32("shadow", UINT32_C(0xaceb94a8)));
 	pl._shadow_skinning_shader = pl._shader_manager->shader(STRING_ID_32("shadow+SKINNING", UINT32_C(0x34005875)));
 	pl._skydome_shader = pl._shader_manager->shader(STRING_ID_32("skydome", UINT32_C(0x524dca1c)));
+	pl._tonemap_shader = pl._shader_manager->shader(STRING_ID_32("tonemap", UINT32_C(0x7089b06b)));
 }
 
 Pipeline::Pipeline(ShaderManager &sm)
 	: _shader_manager(&sm)
-	, _color_texture(BGFX_INVALID_HANDLE)
 	, _depth_texture(BGFX_INVALID_HANDLE)
-	, _frame_buffer(BGFX_INVALID_HANDLE)
 	, _color_map(BGFX_INVALID_HANDLE)
 	, _depth_map(BGFX_INVALID_HANDLE)
 	, _selection_texture(BGFX_INVALID_HANDLE)
@@ -127,6 +126,12 @@ Pipeline::Pipeline(ShaderManager &sm)
 	, _sun_shadow_map_texture(BGFX_INVALID_HANDLE)
 	, _sun_shadow_map_frame_buffer(BGFX_INVALID_HANDLE)
 {
+	for (u32 i = 0; i < countof(_color_textures); ++i)
+		_color_textures[i] = BGFX_INVALID_HANDLE;
+
+	for (u32 i = 0; i < countof(_colors); ++i)
+		_colors[i] = BGFX_INVALID_HANDLE;
+
 	lookup_default_shaders(*this);
 }
 
@@ -232,26 +237,23 @@ void Pipeline::destroy()
 	bgfx::destroy(_selection_texture);
 	_selection_texture = BGFX_INVALID_HANDLE;
 
-	bgfx::destroy(_frame_buffer);
-	_frame_buffer = BGFX_INVALID_HANDLE;
+	for (u32 i = 0; i < countof(_colors); ++i) {
+		bgfx::destroy(_colors[i]);
+		_colors[i] = BGFX_INVALID_HANDLE;
+	}
+
 	bgfx::destroy(_depth_texture);
 	_depth_texture = BGFX_INVALID_HANDLE;
-	bgfx::destroy(_color_texture);
-	_color_texture = BGFX_INVALID_HANDLE;
+
+	for (u32 i = 0; i < countof(_color_textures); ++i) {
+		bgfx::destroy(_color_textures[i]);
+		_color_textures[i] = BGFX_INVALID_HANDLE;
+	}
 }
 
 void Pipeline::reset(u16 width, u16 height)
 {
-	// Create main frame buffer.
-	if (bgfx::isValid(_color_texture))
-		bgfx::destroy(_color_texture);
-	_color_texture = bgfx::createTexture2D(width
-		, height
-		, false
-		, 1
-		, bgfx::TextureFormat::BGRA8
-		, BGFX_TEXTURE_RT
-		);
+	// Create main frame buffers.
 	if (bgfx::isValid(_depth_texture))
 		bgfx::destroy(_depth_texture);
 	_depth_texture = bgfx::createTexture2D(width
@@ -261,14 +263,26 @@ void Pipeline::reset(u16 width, u16 height)
 		, bgfx::TextureFormat::D24S8
 		, BGFX_TEXTURE_RT
 		);
-	const bgfx::TextureHandle _main_frame_buffer_attachments[] =
-	{
-		_color_texture,
-		_depth_texture
-	};
-	if (bgfx::isValid(_frame_buffer))
-		bgfx::destroy(_frame_buffer);
-	_frame_buffer = bgfx::createFrameBuffer(countof(_main_frame_buffer_attachments), _main_frame_buffer_attachments);
+
+	for (u32 i = 0; i < countof(_color_textures); ++i) {
+		if (bgfx::isValid(_color_textures[i]))
+			bgfx::destroy(_color_textures[i]);
+		_color_textures[i] = bgfx::createTexture2D(width
+			, height
+			, false
+			, 1
+			, bgfx::TextureFormat::RGBA32F
+			, BGFX_TEXTURE_RT
+			);
+		const bgfx::TextureHandle _main_frame_buffer_attachments[] =
+		{
+			_color_textures[i],
+			_depth_texture
+		};
+		if (bgfx::isValid(_colors[i]))
+			bgfx::destroy(_colors[i]);
+		_colors[i] = bgfx::createFrameBuffer(countof(_main_frame_buffer_attachments), _main_frame_buffer_attachments);
+	}
 
 	// Create selection frame buffer.
 	if (bgfx::isValid(_selection_texture))
@@ -325,9 +339,6 @@ void Pipeline::render(u16 width, u16 height)
 	f32 ortho[16];
 	bx::mtxOrtho(ortho, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 100.0f, 0.0f, caps->homogeneousDepth, bx::Handedness::Right);
 
-	bgfx::setViewRect(View::BLIT, 0, 0, width, height);
-	bgfx::setViewTransform(View::BLIT, NULL, ortho);
-
 	const u32 samplerFlags = 0
 		| BGFX_SAMPLER_MIN_POINT
 		| BGFX_SAMPLER_MAG_POINT
@@ -336,10 +347,36 @@ void Pipeline::render(u16 width, u16 height)
 		| BGFX_SAMPLER_V_CLAMP
 		;
 
-	bgfx::setTexture(0, _color_map, _color_texture, samplerFlags);
+	// Clear main color frame buffers.
+	bgfx::setViewFrameBuffer(View::COLOR_0, _colors[0]);
+	bgfx::setViewClear(View::COLOR_0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x080808ff, 1.0f, 0);
+	bgfx::setViewRect(View::COLOR_0, 0, 0, width, height);
+	bgfx::setViewName(View::COLOR_0, "color0");
+	bgfx::touch(View::COLOR_0);
+
+	bgfx::setViewFrameBuffer(View::COLOR_1, _colors[1]);
+	bgfx::setViewClear(View::COLOR_1, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x080808ff, 1.0f, 0);
+	bgfx::setViewRect(View::COLOR_1, 0, 0, width, height);
+	bgfx::setViewName(View::COLOR_0, "color1");
+	bgfx::touch(View::COLOR_1);
+
+	// Do a dummy copy to color1.
+	bgfx::setViewFrameBuffer(View::DUMMY_BLIT, _colors[1]);
+	bgfx::setViewTransform(View::DUMMY_BLIT, NULL, ortho);
+	bgfx::setViewRect(View::DUMMY_BLIT, 0, 0, width, height);
+	bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[0]), samplerFlags);
 	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
 	bgfx::setState(_blit_shader.state);
-	bgfx::submit(View::BLIT, _blit_shader.program);
+	bgfx::submit(View::DUMMY_BLIT, _blit_shader.program);
+
+	// Tonemapping.
+	bgfx::setViewFrameBuffer(View::TONEMAP, _colors[0]);
+	bgfx::setViewTransform(View::TONEMAP, NULL, ortho);
+	bgfx::setViewRect(View::TONEMAP, 0, 0, width, height);
+	bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[1]), samplerFlags);
+	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
+	bgfx::setState(_tonemap_shader.state);
+	bgfx::submit(View::TONEMAP, _tonemap_shader.program);
 
 #if !CROWN_PLATFORM_EMSCRIPTEN
 	bgfx::setTexture(0, _selection_map, _selection_texture, samplerFlags);
@@ -353,6 +390,7 @@ void Pipeline::render(u16 width, u16 height)
 	bgfx::setState(_outline_shader.state);
 	bgfx::submit(View::OUTLINE, _outline_shader.program);
 
+	bgfx::setViewFrameBuffer(View::OUTLINE_BLIT, _colors[0]);
 	bgfx::setTexture(0, _outline_color_map, _outline_color_texture, samplerFlags);
 	bgfx::setViewRect(View::OUTLINE_BLIT, 0, 0, width, height);
 	bgfx::setViewTransform(View::OUTLINE_BLIT, NULL, ortho);
@@ -360,6 +398,15 @@ void Pipeline::render(u16 width, u16 height)
 	bgfx::setState(_blit_blend_shader.state);
 	bgfx::submit(View::OUTLINE_BLIT, _blit_blend_shader.program);
 #endif // if !CROWN_PLATFORM_EMSCRIPTEN
+
+	// Blit to backbuffer.
+	bgfx::setViewFrameBuffer(View::BLIT, BGFX_INVALID_HANDLE);
+	bgfx::setViewRect(View::BLIT, 0, 0, width, height);
+	bgfx::setViewTransform(View::BLIT, NULL, ortho);
+	bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[0]), samplerFlags);
+	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
+	bgfx::setState(_blit_shader.state);
+	bgfx::submit(View::BLIT, _blit_shader.program);
 }
 
 void Pipeline::reload_shaders(const ShaderResource *old_resource, const ShaderResource *new_resource)

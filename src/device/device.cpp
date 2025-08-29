@@ -817,13 +817,10 @@ void Device::render(World &world, UnitId camera_unit)
 
 		if (id >= View::SPRITE_0 && id < View::SPRITE_LAST) {
 			view_name = "sprite";
-			if (id == View::SPRITE_0)
-				bgfx::setViewClear(id, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x323232ff, 1.0f, 0);
-
 			bgfx::setViewTransform(id, to_float_ptr(view), to_float_ptr(proj));
 			bgfx::setViewRect(id, 0, 0, _width, _height);
 			bgfx::setViewMode(id, bgfx::ViewMode::DepthAscending);
-			bgfx::setViewFrameBuffer(id, _pipeline->_frame_buffer);
+			bgfx::setViewFrameBuffer(id, _pipeline->_colors[0]);
 			bgfx::touch(id);
 		} else if (id >= View::CASCADE_0 && id < View::CASCADE_LAST) {
 			view_name = "sm_cascade";
@@ -833,14 +830,17 @@ void Device::render(World &world, UnitId camera_unit)
 			view_name = "mesh";
 			bgfx::setViewTransform(id, to_float_ptr(view), to_float_ptr(proj));
 			bgfx::setViewRect(id, 0, 0, _width, _height);
-			bgfx::setViewFrameBuffer(id, _pipeline->_frame_buffer);
+			bgfx::setViewFrameBuffer(id, _pipeline->_colors[0]);
+			bgfx::touch(id);
+		} else if (id == View::TONEMAP) {
+			view_name = "tonemap";
 			bgfx::touch(id);
 		} else if (id == View::WORLD_GUI) {
 			view_name = "world_gui";
 			bgfx::setViewTransform(id, to_float_ptr(view), to_float_ptr(proj));
 			bgfx::setViewRect(id, 0, 0, _width, _height);
 			bgfx::setViewMode(id, bgfx::ViewMode::DepthDescending);
-			bgfx::setViewFrameBuffer(id, _pipeline->_frame_buffer);
+			bgfx::setViewFrameBuffer(id, _pipeline->_colors[0]);
 			bgfx::touch(id);
 		} else if (id == View::SELECTION) {
 			view_name = "selection";
@@ -862,7 +862,6 @@ void Device::render(World &world, UnitId camera_unit)
 		} else if (id == View::OUTLINE_BLIT) {
 			view_name = "outline_blit";
 #if !CROWN_PLATFORM_EMSCRIPTEN
-			bgfx::setViewFrameBuffer(id, _pipeline->_frame_buffer);
 			bgfx::setViewRect(id, 0, 0, _width, _height);
 			bgfx::touch(id);
 #endif
@@ -870,7 +869,7 @@ void Device::render(World &world, UnitId camera_unit)
 			view_name = "debug";
 			bgfx::setViewTransform(id, to_float_ptr(view), to_float_ptr(proj));
 			bgfx::setViewRect(id, 0, 0, _width, _height);
-			bgfx::setViewFrameBuffer(id, _pipeline->_frame_buffer);
+			bgfx::setViewFrameBuffer(id, _pipeline->_colors[0]);
 			bgfx::touch(id);
 		} else if (id == View::SCREEN_GUI) {
 			view_name = "screen_gui";
@@ -890,7 +889,7 @@ void Device::render(World &world, UnitId camera_unit)
 			bgfx::setViewTransform(id, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(ortho_proj));
 			bgfx::setViewRect(id, 0, 0, _width, _height);
 			bgfx::setViewMode(id, bgfx::ViewMode::DepthDescending);
-			bgfx::setViewFrameBuffer(id, _pipeline->_frame_buffer);
+			bgfx::setViewFrameBuffer(id, _pipeline->_colors[0]);
 			bgfx::touch(id);
 		} else if (id == View::GRAPH) {
 			view_name = "graph";
@@ -908,7 +907,7 @@ void Device::render(World &world, UnitId camera_unit)
 				);
 			bgfx::setViewTransform(id, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(from_array(graph_ortho)));
 			bgfx::setViewRect(id, 0, 0, _width, _height);
-			bgfx::setViewFrameBuffer(id, _pipeline->_frame_buffer);
+			bgfx::setViewFrameBuffer(id, _pipeline->_colors[0]);
 			bgfx::touch(id);
 		} else if (id == View::BLIT) {
 			view_name = "blit";

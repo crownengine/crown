@@ -20,13 +20,17 @@ struct View
 {
 	enum Enum
 	{
-		SPRITE_0,
-		SPRITE_LAST  = SPRITE_0 + MAX_NUM_SPRITE_LAYERS,
-		CASCADE_0    = SPRITE_LAST,
-		CASCADE_LAST = CASCADE_0 + MAX_NUM_CASCADES,
-		LIGHTS       = CASCADE_LAST,
+		COLOR_0,
+		COLOR_1,
+		CASCADE_0,
+		CASCADE_LAST          = CASCADE_0 + MAX_NUM_CASCADES,
+		LIGHTS                = CASCADE_LAST,
 		MESH,
-		WORLD_GUI,
+		DUMMY_BLIT,
+		TONEMAP,
+		SPRITE_0,
+		SPRITE_LAST = SPRITE_0 + MAX_NUM_SPRITE_LAYERS,
+		WORLD_GUI   = SPRITE_LAST,
 		SELECTION,
 		OUTLINE,
 		OUTLINE_BLIT,
@@ -51,9 +55,9 @@ struct Pipeline
 	RenderSettings _render_settings;
 
 	// Main output color/depth handles.
-	bgfx::TextureHandle _color_texture;
+	bgfx::TextureHandle _color_textures[2];
 	bgfx::TextureHandle _depth_texture;
-	bgfx::FrameBufferHandle _frame_buffer;
+	bgfx::FrameBufferHandle _colors[2];
 	bgfx::UniformHandle _color_map;
 	bgfx::UniformHandle _depth_map;
 
@@ -96,6 +100,7 @@ struct Pipeline
 	ShaderData _shadow_shader;
 	ShaderData _shadow_skinning_shader;
 	ShaderData _skydome_shader;
+	ShaderData _tonemap_shader;
 
 	///
 	Pipeline(ShaderManager &sm);
