@@ -329,10 +329,9 @@ bgfx_shaders = {
 				vec3 v = normalize(v_camera); // Versor from fragment to camera pos.
 				vec3 f0 = mix(vec3_splat(0.04), albedo, metallic);
 				vec3 radiance = calc_lighting(tbn, n, v, v_position, v_camera, v_camera_pos, v_shadow0, v_shadow1, v_shadow2, v_shadow3, albedo, metallic, roughness, ao, emission, f0);
-				radiance = radiance / (radiance + vec3_splat(1.0)); // Tone-mapping.
 		#endif // !defined(NO_LIGHT)
 
-				gl_FragColor = vec4(toGammaAccurate(radiance), 1.0);
+				gl_FragColor = vec4(radiance, 1.0);
 			}
 		"""
 	}
@@ -377,7 +376,56 @@ bgfx_shaders = {
 
 			void main()
 			{
-				gl_FragColor = toGammaAccurate(texture2D(u_skydome_map, v_texcoord0) * u_skydome_intensity.x);
+				gl_FragColor = texture2D(u_skydome_map, v_texcoord0) * u_skydome_intensity.x;
+			}
+		"""
+	}
+
+	tonemap = {
+		includes = [ "common" ]
+
+		varying = """
+			vec2 v_texcoord0 : TEXCOORD0 = vec2(0.0, 0.0);
+
+			vec3 a_position  : POSITION;
+			vec2 a_texcoord0 : TEXCOORD0;
+		"""
+
+		vs_input_output = """
+			$input a_position, a_texcoord0
+			$output v_texcoord0
+		"""
+
+		vs_code = """
+			void main()
+			{
+				gl_Position = mul(u_viewProj, vec4(a_position.xy, 0.0, 1.0) );
+				v_texcoord0 = a_texcoord0;
+			}
+		"""
+
+		fs_input_output = """
+			$input v_texcoord0
+		"""
+
+		fs_code = """
+			SAMPLER2D(s_color_map, 0);
+			vec4 u_tonemap_type = vec4_splat(1.0);
+
+			void main()
+			{
+				vec4 color = vec4(texture2D(s_color_map, v_texcoord0).rgb, 1.0);
+
+				if (u_tonemap_type.x == 0.0)
+					gl_FragColor = toGammaAccurate(color);
+				else if (u_tonemap_type.x == 1.0)
+					gl_FragColor = toReinhard(color);
+				else if (u_tonemap_type.x == 2.0)
+					gl_FragColor = toFilmic(color);
+				else if (u_tonemap_type.x == 3.0)
+					gl_FragColor = toAcesFilmic(color);
+				else
+					gl_FragColor = color;
 			}
 		"""
 	}
@@ -503,6 +551,11 @@ shaders = {
 		render_state = "skydome"
 	}
 
+	tonemap = {
+		bgfx_shader = "tonemap"
+		render_state = "blit"
+	}
+
 	blit = {
 		bgfx_shader = "blit"
 		render_state = "blit"
@@ -535,6 +588,7 @@ static_compile = [
 	{ shader = "mesh" defines = ["DIFFUSE_MAP" "SKINNING"] }
 	{ shader = "mesh" defines = ["DIFFUSE_MAP" "NO_LIGHT"] }
 	{ shader = "skydome" defines = [] }
+	{ shader = "tonemap" defines = [] }
 	{ shader = "blit" defines = [] }
 	{ shader = "blit" defines = ["BLEND_ENABLED"] }
 	{ shader = "fallback" defines = [] }
