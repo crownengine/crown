@@ -271,7 +271,7 @@ void Pipeline::reset(u16 width, u16 height)
 			, height
 			, false
 			, 1
-			, bgfx::TextureFormat::RGBA32F
+			, bgfx::TextureFormat::RGBA16F
 			, BGFX_TEXTURE_RT
 			);
 		const bgfx::TextureHandle _main_frame_buffer_attachments[] =
