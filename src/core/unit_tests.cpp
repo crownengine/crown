@@ -1051,6 +1051,14 @@ static void test_string_id()
 {
 	memory_globals::init();
 	{
+		StringId32 a("");
+		ENSURE(a._id == 0);
+	}
+	{
+		StringId64 a("");
+		ENSURE(a._id == 0);
+	}
+	{
 		StringId32 a("murmur32");
 		ENSURE(a._id == 0x68bd9babu);
 
