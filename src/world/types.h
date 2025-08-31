@@ -297,6 +297,7 @@ INSTANCE_ID(SpriteInstance)
 INSTANCE_ID(LightInstance)
 INSTANCE_ID(FogInstance)
 INSTANCE_ID(GlobalLightingInstance)
+INSTANCE_ID(BloomInstance)
 INSTANCE_ID(ColliderInstance)
 INSTANCE_ID(ActorInstance)
 INSTANCE_ID(MoverInstance)
@@ -360,6 +361,18 @@ struct GlobalLightingDesc
 	StringId64 skydome_map; ///< Texture to use for skydome rendering.
 	f32 skydome_intensity;  ///< Skydome color intensity multiplier.
 	Vector3 ambient_color;  ///<
+};
+
+/// Bloom description.
+///
+/// @ingroup World
+struct BloomDesc
+{
+	bool enabled;  ///< Whether the bloom effect is enabled.
+	char _pad[3];  ///<
+	f32 threshold; ///< The minimum luminance a pixel should have to be included in the bloom layer.
+	f32 weight;    ///< The weight to use when mixing the bloom layer with the main color layer.
+	f32 intensity; ///< The global intensity of the bloom effect.
 };
 
 /// Fog description.

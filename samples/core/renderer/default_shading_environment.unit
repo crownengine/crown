@@ -18,6 +18,16 @@ components = [
 		}
 	}
 	{
+		_guid = "58d8d3ed-9ec2-4e11-ade6-1a3860335bb6"
+		_type = "bloom"
+		data = {
+			enabled = true
+			intensity = 0.80000000000000004
+			threshold = 0
+			weight = 0.050000000000000003
+		}
+	}
+	{
 		_guid = "6603b89f-a049-4c18-a9de-7fc31368eeb5"
 		_type = "global_lighting"
 		data = {

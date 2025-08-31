@@ -830,6 +830,7 @@ public class LevelEditorApplication : Gtk.Application
 		Unit.register_component_type(OBJECT_TYPE_ANIMATION_STATE_MACHINE, "");
 		Unit.register_component_type(OBJECT_TYPE_FOG,                     "");
 		Unit.register_component_type(OBJECT_TYPE_GLOBAL_LIGHTING,         "");
+		Unit.register_component_type(OBJECT_TYPE_BLOOM,                   "");
 
 		// Widgets
 		_combo = new Gtk.ComboBoxText();

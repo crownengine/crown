@@ -106,6 +106,9 @@ static void lookup_default_shaders(Pipeline &pl)
 	pl._shadow_shader = pl._shader_manager->shader(STRING_ID_32("shadow", UINT32_C(0xaceb94a8)));
 	pl._shadow_skinning_shader = pl._shader_manager->shader(STRING_ID_32("shadow+SKINNING", UINT32_C(0x34005875)));
 	pl._skydome_shader = pl._shader_manager->shader(STRING_ID_32("skydome", UINT32_C(0x524dca1c)));
+	pl._bloom_downsample_shader = pl._shader_manager->shader(STRING_ID_32("bloom_downsample", UINT32_C(0x2399e6ad)));
+	pl._bloom_upsample_shader = pl._shader_manager->shader(STRING_ID_32("bloom_upsample", UINT32_C(0x26773c9c)));
+	pl._bloom_combine_shader = pl._shader_manager->shader(STRING_ID_32("bloom_combine", UINT32_C(0x4413efa4)));
 	pl._tonemap_shader = pl._shader_manager->shader(STRING_ID_32("tonemap", UINT32_C(0x7089b06b)));
 }
 
@@ -125,12 +128,19 @@ Pipeline::Pipeline(ShaderManager &sm)
 	, _outline_color(BGFX_INVALID_HANDLE)
 	, _sun_shadow_map_texture(BGFX_INVALID_HANDLE)
 	, _sun_shadow_map_frame_buffer(BGFX_INVALID_HANDLE)
+	, _bloom_map(BGFX_INVALID_HANDLE)
+	, _map_pixel_size(BGFX_INVALID_HANDLE)
+	, _bloom_params(BGFX_INVALID_HANDLE)
 {
 	for (u32 i = 0; i < countof(_color_textures); ++i)
 		_color_textures[i] = BGFX_INVALID_HANDLE;
 
 	for (u32 i = 0; i < countof(_colors); ++i)
 		_colors[i] = BGFX_INVALID_HANDLE;
+
+	// Bloom.
+	for (u32 i = 0; i < countof(_bloom_frame_buffers); ++i)
+		_bloom_frame_buffers[i] = BGFX_INVALID_HANDLE;
 
 	lookup_default_shaders(*this);
 }
@@ -176,6 +186,10 @@ void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settin
 
 	_u_lighting_params = bgfx::createUniform("u_lighting_params", bgfx::UniformType::Vec4);
 
+	_bloom_map = bgfx::createUniform("s_bloom_map", bgfx::UniformType::Sampler);
+	_map_pixel_size = bgfx::createUniform("u_map_pixel_size", bgfx::UniformType::Vec4);
+	_bloom_params = bgfx::createUniform("u_bloom_params", bgfx::UniformType::Vec4);
+
 #if CROWN_PLATFORM_EMSCRIPTEN
 	_html5_default_sampler = bgfx::createUniform("s_webgl_hack", bgfx::UniformType::Sampler);
 	_html5_default_texture = bgfx::createTexture2D(1, 1, false, 1, bgfx::TextureFormat::R8);
@@ -209,6 +223,21 @@ void Pipeline::destroy()
 	_sun_shadow_map_frame_buffer = BGFX_INVALID_HANDLE;
 	bgfx::destroy(_sun_shadow_map_texture);
 	_sun_shadow_map_texture = BGFX_INVALID_HANDLE;
+
+	// Destroy bloom resources.
+	bgfx::destroy(_bloom_params);
+	_bloom_params = BGFX_INVALID_HANDLE;
+
+	bgfx::destroy(_map_pixel_size);
+	_map_pixel_size = BGFX_INVALID_HANDLE;
+
+	bgfx::destroy(_bloom_map);
+	_bloom_map = BGFX_INVALID_HANDLE;
+
+	for (u32 i = 0; i < countof(_bloom_frame_buffers); ++i) {
+		bgfx::destroy(_bloom_frame_buffers[i]);
+		_bloom_frame_buffers[i] = BGFX_INVALID_HANDLE;
+	}
 
 	bgfx::destroy(_outline_color);
 	_outline_color = BGFX_INVALID_HANDLE;
@@ -330,6 +359,18 @@ void Pipeline::reset(u16 width, u16 height)
 	if (bgfx::isValid(_outline_frame_buffer))
 		bgfx::destroy(_outline_frame_buffer);
 	_outline_frame_buffer = bgfx::createFrameBuffer(countof(_outline_frame_buffer_attachments), _outline_frame_buffer_attachments);
+
+	// Bloom.
+	for (u32 i = 0; i < countof(_bloom_frame_buffers); ++i) {
+		if (bgfx::isValid(_bloom_frame_buffers[i]))
+			bgfx::destroy(_bloom_frame_buffers[i]);
+
+		_bloom_frame_buffers[i] = bgfx::createFrameBuffer(width >> i
+			, height >> i
+			, bgfx::TextureFormat::RGBA16F
+			, BGFX_TEXTURE_RT | BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP
+			);
+	}
 }
 
 void Pipeline::render(u16 width, u16 height)
@@ -347,6 +388,14 @@ void Pipeline::render(u16 width, u16 height)
 		| BGFX_SAMPLER_V_CLAMP
 		;
 
+	const u32 bloom_sampler_flags = 0
+		| BGFX_SAMPLER_MIN_ANISOTROPIC
+		| BGFX_SAMPLER_MAG_ANISOTROPIC
+		| BGFX_SAMPLER_MIP_POINT
+		| BGFX_SAMPLER_U_CLAMP
+		| BGFX_SAMPLER_V_CLAMP
+		;
+
 	// Clear main color frame buffers.
 	bgfx::setViewFrameBuffer(View::COLOR_0, _colors[0]);
 	bgfx::setViewClear(View::COLOR_0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x080808ff, 1.0f, 0);
@@ -357,17 +406,79 @@ void Pipeline::render(u16 width, u16 height)
 	bgfx::setViewFrameBuffer(View::COLOR_1, _colors[1]);
 	bgfx::setViewClear(View::COLOR_1, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x080808ff, 1.0f, 0);
 	bgfx::setViewRect(View::COLOR_1, 0, 0, width, height);
-	bgfx::setViewName(View::COLOR_0, "color1");
+	bgfx::setViewName(View::COLOR_1, "color1");
 	bgfx::touch(View::COLOR_1);
 
-	// Do a dummy copy to color1.
-	bgfx::setViewFrameBuffer(View::DUMMY_BLIT, _colors[1]);
-	bgfx::setViewTransform(View::DUMMY_BLIT, NULL, ortho);
-	bgfx::setViewRect(View::DUMMY_BLIT, 0, 0, width, height);
-	bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[0]), samplerFlags);
-	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
-	bgfx::setState(_blit_shader.state);
-	bgfx::submit(View::DUMMY_BLIT, _blit_shader.program);
+	// Render bloom.
+	if (_bloom.enabled) {
+		Vector4 bloom_params;
+		bloom_params.x = _bloom.weight;
+		bloom_params.y = _bloom.intensity;
+		bloom_params.z = _bloom.threshold;
+
+		// Copy color buffer to first bloom mip.
+		bgfx::setViewFrameBuffer(View::BLOOM_COPY, _bloom_frame_buffers[0]);
+		bgfx::setViewTransform(View::BLOOM_COPY, NULL, ortho);
+		bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[0]), bloom_sampler_flags);
+		screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
+		bgfx::setState(_blit_shader.state);
+		bgfx::submit(View::BLOOM_COPY, _blit_shader.program);
+
+		// Downsample.
+		for (u32 i = 0; i < countof(_bloom_frame_buffers) - 1; ++i) {
+			const u16 shift = i + 1;
+			const u16 w = width >> shift;
+			const u16 h = height >> shift;
+			Vector4 pixel_size = { 1.0f/w, 1.0f/h, 0.0f, 0.0f };
+
+			bgfx::setViewTransform(View::BLOOM_DOWNSAMPLE_0 + i, NULL, ortho);
+			bgfx::setViewRect(View::BLOOM_DOWNSAMPLE_0 + i, 0, 0, w, h);
+			bgfx::setViewFrameBuffer(View::BLOOM_DOWNSAMPLE_0 + i, _bloom_frame_buffers[shift]);
+			bgfx::setTexture(0, _color_map, bgfx::getTexture(_bloom_frame_buffers[i]), bloom_sampler_flags);
+			bgfx::setUniform(_map_pixel_size, &pixel_size, sizeof(pixel_size)/sizeof(Vector4));
+			screenSpaceQuad(w, h, 0.0f, caps->originBottomLeft);
+			bgfx::setState(_bloom_downsample_shader.state);
+			bgfx::submit(View::BLOOM_DOWNSAMPLE_0 + i, _bloom_downsample_shader.program);
+		}
+
+		// Upsample.
+		for (u32 i = 0; i < countof(_bloom_frame_buffers) - 1; ++i) {
+			const u16 shift = countof(_bloom_frame_buffers) - 2 - i;
+			const u16 w = width >> shift;
+			const u16 h = height >> shift;
+			Vector4 pixel_size = { 1.0f/w, 1.0f/h, 0.0f, 0.0f };
+
+			bgfx::setViewTransform(View::BLOOM_UPSAMPLE_0 + i, NULL, ortho);
+			bgfx::setViewRect(View::BLOOM_UPSAMPLE_0 + i, 0, 0, w, h);
+			bgfx::setViewFrameBuffer(View::BLOOM_UPSAMPLE_0 + i, _bloom_frame_buffers[shift]);
+			bgfx::setTexture(0, _color_map, bgfx::getTexture(_bloom_frame_buffers[shift + 1]), bloom_sampler_flags);
+			bgfx::setUniform(_map_pixel_size, &pixel_size, sizeof(pixel_size)/sizeof(Vector4));
+			bgfx::setUniform(_bloom_params, &bloom_params, sizeof(bloom_params)/sizeof(Vector4));
+			screenSpaceQuad(w, h, 0.0f, caps->originBottomLeft);
+			bgfx::setState(_bloom_upsample_shader.state);
+			bgfx::submit(View::BLOOM_UPSAMPLE_0 + i, _bloom_upsample_shader.program);
+		}
+
+		// Combine first bloom mip with main color texture.
+		bgfx::setViewFrameBuffer(View::BLOOM_COMBINE, _colors[1]);
+		bgfx::setViewTransform(View::BLOOM_COMBINE, NULL, ortho);
+		bgfx::setViewRect(View::BLOOM_COMBINE, 0, 0, width, height);
+		bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[0]), samplerFlags);
+		bgfx::setTexture(1, _bloom_map, bgfx::getTexture(_bloom_frame_buffers[0]), samplerFlags);
+		bgfx::setUniform(_bloom_params, &bloom_params, sizeof(bloom_params)/sizeof(Vector4));
+		screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
+		bgfx::setState(_bloom_combine_shader.state);
+		bgfx::submit(View::BLOOM_COMBINE, _bloom_combine_shader.program);
+	} else {
+		// Do a dummy copy to color1.
+		bgfx::setViewFrameBuffer(View::DUMMY_BLIT, _colors[1]);
+		bgfx::setViewTransform(View::DUMMY_BLIT, NULL, ortho);
+		bgfx::setViewRect(View::DUMMY_BLIT, 0, 0, width, height);
+		bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[0]), samplerFlags);
+		screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
+		bgfx::setState(_blit_shader.state);
+		bgfx::submit(View::DUMMY_BLIT, _blit_shader.program);
+	}
 
 	// Tonemapping.
 	bgfx::setViewFrameBuffer(View::TONEMAP, _colors[0]);

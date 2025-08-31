@@ -59,6 +59,7 @@ RenderWorld::RenderWorld(Allocator &a
 	, _selection(a)
 	, _fog_unit(UNIT_INVALID)
 	, _global_lighting_unit(UNIT_INVALID)
+	, _bloom_unit(UNIT_INVALID)
 {
 	_unit_destroy_callback.destroy = unit_destroyed_callback_bridge;
 	_unit_destroy_callback.user_data = this;
@@ -79,6 +80,9 @@ RenderWorld::RenderWorld(Allocator &a
 
 	// Global lighting.
 	memset((void *)&_global_lighting_desc, 0, sizeof(_global_lighting_desc));
+
+	// Bloom.
+	memset((void *)&_bloom_desc, 0, sizeof(_bloom_desc));
 }
 
 RenderWorld::~RenderWorld()
@@ -524,6 +528,48 @@ void RenderWorld::global_lighting_set_ambient_color(Color4 color)
 	_global_lighting_desc.ambient_color = { color.x, color.y, color.z };
 }
 
+u32 RenderWorld::bloom_create(UnitId unit, const BloomDesc &desc)
+{
+	_bloom_desc = desc;
+	_bloom_unit = unit;
+	return 0;
+}
+
+void RenderWorld::bloom_destroy(u32 bloom)
+{
+	CE_UNUSED(bloom);
+	_bloom_desc = {};
+	_bloom_unit = UNIT_INVALID;
+}
+
+BloomInstance RenderWorld::bloom_instance(UnitId unit)
+{
+	if (_bloom_unit == unit)
+		return { 0 };
+
+	return { UINT32_MAX };
+}
+
+void RenderWorld::bloom_set_enabled(bool enabled)
+{
+	_bloom_desc.enabled = enabled;
+}
+
+void RenderWorld::bloom_set_weight(float weight)
+{
+	_bloom_desc.weight = weight;
+}
+
+void RenderWorld::bloom_set_intensity(float intensity)
+{
+	_bloom_desc.intensity = intensity;
+}
+
+void RenderWorld::bloom_set_threshold(float threshold)
+{
+	_bloom_desc.threshold = threshold;
+}
+
 void RenderWorld::update_transforms(const UnitId *begin, const UnitId *end, const Matrix4x4 *world)
 {
 	MeshManager::MeshInstanceData &mid = _mesh_manager._data;
@@ -757,6 +803,8 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, UnitId sk
 			skydome_material->set_float(STRING_ID_32("u_skydome_intensity", UINT32_C(0x539e93b8)), _global_lighting_desc.skydome_intensity);
 		}
 	}
+
+	_pipeline->_bloom = _bloom_desc;
 
 	// Render objects.
 	_mesh_manager.draw_visibles(View::MESH, *_scene_graph, &cascaded_lights[0]);

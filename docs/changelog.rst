@@ -8,6 +8,7 @@ Changelog
 
 * Runtime: added a new Mover component for controlling characters that implements a standard collide-and-slide algorithm.
 * Runtime: added a new Global Lighting component for controlling the skydome's appearance and other global lighting parameters.
+* Runtime: added a new Bloom component.
 * Runtime: added a new dedicated skydome renderer.
 * Runtime: added support for emission maps in the `mesh` material.
 * Runtime: added a new .render_config resource for configuring the renderer, along with a `render_config` property in the boot files to allow selecting the desired config.

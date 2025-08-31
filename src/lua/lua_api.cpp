@@ -2244,6 +2244,46 @@ void load_api(LuaEnvironment &env)
 			stack.get_render_world(1)->global_lighting_set_ambient_color(stack.get_color4(2));
 			return 0;
 		});
+	env.add_module_function("RenderWorld", "bloom_create", [](lua_State *L) {
+			LuaStack stack(L);
+			BloomDesc desc;
+			stack.push_id(stack.get_render_world(1)->bloom_create(stack.get_unit(2), desc));
+			return 1;
+		});
+	env.add_module_function("RenderWorld", "bloom_destroy", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->bloom_destroy(stack.get_id(2));
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "bloom_instance", [](lua_State *L) {
+			LuaStack stack(L);
+			BloomInstance inst = stack.get_render_world(1)->bloom_instance(stack.get_unit(2));
+			if (is_valid(inst))
+				stack.push_id(inst.i);
+			else
+				stack.push_nil();
+			return 1;
+		});
+	env.add_module_function("RenderWorld", "bloom_set_enabled", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->bloom_set_enabled(stack.get_bool(2));
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "bloom_set_weight", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->bloom_set_weight(stack.get_float(2));
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "bloom_set_intensity", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->bloom_set_intensity(stack.get_float(2));
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "bloom_set_threshold", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->bloom_set_threshold(stack.get_float(2));
+			return 0;
+		});
 	env.add_module_function("RenderWorld", "enable_debug_drawing", [](lua_State *L) {
 			LuaStack stack(L);
 			stack.get_render_world(1)->enable_debug_drawing(stack.get_bool(2));
