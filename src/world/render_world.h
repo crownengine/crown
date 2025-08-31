@@ -215,6 +215,27 @@ struct RenderWorld
 	///
 	void global_lighting_set_ambient_color(Color4 color);
 
+	/// Creates a new bloom instance for @a unit and returns its id.
+	u32 bloom_create(UnitId unit, const BloomDesc &desc);
+
+	///
+	void bloom_destroy(u32 bloom);
+
+	///
+	BloomInstance bloom_instance(UnitId unit);
+
+	///
+	void bloom_set_enabled(bool enabled);
+
+	///
+	void bloom_set_weight(float mix);
+
+	///
+	void bloom_set_intensity(float intensity);
+
+	///
+	void bloom_set_threshold(float threshold);
+
 	///
 	void update_transforms(const UnitId *begin, const UnitId *end, const Matrix4x4 *world);
 
@@ -527,6 +548,10 @@ struct RenderWorld
 	// Global lighting.
 	UnitId _global_lighting_unit;
 	GlobalLightingDesc _global_lighting_desc;
+
+	// Bloom.
+	UnitId _bloom_unit;
+	BloomDesc _bloom_desc;
 };
 
 } // namespace crown

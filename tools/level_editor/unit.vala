@@ -351,6 +351,11 @@ public struct Unit
 			_db.set_property_string (component_id, "data.skydome_map", "core/units/skydome/skydome");
 			_db.set_property_double (component_id, "data.skydome_intensity", 1.0);
 			_db.set_property_vector3(component_id, "data.ambient_color", Vector3(0.0, 0.0, 0.0));
+		} else if (component_type == OBJECT_TYPE_BLOOM) {
+			_db.set_property_bool  (component_id, "data.enabled", true);
+			_db.set_property_double(component_id, "data.threshold", 0.0);
+			_db.set_property_double(component_id, "data.weight", 0.05);
+			_db.set_property_double(component_id, "data.intensity", 1.0);
 		} else if (component_type == OBJECT_TYPE_SCRIPT) {
 			_db.set_property_string(component_id, "data.script_resource", "core/components/noop");
 		} else if (component_type == OBJECT_TYPE_COLLIDER) {
@@ -530,6 +535,14 @@ public struct Unit
 						, unit.get_component_property_double (component_id, "data.skydome_intensity")
 						, unit.get_component_property_vector3(component_id, "data.ambient_color")
 						));
+				} else if (component_type == OBJECT_TYPE_BLOOM) {
+					sb.append(LevelEditorApi.add_bloom_component(unit_id, component_id));
+					sb.append(LevelEditorApi.set_bloom(unit_id
+						, unit.get_component_property_bool  (component_id, "data.enabled")
+						, unit.get_component_property_double(component_id, "data.threshold")
+						, unit.get_component_property_double(component_id, "data.weight")
+						, unit.get_component_property_double(component_id, "data.intensity")
+						));
 				} else if (component_type == OBJECT_TYPE_SCRIPT) {
 					/*
 					 * sb.append(LevelEditorApi.add_script_component(unit_id
@@ -705,6 +718,15 @@ public struct Unit
 							, unit.get_component_property_vector3(component_id, "data.ambient_color")
 							));
 					}
+					if (unit.has_component(out component_id, OBJECT_TYPE_BLOOM)) {
+						sb.append(LevelEditorApi.add_bloom_component(unit_id, component_id));
+						sb.append(LevelEditorApi.set_bloom(unit_id
+							, unit.get_component_property_bool  (component_id, "data.enabled")
+							, unit.get_component_property_double(component_id, "data.threshold")
+							, unit.get_component_property_double(component_id, "data.weight")
+							, unit.get_component_property_double(component_id, "data.intensity")
+							));
+					}
 				}
 
 				sb.append("Device.set_temp_count(editor_nv, editor_nq, editor_nm)");
@@ -813,6 +835,13 @@ public struct Unit
 						, unit.get_component_property_double (component_id, "data.skydome_intensity")
 						, unit.get_component_property_vector3(component_id, "data.ambient_color")
 						));
+				} else if (component_type == OBJECT_TYPE_BLOOM) {
+					sb.append(LevelEditorApi.set_bloom(unit_id
+						, unit.get_component_property_bool  (component_id, "data.enabled")
+						, unit.get_component_property_double(component_id, "data.threshold")
+						, unit.get_component_property_double(component_id, "data.weight")
+						, unit.get_component_property_double(component_id, "data.intensity")
+						));
 				} else if (component_type == OBJECT_TYPE_SCRIPT) {
 					/* No sync. */
 				} else if (component_type == OBJECT_TYPE_COLLIDER) {
@@ -861,6 +890,7 @@ public struct Unit
 			|| type == OBJECT_TYPE_LIGHT
 			|| type == OBJECT_TYPE_FOG
 			|| type == OBJECT_TYPE_GLOBAL_LIGHTING
+			|| type == OBJECT_TYPE_BLOOM
 			|| type == OBJECT_TYPE_SCRIPT
 			|| type == OBJECT_TYPE_COLLIDER
 			|| type == OBJECT_TYPE_ACTOR

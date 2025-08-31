@@ -832,6 +832,19 @@ void Device::render(World &world, UnitId camera_unit)
 			bgfx::setViewRect(id, 0, 0, _width, _height);
 			bgfx::setViewFrameBuffer(id, _pipeline->_colors[0]);
 			bgfx::touch(id);
+		} else if (id == View::BLOOM_COPY) {
+			view_name = "bloom_copy";
+			bgfx::setViewRect(id, 0, 0, _width, _height);
+			bgfx::touch(id);
+		} else if (id >= View::BLOOM_DOWNSAMPLE_0 && id < View::BLOOM_DOWNSAMPLE_LAST) {
+			view_name = "bloom_downsample";
+			bgfx::touch(id);
+		} else if (id >= View::BLOOM_UPSAMPLE_0 && id < View::BLOOM_UPSAMPLE_LAST) {
+			view_name = "bloom_upsample";
+			bgfx::touch(id);
+		} else if (id == View::BLOOM_COMBINE) {
+			view_name = "bloom_combine";
+			bgfx::touch(id);
 		} else if (id == View::TONEMAP) {
 			view_name = "tonemap";
 			bgfx::touch(id);

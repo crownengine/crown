@@ -392,6 +392,11 @@ namespace LevelEditorApi
 		return "LevelEditor:add_global_lighting_component(\"%s\", \"%s\")".printf(id.to_string(), component_id.to_string());
 	}
 
+	public string add_bloom_component(Guid id, Guid component_id)
+	{
+		return "LevelEditor:add_bloom_component(\"%s\", \"%s\")".printf(id.to_string(), component_id.to_string());
+	}
+
 	public string unit_destroy_component_type(Guid id, string component_type)
 	{
 		return "LevelEditor:unit_destroy_component_type(\"%s\", \"%s\")".printf(id.to_string()
@@ -458,6 +463,21 @@ namespace LevelEditorApi
 			, skydome_map
 			, skydome_intensity
 			, Lua.quaternion({ambient_color.x, ambient_color.y, ambient_color.z, 1.0})
+			);
+	}
+
+	public string set_bloom(Guid id
+		, bool enabled
+		, double threshold
+		, double weight
+		, double intensity
+		)
+	{
+		return "LevelEditor._objects[\"%s\"]:set_bloom(%s, %.17g, %.17g, %.17g)".printf(id.to_string()
+			, Lua.bool(enabled)
+			, threshold
+			, weight
+			, intensity
 			);
 	}
 

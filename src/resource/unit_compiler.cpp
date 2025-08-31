@@ -351,6 +351,27 @@ static s32 compile_global_lighting(Buffer &output, FlatJsonObject &obj, CompileO
 	return 0;
 }
 
+static s32 compile_bloom(Buffer &output, FlatJsonObject &obj, CompileOptions &opts)
+{
+	TempAllocator4096 ta;
+
+	BloomDesc desc;
+	desc.enabled   = RETURN_IF_ERROR(sjson::parse_bool(flat_json_object::get(obj, "data.enabled")), opts);
+	memset(&desc._pad, 0, sizeof(desc._pad));
+	desc.threshold = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.threshold")), opts);
+	desc.weight    = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.weight")), opts);
+	desc.intensity = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.intensity")), opts);
+
+	FileBuffer fb(output);
+	BinaryWriter bw(fb);
+	bw.write(desc.enabled);
+	bw.write(desc._pad);
+	bw.write(desc.threshold);
+	bw.write(desc.weight);
+	bw.write(desc.intensity);
+	return 0;
+}
+
 namespace unit_compiler
 {
 	Buffer read_unit(const char *path, CompileOptions &opts)
@@ -973,6 +994,7 @@ UnitCompiler::UnitCompiler(Allocator &a)
 	unit_compiler::register_component_compiler(*this, "animation_state_machine", &compile_animation_state_machine,             3.0f);
 	unit_compiler::register_component_compiler(*this, "fog",                     &compile_fog,                                 0.0f);
 	unit_compiler::register_component_compiler(*this, "global_lighting",         &compile_global_lighting,                     0.0f);
+	unit_compiler::register_component_compiler(*this, "bloom",                   &compile_bloom,                               0.0f);
 }
 
 UnitCompiler::~UnitCompiler()

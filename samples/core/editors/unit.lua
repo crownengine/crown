@@ -312,6 +312,16 @@ function UnitBox:set_global_lighting(skydome_map, skydome_intensity, ambient_col
 	end
 end
 
+function UnitBox:set_bloom(enabled, threshold, weight, intensity)
+	local bloom = RenderWorld.bloom_instance(self._rw, self._unit_id)
+	if bloom then
+		RenderWorld.bloom_set_enabled(self._rw, enabled)
+		RenderWorld.bloom_set_threshold(self._rw, threshold)
+		RenderWorld.bloom_set_weight(self._rw, weight)
+		RenderWorld.bloom_set_intensity(self._rw, intensity)
+	end
+end
+
 function UnitBox:set_mesh(mesh_resource, geometry, material, visible, cast_shadows)
 	local mesh = RenderWorld.mesh_instance(self._rw, self._unit_id)
 	if mesh then

@@ -15,6 +15,7 @@
 #define MAX_NUM_SPRITE_LAYERS 8
 #define MAX_NUM_CASCADES 4
 #define CASCADED_SHADOW_MAP_SLOT 10
+#define BLOOM_MIPS 6
 
 struct View
 {
@@ -26,11 +27,17 @@ struct View
 		CASCADE_LAST          = CASCADE_0 + MAX_NUM_CASCADES,
 		LIGHTS                = CASCADE_LAST,
 		MESH,
+		BLOOM_COPY,
+		BLOOM_DOWNSAMPLE_0,
+		BLOOM_DOWNSAMPLE_LAST = BLOOM_DOWNSAMPLE_0 + BLOOM_MIPS - 1,
+		BLOOM_UPSAMPLE_0,
+		BLOOM_UPSAMPLE_LAST   = BLOOM_UPSAMPLE_0 + BLOOM_MIPS - 1,
+		BLOOM_COMBINE,
 		DUMMY_BLIT,
 		TONEMAP,
 		SPRITE_0,
-		SPRITE_LAST = SPRITE_0 + MAX_NUM_SPRITE_LAYERS,
-		WORLD_GUI   = SPRITE_LAST,
+		SPRITE_LAST           = SPRITE_0 + MAX_NUM_SPRITE_LAYERS,
+		WORLD_GUI             = SPRITE_LAST,
 		SELECTION,
 		OUTLINE,
 		OUTLINE_BLIT,
@@ -82,6 +89,13 @@ struct Pipeline
 
 	bgfx::UniformHandle _u_lighting_params;
 
+	// Bloom.
+	bgfx::FrameBufferHandle _bloom_frame_buffers[BLOOM_MIPS];
+	bgfx::UniformHandle _bloom_map;
+	bgfx::UniformHandle _map_pixel_size;
+	bgfx::UniformHandle _bloom_params;
+	BloomDesc _bloom;
+
 	// Default sampler/texture to keep WebGL renderer running
 	// when a shader references a texture (even if unused) but
 	// none are set via setTexture().
@@ -100,6 +114,9 @@ struct Pipeline
 	ShaderData _shadow_shader;
 	ShaderData _shadow_skinning_shader;
 	ShaderData _skydome_shader;
+	ShaderData _bloom_downsample_shader;
+	ShaderData _bloom_upsample_shader;
+	ShaderData _bloom_combine_shader;
 	ShaderData _tonemap_shader;
 
 	///
