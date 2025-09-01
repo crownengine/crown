@@ -48,6 +48,8 @@ bool UnitManager::alive(UnitId unit) const
 
 void UnitManager::destroy(UnitId unit)
 {
+	CE_ASSERT(alive(unit), "Unit (%u.%u) has been destroyed already", unit.id(), unit.index());
+
 	const u32 idx = unit.index();
 	++_generation[idx];
 	queue::push_back(_free_indices, idx);
