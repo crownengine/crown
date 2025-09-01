@@ -48,6 +48,7 @@
 #include "core/time.h"
 #include "resource/expression_language.h"
 #include "resource/lua_resource.h"
+#include "world/types.h"
 #include <stdlib.h> // EXIT_SUCCESS, EXIT_FAILURE
 #include <stdio.h>  // printf
 
@@ -2165,6 +2166,15 @@ static void test_expression_language()
 	memory_globals::shutdown();
 }
 
+static void test_unit_id()
+{
+	{
+		UnitId u = make_unit(100, 50);
+		ENSURE(u.index() == 100);
+		ENSURE(u.id() == 50);
+	}
+}
+
 #define RUN_TEST(name)      \
 	do {                    \
 		printf(#name "\n"); \
@@ -2205,6 +2215,7 @@ int main_unit_tests()
 	RUN_TEST(test_lua_resource);
 	RUN_TEST(test_time);
 	RUN_TEST(test_expression_language);
+	RUN_TEST(test_unit_id);
 
 	return EXIT_SUCCESS;
 }

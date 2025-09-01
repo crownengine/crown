@@ -226,6 +226,7 @@ struct EventType
 #define UNIT_INDEX_MASK 0x003fffff
 #define UNIT_ID_BITS    8
 #define UNIT_ID_MASK    0x3fc00000
+CE_STATIC_ASSERT(UNIT_INDEX_BITS + UNIT_ID_BITS <= 30);
 
 /// Unit id.
 ///
@@ -241,7 +242,7 @@ struct UnitId
 
 	u32 id() const
 	{
-		return (_idx >> UNIT_INDEX_BITS) & UNIT_ID_MASK;
+		return _idx >> UNIT_INDEX_BITS;
 	}
 
 	bool is_valid()
@@ -249,6 +250,12 @@ struct UnitId
 		return _idx != UINT32_MAX;
 	}
 };
+
+inline UnitId make_unit(u32 idx, u8 gen)
+{
+	UnitId unit = { idx | u32(gen) << UNIT_INDEX_BITS };
+	return unit;
+}
 
 inline bool operator==(const UnitId &a, const UnitId &b)
 {
