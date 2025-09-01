@@ -132,7 +132,7 @@ struct Pipeline
 	void reset(u16 width, u16 height);
 
 	///
-	void render(u16 width, u16 height);
+	void render(u16 width, u16 height, const Matrix4x4 &view, const Matrix4x4 &proj);
 
 	///
 	void reload_shaders(const ShaderResource *old_resource, const ShaderResource *new_resource);
