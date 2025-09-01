@@ -23,6 +23,7 @@ struct View
 	{
 		COLOR_0,
 		COLOR_1,
+		CASCADE_CLEAR,
 		CASCADE_0,
 		CASCADE_LAST          = CASCADE_0 + MAX_NUM_CASCADES,
 		LIGHTS                = CASCADE_LAST,

@@ -407,6 +407,12 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 			bgfx::setViewMode(id, bgfx::ViewMode::DepthAscending);
 			bgfx::setViewFrameBuffer(id, _colors[0]);
 			bgfx::touch(id);
+		} else if (id == View::CASCADE_CLEAR) {
+			view_name = "sm_cascade_clear";
+			bgfx::setViewFrameBuffer(id, _sun_shadow_map_frame_buffer);
+			bgfx::setViewRect(id, 0, 0, (u16)_render_settings.sun_shadow_map_size.x, (u16)_render_settings.sun_shadow_map_size.y);
+			bgfx::setViewClear(id, BGFX_CLEAR_DEPTH, 0xffffffff, 1.0f, 0);
+			bgfx::touch(id);
 		} else if (id >= View::CASCADE_0 && id < View::CASCADE_LAST) {
 			view_name = "sm_cascade";
 		} else if (id == View::LIGHTS) {
