@@ -94,9 +94,6 @@ World::~World()
 	}
 
 	// Destroy units
-	if (_skydome_unit.is_valid())
-		_unit_manager->destroy(_skydome_unit);
-
 	for (u32 i = 0; i < array::size(_units); ++i)
 		_unit_manager->destroy(_units[i]);
 
