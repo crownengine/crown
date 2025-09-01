@@ -20,12 +20,6 @@ UnitManager::UnitManager(Allocator &a)
 	list::init_head(_callbacks.node);
 }
 
-UnitId UnitManager::make_unit(u32 idx, u8 gen)
-{
-	UnitId unit = { idx | u32(gen) << UNIT_INDEX_BITS };
-	return unit;
-}
-
 UnitId UnitManager::create()
 {
 	u32 idx;
