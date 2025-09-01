@@ -810,8 +810,8 @@ void Device::render(World &world, UnitId camera_unit)
 	const Matrix4x4 view = world.camera_view_matrix(camera);
 	const Matrix4x4 proj = world.camera_projection_matrix(camera, aspect_ratio);
 
-	_pipeline->render(_width, _height, view, proj);
 	world.render(view, proj);
+	_pipeline->render(_width, _height, view, proj);
 }
 
 World *Device::create_world()

@@ -18,6 +18,7 @@ Changelog
 **Fixes**
 
 * Runtime: fixed a crash when too many lights were spawned in a level.
+* Runtime: fixed cascaded shadows artifacts in some circumnstances.
 
 0.58.0 --- 01 Aug 2025
 ----------------------
