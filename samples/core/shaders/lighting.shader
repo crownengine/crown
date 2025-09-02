@@ -9,7 +9,7 @@ bgfx_shaders = {
 
 		code = """
 		#if !defined(NO_LIGHT)
-		#	define LIGHT_SIZE 4 // In vec4 units.
+		#	define LIGHT_SIZE 8 // In vec4 units.
 		#	define MAX_NUM_LIGHTS 32
 		#	define MAX_NUM_CASCADES 4
 			uniform vec4 u_lights_num;        // num_dir, num_omni, num_spot
@@ -17,7 +17,9 @@ bgfx_shaders = {
 			uniform mat4 u_cascaded_lights[MAX_NUM_CASCADES]; // View-proj-crop matrices for cascaded shadow maps.
 			uniform vec4 u_shadow_maps_texel_sizes;
 		#	define sun_sm_texel_size u_shadow_maps_texel_sizes.xy
+		#	define local_lights_sm_texel_size u_shadow_maps_texel_sizes.zw
 			SAMPLER2DSHADOW(u_cascaded_shadow_map, 10);
+			SAMPLER2DSHADOW(u_local_lights_shadow_map, 11);
 			uniform vec4 u_local_lights_params;
 		#	define local_lights_distance_culling u_local_lights_params.x
 		#	define local_lights_distance_culling_fade u_local_lights_params.y
@@ -172,6 +174,7 @@ bgfx_shaders = {
 				, vec4 shadow_pos1
 				, vec4 shadow_pos2
 				, vec4 shadow_pos3
+				, vec4 shadow_local
 				, vec3 albedo
 				, float metallic
 				, float roughness
@@ -241,6 +244,7 @@ bgfx_shaders = {
 					float intensity   = u_lights_data[loffset + 0].w;
 					vec3 direction    = u_lights_data[loffset + 2].xyz;
 					float shadow_bias = u_lights_data[loffset + 3].r;
+
 					radiance += calc_dir_light(n
 						, v
 						, toLinearAccurate(light_color)
@@ -284,6 +288,13 @@ bgfx_shaders = {
 					vec3 direction    = u_lights_data[loffset + 2].xyz;
 					float spot_angle  = u_lights_data[loffset + 2].w;
 					float shadow_bias = u_lights_data[loffset + 3].r;
+					float atlas_u     = u_lights_data[loffset + 3].g;
+					float atlas_v     = u_lights_data[loffset + 3].b;
+					float atlas_size  = u_lights_data[loffset + 3].a;
+					vec4 axis_x       = u_lights_data[loffset + 4];
+					vec4 axis_y       = u_lights_data[loffset + 5];
+					vec4 axis_z       = u_lights_data[loffset + 6];
+					vec4 axis_t       = u_lights_data[loffset + 7];
 
 					vec3 local_radiance = calc_spot_light(n
 						, v
@@ -299,6 +310,10 @@ bgfx_shaders = {
 						, roughness
 						, f0
 						);
+
+					mat4 mvp = mtxFromCols(axis_x, axis_y, axis_z, axis_t);
+					vec4 shadow_pos0 = mul(mvp, shadow_local);
+					local_radiance *= PCF(u_local_lights_shadow_map, shadow_pos0, shadow_bias, local_lights_sm_texel_size, vec3(atlas_u, atlas_v, atlas_size));
 
 					radiance += apply_distance_fading(local_radiance, position, camera_pos);
 				}

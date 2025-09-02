@@ -129,6 +129,8 @@ Pipeline::Pipeline(ShaderManager &sm)
 	, _outline_color(BGFX_INVALID_HANDLE)
 	, _sun_shadow_map_texture(BGFX_INVALID_HANDLE)
 	, _sun_shadow_map_frame_buffer(BGFX_INVALID_HANDLE)
+	, _local_lights_shadow_map_texture(BGFX_INVALID_HANDLE)
+	, _local_lights_shadow_map_frame_buffer(BGFX_INVALID_HANDLE)
 	, _bloom_map(BGFX_INVALID_HANDLE)
 	, _map_pixel_size(BGFX_INVALID_HANDLE)
 	, _bloom_params(BGFX_INVALID_HANDLE)
@@ -165,7 +167,7 @@ void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settin
 	_u_cascaded_lights = bgfx::createUniform("u_cascaded_lights", bgfx::UniformType::Mat4, MAX_NUM_CASCADES);
 	_u_shadow_maps_texel_sizes = bgfx::createUniform("u_shadow_maps_texel_sizes", bgfx::UniformType::Vec4);
 
-	// Create cascaded shadow map frame buffer.
+	// Create cascaded shadow map resources.
 	if (bgfx::isValid(_sun_shadow_map_texture))
 		bgfx::destroy(_sun_shadow_map_texture);
 	_sun_shadow_map_texture = bgfx::createTexture2D(_render_settings.sun_shadow_map_size.x
@@ -183,6 +185,25 @@ void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settin
 		bgfx::destroy(_sun_shadow_map_frame_buffer);
 	_sun_shadow_map_frame_buffer = bgfx::createFrameBuffer(countof(fbtextures), fbtextures);
 
+	// Create local-lights shadow map resources.
+	if (bgfx::isValid(_local_lights_shadow_map_texture))
+		bgfx::destroy(_local_lights_shadow_map_texture);
+	_local_lights_shadow_map_texture = bgfx::createTexture2D(_render_settings.local_lights_shadow_map_size.x
+		, _render_settings.local_lights_shadow_map_size.y
+		, false
+		, 1
+		, bgfx::TextureFormat::D32F
+		, BGFX_TEXTURE_RT | BGFX_SAMPLER_COMPARE_LEQUAL
+		);
+	const bgfx::TextureHandle llfbtextures[] =
+	{
+		_local_lights_shadow_map_texture
+	};
+	if (bgfx::isValid(_local_lights_shadow_map_frame_buffer))
+		bgfx::destroy(_local_lights_shadow_map_frame_buffer);
+	_local_lights_shadow_map_frame_buffer = bgfx::createFrameBuffer(countof(llfbtextures), llfbtextures);
+
+	_u_local_lights_shadow_map = bgfx::createUniform("u_local_lights_shadow_map", bgfx::UniformType::Sampler);
 	_u_local_lights_params = bgfx::createUniform("u_local_lights_params", bgfx::UniformType::Vec4);
 
 	_u_lighting_params = bgfx::createUniform("u_lighting_params", bgfx::UniformType::Vec4);
@@ -210,8 +231,15 @@ void Pipeline::destroy()
 	bgfx::destroy(_u_lighting_params);
 	_u_lighting_params = BGFX_INVALID_HANDLE;
 
+	// Destroy local-lights shadow map resources.
 	bgfx::destroy(_u_local_lights_params);
 	_u_local_lights_params = BGFX_INVALID_HANDLE;
+	bgfx::destroy(_u_local_lights_shadow_map);
+	_u_local_lights_shadow_map = BGFX_INVALID_HANDLE;
+	bgfx::destroy(_local_lights_shadow_map_frame_buffer);
+	_local_lights_shadow_map_frame_buffer = BGFX_INVALID_HANDLE;
+	bgfx::destroy(_local_lights_shadow_map_texture);
+	_local_lights_shadow_map_texture = BGFX_INVALID_HANDLE;
 
 	// Destroy cascaded shadow map resources.
 	bgfx::destroy(_u_cascaded_lights);
@@ -415,6 +443,14 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 			bgfx::touch(id);
 		} else if (id >= View::CASCADE_0 && id < View::CASCADE_LAST) {
 			view_name = "sm_cascade";
+		} else if (id == View::SM_LOCAL_CLEAR) {
+			view_name = "sm_local_lights_clear";
+			bgfx::setViewClear(id, BGFX_CLEAR_DEPTH, 0, 1.0f);
+			bgfx::setViewFrameBuffer(id, _local_lights_shadow_map_frame_buffer);
+			bgfx::setViewRect(id, 0, 0, (u16)_render_settings.local_lights_shadow_map_size.x, (u16)_render_settings.local_lights_shadow_map_size.y);
+			bgfx::touch(id);
+		} else if (id >= View::SM_LOCAL_0 && id < View::SM_LOCAL_LAST) {
+			view_name = "sm_local_lights";
 		} else if (id == View::LIGHTS) {
 			view_name = "lights_data";
 		} else if (id == View::MESH) {

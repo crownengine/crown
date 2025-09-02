@@ -204,17 +204,18 @@ bgfx_shaders = {
 		}
 
 		varying = """
-			vec3 v_normal    : NORMAL    = vec3(0.0, 0.0, 0.0);
-			vec3 v_tangent   : TANGENT   = vec3(0.0, 0.0, 0.0);
-			vec3 v_bitangent : BITANGENT = vec3(0.0, 0.0, 0.0);
-			vec2 v_texcoord0 : TEXCOORD0 = vec2(0.0, 0.0);
-			vec3 v_position  : TEXCOORD1 = vec3(0.0, 0.0, 0.0);
-			vec3 v_camera    : TEXCOORD2 = vec3(0.0, 0.0, 0.0);
-			vec4 v_shadow0   : TEXCOORD3 = vec4(0.0, 0.0, 0.0, 0.0);
-			vec4 v_shadow1   : TEXCOORD4 = vec4(0.0, 0.0, 0.0, 0.0);
-			vec4 v_shadow2   : TEXCOORD5 = vec4(0.0, 0.0, 0.0, 0.0);
-			vec4 v_shadow3   : TEXCOORD6 = vec4(0.0, 0.0, 0.0, 0.0);
-			vec3 v_camera_pos: TEXCOORD8 = vec3(0.0, 0.0, 0.0);
+			vec3 v_normal       : NORMAL    = vec3(0.0, 0.0, 0.0);
+			vec3 v_tangent      : TANGENT   = vec3(0.0, 0.0, 0.0);
+			vec3 v_bitangent    : BITANGENT = vec3(0.0, 0.0, 0.0);
+			vec2 v_texcoord0    : TEXCOORD0 = vec2(0.0, 0.0);
+			vec3 v_position     : TEXCOORD1 = vec3(0.0, 0.0, 0.0);
+			vec3 v_camera       : TEXCOORD2 = vec3(0.0, 0.0, 0.0);
+			vec4 v_shadow0      : TEXCOORD3 = vec4(0.0, 0.0, 0.0, 0.0);
+			vec4 v_shadow1      : TEXCOORD4 = vec4(0.0, 0.0, 0.0, 0.0);
+			vec4 v_shadow2      : TEXCOORD5 = vec4(0.0, 0.0, 0.0, 0.0);
+			vec4 v_shadow3      : TEXCOORD6 = vec4(0.0, 0.0, 0.0, 0.0);
+			vec4 v_shadow_local : TEXCOORD7 = vec4(0.0, 0.0, 0.0, 0.0);
+			vec3 v_camera_pos   : TEXCOORD8 = vec3(0.0, 0.0, 0.0);
 
 			vec3 a_position  : POSITION;
 			vec3 a_normal    : NORMAL;
@@ -231,7 +232,7 @@ bgfx_shaders = {
 		#else
 			$input a_position, a_normal, a_tangent, a_bitangent, a_texcoord0
 		#endif
-			$output v_normal, v_tangent, v_bitangent, v_texcoord0, v_position, v_camera, v_camera_pos, v_shadow0, v_shadow1, v_shadow2, v_shadow3
+			$output v_normal, v_tangent, v_bitangent, v_texcoord0, v_position, v_camera, v_camera_pos, v_shadow0, v_shadow1, v_shadow2, v_shadow3, v_shadow_local
 		"""
 
 		vs_code = """
@@ -275,12 +276,13 @@ bgfx_shaders = {
 				v_shadow1 = mul(mul(u_cascaded_lights[1], model), vec4(pos_offset, 1.0));
 				v_shadow2 = mul(mul(u_cascaded_lights[2], model), vec4(pos_offset, 1.0));
 				v_shadow3 = mul(mul(u_cascaded_lights[3], model), vec4(pos_offset, 1.0));
+				v_shadow_local = mul(model, vec4(pos_offset, 1.0));
 		#endif
 			}
 		"""
 
 		fs_input_output = """
-			$input v_normal, v_tangent, v_bitangent, v_texcoord0, v_position, v_camera, v_camera_pos, v_shadow0, v_shadow1, v_shadow2, v_shadow3
+			$input v_normal, v_tangent, v_bitangent, v_texcoord0, v_position, v_camera, v_camera_pos, v_shadow0, v_shadow1, v_shadow2, v_shadow3, v_shadow_local
 		"""
 
 		code = """
@@ -328,7 +330,7 @@ bgfx_shaders = {
 				vec3 n = normalize(normal); // Fragment normal.
 				vec3 v = normalize(v_camera); // Versor from fragment to camera pos.
 				vec3 f0 = mix(vec3_splat(0.04), albedo, metallic);
-				vec3 radiance = calc_lighting(tbn, n, v, v_position, v_camera, v_camera_pos, v_shadow0, v_shadow1, v_shadow2, v_shadow3, albedo, metallic, roughness, ao, emission, f0);
+				vec3 radiance = calc_lighting(tbn, n, v, v_position, v_camera, v_camera_pos, v_shadow0, v_shadow1, v_shadow2, v_shadow3, v_shadow_local, albedo, metallic, roughness, ao, emission, f0);
 		#endif // !defined(NO_LIGHT)
 
 				gl_FragColor = vec4(radiance, 1.0);

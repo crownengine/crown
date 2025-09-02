@@ -600,6 +600,29 @@ void RenderWorld::update_transforms(const UnitId *begin, const UnitId *end, cons
 	}
 }
 
+static u32 best_square_size(u32 width, u32 height, u32 num_tiles)
+{
+	CE_ENSURE(num_tiles > 0);
+
+	u32 low  = 1;
+	u32 high = (width < height ? width : height);
+	u32 best = 0;
+
+	while (low <= high) {
+		u32 mid = low + ((high - low) >> 1);
+		u64 num = (u64)(width / mid) * (u64)(height / mid);
+
+		if (num >= num_tiles) {
+			best = mid;
+			low = mid + 1;
+		} else {
+			high = mid - 1;
+		}
+	}
+
+	return best;
+}
+
 void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, UnitId skydome_unit)
 {
 	LightManager &lm = _light_manager;
@@ -746,8 +769,8 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, UnitId sk
 
 	// Render local lights.
 	if (_pipeline->_render_settings.flags & RenderSettingsFlags::LOCAL_LIGHTS) {
-		// Sort culled (local) lights by distance to camera.
-		// TODO: no culling is performed yet, culled lights here means *all* local lights.
+		// Sort culled lights by distance to camera.
+		// TODO: no culling is performed yet, "culled lights" here means *all* local lights.
 		std::sort(array::begin(lm._local_lights)
 			, array::end(lm._local_lights)
 			, [lm, camera_pos](const u32 &in_a, const u32 &in_b) {
@@ -756,10 +779,62 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, UnitId sk
 				return dist_a < dist_b;
 			});
 
-		for (u32 i = 0; i < array::size(lm._local_lights) && num_lights < MAX_NUM_LIGHTS; ++i) {
+		// FIXME: this is a pretty dumb allocation scheme but it's fine for now.
+		const u32 tile_size = best_square_size(_pipeline->_render_settings.local_lights_shadow_map_size.x
+			, _pipeline->_render_settings.local_lights_shadow_map_size.y
+			, LOCAL_LIGHTS_MAX_SHADOW_CASTERS
+			);
+		const u32 tile_cols = _pipeline->_render_settings.local_lights_shadow_map_size.x / tile_size;
+		const u32 max_tiles = tile_cols * tile_cols;
+		u32 num_tiles = 0;
+		u32 cur_tile;
+
+		// Render shadow map for spot lights.
+		for (u32 i = 0; i < array::size(lm._local_lights) && num_lights < MAX_NUM_LIGHTS && num_tiles < LOCAL_LIGHTS_MAX_SHADOW_CASTERS; ++i) {
 			LightManager::ShaderData &shader = lid.shader[lm._local_lights[i]];
 
 			if (lid.type[lm._local_lights[i]] == LightType::SPOT) {
+				if ((lid.flag[lm._local_lights[i]] & RenderableFlags::SHADOW_CASTER) != 0 && (_pipeline->_render_settings.flags & RenderSettingsFlags::LOCAL_LIGHTS_SHADOWS) != 0) {
+					cur_tile = num_tiles++;
+
+					// Compute light view-proj matrix.
+					Matrix4x4 light_view;
+					Matrix4x4 light_proj;
+					const Vector3 &light_dir = shader.direction;
+					const Vector3 &light_pos = shader.position;
+					const bx::Vec3 at  = { light_pos.x - light_dir.x, light_pos.y - light_dir.y, light_pos.z - light_dir.z };
+					const bx::Vec3 eye = { -light_pos.x, -light_pos.y, -light_pos.z };
+					const bx::Vec3 up  = { 0.0f, 0.0f, 1.0f };
+					bx::mtxLookAt(to_float_ptr(light_view), eye, at, up, bx::Handedness::Right);
+					bx::mtxProj(to_float_ptr(light_proj)
+						, fdeg(shader.spot_angle) * 2.0f
+						, 1.0f // Square depth texture.
+						, 0.1
+						, shader.range
+						, caps->homogeneousDepth
+						, bx::Handedness::Right
+						);
+
+					shader.mvp = light_view * light_proj * crop;
+
+					Vector4 rect = {
+						f32(tile_size * (cur_tile % tile_cols)),
+						f32(tile_size * (cur_tile / tile_cols)),
+						f32(tile_size),
+						f32(tile_size)
+					};
+
+					shader.atlas_u = rect.x / _pipeline->_render_settings.local_lights_shadow_map_size.x;
+					shader.atlas_v = 1.0f - ((rect.y + rect.z) / _pipeline->_render_settings.local_lights_shadow_map_size.x);
+					shader.map_size = rect.w / _pipeline->_render_settings.local_lights_shadow_map_size.x;
+
+					bgfx::setViewFrameBuffer(View::SM_LOCAL_0 + i, _pipeline->_local_lights_shadow_map_frame_buffer);
+					bgfx::setViewRect(View::SM_LOCAL_0 + i, rect.x, rect.y, rect.z, rect.w);
+					bgfx::setViewTransform(View::SM_LOCAL_0 + i, to_float_ptr(light_view), to_float_ptr(light_proj));
+
+					_mesh_manager.draw_shadow_casters(View::SM_LOCAL_0 + i, *_scene_graph);
+				}
+
 				array::push_back(lm._local_lights_spot, lm._local_lights[i]);
 			} else if (lid.type[lm._local_lights[i]] == LightType::OMNI) {
 				array::push_back(lm._local_lights_omni, lm._local_lights[i]);
@@ -1137,8 +1212,8 @@ void RenderWorld::MeshManager::draw_visibles(u8 view_id, SceneGraph &scene_graph
 	{
 		1.0f/_render_world->_pipeline->_render_settings.sun_shadow_map_size.x,
 		1.0f/_render_world->_pipeline->_render_settings.sun_shadow_map_size.y,
-		0.0f,
-		0.0f
+		1.0f/_render_world->_pipeline->_render_settings.local_lights_shadow_map_size.x,
+		1.0f/_render_world->_pipeline->_render_settings.local_lights_shadow_map_size.y
 	};
 
 	for (u32 ii = 0; ii < _data.first_hidden; ++ii) {
@@ -1148,6 +1223,8 @@ void RenderWorld::MeshManager::draw_visibles(u8 view_id, SceneGraph &scene_graph
 		bgfx::setUniform(_render_world->_u_fog_data, (char *)&_render_world->_fog_desc, sizeof(_render_world->_fog_desc) / sizeof(Vector4));
 		_render_world->_pipeline->set_local_lights_params_uniform();
 		_render_world->_pipeline->set_global_lighting_params(&_render_world->_global_lighting_desc);
+
+		bgfx::setTexture(LOCAL_LIGHTS_SHADOW_MAP_SLOT, _render_world->_pipeline->_u_local_lights_shadow_map, _render_world->_pipeline->_local_lights_shadow_map_texture);
 
 		set_instance_data(ii, scene_graph);
 		_data.material[ii]->bind(view_id);
@@ -1580,6 +1657,10 @@ LightInstance RenderWorld::LightManager::create(UnitId unit, const LightDesc &ld
 	_data.shader[last].direction   = dir;
 	_data.shader[last].spot_angle  = ld.spot_angle;
 	_data.shader[last].shadow_bias = ld.shadow_bias;
+	_data.shader[last].atlas_u     = 0.0f;
+	_data.shader[last].atlas_v     = 0.0f;
+	_data.shader[last].map_size    = 0.0f;
+	_data.shader[last].mvp         = MATRIX4X4_IDENTITY;
 
 	++_data.size;
 
