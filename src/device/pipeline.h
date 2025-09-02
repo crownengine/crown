@@ -10,11 +10,14 @@
 #include "resource/shader_resource.h"
 #include <bgfx/bgfx.h>
 
-#define LIGHT_SIZE 4      // Size of a light in vec4 units.
+#define LIGHT_SIZE 8      // Size of a light in vec4 units.
 #define MAX_NUM_LIGHTS 32 // Maximum number of lights per frame.
 #define MAX_NUM_SPRITE_LAYERS 8
 #define MAX_NUM_CASCADES 4
 #define CASCADED_SHADOW_MAP_SLOT 10
+#define LOCAL_LIGHTS_SHADOW_MAP_SLOT 11
+#define LOCAL_LIGHTS_MAX_SHADOW_CASTERS 16 // Maximum number of local shadow-casting lights per frame.
+CE_STATIC_ASSERT(LOCAL_LIGHTS_MAX_SHADOW_CASTERS <= MAX_NUM_LIGHTS);
 #define BLOOM_MIPS 6
 
 struct View
@@ -26,7 +29,10 @@ struct View
 		CASCADE_CLEAR,
 		CASCADE_0,
 		CASCADE_LAST          = CASCADE_0 + MAX_NUM_CASCADES,
-		LIGHTS                = CASCADE_LAST,
+		SM_LOCAL_CLEAR        = CASCADE_LAST,
+		SM_LOCAL_0,
+		SM_LOCAL_LAST         = SM_LOCAL_0 + LOCAL_LIGHTS_MAX_SHADOW_CASTERS,
+		LIGHTS                = SM_LOCAL_LAST,
 		MESH,
 		BLOOM_COPY,
 		BLOOM_DOWNSAMPLE_0,
@@ -80,12 +86,15 @@ struct Pipeline
 	bgfx::UniformHandle _outline_color_map;
 	bgfx::UniformHandle _outline_color;
 
-	// Shadow mapping.
+	// Cascaded shadow mapping.
 	bgfx::TextureHandle _sun_shadow_map_texture;
 	bgfx::FrameBufferHandle _sun_shadow_map_frame_buffer;
 	bgfx::UniformHandle _u_cascaded_shadow_map;
 	bgfx::UniformHandle _u_cascaded_lights;
 	bgfx::UniformHandle _u_shadow_maps_texel_sizes;
+	bgfx::TextureHandle _local_lights_shadow_map_texture;
+	bgfx::FrameBufferHandle _local_lights_shadow_map_frame_buffer;
+	bgfx::UniformHandle _u_local_lights_shadow_map;
 	bgfx::UniformHandle _u_local_lights_params;
 
 	bgfx::UniformHandle _u_lighting_params;

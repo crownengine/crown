@@ -7,6 +7,7 @@ Changelog
 **New Features and Improvements**
 
 * Runtime: added a new Mover component for controlling characters that implements a standard collide-and-slide algorithm.
+* Runtime: added a shadow mapping implementation to spot lights.
 * Runtime: added a new Global Lighting component for controlling the skydome's appearance and other global lighting parameters.
 * Runtime: added a new Bloom component.
 * Runtime: added a new dedicated skydome renderer.

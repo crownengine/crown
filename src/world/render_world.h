@@ -449,6 +449,7 @@ struct RenderWorld
 			f32 atlas_u;   // U-coord in shadow map atlas.
 			f32 atlas_v;   // V-coord in shadow map atlas.
 			f32 map_size;  // Tile size in shadow map atlas.
+			Matrix4x4 mvp; // Model-View-Proj-Crop.
 		};
 
 		struct LightInstanceData
