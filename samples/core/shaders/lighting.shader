@@ -15,7 +15,8 @@ bgfx_shaders = {
 			uniform vec4 u_lights_num;        // num_dir, num_omni, num_spot
 			uniform vec4 u_lights_data[LIGHT_SIZE * MAX_NUM_LIGHTS]; // dir_0, .., dir_n-1, omni_0, .., omni_n-1, spot_0, .., spot_n-1
 			uniform mat4 u_cascaded_lights[MAX_NUM_CASCADES]; // View-proj-crop matrices for cascaded shadow maps.
-			uniform vec4 u_cascaded_texel_size;
+			uniform vec4 u_shadow_maps_texel_sizes;
+		#	define sun_sm_texel_size u_shadow_maps_texel_sizes.xy
 			SAMPLER2DSHADOW(u_cascaded_shadow_map, 10);
 			uniform vec4 u_local_lights_params;
 		#	define local_lights_distance_culling u_local_lights_params.x
@@ -222,16 +223,14 @@ bgfx_shaders = {
 					bool atlas2 = all(lessThan(shadow2, vec2_splat(0.99))) && all(greaterThan(shadow2, vec2_splat(0.01)));
 					bool atlas3 = all(lessThan(shadow3, vec2_splat(0.99))) && all(greaterThan(shadow3, vec2_splat(0.01)));
 
-					vec2 texel_size = u_cascaded_texel_size.xy;
-
 					if (atlas0)
-						local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos0, shadow_bias, texel_size, vec3(atlas_u             , atlas_v             , atlas_size));
+						local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos0, shadow_bias, sun_sm_texel_size, vec3(atlas_u             , atlas_v             , atlas_size));
 					else if (atlas1)
-						local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos1, shadow_bias, texel_size, vec3(atlas_u + atlas_size, atlas_v             , atlas_size));
+						local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos1, shadow_bias, sun_sm_texel_size, vec3(atlas_u + atlas_size, atlas_v             , atlas_size));
 					else if (atlas2)
-						local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos2, shadow_bias, texel_size, vec3(atlas_u             , atlas_v + atlas_size, atlas_size));
+						local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos2, shadow_bias, sun_sm_texel_size, vec3(atlas_u             , atlas_v + atlas_size, atlas_size));
 					else if (atlas3)
-						local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos3, shadow_bias, texel_size, vec3(atlas_u + atlas_size, atlas_v + atlas_size, atlas_size));
+						local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos3, shadow_bias, sun_sm_texel_size, vec3(atlas_u + atlas_size, atlas_v + atlas_size, atlas_size));
 
 					radiance += local_radiance;
 				}
