@@ -1133,7 +1133,7 @@ void RenderWorld::MeshManager::draw_shadow_casters(u8 view_id, SceneGraph &scene
 
 void RenderWorld::MeshManager::draw_visibles(u8 view_id, SceneGraph &scene_graph, const Matrix4x4 *cascaded_lights)
 {
-	const Vector4 texel_size =
+	const Vector4 texel_sizes =
 	{
 		1.0f/_render_world->_pipeline->_render_settings.sun_shadow_map_size.x,
 		1.0f/_render_world->_pipeline->_render_settings.sun_shadow_map_size.y,
@@ -1143,8 +1143,8 @@ void RenderWorld::MeshManager::draw_visibles(u8 view_id, SceneGraph &scene_graph
 
 	for (u32 ii = 0; ii < _data.first_hidden; ++ii) {
 		bgfx::setTexture(CASCADED_SHADOW_MAP_SLOT, _render_world->_pipeline->_u_cascaded_shadow_map, _render_world->_pipeline->_sun_shadow_map_texture);
-		bgfx::setUniform(_render_world->_pipeline->_u_cascaded_texel_size, &texel_size);
 		bgfx::setUniform(_render_world->_pipeline->_u_cascaded_lights, cascaded_lights, MAX_NUM_CASCADES);
+		bgfx::setUniform(_render_world->_pipeline->_u_shadow_maps_texel_sizes, &texel_sizes);
 		bgfx::setUniform(_render_world->_u_fog_data, (char *)&_render_world->_fog_desc, sizeof(_render_world->_fog_desc) / sizeof(Vector4));
 		_render_world->_pipeline->set_local_lights_params_uniform();
 		_render_world->_pipeline->set_global_lighting_params(&_render_world->_global_lighting_desc);
