@@ -11,6 +11,7 @@ output = {
 	}
 	linux = {
 		format = "BC1"
+		normal_map = false
 	}
 	windows = {
 		format = "BC1"

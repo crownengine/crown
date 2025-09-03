@@ -1,0 +1,1402 @@
+_guid = "ba028395-428e-42f2-aca8-11a1523fe8bf"
+_type = "level"
+editor = {
+	camera = {
+		orthographic_size = 28.620796200000001
+		position = [
+			53.615696
+			-61.410461400000003
+			52.867267599999998
+		]
+		rotation = [
+			-0.31456348299999998
+			-0.107889466
+			0.305969983
+			0.89207178399999998
+		]
+		target_distance = 118.149109
+		view_type = 0
+	}
+}
+sounds = [
+	{
+		_guid = "8b0b2bd9-f3ac-4034-9c08-9f53e7e69f23"
+		_type = "sound_source"
+		editor = {
+			name = "background_noise"
+		}
+		group = "music"
+		loop = true
+		name = "sfx/ambient"
+		position = [
+			0
+			0
+			27.387899399999998
+		]
+		range = 1000
+		rotation = [
+			0
+			0
+			0
+			1
+		]
+		volume = 0.01
+	}
+]
+units = [
+	{
+		_guid = "1038946b-6df5-40b5-afbe-62540f403fed"
+		_type = "unit"
+		editor = {
+			name = "block4"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						-31.812545799999999
+						20.933166499999999
+						4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						8
+						8
+						8
+					]
+				}
+			}
+			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = {
+				data = {
+					collision_filter = "default"
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "17a284b9-485c-4abd-9c7e-ec92b52e6d96"
+		_type = "unit"
+		editor = {
+			name = "sun"
+		}
+		modified_components = {
+			#3f6f6b7c-b4cf-4173-aab0-288a63d7c73a = {
+				data = {
+					position = [
+						12
+						6.5
+						52.167983999999997
+					]
+					rotation = [
+						0.21892799399999999
+						0.37359330099999999
+						0.064721733300000001
+						0.89906042799999997
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+				type = "transform"
+			}
+			#45e54fbe-018c-4ee2-917d-398c13bd3e7e = {
+				data = {
+					intensity = 1
+					type = "directional"
+				}
+			}
+			#65f81abd-43ea-4c15-8d96-b82fec868bcd = {
+				data = {
+					cast_shadows = false
+				}
+			}
+		}
+		prefab = "core/units/light"
+	}
+	{
+		_guid = "1f8c2281-53c5-48f4-93de-6a1b89c66140"
+		_type = "unit"
+		editor = {
+			name = "ground"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						150
+						150
+						1
+					]
+				}
+			}
+			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+				data = {
+					material = "units/grid"
+				}
+			}
+			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = {
+				data = {
+					class = "static"
+					collision_filter = "default"
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "28dc39ef-fd55-4023-8f6f-527fd2e4924c"
+		_type = "unit"
+		editor = {
+			name = "slope8"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						-27.473960900000002
+						-18.035486200000001
+						5.1360974300000004
+					]
+					rotation = [
+						0.41562709199999998
+						0.415627152
+						0.57206165799999997
+						0.57206094299999999
+					]
+					scale = [
+						2
+						10
+						0.25
+					]
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "2d58ad51-e1dd-4309-9552-676b6cdd8873"
+		_type = "unit"
+		editor = {
+			name = "trigger_wall_R"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						30.3070621
+						27.8795395
+						3.5
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						6.25
+						1
+						6
+					]
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "2e42b505-2b95-475d-882f-158d2b5fbeff"
+		_type = "unit"
+		editor = {
+			name = "raycast_wall_R"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						51.204612699999998
+						27.8795395
+						3.5
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						6.25
+						1
+						6
+					]
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "2f166dbf-5e6a-4d34-9a58-a6228c453fdf"
+		_type = "unit"
+		components = [
+			{
+				_guid = "1d768085-0b0a-4e40-9d77-f9e73117ac1c"
+				_type = "script"
+				data = {
+					script_resource = "units/sliding_door/sliding_door_trigger"
+				}
+			}
+		]
+		editor = {
+			name = "trigger_trigger"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						26.0570621
+						27.8795395
+						3.5
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						2.5
+						12
+						6
+					]
+				}
+			}
+			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+				data = {
+					visible = false
+				}
+			}
+		}
+		prefab = "units/sliding_door/sliding_door_trigger"
+	}
+	{
+		_guid = "3abacaaf-a98b-4da8-b48b-e3a751dc7d12"
+		_type = "unit"
+		editor = {
+			name = "trigger_door"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						26.057100299999998
+						27.8795395
+						2.5
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						2.5
+						0.5
+						4
+					]
+				}
+			}
+			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+				data = {
+					material = "units/moving_platform/moving_platform"
+				}
+			}
+			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = {
+				data = {
+					class = "keyframed"
+				}
+			}
+		}
+		prefab = "units/sliding_door/sliding_door"
+	}
+	{
+		_guid = "3c60e9fa-cd22-4834-9bdc-dc318be4d008"
+		_type = "unit"
+		editor = {
+			name = "moving_platform"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						-13.812545800000001
+						32.933166499999999
+						0.75
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						4
+						4
+						0.5
+					]
+				}
+			}
+			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+				data = {
+					material = "units/moving_platform/moving_platform"
+				}
+			}
+		}
+		prefab = "units/moving_platform/moving_platform"
+	}
+	{
+		_guid = "43223c75-082a-48a3-b23f-87fd75558ac4"
+		_type = "unit"
+		editor = {
+			name = "slope5"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						-29.406623799999998
+						-27.035486200000001
+						3.89736605
+					]
+					rotation = [
+						0.270598173
+						0.27059826300000001
+						0.65328156900000001
+						0.653281271
+					]
+					scale = [
+						2
+						10
+						0.25
+					]
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "48c4c8c9-fa8d-4a8f-829c-3ea346cd8e93"
+		_type = "unit"
+		editor = {
+			name = "wall3"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						0
+						-75
+						5
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						150
+						1
+						10
+					]
+				}
+			}
+		}
+		prefab = "units/wall/wall"
+	}
+	{
+		_guid = "4dd83d1c-e3af-4c5c-b0a3-af81e299b938"
+		_type = "unit"
+		editor = {
+			name = "slope9"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						-26.720108
+						-15.035486199999999
+						5.3436970700000002
+					]
+					rotation = [
+						0.45922932
+						0.45922938000000002
+						0.53768795700000005
+						0.53768813599999998
+					]
+					scale = [
+						2
+						10
+						0.25
+					]
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "6cc5073c-2eff-4e24-990c-0433aad3a792"
+		_type = "unit"
+		editor = {
+			name = "slope7"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						-28.189094499999999
+						-21.035486200000001
+						4.8579101600000003
+					]
+					rotation = [
+						0.36946225199999999
+						0.36946245999999999
+						0.60290771700000001
+						0.60290747899999997
+					]
+					scale = [
+						2
+						10
+						0.25
+					]
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "6e9129fb-979a-4bb2-93d1-e497fe05e108"
+		_type = "unit"
+		editor = {
+			name = "moving_platform2"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						-31.812545799999999
+						14.9331665
+						7.75
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						4
+						4
+						0.5
+					]
+				}
+			}
+			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+				data = {
+					material = "units/moving_platform/moving_platform"
+				}
+			}
+		}
+		prefab = "units/moving_platform/moving_platform"
+	}
+	{
+		_guid = "70ecc3f3-b319-4884-bbdc-29f56fd0e948"
+		_type = "unit"
+		editor = {
+			name = "trigger_wall_L"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						21.8070621
+						27.8795395
+						3.5
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						6.25
+						1
+						6
+					]
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "71225ea8-e1e4-4b91-9a7d-02e52dd35b4d"
+		_type = "unit"
+		deleted_components = {
+			#08b8b97a-c894-409f-8f57-e7508ff8d3cf = false
+			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = false
+		}
+		editor = {
+			name = "label_trigger"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						25.944591500000001
+						27.888225599999998
+						6.9713425600000001
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+				data = {
+					visible = false
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "760a20bb-8926-4a79-a2eb-7676b681afb3"
+		_type = "unit"
+		editor = {
+			name = "slope6"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						-28.836074799999999
+						-24.035486200000001
+						4.4291534400000003
+					]
+					rotation = [
+						0.32101997700000001
+						0.32101988799999998
+						0.63003647299999999
+						0.63003695000000004
+					]
+					scale = [
+						2
+						10
+						0.25
+					]
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "7fb42433-4779-4e85-bd77-6269ec4b0044"
+		_type = "unit"
+		editor = {
+			name = "raycast_wall_L"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						42.704612699999998
+						27.8795395
+						3.5
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						6.25
+						1
+						6
+					]
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "842a6cca-ad96-4db3-bf96-ea8dc4ce47ad"
+		_type = "unit"
+		deleted_components = {
+			#08b8b97a-c894-409f-8f57-e7508ff8d3cf = false
+			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = false
+		}
+		editor = {
+			name = "label_moving_platforms"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						-25.325752300000001
+						27.169219999999999
+						6.9713425600000001
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+				data = {
+					visible = false
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "89cb990c-6a37-47cc-a001-c9b5ea5965dd"
+		_type = "unit"
+		editor = {
+			name = "cube"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						48.773925800000001
+						27.663141299999999
+						2.5272736500000001
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						0.41285723400000002
+						0.239813417
+						0.41285723400000002
+					]
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "8eaa5f55-fcf4-4766-bfbe-411f38635444"
+		_type = "unit"
+		editor = {
+			name = "raycast_door"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						46.954650899999997
+						27.8795395
+						2.5
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						2.5
+						0.5
+						4
+					]
+				}
+			}
+			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+				data = {
+					material = "units/moving_platform/moving_platform"
+				}
+			}
+			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = {
+				data = {
+					class = "keyframed"
+				}
+			}
+		}
+		prefab = "units/sliding_door/sliding_door"
+	}
+	{
+		_guid = "9c51dbcc-c19d-4653-9402-ad705b86fc49"
+		_type = "unit"
+		editor = {
+			name = "wall2"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						-75.000015300000001
+						-3.3915042900000002e-05
+						5
+					]
+					rotation = [
+						0
+						0
+						-0.70710658999999998
+						0.70710694799999996
+					]
+					scale = [
+						150
+						1
+						10
+					]
+				}
+			}
+		}
+		prefab = "units/wall/wall"
+	}
+	{
+		_guid = "9fa2f375-6a18-41c2-85a4-64bbf76b896f"
+		_type = "unit"
+		editor = {
+			name = "block3"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						-19.812545799999999
+						32.933166499999999
+						4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						8
+						8
+						8
+					]
+				}
+			}
+			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = {
+				data = {
+					collision_filter = "default"
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "a1cf5c67-79f5-4136-98aa-36a6e8da63b4"
+		_type = "unit"
+		editor = {
+			name = "wall4"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						74.999969500000006
+						1.8239021300000002e-05
+						5
+					]
+					rotation = [
+						0
+						0
+						0.70710682899999999
+						0.70710670900000006
+					]
+					scale = [
+						150
+						1
+						10
+					]
+				}
+			}
+		}
+		prefab = "units/wall/wall"
+	}
+	{
+		_guid = "a95e1743-5950-4ddf-8e47-37dcecbec6e1"
+		_type = "unit"
+		deleted_components = {
+			#08b8b97a-c894-409f-8f57-e7508ff8d3cf = false
+			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = false
+		}
+		editor = {
+			name = "label_raycast"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						46.7861099
+						27.888225599999998
+						6.9713425600000001
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+				data = {
+					visible = false
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "aac99e47-1eac-4d65-9bcd-1ee6070a51c1"
+		_type = "unit"
+		editor = {
+			name = "unit_0000"
+		}
+		modified_components = {
+			#3f6f6b7c-b4cf-4173-aab0-288a63d7c73a = {
+				data = {
+					position = [
+						-12.812545800000001
+						22
+						26.1616669
+					]
+					rotation = [
+						0.099045813100000005
+						0.23911780099999999
+						-0.369643897
+						0.89239901300000002
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			#45e54fbe-018c-4ee2-917d-398c13bd3e7e = {
+				data = {
+					range = 60
+					type = "spot"
+				}
+			}
+		}
+		prefab = "core/units/light"
+	}
+	{
+		_guid = "b4c8b719-6ade-45a2-bff3-cdca02599263"
+		_type = "unit"
+		editor = {
+			name = "shading_environment"
+		}
+		modified_components = {
+			#01669b61-1acb-4c6d-bef5-98ddf699a895 = {
+				data = {
+					density = 0.01
+					enabled = false
+					range_min = 60
+				}
+			}
+			#58d8d3ed-9ec2-4e11-ade6-1a3860335bb6 = {
+				data = {
+					enabled = true
+					weight = 0.050000000000000003
+				}
+			}
+			#6603b89f-a049-4c18-a9de-7fc31368eeb5 = {
+				data = {
+					ambient_color = [
+						0.21233333333333337
+						0.26430303030303026
+						0.32666666666666666
+					]
+					skydome_intensity = 2
+				}
+			}
+			#f7fb0c3b-aaeb-4ea6-a210-0c5130e4352a = {
+				data = {
+					type = "filmic"
+				}
+			}
+		}
+		prefab = "core/renderer/default_shading_environment"
+	}
+	{
+		_guid = "bcb2bc03-d313-4741-a28d-12a6d0d8196f"
+		_type = "unit"
+		components = [
+			{
+				_global_physics_config = "global"
+				_guid = "1fb2f570-d5d6-4764-9255-2bbc5b9b584c"
+				_type = "actor"
+				data = {
+					class = "keyframed"
+					collision_filter = "player"
+					lock_rotation_x = false
+					lock_rotation_y = false
+					lock_rotation_z = false
+					lock_translation_x = false
+					lock_translation_y = false
+					lock_translation_z = false
+					mass = 1
+					material = "default"
+				}
+			}
+			{
+				_global_physics_config = "global"
+				_guid = "75b497d8-f6b7-4890-959e-eba397df66e0"
+				_type = "mover"
+				data = {
+					collision_filter = "mover"
+					height = 1.8
+					max_slope_angle = 0.78539816339744828
+					max_step_height = 0.80000000000000004
+					radius = 0.5
+				}
+			}
+			{
+				_guid = "df813664-3436-4816-840f-68286b4a74db"
+				_type = "collider"
+				data = {
+					collider_data = {
+						half_extents = [
+							0
+							0
+							0
+						]
+						height = 0
+						position = [
+							0
+							0
+							0
+						]
+						radius = 0
+						rotation = [
+							0
+							0
+							0
+							1
+						]
+					}
+					name = "Cube"
+					scene = "core/units/primitives/cube"
+					shape = "box"
+					source = "mesh"
+				}
+			}
+		]
+		deleted_components = {
+			#08b8b97a-c894-409f-8f57-e7508ff8d3cf = false
+			#49753fff-34ea-4aff-8bcf-5116f1c1519a = false
+			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = false
+		}
+		editor = {
+			name = "character"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						0
+						0
+						7.3938693999999998
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "cab5ed48-5f74-4819-b59d-9e6e82ccfb44"
+		_type = "unit"
+		editor = {
+			name = "wall"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						0
+						75
+						5
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						150
+						1
+						10
+					]
+				}
+			}
+		}
+		prefab = "units/wall/wall"
+	}
+	{
+		_guid = "d19b201e-b7c8-4d62-8522-cc6a1325a3ef"
+		_type = "unit"
+		editor = {
+			name = "camera"
+		}
+		modified_components = {
+			#1d578001-d96b-4b0e-90a9-181b32161a7d = {
+				data = {
+					position = [
+						-1.06499875
+						-38.759468099999999
+						13.3709946
+					]
+					rotation = [
+						-0.25907540299999998
+						0.0052471254000000002
+						-0.019557464900000002
+						0.96564483599999995
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+		}
+		prefab = "core/units/camera"
+	}
+	{
+		_guid = "d5fb7547-c3e8-41de-a81b-36c4ac2ad942"
+		_type = "unit"
+		editor = {
+			name = "slope4"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						-29.8905411
+						-30.035486200000001
+						3.2688131299999998
+					]
+					rotation = [
+						0.21850799000000001
+						0.21850815400000001
+						0.67249864299999995
+						0.67249834500000005
+					]
+					scale = [
+						2
+						10
+						0.25
+					]
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "d8982d9a-28cf-413c-9461-836a83da8114"
+		_type = "unit"
+		editor = {
+			name = "block2"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						-31.812545799999999
+						32.933166499999999
+						4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						8
+						8
+						8
+					]
+				}
+			}
+			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = {
+				data = {
+					collision_filter = "default"
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "dd7ba069-6acc-4a8b-aeaf-d7028bd9fabc"
+		_type = "unit"
+		editor = {
+			name = "block"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						-19.812545799999999
+						20.933166499999999
+						4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						8
+						8
+						8
+					]
+				}
+			}
+			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+				data = {
+					cast_shadows = true
+					visible = true
+				}
+			}
+			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = {
+				data = {
+					collision_filter = "default"
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "ddfb4a06-1f4a-4525-8b1c-2a32a8face17"
+		_type = "unit"
+		editor = {
+			name = "slope2"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						-30.524131799999999
+						-36.0354843
+						1.8945908499999999
+					]
+					rotation = [
+						0.11061586399999999
+						0.11061589400000001
+						0.69840127200000002
+						0.69840097400000001
+					]
+					scale = [
+						2
+						10
+						0.25
+					]
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "ef853e6b-be47-49db-b9a6-d1c482ac6fca"
+		_type = "unit"
+		editor = {
+			name = "raycast_door_button"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						48.671798699999997
+						27.350269300000001
+						1.9429852999999999
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						0.41557213700000001
+						0.124079011
+						0.41557213700000001
+					]
+				}
+			}
+			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+				data = {
+					cast_shadows = false
+					material = "units/door_button/door_button"
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "f452521d-6d98-4326-9f7f-1eb908c98c6b"
+		_type = "unit"
+		deleted_components = {
+			#08b8b97a-c894-409f-8f57-e7508ff8d3cf = false
+			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = false
+		}
+		editor = {
+			name = "label_slopes"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						-29.370750399999999
+						-27.033748599999999
+						6.9713425600000001
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+				data = {
+					visible = false
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "f50c8bce-906b-447d-8569-0f32be8cb92e"
+		_type = "unit"
+		editor = {
+			name = "slope"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						-30.6150436
+						-39.0354843
+						1.1316375700000001
+					]
+					rotation = [
+						0.055478997500000002
+						0.055479038500000001
+						0.70492732499999999
+						0.70492672899999997
+					]
+					scale = [
+						2
+						10
+						0.25
+					]
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "f7b1250c-a5f0-456b-8109-9e75fd7b40ee"
+		_type = "unit"
+		editor = {
+			name = "slope3"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						-30.273147600000001
+						-33.0354843
+						2.6138231799999998
+					]
+					rotation = [
+						0.165070891
+						0.16507086200000001
+						0.68756920099999996
+						0.68756949899999997
+					]
+					scale = [
+						2
+						10
+						0.25
+					]
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+]

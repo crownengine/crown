@@ -9,14 +9,18 @@ physics_config = [
 ]
 unit = [
 	"core/units/camera"
-	"units/sphere"
+	"units/bullet/bullet"
 ]
 level = [
-	"levels/test"
+	"levels/mover"
 ]
 font = [
 	"core/game/hud/debug"
 ]
 material = [
 	"core/game/hud/debug"
+]
+sound = [
+	"sfx/bounce"
+	"sfx/shoot"
 ]

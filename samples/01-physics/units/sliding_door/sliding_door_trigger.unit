@@ -1,0 +1,38 @@
+_guid = "474de287-9969-4c0b-9926-a7da11adcd25"
+_type = "unit"
+editor = {
+	name = "sliding_door_trigger"
+}
+modified_components = {
+	#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+		data = {
+			position = [
+				6
+				33
+				2
+			]
+			rotation = [
+				0
+				0
+				0
+				1
+			]
+			scale = [
+				2.5
+				4
+				3
+			]
+		}
+	}
+	#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+		data = {
+			visible = false
+		}
+	}
+	#b15082c5-3aaf-4c9a-8925-e5c958d49171 = {
+		data = {
+			class = "trigger"
+		}
+	}
+}
+prefab = "core/units/primitives/cube"
