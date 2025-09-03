@@ -1,0 +1,28 @@
+_guid = "ab86bf27-a9d2-4c62-8d03-8035ea845071"
+_type = "unit"
+editor = {
+	name = "sliding_door"
+}
+modified_components = {
+	#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+		data = {
+			position = [
+				6
+				33
+				2.5
+			]
+			rotation = [
+				0
+				0
+				0
+				1
+			]
+			scale = [
+				2.5
+				0.5
+				4
+			]
+		}
+	}
+}
+prefab = "core/units/primitives/cube"

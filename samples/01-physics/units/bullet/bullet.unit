@@ -1,0 +1,50 @@
+_guid = "78a2e0f8-7bb1-4b26-bef4-7c25b8d77b49"
+_type = "unit"
+components = [
+	{
+		_guid = "4e584507-dada-4c33-8e93-3d030bc7903e"
+		_type = "script"
+		data = {
+			script_resource = "units/bullet/bullet"
+		}
+	}
+]
+editor = {
+	name = "sphere2"
+}
+modified_components = {
+	#8972a214-327e-4396-b01e-45701189e8c9 = {
+		data = {
+			position = [
+				2.7662143700000001
+				-24.903016999999998
+				0.5
+			]
+			rotation = [
+				0
+				0
+				0
+				1
+			]
+			scale = [
+				0.25
+				0.25
+				0.25
+			]
+		}
+	}
+	#b90d4427-bc08-4d40-aaf5-9d0eb80be391 = {
+		data = {
+			class = "dynamic"
+			mass = 0.25
+			material = "bullet"
+			collision_filter = "bullet"
+		}
+	}
+	#ce881722-b0da-41ea-b29b-b26b85cf61b5 = {
+		data = {
+			material = "units/bullet/bullet"
+		}
+	}
+}
+prefab = "core/units/primitives/sphere"

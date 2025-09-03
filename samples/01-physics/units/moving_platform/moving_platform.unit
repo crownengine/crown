@@ -1,0 +1,47 @@
+_guid = "04558684-34ba-4391-b13d-e146344e102c"
+_type = "unit"
+components = [
+	{
+		_guid = "a2840e1b-102c-4d70-9c5b-9d8808fccc45"
+		_type = "script"
+		data = {
+			script_resource = "units/moving_platform/moving_platform"
+		}
+	}
+]
+editor = {
+	name = "moving_platform"
+}
+modified_components = {
+	#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+		data = {
+			position = [
+				-5.5794782600000001
+				-6.9317741399999999
+				2.4330945000000002
+			]
+			rotation = [
+				0
+				0
+				0
+				1
+			]
+			scale = [
+				4
+				4
+				0.5
+			]
+		}
+	}
+	#b15082c5-3aaf-4c9a-8925-e5c958d49171 = {
+		data = {
+			class = "keyframed"
+		}
+	}
+	#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+		data = {
+			material = "units/moving_platform/moving_platform"
+		}
+	}
+}
+prefab = "core/units/primitives/cube"

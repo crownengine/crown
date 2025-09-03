@@ -1,16 +1,13 @@
-_guid = "7dfad1f5-f17d-409e-a885-2d7b072f8630"
+_guid = "ce279932-0f3f-46f0-a9ef-7257f77460db"
 _type = "material"
 shader = "mesh"
-textures = {
-	u_albedo_map = "units/grid"
-}
 uniforms = {
 	u_albedo = {
 		type = "vector3"
 		value = [
+			0
 			1
-			1
-			1
+			0
 		]
 	}
 	u_emission_color = {
@@ -35,18 +32,6 @@ uniforms = {
 	}
 	u_use_albedo_map = {
 		type = "float"
-		value = 1
-	}
-	u_use_normal_map = {
-		type = "float"
-		value = 0
-	}
-	u_use_metallic_map = {
-		type = "float"
-		value = 0
-	}
-	u_use_roughness_map = {
-		type = "float"
 		value = 0
 	}
 	u_use_ao_map = {
@@ -57,18 +42,16 @@ uniforms = {
 		type = "float"
 		value = 0
 	}
-	u_uv_scale = {
-		type = "vector2"
-		value = [
-			300
-			300
-		]
+	u_use_metallic_map = {
+		type = "float"
+		value = 0
 	}
-	u_uv_offset = {
-		type = "vector2"
-		value = [
-			0
-			0
-		]
+	u_use_normal_map = {
+		type = "float"
+		value = 0
+	}
+	u_use_roughness_map = {
+		type = "float"
+		value = 0
 	}
 }

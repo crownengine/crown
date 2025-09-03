@@ -1,0 +1,28 @@
+_guid = "2814e656-0912-4890-a47f-42033dbc6c2b"
+_type = "unit"
+editor = {
+	name = "wall"
+}
+modified_components = {
+	#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+		data = {
+			position = [
+				0
+				50
+				5
+			]
+			rotation = [
+				0
+				0
+				0
+				1
+			]
+			scale = [
+				100
+				1
+				10
+			]
+		}
+	}
+}
+prefab = "core/units/primitives/cube"
