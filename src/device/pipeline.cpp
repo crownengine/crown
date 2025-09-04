@@ -134,6 +134,7 @@ Pipeline::Pipeline(ShaderManager &sm)
 	, _bloom_map(BGFX_INVALID_HANDLE)
 	, _map_pixel_size(BGFX_INVALID_HANDLE)
 	, _bloom_params(BGFX_INVALID_HANDLE)
+	, _tonemap_type(BGFX_INVALID_HANDLE)
 {
 	for (u32 i = 0; i < countof(_color_textures); ++i)
 		_color_textures[i] = BGFX_INVALID_HANDLE;
@@ -212,6 +213,8 @@ void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settin
 	_map_pixel_size = bgfx::createUniform("u_map_pixel_size", bgfx::UniformType::Vec4);
 	_bloom_params = bgfx::createUniform("u_bloom_params", bgfx::UniformType::Vec4);
 
+	_tonemap_type = bgfx::createUniform("u_tonemap_type", bgfx::UniformType::Vec4);
+
 #if CROWN_PLATFORM_EMSCRIPTEN
 	_html5_default_sampler = bgfx::createUniform("s_webgl_hack", bgfx::UniformType::Sampler);
 	_html5_default_texture = bgfx::createTexture2D(1, 1, false, 1, bgfx::TextureFormat::R8);
@@ -252,6 +255,10 @@ void Pipeline::destroy()
 	_sun_shadow_map_frame_buffer = BGFX_INVALID_HANDLE;
 	bgfx::destroy(_sun_shadow_map_texture);
 	_sun_shadow_map_texture = BGFX_INVALID_HANDLE;
+
+	// Destroy tonemap resources.
+	bgfx::destroy(_tonemap_type);
+	_tonemap_type = BGFX_INVALID_HANDLE;
 
 	// Destroy bloom resources.
 	bgfx::destroy(_bloom_params);
@@ -656,6 +663,7 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 	bgfx::setViewTransform(View::TONEMAP, NULL, ortho);
 	bgfx::setViewRect(View::TONEMAP, 0, 0, width, height);
 	bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[1]), samplerFlags);
+	bgfx::setUniform(_tonemap_type, &_tonemap, sizeof(_tonemap)/sizeof(Vector4));
 	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
 	bgfx::setState(_tonemap_shader.state);
 	bgfx::submit(View::TONEMAP, _tonemap_shader.program);

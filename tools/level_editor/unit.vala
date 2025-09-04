@@ -356,6 +356,8 @@ public struct Unit
 			_db.set_property_double(component_id, "data.threshold", 0.0);
 			_db.set_property_double(component_id, "data.weight", 0.05);
 			_db.set_property_double(component_id, "data.intensity", 1.0);
+		} else if (component_type == OBJECT_TYPE_TONEMAP) {
+			_db.set_property_string(component_id, "data.type", "reinhard");
 		} else if (component_type == OBJECT_TYPE_SCRIPT) {
 			_db.set_property_string(component_id, "data.script_resource", "core/components/noop");
 		} else if (component_type == OBJECT_TYPE_COLLIDER) {
@@ -543,6 +545,11 @@ public struct Unit
 						, unit.get_component_property_double(component_id, "data.weight")
 						, unit.get_component_property_double(component_id, "data.intensity")
 						));
+				} else if (component_type == OBJECT_TYPE_TONEMAP) {
+					sb.append(LevelEditorApi.add_tonemap_component(unit_id, component_id));
+					sb.append(LevelEditorApi.set_tonemap(unit_id
+						, unit.get_component_property_string(component_id, "data.type")
+						));
 				} else if (component_type == OBJECT_TYPE_SCRIPT) {
 					/*
 					 * sb.append(LevelEditorApi.add_script_component(unit_id
@@ -727,6 +734,12 @@ public struct Unit
 							, unit.get_component_property_double(component_id, "data.intensity")
 							));
 					}
+					if (unit.has_component(out component_id, OBJECT_TYPE_TONEMAP)) {
+						sb.append(LevelEditorApi.add_tonemap_component(unit_id, component_id));
+						sb.append(LevelEditorApi.set_tonemap(unit_id
+							, unit.get_component_property_string(component_id, "data.type")
+							));
+					}
 				}
 
 				sb.append("Device.set_temp_count(editor_nv, editor_nq, editor_nm)");
@@ -842,6 +855,10 @@ public struct Unit
 						, unit.get_component_property_double(component_id, "data.weight")
 						, unit.get_component_property_double(component_id, "data.intensity")
 						));
+				} else if (component_type == OBJECT_TYPE_TONEMAP) {
+					sb.append(LevelEditorApi.set_tonemap(unit_id
+						, unit.get_component_property_string(component_id, "data.type")
+						));
 				} else if (component_type == OBJECT_TYPE_SCRIPT) {
 					/* No sync. */
 				} else if (component_type == OBJECT_TYPE_COLLIDER) {
@@ -891,6 +908,7 @@ public struct Unit
 			|| type == OBJECT_TYPE_FOG
 			|| type == OBJECT_TYPE_GLOBAL_LIGHTING
 			|| type == OBJECT_TYPE_BLOOM
+			|| type == OBJECT_TYPE_TONEMAP
 			|| type == OBJECT_TYPE_SCRIPT
 			|| type == OBJECT_TYPE_COLLIDER
 			|| type == OBJECT_TYPE_ACTOR

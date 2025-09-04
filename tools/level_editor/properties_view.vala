@@ -49,6 +49,7 @@ public class UnitView : PropertyGrid
 			OBJECT_TYPE_FOG,
 			OBJECT_TYPE_GLOBAL_LIGHTING,
 			OBJECT_TYPE_BLOOM,
+			OBJECT_TYPE_TONEMAP,
 		};
 
 		// Construct 'add components' button.
@@ -169,6 +170,7 @@ public class PropertiesView : Gtk.Box
 		register_object_type(OBJECT_TYPE_FOG,                     0, null, UnitView.component_menu);
 		register_object_type(OBJECT_TYPE_GLOBAL_LIGHTING,         0, null, UnitView.component_menu);
 		register_object_type(OBJECT_TYPE_BLOOM,                   0, null, UnitView.component_menu);
+		register_object_type(OBJECT_TYPE_TONEMAP,                 0, null, UnitView.component_menu);
 	}
 
 	private void register_object_type(string object_type, int position, PropertyGrid? cv = null, ContextMenu? context_menu = null)

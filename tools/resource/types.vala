@@ -36,6 +36,7 @@ const string OBJECT_TYPE_STATE_MACHINE           = "state_machine";
 const string OBJECT_TYPE_STATE_MACHINE_NODE      = "state_machine_node";
 const string OBJECT_TYPE_STATE_MACHINE_VARIABLE  = "state_machine_variable";
 const string OBJECT_TYPE_TEXTURE                 = "texture";
+const string OBJECT_TYPE_TONEMAP                 = "tonemap";
 const string OBJECT_TYPE_TRANSFORM               = "transform";
 const string OBJECT_TYPE_UNIT                    = "unit";
 
@@ -699,6 +700,18 @@ public static void create_object_types(Database database)
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_BLOOM, properties);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "data.type",
+			editor = PropertyEditorType.ENUM,
+			enum_values = { "gamma", "reinhard", "filmic", "aces" },
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_TONEMAP, properties);
 }
 
 } /* namespace Crown */

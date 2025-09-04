@@ -158,6 +158,31 @@ static const TimestepPolicyInfo s_timestep_policy[] =
 };
 CE_STATIC_ASSERT(countof(s_timestep_policy) == TimestepPolicy::COUNT);
 
+struct TonemapInfo
+{
+	const char *name;
+	TonemapType::Enum type;
+};
+
+static const TonemapInfo s_tonemap[] =
+{
+	{ "gamma",    TonemapType::GAMMA    },
+	{ "reinhard", TonemapType::REINHARD },
+	{ "filmic",   TonemapType::FILMIC   },
+	{ "aces",     TonemapType::ACES     }
+};
+CE_STATIC_ASSERT(countof(s_tonemap) == TonemapType::COUNT);
+
+static TonemapType::Enum name_to_tonemap_type(const char *name)
+{
+	for (u32 i = 0; i < countof(s_tonemap); ++i) {
+		if (strcmp(s_tonemap[i].name, name) == 0)
+			return s_tonemap[i].type;
+	}
+
+	return TonemapType::COUNT;
+}
+
 static TimestepPolicy::Enum name_to_timestep_policy(const StringId32 name)
 {
 	for (u32 i = 0; i < countof(s_timestep_policy); ++i) {
@@ -2282,6 +2307,36 @@ void load_api(LuaEnvironment &env)
 	env.add_module_function("RenderWorld", "bloom_set_threshold", [](lua_State *L) {
 			LuaStack stack(L);
 			stack.get_render_world(1)->bloom_set_threshold(stack.get_float(2));
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "tonemap_create", [](lua_State *L) {
+			LuaStack stack(L);
+			TonemapDesc desc;
+			stack.push_id(stack.get_render_world(1)->tonemap_create(stack.get_unit(2), desc));
+			return 1;
+		});
+	env.add_module_function("RenderWorld", "tonemap_destroy", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->tonemap_destroy(stack.get_id(2));
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "tonemap_instance", [](lua_State *L) {
+			LuaStack stack(L);
+			TonemapInstance inst = stack.get_render_world(1)->tonemap_instance(stack.get_unit(2));
+			if (is_valid(inst))
+				stack.push_id(inst.i);
+			else
+				stack.push_nil();
+			return 1;
+		});
+	env.add_module_function("RenderWorld", "tonemap_set_type", [](lua_State *L) {
+			LuaStack stack(L);
+
+			const char *name = stack.get_string(2);
+			const TonemapType::Enum type = name_to_tonemap_type(name);
+			LUA_ASSERT(type != TonemapType::COUNT, stack, "Unknown tonemap type: '%s'", name);
+
+			stack.get_render_world(1)->tonemap_set_type(type);
 			return 0;
 		});
 	env.add_module_function("RenderWorld", "enable_debug_drawing", [](lua_State *L) {

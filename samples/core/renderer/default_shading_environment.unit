@@ -40,6 +40,13 @@ components = [
 			skydome_map = "core/units/skydome/skydome"
 		}
 	}
+	{
+		_guid = "f7fb0c3b-aaeb-4ea6-a210-0c5130e4352a"
+		_type = "tonemap"
+		data = {
+			type = "reinhard"
+		}
+	}
 ]
 editor = {
 	name = "shading_environment"

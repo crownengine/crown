@@ -237,6 +237,18 @@ struct RenderWorld
 	void bloom_set_threshold(float threshold);
 
 	///
+	u32 tonemap_create(UnitId unit, const TonemapDesc &desc);
+
+	///
+	void tonemap_destroy(u32 tonemap);
+
+	///
+	TonemapInstance tonemap_instance(UnitId unit);
+
+	///
+	void tonemap_set_type(TonemapType::Enum type);
+
+	///
 	void update_transforms(const UnitId *begin, const UnitId *end, const Matrix4x4 *world);
 
 	///
@@ -553,6 +565,10 @@ struct RenderWorld
 	// Bloom.
 	UnitId _bloom_unit;
 	BloomDesc _bloom_desc;
+
+	// Tonemap.
+	UnitId _tonemap_unit;
+	TonemapDesc _tonemap_desc;
 };
 
 } // namespace crown

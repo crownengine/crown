@@ -372,6 +372,32 @@ static s32 compile_bloom(Buffer &output, FlatJsonObject &obj, CompileOptions &op
 	return 0;
 }
 
+static s32 compile_tonemap(Buffer &output, FlatJsonObject &obj, CompileOptions &opts)
+{
+	TonemapDesc desc;
+	StringId32 type = RETURN_IF_ERROR(sjson::parse_string_id(flat_json_object::get(obj, "data.type")), opts);
+
+	if (type == STRING_ID_32("gamma", UINT32_C(0x960fbc97))) {
+		desc.type = (f32)TonemapType::GAMMA;
+	} else if (type == STRING_ID_32("reinhard", UINT32_C(0x3c25f546))) {
+		desc.type = (f32)TonemapType::REINHARD;
+	} else if (type == STRING_ID_32("filmic", UINT32_C(0xcebb6592))) {
+		desc.type = (f32)TonemapType::FILMIC;
+	} else if (type == STRING_ID_32("aces", UINT32_C(0xe426fd33))) {
+		desc.type = (f32)TonemapType::ACES;
+	} else {
+		RETURN_IF_FALSE(false, opts, "Unknown tonemap type");
+	}
+
+	memset(&desc.unused, 0, sizeof(desc.unused));
+
+	FileBuffer fb(output);
+	BinaryWriter bw(fb);
+	bw.write(desc.type);
+	bw.write(desc.unused);
+	return 0;
+}
+
 namespace unit_compiler
 {
 	Buffer read_unit(const char *path, CompileOptions &opts)
@@ -995,6 +1021,7 @@ UnitCompiler::UnitCompiler(Allocator &a)
 	unit_compiler::register_component_compiler(*this, "fog",                     &compile_fog,                                 0.0f);
 	unit_compiler::register_component_compiler(*this, "global_lighting",         &compile_global_lighting,                     0.0f);
 	unit_compiler::register_component_compiler(*this, "bloom",                   &compile_bloom,                               0.0f);
+	unit_compiler::register_component_compiler(*this, "tonemap",                 &compile_tonemap,                             0.0f);
 }
 
 UnitCompiler::~UnitCompiler()

@@ -831,6 +831,7 @@ public class LevelEditorApplication : Gtk.Application
 		Unit.register_component_type(OBJECT_TYPE_FOG,                     "");
 		Unit.register_component_type(OBJECT_TYPE_GLOBAL_LIGHTING,         "");
 		Unit.register_component_type(OBJECT_TYPE_BLOOM,                   "");
+		Unit.register_component_type(OBJECT_TYPE_TONEMAP,                 "");
 
 		// Widgets
 		_combo = new Gtk.ComboBoxText();
