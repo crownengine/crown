@@ -713,6 +713,11 @@ void spawn_units(World &w, const UnitResource *ur, const Vector3 &pos, const Qua
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++desc) {
 				render_world->bloom_create(unit_lookup[unit_index[i]], *desc);
 			}
+		} else if (component->type == STRING_ID_32("tonemap", UINT32_C(0x7089b06b))) {
+			const TonemapDesc *desc = (TonemapDesc *)data;
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++desc) {
+				render_world->tonemap_create(unit_lookup[unit_index[i]], *desc);
+			}
 		} else if (component->type == STRING_ID_32("script", UINT32_C(0xd18f8ad6))) {
 			const ScriptDesc *sd = (ScriptDesc *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++sd) {

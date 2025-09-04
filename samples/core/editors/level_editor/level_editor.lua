@@ -1781,6 +1781,12 @@ function LevelEditor:add_bloom_component(id, component_id)
 	RenderWorld.bloom_create(self._rw, unit_id)
 end
 
+function LevelEditor:add_tonemap_component(id, component_id)
+	local unit_box = self._objects[id]
+	local unit_id = unit_box:unit_id()
+	RenderWorld.tonemap_create(self._rw, unit_id)
+end
+
 function LevelEditor:unit_destroy_component_type(id, component_type)
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id()
@@ -1809,6 +1815,9 @@ function LevelEditor:unit_destroy_component_type(id, component_type)
 	elseif component_type == "bloom" then
 		local inst = RenderWorld.bloom_instance(self._rw, unit_id)
 		RenderWorld.bloom_destroy(self._rw, inst)
+	elseif component_type == "tonemap" then
+		local inst = RenderWorld.tonemap_instance(self._rw, unit_id)
+		RenderWorld.tonemap_destroy(self._rw, inst)
 	elseif component_type == "script" then
 		-- Nothing to do.
 	elseif component_type == "collider" then

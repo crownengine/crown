@@ -106,6 +106,10 @@ struct Pipeline
 	bgfx::UniformHandle _bloom_params;
 	BloomDesc _bloom;
 
+	// Tonemap.
+	bgfx::UniformHandle _tonemap_type;
+	TonemapDesc _tonemap;
+
 	// Default sampler/texture to keep WebGL renderer running
 	// when a shader references a texture (even if unused) but
 	// none are set via setTexture().

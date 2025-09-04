@@ -322,6 +322,13 @@ function UnitBox:set_bloom(enabled, threshold, weight, intensity)
 	end
 end
 
+function UnitBox:set_tonemap(type)
+	local tonemap = RenderWorld.tonemap_instance(self._rw, self._unit_id)
+	if tonemap then
+		RenderWorld.tonemap_set_type(self._rw, type)
+	end
+end
+
 function UnitBox:set_mesh(mesh_resource, geometry, material, visible, cast_shadows)
 	local mesh = RenderWorld.mesh_instance(self._rw, self._unit_id)
 	if mesh then

@@ -305,6 +305,7 @@ INSTANCE_ID(LightInstance)
 INSTANCE_ID(FogInstance)
 INSTANCE_ID(GlobalLightingInstance)
 INSTANCE_ID(BloomInstance)
+INSTANCE_ID(TonemapInstance)
 INSTANCE_ID(ColliderInstance)
 INSTANCE_ID(ActorInstance)
 INSTANCE_ID(MoverInstance)
@@ -380,6 +381,28 @@ struct BloomDesc
 	f32 threshold; ///< The minimum luminance a pixel should have to be included in the bloom layer.
 	f32 weight;    ///< The weight to use when mixing the bloom layer with the main color layer.
 	f32 intensity; ///< The global intensity of the bloom effect.
+};
+
+struct TonemapType
+{
+	enum Enum
+	{
+		GAMMA,    ///< Linear- to Gamma-space conversion.
+		REINHARD, ///<
+		FILMIC,   ///<
+		ACES,     ///<
+
+		COUNT
+	};
+};
+
+/// Tonemap description.
+///
+/// @ingroup World
+struct TonemapDesc
+{
+	f32 type;      ///< TonemapType::Enum
+	f32 unused[3]; ///<
 };
 
 /// Fog description.

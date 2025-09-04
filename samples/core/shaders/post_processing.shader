@@ -229,7 +229,7 @@ bgfx_shaders = {
 
 		fs_code = """
 			SAMPLER2D(s_color_map, 0);
-			vec4 u_tonemap_type = vec4_splat(1.0);
+			uniform vec4 u_tonemap_type;
 
 			void main()
 			{

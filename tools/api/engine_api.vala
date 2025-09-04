@@ -397,6 +397,11 @@ namespace LevelEditorApi
 		return "LevelEditor:add_bloom_component(\"%s\", \"%s\")".printf(id.to_string(), component_id.to_string());
 	}
 
+	public string add_tonemap_component(Guid id, Guid component_id)
+	{
+		return "LevelEditor:add_tonemap_component(\"%s\", \"%s\")".printf(id.to_string(), component_id.to_string());
+	}
+
 	public string unit_destroy_component_type(Guid id, string component_type)
 	{
 		return "LevelEditor:unit_destroy_component_type(\"%s\", \"%s\")".printf(id.to_string()
@@ -479,6 +484,12 @@ namespace LevelEditorApi
 			, weight
 			, intensity
 			);
+	}
+
+	public string set_tonemap(Guid id, string type)
+	{
+		logi("%s".printf(type));
+		return "LevelEditor._objects[\"%s\"]:set_tonemap(\"%s\")".printf(id.to_string(), type);
 	}
 
 	public string set_sound_range(Guid id, double range)

@@ -83,6 +83,10 @@ RenderWorld::RenderWorld(Allocator &a
 
 	// Bloom.
 	memset((void *)&_bloom_desc, 0, sizeof(_bloom_desc));
+
+	// Tonemap.
+	memset((void *)&_tonemap_desc, 0, sizeof(_tonemap_desc));
+	_tonemap_desc.type = TonemapType::REINHARD;
 }
 
 RenderWorld::~RenderWorld()
@@ -570,6 +574,33 @@ void RenderWorld::bloom_set_threshold(float threshold)
 	_bloom_desc.threshold = threshold;
 }
 
+u32 RenderWorld::tonemap_create(UnitId unit, const TonemapDesc &desc)
+{
+	_tonemap_desc = desc;
+	_tonemap_unit = unit;
+	return 0;
+}
+
+void RenderWorld::tonemap_destroy(u32 tonemap)
+{
+	CE_UNUSED(tonemap);
+	_tonemap_desc = {};
+	_tonemap_unit = UNIT_INVALID;
+}
+
+TonemapInstance RenderWorld::tonemap_instance(UnitId unit)
+{
+	if (_tonemap_unit == unit)
+		return { 0 };
+
+	return { UINT32_MAX };
+}
+
+void RenderWorld::tonemap_set_type(TonemapType::Enum type)
+{
+	_tonemap_desc.type = (f32)type;
+}
+
 void RenderWorld::update_transforms(const UnitId *begin, const UnitId *end, const Matrix4x4 *world)
 {
 	MeshManager::MeshInstanceData &mid = _mesh_manager._data;
@@ -878,6 +909,7 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, UnitId sk
 	}
 
 	_pipeline->_bloom = _bloom_desc;
+	_pipeline->_tonemap = _tonemap_desc;
 
 	// Render objects.
 	_mesh_manager.draw_visibles(View::MESH, *_scene_graph, &cascaded_lights[0]);
