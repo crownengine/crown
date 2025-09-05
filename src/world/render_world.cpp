@@ -67,16 +67,8 @@ RenderWorld::RenderWorld(Allocator &a
 	_unit_destroy_callback.node.prev = NULL;
 	um.register_destroy_callback(&_unit_destroy_callback);
 
-	// Outlines.
-	_u_unit_id = bgfx::createUniform("u_unit_id", bgfx::UniformType::Vec4);
-
-	// Lighting.
-	_u_lights_num = bgfx::createUniform("u_lights_num", bgfx::UniformType::Vec4, 1);
-	_u_lights_data = bgfx::createUniform("u_lights_data", bgfx::UniformType::Vec4, LIGHT_SIZE*MAX_NUM_LIGHTS);
-
 	// Fog.
 	memset(&_fog_desc, 0, sizeof(_fog_desc));
-	_u_fog_data = bgfx::createUniform("u_fog_data", bgfx::UniformType::Vec4, 2);
 
 	// Global lighting.
 	memset((void *)&_global_lighting_desc, 0, sizeof(_global_lighting_desc));
@@ -91,16 +83,6 @@ RenderWorld::RenderWorld(Allocator &a
 
 RenderWorld::~RenderWorld()
 {
-	// Destroy fog uniform.
-	bgfx::destroy(_u_fog_data);
-
-	// Destroy lighting uniforms.
-	bgfx::destroy(_u_lights_data);
-	bgfx::destroy(_u_lights_num);
-
-	// Destroy outlines uniforms.
-	bgfx::destroy(_u_unit_id);
-
 	_unit_manager->unregister_destroy_callback(&_unit_destroy_callback);
 
 	_mesh_manager.destroy();
@@ -887,9 +869,9 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, UnitId sk
 	h.y = array::size(lm._local_lights_omni);
 	h.z = array::size(lm._local_lights_spot);
 	h.w = 0.0f;
-	bgfx::setUniform(_u_lights_num, &h);
+	bgfx::setUniform(_pipeline->_lights_num, &h);
 	CE_ENSURE(array::size(lm._lights_data) <= MAX_NUM_LIGHTS);
-	bgfx::setUniform(_u_lights_data, (char *)array::begin(lm._lights_data), array::size(lm._lights_data)*sizeof(LightManager::ShaderData)/sizeof(Vector4));
+	bgfx::setUniform(_pipeline->_lights_data, (char *)array::begin(lm._lights_data), array::size(lm._lights_data)*sizeof(LightManager::ShaderData)/sizeof(Vector4));
 	bgfx::touch(View::LIGHTS);
 
 	// Skydome.
@@ -1251,7 +1233,7 @@ void RenderWorld::MeshManager::draw_visibles(u8 view_id, SceneGraph &scene_graph
 		bgfx::setTexture(CASCADED_SHADOW_MAP_SLOT, _render_world->_pipeline->_u_cascaded_shadow_map, _render_world->_pipeline->_sun_shadow_map_texture);
 		bgfx::setUniform(_render_world->_pipeline->_u_cascaded_lights, cascaded_lights, MAX_NUM_CASCADES);
 		bgfx::setUniform(_render_world->_pipeline->_u_shadow_maps_texel_sizes, &texel_sizes);
-		bgfx::setUniform(_render_world->_u_fog_data, (char *)&_render_world->_fog_desc, sizeof(_render_world->_fog_desc) / sizeof(Vector4));
+		bgfx::setUniform(_render_world->_pipeline->_fog_data, (char *)&_render_world->_fog_desc, sizeof(_render_world->_fog_desc) / sizeof(Vector4));
 		_render_world->_pipeline->set_local_lights_params_uniform();
 		_render_world->_pipeline->set_global_lighting_params(&_render_world->_global_lighting_desc);
 
@@ -1277,7 +1259,7 @@ void RenderWorld::MeshManager::draw_selected(u8 view_id, SceneGraph &scene_graph
 
 		u2f.u = unit_id._idx;
 		Vector4 data = { u2f.f, 0.0f, 0.0f, 0.0f };
-		bgfx::setUniform(_render_world->_u_unit_id, &data);
+		bgfx::setUniform(_render_world->_pipeline->_unit_id, &data);
 
 		set_instance_data(ii, scene_graph);
 		bgfx::setState(_render_world->_pipeline->_selection_shader.state);
@@ -1622,7 +1604,7 @@ void RenderWorld::SpriteManager::draw_selected(u8 view_id)
 
 		u2f.u = unit_id._idx;
 		Vector4 data = { u2f.f, 0.0f, 0.0f, 0.0f };
-		bgfx::setUniform(_render_world->_u_unit_id, &data);
+		bgfx::setUniform(_render_world->_pipeline->_unit_id, &data);
 
 		bgfx::setState(_render_world->_pipeline->_selection_shader.state);
 		bgfx::submit(view_id, _render_world->_pipeline->_selection_shader.program);

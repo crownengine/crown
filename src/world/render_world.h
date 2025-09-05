@@ -546,17 +546,11 @@ struct RenderWorld
 
 	// Outlines.
 	HashSet<UnitId> _selection;
-	bgfx::UniformHandle _u_unit_id;
-
-	// Lighting.
-	bgfx::UniformHandle _u_lights_num;
-	bgfx::UniformHandle _u_lights_data;
 
 	// Fog.
 	UnitId _fog_unit;
 	FogInstance _fog;
 	FogDesc _fog_desc;
-	bgfx::UniformHandle _u_fog_data;
 
 	// Global lighting.
 	UnitId _global_lighting_unit;
