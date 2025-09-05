@@ -60,6 +60,12 @@ namespace render_config_resource_internal
 					rs.flags |= RenderSettingsFlags::LOCAL_LIGHTS_DISTANCE_CULLING;
 				else
 					rs.flags &= ~RenderSettingsFlags::LOCAL_LIGHTS_DISTANCE_CULLING;
+			} else if (cur->first == "bloom") {
+				bool en = RETURN_IF_ERROR(sjson::parse_bool(cur->second), opts);
+				if (en)
+					rs.flags |= RenderSettingsFlags::BLOOM;
+				else
+					rs.flags &= ~RenderSettingsFlags::BLOOM;
 			} else if (cur->first == "local_lights_distance_culling_fade") {
 				rs.local_lights_distance_culling_fade = RETURN_IF_ERROR(sjson::parse_float(cur->second), opts);
 			} else if (cur->first == "local_lights_distance_culling_cutoff") {
@@ -90,6 +96,7 @@ namespace render_config_resource_internal
 			| RenderSettingsFlags::SUN_SHADOWS
 			| RenderSettingsFlags::LOCAL_LIGHTS
 			| RenderSettingsFlags::LOCAL_LIGHTS_SHADOWS
+			| RenderSettingsFlags::BLOOM
 			;
 		rcr.render_settings.sun_shadow_map_size = { 2048.0f, 2048.0f };
 		rcr.render_settings.local_lights_shadow_map_size = { 2048.0f, 2048.0f };
