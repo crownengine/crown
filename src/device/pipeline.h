@@ -85,6 +85,7 @@ struct Pipeline
 	bgfx::FrameBufferHandle _outline_frame_buffer;
 	bgfx::UniformHandle _outline_color_map;
 	bgfx::UniformHandle _outline_color;
+	bgfx::UniformHandle _unit_id;
 
 	// Cascaded shadow mapping.
 	bgfx::TextureHandle _sun_shadow_map_texture;
@@ -97,7 +98,11 @@ struct Pipeline
 	bgfx::UniformHandle _u_local_lights_shadow_map;
 	bgfx::UniformHandle _u_local_lights_params;
 
-	bgfx::UniformHandle _u_lighting_params;
+	// Lighting.
+	bgfx::UniformHandle _lights_num;
+	bgfx::UniformHandle _lights_data;
+	bgfx::UniformHandle _fog_data;
+	bgfx::UniformHandle _lighting_params;
 
 	// Bloom.
 	bgfx::FrameBufferHandle _bloom_frame_buffers[BLOOM_MIPS];

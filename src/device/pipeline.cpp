@@ -127,6 +127,7 @@ Pipeline::Pipeline(ShaderManager &sm)
 	, _outline_frame_buffer(BGFX_INVALID_HANDLE)
 	, _outline_color_map(BGFX_INVALID_HANDLE)
 	, _outline_color(BGFX_INVALID_HANDLE)
+	, _unit_id(BGFX_INVALID_HANDLE)
 	, _sun_shadow_map_texture(BGFX_INVALID_HANDLE)
 	, _sun_shadow_map_frame_buffer(BGFX_INVALID_HANDLE)
 	, _local_lights_shadow_map_texture(BGFX_INVALID_HANDLE)
@@ -163,6 +164,7 @@ void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settin
 
 	_outline_color_map = bgfx::createUniform("s_color_map", bgfx::UniformType::Sampler);
 	_outline_color = bgfx::createUniform("u_outline_color", bgfx::UniformType::Vec4);
+	_unit_id = bgfx::createUniform("u_unit_id", bgfx::UniformType::Vec4);
 
 	_u_cascaded_shadow_map = bgfx::createUniform("u_cascaded_shadow_map", bgfx::UniformType::Sampler);
 	_u_cascaded_lights = bgfx::createUniform("u_cascaded_lights", bgfx::UniformType::Mat4, MAX_NUM_CASCADES);
@@ -207,7 +209,10 @@ void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settin
 	_u_local_lights_shadow_map = bgfx::createUniform("u_local_lights_shadow_map", bgfx::UniformType::Sampler);
 	_u_local_lights_params = bgfx::createUniform("u_local_lights_params", bgfx::UniformType::Vec4);
 
-	_u_lighting_params = bgfx::createUniform("u_lighting_params", bgfx::UniformType::Vec4);
+	_lights_num = bgfx::createUniform("u_lights_num", bgfx::UniformType::Vec4, 1);
+	_lights_data = bgfx::createUniform("u_lights_data", bgfx::UniformType::Vec4, LIGHT_SIZE*MAX_NUM_LIGHTS);
+	_fog_data = bgfx::createUniform("u_fog_data", bgfx::UniformType::Vec4, 2);
+	_lighting_params = bgfx::createUniform("u_lighting_params", bgfx::UniformType::Vec4);
 
 	_bloom_map = bgfx::createUniform("s_bloom_map", bgfx::UniformType::Sampler);
 	_map_pixel_size = bgfx::createUniform("u_map_pixel_size", bgfx::UniformType::Vec4);
@@ -231,8 +236,15 @@ void Pipeline::destroy()
 	bgfx::destroy(_html5_default_texture);
 	_html5_default_texture = BGFX_INVALID_HANDLE;
 #endif
-	bgfx::destroy(_u_lighting_params);
-	_u_lighting_params = BGFX_INVALID_HANDLE;
+
+	bgfx::destroy(_lighting_params);
+	_lighting_params = BGFX_INVALID_HANDLE;
+	bgfx::destroy(_fog_data);
+	_fog_data = BGFX_INVALID_HANDLE;
+	bgfx::destroy(_lights_data);
+	_lights_data = BGFX_INVALID_HANDLE;
+	bgfx::destroy(_lights_num);
+	_lights_num = BGFX_INVALID_HANDLE;
 
 	// Destroy local-lights shadow map resources.
 	bgfx::destroy(_u_local_lights_params);
@@ -275,6 +287,8 @@ void Pipeline::destroy()
 		_bloom_frame_buffers[i] = BGFX_INVALID_HANDLE;
 	}
 
+	bgfx::destroy(_unit_id);
+	_unit_id = BGFX_INVALID_HANDLE;
 	bgfx::destroy(_outline_color);
 	_outline_color = BGFX_INVALID_HANDLE;
 	bgfx::destroy(_outline_color_map);
@@ -722,7 +736,7 @@ void Pipeline::set_global_lighting_params(GlobalLightingDesc *global_lighting)
 	params.y = global_lighting->ambient_color.y;
 	params.z = global_lighting->ambient_color.z;
 
-	bgfx::setUniform(_u_lighting_params, &params, sizeof(params)/sizeof(Vector4));
+	bgfx::setUniform(_lighting_params, &params, sizeof(params)/sizeof(Vector4));
 }
 
 } // namespace crown
