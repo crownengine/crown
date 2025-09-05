@@ -283,7 +283,8 @@ void Pipeline::destroy()
 	_bloom_map = BGFX_INVALID_HANDLE;
 
 	for (u32 i = 0; i < countof(_bloom_frame_buffers); ++i) {
-		bgfx::destroy(_bloom_frame_buffers[i]);
+		if (bgfx::isValid(_bloom_frame_buffers[i]))
+			bgfx::destroy(_bloom_frame_buffers[i]);
 		_bloom_frame_buffers[i] = BGFX_INVALID_HANDLE;
 	}
 
@@ -411,15 +412,17 @@ void Pipeline::reset(u16 width, u16 height)
 	_outline_frame_buffer = bgfx::createFrameBuffer(countof(_outline_frame_buffer_attachments), _outline_frame_buffer_attachments);
 
 	// Bloom.
-	for (u32 i = 0; i < countof(_bloom_frame_buffers); ++i) {
-		if (bgfx::isValid(_bloom_frame_buffers[i]))
-			bgfx::destroy(_bloom_frame_buffers[i]);
+	if ((_render_settings.flags & RenderSettingsFlags::BLOOM) != 0) {
+		for (u32 i = 0; i < countof(_bloom_frame_buffers); ++i) {
+			if (bgfx::isValid(_bloom_frame_buffers[i]))
+				bgfx::destroy(_bloom_frame_buffers[i]);
 
-		_bloom_frame_buffers[i] = bgfx::createFrameBuffer(width >> i
-			, height >> i
-			, bgfx::TextureFormat::RGBA16F
-			, BGFX_TEXTURE_RT | BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP
-			);
+			_bloom_frame_buffers[i] = bgfx::createFrameBuffer(width >> i
+				, height >> i
+				, bgfx::TextureFormat::RGBA16F
+				, BGFX_TEXTURE_RT | BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP
+				);
+		}
 	}
 }
 
@@ -602,7 +605,7 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 	bgfx::touch(View::COLOR_1);
 
 	// Render bloom.
-	if (_bloom.enabled) {
+	if ((_render_settings.flags & RenderSettingsFlags::BLOOM) != 0 && _bloom.enabled) {
 		Vector4 bloom_params;
 		bloom_params.x = _bloom.weight;
 		bloom_params.y = _bloom.intensity;

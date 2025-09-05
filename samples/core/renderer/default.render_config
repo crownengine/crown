@@ -8,5 +8,7 @@ render_settings = {
 	local_lights_distance_culling = false
 	local_lights_distance_culling_fade = 30
 	local_lights_distance_culling_cutoff = 60
+
+	bloom = true
 }
 
