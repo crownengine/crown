@@ -816,7 +816,6 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, UnitId sk
 			, LOCAL_LIGHTS_MAX_SHADOW_CASTERS
 			);
 		const u32 tile_cols = _pipeline->_render_settings.local_lights_shadow_map_size.x / tile_size;
-		const u32 max_tiles = tile_cols * tile_cols;
 		u32 num_tiles = 0;
 		u32 cur_tile;
 
