@@ -19,6 +19,7 @@ Changelog
 
 **Fixes**
 
+* Tools: fixed setting texture parameters in the texture settings editor.
 * Runtime: fixed a crash when too many lights were spawned in a level.
 * Runtime: fixed cascaded shadows artifacts in some circumnstances.
 
