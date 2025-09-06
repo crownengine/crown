@@ -488,7 +488,6 @@ namespace LevelEditorApi
 
 	public string set_tonemap(Guid id, string type)
 	{
-		logi("%s".printf(type));
 		return "LevelEditor._objects[\"%s\"]:set_tonemap(\"%s\")".printf(id.to_string(), type);
 	}
 
