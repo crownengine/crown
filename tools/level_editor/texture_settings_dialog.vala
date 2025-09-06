@@ -256,6 +256,10 @@ public class TextureSettingsDialog : Gtk.Window
 
 		string property_names[] = { "source", "format", "generate_mips", "mip_skip_smallest", "normal_map" };
 		InputField properties[] = { _source, _format, _generate_mips, _mip_skip_smallest, _normal_map };
+		_format.value_changed.disconnect(on_format_value_changed);
+		_generate_mips.value_changed.disconnect(on_generate_mips_value_changed);
+		_mip_skip_smallest.value_changed.disconnect(on_mip_skip_smallest_value_changed);
+		_normal_map.value_changed.disconnect(on_normal_map_value_changed);
 
 		for (int i = 0; i < properties.length; ++i)
 			properties[i].set_data("init", false);
@@ -290,6 +294,11 @@ public class TextureSettingsDialog : Gtk.Window
 					}
 				});
 		}
+
+		_format.value_changed.connect(on_format_value_changed);
+		_generate_mips.value_changed.connect(on_generate_mips_value_changed);
+		_mip_skip_smallest.value_changed.connect(on_mip_skip_smallest_value_changed);
+		_normal_map.value_changed.connect(on_normal_map_value_changed);
 	}
 
 	public void on_format_value_changed()
