@@ -70,6 +70,7 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installing_crown/index.html">Installing Crown</a></li>
 <li class="toctree-l1"><a class="reference internal" href="getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gameplay/index.html">Writing Gameplay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="deploying/index.html">Deploying</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/index.html">Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="lua_api.html">Lua API reference</a></li>
@@ -108,9 +109,22 @@
 <h2>0.59.0 — DD MMM YYYY<a class="headerlink" href="#dd-mmm-yyyy" title="Permalink to this headline">¶</a></h2>
 <p><strong>New Features and Improvements</strong></p>
 <ul class="simple">
+<li>Runtime: added a new Mover component for controlling characters that implements a standard collide-and-slide algorithm.</li>
+<li>Runtime: added a shadow mapping implementation to spot lights.</li>
+<li>Runtime: added a new Global Lighting component for controlling the skydome’s appearance and other global lighting parameters.</li>
+<li>Runtime: added a new Bloom component.</li>
+<li>Runtime: added a new Tonemap component.</li>
+<li>Runtime: added a new dedicated skydome renderer.</li>
+<li>Runtime: added support for emission maps in the <cite>mesh</cite> material.</li>
 <li>Runtime: added a new .render_config resource for configuring the renderer, along with a <cite>render_config</cite> property in the boot files to allow selecting the desired config.</li>
 <li>Runtime: added a new <cite>spinning_friction</cite> property to physics materials that you can specify in <cite>global.physics_config</cite>.</li>
 <li>Runtime: added configurable physics <cite>step_frequency</cite> and <cite>max_substeps</cite> via the <cite>physics</cite> property in the boot files.</li>
+</ul>
+<p><strong>Fixes</strong></p>
+<ul class="simple">
+<li>Tools: fixed setting texture parameters in the texture settings editor.</li>
+<li>Runtime: fixed a crash when too many lights were spawned in a level.</li>
+<li>Runtime: fixed cascaded shadows artifacts in some circumnstances.</li>
 </ul>
 </div>
 <div class="section" id="aug-2025">

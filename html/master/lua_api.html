@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installing_crown/index.html">Installing Crown</a></li>
 <li class="toctree-l1"><a class="reference internal" href="getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gameplay/index.html">Writing Gameplay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="deploying/index.html">Deploying</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/index.html">Reference</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Lua API reference</a><ul>
@@ -120,6 +121,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#physicsworld">PhysicsWorld</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#raycasthit">RaycastHit</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#actor">Actor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mover">Mover</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#profiler">Profiler</a></li>
@@ -1076,6 +1078,38 @@ travelling at the given <em>velocity</em>.</p>
 <dd>Returns whether the <em>actor</em> is sleeping.</dd>
 <dt><strong>actor_wake_up</strong> (pw, actor)</dt>
 <dd>Wakes the <em>actor</em> up.</dd>
+</dl>
+</div>
+<div class="section" id="mover">
+<h3>Mover<a class="headerlink" href="#mover" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt><strong>mover_create</strong> (pw, unit, height, radius, max_slope_angle, collision_filter, pose) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
+<dd>Creates a new mover instance for the <em>unit</em>.</dd>
+<dt><strong>mover_destroy</strong> (pw, mover)</dt>
+<dd>Destroys the <em>mover</em>.</dd>
+<dt><strong>mover</strong> (pw, unit) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
+<dd>Returns the ID of the mover owned by the <em>unit</em>.</dd>
+<dt><strong>mover_radius</strong> (pw, mover) <span class="classifier-delimiter">:</span> <span class="classifier">number</span></dt>
+<dd>Returns the radius of the <em>mover</em> capsule.</dd>
+<dt><strong>mover_max_slope_angle</strong> (pw, mover) <span class="classifier-delimiter">:</span> <span class="classifier">number</span></dt>
+<dd>Returns the max slope angle of the <em>mover</em>.</dd>
+<dt><strong>mover_set_max_slope_angle</strong> (pw, mover, angle)</dt>
+<dd>Sets the max slope <em>angle</em> of the <em>mover</em>.</dd>
+<dt><strong>mover_set_collision_filter</strong> (pw, mover, filter)</dt>
+<dd>Sets the collision <em>filter</em> of the <em>mover</em>.</dd>
+<dt><strong>mover_position</strong> (pw, mover) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Returns the position of the <em>mover</em>.</dd>
+<dt><strong>mover_set_position</strong> (pw, mover, position)</dt>
+<dd>Teleports the <em>mover</em> to the specified <em>position</em>.</dd>
+<dt><strong>mover_move</strong> (pw, mover, delta)</dt>
+<dd>Attempts to move the <em>mover</em> by the specified <em>delta</em> vector.
+The <em>mover</em> will slide against physical actors.</dd>
+<dt><strong>mover_collides_sides</strong> (pw, mover) <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns whether the <em>mover</em> collides sideways.</dd>
+<dt><strong>mover_collides_up</strong> (pw, mover) <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns whether the <em>mover</em> collides upwards.</dd>
+<dt><strong>mover_collides_down</strong> (pw, mover) <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns whether the <em>mover</em> collides downwards.</dd>
 </dl>
 </div>
 </div>
