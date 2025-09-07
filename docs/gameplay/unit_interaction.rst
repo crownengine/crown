@@ -1,0 +1,103 @@
+======================
+Interacting with Units
+======================
+
+At some point you will probably need to reference units from the Lua scripts to
+manipulate their properties, be notified of particular events and make them do
+something interesting.
+
+Getting Unit handles
+--------------------
+
+The simplest way of getting a handle to a unit is to spawn it directly from a
+script:
+
+.. code::
+
+	player = World.spawn_unit(world, "units/player/player")
+
+In most cases, however, units are not spawned directly but rather as a
+consequence of loading levels in a world. You can get a table with all units
+spawned in a world this way:
+
+.. code::
+
+	local units = World.units(world)
+
+	for _, u in ipairs(units) do
+		-- Do something with Unit u.
+	end
+
+To obtain a specific Unit by name (its name as set in the Level Editor, *not*
+the unit name itself):
+
+.. code::
+
+	door = World.unit_by_name(world, "main_door")
+
+The Script component
+--------------------
+
+Obtaining unit handles is useful but might not be enough. With a unit handle
+alone you can modify properties but you cannot receive events.
+
+Creating a Unit script
+----------------------
+
+Unit scripts are a particular type of scripts that can be attached to units via
+a Script Component. To create a Unit script, right click on the Project Browser
+and choose ``New (Unit) script``.
+
+Crown will create a new Unit script similar to the following:
+
+.. code::
+
+	MyScript = MyScript or {
+		data = {}
+	}
+
+	local data = MyScript.data
+
+	function MyScript.spawned(world, units)
+		if data[world] == nil then data[world] = {} end
+
+		for uu = 1, #units do
+			local unit = units[uu]
+
+			-- Store instance-specific data.
+			if data[world][unit] == nil then
+				-- data[world][unit] = {}
+			end
+
+			-- Do something with the unit.
+		end
+	end
+
+	function MyScript.update(world, dt)
+		-- Called once per frame.
+	end
+
+	function MyScript.unspawned(world, units)
+		-- Cleanup.
+		for uu = 1, #units do
+			if data[world][units] then
+				data[world][units] = nil
+			end
+		end
+	end
+
+	return MyScript
+
+Unit scripts work differently than similar solutions in other engines. Instead
+of getting many individual update() calls for each individual Unit, you will
+receive a single update() for *every* unit that has that particular script
+attached to it.
+
+This allows for efficient bulk updates, state sharing and it also make profiling
+code easier.
+
+.. note::
+
+	spawned() and unspawned() are still called once per unit. It will be changed
+	soon to behave similarly to update().
+
