@@ -55,7 +55,7 @@ void Material::bind(u8 view, u32 depth) const
 		bgfx::setUniform(buh, (char *)uh + sizeof(uh->uniform_handle));
 	}
 
-	bgfx::setState(_shader.state);
+	bgfx::setState(_shader.state | BGFX_STATE_MSAA);
 	bgfx::submit(view, _shader.program, depth);
 }
 

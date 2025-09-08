@@ -333,6 +333,17 @@ void Pipeline::destroy()
 
 void Pipeline::reset(u16 width, u16 height)
 {
+	u64 depth_texture_flags = BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP;
+	u64 color_texture_flags = BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP;
+	if ((_render_settings.flags & RenderSettingsFlags::MSAA) != 0) {
+		u64 msaa_flags = u64(1 + _render_settings.msaa_quality) << BGFX_TEXTURE_RT_MSAA_SHIFT;
+		depth_texture_flags |= msaa_flags | BGFX_TEXTURE_RT_WRITE_ONLY;
+		color_texture_flags |= msaa_flags;
+	} else {
+		depth_texture_flags |= BGFX_TEXTURE_RT;
+		color_texture_flags |= BGFX_TEXTURE_RT;
+	}
+
 	// Create main frame buffers.
 	if (bgfx::isValid(_depth_texture))
 		bgfx::destroy(_depth_texture);
@@ -341,7 +352,7 @@ void Pipeline::reset(u16 width, u16 height)
 		, false
 		, 1
 		, bgfx::TextureFormat::D24S8
-		, BGFX_TEXTURE_RT
+		, depth_texture_flags
 		);
 
 	for (u32 i = 0; i < countof(_color_textures); ++i) {
@@ -352,7 +363,7 @@ void Pipeline::reset(u16 width, u16 height)
 			, false
 			, 1
 			, bgfx::TextureFormat::RGBA16F
-			, BGFX_TEXTURE_RT
+			, color_texture_flags
 			);
 		const bgfx::TextureHandle _main_frame_buffer_attachments[] =
 		{

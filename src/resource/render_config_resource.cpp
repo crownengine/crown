@@ -21,6 +21,22 @@ namespace crown
 #if CROWN_CAN_COMPILE
 namespace render_config_resource_internal
 {
+	u32 msaa_quality_samples(StringId32 quality)
+	{
+		if (quality == STRING_ID_32("low", UINT32_C(0x8876b146)))
+			return 1;
+		else if (quality == STRING_ID_32("medium", UINT32_C(0x6e03a970)))
+			return 2;
+		else if (quality == STRING_ID_32("high", UINT32_C(0xfc9141f5)))
+			return 3;
+		else if (quality == STRING_ID_32("ultra", UINT32_C(0xf13839af)))
+			return 4;
+		else
+			logw(RENDER_CONFIG_RESOURCE, "Unknown msaa quality");
+
+		return 0;
+	}
+
 	s32 parse_render_settings(RenderSettings &rs, const char *settings_json, CompileOptions &opts)
 	{
 		TempAllocator1024 ta;
@@ -66,6 +82,15 @@ namespace render_config_resource_internal
 					rs.flags |= RenderSettingsFlags::BLOOM;
 				else
 					rs.flags &= ~RenderSettingsFlags::BLOOM;
+			} else if (cur->first == "msaa") {
+				bool en = RETURN_IF_ERROR(sjson::parse_bool(cur->second), opts);
+				if (en)
+					rs.flags |= RenderSettingsFlags::MSAA;
+				else
+					rs.flags &= ~RenderSettingsFlags::MSAA;
+			} else if (cur->first == "msaa_quality") {
+				StringId32 quality = RETURN_IF_ERROR(sjson::parse_string_id(cur->second), opts);
+				rs.msaa_quality = msaa_quality_samples(quality);
 			} else if (cur->first == "local_lights_distance_culling_fade") {
 				rs.local_lights_distance_culling_fade = RETURN_IF_ERROR(sjson::parse_float(cur->second), opts);
 			} else if (cur->first == "local_lights_distance_culling_cutoff") {
@@ -116,6 +141,7 @@ namespace render_config_resource_internal
 		opts.write(rcr.render_settings.local_lights_shadow_map_size);
 		opts.write(rcr.render_settings.local_lights_distance_culling_fade);
 		opts.write(rcr.render_settings.local_lights_distance_culling_cutoff);
+		opts.write(rcr.render_settings.msaa_quality);
 
 		return 0;
 	}
