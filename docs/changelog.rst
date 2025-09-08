@@ -22,6 +22,7 @@ Changelog
 * Tools: fixed setting texture parameters in the texture settings editor.
 * Runtime: fixed a crash when too many lights were spawned in a level.
 * Runtime: fixed cascaded shadows artifacts in some circumnstances.
+* Runtime: fixed creating material uniforms of the wrong type in some circumnstances.
 
 0.58.0 --- 01 Aug 2025
 ----------------------

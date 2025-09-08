@@ -67,7 +67,7 @@ void MaterialManager::online(StringId64 id, ResourceManager &rm)
 	const UniformData *ud = uniform_data_array(mr);
 	for (u32 i = 0; i < mr->num_uniforms; ++i) {
 		UniformHandle *uh  = uniform_handle(ud, i, material->_data);
-		uh->uniform_handle = bgfx::createUniform(uniform_name(mr, ud, i), s_bgfx_uniform_type[ud->type]).idx;
+		uh->uniform_handle = bgfx::createUniform(uniform_name(mr, ud, i), s_bgfx_uniform_type[ud[i].type]).idx;
 	}
 }
 
