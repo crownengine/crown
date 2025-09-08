@@ -358,9 +358,11 @@ bgfx_shaders = {
 		"""
 
 		vs_code = """
+			uniform mat4 u_persp; // Perspective proj.
+
 			void main()
 			{
-				vec4 world_pos = mul(u_modelViewProj, vec4(a_position, 1.0));
+				vec4 world_pos = mul(mul(u_persp, u_modelView), vec4(a_position, 1.0));
 				world_pos.z = world_pos.w; // Project to far plane.
 
 				gl_Position = world_pos;

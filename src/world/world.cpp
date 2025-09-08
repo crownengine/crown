@@ -289,9 +289,9 @@ void World::update(f32 dt)
 	update_scene(dt);
 }
 
-void World::render(const Matrix4x4 &view, const Matrix4x4 &proj)
+void World::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Matrix4x4 &persp)
 {
-	_render_world->render(view, proj, _skydome_unit);
+	_render_world->render(view, proj, persp, _skydome_unit);
 
 	_physics_world->debug_draw();
 	_render_world->debug_draw(*_lines);
@@ -345,13 +345,18 @@ ProjectionType::Enum World::camera_projection_type(CameraInstance camera)
 	return _camera[camera.i].projection_type;
 }
 
-Matrix4x4 World::camera_projection_matrix(CameraInstance camera, f32 aspect_ratio)
+Matrix4x4 World::camera_projection_matrix(CameraInstance camera, f32 aspect_ratio, ProjectionType::Enum projection_type)
 {
 	Camera &cam = _camera[camera.i];
 
+	ProjectionType::Enum proj_type = projection_type == ProjectionType::COUNT
+		? cam.projection_type
+		: projection_type
+		;
+
 	const bgfx::Caps *caps = bgfx::getCaps();
 	f32 bx_proj[16];
-	switch (cam.projection_type) {
+	switch (proj_type) {
 	case ProjectionType::ORTHOGRAPHIC:
 		bx::mtxOrtho(bx_proj
 			, -cam.half_size * aspect_ratio

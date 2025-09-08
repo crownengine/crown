@@ -636,7 +636,7 @@ static u32 best_square_size(u32 width, u32 height, u32 num_tiles)
 	return best;
 }
 
-void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, UnitId skydome_unit)
+void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Matrix4x4 &persp, UnitId skydome_unit)
 {
 	LightManager &lm = _light_manager;
 	LightManager::LightInstanceData &lid = lm._data;
@@ -880,10 +880,12 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, UnitId sk
 		TransformInstance skydome_tr = _scene_graph->instance(skydome_unit);
 		_scene_graph->set_local_position(skydome_tr, camera_pos);
 
+		MeshInstance skydome_mesh = mesh_instance(skydome_unit);
+		Material *skydome_material = mesh_material(skydome_mesh);
+		skydome_material->set_matrix4x4(STRING_ID_32("u_persp", UINT32_C(0x404ac2c2)), persp);
+
 		// Override skydome texture from global lighting.
 		if (_global_lighting_unit.is_valid()) {
-			MeshInstance skydome_mesh = mesh_instance(skydome_unit);
-			Material *skydome_material = mesh_material(skydome_mesh);
 			skydome_material->set_texture(STRING_ID_32("u_skydome_map", UINT32_C(0x90e2fdaa)), _global_lighting_desc.skydome_map);
 			skydome_material->set_float(STRING_ID_32("u_skydome_intensity", UINT32_C(0x539e93b8)), _global_lighting_desc.skydome_intensity);
 		}
