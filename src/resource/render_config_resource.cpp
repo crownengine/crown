@@ -98,7 +98,7 @@ namespace render_config_resource_internal
 			| RenderSettingsFlags::LOCAL_LIGHTS_SHADOWS
 			| RenderSettingsFlags::BLOOM
 			;
-		rcr.render_settings.sun_shadow_map_size = { 2048.0f, 2048.0f };
+		rcr.render_settings.sun_shadow_map_size = { 4096.0f, 4096.0f };
 		rcr.render_settings.local_lights_shadow_map_size = { 2048.0f, 2048.0f };
 		rcr.render_settings.local_lights_distance_culling_fade = 30.0f;
 		rcr.render_settings.local_lights_distance_culling_cutoff = 60.0f;

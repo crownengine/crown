@@ -1,14 +1,24 @@
 render_settings = {
-	sun_shadows = true
-	sun_shadow_map_size = [ 4096 4096 ]
+	// Whether shadows for the sun are enabled.
+	// sun_shadows = true
+	// sun_shadow_map_size = [ 4096 4096 ]
 
-	local_lights = true
-	local_lights_shadows = true
-	local_lights_shadow_map_size = [ 2048 2048 ]
-	local_lights_distance_culling = false
-	local_lights_distance_culling_fade = 30
-	local_lights_distance_culling_cutoff = 60
+	// Whether local lights are enabled.
+	// local_lights = true
 
-	bloom = true
+	// Whether shadows for local lights are enabled.
+	// local_lights_shadows = true
+	// local_lights_shadow_map_size = [ 2048 2048 ]
+
+	// Whether distance culling for local lights is enabled.
+	// local_lights_distance_culling = false
+
+	// Distance from camera at which local lights start to fade.
+	// local_lights_distance_culling_fade = 30
+	// Distance from camera at which local lights disappear.
+	// local_lights_distance_culling_cutoff = 60
+
+	// Whether bloom post-processing effect is enabled.
+	// bloom = true
 }
 
