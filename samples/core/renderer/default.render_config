@@ -20,5 +20,9 @@ render_settings = {
 
 	// Whether bloom post-processing effect is enabled.
 	// bloom = true
-}
 
+	// Whether multisample AA is enabled.
+	msaa = false
+	// low, medium, high or ultra (2, 4, 8 or 16x respectively).
+	msaa_quality = "ultra"
+}
