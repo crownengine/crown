@@ -9,4 +9,8 @@ uniforms = {
 		type = "float"
 		value = 1
 	}
+	u_persp = {
+		type = "matrix4x4"
+		value = [ 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 ]
+	}
 }
