@@ -11,7 +11,8 @@ if [ $# -lt 1 ]; then
 fi
 
 OUTPUT_DIR=$(realpath "$1")
-SUMS="${OUTPUT_DIR}/SHA256SUMS"
+SUMS_NAME=$(basename "${OUTPUT_DIR}")
+SUMS="${OUTPUT_DIR}/${SUMS_NAME}.sha256"
 
 if [ -f "${SUMS}" ]; then
     echo "${SUMS}"
