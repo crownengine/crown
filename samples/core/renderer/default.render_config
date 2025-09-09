@@ -22,7 +22,7 @@ render_settings = {
 	// bloom = true
 
 	// Whether multisample AA is enabled.
-	msaa = false
+	// msaa = false
 	// low, medium, high or ultra (2, 4, 8 or 16x respectively).
-	msaa_quality = "ultra"
+	// msaa_quality = "ultra"
 }
