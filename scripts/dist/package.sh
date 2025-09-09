@@ -53,8 +53,14 @@ else
 	EXE_SUFFIX=
 fi
 
+if [ "${VERSION}" = "master" ]; then
+	VERSION_SUFFIX="-"$(git rev-parse --short HEAD)
+else
+	VERSION_SUFFIX=
+fi
+
 # Destination folder.
-PACKAGENAME=crown-"${VERSION}"
+PACKAGENAME=crown-"${VERSION}""${VERSION_SUFFIX}"
 
 # Tarball name.
 TAR="tar -cf"
