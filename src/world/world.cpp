@@ -185,6 +185,9 @@ World::World(Allocator &a
 	, _changed_world(a)
 	, _gui_buffer(sm)
 	, _skydome_unit(UNIT_INVALID)
+#if CROWN_CAN_RELOAD
+	, _unit_resources(a)
+#endif
 {
 	_lines = create_debug_line(true);
 	_scene_graph   = CE_NEW(*_allocator, SceneGraph)(*_allocator, um);
@@ -234,10 +237,8 @@ World::~World()
 	_marker = 0;
 }
 
-UnitId World::spawn_unit(StringId64 name, const Vector3 &pos, const Quaternion &rot, const Vector3 &scl)
+UnitId World::spawn_unit(const UnitResource *ur, const Vector3 &pos, const Quaternion &rot, const Vector3 &scl)
 {
-	const UnitResource *ur = (UnitResource *)_resource_manager->get(RESOURCE_TYPE_UNIT, name);
-
 	UnitId *unit_lookup = (UnitId *)default_scratch_allocator().allocate(sizeof(*unit_lookup) * ur->num_units);
 	for (u32 i = 0; i < ur->num_units; ++i)
 		unit_lookup[i] = _unit_manager->create();
@@ -245,6 +246,10 @@ UnitId World::spawn_unit(StringId64 name, const Vector3 &pos, const Quaternion &
 	create_components(*this, ur, pos, rot, scl, unit_lookup);
 
 	array::push(_units, unit_lookup, ur->num_units);
+#if CROWN_CAN_RELOAD
+	for (u32 i = 0; i < ur->num_units; ++i)
+		array::push_back(_unit_resources, ur);
+#endif
 	post_unit_spawned_events(unit_lookup, ur->num_units);
 
 	UnitId root_unit = unit_lookup[0];
@@ -252,10 +257,19 @@ UnitId World::spawn_unit(StringId64 name, const Vector3 &pos, const Quaternion &
 	return root_unit;
 }
 
+UnitId World::spawn_unit(StringId64 name, const Vector3 &pos, const Quaternion &rot, const Vector3 &scl)
+{
+	const UnitResource *ur = (UnitResource *)_resource_manager->get(RESOURCE_TYPE_UNIT, name);
+	return spawn_unit(ur, pos, rot, scl);
+}
+
 UnitId World::spawn_empty_unit()
 {
 	UnitId unit = _unit_manager->create();
 	array::push_back(_units, unit);
+#if CROWN_CAN_RELOAD
+	array::push_back(_unit_resources, (const UnitResource *)NULL);
+#endif
 	post_unit_spawned_events(&unit, 1);
 	return unit;
 }
@@ -275,6 +289,10 @@ void World::destroy_unit(UnitId unit)
 		if (_units[i] == unit) {
 			_units[i] = _units[n - 1];
 			array::pop_back(_units);
+#if CROWN_CAN_RELOAD
+			_unit_resources[i] = _unit_resources[n - 1];
+			array::pop_back(_unit_resources);
+#endif
 			break;
 		}
 	}
@@ -761,6 +779,33 @@ void World::reload_materials(const MaterialResource *old_resource, const Materia
 	CE_UNUSED_2(old_resource, new_resource);
 	CE_NOOP();
 #endif
+}
+
+void World::reload_units(const UnitResource *old_unit, const UnitResource *new_unit)
+{
+#if CROWN_CAN_RELOAD
+	for (u32 i = 0; i < array::size(_unit_resources); ++i) {
+		if (_unit_resources[i] == old_unit) {
+			Vector3 pos = VECTOR3_ZERO;
+			Quaternion rot = QUATERNION_IDENTITY;
+			Vector3 scl = VECTOR3_ONE;
+			TransformInstance ti = _scene_graph->instance(_units[i]);
+
+			if (is_valid(ti)) {
+				pos = _scene_graph->local_position(ti);
+				rot = _scene_graph->local_rotation(ti);
+				scl = _scene_graph->local_scale(ti);
+			}
+
+			_unit_manager->trigger_destroy_callbacks(_units[i]);
+			create_components(*this, new_unit, pos, rot, scl, &_units[i]);
+			_unit_resources[i] = new_unit;
+		}
+	}
+#else
+	CE_UNUSED_2(old_unit, new_unit);
+	CE_NOOP();
+#endif // if CROWN_CAN_RELOAD
 }
 
 } // namespace crown
