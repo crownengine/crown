@@ -13,6 +13,7 @@
 #include "core/strings/string_id.inl"
 #include "device/device.h"
 #include "lua/lua_environment.h"
+#include "resource/level_resource.h"
 #include "resource/resource_manager.h"
 #include "resource/unit_resource.h"
 #include "world/animation_state_machine.h"
@@ -32,6 +33,128 @@
 
 namespace crown
 {
+static void create_components(World &w, const UnitResource *ur, const Vector3 &pos, const Quaternion &rot, const Vector3 &scl, const UnitId *unit_lookup)
+{
+	SceneGraph *scene_graph = w._scene_graph;
+	RenderWorld *render_world = w._render_world;
+	PhysicsWorld *physics_world = w._physics_world;
+	ScriptWorld *script_world = w._script_world;
+	AnimationStateMachine *animation_state_machine = w._animation_state_machine;
+
+	const u32 *unit_parents = unit_resource::parents(ur);
+
+	// Create components
+	const ComponentData *component = unit_resource::component_type_data(ur, NULL);
+	for (u32 cc = 0; cc < ur->num_component_types; ++cc) {
+		const u32 *unit_index = unit_resource::component_unit_index(component);
+		const char *data = unit_resource::component_payload(component);
+
+		if (component->type == STRING_ID_32("transform", UINT32_C(0xad9b5315))) {
+			const TransformDesc *td = (TransformDesc *)data;
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++td) {
+				// FIXME: add SceneGraph::allocate() to reserve an instance
+				// without initializing it.
+				const TransformInstance ti = scene_graph->create(unit_lookup[unit_index[i]]
+					, td->position
+					, td->rotation
+					, td->scale
+					);
+				if (unit_parents[unit_index[i]] != UINT32_MAX) {
+					TransformInstance parent_ti = scene_graph->instance(unit_lookup[unit_parents[unit_index[i]]]);
+					scene_graph->link(parent_ti, ti, td->position, td->rotation, td->scale);
+				} else {
+					const Vector3 scale = { td->scale.x * scl.x, td->scale.y * scl.y, td->scale.z * scl.z };
+					Matrix4x4 tr = from_quaternion_translation(rot, pos);
+					scene_graph->set_local_pose(ti, scene_graph->local_pose(ti) * tr);
+					scene_graph->set_local_scale(ti, scale);
+				}
+			}
+		} else if (component->type == STRING_ID_32("camera", UINT32_C(0x31822dc7))) {
+			const CameraDesc *cd = (CameraDesc *)data;
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++cd) {
+				w.camera_create(unit_lookup[unit_index[i]], *cd, MATRIX4X4_IDENTITY);
+			}
+		} else if (component->type == STRING_ID_32("collider", UINT32_C(0x2129d74e))) {
+			const ColliderDesc *cd = (ColliderDesc *)data;
+			for (u32 i = 0, n = component->num_instances; i < n; ++i) {
+				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
+				Matrix4x4 tm = scene_graph->world_pose(ti);
+				physics_world->collider_create(unit_lookup[unit_index[i]], cd, scale(tm));
+				cd = (ColliderDesc *)((char *)(cd + 1) + cd->size);
+			}
+		} else if (component->type == STRING_ID_32("actor", UINT32_C(0x374cf583))) {
+			const ActorResource *ar = (ActorResource *)data;
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++ar) {
+				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
+				Matrix4x4 tm = scene_graph->world_pose(ti);
+				physics_world->actor_create(unit_lookup[unit_index[i]], ar, from_quaternion_translation(rotation(tm), translation(tm)));
+			}
+		} else if (component->type == STRING_ID_32("mover", UINT32_C(0xac07d371))) {
+			const MoverDesc *md = (MoverDesc *)data;
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++md) {
+				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
+				Matrix4x4 tm = scene_graph->world_pose(ti);
+				physics_world->mover_create(unit_lookup[unit_index[i]], md, tm);
+			}
+		} else if (component->type == STRING_ID_32("mesh_renderer", UINT32_C(0xdf017893))) {
+			const MeshRendererDesc *mrd = (MeshRendererDesc *)data;
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++mrd) {
+				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
+				Matrix4x4 tm = scene_graph->world_pose(ti);
+				render_world->mesh_create(unit_lookup[unit_index[i]], *mrd, tm);
+			}
+		} else if (component->type == STRING_ID_32("sprite_renderer", UINT32_C(0x6a1c2a3b))) {
+			const SpriteRendererDesc *srd = (SpriteRendererDesc *)data;
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++srd) {
+				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
+				Matrix4x4 tm = scene_graph->world_pose(ti);
+				render_world->sprite_create(unit_lookup[unit_index[i]], *srd, tm);
+			}
+		} else if (component->type == STRING_ID_32("light", UINT32_C(0xbb9f08c2))) {
+			const LightDesc *ld = (LightDesc *)data;
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++ld) {
+				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
+				Matrix4x4 tm = scene_graph->world_pose(ti);
+				render_world->light_create(unit_lookup[unit_index[i]], *ld, tm);
+			}
+		} else if (component->type == STRING_ID_32("fog", UINT32_C(0xf007ef0d))) {
+			const FogDesc *fd = (FogDesc *)data;
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++fd) {
+				render_world->fog_create(unit_lookup[unit_index[i]], *fd);
+			}
+		} else if (component->type == STRING_ID_32("global_lighting", UINT32_C(0x718af7fe))) {
+			const GlobalLightingDesc *desc = (GlobalLightingDesc *)data;
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++desc) {
+				render_world->global_lighting_create(unit_lookup[unit_index[i]], *desc);
+			}
+		} else if (component->type == STRING_ID_32("bloom", UINT32_C(0x995dd31c))) {
+			const BloomDesc *desc = (BloomDesc *)data;
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++desc) {
+				render_world->bloom_create(unit_lookup[unit_index[i]], *desc);
+			}
+		} else if (component->type == STRING_ID_32("tonemap", UINT32_C(0x7089b06b))) {
+			const TonemapDesc *desc = (TonemapDesc *)data;
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++desc) {
+				render_world->tonemap_create(unit_lookup[unit_index[i]], *desc);
+			}
+		} else if (component->type == STRING_ID_32("script", UINT32_C(0xd18f8ad6))) {
+			const ScriptDesc *sd = (ScriptDesc *)data;
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++sd) {
+				script_world::create(*script_world, unit_lookup[unit_index[i]], *sd);
+			}
+		} else if (component->type == STRING_ID_32("animation_state_machine", UINT32_C(0xe87992ac))) {
+			const AnimationStateMachineDesc *asmd = (AnimationStateMachineDesc *)data;
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++asmd) {
+				animation_state_machine->create(unit_lookup[unit_index[i]], *asmd, w);
+			}
+		} else {
+			CE_FATAL("Unknown component type");
+		}
+
+		component = unit_resource::component_type_data(ur, component);
+	}
+}
+
 World::World(Allocator &a
 	, ResourceManager &rm
 	, ShaderManager &sm
@@ -119,7 +242,10 @@ UnitId World::spawn_unit(StringId64 name, const Vector3 &pos, const Quaternion &
 	for (u32 i = 0; i < ur->num_units; ++i)
 		unit_lookup[i] = _unit_manager->create();
 
-	spawn_units(*this, ur, pos, rot, scl, unit_lookup);
+	create_components(*this, ur, pos, rot, scl, unit_lookup);
+
+	array::push(_units, unit_lookup, ur->num_units);
+	post_unit_spawned_events(unit_lookup, ur->num_units);
 
 	UnitId root_unit = unit_lookup[0];
 	default_scratch_allocator().deallocate(unit_lookup);
@@ -130,7 +256,7 @@ UnitId World::spawn_empty_unit()
 {
 	UnitId unit = _unit_manager->create();
 	array::push_back(_units, unit);
-	post_unit_spawned_event(unit);
+	post_unit_spawned_events(&unit, 1);
 	return unit;
 }
 
@@ -572,9 +698,25 @@ void World::destroy_gui(Gui &gui)
 Level *World::load_level(StringId64 name, const Vector3 &pos, const Quaternion &rot)
 {
 	const LevelResource *lr = (LevelResource *)_resource_manager->get(RESOURCE_TYPE_LEVEL, name);
+	const UnitResource *ur = level_resource::unit_resource(lr);
 
-	Level *level = CE_NEW(*_allocator, Level)(*_allocator, *_unit_manager, *this, *lr);
-	level->load(pos, rot);
+	Level *level = level::create(*_allocator, lr);
+
+	// Create IDs for units.
+	for (u32 i = 0; i < ur->num_units; ++i)
+		level->_unit_lookup[i] = _unit_manager->create();
+
+	create_components(*this, ur, pos, rot, VECTOR3_ONE, level->_unit_lookup);
+
+	spawn_skydome(lr->skydome_unit);
+
+	for (u32 i = 0; i < lr->num_sounds; ++i) {
+		const LevelSound *ls = level_resource::get_sound(lr, i);
+		play_sound(ls->name, ls->loop, ls->volume, ls->position, ls->range, ls->group);
+	}
+
+	array::push(_units, level->_unit_lookup, ur->num_units);
+	post_unit_spawned_events(level->_unit_lookup, ur->num_units);
 
 	list::add(level->_node, _levels);
 
@@ -582,11 +724,13 @@ Level *World::load_level(StringId64 name, const Vector3 &pos, const Quaternion &
 	return level;
 }
 
-void World::post_unit_spawned_event(UnitId unit)
+void World::post_unit_spawned_events(UnitId *units, u32 num_units)
 {
-	UnitSpawnedEvent ev;
-	ev.unit = unit;
-	event_stream::write(_events, EventType::UNIT_SPAWNED, ev);
+	for (u32 i = 0; i < num_units; ++i) {
+		UnitSpawnedEvent ev;
+		ev.unit = units[i];
+		event_stream::write(_events, EventType::UNIT_SPAWNED, ev);
+	}
 }
 
 void World::post_unit_destroyed_event(UnitId unit)
@@ -617,135 +761,6 @@ void World::reload_materials(const MaterialResource *old_resource, const Materia
 	CE_UNUSED_2(old_resource, new_resource);
 	CE_NOOP();
 #endif
-}
-
-void spawn_units(World &w, const UnitResource *ur, const Vector3 &pos, const Quaternion &rot, const Vector3 &scl, const UnitId *unit_lookup)
-{
-	SceneGraph *scene_graph = w._scene_graph;
-	RenderWorld *render_world = w._render_world;
-	PhysicsWorld *physics_world = w._physics_world;
-	ScriptWorld *script_world = w._script_world;
-	AnimationStateMachine *animation_state_machine = w._animation_state_machine;
-
-	const u32 *unit_parents = unit_resource::parents(ur);
-
-	// Create components
-	const ComponentData *component = unit_resource::component_type_data(ur, NULL);
-	for (u32 cc = 0; cc < ur->num_component_types; ++cc) {
-		const u32 *unit_index = unit_resource::component_unit_index(component);
-		const char *data = unit_resource::component_payload(component);
-
-		if (component->type == STRING_ID_32("transform", UINT32_C(0xad9b5315))) {
-			const TransformDesc *td = (TransformDesc *)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++td) {
-				// FIXME: add SceneGraph::allocate() to reserve an instance
-				// without initializing it.
-				const TransformInstance ti = scene_graph->create(unit_lookup[unit_index[i]]
-					, td->position
-					, td->rotation
-					, td->scale
-					);
-				if (unit_parents[unit_index[i]] != UINT32_MAX) {
-					TransformInstance parent_ti = scene_graph->instance(unit_lookup[unit_parents[unit_index[i]]]);
-					scene_graph->link(parent_ti, ti, td->position, td->rotation, td->scale);
-				} else {
-					const Vector3 scale = { td->scale.x * scl.x, td->scale.y * scl.y, td->scale.z * scl.z };
-					Matrix4x4 tr = from_quaternion_translation(rot, pos);
-					scene_graph->set_local_pose(ti, scene_graph->local_pose(ti) * tr);
-					scene_graph->set_local_scale(ti, scale);
-				}
-			}
-		} else if (component->type == STRING_ID_32("camera", UINT32_C(0x31822dc7))) {
-			const CameraDesc *cd = (CameraDesc *)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++cd) {
-				w.camera_create(unit_lookup[unit_index[i]], *cd, MATRIX4X4_IDENTITY);
-			}
-		} else if (component->type == STRING_ID_32("collider", UINT32_C(0x2129d74e))) {
-			const ColliderDesc *cd = (ColliderDesc *)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i) {
-				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
-				Matrix4x4 tm = scene_graph->world_pose(ti);
-				physics_world->collider_create(unit_lookup[unit_index[i]], cd, scale(tm));
-				cd = (ColliderDesc *)((char *)(cd + 1) + cd->size);
-			}
-		} else if (component->type == STRING_ID_32("actor", UINT32_C(0x374cf583))) {
-			const ActorResource *ar = (ActorResource *)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++ar) {
-				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
-				Matrix4x4 tm = scene_graph->world_pose(ti);
-				physics_world->actor_create(unit_lookup[unit_index[i]], ar, from_quaternion_translation(rotation(tm), translation(tm)));
-			}
-		} else if (component->type == STRING_ID_32("mover", UINT32_C(0xac07d371))) {
-			const MoverDesc *md = (MoverDesc *)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++md) {
-				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
-				Matrix4x4 tm = scene_graph->world_pose(ti);
-				physics_world->mover_create(unit_lookup[unit_index[i]], md, tm);
-			}
-		} else if (component->type == STRING_ID_32("mesh_renderer", UINT32_C(0xdf017893))) {
-			const MeshRendererDesc *mrd = (MeshRendererDesc *)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++mrd) {
-				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
-				Matrix4x4 tm = scene_graph->world_pose(ti);
-				render_world->mesh_create(unit_lookup[unit_index[i]], *mrd, tm);
-			}
-		} else if (component->type == STRING_ID_32("sprite_renderer", UINT32_C(0x6a1c2a3b))) {
-			const SpriteRendererDesc *srd = (SpriteRendererDesc *)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++srd) {
-				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
-				Matrix4x4 tm = scene_graph->world_pose(ti);
-				render_world->sprite_create(unit_lookup[unit_index[i]], *srd, tm);
-			}
-		} else if (component->type == STRING_ID_32("light", UINT32_C(0xbb9f08c2))) {
-			const LightDesc *ld = (LightDesc *)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++ld) {
-				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
-				Matrix4x4 tm = scene_graph->world_pose(ti);
-				render_world->light_create(unit_lookup[unit_index[i]], *ld, tm);
-			}
-		} else if (component->type == STRING_ID_32("fog", UINT32_C(0xf007ef0d))) {
-			const FogDesc *fd = (FogDesc *)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++fd) {
-				render_world->fog_create(unit_lookup[unit_index[i]], *fd);
-			}
-		} else if (component->type == STRING_ID_32("global_lighting", UINT32_C(0x718af7fe))) {
-			const GlobalLightingDesc *desc = (GlobalLightingDesc *)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++desc) {
-				render_world->global_lighting_create(unit_lookup[unit_index[i]], *desc);
-			}
-		} else if (component->type == STRING_ID_32("bloom", UINT32_C(0x995dd31c))) {
-			const BloomDesc *desc = (BloomDesc *)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++desc) {
-				render_world->bloom_create(unit_lookup[unit_index[i]], *desc);
-			}
-		} else if (component->type == STRING_ID_32("tonemap", UINT32_C(0x7089b06b))) {
-			const TonemapDesc *desc = (TonemapDesc *)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++desc) {
-				render_world->tonemap_create(unit_lookup[unit_index[i]], *desc);
-			}
-		} else if (component->type == STRING_ID_32("script", UINT32_C(0xd18f8ad6))) {
-			const ScriptDesc *sd = (ScriptDesc *)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++sd) {
-				script_world::create(*script_world, unit_lookup[unit_index[i]], *sd);
-			}
-		} else if (component->type == STRING_ID_32("animation_state_machine", UINT32_C(0xe87992ac))) {
-			const AnimationStateMachineDesc *asmd = (AnimationStateMachineDesc *)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++asmd) {
-				animation_state_machine->create(unit_lookup[unit_index[i]], *asmd, w);
-			}
-		} else {
-			CE_FATAL("Unknown component type");
-		}
-
-		component = unit_resource::component_type_data(ur, component);
-	}
-
-	for (u32 i = 0; i < ur->num_units; ++i)
-		array::push_back(w._units, unit_lookup[i]);
-
-	// Post events
-	for (u32 i = 0; i < ur->num_units; ++i)
-		w.post_unit_spawned_event(unit_lookup[i]);
 }
 
 } // namespace crown

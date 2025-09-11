@@ -214,7 +214,7 @@ struct World
 	Level *load_level(StringId64 name, const Vector3 &pos, const Quaternion &rot);
 
 	///
-	void post_unit_spawned_event(UnitId unit);
+	void post_unit_spawned_events(UnitId *units, u32 num);
 
 	///
 	void post_unit_destroyed_event(UnitId unit);
@@ -230,7 +230,5 @@ struct World
 	///
 	void reload_materials(const MaterialResource *old_resource, const MaterialResource *new_resource);
 };
-
-void spawn_units(World &w, const UnitResource *ur, const Vector3 &pos, const Quaternion &rot, const Vector3 &scl, const UnitId *unit_lookup);
 
 } // namespace crown
