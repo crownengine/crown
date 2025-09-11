@@ -5,9 +5,7 @@
 
 #pragma once
 
-#include "core/containers/types.h"
 #include "core/list.h"
-#include "core/math/types.h"
 #include "core/memory/types.h"
 #include "resource/types.h"
 #include "world/types.h"
@@ -20,24 +18,28 @@ namespace crown
 struct Level
 {
 	u32 _marker;
-	Allocator *_allocator;
-	UnitManager *_unit_manager;
-	World *_world;
 	const LevelResource *_resource;
-	Array<UnitId> _unit_lookup;
+	UnitId *_unit_lookup;
 	ListNode _node;
 
 	///
-	Level(Allocator &a, UnitManager &um, World &w, const LevelResource &lr);
+	Level(const LevelResource *level_resource, UnitId *unit_lookup);
 
 	///
 	~Level();
 
 	///
-	void load(const Vector3 &pos, const Quaternion &rot);
-
-	///
 	UnitId unit_by_name(StringId32 name);
 };
+
+namespace level
+{
+	///
+	Level *create(Allocator &a, const LevelResource *level_resource);
+
+	///
+	void destroy(Allocator &a, Level *level);
+
+} // namespace level
 
 } // namespace crown
