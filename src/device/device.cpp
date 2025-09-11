@@ -870,6 +870,7 @@ void Device::refresh(const char *json)
 			|| resource_type == RESOURCE_TYPE_SHADER
 			|| resource_type == RESOURCE_TYPE_MATERIAL
 			|| resource_type == RESOURCE_TYPE_RENDER_CONFIG
+			|| resource_type == RESOURCE_TYPE_UNIT
 			;
 
 		if (is_type_reloadable && _resource_manager->can_get(resource_type, resource_name)) {
@@ -895,6 +896,13 @@ void Device::refresh(const char *json)
 					_render_config_resource = (RenderConfigResource *)new_resource;
 					_pipeline->destroy();
 					_pipeline->create(_width, _height, _render_config_resource->render_settings);
+				}
+			} else if (resource_type == RESOURCE_TYPE_UNIT) {
+				ListNode *cur;
+				list_for_each(cur, &_worlds)
+				{
+					World *w = (World *)container_of(cur, World, _node);
+					w->reload_units((UnitResource *)old_resource, (UnitResource *)new_resource);
 				}
 			}
 		}

@@ -71,6 +71,10 @@ struct World
 	ListNode _node;
 	UnitId _skydome_unit;
 
+#if CROWN_CAN_RELOAD
+	Array<const UnitResource *> _unit_resources;
+#endif
+
 	CameraInstance camera_make_instance(u32 i)
 	{
 		CameraInstance inst = { i }; return inst;
@@ -88,6 +92,9 @@ struct World
 
 	///
 	~World();
+
+	/// Spawns a new instance of the unit @a ur at the given @a position, @a rotation and @a scale.
+	UnitId spawn_unit(const UnitResource *ur, const Vector3 &pos, const Quaternion &rot, const Vector3 &scl);
 
 	/// Spawns a new instance of the unit @a name at the given @a position, @a rotation and @a scale.
 	UnitId spawn_unit(StringId64 name, const Vector3 &pos = VECTOR3_ZERO, const Quaternion &rot = QUATERNION_IDENTITY, const Vector3 &scl = VECTOR3_ONE);
@@ -229,6 +236,9 @@ struct World
 
 	///
 	void reload_materials(const MaterialResource *old_resource, const MaterialResource *new_resource);
+
+	///
+	void reload_units(const UnitResource *old_unit, const UnitResource *new_unit);
 };
 
 } // namespace crown
