@@ -9,13 +9,13 @@ namespace Crown
 /// ability to set a custom widget alongside Expander's label.
 public class Expander : Gtk.Box
 {
-	private bool _expanded = false;
-	private Gtk.EventBox _header_event_box;
-	private Gtk.GestureMultiPress _gesture_click;
-	private Gtk.Box _header_box;
-	private Gtk.Image _arrow_image;
-	private Gtk.Widget _header_widget;
-	private Gtk.Widget _child = null;
+	public bool _expanded = false;
+	public Gtk.EventBox _header_event_box;
+	public Gtk.GestureMultiPress _gesture_click;
+	public Gtk.Box _header_box;
+	public Gtk.Image _arrow_image;
+	public Gtk.Widget _header_widget;
+	public Gtk.Widget _child = null;
 
 	public Expander(string? label = null)
 	{
