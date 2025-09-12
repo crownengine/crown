@@ -421,6 +421,12 @@ public class UndoRedo
 
 const string OBJECT_NAME_UNNAMED = "Unnamed";
 
+public enum ObjectTypeFlags
+{
+	NONE           = 0,
+	UNIT_COMPONENT = 1 << 0,
+}
+
 public class Database
 {
 	private static bool _debug = false;
@@ -447,10 +453,16 @@ public class Database
 		int end;   // Index of last property + 1.
 	}
 
+	private struct ObjectTypeInfo
+	{
+		PropertiesSlice properties;
+		string name;
+		ObjectTypeFlags flags;
+	}
+
 	// Data
 	private PropertyDefinition[] _property_definitions;
-	private Gee.HashMap<StringId64?, PropertiesSlice?> _object_definitions;
-	private Gee.HashMap<StringId64?, string> _object_type_names;
+	private Gee.HashMap<StringId64?, ObjectTypeInfo?> _object_definitions;
 	private Gee.HashMap<Guid?, Gee.HashMap<string, Value?>> _data;
 	private UndoRedo? _undo_redo;
 	public Project _project;
@@ -467,8 +479,7 @@ public class Database
 	public Database(Project project, UndoRedo? undo_redo = null)
 	{
 		_property_definitions = new PropertyDefinition[0];
-		_object_definitions = new Gee.HashMap<StringId64?, PropertiesSlice?>(StringId64.hash_func, StringId64.equal_func);
-		_object_type_names = new Gee.HashMap<StringId64?, string>(StringId64.hash_func, StringId64.equal_func);
+		_object_definitions = new Gee.HashMap<StringId64?, ObjectTypeInfo?>(StringId64.hash_func, StringId64.equal_func);
 		_data = new Gee.HashMap<Guid?, Gee.HashMap<string, Value?>>(Guid.hash_func, Guid.equal_func);
 		_project = project;
 		_undo_redo = undo_redo;
@@ -1603,15 +1614,17 @@ public class Database
 	}
 
 	// Creates a new object @a type with the specified @a properties and returns its ID.
-	public StringId64 create_object_type(string type, PropertyDefinition[] properties)
+	public StringId64 create_object_type(string type, PropertyDefinition[] properties, ObjectTypeFlags flags = ObjectTypeFlags.NONE)
 	{
 		StringId64 type_hash = StringId64(type);
 		assert(!_object_definitions.has_key(type_hash));
 
 		assert(properties.length > 0);
-		int start = _property_definitions.length;
-		_object_definitions[type_hash] = { start, start + properties.length };
-		_object_type_names[type_hash] = type;
+		ObjectTypeInfo info = {};
+		info.properties = { _property_definitions.length, _property_definitions.length + properties.length };
+		info.name = type;
+		info.flags = flags;
+		_object_definitions[type_hash] = info;
 
 		foreach (PropertyDefinition def in properties) {
 			// Generate labels if missing.
@@ -1695,7 +1708,7 @@ public class Database
 	{
 		assert(_object_definitions.has_key(type));
 
-		PropertiesSlice ps = _object_definitions[type];
+		PropertiesSlice ps = _object_definitions[type].properties;
 		return _property_definitions[ps.start : ps.end];
 	}
 
@@ -1725,7 +1738,12 @@ public class Database
 
 	public string object_type_name(StringId64 type)
 	{
-		return _object_type_names[type];
+		return _object_definitions[type].name;
+	}
+
+	public uint object_type_flags(StringId64 type)
+	{
+		return _object_definitions[type].flags;
 	}
 }
 
