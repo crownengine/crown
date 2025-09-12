@@ -33,36 +33,18 @@ public class UnitView : PropertyGrid
 		_prefab = new InputResource(OBJECT_TYPE_UNIT, db);
 		_prefab._selector.sensitive = false;
 
-		// List of component types.
-		const string components[] =
-		{
-			OBJECT_TYPE_TRANSFORM,
-			OBJECT_TYPE_LIGHT,
-			OBJECT_TYPE_CAMERA,
-			OBJECT_TYPE_MESH_RENDERER,
-			OBJECT_TYPE_SPRITE_RENDERER,
-			OBJECT_TYPE_COLLIDER,
-			OBJECT_TYPE_ACTOR,
-			OBJECT_TYPE_MOVER,
-			OBJECT_TYPE_SCRIPT,
-			OBJECT_TYPE_ANIMATION_STATE_MACHINE,
-			OBJECT_TYPE_FOG,
-			OBJECT_TYPE_GLOBAL_LIGHTING,
-			OBJECT_TYPE_BLOOM,
-			OBJECT_TYPE_TONEMAP,
-		};
-
 		// Construct 'add components' button.
 		GLib.Menu menu_model = new GLib.Menu();
 		GLib.MenuItem mi;
 
-		for (int cc = 0; cc < components.length; ++cc) {
-			mi = new GLib.MenuItem(camel_case(components[cc]), null);
+		foreach (var entry in Unit._component_registry.entries) {
+			mi = new GLib.MenuItem(camel_case(entry.key), null);
 			mi.set_action_and_target_value("app.unit-add-component"
-				, new GLib.Variant.string(components[cc])
+				, new GLib.Variant.string(entry.key)
 				);
 			menu_model.append_item(mi);
 		}
+
 		_add_popover = new Gtk.Popover.from_model(null, menu_model);
 
 		_component_add = new Gtk.MenuButton();
@@ -154,26 +136,9 @@ public class PropertiesView : Gtk.Box
 		this.get_style_context().add_class("properties-view");
 
 		db._project.project_reset.connect(on_project_reset);
-
-		register_object_type(OBJECT_TYPE_UNIT,                    0, new UnitView(_db));
-		register_object_type(OBJECT_TYPE_TRANSFORM,               0, null, UnitView.component_menu);
-		register_object_type(OBJECT_TYPE_LIGHT,                   1, null, UnitView.component_menu);
-		register_object_type(OBJECT_TYPE_CAMERA,                  2, null, UnitView.component_menu);
-		register_object_type(OBJECT_TYPE_MESH_RENDERER,           3, null, UnitView.component_menu);
-		register_object_type(OBJECT_TYPE_SPRITE_RENDERER,         3, null, UnitView.component_menu);
-		register_object_type(OBJECT_TYPE_COLLIDER,                3, null, UnitView.component_menu);
-		register_object_type(OBJECT_TYPE_ACTOR,                   3, null, UnitView.component_menu);
-		register_object_type(OBJECT_TYPE_MOVER,                   3, null, UnitView.component_menu);
-		register_object_type(OBJECT_TYPE_SCRIPT,                  3, null, UnitView.component_menu);
-		register_object_type(OBJECT_TYPE_ANIMATION_STATE_MACHINE, 3, null, UnitView.component_menu);
-		register_object_type(OBJECT_TYPE_SOUND_SOURCE,            0, null, UnitView.component_menu);
-		register_object_type(OBJECT_TYPE_FOG,                     0, null, UnitView.component_menu);
-		register_object_type(OBJECT_TYPE_GLOBAL_LIGHTING,         0, null, UnitView.component_menu);
-		register_object_type(OBJECT_TYPE_BLOOM,                   0, null, UnitView.component_menu);
-		register_object_type(OBJECT_TYPE_TONEMAP,                 0, null, UnitView.component_menu);
 	}
 
-	private void register_object_type(string object_type, int position, PropertyGrid? cv = null, ContextMenu? context_menu = null)
+	public void register_object_type(string object_type, int position, PropertyGrid? cv = null, ContextMenu? context_menu = null)
 	{
 		PropertyGrid? grid = cv;
 		if (grid == null)
