@@ -18,14 +18,9 @@ public struct Unit
 	}
 
 	/// Loads the unit @a name.
-	public static void load_unit(Database db, string name)
+	public static int load_unit(out Guid prefab_id, Database db, string name)
 	{
-		string resource_path = name + ".unit";
-
-		Guid prefab_id = GUID_ZERO;
-		if (db.add_from_resource_path(out prefab_id, resource_path) != 0)
-			return; // Caller can query the database to check for error.
-		assert(prefab_id != GUID_ZERO);
+		return db.add_from_resource_path(out prefab_id, name + ".unit");
 	}
 
 	public void create_empty()
@@ -66,8 +61,8 @@ public struct Unit
 		if (val != null) {
 			// Convert prefab path to object ID.
 			string prefab = (string)val;
-			Unit.load_unit(_db, prefab);
-			Guid prefab_id = _db.get_property_guid(GUID_ZERO, prefab + ".unit");
+			Guid prefab_id = GUID_ZERO;
+			Unit.load_unit(out prefab_id, _db, prefab);
 
 			Unit unit = Unit(_db, prefab_id);
 			return unit.get_component_property(component_id, key, deffault);
@@ -204,8 +199,9 @@ public struct Unit
 		if (val != null) {
 			// Convert prefab path to object ID.
 			string prefab = (string)val;
-			Unit.load_unit(db, prefab);
-			Guid prefab_id = db.get_property_guid(GUID_ZERO, prefab + ".unit");
+
+			Guid prefab_id = GUID_ZERO;
+			Unit.load_unit(out prefab_id, db, prefab);
 
 			prefab_has_component = has_component_static(out component_id
 				, out owner_id
