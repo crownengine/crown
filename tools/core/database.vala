@@ -787,6 +787,9 @@ public class Database
 			// Since null-key is equivalent to non-existent key, skip serialization.
 			if (db[key] == null)
 				continue;
+			// Skip empty sets.
+			if (db[key].holds(typeof(Gee.HashSet)) && ((Gee.HashSet)db[key]).size == 0)
+				continue;
 
 			string[] foo = key.split(".");
 			Hashtable x = obj;
