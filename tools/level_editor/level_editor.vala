@@ -794,8 +794,13 @@ public class LevelEditorApplication : Gtk.Application
 		_database = new Database(_project, _undo_redo);
 		_database.restore_point_added.connect(on_restore_point_added);
 		_database.undo_redo.connect(on_undo_redo);
+		_database.object_type_added.connect(on_object_type_added);
+
+		_properties_view = new PropertiesView(_database);
 
 		create_object_types(_database);
+
+		_properties_view.register_object_type(OBJECT_TYPE_UNIT, -1, new UnitView(_database));
 
 		_level = new Level(_database, _editor, _project);
 
@@ -817,22 +822,6 @@ public class LevelEditorApplication : Gtk.Application
 
 		_project_store = new ProjectStore(_project);
 
-		// Register component types.
-		Unit.register_component_type(OBJECT_TYPE_TRANSFORM,               "");
-		Unit.register_component_type(OBJECT_TYPE_LIGHT,                   OBJECT_TYPE_TRANSFORM);
-		Unit.register_component_type(OBJECT_TYPE_CAMERA,                  OBJECT_TYPE_TRANSFORM);
-		Unit.register_component_type(OBJECT_TYPE_MESH_RENDERER,           OBJECT_TYPE_TRANSFORM);
-		Unit.register_component_type(OBJECT_TYPE_SPRITE_RENDERER,         OBJECT_TYPE_TRANSFORM);
-		Unit.register_component_type(OBJECT_TYPE_COLLIDER,                OBJECT_TYPE_TRANSFORM);
-		Unit.register_component_type(OBJECT_TYPE_ACTOR,                   OBJECT_TYPE_TRANSFORM);
-		Unit.register_component_type(OBJECT_TYPE_MOVER,                   OBJECT_TYPE_TRANSFORM);
-		Unit.register_component_type(OBJECT_TYPE_SCRIPT,                  "");
-		Unit.register_component_type(OBJECT_TYPE_ANIMATION_STATE_MACHINE, "");
-		Unit.register_component_type(OBJECT_TYPE_FOG,                     "");
-		Unit.register_component_type(OBJECT_TYPE_GLOBAL_LIGHTING,         "");
-		Unit.register_component_type(OBJECT_TYPE_BLOOM,                   "");
-		Unit.register_component_type(OBJECT_TYPE_TONEMAP,                 "");
-
 		// Widgets
 		_combo = new Gtk.ComboBoxText();
 		_combo.append("editor", "Editor");
@@ -845,7 +834,6 @@ public class LevelEditorApplication : Gtk.Application
 		_project_browser = new ProjectBrowser(_project_store, _thumbnail_cache);
 		_level_treeview = new LevelTreeView(_database, _level);
 		_level_layers_treeview = new LevelLayersTreeView(_database, _level);
-		_properties_view = new PropertiesView(_database);
 		_level.selection_changed.connect(_properties_view.on_selection_changed);
 
 		_project_stack = new Gtk.Stack();
@@ -1517,6 +1505,14 @@ public class LevelEditorApplication : Gtk.Application
 		}
 
 		_properties_view.show_or_hide_properties();
+	}
+
+	private void on_object_type_added(ObjectTypeInfo info)
+	{
+		if ((info.flags & ObjectTypeFlags.UNIT_COMPONENT) != 0) {
+			Unit.register_component_type(info.name, info.user_data != null ? info.user_data : "");
+			_properties_view.register_object_type(info.name, (int)info.ui_order, null, UnitView.component_menu);
+		}
 	}
 
 	Gtk.Label compiling_data_label()

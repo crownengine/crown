@@ -189,7 +189,12 @@ public static void create_object_types(Database database)
 			deffault = true
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_MESH_RENDERER, properties, 3.0, ObjectTypeFlags.UNIT_COMPONENT);
+	database.create_object_type(OBJECT_TYPE_MESH_RENDERER
+		, properties
+		, 3.0
+		, ObjectTypeFlags.UNIT_COMPONENT
+		, OBJECT_TYPE_TRANSFORM
+		);
 
 	properties =
 	{
@@ -238,7 +243,12 @@ public static void create_object_types(Database database)
 			name = "data.flip_y",
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_SPRITE_RENDERER, properties, 3.0, ObjectTypeFlags.UNIT_COMPONENT);
+	database.create_object_type(OBJECT_TYPE_SPRITE_RENDERER
+		, properties
+		, 3.0
+		, ObjectTypeFlags.UNIT_COMPONENT
+		, OBJECT_TYPE_TRANSFORM
+		);
 
 	properties =
 	{
@@ -292,7 +302,12 @@ public static void create_object_types(Database database)
 			deffault = true,
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_LIGHT, properties, 1.0, ObjectTypeFlags.UNIT_COMPONENT);
+	database.create_object_type(OBJECT_TYPE_LIGHT
+		, properties
+		, 1.0
+		, ObjectTypeFlags.UNIT_COMPONENT
+		, OBJECT_TYPE_TRANSFORM
+		);
 
 	properties =
 	{
@@ -325,7 +340,12 @@ public static void create_object_types(Database database)
 			deffault = 1000.0,
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_CAMERA, properties, 2.0, ObjectTypeFlags.UNIT_COMPONENT);
+	database.create_object_type(OBJECT_TYPE_CAMERA
+		, properties
+		, 2.0
+		, ObjectTypeFlags.UNIT_COMPONENT
+		, OBJECT_TYPE_TRANSFORM
+		);
 
 	properties =
 	{
@@ -395,7 +415,12 @@ public static void create_object_types(Database database)
 			deffault = 1.0,
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_COLLIDER, properties, 3.0, ObjectTypeFlags.UNIT_COMPONENT);
+	database.create_object_type(OBJECT_TYPE_COLLIDER
+		, properties
+		, 3.0
+		, ObjectTypeFlags.UNIT_COMPONENT
+		, OBJECT_TYPE_TRANSFORM
+		);
 
 	properties =
 	{
@@ -470,7 +495,12 @@ public static void create_object_types(Database database)
 			name = "data.lock_rotation_z",
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_ACTOR, properties, 3.0, ObjectTypeFlags.UNIT_COMPONENT);
+	database.create_object_type(OBJECT_TYPE_ACTOR
+		, properties
+		, 3.0
+		, ObjectTypeFlags.UNIT_COMPONENT
+		, OBJECT_TYPE_TRANSFORM
+		);
 
 	properties =
 	{
@@ -637,7 +667,12 @@ public static void create_object_types(Database database)
 			enum_callback = collision_filter_enum_callback
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_MOVER, properties, 3.0, ObjectTypeFlags.UNIT_COMPONENT);
+	database.create_object_type(OBJECT_TYPE_MOVER
+		, properties
+		, 3.0
+		, ObjectTypeFlags.UNIT_COMPONENT
+		, OBJECT_TYPE_TRANSFORM
+		);
 
 	properties =
 	{
