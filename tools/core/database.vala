@@ -437,6 +437,7 @@ public struct ObjectTypeInfo
 {
 	PropertiesSlice properties;
 	string name;
+	double ui_order;
 	ObjectTypeFlags flags;
 }
 
@@ -1615,7 +1616,11 @@ public class Database
 	}
 
 	// Creates a new object @a type with the specified @a properties and returns its ID.
-	public StringId64 create_object_type(string type, PropertyDefinition[] properties, ObjectTypeFlags flags = ObjectTypeFlags.NONE)
+	public StringId64 create_object_type(string type
+		, PropertyDefinition[] properties
+		, double ui_order = 0.0
+		, ObjectTypeFlags flags = ObjectTypeFlags.NONE
+		)
 	{
 		StringId64 type_hash = StringId64(type);
 		assert(!_object_definitions.has_key(type_hash));
@@ -1624,6 +1629,7 @@ public class Database
 		ObjectTypeInfo info = {};
 		info.properties = { _property_definitions.length, _property_definitions.length + properties.length };
 		info.name = type;
+		info.ui_order = ui_order;
 		info.flags = flags;
 		_object_definitions[type_hash] = info;
 
