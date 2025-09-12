@@ -894,23 +894,7 @@ public struct Unit
 
 	public static bool is_component(Guid id, Database db)
 	{
-		string type = db.object_type(id);
-
-		return type == OBJECT_TYPE_TRANSFORM
-			|| type == OBJECT_TYPE_CAMERA
-			|| type == OBJECT_TYPE_MESH_RENDERER
-			|| type == OBJECT_TYPE_SPRITE_RENDERER
-			|| type == OBJECT_TYPE_LIGHT
-			|| type == OBJECT_TYPE_FOG
-			|| type == OBJECT_TYPE_GLOBAL_LIGHTING
-			|| type == OBJECT_TYPE_BLOOM
-			|| type == OBJECT_TYPE_TONEMAP
-			|| type == OBJECT_TYPE_SCRIPT
-			|| type == OBJECT_TYPE_COLLIDER
-			|| type == OBJECT_TYPE_ACTOR
-			|| type == OBJECT_TYPE_MOVER
-			|| type == OBJECT_TYPE_ANIMATION_STATE_MACHINE
-			;
+		return (db.object_type_flags(StringId64(db.object_type(id))) & ObjectTypeFlags.UNIT_COMPONENT) != 0;
 	}
 
 	public void add_component_type_dependencies(ref Gee.ArrayList<Guid?> components_added, string component_type)

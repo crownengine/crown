@@ -149,7 +149,7 @@ public static void create_object_types(Database database)
 			deffault = VECTOR3_ONE,
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_TRANSFORM, properties);
+	database.create_object_type(OBJECT_TYPE_TRANSFORM, properties, ObjectTypeFlags.UNIT_COMPONENT);
 
 	properties =
 	{
@@ -189,7 +189,7 @@ public static void create_object_types(Database database)
 			deffault = true
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_MESH_RENDERER, properties);
+	database.create_object_type(OBJECT_TYPE_MESH_RENDERER, properties, ObjectTypeFlags.UNIT_COMPONENT);
 
 	properties =
 	{
@@ -238,7 +238,7 @@ public static void create_object_types(Database database)
 			name = "data.flip_y",
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_SPRITE_RENDERER, properties);
+	database.create_object_type(OBJECT_TYPE_SPRITE_RENDERER, properties, ObjectTypeFlags.UNIT_COMPONENT);
 
 	properties =
 	{
@@ -292,7 +292,7 @@ public static void create_object_types(Database database)
 			deffault = true,
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_LIGHT, properties);
+	database.create_object_type(OBJECT_TYPE_LIGHT, properties, ObjectTypeFlags.UNIT_COMPONENT);
 
 	properties =
 	{
@@ -325,7 +325,7 @@ public static void create_object_types(Database database)
 			deffault = 1000.0,
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_CAMERA, properties);
+	database.create_object_type(OBJECT_TYPE_CAMERA, properties, ObjectTypeFlags.UNIT_COMPONENT);
 
 	properties =
 	{
@@ -395,7 +395,7 @@ public static void create_object_types(Database database)
 			deffault = 1.0,
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_COLLIDER, properties);
+	database.create_object_type(OBJECT_TYPE_COLLIDER, properties, ObjectTypeFlags.UNIT_COMPONENT);
 
 	properties =
 	{
@@ -470,7 +470,7 @@ public static void create_object_types(Database database)
 			name = "data.lock_rotation_z",
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_ACTOR, properties);
+	database.create_object_type(OBJECT_TYPE_ACTOR, properties, ObjectTypeFlags.UNIT_COMPONENT);
 
 	properties =
 	{
@@ -483,7 +483,7 @@ public static void create_object_types(Database database)
 			resource_type = "lua"
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_SCRIPT, properties);
+	database.create_object_type(OBJECT_TYPE_SCRIPT, properties, ObjectTypeFlags.UNIT_COMPONENT);
 
 	properties =
 	{
@@ -496,7 +496,7 @@ public static void create_object_types(Database database)
 			resource_type = OBJECT_TYPE_STATE_MACHINE
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_ANIMATION_STATE_MACHINE, properties);
+	database.create_object_type(OBJECT_TYPE_ANIMATION_STATE_MACHINE, properties, ObjectTypeFlags.UNIT_COMPONENT);
 
 	properties =
 	{
@@ -592,7 +592,7 @@ public static void create_object_types(Database database)
 			deffault = true,
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_FOG, properties);
+	database.create_object_type(OBJECT_TYPE_FOG, properties, ObjectTypeFlags.UNIT_COMPONENT);
 
 	properties =
 	{
@@ -637,7 +637,7 @@ public static void create_object_types(Database database)
 			enum_callback = collision_filter_enum_callback
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_MOVER, properties);
+	database.create_object_type(OBJECT_TYPE_MOVER, properties, ObjectTypeFlags.UNIT_COMPONENT);
 
 	properties =
 	{
@@ -666,7 +666,7 @@ public static void create_object_types(Database database)
 			max = VECTOR3_ONE,
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_GLOBAL_LIGHTING, properties);
+	database.create_object_type(OBJECT_TYPE_GLOBAL_LIGHTING, properties, ObjectTypeFlags.UNIT_COMPONENT);
 
 	properties =
 	{
@@ -700,7 +700,7 @@ public static void create_object_types(Database database)
 			deffault = 0.8,
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_BLOOM, properties);
+	database.create_object_type(OBJECT_TYPE_BLOOM, properties, ObjectTypeFlags.UNIT_COMPONENT);
 
 	properties =
 	{
@@ -712,7 +712,7 @@ public static void create_object_types(Database database)
 			enum_values = { "gamma", "reinhard", "filmic", "aces" },
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_TONEMAP, properties);
+	database.create_object_type(OBJECT_TYPE_TONEMAP, properties, ObjectTypeFlags.UNIT_COMPONENT);
 }
 
 } /* namespace Crown */
