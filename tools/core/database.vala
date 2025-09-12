@@ -439,6 +439,7 @@ public struct ObjectTypeInfo
 	string name;
 	double ui_order;
 	ObjectTypeFlags flags;
+	string? user_data;
 }
 
 public class Database
@@ -1620,6 +1621,7 @@ public class Database
 		, PropertyDefinition[] properties
 		, double ui_order = 0.0
 		, ObjectTypeFlags flags = ObjectTypeFlags.NONE
+		, string? user_data = null
 		)
 	{
 		StringId64 type_hash = StringId64(type);
@@ -1631,6 +1633,7 @@ public class Database
 		info.name = type;
 		info.ui_order = ui_order;
 		info.flags = flags;
+		info.user_data = user_data;
 		_object_definitions[type_hash] = info;
 
 		foreach (PropertyDefinition def in properties) {
