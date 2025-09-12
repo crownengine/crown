@@ -427,6 +427,19 @@ public enum ObjectTypeFlags
 	UNIT_COMPONENT = 1 << 0,
 }
 
+public struct PropertiesSlice
+{
+	int start; // Index of first property.
+	int end;   // Index of last property + 1.
+}
+
+public struct ObjectTypeInfo
+{
+	PropertiesSlice properties;
+	string name;
+	ObjectTypeFlags flags;
+}
+
 public class Database
 {
 	private static bool _debug = false;
@@ -447,19 +460,6 @@ public class Database
 		REMOVE_FROM_SET
 	}
 
-	private struct PropertiesSlice
-	{
-		int start; // Index of first property.
-		int end;   // Index of last property + 1.
-	}
-
-	private struct ObjectTypeInfo
-	{
-		PropertiesSlice properties;
-		string name;
-		ObjectTypeFlags flags;
-	}
-
 	// Data
 	private PropertyDefinition[] _property_definitions;
 	private Gee.HashMap<StringId64?, ObjectTypeInfo?> _object_definitions;
@@ -475,6 +475,7 @@ public class Database
 	// Signals
 	public signal void undo_redo(bool undo, uint32 id, Guid?[] data);
 	public signal void restore_point_added(int id, Guid?[] data, uint32 flags);
+	public signal void object_type_added(ObjectTypeInfo info);
 
 	public Database(Project project, UndoRedo? undo_redo = null)
 	{
@@ -1700,6 +1701,7 @@ public class Database
 			_property_definitions += def;
 		}
 
+		object_type_added(info);
 		return type_hash;
 	}
 
