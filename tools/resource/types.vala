@@ -186,6 +186,7 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.BOOL,
 			name = "data.cast_shadows",
+			deffault = true
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_MESH_RENDERER, properties);
