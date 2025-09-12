@@ -55,7 +55,7 @@ namespace level_resource_internal
 		RETURN_IF_ERROR(sjson::parse(obj, buf), opts);
 
 		Array<LevelSound> sounds(default_allocator());
-		{
+		if (json_object::has(obj, "sounds")) {
 			JsonArray sounds_json(ta);
 			RETURN_IF_ERROR(sjson::parse_array(sounds_json, obj["sounds"]), opts);
 
@@ -87,11 +87,14 @@ namespace level_resource_internal
 		}
 
 		UnitCompiler uc(default_allocator());
-		s32 err = unit_compiler::parse_unit_array_from_json(uc, obj["units"], opts);
-		ENSURE_OR_RETURN(err == 0, opts);
+
+		if (json_object::has(obj, "units")) {
+			s32 err = unit_compiler::parse_unit_array_from_json(uc, obj["units"], opts);
+			ENSURE_OR_RETURN(err == 0, opts);
+		}
 
 		Buffer units_blob(default_allocator());
-		err = unit_compiler::blob(units_blob, uc);
+		s32 err = unit_compiler::blob(units_blob, uc);
 		ENSURE_OR_RETURN(err == 0, opts);
 
 		StringId64 skydome_unit;
