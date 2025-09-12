@@ -323,9 +323,6 @@ public class EditorView : Gtk.EventBox
 
 	private void on_key_released(uint keyval, uint keycode, Gdk.ModifierType state)
 	{
-		if ((keyval == Gdk.Key.Alt_L || keyval == Gdk.Key.Alt_R))
-			_buffer.append("LevelEditor:camera_drag_start('idle')");
-
 		if (_keys.has_key(keyval)) {
 			if (_keys[keyval])
 				_buffer.append(LevelEditorApi.key_up(key_to_string(keyval)));
