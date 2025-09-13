@@ -337,7 +337,11 @@ public class PropertyGridSet : Gtk.Box
 		e.expanded = true;
 		e.add(cv);
 
-		_list_box.add(e);
+		Gtk.ListBoxRow row = new Gtk.ListBoxRow();
+		row.can_focus = false;
+		row.add(e);
+
+		_list_box.add(row);
 
 		return e;
 	}
@@ -358,7 +362,11 @@ public class PropertyGridSet : Gtk.Box
 		e.expanded = true;
 		e.add(cv);
 
-		_list_box.add(e);
+		Gtk.ListBoxRow row = new Gtk.ListBoxRow();
+		row.can_focus = false;
+		row.add(e);
+
+		_list_box.add(row);
 
 		return e;
 	}
