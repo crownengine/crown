@@ -675,7 +675,7 @@ function PlaceTool:mouse_up(x, y)
 	local level_object = nil
 	if self._placeable_type == "unit" then
 		local guid = Device.guid()
-		level_object = LevelEditor:spawn_unit(guid, self._placeable_name, self:position(), Quaternion.identity(), Vector3(1,1,1))
+		level_object = LevelEditor:spawn_unit(guid, self._placeable_name, self:position())
 		level_object:send()
 	elseif self._placeable_type == "sound" then
 		local guid = Device.guid()
@@ -1700,8 +1700,8 @@ function LevelEditor:draw_grid(tm, center, size, axis)
 	draw_grid(self._lines, tm, center, size, axis, color)
 end
 
-function LevelEditor:spawn_unit(id, name, pos, rot, scale)
-	local unit = World.spawn_unit(self._world, name, pos, rot, scale)
+function LevelEditor:spawn_unit(id, name, pos)
+	local unit = World.spawn_unit(self._world, name, pos)
 	local unit_box = UnitBox(self._world, id, unit, name)
 	self._objects[id] = unit_box
 	return unit_box
