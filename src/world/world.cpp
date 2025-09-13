@@ -33,7 +33,13 @@
 
 namespace crown
 {
-static void create_components(World &w, const UnitResource *ur, const Vector3 &pos, const Quaternion &rot, const Vector3 &scl, const UnitId *unit_lookup)
+static void create_components(World &w
+	, const UnitResource *ur
+	, const UnitId *unit_lookup
+	, const Vector3 &pos
+	, const Quaternion &rot
+	, const Vector3 &scl
+	)
 {
 	SceneGraph *scene_graph = w._scene_graph;
 	RenderWorld *render_world = w._render_world;
@@ -243,7 +249,7 @@ UnitId World::spawn_unit(const UnitResource *ur, const Vector3 &pos, const Quate
 	for (u32 i = 0; i < ur->num_units; ++i)
 		unit_lookup[i] = _unit_manager->create();
 
-	create_components(*this, ur, pos, rot, scl, unit_lookup);
+	create_components(*this, ur, unit_lookup, pos, rot, scl);
 
 	array::push(_units, unit_lookup, ur->num_units);
 #if CROWN_CAN_RELOAD
@@ -724,7 +730,7 @@ Level *World::load_level(StringId64 name, const Vector3 &pos, const Quaternion &
 	for (u32 i = 0; i < ur->num_units; ++i)
 		level->_unit_lookup[i] = _unit_manager->create();
 
-	create_components(*this, ur, pos, rot, VECTOR3_ONE, level->_unit_lookup);
+	create_components(*this, ur, level->_unit_lookup, pos, rot, VECTOR3_ONE);
 
 	spawn_skydome(lr->skydome_unit);
 
@@ -798,7 +804,7 @@ void World::reload_units(const UnitResource *old_unit, const UnitResource *new_u
 			}
 
 			_unit_manager->trigger_destroy_callbacks(_units[i]);
-			create_components(*this, new_unit, pos, rot, scl, &_units[i]);
+			create_components(*this, new_unit, &_units[i], pos, rot, scl);
 			_unit_resources[i] = new_unit;
 		}
 	}
