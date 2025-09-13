@@ -36,6 +36,7 @@ namespace crown
 static void create_components(World &w
 	, const UnitResource *ur
 	, const UnitId *unit_lookup
+	, u32 spawn_flags
 	, const Vector3 &pos
 	, const Quaternion &rot
 	, const Vector3 &scl
@@ -58,21 +59,15 @@ static void create_components(World &w
 		if (component->type == STRING_ID_32("transform", UINT32_C(0xad9b5315))) {
 			const TransformDesc *td = (TransformDesc *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++td) {
-				// FIXME: add SceneGraph::allocate() to reserve an instance
-				// without initializing it.
+				// FIXME: add SceneGraph::allocate() to reserve an instance without initializing it.
 				const TransformInstance ti = scene_graph->create(unit_lookup[unit_index[i]]
-					, td->position
-					, td->rotation
-					, td->scale
+					, spawn_flags & SpawnFlags::OVERRIDE_POSITION ? pos : td->position
+					, spawn_flags & SpawnFlags::OVERRIDE_ROTATION ? rot : td->rotation
+					, spawn_flags & SpawnFlags::OVERRIDE_SCALE ? scl : td->scale
 					);
 				if (unit_parents[unit_index[i]] != UINT32_MAX) {
 					TransformInstance parent_ti = scene_graph->instance(unit_lookup[unit_parents[unit_index[i]]]);
 					scene_graph->link(parent_ti, ti, td->position, td->rotation, td->scale);
-				} else {
-					const Vector3 scale = { td->scale.x * scl.x, td->scale.y * scl.y, td->scale.z * scl.z };
-					Matrix4x4 tr = from_quaternion_translation(rot, pos);
-					scene_graph->set_local_pose(ti, scene_graph->local_pose(ti) * tr);
-					scene_graph->set_local_scale(ti, scale);
 				}
 			}
 		} else if (component->type == STRING_ID_32("camera", UINT32_C(0x31822dc7))) {
@@ -243,13 +238,13 @@ World::~World()
 	_marker = 0;
 }
 
-UnitId World::spawn_unit(const UnitResource *ur, const Vector3 &pos, const Quaternion &rot, const Vector3 &scl)
+UnitId World::spawn_unit(const UnitResource *ur, u32 flags, const Vector3 &pos, const Quaternion &rot, const Vector3 &scl)
 {
 	UnitId *unit_lookup = (UnitId *)default_scratch_allocator().allocate(sizeof(*unit_lookup) * ur->num_units);
 	for (u32 i = 0; i < ur->num_units; ++i)
 		unit_lookup[i] = _unit_manager->create();
 
-	create_components(*this, ur, unit_lookup, pos, rot, scl);
+	create_components(*this, ur, unit_lookup, flags, pos, rot, scl);
 
 	array::push(_units, unit_lookup, ur->num_units);
 #if CROWN_CAN_RELOAD
@@ -263,10 +258,10 @@ UnitId World::spawn_unit(const UnitResource *ur, const Vector3 &pos, const Quate
 	return root_unit;
 }
 
-UnitId World::spawn_unit(StringId64 name, const Vector3 &pos, const Quaternion &rot, const Vector3 &scl)
+UnitId World::spawn_unit(StringId64 name, u32 flags, const Vector3 &pos, const Quaternion &rot, const Vector3 &scl)
 {
 	const UnitResource *ur = (UnitResource *)_resource_manager->get(RESOURCE_TYPE_UNIT, name);
-	return spawn_unit(ur, pos, rot, scl);
+	return spawn_unit(ur, flags, pos, rot, scl);
 }
 
 UnitId World::spawn_empty_unit()
@@ -719,7 +714,7 @@ void World::destroy_gui(Gui &gui)
 	CE_DELETE(*_allocator, &gui);
 }
 
-Level *World::load_level(StringId64 name, const Vector3 &pos, const Quaternion &rot)
+Level *World::load_level(StringId64 name, u32 flags, const Vector3 &pos, const Quaternion &rot)
 {
 	const LevelResource *lr = (LevelResource *)_resource_manager->get(RESOURCE_TYPE_LEVEL, name);
 	const UnitResource *ur = level_resource::unit_resource(lr);
@@ -730,7 +725,7 @@ Level *World::load_level(StringId64 name, const Vector3 &pos, const Quaternion &
 	for (u32 i = 0; i < ur->num_units; ++i)
 		level->_unit_lookup[i] = _unit_manager->create();
 
-	create_components(*this, ur, level->_unit_lookup, pos, rot, VECTOR3_ONE);
+	create_components(*this, ur, level->_unit_lookup, flags, pos, rot, VECTOR3_ONE);
 
 	spawn_skydome(lr->skydome_unit);
 
@@ -804,7 +799,16 @@ void World::reload_units(const UnitResource *old_unit, const UnitResource *new_u
 			}
 
 			_unit_manager->trigger_destroy_callbacks(_units[i]);
-			create_components(*this, new_unit, &_units[i], pos, rot, scl);
+			create_components(*this
+				, new_unit
+				, &_units[i]
+				, SpawnFlags::OVERRIDE_POSITION
+				| SpawnFlags::OVERRIDE_ROTATION
+				| SpawnFlags::OVERRIDE_SCALE
+				, pos
+				, rot
+				, scl
+				);
 			_unit_resources[i] = new_unit;
 		}
 	}

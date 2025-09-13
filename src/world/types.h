@@ -278,6 +278,20 @@ struct hash<UnitId>
 	}
 };
 
+/// Spawn flags.
+///
+/// @ingroup World
+struct SpawnFlags
+{
+	enum Enum : u32
+	{
+		NONE              = u32(0),
+		OVERRIDE_POSITION = u32(1) << 0,
+		OVERRIDE_ROTATION = u32(1) << 1,
+		OVERRIDE_SCALE    = u32(1) << 2,
+	};
+};
+
 typedef void (*UnitDestroyFunction)(UnitId unit, void *user_data);
 
 struct UnitDestroyCallback

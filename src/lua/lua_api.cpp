@@ -1441,9 +1441,24 @@ void load_api(LuaEnvironment &env)
 
 			World *world          = stack.get_world(1);
 			const StringId64 name = stack.get_resource_name(2);
-			const Vector3 &pos    = nargs > 2 ? stack.get_vector3(3)    : VECTOR3_ZERO;
-			const Quaternion &rot = nargs > 3 ? stack.get_quaternion(4) : QUATERNION_IDENTITY;
-			const Vector3 &scl    = nargs > 4 ? stack.get_vector3(5)    : VECTOR3_ONE;
+
+			u32 flags = SpawnFlags::NONE;
+			Vector3 pos;
+			Quaternion rot;
+			Vector3 scl;
+
+			if (nargs > 2) {
+				flags |= SpawnFlags::OVERRIDE_POSITION;
+				pos = stack.get_vector3(3);
+			}
+			if (nargs > 3) {
+				flags |= SpawnFlags::OVERRIDE_ROTATION;
+				rot = stack.get_quaternion(4);
+			}
+			if (nargs > 4) {
+				flags |= SpawnFlags::OVERRIDE_SCALE;
+				scl = stack.get_vector3(5);
+			}
 
 			char name_str[RESOURCE_ID_BUF_LEN];
 			LUA_ASSERT(device()->_resource_manager->can_get(RESOURCE_TYPE_UNIT, name)
@@ -1453,7 +1468,7 @@ void load_api(LuaEnvironment &env)
 				);
 			CE_UNUSED(name_str);
 
-			stack.push_unit(world->spawn_unit(name, pos, rot, scl));
+			stack.push_unit(world->spawn_unit(name, flags, pos, rot, scl));
 			return 1;
 		});
 	env.add_module_function("World", "spawn_empty_unit", [](lua_State *L) {
@@ -1697,8 +1712,19 @@ void load_api(LuaEnvironment &env)
 
 			World *world          = stack.get_world(1);
 			const StringId64 name = stack.get_resource_name(2);
-			const Vector3 &pos    = nargs > 2 ? stack.get_vector3(3)    : VECTOR3_ZERO;
-			const Quaternion &rot = nargs > 3 ? stack.get_quaternion(4) : QUATERNION_IDENTITY;
+
+			u32 flags       = SpawnFlags::NONE;
+			Vector3 pos;
+			Quaternion rot;
+
+			if (nargs > 2) {
+				flags |= SpawnFlags::OVERRIDE_POSITION;
+				pos = stack.get_vector3(3);
+			}
+			if (nargs > 3) {
+				flags |= SpawnFlags::OVERRIDE_ROTATION;
+				rot = stack.get_quaternion(4);
+			}
 
 			char name_str[RESOURCE_ID_BUF_LEN];
 			LUA_ASSERT(device()->_resource_manager->can_get(RESOURCE_TYPE_LEVEL, name)
@@ -1708,7 +1734,7 @@ void load_api(LuaEnvironment &env)
 				);
 			CE_UNUSED(name_str);
 
-			stack.push_level(world->load_level(name, pos, rot));
+			stack.push_level(world->load_level(name, flags, pos, rot));
 			return 1;
 		});
 	env.add_module_function("World", "scene_graph", [](lua_State *L) {

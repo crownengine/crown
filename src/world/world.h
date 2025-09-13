@@ -93,11 +93,22 @@ struct World
 	///
 	~World();
 
-	/// Spawns a new instance of the unit @a ur at the given @a position, @a rotation and @a scale.
-	UnitId spawn_unit(const UnitResource *ur, const Vector3 &pos, const Quaternion &rot, const Vector3 &scl);
+	/// Spawns a new instance of the unit @a name.
+	/// Use @a flags to override the instance's @a position, @a rotation and @a scale.
+	UnitId spawn_unit(const UnitResource *ur
+		, u32 flags
+		, const Vector3 &pos
+		, const Quaternion &rot
+		, const Vector3 &scl
+		);
 
-	/// Spawns a new instance of the unit @a name at the given @a position, @a rotation and @a scale.
-	UnitId spawn_unit(StringId64 name, const Vector3 &pos = VECTOR3_ZERO, const Quaternion &rot = QUATERNION_IDENTITY, const Vector3 &scl = VECTOR3_ONE);
+	/// @copydoc World::spawn_unit().
+	UnitId spawn_unit(StringId64 name
+		, u32 flags = SpawnFlags::NONE
+		, const Vector3 &pos = VECTOR3_ZERO
+		, const Quaternion &rot = QUATERNION_IDENTITY
+		, const Vector3 &scl = VECTOR3_ONE
+		);
 
 	/// Spawns a new empty unit and returns its id.
 	UnitId spawn_empty_unit();
@@ -218,7 +229,11 @@ struct World
 	void destroy_gui(Gui &gui);
 
 	/// Loads the level @a name into the world.
-	Level *load_level(StringId64 name, const Vector3 &pos, const Quaternion &rot);
+	Level *load_level(StringId64 name
+		, u32 flags = SpawnFlags::NONE
+		, const Vector3 &pos = VECTOR3_ZERO
+		, const Quaternion &rot = QUATERNION_IDENTITY
+		);
 
 	///
 	void post_unit_spawned_events(UnitId *units, u32 num);
