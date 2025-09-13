@@ -28,16 +28,12 @@ public struct Unit
 		_db.create(_id, OBJECT_TYPE_UNIT);
 	}
 
-	public void create(string? prefab, Vector3 pos, Quaternion rot, Vector3 scl)
+	public void create(string? prefab)
 	{
 		create_empty();
 
 		if (prefab != null)
 			_db.set_property_string(_id, "prefab", prefab);
-
-		set_local_position(pos);
-		set_local_rotation(rot);
-		set_local_scale(scl);
 	}
 
 	public Value? get_component_property(Guid component_id, string key, Value? deffault = null)

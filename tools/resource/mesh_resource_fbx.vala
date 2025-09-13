@@ -419,7 +419,10 @@ public class FBXImporter
 				return;
 
 			Unit unit = Unit(db, unit_id);
-			unit.create("core/units/light", pos, rot, scl);
+			unit.create("core/units/light");
+			unit.set_local_position(pos);
+			unit.set_local_rotation(rot);
+			unit.set_local_scale(scl);
 
 			Guid component_id;
 			if (unit.has_component(out component_id, OBJECT_TYPE_LIGHT)) {
@@ -436,7 +439,10 @@ public class FBXImporter
 				return;
 
 			Unit unit = Unit(db, unit_id);
-			unit.create("core/units/camera", pos, rot, scl);
+			unit.create("core/units/camera");
+			unit.set_local_position(pos);
+			unit.set_local_rotation(rot);
+			unit.set_local_scale(scl);
 
 			Guid component_id;
 			if (unit.has_component(out component_id, OBJECT_TYPE_CAMERA)) {
