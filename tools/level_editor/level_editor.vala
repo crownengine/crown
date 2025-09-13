@@ -800,7 +800,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		create_object_types(_database);
 
-		_properties_view.register_object_type(OBJECT_TYPE_UNIT, -1, new UnitView(_database));
+		_properties_view.register_object_type(OBJECT_TYPE_UNIT, new UnitView(_database));
 
 		_level = new Level(_database, _editor, _project);
 
@@ -1511,7 +1511,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		if ((info.flags & ObjectTypeFlags.UNIT_COMPONENT) != 0) {
 			Unit.register_component_type(info.name, info.user_data != null ? info.user_data : "");
-			_properties_view.register_object_type(info.name, (int)info.ui_order, null, UnitView.component_menu);
+			_properties_view.register_object_type(info.name, null, UnitView.component_menu);
 		}
 	}
 
