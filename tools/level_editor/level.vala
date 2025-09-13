@@ -175,7 +175,10 @@ public class Level
 	public void on_unit_spawned(Guid id, string? name, Vector3 pos, Quaternion rot, Vector3 scl)
 	{
 		Unit unit = Unit(_db, id);
-		unit.create(name, pos, rot, scl);
+		unit.create(name);
+		unit.set_local_position(pos);
+		unit.set_local_rotation(rot);
+		unit.set_local_scale(scl);
 
 		_db.set_object_name(id, "unit_%04u".printf(_num_units++));
 		_db.add_to_set(_id, "units", id);
