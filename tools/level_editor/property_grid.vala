@@ -11,6 +11,8 @@ public class PropertyGrid : Gtk.Grid
 	public Guid _id;
 	public Guid _component_id;
 	public int _rows;
+	public double _order;
+	public bool _visible;
 
 	public Gee.HashMap<string, InputField> _widgets;
 	public Gee.HashMap<InputField, PropertyDefinition?> _definitions;
@@ -26,6 +28,9 @@ public class PropertyGrid : Gtk.Grid
 		_id = GUID_ZERO;
 		_component_id = GUID_ZERO;
 		_rows = 0;
+		_order = 0.0;
+		_visible = true;
+
 		_widgets = new Gee.HashMap<string, InputField>();
 		_definitions = new Gee.HashMap<InputField, PropertyDefinition?>();
 	}
@@ -41,6 +46,9 @@ public class PropertyGrid : Gtk.Grid
 		_id = GUID_ZERO;
 		_component_id = GUID_ZERO;
 		_rows = 0;
+		_order = db.object_type_info(type).ui_order;
+		_visible = true;
+
 		_widgets = new Gee.HashMap<string, InputField>();
 		_definitions = new Gee.HashMap<InputField, PropertyDefinition?>();
 
@@ -283,15 +291,38 @@ public class PropertyGrid : Gtk.Grid
 
 public class PropertyGridSet : Gtk.Box
 {
+	public Gtk.ListBox _list_box;
+
 	public PropertyGridSet()
 	{
 		Object(orientation: Gtk.Orientation.VERTICAL, spacing: 0);
-		this.margin_bottom
+
+		_list_box = new Gtk.ListBox();
+		_list_box.selection_mode = Gtk.SelectionMode.NONE;
+		_list_box.margin_bottom
 			= this.margin_end
 			= this.margin_start
 			= this.margin_top
 			= 12
 			;
+		_list_box.set_sort_func(sort_function);
+		_list_box.set_filter_func(filter_function);
+
+		this.pack_start(_list_box);
+	}
+
+	public static int sort_function(Gtk.ListBoxRow row1, Gtk.ListBoxRow row2)
+	{
+		Expander e1 = (Expander)row1.get_child();
+		Expander e2 = (Expander)row2.get_child();
+		double order = ((PropertyGrid)e1._child)._order - ((PropertyGrid)e2._child)._order;
+		return (int)order;
+	}
+
+	public static bool filter_function(Gtk.ListBoxRow row)
+	{
+		Expander e = (Expander)row.get_child();
+		return ((PropertyGrid)e._child)._visible;
 	}
 
 	public Expander add_property_grid(PropertyGrid cv, string label)
@@ -305,7 +336,8 @@ public class PropertyGridSet : Gtk.Box
 		e.custom_header = l;
 		e.expanded = true;
 		e.add(cv);
-		this.pack_start(e, false, true, 0);
+
+		_list_box.add(e);
 
 		return e;
 	}
@@ -325,7 +357,8 @@ public class PropertyGridSet : Gtk.Box
 		e.custom_header = b;
 		e.expanded = true;
 		e.add(cv);
-		this.pack_start(e, false, true, 0);
+
+		_list_box.add(e);
 
 		return e;
 	}

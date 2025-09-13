@@ -29,6 +29,8 @@ public class UnitView : PropertyGrid
 	{
 		base(db);
 
+		_order = -1.0;
+
 		// Widgets
 		_prefab = new InputResource(OBJECT_TYPE_UNIT, db);
 		_prefab._selector.sensitive = false;
@@ -71,18 +73,11 @@ public class UnitView : PropertyGrid
 
 public class PropertiesView : Gtk.Box
 {
-	public struct ComponentEntry
-	{
-		string type;
-		int position;
-	}
-
-	// Data
 	private Database _db;
 	private Gee.HashMap<string, Expander> _expanders;
 	private Gee.HashMap<string, bool> _expander_states;
 	private Gee.HashMap<string, PropertyGrid> _objects;
-	private Gee.ArrayList<ComponentEntry?> _entries;
+	private Gee.ArrayList<string> _entries;
 	private Gee.ArrayList<Guid?>? _selection;
 
 	// Widgets
@@ -106,7 +101,7 @@ public class PropertiesView : Gtk.Box
 		_expanders = new Gee.HashMap<string, Expander>();
 		_expander_states = new Gee.HashMap<string, bool>();
 		_objects = new Gee.HashMap<string, PropertyGrid>();
-		_entries = new Gee.ArrayList<ComponentEntry?>();
+		_entries = new Gee.ArrayList<string>();
 		_selection = null;
 
 		// Widgets
@@ -138,7 +133,7 @@ public class PropertiesView : Gtk.Box
 		db._project.project_reset.connect(on_project_reset);
 	}
 
-	public void register_object_type(string object_type, int position, PropertyGrid? cv = null, ContextMenu? context_menu = null)
+	public void register_object_type(string object_type, PropertyGrid? cv = null, ContextMenu? context_menu = null)
 	{
 		PropertyGrid? grid = cv;
 		if (grid == null)
@@ -161,28 +156,29 @@ public class PropertiesView : Gtk.Box
 
 		_objects[object_type] = grid;
 		_expanders[object_type] = expander;
-		_entries.add({ object_type, position });
+		_entries.add(object_type);
 	}
 
 	public void show_unit(Guid id)
 	{
-		foreach (var entry in _entries) {
-			Expander expander = _expanders[entry.type];
-			_expander_states[entry.type] = expander.expanded;
+		foreach (var type in _entries) {
+			Expander expander = _expanders[type];
+			_expander_states[type] = expander.expanded;
 		}
 		_stack.set_visible_child(_scrolled_window);
 
-		foreach (var entry in _entries) {
-			Expander expander = _expanders[entry.type];
-			bool was_expanded = _expander_states.has_key(entry.type) ? _expander_states[entry.type] : false;
+		foreach (var type in _entries) {
+			Expander expander = _expanders[type];
+			bool was_expanded = _expander_states.has_key(type) ? _expander_states[type] : false;
+			PropertyGrid cv = _objects[type];
 
 			Unit unit = Unit(_db, id);
 			Guid component_id;
 			Guid owner_id;
-			if (unit.has_component_with_owner(out component_id, out owner_id, entry.type) || entry.type == OBJECT_TYPE_UNIT) {
-				PropertyGrid cv = _objects[entry.type];
+			if (unit.has_component_with_owner(out component_id, out owner_id, type) || type == OBJECT_TYPE_UNIT) {
 				cv._id = id;
 				cv._component_id = component_id;
+				cv._visible = true;
 				cv.update();
 
 				if (id == owner_id)
@@ -190,37 +186,40 @@ public class PropertiesView : Gtk.Box
 				else
 					expander.get_style_context().add_class("inherited");
 
-				expander.show();
 				expander.expanded = was_expanded;
 			} else {
-				expander.hide();
+				cv._visible = false;
 			}
 		}
+
+		_object_view._list_box.invalidate_filter();
+		_object_view._list_box.invalidate_sort();
 	}
 
 	public void show_sound_source(Guid id)
 	{
-		foreach (var entry in _entries) {
-			Expander expander = _expanders[entry.type];
-			_expander_states[entry.type] = expander.expanded;
+		foreach (var type in _entries) {
+			Expander expander = _expanders[type];
+			_expander_states[type] = expander.expanded;
 		}
 
 		_stack.set_visible_child(_scrolled_window);
 
-		foreach (var entry in _entries) {
-			Expander expander = _expanders[entry.type];
+		foreach (var type in _entries) {
+			Expander expander = _expanders[type];
+			PropertyGrid cv = _objects[type];
 
-			if (entry.type == OBJECT_TYPE_SOUND_SOURCE) {
-				bool was_expanded = _expander_states.has_key(entry.type) ? _expander_states[entry.type] : false;
+			if (type == OBJECT_TYPE_SOUND_SOURCE) {
+				bool was_expanded = _expander_states.has_key(type) ? _expander_states[type] : false;
 
-				PropertyGrid cv = _objects[entry.type];
 				cv._id = id;
+				cv._visible = true;
 				cv.update();
 
 				expander.show();
 				expander.expanded = was_expanded;
 			} else {
-				expander.hide();
+				cv._visible = false;
 			}
 		}
 	}

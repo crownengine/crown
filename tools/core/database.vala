@@ -1756,6 +1756,11 @@ public class Database
 	{
 		return _object_definitions[type].flags;
 	}
+
+	public ObjectTypeInfo object_type_info(StringId64 type)
+	{
+		return _object_definitions[type];
+	}
 }
 
 } /* namespace Crown */
