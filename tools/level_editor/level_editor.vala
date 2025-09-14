@@ -4382,7 +4382,13 @@ public class LevelEditorApplication : Gtk.Application
 						new_database.save(path, prefab_id);
 
 						_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
-								_data_compiler.compile.end(res);
+								if (_data_compiler.compile.end(res)) {
+									string prefab_filename = _project.resource_filename(path);
+									string prefab_path     = ResourceId.normalize(prefab_filename);
+									string prefab_name     = ResourceId.name(prefab_path);
+
+									_level.replace_unit(unit_id, prefab_name);
+								}
 							});
 					}
 				}

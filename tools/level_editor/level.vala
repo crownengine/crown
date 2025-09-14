@@ -172,6 +172,28 @@ public class Level
 		selection_set(ids);
 	}
 
+	public void replace_unit(Guid unit_id, string prefab_name)
+	{
+		string unit_editor_name = _db.object_name(unit_id);
+		Unit unit = Unit(_db, unit_id);
+		Vector3 unit_pos = unit.local_position();
+		Quaternion unit_rot = unit.local_rotation();
+		Vector3 unit_scl = unit.local_scale();
+
+		destroy_objects(new Guid?[] { unit_id });
+
+		Guid new_id = Guid.new_guid();
+		Unit new_unit = Unit(_db, new_id);
+		new_unit.create(prefab_name);
+		new_unit.set_local_position(unit_pos);
+		new_unit.set_local_rotation(unit_rot);
+		new_unit.set_local_scale(unit_scl);
+
+		_db.set_object_name(new_id, unit_editor_name);
+		_db.add_to_set(_id, "units", new_id);
+		_db.add_restore_point((int)ActionType.CREATE_OBJECTS, new Guid?[] { new_id });
+	}
+
 	public void on_unit_spawned(Guid id, string? name, Vector3 pos, Quaternion rot, Vector3 scl)
 	{
 		Unit unit = Unit(_db, id);
