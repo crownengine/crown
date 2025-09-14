@@ -40,6 +40,28 @@ const string OBJECT_TYPE_TONEMAP                 = "tonemap";
 const string OBJECT_TYPE_TRANSFORM               = "transform";
 const string OBJECT_TYPE_UNIT                    = "unit";
 
+// UI order reference table:
+//
+// spatial         500
+// rendering       1000
+//   global_lighti 1001
+//   camera        1100
+//   light         1101
+//   mesh          1102
+//   sprite        1103
+//   fog           1104
+// physics         2000
+//   collider      2100
+//   actor         2101
+//   mover         2102
+// animation       3000
+//   state_machine 3100
+// scripting       7000
+//   lua_script    7100
+// post-processing 9000
+//   bloom         9100
+//   tonemap       9900
+
 public static void node_name_enum_callback(InputField enum_property, InputEnum combo, Project project)
 {
 	try {
@@ -149,7 +171,11 @@ public static void create_object_types(Database database)
 			deffault = VECTOR3_ONE,
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_TRANSFORM, properties, 0.0, ObjectTypeFlags.UNIT_COMPONENT);
+	database.create_object_type(OBJECT_TYPE_TRANSFORM
+		, properties
+		, 500
+		, ObjectTypeFlags.UNIT_COMPONENT
+		);
 
 	properties =
 	{
@@ -191,7 +217,7 @@ public static void create_object_types(Database database)
 	};
 	database.create_object_type(OBJECT_TYPE_MESH_RENDERER
 		, properties
-		, 3.0
+		, 1102
 		, ObjectTypeFlags.UNIT_COMPONENT
 		, OBJECT_TYPE_TRANSFORM
 		);
@@ -245,7 +271,7 @@ public static void create_object_types(Database database)
 	};
 	database.create_object_type(OBJECT_TYPE_SPRITE_RENDERER
 		, properties
-		, 3.0
+		, 1103
 		, ObjectTypeFlags.UNIT_COMPONENT
 		, OBJECT_TYPE_TRANSFORM
 		);
@@ -304,7 +330,7 @@ public static void create_object_types(Database database)
 	};
 	database.create_object_type(OBJECT_TYPE_LIGHT
 		, properties
-		, 1.0
+		, 1101
 		, ObjectTypeFlags.UNIT_COMPONENT
 		, OBJECT_TYPE_TRANSFORM
 		);
@@ -342,7 +368,7 @@ public static void create_object_types(Database database)
 	};
 	database.create_object_type(OBJECT_TYPE_CAMERA
 		, properties
-		, 2.0
+		, 1100
 		, ObjectTypeFlags.UNIT_COMPONENT
 		, OBJECT_TYPE_TRANSFORM
 		);
@@ -417,7 +443,7 @@ public static void create_object_types(Database database)
 	};
 	database.create_object_type(OBJECT_TYPE_COLLIDER
 		, properties
-		, 3.0
+		, 2100
 		, ObjectTypeFlags.UNIT_COMPONENT
 		, OBJECT_TYPE_TRANSFORM
 		);
@@ -497,7 +523,7 @@ public static void create_object_types(Database database)
 	};
 	database.create_object_type(OBJECT_TYPE_ACTOR
 		, properties
-		, 3.0
+		, 2101
 		, ObjectTypeFlags.UNIT_COMPONENT
 		, OBJECT_TYPE_TRANSFORM
 		);
@@ -513,7 +539,11 @@ public static void create_object_types(Database database)
 			resource_type = "lua"
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_SCRIPT, properties, 3.0, ObjectTypeFlags.UNIT_COMPONENT);
+	database.create_object_type(OBJECT_TYPE_SCRIPT
+		, properties
+		, 7100
+		, ObjectTypeFlags.UNIT_COMPONENT
+		);
 
 	properties =
 	{
@@ -526,7 +556,11 @@ public static void create_object_types(Database database)
 			resource_type = OBJECT_TYPE_STATE_MACHINE
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_ANIMATION_STATE_MACHINE, properties, 3.0, ObjectTypeFlags.UNIT_COMPONENT);
+	database.create_object_type(OBJECT_TYPE_ANIMATION_STATE_MACHINE
+		, properties
+		, 3100
+		, ObjectTypeFlags.UNIT_COMPONENT
+		);
 
 	properties =
 	{
@@ -622,7 +656,11 @@ public static void create_object_types(Database database)
 			deffault = true,
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_FOG, properties, 0.0, ObjectTypeFlags.UNIT_COMPONENT);
+	database.create_object_type(OBJECT_TYPE_FOG
+		, properties
+		, 1104
+		, ObjectTypeFlags.UNIT_COMPONENT
+		);
 
 	properties =
 	{
@@ -669,7 +707,7 @@ public static void create_object_types(Database database)
 	};
 	database.create_object_type(OBJECT_TYPE_MOVER
 		, properties
-		, 3.0
+		, 2102
 		, ObjectTypeFlags.UNIT_COMPONENT
 		, OBJECT_TYPE_TRANSFORM
 		);
@@ -701,7 +739,11 @@ public static void create_object_types(Database database)
 			max = VECTOR3_ONE,
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_GLOBAL_LIGHTING, properties, 0.0, ObjectTypeFlags.UNIT_COMPONENT);
+	database.create_object_type(OBJECT_TYPE_GLOBAL_LIGHTING
+		, properties
+		, 1001
+		, ObjectTypeFlags.UNIT_COMPONENT
+		);
 
 	properties =
 	{
@@ -735,7 +777,11 @@ public static void create_object_types(Database database)
 			deffault = 0.8,
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_BLOOM, properties, 0.0, ObjectTypeFlags.UNIT_COMPONENT);
+	database.create_object_type(OBJECT_TYPE_BLOOM
+		, properties
+		, 9100
+		, ObjectTypeFlags.UNIT_COMPONENT
+		);
 
 	properties =
 	{
@@ -747,7 +793,11 @@ public static void create_object_types(Database database)
 			enum_values = { "gamma", "reinhard", "filmic", "aces" },
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_TONEMAP, properties, 0.0, ObjectTypeFlags.UNIT_COMPONENT);
+	database.create_object_type(OBJECT_TYPE_TONEMAP
+		, properties
+		, 9900
+		, ObjectTypeFlags.UNIT_COMPONENT
+		);
 
 	properties =
 	{
