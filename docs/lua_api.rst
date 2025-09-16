@@ -1136,7 +1136,7 @@ RenderWorld
 Mesh
 ----
 
-**mesh_create** (rw, unit, mesh_resource, geometry_name, material_resource, visible, pose) : Id
+**mesh_create** (rw, unit, mesh_resource, geometry_name, material_resource, visible) : Id
 	Creates a new mesh instance for *unit* and returns its id.
 
 **mesh_destroy** (rw, mesh)

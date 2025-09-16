@@ -92,12 +92,11 @@ RenderWorld::~RenderWorld()
 	_marker = 0;
 }
 
-MeshInstance RenderWorld::mesh_create(UnitId unit, const MeshRendererDesc &mrd, const Matrix4x4 &tr)
+MeshInstance RenderWorld::mesh_create(UnitId unit, const MeshRendererDesc &mrd)
 {
-	const MeshResource *mr = (MeshResource *)_resource_manager->get(RESOURCE_TYPE_MESH, mrd.mesh_resource);
-	const MaterialResource *mat_res = (MaterialResource *)_resource_manager->get(RESOURCE_TYPE_MATERIAL, mrd.material_resource);
-	_material_manager->create_material(mat_res);
-	return _mesh_manager.create(unit, mr, mrd, tr);
+	u32 unit_index = 0;
+	_mesh_manager.create_instances(&mrd, 1, &unit, &unit_index);
+	return mesh_instance(unit);
 }
 
 void RenderWorld::mesh_destroy(MeshInstance mesh)
@@ -1030,47 +1029,61 @@ void RenderWorld::MeshManager::grow()
 	allocate(_data.capacity * 2 + 1);
 }
 
-MeshInstance RenderWorld::MeshManager::create(UnitId unit, const MeshResource *mr, const MeshRendererDesc &mrd, const Matrix4x4 &tr)
+void RenderWorld::MeshManager::create_instances(const void *components_data
+	, u32 num
+	, const UnitId *unit_lookup
+	, const u32 *unit_index
+	)
 {
-	CE_ASSERT(!hash_map::has(_map, unit), "Unit already has a mesh component");
+	const MeshRendererDesc *meshes = (MeshRendererDesc *)components_data;
 
-	if (_data.size == _data.capacity)
-		grow();
+	for (u32 i = 0; i < num; ++i) {
+		UnitId unit = unit_lookup[unit_index[i]];
+		CE_ASSERT(!hash_map::has(_map, unit), "Unit already has a mesh component");
 
-	const u32 last = _data.size;
+		TransformInstance ti = _render_world->_scene_graph->instance(unit);
+		CE_ASSERT(is_valid(ti), "Mesh Component requires a Transform Component");
 
-	const MeshGeometry *mg = mr->geometry(mrd.geometry_name);
-	const MaterialResource *mat_res = (MaterialResource *)_render_world->_resource_manager->get(RESOURCE_TYPE_MATERIAL, mrd.material_resource);
+		if (_data.size == _data.capacity)
+			grow();
 
-	_data.unit[last]     = unit;
-	_data.resource[last] = mr;
-	_data.geometry[last] = mg;
-	_data.mesh[last].vbh = mg->vertex_buffer;
-	_data.mesh[last].ibh = mg->index_buffer;
-	_data.material[last] = _render_world->_material_manager->get(mat_res);
-	_data.world[last]    = tr;
-	_data.obb[last]      = mg->obb;
-	_data.skeleton[last] = NULL;
-	_data.flags[last]    = mrd.flags;
+		const MeshResource *mr = (MeshResource *)_render_world->_resource_manager->get(RESOURCE_TYPE_MESH, meshes[i].mesh_resource);
+		const MeshGeometry *mg = mr->geometry(meshes[i].geometry_name);
+		const MaterialResource *mat_res = (MaterialResource *)_render_world->_resource_manager->get(RESOURCE_TYPE_MATERIAL, meshes[i].material_resource);
+
+		_render_world->_material_manager->create_material(mat_res);
+
+		const u32 last = _data.size;
+
+		_data.unit[last]     = unit;
+		_data.resource[last] = mr;
+		_data.geometry[last] = mg;
+		_data.mesh[last].vbh = mg->vertex_buffer;
+		_data.mesh[last].ibh = mg->index_buffer;
+		_data.material[last] = _render_world->_material_manager->get(mat_res);
+		_data.world[last]    = _render_world->_scene_graph->world_pose(ti);
+		_data.obb[last]      = mg->obb;
+		_data.skeleton[last] = NULL;
+		_data.flags[last]    = meshes[i].flags;
 #if CROWN_CAN_RELOAD
-	_data.material_resource[last] = mat_res;
+		_data.material_resource[last] = mat_res;
 #endif
 
-	hash_map::set(_map, unit, last);
-	++_data.size;
+		hash_map::set(_map, unit, last);
+		++_data.size;
 
-	if (mrd.flags & RenderableFlags::VISIBLE) {
-		if (last >= _data.first_hidden) {
-			// _data now contains a visible item in its hidden partition.
-			swap(last, _data.first_hidden);
+		if (meshes[i].flags & RenderableFlags::VISIBLE) {
+			if (last >= _data.first_hidden) {
+				// _data now contains a visible item in its hidden partition.
+				swap(last, _data.first_hidden);
+				++_data.first_hidden;
+				continue;
+			}
 			++_data.first_hidden;
-			return make_instance(_data.first_hidden - 1);
 		}
-		++_data.first_hidden;
-	}
 
-	CE_ENSURE(last >= _data.first_hidden);
-	return make_instance(last);
+		CE_ENSURE(last >= _data.first_hidden);
+	}
 }
 
 void RenderWorld::MeshManager::destroy(MeshInstance inst)
