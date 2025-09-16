@@ -18,6 +18,14 @@ Changelog
 * Runtime: added support for MSAA.
 * Runtime: added a new `spinning_friction` property to physics materials that you can specify in `global.physics_config`.
 * Runtime: added configurable physics `step_frequency` and `max_substeps` via the `physics` property in the boot files.
+* Lua: removed 'pose' parameter from the following component creation functions:
+
+	- ``World.camera_create()``
+	- ``RenderWorld.mesh_create()``
+	- ``RenderWorld.sprite_create()``
+	- ``RenderWorld.light_create()``
+
+	The affected components will now read the initial pose from the unit's transform.
 
 **Fixes**
 
