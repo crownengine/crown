@@ -1735,7 +1735,7 @@ end
 function LevelEditor:add_camera_component(id, component_id, projection, fov, far_range, near_range)
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id();
-	World.camera_create(self._world, unit_id, projection, fov, far_range, near_range, unit_box:world_pose());
+	World.camera_create(self._world, unit_id, projection, fov, far_range, near_range)
 end
 
 function LevelEditor:add_mesh_component(id, component_id, mesh_resource, geometry_name, material_resource, visible)

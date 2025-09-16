@@ -1531,9 +1531,7 @@ void load_api(LuaEnvironment &env)
 			cd.near_range = stack.get_float(5);
 			cd.far_range  = stack.get_float(6);
 
-			Matrix4x4 pose = stack.get_matrix4x4(7);
-
-			stack.push_camera(world->camera_create(unit, cd, pose));
+			stack.push_camera(world->camera_create(unit, cd));
 			return 1;
 		});
 	env.add_module_function("World", "camera_destroy", [](lua_State *L) {
