@@ -167,6 +167,13 @@ struct RenderWorld
 	/// Fills @a dl with debug lines from the @a light.
 	void light_debug_draw(LightInstance light, DebugLine &dl);
 
+	///
+	void fog_create_instances(const void *components_data
+		, u32 num
+		, const UnitId *unit_lookup
+		, const u32 *unit_index
+		);
+
 	/// Creates a new fog instance for the @a unit and returns its id.
 	/// Note that the fog component is limited to one instance per
 	/// World. Every call to this function will overwrite any
