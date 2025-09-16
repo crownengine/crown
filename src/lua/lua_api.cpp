@@ -2109,9 +2109,7 @@ void load_api(LuaEnvironment &env)
 			ld.spot_angle = stack.get_float(6);
 			ld.color      = stack.get_vector3(7);
 
-			Matrix4x4 pose = stack.get_matrix4x4(8);
-
-			stack.push_light_instance(stack.get_render_world(1)->light_create(stack.get_unit(2), ld, pose));
+			stack.push_light_instance(stack.get_render_world(1)->light_create(stack.get_unit(2), ld));
 			return 1;
 		});
 	env.add_module_function("RenderWorld", "light_destroy", [](lua_State *L) {

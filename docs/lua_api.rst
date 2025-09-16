@@ -1211,7 +1211,7 @@ Sprite
 Light
 -----
 
-**light_create** (rw, unit, type, range, intensity, spot_angle, color, pose) : Id
+**light_create** (rw, unit, type, range, intensity, spot_angle, color) : Id
 	Creates a new light for the *unit* and returns its id.
 	Type can be either ``directional``, ``omni`` or ``spot``.
 

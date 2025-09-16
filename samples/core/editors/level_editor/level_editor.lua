@@ -1754,7 +1754,7 @@ end
 function LevelEditor:add_light_component(id, component_id, type, range, intensity, spot_angle, color)
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id()
-	RenderWorld.light_create(self._rw, unit_id, type, range, intensity, spot_angle, color, unit_box:world_pose())
+	RenderWorld.light_create(self._rw, unit_id, type, range, intensity, spot_angle, color)
 end
 
 function LevelEditor:add_mover_component(id, component_id, height, radius, max_slope_angle, filter)
