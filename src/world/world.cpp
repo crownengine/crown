@@ -100,10 +100,7 @@ static void create_components(World &w
 				render_world->tonemap_create(unit_lookup[unit_index[i]], *desc);
 			}
 		} else if (component->type == STRING_ID_32("script", UINT32_C(0xd18f8ad6))) {
-			const ScriptDesc *sd = (ScriptDesc *)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++sd) {
-				script_world::create(*script_world, unit_lookup[unit_index[i]], *sd);
-			}
+			script_world::create_instances(*script_world, data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("animation_state_machine", UINT32_C(0xe87992ac))) {
 			const AnimationStateMachineDesc *asmd = (AnimationStateMachineDesc *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++asmd) {

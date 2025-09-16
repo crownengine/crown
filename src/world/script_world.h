@@ -48,6 +48,14 @@ struct ScriptWorld
 
 namespace script_world
 {
+	///
+	void create_instances(ScriptWorld &sw
+		, const void *components_data
+		, u32 num
+		, const UnitId *unit_lookup
+		, const u32 *unit_index
+		);
+
 	/// Creates a new component for the @a unit and returns its id.
 	ScriptInstance create(ScriptWorld &sw, UnitId unit, const ScriptDesc &desc);
 

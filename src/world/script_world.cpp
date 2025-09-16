@@ -37,58 +37,73 @@ namespace script_world_internal
 
 namespace script_world
 {
+	void create_instances(ScriptWorld &sw
+		, const void *components_data
+		, u32 num
+		, const UnitId *unit_lookup
+		, const u32 *unit_index
+		)
+	{
+		const ScriptDesc *scripts = (ScriptDesc *)components_data;
+
+		for (u32 i = 0; i < num; ++i) {
+			UnitId unit = unit_lookup[unit_index[i]];
+			CE_ASSERT(!hash_map::has(sw._map, unit), "Unit already has a script component");
+
+			u32 script_i = hash_map::get(sw._cache
+				, scripts[i].script_resource
+				, UINT32_MAX
+				);
+
+			ScriptWorld::ScriptData sd;
+			sd.module_ref = LUA_REFNIL;
+
+			if (script_i != UINT32_MAX) {
+				sd = sw._script[script_i];
+			} else {
+				script_i = array::size(sw._script);
+
+				LuaStack stack = sw._lua_environment->require(scripts[i].script_resource_name, 1);
+				stack.push_value(0);
+				sd.module_ref = luaL_ref(stack.L, LUA_REGISTRYINDEX);
+				stack.pop(1);
+
+				array::push_back(sw._script, sd);
+				hash_map::set(sw._cache, scripts[i].script_resource, script_i);
+			}
+
+			ScriptWorld::InstanceData data;
+			data.unit     = unit;
+			data.script_i = script_i;
+
+			u32 instance_i = array::size(sw._data);
+			array::push_back(sw._data, data);
+			hash_map::set(sw._map, unit, instance_i);
+
+			if (!sw._disable_callbacks) {
+				LuaStack stack(sw._lua_environment->L);
+				lua_rawgeti(stack.L, LUA_REGISTRYINDEX, sd.module_ref);
+				lua_getfield(stack.L, -1, "spawned");
+				stack.push_world(sw._world);
+				stack.push_table(1);
+				stack.push_key_begin(1);
+				stack.push_unit(unit);
+				stack.push_key_end();
+				int status = sw._lua_environment->call(2, 0);
+				if (status != LUA_OK) {
+					report(stack.L, status);
+					device()->pause();
+				}
+				stack.pop(1);
+			}
+		}
+	}
+
 	ScriptInstance create(ScriptWorld &sw, UnitId unit, const ScriptDesc &desc)
 	{
-		CE_ASSERT(!hash_map::has(sw._map, unit), "Unit already has a script component");
-
-		u32 script_i = hash_map::get(sw._cache
-			, desc.script_resource
-			, UINT32_MAX
-			);
-
-		ScriptWorld::ScriptData sd;
-		sd.module_ref = LUA_REFNIL;
-
-		if (script_i != UINT32_MAX) {
-			sd = sw._script[script_i];
-		} else {
-			script_i = array::size(sw._script);
-
-			LuaStack stack = sw._lua_environment->require(desc.script_resource_name, 1);
-			stack.push_value(0);
-			sd.module_ref = luaL_ref(stack.L, LUA_REGISTRYINDEX);
-			stack.pop(1);
-
-			array::push_back(sw._script, sd);
-			hash_map::set(sw._cache, desc.script_resource, script_i);
-		}
-
-		ScriptWorld::InstanceData data;
-		data.unit     = unit;
-		data.script_i = script_i;
-
-		u32 instance_i = array::size(sw._data);
-		array::push_back(sw._data, data);
-		hash_map::set(sw._map, unit, instance_i);
-
-		if (!sw._disable_callbacks) {
-			LuaStack stack(sw._lua_environment->L);
-			lua_rawgeti(stack.L, LUA_REGISTRYINDEX, sd.module_ref);
-			lua_getfield(stack.L, -1, "spawned");
-			stack.push_world(sw._world);
-			stack.push_table(1);
-			stack.push_key_begin(1);
-			stack.push_unit(unit);
-			stack.push_key_end();
-			int status = sw._lua_environment->call(2, 0);
-			if (status != LUA_OK) {
-				report(stack.L, status);
-				device()->pause();
-			}
-			stack.pop(1);
-		}
-
-		return script_world_internal::make_instance(instance_i);
+		u32 unit_index = 0;
+		create_instances(sw, &desc, 1, &unit, &unit_index);
+		return instance(sw, unit);
 	}
 
 	void destroy(ScriptWorld &sw, UnitId unit, ScriptInstance /*i*/)
