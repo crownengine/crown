@@ -76,12 +76,7 @@ static void create_components(World &w
 		} else if (component->type == STRING_ID_32("mesh_renderer", UINT32_C(0xdf017893))) {
 			render_world->_mesh_manager.create_instances(data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("sprite_renderer", UINT32_C(0x6a1c2a3b))) {
-			const SpriteRendererDesc *srd = (SpriteRendererDesc *)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++srd) {
-				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
-				Matrix4x4 tm = scene_graph->world_pose(ti);
-				render_world->sprite_create(unit_lookup[unit_index[i]], *srd, tm);
-			}
+			render_world->_sprite_manager.create_instances(data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("light", UINT32_C(0xbb9f08c2))) {
 			const LightDesc *ld = (LightDesc *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++ld) {

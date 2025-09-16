@@ -72,7 +72,7 @@ struct RenderWorld
 	f32 mesh_cast_ray(MeshInstance mesh, const Vector3 &from, const Vector3 &dir);
 
 	/// Creates a new sprite instance.
-	SpriteInstance sprite_create(UnitId unit, const SpriteRendererDesc &srd, const Matrix4x4 &tr);
+	SpriteInstance sprite_create(UnitId unit, const SpriteRendererDesc &srd);
 
 	/// Destroys the sprite @a i.
 	void sprite_destroy(SpriteInstance sprite);
@@ -407,7 +407,11 @@ struct RenderWorld
 		}
 
 		///
-		SpriteInstance create(UnitId unit, const SpriteResource *sr, const SpriteRendererDesc &srd, const Matrix4x4 &tr);
+		void create_instances(const void *components_data
+			, u32 num
+			, const UnitId *unit_lookup
+			, const u32 *unit_index
+			);
 
 		///
 		void destroy(SpriteInstance sprite);

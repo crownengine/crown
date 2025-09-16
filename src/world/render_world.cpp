@@ -183,12 +183,11 @@ f32 RenderWorld::mesh_cast_ray(MeshInstance mesh, const Vector3 &from, const Vec
 		);
 }
 
-SpriteInstance RenderWorld::sprite_create(UnitId unit, const SpriteRendererDesc &srd, const Matrix4x4 &tr)
+SpriteInstance RenderWorld::sprite_create(UnitId unit, const SpriteRendererDesc &srd)
 {
-	const SpriteResource *sr = (SpriteResource *)_resource_manager->get(RESOURCE_TYPE_SPRITE, srd.sprite_resource);
-	const MaterialResource *mat_res = (MaterialResource *)_resource_manager->get(RESOURCE_TYPE_MATERIAL, srd.material_resource);
-	_material_manager->create_material(mat_res);
-	return _sprite_manager.create(unit, sr, srd, tr);
+	u32 unit_index = 0;
+	_sprite_manager.create_instances(&srd, 1, &unit, &unit_index);
+	return sprite_instance(unit);
 }
 
 void RenderWorld::sprite_destroy(SpriteInstance sprite)
@@ -1343,45 +1342,58 @@ void RenderWorld::SpriteManager::grow()
 	allocate(_data.capacity * 2 + 1);
 }
 
-SpriteInstance RenderWorld::SpriteManager::create(UnitId unit, const SpriteResource *sr, const SpriteRendererDesc &srd, const Matrix4x4 &tr)
+void RenderWorld::SpriteManager::create_instances(const void *components_data
+	, u32 num
+	, const UnitId *unit_lookup
+	, const u32 *unit_index
+	)
 {
-	CE_ASSERT(!hash_map::has(_map, unit), "Unit already has a sprite component");
+	const SpriteRendererDesc *sprites = (SpriteRendererDesc *)components_data;
 
-	if (_data.size == _data.capacity)
-		grow();
+	for (u32 i = 0; i < num; ++i) {
+		UnitId unit = unit_lookup[unit_index[i]];
+		CE_ASSERT(!hash_map::has(_map, unit), "Unit already has a sprite component");
 
-	const u32 last = _data.size;
+		TransformInstance ti = _render_world->_scene_graph->instance(unit);
+		CE_ASSERT(is_valid(ti), "Sprite Component requires a Transform Component");
 
-	const MaterialResource *mat_res = (MaterialResource *)_render_world->_resource_manager->get(RESOURCE_TYPE_MATERIAL, srd.material_resource);
+		if (_data.size == _data.capacity)
+			grow();
 
-	_data.unit[last]     = unit;
-	_data.resource[last] = sr;
-	_data.material[last] = _render_world->_material_manager->get(mat_res);
-	_data.frame[last]    = 0;
-	_data.world[last]    = tr;
-	_data.aabb[last]     = AABB();
-	_data.flags[last]    = srd.flags;
-	_data.layer[last]    = srd.layer;
-	_data.depth[last]    = srd.depth;
+		const SpriteResource *sr = (SpriteResource *)_render_world->_resource_manager->get(RESOURCE_TYPE_SPRITE, sprites[i].sprite_resource);
+		const MaterialResource *mat_res = (MaterialResource *)_render_world->_resource_manager->get(RESOURCE_TYPE_MATERIAL, sprites[i].material_resource);
+		_render_world->_material_manager->create_material(mat_res);
+
+		const u32 last = _data.size;
+
+		_data.unit[last]     = unit;
+		_data.resource[last] = sr;
+		_data.material[last] = _render_world->_material_manager->get(mat_res);
+		_data.frame[last]    = 0;
+		_data.world[last]    = _render_world->_scene_graph->world_pose(ti);
+		_data.aabb[last]     = AABB();
+		_data.flags[last]    = sprites[i].flags;
+		_data.layer[last]    = sprites[i].layer;
+		_data.depth[last]    = sprites[i].depth;
 #if CROWN_CAN_RELOAD
-	_data.material_resource[last] = mat_res;
+		_data.material_resource[last] = mat_res;
 #endif
 
-	hash_map::set(_map, unit, last);
-	++_data.size;
+		hash_map::set(_map, unit, last);
+		++_data.size;
 
-	if (srd.flags & RenderableFlags::VISIBLE) {
-		if (last >= _data.first_hidden) {
-			// _data now contains a visible item in its hidden partition.
-			swap(last, _data.first_hidden);
+		if (sprites[i].flags & RenderableFlags::VISIBLE) {
+			if (last >= _data.first_hidden) {
+				// _data now contains a visible item in its hidden partition.
+				swap(last, _data.first_hidden);
+				++_data.first_hidden;
+				continue;
+			}
 			++_data.first_hidden;
-			return make_instance(_data.first_hidden - 1);
 		}
-		++_data.first_hidden;
-	}
 
-	CE_ENSURE(last >= _data.first_hidden);
-	return make_instance(last);
+		CE_ENSURE(last >= _data.first_hidden);
+	}
 }
 
 void RenderWorld::SpriteManager::destroy(SpriteInstance inst)

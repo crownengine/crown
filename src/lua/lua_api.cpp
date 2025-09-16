@@ -2009,9 +2009,7 @@ void load_api(LuaEnvironment &env)
 			desc.flags = 0u;
 			desc.flags |= stack.get_bool(7) ? RenderableFlags::VISIBLE : 0u;
 
-			Matrix4x4 pose = stack.get_matrix4x4(8);
-
-			stack.push_sprite_instance(rw->sprite_create(unit, desc, pose));
+			stack.push_sprite_instance(rw->sprite_create(unit, desc));
 			return 1;
 		});
 	env.add_module_function("RenderWorld", "sprite_destroy", [](lua_State *L) {

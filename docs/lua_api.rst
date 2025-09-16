@@ -1166,7 +1166,7 @@ Mesh
 Sprite
 ------
 
-**sprite_create** (rw, unit, sprite_resource, material_resource, visible, pose) : Id
+**sprite_create** (rw, unit, sprite_resource, material_resource, visible) : Id
 	Creates a new sprite instance for the *unit* and returns its id.
 
 **sprite_destroy** (rw, sprite)
