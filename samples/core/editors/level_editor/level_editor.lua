@@ -1741,7 +1741,7 @@ end
 function LevelEditor:add_mesh_component(id, component_id, mesh_resource, geometry_name, material_resource, visible)
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id()
-	RenderWorld.mesh_create(self._rw, unit_id, mesh_resource, geometry_name, material_resource, visible, unit_box:world_pose())
+	RenderWorld.mesh_create(self._rw, unit_id, mesh_resource, geometry_name, material_resource, visible)
 end
 
 function LevelEditor:add_sprite_component(id, component_id, sprite_resource, material_resource, layer, depth, visible, flip_x, flip_y)

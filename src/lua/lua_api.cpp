@@ -1935,9 +1935,7 @@ void load_api(LuaEnvironment &env)
 			desc.flags |= RenderableFlags::SHADOW_CASTER;
 			desc.flags |= stack.get_bool(6) ? RenderableFlags::VISIBLE : 0u;
 
-			Matrix4x4 pose = stack.get_matrix4x4(7);
-
-			stack.push_mesh_instance(rw->mesh_create(unit, desc, pose));
+			stack.push_mesh_instance(rw->mesh_create(unit, desc));
 			return 1;
 		});
 	env.add_module_function("RenderWorld", "mesh_destroy", [](lua_State *L) {

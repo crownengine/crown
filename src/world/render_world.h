@@ -37,7 +37,7 @@ struct RenderWorld
 	~RenderWorld();
 
 	/// Creates a new mesh instance.
-	MeshInstance mesh_create(UnitId unit, const MeshRendererDesc &mrd, const Matrix4x4 &tr);
+	MeshInstance mesh_create(UnitId unit, const MeshRendererDesc &mrd);
 
 	/// Destroys the @a mesh.
 	void mesh_destroy(MeshInstance mesh);
@@ -321,7 +321,11 @@ struct RenderWorld
 		void grow();
 
 		///
-		MeshInstance create(UnitId unit, const MeshResource *mr, const MeshRendererDesc &mrd, const Matrix4x4 &tr);
+		void create_instances(const void *components_data
+			, u32 num
+			, const UnitId *unit_lookup
+			, const u32 *unit_index
+			);
 
 		///
 		void destroy(MeshInstance mesh);
