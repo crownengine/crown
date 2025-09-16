@@ -49,8 +49,6 @@ static void create_components(World &w
 	AnimationStateMachine *animation_state_machine = w._animation_state_machine;
 
 	const u32 *unit_parents = unit_resource::parents(ur);
-
-	// Create components
 	const ComponentData *component = unit_resource::component_type_data(ur, NULL);
 	for (u32 cc = 0; cc < ur->num_component_types; ++cc) {
 		const u32 *unit_index = unit_resource::component_unit_index(component);
@@ -70,13 +68,7 @@ static void create_components(World &w
 		} else if (component->type == STRING_ID_32("camera", UINT32_C(0x31822dc7))) {
 			w.camera_create_instances(data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("collider", UINT32_C(0x2129d74e))) {
-			const ColliderDesc *cd = (ColliderDesc *)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i) {
-				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
-				Matrix4x4 tm = scene_graph->world_pose(ti);
-				physics_world->collider_create(unit_lookup[unit_index[i]], cd, scale(tm));
-				cd = (ColliderDesc *)((char *)(cd + 1) + cd->size);
-			}
+			physics_world->collider_create_instances(data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("actor", UINT32_C(0x374cf583))) {
 			const ActorResource *ar = (ActorResource *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++ar) {
@@ -192,7 +184,7 @@ World::World(Allocator &a
 	_lines = create_debug_line(true);
 	_scene_graph   = CE_NEW(*_allocator, SceneGraph)(*_allocator, um);
 	_render_world  = CE_NEW(*_allocator, RenderWorld)(*_allocator, rm, sm, mm, um, pl, *_scene_graph);
-	_physics_world = CE_NEW(*_allocator, PhysicsWorld)(*_allocator, rm, um, *_lines);
+	_physics_world = CE_NEW(*_allocator, PhysicsWorld)(*_allocator, rm, um, *_scene_graph, *_lines);
 	_sound_world   = CE_NEW(*_allocator, SoundWorld)(*_allocator, rm);
 	_script_world  = CE_NEW(*_allocator, ScriptWorld)(*_allocator, um, rm, env, *this);
 	_sprite_animation_player = CE_NEW(*_allocator, SpriteAnimationPlayer)(*_allocator);
