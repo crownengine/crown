@@ -417,12 +417,28 @@ void RenderWorld::light_debug_draw(LightInstance light, DebugLine &dl)
 	_light_manager.debug_draw(light.i, 1, dl);
 }
 
+void RenderWorld::fog_create_instances(const void *components_data
+	, u32 num
+	, const UnitId *unit_lookup
+	, const u32 *unit_index
+	)
+{
+	const FogDesc *fogs = (FogDesc *)components_data;
+
+	for (u32 i = 0; i < num; ++i) {
+		UnitId unit = unit_lookup[unit_index[i]];
+
+		_fog_unit = unit;
+		_fog = { 0u };
+		_fog_desc = fogs[i];
+	}
+}
+
 FogInstance RenderWorld::fog_create(UnitId unit, const FogDesc &desc)
 {
-	_fog_unit = unit;
-	_fog = { 0u };
-	_fog_desc = desc;
-	return _fog;
+	u32 unit_lookup = 0;
+	fog_create_instances(&desc, 1, &unit, &unit_lookup);
+	return fog_instance(unit);
 }
 
 void RenderWorld::fog_destroy(FogInstance fog)

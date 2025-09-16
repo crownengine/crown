@@ -80,10 +80,7 @@ static void create_components(World &w
 		} else if (component->type == STRING_ID_32("light", UINT32_C(0xbb9f08c2))) {
 			render_world->_light_manager.create_instances(data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("fog", UINT32_C(0xf007ef0d))) {
-			const FogDesc *fd = (FogDesc *)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++fd) {
-				render_world->fog_create(unit_lookup[unit_index[i]], *fd);
-			}
+			render_world->fog_create_instances(data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("global_lighting", UINT32_C(0x718af7fe))) {
 			render_world->global_lighting_create_instances(data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("bloom", UINT32_C(0x995dd31c))) {
