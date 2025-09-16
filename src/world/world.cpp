@@ -68,10 +68,7 @@ static void create_components(World &w
 				, scl
 				);
 		} else if (component->type == STRING_ID_32("camera", UINT32_C(0x31822dc7))) {
-			const CameraDesc *cd = (CameraDesc *)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++cd) {
-				w.camera_create(unit_lookup[unit_index[i]], *cd, MATRIX4X4_IDENTITY);
-			}
+			w.camera_create_instances(data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("collider", UINT32_C(0x2129d74e))) {
 			const ColliderDesc *cd = (ColliderDesc *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i) {
@@ -455,22 +452,33 @@ void World::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Matrix4x4
 	_lines->reset();
 }
 
-CameraInstance World::camera_create(UnitId unit, const CameraDesc &cd, const Matrix4x4 & /*tr*/)
+void World::camera_create_instances(const void *data, u32 num, const UnitId *unit_lookup, const u32 *unit_index)
 {
-	CE_ASSERT(!hash_map::has(_camera_map, unit), "Unit already has a camera component");
+	const CameraDesc *cameras = (CameraDesc *)data;
 
-	Camera camera;
-	camera.unit            = unit;
-	camera.projection_type = (ProjectionType::Enum)cd.type;
-	camera.fov             = cd.fov;
-	camera.near_range      = cd.near_range;
-	camera.far_range       = cd.far_range;
+	for (u32 i = 0; i < num; ++i) {
+		UnitId unit = unit_lookup[unit_index[i]];
+		CE_ASSERT(!hash_map::has(_camera_map, unit), "Unit already has a camera component");
 
-	const u32 last = array::size(_camera);
-	array::push_back(_camera, camera);
+		Camera c;
+		c.unit            = unit;
+		c.projection_type = (ProjectionType::Enum)cameras[i].type;
+		c.fov             = cameras[i].fov;
+		c.near_range      = cameras[i].near_range;
+		c.far_range       = cameras[i].far_range;
 
-	hash_map::set(_camera_map, unit, last);
-	return camera_make_instance(last);
+		const u32 last = array::size(_camera);
+		array::push_back(_camera, c);
+
+		hash_map::set(_camera_map, unit, last);
+	}
+}
+
+CameraInstance World::camera_create(UnitId unit, const CameraDesc &cd)
+{
+	u32 unit_lookup = 0;
+	camera_create_instances(&cd, 1, &unit, &unit_lookup);
+	return camera_instance(unit);
 }
 
 void World::camera_destroy(CameraInstance camera)

@@ -1529,7 +1529,7 @@ World
 Camera
 ------
 
-**camera_create** (world, unit, projection, fov, far_range, near_range, pose) : Id
+**camera_create** (world, unit, projection, fov, far_range, near_range) : Id
 	Creates a new camera for *unit* and returns its id.
 	Projection can be either ``orthographic`` or ``perspective``.
 

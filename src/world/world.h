@@ -131,8 +131,11 @@ struct World
 	/// If there are multiple units with the same name, a random one will be returned.
 	UnitId unit_by_name(StringId32 name);
 
+	///
+	void camera_create_instances(const void *components_data, u32 num, const UnitId *unit_lookup, const u32 *unit_index);
+
 	/// Creates a new camera.
-	CameraInstance camera_create(UnitId unit, const CameraDesc &cd, const Matrix4x4 &tr);
+	CameraInstance camera_create(UnitId unit, const CameraDesc &cd);
 
 	/// Destroys the camera instance @a i.
 	void camera_destroy(CameraInstance camera);
