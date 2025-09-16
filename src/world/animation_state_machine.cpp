@@ -39,6 +39,7 @@ AnimationStateMachine::AnimationStateMachine(Allocator &a
 	, UnitManager &um
 	, SpriteAnimationPlayer &sprite_player
 	, MeshAnimationPlayer &mesh_player
+	, World &world
 	)
 	: _marker(ANIMATION_STATE_MACHINE_MARKER)
 	, _resource_manager(&rm)
@@ -48,6 +49,7 @@ AnimationStateMachine::AnimationStateMachine(Allocator &a
 	, _events(a)
 	, _sprite_animation_player(&sprite_player)
 	, _mesh_animation_player(&mesh_player)
+	, _world(&world)
 {
 	_unit_destroy_callback.destroy = unit_destroyed_callback_bridge;
 	_unit_destroy_callback.user_data = this;
@@ -83,80 +85,94 @@ static void mesh_set_skeleton_recursively(UnitId unit, AnimationSkeletonInstance
 	}
 }
 
-StateMachineInstance AnimationStateMachine::create(UnitId unit, const AnimationStateMachineDesc &desc, World &world)
+void AnimationStateMachine::create_instances(const void *components_data
+	, u32 num
+	, const UnitId *unit_lookup
+	, const u32 *unit_index
+	)
 {
-	CE_ASSERT(!hash_map::has(_map, unit), "Unit already has a state machine component");
+	const AnimationStateMachineDesc *state_machines = (AnimationStateMachineDesc *)components_data;
 
-	const StateMachineResource *smr = (StateMachineResource *)_resource_manager->get(RESOURCE_TYPE_STATE_MACHINE, desc.state_machine_resource);
+	for (u32 i = 0; i < num; ++i) {
+		UnitId unit = unit_lookup[unit_index[i]];
+		CE_ASSERT(!hash_map::has(_map, unit), "Unit already has a state machine component");
 
-	Machine m;
-	m.unit          = unit;
-	m.time          = 0.0f;
-	m.time_total    = 0.0f;
-	m.anim_type     = smr->animation_type;
-	m.anim_resource = NULL;
-	m.anim_id       = UINT32_MAX;
-	m.state         = state_machine::initial_state(smr);
-	m.state_next    = NULL;
-	m.state_machine = smr;
-	m.variables     = (f32 *)default_allocator().allocate(sizeof(*m.variables)*smr->num_variables);
-	m.skeleton      = NULL;
+		const StateMachineResource *smr = (StateMachineResource *)_resource_manager->get(RESOURCE_TYPE_STATE_MACHINE, state_machines[i].state_machine_resource);
 
-	memcpy(m.variables, state_machine::variables(smr), sizeof(*m.variables)*smr->num_variables);
+		Machine m;
+		m.unit          = unit;
+		m.time          = 0.0f;
+		m.time_total    = 0.0f;
+		m.anim_type     = smr->animation_type;
+		m.anim_resource = NULL;
+		m.anim_id       = UINT32_MAX;
+		m.state         = state_machine::initial_state(smr);
+		m.state_next    = NULL;
+		m.state_machine = smr;
+		m.variables     = (f32 *)default_allocator().allocate(sizeof(*m.variables)*smr->num_variables);
+		m.skeleton      = NULL;
 
-	if (smr->animation_type == RESOURCE_TYPE_MESH_ANIMATION) {
-		// Spawn the skeleton hierarchy.
-		const MeshSkeletonResource *skeleton_resource = (MeshSkeletonResource *)_resource_manager->get(RESOURCE_TYPE_MESH_SKELETON, smr->skeleton_name);
-		const BoneTransform *local_transforms = mesh_skeleton_resource::local_transforms(skeleton_resource);
-		const u32 *parents = mesh_skeleton_resource::parents(skeleton_resource);
+		memcpy(m.variables, state_machine::variables(smr), sizeof(*m.variables)*smr->num_variables);
 
-		u32 size = sizeof(AnimationSkeletonInstance)
-			+ sizeof(UnitId) * skeleton_resource->num_bones
-			+ sizeof(Matrix4x4) * skeleton_resource->num_bones
-			;
-		AnimationSkeletonInstance *skeleton = (AnimationSkeletonInstance *)default_allocator().allocate(size);
-		skeleton->num_bones = skeleton_resource->num_bones;
-		skeleton->offsets = mesh_skeleton_resource::binding_matrices(skeleton_resource);
-		skeleton->bone_lookup = (UnitId *)&skeleton[1];
-		skeleton->bones = (Matrix4x4 *)(skeleton->bone_lookup + skeleton_resource->num_bones);
-		m.skeleton = skeleton;
+		if (smr->animation_type == RESOURCE_TYPE_MESH_ANIMATION) {
+			// Spawn the skeleton hierarchy.
+			const MeshSkeletonResource *skeleton_resource = (MeshSkeletonResource *)_resource_manager->get(RESOURCE_TYPE_MESH_SKELETON, smr->skeleton_name);
+			const BoneTransform *local_transforms = mesh_skeleton_resource::local_transforms(skeleton_resource);
+			const u32 *parents = mesh_skeleton_resource::parents(skeleton_resource);
 
-		for (u32 i = 0; i < skeleton_resource->num_bones; ++i)
-			skeleton->bone_lookup[i] = _unit_manager->create();
+			u32 size = sizeof(AnimationSkeletonInstance)
+				+ sizeof(UnitId) * skeleton_resource->num_bones
+				+ sizeof(Matrix4x4) * skeleton_resource->num_bones
+				;
+			AnimationSkeletonInstance *skeleton = (AnimationSkeletonInstance *)default_allocator().allocate(size);
+			skeleton->num_bones = skeleton_resource->num_bones;
+			skeleton->offsets = mesh_skeleton_resource::binding_matrices(skeleton_resource);
+			skeleton->bone_lookup = (UnitId *)&skeleton[1];
+			skeleton->bones = (Matrix4x4 *)(skeleton->bone_lookup + skeleton_resource->num_bones);
+			m.skeleton = skeleton;
 
-		SceneGraph &scene_graph = *world._scene_graph;
-		RenderWorld &render_world = *world._render_world;
+			for (u32 i = 0; i < skeleton_resource->num_bones; ++i)
+				skeleton->bone_lookup[i] = _unit_manager->create();
 
-		for (u32 i = 0; i < skeleton_resource->num_bones; ++i) {
-			TransformInstance ti = scene_graph.create(skeleton->bone_lookup[i]
-				, local_transforms[i].position
-				, local_transforms[i].rotation
-				, local_transforms[i].scale
-				);
-			if (parents[i] != UINT16_MAX) {
-				TransformInstance parent_ti = scene_graph.instance(skeleton->bone_lookup[parents[i]]);
-				scene_graph.link(parent_ti
-					, ti
+			SceneGraph &scene_graph = *_world->_scene_graph;
+			RenderWorld &render_world = *_world->_render_world;
+
+			for (u32 i = 0; i < skeleton_resource->num_bones; ++i) {
+				TransformInstance ti = scene_graph.create(skeleton->bone_lookup[i]
 					, local_transforms[i].position
 					, local_transforms[i].rotation
 					, local_transforms[i].scale
 					);
-			} else {
-				Vector3 scale = local_transforms[i].scale;
-				Matrix4x4 tr = from_quaternion_translation(local_transforms[i].rotation, local_transforms[i].position);
-				scene_graph.set_local_pose(ti, tr);
-				scene_graph.set_local_scale(ti, scale);
+				if (parents[i] != UINT16_MAX) {
+					TransformInstance parent_ti = scene_graph.instance(skeleton->bone_lookup[parents[i]]);
+					scene_graph.link(parent_ti
+						, ti
+						, local_transforms[i].position
+						, local_transforms[i].rotation
+						, local_transforms[i].scale
+						);
+				} else {
+					Vector3 scale = local_transforms[i].scale;
+					Matrix4x4 tr = from_quaternion_translation(local_transforms[i].rotation, local_transforms[i].position);
+					scene_graph.set_local_pose(ti, tr);
+					scene_graph.set_local_scale(ti, scale);
+				}
 			}
+
+			mesh_set_skeleton_recursively(unit, skeleton, scene_graph, render_world);
 		}
 
-		mesh_set_skeleton_recursively(unit, skeleton, scene_graph, render_world);
+		u32 last = array::size(_machines);
+		array::push_back(_machines, m);
+		hash_map::set(_map, unit, last);
 	}
+}
 
-	u32 last = array::size(_machines);
-	array::push_back(_machines, m);
-	hash_map::set(_map, unit, last);
-
-	return make_instance(last);
+StateMachineInstance AnimationStateMachine::create(UnitId unit, const AnimationStateMachineDesc &desc)
+{
+	u32 unit_index = 0;
+	create_instances(&desc, 1, &unit, &unit_index);
+	return instance(unit);
 }
 
 void AnimationStateMachine::destroy(StateMachineInstance state_machine)
