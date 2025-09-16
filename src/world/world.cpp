@@ -156,6 +156,11 @@ static void create_components(World &w
 	}
 }
 
+static void unit_destroyed_callback_bridge(UnitId unit, void *user_ptr)
+{
+	((World *)user_ptr)->unit_destroyed_callback(unit);
+}
+
 World::World(Allocator &a
 	, ResourceManager &rm
 	, ShaderManager &sm
@@ -207,10 +212,18 @@ World::World(Allocator &a
 
 	_node.next = NULL;
 	_node.prev = NULL;
+
+	_unit_destroy_callback.destroy = unit_destroyed_callback_bridge;
+	_unit_destroy_callback.user_data = this;
+	_unit_destroy_callback.node.next = NULL;
+	_unit_destroy_callback.node.prev = NULL;
+	um.register_destroy_callback(&_unit_destroy_callback);
 }
 
 World::~World()
 {
+	_unit_manager->unregister_destroy_callback(&_unit_destroy_callback);
+
 	// Destroy loaded levels
 	ListNode *cur;
 	ListNode *tmp;
@@ -816,6 +829,13 @@ void World::reload_units(const UnitResource *old_unit, const UnitResource *new_u
 	CE_UNUSED_2(old_unit, new_unit);
 	CE_NOOP();
 #endif // if CROWN_CAN_RELOAD
+}
+
+void World::unit_destroyed_callback(UnitId unit)
+{
+	CameraInstance inst = camera_instance(unit);
+	if (is_valid(inst))
+		camera_destroy(inst);
 }
 
 } // namespace crown
