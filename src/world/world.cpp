@@ -89,10 +89,7 @@ static void create_components(World &w
 		} else if (component->type == STRING_ID_32("bloom", UINT32_C(0x995dd31c))) {
 			render_world->bloom_create_instances(data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("tonemap", UINT32_C(0x7089b06b))) {
-			const TonemapDesc *desc = (TonemapDesc *)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++desc) {
-				render_world->tonemap_create(unit_lookup[unit_index[i]], *desc);
-			}
+			render_world->tonemap_create_instances(data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("script", UINT32_C(0xd18f8ad6))) {
 			script_world::create_instances(*script_world, data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("animation_state_machine", UINT32_C(0xe87992ac))) {
