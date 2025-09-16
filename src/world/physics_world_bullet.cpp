@@ -1353,46 +1353,60 @@ struct PhysicsWorldImpl
 		_actor[actor.i].body->activate(true);
 	}
 
-	MoverInstance mover_create(UnitId unit, const MoverDesc *desc, const Matrix4x4 &tm)
+	MoverInstance mover_create(UnitId unit, const MoverDesc *desc)
 	{
-		CE_ASSERT(!hash_map::has(_mover_map, unit), "Unit already has a mover component");
+		u32 unit_index = 0;
+		mover_create_instances(desc, 1, &unit, &unit_index);
+		return mover(unit);
+	}
 
+	void mover_create_instances(const void *components_data, u32 num, const UnitId *unit_lookup, const u32 *unit_index)
+	{
 		const PhysicsCollisionFilter *filters = physics_config_resource::filters_array(_config_resource);
-		u32 filter_i = physics_config_resource::filter_index(filters, _config_resource->num_filters, desc->collision_filter);
-		const PhysicsCollisionFilter *f = &filters[filter_i];
 
-		const btTransform pose(to_btQuaternion(QUATERNION_IDENTITY), to_btVector3(translation(tm)));
+		const MoverDesc *movers = (MoverDesc *)components_data;
 
-		btConvexShape *capsule = CE_NEW(*_allocator, btCapsuleShapeZ)(desc->capsule.radius, desc->capsule.height);
+		for (u32 i = 0; i < num; ++i) {
+			UnitId unit = unit_lookup[unit_index[i]];
+			CE_ASSERT(!hash_map::has(_mover_map, unit), "Unit already has a mover component");
 
-		btPairCachingGhostObject *ghost = CE_NEW(*_allocator, btPairCachingGhostObject)();
-		ghost->setWorldTransform(pose);
-		ghost->setCollisionShape(capsule);
+			TransformInstance ti = _scene_graph->instance(unit);
+			Matrix4x4 tm = _scene_graph->world_pose(ti);
 
-		Mover *mover = CE_NEW(*_allocator, Mover)(_dynamics_world
-			, ghost
-			, capsule
-			, to_btVector3({ 0.0f, 0.0f, 1.0f })
-			);
-		mover->set_max_slope(desc->max_slope_angle);
+			u32 filter_i = physics_config_resource::filter_index(filters, _config_resource->num_filters, movers[i].collision_filter);
+			const PhysicsCollisionFilter *f = &filters[filter_i];
 
-		_dynamics_world->addCollisionObject(ghost
-			, f->me
-			, f->mask
-			);
+			const btTransform pose(to_btQuaternion(QUATERNION_IDENTITY), to_btVector3(translation(tm)));
 
-		MoverInstanceData mid;
-		mid.unit = unit;
-		mid.collider = capsule;
-		mid.ghost = ghost;
-		mid.mover = mover;
+			btConvexShape *capsule = CE_NEW(*_allocator, btCapsuleShapeZ)(movers[i].capsule.radius, movers[i].capsule.height);
 
-		const u32 last = array::size(_mover);
+			btPairCachingGhostObject *ghost = CE_NEW(*_allocator, btPairCachingGhostObject)();
+			ghost->setWorldTransform(pose);
+			ghost->setCollisionShape(capsule);
 
-		array::push_back(_mover, mid);
-		hash_map::set(_mover_map, unit, last);
+			Mover *mover = CE_NEW(*_allocator, Mover)(_dynamics_world
+				, ghost
+				, capsule
+				, to_btVector3({ 0.0f, 0.0f, 1.0f })
+				);
+			mover->set_max_slope(movers[i].max_slope_angle);
 
-		return make_mover_instance(last);
+			_dynamics_world->addCollisionObject(ghost
+				, f->me
+				, f->mask
+				);
+
+			MoverInstanceData mid;
+			mid.unit = unit;
+			mid.collider = capsule;
+			mid.ghost = ghost;
+			mid.mover = mover;
+
+			const u32 last = array::size(_mover);
+
+			array::push_back(_mover, mid);
+			hash_map::set(_mover_map, unit, last);
+		}
 	}
 
 	void mover_destroy(MoverInstance mover)
@@ -2037,9 +2051,14 @@ void PhysicsWorld::actor_wake_up(ActorInstance actor)
 	_impl->actor_wake_up(actor);
 }
 
-MoverInstance PhysicsWorld::mover_create(UnitId unit, const MoverDesc *desc, const Matrix4x4 &tm)
+void PhysicsWorld::mover_create_instances(const void *components_data, u32 num, const UnitId *unit_lookup, const u32 *unit_index)
 {
-	return _impl->mover_create(unit, desc, tm);
+	_impl->mover_create_instances(components_data, num, unit_lookup, unit_index);
+}
+
+MoverInstance PhysicsWorld::mover_create(UnitId unit, const MoverDesc *desc)
+{
+	return _impl->mover_create(unit, desc);
 }
 
 void PhysicsWorld::mover_destroy(MoverInstance actor)

@@ -1760,7 +1760,7 @@ end
 function LevelEditor:add_mover_component(id, component_id, height, radius, max_slope_angle, filter)
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id()
-	PhysicsWorld.mover_create(self._pw, unit_id, height, radius, max_slope_angle, filter, unit_box:world_pose())
+	PhysicsWorld.mover_create(self._pw, unit_id, height, radius, max_slope_angle, filter)
 end
 
 function LevelEditor:add_fog_component(id, component_id)
