@@ -72,8 +72,17 @@ struct SceneGraph
 	///
 	~SceneGraph();
 
-	/// Creates a new transform instance for the @a unit.
-	TransformInstance create(UnitId unit, const Matrix4x4 &pose);
+	///
+	void create_instances(const void *components_data
+		, u32 num
+		, const UnitId *unit_lookup
+		, const u32 *unit_index
+		, const u32 *unit_parents
+		, u32 spawn_flags = SpawnFlags::NONE
+		, const Vector3 &pos = VECTOR3_ZERO
+		, const Quaternion &rot = QUATERNION_IDENTITY
+		, const Vector3 &scl = VECTOR3_ONE
+		);
 
 	/// Creates a new transform instance for the @a unit.
 	TransformInstance create(UnitId unit, const Vector3 &pos, const Quaternion &rot, const Vector3 &scale);

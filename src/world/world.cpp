@@ -57,19 +57,16 @@ static void create_components(World &w
 		const char *data = unit_resource::component_payload(component);
 
 		if (component->type == STRING_ID_32("transform", UINT32_C(0xad9b5315))) {
-			const TransformDesc *td = (TransformDesc *)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++td) {
-				// FIXME: add SceneGraph::allocate() to reserve an instance without initializing it.
-				const TransformInstance ti = scene_graph->create(unit_lookup[unit_index[i]]
-					, spawn_flags & SpawnFlags::OVERRIDE_POSITION ? pos : td->position
-					, spawn_flags & SpawnFlags::OVERRIDE_ROTATION ? rot : td->rotation
-					, spawn_flags & SpawnFlags::OVERRIDE_SCALE ? scl : td->scale
-					);
-				if (unit_parents[unit_index[i]] != UINT32_MAX) {
-					TransformInstance parent_ti = scene_graph->instance(unit_lookup[unit_parents[unit_index[i]]]);
-					scene_graph->link(parent_ti, ti, td->position, td->rotation, td->scale);
-				}
-			}
+			scene_graph->create_instances(data
+				, component->num_instances
+				, unit_lookup
+				, unit_index
+				, unit_parents
+				, spawn_flags
+				, pos
+				, rot
+				, scl
+				);
 		} else if (component->type == STRING_ID_32("camera", UINT32_C(0x31822dc7))) {
 			const CameraDesc *cd = (CameraDesc *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++cd) {

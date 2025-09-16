@@ -11,6 +11,7 @@
 #include "core/math/quaternion.inl"
 #include "core/math/vector3.inl"
 #include "core/memory/allocator.h"
+#include "core/strings/string_id.inl"
 #include "world/debug_line.h"
 #include "world/scene_graph.h"
 #include "world/unit_manager.h"
@@ -110,40 +111,64 @@ void SceneGraph::unit_destroyed_callback(UnitId unit)
 		destroy(inst);
 }
 
-TransformInstance SceneGraph::create(UnitId unit, const Vector3 &pos, const Quaternion &rot, const Vector3 &scale)
+void SceneGraph::create_instances(const void *components_data
+	, u32 num
+	, const UnitId *unit_lookup
+	, const u32 *unit_index
+	, const u32 *unit_parents
+	, u32 spawn_flags
+	, const Vector3 &pos
+	, const Quaternion &rot
+	, const Vector3 &scl
+	)
 {
-	Matrix4x4 pose;
-	set_identity(pose);
-	set_translation(pose, pos);
-	set_rotation(pose, rot);
-	set_scale(pose, scale);
+	const TransformDesc *transforms = (TransformDesc *)components_data;
 
-	return create(unit, pose);
+	for (u32 i = 0; i < num; ++i) {
+		UnitId unit = unit_lookup[unit_index[i]];
+		CE_ASSERT(!hash_map::has(_map, unit), "Unit already has a transform component");
+
+		if (_data.capacity == 0 || _data.capacity - 1 == _data.size)
+			grow();
+
+		const u32 last = _data.size;
+
+		Matrix4x4 pose;
+		set_identity(pose);
+		set_translation(pose, spawn_flags & SpawnFlags::OVERRIDE_POSITION ? pos : transforms[i].position);
+		set_rotation(pose, spawn_flags & SpawnFlags::OVERRIDE_ROTATION ? rot : transforms[i].rotation);
+		set_scale(pose, spawn_flags & SpawnFlags::OVERRIDE_SCALE ? scl : transforms[i].scale);
+
+		_data.unit[last]           = unit;
+		_data.world[last]          = pose;
+		_data.local[last]          = pose;
+		_data.parent[last].i       = UINT32_MAX;
+		_data.first_child[last].i  = UINT32_MAX;
+		_data.next_sibling[last].i = UINT32_MAX;
+		_data.prev_sibling[last].i = UINT32_MAX;
+		_data.changed[last]        = false;
+
+		++_data.size;
+
+		hash_map::set(_map, unit, last);
+
+		if (unit_parents[unit_index[i]] != UINT32_MAX) {
+			TransformInstance parent_ti = instance(unit_lookup[unit_parents[unit_index[i]]]);
+			link(parent_ti, make_instance(last), transforms[i].position, transforms[i].rotation, transforms[i].scale);
+		}
+	}
 }
 
-TransformInstance SceneGraph::create(UnitId unit, const Matrix4x4 &pose)
+TransformInstance SceneGraph::create(UnitId unit, const Vector3 &pos, const Quaternion &rot, const Vector3 &scale)
 {
-	CE_ASSERT(!hash_map::has(_map, unit), "Unit already has a transform component");
-
-	if (_data.capacity == 0 || _data.capacity - 1 == _data.size)
-		grow();
-
-	const u32 last = _data.size;
-
-	_data.unit[last]           = unit;
-	_data.world[last]          = pose;
-	_data.local[last]          = pose;
-	_data.parent[last].i       = UINT32_MAX;
-	_data.first_child[last].i  = UINT32_MAX;
-	_data.next_sibling[last].i = UINT32_MAX;
-	_data.prev_sibling[last].i = UINT32_MAX;
-	_data.changed[last]        = false;
-
-	++_data.size;
-
-	hash_map::set(_map, unit, last);
-
-	return make_instance(last);
+	TransformDesc td;
+	td.position = pos;
+	td.rotation = rot;
+	td.scale = scale;
+	u32 unit_lookup = 0;
+	u32 unit_parents = UINT32_MAX;
+	create_instances(&td, 1, &unit, &unit_lookup, &unit_parents);
+	return instance(unit);
 }
 
 /// Moves the node data from index @a src to index @a dst, while preserving
