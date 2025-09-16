@@ -222,8 +222,15 @@ struct RenderWorld
 	///
 	void global_lighting_set_ambient_color(Color4 color);
 
+	///
+	void bloom_create_instances(const void *components_data
+		, u32 num
+		, const UnitId *unit_lookup
+		, const u32 *unit_index
+		);
+
 	/// Creates a new bloom instance for @a unit and returns its id.
-	u32 bloom_create(UnitId unit, const BloomDesc &desc);
+	BloomInstance bloom_create(UnitId unit, const BloomDesc &desc);
 
 	///
 	void bloom_destroy(u32 bloom);

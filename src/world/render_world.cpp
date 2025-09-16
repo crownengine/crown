@@ -530,11 +530,27 @@ void RenderWorld::global_lighting_set_ambient_color(Color4 color)
 	_global_lighting_desc.ambient_color = { color.x, color.y, color.z };
 }
 
-u32 RenderWorld::bloom_create(UnitId unit, const BloomDesc &desc)
+void RenderWorld::bloom_create_instances(const void *components_data
+	, u32 num
+	, const UnitId *unit_lookup
+	, const u32 *unit_index
+	)
 {
-	_bloom_desc = desc;
-	_bloom_unit = unit;
-	return 0;
+	const BloomDesc *blooms = (BloomDesc *)components_data;
+
+	for (u32 i = 0; i < num; ++i) {
+		UnitId unit = unit_lookup[unit_index[i]];
+
+		_bloom_desc = blooms[i];
+		_bloom_unit = unit;
+	}
+}
+
+BloomInstance RenderWorld::bloom_create(UnitId unit, const BloomDesc &desc)
+{
+	u32 unit_lookup = 0;
+	bloom_create_instances(&desc, 1, &unit, &unit_lookup);
+	return bloom_instance(unit);
 }
 
 void RenderWorld::bloom_destroy(u32 bloom)

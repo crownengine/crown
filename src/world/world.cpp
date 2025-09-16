@@ -87,10 +87,7 @@ static void create_components(World &w
 		} else if (component->type == STRING_ID_32("global_lighting", UINT32_C(0x718af7fe))) {
 			render_world->global_lighting_create_instances(data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("bloom", UINT32_C(0x995dd31c))) {
-			const BloomDesc *desc = (BloomDesc *)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++desc) {
-				render_world->bloom_create(unit_lookup[unit_index[i]], *desc);
-			}
+			render_world->bloom_create_instances(data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("tonemap", UINT32_C(0x7089b06b))) {
 			const TonemapDesc *desc = (TonemapDesc *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++desc) {

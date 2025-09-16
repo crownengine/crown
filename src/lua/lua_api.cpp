@@ -2290,7 +2290,7 @@ void load_api(LuaEnvironment &env)
 	env.add_module_function("RenderWorld", "bloom_create", [](lua_State *L) {
 			LuaStack stack(L);
 			BloomDesc desc;
-			stack.push_id(stack.get_render_world(1)->bloom_create(stack.get_unit(2), desc));
+			stack.push_id(stack.get_render_world(1)->bloom_create(stack.get_unit(2), desc).i);
 			return 1;
 		});
 	env.add_module_function("RenderWorld", "bloom_destroy", [](lua_State *L) {
