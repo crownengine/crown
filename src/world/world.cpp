@@ -72,12 +72,7 @@ static void create_components(World &w
 		} else if (component->type == STRING_ID_32("actor", UINT32_C(0x374cf583))) {
 			physics_world->actor_create_instances(data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("mover", UINT32_C(0xac07d371))) {
-			const MoverDesc *md = (MoverDesc *)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++md) {
-				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
-				Matrix4x4 tm = scene_graph->world_pose(ti);
-				physics_world->mover_create(unit_lookup[unit_index[i]], md, tm);
-			}
+			physics_world->mover_create_instances(data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("mesh_renderer", UINT32_C(0xdf017893))) {
 			const MeshRendererDesc *mrd = (MeshRendererDesc *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++mrd) {

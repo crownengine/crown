@@ -1075,7 +1075,7 @@ Actor
 Mover
 -----
 
-**mover_create** (pw, unit, height, radius, max_slope_angle, collision_filter, pose) : Id
+**mover_create** (pw, unit, height, radius, max_slope_angle, collision_filter) : Id
 	Creates a new mover instance for the *unit*.
 
 **mover_destroy** (pw, mover)

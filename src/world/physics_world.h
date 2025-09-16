@@ -168,8 +168,15 @@ struct PhysicsWorld
 	/// Wakes the @a actor up.
 	void actor_wake_up(ActorInstance actor);
 
+	///
+	void mover_create_instances(const void *components_data
+		, u32 num
+		, const UnitId *unit_lookup
+		, const u32 *unit_index
+		);
+
 	/// Creates a new mover instance for the @a unit.
-	MoverInstance mover_create(UnitId unit, const MoverDesc *desc, const Matrix4x4 &tm);
+	MoverInstance mover_create(UnitId unit, const MoverDesc *desc);
 
 	/// Destroys the @a mover.
 	void mover_destroy(MoverInstance mover);

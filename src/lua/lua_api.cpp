@@ -2572,9 +2572,8 @@ void load_api(LuaEnvironment &env)
 			desc.capsule.radius = stack.get_float(4);
 			desc.max_slope_angle = stack.get_float(5);
 			desc.collision_filter = stack.get_string_id_32(6);
-			Matrix4x4 pose = stack.get_matrix4x4(7);
 
-			stack.push_mover(pw->mover_create(unit, &desc, pose));
+			stack.push_mover(pw->mover_create(unit, &desc));
 			return 1;
 		});
 	env.add_module_function("PhysicsWorld", "mover_destroy", [](lua_State *L) {
