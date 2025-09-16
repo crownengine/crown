@@ -477,11 +477,27 @@ void RenderWorld::fog_set_enabled(FogInstance fog, bool enable)
 	_fog_desc.enabled = (f32)enable;
 }
 
-u32 RenderWorld::global_lighting_create(UnitId unit, const GlobalLightingDesc &desc)
+void RenderWorld::global_lighting_create_instances(const void *components_data
+	, u32 num
+	, const UnitId *unit_lookup
+	, const u32 *unit_index
+	)
 {
-	_global_lighting_desc = desc;
-	_global_lighting_unit = unit;
-	return 0;
+	const GlobalLightingDesc *global_lightings = (GlobalLightingDesc *)components_data;
+
+	for (u32 i = 0; i < num; ++i) {
+		UnitId unit = unit_lookup[unit_index[i]];
+
+		_global_lighting_desc = global_lightings[i];
+		_global_lighting_unit = unit;
+	}
+}
+
+GlobalLightingInstance RenderWorld::global_lighting_create(UnitId unit, const GlobalLightingDesc &desc)
+{
+	u32 unit_lookup = 0;
+	global_lighting_create_instances(&desc, 1, &unit, &unit_lookup);
+	return global_lighting_instance(unit);
 }
 
 GlobalLightingInstance RenderWorld::global_lighting_instance(UnitId unit)

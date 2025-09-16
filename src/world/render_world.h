@@ -197,8 +197,15 @@ struct RenderWorld
 	/// Sets whether the @a fog is @a enabled.
 	void fog_set_enabled(FogInstance fog, bool enable);
 
+	///
+	void global_lighting_create_instances(const void *components_data
+		, u32 num
+		, const UnitId *unit_lookup
+		, const u32 *unit_index
+		);
+
 	/// Creates a new global lighting instance for @a unit and returns its id.
-	u32 global_lighting_create(UnitId unit, const GlobalLightingDesc &desc);
+	GlobalLightingInstance global_lighting_create(UnitId unit, const GlobalLightingDesc &desc);
 
 	///
 	void global_lighting_destroy(u32 global_lighting);
