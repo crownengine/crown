@@ -102,10 +102,7 @@ static void create_components(World &w
 		} else if (component->type == STRING_ID_32("script", UINT32_C(0xd18f8ad6))) {
 			script_world::create_instances(*script_world, data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("animation_state_machine", UINT32_C(0xe87992ac))) {
-			const AnimationStateMachineDesc *asmd = (AnimationStateMachineDesc *)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++asmd) {
-				animation_state_machine->create(unit_lookup[unit_index[i]], *asmd, w);
-			}
+			animation_state_machine->create_instances(data, component->num_instances, unit_lookup, unit_index);
 		} else {
 			CE_FATAL("Unknown component type");
 		}
@@ -161,7 +158,7 @@ World::World(Allocator &a
 	_script_world  = CE_NEW(*_allocator, ScriptWorld)(*_allocator, um, rm, env, *this);
 	_sprite_animation_player = CE_NEW(*_allocator, SpriteAnimationPlayer)(*_allocator);
 	_mesh_animation_player = CE_NEW(*_allocator, MeshAnimationPlayer)(*_allocator);
-	_animation_state_machine = CE_NEW(*_allocator, AnimationStateMachine)(*_allocator, rm, um, *_sprite_animation_player, *_mesh_animation_player);
+	_animation_state_machine = CE_NEW(*_allocator, AnimationStateMachine)(*_allocator, rm, um, *_sprite_animation_player, *_mesh_animation_player, *this);
 
 	_gui_buffer.create();
 

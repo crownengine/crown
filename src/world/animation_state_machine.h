@@ -42,6 +42,7 @@ struct AnimationStateMachine
 	UnitDestroyCallback _unit_destroy_callback;
 	SpriteAnimationPlayer *_sprite_animation_player;
 	MeshAnimationPlayer *_mesh_animation_player;
+	World *_world;
 
 	///
 	AnimationStateMachine(Allocator &a
@@ -49,13 +50,21 @@ struct AnimationStateMachine
 		, UnitManager &um
 		, SpriteAnimationPlayer &sprite_player
 		, MeshAnimationPlayer &mesh_player
+		, World &world
 		);
 
 	///
 	~AnimationStateMachine();
 
+	///
+	void create_instances(const void *components_data
+		, u32 num
+		, const UnitId *unit_lookup
+		, const u32 *unit_index
+		);
+
 	/// Creates a new state machine instance for the @a unit.
-	StateMachineInstance create(UnitId unit, const AnimationStateMachineDesc &desc, World &world);
+	StateMachineInstance create(UnitId unit, const AnimationStateMachineDesc &desc);
 
 	/// Destroys the @a state_machine.
 	void destroy(StateMachineInstance state_machine);
