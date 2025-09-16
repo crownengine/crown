@@ -71,6 +71,8 @@ struct World
 	ListNode _node;
 	UnitId _skydome_unit;
 
+	UnitDestroyCallback _unit_destroy_callback;
+
 #if CROWN_CAN_RELOAD
 	Array<const UnitResource *> _unit_resources;
 #endif
@@ -254,6 +256,10 @@ struct World
 
 	///
 	void reload_units(const UnitResource *old_unit, const UnitResource *new_unit);
+
+	///
+	void unit_destroyed_callback(UnitId unit);
+
 };
 
 } // namespace crown
