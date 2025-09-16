@@ -251,7 +251,14 @@ struct RenderWorld
 	void bloom_set_threshold(float threshold);
 
 	///
-	u32 tonemap_create(UnitId unit, const TonemapDesc &desc);
+	void tonemap_create_instances(const void *components_data
+		, u32 num
+		, const UnitId *unit_lookup
+		, const u32 *unit_index
+		);
+
+	///
+	TonemapInstance tonemap_create(UnitId unit, const TonemapDesc &desc);
 
 	///
 	void tonemap_destroy(u32 tonemap);

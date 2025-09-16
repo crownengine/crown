@@ -2330,7 +2330,7 @@ void load_api(LuaEnvironment &env)
 	env.add_module_function("RenderWorld", "tonemap_create", [](lua_State *L) {
 			LuaStack stack(L);
 			TonemapDesc desc;
-			stack.push_id(stack.get_render_world(1)->tonemap_create(stack.get_unit(2), desc));
+			stack.push_id(stack.get_render_world(1)->tonemap_create(stack.get_unit(2), desc).i);
 			return 1;
 		});
 	env.add_module_function("RenderWorld", "tonemap_destroy", [](lua_State *L) {

@@ -588,11 +588,27 @@ void RenderWorld::bloom_set_threshold(float threshold)
 	_bloom_desc.threshold = threshold;
 }
 
-u32 RenderWorld::tonemap_create(UnitId unit, const TonemapDesc &desc)
+void RenderWorld::tonemap_create_instances(const void *components_data
+	, u32 num
+	, const UnitId *unit_lookup
+	, const u32 *unit_index
+	)
 {
-	_tonemap_desc = desc;
-	_tonemap_unit = unit;
-	return 0;
+	const TonemapDesc *tonemaps = (TonemapDesc *)components_data;
+
+	for (u32 i = 0; i < num; ++i) {
+		UnitId unit = unit_lookup[unit_index[i]];
+
+		_tonemap_desc = tonemaps[i];
+		_tonemap_unit = unit;
+	}
+}
+
+TonemapInstance RenderWorld::tonemap_create(UnitId unit, const TonemapDesc &desc)
+{
+	u32 unit_lookup = 0;
+	tonemap_create_instances(&desc, 1, &unit, &unit_lookup);
+	return tonemap_instance(unit);
 }
 
 void RenderWorld::tonemap_destroy(u32 tonemap)
