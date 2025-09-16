@@ -24,7 +24,7 @@ struct PhysicsWorld
 	PhysicsWorldImpl *_impl;
 
 	///
-	PhysicsWorld(Allocator &a, ResourceManager &rm, UnitManager &um, DebugLine &dl);
+	PhysicsWorld(Allocator &a, ResourceManager &rm, UnitManager &um, SceneGraph &sg, DebugLine &dl);
 
 	///
 	~PhysicsWorld();
@@ -36,7 +36,11 @@ struct PhysicsWorld
 	PhysicsWorld &operator=(const PhysicsWorld &) = delete;
 
 	///
-	ColliderInstance collider_create(UnitId unit, const ColliderDesc *sd, const Vector3 &scl);
+	void collider_create_instances(const void *components_data
+		, u32 num
+		, const UnitId *unit_lookup
+		, const u32 *unit_index
+		);
 
 	///
 	void collider_destroy(ColliderInstance collider);

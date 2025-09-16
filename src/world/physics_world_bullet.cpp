@@ -22,6 +22,7 @@
 #include "world/event_stream.inl"
 #include "world/physics.h"
 #include "world/physics_world.h"
+#include "world/scene_graph.h"
 #include "world/unit_manager.h"
 #include <BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h>
 #include <BulletCollision/BroadphaseCollision/btDbvtBroadphase.h>
@@ -759,6 +760,7 @@ struct PhysicsWorldImpl
 	MyFilterCallback _filter_callback;
 	btGhostPairCallback _ghost_pair_callback;
 	btDiscreteDynamicsWorld *_dynamics_world;
+	SceneGraph *_scene_graph;
 	MyDebugDrawer _debug_drawer;
 
 	EventStream _events;
@@ -767,7 +769,7 @@ struct PhysicsWorldImpl
 	const PhysicsConfigResource *_config_resource;
 	bool _debug_drawing;
 
-	PhysicsWorldImpl(Allocator &a, ResourceManager &rm, UnitManager &um, DebugLine &dl)
+	PhysicsWorldImpl(Allocator &a, ResourceManager &rm, UnitManager &um, SceneGraph &sg, DebugLine &dl)
 		: _allocator(&a)
 		, _unit_manager(&um)
 		, _collider_map(a)
@@ -778,6 +780,7 @@ struct PhysicsWorldImpl
 		, _mover(a)
 		, _joints(a)
 		, _dynamics_world(NULL)
+		, _scene_graph(&sg)
 		, _debug_drawer(dl)
 		, _events(a)
 		, _debug_drawing(false)
@@ -837,89 +840,98 @@ struct PhysicsWorldImpl
 
 	PhysicsWorldImpl &operator=(const PhysicsWorldImpl &) = delete;
 
-	ColliderInstance collider_create(UnitId unit, const ColliderDesc *sd, const Vector3 &scale)
+	void collider_create_instances(const void *components_data, u32 num, const UnitId *unit_lookup, const u32 *unit_index)
 	{
-		btTriangleIndexVertexArray *vertex_array = NULL;
-		btCollisionShape *child_shape = NULL;
+		const ColliderDesc *cd = (ColliderDesc *)components_data;
 
-		switch (sd->type) {
-		case ColliderType::SPHERE:
-			child_shape = CE_NEW(*_allocator, btSphereShape)(sd->sphere.radius);
-			break;
+		for (u32 i = 0; i < num; ++i) {
+			UnitId unit = unit_lookup[unit_index[i]];
+			const TransformInstance ti = _scene_graph->instance(unit_lookup[unit_index[i]]);
+			const Matrix4x4 tm = _scene_graph->world_pose(ti);
 
-		case ColliderType::CAPSULE:
-			child_shape = CE_NEW(*_allocator, btCapsuleShape)(sd->capsule.radius, sd->capsule.height);
-			break;
+			btTriangleIndexVertexArray *vertex_array = NULL;
+			btCollisionShape *child_shape = NULL;
 
-		case ColliderType::BOX:
-			child_shape = CE_NEW(*_allocator, btBoxShape)(to_btVector3(sd->box.half_size));
-			break;
+			switch (cd->type) {
+			case ColliderType::SPHERE:
+				child_shape = CE_NEW(*_allocator, btSphereShape)(cd->sphere.radius);
+				break;
 
-		case ColliderType::CONVEX_HULL: {
-			const u8 *data         = (u8 *)&sd[1];
-			const u32 num          = *(u32 *)data;
-			const btScalar *points = (btScalar *)(data + sizeof(u32));
+			case ColliderType::CAPSULE:
+				child_shape = CE_NEW(*_allocator, btCapsuleShape)(cd->capsule.radius, cd->capsule.height);
+				break;
 
-			child_shape = CE_NEW(*_allocator, btConvexHullShape)(points, (int)num, sizeof(Vector3));
-			break;
+			case ColliderType::BOX:
+				child_shape = CE_NEW(*_allocator, btBoxShape)(to_btVector3(cd->box.half_size));
+				break;
+
+			case ColliderType::CONVEX_HULL: {
+				const u8 *data         = (u8 *)&cd[1];
+				const u32 num          = *(u32 *)data;
+				const btScalar *points = (btScalar *)(data + sizeof(u32));
+
+				child_shape = CE_NEW(*_allocator, btConvexHullShape)(points, (int)num, sizeof(Vector3));
+				break;
+			}
+
+			case ColliderType::MESH: {
+				const char *data      = (char *)&cd[1];
+				const u32 num_points  = *(u32 *)data;
+				const char *points    = data + sizeof(u32);
+				const u32 num_indices = *(u32 *)(points + num_points*sizeof(Vector3));
+				const char *indices   = points + sizeof(u32) + num_points*sizeof(Vector3);
+
+				btIndexedMesh part;
+				part.m_vertexBase          = (const unsigned char *)points;
+				part.m_vertexStride        = sizeof(Vector3);
+				part.m_numVertices         = num_points;
+				part.m_triangleIndexBase   = (const unsigned char *)indices;
+				part.m_triangleIndexStride = sizeof(u16)*3;
+				part.m_numTriangles        = num_indices/3;
+				part.m_indexType           = PHY_SHORT;
+
+				vertex_array = CE_NEW(*_allocator, btTriangleIndexVertexArray)();
+				vertex_array->addIndexedMesh(part, PHY_SHORT);
+
+				const btVector3 aabb_min(-1000.0f, -1000.0f, -1000.0f);
+				const btVector3 aabb_max(1000.0f, 1000.0f, 1000.0f);
+				child_shape = CE_NEW(*_allocator, btBvhTriangleMeshShape)(vertex_array, false, aabb_min, aabb_max);
+				break;
+			}
+
+			case ColliderType::HEIGHTFIELD:
+				CE_FATAL("Not implemented");
+				break;
+
+			default:
+				CE_FATAL("Unknown shape type");
+				break;
+			}
+
+			child_shape->setLocalScaling(to_btVector3(scale(tm)));
+
+			const u32 last = array::size(_collider);
+
+			ColliderInstanceData cid;
+			cid.unit         = unit;
+			cid.local_tm     = cd->local_tm;
+			cid.vertex_array = vertex_array;
+			cid.shape        = child_shape;
+			cid.next.i       = UINT32_MAX;
+
+			ColliderInstance ci = collider_first(unit);
+			while (is_valid(ci) && is_valid(collider_next(ci)))
+				ci = collider_next(ci);
+
+			if (is_valid(ci))
+				_collider[ci.i].next.i = last;
+			else
+				hash_map::set(_collider_map, unit, last);
+
+			array::push_back(_collider, cid);
+
+			cd = (ColliderDesc *)((char *)(cd + 1) + cd->size);
 		}
-
-		case ColliderType::MESH: {
-			const char *data      = (char *)&sd[1];
-			const u32 num_points  = *(u32 *)data;
-			const char *points    = data + sizeof(u32);
-			const u32 num_indices = *(u32 *)(points + num_points*sizeof(Vector3));
-			const char *indices   = points + sizeof(u32) + num_points*sizeof(Vector3);
-
-			btIndexedMesh part;
-			part.m_vertexBase          = (const unsigned char *)points;
-			part.m_vertexStride        = sizeof(Vector3);
-			part.m_numVertices         = num_points;
-			part.m_triangleIndexBase   = (const unsigned char *)indices;
-			part.m_triangleIndexStride = sizeof(u16)*3;
-			part.m_numTriangles        = num_indices/3;
-			part.m_indexType           = PHY_SHORT;
-
-			vertex_array = CE_NEW(*_allocator, btTriangleIndexVertexArray)();
-			vertex_array->addIndexedMesh(part, PHY_SHORT);
-
-			const btVector3 aabb_min(-1000.0f, -1000.0f, -1000.0f);
-			const btVector3 aabb_max(1000.0f, 1000.0f, 1000.0f);
-			child_shape = CE_NEW(*_allocator, btBvhTriangleMeshShape)(vertex_array, false, aabb_min, aabb_max);
-			break;
-		}
-
-		case ColliderType::HEIGHTFIELD:
-			CE_FATAL("Not implemented");
-			break;
-
-		default:
-			CE_FATAL("Unknown shape type");
-			break;
-		}
-
-		child_shape->setLocalScaling(to_btVector3(scale));
-
-		const u32 last = array::size(_collider);
-
-		ColliderInstanceData cid;
-		cid.unit         = unit;
-		cid.local_tm     = sd->local_tm;
-		cid.vertex_array = vertex_array;
-		cid.shape        = child_shape;
-		cid.next.i       = UINT32_MAX;
-
-		ColliderInstance ci = collider_first(unit);
-		while (is_valid(ci) && is_valid(collider_next(ci)))
-			ci = collider_next(ci);
-
-		if (is_valid(ci))
-			_collider[ci.i].next.i = last;
-		else
-			hash_map::set(_collider_map, unit, last);
-
-		array::push_back(_collider, cid);
-		return make_collider_instance(last);
 	}
 
 	void collider_destroy(ColliderInstance collider)
@@ -1808,12 +1820,12 @@ struct PhysicsWorldImpl
 	}
 };
 
-PhysicsWorld::PhysicsWorld(Allocator &a, ResourceManager &rm, UnitManager &um, DebugLine &dl)
+PhysicsWorld::PhysicsWorld(Allocator &a, ResourceManager &rm, UnitManager &um, SceneGraph &sg, DebugLine &dl)
 	: _marker(PHYSICS_WORLD_MARKER)
 	, _allocator(&a)
 	, _impl(NULL)
 {
-	_impl = CE_NEW(*_allocator, PhysicsWorldImpl)(a, rm, um, dl);
+	_impl = CE_NEW(*_allocator, PhysicsWorldImpl)(a, rm, um, sg, dl);
 }
 
 PhysicsWorld::~PhysicsWorld()
@@ -1822,9 +1834,9 @@ PhysicsWorld::~PhysicsWorld()
 	_marker = 0;
 }
 
-ColliderInstance PhysicsWorld::collider_create(UnitId unit, const ColliderDesc *sd, const Vector3 &scl)
+void PhysicsWorld::collider_create_instances(const void *components_data, u32 num, const UnitId *unit_lookup, const u32 *unit_index)
 {
-	return _impl->collider_create(unit, sd, scl);
+	_impl->collider_create_instances(components_data, num, unit_lookup, unit_index);
 }
 
 void PhysicsWorld::collider_destroy(ColliderInstance collider)
