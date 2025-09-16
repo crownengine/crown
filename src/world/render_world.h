@@ -117,7 +117,7 @@ struct RenderWorld
 	f32 sprite_cast_ray(SpriteInstance sprite, const Vector3 &from, const Vector3 &dir, u32 &layer, u32 &depth);
 
 	/// Creates a new light instance.
-	LightInstance light_create(UnitId unit, const LightDesc &ld, const Matrix4x4 &tr);
+	LightInstance light_create(UnitId unit, const LightDesc &ld);
 
 	/// Destroys the @a light.
 	void light_destroy(LightInstance light);
@@ -485,6 +485,7 @@ struct RenderWorld
 		};
 
 		Allocator *_allocator;
+		RenderWorld *_render_world;
 		HashMap<UnitId, u32> _map;
 		LightInstanceData _data;
 		Array<ShaderData> _lights_data; // Shader array to send to GPU.
@@ -494,8 +495,9 @@ struct RenderWorld
 		Array<u32> _local_lights_spot;  // Indices to omni lights that will be rendered this frame.
 
 		///
-		explicit LightManager(Allocator &a)
+		explicit LightManager(Allocator &a, RenderWorld *rw)
 			: _allocator(&a)
+			, _render_world(rw)
 			, _map(a)
 			, _lights_data(a)
 			, _directional_lights(a)
@@ -507,7 +509,11 @@ struct RenderWorld
 		}
 
 		///
-		LightInstance create(UnitId unit, const LightDesc &ld, const Matrix4x4 &tr);
+		void create_instances(const void *components_data
+			, u32 num
+			, const UnitId *unit_lookup
+			, const u32 *unit_index
+			);
 
 		///
 		void destroy(LightInstance light);

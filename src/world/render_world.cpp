@@ -55,7 +55,7 @@ RenderWorld::RenderWorld(Allocator &a
 	, _debug_drawing(false)
 	, _mesh_manager(a, this)
 	, _sprite_manager(a, this)
-	, _light_manager(a)
+	, _light_manager(a, this)
 	, _selection(a)
 	, _fog_unit(UNIT_INVALID)
 	, _global_lighting_unit(UNIT_INVALID)
@@ -311,9 +311,11 @@ f32 RenderWorld::sprite_cast_ray(SpriteInstance sprite, const Vector3 &from, con
 		);
 }
 
-LightInstance RenderWorld::light_create(UnitId unit, const LightDesc &ld, const Matrix4x4 &tr)
+LightInstance RenderWorld::light_create(UnitId unit, const LightDesc &ld)
 {
-	return _light_manager.create(unit, ld, tr);
+	u32 unit_index = 0;
+	_light_manager.create_instances(&ld, 1, &unit, &unit_index);
+	return light_instance(unit);
 }
 
 void RenderWorld::light_destroy(LightInstance light)
@@ -1675,37 +1677,49 @@ void RenderWorld::LightManager::grow()
 	allocate(_data.capacity * 2 + 1);
 }
 
-LightInstance RenderWorld::LightManager::create(UnitId unit, const LightDesc &ld, const Matrix4x4 &tr)
+void RenderWorld::LightManager::create_instances(const void *components_data
+	, u32 num
+	, const UnitId *unit_lookup
+	, const u32 *unit_index
+	)
 {
-	CE_ASSERT(!hash_map::has(_map, unit), "Unit already has a light component");
+	const LightDesc *lights = (LightDesc *)components_data;
 
-	if (_data.size == _data.capacity)
-		grow();
+	for (u32 i = 0; i < num; ++i) {
+		UnitId unit = unit_lookup[unit_index[i]];
+		CE_ASSERT(!hash_map::has(_map, unit), "Unit already has a mesh component");
 
-	const u32 last = _data.size;
+		TransformInstance ti = _render_world->_scene_graph->instance(unit);
+		CE_ASSERT(is_valid(ti), "Light Component requires a Transform Component");
 
-	Vector3 dir = -z(tr);
-	normalize(dir);
+		if (_data.size == _data.capacity)
+			grow();
 
-	_data.unit[last]               = unit;
-	_data.flag[last]               = ld.flags;
-	_data.type[last]               = ld.type;
-	_data.shader[last].color       = ld.color;
-	_data.shader[last].intensity   = ld.intensity;
-	_data.shader[last].position    = translation(tr);
-	_data.shader[last].range       = ld.range;
-	_data.shader[last].direction   = dir;
-	_data.shader[last].spot_angle  = ld.spot_angle;
-	_data.shader[last].shadow_bias = ld.shadow_bias;
-	_data.shader[last].atlas_u     = 0.0f;
-	_data.shader[last].atlas_v     = 0.0f;
-	_data.shader[last].map_size    = 0.0f;
-	_data.shader[last].mvp         = MATRIX4X4_IDENTITY;
+		Matrix4x4 tm = _render_world->_scene_graph->world_pose(ti);
+		Vector3 dir = -z(tm);
+		normalize(dir);
 
-	++_data.size;
+		const u32 last = _data.size;
 
-	hash_map::set(_map, unit, last);
-	return make_instance(last);
+		_data.unit[last]               = unit;
+		_data.flag[last]               = lights[i].flags;
+		_data.type[last]               = lights[i].type;
+		_data.shader[last].color       = lights[i].color;
+		_data.shader[last].intensity   = lights[i].intensity;
+		_data.shader[last].position    = translation(tm);
+		_data.shader[last].range       = lights[i].range;
+		_data.shader[last].direction   = dir;
+		_data.shader[last].spot_angle  = lights[i].spot_angle;
+		_data.shader[last].shadow_bias = lights[i].shadow_bias;
+		_data.shader[last].atlas_u     = 0.0f;
+		_data.shader[last].atlas_v     = 0.0f;
+		_data.shader[last].map_size    = 0.0f;
+		_data.shader[last].mvp         = MATRIX4X4_IDENTITY;
+
+		++_data.size;
+
+		hash_map::set(_map, unit, last);
+	}
 }
 
 void RenderWorld::LightManager::destroy(LightInstance light)

@@ -78,12 +78,7 @@ static void create_components(World &w
 		} else if (component->type == STRING_ID_32("sprite_renderer", UINT32_C(0x6a1c2a3b))) {
 			render_world->_sprite_manager.create_instances(data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("light", UINT32_C(0xbb9f08c2))) {
-			const LightDesc *ld = (LightDesc *)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++ld) {
-				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
-				Matrix4x4 tm = scene_graph->world_pose(ti);
-				render_world->light_create(unit_lookup[unit_index[i]], *ld, tm);
-			}
+			render_world->_light_manager.create_instances(data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("fog", UINT32_C(0xf007ef0d))) {
 			const FogDesc *fd = (FogDesc *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++fd) {
