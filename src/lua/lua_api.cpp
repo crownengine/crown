@@ -2255,7 +2255,7 @@ void load_api(LuaEnvironment &env)
 	env.add_module_function("RenderWorld", "global_lighting_create", [](lua_State *L) {
 			LuaStack stack(L);
 			GlobalLightingDesc desc;
-			stack.push_id(stack.get_render_world(1)->global_lighting_create(stack.get_unit(2), desc));
+			stack.push_id(stack.get_render_world(1)->global_lighting_create(stack.get_unit(2), desc).i);
 			return 1;
 		});
 	env.add_module_function("RenderWorld", "global_lighting_destroy", [](lua_State *L) {
