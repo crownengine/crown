@@ -51,8 +51,12 @@ struct PhysicsWorld
 	///
 	ColliderInstance collider_next(ColliderInstance collider);
 
-	/// Creates a new actor instance for the @a unit.
-	ActorInstance actor_create(UnitId unit, const ActorResource *ar, const Matrix4x4 &tm);
+	///
+	void actor_create_instances(const void *components_data
+		, u32 num
+		, const UnitId *unit_lookup
+		, const u32 *unit_index
+		);
 
 	/// Destroys the @a actor.
 	void actor_destroy(ActorInstance actor);

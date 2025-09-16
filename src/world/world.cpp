@@ -70,12 +70,7 @@ static void create_components(World &w
 		} else if (component->type == STRING_ID_32("collider", UINT32_C(0x2129d74e))) {
 			physics_world->collider_create_instances(data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("actor", UINT32_C(0x374cf583))) {
-			const ActorResource *ar = (ActorResource *)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++ar) {
-				TransformInstance ti = scene_graph->instance(unit_lookup[unit_index[i]]);
-				Matrix4x4 tm = scene_graph->world_pose(ti);
-				physics_world->actor_create(unit_lookup[unit_index[i]], ar, from_quaternion_translation(rotation(tm), translation(tm)));
-			}
+			physics_world->actor_create_instances(data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("mover", UINT32_C(0xac07d371))) {
 			const MoverDesc *md = (MoverDesc *)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++md) {

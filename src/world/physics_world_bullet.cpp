@@ -1016,94 +1016,102 @@ struct PhysicsWorldImpl
 		return prev;
 	}
 
-	ActorInstance actor_create(UnitId unit, const ActorResource *ar, const Matrix4x4 &tm)
+	void actor_create_instances(const void *components_data, u32 num, const UnitId *unit_lookup, const u32 *unit_index)
 	{
-		CE_ASSERT(!hash_map::has(_actor_map, unit), "Unit already has an actor component");
-
-		const PhysicsActor *actors = physics_config_resource::actors_array(_config_resource);
+		const PhysicsActor *actor_classes = physics_config_resource::actors_array(_config_resource);
 		const PhysicsMaterial *materials = physics_config_resource::materials_array(_config_resource);
 		const PhysicsCollisionFilter *filters = physics_config_resource::filters_array(_config_resource);
-		u32 actor_i = physics_config_resource::actor_index(actors, _config_resource->num_actors, ar->actor_class);
-		u32 material_i = physics_config_resource::material_index(materials, _config_resource->num_materials, ar->material);
-		u32 filter_i = physics_config_resource::filter_index(filters, _config_resource->num_filters, ar->collision_filter);
 
-		const PhysicsActor *actor_class = &actors[actor_i];
-		const PhysicsMaterial *material = &materials[material_i];
-		const PhysicsCollisionFilter *filter = &filters[filter_i];
+		const ActorResource *actors = (ActorResource *)components_data;
 
-		const bool is_kinematic = (actor_class->flags & CROWN_PHYSICS_ACTOR_KINEMATIC) != 0;
-		const bool is_dynamic   = (actor_class->flags & CROWN_PHYSICS_ACTOR_DYNAMIC) != 0;
-		const bool is_static    = !is_kinematic && !is_dynamic;
-		const bool is_trigger   = (actor_class->flags & CROWN_PHYSICS_ACTOR_TRIGGER) != 0;
+		for (u32 i = 0; i < num; ++i) {
+			UnitId unit = unit_lookup[unit_index[i]];
+			CE_ASSERT(!hash_map::has(_actor_map, unit), "Unit already has an actor component");
 
-		const f32 mass = is_dynamic ? ar->mass : 0.0f;
+			TransformInstance ti = _scene_graph->instance(unit);
+			Matrix4x4 tm = _scene_graph->world_pose(ti);
+			Matrix4x4 tm_noscale = from_quaternion_translation(rotation(tm), translation(tm));
 
-		// Create compound shape
-		btCompoundShape *shape = CE_NEW(*_allocator, btCompoundShape)(true);
-		ColliderInstance ci = collider_first(unit);
-		while (is_valid(ci)) {
-			shape->addChildShape(to_btTransform(_collider[ci.i].local_tm), _collider[ci.i].shape);
-			ci = collider_next(ci);
+			u32 actor_i = physics_config_resource::actor_index(actor_classes, _config_resource->num_actors, actors[i].actor_class);
+			u32 material_i = physics_config_resource::material_index(materials, _config_resource->num_materials, actors[i].material);
+			u32 filter_i = physics_config_resource::filter_index(filters, _config_resource->num_filters, actors[i].collision_filter);
+
+			const PhysicsActor *actor_class = &actor_classes[actor_i];
+			const PhysicsMaterial *material = &materials[material_i];
+			const PhysicsCollisionFilter *filter = &filters[filter_i];
+
+			const bool is_kinematic = (actor_class->flags & CROWN_PHYSICS_ACTOR_KINEMATIC) != 0;
+			const bool is_dynamic   = (actor_class->flags & CROWN_PHYSICS_ACTOR_DYNAMIC) != 0;
+			const bool is_static    = !is_kinematic && !is_dynamic;
+			const bool is_trigger   = (actor_class->flags & CROWN_PHYSICS_ACTOR_TRIGGER) != 0;
+
+			const f32 mass = is_dynamic ? actors[i].mass : 0.0f;
+
+			// Create compound shape
+			btCompoundShape *shape = CE_NEW(*_allocator, btCompoundShape)(true);
+			ColliderInstance ci = collider_first(unit);
+			while (is_valid(ci)) {
+				shape->addChildShape(to_btTransform(_collider[ci.i].local_tm), _collider[ci.i].shape);
+				ci = collider_next(ci);
+			}
+
+			// Create motion state
+			const btTransform tr = to_btTransform(tm_noscale);
+			btDefaultMotionState *ms = is_static
+				? NULL
+				: CE_NEW(*_allocator, btDefaultMotionState)(tr)
+				;
+
+			// If dynamic, calculate inertia
+			btVector3 inertia;
+			if (mass != 0.0f) // Actor is dynamic iff mass != 0
+				shape->calculateLocalInertia(mass, inertia);
+
+			btRigidBody::btRigidBodyConstructionInfo rbinfo(mass, ms, shape, inertia);
+			rbinfo.m_startWorldTransform      = tr;
+			rbinfo.m_linearDamping            = actor_class->linear_damping;
+			rbinfo.m_angularDamping           = actor_class->angular_damping;
+			rbinfo.m_restitution              = material->restitution;
+			rbinfo.m_friction                 = material->friction;
+			rbinfo.m_rollingFriction          = material->rolling_friction;
+			rbinfo.m_spinningFriction         = material->spinning_friction;
+			rbinfo.m_linearSleepingThreshold  = 0.5f; // FIXME
+			rbinfo.m_angularSleepingThreshold = 0.7f; // FIXME
+
+			// Create rigid body
+			btRigidBody *body = CE_NEW(*_allocator, btRigidBody)(rbinfo);
+
+			int cflags = body->m_collisionFlags;
+			cflags |= is_kinematic ? btCollisionObject::CF_KINEMATIC_OBJECT    : 0;
+			cflags |= is_static    ? btCollisionObject::CF_STATIC_OBJECT       : 0;
+			cflags |= is_trigger   ? btCollisionObject::CF_NO_CONTACT_RESPONSE : 0;
+			body->m_collisionFlags = (cflags);
+			if (is_kinematic)
+				body->setActivationState(DISABLE_DEACTIVATION);
+
+			body->setLinearFactor(btVector3((actors[i].flags & ActorFlags::LOCK_TRANSLATION_X) ? 0.0f : 1.0f
+				, (actors[i].flags & ActorFlags::LOCK_TRANSLATION_Y) ? 0.0f : 1.0f
+				, (actors[i].flags & ActorFlags::LOCK_TRANSLATION_Z) ? 0.0f : 1.0f
+				));
+
+			body->setAngularFactor(btVector3((actors[i].flags & ActorFlags::LOCK_ROTATION_X) ? 0.0f : 1.0f
+				, (actors[i].flags & ActorFlags::LOCK_ROTATION_Y) ? 0.0f : 1.0f
+				, (actors[i].flags & ActorFlags::LOCK_ROTATION_Z) ? 0.0f : 1.0f
+				));
+
+			const u32 last = array::size(_actor);
+			body->m_userObjectPointer = ((void *)(uintptr_t)last);
+
+			_dynamics_world->addRigidBody(body, filter->me, filter->mask);
+
+			ActorInstanceData aid;
+			aid.unit = unit;
+			aid.body = body;
+			aid.resource = &actors[i];
+
+			array::push_back(_actor, aid);
+			hash_map::set(_actor_map, unit, last);
 		}
-
-		// Create motion state
-		const btTransform tr = to_btTransform(tm);
-		btDefaultMotionState *ms = is_static
-			? NULL
-			: CE_NEW(*_allocator, btDefaultMotionState)(tr)
-			;
-
-		// If dynamic, calculate inertia
-		btVector3 inertia;
-		if (mass != 0.0f) // Actor is dynamic iff mass != 0
-			shape->calculateLocalInertia(mass, inertia);
-
-		btRigidBody::btRigidBodyConstructionInfo rbinfo(mass, ms, shape, inertia);
-		rbinfo.m_startWorldTransform      = tr;
-		rbinfo.m_linearDamping            = actor_class->linear_damping;
-		rbinfo.m_angularDamping           = actor_class->angular_damping;
-		rbinfo.m_restitution              = material->restitution;
-		rbinfo.m_friction                 = material->friction;
-		rbinfo.m_rollingFriction          = material->rolling_friction;
-		rbinfo.m_spinningFriction         = material->spinning_friction;
-		rbinfo.m_linearSleepingThreshold  = 0.5f; // FIXME
-		rbinfo.m_angularSleepingThreshold = 0.7f; // FIXME
-
-		// Create rigid body
-		btRigidBody *body = CE_NEW(*_allocator, btRigidBody)(rbinfo);
-
-		int cflags = body->m_collisionFlags;
-		cflags |= is_kinematic ? btCollisionObject::CF_KINEMATIC_OBJECT    : 0;
-		cflags |= is_static    ? btCollisionObject::CF_STATIC_OBJECT       : 0;
-		cflags |= is_trigger   ? btCollisionObject::CF_NO_CONTACT_RESPONSE : 0;
-		body->m_collisionFlags = (cflags);
-		if (is_kinematic)
-			body->setActivationState(DISABLE_DEACTIVATION);
-
-		body->setLinearFactor(btVector3((ar->flags & ActorFlags::LOCK_TRANSLATION_X) ? 0.0f : 1.0f
-			, (ar->flags & ActorFlags::LOCK_TRANSLATION_Y) ? 0.0f : 1.0f
-			, (ar->flags & ActorFlags::LOCK_TRANSLATION_Z) ? 0.0f : 1.0f
-			));
-
-		body->setAngularFactor(btVector3((ar->flags & ActorFlags::LOCK_ROTATION_X) ? 0.0f : 1.0f
-			, (ar->flags & ActorFlags::LOCK_ROTATION_Y) ? 0.0f : 1.0f
-			, (ar->flags & ActorFlags::LOCK_ROTATION_Z) ? 0.0f : 1.0f
-			));
-
-		const u32 last = array::size(_actor);
-		body->m_userObjectPointer = ((void *)(uintptr_t)last);
-
-		_dynamics_world->addRigidBody(body, filter->me, filter->mask);
-
-		ActorInstanceData aid;
-		aid.unit = unit;
-		aid.body = body;
-		aid.resource = ar;
-
-		array::push_back(_actor, aid);
-		hash_map::set(_actor_map, unit, last);
-
-		return make_actor_instance(last);
 	}
 
 	void actor_destroy(ActorInstance actor)
@@ -1854,9 +1862,9 @@ ColliderInstance PhysicsWorld::collider_next(ColliderInstance collider)
 	return _impl->collider_next(collider);
 }
 
-ActorInstance PhysicsWorld::actor_create(UnitId unit, const ActorResource *ar, const Matrix4x4 &tm)
+void PhysicsWorld::actor_create_instances(const void *components_data, u32 num, const UnitId *unit_lookup, const u32 *unit_index)
 {
-	return _impl->actor_create(unit, ar, tm);
+	_impl->actor_create_instances(components_data, num, unit_lookup, unit_index);
 }
 
 void PhysicsWorld::actor_destroy(ActorInstance actor)
