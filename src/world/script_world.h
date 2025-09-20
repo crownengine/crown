@@ -126,6 +126,12 @@ namespace script_world
 		, u32 num_args = 0
 		);
 
+	///
+	void spawned(ScriptWorld &sw, const UnitId *units, u32 num);
+
+	///
+	void unspawned(ScriptWorld &sw, const UnitId *units, u32 num);
+
 } // namespace script_world
 
 } // namespace crown

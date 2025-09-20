@@ -12,6 +12,7 @@
 #include "resource/resource_manager.h"
 #include "world/script_world.h"
 #include "world/unit_manager.h"
+#include <algorithm> // std::sort
 
 namespace crown
 {
@@ -80,23 +81,6 @@ namespace script_world
 			u32 instance_i = array::size(sw._data);
 			array::push_back(sw._data, data);
 			hash_map::set(sw._map, unit, instance_i);
-
-			if (!sw._disable_callbacks) {
-				LuaStack stack(sw._lua_environment->L);
-				lua_rawgeti(stack.L, LUA_REGISTRYINDEX, sd.module_ref);
-				lua_getfield(stack.L, -1, "spawned");
-				stack.push_world(sw._world);
-				stack.push_table(1);
-				stack.push_key_begin(1);
-				stack.push_unit(unit);
-				stack.push_key_end();
-				int status = sw._lua_environment->call(2, 0);
-				if (status != LUA_OK) {
-					report(stack.L, status);
-					device()->pause();
-				}
-				stack.pop(1);
-			}
 		}
 	}
 
@@ -113,22 +97,6 @@ namespace script_world
 		const UnitId unit = sw._data[inst.i].unit;
 		const UnitId last = sw._data[last_i].unit;
 
-		if (!sw._disable_callbacks) {
-			LuaStack stack(sw._lua_environment->L);
-			lua_rawgeti(stack.L, LUA_REGISTRYINDEX, sw._script[sw._data[inst.i].script_i].module_ref);
-			lua_getfield(stack.L, -1, "unspawned");
-			stack.push_world(sw._world);
-			stack.push_table(1);
-			stack.push_key_begin(1);
-			stack.push_unit(unit);
-			stack.push_key_end();
-			int status = sw._lua_environment->call(2, 0);
-			if (status != LUA_OK) {
-				report(stack.L, status);
-				device()->pause();
-			}
-			stack.pop(1);
-		}
 		sw._data[inst.i] = sw._data[last_i];
 		array::pop_back(sw._data);
 
@@ -266,6 +234,79 @@ namespace script_world
 			device()->pause();
 		}
 		stack.pop(1);
+	}
+
+	void units_with_script(ScriptWorld &sw, Array<Index> &index, const UnitId *units, u32 num)
+	{
+		for (u32 i = 0; i < num; ++i) {
+			const u32 unit_i = hash_map::get(sw._map, units[i], UINT32_MAX);
+
+			if (unit_i == UINT32_MAX)
+				continue;
+
+			array::push_back(index, { sw._script[sw._data[unit_i].script_i].module_ref, i });
+		}
+	}
+
+	void multicast_group(ScriptWorld &sw
+		, const char *function_name
+		, const UnitId *units
+		, u32 num
+		, const ArgType::Enum *arg_types
+		, const Arg *args
+		, u32 num_args
+		)
+	{
+		Array<Index> index(default_allocator());
+
+		units_with_script(sw, index, units, num);
+
+		// Sort index by module to call spawned in groups.
+		std::sort(array::begin(index)
+			, array::end(index)
+			, [](const Index &a, const Index &b) {
+				return a.module_ref < b.module_ref;
+			});
+
+		// Call function_name for each group of units sharing the same script.
+		for (u32 i = 0, j; i < array::size(index); i = j) {
+			for (j = i; j < array::size(index); ++j) {
+				if (index[j].module_ref != index[i].module_ref)
+					break;
+			}
+
+			script_world::multicast(sw
+				, function_name
+				, units
+				, array::begin(index) + i
+				, j - i
+				, arg_types
+				, args
+				, num_args
+				);
+		}
+	}
+
+	void spawned(ScriptWorld &sw, const UnitId *units, u32 num)
+	{
+		if (sw._disable_callbacks)
+			return;
+
+		ArgType::Enum arg_types = ArgType::POINTER;
+		Arg args;
+		args.pointer_value = (void *)sw._world;
+		script_world::multicast_group(sw, "spawned", units, num, &arg_types, &args, 1);
+	}
+
+	void unspawned(ScriptWorld &sw, const UnitId *units, u32 num)
+	{
+		if (sw._disable_callbacks)
+			return;
+
+		ArgType::Enum arg_types = ArgType::POINTER;
+		Arg args;
+		args.pointer_value = (void *)sw._world;
+		script_world::multicast_group(sw, "unspawned", units, num, &arg_types, &args, 1);
 	}
 
 } // namespace script_world

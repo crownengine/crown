@@ -7,7 +7,7 @@ Tree = Tree or {
 
 local data = Tree.data
 
-function Tree.spawned(world, units)
+function Tree.spawned(units, world)
 	if data[world] == nil then
 		data[world] = {}
 	end
@@ -31,7 +31,7 @@ function Tree.spawned(world, units)
 	end
 end
 
-function Tree.unspawned(world, units)
+function Tree.unspawned(units, world)
 	-- Cleanup.
 	for uu = 1, #units do
 		if data[world][units] then

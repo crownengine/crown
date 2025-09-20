@@ -215,6 +215,7 @@ UnitId World::spawn_unit(const UnitResource *ur, u32 flags, const Vector3 &pos, 
 		array::push_back(_unit_resources, ur);
 #endif
 	post_unit_spawned_events(unit_lookup, ur->num_units);
+	script_world::spawned(*_script_world, unit_lookup, ur->num_units);
 
 	UnitId root_unit = unit_lookup[0];
 	default_scratch_allocator().deallocate(unit_lookup);
@@ -235,6 +236,7 @@ UnitId World::spawn_empty_unit()
 	array::push_back(_unit_resources, (const UnitResource *)NULL);
 #endif
 	post_unit_spawned_events(&unit, 1);
+	script_world::spawned(*_script_world, &unit, 1);
 	return unit;
 }
 
@@ -248,7 +250,10 @@ UnitId World::spawn_skydome(StringId64 skydome_name)
 
 void World::destroy_unit(UnitId unit)
 {
+	script_world::unspawned(*_script_world, &unit, 1);
+	post_unit_destroyed_event(unit);
 	_unit_manager->destroy(unit);
+
 	for (u32 i = 0, n = array::size(_units); i < n; ++i) {
 		if (_units[i] == unit) {
 			_units[i] = _units[n - 1];
@@ -260,7 +265,6 @@ void World::destroy_unit(UnitId unit)
 			break;
 		}
 	}
-	post_unit_destroyed_event(unit);
 }
 
 u32 World::num_units() const
@@ -702,13 +706,6 @@ Level *World::load_level(StringId64 name, u32 flags, const Vector3 &pos, const Q
 
 	create_components(*this, ur, level->_unit_lookup, flags, pos, rot, VECTOR3_ONE);
 
-	spawn_skydome(lr->skydome_unit);
-
-	for (u32 i = 0; i < lr->num_sounds; ++i) {
-		const LevelSound *ls = level_resource::get_sound(lr, i);
-		play_sound(ls->name, ls->loop, ls->volume, ls->position, ls->range, ls->group);
-	}
-
 	array::push(_units, level->_unit_lookup, ur->num_units);
 #if CROWN_CAN_RELOAD
 	for (u32 i = 0; i < ur->num_units; ++i)
@@ -716,6 +713,14 @@ Level *World::load_level(StringId64 name, u32 flags, const Vector3 &pos, const Q
 #endif
 
 	post_unit_spawned_events(level->_unit_lookup, ur->num_units);
+	script_world::spawned(*_script_world, level->_unit_lookup, ur->num_units);
+
+	spawn_skydome(lr->skydome_unit);
+
+	for (u32 i = 0; i < lr->num_sounds; ++i) {
+		const LevelSound *ls = level_resource::get_sound(lr, i);
+		play_sound(ls->name, ls->loop, ls->volume, ls->position, ls->range, ls->group);
+	}
 
 	list::add(level->_node, _levels);
 
@@ -725,6 +730,8 @@ Level *World::load_level(StringId64 name, u32 flags, const Vector3 &pos, const Q
 
 void World::destroy_level(Level &level)
 {
+	script_world::unspawned(*_script_world, level._unit_lookup, level._resource->num_units);
+
 	for (u32 i = 0; i < level._resource->num_units; ++i) {
 		const UnitId unit = level._unit_lookup[i];
 
