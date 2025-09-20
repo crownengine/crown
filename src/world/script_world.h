@@ -60,7 +60,7 @@ namespace script_world
 	ScriptInstance create(ScriptWorld &sw, UnitId unit, const ScriptDesc &desc);
 
 	/// Destroys the component for the @a unit.
-	void destroy(ScriptWorld &sw, UnitId unit, ScriptInstance i);
+	void destroy(ScriptWorld &sw, ScriptInstance i);
 
 	/// Returns the component id for the @a unit.
 	ScriptInstance instance(ScriptWorld &sw, UnitId unit);
