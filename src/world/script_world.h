@@ -71,6 +71,61 @@ namespace script_world
 	///
 	void collision(ScriptWorld &sw, const PhysicsCollisionEvent &ev);
 
+	struct Index
+	{
+		int module_ref;
+		u32 unit_index;
+	};
+
+	struct ArgType
+	{
+		enum Enum
+		{
+			NIL,
+			BOOL,
+			INT,
+			FLOAT,
+			STRING,
+			STRING_ID,
+			POINTER,
+			FUNCTION,
+			UNIT,
+			ID,
+			VECTOR3,
+			QUATERNION,
+			MATRIX4X4,
+
+			COUNT
+		};
+	};
+
+	union Arg
+	{
+		bool bool_value;
+		int int_value;
+		f32 float_value;
+		const char *string_value;
+		u32 string_id_value;
+		const void *pointer_value;
+		lua_CFunction cfunction_value;
+		UnitId unit_value;
+		u32 id_value;
+		Vector3 vector3_value;
+		Quaternion quaternion_value;
+		Matrix4x4 matrix4x4_value;
+	};
+
+	///
+	void multicast(ScriptWorld &sw
+		, const char *function_name
+		, const UnitId *units
+		, const Index *index
+		, u32 num_indices
+		, const ArgType::Enum *arg_types = NULL
+		, const Arg *args = NULL
+		, u32 num_args = 0
+		);
+
 } // namespace script_world
 
 } // namespace crown
