@@ -437,6 +437,7 @@ void World::camera_destroy(CameraInstance camera)
 	const UnitId last_u = _camera[last].unit;
 
 	_camera[camera.i] = _camera[last];
+	array::pop_back(_camera);
 
 	hash_map::set(_camera_map, last_u, camera.i);
 	hash_map::remove(_camera_map, u);
