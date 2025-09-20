@@ -703,6 +703,11 @@ Level *World::load_level(StringId64 name, u32 flags, const Vector3 &pos, const Q
 	}
 
 	array::push(_units, level->_unit_lookup, ur->num_units);
+#if CROWN_CAN_RELOAD
+	for (u32 i = 0; i < ur->num_units; ++i)
+		array::push_back(_unit_resources, ur);
+#endif
+
 	post_unit_spawned_events(level->_unit_lookup, ur->num_units);
 
 	list::add(level->_node, _levels);
