@@ -26,6 +26,7 @@ Changelog
 	- ``RenderWorld.light_create()``
 
 	The affected components will now read the initial pose from the unit's transform.
+* Lua: added ``World.destroy_level``.
 
 **Fixes**
 
