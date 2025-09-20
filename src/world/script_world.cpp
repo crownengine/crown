@@ -23,15 +23,16 @@ namespace script_world_internal
 		return inst;
 	}
 
-	static void unit_destroyed_callback(ScriptWorld &sw, UnitId unit, ScriptInstance i)
+	static void unit_destroyed_callback(ScriptWorld &sw, UnitId unit)
 	{
-		if (hash_map::has(sw._map, unit))
-			script_world::destroy(sw, unit, i);
+		ScriptInstance inst = script_world::instance(sw, unit);
+		if (is_valid(inst))
+			script_world::destroy(sw, inst);
 	}
 
 	static void unit_destroyed_callback_bridge(UnitId unit, void *user_ptr)
 	{
-		unit_destroyed_callback(*((ScriptWorld *)user_ptr), unit, make_instance(UINT32_MAX));
+		unit_destroyed_callback(*((ScriptWorld *)user_ptr), unit);
 	}
 } // script_world_internal
 
@@ -106,18 +107,15 @@ namespace script_world
 		return instance(sw, unit);
 	}
 
-	void destroy(ScriptWorld &sw, UnitId unit, ScriptInstance /*i*/)
+	void destroy(ScriptWorld &sw, ScriptInstance inst)
 	{
-		CE_ASSERT(hash_map::has(sw._map, unit), "Unit %u does not have script component", unit._idx);
-
-		const u32 unit_i    = hash_map::get(sw._map, unit, UINT32_MAX);
-		const u32 last_i    = array::size(sw._data) - 1;
-		const UnitId last_u = sw._data[last_i].unit;
-		const u32 script_i  = sw._data[unit_i].script_i;
+		const u32 last_i  = array::size(sw._data) - 1;
+		const UnitId unit = sw._data[inst.i].unit;
+		const UnitId last = sw._data[last_i].unit;
 
 		if (!sw._disable_callbacks) {
 			LuaStack stack(sw._lua_environment->L);
-			lua_rawgeti(stack.L, LUA_REGISTRYINDEX, sw._script[script_i].module_ref);
+			lua_rawgeti(stack.L, LUA_REGISTRYINDEX, sw._script[sw._data[inst.i].script_i].module_ref);
 			lua_getfield(stack.L, -1, "unspawned");
 			stack.push_world(sw._world);
 			stack.push_table(1);
@@ -131,11 +129,11 @@ namespace script_world
 			}
 			stack.pop(1);
 		}
-
-		sw._data[unit_i] = sw._data[last_i];
-		hash_map::set(sw._map, last_u, unit_i);
-		hash_map::remove(sw._map, unit);
+		sw._data[inst.i] = sw._data[last_i];
 		array::pop_back(sw._data);
+
+		hash_map::set(sw._map, last, inst.i);
+		hash_map::remove(sw._map, unit);
 	}
 
 	ScriptInstance instance(ScriptWorld &sw, UnitId unit)
