@@ -176,6 +176,13 @@ World::~World()
 		level::destroy(*_allocator, level);
 	}
 
+	// Destroy GUIs.
+	list_for_each_safe(cur, tmp, &_guis)
+	{
+		Gui *gui = (Gui *)container_of(cur, Gui, _node);
+		destroy_gui(*gui);
+	}
+
 	// Destroy units
 	for (u32 i = 0; i < array::size(_units); ++i)
 		_unit_manager->destroy(_units[i]);
