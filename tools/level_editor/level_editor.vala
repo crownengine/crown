@@ -1512,6 +1512,8 @@ public class LevelEditorApplication : Gtk.Application
 		if ((info.flags & ObjectTypeFlags.UNIT_COMPONENT) != 0) {
 			Unit.register_component_type(info.name, info.user_data != null ? info.user_data : "");
 			_properties_view.register_object_type(info.name, null, UnitView.component_menu);
+		} else if (info.name != OBJECT_TYPE_UNIT) { // FIXME
+				_properties_view.register_object_type(info.name, null, null);
 		}
 	}
 

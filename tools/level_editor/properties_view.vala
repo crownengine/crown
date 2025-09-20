@@ -222,6 +222,9 @@ public class PropertiesView : Gtk.Box
 				cv._visible = false;
 			}
 		}
+
+		_object_view._list_box.invalidate_filter();
+		_object_view._list_box.invalidate_sort();
 	}
 
 	public void show_or_hide_properties()
