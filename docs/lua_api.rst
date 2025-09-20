@@ -1607,3 +1607,7 @@ Level
 
 **load_level** (world, name, [pos, rot]) : Level
 	Loads the level *name* into the world at the given *position* and *rotation*.
+
+**destroy_level** (world, level)
+	Destroys a level previously loaded by load_level(). Only units directly
+	spawned by the level are unspawned.

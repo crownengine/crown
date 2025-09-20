@@ -167,13 +167,13 @@ World::~World()
 {
 	_unit_manager->unregister_destroy_callback(&_unit_destroy_callback);
 
-	// Destroy loaded levels
+	// Destroy loaded levels.
 	ListNode *cur;
 	ListNode *tmp;
 	list_for_each_safe(cur, tmp, &_levels)
 	{
 		Level *level = (Level *)container_of(cur, Level, _node);
-		level::destroy(*_allocator, level);
+		destroy_level(*level);
 	}
 
 	// Destroy GUIs.
@@ -721,6 +721,33 @@ Level *World::load_level(StringId64 name, u32 flags, const Vector3 &pos, const Q
 
 	post_level_loaded_event();
 	return level;
+}
+
+void World::destroy_level(Level &level)
+{
+	for (u32 i = 0; i < level._resource->num_units; ++i) {
+		const UnitId unit = level._unit_lookup[i];
+
+		post_unit_destroyed_event(unit);
+		_unit_manager->destroy(unit);
+
+		// Remove unit from world list.
+		for (u32 j = 0, n = array::size(_units); j < n; ++j) {
+			CE_ENSURE(array::size(_units) == array::size(_unit_resources));
+			if (_units[j] == unit) {
+				_units[j] = _units[n - 1];
+				array::pop_back(_units);
+#if CROWN_CAN_RELOAD
+				_unit_resources[j] = _unit_resources[n - 1];
+				array::pop_back(_unit_resources);
+#endif
+				break;
+			}
+		}
+	}
+
+	list::remove(level._node);
+	level::destroy(*_allocator, &level);
 }
 
 void World::post_unit_spawned_events(UnitId *units, u32 num_units)

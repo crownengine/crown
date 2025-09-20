@@ -240,6 +240,9 @@ struct World
 		, const Quaternion &rot = QUATERNION_IDENTITY
 		);
 
+	/// Destroys a @a level previously loaded by load_level().
+	void destroy_level(Level &level);
+
 	///
 	void post_unit_spawned_events(UnitId *units, u32 num);
 
