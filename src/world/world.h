@@ -196,7 +196,7 @@ struct World
 	void render(const Matrix4x4 &view, const Matrix4x4 &proj, const Matrix4x4 &persp);
 
 	/// @copydoc SoundWorld::play().
-	SoundInstanceId play_sound(StringId64 name, const bool loop, const f32 volume, const Vector3 &pos, const f32 range, StringId32 group);
+	SoundInstanceId play_sound(StringId64 name, const bool loop, const f32 volume, const f32 range, u32 flags, const Vector3 &pos, StringId32 group);
 
 	/// @copydoc SoundWorld::stop().
 	void stop_sound(SoundInstanceId id);

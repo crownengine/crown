@@ -33,7 +33,14 @@ struct SoundWorld
 	/// Plays the sound with the given @a name at the given @a position, with the given
 	/// @a volume and @a range. @a loop controls whether the sound must loop or not.
 	/// @a group identifies the sound's group, see SoundWorld::set_group_volume().
-	SoundInstanceId play(StringId64 name, bool loop, f32 volume, f32 range, const Vector3 &pos, StringId32 group);
+	SoundInstanceId play(StringId64 name
+		, bool loop
+		, f32 volume
+		, f32 range
+		, u32 flags = PlaySoundFlags::NONE
+		, const Vector3 &pos = VECTOR3_ZERO
+		, StringId32 group = StringId32(0u)
+		);
 
 	///
 	SoundWorld(const SoundWorld &) = delete;

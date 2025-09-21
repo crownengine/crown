@@ -1631,9 +1631,18 @@ void load_api(LuaEnvironment &env)
 			const StringId64 name  = stack.get_resource_name(2);
 			const bool loop        = nargs > 2 ? stack.get_bool(3)    : false;
 			const f32 volume       = nargs > 3 ? stack.get_float(4)   : 1.0f;
-			const Vector3 &pos     = nargs > 4 ? stack.get_vector3(5) : VECTOR3_ZERO;
-			const f32 range        = nargs > 5 ? stack.get_float(6)   : 1000.0f;
-			const StringId32 group = nargs > 6 ? stack.get_string_id_32(7) : StringId32(0u);
+			const f32 range        = nargs > 4 ? stack.get_float(5)   : 70.0f;
+
+			u32 flags = PlaySoundFlags::NONE;
+			Vector3 pos = VECTOR3_ZERO;
+			StringId32 group = StringId32(0u);
+
+			if (nargs > 5 && !stack.is_nil(6)) {
+				flags |= PlaySoundFlags::ENABLE_ATTENUATION;
+				pos = stack.get_vector3(6);
+			}
+			if (nargs > 6 && !stack.is_nil(7))
+				group = stack.get_string_id_32(7);
 
 			char name_str[RESOURCE_ID_BUF_LEN];
 			LUA_ASSERT(device()->_resource_manager->can_get(RESOURCE_TYPE_SOUND, name)
@@ -1643,7 +1652,7 @@ void load_api(LuaEnvironment &env)
 				);
 			CE_UNUSED(name_str);
 
-			stack.push_sound_instance_id(world->play_sound(name, loop, volume, pos, range, group));
+			stack.push_sound_instance_id(world->play_sound(name, loop, volume, range, flags, pos, group));
 			return 1;
 		});
 	env.add_module_function("World", "stop_sound", [](lua_State *L) {

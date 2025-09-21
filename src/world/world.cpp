@@ -614,9 +614,9 @@ Vector3 World::camera_world_to_screen(CameraInstance camera, const Vector3 &pos)
 	return screen;
 }
 
-SoundInstanceId World::play_sound(StringId64 name, const bool loop, const f32 volume, const Vector3 &pos, const f32 range, StringId32 group)
+SoundInstanceId World::play_sound(StringId64 name, const bool loop, const f32 volume, const f32 range, u32 flags, const Vector3 &pos, StringId32 group)
 {
-	return _sound_world->play(name, loop, volume, range, pos, group);
+	return _sound_world->play(name, loop, volume, range, flags, pos, group);
 }
 
 void World::stop_sound(SoundInstanceId id)
@@ -719,7 +719,7 @@ Level *World::load_level(StringId64 name, u32 flags, const Vector3 &pos, const Q
 
 	for (u32 i = 0; i < lr->num_sounds; ++i) {
 		const LevelSound *ls = level_resource::get_sound(lr, i);
-		play_sound(ls->name, ls->loop, ls->volume, ls->position, ls->range, ls->group);
+		play_sound(ls->name, ls->loop, ls->volume, ls->range, PlaySoundFlags::ENABLE_ATTENUATION, ls->position, ls->group);
 	}
 
 	list::add(level->_node, _levels);
