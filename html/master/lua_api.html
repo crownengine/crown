@@ -1083,7 +1083,7 @@ travelling at the given <em>velocity</em>.</p>
 <div class="section" id="mover">
 <h3>Mover<a class="headerlink" href="#mover" title="Permalink to this headline">¶</a></h3>
 <dl class="docutils">
-<dt><strong>mover_create</strong> (pw, unit, height, radius, max_slope_angle, collision_filter, pose) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
+<dt><strong>mover_create</strong> (pw, unit, height, radius, max_slope_angle, collision_filter) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
 <dd>Creates a new mover instance for the <em>unit</em>.</dd>
 <dt><strong>mover_destroy</strong> (pw, mover)</dt>
 <dd>Destroys the <em>mover</em>.</dd>
@@ -1133,7 +1133,7 @@ The <em>mover</em> will slide against physical actors.</dd>
 <div class="section" id="mesh">
 <h3>Mesh<a class="headerlink" href="#mesh" title="Permalink to this headline">¶</a></h3>
 <dl class="docutils">
-<dt><strong>mesh_create</strong> (rw, unit, mesh_resource, geometry_name, material_resource, visible, pose) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
+<dt><strong>mesh_create</strong> (rw, unit, mesh_resource, geometry_name, material_resource, visible) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
 <dd>Creates a new mesh instance for <em>unit</em> and returns its id.</dd>
 <dt><strong>mesh_destroy</strong> (rw, mesh)</dt>
 <dd>Destroys the <em>mesh</em> instance.</dd>
@@ -1156,7 +1156,7 @@ The <em>mover</em> will slide against physical actors.</dd>
 <div class="section" id="sprite">
 <h3>Sprite<a class="headerlink" href="#sprite" title="Permalink to this headline">¶</a></h3>
 <dl class="docutils">
-<dt><strong>sprite_create</strong> (rw, unit, sprite_resource, material_resource, visible, pose) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
+<dt><strong>sprite_create</strong> (rw, unit, sprite_resource, material_resource, visible) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
 <dd>Creates a new sprite instance for the <em>unit</em> and returns its id.</dd>
 <dt><strong>sprite_destroy</strong> (rw, sprite)</dt>
 <dd>Destroys the <em>sprite</em> instance.</dd>
@@ -1190,7 +1190,7 @@ intersection point with the <em>sprite</em> or -1.0 if no intersection.</dd>
 <div class="section" id="light">
 <h3>Light<a class="headerlink" href="#light" title="Permalink to this headline">¶</a></h3>
 <dl class="docutils">
-<dt><strong>light_create</strong> (rw, unit, type, range, intensity, spot_angle, color, pose) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
+<dt><strong>light_create</strong> (rw, unit, type, range, intensity, spot_angle, color) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
 <dd>Creates a new light for the <em>unit</em> and returns its id.
 Type can be either <code class="docutils literal notranslate"><span class="pre">directional</span></code>, <code class="docutils literal notranslate"><span class="pre">omni</span></code> or <code class="docutils literal notranslate"><span class="pre">spot</span></code>.</dd>
 <dt><strong>light_destroy</strong> (rw, light)</dt>
@@ -1436,7 +1436,7 @@ enable depth test when rendering the lines.</dd>
 <div class="section" id="camera">
 <h3>Camera<a class="headerlink" href="#camera" title="Permalink to this headline">¶</a></h3>
 <dl class="docutils">
-<dt><strong>camera_create</strong> (world, unit, projection, fov, far_range, near_range, pose) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
+<dt><strong>camera_create</strong> (world, unit, projection, fov, far_range, near_range) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
 <dd>Creates a new camera for <em>unit</em> and returns its id.
 Projection can be either <code class="docutils literal notranslate"><span class="pre">orthographic</span></code> or <code class="docutils literal notranslate"><span class="pre">perspective</span></code>.</dd>
 <dt><strong>camera_destroy</strong> (world, camera)</dt>
@@ -1497,6 +1497,9 @@ After this call, the sound <em>id</em> will follow the unit <em>unit</em>.</dd>
 <dl class="docutils">
 <dt><strong>load_level</strong> (world, name, [pos, rot]) <span class="classifier-delimiter">:</span> <span class="classifier">Level</span></dt>
 <dd>Loads the level <em>name</em> into the world at the given <em>position</em> and <em>rotation</em>.</dd>
+<dt><strong>destroy_level</strong> (world, level)</dt>
+<dd>Destroys a level previously loaded by load_level(). Only units directly
+spawned by the level are unspawned.</dd>
 </dl>
 </div>
 </div>

@@ -108,23 +108,57 @@
 <div class="section" id="dd-mmm-yyyy">
 <h2>0.59.0 — DD MMM YYYY<a class="headerlink" href="#dd-mmm-yyyy" title="Permalink to this headline">¶</a></h2>
 <p><strong>New Features and Improvements</strong></p>
-<ul class="simple">
-<li>Runtime: added a new Mover component for controlling characters that implements a standard collide-and-slide algorithm.</li>
-<li>Runtime: added a shadow mapping implementation to spot lights.</li>
-<li>Runtime: added a new Global Lighting component for controlling the skydome’s appearance and other global lighting parameters.</li>
-<li>Runtime: added a new Bloom component.</li>
-<li>Runtime: added a new Tonemap component.</li>
-<li>Runtime: added a new dedicated skydome renderer.</li>
-<li>Runtime: added support for emission maps in the <cite>mesh</cite> material.</li>
-<li>Runtime: added a new .render_config resource for configuring the renderer, along with a <cite>render_config</cite> property in the boot files to allow selecting the desired config.</li>
-<li>Runtime: added a new <cite>spinning_friction</cite> property to physics materials that you can specify in <cite>global.physics_config</cite>.</li>
-<li>Runtime: added configurable physics <cite>step_frequency</cite> and <cite>max_substeps</cite> via the <cite>physics</cite> property in the boot files.</li>
+<ul>
+<li><p class="first">Tools: saving a Unit as a prefab now automatically replaces that Unit in the level with the saved prefab.</p>
+</li>
+<li><p class="first">Runtime: added a new Mover component for controlling characters that implements a standard collide-and-slide algorithm.</p>
+</li>
+<li><p class="first">Runtime: added a new .render_config resource for configuring the renderer, along with a <cite>render_config</cite> property in the boot files to allow selecting the desired config.</p>
+</li>
+<li><p class="first">Runtime: added a shadow mapping implementation to spot lights.</p>
+</li>
+<li><p class="first">Runtime: added a new Global Lighting component for controlling the skydome’s appearance and other global lighting parameters.</p>
+</li>
+<li><p class="first">Runtime: added a new Bloom component.</p>
+</li>
+<li><p class="first">Runtime: added a new Tonemap component.</p>
+</li>
+<li><p class="first">Runtime: added a new dedicated skydome renderer.</p>
+</li>
+<li><p class="first">Runtime: added support for emission maps in the <cite>mesh</cite> material.</p>
+</li>
+<li><p class="first">Runtime: added support for MSAA.</p>
+</li>
+<li><p class="first">Runtime: added a new <cite>spinning_friction</cite> property to physics materials that you can specify in <cite>global.physics_config</cite>.</p>
+</li>
+<li><p class="first">Runtime: added configurable physics <cite>step_frequency</cite> and <cite>max_substeps</cite> via the <cite>physics</cite> property in the boot files.</p>
+</li>
+<li><p class="first">Runtime: GUIs are now automatically destroyed when the world that contains them is destroyed.</p>
+</li>
+<li><p class="first">Lua: swapped the order of the <cite>units</cite> and <cite>world</cite> parameters in <code class="docutils literal notranslate"><span class="pre">spawned</span></code> and <code class="docutils literal notranslate"><span class="pre">unspawned</span></code> callbacks in unit scripts.</p>
+</li>
+<li><p class="first">Lua: removed ‘pose’ parameter from the following component creation functions:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">World.camera_create()</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">RenderWorld.mesh_create()</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">RenderWorld.sprite_create()</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">RenderWorld.light_create()</span></code></li>
+</ul>
+<p>The affected components will now read the initial pose from the unit’s transform.</p>
+</div></blockquote>
+</li>
+<li><p class="first">Lua: added <code class="docutils literal notranslate"><span class="pre">World.destroy_level</span></code>.</p>
+</li>
 </ul>
 <p><strong>Fixes</strong></p>
 <ul class="simple">
 <li>Tools: fixed setting texture parameters in the texture settings editor.</li>
+<li>Tools: fixed ‘Cast Shadows’ property displaying the wrong value on old units.</li>
 <li>Runtime: fixed a crash when too many lights were spawned in a level.</li>
 <li>Runtime: fixed cascaded shadows artifacts in some circumnstances.</li>
+<li>Runtime: fixed creating material uniforms of the wrong type in some circumnstances.</li>
+<li>Runtime: fixed camera components not getting destroyed.</li>
 </ul>
 </div>
 <div class="section" id="aug-2025">

@@ -1075,7 +1075,7 @@ Actor
 Mover
 -----
 
-**mover_create** (pw, unit, height, radius, max_slope_angle, collision_filter, pose) : Id
+**mover_create** (pw, unit, height, radius, max_slope_angle, collision_filter) : Id
 	Creates a new mover instance for the *unit*.
 
 **mover_destroy** (pw, mover)
@@ -1136,7 +1136,7 @@ RenderWorld
 Mesh
 ----
 
-**mesh_create** (rw, unit, mesh_resource, geometry_name, material_resource, visible, pose) : Id
+**mesh_create** (rw, unit, mesh_resource, geometry_name, material_resource, visible) : Id
 	Creates a new mesh instance for *unit* and returns its id.
 
 **mesh_destroy** (rw, mesh)
@@ -1166,7 +1166,7 @@ Mesh
 Sprite
 ------
 
-**sprite_create** (rw, unit, sprite_resource, material_resource, visible, pose) : Id
+**sprite_create** (rw, unit, sprite_resource, material_resource, visible) : Id
 	Creates a new sprite instance for the *unit* and returns its id.
 
 **sprite_destroy** (rw, sprite)
@@ -1211,7 +1211,7 @@ Sprite
 Light
 -----
 
-**light_create** (rw, unit, type, range, intensity, spot_angle, color, pose) : Id
+**light_create** (rw, unit, type, range, intensity, spot_angle, color) : Id
 	Creates a new light for the *unit* and returns its id.
 	Type can be either ``directional``, ``omni`` or ``spot``.
 
@@ -1529,7 +1529,7 @@ World
 Camera
 ------
 
-**camera_create** (world, unit, projection, fov, far_range, near_range, pose) : Id
+**camera_create** (world, unit, projection, fov, far_range, near_range) : Id
 	Creates a new camera for *unit* and returns its id.
 	Projection can be either ``orthographic`` or ``perspective``.
 
@@ -1607,3 +1607,7 @@ Level
 
 **load_level** (world, name, [pos, rot]) : Level
 	Loads the level *name* into the world at the given *position* and *rotation*.
+
+**destroy_level** (world, level)
+	Destroys a level previously loaded by load_level(). Only units directly
+	spawned by the level are unspawned.

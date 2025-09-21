@@ -6,22 +6,38 @@ Changelog
 
 **New Features and Improvements**
 
+* Tools: saving a Unit as a prefab now automatically replaces that Unit in the level with the saved prefab.
 * Runtime: added a new Mover component for controlling characters that implements a standard collide-and-slide algorithm.
+* Runtime: added a new .render_config resource for configuring the renderer, along with a `render_config` property in the boot files to allow selecting the desired config.
 * Runtime: added a shadow mapping implementation to spot lights.
 * Runtime: added a new Global Lighting component for controlling the skydome's appearance and other global lighting parameters.
 * Runtime: added a new Bloom component.
 * Runtime: added a new Tonemap component.
 * Runtime: added a new dedicated skydome renderer.
 * Runtime: added support for emission maps in the `mesh` material.
-* Runtime: added a new .render_config resource for configuring the renderer, along with a `render_config` property in the boot files to allow selecting the desired config.
+* Runtime: added support for MSAA.
 * Runtime: added a new `spinning_friction` property to physics materials that you can specify in `global.physics_config`.
 * Runtime: added configurable physics `step_frequency` and `max_substeps` via the `physics` property in the boot files.
+* Runtime: GUIs are now automatically destroyed when the world that contains them is destroyed.
+* Lua: swapped the order of the `units` and `world` parameters in ``spawned`` and ``unspawned`` callbacks in unit scripts.
+* Lua: removed 'pose' parameter from the following component creation functions:
+
+	- ``World.camera_create()``
+	- ``RenderWorld.mesh_create()``
+	- ``RenderWorld.sprite_create()``
+	- ``RenderWorld.light_create()``
+
+	The affected components will now read the initial pose from the unit's transform.
+* Lua: added ``World.destroy_level``.
 
 **Fixes**
 
 * Tools: fixed setting texture parameters in the texture settings editor.
+* Tools: fixed 'Cast Shadows' property displaying the wrong value on old units.
 * Runtime: fixed a crash when too many lights were spawned in a level.
 * Runtime: fixed cascaded shadows artifacts in some circumnstances.
+* Runtime: fixed creating material uniforms of the wrong type in some circumnstances.
+* Runtime: fixed camera components not getting destroyed.
 
 0.58.0 --- 01 Aug 2025
 ----------------------

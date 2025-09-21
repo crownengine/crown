@@ -134,7 +134,7 @@ and choose <code class="docutils literal notranslate"><span class="pre">New</spa
 
 <span class="n">local</span> <span class="n">data</span> <span class="o">=</span> <span class="n">MyScript</span><span class="o">.</span><span class="n">data</span>
 
-<span class="n">function</span> <span class="n">MyScript</span><span class="o">.</span><span class="n">spawned</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">units</span><span class="p">)</span>
+<span class="n">function</span> <span class="n">MyScript</span><span class="o">.</span><span class="n">spawned</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">world</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="n">world</span><span class="p">]</span> <span class="o">==</span> <span class="n">nil</span> <span class="n">then</span> <span class="n">data</span><span class="p">[</span><span class="n">world</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span> <span class="n">end</span>
 
         <span class="k">for</span> <span class="n">uu</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="c1">#units do</span>
@@ -153,7 +153,7 @@ and choose <code class="docutils literal notranslate"><span class="pre">New</spa
         <span class="o">--</span> <span class="n">Called</span> <span class="n">once</span> <span class="n">per</span> <span class="n">frame</span><span class="o">.</span>
 <span class="n">end</span>
 
-<span class="n">function</span> <span class="n">MyScript</span><span class="o">.</span><span class="n">unspawned</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">units</span><span class="p">)</span>
+<span class="n">function</span> <span class="n">MyScript</span><span class="o">.</span><span class="n">unspawned</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">world</span><span class="p">)</span>
         <span class="o">--</span> <span class="n">Cleanup</span><span class="o">.</span>
         <span class="k">for</span> <span class="n">uu</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="c1">#units do</span>
                 <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="n">world</span><span class="p">][</span><span class="n">units</span><span class="p">]</span> <span class="n">then</span>
@@ -171,11 +171,6 @@ receive a single update() for <em>every</em> unit that has that particular scrip
 attached to it.</p>
 <p>This allows for efficient bulk updates, state sharing and it also make profiling
 code easier.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">spawned() and unspawned() are still called once per unit. It will be changed
-soon to behave similarly to update().</p>
-</div>
 </div>
 </div>
 
