@@ -292,6 +292,18 @@ struct SpawnFlags
 	};
 };
 
+/// Play sound flags.
+///
+/// @ingroup World
+struct PlaySoundFlags
+{
+	enum Enum : u32
+	{
+		NONE               = u32(0),
+		ENABLE_ATTENUATION = u32(1) << 0,
+	};
+};
+
 typedef void (*UnitDestroyFunction)(UnitId unit, void *user_data);
 
 struct UnitDestroyCallback

@@ -1578,10 +1578,11 @@ Camera
 Sound
 -----
 
-**play_sound** (world, name, [loop, volume, position, range, group]) : SoundInstanceId
-	Plays the sound with the given *name* at the given *position*, with the given
-	*volume* and *range*. *loop* controls whether the sound must loop or not.
-	*group* is a string that identifies the sound's group, see SoundWorld.set_group_volume().
+**play_sound** (world, name, [loop = false, volume = 1.0, range = 70.0, position = nil, group = nil]) : SoundInstanceId
+	Plays the sound with the given *name*. If the listener is further away than
+	*range* the sound will not be heard. If *position* is not specified the
+	sound will be played as a 2d-sound (i.e. no attenuation nor spatialization).
+	*group* is a string that identifies the sound's group, see ``SoundWorld.set_group_volume()``.
 
 **stop_sound** (world, id)
 	Stops the sound with the given *id*.
