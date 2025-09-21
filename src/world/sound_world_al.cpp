@@ -78,7 +78,7 @@ namespace audio_globals
 		logi(SOUND, "OpenAL Renderer : %s", alGetString(AL_RENDERER));
 #endif
 
-		AL_CHECK(alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED));
+		AL_CHECK(alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED));
 		AL_CHECK(alDopplerFactor(1.0f));
 		AL_CHECK(alDopplerVelocity(343.0f));
 	}
@@ -134,7 +134,7 @@ struct SoundInstance
 		AL_CHECK(alGenSources(1, &_source));
 		CE_ASSERT(alIsSource(_source), "alGenSources: error");
 
-		AL_CHECK(alSourcef(_source, AL_REFERENCE_DISTANCE, 0.01f));
+		AL_CHECK(alSourcef(_source, AL_REFERENCE_DISTANCE, 1.0f));
 		AL_CHECK(alSourcef(_source, AL_MAX_DISTANCE, range));
 		AL_CHECK(alSourcef(_source, AL_PITCH, 1.0f));
 		set_position(pos);
