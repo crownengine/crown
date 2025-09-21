@@ -19,6 +19,7 @@ Changelog
 * Runtime: added a new `spinning_friction` property to physics materials that you can specify in `global.physics_config`.
 * Runtime: added configurable physics `step_frequency` and `max_substeps` via the `physics` property in the boot files.
 * Runtime: GUIs are now automatically destroyed when the world that contains them is destroyed.
+* Runtime: the sound subsystem now uses a more realistic attenuation model based on inverse distance of sounds from the listener.
 * Lua: swapped the order of the `units` and `world` parameters in ``spawned`` and ``unspawned`` callbacks in unit scripts.
 * Lua: removed 'pose' parameter from the following component creation functions:
 
