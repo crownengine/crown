@@ -228,7 +228,7 @@ namespace script_world
 			}
 		}
 
-		int status = sw._lua_environment->call(2, 0);
+		int status = sw._lua_environment->call(1 + num_args, 0);
 		if (status != LUA_OK) {
 			report(stack.L, status);
 			device()->pause();
