@@ -607,13 +607,13 @@ struct SoundWorldImpl
 	void set_listener_pose(const Matrix4x4 &pose)
 	{
 		const Vector3 pos = translation(pose);
-		const Vector3 up = y(pose);
-		const Vector3 at = z(pose);
+		const Vector3 up = z(pose);
+		const Vector3 at = y(pose);
 
 		AL_CHECK(alListener3f(AL_POSITION, pos.x, pos.y, pos.z));
 		// AL_CHECK(alListener3f(AL_VELOCITY, vel.x, vel.y, vel.z));
 
-		const ALfloat orientation[] = { up.x, up.y, up.z, at.x, at.y, at.z };
+		const ALfloat orientation[] = { at.x, at.y, at.z, up.x, up.y, up.z };
 		AL_CHECK(alListenerfv(AL_ORIENTATION, orientation));
 		_listener_pose = pose;
 	}
