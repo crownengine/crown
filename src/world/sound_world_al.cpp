@@ -100,6 +100,7 @@ struct SoundInstance
 	bool _loop;
 	f32 _volume;
 	StringId32 _group;
+	f32 _range;
 
 	ALuint _buffer[SOUND_MAX_BUFFERS];
 	u32 _num_buffers;
@@ -135,9 +136,10 @@ struct SoundInstance
 		CE_ASSERT(alIsSource(_source), "alGenSources: error");
 
 		AL_CHECK(alSourcef(_source, AL_REFERENCE_DISTANCE, 1.0f));
-		AL_CHECK(alSourcef(_source, AL_MAX_DISTANCE, range));
+		AL_CHECK(alSourcef(_source, AL_MAX_DISTANCE, FLT_MAX));
 		AL_CHECK(alSourcef(_source, AL_PITCH, 1.0f));
 		set_position(pos);
+		_range = range;
 
 		switch (sr->bit_depth) {
 		case  8: _format = sr->channels > 1 ? AL_FORMAT_STEREO8  : AL_FORMAT_MONO8; break;
@@ -351,7 +353,7 @@ struct SoundInstance
 	void reload(ResourceManager *rm)
 	{
 		destroy(rm);
-		create(rm, _name, _loop, range(), position(), _group);
+		create(rm, _name, _loop, _range, position(), _group);
 	}
 
 	void pause()
@@ -398,21 +400,9 @@ struct SoundInstance
 		return { pos[0], pos[1], pos[2] };
 	}
 
-	float range()
-	{
-		ALfloat range;
-		AL_CHECK(alGetSourcefv(_source, AL_MAX_DISTANCE, &range));
-		return range;
-	}
-
 	void set_position(const Vector3 &pos)
 	{
 		AL_CHECK(alSourcefv(_source, AL_POSITION, to_float_ptr(pos)));
-	}
-
-	void set_range(f32 range)
-	{
-		AL_CHECK(alSourcef(_source, AL_MAX_DISTANCE, range));
 	}
 };
 
@@ -569,7 +559,7 @@ struct SoundWorldImpl
 	void set_sound_ranges(u32 num, const SoundInstanceId *ids, const f32 *ranges)
 	{
 		for (u32 i = 0; i < num; ++i) {
-			lookup(ids[i]).set_range(ranges[i]);
+			lookup(ids[i])._range = ranges[i];
 		}
 	}
 
@@ -641,13 +631,22 @@ struct SoundWorldImpl
 		TempAllocator256 alloc;
 		Array<SoundInstanceId> to_delete(alloc);
 
+		Vector3 listener_pos = translation(_listener_pose);
+
 		// Update instances with new samples.
 		for (u32 i = 0; i < _num_objects; ++i) {
 			SoundInstance &inst = _playing_sounds[i];
 
 			inst.update();
-			if (inst.finished())
+			if (inst.finished()) {
 				array::push_back(to_delete, inst._id);
+			} else {
+				if (distance_squared(listener_pos, inst.position()) > inst._range*inst._range) {
+					AL_CHECK(alSourcef(inst._source, AL_GAIN, 0.0f));
+				} else {
+					set_sound_volumes(1, &inst._id, &inst._volume);
+				}
+			}
 		}
 
 		// Destroy instances which finished playing.
