@@ -472,24 +472,24 @@ bool Device::frame()
 
 		{
 			const s64 t0 = time::now();
-			LuaStack stack(_lua_environment->L);
-			stack.push_float(dt);
-			_lua_environment->call_global("update", 1);
+			ArgType::Enum arg_types = ArgType::FLOAT;
+			Arg args; args.float_value = dt;
+			_lua_environment->call_global("update", &arg_types, &args, 1);
 			RECORD_FLOAT("lua.update", f32(time::seconds(time::now() - t0)));
 		}
 		{
 			const s64 t0 = time::now();
-			LuaStack stack(_lua_environment->L);
-			stack.push_float(dt);
-			_lua_environment->call_global("render", 1);
+			ArgType::Enum arg_types = ArgType::FLOAT;
+			Arg args; args.float_value = dt;
+			_lua_environment->call_global("render", &arg_types, &args, 1);
 			RECORD_FLOAT("lua.render", f32(time::seconds(time::now() - t0)));
 		}
 
 		if (_bgfx_callback->_screenshot_ready) {
 			_bgfx_callback->_screenshot_ready = 0;
-			LuaStack stack(_lua_environment->L);
-			stack.push_string(_bgfx_callback->_screenshot_path.c_str());
-			_lua_environment->call_global("screenshot", 1);
+			ArgType::Enum arg_types = ArgType::STRING;
+			Arg args; args.string_value = _bgfx_callback->_screenshot_path.c_str();
+			_lua_environment->call_global("screenshot", &arg_types, &args, 1);
 		}
 	}
 
