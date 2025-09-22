@@ -35,9 +35,9 @@ struct SoundWorldImpl
 	{
 	}
 
-	SoundInstanceId play(const StringId64 name, bool loop, f32 volume, f32 range, const Vector3 &pos)
+	SoundInstanceId play(const StringId64 name, bool loop, f32 volume, f32 range, u32 flags, const Vector3 &pos, StringId32 group)
 	{
-		CE_UNUSED_5(name, loop, volume, range, pos);
+		CE_UNUSED_7(name, loop, volume, range, flags, pos, group);
 		return 0;
 	}
 
@@ -89,16 +89,22 @@ struct SoundWorldImpl
 		CE_UNUSED(pose);
 	}
 
+	void set_group_volume(StringId32 group, f32 volume)
+	{
+		CE_UNUSED_2(group, volume);
+	}
+
 	void update()
 	{
 	}
 };
 
-SoundWorld::SoundWorld(Allocator &a)
+SoundWorld::SoundWorld(Allocator &a, ResourceManager &rm)
 	: _marker(SOUND_WORLD_MARKER)
 	, _allocator(&a)
 	, _impl(NULL)
 {
+	CE_UNUSED(rm);
 	_impl = CE_NEW(*_allocator, SoundWorldImpl)();
 }
 
@@ -108,9 +114,9 @@ SoundWorld::~SoundWorld()
 	_marker = 0;
 }
 
-SoundInstanceId SoundWorld::play(StringId64 name, bool loop, f32 volume, f32 range, const Vector3 &pos)
+SoundInstanceId SoundWorld::play(StringId64 name, bool loop, f32 volume, f32 range, u32 flags, const Vector3 &pos, StringId32 group)
 {
-	return _impl->play(name, loop, volume, range, pos);
+	return _impl->play(name, loop, volume, range, flags, pos, group);
 }
 
 void SoundWorld::stop(SoundInstanceId id)
@@ -153,7 +159,7 @@ void SoundWorld::set_sound_volumes(u32 num, const SoundInstanceId *ids, const f3
 	_impl->set_sound_volumes(num, ids, volumes);
 }
 
-void SoundWorld::reload_sounds(const SoundResource &old_sr, const SoundResource &new_sr)
+void SoundWorld::reload_sounds(const SoundResource *old_sr, const SoundResource *new_sr)
 {
 	_impl->reload_sounds(old_sr, new_sr);
 }
@@ -161,6 +167,11 @@ void SoundWorld::reload_sounds(const SoundResource &old_sr, const SoundResource 
 void SoundWorld::set_listener_pose(const Matrix4x4 &pose)
 {
 	_impl->set_listener_pose(pose);
+}
+
+void SoundWorld::set_group_volume(StringId32 group, f32 volume)
+{
+	_impl->set_group_volume(group, volume);
 }
 
 void SoundWorld::update()
