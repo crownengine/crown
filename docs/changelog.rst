@@ -42,6 +42,7 @@ Changelog
 * Runtime: fixed creating material uniforms of the wrong type in some circumnstances.
 * Runtime: fixed camera components not getting destroyed.
 * Runtime: fixed range-based culling of sound sources.
+* Runtime: fixed collision begin/stay generation.
 
 0.58.0 --- 01 Aug 2025
 ----------------------

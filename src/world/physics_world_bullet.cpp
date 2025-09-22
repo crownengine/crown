@@ -1816,6 +1816,19 @@ struct PhysicsWorldImpl
 			event_stream::write(_events, EventType::PHYSICS_COLLISION, ev);
 		}
 
+		auto cur = hash_set::begin(*_prev_pairs);
+		auto end = hash_set::end(*_prev_pairs);
+		for (; cur != end; ++cur) {
+			HASH_SET_SKIP_HOLE(*_prev_pairs, cur);
+
+			if (!hash_set::has(*_curr_pairs, *cur)) {
+				PhysicsCollisionEvent ev;
+				ev.type = PhysicsCollisionEvent::TOUCH_END;
+				decode_pair(ev.units[0], ev.units[1], *cur);
+				event_stream::write(_events, EventType::PHYSICS_COLLISION, ev);
+			}
+		}
+
 		exchange(_curr_pairs, _prev_pairs);
 	}
 
