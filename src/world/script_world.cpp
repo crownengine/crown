@@ -200,6 +200,33 @@ namespace script_world
 		// Unit not found
 	}
 
+	void broadcast(ScriptWorld &sw
+		, const char *function_name
+		, const ArgType::Enum *arg_types
+		, const Arg *args
+		, u32 num_args
+		)
+	{
+		if (sw._disable_callbacks)
+			return;
+
+		LuaStack stack(sw._lua_environment->L);
+
+		for (u32 i = 0; i < array::size(sw._script); ++i) {
+			lua_rawgeti(stack.L, LUA_REGISTRYINDEX, sw._script[i].module_ref);
+			lua_getfield(stack.L, -1, function_name);
+
+			stack.push_args(arg_types, args, num_args);
+
+			int status = sw._lua_environment->call(num_args, 0);
+			if (status != LUA_OK) {
+				report(stack.L, status);
+				device()->pause();
+			}
+			stack.pop(1);
+		}
+	}
+
 	void multicast(ScriptWorld &sw
 		, const char *function_name
 		, const UnitId *units

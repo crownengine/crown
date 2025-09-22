@@ -77,6 +77,13 @@ namespace script_world
 		u32 unit_index;
 	};
 
+	/// Calls @a function_name in all scripts if defined.
+	void broadcast(ScriptWorld &sw
+		, const char *function_name
+		, const ArgType::Enum *arg_types = NULL
+		, const Arg *args = NULL
+		, u32 num_args = 0
+		);
 
 	///
 	void multicast(ScriptWorld &sw
