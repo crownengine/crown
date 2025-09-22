@@ -109,27 +109,6 @@ namespace script_world
 		return script_world_internal::make_instance(hash_map::get(sw._map, unit, UINT32_MAX));
 	}
 
-	void update(ScriptWorld &sw, f32 dt)
-	{
-		if (sw._disable_callbacks)
-			return;
-
-		LuaStack stack(sw._lua_environment->L);
-
-		for (u32 i = 0; i < array::size(sw._script); ++i) {
-			lua_rawgeti(stack.L, LUA_REGISTRYINDEX, sw._script[i].module_ref);
-			lua_getfield(stack.L, -1, "update");
-			stack.push_world(sw._world);
-			stack.push_float(dt);
-			int status = sw._lua_environment->call(2, 0);
-			if (status != LUA_OK) {
-				report(stack.L, status);
-				device()->pause();
-			}
-			stack.pop(1);
-		}
-	}
-
 	void collision(ScriptWorld &sw, const PhysicsCollisionEvent &ev)
 	{
 		if (sw._disable_callbacks)

@@ -65,9 +65,6 @@ namespace script_world
 	/// Returns the component id for the @a unit.
 	ScriptInstance instance(ScriptWorld &sw, UnitId unit);
 
-	/// Calls the update function on all scripts.
-	void update(ScriptWorld &sw, f32 dt);
-
 	///
 	void collision(ScriptWorld &sw, const PhysicsCollisionEvent &ev);
 
