@@ -431,13 +431,16 @@ int LuaEnvironment::call(int narg, int nres)
 	return status;
 }
 
-void LuaEnvironment::call_global(const char *func, int narg, int nres)
+void LuaEnvironment::call_global(const char *func, ArgType::Enum *arg_types, Arg *args, int narg, int nres)
 {
 	int status;
+	LuaStack stack(L);
 	CE_ENSURE(NULL != func);
 
 	lua_getglobal(L, func);
-	lua_insert(L, 1); // Move func to the top of stack
+
+	stack.push_args(arg_types, args, narg);
+
 	status = call(narg, nres);
 	if (status != LUA_OK) {
 		report(L, status);

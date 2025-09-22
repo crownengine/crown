@@ -92,7 +92,7 @@ struct LuaEnvironment
 	int call(int narg, int nres);
 
 	/// Calls the global function @a func.
-	void call_global(const char *func, int narg = 0, int nres = 0);
+	void call_global(const char *func, ArgType::Enum *arg_types = NULL, Arg *args = NULL, int narg = 0, int nres = 0);
 
 	///
 	LuaStack get_global(const char *global);
