@@ -8,6 +8,7 @@
 #if CROWN_PHYSICS_BULLET
 #include "core/containers/array.inl"
 #include "core/containers/hash_map.inl"
+#include "core/containers/hash_set.inl"
 #include "core/math/color4.inl"
 #include "core/math/constants.h"
 #include "core/math/matrix4x4.inl"
@@ -769,6 +770,11 @@ struct PhysicsWorldImpl
 	const PhysicsConfigResource *_config_resource;
 	bool _debug_drawing;
 
+	HashSet<u64> _pairs0;
+	HashSet<u64> _pairs1;
+	HashSet<u64> *_curr_pairs;
+	HashSet<u64> *_prev_pairs;
+
 	PhysicsWorldImpl(Allocator &a, ResourceManager &rm, UnitManager &um, SceneGraph &sg, DebugLine &dl)
 		: _allocator(&a)
 		, _unit_manager(&um)
@@ -784,6 +790,10 @@ struct PhysicsWorldImpl
 		, _debug_drawer(dl)
 		, _events(a)
 		, _debug_drawing(false)
+		, _pairs0(a)
+		, _pairs1(a)
+		, _curr_pairs(&_pairs1)
+		, _prev_pairs(&_pairs0)
 	{
 		_dynamics_world = CE_NEW(*_allocator, btDiscreteDynamicsWorld)(physics_globals::_bt_dispatcher
 			, physics_globals::_bt_interface
@@ -1740,9 +1750,23 @@ struct PhysicsWorldImpl
 		_debug_drawing = enable;
 	}
 
+	static inline u64 encode_pair(const UnitId &a, const UnitId &b)
+	{
+		return a._idx > b._idx
+			? (u64(a._idx) << 32) | u64(b._idx)
+			: (u64(b._idx) << 32) | u64(a._idx)
+			;
+	}
+
+	static inline void decode_pair(UnitId &a, UnitId &b, u64 pair)
+	{
+		a._idx = (pair & 0x00000000ffffffff) >>  0;
+		b._idx = (pair & 0xffffffff00000000) >> 32;
+	}
+
 	void tick_callback(btDynamicsWorld *world, btScalar /*dt*/)
 	{
-		// Limit bodies velocity
+		// Limit bodies velocity.
 		for (u32 i = 0; i < array::size(_actor); ++i) {
 			CE_ENSURE(NULL != _actor[i].body);
 			const btVector3 velocity = _actor[i].body->m_linearVelocity;
@@ -1752,7 +1776,9 @@ struct PhysicsWorldImpl
 				_actor[i].body->setLinearVelocity(velocity * 100.0f / speed);
 		}
 
-		// Check collisions
+		// Check collisions.
+		hash_set::clear(*_curr_pairs);
+
 		int num_manifolds = world->getDispatcher()->getNumManifolds();
 		for (int i = 0; i < num_manifolds; ++i) {
 			const btPersistentManifold *manifold = world->getDispatcher()->getManifoldByIndexInternal(i);
@@ -1765,23 +1791,32 @@ struct PhysicsWorldImpl
 			const UnitId u1 = _actor[a1.i].unit;
 
 			int num_contacts = manifold->getNumContacts();
-			for (int j = 0; j < num_contacts; ++j) {
-				const btManifoldPoint &pt = manifold->getContactPoint(j);
-				if (pt.m_distance1 < 0.0f) {
-					// Post collision event
-					PhysicsCollisionEvent ev;
-					ev.type = pt.m_lifeTime == 1 ? PhysicsCollisionEvent::TOUCH_BEGIN : PhysicsCollisionEvent::TOUCHING;
-					ev.units[0] = u0;
-					ev.units[1] = u1;
-					ev.actors[0] = a0;
-					ev.actors[1] = a1;
-					ev.position = to_vector3(pt.m_positionWorldOnB);
-					ev.normal = to_vector3(pt.m_normalWorldOnB);
-					ev.distance = pt.m_distance1;
-					event_stream::write(_events, EventType::PHYSICS_COLLISION, ev);
-				}
-			}
+			if (num_contacts == 0) // When exactly?
+				continue;
+
+			const u64 pair = encode_pair(u0, u1);
+			hash_set::insert(*_curr_pairs, pair);
+
+			const btManifoldPoint &pt = manifold->getContactPoint(0);
+
+			PhysicsCollisionEvent ev;
+			ev.units[0] = u0;
+			ev.units[1] = u1;
+			ev.actors[0] = a0;
+			ev.actors[1] = a1;
+			ev.position = to_vector3(pt.m_positionWorldOnB);
+			ev.normal = to_vector3(pt.m_normalWorldOnB);
+			ev.distance = pt.m_distance1;
+
+			if (!hash_set::has(*_prev_pairs, pair))
+				ev.type = PhysicsCollisionEvent::TOUCH_BEGIN;
+			else
+				ev.type = PhysicsCollisionEvent::TOUCHING;
+
+			event_stream::write(_events, EventType::PHYSICS_COLLISION, ev);
 		}
+
+		exchange(_curr_pairs, _prev_pairs);
 	}
 
 	void unit_destroyed_callback(UnitId unit)
