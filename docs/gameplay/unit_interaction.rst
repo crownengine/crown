@@ -96,3 +96,22 @@ attached to it.
 This allows for efficient bulk updates, state sharing and it also make profiling
 code easier.
 
+Receiving collision events
+--------------------------
+
+To get physics collision notification events, implement any of the following
+callbacks in your script component:
+
+.. code::
+
+	function MyScript.collision_begin(unit0, unit1, actor, position, normal, distance)
+		-- Called when unit0 and unit1 begin touching.
+	end
+
+	function MyScript.collision_end()
+		-- Called when unit0 and unit1 end touching.
+	end
+
+	function MyScript.collision_stay(unit0, unit1, actor, position, normal, distance)
+		-- Called between collision_begin() and collision_end() while the units remain touching.
+	end
