@@ -221,24 +221,7 @@ namespace script_world
 			stack.push_key_end();
 		}
 
-		for (u32 i = 0; i < num_args; ++i) {
-			switch (arg_types[i]) {
-			case ArgType::NIL: stack.push_nil(); break;
-			case ArgType::INT: stack.push_int(args[i].int_value); break;
-			case ArgType::BOOL: stack.push_bool(args[i].bool_value); break;
-			case ArgType::FLOAT: stack.push_float(args[i].float_value); break;
-			case ArgType::STRING: stack.push_string(args[i].string_value); break;
-			case ArgType::STRING_ID: stack.push_string_id(StringId32(args[i].string_id_value)); break;
-			case ArgType::POINTER: stack.push_pointer((void *)args[i].pointer_value); break;
-			case ArgType::FUNCTION: stack.push_function(args[i].cfunction_value); break;
-			case ArgType::UNIT: stack.push_unit(args[i].unit_value); break;
-			case ArgType::ID: stack.push_id(args[i].id_value); break;
-			case ArgType::VECTOR3: stack.push_vector3(args[i].vector3_value); break;
-			case ArgType::QUATERNION: stack.push_quaternion(args[i].quaternion_value); break;
-			case ArgType::MATRIX4X4: stack.push_matrix4x4(args[i].matrix4x4_value); break;
-			default: CE_FATAL("Unknown argument type"); break;
-			}
-		}
+		stack.push_args(arg_types, args, num_args);
 
 		int status = sw._lua_environment->call(1 + num_args, 0);
 		if (status != LUA_OK) {
