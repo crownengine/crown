@@ -33,6 +33,7 @@ Changelog
 	The affected components will now read the initial pose from the unit's transform.
 * Lua: added ``World.destroy_level``.
 * Lua: added ``collision_end()`` script component callback.
+* Lua: renamed ``collision()`` script component callback to ``collision_stay()``.
 
 **Fixes**
 
