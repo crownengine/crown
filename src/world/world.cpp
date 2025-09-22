@@ -392,7 +392,11 @@ void World::update_scene(f32 dt)
 
 	array::clear(_events);
 
-	script_world::update(*_script_world, dt);
+	ArgType::Enum arg_types[2] = { ArgType::POINTER, ArgType::FLOAT };
+	Arg args[2];
+	args[0].pointer_value = this;
+	args[1].float_value = dt;
+	script_world::broadcast(*_script_world, "update", arg_types, args, countof(args));
 }
 
 void World::update(f32 dt)
