@@ -161,7 +161,7 @@ namespace script_world
 					break;
 
 				case PhysicsCollisionEvent::TOUCHING:
-					lua_getfield(stack.L, -1, "collision");
+					lua_getfield(stack.L, -1, "collision_stay");
 					if (!lua_isnil(stack.L, -1)) {
 						stack.push_unit(ev.units[1 - unit_index]);
 						stack.push_unit(ev.units[unit_index]);
