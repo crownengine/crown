@@ -3,12 +3,35 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include "core/strings/string_id.inl"
 #include "device/device.h"
 #include "lua/lua_environment.h"
 #include "lua/lua_stack.inl"
 
 namespace crown
 {
+void LuaStack::push_args(const ArgType::Enum *arg_types, const Arg *args, u32 num)
+{
+	for (u32 i = 0; i < num; ++i) {
+		switch (arg_types[i]) {
+		case ArgType::NIL: push_nil(); break;
+		case ArgType::INT: push_int(args[i].int_value); break;
+		case ArgType::BOOL: push_bool(args[i].bool_value); break;
+		case ArgType::FLOAT: push_float(args[i].float_value); break;
+		case ArgType::STRING: push_string(args[i].string_value); break;
+		case ArgType::STRING_ID: push_string_id(StringId32(args[i].string_id_value)); break;
+		case ArgType::POINTER: push_pointer((void *)args[i].pointer_value); break;
+		case ArgType::FUNCTION: push_function(args[i].cfunction_value); break;
+		case ArgType::UNIT: push_unit(args[i].unit_value); break;
+		case ArgType::ID: push_id(args[i].id_value); break;
+		case ArgType::VECTOR3: push_vector3(args[i].vector3_value); break;
+		case ArgType::QUATERNION: push_quaternion(args[i].quaternion_value); break;
+		case ArgType::MATRIX4X4: push_matrix4x4(args[i].matrix4x4_value); break;
+		default: CE_FATAL("Unknown argument type"); break;
+		}
+	}
+}
+
 bool LuaStack::is_vector3(int i)
 {
 	return device()->_lua_environment->is_vector3((Vector3 *)lua_touserdata(L, i));
