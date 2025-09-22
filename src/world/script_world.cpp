@@ -178,6 +178,18 @@ namespace script_world
 					}
 					break;
 
+				case PhysicsCollisionEvent::TOUCH_END:
+					lua_getfield(stack.L, -1, "collision_end");
+					if (!lua_isnil(stack.L, -1)) {
+						int status = sw._lua_environment->call(0, 0);
+						if (status != LUA_OK) {
+							report(stack.L, status);
+							device()->pause();
+						}
+						stack.pop(1);
+					}
+					break;
+
 				default:
 					CE_FATAL("Unknown physics collision event");
 					break;
