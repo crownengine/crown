@@ -571,18 +571,16 @@ inline void LuaStack::call(int nresults)
 	lua_pcall(L, 2, nresults, 0);
 }
 
-#if CROWN_DEBUG
 inline void LuaStack::check_marker(int i, const void *p, u32 type_marker, const char *type_name)
 {
+#if CROWN_DEBUG
 	if (CE_UNLIKELY(!is_pointer(i) || *(u32 *)p != type_marker)) {
 		luaL_typerror(L, i, type_name);
 		CE_UNREACHABLE();
 	}
-}
 #else
-inline void LuaStack::check_marker(int /*i*/, const void * /*p*/, u32 /*type_marker*/, const char * /*type_name*/)
-{
-}
+	CE_UNUSED_4(i, p, type_marker, type_name);
 #endif
+}
 
 } // namespace crown
