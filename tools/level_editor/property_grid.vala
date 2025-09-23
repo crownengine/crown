@@ -226,12 +226,8 @@ public class PropertyGrid : Gtk.Grid
 			}
 		}
 
-		if (changed) {
-			if (_db.object_type(_id) == OBJECT_TYPE_UNIT)
-				_db.add_restore_point(ActionType.CHANGE_OBJECTS, new Guid?[] { _id, _component_id });
-			else
-				_db.add_restore_point(ActionType.CHANGE_OBJECTS, new Guid?[] { _id });
-		}
+		if (changed)
+			_db.add_restore_point(ActionType.CHANGE_OBJECTS, new Guid?[] { _id });
 	}
 
 	public virtual void update()
