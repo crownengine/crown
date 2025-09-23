@@ -1531,7 +1531,7 @@ void load_api(LuaEnvironment &env)
 			cd.near_range = stack.get_float(5);
 			cd.far_range  = stack.get_float(6);
 
-			stack.push_camera(world->camera_create(unit, cd));
+			stack.push_id(world->camera_create(unit, cd).i);
 			return 1;
 		});
 	env.add_module_function("World", "camera_destroy", [](lua_State *L) {
@@ -1543,7 +1543,7 @@ void load_api(LuaEnvironment &env)
 			LuaStack stack(L);
 			CameraInstance inst = stack.get_world(1)->camera_instance(stack.get_unit(2));
 			if (is_valid(inst))
-				stack.push_camera(inst);
+				stack.push_id(inst.i);
 			else
 				stack.push_nil();
 			return 1;
@@ -1690,7 +1690,7 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("World", "create_debug_line", [](lua_State *L) {
 			LuaStack stack(L);
-			stack.push_debug_line(stack.get_world(1)->create_debug_line(stack.get_bool(2)));
+			stack.push_pointer(stack.get_world(1)->create_debug_line(stack.get_bool(2)));
 			return 1;
 		});
 	env.add_module_function("World", "destroy_debug_line", [](lua_State *L) {
@@ -1700,12 +1700,12 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("World", "create_screen_gui", [](lua_State *L) {
 			LuaStack stack(L);
-			stack.push_gui(stack.get_world(1)->create_screen_gui());
+			stack.push_pointer(stack.get_world(1)->create_screen_gui());
 			return 1;
 		});
 	env.add_module_function("World", "create_world_gui", [](lua_State *L) {
 			LuaStack stack(L);
-			stack.push_gui(stack.get_world(1)->create_world_gui());
+			stack.push_pointer(stack.get_world(1)->create_world_gui());
 			return 1;
 		});
 	env.add_module_function("World", "destroy_gui", [](lua_State *L) {
@@ -1741,32 +1741,32 @@ void load_api(LuaEnvironment &env)
 				);
 			CE_UNUSED(name_str);
 
-			stack.push_level(world->load_level(name, flags, pos, rot));
+			stack.push_pointer(world->load_level(name, flags, pos, rot));
 			return 1;
 		});
 	env.add_module_function("World", "scene_graph", [](lua_State *L) {
 			LuaStack stack(L);
-			stack.push_scene_graph(stack.get_world(1)->_scene_graph);
+			stack.push_pointer(stack.get_world(1)->_scene_graph);
 			return 1;
 		});
 	env.add_module_function("World", "render_world", [](lua_State *L) {
 			LuaStack stack(L);
-			stack.push_render_world(stack.get_world(1)->_render_world);
+			stack.push_pointer(stack.get_world(1)->_render_world);
 			return 1;
 		});
 	env.add_module_function("World", "physics_world", [](lua_State *L) {
 			LuaStack stack(L);
-			stack.push_physics_world(stack.get_world(1)->_physics_world);
+			stack.push_pointer(stack.get_world(1)->_physics_world);
 			return 1;
 		});
 	env.add_module_function("World", "sound_world", [](lua_State *L) {
 			LuaStack stack(L);
-			stack.push_sound_world(stack.get_world(1)->_sound_world);
+			stack.push_pointer(stack.get_world(1)->_sound_world);
 			return 1;
 		});
 	env.add_module_function("World", "animation_state_machine", [](lua_State *L) {
 			LuaStack stack(L);
-			stack.push_animation_state_machine(stack.get_world(1)->_animation_state_machine);
+			stack.push_pointer(stack.get_world(1)->_animation_state_machine);
 			return 1;
 		});
 	env.add_module_function("World", "disable_unit_callbacks", [](lua_State *L) {
@@ -1791,7 +1791,7 @@ void load_api(LuaEnvironment &env)
 				, stack.get_quaternion(4)
 				, stack.get_vector3(5)
 				);
-			stack.push_transform(ti);
+			stack.push_id(ti.i);
 			return 1;
 		});
 	env.add_module_function("SceneGraph", "destroy", [](lua_State *L) {
@@ -1803,7 +1803,7 @@ void load_api(LuaEnvironment &env)
 			LuaStack stack(L);
 			TransformInstance inst = stack.get_scene_graph(1)->instance(stack.get_unit(2));
 			if (is_valid(inst))
-				stack.push_transform(inst);
+				stack.push_id(inst.i);
 			else
 				stack.push_nil();
 			return 1;
@@ -1891,7 +1891,7 @@ void load_api(LuaEnvironment &env)
 			LuaStack stack(L);
 			TransformInstance inst = stack.get_scene_graph(1)->parent(stack.get_transform_instance(2));
 			if (is_valid(inst))
-				stack.push_transform(inst);
+				stack.push_id(inst.i);
 			else
 				stack.push_nil();
 			return 1;
@@ -1900,7 +1900,7 @@ void load_api(LuaEnvironment &env)
 			LuaStack stack(L);
 			TransformInstance inst = stack.get_scene_graph(1)->first_child(stack.get_transform_instance(2));
 			if (is_valid(inst))
-				stack.push_transform(inst);
+				stack.push_id(inst.i);
 			else
 				stack.push_nil();
 			return 1;
@@ -1909,7 +1909,7 @@ void load_api(LuaEnvironment &env)
 			LuaStack stack(L);
 			TransformInstance inst = stack.get_scene_graph(1)->next_sibling(stack.get_transform_instance(2));
 			if (is_valid(inst))
-				stack.push_transform(inst);
+				stack.push_id(inst.i);
 			else
 				stack.push_nil();
 			return 1;
@@ -1944,7 +1944,7 @@ void load_api(LuaEnvironment &env)
 			desc.flags |= RenderableFlags::SHADOW_CASTER;
 			desc.flags |= stack.get_bool(6) ? RenderableFlags::VISIBLE : 0u;
 
-			stack.push_mesh_instance(rw->mesh_create(unit, desc));
+			stack.push_id(rw->mesh_create(unit, desc).i);
 			return 1;
 		});
 	env.add_module_function("RenderWorld", "mesh_destroy", [](lua_State *L) {
@@ -1956,7 +1956,7 @@ void load_api(LuaEnvironment &env)
 			LuaStack stack(L);
 			MeshInstance inst = stack.get_render_world(1)->mesh_instance(stack.get_unit(2));
 			if (is_valid(inst))
-				stack.push_mesh_instance(inst);
+				stack.push_id(inst.i);
 			else
 				stack.push_nil();
 
@@ -2018,7 +2018,7 @@ void load_api(LuaEnvironment &env)
 			desc.flags = 0u;
 			desc.flags |= stack.get_bool(7) ? RenderableFlags::VISIBLE : 0u;
 
-			stack.push_sprite_instance(rw->sprite_create(unit, desc));
+			stack.push_id(rw->sprite_create(unit, desc).i);
 			return 1;
 		});
 	env.add_module_function("RenderWorld", "sprite_destroy", [](lua_State *L) {
@@ -2030,7 +2030,7 @@ void load_api(LuaEnvironment &env)
 			LuaStack stack(L);
 			SpriteInstance inst = stack.get_render_world(1)->sprite_instance(stack.get_unit(2));
 			if (is_valid(inst))
-				stack.push_sprite_instance(inst);
+				stack.push_id(inst.i);
 			else
 				stack.push_nil();
 			return 1;
@@ -2118,7 +2118,7 @@ void load_api(LuaEnvironment &env)
 			ld.spot_angle = stack.get_float(6);
 			ld.color      = stack.get_vector3(7);
 
-			stack.push_light_instance(stack.get_render_world(1)->light_create(stack.get_unit(2), ld));
+			stack.push_id(stack.get_render_world(1)->light_create(stack.get_unit(2), ld).i);
 			return 1;
 		});
 	env.add_module_function("RenderWorld", "light_destroy", [](lua_State *L) {
@@ -2130,7 +2130,7 @@ void load_api(LuaEnvironment &env)
 			LuaStack stack(L);
 			LightInstance inst = stack.get_render_world(1)->light_instance(stack.get_unit(2));
 			if (is_valid(inst))
-				stack.push_light_instance(inst);
+				stack.push_id(inst.i);
 			else
 				stack.push_nil();
 			return 1;
@@ -2214,7 +2214,7 @@ void load_api(LuaEnvironment &env)
 	env.add_module_function("RenderWorld", "fog_create", [](lua_State *L) {
 			LuaStack stack(L);
 			FogDesc fd;
-			stack.push_fog_instance(stack.get_render_world(1)->fog_create(stack.get_unit(2), fd));
+			stack.push_id(stack.get_render_world(1)->fog_create(stack.get_unit(2), fd).i);
 			return 1;
 		});
 	env.add_module_function("RenderWorld", "fog_destroy", [](lua_State *L) {
@@ -2226,7 +2226,7 @@ void load_api(LuaEnvironment &env)
 			LuaStack stack(L);
 			FogInstance inst = stack.get_render_world(1)->fog_instance(stack.get_unit(2));
 			if (is_valid(inst))
-				stack.push_fog_instance(inst);
+				stack.push_id(inst.i);
 			else
 				stack.push_nil();
 			return 1;
@@ -2386,7 +2386,7 @@ void load_api(LuaEnvironment &env)
 			LuaStack stack(L);
 			ActorInstance inst = stack.get_physics_world(1)->actor(stack.get_unit(2));
 			if (is_valid(inst))
-				stack.push_actor(inst);
+				stack.push_id(inst.i);
 			else
 				stack.push_nil();
 			return 1;
@@ -2560,7 +2560,7 @@ void load_api(LuaEnvironment &env)
 			LuaStack stack(L);
 			MoverInstance inst = stack.get_physics_world(1)->mover(stack.get_unit(2));
 			if (is_valid(inst))
-				stack.push_mover(inst);
+				stack.push_id(inst.i);
 			else
 				stack.push_nil();
 			return 1;
@@ -2576,7 +2576,7 @@ void load_api(LuaEnvironment &env)
 			desc.max_slope_angle = stack.get_float(5);
 			desc.collision_filter = stack.get_string_id_32(6);
 
-			stack.push_mover(pw->mover_create(unit, &desc));
+			stack.push_id(pw->mover_create(unit, &desc).i);
 			return 1;
 		});
 	env.add_module_function("PhysicsWorld", "mover_destroy", [](lua_State *L) {
@@ -2672,7 +2672,7 @@ void load_api(LuaEnvironment &env)
 				stack.push_vector3(hit.normal);
 				stack.push_float(hit.time);
 				stack.push_unit(hit.unit);
-				stack.push_actor(hit.actor);
+				stack.push_id(hit.actor.i);
 				return 6;
 			}
 
@@ -2713,7 +2713,7 @@ void load_api(LuaEnvironment &env)
 						stack.push_key_end();
 
 						stack.push_key_begin(5);
-						stack.push_actor(hits[i].actor);
+						stack.push_id(hits[i].actor.i);
 						stack.push_key_end();
 					}
 					stack.push_key_end();
@@ -2737,7 +2737,7 @@ void load_api(LuaEnvironment &env)
 				stack.push_vector3(hit.normal);
 				stack.push_float(hit.time);
 				stack.push_unit(hit.unit);
-				stack.push_actor(hit.actor);
+				stack.push_id(hit.actor.i);
 				return 6;
 			}
 
@@ -2759,7 +2759,7 @@ void load_api(LuaEnvironment &env)
 				stack.push_vector3(hit.normal);
 				stack.push_float(hit.time);
 				stack.push_unit(hit.unit);
-				stack.push_actor(hit.actor);
+				stack.push_id(hit.actor.i);
 				return 6;
 			}
 
@@ -2814,7 +2814,7 @@ void load_api(LuaEnvironment &env)
 			LuaStack stack(L);
 			StateMachineInstance inst = stack.get_animation_state_machine(1)->instance(stack.get_unit(2));
 			if (is_valid(inst))
-				stack.push_state_machine_instance(inst);
+				stack.push_id(inst.i);
 			else
 				stack.push_nil();
 			return 1;
@@ -2897,7 +2897,7 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("Device", "create_world", [](lua_State *L) {
 			LuaStack stack(L);
-			stack.push_world(device()->create_world());
+			stack.push_pointer(device()->create_world());
 			return 1;
 		});
 	env.add_module_function("Device", "destroy_world", [](lua_State *L) {
@@ -2912,7 +2912,7 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("Device", "create_resource_package", [](lua_State *L) {
 			LuaStack stack(L);
-			stack.push_resource_package(device()->create_resource_package(stack.get_resource_name(1)));
+			stack.push_pointer(device()->create_resource_package(stack.get_resource_name(1)));
 			return 1;
 		});
 	env.add_module_function("Device", "destroy_resource_package", [](lua_State *L) {
@@ -3301,7 +3301,7 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("Gui", "material", [](lua_State *L) {
 			LuaStack stack(L);
-			stack.push_material(stack.get_gui(1)->material(stack.get_resource_name(2)));
+			stack.push_pointer(stack.get_gui(1)->material(stack.get_resource_name(2)));
 			return 1;
 		});
 
