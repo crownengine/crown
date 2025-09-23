@@ -572,6 +572,11 @@ namespace LevelEditorApi
 		return "Colors.%s = function() return %s end".printf(name, Lua.quaternion(c));
 	}
 
+	public string unit_freeze(Guid id)
+	{
+		return "LevelEditor._objects[\"%s\"]:freeze()".printf(id.to_string());
+	}
+
 } /* namespace LevelEditorApi */
 
 namespace UnitPreviewApi
