@@ -427,7 +427,7 @@
         </item>
         <item>
           <attribute name="label" translatable="yes">Reload All Resources</attribute>
-          <attribute name="action">app.reload-lua</attribute>
+          <attribute name="action">app.reload-all</attribute>
           <attribute name="accel">F7</attribute>
         </item>
       </section>
