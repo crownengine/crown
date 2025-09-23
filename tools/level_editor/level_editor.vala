@@ -1191,12 +1191,6 @@ public class LevelEditorApplication : Gtk.Application
 			_statusbar.set_temporary_message("Failed to compile data");
 			return;
 		}
-
-		refresh_all_clients.begin((obj, res) => {
-				refresh_all_clients.end(res);
-				_project.data_compiled();
-				_project_browser.queue_draw();
-			});
 	}
 
 	private void on_editor_connected(RuntimeInstance ri, string address, int port)
@@ -2351,9 +2345,7 @@ public class LevelEditorApplication : Gtk.Application
 			loge("Failed to import resource(s)");
 			return;
 		} else if (result == ImportResult.SUCCESS) {
-			_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
-					_data_compiler.compile.end(res);
-				});
+			compile_and_reload.begin();
 		}
 
 		// FIXME: hack to force PropertiesView to update.
@@ -2406,7 +2398,7 @@ public class LevelEditorApplication : Gtk.Application
 			_texture_settings_dialog.set_transient_for(this.active_window);
 			_texture_settings_dialog.delete_event.connect(_texture_settings_dialog.hide_on_delete);
 			_texture_settings_dialog.texture_saved.connect(() => {
-						_data_compiler.compile.begin(_project.data_dir(), _project.platform());
+						compile_and_reload.begin();
 					});
 		}
 
@@ -2757,11 +2749,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_reload_all(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
-				if (_data_compiler.compile.end(res)) {
-					refresh_all_clients.begin();
-				}
-			});
+		compile_and_reload.begin();
 	}
 
 	private async bool refresh_all_clients()
@@ -2772,6 +2760,11 @@ public class LevelEditorApplication : Gtk.Application
 		foreach (var ri in runtimes)
 			if (ri.is_connected() && !yield ri.refresh(_data_compiler))
 				success = false;
+
+		if (success) {
+			_project.data_compiled();
+			_project_browser.queue_draw();
+		}
 
 		return success;
 	}
@@ -3071,6 +3064,14 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
+	private async bool compile_and_reload()
+	{
+		if (yield _data_compiler.compile(_project.data_dir(), _project.platform()))
+			return yield refresh_all_clients();
+		else
+			return false;
+	}
+
 	private void do_create_script(string dir_name, string script_name, bool empty)
 	{
 		if (script_name == "")
@@ -3082,9 +3083,7 @@ public class LevelEditorApplication : Gtk.Application
 			return;
 		}
 
-		_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
-				_data_compiler.compile.end(res);
-			});
+		compile_and_reload.begin();
 	}
 
 	private void on_create_script(GLib.SimpleAction action, GLib.Variant? param)
@@ -3131,9 +3130,7 @@ public class LevelEditorApplication : Gtk.Application
 			return;
 		}
 
-		_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
-				_data_compiler.compile.end(res);
-			});
+		compile_and_reload.begin();
 	}
 
 	private void on_create_unit(GLib.SimpleAction action, GLib.Variant? param)
@@ -3179,9 +3176,7 @@ public class LevelEditorApplication : Gtk.Application
 			return;
 		}
 
-		_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
-				_data_compiler.compile.end(res);
-			});
+		compile_and_reload.begin();
 	}
 
 	private void on_create_state_machine(GLib.SimpleAction action, GLib.Variant? param)
@@ -3229,9 +3224,7 @@ public class LevelEditorApplication : Gtk.Application
 			return;
 		}
 
-		_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
-				_data_compiler.compile.end(res);
-			});
+		compile_and_reload.begin();
 	}
 
 	private void on_create_material(GLib.SimpleAction action, GLib.Variant? param)
