@@ -56,7 +56,11 @@ function UnitBox:init(world, id, unit_id, prefab)
 	self._selected = false
 	self._obb = { pose = Matrix4x4Box(), half_extents = Vector3Box(), dirty = true }
 
-	UnitUtils.freeze(world, unit_id)
+	self:freeze()
+end
+
+function UnitBox:freeze()
+	UnitUtils.freeze(self._world, self._unit_id)
 end
 
 function UnitBox:id()
