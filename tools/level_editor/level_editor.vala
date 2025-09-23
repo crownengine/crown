@@ -2770,7 +2770,7 @@ public class LevelEditorApplication : Gtk.Application
 		bool success = true;
 
 		foreach (var ri in runtimes)
-			if (!yield ri.refresh(_data_compiler))
+			if (ri.is_connected() && !yield ri.refresh(_data_compiler))
 				success = false;
 
 		return success;
