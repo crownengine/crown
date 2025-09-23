@@ -4387,8 +4387,8 @@ public class LevelEditorApplication : Gtk.Application
 						_database.duplicate(unit_id, prefab_id, new_database);
 						new_database.save(path, prefab_id);
 
-						_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
-								if (_data_compiler.compile.end(res)) {
+						compile_and_reload.begin((obj, res) => {
+								if (compile_and_reload.end(res)) {
 									string prefab_filename = _project.resource_filename(path);
 									string prefab_path     = ResourceId.normalize(prefab_filename);
 									string prefab_name     = ResourceId.name(prefab_path);
