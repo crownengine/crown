@@ -2764,6 +2764,17 @@ public class LevelEditorApplication : Gtk.Application
 		if (success) {
 			_project.data_compiled();
 			_project_browser.queue_draw();
+
+			// Apply editor changes to reloaded units.
+			var sb = new GLib.StringBuilder();
+			Gee.ArrayList<Guid?> unit_ids = new Gee.ArrayList<Guid?>();
+			_level.units(ref unit_ids);
+			Unit.generate_change_commands(sb, unit_ids.to_array(), _database);
+			foreach (var id in unit_ids)
+				sb.append(LevelEditorApi.unit_freeze(id));
+
+			_editor.send_script(sb.str);
+			_editor.send(DeviceApi.frame());
 		}
 
 		return success;
