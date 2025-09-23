@@ -499,125 +499,15 @@ inline int LuaStack::next(int i)
 	return lua_next(L, i);
 }
 
-inline void LuaStack::push_gui(Gui *dg)
-{
-	push_pointer(dg);
-}
-
-inline void LuaStack::push_debug_line(DebugLine *line)
-{
-	push_pointer(line);
-}
-
-inline void LuaStack::push_resource_package(ResourcePackage *package)
-{
-	push_pointer(package);
-}
-
-inline void LuaStack::push_world(World *world)
-{
-	push_pointer(world);
-}
-
-inline void LuaStack::push_scene_graph(SceneGraph *sg)
-{
-	push_pointer(sg);
-}
-
-inline void LuaStack::push_level(Level *level)
-{
-	push_pointer(level);
-}
-
-inline void LuaStack::push_render_world(RenderWorld *world)
-{
-	push_pointer(world);
-}
-
-inline void LuaStack::push_physics_world(PhysicsWorld *world)
-{
-	push_pointer(world);
-}
-
-inline void LuaStack::push_sound_world(SoundWorld *world)
-{
-	push_pointer(world);
-}
-
-inline void LuaStack::push_script_world(ScriptWorld *world)
-{
-	push_pointer(world);
-}
-
-inline void LuaStack::push_animation_state_machine(AnimationStateMachine *sm)
-{
-	push_pointer(sm);
-}
-
 inline void LuaStack::push_unit(UnitId unit)
 {
 	uintptr_t enc = (uintptr_t(unit._idx) << LIGHTDATA_UNIT_ID_SHIFT) | LIGHTDATA_UNIT_MARKER;
 	push_pointer((void *)enc);
 }
 
-inline void LuaStack::push_camera(CameraInstance i)
-{
-	push_id(i.i);
-}
-
-inline void LuaStack::push_transform(TransformInstance i)
-{
-	push_id(i.i);
-}
-
-inline void LuaStack::push_mesh_instance(MeshInstance i)
-{
-	push_id(i.i);
-}
-
-inline void LuaStack::push_sprite_instance(SpriteInstance i)
-{
-	push_id(i.i);
-}
-
-inline void LuaStack::push_light_instance(LightInstance i)
-{
-	push_id(i.i);
-}
-
-inline void LuaStack::push_fog_instance(FogInstance i)
-{
-	push_id(i.i);
-}
-
-inline void LuaStack::push_state_machine_instance(StateMachineInstance i)
-{
-	push_id(i.i);
-}
-
-inline void LuaStack::push_material(Material *material)
-{
-	push_pointer(material);
-}
-
-inline void LuaStack::push_actor(ActorInstance i)
-{
-	push_id(i.i);
-}
-
-inline void LuaStack::push_mover(MoverInstance i)
-{
-	push_id(i.i);
-}
-
 inline void LuaStack::push_sound_instance_id(SoundInstanceId id)
 {
-	push_id(id);
-}
-
-inline void LuaStack::push_script_instance(ScriptInstance i)
-{
-	push_id(i.i);
+	lua_pushnumber(L, id);
 }
 
 inline void LuaStack::push_vector2(const Vector2 &v)

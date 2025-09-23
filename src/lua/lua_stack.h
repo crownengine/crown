@@ -282,76 +282,10 @@ struct LuaStack
 	int next(int i);
 
 	///
-	void push_gui(Gui *dg);
-
-	///
-	void push_debug_line(DebugLine *line);
-
-	///
-	void push_resource_package(ResourcePackage *package);
-
-	///
-	void push_world(World *world);
-
-	///
-	void push_scene_graph(SceneGraph *sg);
-
-	///
-	void push_level(Level *level);
-
-	///
-	void push_render_world(RenderWorld *world);
-
-	///
-	void push_physics_world(PhysicsWorld *world);
-
-	///
-	void push_sound_world(SoundWorld *world);
-
-	///
-	void push_script_world(ScriptWorld *world);
-
-	///
-	void push_animation_state_machine(AnimationStateMachine *sm);
-
-	///
 	void push_unit(UnitId unit);
 
 	///
-	void push_camera(CameraInstance i);
-
-	///
-	void push_transform(TransformInstance i);
-
-	///
-	void push_mesh_instance(MeshInstance i);
-
-	///
-	void push_sprite_instance(SpriteInstance i);
-
-	///
-	void push_light_instance(LightInstance i);
-
-	///
-	void push_fog_instance(FogInstance i);
-
-	///
-	void push_state_machine_instance(StateMachineInstance i);
-
-	///
-	void push_material(Material *material);
-
-	///
-	void push_actor(ActorInstance i);
-
-	///
-	void push_mover(MoverInstance i);
-
-	///
 	void push_sound_instance_id(SoundInstanceId id);
-
-	///
-	void push_script_instance(ScriptInstance i);
 
 	///
 	void push_vector2(const Vector2 &v);
