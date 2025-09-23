@@ -488,7 +488,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "test-level",          on_run_game,            null, null },
 		{ "run-game",            on_run_game,            null, null },
 		{ "build-data",          on_build_data,          null, null },
-		{ "reload-lua",          on_refresh_lua,         null, null },
+		{ "reload-all",          on_reload_all,          null, null },
 		{ "restart-editor-view", on_restart_editor_view, null, null }
 	};
 
@@ -2755,7 +2755,7 @@ public class LevelEditorApplication : Gtk.Application
 			});
 	}
 
-	private void on_refresh_lua(GLib.SimpleAction action, GLib.Variant? param)
+	private void on_reload_all(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
 				if (_data_compiler.compile.end(res)) {
