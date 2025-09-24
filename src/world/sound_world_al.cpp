@@ -140,7 +140,7 @@ struct SoundInstance
 		bool is_2d = !(flags & PlaySoundFlags::ENABLE_ATTENUATION);
 
 		AL_CHECK(alSourcef(_source, AL_REFERENCE_DISTANCE, 1.0f));
-		AL_CHECK(alSourcef(_source, AL_MAX_DISTANCE, is_2d ? 0.0f : FLT_MAX));
+		AL_CHECK(alSourcef(_source, AL_ROLLOFF_FACTOR, is_2d ? 0.0f : 1.0f));
 		AL_CHECK(alSourcei(_source, AL_SOURCE_RELATIVE, is_2d ? AL_TRUE : AL_FALSE));
 		AL_CHECK(alSourcef(_source, AL_PITCH, 1.0f));
 		set_position(pos);
