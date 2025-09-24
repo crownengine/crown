@@ -4380,8 +4380,23 @@ public class LevelEditorApplication : Gtk.Application
 			);
 		srd.safer_response.connect((response_id, path) => {
 				if (response_id == Gtk.ResponseType.ACCEPT && path != null) {
+					string prefab_filename = _project.resource_filename(path);
+					string prefab_path     = ResourceId.normalize(prefab_filename);
+					string prefab_name     = ResourceId.name(prefab_path);
+
 					Guid unit_id = Guid.parse(guid);
-					if (_database.has_object(unit_id)) {
+					if (Unit(_database, unit_id).prefab() == prefab_name) {
+						Gtk.MessageDialog md = new Gtk.MessageDialog(this.active_window
+							, Gtk.DialogFlags.MODAL
+							, Gtk.MessageType.ERROR
+							, Gtk.ButtonsType.NONE
+							, "Cannot save prefab '%s' over itself".printf(prefab_name)
+							);
+						md.add_button("_Ok", Gtk.ResponseType.OK);
+						md.set_default_response(Gtk.ResponseType.OK);
+						md.response.connect(() => { md.destroy(); });
+						md.show_all();
+					} else if (_database.has_object(unit_id)) {
 						Guid prefab_id = Guid.new_guid();
 						Database new_database = new Database(_project);
 						_database.duplicate(unit_id, prefab_id, new_database);
@@ -4389,10 +4404,6 @@ public class LevelEditorApplication : Gtk.Application
 
 						compile_and_reload.begin((obj, res) => {
 								if (compile_and_reload.end(res)) {
-									string prefab_filename = _project.resource_filename(path);
-									string prefab_path     = ResourceId.normalize(prefab_filename);
-									string prefab_name     = ResourceId.name(prefab_path);
-
 									_level.replace_unit(unit_id, prefab_name);
 								}
 							});

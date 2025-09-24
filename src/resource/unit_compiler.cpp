@@ -449,6 +449,7 @@ namespace unit_compiler
 				, opts
 				);
 			StringId64 name(path.c_str());
+			RETURN_IF_FALSE(name != unit_name, opts, "Prefab derives from itself");
 			path += ".unit";
 
 			Buffer buf = read_unit(path.c_str(), opts);
