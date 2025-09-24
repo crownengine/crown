@@ -114,7 +114,7 @@ function crown_project(_name, _kind, _defines)
 				"-s EXIT_RUNTIME=1",
 				"-s FORCE_FILESYSTEM",    -- https://github.com/emscripten-core/emscripten/blob/f5a1faa6c8d84fd5365a178013ce982d9168f6df/tools/file_packager.py#L17
 				"-s MAX_WEBGL_VERSION=2",
-				"-s TOTAL_MEMORY=128MB",
+				"-s STACK_SIZE=256KB",
 				"-s GL_ENABLE_GET_PROC_ADDRESS",
 				-- "-s SAFE_HEAP=1",
 			}
