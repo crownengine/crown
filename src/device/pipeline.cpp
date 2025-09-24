@@ -598,10 +598,6 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 		bgfx::setViewName(id, view_name);
 	}
 
-#if CROWN_PLATFORM_EMSCRIPTEN
-	bgfx::setTexture(0, _html5_default_sampler, _html5_default_texture);
-#endif
-
 	// Clear main color frame buffers.
 	bgfx::setViewFrameBuffer(View::COLOR_0, _colors[0]);
 	bgfx::setViewClear(View::COLOR_0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x080808ff, 1.0f, 0);

@@ -1310,6 +1310,9 @@ void RenderWorld::MeshManager::draw_visibles(u8 view_id, SceneGraph &scene_graph
 	};
 
 	for (u32 ii = 0; ii < _data.first_hidden; ++ii) {
+#if CROWN_PLATFORM_EMSCRIPTEN
+		bgfx::setTexture(0, _render_world->_pipeline->_html5_default_sampler, _render_world->_pipeline->_html5_default_texture);
+#endif
 		bgfx::setTexture(CASCADED_SHADOW_MAP_SLOT, _render_world->_pipeline->_u_cascaded_shadow_map, _render_world->_pipeline->_sun_shadow_map_texture);
 		bgfx::setUniform(_render_world->_pipeline->_u_cascaded_lights, cascaded_lights, MAX_NUM_CASCADES);
 		bgfx::setUniform(_render_world->_pipeline->_u_shadow_maps_texel_sizes, &texel_sizes);
