@@ -22,7 +22,6 @@ Changelog
 * Runtime: the sound subsystem now uses a more realistic attenuation model based on inverse distance of sounds from the listener.
 * Runtime: added the ability to play mono sounds as 2d sounds (i.e. without attenuation nor spatialization).
 * Lua: changed the order of arguments of ``World.play_sound()`` to support 2d sounds playback with a single API.
-* Lua: swapped the order of the `units` and `world` parameters in ``spawned`` and ``unspawned`` callbacks in unit scripts.
 * Lua: removed 'pose' parameter from the following component creation functions:
 
 	- ``World.camera_create()``

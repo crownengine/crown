@@ -3,7 +3,7 @@
 
 local Behavior = Behavior or {}
 
-function Behavior.spawned(units, world)
+function Behavior.spawned(world, units)
 	for uu = 1, #units do
 		local unit = units[uu]
 
@@ -19,7 +19,7 @@ end
 function Behavior.update(world, dt)
 end
 
-function Behavior.unspawned(units, world)
+function Behavior.unspawned(world, units)
 end
 
 return Behavior

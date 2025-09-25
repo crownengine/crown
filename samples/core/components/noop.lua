@@ -3,10 +3,10 @@
 
 local Behavior = Behavior or {}
 
-function Behavior.spawned(units, world)
+function Behavior.spawned(world, units)
 end
 
-function Behavior.unspawned(units, world)
+function Behavior.unspawned(world, units)
 end
 
 function Behavior.update(world, dt)
