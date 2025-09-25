@@ -58,30 +58,39 @@ Crown will create a new Unit script similar to the following:
 
 	local data = MyScript.data
 
+	-- Called after units are spawned into a world.
 	function MyScript.spawned(world, units)
-		if data[world] == nil then data[world] = {} end
+		if data[world] == nil then
+			data[world] = {}
+		end
 
-		for uu = 1, #units do
-			local unit = units[uu]
+		local world_data = data[world]
 
+		for _, unit in pairs(units) do
 			-- Store instance-specific data.
-			if data[world][unit] == nil then
-				-- data[world][unit] = {}
+			if world_data[unit] == nil then
+				world_data[unit] = {}
 			end
-
-			-- Do something with the unit.
 		end
 	end
 
+	-- Called once per frame.
 	function MyScript.update(world, dt)
-		-- Called once per frame.
+		local world_data = data[world]
+
+		for unit, unit_data in pairs(world_data) do
+			-- Update unit.
+		end
 	end
 
+	-- Called before units are unspawned from a world.
 	function MyScript.unspawned(world, units)
+		local world_data = data[world]
+
 		-- Cleanup.
-		for uu = 1, #units do
-			if data[world][units] then
-				data[world][units] = nil
+		for _, unit in pairs(units) do
+			if world_data[unit] then
+				world_data[unit] = nil
 			end
 		end
 	end
