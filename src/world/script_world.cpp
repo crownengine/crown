@@ -220,14 +220,14 @@ namespace script_world
 		lua_rawgeti(stack.L, LUA_REGISTRYINDEX, index[0].module_ref);
 		lua_getfield(stack.L, -1, function_name);
 
+		stack.push_args(arg_types, args, num_args);
+
 		stack.push_table(num_indices);
 		for (u32 i = 0; i < num_indices; ++i) {
 			stack.push_key_begin(1 + i);
 			stack.push_unit(units[index[i].unit_index]);
 			stack.push_key_end();
 		}
-
-		stack.push_args(arg_types, args, num_args);
 
 		int status = sw._lua_environment->call(1 + num_args, 0);
 		if (status != LUA_OK) {

@@ -58,7 +58,7 @@ Crown will create a new Unit script similar to the following:
 
 	local data = MyScript.data
 
-	function MyScript.spawned(units, world)
+	function MyScript.spawned(world, units)
 		if data[world] == nil then data[world] = {} end
 
 		for uu = 1, #units do
@@ -77,7 +77,7 @@ Crown will create a new Unit script similar to the following:
 		-- Called once per frame.
 	end
 
-	function MyScript.unspawned(units, world)
+	function MyScript.unspawned(world, units)
 		-- Cleanup.
 		for uu = 1, #units do
 			if data[world][units] then
