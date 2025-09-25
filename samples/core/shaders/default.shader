@@ -237,6 +237,8 @@ bgfx_shaders = {
 
 		vs_code = """
 			uniform vec4 u_use_normal_map;
+			uniform vec4 u_uv_scale;
+			uniform vec4 u_uv_offset;
 
 			void main()
 			{
@@ -268,7 +270,7 @@ bgfx_shaders = {
 				v_camera = mul(v_camera_pos - v_position, tbn);
 				v_position = mul(v_position, tbn);
 
-				v_texcoord0 = a_texcoord0;
+				v_texcoord0 = (a_texcoord0 - vec2_splat(0.5))*u_uv_scale.xy + vec2_splat(0.5) + u_uv_offset.xy;
 
 		#if !defined(NO_LIGHT)
 				vec3 pos_offset = a_position + a_normal * 0.01;

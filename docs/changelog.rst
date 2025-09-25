@@ -15,6 +15,7 @@ Changelog
 * Runtime: added a new Tonemap component.
 * Runtime: added a new dedicated skydome renderer.
 * Runtime: added support for emission maps in the `mesh` shader.
+* Runtime: added support for UV scale/offset in the `mesh` shader.
 * Runtime: added support for MSAA.
 * Runtime: added a new `spinning_friction` property to physics materials that you can specify in `global.physics_config`.
 * Runtime: added configurable physics `step_frequency` and `max_substeps` via the `physics` property in the boot files.
