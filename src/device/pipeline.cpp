@@ -225,11 +225,17 @@ void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settin
 	_html5_default_texture = bgfx::createTexture2D(1, 1, false, 1, bgfx::TextureFormat::R8);
 #endif
 
+	_u_uv_scale = bgfx::createUniform("u_uv_scale", bgfx::UniformType::Vec4);
+	_u_uv_offset = bgfx::createUniform("u_uv_offset", bgfx::UniformType::Vec4);
+
 	PosTexCoord0Vertex::init();
 }
 
 void Pipeline::destroy()
 {
+	bgfx::destroy(_u_uv_offset);
+	bgfx::destroy(_u_uv_scale);
+
 #if CROWN_PLATFORM_EMSCRIPTEN
 	bgfx::destroy(_html5_default_sampler);
 	_html5_default_sampler = BGFX_INVALID_HANDLE;

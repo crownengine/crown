@@ -121,6 +121,9 @@ struct Pipeline
 	bgfx::UniformHandle _html5_default_sampler;
 	bgfx::TextureHandle _html5_default_texture;
 
+	bgfx::UniformHandle _u_uv_scale;
+	bgfx::UniformHandle _u_uv_offset;
+
 	// Default shaders.
 	ShaderData _blit_shader;
 	ShaderData _blit_blend_shader;
