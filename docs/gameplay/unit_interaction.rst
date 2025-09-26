@@ -113,14 +113,14 @@ callbacks in your script component:
 
 .. code::
 
-	function MyScript.collision_begin(unit0, unit1, actor, position, normal, distance)
-		-- Called when unit0 and unit1 begin touching.
+	function MyScript.collision_begin(world, unit, other_unit, actor, other_actor, position, normal, distance)
+		-- Called when unit and other_unit begin touching.
 	end
 
-	function MyScript.collision_end()
-		-- Called when unit0 and unit1 end touching.
+	function MyScript.collision_end(world, unit, other_unit)
+		-- Called when unit and other_unit end touching.
 	end
 
-	function MyScript.collision_stay(unit0, unit1, actor, position, normal, distance)
+	function MyScript.collision_stay(world, unit, other_unit, actor, other_actor, position, normal, distance)
 		-- Called between collision_begin() and collision_end() while the units remain touching.
 	end
