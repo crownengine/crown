@@ -65,9 +65,6 @@ namespace script_world
 	/// Returns the component id for the @a unit.
 	ScriptInstance instance(ScriptWorld &sw, UnitId unit);
 
-	///
-	void collision(ScriptWorld &sw, const PhysicsCollisionEvent &ev);
-
 	struct Index
 	{
 		int module_ref;
