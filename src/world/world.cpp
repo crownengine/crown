@@ -357,8 +357,36 @@ void World::update_scene(f32 dt)
 			}
 
 			case EventType::PHYSICS_COLLISION: {
-				const PhysicsCollisionEvent &pcev = *(PhysicsCollisionEvent *)data;
-				script_world::collision(*_script_world, pcev);
+				const PhysicsCollisionEvent &ev = *(PhysicsCollisionEvent *)data;
+				const char *funcs[] = { "collision_begin", "collision_stay", "collision_end" };
+				const u32 nargs[] = { 6, 6, 0 };
+
+				for (u32 i = 0; i < 2; ++i) {
+					ScriptInstance inst = script_world::instance(*_script_world, ev.units[i]);
+
+					if (is_valid(inst)) {
+						ArgType::Enum arg_types[6] =
+						{
+							ArgType::UNIT,
+							ArgType::UNIT,
+							ArgType::ID,
+							ArgType::VECTOR3,
+							ArgType::VECTOR3,
+							ArgType::FLOAT
+						};
+
+						Arg args[6];
+						args[0].unit_value = ev.units[1 - i];
+						args[1].unit_value = ev.units[i];
+						args[2].id_value = ev.actors[i].i;
+						args[3].vector3_value = ev.position;
+						args[4].vector3_value = ev.normal;
+						args[5].float_value = ev.distance;
+
+						script_world::unicast(*_script_world, funcs[ev.type], inst, arg_types, args, nargs[ev.type]);
+					}
+				}
+
 				break;
 			}
 
