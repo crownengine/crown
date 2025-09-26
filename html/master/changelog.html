@@ -125,7 +125,9 @@
 </li>
 <li><p class="first">Runtime: added a new dedicated skydome renderer.</p>
 </li>
-<li><p class="first">Runtime: added support for emission maps in the <cite>mesh</cite> material.</p>
+<li><p class="first">Runtime: added support for emission maps in the <cite>mesh</cite> shader.</p>
+</li>
+<li><p class="first">Runtime: added support for UV scale/offset in the <cite>mesh</cite> shader.</p>
 </li>
 <li><p class="first">Runtime: added support for MSAA.</p>
 </li>
@@ -135,7 +137,11 @@
 </li>
 <li><p class="first">Runtime: GUIs are now automatically destroyed when the world that contains them is destroyed.</p>
 </li>
-<li><p class="first">Lua: swapped the order of the <cite>units</cite> and <cite>world</cite> parameters in <code class="docutils literal notranslate"><span class="pre">spawned</span></code> and <code class="docutils literal notranslate"><span class="pre">unspawned</span></code> callbacks in unit scripts.</p>
+<li><p class="first">Runtime: the sound subsystem now uses a more realistic attenuation model based on inverse distance of sounds from the listener.</p>
+</li>
+<li><p class="first">Runtime: added the ability to play mono sounds as 2d sounds (i.e. without attenuation nor spatialization).</p>
+</li>
+<li><p class="first">Lua: changed the order of arguments of <code class="docutils literal notranslate"><span class="pre">World.play_sound()</span></code> to support 2d sounds playback with a single API.</p>
 </li>
 <li><p class="first">Lua: removed ‘pose’ parameter from the following component creation functions:</p>
 <blockquote>
@@ -150,6 +156,10 @@
 </li>
 <li><p class="first">Lua: added <code class="docutils literal notranslate"><span class="pre">World.destroy_level</span></code>.</p>
 </li>
+<li><p class="first">Lua: added <code class="docutils literal notranslate"><span class="pre">collision_end()</span></code> script component callback.</p>
+</li>
+<li><p class="first">Lua: renamed <code class="docutils literal notranslate"><span class="pre">collision()</span></code> script component callback to <code class="docutils literal notranslate"><span class="pre">collision_stay()</span></code>.</p>
+</li>
 </ul>
 <p><strong>Fixes</strong></p>
 <ul class="simple">
@@ -159,6 +169,8 @@
 <li>Runtime: fixed cascaded shadows artifacts in some circumnstances.</li>
 <li>Runtime: fixed creating material uniforms of the wrong type in some circumnstances.</li>
 <li>Runtime: fixed camera components not getting destroyed.</li>
+<li>Runtime: fixed range-based culling of sound sources.</li>
+<li>Runtime: fixed collision begin/stay generation.</li>
 </ul>
 </div>
 <div class="section" id="aug-2025">

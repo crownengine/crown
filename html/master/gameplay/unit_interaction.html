@@ -52,6 +52,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#getting-unit-handles">Getting Unit handles</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#the-script-component">The Script component</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#creating-a-unit-script">Creating a Unit script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#receiving-collision-events">Receiving collision events</a></li>
 </ul>
 </li>
 </ul>
@@ -134,30 +135,39 @@ and choose <code class="docutils literal notranslate"><span class="pre">New</spa
 
 <span class="n">local</span> <span class="n">data</span> <span class="o">=</span> <span class="n">MyScript</span><span class="o">.</span><span class="n">data</span>
 
-<span class="n">function</span> <span class="n">MyScript</span><span class="o">.</span><span class="n">spawned</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">world</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="n">world</span><span class="p">]</span> <span class="o">==</span> <span class="n">nil</span> <span class="n">then</span> <span class="n">data</span><span class="p">[</span><span class="n">world</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span> <span class="n">end</span>
+<span class="o">--</span> <span class="n">Called</span> <span class="n">after</span> <span class="n">units</span> <span class="n">are</span> <span class="n">spawned</span> <span class="n">into</span> <span class="n">a</span> <span class="n">world</span><span class="o">.</span>
+<span class="n">function</span> <span class="n">MyScript</span><span class="o">.</span><span class="n">spawned</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">units</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="n">world</span><span class="p">]</span> <span class="o">==</span> <span class="n">nil</span> <span class="n">then</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">world</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">end</span>
 
-        <span class="k">for</span> <span class="n">uu</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="c1">#units do</span>
-                <span class="n">local</span> <span class="n">unit</span> <span class="o">=</span> <span class="n">units</span><span class="p">[</span><span class="n">uu</span><span class="p">]</span>
+        <span class="n">local</span> <span class="n">world_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">world</span><span class="p">]</span>
 
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">unit</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">(</span><span class="n">units</span><span class="p">)</span> <span class="n">do</span>
                 <span class="o">--</span> <span class="n">Store</span> <span class="n">instance</span><span class="o">-</span><span class="n">specific</span> <span class="n">data</span><span class="o">.</span>
-                <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="n">world</span><span class="p">][</span><span class="n">unit</span><span class="p">]</span> <span class="o">==</span> <span class="n">nil</span> <span class="n">then</span>
-                        <span class="o">--</span> <span class="n">data</span><span class="p">[</span><span class="n">world</span><span class="p">][</span><span class="n">unit</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">if</span> <span class="n">world_data</span><span class="p">[</span><span class="n">unit</span><span class="p">]</span> <span class="o">==</span> <span class="n">nil</span> <span class="n">then</span>
+                        <span class="n">world_data</span><span class="p">[</span><span class="n">unit</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
                 <span class="n">end</span>
-
-                <span class="o">--</span> <span class="n">Do</span> <span class="n">something</span> <span class="k">with</span> <span class="n">the</span> <span class="n">unit</span><span class="o">.</span>
         <span class="n">end</span>
 <span class="n">end</span>
 
+<span class="o">--</span> <span class="n">Called</span> <span class="n">once</span> <span class="n">per</span> <span class="n">frame</span><span class="o">.</span>
 <span class="n">function</span> <span class="n">MyScript</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
-        <span class="o">--</span> <span class="n">Called</span> <span class="n">once</span> <span class="n">per</span> <span class="n">frame</span><span class="o">.</span>
+        <span class="n">local</span> <span class="n">world_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">world</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">unit</span><span class="p">,</span> <span class="n">unit_data</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">(</span><span class="n">world_data</span><span class="p">)</span> <span class="n">do</span>
+                <span class="o">--</span> <span class="n">Update</span> <span class="n">unit</span><span class="o">.</span>
+        <span class="n">end</span>
 <span class="n">end</span>
 
-<span class="n">function</span> <span class="n">MyScript</span><span class="o">.</span><span class="n">unspawned</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">world</span><span class="p">)</span>
+<span class="o">--</span> <span class="n">Called</span> <span class="n">before</span> <span class="n">units</span> <span class="n">are</span> <span class="n">unspawned</span> <span class="kn">from</span> <span class="nn">a</span> <span class="n">world</span><span class="o">.</span>
+<span class="n">function</span> <span class="n">MyScript</span><span class="o">.</span><span class="n">unspawned</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">units</span><span class="p">)</span>
+        <span class="n">local</span> <span class="n">world_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">world</span><span class="p">]</span>
+
         <span class="o">--</span> <span class="n">Cleanup</span><span class="o">.</span>
-        <span class="k">for</span> <span class="n">uu</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="c1">#units do</span>
-                <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="n">world</span><span class="p">][</span><span class="n">units</span><span class="p">]</span> <span class="n">then</span>
-                        <span class="n">data</span><span class="p">[</span><span class="n">world</span><span class="p">][</span><span class="n">units</span><span class="p">]</span> <span class="o">=</span> <span class="n">nil</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">unit</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">(</span><span class="n">units</span><span class="p">)</span> <span class="n">do</span>
+                <span class="k">if</span> <span class="n">world_data</span><span class="p">[</span><span class="n">unit</span><span class="p">]</span> <span class="n">then</span>
+                        <span class="n">world_data</span><span class="p">[</span><span class="n">unit</span><span class="p">]</span> <span class="o">=</span> <span class="n">nil</span>
                 <span class="n">end</span>
         <span class="n">end</span>
 <span class="n">end</span>
@@ -171,6 +181,24 @@ receive a single update() for <em>every</em> unit that has that particular scrip
 attached to it.</p>
 <p>This allows for efficient bulk updates, state sharing and it also make profiling
 code easier.</p>
+</div>
+<div class="section" id="receiving-collision-events">
+<h2>Receiving collision events<a class="headerlink" href="#receiving-collision-events" title="Permalink to this headline">¶</a></h2>
+<p>To get physics collision notification events, implement any of the following
+callbacks in your script component:</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">function</span> <span class="n">MyScript</span><span class="o">.</span><span class="n">collision_begin</span><span class="p">(</span><span class="n">unit0</span><span class="p">,</span> <span class="n">unit1</span><span class="p">,</span> <span class="n">actor</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">normal</span><span class="p">,</span> <span class="n">distance</span><span class="p">)</span>
+        <span class="o">--</span> <span class="n">Called</span> <span class="n">when</span> <span class="n">unit0</span> <span class="ow">and</span> <span class="n">unit1</span> <span class="n">begin</span> <span class="n">touching</span><span class="o">.</span>
+<span class="n">end</span>
+
+<span class="n">function</span> <span class="n">MyScript</span><span class="o">.</span><span class="n">collision_end</span><span class="p">()</span>
+        <span class="o">--</span> <span class="n">Called</span> <span class="n">when</span> <span class="n">unit0</span> <span class="ow">and</span> <span class="n">unit1</span> <span class="n">end</span> <span class="n">touching</span><span class="o">.</span>
+<span class="n">end</span>
+
+<span class="n">function</span> <span class="n">MyScript</span><span class="o">.</span><span class="n">collision_stay</span><span class="p">(</span><span class="n">unit0</span><span class="p">,</span> <span class="n">unit1</span><span class="p">,</span> <span class="n">actor</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">normal</span><span class="p">,</span> <span class="n">distance</span><span class="p">)</span>
+        <span class="o">--</span> <span class="n">Called</span> <span class="n">between</span> <span class="n">collision_begin</span><span class="p">()</span> <span class="ow">and</span> <span class="n">collision_end</span><span class="p">()</span> <span class="k">while</span> <span class="n">the</span> <span class="n">units</span> <span class="n">remain</span> <span class="n">touching</span><span class="o">.</span>
+<span class="n">end</span>
+</pre></div>
+</div>
 </div>
 </div>
 
