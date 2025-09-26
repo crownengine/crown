@@ -94,6 +94,15 @@ namespace script_world
 		);
 
 	///
+	void unicast(ScriptWorld &sw
+		, const char *function_name
+		, ScriptInstance script_inst
+		, const ArgType::Enum *arg_types = NULL
+		, const Arg *args = NULL
+		, u32 num_args = 0
+		);
+
+	///
 	void spawned(ScriptWorld &sw, const UnitId *units, u32 num);
 
 	///

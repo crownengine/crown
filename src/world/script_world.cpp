@@ -237,6 +237,35 @@ namespace script_world
 		stack.pop(1);
 	}
 
+	///
+	void unicast(ScriptWorld &sw
+		, const char *function_name
+		, ScriptInstance script_inst
+		, const ArgType::Enum *arg_types
+		, const Arg *args
+		, u32 num_args
+		)
+	{
+		if (sw._disable_callbacks)
+			return;
+
+		LuaStack stack(sw._lua_environment->L);
+		lua_rawgeti(stack.L, LUA_REGISTRYINDEX, sw._script[sw._data[script_inst.i].script_i].module_ref);
+		lua_getfield(stack.L, -1, function_name);
+
+		if (lua_isnil(stack.L, -1))
+			return;
+
+		stack.push_args(arg_types, args, num_args);
+
+		int status = sw._lua_environment->call(num_args, 0);
+		if (status != LUA_OK) {
+			report(stack.L, status);
+			device()->pause();
+		}
+		stack.pop(1);
+	}
+
 	void units_with_script(ScriptWorld &sw, Array<Index> &index, const UnitId *units, u32 num)
 	{
 		for (u32 i = 0; i < num; ++i) {
