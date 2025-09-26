@@ -806,13 +806,6 @@ public static void create_object_types(Database database)
 			type = PropertyType.STRING,
 			name = "editor.name",
 		},
-		PropertyDefinition()
-		{
-			type = PropertyType.STRING,
-			name = "prefab",
-			editor = PropertyEditorType.RESOURCE,
-			resource_type = OBJECT_TYPE_UNIT,
-		},
 	};
 	database.create_object_type(OBJECT_TYPE_UNIT, properties);
 }
