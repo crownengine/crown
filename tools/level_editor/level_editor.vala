@@ -2642,7 +2642,7 @@ public class LevelEditorApplication : Gtk.Application
 		else if (action.name == "light")
 			paramz = { OBJECT_TYPE_UNIT, "core/units/light" };
 		else if (action.name == "sound-source")
-			paramz = { OBJECT_TYPE_SOUND, "" };
+			paramz = { OBJECT_TYPE_SOUND, "sound" };
 		else
 			paramz = { OBJECT_TYPE_UNIT, "core/units/primitives/cube" };
 
