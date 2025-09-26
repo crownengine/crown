@@ -1191,6 +1191,8 @@ public class LevelEditorApplication : Gtk.Application
 			_statusbar.set_temporary_message("Failed to compile data");
 			return;
 		}
+
+		_project.data_compiled();
 	}
 
 	private void on_editor_connected(RuntimeInstance ri, string address, int port)
@@ -2762,7 +2764,6 @@ public class LevelEditorApplication : Gtk.Application
 				success = false;
 
 		if (success) {
-			_project.data_compiled();
 			_project_browser.queue_draw();
 
 			// Apply editor changes to reloaded units.
