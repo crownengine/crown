@@ -17,8 +17,8 @@ public class Level
 	public Database _db;
 	public Gee.ArrayList<Guid?> _selection;
 
-	public uint _num_units;
-	public uint _num_sounds;
+	public Gee.HashMap<string, uint> _unit_names;
+	public Gee.HashMap<string, uint> _sound_names;
 
 	public string _name;
 	public string _path;
@@ -45,6 +45,9 @@ public class Level
 		_db = db;
 		_selection = new Gee.ArrayList<Guid?>(Guid.equal_func);
 
+		_unit_names = new Gee.HashMap<string, uint>();
+		_sound_names = new Gee.HashMap<string, uint>();
+
 		reset();
 	}
 
@@ -56,8 +59,8 @@ public class Level
 		_selection.clear();
 		selection_changed(_selection);
 
-		_num_units = 0;
-		_num_sounds = 0;
+		_unit_names.clear();
+		_sound_names.clear();
 
 		_name = null;
 		_path = null;
@@ -194,6 +197,21 @@ public class Level
 		_db.add_restore_point((int)ActionType.CREATE_OBJECTS, new Guid?[] { new_id });
 	}
 
+	public string add_object_name(Gee.HashMap<string, uint> names, string resource_name)
+	{
+		string basename = GLib.Path.get_basename(resource_name);
+		uint num = 0;
+
+		if (!names.has_key(basename)) {
+			names[basename] = 1;
+		} else {
+			num = names[basename];
+			names.set(basename, num + 1);
+		}
+
+		return num > 0 ? "%s%u".printf(basename, num + 1) : basename;
+	}
+
 	public void on_unit_spawned(Guid id, string? name, Vector3 pos, Quaternion rot, Vector3 scl)
 	{
 		Unit unit = Unit(_db, id);
@@ -202,7 +220,7 @@ public class Level
 		unit.set_local_rotation(rot);
 		unit.set_local_scale(scl);
 
-		_db.set_object_name(id, "unit_%04u".printf(_num_units++));
+		_db.set_object_name(id, add_object_name(_unit_names, name != null ? name : "unit"));
 		_db.add_to_set(_id, "units", id);
 	}
 
@@ -211,7 +229,7 @@ public class Level
 		Sound sound = Sound(_db, id);
 		sound.create(name, pos, rot, scl, range, volume, loop);
 
-		_db.set_object_name(id, "sound_%04u".printf(_num_sounds++));
+		_db.set_object_name(id, add_object_name(_sound_names, name));
 		_db.add_to_set(_id, "sounds", id);
 	}
 
