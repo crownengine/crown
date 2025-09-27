@@ -124,3 +124,19 @@ callbacks in your script component:
 	function MyScript.collision_stay(world, unit, other_unit, actor, other_actor, position, normal, distance)
 		-- Called between collision_begin() and collision_end() while the units remain touching.
 	end
+
+Triggers
+--------
+
+Units whose actor is configured as a trigger (actor class 'trigger') will not
+receive regular collision events, instead, they will receive trigger events:
+
+.. code::
+
+	function MyScript.trigger_enter(world, trigger_unit, other_unit)
+		-- Called when other_unit begins touching trigger_unit.
+	end
+
+	function MyScript.trigger_leave(world, trigger_unit, other_unit)
+		-- Called when other_unit ends touching trigger_unit.
+	end

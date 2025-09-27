@@ -240,6 +240,7 @@ public class Project
 				+ "\n	static = { dynamic = false }"
 				+ "\n	dynamic = { dynamic = true }"
 				+ "\n	keyframed = { dynamic = true kinematic = true disable_gravity = true }"
+				+ "\n	trigger = { trigger = true }"
 				+ "\n}"
 				+ "\n"
 				;

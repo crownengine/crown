@@ -394,8 +394,28 @@ void World::update_scene(f32 dt)
 				break;
 			}
 
-			case EventType::PHYSICS_TRIGGER:
+			case EventType::PHYSICS_TRIGGER: {
+				const PhysicsTriggerEvent &ev = *(PhysicsTriggerEvent *)data;
+				const char *funcs[] = { "trigger_enter", "trigger_leave" };
+				ScriptInstance inst = script_world::instance(*_script_world, ev.trigger_unit);
+
+				if (is_valid(inst)) {
+					ArgType::Enum arg_types[3] =
+					{
+						ArgType::POINTER,
+						ArgType::UNIT,
+						ArgType::UNIT,
+					};
+
+					Arg args[3];
+					args[0].pointer_value = this;
+					args[1].unit_value = ev.trigger_unit;
+					args[2].unit_value = ev.other_unit;
+
+					script_world::unicast(*_script_world, funcs[ev.type], inst, arg_types, args, countof(args));
+				}
 				break;
+			}
 
 			default:
 				CE_FATAL("Unknown event type");

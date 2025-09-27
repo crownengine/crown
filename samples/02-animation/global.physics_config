@@ -11,4 +11,5 @@ actors = {
 	static = { dynamic = false }
 	dynamic = { dynamic = true }
 	keyframed = { dynamic = true kinematic = true disable_gravity = true }
+	trigger = { trigger = true }
 }
