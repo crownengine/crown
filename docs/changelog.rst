@@ -35,6 +35,7 @@ Changelog
 * Lua: added ``collision_end()`` script component callback.
 * Lua: renamed ``collision()`` script component callback to ``collision_stay()``.
 * Lua: added 'world' and 'other_actor' parameters to ``collision_begin()`` and ``collision_stay()``. The first 'unit' argument now refers to the unit receiving the event, other parameters have been changed accordingly.
+* Lua: added ``trigger_enter()`` and ``trigger_leave()`` script component callbacks.
 
 **Fixes**
 

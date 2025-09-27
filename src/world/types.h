@@ -593,9 +593,9 @@ struct PhysicsCollisionEvent
 
 struct PhysicsTriggerEvent
 {
-	enum Type { TOUCH_BEGIN, TOUCHING, TOUCH_END } type;
-	ActorInstance trigger;
-	ActorInstance other;
+	enum Type { ENTER, LEAVE } type;
+	UnitId trigger_unit; ///< The trigger unit that has been touched (i.e. the one that receives the event).
+	UnitId other_unit;   ///< The other unit involved in the collision.
 };
 
 struct PhysicsTransformEvent

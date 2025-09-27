@@ -1797,23 +1797,48 @@ struct PhysicsWorldImpl
 			const u64 pair = encode_pair(u0, u1);
 			hash_set::insert(*_curr_pairs, pair);
 
-			const btManifoldPoint &pt = manifold->getContactPoint(0);
+			if (!hash_set::has(*_prev_pairs, pair)) {
+				// If either A or B is a trigger, only generate a trigger event for the trigger unit.
+				// Otherwise generate a regular collision event.
+				if (obj_a->m_collisionFlags & btCollisionObject::CF_NO_CONTACT_RESPONSE
+					|| obj_b->m_collisionFlags & btCollisionObject::CF_NO_CONTACT_RESPONSE) {
+					PhysicsTriggerEvent ev;
+					ev.trigger_unit = obj_a->m_collisionFlags & btCollisionObject::CF_NO_CONTACT_RESPONSE ? u0 : u1;
+					ev.other_unit = ev.trigger_unit == u0 ? u1 : u0;
+					ev.type = PhysicsTriggerEvent::ENTER;
+					event_stream::write(_events, EventType::PHYSICS_TRIGGER, ev);
+				} else {
+					const btManifoldPoint &pt = manifold->getContactPoint(0);
 
-			PhysicsCollisionEvent ev;
-			ev.units[0] = u0;
-			ev.units[1] = u1;
-			ev.actors[0] = a0;
-			ev.actors[1] = a1;
-			ev.position = to_vector3(pt.m_positionWorldOnB);
-			ev.normal = to_vector3(pt.m_normalWorldOnB);
-			ev.distance = pt.m_distance1;
+					PhysicsCollisionEvent ev;
+					ev.units[0] = u0;
+					ev.units[1] = u1;
+					ev.actors[0] = a0;
+					ev.actors[1] = a1;
+					ev.position = to_vector3(pt.m_positionWorldOnB);
+					ev.normal = to_vector3(pt.m_normalWorldOnB);
+					ev.distance = pt.m_distance1;
+					ev.type = PhysicsCollisionEvent::TOUCH_BEGIN;
+					event_stream::write(_events, EventType::PHYSICS_COLLISION, ev);
+				}
+			} else {
+				// Do not generate stay events for triggers.
+				if (!(obj_a->m_collisionFlags & btCollisionObject::CF_NO_CONTACT_RESPONSE)
+					&& !(obj_b->m_collisionFlags & btCollisionObject::CF_NO_CONTACT_RESPONSE)) {
+					const btManifoldPoint &pt = manifold->getContactPoint(0);
 
-			if (!hash_set::has(*_prev_pairs, pair))
-				ev.type = PhysicsCollisionEvent::TOUCH_BEGIN;
-			else
-				ev.type = PhysicsCollisionEvent::TOUCHING;
-
-			event_stream::write(_events, EventType::PHYSICS_COLLISION, ev);
+					PhysicsCollisionEvent ev;
+					ev.units[0] = u0;
+					ev.units[1] = u1;
+					ev.actors[0] = a0;
+					ev.actors[1] = a1;
+					ev.position = to_vector3(pt.m_positionWorldOnB);
+					ev.normal = to_vector3(pt.m_normalWorldOnB);
+					ev.distance = pt.m_distance1;
+					ev.type = PhysicsCollisionEvent::TOUCHING;
+					event_stream::write(_events, EventType::PHYSICS_COLLISION, ev);
+				}
+			}
 		}
 
 		auto cur = hash_set::begin(*_prev_pairs);
@@ -1822,10 +1847,30 @@ struct PhysicsWorldImpl
 			HASH_SET_SKIP_HOLE(*_prev_pairs, cur);
 
 			if (!hash_set::has(*_curr_pairs, *cur)) {
-				PhysicsCollisionEvent ev;
-				ev.type = PhysicsCollisionEvent::TOUCH_END;
-				decode_pair(ev.units[0], ev.units[1], *cur);
-				event_stream::write(_events, EventType::PHYSICS_COLLISION, ev);
+				UnitId unit_a;
+				UnitId unit_b;
+				decode_pair(unit_a, unit_b, *cur);
+				ActorInstance actor_a = actor(unit_a);
+				ActorInstance actor_b = actor(unit_b);
+
+				// If either A or B is a trigger, only generate a trigger event for the trigger unit.
+				// Otherwise generate a regular collision event.
+				if (_actor[actor_a.i].body->m_collisionFlags & btCollisionObject::CF_NO_CONTACT_RESPONSE
+					|| _actor[actor_b.i].body->m_collisionFlags & btCollisionObject::CF_NO_CONTACT_RESPONSE) {
+					PhysicsTriggerEvent ev;
+					ev.type = PhysicsTriggerEvent::LEAVE;
+					ev.trigger_unit = _actor[actor_a.i].body->m_collisionFlags & btCollisionObject::CF_NO_CONTACT_RESPONSE ? unit_a : unit_b;
+					ev.other_unit = ev.trigger_unit == unit_a ? unit_b : unit_a;
+					event_stream::write(_events, EventType::PHYSICS_TRIGGER, ev);
+				} else {
+					PhysicsCollisionEvent ev;
+					ev.units[0] = unit_a;
+					ev.units[1] = unit_b;
+					ev.actors[0] = actor_a;
+					ev.actors[1] = actor_b;
+					ev.type = PhysicsCollisionEvent::TOUCH_END;
+					event_stream::write(_events, EventType::PHYSICS_COLLISION, ev);
+				}
 			}
 		}
 
