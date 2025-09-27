@@ -1,23 +1,25 @@
 -- Copyright (c) 2012-2025 Daniele Bartolini et al.
 -- SPDX-License-Identifier: MIT
 
+-- Note: the following table must be global and uniquely named.
 Tree = Tree or {
 	data = {}
 }
 
 local data = Tree.data
 
+-- Called after units are spawned into a world.
 function Tree.spawned(world, units)
 	if data[world] == nil then
 		data[world] = {}
 	end
 
-	for uu = 1, #units do
-		local unit = units[uu]
+	local world_data = data[world]
 
-		if data[world][unit] == nil then
-			-- Store instance-specific data.
-			-- data[world][unit] = {}
+	for _, unit in pairs(units) do
+		-- Store instance-specific data.
+		if world_data[unit] == nil then
+			world_data[unit] = {}
 		end
 
 		-- Set sprite depth based on unit's position.
@@ -31,17 +33,25 @@ function Tree.spawned(world, units)
 	end
 end
 
-function Tree.unspawned(world, units)
-	-- Cleanup.
-	for uu = 1, #units do
-		if data[world][units] then
-			data[world][units] = nil
-		end
+-- Called once per frame.
+function Tree.update(world, dt)
+	local world_data = data[world]
+
+	for unit, unit_data in pairs(world_data) do
+		-- Update unit.
 	end
 end
 
-function Tree.update(world, dt)
-	-- Do nothing.
+-- Called before units are unspawned from a world.
+function Tree.unspawned(world, units)
+	local world_data = data[world]
+
+	-- Cleanup.
+	for _, unit in pairs(units) do
+		if world_data[unit] then
+			world_data[unit] = nil
+		end
+	end
 end
 
 return Tree
