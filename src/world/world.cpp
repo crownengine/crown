@@ -336,7 +336,7 @@ void World::update_scene(f32 dt)
 
 	_physics_world->update(dt);
 
-	// Process physics events
+	// Process physics transform events.
 	{
 		EventStream &events = _physics_world->events();
 		const u32 size = array::size(events);
@@ -356,6 +356,43 @@ void World::update_scene(f32 dt)
 				break;
 			}
 
+			default:
+				break;
+			}
+		}
+	}
+
+	array::clear(_changed_units);
+	array::clear(_changed_world);
+	_scene_graph->get_changed(_changed_units, _changed_world);
+	_scene_graph->clear_changed();
+
+	_render_world->update_transforms(array::begin(_changed_units)
+		, array::end(_changed_units)
+		, array::begin(_changed_world)
+		);
+
+	array::clear(_changed_units);
+	array::clear(_changed_world);
+
+	_sound_world->update();
+
+	_gui_buffer.reset();
+
+	array::clear(_events);
+
+	// Process collision events.
+	{
+		EventStream &events = _physics_world->events();
+		const u32 size = array::size(events);
+		u32 read = 0;
+		while (read < size) {
+			const EventHeader *eh = (EventHeader *)&events[read];
+			const char *data = (char *)&eh[1];
+
+			read += sizeof(*eh) + eh->size;
+
+			switch (eh->type) {
 			case EventType::PHYSICS_COLLISION: {
 				const PhysicsCollisionEvent &ev = *(PhysicsCollisionEvent *)data;
 				const char *funcs[] = { "collision_begin", "collision_stay", "collision_end" };
@@ -418,31 +455,12 @@ void World::update_scene(f32 dt)
 			}
 
 			default:
-				CE_FATAL("Unknown event type");
 				break;
 			}
 		}
+
 		array::clear(events);
 	}
-
-	array::clear(_changed_units);
-	array::clear(_changed_world);
-	_scene_graph->get_changed(_changed_units, _changed_world);
-	_scene_graph->clear_changed();
-
-	_render_world->update_transforms(array::begin(_changed_units)
-		, array::end(_changed_units)
-		, array::begin(_changed_world)
-		);
-
-	array::clear(_changed_units);
-	array::clear(_changed_world);
-
-	_sound_world->update();
-
-	_gui_buffer.reset();
-
-	array::clear(_events);
 
 	ArgType::Enum arg_types[2] = { ArgType::POINTER, ArgType::FLOAT };
 	Arg args[2];
