@@ -1393,6 +1393,7 @@ struct PhysicsWorldImpl
 			btPairCachingGhostObject *ghost = CE_NEW(*_allocator, btPairCachingGhostObject)();
 			ghost->setWorldTransform(pose);
 			ghost->setCollisionShape(capsule);
+			ghost->m_userObjectPointer = ((void *)(uintptr_t)UINT32_MAX);
 
 			Mover *mover = CE_NEW(*_allocator, Mover)(_dynamics_world
 				, ghost
@@ -1584,6 +1585,8 @@ struct PhysicsWorldImpl
 
 		if (cb.hasHit()) {
 			const u32 actor_i = (u32)(uintptr_t)btRigidBody::upcast(cb.m_collisionObject)->m_userObjectPointer;
+			if (actor_i == UINT32_MAX)
+				return false;
 
 			hit.position = to_vector3(cb.m_hitPointWorld);
 			hit.normal   = to_vector3(cb.m_hitNormalWorld);
@@ -1614,6 +1617,8 @@ struct PhysicsWorldImpl
 
 			for (int i = 0; i < num; ++i) {
 				const u32 actor_i = (u32)(uintptr_t)btRigidBody::upcast(cb.m_collisionObjects[i])->m_userObjectPointer;
+				if (actor_i == UINT32_MAX)
+					return false;
 
 				hits[i].position = to_vector3(cb.m_hitPointWorld[i]);
 				hits[i].normal   = to_vector3(cb.m_hitNormalWorld[i]);
@@ -1641,6 +1646,8 @@ struct PhysicsWorldImpl
 
 		if (cb.hasHit()) {
 			const u32 actor_i = (u32)(uintptr_t)btRigidBody::upcast(cb.m_hitCollisionObject)->m_userObjectPointer;
+			if (actor_i == UINT32_MAX)
+				return false;
 
 			hit.position = to_vector3(cb.m_hitPointWorld);
 			hit.normal   = to_vector3(cb.m_hitNormalWorld);
@@ -1714,7 +1721,11 @@ struct PhysicsWorldImpl
 				&& body->m_optionalMotionState
 				&& body->isActive()
 				) {
-				const UnitId unit_id = _actor[(u32)(uintptr_t)body->m_userObjectPointer].unit;
+				u32 actor_i = (u32)(uintptr_t)body->m_userObjectPointer;
+				if (actor_i == UINT32_MAX)
+					continue;
+
+				const UnitId unit_id = _actor[actor_i].unit;
 
 				btTransform tr;
 				body->m_optionalMotionState->getWorldTransform(tr);
@@ -1787,6 +1798,9 @@ struct PhysicsWorldImpl
 			const btCollisionObject *obj_b = manifold->getBody1();
 			const ActorInstance a0 = make_actor_instance((u32)(uintptr_t)obj_a->m_userObjectPointer);
 			const ActorInstance a1 = make_actor_instance((u32)(uintptr_t)obj_b->m_userObjectPointer);
+			if (!is_valid(a0) || !is_valid(a1))
+				continue;
+
 			const UnitId u0 = _actor[a0.i].unit;
 			const UnitId u1 = _actor[a1.i].unit;
 
