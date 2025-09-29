@@ -88,8 +88,11 @@ function Game.update(dt)
 		)
 
 	-- Update camera.
-	local delta = Mouse.axis(Mouse.axis_id("cursor_delta"))
-	Game.camera:update(dt, delta.x, delta.y)
+	local dx = Keyboard.button(Keyboard.button_id("d")) - Keyboard.button(Keyboard.button_id("a"))
+	local dy = Keyboard.button(Keyboard.button_id("w")) - Keyboard.button(Keyboard.button_id("s"))
+	local cursor_delta = Mouse.axis(Mouse.axis_id("cursor_delta"))
+	Game.camera:rotate(dt, cursor_delta.x, cursor_delta.y)
+	Game.camera:move(dt, dx, dy)
 end
 
 function Game.render(dt)
