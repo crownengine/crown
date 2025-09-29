@@ -10,6 +10,7 @@
 #include "core/guid.h"
 #include "core/memory/globals.h"
 #include "core/memory/memory.inl"
+#include "core/profiler.h"
 #include "core/thread/spsc_queue.inl"
 #include "core/thread/thread.h"
 #include "device/device.h"
@@ -339,6 +340,7 @@ void android_main(struct android_app *app)
 	using namespace crown;
 
 	memory_globals::init();
+	profiler_globals::init();
 	guid_globals::init();
 
 	DeviceOptions opts(default_allocator(), 0, NULL);
@@ -349,6 +351,7 @@ void android_main(struct android_app *app)
 	CE_DELETE(default_allocator(), s_android_device);
 
 	guid_globals::shutdown();
+	profiler_globals::shutdown();
 	memory_globals::shutdown();
 }
 

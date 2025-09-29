@@ -559,8 +559,6 @@ int Device::main_loop()
 
 	logi(DEVICE, "Crown %s %s %s", CROWN_VERSION, CROWN_PLATFORM_NAME, CROWN_ARCH_NAME);
 
-	profiler_globals::init();
-
 	_shader_manager   = CE_NEW(_allocator, ShaderManager)(default_allocator());
 
 	namespace smr = state_machine_internal;
@@ -759,8 +757,6 @@ int Device::main_loop()
 	display::destroy(_allocator, *_display);
 
 	CE_DELETE(_allocator, _data_filesystem);
-
-	profiler_globals::shutdown();
 
 	_allocator.clear();
 	return _exit_code;

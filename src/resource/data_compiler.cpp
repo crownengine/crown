@@ -20,6 +20,7 @@
 #include "core/memory/temp_allocator.inl"
 #include "core/option.inl"
 #include "core/os.h"
+#include "core/profiler.h"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string.h"
 #include "core/strings/string_id.inl"
@@ -959,7 +960,7 @@ bool DataCompiler::path_is_special(const char *path)
 		;
 }
 
-bool DataCompiler::compile(const char *data_dir, const char *platform_name)
+bool DataCompiler::compile_internal(const char *data_dir, const char *platform_name)
 {
 	s64 time_start = time::now();
 
@@ -1375,6 +1376,14 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 		return false;
 	}
 
+	return success;
+}
+
+bool DataCompiler::compile(const char *data_dir, const char *platform_name)
+{
+	profiler_globals::clear();
+	bool success = compile_internal(data_dir, platform_name);
+	profiler_globals::flush();
 	return success;
 }
 

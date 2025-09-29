@@ -14,6 +14,7 @@
 #include "core/memory/memory.inl"
 #include "core/option.inl"
 #include "core/os.h"
+#include "core/profiler.h"
 #include "core/thread/spsc_queue.inl"
 #include "core/thread/thread.h"
 #include "core/unit_tests.h"
@@ -1022,12 +1023,14 @@ struct InitGlobals
 	InitGlobals()
 	{
 		memory_globals::init();
+		profiler_globals::init();
 		guid_globals::init();
 	}
 
 	~InitGlobals()
 	{
 		guid_globals::shutdown();
+		profiler_globals::shutdown();
 		memory_globals::shutdown();
 	}
 };
