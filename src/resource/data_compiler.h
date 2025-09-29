@@ -96,6 +96,9 @@ struct DataCompiler
 	/// the previous run (if any).
 	void scan_and_restore(const char *data_dir);
 
+	///
+	bool compile_internal(const char *data_dir, const char *platform_name);
+
 	/// Compiles all the resources found in the source directory and puts them in @a data_dir.
 	/// Returns true on success, false otherwise.
 	bool compile(const char *data_dir, const char *platform_name);
