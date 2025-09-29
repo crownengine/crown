@@ -363,16 +363,17 @@ inline HashMap<TKey, TValue, Hash, KeyEqual>::~HashMap()
 template<typename TKey, typename TValue, typename Hash, typename KeyEqual>
 HashMap<TKey, TValue, Hash, KeyEqual> &HashMap<TKey, TValue, Hash, KeyEqual>::operator=(const HashMap<TKey, TValue, Hash, KeyEqual> &other)
 {
-	_capacity = other._capacity;
-	_size = other._size;
-	_mask = other._mask;
+	for (u32 i = 0; i < _capacity; ++i) {
+		if (_index[i].index == 0x0123abcd)
+			_data[i].~Pair();
+	}
 
 	if (other._capacity > 0) {
 		_allocator->deallocate(_buffer);
 		const u32 size = other._capacity * (sizeof(Index) + sizeof(Entry)) + alignof(Index) + alignof(Entry);
 		_buffer = (char *)_allocator->allocate(size);
 		_index = (Index *)memory::align_top(_buffer, alignof(Index));
-		_data = (Entry *)memory::align_top(_index + _capacity, alignof(Entry));
+		_data = (Entry *)memory::align_top(_index + other._capacity, alignof(Entry));
 
 		memcpy(_index, other._index, sizeof(Index)*other._capacity);
 		for (u32 i = 0; i < other._capacity; ++i) {
@@ -383,6 +384,10 @@ HashMap<TKey, TValue, Hash, KeyEqual> &HashMap<TKey, TValue, Hash, KeyEqual>::op
 			}
 		}
 	}
+
+	_capacity = other._capacity;
+	_size = other._size;
+	_mask = other._mask;
 	return *this;
 }
 

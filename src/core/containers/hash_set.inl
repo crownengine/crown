@@ -341,16 +341,17 @@ inline HashSet<TKey, Hash, KeyEqual>::~HashSet()
 template<typename TKey, typename Hash, typename KeyEqual>
 HashSet<TKey, Hash, KeyEqual> &HashSet<TKey, Hash, KeyEqual>::operator=(const HashSet<TKey, Hash, KeyEqual> &other)
 {
-	_capacity = other._capacity;
-	_size = other._size;
-	_mask = other._mask;
+	for (u32 i = 0; i < _capacity; ++i) {
+		if (_index[i].index == 0x0123abcd)
+			_data[i].~TKey();
+	}
 
 	if (other._capacity > 0) {
 		_allocator->deallocate(_buffer);
 		const u32 size = other._capacity * (sizeof(Index) + sizeof(TKey)) + alignof(Index) + alignof(TKey);
 		_buffer = (char *)_allocator->allocate(size);
 		_index = (Index *)memory::align_top(_buffer, alignof(Index));
-		_data = (TKey *)memory::align_top(_index + _capacity, alignof(TKey));
+		_data = (TKey *)memory::align_top(_index + other._capacity, alignof(TKey));
 
 		memcpy(_index, other._index, sizeof(Index)*other._capacity);
 		for (u32 i = 0; i < other._capacity; ++i) {
@@ -361,6 +362,10 @@ HashSet<TKey, Hash, KeyEqual> &HashSet<TKey, Hash, KeyEqual>::operator=(const Ha
 			}
 		}
 	}
+
+	_capacity = other._capacity;
+	_size = other._size;
+	_mask = other._mask;
 	return *this;
 }
 
