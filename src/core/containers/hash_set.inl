@@ -341,6 +341,8 @@ inline HashSet<TKey, Hash, KeyEqual>::~HashSet()
 template<typename TKey, typename Hash, typename KeyEqual>
 HashSet<TKey, Hash, KeyEqual> &HashSet<TKey, Hash, KeyEqual>::operator=(const HashSet<TKey, Hash, KeyEqual> &other)
 {
+	CE_ASSERT(this != &other, "Self-assignment");
+
 	_capacity = other._capacity;
 	_size = other._size;
 	_mask = other._mask;
