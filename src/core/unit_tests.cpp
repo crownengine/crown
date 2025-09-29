@@ -182,6 +182,15 @@ static void test_hash_map()
 		hash_map::set(ma, 0, 0);
 		ma = mb;
 	}
+	{
+		Vector<int> v(default_allocator());
+		vector::push_back(v, 0);
+		HashMap<int, Vector<int>> a(default_allocator());
+		HashMap<int, Vector<int>> b(default_allocator());
+		hash_map::set(a, 0, v);
+		hash_map::set(b, 0, v);
+		a = b;
+	}
 	memory_globals::shutdown();
 }
 
@@ -234,6 +243,15 @@ static void test_hash_set()
 		HashSet<s32> mb(a);
 		hash_set::insert(ma, 0);
 		ma = mb;
+	}
+	{
+		DynamicString str(default_allocator());
+		str = "test";
+		HashSet<DynamicString> a(default_allocator());
+		HashSet<DynamicString> b(default_allocator());
+		hash_set::insert(a, str);
+		hash_set::insert(b, str);
+		a = b;
 	}
 	memory_globals::shutdown();
 }
