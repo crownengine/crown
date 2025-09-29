@@ -13,12 +13,12 @@
 #include "core/math/constants.h"
 #include "core/math/matrix4x4.inl"
 #include "core/memory/temp_allocator.inl"
+#include "core/profiler.h"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string_id.inl"
 #include "device/console_server.h"
 #include "device/device.h"
 #include "device/log.h"
-#include "device/profiler.h"
 #include "world/debug_line.h"
 #include <errno.h>
 #include <stb_sprintf.h>

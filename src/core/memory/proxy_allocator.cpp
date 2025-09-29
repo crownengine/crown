@@ -5,7 +5,7 @@
 
 #include "core/error/error.inl"
 #include "core/memory/proxy_allocator.h"
-#include "device/profiler.h"
+#include "core/profiler.h"
 
 namespace crown
 {
