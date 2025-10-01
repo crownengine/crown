@@ -47,6 +47,7 @@ Changelog
 * Runtime: fixed camera components not getting destroyed.
 * Runtime: fixed range-based culling of sound sources.
 * Runtime: fixed collision begin/stay generation.
+* Runtime: fixed setting 'disabled' cursor mode on HTML5.
 * Compiler: fixed a memory leak when compiling units or levels with deleted components.
 
 0.58.0 --- 01 Aug 2025

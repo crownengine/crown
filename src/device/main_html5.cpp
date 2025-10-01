@@ -46,6 +46,12 @@ EM_JS(void, crown_js_request_pointer_lock, (void), {
 	}
 });
 
+EM_JS(void, crown_js_request_pointer_lock_fallback, (void), {
+	if (Module.canvas.requestPointerLock) {
+		Module.canvas.requestPointerLock({ unadjustedMovement: false });
+	}
+});
+
 EM_JS(void, crown_js_exit_pointer_lock, (void), {
 	if (document.exitPointerLock) {
 		document.exitPointerLock();
@@ -495,6 +501,7 @@ struct EmscriptenDevice
 	static EM_BOOL pointerlockerror_callback(int event_type, const void *reserved, void *user_data)
 	{
 		CE_UNUSED_3(event_type, reserved, user_data);
+		crown_js_request_pointer_lock_fallback();
 		return EM_EVENT_STOP;
 	}
 
