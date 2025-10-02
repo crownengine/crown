@@ -120,21 +120,3 @@ Features
 	* 3D audio sources with position and range-based attenuation.
 	* Audio streaming.
 	* Formats: WAV and OGG.
-
-Contact
--------
-
-* Website: https://www.crownengine.org
-* Project page: https://github.com/crownengine/crown
-
-Contributors
-------------
-
-In chronological order.
-
-* Daniele Bartolini (`@dbartolini <https://github.com/dbartolini>`_)
-* Simone Boscaratto (`@Xed89 <https://github.com/Xed89>`_)
-* Michele Rossi (`@mikymod <https://github.com/mikymod>`_)
-* Michela Iacchelli - Crown logo v1.
-* Raphael de Vasconcelos Nascimento (`@vasconssa <https://github.com/vasconssa>`_)
-* Giulia Gazzoli - Crown logo v2.
