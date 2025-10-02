@@ -6,6 +6,8 @@ Changelog
 
 **New Features and Improvements**
 
+* Samples: improved 01-physics sample with a first-person character mover, kinematic platforms, triggers and more.
+* Manual: added a new 'Writing Gameplay' section to the manual.
 * Tools: saving a Unit as a prefab now automatically replaces that Unit in the level with the saved prefab.
 * Runtime: added a new Mover component for controlling characters that implements a standard collide-and-slide algorithm.
 * Runtime: added a new .render_config resource for configuring the renderer, along with a `render_config` property in the boot files to allow selecting the desired config.
