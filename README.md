@@ -28,7 +28,7 @@ Crown Engine
 ### [Examples](https://github.com/crownengine/crown/tree/master/samples)
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/crownengine/crown/master/docs/shots/01-physics.png"   width="272px" title="01-physics"/>
+<a href="https://play.crownengine.org/physics"><img src="https://raw.githubusercontent.com/crownengine/crown/master/docs/shots/01-physics.jpg"   width="272px" title="01-physics"/></a>
 <img src="https://raw.githubusercontent.com/crownengine/crown/master/docs/shots/02-animation.png" width="272px" title="02-animation"/>
 <img src="https://raw.githubusercontent.com/crownengine/crown/master/docs/shots/03-joypad.png"    width="272px" title="03-joypad"/>
 </p>
