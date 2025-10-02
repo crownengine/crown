@@ -53,6 +53,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#the-script-component">The Script component</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#creating-a-unit-script">Creating a Unit script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#receiving-collision-events">Receiving collision events</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#triggers">Triggers</a></li>
 </ul>
 </li>
 </ul>
@@ -186,16 +187,30 @@ code easier.</p>
 <h2>Receiving collision events<a class="headerlink" href="#receiving-collision-events" title="Permalink to this headline">¶</a></h2>
 <p>To get physics collision notification events, implement any of the following
 callbacks in your script component:</p>
-<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">function</span> <span class="n">MyScript</span><span class="o">.</span><span class="n">collision_begin</span><span class="p">(</span><span class="n">unit0</span><span class="p">,</span> <span class="n">unit1</span><span class="p">,</span> <span class="n">actor</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">normal</span><span class="p">,</span> <span class="n">distance</span><span class="p">)</span>
-        <span class="o">--</span> <span class="n">Called</span> <span class="n">when</span> <span class="n">unit0</span> <span class="ow">and</span> <span class="n">unit1</span> <span class="n">begin</span> <span class="n">touching</span><span class="o">.</span>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">function</span> <span class="n">MyScript</span><span class="o">.</span><span class="n">collision_begin</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">other_unit</span><span class="p">,</span> <span class="n">actor</span><span class="p">,</span> <span class="n">other_actor</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">normal</span><span class="p">,</span> <span class="n">distance</span><span class="p">)</span>
+        <span class="o">--</span> <span class="n">Called</span> <span class="n">when</span> <span class="n">unit</span> <span class="ow">and</span> <span class="n">other_unit</span> <span class="n">begin</span> <span class="n">touching</span><span class="o">.</span>
 <span class="n">end</span>
 
-<span class="n">function</span> <span class="n">MyScript</span><span class="o">.</span><span class="n">collision_end</span><span class="p">()</span>
-        <span class="o">--</span> <span class="n">Called</span> <span class="n">when</span> <span class="n">unit0</span> <span class="ow">and</span> <span class="n">unit1</span> <span class="n">end</span> <span class="n">touching</span><span class="o">.</span>
+<span class="n">function</span> <span class="n">MyScript</span><span class="o">.</span><span class="n">collision_end</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">other_unit</span><span class="p">)</span>
+        <span class="o">--</span> <span class="n">Called</span> <span class="n">when</span> <span class="n">unit</span> <span class="ow">and</span> <span class="n">other_unit</span> <span class="n">end</span> <span class="n">touching</span><span class="o">.</span>
 <span class="n">end</span>
 
-<span class="n">function</span> <span class="n">MyScript</span><span class="o">.</span><span class="n">collision_stay</span><span class="p">(</span><span class="n">unit0</span><span class="p">,</span> <span class="n">unit1</span><span class="p">,</span> <span class="n">actor</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">normal</span><span class="p">,</span> <span class="n">distance</span><span class="p">)</span>
+<span class="n">function</span> <span class="n">MyScript</span><span class="o">.</span><span class="n">collision_stay</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">other_unit</span><span class="p">,</span> <span class="n">actor</span><span class="p">,</span> <span class="n">other_actor</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">normal</span><span class="p">,</span> <span class="n">distance</span><span class="p">)</span>
         <span class="o">--</span> <span class="n">Called</span> <span class="n">between</span> <span class="n">collision_begin</span><span class="p">()</span> <span class="ow">and</span> <span class="n">collision_end</span><span class="p">()</span> <span class="k">while</span> <span class="n">the</span> <span class="n">units</span> <span class="n">remain</span> <span class="n">touching</span><span class="o">.</span>
+<span class="n">end</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="triggers">
+<h2>Triggers<a class="headerlink" href="#triggers" title="Permalink to this headline">¶</a></h2>
+<p>Units whose actor is configured as a trigger (actor class ‘trigger’) will not
+receive regular collision events, instead, they will receive trigger events:</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">function</span> <span class="n">MyScript</span><span class="o">.</span><span class="n">trigger_enter</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">trigger_unit</span><span class="p">,</span> <span class="n">other_unit</span><span class="p">)</span>
+        <span class="o">--</span> <span class="n">Called</span> <span class="n">when</span> <span class="n">other_unit</span> <span class="n">begins</span> <span class="n">touching</span> <span class="n">trigger_unit</span><span class="o">.</span>
+<span class="n">end</span>
+
+<span class="n">function</span> <span class="n">MyScript</span><span class="o">.</span><span class="n">trigger_leave</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">trigger_unit</span><span class="p">,</span> <span class="n">other_unit</span><span class="p">)</span>
+        <span class="o">--</span> <span class="n">Called</span> <span class="n">when</span> <span class="n">other_unit</span> <span class="n">ends</span> <span class="n">touching</span> <span class="n">trigger_unit</span><span class="o">.</span>
 <span class="n">end</span>
 </pre></div>
 </div>

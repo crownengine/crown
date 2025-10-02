@@ -160,6 +160,10 @@
 </li>
 <li><p class="first">Lua: renamed <code class="docutils literal notranslate"><span class="pre">collision()</span></code> script component callback to <code class="docutils literal notranslate"><span class="pre">collision_stay()</span></code>.</p>
 </li>
+<li><p class="first">Lua: added ‘world’ and ‘other_actor’ parameters to <code class="docutils literal notranslate"><span class="pre">collision_begin()</span></code> and <code class="docutils literal notranslate"><span class="pre">collision_stay()</span></code>. The first ‘unit’ argument now refers to the unit receiving the event, other parameters have been changed accordingly.</p>
+</li>
+<li><p class="first">Lua: added <code class="docutils literal notranslate"><span class="pre">trigger_enter()</span></code> and <code class="docutils literal notranslate"><span class="pre">trigger_leave()</span></code> script component callbacks.</p>
+</li>
 </ul>
 <p><strong>Fixes</strong></p>
 <ul class="simple">
@@ -171,6 +175,8 @@
 <li>Runtime: fixed camera components not getting destroyed.</li>
 <li>Runtime: fixed range-based culling of sound sources.</li>
 <li>Runtime: fixed collision begin/stay generation.</li>
+<li>Runtime: fixed setting ‘disabled’ cursor mode on HTML5.</li>
+<li>Compiler: fixed a memory leak when compiling units or levels with deleted components.</li>
 </ul>
 </div>
 <div class="section" id="aug-2025">
