@@ -134,7 +134,7 @@ elif [ "${PLATFORM}" = "windows" ]; then
 	# Copy additional DLLs.
 	cp /mingw64/bin/liblzma-5.dll   build/mingw64/bin
 	cp /mingw64/bin/librsvg-2-2.dll build/mingw64/bin
-	cp /mingw64/bin/libxml2-2.dll   build/mingw64/bin
+	cp /mingw64/bin/libxml2-16.dll  build/mingw64/bin
 
 	# Copy GDK pixbuf loaders.
 	mkdir -p build/mingw64/lib/gdk-pixbuf-2.0/2.10.0/loaders
