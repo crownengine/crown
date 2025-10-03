@@ -71,7 +71,6 @@ static KeyboardButton::Enum win_translate_key(s32 winkey)
 	case VK_LWIN:     return KeyboardButton::SUPER_LEFT;
 	case VK_RWIN:     return KeyboardButton::SUPER_RIGHT;
 	case VK_NUMLOCK:  return KeyboardButton::NUM_LOCK;
-	// case VK_RETURN:   return KeyboardButton::NUMPAD_ENTER;
 	case VK_DECIMAL:  return KeyboardButton::NUMPAD_DELETE;
 	case VK_MULTIPLY: return KeyboardButton::NUMPAD_MULTIPLY;
 	case VK_ADD:      return KeyboardButton::NUMPAD_ADD;
@@ -400,6 +399,13 @@ struct WindowsDevice
 		if (_options->_parent_window != 0)
 			SetParent(_hwnd, (HWND)(UINT_PTR)_options->_parent_window);
 
+		RAWINPUTDEVICE rid;
+		rid.usUsagePage = 0x01;
+		rid.usUsage = 0x06;
+		rid.dwFlags = RIDEV_NOLEGACY;
+		rid.hwndTarget = _hwnd;
+		RegisterRawInputDevices(&rid, 1, sizeof(rid));
+
 		_hcursor = LoadCursorA(NULL, IDC_ARROW);
 
 		// Create standard cursors
@@ -588,18 +594,120 @@ struct WindowsDevice
 			break;
 		}
 
-		case WM_KEYDOWN:
-		case WM_SYSKEYDOWN:
-		case WM_KEYUP:
-		case WM_SYSKEYUP: {
-			KeyboardButton::Enum kb = win_translate_key(wparam & 0xff);
+		case WM_INPUT: {
+			// See: https://blog.molecular-matters.com/2011/09/05/properly-handling-keyboard-input
+			char data[sizeof(RAWINPUT)] = {};
+			UINT size = sizeof(RAWINPUT);
+			GetRawInputData(reinterpret_cast<HRAWINPUT>(lparam), RID_INPUT, data, &size, sizeof(RAWINPUTHEADER));
 
-			if (kb != KeyboardButton::COUNT) {
-				_queue.push_button_event(InputDeviceType::KEYBOARD
-					, 0
-					, kb
-					, (id == WM_KEYDOWN || id == WM_SYSKEYDOWN)
-					);
+			// Extract keyboard raw input data.
+			RAWINPUT *raw = reinterpret_cast<RAWINPUT *>(data);
+			if (raw->header.dwType == RIM_TYPEKEYBOARD) {
+				const RAWKEYBOARD &keyboard = raw->data.keyboard;
+				UINT vk = keyboard.VKey;
+				UINT sc = keyboard.MakeCode;
+				UINT flags = keyboard.Flags;
+				KeyboardButton::Enum kb = KeyboardButton::COUNT;
+
+				if (vk == 255) {
+					// Discard "fake keys" which are part of an escaped sequence.
+					break;
+				} else if (vk == VK_SHIFT) {
+					// Correct left-hand / right-hand SHIFT.
+					vk = MapVirtualKey(sc, MAPVK_VSC_TO_VK_EX);
+				} else if (vk == VK_NUMLOCK) {
+					// Correct PAUSE/BREAK and NUM LOCK silliness, and set the extended bit.
+					sc = MapVirtualKey(vk, MAPVK_VK_TO_VSC) | 0x100;
+				}
+
+				// e0 and e1 are escape sequences used for certain special keys, such as PRINT and
+				// PAUSE/BREAK. See http://www.win.tue.nl/~aeb/linux/kbd/scs-1.html
+				const bool e0 = (flags & RI_KEY_E0) != 0;
+				const bool e1 = (flags & RI_KEY_E1) != 0;
+
+				if (e1) {
+					// For escaped sequences, turn the virtual key into the correct scan code using
+					// MapVirtualKey. however, MapVirtualKey is unable to map VK_PAUSE (this is a
+					// known bug), hence we map that by hand.
+					if (vk == VK_PAUSE)
+						sc = 0x45;
+					else
+						sc = MapVirtualKey(vk, MAPVK_VK_TO_VSC);
+				}
+
+				switch (vk) {
+				// Right-hand CONTROL and ALT have their e0 bit set.
+				case VK_CONTROL:
+					vk = e0 ? VK_RCONTROL : VK_LCONTROL;
+					break;
+				case VK_MENU:
+					vk = e0 ? VK_RMENU : VK_LMENU;
+					break;
+				// NUMPAD ENTER has its e0 bit set.
+				case VK_RETURN:
+					if (e0)
+						kb = KeyboardButton::NUMPAD_ENTER;
+					break;
+				// The standard INSERT, DELETE, HOME, END, PRIOR and NEXT keys will always have
+				// their e0 bit set, but the corresponding keys on the NUMPAD will not.
+				case VK_INSERT:
+					if (!e0) vk = VK_NUMPAD0;
+					break;
+				case VK_DELETE:
+					if (!e0)
+						vk = VK_DECIMAL;
+					break;
+				case VK_HOME:
+					if (!e0)
+						vk = VK_NUMPAD7;
+					break;
+				case VK_END:
+					if (!e0)
+						vk = VK_NUMPAD1;
+					break;
+				case VK_PRIOR:
+					if (!e0)
+						vk = VK_NUMPAD9;
+					break;
+				case VK_NEXT:
+					if (!e0)
+						vk = VK_NUMPAD3;
+					break;
+				// The standard arrow keys will always have their e0 bit set, but the corresponding
+				// keys on the NUMPAD will not.
+				case VK_LEFT:
+					if (!e0)
+						vk = VK_NUMPAD4;
+					break;
+				case VK_RIGHT:
+					if (!e0)
+						vk = VK_NUMPAD6;
+					break;
+				case VK_UP:
+					if (!e0)
+						vk = VK_NUMPAD8;
+					break;
+				case VK_DOWN:
+					if (!e0)
+						vk = VK_NUMPAD2;
+					break;
+				// NUMPAD5 doesn't have its e0 bit set.
+				case VK_CLEAR:
+					if (!e0)
+						vk = VK_NUMPAD5;
+					break;
+				}
+
+				if (kb == KeyboardButton::COUNT)
+					kb = win_translate_key(vk);
+
+				if (kb != KeyboardButton::COUNT) {
+					_queue.push_button_event(InputDeviceType::KEYBOARD
+						, 0
+						, kb
+						, (flags & RI_KEY_BREAK) == 0
+						);
+				}
 			}
 			break;
 		}
