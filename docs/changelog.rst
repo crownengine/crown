@@ -4,6 +4,10 @@ Changelog
 0.60.0 --- DD MMM YYYY
 ----------------------
 
+**Fixes**
+
+* Runtime: Windows: fixed a number of misdetected keyboard keys.
+
 0.59.0 --- 02 Oct 2025
 ----------------------
 
