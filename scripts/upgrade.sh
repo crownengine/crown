@@ -6,7 +6,7 @@ git_clone () {
 	local DEST=$1
 	local REPO=$2
 	local BRANCH=$3
-	local COMMIT=$4
+	local COMMIT=${4-}
 	local DEPTH=1
 
 	if [ ! -z "${COMMIT}" ]; then
