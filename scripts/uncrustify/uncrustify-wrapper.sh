@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -eu
+
 # Convert leading spaces to tabs.
 fix_indentation_char () {
 	unexpand --tabs=4 --first-only
