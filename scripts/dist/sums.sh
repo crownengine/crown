@@ -24,5 +24,5 @@ if [ -f "${SUMS}" ]; then
     fi
 fi
 
-rm "${SUMS}"
+rm -f "${SUMS}"
 (cd "${OUTPUT_DIR}" && sha256sum -- * > "${SUMS}" && cat "${SUMS}")
