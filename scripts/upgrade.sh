@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2012-2025 Daniele Bartolini et al.
 
+set -eu
+
 git_clone () {
 	local DEST=$1
 	local REPO=$2

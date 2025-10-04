@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -eu
+
 format_src () {
 	find src/ -iname '*.h' -o -iname '*.inl' -o -iname '*.cpp' \
 		| tr '\n' '\0'                                         \

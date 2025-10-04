@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -eu
+
 # If a filename is provided use it, otherwise read from stdin.
 CSV=${1:-/dev/stdin}
 
