@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2012-2025 Daniele Bartolini et al.
 
+set -eu
+
 while true; do
 	case "$1" in
 	-c|--clean)

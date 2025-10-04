@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -eu
+
 WEBSITE_DIR="../crown-website"
 CREDITS_DIR="${WEBSITE_DIR}/src/data/about/credits"
 ALIASES="scripts/dist/authors-aliases.csv"
