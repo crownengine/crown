@@ -60,10 +60,10 @@
 #include "resource/state_machine_resource.h"
 #include "resource/texture_resource.h"
 #include "resource/unit_resource.h"
-#include "world/audio.h"
 #include "world/material_manager.h"
 #include "world/physics.h"
 #include "world/shader_manager.h"
+#include "world/sound_world.h"
 #include "world/unit_manager.h"
 #include "world/world.h"
 #include <bgfx/bgfx.h>
@@ -687,7 +687,7 @@ int Device::main_loop()
 	_lua_environment  = CE_NEW(_allocator, LuaEnvironment)();
 	_lua_environment->register_console_commands(*_console_server);
 
-	audio_globals::init();
+	sound_world::init();
 
 	// Load boot package.
 	ResourcePackage *boot_package = create_resource_package(_boot_config.boot_package_name);
@@ -735,7 +735,7 @@ int Device::main_loop()
 	destroy_resource_package(*boot_package);
 
 	physics_globals::shutdown(_allocator);
-	audio_globals::shutdown();
+	sound_world::shutdown();
 	graph_globals::shutdown();
 
 	_pipeline->destroy();
