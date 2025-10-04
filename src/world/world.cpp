@@ -142,7 +142,7 @@ World::World(Allocator &a
 	_scene_graph   = CE_NEW(*_allocator, SceneGraph)(*_allocator, um);
 	_render_world  = CE_NEW(*_allocator, RenderWorld)(*_allocator, rm, sm, mm, um, pl, *_scene_graph);
 	_physics_world = CE_NEW(*_allocator, PhysicsWorld)(*_allocator, rm, um, *_scene_graph, *_lines);
-	_sound_world   = sound_world_globals::create(*_allocator, rm);
+	_sound_world   = sound_world::create(*_allocator, rm);
 	_script_world  = CE_NEW(*_allocator, ScriptWorld)(*_allocator, um, rm, env, *this);
 	_sprite_animation_player = CE_NEW(*_allocator, SpriteAnimationPlayer)(*_allocator);
 	_mesh_animation_player = CE_NEW(*_allocator, MeshAnimationPlayer)(*_allocator);
@@ -192,7 +192,7 @@ World::~World()
 	CE_DELETE(*_allocator, _mesh_animation_player);
 	CE_DELETE(*_allocator, _sprite_animation_player);
 	CE_DELETE(*_allocator, _script_world);
-	sound_world_globals::destroy(*_allocator, *_sound_world);
+	sound_world::destroy(*_allocator, *_sound_world);
 	CE_DELETE(*_allocator, _physics_world);
 	CE_DELETE(*_allocator, _render_world);
 	CE_DELETE(*_allocator, _scene_graph);

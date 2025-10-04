@@ -17,7 +17,6 @@
 #include "resource/resource_manager.h"
 #include "resource/sound_resource.h"
 #include "resource/sound_ogg.h"
-#include "world/audio.h"
 #include "world/sound_world.h"
 #include <AL/al.h>
 #include <AL/alc.h>
@@ -55,41 +54,6 @@ static const char *al_error_to_string(ALenum error)
 #else
 	#define AL_CHECK(function) function
 #endif // if CROWN_DEBUG
-
-/// Global audio-related functions
-namespace audio_globals
-{
-	static ALCdevice *s_al_device;
-	static ALCcontext *s_al_context;
-
-	void init()
-	{
-		s_al_device = alcOpenDevice(NULL);
-		CE_ASSERT(s_al_device, "alcOpenDevice: error");
-
-		s_al_context = alcCreateContext(s_al_device, NULL);
-		CE_ASSERT(s_al_context, "alcCreateContext: error");
-
-		AL_CHECK(alcMakeContextCurrent(s_al_context));
-
-#if CROWN_DEBUG && !CROWN_DEVELOPMENT
-		logi(SOUND, "OpenAL Vendor   : %s", alGetString(AL_VENDOR));
-		logi(SOUND, "OpenAL Version  : %s", alGetString(AL_VERSION));
-		logi(SOUND, "OpenAL Renderer : %s", alGetString(AL_RENDERER));
-#endif
-
-		AL_CHECK(alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED));
-		AL_CHECK(alDopplerFactor(1.0f));
-		AL_CHECK(alDopplerVelocity(343.0f));
-	}
-
-	void shutdown()
-	{
-		alcDestroyContext(s_al_context);
-		alcCloseDevice(s_al_device);
-	}
-
-} // namespace audio_globals
 
 struct SoundInstance
 {
@@ -678,18 +642,56 @@ struct SoundWorldAL : public SoundWorld
 	}
 };
 
-namespace sound_world_globals
+namespace sound_world_al
 {
+	static ALCdevice *s_al_device;
+	static ALCcontext *s_al_context;
+
+	void init()
+	{
+		s_al_device = alcOpenDevice(NULL);
+
+		if (s_al_device == NULL) {
+			logw(SOUND, "Failed to open audio device");
+			return;
+		}
+
+		s_al_context = alcCreateContext(s_al_device, NULL);
+		CE_ASSERT(s_al_context, "alcCreateContext: error");
+
+		AL_CHECK(alcMakeContextCurrent(s_al_context));
+
+#if CROWN_DEBUG && !CROWN_DEVELOPMENT
+		logi(SOUND, "OpenAL Vendor   : %s", alGetString(AL_VENDOR));
+		logi(SOUND, "OpenAL Version  : %s", alGetString(AL_VERSION));
+		logi(SOUND, "OpenAL Renderer : %s", alGetString(AL_RENDERER));
+#endif
+
+		AL_CHECK(alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED));
+		AL_CHECK(alDopplerFactor(1.0f));
+		AL_CHECK(alDopplerVelocity(343.0f));
+	}
+
+	void shutdown()
+	{
+		alcDestroyContext(s_al_context);
+		alcCloseDevice(s_al_device);
+	}
+
 	SoundWorld *create(Allocator &a, ResourceManager &rm)
 	{
-		return CE_NEW(a, SoundWorldAL)(a, rm);
+		return s_al_device != NULL
+			? CE_NEW(a, SoundWorldAL)(a, rm)
+			: NULL
+			;
 	}
 
 	void destroy(Allocator &a, SoundWorld &sw)
 	{
-		return CE_DELETE(a, &sw);
+		CE_DELETE(a, &sw);
 	}
-}
+
+} // namespace sound_world_al
 
 } // namespace crown
 

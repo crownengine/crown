@@ -73,13 +73,21 @@ struct SoundWorld
 	virtual void update() = 0;
 };
 
-namespace sound_world_globals
+namespace sound_world
 {
+	/// Initializes the audio system.
+	/// This is the place where to create and initialize per-application objects.
+	void init();
+
+	/// It should reverse the actions performed by sound_world::init().
+	void shutdown();
+
 	///
 	SoundWorld *create(Allocator &a, ResourceManager &rm);
 
 	///
 	void destroy(Allocator &a, SoundWorld &sw);
-}
+
+} // namespace sound_world
 
 } // namespace crown

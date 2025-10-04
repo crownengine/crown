@@ -3,28 +3,12 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "config.h"
-
-#if CROWN_SOUND_NOOP
 #include "core/memory/allocator.h"
 #include "core/memory/memory.inl"
-#include "world/audio.h"
 #include "world/sound_world.h"
 
 namespace crown
 {
-namespace audio_globals
-{
-	void init()
-	{
-	}
-
-	void shutdown()
-	{
-	}
-
-} // namespace audio_globals
-
 struct SoundWorldNoop : public SoundWorld
 {
 	u32 _marker;
@@ -104,8 +88,16 @@ struct SoundWorldNoop : public SoundWorld
 	}
 };
 
-namespace sound_world_globals
+namespace sound_world_noop
 {
+	void init()
+	{
+	}
+
+	void shutdown()
+	{
+	}
+
 	SoundWorld *create(Allocator &a, ResourceManager &rm)
 	{
 		return CE_NEW(a, SoundWorldNoop)(a, rm);
@@ -115,8 +107,7 @@ namespace sound_world_globals
 	{
 		return CE_DELETE(a, &sw);
 	}
-}
+
+} // namespace sound_world_noop
 
 } // namespace crown
-
-#endif // if CROWN_SOUND_NOOP
