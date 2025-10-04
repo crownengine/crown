@@ -40,23 +40,21 @@ fix_semicolon_indentation () {
 	'
 }
 
-if [ "${OSTYPE}" = "linux-gnu" ]; then
+if [ "${OSTYPE-}" = "linux-gnu" ]; then
 	OS="linux"
-elif [ "${OSTYPE}" = "msys" ]; then
+elif [ "${OSTYPE-}" = "msys" ]; then
 	OS="windows"
 else
 	OS="linux"
 fi
 
-if [ -z "${UNCRUSTIFY}" ]; then
-	UNCRUSTIFY=./scripts/uncrustify/bin/"${OS}"/uncrustify
-fi
+UNCRUSTIFY_INTERNAL=./scripts/uncrustify/bin/"${OS}"/uncrustify
 
 if [ -n "$2" ]; then
 	# Do uncrustify.
 	echo "$2"
 	TEMPFILE_UNCRUSTIFY=$(mktemp)
-	if ! ${UNCRUSTIFY} -q -c "$1" -f "$2" > "$TEMPFILE_UNCRUSTIFY"; then
+	if ! ${UNCRUSTIFY-$UNCRUSTIFY_INTERNAL} -q -c "$1" -f "$2" > "$TEMPFILE_UNCRUSTIFY"; then
 		echo "Failed to format '$2'"
 		exit 1
 	else
