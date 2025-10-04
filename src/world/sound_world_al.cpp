@@ -415,7 +415,7 @@ struct SoundInstance
 #define INDEX_MASK        0xffff
 #define NEW_OBJECT_ID_ADD 0x10000
 
-struct SoundWorldImpl
+struct SoundWorldAL : public SoundWorld
 {
 	struct Index
 	{
@@ -430,6 +430,8 @@ struct SoundWorldImpl
 		f32 volume;
 	};
 
+	u32 _marker;
+	Allocator *_allocator;
 	ResourceManager *_resource_manager;
 	u32 _num_objects;
 	SoundInstance _playing_sounds[MAX_OBJECTS];
@@ -438,6 +440,36 @@ struct SoundWorldImpl
 	u16 _freelist_dequeue;
 	Matrix4x4 _listener_pose;
 	Array<SoundGroup> _groups;
+
+	SoundWorldAL(Allocator &a, ResourceManager &rm)
+		: _marker(SOUND_WORLD_MARKER)
+		, _allocator(&a)
+		, _resource_manager(&rm)
+		, _groups(a)
+	{
+		_num_objects = 0;
+		for (u32 i = 0; i < MAX_OBJECTS; ++i) {
+			_indices[i].id = i;
+			_indices[i].next = i + 1;
+		}
+		_freelist_dequeue = 0;
+		_freelist_enqueue = MAX_OBJECTS - 1;
+
+		set_listener_pose(MATRIX4X4_IDENTITY);
+	}
+
+	SoundWorldAL(const SoundWorldAL &) = delete;
+	SoundWorldAL &operator=(const SoundWorldAL &) = delete;
+
+	virtual ~SoundWorldAL()
+	{
+		for (u32 i = 0; i < _num_objects; ++i) {
+			SoundInstance &inst = lookup(_playing_sounds[i]._id);
+			inst.destroy(_resource_manager);
+		}
+
+		_marker = 0;
+	}
 
 	bool has(SoundInstanceId id)
 	{
@@ -473,33 +505,6 @@ struct SoundWorldImpl
 		_indices[_freelist_enqueue].next = id & INDEX_MASK;
 		_freelist_enqueue = id & INDEX_MASK;
 	}
-
-	SoundWorldImpl(Allocator &a, ResourceManager &rm)
-		: _resource_manager(&rm)
-		, _groups(a)
-	{
-		_num_objects = 0;
-		for (u32 i = 0; i < MAX_OBJECTS; ++i) {
-			_indices[i].id = i;
-			_indices[i].next = i + 1;
-		}
-		_freelist_dequeue = 0;
-		_freelist_enqueue = MAX_OBJECTS - 1;
-
-		set_listener_pose(MATRIX4X4_IDENTITY);
-	}
-
-	~SoundWorldImpl()
-	{
-		for (u32 i = 0; i < _num_objects; ++i) {
-			SoundInstance &inst = lookup(_playing_sounds[i]._id);
-			inst.destroy(_resource_manager);
-		}
-	}
-
-	SoundWorldImpl(const SoundWorldImpl &) = delete;
-
-	SoundWorldImpl &operator=(const SoundWorldImpl &) = delete;
 
 	SoundInstanceId play(StringId64 name
 		, bool loop
@@ -673,83 +678,17 @@ struct SoundWorldImpl
 	}
 };
 
-SoundWorld::SoundWorld(Allocator &a, ResourceManager &rm)
-	: _marker(SOUND_WORLD_MARKER)
-	, _allocator(&a)
-	, _impl(NULL)
+namespace sound_world_globals
 {
-	_impl = CE_NEW(*_allocator, SoundWorldImpl)(a, rm);
-}
+	SoundWorld *create(Allocator &a, ResourceManager &rm)
+	{
+		return CE_NEW(a, SoundWorldAL)(a, rm);
+	}
 
-SoundWorld::~SoundWorld()
-{
-	CE_DELETE(*_allocator, _impl);
-	_marker = 0;
-}
-
-SoundInstanceId SoundWorld::play(StringId64 name, bool loop, f32 volume, f32 range, u32 flags, const Vector3 &pos, StringId32 group)
-{
-	return _impl->play(name, loop, volume, range, flags, pos, group);
-}
-
-void SoundWorld::stop(SoundInstanceId id)
-{
-	_impl->stop(id);
-}
-
-bool SoundWorld::is_playing(SoundInstanceId id)
-{
-	return _impl->is_playing(id);
-}
-
-void SoundWorld::stop_all()
-{
-	_impl->stop_all();
-}
-
-void SoundWorld::pause_all()
-{
-	_impl->pause_all();
-}
-
-void SoundWorld::resume_all()
-{
-	_impl->resume_all();
-}
-
-void SoundWorld::set_sound_positions(u32 num, const SoundInstanceId *ids, const Vector3 *positions)
-{
-	_impl->set_sound_positions(num, ids, positions);
-}
-
-void SoundWorld::set_sound_ranges(u32 num, const SoundInstanceId *ids, const f32 *ranges)
-{
-	_impl->set_sound_ranges(num, ids, ranges);
-}
-
-void SoundWorld::set_sound_volumes(u32 num, const SoundInstanceId *ids, const f32 *volumes)
-{
-	_impl->set_sound_volumes(num, ids, volumes);
-}
-
-void SoundWorld::reload_sounds(const SoundResource *old_sr, const SoundResource *new_sr)
-{
-	_impl->reload_sounds(old_sr, new_sr);
-}
-
-void SoundWorld::set_listener_pose(const Matrix4x4 &pose)
-{
-	_impl->set_listener_pose(pose);
-}
-
-void SoundWorld::set_group_volume(StringId32 group, f32 volume)
-{
-	_impl->set_group_volume(group, volume);
-}
-
-void SoundWorld::update()
-{
-	_impl->update();
+	void destroy(Allocator &a, SoundWorld &sw)
+	{
+		return CE_DELETE(a, &sw);
+	}
 }
 
 } // namespace crown
