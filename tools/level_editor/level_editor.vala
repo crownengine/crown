@@ -399,30 +399,30 @@ public enum StartGame
 
 public class LevelEditorApplication : Gtk.Application
 {
-	// Constants
 	private const GLib.ActionEntry[] action_entries_file =
 	{
-		//                                     parameter type
-		// name             activate()         |        state
-		// |                |                  |        |
-		{ "menu-file",      null,              null,    null },
-		{ "new-level",      on_new_level,      null,    null },
-		{ "open-level",     on_open_level,     "s",     null },
-		{ "new-project",    on_new_project,    null,    null },
-		{ "add-project",    on_add_project,    null,    null },
-		{ "remove-project", on_remove_project, "s",     null },
-		{ "open-project",   on_open_project,   "s",     null },
-		{ "save",           on_save,           null,    null },
-		{ "save-as",        on_save_as,        null,    null },
-		{ "import",         on_import,         "(sas)", null },
-		{ "import-null",    on_import,         null,    null },
-		{ "preferences",    on_preferences,    null,    null },
-		{ "deploy",         on_deploy,         null,    null },
-		{ "close-project",  on_close_project,  null,    null },
-		{ "quit",           on_quit,           null,    null },
-		{ "open-resource",  on_open_resource,  "s",     null },
-		{ "copy-path",      on_copy_path,      "s",     null },
-		{ "copy-name",      on_copy_name,      "s",     null }
+		//                                        parameter type
+		// name                activate()         |        state
+		// |                   |                  |        |
+		{ "menu-file",         null,              null,    null },
+		{ "new-level",         on_new_level,      null,    null },
+		{ "open-level",        on_open_level,     "s",     null },
+		{ "new-project",       on_new_project,    null,    null },
+		{ "add-project",       on_add_project,    null,    null },
+		{ "remove-project",    on_remove_project, "s",     null },
+		{ "open-project",      on_open_project,   "(ss)",  null },
+		{ "open-project-null", on_open_project,   null,    null },
+		{ "save",              on_save,           null,    null },
+		{ "save-as",           on_save_as,        null,    null },
+		{ "import",            on_import,         "(sas)", null },
+		{ "import-null",       on_import,         null,    null },
+		{ "preferences",       on_preferences,    null,    null },
+		{ "deploy",            on_deploy,         null,    null },
+		{ "close-project",     on_close_project,  null,    null },
+		{ "quit",              on_quit,           null,    null },
+		{ "open-resource",     on_open_resource,  "s",     null },
+		{ "copy-path",         on_copy_path,      "s",     null },
+		{ "copy-name",         on_copy_name,      "s",     null }
 	};
 
 	private const GLib.ActionEntry[] action_entries_edit =
@@ -1100,7 +1100,7 @@ public class LevelEditorApplication : Gtk.Application
 				show_panel("panel_welcome");
 			} else {
 				show_panel("main_vbox");
-				restart_backend.begin(_source_dir, _level_resource);
+				restart_backend.begin();
 			}
 		} catch (IOError e) {
 			loge(e.message);
@@ -1529,7 +1529,7 @@ public class LevelEditorApplication : Gtk.Application
 		label.get_style_context().add_class("colorfast-link");
 		label.set_markup("Data Compiler disconnected.\rTry to <a href=\"restart\">restart the compiler</a> to continue.");
 		label.activate_link.connect(() => {
-				restart_backend.begin(_project.source_dir(), _level._name != null ? _level._name : "");
+				restart_backend.begin();
 				return true;
 			});
 
@@ -1542,7 +1542,7 @@ public class LevelEditorApplication : Gtk.Application
 		label.get_style_context().add_class("colorfast-link");
 		label.set_markup("Data compilation failed.\rFix errors and <a href=\"restart\">restart the compiler</a> to continue.");
 		label.activate_link.connect(() => {
-				restart_backend.begin(_project.source_dir(), _level._name != null ? _level._name : "");
+				restart_backend.begin();
 				return true;
 			});
 
@@ -1554,19 +1554,11 @@ public class LevelEditorApplication : Gtk.Application
 		return new Gtk.Label("Stopping Backend...");
 	}
 
-	public async void restart_backend(string source_dir, string level_name)
+	public async bool restart_backend()
 	{
-		string sd = source_dir.dup();
-		string ln = level_name.dup();
 		yield stop_backend();
 
-		// Reset project state.
-		_placeable_type = OBJECT_TYPE_UNIT;
-		_placeable_name = "core/units/primitives/cube";
-
-		// Load project and level if any.
-		logi("Loading project: `%s`...".printf(sd));
-		_project.load(sd);
+		_project.reset_files();
 
 		// Spawn the data compiler.
 		string args[] =
@@ -1600,7 +1592,7 @@ public class LevelEditorApplication : Gtk.Application
 			);
 		if (tries == DATA_COMPILER_CONNECTION_TRIES) {
 			loge("Cannot connect to data_compiler");
-			return;
+			return false;
 		}
 
 		_project_stack.set_visible_child(_project_stack_compiling_data_label);
@@ -1614,17 +1606,16 @@ public class LevelEditorApplication : Gtk.Application
 			_project_stack.set_visible_child(_project_stack_compiler_failed_compilation_label);
 			_editor_stack.set_visible_child(_editor_stack_compiler_failed_compilation_label);
 			_inspector_stack.set_visible_child(_inspector_stack_compiler_failed_compilation_label);
-			return;
+			return success;
 		}
 
 		// If successful, start the level editor.
-		load_level(ln);
 		yield restart_editor();
 
 		_project_stack.set_visible_child(_project_browser);
 		_inspector_stack.set_visible_child(_inspector_pane);
 		_project_browser.select_project_root();
-		return;
+		return success;
 	}
 
 	public async void stop_heads()
@@ -1641,11 +1632,6 @@ public class LevelEditorApplication : Gtk.Application
 
 		yield stop_heads();
 		yield stop_data_compiler();
-
-		_level.reset();
-		_project.reset();
-
-		this.active_window.title = CROWN_EDITOR_NAME;
 	}
 
 	private async void stop_data_compiler()
@@ -2206,10 +2192,12 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void do_open_project(string source_dir)
+	private void do_open_project(string source_dir, string level_name)
 	{
 		if (_project.source_dir() == source_dir)
 			return;
+
+		reset_project();
 
 		// Naively check whether the selected folder contains a Crown project.
 		if (!GLib.File.new_for_path(GLib.Path.build_filename(source_dir, "boot.config")).query_exists()
@@ -2231,20 +2219,26 @@ public class LevelEditorApplication : Gtk.Application
 		_user.add_or_touch_recent_project(source_dir, source_dir);
 		_console_view.reset();
 
-		restart_backend.begin(source_dir, LEVEL_NONE, (obj, res) => {
-				restart_backend.end(res);
+		// Load project.
+		logi("Loading project: `%s`...".printf(source_dir));
+		_project.load(source_dir);
+
+		restart_backend.begin((obj, res) => {
+				if (restart_backend.end(res)) {
+					load_level(level_name);
+				}
 			});
 	}
 
-	private void open_project(string source_dir)
+	private void open_project(string source_dir, string level_name = LEVEL_EMPTY)
 	{
 		if (source_dir != "") {
-			do_open_project(source_dir);
+			do_open_project(source_dir, level_name);
 		} else {
 			Gtk.FileChooserDialog dlg = new_open_project_dialog(this.active_window);
 			dlg.response.connect((response_id) => {
 					if (response_id == Gtk.ResponseType.ACCEPT)
-						do_open_project(dlg.get_file().get_path());
+						do_open_project(dlg.get_file().get_path(), level_name);
 					dlg.destroy();
 				});
 			dlg.show_all();
@@ -2253,7 +2247,13 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_open_project(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		string source_dir = param.get_string();
+		string source_dir = "";
+		string level_name = LEVEL_EMPTY;
+
+		if (param != null) {
+			source_dir = (string)param.get_child_value(0);
+			level_name = (string)param.get_child_value(1);
+		}
 
 		if (!_database.changed()) {
 			open_project(source_dir);
@@ -2261,7 +2261,7 @@ public class LevelEditorApplication : Gtk.Application
 			Gtk.Dialog dlg = new_level_changed_dialog(this.active_window);
 			dlg.response.connect((response_id) => {
 					if (response_id == Gtk.ResponseType.NO)
-						open_project(source_dir);
+						open_project(source_dir, level_name);
 					else if (response_id == Gtk.ResponseType.YES)
 						save("open-project", new GLib.Variant.string(source_dir));
 					dlg.destroy();
@@ -2272,6 +2272,8 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void do_new_project()
 	{
+		reset_project();
+
 		stop_backend.begin((obj, res) => {
 				stop_backend.end(res);
 				show_panel("panel_new_project");
@@ -2449,8 +2451,21 @@ public class LevelEditorApplication : Gtk.Application
 			);
 	}
 
+	public void reset_project()
+	{
+		_placeable_type = OBJECT_TYPE_UNIT;
+		_placeable_name = "core/units/primitives/cube";
+
+		_level.reset();
+		_project.reset();
+
+		this.active_window.title = CROWN_EDITOR_NAME;
+	}
+
 	private void do_close_project()
 	{
+		reset_project();
+
 		stop_backend.begin((obj, res) => {
 				stop_backend.end(res);
 				show_panel("panel_welcome");
@@ -4514,7 +4529,7 @@ public class LevelEditorApplication : Gtk.Application
 			|| name == "panel_new_project"
 			|| name == "panel_projects_list"
 			) {
-			menu_set_enabled(false, action_entries_file, {"new-project", "add-project", "open-project", "remove-project", "quit"});
+			menu_set_enabled(false, action_entries_file, {"new-project", "add-project", "open-project", "open-project-null", "remove-project", "quit"});
 			menu_set_enabled(false, action_entries_edit);
 			menu_set_enabled(false, action_entries_create);
 			menu_set_enabled(false, action_entries_camera);

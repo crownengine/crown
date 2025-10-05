@@ -125,14 +125,19 @@ public class Project
 		return uint64.parse(mtime);
 	}
 
+	public void reset_files()
+	{
+		_files.reset();
+		_map.clear();
+	}
+
 	public void reset()
 	{
 		project_reset();
 
 		_source_dir = null;
 
-		_files.reset();
-		_map.clear();
+		reset_files();
 	}
 
 	public bool is_loaded()
