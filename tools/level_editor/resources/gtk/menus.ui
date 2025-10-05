@@ -22,8 +22,7 @@
       </item>
       <item>
         <attribute name="label" translatable="yes">Open Project...</attribute>
-        <attribute name="action">app.open-project</attribute>
-        <attribute name="target"></attribute>
+        <attribute name="action">app.open-project-null</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">Save</attribute>
