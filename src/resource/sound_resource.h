@@ -44,12 +44,6 @@ struct SoundResource
 };
 CE_STATIC_ASSERT(sizeof(SoundResource) % 16 == 0);
 
-namespace sound_resource_internal
-{
-	s32 compile(CompileOptions &opts);
-
-} // namespace	sound_resource_internal
-
 namespace sound_resource
 {
 	/// Returns the sound resource's stream metadata.

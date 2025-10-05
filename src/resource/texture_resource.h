@@ -20,14 +20,4 @@ struct TextureResource
 	bgfx::TextureHandle handle;
 };
 
-namespace texture_resource_internal
-{
-	s32 compile(CompileOptions &opts);
-	void *load(File &file, Allocator &a);
-	void offline(StringId64 id, ResourceManager &rm);
-	void online(StringId64 id, ResourceManager &rm);
-	void unload(Allocator &a, void *resource);
-
-} // namespace texture_resource_internal
-
 } // namespace crown

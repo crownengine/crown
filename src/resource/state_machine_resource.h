@@ -74,12 +74,6 @@ struct TransitionMode
 	};
 };
 
-namespace state_machine_internal
-{
-	s32 compile(CompileOptions &opts);
-
-} // namespace state_machine_internal
-
 namespace state_machine
 {
 	/// Returns the initial state.

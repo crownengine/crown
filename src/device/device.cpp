@@ -39,27 +39,10 @@
 #include "device/pipeline.h"
 #include "lua/lua_environment.h"
 #include "lua/lua_stack.inl"
-#include "resource/config_resource.h"
-#include "resource/font_resource.h"
-#include "resource/level_resource.h"
-#include "resource/lua_resource.h"
-#include "resource/material_resource.h"
-#include "resource/mesh_resource.h"
-#include "resource/mesh_skeleton_resource.h"
-#include "resource/mesh_animation_resource.h"
-#include "resource/package_resource.h"
-#include "resource/physics_resource.h"
-#include "resource/render_config_resource.h"
 #include "resource/resource_id.inl"
 #include "resource/resource_loader.h"
 #include "resource/resource_manager.h"
 #include "resource/resource_package.h"
-#include "resource/shader_resource.h"
-#include "resource/sound_resource.h"
-#include "resource/sprite_resource.h"
-#include "resource/state_machine_resource.h"
-#include "resource/texture_resource.h"
-#include "resource/unit_resource.h"
 #include "world/material_manager.h"
 #include "world/physics.h"
 #include "world/shader_manager.h"
@@ -84,6 +67,36 @@ LOG_SYSTEM(DEVICE, "device")
 namespace crown
 {
 extern bool next_event(OsEvent &ev);
+
+#define RESOURCE_TYPE(type_name)                            \
+	namespace type_name##_resource_internal                 \
+	{                                                       \
+		extern void *load(File &, Allocator &);             \
+		extern void online(StringId64, ResourceManager &);  \
+		extern void offline(StringId64, ResourceManager &); \
+		extern void unload(Allocator &, void *);            \
+	}
+
+RESOURCE_TYPE(config)
+RESOURCE_TYPE(font)
+RESOURCE_TYPE(level)
+RESOURCE_TYPE(material)
+RESOURCE_TYPE(mesh)
+RESOURCE_TYPE(mesh_skeleton)
+RESOURCE_TYPE(mesh_animation)
+RESOURCE_TYPE(package)
+RESOURCE_TYPE(physics_config)
+RESOURCE_TYPE(render_config)
+RESOURCE_TYPE(lua)
+RESOURCE_TYPE(shader)
+RESOURCE_TYPE(sound)
+RESOURCE_TYPE(sprite)
+RESOURCE_TYPE(sprite_animation)
+RESOURCE_TYPE(state_machine)
+RESOURCE_TYPE(texture)
+RESOURCE_TYPE(unit)
+
+#undef RESOURCE_TYPE
 
 struct BgfxCallback : public bgfx::CallbackI
 {
@@ -561,46 +574,30 @@ int Device::main_loop()
 
 	_shader_manager   = CE_NEW(_allocator, ShaderManager)(default_allocator());
 
-	namespace smr = state_machine_internal;
-	namespace cor = config_resource_internal;
-	namespace ftr = font_resource_internal;
-	namespace lur = lua_resource_internal;
-	namespace lvr = level_resource_internal;
-	namespace mhr = mesh_resource_internal;
-	namespace mtr = material_resource_internal;
-	namespace pcr = physics_config_resource_internal;
-	namespace pkr = package_resource_internal;
-	namespace sar = sprite_animation_resource_internal;
-	namespace sdr = sound_resource_internal;
-	namespace shr = shader_resource_internal;
-	namespace spr = sprite_resource_internal;
-	namespace txr = texture_resource_internal;
-	namespace utr = unit_resource_internal;
-
 	_resource_loader  = CE_NEW(_allocator, ResourceLoader)(*_data_filesystem, is_bundle);
 	_resource_loader->register_fallback(RESOURCE_TYPE_TEXTURE,  STRING_ID_64("core/fallback/fallback", 0xd09058ae71962248));
 	_resource_loader->register_fallback(RESOURCE_TYPE_MATERIAL, STRING_ID_64("core/fallback/fallback", 0xd09058ae71962248));
 	_resource_loader->register_fallback(RESOURCE_TYPE_UNIT,     STRING_ID_64("core/fallback/fallback", 0xd09058ae71962248));
 
 	_resource_manager = CE_NEW(_allocator, ResourceManager)(*_resource_loader);
-	_resource_manager->register_type(RESOURCE_TYPE_CONFIG,           RESOURCE_VERSION_CONFIG,           cor::load, cor::unload, NULL,        NULL);
-	_resource_manager->register_type(RESOURCE_TYPE_FONT,             RESOURCE_VERSION_FONT,             NULL,      NULL,        NULL,        NULL);
-	_resource_manager->register_type(RESOURCE_TYPE_LEVEL,            RESOURCE_VERSION_LEVEL,            NULL,      NULL,        NULL,        NULL);
-	_resource_manager->register_type(RESOURCE_TYPE_MATERIAL,         RESOURCE_VERSION_MATERIAL,         NULL,      NULL,        mtr::online, mtr::offline);
-	_resource_manager->register_type(RESOURCE_TYPE_MESH,             RESOURCE_VERSION_MESH,             mhr::load, mhr::unload, mhr::online, mhr::offline);
-	_resource_manager->register_type(RESOURCE_TYPE_MESH_SKELETON,    RESOURCE_VERSION_MESH_SKELETON,    NULL,      NULL,        NULL,        NULL);
-	_resource_manager->register_type(RESOURCE_TYPE_MESH_ANIMATION,   RESOURCE_VERSION_MESH_ANIMATION,   NULL,      NULL,        NULL,        NULL);
-	_resource_manager->register_type(RESOURCE_TYPE_PACKAGE,          RESOURCE_VERSION_PACKAGE,          NULL,      NULL,        NULL,        NULL);
-	_resource_manager->register_type(RESOURCE_TYPE_PHYSICS_CONFIG,   RESOURCE_VERSION_PHYSICS_CONFIG,   NULL,      NULL,        NULL,        NULL);
-	_resource_manager->register_type(RESOURCE_TYPE_RENDER_CONFIG,    RESOURCE_VERSION_RENDER_CONFIG,    NULL,      NULL,        NULL,        NULL);
-	_resource_manager->register_type(RESOURCE_TYPE_SCRIPT,           RESOURCE_VERSION_SCRIPT,           NULL,      NULL,        NULL,        NULL);
-	_resource_manager->register_type(RESOURCE_TYPE_SHADER,           RESOURCE_VERSION_SHADER,           shr::load, shr::unload, shr::online, shr::offline);
-	_resource_manager->register_type(RESOURCE_TYPE_SOUND,            RESOURCE_VERSION_SOUND,            NULL,      NULL,        NULL,        NULL);
-	_resource_manager->register_type(RESOURCE_TYPE_SPRITE,           RESOURCE_VERSION_SPRITE,           NULL,      NULL,        NULL,        NULL);
-	_resource_manager->register_type(RESOURCE_TYPE_SPRITE_ANIMATION, RESOURCE_VERSION_SPRITE_ANIMATION, NULL,      NULL,        NULL,        NULL);
-	_resource_manager->register_type(RESOURCE_TYPE_STATE_MACHINE,    RESOURCE_VERSION_STATE_MACHINE,    NULL,      NULL,        NULL,        NULL);
-	_resource_manager->register_type(RESOURCE_TYPE_TEXTURE,          RESOURCE_VERSION_TEXTURE,          txr::load, txr::unload, txr::online, txr::offline);
-	_resource_manager->register_type(RESOURCE_TYPE_UNIT,             RESOURCE_VERSION_UNIT,             NULL,      NULL,        NULL,        NULL);
+	_resource_manager->register_type(RESOURCE_TYPE_CONFIG,           RESOURCE_VERSION_CONFIG,           config_resource_internal::load,  config_resource_internal::unload,  NULL,                               NULL);
+	_resource_manager->register_type(RESOURCE_TYPE_FONT,             RESOURCE_VERSION_FONT,             NULL,                            NULL,                              NULL,                               NULL);
+	_resource_manager->register_type(RESOURCE_TYPE_LEVEL,            RESOURCE_VERSION_LEVEL,            NULL,                            NULL,                              NULL,                               NULL);
+	_resource_manager->register_type(RESOURCE_TYPE_MATERIAL,         RESOURCE_VERSION_MATERIAL,         NULL,                            NULL,                              material_resource_internal::online, material_resource_internal::offline);
+	_resource_manager->register_type(RESOURCE_TYPE_MESH,             RESOURCE_VERSION_MESH,             mesh_resource_internal::load,    mesh_resource_internal::unload,    mesh_resource_internal::online,     mesh_resource_internal::offline);
+	_resource_manager->register_type(RESOURCE_TYPE_MESH_SKELETON,    RESOURCE_VERSION_MESH_SKELETON,    NULL,                            NULL,                              NULL,                               NULL);
+	_resource_manager->register_type(RESOURCE_TYPE_MESH_ANIMATION,   RESOURCE_VERSION_MESH_ANIMATION,   NULL,                            NULL,                              NULL,                               NULL);
+	_resource_manager->register_type(RESOURCE_TYPE_PACKAGE,          RESOURCE_VERSION_PACKAGE,          NULL,                            NULL,                              NULL,                               NULL);
+	_resource_manager->register_type(RESOURCE_TYPE_PHYSICS_CONFIG,   RESOURCE_VERSION_PHYSICS_CONFIG,   NULL,                            NULL,                              NULL,                               NULL);
+	_resource_manager->register_type(RESOURCE_TYPE_RENDER_CONFIG,    RESOURCE_VERSION_RENDER_CONFIG,    NULL,                            NULL,                              NULL,                               NULL);
+	_resource_manager->register_type(RESOURCE_TYPE_SCRIPT,           RESOURCE_VERSION_SCRIPT,           NULL,                            NULL,                              NULL,                               NULL);
+	_resource_manager->register_type(RESOURCE_TYPE_SHADER,           RESOURCE_VERSION_SHADER,           shader_resource_internal::load,  shader_resource_internal::unload,  shader_resource_internal::online,   shader_resource_internal::offline);
+	_resource_manager->register_type(RESOURCE_TYPE_SOUND,            RESOURCE_VERSION_SOUND,            NULL,                            NULL,                              NULL,                               NULL);
+	_resource_manager->register_type(RESOURCE_TYPE_SPRITE,           RESOURCE_VERSION_SPRITE,           NULL,                            NULL,                              NULL,                               NULL);
+	_resource_manager->register_type(RESOURCE_TYPE_SPRITE_ANIMATION, RESOURCE_VERSION_SPRITE_ANIMATION, NULL,                            NULL,                              NULL,                               NULL);
+	_resource_manager->register_type(RESOURCE_TYPE_STATE_MACHINE,    RESOURCE_VERSION_STATE_MACHINE,    NULL,                            NULL,                              NULL,                               NULL);
+	_resource_manager->register_type(RESOURCE_TYPE_TEXTURE,          RESOURCE_VERSION_TEXTURE,          texture_resource_internal::load, texture_resource_internal::unload, texture_resource_internal::online,  texture_resource_internal::offline);
+	_resource_manager->register_type(RESOURCE_TYPE_UNIT,             RESOURCE_VERSION_UNIT,             NULL,                            NULL,                              NULL,                               NULL);
 
 	_material_manager = CE_NEW(_allocator, MaterialManager)(default_allocator(), *_resource_manager, *_shader_manager);
 

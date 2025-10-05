@@ -70,19 +70,6 @@ struct UniformHandle
 	// data
 };
 
-namespace material_resource_internal
-{
-	///
-	s32 compile(CompileOptions &opts);
-
-	///
-	void online(StringId64 id, ResourceManager &rm);
-
-	///
-	void offline(StringId64 id, ResourceManager &rm);
-
-} // namespace material_resource_internal
-
 namespace material_resource
 {
 	///

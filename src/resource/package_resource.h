@@ -32,12 +32,6 @@ struct PackageResource
 	// Data (16-bytes aligned)
 };
 
-namespace package_resource_internal
-{
-	s32 compile(CompileOptions &opts);
-
-} // namespace package_resource_internal
-
 namespace package_resource
 {
 	///

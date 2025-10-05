@@ -39,10 +39,4 @@ struct RenderConfigResource
 	RenderSettings render_settings;
 };
 
-namespace render_config_resource_internal
-{
-	s32 compile(CompileOptions &opts);
-
-} // namespace render_config_resource_internal
-
 } // namespace crown
