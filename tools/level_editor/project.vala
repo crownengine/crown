@@ -86,6 +86,7 @@ public class Project
 	public signal void file_removed(string type, string name);
 	public signal void tree_added(string name);
 	public signal void tree_removed(string name);
+	public signal void files_reset();
 	public signal void project_reset();
 	public signal void project_loaded();
 
@@ -125,14 +126,20 @@ public class Project
 		return uint64.parse(mtime);
 	}
 
-	public void reset()
+	public void reset_files()
 	{
-		project_reset();
-
-		_source_dir = null;
-
 		_files.reset();
 		_map.clear();
+
+		files_reset();
+	}
+
+	public void reset()
+	{
+		reset_files();
+		_source_dir = null;
+
+		project_reset();
 	}
 
 	public bool is_loaded()
