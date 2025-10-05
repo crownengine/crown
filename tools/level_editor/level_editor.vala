@@ -1515,7 +1515,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	Gtk.Label compiling_data_label()
 	{
-		return new Gtk.Label("Compiling resources, please wait...");
+		return new Gtk.Label("Compiling data...");
 	}
 
 	Gtk.Label connecting_to_data_compiler_label()
