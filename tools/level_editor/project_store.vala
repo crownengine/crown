@@ -37,6 +37,7 @@ public class ProjectStore
 		_project.file_removed.connect(on_project_file_removed);
 		_project.tree_added.connect(on_project_tree_added);
 		_project.tree_removed.connect(on_project_tree_removed);
+		_project.files_reset.connect(on_project_reset);
 		_project.project_reset.connect(on_project_reset);
 
 		_list_store = new Gtk.ListStore(Column.COUNT
