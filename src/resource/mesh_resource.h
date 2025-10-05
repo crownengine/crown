@@ -65,29 +65,6 @@ namespace mesh
 	s32 parse(Mesh &m, Buffer &buf, CompileOptions &opts);
 
 } // namespace mesh
-
-namespace mesh_resource_internal
-{
-	///
-	s32 compile(CompileOptions &opts);
-
-} // namespace mesh_resource_internal
 #endif
-
-namespace mesh_resource_internal
-{
-	///
-	void *load(File &file, Allocator &a);
-
-	///
-	void online(StringId64 /*id*/, ResourceManager & /*rm*/);
-
-	///
-	void offline(StringId64 /*id*/, ResourceManager & /*rm*/);
-
-	///
-	void unload(Allocator &a, void *res);
-
-} // namespace mesh_resource_internal
 
 } // namespace crown

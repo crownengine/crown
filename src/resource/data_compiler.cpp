@@ -30,26 +30,10 @@
 #include "device/device_options.h"
 #include "device/log.h"
 #include "resource/compile_options.inl"
-#include "resource/config_resource.h"
 #include "resource/data_compiler.h"
-#include "resource/font_resource.h"
-#include "resource/level_resource.h"
-#include "resource/lua_resource.h"
-#include "resource/material_resource.h"
-#include "resource/mesh_resource.h"
-#include "resource/mesh_skeleton_resource.h"
-#include "resource/mesh_animation_resource.h"
-#include "resource/package_resource.h"
-#include "resource/physics_resource.h"
-#include "resource/render_config_resource.h"
+#include "resource/mesh.h"
 #include "resource/resource_id.inl"
-#include "resource/shader_resource.h"
-#include "resource/sound_resource.h"
-#include "resource/sprite_resource.h"
-#include "resource/state_machine_resource.h"
-#include "resource/texture_resource.h"
 #include "resource/types.h"
-#include "resource/unit_resource.h"
 #include <algorithm>
 #include <inttypes.h>
 #if CROWN_PLATFORM_WINDOWS
@@ -1539,6 +1523,32 @@ void DataCompiler::file_monitor_callback(void *thiz, FileMonitorEvent::Enum fme,
 	((DataCompiler *)thiz)->file_monitor_callback(fme, is_dir, path_original, path_modified);
 }
 
+#define RESOURCE_TYPE(type_name)              \
+	namespace type_name##_resource_internal   \
+	{                                         \
+		extern s32 compile(CompileOptions &); \
+	}                                         \
+
+RESOURCE_TYPE(config)
+RESOURCE_TYPE(font)
+RESOURCE_TYPE(level)
+RESOURCE_TYPE(material)
+RESOURCE_TYPE(mesh)
+RESOURCE_TYPE(mesh_skeleton)
+RESOURCE_TYPE(mesh_animation)
+RESOURCE_TYPE(package)
+RESOURCE_TYPE(physics_config)
+RESOURCE_TYPE(render_config)
+RESOURCE_TYPE(lua)
+RESOURCE_TYPE(shader)
+RESOURCE_TYPE(sound)
+RESOURCE_TYPE(sprite)
+RESOURCE_TYPE(sprite_animation)
+RESOURCE_TYPE(state_machine)
+RESOURCE_TYPE(texture)
+RESOURCE_TYPE(unit)
+
+#undef RESOURCE_TYPE
 int main_data_compiler(const DeviceOptions &opts)
 {
 #if CROWN_PLATFORM_WINDOWS
@@ -1605,7 +1615,7 @@ int main_data_compiler(const DeviceOptions &opts)
 	dc->register_compiler("sound",            RESOURCE_VERSION_SOUND,            sound_resource_internal::compile);
 	dc->register_compiler("sprite",           RESOURCE_VERSION_SPRITE,           sprite_resource_internal::compile);
 	dc->register_compiler("sprite_animation", RESOURCE_VERSION_SPRITE_ANIMATION, sprite_animation_resource_internal::compile);
-	dc->register_compiler("state_machine",    RESOURCE_VERSION_STATE_MACHINE,    state_machine_internal::compile);
+	dc->register_compiler("state_machine",    RESOURCE_VERSION_STATE_MACHINE,    state_machine_resource_internal::compile);
 	dc->register_compiler("texture",          RESOURCE_VERSION_TEXTURE,          texture_resource_internal::compile);
 	dc->register_compiler("unit",             RESOURCE_VERSION_UNIT,             unit_resource_internal::compile);
 

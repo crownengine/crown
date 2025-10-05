@@ -24,12 +24,6 @@ struct SpriteResource
 	// verts[num_verts]
 };
 
-namespace sprite_resource_internal
-{
-	s32 compile(CompileOptions &opts);
-
-} // namespace sprite_resource_internal
-
 namespace sprite_resource
 {
 	/// Returns the frame data for the frame @a i.
@@ -43,12 +37,6 @@ struct SpriteAnimationResource
 	u32 num_frames;
 	f32 total_time;
 };
-
-namespace sprite_animation_resource_internal
-{
-	s32 compile(CompileOptions &opts);
-
-} // namespace sprite_animation_resource_internal
 
 namespace sprite_animation_resource
 {

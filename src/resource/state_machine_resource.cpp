@@ -108,7 +108,7 @@ namespace state_machine
 } // namespace state_machine
 
 #if CROWN_CAN_COMPILE
-namespace state_machine_internal
+namespace state_machine_resource_internal
 {
 	struct TransitionModeInfo
 	{
@@ -566,7 +566,7 @@ namespace state_machine_internal
 		return smc.write();
 	}
 
-} // namespace state_machine_internal
+} // namespace state_machine_resource_internal
 #endif // if CROWN_CAN_COMPILE
 
 } // namespace crown

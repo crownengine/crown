@@ -12,7 +12,6 @@
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/dynamic_string.inl"
 #include "resource/compile_options.inl"
-#include "resource/config_resource.h"
 #include "resource/types.h"
 
 namespace crown

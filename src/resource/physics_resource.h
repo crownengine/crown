@@ -65,12 +65,6 @@ struct PhysicsActor
 	u32 flags;
 };
 
-namespace physics_config_resource_internal
-{
-	s32 compile(CompileOptions &opts);
-
-} // namespace physics_config_resource_internal
-
 namespace physics_config_resource
 {
 	/// Returns the material at @a index.

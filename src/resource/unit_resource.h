@@ -31,12 +31,6 @@ struct ComponentData
 //	char data[size]
 };
 
-namespace unit_resource_internal
-{
-	s32 compile(CompileOptions &opts);
-
-} // namespace unit_resource_internal
-
 namespace unit_resource
 {
 	/// Returns the array of parents in the unit resource @ur.

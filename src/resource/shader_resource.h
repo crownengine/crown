@@ -51,14 +51,4 @@ struct ShaderData
 #endif
 };
 
-namespace shader_resource_internal
-{
-	s32 compile(CompileOptions &opts);
-	void *load(File &file, Allocator &a);
-	void online(StringId64 id, ResourceManager &rm);
-	void offline(StringId64 id, ResourceManager &rm);
-	void unload(Allocator &a, void *res);
-
-} // namespace shader_resource_internal
-
 } // namespace crown

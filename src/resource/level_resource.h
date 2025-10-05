@@ -39,12 +39,6 @@ struct LevelSound
 	u8 _pad[4];
 };
 
-namespace level_resource_internal
-{
-	s32 compile(CompileOptions &opts);
-
-} // namespace level_resource_internal
-
 namespace level_resource
 {
 	/// Returns the unit names in the level.
