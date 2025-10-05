@@ -399,7 +399,6 @@ public enum StartGame
 
 public class LevelEditorApplication : Gtk.Application
 {
-	// Constants
 	private const GLib.ActionEntry[] action_entries_file =
 	{
 		//                                     parameter type
