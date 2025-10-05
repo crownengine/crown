@@ -489,7 +489,8 @@ public class LevelEditorApplication : Gtk.Application
 		{ "run-game",            on_run_game,            null, null },
 		{ "build-data",          on_build_data,          null, null },
 		{ "reload-all",          on_reload_all,          null, null },
-		{ "restart-editor-view", on_restart_editor_view, null, null }
+		{ "restart-editor-view", on_restart_editor_view, null, null },
+		{ "restart-preview",     on_restart_preview,     null, null }
 	};
 
 	private const GLib.ActionEntry[] action_entries_help =
@@ -606,32 +607,32 @@ public class LevelEditorApplication : Gtk.Application
 	private ThumbnailCache _thumbnail_cache;
 
 	private Gtk.Stack _project_stack;
-	private Gtk.Label _project_stack_compiling_data_label;
-	private Gtk.Label _project_stack_connecting_to_data_compiler_label;
-	private Gtk.Label _project_stack_compiler_crashed_label;
-	private Gtk.Label _project_stack_compiler_failed_compilation_label;
-	private Gtk.Label _project_stack_stopping_backend_label;
+	private Gtk.Box _project_stack_compiling_data;
+	private Gtk.Box _project_stack_connecting_to_data_compiler;
+	private Gtk.Box _project_stack_compiler_crashed;
+	private Gtk.Box _project_stack_compiler_failed_compilation;
+	private Gtk.Box _project_stack_stopping_backend;
 
 	private Gtk.Stack _editor_stack;
-	private Gtk.Label _editor_stack_compiling_data_label;
-	private Gtk.Label _editor_stack_connecting_to_data_compiler_label;
-	private Gtk.Label _editor_stack_compiler_crashed_label;
-	private Gtk.Label _editor_stack_compiler_failed_compilation_label;
-	private Gtk.Label _editor_stack_disconnected_label;
-	private Gtk.Label _editor_stack_oops_label;
-	private Gtk.Label _editor_stack_stopping_backend_label;
+	private Gtk.Box _editor_stack_compiling_data;
+	private Gtk.Box _editor_stack_connecting_to_data_compiler;
+	private Gtk.Box _editor_stack_compiler_crashed;
+	private Gtk.Box _editor_stack_compiler_failed_compilation;
+	private Gtk.Box _editor_stack_disconnected;
+	private Gtk.Box _editor_stack_oops;
+	private Gtk.Box _editor_stack_stopping_backend;
 
 	public Gtk.Stack _resource_preview_stack;
-	public Gtk.Label _resource_preview_disconnected_label;
-	public Gtk.Label _resource_preview_oops_label;
-	public Gtk.Label _resource_preview_no_preview_label;
+	public Gtk.Box _resource_preview_disconnected;
+	public Gtk.Box _resource_preview_oops;
+	public Gtk.Label _resource_preview_no_preview;
 
 	private Gtk.Stack _inspector_stack;
-	private Gtk.Label _inspector_stack_compiling_data_label;
-	private Gtk.Label _inspector_stack_connecting_to_data_compiler_label;
-	private Gtk.Label _inspector_stack_compiler_crashed_label;
-	private Gtk.Label _inspector_stack_compiler_failed_compilation_label;
-	private Gtk.Label _inspector_stack_stopping_backend_label;
+	private Gtk.Box _inspector_stack_compiling_data;
+	private Gtk.Box _inspector_stack_connecting_to_data_compiler;
+	private Gtk.Box _inspector_stack_compiler_crashed;
+	private Gtk.Box _inspector_stack_compiler_failed_compilation;
+	private Gtk.Box _inspector_stack_stopping_backend;
 
 	private Toolbar _toolbar;
 	private Gtk.Image _game_run_stop_image;
@@ -838,67 +839,54 @@ public class LevelEditorApplication : Gtk.Application
 
 		_project_stack = new Gtk.Stack();
 		_project_stack.add(_project_browser);
-		_project_stack_compiling_data_label = compiling_data_label();
-		_project_stack.add(_project_stack_compiling_data_label);
-		_project_stack_connecting_to_data_compiler_label = connecting_to_data_compiler_label();
-		_project_stack.add(_project_stack_connecting_to_data_compiler_label);
-		_project_stack_compiler_crashed_label = compiler_crashed_label();
-		_project_stack.add(_project_stack_compiler_crashed_label);
-		_project_stack_compiler_failed_compilation_label = compiler_failed_compilation_label();
-		_project_stack.add(_project_stack_compiler_failed_compilation_label);
-		_project_stack_stopping_backend_label = stopping_backend_label();
-		_project_stack.add(_project_stack_stopping_backend_label);
+		_project_stack_compiling_data = compiling_data();
+		_project_stack.add(_project_stack_compiling_data);
+		_project_stack_connecting_to_data_compiler = connecting_to_data_compiler();
+		_project_stack.add(_project_stack_connecting_to_data_compiler);
+		_project_stack_compiler_crashed = compiler_crashed();
+		_project_stack.add(_project_stack_compiler_crashed);
+		_project_stack_compiler_failed_compilation = compiler_failed_compilation();
+		_project_stack.add(_project_stack_compiler_failed_compilation);
+		_project_stack_stopping_backend = stopping_backend();
+		_project_stack.add(_project_stack_stopping_backend);
 
 		_editor_stack = new Gtk.Stack();
-		_editor_stack_compiling_data_label = compiling_data_label();
-		_editor_stack.add(_editor_stack_compiling_data_label);
-		_editor_stack_connecting_to_data_compiler_label = connecting_to_data_compiler_label();
-		_editor_stack.add(_editor_stack_connecting_to_data_compiler_label);
-		_editor_stack_compiler_crashed_label = compiler_crashed_label();
-		_editor_stack.add(_editor_stack_compiler_crashed_label);
-		_editor_stack_compiler_failed_compilation_label = compiler_failed_compilation_label();
-		_editor_stack.add(_editor_stack_compiler_failed_compilation_label);
-		_editor_stack_disconnected_label = new Gtk.Label("Disconnected.");
-		_editor_stack.add(_editor_stack_disconnected_label);
-		_editor_stack_oops_label = new Gtk.Label(null);
-		_editor_stack_oops_label.get_style_context().add_class("colorfast-link");
-		_editor_stack_oops_label.set_markup("Something went wrong.\rTry to <a href=\"restart\">restart this view</a>.");
-		_editor_stack_oops_label.activate_link.connect(() => {
-				activate_action("restart-editor-view", null);
-				return true;
-			});
-		_editor_stack.add(_editor_stack_oops_label);
-		_editor_stack_stopping_backend_label = stopping_backend_label();
-		_editor_stack.add(_editor_stack_stopping_backend_label);
+		_editor_stack_compiling_data = compiling_data();
+		_editor_stack.add(_editor_stack_compiling_data);
+		_editor_stack_connecting_to_data_compiler = connecting_to_data_compiler();
+		_editor_stack.add(_editor_stack_connecting_to_data_compiler);
+		_editor_stack_compiler_crashed = compiler_crashed();
+		_editor_stack.add(_editor_stack_compiler_crashed);
+		_editor_stack_compiler_failed_compilation = compiler_failed_compilation();
+		_editor_stack.add(_editor_stack_compiler_failed_compilation);
+		_editor_stack_disconnected = editor_disconnected();
+		_editor_stack.add(_editor_stack_disconnected);
+		_editor_stack_oops = editor_oops("restart-editor-view");
+		_editor_stack.add(_editor_stack_oops);
+		_editor_stack_stopping_backend = stopping_backend();
+		_editor_stack.add(_editor_stack_stopping_backend);
 
 		_resource_preview_stack = new Gtk.Stack();
-		_resource_preview_no_preview_label = new Gtk.Label("No Preview");
-		_resource_preview_no_preview_label.set_size_request(300, 300);
-		_resource_preview_stack.add(_resource_preview_no_preview_label);
-		_resource_preview_disconnected_label = new Gtk.Label("Disconnected");
-		_resource_preview_stack.add(_resource_preview_disconnected_label);
-		_resource_preview_oops_label = new Gtk.Label(null);
-		_resource_preview_oops_label.get_style_context().add_class("colorfast-link");
-		_resource_preview_oops_label.set_markup("Something went wrong.\rTry to <a href=\"restart\">restart this view</a>.");
-		_resource_preview_oops_label.activate_link.connect(() => {
-				restart_resource_preview.begin((obj, res) => {
-						restart_resource_preview.end(res);
-					});
-				return true;
-			});
-		_resource_preview_stack.add(_resource_preview_oops_label);
+		_resource_preview_no_preview = new Gtk.Label(null);
+		_resource_preview_no_preview.set_markup("<span font_weight=\"bold\">No Preview</span>");
+		_resource_preview_no_preview.set_size_request(300, 300);
+		_resource_preview_stack.add(_resource_preview_no_preview);
+		_resource_preview_disconnected = editor_disconnected();
+		_resource_preview_stack.add(_resource_preview_disconnected);
+		_resource_preview_oops = editor_oops("restart-preview");
+		_resource_preview_stack.add(_resource_preview_oops);
 
 		_inspector_stack = new Gtk.Stack();
-		_inspector_stack_compiling_data_label = compiling_data_label();
-		_inspector_stack.add(_inspector_stack_compiling_data_label);
-		_inspector_stack_connecting_to_data_compiler_label = connecting_to_data_compiler_label();
-		_inspector_stack.add(_inspector_stack_connecting_to_data_compiler_label);
-		_inspector_stack_compiler_crashed_label = compiler_crashed_label();
-		_inspector_stack.add(_inspector_stack_compiler_crashed_label);
-		_inspector_stack_compiler_failed_compilation_label = compiler_failed_compilation_label();
-		_inspector_stack.add(_inspector_stack_compiler_failed_compilation_label);
-		_inspector_stack_stopping_backend_label = stopping_backend_label();
-		_inspector_stack.add(_inspector_stack_stopping_backend_label);
+		_inspector_stack_compiling_data = compiling_data();
+		_inspector_stack.add(_inspector_stack_compiling_data);
+		_inspector_stack_connecting_to_data_compiler = connecting_to_data_compiler();
+		_inspector_stack.add(_inspector_stack_connecting_to_data_compiler);
+		_inspector_stack_compiler_crashed = compiler_crashed();
+		_inspector_stack.add(_inspector_stack_compiler_crashed);
+		_inspector_stack_compiler_failed_compilation = compiler_failed_compilation();
+		_inspector_stack.add(_inspector_stack_compiler_failed_compilation);
+		_inspector_stack_stopping_backend = stopping_backend();
+		_inspector_stack.add(_inspector_stack_stopping_backend);
 
 		_toolbar = new Toolbar();
 
@@ -1173,9 +1161,9 @@ public class LevelEditorApplication : Gtk.Application
 		// Reset the callback
 		_data_compiler.compile_finished(false, 0);
 
-		_project_stack.set_visible_child(_project_stack_compiler_crashed_label);
-		_editor_stack.set_visible_child(_editor_stack_compiler_crashed_label);
-		_inspector_stack.set_visible_child(_inspector_stack_compiler_crashed_label);
+		_project_stack.set_visible_child(_project_stack_compiler_crashed);
+		_editor_stack.set_visible_child(_editor_stack_compiler_crashed);
+		_inspector_stack.set_visible_child(_inspector_stack_compiler_crashed);
 	}
 
 	private void on_data_compiler_start()
@@ -1210,14 +1198,14 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		on_runtime_disconnected_unexpected(ri);
 
-		_editor_stack.set_visible_child(_editor_stack_oops_label);
+		_editor_stack.set_visible_child(_editor_stack_oops);
 	}
 
 	private void on_resource_preview_disconnected_unexpected(RuntimeInstance ri)
 	{
 		on_runtime_disconnected_unexpected(ri);
 
-		_resource_preview_stack.set_visible_child(_resource_preview_oops_label);
+		_resource_preview_stack.set_visible_child(_resource_preview_oops);
 	}
 
 	private void on_game_connected(RuntimeInstance ri, string address, int port)
@@ -1513,45 +1501,92 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	Gtk.Label compiling_data_label()
+	Gtk.Box message_widget(Gtk.Label h1, Gtk.Widget? p = null)
 	{
-		return new Gtk.Label("Compiling data...");
+		var box = new Gtk.Box(Gtk.Orientation.VERTICAL, 12);
+		box.valign = Gtk.Align.CENTER;
+		box.pack_start(h1);
+		if (p != null)
+			box.pack_start(p);
+
+		return box;
 	}
 
-	Gtk.Label connecting_to_data_compiler_label()
+	Gtk.Box long_running_task(string markup)
 	{
-		return new Gtk.Label("Connecting to Data Compiler...");
+		var h1 = new Gtk.Label(null);
+		h1.set_markup(markup);
+		h1.valign = Gtk.Align.CENTER;
+
+		var spinner = new Gtk.Spinner();
+		spinner.active = true;
+
+		return message_widget(h1, spinner);
 	}
 
-	Gtk.Label compiler_crashed_label()
+	Gtk.Box compiling_data()
 	{
-		Gtk.Label label = new Gtk.Label(null);
-		label.get_style_context().add_class("colorfast-link");
-		label.set_markup("Data Compiler disconnected.\rTry to <a href=\"restart\">restart the compiler</a> to continue.");
-		label.activate_link.connect(() => {
+		return long_running_task("<span font_weight=\"bold\">Compiling data...</span>");
+	}
+
+	Gtk.Box connecting_to_data_compiler()
+	{
+		return long_running_task("<span font_weight=\"bold\">Connecting to Data Compiler...</span>");
+	}
+
+	Gtk.Box restart_compiler(string markup)
+	{
+		Gtk.Label h1 = new Gtk.Label(null);
+		h1.set_markup(markup);
+
+		Gtk.Label p = new Gtk.Label(null);
+		p.get_style_context().add_class("colorfast-link");
+		p.set_markup("Fix errors and <a href=\"restart\">restart the compiler</a> to continue.");
+		p.activate_link.connect(() => {
 				restart_backend.begin();
 				return true;
 			});
 
-		return label;
+		return message_widget(h1, p);
 	}
 
-	Gtk.Label compiler_failed_compilation_label()
+	Gtk.Box compiler_failed_compilation()
 	{
-		Gtk.Label label = new Gtk.Label(null);
-		label.get_style_context().add_class("colorfast-link");
-		label.set_markup("Data compilation failed.\rFix errors and <a href=\"restart\">restart the compiler</a> to continue.");
-		label.activate_link.connect(() => {
-				restart_backend.begin();
+		return restart_compiler("<span font_weight=\"bold\">Data compilation failed.</span>");
+	}
+
+	Gtk.Box compiler_crashed()
+	{
+		return restart_compiler("<span font_weight=\"bold\">Data Compiler disconnected unexpectedly.</span>");
+	}
+
+	Gtk.Box editor_oops(string restart_action)
+	{
+		var h1 = new Gtk.Label(null);
+		h1.set_markup("<span font_weight=\"bold\">Something went wrong.</span>");
+
+		var p = new Gtk.Label(null);
+		p.get_style_context().add_class("colorfast-link");
+		p.set_markup("Try to <a href=\"restart\">restart this view</a>.");
+		p.activate_link.connect(() => {
+				activate_action(restart_action, null);
 				return true;
 			});
 
-		return label;
+		return message_widget(h1, p);
 	}
 
-	Gtk.Label stopping_backend_label()
+	Gtk.Box editor_disconnected()
 	{
-		return new Gtk.Label("Stopping Backend...");
+		Gtk.Label h1 = new Gtk.Label(null);
+		h1.set_markup("<span font_weight=\"bold\">Disconnected.</span>");
+
+		return message_widget(h1);
+	}
+
+	Gtk.Box stopping_backend()
+	{
+		return long_running_task("<span font_weight=\"bold\">Stopping Backend...</span>");
 	}
 
 	public async bool restart_backend()
@@ -1579,9 +1614,9 @@ public class LevelEditorApplication : Gtk.Application
 			loge(e.message);
 		}
 
-		_project_stack.set_visible_child(_project_stack_connecting_to_data_compiler_label);
-		_editor_stack.set_visible_child(_editor_stack_connecting_to_data_compiler_label);
-		_inspector_stack.set_visible_child(_inspector_stack_connecting_to_data_compiler_label);
+		_project_stack.set_visible_child(_project_stack_connecting_to_data_compiler);
+		_editor_stack.set_visible_child(_editor_stack_connecting_to_data_compiler);
+		_inspector_stack.set_visible_child(_inspector_stack_connecting_to_data_compiler);
 
 		int tries = yield _compiler.connect_async(DATA_COMPILER_ADDRESS
 			, DATA_COMPILER_TCP_PORT
@@ -1593,17 +1628,17 @@ public class LevelEditorApplication : Gtk.Application
 			return false;
 		}
 
-		_project_stack.set_visible_child(_project_stack_compiling_data_label);
-		_editor_stack.set_visible_child(_editor_stack_compiling_data_label);
-		_inspector_stack.set_visible_child(_inspector_stack_compiling_data_label);
+		_project_stack.set_visible_child(_project_stack_compiling_data);
+		_editor_stack.set_visible_child(_editor_stack_compiling_data);
+		_inspector_stack.set_visible_child(_inspector_stack_compiling_data);
 
 		// Compile data.
 		bool success = yield _data_compiler.compile(_project.data_dir(), _project.platform());
 
 		if (!success) {
-			_project_stack.set_visible_child(_project_stack_compiler_failed_compilation_label);
-			_editor_stack.set_visible_child(_editor_stack_compiler_failed_compilation_label);
-			_inspector_stack.set_visible_child(_inspector_stack_compiler_failed_compilation_label);
+			_project_stack.set_visible_child(_project_stack_compiler_failed_compilation);
+			_editor_stack.set_visible_child(_editor_stack_compiler_failed_compilation);
+			_inspector_stack.set_visible_child(_inspector_stack_compiler_failed_compilation);
 			return success;
 		}
 
@@ -1624,9 +1659,9 @@ public class LevelEditorApplication : Gtk.Application
 
 	public async void stop_backend()
 	{
-		_project_stack.set_visible_child(_project_stack_stopping_backend_label);
-		_editor_stack.set_visible_child(_editor_stack_stopping_backend_label);
-		_inspector_stack.set_visible_child(_inspector_stack_stopping_backend_label);
+		_project_stack.set_visible_child(_project_stack_stopping_backend);
+		_editor_stack.set_visible_child(_editor_stack_stopping_backend);
+		_inspector_stack.set_visible_child(_inspector_stack_stopping_backend);
 
 		yield stop_heads();
 		yield stop_data_compiler();
@@ -1728,13 +1763,13 @@ public class LevelEditorApplication : Gtk.Application
 		yield stop_thumbnail();
 		yield stop_resource_preview();
 		yield _editor.stop();
-		_editor_stack.set_visible_child(_editor_stack_disconnected_label);
+		_editor_stack.set_visible_child(_editor_stack_disconnected);
 	}
 
 	public async void stop_resource_preview()
 	{
 		yield _resource_preview.stop();
-		_resource_preview_stack.set_visible_child(_resource_preview_disconnected_label);
+		_resource_preview_stack.set_visible_child(_resource_preview_disconnected);
 	}
 
 	private async void restart_editor()
@@ -2752,6 +2787,13 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		restart_editor.begin((obj, res) => {
 				restart_editor.end(res);
+			});
+	}
+
+	private void on_restart_preview(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		restart_resource_preview.begin((obj, res) => {
+				restart_resource_preview.end(res);
 			});
 	}
 
