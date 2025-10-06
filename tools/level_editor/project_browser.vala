@@ -201,7 +201,6 @@ public class ProjectFolderView : Gtk.Box
 	{
 		TYPE,
 		NAME,
-		PIXBUF,
 		SIZE,
 		MTIME,
 
@@ -235,7 +234,6 @@ public class ProjectFolderView : Gtk.Box
 		_list_store = new Gtk.ListStore(Column.COUNT
 			, typeof(string)     // Column.TYPE
 			, typeof(string)     // Column.NAME
-			, typeof(Gdk.Pixbuf) // Column.PIXBUF
 			, typeof(uint64)     // Column.SIZE
 			, typeof(uint64)     // Column.MTIME
 			);
