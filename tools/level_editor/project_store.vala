@@ -11,8 +11,8 @@ public class ProjectStore
 
 	public enum Column
 	{
-		NAME,
 		TYPE,
+		NAME,
 		SIZE,
 		MTIME,
 
@@ -39,14 +39,14 @@ public class ProjectStore
 		_project.project_loaded.connect(on_project_loaded);
 
 		_list_store = new Gtk.ListStore(Column.COUNT
-			, typeof(string) // resource name
 			, typeof(string) // resource type
+			, typeof(string) // resource name
 			, typeof(uint64) // resource size
 			, typeof(uint64) // resource mtime
 			);
 		_tree_store = new Gtk.TreeStore(Column.COUNT
-			, typeof(string) // resource name
 			, typeof(string) // resource type
+			, typeof(string) // resource name
 			, typeof(uint64) // resource size
 			, typeof(uint64) // resource mtime
 			);
@@ -67,10 +67,10 @@ public class ProjectStore
 		_tree_store.insert_with_values(out iter
 			, null
 			, -1
-			, Column.NAME
-			, ROOT_FOLDER
 			, Column.TYPE
 			, "<favorites>"
+			, Column.NAME
+			, ROOT_FOLDER
 			, Column.SIZE
 			, 0u
 			, Column.MTIME
@@ -96,12 +96,12 @@ public class ProjectStore
 
 			Gtk.TreeIter child;
 			if (_tree_store.iter_children(out child, parent_iter)) {
-				Value iter_name;
 				Value iter_type;
+				Value iter_name;
 
 				while (true) {
-					_tree_store.get_value(child, Column.NAME, out iter_name);
 					_tree_store.get_value(child, Column.TYPE, out iter_type);
+					_tree_store.get_value(child, Column.NAME, out iter_name);
 					if ((string)iter_name == name && (string)iter_type == type) {
 						path = _tree_store.get_path(child);
 						return true;
@@ -138,12 +138,12 @@ public class ProjectStore
 		// Avoid duplicates.
 		Gtk.TreeIter child;
 		if (_tree_store.iter_children(out child, favorites_root_iter)) {
-			Value iter_name;
 			Value iter_type;
+			Value iter_name;
 
 			while (true) {
-				_tree_store.get_value(child, Column.NAME, out iter_name);
 				_tree_store.get_value(child, Column.TYPE, out iter_type);
+				_tree_store.get_value(child, Column.NAME, out iter_name);
 				if ((string)iter_name == name && (string)iter_type == type)
 					return;
 
@@ -157,10 +157,10 @@ public class ProjectStore
 		_tree_store.insert_with_values(out iter
 			, favorites_root_iter
 			, -1
-			, Column.NAME
-			, name
 			, Column.TYPE
 			, type
+			, Column.NAME
+			, name
 			, Column.SIZE
 			, 0u
 			, Column.MTIME
@@ -176,12 +176,12 @@ public class ProjectStore
 		_tree_store.get_iter(out parent_iter, favorites_root_path());
 		Gtk.TreeIter child;
 		if (_tree_store.iter_children(out child, parent_iter)) {
-			Value iter_name;
 			Value iter_type;
+			Value iter_name;
 
 			while (true) {
-				_tree_store.get_value(child, Column.NAME, out iter_name);
 				_tree_store.get_value(child, Column.TYPE, out iter_type);
+				_tree_store.get_value(child, Column.NAME, out iter_name);
 				if ((string)iter_name == name && (string)iter_type == type) {
 					_tree_store.remove(ref child);
 					break;
@@ -207,10 +207,10 @@ public class ProjectStore
 			_tree_store.insert_with_values(out iter
 				, parent_iter
 				, -1
-				, Column.NAME
-				, folder
 				, Column.TYPE
 				, "<folder>"
+				, Column.NAME
+				, folder
 				, Column.SIZE
 				, 0u
 				, Column.MTIME
@@ -230,10 +230,10 @@ public class ProjectStore
 				_tree_store.insert_with_values(out iter
 					, parent_iter
 					, -1
-					, Column.NAME
-					, folder.substring(0, first_slash)
 					, Column.TYPE
 					, "<folder>"
+					, Column.NAME
+					, folder.substring(0, first_slash)
 					, Column.SIZE
 					, 0u
 					, Column.MTIME
@@ -268,10 +268,10 @@ public class ProjectStore
 		Gtk.TreeIter iter;
 		_list_store.insert_with_values(out iter
 			, -1
-			, Column.NAME
-			, name
 			, Column.TYPE
 			, type
+			, Column.NAME
+			, name
 			, Column.SIZE
 			, size
 			, Column.MTIME
@@ -281,10 +281,10 @@ public class ProjectStore
 		_tree_store.insert_with_values(out iter
 			, parent
 			, -1
-			, Column.NAME
-			, name
 			, Column.TYPE
 			, type
+			, Column.NAME
+			, name
 			, Column.SIZE
 			, size
 			, Column.MTIME
@@ -303,18 +303,18 @@ public class ProjectStore
 
 		// Update the list store entry.
 		if (_list_store.iter_children(out child, null)) {
-			Value iter_name;
 			Value iter_type;
+			Value iter_name;
 
 			while (true) {
-				_list_store.get_value(child, Column.NAME, out iter_name);
 				_list_store.get_value(child, Column.TYPE, out iter_type);
+				_list_store.get_value(child, Column.NAME, out iter_name);
 				if ((string)iter_name == name && (string)iter_type == type) {
 					_list_store.set(child
-						, Column.NAME
-						, name
 						, Column.TYPE
 						, type
+						, Column.NAME
+						, name
 						, Column.SIZE
 						, size
 						, Column.MTIME
@@ -337,14 +337,14 @@ public class ProjectStore
 			Value iter_type;
 
 			while (true) {
-				_tree_store.get_value(child, Column.NAME, out iter_name);
 				_tree_store.get_value(child, Column.TYPE, out iter_type);
+				_tree_store.get_value(child, Column.NAME, out iter_name);
 				if ((string)iter_name == name && (string)iter_type == type) {
 					_tree_store.set(child
-						, Column.NAME
-						, name
 						, Column.TYPE
 						, type
+						, Column.NAME
+						, name
 						, Column.SIZE
 						, size
 						, Column.MTIME
@@ -372,12 +372,12 @@ public class ProjectStore
 
 		// Remove from list store.
 		if (_list_store.iter_children(out child, null)) {
-			Value iter_name;
 			Value iter_type;
+			Value iter_name;
 
 			while (true) {
-				_list_store.get_value(child, Column.NAME, out iter_name);
 				_list_store.get_value(child, Column.TYPE, out iter_type);
+				_list_store.get_value(child, Column.NAME, out iter_name);
 				if ((string)iter_name == name && (string)iter_type == type) {
 					_list_store.remove(ref child);
 					break;
@@ -392,12 +392,12 @@ public class ProjectStore
 		Gtk.TreeIter parent_iter;
 		_tree_store.get_iter(out parent_iter, _folders[parent_folder].get_path());
 		if (_tree_store.iter_children(out child, parent_iter)) {
-			Value iter_name;
 			Value iter_type;
+			Value iter_name;
 
 			while (true) {
-				_tree_store.get_value(child, Column.NAME, out iter_name);
 				_tree_store.get_value(child, Column.TYPE, out iter_type);
+				_tree_store.get_value(child, Column.NAME, out iter_name);
 				if ((string)iter_name == name && (string)iter_type == type) {
 					_tree_store.remove(ref child);
 					break;
@@ -414,10 +414,10 @@ public class ProjectStore
 		Gtk.TreeIter iter;
 		_list_store.insert_with_values(out iter
 			, -1
-			, Column.NAME
-			, name
 			, Column.TYPE
 			, "<folder>"
+			, Column.NAME
+			, name
 			, Column.SIZE
 			, 0u
 			, Column.MTIME
@@ -441,12 +441,12 @@ public class ProjectStore
 		// Remove from list store.
 		Gtk.TreeIter child;
 		if (_list_store.iter_children(out child, null)) {
-			Value iter_name;
 			Value iter_type;
+			Value iter_name;
 
 			while (true) {
-				_list_store.get_value(child, Column.NAME, out iter_name);
 				_list_store.get_value(child, Column.TYPE, out iter_type);
+				_list_store.get_value(child, Column.NAME, out iter_name);
 				if (((string)iter_name == name && (string)iter_type == "<folder>")
 					|| ((string)iter_name).has_prefix(name + "/")
 					) {
@@ -485,10 +485,10 @@ public class ProjectStore
 		_tree_store.insert_with_values(out iter
 			, null
 			, -1
-			, Column.NAME
-			, ROOT_FOLDER
 			, Column.TYPE
 			, "<folder>"
+			, Column.NAME
+			, ROOT_FOLDER
 			, Column.SIZE
 			, 0u
 			, Column.MTIME
@@ -507,12 +507,12 @@ public class ProjectStore
 		_tree_store.get_iter(out parent_iter, favorites_root_path());
 		Gtk.TreeIter child;
 		if (_tree_store.iter_children(out child, parent_iter)) {
-			Value iter_name;
 			Value iter_type;
+			Value iter_name;
 
 			while (true) {
-				_tree_store.get_value(child, Column.NAME, out iter_name);
 				_tree_store.get_value(child, Column.TYPE, out iter_type);
+				_tree_store.get_value(child, Column.NAME, out iter_name);
 
 				Hashtable resource = new Hashtable();
 				resource["type"] = (string)iter_type;

@@ -197,16 +197,6 @@ private void set_thumbnail(Gtk.CellRenderer cell, string type, string name, int 
 }
 public class ProjectFolderView : Gtk.Box
 {
-	public enum Column
-	{
-		TYPE,
-		NAME,
-		SIZE,
-		MTIME,
-
-		COUNT
-	}
-
 	public string _selected_type;
 	public string _selected_name;
 	public ProjectStore _project_store;
@@ -231,11 +221,11 @@ public class ProjectFolderView : Gtk.Box
 		_project_store = project_store;
 		_thumbnail_cache = thumbnail_cache;
 
-		_list_store = new Gtk.ListStore(Column.COUNT
-			, typeof(string)     // Column.TYPE
-			, typeof(string)     // Column.NAME
-			, typeof(uint64)     // Column.SIZE
-			, typeof(uint64)     // Column.MTIME
+		_list_store = new Gtk.ListStore(ProjectStore.Column.COUNT
+			, typeof(string)     // ProjectStore.Column.TYPE
+			, typeof(string)     // ProjectStore.Column.NAME
+			, typeof(uint64)     // ProjectStore.Column.SIZE
+			, typeof(uint64)     // ProjectStore.Column.MTIME
 			);
 
 		_icon_view = new Gtk.IconView();
@@ -374,9 +364,9 @@ public class ProjectFolderView : Gtk.Box
 		Value val;
 		string type;
 		string name;
-		_list_store.get_value(iter, Column.TYPE, out val);
+		_list_store.get_value(iter, ProjectStore.Column.TYPE, out val);
 		type = (string)val;
-		_list_store.get_value(iter, Column.NAME, out val);
+		_list_store.get_value(iter, ProjectStore.Column.NAME, out val);
 		name = (string)val;
 
 		string resource_path = ResourceId.path(type, name);
@@ -465,8 +455,8 @@ public class ProjectFolderView : Gtk.Box
 
 				Value type;
 				Value name;
-				_list_store.get_value(iter, Column.TYPE, out type);
-				_list_store.get_value(iter, Column.NAME, out name);
+				_list_store.get_value(iter, ProjectStore.Column.TYPE, out type);
+				_list_store.get_value(iter, ProjectStore.Column.NAME, out name);
 
 				if ((string)type == "<folder>") {
 					string dir_name;
@@ -490,9 +480,9 @@ public class ProjectFolderView : Gtk.Box
 		Value val;
 		string type;
 		string name;
-		model.get_value(iter, Column.TYPE, out val);
+		model.get_value(iter, ProjectStore.Column.TYPE, out val);
 		type = (string)val;
-		model.get_value(iter, Column.NAME, out val);
+		model.get_value(iter, ProjectStore.Column.NAME, out val);
 		name = (string)val;
 
 		set_thumbnail(cell, type, name, 64, _thumbnail_cache);
@@ -502,8 +492,8 @@ public class ProjectFolderView : Gtk.Box
 	{
 		Value type;
 		Value name;
-		model.get_value(iter, Column.TYPE, out type);
-		model.get_value(iter, Column.NAME, out name);
+		model.get_value(iter, ProjectStore.Column.TYPE, out type);
+		model.get_value(iter, ProjectStore.Column.NAME, out name);
 
 		if (name == "..")
 			cell.set_property("text", name);
@@ -516,9 +506,9 @@ public class ProjectFolderView : Gtk.Box
 		Value val;
 		string type;
 		string name;
-		model.get_value(iter, Column.TYPE, out val);
+		model.get_value(iter, ProjectStore.Column.TYPE, out val);
 		type = (string)val;
-		model.get_value(iter, Column.NAME, out val);
+		model.get_value(iter, ProjectStore.Column.NAME, out val);
 		name = (string)val;
 
 		set_thumbnail(cell, type, name, 32, _thumbnail_cache);
@@ -527,7 +517,7 @@ public class ProjectFolderView : Gtk.Box
 	private void list_view_basename_text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
 		Value name;
-		model.get_value(iter, Column.NAME, out name);
+		model.get_value(iter, ProjectStore.Column.NAME, out name);
 
 		if (name == "..")
 			cell.set_property("text", name);
@@ -538,7 +528,7 @@ public class ProjectFolderView : Gtk.Box
 	private void list_view_type_text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
 		Value type;
-		model.get_value(iter, Column.TYPE, out type);
+		model.get_value(iter, ProjectStore.Column.TYPE, out type);
 
 		cell.set_property("text", prettify_type((string)type));
 	}
@@ -546,7 +536,7 @@ public class ProjectFolderView : Gtk.Box
 	private void list_view_size_text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
 		Value val;
-		model.get_value(iter, Column.SIZE, out val);
+		model.get_value(iter, ProjectStore.Column.SIZE, out val);
 		uint64 size = (uint64)val;
 
 		if (size != 0)
@@ -558,7 +548,7 @@ public class ProjectFolderView : Gtk.Box
 	private void list_view_mtime_text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
 		Value type;
-		model.get_value(iter, Column.MTIME, out type);
+		model.get_value(iter, ProjectStore.Column.MTIME, out type);
 		uint64 mtime = (uint64)type;
 
 		if (mtime != 0)
@@ -570,7 +560,7 @@ public class ProjectFolderView : Gtk.Box
 	private void list_view_name_text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
 		Value name;
-		model.get_value(iter, Column.NAME, out name);
+		model.get_value(iter, ProjectStore.Column.NAME, out name);
 
 		if (name == "..")
 			cell.set_property("text", "n/a");
@@ -584,9 +574,9 @@ public class ProjectFolderView : Gtk.Box
 				GLib.Value val;
 				string store_type;
 				string store_name;
-				model.get_value(iter, Column.TYPE, out val);
+				model.get_value(iter, ProjectStore.Column.TYPE, out val);
 				store_type = (string)val;
-				model.get_value(iter, Column.NAME, out val);
+				model.get_value(iter, ProjectStore.Column.NAME, out val);
 				store_name = (string)val;
 
 				if (store_name == name && store_type == type) {
@@ -641,13 +631,13 @@ public class ProjectFolderView : Gtk.Box
 		_list_store.get_iter(out iter, path);
 
 		Value val;
-		_list_store.get_value(iter, Column.TYPE, out val);
+		_list_store.get_value(iter, ProjectStore.Column.TYPE, out val);
 		string type = (string)val;
-		_list_store.get_value(iter, Column.NAME, out val);
+		_list_store.get_value(iter, ProjectStore.Column.NAME, out val);
 		string name = (string)val;
-		_list_store.get_value(iter, Column.SIZE, out val);
+		_list_store.get_value(iter, ProjectStore.Column.SIZE, out val);
 		uint64 size = (uint64)val;
-		_list_store.get_value(iter, Column.MTIME, out val);
+		_list_store.get_value(iter, ProjectStore.Column.MTIME, out val);
 		uint64 mtime = (uint64)val;
 
 		string text = "<b>%s</b>\nType: %s\nSize: %s\nModified: %s".printf(GLib.Markup.escape_text(name)
@@ -723,9 +713,9 @@ public class ProjectFolderView : Gtk.Box
 			_list_store.get_iter(out iter, path);
 
 			Value val;
-			_list_store.get_value(iter, Column.TYPE, out val);
+			_list_store.get_value(iter, ProjectStore.Column.TYPE, out val);
 			type = (string)val;
-			_list_store.get_value(iter, Column.NAME, out val);
+			_list_store.get_value(iter, ProjectStore.Column.NAME, out val);
 			name = (string)val;
 		} else {
 			type = _selected_type;
@@ -990,9 +980,9 @@ public class ProjectBrowser : Gtk.Box
 						_folder_view._list_store.get_iter(out iter, selected_path);
 
 						GLib.Value val;
-						_folder_view._list_store.get_value(iter, ProjectFolderView.Column.TYPE, out val);
+						_folder_view._list_store.get_value(iter, ProjectStore.Column.TYPE, out val);
 						selected_type = (string)val;
-						_folder_view._list_store.get_value(iter, ProjectFolderView.Column.NAME, out val);
+						_folder_view._list_store.get_value(iter, ProjectStore.Column.NAME, out val);
 						selected_name = (string)val;
 					}
 
@@ -1094,8 +1084,8 @@ public class ProjectBrowser : Gtk.Box
 		_hide_core_resources = true;
 
 		_folder_list_store = new Gtk.ListStore(ProjectStore.Column.COUNT
-			, typeof(string) // ProjectStore.Column.NAME
 			, typeof(string) // ProjectStore.Column.TYPE
+			, typeof(string) // ProjectStore.Column.NAME
 			, typeof(uint64) // ProjectStore.Column.SIZE
 			, typeof(uint64) // ProjectStore.Column.MTIME
 			);
@@ -1515,13 +1505,13 @@ public class ProjectBrowser : Gtk.Box
 				Gtk.TreeIter dummy;
 				_folder_view._list_store.insert_with_values(out dummy
 					, -1
-					, ProjectFolderView.Column.TYPE
+					, ProjectStore.Column.TYPE
 					, type
-					, ProjectFolderView.Column.NAME
+					, ProjectStore.Column.NAME
 					, name
-					, ProjectFolderView.Column.SIZE
+					, ProjectStore.Column.SIZE
 					, size
-					, ProjectFolderView.Column.MTIME
+					, ProjectStore.Column.MTIME
 					, mtime
 					, -1
 					);
