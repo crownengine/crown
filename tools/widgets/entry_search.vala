@@ -7,7 +7,7 @@ namespace Crown
 {
 public class EntrySearch : Gtk.Box
 {
-	private Gtk.SearchEntry _search_entry;
+	public Gtk.SearchEntry _search_entry;
 
 	public signal void search_changed();
 
