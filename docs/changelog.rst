@@ -4,6 +4,10 @@ Changelog
 0.60.0 --- DD MMM YYYY
 ----------------------
 
+**New Features and Improvements**
+
+* Tools: double-clicking an object in the Level Tree will now frame it in the Editor Viewport.
+
 **Fixes**
 
 * Runtime: Windows: fixed a number of misdetected keyboard keys.
