@@ -358,16 +358,9 @@ public class ProjectFolderView : Gtk.Box
 		if (!selected_path(out path))
 			return;
 
-		Gtk.TreeIter iter;
-		_list_store.get_iter(out iter, path);
-
-		Value val;
 		string type;
 		string name;
-		_list_store.get_value(iter, ProjectStore.Column.TYPE, out val);
-		type = (string)val;
-		_list_store.get_value(iter, ProjectStore.Column.NAME, out val);
-		name = (string)val;
+		resource_at_path(out type, out name, path);
 
 		string resource_path = ResourceId.path(type, name);
 		data.set(Gdk.Atom.intern_static_string("RESOURCE_PATH"), 8, resource_path.data);
@@ -450,24 +443,21 @@ public class ProjectFolderView : Gtk.Box
 			return Gdk.EVENT_STOP; // Stop the event. Otherwise, popover menu won't show on _icon_view.
 		} else if (button == Gdk.BUTTON_PRIMARY && n_press == 2) {
 			if (path != null) {
-				Gtk.TreeIter iter;
-				_list_store.get_iter(out iter, path);
+				string type;
+				string name;
 
-				Value type;
-				Value name;
-				_list_store.get_value(iter, ProjectStore.Column.TYPE, out type);
-				_list_store.get_value(iter, ProjectStore.Column.NAME, out name);
+				resource_at_path(out type, out name, path);
 
-				if ((string)type == "<folder>") {
+				if (type == "<folder>") {
 					string dir_name;
-					if ((string)name == "..")
+					if (name == "..")
 						dir_name = ResourceId.parent_folder((string)_selected_name);
 					else
-						dir_name = (string)name;
+						dir_name = name;
 
 					GLib.Application.get_default().activate_action("open-directory", new GLib.Variant.string(dir_name));
 				} else {
-					GLib.Application.get_default().activate_action("open-resource", ResourceId.path((string)type, (string)name));
+					GLib.Application.get_default().activate_action("open-resource", ResourceId.path(type, name));
 				}
 			}
 		}
@@ -627,18 +617,13 @@ public class ProjectFolderView : Gtk.Box
 		if (path == null)
 			return false;
 
-		Gtk.TreeIter iter;
-		_list_store.get_iter(out iter, path);
+		string type;
+		string name;
+		resource_at_path(out type, out name, path);
 
-		Value val;
-		_list_store.get_value(iter, ProjectStore.Column.TYPE, out val);
-		string type = (string)val;
-		_list_store.get_value(iter, ProjectStore.Column.NAME, out val);
-		string name = (string)val;
-		_list_store.get_value(iter, ProjectStore.Column.SIZE, out val);
-		uint64 size = (uint64)val;
-		_list_store.get_value(iter, ProjectStore.Column.MTIME, out val);
-		uint64 mtime = (uint64)val;
+		uint64 size;
+		uint64 mtime;
+		resource_info_at_path(out size, out mtime, path);
 
 		string text = "<b>%s</b>\nType: %s\nSize: %s\nModified: %s".printf(GLib.Markup.escape_text(name)
 			, GLib.Markup.escape_text(prettify_type(type))
@@ -706,7 +691,7 @@ public class ProjectFolderView : Gtk.Box
 		return path;
 	}
 
-	private void resource_at_path(out string type, out string name, Gtk.TreePath? path)
+	public void resource_at_path(out string type, out string name, Gtk.TreePath? path)
 	{
 		if (path != null) {
 			Gtk.TreeIter iter;
@@ -993,16 +978,8 @@ public class ProjectBrowser : Gtk.Box
 					string? selected_name = null;
 
 					Gtk.TreePath selected_path;
-					if (_folder_view.selected_path(out selected_path)) {
-						Gtk.TreeIter iter;
-						_folder_view._list_store.get_iter(out iter, selected_path);
-
-						GLib.Value val;
-						_folder_view._list_store.get_value(iter, ProjectStore.Column.TYPE, out val);
-						selected_type = (string)val;
-						_folder_view._list_store.get_value(iter, ProjectStore.Column.NAME, out val);
-						selected_name = (string)val;
-					}
+					if (_folder_view.selected_path(out selected_path))
+						_folder_view.resource_at_path(out selected_type, out selected_name, selected_path);
 
 					_tree_filter.refilter();
 
