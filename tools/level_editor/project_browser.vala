@@ -722,6 +722,24 @@ public class ProjectFolderView : Gtk.Box
 			name = _selected_name;
 		}
 	}
+
+	private void resource_info_at_path(out uint64 size, out uint64 mtime, Gtk.TreePath? path)
+	{
+		if (path == null) {
+			size = 0;
+			mtime = 0;
+			return;
+		}
+
+		Gtk.TreeIter iter;
+		_list_store.get_iter(out iter, path);
+
+		Value val;
+		_list_store.get_value(iter, ProjectStore.Column.SIZE, out val);
+		size = (uint64)val;
+		_list_store.get_value(iter, ProjectStore.Column.MTIME, out val);
+		mtime = (uint64)val;
+	}
 }
 
 public class ProjectBrowser : Gtk.Box
