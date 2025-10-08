@@ -180,11 +180,14 @@ namespace script_world
 			return;
 
 		LuaStack stack(sw._lua_environment->L);
+
 		lua_rawgeti(stack.L, LUA_REGISTRYINDEX, sw._script[sw._data[script_inst.i].script_i].module_ref);
 		lua_getfield(stack.L, -1, function_name);
 
-		if (lua_isnil(stack.L, -1))
+		if (lua_isnil(stack.L, -1)) {
+			stack.pop(2);
 			return;
+		}
 
 		stack.push_args(arg_types, args, num_args);
 

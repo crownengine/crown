@@ -11,6 +11,7 @@ Changelog
 **Fixes**
 
 * Runtime: Windows: fixed a number of misdetected keyboard keys.
+* Lua: fixed a memory leak when executing some script component callbacks.
 
 0.59.0 --- 02 Oct 2025
 ----------------------
