@@ -130,7 +130,7 @@ public class PanelNewProject : Gtk.Box
 				else
 					copy_template_to_source_dir(source_dir, _combo_box_map_template.value);
 
-				app.restart_backend.begin(source_dir, LEVEL_NONE);
+				GLib.Application.get_default().activate_action("open-project", new GLib.Variant.tuple({source_dir, LEVEL_NONE}));
 			});
 
 		_buttons_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
