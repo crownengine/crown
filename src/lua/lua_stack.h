@@ -87,9 +87,17 @@ union Arg
 struct LuaStack
 {
 	lua_State *L;
+#if CROWN_DEBUG
+	int _size;
+	int _end_size_delta;
+#endif
+
+	/// @a end_size_delta is used in debug to specify the expected (delta) size of the stack when
+	/// this object goes out of scope. Use INT_MAX do disable; 0 means the stack must be balanced.
+	LuaStack(lua_State *L, int end_size_delta = 0);
 
 	///
-	explicit LuaStack(lua_State *L);
+	~LuaStack();
 
 	/// Returns the number of elements in the stack.
 	/// When called inside a function, it can be used to count
