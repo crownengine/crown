@@ -36,9 +36,30 @@ extern "C"
 
 namespace crown
 {
-inline LuaStack::LuaStack(lua_State *L)
+inline LuaStack::LuaStack(lua_State *L, int end_size_delta)
 	: L(L)
+#if CROWN_DEBUG
+	, _size(num_args())
+	, _end_size_delta(end_size_delta)
+#endif
 {
+	CE_UNUSED(end_size_delta);
+}
+
+inline LuaStack::~LuaStack()
+{
+#if CROWN_DEBUG
+	if (_end_size_delta != INT_MAX) {
+		int expected = _size + _end_size_delta;
+
+		CE_ASSERT(num_args() == expected
+			, "Unbalanced stack! Start size %d now %d expected %d"
+			, _size
+			, num_args()
+			, expected
+			);
+	}
+#endif
 }
 
 inline int LuaStack::num_args()

@@ -138,7 +138,7 @@ int report(lua_State *L, int status)
 
 static int loader(lua_State *L)
 {
-	LuaStack stack(L);
+	LuaStack stack(L, +1);
 	int status;
 
 	const LuaResource *lr = (LuaResource *)device()->_resource_manager->get(RESOURCE_TYPE_SCRIPT, stack.get_resource_name(1));
@@ -434,7 +434,7 @@ int LuaEnvironment::call(int narg, int nres)
 void LuaEnvironment::call_global(const char *func, ArgType::Enum *arg_types, Arg *args, int narg, int nres)
 {
 	int status;
-	LuaStack stack(L);
+	LuaStack stack(L, +nres);
 	CE_ENSURE(NULL != func);
 
 	lua_getglobal(L, func);
