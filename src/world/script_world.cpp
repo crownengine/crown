@@ -125,6 +125,11 @@ namespace script_world
 			lua_rawgeti(stack.L, LUA_REGISTRYINDEX, sw._script[i].module_ref);
 			lua_getfield(stack.L, -1, function_name);
 
+			if (lua_isnil(stack.L, -1)) {
+				stack.pop(2);
+				continue;
+			}
+
 			stack.push_args(arg_types, args, num_args);
 
 			int status = sw._lua_environment->call(num_args, 0);

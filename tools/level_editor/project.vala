@@ -341,7 +341,7 @@ public class Project
 					+ "\n	end"
 					+ "\nend"
 					+ "\n"
-					+ "\n-- Called once per frame."
+					+ "\n-- Called once per frame. Optional."
 					+ "\nfunction Behavior.update(world, dt)"
 					+ "\n	local world_data = data[world]"
 					+ "\n"
