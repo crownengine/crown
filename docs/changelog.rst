@@ -7,6 +7,7 @@ Changelog
 **New Features and Improvements**
 
 * Tools: double-clicking an object in the Level Tree will now frame it in the Editor Viewport.
+* Lua: added ``Device.build()`` to retrieve the runtime's build configuration.
 
 **Fixes**
 

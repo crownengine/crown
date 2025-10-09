@@ -2877,6 +2877,11 @@ void load_api(LuaEnvironment &env)
 			stack.push_string(CROWN_VERSION);
 			return 1;
 		});
+	env.add_module_function("Device", "build", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			stack.push_string(CROWN_BUILD_NAME);
+			return 1;
+		});
 	env.add_module_function("Device", "quit", [](lua_State * L) {
 			LuaStack stack(L);
 			if (stack.num_args() > 0)

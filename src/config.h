@@ -23,6 +23,18 @@
 	#define CROWN_DEVELOPMENT 0
 #endif
 
+#if CROWN_DEBUG
+	#if CROWN_DEVELOPMENT
+		#define CROWN_BUILD_NAME "development"
+	#else
+		#define CROWN_BUILD_NAME "debug"
+	#endif
+#elif !CROWN_DEVELOPMENT
+	#define CROWN_BUILD_NAME "release"
+#else
+	#error "Invalid build configuration"
+#endif
+
 #define CROWN_CAN_COMPILE ((CROWN_DEBUG || CROWN_DEVELOPMENT) \
 	&& (CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS)       \
 	? 1 : 0)

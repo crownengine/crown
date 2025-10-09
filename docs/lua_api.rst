@@ -72,6 +72,10 @@ Device
 	Returns a string identifying the engine version.
 	The form is "major.minor.micro".
 
+**build** () : string
+	Returns a string identifying the engine build.
+	It can be either ``debug``, ``development`` or ``release``.
+
 **quit** ([exit_code])
 	Quits the application. On platforms that support it, *exit_code* is
 	returned to the system after the application exits.
