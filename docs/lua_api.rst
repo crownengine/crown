@@ -62,7 +62,7 @@ Device
 
 **platform** () : string
 	Returns a string identifying what platform the engine is running on.
-	It can be either ``android``, ``linux`` or ``windows``
+	It can be either ``android``, ``html5``, ``linux`` or ``windows``
 
 **architecture** () : string
 	Returns a string identifying what architecture the engine is running on.
