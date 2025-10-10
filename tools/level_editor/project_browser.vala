@@ -1232,7 +1232,6 @@ public class ProjectBrowser : Gtk.Box
 			_tree_view.expand_to_path(sort_path);
 			_tree_view.get_selection().select_path(sort_path);
 			_tree_view.scroll_to_cell(sort_path, null, false, 0.0f, 0.0f);
-			_folder_view.select_resource(type, name);
 		} while (filter_path == null);
 	}
 
@@ -1244,6 +1243,7 @@ public class ProjectBrowser : Gtk.Box
 		}
 
 		select_resource(type, name);
+		_folder_view.select_resource(type, name);
 	}
 
 	private void on_open_directory(GLib.SimpleAction action, GLib.Variant? param)
