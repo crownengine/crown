@@ -558,7 +558,7 @@ public class ProjectFolderView : Gtk.Box
 			cell.set_property("text", (string)name);
 	}
 
-	public void reveal(string type, string name)
+	public void select_resource(string type, string name)
 	{
 		_list_store.foreach((model, path, iter) => {
 				GLib.Value val;
@@ -966,7 +966,7 @@ public class ProjectBrowser : Gtk.Box
 
 					if (parent_path != null) {
 						_tree_selection.select_path(parent_path);
-						_folder_view.reveal(selected_type, selected_name);
+						_folder_view.select_resource(selected_type, selected_name);
 					}
 
 					_folder_view_content.show_all();
@@ -983,9 +983,8 @@ public class ProjectBrowser : Gtk.Box
 
 					_tree_filter.refilter();
 
-					if (selected_type != null && selected_type != "<folder>") {
-						reveal(selected_type, selected_name);
-					}
+					if (selected_type != null && selected_type != "<folder>")
+						select_resource(selected_type, selected_name);
 
 					_folder_view_content.hide();
 					_toggle_folder_view_image.set_from_icon_name("browser-icon-view", Gtk.IconSize.SMALL_TOOLBAR);
@@ -1204,16 +1203,12 @@ public class ProjectBrowser : Gtk.Box
 			;
 	}
 
-	public void reveal(string type, string name)
+	public void select_resource(string type, string name)
 	{
-		if (name.has_prefix("core/")) {
-			_hide_core_resources = false;
-			_tree_filter.refilter();
-		}
-
 		string parent_type = type;
 		string parent_name = name;
 		Gtk.TreePath filter_path = null;
+
 		do {
 			Gtk.TreePath store_path;
 			if (!_project_store.path_for_resource_type_name(out store_path, parent_type, parent_name)) {
@@ -1237,8 +1232,18 @@ public class ProjectBrowser : Gtk.Box
 			_tree_view.expand_to_path(sort_path);
 			_tree_view.get_selection().select_path(sort_path);
 			_tree_view.scroll_to_cell(sort_path, null, false, 0.0f, 0.0f);
-			_folder_view.reveal(type, name);
+			_folder_view.select_resource(type, name);
 		} while (filter_path == null);
+	}
+
+	public void reveal(string type, string name)
+	{
+		if (name.has_prefix("core/")) {
+			_hide_core_resources = false;
+			_tree_filter.refilter();
+		}
+
+		select_resource(type, name);
 	}
 
 	private void on_open_directory(GLib.SimpleAction action, GLib.Variant? param)
