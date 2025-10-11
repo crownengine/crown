@@ -1194,10 +1194,19 @@ public class ProjectBrowser : Gtk.Box
 	}
 
 	// Returns true if the row should be hidden.
-	private bool row_should_be_hidden(string type, string name)
+	public bool row_should_be_hidden(string type, string name)
 	{
-		return type == "<folder>" && name == "core" && _hide_core_resources
-			|| type == "importer_settings"
+		if (_hide_core_resources) {
+			if (type == "<folder>") {
+				if (name == "core")
+					return true;
+			} else {
+				if (name.has_prefix("core/"))
+					return true;
+			}
+		}
+
+		return type == "importer_settings"
 			|| name == Project.LEVEL_EDITOR_TEST_NAME
 			|| _project_store._project.is_type_importable(type)
 			;
