@@ -548,11 +548,12 @@ Matrix4x4 *LuaEnvironment::check_valid(const Matrix4x4 *ptr)
 
 void LuaEnvironment::reload()
 {
+	LuaStack stack(L);
+
 	lua_getglobal(L, "package");
 	lua_getfield(L, -1, "load_order");
 	for (size_t i = 1, n = lua_objlen(L, -1); i < n + 1; ++i) {
 		lua_rawgeti(L, -1, (int)i);
-		LuaStack stack(L);
 		StringId64 name = stack.get_resource_name(-1);
 		this->execute((const LuaResource *)device()->_resource_manager->get(RESOURCE_TYPE_SCRIPT, name), 0);
 		lua_pop(L, 1);
