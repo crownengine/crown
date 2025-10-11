@@ -15,6 +15,8 @@ public class ProjectStore
 		NAME,
 		SIZE,
 		MTIME,
+		VISIBLE,
+		USER_DATA,
 
 		COUNT
 	}
@@ -43,12 +45,16 @@ public class ProjectStore
 			, typeof(string) // resource name
 			, typeof(uint64) // resource size
 			, typeof(uint64) // resource mtime
+			, typeof(bool)   // visible
+			, typeof(uint32) // user data
 			);
 		_tree_store = new Gtk.TreeStore(Column.COUNT
 			, typeof(string) // resource type
 			, typeof(string) // resource name
 			, typeof(uint64) // resource size
 			, typeof(uint64) // resource mtime
+			, typeof(bool)   // visible
+			, typeof(uint32) // user data
 			);
 
 		_folders = new Gee.HashMap<string, Gtk.TreeRowReference>();
@@ -75,6 +81,8 @@ public class ProjectStore
 			, 0u
 			, Column.MTIME
 			, 0u
+			, Column.VISIBLE
+			, true
 			, -1
 			);
 		_favorites_root = new Gtk.TreeRowReference(_tree_store, _tree_store.get_path(iter));
@@ -165,6 +173,8 @@ public class ProjectStore
 			, 0u
 			, Column.MTIME
 			, 0u
+			, Column.VISIBLE
+			, true
 			, -1
 			);
 	}
@@ -215,6 +225,8 @@ public class ProjectStore
 				, 0u
 				, Column.MTIME
 				, 0u
+				, Column.VISIBLE
+				, true
 				, -1
 				);
 
@@ -238,6 +250,8 @@ public class ProjectStore
 					, 0u
 					, Column.MTIME
 					, 0u
+					, Column.VISIBLE
+					, true
 					, -1
 					);
 
@@ -276,6 +290,8 @@ public class ProjectStore
 			, size
 			, Column.MTIME
 			, mtime
+			, Column.VISIBLE
+			, true
 			, -1
 			);
 		_tree_store.insert_with_values(out iter
@@ -289,6 +305,8 @@ public class ProjectStore
 			, size
 			, Column.MTIME
 			, mtime
+			, Column.VISIBLE
+			, true
 			, -1
 			);
 	}
@@ -319,6 +337,8 @@ public class ProjectStore
 						, size
 						, Column.MTIME
 						, mtime
+						, Column.VISIBLE
+						, true
 						, -1
 						);
 					break;
@@ -349,6 +369,8 @@ public class ProjectStore
 						, size
 						, Column.MTIME
 						, mtime
+						, Column.VISIBLE
+						, true
 						, -1
 						);
 					break;
@@ -422,6 +444,8 @@ public class ProjectStore
 			, 0u
 			, Column.MTIME
 			, 0u
+			, Column.VISIBLE
+			, true
 			, -1
 			);
 
@@ -493,6 +517,8 @@ public class ProjectStore
 			, 0u
 			, Column.MTIME
 			, 0u
+			, Column.VISIBLE
+			, true
 			, -1
 			);
 
@@ -562,6 +588,77 @@ public class ProjectStore
 			if (favorites.holds(typeof(Gee.ArrayList)))
 				decode_favorites((Gee.ArrayList<Value?>)favorites);
 		}
+	}
+
+	public void make_visible(bool visible)
+	{
+		_tree_store.foreach((model, path, iter) => {
+				_tree_store.set(iter, Column.VISIBLE, visible, -1);
+				return false; // Continue iterating.
+			});
+
+		_list_store.foreach((model, path, iter) => {
+				_list_store.set(iter, Column.VISIBLE, visible, -1);
+				return false; // Continue iterating.
+			});
+	}
+
+	public void filter(string needle)
+	{
+		_tree_store.foreach((model, path, iter) => {
+				string type;
+				string name;
+
+				Value val;
+				model.get_value(iter, ProjectStore.Column.TYPE, out val);
+				type = (string)val;
+				model.get_value(iter, ProjectStore.Column.NAME, out val);
+				name = (string)val;
+
+				bool visible = false;
+
+				// Always show the roots.
+				if ((type == "<folder>" && name == "") || type == "<favorites>") {
+					visible = true;
+				} else {
+					string basename = GLib.Path.get_basename(name);
+					visible = basename != null && (needle == "" || basename.down().index_of(needle) > -1);
+				}
+
+				if (visible) {
+					// Make this iter and all its ancestors visible.
+					Gtk.TreeIter it = iter;
+					_tree_store.set(it, Column.VISIBLE, true, -1);
+					while (_tree_store.iter_parent(out it, it))
+						_tree_store.set(it, Column.VISIBLE, true, -1);
+				}
+
+				return false; // Continue iterating.
+			});
+
+		_list_store.foreach((model, path, iter) => {
+				string type;
+				string name;
+
+				Value val;
+				model.get_value(iter, ProjectStore.Column.TYPE, out val);
+				type = (string)val;
+				model.get_value(iter, ProjectStore.Column.NAME, out val);
+				name = (string)val;
+
+				bool visible = false;
+
+				// Always show the roots.
+				if ((type == "<folder>" && name == "") || type == "<favorites>") {
+					visible = true;
+				} else {
+					string basename = GLib.Path.get_basename(name);
+					visible = basename != null && (needle == "" || basename.down().index_of(needle) > -1);
+				}
+
+				_list_store.set(iter, ProjectStore.Column.VISIBLE, visible, -1);
+				return false; // Continue iterating.
+			});
 	}
 }
 

@@ -195,10 +195,20 @@ private void set_thumbnail(Gtk.CellRenderer cell, string type, string name, int 
 	else
 		cell.set_property("icon-name", "text-x-generic-symbolic");
 }
+
+public enum BrowseMode
+{
+	REGULAR, ///< Just browsing resources.
+	SEARCH,  ///< Filter resources based on search needle.
+
+	COUNT
+}
+
 public class ProjectFolderView : Gtk.Box
 {
 	public string _selected_type;
 	public string _selected_name;
+	public ProjectBrowser _project_browser;
 	public ProjectStore _project_store;
 	public ThumbnailCache _thumbnail_cache;
 	public Gtk.ListStore _list_store;
@@ -213,15 +223,17 @@ public class ProjectFolderView : Gtk.Box
 	public Gtk.GestureMultiPress _icon_view_gesture_click;
 	public Gtk.GestureMultiPress _list_view_gesture_click;
 	public Gtk.Stack _stack;
+	public BrowseMode _browse_mode;
 
-	public ProjectFolderView(ProjectStore project_store, ThumbnailCache thumbnail_cache)
+	public ProjectFolderView(ProjectBrowser project_browser, ProjectStore project_store, ThumbnailCache thumbnail_cache)
 	{
 		Object(orientation: Gtk.Orientation.VERTICAL);
 
+		_project_browser = project_browser;
 		_project_store = project_store;
 		_thumbnail_cache = thumbnail_cache;
 
-		_list_store = new Gtk.ListStore(ProjectStore.Column.COUNT
+		_list_store = new Gtk.ListStore(4
 			, typeof(string)     // ProjectStore.Column.TYPE
 			, typeof(string)     // ProjectStore.Column.NAME
 			, typeof(uint64)     // ProjectStore.Column.SIZE
@@ -349,6 +361,8 @@ public class ProjectFolderView : Gtk.Box
 		_stack.set_visible_child_full("icon-view", Gtk.StackTransitionType.NONE);
 
 		this.pack_start(_stack);
+
+		_browse_mode = BrowseMode.REGULAR;
 	}
 
 	private void on_drag_data_get(Gdk.DragContext context, Gtk.SelectionData data, uint info, uint time_)
@@ -416,6 +430,8 @@ public class ProjectFolderView : Gtk.Box
 			if (path != null) {
 				_icon_view.select_path(path);
 				_icon_view.scroll_to_path(path, false, 0.0f, 0.0f);
+			} else if (_browse_mode == BrowseMode.SEARCH) {
+					return Gdk.EVENT_PROPAGATE;
 			}
 
 			resource_at_path(out type, out name, path);
@@ -560,6 +576,8 @@ public class ProjectFolderView : Gtk.Box
 
 	public void select_resource(string type, string name)
 	{
+		Gtk.TreePath? path_to_select = null;
+
 		_list_store.foreach((model, path, iter) => {
 				GLib.Value val;
 				string store_type;
@@ -570,15 +588,19 @@ public class ProjectFolderView : Gtk.Box
 				store_name = (string)val;
 
 				if (store_name == name && store_type == type) {
-					_icon_view.select_path(path);
-					_icon_view.scroll_to_path(path, false, 0.0f, 0.0f);
-					_list_view.get_selection().select_path(path);
-					_list_view.scroll_to_cell(path, null, false, 0.0f, 0.0f);
+					path_to_select = path;
 					return true;
 				}
 
 				return false;
 			});
+
+		if (path_to_select != null) {
+			_icon_view.select_path(path_to_select);
+			_icon_view.scroll_to_path(path_to_select, false, 0.0f, 0.0f);
+			_list_view.get_selection().select_path(path_to_select);
+			_list_view.scroll_to_cell(path_to_select, null, false, 0.0f, 0.0f);
+		}
 	}
 
 	public bool selected_path(out Gtk.TreePath? path)
@@ -694,13 +716,16 @@ public class ProjectFolderView : Gtk.Box
 	public void resource_at_path(out string type, out string name, Gtk.TreePath? path)
 	{
 		if (path != null) {
+			Gtk.TreeModel model;
+			Gtk.TreePath model_path = path_and_model(out model, path);
+
 			Gtk.TreeIter iter;
-			_list_store.get_iter(out iter, path);
+			model.get_iter(out iter, model_path);
 
 			Value val;
-			_list_store.get_value(iter, ProjectStore.Column.TYPE, out val);
+			model.get_value(iter, ProjectStore.Column.TYPE, out val);
 			type = (string)val;
-			_list_store.get_value(iter, ProjectStore.Column.NAME, out val);
+			model.get_value(iter, ProjectStore.Column.NAME, out val);
 			name = (string)val;
 		} else {
 			type = _selected_type;
@@ -716,14 +741,31 @@ public class ProjectFolderView : Gtk.Box
 			return;
 		}
 
+		Gtk.TreeModel model;
+		Gtk.TreePath model_path = path_and_model(out model, path);
+
 		Gtk.TreeIter iter;
-		_list_store.get_iter(out iter, path);
+		model.get_iter(out iter, model_path);
 
 		Value val;
-		_list_store.get_value(iter, ProjectStore.Column.SIZE, out val);
+		model.get_value(iter, ProjectStore.Column.SIZE, out val);
 		size = (uint64)val;
-		_list_store.get_value(iter, ProjectStore.Column.MTIME, out val);
+		model.get_value(iter, ProjectStore.Column.MTIME, out val);
 		mtime = (uint64)val;
+	}
+
+	public void set_browse_mode(BrowseMode mode)
+	{
+		if (_browse_mode == mode)
+			return;
+
+		_browse_mode = mode;
+	}
+
+	private Gtk.TreePath path_and_model(out Gtk.TreeModel model, Gtk.TreePath? path)
+	{
+		model = _list_store;
+		return path;
 	}
 }
 
@@ -772,6 +814,11 @@ public class ProjectBrowser : Gtk.Box
 	public ThumbnailCache _thumbnail_cache;
 
 	// Widgets
+	public string _needle;
+	public Gtk.EntryBuffer _filter_buffer;
+	public EntrySearch _filter_entry_tree;
+	public EntrySearch _filter_entry_folder;
+	public Gtk.TreeModelFilter _tree_search;
 	public Gtk.TreeModelFilter _tree_filter;
 	public Gtk.TreeModelSort _tree_sort;
 	public Gtk.TreeView _tree_view;
@@ -798,6 +845,7 @@ public class ProjectBrowser : Gtk.Box
 	public Gtk.GestureMultiPress _tree_view_gesture_click;
 
 	public bool _hide_core_resources;
+	public BrowseMode _browse_mode;
 
 	public ProjectBrowser(ProjectStore project_store, ThumbnailCache thumbnail_cache)
 	{
@@ -811,7 +859,19 @@ public class ProjectBrowser : Gtk.Box
 			_folder_view.queue_draw();
 		});
 
-		// Widgets
+		_needle = "";
+
+		_filter_buffer = new Gtk.EntryBuffer();
+
+		_filter_entry_tree = new EntrySearch();
+		_filter_entry_tree._entry.set_buffer(_filter_buffer);
+		_filter_entry_tree.set_placeholder_text("Search...");
+
+		_filter_entry_folder = new EntrySearch();
+		_filter_entry_folder._entry.set_buffer(_filter_buffer);
+		_filter_entry_folder.set_placeholder_text("Search...");
+		_filter_entry_folder.search_changed.connect(on_filter_entry_text_changed);
+
 		_tree_filter = new Gtk.TreeModelFilter(_project_store._tree_store, null);
 		_tree_filter.set_visible_func((model, iter) => {
 				if (_project_store.project_root_path() != null)
@@ -839,7 +899,10 @@ public class ProjectBrowser : Gtk.Box
 				}
 			});
 
-		_tree_sort = new Gtk.TreeModelSort.with_model(_tree_filter);
+		_tree_search = new Gtk.TreeModelFilter(_tree_filter, null);
+		_tree_search.set_visible_column(ProjectStore.Column.VISIBLE);
+
+		_tree_sort = new Gtk.TreeModelSort.with_model(_tree_search);
 		_tree_sort.set_default_sort_func((model, iter_a, iter_b) => {
 				Value type_a;
 				Value type_b;
@@ -921,12 +984,12 @@ public class ProjectBrowser : Gtk.Box
 
 		_empty_pixbuf = new Gdk.Pixbuf.from_data({ 0x00, 0x00, 0x00, 0x00 }, Gdk.Colorspace.RGB, true, 8, 1, 1, 4);
 
-		_project_store._tree_store.row_inserted.connect((path, iter) => { update_folder_view(); });
-		_project_store._tree_store.row_changed.connect((path, iter) => { update_folder_view(); });
-		_project_store._tree_store.row_deleted.connect((path) => { update_folder_view(); });
+		_project_store._tree_store.row_inserted.connect(on_project_store_row_inserted);
+		_project_store._tree_store.row_changed.connect(on_project_store_row_changed);
+		_project_store._tree_store.row_deleted.connect(on_project_store_row_deleted);
 
 		// Create icon view.
-		_folder_view = new ProjectFolderView(_project_store, thumbnail_cache);
+		_folder_view = new ProjectFolderView(this, _project_store, thumbnail_cache);
 
 		// Create switch button.
 		_show_folder_view = true;
@@ -939,7 +1002,7 @@ public class ProjectBrowser : Gtk.Box
 		_toggle_folder_view.clicked.connect(() => {
 				_show_folder_view = !_show_folder_view;
 
-				if (_show_folder_view) {
+				if (_show_folder_view) { // Switch from regular tree view to folder view.
 					// Save the currently selected resource and a path to its parent. Those will be
 					// used later, after the tree has been refiltered, to show the correct folder
 					// and reveal the selected resource in the icon view.
@@ -971,7 +1034,11 @@ public class ProjectBrowser : Gtk.Box
 
 					_folder_view_content.show_all();
 					_toggle_folder_view_image.set_from_icon_name("level-tree-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
-				} else {
+
+					_filter_entry_tree.search_changed.disconnect(on_filter_entry_text_changed);
+					_filter_entry_folder.search_changed.connect(on_filter_entry_text_changed);
+					_filter_entry_tree.hide();
+				} else { // Switch from folder view to regular tree view.
 					// Save the currently selected resource. This will be used later, after the tree
 					// has been refiltered, to reveal the selected resource in the tree view.
 					string? selected_type = null;
@@ -983,6 +1050,10 @@ public class ProjectBrowser : Gtk.Box
 
 					_tree_filter.refilter();
 
+					// Expand filtered tree to match regular filtering behavior.
+					if (_browse_mode == BrowseMode.SEARCH)
+						_tree_view.expand_all();
+
 					if (selected_type != null && selected_type != "<folder>")
 						select_resource(selected_type, selected_name);
 
@@ -990,6 +1061,10 @@ public class ProjectBrowser : Gtk.Box
 					_toggle_folder_view_image.set_from_icon_name("browser-icon-view", Gtk.IconSize.SMALL_TOOLBAR);
 
 					_tree_view.queue_draw(); // It doesn't draw by itself sometimes...
+
+					_filter_entry_folder.search_changed.disconnect(on_filter_entry_text_changed);
+					_filter_entry_tree.search_changed.connect(on_filter_entry_text_changed);
+					_filter_entry_tree.show();
 				}
 			});
 
@@ -998,6 +1073,7 @@ public class ProjectBrowser : Gtk.Box
 		_scrolled_window.add(_tree_view);
 
 		var _tree_view_control = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		_tree_view_control.pack_start(_filter_entry_tree, true, true);
 		_tree_view_control.pack_end(_toggle_folder_view, false, false);
 
 		_tree_view_content = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
@@ -1053,6 +1129,7 @@ public class ProjectBrowser : Gtk.Box
 			});
 
 		var _folder_view_control = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		_folder_view_control.pack_start(_filter_entry_folder, true, true);
 		_folder_view_control.pack_end(_toggle_icon_view, false, false);
 		_folder_view_control.pack_end(_sort_items, false, false);
 
@@ -1076,8 +1153,10 @@ public class ProjectBrowser : Gtk.Box
 		_paned.set_position(400);
 
 		_hide_core_resources = true;
+		_browse_mode = BrowseMode.REGULAR;
+		_folder_view.set_browse_mode(_browse_mode);
 
-		_folder_list_store = new Gtk.ListStore(ProjectStore.Column.COUNT
+		_folder_list_store = new Gtk.ListStore(4
 			, typeof(string) // ProjectStore.Column.TYPE
 			, typeof(string) // ProjectStore.Column.NAME
 			, typeof(uint64) // ProjectStore.Column.SIZE
@@ -1159,6 +1238,12 @@ public class ProjectBrowser : Gtk.Box
 		GLib.Application.get_default().add_action_entries(action_entries, this);
 
 		this.pack_start(_paned);
+		this.show.connect(on_show);
+	}
+
+	public void on_show()
+	{
+		_filter_entry_tree.set_visible(!_show_folder_view);
 	}
 
 	private void on_drag_data_get(Gdk.DragContext context, Gtk.SelectionData data, uint info, uint time_)
@@ -1232,7 +1317,13 @@ public class ProjectBrowser : Gtk.Box
 				continue;
 			}
 
-			Gtk.TreePath sort_path = _tree_sort.convert_child_path_to_path(filter_path);
+			Gtk.TreePath search_path = _tree_search.convert_child_path_to_path(filter_path);
+			if (search_path == null) {
+				// Either the path is not valid or points to a non-visible row in the model.
+				break;
+			}
+
+			Gtk.TreePath sort_path = _tree_sort.convert_child_path_to_path(search_path);
 			if (sort_path == null) {
 				// The path is not valid.
 				break;
@@ -1246,6 +1337,8 @@ public class ProjectBrowser : Gtk.Box
 
 	public void reveal(string type, string name)
 	{
+		exit_search();
+
 		if (name.has_prefix("core/")) {
 			_hide_core_resources = false;
 			_tree_filter.refilter();
@@ -1315,7 +1408,8 @@ public class ProjectBrowser : Gtk.Box
 			_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
 
 			Gtk.TreePath? filter_path = _tree_sort.convert_path_to_child_path(path);
-			Gtk.TreePath? store_path = _tree_filter.convert_path_to_child_path(filter_path);
+			Gtk.TreePath? search_path = _tree_search.convert_path_to_child_path(filter_path);
+			Gtk.TreePath? store_path = _tree_filter.convert_path_to_child_path(search_path);
 			GLib.Menu? menu_model;
 			if (store_path.is_descendant(_project_store.project_root_path()) || store_path.compare(_project_store.project_root_path()) == 0)
 				menu_model = project_entry_menu_create((string)type, (string)name);
@@ -1353,73 +1447,172 @@ public class ProjectBrowser : Gtk.Box
 		_folder_list_store.clear();
 		_folder_view._list_store.clear();
 
-		// Get the selected node's type and name.
-		Gtk.TreeModel selected_model;
-		Gtk.TreeIter selected_iter;
-		if (!_tree_selection.get_selected(out selected_model, out selected_iter))
-			return;
+		if (_browse_mode == BrowseMode.REGULAR) {
+			// Get the selected node's type and name.
+			Gtk.TreeModel selected_model;
+			Gtk.TreeIter selected_iter;
+			if (!_tree_selection.get_selected(out selected_model, out selected_iter))
+				return;
 
-		string selected_type;
-		string selected_name;
-		Value val;
-		selected_model.get_value(selected_iter, ProjectStore.Column.TYPE, out val);
-		selected_type = (string)val;
-		selected_model.get_value(selected_iter, ProjectStore.Column.NAME, out val);
-		selected_name = (string)val;
+			string selected_type;
+			string selected_name;
+			Value val;
+			selected_model.get_value(selected_iter, ProjectStore.Column.TYPE, out val);
+			selected_type = (string)val;
+			selected_model.get_value(selected_iter, ProjectStore.Column.NAME, out val);
+			selected_name = (string)val;
 
-		if (selected_type == "<folder>") {
-			_folder_view._showing_project_folder = true;
+			if (selected_type == "<folder>") {
+				_folder_view._showing_project_folder = true;
 
-			// Add parent folder.
-			if (selected_name != "") {
-				Gtk.TreeIter dummy;
-				_folder_list_store.insert_with_values(out dummy
-					, -1
-					, ProjectStore.Column.TYPE
-					, "<folder>"
-					, ProjectStore.Column.NAME
-					, ".."
-					, ProjectStore.Column.SIZE
-					, 0u
-					, ProjectStore.Column.MTIME
-					, 0u
-					, -1
-					);
+				// Add parent folder.
+				if (selected_name != "") {
+					Gtk.TreeIter dummy;
+					_folder_list_store.insert_with_values(out dummy
+						, -1
+						, ProjectStore.Column.TYPE
+						, "<folder>"
+						, ProjectStore.Column.NAME
+						, ".."
+						, ProjectStore.Column.SIZE
+						, 0u
+						, ProjectStore.Column.MTIME
+						, 0u
+						, -1
+						);
+				}
+
+				// Fill the intermediate icon view list with paths matching the selected node's name.
+				_project_store._list_store.foreach((model, path, iter) => {
+						string type;
+						string name;
+						model.get_value(iter, ProjectStore.Column.TYPE, out val);
+						type = (string)val;
+						model.get_value(iter, ProjectStore.Column.NAME, out val);
+						name = (string)val;
+
+						if (row_should_be_hidden(type, name))
+							return false;
+
+						// Skip paths without common ancestor.
+						if (ResourceId.parent_folder(name) != selected_name)
+							return false;
+
+						// Skip paths that are too deep in the hierarchy:
+						// selected_name: foo
+						// hierarchy:
+						//   foo/bar OK
+						//   foo/baz OK
+						//   foo/bar/baz NOPE
+						string name_suffix;
+						if (selected_name == "") // Project folder.
+							name_suffix = name.substring((selected_name).length);
+						else if (selected_name != name) // Folder itself.
+							name_suffix = name.substring((selected_name).length + 1);
+						else
+							return false;
+
+						if (name_suffix.index_of_char('/') != -1)
+							return false;
+
+						uint64 size;
+						uint64 mtime;
+						model.get_value(iter, ProjectStore.Column.SIZE, out val);
+						size = (uint64)val;
+						model.get_value(iter, ProjectStore.Column.MTIME, out val);
+						mtime = (uint64)val;
+
+						// Add the path to the list.
+						Gtk.TreeIter dummy;
+						_folder_list_store.insert_with_values(out dummy
+							, -1
+							, ProjectStore.Column.TYPE
+							, type
+							, ProjectStore.Column.NAME
+							, name
+							, ProjectStore.Column.SIZE
+							, size
+							, ProjectStore.Column.MTIME
+							, mtime
+							, -1
+							);
+						return false;
+					});
+
+				_folder_view._selected_type = selected_type;
+				_folder_view._selected_name = selected_name;
+
+				_folder_stack.set_visible_child_full("folder-view", Gtk.StackTransitionType.NONE);
+			} else if (selected_type == "<favorites>") {
+				_folder_view._showing_project_folder = false;
+				int num_items = 0;
+
+				// Fill the icon view list with paths whose ancestor is the favorites root.
+				_project_store._tree_store.foreach((model, path, iter) => {
+						string type;
+						string name;
+						model.get_value(iter, ProjectStore.Column.TYPE, out val);
+						type = (string)val;
+						model.get_value(iter, ProjectStore.Column.NAME, out val);
+						name = (string)val;
+
+						if (!path.is_descendant(_project_store.favorites_root_path()))
+							return false;
+
+						uint64 size;
+						uint64 mtime;
+						model.get_value(iter, ProjectStore.Column.SIZE, out val);
+						size = (uint64)val;
+						model.get_value(iter, ProjectStore.Column.MTIME, out val);
+						mtime = (uint64)val;
+
+						// Add the path to the list.
+						Gtk.TreeIter dummy;
+						_folder_list_store.insert_with_values(out dummy
+							, -1
+							, ProjectStore.Column.TYPE
+							, type
+							, ProjectStore.Column.NAME
+							, name
+							, ProjectStore.Column.SIZE
+							, size
+							, ProjectStore.Column.MTIME
+							, mtime
+							, -1
+							);
+						++num_items;
+						return false;
+					});
+
+					if (num_items == 0)
+						_folder_stack.set_visible_child_full("empty-favorites", Gtk.StackTransitionType.NONE);
+					else
+						_folder_stack.set_visible_child_full("folder-view", Gtk.StackTransitionType.NONE);
 			}
-
-			// Fill the intermediate icon view list with paths matching the selected node's name.
+		} else if (_browse_mode == BrowseMode.SEARCH) {
+			// Fill the intermediate icon view list with paths that matches search criteria.
 			_project_store._list_store.foreach((model, path, iter) => {
+					Value val;
+					bool visible;
+					model.get_value(iter, ProjectStore.Column.VISIBLE, out val);
+					visible = (bool)val;
+
+					if (!visible)
+						return false;
+
 					string type;
 					string name;
 					model.get_value(iter, ProjectStore.Column.TYPE, out val);
 					type = (string)val;
 					model.get_value(iter, ProjectStore.Column.NAME, out val);
 					name = (string)val;
+
+					if (type == "<folder>")
+						return false;
 
 					if (row_should_be_hidden(type, name))
 						return false;
 
-					// Skip paths without common ancestor.
-					if (ResourceId.parent_folder(name) != selected_name)
-						return false;
-
-					// Skip paths that are too deep in the hierarchy:
-					// selected_name: foo
-					// hierarchy:
-					//   foo/bar OK
-					//   foo/baz OK
-					//   foo/bar/baz NOPE
-					string name_suffix;
-					if (selected_name == "") // Project folder.
-						name_suffix = name.substring((selected_name).length);
-					else if (selected_name != name) // Folder itself.
-						name_suffix = name.substring((selected_name).length + 1);
-					else
-						return false;
-
-					if (name_suffix.index_of_char('/') != -1)
-						return false;
-
 					uint64 size;
 					uint64 mtime;
 					model.get_value(iter, ProjectStore.Column.SIZE, out val);
@@ -1443,60 +1636,11 @@ public class ProjectBrowser : Gtk.Box
 						);
 					return false;
 				});
-
-			_folder_view._selected_type = selected_type;
-			_folder_view._selected_name = selected_name;
-
-			_folder_stack.set_visible_child_full("folder-view", Gtk.StackTransitionType.NONE);
-		} else if (selected_type == "<favorites>") {
-			_folder_view._showing_project_folder = false;
-			int num_items = 0;
-
-			// Fill the icon view list with paths whose ancestor is the favorites root.
-			_project_store._tree_store.foreach((model, path, iter) => {
-					string type;
-					string name;
-					model.get_value(iter, ProjectStore.Column.TYPE, out val);
-					type = (string)val;
-					model.get_value(iter, ProjectStore.Column.NAME, out val);
-					name = (string)val;
-
-					if (!path.is_descendant(_project_store.favorites_root_path()))
-						return false;
-
-					uint64 size;
-					uint64 mtime;
-					model.get_value(iter, ProjectStore.Column.SIZE, out val);
-					size = (uint64)val;
-					model.get_value(iter, ProjectStore.Column.MTIME, out val);
-					mtime = (uint64)val;
-
-					// Add the path to the list.
-					Gtk.TreeIter dummy;
-					_folder_list_store.insert_with_values(out dummy
-						, -1
-						, ProjectStore.Column.TYPE
-						, type
-						, ProjectStore.Column.NAME
-						, name
-						, ProjectStore.Column.SIZE
-						, size
-						, ProjectStore.Column.MTIME
-						, mtime
-						, -1
-						);
-					++num_items;
-					return false;
-				});
-
-				if (num_items == 0)
-					_folder_stack.set_visible_child_full("empty-favorites", Gtk.StackTransitionType.NONE);
-				else
-					_folder_stack.set_visible_child_full("folder-view", Gtk.StackTransitionType.NONE);
 		}
 
 		// Now, fill the actual icon view list with correctly sorted paths.
 		_folder_list_sort.foreach((model, path, iter) => {
+				Value val;
 				string type;
 				string name;
 				uint64 size;
@@ -1585,6 +1729,217 @@ public class ProjectBrowser : Gtk.Box
 			});
 		_sort_items_box.pack_start(button, false, false);
 		return button;
+	}
+
+	private bool save_tree_state(Gtk.TreeModel model, Gtk.TreePath path, Gtk.TreeIter iter)
+	{
+		Gtk.TreePath filter_path = _tree_filter.convert_child_path_to_path(path);
+		if (filter_path == null) {
+			// Either the path is not valid or points to a non-visible row in the model.
+			return false;
+		}
+
+		Gtk.TreePath search_path = _tree_search.convert_child_path_to_path(filter_path);
+		if (search_path == null) {
+			// Either the path is not valid or points to a non-visible row in the model.
+			assert(false);
+			return false;
+		}
+
+		Gtk.TreePath sort_path = _tree_sort.convert_child_path_to_path(search_path);
+		if (sort_path == null) {
+			// The path is not valid.
+			assert(false);
+			return false;
+		}
+
+		bool expanded = _tree_view.is_row_expanded(sort_path);
+		bool selected = _tree_view.get_selection().path_is_selected(sort_path);
+
+		uint32 user_data = 0;
+		user_data |= (uint32)expanded << 0;
+		user_data |= (uint32)selected << 1;
+		_project_store._tree_store.set(iter, ProjectStore.Column.USER_DATA, user_data, -1);
+
+#if false // For debugging.
+		if (expanded || selected) {
+			Value val;
+			_project_store._tree_store.get_value(iter, ProjectStore.Column.NAME, out val);
+			logi("is expanded %d selected %d name %s user_data %x".printf((int)expanded, (int)selected, (string)val, user_data));
+		}
+#endif
+
+		return false; // Continue iterating.
+	}
+
+	private bool restore_tree_state(Gtk.TreeModel model, Gtk.TreePath path, Gtk.TreeIter iter)
+	{
+		uint32 user_data;
+		Value val;
+		_project_store._tree_store.get_value(iter, ProjectStore.Column.USER_DATA, out val);
+		user_data = (uint32)val;
+
+		bool expanded = (bool)((user_data & 0x1) >> 0);
+		bool selected = (bool)((user_data & 0x2) >> 1);
+
+#if false // For debugging.
+		if (expanded || selected) {
+			_project_store._tree_store.get_value(iter, ProjectStore.Column.NAME, out val);
+			logi("was expanded %d selected %d name %s user_data %x".printf((int)expanded, (int)selected, (string)val, user_data));
+		}
+#endif
+
+		Gtk.TreePath filter_path = _tree_filter.convert_child_path_to_path(path);
+		if (filter_path == null) {
+			// Either the path is not valid or points to a non-visible row in the model.
+			_project_store._tree_store.get_value(iter, ProjectStore.Column.NAME, out val);
+			return false;
+		}
+
+		Gtk.TreePath search_path = _tree_search.convert_child_path_to_path(filter_path);
+		if (search_path == null) {
+			// Either the path is not valid or points to a non-visible row in the model.
+			return false;
+		}
+
+		Gtk.TreePath sort_path = _tree_sort.convert_child_path_to_path(search_path);
+		if (sort_path == null) {
+			// The path is not valid.
+			return false;
+		}
+
+		if (expanded)
+			_tree_view.expand_to_path(sort_path);
+		else
+			_tree_view.collapse_row(sort_path);
+
+		if (selected)
+			_tree_view.get_selection().select_path(sort_path);
+
+		return false; // Continue iterating.
+	}
+
+	public void filter(string needle)
+	{
+		_project_store.make_visible(false);
+		_project_store.filter(needle);
+		_tree_search.refilter();
+		_tree_view.expand_all();
+	}
+
+	public void exit_search()
+	{
+		uint8 empty[] = { '\0' };
+		_filter_buffer.set_text(empty);
+	}
+
+	public void on_filter_entry_text_changed()
+	{
+		string old_needle = _needle;
+		_needle = _filter_buffer.text.strip().down();
+
+		if (old_needle == "" && _needle != "") {
+			// Enter search mode.
+			assert(_browse_mode == BrowseMode.REGULAR);
+
+			_browse_mode = BrowseMode.SEARCH;
+			_folder_view.set_browse_mode(_browse_mode);
+
+			_folder_stack.set_visible_child_full("folder-view", Gtk.StackTransitionType.NONE);
+
+			disconnect_project_store_signals();
+
+			// Save the current tree state (expanded branches + selection)
+			// to restore it later when the search is done.
+			_project_store._tree_store.foreach(save_tree_state);
+			filter(_needle);
+			update_folder_view();
+
+			connect_project_store_signals();
+		} else if (old_needle != "" && _needle == "") {
+			// Exit search mode.
+			assert(_browse_mode == BrowseMode.SEARCH);
+			_browse_mode = BrowseMode.REGULAR;
+			_folder_view.set_browse_mode(_browse_mode);
+
+			Gtk.TreeModel selected_model;
+			Gtk.TreeIter selected_iter;
+			Gtk.TreeRowReference? selected_reference = null;
+			// Only restore the old selection if it has not been
+			// modified while searching (i.e. nothing is selected
+			// because entering search clears it).
+			if (_tree_view.get_selection().get_selected(out selected_model, out selected_iter)) {
+				Gtk.TreeIter a, b, c;
+				_tree_sort.convert_iter_to_child_iter(out a, selected_iter);
+				_tree_search.convert_iter_to_child_iter(out b, a);
+				_tree_filter.convert_iter_to_child_iter(out c, b);
+				selected_reference = new Gtk.TreeRowReference(selected_model, selected_model.get_path(selected_iter));
+			}
+
+			disconnect_project_store_signals();
+			_project_store.make_visible(true);
+			_tree_search.refilter();
+
+			// Restore the previous tree state (old expanded branches + old selection).
+			_project_store._tree_store.foreach(restore_tree_state);
+			update_folder_view();
+			connect_project_store_signals();
+
+			// If the selection changed while searching, restore it as well.
+			if (selected_reference != null) {
+				Gtk.TreePath path = selected_reference.get_path();
+				_tree_view.expand_to_path(path);
+				_tree_view.get_selection().select_path(path);
+				_tree_view.scroll_to_cell(path, null, false, 0.0f, 0.0f);
+			}
+		} else if (_needle != "") {
+			// Filter while in search mode.
+			assert(_browse_mode == BrowseMode.SEARCH);
+			disconnect_project_store_signals();
+			filter(_needle);
+			update_folder_view();
+			connect_project_store_signals();
+		}
+	}
+
+	void disconnect_project_store_signals()
+	{
+		_project_store._tree_store.row_inserted.disconnect(on_project_store_row_inserted);
+		_project_store._tree_store.row_changed.disconnect(on_project_store_row_changed);
+		_project_store._tree_store.row_deleted.disconnect(on_project_store_row_deleted);
+	}
+
+	void connect_project_store_signals()
+	{
+		_project_store._tree_store.row_inserted.connect(on_project_store_row_inserted);
+		_project_store._tree_store.row_changed.connect(on_project_store_row_changed);
+		_project_store._tree_store.row_deleted.connect(on_project_store_row_deleted);
+	}
+
+	void filter_and_update_folder_view()
+	{
+		if (_browse_mode == BrowseMode.SEARCH) {
+			disconnect_project_store_signals();
+			filter(_needle);
+			connect_project_store_signals();
+		}
+
+		update_folder_view();
+	}
+
+	void on_project_store_row_inserted(Gtk.TreePath path, Gtk.TreeIter iter)
+	{
+		filter_and_update_folder_view();
+	}
+
+	void on_project_store_row_changed(Gtk.TreePath path, Gtk.TreeIter iter)
+	{
+		filter_and_update_folder_view();
+	}
+
+	void on_project_store_row_deleted(Gtk.TreePath path)
+	{
+		filter_and_update_folder_view();
 	}
 }
 

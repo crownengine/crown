@@ -6,6 +6,7 @@ Changelog
 
 **New Features and Improvements**
 
+* Tools: added the ability to search any kind of resources in the Project Browser.
 * Tools: double-clicking an object in the Level Tree will now frame it in the Editor Viewport.
 * Lua: added ``Device.build()`` to retrieve the runtime's build configuration.
 
