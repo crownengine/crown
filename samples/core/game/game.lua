@@ -10,6 +10,7 @@ GameBase = GameBase or {
 	game_level  = nil,
 	screen_gui  = nil,
 	show_help   = true,
+	show_build  = false,
 
 	_test_package = nil,
 }
@@ -71,6 +72,10 @@ function GameBase.render(dt)
 		GameBase.game.render(dt)
 	end
 
+	if GameBase.show_build then
+		GameBase.draw_build()
+	end
+
 	Device.render(GameBase.world, GameBase.camera_unit)
 end
 
@@ -115,4 +120,21 @@ function GameBase.draw_help(controls, title)
 		Gui.text(GameBase.screen_gui, Vector2(desc_x, line_y), paragraph_size, v.desc, font, material, paragraph_color)
 		line_y = line_y - paragraph_margin
 	end
+end
+
+function GameBase.draw_build()
+	local window_w, window_h = Device.resolution()
+	local font_size = 14
+	local font = "core/game/hud/debug"
+	local material = "core/game/hud/debug"
+	local color = Color4(255, 255, 255, 160)
+	local build = Device.version()
+		.. " " .. Device.platform()
+		.. " " .. Device.architecture() .. " "
+		.. "(" .. Device.build() .. ")"
+
+	local extents = Gui.text_extents(GameBase.screen_gui, font_size, build, font)
+	local position = Vector2(window_w - extents.x - 12, 12)
+
+	Gui.text(GameBase.screen_gui, position, font_size, build, font, material, color)
 end

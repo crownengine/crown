@@ -37,6 +37,7 @@ Game = Game or {
 GameBase.game = Game
 GameBase.game_level = "levels/mover"
 GameBase.show_help = true
+GameBase.show_build = true
 
 function Game.level_loaded()
 	Game.physics_world = World.physics_world(GameBase.world)
