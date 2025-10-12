@@ -33,7 +33,9 @@ crown_set_version () {
 	sed -i "s/CROWN_VERSION_PATCH .*/CROWN_VERSION_PATCH ${3}/g" src/config.h
 
 	# Patch version string in config.vala
-	sed -i "s/CROWN_VERSION = \".*/CROWN_VERSION = \"${1}.${2}.${3}\";/g" tools/config.vala
+	sed -i "s/CROWN_VERSION_MAJOR = \".*/CROWN_VERSION_MAJOR = \"${1}\";/g" tools/config.vala
+	sed -i "s/CROWN_VERSION_MINOR = \".*/CROWN_VERSION_MINOR = \"${2}\";/g" tools/config.vala
+	sed -i "s/CROWN_VERSION_PATCH = \".*/CROWN_VERSION_PATCH = \"${3}\";/g" tools/config.vala
 }
 
 crown_docs_set_version () {

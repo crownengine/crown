@@ -4,6 +4,8 @@
 
 set -eu
 
+. scripts/dist/version.sh
+
 if [ $# -gt 1 ]; then
 	echo "Usage: $0 [version]"
 	echo ""
@@ -13,8 +15,10 @@ fi
 VERSION=${1-}
 if [ -z "${VERSION}" ]; then
 	VERSION=$(git tag | tail -n 1)
+	VERSION_DIR=v$(crown_version_major).$(crown_version_minor).0
 elif [ "${VERSION}" = "master" ]; then
 	VERSION="master"
+	VERSION_DIR="master"
 else
 	echo "Invalid version name"
 	exit 1
@@ -37,9 +41,9 @@ make docs
 
 # Update gh-pages branch.
 git checkout gh-pages
-rm -r html/"${VERSION}"
-mkdir html/"${VERSION}"
-cp -r build/docs/html/* html/"${VERSION}"
+rm -r html/"${VERSION_DIR}"
+mkdir html/"${VERSION_DIR}"
+cp -r build/docs/html/* html/"${VERSION_DIR}"
 
 # Update 'latest' only in stable releases.
 if [ "${VERSION}" != "master" ]; then
@@ -50,5 +54,5 @@ if [ "${VERSION}" != "master" ]; then
 fi
 
 # Commit changes.
-git add html/"${VERSION}"
+git add html/"${VERSION_DIR}"
 git commit -m "Docs ${VERSION}"
