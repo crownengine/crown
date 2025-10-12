@@ -12,6 +12,7 @@ Changelog
 
 **Fixes**
 
+* Tools: fixed creation of animation state machine resources.
 * Runtime: Windows: fixed a number of misdetected keyboard keys.
 * Lua: fixed a memory leak when executing some script component callbacks.
 * Lua: the ``update()`` script component callback is now optional.
