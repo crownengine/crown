@@ -9,13 +9,13 @@ const string CROWN_VERSION_MAJOR = "0";
 const string CROWN_VERSION_MINOR = "59";
 const string CROWN_VERSION_PATCH = "1";
 
-const string CROWN_FEATURES_VERSION = CROWN_VERSION_MAJOR + "." + CROWN_VERSION_MINOR ;
+const string CROWN_FEATURES_VERSION = CROWN_VERSION_MAJOR + "." + CROWN_VERSION_MINOR;
 const string CROWN_MANUAL_VERSION = CROWN_FEATURES_VERSION + ".0";
 const string CROWN_VERSION = CROWN_FEATURES_VERSION + "." + CROWN_VERSION_PATCH;
 
 const string CROWN_WWW_URL = "https://www.crownengine.org";
 const string CROWN_DOCS_URL = "https://docs.crownengine.org";
-const string CROWN_LATEST_DOCS_URL = CROWN_DOCS_URL + "/html/v" + CROWN_VERSION;
+const string CROWN_LATEST_DOCS_URL = CROWN_DOCS_URL + "/html/v" + CROWN_MANUAL_VERSION;
 const string CROWN_LATEST_CHANGELOG_URL = CROWN_LATEST_DOCS_URL + "/changelog.html#changelog";
 const string CROWN_FUND_URL = CROWN_WWW_URL + "/fund";
 const string CROWN_CREDITS_URL = CROWN_WWW_URL + "/about/credits";
