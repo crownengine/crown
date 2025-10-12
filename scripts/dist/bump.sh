@@ -36,8 +36,6 @@ if [ $# -ne 3 ]; then
 	exit;
 fi
 
-git checkout master
-
 # The new version to be bumped
 VERSION_NEXT_MAJOR=$1
 VERSION_NEXT_MINOR=$2
