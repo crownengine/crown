@@ -15,9 +15,6 @@ fi
 
 git checkout master
 
-# Read previous version
-VERSION_PREV=$(git tag | tail -n 2 | head -n 1 | cut -c2-)
-
 # Read current version
 VERSION_MAJOR=$(crown_version_major)
 VERSION_MINOR=$(crown_version_minor)
