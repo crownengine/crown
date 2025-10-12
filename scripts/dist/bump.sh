@@ -29,8 +29,6 @@ VERSION_NEXT_MAJOR=$1
 VERSION_NEXT_MINOR=$2
 VERSION_NEXT_PATCH=$3
 VERSION_NEXT="${VERSION_NEXT_MAJOR}.${VERSION_NEXT_MINOR}.${VERSION_NEXT_PATCH}"
-VERSION_NEXT_TITLE="${VERSION_NEXT} --- DD MMM YYYY"
-VERSION_NEXT_UNDERLINE=$(echo "${VERSION_NEXT_TITLE}" | sed 's/./-/g') # Replace all chars in VERSION_NEXT_TITLE with '-'
 
 # Patch version numbers in config.h
 sed -i "s/MAJOR ${VERSION_MAJOR}/MAJOR ${VERSION_NEXT_MAJOR}/g" src/config.h
@@ -41,13 +39,21 @@ sed -i "s/${VERSION}/${VERSION_NEXT}/g" tools/config.vala
 # Patch version string in docs
 sed -i "s/${VERSION}/${VERSION_NEXT}/g" docs/conf.py
 
-# Prepare CHANGELOG for next version
+# Prepare CHANGELOG for next version.
+# Create a stable target to the heading based on version number.
+# Use the heading title to reference the very same target to avoid Sphinx discarding it.
+CHANGELOG_HEAD_TARGET=".. _v${VERSION_NEXT}:"
+CHANGELOG_HEAD=":ref:\`${VERSION_NEXT} --- DD MMM YYYY <v${VERSION_NEXT}>\`"
+CHANGELOG_UNDERLINE=$(echo "${CHANGELOG_HEAD}" | sed 's/./-/g') # Replace all chars in CHANGELOG_HEAD with '-'
+
 {
 	echo "Changelog"
 	echo "========="
 	echo ""
-	echo "${VERSION_NEXT_TITLE}"
-	echo "${VERSION_NEXT_UNDERLINE}"
+	echo "${CHANGELOG_HEAD_TARGET}"
+	echo ""
+	echo "${CHANGELOG_HEAD}"
+	echo "${CHANGELOG_UNDERLINE}"
 } >> docs/changelog.rst.next
 
 tail docs/changelog.rst -n +3 >> docs/changelog.rst.next
