@@ -808,6 +808,117 @@ public static void create_object_types(Database database)
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_UNIT, properties);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "name",
+			editor = PropertyEditorType.RESOURCE,
+			resource_type = OBJECT_TYPE_MESH_ANIMATION,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "weight",
+		}
+	};
+	StringId64 node_animation_type = database.create_object_type(OBJECT_TYPE_NODE_ANIMATION, properties);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "event",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "mode",
+			editor = PropertyEditorType.ENUM,
+			enum_values = { "immediate", "wait_until_end" },
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.GUID,
+			object_type = StringId64(OBJECT_TYPE_STATE_MACHINE_NODE),
+			name = "to",
+		},
+	};
+	StringId64 node_transition_type = database.create_object_type(OBJECT_TYPE_NODE_TRANSITION, properties);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "name",
+			deffault = "New Node",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.OBJECTS_SET,
+			name = "animations",
+			object_type = node_animation_type,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.BOOL,
+			name = "loop",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "speed",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.OBJECTS_SET,
+			name = "transitions",
+			object_type = node_transition_type,
+		},
+	};
+	StringId64 state_machine_node_type = database.create_object_type(OBJECT_TYPE_STATE_MACHINE_NODE, properties);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "name",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "value",
+		},
+	};
+	StringId64 state_machine_variable_type = database.create_object_type(OBJECT_TYPE_STATE_MACHINE_VARIABLE, properties);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.GUID,
+			object_type = StringId64(OBJECT_TYPE_STATE_MACHINE_NODE),
+			name = "initial_state",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.OBJECTS_SET,
+			name = "states",
+			object_type = state_machine_node_type,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.OBJECTS_SET,
+			name = "variables",
+			object_type = state_machine_variable_type,
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_STATE_MACHINE, properties);
 }
 
 } /* namespace Crown */
