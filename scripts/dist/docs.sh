@@ -10,7 +10,7 @@ if [ $# -gt 1 ]; then
 	exit;
 fi
 
-VERSION=$1
+VERSION=${1-}
 if [ -z "${VERSION}" ]; then
 	VERSION=$(git tag | tail -n 1)
 elif [ "${VERSION}" = "master" ]; then
