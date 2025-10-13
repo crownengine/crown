@@ -39,6 +39,12 @@ Customize the data directory name:
 Options
 -------
 
+``--``
+	End of the runtime's options.
+
+	All options following ``--`` are passed to the game but will not be
+	interpreted by the runtime.
+
 ``-h`` ``--help``
 	Display the help and quit.
 

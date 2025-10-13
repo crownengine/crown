@@ -26,6 +26,7 @@ static void help(const char *msg = NULL)
 		"  crown [options]\n"
 		"\n"
 		"Options:\n"
+		"  --                              End of the runtime's options.\n"
 		"  -h --help                       Display this help.\n"
 		"  -v --version                    Display engine version.\n"
 		"  --source-dir <path>             Specify the <path> of the project's source data.\n"
