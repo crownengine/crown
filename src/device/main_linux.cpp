@@ -420,7 +420,7 @@ struct LinuxDevice
 		CE_ASSERT(err != -1, "pipe: errno = %d", errno);
 		CE_UNUSED(err);
 
-		_x11_lib = os::library_open("libX11.so");
+		_x11_lib = os::library_open("libX11.so.6");
 #define DL_IMPORT_FUNC(func_name, return_type, params)                          \
 	func_name = (PROTO_ ## func_name)os::library_symbol(_x11_lib, # func_name); \
 	CE_ENSURE(func_name != NULL);
@@ -429,7 +429,7 @@ struct LinuxDevice
 
 #undef DL_IMPORT_FUNC
 
-		_xrandr_lib = os::library_open("libXrandr.so");
+		_xrandr_lib = os::library_open("libXrandr.so.2");
 #define DL_IMPORT_FUNC(func_name, return_type, params)                             \
 	func_name = (PROTO_ ## func_name)os::library_symbol(_xrandr_lib, # func_name); \
 	CE_ENSURE(func_name != NULL);
