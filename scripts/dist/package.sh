@@ -15,7 +15,7 @@ fi
 
 PLATFORM=$1
 ARCH=$2
-VERSION=$3
+VERSION=${3-}
 
 # Validate platform/arch combination.
 if [ "${PLATFORM}" = "android" ]; then
