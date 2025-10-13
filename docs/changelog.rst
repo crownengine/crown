@@ -11,6 +11,7 @@ Changelog
 * Tools: fixed creation of animation state machine resources.
 * Runtime: Windows: fixed a number of misdetected keyboard keys.
 * Lua: fixed a memory leak when executing some script component callbacks.
+* Runtime: Linux: fixed a crash at startup due to some X11 libraries not being found.
 
 0.59.0 --- 02 Oct 2025
 ----------------------
