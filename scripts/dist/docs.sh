@@ -41,13 +41,13 @@ make docs
 
 # Update gh-pages branch.
 git checkout gh-pages
-rm -r html/"${VERSION_DIR}"
+rm -rf html/"${VERSION_DIR}"
 mkdir html/"${VERSION_DIR}"
 cp -r build/docs/html/* html/"${VERSION_DIR}"
 
 # Update 'latest' only in stable releases, excluding patches.
 if [ "${VERSION}" != "master" ] && [ "$(crown_version_patch)" -eq 0 ]; then
-	rm -r html/latest
+	rm -rf html/latest
 	mkdir html/latest
 	cp -r build/docs/html/* html/latest
 	git add html/latest
