@@ -78,7 +78,7 @@ Features
 	* DCC data importers for models, textures, sounds etc.
 	* Scene Editor with place/move/rotate/scale controls, snapping, selection etc.
 	* Deployer for Android, HTML5 and desktop platforms.
-	* Project Browser with thumbnails and multiple view modes.
+	* Project Browser with thumbnails, global searching and multiple view modes.
 	* Scene Tree and object Inspector.
 	* Console with Lua REPL.
 
@@ -97,9 +97,11 @@ Features
 
 * Physics
 	* Static, dynamic and keyframed rigid bodies with multiple colliders.
-	* Joints (fixed, spring and hinge).
+	* Dedicated Mover object for controlling characters.
+	* Collision begin/stay/end events.
+	* Triggers with enter/leave events.
 	* Spatial queries: ray-, sphere- and box-casts.
-	* Triggers.
+	* Joints (fixed, spring and hinge).
 
 * Scripting
 	* Integrated Lua runtime can be used to control every aspect of the game.
@@ -113,28 +115,11 @@ Features
 
 * Input
 	* Unified interface for mice, keyboards, joypads and touchpads.
-	* Full list of input events for each simulation frame.
+	* Access to sub-frame input events list.
 	* Simplified polling interface for rapid prototyping.
 
 * Audio
 	* 3D audio sources with position and range-based attenuation.
+	* Sound groups for bulk volume adjustments.
 	* Audio streaming.
 	* Formats: WAV and OGG.
-
-Contact
--------
-
-* Website: https://www.crownengine.org
-* Project page: https://github.com/crownengine/crown
-
-Contributors
-------------
-
-In chronological order.
-
-* Daniele Bartolini (`@dbartolini <https://github.com/dbartolini>`_)
-* Simone Boscaratto (`@Xed89 <https://github.com/Xed89>`_)
-* Michele Rossi (`@mikymod <https://github.com/mikymod>`_)
-* Michela Iacchelli - Crown logo v1.
-* Raphael de Vasconcelos Nascimento (`@vasconssa <https://github.com/vasconssa>`_)
-* Giulia Gazzoli - Crown logo v2.

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Introduction &mdash; Crown 0.59.0 Manual 0.59.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <title>Introduction &mdash; Crown 0.60.0 Manual 0.60.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" /><link rel="shortcut icon" href="_static/org.crownengine.Crown.svg"/>
   <!--[if lt IE 9]>
@@ -30,7 +30,7 @@
             <a href="index.html"><img src="_static/org.crownengine.Crown.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                Crown 0.59.0 Manual
+                Crown 0.60.0 Manual
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -48,8 +48,6 @@
 <li class="toctree-l2"><a class="reference internal" href="#supported-platforms">Supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#design-principles">Design Principles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#features">Features</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#contact">Contact</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#contributors">Contributors</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="installing_crown/index.html">Installing Crown</a></li>
@@ -69,7 +67,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Crown 0.59.0 Manual</a>
+          <a href="index.html">Crown 0.60.0 Manual</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -185,7 +183,7 @@ anyone.</dd>
 <li>DCC data importers for models, textures, sounds etc.</li>
 <li>Scene Editor with place/move/rotate/scale controls, snapping, selection etc.</li>
 <li>Deployer for Android, HTML5 and desktop platforms.</li>
-<li>Project Browser with thumbnails and multiple view modes.</li>
+<li>Project Browser with thumbnails, global searching and multiple view modes.</li>
 <li>Scene Tree and object Inspector.</li>
 <li>Console with Lua REPL.</li>
 </ul>
@@ -214,9 +212,11 @@ anyone.</dd>
 <dt>Physics</dt>
 <dd><ul class="first last">
 <li>Static, dynamic and keyframed rigid bodies with multiple colliders.</li>
-<li>Joints (fixed, spring and hinge).</li>
+<li>Dedicated Mover object for controlling characters.</li>
+<li>Collision begin/stay/end events.</li>
+<li>Triggers with enter/leave events.</li>
 <li>Spatial queries: ray-, sphere- and box-casts.</li>
-<li>Triggers.</li>
+<li>Joints (fixed, spring and hinge).</li>
 </ul>
 </dd>
 </dl>
@@ -245,7 +245,7 @@ anyone.</dd>
 <dt>Input</dt>
 <dd><ul class="first last">
 <li>Unified interface for mice, keyboards, joypads and touchpads.</li>
-<li>Full list of input events for each simulation frame.</li>
+<li>Access to sub-frame input events list.</li>
 <li>Simplified polling interface for rapid prototyping.</li>
 </ul>
 </dd>
@@ -255,31 +255,13 @@ anyone.</dd>
 <dt>Audio</dt>
 <dd><ul class="first last">
 <li>3D audio sources with position and range-based attenuation.</li>
+<li>Sound groups for bulk volume adjustments.</li>
 <li>Audio streaming.</li>
 <li>Formats: WAV and OGG.</li>
 </ul>
 </dd>
 </dl>
 </li>
-</ul>
-</div>
-<div class="section" id="contact">
-<h2>Contact<a class="headerlink" href="#contact" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li>Website: <a class="reference external" href="https://www.crownengine.org">https://www.crownengine.org</a></li>
-<li>Project page: <a class="reference external" href="https://github.com/crownengine/crown">https://github.com/crownengine/crown</a></li>
-</ul>
-</div>
-<div class="section" id="contributors">
-<h2>Contributors<a class="headerlink" href="#contributors" title="Permalink to this headline">¶</a></h2>
-<p>In chronological order.</p>
-<ul class="simple">
-<li>Daniele Bartolini (<a class="reference external" href="https://github.com/dbartolini">&#64;dbartolini</a>)</li>
-<li>Simone Boscaratto (<a class="reference external" href="https://github.com/Xed89">&#64;Xed89</a>)</li>
-<li>Michele Rossi (<a class="reference external" href="https://github.com/mikymod">&#64;mikymod</a>)</li>
-<li>Michela Iacchelli - Crown logo v1.</li>
-<li>Raphael de Vasconcelos Nascimento (<a class="reference external" href="https://github.com/vasconssa">&#64;vasconssa</a>)</li>
-<li>Giulia Gazzoli - Crown logo v2.</li>
 </ul>
 </div>
 </div>

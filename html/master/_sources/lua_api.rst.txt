@@ -62,7 +62,7 @@ Device
 
 **platform** () : string
 	Returns a string identifying what platform the engine is running on.
-	It can be either ``android``, ``linux`` or ``windows``
+	It can be either ``android``, ``html5``, ``linux`` or ``windows``
 
 **architecture** () : string
 	Returns a string identifying what architecture the engine is running on.
@@ -71,6 +71,10 @@ Device
 **version** () : string
 	Returns a string identifying the engine version.
 	The form is "major.minor.micro".
+
+**build** () : string
+	Returns a string identifying the engine build.
+	It can be either ``debug``, ``development`` or ``release``.
 
 **quit** ([exit_code])
 	Quits the application. On platforms that support it, *exit_code* is

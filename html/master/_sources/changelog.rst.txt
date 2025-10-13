@@ -1,11 +1,30 @@
 Changelog
 =========
 
-0.59.0 --- DD MMM YYYY
+0.60.0 --- DD MMM YYYY
 ----------------------
 
 **New Features and Improvements**
 
+* Tools: added the ability to search any kind of resources in the Project Browser.
+* Tools: double-clicking an object in the Level Tree will now frame it in the Editor Viewport.
+* Lua: added ``Device.build()`` to retrieve the runtime's build configuration.
+
+**Fixes**
+
+* Tools: fixed creation of animation state machine resources.
+* Runtime: Windows: fixed a number of misdetected keyboard keys.
+* Runtime: Linux: fixed a crash at startup due to some X11 libraries not being found.
+* Lua: fixed a memory leak when executing some script component callbacks.
+* Lua: the ``update()`` script component callback is now optional.
+
+0.59.0 --- 02 Oct 2025
+----------------------
+
+**New Features and Improvements**
+
+* Samples: improved 01-physics sample with a first-person character mover, kinematic platforms, triggers and more.
+* Manual: added a new 'Writing Gameplay' section to the manual.
 * Tools: saving a Unit as a prefab now automatically replaces that Unit in the level with the saved prefab.
 * Runtime: added a new Mover component for controlling characters that implements a standard collide-and-slide algorithm.
 * Runtime: added a new .render_config resource for configuring the renderer, along with a `render_config` property in the boot files to allow selecting the desired config.

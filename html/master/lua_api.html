@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lua API reference &mdash; Crown 0.59.0 Manual 0.59.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <title>Lua API reference &mdash; Crown 0.60.0 Manual 0.60.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" /><link rel="shortcut icon" href="_static/org.crownengine.Crown.svg"/>
   <!--[if lt IE 9]>
@@ -30,7 +30,7 @@
             <a href="index.html"><img src="_static/org.crownengine.Crown.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                Crown 0.59.0 Manual
+                Crown 0.60.0 Manual
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -156,7 +156,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Crown 0.59.0 Manual</a>
+          <a href="index.html">Crown 0.60.0 Manual</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -224,13 +224,16 @@ the box. <em>half_extents</em> describes the size of the box along the axis.</dd
 <dd>Returns a table containing the command line parameters the engine was started with.</dd>
 <dt><strong>platform</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
 <dd>Returns a string identifying what platform the engine is running on.
-It can be either <code class="docutils literal notranslate"><span class="pre">android</span></code>, <code class="docutils literal notranslate"><span class="pre">linux</span></code> or <code class="docutils literal notranslate"><span class="pre">windows</span></code></dd>
+It can be either <code class="docutils literal notranslate"><span class="pre">android</span></code>, <code class="docutils literal notranslate"><span class="pre">html5</span></code>, <code class="docutils literal notranslate"><span class="pre">linux</span></code> or <code class="docutils literal notranslate"><span class="pre">windows</span></code></dd>
 <dt><strong>architecture</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
 <dd>Returns a string identifying what architecture the engine is running on.
 It can be either <code class="docutils literal notranslate"><span class="pre">32-bit</span></code> or <code class="docutils literal notranslate"><span class="pre">64-bit</span></code>.</dd>
 <dt><strong>version</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
 <dd>Returns a string identifying the engine version.
 The form is “major.minor.micro”.</dd>
+<dt><strong>build</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns a string identifying the engine build.
+It can be either <code class="docutils literal notranslate"><span class="pre">debug</span></code>, <code class="docutils literal notranslate"><span class="pre">development</span></code> or <code class="docutils literal notranslate"><span class="pre">release</span></code>.</dd>
 <dt><strong>quit</strong> ([exit_code])</dt>
 <dd>Quits the application. On platforms that support it, <em>exit_code</em> is
 returned to the system after the application exits.</dd>
