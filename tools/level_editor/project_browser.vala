@@ -399,6 +399,11 @@ public class ProjectFolderView : Gtk.Box
 
 	private void on_drag_data_received(Gdk.DragContext context, int x, int y, Gtk.SelectionData selection_data, uint info, uint time_)
 	{
+		if (!_showing_project_folder) {
+			Gtk.drag_finish(context, true, false, time_);
+			return;
+		}
+
 		Gtk.TreePath? path = path_at_pos(x, y);
 
 		if (path != null) {
