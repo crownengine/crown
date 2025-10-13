@@ -16,6 +16,7 @@ Changelog
 * Runtime: Windows: fixed a number of misdetected keyboard keys.
 * Lua: fixed a memory leak when executing some script component callbacks.
 * Lua: the ``update()`` script component callback is now optional.
+* Runtime: Linux: fixed a crash at startup due to some X11 libraries not being found.
 
 0.59.0 --- 02 Oct 2025
 ----------------------
