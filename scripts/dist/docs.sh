@@ -45,8 +45,8 @@ rm -r html/"${VERSION_DIR}"
 mkdir html/"${VERSION_DIR}"
 cp -r build/docs/html/* html/"${VERSION_DIR}"
 
-# Update 'latest' only in stable releases.
-if [ "${VERSION}" != "master" ]; then
+# Update 'latest' only in stable releases, excluding patches.
+if [ "${VERSION}" != "master" ] && [ "$(crown_version_patch)" -eq 0 ]; then
 	rm -r html/latest
 	mkdir html/latest
 	cp -r build/docs/html/* html/latest
