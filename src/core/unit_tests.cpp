@@ -1677,19 +1677,32 @@ static void test_path()
 
 static void test_command_line()
 {
-	const char *argv[] =
 	{
-		"args",
-		"-s",
-		"--switch",
-		"--argument",
-		"orange"
-	};
+		const char *argv[] = { "prog", "-s", "--switch" };
+		CommandLine cl(countof(argv), argv);
 
-	CommandLine cl(countof(argv), argv);
-	ENSURE(cl.has_option("switch", 's'));
-	const char *orange = cl.get_parameter(0, "argument");
-	ENSURE(orange != NULL && strcmp(orange, "orange") == 0);
+		ENSURE(cl.has_option("switch", 's'));
+	}
+	{
+		const char *argv[] = { "prog", "--args", "orange", "apple" };
+		CommandLine cl(countof(argv), argv);
+
+		const char *orange = cl.get_parameter(0, "args");
+		ENSURE(orange != NULL && strcmp(orange, "orange") == 0);
+		const char *apple = cl.get_parameter(1, "args");
+		ENSURE(apple != NULL && strcmp(apple, "apple") == 0);
+		const char *banana = cl.get_parameter(2, "banana");
+		ENSURE(banana == NULL);
+	}
+	{
+		const char *argv[] = { "prog", "--bar", "--", "--baz" };
+		CommandLine cl(countof(argv), argv);
+
+		ENSURE(cl.has_option("bar"));
+		ENSURE(!cl.has_option("baz"));
+		ENSURE(!cl.has_option("--"));
+		ENSURE(cl.get_parameter(0, "bar") == NULL);
+	}
 }
 
 static void test_thread()
