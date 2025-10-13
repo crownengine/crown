@@ -13,6 +13,7 @@ if [ $# -gt 1 ]; then
 fi
 
 VERSION=${1-}
+VERSION_PATCH=$(crown_version_patch)
 if [ -z "${VERSION}" ]; then
 	VERSION=$(git tag | tail -n 1)
 	VERSION_DIR=v$(crown_version_major).$(crown_version_minor).0
@@ -46,7 +47,7 @@ mkdir html/"${VERSION_DIR}"
 cp -r build/docs/html/* html/"${VERSION_DIR}"
 
 # Update 'latest' only in stable releases, excluding patches.
-if [ "${VERSION}" != "master" ] && [ "$(crown_version_patch)" -eq 0 ]; then
+if [ "${VERSION}" != "master" ] && [ "${VERSION_PATCH}" -eq 0 ]; then
 	rm -f html/latest && ln -s html/"${VERSION_DIR}" html/latest
 	git add html/latest
 fi
