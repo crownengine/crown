@@ -15,7 +15,7 @@ fi
 VERSION=${1-}
 VERSION_PATCH=$(crown_version_patch)
 if [ -z "${VERSION}" ]; then
-	VERSION=$(git tag | tail -n 1)
+	VERSION=$(crown_version)
 	VERSION_DIR=v$(crown_version_major).$(crown_version_minor).0
 elif [ "${VERSION}" = "master" ]; then
 	VERSION="master"
@@ -32,9 +32,6 @@ if [ "${answer}" != "y" ] && [ "${answer}" != "Y" ]; then
 	echo "Bye."
 	exit;
 fi
-
-# Switch to desired tag.
-git checkout "${VERSION}"
 
 # Build docs.
 make clean
