@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Introduction &mdash; Crown 0.59.0 Manual 0.59.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <title>Introduction &mdash; Crown 0.59.0 Manual 0.59.1 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" /><link rel="shortcut icon" href="_static/org.crownengine.Crown.svg"/>
   <!--[if lt IE 9]>
@@ -183,7 +183,7 @@ anyone.</dd>
 <li>DCC data importers for models, textures, sounds etc.</li>
 <li>Scene Editor with place/move/rotate/scale controls, snapping, selection etc.</li>
 <li>Deployer for Android, HTML5 and desktop platforms.</li>
-<li>Project Browser with thumbnails and multiple view modes.</li>
+<li>Project Browser with thumbnails, global searching and multiple view modes.</li>
 <li>Scene Tree and object Inspector.</li>
 <li>Console with Lua REPL.</li>
 </ul>
@@ -212,9 +212,11 @@ anyone.</dd>
 <dt>Physics</dt>
 <dd><ul class="first last">
 <li>Static, dynamic and keyframed rigid bodies with multiple colliders.</li>
-<li>Joints (fixed, spring and hinge).</li>
+<li>Dedicated Mover object for controlling characters.</li>
+<li>Collision begin/stay/end events.</li>
+<li>Triggers with enter/leave events.</li>
 <li>Spatial queries: ray-, sphere- and box-casts.</li>
-<li>Triggers.</li>
+<li>Joints (fixed, spring and hinge).</li>
 </ul>
 </dd>
 </dl>
@@ -243,7 +245,7 @@ anyone.</dd>
 <dt>Input</dt>
 <dd><ul class="first last">
 <li>Unified interface for mice, keyboards, joypads and touchpads.</li>
-<li>Full list of input events for each simulation frame.</li>
+<li>Access to sub-frame input events list.</li>
 <li>Simplified polling interface for rapid prototyping.</li>
 </ul>
 </dd>
@@ -253,6 +255,7 @@ anyone.</dd>
 <dt>Audio</dt>
 <dd><ul class="first last">
 <li>3D audio sources with position and range-based attenuation.</li>
+<li>Sound groups for bulk volume adjustments.</li>
 <li>Audio streaming.</li>
 <li>Formats: WAV and OGG.</li>
 </ul>
