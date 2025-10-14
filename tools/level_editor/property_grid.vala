@@ -90,8 +90,6 @@ public class PropertyGrid : Gtk.Grid
 			case PropertyType.STRING:
 				if (def.editor == PropertyEditorType.ENUM)
 					p = new InputEnum((string)def.deffault, def.enum_labels, def.enum_values);
-				else if (def.editor == PropertyEditorType.RESOURCE)
-					p = new InputResource(def.resource_type, _db);
 				else
 					p = new InputString();
 				break;
@@ -109,6 +107,9 @@ public class PropertyGrid : Gtk.Grid
 				break;
 			case PropertyType.OBJECTS_SET:
 				continue;
+			case PropertyType.OBJECT_REFERENCE:
+				p = new InputResource(def.resource_type, _db);
+				break;
 			default:
 				assert(false);
 				break;
@@ -158,7 +159,7 @@ public class PropertyGrid : Gtk.Grid
 					changed = true;
 				}
 			}
-		} else if (def.type == PropertyType.STRING) {
+		} else if (def.type == PropertyType.STRING || def.type == PropertyType.OBJECT_REFERENCE) {
 			if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
 				Unit u = Unit(_db, _id);
 				if (u.get_component_property_string(_component_id, def.name, (string)def.deffault) != (string)p.union_value()) {
@@ -249,7 +250,7 @@ public class PropertyGrid : Gtk.Grid
 				} else {
 					p.set_union_value(_db.get_property_double(_id, def.name, (double)def.deffault));
 				}
-			} else if (def.type == PropertyType.STRING) {
+			} else if (def.type == PropertyType.STRING || def.type == PropertyType.OBJECT_REFERENCE) {
 				if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
 					Unit u = Unit(_db, _id);
 					p.set_union_value(u.get_component_property_string(_component_id, def.name, (string)def.deffault));
