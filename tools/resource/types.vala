@@ -823,6 +823,45 @@ public static void create_object_types(Database database)
 			type = PropertyType.STRING,
 			name = "editor.name",
 		},
+		PropertyDefinition()
+		{
+			type = PropertyType.OBJECT_REFERENCE,
+			name = "prefab",
+			resource_type = OBJECT_TYPE_UNIT,
+			deffault = null,
+		},
+#if false
+		PropertyDefinition()
+		{
+			type = PropertyType.OBJECTS_SET,
+			name = "components",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.OBJECTS_SET,
+			name = "deleted_components",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.OBJECTS_SET,
+			name = "modified_components",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.OBJECTS_SET,
+			name = "children",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.OBJECTS_SET,
+			name = "deleted_children",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.OBJECTS_SET,
+			name = "modified_children",
+		},
+#endif /* if false */
 	};
 	database.create_object_type(OBJECT_TYPE_UNIT, properties);
 
