@@ -13,7 +13,8 @@ public enum PropertyType
 	GUID,
 	VECTOR3,
 	QUATERNION,
-	OBJECTS_SET
+	OBJECTS_SET,
+	OBJECT_REFERENCE,
 }
 
 public enum PropertyEditorType
@@ -997,7 +998,13 @@ public class Database
 			case PropertyType.OBJECTS_SET:
 				create_empty_set(id, def.name);
 				break;
-			default:
+			case PropertyType.OBJECT_REFERENCE:
+				if (def.deffault == null)
+					set_property_null(id, def.name);
+				else
+					set_property_string(id, def.name, (string)def.deffault);
+				break;
+				default:
 				assert(false);
 				break;
 			}
@@ -1698,7 +1705,13 @@ public class Database
 				break;
 			case PropertyType.OBJECTS_SET:
 				break;
-			default:
+			case PropertyType.OBJECT_REFERENCE:
+				assert(def.resource_type != null);
+				assert(def.min == null);
+				assert(def.max == null);
+				assert(def.deffault == null || def.deffault.holds(typeof(string)));
+				break;
+				default:
 				assert(false);
 				break;
 			}

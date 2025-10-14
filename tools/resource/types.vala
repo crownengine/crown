@@ -181,10 +181,9 @@ public static void create_object_types(Database database)
 	{
 		PropertyDefinition()
 		{
-			type = PropertyType.STRING,
+			type = PropertyType.OBJECT_REFERENCE,
 			name = "data.mesh_resource",
 			label = "Scene",
-			editor = PropertyEditorType.RESOURCE,
 			resource_type = OBJECT_TYPE_MESH,
 			deffault = "core/components/noop",
 		},
@@ -200,9 +199,8 @@ public static void create_object_types(Database database)
 		},
 		PropertyDefinition()
 		{
-			type = PropertyType.STRING,
+			type = PropertyType.OBJECT_REFERENCE,
 			name = "data.material",
-			editor = PropertyEditorType.RESOURCE,
 			resource_type = OBJECT_TYPE_MATERIAL,
 			deffault = "core/components/noop",
 		},
@@ -230,18 +228,16 @@ public static void create_object_types(Database database)
 	{
 		PropertyDefinition()
 		{
-			type = PropertyType.STRING,
+			type = PropertyType.OBJECT_REFERENCE,
 			name = "data.sprite_resource",
 			label = "Sprite",
-			editor = PropertyEditorType.RESOURCE,
 			resource_type = OBJECT_TYPE_SPRITE,
 			deffault = "core/components/noop",
 		},
 		PropertyDefinition()
 		{
-			type = PropertyType.STRING,
+			type = PropertyType.OBJECT_REFERENCE,
 			name = "data.material",
-			editor = PropertyEditorType.RESOURCE,
 			resource_type = OBJECT_TYPE_MATERIAL,
 			deffault = "core/components/noop",
 		},
@@ -398,9 +394,8 @@ public static void create_object_types(Database database)
 		},
 		PropertyDefinition()
 		{
-			type = PropertyType.STRING,
+			type = PropertyType.OBJECT_REFERENCE,
 			name = "data.scene",
-			editor = PropertyEditorType.RESOURCE,
 			resource_type = OBJECT_TYPE_MESH,
 			enum_property = "data.source",
 			resource_callback = scene_resource_callback,
@@ -469,10 +464,9 @@ public static void create_object_types(Database database)
 	{
 		PropertyDefinition()
 		{
-			type = PropertyType.STRING,
+			type = PropertyType.OBJECT_REFERENCE,
 			name = "_global_physics_config",
 			deffault = "global",
-			editor = PropertyEditorType.RESOURCE,
 			resource_type = "physics_config",
 			hidden = true,
 		},
@@ -552,10 +546,9 @@ public static void create_object_types(Database database)
 	{
 		PropertyDefinition()
 		{
-			type = PropertyType.STRING,
+			type = PropertyType.OBJECT_REFERENCE,
 			name = "data.script_resource",
 			label = "Script",
-			editor = PropertyEditorType.RESOURCE,
 			resource_type = "lua",
 			deffault = "core/components/noop",
 		},
@@ -570,10 +563,9 @@ public static void create_object_types(Database database)
 	{
 		PropertyDefinition()
 		{
-			type = PropertyType.STRING,
+			type = PropertyType.OBJECT_REFERENCE,
 			name = "data.state_machine_resource",
 			label = "State Machine",
-			editor = PropertyEditorType.RESOURCE,
 			resource_type = OBJECT_TYPE_STATE_MACHINE,
 			deffault = "core/components/noop",
 		},
@@ -598,9 +590,8 @@ public static void create_object_types(Database database)
 		},
 		PropertyDefinition()
 		{
-			type = PropertyType.STRING,
+			type = PropertyType.OBJECT_REFERENCE,
 			name = "name",
-			editor = PropertyEditorType.RESOURCE,
 			resource_type = OBJECT_TYPE_SOUND,
 		},
 		PropertyDefinition()
@@ -692,10 +683,9 @@ public static void create_object_types(Database database)
 	{
 		PropertyDefinition()
 		{
-			type = PropertyType.STRING,
+			type = PropertyType.OBJECT_REFERENCE,
 			name = "_global_physics_config",
 			deffault = "global",
-			editor = PropertyEditorType.RESOURCE,
 			resource_type = "physics_config",
 			hidden = true,
 		},
@@ -743,10 +733,9 @@ public static void create_object_types(Database database)
 	{
 		PropertyDefinition()
 		{
-			type = PropertyType.STRING,
+			type = PropertyType.OBJECT_REFERENCE,
 			name = "data.skydome_map",
 			label = "Skydome Map",
-			editor = PropertyEditorType.RESOURCE,
 			resource_type = OBJECT_TYPE_TEXTURE,
 			deffault = "core/units/skydome/skydome"
 		},
@@ -841,9 +830,8 @@ public static void create_object_types(Database database)
 	{
 		PropertyDefinition()
 		{
-			type = PropertyType.STRING,
+			type = PropertyType.OBJECT_REFERENCE,
 			name = "name",
-			editor = PropertyEditorType.RESOURCE,
 			resource_type = OBJECT_TYPE_MESH_ANIMATION,
 		},
 		PropertyDefinition()
