@@ -629,6 +629,12 @@ public static void create_object_types(Database database)
 			name = "group",
 			deffault = "music",
 		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "editor.name",
+			deffault = "sound",
+		},
 	};
 	database.create_object_type(OBJECT_TYPE_SOUND_SOURCE, properties, 3.0);
 
