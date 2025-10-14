@@ -186,6 +186,7 @@ public static void create_object_types(Database database)
 			label = "Scene",
 			editor = PropertyEditorType.RESOURCE,
 			resource_type = OBJECT_TYPE_MESH,
+			deffault = "core/components/noop",
 		},
 		PropertyDefinition()
 		{
@@ -195,6 +196,7 @@ public static void create_object_types(Database database)
 			editor = PropertyEditorType.ENUM,
 			enum_property = "data.mesh_resource",
 			enum_callback = node_name_enum_callback,
+			deffault = "Noop",
 		},
 		PropertyDefinition()
 		{
@@ -202,11 +204,13 @@ public static void create_object_types(Database database)
 			name = "data.material",
 			editor = PropertyEditorType.RESOURCE,
 			resource_type = OBJECT_TYPE_MATERIAL,
+			deffault = "core/components/noop",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name = "data.visible",
+			deffault = true,
 		},
 		PropertyDefinition()
 		{
@@ -231,6 +235,7 @@ public static void create_object_types(Database database)
 			label = "Sprite",
 			editor = PropertyEditorType.RESOURCE,
 			resource_type = OBJECT_TYPE_SPRITE,
+			deffault = "core/components/noop",
 		},
 		PropertyDefinition()
 		{
@@ -238,6 +243,7 @@ public static void create_object_types(Database database)
 			name = "data.material",
 			editor = PropertyEditorType.RESOURCE,
 			resource_type = OBJECT_TYPE_MATERIAL,
+			deffault = "core/components/noop",
 		},
 		PropertyDefinition()
 		{
@@ -257,6 +263,7 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.BOOL,
 			name = "data.visible",
+			deffault = true,
 		},
 		PropertyDefinition()
 		{
@@ -284,18 +291,20 @@ public static void create_object_types(Database database)
 			name = "data.type",
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "directional", "omni", "spot" },
+			deffault = "directional",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.DOUBLE,
 			name =  "data.range",
 			min = 0.0,
+			deffault = 15.0,
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.DOUBLE,
 			name = "data.intensity",
-			min = 0.0,
+			min = 500.0,
 		},
 		PropertyDefinition()
 		{
@@ -304,6 +313,7 @@ public static void create_object_types(Database database)
 			editor = PropertyEditorType.ANGLE,
 			min = 0.0,
 			max = 90.0,
+			deffault = MathUtils.rad(45.0),
 		},
 		PropertyDefinition()
 		{
@@ -312,6 +322,7 @@ public static void create_object_types(Database database)
 			editor = PropertyEditorType.COLOR,
 			min = VECTOR3_ZERO,
 			max = VECTOR3_ONE,
+			deffault = VECTOR3_ONE,
 		},
 		PropertyDefinition()
 		{
@@ -343,6 +354,7 @@ public static void create_object_types(Database database)
 			name = "data.projection",
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "orthographic", "perspective" },
+			deffault = "perspective",
 		},
 		PropertyDefinition()
 		{
@@ -351,13 +363,14 @@ public static void create_object_types(Database database)
 			label = "FOV",
 			editor = PropertyEditorType.ANGLE,
 			min = 0.0,
-			max = 90.0
+			max = 90.0,
+			deffault = MathUtils.rad(45.0),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.DOUBLE,
 			name = "data.near_range",
-			deffault = 0.1,
+			deffault = 0.01,
 		},
 		PropertyDefinition()
 		{
@@ -381,6 +394,7 @@ public static void create_object_types(Database database)
 			name = "data.source",
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "mesh", "inline" },
+			deffault = "mesh",
 		},
 		PropertyDefinition()
 		{
@@ -389,7 +403,8 @@ public static void create_object_types(Database database)
 			editor = PropertyEditorType.RESOURCE,
 			resource_type = OBJECT_TYPE_MESH,
 			enum_property = "data.source",
-			resource_callback = scene_resource_callback
+			resource_callback = scene_resource_callback,
+			deffault = "core/components/noop",
 		},
 		PropertyDefinition()
 		{
@@ -399,6 +414,7 @@ public static void create_object_types(Database database)
 			editor = PropertyEditorType.ENUM,
 			enum_property = "data.scene",
 			enum_callback = node_name_enum_callback,
+			deffault = "Noop",
 		},
 		PropertyDefinition()
 		{
@@ -408,6 +424,7 @@ public static void create_object_types(Database database)
 			enum_values = { "sphere", "capsule", "box", "convex_hull", "mesh" },
 			enum_property = "data.source",
 			enum_callback = shape_resource_callback,
+			deffault = "box",
 		},
 		PropertyDefinition()
 		{
@@ -465,7 +482,8 @@ public static void create_object_types(Database database)
 			name = "data.class",
 			editor = PropertyEditorType.ENUM,
 			enum_property = "_global_physics_config",
-			enum_callback = class_enum_callback
+			enum_callback = class_enum_callback,
+			deffault = "static",
 		},
 		PropertyDefinition()
 		{
@@ -473,7 +491,8 @@ public static void create_object_types(Database database)
 			name = "data.collision_filter",
 			editor = PropertyEditorType.ENUM,
 			enum_property = "_global_physics_config",
-			enum_callback = collision_filter_enum_callback
+			enum_callback = collision_filter_enum_callback,
+			deffault = "default",
 		},
 		PropertyDefinition()
 		{
@@ -481,7 +500,8 @@ public static void create_object_types(Database database)
 			name = "data.material",
 			editor = PropertyEditorType.ENUM,
 			enum_property = "_global_physics_config",
-			enum_callback = material_enum_callback
+			enum_callback = material_enum_callback,
+			deffault = "default",
 		},
 		PropertyDefinition()
 		{
@@ -536,7 +556,8 @@ public static void create_object_types(Database database)
 			name = "data.script_resource",
 			label = "Script",
 			editor = PropertyEditorType.RESOURCE,
-			resource_type = "lua"
+			resource_type = "lua",
+			deffault = "core/components/noop",
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_SCRIPT
@@ -553,7 +574,8 @@ public static void create_object_types(Database database)
 			name = "data.state_machine_resource",
 			label = "State Machine",
 			editor = PropertyEditorType.RESOURCE,
-			resource_type = OBJECT_TYPE_STATE_MACHINE
+			resource_type = OBJECT_TYPE_STATE_MACHINE,
+			deffault = "core/components/noop",
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_ANIMATION_STATE_MACHINE
@@ -619,7 +641,7 @@ public static void create_object_types(Database database)
 			editor = PropertyEditorType.COLOR,
 			min = VECTOR3_ZERO,
 			max = VECTOR3_ONE,
-			deffault = VECTOR3_ONE,
+			deffault = Vector3(0.83, 0.83, 0.83),
 		},
 		PropertyDefinition()
 		{
@@ -647,13 +669,11 @@ public static void create_object_types(Database database)
 			name = "data.sun_blend",
 			min =  0.0,
 			max =  1.0,
-			deffault = 0.0
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name = "data.enabled",
-			deffault = true,
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_FOG
@@ -694,7 +714,7 @@ public static void create_object_types(Database database)
 			editor = PropertyEditorType.ANGLE,
 			min = 0.0,
 			max = 90.0,
-			deffault = 45.0,
+			deffault = MathUtils.rad(45.0f),
 		},
 		PropertyDefinition()
 		{
@@ -702,7 +722,8 @@ public static void create_object_types(Database database)
 			name = "data.collision_filter",
 			editor = PropertyEditorType.ENUM,
 			enum_property = "_global_physics_config",
-			enum_callback = collision_filter_enum_callback
+			enum_callback = collision_filter_enum_callback,
+			deffault = "default",
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_MOVER
@@ -791,6 +812,7 @@ public static void create_object_types(Database database)
 			name = "data.type",
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "gamma", "reinhard", "filmic", "aces" },
+			deffault = "reinhard",
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_TONEMAP
