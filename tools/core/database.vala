@@ -790,7 +790,7 @@ public class Database
 		}
 	}
 
-	private Hashtable encode_object(Guid id, Gee.HashMap<string, Value?> db)
+	private Hashtable encode_object_compat(Guid id, Gee.HashMap<string, Value?> db)
 	{
 		Hashtable obj = new Hashtable();
 		if (id != GUID_ZERO)
@@ -819,6 +819,47 @@ public class Database
 				}
 			}
 			x.set(foo[foo.length - 1], encode_value(db[key]));
+		}
+
+		return obj;
+	}
+
+	private Hashtable encode_object(Guid id, Gee.HashMap<string, Value?> db)
+	{
+		string type = object_type(id);
+		PropertyDefinition[]? properties = object_definition(StringId64(type));
+
+		if (type == OBJECT_TYPE_UNIT || properties == null)
+			return encode_object_compat(id, db);
+
+		Hashtable obj = new Hashtable();
+		if (id != GUID_ZERO) {
+			obj["_guid"] = id.to_string();
+			obj["_type"] = type;
+		}
+
+		foreach (PropertyDefinition def in properties) {
+			// Since null-key is equivalent to non-existent key, skip serialization.
+			if (db[def.name] == null)
+				continue;
+
+			string[] foo = def.name.split(".");
+			Hashtable x = obj;
+			if (foo.length > 1) {
+				for (int i = 0; i < foo.length - 1; ++i) {
+					string f = foo[i];
+
+					if (x.has_key(f)) {
+						x = (Hashtable)x[f];
+						continue;
+					}
+
+					Hashtable y = new Hashtable();
+					x.set(f, y);
+					x = y;
+				}
+			}
+			x.set(foo[foo.length - 1], encode_value(db[def.name]));
 		}
 
 		return obj;
@@ -1724,9 +1765,10 @@ public class Database
 	}
 
 	// Returns the array of properties (i.e. its definition) of the object @a type.
-	public unowned PropertyDefinition[] object_definition(StringId64 type)
+	public unowned PropertyDefinition[]? object_definition(StringId64 type)
 	{
-		assert(_object_definitions.has_key(type));
+		if (!_object_definitions.has_key(type))
+			return null;
 
 		PropertiesSlice ps = _object_definitions[type].properties;
 		return _property_definitions[ps.start : ps.end];
