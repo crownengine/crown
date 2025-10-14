@@ -110,7 +110,6 @@ public class PropertyGrid : Gtk.Grid
 			case PropertyType.OBJECTS_SET:
 				continue;
 			default:
-			case PropertyType.NULL:
 				assert(false);
 				break;
 			}

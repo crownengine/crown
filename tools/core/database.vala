@@ -7,7 +7,6 @@ namespace Crown
 {
 public enum PropertyType
 {
-	NULL,
 	BOOL,
 	DOUBLE,
 	STRING,
@@ -998,7 +997,8 @@ public class Database
 			case PropertyType.OBJECTS_SET:
 				create_empty_set(id, def.name);
 				break;
-			case PropertyType.NULL:
+			default:
+				assert(false);
 				break;
 			}
 		}
@@ -1696,10 +1696,9 @@ public class Database
 
 				assert(def.deffault.holds(typeof(Quaternion)));
 				break;
-				default:
 			case PropertyType.OBJECTS_SET:
 				break;
-			case PropertyType.NULL:
+			default:
 				assert(false);
 				break;
 			}
