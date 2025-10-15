@@ -140,8 +140,13 @@ public class Project
 		return _source_dir != null;
 	}
 
-	public void load(string source_dir)
+	public int load(string source_dir)
 	{
+		// Naively check whether the selected folder contains a Crown project.
+		if (!GLib.File.new_for_path(GLib.Path.build_filename(source_dir, "boot.config")).query_exists()
+			|| !GLib.File.new_for_path(GLib.Path.build_filename(source_dir, "global.physics_config")).query_exists())
+			return 1;
+
 		reset();
 
 		_source_dir = File.new_for_path(source_dir);
@@ -161,6 +166,7 @@ public class Project
 		}
 
 		project_loaded();
+		return 0;
 	}
 
 	public void set_toolchain_dir(string toolchain_dir)
