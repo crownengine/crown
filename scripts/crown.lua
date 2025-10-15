@@ -42,7 +42,7 @@ function crown_project(_name, _kind, _defines)
 						"luajit"
 					}
 
-				configuration { "vs*"}
+				configuration { "vs*" }
 					links {
 						"lua51"
 					}

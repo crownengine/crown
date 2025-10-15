@@ -72,13 +72,12 @@ build/linux64/bin/luajit:
 	-@"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
 
 build/mingw64/bin/luajit.exe:
-	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src CC="$(MINGW)/bin/x86_64-w64-mingw32-gcc -m64" CCOPT="-O2 -fomit-frame-pointer -msse2" TARGET_SYS=Windows BUILDMODE=static
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src CC="$(MINGW)/bin/x86_64-w64-mingw32-gcc -m64" CCOPT="-O2 -fomit-frame-pointer -msse2" BUILDMODE=static
 	-@install -m775 -D 3rdparty/luajit/src/luajit.exe $@
 	-@install -m664 -D 3rdparty/luajit/src/libluajit.a build/mingw64/bin/libluajit.a
 	-@cp -r 3rdparty/luajit/src/jit build/mingw64/bin
 	-@"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
-	-@rm 3rdparty/luajit/src/host/buildvm.exe
-	-@rm 3rdparty/luajit/src/host/minilua.exe
+	-@rm -f 3rdparty/luajit/src/libluajit*
 
 build/windows64/bin/luajit.exe:
 	cd "3rdparty/luajit/src" && .\\msvcbuild.bat
