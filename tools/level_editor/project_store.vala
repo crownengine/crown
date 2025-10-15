@@ -38,7 +38,6 @@ public class ProjectStore
 		_project.tree_added.connect(on_project_tree_added);
 		_project.tree_removed.connect(on_project_tree_removed);
 		_project.project_reset.connect(on_project_reset);
-		_project.project_loaded.connect(on_project_loaded);
 
 		_list_store = new Gtk.ListStore(Column.COUNT
 			, typeof(string) // resource type
@@ -86,6 +85,24 @@ public class ProjectStore
 			, -1
 			);
 		_favorites_root = new Gtk.TreeRowReference(_tree_store, _tree_store.get_path(iter));
+
+		_tree_store.insert_with_values(out iter
+			, null
+			, -1
+			, Column.TYPE
+			, "<folder>"
+			, Column.NAME
+			, ROOT_FOLDER
+			, Column.SIZE
+			, 0u
+			, Column.MTIME
+			, 0u
+			, Column.VISIBLE
+			, true
+			, -1
+			);
+
+		_folders[ROOT_FOLDER] = new Gtk.TreeRowReference(_tree_store, _tree_store.get_path(iter));
 	}
 
 	public bool path_for_resource_type_name(out Gtk.TreePath path, string type, string name)
@@ -501,28 +518,6 @@ public class ProjectStore
 	private void on_project_reset()
 	{
 		reset();
-	}
-
-	private void on_project_loaded()
-	{
-		Gtk.TreeIter iter;
-		_tree_store.insert_with_values(out iter
-			, null
-			, -1
-			, Column.TYPE
-			, "<folder>"
-			, Column.NAME
-			, ROOT_FOLDER
-			, Column.SIZE
-			, 0u
-			, Column.MTIME
-			, 0u
-			, Column.VISIBLE
-			, true
-			, -1
-			);
-
-		_folders[ROOT_FOLDER] = new Gtk.TreeRowReference(_tree_store, _tree_store.get_path(iter));
 	}
 
 	public Gee.ArrayList<Value?> encode_favorites()
