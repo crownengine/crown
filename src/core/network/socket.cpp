@@ -288,7 +288,7 @@ BindResult TCPSocket::bind(u16 port)
 
 	sockaddr_in address;
 	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = htonl(INADDR_ANY);
+	address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 	address.sin_port = htons(port);
 
 	int err = ::bind(_priv->socket, (const sockaddr *)&address, sizeof(sockaddr_in));

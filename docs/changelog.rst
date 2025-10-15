@@ -16,6 +16,7 @@ Changelog
 * Tools: fixed creation of animation state machine resources.
 * Tools: the Project Browser will now reject dropped files while showing Favorites.
 * Runtime: Windows: fixed a number of misdetected keyboard keys.
+* Runtime: Windows: fixed windows firewall popping up at startup.
 * Runtime: Linux: fixed a crash at startup due to some X11 libraries not being found.
 * Lua: fixed a memory leak when executing some script component callbacks.
 * Lua: the ``update()`` script component callback is now optional.
