@@ -106,13 +106,12 @@ elif [ "${PLATFORM}" = "linux" ]; then
 	make crown-launcher-linux-release64 MAKE_JOBS="${BUILD_JOBS}"
 	make linux-release64 MAKE_JOBS="${BUILD_JOBS}"
 elif [ "${PLATFORM}" = "windows" ]; then
-	/c/Windows/System32/cmd.exe //C "scripts\\dist\\windows-release.bat"
-
 	# Build 64bit tools first.
 	export MINGW=/mingw64
 	export PATH="${MINGW}/bin:${PATH}"
 	make tools-mingw-release64 MAKE_JOBS="${BUILD_JOBS}"
 	make crown-launcher-mingw-release64 MAKE_JOBS="${BUILD_JOBS}"
+	make mingw-release64 MAKE_JOBS="${BUILD_JOBS}"
 
 	# Copy required DLLs.
 	ldd build/mingw64/bin/crown-editor-release.exe | grep '\/mingw.*\.dll' -o | xargs -I{} cp "{}" build/mingw64/bin
@@ -164,9 +163,8 @@ elif [ "${PLATFORM}" = "windows" ]; then
 	make -B tools-mingw-release32 MAKE_JOBS="${BUILD_JOBS}"
 
 	# Rename mingw* to windows*.
-	cp -r build/mingw64/* build/windows64 # windows64 exists already, just copy mingw stuff into it (see: windows-release.bat).
-	rm -r build/mingw64
-	mv    build/mingw32   build/windows32
+	mv build/mingw64 build/windows64
+	mv build/mingw32 build/windows32
 fi
 
 # Strip unnecessary files from build dir.
