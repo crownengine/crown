@@ -469,6 +469,7 @@ public static void create_object_types(Database database)
 			deffault = "global",
 			resource_type = "physics_config",
 			hidden = true,
+			not_serialized = true,
 		},
 		PropertyDefinition()
 		{
@@ -688,6 +689,7 @@ public static void create_object_types(Database database)
 			deffault = "global",
 			resource_type = "physics_config",
 			hidden = true,
+			not_serialized = true,
 		},
 		PropertyDefinition()
 		{
