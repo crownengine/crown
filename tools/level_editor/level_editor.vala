@@ -2207,18 +2207,19 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void do_open_project(string source_dir)
 	{
-		if (_project.source_dir() == source_dir)
+		if (_project.source_dir() == source_dir) {
+			logi("Project `%s` is open already.".printf(source_dir));
 			return;
+		}
 
-		// Naively check whether the selected folder contains a Crown project.
-		if (!GLib.File.new_for_path(GLib.Path.build_filename(source_dir, "boot.config")).query_exists()
-			|| !GLib.File.new_for_path(GLib.Path.build_filename(source_dir, "global.physics_config")).query_exists()
-			) {
+		logi("Loading project: `%s`...".printf(source_dir));
+
+		if (_project.load(source_dir) != 0) {
 			Gtk.MessageDialog md = new Gtk.MessageDialog(this.active_window
 				, Gtk.DialogFlags.MODAL
 				, Gtk.MessageType.INFO
 				, Gtk.ButtonsType.OK
-				, "The selected folder does not appear to be a valid Crown project."
+				, "The folder `%s` does not appear to be a valid Crown project.".printf(source_dir)
 				);
 			md.set_default_response(Gtk.ResponseType.OK);
 			md.response.connect(() => { md.destroy(); });
@@ -2229,6 +2230,8 @@ public class LevelEditorApplication : Gtk.Application
 		this.show_panel("main_vbox", Gtk.StackTransitionType.NONE);
 		_user.add_or_touch_recent_project(source_dir, source_dir);
 		_console_view.reset();
+
+		logi("Project `%s` loaded.".printf(source_dir));
 
 		restart_backend.begin(source_dir, LEVEL_NONE, (obj, res) => {
 				restart_backend.end(res);
