@@ -48,6 +48,7 @@ public struct PropertyDefinition
 	public StringId64 object_type;
 
 	public bool hidden;
+	public bool not_serialized;
 }
 
 public enum UndoRedoAction
@@ -839,6 +840,9 @@ public class Database
 		}
 
 		foreach (PropertyDefinition def in properties) {
+			if (def.not_serialized)
+				continue;
+
 			// Since null-key is equivalent to non-existent key, skip serialization.
 			if (db[def.name] == null)
 				continue;
