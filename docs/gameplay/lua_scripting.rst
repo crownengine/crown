@@ -76,7 +76,7 @@ Hot reloading is achieved by re-executing modified Lua files. This method works
 well in general, but needs some care in specific occasions. Consider the
 following script:
 
-.. code::
+.. code:: lua
 
 	Foo = {}
 
@@ -87,7 +87,7 @@ unreachable.
 To make it hot-reload safe you could check whether the Foo objects exists
 already, and skip its creation if that is the case:
 
-.. code::
+.. code:: lua
 
 	Foo = Foo or {}
 
