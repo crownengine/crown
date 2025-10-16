@@ -12,7 +12,7 @@ Getting Unit handles
 The simplest way of getting a handle to a unit is to spawn it directly from a
 script:
 
-.. code::
+.. code:: lua
 
 	player = World.spawn_unit(world, "units/player/player")
 
@@ -20,7 +20,7 @@ In most cases, however, units are not spawned directly but rather as a
 consequence of loading levels in a world. You can get a table with all units
 spawned in a world this way:
 
-.. code::
+.. code:: lua
 
 	local units = World.units(world)
 
@@ -31,7 +31,7 @@ spawned in a world this way:
 To obtain a specific Unit by name (its name as set in the Level Editor, *not*
 the unit name itself):
 
-.. code::
+.. code:: lua
 
 	door = World.unit_by_name(world, "main_door")
 
@@ -50,7 +50,7 @@ and choose ``New (Unit) script``.
 
 Crown will create a new Unit script similar to the following:
 
-.. code::
+.. code:: lua
 
 	MyScript = MyScript or {
 		data = {}
@@ -111,7 +111,7 @@ Receiving collision events
 To get physics collision notification events, implement any of the following
 callbacks in your script component:
 
-.. code::
+.. code:: lua
 
 	function MyScript.collision_begin(world, unit, other_unit, actor, other_actor, position, normal, distance)
 		-- Called when unit and other_unit begin touching.
@@ -131,7 +131,7 @@ Triggers
 Units whose actor is configured as a trigger (actor class 'trigger') will not
 receive regular collision events, instead, they will receive trigger events:
 
-.. code::
+.. code:: lua
 
 	function MyScript.trigger_enter(world, trigger_unit, other_unit)
 		-- Called when other_unit begins touching trigger_unit.

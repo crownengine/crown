@@ -15,14 +15,14 @@ owned by the C side and do not require garbage collection.
 One disadvantage is that individual Light userdata objects cannot have a
 metatable, so the regular object notation is not available when calling them:
 
-.. code::
+.. code:: lua
 
 	world:spawn_unit("units/grass")
 
 Instead you must explicitly look up the function in the World table and pass
 `world` as a parameter:
 
-.. code::
+.. code:: lua
 
 	World.spawn_unit(world, "units/grass")
 
@@ -47,7 +47,7 @@ runtime exits.
 Since they always refer to the same instance, you don't need to specify it when
 calling their functions:
 
-.. code::
+.. code:: lua
 
 	Device.version()
 
@@ -66,7 +66,7 @@ To store a temporary Vector3 for use in later frames, you need to copy its value
 into something else with a longer lifespan, for example, you could "box" it in a
 Vector3Box:
 
-.. code::
+.. code:: lua
 
 	local pos = Vector3Box()
 
@@ -77,7 +77,7 @@ Vector3Box:
 
 And later retrieve its value with:
 
-.. code::
+.. code:: lua
 
 	local p = pos:unbox()
 
@@ -89,7 +89,7 @@ objects. This could happen when doing math inside loops for example. You can use
 ``Device.temp_count()`` and ``Device.set_temp_count()`` to save and restore the
 number of temporary objects used before and after computations:
 
-.. code::
+.. code:: lua
 
 	for i, v in pairs(objects) do
 		local nv, nq, nm = Device.temp_count()
