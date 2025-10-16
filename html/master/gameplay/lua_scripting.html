@@ -114,7 +114,7 @@ specific times:</p>
 <li>render(dt)</li>
 </ul>
 </div></blockquote>
-<p>The init() function is called right after the runtime starts. I can be used to
+<p>The init() function is called right after the runtime starts. It can be used to
 initialize global state etc. while shutdown() is called just before the runtime
 exits.</p>
 <p>update(dt) and render(dt) are called periodically as part of the game loop. You
@@ -124,11 +124,11 @@ updates your game may need.</p>
 <div class="section" id="the-boot-script">
 <h2>The boot script<a class="headerlink" href="#the-boot-script" title="Permalink to this headline">¶</a></h2>
 <p>The boot script is the first Lua script that is executed when Crown starts.</p>
-<p>In the boot script you will typically define the global entry points we
-mentioned before and possibly require() additional lua scripts, like you would
-do in regular Lua programs. One difference is that Crown expects the .lua
-extension to be omitted (i.e. require(“foo/bar”) instead of “foo/bar.lua”). This
-is for consistency with how resources are referenced elsewhere.</p>
+<p>In the boot script you will typically define the <a class="reference internal" href="#runtime-entry-points">runtime entry points</a> and
+possibly require() additional lua scripts, like you would do in regular Lua
+programs. One difference is that Crown expects the .lua extension to be omitted
+(i.e. require(“foo/bar”) instead of “foo/bar.lua”). This is for consistency with
+how resources are referenced elsewhere.</p>
 <p>Projects may contain multiple boot scripts for different purposes (for example,
 separate boot scripts for the editors and the game). You can specify which boot
 script to use in the <a class="reference internal" href="../reference/boot_config.html"><span class="doc">Boot Config</span></a> file.</p>
@@ -140,7 +140,7 @@ script to use in the <a class="reference internal" href="../reference/boot_confi
 <p>You may notice that it contains some strangely named
 Game.init()/Game.update()/etc. functions, as well as other utility functions.</p>
 <p>Those functions are part of the GameBase framework, which is a tiny layer built
-on top of the basic init/shutdown/update/render hooks we discussed earlier.</p>
+on top of the fundamental <a class="reference internal" href="#runtime-entry-points">runtime entry points</a>.</p>
 <p>The GameBase layer allows for integration with the editors and adds support to
 common functionalities such as loading levels, creating a default camera etc.</p>
 <p>Expert users can avoid the GameBase althogheter by defining plain
@@ -153,7 +153,7 @@ tools.</p>
 <p>Hot reloading is achieved by re-executing modified Lua files. This method works
 well in general, but needs some care in specific occasions. Consider the
 following script:</p>
-<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Foo</span> <span class="o">=</span> <span class="p">{}</span>
+<div class="code lua highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Foo</span> <span class="o">=</span> <span class="p">{}</span>
 </pre></div>
 </div>
 <p>Every time Crown reloads such file, a new table will be created and its
@@ -161,7 +161,7 @@ reference will be stored in the variable Foo, making the previous state
 unreachable.</p>
 <p>To make it hot-reload safe you could check whether the Foo objects exists
 already, and skip its creation if that is the case:</p>
-<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Foo</span> <span class="o">=</span> <span class="n">Foo</span> <span class="ow">or</span> <span class="p">{}</span>
+<div class="code lua highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Foo</span> <span class="o">=</span> <span class="n">Foo</span> <span class="ow">or</span> <span class="p">{}</span>
 </pre></div>
 </div>
 </div>

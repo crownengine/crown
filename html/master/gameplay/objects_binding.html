@@ -101,12 +101,12 @@ objects to the Lua environment, depending on their type and lifetime.</p>
 owned by the C side and do not require garbage collection.</p>
 <p>One disadvantage is that individual Light userdata objects cannot have a
 metatable, so the regular object notation is not available when calling them:</p>
-<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">world</span><span class="p">:</span><span class="n">spawn_unit</span><span class="p">(</span><span class="s2">&quot;units/grass&quot;</span><span class="p">)</span>
+<div class="code lua highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">world</span><span class="p">:</span><span class="n">spawn_unit</span><span class="p">(</span><span class="s2">&quot;units/grass&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Instead you must explicitly look up the function in the World table and pass
 <cite>world</cite> as a parameter:</p>
-<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">World</span><span class="o">.</span><span class="n">spawn_unit</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="s2">&quot;units/grass&quot;</span><span class="p">)</span>
+<div class="code lua highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">World</span><span class="o">.</span><span class="n">spawn_unit</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="s2">&quot;units/grass&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -126,7 +126,7 @@ singletons. Singletons are typically created at program start and live until the
 runtime exits.</p>
 <p>Since they always refer to the same instance, you don’t need to specify it when
 calling their functions:</p>
-<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Device</span><span class="o">.</span><span class="n">version</span><span class="p">()</span>
+<div class="code lua highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Device</span><span class="o">.</span><span class="n">version</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -141,7 +141,7 @@ created.</p>
 <p>To store a temporary Vector3 for use in later frames, you need to copy its value
 into something else with a longer lifespan, for example, you could “box” it in a
 Vector3Box:</p>
-<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">local</span> <span class="n">pos</span> <span class="o">=</span> <span class="n">Vector3Box</span><span class="p">()</span>
+<div class="code lua highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">local</span> <span class="n">pos</span> <span class="o">=</span> <span class="n">Vector3Box</span><span class="p">()</span>
 
 <span class="n">function</span> <span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
         <span class="n">local</span> <span class="n">p</span> <span class="o">=</span> <span class="n">SceneGraph</span><span class="o">.</span><span class="n">local_position</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
@@ -150,7 +150,7 @@ Vector3Box:</p>
 </pre></div>
 </div>
 <p>And later retrieve its value with:</p>
-<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">local</span> <span class="n">p</span> <span class="o">=</span> <span class="n">pos</span><span class="p">:</span><span class="n">unbox</span><span class="p">()</span>
+<div class="code lua highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">local</span> <span class="n">p</span> <span class="o">=</span> <span class="n">pos</span><span class="p">:</span><span class="n">unbox</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>Crown will report an error when it detects a stale temporary object that is used
@@ -159,7 +159,7 @@ across-frames.</p>
 objects. This could happen when doing math inside loops for example. You can use
 <code class="docutils literal notranslate"><span class="pre">Device.temp_count()</span></code> and <code class="docutils literal notranslate"><span class="pre">Device.set_temp_count()</span></code> to save and restore the
 number of temporary objects used before and after computations:</p>
-<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">(</span><span class="n">objects</span><span class="p">)</span> <span class="n">do</span>
+<div class="code lua highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">(</span><span class="n">objects</span><span class="p">)</span> <span class="n">do</span>
         <span class="n">local</span> <span class="n">nv</span><span class="p">,</span> <span class="n">nq</span><span class="p">,</span> <span class="n">nm</span> <span class="o">=</span> <span class="n">Device</span><span class="o">.</span><span class="n">temp_count</span><span class="p">()</span>
 
         <span class="o">...</span>

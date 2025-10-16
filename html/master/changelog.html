@@ -112,12 +112,15 @@
 <ul class="simple">
 <li>Tools: added the ability to search any kind of resources in the Project Browser.</li>
 <li>Tools: double-clicking an object in the Level Tree will now frame it in the Editor Viewport.</li>
+<li>Runtime: added an end-of-options marker to stop the runtime from parsing game-specific command line options.</li>
 <li>Lua: added <code class="docutils literal notranslate"><span class="pre">Device.build()</span></code> to retrieve the runtime’s build configuration.</li>
 </ul>
 <p><strong>Fixes</strong></p>
 <ul class="simple">
 <li>Tools: fixed creation of animation state machine resources.</li>
+<li>Tools: the Project Browser will now reject dropped files while showing Favorites.</li>
 <li>Runtime: Windows: fixed a number of misdetected keyboard keys.</li>
+<li>Runtime: Windows: fixed windows firewall popping up at startup.</li>
 <li>Runtime: Linux: fixed a crash at startup due to some X11 libraries not being found.</li>
 <li>Lua: fixed a memory leak when executing some script component callbacks.</li>
 <li>Lua: the <code class="docutils literal notranslate"><span class="pre">update()</span></code> script component callback is now optional.</li>
