@@ -772,11 +772,13 @@ public struct Unit
 			Guid unit_id = object_ids[i];
 			Unit unit = Unit(db, unit_id);
 
+			sb.append("editor_nv, editor_nq, editor_nm = Device.temp_count()");
 			sb.append(LevelEditorApi.move_object(unit_id
 				, unit.local_position()
 				, unit.local_rotation()
 				, unit.local_scale()
 				));
+			sb.append("Device.set_temp_count(editor_nv, editor_nq, editor_nm)");
 
 			_component_registry.foreach((g) => {
 					string component_type = g.key;

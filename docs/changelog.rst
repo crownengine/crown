@@ -18,6 +18,7 @@ Changelog
 * Runtime: Windows: fixed a number of misdetected keyboard keys.
 * Runtime: Windows: fixed windows firewall popping up at startup.
 * Runtime: Linux: fixed a crash at startup due to some X11 libraries not being found.
+* Runtime: fixed a regression that caused levels with many objects to not load.
 * Lua: fixed a memory leak when executing some script component callbacks.
 
 0.59.0 --- 02 Oct 2025
