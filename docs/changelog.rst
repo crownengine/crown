@@ -6,6 +6,10 @@ Changelog
 :ref:`0.59.2 --- DD MMM YYYY <v0.59.2>`
 ---------------------------------------
 
+* Tools: the Project Browser will now reject dropped files while showing Favorites.
+* Runtime: Windows: fixed windows firewall popping up at startup.
+* Runtime: fixed a regression that caused levels with many objects to not load.
+
 .. _v0.59.1:
 
 :ref:`0.59.1 --- 13 Oct 2025 <v0.59.1>`
@@ -14,11 +18,8 @@ Changelog
 **Fixes**
 
 * Tools: fixed creation of animation state machine resources.
-* Tools: the Project Browser will now reject dropped files while showing Favorites.
 * Runtime: Windows: fixed a number of misdetected keyboard keys.
-* Runtime: Windows: fixed windows firewall popping up at startup.
 * Runtime: Linux: fixed a crash at startup due to some X11 libraries not being found.
-* Runtime: fixed a regression that caused levels with many objects to not load.
 * Lua: fixed a memory leak when executing some script component callbacks.
 
 0.59.0 --- 02 Oct 2025
