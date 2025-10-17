@@ -726,10 +726,8 @@ struct PhysicsWorldImpl
 	struct ColliderInstanceData
 	{
 		UnitId unit;
-		Matrix4x4 local_tm;
 		btTriangleIndexVertexArray *vertex_array;
 		btCollisionShape *shape;
-		ColliderInstance next;
 	};
 
 	struct ActorInstanceData
@@ -860,19 +858,19 @@ struct PhysicsWorldImpl
 			const Matrix4x4 tm = _scene_graph->world_pose(ti);
 
 			btTriangleIndexVertexArray *vertex_array = NULL;
-			btCollisionShape *child_shape = NULL;
+			btCollisionShape *shape = NULL;
 
 			switch (cd->type) {
 			case ColliderType::SPHERE:
-				child_shape = CE_NEW(*_allocator, btSphereShape)(cd->sphere.radius);
+				shape = CE_NEW(*_allocator, btSphereShape)(cd->sphere.radius);
 				break;
 
 			case ColliderType::CAPSULE:
-				child_shape = CE_NEW(*_allocator, btCapsuleShape)(cd->capsule.radius, cd->capsule.height);
+				shape = CE_NEW(*_allocator, btCapsuleShape)(cd->capsule.radius, cd->capsule.height);
 				break;
 
 			case ColliderType::BOX:
-				child_shape = CE_NEW(*_allocator, btBoxShape)(to_btVector3(cd->box.half_size));
+				shape = CE_NEW(*_allocator, btBoxShape)(to_btVector3(cd->box.half_size));
 				break;
 
 			case ColliderType::CONVEX_HULL: {
@@ -880,7 +878,7 @@ struct PhysicsWorldImpl
 				const u32 num          = *(u32 *)data;
 				const btScalar *points = (btScalar *)(data + sizeof(u32));
 
-				child_shape = CE_NEW(*_allocator, btConvexHullShape)(points, (int)num, sizeof(Vector3));
+				shape = CE_NEW(*_allocator, btConvexHullShape)(points, (int)num, sizeof(Vector3));
 				break;
 			}
 
@@ -905,7 +903,7 @@ struct PhysicsWorldImpl
 
 				const btVector3 aabb_min(-1000.0f, -1000.0f, -1000.0f);
 				const btVector3 aabb_max(1000.0f, 1000.0f, 1000.0f);
-				child_shape = CE_NEW(*_allocator, btBvhTriangleMeshShape)(vertex_array, false, aabb_min, aabb_max);
+				shape = CE_NEW(*_allocator, btBvhTriangleMeshShape)(vertex_array, false, aabb_min, aabb_max);
 				break;
 			}
 
@@ -918,27 +916,17 @@ struct PhysicsWorldImpl
 				break;
 			}
 
-			child_shape->setLocalScaling(to_btVector3(scale(tm)));
+			shape->setLocalScaling(to_btVector3(scale(tm)));
 
 			const u32 last = array::size(_collider);
 
 			ColliderInstanceData cid;
 			cid.unit         = unit;
-			cid.local_tm     = cd->local_tm;
 			cid.vertex_array = vertex_array;
-			cid.shape        = child_shape;
-			cid.next.i       = UINT32_MAX;
-
-			ColliderInstance ci = collider_first(unit);
-			while (is_valid(ci) && is_valid(collider_next(ci)))
-				ci = collider_next(ci);
-
-			if (is_valid(ci))
-				_collider[ci.i].next.i = last;
-			else
-				hash_map::set(_collider_map, unit, last);
+			cid.shape        = shape;
 
 			array::push_back(_collider, cid);
+			hash_map::set(_collider_map, unit, last);
 
 			cd = (ColliderDesc *)((char *)(cd + 1) + cd->size);
 		}
@@ -948,13 +936,9 @@ struct PhysicsWorldImpl
 	{
 		CE_ASSERT(collider.i < array::size(_collider), "Index out of bounds");
 
-		const u32 last                 = array::size(_collider) - 1;
-		const UnitId u                 = _collider[collider.i].unit;
-		const ColliderInstance first_i = collider_first(u);
-		const ColliderInstance last_i  = make_collider_instance(last);
-
-		collider_swap_node(last_i, collider);
-		collider_remove_node(first_i, collider);
+		const u32 last      = array::size(_collider) - 1;
+		const UnitId u      = _collider[collider.i].unit;
+		const UnitId last_u = _collider[last].unit;
 
 		CE_DELETE(*_allocator, _collider[collider.i].vertex_array);
 		CE_DELETE(*_allocator, _collider[collider.i].shape);
@@ -962,68 +946,14 @@ struct PhysicsWorldImpl
 		_collider[collider.i] = _collider[last];
 
 		array::pop_back(_collider);
+
+		hash_map::set(_collider_map, last_u, collider.i);
+		hash_map::remove(_collider_map, u);
 	}
 
-	void collider_remove_node(ColliderInstance first, ColliderInstance collider)
-	{
-		CE_ASSERT(first.i < array::size(_collider), "Index out of bounds");
-		CE_ASSERT(collider.i < array::size(_collider), "Index out of bounds");
-
-		const UnitId u = _collider[first.i].unit;
-
-		if (collider.i == first.i) {
-			if (!is_valid(collider_next(collider)))
-				hash_map::remove(_collider_map, u);
-			else
-				hash_map::set(_collider_map, u, collider_next(collider).i);
-		} else {
-			ColliderInstance prev = collider_previous(collider);
-			_collider[prev.i].next = collider_next(collider);
-		}
-	}
-
-	void collider_swap_node(ColliderInstance a, ColliderInstance b)
-	{
-		CE_ASSERT(a.i < array::size(_collider), "Index out of bounds");
-		CE_ASSERT(b.i < array::size(_collider), "Index out of bounds");
-
-		const UnitId u = _collider[a.i].unit;
-		const ColliderInstance first_i = collider_first(u);
-
-		if (a.i == first_i.i) {
-			hash_map::set(_collider_map, u, b.i);
-		} else {
-			const ColliderInstance prev_a = collider_previous(a);
-			CE_ENSURE(prev_a.i != a.i);
-			_collider[prev_a.i].next = b;
-		}
-	}
-
-	ColliderInstance collider_first(UnitId unit)
+	ColliderInstance collider_instance(UnitId unit)
 	{
 		return make_collider_instance(hash_map::get(_collider_map, unit, UINT32_MAX));
-	}
-
-	ColliderInstance collider_next(ColliderInstance collider)
-	{
-		return _collider[collider.i].next;
-	}
-
-	ColliderInstance collider_previous(ColliderInstance collider)
-	{
-		CE_ASSERT(collider.i < array::size(_collider), "Index out of bounds");
-
-		const UnitId u = _collider[collider.i].unit;
-
-		ColliderInstance curr = collider_first(u);
-		ColliderInstance prev = { UINT32_MAX };
-
-		while (curr.i != collider.i) {
-			prev = curr;
-			curr = collider_next(curr);
-		}
-
-		return prev;
 	}
 
 	void actor_create_instances(const void *components_data, u32 num, const UnitId *unit_lookup, const u32 *unit_index)
@@ -1058,12 +988,8 @@ struct PhysicsWorldImpl
 			const f32 mass = is_dynamic ? actors[i].mass : 0.0f;
 
 			// Create compound shape
-			btCompoundShape *shape = CE_NEW(*_allocator, btCompoundShape)(true);
-			ColliderInstance ci = collider_first(unit);
-			while (is_valid(ci)) {
-				shape->addChildShape(to_btTransform(_collider[ci.i].local_tm), _collider[ci.i].shape);
-				ci = collider_next(ci);
-			}
+			ColliderInstance ci = collider_instance(unit);
+			btCollisionShape *shape = _collider[ci.i].shape;
 
 			// Create motion state
 			const btTransform tr = to_btTransform(tm_noscale);
@@ -1132,7 +1058,6 @@ struct PhysicsWorldImpl
 
 		_dynamics_world->removeRigidBody(_actor[actor.i].body);
 		CE_DELETE(*_allocator, _actor[actor.i].body->m_optionalMotionState);
-		CE_DELETE(*_allocator, _actor[actor.i].body->m_collisionShape);
 		CE_DELETE(*_allocator, _actor[actor.i].body);
 
 		_actor[actor.i] = _actor[last];
@@ -1900,14 +1825,9 @@ struct PhysicsWorldImpl
 		}
 
 		{
-			ColliderInstance curr = collider_first(unit);
-			ColliderInstance next;
-
-			while (is_valid(curr)) {
-				next = collider_next(curr);
-				collider_destroy(curr);
-				curr = next;
-			}
+			ColliderInstance ci = collider_instance(unit);
+			if (is_valid(ci))
+				collider_destroy(ci);
 		}
 
 		{
@@ -1973,14 +1893,9 @@ void PhysicsWorld::collider_destroy(ColliderInstance collider)
 	_impl->collider_destroy(collider);
 }
 
-ColliderInstance PhysicsWorld::collider_first(UnitId unit)
+ColliderInstance PhysicsWorld::collider_instance(UnitId unit)
 {
-	return _impl->collider_first(unit);
-}
-
-ColliderInstance PhysicsWorld::collider_next(ColliderInstance collider)
-{
-	return _impl->collider_next(collider);
+	return _impl->collider_instance(unit);
 }
 
 void PhysicsWorld::actor_create_instances(const void *components_data, u32 num, const UnitId *unit_lookup, const u32 *unit_index)

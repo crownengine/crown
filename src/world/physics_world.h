@@ -46,10 +46,7 @@ struct PhysicsWorld
 	void collider_destroy(ColliderInstance collider);
 
 	///
-	ColliderInstance collider_first(UnitId unit);
-
-	///
-	ColliderInstance collider_next(ColliderInstance collider);
+	ColliderInstance collider_instance(UnitId unit);
 
 	///
 	void actor_create_instances(const void *components_data
