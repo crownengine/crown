@@ -138,6 +138,9 @@ void RenderWorld::mesh_set_material(MeshInstance mesh, StringId64 id)
 	CE_ASSERT(mesh.i < _mesh_manager._data.size, "Index out of bounds");
 	const MaterialResource *mat_res = (MaterialResource *)_resource_manager->get(RESOURCE_TYPE_MATERIAL, id);
 	_mesh_manager._data.material[mesh.i] = _material_manager->create_material(mat_res);
+#if CROWN_CAN_RELOAD
+	_mesh_manager._data.material_resource[mesh.i] = mat_res;
+#endif
 }
 
 void RenderWorld::mesh_set_visible(MeshInstance mesh, bool visible)
@@ -219,6 +222,9 @@ void RenderWorld::sprite_set_material(SpriteInstance sprite, StringId64 id)
 	CE_ASSERT(sprite.i < _sprite_manager._data.size, "Index out of bounds");
 	const MaterialResource *mat_res = (MaterialResource *)_resource_manager->get(RESOURCE_TYPE_MATERIAL, id);
 	_sprite_manager._data.material[sprite.i] = _material_manager->create_material(mat_res);
+#if CROWN_CAN_RELOAD
+	_sprite_manager._data.material_resource[sprite.i] = mat_res;
+#endif
 }
 
 void RenderWorld::sprite_set_frame(SpriteInstance sprite, u32 index)

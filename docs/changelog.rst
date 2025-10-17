@@ -19,6 +19,7 @@ Changelog
 * Runtime: Windows: fixed windows firewall popping up at startup.
 * Runtime: Linux: fixed a crash at startup due to some X11 libraries not being found.
 * Runtime: fixed a regression that caused levels with many objects to not load.
+* Runtime: fixed a crash when reloading materials.
 * Lua: fixed a memory leak when executing some script component callbacks.
 * Lua: the ``update()`` script component callback is now optional.
 
