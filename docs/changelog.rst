@@ -9,6 +9,7 @@ Changelog
 * Tools: the Project Browser will now reject dropped files while showing Favorites.
 * Runtime: Windows: fixed windows firewall popping up at startup.
 * Runtime: fixed a regression that caused levels with many objects to not load.
+* Runtime: fixed a crash when reloading materials.
 
 .. _v0.59.1:
 
