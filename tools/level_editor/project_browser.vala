@@ -1797,7 +1797,6 @@ public class ProjectBrowser : Gtk.Box
 		Gtk.TreePath filter_path = _tree_filter.convert_child_path_to_path(path);
 		if (filter_path == null) {
 			// Either the path is not valid or points to a non-visible row in the model.
-			_project_store._tree_store.get_value(iter, ProjectStore.Column.NAME, out val);
 			return false;
 		}
 
@@ -1873,13 +1872,8 @@ public class ProjectBrowser : Gtk.Box
 			// Only restore the old selection if it has not been
 			// modified while searching (i.e. nothing is selected
 			// because entering search clears it).
-			if (_tree_view.get_selection().get_selected(out selected_model, out selected_iter)) {
-				Gtk.TreeIter a, b, c;
-				_tree_sort.convert_iter_to_child_iter(out a, selected_iter);
-				_tree_search.convert_iter_to_child_iter(out b, a);
-				_tree_filter.convert_iter_to_child_iter(out c, b);
+			if (_tree_view.get_selection().get_selected(out selected_model, out selected_iter))
 				selected_reference = new Gtk.TreeRowReference(selected_model, selected_model.get_path(selected_iter));
-			}
 
 			disconnect_project_store_signals();
 			_project_store.make_visible(true);
