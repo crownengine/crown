@@ -73,25 +73,17 @@ public class Level
 		_camera_view_type = CameraViewType.PERSPECTIVE;
 	}
 
-	public int load_from_path(string name)
+	/// Loads the level @a level_name.
+	public int load(string level_name)
 	{
-		string resource_path = name + ".level";
+		string resource_path = level_name + ".level";
 		string path = _project.absolute_path(resource_path);
 
-		FileStream fs = FileStream.open(path, "rb");
-		if (fs == null)
-			return 1;
-
 		reset();
-		int ret = _db.load_from_file(out _id, fs, resource_path);
+
+		int ret = _db.load_from_path(out _id, path, resource_path);
 		if (ret != 0)
 			return ret;
-
-		camera_decode();
-		GLib.Application.get_default().activate_action("camera-view", new GLib.Variant.int32(_camera_view_type));
-
-		_name = name;
-		_path = path;
 
 		// Level files loaded from outside the source directory can be visualized and
 		// modified in-memory, but never overwritten on disk, because they might be
@@ -100,6 +92,40 @@ public class Level
 		// directory).
 		if (!_project.path_is_within_source_dir(path))
 			_path = null;
+		else
+			_path = path;
+
+		_name = level_name;
+
+		camera_decode();
+		GLib.Application.get_default().activate_action("camera-view", new GLib.Variant.int32(_camera_view_type));
+
+		return 0;
+	}
+
+	// Creates a new level based on a @a template_level_name.
+	public int create(string template_level_name)
+	{
+		string resource_path = template_level_name + ".level";
+		string path = _project.absolute_path(resource_path);
+
+		reset();
+
+		Guid template_id;
+		int ret = _db.load_from_path(out template_id, path, resource_path);
+		if (ret != 0)
+			return ret;
+
+		_id = Guid.new_guid();
+		_db.disable_undo();
+		_db.duplicate(template_id, _id);
+		_db.restore_undo();
+
+		_path = null;
+		_name = template_level_name;
+
+		camera_decode();
+		GLib.Application.get_default().activate_action("camera-view", new GLib.Variant.int32(_camera_view_type));
 
 		return 0;
 	}

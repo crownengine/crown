@@ -468,12 +468,14 @@ public class Database
 	private Gee.HashMap<StringId64?, ObjectTypeInfo?> _object_definitions;
 	private Gee.HashMap<Guid?, Gee.HashMap<string, Value?>> _data;
 	private UndoRedo? _undo_redo;
+	private UndoRedo? _undo_redo_restore;
 	public Project _project;
 	// The number of changes to the database since the last successful state
 	// synchronization (load(), save() etc.). If it is less than 0, the changes
 	// came from undo(), otherwise they came from redo() or from regular calls to
 	// create(), destroy(), set_*() etc. A value of 0 means there were no changes.
 	public int _distance_from_last_sync;
+	public int _distance_restore;
 
 	// Signals
 	public signal void undo_redo(bool undo, uint32 id, Guid?[] data);
@@ -487,6 +489,7 @@ public class Database
 		_data = new Gee.HashMap<Guid?, Gee.HashMap<string, Value?>>(Guid.hash_func, Guid.equal_func);
 		_project = project;
 		_undo_redo = undo_redo;
+		_undo_redo_restore = null;
 
 		reset();
 	}
@@ -500,6 +503,7 @@ public class Database
 			_undo_redo.reset();
 
 		_distance_from_last_sync = 0;
+		_distance_restore = 0;
 
 		// This is a special field which stores all objects
 		_data[GUID_ZERO] = new Gee.HashMap<string, Value?>();
@@ -533,9 +537,25 @@ public class Database
 		return err;
 	}
 
+	public void disable_undo()
+	{
+		_undo_redo_restore = _undo_redo;
+		_undo_redo = null;
+		_distance_restore = _distance_from_last_sync;
+	}
+
+	public void restore_undo()
+	{
+		_undo_redo = _undo_redo_restore;
+		_undo_redo_restore = null;
+		_distance_from_last_sync = _distance_restore;
+	}
+
 	// See: add_from_path().
 	public int add_from_file(out Guid object_id, FileStream? fs, string resource_path)
 	{
+		disable_undo();
+
 		try {
 			Hashtable json = SJSON.load_from_file(fs);
 
@@ -554,9 +574,12 @@ public class Database
 
 			// Create a mapping between the path and the object it has been loaded into.
 			set_property_internal(0, GUID_ZERO, resource_path, object_id);
+
+			restore_undo();
 			return 0;
 		} catch (JsonSyntaxError e) {
 			object_id = GUID_ZERO;
+			restore_undo();
 			return -1;
 		}
 	}
