@@ -2730,9 +2730,10 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_camera_view(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		_level._camera_view_type = (CameraViewType)param.get_int32();
+		CameraViewType view_type = (CameraViewType)param.get_int32();
 
-		_editor.send_script(LevelEditorApi.set_camera_view_type(_level._camera_view_type));
+		_database.set_property_internal(0, _level._id, "editor.camera.view_type", (double)view_type);
+		_editor.send_script(LevelEditorApi.set_camera_view_type(view_type));
 		_editor.send(DeviceApi.frame());
 		action.set_state(param);
 	}
