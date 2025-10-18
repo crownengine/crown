@@ -21,6 +21,8 @@ public class LevelTreeView : Gtk.Box
 		TYPE,
 		GUID,
 		NAME,
+		VISIBLE,
+		SAVE_STATE,
 
 		COUNT
 	}
@@ -56,6 +58,7 @@ public class LevelTreeView : Gtk.Box
 	private Database _db;
 
 	// Widgets
+	private string _needle;
 	private EntrySearch _filter_entry;
 	private Gtk.TreeStore _tree_store;
 	private Gtk.TreeModelFilter _tree_filter;
@@ -82,6 +85,7 @@ public class LevelTreeView : Gtk.Box
 		_db = db;
 
 		// Widgets
+		_needle = "";
 		_filter_entry = new EntrySearch();
 		_filter_entry.set_placeholder_text("Search...");
 		_filter_entry.search_changed.connect(on_filter_entry_text_changed);
@@ -90,27 +94,12 @@ public class LevelTreeView : Gtk.Box
 			, typeof(int)    // Column.TYPE
 			, typeof(Guid)   // Column.GUID
 			, typeof(string) // Column.NAME
+			, typeof(bool)   // Column.VISIBLE
+			, typeof(uint32) // Column.SAVED_STATE
 			);
 
 		_tree_filter = new Gtk.TreeModelFilter(_tree_store, null);
-		_tree_filter.set_visible_func((model, iter) => {
-				_tree_view.expand_all();
-
-				Value type;
-				Value name;
-				model.get_value(iter, Column.TYPE, out type);
-				model.get_value(iter, Column.NAME, out name);
-
-				if ((int)type == ItemType.FOLDER)
-					return true;
-
-				string name_str = (string)name;
-				string filter_text = _filter_entry.text.down();
-
-				return name_str != null
-					&& (filter_text == "" || name_str.down().index_of(filter_text) > -1)
-					;
-			});
+		_tree_filter.set_visible_column(Column.VISIBLE);
 
 		_tree_sort = new Gtk.TreeModelSort.with_model(_tree_filter);
 		_tree_sort.set_sort_column_id(Column.NAME, Gtk.SortType.ASCENDING);
@@ -384,6 +373,10 @@ public class LevelTreeView : Gtk.Box
 			, GUID_ZERO
 			, Column.NAME
 			, "Units"
+			, Column.VISIBLE
+			, true
+			, Column.SAVE_STATE
+			, 0u
 			, -1
 			);
 		_units_root = new Gtk.TreeRowReference(_tree_store, _tree_store.get_path(iter));
@@ -397,16 +390,21 @@ public class LevelTreeView : Gtk.Box
 			, GUID_ZERO
 			, Column.NAME
 			, "Sounds"
+			, Column.VISIBLE
+			, true
+			, Column.SAVE_STATE
+			, 0u
 			, -1
 			);
 		_sounds_root = new Gtk.TreeRowReference(_tree_store, _tree_store.get_path(iter));
 
 		_tree_view.model = _tree_sort;
-		_tree_view.expand_all();
 
 		_level = level;
 		on_objects_created(_db.get_property_set(_level._id, "units", new Gee.HashSet<Guid?>()).to_array());
 		on_objects_created(_db.get_property_set(_level._id, "sounds", new Gee.HashSet<Guid?>()).to_array());
+
+		_tree_view.expand_all();
 	}
 
 	public int insert_units(Guid?[] object_ids)
@@ -437,6 +435,10 @@ public class LevelTreeView : Gtk.Box
 					, u._id
 					, Column.NAME
 					, _level.object_editor_name(u._id)
+					, Column.VISIBLE
+					, true
+					, Column.SAVE_STATE
+					, 0u
 					, -1
 					);
 			}
@@ -466,6 +468,10 @@ public class LevelTreeView : Gtk.Box
 				, object_ids[i]
 				, Column.NAME
 				, _level.object_editor_name(object_ids[i])
+				, Column.VISIBLE
+				, true
+				, Column.SAVE_STATE
+				, 0u
 				, -1
 				);
 		}
@@ -485,6 +491,8 @@ public class LevelTreeView : Gtk.Box
 				++i; // Skip object.
 			}
 		}
+
+		_tree_filter.refilter();
 	}
 
 	public int remove_units(Guid?[] object_ids)
@@ -561,13 +569,6 @@ public class LevelTreeView : Gtk.Box
 		}
 	}
 
-	private void on_filter_entry_text_changed()
-	{
-		_tree_selection.changed.disconnect(on_tree_selection_changed);
-		_tree_filter.refilter();
-		_tree_selection.changed.connect(on_tree_selection_changed);
-	}
-
 	private Gtk.RadioButton add_sort_item(Gtk.RadioButton? group, SortMode mode)
 	{
 		var button = new Gtk.RadioButton.with_label_from_widget(group, mode.to_label());
@@ -587,6 +588,161 @@ public class LevelTreeView : Gtk.Box
 		_sort_items_box.pack_start(button, false, false);
 		return button;
 	}
+
+	public bool save_tree_state(Gtk.TreeModel model, Gtk.TreePath path, Gtk.TreeIter iter)
+	{
+		Gtk.TreePath filter_path = _tree_filter.convert_child_path_to_path(path);
+		if (filter_path == null) {
+			// Either the path is not valid or points to a non-visible row in the model.
+			return false;
+		}
+
+		Gtk.TreePath sort_path = _tree_sort.convert_child_path_to_path(filter_path);
+		if (sort_path == null) {
+			// The path is not valid.
+			assert(false);
+			return false;
+		}
+
+		bool expanded = _tree_view.is_row_expanded(sort_path);
+		bool selected = _tree_view.get_selection().path_is_selected(sort_path);
+
+		uint32 user_data = 0;
+		user_data |= (uint32)expanded << 0;
+		user_data |= (uint32)selected << 1;
+		_tree_store.set(iter, Column.SAVE_STATE, user_data, -1);
+
+		return false; // Continue iterating.
+	}
+
+	public bool restore_tree_state(Gtk.TreeModel model, Gtk.TreePath path, Gtk.TreeIter iter)
+	{
+		uint32 user_data;
+		Value val;
+		_tree_store.get_value(iter, Column.SAVE_STATE, out val);
+		user_data = (uint32)val;
+
+		bool expanded = (bool)((user_data & 0x1) >> 0);
+		bool selected = (bool)((user_data & 0x2) >> 1);
+
+		Gtk.TreePath filter_path = _tree_filter.convert_child_path_to_path(path);
+		if (filter_path == null) {
+			// Either the path is not valid or points to a non-visible row in the model.
+			return false;
+		}
+
+		Gtk.TreePath sort_path = _tree_sort.convert_child_path_to_path(filter_path);
+		if (sort_path == null) {
+			// The path is not valid.
+			return false;
+		}
+
+		if (expanded)
+			_tree_view.expand_to_path(sort_path);
+		else
+			_tree_view.collapse_row(sort_path);
+
+		if (selected)
+			_tree_view.get_selection().select_path(sort_path);
+
+		return false; // Continue iterating.
+	}
+
+	public void make_visible(bool visible)
+	{
+		_tree_store.foreach((model, path, iter) => {
+				_tree_store.set(iter, Column.VISIBLE, visible, -1);
+				return false; // Continue iterating.
+			});
+
+	}
+
+	public void filter(string needle)
+	{
+		make_visible(false);
+		_tree_filter.refilter();
+
+		_tree_store.foreach((model, path, iter) => {
+				int type;
+				string name;
+
+				Value val;
+				model.get_value(iter, Column.TYPE, out val);
+				type = (int)val;
+
+				bool visible = false;
+
+				// Always show the roots.
+				if (type == ItemType.FOLDER) {
+					visible = true;
+				} else {
+					model.get_value(iter, Column.NAME, out val);
+					name = (string)val;
+
+					visible = needle == "" || name.down().index_of(needle) > -1;
+				}
+
+				if (visible) {
+					// Make this iter and all its ancestors visible.
+					Gtk.TreeIter it = iter;
+					_tree_store.set(it, Column.VISIBLE, true, -1);
+					while (_tree_store.iter_parent(out it, it))
+						_tree_store.set(it, Column.VISIBLE, true, -1);
+				}
+
+				return false; // Continue iterating.
+			});
+
+		_tree_view.expand_all();
+	}
+
+	public void on_filter_entry_text_changed()
+	{
+		string old_needle = _needle;
+		_needle = _filter_entry.text.strip().down();
+
+		if (old_needle == "" && _needle != "") {
+			// Enter search mode.
+			_tree_selection.changed.disconnect(on_tree_selection_changed);
+			// Save the current tree state (expanded branches + selection)
+			// to restore it later when the search is done.
+			_tree_store.foreach(save_tree_state);
+			filter(_needle);
+			_tree_selection.changed.connect(on_tree_selection_changed);
+		} else if (old_needle != "" && _needle == "") {
+			// Only restore the old selection if it has not been
+			// modified while searching (i.e. nothing is selected
+			// because entering search clears it).
+			Gtk.TreeModel selected_model;
+			GLib.List<Gtk.TreePath> selected_rows = _tree_view.get_selection().get_selected_rows(out selected_model);
+			Gtk.TreeRowReference[] selected_refs = {};
+			for (uint i = 0, n = selected_rows.length(); i < n; ++i)
+				selected_refs += new Gtk.TreeRowReference(selected_model, selected_rows.nth(i).data);
+
+			_tree_selection.changed.disconnect(on_tree_selection_changed);
+			make_visible(true);
+			_tree_filter.refilter();
+			// Restore the previous tree state (old expanded branches + old selection).
+			_tree_view.get_selection().unselect_all();
+			_tree_store.foreach(restore_tree_state);
+			_tree_selection.changed.connect(on_tree_selection_changed);
+
+			// If the selection changed while searching, restore it as well.
+			for (int i = 0; i < selected_refs.length; ++i) {
+				logi("selection changed while searching");
+				Gtk.TreePath path = selected_refs[i].get_path();
+				_tree_view.expand_to_path(path);
+				_tree_view.get_selection().select_path(path);
+				_tree_view.scroll_to_cell(path, null, false, 0.0f, 0.0f);
+			}
+		} else if (_needle != "") {
+			// Filter while in search mode.
+			_tree_selection.changed.disconnect(on_tree_selection_changed);
+			filter(_needle);
+			_tree_selection.changed.connect(on_tree_selection_changed);
+		}
+	}
+
 }
 
 } /* namespace Crown */

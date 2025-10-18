@@ -16,6 +16,7 @@ Changelog
 * Tools: fixed creation of animation state machine resources.
 * Tools: the Project Browser will now reject dropped files while showing Favorites.
 * Tools: fixed new levels containing GUIDs from their template resource.
+* Tools: the Level Tree is now correctly restored after a search.
 * Runtime: Windows: fixed a number of misdetected keyboard keys.
 * Runtime: Windows: fixed windows firewall popping up at startup.
 * Runtime: Linux: fixed a crash at startup due to some X11 libraries not being found.
