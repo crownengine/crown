@@ -628,7 +628,7 @@ public static void create_object_types(Database database)
 			deffault = "sound",
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_SOUND_SOURCE, properties, 3.0);
+	StringId64 sound_source_type = database.create_object_type(OBJECT_TYPE_SOUND_SOURCE, properties, 3.0);
 
 	properties =
 	{
@@ -865,7 +865,7 @@ public static void create_object_types(Database database)
 		},
 #endif /* if false */
 	};
-	database.create_object_type(OBJECT_TYPE_UNIT, properties);
+	StringId64 unit_type = database.create_object_type(OBJECT_TYPE_UNIT, properties);
 
 	properties =
 	{
@@ -976,6 +976,60 @@ public static void create_object_types(Database database)
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_STATE_MACHINE, properties);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "editor.camera.orthographic_size",
+			deffault = Vector3(20, -20, 20).length(),
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.VECTOR3,
+			name = "editor.camera.position",
+			deffault = Vector3(20, -20, 20),
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.QUATERNION,
+			name = "editor.camera.rotation",
+			deffault = Quaternion.look(Vector3(-20, 20, -20).normalize(), Vector3(0.0, 0.0, 1.0)),
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "editor.camera.target_distance",
+			deffault = Vector3(20, -20, 20).length(),
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "editor.camera.view_type",
+			deffault = (double)CameraViewType.PERSPECTIVE,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.OBJECTS_SET,
+			name = "sounds",
+			object_type = sound_source_type,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.OBJECTS_SET,
+			name = "units",
+			object_type = unit_type,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.OBJECT_REFERENCE,
+			name = "skydome_unit",
+			resource_type = OBJECT_TYPE_UNIT,
+			deffault = "core/units/skydome/skydome",
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_LEVEL, properties);
 }
 
 } /* namespace Crown */
