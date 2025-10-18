@@ -2034,12 +2034,11 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void load_level(string name)
 	{
-		if (name == _level._name && name != LEVEL_EMPTY)
+		if (name == _level._name)
 			return;
 
-		string resource_name = name != "" ? name : LEVEL_EMPTY;
-		if (_level.load_from_path(resource_name) != 0) {
-			loge("Unable to load level %s".printf(resource_name));
+		if (_level.load(name) != 0) {
+			loge("Unable to load level %s".printf(name));
 			return;
 		}
 
@@ -2156,7 +2155,19 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void do_new_level()
 	{
-		load_level(LEVEL_EMPTY);
+		if (_level.create(LEVEL_EMPTY) != 0) {
+			loge("Unable to create a new level.");
+			return;
+		}
+
+		if (_editor.is_connected()) {
+			_level.send_level();
+			send_state();
+			_editor.send(DeviceApi.frame());
+		}
+
+		update_active_window_title();
+		_level_treeview.set_level(_level);
 	}
 
 	private void on_new_level(GLib.SimpleAction action, GLib.Variant? param)
@@ -2228,7 +2239,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void do_open_project(string source_dir, string level_name)
+	private void do_open_project(string source_dir, string? level_name)
 	{
 		if (_project.source_dir() == source_dir) {
 			logi("Project `%s` is open already.".printf(source_dir));
@@ -2258,12 +2269,15 @@ public class LevelEditorApplication : Gtk.Application
 
 		restart_backend.begin((obj, res) => {
 				if (restart_backend.end(res)) {
-					load_level(level_name);
+					if (level_name == null)
+						do_new_level();
+					else
+						load_level(level_name);
 				}
 			});
 	}
 
-	private void open_project(string source_dir, string level_name = LEVEL_EMPTY)
+	private void open_project(string source_dir, string? level_name = null)
 	{
 		if (source_dir != "") {
 			do_open_project(source_dir, level_name);
