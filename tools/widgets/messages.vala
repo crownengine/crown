@@ -64,7 +64,9 @@ public Gtk.Box compiler_crashed()
 	return restart_compiler("<span font_weight=\"bold\">Data Compiler disconnected unexpectedly.</span>");
 }
 
-public Gtk.Box editor_oops(string restart_action)
+public delegate void RestartVieport();
+
+public Gtk.Box editor_oops(RestartVieport restart_viewport)
 {
 	var h1 = new Gtk.Label(null);
 	h1.set_markup("<span font_weight=\"bold\">Something went wrong.</span>");
@@ -73,7 +75,7 @@ public Gtk.Box editor_oops(string restart_action)
 	p.get_style_context().add_class("colorfast-link");
 	p.set_markup("Try to <a href=\"restart\">restart this view</a>.");
 	p.activate_link.connect(() => {
-			GLib.Application.get_default().activate_action(restart_action, null);
+			restart_viewport();
 			return true;
 		});
 
@@ -93,4 +95,4 @@ public Gtk.Box stopping_backend()
 	return long_running_task("<span font_weight=\"bold\">Stopping Backend...</span>");
 }
 
-}
+} /* namespace Crown */

@@ -1,0 +1,129 @@
+/*
+ * Copyright (c) 2012-2025 Daniele Bartolini et al.
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+namespace Crown
+{
+public class EditorViewport : Gtk.Bin
+{
+	public const string EDITOR_DISCONNECTED = "editor-disconnected";
+	public const string EDITOR_OOPS = "editor-oops";
+
+	public Project _project;
+	public string _boot_dir;
+	public string _console_address;
+	public uint16 _console_port;
+	public bool _input_enabled;
+	public RuntimeInstance _runtime;
+	public EditorView _editor_view;
+	public Gtk.Overlay _overlay;
+	public Gtk.Stack _stack;
+
+	public EditorViewport(string name
+		, Project project
+		, string boot_dir
+		, string console_addr
+		, uint16 console_port
+		, bool input_enabled = true
+		)
+	{
+		_project = project;
+		_boot_dir = boot_dir;
+		_console_address = console_addr;
+		_console_port = console_port;
+		_input_enabled = input_enabled;
+
+		_runtime = new RuntimeInstance(name);
+		_runtime.disconnected_unexpected.connect(on_editor_disconnected_unexpected);
+
+		_overlay = new Gtk.Overlay();
+
+		_stack = new Gtk.Stack();
+		_stack.add_named(editor_disconnected(), EDITOR_DISCONNECTED);
+		_stack.add_named(editor_oops(() => { restart_runtime.begin(); }), EDITOR_OOPS);
+
+		_stack.set_visible_child_name(EDITOR_DISCONNECTED);
+
+		this.can_focus = true;
+		this.add(_stack);
+	}
+
+	public void on_editor_disconnected_unexpected(RuntimeInstance ri)
+	{
+		_stack.set_visible_child_name(EDITOR_OOPS);
+	}
+
+	public async void start_runtime(uint window_xid, int width, int height)
+	{
+		if (window_xid == 0)
+			return;
+
+		// Spawn the level editor.
+		string args[] =
+		{
+			ENGINE_EXE,
+			"--data-dir",
+			_project.data_dir(),
+			"--boot-dir",
+			_boot_dir,
+			"--parent-window",
+			window_xid.to_string(),
+			"--console-port",
+			_console_port.to_string(),
+			"--wait-console",
+			"--pumped",
+			"--window-rect", "0", "0", width.to_string(), height.to_string()
+		};
+
+		try {
+			_runtime._process_id = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
+		} catch (Error e) {
+			loge(e.message);
+		}
+
+		// Try to connect to the level editor.
+		int tries = yield _runtime.connect_async(_console_address
+			, _console_port
+			, EDITOR_CONNECTION_TRIES
+			, EDITOR_CONNECTION_INTERVAL
+			);
+		if (tries == EDITOR_CONNECTION_TRIES) {
+			loge("Cannot connect to %s".printf(_runtime._name));
+			return;
+		}
+	}
+
+	public async void stop_runtime()
+	{
+		yield _runtime.stop();
+		_stack.set_visible_child_name(EDITOR_DISCONNECTED);
+	}
+
+	public async void restart_runtime()
+	{
+		yield stop_runtime();
+
+		if (_editor_view != null) {
+			_overlay.remove(_editor_view);
+			_stack.remove(_overlay);
+			_editor_view = null;
+		}
+
+		_editor_view = new EditorView(_runtime, _input_enabled);
+		_editor_view.native_window_ready.connect(on_editor_view_realized);
+
+		_overlay.add(_editor_view);
+		_overlay.show_all();
+
+		_stack.add(_overlay);
+		_stack.set_visible_child(_overlay);
+	}
+
+	public async void on_editor_view_realized(uint window_id, int width, int height)
+	{
+		start_runtime.begin(window_id, width, height);
+	}
+}
+
+} /* namespace Crown */
