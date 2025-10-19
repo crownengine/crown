@@ -489,6 +489,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "run-game",            on_run_game,            null, null },
 		{ "build-data",          on_build_data,          null, null },
 		{ "reload-all",          on_reload_all,          null, null },
+		{ "restart-backend",     on_restart_backend,     null, null },
 		{ "restart-editor-view", on_restart_editor_view, null, null },
 		{ "restart-preview",     on_restart_preview,     null, null }
 	};
@@ -1499,94 +1500,6 @@ public class LevelEditorApplication : Gtk.Application
 		} else if (info.name != OBJECT_TYPE_UNIT) { // FIXME
 				_properties_view.register_object_type(info.name, null, null);
 		}
-	}
-
-	Gtk.Box message_widget(Gtk.Label h1, Gtk.Widget? p = null)
-	{
-		var box = new Gtk.Box(Gtk.Orientation.VERTICAL, 12);
-		box.valign = Gtk.Align.CENTER;
-		box.pack_start(h1);
-		if (p != null)
-			box.pack_start(p);
-
-		return box;
-	}
-
-	Gtk.Box long_running_task(string markup)
-	{
-		var h1 = new Gtk.Label(null);
-		h1.set_markup(markup);
-		h1.valign = Gtk.Align.CENTER;
-
-		var spinner = new Gtk.Spinner();
-		spinner.active = true;
-
-		return message_widget(h1, spinner);
-	}
-
-	Gtk.Box compiling_data()
-	{
-		return long_running_task("<span font_weight=\"bold\">Compiling data...</span>");
-	}
-
-	Gtk.Box connecting_to_data_compiler()
-	{
-		return long_running_task("<span font_weight=\"bold\">Connecting to Data Compiler...</span>");
-	}
-
-	Gtk.Box restart_compiler(string markup)
-	{
-		Gtk.Label h1 = new Gtk.Label(null);
-		h1.set_markup(markup);
-
-		Gtk.Label p = new Gtk.Label(null);
-		p.get_style_context().add_class("colorfast-link");
-		p.set_markup("Fix errors and <a href=\"restart\">restart the compiler</a> to continue.");
-		p.activate_link.connect(() => {
-				restart_backend.begin();
-				return true;
-			});
-
-		return message_widget(h1, p);
-	}
-
-	Gtk.Box compiler_failed_compilation()
-	{
-		return restart_compiler("<span font_weight=\"bold\">Data compilation failed.</span>");
-	}
-
-	Gtk.Box compiler_crashed()
-	{
-		return restart_compiler("<span font_weight=\"bold\">Data Compiler disconnected unexpectedly.</span>");
-	}
-
-	Gtk.Box editor_oops(string restart_action)
-	{
-		var h1 = new Gtk.Label(null);
-		h1.set_markup("<span font_weight=\"bold\">Something went wrong.</span>");
-
-		var p = new Gtk.Label(null);
-		p.get_style_context().add_class("colorfast-link");
-		p.set_markup("Try to <a href=\"restart\">restart this view</a>.");
-		p.activate_link.connect(() => {
-				activate_action(restart_action, null);
-				return true;
-			});
-
-		return message_widget(h1, p);
-	}
-
-	Gtk.Box editor_disconnected()
-	{
-		Gtk.Label h1 = new Gtk.Label(null);
-		h1.set_markup("<span font_weight=\"bold\">Disconnected.</span>");
-
-		return message_widget(h1);
-	}
-
-	Gtk.Box stopping_backend()
-	{
-		return long_running_task("<span font_weight=\"bold\">Stopping Backend...</span>");
 	}
 
 	public async bool restart_backend()
@@ -2796,6 +2709,13 @@ public class LevelEditorApplication : Gtk.Application
 		} else {
 			_inspector_stack.show_all();
 		}
+	}
+
+	private void on_restart_backend(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		restart_backend.begin((obj, res) => {
+				restart_backend.end(res);
+			});
 	}
 
 	private void on_restart_editor_view(GLib.SimpleAction action, GLib.Variant? param)
