@@ -594,6 +594,7 @@ public static void create_object_types(Database database)
 			type = PropertyType.OBJECT_REFERENCE,
 			name = "name",
 			resource_type = OBJECT_TYPE_SOUND,
+			deffault = ""
 		},
 		PropertyDefinition()
 		{
@@ -626,6 +627,7 @@ public static void create_object_types(Database database)
 			type = PropertyType.STRING,
 			name = "editor.name",
 			deffault = "sound",
+			hidden = true,
 		},
 	};
 	StringId64 sound_source_type = database.create_object_type(OBJECT_TYPE_SOUND_SOURCE, properties, 3.0);
