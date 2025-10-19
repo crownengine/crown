@@ -491,7 +491,6 @@ public class LevelEditorApplication : Gtk.Application
 	private const GLib.ActionEntry[] action_entries_view =
 	{
 		{ "menu-view",           null,                   null, null    },
-		{ "resource-chooser",    on_resource_chooser,    null, null    },
 		{ "project-browser",     on_project_browser,     null, null    },
 		{ "console",             on_console,             null, null    },
 		{ "statusbar",           on_statusbar,           null, null    },
@@ -594,7 +593,6 @@ public class LevelEditorApplication : Gtk.Application
 	// Engine connections
 	private RuntimeInstance _compiler;
 	public RuntimeInstance _editor;
-	private RuntimeInstance _resource_preview;
 	private RuntimeInstance _game;
 	private RuntimeInstance _thumbnail;
 
@@ -610,22 +608,16 @@ public class LevelEditorApplication : Gtk.Application
 	private Gtk.CssProvider _css_provider;
 	private ProjectBrowser _project_browser;
 	private EditorViewport _editor_viewport;
-	private EditorViewport _resource_preview_viewport;
 	private LevelTreeView _level_treeview;
 	private LevelLayersTreeView _level_layers_treeview;
 	private PropertiesView _properties_view;
 	private PreferencesDialog _preferences_dialog;
 	private DeployDialog _deploy_dialog;
 	private TextureSettingsDialog _texture_settings_dialog;
-	private ResourceChooser _resource_chooser;
-	private Gtk.Popover _resource_popover;
-	private Gtk.EventControllerKey _resource_popover_controller_key;
-	private Gtk.GestureMultiPress _resource_popover_gesture_click;
 	private ThumbnailCache _thumbnail_cache;
 
 	private Gtk.Stack _project_stack;
 	private Gtk.Stack _editor_stack;
-	private Gtk.Stack _resource_preview_stack;
 	private Gtk.Stack _inspector_stack;
 
 	private Toolbar _toolbar;
@@ -773,20 +765,6 @@ public class LevelEditorApplication : Gtk.Application
 
 		set_theme_from_name(_preferences_dialog._theme_combo.value);
 
-		_resource_preview_viewport = new EditorViewport("resource_preview"
-			, _project
-			, UNIT_PREVIEW_BOOT_DIR
-			, UNIT_PREVIEW_ADDRESS
-			, UNIT_PREVIEW_TCP_PORT
-			, false
-			);
-		_resource_preview_viewport.set_size_request(300, 300);
-		_resource_preview = _resource_preview_viewport._runtime;
-		_resource_preview.message_received.connect(on_message_received);
-		_resource_preview.connected.connect(on_runtime_connected);
-		_resource_preview.disconnected.connect(on_runtime_disconnected);
-		_resource_preview.disconnected_unexpected.connect(on_runtime_disconnected_unexpected);
-
 		_game = new RuntimeInstance("game");
 		_game.message_received.connect(on_message_received);
 		_game.connected.connect(on_game_connected);
@@ -860,7 +838,6 @@ public class LevelEditorApplication : Gtk.Application
 
 		_project_stack = make_compiler_stack(_project_browser);
 		_editor_stack = make_compiler_stack(_editor_viewport);
-		_resource_preview_stack = make_compiler_stack(_resource_preview_viewport);
 		_inspector_stack = make_compiler_stack(_inspector_pane);
 
 		// Game run/stop button.
@@ -880,40 +857,6 @@ public class LevelEditorApplication : Gtk.Application
 
 		_toolbar = new Toolbar();
 		_editor_viewport._overlay.add_overlay(_toolbar);
-
-		_resource_popover = new Gtk.Popover(_toolbar);
-		_resource_popover_controller_key = new Gtk.EventControllerKey(_resource_popover);
-		_resource_popover_controller_key.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
-		_resource_popover_controller_key.key_pressed.connect((keyval, keycode, state) => {
-				if (keyval == Gdk.Key.Escape) {
-					_resource_popover.hide();
-					return Gdk.EVENT_STOP;
-				}
-
-				return Gdk.EVENT_PROPAGATE;
-			});
-		_resource_popover_gesture_click = new Gtk.GestureMultiPress(_resource_popover);
-		_resource_popover_gesture_click.pressed.connect(() => {
-				_resource_popover.hide();
-			});
-		_resource_popover.events |= Gdk.EventMask.STRUCTURE_MASK; // unmap_event
-		_resource_popover.unmap_event.connect(() => {
-				// Redraw the editor view when the popover is not on-screen anymore.
-				device_frame_delayed(16, _editor);
-				return Gdk.EVENT_PROPAGATE;
-			});
-		_resource_popover.delete_event.connect(_resource_popover.hide_on_delete);
-		_resource_popover.modal = true;
-
-		_resource_chooser = new ResourceChooser(_project, _project_store, _resource_preview_stack, _resource_preview);
-		_resource_chooser.resource_selected.connect(on_resource_browser_resource_selected);
-		_resource_chooser.destroy.connect(() => {
-				_resource_preview_viewport.stop_runtime.begin((obj, res) => {
-						_resource_preview_viewport.stop_runtime.end(res);
-					});
-			});
-
-		_resource_popover.add(_resource_chooser);
 
 		_console_notebook = new Gtk.Notebook();
 		_console_notebook.show_border = false;
@@ -1091,11 +1034,6 @@ public class LevelEditorApplication : Gtk.Application
 			return null;
 	}
 
-	private void on_resource_browser_resource_selected(string type, string name)
-	{
-		activate_action("set-placeable", new GLib.Variant.tuple({ type, name }));
-	}
-
 	private void on_runtime_connected(RuntimeInstance ri, string address, int port)
 	{
 		ri._revision = _data_compiler._revision;
@@ -1124,7 +1062,6 @@ public class LevelEditorApplication : Gtk.Application
 
 		_project_stack.set_visible_child_name(COMPILER_CRASHED);
 		_editor_stack.set_visible_child_name(COMPILER_CRASHED);
-		_resource_preview_stack.set_visible_child_name(COMPILER_CRASHED);
 		_inspector_stack.set_visible_child_name(COMPILER_CRASHED);
 	}
 
@@ -1481,7 +1418,6 @@ public class LevelEditorApplication : Gtk.Application
 
 		_project_stack.set_visible_child_name(COMPILER_CONNECTING);
 		_editor_stack.set_visible_child_name(COMPILER_CONNECTING);
-		_resource_preview_stack.set_visible_child_name(COMPILER_CONNECTING);
 		_inspector_stack.set_visible_child_name(COMPILER_CONNECTING);
 
 		int tries = yield _compiler.connect_async(DATA_COMPILER_ADDRESS
@@ -1496,7 +1432,6 @@ public class LevelEditorApplication : Gtk.Application
 
 		_project_stack.set_visible_child_name(COMPILER_COMPILING_DATA);
 		_editor_stack.set_visible_child_name(COMPILER_COMPILING_DATA);
-		_resource_preview_stack.set_visible_child_name(COMPILER_COMPILING_DATA);
 		_inspector_stack.set_visible_child_name(COMPILER_COMPILING_DATA);
 
 		// Compile data.
@@ -1505,7 +1440,6 @@ public class LevelEditorApplication : Gtk.Application
 		if (!success) {
 			_project_stack.set_visible_child_name(COMPILER_FAILED_COMPILATION);
 			_editor_stack.set_visible_child_name(COMPILER_FAILED_COMPILATION);
-			_resource_preview_stack.set_visible_child_name(COMPILER_FAILED_COMPILATION);
 			_inspector_stack.set_visible_child_name(COMPILER_FAILED_COMPILATION);
 			return success;
 		}
@@ -1513,11 +1447,9 @@ public class LevelEditorApplication : Gtk.Application
 		// If successful, start the level editor.
 		_project_stack.set_visible_child_name("child");
 		_editor_stack.set_visible_child_name("child");
-		_resource_preview_stack.set_visible_child_name("child");
 		_inspector_stack.set_visible_child_name("child");
 
 		yield _editor_viewport.restart_runtime();
-		yield _resource_preview_viewport.restart_runtime();
 		yield start_thumbnail();
 
 		_project_stack.set_visible_child(_project_browser);
@@ -1531,14 +1463,12 @@ public class LevelEditorApplication : Gtk.Application
 		yield _game.stop();
 		yield _thumbnail.stop();
 		yield _editor_viewport.stop_runtime();
-		yield _resource_preview_viewport.stop_runtime();
 	}
 
 	public async void stop_backend()
 	{
 		_project_stack.set_visible_child_name(BACKEND_STOPPING);
 		_editor_stack.set_visible_child_name(BACKEND_STOPPING);
-		_resource_preview_stack.set_visible_child_name(BACKEND_STOPPING);
 		_inspector_stack.set_visible_child_name(BACKEND_STOPPING);
 
 		yield stop_heads();
@@ -1860,10 +1790,6 @@ public class LevelEditorApplication : Gtk.Application
 			loge(e.message);
 		}
 		_console_view._entry_history.save(_console_history_file.get_path());
-
-		// Destroy widgets.
-		if (_resource_chooser != null)
-			_resource_chooser.destroy();
 
 		if (_preferences_dialog != null)
 			_preferences_dialog.destroy();
@@ -2471,11 +2397,6 @@ public class LevelEditorApplication : Gtk.Application
 		_editor.send(DeviceApi.frame());
 	}
 
-	private void on_resource_chooser(GLib.SimpleAction action, GLib.Variant? param)
-	{
-		_resource_popover.show_all();
-	}
-
 	private void on_project_browser(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		if (_project_notebook.is_visible()) {
@@ -2544,7 +2465,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	private async bool refresh_all_clients()
 	{
-		RuntimeInstance[] runtimes = new RuntimeInstance[] { _editor, _resource_preview, _game, _thumbnail };
+		RuntimeInstance[] runtimes = new RuntimeInstance[] { _editor, _game, _thumbnail };
 		bool success = true;
 
 		foreach (var ri in runtimes)

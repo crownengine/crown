@@ -366,11 +366,6 @@
       <attribute name="action">app.menu-view</attribute>
       <section>
         <item>
-          <attribute name="label" translatable="yes">Resource Chooser</attribute>
-          <attribute name="action">app.resource-chooser</attribute>
-          <attribute name="accel">&lt;Primary&gt;P</attribute>
-        </item>
-        <item>
           <attribute name="label" translatable="yes">Show/Hide Project</attribute>
           <attribute name="action">app.project-browser</attribute>
         </item>
