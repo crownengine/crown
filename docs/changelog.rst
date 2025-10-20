@@ -3,7 +3,7 @@ Changelog
 
 .. _v0.59.2:
 
-:ref:`0.59.2 --- DD MMM YYYY <v0.59.2>`
+:ref:`0.59.2 --- 20 Oct 2025 <v0.59.2>`
 ---------------------------------------
 
 * Tools: the Project Browser will now reject dropped files while showing Favorites.
