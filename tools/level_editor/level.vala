@@ -28,9 +28,9 @@ public class Level
 	public signal void selection_changed(Gee.ArrayList<Guid?> selection);
 	public signal void object_editor_name_changed(Guid object_id, string name);
 
-	public Level(Database db, RuntimeInstance runtime, Project project)
+	public Level(Database db, RuntimeInstance runtime)
 	{
-		_project = project;
+		_project = db._project;
 
 		// Engine connections
 		_runtime = runtime;

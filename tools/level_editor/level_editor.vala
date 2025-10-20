@@ -789,7 +789,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		_properties_view.register_object_type(OBJECT_TYPE_UNIT, new UnitView(_database));
 
-		_level = new Level(_database, _editor, _project);
+		_level = new Level(_database, _editor);
 
 		// Editor state
 		_grid_size = 1.0;
