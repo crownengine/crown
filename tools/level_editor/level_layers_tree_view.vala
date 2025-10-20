@@ -7,24 +7,24 @@ namespace Crown
 {
 public class LevelLayersTreeView : Gtk.Box
 {
-	private enum ItemFlags
+	public enum ItemFlags
 	{
 		VISIBLE = 1,
 		LOCKED  = 2
 	}
 
 	// Data
-	private Level _level;
-	private Database _db;
+	public Level _level;
+	public Database _db;
 
 	// Widgets
-	private EntrySearch _filter_entry;
-	private Gtk.ListStore _list_store;
-	private Gtk.TreeModelFilter _tree_filter;
-	private Gtk.TreeView _tree_view;
-	private Gtk.GestureMultiPress _tree_view_gesture_click;
-	private Gtk.TreeSelection _tree_selection;
-	private Gtk.ScrolledWindow _scrolled_window;
+	public EntrySearch _filter_entry;
+	public Gtk.ListStore _list_store;
+	public Gtk.TreeModelFilter _tree_filter;
+	public Gtk.TreeView _tree_view;
+	public Gtk.GestureMultiPress _tree_view_gesture_click;
+	public Gtk.TreeSelection _tree_selection;
+	public Gtk.ScrolledWindow _scrolled_window;
 
 	public LevelLayersTreeView(Database db, Level level)
 	{
@@ -79,12 +79,12 @@ public class LevelLayersTreeView : Gtk.Box
 		this.pack_start(_scrolled_window, true, true, 0);
 	}
 
-	private void on_button_pressed(int n_press, double x, double y)
+	public void on_button_pressed(int n_press, double x, double y)
 	{
 		return;
 	}
 
-	private bool filter_tree(Gtk.TreeModel model, Gtk.TreeIter iter)
+	public bool filter_tree(Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
 		Value val;
 		model.get_value(iter, 2, out val);
@@ -99,7 +99,7 @@ public class LevelLayersTreeView : Gtk.Box
 		return false;
 	}
 
-	private void on_filter_entry_text_changed()
+	public void on_filter_entry_text_changed()
 	{
 		_tree_filter.refilter();
 	}

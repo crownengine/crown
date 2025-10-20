@@ -150,7 +150,7 @@ public class InputEnum : InputField, Gtk.ComboBox
 		return some_id;
 	}
 
-	private void on_changed()
+	public void on_changed()
 	{
 		if (this.get_active_id() == null)
 			return;
@@ -166,7 +166,7 @@ public class InputEnum : InputField, Gtk.ComboBox
 		value_changed(this);
 	}
 
-	private void insert_special_values()
+	public void insert_special_values()
 	{
 		assert(_store.iter_n_children(null) == 0u);
 

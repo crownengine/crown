@@ -157,7 +157,7 @@ public class PreferencesDialog : Gtk.Window
 		this.add(_notebook);
 	}
 
-	private bool on_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)
+	public bool on_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)
 	{
 		if (keyval == Gdk.Key.Escape)
 			this.close();
@@ -165,7 +165,7 @@ public class PreferencesDialog : Gtk.Window
 		return Gdk.EVENT_PROPAGATE;
 	}
 
-	private void on_color_set()
+	public void on_color_set()
 	{
 		_editor.send_script(LevelEditorApi.set_color("grid", _grid_color_button.value));
 		_editor.send_script(LevelEditorApi.set_color("grid_disabled", _grid_disabled_color_button.value));
@@ -176,13 +176,13 @@ public class PreferencesDialog : Gtk.Window
 		_editor.send(DeviceApi.frame());
 	}
 
-	private void on_gizmo_size_value_changed()
+	public void on_gizmo_size_value_changed()
 	{
 		_editor.send_script("Gizmo.size = %f".printf(_gizmo_size_spin_button.value));
 		_editor.send(DeviceApi.frame());
 	}
 
-	private void on_level_autosave_value_changed()
+	public void on_level_autosave_value_changed()
 	{
 		var app = (LevelEditorApplication)GLib.Application.get_default();
 		app.set_autosave_timer((uint)_level_autosave_spin_button.value);

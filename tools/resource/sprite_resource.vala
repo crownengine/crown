@@ -587,7 +587,7 @@ public class SpriteImportDialog : Gtk.Window
 		}
 	}
 
-	private bool on_map_event(Gdk.EventAny ev)
+	public bool on_map_event(Gdk.EventAny ev)
 	{
 		_unit_name.grab_focus();
 		return Gdk.EVENT_PROPAGATE;
@@ -704,7 +704,7 @@ public class SpriteImportDialog : Gtk.Window
 		return obj;
 	}
 
-	private void on_import()
+	public void on_import()
 	{
 		_import_result(SpriteResource.do_import(this, _project, _destination_dir, _filenames));
 		close();

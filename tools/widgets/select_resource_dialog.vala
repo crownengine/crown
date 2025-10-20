@@ -48,18 +48,18 @@ public class SelectResourceDialog : Gtk.Window
 		this.add(_chooser);
 	}
 
-	private bool on_close()
+	public bool on_close()
 	{
 		this.hide();
 		return Gdk.EVENT_STOP;
 	}
 
-	private bool on_resource_chooser_filter(string type, string name)
+	public bool on_resource_chooser_filter(string type, string name)
 	{
 		return _resource_type == type;
 	}
 
-	private void on_resource_chooser_resource_selected(string type, string name)
+	public void on_resource_chooser_resource_selected(string type, string name)
 	{
 		resource_selected(type, name);
 	}

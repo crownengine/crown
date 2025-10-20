@@ -81,7 +81,7 @@ public class InputQuaternion : InputField, Gtk.Box
 		this.pack_start(_z, true);
 	}
 
-	private void on_value_changed(InputField p)
+	public void on_value_changed(InputField p)
 	{
 		double x = MathUtils.rad((double)_x.value);
 		double y = MathUtils.rad((double)_y.value);

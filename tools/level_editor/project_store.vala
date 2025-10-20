@@ -221,7 +221,7 @@ public class ProjectStore
 		}
 	}
 
-	private Gtk.TreeIter make_tree_internal(string folder, int start_index, Gtk.TreeRowReference parent)
+	public Gtk.TreeIter make_tree_internal(string folder, int start_index, Gtk.TreeRowReference parent)
 	{
 		// Folder can be:
 		// "", root folder
@@ -281,7 +281,7 @@ public class ProjectStore
 		}
 	}
 
-	private Gtk.TreeIter find_or_make_tree(string folder)
+	public Gtk.TreeIter find_or_make_tree(string folder)
 	{
 		if (_folders.has_key(folder)) {
 			Gtk.TreeIter iter;
@@ -292,7 +292,7 @@ public class ProjectStore
 		return make_tree_internal(folder, 0, _folders[ROOT_FOLDER]);
 	}
 
-	private void on_project_file_added(string type, string name, uint64 size, uint64 mtime)
+	public void on_project_file_added(string type, string name, uint64 size, uint64 mtime)
 	{
 		string parent_folder = ResourceId.parent_folder(name);
 
@@ -329,7 +329,7 @@ public class ProjectStore
 			);
 	}
 
-	private void on_project_file_changed(string type, string name, uint64 size, uint64 mtime)
+	public void on_project_file_changed(string type, string name, uint64 size, uint64 mtime)
 	{
 		string parent_folder = ResourceId.parent_folder(name);
 		Gtk.TreeIter child;
@@ -400,7 +400,7 @@ public class ProjectStore
 		}
 	}
 
-	private void on_project_file_removed(string type, string name)
+	public void on_project_file_removed(string type, string name)
 	{
 		string parent_folder = ResourceId.parent_folder(name);
 		Gtk.TreeIter child;
@@ -449,7 +449,7 @@ public class ProjectStore
 		}
 	}
 
-	private void on_project_tree_added(string name)
+	public void on_project_tree_added(string name)
 	{
 		Gtk.TreeIter iter;
 		_list_store.insert_with_values(out iter
@@ -470,7 +470,7 @@ public class ProjectStore
 		find_or_make_tree(name);
 	}
 
-	private void on_project_tree_removed(string name)
+	public void on_project_tree_removed(string name)
 	{
 		if (name == ROOT_FOLDER)
 			return;
@@ -516,7 +516,7 @@ public class ProjectStore
 		_folders.unset(name);
 	}
 
-	private void on_project_reset()
+	public void on_project_reset()
 	{
 		reset();
 	}

@@ -57,7 +57,7 @@ public class InputAngle : InputField, Gtk.Box
 		this.pack_start(_degrees, true);
 	}
 
-	private void on_value_changed(InputField p)
+	public void on_value_changed(InputField p)
 	{
 		double new_radians = MathUtils.rad((double)_degrees.value);
 

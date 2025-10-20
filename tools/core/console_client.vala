@@ -8,7 +8,7 @@ namespace Crown
 /// Manages communication with engine executable.
 public class ConsoleClient : GLib.Object
 {
-	private SocketConnection _connection;
+	public SocketConnection _connection;
 
 	// Signals
 	public signal void connected(string address, int port);
@@ -85,7 +85,7 @@ public class ConsoleClient : GLib.Object
 		_connection.input_stream.read_bytes_async.begin(4, GLib.Priority.DEFAULT, null, on_read);
 	}
 
-	private void on_read(Object? obj, AsyncResult ar)
+	public void on_read(Object? obj, AsyncResult ar)
 	{
 		try {
 			InputStream input_stream = (InputStream)obj;

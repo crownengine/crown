@@ -34,7 +34,7 @@ public class EntrySearch : Gtk.Box
 		_entry.set_placeholder_text(text);
 	}
 
-	private bool on_focus_in(Gdk.EventFocus ev)
+	public bool on_focus_in(Gdk.EventFocus ev)
 	{
 		var app = (LevelEditorApplication)GLib.Application.get_default();
 		app.entry_any_focus_in(_entry);
@@ -42,7 +42,7 @@ public class EntrySearch : Gtk.Box
 		return Gdk.EVENT_PROPAGATE;
 	}
 
-	private bool on_focus_out(Gdk.EventFocus ef)
+	public bool on_focus_out(Gdk.EventFocus ef)
 	{
 		var app = (LevelEditorApplication)GLib.Application.get_default();
 		app.entry_any_focus_out(_entry);

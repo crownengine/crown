@@ -33,7 +33,7 @@ public class TextureSettingsDialog : Gtk.Window
 
 	public signal void texture_saved();
 
-	private void text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
+	public void text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
 		Value? platform;
 		model.get_value(iter, 0, out platform);

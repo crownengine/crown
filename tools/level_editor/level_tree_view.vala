@@ -7,7 +7,7 @@ namespace Crown
 {
 public class LevelTreeView : Gtk.Box
 {
-	private enum ItemType
+	public enum ItemType
 	{
 		FOLDER,
 		CAMERA,
@@ -16,7 +16,7 @@ public class LevelTreeView : Gtk.Box
 		UNIT
 	}
 
-	private enum Column
+	public enum Column
 	{
 		TYPE,
 		GUID,
@@ -54,24 +54,24 @@ public class LevelTreeView : Gtk.Box
 	}
 
 	// Data
-	private Level _level;
-	private Database _db;
+	public Level _level;
+	public Database _db;
 
 	// Widgets
-	private string _needle;
-	private EntrySearch _filter_entry;
-	private Gtk.TreeStore _tree_store;
-	private Gtk.TreeModelFilter _tree_filter;
-	private Gtk.TreeModelSort _tree_sort;
-	private Gtk.TreeView _tree_view;
-	private Gtk.TreeSelection _tree_selection;
-	private Gtk.ScrolledWindow _scrolled_window;
-	private Gtk.Box _sort_items_box;
-	private Gtk.Popover _sort_items_popover;
-	private Gtk.MenuButton _sort_items;
-	private Gtk.GestureMultiPress _gesture_click;
-	private Gtk.TreeRowReference _units_root;
-	private Gtk.TreeRowReference _sounds_root;
+	public string _needle;
+	public EntrySearch _filter_entry;
+	public Gtk.TreeStore _tree_store;
+	public Gtk.TreeModelFilter _tree_filter;
+	public Gtk.TreeModelSort _tree_sort;
+	public Gtk.TreeView _tree_view;
+	public Gtk.TreeSelection _tree_selection;
+	public Gtk.ScrolledWindow _scrolled_window;
+	public Gtk.Box _sort_items_box;
+	public Gtk.Popover _sort_items_popover;
+	public Gtk.MenuButton _sort_items;
+	public Gtk.GestureMultiPress _gesture_click;
+	public Gtk.TreeRowReference _units_root;
+	public Gtk.TreeRowReference _sounds_root;
 
 	public LevelTreeView(Database db, Level level)
 	{
@@ -184,7 +184,7 @@ public class LevelTreeView : Gtk.Box
 		this.pack_start(_scrolled_window, true, true, 0);
 	}
 
-	private void on_button_pressed(int n_press, double x, double y)
+	public void on_button_pressed(int n_press, double x, double y)
 	{
 		if (_gesture_click.get_current_button() == Gdk.BUTTON_SECONDARY) {
 			int bx;
@@ -261,7 +261,7 @@ public class LevelTreeView : Gtk.Box
 		}
 	}
 
-	private void on_tree_selection_changed()
+	public void on_tree_selection_changed()
 	{
 		_level.selection_changed.disconnect(on_level_selection_changed);
 
@@ -281,7 +281,7 @@ public class LevelTreeView : Gtk.Box
 		_level.selection_changed.connect(on_level_selection_changed);
 	}
 
-	private void on_level_selection_changed(Gee.ArrayList<Guid?> selection)
+	public void on_level_selection_changed(Gee.ArrayList<Guid?> selection)
 	{
 		_tree_selection.changed.disconnect(on_tree_selection_changed);
 		_tree_selection.unselect_all();
@@ -346,7 +346,7 @@ public class LevelTreeView : Gtk.Box
 		}
 	}
 
-	private ItemType item_type(Unit u)
+	public ItemType item_type(Unit u)
 	{
 		if (u.is_light())
 			return ItemType.LIGHT;
@@ -549,7 +549,7 @@ public class LevelTreeView : Gtk.Box
 		}
 	}
 
-	private void remove_item(Guid id, Gtk.TreeIter parent_iter)
+	public void remove_item(Guid id, Gtk.TreeIter parent_iter)
 	{
 		Gtk.TreeIter child;
 
@@ -569,7 +569,7 @@ public class LevelTreeView : Gtk.Box
 		}
 	}
 
-	private Gtk.RadioButton add_sort_item(Gtk.RadioButton? group, SortMode mode)
+	public Gtk.RadioButton add_sort_item(Gtk.RadioButton? group, SortMode mode)
 	{
 		var button = new Gtk.RadioButton.with_label_from_widget(group, mode.to_label());
 		button.toggled.connect(() => {

@@ -7,7 +7,7 @@ namespace Crown
 {
 public class InputColor3 : Gtk.Box, InputField
 {
-	private Gtk.ColorButton _color_button;
+	public Gtk.ColorButton _color_button;
 
 	public void set_inconsistent(bool inconsistent)
 	{
@@ -52,7 +52,7 @@ public class InputColor3 : Gtk.Box, InputField
 		this.pack_start(_color_button);
 	}
 
-	private void on_color_set()
+	public void on_color_set()
 	{
 		value_changed(this);
 	}

@@ -68,7 +68,7 @@ public class Expander : Gtk.Box
 		}
 	}
 
-	private void on_header_button_pressed(int n_press, double x, double y)
+	public void on_header_button_pressed(int n_press, double x, double y)
 	{
 		uint button = _gesture_click.get_current_button();
 

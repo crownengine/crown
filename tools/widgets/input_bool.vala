@@ -45,7 +45,7 @@ public class InputBool : InputField, Gtk.CheckButton
 		this.toggled.connect(on_value_changed);
 	}
 
-	private void on_value_changed()
+	public void on_value_changed()
 	{
 		if (base.get_inconsistent()) {
 			base.set_inconsistent(false);

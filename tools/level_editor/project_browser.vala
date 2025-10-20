@@ -10,7 +10,7 @@ public const Gtk.TargetEntry[] dnd_targets =
 	{ "RESOURCE_PATH", Gtk.TargetFlags.SAME_APP, 0 },
 };
 
-private string project_path(string type, string name)
+public string project_path(string type, string name)
 {
 	if (type == "<folder>")
 		return name;
@@ -19,7 +19,7 @@ private string project_path(string type, string name)
 }
 
 // Menu to open when clicking on project's files and folders.
-private GLib.Menu? project_entry_menu_create(string type, string name)
+public GLib.Menu? project_entry_menu_create(string type, string name)
 {
 	GLib.Menu menu = new GLib.Menu();
 	GLib.MenuItem mi;
@@ -116,7 +116,7 @@ private GLib.Menu? project_entry_menu_create(string type, string name)
 }
 
 // Menu to open when clicking on favorites' entries.
-private GLib.Menu? favorites_entry_menu_create(string type, string name)
+public GLib.Menu? favorites_entry_menu_create(string type, string name)
 {
 	GLib.Menu menu = new GLib.Menu();
 	GLib.MenuItem mi;
@@ -149,7 +149,7 @@ private GLib.Menu? favorites_entry_menu_create(string type, string name)
 	return menu;
 }
 
-private void set_thumbnail(Gtk.CellRenderer cell, string type, string name, int icon_size, ThumbnailCache thumbnail_cache)
+public void set_thumbnail(Gtk.CellRenderer cell, string type, string name, int icon_size, ThumbnailCache thumbnail_cache)
 {
 	// https://specifications.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html
 	if (type == "<folder>")
@@ -365,7 +365,7 @@ public class ProjectFolderView : Gtk.Box
 		_browse_mode = BrowseMode.REGULAR;
 	}
 
-	private void on_drag_data_get(Gdk.DragContext context, Gtk.SelectionData data, uint info, uint time_)
+	public void on_drag_data_get(Gdk.DragContext context, Gtk.SelectionData data, uint info, uint time_)
 	{
 		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_data_get.html
 		Gtk.TreePath path;
@@ -380,19 +380,19 @@ public class ProjectFolderView : Gtk.Box
 		data.set(Gdk.Atom.intern_static_string("RESOURCE_PATH"), 8, resource_path.data);
 	}
 
-	private void on_drag_begin(Gdk.DragContext context)
+	public void on_drag_begin(Gdk.DragContext context)
 	{
 		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_begin.html
 		Gtk.drag_set_icon_pixbuf(context, _empty_pixbuf, 0, 0);
 	}
 
-	private void on_drag_end(Gdk.DragContext context)
+	public void on_drag_end(Gdk.DragContext context)
 	{
 		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_end.html
 		GLib.Application.get_default().activate_action("cancel-place", null);
 	}
 
-	private void on_drag_data_received(Gdk.DragContext context, int x, int y, Gtk.SelectionData selection_data, uint info, uint time_)
+	public void on_drag_data_received(Gdk.DragContext context, int x, int y, Gtk.SelectionData selection_data, uint info, uint time_)
 	{
 		if (_browse_mode == BrowseMode.SEARCH || !_showing_project_folder) {
 			Gtk.drag_finish(context, true, false, time_);
@@ -424,7 +424,7 @@ public class ProjectFolderView : Gtk.Box
 		Gtk.drag_finish(context, true, false, time_);
 	}
 
-	private bool on_button_pressed(uint button, int n_press, double x, double y)
+	public bool on_button_pressed(uint button, int n_press, double x, double y)
 	{
 		Gtk.TreePath? path = path_at_pos((int)x, (int)y);
 
@@ -486,7 +486,7 @@ public class ProjectFolderView : Gtk.Box
 		return Gdk.EVENT_PROPAGATE;
 	}
 
-	private void icon_view_pixbuf_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
+	public void icon_view_pixbuf_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
 		Value val;
 		string type;
@@ -499,7 +499,7 @@ public class ProjectFolderView : Gtk.Box
 		set_thumbnail(cell, type, name, 64, _thumbnail_cache);
 	}
 
-	private void icon_view_text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
+	public void icon_view_text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
 		Value type;
 		Value name;
@@ -512,7 +512,7 @@ public class ProjectFolderView : Gtk.Box
 			cell.set_property("text", GLib.Path.get_basename((string)name));
 	}
 
-	private void list_view_pixbuf_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
+	public void list_view_pixbuf_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
 		Value val;
 		string type;
@@ -525,7 +525,7 @@ public class ProjectFolderView : Gtk.Box
 		set_thumbnail(cell, type, name, 32, _thumbnail_cache);
 	}
 
-	private void list_view_basename_text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
+	public void list_view_basename_text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
 		Value name;
 		model.get_value(iter, ProjectStore.Column.NAME, out name);
@@ -536,7 +536,7 @@ public class ProjectFolderView : Gtk.Box
 			cell.set_property("text", GLib.Path.get_basename((string)name));
 	}
 
-	private void list_view_type_text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
+	public void list_view_type_text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
 		Value type;
 		model.get_value(iter, ProjectStore.Column.TYPE, out type);
@@ -544,7 +544,7 @@ public class ProjectFolderView : Gtk.Box
 		cell.set_property("text", prettify_type((string)type));
 	}
 
-	private void list_view_size_text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
+	public void list_view_size_text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
 		Value val;
 		model.get_value(iter, ProjectStore.Column.SIZE, out val);
@@ -556,7 +556,7 @@ public class ProjectFolderView : Gtk.Box
 			cell.set_property("text", "n/a");
 	}
 
-	private void list_view_mtime_text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
+	public void list_view_mtime_text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
 		Value type;
 		model.get_value(iter, ProjectStore.Column.MTIME, out type);
@@ -568,7 +568,7 @@ public class ProjectFolderView : Gtk.Box
 			cell.set_property("text", "n/a");
 	}
 
-	private void list_view_name_text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
+	public void list_view_name_text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
 		Value name;
 		model.get_value(iter, ProjectStore.Column.NAME, out name);
@@ -635,7 +635,7 @@ public class ProjectFolderView : Gtk.Box
 		}
 	}
 
-	private bool on_icon_view_query_tooltip(int x, int y, bool keyboard_tooltip, Gtk.Tooltip tooltip)
+	public bool on_icon_view_query_tooltip(int x, int y, bool keyboard_tooltip, Gtk.Tooltip tooltip)
 	{
 		int bx;
 		int by;
@@ -662,7 +662,7 @@ public class ProjectFolderView : Gtk.Box
 		return true;
 	}
 
-	private static string prettify_type(string type)
+	public static string prettify_type(string type)
 	{
 		if (type == "<folder>")
 			return "Folder";
@@ -670,7 +670,7 @@ public class ProjectFolderView : Gtk.Box
 			return type;
 	}
 
-	private static string prettify_size(uint64 size)
+	public static string prettify_size(uint64 size)
 	{
 		uint64 si_size;
 		string si_unit;
@@ -692,14 +692,14 @@ public class ProjectFolderView : Gtk.Box
 		return "%d %s".printf((int)si_size, si_unit);
 	}
 
-	private static string prettify_time(uint64 time)
+	public static string prettify_time(uint64 time)
 	{
 		int64 mtime_secs = (int64)(time / (1000*1000*1000));
 		GLib.DateTime date_time = new GLib.DateTime.from_unix_local(mtime_secs);
 		return date_time.format("%d %b %Y; %H:%M:%S");
 	}
 
-	private Gtk.TreePath? path_at_pos(int x, int y)
+	public Gtk.TreePath? path_at_pos(int x, int y)
 	{
 		Gtk.TreePath? path = null;
 		if (_stack.get_visible_child() == _icon_view_window) {
@@ -738,7 +738,7 @@ public class ProjectFolderView : Gtk.Box
 		}
 	}
 
-	private void resource_info_at_path(out uint64 size, out uint64 mtime, Gtk.TreePath? path)
+	public void resource_info_at_path(out uint64 size, out uint64 mtime, Gtk.TreePath? path)
 	{
 		if (path == null) {
 			size = 0;
@@ -767,7 +767,7 @@ public class ProjectFolderView : Gtk.Box
 		_browse_mode = mode;
 	}
 
-	private Gtk.TreePath path_and_model(out Gtk.TreeModel model, Gtk.TreePath? path)
+	public Gtk.TreePath path_and_model(out Gtk.TreeModel model, Gtk.TreePath? path)
 	{
 		model = _list_store;
 		return path;
@@ -1251,7 +1251,7 @@ public class ProjectBrowser : Gtk.Box
 		_filter_entry_tree.set_visible(!_show_folder_view);
 	}
 
-	private void on_drag_data_get(Gdk.DragContext context, Gtk.SelectionData data, uint info, uint time_)
+	public void on_drag_data_get(Gdk.DragContext context, Gtk.SelectionData data, uint info, uint time_)
 	{
 		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_data_get.html
 		Gtk.TreeModel selected_model;
@@ -1271,13 +1271,13 @@ public class ProjectBrowser : Gtk.Box
 		data.set(Gdk.Atom.intern_static_string("RESOURCE_PATH"), 8, resource_path.data);
 	}
 
-	private void on_drag_begin(Gdk.DragContext context)
+	public void on_drag_begin(Gdk.DragContext context)
 	{
 		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_begin.html
 		Gtk.drag_set_icon_pixbuf(context, _empty_pixbuf, 0, 0);
 	}
 
-	private void on_drag_end(Gdk.DragContext context)
+	public void on_drag_end(Gdk.DragContext context)
 	{
 		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_end.html
 		GLib.Application.get_default().activate_action("cancel-place", null);
@@ -1353,7 +1353,7 @@ public class ProjectBrowser : Gtk.Box
 		_folder_view.select_resource(type, name);
 	}
 
-	private void on_open_directory(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_open_directory(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		string dir_name = param.get_string();
 
@@ -1376,7 +1376,7 @@ public class ProjectBrowser : Gtk.Box
 		}
 	}
 
-	private void on_favorite_resource(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_favorite_resource(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		string type = (string)param.get_child_value(0);
 		string name = (string)param.get_child_value(1);
@@ -1384,7 +1384,7 @@ public class ProjectBrowser : Gtk.Box
 		_project_store.add_to_favorites(type, name);
 	}
 
-	private void on_unfavorite_resource(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_unfavorite_resource(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		string type = (string)param.get_child_value(0);
 		string name = (string)param.get_child_value(1);
@@ -1392,7 +1392,7 @@ public class ProjectBrowser : Gtk.Box
 		_project_store.remove_from_favorites(type, name);
 	}
 
-	private void on_button_pressed(int n_press, double x, double y)
+	public void on_button_pressed(int n_press, double x, double y)
 	{
 		int bx;
 		int by;
@@ -1447,7 +1447,7 @@ public class ProjectBrowser : Gtk.Box
 		return;
 	}
 
-	private void update_folder_view()
+	public void update_folder_view()
 	{
 		_folder_list_store.clear();
 		_folder_view._list_store.clear();
@@ -1690,7 +1690,7 @@ public class ProjectBrowser : Gtk.Box
 		_tree_selection.select_path(sort_path);
 	}
 
-	private void pixbuf_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
+	public void pixbuf_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
 		Value val;
 		string type;
@@ -1703,7 +1703,7 @@ public class ProjectBrowser : Gtk.Box
 		set_thumbnail(cell, type, name, 16, _thumbnail_cache);
 	}
 
-	private void text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
+	public void text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
 		Value name;
 		Value type;
@@ -1724,7 +1724,7 @@ public class ProjectBrowser : Gtk.Box
 		}
 	}
 
-	private Gtk.RadioButton add_sort_item(Gtk.RadioButton? group, SortMode mode)
+	public Gtk.RadioButton add_sort_item(Gtk.RadioButton? group, SortMode mode)
 	{
 		var button = new Gtk.RadioButton.with_label_from_widget(group, mode.to_label());
 		button.toggled.connect(() => {
@@ -1736,7 +1736,7 @@ public class ProjectBrowser : Gtk.Box
 		return button;
 	}
 
-	private bool save_tree_state(Gtk.TreeModel model, Gtk.TreePath path, Gtk.TreeIter iter)
+	public bool save_tree_state(Gtk.TreeModel model, Gtk.TreePath path, Gtk.TreeIter iter)
 	{
 		Gtk.TreePath filter_path = _tree_filter.convert_child_path_to_path(path);
 		if (filter_path == null) {
@@ -1777,7 +1777,7 @@ public class ProjectBrowser : Gtk.Box
 		return false; // Continue iterating.
 	}
 
-	private bool restore_tree_state(Gtk.TreeModel model, Gtk.TreePath path, Gtk.TreeIter iter)
+	public bool restore_tree_state(Gtk.TreeModel model, Gtk.TreePath path, Gtk.TreeIter iter)
 	{
 		uint32 user_data;
 		Value val;

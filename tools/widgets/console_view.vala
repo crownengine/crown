@@ -7,7 +7,7 @@ namespace Crown
 {
 public class CounterLabel : Gtk.Box
 {
-	private Gtk.Label _label;
+	public Gtk.Label _label;
 
 	public CounterLabel()
 	{
@@ -31,7 +31,7 @@ public class CounterLabel : Gtk.Box
 		_label.set_markup(str);
 	}
 
-	protected override void get_preferred_height(out int minimum_height, out int natural_height)
+	public override void get_preferred_height(out int minimum_height, out int natural_height)
 	{
 		// FIXME: Find a proper way to position/size labels inside Gtk.TextView.
 		// Make Gtk.Label think it only needs 16px vertical to show its text.
@@ -235,7 +235,7 @@ public class ConsoleView : Gtk.Box
 		};
 	}
 
-	private void on_entry_activated()
+	public void on_entry_activated()
 	{
 		string text = _entry.text;
 		text = text.strip();
@@ -267,7 +267,7 @@ public class ConsoleView : Gtk.Box
 		_entry.text = "";
 	}
 
-	private bool on_entry_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)
+	public bool on_entry_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)
 	{
 		if (keyval == Gdk.Key.Down) {
 			if (_distance > 1) {
@@ -292,12 +292,12 @@ public class ConsoleView : Gtk.Box
 		return Gdk.EVENT_PROPAGATE;
 	}
 
-	private void on_destroy()
+	public void on_destroy()
 	{
 		_console_view_valid = false;
 	}
 
-	private void on_button_pressed(int n_press, double x, double y)
+	public void on_button_pressed(int n_press, double x, double y)
 	{
 		uint button = _text_view_gesture_click.get_current_button();
 
@@ -357,7 +357,7 @@ public class ConsoleView : Gtk.Box
 		}
 	}
 
-	private void on_button_released(int n_press, double x, double y)
+	public void on_button_released(int n_press, double x, double y)
 	{
 		uint button = _text_view_gesture_click.get_current_button();
 
@@ -400,7 +400,7 @@ public class ConsoleView : Gtk.Box
 		}
 	}
 
-	private void on_motion_notify(double x, double y)
+	public void on_motion_notify(double x, double y)
 	{
 		bool hovering = false;
 
@@ -612,7 +612,7 @@ public class ConsoleView : Gtk.Box
 		_mutex.unlock();
 	}
 
-	private void scroll_to_bottom()
+	public void scroll_to_bottom()
 	{
 		// Line height is computed in an idle handler, wait a bit before scrolling to bottom.
 		// See: https://valadoc.org/gtk+-3.0/Gtk.TextView.scroll_to_iter.html
@@ -630,7 +630,7 @@ public class ConsoleView : Gtk.Box
 			});
 	}
 
-	private void update_style()
+	public void update_style()
 	{
 		Gtk.TextBuffer tb = _text_view.buffer;
 		Gtk.TextTag tag_warning = tb.tag_table.lookup("warning");

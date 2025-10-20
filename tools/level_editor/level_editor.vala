@@ -177,12 +177,12 @@ public class RuntimeInstance
 		_client.message_received.connect(on_client_message_received);
 	}
 
-	private void on_client_connected(string address, int port)
+	public void on_client_connected(string address, int port)
 	{
 		connected(this, address, port);
 	}
 
-	private void on_client_disconnected()
+	public void on_client_disconnected()
 	{
 		disconnected(this);
 
@@ -190,7 +190,7 @@ public class RuntimeInstance
 			_stop_callback();
 	}
 
-	private void on_client_disconnected_unexpected()
+	public void on_client_disconnected_unexpected()
 	{
 		disconnected_unexpected(this);
 
@@ -204,7 +204,7 @@ public class RuntimeInstance
 		}
 	}
 
-	private void on_client_message_received(ConsoleClient client, uint8[] json)
+	public void on_client_message_received(ConsoleClient client, uint8[] json)
 	{
 		message_received(this, client, json);
 	}
@@ -321,7 +321,7 @@ Gtk.Stack make_compiler_stack(Gtk.Widget child)
 
 public class LevelEditorWindow : Gtk.ApplicationWindow
 {
-	private const GLib.ActionEntry[] action_entries =
+	public const GLib.ActionEntry[] action_entries =
 	{
 		{ "fullscreen", on_fullscreen, null, null }
 	};
@@ -344,7 +344,7 @@ public class LevelEditorWindow : Gtk.ApplicationWindow
 		this.set_default_size(WINDOW_DEFAULT_WIDTH, WINDOW_DEFAULT_HEIGHT);
 	}
 
-	private void on_fullscreen(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_fullscreen(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		if (_fullscreen)
 			unfullscreen();
@@ -352,13 +352,13 @@ public class LevelEditorWindow : Gtk.ApplicationWindow
 			fullscreen();
 	}
 
-	private bool on_window_state_event(Gdk.EventWindowState ev)
+	public bool on_window_state_event(Gdk.EventWindowState ev)
 	{
 		_fullscreen = (ev.new_window_state & Gdk.WindowState.FULLSCREEN) != 0;
 		return Gdk.EVENT_PROPAGATE;
 	}
 
-	private bool on_delete_event()
+	public bool on_delete_event()
 	{
 		GLib.Application.get_default().activate_action("quit", null);
 		return Gdk.EVENT_STOP; // Keep window alive.
@@ -417,7 +417,7 @@ public enum StartGame
 
 public class LevelEditorApplication : Gtk.Application
 {
-	private const GLib.ActionEntry[] action_entries_file =
+	public const GLib.ActionEntry[] action_entries_file =
 	{
 		//                                        parameter type
 		// name                activate()         |        state
@@ -443,7 +443,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "copy-name",         on_copy_name,      "s",     null }
 	};
 
-	private const GLib.ActionEntry[] action_entries_edit =
+	public const GLib.ActionEntry[] action_entries_edit =
 	{
 		{ "menu-edit",          null,                  null,   null    },
 		{ "undo",               on_undo,               null,   null    },
@@ -464,7 +464,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "rotation-snap-size", on_rotation_snap_size, "i",    "15"    }
 	};
 
-	private const GLib.ActionEntry[] action_entries_create =
+	public const GLib.ActionEntry[] action_entries_create =
 	{
 		{ "menu-create",        null,               null, null },
 		{ "menu-primitives",    null,               null, null },
@@ -480,7 +480,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "shading-environment",on_spawn_unit,      null, null },
 	};
 
-	private const GLib.ActionEntry[] action_entries_camera =
+	public const GLib.ActionEntry[] action_entries_camera =
 	{
 		{ "menu-camera",           null,                     null, null },
 		{ "camera-view",           on_camera_view,           "i",  "0"  }, // See: Crown.CameraViewType
@@ -488,7 +488,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "camera-frame-all",      on_camera_frame_all,      null, null }
 	};
 
-	private const GLib.ActionEntry[] action_entries_view =
+	public const GLib.ActionEntry[] action_entries_view =
 	{
 		{ "menu-view",           null,                   null, null    },
 		{ "project-browser",     on_project_browser,     null, null    },
@@ -499,7 +499,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "debug-physics-world", on_debug_physics_world, null, "false" }
 	};
 
-	private const GLib.ActionEntry[] action_entries_debug =
+	public const GLib.ActionEntry[] action_entries_debug =
 	{
 		{ "menu-debug",          null,                   null, null },
 		{ "test-level",          on_run_game,            null, null },
@@ -510,7 +510,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "restart-editor-view", on_restart_editor_view, null, null }
 	};
 
-	private const GLib.ActionEntry[] action_entries_help =
+	public const GLib.ActionEntry[] action_entries_help =
 	{
 		{ "menu-help",    null,            null, null },
 		{ "manual",       on_manual,       null, null },
@@ -521,7 +521,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "credits",      on_credits,      null, null }
 	};
 
-	private const GLib.ActionEntry[] action_entries_project =
+	public const GLib.ActionEntry[] action_entries_project =
 	{
 		{ "delete-file",          on_delete_file,          "s",     null },
 		{ "delete-directory",     on_delete_directory,     "s",     null },
@@ -535,7 +535,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "reveal-resource",      on_reveal,               "(ss)",  null }
 	};
 
-	private const GLib.ActionEntry[] action_entries_package =
+	public const GLib.ActionEntry[] action_entries_package =
 	{
 		{ "create-package-android", on_create_package_android, "(sississsssi)", null },
 		{ "create-package-html5",   on_create_package_html5,   "(sis)",         null },
@@ -543,7 +543,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "create-package-windows", on_create_package_windows, "(sis)",         null }
 	};
 
-	private const GLib.ActionEntry[] action_entries_unit =
+	public const GLib.ActionEntry[] action_entries_unit =
 	{
 		{ "unit-add-component",    on_unit_add_component,    "s",    null },
 		{ "unit-remove-component", on_unit_remove_component, "s",    null },
@@ -551,97 +551,97 @@ public class LevelEditorApplication : Gtk.Application
 	};
 
 	// Command line options
-	private uint _launcher_watch_id;
-	private string? _source_dir = null;
-	private string _level_resource = "";
-	private User _user;
-	private Hashtable _settings;
-	private Hashtable _window_state;
+	public uint _launcher_watch_id;
+	public string? _source_dir = null;
+	public string _level_resource = "";
+	public User _user;
+	public Hashtable _settings;
+	public Hashtable _window_state;
 
 	// Editor state
-	private double _grid_size;
-	private double _rotation_snap;
-	private bool _show_grid;
-	private bool _snap_to_grid;
-	private bool _debug_render_world;
-	private bool _debug_physics_world;
-	private ToolType _tool_type;
-	private ToolType _tool_type_prev;
-	private SnapMode _snap_mode;
-	private ReferenceSystem _reference_system;
+	public double _grid_size;
+	public double _rotation_snap;
+	public bool _show_grid;
+	public bool _snap_to_grid;
+	public bool _debug_render_world;
+	public bool _debug_physics_world;
+	public ToolType _tool_type;
+	public ToolType _tool_type_prev;
+	public SnapMode _snap_mode;
+	public ReferenceSystem _reference_system;
 
 	// Project state
-	private string _placeable_type;
-	private string _placeable_name;
+	public string _placeable_type;
+	public string _placeable_name;
 
 	// Accelerators
-	private string[] _tool_place_accels;
-	private string[] _tool_move_accels;
-	private string[] _tool_rotate_accels;
-	private string[] _tool_scale_accels;
-	private string[] _delete_accels;
-	private string[] _camera_view_perspective_accels;
-	private string[] _camera_view_front_accels;
-	private string[] _camera_view_back_accels;
-	private string[] _camera_view_right_accels;
-	private string[] _camera_view_left_accels;
-	private string[] _camera_view_top_accels;
-	private string[] _camera_view_bottom_accels;
-	private string[] _camera_frame_selected_accels;
-	private string[] _camera_frame_all_accels;
+	public string[] _tool_place_accels;
+	public string[] _tool_move_accels;
+	public string[] _tool_rotate_accels;
+	public string[] _tool_scale_accels;
+	public string[] _delete_accels;
+	public string[] _camera_view_perspective_accels;
+	public string[] _camera_view_front_accels;
+	public string[] _camera_view_back_accels;
+	public string[] _camera_view_right_accels;
+	public string[] _camera_view_left_accels;
+	public string[] _camera_view_top_accels;
+	public string[] _camera_view_bottom_accels;
+	public string[] _camera_frame_selected_accels;
+	public string[] _camera_frame_all_accels;
 
 	// Engine connections
-	private RuntimeInstance _compiler;
+	public RuntimeInstance _compiler;
 	public RuntimeInstance _editor;
-	private RuntimeInstance _game;
-	private RuntimeInstance _thumbnail;
+	public RuntimeInstance _game;
+	public RuntimeInstance _thumbnail;
 
 	// Level data
-	private UndoRedo _undo_redo;
-	private Database _database;
-	private Project _project;
-	private ProjectStore _project_store;
-	private Level _level;
-	private DataCompiler _data_compiler;
+	public UndoRedo _undo_redo;
+	public Database _database;
+	public Project _project;
+	public ProjectStore _project_store;
+	public Level _level;
+	public DataCompiler _data_compiler;
 
 	// Widgets
-	private Gtk.CssProvider _css_provider;
-	private ProjectBrowser _project_browser;
-	private EditorViewport _editor_viewport;
-	private LevelTreeView _level_treeview;
-	private LevelLayersTreeView _level_layers_treeview;
-	private PropertiesView _properties_view;
-	private PreferencesDialog _preferences_dialog;
-	private DeployDialog _deploy_dialog;
-	private TextureSettingsDialog _texture_settings_dialog;
-	private ThumbnailCache _thumbnail_cache;
+	public Gtk.CssProvider _css_provider;
+	public ProjectBrowser _project_browser;
+	public EditorViewport _editor_viewport;
+	public LevelTreeView _level_treeview;
+	public LevelLayersTreeView _level_layers_treeview;
+	public PropertiesView _properties_view;
+	public PreferencesDialog _preferences_dialog;
+	public DeployDialog _deploy_dialog;
+	public TextureSettingsDialog _texture_settings_dialog;
+	public ThumbnailCache _thumbnail_cache;
 
-	private Gtk.Stack _project_stack;
-	private Gtk.Stack _editor_stack;
-	private Gtk.Stack _inspector_stack;
+	public Gtk.Stack _project_stack;
+	public Gtk.Stack _editor_stack;
+	public Gtk.Stack _inspector_stack;
 
-	private Toolbar _toolbar;
-	private Gtk.Image _game_run_stop_image;
-	private Gtk.Button _game_run;
-	private Gtk.Notebook _level_tree_view_notebook;
-	private Gtk.Notebook _console_notebook;
-	private Gtk.Notebook _project_notebook;
-	private Gtk.Notebook _inspector_notebook;
-	private Gtk.Paned _editor_pane;
-	private Gtk.Paned _content_pane;
-	private Gtk.Paned _inspector_pane;
-	private Gtk.Paned _main_pane;
-	private Statusbar _statusbar;
-	private Gtk.Box _main_vbox;
-	private Gtk.FileFilter _file_filter;
-	private Gtk.ComboBoxText _combo;
-	private PanelNewProject _panel_new_project;
-	private PanelProjectsList _panel_projects_list;
-	private PanelWelcome _panel_welcome;
-	private Gtk.Stack _main_stack;
-	private Gtk.HeaderBar _header_bar;
+	public Toolbar _toolbar;
+	public Gtk.Image _game_run_stop_image;
+	public Gtk.Button _game_run;
+	public Gtk.Notebook _level_tree_view_notebook;
+	public Gtk.Notebook _console_notebook;
+	public Gtk.Notebook _project_notebook;
+	public Gtk.Notebook _inspector_notebook;
+	public Gtk.Paned _editor_pane;
+	public Gtk.Paned _content_pane;
+	public Gtk.Paned _inspector_pane;
+	public Gtk.Paned _main_pane;
+	public Statusbar _statusbar;
+	public Gtk.Box _main_vbox;
+	public Gtk.FileFilter _file_filter;
+	public Gtk.ComboBoxText _combo;
+	public PanelNewProject _panel_new_project;
+	public PanelProjectsList _panel_projects_list;
+	public PanelWelcome _panel_welcome;
+	public Gtk.Stack _main_stack;
+	public Gtk.HeaderBar _header_bar;
 
-	private uint _save_timer_id;
+	public uint _save_timer_id;
 
 	public LevelEditorApplication()
 	{
@@ -677,7 +677,7 @@ public class LevelEditorApplication : Gtk.Application
 		_css_provider.load_from_resource(css);
 	}
 
-	protected override void startup()
+	public override void startup()
 	{
 		base.startup();
 
@@ -956,7 +956,7 @@ public class LevelEditorApplication : Gtk.Application
 		show_panel("panel_waiting");
 	}
 
-	protected override void activate()
+	public override void activate()
 	{
 		if (this.active_window == null) {
 			LevelEditorWindow win = new LevelEditorWindow(this, _header_bar);
@@ -981,7 +981,7 @@ public class LevelEditorApplication : Gtk.Application
 			);
 	}
 
-	private void on_subprocess_launcher_appeared(GLib.DBusConnection connection, string name, string name_owner)
+	public void on_subprocess_launcher_appeared(GLib.DBusConnection connection, string name, string name_owner)
 	{
 		try {
 			GLib.Bus.unwatch_name(_launcher_watch_id);
@@ -1003,7 +1003,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	protected override bool local_command_line(ref unowned string[] args, out int exit_status)
+	public override bool local_command_line(ref unowned string[] args, out int exit_status)
 	{
 		if (args.length > 1) {
 			if (!GLib.FileUtils.test(args[1], FileTest.EXISTS) || !GLib.FileUtils.test(args[1], FileTest.IS_DIR)) {
@@ -1024,7 +1024,7 @@ public class LevelEditorApplication : Gtk.Application
 		return false;
 	}
 
-	protected override int command_line(ApplicationCommandLine command_line)
+	public override int command_line(ApplicationCommandLine command_line)
 	{
 		this.activate();
 		return 0;
@@ -1040,24 +1040,24 @@ public class LevelEditorApplication : Gtk.Application
 			return null;
 	}
 
-	private void on_runtime_connected(RuntimeInstance ri, string address, int port)
+	public void on_runtime_connected(RuntimeInstance ri, string address, int port)
 	{
 		ri._revision = _data_compiler._revision;
 
 		logi("Connected to %s@%s:%d".printf(ri._name, address, port));
 	}
 
-	private void on_runtime_disconnected(RuntimeInstance ri)
+	public void on_runtime_disconnected(RuntimeInstance ri)
 	{
 		logi("Disconnected from %s".printf(ri._name));
 	}
 
-	private void on_runtime_disconnected_unexpected(RuntimeInstance ri)
+	public void on_runtime_disconnected_unexpected(RuntimeInstance ri)
 	{
 		logw("Disconnected from %s unexpectedly".printf(ri._name));
 	}
 
-	private async void on_data_compiler_disconnected_unexpected(RuntimeInstance ri)
+	public async void on_data_compiler_disconnected_unexpected(RuntimeInstance ri)
 	{
 		on_runtime_disconnected_unexpected(ri);
 
@@ -1071,12 +1071,12 @@ public class LevelEditorApplication : Gtk.Application
 		_inspector_stack.set_visible_child_name(COMPILER_CRASHED);
 	}
 
-	private void on_data_compiler_start()
+	public void on_data_compiler_start()
 	{
 		_statusbar.set_status("Compiling data...");
 	}
 
-	private void on_data_compiler_finished(bool success)
+	public void on_data_compiler_finished(bool success)
 	{
 		_statusbar.clear_status();
 
@@ -1088,7 +1088,7 @@ public class LevelEditorApplication : Gtk.Application
 		_project.data_compiled();
 	}
 
-	private void on_editor_connected(RuntimeInstance ri, string address, int port)
+	public void on_editor_connected(RuntimeInstance ri, string address, int port)
 	{
 		on_runtime_connected(ri, address, port);
 
@@ -1099,19 +1099,19 @@ public class LevelEditorApplication : Gtk.Application
 		_editor.send(DeviceApi.frame());
 	}
 
-	private void on_editor_disconnected_unexpected(RuntimeInstance ri)
+	public void on_editor_disconnected_unexpected(RuntimeInstance ri)
 	{
 		on_runtime_disconnected_unexpected(ri);
 	}
 
-	private void on_game_connected(RuntimeInstance ri, string address, int port)
+	public void on_game_connected(RuntimeInstance ri, string address, int port)
 	{
 		on_runtime_connected(ri, address, port);
 
 		_combo.set_active_id("game");
 	}
 
-	private void on_game_disconnected(RuntimeInstance ri)
+	public void on_game_disconnected(RuntimeInstance ri)
 	{
 		on_runtime_disconnected(ri);
 
@@ -1119,7 +1119,7 @@ public class LevelEditorApplication : Gtk.Application
 		_game_run_stop_image.set_from_icon_name("game-run", Gtk.IconSize.MENU);
 	}
 
-	private void on_message_received(RuntimeInstance ri, ConsoleClient client, uint8[] json)
+	public void on_message_received(RuntimeInstance ri, ConsoleClient client, uint8[] json)
 	{
 		try {
 			Hashtable msg = JSON.decode(json) as Hashtable;
@@ -1129,7 +1129,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void handle_message(RuntimeInstance ri, ConsoleClient client, string msg_type, Hashtable msg)
+	public void handle_message(RuntimeInstance ri, ConsoleClient client, string msg_type, Hashtable msg)
 	{
 		if (msg_type == "message") {
 			string system = ri._name + ": " + (string)msg["system"];
@@ -1252,7 +1252,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void append_editor_state(StringBuilder sb)
+	public void append_editor_state(StringBuilder sb)
 	{
 		// This state is common to any project.
 		sb.append(LevelEditorApi.set_grid_size(_grid_size));
@@ -1266,14 +1266,14 @@ public class LevelEditorApplication : Gtk.Application
 		sb.append(LevelEditorApi.set_reference_system(_reference_system));
 	}
 
-	private void append_project_state(StringBuilder sb)
+	public void append_project_state(StringBuilder sb)
 	{
 		// This state is not guaranteed to be applicable to any project.
 		if (_placeable_type != "")
 			sb.append(LevelEditorApi.set_placeable(_placeable_type, _placeable_name));
 	}
 
-	private void send_state()
+	public void send_state()
 	{
 		StringBuilder sb = new StringBuilder();
 		append_editor_state(sb);
@@ -1281,7 +1281,7 @@ public class LevelEditorApplication : Gtk.Application
 		_editor.send_script(sb.str);
 	}
 
-	private void on_objects_created(Guid?[] object_ids, uint32 flags)
+	public void on_objects_created(Guid?[] object_ids, uint32 flags)
 	{
 		if ((flags & ActionTypeFlags.FROM_SERVER) == 0) {
 			StringBuilder sb = new StringBuilder();
@@ -1298,7 +1298,7 @@ public class LevelEditorApplication : Gtk.Application
 		update_active_window_title();
 	}
 
-	private void on_objects_destroyed(Guid?[] object_ids, uint32 flags = 0)
+	public void on_objects_destroyed(Guid?[] object_ids, uint32 flags = 0)
 	{
 		_level.selection_changed(_level._selection);
 
@@ -1315,7 +1315,7 @@ public class LevelEditorApplication : Gtk.Application
 		update_active_window_title();
 	}
 
-	private void on_objects_changed(Guid?[] object_ids, uint32 flags = 0)
+	public void on_objects_changed(Guid?[] object_ids, uint32 flags = 0)
 	{
 		if ((flags & ActionTypeFlags.FROM_SERVER) == 0) {
 			StringBuilder sb = new StringBuilder();
@@ -1330,7 +1330,7 @@ public class LevelEditorApplication : Gtk.Application
 		update_active_window_title();
 	}
 
-	private void on_object_type_added(ObjectTypeInfo info)
+	public void on_object_type_added(ObjectTypeInfo info)
 	{
 		if ((info.flags & ObjectTypeFlags.UNIT_COMPONENT) != 0) {
 			Unit.register_component_type(info.name, info.user_data != null ? info.user_data : "");
@@ -1424,7 +1424,7 @@ public class LevelEditorApplication : Gtk.Application
 		yield stop_data_compiler();
 	}
 
-	private async void stop_data_compiler()
+	public async void stop_data_compiler()
 	{
 		if (_compiler.is_connected())
 			_project.reset_files();
@@ -1432,7 +1432,7 @@ public class LevelEditorApplication : Gtk.Application
 		yield _compiler.stop();
 	}
 
-	private int dump_test_level()
+	public int dump_test_level()
 	{
 		try {
 			// Save temporary package to reference test level.
@@ -1449,7 +1449,7 @@ public class LevelEditorApplication : Gtk.Application
 		return _database.dump(_project._level_editor_test_level.get_path(), _level._id);
 	}
 
-	private async void start_game(StartGame sg)
+	public async void start_game(StartGame sg)
 	{
 		if (sg == StartGame.TEST && dump_test_level() != 0)
 			return;
@@ -1493,7 +1493,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private async void start_thumbnail()
+	public async void start_thumbnail()
 	{
 		string args[] =
 		{
@@ -1527,7 +1527,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void on_tool(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_tool(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		ToolType type = (ToolType)param.get_int32();
 
@@ -1545,7 +1545,7 @@ public class LevelEditorApplication : Gtk.Application
 		action.set_state(param);
 	}
 
-	private void on_cancel_place(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_cancel_place(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		if (_tool_type != ToolType.PLACE)
 			return;
@@ -1553,7 +1553,7 @@ public class LevelEditorApplication : Gtk.Application
 		activate_action("tool", new GLib.Variant.int32(_tool_type_prev));
 	}
 
-	private void on_snap(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_snap(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		_snap_mode = (SnapMode)param.get_int32();
 
@@ -1562,7 +1562,7 @@ public class LevelEditorApplication : Gtk.Application
 		action.set_state(param);
 	}
 
-	private void on_reference_system(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_reference_system(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		_reference_system = (ReferenceSystem)param.get_int32();
 
@@ -1571,7 +1571,7 @@ public class LevelEditorApplication : Gtk.Application
 		action.set_state(param);
 	}
 
-	private void on_grid_size(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_grid_size(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		int32 new_size = param.get_int32();
 
@@ -1611,7 +1611,7 @@ public class LevelEditorApplication : Gtk.Application
 		dg.show_all();
 	}
 
-	private void update_active_window_title()
+	public void update_active_window_title()
 	{
 		string title = "";
 
@@ -1629,7 +1629,7 @@ public class LevelEditorApplication : Gtk.Application
 			this.active_window.title = title;
 	}
 
-	private void load_level(string name)
+	public void load_level(string name)
 	{
 		if (name == _level._name)
 			return;
@@ -1649,7 +1649,7 @@ public class LevelEditorApplication : Gtk.Application
 		_level_treeview.set_level(_level);
 	}
 
-	private bool do_save(string path)
+	public bool do_save(string path)
 	{
 		string resource_filename = _project.resource_filename(path);
 		string resource_path     = ResourceId.normalize(resource_filename);
@@ -1674,7 +1674,7 @@ public class LevelEditorApplication : Gtk.Application
 		return true;
 	}
 
-	private void save_as(string? filename, string? success_action = null, GLib.Variant? variant = null)
+	public void save_as(string? filename, string? success_action = null, GLib.Variant? variant = null)
 	{
 		string path = filename;
 
@@ -1699,12 +1699,12 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void save(string? success_action = null, GLib.Variant? variant = null)
+	public void save(string? success_action = null, GLib.Variant? variant = null)
 	{
 		save_as(_level._path, success_action, variant);
 	}
 
-	private bool save_timeout()
+	public bool save_timeout()
 	{
 		if (_level._path != null)
 			save();
@@ -1712,14 +1712,14 @@ public class LevelEditorApplication : Gtk.Application
 		return GLib.Source.CONTINUE;
 	}
 
-	private Hashtable encode()
+	public Hashtable encode()
 	{
 		Hashtable json_obj = new Hashtable();
 		json_obj["level_editor_window"] = ((LevelEditorWindow)this.active_window).encode();
 		return json_obj;
 	}
 
-	protected override void shutdown()
+	public override void shutdown()
 	{
 		// Disable auto-save.
 		if (_save_timer_id > 0)
@@ -1746,7 +1746,7 @@ public class LevelEditorApplication : Gtk.Application
 		base.shutdown();
 	}
 
-	private void do_new_level()
+	public void do_new_level()
 	{
 		if (_level.create(LEVEL_EMPTY) != 0) {
 			loge("Unable to create a new level.");
@@ -1763,7 +1763,7 @@ public class LevelEditorApplication : Gtk.Application
 		_level_treeview.set_level(_level);
 	}
 
-	private void on_new_level(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_new_level(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		if (!_database.changed()) {
 			do_new_level();
@@ -1780,7 +1780,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void do_open_level(string path)
+	public void do_open_level(string path)
 	{
 		string resource_filename = _project.resource_filename(path);
 		string resource_path     = ResourceId.normalize(resource_filename);
@@ -1789,7 +1789,7 @@ public class LevelEditorApplication : Gtk.Application
 		load_level(resource_name);
 	}
 
-	private void on_open_level_from_menubar(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_open_level_from_menubar(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		OpenResourceDialog dlg = new OpenResourceDialog("Open Level..."
 			, this.active_window
@@ -1804,7 +1804,7 @@ public class LevelEditorApplication : Gtk.Application
 		dlg.show_all();
 	}
 
-	private void on_open_level(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_open_level(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		string level_name = param.get_string();
 		if (level_name != "" && level_name == _level._name)
@@ -1832,7 +1832,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void do_open_project(string source_dir, string? level_name)
+	public void do_open_project(string source_dir, string? level_name)
 	{
 		if (_project.source_dir() == source_dir) {
 			logi("Project `%s` is open already.".printf(source_dir));
@@ -1870,7 +1870,7 @@ public class LevelEditorApplication : Gtk.Application
 			});
 	}
 
-	private void open_project(string source_dir, string? level_name = null)
+	public void open_project(string source_dir, string? level_name = null)
 	{
 		if (source_dir != "") {
 			do_open_project(source_dir, level_name);
@@ -1885,7 +1885,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void on_open_project(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_open_project(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		string source_dir = "";
 		string level_name = LEVEL_EMPTY;
@@ -1910,7 +1910,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void do_new_project()
+	public void do_new_project()
 	{
 		reset_project();
 
@@ -1920,7 +1920,7 @@ public class LevelEditorApplication : Gtk.Application
 			});
 	}
 
-	private void on_new_project(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_new_project(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		if (!_database.changed()) {
 			do_new_project();
@@ -1937,7 +1937,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void on_add_project(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_add_project(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		Gtk.FileChooserDialog dlg = new_open_project_dialog(this.active_window);
 		dlg.response.connect((response_id) => {
@@ -1950,7 +1950,7 @@ public class LevelEditorApplication : Gtk.Application
 		dlg.show_all();
 	}
 
-	private void on_remove_project(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_remove_project(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		string source_dir = param.get_string();
 
@@ -1973,17 +1973,17 @@ public class LevelEditorApplication : Gtk.Application
 		md.show_all();
 	}
 
-	private void on_save(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_save(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		save();
 	}
 
-	private void on_save_as(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_save_as(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		save_as(null);
 	}
 
-	private void on_import_result(ImportResult result)
+	public void on_import_result(ImportResult result)
 	{
 		if (result == ImportResult.ERROR) {
 			loge("Failed to import resource(s)");
@@ -1996,7 +1996,7 @@ public class LevelEditorApplication : Gtk.Application
 		_level.selection_changed(_level._selection);
 	}
 
-	private void on_import(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_import(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		string? destination_dir = null;
 		string[] filenames = {};
@@ -2014,14 +2014,14 @@ public class LevelEditorApplication : Gtk.Application
 			);
 	}
 
-	private void on_preferences(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_preferences(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		_preferences_dialog.set_transient_for(this.active_window);
 		_preferences_dialog.show_all();
 		_preferences_dialog.present();
 	}
 
-	private void on_deploy(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_deploy(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		if (_deploy_dialog == null) {
 			_deploy_dialog = new DeployDialog(_project, _editor);
@@ -2033,7 +2033,7 @@ public class LevelEditorApplication : Gtk.Application
 		_deploy_dialog.present();
 	}
 
-	private void on_texture_settings(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_texture_settings(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		string texture_name = param.get_string();
 
@@ -2051,7 +2051,7 @@ public class LevelEditorApplication : Gtk.Application
 		_texture_settings_dialog.present();
 	}
 
-	private void on_reveal(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_reveal(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		string type = (string)param.get_child_value(0);
 		string name = (string)param.get_child_value(1);
@@ -2062,7 +2062,7 @@ public class LevelEditorApplication : Gtk.Application
 		_project_browser.reveal(type, name);
 	}
 
-	private Gtk.Dialog new_level_changed_dialog(Gtk.Window? parent)
+	public Gtk.Dialog new_level_changed_dialog(Gtk.Window? parent)
 	{
 		Gtk.MessageDialog md = new Gtk.MessageDialog(parent
 			, Gtk.DialogFlags.MODAL
@@ -2102,7 +2102,7 @@ public class LevelEditorApplication : Gtk.Application
 		this.active_window.title = CROWN_EDITOR_NAME;
 	}
 
-	private void do_close_project()
+	public void do_close_project()
 	{
 		reset_project();
 
@@ -2112,7 +2112,7 @@ public class LevelEditorApplication : Gtk.Application
 			});
 	}
 
-	private void on_close_project(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_close_project(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		if (!_database.changed()) {
 			do_close_project();
@@ -2137,7 +2137,7 @@ public class LevelEditorApplication : Gtk.Application
 			});
 	}
 
-	private void on_quit(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_quit(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		if (!_database.changed()) {
 			stop_backend_and_quit();
@@ -2161,7 +2161,7 @@ public class LevelEditorApplication : Gtk.Application
 			;
 	}
 
-	private void on_open_resource(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_open_resource(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		if (param == null)
 			return;
@@ -2212,7 +2212,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void copy_string(string str)
+	public void copy_string(string str)
 	{
 		var clip = Gtk.Clipboard.get_default(Gdk.Display.get_default());
 		clip.set_text(str, str.length);
@@ -2221,18 +2221,18 @@ public class LevelEditorApplication : Gtk.Application
 #endif
 	}
 
-	private void on_copy_path(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_copy_path(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		string path  = param.get_string();
 		copy_string(_project.absolute_path(path));
 	}
 
-	private void on_copy_name(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_copy_name(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		copy_string(param.get_string());
 	}
 
-	private void on_show_grid(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_show_grid(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		_show_grid = !action.get_state().get_boolean();
 		send_state();
@@ -2240,7 +2240,7 @@ public class LevelEditorApplication : Gtk.Application
 		action.set_state(new GLib.Variant.boolean(_show_grid));
 	}
 
-	private void on_rotation_snap_size(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_rotation_snap_size(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		int32 new_size = param.get_int32();
 
@@ -2280,7 +2280,7 @@ public class LevelEditorApplication : Gtk.Application
 		dg.show_all();
 	}
 
-	private void on_spawn_primitive(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_spawn_primitive(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		GLib.Variant[] paramz;
 
@@ -2306,7 +2306,7 @@ public class LevelEditorApplication : Gtk.Application
 		activate_action("set-placeable", new GLib.Variant.tuple(paramz));
 	}
 
-	private void on_spawn_unit(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_spawn_unit(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		string? unit_name;
 
@@ -2321,7 +2321,7 @@ public class LevelEditorApplication : Gtk.Application
 		_editor.send(DeviceApi.frame());
 	}
 
-	private void on_camera_view(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_camera_view(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		CameraViewType view_type = (CameraViewType)param.get_int32();
 
@@ -2331,14 +2331,14 @@ public class LevelEditorApplication : Gtk.Application
 		action.set_state(param);
 	}
 
-	private void on_camera_frame_selected(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_camera_frame_selected(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		Guid?[] selected_objects = _level._selection.to_array();
 		_editor.send_script(LevelEditorApi.frame_objects(selected_objects));
 		_editor.send(DeviceApi.frame());
 	}
 
-	private void on_camera_frame_all(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_camera_frame_all(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		Gee.ArrayList<Guid?> all_objects = new Gee.ArrayList<Guid?>();
 		_level.objects(ref all_objects);
@@ -2346,7 +2346,7 @@ public class LevelEditorApplication : Gtk.Application
 		_editor.send(DeviceApi.frame());
 	}
 
-	private void on_project_browser(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_project_browser(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		if (_project_notebook.is_visible()) {
 			_project_notebook.hide();
@@ -2355,7 +2355,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void on_console(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_console(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		if (_console_notebook.is_visible()) {
 			if (_console_view._entry.has_focus)
@@ -2368,7 +2368,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void on_statusbar(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_statusbar(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		if (_statusbar.is_visible()) {
 			_statusbar.hide();
@@ -2377,7 +2377,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void on_inspector(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_inspector(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		if (_inspector_stack.is_visible()) {
 			_inspector_stack.hide();
@@ -2386,33 +2386,33 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void on_restart_backend(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_restart_backend(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		restart_backend.begin((obj, res) => {
 				restart_backend.end(res);
 			});
 	}
 
-	private void on_restart_editor_view(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_restart_editor_view(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		_editor_viewport.restart_runtime.begin((obj, res) => {
 				_editor_viewport.restart_runtime.end(res);
 			});
 	}
 
-	private void on_build_data(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_build_data(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
 				_data_compiler.compile.end(res);
 			});
 	}
 
-	private void on_reload_all(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_reload_all(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		compile_and_reload.begin();
 	}
 
-	private async bool refresh_all_clients()
+	public async bool refresh_all_clients()
 	{
 		RuntimeInstance[] runtimes = new RuntimeInstance[] { _editor, _game, _thumbnail };
 		bool success = true;
@@ -2439,7 +2439,7 @@ public class LevelEditorApplication : Gtk.Application
 		return success;
 	}
 
-	private void on_snap_to_grid(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_snap_to_grid(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		_snap_to_grid = !action.get_state().get_boolean();
 		send_state();
@@ -2447,7 +2447,7 @@ public class LevelEditorApplication : Gtk.Application
 		action.set_state(new GLib.Variant.boolean(_snap_to_grid));
 	}
 
-	private void on_debug_render_world(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_debug_render_world(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		_debug_render_world = !action.get_state().get_boolean();
 		send_state();
@@ -2455,7 +2455,7 @@ public class LevelEditorApplication : Gtk.Application
 		action.set_state(new GLib.Variant.boolean(_debug_render_world));
 	}
 
-	private void on_debug_physics_world(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_debug_physics_world(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		_debug_physics_world = !action.get_state().get_boolean();
 		send_state();
@@ -2463,7 +2463,7 @@ public class LevelEditorApplication : Gtk.Application
 		action.set_state(new GLib.Variant.boolean(_debug_physics_world));
 	}
 
-	private void on_run_game(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_run_game(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		// Trigger a 'focus_out_event' on the currently focused
 		// widget within the active_window, if any. This will
@@ -2488,7 +2488,7 @@ public class LevelEditorApplication : Gtk.Application
 			});
 	}
 
-	private void on_undo(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_undo(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		int id = _database.undo();
 		if (id != -1) {
@@ -2497,7 +2497,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void on_redo(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_redo(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		int id = _database.redo();
 		if (id != -1) {
@@ -2506,19 +2506,19 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void on_duplicate(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_duplicate(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		_level.duplicate_selected_objects();
 		_editor.send(DeviceApi.frame());
 	}
 
-	private void on_delete(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_delete(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		_level.destroy_selected_objects();
 		_editor.send(DeviceApi.frame());
 	}
 
-	private void do_rename(Guid object_id, string new_name)
+	public void do_rename(Guid object_id, string new_name)
 	{
 		if (new_name != "" && _database.object_name(object_id) != new_name) {
 			_database.set_object_name(object_id, new_name);
@@ -2526,7 +2526,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void on_rename(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_rename(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		Guid object_id = Guid.parse((string)param.get_child_value(0));
 		string new_name = (string)param.get_child_value(1);
@@ -2558,7 +2558,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void on_manual(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_manual(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		try {
 			AppInfo.launch_default_for_uri(CROWN_LATEST_DOCS_URL, null);
@@ -2567,7 +2567,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void on_report_issue(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_report_issue(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		try {
 			AppInfo.launch_default_for_uri("https://github.com/crownengine/crown/issues", null);
@@ -2576,12 +2576,12 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void on_browse_logs(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_browse_logs(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		open_directory(_logs_dir.get_path());
 	}
 
-	private void on_changelog(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_changelog(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		try {
 			AppInfo.launch_default_for_uri(CROWN_LATEST_CHANGELOG_URL, null);
@@ -2590,7 +2590,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void on_donate(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_donate(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		try {
 			AppInfo.launch_default_for_uri(CROWN_FUND_URL, null);
@@ -2599,7 +2599,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void on_credits(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_credits(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		try {
 			AppInfo.launch_default_for_uri(CROWN_CREDITS_URL, null);
@@ -2608,7 +2608,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void do_delete_file(string resource_path)
+	public void do_delete_file(string resource_path)
 	{
 		string path = _project.absolute_path(resource_path);
 
@@ -2619,7 +2619,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void on_delete_file(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_delete_file(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		if (param == null)
 			return;
@@ -2652,7 +2652,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void do_delete_directory(string dir_name)
+	public void do_delete_directory(string dir_name)
 	{
 		if (dir_name == "")
 			return;
@@ -2665,7 +2665,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void on_delete_directory(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_delete_directory(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		string dir_name = param.get_string();
 
@@ -2691,7 +2691,7 @@ public class LevelEditorApplication : Gtk.Application
 		md.show_all();
 	}
 
-	private void do_create_directory(string parent_dir_name, string dir_name)
+	public void do_create_directory(string parent_dir_name, string dir_name)
 	{
 		if (dir_name == "")
 			return;
@@ -2704,7 +2704,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void on_create_directory(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_create_directory(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		string parent_dir_name = (string)param.get_child_value(0);
 		string dir_name = (string)param.get_child_value(1);
@@ -2736,7 +2736,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private async bool compile_and_reload()
+	public async bool compile_and_reload()
 	{
 		if (yield _data_compiler.compile(_project.data_dir(), _project.platform()))
 			return yield refresh_all_clients();
@@ -2744,7 +2744,7 @@ public class LevelEditorApplication : Gtk.Application
 			return false;
 	}
 
-	private void do_create_script(string dir_name, string script_name, bool empty)
+	public void do_create_script(string dir_name, string script_name, bool empty)
 	{
 		if (script_name == "")
 			return;
@@ -2758,7 +2758,7 @@ public class LevelEditorApplication : Gtk.Application
 		compile_and_reload.begin();
 	}
 
-	private void on_create_script(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_create_script(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		string dir_name = (string)param.get_child_value(0);
 		string script_name = (string)param.get_child_value(1);
@@ -2791,7 +2791,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void do_create_unit(string dir_name, string unit_name)
+	public void do_create_unit(string dir_name, string unit_name)
 	{
 		if (unit_name == "")
 			return;
@@ -2805,7 +2805,7 @@ public class LevelEditorApplication : Gtk.Application
 		compile_and_reload.begin();
 	}
 
-	private void on_create_unit(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_create_unit(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		string dir_name = (string)param.get_child_value(0);
 		string unit_name = (string)param.get_child_value(1);
@@ -2837,7 +2837,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void do_create_state_machine(string dir_name, string state_machine_name, string skeleton_name)
+	public void do_create_state_machine(string dir_name, string state_machine_name, string skeleton_name)
 	{
 		if (state_machine_name == "")
 			return;
@@ -2851,7 +2851,7 @@ public class LevelEditorApplication : Gtk.Application
 		compile_and_reload.begin();
 	}
 
-	private void on_create_state_machine(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_create_state_machine(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		string dir_name = (string)param.get_child_value(0);
 		string state_machine_name = (string)param.get_child_value(1);
@@ -2885,7 +2885,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	}
 
-	private void do_create_material(string dir_name, string material_name)
+	public void do_create_material(string dir_name, string material_name)
 	{
 		if (material_name == "")
 			return;
@@ -2899,7 +2899,7 @@ public class LevelEditorApplication : Gtk.Application
 		compile_and_reload.begin();
 	}
 
-	private void on_create_material(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_create_material(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		string dir_name = (string)param.get_child_value(0);
 		string material_name = (string)param.get_child_value(1);
@@ -2931,7 +2931,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void on_open_containing(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_open_containing(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		string path = param.get_string();
 		GLib.File abs_path = GLib.File.new_for_path(_project.absolute_path(path));
@@ -2964,7 +2964,7 @@ public class LevelEditorApplication : Gtk.Application
 		file.delete();
 	}
 
-	private Gtk.Dialog new_package_dir_exists_dialog(string package_dir)
+	public Gtk.Dialog new_package_dir_exists_dialog(string package_dir)
 	{
 		Gtk.MessageDialog md = new Gtk.MessageDialog(_deploy_dialog
 			, Gtk.DialogFlags.MODAL
@@ -2981,7 +2981,7 @@ public class LevelEditorApplication : Gtk.Application
 		return md;
 	}
 
-	private GLib.File deploy_package_dir(out string config_path, string output_path, string app_identifier, TargetPlatform platform, TargetArch arch, TargetConfig config)
+	public GLib.File deploy_package_dir(out string config_path, string output_path, string app_identifier, TargetPlatform platform, TargetArch arch, TargetConfig config)
 	{
 		string platform_name[] =
 		{
@@ -3014,7 +3014,7 @@ public class LevelEditorApplication : Gtk.Application
 		return GLib.File.new_for_path(Path.build_path(Path.DIR_SEPARATOR_S, config_path, app_identifier));
 	}
 
-	private void do_create_package_android(GLib.File package_dir
+	public void do_create_package_android(GLib.File package_dir
 		, string config_path
 		, string output_path
 		, int config
@@ -3259,7 +3259,7 @@ public class LevelEditorApplication : Gtk.Application
 		android_activity += "\n        }";
 		android_activity += "\n    }";
 		android_activity += "\n";
-		android_activity += "\n    private void hideSystemUI() {";
+		android_activity += "\n    public void hideSystemUI() {";
 		android_activity += "\n        // Enables regular immersive mode.";
 		android_activity += "\n        // For \"lean back\" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.";
 		android_activity += "\n        // Or for \"sticky immersive,\" replace it with SYSTEM_UI_FLAG_IMMERSIVE_STICKY";
@@ -3276,7 +3276,7 @@ public class LevelEditorApplication : Gtk.Application
 		android_activity += "\n            );";
 		android_activity += "\n    }";
 		android_activity += "\n";
-		android_activity += "\n    private void showSystemUI() {";
+		android_activity += "\n    public void showSystemUI() {";
 		android_activity += "\n        // Shows the system bars by removing all the flags";
 		android_activity += "\n        // except for the ones that make the content appear under the system bars.";
 		android_activity += "\n        View decorView = getWindow().getDecorView();";
@@ -3475,7 +3475,7 @@ public class LevelEditorApplication : Gtk.Application
 			});
 	}
 
-	private void on_create_package_android(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_create_package_android(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		var output_path = (string)param.get_child_value(0);
 		var config = (int)param.get_child_value(1);
@@ -3553,7 +3553,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void do_create_package_html5(GLib.File package_dir
+	public void do_create_package_html5(GLib.File package_dir
 		, string output_path
 		, int config
 		, string app_title
@@ -3714,7 +3714,7 @@ public class LevelEditorApplication : Gtk.Application
 		logi("Done: #FILE(%s)".printf(package_path));
 	}
 
-	private void on_create_package_html5(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_create_package_html5(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		var output_path = (string)param.get_child_value(0);
 		var config = (int)param.get_child_value(1);
@@ -3756,7 +3756,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void do_create_package_linux(GLib.File package_dir
+	public void do_create_package_linux(GLib.File package_dir
 		, string output_path
 		, int config
 		, string app_title
@@ -3814,7 +3814,7 @@ public class LevelEditorApplication : Gtk.Application
 		logi("Done: #FILE(%s)".printf(package_path));
 	}
 
-	private void on_create_package_linux(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_create_package_linux(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		var output_path = (string)param.get_child_value(0);
 		var config = (int)param.get_child_value(1);
@@ -3928,7 +3928,7 @@ public class LevelEditorApplication : Gtk.Application
 		logi("Done: #FILE(%s)".printf(package_path));
 	}
 
-	private void on_create_package_windows(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_create_package_windows(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		var output_path = (string)param.get_child_value(0);
 		var config = (int)param.get_child_value(1);
@@ -3970,7 +3970,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void on_unit_add_component(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_unit_add_component(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		if (param == null)
 			return;
@@ -3985,7 +3985,7 @@ public class LevelEditorApplication : Gtk.Application
 		_database.add_restore_point((int)ActionType.CREATE_OBJECTS, components_added.to_array());
 	}
 
-	private void on_unit_remove_component(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_unit_remove_component(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		if (param == null)
 			return;
@@ -4032,7 +4032,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void on_unit_save_as_prefab(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_unit_save_as_prefab(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		string guid = (string)param.get_child_value(0);
 		string name = (string)param.get_child_value(1);
@@ -4108,7 +4108,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void set_conflicting_accels(bool on)
+	public void set_conflicting_accels(bool on)
 	{
 		if (on) {
 			this.set_accels_for_action("app.tool(0)", _tool_place_accels);
@@ -4188,7 +4188,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void on_set_placeable(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_set_placeable(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		_placeable_type = (string)param.get_child_value(0);
 		_placeable_name = (string)param.get_child_value(1);
@@ -4197,7 +4197,7 @@ public class LevelEditorApplication : Gtk.Application
 		activate_action("tool", new GLib.Variant.int32(ToolType.PLACE));
 	}
 
-	private void on_project_reset()
+	public void on_project_reset()
 	{
 		if (!_project.is_loaded())
 			return;
@@ -4215,7 +4215,7 @@ public class LevelEditorApplication : Gtk.Application
 		_deploy_dialog = null;
 	}
 
-	private void on_project_loaded()
+	public void on_project_loaded()
 	{
 		// Load per-project data.
 		try {
@@ -4350,7 +4350,7 @@ public static bool is_directory_empty(string path)
 	return false;
 }
 
-private void device_frame_delayed(uint delay_ms, RuntimeInstance runtime)
+public void device_frame_delayed(uint delay_ms, RuntimeInstance runtime)
 {
 	// FIXME: find a way to time exactly when it is effective to queue a redraw.
 	// See: https://blogs.gnome.org/jnelson/2010/10/13/those-realize-map-widget-signals/

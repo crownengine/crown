@@ -44,7 +44,7 @@ public enum FontChars
 }
 
 // Copies @a src alpha to @a dst BRGA channels.
-private void copy_alpha_to_argb32(Cairo.ImageSurface dst, Cairo.ImageSurface src)
+public void copy_alpha_to_argb32(Cairo.ImageSurface dst, Cairo.ImageSurface src)
 {
 	unowned uchar[] dst_data = dst.get_data();
 	unowned uchar[] src_data = src.get_data();
@@ -308,13 +308,13 @@ public class FontImportDialog : Gtk.Window
 		generate_atlas();
 	}
 
-	private bool on_map_event(Gdk.EventAny ev)
+	public bool on_map_event(Gdk.EventAny ev)
 	{
 		_font_name.grab_focus();
 		return Gdk.EVENT_PROPAGATE;
 	}
 
-	private void on_destroy()
+	public void on_destroy()
 	{
 		font_atlas_free(_font_atlas);
 	}
