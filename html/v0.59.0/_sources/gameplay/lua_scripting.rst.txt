@@ -25,7 +25,7 @@ specific times:
 	- update(dt)
 	- render(dt)
 
-The init() function is called right after the runtime starts. I can be used to
+The init() function is called right after the runtime starts. It can be used to
 initialize global state etc. while shutdown() is called just before the runtime
 exits.
 
@@ -38,11 +38,11 @@ The boot script
 
 The boot script is the first Lua script that is executed when Crown starts.
 
-In the boot script you will typically define the global entry points we
-mentioned before and possibly require() additional lua scripts, like you would
-do in regular Lua programs. One difference is that Crown expects the .lua
-extension to be omitted (i.e. require("foo/bar") instead of "foo/bar.lua"). This
-is for consistency with how resources are referenced elsewhere.
+In the boot script you will typically define the `runtime entry points`_ and
+possibly require() additional lua scripts, like you would do in regular Lua
+programs. One difference is that Crown expects the .lua extension to be omitted
+(i.e. require("foo/bar") instead of "foo/bar.lua"). This is for consistency with
+how resources are referenced elsewhere.
 
 Projects may contain multiple boot scripts for different purposes (for example,
 separate boot scripts for the editors and the game). You can specify which boot
@@ -58,7 +58,7 @@ You may notice that it contains some strangely named
 Game.init()/Game.update()/etc. functions, as well as other utility functions.
 
 Those functions are part of the GameBase framework, which is a tiny layer built
-on top of the basic init/shutdown/update/render hooks we discussed earlier.
+on top of the fundamental `runtime entry points`_.
 
 The GameBase layer allows for integration with the editors and adds support to
 common functionalities such as loading levels, creating a default camera etc.
@@ -76,7 +76,7 @@ Hot reloading is achieved by re-executing modified Lua files. This method works
 well in general, but needs some care in specific occasions. Consider the
 following script:
 
-.. code::
+.. code:: lua
 
 	Foo = {}
 
@@ -87,7 +87,7 @@ unreachable.
 To make it hot-reload safe you could check whether the Foo objects exists
 already, and skip its creation if that is the case:
 
-.. code::
+.. code:: lua
 
 	Foo = Foo or {}
 

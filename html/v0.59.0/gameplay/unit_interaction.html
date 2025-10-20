@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Interacting with Units &mdash; Crown 0.59.0 Manual 0.59.1 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <title>Interacting with Units &mdash; Crown 0.59.0 Manual 0.59.2 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" /><link rel="shortcut icon" href="../_static/org.crownengine.Crown.svg"/>
   <!--[if lt IE 9]>
@@ -100,13 +100,13 @@ something interesting.</p>
 <h2>Getting Unit handles<a class="headerlink" href="#getting-unit-handles" title="Permalink to this headline">¶</a></h2>
 <p>The simplest way of getting a handle to a unit is to spawn it directly from a
 script:</p>
-<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">player</span> <span class="o">=</span> <span class="n">World</span><span class="o">.</span><span class="n">spawn_unit</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="s2">&quot;units/player/player&quot;</span><span class="p">)</span>
+<div class="code lua highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">player</span> <span class="o">=</span> <span class="n">World</span><span class="o">.</span><span class="n">spawn_unit</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="s2">&quot;units/player/player&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>In most cases, however, units are not spawned directly but rather as a
 consequence of loading levels in a world. You can get a table with all units
 spawned in a world this way:</p>
-<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">local</span> <span class="n">units</span> <span class="o">=</span> <span class="n">World</span><span class="o">.</span><span class="n">units</span><span class="p">(</span><span class="n">world</span><span class="p">)</span>
+<div class="code lua highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">local</span> <span class="n">units</span> <span class="o">=</span> <span class="n">World</span><span class="o">.</span><span class="n">units</span><span class="p">(</span><span class="n">world</span><span class="p">)</span>
 
 <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">ipairs</span><span class="p">(</span><span class="n">units</span><span class="p">)</span> <span class="n">do</span>
         <span class="o">--</span> <span class="n">Do</span> <span class="n">something</span> <span class="k">with</span> <span class="n">Unit</span> <span class="n">u</span><span class="o">.</span>
@@ -115,7 +115,7 @@ spawned in a world this way:</p>
 </div>
 <p>To obtain a specific Unit by name (its name as set in the Level Editor, <em>not</em>
 the unit name itself):</p>
-<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">door</span> <span class="o">=</span> <span class="n">World</span><span class="o">.</span><span class="n">unit_by_name</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="s2">&quot;main_door&quot;</span><span class="p">)</span>
+<div class="code lua highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">door</span> <span class="o">=</span> <span class="n">World</span><span class="o">.</span><span class="n">unit_by_name</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="s2">&quot;main_door&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -130,7 +130,7 @@ alone you can modify properties but you cannot receive events.</p>
 a Script Component. To create a Unit script, right click on the Project Browser
 and choose <code class="docutils literal notranslate"><span class="pre">New</span> <span class="pre">(Unit)</span> <span class="pre">script</span></code>.</p>
 <p>Crown will create a new Unit script similar to the following:</p>
-<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">MyScript</span> <span class="o">=</span> <span class="n">MyScript</span> <span class="ow">or</span> <span class="p">{</span>
+<div class="code lua highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">MyScript</span> <span class="o">=</span> <span class="n">MyScript</span> <span class="ow">or</span> <span class="p">{</span>
         <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
 <span class="p">}</span>
 
@@ -187,7 +187,7 @@ code easier.</p>
 <h2>Receiving collision events<a class="headerlink" href="#receiving-collision-events" title="Permalink to this headline">¶</a></h2>
 <p>To get physics collision notification events, implement any of the following
 callbacks in your script component:</p>
-<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">function</span> <span class="n">MyScript</span><span class="o">.</span><span class="n">collision_begin</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">other_unit</span><span class="p">,</span> <span class="n">actor</span><span class="p">,</span> <span class="n">other_actor</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">normal</span><span class="p">,</span> <span class="n">distance</span><span class="p">)</span>
+<div class="code lua highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">function</span> <span class="n">MyScript</span><span class="o">.</span><span class="n">collision_begin</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">other_unit</span><span class="p">,</span> <span class="n">actor</span><span class="p">,</span> <span class="n">other_actor</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">normal</span><span class="p">,</span> <span class="n">distance</span><span class="p">)</span>
         <span class="o">--</span> <span class="n">Called</span> <span class="n">when</span> <span class="n">unit</span> <span class="ow">and</span> <span class="n">other_unit</span> <span class="n">begin</span> <span class="n">touching</span><span class="o">.</span>
 <span class="n">end</span>
 
@@ -205,7 +205,7 @@ callbacks in your script component:</p>
 <h2>Triggers<a class="headerlink" href="#triggers" title="Permalink to this headline">¶</a></h2>
 <p>Units whose actor is configured as a trigger (actor class ‘trigger’) will not
 receive regular collision events, instead, they will receive trigger events:</p>
-<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">function</span> <span class="n">MyScript</span><span class="o">.</span><span class="n">trigger_enter</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">trigger_unit</span><span class="p">,</span> <span class="n">other_unit</span><span class="p">)</span>
+<div class="code lua highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">function</span> <span class="n">MyScript</span><span class="o">.</span><span class="n">trigger_enter</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">trigger_unit</span><span class="p">,</span> <span class="n">other_unit</span><span class="p">)</span>
         <span class="o">--</span> <span class="n">Called</span> <span class="n">when</span> <span class="n">other_unit</span> <span class="n">begins</span> <span class="n">touching</span> <span class="n">trigger_unit</span><span class="o">.</span>
 <span class="n">end</span>
 
