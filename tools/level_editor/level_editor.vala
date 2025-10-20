@@ -779,8 +779,9 @@ public class LevelEditorApplication : Gtk.Application
 
 		_undo_redo = new UndoRedo((uint)_preferences_dialog._undo_redo_max_size.value * 1024 * 1024);
 		_database = new Database(_project, _undo_redo);
-		_database.restore_point_added.connect(on_restore_point_added);
-		_database.undo_redo.connect(on_undo_redo);
+		_database.objects_created.connect(on_objects_created);
+		_database.objects_destroyed.connect(on_objects_destroyed);
+		_database.objects_changed.connect(on_objects_changed);
 		_database.object_type_added.connect(on_object_type_added);
 
 		_properties_view = new PropertiesView(_database);
@@ -819,7 +820,12 @@ public class LevelEditorApplication : Gtk.Application
 		_console_view = new ConsoleView(_project, _combo, _preferences_dialog);
 		_thumbnail_cache = new ThumbnailCache(_project, _thumbnail, (uint)_preferences_dialog._thumbnail_cache_max_size.value * 1024 * 1024);
 		_project_browser = new ProjectBrowser(_project_store, _thumbnail_cache);
+
 		_level_treeview = new LevelTreeView(_database, _level);
+		_database.objects_created.connect(_level_treeview.on_objects_created);
+		_database.objects_destroyed.connect(_level_treeview.on_objects_destroyed);
+		_database.objects_changed.connect(_level_treeview.on_objects_changed);
+
 		_level_layers_treeview = new LevelLayersTreeView(_database, _level);
 		_level.selection_changed.connect(_properties_view.on_selection_changed);
 
@@ -1275,7 +1281,7 @@ public class LevelEditorApplication : Gtk.Application
 		_editor.send_script(sb.str);
 	}
 
-	private void on_objects_created(Guid?[] object_ids, uint32 flags = 0)
+	private void on_objects_created(Guid?[] object_ids, uint32 flags)
 	{
 		if ((flags & ActionTypeFlags.FROM_SERVER) == 0) {
 			StringBuilder sb = new StringBuilder();
@@ -1286,13 +1292,14 @@ public class LevelEditorApplication : Gtk.Application
 			}
 		}
 
-		_level_treeview.on_objects_created(object_ids);
 		_level.selection_changed(_level._selection);
+
+		_properties_view.show_or_hide_properties();
+		update_active_window_title();
 	}
 
 	private void on_objects_destroyed(Guid?[] object_ids, uint32 flags = 0)
 	{
-		_level_treeview.on_objects_destroyed(object_ids);
 		_level.selection_changed(_level._selection);
 
 		if ((flags & ActionTypeFlags.FROM_SERVER) == 0) {
@@ -1303,6 +1310,9 @@ public class LevelEditorApplication : Gtk.Application
 				_editor.send(DeviceApi.frame());
 			}
 		}
+
+		_properties_view.show_or_hide_properties();
+		update_active_window_title();
 	}
 
 	private void on_objects_changed(Guid?[] object_ids, uint32 flags = 0)
@@ -1315,70 +1325,9 @@ public class LevelEditorApplication : Gtk.Application
 				_editor.send(DeviceApi.frame());
 			}
 		}
-	}
-
-	private void on_restore_point_added(int id, Guid?[] data, uint32 flags)
-	{
-		switch (id) {
-		case ActionType.CREATE_OBJECTS:
-			on_objects_created(data, flags);
-			break;
-
-		case ActionType.DESTROY_OBJECTS:
-			on_objects_destroyed(data, flags);
-			break;
-
-		case ActionType.CHANGE_OBJECTS:
-			on_objects_changed(data, flags);
-			break;
-
-		case ActionType.OBJECT_SET_EDITOR_NAME:
-			on_objects_changed(data, flags);
-			_level.object_editor_name_changed(data[0], _level.object_editor_name(data[0]));
-			break;
-
-		default:
-			logw("Unknown action type %d".printf(id));
-			break;
-		}
 
 		_properties_view.show_or_hide_properties();
-
 		update_active_window_title();
-	}
-
-	private void on_undo_redo(bool undo, uint32 id, Guid?[] data)
-	{
-		switch (id) {
-		case ActionType.CREATE_OBJECTS:
-			if (undo)
-				on_objects_destroyed(data);
-			else
-				on_objects_created(data);
-			break;
-
-		case ActionType.DESTROY_OBJECTS:
-			if (undo)
-				on_objects_created(data);
-			else
-				on_objects_destroyed(data);
-			break;
-
-		case ActionType.CHANGE_OBJECTS:
-			on_objects_changed(data);
-			break;
-
-		case ActionType.OBJECT_SET_EDITOR_NAME:
-			on_objects_changed(data);
-			_level.object_editor_name_changed(data[0], _level.object_editor_name(data[0]));
-			break;
-
-		default:
-			logw("Unknown action type %u".printf(id));
-			break;
-		}
-
-		_properties_view.show_or_hide_properties();
 	}
 
 	private void on_object_type_added(ObjectTypeInfo info)
@@ -2571,8 +2520,10 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void do_rename(Guid object_id, string new_name)
 	{
-		if (new_name != "" && _level.object_editor_name(object_id) != new_name)
-			_level.object_set_editor_name(object_id, new_name);
+		if (new_name != "" && _database.object_name(object_id) != new_name) {
+			_database.set_object_name(object_id, new_name);
+			_database.add_restore_point((int)ActionType.CHANGE_OBJECTS, new Guid?[] { object_id });
+		}
 	}
 
 	private void on_rename(GLib.SimpleAction action, GLib.Variant? param)
@@ -2595,7 +2546,7 @@ public class LevelEditorApplication : Gtk.Application
 
 			InputString sb = new InputString();
 			sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
-			sb.value = _level.object_editor_name(object_id);
+			sb.value = _database.object_name(object_id);
 
 			dg.get_content_area().add(sb);
 			dg.response.connect((response_id) => {

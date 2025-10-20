@@ -26,7 +26,6 @@ public class Level
 
 	// Signals
 	public signal void selection_changed(Gee.ArrayList<Guid?> selection);
-	public signal void object_editor_name_changed(Guid object_id, string name);
 
 	public Level(Database db, RuntimeInstance runtime)
 	{
@@ -289,17 +288,6 @@ public class Level
 	public void send_selection()
 	{
 		_runtime.send_script(LevelEditorApi.selection_set(_selection.to_array()));
-	}
-
-	public string object_editor_name(Guid object_id)
-	{
-		return _db.object_name(object_id);
-	}
-
-	public void object_set_editor_name(Guid object_id, string name)
-	{
-		_db.set_object_name(object_id, name);
-		_db.add_restore_point((int)ActionType.OBJECT_SET_EDITOR_NAME, new Guid?[] { object_id });
 	}
 
 	public void generate_spawn_objects(StringBuilder sb, Guid?[] object_ids)

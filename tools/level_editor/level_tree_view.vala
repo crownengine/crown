@@ -80,7 +80,6 @@ public class LevelTreeView : Gtk.Box
 		// Data
 		_level = level;
 		_level.selection_changed.connect(on_level_selection_changed);
-		_level.object_editor_name_changed.connect(on_object_editor_name_changed);
 
 		_db = db;
 
@@ -315,35 +314,36 @@ public class LevelTreeView : Gtk.Box
 		_tree_selection.changed.connect(on_tree_selection_changed);
 	}
 
-	private void on_object_editor_name_changed(Guid object_id, string name)
+	public void on_objects_changed(Guid?[] object_ids, uint32 flags)
 	{
-		_tree_sort.foreach ((model, path, iter) => {
-				Value type;
-				model.get_value(iter, Column.TYPE, out type);
-				if ((int)type == ItemType.FOLDER)
+		foreach (var id in object_ids) {
+			_tree_sort.foreach ((model, path, iter) => {
+					Value type;
+					model.get_value(iter, Column.TYPE, out type);
+					if ((int)type == ItemType.FOLDER)
+						return false;
+
+					Value guid;
+					model.get_value(iter, Column.GUID, out guid);
+					Guid guid_model = (Guid)guid;
+
+					if (guid_model == id) {
+						Gtk.TreeIter iter_filter;
+						Gtk.TreeIter iter_model;
+						_tree_sort.convert_iter_to_child_iter(out iter_filter, iter);
+						_tree_filter.convert_iter_to_child_iter(out iter_model, iter_filter);
+
+						_tree_store.set(iter_model
+							, Column.NAME
+							, _db.object_name(id)
+							, -1
+							);
+						return true;
+					}
+
 					return false;
-
-				Value guid;
-				model.get_value(iter, Column.GUID, out guid);
-				Guid guid_model = (Guid)guid;
-
-				if (guid_model == object_id) {
-					Gtk.TreeIter iter_filter;
-					Gtk.TreeIter iter_model;
-					_tree_sort.convert_iter_to_child_iter(out iter_filter, iter);
-					_tree_filter.convert_iter_to_child_iter(out iter_model, iter_filter);
-
-					_tree_store.set(iter_model
-						, Column.NAME
-						, name
-						, -1
-						);
-
-					return true;
-				}
-
-				return false;
-			});
+				});
+		}
 	}
 
 	private ItemType item_type(Unit u)
@@ -434,7 +434,7 @@ public class LevelTreeView : Gtk.Box
 					, Column.GUID
 					, u._id
 					, Column.NAME
-					, _level.object_editor_name(u._id)
+					, _db.object_name(u._id)
 					, Column.VISIBLE
 					, true
 					, Column.SAVE_STATE
@@ -467,7 +467,7 @@ public class LevelTreeView : Gtk.Box
 				, Column.GUID
 				, object_ids[i]
 				, Column.NAME
-				, _level.object_editor_name(object_ids[i])
+				, _db.object_name(object_ids[i])
 				, Column.VISIBLE
 				, true
 				, Column.SAVE_STATE
@@ -479,7 +479,7 @@ public class LevelTreeView : Gtk.Box
 		return i;
 	}
 
-	public void on_objects_created(Guid?[] object_ids)
+	public void on_objects_created(Guid?[] object_ids, uint32 flags = 0)
 	{
 		int i = 0;
 		while (i < object_ids.length) {
@@ -534,7 +534,7 @@ public class LevelTreeView : Gtk.Box
 		return i;
 	}
 
-	public void on_objects_destroyed(Guid?[] object_ids)
+	public void on_objects_destroyed(Guid?[] object_ids, uint32 flags = 0)
 	{
 		int i = 0;
 
@@ -729,7 +729,6 @@ public class LevelTreeView : Gtk.Box
 
 			// If the selection changed while searching, restore it as well.
 			for (int i = 0; i < selected_refs.length; ++i) {
-				logi("selection changed while searching");
 				Gtk.TreePath path = selected_refs[i].get_path();
 				_tree_view.expand_to_path(path);
 				_tree_view.get_selection().select_path(path);
