@@ -478,9 +478,10 @@ public class Database
 	public int _distance_restore;
 
 	// Signals
-	public signal void undo_redo(bool undo, uint32 id, Guid?[] data);
-	public signal void restore_point_added(int id, Guid?[] data, uint32 flags);
 	public signal void object_type_added(ObjectTypeInfo info);
+	public signal void objects_created(Guid?[] object_ids, uint32 flags);
+	public signal void objects_destroyed(Guid?[] object_ids, uint32 flags);
+	public signal void objects_changed(Guid?[] object_ids, uint32 flags);
 
 	public Database(Project project, UndoRedo? undo_redo = null)
 	{
@@ -1415,7 +1416,21 @@ public class Database
 		if (_undo_redo != null) {
 			_undo_redo._undo.write_restore_point(id, flags, data);
 			_undo_redo._redo.clear();
-			restore_point_added(id, data, flags);
+
+			switch (id) {
+			case ActionType.CREATE_OBJECTS:
+				objects_created(data, flags);
+				break;
+			case ActionType.DESTROY_OBJECTS:
+				objects_destroyed(data, flags);
+				break;
+			case ActionType.CHANGE_OBJECTS:
+				objects_changed(data, flags);
+				break;
+				default:
+				logw("Unknown action type %d".printf(id));
+				break;
+			}
 		}
 	}
 
@@ -1541,7 +1556,21 @@ public class Database
 
 		undo_or_redo(_undo_redo._undo, _undo_redo._redo, rp.header.size);
 
-		undo_redo(true, rp.header.id, rp.data);
+		switch (rp.header.id) {
+		case ActionType.CREATE_OBJECTS:
+			objects_destroyed(rp.data, 0u);
+			break;
+		case ActionType.DESTROY_OBJECTS:
+			objects_created(rp.data, 0u);
+			break;
+		case ActionType.CHANGE_OBJECTS:
+			objects_changed(rp.data, 0u);
+			break;
+			default:
+			logw("Unknown action type %u".printf(rp.header.id));
+			break;
+		}
+
 		_undo_redo._redo.write_restore_point(rp.header.id, rp.header.flags, rp.data);
 
 		return (int)rp.header.id;
@@ -1560,7 +1589,21 @@ public class Database
 
 		undo_or_redo(_undo_redo._redo, _undo_redo._undo, rp.header.size);
 
-		undo_redo(false, rp.header.id, rp.data);
+		switch (rp.header.id) {
+		case ActionType.CREATE_OBJECTS:
+			objects_created(rp.data, 0u);
+			break;
+		case ActionType.DESTROY_OBJECTS:
+			objects_destroyed(rp.data, 0u);
+			break;
+		case ActionType.CHANGE_OBJECTS:
+			objects_changed(rp.data, 0u);
+			break;
+			default:
+			logw("Unknown action type %u".printf(rp.header.id));
+			break;
+		}
+
 		_undo_redo._undo.write_restore_point(rp.header.id, rp.header.flags, rp.data);
 
 		return (int)rp.header.id;
