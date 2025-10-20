@@ -11,6 +11,8 @@ Changelog
 :ref:`0.59.2 --- 20 Oct 2025 <v0.59.2>`
 ---------------------------------------
 
+**Fixes**
+
 * Tools: the Project Browser will now reject dropped files while showing Favorites.
 * Runtime: Windows: fixed windows firewall popping up at startup.
 * Runtime: fixed a regression that caused levels with many objects to not load.
