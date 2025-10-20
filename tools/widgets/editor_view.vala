@@ -13,42 +13,42 @@ namespace Crown
 {
 public class EditorView : Gtk.EventBox
 {
-	private const Gtk.TargetEntry[] dnd_targets =
+	public const Gtk.TargetEntry[] dnd_targets =
 	{
 		{ "RESOURCE_PATH", Gtk.TargetFlags.SAME_APP, 0 },
 	};
 
 	// Data
-	private RuntimeInstance _runtime;
+	public RuntimeInstance _runtime;
 
-	private Gtk.Allocation _allocation;
-	private uint _resize_timer_id;
+	public Gtk.Allocation _allocation;
+	public uint _resize_timer_id;
 
-	private bool _mouse_left;
-	private bool _mouse_middle;
-	private bool _mouse_right;
+	public bool _mouse_left;
+	public bool _mouse_middle;
+	public bool _mouse_right;
 
-	private uint _window_id;
-	private uint _last_window_id;
+	public uint _window_id;
+	public uint _last_window_id;
 
-	private Gee.HashMap<uint, bool> _keys;
-	private bool _input_enabled;
-	private bool _drag_enter;
-	private uint _drag_last_time;
-	private int64 _motion_last_time;
-	private const int MOTION_EVENTS_RATE = 75;
+	public Gee.HashMap<uint, bool> _keys;
+	public bool _input_enabled;
+	public bool _drag_enter;
+	public uint _drag_last_time;
+	public int64 _motion_last_time;
+	public const int MOTION_EVENTS_RATE = 75;
 
-	private GLib.StringBuilder _buffer;
+	public GLib.StringBuilder _buffer;
 
-	private Gtk.EventControllerKey _controller_key;
-	private Gtk.GestureMultiPress _gesture_click;
-	private Gtk.EventControllerMotion _controller_motion;
-	private Gtk.EventControllerScroll _controller_scroll;
+	public Gtk.EventControllerKey _controller_key;
+	public Gtk.GestureMultiPress _gesture_click;
+	public Gtk.EventControllerMotion _controller_motion;
+	public Gtk.EventControllerScroll _controller_scroll;
 
 	// Signals
 	public signal void native_window_ready(uint window_id, int width, int height);
 
-	private string key_to_string(uint k)
+	public string key_to_string(uint k)
 	{
 		switch (k) {
 		case Gdk.Key.w:         return "w";
@@ -63,14 +63,14 @@ public class EditorView : Gtk.EventBox
 		}
 	}
 
-	private bool camera_modifier_pressed()
+	public bool camera_modifier_pressed()
 	{
 		return _keys[Gdk.Key.Alt_L]
 			|| _keys[Gdk.Key.Alt_R]
 			;
 	}
 
-	private void camera_modifier_reset()
+	public void camera_modifier_reset()
 	{
 		_keys[Gdk.Key.Alt_L] = false;
 		_keys[Gdk.Key.Alt_R] = false;
@@ -151,7 +151,7 @@ public class EditorView : Gtk.EventBox
 		this.drag_leave.connect(on_drag_leave);
 	}
 
-	private void on_drag_data_received(Gdk.DragContext context, int x, int y, Gtk.SelectionData data, uint info, uint time_)
+	public void on_drag_data_received(Gdk.DragContext context, int x, int y, Gtk.SelectionData data, uint info, uint time_)
 	{
 		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_data_received.html
 		unowned uint8[] raw_data = data.get_data_with_length();
@@ -170,7 +170,7 @@ public class EditorView : Gtk.EventBox
 		}
 	}
 
-	private bool on_drag_motion(Gdk.DragContext context, int x, int y, uint _time)
+	public bool on_drag_motion(Gdk.DragContext context, int x, int y, uint _time)
 	{
 		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_motion.html
 		Gdk.Atom target;
@@ -203,7 +203,7 @@ public class EditorView : Gtk.EventBox
 		return true;
 	}
 
-	private bool on_drag_drop(Gdk.DragContext context, int x, int y, uint time_)
+	public bool on_drag_drop(Gdk.DragContext context, int x, int y, uint time_)
 	{
 		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_drop.html
 		int scale = this.get_scale_factor();
@@ -214,13 +214,13 @@ public class EditorView : Gtk.EventBox
 		return true;
 	}
 
-	private void on_drag_leave(Gdk.DragContext context, uint time_)
+	public void on_drag_leave(Gdk.DragContext context, uint time_)
 	{
 		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_leave.html
 		_drag_enter = false;
 	}
 
-	private void on_button_released(int n_press, double x, double y)
+	public void on_button_released(int n_press, double x, double y)
 	{
 		uint button = _gesture_click.get_current_button();
 		int scale = this.get_scale_factor();
@@ -253,7 +253,7 @@ public class EditorView : Gtk.EventBox
 		}
 	}
 
-	private void on_button_pressed(int n_press, double x, double y)
+	public void on_button_pressed(int n_press, double x, double y)
 	{
 		uint button = _gesture_click.get_current_button();
 		int scale = this.get_scale_factor();
@@ -292,7 +292,7 @@ public class EditorView : Gtk.EventBox
 		}
 	}
 
-	private bool on_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)
+	public bool on_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)
 	{
 		if (keyval == Gdk.Key.Escape)
 			GLib.Application.get_default().activate_action("cancel-place", null);
@@ -321,7 +321,7 @@ public class EditorView : Gtk.EventBox
 		return Gdk.EVENT_PROPAGATE;
 	}
 
-	private void on_key_released(uint keyval, uint keycode, Gdk.ModifierType state)
+	public void on_key_released(uint keyval, uint keycode, Gdk.ModifierType state)
 	{
 		if (_keys.has_key(keyval)) {
 			if (_keys[keyval])
@@ -337,7 +337,7 @@ public class EditorView : Gtk.EventBox
 		}
 	}
 
-	private void on_motion(double x, double y)
+	public void on_motion(double x, double y)
 	{
 		int64 now = GLib.get_monotonic_time();
 
@@ -354,7 +354,7 @@ public class EditorView : Gtk.EventBox
 		}
 	}
 
-	private void on_scroll(double dx, double dy)
+	public void on_scroll(double dx, double dy)
 	{
 		if (camera_modifier_pressed()) {
 			_runtime.send_script(LevelEditorApi.mouse_wheel(dy));
@@ -366,7 +366,7 @@ public class EditorView : Gtk.EventBox
 		}
 	}
 
-	private bool on_event_box_focus_out_event(Gdk.EventFocus ev)
+	public bool on_event_box_focus_out_event(Gdk.EventFocus ev)
 	{
 		camera_modifier_reset();
 
@@ -378,7 +378,7 @@ public class EditorView : Gtk.EventBox
 		return Gdk.EVENT_PROPAGATE;
 	}
 
-	private void on_size_allocate(Gtk.Allocation ev)
+	public void on_size_allocate(Gtk.Allocation ev)
 	{
 		int scale = this.get_scale_factor();
 
@@ -407,7 +407,7 @@ public class EditorView : Gtk.EventBox
 		}
 	}
 
-	private void on_event_box_realized()
+	public void on_event_box_realized()
 	{
 		this.get_window().ensure_native();
 #if CROWN_PLATFORM_LINUX
@@ -418,7 +418,7 @@ public class EditorView : Gtk.EventBox
 #endif
 	}
 
-	private void on_enter(double x, double y)
+	public void on_enter(double x, double y)
 	{
 		this.grab_focus();
 	}

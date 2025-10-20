@@ -82,7 +82,7 @@ public class InputVector4 : InputField, Gtk.Box
 		this.pack_start(_w, true);
 	}
 
-	private void on_value_changed()
+	public void on_value_changed()
 	{
 		if (!_stop_emit)
 			value_changed(this);

@@ -21,7 +21,7 @@ public class Toolbar : Gtk.Box
 		add_snap_to_grid_buttons();
 	}
 
-	private void add_tool_buttons()
+	public void add_tool_buttons()
 	{
 		this.pack_start(make_toggle_button("app.tool", new GLib.Variant.int32(ToolType.PLACE), "tool-place"));
 		this.pack_start(make_toggle_button("app.tool", new GLib.Variant.int32(ToolType.MOVE), "tool-move"));
@@ -31,7 +31,7 @@ public class Toolbar : Gtk.Box
 		this.pack_start(last);
 	}
 
-	private void add_snap_buttons()
+	public void add_snap_buttons()
 	{
 		this.pack_start(make_toggle_button("app.snap", new GLib.Variant.int32(SnapMode.RELATIVE), "reference-local"));
 		var last = make_toggle_button("app.snap", new GLib.Variant.int32(SnapMode.ABSOLUTE), "reference-world");
@@ -39,7 +39,7 @@ public class Toolbar : Gtk.Box
 		this.pack_start(last);
 	}
 
-	private void add_reference_system_buttons()
+	public void add_reference_system_buttons()
 	{
 		this.pack_start(make_toggle_button("app.reference-system", new GLib.Variant.int32(ReferenceSystem.LOCAL), "axis-local"));
 		var last = make_toggle_button("app.reference-system", new GLib.Variant.int32(ReferenceSystem.WORLD), "axis-world");
@@ -47,14 +47,14 @@ public class Toolbar : Gtk.Box
 		this.pack_start(last);
 	}
 
-	private void add_snap_to_grid_buttons()
+	public void add_snap_to_grid_buttons()
 	{
 		var last = make_toggle_button("app.snap-to-grid", null, "snap-to-grid");
 		last.margin_bottom = last.margin_bottom + 8;
 		this.pack_start(last);
 	}
 
-	private Gtk.ToggleButton make_toggle_button(string action_name
+	public Gtk.ToggleButton make_toggle_button(string action_name
 		, GLib.Variant? action_target
 		, string icon_name
 		, Gtk.IconSize icon_size = Gtk.IconSize.LARGE_TOOLBAR

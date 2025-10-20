@@ -7,12 +7,12 @@ namespace Crown
 {
 public class DataCompiler
 {
-	private RuntimeInstance _runtime;
-	private Guid _id;
-	private bool _success;
-	private SourceFunc _compile_callback;
-	private SourceFunc _refresh_list_callback;
-	private Gee.ArrayList<Value?> _refresh_list;
+	public RuntimeInstance _runtime;
+	public Guid _id;
+	public bool _success;
+	public SourceFunc _compile_callback;
+	public SourceFunc _refresh_list_callback;
+	public Gee.ArrayList<Value?> _refresh_list;
 	public uint _revision;
 
 	public signal void start();

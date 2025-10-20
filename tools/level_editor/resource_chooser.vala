@@ -6,7 +6,7 @@
 namespace Crown
 {
 // Returns true if the item should be filtered out
-private bool user_filter(string type, string name)
+public bool user_filter(string type, string name)
 {
 	return (type == OBJECT_TYPE_UNIT || type == OBJECT_TYPE_SOUND) && !name.has_prefix("core/");
 }
@@ -129,7 +129,7 @@ public class ResourceChooser : Gtk.Box
 		this.unmap.connect(on_unmap);
 	}
 
-	private void on_row_activated(Gtk.TreePath path, Gtk.TreeViewColumn column)
+	public void on_row_activated(Gtk.TreePath path, Gtk.TreeViewColumn column)
 	{
 		Gtk.TreePath filter_path = _tree_sort.convert_path_to_child_path(path);
 		Gtk.TreePath child_path = _tree_filter.convert_path_to_child_path(filter_path);
@@ -144,7 +144,7 @@ public class ResourceChooser : Gtk.Box
 		}
 	}
 
-	private void on_button_released(int n_press, double x, double y)
+	public void on_button_released(int n_press, double x, double y)
 	{
 		uint button = _tree_view_gesture_click.get_current_button();
 
@@ -171,12 +171,12 @@ public class ResourceChooser : Gtk.Box
 		}
 	}
 
-	private void on_unmap()
+	public void on_unmap()
 	{
 		_filter_entry.text = "";
 	}
 
-	private void on_filter_entry_text_changed()
+	public void on_filter_entry_text_changed()
 	{
 		_tree_selection.changed.disconnect(on_tree_selection_changed);
 		_tree_filter.refilter();
@@ -184,7 +184,7 @@ public class ResourceChooser : Gtk.Box
 		_tree_view.set_cursor(new Gtk.TreePath.first(), null, false);
 	}
 
-	private bool on_filter_entry_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)
+	public bool on_filter_entry_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)
 	{
 		Gtk.TreeModel model;
 		Gtk.TreeIter iter;
@@ -220,7 +220,7 @@ public class ResourceChooser : Gtk.Box
 		return Gdk.EVENT_PROPAGATE;
 	}
 
-	private void on_tree_selection_changed()
+	public void on_tree_selection_changed()
 	{
 		if (_editor_stack != null) {
 			Gtk.TreeModel model;

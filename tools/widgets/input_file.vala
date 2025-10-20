@@ -61,7 +61,7 @@ public class InputFile : InputField, Gtk.Button
 		this.clicked.connect(on_selector_clicked);
 	}
 
-	private void on_selector_clicked()
+	public void on_selector_clicked()
 	{
 		string label = _action == Gtk.FileChooserAction.SELECT_FOLDER ? "Folder" : "File";
 		Gtk.FileChooserDialog dlg = new Gtk.FileChooserDialog("Select %s".printf(label)

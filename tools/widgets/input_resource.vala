@@ -74,7 +74,7 @@ public class InputResource : InputField, Gtk.Box
 		db._project.file_removed.connect(on_file_removed);
 	}
 
-	private void on_selector_clicked()
+	public void on_selector_clicked()
 	{
 		if (_dialog == null) {
 			_dialog = ((LevelEditorApplication)GLib.Application.get_default()).new_select_resource_dialog(_type);
@@ -85,30 +85,30 @@ public class InputResource : InputField, Gtk.Box
 		_dialog.present();
 	}
 
-	private void on_select_resource_dialog_resource_selected(string type, string name)
+	public void on_select_resource_dialog_resource_selected(string type, string name)
 	{
 		_name.value = name;
 		_dialog.hide();
 	}
 
-	private void on_revealer_clicked()
+	public void on_revealer_clicked()
 	{
 		var tuple = new GLib.Variant.tuple({_type, _name.value});
 		GLib.Application.get_default().activate_action("reveal-resource", tuple);
 	}
 
-	private void on_name_value_changed()
+	public void on_name_value_changed()
 	{
 		value_changed(this);
 	}
 
-	private void on_file_added_or_changed(string type, string name, uint64 size, uint64 mtime)
+	public void on_file_added_or_changed(string type, string name, uint64 size, uint64 mtime)
 	{
 		if (type == _type && name == _name.value)
 			value_changed(this);
 	}
 
-	private void on_file_removed(string type, string name)
+	public void on_file_removed(string type, string name)
 	{
 		if (type == _type && name == _name.value)
 			value_changed(this);

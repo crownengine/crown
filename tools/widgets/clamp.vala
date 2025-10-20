@@ -8,7 +8,7 @@ namespace Crown
 // Drop-in replacement (sort-of) for HdyClamp from libhandy1.
 public class Clamp : Gtk.Container
 {
-	private Gtk.Widget _child;
+	public Gtk.Widget _child;
 
 	public Clamp()
 	{

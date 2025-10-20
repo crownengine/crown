@@ -95,7 +95,7 @@ public class DeployerPage : Gtk.Box
 		this.map.connect(on_map);
 	}
 
-	private void on_map()
+	public void on_map()
 	{
 		if (_check_config != null) {
 			if (_check_config() != 0)
@@ -534,7 +534,7 @@ public class DeployDialog : Gtk.Window
 		this.add(_notebook);
 	}
 
-	private bool on_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)
+	public bool on_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)
 	{
 		if (keyval == Gdk.Key.Escape)
 			this.close();

@@ -445,10 +445,10 @@ public struct ObjectTypeInfo
 
 public class Database
 {
-	private static bool _debug = false;
-	private static bool _debug_getters = false;
+	public static bool _debug = false;
+	public static bool _debug_getters = false;
 
-	private enum Action
+	public enum Action
 	{
 		CREATE,
 		DESTROY,
@@ -465,10 +465,10 @@ public class Database
 
 	// Data
 	private PropertyDefinition[] _property_definitions;
-	private Gee.HashMap<StringId64?, ObjectTypeInfo?> _object_definitions;
-	private Gee.HashMap<Guid?, Gee.HashMap<string, Value?>> _data;
-	private UndoRedo? _undo_redo;
-	private UndoRedo? _undo_redo_restore;
+	public Gee.HashMap<StringId64?, ObjectTypeInfo?> _object_definitions;
+	public Gee.HashMap<Guid?, Gee.HashMap<string, Value?>> _data;
+	public UndoRedo? _undo_redo;
+	public UndoRedo? _undo_redo_restore;
 	public Project _project;
 	// The number of changes to the database since the last successful state
 	// synchronization (load(), save() etc.). If it is less than 0, the changes
@@ -629,12 +629,12 @@ public class Database
 	}
 
 	/// Encodes the object @a id into SJSON object.
-	private Hashtable encode(Guid id)
+	public Hashtable encode(Guid id)
 	{
 		return encode_object(id, get_data(id));
 	}
 
-	private static bool is_valid_value(Value? value)
+	public static bool is_valid_value(Value? value)
 	{
 		return value == null
 			|| value.holds(typeof(bool))
@@ -646,7 +646,7 @@ public class Database
 			;
 	}
 
-	private static bool is_valid_key(string key)
+	public static bool is_valid_key(string key)
 	{
 		return key.length > 0
 			&& !key.has_prefix(".")
@@ -654,7 +654,7 @@ public class Database
 			;
 	}
 
-	private static string value_to_string(Value? value)
+	public static string value_to_string(Value? value)
 	{
 		if (value == null)
 			return "null";
@@ -676,7 +676,7 @@ public class Database
 		return "<invalid>";
 	}
 
-	private void decode_object(Guid id, Guid owner_id, string db_key, Hashtable json)
+	public void decode_object(Guid id, Guid owner_id, string db_key, Hashtable json)
 	{
 		string old_db = db_key;
 		string k = db_key;
@@ -718,7 +718,7 @@ public class Database
 		}
 	}
 
-	private void decode_set(Guid owner_id, string key, Gee.ArrayList<Value?> json)
+	public void decode_set(Guid owner_id, string key, Gee.ArrayList<Value?> json)
 	{
 		// Set should be created even if it is empty.
 		create_empty_set(owner_id, key);
@@ -787,7 +787,7 @@ public class Database
 		}
 	}
 
-	private Value? decode_value(Value? value)
+	public Value? decode_value(Value? value)
 	{
 		if (value.holds(typeof(Gee.ArrayList))) {
 			Gee.ArrayList<Value?> al = (Gee.ArrayList<Value?>)value;
@@ -815,7 +815,7 @@ public class Database
 		}
 	}
 
-	private Hashtable encode_object_compat(Guid id, Gee.HashMap<string, Value?> db)
+	public Hashtable encode_object_compat(Guid id, Gee.HashMap<string, Value?> db)
 	{
 		Hashtable obj = new Hashtable();
 		if (id != GUID_ZERO)
@@ -849,7 +849,7 @@ public class Database
 		return obj;
 	}
 
-	private Hashtable encode_object(Guid id, Gee.HashMap<string, Value?> db)
+	public Hashtable encode_object(Guid id, Gee.HashMap<string, Value?> db)
 	{
 		string type = object_type(id);
 		PropertyDefinition[]? properties = object_definition(StringId64(type));
@@ -893,7 +893,7 @@ public class Database
 		return obj;
 	}
 
-	private Value? encode_value(Value? value)
+	public Value? encode_value(Value? value)
 	{
 		assert(is_valid_value(value) || value.holds(typeof(Gee.HashSet)));
 
@@ -927,14 +927,14 @@ public class Database
 		}
 	}
 
-	private Gee.HashMap<string, Value?> get_data(Guid id)
+	public Gee.HashMap<string, Value?> get_data(Guid id)
 	{
 		assert(has_object(id));
 
 		return _data[id];
 	}
 
-	private void create_internal(int dir, Guid id)
+	public void create_internal(int dir, Guid id)
 	{
 		assert(id != GUID_ZERO);
 
@@ -946,7 +946,7 @@ public class Database
 		_distance_from_last_sync += dir;
 	}
 
-	private void destroy_internal(int dir, Guid id)
+	public void destroy_internal(int dir, Guid id)
 	{
 		assert(id != GUID_ZERO);
 		assert(has_object(id));
@@ -983,7 +983,7 @@ public class Database
 		ob[key] = new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func);
 	}
 
-	private void add_to_set_internal(int dir, Guid id, string key, Guid item_id)
+	public void add_to_set_internal(int dir, Guid id, string key, Guid item_id)
 	{
 		assert(has_object(id));
 		assert(is_valid_key(key));
@@ -1006,7 +1006,7 @@ public class Database
 		_distance_from_last_sync += dir;
 	}
 
-	private void remove_from_set_internal(int dir, Guid id, string key, Guid item_id)
+	public void remove_from_set_internal(int dir, Guid id, string key, Guid item_id)
 	{
 		assert(has_object(id));
 		assert(is_valid_key(key));
@@ -1527,7 +1527,7 @@ public class Database
 
 	// Tries to read a restore point @a rp from the @a stack and returns
 	// 0 if successful.
-	private int try_read_restore_point(ref RestorePoint rp, Stack stack)
+	public int try_read_restore_point(ref RestorePoint rp, Stack stack)
 	{
 		if (stack.size() < sizeof(Action) + sizeof(RestorePointHeader))
 			return -1;
@@ -1609,7 +1609,7 @@ public class Database
 		return (int)rp.header.id;
 	}
 
-	private void undo_or_redo(Stack undo, Stack redo, uint32 restore_point_size)
+	public void undo_or_redo(Stack undo, Stack redo, uint32 restore_point_size)
 	{
 		assert(undo.size() >= restore_point_size);
 

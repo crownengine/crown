@@ -65,12 +65,12 @@ public class InputString : InputField, Gtk.Entry
 		this.focus_out_event.connect(on_focus_out);
 	}
 
-	private void on_button_pressed(int n_press, double x, double y)
+	public void on_button_pressed(int n_press, double x, double y)
 	{
 		this.grab_focus();
 	}
 
-	private void on_button_released(int n_press, double x, double y)
+	public void on_button_released(int n_press, double x, double y)
 	{
 		uint button = _gesture_click.get_current_button();
 
@@ -88,14 +88,14 @@ public class InputString : InputField, Gtk.Entry
 		}
 	}
 
-	private void on_activate()
+	public void on_activate()
 	{
 		this.select_region(0, 0);
 		this.set_position(-1);
 		set_value_safe(this.text);
 	}
 
-	private bool on_focus_in(Gdk.EventFocus ev)
+	public bool on_focus_in(Gdk.EventFocus ev)
 	{
 		var app = (LevelEditorApplication)GLib.Application.get_default();
 		app.entry_any_focus_in(this);
@@ -111,7 +111,7 @@ public class InputString : InputField, Gtk.Entry
 		return Gdk.EVENT_PROPAGATE;
 	}
 
-	private bool on_focus_out(Gdk.EventFocus ef)
+	public bool on_focus_out(Gdk.EventFocus ef)
 	{
 		var app = (LevelEditorApplication)GLib.Application.get_default();
 		app.entry_any_focus_out(this);
@@ -131,7 +131,7 @@ public class InputString : InputField, Gtk.Entry
 		return Gdk.EVENT_PROPAGATE;
 	}
 
-	protected virtual void set_value_safe(string text)
+	public virtual void set_value_safe(string text)
 	{
 		this.text = text;
 

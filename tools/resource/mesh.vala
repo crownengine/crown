@@ -16,7 +16,7 @@ public struct Mesh
 		_nodes = new Gee.ArrayList<string>();
 	}
 
-	private void decode_node(Hashtable node)
+	public void decode_node(Hashtable node)
 	{
 		foreach (var e in node.entries) {
 			if (e.key == "matrix_local") {
@@ -29,7 +29,7 @@ public struct Mesh
 		}
 	}
 
-	private void decode_nodes(Hashtable nodes)
+	public void decode_nodes(Hashtable nodes)
 	{
 		foreach (var e in nodes.entries) {
 			_nodes.add(e.key);

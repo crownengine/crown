@@ -75,7 +75,7 @@ public class InputVector3 : InputField, Gtk.Box
 		this.pack_start(_z, true);
 	}
 
-	private void on_value_changed()
+	public void on_value_changed()
 	{
 		value_changed(this);
 	}

@@ -8,10 +8,10 @@ namespace Crown
 public class UnitView : PropertyGrid
 {
 	// Widgets
-	private InputResource _prefab;
-	private Gtk.MenuButton _component_add;
-	private Gtk.Box _components;
-	private Gtk.Popover _add_popover;
+	public InputResource _prefab;
+	public Gtk.MenuButton _component_add;
+	public Gtk.Box _components;
+	public Gtk.Popover _add_popover;
 
 	public static GLib.Menu component_menu(string object_type)
 	{
@@ -73,20 +73,20 @@ public class UnitView : PropertyGrid
 
 public class PropertiesView : Gtk.Box
 {
-	private Database _db;
-	private Gee.HashMap<string, Expander> _expanders;
-	private Gee.HashMap<string, bool> _expander_states;
-	private Gee.HashMap<string, PropertyGrid> _objects;
-	private Gee.ArrayList<string> _entries;
-	private Gee.ArrayList<Guid?>? _selection;
+	public Database _db;
+	public Gee.HashMap<string, Expander> _expanders;
+	public Gee.HashMap<string, bool> _expander_states;
+	public Gee.HashMap<string, PropertyGrid> _objects;
+	public Gee.ArrayList<string> _entries;
+	public Gee.ArrayList<Guid?>? _selection;
 
 	// Widgets
-	private Gtk.Label _nothing_to_show;
-	private Gtk.Label _unknown_object_type;
-	private Gtk.Viewport _viewport;
-	private Gtk.ScrolledWindow _scrolled_window;
-	private PropertyGridSet _object_view;
-	private Gtk.Stack _stack;
+	public Gtk.Label _nothing_to_show;
+	public Gtk.Label _unknown_object_type;
+	public Gtk.Viewport _viewport;
+	public Gtk.ScrolledWindow _scrolled_window;
+	public PropertyGridSet _object_view;
+	public Gtk.Stack _stack;
 
 	[CCode (has_target = false)]
 	public delegate GLib.Menu ContextMenu(string object_type);
