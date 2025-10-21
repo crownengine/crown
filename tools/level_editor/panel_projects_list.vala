@@ -129,9 +129,8 @@ public class ProjectsList : Gtk.Box
 			});
 
 		_button_import_project = new Gtk.Button.with_label("Import...");
-		_button_import_project.clicked.connect(() => {
-				GLib.Application.get_default().activate_action("add-project", null);
-			});
+		_button_import_project.action_name = "app.add-project";
+
 		_button_new_project = new Gtk.Button.with_label("Create New");
 		_button_new_project.get_style_context().add_class("suggested-action");
 		_button_new_project.clicked.connect(() => {
