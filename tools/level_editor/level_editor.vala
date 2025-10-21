@@ -1863,14 +1863,12 @@ public class LevelEditorApplication : Gtk.Application
 
 		logi("Project `%s` loaded.".printf(source_dir));
 
-		restart_backend.begin((obj, res) => {
-				if (restart_backend.end(res)) {
-					if (level_name == null)
-						do_new_level();
-					else
-						load_level(level_name);
-				}
-			});
+		if (level_name == null)
+			do_new_level();
+		else
+			load_level(level_name);
+
+		restart_backend.begin();
 	}
 
 	public void open_project(string source_dir, string? level_name = null)
