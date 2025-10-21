@@ -133,10 +133,7 @@ public class ProjectsList : Gtk.Box
 
 		_button_new_project = new Gtk.Button.with_label("Create New");
 		_button_new_project.get_style_context().add_class("suggested-action");
-		_button_new_project.clicked.connect(() => {
-				var app = (LevelEditorApplication)GLib.Application.get_default();
-				app.show_panel(PANEL_NEW_PROJECT, Gtk.StackTransitionType.SLIDE_DOWN);
-			});
+		_button_new_project.action_name = "app.new-project";
 
 		_buttons_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
 		_buttons_box.spacing = 6;

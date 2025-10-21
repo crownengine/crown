@@ -66,10 +66,7 @@ public class NewProject : Gtk.Box
 		_label_message.xalign = 1;
 
 		_button_back = new Gtk.Button.with_label("Back");
-		_button_back.clicked.connect(() => {
-				var app = (LevelEditorApplication)GLib.Application.get_default();
-				app.show_panel(PANEL_PROJECTS_LIST, Gtk.StackTransitionType.SLIDE_UP);
-			});
+		_button_back.action_name = "app.open-projects-list";
 
 		_button_create = new Gtk.Button.with_label("Create");
 		_button_create.get_style_context().add_class("suggested-action");
@@ -122,8 +119,6 @@ public class NewProject : Gtk.Box
 				_label_message.label = "";
 
 				_user.add_or_touch_recent_project(source_dir, _entry_name.text);
-				var app = (LevelEditorApplication)GLib.Application.get_default();
-				app.show_panel(PANEL_EDITOR);
 
 				if (_combo_box_map_template.value == "")
 					_project.create_initial_files(source_dir);
