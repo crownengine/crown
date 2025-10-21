@@ -427,25 +427,26 @@ public class LevelEditorApplication : Gtk.Application
 		//                                        parameter type
 		// name                activate()         |        state
 		// |                   |                  |        |
-		{ "menu-file",         null,              null,    null },
-		{ "new-level",         on_new_level,      null,    null },
-		{ "open-level",        on_open_level,     "s",     null },
-		{ "new-project",       on_new_project,    null,    null },
-		{ "add-project",       on_add_project,    null,    null },
-		{ "remove-project",    on_remove_project, "s",     null },
-		{ "open-project",      on_open_project,   "(ss)",  null },
-		{ "open-project-null", on_open_project,   null,    null },
-		{ "save",              on_save,           null,    null },
-		{ "save-as",           on_save_as,        null,    null },
-		{ "import",            on_import,         "(sas)", null },
-		{ "import-null",       on_import,         null,    null },
-		{ "preferences",       on_preferences,    null,    null },
-		{ "deploy",            on_deploy,         null,    null },
-		{ "close-project",     on_close_project,  null,    null },
-		{ "quit",              on_quit,           null,    null },
-		{ "open-resource",     on_open_resource,  "s",     null },
-		{ "copy-path",         on_copy_path,      "s",     null },
-		{ "copy-name",         on_copy_name,      "s",     null }
+		{ "menu-file",          null,                  null,    null },
+		{ "new-level",          on_new_level,          null,    null },
+		{ "open-level",         on_open_level,         "s",     null },
+		{ "new-project",        on_new_project,        null,    null },
+		{ "add-project",        on_add_project,        null,    null },
+		{ "remove-project",     on_remove_project,     "s",     null },
+		{ "open-project",       on_open_project,       "(ss)",  null },
+		{ "open-project-null",  on_open_project,       null,    null },
+		{ "open-projects-list", on_open_projects_list, null,    null },
+		{ "save",               on_save,               null,    null },
+		{ "save-as",            on_save_as,            null,    null },
+		{ "import",             on_import,             "(sas)", null },
+		{ "import-null",        on_import,             null,    null },
+		{ "preferences",        on_preferences,        null,    null },
+		{ "deploy",             on_deploy,             null,    null },
+		{ "close-project",      on_close_project,      null,    null },
+		{ "quit",               on_quit,               null,    null },
+		{ "open-resource",      on_open_resource,      "s",     null },
+		{ "copy-path",          on_copy_path,          "s",     null },
+		{ "copy-name",          on_copy_name,          "s",     null },
 	};
 
 	public const GLib.ActionEntry[] action_entries_edit =
@@ -1910,6 +1911,11 @@ public class LevelEditorApplication : Gtk.Application
 				});
 			dlg.show_all();
 		}
+	}
+
+	public void on_open_projects_list(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		show_panel(PANEL_PROJECTS_LIST);
 	}
 
 	public void do_new_project()
@@ -4179,7 +4185,7 @@ public class LevelEditorApplication : Gtk.Application
 		} else if (name == PANEL_PROJECTS_LIST
 			|| name == PANEL_NEW_PROJECT
 			) {
-			menu_set_enabled(false, action_entries_file, {"new-project", "add-project", "open-project", "open-project-null", "remove-project", "quit"});
+			menu_set_enabled(false, action_entries_file, {"new-project", "add-project", "open-project", "open-project-null", "open-projects-list", "remove-project", "quit"});
 			menu_set_enabled(false, action_entries_edit);
 			menu_set_enabled(false, action_entries_create);
 			menu_set_enabled(false, action_entries_camera);
