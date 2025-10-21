@@ -129,6 +129,8 @@ public class PropertyGrid : Gtk.Grid
 	{
 		if (p.is_inconsistent())
 			return;
+		if (_id == GUID_ZERO)
+			return;
 
 		PropertyDefinition def = _definitions[p];
 		bool changed = false;
