@@ -2139,6 +2139,8 @@ public class LevelEditorApplication : Gtk.Application
 
 	public void stop_backend_and_quit()
 	{
+		reset_project();
+		
 		stop_backend.begin((obj, res) => {
 				stop_backend.end(res);
 				this.quit();

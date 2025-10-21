@@ -136,10 +136,10 @@ public class Project
 
 	public void reset()
 	{
+		project_reset();
+
 		reset_files();
 		_source_dir = null;
-
-		project_reset();
 	}
 
 	public bool is_loaded()
