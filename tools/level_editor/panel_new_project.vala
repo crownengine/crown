@@ -5,7 +5,7 @@
 
 namespace Crown
 {
-public class PanelNewProject : Gtk.Box
+public class NewProject : Gtk.Box
 {
 	// Data
 	User _user;
@@ -29,7 +29,7 @@ public class PanelNewProject : Gtk.Box
 	public Gtk.Grid _grid;
 	public Clamp _clamp;
 
-	public PanelNewProject(User user, Project project)
+	public NewProject(User user, Project project)
 	{
 		Object(orientation: Gtk.Orientation.VERTICAL);
 
@@ -68,7 +68,7 @@ public class PanelNewProject : Gtk.Box
 		_button_back = new Gtk.Button.with_label("Back");
 		_button_back.clicked.connect(() => {
 				var app = (LevelEditorApplication)GLib.Application.get_default();
-				app.show_panel("panel_welcome", Gtk.StackTransitionType.SLIDE_UP);
+				app.show_panel(PANEL_PROJECTS_LIST, Gtk.StackTransitionType.SLIDE_UP);
 			});
 
 		_button_create = new Gtk.Button.with_label("Create");
@@ -123,7 +123,7 @@ public class PanelNewProject : Gtk.Box
 
 				_user.add_or_touch_recent_project(source_dir, _entry_name.text);
 				var app = (LevelEditorApplication)GLib.Application.get_default();
-				app.show_panel("main_vbox");
+				app.show_panel(PANEL_EDITOR);
 
 				if (_combo_box_map_template.value == "")
 					_project.create_initial_files(source_dir);
