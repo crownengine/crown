@@ -18,6 +18,11 @@ const string CROWN_EDITOR_NAME = "Crown Editor";
 const string CROWN_EDITOR_ICON_NAME = "org.crownengine.Crown";
 const string CROWN_SUBPROCESS_LAUNCHER = "org.crownengine.SubprocessLauncher";
 
+public const string PANEL_WAITING = "panel-waiting";
+public const string PANEL_EDITOR = "panel-editor";
+public const string PANEL_PROJECTS_LIST = "panel-projects-list";
+public const string PANEL_NEW_PROJECT = "panel-new-project";
+
 public enum Theme
 {
 	DARK,
@@ -635,9 +640,8 @@ public class LevelEditorApplication : Gtk.Application
 	public Gtk.Box _main_vbox;
 	public Gtk.FileFilter _file_filter;
 	public Gtk.ComboBoxText _combo;
-	public PanelNewProject _panel_new_project;
-	public PanelProjectsList _panel_projects_list;
-	public PanelWelcome _panel_welcome;
+	public NewProject _new_project;
+	public ProjectsList _projects_list;
 	public Gtk.Stack _main_stack;
 	public Gtk.HeaderBar _header_bar;
 
@@ -896,19 +900,17 @@ public class LevelEditorApplication : Gtk.Application
 		_file_filter.add_pattern("*.level");
 
 		_user = new User();
-		_panel_new_project = new PanelNewProject(_user, _project);
-		_panel_new_project.fill_templates_list(_templates_dir.get_path());
+		_new_project = new NewProject(_user, _project);
+		_new_project.fill_templates_list(_templates_dir.get_path());
 
-		_panel_welcome = new PanelWelcome();
-		_panel_projects_list = new PanelProjectsList(_user);
-		_panel_welcome.pack_start(_panel_projects_list);
-		_panel_welcome.set_visible(true); // To make Gtk.Stack work...
+		_projects_list = new ProjectsList(_user);
+		_projects_list.set_visible(true); // To make Gtk.Stack work...
 
 		_main_stack = new Gtk.Stack();
-		_main_stack.add_named(new Gtk.Label("Waiting for %s...".printf(CROWN_SUBPROCESS_LAUNCHER)), "panel_waiting");
-		_main_stack.add_named(_panel_welcome, "panel_welcome");
-		_main_stack.add_named(_panel_new_project, "panel_new_project");
-		_main_stack.add_named(_main_vbox, "main_vbox");
+		_main_stack.add_named(new Gtk.Label("Waiting for %s...".printf(CROWN_SUBPROCESS_LAUNCHER)), PANEL_WAITING);
+		_main_stack.add_named(_projects_list, PANEL_PROJECTS_LIST);
+		_main_stack.add_named(_new_project, PANEL_NEW_PROJECT);
+		_main_stack.add_named(_main_vbox, PANEL_EDITOR);
 
 		_header_bar = new Gtk.HeaderBar();
 		_header_bar.show_close_button = true;
@@ -953,7 +955,7 @@ public class LevelEditorApplication : Gtk.Application
 		_user.load(_user_file.get_path());
 		_console_view._entry_history.load(_console_history_file.get_path());
 
-		show_panel("panel_waiting");
+		show_panel(PANEL_WAITING);
 	}
 
 	public override void activate()
@@ -995,7 +997,7 @@ public class LevelEditorApplication : Gtk.Application
 			if (_source_dir == null) {
 				show_panel("panel_welcome");
 			} else {
-				show_panel("main_vbox");
+				show_panel(PANEL_EDITOR);
 				restart_backend.begin();
 			}
 		} catch (IOError e) {
@@ -1854,7 +1856,7 @@ public class LevelEditorApplication : Gtk.Application
 			return;
 		}
 
-		this.show_panel("main_vbox", Gtk.StackTransitionType.NONE);
+		this.show_panel(PANEL_EDITOR, Gtk.StackTransitionType.NONE);
 		_user.add_or_touch_recent_project(source_dir, source_dir);
 		_console_view.reset();
 
@@ -1916,7 +1918,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		stop_backend.begin((obj, res) => {
 				stop_backend.end(res);
-				show_panel("panel_new_project");
+				show_panel(PANEL_NEW_PROJECT);
 			});
 	}
 
@@ -2108,7 +2110,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		stop_backend.begin((obj, res) => {
 				stop_backend.end(res);
-				show_panel("panel_welcome");
+				show_panel(PANEL_PROJECTS_LIST);
 			});
 	}
 
@@ -4157,7 +4159,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		_main_stack.set_visible_child_full(name, stt);
 
-		if (name == "main_vbox") {
+		if (name == PANEL_EDITOR) {
 			// FIXME: save/restore last known window state
 			int win_w;
 			int win_h;
@@ -4174,9 +4176,8 @@ public class LevelEditorApplication : Gtk.Application
 			menu_set_enabled(true, action_entries_view);
 			menu_set_enabled(true, action_entries_debug);
 			menu_set_enabled(true, action_entries_help);
-		} else if (name == "panel_welcome"
-			|| name == "panel_new_project"
-			|| name == "panel_projects_list"
+		} else if (name == PANEL_PROJECTS_LIST
+			|| name == PANEL_NEW_PROJECT
 			) {
 			menu_set_enabled(false, action_entries_file, {"new-project", "add-project", "open-project", "open-project-null", "remove-project", "quit"});
 			menu_set_enabled(false, action_entries_edit);

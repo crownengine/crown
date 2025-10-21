@@ -13,9 +13,9 @@ public class ProjectRow : Gtk.ListBoxRow
 	public Gtk.Label _source_dir;
 	public Gtk.Button _remove_button;
 	public Gtk.Button _open_button;
-	public PanelProjectsList _projects_list;
+	public ProjectsList _projects_list;
 
-	public ProjectRow(string source_dir, string time, string name, PanelProjectsList pl)
+	public ProjectRow(string source_dir, string time, string name, ProjectsList pl)
 	{
 		this.set_data("source_dir", source_dir);
 		this.set_data("mtime", time);
@@ -79,7 +79,7 @@ public class ProjectRow : Gtk.ListBoxRow
 	}
 }
 
-public class PanelProjectsList : Gtk.Box
+public class ProjectsList : Gtk.Box
 {
 	// Data
 	public User _user;
@@ -95,7 +95,7 @@ public class PanelProjectsList : Gtk.Box
 	public Gtk.Box _projects_box;
 	public Clamp _clamp;
 
-	public PanelProjectsList(User user)
+	public ProjectsList(User user)
 	{
 		Object(orientation: Gtk.Orientation.VERTICAL);
 
@@ -136,7 +136,7 @@ public class PanelProjectsList : Gtk.Box
 		_button_new_project.get_style_context().add_class("suggested-action");
 		_button_new_project.clicked.connect(() => {
 				var app = (LevelEditorApplication)GLib.Application.get_default();
-				app.show_panel("panel_new_project", Gtk.StackTransitionType.SLIDE_DOWN);
+				app.show_panel(PANEL_NEW_PROJECT, Gtk.StackTransitionType.SLIDE_DOWN);
 			});
 
 		_buttons_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
