@@ -1904,7 +1904,7 @@ public class LevelEditorApplication : Gtk.Application
 					if (response_id == Gtk.ResponseType.NO)
 						open_project(source_dir, level_name);
 					else if (response_id == Gtk.ResponseType.YES)
-						save("open-project", new GLib.Variant.string(source_dir));
+						save("open-project", new GLib.Variant.tuple({source_dir, level_name}));
 					dlg.destroy();
 				});
 			dlg.show_all();
