@@ -9,7 +9,6 @@ public class NewProject : Gtk.Box
 {
 	// Data
 	User _user;
-	Project _project;
 
 	// Widgets
 	public Gtk.Label _new_project_label;
@@ -35,7 +34,6 @@ public class NewProject : Gtk.Box
 
 		// Data
 		_user = user;
-		_project = project;
 
 		_new_project_label = new Gtk.Label(null);
 		_new_project_label.xalign = 0;
@@ -121,7 +119,7 @@ public class NewProject : Gtk.Box
 				_user.add_or_touch_recent_project(source_dir, _entry_name.text);
 
 				if (_combo_box_map_template.value == "")
-					_project.create_initial_files(source_dir);
+					Project.create_initial_files(source_dir);
 				else
 					copy_template_to_source_dir(source_dir, _combo_box_map_template.value);
 

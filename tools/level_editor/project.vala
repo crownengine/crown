@@ -181,7 +181,7 @@ public class Project
 		_toolchain_dir = File.new_for_path(toolchain_dir);
 	}
 
-	public void create_initial_files(string source_dir)
+	public static void create_initial_files(string source_dir)
 	{
 		// Write boot.config
 		{
