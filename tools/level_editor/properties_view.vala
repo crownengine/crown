@@ -7,27 +7,35 @@ namespace Crown
 {
 public class UnitView : PropertyGrid
 {
-	// Widgets
 	public InputResource _prefab;
 	public Gtk.MenuButton _component_add;
 	public Gtk.Box _components;
 	public Gtk.Popover _add_popover;
 
-	public static GLib.Menu component_menu(string object_type)
+	public const GLib.ActionEntry[] actions =
 	{
-		GLib.Menu menu = new GLib.Menu();
-		GLib.MenuItem mi;
+		{ "add-component", on_add_component, "s", null },
+	};
 
-		mi = new GLib.MenuItem("Remove Component", null);
-		mi.set_action_and_target_value("app.unit-remove-component", new GLib.Variant.string(object_type));
-		menu.append_item(mi);
+	public void on_add_component(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string component_type = param.get_string();
 
-		return menu;
+		Guid unit_id = _id;
+		Unit unit = Unit(_db, unit_id);
+
+		Gee.ArrayList<Guid?> components_added = new Gee.ArrayList<Guid?>();
+		components_added.add(unit_id);
+		unit.add_component_type_dependencies(ref components_added, component_type);
+
+		_db.add_restore_point((int)ActionType.CREATE_OBJECTS, components_added.to_array());
 	}
 
 	public UnitView(Database db)
 	{
 		base(db);
+
+		_action_group.add_action_entries(actions, this);
 
 		_order = -1.0;
 
@@ -41,7 +49,7 @@ public class UnitView : PropertyGrid
 
 		foreach (var entry in Unit._component_registry.entries) {
 			mi = new GLib.MenuItem(camel_case(entry.key), null);
-			mi.set_action_and_target_value("app.unit-add-component"
+			mi.set_action_and_target_value("object.add-component"
 				, new GLib.Variant.string(entry.key)
 				);
 			menu_model.append_item(mi);
@@ -69,15 +77,18 @@ public class UnitView : PropertyGrid
 			_prefab.value = "<none>";
 		}
 	}
+
+	public void on_open_prefab_clicked()
+	{
+		GLib.Application.get_default().activate_action("unit-open", new GLib.Variant.string(_prefab.value));
+	}
 }
 
 public class PropertiesView : Gtk.Box
 {
 	public Database _db;
-	public Gee.HashMap<string, Expander> _expanders;
 	public Gee.HashMap<string, bool> _expander_states;
 	public Gee.HashMap<string, PropertyGrid> _objects;
-	public Gee.ArrayList<string> _entries;
 	public Gee.ArrayList<Guid?>? _selection;
 
 	// Widgets
@@ -88,9 +99,6 @@ public class PropertiesView : Gtk.Box
 	public PropertyGridSet _object_view;
 	public Gtk.Stack _stack;
 
-	[CCode (has_target = false)]
-	public delegate GLib.Menu ContextMenu(string object_type);
-
 	public PropertiesView(Database db)
 	{
 		Object(orientation: Gtk.Orientation.VERTICAL);
@@ -98,10 +106,8 @@ public class PropertiesView : Gtk.Box
 		// Data
 		_db = db;
 
-		_expanders = new Gee.HashMap<string, Expander>();
 		_expander_states = new Gee.HashMap<string, bool>();
 		_objects = new Gee.HashMap<string, PropertyGrid>();
-		_entries = new Gee.ArrayList<string>();
 		_selection = null;
 
 		// Widgets
@@ -133,44 +139,28 @@ public class PropertiesView : Gtk.Box
 		db._project.project_reset.connect(on_project_reset);
 	}
 
-	public void register_object_type(string object_type, PropertyGrid? cv = null, ContextMenu? context_menu = null)
+	public void register_object_type(string object_type, PropertyGrid? cv = null)
 	{
 		PropertyGrid? grid = cv;
 		if (grid == null)
 			grid = new PropertyGrid.from_object_type(StringId64(object_type), _db);
 
-		Expander expander = _object_view.add_property_grid(grid, camel_case(object_type));
-		if (context_menu != null) {
-			Gtk.GestureMultiPress _controller_click = new Gtk.GestureMultiPress(expander);
-			_controller_click.set_button(0);
-			_controller_click.released.connect((n_press, x, y) => {
-					if (_controller_click.get_current_button() == Gdk.BUTTON_SECONDARY) {
-						Gtk.Popover menu = new Gtk.Popover.from_model(null, context_menu(object_type));
-						menu.set_relative_to(expander);
-						menu.set_pointing_to({ (int)x, (int)y, 1, 1 });
-						menu.set_position(Gtk.PositionType.BOTTOM);
-						menu.popup();
-					}
-				});
-		}
-
+		_object_view.add_property_grid(grid, camel_case(object_type));
 		_objects[object_type] = grid;
-		_expanders[object_type] = expander;
-		_entries.add(object_type);
 	}
 
 	public void show_unit(Guid id)
 	{
-		foreach (var type in _entries) {
-			Expander expander = _expanders[type];
-			_expander_states[type] = expander.expanded;
-		}
+		foreach (var entry in _objects)
+			_expander_states[entry.key] = entry.value._expander.expanded;
+
 		_stack.set_visible_child(_scrolled_window);
 
-		foreach (var type in _entries) {
-			Expander expander = _expanders[type];
+		foreach (var entry in _objects) {
+			string type = entry.key;
+			PropertyGrid cv = entry.value;
+
 			bool was_expanded = _expander_states.has_key(type) ? _expander_states[type] : false;
-			PropertyGrid cv = _objects[type];
 
 			Unit unit = Unit(_db, id);
 			Guid component_id;
@@ -182,11 +172,11 @@ public class PropertiesView : Gtk.Box
 				cv.update();
 
 				if (id == owner_id)
-					expander.get_style_context().remove_class("inherited");
+					cv._expander.get_style_context().remove_class("inherited");
 				else
-					expander.get_style_context().add_class("inherited");
+					cv._expander.get_style_context().add_class("inherited");
 
-				expander.expanded = was_expanded;
+				cv._expander.expanded = was_expanded;
 			} else {
 				cv._visible = false;
 			}
@@ -198,16 +188,14 @@ public class PropertiesView : Gtk.Box
 
 	public void show_sound_source(Guid id)
 	{
-		foreach (var type in _entries) {
-			Expander expander = _expanders[type];
-			_expander_states[type] = expander.expanded;
-		}
+		foreach (var entry in _objects)
+			_expander_states[entry.key] = entry.value._expander.expanded;
 
 		_stack.set_visible_child(_scrolled_window);
 
-		foreach (var type in _entries) {
-			Expander expander = _expanders[type];
-			PropertyGrid cv = _objects[type];
+		foreach (var entry in _objects) {
+			string type = entry.key;
+			PropertyGrid cv = entry.value;
 
 			if (type == OBJECT_TYPE_SOUND_SOURCE) {
 				bool was_expanded = _expander_states.has_key(type) ? _expander_states[type] : false;
@@ -216,8 +204,8 @@ public class PropertiesView : Gtk.Box
 				cv._visible = true;
 				cv.update();
 
-				expander.show();
-				expander.expanded = was_expanded;
+				cv._expander.show();
+				cv._expander.expanded = was_expanded;
 			} else {
 				cv._visible = false;
 			}
