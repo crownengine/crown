@@ -37,21 +37,8 @@ public class PropertyGrid : Gtk.Grid
 
 	public PropertyGrid.from_object_type(StringId64 type, Database db)
 	{
-		this.row_spacing = 4;
-		this.row_homogeneous = true;
-		this.column_spacing = 12;
-
-		// Data
-		_db = db;
-		_id = GUID_ZERO;
-		_component_id = GUID_ZERO;
-		_rows = 0;
+		this(db);
 		_order = db.object_type_info(type).ui_order;
-		_visible = true;
-
-		_widgets = new Gee.HashMap<string, InputField>();
-		_definitions = new Gee.HashMap<InputField, PropertyDefinition?>();
-
 		add_object_type(db.object_definition(type));
 	}
 
