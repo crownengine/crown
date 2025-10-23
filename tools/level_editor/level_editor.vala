@@ -551,8 +551,6 @@ public class LevelEditorApplication : Gtk.Application
 
 	public const GLib.ActionEntry[] action_entries_unit =
 	{
-		{ "unit-add-component",    on_unit_add_component,    "s",    null },
-		{ "unit-remove-component", on_unit_remove_component, "s",    null },
 		{ "unit-save-as-prefab",   on_unit_save_as_prefab,   "(ss)", null },
 	};
 
@@ -1337,9 +1335,9 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		if ((info.flags & ObjectTypeFlags.UNIT_COMPONENT) != 0) {
 			Unit.register_component_type(info.name, info.user_data != null ? info.user_data : "");
-			_properties_view.register_object_type(info.name, null, UnitView.component_menu);
+			_properties_view.register_object_type(info.name, null);
 		} else if (info.name != OBJECT_TYPE_UNIT) { // FIXME
-				_properties_view.register_object_type(info.name, null, null);
+			_properties_view.register_object_type(info.name, null);
 		}
 	}
 
@@ -3975,68 +3973,6 @@ public class LevelEditorApplication : Gtk.Application
 			} catch (Error e) {
 				loge(e.message);
 			}
-		}
-	}
-
-	public void on_unit_add_component(GLib.SimpleAction action, GLib.Variant? param)
-	{
-		if (param == null)
-			return;
-
-		string component_type = param.get_string();
-		Guid unit_id = _level._selection.last();
-		Unit unit = Unit(_database, unit_id);
-		Gee.ArrayList<Guid?> components_added = new Gee.ArrayList<Guid?>();
-		components_added.add(unit_id);
-		unit.add_component_type_dependencies(ref components_added, component_type);
-
-		_database.add_restore_point((int)ActionType.CREATE_OBJECTS, components_added.to_array());
-	}
-
-	public void on_unit_remove_component(GLib.SimpleAction action, GLib.Variant? param)
-	{
-		if (param == null)
-			return;
-
-		string component_type = param.get_string();
-		Guid unit_id = _level._selection.last();
-		Unit unit = Unit(_database, unit_id);
-
-		Guid component_id;
-		if (!unit.has_component(out component_id, component_type))
-			return;
-
-		Gee.ArrayList<unowned string> dependents = new Gee.ArrayList<unowned string>();
-		// Do not remove if any other component needs us.
-		foreach (var entry in Unit._component_registry.entries) {
-			Guid dummy;
-			if (!unit.has_component(out dummy, entry.key))
-				continue;
-
-			string[] component_type_dependencies = ((string)entry.value).split(", ");
-			if (component_type in component_type_dependencies)
-				dependents.add(entry.key);
-		}
-
-		if (dependents.size > 0) {
-			StringBuilder sb = new StringBuilder();
-			sb.append("Cannot remove %s due to the following dependencies:\n\n".printf(component_type));
-			foreach (var item in dependents)
-				sb.append("• %s\n".printf(item));
-
-			Gtk.MessageDialog md = new Gtk.MessageDialog(this.active_window
-				, Gtk.DialogFlags.MODAL
-				, Gtk.MessageType.WARNING
-				, Gtk.ButtonsType.OK
-				, sb.str
-				);
-			md.set_default_response(Gtk.ResponseType.OK);
-
-			md.response.connect(() => { md.destroy(); });
-			md.show_all();
-			return;
-		} else {
-			unit.remove_component_type(component_type);
 		}
 	}
 

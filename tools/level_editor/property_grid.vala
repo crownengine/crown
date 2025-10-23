@@ -7,7 +7,16 @@ namespace Crown
 {
 public class PropertyGrid : Gtk.Grid
 {
+	GLib.ActionEntry[] actions =
+	{
+		{ "remove", on_remove, null, null },
+	};
+
+	public Expander? _expander;
+	public Gtk.GestureMultiPress _controller_click;
+	public GLib.SimpleActionGroup _action_group;
 	public Database? _db;
+	public StringId64 _type;
 	public Guid _id;
 	public Guid _component_id;
 	public int _rows;
@@ -17,6 +26,72 @@ public class PropertyGrid : Gtk.Grid
 	public Gee.HashMap<string, InputField> _widgets;
 	public Gee.HashMap<InputField, PropertyDefinition?> _definitions;
 
+	public void on_remove(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string component_type = _db.object_type_name(_type);
+		Guid unit_id = _id;
+		Unit unit = Unit(_db, unit_id);
+
+		Guid component_id;
+		if (!unit.has_component(out component_id, component_type))
+			return;
+
+		Gee.ArrayList<unowned string> dependents = new Gee.ArrayList<unowned string>();
+		// Do not remove if any other component needs us.
+		foreach (var entry in Unit._component_registry.entries) {
+			Guid dummy;
+			if (!unit.has_component(out dummy, entry.key))
+				continue;
+
+			string[] component_type_dependencies = ((string)entry.value).split(", ");
+			if (component_type in component_type_dependencies)
+				dependents.add(entry.key);
+		}
+
+		if (dependents.size > 0) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("Cannot remove %s due to the following dependencies:\n\n".printf(component_type));
+			foreach (var item in dependents)
+				sb.append("• %s\n".printf(item));
+
+			Gtk.MessageDialog md = new Gtk.MessageDialog(null
+				, Gtk.DialogFlags.MODAL
+				, Gtk.MessageType.WARNING
+				, Gtk.ButtonsType.OK
+				, sb.str
+				);
+			md.set_default_response(Gtk.ResponseType.OK);
+
+			md.response.connect(() => { md.destroy(); });
+			md.show_all();
+			return;
+		} else {
+			unit.remove_component_type(component_type);
+		}
+	}
+
+	public void on_expander_button_released(int n_press, double x, double y)
+	{
+		if (_controller_click.get_current_button() == Gdk.BUTTON_SECONDARY) {
+			GLib.Menu menu = new GLib.Menu();
+			GLib.MenuItem mi;
+
+			if (_db != null && _db.object_type(_id) == OBJECT_TYPE_UNIT && _component_id != GUID_ZERO) {
+				mi = new GLib.MenuItem("Remove Component", null);
+				mi.set_action_and_target_value("object.remove", null);
+				menu.append_item(mi);
+			}
+
+			if (menu.get_n_items() > 0) {
+				Gtk.Popover popover = new Gtk.Popover.from_model(null, menu);
+				popover.set_relative_to(this);
+				popover.set_pointing_to({ (int)x, (int)y, 1, 1 });
+				popover.set_position(Gtk.PositionType.BOTTOM);
+				popover.popup();
+			}
+		}
+	}
+
 	public PropertyGrid(Database? db = null)
 	{
 		this.row_spacing = 4;
@@ -24,6 +99,7 @@ public class PropertyGrid : Gtk.Grid
 		this.column_spacing = 12;
 
 		// Data
+		_expander = null;
 		_db = db;
 		_id = GUID_ZERO;
 		_component_id = GUID_ZERO;
@@ -33,13 +109,30 @@ public class PropertyGrid : Gtk.Grid
 
 		_widgets = new Gee.HashMap<string, InputField>();
 		_definitions = new Gee.HashMap<InputField, PropertyDefinition?>();
+
+		_action_group = new GLib.SimpleActionGroup();
+		_action_group.add_action_entries(actions, this);
+		this.insert_action_group("object", _action_group);
 	}
 
 	public PropertyGrid.from_object_type(StringId64 type, Database db)
 	{
 		this(db);
+
 		_order = db.object_type_info(type).ui_order;
+		_type = type;
 		add_object_type(db.object_definition(type));
+	}
+
+	public void set_expander(Expander e)
+	{
+		assert(_expander == null);
+
+		_expander = e;
+
+		_controller_click = new Gtk.GestureMultiPress(e);
+		_controller_click.set_button(0);
+		_controller_click.released.connect(on_expander_button_released);
 	}
 
 	public Gtk.Widget add_row(string label, Gtk.Widget w)
@@ -321,6 +414,7 @@ public class PropertyGridSet : Gtk.Box
 		e.custom_header = l;
 		e.expanded = true;
 		e.add(cv);
+		cv.set_expander(e);
 
 		Gtk.ListBoxRow row = new Gtk.ListBoxRow();
 		row.can_focus = false;
@@ -346,6 +440,7 @@ public class PropertyGridSet : Gtk.Box
 		e.custom_header = b;
 		e.expanded = true;
 		e.add(cv);
+		cv.set_expander(e);
 
 		Gtk.ListBoxRow row = new Gtk.ListBoxRow();
 		row.can_focus = false;
