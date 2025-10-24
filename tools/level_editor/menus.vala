@@ -508,7 +508,6 @@ public GLib.Menu make_menubar()
 {
 	GLib.Menu menu = new GLib.Menu();
 	GLib.MenuItem mi = null;
-	GLib.Menu ms = null;
 
 	mi = new GLib.MenuItem("_File", null);
 	mi.set_submenu(make_file_menu());
