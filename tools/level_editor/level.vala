@@ -83,11 +83,6 @@ public class Level
 			_path = path;
 
 		_name = level_name;
-
-		GLib.Application.get_default().activate_action("camera-view"
-			, new GLib.Variant.int32((CameraViewType)_db.get_property_double(_id, "editor.camera.view_type")))
-			;
-
 		return 0;
 	}
 
@@ -111,11 +106,6 @@ public class Level
 
 		_path = null;
 		_name = template_level_name;
-
-		GLib.Application.get_default().activate_action("camera-view"
-			, new GLib.Variant.int32((CameraViewType)_db.get_property_double(_id, "editor.camera.view_type")))
-			;
-
 		return 0;
 	}
 
