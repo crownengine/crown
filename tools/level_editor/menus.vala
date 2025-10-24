@@ -352,7 +352,7 @@ public GLib.Menu make_camera_view_menu()
 	for (int i = 0; i < CameraViewType.COUNT; ++i) {
 		CameraViewType view = (CameraViewType)i;
 		mi = new GLib.MenuItem(view.to_label(), null);
-		mi.set_detailed_action("app.camera-view");
+		mi.set_detailed_action("viewport.camera-view");
 		mi.set_attribute_value("target", new GLib.Variant("i", view));
 		ms.append_item(mi);
 	}
