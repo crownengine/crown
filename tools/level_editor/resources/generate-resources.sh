@@ -13,11 +13,6 @@ echo "    <file compressed=\"true\">ui/style.css</file>"
 echo "    <file compressed=\"true\">ui/style-light.css</file>"
 echo "    <file compressed=\"true\">ui/style-dark.css</file>"
 
-find * -name '*.ui' \
-	| sort          \
-	| tr '\n' '\0'  \
-	| xargs -0 -n1 printf "    <file compressed=\"true\" preprocess=\"xml-stripblanks\">%s</file>\n"
-
 find theme/Adwaita/assets -name '*.png' \
 	| sort                              \
 	| tr '\n' '\0'                      \

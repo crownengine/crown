@@ -63,7 +63,29 @@ public enum CameraViewType
 	TOP,
 	BOTTOM,
 
-	COUNT
+	COUNT;
+
+	public string to_label()
+	{
+		switch (this) {
+		case PERSPECTIVE:
+			return "Perspective";
+		case FRONT:
+			return "View Front";
+		case BACK:
+			return "View Back";
+		case RIGHT:
+			return "View Right";
+		case LEFT:
+			return "View Left";
+		case TOP:
+			return "View Top";
+		case BOTTOM:
+			return "View Bottom";
+		default:
+			return "View Unknown";
+		}
+	}
 }
 
 public enum TargetConfig
@@ -715,6 +737,47 @@ public class LevelEditorApplication : Gtk.Application
 		this.add_action_entries(action_entries_package, this);
 		this.add_action_entries(action_entries_unit, this);
 
+		this.set_accels_for_action("app.new-level", { "<Primary>N" });
+		this.set_accels_for_action("app.open-level", new string[] { "<Primary>O" });
+		this.set_accels_for_action("app.save", new string[] { "<Primary>S" });
+		this.set_accels_for_action("app.save-as", new string[] { "<Shift><Primary>S" });
+		this.set_accels_for_action("app.import-null", new string[] { "<Primary>I" });
+		this.set_accels_for_action("app.close-project", new string[] { "<Primary>W" });
+		this.set_accels_for_action("app.quit", new string[] { "<Primary>Q" });
+
+		this.set_accels_for_action("app.undo", new string[] { "<Primary>Z" });
+		this.set_accels_for_action("app.redo", new string[] { "<Shift><Primary>Z" });
+		this.set_accels_for_action("app.duplicate", new string[] { "<Primary>D" });
+		this.set_accels_for_action("app.delete", new string[] { "Delete" });
+
+		this.set_accels_for_action("app.tool(0)", new string[] { "Q" });
+		this.set_accels_for_action("app.tool(1)", new string[] { "W" });
+		this.set_accels_for_action("app.tool(2)", new string[] { "E" });
+		this.set_accels_for_action("app.tool(3)", new string[] { "R" });
+
+		this.set_accels_for_action("app.grid-size(0)", new string[] { "<Primary>G" });
+		this.set_accels_for_action("app.rotation-snap-size(0)", new string[] { "<Primary>H" });
+
+		this.set_accels_for_action("app.camera-view(0)", new string[] { "KP_5" });
+		this.set_accels_for_action("app.camera-view(1)", new string[] { "KP_1" });
+		this.set_accels_for_action("app.camera-view(2)", new string[] { "<Primary>KP_1" });
+		this.set_accels_for_action("app.camera-view(3)", new string[] { "KP_3" });
+		this.set_accels_for_action("app.camera-view(4)", new string[] { "<Primary>KP_3" });
+		this.set_accels_for_action("app.camera-view(5)", new string[] { "KP_7" });
+		this.set_accels_for_action("app.camera-view(6)", new string[] { "<Primary>KP_7" });
+
+		this.set_accels_for_action("app.camera-frame-selected", new string[] { "F" });
+		this.set_accels_for_action("app.camera-frame-all", new string[] { "A" });
+
+		this.set_accels_for_action("app.console", new string[] { "<Primary>grave" });
+		this.set_accels_for_action("win.fullscreen", new string[] { "F11" });
+
+		this.set_accels_for_action("app.test-level", new string[] { "F5" });
+		this.set_accels_for_action("app.build-data", new string[] { "<Primary>B" });
+		this.set_accels_for_action("app.reload-all", new string[] { "F7" });
+
+		this.set_accels_for_action("app.manual", new string[] { "F1" });
+
 		_tool_place_accels = this.get_accels_for_action("app.tool(0)");
 		_tool_move_accels = this.get_accels_for_action("app.tool(1)");
 		_tool_rotate_accels = this.get_accels_for_action("app.tool(2)");
@@ -955,6 +1018,8 @@ public class LevelEditorApplication : Gtk.Application
 		_console_view._entry_history.load(_console_history_file.get_path());
 
 		show_panel(PANEL_WAITING);
+
+		this.set_menubar(make_menubar());
 	}
 
 	public override void activate()
