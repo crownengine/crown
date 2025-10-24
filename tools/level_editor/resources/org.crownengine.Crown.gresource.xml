@@ -10,7 +10,6 @@
     <file compressed="true">ui/style.css</file>
     <file compressed="true">ui/style-light.css</file>
     <file compressed="true">ui/style-dark.css</file>
-    <file compressed="true" preprocess="xml-stripblanks">gtk/menus.ui</file>
     <file>theme/Adwaita/assets/bullet-symbolic.symbolic.png</file>
     <file>theme/Adwaita/assets/check-symbolic.symbolic.png</file>
     <file>theme/Adwaita/assets/dash-symbolic.symbolic.png</file>
