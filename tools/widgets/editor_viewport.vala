@@ -10,6 +10,11 @@ public class EditorViewport : Gtk.Bin
 	public const string EDITOR_DISCONNECTED = "editor-disconnected";
 	public const string EDITOR_OOPS = "editor-oops";
 
+	public const GLib.ActionEntry[] actions =
+	{
+		{ "camera-view", on_camera_view, "i", "0" }, // See: Crown.CameraViewType
+	};
+
 	public Project _project;
 	public string _boot_dir;
 	public string _console_address;
@@ -19,6 +24,7 @@ public class EditorViewport : Gtk.Bin
 	public EditorView _editor_view;
 	public Gtk.Overlay _overlay;
 	public Gtk.Stack _stack;
+	public GLib.SimpleActionGroup _action_group;
 
 	public EditorViewport(string name
 		, Project project
@@ -44,6 +50,10 @@ public class EditorViewport : Gtk.Bin
 		_stack.add_named(editor_oops(() => { restart_runtime.begin(); }), EDITOR_OOPS);
 
 		_stack.set_visible_child_name(EDITOR_DISCONNECTED);
+
+		_action_group = new GLib.SimpleActionGroup();
+		_action_group.add_action_entries(actions, this);
+		this.insert_action_group("viewport", _action_group);
 
 		this.can_focus = true;
 		this.add(_stack);
@@ -123,6 +133,16 @@ public class EditorViewport : Gtk.Bin
 	public async void on_editor_view_realized(uint window_id, int width, int height)
 	{
 		start_runtime.begin(window_id, width, height);
+	}
+
+	public void on_camera_view(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		CameraViewType view_type = (CameraViewType)param.get_int32();
+
+		_runtime.send_script(LevelEditorApi.set_camera_view_type(view_type));
+		_runtime.send(DeviceApi.frame());
+
+		action.set_state(param);
 	}
 }
 

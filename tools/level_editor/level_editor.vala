@@ -511,7 +511,6 @@ public class LevelEditorApplication : Gtk.Application
 	public const GLib.ActionEntry[] action_entries_camera =
 	{
 		{ "menu-camera",           null,                     null, null },
-		{ "camera-view",           on_camera_view,           "i",  "0"  }, // See: Crown.CameraViewType
 		{ "camera-frame-selected", on_camera_frame_selected, null, null },
 		{ "camera-frame-all",      on_camera_frame_all,      null, null }
 	};
@@ -758,13 +757,13 @@ public class LevelEditorApplication : Gtk.Application
 		this.set_accels_for_action("app.grid-size(0)", new string[] { "<Primary>G" });
 		this.set_accels_for_action("app.rotation-snap-size(0)", new string[] { "<Primary>H" });
 
-		this.set_accels_for_action("app.camera-view(0)", new string[] { "KP_5" });
-		this.set_accels_for_action("app.camera-view(1)", new string[] { "KP_1" });
-		this.set_accels_for_action("app.camera-view(2)", new string[] { "<Primary>KP_1" });
-		this.set_accels_for_action("app.camera-view(3)", new string[] { "KP_3" });
-		this.set_accels_for_action("app.camera-view(4)", new string[] { "<Primary>KP_3" });
-		this.set_accels_for_action("app.camera-view(5)", new string[] { "KP_7" });
-		this.set_accels_for_action("app.camera-view(6)", new string[] { "<Primary>KP_7" });
+		this.set_accels_for_action("viewport.camera-view(0)", new string[] { "KP_5" });
+		this.set_accels_for_action("viewport.camera-view(1)", new string[] { "KP_1" });
+		this.set_accels_for_action("viewport.camera-view(2)", new string[] { "<Primary>KP_1" });
+		this.set_accels_for_action("viewport.camera-view(3)", new string[] { "KP_3" });
+		this.set_accels_for_action("viewport.camera-view(4)", new string[] { "<Primary>KP_3" });
+		this.set_accels_for_action("viewport.camera-view(5)", new string[] { "KP_7" });
+		this.set_accels_for_action("viewport.camera-view(6)", new string[] { "<Primary>KP_7" });
 
 		this.set_accels_for_action("app.camera-frame-selected", new string[] { "F" });
 		this.set_accels_for_action("app.camera-frame-all", new string[] { "A" });
@@ -783,13 +782,13 @@ public class LevelEditorApplication : Gtk.Application
 		_tool_rotate_accels = this.get_accels_for_action("app.tool(2)");
 		_tool_scale_accels = this.get_accels_for_action("app.tool(3)");
 		_delete_accels = this.get_accels_for_action("app.delete");
-		_camera_view_perspective_accels = this.get_accels_for_action("app.camera-view(0)");
-		_camera_view_front_accels = this.get_accels_for_action("app.camera-view(1)");
-		_camera_view_back_accels = this.get_accels_for_action("app.camera-view(2)");
-		_camera_view_right_accels = this.get_accels_for_action("app.camera-view(3)");
-		_camera_view_left_accels = this.get_accels_for_action("app.camera-view(4)");
-		_camera_view_top_accels = this.get_accels_for_action("app.camera-view(5)");
-		_camera_view_bottom_accels = this.get_accels_for_action("app.camera-view(6)");
+		_camera_view_perspective_accels = this.get_accels_for_action("viewport.camera-view(0)");
+		_camera_view_front_accels = this.get_accels_for_action("viewport.camera-view(1)");
+		_camera_view_back_accels = this.get_accels_for_action("viewport.camera-view(2)");
+		_camera_view_right_accels = this.get_accels_for_action("viewport.camera-view(3)");
+		_camera_view_left_accels = this.get_accels_for_action("viewport.camera-view(4)");
+		_camera_view_top_accels = this.get_accels_for_action("viewport.camera-view(5)");
+		_camera_view_bottom_accels = this.get_accels_for_action("viewport.camera-view(6)");
 		_camera_frame_selected_accels = this.get_accels_for_action("app.camera-frame-selected");
 		_camera_frame_all_accels = this.get_accels_for_action("app.camera-frame-all");
 
@@ -1029,6 +1028,7 @@ public class LevelEditorApplication : Gtk.Application
 			if (_window_state.has_key("level_editor_window"))
 				win.decode((Hashtable)_window_state["level_editor_window"]);
 			win.add(_main_stack);
+			win.insert_action_group("viewport", _editor_viewport._action_group);
 
 			try {
 				win.icon = Gtk.IconTheme.get_default().load_icon(CROWN_EDITOR_ICON_NAME, 256, 0);
@@ -2390,16 +2390,6 @@ public class LevelEditorApplication : Gtk.Application
 
 		_level.spawn_unit(unit_name);
 		_editor.send(DeviceApi.frame());
-	}
-
-	public void on_camera_view(GLib.SimpleAction action, GLib.Variant? param)
-	{
-		CameraViewType view_type = (CameraViewType)param.get_int32();
-
-		_database.set_property_internal(0, _level._id, "editor.camera.view_type", (double)view_type);
-		_editor.send_script(LevelEditorApi.set_camera_view_type(view_type));
-		_editor.send(DeviceApi.frame());
-		action.set_state(param);
 	}
 
 	public void on_camera_frame_selected(GLib.SimpleAction action, GLib.Variant? param)
@@ -4125,13 +4115,13 @@ public class LevelEditorApplication : Gtk.Application
 			this.set_accels_for_action("app.tool(2)", _tool_rotate_accels);
 			this.set_accels_for_action("app.tool(3)", _tool_scale_accels);
 			this.set_accels_for_action("app.delete", _delete_accels);
-			this.set_accels_for_action("app.camera-view(0)", _camera_view_perspective_accels);
-			this.set_accels_for_action("app.camera-view(1)", _camera_view_front_accels);
-			this.set_accels_for_action("app.camera-view(2)", _camera_view_back_accels);
-			this.set_accels_for_action("app.camera-view(3)", _camera_view_right_accels);
-			this.set_accels_for_action("app.camera-view(4)", _camera_view_left_accels);
-			this.set_accels_for_action("app.camera-view(5)", _camera_view_top_accels);
-			this.set_accels_for_action("app.camera-view(6)", _camera_view_bottom_accels);
+			this.set_accels_for_action("viewport.camera-view(0)", _camera_view_perspective_accels);
+			this.set_accels_for_action("viewport.camera-view(1)", _camera_view_front_accels);
+			this.set_accels_for_action("viewport.camera-view(2)", _camera_view_back_accels);
+			this.set_accels_for_action("viewport.camera-view(3)", _camera_view_right_accels);
+			this.set_accels_for_action("viewport.camera-view(4)", _camera_view_left_accels);
+			this.set_accels_for_action("viewport.camera-view(5)", _camera_view_top_accels);
+			this.set_accels_for_action("viewport.camera-view(6)", _camera_view_bottom_accels);
 			this.set_accels_for_action("app.camera-frame-selected", _camera_frame_selected_accels);
 			this.set_accels_for_action("app.camera-frame-all", _camera_frame_all_accels);
 		} else {
@@ -4140,13 +4130,13 @@ public class LevelEditorApplication : Gtk.Application
 			this.set_accels_for_action("app.tool(2)", {});
 			this.set_accels_for_action("app.tool(3)", {});
 			this.set_accels_for_action("app.delete", {});
-			this.set_accels_for_action("app.camera-view(0)", {});
-			this.set_accels_for_action("app.camera-view(1)", {});
-			this.set_accels_for_action("app.camera-view(2)", {});
-			this.set_accels_for_action("app.camera-view(3)", {});
-			this.set_accels_for_action("app.camera-view(4)", {});
-			this.set_accels_for_action("app.camera-view(5)", {});
-			this.set_accels_for_action("app.camera-view(6)", {});
+			this.set_accels_for_action("viewport.camera-view(0)", {});
+			this.set_accels_for_action("viewport.camera-view(1)", {});
+			this.set_accels_for_action("viewport.camera-view(2)", {});
+			this.set_accels_for_action("viewport.camera-view(3)", {});
+			this.set_accels_for_action("viewport.camera-view(4)", {});
+			this.set_accels_for_action("viewport.camera-view(5)", {});
+			this.set_accels_for_action("viewport.camera-view(6)", {});
 			this.set_accels_for_action("app.camera-frame-selected", {});
 			this.set_accels_for_action("app.camera-frame-all", {});
 		}
