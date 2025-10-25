@@ -33,6 +33,7 @@
 #include "core/math/vector3.inl"
 #include "core/math/vector4.inl"
 #include "core/memory/memory.inl"
+#include "core/memory/pool_allocator.h"
 #include "core/memory/temp_allocator.inl"
 #include "core/murmur.h"
 #include "core/option.inl"
@@ -76,11 +77,35 @@ static void test_memory()
 {
 	memory_globals::init();
 	Allocator &a = default_allocator();
+	{
+		void *p = a.allocate(32);
+		ENSURE(a.allocated_size(p) >= 32);
+		a.deallocate(p);
+	}
+	{
+		char A[100];
+		char B[countof(A)];
+		memset(A, 'A', countof(A));
+		memset(B, 'B', countof(B));
 
-	void *p = a.allocate(32);
-	ENSURE(a.allocated_size(p) >= 32);
-	a.deallocate(p);
+		for (int align = 1; align <= 16; align *= 2) {
+			for (size_t bs = sizeof(void *); bs < countof(A); ++bs) {
+				PoolAllocator pool(a, 2, bs, align);
+				char *a = (char *)pool.allocate(bs, align);
+				char *b = (char *)pool.allocate(bs, align);
+				memset(a, 'A', bs);
+				memset(b, 'B', bs);
 
+				ENSURE(memcmp(a, A, bs) == 0);
+				ENSURE(memcmp(b, B, bs) == 0);
+				memset(a, 0, bs);
+				memset(b, 0, bs);
+
+				pool.deallocate(a);
+				pool.deallocate(b);
+			}
+		}
+	}
 	memory_globals::shutdown();
 }
 
