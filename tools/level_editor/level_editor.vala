@@ -4228,7 +4228,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	public void on_level_selection_changed(Gee.ArrayList<Guid?> selection)
 	{
-		if (selection.size != 1)
+		if (selection.size == 0)
 			_properties_view.set_object(GUID_ZERO);
 		else
 			_properties_view.set_object(selection[selection.size - 1]);
