@@ -15,6 +15,7 @@
 #include "core/math/quaternion.inl"
 #include "core/math/vector3.inl"
 #include "core/memory/proxy_allocator.h"
+#include "core/profiler.h"
 #include "core/strings/string_id.inl"
 #include "device/log.h"
 #include "resource/physics_resource.h"
@@ -50,6 +51,7 @@
 #include <BulletDynamics/Dynamics/btRigidBody.h>
 #include <LinearMath/btDefaultMotionState.h>
 #include <LinearMath/btIDebugDraw.h>
+#include <LinearMath/btQuickprof.h>
 
 LOG_SYSTEM(PHYSICS, "physics")
 
@@ -80,6 +82,16 @@ namespace physics_globals
 		_heap_allocator->deallocate(memblock);
 	}
 
+	inline void profile_scope_enter_func(const char *name)
+	{
+		ENTER_PROFILE_SCOPE(name);
+	}
+
+	inline void profile_scope_leave_func()
+	{
+		LEAVE_PROFILE_SCOPE();
+	}
+
 	static PhysicsSettings _settings;
 	static btDefaultCollisionConfiguration *_bt_configuration;
 	static btCollisionDispatcher *_bt_dispatcher;
@@ -93,6 +105,9 @@ namespace physics_globals
 
 		btAlignedAllocSetCustom(alloc_func, free_func);
 		btAlignedAllocSetCustomAligned(aligned_alloc_func, aligned_free_func);
+
+		btSetCustomEnterProfileZoneFunc(profile_scope_enter_func);
+		btSetCustomLeaveProfileZoneFunc(profile_scope_leave_func);
 
 		_settings         = *settings;
 		_bt_configuration = CE_NEW(*_linear_allocator, btDefaultCollisionConfiguration);
