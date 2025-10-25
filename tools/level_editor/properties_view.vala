@@ -237,12 +237,6 @@ public class PropertiesView : Gtk.Box
 		show_or_hide_properties();
 	}
 
-	public override void map()
-	{
-		base.map();
-		show_or_hide_properties();
-	}
-
 	public void on_project_reset()
 	{
 		foreach (var obj in _objects) {
