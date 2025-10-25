@@ -568,8 +568,14 @@ public class Database
 			else
 				object_id = Guid.new_guid();
 
+			string type = ResourceId.type(resource_path);
+			StringId64 type_hash = StringId64(type);
+
 			create_internal(0, object_id);
-			set_object_type(object_id, ResourceId.type(resource_path));
+			set_object_type(object_id, type);
+
+			if (has_object_type(type_hash))
+				_init_object(object_id, object_definition(type_hash));
 
 			decode_object(object_id, GUID_ZERO, "", json);
 
@@ -978,8 +984,6 @@ public class Database
 		assert(is_valid_key(key));
 
 		Gee.HashMap<string, Value?> ob = get_data(id);
-		assert(!ob.has_key(key));
-
 		ob[key] = new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func);
 	}
 
