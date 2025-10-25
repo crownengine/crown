@@ -698,7 +698,7 @@ int Device::main_loop()
 
 	_render_config_resource = (RenderConfigResource *)_resource_manager->get(RESOURCE_TYPE_RENDER_CONFIG, _boot_config.render_config_name);
 
-	physics_globals::init(_allocator, &_boot_config.physics_settings);
+	physics_globals::init(_allocator, default_allocator(), &_boot_config.physics_settings);
 
 	_lua_environment->load_libs();
 	_lua_environment->require(_boot_config.boot_script_name.c_str());
@@ -731,7 +731,7 @@ int Device::main_loop()
 	boot_package->unload();
 	destroy_resource_package(*boot_package);
 
-	physics_globals::shutdown(_allocator);
+	physics_globals::shutdown(_allocator, default_allocator());
 	sound_world::shutdown();
 	graph_globals::shutdown();
 

@@ -57,27 +57,61 @@ namespace crown
 {
 namespace physics_globals
 {
+	static ProxyAllocator *_linear_allocator;
+	static ProxyAllocator *_heap_allocator;
+
+	inline void *aligned_alloc_func(size_t size, int alignment)
+	{
+		return _heap_allocator->allocate((u32)size, (u32)alignment);
+	}
+
+	inline void aligned_free_func(void *memblock)
+	{
+		_heap_allocator->deallocate(memblock);
+	}
+
+	inline void *alloc_func(size_t size)
+	{
+		return _heap_allocator->allocate((u32)size);
+	}
+
+	inline void free_func(void *memblock)
+	{
+		_heap_allocator->deallocate(memblock);
+	}
+
 	static PhysicsSettings _settings;
 	static btDefaultCollisionConfiguration *_bt_configuration;
 	static btCollisionDispatcher *_bt_dispatcher;
 	static btBroadphaseInterface *_bt_interface;
 	static btSequentialImpulseConstraintSolver *_bt_solver;
 
-	void init(Allocator &a, const PhysicsSettings *settings)
+	void init(Allocator &linear, Allocator &heap, const PhysicsSettings *settings)
 	{
+		_linear_allocator = CE_NEW(linear, ProxyAllocator)(linear, "physics");
+		_heap_allocator = CE_NEW(*_linear_allocator, ProxyAllocator)(heap, "physics");
+
+		btAlignedAllocSetCustom(alloc_func, free_func);
+		btAlignedAllocSetCustomAligned(aligned_alloc_func, aligned_free_func);
+
 		_settings         = *settings;
-		_bt_configuration = CE_NEW(a, btDefaultCollisionConfiguration);
-		_bt_dispatcher    = CE_NEW(a, btCollisionDispatcher)(_bt_configuration);
-		_bt_interface     = CE_NEW(a, btDbvtBroadphase);
-		_bt_solver        = CE_NEW(a, btSequentialImpulseConstraintSolver);
+		_bt_configuration = CE_NEW(*_linear_allocator, btDefaultCollisionConfiguration);
+		_bt_dispatcher    = CE_NEW(*_linear_allocator, btCollisionDispatcher)(_bt_configuration);
+		_bt_interface     = CE_NEW(*_linear_allocator, btDbvtBroadphase);
+		_bt_solver        = CE_NEW(*_linear_allocator, btSequentialImpulseConstraintSolver);
 	}
 
-	void shutdown(Allocator &a)
+	void shutdown(Allocator &linear, Allocator &heap)
 	{
-		CE_DELETE(a, _bt_solver);
-		CE_DELETE(a, _bt_interface);
-		CE_DELETE(a, _bt_dispatcher);
-		CE_DELETE(a, _bt_configuration);
+		CE_UNUSED_2(linear, heap);
+
+		CE_DELETE(*_linear_allocator, _bt_solver);
+		CE_DELETE(*_linear_allocator, _bt_interface);
+		CE_DELETE(*_linear_allocator, _bt_dispatcher);
+		CE_DELETE(*_linear_allocator, _bt_configuration);
+
+		CE_DELETE(*_linear_allocator, _heap_allocator);
+		CE_DELETE(linear, _linear_allocator);
 	}
 
 } // namespace physics_globals
@@ -745,6 +779,7 @@ struct PhysicsWorldImpl
 		Mover *mover;
 	};
 
+	ProxyAllocator _proxy_allocator;
 	Allocator *_allocator;
 	UnitManager *_unit_manager;
 
@@ -774,22 +809,23 @@ struct PhysicsWorldImpl
 	HashSet<u64> *_prev_pairs;
 
 	PhysicsWorldImpl(Allocator &a, ResourceManager &rm, UnitManager &um, SceneGraph &sg, DebugLine &dl)
-		: _allocator(&a)
+		: _proxy_allocator(a, "physics")
+		, _allocator(&_proxy_allocator)
 		, _unit_manager(&um)
-		, _collider_map(a)
-		, _actor_map(a)
-		, _mover_map(a)
-		, _collider(a)
-		, _actor(a)
-		, _mover(a)
-		, _joints(a)
+		, _collider_map(*_allocator)
+		, _actor_map(*_allocator)
+		, _mover_map(*_allocator)
+		, _collider(*_allocator)
+		, _actor(*_allocator)
+		, _mover(*_allocator)
+		, _joints(*_allocator)
 		, _dynamics_world(NULL)
 		, _scene_graph(&sg)
 		, _debug_drawer(dl)
-		, _events(a)
+		, _events(*_allocator)
 		, _debug_drawing(false)
-		, _pairs0(a)
-		, _pairs1(a)
+		, _pairs0(*_allocator)
+		, _pairs1(*_allocator)
 		, _curr_pairs(&_pairs1)
 		, _prev_pairs(&_pairs0)
 	{
