@@ -856,6 +856,7 @@ public class LevelEditorApplication : Gtk.Application
 		_properties_view.register_object_type(OBJECT_TYPE_UNIT, new UnitView(_database));
 
 		_level = new Level(_database, _editor);
+		_level.selection_changed.connect(on_level_selection_changed);
 
 		// Editor state
 		_grid_size = 1.0;
@@ -892,7 +893,6 @@ public class LevelEditorApplication : Gtk.Application
 		_database.objects_changed.connect(_level_treeview.on_objects_changed);
 
 		_level_layers_treeview = new LevelLayersTreeView(_database, _level);
-		_level.selection_changed.connect(_properties_view.on_selection_changed);
 
 		_level_tree_view_notebook = new Gtk.Notebook();
 		_level_tree_view_notebook.show_border = false;
@@ -1359,8 +1359,6 @@ public class LevelEditorApplication : Gtk.Application
 		}
 
 		_level.selection_changed(_level._selection);
-
-		_properties_view.show_or_hide_properties();
 		update_active_window_title();
 	}
 
@@ -1377,7 +1375,6 @@ public class LevelEditorApplication : Gtk.Application
 			}
 		}
 
-		_properties_view.show_or_hide_properties();
 		update_active_window_title();
 	}
 
@@ -1392,7 +1389,6 @@ public class LevelEditorApplication : Gtk.Application
 			}
 		}
 
-		_properties_view.show_or_hide_properties();
 		update_active_window_title();
 	}
 
@@ -4228,6 +4224,14 @@ public class LevelEditorApplication : Gtk.Application
 	public SelectResourceDialog new_select_resource_dialog(string resource_type)
 	{
 		return new SelectResourceDialog(resource_type, _project_store, this.active_window);
+	}
+
+	public void on_level_selection_changed(Gee.ArrayList<Guid?> selection)
+	{
+		if (selection.size != 1)
+			_properties_view.set_object(GUID_ZERO);
+		else
+			_properties_view.set_object(selection[selection.size - 1]);
 	}
 }
 

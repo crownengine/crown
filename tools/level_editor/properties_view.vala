@@ -93,7 +93,6 @@ public class PropertiesView : Gtk.Box
 	public Database _db;
 	public Gee.HashMap<string, bool> _expander_states;
 	public Gee.HashMap<string, PropertyGrid> _objects;
-	public Gee.ArrayList<Guid?>? _selection;
 	public Gtk.Viewport _viewport;
 	public Gtk.ScrolledWindow _scrolled_window;
 	public PropertyGridSet _object_view;
@@ -108,7 +107,6 @@ public class PropertiesView : Gtk.Box
 
 		_expander_states = new Gee.HashMap<string, bool>();
 		_objects = new Gee.HashMap<string, PropertyGrid>();
-		_selection = null;
 
 		// Widgets
 		_object_view = new PropertyGridSet();
@@ -212,14 +210,13 @@ public class PropertiesView : Gtk.Box
 		_object_view._list_box.invalidate_sort();
 	}
 
-	public void show_or_hide_properties()
+	public void set_object(Guid id)
 	{
-		if (_selection == null || _selection.size != 1) {
+		if (id == GUID_ZERO) {
 			_stack.set_visible_child_name(NOTHING_TO_SHOW);
 			return;
 		}
 
-		Guid id = _selection[_selection.size - 1];
 		if (!_db.has_object(id))
 			return;
 
@@ -229,12 +226,6 @@ public class PropertiesView : Gtk.Box
 			show_sound_source(id);
 		else
 			_stack.set_visible_child_name(UNKNOWN_OBJECT_TYPE);
-	}
-
-	public void on_selection_changed(Gee.ArrayList<Guid?> selection)
-	{
-		_selection = selection;
-		show_or_hide_properties();
 	}
 
 	public void on_project_reset()
