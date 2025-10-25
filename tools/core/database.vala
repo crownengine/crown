@@ -568,7 +568,8 @@ public class Database
 			else
 				object_id = Guid.new_guid();
 
-			create_internal(0, object_id, ResourceId.type(resource_path));
+			create_internal(0, object_id);
+			set_object_type(object_id, ResourceId.type(resource_path));
 
 			decode_object(object_id, GUID_ZERO, "", json);
 
@@ -719,6 +720,9 @@ public class Database
 
 	public void decode_set(Guid owner_id, string key, Gee.ArrayList<Value?> json)
 	{
+		// Set should be created even if it is empty.
+		create_empty_set(owner_id, key);
+
 		for (int i = 0; i < json.size; ++i) {
 			Hashtable obj;
 			string owner_type = object_type(owner_id);
@@ -736,50 +740,44 @@ public class Database
 			else
 				obj_id = Guid.new_guid();
 
-			string? obj_type = null;
-			if (obj.has_key("_type"))
-				obj_type = (string)obj["_type"];
+			create_internal(0, obj_id);
 
 			// Determine the object's type based on the type of its
 			// parent and other heuristics.
-			if (obj_type == null) {
-				if (owner_type == OBJECT_TYPE_LEVEL) {
-					if (key == "units")
-						set_object_type(obj_id, OBJECT_TYPE_UNIT);
-					else if (key == "sounds")
-						set_object_type(obj_id, OBJECT_TYPE_SOUND_SOURCE);
-					else
-						set_object_type(obj_id, "undefined");
-				} else if (owner_type == OBJECT_TYPE_STATE_MACHINE) {
-					if (key == "states")
-						set_object_type(obj_id, OBJECT_TYPE_STATE_MACHINE_NODE);
-					else if (key == "variables")
-						set_object_type(obj_id, OBJECT_TYPE_STATE_MACHINE_VARIABLE);
-					else
-						set_object_type(obj_id, "undefined");
-				} else if (owner_type == OBJECT_TYPE_STATE_MACHINE_NODE) {
-					if (key == "animations")
-						set_object_type(obj_id, OBJECT_TYPE_NODE_ANIMATION);
-					else if (key == "transitions")
-						set_object_type(obj_id, OBJECT_TYPE_NODE_TRANSITION);
-				} else if (owner_type == OBJECT_TYPE_SPRITE) {
-					if (key == "frames") {
-						set_object_type(obj_id, "sprite_frame");
-						set_property_internal(0, obj_id, "index", (double)i);
-					}
-				} else if (owner_type == OBJECT_TYPE_SPRITE_ANIMATION) {
-					if (key == "frames") {
-						set_object_type(obj_id, "animation_frame");
-						set_property_internal(0, obj_id, "index", (double)json[i]);
-					}
-				} else if (owner_type == OBJECT_TYPE_FONT) {
-					if (key == "glyphs") {
-						set_object_type(obj_id, "font_glyph");
-						set_property_internal(0, obj_id, "cp", (double)obj["id"]);
-					}
+			if (owner_type == OBJECT_TYPE_LEVEL) {
+				if (key == "units")
+					set_object_type(obj_id, OBJECT_TYPE_UNIT);
+				else if (key == "sounds")
+					set_object_type(obj_id, OBJECT_TYPE_SOUND_SOURCE);
+				else
+					set_object_type(obj_id, "undefined");
+			} else if (owner_type == OBJECT_TYPE_STATE_MACHINE) {
+				if (key == "states")
+					set_object_type(obj_id, OBJECT_TYPE_STATE_MACHINE_NODE);
+				else if (key == "variables")
+					set_object_type(obj_id, OBJECT_TYPE_STATE_MACHINE_VARIABLE);
+				else
+					set_object_type(obj_id, "undefined");
+			} else if (owner_type == OBJECT_TYPE_STATE_MACHINE_NODE) {
+				if (key == "animations")
+					set_object_type(obj_id, OBJECT_TYPE_NODE_ANIMATION);
+				else if (key == "transitions")
+					set_object_type(obj_id, OBJECT_TYPE_NODE_TRANSITION);
+			} else if (owner_type == OBJECT_TYPE_SPRITE) {
+				if (key == "frames") {
+					set_object_type(obj_id, "sprite_frame");
+					set_property_internal(0, obj_id, "index", (double)i);
 				}
-			} else {
-				create_internal(0, obj_id, obj_type);
+			} else if (owner_type == OBJECT_TYPE_SPRITE_ANIMATION) {
+				if (key == "frames") {
+					set_object_type(obj_id, "animation_frame");
+					set_property_internal(0, obj_id, "index", (double)json[i]);
+				}
+			} else if (owner_type == OBJECT_TYPE_FONT) {
+				if (key == "glyphs") {
+					set_object_type(obj_id, "font_glyph");
+					set_property_internal(0, obj_id, "cp", (double)obj["id"]);
+				}
 			}
 
 			decode_object(obj_id, owner_id, "", obj);
@@ -936,7 +934,7 @@ public class Database
 		return _data[id];
 	}
 
-	public void create_internal(int dir, Guid id, string type)
+	public void create_internal(int dir, Guid id)
 	{
 		assert(id != GUID_ZERO);
 
@@ -944,11 +942,6 @@ public class Database
 			logi("create %s".printf(id.to_string()));
 
 		_data[id] = new Gee.HashMap<string, Value?>();
-
-		set_object_type(id, type);
-		StringId64 type_hash = StringId64(type);
-		if (has_object_type(type_hash))
-			_init_object(id, object_definition(type_hash));
 
 		_distance_from_last_sync += dir;
 	}
@@ -1097,7 +1090,12 @@ public class Database
 			_undo_redo._redo.clear();
 		}
 
-		create_internal(1, id, type);
+		create_internal(1, id);
+		set_object_type(id, type);
+
+		StringId64 type_hash = StringId64(type);
+		if (has_object_type(type_hash))
+			_init_object(id, object_definition(type_hash));
 	}
 
 	public void destroy(Guid id)
@@ -1626,7 +1624,8 @@ public class Database
 				string obj_type = undo.read_string();
 
 				redo.write_destroy_action(Action.DESTROY, id, obj_type);
-				create_internal(dir, id, obj_type);
+				create_internal(dir, id);
+				set_object_type(id, obj_type);
 			} else if (action == Action.DESTROY) {
 				Guid id = undo.read_guid();
 				string obj_type = undo.read_string();
