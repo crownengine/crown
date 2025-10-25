@@ -86,14 +86,14 @@ public class UnitView : PropertyGrid
 
 public class PropertiesView : Gtk.Box
 {
+	public const string NOTHING_TO_SHOW = "nothing-to-show";
+	public const string UNKNOWN_OBJECT_TYPE = "unknown-object-type";
+	public const string PROPERTIES = "properties";
+
 	public Database _db;
 	public Gee.HashMap<string, bool> _expander_states;
 	public Gee.HashMap<string, PropertyGrid> _objects;
 	public Gee.ArrayList<Guid?>? _selection;
-
-	// Widgets
-	public Gtk.Label _nothing_to_show;
-	public Gtk.Label _unknown_object_type;
 	public Gtk.Viewport _viewport;
 	public Gtk.ScrolledWindow _scrolled_window;
 	public PropertyGridSet _object_view;
@@ -119,9 +119,6 @@ public class PropertiesView : Gtk.Box
 			= 6
 			;
 
-		_nothing_to_show = new Gtk.Label("Select an object to start editing");
-		_unknown_object_type = new Gtk.Label("Unknown object type");
-
 		_viewport = new Gtk.Viewport(null, null);
 		_viewport.add(_object_view);
 
@@ -129,9 +126,9 @@ public class PropertiesView : Gtk.Box
 		_scrolled_window.add(_viewport);
 
 		_stack = new Gtk.Stack();
-		_stack.add(_nothing_to_show);
-		_stack.add(_scrolled_window);
-		_stack.add(_unknown_object_type);
+		_stack.add_named(new Gtk.Label("Select an object to start editing"), NOTHING_TO_SHOW);
+		_stack.add_named(new Gtk.Label("Unknown object type"), UNKNOWN_OBJECT_TYPE);
+		_stack.add_named(_scrolled_window, PROPERTIES);
 
 		this.pack_start(_stack);
 		this.get_style_context().add_class("properties-view");
@@ -154,7 +151,7 @@ public class PropertiesView : Gtk.Box
 		foreach (var entry in _objects)
 			_expander_states[entry.key] = entry.value._expander.expanded;
 
-		_stack.set_visible_child(_scrolled_window);
+		_stack.set_visible_child_name(PROPERTIES);
 
 		foreach (var entry in _objects) {
 			string type = entry.key;
@@ -191,7 +188,7 @@ public class PropertiesView : Gtk.Box
 		foreach (var entry in _objects)
 			_expander_states[entry.key] = entry.value._expander.expanded;
 
-		_stack.set_visible_child(_scrolled_window);
+		_stack.set_visible_child_name(PROPERTIES);
 
 		foreach (var entry in _objects) {
 			string type = entry.key;
@@ -218,7 +215,7 @@ public class PropertiesView : Gtk.Box
 	public void show_or_hide_properties()
 	{
 		if (_selection == null || _selection.size != 1) {
-			_stack.set_visible_child(_nothing_to_show);
+			_stack.set_visible_child_name(NOTHING_TO_SHOW);
 			return;
 		}
 
@@ -231,7 +228,7 @@ public class PropertiesView : Gtk.Box
 		else if (_db.object_type(id) == OBJECT_TYPE_SOUND_SOURCE)
 			show_sound_source(id);
 		else
-			_stack.set_visible_child(_unknown_object_type);
+			_stack.set_visible_child_name(UNKNOWN_OBJECT_TYPE);
 	}
 
 	public void on_selection_changed(Gee.ArrayList<Guid?> selection)
