@@ -17,8 +17,7 @@ namespace memory
 	/// Returns the pointer @a p aligned to the desired @a align byte
 	inline void *align_top(const void *p, u32 align)
 	{
-		CE_ASSERT(align >= 1, "Alignment must be > 1");
-		CE_ASSERT(align % 2 == 0 || align == 1, "Alignment must be a power of two");
+		CE_ENSURE(is_power_of_2(align));
 
 		const uintptr_t mask = align - 1;
 		uintptr_t ptr = (uintptr_t)p;
