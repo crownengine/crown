@@ -376,8 +376,6 @@ void SceneGraph::link(TransformInstance parent
 		}
 
 		_data.next_sibling[prev.i] = child;
-
-		_data.first_child[child.i].i = UINT32_MAX;
 		_data.next_sibling[child.i].i = UINT32_MAX;
 		_data.prev_sibling[child.i] = prev;
 	}

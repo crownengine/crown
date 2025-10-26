@@ -6,6 +6,10 @@ Changelog
 :ref:`0.59.3 --- DD MMM YYYY <v0.59.3>`
 ---------------------------------------
 
+**Fixes**
+
+* Runtime: fixed linking transforms in a SceneGraph not working in some circumnstances.
+
 .. _v0.59.2:
 
 :ref:`0.59.2 --- 20 Oct 2025 <v0.59.2>`
