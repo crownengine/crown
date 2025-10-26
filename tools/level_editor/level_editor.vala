@@ -1388,6 +1388,7 @@ public class LevelEditorApplication : Gtk.Application
 			}
 		}
 
+		_level.selection_changed(_level._selection);
 		update_active_window_title();
 	}
 
