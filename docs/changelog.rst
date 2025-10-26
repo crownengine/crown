@@ -8,6 +8,7 @@ Changelog
 
 **Fixes**
 
+* Tools: fixed expanders not reflecting their state in some cases.
 * Runtime: fixed linking transforms in a SceneGraph not working in some circumnstances.
 
 .. _v0.59.2:
