@@ -1796,6 +1796,7 @@ public class Database
 						def.deffault = "";
 				}
 
+				assert(def.enum_property == null && def.enum_callback == null || def.enum_property != null && def.enum_callback != null && def.enum_values.length == 0);
 				assert(def.deffault.holds(typeof(string)));
 				break;
 			case PropertyType.GUID:

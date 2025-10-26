@@ -71,23 +71,9 @@ public static void node_name_enum_callback(InputField enum_property, InputEnum c
 		combo.clear();
 		foreach (var node in mesh._nodes)
 			combo.append(node, node);
-
-		combo.value = combo.any_valid_id();
 	} catch (JsonSyntaxError e) {
 		loge(e.message);
 	}
-}
-
-public static void scene_resource_callback(InputField enum_property, InputResource chooser, Project project)
-{
-	if (enum_property.union_value() == "mesh")
-		chooser.set_union_value("core/units/primitives/cube");
-}
-
-public static void shape_resource_callback(InputField enum_property, InputEnum combo, Project project)
-{
-	if (enum_property.union_value() == "inline")
-		combo.set_union_value("box");
 }
 
 public static void class_enum_callback(InputField property_enum, InputEnum combo, Project project)
@@ -96,14 +82,12 @@ public static void class_enum_callback(InputField property_enum, InputEnum combo
 		string path = ResourceId.path("physics_config", "global");
 		Hashtable global = SJSON.load_from_path(project.absolute_path(path));
 
-		string prev_enum = combo.value;
 		combo.clear();
 		if (global.has_key("actors")) {
 			Hashtable obj = (Hashtable)global["actors"];
 			foreach (var e in obj)
 				combo.append(e.key, e.key);
 		}
-		combo.value = prev_enum;
 	} catch (JsonSyntaxError e) {
 		loge(e.message);
 	}
@@ -115,14 +99,12 @@ public static void collision_filter_enum_callback(InputField property_enum, Inpu
 		string path = ResourceId.path("physics_config", "global");
 		Hashtable global = SJSON.load_from_path(project.absolute_path(path));
 
-		string prev_enum = combo.value;
 		combo.clear();
 		if (global.has_key("collision_filters")) {
 			Hashtable obj = (Hashtable)global["collision_filters"];
 			foreach (var e in obj)
 				combo.append(e.key, e.key);
 		}
-		combo.value = prev_enum;
 	} catch (JsonSyntaxError e) {
 		loge(e.message);
 	}
@@ -134,14 +116,12 @@ public static void material_enum_callback(InputField property_enum, InputEnum co
 		string path = ResourceId.path("physics_config", "global");
 		Hashtable global = SJSON.load_from_path(project.absolute_path(path));
 
-		string prev_enum = combo.value;
 		combo.clear();
 		if (global.has_key("materials")) {
 			Hashtable obj = (Hashtable)global["materials"];
 			foreach (var e in obj)
 				combo.append(e.key, e.key);
 		}
-		combo.value = prev_enum;
 	} catch (JsonSyntaxError e) {
 		loge(e.message);
 	}
@@ -397,8 +377,6 @@ public static void create_object_types(Database database)
 			type = PropertyType.OBJECT_REFERENCE,
 			name = "data.scene",
 			resource_type = OBJECT_TYPE_MESH,
-			enum_property = "data.source",
-			resource_callback = scene_resource_callback,
 			deffault = "core/components/noop",
 		},
 		PropertyDefinition()
@@ -417,8 +395,6 @@ public static void create_object_types(Database database)
 			name = "data.shape",
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "sphere", "capsule", "box", "convex_hull", "mesh" },
-			enum_property = "data.source",
-			enum_callback = shape_resource_callback,
 			deffault = "box",
 		},
 		PropertyDefinition()
