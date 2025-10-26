@@ -312,7 +312,7 @@ public class PropertyGrid : Gtk.Grid
 			_db.add_restore_point(ActionType.CHANGE_OBJECTS, new Guid?[] { _id });
 	}
 
-	public virtual void update()
+	public virtual void read_properties()
 	{
 		foreach (var e in _definitions) {
 			InputField p = e.key;

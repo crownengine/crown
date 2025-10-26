@@ -69,7 +69,7 @@ public class UnitView : PropertyGrid
 		add_row("Components", _components);
 	}
 
-	public override void update()
+	public override void read_properties()
 	{
 		if (_db.has_property(_id, "prefab")) {
 			_prefab.value = _db.get_property_string(_id, "prefab");
@@ -164,7 +164,7 @@ public class PropertiesView : Gtk.Box
 				cv._id = id;
 				cv._component_id = component_id;
 				cv._visible = true;
-				cv.update();
+				cv.read_properties();
 
 				if (id == owner_id)
 					cv._expander.get_style_context().remove_class("inherited");
@@ -197,7 +197,7 @@ public class PropertiesView : Gtk.Box
 
 				cv._id = id;
 				cv._visible = true;
-				cv.update();
+				cv.read_properties();
 
 				cv._expander.show();
 				cv._expander.expanded = was_expanded;
