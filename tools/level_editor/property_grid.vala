@@ -205,6 +205,98 @@ public class PropertyGrid : Gtk.Grid
 		}
 	}
 
+	// Returns true if the property was written.
+	// The property is written to database only if its value
+	// differs than the value stored in the database.
+	public bool write_property_if_changed(PropertyDefinition def, GLib.Value? new_value)
+	{
+		bool changed = false;
+
+		if (def.type == PropertyType.BOOL) {
+			if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
+				Unit u = Unit(_db, _id);
+				if (u.get_component_property_bool(_component_id, def.name, (bool)def.deffault) != new_value) {
+					u.set_component_property_bool(_component_id, def.name, (bool)new_value);
+					changed = true;
+				}
+			} else {
+				if (_db.get_property_bool(_id, def.name, (bool)def.deffault) != new_value) {
+					_db.set_property_bool(_id, def.name, (bool)new_value);
+					changed = true;
+				}
+			}
+		} else if (def.type == PropertyType.DOUBLE) {
+			if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
+				Unit u = Unit(_db, _id);
+				if (u.get_component_property_double(_component_id, def.name, (double)def.deffault) != new_value) {
+					u.set_component_property_double(_component_id, def.name, (double)new_value);
+					changed = true;
+				}
+			} else {
+				if (_db.get_property_double(_id, def.name, (double)def.deffault) != new_value) {
+					_db.set_property_double(_id, def.name, (double)new_value);
+					changed = true;
+				}
+			}
+		} else if (def.type == PropertyType.STRING || def.type == PropertyType.OBJECT_REFERENCE) {
+			if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
+				Unit u = Unit(_db, _id);
+				if (u.get_component_property_string(_component_id, def.name, (string)def.deffault) != (string)new_value) {
+					u.set_component_property_string(_component_id, def.name, (string)new_value);
+					changed = true;
+				}
+			} else {
+				if (_db.get_property_string(_id, def.name, (string)def.deffault) != (string)new_value) {
+					_db.set_property_string(_id, def.name, (string)new_value);
+					changed = true;
+				}
+			}
+		} else if (def.type == PropertyType.GUID) {
+			if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
+				Unit u = Unit(_db, _id);
+				if (Guid.equal_func(u.get_component_property_guid(_component_id, def.name, (Guid)def.deffault), Guid.parse((string)new_value)) == false) {
+					u.set_component_property_guid(_component_id, def.name, Guid.parse((string)new_value));
+					changed = true;
+				}
+			} else {
+				if (Guid.equal_func(_db.get_property_guid(_id, def.name, (Guid)def.deffault), Guid.parse((string)new_value)) == false) {
+					_db.set_property_guid(_id, def.name, Guid.parse((string)new_value));
+					changed = true;
+				}
+			}
+		} else if (def.type == PropertyType.VECTOR3) {
+			if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
+				Unit u = Unit(_db, _id);
+				if (Vector3.equal_func(u.get_component_property_vector3(_component_id, def.name, (Vector3)def.deffault), (Vector3)new_value) == false) {
+					u.set_component_property_vector3(_component_id, def.name, (Vector3)new_value);
+					changed = true;
+				}
+			} else {
+				if (Vector3.equal_func(_db.get_property_vector3(_id, def.name, (Vector3)def.deffault), (Vector3)new_value) == false) {
+					_db.set_property_vector3(_id, def.name, (Vector3)new_value);
+					changed = true;
+				}
+			}
+		} else if (def.type == PropertyType.QUATERNION) {
+			if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
+				Unit u = Unit(_db, _id);
+				if (Quaternion.equal_func(u.get_component_property_quaternion(_component_id, def.name, (Quaternion)def.deffault), (Quaternion)new_value) == false) {
+					u.set_component_property_quaternion(_component_id, def.name, (Quaternion)new_value);
+					changed = true;
+				}
+			} else {
+				if (Quaternion.equal_func(_db.get_property_quaternion(_id, def.name, (Quaternion)def.deffault), (Quaternion)new_value) == false) {
+					_db.set_property_quaternion(_id, def.name, (Quaternion)new_value);
+					changed = true;
+				}
+			}
+		} else {
+			loge("Unknown property type");
+		}
+
+		return changed;
+	}
+
 	public void on_property_value_changed(InputField p)
 	{
 		if (p.is_inconsistent())
@@ -213,110 +305,26 @@ public class PropertyGrid : Gtk.Grid
 			return;
 
 		PropertyDefinition def = _definitions[p];
+		Gee.ArrayList<PropertyDefinition?> dynamic_properties = new Gee.ArrayList<PropertyDefinition?>();
+		Gee.ArrayList<GLib.Value?> dynamic_values = new Gee.ArrayList<GLib.Value?>();
 		bool changed = false;
 
-		if (def.type == PropertyType.BOOL) {
-			if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
-				Unit u = Unit(_db, _id);
-				if (u.get_component_property_bool(_component_id, def.name, (bool)def.deffault) != p.union_value()) {
-					u.set_component_property_bool(_component_id, def.name, (bool)p.union_value());
-					changed = true;
-				}
-			} else {
-				if (_db.get_property_bool(_id, def.name, (bool)def.deffault) != p.union_value()) {
-					_db.set_property_bool(_id, def.name, (bool)p.union_value());
-					changed = true;
-				}
-			}
-		} else if (def.type == PropertyType.DOUBLE) {
-			if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
-				Unit u = Unit(_db, _id);
-				if (u.get_component_property_double(_component_id, def.name, (double)def.deffault) != p.union_value()) {
-					u.set_component_property_double(_component_id, def.name, (double)p.union_value());
-					changed = true;
-				}
-			} else {
-				if (_db.get_property_double(_id, def.name, (double)def.deffault) != p.union_value()) {
-					_db.set_property_double(_id, def.name, (double)p.union_value());
-					changed = true;
-				}
-			}
-		} else if (def.type == PropertyType.STRING || def.type == PropertyType.OBJECT_REFERENCE) {
-			if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
-				Unit u = Unit(_db, _id);
-				if (u.get_component_property_string(_component_id, def.name, (string)def.deffault) != (string)p.union_value()) {
-					u.set_component_property_string(_component_id, def.name, (string)p.union_value());
-					changed = true;
-				}
-			} else {
-				if (_db.get_property_string(_id, def.name, (string)def.deffault) != (string)p.union_value()) {
-					_db.set_property_string(_id, def.name, (string)p.union_value());
-					changed = true;
-				}
-			}
-		} else if (def.type == PropertyType.GUID) {
-			if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
-				Unit u = Unit(_db, _id);
-				if (Guid.equal_func(u.get_component_property_guid(_component_id, def.name, (Guid)def.deffault), Guid.parse((string)p.union_value())) == false) {
-					u.set_component_property_guid(_component_id, def.name, Guid.parse((string)p.union_value()));
-					changed = true;
-				}
-			} else {
-				if (Guid.equal_func(_db.get_property_guid(_id, def.name, (Guid)def.deffault), Guid.parse((string)p.union_value())) == false) {
-					_db.set_property_guid(_id, def.name, Guid.parse((string)p.union_value()));
-					changed = true;
-				}
-			}
-		} else if (def.type == PropertyType.VECTOR3) {
-			if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
-				Unit u = Unit(_db, _id);
-				if (Vector3.equal_func(u.get_component_property_vector3(_component_id, def.name, (Vector3)def.deffault), (Vector3)p.union_value()) == false) {
-					u.set_component_property_vector3(_component_id, def.name, (Vector3)p.union_value());
-					changed = true;
-				}
-			} else {
-				if (Vector3.equal_func(_db.get_property_vector3(_id, def.name, (Vector3)def.deffault), (Vector3)p.union_value()) == false) {
-					_db.set_property_vector3(_id, def.name, (Vector3)p.union_value());
-					changed = true;
-				}
-			}
-		} else if (def.type == PropertyType.QUATERNION) {
-			if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
-				Unit u = Unit(_db, _id);
-				if (Quaternion.equal_func(u.get_component_property_quaternion(_component_id, def.name, (Quaternion)def.deffault), (Quaternion)p.union_value()) == false) {
-					u.set_component_property_quaternion(_component_id, def.name, (Quaternion)p.union_value());
-					changed = true;
-				}
-			} else {
-				if (Quaternion.equal_func(_db.get_property_quaternion(_id, def.name, (Quaternion)def.deffault), (Quaternion)p.union_value()) == false) {
-					_db.set_property_quaternion(_id, def.name, (Quaternion)p.union_value());
-					changed = true;
-				}
-			}
-		} else {
-			loge("Unknown property type");
-		}
-
-		foreach (var e in _definitions) {
-			PropertyDefinition other_def = e.value;
-
-			if (other_def.enum_property == def.name) {
-				if (other_def.enum_callback != null)
-					other_def.enum_callback(p, (InputEnum)_widgets[other_def.name], _db._project);
-				if (other_def.resource_callback != null)
-					other_def.resource_callback(p, (InputResource)_widgets[other_def.name], _db._project);
-			}
-		}
+		save_dynamic_properties_values(ref dynamic_properties, ref dynamic_values);
+		read_dynamic_properties_ranges_except({ def });
+		changed = restore_dynamic_properties_values_except(dynamic_properties, dynamic_values, { def }) || changed;
+		changed = write_property_if_changed(def, p.union_value()) || changed;
 
 		if (changed)
 			_db.add_restore_point(ActionType.CHANGE_OBJECTS, new Guid?[] { _id });
 	}
 
-	public virtual void read_properties()
+	public void read_all_properties()
 	{
 		foreach (var e in _definitions) {
 			InputField p = e.key;
 			PropertyDefinition def = e.value;
+
+			p.value_changed.disconnect(on_property_value_changed);
 
 			if (def.type == PropertyType.BOOL) {
 				if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
@@ -363,7 +371,116 @@ public class PropertyGrid : Gtk.Grid
 			} else {
 				loge("Unknown property value type");
 			}
+
+			p.value_changed.connect(on_property_value_changed);
 		}
+	}
+
+	public virtual void read_properties()
+	{
+		read_all_properties();
+		read_dynamic_properties_ranges();
+		read_all_properties();
+	}
+
+	public void read_dynamic_properties_ranges_except(PropertyDefinition[] excluded)
+	{
+		foreach (var e in _definitions) {
+			PropertyDefinition def = e.value;
+			int i;
+
+			// Skip if excluded.
+			for (i = 0; i < excluded.length; ++i) {
+				if (excluded[i].name == def.name)
+					break;
+			}
+			if (i != excluded.length)
+				continue;
+
+			// Read range.
+			if (def.enum_callback != null) {
+				InputField p = _widgets[def.name];
+				InputField parent_p = _widgets[def.enum_property];
+
+				p.value_changed.disconnect(on_property_value_changed);
+				def.enum_callback(parent_p, (InputEnum)p, _db._project);
+				p.value_changed.connect(on_property_value_changed);
+			} else if (def.resource_callback != null) {
+				InputField p = _widgets[def.name];
+				InputField parent_p = _widgets[def.enum_property];
+
+				p.value_changed.disconnect(on_property_value_changed);
+				def.resource_callback(parent_p, (InputResource)p, _db._project);
+				p.value_changed.connect(on_property_value_changed);
+			}
+		}
+	}
+
+	public void read_dynamic_properties_ranges()
+	{
+		read_dynamic_properties_ranges_except({});
+	}
+
+	public void save_dynamic_properties_values(ref Gee.ArrayList<PropertyDefinition?> properties, ref Gee.ArrayList<GLib.Value?> values)
+	{
+		foreach (var e in _definitions) {
+			PropertyDefinition def = e.value;
+
+			if (def.enum_callback != null) {
+				InputField p = _widgets[def.name];
+
+				properties.add(def);
+				values.add(p.union_value());
+			} else if (def.resource_callback != null) {
+				InputField p = _widgets[def.name];
+
+				properties.add(def);
+				values.add(p.union_value());
+			}
+		}
+	}
+
+	public bool restore_dynamic_properties_values_except(Gee.ArrayList<PropertyDefinition?> properties, Gee.ArrayList<GLib.Value?> values, PropertyDefinition[] excluded)
+	{
+		bool changed = false;
+
+		for (int i = 0; i < properties.size; ++i) {
+			PropertyDefinition def = properties[i];
+			GLib.Value val = values[i];
+			InputField p = _widgets[def.name];
+			int j;
+
+			// Skip if excluded.
+			for (j = 0; j < excluded.length; ++j) {
+				if (excluded[j].name == def.name)
+					break;
+			}
+			if (j != excluded.length)
+				continue;
+
+			// Restore value.
+			p.value_changed.disconnect(on_property_value_changed);
+
+			if (def.enum_callback != null) {
+				p.set_union_value(val);
+
+				if (p.is_inconsistent() || !p.is_inconsistent() && (string)p.union_value() != (string)val)
+					p.set_union_value(((InputEnum)p).any_valid_id());
+			} else if (def.resource_callback != null) {
+				p.set_union_value(val);
+			}
+
+			p.value_changed.connect(on_property_value_changed);
+
+			changed = write_property_if_changed(def, p.union_value()) || changed;
+		}
+
+		return changed;
+	}
+
+	public bool restore_dynamic_properties_values(Gee.ArrayList<PropertyDefinition?> properties, Gee.ArrayList<GLib.Value?> values)
+	{
+		return restore_dynamic_properties_values_except(properties, values, {});
 	}
 }
 

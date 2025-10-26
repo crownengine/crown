@@ -18,6 +18,9 @@ Changelog
 * Tools: fixed new levels containing GUIDs from their template resource.
 * Tools: the Level Tree is now correctly restored after a search.
 * Tools: fixed expanders not reflecting their state in some cases.
+* Tools: fixed some properties in the Inspector not being set correctly when read the first time.
+* Tools: fixed meshes nodes being reset unexpectedly when selecting the corresponding unit in the Inspector.
+* Tools: fixed some properties unnecessarily requiring multiple undo steps to be set to their previous value.
 * Runtime: Windows: fixed a number of misdetected keyboard keys.
 * Runtime: Windows: fixed windows firewall popping up at startup.
 * Runtime: Linux: fixed a crash at startup due to some X11 libraries not being found.
