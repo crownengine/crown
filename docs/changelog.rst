@@ -17,6 +17,7 @@ Changelog
 * Tools: the Project Browser will now reject dropped files while showing Favorites.
 * Tools: fixed new levels containing GUIDs from their template resource.
 * Tools: the Level Tree is now correctly restored after a search.
+* Tools: fixed expanders not reflecting their state in some cases.
 * Runtime: Windows: fixed a number of misdetected keyboard keys.
 * Runtime: Windows: fixed windows firewall popping up at startup.
 * Runtime: Linux: fixed a crash at startup due to some X11 libraries not being found.

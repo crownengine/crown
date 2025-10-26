@@ -135,6 +135,16 @@ public class Expander : Gtk.Box
 
 		base.remove(widget);
 	}
+
+	public override void map()
+	{
+		if (_child != null) {
+			if (!_expanded)
+				_child.hide();
+		}
+
+		base.map();
+	}
 }
 
 } /* namespace Crown */
