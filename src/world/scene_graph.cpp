@@ -363,10 +363,9 @@ void SceneGraph::link(TransformInstance parent
 
 	unlink(child);
 
-	// Append transform to the list of parent's children
+	// Append child transform to the parent's children list.
 	if (!is_valid(_data.first_child[parent.i])) {
 		_data.first_child[parent.i] = child;
-		_data.parent[child.i] = parent;
 	} else {
 		TransformInstance prev = { UINT32_MAX };
 		TransformInstance node = _data.first_child[parent.i];
