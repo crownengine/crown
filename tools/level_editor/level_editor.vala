@@ -1364,8 +1364,6 @@ public class LevelEditorApplication : Gtk.Application
 
 	public void on_objects_destroyed(Guid?[] object_ids, uint32 flags = 0)
 	{
-		_level.selection_changed(_level._selection);
-
 		if ((flags & ActionTypeFlags.FROM_SERVER) == 0) {
 			StringBuilder sb = new StringBuilder();
 			_level.generate_destroy_objects(sb, object_ids);
@@ -1375,6 +1373,7 @@ public class LevelEditorApplication : Gtk.Application
 			}
 		}
 
+		_level.selection_changed(_level._selection);
 		update_active_window_title();
 	}
 
