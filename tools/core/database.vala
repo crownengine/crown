@@ -660,7 +660,7 @@ public class Database
 			;
 	}
 
-	public static string value_to_string(Value? value)
+	public static string debug_string(Value? value)
 	{
 		if (value == null)
 			return "null";
@@ -671,7 +671,7 @@ public class Database
 		if (value.holds(typeof(string)))
 			return ((string)value).to_string();
 		if (value.holds(typeof(Guid)))
-			return ((Guid)value).to_string();
+			return ((Guid)value).to_debug_string();
 		if (value.holds(typeof(Vector3)))
 			return ((Vector3)value).to_string();
 		if (value.holds(typeof(Quaternion)))
@@ -945,7 +945,7 @@ public class Database
 		assert(id != GUID_ZERO);
 
 		if (_debug)
-			logi("create %s".printf(id.to_string()));
+			logi("create %s".printf(debug_string(id)));
 
 		_data[id] = new Gee.HashMap<string, Value?>();
 
@@ -958,7 +958,7 @@ public class Database
 		assert(has_object(id));
 
 		if (_debug)
-			logi("destroy %s".printf(id.to_string()));
+			logi("destroy %s".printf(debug_string(id)));
 
 		_distance_from_last_sync += dir;
 	}
@@ -970,7 +970,7 @@ public class Database
 		assert(is_valid_value(value));
 
 		if (_debug)
-			logi("set_property %s %s %s".printf(id.to_string(), key, value_to_string(value)));
+			logi("set_property %s %s %s".printf(debug_string(id), key, debug_string(value)));
 
 		Gee.HashMap<string, Value?> ob = get_data(id);
 		ob[key] = value;
@@ -995,7 +995,7 @@ public class Database
 		assert(has_object(item_id));
 
 		if (_debug)
-			logi("add_to_set %s %s %s".printf(id.to_string(), key, item_id.to_string()));
+			logi("add_to_set %s %s %s".printf(debug_string(id), key, debug_string(item_id)));
 
 		Gee.HashMap<string, Value?> ob = get_data(id);
 
@@ -1017,7 +1017,7 @@ public class Database
 		assert(item_id != GUID_ZERO);
 
 		if (_debug)
-			logi("remove_from_set %s %s %s".printf(id.to_string(), key, item_id.to_string()));
+			logi("remove_from_set %s %s %s".printf(debug_string(id), key, debug_string(item_id)));
 
 		Gee.HashMap<string, Value?> ob = get_data(id);
 		((Gee.HashSet<Guid?>)ob[key]).remove(item_id);
@@ -1348,7 +1348,7 @@ public class Database
 		Value? value = (ob.has_key(key) ? ob[key] : val);
 
 		if (_debug_getters)
-			logi("get_property %s %s %s".printf(id.to_string(), key, value_to_string(value)));
+			logi("get_property %s %s %s".printf(debug_string(id), key, debug_string(value)));
 
 		return value;
 	}
@@ -1396,7 +1396,7 @@ public class Database
 			value = deffault;
 
 		if (_debug_getters)
-			logi("get_property %s %s %s".printf(id.to_string(), key, value_to_string(value)));
+			logi("get_property %s %s %s".printf(debug_string(id), key, debug_string(value)));
 
 		return value;
 	}
