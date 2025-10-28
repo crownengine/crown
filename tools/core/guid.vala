@@ -72,6 +72,11 @@ public struct Guid
 			);
 	}
 
+	public string to_debug_string()
+	{
+		return "%.3x..%.3x".printf((uint)(data1 >> 52), (uint)(data2 & 0xfffu));
+	}
+
 	public static uint hash_func(Guid? id)
 	{
 		return (uint)(id.data1 ^ id.data2);
