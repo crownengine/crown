@@ -573,6 +573,7 @@ public class Database
 
 			create_internal(0, object_id);
 			set_object_type(object_id, type);
+			set_object_owner(object_id, GUID_ZERO);
 
 			if (has_object_type(type_hash))
 				_init_object(object_id, object_definition(type_hash));
@@ -786,6 +787,7 @@ public class Database
 				}
 			}
 
+			set_object_owner(obj_id, owner_id);
 			decode_object(obj_id, owner_id, "", obj);
 			assert(has_property(obj_id, "_type"));
 
@@ -831,6 +833,8 @@ public class Database
 		foreach (string key in keys) {
 			// Since null-key is equivalent to non-existent key, skip serialization.
 			if (db[key] == null)
+				continue;
+			if (key == "_owner")
 				continue;
 
 			string[] foo = key.split(".");
@@ -1007,6 +1011,8 @@ public class Database
 			((Gee.HashSet<Guid?>)ob[key]).add(item_id);
 		}
 
+		get_data(item_id)["_owner"] = id;
+
 		_distance_from_last_sync += dir;
 	}
 
@@ -1022,6 +1028,8 @@ public class Database
 		Gee.HashMap<string, Value?> ob = get_data(id);
 		((Gee.HashSet<Guid?>)ob[key]).remove(item_id);
 
+		get_data(item_id)["_owner"] = null;
+
 		_distance_from_last_sync += dir;
 	}
 
@@ -1036,6 +1044,13 @@ public class Database
 			return (string)get_data(id)["_type"];
 	}
 
+	// Returns the owner of @a id.
+	public Guid object_owner(Guid id)
+	{
+		assert(has_object(id));
+		return (Guid)get_data(id)["_owner"];
+	}
+
 	// Sets the @a type of the object @a id.
 	// This is called automatically when loading data or when new objects are created via create().
 	// It can occasionally be called manually after loading legacy data with no type information
@@ -1044,6 +1059,13 @@ public class Database
 	{
 		assert(has_object(id));
 		get_data(id)["_type"] = type;
+	}
+
+	public void set_object_owner(Guid id, Guid owner_id)
+	{
+		assert(has_object(id));
+		assert(has_object(owner_id));
+		get_data(id)["_owner"] = owner_id;
 	}
 
 	public void _init_object(Guid id, PropertyDefinition[] properties)
