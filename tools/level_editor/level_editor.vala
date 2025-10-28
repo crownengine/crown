@@ -474,8 +474,6 @@ public class LevelEditorApplication : Gtk.Application
 	public const GLib.ActionEntry[] action_entries_edit =
 	{
 		{ "menu-edit",          null,                  null,   null    },
-		{ "undo",               on_undo,               null,   null    },
-		{ "redo",               on_redo,               null,   null    },
 		{ "duplicate",          on_duplicate,          null,   null    },
 		{ "delete",             on_delete,             null,   null    },
 		{ "rename",             on_rename,             "(ss)", null    },
@@ -622,7 +620,7 @@ public class LevelEditorApplication : Gtk.Application
 	public RuntimeInstance _thumbnail;
 
 	// Level data
-	public UndoRedo _undo_redo;
+	public DatabaseEditor _database_editor;
 	public Database _database;
 	public Project _project;
 	public ProjectStore _project_store;
@@ -744,8 +742,8 @@ public class LevelEditorApplication : Gtk.Application
 		this.set_accels_for_action("app.close-project", new string[] { "<Primary>W" });
 		this.set_accels_for_action("app.quit", new string[] { "<Primary>Q" });
 
-		this.set_accels_for_action("app.undo", new string[] { "<Primary>Z" });
-		this.set_accels_for_action("app.redo", new string[] { "<Shift><Primary>Z" });
+		this.set_accels_for_action("database.undo", new string[] { "<Primary>Z" });
+		this.set_accels_for_action("database.redo", new string[] { "<Shift><Primary>Z" });
 		this.set_accels_for_action("app.duplicate", new string[] { "<Primary>D" });
 		this.set_accels_for_action("app.delete", new string[] { "Delete" });
 
@@ -842,8 +840,11 @@ public class LevelEditorApplication : Gtk.Application
 		_thumbnail.disconnected.connect(on_runtime_disconnected);
 		_thumbnail.disconnected_unexpected.connect(on_runtime_disconnected_unexpected);
 
-		_undo_redo = new UndoRedo((uint)_preferences_dialog._undo_redo_max_size.value * 1024 * 1024);
-		_database = new Database(_project, _undo_redo);
+		_database_editor = new DatabaseEditor(_project, (uint)_preferences_dialog._undo_redo_max_size.value * 1024 * 1024);
+		_database_editor.undo.connect((id) => { _statusbar.set_temporary_message("Undo: " + ActionNames[id]); });
+		_database_editor.redo.connect((id) => { _statusbar.set_temporary_message("Redo: " + ActionNames[id]); });
+
+		_database = _database_editor._database;
 		_database.objects_created.connect(on_objects_created);
 		_database.objects_destroyed.connect(on_objects_destroyed);
 		_database.objects_changed.connect(on_objects_changed);
@@ -1029,6 +1030,7 @@ public class LevelEditorApplication : Gtk.Application
 				win.decode((Hashtable)_window_state["level_editor_window"]);
 			win.add(_main_stack);
 			win.insert_action_group("viewport", _editor_viewport._action_group);
+			win.insert_action_group("database", _database_editor._action_group);
 
 			try {
 				win.icon = Gtk.IconTheme.get_default().load_icon(CROWN_EDITOR_ICON_NAME, 256, 0);
@@ -2543,24 +2545,6 @@ public class LevelEditorApplication : Gtk.Application
 					start_game.begin(action.name == "test-level" ? StartGame.TEST : StartGame.NORMAL);
 				}
 			});
-	}
-
-	public void on_undo(GLib.SimpleAction action, GLib.Variant? param)
-	{
-		int id = _database.undo();
-		if (id != -1) {
-			_statusbar.set_temporary_message("Undo: " + ActionNames[id]);
-			update_active_window_title();
-		}
-	}
-
-	public void on_redo(GLib.SimpleAction action, GLib.Variant? param)
-	{
-		int id = _database.redo();
-		if (id != -1) {
-			_statusbar.set_temporary_message("Redo: " + ActionNames[id]);
-			update_active_window_title();
-		}
 	}
 
 	public void on_duplicate(GLib.SimpleAction action, GLib.Variant? param)
