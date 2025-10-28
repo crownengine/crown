@@ -203,21 +203,32 @@ public GLib.Menu make_primitives_menu()
 	return menu;
 }
 
-public GLib.Menu make_edit_menu()
+public GLib.Menu make_database_editor_menu()
 {
 	GLib.Menu menu = new GLib.Menu();
 	GLib.Menu ms = new GLib.Menu();
 	GLib.MenuItem mi = null;
 
 	mi = new GLib.MenuItem("Undo", null);
-	mi.set_detailed_action("app.undo");
+	mi.set_detailed_action("database.undo");
 	ms.append_item(mi);
 
 	mi = new GLib.MenuItem("Redo", null);
-	mi.set_detailed_action("app.redo");
+	mi.set_detailed_action("database.redo");
 	ms.append_item(mi);
 
 	menu.append_section(null, ms);
+
+	return menu;
+}
+
+public GLib.Menu make_edit_menu()
+{
+	GLib.Menu menu = new GLib.Menu();
+	GLib.Menu ms = new GLib.Menu();
+	GLib.MenuItem mi = null;
+
+	menu.append_section(null, make_database_editor_menu());
 	ms = new GLib.Menu();
 
 	mi = new GLib.MenuItem("Duplicate", null);
