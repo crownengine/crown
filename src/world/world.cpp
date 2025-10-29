@@ -213,8 +213,9 @@ UnitId World::spawn_unit(const UnitResource *ur, u32 flags, const Vector3 &pos, 
 
 	array::push(_units, unit_lookup, ur->num_units);
 #if CROWN_CAN_RELOAD
-	for (u32 i = 0; i < ur->num_units; ++i)
-		array::push_back(_unit_resources, ur);
+	array::push_back(_unit_resources, ur);
+	for (u32 i = 0; i < ur->num_units - 1; ++i)
+		array::push_back(_unit_resources, (const UnitResource *)NULL);
 #endif
 	post_unit_spawned_events(unit_lookup, ur->num_units);
 	script_world::spawned(*_script_world, unit_lookup, ur->num_units);
@@ -784,8 +785,9 @@ Level *World::load_level(StringId64 name, u32 flags, const Vector3 &pos, const Q
 
 	array::push(_units, level->_unit_lookup, ur->num_units);
 #if CROWN_CAN_RELOAD
-	for (u32 i = 0; i < ur->num_units; ++i)
-		array::push_back(_unit_resources, ur);
+	array::push_back(_unit_resources, ur);
+	for (u32 i = 0; i < ur->num_units - 1; ++i)
+		array::push_back(_unit_resources, (const UnitResource *)NULL);
 #endif
 
 	post_unit_spawned_events(level->_unit_lookup, ur->num_units);
@@ -877,6 +879,20 @@ void World::reload_materials(const MaterialResource *old_resource, const Materia
 #endif
 }
 
+static void collect_units(Array<UnitId> *unit_lookup, SceneGraph *scene_graph, UnitId root)
+{
+	array::push_back(*unit_lookup, root);
+
+	TransformInstance transform = scene_graph->instance(root);
+	TransformInstance cur = scene_graph->first_child(transform);
+
+	while (is_valid(cur)) {
+		UnitId u = scene_graph->owner(cur);
+		collect_units(unit_lookup, scene_graph, u);
+		cur = scene_graph->next_sibling(cur);
+	}
+}
+
 void World::reload_units(const UnitResource *old_unit, const UnitResource *new_unit)
 {
 #if CROWN_CAN_RELOAD
@@ -893,10 +909,22 @@ void World::reload_units(const UnitResource *old_unit, const UnitResource *new_u
 				scl = _scene_graph->local_scale(ti);
 			}
 
-			_unit_manager->trigger_destroy_callbacks(_units[i]);
+			// Collect units created when old_unit was spawned
+			// and destroy all their components.
+			Array<UnitId> unit_lookup(default_scratch_allocator());
+			collect_units(&unit_lookup, _scene_graph, _units[i]);
+
+			for (u32 j = 0; j < array::size(unit_lookup); ++j)
+				_unit_manager->trigger_destroy_callbacks(unit_lookup[j]);
+
+			// Create additional IDs if new_unit needs to spawn more.
+			u32 n = array::size(unit_lookup);
+			while (new_unit->num_units > n++)
+				array::push_back(unit_lookup, _unit_manager->create());
+
 			create_components(*this
 				, new_unit
-				, &_units[i]
+				, array::begin(unit_lookup)
 				, SpawnFlags::OVERRIDE_POSITION
 				| SpawnFlags::OVERRIDE_ROTATION
 				| SpawnFlags::OVERRIDE_SCALE
@@ -907,6 +935,8 @@ void World::reload_units(const UnitResource *old_unit, const UnitResource *new_u
 			_unit_resources[i] = new_unit;
 		}
 	}
+
+	remove_dead_units();
 #else
 	CE_UNUSED_2(old_unit, new_unit);
 	CE_NOOP();

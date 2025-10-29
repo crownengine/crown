@@ -10,6 +10,7 @@ Changelog
 
 * Tools: fixed expanders not reflecting their state in some cases.
 * Runtime: fixed linking transforms in a SceneGraph not working in some circumnstances.
+* Runtime: fixed a crash when reloading non-trivial units.
 
 .. _v0.59.2:
 
