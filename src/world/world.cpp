@@ -183,10 +183,6 @@ World::~World()
 		destroy_gui(*gui);
 	}
 
-	// Destroy units
-	for (u32 i = 0; i < array::size(_units); ++i)
-		_unit_manager->destroy(_units[i]);
-
 	// Destroy subsystems
 	CE_DELETE(*_allocator, _animation_state_machine);
 	CE_DELETE(*_allocator, _mesh_animation_player);
@@ -197,6 +193,12 @@ World::~World()
 	CE_DELETE(*_allocator, _render_world);
 	CE_DELETE(*_allocator, _scene_graph);
 	destroy_debug_line(*_lines);
+
+	// Destroy units.
+	for (u32 i = 0; i < array::size(_units); ++i) {
+		CE_ENSURE(_unit_manager->alive(_units[i]));
+		_unit_manager->destroy(_units[i]);
+	}
 
 	_marker = 0;
 }
