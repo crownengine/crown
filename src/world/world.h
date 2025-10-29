@@ -265,6 +265,9 @@ struct World
 
 	///
 	void unit_destroyed_callback(UnitId unit);
+
+	///
+	void remove_dead_units();
 };
 
 } // namespace crown
