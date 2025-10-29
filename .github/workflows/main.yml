@@ -33,32 +33,32 @@ jobs:
       run: |
         export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/21.4.7075529
         export ANDROID_NDK_ABI=23
-        make MAKE_JOBS=2 android-arm-debug
+        make MAKE_JOBS=4 android-arm-debug
     - name: android-arm-make-development
       run: |
         export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/21.4.7075529
         export ANDROID_NDK_ABI=23
-        make MAKE_JOBS=2 android-arm-development
+        make MAKE_JOBS=4 android-arm-development
     - name: android-arm-make-release
       run: |
         export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/21.4.7075529
         export ANDROID_NDK_ABI=23
-        make MAKE_JOBS=2 android-arm-release
+        make MAKE_JOBS=4 android-arm-release
     - name: android-arm64-make-debug
       run: |
         export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/21.4.7075529
         export ANDROID_NDK_ABI=23
-        make MAKE_JOBS=2 android-arm64-debug
+        make MAKE_JOBS=4 android-arm64-debug
     - name: android-arm64-make-development
       run: |
         export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/21.4.7075529
         export ANDROID_NDK_ABI=23
-        make MAKE_JOBS=2 android-arm64-development
+        make MAKE_JOBS=4 android-arm64-development
     - name: android-arm64-make-release
       run: |
         export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/21.4.7075529
         export ANDROID_NDK_ABI=23
-        make MAKE_JOBS=2 android-arm64-release
+        make MAKE_JOBS=4 android-arm64-release
   html5:
     runs-on: ubuntu-22.04
     steps:
@@ -72,21 +72,21 @@ jobs:
     - name: wasm-make-debug
       run: |
         export EMSCRIPTEN=$GITHUB_WORKSPACE/emsdk/upstream/emscripten
-        make MAKE_JOBS=2 wasm-debug
+        make MAKE_JOBS=4 wasm-debug
     - name: wasm-test-debug
       run: |
         cd ./build/wasm/bin && node crown-debug --run-unit-tests
     - name: wasm-make-development
       run: |
         export EMSCRIPTEN=$GITHUB_WORKSPACE/emsdk/upstream/emscripten
-        make MAKE_JOBS=2 wasm-development
+        make MAKE_JOBS=4 wasm-development
     - name: wasm-test-development
       run: |
         cd ./build/wasm/bin && node crown-development --run-unit-tests
     - name: wasm-make-release
       run: |
         export EMSCRIPTEN=$GITHUB_WORKSPACE/emsdk/upstream/emscripten
-        make MAKE_JOBS=2 wasm-release
+        make MAKE_JOBS=4 wasm-release
     - name: wasm-test-release
       run: |
         cd ./build/wasm/bin && node crown-release --run-unit-tests
@@ -104,34 +104,34 @@ jobs:
         sudo apt-get install libxml2-utils # xml-stripblanks
     - name: linux-make-debug64
       run: |
-        make MAKE_JOBS=2 linux-debug64
+        make MAKE_JOBS=4 linux-debug64
     - name: linux-test-debug64
       run: |
         cd ./build/linux64/bin && ./crown-debug --run-unit-tests
     - name: linux-make-development64
       run: |
-        make MAKE_JOBS=2 linux-development64
+        make MAKE_JOBS=4 linux-development64
     - name: linux-test-development64
       run: |
         cd ./build/linux64/bin && ./crown-development --run-unit-tests
     - name: linux-make-release64
       run: |
-        make MAKE_JOBS=2 linux-release64
+        make MAKE_JOBS=4 linux-release64
     - name: linux-test-release64
       run: |
         cd ./build/linux64/bin && ./crown-release --run-unit-tests
     - name: linux-make-crown-editor-debug64
       run: |
-        make MAKE_JOBS=2 crown-editor-linux-debug64
+        make MAKE_JOBS=4 crown-editor-linux-debug64
     - name: linux-make-crown-editor-release64
       run: |
-        make MAKE_JOBS=2 crown-editor-linux-release64
+        make MAKE_JOBS=4 crown-editor-linux-release64
     - name: linux-make-crown-launcher-debug64
       run: |
-        make MAKE_JOBS=2 crown-launcher-linux-debug64
+        make MAKE_JOBS=4 crown-launcher-linux-debug64
     - name: linux-make-crown-launcher-release64
       run: |
-        make MAKE_JOBS=2 crown-launcher-linux-release64
+        make MAKE_JOBS=4 crown-launcher-linux-release64
   windows:
     runs-on: windows-2022
     steps:
@@ -188,22 +188,22 @@ jobs:
       shell: msys2 {0}
       run: |
         export MINGW=/mingw64
-        make MAKE_JOBS=2 crown-editor-mingw-debug64
+        make MAKE_JOBS=4 crown-editor-mingw-debug64
     - name: mingw-make-crown-editor-release64
       shell: msys2 {0}
       run: |
         export MINGW=/mingw64
-        make MAKE_JOBS=2 crown-editor-mingw-release64
+        make MAKE_JOBS=4 crown-editor-mingw-release64
     - name: mingw-make-crown-launcher-debug64
       shell: msys2 {0}
       run: |
         export MINGW=/mingw64
-        make MAKE_JOBS=2 crown-launcher-mingw-debug64
+        make MAKE_JOBS=4 crown-launcher-mingw-debug64
     - name: mingw-make-crown-launcher-release64
       shell: msys2 {0}
       run: |
         export MINGW=/mingw64
-        make MAKE_JOBS=2 crown-launcher-mingw-release64
+        make MAKE_JOBS=4 crown-launcher-mingw-release64
   code-style:
     runs-on: ubuntu-22.04
     needs: [android-arm, html5, linux, windows]
@@ -211,7 +211,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: format
       run: |
-        make MAKE_JOBS=2 format-sources
+        make MAKE_JOBS=4 format-sources
     - name: check-diff
       run: |
         exit `git diff --shortstat | wc -l`
