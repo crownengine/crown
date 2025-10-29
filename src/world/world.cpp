@@ -811,24 +811,29 @@ void World::destroy_level(Level &level)
 
 		post_unit_destroyed_event(unit);
 		_unit_manager->destroy(unit);
-
-		// Remove unit from world list.
-		for (u32 j = 0, n = array::size(_units); j < n; ++j) {
-			CE_ENSURE(array::size(_units) == array::size(_unit_resources));
-			if (_units[j] == unit) {
-				_units[j] = _units[n - 1];
-				array::pop_back(_units);
-#if CROWN_CAN_RELOAD
-				_unit_resources[j] = _unit_resources[n - 1];
-				array::pop_back(_unit_resources);
-#endif
-				break;
-			}
-		}
 	}
+
+	remove_dead_units();
 
 	list::remove(level._node);
 	level::destroy(*_allocator, &level);
+}
+
+void World::remove_dead_units()
+{
+	u32 n = array::size(_units);
+
+	// Remove dead units from the units list.
+	for (u32 i = n - 1; i != UINT32_MAX; --i) {
+		if (!_unit_manager->alive(_units[i])) {
+			_units[i] = _units[array::size(_units) - 1];
+			array::pop_back(_units);
+#if CROWN_CAN_RELOAD
+			_unit_resources[i] = _unit_resources[array::size(_unit_resources) - 1];
+			array::pop_back(_unit_resources);
+#endif
+		}
+	}
 }
 
 void World::post_unit_spawned_events(UnitId *units, u32 num_units)
