@@ -834,7 +834,6 @@ struct PhysicsWorldImpl
 
 			_dynamics_world->removeRigidBody(body);
 			CE_DELETE(*_allocator, body->m_optionalMotionState);
-			CE_DELETE(*_allocator, body->m_collisionShape);
 			CE_DELETE(*_allocator, body);
 		}
 
