@@ -910,17 +910,26 @@ void World::reload_units(const UnitResource *old_unit, const UnitResource *new_u
 			}
 
 			// Collect units created when old_unit was spawned
-			// and destroy all their components.
+			// and destroy all their components. Unit IDs will be reused.
 			Array<UnitId> unit_lookup(default_scratch_allocator());
 			collect_units(&unit_lookup, _scene_graph, _units[i]);
 
 			for (u32 j = 0; j < array::size(unit_lookup); ++j)
 				_unit_manager->trigger_destroy_callbacks(unit_lookup[j]);
 
-			// Create additional IDs if new_unit needs to spawn more.
+			// Create or destroy IDs if new_unit has different number of units.
 			u32 n = array::size(unit_lookup);
-			while (new_unit->num_units > n++)
-				array::push_back(unit_lookup, _unit_manager->create());
+			for (u32 i = new_unit->num_units; i > n; --i) {
+				UnitId u = _unit_manager->create();
+				array::push_back(unit_lookup, u);
+				array::push_back(_units, u);
+				array::push_back(_unit_resources, (const UnitResource *)NULL);
+			}
+			for (u32 i = new_unit->num_units; i < n; ++i) {
+				_unit_manager->destroy(array::back(unit_lookup));
+				array::pop_back(unit_lookup);
+			}
+			CE_ENSURE(array::size(unit_lookup) == new_unit->num_units);
 
 			create_components(*this
 				, new_unit
