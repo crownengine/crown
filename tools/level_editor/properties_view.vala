@@ -159,17 +159,18 @@ public class PropertiesView : Gtk.Box
 
 			Unit unit = Unit(_db, id);
 			Guid component_id;
-			Guid owner_id;
-			if (unit.has_component_with_owner(out component_id, out owner_id, type) || type == OBJECT_TYPE_UNIT) {
+			if (unit.has_component(out component_id, type) || type == OBJECT_TYPE_UNIT) {
 				cv._id = id;
 				cv._component_id = component_id;
 				cv._visible = true;
 				cv.read_properties();
 
-				if (id == owner_id)
-					cv._expander.get_style_context().remove_class("inherited");
-				else
-					cv._expander.get_style_context().add_class("inherited");
+				if (component_id != GUID_ZERO) {
+					if (id == _db.object_owner(component_id))
+						cv._expander.get_style_context().remove_class("inherited");
+					else
+						cv._expander.get_style_context().add_class("inherited");
+				}
 
 				cv._expander.expanded = was_expanded;
 			} else {

@@ -170,11 +170,10 @@ public struct Unit
 	}
 
 	/// Returns whether the @a unit_id has a component of type @a component_type.
-	public static bool has_component_static(out Guid component_id, out Guid owner_id, string component_type, Database db, Guid unit_id)
+	public static bool has_component_static(out Guid component_id, string component_type, Database db, Guid unit_id)
 	{
 		Value? val;
 		component_id = GUID_ZERO;
-		owner_id = GUID_ZERO;
 		bool prefab_has_component = false;
 
 		// If the component type is found inside the "components" array, the unit has the component
@@ -184,7 +183,6 @@ public struct Unit
 			foreach (Guid id in (Gee.HashSet<Guid?>)val) {
 				if ((string)db.object_type(id) == component_type) {
 					component_id = id;
-					owner_id = unit_id;
 					return true;
 				}
 			}
@@ -200,7 +198,6 @@ public struct Unit
 			Unit.load_unit(out prefab_id, db, prefab);
 
 			prefab_has_component = has_component_static(out component_id
-				, out owner_id
 				, component_type
 				, db
 				, prefab_id
@@ -212,21 +209,13 @@ public struct Unit
 			return db.get_property(unit_id, "deleted_components.#" + component_id.to_string()) == null;
 
 		component_id = GUID_ZERO;
-		owner_id = GUID_ZERO;
 		return false;
-	}
-
-	/// Returns whether the unit has the component_type.
-	public bool has_component_with_owner(out Guid component_id, out Guid owner_id, string component_type)
-	{
-		return Unit.has_component_static(out component_id, out owner_id, component_type, _db, _id);
 	}
 
 	/// Returns whether the unit has the component_type.
 	public bool has_component(out Guid component_id, string component_type)
 	{
-		Guid owner_id;
-		return has_component_with_owner(out component_id, out owner_id, component_type);
+		return Unit.has_component_static(out component_id, component_type, _db, _id);
 	}
 
 	public Vector3 local_position()
@@ -309,9 +298,8 @@ public struct Unit
 	public void remove_component_type(string component_type)
 	{
 		Guid component_id;
-		Guid owner_id;
-		if (has_component_with_owner(out component_id, out owner_id, component_type)) {
-			if (_id == owner_id) {
+		if (has_component(out component_id, component_type)) {
+			if (_id == _db.object_owner(component_id)) {
 				_db.remove_from_set(_id, "components", component_id);
 			} else {
 				_db.set_property_bool(_id, "deleted_components.#" + component_id.to_string(), false);
