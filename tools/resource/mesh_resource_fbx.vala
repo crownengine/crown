@@ -807,6 +807,8 @@ public class FBXImporter
 			}
 
 			// Import animations.
+			StateMachineResource? smr = null;
+
 			if (options.import_animation.value) {
 				string target_skeleton = options.target_skeleton.value;
 
@@ -834,7 +836,7 @@ public class FBXImporter
 
 						// Create .state_machine resource to drive the skeleton.
 						Guid state_machine_id = Guid.new_guid();
-						StateMachineResource smr = StateMachineResource.mesh(db
+						smr = StateMachineResource.mesh(db
 							, state_machine_id
 							, target_skeleton
 							);
@@ -902,7 +904,7 @@ public class FBXImporter
 					, imported_materials
 					);
 
-				if (options.import_animation.value && options.new_skeleton.value) {
+				if (options.import_animation.value && options.new_skeleton.value && smr != null) {
 					// Create animation_state_machine component.
 					Unit unit = Unit(db, unit_id);
 

@@ -9,6 +9,7 @@ Changelog
 **Fixes**
 
 * Tools: fixed expanders not reflecting their state in some cases.
+* Tools: fixed importing non-animated FBX files in some circumnstances.
 * Runtime: fixed linking transforms in a SceneGraph not working in some circumnstances.
 * Runtime: fixed a crash when reloading non-trivial units.
 
