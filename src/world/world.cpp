@@ -12,6 +12,7 @@
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/string_id.inl"
 #include "device/device.h"
+#include "device/log.h"
 #include "lua/lua_environment.h"
 #include "resource/level_resource.h"
 #include "resource/resource_manager.h"
@@ -30,6 +31,8 @@
 #include "world/world.h"
 #include <bgfx/bgfx.h>
 #include <bx/math.h>
+
+LOG_SYSTEM(WORLD, "world")
 
 namespace crown
 {
