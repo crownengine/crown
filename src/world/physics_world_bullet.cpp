@@ -1373,7 +1373,7 @@ struct PhysicsWorldImpl
 			Mover *mover = CE_NEW(*_allocator, Mover)(_dynamics_world
 				, ghost
 				, capsule
-				, to_btVector3({ 0.0f, 0.0f, 1.0f })
+				, to_btVector3(VECTOR3_UP)
 				);
 			mover->set_max_slope(movers[i].max_slope_angle);
 
