@@ -280,7 +280,8 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.DOUBLE,
 			name = "data.intensity",
-			min = 500.0,
+			min = 0.0,
+			deffault = 500.0,
 		},
 		PropertyDefinition()
 		{
