@@ -1,6 +1,18 @@
 Changelog
 =========
 
+.. _v0.59.3:
+
+:ref:`0.59.3 --- 31 Oct 2025 <v0.59.3>`
+---------------------------------------
+
+**Fixes**
+
+* Tools: fixed expanders not reflecting their state in some cases.
+* Tools: fixed importing non-animated FBX files in some circumnstances.
+* Runtime: fixed linking transforms in a SceneGraph not working in some circumnstances.
+* Runtime: fixed a crash when reloading non-trivial units.
+
 .. _v0.59.2:
 
 :ref:`0.59.2 --- 20 Oct 2025 <v0.59.2>`
