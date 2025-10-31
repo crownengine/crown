@@ -123,8 +123,6 @@ public:
 	///internal update revision number. It will be increased when the object changes. This allows some subsystems to perform lazy evaluation.
 	int m_updateRevision;
 
-	btVector3 m_customDebugColorRGB;
-
 public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
@@ -139,7 +137,6 @@ public:
 		CF_DISABLE_VISUALIZE_OBJECT = 32,          //disable debug drawing
 		CF_DISABLE_SPU_COLLISION_PROCESSING = 64,  //disable parallel/SPU processing
 		CF_HAS_CONTACT_STIFFNESS_DAMPING = 128,
-		CF_HAS_CUSTOM_DEBUG_RENDERING_COLOR = 256,
 		CF_HAS_FRICTION_ANCHOR = 512,
 		CF_HAS_COLLISION_SOUND_TRIGGER = 1024
 	};
@@ -324,27 +321,6 @@ public:
 	btScalar getCcdSquareMotionThreshold() const
 	{
 		return m_ccdMotionThreshold * m_ccdMotionThreshold;
-	}
-
-	void setCustomDebugColor(const btVector3& colorRGB)
-	{
-		m_customDebugColorRGB = colorRGB;
-		m_collisionFlags |= CF_HAS_CUSTOM_DEBUG_RENDERING_COLOR;
-	}
-
-	void removeCustomDebugColor()
-	{
-		m_collisionFlags &= ~CF_HAS_CUSTOM_DEBUG_RENDERING_COLOR;
-	}
-
-	bool getCustomDebugColor(btVector3 & colorRGB) const
-	{
-		bool hasCustomColor = (0 != (m_collisionFlags & CF_HAS_CUSTOM_DEBUG_RENDERING_COLOR));
-		if (hasCustomColor)
-		{
-			colorRGB = m_customDebugColorRGB;
-		}
-		return hasCustomColor;
 	}
 
 	inline bool checkCollideWith(const btCollisionObject* co) const
