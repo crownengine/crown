@@ -1530,8 +1530,6 @@ void btCollisionWorld::debugDrawWorld()
 							}
 						};
 
-						colObj->getCustomDebugColor(color);
-
 						debugDrawObject(colObj->m_worldTransform, colObj->m_collisionShape, color);
 					}
 					if (m_debugDrawer && (m_debugDrawer->getDebugMode() & btIDebugDraw::DBG_DrawAabb))
