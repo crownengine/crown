@@ -267,7 +267,7 @@ public static void create_object_types(Database database)
 			name = "data.type",
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "directional", "omni", "spot" },
-			deffault = "directional",
+			deffault = "omni",
 		},
 		PropertyDefinition()
 		{
