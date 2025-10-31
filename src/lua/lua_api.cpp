@@ -2554,6 +2554,14 @@ void load_api(LuaEnvironment &env)
 			stack.get_physics_world(1)->actor_wake_up(stack.get_actor_instance(2));
 			return 0;
 		});
+	env.add_module_function("PhysicsWorld", "actor_debug_draw", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_physics_world(1)->actor_debug_draw(stack.get_actor_instance(2)
+				, stack.get_debug_line(3)
+				, stack.num_args() > 3 ? stack.get_color4(4) : COLOR4_ORANGE
+				);
+			return 0;
+		});
 	env.add_module_function("PhysicsWorld", "mover_instance", [](lua_State *L) {
 			LuaStack stack(L, +1);
 			MoverInstance inst = stack.get_physics_world(1)->mover(stack.get_unit(2));
@@ -2631,6 +2639,14 @@ void load_api(LuaEnvironment &env)
 			LuaStack stack(L, +1);
 			stack.push_bool(stack.get_physics_world(1)->mover_collides_down(stack.get_mover_instance(2)));
 			return 1;
+		});
+	env.add_module_function("PhysicsWorld", "mover_debug_draw", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_physics_world(1)->mover_debug_draw(stack.get_mover_instance(2)
+				, stack.get_debug_line(3)
+				, stack.num_args() > 3 ? stack.get_color4(4) : COLOR4_ORANGE
+				);
+			return 0;
 		});
 	env.add_module_function("PhysicsWorld", "joint_create", [](lua_State *L) {
 			LuaStack stack(L);

@@ -1076,6 +1076,9 @@ Actor
 **actor_wake_up** (pw, actor)
 	Wakes the *actor* up.
 
+**actor_debug_draw** (pw, actor, debug_line [, color])
+	Adds the *actor*'s debug geometry to *lines*.
+
 Mover
 -----
 
@@ -1118,6 +1121,9 @@ Mover
 
 **mover_collides_down** (pw, mover) : bool
 	Returns whether the *mover* collides downwards.
+
+**mover_debug_draw** (pw, mover, debug_line [, color])
+	Adds the *mover*'s debug geometry to *lines*.
 
 Profiler
 ========

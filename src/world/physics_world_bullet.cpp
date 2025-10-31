@@ -136,6 +136,11 @@ static inline btVector3 to_btVector3(const Vector3 &v)
 	return btVector3(v.x, v.y, v.z);
 }
 
+static inline btVector3 to_btVector3(const Color4 &v)
+{
+	return btVector3(v.x, v.y, v.z);
+}
+
 static inline btQuaternion to_btQuaternion(const Quaternion &q)
 {
 	return btQuaternion(q.x, q.y, q.z, q.w);
@@ -195,23 +200,32 @@ static inline Matrix4x4 to_matrix4x4(const btTransform &t)
 struct MyDebugDrawer : public btIDebugDraw
 {
 	DebugLine *_lines;
+	DefaultColors _colors;
 
 	explicit MyDebugDrawer(DebugLine &dl)
 		: _lines(&dl)
 	{
+		_colors.m_activeObject = to_btVector3(COLOR4_ORANGE);
+		_colors.m_deactivatedObject = to_btVector3(COLOR4_ORANGE);
+		_colors.m_wantsDeactivationObject = to_btVector3(COLOR4_ORANGE);
+		_colors.m_disabledDeactivationObject = to_btVector3(COLOR4_ORANGE);
+		_colors.m_disabledSimulationObject = to_btVector3(COLOR4_ORANGE);
+		_colors.m_aabb = to_btVector3(COLOR4_ORANGE);
+		_colors.m_contactPoint = to_btVector3(COLOR4_ORANGE);
 	}
 
-	void drawLine(const btVector3 &from, const btVector3 &to, const btVector3 & /*color*/) override
+	void drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color) override
 	{
 		const Vector3 start = to_vector3(from);
 		const Vector3 end = to_vector3(to);
-		_lines->add_line(start, end, COLOR4_ORANGE);
+		_lines->add_line(start, end, { color.x, color.y, color.z, 1.0f });
 	}
 
-	void drawContactPoint(const btVector3 &pointOnB, const btVector3 & /*normalOnB*/, btScalar /*distance*/, int /*lifeTime*/, const btVector3 & /*color*/) override
+	void drawContactPoint(const btVector3 &pointOnB, const btVector3 &normalOnB, btScalar distance, int lifeTime, const btVector3 &color) override
 	{
+		CE_UNUSED_3(normalOnB, distance, lifeTime);
 		const Vector3 from = to_vector3(pointOnB);
-		_lines->add_sphere(from, 0.1f, COLOR4_WHITE);
+		_lines->add_sphere(from, 0.1f, { color.x, color.y, color.z, 1.0f });
 	}
 
 	void reportErrorWarning(const char *warningString) override
@@ -234,6 +248,11 @@ struct MyDebugDrawer : public btIDebugDraw
 			| DBG_DrawConstraintLimits
 			| DBG_FastWireframe
 			;
+	}
+
+	DefaultColors getDefaultColors() const override
+	{
+		return _colors;
 	}
 };
 
@@ -1338,6 +1357,11 @@ struct PhysicsWorldImpl
 		_actor[actor.i].body->activate(true);
 	}
 
+	void actor_debug_draw(ActorInstance actor, DebugLine *lines, const Color4 &color)
+	{
+		collision_object_debug_draw(lines, _actor[actor.i].body, color);
+	}
+
 	MoverInstance mover_create(UnitId unit, const MoverDesc *desc)
 	{
 		u32 unit_index = 0;
@@ -1477,6 +1501,11 @@ struct PhysicsWorldImpl
 	bool mover_collides_down(MoverInstance mover)
 	{
 		return (_mover[mover.i].mover->_flags & MoverFlags::COLLIDES_DOWN) != 0;
+	}
+
+	void mover_debug_draw(MoverInstance mover, DebugLine *lines, const Color4 &color)
+	{
+		collision_object_debug_draw(lines, _mover[mover.i].mover->_ghost, color);
 	}
 
 	JointInstance joint_create(ActorInstance a0, ActorInstance a1, const JointDesc &jd)
@@ -1917,6 +1946,17 @@ struct PhysicsWorldImpl
 	{
 		JointInstance inst = { i }; return inst;
 	}
+
+	void collision_object_debug_draw(DebugLine *lines, const btCollisionObject *object, const Color4 &color)
+	{
+		DebugLine *old_lines = _debug_drawer._lines;
+		_debug_drawer._lines = lines;
+		_dynamics_world->debugDrawObject(object->m_worldTransform
+			, object->m_collisionShape
+			, to_btVector3(color)
+			);
+		_debug_drawer._lines = old_lines;
+	}
 };
 
 PhysicsWorld::PhysicsWorld(Allocator &a, ResourceManager &rm, UnitManager &um, SceneGraph &sg, DebugLine &dl)
@@ -2123,6 +2163,11 @@ void PhysicsWorld::actor_wake_up(ActorInstance actor)
 	_impl->actor_wake_up(actor);
 }
 
+void PhysicsWorld::actor_debug_draw(ActorInstance actor, DebugLine *lines, const Color4 &color)
+{
+	_impl->actor_debug_draw(actor, lines, color);
+}
+
 void PhysicsWorld::mover_create_instances(const void *components_data, u32 num, const UnitId *unit_lookup, const u32 *unit_index)
 {
 	_impl->mover_create_instances(components_data, num, unit_lookup, unit_index);
@@ -2191,6 +2236,11 @@ bool PhysicsWorld::mover_collides_up(MoverInstance mover)
 bool PhysicsWorld::mover_collides_down(MoverInstance mover)
 {
 	return _impl->mover_collides_down(mover);
+}
+
+void PhysicsWorld::mover_debug_draw(MoverInstance mover, DebugLine *lines, const Color4 &color)
+{
+	_impl->mover_debug_draw(mover, lines, color);
 }
 
 JointInstance PhysicsWorld::joint_create(ActorInstance a0, ActorInstance a1, const JointDesc &jd)
