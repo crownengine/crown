@@ -10,6 +10,7 @@ Changelog
 * Tools: double-clicking an object in the Level Tree will now frame it in the Editor Viewport.
 * Runtime: added an end-of-options marker to stop the runtime from parsing game-specific command line options.
 * Lua: added ``Device.build()`` to retrieve the runtime's build configuration.
+* Lua: added ``PhysicsWorld.actor_debug_draw()`` and ``PhysicsWorld.mover_debug_draw()``.
 
 **Fixes**
 

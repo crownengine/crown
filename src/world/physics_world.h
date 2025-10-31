@@ -165,6 +165,9 @@ struct PhysicsWorld
 	/// Wakes the @a actor up.
 	void actor_wake_up(ActorInstance actor);
 
+	/// Adds the @a actor's debug geometry to @a lines.
+	void actor_debug_draw(ActorInstance actor, DebugLine *lines, const Color4 &color = COLOR4_ORANGE);
+
 	///
 	void mover_create_instances(const void *components_data
 		, u32 num
@@ -211,6 +214,9 @@ struct PhysicsWorld
 
 	/// Returns whether the @a mover collides downwards.
 	bool mover_collides_down(MoverInstance mover);
+
+	/// Adds the @a mover's debug geometry to @a lines.
+	void mover_debug_draw(MoverInstance actor, DebugLine *lines, const Color4 &color = COLOR4_ORANGE);
 
 	/// Creates joint
 	JointInstance joint_create(ActorInstance a0, ActorInstance a1, const JointDesc &jd);
