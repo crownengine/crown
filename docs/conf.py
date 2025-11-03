@@ -88,6 +88,8 @@ html_logo = '../tools/level_editor/resources/icons/hicolor/scalable/apps/org.cro
 
 html_favicon = '../tools/level_editor/resources/icons/hicolor/scalable/apps/org.crownengine.Crown.svg'
 
+html_baseurl = 'https://docs.crownengine.org'
+
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
