@@ -6,6 +6,7 @@
   <title>Changelog &mdash; Crown 0.60.0 Manual 0.60.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" /><link rel="shortcut icon" href="_static/org.crownengine.Crown.svg"/>
+    <link rel="canonical" href="https://docs.crownengine.org/html/latest/changelog.html" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -110,18 +111,30 @@
 <h2>0.60.0 — DD MMM YYYY<a class="headerlink" href="#dd-mmm-yyyy" title="Permalink to this headline">¶</a></h2>
 <p><strong>New Features and Improvements</strong></p>
 <ul class="simple">
-<li>Tools: added the ability to search any kind of resources in the Project Browser.</li>
+<li>Tools: added the ability to search any kind of resources in the Project Browser. As a consequence, the old Resource Chooser dialog has been removed.</li>
 <li>Tools: double-clicking an object in the Level Tree will now frame it in the Editor Viewport.</li>
 <li>Runtime: added an end-of-options marker to stop the runtime from parsing game-specific command line options.</li>
 <li>Lua: added <code class="docutils literal notranslate"><span class="pre">Device.build()</span></code> to retrieve the runtime’s build configuration.</li>
+<li>Lua: added <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_debug_draw()</span></code> and <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.mover_debug_draw()</span></code>.</li>
 </ul>
 <p><strong>Fixes</strong></p>
 <ul class="simple">
 <li>Tools: fixed creation of animation state machine resources.</li>
 <li>Tools: the Project Browser will now reject dropped files while showing Favorites.</li>
+<li>Tools: fixed new levels containing GUIDs from their template resource.</li>
+<li>Tools: the Level Tree is now correctly restored after a search.</li>
+<li>Tools: fixed expanders not reflecting their state in some cases.</li>
+<li>Tools: fixed some properties in the Inspector not being set correctly when read the first time.</li>
+<li>Tools: fixed meshes nodes being reset unexpectedly when selecting the corresponding unit in the Inspector.</li>
+<li>Tools: fixed some properties unnecessarily requiring multiple undo steps to be set to their previous value.</li>
+<li>Tools: fixed importing non-animated FBX files in some circumnstances.</li>
 <li>Runtime: Windows: fixed a number of misdetected keyboard keys.</li>
 <li>Runtime: Windows: fixed windows firewall popping up at startup.</li>
 <li>Runtime: Linux: fixed a crash at startup due to some X11 libraries not being found.</li>
+<li>Runtime: fixed a regression that caused levels with many objects to not load.</li>
+<li>Runtime: fixed a crash when reloading materials.</li>
+<li>Runtime: fixed linking transforms in a SceneGraph not working in some circumnstances.</li>
+<li>Runtime: fixed a crash when reloading non-trivial units.</li>
 <li>Lua: fixed a memory leak when executing some script component callbacks.</li>
 <li>Lua: the <code class="docutils literal notranslate"><span class="pre">update()</span></code> script component callback is now optional.</li>
 </ul>

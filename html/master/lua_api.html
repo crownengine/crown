@@ -6,6 +6,7 @@
   <title>Lua API reference &mdash; Crown 0.60.0 Manual 0.60.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" /><link rel="shortcut icon" href="_static/org.crownengine.Crown.svg"/>
+    <link rel="canonical" href="https://docs.crownengine.org/html/latest/lua_api.html" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -1081,6 +1082,8 @@ travelling at the given <em>velocity</em>.</p>
 <dd>Returns whether the <em>actor</em> is sleeping.</dd>
 <dt><strong>actor_wake_up</strong> (pw, actor)</dt>
 <dd>Wakes the <em>actor</em> up.</dd>
+<dt><strong>actor_debug_draw</strong> (pw, actor, debug_line [, color])</dt>
+<dd>Adds the <em>actor</em>’s debug geometry to <em>lines</em>.</dd>
 </dl>
 </div>
 <div class="section" id="mover">
@@ -1113,6 +1116,8 @@ The <em>mover</em> will slide against physical actors.</dd>
 <dd>Returns whether the <em>mover</em> collides upwards.</dd>
 <dt><strong>mover_collides_down</strong> (pw, mover) <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
 <dd>Returns whether the <em>mover</em> collides downwards.</dd>
+<dt><strong>mover_debug_draw</strong> (pw, mover, debug_line [, color])</dt>
+<dd>Adds the <em>mover</em>’s debug geometry to <em>lines</em>.</dd>
 </dl>
 </div>
 </div>
