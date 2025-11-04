@@ -571,9 +571,10 @@ public class Database
 			string type = ResourceId.type(resource_path);
 			StringId64 type_hash = StringId64(type);
 
-			create_internal(0, object_id);
+			_data[object_id] = new Gee.HashMap<string, Value?>();
 			set_object_type(object_id, type);
 			set_object_owner(object_id, GUID_ZERO);
+			set_object_alive(object_id, true);
 
 			if (has_object_type(type_hash))
 				_init_object(object_id, object_definition(type_hash));
@@ -691,7 +692,7 @@ public class Database
 		string[] keys = json.keys.to_array();
 		foreach (string key in keys) {
 			// ID is filled by decode_set().
-			if (key == "id" || key == "_guid")
+			if (key == "id" || key == "_guid" || key == "_alive")
 				continue;
 
 			// The "type" key defines object type only if it appears
@@ -747,7 +748,7 @@ public class Database
 			else
 				obj_id = Guid.new_guid();
 
-			create_internal(0, obj_id);
+			_data[obj_id] = new Gee.HashMap<string, Value?>();
 
 			// Determine the object's type based on the type of its
 			// parent and other heuristics.
@@ -788,6 +789,7 @@ public class Database
 			}
 
 			set_object_owner(obj_id, owner_id);
+			set_object_alive(obj_id, true);
 			decode_object(obj_id, owner_id, "", obj);
 			assert(has_property(obj_id, "_type"));
 
@@ -832,7 +834,7 @@ public class Database
 		string[] keys = db.keys.to_array();
 		foreach (string key in keys) {
 			// Since null-key is equivalent to non-existent key, skip serialization.
-			if (db[key] == null || key == "_owner")
+			if (db[key] == null || key == "_owner" || key == "_alive")
 				continue;
 
 			string[] foo = key.split(".");
@@ -859,6 +861,8 @@ public class Database
 
 	public Hashtable encode_object(Guid id, Gee.HashMap<string, Value?> db)
 	{
+		assert(object_is_alive(id));
+
 		string type = object_type(id);
 		PropertyDefinition[]? properties = object_definition(StringId64(type));
 
@@ -927,6 +931,8 @@ public class Database
 			Gee.HashSet<Guid?> hs = (Gee.HashSet<Guid?>)value;
 			Gee.ArrayList<Value?> arr = new Gee.ArrayList<Value?>();
 			foreach (Guid id in hs) {
+				if (!object_is_alive(id))
+					continue;
 				arr.add(encode_object(id, get_data(id)));
 			}
 			return arr;
@@ -940,29 +946,6 @@ public class Database
 		assert(has_object(id));
 
 		return _data[id];
-	}
-
-	public void create_internal(int dir, Guid id)
-	{
-		assert(id != GUID_ZERO);
-
-		if (_debug)
-			logi("create %s".printf(debug_string(id)));
-
-		_data[id] = new Gee.HashMap<string, Value?>();
-
-		_distance_from_last_sync += dir;
-	}
-
-	public void destroy_internal(int dir, Guid id)
-	{
-		assert(id != GUID_ZERO);
-		assert(has_object(id));
-
-		if (_debug)
-			logi("destroy %s".printf(debug_string(id)));
-
-		_distance_from_last_sync += dir;
 	}
 
 	public void set_property_internal(int dir, Guid id, string key, Value? value)
@@ -1066,6 +1049,18 @@ public class Database
 		get_data(id)["_owner"] = owner_id;
 	}
 
+	public void set_object_alive(Guid id, bool alive)
+	{
+		assert(has_object(id));
+		get_data(id)["_alive"] = alive;
+	}
+
+	public bool object_is_alive(Guid id)
+	{
+		assert(has_object(id));
+		return (bool)get_data(id)["_alive"];
+	}
+
 	public void _init_object(Guid id, PropertyDefinition[] properties)
 	{
 		foreach (PropertyDefinition def in properties) {
@@ -1109,12 +1104,16 @@ public class Database
 		assert(id != GUID_ZERO);
 		assert(!has_object(id));
 
+		if (_debug)
+			logi("create %s".printf(debug_string(id)));
+
 		if (_undo_redo != null) {
 			_undo_redo._undo.write_destroy_action(Action.DESTROY, id, type);
 			_undo_redo._redo.clear();
 		}
 
-		create_internal(1, id);
+		_data[id] = new Gee.HashMap<string, Value?>();
+		set_object_alive(id, true);
 		set_object_type(id, type);
 
 		StringId64 type_hash = StringId64(type);
@@ -1137,22 +1136,20 @@ public class Database
 			if (value.holds(typeof(Gee.HashSet))) {
 				Gee.HashSet<Guid?> hs = (Gee.HashSet<Guid?>)value;
 				Guid?[] ids = hs.to_array();
-				foreach (Guid item_id in ids) {
-					remove_from_set(id, key, item_id);
+				foreach (Guid item_id in ids)
 					destroy(item_id);
-				}
-			} else {
-				if (key != "type" && key != "_type")
-					set_property_null(id, key);
 			}
 		}
+
+		set_object_alive(id, false);
 
 		if (_undo_redo != null) {
 			_undo_redo._undo.write_create_action(Action.CREATE, id, obj_type);
 			_undo_redo._redo.clear();
 		}
 
-		destroy_internal(1, id);
+		if (_debug)
+			logi("destroy %s".printf(debug_string(id)));
 	}
 
 	public void set_property_null(Guid id, string key)
@@ -1646,16 +1643,13 @@ public class Database
 			if (action == Action.CREATE) {
 				Guid id = undo.read_guid();
 				string obj_type = undo.read_string();
-
+				set_object_alive(id, true);
 				redo.write_destroy_action(Action.DESTROY, id, obj_type);
-				create_internal(dir, id);
-				set_object_type(id, obj_type);
 			} else if (action == Action.DESTROY) {
 				Guid id = undo.read_guid();
 				string obj_type = undo.read_string();
-
+				set_object_alive(id, false);
 				redo.write_create_action(Action.CREATE, id, obj_type);
-				destroy_internal(dir, id);
 			} else if (action == Action.SET_PROPERTY_NULL) {
 				Guid id = undo.read_guid();
 				string key = undo.read_string();
