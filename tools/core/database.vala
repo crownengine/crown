@@ -1026,7 +1026,7 @@ public class Database
 		Gee.HashMap<string, Value?> ob = get_data(id);
 		((Gee.HashSet<Guid?>)ob[key]).remove(item_id);
 
-		get_data(item_id)["_owner"] = null;
+		set_object_owner(id, GUID_ZERO);
 
 		_distance_from_last_sync += dir;
 	}
