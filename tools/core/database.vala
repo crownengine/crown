@@ -832,9 +832,7 @@ public class Database
 		string[] keys = db.keys.to_array();
 		foreach (string key in keys) {
 			// Since null-key is equivalent to non-existent key, skip serialization.
-			if (db[key] == null)
-				continue;
-			if (key == "_owner")
+			if (db[key] == null || key == "_owner")
 				continue;
 
 			string[] foo = key.split(".");
