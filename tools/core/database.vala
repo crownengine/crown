@@ -689,18 +689,30 @@ public class Database
 		string old_db = db_key;
 		string k = db_key;
 
+		// The "type" key defines object type only if it appears
+		// in the root of a JSON object (k == "").
+		if (k == "") {
+			string? type = null;
+
+			if (json.has_key("_type"))
+				type = (string)json["_type"];
+			else if (json.has_key("type"))
+				type = (string)json["type"];
+
+			if (type != null) {
+				set_object_type(id, type);
+
+				StringId64 type_hash = StringId64(type);
+				if (has_object_type(type_hash))
+					_init_object(id, object_definition(type_hash));
+			}
+		}
+
 		string[] keys = json.keys.to_array();
 		foreach (string key in keys) {
 			// ID is filled by decode_set().
 			if (key == "id" || key == "_guid" || key == "_alive")
 				continue;
-
-			// The "type" key defines object type only if it appears
-			// in the root of a JSON object (k == "").
-			if (k == "") {
-				if (key == "type" || key == "_type")
-					set_object_type(id, (string)json[key]);
-			}
 
 			Value? val = json[key];
 
