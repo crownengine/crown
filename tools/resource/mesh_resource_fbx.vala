@@ -343,11 +343,13 @@ public class FBXImporter
 		Vector3 pos = vector3(node.local_transform.translation);
 		Quaternion rot = quaternion(node.local_transform.rotation);
 		Vector3 scl = vector3(node.local_transform.scale);
+		string editor_name = node.name.data.length == 0 ? OBJECT_NAME_UNNAMED : (string)node.name.data;
 
 		// Create mesh_renderer.
 		if (node.mesh != null) {
 			Unit unit = Unit(db, unit_id);
 			db.create(unit_id, OBJECT_TYPE_UNIT);
+			db.set_object_name(unit_id, editor_name);
 
 			// Create transform.
 			{
@@ -361,7 +363,7 @@ public class FBXImporter
 				unit.set_component_property_vector3   (component_id, "data.position", pos);
 				unit.set_component_property_quaternion(component_id, "data.rotation", rot);
 				unit.set_component_property_vector3   (component_id, "data.scale", scl);
-				unit.set_component_property_string    (component_id, "data.name", (string)node.name.data);
+				unit.set_component_property_string    (component_id, "data.name", editor_name);
 			}
 
 			if (node.mesh.num_faces > 0) {
@@ -379,7 +381,7 @@ public class FBXImporter
 					if (imported_materials.has_key(mesh_instance_material))
 						material_name = imported_materials[mesh_instance_material];
 
-					unit.set_component_property_string(component_id, "data.geometry_name", (string)node.name.data);
+					unit.set_component_property_string(component_id, "data.geometry_name", editor_name);
 					unit.set_component_property_string(component_id, "data.material", material_name);
 					unit.set_component_property_string(component_id, "data.mesh_resource", resource_name);
 					unit.set_component_property_bool  (component_id, "data.visible", true);
@@ -396,7 +398,7 @@ public class FBXImporter
 
 					unit.set_component_property_string(component_id, "data.shape", "mesh");
 					unit.set_component_property_string(component_id, "data.scene", resource_name);
-					unit.set_component_property_string(component_id, "data.name", (string)node.name.data);
+					unit.set_component_property_string(component_id, "data.name", editor_name);
 				}
 
 				// Create actor.
@@ -420,6 +422,7 @@ public class FBXImporter
 
 			Unit unit = Unit(db, unit_id);
 			unit.create("core/units/light");
+			db.set_object_name(unit_id, editor_name);
 			unit.set_local_position(pos);
 			unit.set_local_rotation(rot);
 			unit.set_local_scale(scl);
@@ -440,6 +443,7 @@ public class FBXImporter
 
 			Unit unit = Unit(db, unit_id);
 			unit.create("core/units/camera");
+			db.set_object_name(unit_id, editor_name);
 			unit.set_local_position(pos);
 			unit.set_local_rotation(rot);
 			unit.set_local_scale(scl);
@@ -456,6 +460,7 @@ public class FBXImporter
 		} else {
 			Unit unit = Unit(db, unit_id);
 			db.create(unit_id, OBJECT_TYPE_UNIT);
+			db.set_object_name(unit_id, editor_name);
 
 			// Create transform.
 			Guid component_id;
