@@ -120,6 +120,19 @@ public struct Sound
 		return i;
 	}
 
+	public static int generate_destroy_commands(StringBuilder sb, Guid?[] object_ids, Database db)
+	{
+		int i = 0;
+		for (; i < object_ids.length; ++i) {
+			if (db.object_type(object_ids[i]) != OBJECT_TYPE_SOUND_SOURCE)
+				break;
+
+			sb.append(LevelEditorApi.destroy(object_ids[i]));
+		}
+
+		return i;
+	}
+
 	public static int generate_change_sound_commands(StringBuilder sb, Guid?[] object_ids, Database db)
 	{
 		int i = 0;

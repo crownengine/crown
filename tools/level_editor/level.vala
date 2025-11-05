@@ -301,8 +301,7 @@ public class Level
 			if (_db.object_type(object_ids[i]) == OBJECT_TYPE_UNIT) {
 				i += Unit.generate_destroy_commands(sb, object_ids[i:object_ids.length], _db);
 			} else if (_db.object_type(object_ids[i]) == OBJECT_TYPE_SOUND_SOURCE) {
-				sb.append(LevelEditorApi.destroy(object_ids[i]));
-				++i;
+				i += Sound.generate_destroy_commands(sb, object_ids[i:object_ids.length], _db);
 			} else {
 				++i; // Skip object.
 			}
