@@ -11,6 +11,8 @@ public class DatabaseEditor
 	{
 		{ "undo",   on_undo,   null,   null },
 		{ "redo",   on_redo,   null,   null },
+		{ "delete", on_delete, "(ss)", null },
+		{ "rename", on_rename, "(ss)", null },
 	};
 
 	public UndoRedo _undo_redo;
@@ -46,6 +48,56 @@ public class DatabaseEditor
 		int id = _database.redo();
 		if (id != -1)
 			redo(id);
+	}
+
+	public void on_delete(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		Guid object_id = Guid.parse((string)param.get_child_value(0));
+		string set_name = (string)param.get_child_value(1);
+
+		_database.remove_from_set(_database.object_owner(object_id), set_name, object_id);
+		_database.destroy(object_id);
+		_database.add_restore_point((int)ActionType.DESTROY_OBJECTS, { object_id });
+	}
+
+	public void do_rename(Guid object_id, string new_name)
+	{
+		if (new_name != "" && _database.object_name(object_id) != new_name) {
+			_database.set_object_name(object_id, new_name);
+			_database.add_restore_point((int)ActionType.CHANGE_OBJECTS, new Guid?[] { object_id });
+		}
+	}
+
+	public void on_rename(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		Guid object_id = Guid.parse((string)param.get_child_value(0));
+		string new_name = (string)param.get_child_value(1);
+
+		if (new_name != "") {
+			do_rename(object_id, new_name);
+		} else {
+			Gtk.Dialog dg = new Gtk.Dialog.with_buttons("New Name"
+				, null
+				, Gtk.DialogFlags.MODAL
+				, "Cancel"
+				, Gtk.ResponseType.CANCEL
+				, "Ok"
+				, Gtk.ResponseType.OK
+				, null
+				);
+
+			InputString sb = new InputString();
+			sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
+			sb.value = _database.object_name(object_id);
+
+			dg.get_content_area().add(sb);
+			dg.response.connect((response_id) => {
+					if (response_id == Gtk.ResponseType.OK)
+						do_rename(object_id, sb.text.strip());
+					dg.destroy();
+				});
+			dg.show_all();
+		}
 	}
 }
 
