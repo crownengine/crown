@@ -150,6 +150,14 @@ public static void create_object_types(Database database)
 			min = VECTOR3_ZERO,
 			deffault = VECTOR3_ONE,
 		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "spawn_order",
+			deffault = 0.0,
+			hidden = true,
+			not_serialized = true,
+		},
 	};
 	database.create_object_type(OBJECT_TYPE_TRANSFORM
 		, properties
@@ -195,6 +203,14 @@ public static void create_object_types(Database database)
 			type = PropertyType.BOOL,
 			name = "data.cast_shadows",
 			deffault = true
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "spawn_order",
+			deffault = 1.0,
+			hidden = true,
+			not_serialized = true,
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_MESH_RENDERER
@@ -250,6 +266,14 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.BOOL,
 			name = "data.flip_y",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "spawn_order",
+			deffault = 1.0,
+			hidden = true,
+			not_serialized = true,
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_SPRITE_RENDERER
@@ -315,6 +339,14 @@ public static void create_object_types(Database database)
 			name =  "data.cast_shadows",
 			deffault = true,
 		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "spawn_order",
+			deffault = 1.0,
+			hidden = true,
+			not_serialized = true,
+		},
 	};
 	database.create_object_type(OBJECT_TYPE_LIGHT
 		, properties
@@ -354,6 +386,14 @@ public static void create_object_types(Database database)
 			type = PropertyType.DOUBLE,
 			name = "data.far_range",
 			deffault = 1000.0,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "spawn_order",
+			deffault = 1.0,
+			hidden = true,
+			not_serialized = true,
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_CAMERA
@@ -428,6 +468,14 @@ public static void create_object_types(Database database)
 			name = "data.collider_data.height",     // Capsule only.
 			min = 0.0,
 			deffault = 1.0,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "spawn_order",
+			deffault = 1.0,
+			hidden = true,
+			not_serialized = true,
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_COLLIDER
@@ -512,6 +560,14 @@ public static void create_object_types(Database database)
 			type = PropertyType.BOOL,
 			name = "data.lock_rotation_z",
 		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "spawn_order",
+			deffault = 2.0,
+			hidden = true,
+			not_serialized = true,
+		},
 	};
 	database.create_object_type(OBJECT_TYPE_ACTOR
 		, properties
@@ -530,6 +586,14 @@ public static void create_object_types(Database database)
 			resource_type = "lua",
 			deffault = "core/components/noop",
 		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "spawn_order",
+			deffault = 1.0,
+			hidden = true,
+			not_serialized = true,
+		},
 	};
 	database.create_object_type(OBJECT_TYPE_SCRIPT
 		, properties
@@ -546,6 +610,14 @@ public static void create_object_types(Database database)
 			label = "State Machine",
 			resource_type = OBJECT_TYPE_STATE_MACHINE,
 			deffault = "core/components/noop",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "spawn_order",
+			deffault = 3.0,
+			hidden = true,
+			not_serialized = true,
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_ANIMATION_STATE_MACHINE
@@ -652,6 +724,14 @@ public static void create_object_types(Database database)
 			type = PropertyType.BOOL,
 			name = "data.enabled",
 		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "spawn_order",
+			deffault = 0.0,
+			hidden = true,
+			not_serialized = true,
+		},
 	};
 	database.create_object_type(OBJECT_TYPE_FOG
 		, properties
@@ -702,6 +782,14 @@ public static void create_object_types(Database database)
 			enum_callback = collision_filter_enum_callback,
 			deffault = "default",
 		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "spawn_order",
+			deffault = 2.0,
+			hidden = true,
+			not_serialized = true,
+		},
 	};
 	database.create_object_type(OBJECT_TYPE_MOVER
 		, properties
@@ -734,6 +822,14 @@ public static void create_object_types(Database database)
 			editor = PropertyEditorType.COLOR,
 			min = VECTOR3_ZERO,
 			max = VECTOR3_ONE,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "spawn_order",
+			deffault = 0.0,
+			hidden = true,
+			not_serialized = true,
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_GLOBAL_LIGHTING
@@ -773,6 +869,14 @@ public static void create_object_types(Database database)
 			max = 2.0,
 			deffault = 0.8,
 		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "spawn_order",
+			deffault = 0.0,
+			hidden = true,
+			not_serialized = true,
+		},
 	};
 	database.create_object_type(OBJECT_TYPE_BLOOM
 		, properties
@@ -789,6 +893,14 @@ public static void create_object_types(Database database)
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "gamma", "reinhard", "filmic", "aces" },
 			deffault = "reinhard",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "spawn_order",
+			deffault = 0.0,
+			hidden = true,
+			not_serialized = true,
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_TONEMAP
