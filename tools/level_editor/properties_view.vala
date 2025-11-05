@@ -8,6 +8,7 @@ namespace Crown
 public class UnitView : PropertyGrid
 {
 	public InputResource _prefab;
+	public Gtk.Button _open_prefab;
 	public Gtk.MenuButton _component_add;
 	public Gtk.Box _components;
 	public Gtk.Popover _add_popover;
@@ -42,6 +43,10 @@ public class UnitView : PropertyGrid
 		_prefab = new InputResource(OBJECT_TYPE_UNIT, db);
 		_prefab._selector.sensitive = false;
 
+		_open_prefab = new Gtk.Button.with_label("Open Prefab");
+		_open_prefab.sensitive = false;
+		_open_prefab.clicked.connect(on_open_prefab_clicked);
+
 		// Construct 'add components' button.
 		GLib.Menu menu_model = new GLib.Menu();
 		GLib.MenuItem mi;
@@ -65,6 +70,7 @@ public class UnitView : PropertyGrid
 		_components.pack_start(_component_add);
 
 		add_row("Prefab", _prefab);
+		add_row("Prefab", _open_prefab);
 		add_row("Components", _components);
 	}
 
@@ -72,8 +78,10 @@ public class UnitView : PropertyGrid
 	{
 		if (_db.has_property(_id, "prefab")) {
 			_prefab.value = _db.get_property_string(_id, "prefab");
+			_open_prefab.sensitive = true;
 		} else {
 			_prefab.value = "<none>";
+			_open_prefab.sensitive = false;
 		}
 	}
 

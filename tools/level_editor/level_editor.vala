@@ -570,7 +570,8 @@ public class LevelEditorApplication : Gtk.Application
 
 	public const GLib.ActionEntry[] action_entries_unit =
 	{
-		{ "unit-save-as-prefab",   on_unit_save_as_prefab,   "(ss)", null },
+		{ "unit-save-as-prefab", on_unit_save_as_prefab, "(ss)", null },
+		{ "open-unit",           on_open_unit,           "s",    null },
 	};
 
 	// Command line options
@@ -637,6 +638,7 @@ public class LevelEditorApplication : Gtk.Application
 	public PreferencesDialog _preferences_dialog;
 	public DeployDialog _deploy_dialog;
 	public TextureSettingsDialog _texture_settings_dialog;
+	public UnitEditor _unit_editor_dialog;
 	public ThumbnailCache _thumbnail_cache;
 
 	public Gtk.Stack _project_stack;
@@ -2246,6 +2248,9 @@ public class LevelEditorApplication : Gtk.Application
 			return;
 		} else if (resource_type == OBJECT_TYPE_TEXTURE) {
 			activate_action("texture-settings", resource_name);
+			return;
+		} else if (resource_type == OBJECT_TYPE_UNIT) {
+			activate_action("open-unit", resource_name);
 			return;
 		}
 
@@ -4058,6 +4063,30 @@ public class LevelEditorApplication : Gtk.Application
 			});
 		srd.show_all();
 		srd.present();
+	}
+
+	public void on_open_unit(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string unit_name = param.get_string();
+
+		if (_unit_editor_dialog == null) {
+			_unit_editor_dialog = new UnitEditor(this
+				, _project
+				, "core/editors/level_editor"
+				, "127.0.0.1"
+				, 10444
+				, (uint)_preferences_dialog._undo_redo_max_size.value * 1024 * 1024
+				);
+			_unit_editor_dialog.set_transient_for(this.active_window);
+			_unit_editor_dialog.delete_event.connect(_unit_editor_dialog.hide_on_delete);
+			_unit_editor_dialog.saved.connect(() => {
+						compile_and_reload.begin();
+					});
+		}
+
+		_unit_editor_dialog.set_unit(unit_name);
+		_unit_editor_dialog.show_all();
+		_unit_editor_dialog.present();
 	}
 
 	public void set_autosave_timer(uint minutes)
