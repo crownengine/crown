@@ -812,6 +812,11 @@ public static void create_object_types(Database database)
 			resource_type = OBJECT_TYPE_UNIT,
 			deffault = null,
 		},
+		PropertyDefinition()
+		{
+			type = PropertyType.OBJECTS_SET,
+			name = "children",
+		},
 #if false
 		PropertyDefinition()
 		{
@@ -827,11 +832,6 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.OBJECTS_SET,
 			name = "modified_components",
-		},
-		PropertyDefinition()
-		{
-			type = PropertyType.OBJECTS_SET,
-			name = "children",
 		},
 		PropertyDefinition()
 		{
