@@ -154,6 +154,23 @@ function UnitBox:set_local_pose(pose)
 	end
 end
 
+function UnitBox:set_parent(parent_id)
+	local tr = SceneGraph.instance(self._sg, self._unit_id)
+	local parent_unit = LevelEditor._objects[parent_id]:unit_id()
+	local parent_tr = SceneGraph.instance(self._sg, parent_unit)
+
+	if tr and parent_tr then
+		SceneGraph.link(self._sg
+			, parent_tr
+			, tr
+			, self:local_position()
+			, self:local_rotation()
+			, self:local_scale()
+			)
+		self._obb.dirty = true
+	end
+end
+
 function UnitBox:on_selected(selected)
 	local scene_graph = self._sg
 	local unit_id = self._unit_id
