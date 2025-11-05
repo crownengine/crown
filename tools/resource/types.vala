@@ -803,6 +803,7 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.STRING,
 			name = "editor.name",
+			deffault = OBJECT_NAME_UNNAMED,
 		},
 		PropertyDefinition()
 		{
