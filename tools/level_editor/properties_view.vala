@@ -25,7 +25,6 @@ public class UnitView : PropertyGrid
 		Unit unit = Unit(_db, unit_id);
 
 		Gee.ArrayList<Guid?> components_added = new Gee.ArrayList<Guid?>();
-		components_added.add(unit_id);
 		unit.add_component_type_dependencies(ref components_added, component_type);
 
 		_db.add_restore_point((int)ActionType.CREATE_OBJECTS, components_added.to_array());

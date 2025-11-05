@@ -282,43 +282,37 @@ public class Level
 
 	public void generate_spawn_objects(StringBuilder sb, Guid?[] object_ids)
 	{
+		int n;
 		int i = 0;
 		while (i < object_ids.length) {
-			if (_db.object_type(object_ids[i]) == OBJECT_TYPE_UNIT) {
-				i += Unit.generate_spawn_unit_commands(sb, object_ids[i:object_ids.length], _db);
-			} else if (_db.object_type(object_ids[i]) == OBJECT_TYPE_SOUND_SOURCE) {
-				i += Sound.generate_spawn_sound_commands(sb, object_ids[i:object_ids.length], _db);
-			} else {
-				++i; // Skip object.
-			}
+			n = 0;
+			n += Unit.generate_spawn_unit_commands(sb, object_ids[i:object_ids.length], _db);
+			n += Sound.generate_spawn_sound_commands(sb, object_ids[i:object_ids.length], _db);
+			i += n == 0 ? 1 : n;
 		}
 	}
 
 	public void generate_destroy_objects(StringBuilder sb, Guid?[] object_ids)
 	{
+		int n;
 		int i = 0;
 		while (i < object_ids.length) {
-			if (_db.object_type(object_ids[i]) == OBJECT_TYPE_UNIT) {
-				i += Unit.generate_destroy_commands(sb, object_ids[i:object_ids.length], _db);
-			} else if (_db.object_type(object_ids[i]) == OBJECT_TYPE_SOUND_SOURCE) {
-				i += Sound.generate_destroy_commands(sb, object_ids[i:object_ids.length], _db);
-			} else {
-				++i; // Skip object.
-			}
+			n = 0;
+			n += Unit.generate_destroy_commands(sb, object_ids[i:object_ids.length], _db);
+			n += Sound.generate_destroy_commands(sb, object_ids[i:object_ids.length], _db);
+			i += n == 0 ? 1 : n;
 		}
 	}
 
 	public void generate_change_objects(StringBuilder sb, Guid?[] object_ids)
 	{
+		int n;
 		int i = 0;
 		while (i < object_ids.length) {
-			if (_db.object_type(object_ids[i]) == OBJECT_TYPE_UNIT) {
-				i += Unit.generate_change_commands(sb, object_ids[i:object_ids.length], _db);
-			} else if (_db.object_type(object_ids[i]) == OBJECT_TYPE_SOUND_SOURCE) {
-				i += Sound.generate_change_sound_commands(sb, object_ids[i:object_ids.length], _db);
-			} else {
-				++i; // Skip object.
-			}
+			n = 0;
+			n += Unit.generate_change_commands(sb, object_ids[i:object_ids.length], _db);
+			n += Sound.generate_change_sound_commands(sb, object_ids[i:object_ids.length], _db);
+			i += n == 0 ? 1 : n;
 		}
 	}
 

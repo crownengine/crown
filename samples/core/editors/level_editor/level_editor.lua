@@ -1729,24 +1729,28 @@ end
 function LevelEditor:add_transform_component(id, component_id, pos, rot, scale)
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id()
+	if SceneGraph.instance(self._sg, unit_id) ~= nil then return end
 	SceneGraph.create(self._sg, unit_id, pos, rot, scale)
 end
 
 function LevelEditor:add_camera_component(id, component_id, projection, fov, far_range, near_range)
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id();
+	if World.camera_instance(self._world, unit_id) ~= nil then return end
 	World.camera_create(self._world, unit_id, projection, fov, far_range, near_range)
 end
 
 function LevelEditor:add_mesh_component(id, component_id, mesh_resource, geometry_name, material_resource, visible)
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id()
+	if RenderWorld.mesh_instance(self._rw, unit_id) ~= nil then return end
 	RenderWorld.mesh_create(self._rw, unit_id, mesh_resource, geometry_name, material_resource, visible)
 end
 
 function LevelEditor:add_sprite_component(id, component_id, sprite_resource, material_resource, layer, depth, visible, flip_x, flip_y)
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id();
+	if RenderWorld.sprite_instance(self._rw, unit_id) ~= nil then return end
 	RenderWorld.sprite_create(self._rw, unit_id, sprite_resource, material_resource, layer, depth, visible)
 	unit_box:set_sprite(sprite_resource, material_resource, layer, depth, visible, flip_x, flip_y)
 end
@@ -1754,36 +1758,42 @@ end
 function LevelEditor:add_light_component(id, component_id, type, range, intensity, spot_angle, color)
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id()
+	if RenderWorld.light_instance(self._rw, unit_id) ~= nil then return end
 	RenderWorld.light_create(self._rw, unit_id, type, range, intensity, spot_angle, color)
 end
 
 function LevelEditor:add_mover_component(id, component_id, height, radius, max_slope_angle, filter)
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id()
+	if PhysicsWorld.mover_instance(self._pw, unit_id, height, radius, max_slope_angle, filter) ~= nil then return end
 	PhysicsWorld.mover_create(self._pw, unit_id, height, radius, max_slope_angle, filter)
 end
 
 function LevelEditor:add_fog_component(id, component_id)
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id()
+	if RenderWorld.fog_instance(self._rw, unit_id) ~= nil then return end
 	RenderWorld.fog_create(self._rw, unit_id)
 end
 
 function LevelEditor:add_global_lighting_component(id, component_id)
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id()
+	if RenderWorld.global_lighting_instance(self._rw, unit_id) ~= nil then return end
 	RenderWorld.global_lighting_create(self._rw, unit_id)
 end
 
 function LevelEditor:add_bloom_component(id, component_id)
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id()
+	if RenderWorld.bloom_instance(self._rw, unit_id) ~= nil then return end
 	RenderWorld.bloom_create(self._rw, unit_id)
 end
 
 function LevelEditor:add_tonemap_component(id, component_id)
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id()
+	if RenderWorld.tonemap_instance(self._rw, unit_id) ~= nil then return end
 	RenderWorld.tonemap_create(self._rw, unit_id)
 end
 
@@ -1793,31 +1803,31 @@ function LevelEditor:unit_destroy_component_type(id, component_type)
 
 	if component_type == "transform" then
 		local inst = SceneGraph.instance(self._sg, unit_id)
-		SceneGraph.destroy(self._sg, inst)
+		if inst then SceneGraph.destroy(self._sg, inst) end
 	elseif component_type == "camera" then
 		local inst = World.camera_instance(self._world, unit_id)
-		World.camera_destroy(self._world, inst)
+		if inst then World.camera_destroy(self._world, inst) end
 	elseif component_type == "mesh_renderer" then
 		local inst = RenderWorld.mesh_instance(self._rw, unit_id)
-		RenderWorld.mesh_destroy(self._rw, inst)
+		if inst then RenderWorld.mesh_destroy(self._rw, inst) end
 	elseif component_type == "sprite_renderer" then
 		local inst = RenderWorld.sprite_instance(self._rw, unit_id)
-		RenderWorld.sprite_destroy(self._rw, inst)
+		if inst then RenderWorld.sprite_destroy(self._rw, inst) end
 	elseif component_type == "light" then
 		local inst = RenderWorld.light_instance(self._rw, unit_id)
-		RenderWorld.light_destroy(self._rw, inst)
+		if inst then RenderWorld.light_destroy(self._rw, inst) end
 	elseif component_type == "fog" then
 		local inst = RenderWorld.fog_instance(self._rw, unit_id)
-		RenderWorld.fog_destroy(self._rw, inst)
+		if inst then RenderWorld.fog_destroy(self._rw, inst) end
 	elseif component_type == "global_lighting" then
 		local inst = RenderWorld.global_lighting_instance(self._rw, unit_id)
-		RenderWorld.global_lighting_destroy(self._rw, inst)
+		if inst then RenderWorld.global_lighting_destroy(self._rw, inst) end
 	elseif component_type == "bloom" then
 		local inst = RenderWorld.bloom_instance(self._rw, unit_id)
-		RenderWorld.bloom_destroy(self._rw, inst)
+		if inst then RenderWorld.bloom_destroy(self._rw, inst) end
 	elseif component_type == "tonemap" then
 		local inst = RenderWorld.tonemap_instance(self._rw, unit_id)
-		RenderWorld.tonemap_destroy(self._rw, inst)
+		if inst then RenderWorld.tonemap_destroy(self._rw, inst) end
 	elseif component_type == "script" then
 		-- Nothing to do.
 	elseif component_type == "collider" then
@@ -1826,7 +1836,7 @@ function LevelEditor:unit_destroy_component_type(id, component_type)
 		-- Nothing to do.
 	elseif component_type == "mover" then
 		local inst = PhysicsWorld.mover_instance(self._pw, unit_id)
-		PhysicsWorld.mover_destroy(self._pw, inst)
+		if inst then PhysicsWorld.mover_destroy(self._pw, inst) end
 	elseif component_type == "animation_state_machine" then
 		-- Nothing to do.
 	else

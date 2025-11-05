@@ -577,6 +577,11 @@ namespace LevelEditorApi
 		return "LevelEditor._objects[\"%s\"]:freeze()".printf(id.to_string());
 	}
 
+	public string unit_set_parent(Guid parent_id, Guid child_id)
+	{
+		return "LevelEditor._objects[\"%s\"]:set_parent(\"%s\")".printf(child_id.to_string(), parent_id.to_string());
+	}
+
 } /* namespace LevelEditorApi */
 
 namespace UnitPreviewApi
