@@ -34,18 +34,19 @@ public class DatabaseEditor
 		create_object_types(_database);
 	}
 
-    public void on_undo(GLib.SimpleAction action, GLib.Variant? param)
-    {
-        int id = _database.undo();
-        if (id != -1)
+	public void on_undo(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		int id = _database.undo();
+		if (id != -1)
 			undo(id);
-    }
+	}
 
-    public void on_redo(GLib.SimpleAction action, GLib.Variant? param)
-    {
-        int id = _database.redo();
-        if (id != -1)
+	public void on_redo(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		int id = _database.redo();
+		if (id != -1)
 			redo(id);
-    }
+	}
 }
-}
+
+} /* namespace Crown */
