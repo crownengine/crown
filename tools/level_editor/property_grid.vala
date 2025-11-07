@@ -174,7 +174,7 @@ public class PropertyGrid : Gtk.Grid
 					p = new InputString();
 				break;
 			case PropertyType.GUID:
-				p = new InputString();
+				p = new InputObject(def.object_type, _db);
 				break;
 			case PropertyType.VECTOR3:
 				if (def.editor == PropertyEditorType.COLOR)
@@ -254,13 +254,13 @@ public class PropertyGrid : Gtk.Grid
 		} else if (def.type == PropertyType.GUID) {
 			if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
 				Unit u = Unit(_db, _id);
-				if (Guid.equal_func(u.get_component_property_guid(_component_id, def.name, (Guid)def.deffault), Guid.parse((string)new_value)) == false) {
-					u.set_component_property_guid(_component_id, def.name, Guid.parse((string)new_value));
+				if (Guid.equal_func(u.get_component_property_guid(_component_id, def.name, (Guid)def.deffault), (Guid)new_value) == false) {
+					u.set_component_property_guid(_component_id, def.name, (Guid)new_value);
 					changed = true;
 				}
 			} else {
-				if (Guid.equal_func(_db.get_property_guid(_id, def.name, (Guid)def.deffault), Guid.parse((string)new_value)) == false) {
-					_db.set_property_guid(_id, def.name, Guid.parse((string)new_value));
+				if (Guid.equal_func(_db.get_property_guid(_id, def.name, (Guid)def.deffault), (Guid)new_value) == false) {
+					_db.set_property_guid(_id, def.name, (Guid)new_value);
 					changed = true;
 				}
 			}
