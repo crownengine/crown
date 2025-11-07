@@ -10,10 +10,10 @@ public enum PropertyType
 	BOOL,
 	DOUBLE,
 	STRING,
-	GUID,
 	VECTOR3,
 	QUATERNION,
 	OBJECTS_SET,
+	OBJECT_NAME,
 	OBJECT_REFERENCE,
 }
 
@@ -1086,7 +1086,7 @@ public class Database
 			case PropertyType.STRING:
 				set_property_string(id, def.name, (string)def.deffault);
 				break;
-			case PropertyType.GUID:
+			case PropertyType.OBJECT_REFERENCE:
 				set_property_guid(id, def.name, (Guid)def.deffault);
 				break;
 			case PropertyType.VECTOR3:
@@ -1098,7 +1098,7 @@ public class Database
 			case PropertyType.OBJECTS_SET:
 				create_empty_set(id, def.name);
 				break;
-			case PropertyType.OBJECT_REFERENCE:
+			case PropertyType.OBJECT_NAME:
 				if (def.deffault == null)
 					set_property_null(id, def.name);
 				else
@@ -1825,12 +1825,6 @@ public class Database
 				assert(def.enum_property == null && def.enum_callback == null || def.enum_property != null && def.enum_callback != null && def.enum_values.length == 0);
 				assert(def.deffault.holds(typeof(string)));
 				break;
-			case PropertyType.GUID:
-				def.deffault = GUID_ZERO;
-
-				assert(def.deffault.holds(typeof(Guid)));
-				assert(def.object_type._id != 0);
-				break;
 			case PropertyType.VECTOR3:
 				if (def.deffault == null)
 					def.deffault = VECTOR3_ZERO;
@@ -1851,7 +1845,7 @@ public class Database
 				break;
 			case PropertyType.OBJECTS_SET:
 				break;
-			case PropertyType.OBJECT_REFERENCE:
+			case PropertyType.OBJECT_NAME:
 				assert(def.resource_type != null);
 				assert(def.min == null);
 				assert(def.max == null);
@@ -1859,6 +1853,12 @@ public class Database
 				break;
 				default:
 				assert(false);
+				break;
+			case PropertyType.OBJECT_REFERENCE:
+				def.deffault = GUID_ZERO;
+
+				assert(def.deffault.holds(typeof(Guid)));
+				assert(def.object_type._id != 0);
 				break;
 			}
 
