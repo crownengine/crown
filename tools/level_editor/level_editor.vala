@@ -557,6 +557,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "create-material",      on_create_material,      "(ss)",  null },
 		{ "open-containing",      on_open_containing,      "s",     null },
 		{ "texture-settings",     on_texture_settings,     "s",     null },
+		{ "state-machine-editor", on_state_machine_editor, "s",     null },
 		{ "reveal-resource",      on_reveal,               "(ss)",  null }
 	};
 
@@ -639,6 +640,7 @@ public class LevelEditorApplication : Gtk.Application
 	public DeployDialog _deploy_dialog;
 	public TextureSettingsDialog _texture_settings_dialog;
 	public UnitEditor _unit_editor_dialog;
+	public StateMachineEditor _state_machine_editor;
 	public ThumbnailCache _thumbnail_cache;
 
 	public Gtk.Stack _project_stack;
@@ -2120,6 +2122,31 @@ public class LevelEditorApplication : Gtk.Application
 		_texture_settings_dialog.present();
 	}
 
+	public void on_state_machine_editor(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string state_machine_name = param.get_string();
+
+		if (_state_machine_editor == null) {
+			_state_machine_editor = new StateMachineEditor(this
+				, _project
+				, "core/editors/level_editor"
+				, "127.0.0.1"
+				, 10844
+				, (uint)_preferences_dialog._undo_redo_max_size.value * 1024 * 1024
+				);
+			_state_machine_editor.set_transient_for(this.active_window);
+			_state_machine_editor.delete_event.connect(_state_machine_editor.hide_on_delete);
+			_state_machine_editor.saved.connect(() => {
+						compile_and_reload.begin();
+					});
+			this.add_window(_state_machine_editor);
+		}
+
+		_state_machine_editor.set_state_machine(state_machine_name);
+		_state_machine_editor.show_all();
+		_state_machine_editor.present();
+	}
+
 	public void on_reveal(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		string type = (string)param.get_child_value(0);
@@ -2251,6 +2278,9 @@ public class LevelEditorApplication : Gtk.Application
 			return;
 		} else if (resource_type == OBJECT_TYPE_UNIT) {
 			activate_action("open-unit", resource_name);
+			return;
+		} else if (resource_type == OBJECT_TYPE_STATE_MACHINE) {
+			activate_action("state-machine-editor", resource_name);
 			return;
 		}
 
