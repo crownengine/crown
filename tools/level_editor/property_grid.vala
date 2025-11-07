@@ -124,6 +124,12 @@ public class PropertyGrid : Gtk.Grid
 		add_object_type(db.object_definition(type));
 	}
 
+	public PropertyGrid.from_object(Guid id, Database db)
+	{
+		this.from_object_type(StringId64(db.object_type(id)), db);
+		_id = id;
+	}
+
 	public void set_expander(Expander e)
 	{
 		assert(_expander == null);
