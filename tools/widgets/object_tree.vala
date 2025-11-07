@@ -214,6 +214,17 @@ public class ObjectTree : Gtk.Box
 								);
 							menu_model.append_item(mi);
 						}
+					} else if ((ItemType)val == ItemType.OBJECTS_SET) {
+						_tree_view.model.get_value(iter, Column.OBJECT_ID, out val);
+						Guid object_id = (Guid)val;
+						_tree_view.model.get_value(iter, Column.SET_NAME, out val);
+						string set_name = (string)val;
+
+						mi = new GLib.MenuItem("Add", null);
+						mi.set_action_and_target_value("database.add"
+							, new GLib.Variant.tuple({ object_id.to_string(), set_name })
+							);
+						menu_model.append_item(mi);
 					}
 				}
 			}

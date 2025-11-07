@@ -13,6 +13,7 @@ public class DatabaseEditor
 		{ "redo",   on_redo,   null,   null },
 		{ "delete", on_delete, "(ss)", null },
 		{ "rename", on_rename, "(ss)", null },
+		{ "add",    on_add,    "(ss)", null },
 	};
 
 	public UndoRedo _undo_redo;
@@ -97,6 +98,29 @@ public class DatabaseEditor
 					dg.destroy();
 				});
 			dg.show_all();
+		}
+	}
+
+	public void on_add(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		Guid object_id = Guid.parse((string)param.get_child_value(0));
+		string set_name = (string)param.get_child_value(1);
+
+		StringId64 object_type = StringId64(_database.object_type(object_id));
+		unowned PropertyDefinition[] properties = _database.object_definition(object_type);
+		int i;
+		for (i = 0; i < properties.length; ++i) {
+			unowned PropertyDefinition p = properties[i];
+			if (p.name == set_name)
+				break;
+		}
+
+		if (i != properties.length) {
+			string obj_type_name = _database.object_type_name(properties[i].object_type);
+			Guid new_obj = Guid.new_guid();
+			_database.create(new_obj, obj_type_name);
+			_database.add_to_set(object_id, properties[i].name, new_obj);
+			_database.add_restore_point((int)ActionType.CREATE_OBJECTS, { new_obj });
 		}
 	}
 }
