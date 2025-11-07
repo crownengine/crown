@@ -179,9 +179,6 @@ public class PropertyGrid : Gtk.Grid
 				else
 					p = new InputString();
 				break;
-			case PropertyType.GUID:
-				p = new InputObject(def.object_type, _db);
-				break;
 			case PropertyType.VECTOR3:
 				if (def.editor == PropertyEditorType.COLOR)
 					p = new InputColor3();
@@ -193,8 +190,11 @@ public class PropertyGrid : Gtk.Grid
 				break;
 			case PropertyType.OBJECTS_SET:
 				continue;
-			case PropertyType.OBJECT_REFERENCE:
+			case PropertyType.OBJECT_NAME:
 				p = new InputResource(def.resource_type, _db);
+				break;
+			case PropertyType.OBJECT_REFERENCE:
+				p = new InputObject(def.object_type, _db);
 				break;
 			default:
 				assert(false);
@@ -244,7 +244,7 @@ public class PropertyGrid : Gtk.Grid
 					changed = true;
 				}
 			}
-		} else if (def.type == PropertyType.STRING || def.type == PropertyType.OBJECT_REFERENCE) {
+		} else if (def.type == PropertyType.STRING || def.type == PropertyType.OBJECT_NAME) {
 			if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
 				Unit u = Unit(_db, _id);
 				if (u.get_component_property_string(_component_id, def.name, (string)def.deffault) != (string)new_value) {
@@ -257,7 +257,7 @@ public class PropertyGrid : Gtk.Grid
 					changed = true;
 				}
 			}
-		} else if (def.type == PropertyType.GUID) {
+		} else if (def.type == PropertyType.OBJECT_REFERENCE) {
 			if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
 				Unit u = Unit(_db, _id);
 				if (Guid.equal_func(u.get_component_property_guid(_component_id, def.name, (Guid)def.deffault), (Guid)new_value) == false) {
@@ -346,14 +346,14 @@ public class PropertyGrid : Gtk.Grid
 				} else {
 					p.set_union_value(_db.get_property_double(_id, def.name, (double)def.deffault));
 				}
-			} else if (def.type == PropertyType.STRING || def.type == PropertyType.OBJECT_REFERENCE) {
+			} else if (def.type == PropertyType.STRING || def.type == PropertyType.OBJECT_NAME) {
 				if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
 					Unit u = Unit(_db, _id);
 					p.set_union_value(u.get_component_property_string(_component_id, def.name, (string)def.deffault));
 				} else {
 					p.set_union_value(_db.get_property_string(_id, def.name, (string)def.deffault));
 				}
-			} else if (def.type == PropertyType.GUID) {
+			} else if (def.type == PropertyType.OBJECT_REFERENCE) {
 				if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
 					Unit u = Unit(_db, _id);
 					p.set_union_value(u.get_component_property_guid(_component_id, def.name, (Guid)def.deffault));
