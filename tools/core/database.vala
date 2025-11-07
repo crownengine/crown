@@ -1826,6 +1826,10 @@ public class Database
 				assert(def.deffault.holds(typeof(string)));
 				break;
 			case PropertyType.GUID:
+				def.deffault = GUID_ZERO;
+
+				assert(def.deffault.holds(typeof(Guid)));
+				assert(def.object_type._id != 0);
 				break;
 			case PropertyType.VECTOR3:
 				if (def.deffault == null)

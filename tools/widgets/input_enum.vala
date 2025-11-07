@@ -30,12 +30,12 @@ public class InputEnum : InputField, Gtk.ComboBox
 		return _inconsistent;
 	}
 
-	public GLib.Value union_value()
+	public virtual GLib.Value union_value()
 	{
 		return this.value;
 	}
 
-	public void set_union_value(GLib.Value v)
+	public virtual void set_union_value(GLib.Value v)
 	{
 		this.value = (string)v;
 	}
