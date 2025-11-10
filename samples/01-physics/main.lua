@@ -228,8 +228,10 @@ function Game.update(dt)
 	end
 
 	-- Update camera.
-	local cursor_delta = Mouse.axis(Mouse.axis_id("cursor_delta"))
-	Game.camera:rotate(dt, cursor_delta.x, cursor_delta.y)
+	if Game.cursor_disabled then
+		local cursor_delta = Mouse.axis(Mouse.axis_id("cursor_delta"))
+		Game.camera:rotate(dt, cursor_delta.x, cursor_delta.y)
+	end
 
 	-- Toggle help.
 	if Keyboard.pressed(Keyboard.button_id("f1")) then
