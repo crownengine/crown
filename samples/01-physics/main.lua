@@ -273,7 +273,7 @@ function Game.update(dt)
 		{ key = "left click", desc = "Shoot" },
 		{ key = "z", desc = "Toggle physics debug" },
 		{ key = "x", desc = "Toggle graphics debug" },
-		{ key = "esc", desc = "Quit" }}
+		{ key = "esc", desc = "Quit or Enable cursor" }}
 		, "Crown Physics Sample"
 		)
 
