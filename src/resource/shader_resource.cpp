@@ -531,7 +531,7 @@ namespace shader_resource_internal
 			array::push_back(argv, (const char *)"300_es"); // GLES
 		} else if (strcmp(platform, "linux") == 0) {
 			array::push_back(argv, (const char *)"--profile");
-			array::push_back(argv, (const char *)"150"); // OpenGL 3.2+
+			array::push_back(argv, (const char *)"spirv");
 		} else if (strcmp(platform, "windows") == 0) {
 			array::push_back(argv, (const char *)"--profile");
 			array::push_back(argv, (const char *)"s_4_0");
