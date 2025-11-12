@@ -168,7 +168,7 @@ function toolchain(build_dir, lib_dir)
 	end
 
 	flags {
-		"Cpp14",
+		"Cpp20",
 		"StaticRuntime",
 		"NoPCH",
 		"NoRTTI",
