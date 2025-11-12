@@ -672,7 +672,7 @@ int Device::main_loop()
 #if CROWN_PLATFORM_ANDROID || CROWN_PLATFORM_EMSCRIPTEN
 	init.type = bgfx::RendererType::OpenGLES;
 #elif CROWN_PLATFORM_LINUX
-	init.type = bgfx::RendererType::OpenGL;
+	init.type = bgfx::RendererType::Vulkan;
 #elif CROWN_PLATFORM_WINDOWS
 	init.type = bgfx::RendererType::Direct3D11;
 #else
