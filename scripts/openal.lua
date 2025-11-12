@@ -11,6 +11,13 @@ function openal_project(_kind)
 
 		local AL_DIR = (CROWN_DIR .. "3rdparty/openal/")
 
+		removeflags {
+			"Cpp20"
+		}
+		flags {
+			"Cpp14"
+		}
+
 		defines {
 			"AL_ALEXT_PROTOTYPES",
 			"HAVE_MALLOC_H",
