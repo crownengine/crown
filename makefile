@@ -171,7 +171,7 @@ android-arm64:                \
 build/projects/linux:
 	$(GENIE) --file=3rdparty/bgfx/scripts/genie.lua --with-tools --gcc=linux-gcc gmake
 	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools --gcc=linux-gcc gmake
-	$(GENIE) --gfxapi=gl32 --with-tools --compiler=linux-gcc gmake
+	$(GENIE) --gfxapi=vulkan --with-tools --compiler=linux-gcc gmake
 linux-debug64:           \
 	build/projects/linux \
 	build/linux64/bin/luajit
