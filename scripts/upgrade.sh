@@ -12,7 +12,7 @@ git_clone () {
 	local DEPTH=1
 
 	if [ ! -z "${COMMIT}" ]; then
-		DEPTH=100 # Ensure enough commits are available for COMMIT option to work.
+		DEPTH=250 # Ensure enough commits are available for COMMIT option to work.
 	fi
 
 	git clone "${REPO}" "${DEST}" --branch="${BRANCH}" --depth="${DEPTH}" --separate-git-dir="$(mktemp -u)"
@@ -57,11 +57,10 @@ update_bx () {
 	local DEST=3rdparty/bx
 	local REPO=https://github.com/bkaradzic/bx
 	local BRANCH=master
-	local COMMIT=ae17a19ca2198ecd028c09568037dcd59fb93ae7 # Avoid mandatory C++17.
 
 	# Download latest bx.
 	rm -rf "${DEST}"
-	git_clone "${DEST}" "${REPO}" "${BRANCH}" "${COMMIT}"
+	git_clone "${DEST}" "${REPO}" "${BRANCH}"
 
 	# Cleanup bx.
 	rm -rf "${DEST}"/.appveyor.yml
@@ -88,11 +87,10 @@ update_bimg () {
 	local DEST=3rdparty/bimg
 	local REPO=https://github.com/bkaradzic/bimg
 	local BRANCH=master
-	local COMMIT=5d61905eb1aa8074ee62553b4a7bd2dc16f4cf24 # Avoid mandatory C++17.
 
 	# Download latest bimg.
 	rm -rf "${DEST}"
-	git_clone "${DEST}" "${REPO}" "${BRANCH}" "${COMMIT}"
+	git_clone "${DEST}" "${REPO}" "${BRANCH}"
 
 	# Cleanup bimg.
 	rm -rf "${DEST}"/.appveyor.yml
@@ -110,7 +108,6 @@ update_bgfx () {
 	local DEST=3rdparty/bgfx
 	local REPO=https://github.com/bkaradzic/bgfx
 	local BRANCH=master
-	local COMMIT=c3dab115a86d41f0dedbc97b86560e2e85f22c47 # Avoid mandatory C++17.
 
 	# Update bgfx's dependencies.
 	update_bx
@@ -118,7 +115,7 @@ update_bgfx () {
 
 	# Download latest bgfx.
 	rm -rf "${DEST}"
-	git_clone "${DEST}" "${REPO}" "${BRANCH}" "${COMMIT}"
+	git_clone "${DEST}" "${REPO}" "${BRANCH}"
 
 	# Regenerate samples/core/shaders/common.shader.
 	COMMON_SHADER=samples/core/shaders/common.shader
