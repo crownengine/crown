@@ -764,7 +764,7 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 
 			// Compute light view matrix.
 			const Vector3 &light_dir = lid.shader[L].direction;
-			const bx::Vec3 at  = { -light_dir.x,  -light_dir.y, -light_dir.z };
+			const bx::Vec3 at  = { light_dir.x,  light_dir.y, light_dir.z };
 			const bx::Vec3 eye = { 0.0, 0.0, 0.0 };
 			const bx::Vec3 up = { 0.0f, 0.0f, 1.0f };
 			bx::mtxLookAt(to_float_ptr(light_view), eye, at, up, bx::Handedness::Right);
@@ -884,8 +884,8 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 					Matrix4x4 light_proj;
 					const Vector3 &light_dir = shader.direction;
 					const Vector3 &light_pos = shader.position;
-					const bx::Vec3 at  = { light_pos.x - light_dir.x, light_pos.y - light_dir.y, light_pos.z - light_dir.z };
-					const bx::Vec3 eye = { -light_pos.x, -light_pos.y, -light_pos.z };
+					const bx::Vec3 at  = { light_pos.x + light_dir.x, light_pos.y + light_dir.y, light_pos.z + light_dir.z };
+					const bx::Vec3 eye = { light_pos.x, light_pos.y, light_pos.z };
 					const bx::Vec3 up  = { 0.0f, 0.0f, 1.0f };
 					bx::mtxLookAt(to_float_ptr(light_view), eye, at, up, bx::Handedness::Right);
 					bx::mtxProj(to_float_ptr(light_proj)
