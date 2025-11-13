@@ -22,6 +22,7 @@ project "bullet"
 		"BT_USE_OPENMP=0",
 		"B3_DBVT_BP_SORTPAIRS=0",
 		"DBVT_BP_SORTPAIRS=0",
+		"USE_SVD=0",
 	}
 
 	configuration { "linux-*" }
