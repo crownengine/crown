@@ -389,6 +389,7 @@ function toolchain(build_dir, lib_dir)
 			"/Ob2", -- The Inline Function Expansion
 			"/we4715", -- Not all control paths return a value
 			"/Zc:__cplusplus", -- https://learn.microsoft.com/en-us/cpp/build/reference/zc-cplusplus?view=msvc-170
+			"/Zc:preprocessor", -- Enable preprocessor conformance mode.
 		}
 		linkoptions {
 			"/ignore:4199", -- LNK4199: /DELAYLOAD:*.dll ignored; no imports found from *.dll

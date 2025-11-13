@@ -2,10 +2,14 @@
 #include "core/math/math.inl"
 #include "core/strings/string.inl"
 #include "resource/expression_language.inl"
-#include <alloca.h>
 #include <limits.h> // UINT_MAX
 #include <stdlib.h> // strtof
 #include <string.h> // memmove
+#if CROWN_PLATFORM_WINDOWS
+#   include <malloc.h> // alloca
+#else
+#   include <alloca.h>
+#endif
 
 namespace crown
 {
