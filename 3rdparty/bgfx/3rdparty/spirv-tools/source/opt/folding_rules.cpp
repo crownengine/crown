@@ -77,7 +77,10 @@ int32_t ImageOperandsMaskInOperandIndex(Instruction* inst) {
 
 // Returns the element width of |type|.
 uint32_t ElementWidth(const analysis::Type* type) {
-  if (const analysis::Vector* vec_type = type->AsVector()) {
+  if (const analysis::CooperativeVectorNV* coopvec_type =
+          type->AsCooperativeVectorNV()) {
+    return ElementWidth(coopvec_type->component_type());
+  } else if (const analysis::Vector* vec_type = type->AsVector()) {
     return ElementWidth(vec_type->element_type());
   } else if (const analysis::Float* float_type = type->AsFloat()) {
     return float_type->width();
@@ -110,6 +113,12 @@ bool IsValidResult(T val) {
     default:
       return true;
   }
+}
+
+// Returns true if `type` is a cooperative matrix.
+bool IsCooperativeMatrix(const analysis::Type* type) {
+  return type->kind() == analysis::Type::kCooperativeMatrixKHR ||
+         type->kind() == analysis::Type::kCooperativeMatrixNV;
 }
 
 const analysis::Constant* ConstInput(
@@ -167,12 +176,57 @@ std::vector<uint32_t> GetWordsFromNumericScalarOrVectorConstant(
     return GetWordsFromScalarIntConstant(int_constant);
   } else if (const auto* vec_constant = c->AsVectorConstant()) {
     std::vector<uint32_t> words;
+    // Retrieve all the components as 32bit words.
     for (const auto* comp : vec_constant->GetComponents()) {
       auto comp_in_words =
           GetWordsFromNumericScalarOrVectorConstant(const_mgr, comp);
       words.insert(words.end(), comp_in_words.begin(), comp_in_words.end());
     }
-    return words;
+
+    if (ElementWidth(c->type()) >= 32) {
+      return words;
+    }
+    // Check the element width and concactenate if the width is less than 32.
+    if (ElementWidth(c->type()) == 8) {
+      assert(words.size() <= 4);
+      // Each 32-bit word will comprise 4 8-bit integers.
+      // reverse the order when compacting.
+      uint32_t compacted_word = 0;
+      for (int32_t i = static_cast<int32_t>(words.size()) - 1; i >= 0; --i) {
+        compacted_word <<= 8;
+        compacted_word |= words[i];
+      }
+      return {compacted_word};
+    } else if (ElementWidth(c->type()) == 16) {
+      assert(words.size() <= 4);
+      std::vector<uint32_t> compacted_words;
+      // Each 32-bit word will comprise 2 16-bit integers.
+      // reverse the order pair-wise when compacting.
+      for (uint32_t i = 0; i < words.size(); i += 2) {
+        uint32_t word1 = words[i];
+        uint32_t word2 = (i + 1 < words.size()) ? words[i + 1] : 0;
+        uint32_t compacted_word = (word2 << 16) | word1;
+        compacted_words.push_back(compacted_word);
+      }
+      return compacted_words;
+    }
+    assert(false && "Unhandled element width");
+  } else if (c->AsNullConstant()) {
+    uint32_t num_elements = 1;
+
+    if (const auto* vec_type = c->type()->AsVector()) {
+      num_elements = vec_type->element_count();
+    }
+
+    // We need to check the element width to determine how many 32-bit words are
+    // needed.
+    uint32_t element_width = ElementWidth(c->type());
+    if (element_width < 32) {
+      num_elements = (num_elements + 1) / 2;
+    } else if (element_width == 64) {
+      num_elements = num_elements * 2;
+    }
+    return std::vector<uint32_t>(num_elements, 0);
   }
   return {};
 }
@@ -180,8 +234,14 @@ std::vector<uint32_t> GetWordsFromNumericScalarOrVectorConstant(
 const analysis::Constant* ConvertWordsToNumericScalarOrVectorConstant(
     analysis::ConstantManager* const_mgr, const std::vector<uint32_t>& words,
     const analysis::Type* type) {
-  if (type->AsInteger() || type->AsFloat())
-    return const_mgr->GetConstant(type, words);
+  const spvtools::opt::analysis::Integer* int_type = type->AsInteger();
+
+  if (int_type && int_type->width() <= 32) {
+    assert(words.size() == 1);
+    return const_mgr->GenerateIntegerConstant(int_type, words[0]);
+  }
+
+  if (int_type || type->AsFloat()) return const_mgr->GetConstant(type, words);
   if (const auto* vec_type = type->AsVector())
     return const_mgr->GetNumericVectorConstantWithWords(vec_type, words);
   return nullptr;
@@ -307,6 +367,11 @@ FoldingRule ReciprocalFDiv() {
     analysis::ConstantManager* const_mgr = context->get_constant_mgr();
     const analysis::Type* type =
         context->get_type_mgr()->GetType(inst->type_id());
+
+    if (IsCooperativeMatrix(type)) {
+      return false;
+    }
+
     if (!inst->IsFloatingPointFoldingAllowed()) return false;
 
     uint32_t width = ElementWidth(type);
@@ -388,6 +453,11 @@ FoldingRule MergeNegateMulDivArithmetic() {
     analysis::ConstantManager* const_mgr = context->get_constant_mgr();
     const analysis::Type* type =
         context->get_type_mgr()->GetType(inst->type_id());
+
+    if (IsCooperativeMatrix(type)) {
+      return false;
+    }
+
     if (HasFloatingPoint(type) && !inst->IsFloatingPointFoldingAllowed())
       return false;
 
@@ -400,36 +470,37 @@ FoldingRule MergeNegateMulDivArithmetic() {
     if (width != 32 && width != 64) return false;
 
     spv::Op opcode = op_inst->opcode();
-    if (opcode == spv::Op::OpFMul || opcode == spv::Op::OpFDiv ||
-        opcode == spv::Op::OpIMul || opcode == spv::Op::OpSDiv ||
-        opcode == spv::Op::OpUDiv) {
-      std::vector<const analysis::Constant*> op_constants =
-          const_mgr->GetOperandConstants(op_inst);
-      // Merge negate into mul or div if one operand is constant.
-      if (op_constants[0] || op_constants[1]) {
-        bool zero_is_variable = op_constants[0] == nullptr;
-        const analysis::Constant* c = ConstInput(op_constants);
-        uint32_t neg_id = NegateConstant(const_mgr, c);
-        uint32_t non_const_id = zero_is_variable
-                                    ? op_inst->GetSingleWordInOperand(0u)
-                                    : op_inst->GetSingleWordInOperand(1u);
-        // Change this instruction to a mul/div.
-        inst->SetOpcode(op_inst->opcode());
-        if (opcode == spv::Op::OpFDiv || opcode == spv::Op::OpUDiv ||
-            opcode == spv::Op::OpSDiv) {
-          uint32_t op0 = zero_is_variable ? non_const_id : neg_id;
-          uint32_t op1 = zero_is_variable ? neg_id : non_const_id;
-          inst->SetInOperands(
-              {{SPV_OPERAND_TYPE_ID, {op0}}, {SPV_OPERAND_TYPE_ID, {op1}}});
-        } else {
-          inst->SetInOperands({{SPV_OPERAND_TYPE_ID, {non_const_id}},
-                               {SPV_OPERAND_TYPE_ID, {neg_id}}});
-        }
-        return true;
-      }
+    if (opcode != spv::Op::OpFMul && opcode != spv::Op::OpFDiv &&
+        opcode != spv::Op::OpIMul && opcode != spv::Op::OpSDiv) {
+      return false;
     }
 
-    return false;
+    std::vector<const analysis::Constant*> op_constants =
+        const_mgr->GetOperandConstants(op_inst);
+    // Merge negate into mul or div if one operand is constant.
+    if (op_constants[0] == nullptr && op_constants[1] == nullptr) {
+      return false;
+    }
+
+    bool zero_is_variable = op_constants[0] == nullptr;
+    const analysis::Constant* c = ConstInput(op_constants);
+    uint32_t neg_id = NegateConstant(const_mgr, c);
+    uint32_t non_const_id = zero_is_variable
+                                ? op_inst->GetSingleWordInOperand(0u)
+                                : op_inst->GetSingleWordInOperand(1u);
+    // Change this instruction to a mul/div.
+    inst->SetOpcode(op_inst->opcode());
+    if (opcode == spv::Op::OpFDiv || opcode == spv::Op::OpUDiv ||
+        opcode == spv::Op::OpSDiv) {
+      uint32_t op0 = zero_is_variable ? non_const_id : neg_id;
+      uint32_t op1 = zero_is_variable ? neg_id : non_const_id;
+      inst->SetInOperands(
+          {{SPV_OPERAND_TYPE_ID, {op0}}, {SPV_OPERAND_TYPE_ID, {op1}}});
+    } else {
+      inst->SetInOperands({{SPV_OPERAND_TYPE_ID, {non_const_id}},
+                           {SPV_OPERAND_TYPE_ID, {neg_id}}});
+    }
+    return true;
   };
 }
 
@@ -449,6 +520,11 @@ FoldingRule MergeNegateAddSubArithmetic() {
     analysis::ConstantManager* const_mgr = context->get_constant_mgr();
     const analysis::Type* type =
         context->get_type_mgr()->GetType(inst->type_id());
+
+    if (IsCooperativeMatrix(type)) {
+      return false;
+    }
+
     if (HasFloatingPoint(type) && !inst->IsFloatingPointFoldingAllowed())
       return false;
 
@@ -603,6 +679,15 @@ uint32_t PerformIntegerOperation(analysis::ConstantManager* const_mgr,
     case spv::Op::OpISub:
       FOLD_OP(-);
       break;
+    case spv::Op::OpBitwiseXor:
+      FOLD_OP(^);
+      break;
+    case spv::Op::OpBitwiseOr:
+      FOLD_OP(|);
+      break;
+    case spv::Op::OpBitwiseAnd:
+      FOLD_OP(&);
+      break;
     default:
       assert(false && "Unexpected operation");
       break;
@@ -680,6 +765,11 @@ FoldingRule MergeMulMulArithmetic() {
     analysis::ConstantManager* const_mgr = context->get_constant_mgr();
     const analysis::Type* type =
         context->get_type_mgr()->GetType(inst->type_id());
+
+    if (IsCooperativeMatrix(type)) {
+      return false;
+    }
+
     if (HasFloatingPoint(type) && !inst->IsFloatingPointFoldingAllowed())
       return false;
 
@@ -734,6 +824,11 @@ FoldingRule MergeMulDivArithmetic() {
 
     const analysis::Type* type =
         context->get_type_mgr()->GetType(inst->type_id());
+
+    if (IsCooperativeMatrix(type)) {
+      return false;
+    }
+
     if (!inst->IsFloatingPointFoldingAllowed()) return false;
 
     uint32_t width = ElementWidth(type);
@@ -807,6 +902,11 @@ FoldingRule MergeMulNegateArithmetic() {
     analysis::ConstantManager* const_mgr = context->get_constant_mgr();
     const analysis::Type* type =
         context->get_type_mgr()->GetType(inst->type_id());
+
+    if (IsCooperativeMatrix(type)) {
+      return false;
+    }
+
     bool uses_float = HasFloatingPoint(type);
     if (uses_float && !inst->IsFloatingPointFoldingAllowed()) return false;
 
@@ -847,6 +947,11 @@ FoldingRule MergeDivDivArithmetic() {
     analysis::ConstantManager* const_mgr = context->get_constant_mgr();
     const analysis::Type* type =
         context->get_type_mgr()->GetType(inst->type_id());
+
+    if (IsCooperativeMatrix(type)) {
+      return false;
+    }
+
     if (!inst->IsFloatingPointFoldingAllowed()) return false;
 
     uint32_t width = ElementWidth(type);
@@ -920,6 +1025,11 @@ FoldingRule MergeDivMulArithmetic() {
 
     const analysis::Type* type =
         context->get_type_mgr()->GetType(inst->type_id());
+
+    if (IsCooperativeMatrix(type)) {
+      return false;
+    }
+
     if (!inst->IsFloatingPointFoldingAllowed()) return false;
 
     uint32_t width = ElementWidth(type);
@@ -1062,6 +1172,11 @@ FoldingRule MergeSubNegateArithmetic() {
     analysis::ConstantManager* const_mgr = context->get_constant_mgr();
     const analysis::Type* type =
         context->get_type_mgr()->GetType(inst->type_id());
+
+    if (IsCooperativeMatrix(type)) {
+      return false;
+    }
+
     bool uses_float = HasFloatingPoint(type);
     if (uses_float && !inst->IsFloatingPointFoldingAllowed()) return false;
 
@@ -1110,6 +1225,11 @@ FoldingRule MergeAddAddArithmetic() {
            inst->opcode() == spv::Op::OpIAdd);
     const analysis::Type* type =
         context->get_type_mgr()->GetType(inst->type_id());
+
+    if (IsCooperativeMatrix(type)) {
+      return false;
+    }
+
     analysis::ConstantManager* const_mgr = context->get_constant_mgr();
     bool uses_float = HasFloatingPoint(type);
     if (uses_float && !inst->IsFloatingPointFoldingAllowed()) return false;
@@ -1158,6 +1278,11 @@ FoldingRule MergeAddSubArithmetic() {
            inst->opcode() == spv::Op::OpIAdd);
     const analysis::Type* type =
         context->get_type_mgr()->GetType(inst->type_id());
+
+    if (IsCooperativeMatrix(type)) {
+      return false;
+    }
+
     analysis::ConstantManager* const_mgr = context->get_constant_mgr();
     bool uses_float = HasFloatingPoint(type);
     if (uses_float && !inst->IsFloatingPointFoldingAllowed()) return false;
@@ -1218,6 +1343,11 @@ FoldingRule MergeSubAddArithmetic() {
            inst->opcode() == spv::Op::OpISub);
     const analysis::Type* type =
         context->get_type_mgr()->GetType(inst->type_id());
+
+    if (IsCooperativeMatrix(type)) {
+      return false;
+    }
+
     analysis::ConstantManager* const_mgr = context->get_constant_mgr();
     bool uses_float = HasFloatingPoint(type);
     if (uses_float && !inst->IsFloatingPointFoldingAllowed()) return false;
@@ -1284,6 +1414,11 @@ FoldingRule MergeSubSubArithmetic() {
            inst->opcode() == spv::Op::OpISub);
     const analysis::Type* type =
         context->get_type_mgr()->GetType(inst->type_id());
+
+    if (IsCooperativeMatrix(type)) {
+      return false;
+    }
+
     analysis::ConstantManager* const_mgr = context->get_constant_mgr();
     bool uses_float = HasFloatingPoint(type);
     if (uses_float && !inst->IsFloatingPointFoldingAllowed()) return false;
@@ -1377,6 +1512,11 @@ FoldingRule MergeGenericAddSubArithmetic() {
            inst->opcode() == spv::Op::OpIAdd);
     const analysis::Type* type =
         context->get_type_mgr()->GetType(inst->type_id());
+
+    if (IsCooperativeMatrix(type)) {
+      return false;
+    }
+
     bool uses_float = HasFloatingPoint(type);
     if (uses_float && !inst->IsFloatingPointFoldingAllowed()) return false;
 
@@ -1402,6 +1542,9 @@ bool FactorAddMulsOpnds(uint32_t factor0_0, uint32_t factor0_1,
       IRContext::kAnalysisDefUse | IRContext::kAnalysisInstrToBlockMapping);
   Instruction* new_add_inst = ir_builder.AddBinaryOp(
       inst->type_id(), inst->opcode(), factor0_1, factor1_1);
+  if (!new_add_inst) {
+    return false;
+  }
   inst->SetOpcode(inst->opcode() == spv::Op::OpFAdd ? spv::Op::OpFMul
                                                     : spv::Op::OpIMul);
   inst->SetInOperands({{SPV_OPERAND_TYPE_ID, {factor0_0}},
@@ -1457,132 +1600,6 @@ FoldingRule FactorAddMuls() {
     }
     return false;
   };
-}
-
-// Replaces |inst| inplace with an FMA instruction |(x*y)+a|.
-void ReplaceWithFma(Instruction* inst, uint32_t x, uint32_t y, uint32_t a) {
-  uint32_t ext =
-      inst->context()->get_feature_mgr()->GetExtInstImportId_GLSLstd450();
-
-  if (ext == 0) {
-    inst->context()->AddExtInstImport("GLSL.std.450");
-    ext = inst->context()->get_feature_mgr()->GetExtInstImportId_GLSLstd450();
-    assert(ext != 0 &&
-           "Could not add the GLSL.std.450 extended instruction set");
-  }
-
-  std::vector<Operand> operands;
-  operands.push_back({SPV_OPERAND_TYPE_ID, {ext}});
-  operands.push_back({SPV_OPERAND_TYPE_LITERAL_INTEGER, {GLSLstd450Fma}});
-  operands.push_back({SPV_OPERAND_TYPE_ID, {x}});
-  operands.push_back({SPV_OPERAND_TYPE_ID, {y}});
-  operands.push_back({SPV_OPERAND_TYPE_ID, {a}});
-
-  inst->SetOpcode(spv::Op::OpExtInst);
-  inst->SetInOperands(std::move(operands));
-}
-
-// Folds a multiple and add into an Fma.
-//
-// Cases:
-// (x * y) + a = Fma x y a
-// a + (x * y) = Fma x y a
-bool MergeMulAddArithmetic(IRContext* context, Instruction* inst,
-                           const std::vector<const analysis::Constant*>&) {
-  assert(inst->opcode() == spv::Op::OpFAdd);
-
-  if (!inst->IsFloatingPointFoldingAllowed()) {
-    return false;
-  }
-
-  analysis::DefUseManager* def_use_mgr = context->get_def_use_mgr();
-  for (int i = 0; i < 2; i++) {
-    uint32_t op_id = inst->GetSingleWordInOperand(i);
-    Instruction* op_inst = def_use_mgr->GetDef(op_id);
-
-    if (op_inst->opcode() != spv::Op::OpFMul) {
-      continue;
-    }
-
-    if (!op_inst->IsFloatingPointFoldingAllowed()) {
-      continue;
-    }
-
-    uint32_t x = op_inst->GetSingleWordInOperand(0);
-    uint32_t y = op_inst->GetSingleWordInOperand(1);
-    uint32_t a = inst->GetSingleWordInOperand((i + 1) % 2);
-    ReplaceWithFma(inst, x, y, a);
-    return true;
-  }
-  return false;
-}
-
-// Replaces |sub| inplace with an FMA instruction |(x*y)+a| where |a| first gets
-// negated if |negate_addition| is true, otherwise |x| gets negated.
-void ReplaceWithFmaAndNegate(Instruction* sub, uint32_t x, uint32_t y,
-                             uint32_t a, bool negate_addition) {
-  uint32_t ext =
-      sub->context()->get_feature_mgr()->GetExtInstImportId_GLSLstd450();
-
-  if (ext == 0) {
-    sub->context()->AddExtInstImport("GLSL.std.450");
-    ext = sub->context()->get_feature_mgr()->GetExtInstImportId_GLSLstd450();
-    assert(ext != 0 &&
-           "Could not add the GLSL.std.450 extended instruction set");
-  }
-
-  InstructionBuilder ir_builder(
-      sub->context(), sub,
-      IRContext::kAnalysisDefUse | IRContext::kAnalysisInstrToBlockMapping);
-
-  Instruction* neg = ir_builder.AddUnaryOp(sub->type_id(), spv::Op::OpFNegate,
-                                           negate_addition ? a : x);
-  uint32_t neg_op = neg->result_id();  // -a : -x
-
-  std::vector<Operand> operands;
-  operands.push_back({SPV_OPERAND_TYPE_ID, {ext}});
-  operands.push_back({SPV_OPERAND_TYPE_LITERAL_INTEGER, {GLSLstd450Fma}});
-  operands.push_back({SPV_OPERAND_TYPE_ID, {negate_addition ? x : neg_op}});
-  operands.push_back({SPV_OPERAND_TYPE_ID, {y}});
-  operands.push_back({SPV_OPERAND_TYPE_ID, {negate_addition ? neg_op : a}});
-
-  sub->SetOpcode(spv::Op::OpExtInst);
-  sub->SetInOperands(std::move(operands));
-}
-
-// Folds a multiply and subtract into an Fma and negation.
-//
-// Cases:
-// (x * y) - a = Fma x y -a
-// a - (x * y) = Fma -x y a
-bool MergeMulSubArithmetic(IRContext* context, Instruction* sub,
-                           const std::vector<const analysis::Constant*>&) {
-  assert(sub->opcode() == spv::Op::OpFSub);
-
-  if (!sub->IsFloatingPointFoldingAllowed()) {
-    return false;
-  }
-
-  analysis::DefUseManager* def_use_mgr = context->get_def_use_mgr();
-  for (int i = 0; i < 2; i++) {
-    uint32_t op_id = sub->GetSingleWordInOperand(i);
-    Instruction* mul = def_use_mgr->GetDef(op_id);
-
-    if (mul->opcode() != spv::Op::OpFMul) {
-      continue;
-    }
-
-    if (!mul->IsFloatingPointFoldingAllowed()) {
-      continue;
-    }
-
-    uint32_t x = mul->GetSingleWordInOperand(0);
-    uint32_t y = mul->GetSingleWordInOperand(1);
-    uint32_t a = sub->GetSingleWordInOperand((i + 1) % 2);
-    ReplaceWithFmaAndNegate(sub, x, y, a, i == 0);
-    return true;
-  }
-  return false;
 }
 
 FoldingRule IntMultipleBy1() {
@@ -1733,27 +1750,26 @@ bool CompositeConstructFeedingExtract(
 }
 
 // Walks the indexes chain from |start| to |end| of an OpCompositeInsert or
-// OpCompositeExtract instruction, and returns the type of the final element
-// being accessed.
-const analysis::Type* GetElementType(uint32_t type_id,
-                                     Instruction::iterator start,
-                                     Instruction::iterator end,
-                                     const analysis::TypeManager* type_mgr) {
-  const analysis::Type* type = type_mgr->GetType(type_id);
+// OpCompositeExtract instruction, and returns the type id of the final element
+// being accessed. Returns 0 if a valid type could not be found.
+uint32_t GetElementType(uint32_t type_id, Instruction::iterator start,
+                        Instruction::iterator end,
+                        const analysis::DefUseManager* def_use_manager) {
   for (auto index : make_range(std::move(start), std::move(end))) {
+    const Instruction* type_inst = def_use_manager->GetDef(type_id);
     assert(index.type == SPV_OPERAND_TYPE_LITERAL_INTEGER &&
            index.words.size() == 1);
-    if (auto* array_type = type->AsArray()) {
-      type = array_type->element_type();
-    } else if (auto* matrix_type = type->AsMatrix()) {
-      type = matrix_type->element_type();
-    } else if (auto* struct_type = type->AsStruct()) {
-      type = struct_type->element_types()[index.words[0]];
+    if (type_inst->opcode() == spv::Op::OpTypeArray) {
+      type_id = type_inst->GetSingleWordInOperand(0);
+    } else if (type_inst->opcode() == spv::Op::OpTypeMatrix) {
+      type_id = type_inst->GetSingleWordInOperand(0);
+    } else if (type_inst->opcode() == spv::Op::OpTypeStruct) {
+      type_id = type_inst->GetSingleWordInOperand(index.words[0]);
     } else {
-      type = nullptr;
+      return 0;
     }
   }
-  return type;
+  return type_id;
 }
 
 // Returns true of |inst_1| and |inst_2| have the same indexes that will be used
@@ -1834,20 +1850,16 @@ bool CompositeExtractFeedingConstruct(
       return false;
     }
   }
+  assert(first_element_inst != nullptr);
 
   // The last check it to see that the object being extracted from is the
   // correct type.
   Instruction* original_inst = def_use_mgr->GetDef(original_id);
-  analysis::TypeManager* type_mgr = context->get_type_mgr();
-  const analysis::Type* original_type =
+  uint32_t original_type_id =
       GetElementType(original_inst->type_id(), first_element_inst->begin() + 3,
-                     first_element_inst->end() - 1, type_mgr);
+                     first_element_inst->end() - 1, def_use_mgr);
 
-  if (original_type == nullptr) {
-    return false;
-  }
-
-  if (inst->type_id() != type_mgr->GetId(original_type)) {
+  if (inst->type_id() != original_type_id) {
     return false;
   }
 
@@ -2043,6 +2055,15 @@ FoldingRule FMixFeedingExtract() {
     bool use_x = false;
 
     assert(a_const->type()->AsFloat());
+
+    const analysis::Type* type =
+        context->get_type_mgr()->GetType(inst->type_id());
+    uint32_t width = ElementWidth(type);
+    if (width != 32 && width != 64) {
+      // We won't support folding half float values.
+      return false;
+    }
+
     double element_value = a_const->GetValueAsDouble();
     if (element_value == 0.0) {
       use_x = true;
@@ -2067,7 +2088,8 @@ FoldingRule FMixFeedingExtract() {
 }
 
 // Returns the number of elements in the composite type |type|.  Returns 0 if
-// |type| is a scalar value.
+// |type| is a scalar value. Return UINT32_MAX when the size is unknown at
+// compile time.
 uint32_t GetNumberOfElements(const analysis::Type* type) {
   if (auto* vector_type = type->AsVector()) {
     return vector_type->element_count();
@@ -2079,21 +2101,27 @@ uint32_t GetNumberOfElements(const analysis::Type* type) {
     return static_cast<uint32_t>(struct_type->element_types().size());
   }
   if (auto* array_type = type->AsArray()) {
-    return array_type->length_info().words[0];
+    if (array_type->length_info().words[0] ==
+            analysis::Array::LengthInfo::kConstant &&
+        array_type->length_info().words.size() == 2) {
+      return array_type->length_info().words[1];
+    }
+    return UINT32_MAX;
   }
   return 0;
 }
 
 // Returns a map with the set of values that were inserted into an object by
 // the chain of OpCompositeInsertInstruction starting with |inst|.
-// The map will map the index to the value inserted at that index.
+// The map will map the index to the value inserted at that index. An empty map
+// will be returned if the map could not be properly generated.
 std::map<uint32_t, uint32_t> GetInsertedValues(Instruction* inst) {
   analysis::DefUseManager* def_use_mgr = inst->context()->get_def_use_mgr();
   std::map<uint32_t, uint32_t> values_inserted;
   Instruction* current_inst = inst;
   while (current_inst->opcode() == spv::Op::OpCompositeInsert) {
     if (current_inst->NumInOperands() > inst->NumInOperands()) {
-      // This is the catch the case
+      // This is to catch the case
       //   %2 = OpCompositeInsert %m2x2int %v2int_1_0 %m2x2int_undef 0
       //   %3 = OpCompositeInsert %m2x2int %int_4 %2 0 0
       //   %4 = OpCompositeInsert %m2x2int %v2int_2_3 %3 1
@@ -2130,13 +2158,15 @@ bool DoInsertedValuesCoverEntireObject(
   return true;
 }
 
-// Returns the type of the element that immediately contains the element being
-// inserted by the OpCompositeInsert instruction |inst|.
-const analysis::Type* GetContainerType(Instruction* inst) {
+// Returns id of the type of the element that immediately contains the element
+// being inserted by the OpCompositeInsert instruction |inst|. Returns 0 if it
+// could not be found.
+uint32_t GetContainerTypeId(Instruction* inst) {
   assert(inst->opcode() == spv::Op::OpCompositeInsert);
-  analysis::TypeManager* type_mgr = inst->context()->get_type_mgr();
-  return GetElementType(inst->type_id(), inst->begin() + 4, inst->end() - 1,
-                        type_mgr);
+  analysis::DefUseManager* def_use_manager = inst->context()->get_def_use_mgr();
+  uint32_t container_type_id = GetElementType(
+      inst->type_id(), inst->begin() + 4, inst->end() - 1, def_use_manager);
+  return container_type_id;
 }
 
 // Returns an OpCompositeConstruct instruction that build an object with
@@ -2183,18 +2213,20 @@ bool CompositeInsertToCompositeConstruct(
   if (inst->NumInOperands() < 3) return false;
 
   std::map<uint32_t, uint32_t> values_inserted = GetInsertedValues(inst);
-  const analysis::Type* container_type = GetContainerType(inst);
-  if (container_type == nullptr) {
-    return false;
-  }
-
-  if (!DoInsertedValuesCoverEntireObject(container_type, values_inserted)) {
+  uint32_t container_type_id = GetContainerTypeId(inst);
+  if (container_type_id == 0) {
     return false;
   }
 
   analysis::TypeManager* type_mgr = context->get_type_mgr();
-  Instruction* construct = BuildCompositeConstruct(
-      type_mgr->GetId(container_type), values_inserted, inst);
+  const analysis::Type* container_type = type_mgr->GetType(container_type_id);
+  assert(container_type && "GetContainerTypeId returned a bad id.");
+  if (!DoInsertedValuesCoverEntireObject(container_type, values_inserted)) {
+    return false;
+  }
+
+  Instruction* construct =
+      BuildCompositeConstruct(container_type_id, values_inserted, inst);
   InsertConstructedObject(inst, construct);
   return true;
 }
@@ -2257,6 +2289,48 @@ FoldingRule BitCastScalarOrVector() {
 
     auto new_feeder_id =
         const_mgr->GetDefiningInstruction(bitcasted_constant, inst->type_id())
+            ->result_id();
+    inst->SetOpcode(spv::Op::OpCopyObject);
+    inst->SetInOperands({{SPV_OPERAND_TYPE_ID, {new_feeder_id}}});
+    return true;
+  };
+}
+
+FoldingRule BitReverseScalarOrVector() {
+  return [](IRContext* context, Instruction* inst,
+            const std::vector<const analysis::Constant*>& constants) {
+    assert(inst->opcode() == spv::Op::OpBitReverse && constants.size() == 1);
+    if (constants[0] == nullptr) return false;
+
+    const analysis::Type* type =
+        context->get_type_mgr()->GetType(inst->type_id());
+    assert(!HasFloatingPoint(type) &&
+           "BitReverse cannot be applied to floating point types.");
+    assert((type->AsInteger() || type->AsVector()) &&
+           "BitReverse can only be applied to integer scalars or vectors.");
+    assert((ElementWidth(type) == 32) &&
+           "BitReverse can only be applied to integer types of width 32");
+
+    analysis::ConstantManager* const_mgr = context->get_constant_mgr();
+    std::vector<uint32_t> words =
+        GetWordsFromNumericScalarOrVectorConstant(const_mgr, constants[0]);
+    if (words.size() == 0) return false;
+
+    for (uint32_t& word : words) {
+      // Reverse the bits in each word.
+      word = ((word & 0x55555555) << 1) | ((word >> 1) & 0x55555555);
+      word = ((word & 0x33333333) << 2) | ((word >> 2) & 0x33333333);
+      word = ((word & 0x0F0F0F0F) << 4) | ((word >> 4) & 0x0F0F0F0F);
+      word = ((word & 0x00FF00FF) << 8) | ((word >> 8) & 0x00FF00FF);
+      word = (word << 16) | (word >> 16);
+    }
+
+    const analysis::Constant* bitreversed_constant =
+        ConvertWordsToNumericScalarOrVectorConstant(const_mgr, words, type);
+    if (!bitreversed_constant) return false;
+
+    auto new_feeder_id =
+        const_mgr->GetDefiningInstruction(bitreversed_constant, inst->type_id())
             ->result_id();
     inst->SetOpcode(spv::Op::OpCopyObject);
     inst->SetInOperands({{SPV_OPERAND_TYPE_ID, {new_feeder_id}}});
@@ -2488,14 +2562,31 @@ FoldingRule RedundantFDiv() {
     FloatConstantKind kind0 = getFloatConstantKind(constants[0]);
     FloatConstantKind kind1 = getFloatConstantKind(constants[1]);
 
-    if (kind0 == FloatConstantKind::Zero) {
+    if (kind0 == FloatConstantKind::Zero || kind1 == FloatConstantKind::One) {
       inst->SetOpcode(spv::Op::OpCopyObject);
       inst->SetInOperands(
           {{SPV_OPERAND_TYPE_ID, {inst->GetSingleWordInOperand(0)}}});
       return true;
     }
 
-    if (kind1 == FloatConstantKind::One) {
+    return false;
+  };
+}
+
+FoldingRule RedundantFMod() {
+  return [](IRContext*, Instruction* inst,
+            const std::vector<const analysis::Constant*>& constants) {
+    assert(inst->opcode() == spv::Op::OpFMod &&
+           "Wrong opcode.  Should be OpFMod.");
+    assert(constants.size() == 2);
+
+    if (!inst->IsFloatingPointFoldingAllowed()) {
+      return false;
+    }
+
+    FloatConstantKind kind0 = getFloatConstantKind(constants[0]);
+
+    if (kind0 == FloatConstantKind::Zero) {
       inst->SetOpcode(spv::Op::OpCopyObject);
       inst->SetInOperands(
           {{SPV_OPERAND_TYPE_ID, {inst->GetSingleWordInOperand(0)}}});
@@ -2541,24 +2632,18 @@ FoldingRule RedundantFMix() {
   };
 }
 
-// This rule handles addition of zero for integers.
-FoldingRule RedundantIAdd() {
-  return [](IRContext* context, Instruction* inst,
-            const std::vector<const analysis::Constant*>& constants) {
-    assert(inst->opcode() == spv::Op::OpIAdd &&
-           "Wrong opcode. Should be OpIAdd.");
+// Returns a folding rule that folds the instruction to operand |foldToArg|
+// (0 or 1) if operand |arg| (0 or 1) is a zero constant.
+FoldingRule RedundantBinaryOpWithZeroOperand(uint32_t arg, uint32_t foldToArg) {
+  return [arg, foldToArg](
+             IRContext* context, Instruction* inst,
+             const std::vector<const analysis::Constant*>& constants) {
+    assert(constants.size() == 2);
 
-    uint32_t operand = std::numeric_limits<uint32_t>::max();
-    const analysis::Type* operand_type = nullptr;
-    if (constants[0] && constants[0]->IsZero()) {
-      operand = inst->GetSingleWordInOperand(1);
-      operand_type = constants[0]->type();
-    } else if (constants[1] && constants[1]->IsZero()) {
-      operand = inst->GetSingleWordInOperand(0);
-      operand_type = constants[1]->type();
-    }
+    if (constants[arg] && constants[arg]->IsZero()) {
+      auto operand = inst->GetSingleWordInOperand(foldToArg);
+      auto operand_type = constants[arg]->type();
 
-    if (operand != std::numeric_limits<uint32_t>::max()) {
       const analysis::Type* inst_type =
           context->get_type_mgr()->GetType(inst->type_id());
       if (inst_type->IsSame(operand_type)) {
@@ -2567,6 +2652,167 @@ FoldingRule RedundantIAdd() {
         inst->SetOpcode(spv::Op::OpBitcast);
       }
       inst->SetInOperands({{SPV_OPERAND_TYPE_ID, {operand}}});
+      return true;
+    }
+    return false;
+  };
+}
+
+// This rule handles any of RedundantBinaryRhs0Ops with a 0 or vector 0 on the
+// right-hand side (a | 0 => a).
+static const constexpr spv::Op RedundantBinaryRhs0Ops[] = {
+    spv::Op::OpBitwiseOr,
+    spv::Op::OpBitwiseXor,
+    spv::Op::OpShiftRightLogical,
+    spv::Op::OpShiftRightArithmetic,
+    spv::Op::OpShiftLeftLogical,
+    spv::Op::OpIAdd,
+    spv::Op::OpISub};
+FoldingRule RedundantBinaryRhs0(spv::Op op) {
+  assert(std::find(std::begin(RedundantBinaryRhs0Ops),
+                   std::end(RedundantBinaryRhs0Ops),
+                   op) != std::end(RedundantBinaryRhs0Ops) &&
+         "Wrong opcode.");
+  (void)op;
+  return RedundantBinaryOpWithZeroOperand(1, 0);
+}
+
+// This rule handles any of RedundantBinaryLhs0Ops with a 0 or vector 0 on the
+// left-hand side (0 | a => a).
+static const constexpr spv::Op RedundantBinaryLhs0Ops[] = {
+    spv::Op::OpBitwiseOr, spv::Op::OpBitwiseXor, spv::Op::OpIAdd};
+FoldingRule RedundantBinaryLhs0(spv::Op op) {
+  assert(std::find(std::begin(RedundantBinaryLhs0Ops),
+                   std::end(RedundantBinaryLhs0Ops),
+                   op) != std::end(RedundantBinaryLhs0Ops) &&
+         "Wrong opcode.");
+  (void)op;
+  return RedundantBinaryOpWithZeroOperand(0, 1);
+}
+
+// This rule handles shifts and divisions of 0 or vector 0 by any amount
+// (0 >> a => 0).
+static const constexpr spv::Op RedundantBinaryLhs0To0Ops[] = {
+    spv::Op::OpShiftRightLogical,
+    spv::Op::OpShiftRightArithmetic,
+    spv::Op::OpShiftLeftLogical,
+    spv::Op::OpSDiv,
+    spv::Op::OpUDiv,
+    spv::Op::OpSMod,
+    spv::Op::OpUMod};
+FoldingRule RedundantBinaryLhs0To0(spv::Op op) {
+  assert(std::find(std::begin(RedundantBinaryLhs0To0Ops),
+                   std::end(RedundantBinaryLhs0To0Ops),
+                   op) != std::end(RedundantBinaryLhs0To0Ops) &&
+         "Wrong opcode.");
+  (void)op;
+  return RedundantBinaryOpWithZeroOperand(0, 0);
+}
+
+FoldingRule ReassociateCommutiveOp() {
+  return [](IRContext* context, Instruction* inst,
+            const std::vector<const analysis::Constant*>& constants) {
+    const analysis::Type* type =
+        context->get_type_mgr()->GetType(inst->type_id());
+    uint32_t width = ElementWidth(type);
+    if (width != 32) return false;
+
+    analysis::ConstantManager* const_mgr = context->get_constant_mgr();
+    const analysis::Constant* const_input1 = ConstInput(constants);
+    if (!const_input1) return false;
+    Instruction* other_inst = NonConstInput(context, constants[0], inst);
+
+    if (other_inst->opcode() == inst->opcode()) {
+      std::vector<const analysis::Constant*> other_constants =
+          const_mgr->GetOperandConstants(other_inst);
+      const analysis::Constant* const_input2 = ConstInput(other_constants);
+      if (!const_input2) return false;
+
+      Instruction* non_const_input =
+          NonConstInput(context, other_constants[0], other_inst);
+      uint32_t merged_id = PerformOperation(const_mgr, inst->opcode(),
+                                            const_input1, const_input2);
+
+      if (merged_id == 0) return false;
+      inst->SetInOperands(
+          {{SPV_OPERAND_TYPE_ID, {non_const_input->result_id()}},
+           {SPV_OPERAND_TYPE_ID, {merged_id}}});
+      return true;
+    }
+
+    return false;
+  };
+}
+
+// A | (b | C) = b | (A | C)
+// A ^ (b ^ C) = b ^ (A ^ C)
+// A & (b & C) = b & (A & C)
+// Where A and C are constants
+static const constexpr spv::Op ReassociateCommutiveBitwiseOps[] = {
+    spv::Op::OpBitwiseOr, spv::Op::OpBitwiseXor, spv::Op::OpBitwiseAnd};
+FoldingRule ReassociateCommutiveBitwise(spv::Op op) {
+  assert(std::find(std::begin(ReassociateCommutiveBitwiseOps),
+                   std::end(ReassociateCommutiveBitwiseOps),
+                   op) != std::end(ReassociateCommutiveBitwiseOps) &&
+         "Wrong opcode.");
+  (void)op;
+  return ReassociateCommutiveOp();
+}
+
+// Returns true if all elements in |c| are 1.
+bool IsAllInt1(const analysis::Constant* c) {
+  if (auto composite = c->AsCompositeConstant()) {
+    auto& components = composite->GetComponents();
+    return std::all_of(std::begin(components), std::end(components), IsAllInt1);
+  } else if (c->AsIntConstant()) {
+    return c->GetSignExtendedValue() == 1;
+  }
+
+  return false;
+}
+
+// This rule handles divisions by 1 or vector 1 (a / 1 => a).
+FoldingRule RedundantSUDiv() {
+  return [](IRContext* context, Instruction* inst,
+            const std::vector<const analysis::Constant*>& constants) {
+    assert(constants.size() == 2);
+    assert((inst->opcode() == spv::Op::OpUDiv ||
+            inst->opcode() == spv::Op::OpSDiv) &&
+           "Wrong opcode.");
+
+    if (constants[1] && IsAllInt1(constants[1])) {
+      auto operand = inst->GetSingleWordInOperand(0);
+      auto operand_type = constants[1]->type();
+
+      const analysis::Type* inst_type =
+          context->get_type_mgr()->GetType(inst->type_id());
+      if (inst_type->IsSame(operand_type)) {
+        inst->SetOpcode(spv::Op::OpCopyObject);
+      } else {
+        inst->SetOpcode(spv::Op::OpBitcast);
+      }
+      inst->SetInOperands({{SPV_OPERAND_TYPE_ID, {operand}}});
+      return true;
+    }
+    return false;
+  };
+}
+
+// This rule handles modulo from division by 1 or vector 1 (a % 1 => 0).
+FoldingRule RedundantSUMod() {
+  return [](IRContext* context, Instruction* inst,
+            const std::vector<const analysis::Constant*>& constants) {
+    assert(constants.size() == 2);
+    assert((inst->opcode() == spv::Op::OpUMod ||
+            inst->opcode() == spv::Op::OpSMod) &&
+           "Wrong opcode.");
+
+    if (constants[1] && IsAllInt1(constants[1])) {
+      auto type = context->get_type_mgr()->GetType(inst->type_id());
+      auto zero_id = context->get_constant_mgr()->GetNullConstId(type);
+
+      inst->SetOpcode(spv::Op::OpCopyObject);
+      inst->SetInOperands({{SPV_OPERAND_TYPE_ID, {zero_id}}});
       return true;
     }
     return false;
@@ -2910,7 +3156,21 @@ void FoldingRules::AddFoldingRules() {
   // Note that the order in which rules are added to the list matters. If a rule
   // applies to the instruction, the rest of the rules will not be attempted.
   // Take that into consideration.
+  for (auto op : RedundantBinaryRhs0Ops)
+    rules_[op].push_back(RedundantBinaryRhs0(op));
+  for (auto op : RedundantBinaryLhs0Ops)
+    rules_[op].push_back(RedundantBinaryLhs0(op));
+  for (auto op : RedundantBinaryLhs0To0Ops)
+    rules_[op].push_back(RedundantBinaryLhs0To0(op));
+  for (auto op : ReassociateCommutiveBitwiseOps)
+    rules_[op].push_back(ReassociateCommutiveBitwise(op));
+  rules_[spv::Op::OpSDiv].push_back(RedundantSUDiv());
+  rules_[spv::Op::OpUDiv].push_back(RedundantSUDiv());
+  rules_[spv::Op::OpSMod].push_back(RedundantSUMod());
+  rules_[spv::Op::OpUMod].push_back(RedundantSUMod());
+
   rules_[spv::Op::OpBitcast].push_back(BitCastScalarOrVector());
+  rules_[spv::Op::OpBitReverse].push_back(BitReverseScalarOrVector());
 
   rules_[spv::Op::OpCompositeConstruct].push_back(
       CompositeExtractFeedingConstruct);
@@ -2934,13 +3194,14 @@ void FoldingRules::AddFoldingRules() {
   rules_[spv::Op::OpFAdd].push_back(MergeAddSubArithmetic());
   rules_[spv::Op::OpFAdd].push_back(MergeGenericAddSubArithmetic());
   rules_[spv::Op::OpFAdd].push_back(FactorAddMuls());
-  rules_[spv::Op::OpFAdd].push_back(MergeMulAddArithmetic);
 
   rules_[spv::Op::OpFDiv].push_back(RedundantFDiv());
   rules_[spv::Op::OpFDiv].push_back(ReciprocalFDiv());
   rules_[spv::Op::OpFDiv].push_back(MergeDivDivArithmetic());
   rules_[spv::Op::OpFDiv].push_back(MergeDivMulArithmetic());
   rules_[spv::Op::OpFDiv].push_back(MergeDivNegateArithmetic());
+
+  rules_[spv::Op::OpFMod].push_back(RedundantFMod());
 
   rules_[spv::Op::OpFMul].push_back(RedundantFMul());
   rules_[spv::Op::OpFMul].push_back(MergeMulMulArithmetic());
@@ -2955,9 +3216,7 @@ void FoldingRules::AddFoldingRules() {
   rules_[spv::Op::OpFSub].push_back(MergeSubNegateArithmetic());
   rules_[spv::Op::OpFSub].push_back(MergeSubAddArithmetic());
   rules_[spv::Op::OpFSub].push_back(MergeSubSubArithmetic());
-  rules_[spv::Op::OpFSub].push_back(MergeMulSubArithmetic);
 
-  rules_[spv::Op::OpIAdd].push_back(RedundantIAdd());
   rules_[spv::Op::OpIAdd].push_back(MergeAddNegateArithmetic());
   rules_[spv::Op::OpIAdd].push_back(MergeAddAddArithmetic());
   rules_[spv::Op::OpIAdd].push_back(MergeAddSubArithmetic());

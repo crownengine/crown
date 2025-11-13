@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2023 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2025 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx/blob/master/LICENSE
  */
 
@@ -184,6 +184,26 @@ namespace bx
 		return -!!_a;
 	}
 
+	template<>
+	inline BX_CONSTEXPR_FUNC uint32_t uint32_splat(uint8_t _val)
+	{
+		const uint32_t tmp0   = uint32_sll(_val, 8);
+		const uint32_t tmp1   = uint32_or(tmp0, _val);
+		const uint32_t tmp2   = uint32_sll(tmp1, 16);
+		const uint32_t result = uint32_or(tmp2, tmp1);
+
+		return result;
+	}
+
+	template<>
+	inline BX_CONSTEXPR_FUNC uint32_t uint32_splat(uint16_t _val)
+	{
+		const uint32_t tmp    = uint32_sll(_val, 16);
+		const uint32_t result = uint32_or(tmp, _val);
+
+		return result;
+	}
+
 	inline BX_CONSTEXPR_FUNC uint32_t uint32_satadd(uint32_t _a, uint32_t _b)
 	{
 		const uint32_t add    = uint32_add(_a, _b);
@@ -307,7 +327,6 @@ namespace bx
 		return result;
 	}
 
-	template<>
 	inline BX_CONSTEXPR_FUNC uint32_t uint32_cntbits(uint32_t _val)
 	{
 #if BX_COMPILER_GCC || BX_COMPILER_CLANG
@@ -335,35 +354,6 @@ namespace bx
 #endif // BX_COMPILER_*
 	}
 
-	template<>
-	inline BX_CONSTEXPR_FUNC uint32_t uint32_cntbits(unsigned long long _val)
-	{
-#if BX_COMPILER_GCC || BX_COMPILER_CLANG
-		return __builtin_popcountll(_val);
-#else
-		const uint32_t lo = uint32_t(_val&UINT32_MAX);
-		const uint32_t hi = uint32_t(_val>>32);
-
-		return uint32_cntbits(lo)
-			+  uint32_cntbits(hi)
-			;
-#endif // BX_COMPILER_*
-	}
-
-	template<>
-	inline BX_CONSTEXPR_FUNC uint32_t uint32_cntbits(unsigned long _val)
-	{
-		return uint32_cntbits<unsigned long long>(_val);
-	}
-
-	template<> inline BX_CONSTEXPR_FUNC uint32_t uint32_cntbits(uint8_t  _val) { return uint32_cntbits<uint32_t>(_val); }
-	template<> inline BX_CONSTEXPR_FUNC uint32_t uint32_cntbits(int8_t   _val) { return uint32_cntbits<uint8_t >(_val); }
-	template<> inline BX_CONSTEXPR_FUNC uint32_t uint32_cntbits(uint16_t _val) { return uint32_cntbits<uint32_t>(_val); }
-	template<> inline BX_CONSTEXPR_FUNC uint32_t uint32_cntbits(int16_t  _val) { return uint32_cntbits<uint16_t>(_val); }
-	template<> inline BX_CONSTEXPR_FUNC uint32_t uint32_cntbits(int32_t  _val) { return uint32_cntbits<uint32_t>(_val); }
-	template<> inline BX_CONSTEXPR_FUNC uint32_t uint32_cntbits(int64_t  _val) { return uint32_cntbits<uint64_t>(_val); }
-
-	template<>
 	inline BX_CONSTEXPR_FUNC uint32_t uint32_cntlz(uint32_t _val)
 	{
 #if BX_COMPILER_GCC || BX_COMPILER_CLANG
@@ -386,33 +376,6 @@ namespace bx
 #endif // BX_COMPILER_*
 	}
 
-	template<>
-	inline BX_CONSTEXPR_FUNC uint32_t uint32_cntlz(unsigned long long _val)
-	{
-#if BX_COMPILER_GCC || BX_COMPILER_CLANG
-		return 0 == _val ? 64 : __builtin_clzll(_val);
-#else
-		return _val & UINT64_C(0xffffffff00000000)
-			 ? uint32_cntlz(uint32_t(_val>>32) )
-			 : uint32_cntlz(uint32_t(_val) ) + 32
-			 ;
-#endif // BX_COMPILER_*
-	}
-
-	template<>
-	inline BX_CONSTEXPR_FUNC uint32_t uint32_cntlz(unsigned long _val)
-	{
-		return uint32_cntlz<unsigned long long>(_val);
-	}
-
-	template<> inline BX_CONSTEXPR_FUNC uint32_t uint32_cntlz(uint8_t  _val) { return uint32_cntlz<uint32_t>(_val)-24; }
-	template<> inline BX_CONSTEXPR_FUNC uint32_t uint32_cntlz(int8_t   _val) { return uint32_cntlz<uint8_t >(_val);    }
-	template<> inline BX_CONSTEXPR_FUNC uint32_t uint32_cntlz(uint16_t _val) { return uint32_cntlz<uint32_t>(_val)-16; }
-	template<> inline BX_CONSTEXPR_FUNC uint32_t uint32_cntlz(int16_t  _val) { return uint32_cntlz<uint16_t>(_val);    }
-	template<> inline BX_CONSTEXPR_FUNC uint32_t uint32_cntlz(int32_t  _val) { return uint32_cntlz<uint32_t>(_val);    }
-	template<> inline BX_CONSTEXPR_FUNC uint32_t uint32_cntlz(int64_t  _val) { return uint32_cntlz<uint64_t>(_val);    }
-
-	template<>
 	inline BX_CONSTEXPR_FUNC uint32_t uint32_cnttz(uint32_t _val)
 	{
 #if BX_COMPILER_GCC || BX_COMPILER_CLANG
@@ -427,31 +390,10 @@ namespace bx
 #endif // BX_COMPILER_*
 	}
 
-	template<>
-	inline BX_CONSTEXPR_FUNC uint32_t uint32_cnttz(unsigned long long _val)
+	inline BX_CONSTEXPR_FUNC uint32_t uint32_ffs(uint32_t _x)
 	{
-#if BX_COMPILER_GCC || BX_COMPILER_CLANG
-		return 0 == _val ? 64 : __builtin_ctzll(_val);
-#else
-		return _val & UINT64_C(0xffffffff)
-			? uint32_cnttz(uint32_t(_val) )
-			: uint32_cnttz(uint32_t(_val>>32) ) + 32
-			;
-#endif // BX_COMPILER_*
+		return 0 == _x ? 0 : uint32_cnttz(_x) + 1;
 	}
-
-	template<>
-	inline BX_CONSTEXPR_FUNC uint32_t uint32_cnttz(unsigned long _val)
-	{
-		return uint32_cnttz<unsigned long long>(_val);
-	}
-
-	template<> inline BX_CONSTEXPR_FUNC uint32_t uint32_cnttz(uint8_t  _val) { return bx::min(8u,  uint32_cnttz<uint32_t>(_val) ); }
-	template<> inline BX_CONSTEXPR_FUNC uint32_t uint32_cnttz(int8_t   _val) { return              uint32_cnttz<uint8_t >(_val);   }
-	template<> inline BX_CONSTEXPR_FUNC uint32_t uint32_cnttz(uint16_t _val) { return bx::min(16u, uint32_cnttz<uint32_t>(_val) ); }
-	template<> inline BX_CONSTEXPR_FUNC uint32_t uint32_cnttz(int16_t  _val) { return              uint32_cnttz<uint16_t>(_val);   }
-	template<> inline BX_CONSTEXPR_FUNC uint32_t uint32_cnttz(int32_t  _val) { return              uint32_cnttz<uint32_t>(_val);   }
-	template<> inline BX_CONSTEXPR_FUNC uint32_t uint32_cnttz(int64_t  _val) { return              uint32_cnttz<uint64_t>(_val);   }
 
 	inline BX_CONSTEXPR_FUNC uint32_t uint32_part1by1(uint32_t _a)
 	{
@@ -535,32 +477,6 @@ namespace bx
 		const uint32_t result = uint32_inc(tmpA);
 
 		return result;
-	}
-
-	inline BX_CONSTEXPR_FUNC uint32_t uint64_cntbits(uint64_t _val)
-	{
-		const uint32_t lo = uint32_t(_val&UINT32_MAX);
-		const uint32_t hi = uint32_t(_val>>32);
-
-		const uint32_t total = bx::uint32_cntbits(lo)
-							 + bx::uint32_cntbits(hi);
-		return total;
-	}
-
-	inline BX_CONSTEXPR_FUNC uint32_t uint64_cntlz(uint64_t _val)
-	{
-		return _val & UINT64_C(0xffffffff00000000)
-			 ? uint32_cntlz(uint32_t(_val>>32) )
-			 : uint32_cntlz(uint32_t(_val) ) + 32
-			 ;
-	}
-
-	inline BX_CONSTEXPR_FUNC uint32_t uint64_cnttz(uint64_t _val)
-	{
-		return _val & UINT64_C(0xffffffff)
-			? uint32_cnttz(uint32_t(_val) )
-			: uint32_cnttz(uint32_t(_val>>32) ) + 32
-			;
 	}
 
 	inline BX_CONSTEXPR_FUNC uint64_t uint64_li(uint64_t _a)
@@ -663,6 +579,77 @@ namespace bx
 		return _a * _b;
 	}
 
+	template<>
+	inline BX_CONSTEXPR_FUNC uint64_t uint64_splat(uint8_t _val)
+	{
+		const uint64_t tmp0   = uint64_sll(_val, 8);
+		const uint64_t tmp1   = uint64_or(tmp0, _val);
+		const uint64_t tmp2   = uint64_sll(tmp1, 16);
+		const uint64_t tmp3   = uint64_or(tmp2, tmp1);
+		const uint64_t tmp4   = uint64_sll(tmp3, 32);
+		const uint64_t result = uint64_or(tmp4, tmp3);
+
+		return result;
+	}
+
+	template<>
+	inline BX_CONSTEXPR_FUNC uint64_t uint64_splat(uint16_t _val)
+	{
+		const uint64_t tmp0   = uint64_sll(_val, 16);
+		const uint64_t tmp1   = uint64_or(tmp0, _val);
+		const uint64_t tmp2   = uint64_sll(tmp1, 32);
+		const uint64_t result = uint64_or(tmp2, tmp1);
+
+		return result;
+	}
+
+	template<>
+	inline BX_CONSTEXPR_FUNC uint64_t uint64_splat(uint32_t _val)
+	{
+		const uint64_t tmp    = uint64_sll(_val, 32);
+		const uint64_t result = uint64_or(tmp, _val);
+
+		return result;
+	}
+
+	inline BX_CONSTEXPR_FUNC uint64_t uint64_cntbits(uint64_t _val)
+	{
+#if BX_COMPILER_GCC || BX_COMPILER_CLANG
+		return __builtin_popcountll(_val);
+#else
+		const uint32_t lo = uint32_t(_val&UINT32_MAX);
+		const uint32_t hi = uint32_t(_val>>32);
+
+		return uint32_cntbits(lo)
+			+  uint32_cntbits(hi)
+			;
+#endif // BX_COMPILER_*
+	}
+
+	inline BX_CONSTEXPR_FUNC uint64_t uint64_cntlz(uint64_t _val)
+	{
+#if BX_COMPILER_GCC || BX_COMPILER_CLANG
+		return 0 == _val ? 64 : __builtin_clzll(_val);
+#else
+		return _val & UINT64_C(0xffffffff00000000)
+			 ? uint32_cntlz(uint32_t(_val>>32) )
+			 : uint32_cntlz(uint32_t(_val) ) + 32
+			 ;
+#endif // BX_COMPILER_*
+	}
+
+	inline BX_CONSTEXPR_FUNC uint64_t uint64_cnttz(uint64_t _val)
+	{
+#if BX_COMPILER_GCC || BX_COMPILER_CLANG
+		return 0 == _val ? 64 : __builtin_ctzll(_val);
+#else
+		return _val & UINT64_C(0xffffffff)
+			? uint32_cnttz(uint32_t(_val) )
+			: uint32_cnttz(uint32_t(_val>>32) ) + 32
+			;
+#endif // BX_COMPILER_*
+	}
+
 	inline BX_CONSTEXPR_FUNC uint32_t uint32_gcd(uint32_t _a, uint32_t _b)
 	{
 		do
@@ -706,76 +693,68 @@ namespace bx
 	}
 
 	template<typename Ty>
-	inline BX_CONSTEXPR_FUNC bool isAligned(Ty _a, int32_t _align)
+	inline BX_CONSTEXPR_FUNC bool isAligned(Ty _a, size_t _align)
 	{
-		const Ty mask = Ty(_align - 1);
-		return 0 == (_a & mask);
+		const size_t mask = max<size_t>(1, _align) - 1;
+		return 0 == (size_t(_a) & mask);
+	}
+
+	template<>
+	inline BX_CONSTEXPR_FUNC bool isAligned(const void* _ptr, size_t _align)
+	{
+		const uintptr_t addr = bitCast<uintptr_t>(_ptr);
+		return isAligned(addr, _align);
 	}
 
 	template<typename Ty>
-	inline BX_CONSTEXPR_FUNC bool isAligned(Ty* _ptr, int32_t _align)
+	inline BX_CONSTEXPR_FUNC Ty alignDown(Ty _a, size_t _align)
 	{
-		union { const void* ptr; uintptr_t addr; } un = { _ptr };
-		return isAligned(un.addr, _align);
+		const size_t mask = max<size_t>(1, _align) - 1;
+		return Ty(size_t(_a) & ~mask);
 	}
 
 	template<typename Ty>
-	inline BX_CONSTEXPR_FUNC bool isAligned(const Ty* _ptr, int32_t _align)
+	inline BX_CONSTEXPR_FUNC Ty* alignDown(Ty* _ptr, size_t _align)
 	{
-		union { const void* ptr; uintptr_t addr; } un = { _ptr };
-		return isAligned(un.addr, _align);
+		uintptr_t addr = bitCast<uintptr_t>(_ptr);
+		addr = alignDown(addr, _align);
+		return bitCast<Ty*>(addr);
 	}
 
 	template<typename Ty>
-	inline BX_CONSTEXPR_FUNC  Ty alignDown(Ty _a, int32_t _align)
+	inline BX_CONSTEXPR_FUNC const Ty* alignDown(const Ty* _ptr, size_t _align)
 	{
-		const Ty mask = Ty(_align - 1);
-		return Ty(_a & ~mask);
+		uintptr_t addr = bitCast<uintptr_t>(_ptr);
+		addr = alignDown(addr, _align);
+		return bitCast<const Ty*>(addr);
 	}
 
 	template<typename Ty>
-	inline BX_CONSTEXPR_FUNC Ty* alignDown(Ty* _ptr, int32_t _align)
+	inline BX_CONSTEXPR_FUNC Ty alignUp(Ty _a, size_t _align)
 	{
-		union { Ty* ptr; uintptr_t addr; } un = { _ptr };
-		un.addr = alignDown(un.addr, _align);
-		return un.ptr;
+		const size_t mask = max<size_t>(1, _align) - 1;
+		return Ty( (size_t(_a) + mask) & ~mask);
 	}
 
 	template<typename Ty>
-	inline BX_CONSTEXPR_FUNC const Ty* alignDown(const Ty* _ptr, int32_t _align)
+	inline BX_CONSTEXPR_FUNC Ty* alignUp(Ty* _ptr, size_t _align)
 	{
-		union { const Ty* ptr; uintptr_t addr; } un = { _ptr };
-		un.addr = alignDown(un.addr, _align);
-		return un.ptr;
+		uintptr_t addr = bitCast<uintptr_t>(_ptr);
+		addr = alignUp(addr, _align);
+		return bitCast<Ty*>(addr);
 	}
 
 	template<typename Ty>
-	inline BX_CONSTEXPR_FUNC Ty alignUp(Ty _a, int32_t _align)
+	inline BX_CONSTEXPR_FUNC const Ty* alignUp(const Ty* _ptr, size_t _align)
 	{
-		const Ty mask = Ty(_align - 1);
-		return Ty( (_a + mask) & ~mask);
-	}
-
-	template<typename Ty>
-	inline BX_CONSTEXPR_FUNC Ty* alignUp(Ty* _ptr, int32_t _align)
-	{
-		union { Ty* ptr; uintptr_t addr; } un = { _ptr };
-		un.addr = alignUp(un.addr, _align);
-		return un.ptr;
-	}
-
-	template<typename Ty>
-	inline BX_CONSTEXPR_FUNC const Ty* alignUp(const Ty* _ptr, int32_t _align)
-	{
-		union { const Ty* ptr; uintptr_t addr; } un = { _ptr };
-		un.addr = alignUp(un.addr, _align);
-		return un.ptr;
+		uintptr_t addr = bitCast<uintptr_t>(_ptr);
+		addr = alignUp(addr, _align);
+		return bitCast<const Ty*>(addr);
 	}
 
 	inline BX_CONST_FUNC uint16_t halfFromFloat(float _a)
 	{
-		union { uint32_t ui; float flt; } ftou;
-		ftou.flt = _a;
+		const uint32_t a_as_ui = bitCast<uint32_t>(_a);
 
 		const uint32_t one                       = uint32_li(0x00000001);
 		const uint32_t f_s_mask                  = uint32_li(kFloatSignMask);
@@ -794,13 +773,13 @@ namespace bx
 		const uint32_t f_h_m_pos_offset          = uint32_li(0x0000000d);
 		const uint32_t h_nan_min                 = uint32_li(0x00007c01);
 		const uint32_t f_h_e_biased_flag         = uint32_li(0x0000008f);
-		const uint32_t f_s                       = uint32_and(ftou.ui, f_s_mask);
-		const uint32_t f_e                       = uint32_and(ftou.ui, f_e_mask);
+		const uint32_t f_s                       = uint32_and(a_as_ui, f_s_mask);
+		const uint32_t f_e                       = uint32_and(a_as_ui, f_e_mask);
 		const uint16_t h_s                       = (uint16_t)uint32_srl(f_s, f_h_s_pos_offset);
-		const uint32_t f_m                       = uint32_and(ftou.ui, f_m_mask);
+		const uint32_t f_m                       = uint32_and(a_as_ui, f_m_mask);
 		const uint16_t f_e_amount                = (uint16_t)uint32_srl(f_e, f_e_pos);
 		const uint32_t f_e_half_bias             = uint32_sub(f_e_amount, f_h_bias_offset);
-		const uint32_t f_snan                    = uint32_and(ftou.ui, f_snan_mask);
+		const uint32_t f_snan                    = uint32_and(a_as_ui, f_snan_mask);
 		const uint32_t f_m_round_mask            = uint32_and(f_m, f_m_round_bit);
 		const uint32_t f_m_round_offset          = uint32_sll(f_m_round_mask, one);
 		const uint32_t f_m_rounded               = uint32_add(f_m, f_m_round_offset);
@@ -836,7 +815,7 @@ namespace bx
 		const uint32_t h_em_snan_result          = uint32_sels(is_f_snan_msb, h_snan_mask, h_em_denorm_result);
 		const uint32_t h_result                  = uint32_or(h_s, h_em_snan_result);
 
-		return (uint16_t)(h_result);
+		return uint16_t(h_result);
 	}
 
 	inline BX_CONST_FUNC float halfToFloat(uint16_t _a)
@@ -883,9 +862,7 @@ namespace bx
 		const uint32_t f_nan_result         = uint32_sels(is_nan_msb, f_em_nan, f_inf_result);
 		const uint32_t f_result             = uint32_or(f_s, f_nan_result);
 
-		union { uint32_t ui; float flt; } utof;
-		utof.ui = f_result;
-		return utof.flt;
+		return bitCast<float>(f_result);
 	}
 
 } // namespace bx

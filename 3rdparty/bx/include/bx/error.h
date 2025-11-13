@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2023 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2025 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx/blob/master/LICENSE
  */
 
@@ -21,8 +21,8 @@
 	BX_ERROR_USE_TEMP_WHEN_NULL(_ptr);                             \
 	bx::ErrorScope bxErrorScope(const_cast<bx::Error*>(&tmpError), "" __VA_ARGS__)
 
-#define BX_ERROR_RESULT(_err, _code)                          \
-	BX_STATIC_ASSERT(_code != 0, "ErrorCode 0 is reserved!"); \
+#define BX_ERROR_RESULT(_err, _code)                       \
+	static_assert(_code != 0, "ErrorCode 0 is reserved!"); \
 	static constexpr bx::ErrorResult _err = { _code }
 
 namespace bx
@@ -48,7 +48,7 @@ namespace bx
 		void reset();
 
 		///
-		void setError(ErrorResult _errorResult, const StringView& _msg);
+		void setError(ErrorResult _errorResult, const StringLiteral& _msg, const Location& _location = Location::current() );
 
 		///
 		bool isOk() const;
@@ -57,7 +57,10 @@ namespace bx
 		ErrorResult get() const;
 
 		///
-		const StringView& getMessage() const;
+		const StringLiteral& getMessage() const;
+
+		///
+		const Location& getLocation() const;
 
 		///
 		bool operator==(const ErrorResult& _rhs) const;
@@ -66,12 +69,13 @@ namespace bx
 		bool operator!=(const ErrorResult& _rhs) const;
 
 	private:
-		StringView m_msg;
-		uint32_t   m_code;
+		Location      m_location;
+		StringLiteral m_msg;
+		uint32_t      m_code;
 	};
 
 	/// Do nothing even if error is set.
-	class ErrorIgnore : public Error
+	class ErrorIgnore final : public Error
 	{
 	public:
 		///
@@ -79,7 +83,7 @@ namespace bx
 	};
 
 	/// In debug build assert if error is set.
-	class ErrorAssert : public Error
+	class ErrorAssert final : public Error
 	{
 	public:
 		///
@@ -90,7 +94,7 @@ namespace bx
 	};
 
 	/// Exit application if error is set.
-	class ErrorFatal : public Error
+	class ErrorFatal final : public Error
 	{
 	public:
 		///
@@ -110,17 +114,17 @@ namespace bx
 
 	public:
 		///
-		ErrorScope(Error* _err, const StringView& _name);
+		ErrorScope(Error* _err, const StringLiteral& _name);
 
 		///
 		~ErrorScope();
 
 		///
-		const StringView& getName() const;
+		const StringLiteral& getName() const;
 
 	private:
 		Error* m_err;
-		const StringView m_name;
+		const StringLiteral m_name;
 	};
 
 } // namespace bx

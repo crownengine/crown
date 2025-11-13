@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2023 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2025 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx/blob/master/LICENSE
  */
 
@@ -139,27 +139,27 @@ namespace bgfx
 		{ 1, 0 }, // CUT_STREAM
 		{ 1, 0 }, // EMITTHENCUT_STREAM
 		{ 1, 0 }, // INTERFACE_CALL
-		{ 0, 0 }, // BUFINFO
+		{ 2, 0 }, // BUFINFO
 		{ 2, 0 }, // DERIV_RTX_COARSE
 		{ 2, 0 }, // DERIV_RTX_FINE
 		{ 2, 0 }, // DERIV_RTY_COARSE
 		{ 2, 0 }, // DERIV_RTY_FINE
 		{ 5, 0 }, // GATHER4_C
 		{ 5, 0 }, // GATHER4_PO
-		{ 0, 0 }, // GATHER4_PO_C
+		{ 6, 0 }, // GATHER4_PO_C
 		{ 2, 0 }, // RCP
-		{ 0, 0 }, // F32TOF16
-		{ 0, 0 }, // F16TOF32
-		{ 0, 0 }, // UADDC
-		{ 0, 0 }, // USUBB
-		{ 0, 0 }, // COUNTBITS
-		{ 0, 0 }, // FIRSTBIT_HI
-		{ 0, 0 }, // FIRSTBIT_LO
-		{ 0, 0 }, // FIRSTBIT_SHI
+		{ 2, 0 }, // F32TOF16
+		{ 2, 0 }, // F16TOF32
+		{ 4, 0 }, // UADDC
+		{ 4, 0 }, // USUBB
+		{ 2, 0 }, // COUNTBITS
+		{ 2, 0 }, // FIRSTBIT_HI
+		{ 2, 0 }, // FIRSTBIT_LO
+		{ 2, 0 }, // FIRSTBIT_SHI
 		{ 4, 0 }, // UBFE
 		{ 4, 0 }, // IBFE
 		{ 5, 0 }, // BFI
-		{ 0, 0 }, // BFREV
+		{ 2, 0 }, // BFREV
 		{ 5, 0 }, // SWAPC
 		{ 1, 0 }, // DCL_STREAM
 		{ 1, 0 }, // DCL_FUNCTION_BODY
@@ -198,16 +198,16 @@ namespace bgfx
 		{ 3, 0 }, // ATOMIC_UMIN
 		{ 2, 0 }, // IMM_ATOMIC_ALLOC
 		{ 2, 0 }, // IMM_ATOMIC_CONSUME
-		{ 0, 0 }, // IMM_ATOMIC_IADD
-		{ 0, 0 }, // IMM_ATOMIC_AND
-		{ 0, 0 }, // IMM_ATOMIC_OR
-		{ 0, 0 }, // IMM_ATOMIC_XOR
-		{ 0, 0 }, // IMM_ATOMIC_EXCH
-		{ 0, 0 }, // IMM_ATOMIC_CMP_EXCH
-		{ 0, 0 }, // IMM_ATOMIC_IMAX
-		{ 0, 0 }, // IMM_ATOMIC_IMIN
-		{ 0, 0 }, // IMM_ATOMIC_UMAX
-		{ 0, 0 }, // IMM_ATOMIC_UMIN
+		{ 4, 0 }, // IMM_ATOMIC_IADD
+		{ 4, 0 }, // IMM_ATOMIC_AND
+		{ 4, 0 }, // IMM_ATOMIC_OR
+		{ 4, 0 }, // IMM_ATOMIC_XOR
+		{ 4, 0 }, // IMM_ATOMIC_EXCH
+		{ 5, 0 }, // IMM_ATOMIC_CMP_EXCH
+		{ 4, 0 }, // IMM_ATOMIC_IMAX
+		{ 4, 0 }, // IMM_ATOMIC_IMIN
+		{ 4, 0 }, // IMM_ATOMIC_UMAX
+		{ 4, 0 }, // IMM_ATOMIC_UMIN
 		{ 0, 0 }, // SYNC
 		{ 3, 0 }, // DADD
 		{ 3, 0 }, // DMAX
@@ -219,8 +219,8 @@ namespace bgfx
 		{ 3, 0 }, // DNE
 		{ 2, 0 }, // DMOV
 		{ 4, 0 }, // DMOVC
-		{ 0, 0 }, // DTOF
-		{ 0, 0 }, // FTOD
+		{ 2, 0 }, // DTOF
+		{ 2, 0 }, // FTOD
 		{ 3, 0 }, // EVAL_SNAPPED
 		{ 3, 0 }, // EVAL_SAMPLE_INDEX
 		{ 2, 0 }, // EVAL_CENTROID
@@ -238,7 +238,7 @@ namespace bgfx
 		{ 0, 0 }, // ITOD
 		{ 0, 0 }, // UTOD
 	};
-	BX_STATIC_ASSERT(BX_COUNTOF(s_dxbcOpcodeInfo) == DxbcOpcode::Count);
+	static_assert(BX_COUNTOF(s_dxbcOpcodeInfo) == DxbcOpcode::Count);
 
 	static const char* s_dxbcOpcode[] =
 	{
@@ -464,7 +464,7 @@ namespace bgfx
 		"itod",
 		"utod",
 	};
-	BX_STATIC_ASSERT(BX_COUNTOF(s_dxbcOpcode) == DxbcOpcode::Count);
+	static_assert(BX_COUNTOF(s_dxbcOpcode) == DxbcOpcode::Count);
 
 	const char* getName(DxbcOpcode::Enum _opcode)
 	{
@@ -488,7 +488,7 @@ namespace bgfx
 		"RawBuffer",        // RawBuffer
 		"StructuredBuffer", // StructuredBuffer
 	};
-	BX_STATIC_ASSERT(BX_COUNTOF(s_dxbcSrvType) == DxbcResourceDim::Count);
+	static_assert(BX_COUNTOF(s_dxbcSrvType) == DxbcResourceDim::Count);
 
 	const char* s_dxbcInterpolationName[] =
 	{
@@ -501,7 +501,7 @@ namespace bgfx
 		"linear sample",
 		"linear noperspective sample",
 	};
-	BX_STATIC_ASSERT(BX_COUNTOF(s_dxbcInterpolationName) == DxbcInterpolation::Count);
+	static_assert(BX_COUNTOF(s_dxbcInterpolationName) == DxbcInterpolation::Count);
 
 	const char *s_dxbcPrimitiveTopologyName[] =
 	{
@@ -520,7 +520,7 @@ namespace bgfx
 		"TriangleListAdj",
 		"TriangleStripAdj",
 	};
-	BX_STATIC_ASSERT(BX_COUNTOF(s_dxbcPrimitiveTopologyName) == DxbcPrimitiveTopology::Count);
+	static_assert(BX_COUNTOF(s_dxbcPrimitiveTopologyName) == DxbcPrimitiveTopology::Count);
 
 	const char *s_dxbcPrimitiveName[] = {
 		"",
@@ -564,7 +564,7 @@ namespace bgfx
 		"_31ControlPointPatch",
 		"_32ControlPointPatch",
 	};
-	BX_STATIC_ASSERT(BX_COUNTOF(s_dxbcPrimitiveName) == DxbcPrimitive::Count);
+	static_assert(BX_COUNTOF(s_dxbcPrimitiveName) == DxbcPrimitive::Count);
 
 	// mesa/src/gallium/state_trackers/d3d1x/d3d1xshader/defs/shortfiles.txt
 	static const char* s_dxbcOperandType[] =
@@ -611,7 +611,7 @@ namespace bgfx
 		"oDepthLE",                  // OutputDepthLessEqual
 		"vCycleCounter",             // CycleCounter
 	};
-	BX_STATIC_ASSERT(BX_COUNTOF(s_dxbcOperandType) == DxbcOperandType::Count);
+	static_assert(BX_COUNTOF(s_dxbcOperandType) == DxbcOperandType::Count);
 
 	static const char* s_dxbcCustomDataClass[] =
 	{
@@ -622,7 +622,7 @@ namespace bgfx
 		"ShaderMessage",
 		"ClipPlaneConstantMappingsForDx9",
 	};
-	BX_STATIC_ASSERT(BX_COUNTOF(s_dxbcCustomDataClass) == DxbcCustomDataClass::Count);
+	static_assert(BX_COUNTOF(s_dxbcCustomDataClass) == DxbcCustomDataClass::Count);
 
 #define DXBC_MAX_NAME_STRING 512
 
@@ -1230,7 +1230,7 @@ namespace bgfx
 				_instruction.primitiveTopology = DxbcPrimitiveTopology::Enum( (token & UINT32_C(0x0001f800) ) >> 11);
 				break;
 
-			case DxbcOpcode::DCL_INPUT_PS: BX_FALLTHROUGH;
+			case DxbcOpcode::DCL_INPUT_PS: [[fallthrough]];
 			case DxbcOpcode::DCL_INPUT_PS_SIV:
 				// 0       1       2       3
 				// 76543210765432107654321076543210
@@ -1395,12 +1395,12 @@ namespace bgfx
 		_instruction.numOperands = info.numOperands;
 		switch (info.numOperands)
 		{
-		case 6: size += read(_reader, _instruction.operand[currOp++], _err); BX_FALLTHROUGH;
-		case 5: size += read(_reader, _instruction.operand[currOp++], _err); BX_FALLTHROUGH;
-		case 4: size += read(_reader, _instruction.operand[currOp++], _err); BX_FALLTHROUGH;
-		case 3: size += read(_reader, _instruction.operand[currOp++], _err); BX_FALLTHROUGH;
-		case 2: size += read(_reader, _instruction.operand[currOp++], _err); BX_FALLTHROUGH;
-		case 1: size += read(_reader, _instruction.operand[currOp++], _err); BX_FALLTHROUGH;
+		case 6: size += read(_reader, _instruction.operand[currOp++], _err); [[fallthrough]];
+		case 5: size += read(_reader, _instruction.operand[currOp++], _err); [[fallthrough]];
+		case 4: size += read(_reader, _instruction.operand[currOp++], _err); [[fallthrough]];
+		case 3: size += read(_reader, _instruction.operand[currOp++], _err); [[fallthrough]];
+		case 2: size += read(_reader, _instruction.operand[currOp++], _err); [[fallthrough]];
+		case 1: size += read(_reader, _instruction.operand[currOp++], _err); [[fallthrough]];
 		case 0:
 			if (0 < info.numValues)
 			{
@@ -1471,7 +1471,7 @@ namespace bgfx
 				token |= (_instruction.primitiveTopology << 11) & UINT32_C(0x0001f800);
 				break;
 
-			case DxbcOpcode::DCL_INPUT_PS: BX_FALLTHROUGH;
+			case DxbcOpcode::DCL_INPUT_PS: [[fallthrough]];
 			case DxbcOpcode::DCL_INPUT_PS_SIV:
 				token |= (_instruction.interpolation << 11) & UINT32_C(0x0000f800);
 				break;
@@ -1723,11 +1723,10 @@ namespace bgfx
 			case DxbcOperandType::Imm64:
 				for (uint32_t jj = 0; jj < operand.num; ++jj)
 				{
-					union { uint32_t i; float f; } cast = { operand.un.imm32[jj] };
 					size += bx::snprintf(&_out[size], bx::uint32_imax(0, _size-size)
 								, "%s%f"
 								, 0 == jj ? "(" : ", "
-								, cast.f
+								, bx::bitCast<float>(operand.un.imm32[jj])
 								);
 				}
 
@@ -1991,7 +1990,7 @@ namespace bgfx
 			{
 			case DXBC_CHUNK_SHADER_EX:
 				_dxbc.shader.shex = true;
-				BX_FALLTHROUGH;
+				[[fallthrough]];
 
 			case DXBC_CHUNK_SHADER:
 				size += read(_reader, _dxbc.shader, _err);

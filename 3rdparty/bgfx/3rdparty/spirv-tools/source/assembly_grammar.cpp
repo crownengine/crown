@@ -21,7 +21,9 @@
 #include "source/ext_inst.h"
 #include "source/opcode.h"
 #include "source/operand.h"
+#include "source/spirv_target_env.h"
 #include "source/table.h"
+#include "source/table2.h"
 
 namespace spvtools {
 namespace {
@@ -34,15 +36,12 @@ namespace {
 ///
 /// On success, the value is written to pValue.
 ///
-/// @param[in] operandTable operand lookup table
 /// @param[in] type of the operand
 /// @param[in] textValue word of text to be parsed
 /// @param[out] pValue where the resulting value is written
 ///
 /// @return result code
-spv_result_t spvTextParseMaskOperand(spv_target_env env,
-                                     const spv_operand_table operandTable,
-                                     const spv_operand_type_t type,
+spv_result_t spvTextParseMaskOperand(const spv_operand_type_t type,
                                      const char* textValue, uint32_t* pValue) {
   if (textValue == nullptr) return SPV_ERROR_INVALID_TEXT;
   size_t text_length = strlen(textValue);
@@ -61,9 +60,9 @@ spv_result_t spvTextParseMaskOperand(spv_target_env env,
   do {
     end = std::find(begin, text_end, separator);
 
-    spv_operand_desc entry = nullptr;
-    if (auto error = spvOperandTableNameLookup(env, operandTable, type, begin,
-                                               end - begin, &entry)) {
+    const spvtools::OperandDesc* entry = nullptr;
+    if (auto error =
+            spvtools::LookupOperand(type, begin, end - begin, &entry)) {
       return error;
     }
     value |= entry->value;
@@ -169,49 +168,34 @@ const size_t kNumOpSpecConstantOpcodes =
 
 }  // namespace
 
-bool AssemblyGrammar::isValid() const {
-  return operandTable_ && opcodeTable_ && extInstTable_;
-}
-
 CapabilitySet AssemblyGrammar::filterCapsAgainstTargetEnv(
     const spv::Capability* cap_array, uint32_t count) const {
   CapabilitySet cap_set;
+  const auto version = spvVersionForTargetEnv(target_env_);
   for (uint32_t i = 0; i < count; ++i) {
-    spv_operand_desc cap_desc = {};
-    if (SPV_SUCCESS == lookupOperand(SPV_OPERAND_TYPE_CAPABILITY,
-                                     static_cast<uint32_t>(cap_array[i]),
-                                     &cap_desc)) {
-      // spvOperandTableValueLookup() filters capabilities internally
-      // according to the current target environment by itself. So we
-      // should be safe to add this capability if the lookup succeeds.
-      cap_set.Add(cap_array[i]);
+    const spvtools::OperandDesc* entry = nullptr;
+    if (SPV_SUCCESS ==
+        spvtools::LookupOperand(SPV_OPERAND_TYPE_CAPABILITY,
+                                static_cast<uint32_t>(cap_array[i]), &entry)) {
+      // This token is visible in this environment if it's in an appropriate
+      // core version, or it is enabled by a capability or an extension.
+      if ((version >= entry->minVersion && version <= entry->lastVersion) ||
+          entry->extensions_range.count() > 0u ||
+          entry->capabilities_range.count() > 0u) {
+        cap_set.insert(cap_array[i]);
+      }
     }
   }
   return cap_set;
 }
 
-spv_result_t AssemblyGrammar::lookupOpcode(const char* name,
-                                           spv_opcode_desc* desc) const {
-  return spvOpcodeTableNameLookup(target_env_, opcodeTable_, name, desc);
-}
-
-spv_result_t AssemblyGrammar::lookupOpcode(spv::Op opcode,
-                                           spv_opcode_desc* desc) const {
-  return spvOpcodeTableValueLookup(target_env_, opcodeTable_, opcode, desc);
-}
-
-spv_result_t AssemblyGrammar::lookupOperand(spv_operand_type_t type,
-                                            const char* name, size_t name_len,
-                                            spv_operand_desc* desc) const {
-  return spvOperandTableNameLookup(target_env_, operandTable_, type, name,
-                                   name_len, desc);
-}
-
-spv_result_t AssemblyGrammar::lookupOperand(spv_operand_type_t type,
-                                            uint32_t operand,
-                                            spv_operand_desc* desc) const {
-  return spvOperandTableValueLookup(target_env_, operandTable_, type, operand,
-                                    desc);
+const char* AssemblyGrammar::lookupOperandName(spv_operand_type_t type,
+                                               uint32_t operand) const {
+  const spvtools::OperandDesc* desc = nullptr;
+  if (spvtools::LookupOperand(type, operand, &desc) != SPV_SUCCESS || !desc) {
+    return "Unknown";
+  }
+  return desc->name().data();
 }
 
 spv_result_t AssemblyGrammar::lookupSpecConstantOpcode(const char* name,
@@ -241,25 +225,13 @@ spv_result_t AssemblyGrammar::lookupSpecConstantOpcode(spv::Op opcode) const {
 spv_result_t AssemblyGrammar::parseMaskOperand(const spv_operand_type_t type,
                                                const char* textValue,
                                                uint32_t* pValue) const {
-  return spvTextParseMaskOperand(target_env_, operandTable_, type, textValue,
-                                 pValue);
-}
-spv_result_t AssemblyGrammar::lookupExtInst(spv_ext_inst_type_t type,
-                                            const char* textValue,
-                                            spv_ext_inst_desc* extInst) const {
-  return spvExtInstTableNameLookup(extInstTable_, type, textValue, extInst);
-}
-
-spv_result_t AssemblyGrammar::lookupExtInst(spv_ext_inst_type_t type,
-                                            uint32_t firstWord,
-                                            spv_ext_inst_desc* extInst) const {
-  return spvExtInstTableValueLookup(extInstTable_, type, firstWord, extInst);
+  return spvTextParseMaskOperand(type, textValue, pValue);
 }
 
 void AssemblyGrammar::pushOperandTypesForMask(
     const spv_operand_type_t type, const uint32_t mask,
     spv_operand_pattern_t* pattern) const {
-  spvPushOperandTypesForMask(target_env_, operandTable_, type, mask, pattern);
+  spvPushOperandTypesForMask(type, mask, pattern);
 }
 
 }  // namespace spvtools

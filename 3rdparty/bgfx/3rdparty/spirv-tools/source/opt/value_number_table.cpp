@@ -45,26 +45,41 @@ uint32_t ValueNumberTable::AssignValueNumber(Instruction* inst) {
     return value;
   }
 
+  auto assign_new_number = [this](Instruction* i) {
+    const auto new_value = TakeNextValueNumber();
+    id_to_value_[i->result_id()] = new_value;
+    return new_value;
+  };
+
   // If the instruction has other side effects, then it must
   // have its own value number.
-  // OpSampledImage and OpImage must remain in the same basic block in which
-  // they are used, because of this we will assign each one it own value number.
   if (!context()->IsCombinatorInstruction(inst) &&
       !inst->IsCommonDebugInstr()) {
-    value = TakeNextValueNumber();
-    id_to_value_[inst->result_id()] = value;
-    return value;
+    return assign_new_number(inst);
   }
 
+  // OpSampledImage and OpImage must remain in the same basic block in which
+  // they are used, because of this we will assign each one it own value number.
   switch (inst->opcode()) {
     case spv::Op::OpSampledImage:
     case spv::Op::OpImage:
     case spv::Op::OpVariable:
-      value = TakeNextValueNumber();
-      id_to_value_[inst->result_id()] = value;
-      return value;
+      return assign_new_number(inst);
     default:
       break;
+  }
+
+  // A load that yields an image, sampler, or sampled image must remain in
+  // the same basic block.  So assign it its own value number.
+  if (inst->IsLoad()) {
+    switch (context()->get_def_use_mgr()->GetDef(inst->type_id())->opcode()) {
+      case spv::Op::OpTypeSampledImage:
+      case spv::Op::OpTypeImage:
+      case spv::Op::OpTypeSampler:
+        return assign_new_number(inst);
+      default:
+        break;
+    }
   }
 
   // If it is a load from memory that can be modified, we have to assume the
@@ -74,9 +89,7 @@ uint32_t ValueNumberTable::AssignValueNumber(Instruction* inst) {
   // read only.  However, if this is ever relaxed because we analyze stores, we
   // will have to add a new case for volatile loads.
   if (inst->IsLoad() && !inst->IsReadOnlyLoad()) {
-    value = TakeNextValueNumber();
-    id_to_value_[inst->result_id()] = value;
-    return value;
+    return assign_new_number(inst);
   }
 
   analysis::DecorationManager* dec_mgr = context()->get_decoration_mgr();
@@ -130,8 +143,31 @@ uint32_t ValueNumberTable::AssignValueNumber(Instruction* inst) {
     }
   }
 
-  // TODO: Implement a normal form for opcodes that commute like integer
-  // addition.  This will let us know that a+b is the same value as b+a.
+  // Apply normal form, so a+b == b+a
+  switch (value_ins.opcode()) {
+    case spv::Op::OpIAdd:
+    case spv::Op::OpFAdd:
+    case spv::Op::OpIMul:
+    case spv::Op::OpFMul:
+    case spv::Op::OpDot:
+    case spv::Op::OpLogicalEqual:
+    case spv::Op::OpLogicalNotEqual:
+    case spv::Op::OpLogicalOr:
+    case spv::Op::OpLogicalAnd:
+    case spv::Op::OpIEqual:
+    case spv::Op::OpINotEqual:
+    case spv::Op::OpBitwiseOr:
+    case spv::Op::OpBitwiseXor:
+    case spv::Op::OpBitwiseAnd:
+      if (value_ins.GetSingleWordInOperand(0) >
+          value_ins.GetSingleWordInOperand(1)) {
+        value_ins.SetInOperands(
+            {{SPV_OPERAND_TYPE_ID, {value_ins.GetSingleWordInOperand(1)}},
+             {SPV_OPERAND_TYPE_ID, {value_ins.GetSingleWordInOperand(0)}}});
+      }
+    default:
+      break;
+  }
 
   // Otherwise, we check if this value has been computed before.
   auto value_iterator = instruction_to_value_.find(value_ins);

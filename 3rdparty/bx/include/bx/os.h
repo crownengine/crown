@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2023 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2025 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx/blob/master/LICENSE
  */
 
@@ -15,6 +15,9 @@
 #else
 #	define BX_DL_EXT "so"
 #endif //
+
+BX_ERROR_RESULT(kErrorMemoryMapFailed,   BX_MAKEFOURCC('b', 'x', '8', '0') );
+BX_ERROR_RESULT(kErrorMemoryUnmapFailed, BX_MAKEFOURCC('b', 'x', '8', '1') );
 
 namespace bx
 {
@@ -56,7 +59,16 @@ namespace bx
 	void* exec(const char* const* _argv);
 
 	///
-	BX_NO_RETURN void exit(int32_t _exitCode);
+	[[noreturn]] void exit(int32_t _exitCode, bool _cleanup = true);
+
+	///
+	void* memoryMap(void* _address, size_t _size, Error* _err);
+
+	///
+	void memoryUnmap(void* _address, size_t _size, Error* _err);
+
+	///
+	size_t memoryPageSize();
 
 } // namespace bx
 

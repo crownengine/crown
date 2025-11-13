@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2023 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2025 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx/blob/master/LICENSE
  */
 
@@ -20,7 +20,6 @@
 #endif // BX_CONFIG_DEBUG
 
 #if !defined(BGFX_CONFIG_RENDERER_AGC)        \
- && !defined(BGFX_CONFIG_RENDERER_DIRECT3D9)  \
  && !defined(BGFX_CONFIG_RENDERER_DIRECT3D11) \
  && !defined(BGFX_CONFIG_RENDERER_DIRECT3D12) \
  && !defined(BGFX_CONFIG_RENDERER_GNM)        \
@@ -28,21 +27,13 @@
  && !defined(BGFX_CONFIG_RENDERER_NVN)        \
  && !defined(BGFX_CONFIG_RENDERER_OPENGL)     \
  && !defined(BGFX_CONFIG_RENDERER_OPENGLES)   \
- && !defined(BGFX_CONFIG_RENDERER_VULKAN)     \
- && !defined(BGFX_CONFIG_RENDERER_WEBGPU)
+ && !defined(BGFX_CONFIG_RENDERER_VULKAN)
 
 #	ifndef BGFX_CONFIG_RENDERER_AGC
 #		define BGFX_CONFIG_RENDERER_AGC (0 \
 					|| BX_PLATFORM_PS5     \
 					? 1 : 0)
 #	endif // BGFX_CONFIG_RENDERER_AGC
-
-#	ifndef BGFX_CONFIG_RENDERER_DIRECT3D9
-#		define BGFX_CONFIG_RENDERER_DIRECT3D9 (0 \
-					|| BX_PLATFORM_LINUX         \
-					|| BX_PLATFORM_WINDOWS       \
-					? 1 : 0)
-#	endif // BGFX_CONFIG_RENDERER_DIRECT3D9
 
 #	ifndef BGFX_CONFIG_RENDERER_DIRECT3D11
 #		define BGFX_CONFIG_RENDERER_DIRECT3D11 (0 \
@@ -69,10 +60,10 @@
 #	endif // BGFX_CONFIG_RENDERER_GNM
 
 #	ifndef BGFX_CONFIG_RENDERER_METAL
-#		define BGFX_CONFIG_RENDERER_METAL (0           \
-					|| (BX_PLATFORM_IOS && BX_CPU_ARM) \
-					|| (BX_PLATFORM_IOS && BX_CPU_X86) \
-					|| (BX_PLATFORM_OSX >= 101100)     \
+#		define BGFX_CONFIG_RENDERER_METAL (0 \
+					|| BX_PLATFORM_IOS       \
+					|| BX_PLATFORM_OSX       \
+					|| BX_PLATFORM_VISIONOS \
 					? 1 : 0)
 #	endif // BGFX_CONFIG_RENDERER_METAL
 
@@ -88,7 +79,6 @@
 
 #	ifndef BGFX_CONFIG_RENDERER_OPENGL
 #		define BGFX_CONFIG_RENDERER_OPENGL (0 \
-					|| BX_PLATFORM_BSD        \
 					|| BX_PLATFORM_LINUX      \
 					|| BX_PLATFORM_WINDOWS    \
 					? BGFX_CONFIG_RENDERER_OPENGL_MIN_VERSION : 0)
@@ -119,18 +109,10 @@
 					? 1 : 0)
 #	endif // BGFX_CONFIG_RENDERER_VULKAN
 
-#	ifndef BGFX_CONFIG_RENDERER_WEBGPU
-#		define BGFX_CONFIG_RENDERER_WEBGPU 0
-#	endif // BGFX_CONFIG_RENDERER_WEBGPU
-
 #else
 #	ifndef BGFX_CONFIG_RENDERER_AGC
 #		define BGFX_CONFIG_RENDERER_AGC 0
 #	endif // BGFX_CONFIG_RENDERER_AGC
-
-#	ifndef BGFX_CONFIG_RENDERER_DIRECT3D9
-#		define BGFX_CONFIG_RENDERER_DIRECT3D9 0
-#	endif // BGFX_CONFIG_RENDERER_DIRECT3D9
 
 #	ifndef BGFX_CONFIG_RENDERER_DIRECT3D11
 #		define BGFX_CONFIG_RENDERER_DIRECT3D11 0
@@ -163,10 +145,6 @@
 #	ifndef BGFX_CONFIG_RENDERER_VULKAN
 #		define BGFX_CONFIG_RENDERER_VULKAN 0
 #	endif // BGFX_CONFIG_RENDERER_VULKAN
-
-#	ifndef BGFX_CONFIG_RENDERER_WEBGPU
-#		define BGFX_CONFIG_RENDERER_WEBGPU 0
-#	endif // BGFX_CONFIG_RENDERER_VULKAN
 #endif // !defined...
 
 #if BGFX_CONFIG_RENDERER_OPENGL && BGFX_CONFIG_RENDERER_OPENGL < 21
@@ -187,6 +165,15 @@
 #ifndef BGFX_CONFIG_RENDERER_USE_EXTENSIONS
 #	define BGFX_CONFIG_RENDERER_USE_EXTENSIONS 1
 #endif // BGFX_CONFIG_RENDERER_USE_EXTENSIONS
+
+#ifndef BGFX_CONFIG_RENDERER_DIRECT3D11_USE_STAGING_BUFFER
+#	define BGFX_CONFIG_RENDERER_DIRECT3D11_USE_STAGING_BUFFER 0
+#endif // BGFX_CONFIG_RENDERER_DIRECT3D11_USE_STAGING_BUFFER
+
+/// Configure the amount of max descriptor sets per frame for Vulkan
+#ifndef BGFX_CONFIG_RENDERER_VULKAN_MAX_DESCRIPTOR_SETS_PER_FRAME
+#	define BGFX_CONFIG_RENDERER_VULKAN_MAX_DESCRIPTOR_SETS_PER_FRAME 1024
+#endif // BGFX_CONFIG_RENDERER_VULKAN_MAX_DESCRIPTOR_SETS_PER_FRAME
 
 /// Enable use of tinystl.
 #ifndef BGFX_CONFIG_USE_TINYSTL
@@ -257,12 +244,12 @@
 
 // Cannot be configured via compiler options.
 #define BGFX_CONFIG_MAX_PROGRAMS (1<<BGFX_CONFIG_SORT_KEY_NUM_BITS_PROGRAM)
-BX_STATIC_ASSERT(bx::isPowerOf2(BGFX_CONFIG_MAX_PROGRAMS), "BGFX_CONFIG_MAX_PROGRAMS must be power of 2.");
+static_assert(bx::isPowerOf2(BGFX_CONFIG_MAX_PROGRAMS), "BGFX_CONFIG_MAX_PROGRAMS must be power of 2.");
 
 #ifndef BGFX_CONFIG_MAX_VIEWS
 #	define BGFX_CONFIG_MAX_VIEWS 256
 #endif // BGFX_CONFIG_MAX_VIEWS
-BX_STATIC_ASSERT(bx::isPowerOf2(BGFX_CONFIG_MAX_VIEWS), "BGFX_CONFIG_MAX_VIEWS must be power of 2.");
+static_assert(bx::isPowerOf2(BGFX_CONFIG_MAX_VIEWS), "BGFX_CONFIG_MAX_VIEWS must be power of 2.");
 
 #define BGFX_CONFIG_MAX_VIEW_NAME_RESERVED 6
 
@@ -334,13 +321,56 @@ BX_STATIC_ASSERT(bx::isPowerOf2(BGFX_CONFIG_MAX_VIEWS), "BGFX_CONFIG_MAX_VIEWS m
 #	define BGFX_CONFIG_MIN_RESOURCE_COMMAND_BUFFER_SIZE (64<<10)
 #endif // BGFX_CONFIG_MIN_RESOURCE_COMMAND_BUFFER_SIZE
 
-#ifndef BGFX_CONFIG_TRANSIENT_VERTEX_BUFFER_SIZE
-#	define BGFX_CONFIG_TRANSIENT_VERTEX_BUFFER_SIZE (6<<20)
-#endif // BGFX_CONFIG_TRANSIENT_VERTEX_BUFFER_SIZE
+#ifndef BGFX_CONFIG_MAX_TRANSIENT_VERTEX_BUFFER_SIZE
+/// Maximum transient vertex buffer size. There is no growth, and all transient
+/// vertices must fit into this buffer.
+#	define BGFX_CONFIG_MAX_TRANSIENT_VERTEX_BUFFER_SIZE (6<<20)
+#endif // BGFX_CONFIG_MAX_TRANSIENT_VERTEX_BUFFER_SIZE
 
-#ifndef BGFX_CONFIG_TRANSIENT_INDEX_BUFFER_SIZE
-#	define BGFX_CONFIG_TRANSIENT_INDEX_BUFFER_SIZE (2<<20)
-#endif // BGFX_CONFIG_TRANSIENT_INDEX_BUFFER_SIZE
+#ifndef BGFX_CONFIG_MAX_TRANSIENT_INDEX_BUFFER_SIZE
+/// Maximum transient index buffer size. There is no growth, and all transient
+/// indices must fit into this buffer.
+#	define BGFX_CONFIG_MAX_TRANSIENT_INDEX_BUFFER_SIZE (2<<20)
+#endif // BGFX_CONFIG_MAX_TRANSIENT_INDEX_BUFFER_SIZE
+
+#ifndef BGFX_CONFIG_MIN_UNIFORM_BUFFER_SIZE
+/// Mimumum uniform buffer size. This buffer will resize on demand.
+#	define BGFX_CONFIG_MIN_UNIFORM_BUFFER_SIZE (1<<20)
+#endif // BGFX_CONFIG_MIN_UNIFORM_BUFFER_SIZE
+
+#ifndef BGFX_CONFIG_UNIFORM_BUFFER_RESIZE_THRESHOLD_SIZE
+/// Max amount of unused uniform buffer space before uniform buffer resize.
+#	define BGFX_CONFIG_UNIFORM_BUFFER_RESIZE_THRESHOLD_SIZE (64<<10)
+#endif // BGFX_CONFIG_UNIFORM_BUFFER_RESIZE_THRESHOLD_SIZE
+
+#ifndef BGFX_CONFIG_UNIFORM_BUFFER_RESIZE_INCREMENT_SIZE
+/// Increment of uniform buffer resize.
+#	define BGFX_CONFIG_UNIFORM_BUFFER_RESIZE_INCREMENT_SIZE (1<<20)
+#endif // BGFX_CONFIG_UNIFORM_BUFFER_RESIZE_INCREMENT_SIZE
+
+#ifndef BGFX_CONFIG_CACHED_DEVICE_MEMORY_ALLOCATIONS_SIZE
+/// Amount of allowed memory allocations left on device to use for recycling during
+/// later allocations. This can be beneficial in case the driver is slow allocating memory
+/// on the device.
+/// Note: Currently only used by the Vulkan backend.
+#	define BGFX_CONFIG_CACHED_DEVICE_MEMORY_ALLOCATIONS_SIZE (128 << 20)
+#endif // BGFX_CONFIG_CACHED_DEVICE_MEMORY_ALLOCATIONS_SIZE
+
+#ifndef BGFX_CONFIG_MAX_STAGING_SCRATCH_BUFFER_SIZE
+/// The threshold of data size above which the staging scratch buffer will
+/// not be used, but instead a separate device memory allocation will take
+/// place to stage the data for copying to device.
+#   define BGFX_CONFIG_MAX_STAGING_SCRATCH_BUFFER_SIZE (16 << 20)
+#endif // BGFX_CONFIG_MAX_STAGING_SCRATCH_BUFFER_SIZE
+
+#ifndef BGFX_CONFIG_MAX_SCRATCH_STAGING_BUFFER_PER_FRAME_SIZE
+/// Amount of scratch buffer size (per in-flight frame) that will be reserved
+/// for staging data for copying to the device (such as vertex buffer data,
+/// texture data, etc). This buffer will be used instead of allocating memory
+/// on device separately for every data copy.
+/// Note: Currently only used by the Vulkan backend.
+#   define BGFX_CONFIG_MAX_SCRATCH_STAGING_BUFFER_PER_FRAME_SIZE (32<<20)
+#endif // BGFX_CONFIG_MAX_SCRATCH_STAGING_BUFFER_PER_FRAME_SIZE
 
 #ifndef BGFX_CONFIG_MAX_INSTANCE_DATA_COUNT
 #	define BGFX_CONFIG_MAX_INSTANCE_DATA_COUNT 5

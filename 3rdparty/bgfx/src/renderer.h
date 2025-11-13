@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2023 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2025 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx/blob/master/LICENSE
  */
 
@@ -56,6 +56,49 @@ namespace bgfx
 		const Frame* m_frame;
 		BlitKey  m_key;
 		uint16_t m_item;
+	};
+
+	struct UniformCacheItem
+	{
+		uint32_t m_offset;
+		uint16_t m_size;
+		uint16_t m_handle;
+	};
+
+	struct UniformCacheState
+	{
+		UniformCacheState(const Frame* _frame)
+			: m_frame(_frame)
+			, m_item(0)
+		{
+			m_key.decode(_frame->m_uniformCacheFrame.m_keys[0]);
+		}
+
+		bool hasItem(uint16_t _view) const
+		{
+			return m_item < m_frame->m_uniformCacheFrame.m_numItems
+				&& m_key.m_view <= _view
+				;
+		}
+
+		const UniformCacheItem advance()
+		{
+			UniformCacheItem item =
+			{
+				.m_offset = m_key.m_offset,
+				.m_size   = m_key.m_size,
+				.m_handle = m_key.m_handle,
+			};
+
+			++m_item;
+			m_key.decode(m_frame->m_uniformCacheFrame.m_keys[m_item]);
+
+			return item;
+		}
+
+		const Frame*    m_frame;
+		UniformCacheKey m_key;
+		uint16_t        m_item;
 	};
 
 	struct ViewState
@@ -239,6 +282,26 @@ namespace bgfx
 						_renderer->setShaderUniform4x4f(flags
 							, predefined.m_loc
 							, modelView.un.val
+							, bx::uint32_min(mtxRegs, predefined.m_count)
+							);
+					}
+					break;
+
+				case PredefinedUniform::InvModelView:
+					{
+						Matrix4 modelView;
+						Matrix4 invModelView;
+						const Matrix4& model = frameCache.m_matrixCache.m_cache[_draw.m_startMatrix];
+						bx::model4x4_mul(&modelView.un.f4x4
+							, &model.un.f4x4
+							, &m_view[_view].un.f4x4
+							);
+						bx::float4x4_inverse(&invModelView.un.f4x4
+							, &modelView.un.f4x4
+							);
+						_renderer->setShaderUniform4x4f(flags
+							, predefined.m_loc
+							, invModelView.un.val
 							, bx::uint32_min(mtxRegs, predefined.m_count)
 							);
 					}

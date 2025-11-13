@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2023 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2025 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx/blob/master/LICENSE
  */
 
@@ -8,11 +8,11 @@
 
 #define BGFX_USE_EGL ( (BGFX_CONFIG_RENDERER_OPENGL || BGFX_CONFIG_RENDERER_OPENGLES) && (0 \
 	|| BX_PLATFORM_ANDROID                                                                  \
-	|| BX_PLATFORM_BSD                                                                      \
 	|| BX_PLATFORM_LINUX                                                                    \
 	|| BX_PLATFORM_NX                                                                       \
 	|| BX_PLATFORM_RPI                                                                      \
-	) )
+	) )                                                                                     \
+	|| (BGFX_CONFIG_RENDERER_OPENGLES && BX_PLATFORM_WINDOWS)
 
 #define BGFX_USE_HTML5 (BGFX_CONFIG_RENDERER_OPENGLES && (0 \
 	|| BX_PLATFORM_EMSCRIPTEN                               \
@@ -23,7 +23,6 @@
 	) )
 
 #define BGFX_USE_GL_DYNAMIC_LIB (0 \
-	|| BX_PLATFORM_BSD             \
 	|| BX_PLATFORM_LINUX           \
 	|| BX_PLATFORM_WINDOWS         \
 	)
@@ -62,7 +61,7 @@
 #	if BGFX_CONFIG_RENDERER_OPENGL >= 31
 #		include <gl/glcorearb.h>
 #	else
-#		if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
+#		if BX_PLATFORM_LINUX
 #			define GL_PROTOTYPES
 #			define GL_GLEXT_LEGACY
 #			include <GL/gl.h>
@@ -89,6 +88,7 @@ typedef double GLdouble;
 typedef int64_t  GLint64;
 typedef uint64_t GLuint64;
 #		define GL_PROGRAM_BINARY_LENGTH GL_PROGRAM_BINARY_LENGTH_OES
+#		define GL_NUM_PROGRAM_BINARY_FORMATS GL_NUM_PROGRAM_BINARY_FORMATS_OES
 #		define GL_HALF_FLOAT GL_HALF_FLOAT_OES
 #		define GL_RGBA8 GL_RGBA8_OES
 #		define GL_UNSIGNED_INT_2_10_10_10_REV GL_UNSIGNED_INT_2_10_10_10_REV_EXT
@@ -420,6 +420,22 @@ typedef uint64_t GLuint64;
 #ifndef GL_ETC1_RGB8_OES
 #	define GL_ETC1_RGB8_OES 0x8D64
 #endif // GL_ETC1_RGB8_OES
+
+#ifndef GL_COMPRESSED_R11_EAC
+#	define GL_COMPRESSED_R11_EAC 0x9270
+#endif // GL_COMPRESSED_R11_EAC
+
+#ifndef GL_COMPRESSED_SIGNED_R11_EAC
+#	define GL_COMPRESSED_SIGNED_R11_EAC 0x9271
+#endif // GL_COMPRESSED_SIGNED_R11_EAC
+
+#ifndef GL_COMPRESSED_RG11_EAC
+#	define GL_COMPRESSED_RG11_EAC 0x9272
+#endif // GL_COMPRESSED_RG11_EAC
+
+#ifndef GL_COMPRESSED_SIGNED_RG11_EAC
+#	define GL_COMPRESSED_SIGNED_RG11_EAC 0x9273
+#endif // GL_COMPRESSED_SIGNED_RG11_EAC
 
 #ifndef GL_COMPRESSED_RGB8_ETC2
 #	define GL_COMPRESSED_RGB8_ETC2 0x9274
@@ -1493,7 +1509,7 @@ namespace bgfx { namespace gl
 		}
 
 		void create(uint8_t _num, const Attachment* _attachment);
-		void create(uint16_t _denseIdx, void* _nwh, uint32_t _width, uint32_t _height, TextureFormat::Enum _format, TextureFormat::Enum _depthFormat);
+		void create(uint16_t _denseIdx, void* _nwh, uint32_t _width, uint32_t _height);
 		void postReset();
 		uint16_t destroy();
 		void resolve();

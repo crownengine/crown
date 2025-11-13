@@ -1,5 +1,5 @@
 /*-
- * Copyright 2012 Matthew Endsley
+ * Copyright 2012-2018 Matthew Endsley
  * All rights reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,79 +27,134 @@
 #ifndef TINYSTL_HASH_BASE_H
 #define TINYSTL_HASH_BASE_H
 
-#include "stddef.h"
+#include <tinystl/stddef.h>
+#include <tinystl/traits.h>
 
 namespace tinystl {
 
 	template<typename Key, typename Value>
 	struct pair {
-		typedef Key first_type;
-		typedef Value second_type;
-
 		pair();
+		pair(const pair& other);
+		pair(pair&& other);
 		pair(const Key& key, const Value& value);
+		pair(Key&& key, Value&& value);
+
+		pair& operator=(const pair& other);
+		pair& operator=(pair&& other);
 
 		Key first;
 		Value second;
+
+		using first_type = Key;
+		using second_type = Value;
 	};
 
 	template<typename Key, typename Value>
-	pair<Key, Value>::pair() {
+	inline pair<Key, Value>::pair() {
 	}
 
 	template<typename Key, typename Value>
-	pair<Key, Value>::pair(const Key& key, const Value& value)
+	inline pair<Key, Value>::pair(const pair& other)
+		: first(other.first)
+		, second(other.second)
+	{
+	}
+
+	template<typename Key, typename Value>
+	inline pair<Key, Value>::pair(pair&& other)
+		: first(static_cast<Key&&>(other.first))
+		, second(static_cast<Value&&>(other.second))
+	{
+	}
+
+	template<typename Key, typename Value>
+	inline pair<Key, Value>::pair(const Key& key, const Value& value)
 		: first(key)
 		, second(value)
 	{
 	}
 
 	template<typename Key, typename Value>
-	static inline pair<Key, Value> make_pair(const Key& key, const Value& value) {
-		return pair<Key, Value>(key, value);
+	inline pair<Key, Value>::pair(Key&& key, Value&& value)
+		: first(static_cast<Key&&>(key))
+		, second(static_cast<Value&&>(value))
+	{
+	}
+
+	template<typename Key, typename Value>
+	inline pair<Key, Value>& pair<Key, Value>::operator=(const pair& other) {
+		first = other.first;
+		second = other.second;
+		return *this;
+	}
+
+	template<typename Key, typename Value>
+	inline pair<Key, Value>& pair<Key, Value>::operator=(pair&& other) {
+		first = static_cast<Key&&>(other.first);
+		second = static_cast<Value&&>(other.second);
+		return *this;
+	}
+
+	template<typename Key, typename Value>
+	static inline pair<typename remove_const_reference<Key>::type, typename remove_const_reference<Value>::type>
+	make_pair(Key&& key, Value&& value) {
+		return pair<typename remove_const_reference<Key>::type, typename remove_const_reference<Value>::type>(
+				  static_cast<Key&&>(key)
+				, static_cast<Value&&>(value)
+			);
 	}
 
 
 	template<typename Key, typename Value>
 	struct unordered_hash_node {
 		unordered_hash_node(const Key& key, const Value& value);
+		unordered_hash_node(Key&& key, Value&& value);
 
 		const Key first;
 		Value second;
 		unordered_hash_node* next;
 		unordered_hash_node* prev;
-
-	private:
-		unordered_hash_node& operator=(const unordered_hash_node&);
 	};
 
 	template<typename Key, typename Value>
-	unordered_hash_node<Key, Value>::unordered_hash_node(const Key& key, const Value& value)
+	inline unordered_hash_node<Key, Value>::unordered_hash_node(const Key& key, const Value& value)
 		: first(key)
 		, second(value)
 	{
 	}
 
+	template<typename Key, typename Value>
+	inline unordered_hash_node<Key, Value>::unordered_hash_node(Key&& key, Value&& value)
+		: first(static_cast<Key&&>(key))
+		, second(static_cast<Value&&>(value))
+	{
+	}
+
 	template <typename Key>
 	struct unordered_hash_node<Key, void> {
-		unordered_hash_node(const Key& key);
+		explicit unordered_hash_node(const Key& key);
+		explicit unordered_hash_node(Key&& key);
 
 		const Key first;
 		unordered_hash_node* next;
 		unordered_hash_node* prev;
-
-	private:
-		unordered_hash_node& operator=(const unordered_hash_node&);
 	};
 
 	template<typename Key>
-	unordered_hash_node<Key, void>::unordered_hash_node(const Key& key)
+	inline unordered_hash_node<Key, void>::unordered_hash_node(const Key& key)
 		: first(key)
 	{
 	}
 
+	template<typename Key>
+	inline unordered_hash_node<Key, void>::unordered_hash_node(Key&& key)
+		: first(static_cast<Key&&>(key))
+	{
+	}
+
 	template<typename Key, typename Value>
-	static void unordered_hash_node_insert(unordered_hash_node<Key, Value>* node, size_t hash, unordered_hash_node<Key, Value>** buckets, size_t nbuckets) {
+	static inline void unordered_hash_node_insert(unordered_hash_node<Key, Value>* node, size_t hash, unordered_hash_node<Key, Value>** buckets, size_t nbuckets) {
 		size_t bucket = hash & (nbuckets - 1);
 
 		unordered_hash_node<Key, Value>* it = buckets[bucket + 1];
@@ -223,6 +278,7 @@ namespace tinystl {
 
 	template<typename Node, typename Key>
 	static inline Node unordered_hash_find(const Key& key, Node* buckets, size_t nbuckets) {
+		if (!buckets) return 0;
 		const size_t bucket = hash(key) & (nbuckets - 2);
 		for (Node it = buckets[bucket], end = buckets[bucket+1]; it != end; it = it->next)
 			if (it->first == key)

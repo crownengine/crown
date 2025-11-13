@@ -1,5 +1,5 @@
 --
--- Copyright 2010-2023 Branimir Karadzic. All rights reserved.
+-- Copyright 2010-2025 Branimir Karadzic. All rights reserved.
 -- License: https://github.com/bkaradzic/bx/blob/master/LICENSE
 --
 
@@ -39,12 +39,15 @@ end
 
 dofile "bx.lua"
 dofile "bin2c.lua"
-dofile "lemon.lua"
 
 project "bx.test"
 	kind "ConsoleApp"
 
 	debugdir (path.join(BX_DIR, "tests"))
+
+	flags {
+--		"FatalWarnings",
+	}
 
 	removeflags {
 		"NoExceptions",
@@ -54,14 +57,72 @@ project "bx.test"
 		BX_THIRD_PARTY_DIR,
 	}
 
-	defines {
-		"CATCH_AMALGAMATED_CUSTOM_MAIN",
-	}
-
 	files {
 		path.join(BX_DIR, "3rdparty/catch/catch_amalgamated.cpp"),
 		path.join(BX_DIR, "tests/*_test.cpp"),
 		path.join(BX_DIR, "tests/*.h"),
+		path.join(BX_DIR, "tests/dbg.*"),
+	}
+
+	using_bx()
+
+	defines {
+		"CATCH_AMALGAMATED_CUSTOM_MAIN",
+	}
+
+	configuration { "vs* or mingw*" }
+		links {
+			"psapi",
+		}
+
+	configuration { "android*" }
+		targetextension ".so"
+		linkoptions {
+			"-shared",
+		}
+
+	configuration { "linux-*" }
+		links {
+			"pthread",
+		}
+
+	configuration { "ios*" }
+		linkoptions {
+			"-framework CoreFoundation",
+			"-framework Foundation",
+		}
+
+	configuration { "osx*" }
+		links {
+			"Cocoa.framework",
+		}
+
+	configuration { "wasm" }
+		buildoptions {
+			"-fwasm-exceptions",
+		}
+		linkoptions {
+			"-fwasm-exceptions",
+			"-s STACK_SIZE=262144",
+		}
+
+	configuration {}
+
+	strip()
+
+project "bx.bench"
+	kind "ConsoleApp"
+
+	debugdir (path.join(BX_DIR, "tests"))
+
+	includedirs {
+		path.join(BX_DIR, "include"),
+		BX_THIRD_PARTY_DIR,
+	}
+
+	files {
+		path.join(BX_DIR, "tests/*_bench.cpp"),
+		path.join(BX_DIR, "tests/*_bench.h"),
 		path.join(BX_DIR, "tests/dbg.*"),
 	}
 
@@ -86,61 +147,6 @@ project "bx.test"
 	configuration { "osx*" }
 		links {
 			"Cocoa.framework",
-		}
-
-	configuration {}
-
-	strip()
-
-project "bx.bench"
-	kind "ConsoleApp"
-
-	debugdir (path.join(BX_DIR, "tests"))
-
-	includedirs {
-		path.join(BX_DIR, "include"),
-		BX_THIRD_PARTY_DIR,
-	}
-
-	files {
-		path.join(BX_DIR, "tests/*_bench.cpp"),
-		path.join(BX_DIR, "tests/*_bench.h"),
-		path.join(BX_DIR, "tests/dbg.*"),
-	}
-
-	links {
-		"bx",
-	}
-
-	configuration { "vs* or mingw*" }
-		links {
-			"psapi",
-		}
-
-	configuration { "android*" }
-		targetextension ".so"
-		linkoptions {
-			"-shared",
-		}
-
-	configuration { "linux-*" }
-		links {
-			"pthread",
-		}
-
-	configuration { "osx*" }
-		links {
-			"Cocoa.framework",
-		}
-
-	configuration { "Debug" }
-		defines {
-			"BX_CONFIG_DEBUG=1",
-		}
-
-	configuration { "Release" }
-		defines {
-			"BX_CONFIG_DEBUG=0",
 		}
 
 	configuration {}

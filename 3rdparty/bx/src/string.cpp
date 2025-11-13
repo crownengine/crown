@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2023 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2025 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx/blob/master/LICENSE
  */
 
@@ -556,6 +556,22 @@ namespace bx
 		return strLTrimSpace(strRTrimSpace(_str) );
 	}
 
+	// If offset in UTF-8 string doesn't land on rune, walk back until first byte of rune is reached.
+	static const char* fixPtrToRune(const char* _strBegin, const char* _curr)
+	{
+		for (; _curr > _strBegin && (*_curr & 0xc0) == 0x80; --_curr);
+
+		return _curr;
+	}
+
+	StringView strTail(const StringView _str, uint32_t _num)
+	{
+		return StringView(
+				  fixPtrToRune(_str.getPtr(), _str.getTerm() - min(_num, _str.getLength() ) )
+				, _str.getTerm()
+				);
+	}
+
 	constexpr uint32_t kFindStep = 1024;
 
 	StringView strFindNl(const StringView& _str)
@@ -758,7 +774,7 @@ namespace bx
 				len--;
 			}
 
-			int32_t padding = _param.width > len ? _param.width - len - hasSign: 0;
+			const int32_t padding = _param.width > len ? _param.width - len - hasSign: 0;
 
 			if (!_param.left)
 			{
@@ -769,7 +785,24 @@ namespace bx
 					sign = '\0';
 				}
 
-				size += writeRep(_writer, _param.fill, max(0, padding), _err);
+				if (_param.width < _param.prec)
+				{
+					size += writeRep(_writer, _param.fill, max(0, padding), _err);
+				}
+				else
+				{
+					const int32_t maxPrec = max(_param.prec, len);
+					const int32_t fillLen = max(0, _param.width - maxPrec - hasSign);
+					size += writeRep(_writer, _param.fill, fillLen, _err);
+
+					if ('\0' != sign)
+					{
+						size += write(_writer, sign, _err);
+						sign = '\0';
+					}
+
+					size += writeRep(_writer, '0', max(0, padding-fillLen), _err);
+				}
 			}
 
 			if ('\0' != sign)
@@ -1197,7 +1230,8 @@ namespace bx
 
 	int32_t vsnprintf(char* _out, int32_t _max, const char* _format, va_list _argList)
 	{
-		if (1 < _max)
+		if (   0 <  _max
+		&&  NULL != _out)
 		{
 			StaticMemoryBlockWriter writer(_out, uint32_t(_max) );
 

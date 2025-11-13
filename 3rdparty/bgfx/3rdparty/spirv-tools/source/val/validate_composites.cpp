@@ -1,4 +1,6 @@
 // Copyright (c) 2017 Google Inc.
+// Modifications Copyright (C) 2024 Advanced Micro Devices, Inc. All rights
+// reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,6 +15,8 @@
 // limitations under the License.
 
 // Validates correctness of composite SPIR-V instructions.
+
+#include <climits>
 
 #include "source/opcode.h"
 #include "source/spirv_target_env.h"
@@ -94,7 +98,7 @@ spv_result_t GetExtractInsertValueType(ValidationState_t& _,
           break;
         }
 
-        if (!_.GetConstantValUint64(type_inst->word(3), &array_size)) {
+        if (!_.EvalConstantValUint64(type_inst->word(3), &array_size)) {
           assert(0 && "Array type definition is corrupt");
         }
         if (component_index >= array_size) {
@@ -104,7 +108,8 @@ spv_result_t GetExtractInsertValueType(ValidationState_t& _,
         }
         break;
       }
-      case spv::Op::OpTypeRuntimeArray: {
+      case spv::Op::OpTypeRuntimeArray:
+      case spv::Op::OpTypeNodePayloadArrayAMDX: {
         *member_type = type_inst->word(2);
         // Array size is unknown.
         break;
@@ -122,6 +127,7 @@ spv_result_t GetExtractInsertValueType(ValidationState_t& _,
         *member_type = type_inst->word(component_index + 2);
         break;
       }
+      case spv::Op::OpTypeCooperativeVectorNV:
       case spv::Op::OpTypeCooperativeMatrixKHR:
       case spv::Op::OpTypeCooperativeMatrixNV: {
         *member_type = type_inst->word(2);
@@ -148,7 +154,8 @@ spv_result_t ValidateVectorExtractDynamic(ValidationState_t& _,
 
   const uint32_t vector_type = _.GetOperandTypeId(inst, 2);
   const spv::Op vector_opcode = _.GetIdOpcode(vector_type);
-  if (vector_opcode != spv::Op::OpTypeVector) {
+  if (vector_opcode != spv::Op::OpTypeVector &&
+      vector_opcode != spv::Op::OpTypeCooperativeVectorNV) {
     return _.diag(SPV_ERROR_INVALID_DATA, inst)
            << "Expected Vector type to be OpTypeVector";
   }
@@ -176,7 +183,8 @@ spv_result_t ValidateVectorInsertDyanmic(ValidationState_t& _,
                                          const Instruction* inst) {
   const uint32_t result_type = inst->type_id();
   const spv::Op result_opcode = _.GetIdOpcode(result_type);
-  if (result_opcode != spv::Op::OpTypeVector) {
+  if (result_opcode != spv::Op::OpTypeVector &&
+      result_opcode != spv::Op::OpTypeCooperativeVectorNV) {
     return _.diag(SPV_ERROR_INVALID_DATA, inst)
            << "Expected Result Type to be OpTypeVector";
   }
@@ -214,14 +222,24 @@ spv_result_t ValidateCompositeConstruct(ValidationState_t& _,
   const uint32_t result_type = inst->type_id();
   const spv::Op result_opcode = _.GetIdOpcode(result_type);
   switch (result_opcode) {
-    case spv::Op::OpTypeVector: {
-      const uint32_t num_result_components = _.GetDimension(result_type);
+    case spv::Op::OpTypeVector:
+    case spv::Op::OpTypeCooperativeVectorNV: {
+      uint32_t num_result_components = _.GetDimension(result_type);
       const uint32_t result_component_type = _.GetComponentType(result_type);
       uint32_t given_component_count = 0;
 
-      if (num_operands <= 3) {
-        return _.diag(SPV_ERROR_INVALID_DATA, inst)
-               << "Expected number of constituents to be at least 2";
+      bool comp_is_int32 = true, comp_is_const_int32 = true;
+
+      if (result_opcode == spv::Op::OpTypeVector) {
+        if (num_operands <= 3) {
+          return _.diag(SPV_ERROR_INVALID_DATA, inst)
+                 << "Expected number of constituents to be at least 2";
+        }
+      } else {
+        uint32_t comp_count_id =
+            _.FindDef(result_type)->GetOperandAs<uint32_t>(2);
+        std::tie(comp_is_int32, comp_is_const_int32, num_result_components) =
+            _.EvalInt32IfConst(comp_count_id);
       }
 
       for (uint32_t operand_index = 2; operand_index < num_operands;
@@ -241,7 +259,8 @@ spv_result_t ValidateCompositeConstruct(ValidationState_t& _,
         }
       }
 
-      if (num_result_components != given_component_count) {
+      if (comp_is_const_int32 &&
+          num_result_components != given_component_count) {
         return _.diag(SPV_ERROR_INVALID_DATA, inst)
                << "Expected total number of given components to be equal "
                << "to the size of Result Type vector";
@@ -289,7 +308,7 @@ spv_result_t ValidateCompositeConstruct(ValidationState_t& _,
       }
 
       uint64_t array_size = 0;
-      if (!_.GetConstantValUint64(array_inst->word(3), &array_size)) {
+      if (!_.EvalConstantValUint64(array_inst->word(3), &array_size)) {
         assert(0 && "Array type definition is corrupt");
       }
 
@@ -601,8 +620,464 @@ spv_result_t ValidateCopyLogical(ValidationState_t& _,
   return SPV_SUCCESS;
 }
 
-}  // anonymous namespace
+spv_result_t ValidateCompositeConstructCoopMatQCOM(ValidationState_t& _,
+                                                   const Instruction* inst) {
+  // Is the result of coop mat ?
+  const auto result_type_inst = _.FindDef(inst->type_id());
+  if (!result_type_inst ||
+      result_type_inst->opcode() != spv::Op::OpTypeCooperativeMatrixKHR) {
+    return _.diag(SPV_ERROR_INVALID_DATA, inst)
+           << "Opcode " << spvOpcodeString(inst->opcode())
+           << " requires the result type be OpTypeCooperativeMatrixKHR";
+  }
 
+  const auto source = _.FindDef(inst->GetOperandAs<uint32_t>(2u));
+  const auto source_type_inst = _.FindDef(source->type_id());
+
+  if (!source_type_inst || source_type_inst->opcode() != spv::Op::OpTypeArray) {
+    return _.diag(SPV_ERROR_INVALID_DATA, inst)
+           << "Opcode " << spvOpcodeString(inst->opcode())
+           << " requires the input operand be an OpTypeArray.";
+  }
+
+  // Is the scope Subgrouop ?
+  {
+    unsigned scope = UINT_MAX;
+    unsigned scope_id = result_type_inst->GetOperandAs<unsigned>(2u);
+    bool status = _.GetConstantValueAs<unsigned>(scope_id, scope);
+    bool is_scope_spec_const =
+        spvOpcodeIsSpecConstant(_.FindDef(scope_id)->opcode());
+    if (!is_scope_spec_const &&
+        (!status || scope != static_cast<uint64_t>(spv::Scope::Subgroup))) {
+      return _.diag(SPV_ERROR_INVALID_DATA, inst)
+             << "Opcode " << spvOpcodeString(inst->opcode())
+             << " requires the result type's scope be Subgroup.";
+    }
+  }
+
+  unsigned ar_len = UINT_MAX;
+  unsigned src_arr_len_id = source_type_inst->GetOperandAs<unsigned>(2u);
+  bool ar_len_status = _.GetConstantValueAs<unsigned>(src_arr_len_id, ar_len);
+  bool is_src_arr_len_spec_const =
+      spvOpcodeIsSpecConstant(_.FindDef(src_arr_len_id)->opcode());
+
+  const auto source_elt_type = _.GetComponentType(source_type_inst->id());
+  const auto result_elt_type = result_type_inst->GetOperandAs<uint32_t>(1u);
+
+  if ((source_elt_type != result_elt_type) &&
+      !(_.ContainsSizedIntOrFloatType(source_elt_type, spv::Op::OpTypeInt,
+                                      32) &&
+        _.IsUnsignedIntScalarType(source_elt_type))) {
+    return _.diag(SPV_ERROR_INVALID_DATA, inst)
+           << "Opcode " << spvOpcodeString(inst->opcode())
+           << " requires ether the input element type is equal to the result "
+              "element type or it is the unsigned 32-bit integer.";
+  }
+
+  unsigned res_row_id = result_type_inst->GetOperandAs<unsigned>(3u);
+  unsigned res_col_id = result_type_inst->GetOperandAs<unsigned>(4u);
+  unsigned res_use_id = result_type_inst->GetOperandAs<unsigned>(5u);
+
+  unsigned cm_use = UINT_MAX;
+  bool cm_use_status = _.GetConstantValueAs<unsigned>(res_use_id, cm_use);
+
+  switch (static_cast<spv::CooperativeMatrixUse>(cm_use)) {
+    case spv::CooperativeMatrixUse::MatrixAKHR: {
+      // result coopmat component type check
+      if (!_.IsIntNOrFP32OrFP16<8>(result_elt_type)) {
+        return _.diag(SPV_ERROR_INVALID_DATA, inst)
+               << "Opcode " << spvOpcodeString(inst->opcode())
+               << " requires the result element type is one of 8-bit OpTypeInt "
+                  "signed/unsigned, 16- or 32-bit OpTypeFloat"
+               << " when result coopmat's use is MatrixAKHR";
+      }
+
+      // result coopmat column length check
+      unsigned n_cols = UINT_MAX;
+      bool status = _.GetConstantValueAs<unsigned>(res_col_id, n_cols);
+      bool is_res_col_spec_const =
+          spvOpcodeIsSpecConstant(_.FindDef(res_col_id)->opcode());
+      if (!is_res_col_spec_const &&
+          (!status || (!(_.ContainsSizedIntOrFloatType(result_elt_type,
+                                                       spv::Op::OpTypeInt, 8) &&
+                         n_cols == 32) &&
+                       !(_.ContainsSizedIntOrFloatType(
+                             result_elt_type, spv::Op::OpTypeFloat, 16) &&
+                         n_cols == 16) &&
+                       !(_.ContainsSizedIntOrFloatType(
+                             result_elt_type, spv::Op::OpTypeFloat, 32) &&
+                         n_cols == 8)))) {
+        return _.diag(SPV_ERROR_INVALID_DATA, inst)
+               << "Opcode " << spvOpcodeString(inst->opcode())
+               << " requires the columns of the result coopmat have the bit "
+                  "length of 256"
+               << " when result coopmat's use is MatrixAKHR";
+      }
+      // source array length check
+      if (!is_src_arr_len_spec_const &&
+          (!ar_len_status ||
+           (!(_.ContainsSizedIntOrFloatType(source_elt_type, spv::Op::OpTypeInt,
+                                            32) &&
+              _.IsUnsignedIntScalarType(source_elt_type) && (ar_len == 8)) &&
+            !(n_cols == ar_len)))) {
+        return _.diag(SPV_ERROR_INVALID_DATA, inst)
+               << "Opcode " << spvOpcodeString(inst->opcode())
+               << " requires the source array length be 8 if its elt type is "
+                  "32-bit unsigned OpTypeInt and be the result's number of "
+                  "columns, otherwise"
+               << " when result coopmat's use is MatrixAKHR";
+      }
+      break;
+    }
+    case spv::CooperativeMatrixUse::MatrixBKHR: {
+      // result coopmat component type check
+      if (!_.IsIntNOrFP32OrFP16<8>(result_elt_type)) {
+        return _.diag(SPV_ERROR_INVALID_DATA, inst)
+               << "Opcode " << spvOpcodeString(inst->opcode())
+               << " requires the result element type is one of 8-bit OpTypeInt "
+                  "signed/unsigned, 16- or 32-bit OpTypeFloat"
+               << " when result coopmat's use is MatrixBKHR";
+      }
+
+      // result coopmat row length check
+      unsigned n_rows = UINT_MAX;
+      bool status = _.GetConstantValueAs<unsigned>(res_row_id, n_rows);
+      bool is_res_row_spec_const =
+          spvOpcodeIsSpecConstant(_.FindDef(res_row_id)->opcode());
+      if (!is_res_row_spec_const &&
+          (!status || (!(_.ContainsSizedIntOrFloatType(result_elt_type,
+                                                       spv::Op::OpTypeInt, 8) &&
+                         n_rows == 32) &&
+                       !(_.ContainsSizedIntOrFloatType(
+                             result_elt_type, spv::Op::OpTypeFloat, 16) &&
+                         n_rows == 16) &&
+                       !(_.ContainsSizedIntOrFloatType(
+                             result_elt_type, spv::Op::OpTypeFloat, 32) &&
+                         n_rows == 8)))) {
+        return _.diag(SPV_ERROR_INVALID_DATA, inst)
+               << "Opcode " << spvOpcodeString(inst->opcode())
+               << " requires the rows of the result operand have the bit "
+                  "length of 256"
+               << " when result coopmat's use is MatrixBKHR";
+      }
+      // source array length check
+      if (!is_src_arr_len_spec_const &&
+          (!ar_len_status ||
+           (!(_.ContainsSizedIntOrFloatType(source_elt_type, spv::Op::OpTypeInt,
+                                            32) &&
+              _.IsUnsignedIntScalarType(source_elt_type) && (ar_len == 8)) &&
+            !(n_rows == ar_len)))) {
+        return _.diag(SPV_ERROR_INVALID_DATA, inst)
+               << "Opcode " << spvOpcodeString(inst->opcode())
+               << " requires the source array length be 8 if its elt type is "
+                  "32-bit unsigned OpTypeInt and be the result's number of "
+                  "rows, otherwise"
+               << " when result coopmat's use is MatrixBKHR";
+      }
+      break;
+    }
+    case spv::CooperativeMatrixUse::MatrixAccumulatorKHR: {
+      // result coopmat component type check
+      if (!_.IsIntNOrFP32OrFP16<32>(result_elt_type)) {
+        return _.diag(SPV_ERROR_INVALID_DATA, inst)
+               << "Opcode " << spvOpcodeString(inst->opcode())
+               << " requires the result element type is one of 32-bit "
+                  "OpTypeInt signed/unsigned, 16- or 32-bit OpTypeFloat"
+               << " when result coopmat's use is MatrixAccumulatorKHR";
+      }
+
+      // source array length check
+      unsigned n_cols = UINT_MAX;
+      bool status = _.GetConstantValueAs<unsigned>(res_col_id, n_cols);
+      bool is_res_col_spec_const =
+          spvOpcodeIsSpecConstant(_.FindDef(res_col_id)->opcode());
+      if (!is_res_col_spec_const && !is_src_arr_len_spec_const &&
+          (!status || !ar_len_status ||
+           (!(_.ContainsSizedIntOrFloatType(source_elt_type, spv::Op::OpTypeInt,
+                                            32) &&
+              _.IsUnsignedIntScalarType(source_elt_type) &&
+              (_.ContainsSizedIntOrFloatType(result_elt_type,
+                                             spv::Op::OpTypeFloat, 16)
+                   ? (n_cols / 2 == ar_len)
+                   : n_cols == ar_len)) &&
+            (n_cols != ar_len)))) {
+        return _.diag(SPV_ERROR_INVALID_DATA, inst)
+               << "Opcode " << spvOpcodeString(inst->opcode())
+               << " requires the source array length be a half of the number "
+                  "of columns of the resulting cooerative matrix if the "
+                  "matrix's componet type is 16-bit OpTypeFloat and be equal "
+                  "to the number of columns, otherwise,"
+               << " when result coopmat's use is MatrixAccumulatorKHR";
+      }
+      break;
+    }
+    default: {
+      bool is_cm_use_spec_const =
+          spvOpcodeIsSpecConstant(_.FindDef(res_use_id)->opcode());
+      if (!is_cm_use_spec_const || !cm_use_status) {
+        return _.diag(SPV_ERROR_INVALID_DATA, inst)
+               << "Opcode " << spvOpcodeString(inst->opcode())
+               << " requires the the resulting cooerative matrix's use be "
+               << " one of MatrixAKHR (== 0), MatrixBKHR (== 1), and "
+                  "MatrixAccumulatorKHR (== 2)";
+      }
+      break;
+    }
+  }
+
+  return SPV_SUCCESS;
+}
+
+spv_result_t ValidateCompositeExtractCoopMatQCOM(ValidationState_t& _,
+                                                 const Instruction* inst) {
+  const auto result_type_inst = _.FindDef(inst->type_id());
+  if (!result_type_inst || result_type_inst->opcode() != spv::Op::OpTypeArray) {
+    return _.diag(SPV_ERROR_INVALID_DATA, inst)
+           << "Opcode " << spvOpcodeString(inst->opcode())
+           << " requires the input operand be an OpTypeArray.";
+  }
+
+  const auto source = _.FindDef(inst->GetOperandAs<uint32_t>(2u));
+  const auto source_type_inst = _.FindDef(source->type_id());
+
+  // Is the source of coop mat ?
+  if (!source_type_inst ||
+      source_type_inst->opcode() != spv::Op::OpTypeCooperativeMatrixKHR) {
+    return _.diag(SPV_ERROR_INVALID_DATA, inst)
+           << "Opcode " << spvOpcodeString(inst->opcode())
+           << " requires the source type be OpTypeCooperativeMatrixKHR";
+  }
+
+  // Is the scope Subgrouop ?
+  {
+    unsigned scope = UINT_MAX;
+    unsigned scope_id = source_type_inst->GetOperandAs<unsigned>(2u);
+    bool status = _.GetConstantValueAs<unsigned>(scope_id, scope);
+    bool is_scope_spec_const =
+        spvOpcodeIsSpecConstant(_.FindDef(scope_id)->opcode());
+    if (!is_scope_spec_const &&
+        (!status || scope != static_cast<uint64_t>(spv::Scope::Subgroup))) {
+      return _.diag(SPV_ERROR_INVALID_DATA, inst)
+             << "Opcode " << spvOpcodeString(inst->opcode())
+             << " requires the source type's scope be Subgroup.";
+    }
+  }
+
+  unsigned ar_len = UINT_MAX;
+  unsigned res_arr_len_id = result_type_inst->GetOperandAs<unsigned>(2u);
+  bool ar_len_status = _.GetConstantValueAs<unsigned>(res_arr_len_id, ar_len);
+  bool is_res_arr_len_spec_const =
+      spvOpcodeIsSpecConstant(_.FindDef(res_arr_len_id)->opcode());
+
+  const auto source_elt_type = _.GetComponentType(source_type_inst->id());
+  const auto result_elt_type = result_type_inst->GetOperandAs<uint32_t>(1u);
+
+  unsigned src_row_id = source_type_inst->GetOperandAs<unsigned>(3u);
+  unsigned src_col_id = source_type_inst->GetOperandAs<unsigned>(4u);
+  unsigned src_use_id = source_type_inst->GetOperandAs<unsigned>(5u);
+
+  unsigned cm_use = UINT_MAX;
+  bool cm_use_status = _.GetConstantValueAs<unsigned>(src_use_id, cm_use);
+
+  switch (static_cast<spv::CooperativeMatrixUse>(cm_use)) {
+    case spv::CooperativeMatrixUse::MatrixAKHR: {
+      // source coopmat component type check
+      if (!_.IsIntNOrFP32OrFP16<8>(source_elt_type)) {
+        return _.diag(SPV_ERROR_INVALID_DATA, inst)
+               << "Opcode " << spvOpcodeString(inst->opcode())
+               << " requires the source element type be one of 8-bit OpTypeInt "
+                  "signed/unsigned, 16- or 32-bit OpTypeFloat"
+               << " when source coopmat's use is MatrixAKHR";
+      }
+
+      // source coopmat column length check
+      unsigned n_cols = UINT_MAX;
+      bool status = _.GetConstantValueAs<unsigned>(src_col_id, n_cols);
+      bool is_src_col_spec_const =
+          spvOpcodeIsSpecConstant(_.FindDef(src_col_id)->opcode());
+      if (!is_src_col_spec_const &&
+          (!status || (!(_.ContainsSizedIntOrFloatType(source_elt_type,
+                                                       spv::Op::OpTypeInt, 8) &&
+                         n_cols == 32) &&
+                       !(_.ContainsSizedIntOrFloatType(
+                             source_elt_type, spv::Op::OpTypeFloat, 16) &&
+                         n_cols == 16) &&
+                       !(_.ContainsSizedIntOrFloatType(
+                             source_elt_type, spv::Op::OpTypeFloat, 32) &&
+                         n_cols == 8)))) {
+        return _.diag(SPV_ERROR_INVALID_DATA, inst)
+               << "Opcode " << spvOpcodeString(inst->opcode())
+               << " requires the columns of the source coopmat have the bit "
+                  "length of 256"
+               << " when source coopmat's use is MatrixAKHR";
+      }
+      // result type check
+      if (!is_res_arr_len_spec_const &&
+          !(source_elt_type == result_elt_type && (n_cols == ar_len)) &&
+          !(_.ContainsSizedIntOrFloatType(result_elt_type, spv::Op::OpTypeInt,
+                                          32) &&
+            _.IsUnsignedIntScalarType(result_elt_type) && (ar_len == 8))) {
+        return _.diag(SPV_ERROR_INVALID_DATA, inst)
+               << "Opcode " << spvOpcodeString(inst->opcode())
+               << " requires either the result element type be the same as the "
+                  "source cooperative matrix's component type"
+               << " and its length be the same as the number of columns of the "
+                  "matrix or the result element type be"
+               << " unsigned 32-bit OpTypeInt and the length be 8"
+               << " when source coopmat's use is MatrixAKHR";
+      }
+      break;
+    }
+    case spv::CooperativeMatrixUse::MatrixBKHR: {
+      // source coopmat component type check
+      if (!_.IsIntNOrFP32OrFP16<8>(source_elt_type)) {
+        return _.diag(SPV_ERROR_INVALID_DATA, inst)
+               << "Opcode " << spvOpcodeString(inst->opcode())
+               << " requires the source element type be one of 8-bit OpTypeInt "
+                  "signed/unsigned, 16- or 32-bit OpTypeFloat"
+               << " when source coopmat's use is MatrixBKHR";
+      }
+
+      // source coopmat row length check
+      unsigned n_rows = UINT_MAX;
+      bool status = _.GetConstantValueAs<unsigned>(src_row_id, n_rows);
+      bool is_src_row_spec_const =
+          spvOpcodeIsSpecConstant(_.FindDef(src_row_id)->opcode());
+      if (!is_src_row_spec_const &&
+          (!status || (!(_.ContainsSizedIntOrFloatType(source_elt_type,
+                                                       spv::Op::OpTypeInt, 8) &&
+                         n_rows == 32) &&
+                       !(_.ContainsSizedIntOrFloatType(
+                             source_elt_type, spv::Op::OpTypeFloat, 16) &&
+                         n_rows == 16) &&
+                       !(_.ContainsSizedIntOrFloatType(
+                             source_elt_type, spv::Op::OpTypeFloat, 32) &&
+                         n_rows == 8)))) {
+        return _.diag(SPV_ERROR_INVALID_DATA, inst)
+               << "Opcode " << spvOpcodeString(inst->opcode())
+               << " requires the rows of the source coopmat have the bit "
+                  "length of 256"
+               << " when source coopmat's use is MatrixBKHR";
+      }
+      // result type check
+      if (!is_res_arr_len_spec_const &&
+          !(source_elt_type == result_elt_type && (n_rows == ar_len)) &&
+          !(_.ContainsSizedIntOrFloatType(result_elt_type, spv::Op::OpTypeInt,
+                                          32) &&
+            _.IsUnsignedIntScalarType(result_elt_type) && (ar_len == 8))) {
+        return _.diag(SPV_ERROR_INVALID_DATA, inst)
+               << "Opcode " << spvOpcodeString(inst->opcode())
+               << " requires either the result element type be the same as the "
+                  "source cooperative matrix's component type"
+               << " and its length be the same as the number of rows of the "
+                  "matrix or the result element type be"
+               << " unsigned 32-bit OpTypeInt and the length be 8"
+               << " when source coopmat's use is MatrixBKHR";
+      }
+      break;
+    }
+    case spv::CooperativeMatrixUse::MatrixAccumulatorKHR: {
+      // source coopmat component type check
+      if (!_.IsIntNOrFP32OrFP16<32>(source_elt_type)) {
+        return _.diag(SPV_ERROR_INVALID_DATA, inst)
+               << "Opcode " << spvOpcodeString(inst->opcode())
+               << " requires the source element type be one of 32-bit "
+                  "OpTypeInt signed/unsigned, 16- or 32-bit OpTypeFloat"
+               << " when source coopmat's use is MatrixAccumulatorKHR";
+      }
+
+      // result type check
+      unsigned n_cols = UINT_MAX;
+      bool status = _.GetConstantValueAs<unsigned>(src_col_id, n_cols);
+      bool is_src_col_spec_const =
+          spvOpcodeIsSpecConstant(_.FindDef(src_col_id)->opcode());
+      if (!is_src_col_spec_const && !is_res_arr_len_spec_const &&
+          (!status || !ar_len_status ||
+           (!(source_elt_type == result_elt_type && (n_cols == ar_len)) &&
+            !(_.ContainsSizedIntOrFloatType(result_elt_type, spv::Op::OpTypeInt,
+                                            32) &&
+              _.IsUnsignedIntScalarType(result_elt_type) &&
+              (_.ContainsSizedIntOrFloatType(source_elt_type,
+                                             spv::Op::OpTypeFloat, 16)
+                   ? (n_cols / 2 == ar_len)
+                   : (n_cols == ar_len)))))) {
+        return _.diag(SPV_ERROR_INVALID_DATA, inst)
+               << "Opcode " << spvOpcodeString(inst->opcode())
+               << " requires either the result element type be the same as the "
+                  "source cooperative matrix's component type"
+               << " and its length be the same as the number of columns of the "
+                  "matrix or the result element type be"
+               << " unsigned 32-bit OpTypeInt and the length be the number of "
+                  "the columns of the matrix if its component"
+               << " type is 32-bit OpTypeFloat and be a half of the number of "
+                  "the columns of the matrix if its component"
+               << " type is 16-bit OpTypeFloat"
+               << " when source coopmat's use is MatrixAccumulatorKHR";
+      }
+      break;
+    }
+    default: {
+      bool is_cm_use_spec_const =
+          spvOpcodeIsSpecConstant(_.FindDef(src_use_id)->opcode());
+      if (!is_cm_use_spec_const || !cm_use_status) {
+        return _.diag(SPV_ERROR_INVALID_DATA, inst)
+               << "Opcode " << spvOpcodeString(inst->opcode())
+               << " requires the the source cooerative matrix's use be "
+               << " one of MatrixAKHR (== 0), MatrixBKHR (== 1), and "
+                  "MatrixAccumulatorKHR (== 2)";
+      }
+      break;
+    }
+  }
+
+  return SPV_SUCCESS;
+}
+
+spv_result_t ValidateExtractSubArrayQCOM(ValidationState_t& _,
+                                         const Instruction* inst) {
+  const auto result_type_inst = _.FindDef(inst->type_id());
+  const auto source = _.FindDef(inst->GetOperandAs<uint32_t>(2u));
+  const auto source_type_inst = _.FindDef(source->type_id());
+
+  // Are the input and the result arrays?
+  if (result_type_inst->opcode() != spv::Op::OpTypeArray ||
+      source_type_inst->opcode() != spv::Op::OpTypeArray) {
+    return _.diag(SPV_ERROR_INVALID_DATA, inst)
+           << "Opcode " << spvOpcodeString(inst->opcode())
+           << " requires OpTypeArray operands for the input and the result.";
+  }
+
+  const auto source_elt_type = _.GetComponentType(source_type_inst->id());
+  const auto result_elt_type = _.GetComponentType(result_type_inst->id());
+
+  // Do the input and result element types match?
+  if (source_elt_type != result_elt_type) {
+    return _.diag(SPV_ERROR_INVALID_DATA, inst)
+           << "Opcode " << spvOpcodeString(inst->opcode())
+           << " requires the input and result element types match.";
+  }
+
+  // Elt type must be one of int32_t/uint32_t/float32/float16
+  if (!_.IsIntNOrFP32OrFP16<32>(source_elt_type)) {
+    return _.diag(SPV_ERROR_INVALID_DATA, inst)
+           << "Opcode " << spvOpcodeString(inst->opcode())
+           << " requires the element type be one of 32-bit OpTypeInt "
+              "(signed/unsigned), 32-bit OpTypeFloat and 16-bit OpTypeFloat";
+  }
+
+  const auto start_index = _.FindDef(inst->GetOperandAs<uint32_t>(3u));
+  if (!start_index || !_.ContainsSizedIntOrFloatType(start_index->type_id(),
+                                                     spv::Op::OpTypeInt, 32)) {
+    return _.diag(SPV_ERROR_INVALID_DATA, inst)
+           << "Opcode " << spvOpcodeString(inst->opcode())
+           << " requires the type of the start index operand be 32-bit "
+              "OpTypeInt";
+  }
+
+  return SPV_SUCCESS;
+}
+
+}  // anonymous namespace
 // Validates correctness of composite instructions.
 spv_result_t CompositesPass(ValidationState_t& _, const Instruction* inst) {
   switch (inst->opcode()) {
@@ -624,6 +1099,12 @@ spv_result_t CompositesPass(ValidationState_t& _, const Instruction* inst) {
       return ValidateTranspose(_, inst);
     case spv::Op::OpCopyLogical:
       return ValidateCopyLogical(_, inst);
+    case spv::Op::OpCompositeConstructCoopMatQCOM:
+      return ValidateCompositeConstructCoopMatQCOM(_, inst);
+    case spv::Op::OpCompositeExtractCoopMatQCOM:
+      return ValidateCompositeExtractCoopMatQCOM(_, inst);
+    case spv::Op::OpExtractSubArrayQCOM:
+      return ValidateExtractSubArrayQCOM(_, inst);
     default:
       break;
   }

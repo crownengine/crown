@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2023 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2025 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx/blob/master/LICENSE
  */
 
@@ -10,7 +10,7 @@
 #if BX_CRT_MSVC
 #	include <direct.h>
 #else
-#	include <unistd.h>
+#	include <unistd.h> // syscall, _SC_PAGESIZE
 #endif // BX_CRT_MSVC
 
 #if BX_PLATFORM_WINDOWS || BX_PLATFORM_WINRT
@@ -19,23 +19,12 @@
 #	endif // WIN32_LEAN_AND_MEAN
 #	include <windows.h>
 #	include <psapi.h>
-#elif  BX_PLATFORM_ANDROID    \
-	|| BX_PLATFORM_BSD        \
-	|| BX_PLATFORM_EMSCRIPTEN \
-	|| BX_PLATFORM_HAIKU      \
-	|| BX_PLATFORM_HURD       \
-	|| BX_PLATFORM_IOS        \
-	|| BX_PLATFORM_LINUX      \
-	|| BX_PLATFORM_NX         \
-	|| BX_PLATFORM_OSX        \
-	|| BX_PLATFORM_PS4        \
-	|| BX_PLATFORM_RPI
+#elif  BX_PLATFORM_POSIX
 #	include <sched.h> // sched_yield
-#	if BX_PLATFORM_BSD       \
-	|| BX_PLATFORM_HAIKU     \
-	|| BX_PLATFORM_IOS       \
+#	if BX_PLATFORM_IOS       \
 	|| BX_PLATFORM_OSX       \
-	|| BX_PLATFORM_PS4
+	|| BX_PLATFORM_PS4       \
+	|| BX_PLATFORM_VISIONOS
 #		include <pthread.h> // mach_port_t
 #	endif // BX_PLATFORM_*
 
@@ -46,21 +35,14 @@
 
 #	if BX_PLATFORM_ANDROID
 #		include <malloc.h> // mallinfo
-#	elif   BX_PLATFORM_LINUX     \
+#	elif   BX_PLATFORM_LINUX \
 		|| BX_PLATFORM_RPI
 #		include <stdio.h>  // fopen
-#		include <unistd.h> // syscall
+#		include <sys/mman.h>
 #		include <sys/syscall.h>
-#	elif   BX_PLATFORM_HAIKU
-#		include <stdio.h>  // fopen
-#		include <unistd.h> // syscall
 #	elif BX_PLATFORM_OSX
 #		include <mach/mach.h> // mach_task_basic_info
-#	elif BX_PLATFORM_HURD
-#		include <stdio.h>           // fopen
-#		include <pthread/pthread.h> // pthread_self
-#	elif BX_PLATFORM_ANDROID
-#		include "debug.h" // getTid is not implemented...
+#		include <sys/mman.h>
 #	endif // BX_PLATFORM_ANDROID
 #endif // BX_PLATFORM_
 
@@ -74,7 +56,7 @@ namespace bx
 	|| BX_PLATFORM_WINRT   \
 	|| BX_CRT_NONE
 		BX_UNUSED(_ms);
-		debugOutput("sleep is not implemented"); debugBreak();
+		BX_ASSERT(false, "Function '%s' is not implemented!", BX_FUNCTION);
 #else
 		timespec req = { (time_t)_ms/1000, (long)( (_ms%1000)*1000000) };
 		timespec rem = { 0, 0 };
@@ -89,7 +71,7 @@ namespace bx
 #elif  BX_PLATFORM_XBOXONE \
 	|| BX_PLATFORM_WINRT   \
 	|| BX_CRT_NONE
-		debugOutput("yield is not implemented"); debugBreak();
+		BX_ASSERT(false, "Function '%s' is not implemented!", BX_FUNCTION);
 #else
 		::sched_yield();
 #endif // BX_PLATFORM_
@@ -105,12 +87,8 @@ namespace bx
 #elif  BX_PLATFORM_IOS \
 	|| BX_PLATFORM_OSX
 		return (mach_port_t)::pthread_mach_thread_np(pthread_self() );
-#elif BX_PLATFORM_BSD
-		return *(uint32_t*)::pthread_self();
-#elif BX_PLATFORM_HURD
-		return (pthread_t)::pthread_self();
 #else
-		debugOutput("getTid is not implemented"); debugBreak();
+		BX_ASSERT(false, "Function '%s' is not implemented!", BX_FUNCTION);
 		return 0;
 #endif // BX_PLATFORM_
 	}
@@ -120,8 +98,7 @@ namespace bx
 #if BX_PLATFORM_ANDROID
 		struct mallinfo mi = mallinfo();
 		return mi.uordblks;
-#elif  BX_PLATFORM_LINUX \
-	|| BX_PLATFORM_HURD
+#elif  BX_PLATFORM_LINUX
 		FILE* file = fopen("/proc/self/statm", "r");
 		if (NULL == file)
 		{
@@ -169,6 +146,7 @@ namespace bx
 			);
 		return pmc.WorkingSetSize;
 #else
+		BX_ASSERT(false, "Function '%s' is not implemented!", BX_FUNCTION);
 		return 0;
 #endif // BX_PLATFORM_*
 	}
@@ -181,6 +159,7 @@ namespace bx
 	|| BX_PLATFORM_PS4        \
 	|| BX_PLATFORM_XBOXONE    \
 	|| BX_PLATFORM_WINRT      \
+	|| BX_PLATFORM_NX         \
 	|| BX_CRT_NONE
 		BX_UNUSED(_filePath);
 		return NULL;
@@ -204,6 +183,7 @@ namespace bx
 	|| BX_PLATFORM_PS4        \
 	|| BX_PLATFORM_XBOXONE    \
 	|| BX_PLATFORM_WINRT      \
+	|| BX_PLATFORM_NX         \
 	|| BX_CRT_NONE
 		BX_UNUSED(_handle);
 #else
@@ -214,7 +194,7 @@ namespace bx
 	void* dlsym(void* _handle, const StringView& _symbol)
 	{
 		const int32_t symbolMax = _symbol.getLength()+1;
-		char* symbol = (char*)alloca(symbolMax);
+		char* symbol = (char*)BX_STACK_ALLOC(symbolMax);
 		strCopy(symbol, symbolMax, _symbol);
 
 #if BX_PLATFORM_WINDOWS
@@ -223,6 +203,7 @@ namespace bx
 	|| BX_PLATFORM_PS4        \
 	|| BX_PLATFORM_XBOXONE    \
 	|| BX_PLATFORM_WINRT      \
+	|| BX_PLATFORM_NX         \
 	|| BX_CRT_NONE
 		BX_UNUSED(_handle, symbol);
 		return NULL;
@@ -234,7 +215,7 @@ namespace bx
 	bool getEnv(char* _out, uint32_t* _inOutSize, const StringView& _name)
 	{
 		const int32_t nameMax = _name.getLength()+1;
-		char* name = (char*)alloca(nameMax);
+		char* name = (char*)BX_STACK_ALLOC(nameMax);
 		strCopy(name, nameMax, _name);
 
 #if BX_PLATFORM_WINDOWS
@@ -246,6 +227,7 @@ namespace bx
 	|| BX_PLATFORM_PS4        \
 	|| BX_PLATFORM_XBOXONE    \
 	|| BX_PLATFORM_WINRT      \
+	|| BX_PLATFORM_NX         \
 	|| BX_CRT_NONE
 		BX_UNUSED(name, _out, _inOutSize);
 		return false;
@@ -272,14 +254,14 @@ namespace bx
 	void setEnv(const StringView& _name, const StringView& _value)
 	{
 		const int32_t nameMax = _name.getLength()+1;
-		char* name = (char*)alloca(nameMax);
+		char* name = (char*)BX_STACK_ALLOC(nameMax);
 		strCopy(name, nameMax, _name);
 
 		char* value = NULL;
 		if (!_value.isEmpty() )
 		{
 			int32_t valueMax = _value.getLength()+1;
-			value = (char*)alloca(valueMax);
+			value = (char*)BX_STACK_ALLOC(valueMax);
 			strCopy(value, valueMax, _value);
 		}
 
@@ -289,6 +271,7 @@ namespace bx
 	|| BX_PLATFORM_PS4        \
 	|| BX_PLATFORM_XBOXONE    \
 	|| BX_PLATFORM_WINRT      \
+	|| BX_PLATFORM_NX         \
 	|| BX_CRT_NONE
 		BX_UNUSED(name, value);
 #else
@@ -320,8 +303,7 @@ namespace bx
 
 	void* exec(const char* const* _argv)
 	{
-#if BX_PLATFORM_LINUX \
- || BX_PLATFORM_HURD
+#if BX_PLATFORM_LINUX
 		pid_t pid = fork();
 
 		if (0 == pid)
@@ -346,7 +328,7 @@ namespace bx
 			total += (int32_t)strLen(_argv[ii]) + 1;
 		}
 
-		char* temp = (char*)alloca(total);
+		char* temp = (char*)BX_STACK_ALLOC(total);
 		int32_t len = 0;
 		for(uint32_t ii = 0; NULL != _argv[ii]; ++ii)
 		{
@@ -376,12 +358,103 @@ namespace bx
 #else
 		BX_UNUSED(_argv);
 		return NULL;
-#endif // BX_PLATFORM_LINUX || BX_PLATFORM_HURD
+#endif // BX_PLATFORM_LINUX
 	}
 
-	void exit(int32_t _exitCode)
+	void exit(int32_t _exitCode, bool _cleanup)
 	{
-		::exit(_exitCode);
+		if (_cleanup)
+		{
+			::exit(_exitCode);
+		}
+
+#if BX_PLATFORM_WINDOWS
+		TerminateProcess(GetCurrentProcess(), _exitCode);
+#else
+		_Exit(_exitCode);
+#endif // BX_PLATFORM_*
+	}
+
+	void* memoryMap(void* _address, size_t _size, Error* _err)
+	{
+		BX_ERROR_SCOPE(_err);
+
+#if BX_PLATFORM_LINUX || BX_PLATFORM_OSX
+		constexpr int32_t flags = 0
+			| MAP_ANON
+			| MAP_PRIVATE
+			;
+
+		void* result = mmap(_address, _size, PROT_READ | PROT_WRITE, flags, -1 /*fd*/, 0 /*offset*/);
+
+		if (MAP_FAILED == result)
+		{
+			BX_ERROR_SET(
+				  _err
+				, kErrorMemoryMapFailed
+				, "kErrorMemoryMapFailed"
+				);
+
+			return NULL;
+		}
+
+		return result;
+#elif BX_PLATFORM_WINDOWS
+		void* result = VirtualAlloc(_address, _size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+
+		return result;
+#else
+		BX_UNUSED(_address, _size);
+		BX_ERROR_SET(_err, kErrorMemoryMapFailed, "Not implemented!");
+		return NULL;
+#endif // BX_PLATFORM_*
+	}
+
+	void memoryUnmap(void* _address, size_t _size, Error* _err)
+	{
+		BX_ERROR_SCOPE(_err);
+
+#if BX_PLATFORM_LINUX || BX_PLATFORM_OSX
+		int32_t result = munmap(_address, _size);
+
+		if (-1 == result)
+		{
+			BX_ERROR_SET(
+				  _err
+				, kErrorMemoryUnmapFailed
+				, "kErrorMemoryUnmapFailed"
+				);
+		}
+#elif BX_PLATFORM_WINDOWS
+		if (!VirtualFree(_address, _size, MEM_RELEASE) )
+		{
+			BX_ERROR_SET(
+				  _err
+				, kErrorMemoryUnmapFailed
+				, "kErrorMemoryUnmapFailed"
+				);
+		}
+#else
+		BX_UNUSED(_address, _size);
+		BX_ERROR_SET(_err, kErrorMemoryUnmapFailed, "Not implemented!");
+#endif // BX_PLATFORM_*
+	}
+
+	size_t memoryPageSize()
+	{
+		size_t pageSize;
+#if BX_PLATFORM_LINUX || BX_PLATFORM_OSX
+		pageSize = sysconf(_SC_PAGESIZE);
+#elif BX_PLATFORM_WINDOWS
+		SYSTEM_INFO si;
+		memSet(&si, 0, sizeof(si) );
+		::GetSystemInfo(&si);
+		pageSize = si.dwAllocationGranularity;
+#else
+		pageSize = 16<<10;
+#endif // BX_PLATFORM_WINDOWS
+
+		return pageSize;
 	}
 
 } // namespace bx

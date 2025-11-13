@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2023 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2025 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx/blob/master/LICENSE
  */
 
@@ -22,7 +22,7 @@ namespace bx
 		int32_t len = vsnprintf(out, sizeof(temp), _format, _argList);
 		if (int32_t(sizeof(temp) ) < len)
 		{
-			out = (char*)alloca(len);
+			out = (char*)BX_STACK_ALLOC(len);
 			len = vsnprintf(out, len, _format, _argList);
 		}
 		_out.append(out, out+len);
@@ -59,6 +59,17 @@ namespace bx
 	inline constexpr const char* StringLiteral::getCPtr() const
 	{
 		return m_ptr;
+	}
+
+	inline void StringLiteral::clear()
+	{
+		m_ptr = "";
+		m_len = 0;
+	}
+
+	inline bool StringLiteral::isEmpty() const
+	{
+		return 0 == m_len;
 	}
 
 	inline StringView::StringView()
@@ -176,51 +187,147 @@ namespace bx
 		return m_0terminated;
 	}
 
-	template<bx::AllocatorI** AllocatorT>
+	inline bool operator==(const StringView& _lhs, const StringView& _rhs)
+	{
+		return 0 == strCmp(_lhs, _rhs);
+	}
+
+	inline bool overlap(const StringView& _a, const StringView& _b)
+	{
+		return _a.getTerm() > _b.getPtr()
+			&& _b.getTerm() > _a.getPtr()
+			;
+	}
+
+	inline bool contain(const StringView& _a, const StringView& _b)
+	{
+		return _a.getPtr()  <= _b.getPtr()
+			&& _a.getTerm() >= _b.getTerm()
+			;
+	}
+
+	template<uint16_t MaxCapacityT>
+	inline FixedStringT<MaxCapacityT>::FixedStringT()
+		: m_len(0)
+	{
+	}
+
+	template<uint16_t MaxCapacityT>
+	inline FixedStringT<MaxCapacityT>::FixedStringT(const char* _str)
+		: FixedStringT<MaxCapacityT>()
+	{
+		set(_str);
+	}
+
+	template<uint16_t MaxCapacityT>
+	inline FixedStringT<MaxCapacityT>::FixedStringT(const StringView& _str)
+		: FixedStringT<MaxCapacityT>()
+	{
+		set(_str);
+	}
+
+	template<uint16_t MaxCapacityT>
+	inline FixedStringT<MaxCapacityT>::~FixedStringT()
+	{
+	}
+
+	template<uint16_t MaxCapacityT>
+	inline void FixedStringT<MaxCapacityT>::set(const char* _str)
+	{
+		set(StringView(_str) );
+	}
+
+	template<uint16_t MaxCapacityT>
+	inline void FixedStringT<MaxCapacityT>::set(const StringView& _str)
+	{
+		int32_t copied = strCopy(m_storage, MaxCapacityT, _str);
+		m_len = copied;
+	}
+
+	template<uint16_t MaxCapacityT>
+	inline void FixedStringT<MaxCapacityT>::append(const StringView& _str)
+	{
+		m_len += strCopy(&m_storage[m_len], MaxCapacityT-m_len, _str);
+	}
+
+	template<uint16_t MaxCapacityT>
+	inline void FixedStringT<MaxCapacityT>::clear()
+	{
+		m_len = 0;
+		m_storage[0] = '\0';
+	}
+
+	template<uint16_t MaxCapacityT>
+	inline bool FixedStringT<MaxCapacityT>::isEmpty() const
+	{
+		return 0 == m_len;
+	}
+
+	template<uint16_t MaxCapacityT>
+	inline int32_t FixedStringT<MaxCapacityT>::getLength() const
+	{
+		return m_len;
+	}
+
+	template<uint16_t MaxCapacityT>
+	inline const char* FixedStringT<MaxCapacityT>::getCPtr() const
+	{
+		return m_storage;
+	}
+
+	template<uint16_t MaxCapacityT>
+	inline FixedStringT<MaxCapacityT>::operator StringView() const
+	{
+		return StringView(m_storage, m_len);
+	}
+
+	template<AllocatorI** AllocatorT>
 	inline StringT<AllocatorT>::StringT()
-		: StringView()
+		: m_ptr("")
+		, m_len(0)
 		, m_capacity(0)
 	{
-		clear();
 	}
 
-	template<bx::AllocatorI** AllocatorT>
+	template<AllocatorI** AllocatorT>
 	inline StringT<AllocatorT>::StringT(const StringT<AllocatorT>& _rhs)
-		: StringView()
+		: m_ptr("")
+		, m_len(0)
 		, m_capacity(0)
 	{
 		set(_rhs);
 	}
 
-	template<bx::AllocatorI** AllocatorT>
+	template<AllocatorI** AllocatorT>
 	inline StringT<AllocatorT>::StringT(const StringView& _rhs)
-		: StringView()
+		: m_ptr("")
+		, m_len(0)
 		, m_capacity(0)
 	{
 		set(_rhs);
 	}
 
-	template<bx::AllocatorI** AllocatorT>
+	template<AllocatorI** AllocatorT>
 	inline StringT<AllocatorT>::~StringT()
 	{
 		clear();
 	}
 
-	template<bx::AllocatorI** AllocatorT>
+	template<AllocatorI** AllocatorT>
 	inline StringT<AllocatorT>& StringT<AllocatorT>::operator=(const StringT<AllocatorT>& _rhs)
 	{
 		set(_rhs);
 		return *this;
 	}
 
-	template<bx::AllocatorI** AllocatorT>
+	template<AllocatorI** AllocatorT>
 	inline void StringT<AllocatorT>::set(const StringView& _str)
 	{
 		clear();
 		append(_str);
 	}
 
-	template<bx::AllocatorI** AllocatorT>
+	template<AllocatorI** AllocatorT>
 	inline void StringT<AllocatorT>::append(const StringView& _str)
 	{
 		if (0 != _str.getLength() )
@@ -233,7 +340,7 @@ namespace bx
 			if (len+1 > m_capacity)
 			{
 				const int32_t capacity = alignUp(len+1, 256);
-				ptr = (char*)bx::realloc(*AllocatorT, 0 != m_capacity ? ptr : NULL, capacity);
+				ptr = (char*)realloc(*AllocatorT, 0 != m_capacity ? ptr : NULL, capacity);
 
 				*const_cast<char**>(&m_ptr) = ptr;
 				m_capacity = capacity;
@@ -244,30 +351,47 @@ namespace bx
 		}
 	}
 
-	template<bx::AllocatorI** AllocatorT>
+	template<AllocatorI** AllocatorT>
 	inline void StringT<AllocatorT>::append(const char* _ptr, const char* _term)
 	{
 		append(StringView(_ptr, _term) );
 	}
 
-	template<bx::AllocatorI** AllocatorT>
+	template<AllocatorI** AllocatorT>
 	inline void StringT<AllocatorT>::clear()
 	{
-		m_0terminated = true;
-
 		if (0 != m_capacity)
 		{
-			bx::free(*AllocatorT, const_cast<char*>(m_ptr) );
+			free(*AllocatorT, const_cast<char*>(m_ptr) );
 
-			StringView::clear();
+			m_ptr = "";
+			m_len = 0;
 			m_capacity = 0;
 		}
 	}
 
-	template<bx::AllocatorI** AllocatorT>
+	template<AllocatorI** AllocatorT>
+	inline bool StringT<AllocatorT>::isEmpty() const
+	{
+		return 0 == m_len;
+	}
+
+	template<AllocatorI** AllocatorT>
+	inline int32_t StringT<AllocatorT>::getLength() const
+	{
+		return m_len;
+	}
+
+	template<AllocatorI** AllocatorT>
 	inline const char* StringT<AllocatorT>::getCPtr() const
 	{
-		return getPtr();
+		return m_ptr;
+	}
+
+	template<AllocatorI** AllocatorT>
+	inline StringT<AllocatorT>::operator StringView() const
+	{
+		return StringView(m_ptr, m_len);
 	}
 
 	inline StringView strSubstr(const StringView& _str, int32_t _start, int32_t _len)
@@ -275,7 +399,7 @@ namespace bx
 		return StringView(_str, _start, _len);
 	}
 
-	inline LineReader::LineReader(const bx::StringView& _str)
+	inline LineReader::LineReader(const StringView& _str)
 		: m_str(_str)
 	{
 		reset();
@@ -294,7 +418,7 @@ namespace bx
 			++m_line;
 
 			StringView curr(m_curr);
-			m_curr = bx::strFindNl(m_curr);
+			m_curr = strFindNl(m_curr);
 
 			StringView line(curr.getPtr(), m_curr.getPtr() );
 

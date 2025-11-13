@@ -315,6 +315,7 @@ const Constant* ConstantManager::GetConstantFromInst(const Instruction* inst) {
     case spv::Op::OpConstant:
     case spv::Op::OpConstantComposite:
     case spv::Op::OpSpecConstantComposite:
+    case spv::Op::OpSpecConstantCompositeReplicateEXT:
       break;
     default:
       return nullptr;
@@ -498,7 +499,7 @@ const Constant* ConstantManager::GetIntConst(uint64_t val, int32_t bitWidth,
     int32_t num_of_bit_to_ignore = 64 - bitWidth;
     val = static_cast<int64_t>(val << num_of_bit_to_ignore) >>
           num_of_bit_to_ignore;
-  } else {
+  } else if (bitWidth < 64) {
     // Clear the upper bit that are not used.
     uint64_t mask = ((1ull << bitWidth) - 1);
     val &= mask;
@@ -511,7 +512,7 @@ const Constant* ConstantManager::GetIntConst(uint64_t val, int32_t bitWidth,
   // If the value is more than 32-bit, we need to split the operands into two
   // 32-bit integers.
   return GetConstant(
-      int_type, {static_cast<uint32_t>(val >> 32), static_cast<uint32_t>(val)});
+      int_type, {static_cast<uint32_t>(val), static_cast<uint32_t>(val >> 32)});
 }
 
 uint32_t ConstantManager::GetUIntConstId(uint32_t val) {
@@ -523,6 +524,28 @@ uint32_t ConstantManager::GetUIntConstId(uint32_t val) {
 uint32_t ConstantManager::GetNullConstId(const Type* type) {
   const Constant* c = GetConstant(type, {});
   return GetDefiningInstruction(c)->result_id();
+}
+
+const Constant* ConstantManager::GenerateIntegerConstant(
+    const analysis::Integer* integer_type, uint64_t result) {
+  assert(integer_type != nullptr);
+
+  std::vector<uint32_t> words;
+  if (integer_type->width() == 64) {
+    // In the 64-bit case, two words are needed to represent the value.
+    words = {static_cast<uint32_t>(result),
+             static_cast<uint32_t>(result >> 32)};
+  } else {
+    // In all other cases, only a single word is needed.
+    assert(integer_type->width() <= 32);
+    if (integer_type->IsSigned()) {
+      result = utils::SignExtendValue(result, integer_type->width());
+    } else {
+      result = utils::ZeroExtendValue(result, integer_type->width());
+    }
+    words = {static_cast<uint32_t>(result)};
+  }
+  return GetConstant(integer_type, words);
 }
 
 std::vector<const analysis::Constant*> Constant::GetVectorComponents(

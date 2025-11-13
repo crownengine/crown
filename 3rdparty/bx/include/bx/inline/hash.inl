@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2023 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2025 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx/blob/master/LICENSE
  */
 
@@ -61,6 +61,8 @@ namespace bx
 	template<typename Ty>
 	inline void HashCrc32::add(const Ty& _data)
 	{
+		static_assert(isTriviallyCopyable<Ty>(), "Ty must be trivially copyable type.");
+
 		add(&_data, sizeof(Ty) );
 	}
 
@@ -72,10 +74,10 @@ namespace bx
 
 	inline void HashMurmur2A::begin(uint32_t _seed)
 	{
+		BX_UNUSED(m_tail);
 		m_hash  = _seed;
-		m_tail  = 0;
-		m_count = 0;
 		m_size  = 0;
+		m_count = 0;
 	}
 
 	inline void HashMurmur2A::add(const char* _data)
@@ -91,6 +93,34 @@ namespace bx
 	template<typename Ty>
 	inline void HashMurmur2A::add(const Ty& _data)
 	{
+		static_assert(isTriviallyCopyable<Ty>(), "Ty must be trivially copyable type.");
+
+		add(&_data, sizeof(Ty) );
+	}
+
+	inline void HashMurmur3::begin(uint32_t _seed)
+	{
+		BX_UNUSED(m_tail);
+		m_hash  = _seed;
+		m_size  = 0;
+		m_count = 0;
+	}
+
+	inline void HashMurmur3::add(const char* _data)
+	{
+		return add(StringView(_data) );
+	}
+
+	inline void HashMurmur3::add(const StringView& _data)
+	{
+		return add(_data.getPtr(), _data.getLength() );
+	}
+
+	template<typename Ty>
+	inline void HashMurmur3::add(const Ty& _data)
+	{
+		static_assert(isTriviallyCopyable<Ty>(), "Ty must be trivially copyable type.");
+
 		add(&_data, sizeof(Ty) );
 	}
 
@@ -118,7 +148,7 @@ namespace bx
 	template<typename HashT, typename Ty>
 	inline uint32_t hash(const Ty& _data)
 	{
-		BX_STATIC_ASSERT(isTriviallyCopyable<Ty>() );
+		static_assert(isTriviallyCopyable<Ty>(), "Ty must be trivially copyable type.");
 		return hash<HashT>(&_data, sizeof(Ty) );
 	}
 

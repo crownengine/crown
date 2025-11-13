@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2023 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2025 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx/blob/master/LICENSE
  */
 
@@ -88,10 +88,8 @@ namespace bgfx
 		///
 		HRESULT createSwapChain(IUnknown* _device, const SwapChainDesc& _scd, SwapChainI** _swapChain);
 
-#if BX_PLATFORM_WINRT
 		///
 		HRESULT removeSwapChain(const SwapChainDesc& _scd);
-#endif
 
 		///
 		void updateHdr10(SwapChainI* _swapChain, const SwapChainDesc& _scd);

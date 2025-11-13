@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2023 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2025 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx/blob/master/LICENSE
  */
 
@@ -7,13 +7,11 @@
 #include <bx/os.h>
 #include <bx/readerwriter.h>
 
-#if !BX_CRT_NONE
-#	if BX_CRT_MSVC
-#		include <direct.h>   // _getcwd
-#	else
-#		include <unistd.h>   // getcwd
-#	endif // BX_CRT_MSVC
-#endif // !BX_CRT_NONE
+#if BX_CRT_MSVC
+#	include <direct.h>   // _getcwd
+#else
+#	include <unistd.h>   // getcwd
+#endif // BX_CRT_MSVC
 
 #if BX_PLATFORM_WINDOWS
 #if !defined(GetModuleFileName)
@@ -121,7 +119,7 @@ namespace bx
 
 					break;
 				}
-				BX_FALLTHROUGH;
+				[[fallthrough]];
 
 			default:
 				if ( ( rooted && slashIdx+1 != size)
@@ -217,16 +215,16 @@ namespace bx
 			*_inOutSize = uint32_t(result);
 			return true;
 		}
+
+		return false;
 #elif BX_PLATFORM_OSX
 		uint32_t len = *_inOutSize;
 		bool result = _NSGetExecutablePath(_out, &len);
-		if (0 == result)
-		{
-			return true;
-		}
-#endif // BX_PLATFORM_*
-
+		return 0 == result;
+#else
+		BX_UNUSED(_out, _inOutSize);
 		return false;
+#endif // BX_PLATFORM_*
 	}
 
 	static bool getHomePath(char* _out, uint32_t* _inOutSize)
@@ -303,6 +301,12 @@ namespace bx
 	FilePath::FilePath(const StringView& _filePath)
 	{
 		set(_filePath);
+	}
+
+	FilePath& FilePath::operator=(const char* _rhs)
+	{
+		set(_rhs);
+		return *this;
 	}
 
 	FilePath& FilePath::operator=(const StringView& _rhs)

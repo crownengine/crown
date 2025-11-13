@@ -14,7 +14,6 @@ render_states = {
 			primitive_type = "pt_triangles"
 		}
 	}
-
 	opacity = {
 		inherit = "default"
 		states = {
@@ -24,12 +23,11 @@ render_states = {
 			blend_enable = true
 			blend_src = "src_alpha"
 			blend_dst = "inv_src_alpha"
-			"defined(DEPTH_ENABLED)" = {
+			defined(DEPTH_ENABLED) = {
 				depth_enable = true
 			}
 		}
 	}
-
 }
 
 sampler_states = {
@@ -70,7 +68,7 @@ bgfx_shaders = {
 	common = {
 		code = """
 			/*
-			 * Copyright 2011-2023 Branimir Karadzic. All rights reserved.
+			 * Copyright 2011-2025 Branimir Karadzic. All rights reserved.
 			 * License: https://github.com/bkaradzic/bgfx/blob/master/LICENSE
 			 */
 
@@ -78,7 +76,7 @@ bgfx_shaders = {
 			#define BGFX_SHADER_H_HEADER_GUARD
 
 			#if !defined(BGFX_CONFIG_MAX_BONES)
-			#	define BGFX_CONFIG_MAX_BONES 192
+			#	define BGFX_CONFIG_MAX_BONES 32
 			#endif // !defined(BGFX_CONFIG_MAX_BONES)
 
 			#ifndef __cplusplus
@@ -792,6 +790,7 @@ bgfx_shaders = {
 			uniform mat4  u_invViewProj;
 			uniform mat4  u_model[BGFX_CONFIG_MAX_BONES];
 			uniform mat4  u_modelView;
+			uniform mat4  u_invModelView;
 			uniform mat4  u_modelViewProj;
 			uniform vec4  u_alphaRef4;
 			#define u_alphaRef u_alphaRef4.x
@@ -800,7 +799,7 @@ bgfx_shaders = {
 
 			#endif // BGFX_SHADER_H_HEADER_GUARD
 			/*
-			 * Copyright 2011-2023 Branimir Karadzic. All rights reserved.
+			 * Copyright 2011-2025 Branimir Karadzic. All rights reserved.
 			 * License: https://github.com/bkaradzic/bgfx/blob/master/LICENSE
 			 */
 

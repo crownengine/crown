@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2023 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2025 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx/blob/master/LICENSE
  */
 
@@ -47,7 +47,7 @@ namespace bx
 
 	void quickSort(void* _data, uint32_t _num, uint32_t _stride, const ComparisonFn _fn)
 	{
-		uint8_t* pivot = (uint8_t*)alloca(_stride);
+		uint8_t* pivot = (uint8_t*)BX_STACK_ALLOC(_stride);
 		quickSortR(pivot, _data, _num, _stride, _fn);
 	}
 

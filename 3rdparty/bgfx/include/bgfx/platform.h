@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2023 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2025 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx/blob/master/LICENSE
  */
 
@@ -11,6 +11,8 @@
 // necessary to use this header in conjunction with creating windows.
 
 #include "bgfx.h"
+
+#if !BGFX_IDL_CPP
 
 namespace bgfx
 {
@@ -87,6 +89,7 @@ namespace bgfx
 	///
 	/// @param[in] _handle Texture handle.
 	/// @param[in] _ptr Native API pointer to texture.
+	/// @param[in] _layerIndex Layer index for texture arrays (only implemented for D3D11).
 	///
 	/// @returns Native API pointer to texture. If result is 0, texture is not created yet from the
 	///   main thread.
@@ -95,7 +98,7 @@ namespace bgfx
 	///
 	/// @attention C99's equivalent binding is `bgfx_override_internal_texture_ptr`.
 	///
-	uintptr_t overrideInternal(TextureHandle _handle, uintptr_t _ptr);
+	uintptr_t overrideInternal(TextureHandle _handle, uintptr_t _ptr, uint16_t _layerIndex = 0);
 
 	/// Override internal texture by creating new texture. Previously created
 	/// internal texture will released.
@@ -132,5 +135,7 @@ namespace bgfx
 		);
 
 } // namespace bgfx
+
+#endif // BGFX_IDL_CPP
 
 #endif // BGFX_PLATFORM_H_HEADER_GUARD

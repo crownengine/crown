@@ -37,7 +37,7 @@ int Utils::lerp(int a, int b, int i, int denom)
 	case 3:		denom *= 5; i *= 5;	// fall through to case 15
 	case 15:	weights = denom15_weights_64; break;
 	case 7:		weights = denom7_weights_64; break;
-	default:	nvDebugCheck(0);
+	default:	nvUnreachable();
 	}
 
 	return (a*weights[denom-i] +b*weights[i] + round) >> shift;
