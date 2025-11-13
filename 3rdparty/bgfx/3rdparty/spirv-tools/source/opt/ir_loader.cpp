@@ -42,7 +42,7 @@ IrLoader::IrLoader(const MessageConsumer& consumer, Module* m)
 bool IsLineInst(const spv_parsed_instruction_t* inst) {
   const auto opcode = static_cast<spv::Op>(inst->opcode);
   if (IsOpLineInst(opcode)) return true;
-  if (opcode != spv::Op::OpExtInst) return false;
+  if (!spvIsExtendedInstruction(opcode)) return false;
   if (inst->ext_inst_type != SPV_EXT_INST_TYPE_NONSEMANTIC_SHADER_DEBUGINFO_100)
     return false;
   const uint32_t ext_inst_index = inst->words[kExtInstSetIndex];
@@ -65,7 +65,7 @@ bool IrLoader::AddInstruction(const spv_parsed_instruction_t* inst) {
   // create a new instruction, but simply keep the information in
   // struct DebugScope.
   const auto opcode = static_cast<spv::Op>(inst->opcode);
-  if (opcode == spv::Op::OpExtInst &&
+  if (spvIsExtendedInstruction(opcode) &&
       spvExtInstIsDebugInfo(inst->ext_inst_type)) {
     const uint32_t ext_inst_index = inst->words[kExtInstSetIndex];
     if (inst->ext_inst_type == SPV_EXT_INST_TYPE_OPENCL_DEBUGINFO_100 ||
@@ -178,12 +178,48 @@ bool IrLoader::AddInstruction(const spv_parsed_instruction_t* inst) {
     last_dbg_scope_ = DebugScope(kNoDebugScope, kNoInlinedAt);
     last_line_inst_.reset();
     dbg_line_info_.clear();
+  } else if (opcode == spv::Op::OpGraphARM) {
+    if (graph_ != nullptr) {
+      Error(consumer_, src, loc, "graph inside graph");
+      return false;
+    }
+    graph_ = MakeUnique<Graph>(std::move(spv_inst));
+  } else if (opcode == spv::Op::OpGraphEndARM) {
+    if (graph_ == nullptr) {
+      Error(consumer_, src, loc,
+            "OpGraphEndARM without corresponding OpGraphARM");
+      return false;
+    }
+    graph_->SetGraphEnd(std::move(spv_inst));
+    module_->AddGraph(std::move(graph_));
+    graph_ = nullptr;
+  } else if (opcode == spv::Op::OpGraphConstantARM) {
+    module_->AddGlobalValue(std::move(spv_inst));
+  } else if (graph_ != nullptr) {
+    if (opcode == spv::Op::OpGraphInputARM) {
+      graph_->AddInput(std::move(spv_inst));
+    } else if (opcode == spv::Op::OpGraphSetOutputARM) {
+      graph_->AddOutput(std::move(spv_inst));
+    } else {
+      switch (opcode) {
+        case spv::Op::OpExtInst:
+        case spv::Op::OpCompositeExtract:
+          graph_->AddInstruction(std::move(spv_inst));
+          break;
+        default:
+          Errorf(consumer_, src, loc,
+                 "unhandled instruction (opcode %d) inside graph", opcode);
+          return false;
+      }
+    }
   } else {
     if (function_ == nullptr) {  // Outside function definition
       SPIRV_ASSERT(consumer_, block_ == nullptr);
-      if (opcode == spv::Op::OpCapability) {
+      if (opcode == spv::Op::OpCapability ||
+          opcode == spv::Op::OpConditionalCapabilityINTEL) {
         module_->AddCapability(std::move(spv_inst));
-      } else if (opcode == spv::Op::OpExtension) {
+      } else if (opcode == spv::Op::OpExtension ||
+                 opcode == spv::Op::OpConditionalExtensionINTEL) {
         module_->AddExtension(std::move(spv_inst));
       } else if (opcode == spv::Op::OpExtInstImport) {
         module_->AddExtInstImport(std::move(spv_inst));
@@ -193,6 +229,8 @@ bool IrLoader::AddInstruction(const spv_parsed_instruction_t* inst) {
         module_->SetSampledImageAddressMode(std::move(spv_inst));
       } else if (opcode == spv::Op::OpEntryPoint) {
         module_->AddEntryPoint(std::move(spv_inst));
+      } else if (opcode == spv::Op::OpGraphEntryPointARM) {
+        module_->AddGraphEntryPoint(std::move(spv_inst));
       } else if (opcode == spv::Op::OpExecutionMode ||
                  opcode == spv::Op::OpExecutionModeId) {
         module_->AddExecutionMode(std::move(spv_inst));
@@ -207,12 +245,13 @@ bool IrLoader::AddInstruction(const spv_parsed_instruction_t* inst) {
       } else if (IsTypeInst(opcode)) {
         module_->AddType(std::move(spv_inst));
       } else if (IsConstantInst(opcode) || opcode == spv::Op::OpVariable ||
+                 opcode == spv::Op::OpUntypedVariableKHR ||
                  opcode == spv::Op::OpUndef) {
         module_->AddGlobalValue(std::move(spv_inst));
-      } else if (opcode == spv::Op::OpExtInst &&
+      } else if (spvIsExtendedInstruction(opcode) &&
                  spvExtInstIsDebugInfo(inst->ext_inst_type)) {
         module_->AddExtInstDebugInfo(std::move(spv_inst));
-      } else if (opcode == spv::Op::OpExtInst &&
+      } else if (spvIsExtendedInstruction(opcode) &&
                  spvExtInstIsNonSemantic(inst->ext_inst_type)) {
         // If there are no functions, add the non-semantic instructions to the
         // global values. Otherwise append it to the list of the last function.
@@ -235,7 +274,7 @@ bool IrLoader::AddInstruction(const spv_parsed_instruction_t* inst) {
         last_dbg_scope_ = DebugScope(kNoDebugScope, kNoInlinedAt);
       if (last_dbg_scope_.GetLexicalScope() != kNoDebugScope)
         spv_inst->SetDebugScope(last_dbg_scope_);
-      if (opcode == spv::Op::OpExtInst &&
+      if (spvIsExtendedInstruction(opcode) &&
           spvExtInstIsDebugInfo(inst->ext_inst_type)) {
         const uint32_t ext_inst_index = inst->words[kExtInstSetIndex];
         if (inst->ext_inst_type == SPV_EXT_INST_TYPE_OPENCL_DEBUGINFO_100) {

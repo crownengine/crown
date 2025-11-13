@@ -111,6 +111,7 @@ public:
 
 	struct Source
 	{
+		spv::SourceLanguage lang = spv::SourceLanguageUnknown;
 		uint32_t version = 0;
 		bool es = false;
 		bool known = false;
@@ -169,7 +170,7 @@ public:
 		~LoopLock();
 
 	private:
-		uint32_t *lock;
+		uint32_t *lock = nullptr;
 	};
 
 	// This must be held while iterating over a type ID array.

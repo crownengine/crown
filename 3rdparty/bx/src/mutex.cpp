@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2023 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2025 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx/blob/master/LICENSE
  */
 
@@ -9,16 +9,8 @@
 
 #if BX_CRT_NONE
 #	include <bx/cpu.h>
-#	include "crt0.h"
-#elif  BX_PLATFORM_ANDROID \
-	|| BX_PLATFORM_BSD     \
-	|| BX_PLATFORM_HAIKU   \
-	|| BX_PLATFORM_LINUX   \
-	|| BX_PLATFORM_IOS     \
-	|| BX_PLATFORM_OSX     \
-	|| BX_PLATFORM_PS4     \
-	|| BX_PLATFORM_RPI	   \
-	|| BX_PLATFORM_NX
+#	include <bx/crt0.h>
+#elif  BX_PLATFORM_POSIX
 #	include <pthread.h>
 #elif  BX_PLATFORM_WINDOWS \
 	|| BX_PLATFORM_WINRT   \
@@ -45,7 +37,7 @@ namespace bx
 
 	Mutex::Mutex()
 	{
-		BX_STATIC_ASSERT(sizeof(int32_t) <= sizeof(m_internal) );
+		static_assert(sizeof(int32_t) <= sizeof(m_internal) );
 
 		uint32_t* futex = (uint32_t*)m_internal;
 		*futex = State::Unlocked;
@@ -124,7 +116,7 @@ namespace bx
 
 	Mutex::Mutex()
 	{
-		BX_STATIC_ASSERT(sizeof(pthread_mutex_t) <= sizeof(m_internal) );
+		static_assert(sizeof(pthread_mutex_t) <= sizeof(m_internal) );
 
 		pthread_mutexattr_t attr;
 

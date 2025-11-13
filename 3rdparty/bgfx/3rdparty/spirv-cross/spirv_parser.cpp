@@ -213,8 +213,8 @@ void Parser::parse(const Instruction &instruction)
 
 	case OpSource:
 	{
-		auto lang = static_cast<SourceLanguage>(ops[0]);
-		switch (lang)
+		ir.source.lang = static_cast<SourceLanguage>(ops[0]);
+		switch (ir.source.lang)
 		{
 		case SourceLanguageESSL:
 			ir.source.es = true;
@@ -305,6 +305,7 @@ void Parser::parse(const Instruction &instruction)
 	}
 
 	case OpExtInst:
+	case OpExtInstWithForwardRefsKHR:
 	{
 		// The SPIR-V debug information extended instructions might come at global scope.
 		if (current_block)
@@ -315,6 +316,19 @@ void Parser::parse(const Instruction &instruction)
 				const auto *type = maybe_get<SPIRType>(ops[0]);
 				if (type)
 					ir.load_type_width.insert({ ops[1], type->width });
+			}
+		}
+		else if (op == OpExtInst)
+		{
+			// Don't want to deal with ForwardRefs here.
+
+			auto &ext = get<SPIRExtension>(ops[2]);
+			if (ext.ext == SPIRExtension::NonSemanticShaderDebugInfo)
+			{
+				// Parse global ShaderDebugInfo we care about.
+				// Just forward the string information.
+				if (ops[3] == SPIRExtension::DebugSource)
+					set<SPIRString>(ops[1], get<SPIRString>(ops[4]).str);
 			}
 		}
 		break;
@@ -368,6 +382,30 @@ void Parser::parse(const Instruction &instruction)
 			execution.output_primitives = ops[2];
 			break;
 
+		case ExecutionModeSignedZeroInfNanPreserve:
+			switch (ops[2])
+			{
+			case 8:
+				execution.signed_zero_inf_nan_preserve_8 = true;
+				break;
+
+			case 16:
+				execution.signed_zero_inf_nan_preserve_16 = true;
+				break;
+
+			case 32:
+				execution.signed_zero_inf_nan_preserve_32 = true;
+				break;
+
+			case 64:
+				execution.signed_zero_inf_nan_preserve_64 = true;
+				break;
+
+			default:
+				SPIRV_CROSS_THROW("Invalid bit-width for SignedZeroInfNanPreserve.");
+			}
+			break;
+
 		default:
 			break;
 		}
@@ -380,13 +418,21 @@ void Parser::parse(const Instruction &instruction)
 		auto mode = static_cast<ExecutionMode>(ops[1]);
 		execution.flags.set(mode);
 
-		if (mode == ExecutionModeLocalSizeId)
+		switch (mode)
 		{
+		case ExecutionModeLocalSizeId:
 			execution.workgroup_size.id_x = ops[2];
 			execution.workgroup_size.id_y = ops[3];
 			execution.workgroup_size.id_z = ops[4];
-		}
+			break;
 
+		case ExecutionModeFPFastMathDefault:
+			execution.fp_fast_math_defaults[ops[2]] = ops[3];
+			break;
+
+		default:
+			break;
+		}
 		break;
 	}
 
@@ -517,7 +563,7 @@ void Parser::parse(const Instruction &instruction)
 	case OpTypeVoid:
 	{
 		uint32_t id = ops[0];
-		auto &type = set<SPIRType>(id);
+		auto &type = set<SPIRType>(id, op);
 		type.basetype = SPIRType::Void;
 		break;
 	}
@@ -525,7 +571,7 @@ void Parser::parse(const Instruction &instruction)
 	case OpTypeBool:
 	{
 		uint32_t id = ops[0];
-		auto &type = set<SPIRType>(id);
+		auto &type = set<SPIRType>(id, op);
 		type.basetype = SPIRType::Boolean;
 		type.width = 1;
 		break;
@@ -535,13 +581,38 @@ void Parser::parse(const Instruction &instruction)
 	{
 		uint32_t id = ops[0];
 		uint32_t width = ops[1];
-		auto &type = set<SPIRType>(id);
+		auto &type = set<SPIRType>(id, op);
+
+		if (width != 16 && width != 8 && length > 2)
+			SPIRV_CROSS_THROW("Unrecognized FP encoding mode for OpTypeFloat.");
+
 		if (width == 64)
 			type.basetype = SPIRType::Double;
 		else if (width == 32)
 			type.basetype = SPIRType::Float;
 		else if (width == 16)
-			type.basetype = SPIRType::Half;
+		{
+			if (length > 2)
+			{
+				if (ops[2] == spv::FPEncodingBFloat16KHR)
+					type.basetype = SPIRType::BFloat16;
+				else
+					SPIRV_CROSS_THROW("Unrecognized encoding for OpTypeFloat 16.");
+			}
+			else
+				type.basetype = SPIRType::Half;
+		}
+		else if (width == 8)
+		{
+			if (length < 2)
+				SPIRV_CROSS_THROW("Missing encoding for OpTypeFloat 8.");
+			else if (ops[2] == spv::FPEncodingFloat8E4M3EXT)
+				type.basetype = SPIRType::FloatE4M3;
+			else if (ops[2] == spv::FPEncodingFloat8E5M2EXT)
+				type.basetype = SPIRType::FloatE5M2;
+			else
+				SPIRV_CROSS_THROW("Invalid encoding for OpTypeFloat 8.");
+		}
 		else
 			SPIRV_CROSS_THROW("Unrecognized bit-width of floating point type.");
 		type.width = width;
@@ -553,7 +624,7 @@ void Parser::parse(const Instruction &instruction)
 		uint32_t id = ops[0];
 		uint32_t width = ops[1];
 		bool signedness = ops[2] != 0;
-		auto &type = set<SPIRType>(id);
+		auto &type = set<SPIRType>(id, op);
 		type.basetype = signedness ? to_signed_basetype(width) : to_unsigned_basetype(width);
 		type.width = width;
 		break;
@@ -568,9 +639,9 @@ void Parser::parse(const Instruction &instruction)
 		uint32_t vecsize = ops[2];
 
 		auto &base = get<SPIRType>(ops[1]);
-		auto &vecbase = set<SPIRType>(id);
+		auto &vecbase = set<SPIRType>(id, base);
 
-		vecbase = base;
+		vecbase.op = op;
 		vecbase.vecsize = vecsize;
 		vecbase.self = id;
 		vecbase.parent_type = ops[1];
@@ -583,24 +654,57 @@ void Parser::parse(const Instruction &instruction)
 		uint32_t colcount = ops[2];
 
 		auto &base = get<SPIRType>(ops[1]);
-		auto &matrixbase = set<SPIRType>(id);
+		auto &matrixbase = set<SPIRType>(id, base);
 
-		matrixbase = base;
+		matrixbase.op = op;
 		matrixbase.columns = colcount;
 		matrixbase.self = id;
 		matrixbase.parent_type = ops[1];
 		break;
 	}
 
+	case OpTypeCooperativeMatrixKHR:
+	{
+		uint32_t id = ops[0];
+		auto &base = get<SPIRType>(ops[1]);
+		auto &matrixbase = set<SPIRType>(id, base);
+
+		matrixbase.op = op;
+		matrixbase.ext.cooperative.scope_id = ops[2];
+		matrixbase.ext.cooperative.rows_id = ops[3];
+		matrixbase.ext.cooperative.columns_id = ops[4];
+		matrixbase.ext.cooperative.use_id = ops[5];
+		matrixbase.self = id;
+		matrixbase.parent_type = ops[1];
+		break;
+	}
+
+	case OpTypeCooperativeVectorNV:
+	{
+		uint32_t id = ops[0];
+		auto &type = set<SPIRType>(id, op);
+
+		type.basetype = SPIRType::CoopVecNV;
+		type.op = op;
+		type.ext.coopVecNV.component_type_id = ops[1];
+		type.ext.coopVecNV.component_count_id = ops[2];
+		type.parent_type = ops[1];
+
+		// CoopVec-Nv can be used with integer operations like SMax where
+		// where spirv-opt does explicit checks on integer bitwidth
+		auto component_type = get<SPIRType>(type.ext.coopVecNV.component_type_id);
+		type.width = component_type.width;
+		break;
+	}
+
 	case OpTypeArray:
 	{
 		uint32_t id = ops[0];
-		auto &arraybase = set<SPIRType>(id);
-
 		uint32_t tid = ops[1];
 		auto &base = get<SPIRType>(tid);
+		auto &arraybase = set<SPIRType>(id, base);
 
-		arraybase = base;
+		arraybase.op = op;
 		arraybase.parent_type = tid;
 
 		uint32_t cid = ops[2];
@@ -615,7 +719,9 @@ void Parser::parse(const Instruction &instruction)
 
 		arraybase.array_size_literal.push_back(literal);
 		arraybase.array.push_back(literal ? c->scalar() : cid);
-		// Do NOT set arraybase.self!
+
+		// .self resolves down to non-array/non-pointer type.
+		arraybase.self = base.self;
 		break;
 	}
 
@@ -624,25 +730,27 @@ void Parser::parse(const Instruction &instruction)
 		uint32_t id = ops[0];
 
 		auto &base = get<SPIRType>(ops[1]);
-		auto &arraybase = set<SPIRType>(id);
+		auto &arraybase = set<SPIRType>(id, base);
 
 		// We're copying type information into Array types, so we'll need a fixup for any physical pointer
 		// references.
 		if (base.forward_pointer)
 			forward_pointer_fixups.push_back({ id, ops[1] });
 
-		arraybase = base;
+		arraybase.op = op;
 		arraybase.array.push_back(0);
 		arraybase.array_size_literal.push_back(true);
 		arraybase.parent_type = ops[1];
-		// Do NOT set arraybase.self!
+
+		// .self resolves down to non-array/non-pointer type.
+		arraybase.self = base.self;
 		break;
 	}
 
 	case OpTypeImage:
 	{
 		uint32_t id = ops[0];
-		auto &type = set<SPIRType>(id);
+		auto &type = set<SPIRType>(id, op);
 		type.basetype = SPIRType::Image;
 		type.image.type = ops[1];
 		type.image.dim = static_cast<Dim>(ops[2]);
@@ -659,7 +767,7 @@ void Parser::parse(const Instruction &instruction)
 	{
 		uint32_t id = ops[0];
 		uint32_t imagetype = ops[1];
-		auto &type = set<SPIRType>(id);
+		auto &type = set<SPIRType>(id, op);
 		type = get<SPIRType>(imagetype);
 		type.basetype = SPIRType::SampledImage;
 		type.self = id;
@@ -669,7 +777,7 @@ void Parser::parse(const Instruction &instruction)
 	case OpTypeSampler:
 	{
 		uint32_t id = ops[0];
-		auto &type = set<SPIRType>(id);
+		auto &type = set<SPIRType>(id, op);
 		type.basetype = SPIRType::Sampler;
 		break;
 	}
@@ -682,10 +790,13 @@ void Parser::parse(const Instruction &instruction)
 		// We won't be able to compile it, but we shouldn't crash when parsing.
 		// We should be able to reflect.
 		auto *base = maybe_get<SPIRType>(ops[2]);
-		auto &ptrbase = set<SPIRType>(id);
+		auto &ptrbase = set<SPIRType>(id, op);
 
 		if (base)
+		{
 			ptrbase = *base;
+			ptrbase.op = op;
+		}
 
 		ptrbase.pointer = true;
 		ptrbase.pointer_depth++;
@@ -706,7 +817,7 @@ void Parser::parse(const Instruction &instruction)
 	case OpTypeForwardPointer:
 	{
 		uint32_t id = ops[0];
-		auto &ptrbase = set<SPIRType>(id);
+		auto &ptrbase = set<SPIRType>(id, op);
 		ptrbase.pointer = true;
 		ptrbase.pointer_depth++;
 		ptrbase.storage = static_cast<StorageClass>(ops[1]);
@@ -721,7 +832,7 @@ void Parser::parse(const Instruction &instruction)
 	case OpTypeStruct:
 	{
 		uint32_t id = ops[0];
-		auto &type = set<SPIRType>(id);
+		auto &type = set<SPIRType>(id, op);
 		type.basetype = SPIRType::Struct;
 		for (uint32_t i = 1; i < length; i++)
 			type.member_types.push_back(ops[i]);
@@ -770,7 +881,7 @@ void Parser::parse(const Instruction &instruction)
 	case OpTypeAccelerationStructureKHR:
 	{
 		uint32_t id = ops[0];
-		auto &type = set<SPIRType>(id);
+		auto &type = set<SPIRType>(id, op);
 		type.basetype = SPIRType::AccelerationStructure;
 		break;
 	}
@@ -778,8 +889,22 @@ void Parser::parse(const Instruction &instruction)
 	case OpTypeRayQueryKHR:
 	{
 		uint32_t id = ops[0];
-		auto &type = set<SPIRType>(id);
+		auto &type = set<SPIRType>(id, op);
 		type.basetype = SPIRType::RayQuery;
+		break;
+	}
+
+	case OpTypeTensorARM:
+	{
+		uint32_t id = ops[0];
+		auto &type = set<SPIRType>(id, op);
+		type.basetype = SPIRType::Tensor;
+		type.ext.tensor = {};
+		type.ext.tensor.type = ops[1];
+		if (length >= 3)
+			type.ext.tensor.rank = ops[2];
+		if (length >= 4)
+			type.ext.tensor.shape = ops[3];
 		break;
 	}
 
@@ -829,17 +954,27 @@ void Parser::parse(const Instruction &instruction)
 		break;
 	}
 
-		// Constants
+	// Constants
 	case OpSpecConstant:
 	case OpConstant:
+	case OpConstantCompositeReplicateEXT:
+	case OpSpecConstantCompositeReplicateEXT:
 	{
 		uint32_t id = ops[1];
 		auto &type = get<SPIRType>(ops[0]);
-
-		if (type.width > 32)
-			set<SPIRConstant>(id, ops[0], ops[2] | (uint64_t(ops[3]) << 32), op == OpSpecConstant);
+		if (op == OpConstantCompositeReplicateEXT || op == OpSpecConstantCompositeReplicateEXT)
+		{
+			auto subconstant = uint32_t(ops[2]);
+			set<SPIRConstant>(id, ops[0], &subconstant, 1, op == OpSpecConstantCompositeReplicateEXT, true);
+		}
 		else
-			set<SPIRConstant>(id, ops[0], ops[2], op == OpSpecConstant);
+		{
+
+			if (type.width > 32)
+				set<SPIRConstant>(id, ops[0], ops[2] | (uint64_t(ops[3]) << 32), op == OpSpecConstant);
+			else
+				set<SPIRConstant>(id, ops[0], ops[2], op == OpSpecConstant);
+		}
 		break;
 	}
 
@@ -1025,10 +1160,9 @@ void Parser::parse(const Instruction &instruction)
 			{
 				uint32_t ids = ir.increase_bound_by(2);
 
-				SPIRType type;
+				auto &type = set<SPIRType>(ids, OpTypeInt);
 				type.basetype = SPIRType::Int;
 				type.width = 32;
-				set<SPIRType>(ids, type);
 				auto &c = set<SPIRConstant>(ids + 1, ids);
 
 				current_block->condition = c.self;

@@ -19,29 +19,36 @@
 #include <string>
 
 #include "source/binary.h"
-#include "source/enum_string_mapping.h"
+#include "source/table2.h"
 
 namespace spvtools {
 
 std::string GetExtensionString(const spv_parsed_instruction_t* inst) {
-  if (inst->opcode != static_cast<uint16_t>(spv::Op::OpExtension)) {
+  if ((inst->opcode != static_cast<uint16_t>(spv::Op::OpExtension)) &&
+      (inst->opcode !=
+       static_cast<uint16_t>(spv::Op::OpConditionalExtensionINTEL))) {
     return "ERROR_not_op_extension";
   }
 
-  assert(inst->num_operands == 1);
+  const bool is_conditional =
+      inst->opcode ==
+      static_cast<uint16_t>(spv::Op::OpConditionalExtensionINTEL);
+  assert(inst->num_operands == (is_conditional ? 2 : 1));
+  const uint16_t op_i = is_conditional ? 1 : 0;
 
-  const auto& operand = inst->operands[0];
+  const auto& operand = inst->operands[op_i];
   assert(operand.type == SPV_OPERAND_TYPE_LITERAL_STRING);
   assert(inst->num_words > operand.offset);
   (void)operand; /* No unused variables in release builds. */
 
-  return spvDecodeLiteralStringOperand(*inst, 0);
+  return spvDecodeLiteralStringOperand(*inst, op_i);
 }
 
 std::string ExtensionSetToString(const ExtensionSet& extensions) {
   std::stringstream ss;
-  extensions.ForEach(
-      [&ss](Extension ext) { ss << ExtensionToString(ext) << " "; });
+  for (auto extension : extensions) {
+    ss << ExtensionToString(extension) << " ";
+  }
   return ss.str();
 }
 

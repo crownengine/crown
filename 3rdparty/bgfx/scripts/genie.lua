@@ -1,5 +1,5 @@
 --
--- Copyright 2010-2023 Branimir Karadzic. All rights reserved.
+-- Copyright 2010-2025 Branimir Karadzic. All rights reserved.
 -- License: https://github.com/bkaradzic/bgfx/blob/master/LICENSE
 --
 
@@ -18,11 +18,6 @@ newoption {
 newoption {
 	trigger = "with-glfw",
 	description = "Enable GLFW entry.",
-}
-
-newoption {
-	trigger = "with-wayland",
-	description = "Use Wayland backend.",
 }
 
 newoption {
@@ -51,8 +46,8 @@ newoption {
 }
 
 newoption {
-	trigger = "with-webgpu",
-	description = "Enable webgpu experimental renderer.",
+	trigger = "with-libheif",
+	description = "Enable building bimg with libheif HEIF and AVIF file format decoder.",
 }
 
 newaction {
@@ -70,6 +65,7 @@ newaction {
 		end
 
 		generate("temp.bgfx.h" ,      "../include/bgfx/c99/bgfx.h", "    ")
+--		generate("temp.bgfx.hpp" ,    "../include/bgfx/bgfx.hpp",   "\t")
 		generate("temp.bgfx.idl.inl", "../src/bgfx.idl.inl",        "\t")
 		generate("temp.defines.h",    "../include/bgfx/defines.h",  "\t")
 
@@ -80,13 +76,16 @@ newaction {
 
 			local dgen = require "bindings-d"
 			dgen.write(dgen.gen(), "../bindings/d/package.d")
-			dgen.write(dgen.fakeEnumFile, "../bindings/d/fakeenum.d")
+			dgen.write(dgen.implFile, "../bindings/d/impl.d")
 
 			local csgen = require "bindings-bf"
 			csgen.write(csgen.gen(), "../bindings/bf/bgfx.bf")
 
 			local ziggen = require "bindings-zig"
 			ziggen.write(ziggen.gen(), "../bindings/zig/bgfx.zig")
+
+			local c3gen = require "bindings-c3"
+			c3gen.write(c3gen.gen(), "../bindings/c3/bgfx.c3")
 		end
 
 		os.exit()
@@ -111,7 +110,7 @@ newaction {
 		f:close()
 		io.output(path.join(MODULE_DIR, "src/version.h"))
 		io.write("/*\n")
-		io.write(" * Copyright 2011-2023 Branimir Karadzic. All rights reserved.\n")
+		io.write(" * Copyright 2011-2025 Branimir Karadzic. All rights reserved.\n")
 		io.write(" * License: https://github.com/bkaradzic/bgfx/blob/master/LICENSE\n")
 		io.write(" */\n")
 		io.write("\n")
@@ -179,33 +178,12 @@ if not os.isdir(BX_DIR) or not os.isdir(BIMG_DIR) then
 	os.exit()
 end
 
-if _OPTIONS["with-webgpu"] then
-	DAWN_DIR = os.getenv("DAWN_DIR")
-
-	if not DAWN_DIR then
-		DAWN_DIR = path.getabsolute(path.join(BGFX_DIR, "../dawn"))
-	end
-
-	if not os.isdir(DAWN_DIR) and "wasm*" ~= _OPTIONS["gcc"] then
-		print("Dawn not found at \"" .. DAWN_DIR .. "\". git clone https://dawn.googlesource.com/dawn?")
-
-		print("For more info see: https://bkaradzic.github.io/bgfx/build.html")
-		os.exit()
-	end
-
-	_OPTIONS["with-windows"] = "10.0"
-end
-
 dofile (path.join(BX_DIR, "scripts/toolchain.lua"))
 if not toolchain(BGFX_BUILD_DIR, BGFX_THIRD_PARTY_DIR) then
 	return -- no action specified
 end
 
 function copyLib()
-end
-
-if _OPTIONS["with-wayland"] then
-	defines { "WL_EGL_PLATFORM=1" }
 end
 
 if _OPTIONS["with-sdl"] then
@@ -248,20 +226,9 @@ function exampleProjectDefaults()
 
 	using_bx()
 
-	if _OPTIONS["with-webgpu"] then
-		usesWebGPU()
-	end
-
 	if _OPTIONS["with-sdl"] then
 		defines { "ENTRY_CONFIG_USE_SDL=1" }
 		links   { "SDL2" }
-
-		configuration { "linux or freebsd" }
-			if _OPTIONS["with-wayland"]  then
-				links {
-					"wayland-egl",
-				}
-			end
 
 		configuration { "osx*" }
 			libdirs { "$(SDL2_DIR)/lib" }
@@ -272,21 +239,6 @@ function exampleProjectDefaults()
 	if _OPTIONS["with-glfw"] then
 		defines { "ENTRY_CONFIG_USE_GLFW=1" }
 		links   { "glfw3" }
-
-		configuration { "linux or freebsd" }
-			if _OPTIONS["with-wayland"] then
-				links {
-					"wayland-egl",
-				}
-			else
-				links {
-					"Xrandr",
-					"Xinerama",
-					"Xi",
-					"Xxf86vm",
-					"Xcursor",
-				}
-			end
 
 		configuration { "osx*" }
 			linkoptions {
@@ -374,10 +326,21 @@ function exampleProjectDefaults()
 			"GLESv2",
 		}
 
+	configuration { "android*", "Debug" }
+		linkoptions {
+			"-Wl,-soname,lib" .. project().name .. "Debug.so"
+		}
+
+	configuration { "android*", "Release" }
+		linkoptions {
+			"-Wl,-soname,lib" .. project().name .. "Release.so"
+		}
+
 	configuration { "wasm*" }
 		kind "ConsoleApp"
 
 		linkoptions {
+			"-sGL_ENABLE_GET_PROC_ADDRESS",
 			"-s TOTAL_MEMORY=32MB",
 			"-s ALLOW_MEMORY_GROWTH=1",
 			"--preload-file ../../../examples/runtime@/"
@@ -447,13 +410,17 @@ function exampleProjectDefaults()
 	strip()
 end
 
-function exampleProject(_combined, ...)
+function exampleProject(_combined, _consoleApp, ...)
 
 	if _combined then
 
 		project ("examples")
 			uuid (os.uuid("examples"))
-			kind "WindowedApp"
+			if _consoleApp then
+				kind "ConsoleApp"
+			else
+				kind "WindowedApp"
+			end
 
 		for _, name in ipairs({...}) do
 
@@ -478,9 +445,14 @@ function exampleProject(_combined, ...)
 	else
 
 		for _, name in ipairs({...}) do
+
 			project ("example-" .. name)
 				uuid (os.uuid("example-" .. name))
-				kind "WindowedApp"
+				if _consoleApp then
+					kind "ConsoleApp"
+				else
+					kind "WindowedApp"
+				end
 
 			files {
 				path.join(BGFX_DIR, "examples", name, "**.c"),
@@ -545,7 +517,7 @@ if _OPTIONS["with-examples"]
 or _OPTIONS["with-combined-examples"] then
 	group "examples"
 
-	exampleProject(_OPTIONS["with-combined-examples"]
+	exampleProject(_OPTIONS["with-combined-examples"], false
 		, "00-helloworld"
 		, "01-cubes"
 		, "02-metaballs"
@@ -596,14 +568,15 @@ or _OPTIONS["with-combined-examples"] then
 		, "49-hextile"
 		)
 
-	-- 17-drawstress requires multithreading, does not compile for singlethreaded wasm
+
 	if premake.gcc.namestyle == nil or not premake.gcc.namestyle == "Emscripten" then
-		exampleProject(false, "17-drawstress")
+		exampleProject(false, false, "17-drawstress") -- 17-drawstress requires multithreading, does not compile for singlethreaded wasm
+		exampleProject(false, true,  "50-headless")   -- 50-headless is not tested with emscripten
 	end
 
 	-- C99 source doesn't compile under WinRT settings
 	if not premake.vstudio.iswinrt() then
-		exampleProject(false, "25-c99")
+		exampleProject(false, false, "25-c99")
 	end
 end
 

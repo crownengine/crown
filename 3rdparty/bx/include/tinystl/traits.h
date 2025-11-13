@@ -1,5 +1,5 @@
 /*-
- * Copyright 2012 Matthew Endsley
+ * Copyright 2012-2018 Matthew Endsley
  * All rights reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,9 +27,9 @@
 #ifndef TINYSTL_TRAITS_H
 #define TINYSTL_TRAITS_H
 
-#include "new.h"
+#include <tinystl/new.h>
 
-#if defined(__GNUC__) && defined(__is_pod)
+#if defined(__GNUC__)
 #	define TINYSTL_TRY_POD_OPTIMIZATION(t) __is_pod(t)
 #elif defined(_MSC_VER)
 #	define TINYSTL_TRY_POD_OPTIMIZATION(t) (!__is_class(t) || __is_pod(t))
@@ -80,6 +80,46 @@ namespace tinystl {
 	static inline void move_construct(T* a, T& b) {
 		move_construct_impl(a, b, (T*)0);
 	}
+
+	template<typename T>
+	struct remove_reference {
+		typedef T type;
+	};
+
+	template<typename T>
+	struct remove_reference<T&> {
+		typedef T type;
+	};
+
+	template<typename T>
+	struct remove_reference<T&&> {
+		typedef T type;
+	};
+
+	template<typename T>
+	struct remove_const {
+		typedef T type;
+	};
+
+	template<typename T>
+	struct remove_const<const T> {
+		typedef T type;
+	};
+
+	template<typename T>
+	struct remove_const<const T&> {
+		typedef T& type;
+	};
+
+	template<typename T>
+	struct remove_const<const T&&> {
+		typedef T&& type;
+	};
+
+	template<typename T>
+	struct remove_const_reference {
+		typedef typename remove_reference<typename remove_const<T>::type>::type type;
+	};
 }
 
 #endif

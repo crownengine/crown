@@ -50,7 +50,7 @@ uint32_t InstructionFolder::UnaryOperate(spv::Op opcode,
       if (s_operand == std::numeric_limits<int32_t>::min()) {
         return s_operand;
       }
-      return -s_operand;
+      return static_cast<uint32_t>(-s_operand);
     }
     case spv::Op::OpNot:
       return ~operand;
@@ -70,58 +70,6 @@ uint32_t InstructionFolder::UnaryOperate(spv::Op opcode,
 uint32_t InstructionFolder::BinaryOperate(spv::Op opcode, uint32_t a,
                                           uint32_t b) const {
   switch (opcode) {
-    // Arthimetics
-    case spv::Op::OpIAdd:
-      return a + b;
-    case spv::Op::OpISub:
-      return a - b;
-    case spv::Op::OpIMul:
-      return a * b;
-    case spv::Op::OpUDiv:
-      if (b != 0) {
-        return a / b;
-      } else {
-        // Dividing by 0 is undefined, so we will just pick 0.
-        return 0;
-      }
-    case spv::Op::OpSDiv:
-      if (b != 0u) {
-        return (static_cast<int32_t>(a)) / (static_cast<int32_t>(b));
-      } else {
-        // Dividing by 0 is undefined, so we will just pick 0.
-        return 0;
-      }
-    case spv::Op::OpSRem: {
-      // The sign of non-zero result comes from the first operand: a. This is
-      // guaranteed by C++11 rules for integer division operator. The division
-      // result is rounded toward zero, so the result of '%' has the sign of
-      // the first operand.
-      if (b != 0u) {
-        return static_cast<int32_t>(a) % static_cast<int32_t>(b);
-      } else {
-        // Remainder when dividing with 0 is undefined, so we will just pick 0.
-        return 0;
-      }
-    }
-    case spv::Op::OpSMod: {
-      // The sign of non-zero result comes from the second operand: b
-      if (b != 0u) {
-        int32_t rem = BinaryOperate(spv::Op::OpSRem, a, b);
-        int32_t b_prim = static_cast<int32_t>(b);
-        return (rem + b_prim) % b_prim;
-      } else {
-        // Mod with 0 is undefined, so we will just pick 0.
-        return 0;
-      }
-    }
-    case spv::Op::OpUMod:
-      if (b != 0u) {
-        return (a % b);
-      } else {
-        // Mod with 0 is undefined, so we will just pick 0.
-        return 0;
-      }
-
     // Shifting
     case spv::Op::OpShiftRightLogical:
       if (b >= 32) {
@@ -649,6 +597,9 @@ Instruction* InstructionFolder::FoldInstructionToConstant(
   const analysis::Constant* folded_const = nullptr;
   for (auto rule : GetConstantFoldingRules().GetRulesForInstruction(inst)) {
     folded_const = rule(context_, inst, constants);
+    if (folded_const == nullptr && inst->context()->id_overflow()) {
+      return nullptr;
+    }
     if (folded_const != nullptr) {
       Instruction* const_inst =
           const_mgr->GetDefiningInstruction(folded_const, inst->type_id());

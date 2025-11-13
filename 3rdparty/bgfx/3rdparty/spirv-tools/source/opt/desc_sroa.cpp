@@ -31,11 +31,14 @@ bool IsDecorationBinding(Instruction* inst) {
 
 Pass::Status DescriptorScalarReplacement::Process() {
   bool modified = false;
-
   std::vector<Instruction*> vars_to_kill;
 
   for (Instruction& var : context()->types_values()) {
-    if (descsroautil::IsDescriptorArray(context(), &var)) {
+    bool is_candidate =
+        flatten_arrays_ && descsroautil::IsDescriptorArray(context(), &var);
+    is_candidate |= flatten_composites_ &&
+                    descsroautil::IsDescriptorStruct(context(), &var);
+    if (is_candidate) {
       modified = true;
       if (!ReplaceCandidate(&var)) {
         return Status::Failure;
@@ -54,9 +57,10 @@ Pass::Status DescriptorScalarReplacement::Process() {
 bool DescriptorScalarReplacement::ReplaceCandidate(Instruction* var) {
   std::vector<Instruction*> access_chain_work_list;
   std::vector<Instruction*> load_work_list;
-  bool failed = !get_def_use_mgr()->WhileEachUser(
-      var->result_id(),
-      [this, &access_chain_work_list, &load_work_list](Instruction* use) {
+  std::vector<Instruction*> entry_point_work_list;
+  bool ok = get_def_use_mgr()->WhileEachUser(
+      var->result_id(), [this, &access_chain_work_list, &load_work_list,
+                         &entry_point_work_list](Instruction* use) {
         if (use->opcode() == spv::Op::OpName) {
           return true;
         }
@@ -73,6 +77,9 @@ bool DescriptorScalarReplacement::ReplaceCandidate(Instruction* var) {
           case spv::Op::OpLoad:
             load_work_list.push_back(use);
             return true;
+          case spv::Op::OpEntryPoint:
+            entry_point_work_list.push_back(use);
+            return true;
           default:
             context()->EmitErrorMessage(
                 "Variable cannot be replaced: invalid instruction", use);
@@ -81,7 +88,7 @@ bool DescriptorScalarReplacement::ReplaceCandidate(Instruction* var) {
         return true;
       });
 
-  if (failed) {
+  if (!ok) {
     return false;
   }
 
@@ -92,6 +99,11 @@ bool DescriptorScalarReplacement::ReplaceCandidate(Instruction* var) {
   }
   for (Instruction* use : load_work_list) {
     if (!ReplaceLoadedValue(var, use)) {
+      return false;
+    }
+  }
+  for (Instruction* use : entry_point_work_list) {
+    if (!ReplaceEntryPoint(var, use)) {
       return false;
     }
   }
@@ -116,6 +128,9 @@ bool DescriptorScalarReplacement::ReplaceAccessChain(Instruction* var,
 
   uint32_t idx = const_index->GetU32();
   uint32_t replacement_var = GetReplacementVariable(var, idx);
+  if (replacement_var == 0) {
+    return false;
+  }
 
   if (use->NumInOperands() == 2) {
     // We are not indexing into the replacement variable.  We can replaces the
@@ -140,6 +155,45 @@ bool DescriptorScalarReplacement::ReplaceAccessChain(Instruction* var,
   // the rest.
   for (uint32_t i = 4; i < use->NumOperands(); i++) {
     new_operands.emplace_back(use->GetOperand(i));
+  }
+
+  use->ReplaceOperands(new_operands);
+  context()->UpdateDefUse(use);
+  return true;
+}
+
+bool DescriptorScalarReplacement::ReplaceEntryPoint(Instruction* var,
+                                                    Instruction* use) {
+  // Build a new |OperandList| for |use| that removes |var| and adds its
+  // replacement variables.
+  Instruction::OperandList new_operands;
+
+  // Copy all operands except |var|.
+  bool found = false;
+  for (uint32_t idx = 0; idx < use->NumOperands(); idx++) {
+    Operand& op = use->GetOperand(idx);
+    if (op.type == SPV_OPERAND_TYPE_ID && op.words[0] == var->result_id()) {
+      found = true;
+    } else {
+      new_operands.emplace_back(op);
+    }
+  }
+
+  if (!found) {
+    context()->EmitErrorMessage(
+        "Variable cannot be replaced: invalid instruction", use);
+    return false;
+  }
+
+  // Add all new replacement variables.
+  uint32_t num_replacement_vars =
+      descsroautil::GetNumberOfElementsForArrayOrStruct(context(), var);
+  for (uint32_t i = 0; i < num_replacement_vars; i++) {
+    uint32_t replacement_var_id = GetReplacementVariable(var, i);
+    if (replacement_var_id == 0) {
+      return false;
+    }
+    new_operands.push_back({SPV_OPERAND_TYPE_ID, {replacement_var_id}});
   }
 
   use->ReplaceOperands(new_operands);
@@ -262,7 +316,10 @@ uint32_t DescriptorScalarReplacement::CreateReplacementVariable(
       element_type_id, storage_class);
 
   // Create the variable.
-  uint32_t id = TakeNextId();
+  uint32_t id = context()->TakeNextId();
+  if (id == 0) {
+    return 0;
+  }
   std::unique_ptr<Instruction> variable(
       new Instruction(context(), spv::Op::OpVariable, ptr_element_type_id, id,
                       std::initializer_list<Operand>{
@@ -396,10 +453,16 @@ bool DescriptorScalarReplacement::ReplaceCompositeExtract(
 
   uint32_t replacement_var =
       GetReplacementVariable(var, extract->GetSingleWordInOperand(1));
+  if (replacement_var == 0) {
+    return false;
+  }
 
   // The result type of the OpLoad is the same as the result type of the
   // OpCompositeExtract.
-  uint32_t load_id = TakeNextId();
+  uint32_t load_id = context()->TakeNextId();
+  if (load_id == 0) {
+    return false;
+  }
   std::unique_ptr<Instruction> load(
       new Instruction(context(), spv::Op::OpLoad, extract->type_id(), load_id,
                       std::initializer_list<Operand>{

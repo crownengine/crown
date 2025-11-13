@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2023 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2025 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx/blob/master/LICENSE
  */
 
@@ -465,6 +465,58 @@ namespace bx
 	}
 
 	//---
+	template<typename Ty> struct MakeSignedT { using Type = Ty; };
+	template<typename Ty>  using MakeSignedType = typename MakeSignedT<Ty>::Type;
+
+	template<typename Ty> struct MakeSignedT<const          Ty> : AddConstT   <MakeSignedType<Ty>> {};
+	template<typename Ty> struct MakeSignedT<volatile       Ty> : AddVolatileT<MakeSignedType<Ty>> {};
+	template<typename Ty> struct MakeSignedT<const volatile Ty> : AddCvT      <MakeSignedType<Ty>> {};
+
+	template<>            struct MakeSignedT<         char     > { using Type = signed char;      };
+	template<>            struct MakeSignedT<  signed char     > { using Type = signed char;      };
+	template<>            struct MakeSignedT<unsigned char     > { using Type = signed char;      };
+	template<>            struct MakeSignedT<         short    > { using Type = signed short;     };
+	template<>            struct MakeSignedT<unsigned short    > { using Type = signed short;     };
+	template<>            struct MakeSignedT<         int      > { using Type = signed int;       };
+	template<>            struct MakeSignedT<unsigned int      > { using Type = signed int;       };
+	template<>            struct MakeSignedT<         long     > { using Type = signed long;      };
+	template<>            struct MakeSignedT<unsigned long     > { using Type = signed long;      };
+	template<>            struct MakeSignedT<         long long> { using Type = signed long long; };
+	template<>            struct MakeSignedT<unsigned long long> { using Type = signed long long; };
+
+	template<typename Ty>
+	inline constexpr auto asSigned(Ty _value)
+	{
+		return MakeSignedType<Ty>(_value);
+	}
+
+	//---
+	template<typename Ty> struct MakeUnsignedT { using Type = Ty; };
+	template<typename Ty>  using MakeUnsignedType = typename MakeUnsignedT<Ty>::Type;
+
+	template<typename Ty> struct MakeUnsignedT<const          Ty> : AddConstT   <MakeUnsignedType<Ty>> {};
+	template<typename Ty> struct MakeUnsignedT<volatile       Ty> : AddVolatileT<MakeUnsignedType<Ty>> {};
+	template<typename Ty> struct MakeUnsignedT<const volatile Ty> : AddCvT      <MakeUnsignedType<Ty>> {};
+
+	template<>            struct MakeUnsignedT<         char     > { using Type = unsigned char;      };
+	template<>            struct MakeUnsignedT<  signed char     > { using Type = unsigned char;      };
+	template<>            struct MakeUnsignedT<unsigned char     > { using Type = unsigned char;      };
+	template<>            struct MakeUnsignedT<         short    > { using Type = unsigned short;     };
+	template<>            struct MakeUnsignedT<unsigned short    > { using Type = unsigned short;     };
+	template<>            struct MakeUnsignedT<         int      > { using Type = unsigned int;       };
+	template<>            struct MakeUnsignedT<unsigned int      > { using Type = unsigned int;       };
+	template<>            struct MakeUnsignedT<         long     > { using Type = unsigned long;      };
+	template<>            struct MakeUnsignedT<unsigned long     > { using Type = unsigned long;      };
+	template<>            struct MakeUnsignedT<         long long> { using Type = unsigned long long; };
+	template<>            struct MakeUnsignedT<unsigned long long> { using Type = unsigned long long; };
+
+	template<typename Ty>
+	inline constexpr auto asUnsigned(Ty _value)
+	{
+		return MakeUnsignedType<Ty>(_value);
+	}
+
+	//---
 	template<typename Ty> struct IsIntegerT                     : FalseConstant {};
 	template<>            struct IsIntegerT<bool              > :  TrueConstant {};
 	template<>            struct IsIntegerT<char              > :  TrueConstant {};
@@ -525,21 +577,21 @@ namespace bx
 
 	//---
 	template<typename Ty>
-	inline constexpr RemoveReferenceType<Ty>&& move(Ty&& _a)
+	[[nodiscard]] BX_ATTRIBUTE_INTRINSIC constexpr RemoveReferenceType<Ty>&& move(Ty&& _a)
 	{
 		return static_cast<RemoveReferenceType<Ty>&&>(_a);
 	}
 
 	template<typename Ty>
-	inline constexpr Ty&& forward(RemoveReferenceType<Ty>& _a)
+	[[nodiscard]] BX_ATTRIBUTE_INTRINSIC constexpr Ty&& forward(RemoveReferenceType<Ty>& _a)
 	{
 		return static_cast<Ty&&>(_a);
 	}
 
 	template<typename Ty>
-	inline constexpr Ty&& forward(RemoveReferenceType<Ty>&& _a)
+	[[nodiscard]] BX_ATTRIBUTE_INTRINSIC constexpr Ty&& forward(RemoveReferenceType<Ty>&& _a)
 	{
-		BX_STATIC_ASSERT(!isLvalueReference<Ty>(), "Can not forward an Rvalue as an Lvalue.");
+		static_assert(!isLvalueReference<Ty>(), "Can not forward an Rvalue as an Lvalue.");
 		return static_cast<Ty&&>(_a);
 	}
 

@@ -241,6 +241,7 @@ int TPpContext::CPPundef(TPpToken* ppToken)
 */
 int TPpContext::CPPelse(int matchelse, TPpToken* ppToken)
 {
+    inElseSkip = true;
     int depth = 0;
     int token = scanToken(ppToken);
 
@@ -297,7 +298,7 @@ int TPpContext::CPPelse(int matchelse, TPpToken* ppToken)
                     elseSeen[elsetracker] = false;
                     --elsetracker;
                 }
-
+                inElseSkip = false;
                 return CPPif(ppToken);
             }
         } else if (nextAtom == PpAtomElse) {
@@ -311,7 +312,8 @@ int TPpContext::CPPelse(int matchelse, TPpToken* ppToken)
                 parseContext.ppError(ppToken->loc, "#elif after #else", "#elif", "");
         }
     }
-
+    
+    inElseSkip = false;
     return token;
 }
 
@@ -374,11 +376,9 @@ namespace {
     int op_div(int a, int b) { return a == INT_MIN && b == -1 ? 0 : a / b; }
     int op_mod(int a, int b) { return a == INT_MIN && b == -1 ? 0 : a % b; }
     int op_pos(int a) { return a; }
-    int op_neg(int a) { return -a; }
+    int op_neg(int a) { return a == INT_MIN ? INT_MIN : -a; }
     int op_cmpl(int a) { return ~a; }
     int op_not(int a) { return !a; }
-
-};
 
 struct TBinop {
     int token, precedence, (*op)(int, int);
@@ -411,6 +411,8 @@ struct TUnop {
     { '~', op_cmpl },
     { '!', op_not },
 };
+
+} // anonymous namespace
 
 #define NUM_ELEMENTS(A) (sizeof(A) / sizeof(A[0]))
 
@@ -736,7 +738,6 @@ int TPpContext::CPPline(TPpToken* ppToken)
         parseContext.setCurrentLine(lineRes);
 
         if (token != '\n') {
-#ifndef GLSLANG_WEB
             if (token == PpAtomConstString) {
                 parseContext.ppRequireExtensions(directiveLoc, 1, &E_GL_GOOGLE_cpp_style_line_directive, "filename-based #line");
                 // We need to save a copy of the string instead of pointing
@@ -746,9 +747,7 @@ int TPpContext::CPPline(TPpToken* ppToken)
                 parseContext.setCurrentSourceName(sourceName);
                 hasFile = true;
                 token = scanToken(ppToken);
-            } else
-#endif
-            {
+            } else {
                 token = eval(token, MIN_PRECEDENCE, false, fileRes, fileErr, ppToken);
                 if (! fileErr) {
                     parseContext.setCurrentString(fileRes);
@@ -974,17 +973,16 @@ int TPpContext::readCPPline(TPpToken* ppToken)
         case PpAtomLine:
             token = CPPline(ppToken);
             break;
-#ifndef GLSLANG_WEB
         case PpAtomInclude:
             if(!parseContext.isReadingHLSL()) {
-                parseContext.ppRequireExtensions(ppToken->loc, 1, &E_GL_GOOGLE_include_directive, "#include");
+                const std::array exts = { E_GL_GOOGLE_include_directive, E_GL_ARB_shading_language_include };
+                parseContext.ppRequireExtensions(ppToken->loc, exts, "#include");
             }
             token = CPPinclude(ppToken);
             break;
         case PpAtomPragma:
             token = CPPpragma(ppToken);
             break;
-#endif
         case PpAtomUndef:
             token = CPPundef(ppToken);
             break;

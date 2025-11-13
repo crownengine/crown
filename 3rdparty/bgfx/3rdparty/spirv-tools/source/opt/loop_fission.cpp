@@ -362,14 +362,19 @@ Loop* LoopFissionImpl::SplitLoop() {
   LoopUtils util{context_, loop_};
   LoopUtils::LoopCloningResult clone_results;
   Loop* cloned_loop = util.CloneAndAttachLoopToHeader(&clone_results);
+  if (!cloned_loop) {
+    return nullptr;
+  }
 
   // Update the OpLoopMerge in the cloned loop.
   cloned_loop->UpdateLoopMergeInst();
 
   // Add the loop_ to the module.
-  // TODO(1841): Handle failure to create pre-header.
-  Function::iterator it =
-      util.GetFunction()->FindBlock(loop_->GetOrCreatePreHeaderBlock()->id());
+  BasicBlock* pre_header = loop_->GetOrCreatePreHeaderBlock();
+  if (!pre_header) {
+    return nullptr;
+  }
+  Function::iterator it = util.GetFunction()->FindBlock(pre_header->id());
   util.GetFunction()->AddBasicBlocks(clone_results.cloned_bb_.begin(),
                                      clone_results.cloned_bb_.end(), ++it);
   loop_->SetPreHeaderBlock(cloned_loop->GetMergeBlock());
@@ -478,6 +483,9 @@ Pass::Status LoopFissionPass::Process() {
 
         if (impl.CanPerformSplit()) {
           Loop* second_loop = impl.SplitLoop();
+          if (!second_loop) {
+            return Status::Failure;
+          }
           changed = true;
           context()->InvalidateAnalysesExceptFor(
               IRContext::kAnalysisLoopAnalysis);
@@ -499,6 +507,7 @@ Pass::Status LoopFissionPass::Process() {
       // next iteration.
       if (split_multiple_times_) {
         inner_most_loops = std::move(new_loops_to_split);
+        new_loops_to_split = {};
       } else {
         break;
       }

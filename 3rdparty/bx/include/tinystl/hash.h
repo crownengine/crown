@@ -1,5 +1,5 @@
 /*-
- * Copyright 2012 Matthew Endsley
+ * Copyright 2012-2018 Matthew Endsley
  * All rights reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
 #ifndef TINYSTL_STRINGHASH_H
 #define TINYSTL_STRINGHASH_H
 
-#include "stddef.h"
+#include <tinystl/stddef.h>
 
 namespace tinystl {
 

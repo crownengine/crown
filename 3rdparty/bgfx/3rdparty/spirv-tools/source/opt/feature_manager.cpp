@@ -16,7 +16,7 @@
 
 #include <string>
 
-#include "source/enum_string_mapping.h"
+#include "source/table2.h"
 
 namespace spvtools {
 namespace opt {
@@ -34,42 +34,51 @@ void FeatureManager::AddExtensions(Module* module) {
 }
 
 void FeatureManager::AddExtension(Instruction* ext) {
-  assert(ext->opcode() == spv::Op::OpExtension &&
+  assert((ext->opcode() == spv::Op::OpExtension ||
+          ext->opcode() == spv::Op::OpConditionalExtensionINTEL) &&
          "Expecting an extension instruction.");
 
-  const std::string name = ext->GetInOperand(0u).AsString();
+  const uint32_t name_i =
+      ext->opcode() == spv::Op::OpConditionalExtensionINTEL ? 1u : 0u;
+  const std::string name = ext->GetInOperand(name_i).AsString();
   Extension extension;
   if (GetExtensionFromString(name.c_str(), &extension)) {
-    extensions_.Add(extension);
+    extensions_.insert(extension);
   }
 }
 
 void FeatureManager::RemoveExtension(Extension ext) {
-  if (!extensions_.Contains(ext)) return;
-  extensions_.Remove(ext);
+  if (!extensions_.contains(ext)) return;
+  extensions_.erase(ext);
 }
 
 void FeatureManager::AddCapability(spv::Capability cap) {
-  if (capabilities_.Contains(cap)) return;
+  if (capabilities_.contains(cap)) return;
 
-  capabilities_.Add(cap);
+  capabilities_.insert(cap);
 
-  spv_operand_desc desc = {};
-  if (SPV_SUCCESS == grammar_.lookupOperand(SPV_OPERAND_TYPE_CAPABILITY,
-                                            uint32_t(cap), &desc)) {
-    CapabilitySet(desc->numCapabilities, desc->capabilities)
-        .ForEach([this](spv::Capability c) { AddCapability(c); });
+  const spvtools::OperandDesc* desc = nullptr;
+  if (SPV_SUCCESS == spvtools::LookupOperand(SPV_OPERAND_TYPE_CAPABILITY,
+                                             uint32_t(cap), &desc)) {
+    for (auto capability :
+         CapabilitySet(static_cast<uint32_t>(desc->capabilities().size()),
+                       desc->capabilities().data())) {
+      AddCapability(capability);
+    }
   }
 }
 
 void FeatureManager::RemoveCapability(spv::Capability cap) {
-  if (!capabilities_.Contains(cap)) return;
-  capabilities_.Remove(cap);
+  if (!capabilities_.contains(cap)) return;
+  capabilities_.erase(cap);
 }
 
 void FeatureManager::AddCapabilities(Module* module) {
   for (Instruction& inst : module->capabilities()) {
-    AddCapability(static_cast<spv::Capability>(inst.GetSingleWordInOperand(0)));
+    const uint32_t i_cap =
+        inst.opcode() == spv::Op::OpConditionalCapabilityINTEL ? 1 : 0;
+    AddCapability(
+        static_cast<spv::Capability>(inst.GetSingleWordInOperand(i_cap)));
   }
 }
 

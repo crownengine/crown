@@ -15,8 +15,10 @@
 #include "spirv-tools/optimizer.hpp"
 
 #include <cassert>
+#include <charconv>
 #include <memory>
 #include <string>
+#include <system_error>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -31,6 +33,15 @@
 #include "source/util/string_utils.h"
 
 namespace spvtools {
+
+std::vector<std::string> GetVectorOfStrings(const char** strings,
+                                            const size_t string_count) {
+  std::vector<std::string> result;
+  for (uint32_t i = 0; i < string_count; i++) {
+    result.emplace_back(strings[i]);
+  }
+  return result;
+}
 
 struct Optimizer::PassToken::Impl {
   Impl(std::unique_ptr<opt::Pass> p) : pass(std::move(p)) {}
@@ -157,7 +168,10 @@ Optimizer& Optimizer::RegisterLegalizationPasses(bool preserve_interface) {
           .RegisterPass(CreateDeadInsertElimPass())
           .RegisterPass(CreateReduceLoadSizePass())
           .RegisterPass(CreateAggressiveDCEPass(preserve_interface))
-          .RegisterPass(CreateInterpolateFixupPass());
+          .RegisterPass(CreateRemoveUnusedInterfaceVariablesPass())
+          .RegisterPass(CreateInterpolateFixupPass())
+          .RegisterPass(CreateInvocationInterlockPlacementPass())
+          .RegisterPass(CreateOpExtInstWithForwardReferenceFixupPass());
 }
 
 Optimizer& Optimizer::RegisterLegalizationPasses() {
@@ -175,7 +189,7 @@ Optimizer& Optimizer::RegisterPerformancePasses(bool preserve_interface) {
       .RegisterPass(CreateLocalSingleBlockLoadStoreElimPass())
       .RegisterPass(CreateLocalSingleStoreElimPass())
       .RegisterPass(CreateAggressiveDCEPass(preserve_interface))
-      .RegisterPass(CreateScalarReplacementPass())
+      .RegisterPass(CreateScalarReplacementPass(0))
       .RegisterPass(CreateLocalAccessChainConvertPass())
       .RegisterPass(CreateLocalSingleBlockLoadStoreElimPass())
       .RegisterPass(CreateLocalSingleStoreElimPass())
@@ -189,7 +203,7 @@ Optimizer& Optimizer::RegisterPerformancePasses(bool preserve_interface) {
       .RegisterPass(CreateRedundancyEliminationPass())
       .RegisterPass(CreateCombineAccessChainsPass())
       .RegisterPass(CreateSimplificationPass())
-      .RegisterPass(CreateScalarReplacementPass())
+      .RegisterPass(CreateScalarReplacementPass(0))
       .RegisterPass(CreateLocalAccessChainConvertPass())
       .RegisterPass(CreateLocalSingleBlockLoadStoreElimPass())
       .RegisterPass(CreateLocalSingleStoreElimPass())
@@ -254,8 +268,13 @@ Optimizer& Optimizer::RegisterSizePasses(bool preserve_interface) {
 Optimizer& Optimizer::RegisterSizePasses() { return RegisterSizePasses(false); }
 
 bool Optimizer::RegisterPassesFromFlags(const std::vector<std::string>& flags) {
+  return RegisterPassesFromFlags(flags, false);
+}
+
+bool Optimizer::RegisterPassesFromFlags(const std::vector<std::string>& flags,
+                                        bool preserve_interface) {
   for (const auto& flag : flags) {
-    if (!RegisterPassFromFlag(flag)) {
+    if (!RegisterPassFromFlag(flag, preserve_interface)) {
       return false;
     }
   }
@@ -279,6 +298,11 @@ bool Optimizer::FlagHasValidForm(const std::string& flag) const {
 }
 
 bool Optimizer::RegisterPassFromFlag(const std::string& flag) {
+  return RegisterPassFromFlag(flag, false);
+}
+
+bool Optimizer::RegisterPassFromFlag(const std::string& flag,
+                                     bool preserve_interface) {
   if (!FlagHasValidForm(flag)) {
     return false;
   }
@@ -301,6 +325,8 @@ bool Optimizer::RegisterPassFromFlag(const std::string& flag) {
     RegisterPass(CreateStripReflectInfoPass());
   } else if (pass_name == "strip-nonsemantic") {
     RegisterPass(CreateStripNonSemanticInfoPass());
+  } else if (pass_name == "fix-opextinst-opcodes") {
+    RegisterPass(CreateOpExtInstWithForwardReferenceFixupPass());
   } else if (pass_name == "set-spec-const-default-value") {
     if (pass_args.size() > 0) {
       auto spec_ids_vals =
@@ -339,8 +365,12 @@ bool Optimizer::RegisterPassFromFlag(const std::string& flag) {
     RegisterPass(CreateSpreadVolatileSemanticsPass());
   } else if (pass_name == "descriptor-scalar-replacement") {
     RegisterPass(CreateDescriptorScalarReplacementPass());
+  } else if (pass_name == "descriptor-composite-scalar-replacement") {
+    RegisterPass(CreateDescriptorCompositeScalarReplacementPass());
+  } else if (pass_name == "descriptor-array-scalar-replacement") {
+    RegisterPass(CreateDescriptorArrayScalarReplacementPass());
   } else if (pass_name == "eliminate-dead-code-aggressive") {
-    RegisterPass(CreateAggressiveDCEPass());
+    RegisterPass(CreateAggressiveDCEPass(preserve_interface));
   } else if (pass_name == "eliminate-insert-extract") {
     RegisterPass(CreateInsertExtractElimPass());
   } else if (pass_name == "eliminate-local-single-block") {
@@ -371,7 +401,7 @@ bool Optimizer::RegisterPassFromFlag(const std::string& flag) {
     RegisterPass(CreateLoopUnswitchPass());
   } else if (pass_name == "scalar-replacement") {
     if (pass_args.size() == 0) {
-      RegisterPass(CreateScalarReplacementPass());
+      RegisterPass(CreateScalarReplacementPass(0));
     } else {
       int limit = -1;
       if (pass_args.find_first_not_of("0123456789") == std::string::npos) {
@@ -429,24 +459,10 @@ bool Optimizer::RegisterPassFromFlag(const std::string& flag) {
     RegisterPass(CreateWorkaround1209Pass());
   } else if (pass_name == "replace-invalid-opcode") {
     RegisterPass(CreateReplaceInvalidOpcodePass());
-  } else if (pass_name == "inst-bindless-check" ||
-             pass_name == "inst-desc-idx-check" ||
-             pass_name == "inst-buff-oob-check") {
-    // preserve legacy names
-    RegisterPass(CreateInstBindlessCheckPass(7, 23));
-    RegisterPass(CreateSimplificationPass());
-    RegisterPass(CreateDeadBranchElimPass());
-    RegisterPass(CreateBlockMergePass());
-    RegisterPass(CreateAggressiveDCEPass(true));
-  } else if (pass_name == "inst-buff-addr-check") {
-    RegisterPass(CreateInstBuffAddrCheckPass(7, 23));
-    RegisterPass(CreateAggressiveDCEPass(true));
   } else if (pass_name == "convert-relaxed-to-half") {
     RegisterPass(CreateConvertRelaxedToHalfPass());
   } else if (pass_name == "relax-float-ops") {
     RegisterPass(CreateRelaxFloatOpsPass());
-  } else if (pass_name == "inst-debug-printf") {
-    RegisterPass(CreateInstDebugPrintfPass(7, 23));
   } else if (pass_name == "simplify-instructions") {
     RegisterPass(CreateSimplificationPass());
   } else if (pass_name == "ssa-rewrite") {
@@ -508,11 +524,11 @@ bool Optimizer::RegisterPassFromFlag(const std::string& flag) {
   } else if (pass_name == "fix-storage-class") {
     RegisterPass(CreateFixStorageClassPass());
   } else if (pass_name == "O") {
-    RegisterPerformancePasses();
+    RegisterPerformancePasses(preserve_interface);
   } else if (pass_name == "Os") {
-    RegisterSizePasses();
+    RegisterSizePasses(preserve_interface);
   } else if (pass_name == "legalize-hlsl") {
-    RegisterLegalizationPasses();
+    RegisterLegalizationPasses(preserve_interface);
   } else if (pass_name == "remove-unused-interface-variables") {
     RegisterPass(CreateRemoveUnusedInterfaceVariablesPass());
   } else if (pass_name == "graphics-robust-access") {
@@ -549,6 +565,84 @@ bool Optimizer::RegisterPassFromFlag(const std::string& flag) {
              pass_args.c_str());
       return false;
     }
+  } else if (pass_name == "struct-packing") {
+    if (pass_args.size() == 0) {
+      Error(consumer(), nullptr, {},
+            "--struct-packing requires a name:rule argument.");
+      return false;
+    }
+
+    auto separator_pos = pass_args.find(':');
+    if (separator_pos == std::string::npos || separator_pos == 0 ||
+        separator_pos + 1 == pass_args.size()) {
+      Errorf(consumer(), nullptr, {},
+             "Invalid argument for --struct-packing: %s", pass_args.c_str());
+      return false;
+    }
+
+    const std::string struct_name = pass_args.substr(0, separator_pos);
+    const std::string rule_name = pass_args.substr(separator_pos + 1);
+
+    RegisterPass(
+        CreateStructPackingPass(struct_name.c_str(), rule_name.c_str()));
+  } else if (pass_name == "switch-descriptorset") {
+    if (pass_args.size() == 0) {
+      Error(consumer(), nullptr, {},
+            "--switch-descriptorset requires a from:to argument.");
+      return false;
+    }
+    uint32_t from_set = 0, to_set = 0;
+    const char* start = pass_args.data();
+    const char* end = pass_args.data() + pass_args.size();
+
+    auto result = std::from_chars(start, end, from_set);
+    if (result.ec != std::errc()) {
+      Errorf(consumer(), nullptr, {},
+             "Invalid argument for --switch-descriptorset: %s",
+             pass_args.c_str());
+      return false;
+    }
+    start = result.ptr;
+    if (start[0] != ':') {
+      Errorf(consumer(), nullptr, {},
+             "Invalid argument for --switch-descriptorset: %s",
+             pass_args.c_str());
+      return false;
+    }
+    start++;
+    result = std::from_chars(start, end, to_set);
+    if (result.ec != std::errc() || result.ptr != end) {
+      Errorf(consumer(), nullptr, {},
+             "Invalid argument for --switch-descriptorset: %s",
+             pass_args.c_str());
+      return false;
+    }
+    RegisterPass(CreateSwitchDescriptorSetPass(from_set, to_set));
+  } else if (pass_name == "modify-maximal-reconvergence") {
+    if (pass_args.size() == 0) {
+      Error(consumer(), nullptr, {},
+            "--modify-maximal-reconvergence requires an argument");
+      return false;
+    }
+    if (pass_args == "add") {
+      RegisterPass(CreateModifyMaximalReconvergencePass(true));
+    } else if (pass_args == "remove") {
+      RegisterPass(CreateModifyMaximalReconvergencePass(false));
+    } else {
+      Errorf(consumer(), nullptr, {},
+             "Invalid argument for --modify-maximal-reconvergence: %s (must be "
+             "'add' or 'remove')",
+             pass_args.c_str());
+      return false;
+    }
+  } else if (pass_name == "trim-capabilities") {
+    RegisterPass(CreateTrimCapabilitiesPass());
+  } else if (pass_name == "split-combined-image-sampler") {
+    RegisterPass(CreateSplitCombinedImageSamplerPass());
+  } else if (pass_name == "resolve-binding-conflicts") {
+    RegisterPass(CreateResolveBindingConflictsPass());
+  } else if (pass_name == "canonicalize-ids") {
+    RegisterPass(CreateCanonicalizeIdsPass());
   } else {
     Errorf(consumer(), nullptr, {},
            "Unknown flag '--%s'. Use --help for a list of valid flags",
@@ -946,24 +1040,6 @@ Optimizer::PassToken CreateUpgradeMemoryModelPass() {
       MakeUnique<opt::UpgradeMemoryModel>());
 }
 
-Optimizer::PassToken CreateInstBindlessCheckPass(uint32_t desc_set,
-                                                 uint32_t shader_id) {
-  return MakeUnique<Optimizer::PassToken::Impl>(
-      MakeUnique<opt::InstBindlessCheckPass>(desc_set, shader_id));
-}
-
-Optimizer::PassToken CreateInstDebugPrintfPass(uint32_t desc_set,
-                                               uint32_t shader_id) {
-  return MakeUnique<Optimizer::PassToken::Impl>(
-      MakeUnique<opt::InstDebugPrintfPass>(desc_set, shader_id));
-}
-
-Optimizer::PassToken CreateInstBuffAddrCheckPass(uint32_t desc_set,
-                                                 uint32_t shader_id) {
-  return MakeUnique<Optimizer::PassToken::Impl>(
-      MakeUnique<opt::InstBuffAddrCheckPass>(desc_set, shader_id));
-}
-
 Optimizer::PassToken CreateConvertRelaxedToHalfPass() {
   return MakeUnique<Optimizer::PassToken::Impl>(
       MakeUnique<opt::ConvertToHalfPass>());
@@ -1001,7 +1077,20 @@ Optimizer::PassToken CreateSpreadVolatileSemanticsPass() {
 
 Optimizer::PassToken CreateDescriptorScalarReplacementPass() {
   return MakeUnique<Optimizer::PassToken::Impl>(
-      MakeUnique<opt::DescriptorScalarReplacement>());
+      MakeUnique<opt::DescriptorScalarReplacement>(
+          /* flatten_composites= */ true, /* flatten_arrays= */ true));
+}
+
+Optimizer::PassToken CreateDescriptorCompositeScalarReplacementPass() {
+  return MakeUnique<Optimizer::PassToken::Impl>(
+      MakeUnique<opt::DescriptorScalarReplacement>(
+          /* flatten_composites= */ true, /* flatten_arrays= */ false));
+}
+
+Optimizer::PassToken CreateDescriptorArrayScalarReplacementPass() {
+  return MakeUnique<Optimizer::PassToken::Impl>(
+      MakeUnique<opt::DescriptorScalarReplacement>(
+          /* flatten_composites= */ false, /* flatten_arrays= */ true));
 }
 
 Optimizer::PassToken CreateWrapOpKillPass() {
@@ -1071,6 +1160,55 @@ Optimizer::PassToken CreateFixFuncCallArgumentsPass() {
   return MakeUnique<Optimizer::PassToken::Impl>(
       MakeUnique<opt::FixFuncCallArgumentsPass>());
 }
+
+Optimizer::PassToken CreateTrimCapabilitiesPass() {
+  return MakeUnique<Optimizer::PassToken::Impl>(
+      MakeUnique<opt::TrimCapabilitiesPass>());
+}
+
+Optimizer::PassToken CreateStructPackingPass(const char* structToPack,
+                                             const char* packingRule) {
+  return MakeUnique<Optimizer::PassToken::Impl>(
+      MakeUnique<opt::StructPackingPass>(
+          structToPack,
+          opt::StructPackingPass::ParsePackingRuleFromString(packingRule)));
+}
+
+Optimizer::PassToken CreateSwitchDescriptorSetPass(uint32_t from, uint32_t to) {
+  return MakeUnique<Optimizer::PassToken::Impl>(
+      MakeUnique<opt::SwitchDescriptorSetPass>(from, to));
+}
+
+Optimizer::PassToken CreateInvocationInterlockPlacementPass() {
+  return MakeUnique<Optimizer::PassToken::Impl>(
+      MakeUnique<opt::InvocationInterlockPlacementPass>());
+}
+
+Optimizer::PassToken CreateModifyMaximalReconvergencePass(bool add) {
+  return MakeUnique<Optimizer::PassToken::Impl>(
+      MakeUnique<opt::ModifyMaximalReconvergence>(add));
+}
+
+Optimizer::PassToken CreateOpExtInstWithForwardReferenceFixupPass() {
+  return MakeUnique<Optimizer::PassToken::Impl>(
+      MakeUnique<opt::OpExtInstWithForwardReferenceFixupPass>());
+}
+
+Optimizer::PassToken CreateSplitCombinedImageSamplerPass() {
+  return MakeUnique<Optimizer::PassToken::Impl>(
+      MakeUnique<opt::SplitCombinedImageSamplerPass>());
+}
+
+Optimizer::PassToken CreateResolveBindingConflictsPass() {
+  return MakeUnique<Optimizer::PassToken::Impl>(
+      MakeUnique<opt::ResolveBindingConflictsPass>());
+}
+
+Optimizer::PassToken CreateCanonicalizeIdsPass() {
+  return MakeUnique<Optimizer::PassToken::Impl>(
+      MakeUnique<opt::CanonicalizeIdsPass>());
+}
+
 }  // namespace spvtools
 
 extern "C" {
@@ -1119,13 +1257,19 @@ SPIRV_TOOLS_EXPORT bool spvOptimizerRegisterPassFromFlag(
 
 SPIRV_TOOLS_EXPORT bool spvOptimizerRegisterPassesFromFlags(
     spv_optimizer_t* optimizer, const char** flags, const size_t flag_count) {
-  std::vector<std::string> opt_flags;
-  for (uint32_t i = 0; i < flag_count; i++) {
-    opt_flags.emplace_back(flags[i]);
-  }
+  std::vector<std::string> opt_flags =
+      spvtools::GetVectorOfStrings(flags, flag_count);
+  return reinterpret_cast<spvtools::Optimizer*>(optimizer)
+      ->RegisterPassesFromFlags(opt_flags, false);
+}
 
-  return reinterpret_cast<spvtools::Optimizer*>(optimizer)->
-      RegisterPassesFromFlags(opt_flags);
+SPIRV_TOOLS_EXPORT bool
+spvOptimizerRegisterPassesFromFlagsWhilePreservingTheInterface(
+    spv_optimizer_t* optimizer, const char** flags, const size_t flag_count) {
+  std::vector<std::string> opt_flags =
+      spvtools::GetVectorOfStrings(flags, flag_count);
+  return reinterpret_cast<spvtools::Optimizer*>(optimizer)
+      ->RegisterPassesFromFlags(opt_flags, true);
 }
 
 SPIRV_TOOLS_EXPORT

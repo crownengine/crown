@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2023 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2025 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx/blob/master/LICENSE
  */
 
@@ -7,7 +7,6 @@
 #define BGFX_RENDERER_D3D11_H_HEADER_GUARD
 
 #define USE_D3D11_DYNAMIC_LIB    (BX_PLATFORM_LINUX || BX_PLATFORM_WINDOWS)
-#define USE_D3D11_STAGING_BUFFER 0
 
 #if !USE_D3D11_DYNAMIC_LIB
 #   undef  BGFX_CONFIG_DEBUG_ANNOTATION
@@ -81,9 +80,9 @@ namespace bgfx { namespace d3d11
 	{
 		BufferD3D11()
 			: m_ptr(NULL)
-#if USE_D3D11_STAGING_BUFFER
+#if BGFX_CONFIG_RENDERER_DIRECT3D11_USE_STAGING_BUFFER
 			, m_staging(NULL)
-#endif // USE_D3D11_STAGING_BUFFER
+#endif // BGFX_CONFIG_RENDERER_DIRECT3D11_USE_STAGING_BUFFER
 			, m_srv(NULL)
 			, m_uav(NULL)
 			, m_flags(BGFX_BUFFER_NONE)
@@ -102,18 +101,18 @@ namespace bgfx { namespace d3d11
 				m_dynamic = false;
 			}
 
-#if USE_D3D11_STAGING_BUFFER
+#if BGFX_CONFIG_RENDERER_DIRECT3D11_USE_STAGING_BUFFER
 			DX_RELEASE(m_staging, 0);
-#endif // USE_D3D11_STAGING_BUFFER
+#endif // BGFX_CONFIG_RENDERER_DIRECT3D11_USE_STAGING_BUFFER
 
 			DX_RELEASE(m_srv, 0);
 			DX_RELEASE(m_uav, 0);
 		}
 
 		ID3D11Buffer* m_ptr;
-#if USE_D3D11_STAGING_BUFFER
+#if BGFX_CONFIG_RENDERER_DIRECT3D11_USE_STAGING_BUFFER
 		ID3D11Buffer* m_staging;
-#endif // USE_D3D11_STAGING_BUFFER
+#endif // BGFX_CONFIG_RENDERER_DIRECT3D11_USE_STAGING_BUFFER
 		ID3D11ShaderResourceView*  m_srv;
 		ID3D11UnorderedAccessView* m_uav;
 		uint32_t m_size;
@@ -287,7 +286,7 @@ namespace bgfx { namespace d3d11
 
 		void* create(const Memory* _mem, uint64_t _flags, uint8_t _skip);
 		void destroy();
-		void overrideInternal(uintptr_t _ptr);
+		void overrideInternal(uintptr_t _ptr, uint16_t _layerIndex);
 		void update(uint8_t _side, uint8_t _mip, const Rect& _rect, uint16_t _z, uint16_t _depth, uint16_t _pitch, const Memory* _mem);
 		void commit(uint8_t _stage, uint32_t _flags, const float _palette[][4]);
 		void resolve(uint8_t _resolve, uint32_t _layer, uint32_t _numLayers, uint32_t _mip) const;

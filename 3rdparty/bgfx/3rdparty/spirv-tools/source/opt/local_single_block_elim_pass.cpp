@@ -1,6 +1,8 @@
 // Copyright (c) 2017 The Khronos Group Inc.
 // Copyright (c) 2017 Valve Corporation
 // Copyright (c) 2017 LunarG Inc.
+// Modifications Copyright (C) 2024 Advanced Micro Devices, Inc. All rights
+// reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -239,6 +241,7 @@ void LocalSingleBlockLoadStoreElimPass::InitExtensions() {
       "SPV_AMD_gcn_shader",
       "SPV_KHR_shader_ballot",
       "SPV_AMD_shader_ballot",
+      "SPV_AMDX_shader_enqueue",
       "SPV_AMD_gpu_shader_half_float",
       "SPV_KHR_shader_draw_parameters",
       "SPV_KHR_subgroup_vote",
@@ -274,11 +277,13 @@ void LocalSingleBlockLoadStoreElimPass::InitExtensions() {
       "SPV_NV_shader_image_footprint",
       "SPV_NV_shading_rate",
       "SPV_NV_mesh_shader",
+      "SPV_EXT_mesh_shader",
       "SPV_NV_ray_tracing",
       "SPV_KHR_ray_tracing",
       "SPV_KHR_ray_query",
       "SPV_EXT_fragment_invocation_density",
       "SPV_EXT_physical_storage_buffer",
+      "SPV_KHR_physical_storage_buffer",
       "SPV_KHR_terminate_invocation",
       "SPV_KHR_subgroup_uniform_control_flow",
       "SPV_KHR_integer_dot_product",
@@ -288,6 +293,17 @@ void LocalSingleBlockLoadStoreElimPass::InitExtensions() {
       "SPV_KHR_fragment_shader_barycentric",
       "SPV_KHR_vulkan_memory_model",
       "SPV_NV_bindless_texture",
+      "SPV_EXT_shader_atomic_float_add",
+      "SPV_EXT_fragment_shader_interlock",
+      "SPV_KHR_compute_shader_derivatives",
+      "SPV_NV_cooperative_matrix",
+      "SPV_KHR_cooperative_matrix",
+      "SPV_KHR_ray_tracing_position_fetch",
+      "SPV_KHR_fragment_shading_rate",
+      "SPV_KHR_quad_control",
+      "SPV_NV_shader_invocation_reorder",
+      "SPV_NV_cluster_acceleration_structure",
+      "SPV_NV_linear_swept_spheres",
   });
 }
 

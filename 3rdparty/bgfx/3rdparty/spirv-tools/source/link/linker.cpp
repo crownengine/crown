@@ -15,9 +15,10 @@
 #include "spirv-tools/linker.hpp"
 
 #include <algorithm>
+#include <cstdint>
 #include <cstdio>
 #include <cstring>
-#include <iostream>
+#include <functional>
 #include <memory>
 #include <numeric>
 #include <string>
@@ -26,18 +27,18 @@
 #include <utility>
 #include <vector>
 
-#include "source/assembly_grammar.h"
+#include "fnvar.h"
 #include "source/diagnostic.h"
 #include "source/opt/build_module.h"
 #include "source/opt/compact_ids_pass.h"
 #include "source/opt/decoration_manager.h"
-#include "source/opt/ir_loader.h"
+#include "source/opt/ir_builder.h"
 #include "source/opt/pass_manager.h"
 #include "source/opt/remove_duplicates_pass.h"
 #include "source/opt/remove_unused_interface_variables_pass.h"
 #include "source/opt/type_manager.h"
 #include "source/spirv_constant.h"
-#include "source/spirv_target_env.h"
+#include "source/table2.h"
 #include "source/util/make_unique.h"
 #include "source/util/string_utils.h"
 #include "spirv-tools/libspirv.hpp"
@@ -46,12 +47,14 @@ namespace spvtools {
 namespace {
 
 using opt::Instruction;
+using opt::InstructionBuilder;
 using opt::IRContext;
 using opt::Module;
 using opt::PassManager;
 using opt::RemoveDuplicatesPass;
 using opt::analysis::DecorationManager;
 using opt::analysis::DefUseManager;
+using opt::analysis::Function;
 using opt::analysis::Type;
 using opt::analysis::TypeManager;
 
@@ -91,7 +94,8 @@ spv_result_t ShiftIdsInModules(const MessageConsumer& consumer,
 // should be non-null. |max_id_bound| should be strictly greater than 0.
 spv_result_t GenerateHeader(const MessageConsumer& consumer,
                             const std::vector<opt::Module*>& modules,
-                            uint32_t max_id_bound, opt::ModuleHeader* header);
+                            uint32_t max_id_bound, opt::ModuleHeader* header,
+                            const LinkerOptions& options);
 
 // Merge all the modules from |in_modules| into a single module owned by
 // |linked_context|.
@@ -99,7 +103,6 @@ spv_result_t GenerateHeader(const MessageConsumer& consumer,
 // |linked_context| should not be null.
 spv_result_t MergeModules(const MessageConsumer& consumer,
                           const std::vector<Module*>& in_modules,
-                          const AssemblyGrammar& grammar,
                           IRContext* linked_context);
 
 // Compute all pairs of import and export and return it in |linkings_to_do|.
@@ -125,6 +128,7 @@ spv_result_t GetImportExportPairs(const MessageConsumer& consumer,
 // checked.
 spv_result_t CheckImportExportCompatibility(const MessageConsumer& consumer,
                                             const LinkageTable& linkings_to_do,
+                                            bool allow_ptr_type_mismatch,
                                             opt::IRContext* context);
 
 // Remove linkage specific instructions, such as prototypes of imported
@@ -202,7 +206,8 @@ spv_result_t ShiftIdsInModules(const MessageConsumer& consumer,
 
 spv_result_t GenerateHeader(const MessageConsumer& consumer,
                             const std::vector<opt::Module*>& modules,
-                            uint32_t max_id_bound, opt::ModuleHeader* header) {
+                            uint32_t max_id_bound, opt::ModuleHeader* header,
+                            const LinkerOptions& options) {
   spv_position_t position = {};
 
   if (modules.empty())
@@ -212,10 +217,12 @@ spv_result_t GenerateHeader(const MessageConsumer& consumer,
     return DiagnosticStream(position, consumer, "", SPV_ERROR_INVALID_DATA)
            << "|max_id_bound| of GenerateHeader should not be null.";
 
-  const uint32_t linked_version = modules.front()->version();
+  uint32_t linked_version = modules.front()->version();
   for (std::size_t i = 1; i < modules.size(); ++i) {
     const uint32_t module_version = modules[i]->version();
-    if (module_version != linked_version)
+    if (options.GetUseHighestVersion()) {
+      linked_version = std::max(linked_version, module_version);
+    } else if (module_version != linked_version) {
       return DiagnosticStream({0, 0, 1}, consumer, "", SPV_ERROR_INTERNAL)
              << "Conflicting SPIR-V versions: "
              << SPV_SPIRV_VERSION_MAJOR_PART(linked_version) << "."
@@ -224,6 +231,7 @@ spv_result_t GenerateHeader(const MessageConsumer& consumer,
              << SPV_SPIRV_VERSION_MAJOR_PART(module_version) << "."
              << SPV_SPIRV_VERSION_MINOR_PART(module_version)
              << " (input module " << (i + 1) << ").";
+    }
   }
 
   header->magic_number = spv::MagicNumber;
@@ -237,7 +245,6 @@ spv_result_t GenerateHeader(const MessageConsumer& consumer,
 
 spv_result_t MergeModules(const MessageConsumer& consumer,
                           const std::vector<Module*>& input_modules,
-                          const AssemblyGrammar& grammar,
                           IRContext* linked_context) {
   spv_position_t position = {};
 
@@ -285,29 +292,33 @@ spv_result_t MergeModules(const MessageConsumer& consumer,
     const uint32_t module_addressing_model =
         memory_model_inst->GetSingleWordOperand(0u);
     if (module_addressing_model != linked_addressing_model) {
-      spv_operand_desc linked_desc = nullptr, module_desc = nullptr;
-      grammar.lookupOperand(SPV_OPERAND_TYPE_ADDRESSING_MODEL,
-                            linked_addressing_model, &linked_desc);
-      grammar.lookupOperand(SPV_OPERAND_TYPE_ADDRESSING_MODEL,
-                            module_addressing_model, &module_desc);
+      const spvtools::OperandDesc* linked_desc = nullptr;
+      const spvtools::OperandDesc* module_desc = nullptr;
+      spvtools::LookupOperand(SPV_OPERAND_TYPE_ADDRESSING_MODEL,
+                              linked_addressing_model, &linked_desc);
+      spvtools::LookupOperand(SPV_OPERAND_TYPE_ADDRESSING_MODEL,
+                              module_addressing_model, &module_desc);
       return DiagnosticStream(position, consumer, "", SPV_ERROR_INTERNAL)
-             << "Conflicting addressing models: " << linked_desc->name
+             << "Conflicting addressing models: " << linked_desc->name().data()
              << " (input modules 1 through " << i << ") vs "
-             << module_desc->name << " (input module " << (i + 1) << ").";
+             << module_desc->name().data() << " (input module " << (i + 1)
+             << ").";
     }
 
     const uint32_t module_memory_model =
         memory_model_inst->GetSingleWordOperand(1u);
     if (module_memory_model != linked_memory_model) {
-      spv_operand_desc linked_desc = nullptr, module_desc = nullptr;
-      grammar.lookupOperand(SPV_OPERAND_TYPE_MEMORY_MODEL, linked_memory_model,
-                            &linked_desc);
-      grammar.lookupOperand(SPV_OPERAND_TYPE_MEMORY_MODEL, module_memory_model,
-                            &module_desc);
+      const spvtools::OperandDesc* linked_desc = nullptr;
+      const spvtools::OperandDesc* module_desc = nullptr;
+      spvtools::LookupOperand(SPV_OPERAND_TYPE_MEMORY_MODEL,
+                              linked_memory_model, &linked_desc);
+      spvtools::LookupOperand(SPV_OPERAND_TYPE_MEMORY_MODEL,
+                              module_memory_model, &module_desc);
       return DiagnosticStream(position, consumer, "", SPV_ERROR_INTERNAL)
-             << "Conflicting memory models: " << linked_desc->name
+             << "Conflicting memory models: " << linked_desc->name().data()
              << " (input modules 1 through " << i << ") vs "
-             << module_desc->name << " (input module " << (i + 1) << ").";
+             << module_desc->name().data() << " (input module " << (i + 1)
+             << ").";
     }
   }
   linked_module->SetMemoryModel(std::unique_ptr<Instruction>(
@@ -317,18 +328,21 @@ spv_result_t MergeModules(const MessageConsumer& consumer,
   for (const auto& module : input_modules)
     for (const auto& inst : module->entry_points()) {
       const uint32_t model = inst.GetSingleWordInOperand(0);
-      const std::string name = inst.GetInOperand(2).AsString();
+      const std::string name =
+          inst.opcode() == spv::Op::OpConditionalEntryPointINTEL
+              ? inst.GetOperand(3).AsString()
+              : inst.GetOperand(2).AsString();
       const auto i = std::find_if(
           entry_points.begin(), entry_points.end(),
           [model, name](const std::pair<uint32_t, std::string>& v) {
             return v.first == model && v.second == name;
           });
       if (i != entry_points.end()) {
-        spv_operand_desc desc = nullptr;
-        grammar.lookupOperand(SPV_OPERAND_TYPE_EXECUTION_MODEL, model, &desc);
+        const spvtools::OperandDesc* desc = nullptr;
+        spvtools::LookupOperand(SPV_OPERAND_TYPE_EXECUTION_MODEL, model, &desc);
         return DiagnosticStream(position, consumer, "", SPV_ERROR_INTERNAL)
                << "The entry point \"" << name << "\", with execution model "
-               << desc->name << ", was already defined.";
+               << desc->name().data() << ", was already defined.";
       }
       linked_module->AddEntryPoint(
           std::unique_ptr<Instruction>(inst.Clone(linked_context)));
@@ -411,6 +425,7 @@ spv_result_t GetImportExportPairs(const MessageConsumer& consumer,
 
   std::vector<LinkageSymbolInfo> imports;
   std::unordered_map<std::string, std::vector<LinkageSymbolInfo>> exports;
+  std::unordered_map<std::string, LinkageSymbolInfo> linkonce;
 
   // Figure out the imports and exports
   for (const auto& decoration : linked_context.annotations()) {
@@ -469,10 +484,24 @@ spv_result_t GetImportExportPairs(const MessageConsumer& consumer,
              << " LinkageAttributes; " << id << " is neither of them.\n";
     }
 
-    if (spv::LinkageType(type) == spv::LinkageType::Import)
+    if (spv::LinkageType(type) == spv::LinkageType::Import) {
       imports.push_back(symbol_info);
-    else if (spv::LinkageType(type) == spv::LinkageType::Export)
+    } else if (spv::LinkageType(type) == spv::LinkageType::Export) {
       exports[symbol_info.name].push_back(symbol_info);
+    } else if (spv::LinkageType(type) == spv::LinkageType::LinkOnceODR) {
+      if (linkonce.find(symbol_info.name) == linkonce.end())
+        linkonce[symbol_info.name] = symbol_info;
+    }
+  }
+
+  for (const auto& possible_export : linkonce) {
+    if (exports.find(possible_export.first) == exports.end())
+      exports[possible_export.first].push_back(possible_export.second);
+    else
+      return DiagnosticStream(position, consumer, "", SPV_ERROR_INVALID_BINARY)
+             << "Combination of Export and LinkOnceODR is not allowed, found "
+                "for \""
+             << possible_export.second.name << "\".";
   }
 
   // Find the import/export pairs
@@ -497,6 +526,7 @@ spv_result_t GetImportExportPairs(const MessageConsumer& consumer,
 
 spv_result_t CheckImportExportCompatibility(const MessageConsumer& consumer,
                                             const LinkageTable& linkings_to_do,
+                                            bool allow_ptr_type_mismatch,
                                             opt::IRContext* context) {
   spv_position_t position = {};
 
@@ -508,7 +538,34 @@ spv_result_t CheckImportExportCompatibility(const MessageConsumer& consumer,
         type_manager.GetType(linking_entry.imported_symbol.type_id);
     Type* exported_symbol_type =
         type_manager.GetType(linking_entry.exported_symbol.type_id);
-    if (!(*imported_symbol_type == *exported_symbol_type))
+    if (!(*imported_symbol_type == *exported_symbol_type)) {
+      Function* imported_symbol_type_func = imported_symbol_type->AsFunction();
+      Function* exported_symbol_type_func = exported_symbol_type->AsFunction();
+
+      if (imported_symbol_type_func && exported_symbol_type_func) {
+        const auto& imported_params = imported_symbol_type_func->param_types();
+        const auto& exported_params = exported_symbol_type_func->param_types();
+        // allow_ptr_type_mismatch allows linking functions where the pointer
+        // type of arguments doesn't match. Everything else still needs to be
+        // equal. This is to workaround LLVM-17+ not having typed pointers and
+        // generated SPIR-Vs not knowing the actual pointer types in some cases.
+        if (allow_ptr_type_mismatch &&
+            imported_params.size() == exported_params.size()) {
+          bool correct = true;
+          for (size_t i = 0; i < imported_params.size(); i++) {
+            const auto& imported_param = imported_params[i];
+            const auto& exported_param = exported_params[i];
+
+            if (!imported_param->IsSame(exported_param) &&
+                (imported_param->kind() != Type::kPointer ||
+                 exported_param->kind() != Type::kPointer)) {
+              correct = false;
+              break;
+            }
+          }
+          if (correct) continue;
+        }
+      }
       return DiagnosticStream(position, consumer, "", SPV_ERROR_INVALID_BINARY)
              << "Type mismatch on symbol \""
              << linking_entry.imported_symbol.name
@@ -516,6 +573,7 @@ spv_result_t CheckImportExportCompatibility(const MessageConsumer& consumer,
              << linking_entry.imported_symbol.id
              << " and exported variable/function %"
              << linking_entry.exported_symbol.id << ".";
+    }
   }
 
   // Ensure the import and export decorations are similar
@@ -623,8 +681,10 @@ spv_result_t RemoveLinkageSpecificInstructions(
       if (inst->opcode() == spv::Op::OpDecorate &&
           spv::Decoration(inst->GetSingleWordOperand(1u)) ==
               spv::Decoration::LinkageAttributes &&
-          spv::LinkageType(inst->GetSingleWordOperand(3u)) ==
-              spv::LinkageType::Export) {
+          (spv::LinkageType(inst->GetSingleWordOperand(3u)) ==
+               spv::LinkageType::Export ||
+           spv::LinkageType(inst->GetSingleWordOperand(3u)) ==
+               spv::LinkageType::LinkOnceODR)) {
         linked_context->KillInst(&*inst);
       }
     }
@@ -671,8 +731,7 @@ spv_result_t VerifyLimits(const MessageConsumer& consumer,
   if (max_id_bound >= SPV_LIMIT_RESULT_ID_BOUND)
     DiagnosticStream({0u, 0u, 4u}, consumer, "", SPV_WARNING)
         << "The minimum limit of IDs, " << (SPV_LIMIT_RESULT_ID_BOUND - 1)
-        << ", was exceeded:"
-        << " " << max_id_bound << " is the current ID bound.\n"
+        << ", was exceeded: " << max_id_bound << " is the current ID bound.\n"
         << "The resulting module might not be supported by all "
            "implementations.";
 
@@ -683,11 +742,62 @@ spv_result_t VerifyLimits(const MessageConsumer& consumer,
   if (num_global_values >= SPV_LIMIT_GLOBAL_VARIABLES_MAX)
     DiagnosticStream(position, consumer, "", SPV_WARNING)
         << "The minimum limit of global values, "
-        << (SPV_LIMIT_GLOBAL_VARIABLES_MAX - 1) << ", was exceeded;"
-        << " " << num_global_values << " global values were found.\n"
+        << (SPV_LIMIT_GLOBAL_VARIABLES_MAX - 1) << ", was exceeded; "
+        << num_global_values << " global values were found.\n"
         << "The resulting module might not be supported by all "
            "implementations.";
 
+  return SPV_SUCCESS;
+}
+
+spv_result_t FixFunctionCallTypes(opt::IRContext& context,
+                                  const LinkageTable& linkings) {
+  auto mod = context.module();
+  const auto type_manager = context.get_type_mgr();
+  const auto def_use_mgr = context.get_def_use_mgr();
+
+  for (auto& func : *mod) {
+    func.ForEachInst([&](Instruction* inst) {
+      if (inst->opcode() != spv::Op::OpFunctionCall) return;
+      opt::Operand& target = inst->GetInOperand(0);
+
+      // only fix calls to imported functions
+      auto linking = std::find_if(
+          linkings.begin(), linkings.end(), [&](const auto& entry) {
+            return entry.exported_symbol.id == target.AsId();
+          });
+      if (linking == linkings.end()) return;
+
+      auto builder = InstructionBuilder(&context, inst);
+      for (uint32_t i = 1; i < inst->NumInOperands(); ++i) {
+        auto exported_func_param =
+            def_use_mgr->GetDef(linking->exported_symbol.parameter_ids[i - 1]);
+        const Type* target_type =
+            type_manager->GetType(exported_func_param->type_id());
+        if (target_type->kind() != Type::kPointer) continue;
+
+        opt::Operand& arg = inst->GetInOperand(i);
+        const Type* param_type =
+            type_manager->GetType(def_use_mgr->GetDef(arg.AsId())->type_id());
+
+        // No need to cast if it already matches
+        if (*param_type == *target_type) continue;
+
+        auto new_id = context.TakeNextId();
+
+        // cast to the expected pointer type
+        builder.AddInstruction(MakeUnique<opt::Instruction>(
+            &context, spv::Op::OpBitcast, exported_func_param->type_id(),
+            new_id,
+            opt::Instruction::OperandList(
+                {{SPV_OPERAND_TYPE_ID, {arg.AsId()}}})));
+
+        inst->SetInOperand(i, {new_id});
+      }
+    });
+  }
+  context.InvalidateAnalyses(opt::IRContext::kAnalysisDefUse |
+                             opt::IRContext::kAnalysisInstrToBlockMapping);
   return SPV_SUCCESS;
 }
 
@@ -745,6 +855,22 @@ spv_result_t Link(const Context& context, const uint32_t* const* binaries,
     ir_contexts.push_back(std::move(ir_context));
   }
 
+  const bool make_multitarget = !options.GetFnVarArchitecturesCsv().empty() ||
+                                !options.GetFnVarTargetsCsv().empty();
+
+  VariantDefs variant_defs;
+
+  if (make_multitarget) {
+    if (!variant_defs.ProcessFnVar(options, modules)) {
+      return DiagnosticStream(position, consumer, "", SPV_ERROR_FNVAR)
+             << variant_defs.GetErr();
+    }
+    if (!variant_defs.ProcessVariantDefs()) {
+      return DiagnosticStream(position, consumer, "", SPV_ERROR_FNVAR)
+             << variant_defs.GetErr();
+    }
+  }
+
   // Phase 1: Shift the IDs used in each binary so that they occupy a disjoint
   //          range from the other binaries, and compute the new ID bound.
   uint32_t max_id_bound = 0u;
@@ -753,14 +879,17 @@ spv_result_t Link(const Context& context, const uint32_t* const* binaries,
 
   // Phase 2: Generate the header
   opt::ModuleHeader header;
-  res = GenerateHeader(consumer, modules, max_id_bound, &header);
+  res = GenerateHeader(consumer, modules, max_id_bound, &header, options);
   if (res != SPV_SUCCESS) return res;
   IRContext linked_context(c_context->target_env, consumer);
   linked_context.module()->SetHeader(header);
 
+  if (make_multitarget) {
+    variant_defs.GenerateHeader(&linked_context);
+  }
+
   // Phase 3: Merge all the binaries into a single one.
-  AssemblyGrammar grammar(c_context);
-  res = MergeModules(consumer, modules, grammar, &linked_context);
+  res = MergeModules(consumer, modules, &linked_context);
   if (res != SPV_SUCCESS) return res;
 
   if (options.GetVerifyIds()) {
@@ -768,7 +897,18 @@ spv_result_t Link(const Context& context, const uint32_t* const* binaries,
     if (res != SPV_SUCCESS) return res;
   }
 
-  // Phase 4: Find the import/export pairs
+  // Phase 4: Remove duplicates
+  PassManager manager;
+  manager.SetMessageConsumer(consumer);
+  manager.AddPass<RemoveDuplicatesPass>();
+  opt::Pass::Status pass_res = manager.Run(&linked_context);
+  if (pass_res == opt::Pass::Status::Failure) return SPV_ERROR_INVALID_DATA;
+
+  if (make_multitarget) {
+    variant_defs.CombineVariantInstructions(&linked_context);
+  }
+
+  // Phase 5: Find the import/export pairs
   LinkageTable linkings_to_do;
   res = GetImportExportPairs(consumer, linked_context,
                              *linked_context.get_def_use_mgr(),
@@ -776,17 +916,11 @@ spv_result_t Link(const Context& context, const uint32_t* const* binaries,
                              options.GetAllowPartialLinkage(), &linkings_to_do);
   if (res != SPV_SUCCESS) return res;
 
-  // Phase 5: Ensure the import and export have the same types and decorations.
-  res =
-      CheckImportExportCompatibility(consumer, linkings_to_do, &linked_context);
+  // Phase 6: Ensure the import and export have the same types and decorations.
+  res = CheckImportExportCompatibility(consumer, linkings_to_do,
+                                       options.GetAllowPtrTypeMismatch(),
+                                       &linked_context);
   if (res != SPV_SUCCESS) return res;
-
-  // Phase 6: Remove duplicates
-  PassManager manager;
-  manager.SetMessageConsumer(consumer);
-  manager.AddPass<RemoveDuplicatesPass>();
-  opt::Pass::Status pass_res = manager.Run(&linked_context);
-  if (pass_res == opt::Pass::Status::Failure) return SPV_ERROR_INVALID_DATA;
 
   // Phase 7: Remove all names and decorations of import variables/functions
   for (const auto& linking_entry : linkings_to_do) {
@@ -810,21 +944,27 @@ spv_result_t Link(const Context& context, const uint32_t* const* binaries,
                                           &linked_context);
   if (res != SPV_SUCCESS) return res;
 
-  // Phase 10: Compact the IDs used in the module
+  // Phase 10: Optionally fix function call types
+  if (options.GetAllowPtrTypeMismatch()) {
+    res = FixFunctionCallTypes(linked_context, linkings_to_do);
+    if (res != SPV_SUCCESS) return res;
+  }
+
+  // Phase 11: Compact the IDs used in the module
   manager.AddPass<opt::CompactIdsPass>();
   pass_res = manager.Run(&linked_context);
   if (pass_res == opt::Pass::Status::Failure) return SPV_ERROR_INVALID_DATA;
 
-  // Phase 11: Recompute EntryPoint variables
+  // Phase 12: Recompute EntryPoint variables
   manager.AddPass<opt::RemoveUnusedInterfaceVariablesPass>();
   pass_res = manager.Run(&linked_context);
   if (pass_res == opt::Pass::Status::Failure) return SPV_ERROR_INVALID_DATA;
 
-  // Phase 12: Warn if SPIR-V limits were exceeded
+  // Phase 13: Warn if SPIR-V limits were exceeded
   res = VerifyLimits(consumer, linked_context);
   if (res != SPV_SUCCESS) return res;
 
-  // Phase 13: Output the module
+  // Phase 14: Output the module
   linked_context.module()->ToBinary(linked_binary, true);
 
   return SPV_SUCCESS;

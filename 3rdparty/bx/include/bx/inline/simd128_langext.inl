@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2023 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2025 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx/blob/master/LICENSE
  */
 
@@ -9,7 +9,7 @@
 
 namespace bx
 {
-	BX_CONST_FUNC float sqrtRef(float);
+	BX_CONSTEXPR_FUNC float sqrtRef(float);
 
 #define ELEMx 0
 #define ELEMy 1

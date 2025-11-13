@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2023 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2025 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx/blob/master/LICENSE
  */
 
@@ -59,6 +59,10 @@ namespace bx
 		/// Construct file path from string.
 		///
 		FilePath(const StringView& _str);
+
+		/// Assign file path from string.
+		///
+		FilePath& operator=(const char* _rhs);
 
 		/// Assign file path from string.
 		///

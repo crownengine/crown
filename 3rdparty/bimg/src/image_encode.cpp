@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2023 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2025 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bimg/blob/master/LICENSE
  */
 
@@ -39,7 +39,7 @@ namespace bimg
 		squish::kColourIterativeClusterFit, // Highest
 		squish::kColourRangeFit,            // Fastest
 	};
-	BX_STATIC_ASSERT(Quality::Count == BX_COUNTOF(s_squishQuality) );
+	static_assert(Quality::Count == BX_COUNTOF(s_squishQuality) );
 
 	static const float s_astcQuality[] =
 	{
@@ -52,7 +52,7 @@ namespace bimg
 		ASTCENC_PRE_THOROUGH,     // Highest
 		ASTCENC_PRE_FAST,         // Fastest
 	};
-	BX_STATIC_ASSERT(Quality::Count == BX_COUNTOF(s_astcQuality) );
+	static_assert(Quality::Count == BX_COUNTOF(s_astcQuality) );
 
 	void imageEncodeFromRgba8(bx::AllocatorI* _allocator, void* _dst, const void* _src, uint32_t _width, uint32_t _height, uint32_t _depth, TextureFormat::Enum _format, Quality::Enum _quality, bx::Error* _err)
 	{

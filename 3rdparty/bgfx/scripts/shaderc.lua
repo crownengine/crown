@@ -1,5 +1,5 @@
 --
--- Copyright 2010-2023 Branimir Karadzic. All rights reserved.
+-- Copyright 2010-2025 Branimir Karadzic. All rights reserved.
 -- License: https://github.com/bkaradzic/bgfx/blob/master/LICENSE
 --
 
@@ -43,8 +43,6 @@ project "spirv-opt"
 		path.join(SPIRV_TOOLS, "source/disassemble.cpp"),
 		path.join(SPIRV_TOOLS, "source/disassemble.h"),
 		path.join(SPIRV_TOOLS, "source/enum_set.h"),
-		path.join(SPIRV_TOOLS, "source/enum_string_mapping.cpp"),
-		path.join(SPIRV_TOOLS, "source/enum_string_mapping.h"),
 		path.join(SPIRV_TOOLS, "source/ext_inst.cpp"),
 		path.join(SPIRV_TOOLS, "source/ext_inst.h"),
 		path.join(SPIRV_TOOLS, "source/extensions.cpp"),
@@ -78,10 +76,14 @@ project "spirv-opt"
 		path.join(SPIRV_TOOLS, "source/spirv_validator_options.h"),
 		path.join(SPIRV_TOOLS, "source/table.cpp"),
 		path.join(SPIRV_TOOLS, "source/table.h"),
+		path.join(SPIRV_TOOLS, "source/table2.cpp"),
+		path.join(SPIRV_TOOLS, "source/table2.h"),
 		path.join(SPIRV_TOOLS, "source/text.cpp"),
 		path.join(SPIRV_TOOLS, "source/text.h"),
 		path.join(SPIRV_TOOLS, "source/text_handler.cpp"),
 		path.join(SPIRV_TOOLS, "source/text_handler.h"),
+		path.join(SPIRV_TOOLS, "source/to_string.cpp"),
+		path.join(SPIRV_TOOLS, "source/to_string.h"),
 		path.join(SPIRV_TOOLS, "source/util/bit_vector.cpp"),
 		path.join(SPIRV_TOOLS, "source/util/bit_vector.h"),
 		path.join(SPIRV_TOOLS, "source/util/bitutils.h"),
@@ -448,6 +450,10 @@ project "glsl-optimizer"
 		path.join(GLSL_OPTIMIZER, "src/glsl/builtin_stubs.cpp"),
 	}
 
+	removeflags {
+		"FloatFast",	-- clang 17 has issues errors originating in glsl-optimizer when float optimizations are enabled
+	}
+
 	configuration { "Release" }
 		flags {
 			"Optimize",
@@ -560,7 +566,6 @@ project "shaderc"
 		path.join(BIMG_DIR, "include"),
 		path.join(BGFX_DIR, "include"),
 
-		path.join(BGFX_DIR, "3rdparty/webgpu/include"),
 		path.join(BGFX_DIR, "3rdparty/dxsdk/include"),
 
 		FCPP_DIR,

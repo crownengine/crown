@@ -291,7 +291,7 @@ static bool naturally_emit_type(const SPIRType &type)
 bool CompilerReflection::type_is_reference(const SPIRType &type) const
 {
 	// Physical pointers and arrays of physical pointers need to refer to the pointee's type.
-	return type_is_top_level_physical_pointer(type) ||
+	return is_physical_pointer(type) ||
 	       (type_is_array_of_pointers(type) && type.storage == StorageClassPhysicalStorageBuffer);
 }
 
@@ -341,7 +341,7 @@ void CompilerReflection::emit_type(uint32_t type_id, bool &emitted_open_tag)
 	json_stream->emit_json_key_object("_" + std::to_string(type_id));
 	json_stream->emit_json_key_value("name", name);
 
-	if (type_is_top_level_physical_pointer(type))
+	if (is_physical_pointer(type))
 	{
 		json_stream->emit_json_key_value("type", "_" + std::to_string(type.parent_type));
 		json_stream->emit_json_key_value("physical_pointer", true);
@@ -404,7 +404,7 @@ void CompilerReflection::emit_type_member(const SPIRType &type, uint32_t index)
 
 void CompilerReflection::emit_type_array(const SPIRType &type)
 {
-	if (!type_is_top_level_physical_pointer(type) && !type.array.empty())
+	if (!is_physical_pointer(type) && !type.array.empty())
 	{
 		json_stream->emit_json_key_array("array");
 		// Note that we emit the zeros here as a means of identifying
@@ -444,7 +444,7 @@ void CompilerReflection::emit_type_member_qualifiers(const SPIRType &type, uint3
 		if (dec.decoration_flags.get(DecorationRowMajor))
 			json_stream->emit_json_key_value("row_major", true);
 
-		if (type_is_top_level_physical_pointer(membertype))
+		if (is_physical_pointer(membertype))
 			json_stream->emit_json_key_value("physical_pointer", true);
 	}
 }
@@ -477,6 +477,12 @@ string CompilerReflection::execution_model_to_str(spv::ExecutionModel model)
 		return "rmiss";
 	case ExecutionModelCallableNV:
 		return "rcall";
+	case ExecutionModelMeshNV:
+	case ExecutionModelMeshEXT:
+		return "mesh";
+	case ExecutionModelTaskNV:
+	case ExecutionModelTaskEXT:
+		return "task";
 	default:
 		return "???";
 	}
@@ -504,7 +510,9 @@ void CompilerReflection::emit_entry_points()
 			json_stream->begin_json_object();
 			json_stream->emit_json_key_value("name", e.name);
 			json_stream->emit_json_key_value("mode", execution_model_to_str(e.execution_model));
-			if (e.execution_model == ExecutionModelGLCompute)
+			if (e.execution_model == ExecutionModelGLCompute || e.execution_model == spv::ExecutionModelMeshEXT ||
+			    e.execution_model == spv::ExecutionModelMeshNV || e.execution_model == spv::ExecutionModelTaskEXT ||
+			    e.execution_model == spv::ExecutionModelTaskNV)
 			{
 				const auto &spv_entry = get_entry_point(e.name, e.execution_model);
 
@@ -547,6 +555,7 @@ void CompilerReflection::emit_resources()
 	emit_resources("push_constants", res.push_constant_buffers);
 	emit_resources("counters", res.atomic_counters);
 	emit_resources("acceleration_structures", res.acceleration_structures);
+	emit_resources("tensors", res.tensors);
 }
 
 void CompilerReflection::emit_resources(const char *tag, const SmallVector<Resource> &resources)
@@ -633,6 +642,12 @@ void CompilerReflection::emit_resources(const char *tag, const SmallVector<Resou
 			                                 get_decoration(res.id, DecorationInputAttachmentIndex));
 		if (mask.get(DecorationOffset))
 			json_stream->emit_json_key_value("offset", get_decoration(res.id, DecorationOffset));
+		if (mask.get(DecorationWeightTextureQCOM))
+			json_stream->emit_json_key_value("WeightTextureQCOM", get_decoration(res.id, DecorationWeightTextureQCOM));
+		if (mask.get(DecorationBlockMatchTextureQCOM))
+			json_stream->emit_json_key_value("BlockMatchTextureQCOM", get_decoration(res.id, DecorationBlockMatchTextureQCOM));
+		if (mask.get(DecorationBlockMatchSamplerQCOM))
+			json_stream->emit_json_key_value("BlockMatchSamplerQCOM", get_decoration(res.id, DecorationBlockMatchSamplerQCOM));
 
 		// For images, the type itself adds a layout qualifer.
 		// Only emit the format for storage images.

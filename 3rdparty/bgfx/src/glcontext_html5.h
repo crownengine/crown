@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2023 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2025 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx/blob/master/LICENSE
  */
 
@@ -21,12 +21,12 @@ namespace bgfx { namespace gl
 		{
 		}
 
-		void create(uint32_t _width, uint32_t _height, uint32_t _flags);
+		void create(const Resolution& _resolution);
 		void destroy();
-		void resize(uint32_t _width, uint32_t _height, uint32_t _flags);
+		void resize(const Resolution& _resolution);
 
 		uint64_t getCaps() const;
-		SwapChainGL* createSwapChain(void* _nwh);
+		SwapChainGL* createSwapChain(void* _nwh, int32_t _width, int32_t _height);
 		void destroySwapChain(SwapChainGL*  _swapChain);
 		void swap(SwapChainGL* _swapChain = NULL);
 		void makeCurrent(SwapChainGL* _swapChain = NULL);
