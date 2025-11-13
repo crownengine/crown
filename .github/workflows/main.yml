@@ -28,35 +28,35 @@ jobs:
         sudo apt-get install libc6-dev-i386
         ANDROID_SDK_ROOT=/usr/local/lib/android/sdk
         SDKMANAGER=${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager
-        echo "y" | $SDKMANAGER "ndk;21.4.7075529"
+        echo "y" | $SDKMANAGER "ndk;23.2.8568313"
     - name: android-arm-make-debug
       run: |
-        export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/21.4.7075529
+        export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/23.2.8568313
         export ANDROID_NDK_ABI=23
         make MAKE_JOBS=4 android-arm-debug
     - name: android-arm-make-development
       run: |
-        export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/21.4.7075529
+        export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/23.2.8568313
         export ANDROID_NDK_ABI=23
         make MAKE_JOBS=4 android-arm-development
     - name: android-arm-make-release
       run: |
-        export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/21.4.7075529
+        export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/23.2.8568313
         export ANDROID_NDK_ABI=23
         make MAKE_JOBS=4 android-arm-release
     - name: android-arm64-make-debug
       run: |
-        export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/21.4.7075529
+        export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/23.2.8568313
         export ANDROID_NDK_ABI=23
         make MAKE_JOBS=4 android-arm64-debug
     - name: android-arm64-make-development
       run: |
-        export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/21.4.7075529
+        export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/23.2.8568313
         export ANDROID_NDK_ABI=23
         make MAKE_JOBS=4 android-arm64-development
     - name: android-arm64-make-release
       run: |
-        export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/21.4.7075529
+        export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/23.2.8568313
         export ANDROID_NDK_ABI=23
         make MAKE_JOBS=4 android-arm64-release
   html5:
