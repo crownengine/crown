@@ -144,7 +144,7 @@ function Game.update(dt)
 			PhysicsWorld.actor_teleport_world_position(Game.physics_world, bullet_actor, pos + dir * 1.5)
 			PhysicsWorld.actor_add_impulse(Game.physics_world, bullet_actor, dir * 50.0)
 
-			World.play_sound(GameBase.world, "sfx/shoot", false, 0.6)
+			World.play_sound(GameBase.world, "sfx/shoot", false, 0.6, 150.0)
 
 			Game.bullets_tail = Game.bullets_tail % Game.max_bullets + 1
 			Game.num_bullets = Game.num_bullets + 1
