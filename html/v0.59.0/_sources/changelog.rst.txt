@@ -1,6 +1,16 @@
 Changelog
 =========
 
+.. _v0.59.4:
+
+:ref:`0.59.4 --- 14 Nov 2025 <v0.59.4>`
+---------------------------------------
+
+**Fixes**
+
+* Runtime: Windows: fixed rendering of spot lights' shadow maps.
+* Runtime: fixed interrupted sun shadow map when too close to the viewer.
+
 .. _v0.59.3:
 
 :ref:`0.59.3 --- 31 Oct 2025 <v0.59.3>`
