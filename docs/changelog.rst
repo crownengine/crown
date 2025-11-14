@@ -33,6 +33,7 @@ Changelog
 * Runtime: fixed a crash when reloading materials.
 * Runtime: fixed linking transforms in a SceneGraph not working in some circumnstances.
 * Runtime: fixed a crash when reloading non-trivial units.
+* Runtime: fixed imperfect spot lights' cone coverage.
 * Lua: fixed a memory leak when executing some script component callbacks.
 * Lua: the ``update()`` script component callback is now optional.
 
