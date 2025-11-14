@@ -27,6 +27,7 @@ Changelog
 * Runtime: fixed shading of meshes with non-uniform scaling.
 * Runtime: Windows: fixed a number of misdetected keyboard keys.
 * Runtime: Windows: fixed windows firewall popping up at startup.
+* Runtime: Windows: fixed rendering of spot lights' shadow maps.
 * Runtime: Linux: fixed a crash at startup due to some X11 libraries not being found.
 * Runtime: fixed a regression that caused levels with many objects to not load.
 * Runtime: fixed a crash when reloading materials.
