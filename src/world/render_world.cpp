@@ -884,15 +884,16 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 					Matrix4x4 light_proj;
 					const Vector3 &light_dir = shader.direction;
 					const Vector3 &light_pos = shader.position;
-					const bx::Vec3 at  = { light_pos.x + light_dir.x, light_pos.y + light_dir.y, light_pos.z + light_dir.z };
-					const bx::Vec3 eye = { light_pos.x, light_pos.y, light_pos.z };
-					const bx::Vec3 up  = { 0.0f, 0.0f, 1.0f };
-					bx::mtxLookAt(to_float_ptr(light_view), eye, at, up, bx::Handedness::Right);
+					const f32 near = 0.1f;
+					const Vector3 at  = light_pos + light_dir;
+					const Vector3 eye = light_pos - light_dir * near; // Move light eye backwards to compensate for non-zero near proj plane.
+					const Vector3 up  = VECTOR3_UP;
+					bx::mtxLookAt(to_float_ptr(light_view), { eye.x, eye.y, eye.z }, { at.x, at.y, at.z }, { up.x, up.y, up.z }, bx::Handedness::Right);
 					bx::mtxProj(to_float_ptr(light_proj)
 						, fdeg(shader.spot_angle) * 2.0f
 						, 1.0f // Square depth texture.
-						, 0.1
-						, shader.range
+						, near
+						, shader.range + near
 						, caps->homogeneousDepth
 						, bx::Handedness::Right
 						);
