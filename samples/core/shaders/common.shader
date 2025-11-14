@@ -14,6 +14,7 @@ render_states = {
 			primitive_type = "pt_triangles"
 		}
 	}
+
 	opacity = {
 		inherit = "default"
 		states = {
@@ -23,11 +24,12 @@ render_states = {
 			blend_enable = true
 			blend_src = "src_alpha"
 			blend_dst = "inv_src_alpha"
-			defined(DEPTH_ENABLED) = {
+			"defined(DEPTH_ENABLED)" = {
 				depth_enable = true
 			}
 		}
 	}
+
 }
 
 sampler_states = {
