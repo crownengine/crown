@@ -6,6 +6,10 @@ Changelog
 :ref:`0.59.4 --- DD MMM YYYY <v0.59.4>`
 ---------------------------------------
 
+**Fixes**
+
+* Runtime: Windows: fixed rendering of spot lights' shadow maps.
+
 .. _v0.59.3:
 
 :ref:`0.59.3 --- 31 Oct 2025 <v0.59.3>`

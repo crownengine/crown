@@ -907,7 +907,11 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 					};
 
 					shader.atlas_u = rect.x / _pipeline->_render_settings.local_lights_shadow_map_size.x;
+#if CROWN_PLATFORM_WINDOWS
+					shader.atlas_v = rect.y / _pipeline->_render_settings.local_lights_shadow_map_size.x;
+#else
 					shader.atlas_v = 1.0f - ((rect.y + rect.z) / _pipeline->_render_settings.local_lights_shadow_map_size.x);
+#endif
 					shader.map_size = rect.w / _pipeline->_render_settings.local_lights_shadow_map_size.x;
 
 					bgfx::setViewFrameBuffer(View::SM_LOCAL_0 + i, _pipeline->_local_lights_shadow_map_frame_buffer);
