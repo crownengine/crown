@@ -9,6 +9,7 @@ Changelog
 **Fixes**
 
 * Runtime: Windows: fixed rendering of spot lights' shadow maps.
+* Runtime: fixed interrupted sun shadow map when too close to the viewer.
 
 .. _v0.59.3:
 
