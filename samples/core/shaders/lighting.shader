@@ -221,10 +221,10 @@ bgfx_shaders = {
 					vec2 shadow2 = shadow_pos2.xy/shadow_pos2.w;
 					vec2 shadow3 = shadow_pos3.xy/shadow_pos3.w;
 
-					bool atlas0 = all(lessThan(shadow0, vec2_splat(0.99))) && all(greaterThan(shadow0, vec2_splat(0.01)));
-					bool atlas1 = all(lessThan(shadow1, vec2_splat(0.99))) && all(greaterThan(shadow1, vec2_splat(0.01)));
-					bool atlas2 = all(lessThan(shadow2, vec2_splat(0.99))) && all(greaterThan(shadow2, vec2_splat(0.01)));
-					bool atlas3 = all(lessThan(shadow3, vec2_splat(0.99))) && all(greaterThan(shadow3, vec2_splat(0.01)));
+					bool atlas0 = all(lessThan(shadow0, vec2_splat(1.0))) && all(greaterThan(shadow0, vec2_splat(0.0)));
+					bool atlas1 = all(lessThan(shadow1, vec2_splat(1.0))) && all(greaterThan(shadow1, vec2_splat(0.0)));
+					bool atlas2 = all(lessThan(shadow2, vec2_splat(1.0))) && all(greaterThan(shadow2, vec2_splat(0.0)));
+					bool atlas3 = all(lessThan(shadow3, vec2_splat(1.0))) && all(greaterThan(shadow3, vec2_splat(0.0)));
 
 					if (atlas0)
 						local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos0, shadow_bias, sun_sm_texel_size, vec3(atlas_u             , atlas_v             , atlas_size));
