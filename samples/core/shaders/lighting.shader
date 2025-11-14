@@ -10,7 +10,7 @@ bgfx_shaders = {
 		code = """
 		#if !defined(NO_LIGHT)
 		#	define LIGHT_SIZE 8 // In vec4 units.
-		#	define MAX_NUM_LIGHTS 32
+		#	define MAX_NUM_LIGHTS 16
 		#	define MAX_NUM_CASCADES 4
 			uniform vec4 u_lights_num;        // num_dir, num_omni, num_spot
 			uniform vec4 u_lights_data[LIGHT_SIZE * MAX_NUM_LIGHTS]; // dir_0, .., dir_n-1, omni_0, .., omni_n-1, spot_0, .., spot_n-1
