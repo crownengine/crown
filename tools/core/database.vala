@@ -1844,6 +1844,7 @@ public class Database
 				assert(def.deffault.holds(typeof(Quaternion)));
 				break;
 			case PropertyType.OBJECTS_SET:
+				assert(def.object_type._id != 0);
 				break;
 			case PropertyType.OBJECT_NAME:
 				assert(def.resource_type != null);

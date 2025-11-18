@@ -928,6 +928,7 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.OBJECTS_SET,
 			name = "children",
+			object_type = StringId64(OBJECT_TYPE_UNIT),
 		},
 #if false
 		PropertyDefinition()
