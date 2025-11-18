@@ -87,7 +87,7 @@ public class UnitView : PropertyGrid
 
 	public void on_open_prefab_clicked()
 	{
-		GLib.Application.get_default().activate_action("unit-open", new GLib.Variant.string(_prefab.value));
+		GLib.Application.get_default().activate_action("open-unit", new GLib.Variant.string(_prefab.value));
 	}
 }
 
