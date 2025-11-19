@@ -495,6 +495,9 @@ public struct Unit
 
 		for (i = 0; i < object_ids.length; ++i) {
 			if (db.object_type(object_ids[i]) == OBJECT_TYPE_UNIT) {
+				if (!db.object_is_alive(object_ids[i]))
+					continue;
+
 				spawn_unit(sb, object_ids[i], db);
 
 				Unit unit = Unit(db, object_ids[i]);
@@ -507,6 +510,9 @@ public struct Unit
 				if (owner_id != GUID_ZERO && db.object_type(owner_id) == OBJECT_TYPE_UNIT)
 					sb.append(LevelEditorApi.unit_set_parent(owner_id, object_ids[i]));
 			} else if (Unit.is_component(object_ids[i], db)) {
+				if (!db.object_is_alive(object_ids[i]))
+					continue;
+
 				Guid component_id = object_ids[i];
 				Guid unit_id = db.object_owner(component_id);
 				generate_add_component_commands(sb, unit_id, component_id, db);
