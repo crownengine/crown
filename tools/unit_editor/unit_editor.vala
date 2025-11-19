@@ -148,11 +148,16 @@ public class UnitEditor : Gtk.ApplicationWindow
 		_level.send_level();
 
 		Unit.generate_spawn_unit_commands(sb, { _unit._id, }, _database);
-		sb.append(LevelEditorApi.frame_objects({ _unit._id }));
 
 		if (sb.len > 0)
 			_editor.send_script(sb.str);
 
+		_editor.send(DeviceApi.frame());
+
+		sb.erase();
+		sb.append(LevelEditorApi.frame_objects({ _unit._id }));
+		if (sb.len > 0)
+			_editor.send_script(sb.str);
 		_editor.send(DeviceApi.frame());
 	}
 
@@ -199,17 +204,15 @@ public class UnitEditor : Gtk.ApplicationWindow
 			}
 		}
 
-		_level.selection_changed(_level._selection);
-		_objects_tree.set_object(_unit._id);
-		_properties_view.set_object(_unit._id);
+		_objects_tree.set_object(_unit._id); // Force update the tree.
+		_objects_tree.select_objects(object_ids); // Select the objects just created.
 		update_window_title();
 	}
 
 	public void on_objects_destroyed(Guid?[] object_ids, uint32 flags = 0)
 	{
-		_level.selection_changed(_level._selection);
-		_objects_tree.set_object(_unit._id);
-		_properties_view.set_object(_unit._id);
+		_objects_tree.set_object(_unit._id); // Force update the tree.
+		_objects_tree.select_objects({ _unit._id }); // Select the root object which must always exits.
 		update_window_title();
 
 		if ((flags& ActionTypeFlags.FROM_SERVER) == 0) {
@@ -233,15 +236,12 @@ public class UnitEditor : Gtk.ApplicationWindow
 			}
 		}
 
-		_level.selection_changed(_level._selection);
-		_properties_view.set_object(_unit._id);
+		_objects_tree.on_tree_selection_changed(); // Force update any tree listener.
 		update_window_title();
 	}
 
 	public void set_unit(string unit_name)
 	{
-		StringBuilder sb = new StringBuilder();
-
 		_level.load(LEVEL_EMPTY);
 
 		Guid unit_id;
@@ -250,14 +250,13 @@ public class UnitEditor : Gtk.ApplicationWindow
 
 		_unit_name = unit_name;
 		_unit = Unit(_database, unit_id);
+		_database.disable_undo();
 		_unit.set_local_position(VECTOR3_ZERO);
-		_database.add_restore_point((int)ActionType.CREATE_OBJECTS, { unit_id });
+		_database.restore_undo();
 
-		_level.selection_set({ unit_id });
 		_objects_tree.set_object(_unit._id);
-
+		_objects_tree.select_objects({ _unit._id });
 		update_window_title();
-
 		send();
 	}
 
