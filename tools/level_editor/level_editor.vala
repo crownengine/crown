@@ -942,16 +942,16 @@ public class LevelEditorApplication : Gtk.Application
 		_project_notebook.show_border = false;
 		_project_notebook.append_page(_project_stack, new Gtk.Label.with_mnemonic("Project"));
 
-		_editor_pane = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
-		_editor_pane.pack1(_project_notebook, false, false);
-		_editor_pane.pack2(_editor_stack, true, false);
-
 		_content_pane = new Gtk.Paned(Gtk.Orientation.VERTICAL);
-		_content_pane.pack1(_editor_pane, true, false);
+		_content_pane.pack1(_editor_stack, true, false);
 		_content_pane.pack2(_console_notebook, false, false);
 
+		_editor_pane = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
+		_editor_pane.pack1(_project_notebook, false, false);
+		_editor_pane.pack2(_content_pane, true, false);
+
 		_main_pane = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
-		_main_pane.pack1(_content_pane, true, false);
+		_main_pane.pack1(_editor_pane, true, false);
 		_main_pane.pack2(_inspector_stack, false, false);
 
 		_statusbar = new Statusbar();
