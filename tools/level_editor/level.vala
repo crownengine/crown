@@ -100,9 +100,9 @@ public class Level
 			return ret;
 
 		_id = Guid.new_guid();
-		_db.disable_undo();
+		UndoRedo undo_redo = _db.disable_undo();
 		_db.duplicate(template_id, _id);
-		_db.restore_undo();
+		_db.restore_undo(undo_redo);
 
 		_path = null;
 		_name = template_level_name;

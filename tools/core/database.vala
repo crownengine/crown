@@ -404,6 +404,7 @@ public class UndoRedo
 {
 	public Stack _undo;
 	public Stack _redo;
+	public int _distance_from_last_sync;
 
 	///
 	public UndoRedo(uint32 undo_redo_size = 0)
@@ -411,12 +412,15 @@ public class UndoRedo
 		uint32 size = uint32.max(1024, undo_redo_size);
 		_undo = new Stack(size);
 		_redo = new Stack(size);
+
+		reset();
 	}
 
 	public void reset()
 	{
 		_undo.clear();
 		_redo.clear();
+		_distance_from_last_sync = 0;
 	}
 }
 
@@ -468,14 +472,11 @@ public class Database
 	public Gee.HashMap<StringId64?, ObjectTypeInfo?> _object_definitions;
 	public Gee.HashMap<Guid?, Gee.HashMap<string, Value?>> _data;
 	public UndoRedo? _undo_redo;
-	public UndoRedo? _undo_redo_restore;
 	public Project _project;
 	// The number of changes to the database since the last successful state
 	// synchronization (load(), save() etc.). If it is less than 0, the changes
 	// came from undo(), otherwise they came from redo() or from regular calls to
 	// create(), destroy(), set_*() etc. A value of 0 means there were no changes.
-	public int _distance_from_last_sync;
-	public int _distance_restore;
 
 	// Signals
 	public signal void object_type_added(ObjectTypeInfo info);
@@ -490,7 +491,6 @@ public class Database
 		_data = new Gee.HashMap<Guid?, Gee.HashMap<string, Value?>>(Guid.hash_func, Guid.equal_func);
 		_project = project;
 		_undo_redo = undo_redo;
-		_undo_redo_restore = null;
 
 		reset();
 	}
@@ -503,9 +503,6 @@ public class Database
 		if (_undo_redo != null)
 			_undo_redo.reset();
 
-		_distance_from_last_sync = 0;
-		_distance_restore = 0;
-
 		// This is a special field which stores all objects
 		_data[GUID_ZERO] = new Gee.HashMap<string, Value?>();
 	}
@@ -513,7 +510,10 @@ public class Database
 	/// Returns whether the database has been changed since last call to Save().
 	public bool changed()
 	{
-		return _distance_from_last_sync != 0;
+		return _undo_redo != null
+			? _undo_redo._distance_from_last_sync != 0
+			: false
+			;
 	}
 
 	/// Saves database to path without marking it as not changed.
@@ -532,30 +532,30 @@ public class Database
 	public int save(string path, Guid id)
 	{
 		int err = dump(path, id);
-		if (err == 0)
-			_distance_from_last_sync = 0;
+		if (err == 0) {
+			if (_undo_redo != null)
+				_undo_redo._distance_from_last_sync = 0;
+		}
 
 		return err;
 	}
 
-	public void disable_undo()
+	public UndoRedo disable_undo()
 	{
-		_undo_redo_restore = _undo_redo;
+		var undo = _undo_redo;
 		_undo_redo = null;
-		_distance_restore = _distance_from_last_sync;
+		return undo;
 	}
 
-	public void restore_undo()
+	public void restore_undo(UndoRedo undo_redo)
 	{
-		_undo_redo = _undo_redo_restore;
-		_undo_redo_restore = null;
-		_distance_from_last_sync = _distance_restore;
+		_undo_redo = undo_redo;
 	}
 
 	// See: add_from_path().
 	public int add_from_file(out Guid object_id, FileStream? fs, string resource_path)
 	{
-		disable_undo();
+		UndoRedo undo_redo = disable_undo();
 
 		try {
 			Hashtable json = SJSON.load_from_file(fs);
@@ -584,11 +584,11 @@ public class Database
 			// Create a mapping between the path and the object it has been loaded into.
 			set_property_internal(0, GUID_ZERO, resource_path, object_id);
 
-			restore_undo();
+			restore_undo(undo_redo);
 			return 0;
 		} catch (JsonSyntaxError e) {
 			object_id = GUID_ZERO;
-			restore_undo();
+			restore_undo(undo_redo);
 			return -1;
 		}
 	}
@@ -972,7 +972,8 @@ public class Database
 		Gee.HashMap<string, Value?> ob = get_data(id);
 		ob[key] = value;
 
-		_distance_from_last_sync += dir;
+		if (_undo_redo != null)
+			_undo_redo._distance_from_last_sync += dir;
 	}
 
 	public void create_empty_set(Guid id, string key)
@@ -1006,7 +1007,8 @@ public class Database
 
 		get_data(item_id)["_owner"] = id;
 
-		_distance_from_last_sync += dir;
+		if (_undo_redo != null)
+			_undo_redo._distance_from_last_sync += dir;
 	}
 
 	public void remove_from_set_internal(int dir, Guid id, string key, Guid item_id)
@@ -1023,7 +1025,8 @@ public class Database
 
 		set_object_owner(id, GUID_ZERO);
 
-		_distance_from_last_sync += dir;
+		if (_undo_redo != null)
+			_undo_redo._distance_from_last_sync += dir;
 	}
 
 	// Returns the type of the object @a id.
