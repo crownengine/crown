@@ -251,9 +251,9 @@ public class UnitEditor : Gtk.ApplicationWindow
 
 		_unit_name = unit_name;
 		_unit = Unit(_database, unit_id);
-		_database.disable_undo();
+		UndoRedo undo_redo = _database.disable_undo();
 		_unit.set_local_position(VECTOR3_ZERO);
-		_database.restore_undo();
+		_database.restore_undo(undo_redo);
 
 		_objects_tree.set_object(_unit._id);
 		_objects_tree.select_objects({ _unit._id });
