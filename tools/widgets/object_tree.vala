@@ -210,7 +210,7 @@ public class ObjectTree : Gtk.Box
 
 							mi = new GLib.MenuItem("Delete", null);
 							mi.set_action_and_target_value("database.delete"
-								, new GLib.Variant.tuple({ object_id.to_string(), set_name })
+								, new GLib.Variant.string(object_id.to_string())
 								);
 							menu_model.append_item(mi);
 						}

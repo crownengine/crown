@@ -11,7 +11,7 @@ public class DatabaseEditor
 	{
 		{ "undo",   on_undo,   null,   null },
 		{ "redo",   on_redo,   null,   null },
-		{ "delete", on_delete, "(ss)", null },
+		{ "delete", on_delete, "s",    null },
 		{ "rename", on_rename, "(ss)", null },
 		{ "add",    on_add,    "(ss)", null },
 	};
@@ -53,10 +53,8 @@ public class DatabaseEditor
 
 	public void on_delete(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		Guid object_id = Guid.parse((string)param.get_child_value(0));
-		string set_name = (string)param.get_child_value(1);
+		Guid object_id = Guid.parse(param.get_string());
 
-		_database.remove_from_set(_database.object_owner(object_id), set_name, object_id);
 		_database.destroy(object_id);
 		_database.add_restore_point((int)ActionType.DESTROY_OBJECTS, { object_id });
 	}
