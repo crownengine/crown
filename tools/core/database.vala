@@ -1148,8 +1148,10 @@ public class Database
 			if (value.holds(typeof(Gee.HashSet))) {
 				Gee.HashSet<Guid?> hs = (Gee.HashSet<Guid?>)value;
 				Guid?[] ids = hs.to_array();
-				foreach (Guid item_id in ids)
-					destroy(item_id);
+				foreach (Guid item_id in ids) {
+					if (object_is_alive(item_id))
+						destroy(item_id);
+				}
 			}
 		}
 
