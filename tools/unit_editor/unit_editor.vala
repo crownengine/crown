@@ -13,11 +13,11 @@ public class UnitEditor : Gtk.ApplicationWindow
 	public RuntimeInstance _editor;
 	public ObjectTree _objects_tree;
 	public PropertiesView _properties_view;
-	public Gtk.Paned _inspector_paned;
 	public Level _level;
 	public Statusbar _statusbar;
 
-	public Gtk.Paned _paned;
+	public Gtk.Paned _paned_object;
+	public Gtk.Paned _paned_inspector;
 	public Gtk.Button _cancel;
 	public Gtk.Button _save;
 	public Gtk.HeaderBar _header_bar;
@@ -87,13 +87,13 @@ public class UnitEditor : Gtk.ApplicationWindow
 		_header_bar.pack_start(_cancel);
 		_header_bar.pack_end(_save);
 
-		_inspector_paned = new Gtk.Paned(Gtk.Orientation.VERTICAL);
-		_inspector_paned.pack1(_objects_tree, true, false);
-		_inspector_paned.pack2(_properties_view, true, false);
+		_paned_inspector = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
+		_paned_inspector.pack1(_editor_viewport, false, false);
+		_paned_inspector.pack2(_properties_view, false, false);
 
-		_paned = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
-		_paned.pack1(_editor_viewport, true, false);
-		_paned.pack2(_inspector_paned, false, false);
+		_paned_object = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
+		_paned_object.pack1(_objects_tree, false, false);
+		_paned_object.pack2(_paned_inspector, true, false);
 
 		this.set_titlebar(_header_bar);
 		this.set_size_request(1280, 720);
@@ -101,7 +101,8 @@ public class UnitEditor : Gtk.ApplicationWindow
 		int win_w;
 		int win_h;
 		this.get_size(out win_w, out win_h);
-		_paned.set_position(win_w - 360);
+		_paned_inspector.set_position(530);
+		_paned_object.set_position(340);
 
 		GLib.Menu menu = new GLib.Menu();
 		GLib.MenuItem mi = null;
@@ -115,7 +116,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 
 		_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		_box.pack_start(menubar, false);
-		_box.pack_start(_paned);
+		_box.pack_start(_paned_object);
 		_box.pack_start(_statusbar, false);
 
 		this.add(_box);
