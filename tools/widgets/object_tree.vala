@@ -362,6 +362,41 @@ public class ObjectTree : Gtk.Box
 
 		_tree_view.expand_all();
 	}
+
+	public void select_objects(Guid?[] selection)
+	{
+		_tree_selection.changed.disconnect(on_tree_selection_changed);
+		_tree_selection.unselect_all();
+
+		Gtk.TreePath? last_selected = null;
+
+		_tree_sort.foreach ((model, path, iter) => {
+				Value type;
+				model.get_value(iter, Column.ITEM_TYPE, out type);
+				if ((ItemType)type != ItemType.OBJECT)
+					return false;
+
+				Value id;
+				model.get_value(iter, Column.OBJECT_ID, out id);
+
+				foreach (Guid? guid in selection) {
+					if ((Guid)id == guid) {
+						_tree_selection.select_iter(iter);
+						last_selected = path;
+						return false;
+					}
+				}
+
+				return false;
+			});
+
+		if (last_selected != null)
+			_tree_view.scroll_to_cell(last_selected, null, false, 0.0f, 0.0f);
+
+		_tree_selection.changed.connect(on_tree_selection_changed);
+
+		on_tree_selection_changed();
+	}
 }
 
 } /* namespace Crown */
