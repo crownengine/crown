@@ -1,20 +1,24 @@
 <!DOCTYPE html>
-<html class="writer-html4" lang="en" >
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <meta property="article:modified_time" content="2025-10-16T08:33:32+00:00" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Scripting in Lua &mdash; Crown 0.60.0 Manual 0.60.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" /><link rel="shortcut icon" href="../_static/org.crownengine.Crown.svg"/>
+  <title>Scripting in Lua &mdash; Crown 0.60.0 Manual 0.60.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/org.crownengine.Crown.svg"/>
     <link rel="canonical" href="https://docs.crownengine.org/html/latest/gameplay/lua_scripting.html" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
-  <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -28,7 +32,8 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html"><img src="../_static/org.crownengine.Crown.svg" class="logo" alt="Logo"/>
+            <a href="../index.html">
+            <img src="../_static/org.crownengine.Crown.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 Crown 0.60.0 Manual
@@ -92,27 +97,27 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="scripting-in-lua">
+  <section id="scripting-in-lua">
 <h1>Scripting in Lua<a class="headerlink" href="#scripting-in-lua" title="Permalink to this headline">¶</a></h1>
 <p>All gameplay code in Crown is written in Lua. This section will give you a basic
 understanding of how Lua is used and can be used in Crown.</p>
-<div class="section" id="what-is-lua">
+<section id="what-is-lua">
 <h2>What is Lua<a class="headerlink" href="#what-is-lua" title="Permalink to this headline">¶</a></h2>
 <p>Lua is a simple, fast and lightweight scripting language which is easy to learn
 and supports all features needed to write any type of game.</p>
 <p>Lua is widely known in the games industry and has been used for decades to write
 many successful commercial games.</p>
-</div>
-<div class="section" id="runtime-entry-points">
+</section>
+<section id="runtime-entry-points">
 <h2>Runtime entry points<a class="headerlink" href="#runtime-entry-points" title="Permalink to this headline">¶</a></h2>
 <p>When Crown runs, it calls a small set of predefined global functions at
 specific times:</p>
 <blockquote>
 <div><ul class="simple">
-<li>init()</li>
-<li>shutdown()</li>
-<li>update(dt)</li>
-<li>render(dt)</li>
+<li><p>init()</p></li>
+<li><p>shutdown()</p></li>
+<li><p>update(dt)</p></li>
+<li><p>render(dt)</p></li>
 </ul>
 </div></blockquote>
 <p>The init() function is called right after the runtime starts. It can be used to
@@ -121,8 +126,8 @@ exits.</p>
 <p>update(dt) and render(dt) are called periodically as part of the game loop. You
 can use them to implement any gameplay logic, input handling and other per-frame
 updates your game may need.</p>
-</div>
-<div class="section" id="the-boot-script">
+</section>
+<section id="the-boot-script">
 <h2>The boot script<a class="headerlink" href="#the-boot-script" title="Permalink to this headline">¶</a></h2>
 <p>The boot script is the first Lua script that is executed when Crown starts.</p>
 <p>In the boot script you will typically define the <a class="reference internal" href="#runtime-entry-points">runtime entry points</a> and
@@ -133,8 +138,8 @@ how resources are referenced elsewhere.</p>
 <p>Projects may contain multiple boot scripts for different purposes (for example,
 separate boot scripts for the editors and the game). You can specify which boot
 script to use in the <a class="reference internal" href="../reference/boot_config.html"><span class="doc">Boot Config</span></a> file.</p>
-</div>
-<div class="section" id="the-gamebase-framework">
+</section>
+<section id="the-gamebase-framework">
 <h2>The GameBase framework<a class="headerlink" href="#the-gamebase-framework" title="Permalink to this headline">¶</a></h2>
 <p>Crown automatically generates a <code class="docutils literal notranslate"><span class="pre">main.lua</span></code> script in the root folder of
 <a class="reference internal" href="../getting_started/create_new_project.html"><span class="doc">new projects</span></a>.</p>
@@ -147,14 +152,14 @@ common functionalities such as loading levels, creating a default camera etc.</p
 <p>Expert users can avoid the GameBase althogheter by defining plain
 init/update/shutdown but we recommend to stick with it if you plan to use our
 tools.</p>
-</div>
-<div class="section" id="hot-reloading">
+</section>
+<section id="hot-reloading">
 <h2>Hot reloading<a class="headerlink" href="#hot-reloading" title="Permalink to this headline">¶</a></h2>
 <p>Crown fully supports reloading of gameplay code while the game is running.</p>
 <p>Hot reloading is achieved by re-executing modified Lua files. This method works
 well in general, but needs some care in specific occasions. Consider the
 following script:</p>
-<div class="code lua highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Foo</span> <span class="o">=</span> <span class="p">{}</span>
+<div class="highlight-lua notranslate"><div class="highlight"><pre><span></span><span class="n">Foo</span> <span class="o">=</span> <span class="p">{}</span>
 </pre></div>
 </div>
 <p>Every time Crown reloads such file, a new table will be created and its
@@ -162,11 +167,11 @@ reference will be stored in the variable Foo, making the previous state
 unreachable.</p>
 <p>To make it hot-reload safe you could check whether the Foo objects exists
 already, and skip its creation if that is the case:</p>
-<div class="code lua highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Foo</span> <span class="o">=</span> <span class="n">Foo</span> <span class="ow">or</span> <span class="p">{}</span>
+<div class="highlight-lua notranslate"><div class="highlight"><pre><span></span><span class="n">Foo</span> <span class="o">=</span> <span class="n">Foo</span> <span class="ow">or</span> <span class="p">{}</span>
 </pre></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
@@ -179,7 +184,9 @@ already, and skip its creation if that is the case:</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.</p>
+    <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
+      <span class="lastupdated">Last updated on Oct 16, 2025.
+      </span></p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

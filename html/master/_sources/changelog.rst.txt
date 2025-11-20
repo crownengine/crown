@@ -8,6 +8,7 @@ Changelog
 
 * Tools: added the ability to search any kind of resources in the Project Browser. As a consequence, the old Resource Chooser dialog has been removed.
 * Tools: double-clicking an object in the Level Tree will now frame it in the Editor Viewport.
+* Tools: units created via the FBX importer will now be named according to their corresponding node's name.
 * Runtime: added an end-of-options marker to stop the runtime from parsing game-specific command line options.
 * Lua: added ``Device.build()`` to retrieve the runtime's build configuration.
 * Lua: added ``PhysicsWorld.actor_debug_draw()`` and ``PhysicsWorld.mover_debug_draw()``.
@@ -23,13 +24,17 @@ Changelog
 * Tools: fixed meshes nodes being reset unexpectedly when selecting the corresponding unit in the Inspector.
 * Tools: fixed some properties unnecessarily requiring multiple undo steps to be set to their previous value.
 * Tools: fixed importing non-animated FBX files in some circumnstances.
+* Runtime: fixed shading of meshes with non-uniform scaling.
 * Runtime: Windows: fixed a number of misdetected keyboard keys.
 * Runtime: Windows: fixed windows firewall popping up at startup.
+* Runtime: Windows: fixed rendering of spot lights' shadow maps.
 * Runtime: Linux: fixed a crash at startup due to some X11 libraries not being found.
 * Runtime: fixed a regression that caused levels with many objects to not load.
 * Runtime: fixed a crash when reloading materials.
 * Runtime: fixed linking transforms in a SceneGraph not working in some circumnstances.
 * Runtime: fixed a crash when reloading non-trivial units.
+* Runtime: fixed imperfect spot lights' cone coverage.
+* Runtime: fixed interrupted sun shadow map when too close to the viewer.
 * Lua: fixed a memory leak when executing some script component callbacks.
 * Lua: the ``update()`` script component callback is now optional.
 
