@@ -467,6 +467,42 @@ update_sphinx_rtd_theme () {
 	git commit -m "docs: update sphinx_rtd_theme"
 }
 
+update_sphinx_sitemap () {
+	local REPO=https://github.com/jdillard/sphinx-sitemap
+	local DEST=docs/_extensions/sphinx_sitemap
+	local BRANCH=master
+
+	local SITEMAP=$(mktemp -d)
+
+	# Download latest sphinx_rtd_theme.
+	git_clone "${SITEMAP}" "${REPO}" "${BRANCH}"
+
+	rm -rf "${DEST}"
+	mv "${SITEMAP}"/sphinx_sitemap "${DEST}"
+
+	# Add changes and commit.
+	git add -f "${DEST}"
+	git commit -m "docs: update sphinx_sitemap"
+}
+
+update_sphinx_lubg () {
+	local REPO=https://github.com/mgeier/sphinx-last-updated-by-git/
+	local DEST=docs/_extensions/sphinx_last_updated_by_git.py
+	local BRANCH=master
+
+	local LUBG=$(mktemp -d)
+
+	# Download latest sphinx_rtd_theme.
+	git_clone "${LUBG}" "${REPO}" "${BRANCH}"
+
+	rm -rf "${DEST}"
+	mv "${LUBG}"/src/sphinx_last_updated_by_git.py "${DEST}"
+
+	# Add changes and commit.
+	git add -f "${DEST}"
+	git commit -m "docs: update sphinx_lubg"
+}
+
 update_gtk_theme () {
 	local REPO=https://gitlab.gnome.org/GNOME/gtk.git
 	local DEST=tools/level_editor/resources/theme/Adwaita
@@ -612,6 +648,14 @@ while true; do
 		;;
 	sphinx_rtd_theme)
 		update_sphinx_rtd_theme
+		exit $?
+		;;
+	sphinx_sitemap)
+		update_sphinx_sitemap
+		exit $?
+		;;
+	sphinx_lubg)
+		update_sphinx_lubg
 		exit $?
 		;;
 	tinyexpr)
