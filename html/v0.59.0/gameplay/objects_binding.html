@@ -1,20 +1,24 @@
 <!DOCTYPE html>
-<html class="writer-html4" lang="en" >
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <meta property="article:modified_time" content="2025-10-16T08:33:32+00:00" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Objects binding and lifetime &mdash; Crown 0.59.0 Manual 0.59.4 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" /><link rel="shortcut icon" href="../_static/org.crownengine.Crown.svg"/>
+  <title>Objects binding and lifetime &mdash; Crown 0.59.0 Manual 0.59.4 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/org.crownengine.Crown.svg"/>
     <link rel="canonical" href="https://docs.crownengine.org/html/latest/gameplay/objects_binding.html" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
-  <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -28,7 +32,8 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html"><img src="../_static/org.crownengine.Crown.svg" class="logo" alt="Logo"/>
+            <a href="../index.html">
+            <img src="../_static/org.crownengine.Crown.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 Crown 0.59.0 Manual
@@ -91,27 +96,27 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="objects-binding-and-lifetime">
+  <section id="objects-binding-and-lifetime">
 <h1>Objects binding and lifetime<a class="headerlink" href="#objects-binding-and-lifetime" title="Permalink to this headline">¶</a></h1>
 <p>Crown has a native runtime written in C++. To guarantee good performance and
 ease of use, we employ a number of different techniques when binding C-side
 objects to the Lua environment, depending on their type and lifetime.</p>
-<div class="section" id="light-userdata-binding">
+<section id="light-userdata-binding">
 <h2>Light userdata binding<a class="headerlink" href="#light-userdata-binding" title="Permalink to this headline">¶</a></h2>
 <p>Most objects are exposed to Lua via Light userdata. Light userdata objects are
 owned by the C side and do not require garbage collection.</p>
 <p>One disadvantage is that individual Light userdata objects cannot have a
 metatable, so the regular object notation is not available when calling them:</p>
-<div class="code lua highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">world</span><span class="p">:</span><span class="n">spawn_unit</span><span class="p">(</span><span class="s2">&quot;units/grass&quot;</span><span class="p">)</span>
+<div class="highlight-lua notranslate"><div class="highlight"><pre><span></span><span class="n">world</span><span class="p">:</span><span class="n">spawn_unit</span><span class="p">(</span><span class="s2">&quot;units/grass&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Instead you must explicitly look up the function in the World table and pass
 <cite>world</cite> as a parameter:</p>
-<div class="code lua highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">World</span><span class="o">.</span><span class="n">spawn_unit</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="s2">&quot;units/grass&quot;</span><span class="p">)</span>
+<div class="highlight-lua notranslate"><div class="highlight"><pre><span></span><span class="n">World</span><span class="p">.</span><span class="n">spawn_unit</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="s2">&quot;units/grass&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="full-userdata-binding">
+</section>
+<section id="full-userdata-binding">
 <h2>Full userdata binding<a class="headerlink" href="#full-userdata-binding" title="Permalink to this headline">¶</a></h2>
 <p>Full userdata objects are owned by the Lua side, they are heap-allocated and
 subject to gargbage collection. They support metatables and thus offer object
@@ -119,19 +124,19 @@ notation and operator overloading.</p>
 <p>We make sporadic use of full userdata, due to their runtime overhead. One such
 example are the “boxed” versions of regular math objects (Vector3Box,
 Matrix4x4Box etc).</p>
-</div>
-<div class="section" id="singleton-objects">
+</section>
+<section id="singleton-objects">
 <h2>Singleton objects<a class="headerlink" href="#singleton-objects" title="Permalink to this headline">¶</a></h2>
 <p>Objects which only have a single instance of them in the runtime are called
 singletons. Singletons are typically created at program start and live until the
 runtime exits.</p>
 <p>Since they always refer to the same instance, you don’t need to specify it when
 calling their functions:</p>
-<div class="code lua highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Device</span><span class="o">.</span><span class="n">version</span><span class="p">()</span>
+<div class="highlight-lua notranslate"><div class="highlight"><pre><span></span><span class="n">Device</span><span class="p">.</span><span class="n">version</span><span class="p">()</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="temporary-objects">
+</section>
+<section id="temporary-objects">
 <h2>Temporary objects<a class="headerlink" href="#temporary-objects" title="Permalink to this headline">¶</a></h2>
 <p>Sometimes you want an object to be owned by the Lua side, but without the
 performance implications of a garbage-collected Full userdata object. Vectors
@@ -142,16 +147,16 @@ created.</p>
 <p>To store a temporary Vector3 for use in later frames, you need to copy its value
 into something else with a longer lifespan, for example, you could “box” it in a
 Vector3Box:</p>
-<div class="code lua highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">local</span> <span class="n">pos</span> <span class="o">=</span> <span class="n">Vector3Box</span><span class="p">()</span>
+<div class="highlight-lua notranslate"><div class="highlight"><pre><span></span><span class="kd">local</span> <span class="n">pos</span> <span class="o">=</span> <span class="n">Vector3Box</span><span class="p">()</span>
 
-<span class="n">function</span> <span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-        <span class="n">local</span> <span class="n">p</span> <span class="o">=</span> <span class="n">SceneGraph</span><span class="o">.</span><span class="n">local_position</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="kr">function</span> <span class="nf">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+        <span class="kd">local</span> <span class="n">p</span> <span class="o">=</span> <span class="n">SceneGraph</span><span class="p">.</span><span class="n">local_position</span><span class="p">(...)</span>
         <span class="n">pos</span><span class="p">:</span><span class="n">store</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
-<span class="n">end</span>
+<span class="kr">end</span>
 </pre></div>
 </div>
 <p>And later retrieve its value with:</p>
-<div class="code lua highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">local</span> <span class="n">p</span> <span class="o">=</span> <span class="n">pos</span><span class="p">:</span><span class="n">unbox</span><span class="p">()</span>
+<div class="highlight-lua notranslate"><div class="highlight"><pre><span></span><span class="kd">local</span> <span class="n">p</span> <span class="o">=</span> <span class="n">pos</span><span class="p">:</span><span class="n">unbox</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>Crown will report an error when it detects a stale temporary object that is used
@@ -160,17 +165,17 @@ across-frames.</p>
 objects. This could happen when doing math inside loops for example. You can use
 <code class="docutils literal notranslate"><span class="pre">Device.temp_count()</span></code> and <code class="docutils literal notranslate"><span class="pre">Device.set_temp_count()</span></code> to save and restore the
 number of temporary objects used before and after computations:</p>
-<div class="code lua highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">(</span><span class="n">objects</span><span class="p">)</span> <span class="n">do</span>
-        <span class="n">local</span> <span class="n">nv</span><span class="p">,</span> <span class="n">nq</span><span class="p">,</span> <span class="n">nm</span> <span class="o">=</span> <span class="n">Device</span><span class="o">.</span><span class="n">temp_count</span><span class="p">()</span>
+<div class="highlight-lua notranslate"><div class="highlight"><pre><span></span><span class="kr">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="kr">in</span> <span class="nb">pairs</span><span class="p">(</span><span class="n">objects</span><span class="p">)</span> <span class="kr">do</span>
+        <span class="kd">local</span> <span class="n">nv</span><span class="p">,</span> <span class="n">nq</span><span class="p">,</span> <span class="n">nm</span> <span class="o">=</span> <span class="n">Device</span><span class="p">.</span><span class="n">temp_count</span><span class="p">()</span>
 
-        <span class="o">...</span>
+        <span class="p">...</span>
 
-        <span class="n">Device</span><span class="o">.</span><span class="n">set_temp_count</span><span class="p">(</span><span class="n">nv</span><span class="p">,</span> <span class="n">nq</span><span class="p">,</span> <span class="n">nm</span><span class="p">)</span>
-<span class="n">end</span>
+        <span class="n">Device</span><span class="p">.</span><span class="n">set_temp_count</span><span class="p">(</span><span class="n">nv</span><span class="p">,</span> <span class="n">nq</span><span class="p">,</span> <span class="n">nm</span><span class="p">)</span>
+<span class="kr">end</span>
 </pre></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
@@ -183,7 +188,9 @@ number of temporary objects used before and after computations:</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.</p>
+    <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
+      <span class="lastupdated">Last updated on Oct 16, 2025.
+      </span></p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
