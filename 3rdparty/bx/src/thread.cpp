@@ -225,6 +225,12 @@ namespace bx
 
 	void Thread::setThreadName(const char* _name)
 	{
+		if (NULL == _name
+		||  0 == strLen(_name) )
+		{
+			return;
+		}
+
 		ThreadInternal* ti = (ThreadInternal*)m_internal;
 		BX_UNUSED(ti);
 #if BX_CRT_NONE
@@ -248,6 +254,7 @@ namespace bx
 			uint32_t size = length*sizeof(wchar_t);
 			wchar_t* name = (wchar_t*)BX_STACK_ALLOC(size);
 			mbstowcs(name, _name, size-2);
+			name[size-2] = 0;
 			SetThreadDescription(ti->m_handle, name);
 		}
 #	if BX_COMPILER_MSVC
