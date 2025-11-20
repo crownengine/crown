@@ -128,14 +128,11 @@ public class UnitEditor : Gtk.ApplicationWindow
 	{
 		string title = "";
 
-		if (_level._name != null) {
-			if (_database.changed())
-				title += " • ";
+		if (_database.changed())
+			title += " • ";
 
-			title += (_level._name == LEVEL_EMPTY) ? "untitled" : _level._name;
-			title += " - ";
-		}
-
+		title += _unit_name;
+		title += " - ";
 		title += CROWN_EDITOR_NAME;
 
 		if (this.title != title)
