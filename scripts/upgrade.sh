@@ -451,7 +451,7 @@ update_sphinx_sitemap () {
 
 	# Add changes and commit.
 	git add -f "${DEST}"
-	git commit -m "docs: update sphinx_sitemap"
+	git commit -m "docs: update sphinx-sitemap"
 }
 
 update_sphinx_lubg () {
@@ -469,7 +469,25 @@ update_sphinx_lubg () {
 
 	# Add changes and commit.
 	git add -f "${DEST}"
-	git commit -m "docs: update sphinx_lubg"
+	git commit -m "docs: update sphinx-last-updated-by-git"
+}
+
+update_sphinx_opengraph () {
+	local REPO=https://github.com/sphinx-doc/sphinxext-opengraph
+	local DEST=docs/_extensions/sphinxext/opengraph
+	local BRANCH=master
+
+	local OPENGRAPH=$(mktemp -d)
+
+	# Download latest sphinx_rtd_theme.
+	git_clone "${OPENGRAPH}" "${REPO}" "${BRANCH}"
+
+	rm -rf "${DEST}"
+	mv "${OPENGRAPH}"/sphinxext/opengraph "${DEST}"
+
+	# Add changes and commit.
+	git add -f "${DEST}"
+	git commit -m "docs: update sphinxext-opengraph"
 }
 
 update_gtk_theme () {
@@ -625,6 +643,10 @@ while true; do
 		;;
 	sphinx_lubg)
 		update_sphinx_lubg
+		exit $?
+		;;
+	sphinx_opengraph)
+		update_sphinx_opengraph
 		exit $?
 		;;
 	tinyexpr)

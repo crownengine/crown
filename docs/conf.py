@@ -38,6 +38,7 @@ extensions = [
 	'sphinx.ext.autosectionlabel',
 	'sphinx_sitemap',
 	'sphinx_last_updated_by_git',
+	'sphinxext.opengraph',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -178,3 +179,7 @@ sitemap_excludes = [
     "search.html",
     "genindex.html",
 ]
+
+ogp_site_url = html_baseurl
+ogp_description_length = 280
+ogp_use_first_image = True
