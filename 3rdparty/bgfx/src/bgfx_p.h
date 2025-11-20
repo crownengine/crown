@@ -2192,6 +2192,7 @@ namespace bgfx
 				, m_offset
 				, kMaxOffset
 				);
+			BX_UNUSED(kMaxSize, kMaxOffset);
 
 			const KeyT view   = (KeyT(m_view)      << kViewShift)   & kViewMask;
 			const KeyT handle = (KeyT(m_handle)    << kHandleShift) & kHandleMask;
@@ -2263,7 +2264,7 @@ namespace bgfx
 
 				if (newKeysCapacity != m_keysCapacity)
 				{
-					bx::realloc(g_allocator, m_keys, newKeysCapacity*sizeof(uint64_t) );
+					m_keys = (UniformCacheKey::KeyT*)bx::realloc(g_allocator, m_keys, newKeysCapacity * sizeof(uint64_t));
 					m_keysCapacity = newKeysCapacity;
 				}
 			}
@@ -2273,7 +2274,7 @@ namespace bgfx
 
 				if (newDataCapacity != m_dataCapacity)
 				{
-					bx::realloc(g_allocator, m_keys, newDataCapacity);
+					m_data = (uint8_t*)bx::realloc(g_allocator, m_data, newDataCapacity);
 					m_dataCapacity = newDataCapacity;
 				}
 			}
@@ -2694,6 +2695,7 @@ namespace bgfx
 					, "Setting uniform for draw call, but uniform frequency is different (frequency: %d)!"
 					, uniform.m_freq
 					);
+				BX_UNUSED(uniform);
 			}
 
 			UniformBuffer::update(&m_frame->m_uniformBuffer[m_uniformIdx]);
@@ -3288,6 +3290,24 @@ namespace bgfx
 		void setViewUniform(ViewId _id, UniformHandle _handle, const void* _value, uint16_t _num)
 		{
 			const UniformRef& uniform = getUniformRef(_handle);
+
+			const UniformFreq::Enum freq = UINT16_MAX == _id
+				? UniformFreq::Frame
+				: UniformFreq::View
+				;
+
+			BX_ASSERT(0 < uniform.m_refCount
+				, "Uniform reference count it 0 (handle %3d)!"
+				, _handle.idx
+				);
+			BX_ASSERT(uniform.m_freq == freq
+				, "Setting uniform per view, but uniform is created with different bgfx::UniformFreq::Enum!"
+				);
+			BX_ASSERT(_num == UINT16_MAX || uniform.m_num >= _num
+				, "Truncated uniform update. %d (max: %d)"
+				, _num, uniform.m_num
+				);
+			BX_UNUSED(freq);
 
 			UniformCacheKey key =
 			{
@@ -4667,9 +4687,10 @@ namespace bgfx
 				}
 
 				PredefinedUniform::Enum predefined = nameToPredefinedUniformEnum(name);
-				if (PredefinedUniform::Count == predefined && UniformType::End != UniformType::Enum(type) )
+				if (PredefinedUniform::Count == predefined
+				&&  UniformType::End != UniformType::Enum(type) )
 				{
-					uniforms[sr.m_num] = createUniform(name, UniformFreq::Draw, UniformType::Enum(type), num);
+					uniforms[sr.m_num] = createUniform(name, UniformFreq::Count, UniformType::Enum(type), num);
 					sr.m_num++;
 				}
 			}
@@ -5354,7 +5375,11 @@ namespace bgfx
 				const uint32_t oldsize = g_uniformTypeSize[uniform.m_type];
 				const uint32_t newsize = g_uniformTypeSize[_type];
 
-				uniform.m_freq = _freq; // Ignore shader created uniforms, and use UniformFreq when user creates uniform.
+				if (UniformFreq::Count != _freq)
+				{
+					// Ignore shader created uniforms, and use UniformFreq when user creates uniform.
+					uniform.m_freq = _freq;
+				}
 
 				if (oldsize < newsize
 				||  uniform.m_num < _num)
@@ -5390,7 +5415,10 @@ namespace bgfx
 			UniformRef& uniform = m_uniformRef[handle.idx];
 			uniform.m_name.set(_name);
 			uniform.m_refCount = 1;
-			uniform.m_freq = _freq;
+			uniform.m_freq = UniformFreq::Count == _freq
+				? UniformFreq::Draw
+				: _freq
+				;
 			uniform.m_type = _type;
 			uniform.m_num  = _num;
 
