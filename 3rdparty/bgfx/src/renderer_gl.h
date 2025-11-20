@@ -445,6 +445,10 @@ typedef uint64_t GLuint64;
 #	define GL_COMPRESSED_RGBA8_ETC2_EAC 0x9278
 #endif // GL_COMPRESSED_RGBA8_ETC2_EAC
 
+#ifndef GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC
+#	define GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC 0x9279
+#endif // GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC
+
 #ifndef GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2
 #	define GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2 0x9276
 #endif // GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2
@@ -1641,7 +1645,7 @@ namespace bgfx { namespace gl
 
 		bool update()
 		{
-			if (0 != m_control.available() )
+			if (0 != m_control.getNumUsed() )
 			{
 				Query& query = m_query[m_control.m_read];
 
