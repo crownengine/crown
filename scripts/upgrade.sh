@@ -148,7 +148,7 @@ update_bgfx () {
 		echo "			blend_enable = true"
 		echo "			blend_src = \"src_alpha\""
 		echo "			blend_dst = \"inv_src_alpha\""
-		echo "			\"defined\(DEPTH_ENABLED\)\" = {"
+		echo "			\"defined(DEPTH_ENABLED)\" = {"
 		echo "				depth_enable = true"
 		echo "			}"
 		echo "		}"
