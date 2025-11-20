@@ -10,7 +10,7 @@
 namespace bx
 {
 	inline RingBufferControl::RingBufferControl(uint32_t _size)
-		: m_size(_size)
+		: m_size(max(_size, 2) )
 		, m_current(0)
 		, m_write(0)
 		, m_read(0)
@@ -24,6 +24,45 @@ namespace bx
 	inline uint32_t RingBufferControl::available() const
 	{
 		return distance(m_read, m_current);
+	}
+
+	inline bool RingBufferControl::isEmpty() const
+	{
+		return m_read == m_write;
+	}
+
+	inline uint32_t RingBufferControl::getSize() const
+	{
+		return m_size;
+	}
+
+	inline uint32_t RingBufferControl::getNumEmpty() const
+	{
+		return m_size - distance(m_read, m_write) - 1;
+	}
+
+	inline uint32_t RingBufferControl::getNumUsed() const
+	{
+		return distance(m_read, m_current);
+	}
+
+	inline uint32_t RingBufferControl::getNumReserved() const
+	{
+		return distance(m_current, m_write);
+	}
+
+	inline void RingBufferControl::resize(int32_t _size)
+	{
+		_size = 0 > _size
+			// can shrink only by number of empty slots.
+			? bx::max(_size, -int32_t(getNumEmpty() ) )
+			: _size
+			;
+
+		m_size += _size;
+
+		m_current += m_current >= m_write ? _size : 0;
+		m_read    += m_read    >= m_write ? _size : 0;
 	}
 
 	inline uint32_t RingBufferControl::consume(uint32_t _size)
