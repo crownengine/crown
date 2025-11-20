@@ -21,6 +21,10 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
+import os
+import sys
+sys.path.append(os.path.abspath('./_extensions'))
+
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -30,7 +34,11 @@
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autosectionlabel']
+extensions = [
+	'sphinx.ext.autosectionlabel',
+	'sphinx_sitemap',
+	'sphinx_last_updated_by_git',
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -88,7 +96,7 @@ html_logo = '../tools/level_editor/resources/icons/hicolor/scalable/apps/org.cro
 
 html_favicon = '../tools/level_editor/resources/icons/hicolor/scalable/apps/org.crownengine.Crown.svg'
 
-html_baseurl = 'https://docs.crownengine.org/html/latest'
+html_baseurl = 'https://docs.crownengine.org/html/latest/'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -164,5 +172,9 @@ texinfo_documents = [
      'Miscellaneous'),
 ]
 
-
-
+sitemap_url_scheme = "{link}"
+sitemap_show_lastmod = True
+sitemap_excludes = [
+    "search.html",
+    "genindex.html",
+]
