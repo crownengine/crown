@@ -19,6 +19,8 @@ public class ObjectTree : Gtk.Box
 		OBJECT_ID,   ///< Object ID that owns the property.
 		OBJECT_NAME, ///< Object name for displaying.
 		SET_NAME,    ///< Name of the set property.
+		VISIBLE,
+		SAVE_STATE,
 
 		COUNT
 	}
@@ -54,6 +56,7 @@ public class ObjectTree : Gtk.Box
 	public Guid _object_id;
 
 	// Widgets
+	public string _needle;
 	public EntrySearch _filter_entry;
 	public Gtk.TreeStore _tree_store;
 	public Gtk.TreeModelFilter _tree_filter;
@@ -76,6 +79,7 @@ public class ObjectTree : Gtk.Box
 		_object_id = GUID_ZERO;
 
 		// Widgets
+		_needle = "";
 		_filter_entry = new EntrySearch();
 		_filter_entry.set_placeholder_text("Search...");
 		_filter_entry.search_changed.connect(on_filter_entry_text_changed);
@@ -85,9 +89,13 @@ public class ObjectTree : Gtk.Box
 			, typeof(Guid)     // Column.OBJECT_ID
 			, typeof(string)   // Column.OBJECT_NAME
 			, typeof(string)   // Column.SET_NAME
+			, typeof(bool)     // Column.VISIBLE
+			, typeof(uint32)   // Column.SAVED_STATE
 			);
 
 		_tree_filter = new Gtk.TreeModelFilter(_tree_store, null);
+		_tree_filter.set_visible_column(Column.VISIBLE);
+
 		_tree_sort = new Gtk.TreeModelSort.with_model(_tree_filter);
 		_tree_sort.set_sort_column_id(Column.OBJECT_NAME, Gtk.SortType.ASCENDING);
 
@@ -258,13 +266,6 @@ public class ObjectTree : Gtk.Box
 		}
 	}
 
-	public void on_filter_entry_text_changed()
-	{
-		_tree_selection.changed.disconnect(on_tree_selection_changed);
-		_tree_filter.refilter();
-		_tree_selection.changed.connect(on_tree_selection_changed);
-	}
-
 	public Gtk.RadioButton add_sort_item(Gtk.RadioButton? group, SortMode mode)
 	{
 		var button = new Gtk.RadioButton.with_label_from_widget(group, mode.to_label());
@@ -307,6 +308,10 @@ public class ObjectTree : Gtk.Box
 				, camel_case(def.label)
 				, Column.SET_NAME
 				, def.name
+				, Column.VISIBLE
+				, true
+				, Column.SAVE_STATE
+				, 0u
 				, -1
 				);
 
@@ -330,6 +335,10 @@ public class ObjectTree : Gtk.Box
 						, _database.object_name(child_id)
 						, Column.SET_NAME
 						, def.name
+						, Column.VISIBLE
+						, true
+						, Column.SAVE_STATE
+						, 0u
 						, -1
 						);
 					add_object_set(child_iter, child_id);
@@ -356,6 +365,10 @@ public class ObjectTree : Gtk.Box
 			, _database.object_name(id)
 			, Column.SET_NAME
 			, ""
+			, Column.VISIBLE
+			, true
+			, Column.SAVE_STATE
+			, 0u
 			, -1
 			);
 		add_object_set(object_iter, id);
@@ -396,6 +409,153 @@ public class ObjectTree : Gtk.Box
 		_tree_selection.changed.connect(on_tree_selection_changed);
 
 		on_tree_selection_changed();
+	}
+
+	public bool save_tree_state(Gtk.TreeModel model, Gtk.TreePath path, Gtk.TreeIter iter)
+	{
+		Gtk.TreePath filter_path = _tree_filter.convert_child_path_to_path(path);
+		if (filter_path == null) {
+			// Either the path is not valid or points to a non-visible row in the model.
+			return false;
+		}
+
+		Gtk.TreePath sort_path = _tree_sort.convert_child_path_to_path(filter_path);
+		if (sort_path == null) {
+			// The path is not valid.
+			assert(false);
+			return false;
+		}
+
+		bool expanded = _tree_view.is_row_expanded(sort_path);
+		bool selected = _tree_view.get_selection().path_is_selected(sort_path);
+
+		uint32 user_data = 0;
+		user_data |= (uint32)expanded << 0;
+		user_data |= (uint32)selected << 1;
+		_tree_store.set(iter, Column.SAVE_STATE, user_data, -1);
+
+		return false; // Continue iterating.
+	}
+
+	public bool restore_tree_state(Gtk.TreeModel model, Gtk.TreePath path, Gtk.TreeIter iter)
+	{
+		uint32 user_data;
+		Value val;
+		_tree_store.get_value(iter, Column.SAVE_STATE, out val);
+		user_data = (uint32)val;
+
+		bool expanded = (bool)((user_data & 0x1) >> 0);
+		bool selected = (bool)((user_data & 0x2) >> 1);
+
+		Gtk.TreePath filter_path = _tree_filter.convert_child_path_to_path(path);
+		if (filter_path == null) {
+			// Either the path is not valid or points to a non-visible row in the model.
+			return false;
+		}
+
+		Gtk.TreePath sort_path = _tree_sort.convert_child_path_to_path(filter_path);
+		if (sort_path == null) {
+			// The path is not valid.
+			return false;
+		}
+
+		if (expanded)
+			_tree_view.expand_to_path(sort_path);
+		else
+			_tree_view.collapse_row(sort_path);
+
+		if (selected)
+			_tree_view.get_selection().select_path(sort_path);
+
+		return false; // Continue iterating.
+	}
+
+	public void make_visible(bool visible)
+	{
+		_tree_store.foreach((model, path, iter) => {
+				_tree_store.set(iter, Column.VISIBLE, visible, -1);
+				return false; // Continue iterating.
+			});
+	}
+
+	public void filter(string needle)
+	{
+		make_visible(false);
+		_tree_filter.refilter();
+
+		_tree_store.foreach((model, path, iter) => {
+				ItemType type;
+				string name;
+
+				Value val;
+				model.get_value(iter, Column.ITEM_TYPE, out val);
+				type = (ItemType)val;
+
+				bool visible = false;
+
+				// Always show the roots.
+				model.get_value(iter, Column.OBJECT_NAME, out val);
+				name = (string)val;
+				visible = needle == "" || name.down().index_of(needle) > -1;
+
+				if (visible) {
+					// Make this iter and all its ancestors visible.
+					Gtk.TreeIter it = iter;
+					_tree_store.set(it, Column.VISIBLE, true, -1);
+					while (_tree_store.iter_parent(out it, it))
+						_tree_store.set(it, Column.VISIBLE, true, -1);
+				}
+
+				return false; // Continue iterating.
+			});
+
+		_tree_view.expand_all();
+	}
+
+	public void on_filter_entry_text_changed()
+	{
+		string old_needle = _needle;
+		_needle = _filter_entry.text.strip().down();
+
+		if (old_needle == "" && _needle != "") {
+			// Enter search mode.
+			_tree_selection.changed.disconnect(on_tree_selection_changed);
+			// Save the current tree state (expanded branches + selection)
+			// to restore it later when the search is done.
+			_tree_store.foreach(save_tree_state);
+			filter(_needle);
+			_tree_selection.changed.connect(on_tree_selection_changed);
+		} else if (old_needle != "" && _needle == "") {
+			// Only restore the old selection if it has not been
+			// modified while searching (i.e. nothing is selected
+			// because entering search clears it).
+			Gtk.TreeModel selected_model;
+			GLib.List<Gtk.TreePath> selected_rows = _tree_view.get_selection().get_selected_rows(out selected_model);
+			Gtk.TreeRowReference[] selected_refs = {};
+			for (uint i = 0, n = selected_rows.length(); i < n; ++i)
+				selected_refs += new Gtk.TreeRowReference(selected_model, selected_rows.nth(i).data);
+
+			_tree_selection.changed.disconnect(on_tree_selection_changed);
+			make_visible(true);
+			_tree_filter.refilter();
+			// Restore the previous tree state (old expanded branches + old selection).
+			_tree_view.get_selection().unselect_all();
+			_tree_store.foreach(restore_tree_state);
+			_tree_selection.changed.connect(on_tree_selection_changed);
+
+			// If the selection changed while searching, restore it as well.
+			for (int i = 0; i < selected_refs.length; ++i) {
+				Gtk.TreePath path = selected_refs[i].get_path();
+				_tree_view.expand_to_path(path);
+				_tree_view.get_selection().select_path(path);
+				_tree_view.scroll_to_cell(path, null, false, 0.0f, 0.0f);
+			}
+		} else if (_needle != "") {
+			// Filter while in search mode.
+			_tree_selection.changed.disconnect(on_tree_selection_changed);
+			filter(_needle);
+			_tree_selection.changed.connect(on_tree_selection_changed);
+		}
 	}
 }
 
