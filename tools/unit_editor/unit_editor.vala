@@ -210,7 +210,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 		if (_database.object_type(last_created) == OBJECT_TYPE_UNIT)
 			_objects_tree.select_objects({ last_created }); // Select the objects just created.
 		else if ((_database.type_flags(StringId64(_database.object_type(last_created))) & ObjectTypeFlags.UNIT_COMPONENT) != 0)
-			_objects_tree.select_objects({ _database.object_owner(last_created) });
+			_objects_tree.select_objects({ _database.owner(last_created) });
 
 		update_window_title();
 	}

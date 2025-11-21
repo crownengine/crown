@@ -299,7 +299,7 @@ public struct Unit
 	{
 		Guid component_id;
 		if (has_component(out component_id, component_type)) {
-			if (_id == _db.object_owner(component_id)) {
+			if (_id == _db.owner(component_id)) {
 				_db.remove_from_set(_id, "components", component_id);
 				_db.destroy(component_id);
 				_db.add_restore_point((int)ActionType.DESTROY_OBJECTS, { component_id });
@@ -495,7 +495,7 @@ public struct Unit
 
 		for (i = 0; i < object_ids.length; ++i) {
 			if (db.object_type(object_ids[i]) == OBJECT_TYPE_UNIT) {
-				if (!db.object_is_alive(object_ids[i]))
+				if (!db.is_alive(object_ids[i]))
 					continue;
 
 				spawn_unit(sb, object_ids[i], db);
@@ -506,15 +506,15 @@ public struct Unit
 					generate_spawn_unit_commands(sb, children.to_array(), db);
 				}
 
-				Guid owner_id = db.object_owner(object_ids[i]);
+				Guid owner_id = db.owner(object_ids[i]);
 				if (owner_id != GUID_ZERO && db.object_type(owner_id) == OBJECT_TYPE_UNIT)
 					sb.append(LevelEditorApi.unit_set_parent(owner_id, object_ids[i]));
 			} else if (Unit.is_component(object_ids[i], db)) {
-				if (!db.object_is_alive(object_ids[i]))
+				if (!db.is_alive(object_ids[i]))
 					continue;
 
 				Guid component_id = object_ids[i];
-				Guid unit_id = db.object_owner(component_id);
+				Guid unit_id = db.owner(component_id);
 				generate_add_component_commands(sb, unit_id, component_id, db);
 			} else {
 				break;
@@ -533,7 +533,7 @@ public struct Unit
 				sb.append(LevelEditorApi.destroy(object_ids[i]));
 			} else if (is_component(object_ids[i], db)) {
 				Guid component_id = object_ids[i];
-				sb.append(LevelEditorApi.unit_destroy_component_type(db.object_owner(component_id), db.object_type(component_id)));
+				sb.append(LevelEditorApi.unit_destroy_component_type(db.owner(component_id), db.object_type(component_id)));
 			} else {
 				break;
 			}
@@ -661,7 +661,7 @@ public struct Unit
 					});
 			} else if (Unit.is_component(object_ids[i], db)) {
 				Guid component_id = object_ids[i];
-				Guid unit_id = db.object_owner(component_id);
+				Guid unit_id = db.owner(component_id);
 				generate_set_component_commands(sb, unit_id, component_id, db);
 			} else {
 				break;
