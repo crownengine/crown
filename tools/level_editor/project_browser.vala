@@ -871,11 +871,13 @@ public class ProjectBrowser : Gtk.Box
 		_filter_entry_tree = new EntrySearch();
 		_filter_entry_tree._entry.set_buffer(_filter_buffer);
 		_filter_entry_tree.set_placeholder_text("Search...");
+		_filter_entry_tree._entry.stop_search.connect(on_stop_search);
 
 		_filter_entry_folder = new EntrySearch();
 		_filter_entry_folder._entry.set_buffer(_filter_buffer);
 		_filter_entry_folder.set_placeholder_text("Search...");
 		_filter_entry_folder.search_changed.connect(on_filter_entry_text_changed);
+		_filter_entry_folder._entry.stop_search.connect(on_stop_search);
 
 		_tree_filter = new Gtk.TreeModelFilter(_project_store._tree_store, null);
 		_tree_filter.set_visible_func((model, iter) => {
@@ -1897,6 +1899,11 @@ public class ProjectBrowser : Gtk.Box
 			_tree_view.get_selection().select_path(path);
 			_tree_view.scroll_to_cell(path, null, false, 0.0f, 0.0f);
 		}
+	}
+
+	public void on_stop_search()
+	{
+		exit_search();
 	}
 
 	public void on_filter_entry_text_changed()
