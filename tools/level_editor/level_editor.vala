@@ -2137,7 +2137,6 @@ public class LevelEditorApplication : Gtk.Application
 				, (uint)_preferences_dialog._undo_redo_max_size.value * 1024 * 1024
 				);
 			_state_machine_editor.set_transient_for(this.active_window);
-			_state_machine_editor.delete_event.connect(_state_machine_editor.hide_on_delete);
 			_state_machine_editor.saved.connect(() => {
 						compile_and_reload.begin();
 					});
