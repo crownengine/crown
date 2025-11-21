@@ -158,17 +158,9 @@ public class Level
 
 	public void duplicate_objects(Guid?[] ids, Guid?[] new_ids)
 	{
-		for (int i = 0; i < ids.length; ++i) {
-			_db.duplicate(ids[i], new_ids[i]);
-
-			if (_db.object_type(ids[i]) == OBJECT_TYPE_UNIT) {
-				_db.add_to_set(_id, "units", new_ids[i]);
-			} else if (_db.object_type(ids[i]) == OBJECT_TYPE_SOUND_SOURCE) {
-				_db.add_to_set(_id, "sounds", new_ids[i]);
-			}
-		}
+		for (int i = 0; i < ids.length; ++i)
+			_db.duplicate_and_add_to_set(ids[i], new_ids[i]);
 		_db.add_restore_point((int)ActionType.CREATE_OBJECTS, new_ids);
-
 		selection_set(new_ids);
 	}
 
