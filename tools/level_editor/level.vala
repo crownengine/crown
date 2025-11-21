@@ -132,14 +132,7 @@ public class Level
 	{
 		foreach (Guid id in ids) {
 			_selection.remove(id);
-
-			if (_db.object_type(id) == OBJECT_TYPE_UNIT) {
-				_db.remove_from_set(_id, "units", id);
-				_db.destroy(id);
-			} else if (_db.object_type(id) == OBJECT_TYPE_SOUND_SOURCE) {
-				_db.remove_from_set(_id, "sounds", id);
-				_db.destroy(id);
-			}
+			_db.destroy(id);
 		}
 
 		_db.add_restore_point((int)ActionType.DESTROY_OBJECTS, ids);
