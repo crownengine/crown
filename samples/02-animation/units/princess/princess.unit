@@ -30,8 +30,8 @@ components = [
 		data = {
 			depth = 0
 			layer = 1
-			material = "units/princess"
-			sprite_resource = "units/princess"
+			material = "units/princess/princess"
+			sprite_resource = "units/princess/princess"
 			visible = true
 		}
 		type = "sprite_renderer"
@@ -40,7 +40,7 @@ components = [
 		_guid = "ff3f598d-0f34-467b-bf98-14feb0997bfe"
 		_type = "animation_state_machine"
 		data = {
-			state_machine_resource = "units/humanoid"
+			state_machine_resource = "units/humanoid/humanoid"
 		}
 		type = "animation_state_machine"
 	}

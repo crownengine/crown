@@ -9,29 +9,30 @@ states = [
 			{
 				_guid = "2463a8ec-6735-496b-9558-338e655a2e4f"
 				_type = "node_animation"
-				name = "units/humanoid_run_up"
+				name = "units/humanoid/animations/humanoid_run_up"
 				weight = "match(speed_y, 1)"
 			}
 			{
 				_guid = "8cc273ec-9eb8-4f85-ac6f-dccd1c908847"
 				_type = "node_animation"
-				name = "units/humanoid_run_dn"
+				name = "units/humanoid/animations/humanoid_run_dn"
 				weight = "match(speed_y, -1)"
 			}
 			{
 				_guid = "a7ec104b-1add-4700-80da-73f7c0aa261e"
 				_type = "node_animation"
-				name = "units/humanoid_run_sx"
+				name = "units/humanoid/animations/humanoid_run_sx"
 				weight = "match(speed_x, -1)"
 			}
 			{
 				_guid = "c723b25c-3bd1-4c10-ae78-2aa5fcdbb699"
 				_type = "node_animation"
-				name = "units/humanoid_run_dx"
+				name = "units/humanoid/animations/humanoid_run_dx"
 				weight = "match(speed_x, 1)"
 			}
 		]
 		loop = true
+		name = "run"
 		speed = "speed"
 		transitions = [
 			{
@@ -50,29 +51,30 @@ states = [
 			{
 				_guid = "00921d69-e419-4cd7-9f45-8236053e1e25"
 				_type = "node_animation"
-				name = "units/humanoid_idle_dn"
+				name = "units/humanoid/animations/humanoid_idle_dn"
 				weight = "match(speed_y, -1)"
 			}
 			{
 				_guid = "1dd6f580-3c86-4699-9139-2d1fcd4f9bc5"
 				_type = "node_animation"
-				name = "units/humanoid_idle_dx"
+				name = "units/humanoid/animations/humanoid_idle_dx"
 				weight = "match(speed_x, 1)"
 			}
 			{
 				_guid = "7fea4f46-89a6-4ae5-93df-74990834240f"
 				_type = "node_animation"
-				name = "units/humanoid_idle_up"
+				name = "units/humanoid/animations/humanoid_idle_up"
 				weight = "match(speed_y, 1)"
 			}
 			{
 				_guid = "ca2509e1-fee9-44a8-b5f8-07c10034a6b3"
 				_type = "node_animation"
-				name = "units/humanoid_idle_sx"
+				name = "units/humanoid/animations/humanoid_idle_sx"
 				weight = "match(speed_x, -1)"
 			}
 		]
 		loop = true
+		name = "idle"
 		speed = "1"
 		transitions = [
 			{

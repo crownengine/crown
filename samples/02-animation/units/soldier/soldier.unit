@@ -5,7 +5,7 @@ components = [
 		_guid = "1ae2bba5-d24a-4c6e-8af7-a8b97340d221"
 		_type = "animation_state_machine"
 		data = {
-			state_machine_resource = "units/humanoid"
+			state_machine_resource = "units/humanoid/humanoid"
 		}
 		type = "animation_state_machine"
 	}
@@ -15,8 +15,8 @@ components = [
 		data = {
 			depth = 0
 			layer = 1
-			material = "units/soldier"
-			sprite_resource = "units/soldier"
+			material = "units/soldier/soldier"
+			sprite_resource = "units/soldier/soldier"
 			visible = true
 		}
 		type = "sprite_renderer"

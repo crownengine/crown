@@ -63,7 +63,7 @@ units = [
 				type = "transform"
 			}
 		}
-		prefab = "units/environment/tree"
+		prefab = "units/environment/tree/tree"
 	}
 	{
 		_guid = "53895ad6-3a1b-4a9a-a8a3-8735e3402608"
@@ -94,7 +94,7 @@ units = [
 				type = "transform"
 			}
 		}
-		prefab = "units/environment/tree"
+		prefab = "units/environment/tree/tree"
 	}
 	{
 		_guid = "69a216ee-398c-44ff-90e8-3cc8e8fda1eb"
@@ -125,7 +125,7 @@ units = [
 				type = "transform"
 			}
 		}
-		prefab = "units/environment/tree"
+		prefab = "units/environment/tree/tree"
 	}
 	{
 		_guid = "8506efab-8f99-404b-a5aa-4291303c8363"
@@ -156,6 +156,6 @@ units = [
 				type = "transform"
 			}
 		}
-		prefab = "units/environment/tree"
+		prefab = "units/environment/tree/tree"
 	}
 ]

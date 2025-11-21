@@ -24,8 +24,8 @@ components = [
 		data = {
 			depth = 0
 			layer = 1
-			material = "units/environment/tree"
-			sprite_resource = "units/environment/tree"
+			material = "units/environment/tree/tree"
+			sprite_resource = "units/environment/tree/tree"
 			visible = true
 		}
 		type = "sprite_renderer"
@@ -84,7 +84,7 @@ components = [
 		_guid = "9723f277-414b-4a25-956f-992e7f0acb51"
 		_type = "script"
 		data = {
-			script_resource = "units/environment/tree"
+			script_resource = "units/environment/tree/tree"
 		}
 		type = "script"
 	}

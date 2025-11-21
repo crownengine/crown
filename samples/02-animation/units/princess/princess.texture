@@ -1,4 +1,4 @@
-_guid = "9bd6e4c8-9812-40f9-9bcf-b7cff9272a0f"
+_guid = "5471c291-617b-473d-baa0-09685a7f6d83"
 _type = "texture"
 generate_mips = false
 normal_map = false
@@ -16,4 +16,4 @@ output = {
 		format = "RGBA8"
 	}
 }
-source = "units/soldier.png"
+source = "units/princess/princess.png"

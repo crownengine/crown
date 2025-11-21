@@ -1,8 +1,8 @@
-_guid = "f174f984-efac-446c-9dcc-ca8c2f78cb52"
+_guid = "ce2f44da-492c-4bfc-861f-1a9c235d758a"
 _type = "material"
 shader = "sprite"
 textures = {
-	u_albedo_map = "units/environment/tree"
+	u_albedo_map = "units/princess/princess"
 }
 uniforms = {
 	u_color = {

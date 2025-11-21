@@ -9,8 +9,8 @@ physics_config = [
 ]
 unit = [
 	"core/units/camera"
-	"units/princess"
-	"units/soldier"
+	"units/princess/princess"
+	"units/soldier/soldier"
 ]
 level = [
 	"levels/game"

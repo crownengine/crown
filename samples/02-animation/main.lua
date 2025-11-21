@@ -33,8 +33,8 @@ function Game.level_loaded()
 	SceneGraph.set_local_rotation(Game.sg, camera_transform, Quaternion.from_axis_angle(Vector3.right(), -90*(math.pi/180.0)))
 
 	-- Spawn characters.
-	Game.players[1] = World.spawn_unit(GameBase.world, "units/soldier", Vector3(-2, 0, 0))
-	Game.players[2] = World.spawn_unit(GameBase.world, "units/princess", Vector3(2, 0, 0))
+	Game.players[1] = World.spawn_unit(GameBase.world, "units/soldier/soldier", Vector3(-2, 0, 0))
+	Game.players[2] = World.spawn_unit(GameBase.world, "units/princess/princess", Vector3(2, 0, 0))
 	Game.player = Game.players[1]
 end
 

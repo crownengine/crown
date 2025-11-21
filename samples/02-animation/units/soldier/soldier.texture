@@ -1,4 +1,4 @@
-_guid = "e996b842-a07e-4dff-ab4f-54c6a36945d3"
+_guid = "9bd6e4c8-9812-40f9-9bcf-b7cff9272a0f"
 _type = "texture"
 generate_mips = false
 normal_map = false
@@ -16,4 +16,4 @@ output = {
 		format = "RGBA8"
 	}
 }
-source = "units/environment/tree.png"
+source = "units/soldier/soldier.png"

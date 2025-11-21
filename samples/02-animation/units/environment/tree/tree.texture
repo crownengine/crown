@@ -1,4 +1,4 @@
-_guid = "5471c291-617b-473d-baa0-09685a7f6d83"
+_guid = "e996b842-a07e-4dff-ab4f-54c6a36945d3"
 _type = "texture"
 generate_mips = false
 normal_map = false
@@ -16,4 +16,4 @@ output = {
 		format = "RGBA8"
 	}
 }
-source = "units/princess.png"
+source = "units/environment/tree/tree.png"
