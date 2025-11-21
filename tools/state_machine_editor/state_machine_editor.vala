@@ -116,6 +116,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		_box.pack_start(_paned);
 		_box.pack_start(_statusbar, false);
 
+		this.delete_event.connect(on_close_request);
 		this.add(_box);
 
 		_editor_viewport.restart_runtime();
@@ -173,15 +174,18 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 			}
 		}
 
-		_level.selection_changed(_level._selection);
-		_objects_tree.set_object(_state_machine_id);
+		Guid last_created = object_ids[object_ids.length - 1];
+
+		_objects_tree.set_object(_state_machine_id); // Force update the tree.
+		_objects_tree.select_objects({ last_created }); // Select the objects just created.
+
 		update_window_title();
 	}
 
 	public void on_objects_destroyed(Guid?[] object_ids, uint32 flags = 0)
 	{
-		_level.selection_changed(_level._selection);
-		_objects_tree.set_object(_state_machine_id);
+		_objects_tree.set_object(_state_machine_id); // Force update the tree.
+		_objects_tree.select_objects({ _state_machine_id }); // Select the root object which must always exits.
 		update_window_title();
 
 		if ((flags& ActionTypeFlags.FROM_SERVER) == 0) {
@@ -205,28 +209,30 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 			}
 		}
 
-		_level.selection_changed(_level._selection);
+		_objects_tree.on_tree_selection_changed(); // Force update any tree listener.
 		update_window_title();
 	}
 
 	public void set_state_machine(string state_machine_name)
 	{
+		string resource_path = ResourceId.path(OBJECT_TYPE_STATE_MACHINE, state_machine_name);
+		string path = _database._project.absolute_path(resource_path);
+
+		if (_database.load_from_path(out _state_machine_id, path, resource_path) != 0)
+			return;
+
 		_state_machine_name = state_machine_name;
-		_database.add_from_resource_path(out _state_machine_id, state_machine_name + "." + OBJECT_TYPE_STATE_MACHINE);
 		_objects_tree.set_object(_state_machine_id);
-
 		update_window_title();
-
 		send();
 	}
 
 	public void on_objects_tree_selection_changed(Guid object_id, ObjectTree.ItemType item_type)
 	{
-		Guid id = GUID_ZERO;
 		if (item_type == ObjectTree.ItemType.OBJECT)
-			id = object_id;
-
-		_objects_properties.set_object(id);
+			_objects_properties.set_object(object_id);
+		else
+			_objects_properties.set_object(GUID_ZERO);
 	}
 
 	public void on_undo(int action_id)
@@ -237,6 +243,27 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 	public void on_redo(int action_id)
 	{
 		_statusbar.set_temporary_message("Redo: " + ActionNames[action_id]);
+	}
+
+	public bool on_close_request(Gdk.EventAny event)
+	{
+		if (!_database.changed()) {
+			this.hide();
+		} else {
+			Gtk.Dialog dlg = new_resource_changed_dialog(this, _state_machine_name);
+			dlg.response.connect((response_id) => {
+					if (response_id == Gtk.ResponseType.NO) {
+						this.hide();
+					} else if (response_id == Gtk.ResponseType.YES) {
+						this.save();
+						this.hide();
+					}
+					dlg.destroy();
+				});
+			dlg.show_all();
+		}
+
+		return Gdk.EVENT_STOP;
 	}
 }
 
