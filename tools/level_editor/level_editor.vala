@@ -2162,19 +2162,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	public Gtk.Dialog new_level_changed_dialog(Gtk.Window? parent)
 	{
-		Gtk.MessageDialog md = new Gtk.MessageDialog(parent
-			, Gtk.DialogFlags.MODAL
-			, Gtk.MessageType.WARNING
-			, Gtk.ButtonsType.NONE
-			, "Save changes to Level before closing?"
-			);
-		Gtk.Widget btn;
-		btn = md.add_button("Close _without Saving", Gtk.ResponseType.NO);
-		btn.get_style_context().add_class("destructive-action");
-		md.add_button("_Cancel", Gtk.ResponseType.CANCEL);
-		md.add_button("_Save", Gtk.ResponseType.YES);
-		md.set_default_response(Gtk.ResponseType.YES);
-		return md;
+		return new_resource_changed_dialog(parent, "Level");
 	}
 
 	public Gtk.FileChooserDialog new_open_project_dialog(Gtk.Window? parent)
