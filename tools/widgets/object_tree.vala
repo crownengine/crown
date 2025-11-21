@@ -321,7 +321,7 @@ public class ObjectTree : Gtk.Box
 				Gee.HashSet<Guid?> deffault_set = new Gee.HashSet<Guid?>();
 				Gee.HashSet<Guid?> children = _database.get_set(id, def.name, deffault_set);
 				foreach (var child_id in children) {
-					if (!_database.object_is_alive(child_id))
+					if (!_database.is_alive(child_id))
 						continue;
 
 					Gtk.TreeIter child_iter;

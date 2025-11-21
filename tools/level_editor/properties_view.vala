@@ -173,7 +173,7 @@ public class PropertiesView : Gtk.Box
 				cv.read_properties();
 
 				if (component_id != GUID_ZERO) {
-					if (id == _db.object_owner(component_id))
+					if (id == _db.owner(component_id))
 						cv._expander.get_style_context().remove_class("inherited");
 					else
 						cv._expander.get_style_context().add_class("inherited");

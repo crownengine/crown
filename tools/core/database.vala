@@ -572,9 +572,9 @@ public class Database
 			StringId64 type_hash = StringId64(type);
 
 			_data[object_id] = new Gee.HashMap<string, Value?>();
-			set_object_type(object_id, type);
-			set_object_owner(object_id, GUID_ZERO);
-			set_object_alive(object_id, true);
+			set_type(object_id, type);
+			set_owner(object_id, GUID_ZERO);
+			set_alive(object_id, true);
 
 			if (has_type(type_hash))
 				_init_object(object_id, object_definition(type_hash));
@@ -700,7 +700,7 @@ public class Database
 				type = (string)json["type"];
 
 			if (type != null) {
-				set_object_type(id, type);
+				set_type(id, type);
 
 				StringId64 type_hash = StringId64(type);
 				if (has_type(type_hash))
@@ -766,42 +766,42 @@ public class Database
 			// parent and other heuristics.
 			if (owner_type == OBJECT_TYPE_LEVEL) {
 				if (key == "units")
-					set_object_type(obj_id, OBJECT_TYPE_UNIT);
+					set_type(obj_id, OBJECT_TYPE_UNIT);
 				else if (key == "sounds")
-					set_object_type(obj_id, OBJECT_TYPE_SOUND_SOURCE);
+					set_type(obj_id, OBJECT_TYPE_SOUND_SOURCE);
 				else
-					set_object_type(obj_id, "undefined");
+					set_type(obj_id, "undefined");
 			} else if (owner_type == OBJECT_TYPE_STATE_MACHINE) {
 				if (key == "states")
-					set_object_type(obj_id, OBJECT_TYPE_STATE_MACHINE_NODE);
+					set_type(obj_id, OBJECT_TYPE_STATE_MACHINE_NODE);
 				else if (key == "variables")
-					set_object_type(obj_id, OBJECT_TYPE_STATE_MACHINE_VARIABLE);
+					set_type(obj_id, OBJECT_TYPE_STATE_MACHINE_VARIABLE);
 				else
-					set_object_type(obj_id, "undefined");
+					set_type(obj_id, "undefined");
 			} else if (owner_type == OBJECT_TYPE_STATE_MACHINE_NODE) {
 				if (key == "animations")
-					set_object_type(obj_id, OBJECT_TYPE_NODE_ANIMATION);
+					set_type(obj_id, OBJECT_TYPE_NODE_ANIMATION);
 				else if (key == "transitions")
-					set_object_type(obj_id, OBJECT_TYPE_NODE_TRANSITION);
+					set_type(obj_id, OBJECT_TYPE_NODE_TRANSITION);
 			} else if (owner_type == OBJECT_TYPE_SPRITE) {
 				if (key == "frames") {
-					set_object_type(obj_id, "sprite_frame");
+					set_type(obj_id, "sprite_frame");
 					set(0, obj_id, "index", (double)i);
 				}
 			} else if (owner_type == OBJECT_TYPE_SPRITE_ANIMATION) {
 				if (key == "frames") {
-					set_object_type(obj_id, "animation_frame");
+					set_type(obj_id, "animation_frame");
 					set(0, obj_id, "index", (double)json[i]);
 				}
 			} else if (owner_type == OBJECT_TYPE_FONT) {
 				if (key == "glyphs") {
-					set_object_type(obj_id, "font_glyph");
+					set_type(obj_id, "font_glyph");
 					set(0, obj_id, "cp", (double)obj["id"]);
 				}
 			}
 
-			set_object_owner(obj_id, owner_id);
-			set_object_alive(obj_id, true);
+			set_owner(obj_id, owner_id);
+			set_alive(obj_id, true);
 			decode_object(obj_id, owner_id, "", obj);
 			assert(has_property(obj_id, "_type"));
 
@@ -873,7 +873,7 @@ public class Database
 
 	public Hashtable encode_object(Guid id, Gee.HashMap<string, Value?> db)
 	{
-		assert(object_is_alive(id));
+		assert(is_alive(id));
 
 		string type = object_type(id);
 		PropertyDefinition[]? properties = object_definition(StringId64(type));
@@ -943,7 +943,7 @@ public class Database
 			Gee.HashSet<Guid?> hs = (Gee.HashSet<Guid?>)value;
 			Gee.ArrayList<Value?> arr = new Gee.ArrayList<Value?>();
 			foreach (Guid id in hs) {
-				if (!object_is_alive(id))
+				if (!is_alive(id))
 					continue;
 				arr.add(encode_object(id, get_data(id)));
 			}
@@ -1023,7 +1023,7 @@ public class Database
 		Gee.HashMap<string, Value?> ob = get_data(id);
 		((Gee.HashSet<Guid?>)ob[key]).remove(item_id);
 
-		set_object_owner(id, GUID_ZERO);
+		set_owner(id, GUID_ZERO);
 
 		if (_undo_redo != null)
 			_undo_redo._distance_from_last_sync += dir;
@@ -1041,7 +1041,7 @@ public class Database
 	}
 
 	// Returns the owner of @a id.
-	public Guid object_owner(Guid id)
+	public Guid owner(Guid id)
 	{
 		assert(has_object(id));
 		return (Guid)get_data(id)["_owner"];
@@ -1051,26 +1051,26 @@ public class Database
 	// This is called automatically when loading data or when new objects are created via create().
 	// It can occasionally be called manually after loading legacy data with no type information
 	// stored inside objects.
-	public void set_object_type(Guid id, string type)
+	public void set_type(Guid id, string type)
 	{
 		assert(has_object(id));
 		get_data(id)["_type"] = type;
 	}
 
-	public void set_object_owner(Guid id, Guid owner_id)
+	public void set_owner(Guid id, Guid owner_id)
 	{
 		assert(has_object(id));
 		assert(has_object(owner_id));
 		get_data(id)["_owner"] = owner_id;
 	}
 
-	public void set_object_alive(Guid id, bool alive)
+	public void set_alive(Guid id, bool alive)
 	{
 		assert(has_object(id));
 		get_data(id)["_alive"] = alive;
 	}
 
-	public bool object_is_alive(Guid id)
+	public bool is_alive(Guid id)
 	{
 		assert(has_object(id));
 		return (bool)get_data(id)["_alive"];
@@ -1128,8 +1128,8 @@ public class Database
 		}
 
 		_data[id] = new Gee.HashMap<string, Value?>();
-		set_object_alive(id, true);
-		set_object_type(id, type);
+		set_alive(id, true);
+		set_type(id, type);
 
 		StringId64 type_hash = StringId64(type);
 		if (has_type(type_hash))
@@ -1152,13 +1152,13 @@ public class Database
 				Gee.HashSet<Guid?> hs = (Gee.HashSet<Guid?>)value;
 				Guid?[] ids = hs.to_array();
 				foreach (Guid item_id in ids) {
-					if (object_is_alive(item_id))
+					if (is_alive(item_id))
 						destroy(item_id);
 				}
 			}
 		}
 
-		set_object_alive(id, false);
+		set_alive(id, false);
 
 		if (_undo_redo != null) {
 			_undo_redo._undo.write_create_action(Action.CREATE, id, obj_type);
@@ -1660,12 +1660,12 @@ public class Database
 			if (action == Action.CREATE) {
 				Guid id = undo.read_guid();
 				string obj_type = undo.read_string();
-				set_object_alive(id, true);
+				set_alive(id, true);
 				redo.write_destroy_action(Action.DESTROY, id, obj_type);
 			} else if (action == Action.DESTROY) {
 				Guid id = undo.read_guid();
 				string obj_type = undo.read_string();
-				set_object_alive(id, false);
+				set_alive(id, false);
 				redo.write_create_action(Action.CREATE, id, obj_type);
 			} else if (action == Action.SET_NULL) {
 				Guid id = undo.read_guid();
