@@ -4098,7 +4098,6 @@ public class LevelEditorApplication : Gtk.Application
 				, (uint)_preferences_dialog._undo_redo_max_size.value * 1024 * 1024
 				);
 			_unit_editor_dialog.set_transient_for(this.active_window);
-			_unit_editor_dialog.delete_event.connect(_unit_editor_dialog.hide_on_delete);
 			_unit_editor_dialog.saved.connect(() => {
 						compile_and_reload.begin();
 					});

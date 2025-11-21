@@ -119,6 +119,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 		_box.pack_start(_paned_object);
 		_box.pack_start(_statusbar, false);
 
+		this.delete_event.connect(on_close_request);
 		this.add(_box);
 
 		_editor_viewport.restart_runtime();
@@ -281,6 +282,27 @@ public class UnitEditor : Gtk.ApplicationWindow
 	public void on_redo(int action_id)
 	{
 		_statusbar.set_temporary_message("Redo: " + ActionNames[action_id]);
+	}
+
+	public bool on_close_request(Gdk.EventAny event)
+	{
+		if (!_database.changed()) {
+			this.hide();
+		} else {
+			Gtk.Dialog dlg = new_resource_changed_dialog(this, _unit_name);
+			dlg.response.connect((response_id) => {
+					if (response_id == Gtk.ResponseType.NO) {
+						this.hide();
+					} else if (response_id == Gtk.ResponseType.YES) {
+						this.save();
+						this.hide();
+					}
+					dlg.destroy();
+				});
+			dlg.show_all();
+		}
+
+		return Gdk.EVENT_STOP;
 	}
 }
 
