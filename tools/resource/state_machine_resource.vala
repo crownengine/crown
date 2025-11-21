@@ -20,8 +20,8 @@ public struct NodeAnimation
 		_id = id;
 
 		_db.create(_id, OBJECT_TYPE_NODE_ANIMATION);
-		_db.set_property_string(_id, "name", name);
-		_db.set_property_string(_id, "weight", weight);
+		_db.set_string(_id, "name", name);
+		_db.set_string(_id, "weight", weight);
 	}
 }
 
@@ -36,8 +36,8 @@ public struct StateMachineNode
 		_id = id;
 
 		_db.create(_id, OBJECT_TYPE_STATE_MACHINE_NODE);
-		_db.set_property_bool(_id, "loop", true);
-		_db.set_property_string(_id, "speed", "1");
+		_db.set_bool(_id, "loop", true);
+		_db.set_string(_id, "speed", "1");
 		_db.create_empty_set(_id, "animations");
 		_db.create_empty_set(_id, "transitions");
 	}
@@ -73,11 +73,11 @@ public struct StateMachineResource
 
 		_db.create(_id, OBJECT_TYPE_STATE_MACHINE);
 		add_node(initial_state);
-		_db.set_property_guid(_id, "initial_state", initial_state._id);
+		_db.set_guid(_id, "initial_state", initial_state._id);
 		_db.create_empty_set(_id, "variables");
-		_db.set_property_string(_id, "animation_type", animation_type);
+		_db.set_string(_id, "animation_type", animation_type);
 		if (skeleton_name != null)
-			_db.set_property_string(_id, "skeleton_name", skeleton_name);
+			_db.set_string(_id, "skeleton_name", skeleton_name);
 	}
 
 	public StateMachineResource.mesh(Database db, Guid id, string skeleton_name)

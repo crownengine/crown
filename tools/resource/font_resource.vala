@@ -390,22 +390,22 @@ public class FontResource
 			// Generate .font resource.
 			Guid font_id = Guid.new_guid();
 			db.create(font_id, OBJECT_TYPE_FONT);
-			db.set_property_double(font_id, "size", size);
-			db.set_property_double(font_id, "font_size", font_size);
+			db.set_double(font_id, "size", size);
+			db.set_double(font_id, "font_size", font_size);
 
 			for (int ii = 0; ii < dlg._font_range_max.value - dlg._font_range_min.value + 1; ++ii) {
 				GlyphData* gd = dlg.glyph_data(ii);
 
 				Guid glyph_id = Guid.new_guid();
 				db.create(glyph_id, "font_glyph");
-				db.set_property_double(glyph_id, "cp", gd->id);
-				db.set_property_double(glyph_id, "x", gd->x);
-				db.set_property_double(glyph_id, "y", gd->y);
-				db.set_property_double(glyph_id, "width", gd->width);
-				db.set_property_double(glyph_id, "height", gd->height);
-				db.set_property_double(glyph_id, "x_offset", gd->x_offset);
-				db.set_property_double(glyph_id, "y_offset", gd->y_offset);
-				db.set_property_double(glyph_id, "x_advance", gd->x_advance);
+				db.set_double(glyph_id, "cp", gd->id);
+				db.set_double(glyph_id, "x", gd->x);
+				db.set_double(glyph_id, "y", gd->y);
+				db.set_double(glyph_id, "width", gd->width);
+				db.set_double(glyph_id, "height", gd->height);
+				db.set_double(glyph_id, "x_offset", gd->x_offset);
+				db.set_double(glyph_id, "y_offset", gd->y_offset);
+				db.set_double(glyph_id, "x_advance", gd->x_advance);
 
 				db.add_to_set(font_id, "glyphs", glyph_id);
 			}

@@ -122,7 +122,7 @@ public class Project
 	{
 		var path = ResourceId.path(type, name);
 		Guid id = _map[path];
-		string mtime = _files.get_property_string(id, "mtime");
+		string mtime = _files.get_string(id, "mtime");
 		return uint64.parse(mtime);
 	}
 
@@ -505,11 +505,11 @@ public class Project
 
 		Guid id = Guid.new_guid();
 		_files.create(id, OBJECT_TYPE_FILE);
-		_files.set_property_string(id, "path", path);
-		_files.set_property_string(id, "type", type);
-		_files.set_property_string(id, "name", name);
-		_files.set_property_string(id, "size", size.to_string());
-		_files.set_property_string(id, "mtime", mtime.to_string());
+		_files.set_string(id, "path", path);
+		_files.set_string(id, "type", type);
+		_files.set_string(id, "name", name);
+		_files.set_string(id, "size", size.to_string());
+		_files.set_string(id, "mtime", mtime.to_string());
 		_files.add_to_set(GUID_ZERO, "data", id);
 
 		_map[path] = id;
@@ -523,8 +523,8 @@ public class Project
 		string name = type == "" ? path : path.substring(0, path.last_index_of("."));
 
 		Guid id = _map[path];
-		_files.set_property_string(id, "size", size.to_string());
-		_files.set_property_string(id, "mtime", mtime.to_string());
+		_files.set_string(id, "size", size.to_string());
+		_files.set_string(id, "mtime", mtime.to_string());
 
 		_data_compiled = false;
 
@@ -539,7 +539,7 @@ public class Project
 		}
 
 		Guid id = _map[path];
-		file_removed(_files.get_property_string(id, "type"), _files.get_property_string(id, "name"));
+		file_removed(_files.get_string(id, "type"), _files.get_string(id, "name"));
 
 		_files.remove_from_set(GUID_ZERO, "data", id);
 		_files.destroy(id);

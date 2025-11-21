@@ -19,7 +19,7 @@ public struct SoundResource
 		_id = id;
 
 		_db.create(_id, OBJECT_TYPE_SOUND);
-		_db.set_property_string(_id, "source", source_sound);
+		_db.set_string(_id, "source", source_sound);
 	}
 
 	public int save(Project project, string resource_name)

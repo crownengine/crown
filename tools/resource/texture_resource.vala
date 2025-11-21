@@ -60,14 +60,14 @@ public struct TextureResource
 		_id = id;
 
 		_db.create(_id, OBJECT_TYPE_TEXTURE);
-		_db.set_property_string(_id, "source", source_image);
+		_db.set_string(_id, "source", source_image);
 
 		for (int tp = 0; tp < TargetPlatform.COUNT; ++tp) {
 			string platform = ((TargetPlatform)tp).to_key();
-			_db.set_property_string(_id, "output." + platform + ".format", output_format.to_key());
-			_db.set_property_bool(_id, "output." + platform + ".generate_mips", generate_mips);
-			_db.set_property_bool(_id, "output." + platform + ".normal_map", is_normal_map);
-			_db.set_property_double(_id, "output." + platform + ".mip_skip_smallest", 0);
+			_db.set_string(_id, "output." + platform + ".format", output_format.to_key());
+			_db.set_bool(_id, "output." + platform + ".generate_mips", generate_mips);
+			_db.set_bool(_id, "output." + platform + ".normal_map", is_normal_map);
+			_db.set_double(_id, "output." + platform + ".mip_skip_smallest", 0);
 		}
 	}
 

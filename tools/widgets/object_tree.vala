@@ -319,7 +319,7 @@ public class ObjectTree : Gtk.Box
 			// Insert the set's content.
 			if (_database.has_property(id, def.name)) {
 				Gee.HashSet<Guid?> deffault_set = new Gee.HashSet<Guid?>();
-				Gee.HashSet<Guid?> children = _database.get_property_set(id, def.name, deffault_set);
+				Gee.HashSet<Guid?> children = _database.get_set(id, def.name, deffault_set);
 				foreach (var child_id in children) {
 					if (!_database.object_is_alive(child_id))
 						continue;
@@ -333,7 +333,7 @@ public class ObjectTree : Gtk.Box
 						, Column.OBJECT_ID
 						, child_id
 						, Column.OBJECT_NAME
-						, _database.object_name(child_id)
+						, _database.name(child_id)
 						, Column.SET_NAME
 						, def.name
 						, Column.VISIBLE
@@ -363,7 +363,7 @@ public class ObjectTree : Gtk.Box
 			, Column.OBJECT_ID
 			, id
 			, Column.OBJECT_NAME
-			, _database.object_name(id)
+			, _database.name(id)
 			, Column.SET_NAME
 			, ""
 			, Column.VISIBLE

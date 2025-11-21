@@ -1215,7 +1215,7 @@ public class LevelEditorApplication : Gtk.Application
 		} else if (msg_type == "remove_file") {
 			string path = (string)msg["path"];
 
-			_database.set_property_internal(0, GUID_ZERO, path, null);
+			_database.set(0, GUID_ZERO, path, null);
 			_project.remove_file(path);
 		} else if (msg_type == "add_tree") {
 			string path = (string)msg["path"];
@@ -1230,7 +1230,7 @@ public class LevelEditorApplication : Gtk.Application
 			uint64 size = uint64.parse((string)msg["size"]);
 			uint64 mtime = uint64.parse((string)msg["mtime"]);
 
-			_database.set_property_internal(0, GUID_ZERO, path, null);
+			_database.set(0, GUID_ZERO, path, null);
 			_project.change_file(path, size, mtime);
 		} else if (msg_type == "compile") {
 			_data_compiler.message(msg);
@@ -2585,8 +2585,8 @@ public class LevelEditorApplication : Gtk.Application
 
 	public void do_rename(Guid object_id, string new_name)
 	{
-		if (new_name != "" && _database.object_name(object_id) != new_name) {
-			_database.set_object_name(object_id, new_name);
+		if (new_name != "" && _database.name(object_id) != new_name) {
+			_database.set_name(object_id, new_name);
 			_database.add_restore_point((int)ActionType.CHANGE_OBJECTS, new Guid?[] { object_id });
 		}
 	}
@@ -2611,7 +2611,7 @@ public class LevelEditorApplication : Gtk.Application
 
 			InputString sb = new InputString();
 			sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
-			sb.value = _database.object_name(object_id);
+			sb.value = _database.name(object_id);
 
 			dg.get_content_area().add(sb);
 			dg.response.connect((response_id) => {

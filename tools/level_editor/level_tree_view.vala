@@ -240,11 +240,11 @@ public class LevelTreeView : Gtk.Box
 					_tree_view.model.get_value(iter, Column.GUID, out val);
 					Guid object_id = (Guid)val;
 					_tree_view.model.get_value(iter, Column.NAME, out val);
-					string object_name = (string)val;
+					string name = (string)val;
 
 					if (_db.object_type(object_id) == OBJECT_TYPE_UNIT) {
 						mi = new GLib.MenuItem("Save as Prefab...", null);
-						mi.set_action_and_target_value("app.unit-save-as-prefab", new GLib.Variant.tuple({ object_id.to_string(), object_name }));
+						mi.set_action_and_target_value("app.unit-save-as-prefab", new GLib.Variant.tuple({ object_id.to_string(), name }));
 						menu_model.append_item(mi);
 					}
 				}
@@ -336,7 +336,7 @@ public class LevelTreeView : Gtk.Box
 
 						_tree_store.set(iter_model
 							, Column.NAME
-							, _db.object_name(id)
+							, _db.name(id)
 							, -1
 							);
 						return true;
@@ -402,8 +402,8 @@ public class LevelTreeView : Gtk.Box
 		_tree_view.model = _tree_sort;
 
 		_level = level;
-		on_objects_created(_db.get_property_set(_level._id, "units", new Gee.HashSet<Guid?>()).to_array());
-		on_objects_created(_db.get_property_set(_level._id, "sounds", new Gee.HashSet<Guid?>()).to_array());
+		on_objects_created(_db.get_set(_level._id, "units", new Gee.HashSet<Guid?>()).to_array());
+		on_objects_created(_db.get_set(_level._id, "sounds", new Gee.HashSet<Guid?>()).to_array());
 
 		_tree_view.expand_all();
 	}
@@ -435,7 +435,7 @@ public class LevelTreeView : Gtk.Box
 					, Column.GUID
 					, u._id
 					, Column.NAME
-					, _db.object_name(u._id)
+					, _db.name(u._id)
 					, Column.VISIBLE
 					, true
 					, Column.SAVE_STATE
@@ -468,7 +468,7 @@ public class LevelTreeView : Gtk.Box
 				, Column.GUID
 				, object_ids[i]
 				, Column.NAME
-				, _db.object_name(object_ids[i])
+				, _db.name(object_ids[i])
 				, Column.VISIBLE
 				, true
 				, Column.SAVE_STATE

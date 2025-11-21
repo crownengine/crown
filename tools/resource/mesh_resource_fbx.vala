@@ -349,7 +349,7 @@ public class FBXImporter
 		if (node.mesh != null) {
 			Unit unit = Unit(db, unit_id);
 			db.create(unit_id, OBJECT_TYPE_UNIT);
-			db.set_object_name(unit_id, editor_name);
+			db.set_name(unit_id, editor_name);
 
 			// Create transform.
 			{
@@ -360,10 +360,10 @@ public class FBXImporter
 					db.add_to_set(unit_id, "components", component_id);
 				}
 
-				unit.set_component_property_vector3   (component_id, "data.position", pos);
-				unit.set_component_property_quaternion(component_id, "data.rotation", rot);
-				unit.set_component_property_vector3   (component_id, "data.scale", scl);
-				unit.set_component_property_string    (component_id, "data.name", editor_name);
+				unit.set_component_vector3   (component_id, "data.position", pos);
+				unit.set_component_quaternion(component_id, "data.rotation", rot);
+				unit.set_component_vector3   (component_id, "data.scale", scl);
+				unit.set_component_string    (component_id, "data.name", editor_name);
 			}
 
 			if (node.mesh.num_faces > 0) {
@@ -381,10 +381,10 @@ public class FBXImporter
 					if (imported_materials.has_key(mesh_instance_material))
 						material_name = imported_materials[mesh_instance_material];
 
-					unit.set_component_property_string(component_id, "data.geometry_name", editor_name);
-					unit.set_component_property_string(component_id, "data.material", material_name);
-					unit.set_component_property_string(component_id, "data.mesh_resource", resource_name);
-					unit.set_component_property_bool  (component_id, "data.visible", true);
+					unit.set_component_string(component_id, "data.geometry_name", editor_name);
+					unit.set_component_string(component_id, "data.material", material_name);
+					unit.set_component_string(component_id, "data.mesh_resource", resource_name);
+					unit.set_component_bool  (component_id, "data.visible", true);
 				}
 
 				// Create collider.
@@ -396,9 +396,9 @@ public class FBXImporter
 						db.add_to_set(unit_id, "components", component_id);
 					}
 
-					unit.set_component_property_string(component_id, "data.shape", "mesh");
-					unit.set_component_property_string(component_id, "data.scene", resource_name);
-					unit.set_component_property_string(component_id, "data.name", editor_name);
+					unit.set_component_string(component_id, "data.shape", "mesh");
+					unit.set_component_string(component_id, "data.scene", resource_name);
+					unit.set_component_string(component_id, "data.name", editor_name);
 				}
 
 				// Create actor.
@@ -410,10 +410,10 @@ public class FBXImporter
 						db.add_to_set(unit_id, "components", component_id);
 					}
 
-					unit.set_component_property_string(component_id, "data.class", "static");
-					unit.set_component_property_string(component_id, "data.collision_filter", "default");
-					unit.set_component_property_double(component_id, "data.mass", 1.0);
-					unit.set_component_property_string(component_id, "data.material", "default");
+					unit.set_component_string(component_id, "data.class", "static");
+					unit.set_component_string(component_id, "data.collision_filter", "default");
+					unit.set_component_double(component_id, "data.mass", 1.0);
+					unit.set_component_string(component_id, "data.material", "default");
 				}
 			}
 		} else if (node.light != null) {
@@ -422,20 +422,20 @@ public class FBXImporter
 
 			Unit unit = Unit(db, unit_id);
 			unit.create("core/units/light");
-			db.set_object_name(unit_id, editor_name);
+			db.set_name(unit_id, editor_name);
 			unit.set_local_position(pos);
 			unit.set_local_rotation(rot);
 			unit.set_local_scale(scl);
 
 			Guid component_id;
 			if (unit.has_component(out component_id, OBJECT_TYPE_LIGHT)) {
-				unit.set_component_property_string (component_id, "data.type", light_type(node.light.type));
-				unit.set_component_property_double (component_id, "data.range", 10.0);
-				unit.set_component_property_double (component_id, "data.intensity", (double)node.light.intensity);
-				unit.set_component_property_double (component_id, "data.spot_angle", 0.5 * MathUtils.rad((double)node.light.outer_angle));
-				unit.set_component_property_vector3(component_id, "data.color", vector3(node.light.color));
-				unit.set_component_property_double (component_id, "data.shadow_bias", 0.0001);
-				unit.set_component_property_bool   (component_id, "data.cast_shadows", node.light.cast_shadows);
+				unit.set_component_string (component_id, "data.type", light_type(node.light.type));
+				unit.set_component_double (component_id, "data.range", 10.0);
+				unit.set_component_double (component_id, "data.intensity", (double)node.light.intensity);
+				unit.set_component_double (component_id, "data.spot_angle", 0.5 * MathUtils.rad((double)node.light.outer_angle));
+				unit.set_component_vector3(component_id, "data.color", vector3(node.light.color));
+				unit.set_component_double (component_id, "data.shadow_bias", 0.0001);
+				unit.set_component_bool   (component_id, "data.cast_shadows", node.light.cast_shadows);
 			}
 		} else if (node.camera != null) {
 			if (!options.import_cameras.value)
@@ -443,24 +443,24 @@ public class FBXImporter
 
 			Unit unit = Unit(db, unit_id);
 			unit.create("core/units/camera");
-			db.set_object_name(unit_id, editor_name);
+			db.set_name(unit_id, editor_name);
 			unit.set_local_position(pos);
 			unit.set_local_rotation(rot);
 			unit.set_local_scale(scl);
 
 			Guid component_id;
 			if (unit.has_component(out component_id, OBJECT_TYPE_CAMERA)) {
-				unit.set_component_property_string(component_id, "data.projection", projection_type(node.camera.projection_mode));
-				unit.set_component_property_double(component_id, "data.fov", MathUtils.rad((double)node.camera.field_of_view_deg.y));
-				unit.set_component_property_double(component_id, "data.far_range", (double)node.camera.far_plane);
-				unit.set_component_property_double(component_id, "data.near_range", (double)node.camera.near_plane);
+				unit.set_component_string(component_id, "data.projection", projection_type(node.camera.projection_mode));
+				unit.set_component_double(component_id, "data.fov", MathUtils.rad((double)node.camera.field_of_view_deg.y));
+				unit.set_component_double(component_id, "data.far_range", (double)node.camera.far_plane);
+				unit.set_component_double(component_id, "data.near_range", (double)node.camera.near_plane);
 			}
 		} else if (node.bone != null) {
 			return;
 		} else {
 			Unit unit = Unit(db, unit_id);
 			db.create(unit_id, OBJECT_TYPE_UNIT);
-			db.set_object_name(unit_id, editor_name);
+			db.set_name(unit_id, editor_name);
 
 			// Create transform.
 			Guid component_id;
@@ -470,9 +470,9 @@ public class FBXImporter
 				db.add_to_set(unit_id, "components", component_id);
 			}
 
-			unit.set_component_property_vector3   (component_id, "data.position", pos);
-			unit.set_component_property_quaternion(component_id, "data.rotation", rot);
-			unit.set_component_property_vector3   (component_id, "data.scale", scl);
+			unit.set_component_vector3   (component_id, "data.position", pos);
+			unit.set_component_quaternion(component_id, "data.rotation", rot);
+			unit.set_component_vector3   (component_id, "data.scale", scl);
 		}
 
 		if (parent_unit_id != GUID_ZERO)
@@ -522,7 +522,7 @@ public class FBXImporter
 		)
 	{
 		db.create(bone_id, OBJECT_TYPE_MESH_BONE);
-		db.set_property_string(bone_id, "name", (string)node.name.data);
+		db.set_string(bone_id, "name", (string)node.name.data);
 		if (parent_bone_id != GUID_ZERO)
 			db.add_to_set(parent_bone_id, "children", bone_id);
 
@@ -832,7 +832,7 @@ public class FBXImporter
 
 						Guid animation_skeleton_id = Guid.new_guid();
 						db.create(animation_skeleton_id, OBJECT_TYPE_MESH_SKELETON);
-						db.set_property_string(animation_skeleton_id, "source", resource_path);
+						db.set_string(animation_skeleton_id, "source", resource_path);
 						db.add_to_set(animation_skeleton_id, "skeleton", skeleton_hierarchy_id);
 						if (db.save(project.absolute_path(resource_name) + "." + OBJECT_TYPE_MESH_SKELETON, animation_skeleton_id) != 0)
 							return ImportResult.ERROR;
@@ -887,9 +887,9 @@ public class FBXImporter
 							// Create .mesh_animation resource.
 							Guid anim_id = Guid.new_guid();
 							db.create(anim_id, OBJECT_TYPE_MESH_ANIMATION);
-							db.set_property_string(anim_id, "source", resource_path);
-							db.set_property_string(anim_id, "target_skeleton", target_skeleton);
-							db.set_property_string(anim_id, "stack_name", (string)anim_stack.name.data);
+							db.set_string(anim_id, "source", resource_path);
+							db.set_string(anim_id, "target_skeleton", target_skeleton);
+							db.set_string(anim_id, "stack_name", (string)anim_stack.name.data);
 							if (db.save(project.absolute_path(anim_resource_name) + "." + OBJECT_TYPE_MESH_ANIMATION, anim_id) != 0)
 								return ImportResult.ERROR;
 						}
@@ -920,7 +920,7 @@ public class FBXImporter
 						db.add_to_set(unit_id, "components", component_id);
 					}
 
-					unit.set_component_property_string(component_id, "data.state_machine_resource", resource_name);
+					unit.set_component_string(component_id, "data.state_machine_resource", resource_name);
 				}
 
 				if (db.save(project.absolute_path(resource_name) + ".unit", unit_id) != 0)
@@ -928,7 +928,7 @@ public class FBXImporter
 
 				Guid mesh_id = Guid.new_guid();
 				db.create(mesh_id, OBJECT_TYPE_MESH);
-				db.set_property_string(mesh_id, "source", resource_path);
+				db.set_string(mesh_id, "source", resource_path);
 				if (db.save(project.absolute_path(resource_name) + ".mesh", mesh_id) != 0)
 					return ImportResult.ERROR;
 			}

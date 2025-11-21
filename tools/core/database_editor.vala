@@ -61,8 +61,8 @@ public class DatabaseEditor
 
 	public void do_rename(Guid object_id, string new_name)
 	{
-		if (new_name != "" && _database.object_name(object_id) != new_name) {
-			_database.set_object_name(object_id, new_name);
+		if (new_name != "" && _database.name(object_id) != new_name) {
+			_database.set_name(object_id, new_name);
 			_database.add_restore_point((int)ActionType.CHANGE_OBJECTS, new Guid?[] { object_id });
 		}
 	}
@@ -87,7 +87,7 @@ public class DatabaseEditor
 
 			InputString sb = new InputString();
 			sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
-			sb.value = _database.object_name(object_id);
+			sb.value = _database.name(object_id);
 
 			dg.get_content_area().add(sb);
 			dg.response.connect((response_id) => {
@@ -114,7 +114,7 @@ public class DatabaseEditor
 		}
 
 		if (i != properties.length) {
-			string obj_type_name = _database.object_type_name(properties[i].object_type);
+			string obj_type_name = _database.type_name(properties[i].object_type);
 			Guid new_obj = Guid.new_guid();
 			_database.create(new_obj, obj_type_name);
 			_database.add_to_set(object_id, properties[i].name, new_obj);
