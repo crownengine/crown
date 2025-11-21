@@ -83,6 +83,7 @@ public class ObjectTree : Gtk.Box
 		_filter_entry = new EntrySearch();
 		_filter_entry.set_placeholder_text("Search...");
 		_filter_entry.search_changed.connect(on_filter_entry_text_changed);
+		_filter_entry._entry.stop_search.connect(on_stop_search);
 
 		_tree_store = new Gtk.TreeStore(Column.COUNT
 			, typeof(ItemType) // Column.ITEM_TYPE
@@ -555,6 +556,11 @@ public class ObjectTree : Gtk.Box
 			_tree_view.get_selection().select_path(path);
 			_tree_view.scroll_to_cell(path, null, false, 0.0f, 0.0f);
 		}
+	}
+
+	public void on_stop_search()
+	{
+		_filter_entry._entry.set_text("");
 	}
 
 	public void on_filter_entry_text_changed()
