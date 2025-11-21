@@ -1522,6 +1522,25 @@ public class Database
 		}
 	}
 
+	public void duplicate_and_add_to_set(Guid id, Guid new_id)
+	{
+		duplicate(id, new_id);
+		Guid owner_id = owner(id);
+
+		if (owner_id != GUID_ZERO) {
+			PropertyDefinition[]? properties = object_definition(StringId64(object_type(owner_id)));
+
+			foreach (PropertyDefinition def in properties) {
+				if (def.type == PropertyType.OBJECTS_SET) {
+					if (get_set(owner_id, def.name, new Gee.HashSet<Guid?>()).contains(id)) {
+						add_to_set(owner_id, def.name, new_id);
+						break;
+					}
+				}
+			}
+		}
+	}
+
 	/// Copies the database to db under the given new_key.
 	public void copy_to(Database db, string new_key)
 	{
