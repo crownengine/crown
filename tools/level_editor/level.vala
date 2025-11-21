@@ -176,7 +176,7 @@ public class Level
 		}
 		_db.add_restore_point((int)ActionType.CREATE_OBJECTS, new_ids);
 
-		selection_set(ids);
+		selection_set(new_ids);
 	}
 
 	public void replace_unit(Guid unit_id, string prefab_name)

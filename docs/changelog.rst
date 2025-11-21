@@ -24,6 +24,7 @@ Changelog
 * Tools: fixed meshes nodes being reset unexpectedly when selecting the corresponding unit in the Inspector.
 * Tools: fixed some properties unnecessarily requiring multiple undo steps to be set to their previous value.
 * Tools: fixed importing non-animated FBX files in some circumnstances.
+* Tools: duplicating objects in the Level Editor will now correctly select the duplicated objects instead of the ones being duplicated.
 * Runtime: fixed shading of meshes with non-uniform scaling.
 * Runtime: Windows: fixed a number of misdetected keyboard keys.
 * Runtime: Windows: fixed windows firewall popping up at startup.

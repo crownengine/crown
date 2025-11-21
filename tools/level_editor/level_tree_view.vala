@@ -500,6 +500,8 @@ public class LevelTreeView : Gtk.Box
 	{
 		int i;
 
+		_tree_selection.changed.disconnect(on_tree_selection_changed);
+
 		if (object_ids.length > 1 && Unit.is_component(object_ids[1], _db)) {
 			for (i = 1; i < object_ids.length; ++i) {
 				if (!Unit.is_component(object_ids[i], _db))
@@ -516,12 +518,17 @@ public class LevelTreeView : Gtk.Box
 			}
 		}
 
+		_tree_selection.changed.connect(on_tree_selection_changed);
+		on_tree_selection_changed();
+
 		return i;
 	}
 
 	public int remove_sounds(Guid?[] object_ids)
 	{
 		int i;
+
+		_tree_selection.changed.disconnect(on_tree_selection_changed);
 
 		for (i = 0; i < object_ids.length; ++i) {
 			if (_db.object_type(object_ids[i]) != OBJECT_TYPE_SOUND_SOURCE)
@@ -531,6 +538,9 @@ public class LevelTreeView : Gtk.Box
 			_tree_store.get_iter(out parent_iter, _sounds_root.get_path());
 			remove_item(object_ids[i], parent_iter);
 		}
+
+		_tree_selection.changed.connect(on_tree_selection_changed);
+		on_tree_selection_changed();
 
 		return i;
 	}
