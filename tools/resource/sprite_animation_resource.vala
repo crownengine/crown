@@ -20,8 +20,8 @@ public struct AnimationFrame
 		_id = id;
 
 		_db.create(_id, OBJECT_TYPE_ANIMATION_FRAME);
-		_db.set_property_double(_id, "frame", (double)frame);
-		_db.set_property_double(_id, "index", (double)index);
+		_db.set_double(_id, "frame", (double)frame);
+		_db.set_double(_id, "index", (double)index);
 	}
 }
 
@@ -36,7 +36,7 @@ public struct SpriteAnimation
 		_id = id;
 
 		_db.create(_id, OBJECT_TYPE_SPRITE_ANIMATION);
-		_db.set_property_double(_id, "frames_per_second", 16.0);
+		_db.set_double(_id, "frames_per_second", 16.0);
 		_db.create_empty_set(_id, "frames");
 	}
 

@@ -77,7 +77,7 @@ public class UnitView : PropertyGrid
 	public override void read_properties()
 	{
 		if (_db.has_property(_id, "prefab")) {
-			_prefab.value = _db.get_property_string(_id, "prefab");
+			_prefab.value = _db.get_string(_id, "prefab");
 			_open_prefab.sensitive = true;
 		} else {
 			_prefab.value = "<none>";

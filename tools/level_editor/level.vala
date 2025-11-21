@@ -181,7 +181,7 @@ public class Level
 
 	public void replace_unit(Guid unit_id, string prefab_name)
 	{
-		string unit_editor_name = _db.object_name(unit_id);
+		string unit_editor_name = _db.name(unit_id);
 		Unit unit = Unit(_db, unit_id);
 		Vector3 unit_pos = unit.local_position();
 		Quaternion unit_rot = unit.local_rotation();
@@ -196,7 +196,7 @@ public class Level
 		new_unit.set_local_rotation(unit_rot);
 		new_unit.set_local_scale(unit_scl);
 
-		_db.set_object_name(new_id, unit_editor_name);
+		_db.set_name(new_id, unit_editor_name);
 		_db.add_to_set(_id, "units", new_id);
 		_db.add_restore_point((int)ActionType.CREATE_OBJECTS, new Guid?[] { new_id });
 	}
@@ -224,7 +224,7 @@ public class Level
 		unit.set_local_rotation(rot);
 		unit.set_local_scale(scl);
 
-		_db.set_object_name(id, add_object_name(_unit_names, name != null ? name : "unit"));
+		_db.set_name(id, add_object_name(_unit_names, name != null ? name : "unit"));
 		_db.add_to_set(_id, "units", id);
 	}
 
@@ -233,7 +233,7 @@ public class Level
 		Sound sound = Sound(_db, id);
 		sound.create(name, pos, rot, scl, range, volume, loop);
 
-		_db.set_object_name(id, add_object_name(_sound_names, name));
+		_db.set_name(id, add_object_name(_sound_names, name));
 		_db.add_to_set(_id, "sounds", id);
 	}
 
@@ -327,7 +327,7 @@ public class Level
 		sb.append(LevelEditorApi.reset());
 		Unit.generate_spawn_unit_commands(sb, unit_ids.to_array(), _db);
 		Sound.generate_spawn_sound_commands(sb, sound_ids.to_array(), _db);
-		sb.append(LevelEditorApi.spawn_skydome(_db.get_property_string(_id, "skydome_unit", "core/units/skydome/skydome")));
+		sb.append(LevelEditorApi.spawn_skydome(_db.get_string(_id, "skydome_unit", "core/units/skydome/skydome")));
 		_runtime.send_script(sb.str);
 
 		send_selection();
@@ -336,13 +336,13 @@ public class Level
 
 	public void units(ref Gee.ArrayList<Guid?> ids)
 	{
-		Gee.HashSet<Guid?> units = _db.get_property_set(_id, "units", new Gee.HashSet<Guid?>());
+		Gee.HashSet<Guid?> units = _db.get_set(_id, "units", new Gee.HashSet<Guid?>());
 		ids.add_all(units);
 	}
 
 	public void sounds(ref Gee.ArrayList<Guid?> ids)
 	{
-		Gee.HashSet<Guid?> sounds = _db.get_property_set(_id, "sounds", new Gee.HashSet<Guid?>());
+		Gee.HashSet<Guid?> sounds = _db.get_set(_id, "sounds", new Gee.HashSet<Guid?>());
 		ids.add_all(sounds);
 	}
 
@@ -354,20 +354,20 @@ public class Level
 
 	public void send_camera()
 	{
-		_runtime.send_script(LevelEditorApi.camera_restore(_db.get_property_vector3(_id, "editor.camera.position")
-			, _db.get_property_quaternion(_id, "editor.camera.rotation")
-			, _db.get_property_double(_id, "editor.camera.orthographic_size")
-			, _db.get_property_double(_id, "editor.camera.target_distance")
-			, (CameraViewType)_db.get_property_double(_id, "editor.camera.view_type")
+		_runtime.send_script(LevelEditorApi.camera_restore(_db.get_vector3(_id, "editor.camera.position")
+			, _db.get_quaternion(_id, "editor.camera.rotation")
+			, _db.get_double(_id, "editor.camera.orthographic_size")
+			, _db.get_double(_id, "editor.camera.target_distance")
+			, (CameraViewType)_db.get_double(_id, "editor.camera.view_type")
 			));
 	}
 
 	public void on_camera(Hashtable msg)
 	{
-		_db.set_property_internal(0, _id, "editor.camera.position", Vector3.from_array((Gee.ArrayList<Value?>)msg["position"]));
-		_db.set_property_internal(0, _id, "editor.camera.rotation", Quaternion.from_array((Gee.ArrayList<Value?>)msg["rotation"]));
-		_db.set_property_internal(0, _id, "editor.camera.orthographic_size", (double)msg["orthographic_size"]);
-		_db.set_property_internal(0, _id, "editor.camera.target_distance", (double)msg["target_distance"]);
+		_db.set(0, _id, "editor.camera.position", Vector3.from_array((Gee.ArrayList<Value?>)msg["position"]));
+		_db.set(0, _id, "editor.camera.rotation", Quaternion.from_array((Gee.ArrayList<Value?>)msg["rotation"]));
+		_db.set(0, _id, "editor.camera.orthographic_size", (double)msg["orthographic_size"]);
+		_db.set(0, _id, "editor.camera.target_distance", (double)msg["target_distance"]);
 	}
 }
 

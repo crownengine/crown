@@ -46,9 +46,9 @@ public class InputObject : InputEnum
 		return true;
 	}
 
-	public string object_name(Guid id, ref int num_unnamed)
+	public string name(Guid id, ref int num_unnamed)
 	{
-		string name = _database.object_name(id);
+		string name = _database.name(id);
 
 		if (name == OBJECT_NAME_UNNAMED) {
 			if (num_unnamed > 0) {
@@ -71,7 +71,7 @@ public class InputObject : InputEnum
 		Gee.HashMap<Guid?, Gee.HashMap<string, Value?>> all_objects = database._data;
 		foreach (var o in all_objects) {
 			if (StringId64(database.object_type(o.key)) == type)
-				append(o.key.to_string(), object_name(o.key, ref num_unnamed));
+				append(o.key.to_string(), name(o.key, ref num_unnamed));
 		}
 	}
 }

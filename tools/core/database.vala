@@ -294,7 +294,7 @@ public class Stack
 		write_uint32(action);
 	}
 
-	public void write_set_property_null_action(uint32 action, Guid id, string key)
+	public void write_set_null_action(uint32 action, Guid id, string key)
 	{
 		// No value to push
 		write_string(key);
@@ -302,7 +302,7 @@ public class Stack
 		write_uint32(action);
 	}
 
-	public void write_set_property_bool_action(uint32 action, Guid id, string key, bool val)
+	public void write_set_bool_action(uint32 action, Guid id, string key, bool val)
 	{
 		write_bool(val);
 		write_string(key);
@@ -310,7 +310,7 @@ public class Stack
 		write_uint32(action);
 	}
 
-	public void write_set_property_double_action(uint32 action, Guid id, string key, double val)
+	public void write_set_double_action(uint32 action, Guid id, string key, double val)
 	{
 		write_double(val);
 		write_string(key);
@@ -318,7 +318,7 @@ public class Stack
 		write_uint32(action);
 	}
 
-	public void write_set_property_string_action(uint32 action, Guid id, string key, string val)
+	public void write_set_string_action(uint32 action, Guid id, string key, string val)
 	{
 		write_string(val);
 		write_string(key);
@@ -326,7 +326,7 @@ public class Stack
 		write_uint32(action);
 	}
 
-	public void write_set_property_guid_action(uint32 action, Guid id, string key, Guid val)
+	public void write_set_guid_action(uint32 action, Guid id, string key, Guid val)
 	{
 		write_guid(val);
 		write_string(key);
@@ -334,7 +334,7 @@ public class Stack
 		write_uint32(action);
 	}
 
-	public void write_set_property_vector3_action(uint32 action, Guid id, string key, Vector3 val)
+	public void write_set_vector3_action(uint32 action, Guid id, string key, Vector3 val)
 	{
 		write_vector3(val);
 		write_string(key);
@@ -342,7 +342,7 @@ public class Stack
 		write_uint32(action);
 	}
 
-	public void write_set_property_quaternion_action(uint32 action, Guid id, string key, Quaternion val)
+	public void write_set_quaternion_action(uint32 action, Guid id, string key, Quaternion val)
 	{
 		write_quaternion(val);
 		write_string(key);
@@ -456,13 +456,13 @@ public class Database
 	{
 		CREATE,
 		DESTROY,
-		SET_PROPERTY_NULL,
-		SET_PROPERTY_BOOL,
-		SET_PROPERTY_DOUBLE,
-		SET_PROPERTY_STRING,
-		SET_PROPERTY_GUID,
-		SET_PROPERTY_VECTOR3,
-		SET_PROPERTY_QUATERNION,
+		SET_NULL,
+		SET_BOOL,
+		SET_DOUBLE,
+		SET_STRING,
+		SET_GUID,
+		SET_VECTOR3,
+		SET_QUATERNION,
 		ADD_TO_SET,
 		REMOVE_FROM_SET
 	}
@@ -576,13 +576,13 @@ public class Database
 			set_object_owner(object_id, GUID_ZERO);
 			set_object_alive(object_id, true);
 
-			if (has_object_type(type_hash))
+			if (has_type(type_hash))
 				_init_object(object_id, object_definition(type_hash));
 
 			decode_object(object_id, GUID_ZERO, "", json);
 
 			// Create a mapping between the path and the object it has been loaded into.
-			set_property_internal(0, GUID_ZERO, resource_path, object_id);
+			set(0, GUID_ZERO, resource_path, object_id);
 
 			restore_undo(undo_redo);
 			return 0;
@@ -614,7 +614,7 @@ public class Database
 	{
 		// If the resource is already loaded.
 		if (has_property(GUID_ZERO, resource_path)) {
-			object_id = get_property_guid(GUID_ZERO, resource_path);
+			object_id = get_guid(GUID_ZERO, resource_path);
 			return 0;
 		}
 
@@ -703,7 +703,7 @@ public class Database
 				set_object_type(id, type);
 
 				StringId64 type_hash = StringId64(type);
-				if (has_object_type(type_hash))
+				if (has_type(type_hash))
 					_init_object(id, object_definition(type_hash));
 			}
 		}
@@ -727,11 +727,11 @@ public class Database
 					&& arr[0].holds(typeof(double))
 					&& k != "frames" // sprite_animation
 					)
-					set_property_internal(0, id, k, decode_value(val));
+					set(0, id, k, decode_value(val));
 				else
 					decode_set(id, key, arr);
 			} else {
-				set_property_internal(0, id, k, decode_value(val));
+				set(0, id, k, decode_value(val));
 			}
 
 			k = old_db;
@@ -786,17 +786,17 @@ public class Database
 			} else if (owner_type == OBJECT_TYPE_SPRITE) {
 				if (key == "frames") {
 					set_object_type(obj_id, "sprite_frame");
-					set_property_internal(0, obj_id, "index", (double)i);
+					set(0, obj_id, "index", (double)i);
 				}
 			} else if (owner_type == OBJECT_TYPE_SPRITE_ANIMATION) {
 				if (key == "frames") {
 					set_object_type(obj_id, "animation_frame");
-					set_property_internal(0, obj_id, "index", (double)json[i]);
+					set(0, obj_id, "index", (double)json[i]);
 				}
 			} else if (owner_type == OBJECT_TYPE_FONT) {
 				if (key == "glyphs") {
 					set_object_type(obj_id, "font_glyph");
-					set_property_internal(0, obj_id, "cp", (double)obj["id"]);
+					set(0, obj_id, "cp", (double)obj["id"]);
 				}
 			}
 
@@ -960,7 +960,7 @@ public class Database
 		return _data[id];
 	}
 
-	public void set_property_internal(int dir, Guid id, string key, Value? value)
+	public void set(int dir, Guid id, string key, Value? value)
 	{
 		assert(has_object(id));
 		assert(is_valid_key(key));
@@ -1081,31 +1081,31 @@ public class Database
 		foreach (PropertyDefinition def in properties) {
 			switch (def.type) {
 			case PropertyType.BOOL:
-				set_property_bool(id, def.name, (bool)def.deffault);
+				set_bool(id, def.name, (bool)def.deffault);
 				break;
 			case PropertyType.DOUBLE:
-				set_property_double(id, def.name, (double)def.deffault);
+				set_double(id, def.name, (double)def.deffault);
 				break;
 			case PropertyType.STRING:
-				set_property_string(id, def.name, (string)def.deffault);
+				set_string(id, def.name, (string)def.deffault);
 				break;
 			case PropertyType.OBJECT_REFERENCE:
-				set_property_guid(id, def.name, (Guid)def.deffault);
+				set_guid(id, def.name, (Guid)def.deffault);
 				break;
 			case PropertyType.VECTOR3:
-				set_property_vector3(id, def.name, (Vector3)def.deffault);
+				set_vector3(id, def.name, (Vector3)def.deffault);
 				break;
 			case PropertyType.QUATERNION:
-				set_property_quaternion(id, def.name, (Quaternion)def.deffault);
+				set_quaternion(id, def.name, (Quaternion)def.deffault);
 				break;
 			case PropertyType.OBJECTS_SET:
 				create_empty_set(id, def.name);
 				break;
 			case PropertyType.OBJECT_NAME:
 				if (def.deffault == null)
-					set_property_null(id, def.name);
+					set_null(id, def.name);
 				else
-					set_property_string(id, def.name, (string)def.deffault);
+					set_string(id, def.name, (string)def.deffault);
 				break;
 				default:
 				assert(false);
@@ -1132,7 +1132,7 @@ public class Database
 		set_object_type(id, type);
 
 		StringId64 type_hash = StringId64(type);
-		if (has_object_type(type_hash))
+		if (has_type(type_hash))
 			_init_object(id, object_definition(type_hash));
 	}
 
@@ -1169,7 +1169,7 @@ public class Database
 			logi("destroy %s".printf(debug_string(id)));
 	}
 
-	public void set_property_null(Guid id, string key)
+	public void set_null(Guid id, string key)
 	{
 		assert(has_object(id));
 		assert(is_valid_key(key));
@@ -1179,28 +1179,28 @@ public class Database
 			Gee.HashMap<string, Value?> ob = get_data(id);
 			if (ob.has_key(key) && ob[key] != null) {
 				if (ob[key].holds(typeof(bool)))
-					_undo_redo._undo.write_set_property_bool_action(Action.SET_PROPERTY_BOOL, id, key, (bool)ob[key]);
+					_undo_redo._undo.write_set_bool_action(Action.SET_BOOL, id, key, (bool)ob[key]);
 				if (ob[key].holds(typeof(double)))
-					_undo_redo._undo.write_set_property_double_action(Action.SET_PROPERTY_DOUBLE, id, key, (double)ob[key]);
+					_undo_redo._undo.write_set_double_action(Action.SET_DOUBLE, id, key, (double)ob[key]);
 				if (ob[key].holds(typeof(string)))
-					_undo_redo._undo.write_set_property_string_action(Action.SET_PROPERTY_STRING, id, key, (string)ob[key]);
+					_undo_redo._undo.write_set_string_action(Action.SET_STRING, id, key, (string)ob[key]);
 				if (ob[key].holds(typeof(Guid)))
-					_undo_redo._undo.write_set_property_guid_action(Action.SET_PROPERTY_GUID, id, key, (Guid)ob[key]);
+					_undo_redo._undo.write_set_guid_action(Action.SET_GUID, id, key, (Guid)ob[key]);
 				if (ob[key].holds(typeof(Vector3)))
-					_undo_redo._undo.write_set_property_vector3_action(Action.SET_PROPERTY_VECTOR3, id, key, (Vector3)ob[key]);
+					_undo_redo._undo.write_set_vector3_action(Action.SET_VECTOR3, id, key, (Vector3)ob[key]);
 				if (ob[key].holds(typeof(Quaternion)))
-					_undo_redo._undo.write_set_property_quaternion_action(Action.SET_PROPERTY_QUATERNION, id, key, (Quaternion)ob[key]);
+					_undo_redo._undo.write_set_quaternion_action(Action.SET_QUATERNION, id, key, (Quaternion)ob[key]);
 			} else {
-				_undo_redo._undo.write_set_property_null_action(Action.SET_PROPERTY_NULL, id, key);
+				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, key);
 			}
 
 			_undo_redo._redo.clear();
 		}
 
-		set_property_internal(1, id, key, null);
+		set(1, id, key, null);
 	}
 
-	public void set_property_bool(Guid id, string key, bool val)
+	public void set_bool(Guid id, string key, bool val)
 	{
 		assert(has_object(id));
 		assert(is_valid_key(key));
@@ -1209,17 +1209,17 @@ public class Database
 		if (_undo_redo != null) {
 			Gee.HashMap<string, Value?> ob = get_data(id);
 			if (ob.has_key(key) && ob[key] != null)
-				_undo_redo._undo.write_set_property_bool_action(Action.SET_PROPERTY_BOOL, id, key, (bool)ob[key]);
+				_undo_redo._undo.write_set_bool_action(Action.SET_BOOL, id, key, (bool)ob[key]);
 			else
-				_undo_redo._undo.write_set_property_null_action(Action.SET_PROPERTY_NULL, id, key);
+				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, key);
 
 			_undo_redo._redo.clear();
 		}
 
-		set_property_internal(1, id, key, val);
+		set(1, id, key, val);
 	}
 
-	public void set_property_double(Guid id, string key, double val)
+	public void set_double(Guid id, string key, double val)
 	{
 		assert(has_object(id));
 		assert(is_valid_key(key));
@@ -1228,17 +1228,17 @@ public class Database
 		if (_undo_redo != null) {
 			Gee.HashMap<string, Value?> ob = get_data(id);
 			if (ob.has_key(key) && ob[key] != null)
-				_undo_redo._undo.write_set_property_double_action(Action.SET_PROPERTY_DOUBLE, id, key, (double)ob[key]);
+				_undo_redo._undo.write_set_double_action(Action.SET_DOUBLE, id, key, (double)ob[key]);
 			else
-				_undo_redo._undo.write_set_property_null_action(Action.SET_PROPERTY_NULL, id, key);
+				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, key);
 
 			_undo_redo._redo.clear();
 		}
 
-		set_property_internal(1, id, key, val);
+		set(1, id, key, val);
 	}
 
-	public void set_property_string(Guid id, string key, string val)
+	public void set_string(Guid id, string key, string val)
 	{
 		assert(has_object(id));
 		assert(is_valid_key(key));
@@ -1247,17 +1247,17 @@ public class Database
 		if (_undo_redo != null) {
 			Gee.HashMap<string, Value?> ob = get_data(id);
 			if (ob.has_key(key) && ob[key] != null)
-				_undo_redo._undo.write_set_property_string_action(Action.SET_PROPERTY_STRING, id, key, (string)ob[key]);
+				_undo_redo._undo.write_set_string_action(Action.SET_STRING, id, key, (string)ob[key]);
 			else
-				_undo_redo._undo.write_set_property_null_action(Action.SET_PROPERTY_NULL, id, key);
+				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, key);
 
 			_undo_redo._redo.clear();
 		}
 
-		set_property_internal(1, id, key, val);
+		set(1, id, key, val);
 	}
 
-	public void set_property_guid(Guid id, string key, Guid val)
+	public void set_guid(Guid id, string key, Guid val)
 	{
 		assert(has_object(id));
 		assert(is_valid_key(key));
@@ -1266,17 +1266,17 @@ public class Database
 		if (_undo_redo != null) {
 			Gee.HashMap<string, Value?> ob = get_data(id);
 			if (ob.has_key(key) && ob[key] != null)
-				_undo_redo._undo.write_set_property_guid_action(Action.SET_PROPERTY_GUID, id, key, (Guid)ob[key]);
+				_undo_redo._undo.write_set_guid_action(Action.SET_GUID, id, key, (Guid)ob[key]);
 			else
-				_undo_redo._undo.write_set_property_null_action(Action.SET_PROPERTY_NULL, id, key);
+				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, key);
 
 			_undo_redo._redo.clear();
 		}
 
-		set_property_internal(1, id, key, val);
+		set(1, id, key, val);
 	}
 
-	public void set_property_vector3(Guid id, string key, Vector3 val)
+	public void set_vector3(Guid id, string key, Vector3 val)
 	{
 		assert(has_object(id));
 		assert(is_valid_key(key));
@@ -1285,17 +1285,17 @@ public class Database
 		if (_undo_redo != null) {
 			Gee.HashMap<string, Value?> ob = get_data(id);
 			if (ob.has_key(key) && ob[key] != null)
-				_undo_redo._undo.write_set_property_vector3_action(Action.SET_PROPERTY_VECTOR3, id, key, (Vector3)ob[key]);
+				_undo_redo._undo.write_set_vector3_action(Action.SET_VECTOR3, id, key, (Vector3)ob[key]);
 			else
-				_undo_redo._undo.write_set_property_null_action(Action.SET_PROPERTY_NULL, id, key);
+				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, key);
 
 			_undo_redo._redo.clear();
 		}
 
-		set_property_internal(1, id, key, val);
+		set(1, id, key, val);
 	}
 
-	public void set_property_quaternion(Guid id, string key, Quaternion val)
+	public void set_quaternion(Guid id, string key, Quaternion val)
 	{
 		assert(has_object(id));
 		assert(is_valid_key(key));
@@ -1304,32 +1304,32 @@ public class Database
 		if (_undo_redo != null) {
 			Gee.HashMap<string, Value?> ob = get_data(id);
 			if (ob.has_key(key) && ob[key] != null)
-				_undo_redo._undo.write_set_property_quaternion_action(Action.SET_PROPERTY_QUATERNION, id, key, (Quaternion)ob[key]);
+				_undo_redo._undo.write_set_quaternion_action(Action.SET_QUATERNION, id, key, (Quaternion)ob[key]);
 			else
-				_undo_redo._undo.write_set_property_null_action(Action.SET_PROPERTY_NULL, id, key);
+				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, key);
 
 			_undo_redo._redo.clear();
 		}
 
-		set_property_internal(1, id, key, val);
+		set(1, id, key, val);
 	}
 
 	public void set_property(Guid id, string key, Value? val)
 	{
 		if (val == null)
-			set_property_null(id, key);
+			set_null(id, key);
 		if (val.holds(typeof(bool)))
-			set_property_bool(id, key, (bool)val);
+			set_bool(id, key, (bool)val);
 		else if (val.holds(typeof(double)))
-			set_property_double(id, key, (double)val);
+			set_double(id, key, (double)val);
 		else if (val.holds(typeof(string)))
-			set_property_string(id, key, (string)val);
+			set_string(id, key, (string)val);
 		else if (val.holds(typeof(Guid)))
-			set_property_guid(id, key, (Guid)val);
+			set_guid(id, key, (Guid)val);
 		else if (val.holds(typeof(Vector3)))
-			set_property_vector3(id, key, (Vector3)val);
+			set_vector3(id, key, (Vector3)val);
 		else if (val.holds(typeof(Quaternion)))
-			set_property_quaternion(id, key, (Quaternion)val);
+			set_quaternion(id, key, (Quaternion)val);
 		else
 			assert(false);
 	}
@@ -1387,37 +1387,37 @@ public class Database
 		return value;
 	}
 
-	public bool get_property_bool(Guid id, string key, bool deffault = false)
+	public bool get_bool(Guid id, string key, bool deffault = false)
 	{
 		return (bool)get_property(id, key, deffault);
 	}
 
-	public double get_property_double(Guid id, string key, double deffault = 0.0)
+	public double get_double(Guid id, string key, double deffault = 0.0)
 	{
 		return (double)get_property(id, key, deffault);
 	}
 
-	public string get_property_string(Guid id, string key, string deffault = "")
+	public string get_string(Guid id, string key, string deffault = "")
 	{
 		return (string)get_property(id, key, deffault);
 	}
 
-	public Guid get_property_guid(Guid id, string key, Guid deffault = GUID_ZERO)
+	public Guid get_guid(Guid id, string key, Guid deffault = GUID_ZERO)
 	{
 		return (Guid)get_property(id, key, deffault);
 	}
 
-	public Vector3 get_property_vector3(Guid id, string key, Vector3 deffault = VECTOR3_ZERO)
+	public Vector3 get_vector3(Guid id, string key, Vector3 deffault = VECTOR3_ZERO)
 	{
 		return (Vector3)get_property(id, key, deffault);
 	}
 
-	public Quaternion get_property_quaternion(Guid id, string key, Quaternion deffault = QUATERNION_IDENTITY)
+	public Quaternion get_quaternion(Guid id, string key, Quaternion deffault = QUATERNION_IDENTITY)
 	{
 		return (Quaternion)get_property(id, key, deffault);
 	}
 
-	public Gee.HashSet<Guid?> get_property_set(Guid id, string key, Gee.HashSet<Guid?> deffault)
+	public Gee.HashSet<Guid?> get_set(Guid id, string key, Gee.HashSet<Guid?> deffault)
 	{
 		assert(has_object(id));
 		assert(is_valid_key(key));
@@ -1498,19 +1498,19 @@ public class Database
 				}
 			} else {
 				if (ob[key] == null)
-					dest.set_property_null(new_id, key);
+					dest.set_null(new_id, key);
 				else if (ob[key].holds(typeof(bool)))
-					dest.set_property_bool(new_id, key, (bool)ob[key]);
+					dest.set_bool(new_id, key, (bool)ob[key]);
 				else if (ob[key].holds(typeof(double)))
-					dest.set_property_double(new_id, key, (double)ob[key]);
+					dest.set_double(new_id, key, (double)ob[key]);
 				else if (ob[key].holds(typeof(string)))
-					dest.set_property_string(new_id, key, (string)ob[key]);
+					dest.set_string(new_id, key, (string)ob[key]);
 				else if (ob[key].holds(typeof(Guid)))
-					dest.set_property_guid(new_id, key, (Guid)ob[key]);
+					dest.set_guid(new_id, key, (Guid)ob[key]);
 				else if (ob[key].holds(typeof(Vector3)))
-					dest.set_property_vector3(new_id, key, (Vector3)ob[key]);
+					dest.set_vector3(new_id, key, (Vector3)ob[key]);
 				else if (ob[key].holds(typeof(Quaternion)))
-					dest.set_property_quaternion(new_id, key, (Quaternion)ob[key]);
+					dest.set_quaternion(new_id, key, (Quaternion)ob[key]);
 				else
 					assert(false);
 			}
@@ -1546,19 +1546,19 @@ public class Database
 				string kk = new_key + (new_key == "" ? "" : ".") + key;
 
 				if (ob[key] == null)
-					db.set_property_null(id, kk);
+					db.set_null(id, kk);
 				if (ob[key].holds(typeof(bool)))
-					db.set_property_bool(id, kk, (bool)ob[key]);
+					db.set_bool(id, kk, (bool)ob[key]);
 				if (ob[key].holds(typeof(double)))
-					db.set_property_double(id, kk, (double)ob[key]);
+					db.set_double(id, kk, (double)ob[key]);
 				if (ob[key].holds(typeof(string)))
-					db.set_property_string(id, kk, (string)ob[key]);
+					db.set_string(id, kk, (string)ob[key]);
 				if (ob[key].holds(typeof(Guid)))
-					db.set_property_guid(id, kk, (Guid)ob[key]);
+					db.set_guid(id, kk, (Guid)ob[key]);
 				if (ob[key].holds(typeof(Vector3)))
-					db.set_property_vector3(id, kk, (Vector3)ob[key]);
+					db.set_vector3(id, kk, (Vector3)ob[key]);
 				if (ob[key].holds(typeof(Quaternion)))
-					db.set_property_quaternion(id, kk, (Quaternion)ob[key]);
+					db.set_quaternion(id, kk, (Quaternion)ob[key]);
 			}
 		}
 	}
@@ -1667,87 +1667,87 @@ public class Database
 				string obj_type = undo.read_string();
 				set_object_alive(id, false);
 				redo.write_create_action(Action.CREATE, id, obj_type);
-			} else if (action == Action.SET_PROPERTY_NULL) {
+			} else if (action == Action.SET_NULL) {
 				Guid id = undo.read_guid();
 				string key = undo.read_string();
 
 				if (has_property(id, key)) {
 					if (get_data(id)[key].holds(typeof(bool)))
-						redo.write_set_property_bool_action(Action.SET_PROPERTY_BOOL, id, key, get_property_bool(id, key));
+						redo.write_set_bool_action(Action.SET_BOOL, id, key, get_bool(id, key));
 					if (get_data(id)[key].holds(typeof(double)))
-						redo.write_set_property_double_action(Action.SET_PROPERTY_DOUBLE, id, key, get_property_double(id, key));
+						redo.write_set_double_action(Action.SET_DOUBLE, id, key, get_double(id, key));
 					if (get_data(id)[key].holds(typeof(string)))
-						redo.write_set_property_string_action(Action.SET_PROPERTY_STRING, id, key, get_property_string(id, key));
+						redo.write_set_string_action(Action.SET_STRING, id, key, get_string(id, key));
 					if (get_data(id)[key].holds(typeof(Guid)))
-						redo.write_set_property_guid_action(Action.SET_PROPERTY_GUID, id, key, get_property_guid(id, key));
+						redo.write_set_guid_action(Action.SET_GUID, id, key, get_guid(id, key));
 					if (get_data(id)[key].holds(typeof(Vector3)))
-						redo.write_set_property_vector3_action(Action.SET_PROPERTY_VECTOR3, id, key, get_property_vector3(id, key));
+						redo.write_set_vector3_action(Action.SET_VECTOR3, id, key, get_vector3(id, key));
 					if (get_data(id)[key].holds(typeof(Quaternion)))
-						redo.write_set_property_quaternion_action(Action.SET_PROPERTY_QUATERNION, id, key, get_property_quaternion(id, key));
+						redo.write_set_quaternion_action(Action.SET_QUATERNION, id, key, get_quaternion(id, key));
 				} else {
-					redo.write_set_property_null_action(Action.SET_PROPERTY_NULL, id, key);
+					redo.write_set_null_action(Action.SET_NULL, id, key);
 				}
-				set_property_internal(dir, id, key, null);
-			} else if (action == Action.SET_PROPERTY_BOOL) {
+				set(dir, id, key, null);
+			} else if (action == Action.SET_BOOL) {
 				Guid id = undo.read_guid();
 				string key = undo.read_string();
 				bool val = undo.read_bool();
 
 				if (has_property(id, key))
-					redo.write_set_property_bool_action(Action.SET_PROPERTY_BOOL, id, key, get_property_bool(id, key));
+					redo.write_set_bool_action(Action.SET_BOOL, id, key, get_bool(id, key));
 				else
-					redo.write_set_property_null_action(Action.SET_PROPERTY_NULL, id, key);
-				set_property_internal(dir, id, key, val);
-			} else if (action == Action.SET_PROPERTY_DOUBLE) {
+					redo.write_set_null_action(Action.SET_NULL, id, key);
+				set(dir, id, key, val);
+			} else if (action == Action.SET_DOUBLE) {
 				Guid id = undo.read_guid();
 				string key = undo.read_string();
 				double val = undo.read_double();
 
 				if (has_property(id, key))
-					redo.write_set_property_double_action(Action.SET_PROPERTY_DOUBLE, id, key, get_property_double(id, key));
+					redo.write_set_double_action(Action.SET_DOUBLE, id, key, get_double(id, key));
 				else
-					redo.write_set_property_null_action(Action.SET_PROPERTY_NULL, id, key);
-				set_property_internal(dir, id, key, val);
-			} else if (action == Action.SET_PROPERTY_STRING) {
+					redo.write_set_null_action(Action.SET_NULL, id, key);
+				set(dir, id, key, val);
+			} else if (action == Action.SET_STRING) {
 				Guid id = undo.read_guid();
 				string key = undo.read_string();
 				string val = undo.read_string();
 
 				if (has_property(id, key))
-					redo.write_set_property_string_action(Action.SET_PROPERTY_STRING, id, key, get_property_string(id, key));
+					redo.write_set_string_action(Action.SET_STRING, id, key, get_string(id, key));
 				else
-					redo.write_set_property_null_action(Action.SET_PROPERTY_NULL, id, key);
-				set_property_internal(dir, id, key, val);
-			} else if (action == Action.SET_PROPERTY_GUID) {
+					redo.write_set_null_action(Action.SET_NULL, id, key);
+				set(dir, id, key, val);
+			} else if (action == Action.SET_GUID) {
 				Guid id = undo.read_guid();
 				string key = undo.read_string();
 				Guid val = undo.read_guid();
 
 				if (has_property(id, key))
-					redo.write_set_property_guid_action(Action.SET_PROPERTY_GUID, id, key, get_property_guid(id, key));
+					redo.write_set_guid_action(Action.SET_GUID, id, key, get_guid(id, key));
 				else
-					redo.write_set_property_null_action(Action.SET_PROPERTY_NULL, id, key);
-				set_property_internal(dir, id, key, val);
-			} else if (action == Action.SET_PROPERTY_VECTOR3) {
+					redo.write_set_null_action(Action.SET_NULL, id, key);
+				set(dir, id, key, val);
+			} else if (action == Action.SET_VECTOR3) {
 				Guid id = undo.read_guid();
 				string key = undo.read_string();
 				Vector3 val = undo.read_vector3();
 
 				if (has_property(id, key))
-					redo.write_set_property_vector3_action(Action.SET_PROPERTY_VECTOR3, id, key, get_property_vector3(id, key));
+					redo.write_set_vector3_action(Action.SET_VECTOR3, id, key, get_vector3(id, key));
 				else
-					redo.write_set_property_null_action(Action.SET_PROPERTY_NULL, id, key);
-				set_property_internal(dir, id, key, val);
-			} else if (action == Action.SET_PROPERTY_QUATERNION) {
+					redo.write_set_null_action(Action.SET_NULL, id, key);
+				set(dir, id, key, val);
+			} else if (action == Action.SET_QUATERNION) {
 				Guid id = undo.read_guid();
 				string key = undo.read_string();
 				Quaternion val = undo.read_quaternion();
 
 				if (has_property(id, key))
-					redo.write_set_property_quaternion_action(Action.SET_PROPERTY_QUATERNION, id, key, get_property_quaternion(id, key));
+					redo.write_set_quaternion_action(Action.SET_QUATERNION, id, key, get_quaternion(id, key));
 				else
-					redo.write_set_property_null_action(Action.SET_PROPERTY_NULL, id, key);
-				set_property_internal(dir, id, key, val);
+					redo.write_set_null_action(Action.SET_NULL, id, key);
+				set(dir, id, key, val);
 			} else if (action == Action.ADD_TO_SET) {
 				Guid id = undo.read_guid();
 				string key = undo.read_string();
@@ -1887,39 +1887,39 @@ public class Database
 
 	// Returns the name of the object @id. If the object has no name set, it returns
 	// OBJECT_NAME_UNNAMED.
-	public string object_name(Guid id)
+	public string name(Guid id)
 	{
-		string name = get_property_string(id, "editor.name", OBJECT_NAME_UNNAMED);
+		string name = get_string(id, "editor.name", OBJECT_NAME_UNNAMED);
 
 		if (name == OBJECT_NAME_UNNAMED)
-			return get_property_string(id, "name", OBJECT_NAME_UNNAMED);
+			return get_string(id, "name", OBJECT_NAME_UNNAMED);
 
 		return name;
 	}
 
 	// Sets the @a name of the object @a id.
-	public void set_object_name(Guid id, string name)
+	public void set_name(Guid id, string name)
 	{
-		set_property_string(id, "editor.name", name);
+		set_string(id, "editor.name", name);
 	}
 
 	// Returns whether the object @a type exists (i.e. has been created with create_object_type()).
-	public bool has_object_type(StringId64 type)
+	public bool has_type(StringId64 type)
 	{
 		return _object_definitions.has_key(type);
 	}
 
-	public string object_type_name(StringId64 type)
+	public string type_name(StringId64 type)
 	{
 		return _object_definitions[type].name;
 	}
 
-	public uint object_type_flags(StringId64 type)
+	public uint type_flags(StringId64 type)
 	{
 		return _object_definitions[type].flags;
 	}
 
-	public ObjectTypeInfo object_type_info(StringId64 type)
+	public ObjectTypeInfo type_info(StringId64 type)
 	{
 		return _object_definitions[type];
 	}

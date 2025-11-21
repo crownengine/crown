@@ -25,10 +25,10 @@ namespace MeshResource
 				db.add_to_set(unit_id, "components", component_id);
 			}
 
-			unit.set_component_property_vector3   (component_id, "data.position", position);
-			unit.set_component_property_quaternion(component_id, "data.rotation", rotation);
-			unit.set_component_property_vector3   (component_id, "data.scale", scale);
-			unit.set_component_property_string    (component_id, "data.name", node_name);
+			unit.set_component_vector3   (component_id, "data.position", position);
+			unit.set_component_quaternion(component_id, "data.rotation", rotation);
+			unit.set_component_vector3   (component_id, "data.scale", scale);
+			unit.set_component_string    (component_id, "data.name", node_name);
 		}
 
 		// Create mesh_renderer
@@ -40,10 +40,10 @@ namespace MeshResource
 				db.add_to_set(unit_id, "components", component_id);
 			}
 
-			unit.set_component_property_string(component_id, "data.geometry_name", node_name);
-			unit.set_component_property_string(component_id, "data.material", material_name);
-			unit.set_component_property_string(component_id, "data.mesh_resource", resource_name);
-			unit.set_component_property_bool  (component_id, "data.visible", true);
+			unit.set_component_string(component_id, "data.geometry_name", node_name);
+			unit.set_component_string(component_id, "data.material", material_name);
+			unit.set_component_string(component_id, "data.mesh_resource", resource_name);
+			unit.set_component_bool  (component_id, "data.visible", true);
 		}
 
 		// Create collider
@@ -55,9 +55,9 @@ namespace MeshResource
 				db.add_to_set(unit_id, "components", component_id);
 			}
 
-			unit.set_component_property_string(component_id, "data.shape", "mesh");
-			unit.set_component_property_string(component_id, "data.scene", resource_name);
-			unit.set_component_property_string(component_id, "data.name", node_name);
+			unit.set_component_string(component_id, "data.shape", "mesh");
+			unit.set_component_string(component_id, "data.scene", resource_name);
+			unit.set_component_string(component_id, "data.name", node_name);
 		}
 
 		// Create actor
@@ -69,10 +69,10 @@ namespace MeshResource
 				db.add_to_set(unit_id, "components", component_id);
 			}
 
-			unit.set_component_property_string(component_id, "data.class", "static");
-			unit.set_component_property_string(component_id, "data.collision_filter", "default");
-			unit.set_component_property_double(component_id, "data.mass", 10);
-			unit.set_component_property_string(component_id, "data.material", "default");
+			unit.set_component_string(component_id, "data.class", "static");
+			unit.set_component_string(component_id, "data.collision_filter", "default");
+			unit.set_component_double(component_id, "data.mass", 10);
+			unit.set_component_string(component_id, "data.material", "default");
 		}
 
 		if (parent_unit_id != unit_id)
@@ -138,9 +138,9 @@ namespace MeshResource
 						db.add_to_set(unit_id, "components", component_id);
 					}
 
-					unit.set_component_property_vector3   (component_id, "data.position", VECTOR3_ZERO);
-					unit.set_component_property_quaternion(component_id, "data.rotation", QUATERNION_IDENTITY);
-					unit.set_component_property_vector3   (component_id, "data.scale", VECTOR3_ONE);
+					unit.set_component_vector3   (component_id, "data.position", VECTOR3_ZERO);
+					unit.set_component_quaternion(component_id, "data.rotation", QUATERNION_IDENTITY);
+					unit.set_component_vector3   (component_id, "data.scale", VECTOR3_ONE);
 				}
 
 				Guid new_unit_id = unit_id;

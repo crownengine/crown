@@ -16,7 +16,7 @@ public struct MaterialResource
 		_id = id;
 
 		_db.create(_id, OBJECT_TYPE_MATERIAL);
-		_db.set_property_string(_id, "shader", shader);
+		_db.set_string(_id, "shader", shader);
 	}
 
 	public MaterialResource.mesh(Database db
@@ -85,11 +85,11 @@ public struct MaterialResource
 
 	public void set_float(string uniform_name, double value)
 	{
-		_db.set_property_string(_id
+		_db.set_string(_id
 			, "uniforms.%s.type".printf(uniform_name)
 			, "float"
 			);
-		_db.set_property_double(_id
+		_db.set_double(_id
 			, "uniforms.%s.value".printf(uniform_name)
 			, value
 			);
@@ -97,11 +97,11 @@ public struct MaterialResource
 
 	public void set_vector2(string uniform_name, Vector2 value)
 	{
-		_db.set_property_string(_id
+		_db.set_string(_id
 			, "uniforms.%s.type".printf(uniform_name)
 			, "vector2"
 			);
-		_db.set_property_vector3(_id
+		_db.set_vector3(_id
 			, "uniforms.%s.value".printf(uniform_name)
 			, Vector3(value.x, value.y, 0.0)
 			);
@@ -109,11 +109,11 @@ public struct MaterialResource
 
 	public void set_vector3(string uniform_name, Vector3 value)
 	{
-		_db.set_property_string(_id
+		_db.set_string(_id
 			, "uniforms.%s.type".printf(uniform_name)
 			, "vector3"
 			);
-		_db.set_property_vector3(_id
+		_db.set_vector3(_id
 			, "uniforms.%s.value".printf(uniform_name)
 			, value
 			);
@@ -121,11 +121,11 @@ public struct MaterialResource
 
 	public void set_vector4(string uniform_name, Quaternion value)
 	{
-		_db.set_property_string(_id
+		_db.set_string(_id
 			, "uniforms.%s.type".printf(uniform_name)
 			, "vector4"
 			);
-		_db.set_property_quaternion(_id
+		_db.set_quaternion(_id
 			, "uniforms.%s.value".printf(uniform_name)
 			, value
 			);
@@ -133,7 +133,7 @@ public struct MaterialResource
 
 	public void set_texture(string sampler_name, string texture_name)
 	{
-		_db.set_property_string(_id, "textures.%s".printf(sampler_name), texture_name);
+		_db.set_string(_id, "textures.%s".printf(sampler_name), texture_name);
 	}
 
 	public int save(Project project, string resource_name)

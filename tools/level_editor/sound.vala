@@ -20,7 +20,7 @@ public struct Sound
 	{
 		_db.create(_id, OBJECT_TYPE_SOUND_SOURCE);
 
-		_db.set_property_string(_id, "name", name);
+		_db.set_string(_id, "name", name);
 		set_local_position(pos);
 		set_local_rotation(rot);
 		set_local_scale(scl);
@@ -32,12 +32,12 @@ public struct Sound
 
 	public Vector3 local_position()
 	{
-		return _db.get_property_vector3(_id, "position");
+		return _db.get_vector3(_id, "position");
 	}
 
 	public Quaternion local_rotation()
 	{
-		return _db.get_property_quaternion(_id, "rotation");
+		return _db.get_quaternion(_id, "rotation");
 	}
 
 	public Vector3 local_scale()
@@ -47,12 +47,12 @@ public struct Sound
 
 	public void set_local_position(Vector3 position)
 	{
-		_db.set_property_vector3(_id, "position", position);
+		_db.set_vector3(_id, "position", position);
 	}
 
 	public void set_local_rotation(Quaternion rotation)
 	{
-		_db.set_property_quaternion(_id, "rotation", rotation);
+		_db.set_quaternion(_id, "rotation", rotation);
 	}
 
 	public void set_local_scale(Vector3 scale)
@@ -62,37 +62,37 @@ public struct Sound
 
 	public double range()
 	{
-		return _db.get_property_double(_id, "range");
+		return _db.get_double(_id, "range");
 	}
 
 	public void set_range(double range)
 	{
-		_db.set_property_double(_id, "range", range);
+		_db.set_double(_id, "range", range);
 	}
 
 	public double volume()
 	{
-		return _db.get_property_double(_id, "volume");
+		return _db.get_double(_id, "volume");
 	}
 
 	public void set_volume(double volume)
 	{
-		_db.set_property_double(_id, "volume", volume);
+		_db.set_double(_id, "volume", volume);
 	}
 
 	public bool loop()
 	{
-		return _db.get_property_bool(_id, "loop");
+		return _db.get_bool(_id, "loop");
 	}
 
 	public void set_loop(bool loop)
 	{
-		_db.set_property_bool(_id, "loop", loop);
+		_db.set_bool(_id, "loop", loop);
 	}
 
 	public void set_group(string group)
 	{
-		_db.set_property_string(_id, "group", group);
+		_db.set_string(_id, "group", group);
 	}
 
 	public static int generate_spawn_sound_commands(StringBuilder sb, Guid?[] object_ids, Database db)
@@ -106,12 +106,12 @@ public struct Sound
 
 			sb.append("editor_nv, editor_nq, editor_nm = Device.temp_count()");
 			string s = LevelEditorApi.spawn_sound(id
-				, db.get_property_string    (id, "name")
-				, db.get_property_vector3   (id, "position")
-				, db.get_property_quaternion(id, "rotation")
-				, db.get_property_double    (id, "range")
-				, db.get_property_double    (id, "volume")
-				, db.get_property_bool      (id, "loop")
+				, db.get_string    (id, "name")
+				, db.get_vector3   (id, "position")
+				, db.get_quaternion(id, "rotation")
+				, db.get_double    (id, "range")
+				, db.get_double    (id, "volume")
+				, db.get_bool      (id, "loop")
 				);
 			sb.append(s);
 			sb.append("Device.set_temp_count(editor_nv, editor_nq, editor_nm)");
