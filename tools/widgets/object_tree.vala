@@ -512,49 +512,62 @@ public class ObjectTree : Gtk.Box
 		_tree_view.expand_all();
 	}
 
+	public void on_search_started()
+	{
+		_tree_selection.changed.disconnect(on_tree_selection_changed);
+		// Save the current tree state (expanded branches + selection)
+		// to restore it later when the search is done.
+		_tree_store.foreach(save_tree_state);
+		filter(_needle);
+		_tree_selection.changed.connect(on_tree_selection_changed);
+	}
+
+	public void on_search_changed()
+	{
+		_tree_selection.changed.disconnect(on_tree_selection_changed);
+		filter(_needle);
+		_tree_selection.changed.connect(on_tree_selection_changed);
+	}
+
+	public void on_search_stopped()
+	{
+		// Only restore the old selection if it has not been
+		// modified while searching (i.e. nothing is selected
+		// because entering search clears it).
+		Gtk.TreeModel selected_model;
+		GLib.List<Gtk.TreePath> selected_rows = _tree_view.get_selection().get_selected_rows(out selected_model);
+		Gtk.TreeRowReference[] selected_refs = {};
+		for (uint i = 0, n = selected_rows.length(); i < n; ++i)
+			selected_refs += new Gtk.TreeRowReference(selected_model, selected_rows.nth(i).data);
+
+		_tree_selection.changed.disconnect(on_tree_selection_changed);
+		make_visible(true);
+		_tree_filter.refilter();
+		// Restore the previous tree state (old expanded branches + old selection).
+		_tree_view.get_selection().unselect_all();
+		_tree_store.foreach(restore_tree_state);
+		_tree_selection.changed.connect(on_tree_selection_changed);
+
+		// If the selection changed while searching, restore it as well.
+		for (int i = 0; i < selected_refs.length; ++i) {
+			Gtk.TreePath path = selected_refs[i].get_path();
+			_tree_view.expand_to_path(path);
+			_tree_view.get_selection().select_path(path);
+			_tree_view.scroll_to_cell(path, null, false, 0.0f, 0.0f);
+		}
+	}
+
 	public void on_filter_entry_text_changed()
 	{
 		string old_needle = _needle;
 		_needle = _filter_entry.text.strip().down();
 
 		if (old_needle == "" && _needle != "") {
-			// Enter search mode.
-			_tree_selection.changed.disconnect(on_tree_selection_changed);
-			// Save the current tree state (expanded branches + selection)
-			// to restore it later when the search is done.
-			_tree_store.foreach(save_tree_state);
-			filter(_needle);
-			_tree_selection.changed.connect(on_tree_selection_changed);
+			on_search_started();
 		} else if (old_needle != "" && _needle == "") {
-			// Only restore the old selection if it has not been
-			// modified while searching (i.e. nothing is selected
-			// because entering search clears it).
-			Gtk.TreeModel selected_model;
-			GLib.List<Gtk.TreePath> selected_rows = _tree_view.get_selection().get_selected_rows(out selected_model);
-			Gtk.TreeRowReference[] selected_refs = {};
-			for (uint i = 0, n = selected_rows.length(); i < n; ++i)
-				selected_refs += new Gtk.TreeRowReference(selected_model, selected_rows.nth(i).data);
-
-			_tree_selection.changed.disconnect(on_tree_selection_changed);
-			make_visible(true);
-			_tree_filter.refilter();
-			// Restore the previous tree state (old expanded branches + old selection).
-			_tree_view.get_selection().unselect_all();
-			_tree_store.foreach(restore_tree_state);
-			_tree_selection.changed.connect(on_tree_selection_changed);
-
-			// If the selection changed while searching, restore it as well.
-			for (int i = 0; i < selected_refs.length; ++i) {
-				Gtk.TreePath path = selected_refs[i].get_path();
-				_tree_view.expand_to_path(path);
-				_tree_view.get_selection().select_path(path);
-				_tree_view.scroll_to_cell(path, null, false, 0.0f, 0.0f);
-			}
+			on_search_stopped();
 		} else if (_needle != "") {
-			// Filter while in search mode.
-			_tree_selection.changed.disconnect(on_tree_selection_changed);
-			filter(_needle);
-			_tree_selection.changed.connect(on_tree_selection_changed);
+			on_search_changed();
 		}
 	}
 }
