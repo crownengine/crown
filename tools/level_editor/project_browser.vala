@@ -1837,67 +1837,79 @@ public class ProjectBrowser : Gtk.Box
 		_filter_buffer.set_text(empty);
 	}
 
+	public void on_search_started()
+	{
+		assert(_browse_mode == BrowseMode.REGULAR);
+
+		_browse_mode = BrowseMode.SEARCH;
+		_folder_view.set_browse_mode(_browse_mode);
+
+		_folder_stack.set_visible_child_full("folder-view", Gtk.StackTransitionType.NONE);
+
+		disconnect_project_store_signals();
+
+		// Save the current tree state (expanded branches + selection)
+		// to restore it later when the search is done.
+		_project_store._tree_store.foreach(save_tree_state);
+		filter(_needle);
+		update_folder_view();
+
+		connect_project_store_signals();
+	}
+
+	public void on_search_changed()
+	{
+		assert(_browse_mode == BrowseMode.SEARCH);
+		disconnect_project_store_signals();
+		filter(_needle);
+		update_folder_view();
+		connect_project_store_signals();
+	}
+
+	public void on_search_stopped()
+	{
+		assert(_browse_mode == BrowseMode.SEARCH);
+		_browse_mode = BrowseMode.REGULAR;
+		_folder_view.set_browse_mode(_browse_mode);
+
+		Gtk.TreeModel selected_model;
+		Gtk.TreeIter selected_iter;
+		Gtk.TreeRowReference? selected_reference = null;
+		// Only restore the old selection if it has not been
+		// modified while searching (i.e. nothing is selected
+		// because entering search clears it).
+		if (_tree_view.get_selection().get_selected(out selected_model, out selected_iter))
+			selected_reference = new Gtk.TreeRowReference(selected_model, selected_model.get_path(selected_iter));
+
+		disconnect_project_store_signals();
+		_project_store.make_visible(true);
+		_tree_search.refilter();
+
+		// Restore the previous tree state (old expanded branches + old selection).
+		_project_store._tree_store.foreach(restore_tree_state);
+		update_folder_view();
+		connect_project_store_signals();
+
+		// If the selection changed while searching, restore it as well.
+		if (selected_reference != null) {
+			Gtk.TreePath path = selected_reference.get_path();
+			_tree_view.expand_to_path(path);
+			_tree_view.get_selection().select_path(path);
+			_tree_view.scroll_to_cell(path, null, false, 0.0f, 0.0f);
+		}
+	}
+
 	public void on_filter_entry_text_changed()
 	{
 		string old_needle = _needle;
 		_needle = _filter_buffer.text.strip().down();
 
 		if (old_needle == "" && _needle != "") {
-			// Enter search mode.
-			assert(_browse_mode == BrowseMode.REGULAR);
-
-			_browse_mode = BrowseMode.SEARCH;
-			_folder_view.set_browse_mode(_browse_mode);
-
-			_folder_stack.set_visible_child_full("folder-view", Gtk.StackTransitionType.NONE);
-
-			disconnect_project_store_signals();
-
-			// Save the current tree state (expanded branches + selection)
-			// to restore it later when the search is done.
-			_project_store._tree_store.foreach(save_tree_state);
-			filter(_needle);
-			update_folder_view();
-
-			connect_project_store_signals();
+			on_search_started();
 		} else if (old_needle != "" && _needle == "") {
-			// Exit search mode.
-			assert(_browse_mode == BrowseMode.SEARCH);
-			_browse_mode = BrowseMode.REGULAR;
-			_folder_view.set_browse_mode(_browse_mode);
-
-			Gtk.TreeModel selected_model;
-			Gtk.TreeIter selected_iter;
-			Gtk.TreeRowReference? selected_reference = null;
-			// Only restore the old selection if it has not been
-			// modified while searching (i.e. nothing is selected
-			// because entering search clears it).
-			if (_tree_view.get_selection().get_selected(out selected_model, out selected_iter))
-				selected_reference = new Gtk.TreeRowReference(selected_model, selected_model.get_path(selected_iter));
-
-			disconnect_project_store_signals();
-			_project_store.make_visible(true);
-			_tree_search.refilter();
-
-			// Restore the previous tree state (old expanded branches + old selection).
-			_project_store._tree_store.foreach(restore_tree_state);
-			update_folder_view();
-			connect_project_store_signals();
-
-			// If the selection changed while searching, restore it as well.
-			if (selected_reference != null) {
-				Gtk.TreePath path = selected_reference.get_path();
-				_tree_view.expand_to_path(path);
-				_tree_view.get_selection().select_path(path);
-				_tree_view.scroll_to_cell(path, null, false, 0.0f, 0.0f);
-			}
+			on_search_stopped();
 		} else if (_needle != "") {
-			// Filter while in search mode.
-			assert(_browse_mode == BrowseMode.SEARCH);
-			disconnect_project_store_signals();
-			filter(_needle);
-			update_folder_view();
-			connect_project_store_signals();
+			on_search_changed();
 		}
 	}
 
