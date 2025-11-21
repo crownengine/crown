@@ -202,8 +202,15 @@ public class UnitEditor : Gtk.ApplicationWindow
 			}
 		}
 
+		Guid last_created = object_ids[object_ids.length - 1];
+
 		_objects_tree.set_object(_unit._id); // Force update the tree.
-		_objects_tree.select_objects(object_ids); // Select the objects just created.
+
+		if (_database.object_type(last_created) == OBJECT_TYPE_UNIT)
+			_objects_tree.select_objects({ last_created }); // Select the objects just created.
+		else if ((_database.object_type_flags(StringId64(_database.object_type(last_created))) & ObjectTypeFlags.UNIT_COMPONENT) != 0)
+			_objects_tree.select_objects({ _database.object_owner(last_created) });
+
 		update_window_title();
 	}
 
