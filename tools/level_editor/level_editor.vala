@@ -2574,13 +2574,11 @@ public class LevelEditorApplication : Gtk.Application
 	public void on_duplicate(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		_level.duplicate_selected_objects();
-		_editor.send(DeviceApi.frame());
 	}
 
 	public void on_delete(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		_level.destroy_selected_objects();
-		_editor.send(DeviceApi.frame());
 	}
 
 	public void do_rename(Guid object_id, string new_name)
