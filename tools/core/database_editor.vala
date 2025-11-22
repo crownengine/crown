@@ -9,19 +9,22 @@ public class DatabaseEditor
 {
 	public const GLib.ActionEntry[] actions =
 	{
-		{ "undo",   on_undo,   null,   null },
-		{ "redo",   on_redo,   null,   null },
-		{ "delete", on_delete, "s",    null },
-		{ "rename", on_rename, "(ss)", null },
-		{ "add",    on_add,    "(ss)", null },
+		{ "undo",      on_undo,      null,   null },
+		{ "redo",      on_redo,      null,   null },
+		{ "duplicate", on_duplicate, null,   null },
+		{ "delete",    on_delete,    null,   null },
+		{ "rename",    on_rename,    "(ss)", null },
+		{ "add",       on_add,       "(ss)", null },
 	};
 
 	public UndoRedo _undo_redo;
 	public Database _database;
+	public Gee.ArrayList<Guid?> _selection;
 	public GLib.SimpleActionGroup _action_group;
 
 	public signal void undo(int action_id);
 	public signal void redo(int action_id);
+	public signal void selection_changed();
 
 	public DatabaseEditor(Project project, uint32 undo_redo_size)
 	{
@@ -30,6 +33,7 @@ public class DatabaseEditor
 
 		_undo_redo = new UndoRedo(undo_redo_size);
 		_database = new Database(project, _undo_redo);
+		_selection = new Gee.ArrayList<Guid?>(Guid.equal_func);
 	}
 
 	public void load_types()
@@ -51,12 +55,34 @@ public class DatabaseEditor
 			redo(id);
 	}
 
+	public void on_duplicate(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		if (_selection.size == 0)
+			return;
+
+		Guid?[] ids = _selection.to_array();
+		Guid?[] new_ids = new Guid?[ids.length];
+		for (int i = 0; i < new_ids.length; ++i)
+			new_ids[i] = Guid.new_guid();
+
+		for (int i = 0; i < ids.length; ++i)
+			_database.duplicate_and_add_to_set(ids[i], new_ids[i]);
+		_database.add_restore_point((int)ActionType.CREATE_OBJECTS, new_ids);
+
+		selection_set(new_ids);
+	}
+
 	public void on_delete(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		Guid object_id = Guid.parse(param.get_string());
+		if (_selection.size == 0)
+			return;
 
-		_database.destroy(object_id);
-		_database.add_restore_point((int)ActionType.DESTROY_OBJECTS, { object_id });
+		Guid?[] ids = _selection.to_array();
+		foreach (Guid id in ids) {
+			_selection.remove(id);
+			_database.destroy(id);
+		}
+		_database.add_restore_point((int)ActionType.DESTROY_OBJECTS, ids);
 	}
 
 	public void do_rename(Guid object_id, string new_name)
@@ -120,6 +146,30 @@ public class DatabaseEditor
 			_database.add_to_set(object_id, properties[i].name, new_obj);
 			_database.add_restore_point((int)ActionType.CREATE_OBJECTS, { new_obj });
 		}
+	}
+
+	public void clear_selection()
+	{
+		_selection.clear();
+		selection_changed();
+	}
+
+	public void selection_read(Guid?[] ids)
+	{
+		_selection.clear();
+		_selection.add_all_array(ids);
+	}
+
+	public void selection_set(Guid?[] ids)
+	{
+		selection_read(ids);
+		selection_changed();
+	}
+
+	public void send_selection(RuntimeInstance runtime)
+	{
+		Guid?[] ids = _selection.to_array();
+		runtime.send_script(LevelEditorApi.selection_set(ids));
 	}
 }
 

@@ -474,8 +474,6 @@ public class LevelEditorApplication : Gtk.Application
 	public const GLib.ActionEntry[] action_entries_edit =
 	{
 		{ "menu-edit",          null,                  null,   null    },
-		{ "duplicate",          on_duplicate,          null,   null    },
-		{ "delete",             on_delete,             null,   null    },
 		{ "rename",             on_rename,             "(ss)", null    },
 		{ "tool",               on_tool,               "i",    "1"     }, // See: Crown.ToolType
 		{ "set-placeable",      on_set_placeable,      "(ss)", null    },
@@ -669,6 +667,8 @@ public class LevelEditorApplication : Gtk.Application
 
 	public uint _save_timer_id;
 
+	public signal void ui_read_selection(Guid?[] selection);
+
 	public LevelEditorApplication()
 	{
 		Object(application_id: "org.crownengine.Crown"
@@ -748,8 +748,8 @@ public class LevelEditorApplication : Gtk.Application
 
 		this.set_accels_for_action("database.undo", new string[] { "<Primary>Z" });
 		this.set_accels_for_action("database.redo", new string[] { "<Shift><Primary>Z" });
-		this.set_accels_for_action("app.duplicate", new string[] { "<Primary>D" });
-		this.set_accels_for_action("app.delete", new string[] { "Delete" });
+		this.set_accels_for_action("database.duplicate", new string[] { "<Primary>D" });
+		this.set_accels_for_action("database.delete", new string[] { "Delete" });
 
 		this.set_accels_for_action("app.tool(0)", new string[] { "Q" });
 		this.set_accels_for_action("app.tool(1)", new string[] { "W" });
@@ -847,6 +847,7 @@ public class LevelEditorApplication : Gtk.Application
 		_database_editor = new DatabaseEditor(_project, (uint)_preferences_dialog._undo_redo_max_size.value * 1024 * 1024);
 		_database_editor.undo.connect((id) => { _statusbar.set_temporary_message("Undo: " + ActionNames[id]); });
 		_database_editor.redo.connect((id) => { _statusbar.set_temporary_message("Redo: " + ActionNames[id]); });
+		_database_editor.selection_changed.connect(on_selection_changed);
 
 		_database = _database_editor._database;
 		_database.objects_created.connect(on_objects_created);
@@ -861,7 +862,6 @@ public class LevelEditorApplication : Gtk.Application
 		_properties_view.register_object_type(OBJECT_TYPE_UNIT, new UnitView(_database));
 
 		_level = new Level(_database, _editor);
-		_level.selection_changed.connect(on_level_selection_changed);
 
 		// Editor state
 		_grid_size = 1.0;
@@ -893,6 +893,10 @@ public class LevelEditorApplication : Gtk.Application
 		_project_browser = new ProjectBrowser(_project_store, _thumbnail_cache);
 
 		_level_treeview = new LevelTreeView(_database, _level);
+		_level_treeview.selection_changed.connect(on_level_treeview_selection_changed);
+		this.ui_read_selection.connect(_level_treeview.read_selection);
+		this.ui_read_selection.connect(_properties_view.set_objects);
+
 		_database.objects_created.connect(_level_treeview.on_objects_created);
 		_database.objects_destroyed.connect(_level_treeview.on_objects_destroyed);
 		_database.objects_changed.connect(_level_treeview.on_objects_changed);
@@ -1251,6 +1255,8 @@ public class LevelEditorApplication : Gtk.Application
 				, Quaternion.from_array(rot)
 				, Vector3.from_array(scl)
 				);
+
+			_database_editor.selection_set({ id });
 			_database.add_restore_point((int)ActionType.CREATE_OBJECTS, new Guid?[] { id }, ActionTypeFlags.FROM_SERVER);
 		} else if (msg_type == "sound_spawned") {
 			Guid id = Guid.parse((string)msg["id"]);
@@ -1303,14 +1309,15 @@ public class LevelEditorApplication : Gtk.Application
 			Gee.ArrayList<string> keys = new Gee.ArrayList<string>.wrap(objects.keys.to_array());
 			keys.sort(Gee.Functions.get_compare_func_for(typeof(string)));
 
-			Guid[] ids = new Guid[keys.size];
+			Guid?[] ids = new Guid?[keys.size];
 
 			for (int i = 0; i < keys.size; ++i) {
 				string k = keys[i];
 				ids[i] = Guid.parse((string)objects[k]);
 			}
 
-			_level.on_selection(ids);
+			_database_editor.selection_read(ids);
+			ui_read_selection(_database_editor._selection.to_array());
 		} else if (msg_type == "camera") {
 			if (ri == _editor)
 				_level.on_camera(msg);
@@ -1366,7 +1373,7 @@ public class LevelEditorApplication : Gtk.Application
 			}
 		}
 
-		_level.selection_changed(_level._selection);
+		ui_read_selection(_database_editor._selection.to_array());
 		update_active_window_title();
 	}
 
@@ -1381,7 +1388,7 @@ public class LevelEditorApplication : Gtk.Application
 			}
 		}
 
-		_level.selection_changed(_level._selection);
+		ui_read_selection(_database_editor._selection.to_array());
 		update_active_window_title();
 	}
 
@@ -1396,7 +1403,7 @@ public class LevelEditorApplication : Gtk.Application
 			}
 		}
 
-		_level.selection_changed(_level._selection);
+		ui_read_selection(_database_editor._selection.to_array());
 		update_active_window_title();
 	}
 
@@ -2065,8 +2072,7 @@ public class LevelEditorApplication : Gtk.Application
 			compile_and_reload.begin();
 		}
 
-		// FIXME: hack to force PropertiesView to update.
-		_level.selection_changed(_level._selection);
+		ui_read_selection(_database_editor._selection.to_array());
 	}
 
 	public void on_import(GLib.SimpleAction action, GLib.Variant? param)
@@ -2181,6 +2187,7 @@ public class LevelEditorApplication : Gtk.Application
 		_placeable_type = OBJECT_TYPE_UNIT;
 		_placeable_name = "core/units/primitives/cube";
 
+		_database_editor.clear_selection();
 		_level.reset();
 		_project.reset();
 
@@ -2416,7 +2423,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	public void on_camera_frame_selected(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		Guid?[] selected_objects = _level._selection.to_array();
+		Guid?[] selected_objects = _database_editor._selection.to_array();
 		_editor.send_script(LevelEditorApi.frame_objects(selected_objects));
 		_editor.send(DeviceApi.frame());
 	}
@@ -2569,16 +2576,6 @@ public class LevelEditorApplication : Gtk.Application
 					start_game.begin(action.name == "test-level" ? StartGame.TEST : StartGame.NORMAL);
 				}
 			});
-	}
-
-	public void on_duplicate(GLib.SimpleAction action, GLib.Variant? param)
-	{
-		_level.duplicate_selected_objects();
-	}
-
-	public void on_delete(GLib.SimpleAction action, GLib.Variant? param)
-	{
-		_level.destroy_selected_objects();
 	}
 
 	public void do_rename(Guid object_id, string new_name)
@@ -4255,12 +4252,24 @@ public class LevelEditorApplication : Gtk.Application
 		return new SelectResourceDialog(resource_type, _project_store, this.active_window);
 	}
 
-	public void on_level_selection_changed(Gee.ArrayList<Guid?> selection)
+	public void on_level_treeview_selection_changed(Gee.ArrayList<Guid?> selection)
 	{
-		if (selection.size == 0)
-			_properties_view.set_object(GUID_ZERO);
-		else
-			_properties_view.set_object(selection[selection.size - 1]);
+		_database_editor.selection_read(selection.to_array());
+
+		ui_read_selection.disconnect(_level_treeview.read_selection);
+		ui_read_selection(_database_editor._selection.to_array());
+		ui_read_selection.connect(_level_treeview.read_selection);
+
+		_database_editor.send_selection(_editor);
+		_editor.send(DeviceApi.frame());
+	}
+
+	public void on_selection_changed()
+	{
+		ui_read_selection(_database_editor._selection.to_array());
+
+		_database_editor.send_selection(_editor);
+		_editor.send(DeviceApi.frame());
 	}
 }
 

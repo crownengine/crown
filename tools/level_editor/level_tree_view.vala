@@ -73,13 +73,14 @@ public class LevelTreeView : Gtk.Box
 	public Gtk.TreeRowReference _units_root;
 	public Gtk.TreeRowReference _sounds_root;
 
+	public signal void selection_changed(Gee.ArrayList<Guid?> selection);
+
 	public LevelTreeView(Database db, Level level)
 	{
 		Object(orientation: Gtk.Orientation.VERTICAL, spacing: 0);
 
 		// Data
 		_level = level;
-		_level.selection_changed.connect(on_level_selection_changed);
 
 		_db = db;
 
@@ -224,11 +225,11 @@ public class LevelTreeView : Gtk.Box
 			}
 
 			mi = new GLib.MenuItem("Duplicate", null);
-			mi.set_action_and_target_value("app.duplicate", null);
+			mi.set_action_and_target_value("database.duplicate", null);
 			menu_model.append_item(mi);
 
 			mi = new GLib.MenuItem("Delete", null);
-			mi.set_action_and_target_value("app.delete", null);
+			mi.set_action_and_target_value("database.delete", null);
 			menu_model.append_item(mi);
 
 			if (_tree_selection.count_selected_rows() == 1) {
@@ -264,8 +265,6 @@ public class LevelTreeView : Gtk.Box
 
 	public void on_tree_selection_changed()
 	{
-		_level.selection_changed.disconnect(on_level_selection_changed);
-
 		Gee.ArrayList<Guid?> ids = new Gee.ArrayList<Guid?>();
 		_tree_selection.selected_foreach((model, path, iter) => {
 				Value type;
@@ -278,11 +277,10 @@ public class LevelTreeView : Gtk.Box
 				ids.add((Guid)id);
 			});
 
-		_level.selection_set(ids.to_array());
-		_level.selection_changed.connect(on_level_selection_changed);
+		selection_changed(ids);
 	}
 
-	public void on_level_selection_changed(Gee.ArrayList<Guid?> selection)
+	public void read_selection(Guid?[] selection)
 	{
 		_tree_selection.changed.disconnect(on_tree_selection_changed);
 		_tree_selection.unselect_all();

@@ -269,9 +269,9 @@ public class UnitEditor : Gtk.ApplicationWindow
 	public void on_objects_tree_selection_changed(Guid object_id, ObjectTree.ItemType item_type)
 	{
 		if (item_type == ObjectTree.ItemType.OBJECT)
-			_properties_view.set_object(object_id);
+			_properties_view.set_objects({ object_id });
 		else
-			_properties_view.set_object(GUID_ZERO);
+			_properties_view.set_objects({ GUID_ZERO });
 	}
 
 	public void on_undo(int action_id)
