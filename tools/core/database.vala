@@ -1424,10 +1424,15 @@ public class Database
 
 		Gee.HashMap<string, Value?> ob = get_data(id);
 		Gee.HashSet<Guid?> value;
-		if (ob.has_key(key))
-			value = ob[key] as Gee.HashSet<Guid?>;
-		else
+		if (ob.has_key(key)) {
+			value = new Gee.HashSet<Guid?>();
+			foreach (var obj in (ob[key] as Gee.HashSet<Guid?>)) {
+				if (is_alive(obj))
+					value.add(obj);
+			}
+		} else {
 			value = deffault;
+		}
 
 		if (_debug_getters)
 			logi("get_property %s %s %s".printf(debug_string(id), key, debug_string(value)));
