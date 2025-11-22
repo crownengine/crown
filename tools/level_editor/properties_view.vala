@@ -218,13 +218,14 @@ public class PropertiesView : Gtk.Box
 		_object_view._list_box.invalidate_sort();
 	}
 
-	public void set_object(Guid id)
+	public void set_objects(Guid?[] objects)
 	{
-		if (id == GUID_ZERO) {
+		if (objects.length == 0) {
 			_stack.set_visible_child_name(NOTHING_TO_SHOW);
 			return;
 		}
 
+		Guid id = objects[objects.length - 1];
 		if (!_db.has_object(id))
 			return;
 

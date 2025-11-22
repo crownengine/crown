@@ -15,7 +15,6 @@ public class Level
 
 	// Data
 	public Database _db;
-	public Gee.ArrayList<Guid?> _selection;
 
 	public Gee.HashMap<string, uint> _unit_names;
 	public Gee.HashMap<string, uint> _sound_names;
@@ -23,9 +22,6 @@ public class Level
 	public string _name;
 	public string _path;
 	public Guid _id;
-
-	// Signals
-	public signal void selection_changed(Gee.ArrayList<Guid?> selection);
 
 	public Level(Database db, RuntimeInstance runtime)
 	{
@@ -36,7 +32,6 @@ public class Level
 
 		// Data
 		_db = db;
-		_selection = new Gee.ArrayList<Guid?>(Guid.equal_func);
 
 		_unit_names = new Gee.HashMap<string, uint>();
 		_sound_names = new Gee.HashMap<string, uint>();
@@ -48,9 +43,6 @@ public class Level
 	public void reset()
 	{
 		_db.reset();
-
-		_selection.clear();
-		selection_changed(_selection);
 
 		_unit_names.clear();
 		_sound_names.clear();
@@ -124,44 +116,6 @@ public class Level
 		Guid id = Guid.new_guid();
 		on_unit_spawned(id, name, VECTOR3_ZERO, QUATERNION_IDENTITY, VECTOR3_ONE);
 		_db.add_restore_point((int)ActionType.CREATE_OBJECTS, new Guid?[] { id });
-
-		selection_set(new Guid?[] { id });
-	}
-
-	public void destroy_objects(Guid?[] ids)
-	{
-		foreach (Guid id in ids) {
-			_selection.remove(id);
-			_db.destroy(id);
-		}
-
-		_db.add_restore_point((int)ActionType.DESTROY_OBJECTS, ids);
-	}
-
-	public void duplicate_selected_objects()
-	{
-		if (_selection.size > 0) {
-			Guid?[] ids = _selection.to_array();
-
-			Guid?[] new_ids = new Guid?[ids.length];
-			for (int i = 0; i < new_ids.length; ++i)
-				new_ids[i] = Guid.new_guid();
-
-			duplicate_objects(ids, new_ids);
-		}
-	}
-
-	public void destroy_selected_objects()
-	{
-		destroy_objects(_selection.to_array());
-	}
-
-	public void duplicate_objects(Guid?[] ids, Guid?[] new_ids)
-	{
-		for (int i = 0; i < ids.length; ++i)
-			_db.duplicate_and_add_to_set(ids[i], new_ids[i]);
-		_db.add_restore_point((int)ActionType.CREATE_OBJECTS, new_ids);
-		selection_set(new_ids);
 	}
 
 	public void replace_unit(Guid unit_id, string prefab_name)
@@ -172,7 +126,8 @@ public class Level
 		Quaternion unit_rot = unit.local_rotation();
 		Vector3 unit_scl = unit.local_scale();
 
-		destroy_objects(new Guid?[] { unit_id });
+		_db.destroy(unit_id);
+		_db.add_restore_point((int)ActionType.DESTROY_OBJECTS, { unit_id });
 
 		Guid new_id = Guid.new_guid();
 		Unit new_unit = Unit(_db, new_id);
@@ -183,7 +138,7 @@ public class Level
 
 		_db.set_name(new_id, unit_editor_name);
 		_db.add_to_set(_id, "units", new_id);
-		_db.add_restore_point((int)ActionType.CREATE_OBJECTS, new Guid?[] { new_id });
+		_db.add_restore_point((int)ActionType.CREATE_OBJECTS, { new_id });
 	}
 
 	public string add_object_name(Gee.HashMap<string, uint> names, string resource_name)
@@ -239,32 +194,6 @@ public class Level
 		}
 	}
 
-	public void on_selection(Guid[] ids)
-	{
-		_selection.clear();
-		foreach (Guid id in ids)
-			_selection.add(id);
-
-		selection_changed(_selection);
-	}
-
-	public void selection_set(Guid?[] ids)
-	{
-		_selection.clear();
-		for (int i = 0; i < ids.length; ++i)
-			_selection.add(ids[i]);
-
-		send_selection();
-		_runtime.send(DeviceApi.frame());
-
-		selection_changed(_selection);
-	}
-
-	public void send_selection()
-	{
-		_runtime.send_script(LevelEditorApi.selection_set(_selection.to_array()));
-	}
-
 	public void generate_spawn_objects(StringBuilder sb, Guid?[] object_ids)
 	{
 		int n;
@@ -315,7 +244,6 @@ public class Level
 		sb.append(LevelEditorApi.spawn_skydome(_db.get_string(_id, "skydome_unit", "core/units/skydome/skydome")));
 		_runtime.send_script(sb.str);
 
-		send_selection();
 		send_camera();
 	}
 
