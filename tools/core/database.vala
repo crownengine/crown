@@ -746,10 +746,7 @@ public class Database
 		for (int i = 0; i < json.size; ++i) {
 			Hashtable obj;
 			string owner_type = object_type(owner_id);
-			if (owner_type == OBJECT_TYPE_SPRITE_ANIMATION)
-				obj = new Hashtable();
-			else
-				obj = (Hashtable)json[i];
+			obj = (Hashtable)json[i];
 
 			// Decode object ID.
 			Guid obj_id;
@@ -761,44 +758,6 @@ public class Database
 				obj_id = Guid.new_guid();
 
 			_data[obj_id] = new Gee.HashMap<string, Value?>();
-
-			// Determine the object's type based on the type of its
-			// parent and other heuristics.
-			if (owner_type == OBJECT_TYPE_LEVEL) {
-				if (key == "units")
-					set_type(obj_id, OBJECT_TYPE_UNIT);
-				else if (key == "sounds")
-					set_type(obj_id, OBJECT_TYPE_SOUND_SOURCE);
-				else
-					set_type(obj_id, "undefined");
-			} else if (owner_type == OBJECT_TYPE_STATE_MACHINE) {
-				if (key == "states")
-					set_type(obj_id, OBJECT_TYPE_STATE_MACHINE_NODE);
-				else if (key == "variables")
-					set_type(obj_id, OBJECT_TYPE_STATE_MACHINE_VARIABLE);
-				else
-					set_type(obj_id, "undefined");
-			} else if (owner_type == OBJECT_TYPE_STATE_MACHINE_NODE) {
-				if (key == "animations")
-					set_type(obj_id, OBJECT_TYPE_NODE_ANIMATION);
-				else if (key == "transitions")
-					set_type(obj_id, OBJECT_TYPE_NODE_TRANSITION);
-			} else if (owner_type == OBJECT_TYPE_SPRITE) {
-				if (key == "frames") {
-					set_type(obj_id, "sprite_frame");
-					set(0, obj_id, "index", (double)i);
-				}
-			} else if (owner_type == OBJECT_TYPE_SPRITE_ANIMATION) {
-				if (key == "frames") {
-					set_type(obj_id, "animation_frame");
-					set(0, obj_id, "index", (double)json[i]);
-				}
-			} else if (owner_type == OBJECT_TYPE_FONT) {
-				if (key == "glyphs") {
-					set_type(obj_id, "font_glyph");
-					set(0, obj_id, "cp", (double)obj["id"]);
-				}
-			}
 
 			set_owner(obj_id, owner_id);
 			set_alive(obj_id, true);
