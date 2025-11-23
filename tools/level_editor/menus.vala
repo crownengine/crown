@@ -365,6 +365,10 @@ public GLib.Menu make_camera_view_menu()
 		ms.append_item(mi);
 	}
 
+	mi = new GLib.MenuItem("Frame Selected", null);
+	mi.set_detailed_action("viewport.camera-frame-selected");
+	ms.append_item(mi);
+
 	menu.append_section(null, ms);
 
 	return menu;
@@ -378,10 +382,6 @@ public GLib.Menu make_view_menu()
 
 	menu.append_section(null, make_camera_view_menu());
 	ms = new GLib.Menu();
-
-	mi = new GLib.MenuItem("Frame Selected", null);
-	mi.set_detailed_action("app.camera-frame-selected");
-	ms.append_item(mi);
 
 	mi = new GLib.MenuItem("Frame All", null);
 	mi.set_detailed_action("app.camera-frame-all");

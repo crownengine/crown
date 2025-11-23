@@ -56,6 +56,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		_database_editor.load_types();
 
 		_editor_viewport = new EditorViewport("unit_editor"
+			, _database_editor
 			, project
 			, boot_dir
 			, console_addr

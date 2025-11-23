@@ -507,7 +507,6 @@ public class LevelEditorApplication : Gtk.Application
 	public const GLib.ActionEntry[] action_entries_camera =
 	{
 		{ "menu-camera",           null,                     null, null },
-		{ "camera-frame-selected", on_camera_frame_selected, null, null },
 		{ "camera-frame-all",      on_camera_frame_all,      null, null }
 	};
 
@@ -766,8 +765,8 @@ public class LevelEditorApplication : Gtk.Application
 		this.set_accels_for_action("viewport.camera-view(4)", new string[] { "<Primary>KP_3" });
 		this.set_accels_for_action("viewport.camera-view(5)", new string[] { "KP_7" });
 		this.set_accels_for_action("viewport.camera-view(6)", new string[] { "<Primary>KP_7" });
+		this.set_accels_for_action("viewport.camera-frame-selected", new string[] { "F" });
 
-		this.set_accels_for_action("app.camera-frame-selected", new string[] { "F" });
 		this.set_accels_for_action("app.camera-frame-all", new string[] { "A" });
 
 		this.set_accels_for_action("app.console", new string[] { "<Primary>grave" });
@@ -791,7 +790,7 @@ public class LevelEditorApplication : Gtk.Application
 		_camera_view_left_accels = this.get_accels_for_action("viewport.camera-view(4)");
 		_camera_view_top_accels = this.get_accels_for_action("viewport.camera-view(5)");
 		_camera_view_bottom_accels = this.get_accels_for_action("viewport.camera-view(6)");
-		_camera_frame_selected_accels = this.get_accels_for_action("app.camera-frame-selected");
+		_camera_frame_selected_accels = this.get_accels_for_action("viewport.camera-frame-selected");
 		_camera_frame_all_accels = this.get_accels_for_action("app.camera-frame-all");
 
 		_compiler = new RuntimeInstance("data_compiler");
@@ -814,7 +813,17 @@ public class LevelEditorApplication : Gtk.Application
 		_project.project_reset.connect(on_project_reset);
 		_project.project_loaded.connect(on_project_loaded);
 
+		_preferences_dialog = new PreferencesDialog();
+		_preferences_dialog.delete_event.connect(_preferences_dialog.hide_on_delete);
+		_preferences_dialog.decode(_settings);
+
+		_database_editor = new DatabaseEditor(_project, (uint)_preferences_dialog._undo_redo_max_size.value * 1024 * 1024);
+		_database_editor.undo.connect((id) => { _statusbar.set_temporary_message("Undo: " + ActionNames[id]); });
+		_database_editor.redo.connect((id) => { _statusbar.set_temporary_message("Redo: " + ActionNames[id]); });
+		_database_editor.selection_changed.connect(on_selection_changed);
+
 		_editor_viewport = new EditorViewport("editor"
+			, _database_editor
 			, _project
 			, LEVEL_EDITOR_BOOT_DIR
 			, EDITOR_ADDRESS
@@ -826,9 +835,7 @@ public class LevelEditorApplication : Gtk.Application
 		_editor.disconnected.connect(on_runtime_disconnected);
 		_editor.disconnected_unexpected.connect(on_editor_disconnected_unexpected);
 
-		_preferences_dialog = new PreferencesDialog(_editor);
-		_preferences_dialog.delete_event.connect(_preferences_dialog.hide_on_delete);
-		_preferences_dialog.decode(_settings);
+		_preferences_dialog.set_runtime(_editor);
 
 		set_theme_from_name(_preferences_dialog._theme_combo.value);
 
@@ -843,11 +850,6 @@ public class LevelEditorApplication : Gtk.Application
 		_thumbnail.connected.connect(on_runtime_connected);
 		_thumbnail.disconnected.connect(on_runtime_disconnected);
 		_thumbnail.disconnected_unexpected.connect(on_runtime_disconnected_unexpected);
-
-		_database_editor = new DatabaseEditor(_project, (uint)_preferences_dialog._undo_redo_max_size.value * 1024 * 1024);
-		_database_editor.undo.connect((id) => { _statusbar.set_temporary_message("Undo: " + ActionNames[id]); });
-		_database_editor.redo.connect((id) => { _statusbar.set_temporary_message("Redo: " + ActionNames[id]); });
-		_database_editor.selection_changed.connect(on_selection_changed);
 
 		_database = _database_editor._database;
 		_database.objects_created.connect(on_objects_created);
@@ -2418,13 +2420,6 @@ public class LevelEditorApplication : Gtk.Application
 			unit_name = null;
 
 		_level.spawn_unit(unit_name);
-		_editor.send(DeviceApi.frame());
-	}
-
-	public void on_camera_frame_selected(GLib.SimpleAction action, GLib.Variant? param)
-	{
-		Guid?[] selected_objects = _database_editor._selection.to_array();
-		_editor.send_script(LevelEditorApi.frame_objects(selected_objects));
 		_editor.send(DeviceApi.frame());
 	}
 
@@ -4144,7 +4139,7 @@ public class LevelEditorApplication : Gtk.Application
 			this.set_accels_for_action("viewport.camera-view(4)", _camera_view_left_accels);
 			this.set_accels_for_action("viewport.camera-view(5)", _camera_view_top_accels);
 			this.set_accels_for_action("viewport.camera-view(6)", _camera_view_bottom_accels);
-			this.set_accels_for_action("app.camera-frame-selected", _camera_frame_selected_accels);
+			this.set_accels_for_action("viewport.camera-frame-selected", _camera_frame_selected_accels);
 			this.set_accels_for_action("app.camera-frame-all", _camera_frame_all_accels);
 		} else {
 			this.set_accels_for_action("app.tool(0)", {});
@@ -4159,7 +4154,7 @@ public class LevelEditorApplication : Gtk.Application
 			this.set_accels_for_action("viewport.camera-view(4)", {});
 			this.set_accels_for_action("viewport.camera-view(5)", {});
 			this.set_accels_for_action("viewport.camera-view(6)", {});
-			this.set_accels_for_action("app.camera-frame-selected", {});
+			this.set_accels_for_action("viewport.camera-frame-selected", {});
 			this.set_accels_for_action("app.camera-frame-all", {});
 		}
 	}
