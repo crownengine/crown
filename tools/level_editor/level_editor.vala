@@ -4087,14 +4087,21 @@ public class LevelEditorApplication : Gtk.Application
 				, (uint)_preferences_dialog._undo_redo_max_size.value * 1024 * 1024
 				);
 			_unit_editor_dialog.set_transient_for(this.active_window);
-			_unit_editor_dialog.saved.connect(() => {
-						compile_and_reload.begin();
-					});
+			_unit_editor_dialog.saved.connect(on_unit_editor_saved);
 		}
 
 		_unit_editor_dialog.set_unit(unit_name);
 		_unit_editor_dialog.show_all();
 		_unit_editor_dialog.present();
+	}
+
+	public void on_unit_editor_saved()
+	{
+		compile_and_reload.begin((obj, res) => {
+				if (compile_and_reload.end(res)) {
+					ui_read_selection(_database_editor._selection.to_array());
+				}
+			});
 	}
 
 	public void set_autosave_timer(uint minutes)
