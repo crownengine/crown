@@ -14,6 +14,7 @@ const string OBJECT_TYPE_COLLIDER                = "collider";
 const string OBJECT_TYPE_FILE                    = "file";
 const string OBJECT_TYPE_FOG                     = "fog";
 const string OBJECT_TYPE_FONT                    = "font";
+const string OBJECT_TYPE_FONT_GLYPH              = "font_glyph";
 const string OBJECT_TYPE_GLOBAL_LIGHTING         = "global_lighting";
 const string OBJECT_TYPE_LEVEL                   = "level";
 const string OBJECT_TYPE_LIGHT                   = "light";
@@ -31,6 +32,7 @@ const string OBJECT_TYPE_SOUND                   = "sound";
 const string OBJECT_TYPE_SOUND_SOURCE            = "sound_source";
 const string OBJECT_TYPE_SPRITE                  = "sprite";
 const string OBJECT_TYPE_SPRITE_ANIMATION        = "sprite_animation";
+const string OBJECT_TYPE_SPRITE_FRAME            = "sprite_frame";
 const string OBJECT_TYPE_SPRITE_RENDERER         = "sprite_renderer";
 const string OBJECT_TYPE_STATE_MACHINE           = "state_machine";
 const string OBJECT_TYPE_STATE_MACHINE_NODE      = "state_machine_node";
@@ -630,6 +632,16 @@ public static void create_object_types(Database database)
 	{
 		PropertyDefinition()
 		{
+			type = PropertyType.STRING,
+			name = "source",
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_SOUND, properties);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
 			type = PropertyType.VECTOR3,
 			name = "position",
 		},
@@ -680,6 +692,89 @@ public static void create_object_types(Database database)
 		},
 	};
 	StringId64 sound_source_type = database.create_object_type(OBJECT_TYPE_SOUND_SOURCE, properties, 3.0);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "frame",
+			min = 0.0
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "index",
+			min = 0.0
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_ANIMATION_FRAME, properties);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.OBJECTS_SET,
+			name = "frames",
+			object_type = StringId64(OBJECT_TYPE_ANIMATION_FRAME),
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "frames_per_second",
+			min = 0.0
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_SPRITE_ANIMATION, properties);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "index",
+			min = 0.0,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "name",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.VECTOR3,
+			name = "pivot",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.QUATERNION,
+			name = "region",
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_SPRITE_FRAME, properties);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.OBJECTS_SET,
+			name = "frames",
+			object_type = StringId64(OBJECT_TYPE_SPRITE_FRAME),
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "width",
+			min = 0.0
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "height",
+			min = 0.0
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_SPRITE, properties);
 
 	properties =
 	{
@@ -1123,6 +1218,135 @@ public static void create_object_types(Database database)
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_LEVEL, properties);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "cp",
+			min = 0.0,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "width",
+			min = 0.0,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "height",
+			min = 0.0,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "x",
+			min = 0.0,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "x_advance",
+			min = 0.0,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "x_offset",
+			min = 0.0,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "y",
+			min = 0.0,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "y_offset",
+			min = 0.0,
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_FONT_GLYPH, properties);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.OBJECTS_SET,
+			name = "glyphs",
+			object_type = StringId64(OBJECT_TYPE_FONT_GLYPH),
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "font_size",
+			min = 0.0,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "size",
+			min = 0.0,
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_FONT, properties);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "source",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "stack_name",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.OBJECT_NAME,
+			name = "target_skeleton",
+			resource_type = OBJECT_TYPE_MESH_SKELETON,
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_MESH_ANIMATION, properties);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "name",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.OBJECTS_SET,
+			name = "children",
+			object_type = StringId64(OBJECT_TYPE_MESH_BONE),
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_MESH_BONE, properties);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "source",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.OBJECTS_SET,
+			name = "skeleton",
+			object_type = StringId64(OBJECT_TYPE_MESH_BONE),
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_MESH_SKELETON, properties);
 }
 
 } /* namespace Crown */
