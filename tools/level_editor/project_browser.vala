@@ -414,11 +414,14 @@ public class ProjectFolderView : Gtk.Box
 			string[] uris = selection_data.get_uris();
 			string[] filenames = new string[uris.length];
 
-			// Convert URIs to filenames.
-			for (int i = 0; i < uris.length; ++i)
-				filenames[i] = GLib.Filename.from_uri(uris[i]);
+			try {
+				for (int i = 0; i < uris.length; ++i)
+					filenames[i] = GLib.Filename.from_uri(uris[i]);
 
-			GLib.Application.get_default().activate_action("import", new GLib.Variant.tuple({name, filenames}));
+				GLib.Application.get_default().activate_action("import", new GLib.Variant.tuple({name, filenames}));
+			} catch (GLib.ConvertError e) {
+				loge(e.message);
+			}
 		}
 
 		Gtk.drag_finish(context, true, false, time_);

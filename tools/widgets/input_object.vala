@@ -20,7 +20,7 @@ public class InputObject : InputEnum
 		this.value = (Guid)v;
 	}
 
-	public Guid value
+	public new Guid value
 	{
 		get
 		{
@@ -34,7 +34,7 @@ public class InputObject : InputEnum
 		}
 	}
 
-	public bool filter_visible_func(Gtk.TreeModel model, Gtk.TreeIter iter)
+	public new bool filter_visible_func(Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
 		Value id_val;
 		model.get_value(iter, 0, out id_val);
@@ -46,7 +46,7 @@ public class InputObject : InputEnum
 		return true;
 	}
 
-	public string name(Guid id, ref int num_unnamed)
+	public string object_name(Guid id, ref int num_unnamed)
 	{
 		string name = _database.name(id);
 
@@ -71,7 +71,7 @@ public class InputObject : InputEnum
 		Gee.HashMap<Guid?, Gee.HashMap<string, Value?>> all_objects = database._data;
 		foreach (var o in all_objects) {
 			if (StringId64(database.object_type(o.key)) == type)
-				append(o.key.to_string(), name(o.key, ref num_unnamed));
+				append(o.key.to_string(), object_name(o.key, ref num_unnamed));
 		}
 	}
 }
