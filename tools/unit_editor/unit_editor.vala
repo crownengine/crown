@@ -181,6 +181,8 @@ public class UnitEditor : Gtk.ApplicationWindow
 
 		if (_database.save(_database._project.absolute_path(_unit_name) + "." + OBJECT_TYPE_UNIT, _unit._id) == 0)
 			saved();
+
+		update_window_title();
 	}
 
 	public void on_object_type_added(ObjectTypeInfo info)
