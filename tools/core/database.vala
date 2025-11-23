@@ -1425,8 +1425,10 @@ public class Database
 		Gee.HashMap<string, Value?> ob = get_data(id);
 		Gee.HashSet<Guid?> value;
 		if (ob.has_key(key)) {
+			Gee.HashSet<Guid?> objects = (Gee.HashSet<Guid?>)ob[key];
 			value = new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func);
-			foreach (var obj in (ob[key] as Gee.HashSet<Guid?>)) {
+
+			foreach (var obj in objects) {
 				if (is_alive(obj))
 					value.add(obj);
 			}
