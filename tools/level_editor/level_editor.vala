@@ -1172,6 +1172,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		// Update editor view with current editor state.
 		_level.send_level();
+		_database_editor.send_selection(_editor);
 		send_state();
 		_preferences_dialog.apply();
 		_editor.send(DeviceApi.frame());
