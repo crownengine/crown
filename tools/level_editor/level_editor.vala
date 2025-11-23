@@ -555,7 +555,8 @@ public class LevelEditorApplication : Gtk.Application
 		{ "open-containing",      on_open_containing,      "s",     null },
 		{ "texture-settings",     on_texture_settings,     "s",     null },
 		{ "state-machine-editor", on_state_machine_editor, "s",     null },
-		{ "reveal-resource",      on_reveal,               "(ss)",  null }
+		{ "open-object",          on_open_object,          "(ss)",  null },
+		{ "reveal-resource",      on_reveal,               "(ss)",  null },
 	};
 
 	public const GLib.ActionEntry[] action_entries_package =
@@ -638,6 +639,7 @@ public class LevelEditorApplication : Gtk.Application
 	public TextureSettingsDialog _texture_settings_dialog;
 	public UnitEditor _unit_editor_dialog;
 	public StateMachineEditor _state_machine_editor;
+	public ObjectEditor _object_editor;
 	public ThumbnailCache _thumbnail_cache;
 
 	public Gtk.Stack _project_stack;
@@ -2157,6 +2159,28 @@ public class LevelEditorApplication : Gtk.Application
 		_state_machine_editor.present();
 	}
 
+	public void on_open_object(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string resource_type = (string)param.get_child_value(0);
+		string resource_name = (string)param.get_child_value(1);
+
+		if (_object_editor == null) {
+			_object_editor = new ObjectEditor(this
+				, _project
+				, (uint)_preferences_dialog._undo_redo_max_size.value * 1024 * 1024
+				);
+			_object_editor.set_transient_for(this.active_window);
+			_object_editor.saved.connect(() => {
+						compile_and_reload.begin();
+					});
+			this.add_window(_object_editor);
+		}
+
+		_object_editor.set_object(resource_type, resource_name);
+		_object_editor.show_all();
+		_object_editor.present();
+	}
+
 	public void on_reveal(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		string type = (string)param.get_child_value(0);
@@ -2263,6 +2287,7 @@ public class LevelEditorApplication : Gtk.Application
 		if (param == null)
 			return;
 
+		GLib.AppInfo? app = null;
 		string resource_path  = param.get_string();
 		string? resource_type = ResourceId.type(resource_path);
 		string? resource_name = ResourceId.name(resource_path);
@@ -2281,14 +2306,13 @@ public class LevelEditorApplication : Gtk.Application
 		} else if (resource_type == OBJECT_TYPE_STATE_MACHINE) {
 			activate_action("state-machine-editor", resource_name);
 			return;
-		}
-
-		GLib.AppInfo? app = null;
-
-		if (resource_type == "lua") {
+		} else if (resource_type == "lua") {
 			app = _preferences_dialog._lua_external_tool_button.get_app_info();
 		} else if (is_image_file(resource_path)) {
 			app = _preferences_dialog._image_external_tool_button.get_app_info();
+		} else if (_database.has_type(StringId64(resource_type))) {
+			activate_action("open-object", new GLib.Variant.tuple({ resource_type, resource_name }));
+			return;
 		}
 
 		GLib.File file = GLib.File.new_for_path(_project.absolute_path(resource_path));
