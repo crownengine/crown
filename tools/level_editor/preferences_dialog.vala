@@ -39,12 +39,10 @@ public class PreferencesDialog : Gtk.Window
 	public Gtk.Notebook _notebook;
 	public Gtk.EventControllerKey _controller_key;
 
-	public PreferencesDialog(RuntimeInstance editor)
+	public PreferencesDialog()
 	{
 		this.title = "Preferences";
 		this.set_icon_name(CROWN_EDITOR_ICON_NAME);
-
-		_editor = editor;
 
 		// Widgets
 		_document_set = new PropertyGridSet();
@@ -155,6 +153,11 @@ public class PreferencesDialog : Gtk.Window
 		_controller_key.key_pressed.connect(on_key_pressed);
 
 		this.add(_notebook);
+	}
+
+	public void set_runtime(RuntimeInstance editor)
+	{
+		_editor = editor;
 	}
 
 	public bool on_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)

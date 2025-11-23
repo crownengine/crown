@@ -12,9 +12,11 @@ public class EditorViewport : Gtk.Bin
 
 	public const GLib.ActionEntry[] actions =
 	{
-		{ "camera-view", on_camera_view, "i", "0" }, // See: Crown.CameraViewType
+		{ "camera-view",           on_camera_view,           "i",  "0" },  // See: Crown.CameraViewType
+		{ "camera-frame-selected", on_camera_frame_selected, null, null },
 	};
 
+	public DatabaseEditor _database_editor;
 	public Project _project;
 	public string _boot_dir;
 	public string _console_address;
@@ -27,6 +29,7 @@ public class EditorViewport : Gtk.Bin
 	public GLib.SimpleActionGroup _action_group;
 
 	public EditorViewport(string name
+		, DatabaseEditor database_editor
 		, Project project
 		, string boot_dir
 		, string console_addr
@@ -34,6 +37,7 @@ public class EditorViewport : Gtk.Bin
 		, bool input_enabled = true
 		)
 	{
+		_database_editor = database_editor;
 		_project = project;
 		_boot_dir = boot_dir;
 		_console_address = console_addr;
@@ -143,6 +147,13 @@ public class EditorViewport : Gtk.Bin
 		_runtime.send(DeviceApi.frame());
 
 		action.set_state(param);
+	}
+
+	public void on_camera_frame_selected(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		Guid?[] selected_objects = _database_editor._selection.to_array();
+		_runtime.send_script(LevelEditorApi.frame_objects(selected_objects));
+		_runtime.send(DeviceApi.frame());
 	}
 }
 
