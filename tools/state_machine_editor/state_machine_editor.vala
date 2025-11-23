@@ -120,7 +120,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		this.delete_event.connect(on_close_request);
 		this.add(_box);
 
-		_editor_viewport.restart_runtime();
+		_editor_viewport.restart_runtime.begin();
 	}
 
 	public void update_window_title()
