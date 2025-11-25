@@ -831,7 +831,7 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 				CE_STATIC_ASSERT(countof(rects) == MAX_NUM_CASCADES);
 
 				lid.shader[L].atlas_u = 0.0f;
-#if CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS || CROWN_PLATFORM_LINUX
 				lid.shader[L].atlas_v = rects[0].y / _pipeline->_render_settings.sun_shadow_map_size.y;
 #else
 				lid.shader[L].atlas_v = 1.0f - ((rects[0].y + rects[0].w) / _pipeline->_render_settings.sun_shadow_map_size.y);
@@ -908,7 +908,7 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 					};
 
 					shader.atlas_u = rect.x / _pipeline->_render_settings.local_lights_shadow_map_size.x;
-#if CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS || CROWN_PLATFORM_LINUX
 					shader.atlas_v = rect.y / _pipeline->_render_settings.local_lights_shadow_map_size.x;
 #else
 					shader.atlas_v = 1.0f - ((rect.y + rect.z) / _pipeline->_render_settings.local_lights_shadow_map_size.x);
