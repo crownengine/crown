@@ -7,8 +7,11 @@ namespace Crown
 {
 public class InputResource : InputField, Gtk.Box
 {
+	public const string UNSET_RESOURCE = "(None)";
+
 	// Data
 	public string _type;
+	public bool _name_unset;
 
 	// Widgets
 	public InputString _name;
@@ -32,18 +35,20 @@ public class InputResource : InputField, Gtk.Box
 
 	public void set_union_value(GLib.Value v)
 	{
-		this.value = (string)v;
+		this.value = (string?)v;
 	}
 
-	public string value
+	public string? value
 	{
 		get
 		{
-			return _name.value;
+			return _name_unset ? null : _name.value;
 		}
 		set
 		{
-			_name.value = value;
+			_name_unset = value == null;
+			_name.value = value != null ? value : UNSET_RESOURCE;
+			_revealer.sensitive = value != null;
 		}
 	}
 
@@ -53,9 +58,11 @@ public class InputResource : InputField, Gtk.Box
 
 		// Data
 		_type = type;
+		_name_unset = true;
 
 		// Widgets
 		_name = new InputString();
+		_name.value = UNSET_RESOURCE;
 		_name.set_editable(false);
 		_name.hexpand = true;
 		_name.value_changed.connect(on_name_value_changed);
