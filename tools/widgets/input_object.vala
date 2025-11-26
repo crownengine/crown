@@ -68,10 +68,9 @@ public class InputObject : InputEnum
 		_database = database;
 
 		int num_unnamed = 0;
-		Gee.HashMap<Guid?, Gee.HashMap<string, Value?>> all_objects = database._data;
-		foreach (var o in all_objects) {
-			if (StringId64(database.object_type(o.key)) == type)
-				append(o.key.to_string(), object_name(o.key, ref num_unnamed));
+		Guid?[] all_of_type = database.all_objects_of_type(type);
+		foreach (Guid? id in all_of_type) {
+			append(id.to_string(), object_name(id, ref num_unnamed));
 		}
 	}
 }
