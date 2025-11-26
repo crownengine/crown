@@ -71,12 +71,12 @@ public class ObjectEditor : Gtk.ApplicationWindow
 		_paned.pack2(_objects_properties, true, false);
 
 		this.set_titlebar(_header_bar);
-		this.set_size_request(1280, 720);
+		this.set_size_request(1000, 600);
 
 		int win_w;
 		int win_h;
 		this.get_size(out win_w, out win_h);
-		_paned.set_position(win_w - 360);
+		_paned.set_position(win_w/2);
 
 		GLib.Menu menu = new GLib.Menu();
 		GLib.MenuItem mi = null;
