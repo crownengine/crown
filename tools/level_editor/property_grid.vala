@@ -244,7 +244,7 @@ public class PropertyGrid : Gtk.Grid
 					changed = true;
 				}
 			}
-		} else if (def.type == PropertyType.STRING || def.type == PropertyType.RESOURCE) {
+		} else if (def.type == PropertyType.STRING) {
 			if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
 				Unit u = Unit(_db, _id);
 				if (u.get_component_string(_component_id, def.name, (string)def.deffault) != (string)new_value) {
@@ -280,6 +280,19 @@ public class PropertyGrid : Gtk.Grid
 			} else {
 				if (Quaternion.equal_func(_db.get_quaternion(_id, def.name, (Quaternion)def.deffault), (Quaternion)new_value) == false) {
 					_db.set_quaternion(_id, def.name, (Quaternion)new_value);
+					changed = true;
+				}
+			}
+		} else if (def.type == PropertyType.RESOURCE) {
+			if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
+				Unit u = Unit(_db, _id);
+				if (u.get_component_resource(_component_id, def.name, (string?)def.deffault) != (string?)new_value) {
+					u.set_component_resource(_component_id, def.name, (string?)new_value);
+					changed = true;
+				}
+			} else {
+				if (_db.get_resource(_id, def.name, (string?)def.deffault) != (string?)new_value) {
+					_db.set_resource(_id, def.name, (string?)new_value);
 					changed = true;
 				}
 			}
@@ -346,7 +359,7 @@ public class PropertyGrid : Gtk.Grid
 				} else {
 					p.set_union_value(_db.get_double(_id, def.name, (double)def.deffault));
 				}
-			} else if (def.type == PropertyType.STRING || def.type == PropertyType.RESOURCE) {
+			} else if (def.type == PropertyType.STRING) {
 				if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
 					Unit u = Unit(_db, _id);
 					p.set_union_value(u.get_component_string(_component_id, def.name, (string)def.deffault));
@@ -366,6 +379,13 @@ public class PropertyGrid : Gtk.Grid
 					p.set_union_value(u.get_component_quaternion(_component_id, def.name, (Quaternion)def.deffault));
 				} else {
 					p.set_union_value(_db.get_quaternion(_id, def.name, (Quaternion)def.deffault));
+				}
+			} else if (def.type == PropertyType.RESOURCE) {
+				if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
+					Unit u = Unit(_db, _id);
+					p.set_union_value(u.get_component_resource(_component_id, def.name, (string?)def.deffault));
+				} else {
+					p.set_union_value(_db.get_resource(_id, def.name, (string?)def.deffault));
 				}
 			} else if (def.type == PropertyType.REFERENCE) {
 				if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {

@@ -31,9 +31,7 @@ public struct Unit
 	public void create(string? prefab)
 	{
 		create_empty();
-
-		if (prefab != null)
-			_db.set_string(_id, "prefab", prefab);
+		_db.set_resource(_id, "prefab", prefab);
 	}
 
 	public Value? get_component_property(Guid component_id, string key, Value? deffault = null)
@@ -53,10 +51,9 @@ public struct Unit
 			return val;
 
 		// Search in prefab
-		val = _db.get_property(_id, "prefab");
-		if (val != null) {
+		string? prefab = prefab();
+		if (prefab != null) {
 			// Convert prefab path to object ID.
-			string prefab = (string)val;
 			Guid prefab_id = GUID_ZERO;
 			Unit.load_unit(out prefab_id, _db, prefab);
 
@@ -90,6 +87,11 @@ public struct Unit
 	public Quaternion get_component_quaternion(Guid component_id, string key, Quaternion deffault = QUATERNION_IDENTITY)
 	{
 		return (Quaternion)get_component_property(component_id, key, deffault);
+	}
+
+	public string? get_component_resource(Guid component_id, string key, string? deffault = null)
+	{
+		return (string?)get_component_property(component_id, key, deffault);
 	}
 
 	public Guid get_component_reference(Guid component_id, string key, Guid deffault = GUID_ZERO)
@@ -157,6 +159,18 @@ public struct Unit
 		_db.set_quaternion(_id, "modified_components.#" + component_id.to_string() + "." + key, val);
 	}
 
+	public void set_component_resource(Guid component_id, string key, string? val)
+	{
+		// Search in components
+		Value? components = _db.get_property(_id, "components");
+		if (components != null && ((Gee.HashSet<Guid?>)components).contains(component_id)) {
+			_db.set_resource(component_id, key, val);
+			return;
+		}
+
+		_db.set_resource(_id, "modified_components.#" + component_id.to_string() + "." + key, val);
+	}
+
 	public void set_component_reference(Guid component_id, string key, Guid val)
 	{
 		// Search in components
@@ -189,11 +203,9 @@ public struct Unit
 		}
 
 		// Otherwise, search if any prefab has the component.
-		val = db.get_property(unit_id, "prefab");
-		if (val != null) {
+		string? prefab = db.get_resource(unit_id, "prefab");
+		if (prefab != null) {
 			// Convert prefab path to object ID.
-			string prefab = (string)val;
-
 			Guid prefab_id = GUID_ZERO;
 			Unit.load_unit(out prefab_id, db, prefab);
 
@@ -328,30 +340,27 @@ public struct Unit
 
 	public string? prefab()
 	{
-		return _db.has_property(_id, "prefab")
-			? _db.get_string(_id, "prefab")
-			: null
-			;
+		return _db.get_resource(_id, "prefab");
 	}
 
 	/// Returns whether the unit has a prefab.
 	public bool has_prefab()
 	{
-		return _db.has_property(_id, "prefab");
+		return prefab() != null;
 	}
 
 	/// Returns whether the unit is a light unit.
 	public bool is_light()
 	{
 		return has_prefab()
-			&& _db.get_string(_id, "prefab") == "core/units/light";
+			&& _db.get_resource(_id, "prefab") == "core/units/light";
 	}
 
 	/// Returns whether the unit is a camera unit.
 	public bool is_camera()
 	{
 		return has_prefab()
-			&& _db.get_string(_id, "prefab") == "core/units/camera";
+			&& _db.get_resource(_id, "prefab") == "core/units/camera";
 	}
 
 	public static void generate_add_component_commands(StringBuilder sb, Guid unit_id, Guid component_id, Database db)
@@ -378,9 +387,9 @@ public struct Unit
 		} else if (db.object_type(component_id) == OBJECT_TYPE_MESH_RENDERER) {
 			string s = LevelEditorApi.add_mesh_renderer_component(unit_id
 				, component_id
-				, unit.get_component_string(component_id, "data.mesh_resource")
+				, unit.get_component_resource(component_id, "data.mesh_resource")
 				, unit.get_component_string(component_id, "data.geometry_name")
-				, unit.get_component_string(component_id, "data.material")
+				, unit.get_component_resource(component_id, "data.material")
 				, unit.get_component_bool  (component_id, "data.visible")
 				, unit.get_component_bool  (component_id, "data.cast_shadows", true)
 				);
@@ -388,8 +397,8 @@ public struct Unit
 		} else if (db.object_type(component_id) == OBJECT_TYPE_SPRITE_RENDERER) {
 			string s = LevelEditorApi.add_sprite_renderer_component(unit_id
 				, component_id
-				, unit.get_component_string(component_id, "data.sprite_resource")
-				, unit.get_component_string(component_id, "data.material")
+				, unit.get_component_resource(component_id, "data.sprite_resource")
+				, unit.get_component_resource(component_id, "data.material")
 				, unit.get_component_double(component_id, "data.layer")
 				, unit.get_component_double(component_id, "data.depth")
 				, unit.get_component_bool  (component_id, "data.visible")
@@ -430,7 +439,7 @@ public struct Unit
 		} else if (db.object_type(component_id) == OBJECT_TYPE_GLOBAL_LIGHTING) {
 			sb.append(LevelEditorApi.add_global_lighting_component(unit_id, component_id));
 			sb.append(LevelEditorApi.set_global_lighting(unit_id
-				, unit.get_component_string (component_id, "data.skydome_map")
+				, unit.get_component_resource (component_id, "data.skydome_map")
 				, unit.get_component_double (component_id, "data.skydome_intensity")
 				, unit.get_component_vector3(component_id, "data.ambient_color")
 				));
@@ -562,16 +571,16 @@ public struct Unit
 				));
 		} else if (component_type == OBJECT_TYPE_MESH_RENDERER) {
 			sb.append(LevelEditorApi.set_mesh(unit_id
-				, unit.get_component_string(component_id, "data.mesh_resource")
+				, unit.get_component_resource(component_id, "data.mesh_resource")
 				, unit.get_component_string(component_id, "data.geometry_name")
-				, unit.get_component_string(component_id, "data.material")
+				, unit.get_component_resource(component_id, "data.material")
 				, unit.get_component_bool  (component_id, "data.visible")
 				, unit.get_component_bool  (component_id, "data.cast_shadows", true)
 				));
 		} else if (component_type == OBJECT_TYPE_SPRITE_RENDERER) {
 			sb.append(LevelEditorApi.set_sprite(unit_id
-				, unit.get_component_string(component_id, "data.sprite_resource")
-				, unit.get_component_string(component_id, "data.material")
+				, unit.get_component_resource(component_id, "data.sprite_resource")
+				, unit.get_component_resource(component_id, "data.material")
 				, unit.get_component_double(component_id, "data.layer")
 				, unit.get_component_double(component_id, "data.depth")
 				, unit.get_component_bool  (component_id, "data.visible")
@@ -599,7 +608,7 @@ public struct Unit
 				));
 		} else if (component_type == OBJECT_TYPE_GLOBAL_LIGHTING) {
 			sb.append(LevelEditorApi.set_global_lighting(unit_id
-				, unit.get_component_string (component_id, "data.skydome_map")
+				, unit.get_component_resource (component_id, "data.skydome_map")
 				, unit.get_component_double (component_id, "data.skydome_intensity")
 				, unit.get_component_vector3(component_id, "data.ambient_color")
 				));
