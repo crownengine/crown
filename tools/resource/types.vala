@@ -1060,6 +1060,17 @@ public static void create_object_types(Database database)
 		PropertyDefinition()
 		{
 			type = PropertyType.RESOURCE,
+			name = "source",
+			resource_type = OBJECT_TYPE_MESH,
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_MESH, properties);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.RESOURCE,
 			name = "name",
 			resource_type = OBJECT_TYPE_MESH_ANIMATION,
 		},
