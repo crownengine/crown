@@ -108,6 +108,10 @@ public class UnitEditor : Gtk.ApplicationWindow
 		GLib.Menu menu = new GLib.Menu();
 		GLib.MenuItem mi = null;
 
+		mi = new GLib.MenuItem("Edit", null);
+		mi.set_submenu(make_database_editor_menu());
+		menu.append_item(mi);
+
 		mi = new GLib.MenuItem("Camera", null);
 		mi.set_submenu(make_camera_view_menu());
 		menu.append_item(mi);
