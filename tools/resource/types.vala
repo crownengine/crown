@@ -171,7 +171,7 @@ public static void create_object_types(Database database)
 	{
 		PropertyDefinition()
 		{
-			type = PropertyType.OBJECT_NAME,
+			type = PropertyType.RESOURCE,
 			name = "data.mesh_resource",
 			label = "Scene",
 			resource_type = OBJECT_TYPE_MESH,
@@ -189,7 +189,7 @@ public static void create_object_types(Database database)
 		},
 		PropertyDefinition()
 		{
-			type = PropertyType.OBJECT_NAME,
+			type = PropertyType.RESOURCE,
 			name = "data.material",
 			resource_type = OBJECT_TYPE_MATERIAL,
 			deffault = "core/components/noop",
@@ -226,7 +226,7 @@ public static void create_object_types(Database database)
 	{
 		PropertyDefinition()
 		{
-			type = PropertyType.OBJECT_NAME,
+			type = PropertyType.RESOURCE,
 			name = "data.sprite_resource",
 			label = "Sprite",
 			resource_type = OBJECT_TYPE_SPRITE,
@@ -234,7 +234,7 @@ public static void create_object_types(Database database)
 		},
 		PropertyDefinition()
 		{
-			type = PropertyType.OBJECT_NAME,
+			type = PropertyType.RESOURCE,
 			name = "data.material",
 			resource_type = OBJECT_TYPE_MATERIAL,
 			deffault = "core/components/noop",
@@ -417,7 +417,7 @@ public static void create_object_types(Database database)
 		},
 		PropertyDefinition()
 		{
-			type = PropertyType.OBJECT_NAME,
+			type = PropertyType.RESOURCE,
 			name = "data.scene",
 			resource_type = OBJECT_TYPE_MESH,
 			deffault = "core/components/noop",
@@ -491,7 +491,7 @@ public static void create_object_types(Database database)
 	{
 		PropertyDefinition()
 		{
-			type = PropertyType.OBJECT_NAME,
+			type = PropertyType.RESOURCE,
 			name = "_global_physics_config",
 			deffault = "global",
 			resource_type = "physics_config",
@@ -582,7 +582,7 @@ public static void create_object_types(Database database)
 	{
 		PropertyDefinition()
 		{
-			type = PropertyType.OBJECT_NAME,
+			type = PropertyType.RESOURCE,
 			name = "data.script_resource",
 			label = "Script",
 			resource_type = "lua",
@@ -607,7 +607,7 @@ public static void create_object_types(Database database)
 	{
 		PropertyDefinition()
 		{
-			type = PropertyType.OBJECT_NAME,
+			type = PropertyType.RESOURCE,
 			name = "data.state_machine_resource",
 			label = "State Machine",
 			resource_type = OBJECT_TYPE_STATE_MACHINE,
@@ -652,7 +652,7 @@ public static void create_object_types(Database database)
 		},
 		PropertyDefinition()
 		{
-			type = PropertyType.OBJECT_NAME,
+			type = PropertyType.RESOURCE,
 			name = "name",
 			resource_type = OBJECT_TYPE_SOUND,
 			deffault = ""
@@ -838,7 +838,7 @@ public static void create_object_types(Database database)
 	{
 		PropertyDefinition()
 		{
-			type = PropertyType.OBJECT_NAME,
+			type = PropertyType.RESOURCE,
 			name = "_global_physics_config",
 			deffault = "global",
 			resource_type = "physics_config",
@@ -897,7 +897,7 @@ public static void create_object_types(Database database)
 	{
 		PropertyDefinition()
 		{
-			type = PropertyType.OBJECT_NAME,
+			type = PropertyType.RESOURCE,
 			name = "data.skydome_map",
 			label = "Skydome Map",
 			resource_type = OBJECT_TYPE_TEXTURE,
@@ -1014,7 +1014,7 @@ public static void create_object_types(Database database)
 		},
 		PropertyDefinition()
 		{
-			type = PropertyType.OBJECT_NAME,
+			type = PropertyType.RESOURCE,
 			name = "prefab",
 			resource_type = OBJECT_TYPE_UNIT,
 			deffault = null,
@@ -1059,7 +1059,7 @@ public static void create_object_types(Database database)
 	{
 		PropertyDefinition()
 		{
-			type = PropertyType.OBJECT_NAME,
+			type = PropertyType.RESOURCE,
 			name = "name",
 			resource_type = OBJECT_TYPE_MESH_ANIMATION,
 		},
@@ -1087,7 +1087,7 @@ public static void create_object_types(Database database)
 		},
 		PropertyDefinition()
 		{
-			type = PropertyType.OBJECT_REFERENCE,
+			type = PropertyType.REFERENCE,
 			object_type = StringId64(OBJECT_TYPE_STATE_MACHINE_NODE),
 			name = "to",
 		},
@@ -1146,7 +1146,7 @@ public static void create_object_types(Database database)
 	{
 		PropertyDefinition()
 		{
-			type = PropertyType.OBJECT_REFERENCE,
+			type = PropertyType.REFERENCE,
 			object_type = StringId64(OBJECT_TYPE_STATE_MACHINE_NODE),
 			name = "initial_state",
 		},
@@ -1211,7 +1211,7 @@ public static void create_object_types(Database database)
 		},
 		PropertyDefinition()
 		{
-			type = PropertyType.OBJECT_NAME,
+			type = PropertyType.RESOURCE,
 			name = "skydome_unit",
 			resource_type = OBJECT_TYPE_UNIT,
 			deffault = "core/units/skydome/skydome",
@@ -1309,7 +1309,7 @@ public static void create_object_types(Database database)
 		},
 		PropertyDefinition()
 		{
-			type = PropertyType.OBJECT_NAME,
+			type = PropertyType.RESOURCE,
 			name = "target_skeleton",
 			resource_type = OBJECT_TYPE_MESH_SKELETON,
 		},

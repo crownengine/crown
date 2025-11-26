@@ -12,9 +12,9 @@ public enum PropertyType
 	STRING,
 	VECTOR3,
 	QUATERNION,
+	RESOURCE,
+	REFERENCE,
 	OBJECTS_SET,
-	OBJECT_NAME,
-	OBJECT_REFERENCE,
 }
 
 public enum PropertyEditorType
@@ -326,14 +326,6 @@ public class Stack
 		write_uint32(action);
 	}
 
-	public void write_set_guid_action(uint32 action, Guid id, string key, Guid val)
-	{
-		write_guid(val);
-		write_string(key);
-		write_guid(id);
-		write_uint32(action);
-	}
-
 	public void write_set_vector3_action(uint32 action, Guid id, string key, Vector3 val)
 	{
 		write_vector3(val);
@@ -345,6 +337,14 @@ public class Stack
 	public void write_set_quaternion_action(uint32 action, Guid id, string key, Quaternion val)
 	{
 		write_quaternion(val);
+		write_string(key);
+		write_guid(id);
+		write_uint32(action);
+	}
+
+	public void write_set_reference_action(uint32 action, Guid id, string key, Guid val)
+	{
+		write_guid(val);
 		write_string(key);
 		write_guid(id);
 		write_uint32(action);
@@ -460,9 +460,9 @@ public class Database
 		SET_BOOL,
 		SET_DOUBLE,
 		SET_STRING,
-		SET_GUID,
 		SET_VECTOR3,
 		SET_QUATERNION,
+		SET_REFERENCE,
 		ADD_TO_SET,
 		REMOVE_FROM_SET
 	}
@@ -614,7 +614,7 @@ public class Database
 	{
 		// If the resource is already loaded.
 		if (has_property(GUID_ZERO, resource_path)) {
-			object_id = get_guid(GUID_ZERO, resource_path);
+			object_id = get_reference(GUID_ZERO, resource_path);
 			return 0;
 		}
 
@@ -648,9 +648,9 @@ public class Database
 			|| value.holds(typeof(bool))
 			|| value.holds(typeof(double))
 			|| value.holds(typeof(string))
-			|| value.holds(typeof(Guid))
 			|| value.holds(typeof(Vector3))
 			|| value.holds(typeof(Quaternion))
+			|| value.holds(typeof(Guid))
 			;
 	}
 
@@ -1048,23 +1048,23 @@ public class Database
 			case PropertyType.STRING:
 				set_string(id, def.name, (string)def.deffault);
 				break;
-			case PropertyType.OBJECT_REFERENCE:
-				set_guid(id, def.name, (Guid)def.deffault);
-				break;
 			case PropertyType.VECTOR3:
 				set_vector3(id, def.name, (Vector3)def.deffault);
 				break;
 			case PropertyType.QUATERNION:
 				set_quaternion(id, def.name, (Quaternion)def.deffault);
 				break;
-			case PropertyType.OBJECTS_SET:
-				create_empty_set(id, def.name);
-				break;
-			case PropertyType.OBJECT_NAME:
+			case PropertyType.RESOURCE:
 				if (def.deffault == null)
 					set_null(id, def.name);
 				else
 					set_string(id, def.name, (string)def.deffault);
+				break;
+			case PropertyType.REFERENCE:
+				set_reference(id, def.name, (Guid)def.deffault);
+				break;
+			case PropertyType.OBJECTS_SET:
+				create_empty_set(id, def.name);
 				break;
 				default:
 				assert(false);
@@ -1143,12 +1143,12 @@ public class Database
 					_undo_redo._undo.write_set_double_action(Action.SET_DOUBLE, id, key, (double)ob[key]);
 				if (ob[key].holds(typeof(string)))
 					_undo_redo._undo.write_set_string_action(Action.SET_STRING, id, key, (string)ob[key]);
-				if (ob[key].holds(typeof(Guid)))
-					_undo_redo._undo.write_set_guid_action(Action.SET_GUID, id, key, (Guid)ob[key]);
 				if (ob[key].holds(typeof(Vector3)))
 					_undo_redo._undo.write_set_vector3_action(Action.SET_VECTOR3, id, key, (Vector3)ob[key]);
 				if (ob[key].holds(typeof(Quaternion)))
 					_undo_redo._undo.write_set_quaternion_action(Action.SET_QUATERNION, id, key, (Quaternion)ob[key]);
+				if (ob[key].holds(typeof(Guid)))
+					_undo_redo._undo.write_set_reference_action(Action.SET_REFERENCE, id, key, (Guid)ob[key]);
 			} else {
 				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, key);
 			}
@@ -1216,25 +1216,6 @@ public class Database
 		set(1, id, key, val);
 	}
 
-	public void set_guid(Guid id, string key, Guid val)
-	{
-		assert(has_object(id));
-		assert(is_valid_key(key));
-		assert(is_valid_value(val));
-
-		if (_undo_redo != null) {
-			Gee.HashMap<string, Value?> ob = get_data(id);
-			if (ob.has_key(key) && ob[key] != null)
-				_undo_redo._undo.write_set_guid_action(Action.SET_GUID, id, key, (Guid)ob[key]);
-			else
-				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, key);
-
-			_undo_redo._redo.clear();
-		}
-
-		set(1, id, key, val);
-	}
-
 	public void set_vector3(Guid id, string key, Vector3 val)
 	{
 		assert(has_object(id));
@@ -1273,6 +1254,25 @@ public class Database
 		set(1, id, key, val);
 	}
 
+	public void set_reference(Guid id, string key, Guid val)
+	{
+		assert(has_object(id));
+		assert(is_valid_key(key));
+		assert(is_valid_value(val));
+
+		if (_undo_redo != null) {
+			Gee.HashMap<string, Value?> ob = get_data(id);
+			if (ob.has_key(key) && ob[key] != null)
+				_undo_redo._undo.write_set_reference_action(Action.SET_REFERENCE, id, key, (Guid)ob[key]);
+			else
+				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, key);
+
+			_undo_redo._redo.clear();
+		}
+
+		set(1, id, key, val);
+	}
+
 	public void set_property(Guid id, string key, Value? val)
 	{
 		if (val == null)
@@ -1283,12 +1283,12 @@ public class Database
 			set_double(id, key, (double)val);
 		else if (val.holds(typeof(string)))
 			set_string(id, key, (string)val);
-		else if (val.holds(typeof(Guid)))
-			set_guid(id, key, (Guid)val);
 		else if (val.holds(typeof(Vector3)))
 			set_vector3(id, key, (Vector3)val);
 		else if (val.holds(typeof(Quaternion)))
 			set_quaternion(id, key, (Quaternion)val);
+		else if (val.holds(typeof(Guid)))
+			set_reference(id, key, (Guid)val);
 		else
 			assert(false);
 	}
@@ -1361,11 +1361,6 @@ public class Database
 		return (string)get_property(id, key, deffault);
 	}
 
-	public Guid get_guid(Guid id, string key, Guid deffault = GUID_ZERO)
-	{
-		return (Guid)get_property(id, key, deffault);
-	}
-
 	public Vector3 get_vector3(Guid id, string key, Vector3 deffault = VECTOR3_ZERO)
 	{
 		return (Vector3)get_property(id, key, deffault);
@@ -1374,6 +1369,11 @@ public class Database
 	public Quaternion get_quaternion(Guid id, string key, Quaternion deffault = QUATERNION_IDENTITY)
 	{
 		return (Quaternion)get_property(id, key, deffault);
+	}
+
+	public Guid get_reference(Guid id, string key, Guid deffault = GUID_ZERO)
+	{
+		return (Guid)get_property(id, key, deffault);
 	}
 
 	public Gee.HashSet<Guid?> get_set(Guid id, string key, Gee.HashSet<Guid?> deffault)
@@ -1471,12 +1471,12 @@ public class Database
 					dest.set_double(new_id, key, (double)ob[key]);
 				else if (ob[key].holds(typeof(string)))
 					dest.set_string(new_id, key, (string)ob[key]);
-				else if (ob[key].holds(typeof(Guid)))
-					dest.set_guid(new_id, key, (Guid)ob[key]);
 				else if (ob[key].holds(typeof(Vector3)))
 					dest.set_vector3(new_id, key, (Vector3)ob[key]);
 				else if (ob[key].holds(typeof(Quaternion)))
 					dest.set_quaternion(new_id, key, (Quaternion)ob[key]);
+				else if (ob[key].holds(typeof(Guid)))
+					dest.set_reference(new_id, key, (Guid)ob[key]);
 				else
 					assert(false);
 			}
@@ -1543,12 +1543,12 @@ public class Database
 					db.set_double(id, kk, (double)ob[key]);
 				if (ob[key].holds(typeof(string)))
 					db.set_string(id, kk, (string)ob[key]);
-				if (ob[key].holds(typeof(Guid)))
-					db.set_guid(id, kk, (Guid)ob[key]);
 				if (ob[key].holds(typeof(Vector3)))
 					db.set_vector3(id, kk, (Vector3)ob[key]);
 				if (ob[key].holds(typeof(Quaternion)))
 					db.set_quaternion(id, kk, (Quaternion)ob[key]);
+				if (ob[key].holds(typeof(Guid)))
+					db.set_reference(id, kk, (Guid)ob[key]);
 			}
 		}
 	}
@@ -1668,12 +1668,12 @@ public class Database
 						redo.write_set_double_action(Action.SET_DOUBLE, id, key, get_double(id, key));
 					if (get_data(id)[key].holds(typeof(string)))
 						redo.write_set_string_action(Action.SET_STRING, id, key, get_string(id, key));
-					if (get_data(id)[key].holds(typeof(Guid)))
-						redo.write_set_guid_action(Action.SET_GUID, id, key, get_guid(id, key));
 					if (get_data(id)[key].holds(typeof(Vector3)))
 						redo.write_set_vector3_action(Action.SET_VECTOR3, id, key, get_vector3(id, key));
 					if (get_data(id)[key].holds(typeof(Quaternion)))
 						redo.write_set_quaternion_action(Action.SET_QUATERNION, id, key, get_quaternion(id, key));
+					if (get_data(id)[key].holds(typeof(Guid)))
+						redo.write_set_reference_action(Action.SET_REFERENCE, id, key, get_reference(id, key));
 				} else {
 					redo.write_set_null_action(Action.SET_NULL, id, key);
 				}
@@ -1708,16 +1708,6 @@ public class Database
 				else
 					redo.write_set_null_action(Action.SET_NULL, id, key);
 				set(dir, id, key, val);
-			} else if (action == Action.SET_GUID) {
-				Guid id = undo.read_guid();
-				string key = undo.read_string();
-				Guid val = undo.read_guid();
-
-				if (has_property(id, key))
-					redo.write_set_guid_action(Action.SET_GUID, id, key, get_guid(id, key));
-				else
-					redo.write_set_null_action(Action.SET_NULL, id, key);
-				set(dir, id, key, val);
 			} else if (action == Action.SET_VECTOR3) {
 				Guid id = undo.read_guid();
 				string key = undo.read_string();
@@ -1735,6 +1725,16 @@ public class Database
 
 				if (has_property(id, key))
 					redo.write_set_quaternion_action(Action.SET_QUATERNION, id, key, get_quaternion(id, key));
+				else
+					redo.write_set_null_action(Action.SET_NULL, id, key);
+				set(dir, id, key, val);
+			} else if (action == Action.SET_REFERENCE) {
+				Guid id = undo.read_guid();
+				string key = undo.read_string();
+				Guid val = undo.read_guid();
+
+				if (has_property(id, key))
+					redo.write_set_reference_action(Action.SET_REFERENCE, id, key, get_reference(id, key));
 				else
 					redo.write_set_null_action(Action.SET_NULL, id, key);
 				set(dir, id, key, val);
@@ -1838,23 +1838,23 @@ public class Database
 
 				assert(def.deffault.holds(typeof(Quaternion)));
 				break;
-			case PropertyType.OBJECTS_SET:
-				assert(def.object_type._id != 0);
-				break;
-			case PropertyType.OBJECT_NAME:
+			case PropertyType.RESOURCE:
 				assert(def.resource_type != null);
 				assert(def.min == null);
 				assert(def.max == null);
 				assert(def.deffault == null || def.deffault.holds(typeof(string)));
 				break;
-				default:
-				assert(false);
-				break;
-			case PropertyType.OBJECT_REFERENCE:
+			case PropertyType.REFERENCE:
 				def.deffault = GUID_ZERO;
 
 				assert(def.deffault.holds(typeof(Guid)));
 				assert(def.object_type._id != 0);
+				break;
+			case PropertyType.OBJECTS_SET:
+				assert(def.object_type._id != 0);
+				break;
+			default:
+				assert(false);
 				break;
 			}
 
