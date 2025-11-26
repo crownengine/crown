@@ -1971,6 +1971,23 @@ public class Database
 	{
 		return _object_definitions[type];
 	}
+
+	public Guid?[] all_objects_of_type(StringId64 type)
+	{
+		Gee.ArrayList<Guid?> all = new Gee.ArrayList<Guid?>();
+
+		foreach (var item in _data) {
+			Guid id = item.key;
+
+			if (id != GUID_ZERO
+				&& StringId64(object_type(id)) == type
+				&& is_alive(id)) {
+				all.add(id);
+			}
+		}
+
+		return all.to_array();
+	}
 }
 
 } /* namespace Crown */
