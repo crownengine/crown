@@ -215,9 +215,7 @@ public class ObjectTree : Gtk.Box
 
 						if (object_id != _object_id) {
 							mi = new GLib.MenuItem("Delete", null);
-							mi.set_action_and_target_value("database.delete"
-								, new GLib.Variant.string(object_id.to_string())
-								);
+							mi.set_action_and_target_value("database.delete", null);
 							menu_model.append_item(mi);
 						}
 					} else if ((ItemType)val == ItemType.OBJECTS_SET) {
