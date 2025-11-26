@@ -73,7 +73,7 @@ public struct StateMachineResource
 
 		_db.create(_id, OBJECT_TYPE_STATE_MACHINE);
 		add_node(initial_state);
-		_db.set_guid(_id, "initial_state", initial_state._id);
+		_db.set_reference(_id, "initial_state", initial_state._id);
 		_db.create_empty_set(_id, "variables");
 		_db.set_string(_id, "animation_type", animation_type);
 		if (skeleton_name != null)

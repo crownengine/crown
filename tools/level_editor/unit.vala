@@ -82,11 +82,6 @@ public struct Unit
 		return (string)get_component_property(component_id, key, deffault);
 	}
 
-	public Guid get_component_guid(Guid component_id, string key, Guid deffault = GUID_ZERO)
-	{
-		return (Guid)get_component_property(component_id, key, deffault);
-	}
-
 	public Vector3 get_component_vector3(Guid component_id, string key, Vector3 deffault = VECTOR3_ZERO)
 	{
 		return (Vector3)get_component_property(component_id, key, deffault);
@@ -95,6 +90,11 @@ public struct Unit
 	public Quaternion get_component_quaternion(Guid component_id, string key, Quaternion deffault = QUATERNION_IDENTITY)
 	{
 		return (Quaternion)get_component_property(component_id, key, deffault);
+	}
+
+	public Guid get_component_reference(Guid component_id, string key, Guid deffault = GUID_ZERO)
+	{
+		return (Guid)get_component_property(component_id, key, deffault);
 	}
 
 	public void set_component_bool(Guid component_id, string key, bool val)
@@ -133,18 +133,6 @@ public struct Unit
 		_db.set_string(_id, "modified_components.#" + component_id.to_string() + "." + key, val);
 	}
 
-	public void set_component_guid(Guid component_id, string key, Guid val)
-	{
-		// Search in components
-		Value? components = _db.get_property(_id, "components");
-		if (components != null && ((Gee.HashSet<Guid?>)components).contains(component_id)) {
-			_db.set_guid(component_id, key, val);
-			return;
-		}
-
-		_db.set_guid(_id, "modified_components.#" + component_id.to_string() + "." + key, val);
-	}
-
 	public void set_component_vector3(Guid component_id, string key, Vector3 val)
 	{
 		// Search in components
@@ -167,6 +155,18 @@ public struct Unit
 		}
 
 		_db.set_quaternion(_id, "modified_components.#" + component_id.to_string() + "." + key, val);
+	}
+
+	public void set_component_reference(Guid component_id, string key, Guid val)
+	{
+		// Search in components
+		Value? components = _db.get_property(_id, "components");
+		if (components != null && ((Gee.HashSet<Guid?>)components).contains(component_id)) {
+			_db.set_reference(component_id, key, val);
+			return;
+		}
+
+		_db.set_reference(_id, "modified_components.#" + component_id.to_string() + "." + key, val);
 	}
 
 	/// Returns whether the @a unit_id has a component of type @a component_type.
