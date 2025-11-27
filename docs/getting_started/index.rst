@@ -7,3 +7,5 @@ Getting Started
 
 	create_new_project
 	import_existing_project
+	level_editor
+	basic_concepts
