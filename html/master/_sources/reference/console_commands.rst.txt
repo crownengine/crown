@@ -1,3 +1,5 @@
+.. _console_commands:
+
 Console commands
 ================
 

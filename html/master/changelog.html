@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2025-11-14T17:11:47+00:00" /><meta property="og:title" content="Changelog" />
+    <meta property="article:modified_time" content="2025-11-23T15:36:31+00:00" /><meta property="og:title" content="Changelog" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/changelog.html" />
 <meta property="og:site_name" content="Crown 0.60.0 Manual" />
@@ -83,6 +83,7 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installing_crown/index.html">Installing Crown</a></li>
 <li class="toctree-l1"><a class="reference internal" href="getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="importing_resources/index.html">Importing Resources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gameplay/index.html">Writing Gameplay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="deploying/index.html">Deploying</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/index.html">Reference</a></li>
@@ -125,6 +126,7 @@
 <li><p>Tools: added the ability to search any kind of resources in the Project Browser. As a consequence, the old Resource Chooser dialog has been removed.</p></li>
 <li><p>Tools: double-clicking an object in the Level Tree will now frame it in the Editor Viewport.</p></li>
 <li><p>Tools: units created via the FBX importer will now be named according to their corresponding node’s name.</p></li>
+<li><p>Tools: added a generic editor to inspect and modify all registered resource types. Previously resources with no dedicated editor were opened in a plain-text editor.</p></li>
 <li><p>Runtime: added an end-of-options marker to stop the runtime from parsing game-specific command line options.</p></li>
 <li><p>Lua: added <code class="docutils literal notranslate"><span class="pre">Device.build()</span></code> to retrieve the runtime’s build configuration.</p></li>
 <li><p>Lua: added <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_debug_draw()</span></code> and <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.mover_debug_draw()</span></code>.</p></li>
@@ -140,6 +142,7 @@
 <li><p>Tools: fixed meshes nodes being reset unexpectedly when selecting the corresponding unit in the Inspector.</p></li>
 <li><p>Tools: fixed some properties unnecessarily requiring multiple undo steps to be set to their previous value.</p></li>
 <li><p>Tools: fixed importing non-animated FBX files in some circumnstances.</p></li>
+<li><p>Tools: duplicating objects in the Level Editor will now correctly select the duplicated objects instead of the ones being duplicated.</p></li>
 <li><p>Runtime: fixed shading of meshes with non-uniform scaling.</p></li>
 <li><p>Runtime: Windows: fixed a number of misdetected keyboard keys.</p></li>
 <li><p>Runtime: Windows: fixed windows firewall popping up at startup.</p></li>
@@ -888,7 +891,7 @@
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Nov 14, 2025.
+      <span class="lastupdated">Last updated on Nov 23, 2025.
       </span></p>
   </div>
 
