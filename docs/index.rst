@@ -8,6 +8,7 @@ Crown |version| Manual
 	introduction
 	installing_crown/index
 	getting_started/index
+	importing_resources/index
 	gameplay/index
 	deploying/index
 	reference/index
