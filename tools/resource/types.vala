@@ -67,7 +67,7 @@ const string OBJECT_TYPE_UNIT                    = "unit";
 public static void node_name_enum_callback(InputField enum_property, InputEnum combo, Project project)
 {
 	try {
-		string path = ResourceId.path(OBJECT_TYPE_MESH, (string)enum_property.union_value());
+		string? path = ResourceId.path(OBJECT_TYPE_MESH, (string?)enum_property.union_value());
 		Mesh mesh = Mesh.load_from_path(project, path);
 
 		combo.clear();

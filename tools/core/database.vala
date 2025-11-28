@@ -51,6 +51,11 @@ public struct PropertyDefinition
 	public bool not_serialized;
 }
 
+public struct Resource
+{
+	public string? name;
+}
+
 public enum UndoRedoAction
 {
 	RESTORE_POINT = int.MAX;
@@ -280,10 +285,13 @@ public class Stack
 		return (string)str;
 	}
 
-	public string? read_resource()
+	public Resource read_resource()
 	{
-		string? resource = read_string();
-		return resource == "" ? null : resource;
+		Resource res = { null };
+		string? name = read_string();
+		if (name != null)
+			res.name = name;
+		return res;
 	}
 
 	public void write_create_action(uint32 action, Guid id, string type)
@@ -348,9 +356,9 @@ public class Stack
 		write_uint32(action);
 	}
 
-	public void write_set_resource_action(uint32 action, Guid id, string key, string? val)
+	public void write_set_resource_action(uint32 action, Guid id, string key, Resource val)
 	{
-		write_string(val == null ? "" : val);
+		write_string(val.name == null ? "" : val.name);
 		write_string(key);
 		write_guid(id);
 		write_uint32(action);
@@ -463,7 +471,7 @@ public struct ObjectTypeInfo
 
 public class Database
 {
-	public static bool _debug = false;
+	public static bool _debug = true;
 	public static bool _debug_getters = false;
 
 	public enum Action
@@ -665,7 +673,7 @@ public class Database
 			|| value.holds(typeof(string))
 			|| value.holds(typeof(Vector3))
 			|| value.holds(typeof(Quaternion))
-			|| value.holds(typeof(string?))
+			|| value.holds(typeof(Resource))
 			|| value.holds(typeof(Guid))
 			;
 	}
@@ -692,8 +700,8 @@ public class Database
 			return ((Vector3)value).to_string();
 		if (value.holds(typeof(Quaternion)))
 			return ((Quaternion)value).to_string();
-		if (value.holds(typeof(string?)))
-			return value == null ? "(None)" : ((string)value).to_string();
+		if (value.holds(typeof(Resource)))
+			return ((Resource)value).name == null ? "(None)" : ((Resource)value).name;
 		if (value.holds(typeof(Guid)))
 			return ((Guid)value).to_debug_string();
 		if (value.holds(typeof(Gee.HashSet)))
@@ -702,34 +710,19 @@ public class Database
 		return "<invalid>";
 	}
 
-	public void decode_object(Guid id, Guid owner_id, string db_key, Hashtable json)
+	public void decode_object_compat(Guid id, Guid owner_id, string db_key, Hashtable json)
 	{
 		string old_db = db_key;
 		string k = db_key;
 
-		// The "type" key defines object type only if it appears
-		// in the root of a JSON object (k == "").
-		if (k == "") {
-			string? type = null;
-
-			if (json.has_key("_type"))
-				type = (string)json["_type"];
-			else if (json.has_key("type"))
-				type = (string)json["type"];
-
-			if (type != null) {
-				set_type(id, type);
-
-				StringId64 type_hash = StringId64(type);
-				if (has_type(type_hash))
-					_init_object(id, object_definition(type_hash));
-			}
-		}
-
 		string[] keys = json.keys.to_array();
 		foreach (string key in keys) {
 			// ID is filled by decode_set().
-			if (key == "id" || key == "_guid" || key == "_alive")
+			if (key == "id"
+				|| key == "_guid"
+				|| key == "_alive"
+				|| key == "prefab"
+				)
 				continue;
 
 			Value? val = json[key];
@@ -754,6 +747,72 @@ public class Database
 
 			k = old_db;
 		}
+	}
+
+	public void decode_object_from_properties(Guid id, Guid owner_id, PropertyDefinition[]? properties, Hashtable json)
+	{
+		foreach (PropertyDefinition def in properties) {
+			// Find table and key to read from.
+			string[] keys = def.name.split(".");
+			string key = keys[keys.length - 1];
+			Hashtable input = json;
+
+			if (keys.length > 1) {
+				for (int i = 0; i < keys.length - 1; ++i) {
+					string f = keys[i];
+
+					if (input.has_key(f)) {
+						input = (Hashtable)input[f];
+						continue;
+					}
+				}
+			}
+
+			if (!input.has_key(key))
+				continue;
+
+			// Read property.
+			if (def.type == PropertyType.OBJECTS_SET) {
+				decode_set(id, def.name, (Gee.ArrayList<Value?>)input[key]);
+			} else if (def.type == PropertyType.RESOURCE) {
+				Resource res = { null };
+				if (input.has_key(key))
+					res.name = (string?)input[key];
+				set(0, id, def.name, res);
+			} else {
+				set(0, id, def.name, decode_value(input[key]));
+			}
+		}
+	}
+
+	public void decode_object(Guid id, Guid owner_id, string db_key, Hashtable json)
+	{
+		string? type = null;
+
+		// The "type" key defines object type only if it appears
+		// in the root of a JSON object (k == "").
+		if (db_key == "" && !has_property(id, "_type")) {
+			if (json.has_key("_type"))
+				type = (string)json["_type"];
+			else if (json.has_key("type"))
+				type = (string)json["type"];
+
+			assert(type != null);
+			set_type(id, type);
+
+			StringId64 type_hash = StringId64(type);
+			if (has_type(type_hash))
+				_init_object(id, object_definition(type_hash));
+		} else {
+			type = object_type(id);
+		}
+
+		assert(type != null);
+		PropertyDefinition[]? properties = object_definition(StringId64(type));
+		decode_object_from_properties(id, owner_id, properties, json);
+
+		if (type == OBJECT_TYPE_UNIT)
+			decode_object_compat(id, owner_id, db_key, json);
 	}
 
 	public void decode_set(Guid owner_id, string key, Gee.ArrayList<Value?> json)
@@ -1162,8 +1221,8 @@ public class Database
 					_undo_redo._undo.write_set_vector3_action(Action.SET_VECTOR3, id, key, (Vector3)ob[key]);
 				if (ob[key].holds(typeof(Quaternion)))
 					_undo_redo._undo.write_set_quaternion_action(Action.SET_QUATERNION, id, key, (Quaternion)ob[key]);
-				if (ob[key].holds(typeof(string?)))
-					_undo_redo._undo.write_set_resource_action(Action.SET_RESOURCE, id, key, (string?)ob[key]);
+				if (ob[key].holds(typeof(Resource)))
+					_undo_redo._undo.write_set_resource_action(Action.SET_RESOURCE, id, key, (Resource)ob[key]);
 				if (ob[key].holds(typeof(Guid)))
 					_undo_redo._undo.write_set_reference_action(Action.SET_REFERENCE, id, key, (Guid)ob[key]);
 			} else {
@@ -1280,14 +1339,15 @@ public class Database
 		if (_undo_redo != null) {
 			Gee.HashMap<string, Value?> ob = get_data(id);
 			if (ob.has_key(key) && ob[key] != null)
-				_undo_redo._undo.write_set_resource_action(Action.SET_RESOURCE, id, key, (string?)ob[key]);
+				_undo_redo._undo.write_set_resource_action(Action.SET_RESOURCE, id, key, { ((Resource)ob[key]).name });
 			else
 				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, key);
 
 			_undo_redo._redo.clear();
 		}
 
-		set(1, id, key, val);
+		Resource res = { val };
+		set(1, id, key, res);
 	}
 
 	public void set_reference(Guid id, string key, Guid val)
@@ -1323,8 +1383,8 @@ public class Database
 			set_vector3(id, key, (Vector3)val);
 		else if (val.holds(typeof(Quaternion)))
 			set_quaternion(id, key, (Quaternion)val);
-		else if (val.holds(typeof(string?)))
-			set_resource(id, key, (string?)val);
+		else if (val.holds(typeof(Resource)))
+			set_resource(id, key, ((Resource)val).name);
 		else if (val.holds(typeof(Guid)))
 			set_reference(id, key, (Guid)val);
 		else
@@ -1411,7 +1471,10 @@ public class Database
 
 	public string? get_resource(Guid id, string key, string? deffault = null)
 	{
-		return (string?)get_property(id, key, deffault);
+		Resource deffault_res = { deffault };
+		Value? val = get_property(id, key, deffault_res);
+		assert(val == null || val.holds(typeof(Crown.Resource)));
+		return ((Resource)val).name;
 	}
 
 	public Guid get_reference(Guid id, string key, Guid deffault = GUID_ZERO)
@@ -1518,8 +1581,8 @@ public class Database
 					dest.set_vector3(new_id, key, (Vector3)ob[key]);
 				else if (ob[key].holds(typeof(Quaternion)))
 					dest.set_quaternion(new_id, key, (Quaternion)ob[key]);
-				else if (ob[key].holds(typeof(string?)))
-					dest.set_resource(new_id, key, (string?)ob[key]);
+				else if (ob[key].holds(typeof(Resource)))
+					dest.set_resource(new_id, key, ((Resource)ob[key]).name);
 				else if (ob[key].holds(typeof(Guid)))
 					dest.set_reference(new_id, key, (Guid)ob[key]);
 				else
@@ -1592,8 +1655,8 @@ public class Database
 					db.set_vector3(id, kk, (Vector3)ob[key]);
 				if (ob[key].holds(typeof(Quaternion)))
 					db.set_quaternion(id, kk, (Quaternion)ob[key]);
-				if (ob[key].holds(typeof(string?)))
-					db.set_resource(id, kk, (string?)ob[key]);
+				if (ob[key].holds(typeof(Resource)))
+					db.set_resource(id, kk, ((Resource)ob[key]).name);
 				if (ob[key].holds(typeof(Guid)))
 					db.set_reference(id, kk, (Guid)ob[key]);
 			}
@@ -1719,8 +1782,8 @@ public class Database
 						redo.write_set_vector3_action(Action.SET_VECTOR3, id, key, get_vector3(id, key));
 					if (get_data(id)[key].holds(typeof(Quaternion)))
 						redo.write_set_quaternion_action(Action.SET_QUATERNION, id, key, get_quaternion(id, key));
-					if (get_data(id)[key].holds(typeof(string?)))
-						redo.write_set_resource_action(Action.SET_RESOURCE, id, key, get_resource(id, key));
+					if (get_data(id)[key].holds(typeof(Resource)))
+						redo.write_set_resource_action(Action.SET_RESOURCE, id, key, { get_resource(id, key) });
 					if (get_data(id)[key].holds(typeof(Guid)))
 						redo.write_set_reference_action(Action.SET_REFERENCE, id, key, get_reference(id, key));
 				} else {
@@ -1780,10 +1843,10 @@ public class Database
 			} else if (action == Action.SET_RESOURCE) {
 				Guid id = undo.read_guid();
 				string key = undo.read_string();
-				string? val = undo.read_resource();
+				Resource val = undo.read_resource();
 
 				if (has_property(id, key))
-					redo.write_set_resource_action(Action.SET_RESOURCE, id, key, get_resource(id, key));
+					redo.write_set_resource_action(Action.SET_RESOURCE, id, key, { get_resource(id, key) });
 				else
 					redo.write_set_null_action(Action.SET_NULL, id, key);
 				set(dir, id, key, val);
@@ -1900,8 +1963,8 @@ public class Database
 			case PropertyType.RESOURCE:
 				if (def.deffault == null)
 					def.deffault = (string?)null;
-				assert(def.deffault.holds(typeof(string?)));
 				assert(def.resource_type != null);
+				assert(def.deffault.holds(typeof(string?)));
 				break;
 			case PropertyType.REFERENCE:
 				def.deffault = GUID_ZERO;

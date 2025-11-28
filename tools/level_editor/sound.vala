@@ -20,7 +20,7 @@ public struct Sound
 	{
 		_db.create(_id, OBJECT_TYPE_SOUND_SOURCE);
 
-		_db.set_string(_id, "name", name);
+		_db.set_resource(_id, "name", name);
 		set_local_position(pos);
 		set_local_rotation(rot);
 		set_local_scale(scl);
@@ -106,7 +106,7 @@ public struct Sound
 
 			sb.append("editor_nv, editor_nq, editor_nm = Device.temp_count()");
 			string s = LevelEditorApi.spawn_sound(id
-				, db.get_string    (id, "name")
+				, db.get_resource  (id, "name")
 				, db.get_vector3   (id, "position")
 				, db.get_quaternion(id, "rotation")
 				, db.get_double    (id, "range")
