@@ -93,7 +93,8 @@ public class PropertiesView : Gtk.Box
 	public const string UNKNOWN_OBJECT_TYPE = "unknown-object-type";
 	public const string PROPERTIES = "properties";
 
-	public Database _db;
+	public DatabaseEditor _database_editor;
+	public Database _database;
 	public Gee.HashMap<string, bool> _expander_states;
 	public Gee.HashMap<string, PropertyGrid> _objects;
 	public Gtk.Viewport _viewport;
@@ -101,12 +102,14 @@ public class PropertiesView : Gtk.Box
 	public PropertyGridSet _object_view;
 	public Gtk.Stack _stack;
 
-	public PropertiesView(Database db)
+	public PropertiesView(DatabaseEditor database_editor)
 	{
 		Object(orientation: Gtk.Orientation.VERTICAL);
 
 		// Data
-		_db = db;
+		_database_editor = database_editor;
+		_database_editor.selection_changed.connect(on_database_selection_changed);
+		_database = database_editor._database;
 
 		_expander_states = new Gee.HashMap<string, bool>();
 		_objects = new Gee.HashMap<string, PropertyGrid>();
@@ -134,14 +137,14 @@ public class PropertiesView : Gtk.Box
 		this.pack_start(_stack);
 		this.get_style_context().add_class("properties-view");
 
-		db._project.project_reset.connect(on_project_reset);
+		_database._project.project_reset.connect(on_project_reset);
 	}
 
 	public void register_object_type(string object_type, PropertyGrid? cv = null)
 	{
 		PropertyGrid? grid = cv;
 		if (grid == null)
-			grid = new PropertyGrid.from_object_type(StringId64(object_type), _db);
+			grid = new PropertyGrid.from_object_type(StringId64(object_type), _database);
 
 		_object_view.add_property_grid(grid, camel_case(object_type));
 		_objects[object_type] = grid;
@@ -160,7 +163,7 @@ public class PropertiesView : Gtk.Box
 
 			bool was_expanded = _expander_states.has_key(type) ? _expander_states[type] : false;
 
-			Unit unit = Unit(_db, id);
+			Unit unit = Unit(_database, id);
 			Guid component_id;
 			if (unit.has_component(out component_id, type) || type == OBJECT_TYPE_UNIT) {
 				cv._id = id;
@@ -169,7 +172,7 @@ public class PropertiesView : Gtk.Box
 				cv.read_properties();
 
 				if (component_id != GUID_ZERO) {
-					if (id == _db.owner(component_id))
+					if (id == _database.owner(component_id))
 						cv._expander.get_style_context().remove_class("inherited");
 					else
 						cv._expander.get_style_context().add_class("inherited");
@@ -222,12 +225,12 @@ public class PropertiesView : Gtk.Box
 		}
 
 		Guid id = objects[objects.length - 1];
-		if (!_db.has_object(id) || !_db.is_alive(id))
+		if (!_database.has_object(id) || !_database.is_alive(id))
 			return;
 
-		if (_db.object_type(id) == OBJECT_TYPE_UNIT)
+		if (_database.object_type(id) == OBJECT_TYPE_UNIT)
 			show_unit(id);
-		else if (_db.object_type(id) == OBJECT_TYPE_SOUND_SOURCE)
+		else if (_database.object_type(id) == OBJECT_TYPE_SOUND_SOURCE)
 			show_sound_source(id);
 		else
 			_stack.set_visible_child_name(UNKNOWN_OBJECT_TYPE);
@@ -240,6 +243,16 @@ public class PropertiesView : Gtk.Box
 			cv._id = GUID_ZERO;
 			cv._component_id = GUID_ZERO;
 		}
+	}
+
+	public void on_database_selection_changed()
+	{
+		Gee.ArrayList<Guid?> selection = _database_editor._selection;
+
+		if (selection.size == 0)
+			set_objects({ GUID_ZERO });
+		else
+			set_objects({ selection.last() });
 	}
 }
 

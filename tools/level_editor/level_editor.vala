@@ -859,7 +859,7 @@ public class LevelEditorApplication : Gtk.Application
 		_database.objects_changed.connect(on_objects_changed);
 		_database.object_type_added.connect(on_object_type_added);
 
-		_properties_view = new PropertiesView(_database);
+		_properties_view = new PropertiesView(_database_editor);
 
 		create_object_types(_database);
 

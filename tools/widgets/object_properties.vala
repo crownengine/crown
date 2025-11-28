@@ -11,7 +11,8 @@ public class ObjectProperties : Gtk.Box
 	public const string UNKNOWN_OBJECT_TYPE = "unknown-object-type";
 	public const string PROPERTIES = "properties";
 
-	public Database _db;
+	public DatabaseEditor _database_editor;
+	public Database _database;
 	public Gee.ArrayList<bool> _expanders_states;
 	public Gee.ArrayList<PropertyGrid> _grids;
 	public Gtk.Viewport _viewport;
@@ -19,10 +20,12 @@ public class ObjectProperties : Gtk.Box
 	public PropertyGridSet _object_view;
 	public Gtk.Stack _stack;
 
-	public ObjectProperties(Database db)
+	public ObjectProperties(DatabaseEditor database_editor)
 	{
 		// Data
-		_db = db;
+		_database_editor = database_editor;
+		_database_editor.selection_changed.connect(on_database_selection_changed);
+		_database = database_editor._database;
 
 		_expanders_states = new Gee.ArrayList<bool>();
 		_grids = new Gee.ArrayList<PropertyGrid>();
@@ -58,7 +61,7 @@ public class ObjectProperties : Gtk.Box
 			return;
 		}
 
-		if (!_db.has_object(id) || !_db.is_alive(id)) {
+		if (!_database.has_object(id) || !_database.is_alive(id)) {
 			loge("Object does not exist");
 			return;
 		}
@@ -79,7 +82,7 @@ public class ObjectProperties : Gtk.Box
 		}
 
 		if (num_found == 0) {
-			PropertyGrid grid = new PropertyGrid.from_object(id, _db);
+			PropertyGrid grid = new PropertyGrid.from_object(id, _database);
 			grid._visible = true;
 			grid.read_properties();
 
@@ -90,6 +93,15 @@ public class ObjectProperties : Gtk.Box
 		_object_view._list_box.invalidate_filter();
 		_object_view._list_box.invalidate_sort();
 		_object_view.show_all();
+	}
+
+	public void on_database_selection_changed()
+	{
+		Gee.ArrayList<Guid?> selection = _database_editor._selection;
+		if (selection.size == 0)
+			set_object(GUID_ZERO);
+		else
+			set_object(selection.last());
 	}
 }
 

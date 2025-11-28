@@ -48,10 +48,8 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		_database.objects_destroyed.connect(on_objects_destroyed);
 		_database.objects_changed.connect(on_objects_changed);
 
-		_objects_tree = new ObjectTree(_database);
-		_objects_tree.selection_changed.connect(on_objects_tree_selection_changed);
-
-		_objects_properties = new ObjectProperties(_database);
+		_objects_tree = new ObjectTree(_database_editor);
+		_objects_properties = new ObjectProperties(_database_editor);
 
 		_database_editor.load_types();
 
@@ -182,7 +180,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		Guid last_created = object_ids[object_ids.length - 1];
 
 		_objects_tree.set_object(_state_machine_id); // Force update the tree.
-		_objects_tree.select_objects({ last_created }); // Select the objects just created.
+		_database_editor.selection_set({ last_created }); // Select the objects just created.
 
 		update_window_title();
 	}
@@ -190,7 +188,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 	public void on_objects_destroyed(Guid?[] object_ids, uint32 flags = 0)
 	{
 		_objects_tree.set_object(_state_machine_id); // Force update the tree.
-		_objects_tree.select_objects({ _state_machine_id }); // Select the root object which must always exits.
+		_database_editor.selection_set({ _state_machine_id }); // Select the root object which must always exits.
 		update_window_title();
 
 		if ((flags& ActionTypeFlags.FROM_SERVER) == 0) {
@@ -232,12 +230,9 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		send();
 	}
 
-	public void on_objects_tree_selection_changed(Guid object_id, ObjectTree.ItemType item_type)
+	public void on_objects_tree_selection_changed(Guid?[] objects)
 	{
-		if (item_type == ObjectTree.ItemType.OBJECT)
-			_objects_properties.set_object(object_id);
-		else
-			_objects_properties.set_object(GUID_ZERO);
+		_database_editor.selection_read(objects);
 	}
 
 	public void on_undo(int action_id)

@@ -49,10 +49,8 @@ public class UnitEditor : Gtk.ApplicationWindow
 		_database.objects_changed.connect(on_objects_changed);
 		_database.object_type_added.connect(on_object_type_added);
 
-		_objects_tree = new ObjectTree(_database);
-		_objects_tree.selection_changed.connect(on_objects_tree_selection_changed);
-
-		_properties_view = new PropertiesView(_database);
+		_objects_tree = new ObjectTree(_database_editor);
+		_properties_view = new PropertiesView(_database_editor);
 		_properties_view.register_object_type(OBJECT_TYPE_UNIT, new UnitView(_database));
 
 		_database_editor.load_types();
@@ -210,14 +208,17 @@ public class UnitEditor : Gtk.ApplicationWindow
 			}
 		}
 
-		Guid last_created = object_ids[object_ids.length - 1];
+		Guid last = object_ids[object_ids.length - 1];
 
 		_objects_tree.set_object(_unit._id); // Force update the tree.
 
-		if (_database.object_type(last_created) == OBJECT_TYPE_UNIT)
-			_objects_tree.select_objects({ last_created }); // Select the objects just created.
-		else if ((_database.type_flags(StringId64(_database.object_type(last_created))) & ObjectTypeFlags.UNIT_COMPONENT) != 0)
-			_objects_tree.select_objects({ _database.owner(last_created) });
+		if (_database.object_type(last) == OBJECT_TYPE_UNIT) {
+			_database_editor.selection_set({ last }); // Select the objects just created.
+			_properties_view.set_objects({ last });
+		} else if ((_database.type_flags(StringId64(_database.object_type(last))) & ObjectTypeFlags.UNIT_COMPONENT) != 0) {
+			_database_editor.selection_set({ _database.owner(last) });
+			_properties_view.set_objects({ _database.owner(last) });
+		}
 
 		update_window_title();
 	}
@@ -225,7 +226,26 @@ public class UnitEditor : Gtk.ApplicationWindow
 	public void on_objects_destroyed(Guid?[] object_ids, uint32 flags = 0)
 	{
 		_objects_tree.set_object(_unit._id); // Force update the tree.
-		_objects_tree.select_objects({ _unit._id }); // Select the root object which must always exits.
+
+		Guid last = object_ids[object_ids.length - 1];
+
+		if (_database.object_type(last) == OBJECT_TYPE_UNIT) {
+			// Select the root object which must always exits.
+			_database_editor.selection_set({ _unit._id });
+			_properties_view.set_objects({ _unit._id });
+		} else if ((_database.type_flags(StringId64(_database.object_type(last))) & ObjectTypeFlags.UNIT_COMPONENT) != 0) {
+			Guid owner_id = _database.owner(last);
+
+			if (_database.is_alive(owner_id)) {
+				_database_editor.selection_set({ owner_id });
+				_properties_view.set_objects({ owner_id });
+			} else {
+				// Select the root object which must always exits.
+				_database_editor.selection_set({ _unit._id });
+				_properties_view.set_objects({ _unit._id });
+			}
+		}
+
 		update_window_title();
 
 		if ((flags& ActionTypeFlags.FROM_SERVER) == 0) {
@@ -249,7 +269,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 			}
 		}
 
-		_objects_tree.on_tree_selection_changed(); // Force update any tree listener.
+		_database_editor.selection_changed(); // Force update any tree listener.
 		update_window_title();
 	}
 
@@ -268,17 +288,9 @@ public class UnitEditor : Gtk.ApplicationWindow
 		_database.restore_undo(undo_redo);
 
 		_objects_tree.set_object(_unit._id);
-		_objects_tree.select_objects({ _unit._id });
+		_database_editor.selection_set({ _unit._id });
 		update_window_title();
 		send();
-	}
-
-	public void on_objects_tree_selection_changed(Guid object_id, ObjectTree.ItemType item_type)
-	{
-		if (item_type == ObjectTree.ItemType.OBJECT)
-			_properties_view.set_objects({ object_id });
-		else
-			_properties_view.set_objects({ GUID_ZERO });
 	}
 
 	public void on_undo(int action_id)
