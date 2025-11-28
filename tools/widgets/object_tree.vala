@@ -52,6 +52,7 @@ public class ObjectTree : Gtk.Box
 	}
 
 	// Data
+	public DatabaseEditor _database_editor;
 	public Database _database;
 	public Guid _object_id;
 
@@ -69,13 +70,13 @@ public class ObjectTree : Gtk.Box
 	public Gtk.MenuButton _sort_items;
 	public Gtk.GestureMultiPress _gesture_click;
 
-	public signal void selection_changed(Guid object_id, ItemType item_type);
-
-	public ObjectTree(Database db)
+	public ObjectTree(DatabaseEditor database_editor)
 	{
 		Object(orientation: Gtk.Orientation.VERTICAL, spacing: 0);
 
-		_database = db;
+		_database_editor = database_editor;
+		_database_editor.selection_changed.connect(on_database_selection_changed);
+		_database = database_editor._database;
 		_object_id = GUID_ZERO;
 
 		// Widgets
@@ -249,6 +250,8 @@ public class ObjectTree : Gtk.Box
 
 	public void on_tree_selection_changed()
 	{
+		_database_editor.selection_changed.disconnect(on_tree_selection_changed);
+
 		ItemType item_type = ItemType.OBJECT;
 
 		Gee.ArrayList<Guid?> ids = new Gee.ArrayList<Guid?>();
@@ -257,13 +260,17 @@ public class ObjectTree : Gtk.Box
 
 				model.get_value(iter, Column.ITEM_TYPE, out val);
 				item_type = (ItemType)val;
-				model.get_value(iter, Column.OBJECT_ID, out val);
-				ids.add((Guid)val);
+
+				if (item_type == ItemType.OBJECT) {
+					model.get_value(iter, Column.OBJECT_ID, out val);
+					ids.add((Guid)val);
+				}
 			});
 
-		if (ids.size > 0) {
-			selection_changed(ids[0], item_type);
-		}
+		if (ids.size > 0)
+			_database_editor.selection_set(ids.to_array());
+
+		_database_editor.selection_changed.connect(on_tree_selection_changed);
 	}
 
 	public Gtk.RadioButton add_sort_item(Gtk.RadioButton? group, SortMode mode)
@@ -376,11 +383,12 @@ public class ObjectTree : Gtk.Box
 		_tree_view.expand_all();
 	}
 
-	public void select_objects(Guid?[] selection)
+	public void on_database_selection_changed()
 	{
 		_tree_selection.changed.disconnect(on_tree_selection_changed);
 		_tree_selection.unselect_all();
 
+		Gee.ArrayList<Guid?> selection = _database_editor._selection;
 		Gtk.TreePath? last_selected = null;
 
 		_tree_sort.foreach ((model, path, iter) => {
@@ -407,8 +415,6 @@ public class ObjectTree : Gtk.Box
 			_tree_view.scroll_to_cell(last_selected, null, false, 0.0f, 0.0f);
 
 		_tree_selection.changed.connect(on_tree_selection_changed);
-
-		on_tree_selection_changed();
 	}
 
 	public bool save_tree_state(Gtk.TreeModel model, Gtk.TreePath path, Gtk.TreeIter iter)

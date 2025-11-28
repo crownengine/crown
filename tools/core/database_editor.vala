@@ -82,6 +82,7 @@ public class DatabaseEditor
 			_selection.remove(id);
 			_database.destroy(id);
 		}
+		selection_changed();
 		_database.add_restore_point((int)ActionType.DESTROY_OBJECTS, ids);
 	}
 
