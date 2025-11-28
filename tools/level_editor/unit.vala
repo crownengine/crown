@@ -91,7 +91,11 @@ public struct Unit
 
 	public string? get_component_resource(Guid component_id, string key, string? deffault = null)
 	{
-		return (string?)get_component_property(component_id, key, deffault);
+		Resource deffault_res = { deffault };
+		Value? val = get_component_property(component_id, key, deffault_res);
+		if (val.holds(typeof(Resource)))
+			return ((Resource)val).name;
+		return (string?)val;
 	}
 
 	public Guid get_component_reference(Guid component_id, string key, Guid deffault = GUID_ZERO)
