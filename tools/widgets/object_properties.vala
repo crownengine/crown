@@ -58,7 +58,7 @@ public class ObjectProperties : Gtk.Box
 			return;
 		}
 
-		if (!_db.has_object(id)) {
+		if (!_db.has_object(id) || !_db.is_alive(id)) {
 			loge("Object does not exist");
 			return;
 		}
