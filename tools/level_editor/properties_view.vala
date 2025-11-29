@@ -222,7 +222,7 @@ public class PropertiesView : Gtk.Box
 		}
 
 		Guid id = objects[objects.length - 1];
-		if (!_db.has_object(id))
+		if (!_db.has_object(id) || !_db.is_alive(id))
 			return;
 
 		if (_db.object_type(id) == OBJECT_TYPE_UNIT)
