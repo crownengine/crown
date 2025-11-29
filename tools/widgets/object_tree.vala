@@ -214,6 +214,10 @@ public class ObjectTree : Gtk.Box
 						menu_model.append_item(mi);
 
 						if (object_id != _object_id) {
+							mi = new GLib.MenuItem("Duplicate", null);
+							mi.set_action_and_target_value("database.duplicate", null);
+							menu_model.append_item(mi);
+
 							mi = new GLib.MenuItem("Delete", null);
 							mi.set_action_and_target_value("database.delete", null);
 							menu_model.append_item(mi);
