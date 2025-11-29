@@ -1073,7 +1073,7 @@ public class LevelEditorApplication : Gtk.Application
 				);
 
 			if (_source_dir == null) {
-				show_panel("panel_welcome");
+				show_panel(PANEL_PROJECTS_LIST);
 			} else {
 				show_panel(PANEL_EDITOR);
 				restart_backend.begin();
