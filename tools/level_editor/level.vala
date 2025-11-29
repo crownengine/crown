@@ -241,7 +241,7 @@ public class Level
 		sb.append(LevelEditorApi.reset());
 		Unit.generate_spawn_unit_commands(sb, unit_ids.to_array(), _db);
 		Sound.generate_spawn_sound_commands(sb, sound_ids.to_array(), _db);
-		sb.append(LevelEditorApi.spawn_skydome(_db.get_string(_id, "skydome_unit", "core/units/skydome/skydome")));
+		sb.append(LevelEditorApi.spawn_skydome(_db.get_resource(_id, "skydome_unit", "core/units/skydome/skydome")));
 		_runtime.send_script(sb.str);
 
 		send_camera();
