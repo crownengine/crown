@@ -79,7 +79,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		_save.clicked.connect(save);
 
 		_header_bar = new Gtk.HeaderBar();
-		_header_bar.title = "Unit Editor";
+		_header_bar.title = "State Machine Editor";
 		_header_bar.show_close_button = true;
 		_header_bar.pack_start(_cancel);
 		_header_bar.pack_end(_save);
