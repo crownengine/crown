@@ -287,11 +287,9 @@ public class Stack
 
 	public Resource read_resource()
 	{
-		Resource res = { null };
-		string? name = read_string();
-		if (name != null)
-			res.name = name;
-		return res;
+		string name = read_string();
+		Resource resource = { name == "" ? null : name };
+		return resource;
 	}
 
 	public void write_create_action(uint32 action, Guid id, string type)
