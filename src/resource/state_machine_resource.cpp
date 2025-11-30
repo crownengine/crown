@@ -247,19 +247,22 @@ namespace state_machine_resource_internal
 				JsonObject animation(ta);
 				RETURN_IF_ERROR(sjson::parse_object(animation, animations[i]), _opts);
 
-				DynamicString animation_resource(ta);
-				RETURN_IF_ERROR(sjson::parse_string(animation_resource, animation["name"]), _opts);
-				RETURN_IF_RESOURCE_MISSING(_animation_type.c_str()
-					, animation_resource.c_str()
-					, _opts
-					);
-				_opts.add_requirement(_animation_type.c_str(), animation_resource.c_str());
+				if (json_object::has(animation, "name")
+					&& sjson::type(animation["name"]) == JsonValueType::STRING) {
+					DynamicString animation_resource(ta);
+					RETURN_IF_ERROR(sjson::parse_string(animation_resource, animation["name"]), _opts);
+					RETURN_IF_RESOURCE_MISSING(_animation_type.c_str()
+						, animation_resource.c_str()
+						, _opts
+						);
+					_opts.add_requirement(_animation_type.c_str(), animation_resource.c_str());
 
-				AnimationInfo ai(ta);
-				ai.name = RETURN_IF_ERROR(sjson::parse_resource_name(animation["name"]), _opts);
-				RETURN_IF_ERROR(sjson::parse_string(ai.weight, animation["weight"]), _opts);
+					AnimationInfo ai(ta);
+					ai.name = RETURN_IF_ERROR(sjson::parse_resource_name(animation["name"]), _opts);
+					RETURN_IF_ERROR(sjson::parse_string(ai.weight, animation["weight"]), _opts);
 
-				vector::push_back(si.animations, ai);
+					vector::push_back(si.animations, ai);
+				}
 			}
 
 			return 0;
@@ -458,7 +461,8 @@ namespace state_machine_resource_internal
 				);
 
 			// Parse skeleton, if any.
-			if (json_object::has(obj, "skeleton_name")) {
+			if (json_object::has(obj, "skeleton_name")
+				&& sjson::type(obj["skeleton_name"]) == JsonValueType::STRING) {
 				DynamicString skeleton_name(ta);
 				RETURN_IF_ERROR(sjson::parse_string(skeleton_name, obj["skeleton_name"]), _opts);
 				RETURN_IF_RESOURCE_MISSING("mesh_skeleton", skeleton_name.c_str(), _opts);
