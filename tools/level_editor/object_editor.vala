@@ -137,6 +137,7 @@ public class ObjectEditor : Gtk.ApplicationWindow
 
 	public void on_objects_changed(Guid?[] object_ids, uint32 flags = 0)
 	{
+		_objects_tree.set_object(_object_id); // Force update the tree.
 		_objects_tree.on_tree_selection_changed(); // Force update any tree listener.
 		update_window_title();
 	}

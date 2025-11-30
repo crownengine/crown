@@ -212,6 +212,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 			}
 		}
 
+		_objects_tree.set_object(_state_machine_id); // Force update the tree.
 		_objects_tree.on_tree_selection_changed(); // Force update any tree listener.
 		update_window_title();
 	}

@@ -269,6 +269,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 			}
 		}
 
+		_objects_tree.set_object(_unit._id); // Force update the tree.
 		_database_editor.selection_changed(); // Force update any tree listener.
 		update_window_title();
 	}
