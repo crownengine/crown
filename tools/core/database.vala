@@ -471,7 +471,7 @@ public struct ObjectTypeInfo
 
 public class Database
 {
-	public static bool _debug = true;
+	public static bool _debug = false;
 	public static bool _debug_getters = false;
 
 	public enum Action
