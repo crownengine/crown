@@ -1059,6 +1059,7 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.RESOURCE,
 			name = "name",
+			label = "Animation",
 			resource_type = OBJECT_TYPE_MESH_ANIMATION,
 		},
 		PropertyDefinition()
@@ -1159,6 +1160,19 @@ public static void create_object_types(Database database)
 			type = PropertyType.OBJECTS_SET,
 			name = "variables",
 			object_type = state_machine_variable_type,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "animation_type",
+			deffault = OBJECT_TYPE_SPRITE_ANIMATION,
+			hidden = true,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.RESOURCE,
+			name = "skeleton_name",
+			resource_type = OBJECT_TYPE_MESH_SKELETON,
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_STATE_MACHINE, properties);
