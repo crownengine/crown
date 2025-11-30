@@ -665,6 +665,7 @@ public class LevelEditorApplication : Gtk.Application
 	public ProjectsList _projects_list;
 	public Gtk.Stack _main_stack;
 	public Gtk.HeaderBar _header_bar;
+	public LevelEditorWindow _level_editor_window;
 
 	public uint _save_timer_id;
 
@@ -1036,16 +1037,16 @@ public class LevelEditorApplication : Gtk.Application
 
 	public override void activate()
 	{
-		if (this.active_window == null) {
-			LevelEditorWindow win = new LevelEditorWindow(this, _header_bar);
+		if (_level_editor_window == null) {
+			_level_editor_window = new LevelEditorWindow(this, _header_bar);
 			if (_window_state.has_key("level_editor_window"))
-				win.decode((Hashtable)_window_state["level_editor_window"]);
-			win.add(_main_stack);
-			win.insert_action_group("viewport", _editor_viewport._action_group);
-			win.insert_action_group("database", _database_editor._action_group);
+				_level_editor_window.decode((Hashtable)_window_state["level_editor_window"]);
+			_level_editor_window.add(_main_stack);
+			_level_editor_window.insert_action_group("viewport", _editor_viewport._action_group);
+			_level_editor_window.insert_action_group("database", _database_editor._action_group);
 
 			try {
-				win.icon = Gtk.IconTheme.get_default().load_icon(CROWN_EDITOR_ICON_NAME, 256, 0);
+				_level_editor_window.icon = Gtk.IconTheme.get_default().load_icon(CROWN_EDITOR_ICON_NAME, 256, 0);
 			} catch (Error e) {
 				loge(e.message);
 			}
@@ -2100,7 +2101,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	public void on_preferences(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		_preferences_dialog.set_transient_for(this.active_window);
+		_preferences_dialog.set_transient_for(_level_editor_window);
 		_preferences_dialog.show_all();
 		_preferences_dialog.present();
 	}
@@ -2109,7 +2110,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		if (_deploy_dialog == null) {
 			_deploy_dialog = new DeployDialog(_project, _editor);
-			_deploy_dialog.set_transient_for(this.active_window);
+			_deploy_dialog.set_transient_for(_level_editor_window);
 			_deploy_dialog.delete_event.connect(_deploy_dialog.hide_on_delete);
 		}
 
@@ -2123,7 +2124,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		if (_texture_settings_dialog == null) {
 			_texture_settings_dialog = new TextureSettingsDialog(_project, _database);
-			_texture_settings_dialog.set_transient_for(this.active_window);
+			_texture_settings_dialog.set_transient_for(_level_editor_window);
 			_texture_settings_dialog.delete_event.connect(_texture_settings_dialog.hide_on_delete);
 			_texture_settings_dialog.texture_saved.connect(() => {
 						compile_and_reload.begin();
@@ -2147,7 +2148,7 @@ public class LevelEditorApplication : Gtk.Application
 				, 10844
 				, (uint)_preferences_dialog._undo_redo_max_size.value * 1024 * 1024
 				);
-			_state_machine_editor.set_transient_for(this.active_window);
+			_state_machine_editor.set_transient_for(_level_editor_window);
 			_state_machine_editor.saved.connect(() => {
 						compile_and_reload.begin();
 					});
@@ -2169,7 +2170,7 @@ public class LevelEditorApplication : Gtk.Application
 				, _project
 				, (uint)_preferences_dialog._undo_redo_max_size.value * 1024 * 1024
 				);
-			_object_editor.set_transient_for(this.active_window);
+			_object_editor.set_transient_for(_level_editor_window);
 			_object_editor.saved.connect(() => {
 						compile_and_reload.begin();
 					});
@@ -4111,7 +4112,7 @@ public class LevelEditorApplication : Gtk.Application
 				, 10444
 				, (uint)_preferences_dialog._undo_redo_max_size.value * 1024 * 1024
 				);
-			_unit_editor_dialog.set_transient_for(this.active_window);
+			_unit_editor_dialog.set_transient_for(_level_editor_window);
 			_unit_editor_dialog.saved.connect(on_unit_editor_saved);
 		}
 
