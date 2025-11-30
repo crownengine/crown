@@ -440,7 +440,8 @@ namespace unit_compiler
 			}
 		}
 
-		if (json_object::has(prefab, "prefab")) {
+		if (json_object::has(prefab, "prefab")
+			&& sjson::type(prefab["prefab"]) == JsonValueType::STRING) {
 			TempAllocator512 ta;
 			DynamicString path(ta);
 			RETURN_IF_ERROR(sjson::parse_string(path, prefab["prefab"]), opts);
@@ -681,7 +682,8 @@ namespace unit_compiler
 			}
 		}
 
-		if (json_object::has(obj, "prefab")) {
+		if (json_object::has(obj, "prefab")
+			&& sjson::type(obj["prefab"]) == JsonValueType::STRING) {
 			TempAllocator512 ta;
 			DynamicString prefab(ta);
 			RETURN_IF_ERROR(sjson::parse_string(prefab, obj["prefab"]), opts);
