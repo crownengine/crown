@@ -114,7 +114,8 @@ public class ObjectEditor : Gtk.ApplicationWindow
 	{
 		assert(_object_id != GUID_ZERO);
 
-		if (_database.save(_database._project.absolute_path(_object_name) + "." + OBJECT_TYPE_STATE_MACHINE, _object_id) == 0)
+		ObjectTypeInfo info = _database.type_info(StringId64(_database.object_type(_object_id)));
+		if (_database.save(_database._project.absolute_path(_object_name) + "." + info.name, _object_id) == 0)
 			saved();
 	}
 
