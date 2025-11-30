@@ -776,8 +776,11 @@ public class Database
 				decode_set(id, def.name, (Gee.ArrayList<Value?>)input[key]);
 			} else if (def.type == PropertyType.RESOURCE) {
 				Resource res = { null };
-				if (input.has_key(key))
-					res.name = (string?)input[key];
+				if (input.has_key(key)) {
+					Value? val = input[key];
+					if (val.holds(typeof(string)))
+						res.name = (string)input[key];
+				}
 				set(0, id, def.name, res);
 			} else {
 				set(0, id, def.name, decode_value(input[key]));
@@ -972,6 +975,12 @@ public class Database
 			arr.add(q.z);
 			arr.add(q.w);
 			return arr;
+		} else if (value.holds(typeof(Resource))) {
+			Resource res = (Resource)value;
+			if (res.name == null)
+				return null;
+			else
+				return res.name;
 		} else if (value.holds(typeof(Guid))) {
 			Guid id = (Guid)value;
 			return id.to_string();
