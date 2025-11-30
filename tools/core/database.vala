@@ -1878,26 +1878,8 @@ public class Database
 		}
 	}
 
-	// Creates a new object @a type with the specified @a properties and returns its ID.
-	public StringId64 create_object_type(string type
-		, PropertyDefinition[] properties
-		, double ui_order = 0.0
-		, ObjectTypeFlags flags = ObjectTypeFlags.NONE
-		, string? user_data = null
-		)
+	public void add_properties(PropertyDefinition[] properties)
 	{
-		StringId64 type_hash = StringId64(type);
-		assert(!_object_definitions.has_key(type_hash));
-
-		assert(properties.length > 0);
-		ObjectTypeInfo info = {};
-		info.properties = { _property_definitions.length, _property_definitions.length + properties.length };
-		info.name = type;
-		info.ui_order = ui_order;
-		info.flags = flags;
-		info.user_data = user_data;
-		_object_definitions[type_hash] = info;
-
 		foreach (PropertyDefinition def in properties) {
 			// Generate labels if missing.
 			if (def.label == null) {
@@ -1981,6 +1963,44 @@ public class Database
 
 			_property_definitions += def;
 		}
+	}
+
+	// Creates a new object @a type with the specified @a properties and returns its ID.
+	public StringId64 create_object_type(string type
+		, PropertyDefinition[] properties
+		, double ui_order = 0.0
+		, ObjectTypeFlags flags = ObjectTypeFlags.NONE
+		, string? user_data = null
+		)
+	{
+		StringId64 type_hash = StringId64(type);
+		assert(!_object_definitions.has_key(type_hash));
+		assert(properties.length > 0);
+
+		PropertyDefinition[] editor_properties =
+		{
+			PropertyDefinition()
+			{
+				type = PropertyType.STRING,
+				name = "editor.name",
+				deffault = OBJECT_NAME_UNNAMED,
+				hidden = true,
+			},
+		};
+
+		int first_property = _property_definitions.length;
+		int num_properties = first_property + properties.length + editor_properties.length;
+
+		add_properties(properties);
+		add_properties(editor_properties);
+
+		ObjectTypeInfo info = {};
+		info.properties = { first_property, num_properties };
+		info.name = type;
+		info.ui_order = ui_order;
+		info.flags = flags;
+		info.user_data = user_data;
+		_object_definitions[type_hash] = info;
 
 		object_type_added(info);
 		return type_hash;
@@ -2000,12 +2020,7 @@ public class Database
 	// OBJECT_NAME_UNNAMED.
 	public string name(Guid id)
 	{
-		string name = get_string(id, "editor.name", OBJECT_NAME_UNNAMED);
-
-		if (name == OBJECT_NAME_UNNAMED)
-			return get_string(id, "name", OBJECT_NAME_UNNAMED);
-
-		return name;
+		return get_string(id, "editor.name", OBJECT_NAME_UNNAMED);
 	}
 
 	// Sets the @a name of the object @a id.
