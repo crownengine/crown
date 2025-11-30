@@ -94,13 +94,13 @@ public class InputResource : InputField, Gtk.Box
 
 	public void on_select_resource_dialog_resource_selected(string type, string name)
 	{
-		_name.value = name;
+		this.value = name;
 		_dialog.hide();
 	}
 
 	public void on_revealer_clicked()
 	{
-		var tuple = new GLib.Variant.tuple({_type, _name.value});
+		var tuple = new GLib.Variant.tuple({_type, this.value});
 		GLib.Application.get_default().activate_action("reveal-resource", tuple);
 	}
 
