@@ -20,7 +20,7 @@ public struct NodeAnimation
 		_id = id;
 
 		_db.create(_id, OBJECT_TYPE_NODE_ANIMATION);
-		_db.set_string(_id, "name", name);
+		_db.set_resource(_id, "name", name);
 		_db.set_string(_id, "weight", weight);
 	}
 }
@@ -77,7 +77,7 @@ public struct StateMachineResource
 		_db.create_empty_set(_id, "variables");
 		_db.set_string(_id, "animation_type", animation_type);
 		if (skeleton_name != null)
-			_db.set_string(_id, "skeleton_name", skeleton_name);
+			_db.set_resource(_id, "skeleton_name", skeleton_name);
 	}
 
 	public StateMachineResource.mesh(Database db, Guid id, string skeleton_name)
