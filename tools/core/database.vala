@@ -1163,6 +1163,7 @@ public class Database
 			logi("create %s".printf(debug_string(id)));
 
 		if (_undo_redo != null) {
+			_undo_redo._distance_from_last_sync += 1;
 			_undo_redo._undo.write_destroy_action(Action.DESTROY, id, type);
 			_undo_redo._redo.clear();
 		}
@@ -1201,6 +1202,7 @@ public class Database
 		set_alive(id, false);
 
 		if (_undo_redo != null) {
+			_undo_redo._distance_from_last_sync += 1;
 			_undo_redo._undo.write_create_action(Action.CREATE, id, obj_type);
 			_undo_redo._redo.clear();
 		}
@@ -1768,11 +1770,13 @@ public class Database
 				Guid id = undo.read_guid();
 				string obj_type = undo.read_string();
 				set_alive(id, true);
+				_undo_redo._distance_from_last_sync += dir;
 				redo.write_destroy_action(Action.DESTROY, id, obj_type);
 			} else if (action == Action.DESTROY) {
 				Guid id = undo.read_guid();
 				string obj_type = undo.read_string();
 				set_alive(id, false);
+				_undo_redo._distance_from_last_sync += dir;
 				redo.write_create_action(Action.CREATE, id, obj_type);
 			} else if (action == Action.SET_NULL) {
 				Guid id = undo.read_guid();
