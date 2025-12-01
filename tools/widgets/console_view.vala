@@ -193,6 +193,7 @@ public class ConsoleView : Gtk.Box
 
 		_entry = new InputString();
 		_entry.activate.connect(on_entry_activated);
+		_entry.set_placeholder_text("Enter Command or Lua expression");
 
 		_entry_controller_key = new Gtk.EventControllerKey(_entry);
 		_entry_controller_key.key_pressed.connect(on_entry_key_pressed);
