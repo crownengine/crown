@@ -173,7 +173,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 			_level.generate_spawn_objects(sb, object_ids);
 			if (sb.len > 0) {
 				_editor.send_script(sb.str);
-				_editor.send(DeviceApi.frame());
+				_editor_viewport.frame();
 			}
 		}
 
@@ -196,7 +196,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 			_level.generate_destroy_objects(sb, object_ids);
 			if (sb.len > 0) {
 				_editor.send_script(sb.str);
-				_editor.send(DeviceApi.frame());
+				_editor_viewport.frame();
 			}
 		}
 	}
@@ -208,7 +208,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 			_level.generate_change_objects(sb, object_ids);
 			if (sb.len > 0) {
 				_editor.send_script(sb.str);
-				_editor.send(DeviceApi.frame());
+				_editor_viewport.frame();
 			}
 		}
 
