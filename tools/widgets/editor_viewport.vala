@@ -5,6 +5,14 @@
 
 namespace Crown
 {
+public enum ViewportRenderMode
+{
+	CONTINUOUS,
+	PUMPED,
+
+	COUNT
+}
+
 public class EditorViewport : Gtk.Bin
 {
 	public const string EDITOR_DISCONNECTED = "editor-disconnected";
@@ -21,6 +29,7 @@ public class EditorViewport : Gtk.Bin
 	public string _boot_dir;
 	public string _console_address;
 	public uint16 _console_port;
+	public ViewportRenderMode _render_mode;
 	public bool _input_enabled;
 	public RuntimeInstance _runtime;
 	public EditorView _editor_view;
@@ -34,6 +43,7 @@ public class EditorViewport : Gtk.Bin
 		, string boot_dir
 		, string console_addr
 		, uint16 console_port
+		, ViewportRenderMode render_mode = ViewportRenderMode.PUMPED
 		, bool input_enabled = true
 		)
 	{
@@ -42,6 +52,7 @@ public class EditorViewport : Gtk.Bin
 		_boot_dir = boot_dir;
 		_console_address = console_addr;
 		_console_port = console_port;
+		_render_mode = render_mode;
 		_input_enabled = input_enabled;
 
 		_runtime = new RuntimeInstance(name);
@@ -86,8 +97,8 @@ public class EditorViewport : Gtk.Bin
 			"--console-port",
 			_console_port.to_string(),
 			"--wait-console",
-			"--pumped",
-			"--window-rect", "0", "0", width.to_string(), height.to_string()
+			_render_mode == ViewportRenderMode.PUMPED ? "--pumped" : "",
+			"--window-rect", "0", "0", width.to_string(), height.to_string(),
 		};
 
 		try {
@@ -139,12 +150,20 @@ public class EditorViewport : Gtk.Bin
 		start_runtime.begin(window_id, width, height);
 	}
 
+	public void frame()
+	{
+		if (_render_mode != ViewportRenderMode.PUMPED)
+			return;
+
+		_runtime.send(DeviceApi.frame());
+	}
+
 	public void on_camera_view(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		CameraViewType view_type = (CameraViewType)param.get_int32();
 
 		_runtime.send_script(LevelEditorApi.set_camera_view_type(view_type));
-		_runtime.send(DeviceApi.frame());
+		frame();
 
 		action.set_state(param);
 	}
@@ -153,7 +172,7 @@ public class EditorViewport : Gtk.Bin
 	{
 		Guid?[] selected_objects = _database_editor._selection.to_array();
 		_runtime.send_script(LevelEditorApi.frame_objects(selected_objects));
-		_runtime.send(DeviceApi.frame());
+		frame();
 	}
 }
 

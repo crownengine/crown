@@ -1375,7 +1375,7 @@ public class LevelEditorApplication : Gtk.Application
 			_level.generate_spawn_objects(sb, object_ids);
 			if (sb.len > 0) {
 				_editor.send_script(sb.str);
-				_editor.send(DeviceApi.frame());
+				_editor_viewport.frame();
 			}
 		}
 
@@ -1390,7 +1390,7 @@ public class LevelEditorApplication : Gtk.Application
 			_level.generate_destroy_objects(sb, object_ids);
 			if (sb.len > 0) {
 				_editor.send_script(sb.str);
-				_editor.send(DeviceApi.frame());
+				_editor_viewport.frame();
 			}
 		}
 
@@ -1405,7 +1405,7 @@ public class LevelEditorApplication : Gtk.Application
 			_level.generate_change_objects(sb, object_ids);
 			if (sb.len > 0) {
 				_editor.send_script(sb.str);
-				_editor.send(DeviceApi.frame());
+				_editor_viewport.frame();
 			}
 		}
 
@@ -1624,7 +1624,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		_editor_viewport.grab_focus();
 		send_state();
-		_editor.send(DeviceApi.frame());
+		_editor_viewport.frame();
 		action.set_state(param);
 	}
 
@@ -1641,7 +1641,7 @@ public class LevelEditorApplication : Gtk.Application
 		_snap_mode = (SnapMode)param.get_int32();
 
 		send_state();
-		_editor.send(DeviceApi.frame());
+		_editor_viewport.frame();
 		action.set_state(param);
 	}
 
@@ -1650,7 +1650,7 @@ public class LevelEditorApplication : Gtk.Application
 		_reference_system = (ReferenceSystem)param.get_int32();
 
 		send_state();
-		_editor.send(DeviceApi.frame());
+		_editor_viewport.frame();
 		action.set_state(param);
 	}
 
@@ -1661,7 +1661,7 @@ public class LevelEditorApplication : Gtk.Application
 		if (new_size != 0) {
 			_grid_size = (double)new_size / 10.0;
 			send_state();
-			_editor.send(DeviceApi.frame());
+			_editor_viewport.frame();
 			action.set_state(param);
 			return;
 		}
@@ -1685,7 +1685,7 @@ public class LevelEditorApplication : Gtk.Application
 			if (response_id == Gtk.ResponseType.OK) {
 				_grid_size = sb.value;
 				send_state();
-				_editor.send(DeviceApi.frame());
+				_editor_viewport.frame();
 				action.set_state(param);
 			}
 			dg.destroy();
@@ -1725,7 +1725,7 @@ public class LevelEditorApplication : Gtk.Application
 		if (_editor.is_connected()) {
 			_level.send_level();
 			send_state();
-			_editor.send(DeviceApi.frame());
+			_editor_viewport.frame();
 		}
 
 		update_active_window_title();
@@ -1839,7 +1839,7 @@ public class LevelEditorApplication : Gtk.Application
 		if (_editor.is_connected()) {
 			_level.send_level();
 			send_state();
-			_editor.send(DeviceApi.frame());
+			_editor_viewport.frame();
 		}
 
 		update_active_window_title();
@@ -2364,7 +2364,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		_show_grid = !action.get_state().get_boolean();
 		send_state();
-		_editor.send(DeviceApi.frame());
+		_editor_viewport.frame();
 		action.set_state(new GLib.Variant.boolean(_show_grid));
 	}
 
@@ -2375,7 +2375,7 @@ public class LevelEditorApplication : Gtk.Application
 		if (new_size != 0) {
 			_rotation_snap = (double)new_size;
 			send_state();
-			_editor.send(DeviceApi.frame());
+			_editor_viewport.frame();
 			action.set_state(param);
 			return;
 		}
@@ -2399,7 +2399,7 @@ public class LevelEditorApplication : Gtk.Application
 				if (response_id == Gtk.ResponseType.OK) {
 					_rotation_snap = sb.value;
 					send_state();
-					_editor.send(DeviceApi.frame());
+					_editor_viewport.frame();
 					action.set_state(param);
 				}
 				dg.destroy();
@@ -2446,7 +2446,7 @@ public class LevelEditorApplication : Gtk.Application
 			unit_name = null;
 
 		_level.spawn_unit(unit_name);
-		_editor.send(DeviceApi.frame());
+		_editor_viewport.frame();
 	}
 
 	public void on_camera_frame_all(GLib.SimpleAction action, GLib.Variant? param)
@@ -2454,7 +2454,7 @@ public class LevelEditorApplication : Gtk.Application
 		Gee.ArrayList<Guid?> all_objects = new Gee.ArrayList<Guid?>();
 		_level.objects(ref all_objects);
 		_editor.send_script(LevelEditorApi.frame_objects(all_objects.to_array()));
-		_editor.send(DeviceApi.frame());
+		_editor_viewport.frame();
 	}
 
 	public void on_project_browser(GLib.SimpleAction action, GLib.Variant? param)
@@ -2544,7 +2544,7 @@ public class LevelEditorApplication : Gtk.Application
 				sb.append(LevelEditorApi.unit_freeze(id));
 
 			_editor.send_script(sb.str);
-			_editor.send(DeviceApi.frame());
+			_editor_viewport.frame();
 		}
 
 		return success;
@@ -2554,7 +2554,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		_snap_to_grid = !action.get_state().get_boolean();
 		send_state();
-		_editor.send(DeviceApi.frame());
+		_editor_viewport.frame();
 		action.set_state(new GLib.Variant.boolean(_snap_to_grid));
 	}
 
@@ -2562,7 +2562,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		_debug_render_world = !action.get_state().get_boolean();
 		send_state();
-		_editor.send(DeviceApi.frame());
+		_editor_viewport.frame();
 		action.set_state(new GLib.Variant.boolean(_debug_render_world));
 	}
 
@@ -2570,7 +2570,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		_debug_physics_world = !action.get_state().get_boolean();
 		send_state();
-		_editor.send(DeviceApi.frame());
+		_editor_viewport.frame();
 		action.set_state(new GLib.Variant.boolean(_debug_physics_world));
 	}
 
@@ -4289,7 +4289,7 @@ public class LevelEditorApplication : Gtk.Application
 		ui_read_selection.connect(_level_treeview.read_selection);
 
 		_database_editor.send_selection(_editor);
-		_editor.send(DeviceApi.frame());
+		_editor_viewport.frame();
 	}
 
 	public void on_selection_changed()
@@ -4297,7 +4297,7 @@ public class LevelEditorApplication : Gtk.Application
 		ui_read_selection(_database_editor._selection.to_array());
 
 		_database_editor.send_selection(_editor);
-		_editor.send(DeviceApi.frame());
+		_editor_viewport.frame();
 	}
 }
 

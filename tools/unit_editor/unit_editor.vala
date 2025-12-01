@@ -154,13 +154,13 @@ public class UnitEditor : Gtk.ApplicationWindow
 		if (sb.len > 0)
 			_editor.send_script(sb.str);
 
-		_editor.send(DeviceApi.frame());
+		_editor_viewport.frame();
 
 		sb.erase();
 		sb.append(LevelEditorApi.frame_objects({ _unit._id }));
 		if (sb.len > 0)
 			_editor.send_script(sb.str);
-		_editor.send(DeviceApi.frame());
+		_editor_viewport.frame();
 	}
 
 	public void on_editor_connected(RuntimeInstance ri, string address, int port)
@@ -204,7 +204,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 			_level.generate_spawn_objects(sb, object_ids);
 			if (sb.len > 0) {
 				_editor.send_script(sb.str);
-				_editor.send(DeviceApi.frame());
+				_editor_viewport.frame();
 			}
 		}
 
@@ -253,7 +253,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 			_level.generate_destroy_objects(sb, object_ids);
 			if (sb.len > 0) {
 				_editor.send_script(sb.str);
-				_editor.send(DeviceApi.frame());
+				_editor_viewport.frame();
 			}
 		}
 	}
@@ -265,7 +265,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 			_level.generate_change_objects(sb, object_ids);
 			if (sb.len > 0) {
 				_editor.send_script(sb.str);
-				_editor.send(DeviceApi.frame());
+				_editor_viewport.frame();
 			}
 		}
 
