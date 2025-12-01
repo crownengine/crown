@@ -59,6 +59,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 			, boot_dir
 			, console_addr
 			, console_port
+			, ViewportRenderMode.CONTINUOUS
 			);
 		this.insert_action_group("viewport", _editor_viewport._action_group);
 		_editor = _editor_viewport._runtime;
