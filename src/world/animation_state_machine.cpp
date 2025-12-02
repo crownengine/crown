@@ -185,6 +185,11 @@ StateMachineInstance AnimationStateMachine::create(UnitId unit, const AnimationS
 
 void AnimationStateMachine::deallocate(Machine &m)
 {
+	if (m.skeleton != NULL) {
+		for (u32 i = 0; i < m.skeleton->num_bones; ++i)
+			_unit_manager->destroy(m.skeleton->bone_lookup[i]);
+	}
+
 	// TODO: Get rid of these allocations ASAP!
 	default_allocator().deallocate(m.skeleton);
 	default_allocator().deallocate(m.variables);
