@@ -14,7 +14,6 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 	public ObjectTree _objects_tree;
 	public ObjectProperties _objects_properties;
 	public Gtk.Paned _inspector_paned;
-	public Level _level;
 	public Statusbar _statusbar;
 
 	public Gtk.Paned _paned;
@@ -66,8 +65,6 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		_editor.connected.connect(on_editor_connected);
 		_editor.disconnected.connect(on_editor_disconnected);
 		_editor.disconnected_unexpected.connect(on_editor_disconnected_unexpected);
-
-		_level = new Level(_database, _editor);
 
 		_statusbar = new Statusbar();
 
@@ -130,11 +127,11 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 	{
 		string title = "";
 
-		if (_level._name != null) {
+		if (_state_machine_name != null) {
 			if (_database.changed())
 				title += " • ";
 
-			title += (_level._name == LEVEL_EMPTY) ? "untitled" : _level._name;
+			title += (_state_machine_name == LEVEL_EMPTY) ? "untitled" : _state_machine_name;
 			title += " - ";
 		}
 
@@ -169,15 +166,6 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 
 	public void on_objects_created(Guid?[] object_ids, uint32 flags)
 	{
-		if ((flags& ActionTypeFlags.FROM_SERVER) == 0) {
-			StringBuilder sb = new StringBuilder();
-			_level.generate_spawn_objects(sb, object_ids);
-			if (sb.len > 0) {
-				_editor.send_script(sb.str);
-				_editor_viewport.frame();
-			}
-		}
-
 		Guid last_created = object_ids[object_ids.length - 1];
 
 		_objects_tree.set_object(_state_machine_id); // Force update the tree.
@@ -191,28 +179,10 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		_objects_tree.set_object(_state_machine_id); // Force update the tree.
 		_database_editor.selection_set({ _state_machine_id }); // Select the root object which must always exits.
 		update_window_title();
-
-		if ((flags& ActionTypeFlags.FROM_SERVER) == 0) {
-			StringBuilder sb = new StringBuilder();
-			_level.generate_destroy_objects(sb, object_ids);
-			if (sb.len > 0) {
-				_editor.send_script(sb.str);
-				_editor_viewport.frame();
-			}
-		}
 	}
 
 	public void on_objects_changed(Guid?[] object_ids, uint32 flags = 0)
 	{
-		if ((flags& ActionTypeFlags.FROM_SERVER) == 0) {
-			StringBuilder sb = new StringBuilder();
-			_level.generate_change_objects(sb, object_ids);
-			if (sb.len > 0) {
-				_editor.send_script(sb.str);
-				_editor_viewport.frame();
-			}
-		}
-
 		_objects_tree.set_object(_state_machine_id); // Force update the tree.
 		_objects_tree.on_tree_selection_changed(); // Force update any tree listener.
 		update_window_title();
@@ -230,11 +200,6 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		_objects_tree.set_object(_state_machine_id);
 		update_window_title();
 		send();
-	}
-
-	public void on_objects_tree_selection_changed(Guid?[] objects)
-	{
-		_database_editor.selection_read(objects);
 	}
 
 	public void on_undo(int action_id)
