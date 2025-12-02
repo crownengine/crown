@@ -102,6 +102,20 @@ static void create_components(World &w
 	}
 }
 
+static void collect_units(Array<UnitId> *unit_lookup, SceneGraph *scene_graph, UnitId root)
+{
+	array::push_back(*unit_lookup, root);
+
+	TransformInstance transform = scene_graph->instance(root);
+	TransformInstance cur = scene_graph->first_child(transform);
+
+	while (is_valid(cur)) {
+		UnitId u = scene_graph->owner(cur);
+		collect_units(unit_lookup, scene_graph, u);
+		cur = scene_graph->next_sibling(cur);
+	}
+}
+
 static void unit_destroyed_callback_bridge(UnitId unit, void *user_ptr)
 {
 	((World *)user_ptr)->unit_destroyed_callback(unit);
@@ -256,21 +270,17 @@ UnitId World::spawn_skydome(StringId64 skydome_name)
 
 void World::destroy_unit(UnitId unit)
 {
-	script_world::unspawned(*_script_world, &unit, 1);
-	post_unit_destroyed_event(unit);
-	_unit_manager->destroy(unit);
+	Array<UnitId> unit_lookup(default_scratch_allocator());
 
-	for (u32 i = 0, n = array::size(_units); i < n; ++i) {
-		if (_units[i] == unit) {
-			_units[i] = _units[n - 1];
-			array::pop_back(_units);
-#if CROWN_CAN_RELOAD
-			_unit_resources[i] = _unit_resources[n - 1];
-			array::pop_back(_unit_resources);
-#endif
-			break;
-		}
+	collect_units(&unit_lookup, _scene_graph, unit);
+	script_world::unspawned(*_script_world, array::begin(unit_lookup), array::size(unit_lookup));
+
+	for (u32 i = 0; i < array::size(unit_lookup); ++i) {
+		_unit_manager->destroy(unit_lookup[i]);
+		post_unit_destroyed_event(unit_lookup[i]);
 	}
+
+	remove_dead_units();
 }
 
 u32 World::num_units() const
@@ -880,20 +890,6 @@ void World::reload_materials(const MaterialResource *old_resource, const Materia
 	CE_UNUSED_2(old_resource, new_resource);
 	CE_NOOP();
 #endif
-}
-
-static void collect_units(Array<UnitId> *unit_lookup, SceneGraph *scene_graph, UnitId root)
-{
-	array::push_back(*unit_lookup, root);
-
-	TransformInstance transform = scene_graph->instance(root);
-	TransformInstance cur = scene_graph->first_child(transform);
-
-	while (is_valid(cur)) {
-		UnitId u = scene_graph->owner(cur);
-		collect_units(unit_lookup, scene_graph, u);
-		cur = scene_graph->next_sibling(cur);
-	}
 }
 
 void World::reload_units(const UnitResource *old_unit, const UnitResource *new_unit)
