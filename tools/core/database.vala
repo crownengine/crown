@@ -2076,6 +2076,17 @@ public class Database
 
 		return all.to_array();
 	}
+
+	public bool is_subobject_of(Guid subobject_id, Guid object_id, string set_name)
+	{
+		assert(has_object(subobject_id));
+		assert(has_object(object_id));
+
+		if (!has_property(object_id, set_name))
+			return false;
+
+		return get_set(object_id, set_name).contains(subobject_id);
+	}
 }
 
 } /* namespace Crown */
