@@ -21,6 +21,9 @@
 #include "world/types.h"
 #include "world/unit_manager.h"
 #include "world/world.h"
+#include "device/log.h"
+
+LOG_SYSTEM(ANIMATION_STATE_MACHINE, "animation_state_machine")
 
 namespace crown
 {
@@ -85,6 +88,71 @@ static void mesh_set_skeleton_recursively(UnitId unit, AnimationSkeletonInstance
 	}
 }
 
+void AnimationStateMachine::allocate(Machine &m, UnitId unit, const StateMachineResource *smr)
+{
+	m.unit          = unit;
+	m.time          = 0.0f;
+	m.time_total    = 0.0f;
+	m.anim_type     = smr->animation_type;
+	m.anim_resource = NULL;
+	m.anim_id       = UINT32_MAX;
+	m.state         = state_machine::initial_state(smr);
+	m.state_next    = NULL;
+	m.state_machine = smr;
+	m.variables     = (f32 *)default_allocator().allocate(sizeof(*m.variables)*smr->num_variables);
+	m.skeleton      = NULL;
+
+	memcpy(m.variables, state_machine::variables(smr), sizeof(*m.variables)*smr->num_variables);
+
+	if (smr->animation_type == RESOURCE_TYPE_MESH_ANIMATION) {
+		// Spawn the skeleton hierarchy.
+		const MeshSkeletonResource *skeleton_resource = (MeshSkeletonResource *)_resource_manager->get(RESOURCE_TYPE_MESH_SKELETON, smr->skeleton_name);
+		const BoneTransform *local_transforms = mesh_skeleton_resource::local_transforms(skeleton_resource);
+		const u32 *parents = mesh_skeleton_resource::parents(skeleton_resource);
+
+		u32 size = sizeof(AnimationSkeletonInstance)
+			+ sizeof(UnitId) * skeleton_resource->num_bones
+			+ sizeof(Matrix4x4) * skeleton_resource->num_bones
+			;
+		AnimationSkeletonInstance *skeleton = (AnimationSkeletonInstance *)default_allocator().allocate(size);
+		skeleton->num_bones = skeleton_resource->num_bones;
+		skeleton->offsets = mesh_skeleton_resource::binding_matrices(skeleton_resource);
+		skeleton->bone_lookup = (UnitId *)&skeleton[1];
+		skeleton->bones = (Matrix4x4 *)(skeleton->bone_lookup + skeleton_resource->num_bones);
+		m.skeleton = skeleton;
+
+		for (u32 i = 0; i < skeleton_resource->num_bones; ++i)
+			skeleton->bone_lookup[i] = _unit_manager->create();
+
+		SceneGraph &scene_graph = *_world->_scene_graph;
+		RenderWorld &render_world = *_world->_render_world;
+
+		for (u32 i = 0; i < skeleton_resource->num_bones; ++i) {
+			TransformInstance ti = scene_graph.create(skeleton->bone_lookup[i]
+				, local_transforms[i].position
+				, local_transforms[i].rotation
+				, local_transforms[i].scale
+				);
+			if (parents[i] != UINT16_MAX) {
+				TransformInstance parent_ti = scene_graph.instance(skeleton->bone_lookup[parents[i]]);
+				scene_graph.link(parent_ti
+					, ti
+					, local_transforms[i].position
+					, local_transforms[i].rotation
+					, local_transforms[i].scale
+					);
+			} else {
+				Vector3 scale = local_transforms[i].scale;
+				Matrix4x4 tr = from_quaternion_translation(local_transforms[i].rotation, local_transforms[i].position);
+				scene_graph.set_local_pose(ti, tr);
+				scene_graph.set_local_scale(ti, scale);
+			}
+		}
+
+		mesh_set_skeleton_recursively(unit, skeleton, scene_graph, render_world);
+	}
+}
+
 void AnimationStateMachine::create_instances(const void *components_data
 	, u32 num
 	, const UnitId *unit_lookup
@@ -100,67 +168,7 @@ void AnimationStateMachine::create_instances(const void *components_data
 		const StateMachineResource *smr = (StateMachineResource *)_resource_manager->get(RESOURCE_TYPE_STATE_MACHINE, state_machines[i].state_machine_resource);
 
 		Machine m;
-		m.unit          = unit;
-		m.time          = 0.0f;
-		m.time_total    = 0.0f;
-		m.anim_type     = smr->animation_type;
-		m.anim_resource = NULL;
-		m.anim_id       = UINT32_MAX;
-		m.state         = state_machine::initial_state(smr);
-		m.state_next    = NULL;
-		m.state_machine = smr;
-		m.variables     = (f32 *)default_allocator().allocate(sizeof(*m.variables)*smr->num_variables);
-		m.skeleton      = NULL;
-
-		memcpy(m.variables, state_machine::variables(smr), sizeof(*m.variables)*smr->num_variables);
-
-		if (smr->animation_type == RESOURCE_TYPE_MESH_ANIMATION) {
-			// Spawn the skeleton hierarchy.
-			const MeshSkeletonResource *skeleton_resource = (MeshSkeletonResource *)_resource_manager->get(RESOURCE_TYPE_MESH_SKELETON, smr->skeleton_name);
-			const BoneTransform *local_transforms = mesh_skeleton_resource::local_transforms(skeleton_resource);
-			const u32 *parents = mesh_skeleton_resource::parents(skeleton_resource);
-
-			u32 size = sizeof(AnimationSkeletonInstance)
-				+ sizeof(UnitId) * skeleton_resource->num_bones
-				+ sizeof(Matrix4x4) * skeleton_resource->num_bones
-				;
-			AnimationSkeletonInstance *skeleton = (AnimationSkeletonInstance *)default_allocator().allocate(size);
-			skeleton->num_bones = skeleton_resource->num_bones;
-			skeleton->offsets = mesh_skeleton_resource::binding_matrices(skeleton_resource);
-			skeleton->bone_lookup = (UnitId *)&skeleton[1];
-			skeleton->bones = (Matrix4x4 *)(skeleton->bone_lookup + skeleton_resource->num_bones);
-			m.skeleton = skeleton;
-
-			for (u32 i = 0; i < skeleton_resource->num_bones; ++i)
-				skeleton->bone_lookup[i] = _unit_manager->create();
-
-			SceneGraph &scene_graph = *_world->_scene_graph;
-			RenderWorld &render_world = *_world->_render_world;
-
-			for (u32 i = 0; i < skeleton_resource->num_bones; ++i) {
-				TransformInstance ti = scene_graph.create(skeleton->bone_lookup[i]
-					, local_transforms[i].position
-					, local_transforms[i].rotation
-					, local_transforms[i].scale
-					);
-				if (parents[i] != UINT16_MAX) {
-					TransformInstance parent_ti = scene_graph.instance(skeleton->bone_lookup[parents[i]]);
-					scene_graph.link(parent_ti
-						, ti
-						, local_transforms[i].position
-						, local_transforms[i].rotation
-						, local_transforms[i].scale
-						);
-				} else {
-					Vector3 scale = local_transforms[i].scale;
-					Matrix4x4 tr = from_quaternion_translation(local_transforms[i].rotation, local_transforms[i].position);
-					scene_graph.set_local_pose(ti, tr);
-					scene_graph.set_local_scale(ti, scale);
-				}
-			}
-
-			mesh_set_skeleton_recursively(unit, skeleton, scene_graph, render_world);
-		}
+		allocate(m, unit, smr);
 
 		u32 last = array::size(_machines);
 		array::push_back(_machines, m);
@@ -175,15 +183,20 @@ StateMachineInstance AnimationStateMachine::create(UnitId unit, const AnimationS
 	return instance(unit);
 }
 
+void AnimationStateMachine::deallocate(Machine &m)
+{
+	// TODO: Get rid of these allocations ASAP!
+	default_allocator().deallocate(m.skeleton);
+	default_allocator().deallocate(m.variables);
+}
+
 void AnimationStateMachine::destroy(StateMachineInstance state_machine)
 {
 	const u32 last_i = array::size(_machines) - 1;
 	const UnitId u = _machines[state_machine.i].unit;
 	const UnitId last_u = _machines[last_i].unit;
 
-	// TODO: Get rid of these allocations ASAP!
-	default_allocator().deallocate(_machines[state_machine.i].skeleton);
-	default_allocator().deallocate(_machines[state_machine.i].variables);
+	deallocate(_machines[state_machine.i]);
 	_machines[state_machine.i] = _machines[last_i];
 
 	array::pop_back(_machines);
