@@ -1491,7 +1491,7 @@ public class Database
 		return (Guid)get_property(id, key, deffault);
 	}
 
-	public Gee.HashSet<Guid?> get_set(Guid id, string key, Gee.HashSet<Guid?> deffault)
+	public Gee.HashSet<Guid?> get_set(Guid id, string key, Gee.HashSet<Guid?> deffault = new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func))
 	{
 		assert(has_object(id));
 		assert(is_valid_key(key));
@@ -1614,8 +1614,7 @@ public class Database
 			if (def.type != PropertyType.OBJECTS_SET)
 				continue;
 
-			Gee.HashSet<Guid?> deffault = new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func);
-			Gee.HashSet<Guid?> objects = get_set(owner_id, def.name, deffault);
+			Gee.HashSet<Guid?> objects = get_set(owner_id, def.name);
 
 			if (objects.contains(id)) {
 				add_to_set(owner_id, def.name, new_id);
