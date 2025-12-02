@@ -10,6 +10,7 @@ Changelog
 * Tools: double-clicking an object in the Level Tree will now frame it in the Editor Viewport.
 * Tools: units created via the FBX importer will now be named according to their corresponding node's name.
 * Tools: added a generic editor to inspect and modify all registered resource types. Previously resources with no dedicated editor were opened in a plain-text editor.
+* Runtime: added the ability to reload animation state machines.
 * Runtime: added an end-of-options marker to stop the runtime from parsing game-specific command line options.
 * Lua: added ``Device.build()`` to retrieve the runtime's build configuration.
 * Lua: added ``PhysicsWorld.actor_debug_draw()`` and ``PhysicsWorld.mover_debug_draw()``.

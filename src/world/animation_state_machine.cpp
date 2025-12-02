@@ -360,6 +360,20 @@ void AnimationStateMachine::update(float dt, SceneGraph &scene_graph)
 	}
 }
 
+void AnimationStateMachine::reload(const StateMachineResource *old_resource, const StateMachineResource *new_resource)
+{
+	for (u32 i = 0; i < array::size(_machines); ++i) {
+		Machine &machine = _machines[i];
+		UnitId unit = machine.unit;
+
+		if (old_resource != machine.state_machine)
+			continue;
+
+		deallocate(machine);
+		allocate(machine, unit, new_resource);
+	}
+}
+
 void AnimationStateMachine::unit_destroyed_callback(UnitId unit)
 {
 	StateMachineInstance inst = instance(unit);

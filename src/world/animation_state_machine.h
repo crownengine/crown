@@ -98,6 +98,9 @@ struct AnimationStateMachine
 
 	///
 	void unit_destroyed_callback(UnitId unit);
+
+	///
+	void reload(const StateMachineResource *old_resource, const StateMachineResource *new_resource);
 };
 
 } // namespace crown
