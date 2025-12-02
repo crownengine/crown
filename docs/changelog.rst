@@ -37,6 +37,7 @@ Changelog
 * Runtime: fixed a crash when reloading non-trivial units.
 * Runtime: fixed imperfect spot lights' cone coverage.
 * Runtime: fixed interrupted sun shadow map when too close to the viewer.
+* Runtime: fixed destroying units with children.
 * Lua: fixed a memory leak when executing some script component callbacks.
 * Lua: the ``update()`` script component callback is now optional.
 
