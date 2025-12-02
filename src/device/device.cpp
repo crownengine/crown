@@ -43,6 +43,7 @@
 #include "resource/resource_loader.h"
 #include "resource/resource_manager.h"
 #include "resource/resource_package.h"
+#include "world/animation_state_machine.h"
 #include "world/material_manager.h"
 #include "world/physics.h"
 #include "world/shader_manager.h"
@@ -864,6 +865,7 @@ void Device::refresh(const char *json)
 			|| resource_type == RESOURCE_TYPE_MATERIAL
 			|| resource_type == RESOURCE_TYPE_RENDER_CONFIG
 			|| resource_type == RESOURCE_TYPE_UNIT
+			|| resource_type == RESOURCE_TYPE_STATE_MACHINE
 			;
 
 		if (is_type_reloadable && _resource_manager->can_get(resource_type, resource_name)) {
@@ -896,6 +898,13 @@ void Device::refresh(const char *json)
 				{
 					World *w = (World *)container_of(cur, World, _node);
 					w->reload_units((UnitResource *)old_resource, (UnitResource *)new_resource);
+				}
+			} else if (resource_type == RESOURCE_TYPE_STATE_MACHINE) {
+				ListNode *cur;
+				list_for_each(cur, &_worlds)
+				{
+					World *w = (World *)container_of(cur, World, _node);
+					w->_animation_state_machine->reload((const StateMachineResource *)old_resource, (const StateMachineResource *)new_resource);
 				}
 			}
 		}
