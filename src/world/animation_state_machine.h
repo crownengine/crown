@@ -57,6 +57,12 @@ struct AnimationStateMachine
 	~AnimationStateMachine();
 
 	///
+	void allocate(Machine &m, UnitId unit, const StateMachineResource *smr);
+
+	///
+	void deallocate(Machine &m);
+
+	///
 	void create_instances(const void *components_data
 		, u32 num
 		, const UnitId *unit_lookup
