@@ -36,24 +36,31 @@ namespace fbx
 
 	static s32 parse_skeleton(AnimationSkeleton &as, FBXDocument &fbx, ufbx_node *bone, CompileOptions &opts)
 	{
-		Vector3 pos;
-		pos.x = bone->local_transform.translation.x;
-		pos.y = bone->local_transform.translation.y;
-		pos.z = bone->local_transform.translation.z;
+		BoneTransform bone_tm;
+		u16 parent_bone_id;
 
-		Quaternion rot;
-		rot.x = bone->local_transform.rotation.x;
-		rot.y = bone->local_transform.rotation.y;
-		rot.z = bone->local_transform.rotation.z;
-		rot.w = bone->local_transform.rotation.w;
+		if (bone->is_root) {
+			bone_tm.position = VECTOR3_ZERO;
+			bone_tm.rotation = QUATERNION_IDENTITY;
+			bone_tm.scale = VECTOR3_ONE;
 
-		Vector3 scl;
-		scl.x = bone->local_transform.scale.x;
-		scl.y = bone->local_transform.scale.y;
-		scl.z = bone->local_transform.scale.z;
+			parent_bone_id = UINT16_MAX;
+		} else {
+			bone_tm.position.x = bone->local_transform.translation.x;
+			bone_tm.position.y = bone->local_transform.translation.y;
+			bone_tm.position.z = bone->local_transform.translation.z;
+			bone_tm.rotation.x = bone->local_transform.rotation.x;
+			bone_tm.rotation.y = bone->local_transform.rotation.y;
+			bone_tm.rotation.z = bone->local_transform.rotation.z;
+			bone_tm.rotation.w = bone->local_transform.rotation.w;
+			bone_tm.scale.x = bone->local_transform.scale.x;
+			bone_tm.scale.y = bone->local_transform.scale.y;
+			bone_tm.scale.z = bone->local_transform.scale.z;
 
-		u16 parent_bone_id = bone_id(fbx, bone->parent->name.data);
-		array::push_back(as.local_transforms, { pos, rot, scl });
+			parent_bone_id = bone_id(fbx, bone->parent->name.data);
+		}
+
+		array::push_back(as.local_transforms, bone_tm);
 		array::push_back(as.parents, (u32)parent_bone_id);
 
 		ufbx_skin_cluster *cluster = find_cluster(fbx.scene, bone);
