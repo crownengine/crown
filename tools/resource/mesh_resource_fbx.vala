@@ -527,11 +527,16 @@ public class FBXImporter
 			db.add_to_set(parent_bone_id, "children", bone_id);
 
 		for (size_t i = 0; i < node.children.data.length; ++i) {
+			unowned ufbx.Node child_bone = node.children.data[i];
+
+			if (child_bone.bone == null)
+				continue; // Skip non-bone children.
+
 			import_skeleton(options
 				, db
 				, bone_id
 				, Guid.new_guid()
-				, node.children.data[i]
+				, child_bone
 				);
 		}
 	}
