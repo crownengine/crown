@@ -46,7 +46,7 @@ namespace mesh_animation_player
 	{
 		// Initialize tracks with animation data.
 		// We need 2 samples for each animation track to begin interpolating curves.
-		AnimationTrackSegment *tracks = &p._tracks[anim.tracks_offset];
+		AnimationTrackSegment *tracks = array::begin(p._tracks) + anim.tracks_offset;
 		for (u32 track_id = 0; track_id < anim.num_tracks; ++track_id) {
 			anim.playhead = fetch_keys(tracks, anim.playhead, 1, track_id);
 			anim.playhead = fetch_keys(tracks, anim.playhead, 1, track_id);
@@ -99,7 +99,7 @@ namespace mesh_animation_player
 	{
 		MeshAnimationPlayer::Index &index = p._indices[anim_id & ANIMATION_INDEX_MASK];
 		MeshAnimation &anim = p._animations[index.index];
-		AnimationTrackSegment *tracks = &p._tracks[anim.tracks_offset];
+		AnimationTrackSegment *tracks = array::begin(p._tracks) + anim.tracks_offset;
 
 		CE_ENSURE(time <= anim.animation_resource->total_time);
 		u16 ts = time * 1000.0f;
