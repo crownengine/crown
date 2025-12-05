@@ -312,6 +312,14 @@ function UnitBox:set_light(type, range, intensity, angle, color, bias, cast_shad
 	end
 end
 
+function UnitBox:set_animation_state_machine(state_machine_resource)
+	local animation_state_machine = World.animation_state_machine(self._world)
+	local state_machine = AnimationStateMachine.instance(animation_state_machine, self._unit_id)
+	if state_machine then
+		AnimationStateMachine.set_state_machine(animation_state_machine, state_machine, state_machine_resource)
+	end
+end
+
 function UnitBox:set_fog(color, density, range_min, range_max, sun_blend, enabled)
 	local fog = RenderWorld.fog_instance(self._rw, self._unit_id)
 	if fog then

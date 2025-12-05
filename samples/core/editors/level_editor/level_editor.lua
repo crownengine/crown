@@ -1762,6 +1762,14 @@ function LevelEditor:add_light_component(id, component_id, type, range, intensit
 	RenderWorld.light_create(self._rw, unit_id, type, range, intensity, spot_angle, color)
 end
 
+function LevelEditor:add_animation_state_machine_component(id, component_id, state_machine_resource)
+	local unit_box = self._objects[id]
+	local unit_id = unit_box:unit_id()
+	local animation_state_machine = World.animation_state_machine(self._world)
+	if AnimationStateMachine.instance(animation_state_machine, unit_id) ~= nil then return end
+	AnimationStateMachine.create(animation_state_machine, unit_id, state_machine_resource)
+end
+
 function LevelEditor:add_mover_component(id, component_id, height, radius, max_slope_angle, filter)
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id()

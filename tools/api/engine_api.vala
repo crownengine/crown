@@ -365,6 +365,17 @@ namespace LevelEditorApi
 			);
 	}
 
+	public string add_animation_state_machine_component(Guid id
+		, Guid component_id
+		, string state_machine_resource
+		)
+	{
+		return "LevelEditor:add_animation_state_machine_component(\"%s\", \"%s\", \"%s\")".printf(id.to_string()
+			, component_id.to_string()
+			, state_machine_resource
+			);
+	}
+
 	public string add_mover_component(Guid id
 		, Guid component_id
 		, double height
@@ -436,6 +447,15 @@ namespace LevelEditorApi
 			, Lua.quaternion({color.x, color.y, color.z, 1.0})
 			, shadow_bias
 			, Lua.bool(cast_shadows)
+			);
+	}
+
+	public string set_animation_state_machine(Guid id
+		, string state_machine_resource
+		)
+	{
+		return "LevelEditor._objects[\"%s\"]:set_animation_state_machine(\"%s\")".printf(id.to_string()
+			, state_machine_resource
 			);
 	}
 

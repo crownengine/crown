@@ -422,6 +422,12 @@ public struct Unit
 				, unit.get_component_bool   (component_id, "data.cast_shadows", true)
 				);
 			sb.append(s);
+		} else if (db.object_type(component_id) == OBJECT_TYPE_ANIMATION_STATE_MACHINE) {
+			string s = LevelEditorApi.add_animation_state_machine_component(unit_id
+				, component_id
+				, unit.get_component_resource(component_id, "data.state_machine_resource")
+				);
+			sb.append(s);
 		} else if (db.object_type(component_id) == OBJECT_TYPE_MOVER) {
 			sb.append(LevelEditorApi.add_mover_component(unit_id
 				, component_id
@@ -600,6 +606,10 @@ public struct Unit
 				, unit.get_component_vector3(component_id, "data.color")
 				, unit.get_component_double (component_id, "data.shadow_bias", 0.0001)
 				, unit.get_component_bool   (component_id, "data.cast_shadows", true)
+				));
+		} else if (component_type == OBJECT_TYPE_ANIMATION_STATE_MACHINE) {
+			sb.append(LevelEditorApi.set_animation_state_machine(unit_id
+				, unit.get_component_resource(component_id, "data.state_machine_resource")
 				));
 		} else if (component_type == OBJECT_TYPE_FOG) {
 			sb.append(LevelEditorApi.set_fog(unit_id
