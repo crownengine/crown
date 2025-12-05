@@ -62,7 +62,6 @@ public class InputResource : InputField, Gtk.Box
 
 		// Widgets
 		_name = new InputString();
-		_name.value = UNSET_RESOURCE;
 		_name.set_editable(false);
 		_name.hexpand = true;
 		_name.value_changed.connect(on_name_value_changed);
@@ -75,6 +74,8 @@ public class InputResource : InputField, Gtk.Box
 		_selector = new Gtk.Button.from_icon_name("document-open-symbolic");
 		_selector.clicked.connect(on_selector_clicked);
 		this.pack_end(_selector, false);
+
+		this.value = null;
 
 		db._project.file_added.connect(on_file_added_or_changed);
 		db._project.file_changed.connect(on_file_added_or_changed);
