@@ -93,6 +93,12 @@ struct AnimationStateMachine
 	// Triggers the @a event in the @a state_machine.
 	void trigger(StateMachineInstance state_machine, StringId32 event);
 
+	/// Sets the @a state_machine_resource of @a state_machine.
+	void set_state_machine(StateMachineInstance state_machine, const StateMachineResource *state_machine_resource);
+
+	/// Sets the @a state_machine_resource of @a state_machine.
+	void set_state_machine(StateMachineInstance state_machine, StringId64 state_machine_name);
+
 	///
 	void update(float dt, SceneGraph &scene_graph);
 

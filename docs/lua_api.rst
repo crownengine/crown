@@ -5,6 +5,12 @@ Lua API reference
 AnimationStateMachine
 =====================
 
+**create** (asm, unit, state_machine_resource) : Id
+	Creates a new state machine instance for *unit* and returns its id.
+
+**destroy** (asm, state_machine)
+	Destroys the *state_machine* instance.
+
 **instance** (asm, unit) : Id
 	Returns the ID of the state machine owned by the *unit*, or ``nil``.
 
@@ -19,6 +25,9 @@ AnimationStateMachine
 
 **trigger** (asm, state_machine, event)
 	Triggers the *event* in the *state_machine*.
+
+**set_state_machine** (asm, state_machine, state_machine_resource)
+	Sets the *state_machine_resource* of *state_machine*.
 
 DebugLine
 =========

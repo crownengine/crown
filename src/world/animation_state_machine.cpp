@@ -374,6 +374,19 @@ void AnimationStateMachine::reload(const StateMachineResource *old_resource, con
 	}
 }
 
+void AnimationStateMachine::set_state_machine(StateMachineInstance state_machine, const StateMachineResource *state_machine_resource)
+{
+	Machine &machine = _machines[state_machine.i];
+
+	deallocate(machine);
+	allocate(machine, machine.unit, state_machine_resource);
+}
+
+void AnimationStateMachine::set_state_machine(StateMachineInstance state_machine, const StringId64 state_machine_name)
+{
+	set_state_machine(state_machine, (StateMachineResource *)_resource_manager->get(RESOURCE_TYPE_STATE_MACHINE, state_machine_name));
+}
+
 void AnimationStateMachine::unit_destroyed_callback(UnitId unit)
 {
 	StateMachineInstance inst = instance(unit);

@@ -2824,6 +2824,16 @@ void load_api(LuaEnvironment &env)
 			return 1;
 		});
 
+	env.add_module_function("AnimationStateMachine", "create", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			stack.push_id(stack.get_animation_state_machine(1)->create(stack.get_unit(2), { stack.get_resource_name(3) }).i);
+			return 1;
+		});
+	env.add_module_function("AnimationStateMachine", "destroy", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_animation_state_machine(1)->destroy(stack.get_state_machine_instance(2));
+			return 0;
+		});
 	env.add_module_function("AnimationStateMachine", "instance", [](lua_State *L) {
 			LuaStack stack(L, +1);
 			StateMachineInstance inst = stack.get_animation_state_machine(1)->instance(stack.get_unit(2));
@@ -2862,6 +2872,13 @@ void load_api(LuaEnvironment &env)
 			stack.get_animation_state_machine(1)->set_variable(stack.get_state_machine_instance(2)
 				, stack.get_id(3)
 				, stack.get_float(4)
+				);
+			return 0;
+		});
+	env.add_module_function("AnimationStateMachine", "set_state_machine", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_animation_state_machine(1)->set_state_machine(stack.get_state_machine_instance(2)
+				, stack.get_resource_name(3)
 				);
 			return 0;
 		});
