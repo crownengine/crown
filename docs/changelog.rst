@@ -14,6 +14,7 @@ Changelog
 * Runtime: added an end-of-options marker to stop the runtime from parsing game-specific command line options.
 * Lua: added ``Device.build()`` to retrieve the runtime's build configuration.
 * Lua: added ``PhysicsWorld.actor_debug_draw()`` and ``PhysicsWorld.mover_debug_draw()``.
+* Lua: the ``update()`` script component callback is now optional.
 
 **Fixes**
 
@@ -43,7 +44,6 @@ Changelog
 * Runtime: fixed a crash when playing empty mesh animations.
 * Data Compiler: fixed a crash when compiling some mesh skeletons.
 * Lua: fixed a memory leak when executing some script component callbacks.
-* Lua: the ``update()`` script component callback is now optional.
 
 0.59.0 --- 02 Oct 2025
 ----------------------
