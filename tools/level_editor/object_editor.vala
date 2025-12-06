@@ -154,6 +154,7 @@ public class ObjectEditor : Gtk.ApplicationWindow
 
 		_object_name = name;
 		_objects_tree.set_object(_object_id);
+		_database_editor.selection_set({ _object_id });
 		update_window_title();
 	}
 
