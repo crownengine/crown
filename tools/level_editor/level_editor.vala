@@ -614,6 +614,7 @@ public class LevelEditorApplication : Gtk.Application
 	public string[] _camera_frame_all_accels;
 
 	// Engine connections
+	public Gee.ArrayList<RuntimeInstance> _runtimes;
 	public RuntimeInstance _compiler;
 	public RuntimeInstance _editor;
 	public RuntimeInstance _game;
@@ -796,11 +797,14 @@ public class LevelEditorApplication : Gtk.Application
 		_camera_frame_selected_accels = this.get_accels_for_action("viewport.camera-frame-selected");
 		_camera_frame_all_accels = this.get_accels_for_action("app.camera-frame-all");
 
+		_runtimes = new Gee.ArrayList<RuntimeInstance>();
+
 		_compiler = new RuntimeInstance("data_compiler");
 		_compiler.message_received.connect(on_message_received);
 		_compiler.connected.connect(on_runtime_connected);
 		_compiler.disconnected.connect(on_runtime_disconnected);
 		_compiler.disconnected_unexpected.connect(on_data_compiler_disconnected_unexpected);
+		_runtimes.add(_compiler);
 
 		_data_compiler = new DataCompiler(_compiler);
 		_data_compiler.start.connect(on_data_compiler_start);
@@ -837,6 +841,7 @@ public class LevelEditorApplication : Gtk.Application
 		_editor.connected.connect(on_editor_connected);
 		_editor.disconnected.connect(on_runtime_disconnected);
 		_editor.disconnected_unexpected.connect(on_editor_disconnected_unexpected);
+		_runtimes.add(_editor);
 
 		_preferences_dialog.set_runtime(_editor);
 
@@ -847,12 +852,14 @@ public class LevelEditorApplication : Gtk.Application
 		_game.connected.connect(on_game_connected);
 		_game.disconnected.connect(on_game_disconnected);
 		_game.disconnected_unexpected.connect(on_game_disconnected);
+		_runtimes.add(_game);
 
 		_thumbnail = new RuntimeInstance("thumbnail");
 		_thumbnail.message_received.connect(on_message_received);
 		_thumbnail.connected.connect(on_runtime_connected);
 		_thumbnail.disconnected.connect(on_runtime_disconnected);
 		_thumbnail.disconnected_unexpected.connect(on_runtime_disconnected_unexpected);
+		_runtimes.add(_thumbnail);
 
 		_database = _database_editor._database;
 		_database.objects_created.connect(on_objects_created);
@@ -2152,6 +2159,7 @@ public class LevelEditorApplication : Gtk.Application
 			_state_machine_editor.saved.connect(() => {
 						compile_and_reload.begin();
 					});
+			_runtimes.add(_state_machine_editor._runtime);
 			this.add_window(_state_machine_editor);
 		}
 
@@ -2525,10 +2533,9 @@ public class LevelEditorApplication : Gtk.Application
 
 	public async bool refresh_all_clients()
 	{
-		RuntimeInstance[] runtimes = new RuntimeInstance[] { _editor, _game, _thumbnail };
 		bool success = true;
 
-		foreach (var ri in runtimes)
+		foreach (var ri in _runtimes)
 			if (ri.is_connected() && !yield ri.refresh(_data_compiler))
 				success = false;
 
@@ -4114,6 +4121,7 @@ public class LevelEditorApplication : Gtk.Application
 				);
 			_unit_editor_dialog.set_transient_for(_level_editor_window);
 			_unit_editor_dialog.saved.connect(on_unit_editor_saved);
+			_runtimes.add(_unit_editor_dialog._runtime);
 		}
 
 		_unit_editor_dialog.show_all();
