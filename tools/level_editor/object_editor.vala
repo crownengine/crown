@@ -144,7 +144,7 @@ public class ObjectEditor : Gtk.ApplicationWindow
 		update_window_title();
 	}
 
-	public void set_object(string type, string name)
+	public void do_set_object(string type, string name)
 	{
 		string resource_path = ResourceId.path(type, name);
 		string path = _database._project.absolute_path(resource_path);
@@ -156,6 +156,25 @@ public class ObjectEditor : Gtk.ApplicationWindow
 		_objects_tree.set_object(_object_id);
 		_database_editor.selection_set({ _object_id });
 		update_window_title();
+	}
+
+	public void set_object(string type, string name)
+	{
+		if (!_database.changed()) {
+			this.do_set_object(type, name);
+		} else {
+			Gtk.Dialog dlg = new_resource_changed_dialog(this, _object_name);
+			dlg.response.connect((response_id) => {
+					if (response_id == Gtk.ResponseType.NO) {
+						this.do_set_object(type, name);
+					} else if (response_id == Gtk.ResponseType.YES) {
+						this.save();
+						this.do_set_object(type, name);
+					}
+					dlg.destroy();
+				});
+			dlg.show_all();
+		}
 	}
 
 	public void on_objects_tree_selection_changed(Guid?[] objects)

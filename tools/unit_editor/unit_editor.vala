@@ -276,7 +276,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 		update_window_title();
 	}
 
-	public void set_unit(string unit_name)
+	public void do_set_unit(string unit_name)
 	{
 		_level.load(LEVEL_EMPTY);
 
@@ -294,6 +294,25 @@ public class UnitEditor : Gtk.ApplicationWindow
 		_database_editor.selection_set({ _unit._id });
 		update_window_title();
 		send();
+	}
+
+	public void set_unit(string unit_name)
+	{
+		if (!_database.changed()) {
+			this.do_set_unit(unit_name);
+		} else {
+			Gtk.Dialog dlg = new_resource_changed_dialog(this, _unit_name);
+			dlg.response.connect((response_id) => {
+					if (response_id == Gtk.ResponseType.NO) {
+						this.do_set_unit(unit_name);
+					} else if (response_id == Gtk.ResponseType.YES) {
+						this.save();
+						this.do_set_unit(unit_name);
+					}
+					dlg.destroy();
+				});
+			dlg.show_all();
+		}
 	}
 
 	public void on_undo(int action_id)
