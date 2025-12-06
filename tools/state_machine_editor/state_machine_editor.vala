@@ -190,7 +190,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		update_window_title();
 	}
 
-	public void set_state_machine(string state_machine_name)
+	public void do_set_state_machine(string state_machine_name)
 	{
 		string resource_path = ResourceId.path(OBJECT_TYPE_STATE_MACHINE, state_machine_name);
 		string path = _database._project.absolute_path(resource_path);
@@ -203,6 +203,25 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		_database_editor.selection_set({ _state_machine_id });
 		update_window_title();
 		send();
+	}
+
+	public void set_state_machine(string state_machine_name)
+	{
+		if (!_database.changed()) {
+			this.do_set_state_machine(state_machine_name);
+		} else {
+			Gtk.Dialog dlg = new_resource_changed_dialog(this, _state_machine_name);
+			dlg.response.connect((response_id) => {
+					if (response_id == Gtk.ResponseType.NO) {
+						this.do_set_state_machine(state_machine_name);
+					} else if (response_id == Gtk.ResponseType.YES) {
+						this.save();
+						this.do_set_state_machine(state_machine_name);
+					}
+					dlg.destroy();
+				});
+			dlg.show_all();
+		}
 	}
 
 	public void on_undo(int action_id)
