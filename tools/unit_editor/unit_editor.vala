@@ -10,7 +10,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 	public DatabaseEditor _database_editor;
 	public Database _database;
 	public EditorViewport _editor_viewport;
-	public RuntimeInstance _editor;
+	public RuntimeInstance _runtime;
 	public ObjectTree _objects_tree;
 	public PropertiesView _properties_view;
 	public Level _level;
@@ -63,12 +63,12 @@ public class UnitEditor : Gtk.ApplicationWindow
 			, console_port
 			);
 		this.insert_action_group("viewport", _editor_viewport._action_group);
-		_editor = _editor_viewport._runtime;
-		_editor.connected.connect(on_editor_connected);
-		_editor.disconnected.connect(on_editor_disconnected);
-		_editor.disconnected_unexpected.connect(on_editor_disconnected_unexpected);
+		_runtime = _editor_viewport._runtime;
+		_runtime.connected.connect(on_editor_connected);
+		_runtime.disconnected.connect(on_editor_disconnected);
+		_runtime.disconnected_unexpected.connect(on_editor_disconnected_unexpected);
 
-		_level = new Level(_database, _editor);
+		_level = new Level(_database, _runtime);
 
 		_statusbar = new Statusbar();
 
@@ -152,14 +152,14 @@ public class UnitEditor : Gtk.ApplicationWindow
 		Unit.generate_spawn_unit_commands(sb, { _unit._id, }, _database);
 
 		if (sb.len > 0)
-			_editor.send_script(sb.str);
+			_runtime.send_script(sb.str);
 
 		_editor_viewport.frame();
 
 		sb.erase();
 		sb.append(LevelEditorApi.frame_objects({ _unit._id }));
 		if (sb.len > 0)
-			_editor.send_script(sb.str);
+			_runtime.send_script(sb.str);
 		_editor_viewport.frame();
 	}
 
@@ -203,7 +203,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 			StringBuilder sb = new StringBuilder();
 			_level.generate_spawn_objects(sb, object_ids);
 			if (sb.len > 0) {
-				_editor.send_script(sb.str);
+				_runtime.send_script(sb.str);
 				_editor_viewport.frame();
 			}
 		}
@@ -252,7 +252,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 			StringBuilder sb = new StringBuilder();
 			_level.generate_destroy_objects(sb, object_ids);
 			if (sb.len > 0) {
-				_editor.send_script(sb.str);
+				_runtime.send_script(sb.str);
 				_editor_viewport.frame();
 			}
 		}
@@ -264,7 +264,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 			StringBuilder sb = new StringBuilder();
 			_level.generate_change_objects(sb, object_ids);
 			if (sb.len > 0) {
-				_editor.send_script(sb.str);
+				_runtime.send_script(sb.str);
 				_editor_viewport.frame();
 			}
 		}

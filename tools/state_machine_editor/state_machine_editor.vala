@@ -10,7 +10,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 	public DatabaseEditor _database_editor;
 	public Database _database;
 	public EditorViewport _editor_viewport;
-	public RuntimeInstance _editor;
+	public RuntimeInstance _runtime;
 	public ObjectTree _objects_tree;
 	public ObjectProperties _objects_properties;
 	public Gtk.Paned _inspector_paned;
@@ -61,10 +61,10 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 			, ViewportRenderMode.CONTINUOUS
 			);
 		this.insert_action_group("viewport", _editor_viewport._action_group);
-		_editor = _editor_viewport._runtime;
-		_editor.connected.connect(on_editor_connected);
-		_editor.disconnected.connect(on_editor_disconnected);
-		_editor.disconnected_unexpected.connect(on_editor_disconnected_unexpected);
+		_runtime = _editor_viewport._runtime;
+		_runtime.connected.connect(on_editor_connected);
+		_runtime.disconnected.connect(on_editor_disconnected);
+		_runtime.disconnected_unexpected.connect(on_editor_disconnected_unexpected);
 
 		_statusbar = new Statusbar();
 
