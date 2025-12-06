@@ -24,7 +24,12 @@ public class InputObject : InputEnum
 	{
 		get
 		{
-			return Guid.parse(this.get_active_id());
+			Guid id;
+			string active_id = this.get_active_id();
+
+			if (active_id == null)
+				return GUID_ZERO;
+			return Guid.try_parse(active_id, out id) ? id : GUID_ZERO;
 		}
 		set
 		{
@@ -46,32 +51,43 @@ public class InputObject : InputEnum
 		return true;
 	}
 
-	public string object_name(Guid id, ref int num_unnamed)
-	{
-		string name = _database.name(id);
-
-		if (name == OBJECT_NAME_UNNAMED) {
-			if (num_unnamed > 0) {
-				return "%s (%d)".printf(OBJECT_NAME_UNNAMED, num_unnamed++);
-			} else {
-				++num_unnamed;
-				return name;
-			}
-		}
-
-		return name;
-	}
-
 	public InputObject(StringId64 type, Database database)
 	{
 		_type = type;
 		_database = database;
+		_database.objects_created.connect(on_objects_created);
+		_database.objects_destroyed.connect(on_objects_destroyed);
+		_database.objects_changed.connect(on_objects_changed);
 
-		int num_unnamed = 0;
-		Guid?[] all_of_type = database.all_objects_of_type(type);
-		foreach (Guid? id in all_of_type) {
-			append(id.to_string(), object_name(id, ref num_unnamed));
-		}
+		append_objects();
+	}
+
+	public void append_objects()
+	{
+		Guid?[] all_of_type = _database.all_objects_of_type(_type);
+		Guid previous_value = this.value;
+
+		clear();
+
+		foreach (Guid? id in all_of_type)
+			append(id.to_string(), _database.name(id));
+
+		this.value = previous_value;
+	}
+
+	public void on_objects_created(Guid?[] object_ids, uint32 flags)
+	{
+		append_objects();
+	}
+
+	public void on_objects_destroyed(Guid?[] object_ids, uint32 flags)
+	{
+		append_objects();
+	}
+
+	public void on_objects_changed(Guid?[] object_ids, uint32 flags)
+	{
+		append_objects();
 	}
 }
 
