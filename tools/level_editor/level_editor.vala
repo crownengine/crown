@@ -2131,9 +2131,9 @@ public class LevelEditorApplication : Gtk.Application
 					});
 		}
 
-		_texture_settings_dialog.set_texture(texture_name);
 		_texture_settings_dialog.show_all();
 		_texture_settings_dialog.present();
+		_texture_settings_dialog.set_texture(texture_name);
 	}
 
 	public void on_state_machine_editor(GLib.SimpleAction action, GLib.Variant? param)
@@ -2155,9 +2155,9 @@ public class LevelEditorApplication : Gtk.Application
 			this.add_window(_state_machine_editor);
 		}
 
-		_state_machine_editor.set_state_machine(state_machine_name);
 		_state_machine_editor.show_all();
 		_state_machine_editor.present();
+		_state_machine_editor.set_state_machine(state_machine_name);
 	}
 
 	public void on_open_object(GLib.SimpleAction action, GLib.Variant? param)
@@ -2177,9 +2177,9 @@ public class LevelEditorApplication : Gtk.Application
 			this.add_window(_object_editor);
 		}
 
-		_object_editor.set_object(resource_type, resource_name);
 		_object_editor.show_all();
 		_object_editor.present();
+		_object_editor.set_object(resource_type, resource_name);
 	}
 
 	public void on_reveal(GLib.SimpleAction action, GLib.Variant? param)
@@ -4116,9 +4116,9 @@ public class LevelEditorApplication : Gtk.Application
 			_unit_editor_dialog.saved.connect(on_unit_editor_saved);
 		}
 
-		_unit_editor_dialog.set_unit(unit_name);
 		_unit_editor_dialog.show_all();
 		_unit_editor_dialog.present();
+		_unit_editor_dialog.set_unit(unit_name);
 	}
 
 	public void on_unit_editor_saved()

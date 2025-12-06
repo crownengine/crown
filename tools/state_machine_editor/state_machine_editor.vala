@@ -200,6 +200,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 
 		_state_machine_name = state_machine_name;
 		_objects_tree.set_object(_state_machine_id);
+		_database_editor.selection_set({ _state_machine_id });
 		update_window_title();
 		send();
 	}
