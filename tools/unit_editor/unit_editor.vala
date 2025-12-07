@@ -24,7 +24,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 	public Gtk.Box _box;
 
 	public string _unit_name;
-	public Unit? _unit;
+	public Guid _unit_id;
 
 	public signal void saved();
 
@@ -149,7 +149,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 
 		_level.send_level();
 
-		Unit.generate_spawn_unit_commands(sb, { _unit._id, }, _database);
+		Unit.generate_spawn_unit_commands(sb, { _unit_id, }, _database);
 
 		if (sb.len > 0)
 			_runtime.send_script(sb.str);
@@ -157,7 +157,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 		_editor_viewport.frame();
 
 		sb.erase();
-		sb.append(LevelEditorApi.frame_objects({ _unit._id }));
+		sb.append(LevelEditorApi.frame_objects({ _unit_id }));
 		if (sb.len > 0)
 			_runtime.send_script(sb.str);
 		_editor_viewport.frame();
@@ -178,10 +178,10 @@ public class UnitEditor : Gtk.ApplicationWindow
 
 	public void save()
 	{
-		if (_unit == null)
+		if (_unit_id == GUID_ZERO)
 			return;
 
-		if (_database.save(_database._project.absolute_path(_unit_name) + "." + OBJECT_TYPE_UNIT, _unit._id) == 0)
+		if (_database.save(_database._project.absolute_path(_unit_name) + "." + OBJECT_TYPE_UNIT, _unit_id) == 0)
 			saved();
 
 		update_window_title();
@@ -210,7 +210,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 
 		Guid last = object_ids[object_ids.length - 1];
 
-		_objects_tree.set_object(_unit._id); // Force update the tree.
+		_objects_tree.set_object(_unit_id); // Force update the tree.
 
 		if (_database.object_type(last) == OBJECT_TYPE_UNIT) {
 			_database_editor.selection_set({ last }); // Select the objects just created.
@@ -225,14 +225,14 @@ public class UnitEditor : Gtk.ApplicationWindow
 
 	public void on_objects_destroyed(Guid?[] object_ids, uint32 flags = 0)
 	{
-		_objects_tree.set_object(_unit._id); // Force update the tree.
+		_objects_tree.set_object(_unit_id); // Force update the tree.
 
 		Guid last = object_ids[object_ids.length - 1];
 
 		if (_database.object_type(last) == OBJECT_TYPE_UNIT) {
 			// Select the root object which must always exits.
-			_database_editor.selection_set({ _unit._id });
-			_properties_view.set_objects({ _unit._id });
+			_database_editor.selection_set({ _unit_id });
+			_properties_view.set_objects({ _unit_id });
 		} else if ((_database.type_flags(StringId64(_database.object_type(last))) & ObjectTypeFlags.UNIT_COMPONENT) != 0) {
 			Guid owner_id = _database.owner(last);
 
@@ -241,8 +241,8 @@ public class UnitEditor : Gtk.ApplicationWindow
 				_properties_view.set_objects({ owner_id });
 			} else {
 				// Select the root object which must always exits.
-				_database_editor.selection_set({ _unit._id });
-				_properties_view.set_objects({ _unit._id });
+				_database_editor.selection_set({ _unit_id });
+				_properties_view.set_objects({ _unit_id });
 			}
 		}
 
@@ -271,7 +271,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 
 		Guid last_changed = object_ids[object_ids.length - 1];
 
-		_objects_tree.set_object(_unit._id); // Force update the tree.
+		_objects_tree.set_object(_unit_id); // Force update the tree.
 		_database_editor.selection_set({ last_changed });
 		update_window_title();
 	}
@@ -280,18 +280,17 @@ public class UnitEditor : Gtk.ApplicationWindow
 	{
 		_level.load(LEVEL_EMPTY);
 
-		Guid unit_id;
-		if (Unit.load_unit(out unit_id, _database, unit_name) != 0)
+		if (Unit.load_unit(out _unit_id, _database, unit_name) != 0)
 			return;
 
 		_unit_name = unit_name;
-		_unit = Unit(_database, unit_id);
+		Unit unit = Unit(_database, _unit_id);
 		UndoRedo undo_redo = _database.disable_undo();
-		_unit.set_local_position(VECTOR3_ZERO);
+		unit.set_local_position(VECTOR3_ZERO);
 		_database.restore_undo(undo_redo);
 
-		_objects_tree.set_object(_unit._id);
-		_database_editor.selection_set({ _unit._id });
+		_objects_tree.set_object(_unit_id);
+		_database_editor.selection_set({ _unit_id });
 		update_window_title();
 		send();
 	}
