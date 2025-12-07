@@ -120,6 +120,8 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		this.delete_event.connect(on_close_request);
 		this.add(_box);
 
+		reset();
+
 		_editor_viewport.restart_runtime.begin();
 	}
 
@@ -158,6 +160,13 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 	{
 	}
 
+	public void reset()
+	{
+		_database.reset();
+		_state_machine_name = "";
+		_state_machine_id = GUID_ZERO;
+	}
+
 	public void save()
 	{
 		if (_database.save(_database._project.absolute_path(_state_machine_name) + "." + OBJECT_TYPE_STATE_MACHINE, _state_machine_id) == 0)
@@ -192,6 +201,8 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 
 	public void do_set_state_machine(string state_machine_name)
 	{
+		reset();
+
 		string resource_path = ResourceId.path(OBJECT_TYPE_STATE_MACHINE, state_machine_name);
 		string path = _database._project.absolute_path(resource_path);
 
@@ -207,6 +218,9 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 
 	public void set_state_machine(string state_machine_name)
 	{
+		if (state_machine_name == _state_machine_name)
+			return;
+
 		if (!_database.changed()) {
 			this.do_set_state_machine(state_machine_name);
 		} else {
@@ -236,22 +250,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 
 	public bool on_close_request(Gdk.EventAny event)
 	{
-		if (!_database.changed()) {
-			this.hide();
-		} else {
-			Gtk.Dialog dlg = new_resource_changed_dialog(this, _state_machine_name);
-			dlg.response.connect((response_id) => {
-					if (response_id == Gtk.ResponseType.NO) {
-						this.hide();
-					} else if (response_id == Gtk.ResponseType.YES) {
-						this.save();
-						this.hide();
-					}
-					dlg.destroy();
-				});
-			dlg.show_all();
-		}
-
+		this.hide();
 		return Gdk.EVENT_STOP;
 	}
 }
