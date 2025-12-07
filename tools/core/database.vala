@@ -462,6 +462,7 @@ public struct ObjectTypeInfo
 {
 	PropertiesSlice properties;
 	string name;
+	string ui_name;
 	double ui_order;
 	ObjectTypeFlags flags;
 	string? user_data;
@@ -2007,6 +2008,7 @@ public class Database
 		ObjectTypeInfo info = {};
 		info.properties = { first_property, num_properties };
 		info.name = type;
+		info.ui_name = camel_case(type);
 		info.ui_order = ui_order;
 		info.flags = flags;
 		info.user_data = user_data;

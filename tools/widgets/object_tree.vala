@@ -360,6 +360,8 @@ public class ObjectTree : Gtk.Box
 
 		_object_id = id;
 
+		ObjectTypeInfo info = _database.type_info(StringId64(_database.object_type(id)));
+
 		Gtk.TreeIter object_iter;
 		_tree_store.insert_with_values(out object_iter
 			, null
@@ -369,7 +371,7 @@ public class ObjectTree : Gtk.Box
 			, Column.OBJECT_ID
 			, id
 			, Column.OBJECT_NAME
-			, _database.name(id)
+			, info.ui_name
 			, Column.SET_NAME
 			, ""
 			, Column.VISIBLE
