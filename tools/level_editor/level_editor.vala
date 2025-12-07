@@ -2150,7 +2150,7 @@ public class LevelEditorApplication : Gtk.Application
 		if (_state_machine_editor == null) {
 			_state_machine_editor = new StateMachineEditor(this
 				, _project
-				, "core/editors/level_editor"
+				, "core/editors/state_machine_editor"
 				, "127.0.0.1"
 				, 10844
 				, (uint)_preferences_dialog._undo_redo_max_size.value * 1024 * 1024
