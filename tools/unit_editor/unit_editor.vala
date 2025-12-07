@@ -125,6 +125,8 @@ public class UnitEditor : Gtk.ApplicationWindow
 		this.delete_event.connect(on_close_request);
 		this.add(_box);
 
+		reset();
+
 		_editor_viewport.restart_runtime.begin();
 	}
 
@@ -174,6 +176,13 @@ public class UnitEditor : Gtk.ApplicationWindow
 
 	public void on_editor_disconnected_unexpected(RuntimeInstance ri)
 	{
+	}
+
+	public void reset()
+	{
+		_database.reset();
+		_unit_name = "";
+		_unit_id = GUID_ZERO;
 	}
 
 	public void save()
@@ -278,6 +287,8 @@ public class UnitEditor : Gtk.ApplicationWindow
 
 	public void do_set_unit(string unit_name)
 	{
+		reset();
+
 		_level.load(LEVEL_EMPTY);
 
 		if (Unit.load_unit(out _unit_id, _database, unit_name) != 0)
@@ -297,6 +308,9 @@ public class UnitEditor : Gtk.ApplicationWindow
 
 	public void set_unit(string unit_name)
 	{
+		if (_unit_name == unit_name)
+			return;
+
 		if (!_database.changed()) {
 			this.do_set_unit(unit_name);
 		} else {
@@ -326,22 +340,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 
 	public bool on_close_request(Gdk.EventAny event)
 	{
-		if (!_database.changed()) {
-			this.hide();
-		} else {
-			Gtk.Dialog dlg = new_resource_changed_dialog(this, _unit_name);
-			dlg.response.connect((response_id) => {
-					if (response_id == Gtk.ResponseType.NO) {
-						this.hide();
-					} else if (response_id == Gtk.ResponseType.YES) {
-						this.save();
-						this.hide();
-					}
-					dlg.destroy();
-				});
-			dlg.show_all();
-		}
-
+		this.hide();
 		return Gdk.EVENT_STOP;
 	}
 }

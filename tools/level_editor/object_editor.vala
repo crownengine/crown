@@ -93,6 +93,8 @@ public class ObjectEditor : Gtk.ApplicationWindow
 
 		this.delete_event.connect(on_close_request);
 		this.add(_box);
+
+		reset();
 	}
 
 	public void update_window_title()
@@ -108,6 +110,13 @@ public class ObjectEditor : Gtk.ApplicationWindow
 
 		if (this.title != title)
 			this.title = title;
+	}
+
+	public void reset()
+	{
+		_database.reset();
+		_object_name = "";
+		_object_id = GUID_ZERO;
 	}
 
 	public void save()
@@ -146,6 +155,8 @@ public class ObjectEditor : Gtk.ApplicationWindow
 
 	public void do_set_object(string type, string name)
 	{
+		reset();
+
 		string resource_path = ResourceId.path(type, name);
 		string path = _database._project.absolute_path(resource_path);
 
@@ -160,6 +171,9 @@ public class ObjectEditor : Gtk.ApplicationWindow
 
 	public void set_object(string type, string name)
 	{
+		if (_object_name == name)
+			return;
+
 		if (!_database.changed()) {
 			this.do_set_object(type, name);
 		} else {
@@ -194,22 +208,7 @@ public class ObjectEditor : Gtk.ApplicationWindow
 
 	public bool on_close_request(Gdk.EventAny event)
 	{
-		if (!_database.changed()) {
-			this.hide();
-		} else {
-			Gtk.Dialog dlg = new_resource_changed_dialog(this, _object_name);
-			dlg.response.connect((response_id) => {
-					if (response_id == Gtk.ResponseType.NO) {
-						this.hide();
-					} else if (response_id == Gtk.ResponseType.YES) {
-						this.save();
-						this.hide();
-					}
-					dlg.destroy();
-				});
-			dlg.show_all();
-		}
-
+		this.hide();
 		return Gdk.EVENT_STOP;
 	}
 }
