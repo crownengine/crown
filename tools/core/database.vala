@@ -458,6 +458,14 @@ public struct PropertiesSlice
 	int end;   // Index of last property + 1.
 }
 
+public delegate void Aspect(out string name, Database database, Guid id);
+
+[Compact]
+public struct AspectData
+{
+	public unowned Aspect callback;
+}
+
 public struct ObjectTypeInfo
 {
 	PropertiesSlice properties;
@@ -466,6 +474,7 @@ public struct ObjectTypeInfo
 	double ui_order;
 	ObjectTypeFlags flags;
 	string? user_data;
+	Gee.HashMap<StringId64?, AspectData?> aspects;
 }
 
 public class Database
@@ -2012,6 +2021,7 @@ public class Database
 		info.ui_order = ui_order;
 		info.flags = flags;
 		info.user_data = user_data;
+		info.aspects = new Gee.HashMap<StringId64?, AspectData?>(StringId64.hash_func, StringId64.equal_func);
 		_object_definitions[type_hash] = info;
 
 		object_type_added(info);
@@ -2107,6 +2117,28 @@ public class Database
 		}
 
 		return false;
+	}
+
+	public void set_aspect(StringId64 object_type, StringId64 aspect, Aspect callback)
+	{
+		ObjectTypeInfo info = type_info(object_type);
+
+		AspectData data = AspectData();
+		data.callback = callback;
+
+		info.aspects[aspect] = data;
+		assert(info.aspects.has_key(aspect));
+		assert(get_aspect(object_type, aspect) == callback);
+	}
+
+	public unowned Aspect? get_aspect(StringId64 object_type, StringId64 aspect)
+	{
+		ObjectTypeInfo info = type_info(object_type);
+
+		if (info.aspects.has_key(aspect))
+			return info.aspects[aspect].callback;
+
+		return null;
 	}
 }
 
