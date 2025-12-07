@@ -2087,6 +2087,25 @@ public class Database
 
 		return get_set(object_id, set_name).contains(subobject_id);
 	}
+
+	public bool find_property(ref uint32 property_index, StringId64 object_type, PropertyType type, string name)
+	{
+		PropertyDefinition[]? properties = object_definition(object_type);
+
+		if (properties == null)
+			return false;
+
+		for (int i = 0; i < properties.length; ++i) {
+			PropertyDefinition def = properties[i];
+
+			if (def.type == type && def.name == name) {
+				property_index = i;
+				return true;
+			}
+		}
+
+		return false;
+	}
 }
 
 } /* namespace Crown */
