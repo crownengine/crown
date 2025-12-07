@@ -1070,6 +1070,13 @@ public static void create_object_types(Database database)
 	};
 	StringId64 node_animation_type = database.create_object_type(OBJECT_TYPE_NODE_ANIMATION, properties);
 
+	database.set_aspect(node_animation_type
+		, StringId64("name")
+		, (out name, database, id) => {
+			string? anim_name = database.get_resource(id, "name");
+			name = anim_name == null ? "(None)" : GLib.Path.get_basename(anim_name);
+		});
+
 	properties =
 	{
 		PropertyDefinition()
@@ -1092,6 +1099,16 @@ public static void create_object_types(Database database)
 		},
 	};
 	StringId64 node_transition_type = database.create_object_type(OBJECT_TYPE_NODE_TRANSITION, properties);
+
+	database.set_aspect(node_transition_type
+		, StringId64("name")
+		, (out name, database, id) => {
+			string node_name = "Unknown";
+			Guid to_node = database.get_reference(id, "to");
+			if (to_node != GUID_ZERO)
+				node_name = database.get_string(to_node, "name");
+			name = "To %s".printf(node_name);
+		});
 
 	properties =
 	{
