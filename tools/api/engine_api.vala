@@ -625,4 +625,18 @@ namespace ThumbnailApi
 
 } /* namespace UnitPreviewApi */
 
+namespace StateMachineEditorApi
+{
+	public string set_unit(string unit_name)
+	{
+		return "LevelEditor:set_unit(\"%s\")".printf(unit_name);
+	}
+
+	public string trigger_animation_event(string event_name)
+	{
+		return "LevelEditor:trigger_animation_event(\"%s\")".printf(event_name);
+	}
+
+} /* namespace StateMachineEditorApi */
+
 } /* namespace Crown */

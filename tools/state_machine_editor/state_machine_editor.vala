@@ -22,6 +22,9 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 	public Gtk.Button _save;
 	public Gtk.HeaderBar _header_bar;
 	public Gtk.Box _box;
+	public Gtk.Box _events_box;
+	public Gee.HashMap<string, Gtk.Button> _event_buttons;
+	public InputResource _unit;
 
 	public string _state_machine_name;
 	public Guid _state_machine_id;
@@ -54,7 +57,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 
 		_database_editor.load_types();
 
-		_editor_viewport = new EditorViewport("unit_editor"
+		_editor_viewport = new EditorViewport("state_machine_editor"
 			, _database_editor
 			, project
 			, boot_dir
@@ -123,6 +126,24 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		this.delete_event.connect(on_close_request);
 		this.add(_box);
 
+		_events_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+		_events_box.orientation = Gtk.Orientation.VERTICAL;
+		_events_box.halign = Gtk.Align.END;
+		_events_box.valign = Gtk.Align.START;
+		_events_box.margin_top = 8;
+		_events_box.margin_end = 8;
+		_editor_viewport._overlay.add_overlay(_events_box);
+
+		_event_buttons = new Gee.HashMap<string, Gtk.Button>();
+
+		_unit = new InputResource(OBJECT_TYPE_UNIT, _database);
+		_unit.halign = Gtk.Align.START;
+		_unit.valign = Gtk.Align.START;
+		_unit.margin_top = 8;
+		_unit.margin_start = 8;
+		_unit.value_changed.connect(on_unit_value_changed);
+		_editor_viewport._overlay.add_overlay(_unit);
+
 		reset();
 
 		_editor_viewport.restart_runtime.begin();
@@ -148,6 +169,10 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 
 	public void send()
 	{
+		if (_unit.value == null)
+			return;
+
+		_runtime.send_script(StateMachineEditorApi.set_unit(_unit.value));
 	}
 
 	public void on_editor_connected(RuntimeInstance ri, string address, int port)
@@ -186,8 +211,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		Guid last_created = object_ids[object_ids.length - 1];
 
 		_objects_tree.set_object(_state_machine_id); // Force update the tree.
-		_database_editor.selection_set({ last_created }); // Select the objects just created.
-
+		create_event_buttons();
 		update_window_title();
 	}
 
@@ -195,6 +219,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 	{
 		_objects_tree.set_object(_state_machine_id); // Force update the tree.
 		_database_editor.selection_set({ _state_machine_id }); // Select the root object which must always exits.
+		create_event_buttons();
 		update_window_title();
 	}
 
@@ -204,6 +229,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 
 		_objects_tree.set_object(_state_machine_id); // Force update the tree.
 		_database_editor.selection_set({ last_changed });
+		create_event_buttons();
 		update_window_title();
 	}
 
@@ -218,8 +244,10 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 			return;
 
 		_state_machine_name = state_machine_name;
+		_unit.value = state_machine_name;
 		_objects_tree.set_object(_state_machine_id);
 		_database_editor.selection_set({ _state_machine_id });
+		create_event_buttons();
 		update_window_title();
 		send();
 	}
@@ -260,6 +288,53 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 	{
 		this.hide();
 		return Gdk.EVENT_STOP;
+	}
+
+	public void destroy_event_buttons()
+	{
+		foreach (var button in _event_buttons)
+			button.value.destroy();
+		_event_buttons.clear();
+	}
+
+	public void create_event_buttons()
+	{
+		destroy_event_buttons();
+
+		Guid?[] all_states = _database.all_objects_of_type(StringId64(OBJECT_TYPE_STATE_MACHINE_NODE));
+		Guid?[] all_transitions = _database.all_objects_of_type(StringId64(OBJECT_TYPE_NODE_TRANSITION));
+
+		foreach (var state in all_states) {
+			if (!_database.is_subobject_of(state, _state_machine_id, "states"))
+				continue;
+
+			foreach (var transition in all_transitions) {
+				if (!_database.is_subobject_of(transition, state, "transitions"))
+					continue;
+
+				string event_name = _database.get_string(transition, "event");
+				if (!_event_buttons.has_key(event_name))
+					_event_buttons.set(event_name, create_trigger_event_button(transition, event_name));
+			}
+		}
+
+		foreach (var button in _event_buttons)
+			_events_box.pack_start(button.value);
+		_events_box.show_all();
+	}
+
+	public Gtk.Button create_trigger_event_button(Guid object_id, string event_name)
+	{
+		Gtk.Button button = new Gtk.Button.with_label(event_name);
+		button.clicked.connect(() => {
+				_runtime.send_script(StateMachineEditorApi.trigger_animation_event(event_name));
+			});
+		return button;
+	}
+
+	public void on_unit_value_changed()
+	{
+		send();
 	}
 }
 
