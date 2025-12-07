@@ -330,6 +330,14 @@ public class ObjectTree : Gtk.Box
 					if (!_database.is_alive(child_id))
 						continue;
 
+					StringId64 child_type = StringId64(_database.object_type(child_id));
+					Aspect? name_aspect = _database.get_aspect(child_type, StringId64("name"));
+					if (name_aspect == null)
+						name_aspect = default_name_aspect;
+
+					string object_name;
+					name_aspect(out object_name, _database, child_id);
+
 					Gtk.TreeIter child_iter;
 					_tree_store.insert_with_values(out child_iter
 						, iter
@@ -339,7 +347,7 @@ public class ObjectTree : Gtk.Box
 						, Column.OBJECT_ID
 						, child_id
 						, Column.OBJECT_NAME
-						, _database.name(child_id)
+						, object_name
 						, Column.SET_NAME
 						, def.name
 						, Column.VISIBLE

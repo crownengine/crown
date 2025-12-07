@@ -69,8 +69,17 @@ public class InputObject : InputEnum
 
 		clear();
 
-		foreach (Guid? id in all_of_type)
-			append(id.to_string(), _database.name(id));
+		foreach (Guid? id in all_of_type) {
+			StringId64 object_type = StringId64(_database.object_type(id));
+			Aspect? name_aspect = _database.get_aspect(object_type, StringId64("name"));
+			if (name_aspect == null)
+				name_aspect = default_name_aspect;
+
+			string object_name;
+			name_aspect(out object_name, _database, id);
+
+			append(id.to_string(), object_name);
+		}
 
 		this.value = previous_value;
 	}

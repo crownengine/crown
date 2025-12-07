@@ -2142,4 +2142,20 @@ public class Database
 	}
 }
 
+public void default_name_aspect(out string name, Database database, Guid id)
+{
+	name = database.name(id);
+
+	StringId64 object_type = StringId64(database.object_type(id));
+	PropertyDefinition[]? properties = database.object_definition(object_type);
+
+	uint32 name_index = 0;
+	if (database.find_property(ref name_index, object_type, PropertyType.STRING, "name"))
+		name = database.get_string(id, properties[name_index].name);
+	else if (database.find_property(ref name_index, object_type, PropertyType.STRING, "editor.name"))
+		name = database.get_string(id, properties[name_index].name);
+	else
+		name = OBJECT_NAME_UNNAMED;
+}
+
 } /* namespace Crown */
