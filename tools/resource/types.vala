@@ -1376,6 +1376,125 @@ public static void create_object_types(Database database)
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_MESH_SKELETON, properties);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "source",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.BOOL,
+			name = "generate_mips",
+			deffault = true,
+			not_serialized = true,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.BOOL,
+			name = "normal_map",
+			not_serialized = true,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "output.android.format",
+			editor = PropertyEditorType.ENUM,
+			enum_values = { "BC1", "BC2", "BC3", "BC4", "BC5", "PTC14", "RGB8", "RGBA8" },
+			deffault = "BC1",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.BOOL,
+			name = "output.android.generate_mips",
+			deffault = true,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "output.android.mip_skip_smallest",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.BOOL,
+			name = "output.android.normal_map",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "output.html5.format",
+			editor = PropertyEditorType.ENUM,
+			enum_values = { "BC1", "BC2", "BC3", "BC4", "BC5", "PTC14", "RGB8", "RGBA8" },
+			deffault = "BC1",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.BOOL,
+			name = "output.html5.generate_mips",
+			deffault = true,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "output.html5.mip_skip_smallest",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.BOOL,
+			name = "output.html5.normal_map",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "output.linux.format",
+			editor = PropertyEditorType.ENUM,
+			enum_values = { "BC1", "BC2", "BC3", "BC4", "BC5", "PTC14", "RGB8", "RGBA8" },
+			deffault = "BC1",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.BOOL,
+			name = "output.linux.generate_mips",
+			deffault = true,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "output.linux.mip_skip_smallest",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.BOOL,
+			name = "output.linux.normal_map",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "output.windows.format",
+			editor = PropertyEditorType.ENUM,
+			enum_values = { "BC1", "BC2", "BC3", "BC4", "BC5", "PTC14", "RGB8", "RGBA8" },
+			deffault = "BC1",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.BOOL,
+			name = "output.windows.generate_mips",
+			deffault = true,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "output.windows.mip_skip_smallest",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.BOOL,
+			name = "output.windows.normal_map",
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_TEXTURE, properties);
 }
 
 } /* namespace Crown */
