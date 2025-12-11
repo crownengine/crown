@@ -50,7 +50,7 @@ namespace fbx
 			ki.h.type = AnimationKeyHeader::POSITION;
 			ki.h.track_id = mesh_animation::track_id(ma, bone_id, ki.h.type);
 			ki.offset = array::size(ma.keys);
-			ki.num = (u32)bake_node->translation_keys.count;
+			ki.num = max(2u, (u32)bake_node->translation_keys.count);
 			ki.cur = 0;
 			array::push_back(ma.indices, ki);
 
@@ -67,10 +67,16 @@ namespace fbx
 				array::push_back(ma.keys, key);
 			}
 
+			if (bake_node->translation_keys.count == 1) {
+				AnimationKey end_key = array::back(ma.keys);
+				end_key.h.time = bake->playback_duration * 1000.0f;
+				array::push_back(ma.keys, end_key);
+			}
+
 			ki.h.type = AnimationKeyHeader::ROTATION;
 			ki.h.track_id = mesh_animation::track_id(ma, bone_id, ki.h.type);
 			ki.offset = array::size(ma.keys);
-			ki.num = (u32)bake_node->rotation_keys.count;
+			ki.num = max(2u, (u32)bake_node->rotation_keys.count);
 			ki.cur = 0;
 			array::push_back(ma.indices, ki);
 
@@ -86,6 +92,12 @@ namespace fbx
 				key.r.value.z = (f32)bake_quat->value.z;
 				key.r.value.w = (f32)bake_quat->value.w;
 				array::push_back(ma.keys, key);
+			}
+
+			if (bake_node->rotation_keys.count == 1) {
+				AnimationKey end_key = array::back(ma.keys);
+				end_key.h.time = bake->playback_duration * 1000.0f;
+				array::push_back(ma.keys, end_key);
 			}
 		}
 
