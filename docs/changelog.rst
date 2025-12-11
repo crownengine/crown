@@ -44,6 +44,7 @@ Changelog
 * Runtime: fixed some UnitIDs not being released when destroying units with state machines.
 * Runtime: fixed a crash when playing empty mesh animations.
 * Data Compiler: fixed a crash when compiling some mesh skeletons.
+* Data Compiler: fixed compiling funny FBX animation files.
 * Lua: fixed a memory leak when executing some script component callbacks.
 
 0.59.0 --- 02 Oct 2025
