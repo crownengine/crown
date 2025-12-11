@@ -1997,22 +1997,10 @@ public class Database
 		assert(!_object_definitions.has_key(type_hash));
 		assert(properties.length > 0);
 
-		PropertyDefinition[] editor_properties =
-		{
-			PropertyDefinition()
-			{
-				type = PropertyType.STRING,
-				name = "editor.name",
-				deffault = OBJECT_NAME_UNNAMED,
-				hidden = true,
-			},
-		};
-
 		int first_property = _property_definitions.length;
-		int num_properties = first_property + properties.length + editor_properties.length;
+		int num_properties = first_property + properties.length;
 
 		add_properties(properties);
-		add_properties(editor_properties);
 
 		ObjectTypeInfo info = {};
 		info.properties = { first_property, num_properties };
@@ -2042,7 +2030,12 @@ public class Database
 	// OBJECT_NAME_UNNAMED.
 	public string name(Guid id)
 	{
-		return get_string(id, "editor.name", OBJECT_NAME_UNNAMED);
+		string name = get_string(id, "editor.name", OBJECT_NAME_UNNAMED);
+
+		if (name == OBJECT_NAME_UNNAMED)
+			return get_string(id, "name", OBJECT_NAME_UNNAMED);
+
+		return name;
 	}
 
 	// Sets the @a name of the object @a id.
