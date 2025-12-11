@@ -278,15 +278,22 @@ void ConsoleServer::execute_message_handlers(bool sync)
 			}
 
 			// Find handler for the message type.
+			TempAllocator256 ta;
+			DynamicString command_type(ta);
+			sjson::parse_string(command_type, obj["type"]);
+
 			CommandData cmd;
 			cmd.message_function = NULL;
 			cmd.user_data = NULL;
 			cmd = hash_map::get(_messages
-				, sjson::parse_string_id(obj["type"])
+				, command_type.to_string_id()
 				, cmd
 				);
 			if (!cmd.message_function) {
-				error(client_id, "Unknown command type");
+				TempAllocator256 err_ta;
+				StringStream err_msg(err_ta);
+				err_msg << "Unknown command type '" << command_type.c_str() << "'";
+				error(client_id, string_stream::c_str(err_msg));
 				continue;
 			}
 
