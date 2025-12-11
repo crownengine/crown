@@ -518,13 +518,13 @@ public class DeployDialog : Gtk.Window
 
 		// Add pages.
 		_notebook = new Gtk.Notebook();
-		_notebook.append_page(_android_page, new Gtk.Label(TargetPlatform.ANDROID.to_label()));
-		_notebook.append_page(_html5_page, new Gtk.Label(TargetPlatform.HTML5.to_label()));
 #if CROWN_PLATFORM_LINUX
 		_notebook.append_page(_linux_page, new Gtk.Label(TargetPlatform.LINUX.to_label()));
 #elif CROWN_PLATFORM_WINDOWS
 		_notebook.append_page(_windows_page, new Gtk.Label(TargetPlatform.WINDOWS.to_label()));
 #endif
+		_notebook.append_page(_android_page, new Gtk.Label(TargetPlatform.ANDROID.to_label()));
+		_notebook.append_page(_html5_page, new Gtk.Label(TargetPlatform.HTML5.to_label()));
 		_notebook.vexpand = true;
 		_notebook.show_border = false;
 
