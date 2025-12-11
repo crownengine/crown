@@ -48,6 +48,8 @@ public class TextureSettingsDialog : Gtk.Window
 		_texture_database = new Database(project);
 		_texture_id = GUID_ZERO;
 
+		create_object_types(_texture_database);
+
 		_platforms_store = new Gtk.ListStore(1
 			, typeof(TargetPlatform) // platform name
 			);
