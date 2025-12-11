@@ -804,7 +804,6 @@ public class LevelEditorApplication : Gtk.Application
 		_compiler.connected.connect(on_runtime_connected);
 		_compiler.disconnected.connect(on_runtime_disconnected);
 		_compiler.disconnected_unexpected.connect(on_data_compiler_disconnected_unexpected);
-		_runtimes.add(_compiler);
 
 		_data_compiler = new DataCompiler(_compiler);
 		_data_compiler.start.connect(on_data_compiler_start);
