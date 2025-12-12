@@ -297,6 +297,12 @@ function UnitBox:draw()
 	if light then
 		RenderWorld.light_debug_draw(self._rw, light, LevelEditor._lines)
 	end
+
+	local physics_world = World.physics_world(self._world)
+	local mover = PhysicsWorld.mover_instance(physics_world, self._unit_id)
+	if mover then
+		PhysicsWorld.mover_debug_draw(physics_world, mover, LevelEditor._lines)
+	end
 end
 
 function UnitBox:set_light(type, range, intensity, angle, color, bias, cast_shadows)
