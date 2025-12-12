@@ -1124,6 +1124,12 @@ Mover
 **mover_set_position** (pw, mover, position)
 	Teleports the *mover* to the specified *position*.
 
+**mover_center** (pw, mover) : Vector3
+	Returns the center of the *mover* relative to the transform's position.
+
+**mover_set_center** (pw, mover, center)
+	Sets the center of the *mover* relative to the transform's position.
+
 **mover_move** (pw, mover, delta)
 	Attempts to move the *mover* by the specified *delta* vector.
 	The *mover* will slide against physical actors.

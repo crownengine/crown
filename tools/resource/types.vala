@@ -879,6 +879,11 @@ public static void create_object_types(Database database)
 		},
 		PropertyDefinition()
 		{
+			type = PropertyType.VECTOR3,
+			name = "data.center",
+		},
+		PropertyDefinition()
+		{
 			type = PropertyType.DOUBLE,
 			name = "spawn_order",
 			deffault = 2.0,

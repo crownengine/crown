@@ -358,6 +358,7 @@ struct Mover
 	btManifoldArray _manifold_array;
 	bool _was_on_ground;
 	btVector3 _up;
+	btVector3 _center;
 
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
@@ -373,6 +374,7 @@ struct Mover
 		_current_step_offset = 0.0;
 		_max_penetration_depth = 0.2;
 		_step_height = 0.02; // FIXME: remove since we only use capsule colliders?
+		_center.setValue(0.0f, 0.0f, 0.0f);
 
 		_shape = CE_NEW(allocator, btCapsuleShapeZ)(radius, height);
 		_ghost->setCollisionShape(_shape);
@@ -435,7 +437,7 @@ struct Mover
 
 		_collision_world->getDispatcher()->dispatchAllCollisionPairs(_ghost->getOverlappingPairCache(), _collision_world->getDispatchInfo(), _collision_world->getDispatcher());
 
-		_current_position = _ghost->m_worldTransform.m_origin;
+		_current_position = _ghost->m_worldTransform.m_origin - _center;
 
 		for (int i = 0; i < _ghost->getOverlappingPairCache()->getNumOverlappingPairs(); i++) {
 			_manifold_array.resize(0);
@@ -471,7 +473,7 @@ struct Mover
 		}
 
 		btTransform new_trans = _ghost->m_worldTransform;
-		new_trans.m_origin = (_current_position);
+		new_trans.m_origin = _current_position + _center;
 		_ghost->setWorldTransform(new_trans);
 		return penetration;
 	}
@@ -496,12 +498,12 @@ struct Mover
 		end.setIdentity();
 
 		// FIXME: Handle penetration properly (?).
-		start.m_origin = _current_position;
+		start.m_origin = _current_position + _center;
 
 		_target_position = _current_position + _up * (step_height + _vertical_delta);
 		_current_position = _target_position;
 
-		end.m_origin = _target_position;
+		end.m_origin = _target_position + _center;
 
 		btKinematicClosestNotMeConvexResultCallback callback(_ghost, -_up, _max_slope_cosine);
 		callback.m_collisionFilterGroup = _ghost->m_broadphaseHandle->m_collisionFilterGroup;
@@ -520,7 +522,7 @@ struct Mover
 			}
 
 			btTransform &xform = _ghost->m_worldTransform;
-			xform.m_origin = _current_position;
+			xform.m_origin = _current_position + _center;
 			_ghost->setWorldTransform(xform);
 
 			// Fix penetration if we hit a ceiling for example.
@@ -531,7 +533,7 @@ struct Mover
 					break; // Character could not recover from penetration.
 				}
 			}
-			_target_position = _ghost->m_worldTransform.m_origin;
+			_target_position = _ghost->m_worldTransform.m_origin - _center;
 			_current_position = _target_position;
 
 			if (_vertical_delta > 0) {
@@ -558,8 +560,8 @@ struct Mover
 		int maxIter = 10;
 
 		while (fraction > btScalar(0.01) && maxIter-- > 0) {
-			start.m_origin = _current_position;
-			end.m_origin   = _target_position;
+			start.m_origin = _current_position + _center;
+			end.m_origin   = _target_position + _center;
 			btVector3 sweepDirNegative(_current_position - _target_position);
 
 			btKinematicClosestNotMeConvexResultCallback callback(_ghost, sweepDirNegative, btScalar(0.0));
@@ -642,11 +644,11 @@ struct Mover
 
 			end_double.setIdentity();
 
-			start.m_origin = _current_position;
-			end.m_origin   = _target_position;
+			start.m_origin = _current_position + _center;
+			end.m_origin   = _target_position + _center;
 
 			// Set double test for 2x the step drop, to check for a large drop vs small drop.
-			end_double.m_origin = _target_position - step_drop;
+			end_double.m_origin = _target_position - step_drop + _center;
 
 			_ghost->convexSweepTest(_shape, start, end, callback, _collision_world->getDispatchInfo().m_allowedCcdPenetration);
 
@@ -694,7 +696,7 @@ struct Mover
 		_move_delta = delta;
 		_move_delta_normalized = normalized(delta);
 
-		_current_position = _ghost->m_worldTransform.m_origin;
+		_current_position = _ghost->m_worldTransform.m_origin - _center;
 		_target_position = _current_position;
 
 		_was_on_ground = onGround();
@@ -712,7 +714,7 @@ struct Mover
 		step_forward_and_strafe(perpendicular_offset);
 		step_down();
 
-		xform.m_origin = _current_position;
+		xform.m_origin = _current_position + _center;
 		_ghost->setWorldTransform(xform);
 
 		int num_penetration_loops = 0;
@@ -773,7 +775,7 @@ struct Mover
 	{
 		btTransform xform;
 		xform.setIdentity();
-		xform.m_origin = (origin);
+		xform.m_origin = (origin + _center);
 		_ghost->setWorldTransform(xform);
 	}
 
@@ -831,6 +833,15 @@ struct Mover
 		btScalar height = capsule->getHalfHeight() * 2.0f;
 
 		set_height_radius(allocator, radius, height);
+	}
+
+	void set_center(const btVector3 &center)
+	{
+		btVector3 delta = center - _center;
+		_center = center;
+		btTransform xform = _ghost->m_worldTransform;
+		xform.m_origin += delta;
+		_ghost->setWorldTransform(xform);
 	}
 };
 
@@ -1443,6 +1454,7 @@ struct PhysicsWorldImpl
 				, to_btVector3(VECTOR3_UP)
 				);
 			mover->set_max_slope(movers[i].max_slope_angle);
+			mover->set_center(to_btVector3(movers[i].center));
 
 			_dynamics_world->addCollisionObject(ghost
 				, f->me
@@ -1535,6 +1547,16 @@ struct PhysicsWorldImpl
 	{
 		_mover[mover.i].mover->reset();
 		_mover[mover.i].mover->set_position(to_btVector3(position));
+	}
+
+	Vector3 mover_center(MoverInstance mover)
+	{
+		return to_vector3(_mover[mover.i].mover->_center);
+	}
+
+	void mover_set_center(MoverInstance mover, const Vector3 &center)
+	{
+		_mover[mover.i].mover->set_center(to_btVector3(center));
 	}
 
 	void mover_move(MoverInstance mover, const Vector3 &delta)
@@ -2280,6 +2302,16 @@ Vector3 PhysicsWorld::mover_position(MoverInstance mover)
 void PhysicsWorld::mover_set_position(MoverInstance mover, const Vector3 &position)
 {
 	return _impl->mover_set_position(mover, position);
+}
+
+Vector3 PhysicsWorld::mover_center(MoverInstance mover)
+{
+	return _impl->mover_center(mover);
+}
+
+void PhysicsWorld::mover_set_center(MoverInstance mover, const Vector3 &center)
+{
+	_impl->mover_set_center(mover, center);
 }
 
 void PhysicsWorld::mover_move(MoverInstance mover, const Vector3 &delta)
