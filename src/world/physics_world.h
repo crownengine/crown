@@ -190,6 +190,9 @@ struct PhysicsWorld
 	/// Returns the radius of the @a mover capsule.
 	f32 mover_radius(MoverInstance mover);
 
+	/// Sets the @a radius of the @a mover capsule.
+	void mover_set_radius(MoverInstance mover, float radius);
+
 	/// Returns the max slope angle of the @a mover.
 	f32 mover_max_slope_angle(MoverInstance mover);
 

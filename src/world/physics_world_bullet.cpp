@@ -800,13 +800,11 @@ struct Mover
 		return fabs(_vertical_delta) < SIMD_EPSILON;
 	}
 
-	void set_height(Allocator &allocator, float height)
+	void set_height_radius(Allocator &allocator, float radius, float height)
 	{
 		CE_ENSURE(_shape != NULL);
-		btCapsuleShapeZ *capsule = (btCapsuleShapeZ *)_shape;
-
-		btScalar radius = capsule->getRadius();
 		btCapsuleShapeZ *new_capsule = CE_NEW(allocator, btCapsuleShapeZ)(radius, height);
+
 		_ghost->setCollisionShape(new_capsule);
 		CE_DELETE(allocator, _shape);
 		_shape = new_capsule;
@@ -817,6 +815,22 @@ struct Mover
 			if (num_penetration_loops > 4)
 				break; // Character could not recover from penetration.
 		}
+	}
+
+	void set_height(Allocator &allocator, float height)
+	{
+		btCapsuleShapeZ *capsule = (btCapsuleShapeZ *)_shape;
+		btScalar radius = capsule->getRadius();
+
+		set_height_radius(allocator, radius, height);
+	}
+
+	void set_radius(Allocator &allocator, float radius)
+	{
+		btCapsuleShapeZ *capsule = (btCapsuleShapeZ *)_shape;
+		btScalar height = capsule->getHalfHeight() * 2.0f;
+
+		set_height_radius(allocator, radius, height);
 	}
 };
 
@@ -1480,6 +1494,12 @@ struct PhysicsWorldImpl
 	{
 		CE_ASSERT(mover.i < array::size(_mover), "Index out of bounds");
 		return _mover[mover.i].mover->radius();
+	}
+
+	void mover_set_radius(MoverInstance mover, float radius)
+	{
+		CE_ASSERT(mover.i < array::size(_mover), "Index out of bounds");
+		return _mover[mover.i].mover->set_radius(*_allocator, radius);
 	}
 
 	f32 mover_max_slope_angle(MoverInstance mover)
@@ -2230,6 +2250,11 @@ void PhysicsWorld::mover_set_height(MoverInstance mover, float height)
 f32 PhysicsWorld::mover_radius(MoverInstance mover)
 {
 	return _impl->mover_radius(mover);
+}
+
+void PhysicsWorld::mover_set_radius(MoverInstance mover, float radius)
+{
+	_impl->mover_set_radius(mover, radius);
 }
 
 f32 PhysicsWorld::mover_max_slope_angle(MoverInstance mover)

@@ -1106,6 +1106,9 @@ Mover
 **mover_radius** (pw, mover) : number
 	Returns the radius of the *mover* capsule.
 
+**mover_set_radius** (pw, mover, radius)
+	Sets the *radius* of the *mover* capsule.
+
 **mover_max_slope_angle** (pw, mover) : number
 	Returns the max slope angle of the *mover*.
 
