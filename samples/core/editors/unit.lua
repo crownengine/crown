@@ -326,6 +326,17 @@ function UnitBox:set_animation_state_machine(state_machine_resource)
 	end
 end
 
+function UnitBox:set_mover(height, radius, max_slope_angle, center)
+	local physics_world = World.physics_world(self._world)
+	local mover = PhysicsWorld.mover_instance(physics_world, self._unit_id)
+	if mover then
+		PhysicsWorld.mover_set_height(physics_world, mover, height)
+		PhysicsWorld.mover_set_radius(physics_world, mover, radius)
+		PhysicsWorld.mover_set_max_slope_angle(physics_world, mover, max_slope_angle)
+		PhysicsWorld.mover_set_center(physics_world, mover, center)
+	end
+end
+
 function UnitBox:set_fog(color, density, range_min, range_max, sun_blend, enabled)
 	local fog = RenderWorld.fog_instance(self._rw, self._unit_id)
 	if fog then

@@ -459,6 +459,21 @@ namespace LevelEditorApi
 			);
 	}
 
+	public string set_mover(Guid id
+		, double height
+		, double radius
+		, double max_slope_angle
+		, Vector3 center
+		)
+	{
+		return "LevelEditor._objects[\"%s\"]:set_mover(%.17g, %.17g, %.17g, %s)".printf(id.to_string()
+			, height
+			, radius
+			, max_slope_angle
+			, Lua.vector3(center)
+			);
+	}
+
 	public string set_fog(Guid id
 		, Vector3 color
 		, double density

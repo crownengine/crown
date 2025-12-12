@@ -644,7 +644,12 @@ public struct Unit
 		} else if (component_type == OBJECT_TYPE_ACTOR) {
 			/* No sync. */
 		} else if (component_type == OBJECT_TYPE_MOVER) {
-			/* No sync. */
+			sb.append(LevelEditorApi.set_mover(unit_id
+				, unit.get_component_double(component_id, "data.height")
+				, unit.get_component_double(component_id, "data.radius")
+				, unit.get_component_double(component_id, "data.max_slope_angle")
+				, unit.get_component_vector3(component_id, "data.center")
+				));
 		} else if (component_type == OBJECT_TYPE_ANIMATION_STATE_MACHINE) {
 			/* No sync. */
 		} else {
