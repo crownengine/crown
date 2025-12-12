@@ -361,22 +361,29 @@ struct Mover
 
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
-	Mover(btCollisionWorld *collision_world, btPairCachingGhostObject *ghost, btConvexShape *shape, const btVector3 &up)
+	Mover(Allocator &allocator, btCollisionWorld *collision_world, btPairCachingGhostObject *ghost, float radius, float height, const btVector3 &up)
 	{
 		_flags = 0;
 		_collision_world = collision_world;
 		_ghost = ghost;
 		_up.setValue(0.0f, 0.0f, 1.0f);
 		_move_delta.setValue(0.0, 0.0, 0.0);
-		_shape = shape;
 		_vertical_delta = 0.0;
 		_was_on_ground = false;
 		_current_step_offset = 0.0;
 		_max_penetration_depth = 0.2;
 		_step_height = 0.02; // FIXME: remove since we only use capsule colliders?
 
+		_shape = CE_NEW(allocator, btCapsuleShapeZ)(radius, height);
+		_ghost->setCollisionShape(_shape);
+
 		set_up_direction(up);
 		set_max_slope(btRadians(45.0));
+	}
+
+	void destroy_shape(Allocator &allocator)
+	{
+		CE_DELETE(allocator, _shape);
 	}
 
 	static btVector3 normalized(const btVector3 &v)
@@ -783,6 +790,11 @@ struct Mover
 		return _max_slope_radians;
 	}
 
+	btScalar radius() const
+	{
+		return ((btCapsuleShapeZ *)_shape)->getRadius();
+	}
+
 	bool onGround() const
 	{
 		return fabs(_vertical_delta) < SIMD_EPSILON;
@@ -808,7 +820,6 @@ struct PhysicsWorldImpl
 	struct MoverInstanceData
 	{
 		UnitId unit;
-		btConvexShape *collider;
 		btPairCachingGhostObject *ghost;
 		Mover *mover;
 	};
@@ -891,10 +902,10 @@ struct PhysicsWorldImpl
 		for (u32 i = 0; i < array::size(_mover); ++i) {
 			MoverInstanceData *inst = &_mover[i];
 
+			inst->mover->destroy_shape(*_allocator);
 			CE_DELETE(*_allocator, inst->mover);
 			_dynamics_world->removeCollisionObject(inst->ghost);
 			CE_DELETE(*_allocator, inst->ghost);
-			CE_DELETE(*_allocator, inst->collider);
 		}
 
 		for (u32 i = 0; i < array::size(_actor); ++i) {
@@ -1387,16 +1398,15 @@ struct PhysicsWorldImpl
 
 			const btTransform pose(to_btQuaternion(QUATERNION_IDENTITY), to_btVector3(translation(tm)));
 
-			btConvexShape *capsule = CE_NEW(*_allocator, btCapsuleShapeZ)(movers[i].capsule.radius, movers[i].capsule.height);
-
 			btPairCachingGhostObject *ghost = CE_NEW(*_allocator, btPairCachingGhostObject)();
 			ghost->setWorldTransform(pose);
-			ghost->setCollisionShape(capsule);
 			ghost->m_userObjectPointer = ((void *)(uintptr_t)UINT32_MAX);
 
-			Mover *mover = CE_NEW(*_allocator, Mover)(_dynamics_world
+			Mover *mover = CE_NEW(*_allocator, Mover)(*_allocator
+				, _dynamics_world
 				, ghost
-				, capsule
+				, movers[i].capsule.radius
+				, movers[i].capsule.height
 				, to_btVector3(VECTOR3_UP)
 				);
 			mover->set_max_slope(movers[i].max_slope_angle);
@@ -1408,7 +1418,6 @@ struct PhysicsWorldImpl
 
 			MoverInstanceData mid;
 			mid.unit = unit;
-			mid.collider = capsule;
 			mid.ghost = ghost;
 			mid.mover = mover;
 
@@ -1425,10 +1434,10 @@ struct PhysicsWorldImpl
 		const UnitId u      = _mover[mover.i].unit;
 		const UnitId last_u = _mover[last].unit;
 
+		_mover[mover.i].mover->destroy_shape(*_allocator);
 		CE_DELETE(*_allocator, _mover[mover.i].mover);
 		_dynamics_world->removeCollisionObject(_mover[mover.i].ghost);
 		CE_DELETE(*_allocator, _mover[mover.i].ghost);
-		CE_DELETE(*_allocator, _mover[mover.i].collider);
 
 		_mover[mover.i] = _mover[last];
 		array::pop_back(_mover);
@@ -1445,7 +1454,7 @@ struct PhysicsWorldImpl
 	f32 mover_radius(MoverInstance mover)
 	{
 		CE_ASSERT(mover.i < array::size(_mover), "Index out of bounds");
-		return ((btCapsuleShapeZ *)_mover[mover.i].collider)->getRadius();
+		return _mover[mover.i].mover->radius();
 	}
 
 	f32 mover_max_slope_angle(MoverInstance mover)
