@@ -2590,6 +2590,11 @@ void load_api(LuaEnvironment &env)
 			stack.get_physics_world(1)->mover_destroy(stack.get_mover_instance(2));
 			return 0;
 		});
+	env.add_module_function("PhysicsWorld", "mover_set_height", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_physics_world(1)->mover_set_height(stack.get_mover_instance(2), stack.get_float(3));
+			return 0;
+		});
 	env.add_module_function("PhysicsWorld", "mover_radius", [](lua_State *L) {
 			LuaStack stack(L, +1);
 			stack.push_float(stack.get_physics_world(1)->mover_radius(stack.get_mover_instance(2)));

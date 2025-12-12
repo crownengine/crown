@@ -1100,6 +1100,9 @@ Mover
 **mover** (pw, unit) : Id
 	Returns the ID of the mover owned by the *unit*.
 
+**mover_set_height** (pw, mover, height)
+	Sets the *height* of the *mover* capsule.
+
 **mover_radius** (pw, mover) : number
 	Returns the radius of the *mover* capsule.
 

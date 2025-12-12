@@ -14,6 +14,7 @@ Changelog
 * Runtime: added an end-of-options marker to stop the runtime from parsing game-specific command line options.
 * Lua: added ``Device.build()`` to retrieve the runtime's build configuration.
 * Lua: added ``PhysicsWorld.actor_debug_draw()`` and ``PhysicsWorld.mover_debug_draw()``.
+* Lua: added ``PhysicsWorld.mover_set_height()``.
 * Lua: added ``AnimationStateMachine.create()``, ``AnimationStateMachine.destroy()`` and ``AnimationStateMachine.set_state_machine()``.
 * Lua: the ``update()`` script component callback is now optional.
 

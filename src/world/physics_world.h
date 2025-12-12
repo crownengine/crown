@@ -184,6 +184,9 @@ struct PhysicsWorld
 	/// Returns the ID of the mover owned by the *unit*.
 	MoverInstance mover(UnitId unit);
 
+	/// Sets the @a height of the @a mover capsule.
+	void mover_set_height(MoverInstance mover, float height);
+
 	/// Returns the radius of the @a mover capsule.
 	f32 mover_radius(MoverInstance mover);
 
