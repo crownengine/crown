@@ -529,6 +529,7 @@ struct MoverDesc
 	CapsuleShape capsule;        ///<
 	f32 max_slope_angle;         ///< Maximum slope angle the mover is allowed to climb.
 	StringId32 collision_filter; ///< Name of collision filter in global.physics_config resource.
+	Vector3 center;              ///< Center of the capsule relative to the transform's position.
 };
 
 struct HingeJoint

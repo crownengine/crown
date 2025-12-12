@@ -208,6 +208,12 @@ struct PhysicsWorld
 	/// Teleports the @a mover to the specified @a position.
 	void mover_set_position(MoverInstance mover, const Vector3 &position);
 
+	/// Returns the center of the *mover* relative to the transform's position.
+	Vector3 mover_center(MoverInstance mover);
+
+	/// Sets the center of the *mover* relative to the transform's position.
+	void mover_set_center(MoverInstance mover, const Vector3 &center);
+
 	/// Attempts to move the @a mover by the specified @a delta vector.
 	/// The @a mover will slide against physical actors.
 	void mover_move(MoverInstance mover, const Vector3 &delta);

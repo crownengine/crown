@@ -2630,6 +2630,16 @@ void load_api(LuaEnvironment &env)
 			stack.get_physics_world(1)->mover_set_position(stack.get_mover_instance(2), stack.get_vector3(3));
 			return 1;
 		});
+	env.add_module_function("PhysicsWorld", "mover_center", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			stack.push_vector3(stack.get_physics_world(1)->mover_center(stack.get_mover_instance(2)));
+			return 1;
+		});
+	env.add_module_function("PhysicsWorld", "mover_set_center", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_physics_world(1)->mover_set_center(stack.get_mover_instance(2), stack.get_vector3(3));
+			return 0;
+		});
 	env.add_module_function("PhysicsWorld", "mover_move", [](lua_State *L) {
 			LuaStack stack(L);
 			stack.get_physics_world(1)->mover_move(stack.get_mover_instance(2), stack.get_vector3(3));
