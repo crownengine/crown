@@ -799,6 +799,25 @@ struct Mover
 	{
 		return fabs(_vertical_delta) < SIMD_EPSILON;
 	}
+
+	void set_height(Allocator &allocator, float height)
+	{
+		CE_ENSURE(_shape != NULL);
+		btCapsuleShapeZ *capsule = (btCapsuleShapeZ *)_shape;
+
+		btScalar radius = capsule->getRadius();
+		btCapsuleShapeZ *new_capsule = CE_NEW(allocator, btCapsuleShapeZ)(radius, height);
+		_ghost->setCollisionShape(new_capsule);
+		CE_DELETE(allocator, _shape);
+		_shape = new_capsule;
+
+		int num_penetration_loops = 0;
+		while (recover_from_penetration()) {
+			num_penetration_loops++;
+			if (num_penetration_loops > 4)
+				break; // Character could not recover from penetration.
+		}
+	}
 };
 
 struct PhysicsWorldImpl
@@ -1449,6 +1468,12 @@ struct PhysicsWorldImpl
 	MoverInstance mover(UnitId unit)
 	{
 		return make_mover_instance(hash_map::get(_mover_map, unit, UINT32_MAX));
+	}
+
+	void mover_set_height(MoverInstance mover, float height)
+	{
+		CE_ASSERT(mover.i < array::size(_mover), "Index out of bounds");
+		return _mover[mover.i].mover->set_height(*_allocator, height);
 	}
 
 	f32 mover_radius(MoverInstance mover)
@@ -2195,6 +2220,11 @@ void PhysicsWorld::mover_destroy(MoverInstance actor)
 MoverInstance PhysicsWorld::mover(UnitId unit)
 {
 	return _impl->mover(unit);
+}
+
+void PhysicsWorld::mover_set_height(MoverInstance mover, float height)
+{
+	_impl->mover_set_height(mover, height);
 }
 
 f32 PhysicsWorld::mover_radius(MoverInstance mover)
