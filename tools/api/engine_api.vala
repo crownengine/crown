@@ -652,6 +652,11 @@ namespace StateMachineEditorApi
 		return "LevelEditor:trigger_animation_event(\"%s\")".printf(event_name);
 	}
 
+	public string set_variable(string variable_name, double value)
+	{
+		return "LevelEditor:set_variable(\"%s\", %f)".printf(variable_name, value);
+	}
+
 } /* namespace StateMachineEditorApi */
 
 } /* namespace Crown */

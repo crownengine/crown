@@ -168,3 +168,15 @@ function LevelEditor:trigger_animation_event(event_name)
 	if not instance then return end
 	AnimationStateMachine.trigger(state_machine, instance, event_name)
 end
+
+function LevelEditor:set_variable(variable_name, value)
+	local state_machine = World.animation_state_machine(self._world)
+	local instance = AnimationStateMachine.instance(state_machine, self._unit:unit_id())
+
+	if not instance then return end
+
+	local variable_id = AnimationStateMachine.variable_id(state_machine, instance, variable_name)
+	if variable_id then
+		AnimationStateMachine.set_variable(state_machine, instance, variable_id, value)
+	end
+end

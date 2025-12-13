@@ -23,7 +23,9 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 	public Gtk.HeaderBar _header_bar;
 	public Gtk.Box _box;
 	public Gtk.Box _events_box;
+	public Gtk.Box _variables_box;
 	public Gee.HashMap<string, Gtk.Button> _event_buttons;
+	public Gee.HashMap<string, Gtk.Box> _variable_sliders;
 	public InputResource _unit;
 
 	public string _state_machine_name;
@@ -127,14 +129,22 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		this.add(_box);
 
 		_events_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
-		_events_box.orientation = Gtk.Orientation.VERTICAL;
 		_events_box.halign = Gtk.Align.END;
 		_events_box.valign = Gtk.Align.START;
 		_events_box.margin_top = 8;
 		_events_box.margin_end = 8;
 		_editor_viewport._overlay.add_overlay(_events_box);
 
+		_variables_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+		_variables_box.halign = Gtk.Align.END;
+		_variables_box.valign = Gtk.Align.START;
+		_variables_box.margin_top = 200;
+		_variables_box.margin_end = 8;
+		_variables_box.set_size_request(200, -1);
+		_editor_viewport._overlay.add_overlay(_variables_box);
+
 		_event_buttons = new Gee.HashMap<string, Gtk.Button>();
+		_variable_sliders = new Gee.HashMap<string, Gtk.Box>();
 
 		_unit = new InputResource(OBJECT_TYPE_UNIT, _database);
 		_unit.halign = Gtk.Align.START;
@@ -212,6 +222,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 
 		_objects_tree.set_object(_state_machine_id); // Force update the tree.
 		create_event_buttons();
+		create_variable_sliders();
 		update_window_title();
 	}
 
@@ -220,6 +231,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		_objects_tree.set_object(_state_machine_id); // Force update the tree.
 		_database_editor.selection_set({ _state_machine_id }); // Select the root object which must always exits.
 		create_event_buttons();
+		create_variable_sliders();
 		update_window_title();
 	}
 
@@ -230,6 +242,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		_objects_tree.set_object(_state_machine_id); // Force update the tree.
 		_database_editor.selection_set({ last_changed });
 		create_event_buttons();
+		create_variable_sliders();
 		update_window_title();
 	}
 
@@ -248,6 +261,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		_objects_tree.set_object(_state_machine_id);
 		_database_editor.selection_set({ _state_machine_id });
 		create_event_buttons();
+		create_variable_sliders();
 		update_window_title();
 		send();
 	}
@@ -330,6 +344,68 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 				_runtime.send_script(StateMachineEditorApi.trigger_animation_event(event_name));
 			});
 		return button;
+	}
+
+	public void destroy_variable_sliders()
+	{
+		foreach (var slider in _variable_sliders)
+			slider.value.destroy();
+		_variable_sliders.clear();
+	}
+
+	public void create_variable_sliders()
+	{
+		destroy_variable_sliders();
+
+		Guid?[] all_variables = _database.all_objects_of_type(StringId64(OBJECT_TYPE_STATE_MACHINE_VARIABLE));
+
+		foreach (var variable in all_variables) {
+			if (!_database.is_subobject_of(variable, _state_machine_id, "variables"))
+				continue;
+
+			string variable_name = _database.get_string(variable, "name");
+			if (!_variable_sliders.has_key(variable_name)) {
+				double min_value = _database.get_double(variable, "min");
+				double max_value = _database.get_double(variable, "max");
+				double current_value = _database.get_double(variable, "value");
+
+				_variable_sliders.set(variable_name, create_variable_slider(variable, variable_name, min_value, max_value, current_value));
+			}
+		}
+
+		foreach (var slider in _variable_sliders)
+			_variables_box.pack_start(slider.value);
+		_variables_box.show_all();
+	}
+
+	public Gtk.Box create_variable_slider(Guid object_id, string variable_name, double min_value, double max_value, double current_value)
+	{
+		// Create label.
+		Gtk.Label label = new Gtk.Label(variable_name);
+		label.ellipsize = Pango.EllipsizeMode.END;
+		label.halign = Gtk.Align.START;
+		label.set_size_request(1, -1);
+
+		// Create slider.
+		Gtk.Adjustment adjustment = new Gtk.Adjustment(current_value, min_value, max_value, 0.01, 0.1, 0.0);
+		Gtk.Scale scale = new Gtk.Scale(Gtk.Orientation.HORIZONTAL, adjustment);
+		scale.set_draw_value(true);
+		scale.set_value_pos(Gtk.PositionType.RIGHT);
+		scale.set_digits(2);
+		scale.set_size_request(150, -1);
+
+		scale.value_changed.connect(() => {
+				double value = scale.get_value();
+				_runtime.send_script(StateMachineEditorApi.set_variable(variable_name, value));
+			});
+
+		Gtk.Box slider_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 6);
+		slider_box.pack_start(label, false, false, 0);
+		slider_box.pack_start(scale, true, true, 0);
+		slider_box.margin_bottom = 4;
+		slider_box.set_size_request(180, -1);
+
+		return slider_box;
 	}
 
 	public void on_unit_value_changed()
