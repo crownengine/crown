@@ -1925,7 +1925,7 @@ public class Database
 				if (def.deffault == null)
 					def.deffault = 0.0;
 				if (def.min == null)
-					def.min = double.MIN;
+					def.min = -double.MAX;
 				if (def.max == null)
 					def.max = double.MAX;
 
