@@ -1173,6 +1173,18 @@ public static void create_object_types(Database database)
 			type = PropertyType.DOUBLE,
 			name = "value",
 		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "min",
+			deffault = -1.0,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "max",
+			deffault = 1.0,
+		},
 	};
 	StringId64 state_machine_variable_type = database.create_object_type(OBJECT_TYPE_STATE_MACHINE_VARIABLE, properties);
 
