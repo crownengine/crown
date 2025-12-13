@@ -1,6 +1,8 @@
 _guid = "4d08a505-9289-4f5a-84d0-050df77ecd6f"
 _type = "state_machine"
+animation_type = "sprite_animation"
 initial_state = "42d8083d-f42b-48b8-92e2-1fb3a5bb3d8b"
+skeleton_name = null
 states = [
 	{
 		_guid = "03001f3e-8b7f-481c-bce4-b0ad9393182a"
@@ -91,18 +93,24 @@ variables = [
 	{
 		_guid = "2050d2ca-3906-4577-b44f-4d7e9705a6e2"
 		_type = "state_machine_variable"
+		max = 1
+		min = -1
 		name = "speed_y"
 		value = 0
 	}
 	{
 		_guid = "29015d56-f6d9-478d-baba-73f234bbdf2d"
 		_type = "state_machine_variable"
+		max = 1
+		min = -1
 		name = "speed_x"
 		value = 0
 	}
 	{
 		_guid = "86fcf50c-6daf-432d-b4d9-60b87b879505"
 		_type = "state_machine_variable"
+		max = 1
+		min = 0
 		name = "speed"
 		value = 0
 	}
