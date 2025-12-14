@@ -221,6 +221,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		Guid last_created = object_ids[object_ids.length - 1];
 
 		_objects_tree.set_object(_state_machine_id); // Force update the tree.
+		_database_editor.selection_set({ last_created }); // Select the root object which must always exits.
 		create_event_buttons();
 		create_variable_sliders();
 		update_window_title();
