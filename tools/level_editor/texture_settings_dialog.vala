@@ -26,6 +26,7 @@ public class TextureSettingsDialog : Gtk.Window
 	public InputDouble _mip_skip_smallest;
 	public InputBool _normal_map;
 	public InputBool _linear;
+	public InputBool _premultiply_alpha;
 	public Gtk.Box _box;
 	public Gtk.EventControllerKey _controller_key;
 	public Gtk.Button _cancel;
@@ -118,6 +119,10 @@ public class TextureSettingsDialog : Gtk.Window
 		_linear.value = false;
 		_linear.value_changed.connect(on_linear_value_changed);
 
+		_premultiply_alpha = new InputBool();
+		_premultiply_alpha.value = false;
+		_premultiply_alpha.value_changed.connect(on_premultiply_alpha_value_changed);
+
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
 		cv.add_row("Format", _format);
@@ -125,6 +130,7 @@ public class TextureSettingsDialog : Gtk.Window
 		cv.add_row("Skip Smallest Mips", _mip_skip_smallest);
 		cv.add_row("Normal Map", _normal_map);
 		cv.add_row("Linear", _linear);
+		cv.add_row("Premultiply Alpha", _premultiply_alpha);
 		_texture_set.add_property_grid(cv, "Output");
 
 		_stack = new Gtk.Stack();
@@ -262,13 +268,14 @@ public class TextureSettingsDialog : Gtk.Window
 			return;
 		}
 
-		string property_names[] = { "source", "format", "generate_mips", "mip_skip_smallest", "normal_map", "linear" };
-		InputField properties[] = { _source, _format, _generate_mips, _mip_skip_smallest, _normal_map, _linear };
+		string property_names[] = { "source", "format", "generate_mips", "mip_skip_smallest", "normal_map", "linear", "premultiply_alpha" };
+		InputField properties[] = { _source, _format, _generate_mips, _mip_skip_smallest, _normal_map, _linear, _premultiply_alpha };
 		_format.value_changed.disconnect(on_format_value_changed);
 		_generate_mips.value_changed.disconnect(on_generate_mips_value_changed);
 		_mip_skip_smallest.value_changed.disconnect(on_mip_skip_smallest_value_changed);
 		_normal_map.value_changed.disconnect(on_normal_map_value_changed);
 		_linear.value_changed.disconnect(on_linear_value_changed);
+		_premultiply_alpha.value_changed.disconnect(on_premultiply_alpha_value_changed);
 
 		for (int i = 0; i < properties.length; ++i)
 			properties[i].set_data("init", false);
@@ -309,6 +316,7 @@ public class TextureSettingsDialog : Gtk.Window
 		_mip_skip_smallest.value_changed.connect(on_mip_skip_smallest_value_changed);
 		_normal_map.value_changed.connect(on_normal_map_value_changed);
 		_linear.value_changed.connect(on_linear_value_changed);
+		_premultiply_alpha.value_changed.connect(on_premultiply_alpha_value_changed);
 	}
 
 	public void on_format_value_changed()
@@ -334,6 +342,11 @@ public class TextureSettingsDialog : Gtk.Window
 	public void on_linear_value_changed()
 	{
 		on_property_value_changed("linear", _linear);
+	}
+
+	public void on_premultiply_alpha_value_changed()
+	{
+		on_property_value_changed("premultiply_alpha", _premultiply_alpha);
 	}
 
 	public void on_property_value_changed(string property_name, InputField property_value)

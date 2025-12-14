@@ -131,6 +131,7 @@ namespace texture_resource_internal
 		u32 mip_skip_smallest;      ///< Number of (smallest) mip steps to skip.
 		bool normal_map;            ///< Whether the texture is a normal map.
 		bool linear;                ///< Whether to skip gamma correction.
+		bool premultiply_alpha;     ///< Whether to premultiply alpha into RGB channel.
 
 		OutputSettings()
 			: format(TextureFormat::RGBA8)
@@ -138,6 +139,7 @@ namespace texture_resource_internal
 			, mip_skip_smallest(0u)
 			, normal_map(false)
 			, linear(false)
+			, premultiply_alpha(false)
 		{
 		}
 	};
@@ -172,6 +174,9 @@ namespace texture_resource_internal
 			}
 			if (json_object::has(obj, "linear")) {
 				os.linear = RETURN_IF_ERROR(sjson::parse_bool(obj["linear"]), opts);
+			}
+			if (json_object::has(obj, "premultiply_alpha")) {
+				os.premultiply_alpha = RETURN_IF_ERROR(sjson::parse_bool(obj["premultiply_alpha"]), opts);
 			}
 		}
 
@@ -232,6 +237,7 @@ namespace texture_resource_internal
 			s_texture_formats[os.format].name,
 			(os.normal_map ? "-n" : ""),
 			(os.linear ? "--linear" : ""),
+			(os.premultiply_alpha ? "--pma" : ""),
 			(os.generate_mips ? "-m" : ""),
 			(os.mip_skip_smallest > 0 ? "--mipskip" : ""),
 			(os.mip_skip_smallest > 0 ? mipskip : ""),
