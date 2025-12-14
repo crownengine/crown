@@ -17,6 +17,7 @@ Changelog
 * Lua: added ``PhysicsWorld.actor_debug_draw()`` and ``PhysicsWorld.mover_debug_draw()``.
 * Lua: added ``PhysicsWorld.mover_set_height()``, ``PhysicsWorld.mover_set_radius()``, ``PhysicsWorld.mover_center()`` and ``PhysicsWorld.mover_set_center()``.
 * Lua: added ``AnimationStateMachine.create()``, ``AnimationStateMachine.destroy()`` and ``AnimationStateMachine.set_state_machine()``.
+* Lua: ``AnimationStateMachine.variable_id()`` will now return ``nil`` if the variable does not exist.
 * Lua: the ``update()`` script component callback is now optional.
 
 **Fixes**

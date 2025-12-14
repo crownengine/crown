@@ -2875,8 +2875,10 @@ void load_api(LuaEnvironment &env)
 			u32 variable_id = stack.get_animation_state_machine(1)->variable_id(stack.get_state_machine_instance(2)
 				, stack.get_string_id_32(3)
 				);
-			LUA_ASSERT(variable_id != UINT32_MAX, stack, "Variable does not exist");
-			stack.push_id(variable_id);
+			if (variable_id == UINT32_MAX)
+				stack.push_nil();
+			else
+				stack.push_id(variable_id);
 			return 1;
 		});
 	env.add_module_function("AnimationStateMachine", "variable", [](lua_State *L) {
