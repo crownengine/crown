@@ -13,7 +13,7 @@ bgfx_shaders = {
 		#	define MAX_NUM_LIGHTS 32
 		#	define MAX_NUM_CASCADES 4
 			uniform vec4 u_lights_num;        // num_dir, num_omni, num_spot
-			uniform vec4 u_lights_data[LIGHT_SIZE * MAX_NUM_LIGHTS]; // dir_0, .., dir_n-1, omni_0, .., omni_n-1, spot_0, .., spot_n-1
+			SAMPLER2D(u_lights_data, 12); // dir_0, .., dir_n-1, omni_0, .., omni_n-1, spot_0, .., spot_n-1
 			uniform mat4 u_cascaded_lights[MAX_NUM_CASCADES]; // View-proj-crop matrices for cascaded shadow maps.
 			uniform vec4 u_shadow_maps_texel_sizes;
 		#	define sun_sm_texel_size u_shadow_maps_texel_sizes.xy
@@ -164,6 +164,12 @@ bgfx_shaders = {
 				return mix(vec3_splat(0.0), radiance, fade_smoothstep(camera_dist, fade_dist, cutoff_dist));
 			}
 
+			vec4 lights_data(int offset)
+			{
+				float u = (float(offset) + 0.5) / float(LIGHT_SIZE * MAX_NUM_LIGHTS);
+				return texture2D(u_lights_data, vec2(u, 0.0));
+			}
+
 			vec3 calc_lighting(mat3 tbn
 				, vec3 n
 				, vec3 v
@@ -194,13 +200,13 @@ bgfx_shaders = {
 
 				if (num_dir > 0) {
 					// Brightest directional light (index == 0) generates cascaded shadow maps.
-					vec3 light_color  = u_lights_data[loffset + 0].rgb;
-					float intensity   = u_lights_data[loffset + 0].w;
-					vec3 direction    = u_lights_data[loffset + 2].xyz;
-					float shadow_bias = u_lights_data[loffset + 3].r;
-					float atlas_u     = u_lights_data[loffset + 3].g;
-					float atlas_v     = u_lights_data[loffset + 3].b;
-					float atlas_size  = u_lights_data[loffset + 3].a;
+					vec3 light_color  = lights_data(loffset + 0).rgb;
+					float intensity   = lights_data(loffset + 0).w;
+					vec3 direction    = lights_data(loffset + 2).xyz;
+					float shadow_bias = lights_data(loffset + 3).r;
+					float atlas_u     = lights_data(loffset + 3).g;
+					float atlas_v     = lights_data(loffset + 3).b;
+					float atlas_size  = lights_data(loffset + 3).a;
 					loffset += LIGHT_SIZE;
 
 					sun_color = light_color;
@@ -240,10 +246,10 @@ bgfx_shaders = {
 
 				// Others directional lights just add to radiance.
 				for (int di = 1; di < num_dir; ++di, loffset += LIGHT_SIZE) {
-					vec3 light_color  = u_lights_data[loffset + 0].rgb;
-					float intensity   = u_lights_data[loffset + 0].w;
-					vec3 direction    = u_lights_data[loffset + 2].xyz;
-					float shadow_bias = u_lights_data[loffset + 3].r;
+					vec3 light_color  = lights_data(loffset + 0).rgb;
+					float intensity   = lights_data(loffset + 0).w;
+					vec3 direction    = lights_data(loffset + 2).xyz;
+					float shadow_bias = lights_data(loffset + 3).r;
 
 					radiance += calc_dir_light(n
 						, v
@@ -258,11 +264,11 @@ bgfx_shaders = {
 				}
 
 				for (int oi = 0; oi < num_omni; ++oi, loffset += LIGHT_SIZE) {
-					vec3 light_color  = u_lights_data[loffset + 0].rgb;
-					float intensity   = u_lights_data[loffset + 0].w;
-					vec3 position     = u_lights_data[loffset + 1].xyz;
-					float range       = u_lights_data[loffset + 1].w;
-					float shadow_bias = u_lights_data[loffset + 3].r;
+					vec3 light_color  = lights_data(loffset + 0).rgb;
+					float intensity   = lights_data(loffset + 0).w;
+					vec3 position     = lights_data(loffset + 1).xyz;
+					float range       = lights_data(loffset + 1).w;
+					float shadow_bias = lights_data(loffset + 3).r;
 
 					vec3 local_radiance = calc_omni_light(n
 						, v
@@ -281,20 +287,20 @@ bgfx_shaders = {
 				}
 
 				for (int si = 0; si < num_spot; ++si, loffset += LIGHT_SIZE) {
-					vec3 light_color  = u_lights_data[loffset + 0].rgb;
-					float intensity   = u_lights_data[loffset + 0].w;
-					vec3 position     = u_lights_data[loffset + 1].xyz;
-					float range       = u_lights_data[loffset + 1].w;
-					vec3 direction    = u_lights_data[loffset + 2].xyz;
-					float spot_angle  = u_lights_data[loffset + 2].w;
-					float shadow_bias = u_lights_data[loffset + 3].r;
-					float atlas_u     = u_lights_data[loffset + 3].g;
-					float atlas_v     = u_lights_data[loffset + 3].b;
-					float atlas_size  = u_lights_data[loffset + 3].a;
-					vec4 axis_x       = u_lights_data[loffset + 4];
-					vec4 axis_y       = u_lights_data[loffset + 5];
-					vec4 axis_z       = u_lights_data[loffset + 6];
-					vec4 axis_t       = u_lights_data[loffset + 7];
+					vec3 light_color  = lights_data(loffset + 0).rgb;
+					float intensity   = lights_data(loffset + 0).w;
+					vec3 position     = lights_data(loffset + 1).xyz;
+					float range       = lights_data(loffset + 1).w;
+					vec3 direction    = lights_data(loffset + 2).xyz;
+					float spot_angle  = lights_data(loffset + 2).w;
+					float shadow_bias = lights_data(loffset + 3).r;
+					float atlas_u     = lights_data(loffset + 3).g;
+					float atlas_v     = lights_data(loffset + 3).b;
+					float atlas_size  = lights_data(loffset + 3).a;
+					vec4 axis_x       = lights_data(loffset + 4);
+					vec4 axis_y       = lights_data(loffset + 5);
+					vec4 axis_z       = lights_data(loffset + 6);
+					vec4 axis_t       = lights_data(loffset + 7);
 
 					vec3 local_radiance = calc_spot_light(n
 						, v
