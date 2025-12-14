@@ -1453,6 +1453,11 @@ public static void create_object_types(Database database)
 		},
 		PropertyDefinition()
 		{
+			type = PropertyType.BOOL,
+			name = "output.android.linear",
+		},
+		PropertyDefinition()
+		{
 			type = PropertyType.STRING,
 			name = "output.html5.format",
 			editor = PropertyEditorType.ENUM,
@@ -1474,6 +1479,11 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.BOOL,
 			name = "output.html5.normal_map",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.BOOL,
+			name = "output.html5.linear",
 		},
 		PropertyDefinition()
 		{
@@ -1501,6 +1511,11 @@ public static void create_object_types(Database database)
 		},
 		PropertyDefinition()
 		{
+			type = PropertyType.BOOL,
+			name = "output.linux.linear",
+		},
+		PropertyDefinition()
+		{
 			type = PropertyType.STRING,
 			name = "output.windows.format",
 			editor = PropertyEditorType.ENUM,
@@ -1522,6 +1537,11 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.BOOL,
 			name = "output.windows.normal_map",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.BOOL,
+			name = "output.windows.linear",
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_TEXTURE, properties);
