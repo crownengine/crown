@@ -13,7 +13,6 @@ public class DatabaseEditor
 		{ "redo",      on_redo,      null,   null },
 		{ "duplicate", on_duplicate, null,   null },
 		{ "delete",    on_delete,    null,   null },
-		{ "rename",    on_rename,    "(ss)", null },
 		{ "add",       on_add,       "(ss)", null },
 	};
 
@@ -84,46 +83,6 @@ public class DatabaseEditor
 		}
 		selection_changed();
 		_database.add_restore_point((int)ActionType.DESTROY_OBJECTS, ids);
-	}
-
-	public void do_rename(Guid object_id, string new_name)
-	{
-		if (new_name != "" && _database.name(object_id) != new_name) {
-			_database.set_name(object_id, new_name);
-			_database.add_restore_point((int)ActionType.CHANGE_OBJECTS, new Guid?[] { object_id });
-		}
-	}
-
-	public void on_rename(GLib.SimpleAction action, GLib.Variant? param)
-	{
-		Guid object_id = Guid.parse((string)param.get_child_value(0));
-		string new_name = (string)param.get_child_value(1);
-
-		if (new_name != "") {
-			do_rename(object_id, new_name);
-		} else {
-			Gtk.Dialog dg = new Gtk.Dialog.with_buttons("New Name"
-				, null
-				, Gtk.DialogFlags.MODAL
-				, "Cancel"
-				, Gtk.ResponseType.CANCEL
-				, "Ok"
-				, Gtk.ResponseType.OK
-				, null
-				);
-
-			InputString sb = new InputString();
-			sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
-			sb.value = _database.name(object_id);
-
-			dg.get_content_area().add(sb);
-			dg.response.connect((response_id) => {
-					if (response_id == Gtk.ResponseType.OK)
-						do_rename(object_id, sb.text.strip());
-					dg.destroy();
-				});
-			dg.show_all();
-		}
 	}
 
 	public void on_add(GLib.SimpleAction action, GLib.Variant? param)
