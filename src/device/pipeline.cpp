@@ -210,7 +210,15 @@ void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settin
 	_u_local_lights_params = bgfx::createUniform("u_local_lights_params", bgfx::UniformType::Vec4);
 
 	_lights_num = bgfx::createUniform("u_lights_num", bgfx::UniformType::Vec4, 1);
-	_lights_data = bgfx::createUniform("u_lights_data", bgfx::UniformType::Vec4, LIGHT_SIZE*MAX_NUM_LIGHTS);
+	_lights_data = bgfx::createUniform("u_lights_data", bgfx::UniformType::Sampler);
+	_lights_data_texture = bgfx::createTexture2D(MAX_NUM_LIGHTS * LIGHT_SIZE
+		, 1
+		, false
+		, 1
+		, bgfx::TextureFormat::RGBA32F
+		, BGFX_SAMPLER_MIN_POINT | BGFX_SAMPLER_MAG_POINT
+		);
+
 	_fog_data = bgfx::createUniform("u_fog_data", bgfx::UniformType::Vec4, 2);
 	_lighting_params = bgfx::createUniform("u_lighting_params", bgfx::UniformType::Vec4);
 
@@ -247,6 +255,8 @@ void Pipeline::destroy()
 	_lighting_params = BGFX_INVALID_HANDLE;
 	bgfx::destroy(_fog_data);
 	_fog_data = BGFX_INVALID_HANDLE;
+	bgfx::destroy(_lights_data_texture);
+	_lights_data_texture = BGFX_INVALID_HANDLE;
 	bgfx::destroy(_lights_data);
 	_lights_data = BGFX_INVALID_HANDLE;
 	bgfx::destroy(_lights_num);

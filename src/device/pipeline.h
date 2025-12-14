@@ -14,6 +14,7 @@
 #define MAX_NUM_LIGHTS 32 // Maximum number of lights per frame.
 #define MAX_NUM_SPRITE_LAYERS 8
 #define MAX_NUM_CASCADES 4
+#define LIGHTS_DATA_SLOT 12
 #define CASCADED_SHADOW_MAP_SLOT 10
 #define LOCAL_LIGHTS_SHADOW_MAP_SLOT 11
 #define LOCAL_LIGHTS_MAX_SHADOW_CASTERS 16 // Maximum number of local shadow-casting lights per frame.
@@ -101,6 +102,7 @@ struct Pipeline
 	// Lighting.
 	bgfx::UniformHandle _lights_num;
 	bgfx::UniformHandle _lights_data;
+	bgfx::TextureHandle _lights_data_texture;
 	bgfx::UniformHandle _fog_data;
 	bgfx::UniformHandle _lighting_params;
 

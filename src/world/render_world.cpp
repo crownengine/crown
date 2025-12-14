@@ -946,7 +946,15 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 	h.w = 0.0f;
 	bgfx::setUniform(_pipeline->_lights_num, &h);
 	CE_ENSURE(array::size(lm._lights_data) <= MAX_NUM_LIGHTS);
-	bgfx::setUniform(_pipeline->_lights_data, (char *)array::begin(lm._lights_data), array::size(lm._lights_data)*sizeof(LightManager::ShaderData)/sizeof(Vector4));
+	bgfx::updateTexture2D(_pipeline->_lights_data_texture
+		, 0 // layer
+		, 0 // mip
+		, 0 // x
+		, 0 // y
+		, LIGHT_SIZE * array::size(lm._lights_data) // width
+		, 1 // height
+		, bgfx::makeRef(array::begin(lm._lights_data), array::size(lm._lights_data)*sizeof(LightManager::ShaderData))
+		);
 	bgfx::touch(View::LIGHTS);
 
 	// Skydome.
@@ -1332,6 +1340,7 @@ void RenderWorld::MeshManager::draw_visibles(u8 view_id, SceneGraph &scene_graph
 		bgfx::setUniform(_render_world->_pipeline->_u_uv_offset, &uv_offset);
 #endif
 
+		bgfx::setTexture(LIGHTS_DATA_SLOT, _render_world->_pipeline->_lights_data, _render_world->_pipeline->_lights_data_texture);
 		bgfx::setTexture(CASCADED_SHADOW_MAP_SLOT, _render_world->_pipeline->_u_cascaded_shadow_map, _render_world->_pipeline->_sun_shadow_map_texture);
 		bgfx::setUniform(_render_world->_pipeline->_u_cascaded_lights, cascaded_lights, MAX_NUM_CASCADES);
 		bgfx::setUniform(_render_world->_pipeline->_u_shadow_maps_texel_sizes, &texel_sizes);
