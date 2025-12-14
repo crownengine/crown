@@ -129,13 +129,15 @@ namespace texture_resource_internal
 		TextureFormat::Enum format; ///< Output format.
 		bool generate_mips;         ///< Whether to generate mip-maps.
 		u32 mip_skip_smallest;      ///< Number of (smallest) mip steps to skip.
-		bool normal_map;            ///< Whether to skip gamma correction.
+		bool normal_map;            ///< Whether the texture is a normal map.
+		bool linear;                ///< Whether to skip gamma correction.
 
 		OutputSettings()
 			: format(TextureFormat::RGBA8)
 			, generate_mips(true)
 			, mip_skip_smallest(0u)
 			, normal_map(false)
+			, linear(false)
 		{
 		}
 	};
@@ -167,6 +169,9 @@ namespace texture_resource_internal
 			}
 			if (json_object::has(obj, "normal_map")) {
 				os.normal_map        = RETURN_IF_ERROR(sjson::parse_bool(obj["normal_map"]), opts);
+			}
+			if (json_object::has(obj, "linear")) {
+				os.linear = RETURN_IF_ERROR(sjson::parse_bool(obj["linear"]), opts);
 			}
 		}
 
@@ -226,6 +231,7 @@ namespace texture_resource_internal
 			"-t",
 			s_texture_formats[os.format].name,
 			(os.normal_map ? "-n" : ""),
+			(os.linear ? "--linear" : ""),
 			(os.generate_mips ? "-m" : ""),
 			(os.mip_skip_smallest > 0 ? "--mipskip" : ""),
 			(os.mip_skip_smallest > 0 ? mipskip : ""),
