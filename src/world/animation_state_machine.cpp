@@ -65,6 +65,12 @@ AnimationStateMachine::~AnimationStateMachine()
 {
 	_unit_manager->unregister_destroy_callback(&_unit_destroy_callback);
 	_marker = 0;
+
+	for (u32 i = 0; i < array::size(_machines); ++i) {
+		Machine &machine = _machines[i];
+
+		deallocate(machine);
+	}
 }
 
 static void mesh_set_skeleton_recursively(UnitId unit, AnimationSkeletonInstance *skeleton, SceneGraph &scene_graph, RenderWorld &render_world)
