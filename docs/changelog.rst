@@ -46,6 +46,7 @@ Changelog
 * Runtime: fixed destroying units with children.
 * Runtime: fixed some UnitIDs not being released when destroying units with state machines.
 * Runtime: fixed a crash when playing empty mesh animations.
+* Runtime: fixed a leak when destroying worlds with animation state machines.
 * Data Compiler: fixed a crash when compiling some mesh skeletons.
 * Data Compiler: fixed compiling funny FBX animation files.
 * Lua: fixed a memory leak when executing some script component callbacks.
