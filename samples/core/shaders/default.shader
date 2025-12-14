@@ -322,7 +322,13 @@ bgfx_shaders = {
 		#if defined(NO_LIGHT)
 				vec3 radiance = albedo;
 		#else
-				vec3 normal = u_use_normal_map.r == 1.0 ? decodeNormalUint(texture2D(u_normal_map, v_texcoord0).rgb) : v_normal;
+				vec3 normal;
+				if (u_use_normal_map.r == 1.0) {
+					normal.xy = texture2DBc5(u_normal_map, v_texcoord0) * 2.0 - 1.0;
+					normal.z  = sqrt(1.0 - dot(normal.xy, normal.xy));
+				} else {
+					normal = v_normal;
+				}
 				float metallic = u_use_metallic_map.r == 1.0 ? texture2D(u_metallic_map, v_texcoord0).r : u_metallic.r;
 				float roughness = u_use_roughness_map.r == 1.0 ? texture2D(u_roughness_map, v_texcoord0).r: u_roughness.r;
 				float ao = u_use_ao_map.r == 1.0 ? texture2D(u_ao_map, v_texcoord0).r : 1.0;

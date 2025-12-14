@@ -12,6 +12,7 @@ Changelog
 * Tools: added a generic editor to inspect and modify all registered resource types. Previously resources with no dedicated editor were opened in a plain-text editor.
 * Runtime: added the ability to reload animation state machines.
 * Runtime: added an end-of-options marker to stop the runtime from parsing game-specific command line options.
+* Runtime: the ``mesh`` shader will now expect normal maps to be encoded in the BC5 texture format.
 * Lua: added ``Device.build()`` to retrieve the runtime's build configuration.
 * Lua: added ``PhysicsWorld.actor_debug_draw()`` and ``PhysicsWorld.mover_debug_draw()``.
 * Lua: added ``PhysicsWorld.mover_set_height()``, ``PhysicsWorld.mover_set_radius()``, ``PhysicsWorld.mover_center()`` and ``PhysicsWorld.mover_set_center()``.
