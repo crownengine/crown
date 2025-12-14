@@ -15,7 +15,8 @@ AnimationStateMachine
 	Returns the ID of the state machine owned by the *unit*, or ``nil``.
 
 **variable_id** (asm, state_machine, name) : Id
-	Returns the ID of the variable *name* in the *state_machine*.
+	Returns the ID of the variable *name* in the *state_machine*, or ``nil`` if
+	the variable does not exist.
 
 **variable** (asm, state_machine, variable_id) : number
 	Returns the value of the *variable_id* in the *state_machine*.
