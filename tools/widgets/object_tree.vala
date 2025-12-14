@@ -208,12 +208,6 @@ public class ObjectTree : Gtk.Box
 						_tree_view.model.get_value(iter, Column.OBJECT_ID, out val);
 						Guid object_id = (Guid)val;
 
-						mi = new GLib.MenuItem("Rename...", null);
-						mi.set_action_and_target_value("database.rename"
-							, new GLib.Variant.tuple({ object_id.to_string(), "" })
-							);
-						menu_model.append_item(mi);
-
 						if (object_id != _object_id) {
 							mi = new GLib.MenuItem("Duplicate", null);
 							mi.set_action_and_target_value("database.duplicate", null);
