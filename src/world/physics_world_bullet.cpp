@@ -1765,19 +1765,26 @@ struct PhysicsWorldImpl
 	void update_actor_world_poses(const UnitId *begin, const UnitId *end, const Matrix4x4 *begin_world)
 	{
 		for (; begin != end; ++begin, ++begin_world) {
-			const u32 ai = hash_map::get(_actor_map, *begin, UINT32_MAX);
-			if (ai == UINT32_MAX)
-				continue;
+			u32 inst;
 
-			// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/MotionStates
-			btRigidBody *body = _actor[ai].body;
-			btMotionState *motion_state = body->m_optionalMotionState;
-			if (motion_state) {
-				const Quaternion rot = rotation(*begin_world);
-				const Vector3 pos = translation(*begin_world);
-				const btTransform new_transform(to_btQuaternion(rot), to_btVector3(pos));
-				motion_state->setWorldTransform(new_transform);
-				body->activate();
+			if ((inst = hash_map::get(_actor_map, *begin, UINT32_MAX)) != UINT32_MAX) {
+				btRigidBody *body = _actor[inst].body;
+
+				// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/MotionStates
+				btMotionState *motion_state = body->m_optionalMotionState;
+				if (motion_state) {
+					const Quaternion rot = rotation(*begin_world);
+					const Vector3 pos = translation(*begin_world);
+					const btTransform new_transform(to_btQuaternion(rot), to_btVector3(pos));
+					motion_state->setWorldTransform(new_transform);
+					body->activate();
+				}
+			}
+
+			if ((inst = hash_map::get(_mover_map, *begin, UINT32_MAX)) != UINT32_MAX) {
+				Mover *mover = _mover[inst].mover;
+
+				mover->set_position(to_btVector3(translation(*begin_world)));
 			}
 		}
 	}
