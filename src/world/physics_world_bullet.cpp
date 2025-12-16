@@ -14,6 +14,7 @@
 #include "core/math/matrix4x4.inl"
 #include "core/math/quaternion.inl"
 #include "core/math/vector3.inl"
+#include "core/memory/pool_allocator.h"
 #include "core/memory/proxy_allocator.h"
 #include "core/profiler.h"
 #include "core/strings/string_id.inl"
@@ -847,9 +848,18 @@ struct Mover
 
 struct PhysicsWorldImpl
 {
+	union ColliderShape
+	{
+		btSphereShape sphere;
+		btCapsuleShape capsule;
+		btCapsuleShapeZ capsule_z;
+		btBoxShape box;
+	};
+
 	struct ColliderInstanceData
 	{
 		UnitId unit;
+		Allocator *allocator;
 		btTriangleIndexVertexArray *vertex_array;
 		btCollisionShape *shape;
 	};
@@ -897,6 +907,11 @@ struct PhysicsWorldImpl
 	HashSet<u64> *_curr_pairs;
 	HashSet<u64> *_prev_pairs;
 
+	PoolAllocator _shapes_pool;
+	PoolAllocator _bodies_pool;
+	PoolAllocator _motion_states_pool;
+	PoolAllocator _ghosts_pool;
+
 	PhysicsWorldImpl(Allocator &a, ResourceManager &rm, UnitManager &um, SceneGraph &sg, DebugLine &dl)
 		: _proxy_allocator(a, "physics")
 		, _allocator(&_proxy_allocator)
@@ -917,6 +932,10 @@ struct PhysicsWorldImpl
 		, _pairs1(*_allocator)
 		, _curr_pairs(&_pairs1)
 		, _prev_pairs(&_pairs0)
+		, _shapes_pool(*_allocator, 128, sizeof(ColliderShape), 16)
+		, _bodies_pool(*_allocator, 1024, sizeof(btRigidBody), 16)
+		, _motion_states_pool(*_allocator, 1024, sizeof(btDefaultMotionState), 16)
+		, _ghosts_pool(*_allocator, 64, sizeof(btPairCachingGhostObject), 16)
 	{
 		_dynamics_world = CE_NEW(*_allocator, btDiscreteDynamicsWorld)(physics_globals::_bt_dispatcher
 			, physics_globals::_bt_interface
@@ -946,23 +965,25 @@ struct PhysicsWorldImpl
 		for (u32 i = 0; i < array::size(_mover); ++i) {
 			MoverInstanceData *inst = &_mover[i];
 
-			inst->mover->destroy_shape(*_allocator);
+			inst->mover->destroy_shape(_shapes_pool);
 			CE_DELETE(*_allocator, inst->mover);
 			_dynamics_world->removeCollisionObject(inst->ghost);
-			CE_DELETE(*_allocator, inst->ghost);
+			CE_DELETE(_ghosts_pool, inst->ghost);
 		}
 
 		for (u32 i = 0; i < array::size(_actor); ++i) {
 			btRigidBody *body = _actor[i].body;
 
 			_dynamics_world->removeRigidBody(body);
-			CE_DELETE(*_allocator, body->m_optionalMotionState);
-			CE_DELETE(*_allocator, body);
+			CE_DELETE(_motion_states_pool, body->m_optionalMotionState);
+			CE_DELETE(_bodies_pool, body);
 		}
 
 		for (u32 i = 0; i < array::size(_collider); ++i) {
-			CE_DELETE(*_allocator, _collider[i].vertex_array);
-			CE_DELETE(*_allocator, _collider[i].shape);
+			Allocator *allocator = _collider[i].allocator;
+
+			CE_DELETE(*allocator, _collider[i].vertex_array);
+			CE_DELETE(*allocator, _collider[i].shape);
 		}
 
 		CE_DELETE(*_allocator, _dynamics_world);
@@ -983,18 +1004,19 @@ struct PhysicsWorldImpl
 
 			btTriangleIndexVertexArray *vertex_array = NULL;
 			btCollisionShape *shape = NULL;
+			Allocator *allocator = &_shapes_pool;
 
 			switch (cd->type) {
 			case ColliderType::SPHERE:
-				shape = CE_NEW(*_allocator, btSphereShape)(cd->sphere.radius);
+				shape = CE_NEW(_shapes_pool, btSphereShape)(cd->sphere.radius);
 				break;
 
 			case ColliderType::CAPSULE:
-				shape = CE_NEW(*_allocator, btCapsuleShape)(cd->capsule.radius, cd->capsule.height);
+				shape = CE_NEW(_shapes_pool, btCapsuleShape)(cd->capsule.radius, cd->capsule.height);
 				break;
 
 			case ColliderType::BOX:
-				shape = CE_NEW(*_allocator, btBoxShape)(to_btVector3(cd->box.half_size));
+				shape = CE_NEW(_shapes_pool, btBoxShape)(to_btVector3(cd->box.half_size));
 				break;
 
 			case ColliderType::CONVEX_HULL: {
@@ -1002,7 +1024,8 @@ struct PhysicsWorldImpl
 				const u32 num          = *(u32 *)data;
 				const btScalar *points = (btScalar *)(data + sizeof(u32));
 
-				shape = CE_NEW(*_allocator, btConvexHullShape)(points, (int)num, sizeof(Vector3));
+				allocator = _allocator;
+				shape = CE_NEW(*allocator, btConvexHullShape)(points, (int)num, sizeof(Vector3));
 				break;
 			}
 
@@ -1022,7 +1045,8 @@ struct PhysicsWorldImpl
 				part.m_numTriangles        = num_indices/3;
 				part.m_indexType           = PHY_SHORT;
 
-				vertex_array = CE_NEW(*_allocator, btTriangleIndexVertexArray)();
+				allocator = _allocator;
+				vertex_array = CE_NEW(*allocator, btTriangleIndexVertexArray)();
 				vertex_array->addIndexedMesh(part, PHY_SHORT);
 
 				const btVector3 aabb_min(-1000.0f, -1000.0f, -1000.0f);
@@ -1046,6 +1070,7 @@ struct PhysicsWorldImpl
 
 			ColliderInstanceData cid;
 			cid.unit         = unit;
+			cid.allocator    = allocator;
 			cid.vertex_array = vertex_array;
 			cid.shape        = shape;
 
@@ -1064,8 +1089,9 @@ struct PhysicsWorldImpl
 		const UnitId u      = _collider[collider.i].unit;
 		const UnitId last_u = _collider[last].unit;
 
-		CE_DELETE(*_allocator, _collider[collider.i].vertex_array);
-		CE_DELETE(*_allocator, _collider[collider.i].shape);
+		Allocator *allocator = _collider[collider.i].allocator;
+		CE_DELETE(*allocator, _collider[collider.i].vertex_array);
+		CE_DELETE(*allocator, _collider[collider.i].shape);
 
 		_collider[collider.i] = _collider[last];
 
@@ -1119,7 +1145,7 @@ struct PhysicsWorldImpl
 			const btTransform tr = to_btTransform(tm_noscale);
 			btDefaultMotionState *ms = is_static
 				? NULL
-				: CE_NEW(*_allocator, btDefaultMotionState)(tr)
+				: CE_NEW(_motion_states_pool, btDefaultMotionState)(tr)
 				;
 
 			// If dynamic, calculate inertia
@@ -1139,7 +1165,7 @@ struct PhysicsWorldImpl
 			rbinfo.m_angularSleepingThreshold = 0.7f; // FIXME
 
 			// Create rigid body
-			btRigidBody *body = CE_NEW(*_allocator, btRigidBody)(rbinfo);
+			btRigidBody *body = CE_NEW(_bodies_pool, btRigidBody)(rbinfo);
 
 			int cflags = body->m_collisionFlags;
 			cflags |= is_kinematic ? btCollisionObject::CF_KINEMATIC_OBJECT    : 0;
@@ -1181,8 +1207,8 @@ struct PhysicsWorldImpl
 		const UnitId last_u = _actor[last].unit;
 
 		_dynamics_world->removeRigidBody(_actor[actor.i].body);
-		CE_DELETE(*_allocator, _actor[actor.i].body->m_optionalMotionState);
-		CE_DELETE(*_allocator, _actor[actor.i].body);
+		CE_DELETE(_motion_states_pool, _actor[actor.i].body->m_optionalMotionState);
+		CE_DELETE(_bodies_pool, _actor[actor.i].body);
 
 		_actor[actor.i] = _actor[last];
 		_actor[actor.i].body->m_userObjectPointer = ((void *)(uintptr_t)actor.i);
@@ -1442,11 +1468,11 @@ struct PhysicsWorldImpl
 
 			const btTransform pose(to_btQuaternion(QUATERNION_IDENTITY), to_btVector3(translation(tm)));
 
-			btPairCachingGhostObject *ghost = CE_NEW(*_allocator, btPairCachingGhostObject)();
+			btPairCachingGhostObject *ghost = CE_NEW(_ghosts_pool, btPairCachingGhostObject)();
 			ghost->setWorldTransform(pose);
 			ghost->m_userObjectPointer = ((void *)(uintptr_t)UINT32_MAX);
 
-			Mover *mover = CE_NEW(*_allocator, Mover)(*_allocator
+			Mover *mover = CE_NEW(*_allocator, Mover)(_shapes_pool
 				, _dynamics_world
 				, ghost
 				, movers[i].capsule.radius
@@ -1479,10 +1505,10 @@ struct PhysicsWorldImpl
 		const UnitId u      = _mover[mover.i].unit;
 		const UnitId last_u = _mover[last].unit;
 
-		_mover[mover.i].mover->destroy_shape(*_allocator);
+		_mover[mover.i].mover->destroy_shape(_shapes_pool);
 		CE_DELETE(*_allocator, _mover[mover.i].mover);
 		_dynamics_world->removeCollisionObject(_mover[mover.i].ghost);
-		CE_DELETE(*_allocator, _mover[mover.i].ghost);
+		CE_DELETE(_ghosts_pool, _mover[mover.i].ghost);
 
 		_mover[mover.i] = _mover[last];
 		array::pop_back(_mover);
@@ -1499,7 +1525,7 @@ struct PhysicsWorldImpl
 	void mover_set_height(MoverInstance mover, float height)
 	{
 		CE_ASSERT(mover.i < array::size(_mover), "Index out of bounds");
-		return _mover[mover.i].mover->set_height(*_allocator, height);
+		return _mover[mover.i].mover->set_height(_shapes_pool, height);
 	}
 
 	f32 mover_radius(MoverInstance mover)
@@ -1511,7 +1537,7 @@ struct PhysicsWorldImpl
 	void mover_set_radius(MoverInstance mover, float radius)
 	{
 		CE_ASSERT(mover.i < array::size(_mover), "Index out of bounds");
-		return _mover[mover.i].mover->set_radius(*_allocator, radius);
+		return _mover[mover.i].mover->set_radius(_shapes_pool, radius);
 	}
 
 	f32 mover_max_slope_angle(MoverInstance mover)
