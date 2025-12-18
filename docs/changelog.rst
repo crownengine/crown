@@ -10,6 +10,7 @@ Changelog
 * Tools: double-clicking an object in the Level Tree will now frame it in the Editor Viewport.
 * Tools: units created via the FBX importer will now be named according to their corresponding node's name.
 * Tools: added a generic editor to inspect and modify all registered resource types. Previously resources with no dedicated editor were opened in a plain-text editor.
+* Tools: Windows: improved UI fonts rendering.
 * Runtime: added the ability to reload animation state machines.
 * Runtime: added an end-of-options marker to stop the runtime from parsing game-specific command line options.
 * Runtime: the ``mesh`` shader will now expect normal maps to be encoded in the BC5 texture format.
