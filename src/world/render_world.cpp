@@ -997,7 +997,7 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 							{ frad(0.0f), frad(90.0f - 27.36780516f), frad(0.0f) },
 							{ frad(-90.0f - 27.36780516f), frad(0.0f), frad(-90.0f) },
 						};
-						mtxYawPitchRoll(to_float_ptr(light_view), ypr[side][0], ypr[side][1], ypr[side][2]);
+						mtxYawPitchRoll(to_float_ptr(light_view), ypr[side].x, ypr[side].y, ypr[side].z);
 						transpose(light_view);
 						light_view.t.x = -dot(light_pos, { light_view.x.x, light_view.y.x, light_view.z.x });
 						light_view.t.y = -dot(light_pos, { light_view.x.y, light_view.y.y, light_view.z.y });
