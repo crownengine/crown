@@ -4612,6 +4612,10 @@ public static int main(string[] args)
 	Gdk.set_allowed_backends("x11");
 #endif
 
+	// Use fontconfig backend.
+	Pango.FontMap fontmap = Pango.CairoFontMap.new_for_font_type(Cairo.FontType.FT);
+	Pango.CairoFontMap.set_default((Pango.CairoFontMap)fontmap);
+
 	LevelEditorApplication app = new LevelEditorApplication();
 	return app.run(args);
 }
