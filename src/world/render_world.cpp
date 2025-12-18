@@ -706,7 +706,39 @@ static u32 best_square_size(u32 width, u32 height, u32 num_tiles)
 	return best;
 }
 
-void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Matrix4x4 &persp, UnitId skydome_unit)
+// From BGFX's 16-shadowmaps example.
+static void mtxYawPitchRoll(float *_result
+	, float _yaw
+	, float _pitch
+	, float _roll
+	)
+{
+	float sroll  = bx::sin(_roll);
+	float croll  = bx::cos(_roll);
+	float spitch = bx::sin(_pitch);
+	float cpitch = bx::cos(_pitch);
+	float syaw   = bx::sin(_yaw);
+	float cyaw   = bx::cos(_yaw);
+
+	_result[ 0] = sroll * spitch * syaw + croll * cyaw;
+	_result[ 1] = sroll * cpitch;
+	_result[ 2] = sroll * spitch * cyaw - croll * syaw;
+	_result[ 3] = 0.0f;
+	_result[ 4] = croll * spitch * syaw - sroll * cyaw;
+	_result[ 5] = croll * cpitch;
+	_result[ 6] = croll * spitch * cyaw + sroll * syaw;
+	_result[ 7] = 0.0f;
+	_result[ 8] = cpitch * syaw;
+	_result[ 9] = -spitch;
+	_result[10] = cpitch * cyaw;
+	_result[11] = 0.0f;
+	_result[12] = 0.0f;
+	_result[13] = 0.0f;
+	_result[14] = 0.0f;
+	_result[15] = 1.0f;
+}
+
+void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Matrix4x4 &persp, UnitId skydome_unit, DebugLine &dl)
 {
 	LightManager &lm = _light_manager;
 	LightManager::LightInstanceData &lid = lm._data;
@@ -752,11 +784,12 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 
 	// Render directional lights.
 	for (u32 i = 0; i < array::size(lm._directional_lights) && num_lights < MAX_NUM_LIGHTS; ++i) {
-		u32 L = lm._directional_lights[i];
+		const u32 L = lm._directional_lights[i];
+		const bool cast_shadows = (lid.flag[L] & RenderableFlags::SHADOW_CASTER) != 0;
+		const bool sun_shadows = (_pipeline->_render_settings.flags & RenderSettingsFlags::SUN_SHADOWS) != 0;
 
 		// CSMs are only computed for the brightest directional light (index = 0) in the scene.
-		if (i == 0 && (lid.flag[L] & RenderableFlags::SHADOW_CASTER) != 0
-			&& (_pipeline->_render_settings.flags & RenderSettingsFlags::SUN_SHADOWS) != 0) {
+		if (i == 0 && cast_shadows && sun_shadows) {
 			Matrix4x4 light_proj;
 			Matrix4x4 light_view;
 			Frustum splits[MAX_NUM_CASCADES];
@@ -830,11 +863,11 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 				};
 				CE_STATIC_ASSERT(countof(rects) == MAX_NUM_CASCADES);
 
-				lid.shader[L].atlas_u = 0.0f;
+				lid.shader[L].atlas_u.x = 0.0f;
 #if CROWN_PLATFORM_WINDOWS
-				lid.shader[L].atlas_v = rects[0].y / _pipeline->_render_settings.sun_shadow_map_size.y;
+				lid.shader[L].atlas_v.x = rects[0].y / _pipeline->_render_settings.sun_shadow_map_size.y;
 #else
-				lid.shader[L].atlas_v = 1.0f - ((rects[0].y + rects[0].w) / _pipeline->_render_settings.sun_shadow_map_size.y);
+				lid.shader[L].atlas_v.x = 1.0f - ((rects[0].y + rects[0].w) / _pipeline->_render_settings.sun_shadow_map_size.y);
 #endif
 				lid.shader[L].map_size = 0.5f;
 
@@ -845,6 +878,8 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 				_mesh_manager.draw_shadow_casters(View::CASCADE_0 + i, *_scene_graph);
 			}
 		}
+
+		lid.shader[L].cast_shadows = cast_shadows;
 
 		array::push_back(lm._lights_data, lid.shader[L]);
 		++num_lights;
@@ -862,6 +897,7 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 				return dist_a < dist_b;
 			});
 
+		const bool local_shadows = (_pipeline->_render_settings.flags & RenderSettingsFlags::LOCAL_LIGHTS_SHADOWS) != 0;
 		// FIXME: this is a pretty dumb allocation scheme but it's fine for now.
 		const u32 tile_size = best_square_size(_pipeline->_render_settings.local_lights_shadow_map_size.x
 			, _pipeline->_render_settings.local_lights_shadow_map_size.y
@@ -870,13 +906,18 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 		const u32 tile_cols = _pipeline->_render_settings.local_lights_shadow_map_size.x / tile_size;
 		u32 num_tiles = 0;
 		u32 cur_tile;
+		u32 sm_local_view_id = View::SM_LOCAL_0;
 
 		// Render shadow map for spot lights.
 		for (u32 i = 0; i < array::size(lm._local_lights) && num_lights < MAX_NUM_LIGHTS && num_tiles < LOCAL_LIGHTS_MAX_SHADOW_CASTERS; ++i) {
 			LightManager::ShaderData &shader = lid.shader[lm._local_lights[i]];
 
 			if (lid.type[lm._local_lights[i]] == LightType::SPOT) {
-				if ((lid.flag[lm._local_lights[i]] & RenderableFlags::SHADOW_CASTER) != 0 && (_pipeline->_render_settings.flags & RenderSettingsFlags::LOCAL_LIGHTS_SHADOWS) != 0) {
+				const bool cast_shadows = (lid.flag[lm._local_lights[i]] & RenderableFlags::SHADOW_CASTER) != 0;
+
+				shader.cast_shadows = f32(cast_shadows);
+
+				if (cast_shadows && local_shadows) {
 					cur_tile = num_tiles++;
 
 					// Compute light view-proj matrix.
@@ -898,7 +939,7 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 						, bx::Handedness::Right
 						);
 
-					shader.mvp = light_view * light_proj * crop;
+					shader.mvp[0] = light_view * light_proj * crop;
 
 					Vector4 rect = {
 						f32(tile_size * (cur_tile % tile_cols)),
@@ -907,23 +948,97 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 						f32(tile_size)
 					};
 
-					shader.atlas_u = rect.x / _pipeline->_render_settings.local_lights_shadow_map_size.x;
+					shader.atlas_u.x = rect.x / _pipeline->_render_settings.local_lights_shadow_map_size.x;
 #if CROWN_PLATFORM_WINDOWS
-					shader.atlas_v = rect.y / _pipeline->_render_settings.local_lights_shadow_map_size.x;
+					shader.atlas_v.x = rect.y / _pipeline->_render_settings.local_lights_shadow_map_size.x;
 #else
-					shader.atlas_v = 1.0f - ((rect.y + rect.z) / _pipeline->_render_settings.local_lights_shadow_map_size.x);
+					shader.atlas_v.x = 1.0f - ((rect.y + rect.z) / _pipeline->_render_settings.local_lights_shadow_map_size.x);
 #endif
 					shader.map_size = rect.w / _pipeline->_render_settings.local_lights_shadow_map_size.x;
 
-					bgfx::setViewFrameBuffer(View::SM_LOCAL_0 + i, _pipeline->_local_lights_shadow_map_frame_buffer);
-					bgfx::setViewRect(View::SM_LOCAL_0 + i, rect.x, rect.y, rect.z, rect.w);
-					bgfx::setViewTransform(View::SM_LOCAL_0 + i, to_float_ptr(light_view), to_float_ptr(light_proj));
-
-					_mesh_manager.draw_shadow_casters(View::SM_LOCAL_0 + i, *_scene_graph);
+					bgfx::setViewFrameBuffer(sm_local_view_id, _pipeline->_local_lights_shadow_map_frame_buffer);
+					bgfx::setViewRect(sm_local_view_id, rect.x, rect.y, rect.z, rect.w);
+					bgfx::setViewTransform(sm_local_view_id, to_float_ptr(light_view), to_float_ptr(light_proj));
+					_mesh_manager.draw_shadow_casters(sm_local_view_id, *_scene_graph);
+					++sm_local_view_id;
 				}
 
 				array::push_back(lm._local_lights_spot, lm._local_lights[i]);
 			} else if (lid.type[lm._local_lights[i]] == LightType::OMNI) {
+				const bool cast_shadows = (lid.flag[lm._local_lights[i]] & RenderableFlags::SHADOW_CASTER) != 0;
+
+				shader.cast_shadows = f32(cast_shadows);
+
+				if (cast_shadows && local_shadows) {
+					cur_tile = num_tiles++;
+
+					Matrix4x4 light_proj;
+					const f32 near = 0.1f;
+					const f32 fovx = 143.98570868f;
+					const f32 fovy = 125.26438968f;
+					const f32 aspect = ftan(frad(fovx*0.5f))/ftan(frad(fovy*0.5f));
+					bx::mtxProj(to_float_ptr(light_proj)
+						, fovy
+						, aspect
+						, near
+						, shader.range + near
+						, caps->homogeneousDepth
+						, bx::Handedness::Right
+						);
+
+					for (u32 side = 0; side < 4; ++side) {
+						// Compute light view-proj matrix.
+						Matrix4x4 light_view;
+						const Vector3 &light_pos = shader.position;
+						Vector3 ypr[] =
+						{
+							{ frad(90.0f + 27.36780516f), frad(0.0f), frad(90.0f) },
+							{ frad(0.0f), frad(-90.0f + 27.36780516f), frad(180.0f) },
+							{ frad(0.0f), frad(90.0f - 27.36780516f), frad(0.0f) },
+							{ frad(-90.0f - 27.36780516f), frad(0.0f), frad(-90.0f) },
+						};
+						mtxYawPitchRoll(to_float_ptr(light_view), ypr[side][0], ypr[side][1], ypr[side][2]);
+						transpose(light_view);
+						light_view.t.x = -dot(light_pos, { light_view.x.x, light_view.y.x, light_view.z.x });
+						light_view.t.y = -dot(light_pos, { light_view.x.y, light_view.y.y, light_view.z.y });
+						light_view.t.z = -dot(light_pos, { light_view.x.z, light_view.y.z, light_view.z.z });
+						light_view.t.w = 1.0f;
+
+						shader.mvp[side] = light_view * light_proj * crop;
+
+						if (false) {
+							Color4 colors[] = { COLOR4_GREEN, COLOR4_YELLOW, COLOR4_BLUE, COLOR4_RED };
+							Frustum frustum;
+							frustum::from_matrix(frustum, light_view*light_proj, caps->homogeneousDepth, bx::Handedness::Right);
+							dl.add_frustum(frustum, colors[side]);
+						}
+
+						const u32 w = (side & 0x1) >> 0;
+						const u32 h = (side & 0x2) >> 1;
+
+						Vector4 rect = {
+							f32(tile_size * (cur_tile % tile_cols) + tile_size/2 * w),
+							f32(tile_size * (cur_tile / tile_cols) + tile_size/2 * h),
+							f32(tile_size) / 2.0f,
+							f32(tile_size) / 2.0f
+						};
+
+						*(&shader.atlas_u.x + side) = rect.x / _pipeline->_render_settings.local_lights_shadow_map_size.x;
+#if CROWN_PLATFORM_WINDOWS
+						*(&shader.atlas_v.x + side) = rect.y / _pipeline->_render_settings.local_lights_shadow_map_size.x;
+#else
+						*(&shader.atlas_v.x + side) = 1.0f - ((rect.y + rect.z) / _pipeline->_render_settings.local_lights_shadow_map_size.x);
+#endif
+						shader.map_size = rect.w / _pipeline->_render_settings.local_lights_shadow_map_size.x;
+
+						bgfx::setViewFrameBuffer(sm_local_view_id, _pipeline->_local_lights_shadow_map_frame_buffer);
+						bgfx::setViewRect(sm_local_view_id, rect.x, rect.y, rect.z, rect.w);
+						bgfx::setViewTransform(sm_local_view_id, to_float_ptr(light_view), to_float_ptr(light_proj));
+						_mesh_manager.draw_shadow_casters(sm_local_view_id, *_scene_graph);
+						++sm_local_view_id;
+					}
+				}
+
 				array::push_back(lm._local_lights_omni, lm._local_lights[i]);
 			} else {
 				CE_FATAL("Unknown local light type");
@@ -1806,10 +1921,13 @@ void RenderWorld::LightManager::create_instances(const void *components_data
 		_data.shader[last].direction   = dir;
 		_data.shader[last].spot_angle  = lights[i].spot_angle;
 		_data.shader[last].shadow_bias = lights[i].shadow_bias;
-		_data.shader[last].atlas_u     = 0.0f;
-		_data.shader[last].atlas_v     = 0.0f;
+		_data.shader[last].atlas_u     = VECTOR4_ZERO;
+		_data.shader[last].atlas_v     = VECTOR4_ZERO;
 		_data.shader[last].map_size    = 0.0f;
-		_data.shader[last].mvp         = MATRIX4X4_IDENTITY;
+		_data.shader[last].mvp[0]      = MATRIX4X4_IDENTITY;
+		_data.shader[last].mvp[1]      = MATRIX4X4_IDENTITY;
+		_data.shader[last].mvp[2]      = MATRIX4X4_IDENTITY;
+		_data.shader[last].mvp[3]      = MATRIX4X4_IDENTITY;
 
 		++_data.size;
 

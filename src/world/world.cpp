@@ -493,7 +493,7 @@ void World::update(f32 dt)
 
 void World::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Matrix4x4 &persp)
 {
-	_render_world->render(view, proj, persp, _skydome_unit);
+	_render_world->render(view, proj, persp, _skydome_unit, *_lines);
 
 	_physics_world->debug_draw();
 	_render_world->debug_draw(*_lines);

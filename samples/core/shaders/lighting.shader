@@ -9,7 +9,7 @@ bgfx_shaders = {
 
 		code = """
 		#if !defined(NO_LIGHT)
-		#	define LIGHT_SIZE 8 // In vec4 units.
+		#	define LIGHT_SIZE 22 // In vec4 units.
 		#	define MAX_NUM_LIGHTS 32
 		#	define MAX_NUM_CASCADES 4
 			uniform vec4 u_lights_num;        // num_dir, num_omni, num_spot
@@ -200,13 +200,13 @@ bgfx_shaders = {
 
 				if (num_dir > 0) {
 					// Brightest directional light (index == 0) generates cascaded shadow maps.
-					vec3 light_color  = lights_data(loffset + 0).rgb;
-					float intensity   = lights_data(loffset + 0).w;
-					vec3 direction    = lights_data(loffset + 2).xyz;
-					float shadow_bias = lights_data(loffset + 3).r;
-					float atlas_u     = lights_data(loffset + 3).g;
-					float atlas_v     = lights_data(loffset + 3).b;
-					float atlas_size  = lights_data(loffset + 3).a;
+					vec3 light_color  = lights_data(loffset +  0).rgb;
+					float intensity   = lights_data(loffset +  0).w;
+					vec3 direction    = lights_data(loffset +  2).xyz;
+					vec4 atlas_u      = lights_data(loffset + 19).xyzw;
+					vec4 atlas_v      = lights_data(loffset + 20).xyzw;
+					float atlas_size  = lights_data(loffset + 21).x;
+					float shadow_bias = lights_data(loffset + 21).y;
 					loffset += LIGHT_SIZE;
 
 					sun_color = light_color;
@@ -233,13 +233,13 @@ bgfx_shaders = {
 					bool atlas3 = all(lessThan(shadow3, vec2_splat(1.0))) && all(greaterThan(shadow3, vec2_splat(0.0)));
 
 					if (atlas0)
-						local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos0, shadow_bias, sun_sm_texel_size, vec3(atlas_u             , atlas_v             , atlas_size));
+						local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos0, shadow_bias, sun_sm_texel_size, vec3(atlas_u.x             , atlas_v.x             , atlas_size));
 					else if (atlas1)
-						local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos1, shadow_bias, sun_sm_texel_size, vec3(atlas_u + atlas_size, atlas_v             , atlas_size));
+						local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos1, shadow_bias, sun_sm_texel_size, vec3(atlas_u.x + atlas_size, atlas_v.x             , atlas_size));
 					else if (atlas2)
-						local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos2, shadow_bias, sun_sm_texel_size, vec3(atlas_u             , atlas_v + atlas_size, atlas_size));
+						local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos2, shadow_bias, sun_sm_texel_size, vec3(atlas_u.x             , atlas_v.x + atlas_size, atlas_size));
 					else if (atlas3)
-						local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos3, shadow_bias, sun_sm_texel_size, vec3(atlas_u + atlas_size, atlas_v + atlas_size, atlas_size));
+						local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos3, shadow_bias, sun_sm_texel_size, vec3(atlas_u.x + atlas_size, atlas_v.x + atlas_size, atlas_size));
 
 					radiance += local_radiance;
 				}
@@ -249,7 +249,7 @@ bgfx_shaders = {
 					vec3 light_color  = lights_data(loffset + 0).rgb;
 					float intensity   = lights_data(loffset + 0).w;
 					vec3 direction    = lights_data(loffset + 2).xyz;
-					float shadow_bias = lights_data(loffset + 3).r;
+					float shadow_bias = lights_data(loffset + 21).y;
 
 					radiance += calc_dir_light(n
 						, v
@@ -268,7 +268,7 @@ bgfx_shaders = {
 					float intensity   = lights_data(loffset + 0).w;
 					vec3 position     = lights_data(loffset + 1).xyz;
 					float range       = lights_data(loffset + 1).w;
-					float shadow_bias = lights_data(loffset + 3).r;
+					float cast_shadow = lights_data(loffset + 21).z;
 
 					vec3 local_radiance = calc_omni_light(n
 						, v
@@ -283,6 +283,84 @@ bgfx_shaders = {
 						, f0
 						);
 
+					if (cast_shadow == 1.0) {
+						// Tetrahedron normals.
+						vec3 gn = vec3(-0.81649661f,  0.0f,         0.57735026f);
+						vec3 yn = vec3(        0.0f, -0.81649661f, -0.57735026f);
+						vec3 bn = vec3(        0.0f,  0.81649661f, -0.57735026f);
+						vec3 rn = vec3( 0.81649661f,  0.0f,         0.57735026f);
+
+						mat4 light_mtx = mtxFromCols(
+							vec4(1, 0, 0, 0),
+							vec4(0, 1, 0, 0),
+							vec4(0, 0, 1, 0),
+							vec4(-position.x, -position.y, -position.z, 1)
+						);
+						vec4 sl = mul(light_mtx, shadow_local);
+
+						// Select tetrahedon face.
+						float g = dot(sl.xyz, gn);
+						float y = dot(sl.xyz, yn);
+						float b = dot(sl.xyz, bn);
+						float r = dot(sl.xyz, rn);
+						float maximum = max(max(g, y), max(b, r));
+
+						vec4 atlas_u      = lights_data(loffset + 19);
+						vec4 atlas_v      = lights_data(loffset + 20);
+						float atlas_size  = lights_data(loffset + 21).x;
+						float shadow_bias = lights_data(loffset + 21).y;
+
+						vec4 shadow_pos0;
+						vec3 col;
+						vec3 atlas_offset;
+
+						if (maximum == g) {
+							// Tetrahedron mvp matrices.
+							mat4 gmtx = mtxFromCols(lights_data(loffset + 3)
+								, lights_data(loffset + 4)
+								, lights_data(loffset + 5)
+								, lights_data(loffset + 6)
+								);
+							shadow_pos0 = mul(gmtx, shadow_local);
+							col = vec3(0, 1, 0);
+							atlas_offset = vec3(atlas_u.x, atlas_v.x, atlas_size);
+						} else if (maximum == y) {
+							mat4 ymtx = mtxFromCols(lights_data(loffset + 7)
+								, lights_data(loffset + 8)
+								, lights_data(loffset + 9)
+								, lights_data(loffset + 10)
+								);
+							shadow_pos0 = mul(ymtx, shadow_local);
+							col = vec3(1, 1, 0);
+							atlas_offset = vec3(atlas_u.y, atlas_v.y, atlas_size);
+						} else if (maximum == b) {
+							mat4 bmtx = mtxFromCols(lights_data(loffset + 11)
+								, lights_data(loffset + 12)
+								, lights_data(loffset + 13)
+								, lights_data(loffset + 14)
+								);
+							shadow_pos0 = mul(bmtx, shadow_local);
+							col = vec3(0, 0, 1);
+							atlas_offset = vec3(atlas_u.z, atlas_v.z, atlas_size);
+						} else {
+							mat4 rmtx = mtxFromCols(lights_data(loffset + 15)
+								, lights_data(loffset + 16)
+								, lights_data(loffset + 17)
+								, lights_data(loffset + 18)
+								);
+							shadow_pos0 = mul(rmtx, shadow_local);
+							col = vec3(1, 0, 0);
+							atlas_offset = vec3(atlas_u.w, atlas_v.w, atlas_size);
+						}
+
+						local_radiance *= PCF(u_local_lights_shadow_map
+							, shadow_pos0
+							, shadow_bias
+							, local_lights_sm_texel_size / 4.0
+							, atlas_offset
+							);
+					}
+
 					radiance += apply_distance_fading(local_radiance, position, camera_pos);
 				}
 
@@ -293,14 +371,7 @@ bgfx_shaders = {
 					float range       = lights_data(loffset + 1).w;
 					vec3 direction    = lights_data(loffset + 2).xyz;
 					float spot_angle  = lights_data(loffset + 2).w;
-					float shadow_bias = lights_data(loffset + 3).r;
-					float atlas_u     = lights_data(loffset + 3).g;
-					float atlas_v     = lights_data(loffset + 3).b;
-					float atlas_size  = lights_data(loffset + 3).a;
-					vec4 axis_x       = lights_data(loffset + 4);
-					vec4 axis_y       = lights_data(loffset + 5);
-					vec4 axis_z       = lights_data(loffset + 6);
-					vec4 axis_t       = lights_data(loffset + 7);
+					float cast_shadow = lights_data(loffset + 21).z;
 
 					vec3 local_radiance = calc_spot_light(n
 						, v
@@ -317,9 +388,24 @@ bgfx_shaders = {
 						, f0
 						);
 
-					mat4 mvp = mtxFromCols(axis_x, axis_y, axis_z, axis_t);
-					vec4 shadow_pos0 = mul(mvp, shadow_local);
-					local_radiance *= PCF(u_local_lights_shadow_map, shadow_pos0, shadow_bias, local_lights_sm_texel_size, vec3(atlas_u, atlas_v, atlas_size));
+					if (cast_shadow == 1.0) {
+						mat4 mvp = mtxFromCols(lights_data(loffset + 3)
+							, lights_data(loffset + 4)
+							, lights_data(loffset + 5)
+							, lights_data(loffset + 6)
+							);
+						vec4 atlas_u      = lights_data(loffset + 19);
+						vec4 atlas_v      = lights_data(loffset + 20);
+						float atlas_size  = lights_data(loffset + 21).x;
+						float shadow_bias = lights_data(loffset + 21).y;
+
+						local_radiance *= PCF(u_local_lights_shadow_map
+							, mul(mvp, shadow_local)
+							, shadow_bias
+							, local_lights_sm_texel_size
+							, vec3(atlas_u.x, atlas_v.x, atlas_size)
+							);
+					}
 
 					radiance += apply_distance_fading(local_radiance, position, camera_pos);
 				}
