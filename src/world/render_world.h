@@ -280,7 +280,7 @@ struct RenderWorld
 	void update_transforms(const UnitId *begin, const UnitId *end, const Matrix4x4 *world);
 
 	///
-	void render(const Matrix4x4 &view, const Matrix4x4 &proj, const Matrix4x4 &persp, UnitId skydome_unit);
+	void render(const Matrix4x4 &view, const Matrix4x4 &proj, const Matrix4x4 &persp, UnitId skydome_unit, DebugLine &dl);
 
 	/// Sets whether to @a enable debug drawing
 	void enable_debug_drawing(bool enable);
@@ -486,18 +486,20 @@ struct RenderWorld
 		// This data is fed to the shader as-is.
 		// Keep it in sync with "core/shaders/lighting.shader"!
 		struct ShaderData
-		{
-			Vector3 color;
+		{                      // Vec4 offset
+			Vector3 color;     // 0
 			f32 intensity;
-			Vector3 position;
+			Vector3 position;  // 1
 			f32 range;
-			Vector3 direction;
+			Vector3 direction; // 2
 			f32 spot_angle;
+			Matrix4x4 mvp[4];  // 3-18 Model-View-Proj-Crop.
+			Vector4 atlas_u;   // 19   U-coord in shadow map atlas.
+			Vector4 atlas_v;   // 20   V-coord in shadow map atlas.
+			f32 map_size;      // 21   Tile size in shadow map atlas.
 			f32 shadow_bias;
-			f32 atlas_u;   // U-coord in shadow map atlas.
-			f32 atlas_v;   // V-coord in shadow map atlas.
-			f32 map_size;  // Tile size in shadow map atlas.
-			Matrix4x4 mvp; // Model-View-Proj-Crop.
+			f32 cast_shadows;
+			f32 _pad;
 		};
 
 		struct LightInstanceData

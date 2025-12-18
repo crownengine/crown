@@ -11,6 +11,7 @@ Changelog
 * Tools: units created via the FBX importer will now be named according to their corresponding node's name.
 * Tools: added a generic editor to inspect and modify all registered resource types. Previously resources with no dedicated editor were opened in a plain-text editor.
 * Tools: Windows: improved UI fonts rendering.
+* Runtime: omni lights will now render shadow maps.
 * Runtime: added the ability to reload animation state machines.
 * Runtime: added an end-of-options marker to stop the runtime from parsing game-specific command line options.
 * Runtime: the ``mesh`` shader will now expect normal maps to be encoded in the BC5 texture format.
@@ -34,6 +35,7 @@ Changelog
 * Tools: fixed some properties unnecessarily requiring multiple undo steps to be set to their previous value.
 * Tools: fixed importing non-animated FBX files in some circumnstances.
 * Tools: duplicating objects in the Level Editor will now correctly select the duplicated objects instead of the ones being duplicated.
+* Runtime: fixed rendering of local lights with shadows disabled.
 * Runtime: fixed shading of meshes with non-uniform scaling.
 * Runtime: Windows: fixed a number of misdetected keyboard keys.
 * Runtime: Windows: fixed windows firewall popping up at startup.

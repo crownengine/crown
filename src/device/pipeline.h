@@ -10,7 +10,7 @@
 #include "resource/shader_resource.h"
 #include <bgfx/bgfx.h>
 
-#define LIGHT_SIZE 8      // Size of a light in vec4 units.
+#define LIGHT_SIZE 22     // Size of a light in vec4 units.
 #define MAX_NUM_LIGHTS 32 // Maximum number of lights per frame.
 #define MAX_NUM_SPRITE_LAYERS 8
 #define MAX_NUM_CASCADES 4
@@ -19,6 +19,7 @@
 #define LOCAL_LIGHTS_SHADOW_MAP_SLOT 11
 #define LOCAL_LIGHTS_MAX_SHADOW_CASTERS 16 // Maximum number of local shadow-casting lights per frame.
 CE_STATIC_ASSERT(LOCAL_LIGHTS_MAX_SHADOW_CASTERS <= MAX_NUM_LIGHTS);
+#define LOCAL_LIGHTS_SM_MAX_VIEWS (LOCAL_LIGHTS_MAX_SHADOW_CASTERS * 4) // Worst case all omni casters.
 #define BLOOM_MIPS 6
 
 struct View
@@ -32,7 +33,7 @@ struct View
 		CASCADE_LAST          = CASCADE_0 + MAX_NUM_CASCADES,
 		SM_LOCAL_CLEAR        = CASCADE_LAST,
 		SM_LOCAL_0,
-		SM_LOCAL_LAST         = SM_LOCAL_0 + LOCAL_LIGHTS_MAX_SHADOW_CASTERS,
+		SM_LOCAL_LAST         = SM_LOCAL_0 + LOCAL_LIGHTS_SM_MAX_VIEWS,
 		LIGHTS                = SM_LOCAL_LAST,
 		MESH,
 		BLOOM_COPY,
