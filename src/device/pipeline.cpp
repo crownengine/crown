@@ -94,6 +94,47 @@ void screenSpaceQuad(float _textureWidth, float _textureHeight, float _texelHalf
 	}
 }
 
+struct PosVertex
+{
+	float x;
+	float y;
+	float z;
+
+	static void init()
+	{
+		pos_layout.begin();
+		pos_layout.add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float);
+		pos_layout.end();
+	}
+
+	static bgfx::VertexLayout pos_layout;
+};
+
+bgfx::VertexLayout PosVertex::pos_layout;
+
+static u32 best_square_size(u32 width, u32 height, u32 num_tiles)
+{
+	CE_ENSURE(num_tiles > 0);
+
+	u32 low  = 1;
+	u32 high = (width < height ? width : height);
+	u32 best = 0;
+
+	while (low <= high) {
+		u32 mid = low + ((high - low) >> 1);
+		u64 num = (u64)(width / mid) * (u64)(height / mid);
+
+		if (num >= num_tiles) {
+			best = mid;
+			low = mid + 1;
+		} else {
+			high = mid - 1;
+		}
+	}
+
+	return best;
+}
+
 static void lookup_default_shaders(Pipeline &pl)
 {
 	pl._blit_shader = pl._shader_manager->shader(STRING_ID_32("blit", UINT32_C(0x045f02bb)));
@@ -195,7 +236,7 @@ void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settin
 		, _render_settings.local_lights_shadow_map_size.y
 		, false
 		, 1
-		, bgfx::TextureFormat::D32F
+		, bgfx::TextureFormat::D24S8
 		, BGFX_TEXTURE_RT | BGFX_SAMPLER_COMPARE_LEQUAL
 		);
 	const bgfx::TextureHandle llfbtextures[] =
@@ -205,6 +246,13 @@ void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settin
 	if (bgfx::isValid(_local_lights_shadow_map_frame_buffer))
 		bgfx::destroy(_local_lights_shadow_map_frame_buffer);
 	_local_lights_shadow_map_frame_buffer = bgfx::createFrameBuffer(countof(llfbtextures), llfbtextures);
+
+	// FIXME: this is a pretty dumb allocation scheme but it's fine for now.
+	_local_lights_tile_size = best_square_size(_render_settings.local_lights_shadow_map_size.x
+		, _render_settings.local_lights_shadow_map_size.y
+		, LOCAL_LIGHTS_MAX_SHADOW_CASTERS
+		);
+	_local_lights_tile_cols = _render_settings.local_lights_shadow_map_size.x / _local_lights_tile_size;
 
 	_u_local_lights_shadow_map = bgfx::createUniform("u_local_lights_shadow_map", bgfx::UniformType::Sampler);
 	_u_local_lights_params = bgfx::createUniform("u_local_lights_params", bgfx::UniformType::Vec4);
@@ -237,6 +285,7 @@ void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settin
 	_u_uv_offset = bgfx::createUniform("u_uv_offset", bgfx::UniformType::Vec4);
 
 	PosTexCoord0Vertex::init();
+	PosVertex::init();
 }
 
 void Pipeline::destroy()
@@ -496,10 +545,83 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 			view_name = "sm_cascade";
 		} else if (id == View::SM_LOCAL_CLEAR) {
 			view_name = "sm_local_lights_clear";
-			bgfx::setViewClear(id, BGFX_CLEAR_DEPTH, 0, 1.0f);
+			Matrix4x4 screen_proj;
+			bx::mtxOrtho(to_float_ptr(screen_proj)
+				, 0.0f
+				, 1.0f
+				, 1.0f
+				, 0.0f
+				, 0.0f
+				, 100.0f
+				, 0.0f
+				, caps->homogeneousDepth
+				);
+			bgfx::setViewClear(id, BGFX_CLEAR_DEPTH | BGFX_CLEAR_STENCIL, 0, 1.0f, 0);
 			bgfx::setViewFrameBuffer(id, _local_lights_shadow_map_frame_buffer);
 			bgfx::setViewRect(id, 0, 0, (u16)_render_settings.local_lights_shadow_map_size.x, (u16)_render_settings.local_lights_shadow_map_size.y);
-			bgfx::touch(id);
+			bgfx::setViewTransform(id, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(screen_proj));
+
+			// Draw stencil "hourglass" pattern for omni lights.
+			const u16 sm_w = (u16)_render_settings.local_lights_shadow_map_size.x;
+			const f32 step = f32(_local_lights_tile_size) / f32(sm_w) * 0.5;
+			const s32 num_cols = sm_w / _local_lights_tile_size;
+			const s32 num_rows = num_cols;
+			const s32 num_pins = num_cols + 1;
+			const s32 num_necks = num_pins - 1;
+			const u32 num_vertices = num_pins*num_pins + num_necks*num_necks;
+			const u32 num_triangles = num_necks*num_necks * 2;
+			const u32 num_indices = num_triangles * 3;
+
+			if (bgfx::getAvailTransientVertexBuffer(num_vertices, PosVertex::pos_layout) == num_vertices
+				&& bgfx::getAvailTransientIndexBuffer(num_indices) == num_indices) {
+				// Build vertex buffer.
+				bgfx::TransientVertexBuffer vb;
+				bgfx::allocTransientVertexBuffer(&vb, num_vertices, PosVertex::pos_layout);
+				PosVertex *v = (PosVertex *)vb.data;
+
+				for (s32 h = 0; h < num_pins + num_necks; ++h) {
+					s32 start_w = h % 2;
+					for (s32 w = start_w; w < num_pins + num_necks; w += 2) {
+						const f32 xi = w * step;
+						const f32 yi = h * step;
+						*v++ = { xi, yi, 0.0f };
+					}
+				}
+
+				// Build index buffer.
+				bgfx::TransientIndexBuffer ib;
+				bgfx::allocTransientIndexBuffer(&ib, num_indices);
+				u16 *ind = (u16 *)ib.data;
+
+				const s32 gap = num_cols + 1;
+				const s32 row_stride = 2 * gap - 1;
+
+				for (s32 r = 0; r < num_rows; ++r) {
+					for (s32 c = 0; c < num_cols; ++c) {
+						const s32 t = r * row_stride + c;
+						// Top triangle.
+						*ind++ = t;
+						*ind++ = t + 1;
+						*ind++ = t + gap;
+						// Bottom triangle.
+						*ind++ = t + gap;
+						*ind++ = t + 2 * gap;
+						*ind++ = t + 2 * gap - 1;
+					}
+				}
+
+				bgfx::setState(0);
+				bgfx::setStencil(BGFX_STENCIL_TEST_ALWAYS
+					| BGFX_STENCIL_FUNC_REF(1)
+					| BGFX_STENCIL_FUNC_RMASK(0xff)
+					| BGFX_STENCIL_OP_FAIL_S_REPLACE
+					| BGFX_STENCIL_OP_FAIL_Z_REPLACE
+					| BGFX_STENCIL_OP_PASS_Z_REPLACE
+					);
+				bgfx::setVertexBuffer(0, &vb);
+				bgfx::setIndexBuffer(&ib);
+				bgfx::submit(id, _shadow_shader.program);
+			}
 		} else if (id >= View::SM_LOCAL_0 && id < View::SM_LOCAL_LAST) {
 			view_name = "sm_local_lights";
 		} else if (id == View::LIGHTS) {

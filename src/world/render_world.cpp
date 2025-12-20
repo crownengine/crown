@@ -683,42 +683,19 @@ void RenderWorld::update_transforms(const UnitId *begin, const UnitId *end, cons
 	}
 }
 
-static u32 best_square_size(u32 width, u32 height, u32 num_tiles)
-{
-	CE_ENSURE(num_tiles > 0);
-
-	u32 low  = 1;
-	u32 high = (width < height ? width : height);
-	u32 best = 0;
-
-	while (low <= high) {
-		u32 mid = low + ((high - low) >> 1);
-		u64 num = (u64)(width / mid) * (u64)(height / mid);
-
-		if (num >= num_tiles) {
-			best = mid;
-			low = mid + 1;
-		} else {
-			high = mid - 1;
-		}
-	}
-
-	return best;
-}
-
 // From BGFX's 16-shadowmaps example.
-static void mtxYawPitchRoll(float *_result
-	, float _yaw
-	, float _pitch
-	, float _roll
+static void mtxYawPitchRoll(f32 *_result
+	, f32 _yaw
+	, f32 _pitch
+	, f32 _roll
 	)
 {
-	float sroll  = bx::sin(_roll);
-	float croll  = bx::cos(_roll);
-	float spitch = bx::sin(_pitch);
-	float cpitch = bx::cos(_pitch);
-	float syaw   = bx::sin(_yaw);
-	float cyaw   = bx::cos(_yaw);
+	f32 sroll  = bx::sin(_roll);
+	f32 croll  = bx::cos(_roll);
+	f32 spitch = bx::sin(_pitch);
+	f32 cpitch = bx::cos(_pitch);
+	f32 syaw   = bx::sin(_yaw);
+	f32 cyaw   = bx::cos(_yaw);
 
 	_result[ 0] = sroll * spitch * syaw + croll * cyaw;
 	_result[ 1] = sroll * cpitch;
@@ -748,14 +725,30 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 	invert(inv_view);
 	const Vector3 camera_pos = translation(inv_view);
 
-	const float sy = caps->originBottomLeft ? 0.5f : -0.5f;
-	const float sz = caps->homogeneousDepth ? 0.5f :  1.0f;
-	const float tz = caps->homogeneousDepth ? 0.5f :  0.0f;
-	Matrix4x4 crop = {
+	const f32 sy = caps->originBottomLeft ? 0.5f : -0.5f;
+	const f32 sz = caps->homogeneousDepth ? 0.5f :  1.0f;
+	const f32 tz = caps->homogeneousDepth ? 0.5f :  0.0f;
+	const Matrix4x4 crop = {
 		{ 0.5f, 0.0f, 0.0f, 0.0f },
 		{ 0.0f,   sy, 0.0f, 0.0f },
 		{ 0.0f, 0.0f, sz,   0.0f },
 		{ 0.5f, 0.5f, tz,   1.0f }
+	};
+
+	const f32 s = caps->originBottomLeft ? 1.0f : -1.0f;
+	const Matrix4x4 omni_bias[] = {
+		{ // Horizontal strips.
+			{ 0.5f, 0.0f,     0.0f, 0.0f },
+			{ 0.0f, s *0.25f, 0.0f, 0.0f },
+			{ 0.0f, 0.0f,     sz,   0.0f },
+			{ 0.5f, 0.25f,    tz,   1.0f }
+		},
+		{ // Vertical strips.
+			{ 0.25f, 0.0f,    0.0f, 0.0f },
+			{ 0.0f,  s *0.5f, 0.0f, 0.0f },
+			{ 0.0f,  0.0f,    sz,   0.0f },
+			{ 0.25f, 0.5f,    tz,   1.0f }
+		},
 	};
 
 	Matrix4x4 cascaded_lights[MAX_NUM_CASCADES];
@@ -898,12 +891,8 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 			});
 
 		const bool local_shadows = (_pipeline->_render_settings.flags & RenderSettingsFlags::LOCAL_LIGHTS_SHADOWS) != 0;
-		// FIXME: this is a pretty dumb allocation scheme but it's fine for now.
-		const u32 tile_size = best_square_size(_pipeline->_render_settings.local_lights_shadow_map_size.x
-			, _pipeline->_render_settings.local_lights_shadow_map_size.y
-			, LOCAL_LIGHTS_MAX_SHADOW_CASTERS
-			);
-		const u32 tile_cols = _pipeline->_render_settings.local_lights_shadow_map_size.x / tile_size;
+		const u32 tile_size = _pipeline->_local_lights_tile_size;
+		const u32 tile_cols = _pipeline->_local_lights_tile_cols;
 		u32 num_tiles = 0;
 		u32 cur_tile;
 		u32 sm_local_view_id = View::SM_LOCAL_0;
@@ -972,12 +961,16 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 				if (cast_shadows && local_shadows) {
 					cur_tile = num_tiles++;
 
-					Matrix4x4 light_proj;
+					// Compute projection matrices.
+					const f32 fovy_adj = 4.0f;
+					const f32 fovx_adj = 5.0f;
 					const f32 near = 0.1f;
-					const f32 fovx = 143.98570868f;
-					const f32 fovy = 125.26438968f;
+					const f32 fovx = 143.98570868f + fovx_adj;
+					const f32 fovy = 125.26438968f + fovy_adj;
 					const f32 aspect = ftan(frad(fovx*0.5f))/ftan(frad(fovy*0.5f));
-					bx::mtxProj(to_float_ptr(light_proj)
+
+					Matrix4x4 light_proj[2];
+					bx::mtxProj(to_float_ptr(light_proj[0])
 						, fovy
 						, aspect
 						, near
@@ -985,18 +978,32 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 						, caps->homogeneousDepth
 						, bx::Handedness::Right
 						);
+					bx::mtxProj(to_float_ptr(light_proj[1])
+						, fovx
+						, aspect
+						, near
+						, shader.range + near
+						, caps->homogeneousDepth
+						, bx::Handedness::Right
+						);
 
+					// Render omni light shadow map as 4 strips, one per
+					// tetrahedron face, using stencil masking. Stencil pattern
+					// is populated in pipeline.cpp.
 					for (u32 side = 0; side < 4; ++side) {
+						const u32 strip = (side & 0x2) >> 1;
+
 						// Compute light view-proj matrix.
-						Matrix4x4 light_view;
-						const Vector3 &light_pos = shader.position;
-						Vector3 ypr[] =
+						const Vector3 ypr[] =
 						{
-							{ frad(90.0f + 27.36780516f), frad(0.0f), frad(90.0f) },
-							{ frad(0.0f), frad(-90.0f + 27.36780516f), frad(180.0f) },
-							{ frad(0.0f), frad(90.0f - 27.36780516f), frad(0.0f) },
-							{ frad(-90.0f - 27.36780516f), frad(0.0f), frad(-90.0f) },
+							{ frad(0.0f), frad(+90.0f - 27.36780516f), frad(-180.0f) },
+							{ frad(0.0f), frad(-90.0f + 27.36780516f), frad(+180.0f) },
+							{ frad(+90.0f + 27.36780516f), frad(0.0f), frad(+180.0f) },
+							{ frad(-90.0f - 27.36780516f), frad(0.0f), frad(-180.0f) },
 						};
+
+						const Vector3 &light_pos = shader.position;
+						Matrix4x4 light_view;
 						mtxYawPitchRoll(to_float_ptr(light_view), ypr[side].x, ypr[side].y, ypr[side].z);
 						transpose(light_view);
 						light_view.t.x = -dot(light_pos, { light_view.x.x, light_view.y.x, light_view.z.x });
@@ -1004,37 +1011,53 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 						light_view.t.z = -dot(light_pos, { light_view.x.z, light_view.y.z, light_view.z.z });
 						light_view.t.w = 1.0f;
 
-						shader.mvp[side] = light_view * light_proj * crop;
+						shader.mvp[side] = light_view * light_proj[strip] * omni_bias[strip];
 
 						if (false) {
-							Color4 colors[] = { COLOR4_GREEN, COLOR4_YELLOW, COLOR4_BLUE, COLOR4_RED };
+							Color4 colors[] = { COLOR4_BLUE, COLOR4_YELLOW, COLOR4_GREEN, COLOR4_RED };
 							Frustum frustum;
-							frustum::from_matrix(frustum, light_view*light_proj, caps->homogeneousDepth, bx::Handedness::Right);
+							frustum::from_matrix(frustum, light_view*light_proj[strip], caps->homogeneousDepth, bx::Handedness::Right);
 							dl.add_frustum(frustum, colors[side]);
 						}
 
-						const u32 w = (side & 0x1) >> 0;
-						const u32 h = (side & 0x2) >> 1;
+						const f32 horz = (side == 3) ? tile_size/2 : 0.0f;
+						const f32 vert = (side == 1) ? tile_size/2 : 0.0f;
+						const Vector4 rect = {
+							f32(tile_size * (cur_tile % tile_cols) + horz),
+							f32(tile_size * (cur_tile / tile_cols) + vert),
+							f32(tile_size) / (strip + 1),
+							f32(tile_size) / (2 - strip)
+						};
 
-						Vector4 rect = {
-							f32(tile_size * (cur_tile % tile_cols) + tile_size/2 * w),
-							f32(tile_size * (cur_tile / tile_cols) + tile_size/2 * h),
-							f32(tile_size) / 2.0f,
-							f32(tile_size) / 2.0f
+						const u32 stencil[] =
+						{
+							BGFX_STENCIL_TEST_EQUAL
+							| BGFX_STENCIL_FUNC_REF(1)
+							| BGFX_STENCIL_FUNC_RMASK(0xff)
+							| BGFX_STENCIL_OP_FAIL_S_KEEP
+							| BGFX_STENCIL_OP_FAIL_Z_KEEP
+							| BGFX_STENCIL_OP_PASS_Z_KEEP
+							,
+							BGFX_STENCIL_TEST_EQUAL
+							| BGFX_STENCIL_FUNC_REF(0)
+							| BGFX_STENCIL_FUNC_RMASK(0xff)
+							| BGFX_STENCIL_OP_FAIL_S_KEEP
+							| BGFX_STENCIL_OP_FAIL_Z_KEEP
+							| BGFX_STENCIL_OP_PASS_Z_KEEP
 						};
 
 						*(&shader.atlas_u.x + side) = rect.x / _pipeline->_render_settings.local_lights_shadow_map_size.x;
 #if CROWN_PLATFORM_WINDOWS
 						*(&shader.atlas_v.x + side) = rect.y / _pipeline->_render_settings.local_lights_shadow_map_size.x;
 #else
-						*(&shader.atlas_v.x + side) = 1.0f - ((rect.y + rect.z) / _pipeline->_render_settings.local_lights_shadow_map_size.x);
+						*(&shader.atlas_v.x + side) = 1.0f - ((rect.y + rect.w) / _pipeline->_render_settings.local_lights_shadow_map_size.x);
 #endif
 						shader.map_size = rect.w / _pipeline->_render_settings.local_lights_shadow_map_size.x;
 
 						bgfx::setViewFrameBuffer(sm_local_view_id, _pipeline->_local_lights_shadow_map_frame_buffer);
 						bgfx::setViewRect(sm_local_view_id, rect.x, rect.y, rect.z, rect.w);
-						bgfx::setViewTransform(sm_local_view_id, to_float_ptr(light_view), to_float_ptr(light_proj));
-						_mesh_manager.draw_shadow_casters(sm_local_view_id, *_scene_graph);
+						bgfx::setViewTransform(sm_local_view_id, to_float_ptr(light_view), to_float_ptr(light_proj[strip]));
+						_mesh_manager.draw_shadow_casters(sm_local_view_id, *_scene_graph, stencil[strip]);
 						++sm_local_view_id;
 					}
 				}
@@ -1416,7 +1439,7 @@ void RenderWorld::MeshManager::set_instance_data(u32 ii, SceneGraph &scene_graph
 	bgfx::setIndexBuffer(_data.mesh[ii].ibh);
 }
 
-void RenderWorld::MeshManager::draw_shadow_casters(u8 view_id, SceneGraph &scene_graph)
+void RenderWorld::MeshManager::draw_shadow_casters(u8 view_id, SceneGraph &scene_graph, u32 stencil)
 {
 	for (u32 ii = 0; ii < _data.first_hidden; ++ii) {
 		if ((_data.flags[ii] & RenderableFlags::SHADOW_CASTER) == 0) // FIXME: put in a separate list.
@@ -1428,6 +1451,7 @@ void RenderWorld::MeshManager::draw_shadow_casters(u8 view_id, SceneGraph &scene
 			? _render_world->_pipeline->_shadow_skinning_shader
 			: _render_world->_pipeline->_shadow_shader
 			;
+		bgfx::setStencil(stencil);
 		bgfx::setState(sd.state);
 		bgfx::submit(view_id, sd.program);
 	}
