@@ -290,19 +290,13 @@ bgfx_shaders = {
 						vec3 bn = vec3(        0.0f,  0.81649661f, -0.57735026f);
 						vec3 rn = vec3( 0.81649661f,  0.0f,         0.57735026f);
 
-						mat4 light_mtx = mtxFromCols(
-							vec4(1, 0, 0, 0),
-							vec4(0, 1, 0, 0),
-							vec4(0, 0, 1, 0),
-							vec4(-position.x, -position.y, -position.z, 1)
-						);
-						vec4 sl = mul(light_mtx, shadow_local);
+						vec3 sl = shadow_local.xyz - position; // Transform to light-local space.
 
 						// Select tetrahedon face.
-						float g = dot(sl.xyz, gn);
-						float y = dot(sl.xyz, yn);
-						float b = dot(sl.xyz, bn);
-						float r = dot(sl.xyz, rn);
+						float g = dot(sl, gn);
+						float y = dot(sl, yn);
+						float b = dot(sl, bn);
+						float r = dot(sl, rn);
 						float maximum = max(max(g, y), max(b, r));
 
 						vec4 atlas_u      = lights_data(loffset + 19);
