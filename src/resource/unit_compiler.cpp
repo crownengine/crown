@@ -237,7 +237,7 @@ static s32 compile_light(Buffer &output, FlatJsonObject &obj, CompileOptions &op
 	ld.intensity   = RETURN_IF_ERROR(sjson::parse_float  (flat_json_object::get(obj, "data.intensity")), opts);
 	ld.spot_angle  = RETURN_IF_ERROR(sjson::parse_float  (flat_json_object::get(obj, "data.spot_angle")), opts);
 	ld.color       = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.color")), opts);
-	ld.shadow_bias = 0.0001f;
+	ld.shadow_bias = 0.0004f;
 	if (flat_json_object::has(obj, "data.shadow_bias")) {
 		ld.shadow_bias = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.shadow_bias")), opts);
 	}
