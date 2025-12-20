@@ -99,6 +99,8 @@ struct Pipeline
 	bgfx::FrameBufferHandle _local_lights_shadow_map_frame_buffer;
 	bgfx::UniformHandle _u_local_lights_shadow_map;
 	bgfx::UniformHandle _u_local_lights_params;
+	u16 _local_lights_tile_size;
+	u16 _local_lights_tile_cols;
 
 	// Lighting.
 	bgfx::UniformHandle _lights_num;

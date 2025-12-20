@@ -380,7 +380,7 @@ struct RenderWorld
 		void set_instance_data(u32 ii, SceneGraph &scene_graph);
 
 		///
-		void draw_shadow_casters(u8 view, SceneGraph &scene_graph);
+		void draw_shadow_casters(u8 view, SceneGraph &scene_graph, u32 stencil = BGFX_STENCIL_NONE);
 
 		///
 		void draw_visibles(u8 view, SceneGraph &scene_graph, const Matrix4x4 *cascaded_lights);

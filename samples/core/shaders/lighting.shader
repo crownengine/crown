@@ -285,19 +285,19 @@ bgfx_shaders = {
 
 					if (cast_shadow == 1.0) {
 						// Tetrahedron normals.
-						vec3 gn = vec3(-0.81649661f,  0.0f,         0.57735026f);
-						vec3 yn = vec3(        0.0f, -0.81649661f, -0.57735026f);
-						vec3 bn = vec3(        0.0f,  0.81649661f, -0.57735026f);
-						vec3 rn = vec3( 0.81649661f,  0.0f,         0.57735026f);
+						CONST(vec3 bn) = vec3(        0.0f,  0.81649661f, -0.57735026f);
+						CONST(vec3 yn) = vec3(        0.0f, -0.81649661f, -0.57735026f);
+						CONST(vec3 gn) = vec3(-0.81649661f,  0.0f,         0.57735026f);
+						CONST(vec3 rn) = vec3( 0.81649661f,  0.0f,         0.57735026f);
 
 						vec3 sl = shadow_local.xyz - position; // Transform to light-local space.
 
 						// Select tetrahedon face.
-						float g = dot(sl, gn);
-						float y = dot(sl, yn);
 						float b = dot(sl, bn);
+						float y = dot(sl, yn);
+						float g = dot(sl, gn);
 						float r = dot(sl, rn);
-						float maximum = max(max(g, y), max(b, r));
+						float maximum = max(max(b, y), max(g, r));
 
 						vec4 atlas_u      = lights_data(loffset + 19);
 						vec4 atlas_v      = lights_data(loffset + 20);
@@ -308,15 +308,15 @@ bgfx_shaders = {
 						vec3 col;
 						vec3 atlas_offset;
 
-						if (maximum == g) {
+						if (maximum == b) {
 							// Tetrahedron mvp matrices.
-							mat4 gmtx = mtxFromCols(lights_data(loffset + 3)
+							mat4 bmtx = mtxFromCols(lights_data(loffset + 3)
 								, lights_data(loffset + 4)
 								, lights_data(loffset + 5)
 								, lights_data(loffset + 6)
 								);
-							shadow_pos0 = mul(gmtx, shadow_local);
-							col = vec3(0, 1, 0);
+							shadow_pos0 = mul(bmtx, shadow_local);
+							col = vec3(0.1, 0.1, 1);
 							atlas_offset = vec3(atlas_u.x, atlas_v.x, atlas_size);
 						} else if (maximum == y) {
 							mat4 ymtx = mtxFromCols(lights_data(loffset + 7)
@@ -327,14 +327,14 @@ bgfx_shaders = {
 							shadow_pos0 = mul(ymtx, shadow_local);
 							col = vec3(1, 1, 0);
 							atlas_offset = vec3(atlas_u.y, atlas_v.y, atlas_size);
-						} else if (maximum == b) {
-							mat4 bmtx = mtxFromCols(lights_data(loffset + 11)
+						} else if (maximum == g) {
+							mat4 gmtx = mtxFromCols(lights_data(loffset + 11)
 								, lights_data(loffset + 12)
 								, lights_data(loffset + 13)
 								, lights_data(loffset + 14)
 								);
-							shadow_pos0 = mul(bmtx, shadow_local);
-							col = vec3(0, 0, 1);
+							shadow_pos0 = mul(gmtx, shadow_local);
+							col = vec3(0, 1, 0);
 							atlas_offset = vec3(atlas_u.z, atlas_v.z, atlas_size);
 						} else {
 							mat4 rmtx = mtxFromCols(lights_data(loffset + 15)
