@@ -105,11 +105,11 @@ build/mingw32/bin/luac: \
 
 build/linux64/bin/texturec: \
 	build/projects/linux
-	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/bimg/.build/projects/gmake-linux config=release64 texturec
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/bimg/.build/projects/gmake-linux-gcc config=release64 texturec
 	-@install -m775 -D 3rdparty/bimg/.build/linux64_gcc/bin/texturecRelease $@
 build/linux64/bin/shaderc: \
 	build/projects/linux
-	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/bgfx/.build/projects/gmake-linux config=release64 shaderc
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/bgfx/.build/projects/gmake-linux-gcc config=release64 shaderc
 	-@install -m775 -D 3rdparty/bgfx/.build/linux64_gcc/bin/shadercRelease $@
 
 build/mingw64/bin/texturec.exe: \
