@@ -333,7 +333,7 @@ public static void create_object_types(Database database)
 			name = "data.shadow_bias",
 			min =  0.0,
 			max =  1.0,
-			deffault = 0.0001,
+			deffault = 0.0004,
 		},
 		PropertyDefinition()
 		{
