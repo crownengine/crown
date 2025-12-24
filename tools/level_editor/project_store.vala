@@ -599,6 +599,20 @@ public class ProjectStore
 			});
 	}
 
+	public bool is_visible(string type, string name, string needle)
+	{
+		// Always show the roots.
+		if ((type == "<folder>" && name == "") || type == "<favorites>")
+			return true;
+
+		string basename = GLib.Path.get_basename(name);
+		return basename != null
+			&& (needle == ""
+			|| basename.down().index_of(needle) > -1
+			|| type.down().index_of(needle) > -1
+			);
+	}
+
 	public void filter(string needle)
 	{
 		_tree_store.foreach((model, path, iter) => {
@@ -611,17 +625,7 @@ public class ProjectStore
 				model.get_value(iter, ProjectStore.Column.NAME, out val);
 				name = (string)val;
 
-				bool visible = false;
-
-				// Always show the roots.
-				if ((type == "<folder>" && name == "") || type == "<favorites>") {
-					visible = true;
-				} else {
-					string basename = GLib.Path.get_basename(name);
-					visible = basename != null && (needle == "" || basename.down().index_of(needle) > -1);
-				}
-
-				if (visible) {
+				if (is_visible(type, name, needle)) {
 					// Make this iter and all its ancestors visible.
 					Gtk.TreeIter it = iter;
 					_tree_store.set(it, Column.VISIBLE, true, -1);
@@ -642,17 +646,7 @@ public class ProjectStore
 				model.get_value(iter, ProjectStore.Column.NAME, out val);
 				name = (string)val;
 
-				bool visible = false;
-
-				// Always show the roots.
-				if ((type == "<folder>" && name == "") || type == "<favorites>") {
-					visible = true;
-				} else {
-					string basename = GLib.Path.get_basename(name);
-					visible = basename != null && (needle == "" || basename.down().index_of(needle) > -1);
-				}
-
-				_list_store.set(iter, ProjectStore.Column.VISIBLE, visible, -1);
+				_list_store.set(iter, ProjectStore.Column.VISIBLE, is_visible(type, name, needle), -1);
 				return false; // Continue iterating.
 			});
 	}
