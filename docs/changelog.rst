@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.60.0 --- DD MMM YYYY
+0.60.0 --- 30 Dec 2025
 ----------------------
 
 **New Features and Improvements**
