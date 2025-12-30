@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <meta property="article:modified_time" content="2025-10-16T08:33:32+00:00" /><meta property="og:title" content="Interacting with Units" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://docs.crownengine.org/html/latest/gameplay/unit_interaction.html" />
+<meta property="og:site_name" content="Crown 0.60.0 Manual" />
+<meta property="og:description" content="At some point you will probably need to reference units from the Lua scripts to manipulate their properties, be notified of particular events and make them do something interesting. Getting Unit handles: The simplest way of getting a handle to a unit is to spawn it directly fr..." />
+<meta name="description" content="At some point you will probably need to reference units from the Lua scripts to manipulate their properties, be notified of particular events and make them do something interesting. Getting Unit handles: The simplest way of getting a handle to a unit is to spawn it directly fr..." />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interacting with Units &mdash; Crown 0.60.0 Manual 0.60.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/org.crownengine.Crown.svg"/>
+    <link rel="canonical" href="https://docs.crownengine.org/html/latest/gameplay/unit_interaction.html" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="copyright" title="Copyright" href="../copyright.html" />
+    <link rel="next" title="Deploying" href="../deploying/index.html" />
+    <link rel="prev" title="Objects binding and lifetime" href="objects_binding.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html">
+            <img src="../_static/org.crownengine.Crown.svg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                Crown 0.60.0 Manual
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installing_crown/index.html">Installing Crown</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../importing_resources/index.html">Importing Resources</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Writing Gameplay</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="lua_scripting.html">Scripting in Lua</a></li>
+<li class="toctree-l2"><a class="reference internal" href="objects_binding.html">Objects binding and lifetime</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Interacting with Units</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#getting-unit-handles">Getting Unit handles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-script-component">The Script component</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#creating-a-unit-script">Creating a Unit script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#receiving-collision-events">Receiving collision events</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#triggers">Triggers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../deploying/index.html">Deploying</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lua_api.html">Lua API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../copyright.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hackers/index.html">Hackers</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Crown 0.60.0 Manual</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">Writing Gameplay</a> &raquo;</li>
+      <li>Interacting with Units</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/gameplay/unit_interaction.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="interacting-with-units">
+<h1>Interacting with Units<a class="headerlink" href="#interacting-with-units" title="Permalink to this headline">¶</a></h1>
+<p>At some point you will probably need to reference units from the Lua scripts to
+manipulate their properties, be notified of particular events and make them do
+something interesting.</p>
+<section id="getting-unit-handles">
+<h2>Getting Unit handles<a class="headerlink" href="#getting-unit-handles" title="Permalink to this headline">¶</a></h2>
+<p>The simplest way of getting a handle to a unit is to spawn it directly from a
+script:</p>
+<div class="highlight-lua notranslate"><div class="highlight"><pre><span></span><span class="n">player</span> <span class="o">=</span> <span class="n">World</span><span class="p">.</span><span class="n">spawn_unit</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="s2">&quot;units/player/player&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In most cases, however, units are not spawned directly but rather as a
+consequence of loading levels in a world. You can get a table with all units
+spawned in a world this way:</p>
+<div class="highlight-lua notranslate"><div class="highlight"><pre><span></span><span class="kd">local</span> <span class="n">units</span> <span class="o">=</span> <span class="n">World</span><span class="p">.</span><span class="n">units</span><span class="p">(</span><span class="n">world</span><span class="p">)</span>
+
+<span class="kr">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">u</span> <span class="kr">in</span> <span class="nb">ipairs</span><span class="p">(</span><span class="n">units</span><span class="p">)</span> <span class="kr">do</span>
+        <span class="c1">-- Do something with Unit u.</span>
+<span class="kr">end</span>
+</pre></div>
+</div>
+<p>To obtain a specific Unit by name (its name as set in the Level Editor, <em>not</em>
+the unit name itself):</p>
+<div class="highlight-lua notranslate"><div class="highlight"><pre><span></span><span class="n">door</span> <span class="o">=</span> <span class="n">World</span><span class="p">.</span><span class="n">unit_by_name</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="s2">&quot;main_door&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="the-script-component">
+<h2>The Script component<a class="headerlink" href="#the-script-component" title="Permalink to this headline">¶</a></h2>
+<p>Obtaining unit handles is useful but might not be enough. With a unit handle
+alone you can modify properties but you cannot receive events.</p>
+</section>
+<section id="creating-a-unit-script">
+<h2>Creating a Unit script<a class="headerlink" href="#creating-a-unit-script" title="Permalink to this headline">¶</a></h2>
+<p>Unit scripts are a particular type of scripts that can be attached to units via
+a Script Component. To create a Unit script, right click on the Project Browser
+and choose <code class="docutils literal notranslate"><span class="pre">New</span> <span class="pre">(Unit)</span> <span class="pre">script</span></code>.</p>
+<p>Crown will create a new Unit script similar to the following:</p>
+<div class="highlight-lua notranslate"><div class="highlight"><pre><span></span><span class="n">MyScript</span> <span class="o">=</span> <span class="n">MyScript</span> <span class="ow">or</span> <span class="p">{</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="p">}</span>
+
+<span class="kd">local</span> <span class="n">data</span> <span class="o">=</span> <span class="n">MyScript</span><span class="p">.</span><span class="n">data</span>
+
+<span class="c1">-- Called after units are spawned into a world.</span>
+<span class="kr">function</span> <span class="nc">MyScript</span><span class="p">.</span><span class="nf">spawned</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">units</span><span class="p">)</span>
+        <span class="kr">if</span> <span class="n">data</span><span class="p">[</span><span class="n">world</span><span class="p">]</span> <span class="o">==</span> <span class="kc">nil</span> <span class="kr">then</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">world</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="kr">end</span>
+
+        <span class="kd">local</span> <span class="n">world_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">world</span><span class="p">]</span>
+
+        <span class="kr">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">unit</span> <span class="kr">in</span> <span class="nb">pairs</span><span class="p">(</span><span class="n">units</span><span class="p">)</span> <span class="kr">do</span>
+                <span class="c1">-- Store instance-specific data.</span>
+                <span class="kr">if</span> <span class="n">world_data</span><span class="p">[</span><span class="n">unit</span><span class="p">]</span> <span class="o">==</span> <span class="kc">nil</span> <span class="kr">then</span>
+                        <span class="n">world_data</span><span class="p">[</span><span class="n">unit</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="kr">end</span>
+        <span class="kr">end</span>
+<span class="kr">end</span>
+
+<span class="c1">-- Called once per frame.</span>
+<span class="kr">function</span> <span class="nc">MyScript</span><span class="p">.</span><span class="nf">update</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
+        <span class="kd">local</span> <span class="n">world_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">world</span><span class="p">]</span>
+
+        <span class="kr">for</span> <span class="n">unit</span><span class="p">,</span> <span class="n">unit_data</span> <span class="kr">in</span> <span class="nb">pairs</span><span class="p">(</span><span class="n">world_data</span><span class="p">)</span> <span class="kr">do</span>
+                <span class="c1">-- Update unit.</span>
+        <span class="kr">end</span>
+<span class="kr">end</span>
+
+<span class="c1">-- Called before units are unspawned from a world.</span>
+<span class="kr">function</span> <span class="nc">MyScript</span><span class="p">.</span><span class="nf">unspawned</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">units</span><span class="p">)</span>
+        <span class="kd">local</span> <span class="n">world_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">world</span><span class="p">]</span>
+
+        <span class="c1">-- Cleanup.</span>
+        <span class="kr">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">unit</span> <span class="kr">in</span> <span class="nb">pairs</span><span class="p">(</span><span class="n">units</span><span class="p">)</span> <span class="kr">do</span>
+                <span class="kr">if</span> <span class="n">world_data</span><span class="p">[</span><span class="n">unit</span><span class="p">]</span> <span class="kr">then</span>
+                        <span class="n">world_data</span><span class="p">[</span><span class="n">unit</span><span class="p">]</span> <span class="o">=</span> <span class="kc">nil</span>
+                <span class="kr">end</span>
+        <span class="kr">end</span>
+<span class="kr">end</span>
+
+<span class="kr">return</span> <span class="n">MyScript</span>
+</pre></div>
+</div>
+<p>Unit scripts work differently than similar solutions in other engines. Instead
+of getting many individual update() calls for each individual Unit, you will
+receive a single update() for <em>every</em> unit that has that particular script
+attached to it.</p>
+<p>This allows for efficient bulk updates, state sharing and it also make profiling
+code easier.</p>
+</section>
+<section id="receiving-collision-events">
+<h2>Receiving collision events<a class="headerlink" href="#receiving-collision-events" title="Permalink to this headline">¶</a></h2>
+<p>To get physics collision notification events, implement any of the following
+callbacks in your script component:</p>
+<div class="highlight-lua notranslate"><div class="highlight"><pre><span></span><span class="kr">function</span> <span class="nc">MyScript</span><span class="p">.</span><span class="nf">collision_begin</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">other_unit</span><span class="p">,</span> <span class="n">actor</span><span class="p">,</span> <span class="n">other_actor</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">normal</span><span class="p">,</span> <span class="n">distance</span><span class="p">)</span>
+        <span class="c1">-- Called when unit and other_unit begin touching.</span>
+<span class="kr">end</span>
+
+<span class="kr">function</span> <span class="nc">MyScript</span><span class="p">.</span><span class="nf">collision_end</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">other_unit</span><span class="p">)</span>
+        <span class="c1">-- Called when unit and other_unit end touching.</span>
+<span class="kr">end</span>
+
+<span class="kr">function</span> <span class="nc">MyScript</span><span class="p">.</span><span class="nf">collision_stay</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">other_unit</span><span class="p">,</span> <span class="n">actor</span><span class="p">,</span> <span class="n">other_actor</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">normal</span><span class="p">,</span> <span class="n">distance</span><span class="p">)</span>
+        <span class="c1">-- Called between collision_begin() and collision_end() while the units remain touching.</span>
+<span class="kr">end</span>
+</pre></div>
+</div>
+</section>
+<section id="triggers">
+<h2>Triggers<a class="headerlink" href="#triggers" title="Permalink to this headline">¶</a></h2>
+<p>Units whose actor is configured as a trigger (actor class ‘trigger’) will not
+receive regular collision events, instead, they will receive trigger events:</p>
+<div class="highlight-lua notranslate"><div class="highlight"><pre><span></span><span class="kr">function</span> <span class="nc">MyScript</span><span class="p">.</span><span class="nf">trigger_enter</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">trigger_unit</span><span class="p">,</span> <span class="n">other_unit</span><span class="p">)</span>
+        <span class="c1">-- Called when other_unit begins touching trigger_unit.</span>
+<span class="kr">end</span>
+
+<span class="kr">function</span> <span class="nc">MyScript</span><span class="p">.</span><span class="nf">trigger_leave</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">trigger_unit</span><span class="p">,</span> <span class="n">other_unit</span><span class="p">)</span>
+        <span class="c1">-- Called when other_unit ends touching trigger_unit.</span>
+<span class="kr">end</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="objects_binding.html" class="btn btn-neutral float-left" title="Objects binding and lifetime" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../deploying/index.html" class="btn btn-neutral float-right" title="Deploying" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
+      <span class="lastupdated">Last updated on Oct 16, 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XNVGCMNDZH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-XNVGCMNDZH', {
+          'anonymize_ip': true,
+      });
+    </script> 
+
+</body>
+</html>
