@@ -6,6 +6,9 @@ Changelog
 
 **New Features and Improvements**
 
+* Tools: added a new Unit Editor to inspect and modify Unit prefabs.
+* Tools: added a new State Machine Editor for editing 3D skeletal mesh and sprite animations.
+* Tools: added a new Object Editor to inspect and modify via a generic UI most resource types that were previously opened as text files.
 * Tools: added the ability to search any kind of resources in the Project Browser. As a consequence, the old Resource Chooser dialog has been removed.
 * Tools: double-clicking an object in the Level Tree will now frame it in the Editor Viewport.
 * Tools: units created via the FBX importer will now be named according to their corresponding node's name.
