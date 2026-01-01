@@ -1,6 +1,6 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright (c) 2012-2025 Daniele Bartolini et al.
+# Copyright (c) 2012-2026 Daniele Bartolini et al.
 
 set -eu
 

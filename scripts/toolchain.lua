@@ -1,5 +1,5 @@
 --
--- Copyright (c) 2012-2025 Daniele Bartolini et al.
+-- Copyright (c) 2012-2026 Daniele Bartolini et al.
 -- SPDX-License-Identifier: MIT
 --
 -- Based on 3rdparty/bx/scripts/toolchain.lua by Branimir Karadzic.

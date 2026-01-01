@@ -1,4 +1,4 @@
--- Copyright (c) 2012-2025 Daniele Bartolini et al.
+-- Copyright (c) 2012-2026 Daniele Bartolini et al.
 -- SPDX-License-Identifier: MIT
 
 -- From: https://web.archive.org/web/20140326122603/https://bitsquid.blogspot.com/2013/02/why-lua.html

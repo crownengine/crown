@@ -1,4 +1,4 @@
--- Copyright (c) 2012-2025 Daniele Bartolini et al.
+-- Copyright (c) 2012-2026 Daniele Bartolini et al.
 -- SPDX-License-Identifier: MIT
 
 -- Note: the following table must be global and uniquely named.
