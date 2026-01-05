@@ -22,6 +22,7 @@
 #include "core/os.h"
 #include "core/profiler.h"
 #include "core/strings/dynamic_string.inl"
+#include "core/strings/line_reader.inl"
 #include "core/strings/string.h"
 #include "core/strings/string_id.inl"
 #include "core/strings/string_stream.inl"
@@ -183,33 +184,6 @@ void SourceIndex::scan(const HashMap<DynamicString, DynamicString> &source_dirs)
 		scan_directory(fs, cur->first.c_str(), NULL);
 	}
 }
-
-struct LineReader
-{
-	const char *_str;
-	const u32 _len;
-	u32 _pos;
-
-	explicit LineReader(const char *str)
-		: _str(str)
-		, _len(strlen32(str))
-		, _pos(0)
-	{
-	}
-
-	void read_line(DynamicString &line)
-	{
-		const char *s  = &_str[_pos];
-		const char *nl = strnl(s);
-		_pos += u32(nl - s);
-		line.set(s, u32(nl - s));
-	}
-
-	bool eof() const
-	{
-		return _str[_pos] == '\0';
-	}
-};
 
 static void console_command_compile(ConsoleServer &cs, u32 client_id, const char *json, void *user_data)
 {
