@@ -42,20 +42,6 @@ struct TextureHandle
 	u32 texture_handle;
 };
 
-struct UniformType
-{
-	enum Enum
-	{
-		FLOAT,
-		VECTOR2,
-		VECTOR3,
-		VECTOR4,
-		MATRIX4X4,
-
-		COUNT
-	};
-};
-
 struct UniformData
 {
 	u32 type;        // UniformType::Enum

@@ -16,6 +16,20 @@
 
 namespace crown
 {
+struct UniformType
+{
+	enum Enum
+	{
+		FLOAT,
+		VECTOR2,
+		VECTOR3,
+		VECTOR4,
+		MATRIX4X4,
+
+		COUNT
+	};
+};
+
 struct ShaderResource
 {
 	explicit ShaderResource(Allocator &a)

@@ -11,10 +11,12 @@
 #include "core/json/json.h"
 #include "core/json/json_object.inl"
 #include "core/json/sjson.h"
+#include "core/math/constants.h"
 #include "core/memory/temp_allocator.inl"
 #include "core/option.inl"
 #include "core/process.h"
 #include "core/strings/dynamic_string.inl"
+#include "core/strings/line_reader.inl"
 #include "core/strings/string_stream.inl"
 #include "device/device.h"
 #include "device/log.h"
@@ -76,6 +78,15 @@ namespace shader_resource_internal
 #else
 		EXE_PATH("shaderc-release")
 #endif
+	};
+
+	struct ShadercFlags
+	{
+		enum Enum
+		{
+			PREPROCESS   = (1 << 0), ///< Preprocess only.
+			KEEPCOMMENTS = (1 << 1), ///< Do not discard comments.
+		};
 	};
 
 	struct DepthFunction
@@ -501,6 +512,7 @@ namespace shader_resource_internal
 		, const char *varying
 		, const char *type
 		, const Vector<DynamicString> &defines
+		, const u32 flags = 0
 		)
 	{
 		Array<const char *> argv(default_allocator());
@@ -520,6 +532,10 @@ namespace shader_resource_internal
 		array::push_back(argv, type);
 		array::push_back(argv, (const char *)"--platform");
 		array::push_back(argv, platform);
+		if (flags & ShadercFlags::PREPROCESS)
+			array::push_back(argv, (const char *)"--preprocess");
+		if (flags & ShadercFlags::KEEPCOMMENTS)
+			array::push_back(argv, (const char *)"--keepcomments");
 
 		StringStream defines_string(default_allocator());
 		for (u32 i = 0; i < vector::size(defines); ++i)
@@ -760,6 +776,7 @@ namespace shader_resource_internal
 			, _samplers(a)
 		{
 		}
+
 	};
 
 	struct ShaderPermutation
@@ -790,6 +807,13 @@ namespace shader_resource_internal
 		}
 	};
 
+	struct UniformMetadata
+	{
+		UniformType::Enum type;
+		char name[128];
+		Vector4 val;
+	};
+
 	struct ShaderCompiler
 	{
 		CompileOptions &_opts;
@@ -803,6 +827,8 @@ namespace shader_resource_internal
 		DynamicString _vs_path;
 		DynamicString _fs_path;
 		DynamicString _varying_path;
+		DynamicString _vs_pp_path;
+		DynamicString _fs_pp_path;
 		DynamicString _vs_bin_path;
 		DynamicString _fs_bin_path;
 
@@ -817,12 +843,16 @@ namespace shader_resource_internal
 			, _vs_path(default_allocator())
 			, _fs_path(default_allocator())
 			, _varying_path(default_allocator())
+			, _vs_pp_path(default_allocator())
+			, _fs_pp_path(default_allocator())
 			, _vs_bin_path(default_allocator())
 			, _fs_bin_path(default_allocator())
 		{
 			_opts.temporary_path(_vs_path, "vs.sc");
 			_opts.temporary_path(_fs_path, "fs.sc");
 			_opts.temporary_path(_varying_path, "varying.sc");
+			_opts.temporary_path(_vs_pp_path, "vs_pp.sc");
+			_opts.temporary_path(_fs_pp_path, "fs_pp.sc");
 			_opts.temporary_path(_vs_bin_path, "vs.bin");
 			_opts.temporary_path(_fs_bin_path, "fs.bin");
 		}
@@ -1504,6 +1534,8 @@ namespace shader_resource_internal
 			_opts.delete_file(_vs_path.c_str());
 			_opts.delete_file(_fs_path.c_str());
 			_opts.delete_file(_varying_path.c_str());
+			_opts.delete_file(_vs_pp_path.c_str());
+			_opts.delete_file(_fs_pp_path.c_str());
 			_opts.delete_file(_vs_bin_path.c_str());
 			_opts.delete_file(_fs_bin_path.c_str());
 		}
@@ -1537,6 +1569,13 @@ namespace shader_resource_internal
 				const Vector<DynamicString> &defines = sc._defines;
 				const StringId32 shader_name         = shader_variant_id(shader.c_str(), defines);
 
+				{
+					TempAllocator512 ta;
+					DynamicString variant(ta);
+					shader_variant(variant, shader.c_str(), defines);
+					logi(SHADER_RESOURCE, "Compiling %s", variant.c_str());
+				}
+
 				RETURN_IF_FALSE(hash_map::has(_shaders, sc._shader)
 					, _opts
 					, "Unknown shader: '%s'"
@@ -1566,7 +1605,7 @@ namespace shader_resource_internal
 				_opts.write(shader_name._id);                            // Shader name
 				_opts.write(state.encode());                             // Render state
 				compile_sampler_states(bgfx_shader.c_str());             // Sampler states
-				err = compile_bgfx_shader(bgfx_shader.c_str(), defines); // Shader code
+				err = compile_bgfx_shader(NULL, bgfx_shader.c_str(), defines); // Shader code
 				ENSURE_OR_RETURN(err == 0, _opts);
 			}
 
@@ -1612,7 +1651,119 @@ namespace shader_resource_internal
 			return 0;
 		}
 
-		s32 compile_bgfx_shader(const char *bgfx_shader, const Vector<DynamicString> &defines)
+		// Parse uniform/sampler declaration comment.
+		s32 parse_decl_comment(UniformMetadata &um, const char *comment, CompileOptions &opts)
+		{
+			TempAllocator1024 ta;
+			DynamicString meta_str(ta);
+			JsonObject meta(ta);
+
+			um.val = VECTOR4_ZERO;
+
+			meta_str.set(comment + 2, strlen32(comment + 2));
+			meta_str.trim();
+
+			if (!meta_str.has_prefix("{")) {
+				um.type = UniformType::COUNT; // Do not add to metadata.
+				return 0;
+			}
+
+			RETURN_IF_ERROR(sjson::parse(meta, meta_str.c_str()), opts);
+
+			auto cur = json_object::begin(meta);
+			auto end = json_object::end(meta);
+			for (; cur != end; ++cur) {
+				JSON_OBJECT_SKIP_HOLE(meta, cur);
+
+				// It must be a regular key/value state.
+				if (cur->first == "val") {
+					if (json::type(cur->second) == JsonValueType::ARRAY) {
+						JsonArray arr(ta);
+
+						RETURN_IF_ERROR(sjson::parse_array(arr, cur->second), opts);
+						RETURN_IF_FALSE(array::size(arr) <= 4 || array::size(arr) == 0
+							, opts
+							, "invalid val array size"
+							);
+
+						for (u32 i = 0; i < array::size(arr); ++i) {
+							*(&um.val.x + i) = RETURN_IF_ERROR(sjson::parse_float(arr[i]), opts);
+						}
+					} else if (json::type(cur->second) == JsonValueType::NUMBER) {
+						um.val.x = RETURN_IF_ERROR(sjson::parse_float(cur->second), opts);
+					} else {
+						RETURN_IF_FALSE(false, opts, "val must be either an array of numbers or a number");
+					}
+				}
+			}
+
+			return 0;
+		}
+
+		s32 parse_uniform_decl(UniformMetadata &um, const char *decl, CompileOptions &opts)
+		{
+			const char *comment;
+
+			um.type = UniformType::COUNT;
+
+			if (str_has_prefix(decl, "uniform")) {
+				const char *type = skip_spaces(decl + 7);
+				const char *name = type;
+
+				while (!isspace(*name)) ++name;
+				name = skip_spaces(name);
+				um.type = UniformType::VECTOR4; // FIXME
+
+				const char *semicol = strchr(name, ';');
+				if (!semicol)
+					RETURN_IF_FALSE(false, opts, "Malformed uniform declaration");
+
+				const char *name_end = name;
+				while (name_end != semicol && !isspace(*name_end)) ++name_end;
+				strncpy(um.name, name, name_end - name);
+				um.name[name_end - name] = '\0';
+			} else if (str_has_prefix(decl, "SAMPLER2D")) {
+				// TODO
+			}
+
+			if ((comment = strstr(decl, "//")) != NULL) {
+				s32 err = parse_decl_comment(um, comment, opts);
+				ENSURE_OR_RETURN(err == 0, opts);
+			} else {
+				um.type = UniformType::COUNT; // Do not add to metadata.
+			}
+
+			return 0;
+		}
+
+		s32 parse_metadata(Vector<UniformMetadata> &meta, const Buffer &pp_code, CompileOptions &opts)
+		{
+			LineReader lr(array::begin(pp_code));
+
+			while (!lr.eof()) {
+				TempAllocator1024 ta;
+				DynamicString str(ta);
+				UniformMetadata um;
+
+				lr.read_line(str);
+				str.ltrim();
+
+				if (!str.has_prefix("uniform") && !str.has_prefix("SAMPLER2D"))
+					continue;
+
+				// We found an uniform declaration, something like:
+				// "uniform vec4 foo; // { min=... val=... }" or
+				// "SAMPLER2D(tex, 0); // ..."
+				s32 err = parse_uniform_decl(um, str.c_str(), opts);
+				ENSURE_OR_RETURN(err == 0, opts);
+				if (um.type != UniformType::COUNT)
+					vector::push_back(meta, um);
+			}
+
+			return 0;
+		}
+
+		s32 compile_bgfx_shader(Vector<UniformMetadata> *meta, const char *bgfx_shader, const Vector<DynamicString> &defines)
 		{
 			TempAllocator512 taa;
 			DynamicString key(taa);
@@ -1643,73 +1794,162 @@ namespace shader_resource_internal
 			_opts.write_temporary(_fs_path.c_str(), fs_code);
 			_opts.write_temporary(_varying_path.c_str(), varying_code);
 
+			// Run preprocess pass on shaders.
+			if (meta != NULL) {
+				s32 sc;
+				Process pr_vert;
+				Process pr_frag;
 
-			// Invoke shaderc
-			Process pr_vert;
-			Process pr_frag;
-			s32 sc;
-
-			sc = run_shaderc(pr_vert
-				, _opts
-				, _vs_path.c_str()
-				, _vs_bin_path.c_str()
-				, _varying_path.c_str()
-				, "vertex"
-				, defines
-				);
-			if (sc != 0) {
-				delete_temp_files();
-				RETURN_IF_FALSE(sc == 0
+				sc = run_shaderc(pr_vert
 					, _opts
-					, "Failed to spawn shaderc"
+					, _vs_path.c_str()
+					, _vs_pp_path.c_str()
+					, _varying_path.c_str()
+					, "vertex"
+					, defines
+					, ShadercFlags::PREPROCESS | ShadercFlags::KEEPCOMMENTS
 					);
+				if (sc != 0) {
+					delete_temp_files();
+					RETURN_IF_FALSE(sc == 0
+						, _opts
+						, "Failed to spawn shaderc"
+						);
+				}
+
+				sc = run_shaderc(pr_frag
+					, _opts
+					, _fs_path.c_str()
+					, _fs_pp_path.c_str()
+					, _varying_path.c_str()
+					, "fragment"
+					, defines
+					, ShadercFlags::PREPROCESS | ShadercFlags::KEEPCOMMENTS
+					);
+				if (sc != 0) {
+					delete_temp_files();
+					RETURN_IF_FALSE(sc == 0
+						, _opts
+						, "Failed to spawn shaderc"
+						);
+				}
+
+				// Check exit code.
+				s32 ec;
+				TempAllocator4096 ta;
+				StringStream output_vert(ta);
+				StringStream output_frag(ta);
+
+				_opts.read_output(output_vert, pr_vert);
+				ec = pr_vert.wait();
+				if (ec != 0) {
+					pr_frag.wait();
+					delete_temp_files();
+					RETURN_IF_FALSE(false
+						, _opts
+						, "Failed to preprocess vertex shader `%s`:\n%s"
+						, bgfx_shader
+						, string_stream::c_str(output_vert)
+						);
+				}
+
+				_opts.read_output(output_frag, pr_frag);
+				ec = pr_frag.wait();
+				if (ec != 0) {
+					delete_temp_files();
+					RETURN_IF_FALSE(false
+						, _opts
+						, "Failed to preprocess fragment shader `%s`:\n%s"
+						, bgfx_shader
+						, string_stream::c_str(output_frag)
+						);
+				}
+
+				// Parse metadata from preprocessed shaders.
+				Buffer vs_pp_data = _opts.read_temporary(_vs_pp_path.c_str());
+				array::push_back(vs_pp_data, '\0');
+				Buffer fs_pp_data = _opts.read_temporary(_fs_pp_path.c_str());
+				array::push_back(fs_pp_data, '\0');
+
+				s32 err = 0;
+				err = parse_metadata(*meta, vs_pp_data, _opts);
+				ENSURE_OR_RETURN(err == 0, _opts);
+				err = parse_metadata(*meta, fs_pp_data, _opts);
+				ENSURE_OR_RETURN(err == 0, _opts);
+
+				for (u32 i = 0; i < vector::size(*meta); ++i) {
+					UniformMetadata &um = (*meta)[i];
+					logi(SHADER_RESOURCE, "uniform %s val %f %f %f %f", um.name, um.val.x, um.val.y, um.val.z, um.val.w);
+				}
 			}
 
-			sc = run_shaderc(pr_frag
-				, _opts
-				, _fs_path.c_str()
-				, _fs_bin_path.c_str()
-				, _varying_path.c_str()
-				, "fragment"
-				, defines
-				);
-			if (sc != 0) {
-				delete_temp_files();
-				RETURN_IF_FALSE(sc == 0
-					, _opts
-					, "Failed to spawn shaderc"
-					);
-			}
+			// Compile shader binaries.
+			{
+				Process pr_vert;
+				Process pr_frag;
 
-			// Check shaderc exit code
-			s32 ec;
-			TempAllocator4096 ta;
-			StringStream output_vert(ta);
-			StringStream output_frag(ta);
-
-			_opts.read_output(output_vert, pr_vert);
-			ec = pr_vert.wait();
-			if (ec != 0) {
-				pr_frag.wait();
-				delete_temp_files();
-				RETURN_IF_FALSE(false
+				s32 sc = run_shaderc(pr_vert
 					, _opts
-					, "Failed to compile vertex shader `%s`:\n%s"
-					, bgfx_shader
-					, string_stream::c_str(output_vert)
+					, _vs_path.c_str()
+					, _vs_bin_path.c_str()
+					, _varying_path.c_str()
+					, "vertex"
+					, defines
 					);
-			}
+				if (sc != 0) {
+					delete_temp_files();
+					RETURN_IF_FALSE(sc == 0
+						, _opts
+						, "Failed to spawn shaderc"
+						);
+				}
 
-			_opts.read_output(output_frag, pr_frag);
-			ec = pr_frag.wait();
-			if (ec != 0) {
-				delete_temp_files();
-				RETURN_IF_FALSE(false
+				sc = run_shaderc(pr_frag
 					, _opts
-					, "Failed to compile fragment shader `%s`:\n%s"
-					, bgfx_shader
-					, string_stream::c_str(output_frag)
+					, _fs_path.c_str()
+					, _fs_bin_path.c_str()
+					, _varying_path.c_str()
+					, "fragment"
+					, defines
 					);
+				if (sc != 0) {
+					delete_temp_files();
+					RETURN_IF_FALSE(sc == 0
+						, _opts
+						, "Failed to spawn shaderc"
+						);
+				}
+
+				// Check exit code.
+				s32 ec;
+				TempAllocator4096 ta;
+				StringStream output_vert(ta);
+				StringStream output_frag(ta);
+
+				_opts.read_output(output_vert, pr_vert);
+				ec = pr_vert.wait();
+				if (ec != 0) {
+					pr_frag.wait();
+					delete_temp_files();
+					RETURN_IF_FALSE(false
+						, _opts
+						, "Failed to compile vertex shader `%s`:\n%s"
+						, bgfx_shader
+						, string_stream::c_str(output_vert)
+						);
+				}
+
+				_opts.read_output(output_frag, pr_frag);
+				ec = pr_frag.wait();
+				if (ec != 0) {
+					delete_temp_files();
+					RETURN_IF_FALSE(false
+						, _opts
+						, "Failed to compile fragment shader `%s`:\n%s"
+						, bgfx_shader
+						, string_stream::c_str(output_frag)
+						);
+				}
 			}
 
 			Buffer vs_data = _opts.read_temporary(_vs_bin_path.c_str());
