@@ -123,9 +123,6 @@ struct CompileOptions
 	template<typename T>
 	void write(const T &data);
 
-	///
-	void write(const Buffer &data);
-
 	/// Returns the first path with executable permissions or NULL if none found.
 	const char *exe_path(const char * const *paths, u32 num);
 

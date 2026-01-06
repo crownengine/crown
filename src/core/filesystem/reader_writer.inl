@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "core/containers/array.inl"
 #include "core/filesystem/file.h"
 #include "core/filesystem/reader_writer.h"
 
@@ -35,6 +36,12 @@ inline void BinaryWriter::write(const T &data)
 {
 	align(alignof(T));
 	_file.write(&data, sizeof(T));
+}
+
+template<>
+inline void BinaryWriter::write(const Buffer &data)
+{
+	write(array::begin(data), array::size(data));
 }
 
 template<typename T>

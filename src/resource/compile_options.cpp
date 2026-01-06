@@ -241,11 +241,6 @@ void CompileOptions::write(const void *data, u32 size)
 	_binary_writer.write(data, size);
 }
 
-void CompileOptions::write(const Buffer &data)
-{
-	write(array::begin(data), array::size(data));
-}
-
 const char *CompileOptions::exe_path(const char * const *paths, u32 num)
 {
 	for (u32 ii = 0; ii < num; ++ii) {
