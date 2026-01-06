@@ -1508,6 +1508,24 @@ namespace shader_resource_internal
 			_opts.delete_file(_fs_bin_path.c_str());
 		}
 
+		static void shader_variant(DynamicString &variant, const char *shader, const Vector<DynamicString> &defines)
+		{
+			variant = shader;
+
+			for (u32 jj = 0; jj < vector::size(defines); ++jj) {
+				variant += "+";
+				variant += defines[jj];
+			}
+		}
+
+		static StringId32 shader_variant_id(const char *shader, const Vector<DynamicString> &defines)
+		{
+			TempAllocator1024 ta;
+			DynamicString variant(ta);
+			shader_variant(variant, shader, defines);
+			return StringId32(variant.c_str());
+		}
+
 		s32 compile()
 		{
 			_opts.write(RESOURCE_HEADER(RESOURCE_VERSION_SHADER));
@@ -1517,15 +1535,7 @@ namespace shader_resource_internal
 				const StaticCompile &sc              = _static_compile[ii];
 				const DynamicString &shader          = sc._shader;
 				const Vector<DynamicString> &defines = sc._defines;
-
-				TempAllocator1024 ta;
-				DynamicString str(ta);
-				str = shader;
-				for (u32 jj = 0; jj < vector::size(defines); ++jj) {
-					str += "+";
-					str += defines[jj];
-				}
-				const StringId32 shader_name(str.c_str());
+				const StringId32 shader_name         = shader_variant_id(shader.c_str(), defines);
 
 				RETURN_IF_FALSE(hash_map::has(_shaders, sc._shader)
 					, _opts
