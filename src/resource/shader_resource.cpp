@@ -7,6 +7,7 @@
 #include "core/containers/hash_map.inl"
 #include "core/containers/hash_set.inl"
 #include "core/containers/vector.inl"
+#include "core/filesystem/file_buffer.inl"
 #include "core/filesystem/filesystem.h"
 #include "core/json/json.h"
 #include "core/json/json_object.inl"
@@ -1558,8 +1559,10 @@ namespace shader_resource_internal
 			return StringId32(variant.c_str());
 		}
 
-		s32 compile_variant(Vector<UniformMetadata> *meta, const DynamicString &shader, const Vector<DynamicString> &defines)
+		s32 compile_variant(FileBuffer &fb, Vector<UniformMetadata> *meta, const DynamicString &shader, const Vector<DynamicString> &defines)
 		{
+			BinaryWriter bw(fb);
+
 			const StringId32 shader_name = shader_variant_id(shader.c_str(), defines);
 			const ShaderPermutation sp_default(default_allocator());
 			const ShaderPermutation &sp       = hash_map::get(_shaders, shader, sp_default);
@@ -1581,15 +1584,21 @@ namespace shader_resource_internal
 			s32 err = compile_render_state(state, render_state.c_str(), defines);
 			ENSURE_OR_RETURN(err == 0, _opts);
 
-			_opts.write(shader_name._id);                            // Shader name
-			_opts.write(state.encode());                             // Render state
-			compile_sampler_states(bgfx_shader.c_str());             // Sampler states
-			return compile_bgfx_shader(meta, bgfx_shader.c_str(), defines); // Shader code
+			bw.write(shader_name._id);                               // Shader name
+			bw.write(state.encode());                                // Render state
+			compile_sampler_states(fb, bgfx_shader.c_str());         // Sampler states
+			return compile_bgfx_shader(fb, meta, bgfx_shader.c_str(), defines); // Shader code
 		}
 
 		s32 compile()
 		{
+			Buffer variants(default_allocator());
+			FileBuffer fb(variants);
+
+			// Write header.
 			_opts.write(RESOURCE_HEADER(RESOURCE_VERSION_SHADER));
+
+			// Write variants.
 			_opts.write(vector::size(_static_compile));
 
 			for (u32 ii = 0; ii < vector::size(_static_compile); ++ii) {
@@ -1610,22 +1619,25 @@ namespace shader_resource_internal
 					, shader.c_str()
 					);
 
-				s32 err = compile_variant(NULL, shader, defines);
+				s32 err = compile_variant(fb, NULL, shader, defines);
 				ENSURE_OR_RETURN(err == 0, _opts);
 			}
+
+			_opts.write(variants);
 
 			return 0;
 		}
 
-		void compile_sampler_states(const char *bgfx_shader)
+		void compile_sampler_states(FileBuffer &fb, const char *bgfx_shader)
 		{
+			BinaryWriter bw(fb);
 			TempAllocator512 ta;
 			DynamicString key(ta);
 			key = bgfx_shader;
 			const BgfxShader shader_default(default_allocator());
 			const BgfxShader &shader = hash_map::get(_bgfx_shaders, key, shader_default);
 
-			_opts.write(hash_map::size(shader._samplers));
+			bw.write(hash_map::size(shader._samplers));
 
 			auto cur = hash_map::begin(shader._samplers);
 			auto end = hash_map::end(shader._samplers);
@@ -1637,8 +1649,8 @@ namespace shader_resource_internal
 				const SamplerState ss_default;
 				const SamplerState &ss = hash_map::get(_sampler_states, sampler_state, ss_default);
 
-				_opts.write(name.to_string_id());
-				_opts.write(ss.encode());
+				bw.write(name.to_string_id());
+				bw.write(ss.encode());
 			}
 		}
 
@@ -1768,8 +1780,9 @@ namespace shader_resource_internal
 			return 0;
 		}
 
-		s32 compile_bgfx_shader(Vector<UniformMetadata> *meta, const char *bgfx_shader, const Vector<DynamicString> &defines)
+		s32 compile_bgfx_shader(FileBuffer &fb, Vector<UniformMetadata> *meta, const char *bgfx_shader, const Vector<DynamicString> &defines)
 		{
+			BinaryWriter bw(fb);
 			TempAllocator512 taa;
 			DynamicString key(taa);
 			key = bgfx_shader;
@@ -1962,10 +1975,10 @@ namespace shader_resource_internal
 			delete_temp_files();
 
 			// Write
-			_opts.write(array::size(vs_data));
-			_opts.write(vs_data);
-			_opts.write(array::size(fs_data));
-			_opts.write(fs_data);
+			bw.write(array::size(vs_data));
+			bw.write(vs_data);
+			bw.write(array::size(fs_data));
+			bw.write(fs_data);
 
 			return 0;
 		}
