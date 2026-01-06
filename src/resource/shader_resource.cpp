@@ -1558,6 +1558,35 @@ namespace shader_resource_internal
 			return StringId32(variant.c_str());
 		}
 
+		s32 compile_variant(Vector<UniformMetadata> *meta, const DynamicString &shader, const Vector<DynamicString> &defines)
+		{
+			const StringId32 shader_name = shader_variant_id(shader.c_str(), defines);
+			const ShaderPermutation sp_default(default_allocator());
+			const ShaderPermutation &sp       = hash_map::get(_shaders, shader, sp_default);
+			const DynamicString &bgfx_shader  = sp._bgfx_shader;
+			const DynamicString &render_state = sp._render_state;
+
+			RETURN_IF_FALSE(hash_map::has(_bgfx_shaders, sp._bgfx_shader)
+				, _opts
+				, "Unknown bgfx shader: '%s'"
+				, bgfx_shader.c_str()
+				);
+			RETURN_IF_FALSE(hash_map::has(_render_states, sp._render_state)
+				, _opts
+				, "Unknown render state: '%s'"
+				, render_state.c_str()
+				);
+
+			RenderState::State state;
+			s32 err = compile_render_state(state, render_state.c_str(), defines);
+			ENSURE_OR_RETURN(err == 0, _opts);
+
+			_opts.write(shader_name._id);                            // Shader name
+			_opts.write(state.encode());                             // Render state
+			compile_sampler_states(bgfx_shader.c_str());             // Sampler states
+			return compile_bgfx_shader(meta, bgfx_shader.c_str(), defines); // Shader code
+		}
+
 		s32 compile()
 		{
 			_opts.write(RESOURCE_HEADER(RESOURCE_VERSION_SHADER));
@@ -1567,7 +1596,6 @@ namespace shader_resource_internal
 				const StaticCompile &sc              = _static_compile[ii];
 				const DynamicString &shader          = sc._shader;
 				const Vector<DynamicString> &defines = sc._defines;
-				const StringId32 shader_name         = shader_variant_id(shader.c_str(), defines);
 
 				{
 					TempAllocator512 ta;
@@ -1576,36 +1604,13 @@ namespace shader_resource_internal
 					logi(SHADER_RESOURCE, "Compiling %s", variant.c_str());
 				}
 
-				RETURN_IF_FALSE(hash_map::has(_shaders, sc._shader)
+				RETURN_IF_FALSE(hash_map::has(_shaders, shader)
 					, _opts
 					, "Unknown shader: '%s'"
 					, shader.c_str()
 					);
-				const ShaderPermutation sp_default(default_allocator());
-				const ShaderPermutation &sp       = hash_map::get(_shaders, shader, sp_default);
-				const DynamicString &bgfx_shader  = sp._bgfx_shader;
-				const DynamicString &render_state = sp._render_state;
 
-				RETURN_IF_FALSE(hash_map::has(_bgfx_shaders, sp._bgfx_shader)
-					, _opts
-					, "Unknown bgfx shader: '%s'"
-					, bgfx_shader.c_str()
-					);
-				RETURN_IF_FALSE(hash_map::has(_render_states, sp._render_state)
-					, _opts
-					, "Unknown render state: '%s'"
-					, render_state.c_str()
-					);
-
-				s32 err = 0;
-				RenderState::State state;
-				err = compile_render_state(state, render_state.c_str(), defines);
-				ENSURE_OR_RETURN(err == 0, _opts);
-
-				_opts.write(shader_name._id);                            // Shader name
-				_opts.write(state.encode());                             // Render state
-				compile_sampler_states(bgfx_shader.c_str());             // Sampler states
-				err = compile_bgfx_shader(NULL, bgfx_shader.c_str(), defines); // Shader code
+				s32 err = compile_variant(NULL, shader, defines);
 				ENSURE_OR_RETURN(err == 0, _opts);
 			}
 
