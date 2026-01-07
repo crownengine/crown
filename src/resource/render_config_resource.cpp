@@ -107,6 +107,24 @@ namespace render_config_resource_internal
 		return 0;
 	}
 
+	s32 parse_shaders(const char *shaders_json, CompileOptions &opts)
+	{
+		TempAllocator1024 ta;
+		JsonArray arr(ta);
+		RETURN_IF_ERROR(sjson::parse_array(arr, shaders_json), opts);
+
+		for (u32 i = 0; i < array::size(arr); ++i) {
+			TempAllocator512 ta;
+			DynamicString shader_name(ta);
+
+			RETURN_IF_ERROR(sjson::parse_string(shader_name, arr[i]), opts);
+			RETURN_IF_RESOURCE_MISSING("shader", shader_name.c_str(), opts);
+			opts.add_requirement("shader", shader_name.c_str());
+		}
+
+		return 0;
+	}
+
 	s32 compile(CompileOptions &opts)
 	{
 		Buffer buf = opts.read();
@@ -131,6 +149,11 @@ namespace render_config_resource_internal
 		// Parse.
 		if (json_object::has(obj, "render_settings")) {
 			s32 err = parse_render_settings(rcr.render_settings, obj["render_settings"], opts);
+			ENSURE_OR_RETURN(err == 0, opts);
+		}
+
+		if (json_object::has(obj, "shaders")) {
+			s32 err = parse_shaders(obj["shaders"], opts);
 			ENSURE_OR_RETURN(err == 0, opts);
 		}
 
