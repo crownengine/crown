@@ -26,3 +26,11 @@ render_settings = {
 	// low, medium, high or ultra (2, 4, 8 or 16x respectively).
 	// msaa_quality = "ultra"
 }
+
+// Shader libraries to load at boot.
+shaders = [
+	"core/shaders/default"
+	"core/shaders/shadow_map"
+	"core/shaders/post_processing"
+	"core/shaders/editor"
+]
