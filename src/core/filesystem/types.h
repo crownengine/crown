@@ -10,6 +10,7 @@
 namespace crown
 {
 struct File;
+struct FileBuffer;
 struct FileMonitor;
 struct Filesystem;
 
