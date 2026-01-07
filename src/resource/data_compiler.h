@@ -136,6 +136,9 @@ struct DataCompiler
 	/// be treated differently by some code somewhere. Sigh.
 	bool path_is_special(const char *path);
 
+	/// Returns all resource paths of the specified @a type.
+	void all_paths_of_type(Vector<DynamicString> &paths, const char *type);
+
 	///
 	void error(const char *msg, va_list args);
 

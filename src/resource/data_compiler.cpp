@@ -918,6 +918,21 @@ bool DataCompiler::path_is_special(const char *path)
 		;
 }
 
+void DataCompiler::all_paths_of_type(Vector<DynamicString> &paths, const char *type)
+{
+	auto cur = hash_map::begin(_source_index._paths);
+	auto end = hash_map::end(_source_index._paths);
+	for (; cur != end; ++cur) {
+		HASH_MAP_SKIP_HOLE(_source_index._paths, cur);
+
+		const DynamicString &path = cur->first;
+		const char *ext = path::extension(path.c_str());
+
+		if (ext != NULL && strcmp(ext, type) == 0)
+			vector::push_back(paths, path);
+	}
+}
+
 bool DataCompiler::compile_internal(const char *data_dir, const char *platform_name)
 {
 	s64 time_start = time::now();
