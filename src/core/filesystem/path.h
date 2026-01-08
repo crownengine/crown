@@ -46,6 +46,9 @@ namespace path
 	/// Removes unnecessary dots and separators from @a path.
 	void reduce(DynamicString &clean, const char *path);
 
+	/// Returns the parent directory of @a path.
+	StringView parent_dir(const char *path);
+
 } // namespace path
 
 } // namespace crown

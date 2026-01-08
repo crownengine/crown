@@ -111,6 +111,24 @@ namespace path
 			array::pop_back(clean._data);
 	}
 
+	StringView parent_dir(const char *path)
+	{
+		const char *ls = strrchr(path, PATH_SEPARATOR);
+
+		if (!ls)
+			return { NULL, 0 };
+
+#if CROWN_PLATFORM_WINDOWS
+		if (ls == path + 2 && path[1] == ':')
+			return { path, 3 };
+#else
+		if (ls == path)
+			return { path, 1 };
+#endif
+
+		return { path, u32(ls - path) };
+	}
+
 } // namespace path
 
 } // namespace crown
