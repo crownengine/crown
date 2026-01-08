@@ -139,11 +139,13 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.VECTOR3,
 			name = "data.position",
+			tooltip = "Local Position.",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.QUATERNION,
 			name = "data.rotation",
+			tooltip = "Local Rotation.",
 		},
 		PropertyDefinition()
 		{
@@ -151,6 +153,7 @@ public static void create_object_types(Database database)
 			name = "data.scale",
 			min = VECTOR3_ZERO,
 			deffault = VECTOR3_ONE,
+			tooltip = "Local Scale.",
 		},
 		PropertyDefinition()
 		{
@@ -176,6 +179,7 @@ public static void create_object_types(Database database)
 			label = "Scene",
 			resource_type = OBJECT_TYPE_MESH,
 			deffault = "core/components/noop",
+			tooltip = "Mesh resource where to read geometries from.",
 		},
 		PropertyDefinition()
 		{
@@ -186,6 +190,7 @@ public static void create_object_types(Database database)
 			enum_property = "data.mesh_resource",
 			enum_callback = node_name_enum_callback,
 			deffault = "Noop",
+			tooltip = "Geometry to render.",
 		},
 		PropertyDefinition()
 		{
@@ -193,18 +198,21 @@ public static void create_object_types(Database database)
 			name = "data.material",
 			resource_type = OBJECT_TYPE_MATERIAL,
 			deffault = "core/components/noop",
+			tooltip = "Material used to render to the geometry.",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name = "data.visible",
 			deffault = true,
+			tooltip = "Enable geometry rendering. If disabled it skips any rendering, for example shadow casting.",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name = "data.cast_shadows",
-			deffault = true
+			deffault = true,
+			tooltip = "Enable geometry shadow rendering.",
 		},
 		PropertyDefinition()
 		{
@@ -231,6 +239,7 @@ public static void create_object_types(Database database)
 			label = "Sprite",
 			resource_type = OBJECT_TYPE_SPRITE,
 			deffault = "core/components/noop",
+			tooltip = "Sprite resource containing frames.",
 		},
 		PropertyDefinition()
 		{
@@ -238,6 +247,7 @@ public static void create_object_types(Database database)
 			name = "data.material",
 			resource_type = OBJECT_TYPE_MATERIAL,
 			deffault = "core/components/noop",
+			tooltip = "Material used to render the sprite.",
 		},
 		PropertyDefinition()
 		{
@@ -245,6 +255,7 @@ public static void create_object_types(Database database)
 			name = "data.layer",
 			min = 0.0,
 			max = 7.0,
+			tooltip = "Sorting layer. Higher values makes the sprite appear in front.",
 		},
 		PropertyDefinition()
 		{
@@ -252,22 +263,26 @@ public static void create_object_types(Database database)
 			name = "data.depth",
 			min = 0.0,
 			max = (double)uint32.MAX,
+			tooltip = "Higher values make the sprite apper in front of other sprites in the same layer.",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name = "data.visible",
 			deffault = true,
+			tooltip = "Enable sprite rendering.",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name = "data.flip_x",
+			tooltip = "Flips the sprite on the X axis.",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name = "data.flip_y",
+			tooltip = "Flips the sprite on the Y axis.",
 		},
 		PropertyDefinition()
 		{
@@ -294,6 +309,7 @@ public static void create_object_types(Database database)
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "directional", "omni", "spot" },
 			deffault = "omni",
+			tooltip = "Light type.",
 		},
 		PropertyDefinition()
 		{
@@ -301,6 +317,7 @@ public static void create_object_types(Database database)
 			name =  "data.range",
 			min = 0.0,
 			deffault = 15.0,
+			tooltip = "Objects farther than this value won't be lit.",
 		},
 		PropertyDefinition()
 		{
@@ -308,6 +325,7 @@ public static void create_object_types(Database database)
 			name = "data.intensity",
 			min = 0.0,
 			deffault = 500.0,
+			tooltip = "Light intensity.",
 		},
 		PropertyDefinition()
 		{
@@ -317,6 +335,7 @@ public static void create_object_types(Database database)
 			min = 0.0,
 			max = 90.0,
 			deffault = MathUtils.rad(45.0),
+			tooltip = "Angle of the light's outer cone (Spot only).",
 		},
 		PropertyDefinition()
 		{
@@ -326,6 +345,7 @@ public static void create_object_types(Database database)
 			min = VECTOR3_ZERO,
 			max = VECTOR3_ONE,
 			deffault = VECTOR3_ONE,
+			tooltip = "Light color.",
 		},
 		PropertyDefinition()
 		{
@@ -334,12 +354,14 @@ public static void create_object_types(Database database)
 			min =  0.0,
 			max =  1.0,
 			deffault = 0.0004,
+			tooltip = "Too low values increase shadow acne. Too high values cause peter-panning.",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name =  "data.cast_shadows",
 			deffault = true,
+			tooltip = "Enable shadow casting."
 		},
 		PropertyDefinition()
 		{
@@ -366,6 +388,7 @@ public static void create_object_types(Database database)
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "orthographic", "perspective" },
 			deffault = "perspective",
+			tooltip = "Camera projection type.",
 		},
 		PropertyDefinition()
 		{
@@ -376,18 +399,21 @@ public static void create_object_types(Database database)
 			min = 0.0,
 			max = 90.0,
 			deffault = MathUtils.rad(45.0),
+			tooltip = "Vertical Field of View.",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.DOUBLE,
 			name = "data.near_range",
 			deffault = 0.01,
+			tooltip = "Objects closer than this value will not be rendered.",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.DOUBLE,
 			name = "data.far_range",
 			deffault = 1000.0,
+			tooltip = "Objects farther than this value will not be rendered.",
 		},
 		PropertyDefinition()
 		{
@@ -414,6 +440,7 @@ public static void create_object_types(Database database)
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "mesh", "inline" },
 			deffault = "mesh",
+			tooltip = "Collider type. Inline let you specify the geometry manually.",
 		},
 		PropertyDefinition()
 		{
@@ -421,6 +448,7 @@ public static void create_object_types(Database database)
 			name = "data.scene",
 			resource_type = OBJECT_TYPE_MESH,
 			deffault = "core/components/noop",
+			tooltip = "Mesh resource where to read geometries from.",
 		},
 		PropertyDefinition()
 		{
@@ -431,6 +459,7 @@ public static void create_object_types(Database database)
 			enum_property = "data.scene",
 			enum_callback = node_name_enum_callback,
 			deffault = "Noop",
+			tooltip = "Geometry to use as collider (Mesh only).",
 		},
 		PropertyDefinition()
 		{
@@ -439,16 +468,19 @@ public static void create_object_types(Database database)
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "sphere", "capsule", "box", "convex_hull", "mesh" },
 			deffault = "box",
+			tooltip = "Shape to use as collider (Inline only).",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.VECTOR3,
 			name = "data.collider_data.position",
+			tooltip = "Shape's local position.",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.QUATERNION,
 			name = "data.collider_data.rotation",
+			tooltip = "Shape's local rotation.",
 		},
 		PropertyDefinition()
 		{
@@ -456,6 +488,7 @@ public static void create_object_types(Database database)
 			name = "data.collider_data.half_extents",     // Box only.
 			min = VECTOR3_ZERO,
 			deffault = Vector3(0.5, 0.5, 0.5),
+			tooltip = "Box radius.",
 		},
 		PropertyDefinition()
 		{
@@ -463,6 +496,7 @@ public static void create_object_types(Database database)
 			name = "data.collider_data.radius",     // Sphere and capsule only.
 			min = 0.0,
 			deffault = 0.5,
+			tooltip = "Sphere or Capsule radius.",
 		},
 		PropertyDefinition()
 		{
@@ -470,6 +504,7 @@ public static void create_object_types(Database database)
 			name = "data.collider_data.height",     // Capsule only.
 			min = 0.0,
 			deffault = 1.0,
+			tooltip = "Capsule height.",
 		},
 		PropertyDefinition()
 		{
@@ -506,6 +541,7 @@ public static void create_object_types(Database database)
 			enum_property = "_global_physics_config",
 			enum_callback = class_enum_callback,
 			deffault = "static",
+			tooltip = "Actor class.",
 		},
 		PropertyDefinition()
 		{
@@ -515,6 +551,7 @@ public static void create_object_types(Database database)
 			enum_property = "_global_physics_config",
 			enum_callback = collision_filter_enum_callback,
 			deffault = "default",
+			tooltip = "Actor collision filter.",
 		},
 		PropertyDefinition()
 		{
@@ -524,6 +561,7 @@ public static void create_object_types(Database database)
 			enum_property = "_global_physics_config",
 			enum_callback = material_enum_callback,
 			deffault = "default",
+			tooltip = "Actor physics material.",
 		},
 		PropertyDefinition()
 		{
@@ -531,36 +569,43 @@ public static void create_object_types(Database database)
 			name = "data.mass",
 			min = 0.0,
 			deffault = 1.0,
+			tooltip = "Actor physical mass.",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name = "data.lock_translation_x",
+			tooltip = "Prevent the actor from moving along the X axis.",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name = "data.lock_translation_y",
+			tooltip = "Prevent the actor from moving along the Y axis.",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name = "data.lock_translation_z",
+			tooltip = "Prevent the actor from moving along the Z axis.",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name = "data.lock_rotation_x",
+			tooltip = "Prevent the actor from rotating around the X axis.",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name = "data.lock_rotation_y",
+			tooltip = "Prevent the actor from rotating around the Y axis.",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name = "data.lock_rotation_z",
+			tooltip = "Prevent the actor from rotating around the Z axis.",
 		},
 		PropertyDefinition()
 		{
@@ -587,6 +632,7 @@ public static void create_object_types(Database database)
 			label = "Script",
 			resource_type = "lua",
 			deffault = "core/components/noop",
+			tooltip = "Script.",
 		},
 		PropertyDefinition()
 		{
@@ -612,6 +658,7 @@ public static void create_object_types(Database database)
 			label = "State Machine",
 			resource_type = OBJECT_TYPE_STATE_MACHINE,
 			deffault = "core/components/noop",
+			label = "State Machine.",
 		},
 		PropertyDefinition()
 		{
@@ -644,18 +691,21 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.VECTOR3,
 			name = "position",
+			tooltip = "Local position.",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.QUATERNION,
 			name = "rotation",
+			tooltip = "Local rotation.",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.RESOURCE,
 			name = "name",
 			resource_type = OBJECT_TYPE_SOUND,
-			deffault = ""
+			deffault = "",
+			tooltip = "Sound resource to play.",
 		},
 		PropertyDefinition()
 		{
@@ -663,6 +713,7 @@ public static void create_object_types(Database database)
 			name = "range",
 			min = 0.0,
 			deffault = 10.0,
+			tooltip = "Listeners farther than this value will not hear the sound.",
 		},
 		PropertyDefinition()
 		{
@@ -671,17 +722,20 @@ public static void create_object_types(Database database)
 			min = 0.0,
 			max = 1.0,
 			deffault = 1.0,
+			tooltip = "Sound volume.",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name = "loop",
+			tooltip = "Restart playback at the end.",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.STRING,
 			name = "group",
 			deffault = "music",
+			tooltip = "Mixing group this sound belongs to.",
 		},
 		PropertyDefinition()
 		{
@@ -689,6 +743,7 @@ public static void create_object_types(Database database)
 			name = "editor.name",
 			deffault = "sound",
 			hidden = true,
+			tooltip = "Instance name inside the level.",
 		},
 	};
 	StringId64 sound_source_type = database.create_object_type(OBJECT_TYPE_SOUND_SOURCE, properties, 3.0);
@@ -722,7 +777,8 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.DOUBLE,
 			name = "frames_per_second",
-			min = 0.0
+			min = 0.0,
+			tooltip = "Speed at which the animation will be played.",
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_SPRITE_ANIMATION, properties);
@@ -786,26 +842,30 @@ public static void create_object_types(Database database)
 			min = VECTOR3_ZERO,
 			max = VECTOR3_ONE,
 			deffault = Vector3(0.83, 0.83, 0.83),
+			tooltip = "Fog color.",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.DOUBLE,
 			name = "data.density",
 			min = 0.0,
-			deffault = 0.02
+			deffault = 0.02,
+			tooltip = "Fog density.",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.DOUBLE,
 			name =  "data.range_min",
 			min = 0.0,
+			tooltip = "Distance from the camera where the fog starts.",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.DOUBLE,
 			name =  "data.range_max",
 			min = 0.0,
-			deffault = 1000.0
+			deffault = 1000.0,
+			tooltip = "Distance from the camera where the fog ends.",
 		},
 		PropertyDefinition()
 		{
@@ -813,11 +873,13 @@ public static void create_object_types(Database database)
 			name = "data.sun_blend",
 			min =  0.0,
 			max =  1.0,
+			tooltip = "Blend sun and fog colors.",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name = "data.enabled",
+			tooltip = "Enable fog effect.",
 		},
 		PropertyDefinition()
 		{
@@ -851,6 +913,7 @@ public static void create_object_types(Database database)
 			name = "data.height",
 			min = 0.0,
 			deffault = 1.80,
+			tooltip = "Mover capsule height.",
 		},
 		PropertyDefinition()
 		{
@@ -858,6 +921,7 @@ public static void create_object_types(Database database)
 			name = "data.radius",
 			min = 0.0,
 			deffault = 0.50,
+			tooltip = "Mover capsule radius.",
 		},
 		PropertyDefinition()
 		{
@@ -867,6 +931,7 @@ public static void create_object_types(Database database)
 			min = 0.0,
 			max = 90.0,
 			deffault = MathUtils.rad(45.0f),
+			tooltip = "Mover won't climb slopes steeper than this angle.",
 		},
 		PropertyDefinition()
 		{
@@ -876,11 +941,13 @@ public static void create_object_types(Database database)
 			enum_property = "_global_physics_config",
 			enum_callback = collision_filter_enum_callback,
 			deffault = "default",
+			tooltip = "Mover collision filter.",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.VECTOR3,
 			name = "data.center",
+			tooltip = "Capsule center relative to the local position.",
 		},
 		PropertyDefinition()
 		{
@@ -906,7 +973,8 @@ public static void create_object_types(Database database)
 			name = "data.skydome_map",
 			label = "Skydome Map",
 			resource_type = OBJECT_TYPE_TEXTURE,
-			deffault = "core/units/skydome/skydome"
+			deffault = "core/units/skydome/skydome",
+			tooltip = "Texture to use as skydome.",
 		},
 		PropertyDefinition()
 		{
@@ -914,6 +982,7 @@ public static void create_object_types(Database database)
 			name = "data.skydome_intensity",
 			min = 0.0,
 			deffault = 1.0,
+			tooltip = "Skydome intensity multiplier.",
 		},
 		PropertyDefinition()
 		{
@@ -922,6 +991,7 @@ public static void create_object_types(Database database)
 			editor = PropertyEditorType.COLOR,
 			min = VECTOR3_ZERO,
 			max = VECTOR3_ONE,
+			tooltip = "Ambient color applied to objects.",
 		},
 		PropertyDefinition()
 		{
@@ -945,6 +1015,7 @@ public static void create_object_types(Database database)
 			type = PropertyType.BOOL,
 			name = "data.enabled",
 			deffault = true,
+			tooltip = "Enable bloom effect.",
 		},
 		PropertyDefinition()
 		{
@@ -960,6 +1031,7 @@ public static void create_object_types(Database database)
 			min = 0.0,
 			max = 1.0,
 			deffault = 0.05,
+			tooltip = "Bloom weight.",
 		},
 		PropertyDefinition()
 		{
@@ -968,6 +1040,7 @@ public static void create_object_types(Database database)
 			min = 0.0,
 			max = 2.0,
 			deffault = 0.8,
+			tooltip = "Bloom intensity multiplier.",
 		},
 		PropertyDefinition()
 		{
@@ -993,6 +1066,7 @@ public static void create_object_types(Database database)
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "gamma", "reinhard", "filmic", "aces" },
 			deffault = "reinhard",
+			tooltip = "Tonemapping operator. Gamma means no tonemapping is applied.",
 		},
 		PropertyDefinition()
 		{
@@ -1016,6 +1090,7 @@ public static void create_object_types(Database database)
 			type = PropertyType.STRING,
 			name = "editor.name",
 			deffault = OBJECT_NAME_UNNAMED,
+			tooltip = "Instance name inside the level.",
 		},
 		PropertyDefinition()
 		{
@@ -1023,6 +1098,7 @@ public static void create_object_types(Database database)
 			name = "prefab",
 			resource_type = OBJECT_TYPE_UNIT,
 			deffault = null,
+			tooltip = "Unit prefab.",
 		},
 		PropertyDefinition()
 		{
