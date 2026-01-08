@@ -49,6 +49,7 @@ public struct PropertyDefinition
 
 	public bool hidden;
 	public bool not_serialized;
+	public string? tooltip;
 }
 
 public struct Resource
