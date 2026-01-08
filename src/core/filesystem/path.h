@@ -24,6 +24,9 @@ namespace path
 	bool is_root(const char *path);
 
 	/// Appends @a path_b to @a path_a and fills @a path with the result.
+	void join(DynamicString &path, const StringView &path_a, const StringView &path_b);
+
+	/// Appends @a path_b to @a path_a and fills @a path with the result.
 	void join(DynamicString &path, const char *path_a, const char *path_b);
 
 	/// Returns the basename of the @a path.

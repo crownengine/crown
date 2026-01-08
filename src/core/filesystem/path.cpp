@@ -7,6 +7,7 @@
 #include "core/filesystem/path.h"
 #include "core/platform.h"
 #include "core/strings/dynamic_string.inl"
+#include "core/strings/string_view.inl"
 #include <ctype.h>  // isalpha
 #include <string.h> // strrchr
 
@@ -51,17 +52,20 @@ namespace path
 #endif
 	}
 
-	void join(DynamicString &path, const char *path_a, const char *path_b)
+	void join(DynamicString &path, const StringView &path_a, const StringView &path_b)
 	{
-		CE_ENSURE(NULL != path_a);
-		CE_ENSURE(NULL != path_b);
-		const u32 la = strlen32(path_a);
-		const u32 lb = strlen32(path_b);
+		const u32 la = path_a.length();
+		const u32 lb = path_b.length();
 		path.reserve(la + lb + 1);
 		path  = path_a;
 		if (la != 0 && lb != 0)
 			path += PATH_SEPARATOR;
 		path += path_b;
+	}
+
+	void join(DynamicString &path, const char *path_a, const char *path_b)
+	{
+		join(path, StringView(path_a), StringView(path_b));
 	}
 
 	const char *basename(const char *path)
