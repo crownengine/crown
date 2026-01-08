@@ -1589,6 +1589,18 @@ static void test_path()
 		path::reduce(clean, "C:/Users//foo/");
 		ENSURE(clean == "C:\\Users\\foo");
 	}
+	{
+		StringView dir = path::parent_dir("C:\\");
+		ENSURE(dir == "C:\\");
+	}
+	{
+		StringView dir = path::parent_dir("C:\\foo");
+		ENSURE(dir == "C:\\");
+	}
+	{
+		StringView dir = path::parent_dir("C:\\foo\\bar");
+		ENSURE(dir == "C:\\foo");
+	}
 #else
 	{
 		const bool a = path::is_absolute("/home/foo");
@@ -1623,6 +1635,18 @@ static void test_path()
 		DynamicString clean(ta);
 		path::reduce(clean, "\\home\\\\foo\\");
 		ENSURE(clean == "/home/foo");
+	}
+	{
+		StringView dir = path::parent_dir("/");
+		ENSURE(dir == "/");
+	}
+	{
+		StringView dir = path::parent_dir("/foo");
+		ENSURE(dir == "/");
+	}
+	{
+		StringView dir = path::parent_dir("/foo/bar");
+		ENSURE(dir == "/foo");
 	}
 #endif // if CROWN_PLATFORM_WINDOWS
 	{
