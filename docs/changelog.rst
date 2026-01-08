@@ -6,6 +6,10 @@ Changelog
 :ref:`0.61.0 --- DD MMM YYYY <v0.61.0>`
 ---------------------------------------
 
+**New Features and Improvements**
+
+* Tools: crown-launcher can now be executed from any directory.
+
 0.60.0 --- 30 Dec 2025
 ----------------------
 
