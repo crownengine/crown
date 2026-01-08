@@ -141,12 +141,13 @@ public class PropertyGrid : Gtk.Grid
 		_controller_click.released.connect(on_expander_button_released);
 	}
 
-	public Gtk.Widget add_row(string label, Gtk.Widget w)
+	public Gtk.Widget add_row(string label, Gtk.Widget w, string? tooltip = null)
 	{
 		Gtk.Label l = new Gtk.Label(label);
 		l.width_chars = 13;
 		l.xalign = 1.0f;
 		l.yalign = 0.5f;
+		l.set_tooltip_text(tooltip);
 
 		w.hexpand = true;
 
@@ -207,7 +208,7 @@ public class PropertyGrid : Gtk.Grid
 			_definitions[p] = def;
 
 			if (!def.hidden)
-				add_row(def.label, p);
+				add_row(def.label, p, def.tooltip);
 		}
 	}
 
