@@ -33,6 +33,7 @@ project ("crown-launcher")
 	configuration { "vs* or mingw*" }
 		links {
 			"dbghelp",
+			"ole32",   -- __imp_CoCreateGuid
 		}
 
 	configuration {}
@@ -40,9 +41,14 @@ project ("crown-launcher")
 	files {
 		CROWN_DIR .. "src/core/debug/**.cpp",
 		CROWN_DIR .. "src/core/error/**.cpp",
+		CROWN_DIR .. "src/core/filesystem/path.cpp",
+		CROWN_DIR .. "src/core/guid.cpp",
 		CROWN_DIR .. "src/core/memory/globals.cpp",
+		CROWN_DIR .. "src/core/murmur.cpp",
 		CROWN_DIR .. "src/core/os.cpp",
 		CROWN_DIR .. "src/core/process.cpp",
+		CROWN_DIR .. "src/core/strings/dynamic_string.cpp",
+		CROWN_DIR .. "src/core/strings/string_id.cpp",
 		CROWN_DIR .. "src/core/thread/mutex.cpp",
 		CROWN_DIR .. "src/device/log.cpp",
 		CROWN_DIR .. "tools/launcher/launcher.cpp",
