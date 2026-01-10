@@ -33,15 +33,6 @@ struct MeshSkeletonResource
 	// Matrix4x4 binding_matrices[num_bones];
 };
 
-#if CROWN_CAN_COMPILE
-namespace mesh_skeleton_resource_internal
-{
-	///
-	s32 compile(CompileOptions &opts);
-
-} // namespace mesh_skeleton_resource_internal
-#endif
-
 namespace mesh_skeleton_resource
 {
 	///
