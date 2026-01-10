@@ -4,6 +4,8 @@
  */
 
 #include "config.h"
+
+#if CROWN_CAN_COMPILE
 #include "core/containers/array.inl"
 #include "core/filesystem/file.h"
 #include "core/json/json_object.inl"
@@ -17,21 +19,6 @@
 
 namespace crown
 {
-namespace sound_resource
-{
-	const u8 *stream_metadata(const SoundResource *sr)
-	{
-		return (u8 *)&sr[1];
-	}
-
-	const u8 *pcm_data(const SoundResource *sr)
-	{
-		return (u8 *)sr + sr->pcm_offset;
-	}
-
-} // namespace sound_resource
-
-#if CROWN_CAN_COMPILE
 namespace sound_resource_internal
 {
 	s32 compile(CompileOptions &opts)
@@ -43,6 +30,6 @@ namespace sound_resource_internal
 	}
 
 } // namespace sound_resource_internal
-#endif // if CROWN_CAN_COMPILE
 
 } // namespace crown
+#endif // if CROWN_CAN_COMPILE

@@ -12,7 +12,7 @@
 #include "core/strings/string.inl"
 #include "core/strings/string_id.inl"
 #include "core/strings/utf8.h"
-#include "resource/font_resource.h"
+#include "resource/font_resource.inl"
 #include "resource/material_resource.h"
 #include "resource/resource_manager.h"
 #include "world/gui.h"

@@ -3,6 +3,9 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include "config.h"
+
+#if CROWN_CAN_COMPILE
 #include "resource/mesh_skeleton_resource.h"
 #include "core/containers/array.inl"
 #include "core/json/json_object.inl"
@@ -13,7 +16,6 @@
 
 namespace crown
 {
-#if CROWN_CAN_COMPILE
 namespace mesh_skeleton_resource_internal
 {
 	s32 write(AnimationSkeleton &s, CompileOptions &opts)
@@ -52,25 +54,6 @@ namespace mesh_skeleton_resource_internal
 	}
 
 } // namespace mesh_skeleton_resource_internal
-#endif // if CROWN_CAN_COMPILE
-
-namespace mesh_skeleton_resource
-{
-	const BoneTransform *local_transforms(const MeshSkeletonResource *asr)
-	{
-		return (BoneTransform *)((char *)asr + asr->local_transforms_offset);
-	}
-
-	const u32 *parents(const MeshSkeletonResource *asr)
-	{
-		return (u32 *)((char *)asr + asr->parents_offset);
-	}
-
-	const Matrix4x4 *binding_matrices(const MeshSkeletonResource *asr)
-	{
-		return (Matrix4x4 *)((char *)asr + asr->binding_matrices_offset);
-	}
-
-} // namespace mesh_skeleton_resource
 
 } // namespace crown
+#endif // if CROWN_CAN_COMPILE

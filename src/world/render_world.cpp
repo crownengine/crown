@@ -18,7 +18,7 @@
 #include "resource/mesh_resource.h"
 #include "resource/render_config_resource.h"
 #include "resource/resource_manager.h"
-#include "resource/sprite_resource.h"
+#include "resource/sprite_resource.inl"
 #include "world/debug_line.h"
 #include "world/material.h"
 #include "world/material_manager.h"

@@ -15,7 +15,7 @@
 #include "core/memory/temp_allocator.inl"
 #include "device/log.h"
 #include "resource/resource_manager.h"
-#include "resource/sound_resource.h"
+#include "resource/sound_resource.inl"
 #include "resource/sound_ogg.h"
 #include "world/sound_world.h"
 #include <AL/al.h>

@@ -7,7 +7,7 @@
 #include "core/math/constants.h"
 #include "core/memory/memory.inl"
 #include "core/strings/string_id.inl"
-#include "resource/level_resource.h"
+#include "resource/level_resource.inl"
 #include "world/level.h"
 
 namespace crown

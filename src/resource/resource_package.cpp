@@ -6,7 +6,7 @@
 #include "core/containers/array.inl"
 #include "core/os.h"
 #include "core/strings/string_id.inl"
-#include "resource/package_resource.h"
+#include "resource/package_resource.inl"
 #include "resource/resource_id.inl"
 #include "resource/resource_manager.h"
 #include "resource/resource_package.h"

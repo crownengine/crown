@@ -4,6 +4,8 @@
  */
 
 #include "config.h"
+
+#if CROWN_CAN_COMPILE
 #include "core/containers/array.inl"
 #include "core/containers/hash_set.inl"
 #include "core/filesystem/file.h"
@@ -17,16 +19,6 @@
 
 namespace crown
 {
-namespace lua_resource
-{
-	const char *program(const LuaResource *lr)
-	{
-		return (char *)&lr[1];
-	}
-
-} // namespace lua_resource
-
-#if CROWN_CAN_COMPILE
 namespace lua_resource_internal
 {
 	static const char *skip_blanks(const char *lua)
@@ -180,6 +172,6 @@ namespace lua_resource_internal
 	}
 
 } // namespace lua_resource_internal
-#endif // if CROWN_CAN_COMPILE
 
 } // namespace crown
+#endif // if CROWN_CAN_COMPILE

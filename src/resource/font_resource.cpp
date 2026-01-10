@@ -4,6 +4,8 @@
  */
 
 #include "config.h"
+
+#if CROWN_CAN_COMPILE
 #include "core/containers/array.inl"
 #include "core/filesystem/file.h"
 #include "core/filesystem/filesystem.h"
@@ -19,25 +21,6 @@
 
 namespace crown
 {
-namespace font_resource
-{
-	const GlyphData *glyph(const FontResource *fr, CodePoint cp, const GlyphData *deffault)
-	{
-		const CodePoint *codes  = (CodePoint *)&fr[1];
-		const GlyphData *glyphs = (GlyphData *)(codes + fr->num_glyphs);
-
-		// FIXME: Can do binary search
-		for (u32 i = 0; i < fr->num_glyphs; ++i) {
-			if (codes[i] == cp)
-				return &glyphs[i];
-		}
-
-		return deffault;
-	}
-
-} // namespace font_resource
-
-#if CROWN_CAN_COMPILE
 namespace font_resource_internal
 {
 	struct GlyphInfo
@@ -120,6 +103,6 @@ namespace font_resource_internal
 	}
 
 } // namespace font_resource_internal
-#endif // if CROWN_CAN_COMPILE
 
 } // namespace crown
+#endif // if CROWN_CAN_COMPILE
