@@ -62,15 +62,6 @@ struct MeshAnimationResource
 	// u16 bone_ids[num_bones]
 };
 
-#if CROWN_CAN_COMPILE
-namespace mesh_animation_resource_internal
-{
-	///
-	s32 compile(CompileOptions &opts);
-
-} // namespace mesh_animation_resource_internal
-#endif
-
 namespace mesh_animation_resource
 {
 	///
