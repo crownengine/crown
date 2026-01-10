@@ -494,17 +494,21 @@ namespace shader_resource_internal
 	};
 	CE_STATIC_ASSERT(countof(function_values) == FunctionOp::COUNT);
 
-	static s32 run_external_compiler(Process &pr
-		, const char *shaderc
+	static s32 run_shaderc(Process &pr
+		, CompileOptions &opts
 		, const char *infile
 		, const char *outfile
 		, const char *varying
 		, const char *type
-		, const char *platform
 		, const Vector<DynamicString> &defines
 		)
 	{
 		Array<const char *> argv(default_allocator());
+		const char *platform = shaderc_platform[opts._platform];
+
+		const char *shaderc = opts.exe_path(shaderc_paths, countof(shaderc_paths));
+		RETURN_IF_FALSE(shaderc != NULL, opts, "shaderc not found");
+
 		array::push_back(argv, shaderc);
 		array::push_back(argv, (const char *)"-f");
 		array::push_back(argv, infile);
@@ -1629,47 +1633,41 @@ namespace shader_resource_internal
 			_opts.write_temporary(_fs_src_path.c_str(), fs_code);
 			_opts.write_temporary(_varying_path.c_str(), varying_code);
 
-			const char *shaderc = _opts.exe_path(shaderc_paths, countof(shaderc_paths));
-			RETURN_IF_FALSE(shaderc != NULL, _opts, "shaderc not found");
 
 			// Invoke shaderc
 			Process pr_vert;
 			Process pr_frag;
 			s32 sc;
 
-			sc = run_external_compiler(pr_vert
-				, shaderc
+			sc = run_shaderc(pr_vert
+				, _opts
 				, _vs_src_path.c_str()
 				, _vs_out_path.c_str()
 				, _varying_path.c_str()
 				, "vertex"
-				, shaderc_platform[_opts._platform]
 				, defines
 				);
 			if (sc != 0) {
 				delete_temp_files();
 				RETURN_IF_FALSE(sc == 0
 					, _opts
-					, "Failed to spawn `%s`"
-					, shaderc
+					, "Failed to spawn shaderc"
 					);
 			}
 
-			sc = run_external_compiler(pr_frag
-				, shaderc
+			sc = run_shaderc(pr_frag
+				, _opts
 				, _fs_src_path.c_str()
 				, _fs_out_path.c_str()
 				, _varying_path.c_str()
 				, "fragment"
-				, shaderc_platform[_opts._platform]
 				, defines
 				);
 			if (sc != 0) {
 				delete_temp_files();
 				RETURN_IF_FALSE(sc == 0
 					, _opts
-					, "Failed to spawn `%s`"
-					, shaderc
+					, "Failed to spawn shaderc"
 					);
 			}
 
