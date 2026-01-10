@@ -69,9 +69,11 @@ public class InputResource : InputField, Gtk.Box
 
 		_revealer = new Gtk.Button.from_icon_name("go-jump-symbolic");
 		_revealer.clicked.connect(on_revealer_clicked);
+		_revealer.set_tooltip_text("Reveal in the project browser.");
 		this.pack_end(_revealer, false);
 
 		_selector = new Gtk.Button.from_icon_name("document-open-symbolic");
+		_selector.set_tooltip_text("Select a resource.");
 		_selector.clicked.connect(on_selector_clicked);
 		this.pack_end(_selector, false);
 
