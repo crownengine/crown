@@ -800,11 +800,11 @@ namespace shader_resource_internal
 		HashMap<DynamicString, ShaderPermutation> _shaders;
 		Vector<StaticCompile> _static_compile;
 
-		DynamicString _vs_src_path;
-		DynamicString _fs_src_path;
+		DynamicString _vs_path;
+		DynamicString _fs_path;
 		DynamicString _varying_path;
-		DynamicString _vs_out_path;
-		DynamicString _fs_out_path;
+		DynamicString _vs_bin_path;
+		DynamicString _fs_bin_path;
 
 		explicit ShaderCompiler(CompileOptions &opts)
 			: _opts(opts)
@@ -814,17 +814,17 @@ namespace shader_resource_internal
 			, _bgfx_shaders(default_allocator())
 			, _shaders(default_allocator())
 			, _static_compile(default_allocator())
-			, _vs_src_path(default_allocator())
-			, _fs_src_path(default_allocator())
+			, _vs_path(default_allocator())
+			, _fs_path(default_allocator())
 			, _varying_path(default_allocator())
-			, _vs_out_path(default_allocator())
-			, _fs_out_path(default_allocator())
+			, _vs_bin_path(default_allocator())
+			, _fs_bin_path(default_allocator())
 		{
-			_opts.temporary_path(_vs_src_path, "vs_src.sc");
-			_opts.temporary_path(_fs_src_path, "fs_src.sc");
+			_opts.temporary_path(_vs_path, "vs.sc");
+			_opts.temporary_path(_fs_path, "fs.sc");
 			_opts.temporary_path(_varying_path, "varying.sc");
-			_opts.temporary_path(_vs_out_path, "vs_out.bin");
-			_opts.temporary_path(_fs_out_path, "fs_out.bin");
+			_opts.temporary_path(_vs_bin_path, "vs.bin");
+			_opts.temporary_path(_fs_bin_path, "fs.bin");
 		}
 
 		s32 parse(const char *path, bool is_include)
@@ -1501,11 +1501,11 @@ namespace shader_resource_internal
 
 		void delete_temp_files()
 		{
-			_opts.delete_file(_vs_src_path.c_str());
-			_opts.delete_file(_fs_src_path.c_str());
+			_opts.delete_file(_vs_path.c_str());
+			_opts.delete_file(_fs_path.c_str());
 			_opts.delete_file(_varying_path.c_str());
-			_opts.delete_file(_vs_out_path.c_str());
-			_opts.delete_file(_fs_out_path.c_str());
+			_opts.delete_file(_vs_bin_path.c_str());
+			_opts.delete_file(_fs_bin_path.c_str());
 		}
 
 		s32 compile()
@@ -1629,8 +1629,8 @@ namespace shader_resource_internal
 			fs_code << string_stream::c_str(code);
 			fs_code << shader._fs_code.c_str();
 
-			_opts.write_temporary(_vs_src_path.c_str(), vs_code);
-			_opts.write_temporary(_fs_src_path.c_str(), fs_code);
+			_opts.write_temporary(_vs_path.c_str(), vs_code);
+			_opts.write_temporary(_fs_path.c_str(), fs_code);
 			_opts.write_temporary(_varying_path.c_str(), varying_code);
 
 
@@ -1641,8 +1641,8 @@ namespace shader_resource_internal
 
 			sc = run_shaderc(pr_vert
 				, _opts
-				, _vs_src_path.c_str()
-				, _vs_out_path.c_str()
+				, _vs_path.c_str()
+				, _vs_bin_path.c_str()
 				, _varying_path.c_str()
 				, "vertex"
 				, defines
@@ -1657,8 +1657,8 @@ namespace shader_resource_internal
 
 			sc = run_shaderc(pr_frag
 				, _opts
-				, _fs_src_path.c_str()
-				, _fs_out_path.c_str()
+				, _fs_path.c_str()
+				, _fs_bin_path.c_str()
 				, _varying_path.c_str()
 				, "fragment"
 				, defines
@@ -1702,8 +1702,8 @@ namespace shader_resource_internal
 					);
 			}
 
-			Buffer vs_data = _opts.read_temporary(_vs_out_path.c_str());
-			Buffer fs_data = _opts.read_temporary(_fs_out_path.c_str());
+			Buffer vs_data = _opts.read_temporary(_vs_bin_path.c_str());
+			Buffer fs_data = _opts.read_temporary(_fs_bin_path.c_str());
 			delete_temp_files();
 
 			// Write
