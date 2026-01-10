@@ -1005,12 +1005,14 @@ public class ProjectBrowser : Gtk.Box
 		_show_folder_view = true;
 		_toggle_folder_view_image = new Gtk.Image.from_icon_name("level-tree-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
 		_toggle_folder_view = new Gtk.Button();
+		_toggle_folder_view.set_tooltip_text("Tree view.");
 		_toggle_folder_view.add(_toggle_folder_view_image);
 		_toggle_folder_view.get_style_context().add_class("flat");
 		_toggle_folder_view.get_style_context().add_class("image-button");
 		_toggle_folder_view.can_focus = false;
 		_toggle_folder_view.clicked.connect(() => {
 				_show_folder_view = !_show_folder_view;
+				_toggle_folder_view.set_tooltip_text(_show_folder_view ? "Tree view." : "Folder view.");
 
 				if (_show_folder_view) { // Switch from regular tree view to folder view.
 					// Save the currently selected resource and a path to its parent. Those will be
@@ -1101,6 +1103,7 @@ public class ProjectBrowser : Gtk.Box
 		_sort_items_popover = new Gtk.Popover(null);
 		_sort_items_popover.add(_sort_items_box);
 		_sort_items = new Gtk.MenuButton();
+		_sort_items.set_tooltip_text("Sort items.");
 		_sort_items.add(new Gtk.Image.from_icon_name("list-sort", Gtk.IconSize.SMALL_TOOLBAR));
 		_sort_items.get_style_context().add_class("flat");
 		_sort_items.get_style_context().add_class("image-button");
@@ -1110,6 +1113,7 @@ public class ProjectBrowser : Gtk.Box
 		bool _show_icon_view = true;
 		_toggle_icon_view_image = new Gtk.Image.from_icon_name("browser-list-view", Gtk.IconSize.SMALL_TOOLBAR);
 		_toggle_icon_view = new Gtk.Button();
+		_toggle_icon_view.set_tooltip_text("List view.");
 		_toggle_icon_view.add(_toggle_icon_view_image);
 		_toggle_icon_view.get_style_context().add_class("flat");
 		_toggle_icon_view.get_style_context().add_class("image-button");
@@ -1136,6 +1140,7 @@ public class ProjectBrowser : Gtk.Box
 				}
 
 				_show_icon_view = !_show_icon_view;
+				_toggle_icon_view.set_tooltip_text(_show_icon_view ? "List view." : "Icon view.");
 			});
 
 		var _folder_view_control = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
