@@ -1747,11 +1747,11 @@ infobar.info *:link, infobar.question *:link, infobar.warning *:link, infobar.er
 /************ Tooltips * */
 tooltip { padding: 4px; /* not working */ border-radius: 5px; box-shadow: none; text-shadow: 0 1px black; }
 
-tooltip.background { background-color: rgba(0, 0, 0, 0.8); background-clip: padding-box; border: 1px solid rgba(255, 255, 255, 0.1); }
+tooltip.background { background-color: rgba(0, 0, 0, 0.9); background-clip: padding-box; border: 1px solid rgba(255, 255, 255, 0.1); }
 
 tooltip decoration { background-color: transparent; }
 
-tooltip * { padding: 4px; background-color: transparent; color: white; }
+tooltip * { padding: 2px; background-color: transparent; color: white; }
 
 /***************** Color Chooser * */
 colorswatch:drop(active), colorswatch { border-style: none; }
