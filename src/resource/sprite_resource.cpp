@@ -25,16 +25,6 @@ LOG_SYSTEM(SPRITE_ANIMATION_RESOURCE, "sprite_animation_resource")
 
 namespace crown
 {
-namespace sprite_resource
-{
-	const f32 *frame_data(const SpriteResource *sr, u32 i)
-	{
-		CE_ENSURE(i < sr->num_frames);
-		return ((f32 *)&sr[1]) + 20*i;
-	}
-
-} // namespace sprite_resource
-
 #if CROWN_CAN_COMPILE
 namespace sprite_resource_internal
 {
@@ -184,18 +174,7 @@ namespace sprite_resource_internal
 	}
 
 } // namespace sprite_resource_internal
-#endif // if CROWN_CAN_COMPILE
 
-namespace sprite_animation_resource
-{
-	const u32 *frames(const SpriteAnimationResource *sar)
-	{
-		return (u32 *)&sar[1];
-	}
-
-} // namespace sprite_animation_resource
-
-#if CROWN_CAN_COMPILE
 struct SpriteAnimationFrame
 {
 	u32 frame; // Sprite frame.

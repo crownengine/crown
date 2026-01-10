@@ -18,7 +18,7 @@
 #include "core/profiler.h"
 #include "core/strings/string_id.inl"
 #include "device/log.h"
-#include "resource/physics_resource.h"
+#include "resource/physics_resource.inl"
 #include "resource/resource_manager.h"
 #include "world/debug_line.h"
 #include "world/event_stream.inl"

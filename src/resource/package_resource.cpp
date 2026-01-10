@@ -4,6 +4,8 @@
  */
 
 #include "config.h"
+
+#if CROWN_CAN_COMPILE
 #include "core/containers/array.inl"
 #include "core/containers/hash_map.inl"
 #include "core/containers/hash_set.inl"
@@ -44,7 +46,6 @@ bool operator==(const ResourceOffset &a, const ResourceOffset &b)
 		;
 }
 
-#if CROWN_CAN_COMPILE
 namespace package_resource_internal
 {
 	s32 bring_in_requirements(HashSet<ResourceOffset> &output
@@ -308,22 +309,6 @@ namespace package_resource_internal
 	}
 
 } // namespace package_resource_internal
-#endif // if CROWN_CAN_COMPILE
-
-namespace package_resource
-{
-	const ResourceOffset *resource_offset(const PackageResource *pr, u32 index)
-	{
-		const ResourceOffset *ro = (ResourceOffset *)(pr + 1);
-		return ro + index;
-	}
-
-	const u8 *data(const PackageResource *pr)
-	{
-		const u8 *data_offset = (u8 *)resource_offset(pr, pr->num_resources);
-		return (u8 *)memory::align_top(data_offset, 16);
-	}
-
-} // namespace package_resource
 
 } // namespace crown
+#endif // if CROWN_CAN_COMPILE

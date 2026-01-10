@@ -12,6 +12,7 @@
 #include "core/profiler.h"
 #include "core/strings/string_id.inl"
 #include "device/device.h"
+#include "resource/mesh_animation_resource.inl"
 #include "resource/resource_manager.h"
 #include "world/mesh_animation_player.h"
 #include "world/scene_graph.h"

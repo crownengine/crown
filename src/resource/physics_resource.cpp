@@ -4,6 +4,8 @@
  */
 
 #include "config.h"
+
+#if CROWN_CAN_COMPILE
 #include "core/containers/array.inl"
 #include "core/containers/hash_map.inl"
 #include "core/filesystem/file.h"
@@ -27,59 +29,6 @@
 
 namespace crown
 {
-namespace physics_config_resource
-{
-	const PhysicsMaterial *materials_array(const PhysicsConfigResource *pcr)
-	{
-		return (const PhysicsMaterial *)((char *)pcr + pcr->materials_offset);
-	}
-
-	u32 material_index(const PhysicsMaterial *materials, u32 num, StringId32 name)
-	{
-		for (u32 i = 0; i < num; ++i) {
-			if (materials[i].name == name)
-				return i;
-		}
-
-		CE_FATAL("Material not found");
-		return UINT32_MAX;
-	}
-
-	const PhysicsActor *actors_array(const PhysicsConfigResource *pcr)
-	{
-		return (const PhysicsActor *)((char *)pcr + pcr->actors_offset);
-	}
-
-	u32 actor_index(const PhysicsActor *actors, u32 num, StringId32 name)
-	{
-		for (u32 i = 0; i < num; ++i) {
-			if (actors[i].name == name)
-				return i;
-		}
-
-		CE_FATAL("Actor not found");
-		return UINT32_MAX;
-	}
-
-	const PhysicsCollisionFilter *filters_array(const PhysicsConfigResource *pcr)
-	{
-		return (const PhysicsCollisionFilter *)((char *)pcr + pcr->filters_offset);
-	}
-
-	u32 filter_index(const PhysicsCollisionFilter *filters, u32 num, StringId32 name)
-	{
-		for (u32 i = 0; i < num; ++i) {
-			if (filters[i].name == name)
-				return i;
-		}
-
-		CE_FATAL("Filter not found");
-		return UINT32_MAX;
-	}
-
-} // namespace physics_config_resource
-
-#if CROWN_CAN_COMPILE
 namespace physics_resource_internal
 {
 	struct ColliderInfo
@@ -697,6 +646,6 @@ namespace physics_config_resource_internal
 	}
 
 } // namespace physics_config_resource_internal
-#endif // if CROWN_CAN_COMPILE
 
 } // namespace crown
+#endif // if CROWN_CAN_COMPILE

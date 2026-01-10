@@ -15,7 +15,7 @@
 #include "device/log.h"
 #include "lua/lua_environment.h"
 #include "lua/lua_stack.inl"
-#include "resource/lua_resource.h"
+#include "resource/lua_resource.inl"
 #include "resource/resource_manager.h"
 #include <stdarg.h>
 

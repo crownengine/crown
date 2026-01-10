@@ -3,6 +3,9 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include "config.h"
+
+#if CROWN_CAN_COMPILE
 #include "resource/mesh_animation_resource.h"
 #include "core/json/json_object.inl"
 #include "core/json/sjson.h"
@@ -15,7 +18,6 @@
 
 namespace crown
 {
-#if CROWN_CAN_COMPILE
 namespace mesh_animation_resource_internal
 {
 	static s32 write(MeshAnimation &ma, CompileOptions &opts)
@@ -61,20 +63,6 @@ namespace mesh_animation_resource_internal
 	}
 
 } // namespace mesh_animation_resource_internal
-#endif // if CROWN_CAN_COMPILE
-
-namespace mesh_animation_resource
-{
-	const AnimationKey *animation_keys(const MeshAnimationResource *mar)
-	{
-		return (AnimationKey *)((char *)mar + mar->keys_offset);
-	}
-
-	const u16 *bone_ids(const MeshAnimationResource *mar)
-	{
-		return (u16 *)((char *)mar + mar->bone_ids_offset);
-	}
-
-} // namespace mesh_animation_resource
 
 } // namespace crown
+#endif // if CROWN_CAN_COMPILE

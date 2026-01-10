@@ -16,7 +16,7 @@
 #include "lua/lua_environment.h"
 #include "resource/level_resource.h"
 #include "resource/resource_manager.h"
-#include "resource/unit_resource.h"
+#include "resource/unit_resource.inl"
 #include "world/animation_state_machine.h"
 #include "world/debug_line.h"
 #include "world/event_stream.inl"

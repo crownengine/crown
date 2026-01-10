@@ -3,6 +3,9 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include "config.h"
+
+#if CROWN_CAN_COMPILE
 #include "core/containers/array.inl"
 #include "core/filesystem/file.h"
 #include "core/filesystem/filesystem.h"
@@ -18,33 +21,6 @@
 
 namespace crown
 {
-namespace level_resource
-{
-	const StringId32 *unit_names(const LevelResource *lr)
-	{
-		return (StringId32 *)((char *)lr + lr->unit_names_offset);
-	}
-
-	const UnitResource *unit_resource(const LevelResource *lr)
-	{
-		return (UnitResource *)((char *)lr + lr->units_offset);
-	}
-
-	u32 num_sounds(const LevelResource *lr)
-	{
-		return lr->num_sounds;
-	}
-
-	const LevelSound *get_sound(const LevelResource *lr, u32 i)
-	{
-		CE_ASSERT(i < num_sounds(lr), "Index out of bounds");
-		const LevelSound *begin = (LevelSound *)((char *)lr + lr->sounds_offset);
-		return &begin[i];
-	}
-
-} // namespace level_resource
-
-#if CROWN_CAN_COMPILE
 namespace level_resource_internal
 {
 	s32 compile(CompileOptions &opts)
@@ -155,6 +131,6 @@ namespace level_resource_internal
 	}
 
 } // namespace level_resource_internal
-#endif // if CROWN_CAN_COMPILE
 
 } // namespace crown
+#endif // if CROWN_CAN_COMPILE
