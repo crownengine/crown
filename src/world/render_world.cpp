@@ -1471,13 +1471,6 @@ void RenderWorld::MeshManager::draw_visibles(u8 view_id, SceneGraph &scene_graph
 #if CROWN_PLATFORM_EMSCRIPTEN
 		bgfx::setTexture(0, _render_world->_pipeline->_html5_default_sampler, _render_world->_pipeline->_html5_default_texture);
 #endif
-#if !BX_CONFIG_DEBUG
-		// FIXME: remove once we have setting defaults in materials.
-		const Vector4 uv_scale = { 1.0f, 1.0f, 0.0f, 0.0f };
-		const Vector4 uv_offset = { 0.0f, 0.0f, 0.0f, 0.0f };
-		bgfx::setUniform(_render_world->_pipeline->_u_uv_scale, &uv_scale);
-		bgfx::setUniform(_render_world->_pipeline->_u_uv_offset, &uv_offset);
-#endif
 
 		bgfx::setTexture(LIGHTS_DATA_SLOT, _render_world->_pipeline->_lights_data, _render_world->_pipeline->_lights_data_texture);
 		bgfx::setTexture(CASCADED_SHADOW_MAP_SLOT, _render_world->_pipeline->_u_cascaded_shadow_map, _render_world->_pipeline->_sun_shadow_map_texture);

@@ -237,8 +237,8 @@ bgfx_shaders = {
 
 		vs_code = """
 			uniform vec4 u_use_normal_map;
-			uniform vec4 u_uv_scale;
-			uniform vec4 u_uv_offset;
+			uniform vec4 u_uv_scale;  // { val=[1 1] min=[0 0] }
+			uniform vec4 u_uv_offset; // { val=[0 0] min=[0 0] }
 
 			void main()
 			{
