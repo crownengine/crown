@@ -405,7 +405,7 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.DOUBLE,
 			name = "data.near_range",
-			deffault = 0.01,
+			deffault = 0.1,
 			tooltip = "Objects closer than this value will not be rendered.",
 		},
 		PropertyDefinition()
