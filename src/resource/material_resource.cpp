@@ -5,6 +5,7 @@
 
 #include "core/containers/array.inl"
 #include "core/containers/vector.inl"
+#include "core/filesystem/file_buffer.inl"
 #include "core/filesystem/filesystem.h"
 #include "core/filesystem/reader_writer.h"
 #include "core/json/json_object.inl"
@@ -19,6 +20,7 @@
 #include "resource/compile_options.inl"
 #include "resource/material_resource.h"
 #include "resource/resource_manager.h"
+#include "resource/shader_resource.h"
 #include "world/material_manager.h"
 
 namespace crown
@@ -66,19 +68,69 @@ namespace material_resource_internal
 		return UniformType::COUNT;
 	}
 
+	union UniformValue
+	{
+		Vector4 v;
+		Matrix4x4 m;
+	};
+
 	struct Data
 	{
+		Vector<UniformMetadata> uniforms_meta;
 		Array<TextureData> textures;
+		Array<TextureHandle> texture_handles;
 		Array<UniformData> uniforms;
+		Array<UniformHandle> uniform_handles;
+		Array<UniformValue> uniform_values;
 		Array<char> names;
 		Array<char> dynamic;
 
 		explicit Data(Allocator &a)
-			: textures(a)
+			: uniforms_meta(a)
+			, textures(a)
+			, texture_handles(a)
 			, uniforms(a)
+			, uniform_handles(a)
+			, uniform_values(a)
 			, names(a)
 			, dynamic(a)
 		{
+		}
+
+		template<typename T>
+		u32 reserve_dynamic_data(T data)
+		{
+			u32 offt = array::size(dynamic);
+			array::push(dynamic, (char *)&data, sizeof(data));
+			return offt;
+		}
+
+		UniformMetadata *find_meta(const StringView &name)
+		{
+			for (u32 i = 0; i < vector::size(uniforms_meta); ++i) {
+				if (uniforms_meta[i].name == name)
+					return &uniforms_meta[i];
+			}
+
+			return NULL;
+		}
+
+		u32 uniform_index(const StringView &name)
+		{
+			for (u32 i = 0; i < array::size(uniforms); ++i) {
+				if (uniforms[i].name == StringId32(name.data(), name.length()))
+					return i;
+			}
+
+			return UINT32_MAX;
+		}
+
+		void add_shader_uniforms()
+		{
+			for (u32 i = 0; i < vector::size(uniforms_meta); ++i) {
+				UniformMetadata &um = uniforms_meta[i];
+				add_uniform(StringView(um.name), um.type, { um.val });
+			}
 		}
 
 		u32 add_name(const StringView &name)
@@ -99,14 +151,14 @@ namespace material_resource_internal
 			td.sampler_name_offset = add_name(sampler);
 			td.name                = StringId32(sampler.data(), sampler.length());
 			td.id                  = texture_name;
-			td.data_offset         = reserve_dynamic_data(th);
+			td.data_offset         = 0; // Computed later in alloc_blob().
 			td._pad1               = 0;
 
 			array::push_back(textures, td);
+			array::push_back(texture_handles, th);
 		}
 
-		template <typename T>
-		void add_uniform(const StringView &name, UniformType::Enum type, const T &value)
+		void add_uniform(const StringView &name, UniformType::Enum type, const UniformValue &value)
 		{
 			UniformHandle uh;
 			uh.uniform_handle = 0;
@@ -115,19 +167,43 @@ namespace material_resource_internal
 			ud.type        = type;
 			ud.name        = StringId32(name.data(), name.length());
 			ud.name_offset = add_name(name);
-			ud.data_offset = reserve_dynamic_data(uh);
-
-			reserve_dynamic_data(value);
+			ud.data_offset = 0; // Computed later in alloc_blob().
 
 			array::push_back(uniforms, ud);
+			array::push_back(uniform_handles, uh);
+			array::push_back(uniform_values, value);
 		}
 
-		template<typename T>
-		u32 reserve_dynamic_data(T data)
+		s32 check_uniform(const StringView &name, UniformType::Enum type, const UniformValue &value, CompileOptions &opts)
 		{
-			u32 offt = array::size(dynamic);
-			array::push(dynamic, (char *)&data, sizeof(data));
-			return offt;
+			UniformMetadata *meta = find_meta(name);
+
+			if (meta != NULL) {
+				// Uniform has been added already by add_shader_uniforms().
+				// Just check for type or range mismatch and overwrite value.
+				RETURN_IF_FALSE(type == meta->type, opts, "Uniform %s: type mismatch", meta->name);
+				u32 in = uniform_index(name);
+				CE_ENSURE(in != UINT32_MAX);
+				uniform_values[in] = value;
+			} else {
+				add_uniform(name, type, value);
+			}
+
+			return 0;
+		}
+
+		void alloc_blob()
+		{
+			for (u32 i = 0; i < array::size(textures); ++i)
+				textures[i].data_offset = reserve_dynamic_data(texture_handles[i]);
+
+			for (u32 i = 0; i < array::size(uniforms); ++i) {
+				uniforms[i].data_offset = reserve_dynamic_data(uniform_handles[i]);
+				if (uniforms[i].type == UniformType::MATRIX4X4)
+					reserve_dynamic_data(uniform_values[i].m);
+				else
+					reserve_dynamic_data(uniform_values[i].v);
+			}
 		}
 	};
 
@@ -192,51 +268,80 @@ namespace material_resource_internal
 				, type.c_str()
 				);
 
-			Vector4 val = VECTOR4_ZERO;
+			UniformValue val;
+			memset(&val, 0, sizeof(val));
+			s32 err = 0;
 
 			switch (ut) {
-			case UniformType::FLOAT: {
-				val.x = RETURN_IF_ERROR(sjson::parse_float(uniform["value"]), opts);
-				data.add_uniform(key, ut, val);
+			case UniformType::FLOAT:
+				val.v.x = RETURN_IF_ERROR(sjson::parse_float(uniform["value"]), opts);
+				err = data.check_uniform(key, ut, val, opts);
 				break;
-			}
 
 			case UniformType::VECTOR2: {
 				const Vector2 v = RETURN_IF_ERROR(sjson::parse_vector2(uniform["value"]), opts);
-				val.x = v.x;
-				val.y = v.y;
-				data.add_uniform(key, ut, val);
+				val.v.x = v.x;
+				val.v.y = v.y;
+				err = data.check_uniform(key, ut, val, opts);
 				break;
 			}
 
 			case UniformType::VECTOR3: {
 				const Vector3 v = RETURN_IF_ERROR(sjson::parse_vector3(uniform["value"]), opts);
-				val.x = v.x;
-				val.y = v.y;
-				val.z = v.z;
-				data.add_uniform(key, ut, val);
+				val.v.x = v.x;
+				val.v.y = v.y;
+				val.v.z = v.z;
+				err = data.check_uniform(key, ut, val, opts);
 				break;
 			}
 
-			case UniformType::VECTOR4: {
-				val = RETURN_IF_ERROR(sjson::parse_vector4(uniform["value"]), opts);
-				data.add_uniform(key, ut, val);
+			case UniformType::VECTOR4:
+				val.v = RETURN_IF_ERROR(sjson::parse_vector4(uniform["value"]), opts);
+				err = data.check_uniform(key, ut, val, opts);
 				break;
-			}
 
-			case UniformType::MATRIX4X4: {
-				Matrix4x4 m = RETURN_IF_ERROR(sjson::parse_matrix4x4(uniform["value"]), opts);
-				data.add_uniform(key, ut, m);
+			case UniformType::MATRIX4X4:
+				val.m = RETURN_IF_ERROR(sjson::parse_matrix4x4(uniform["value"]), opts);
+				err = data.check_uniform(key, ut, val, opts);
 				break;
-			}
 
 			default:
 				CE_FATAL("Unknown uniform type");
 				break;
 			}
+
+			ENSURE_OR_RETURN(err == 0, opts);
 		}
 
 		return 0;
+	}
+
+	/// Extracts @a shader_name and a list of @a defines from a @a shader variant string.
+	static void shader_name_defines(StringView &shader_name, Vector<StringView> &defines, const char *shader)
+	{
+		const char *str = shader;
+
+		// Skip shader name.
+		const char *sep = strchr(str, '+');
+		if (sep == NULL) {
+			shader_name = StringView(str, strlen32(str));
+			return;
+		}
+
+		shader_name = StringView(str, sep - str);
+		str = sep + 1;
+
+		// Tokenize defines.
+		for (;;) {
+			if ((sep = strchr(str, '+')) != NULL) {
+				vector::push_back(defines, StringView(str, sep - str));
+				str = sep + 1;
+				continue;
+			}
+
+			vector::push_back(defines, StringView(str, strlen32(str)));
+			break;
+		}
 	}
 
 	s32 compile(CompileOptions &opts)
@@ -247,11 +352,20 @@ namespace material_resource_internal
 		RETURN_IF_ERROR(sjson::parse(obj, buf), opts);
 
 		Data data(default_allocator());
-
-		opts.add_requirement_glob("*.shader");
-
+		Vector<StringView> defines(default_allocator());
+		Buffer shader_code(default_allocator());
+		FileBuffer shader_fb(shader_code);
+		StringView shader_name;
+		DynamicString shader_library(ta);
 		DynamicString shader(ta);
+
 		RETURN_IF_ERROR(sjson::parse_string(shader, obj["shader"]), opts);
+		shader_name_defines(shader_name, defines, shader.c_str());
+
+		shader_compiler::compile_variant(shader_fb, &data.uniforms_meta, shader_library, shader_name, defines, opts, true);
+		opts.add_requirement("shader", shader_library.c_str());
+
+		data.add_shader_uniforms();
 
 		// Parse uniforms and textures.
 		if (json_object::has(obj, "textures")) {
@@ -262,6 +376,8 @@ namespace material_resource_internal
 			s32 err = parse_uniforms(data, obj["uniforms"], opts);
 			ENSURE_OR_RETURN(err == 0, opts);
 		}
+
+		data.alloc_blob();
 
 		MaterialResource mr;
 		mr.version             = RESOURCE_HEADER(RESOURCE_VERSION_MATERIAL);

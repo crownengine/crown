@@ -22,6 +22,7 @@
 #include "device/device.h"
 #include "device/log.h"
 #include "resource/compile_options.inl"
+#include "resource/data_compiler.h"
 #include "resource/expression_language.inl"
 #include "resource/resource_manager.h"
 #include "resource/shader_resource.h"
@@ -777,7 +778,6 @@ namespace shader_resource_internal
 			, _samplers(a)
 		{
 		}
-
 	};
 
 	struct ShaderPermutation
@@ -808,13 +808,6 @@ namespace shader_resource_internal
 		}
 	};
 
-	struct UniformMetadata
-	{
-		UniformType::Enum type;
-		char name[128];
-		Vector4 val;
-	};
-
 	struct ShaderCompiler
 	{
 		CompileOptions &_opts;
@@ -832,6 +825,14 @@ namespace shader_resource_internal
 		DynamicString _fs_pp_path;
 		DynamicString _vs_bin_path;
 		DynamicString _fs_bin_path;
+
+		bool has_shader(const StringView &shader_name)
+		{
+			TempAllocator256 ta;
+			DynamicString str(ta);
+			str = shader_name;
+			return hash_map::has(_shaders, str);
+		}
 
 		explicit ShaderCompiler(CompileOptions &opts)
 			: _opts(opts)
@@ -856,6 +857,16 @@ namespace shader_resource_internal
 			_opts.temporary_path(_fs_pp_path, "fs_pp.sc");
 			_opts.temporary_path(_vs_bin_path, "vs.bin");
 			_opts.temporary_path(_fs_bin_path, "fs.bin");
+		}
+
+		void reset()
+		{
+			hash_set::clear(_parsed_includes);
+			hash_map::clear(_render_states);
+			hash_map::clear(_sampler_states);
+			hash_map::clear(_bgfx_shaders);
+			hash_map::clear(_shaders);
+			vector::clear(_static_compile);
 		}
 
 		s32 parse(const char *path, bool is_include)
@@ -1559,7 +1570,7 @@ namespace shader_resource_internal
 			return StringId32(variant.c_str());
 		}
 
-		s32 compile_variant(FileBuffer &fb, Vector<UniformMetadata> *meta, const DynamicString &shader, const Vector<DynamicString> &defines)
+		s32 compile_variant(FileBuffer &fb, Vector<UniformMetadata> *meta, const DynamicString &shader, const Vector<DynamicString> &defines, bool metadata_only)
 		{
 			BinaryWriter bw(fb);
 
@@ -1587,7 +1598,7 @@ namespace shader_resource_internal
 			bw.write(shader_name._id);                               // Shader name
 			bw.write(state.encode());                                // Render state
 			compile_sampler_states(fb, bgfx_shader.c_str());         // Sampler states
-			return compile_bgfx_shader(fb, meta, bgfx_shader.c_str(), defines); // Shader code
+			return compile_bgfx_shader(fb, meta, bgfx_shader.c_str(), defines, metadata_only); // Shader code
 		}
 
 		s32 compile()
@@ -1606,20 +1617,13 @@ namespace shader_resource_internal
 				const DynamicString &shader          = sc._shader;
 				const Vector<DynamicString> &defines = sc._defines;
 
-				{
-					TempAllocator512 ta;
-					DynamicString variant(ta);
-					shader_variant(variant, shader.c_str(), defines);
-					logi(SHADER_RESOURCE, "Compiling %s", variant.c_str());
-				}
-
 				RETURN_IF_FALSE(hash_map::has(_shaders, shader)
 					, _opts
 					, "Unknown shader: '%s'"
 					, shader.c_str()
 					);
 
-				s32 err = compile_variant(fb, NULL, shader, defines);
+				s32 err = compile_variant(fb, NULL, shader, defines, false);
 				ENSURE_OR_RETURN(err == 0, _opts);
 			}
 
@@ -1692,24 +1696,28 @@ namespace shader_resource_internal
 			for (; cur != end; ++cur) {
 				JSON_OBJECT_SKIP_HOLE(meta, cur);
 
-				// It must be a regular key/value state.
 				if (cur->first == "val") {
 					if (json::type(cur->second) == JsonValueType::ARRAY) {
 						JsonArray arr(ta);
 
 						RETURN_IF_ERROR(sjson::parse_array(arr, cur->second), opts);
-						RETURN_IF_FALSE(array::size(arr) <= 4 || array::size(arr) == 0
+
+						const u32 val_size = array::size(arr);
+						RETURN_IF_FALSE(val_size <= 4 || val_size == 0
 							, opts
-							, "invalid val array size"
+							, "Invalid 'val' array size"
 							);
 
 						for (u32 i = 0; i < array::size(arr); ++i) {
 							*(&um.val.x + i) = RETURN_IF_ERROR(sjson::parse_float(arr[i]), opts);
 						}
+						const UniformType::Enum map[] = { UniformType::COUNT, UniformType::FLOAT, UniformType::VECTOR2, UniformType::VECTOR3, UniformType::VECTOR4 };
+						um.type = map[val_size];
 					} else if (json::type(cur->second) == JsonValueType::NUMBER) {
 						um.val.x = RETURN_IF_ERROR(sjson::parse_float(cur->second), opts);
+						um.type = UniformType::FLOAT;
 					} else {
-						RETURN_IF_FALSE(false, opts, "val must be either an array of numbers or a number");
+						RETURN_IF_FALSE(false, opts, "'val' must be either an array of numbers or a number");
 					}
 				}
 			}
@@ -1729,7 +1737,6 @@ namespace shader_resource_internal
 
 				while (!isspace(*name)) ++name;
 				name = skip_spaces(name);
-				um.type = UniformType::VECTOR4; // FIXME
 
 				const char *semicol = strchr(name, ';');
 				if (!semicol)
@@ -1739,8 +1746,6 @@ namespace shader_resource_internal
 				while (name_end != semicol && !isspace(*name_end)) ++name_end;
 				strncpy(um.name, name, name_end - name);
 				um.name[name_end - name] = '\0';
-			} else if (str_has_prefix(decl, "SAMPLER2D")) {
-				// TODO
 			}
 
 			if ((comment = strstr(decl, "//")) != NULL) {
@@ -1765,12 +1770,11 @@ namespace shader_resource_internal
 				lr.read_line(str);
 				str.ltrim();
 
-				if (!str.has_prefix("uniform") && !str.has_prefix("SAMPLER2D"))
+				if (!str.has_prefix("uniform"))
 					continue;
 
-				// We found an uniform declaration, something like:
-				// "uniform vec4 foo; // { min=... val=... }" or
-				// "SAMPLER2D(tex, 0); // ..."
+				// This is a uniform declaration of the form:
+				// "uniform <type> <name>; // { val=... min=... }"
 				s32 err = parse_uniform_decl(um, str.c_str(), opts);
 				ENSURE_OR_RETURN(err == 0, opts);
 				if (um.type != UniformType::COUNT)
@@ -1780,7 +1784,7 @@ namespace shader_resource_internal
 			return 0;
 		}
 
-		s32 compile_bgfx_shader(FileBuffer &fb, Vector<UniformMetadata> *meta, const char *bgfx_shader, const Vector<DynamicString> &defines)
+		s32 compile_bgfx_shader(FileBuffer &fb, Vector<UniformMetadata> *meta, const char *bgfx_shader, const Vector<DynamicString> &defines, bool metadata_only)
 		{
 			BinaryWriter bw(fb);
 			TempAllocator512 taa;
@@ -1894,12 +1898,10 @@ namespace shader_resource_internal
 				ENSURE_OR_RETURN(err == 0, _opts);
 				err = parse_metadata(*meta, fs_pp_data, _opts);
 				ENSURE_OR_RETURN(err == 0, _opts);
-
-				for (u32 i = 0; i < vector::size(*meta); ++i) {
-					UniformMetadata &um = (*meta)[i];
-					logi(SHADER_RESOURCE, "uniform %s val %f %f %f %f", um.name, um.val.x, um.val.y, um.val.z, um.val.w);
-				}
 			}
+
+			if (metadata_only)
+				return 0;
 
 			// Compile shader binaries.
 			{
@@ -2105,6 +2107,66 @@ namespace shader_resource_internal
 	}
 
 } // namespace shader_resource_internal
+
+namespace shader_compiler
+{
+	using namespace shader_resource_internal;
+
+	s32 compile_variant(FileBuffer &fb
+		, Vector<UniformMetadata> *uniform_meta
+		, DynamicString &shader_library
+		, StringView &shader
+		, Vector<StringView> &defines
+		, CompileOptions &opts
+		, bool metadata_only
+		)
+	{
+		ShaderCompiler sc(opts);
+		Vector<DynamicString> defines_dyn(default_allocator());
+		DynamicString shader_library_path(default_allocator());
+		DynamicString shader_name(default_allocator());
+
+		for (u32 i = 0; i < vector::size(defines); ++i) {
+			TempAllocator64 ta;
+			DynamicString tmp(ta);
+			tmp = defines[i];
+			vector::push_back(defines_dyn, tmp);
+		}
+
+		// Find a shader library that contains the specified shader if none provided. This is slow
+		// and ugly and it only exists for backwards compatibility with older material formats.
+		if (shader_library.empty()) {
+			Vector<DynamicString> all_shader_paths(default_allocator());
+			opts._data_compiler.all_paths_of_type(all_shader_paths, "shader");
+
+			u32 i = 0;
+			u32 n = vector::size(all_shader_paths);
+			for (; i < n; ++i) {
+				shader_library_path = all_shader_paths[i];
+
+				sc.reset();
+				s32 err = sc.parse(shader_library_path.c_str(), false);
+				ENSURE_OR_RETURN(err == 0, opts);
+
+				if (sc.has_shader(shader)) {
+					const char *sp = shader_library_path.c_str();
+					shader_library.set(sp, resource_type(sp) - sp - 1);
+					break;
+				}
+			}
+
+			RETURN_IF_FALSE(i < n, opts, "Shader not found");
+		} else {
+			shader_library_path = shader_library;
+			shader_library_path += ".shader";
+			sc.parse(shader_library_path.c_str(), false);
+		}
+
+		shader_name = shader;
+		return sc.compile_variant(fb, uniform_meta, shader_name, defines_dyn, metadata_only);
+	}
+
+} // namespace shader_compiler
 #endif // if CROWN_CAN_COMPILE
 
 } // namespace crown
