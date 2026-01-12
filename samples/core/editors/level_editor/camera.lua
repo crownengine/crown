@@ -155,7 +155,7 @@ function Camera:is_orthographic()
 end
 
 function Camera:mouse_wheel(delta)
-	self._movement_speed = math.max(0.001, self._movement_speed + delta * 0.005)
+	self._movement_speed = math.max(0.001, self._movement_speed + delta * 0.1)
 end
 
 function Camera:camera_ray(x, y)

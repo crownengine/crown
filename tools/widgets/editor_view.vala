@@ -356,8 +356,8 @@ public class EditorView : Gtk.EventBox
 
 	public void on_scroll(double dx, double dy)
 	{
-		if (camera_modifier_pressed()) {
-			_runtime.send_script(LevelEditorApi.mouse_wheel(dy));
+		if (_keys[Gdk.Key.Shift_L]) {
+			_runtime.send_script(LevelEditorApi.mouse_wheel(-dy));
 		} else {
 			_runtime.send_script("LevelEditor:camera_drag_start_relative('dolly')");
 			_runtime.send_script("LevelEditor._camera:update(1,0,%.17f,1,1)".printf(-dy * 32.0));
