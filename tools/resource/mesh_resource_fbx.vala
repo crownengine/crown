@@ -259,21 +259,21 @@ public class FBXImportDialog : Gtk.Window
 		PropertyGrid cv;
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("Import Lights", _options.import_lights);
-		cv.add_row("Import Cameras", _options.import_cameras);
-		cv.add_row("Import Textures", _options.import_textures);
-		cv.add_row("Create Textures Folder", _options.create_textures_folder);
-		cv.add_row("Import Materials", _options.import_materials);
-		cv.add_row("Create Materials Folder", _options.create_materials_folder);
-		_general_set.add_property_grid_optional(cv, "Units", _options.import_units);
+		cv.add_row("Import Lights", _options.import_lights, "Import all light nodes.");
+		cv.add_row("Import Cameras", _options.import_cameras, "Import all camera nodes.");
+		cv.add_row("Import Textures", _options.import_textures, "Import all textures.");
+		cv.add_row("Create Textures Folder", _options.create_textures_folder, "Put imported textures in a sub-folder.");
+		cv.add_row("Import Materials", _options.import_materials, "Import all materials.");
+		cv.add_row("Create Materials Folder", _options.create_materials_folder, "Put imported materials in a sub-folder.");
+		_general_set.add_property_grid_optional(cv, "Units", _options.import_units, "Import nodes as units, materials and textures.");
 
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("New Skeleton", _options.new_skeleton);
-		cv.add_row("Target Skeleton", _options.target_skeleton);
-		cv.add_row("Import Animations", _options.import_clips);
-		cv.add_row("Create Animations Folder", _options.create_animations_folder);
-		_general_set.add_property_grid_optional(cv, "Animation", _options.import_animation);
+		cv.add_row("New Skeleton", _options.new_skeleton, "Create a new skeleton.");
+		cv.add_row("Target Skeleton", _options.target_skeleton, "Skeleton to use.");
+		cv.add_row("Import Animations", _options.import_clips, "Import all animation clips.");
+		cv.add_row("Create Animations Folder", _options.create_animations_folder, "Put imported animations in a sub-folder.");
+		_general_set.add_property_grid_optional(cv, "Animation", _options.import_animation, "Import animations and skeleton.");
 
 		_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		_box.pack_start(_general_set, false, false);
