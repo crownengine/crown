@@ -54,7 +54,7 @@ local function camera_track(self, x, y)
 		pan_speed = 1 / pixels_per_unit
 	else
 		-- Speed is proportional to initial distance from target
-		pan_speed = self._drag_start_target_distance / 800 * self._movement_speed
+		pan_speed = self._drag_start_target_distance / 800
 	end
 
 	local delta = (drag_delta.y * pan_speed) * camera_up
