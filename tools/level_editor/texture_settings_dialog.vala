@@ -85,12 +85,12 @@ public class TextureSettingsDialog : Gtk.Window
 		PropertyGrid cv;
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("Name", _texture_name);
+		cv.add_row("Name", _texture_name, "Resource name.");
 		_texture_set.add_property_grid(cv, "Texture");
 
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("Source", _source);
+		cv.add_row("Source", _source, "Source image.");
 		_texture_set.add_property_grid(cv, "Input");
 
 		// Output grid.
@@ -125,12 +125,12 @@ public class TextureSettingsDialog : Gtk.Window
 
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("Format", _format);
-		cv.add_row("Generate Mips", _generate_mips);
-		cv.add_row("Skip Smallest Mips", _mip_skip_smallest);
-		cv.add_row("Normal Map", _normal_map);
-		cv.add_row("Linear", _linear);
-		cv.add_row("Premultiply Alpha", _premultiply_alpha);
+		cv.add_row("Format", _format, "Output format.");
+		cv.add_row("Generate Mips", _generate_mips, "Generate mip-maps.");
+		cv.add_row("Skip Smallest Mips", _mip_skip_smallest, "Skip generation of the N smallest mip-maps.");
+		cv.add_row("Normal Map", _normal_map, "Skip gamma correction and mark as normal map.");
+		cv.add_row("Linear", _linear, "Skip gamma correction.");
+		cv.add_row("Premultiply Alpha", _premultiply_alpha, "Premultiply alpha into RGB channels.");
 		_texture_set.add_property_grid(cv, "Output");
 
 		_stack = new Gtk.Stack();
