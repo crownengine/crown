@@ -8,6 +8,7 @@ Changelog
 
 **New Features and Improvements**
 
+* Tools: added a new "flythrough" camera mode for navigating viewports.
 * Tools: added textual tooltips to main object types and prominent interface elements.
 * Tools: crown-launcher can now be executed from any directory.
 
