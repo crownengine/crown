@@ -89,18 +89,70 @@ local function camera_dolly(self, x, y)
 	end
 end
 
+local function camera_flythrough(self, dx, dy)
+	if self:is_orthographic() then
+		return
+	end
+
+	local camera_pose     = self:local_pose()
+	local camera_position = Matrix4x4.translation(camera_pose)
+	local camera_rotation = Matrix4x4.rotation(camera_pose)
+	local camera_right    = Matrix4x4.x(camera_pose)
+
+	local rotation_up    = Quaternion.from_axis_angle(Vector3.up(), -dx * self._rotation_speed)
+	local rotation_right = Quaternion.from_axis_angle(camera_right, dy * self._rotation_speed)
+
+	local rotate_delta = Quaternion.multiply(rotation_up, rotation_right)
+	local new_rotation = Quaternion.multiply(rotate_delta, camera_rotation)
+	local pose = Matrix4x4.from_quaternion(new_rotation)
+	Matrix4x4.set_translation(pose, camera_position)
+
+	local tr = SceneGraph.instance(self._sg, self._unit)
+	SceneGraph.set_local_pose(self._sg, tr, pose)
+end
+
+local function camera_flythrough_action(self, dt, actions)
+	if self:is_orthographic() then
+		return
+	end
+
+	local speed = self._movement_speed * dt
+
+	local camera_pose     = self:local_pose()
+	local camera_position = Matrix4x4.translation(camera_pose)
+	local camera_rotation = Matrix4x4.rotation(camera_pose)
+	local camera_right    = Matrix4x4.x(camera_pose)
+	local camera_forward  = Matrix4x4.y(camera_pose)
+	local camera_up       = Matrix4x4.z(camera_pose)
+
+	local new_position = Vector3.zero()
+	if actions.forward then new_position = new_position + camera_forward * speed end
+	if actions.back    then new_position = new_position - camera_forward * speed end
+	if actions.left    then new_position = new_position - camera_right * speed end
+	if actions.right   then new_position = new_position + camera_right * speed end
+	if actions.up      then new_position = new_position + camera_up * speed end
+	if actions.down    then new_position = new_position - camera_up * speed end
+
+	local tr = SceneGraph.instance(self._sg, self._unit)
+	Matrix4x4.set_translation(camera_pose, camera_position + new_position)
+	SceneGraph.set_local_pose(self._sg, tr, camera_pose)
+end
+
 Camera = class(Camera)
 
 function Camera:init(world, unit)
 	self._world = world
 	self._unit = unit
 	self._sg = World.scene_graph(world)
-	self._movement_speed = 1
+	self._movement_speed = 30
 	self._rotation_speed = 0.002
 	self._orthographic_size = 10
 	self._target_distance = 10
 
+	self.actions = {}
 	self._move_callback = nil
+	self._move_callback_delta = nil
+	self._action_callback = nil
 
 	self._drag_start_cursor_xy = Vector3Box()
 	self._drag_start_camera_pose = Matrix4x4Box()
@@ -230,7 +282,13 @@ function Camera:update(dt, x, y, dx, dy)
 	if dx ~= 0 or dy ~= 0 then
 		if self._move_callback ~= nil then
 			self._move_callback(self, x, y)
+		elseif self._move_callback_delta then
+			self._move_callback_delta(self, dx, dy)
 		end
+	end
+
+	if self._action_callback then
+		self._action_callback(self, dt, self.actions)
 	end
 
 	if not Matrix4x4.equal(old_pose, self:local_pose())
@@ -270,9 +328,17 @@ function Camera:set_mode(mode, x, y)
 	self._drag_start_orthographic_size = self._orthographic_size
 	self._drag_start_target_distance = self._target_distance
 
+	self._move_callback = nil
+	self._move_callback_delta = nil
+	self._action_callback = nil
+	self.actions = {}
+
 	if mode == "tumble" then self._move_callback = camera_tumble
 	elseif mode == "track" then self._move_callback = camera_track
 	elseif mode == "dolly" then self._move_callback = camera_dolly
+	elseif mode == "flythrough" then
+		self._move_callback_delta = camera_flythrough
+		self._action_callback = camera_flythrough_action
 	elseif mode == "idle" then self._move_callback = nil
 	end
 end

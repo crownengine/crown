@@ -23,6 +23,8 @@ public class EditorView : Gtk.EventBox
 
 	public Gtk.Allocation _allocation;
 	public uint _resize_timer_id;
+	public uint _enable_accels_id;
+	public uint _tick_callback_id;
 
 	public bool _mouse_left;
 	public bool _mouse_middle;
@@ -55,6 +57,8 @@ public class EditorView : Gtk.EventBox
 		case Gdk.Key.a:         return "a";
 		case Gdk.Key.s:         return "s";
 		case Gdk.Key.d:         return "d";
+		case Gdk.Key.q:         return "q";
+		case Gdk.Key.e:         return "e";
 		case Gdk.Key.Control_L: return "ctrl_left";
 		case Gdk.Key.Shift_L:   return "shift_left";
 		case Gdk.Key.Alt_L:     return "alt_left";
@@ -82,6 +86,8 @@ public class EditorView : Gtk.EventBox
 
 		_allocation = { 0, 0, 0, 0 };
 		_resize_timer_id = 0;
+		_enable_accels_id = 0;
+		_tick_callback_id = 0;
 
 		_mouse_left   = false;
 		_mouse_middle = false;
@@ -95,6 +101,8 @@ public class EditorView : Gtk.EventBox
 		_keys[Gdk.Key.a] = false;
 		_keys[Gdk.Key.s] = false;
 		_keys[Gdk.Key.d] = false;
+		_keys[Gdk.Key.q] = false;
+		_keys[Gdk.Key.e] = false;
 		_keys[Gdk.Key.Control_L] = false;
 		_keys[Gdk.Key.Shift_L] = false;
 		_keys[Gdk.Key.Alt_L] = false;
@@ -242,8 +250,21 @@ public class EditorView : Gtk.EventBox
 		if (camera_modifier_pressed()) {
 			if (!_mouse_left || !_mouse_middle || !_mouse_right)
 				_buffer.append("LevelEditor:camera_drag_start('idle')");
-		} else if (!_mouse_middle) {
+		} else if (!_mouse_middle || !_mouse_right) {
 			_buffer.append("LevelEditor:camera_drag_start('idle')");
+
+			bool is_flying = _tick_callback_id > 0;
+
+			if (!_mouse_right && is_flying) {
+				// Wait a little to prevent camera movement keys
+				// from activating unwanted accelerators.
+				_enable_accels_id = GLib.Timeout.add_full(GLib.Priority.DEFAULT, 300, on_enable_accels);
+
+				if (_tick_callback_id != 0) {
+					remove_tick_callback(_tick_callback_id);
+					_tick_callback_id = 0;
+				}
+			}
 		}
 
 		if (_buffer.len != 0) {
@@ -280,6 +301,16 @@ public class EditorView : Gtk.EventBox
 				_buffer.append("LevelEditor:camera_drag_start('dolly')");
 		} else if (_mouse_middle) {
 			_buffer.append("LevelEditor:camera_drag_start('tumble')");
+		} else if (_mouse_right) {
+			_buffer.append("LevelEditor:camera_drag_start('flythrough')");
+
+			if (_tick_callback_id == 0)
+				_tick_callback_id = add_tick_callback(on_tick);
+
+			if (_enable_accels_id > 0)
+				GLib.Source.remove(_enable_accels_id);
+
+			((LevelEditorApplication)GLib.Application.get_default()).set_conflicting_accels(false);
 		}
 
 		if (button == Gdk.BUTTON_PRIMARY)
@@ -307,8 +338,22 @@ public class EditorView : Gtk.EventBox
 			_buffer.append("LevelEditor:key_down(\"move_left\")");
 
 		if (_keys.has_key(keyval)) {
-			if (!_keys[keyval])
+			if (!_keys[keyval]) {
 				_buffer.append(LevelEditorApi.key_down(key_to_string(keyval)));
+
+				if (keyval == Gdk.Key.w)
+					_buffer.append("LevelEditor._camera.actions.forward = true;");
+				if (keyval == Gdk.Key.s)
+					_buffer.append("LevelEditor._camera.actions.back = true;");
+				if (keyval == Gdk.Key.a)
+					_buffer.append("LevelEditor._camera.actions.left = true;");
+				if (keyval == Gdk.Key.d)
+					_buffer.append("LevelEditor._camera.actions.right = true;");
+				if (keyval == Gdk.Key.q)
+					_buffer.append("LevelEditor._camera.actions.up = true;");
+				if (keyval == Gdk.Key.e)
+					_buffer.append("LevelEditor._camera.actions.down = true;");
+			}
 
 			_keys[keyval] = true;
 		}
@@ -324,8 +369,22 @@ public class EditorView : Gtk.EventBox
 	public void on_key_released(uint keyval, uint keycode, Gdk.ModifierType state)
 	{
 		if (_keys.has_key(keyval)) {
-			if (_keys[keyval])
+			if (_keys[keyval]) {
 				_buffer.append(LevelEditorApi.key_up(key_to_string(keyval)));
+
+				if (keyval == Gdk.Key.w)
+					_buffer.append("LevelEditor._camera.actions.forward = false");
+				if (keyval == Gdk.Key.s)
+					_buffer.append("LevelEditor._camera.actions.back = false");
+				if (keyval == Gdk.Key.a)
+					_buffer.append("LevelEditor._camera.actions.left = false");
+				if (keyval == Gdk.Key.d)
+					_buffer.append("LevelEditor._camera.actions.right = false");
+				if (keyval == Gdk.Key.q)
+					_buffer.append("LevelEditor._camera.actions.up = false");
+				if (keyval == Gdk.Key.e)
+					_buffer.append("LevelEditor._camera.actions.down = false");
+			}
 
 			_keys[keyval] = false;
 		}
@@ -421,6 +480,19 @@ public class EditorView : Gtk.EventBox
 	public void on_enter(double x, double y)
 	{
 		this.grab_focus();
+	}
+
+	public bool on_tick(Gtk.Widget widget, Gdk.FrameClock frame_clock)
+	{
+		_runtime.send(DeviceApi.frame());
+		return GLib.Source.CONTINUE;
+	}
+
+	public bool on_enable_accels()
+	{
+		((LevelEditorApplication)GLib.Application.get_default()).set_conflicting_accels(true);
+		_enable_accels_id = 0;
+		return GLib.Source.REMOVE;
 	}
 }
 
