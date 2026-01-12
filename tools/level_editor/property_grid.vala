@@ -547,12 +547,13 @@ public class PropertyGridSet : Gtk.Box
 		return ((PropertyGrid)e._child)._visible;
 	}
 
-	public Expander add_property_grid(PropertyGrid cv, string label)
+	public Expander add_property_grid(PropertyGrid cv, string label, string? tooltip = null)
 	{
 		Gtk.Label l = new Gtk.Label(null);
 		l.set_markup("<b>%s</b>".printf(label));
 		l.xalign = 0.0f;
 		l.yalign = 0.5f;
+		l.set_tooltip_text(label);
 
 		Expander e = new Expander();
 		e.custom_header = l;
@@ -569,12 +570,13 @@ public class PropertyGridSet : Gtk.Box
 		return e;
 	}
 
-	public Expander add_property_grid_optional(PropertyGrid cv, string label, InputBool InputBool)
+	public Expander add_property_grid_optional(PropertyGrid cv, string label, InputBool InputBool, string? tooltip = null)
 	{
 		Gtk.Label l = new Gtk.Label(null);
 		l.set_markup("<b>%s</b>".printf(label));
 		l.xalign = 0.0f;
 		l.yalign = 0.5f;
+		l.set_tooltip_text(tooltip);
 
 		Gtk.Box b = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 6);
 		b.pack_start(InputBool, false, false);
