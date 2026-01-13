@@ -7,17 +7,17 @@ set -eu
 . scripts/dist/version.sh
 
 if [ $# -lt 1 ]; then
-	echo "Usage: $0 <platform> <arch> [version]"
+	echo "Usage: $0 <platform> <arch> [master]"
 	echo ""
 	echo "e.g."
-	echo "$0 linux x64 0.38.0" # Create package for linux x64, v0.38.0
-	echo "$0 android arm64"    # Version is inferred from last Git tag
+	echo "$0 android arm64"    # Version is inferred from config.h.
+	echo "$0 linux x64 master" # Append "-master-<commit>" to version name.
 	exit
 fi
 
 PLATFORM=$1
 ARCH=$2
-VERSION=${3-}
+MASTER=${3-}
 
 # Validate platform/arch combination.
 if [ "${PLATFORM}" = "android" ]; then
@@ -45,10 +45,7 @@ else
 	exit 1
 fi
 
-# If version is not specified, extract it from config.h
-if [ -z "${VERSION}" ]; then
-	VERSION=$(crown_version)
-fi
+VERSION=$(crown_version)
 BUILD_JOBS=$(nproc)
 
 if [ "${PLATFORM}" = "windows" ]; then
@@ -57,8 +54,8 @@ else
 	EXE_SUFFIX=
 fi
 
-if [ "${VERSION}" = "master" ]; then
-	VERSION_SUFFIX="-"$(git rev-parse --short HEAD)
+if [ "${MASTER}" = "master" ]; then
+	VERSION_SUFFIX="-master-"$(git rev-parse --short HEAD)
 else
 	VERSION_SUFFIX=
 fi
