@@ -111,12 +111,9 @@ rm -rf "${PACKAGENAME}"
 
 # Build engine and tools.
 if [ "${PLATFORM}" = "android" ]; then
-	export ANDROID_NDK_ROOT="$HOME"/android-sdk/ndk/23.2.8568313
-	export ANDROID_NDK_ABI=23
 	make android-"${ARCH}"-development MAKE_JOBS="${BUILD_JOBS}"
 	make android-"${ARCH}"-release MAKE_JOBS="${BUILD_JOBS}"
 elif [ "${PLATFORM}" = "html5" ]; then
-	export EMSCRIPTEN="$HOME"/emsdk/upstream/emscripten
 	make wasm-development MAKE_JOBS="${BUILD_JOBS}"
 	make wasm-release MAKE_JOBS="${BUILD_JOBS}"
 elif [ "${PLATFORM}" = "linux" ]; then
