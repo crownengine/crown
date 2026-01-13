@@ -6,17 +6,42 @@ set -eu
 
 . scripts/dist/version.sh
 
-if [ $# -lt 1 ]; then
-	echo "Usage: $0 <platform> <arch> [master]"
-	echo ""
-	echo "e.g."
-	echo "$0 android arm64"    # Version is inferred from config.h.
-	echo "$0 linux x64 master" # Append "-master-<commit>" to version name.
-	exit
-fi
+NOCONFIRM=0
+ARGS=()
 
-PLATFORM=$1
-ARCH=$2
+while [ $# -gt 0 ]; do
+	case "$1" in
+	-h|--help)
+		echo "Usage: $0 [options] <platform> <arch> [master]"
+		echo ""
+		echo "Options:"
+		echo "  --noconfirm  Skip any user confirmations."
+		echo ""
+		echo "Examples:"
+		echo "$0 android arm64    # Create android-arm64 package. Version is inferred from config.h."
+		echo "$0 linux x64 master # Create linux-x64 package. Append \"-master-<commit>\" to version name."
+		echo ""
+		exit 0
+		;;
+	--noconfirm)
+		NOCONFIRM=1
+		shift
+		;;
+	-*)
+		echo "Unknown option $1"
+		exit 1
+		;;
+	*)
+		ARGS+=($1)
+		shift
+		;;
+	esac
+done
+
+set -- "${ARGS[@]}"
+
+PLATFORM=${1-}
+ARCH=${2-}
 MASTER=${3-}
 
 # Validate platform/arch combination.
@@ -69,12 +94,14 @@ TAR="tar -cf"
 TARBALLEXT=tar
 TARBALLNAME="${PACKAGENAME}.${TARBALLEXT}"
 
-echo "Crown '${VERSION}' will be packaged as '${TARBALLNAME}'"
-echo "Continue? [y/N]"
-read -r answer
-if [ "${answer}" != "y" ] && [ "${answer}" != "Y" ]; then
-	echo "Bye."
-	exit;
+if [ "${NOCONFIRM}" -eq 0 ]; then
+	echo "Crown '${VERSION}' will be packaged as '${TARBALLNAME}'"
+	echo "Continue? [y/N]"
+	read -r answer
+	if [ "${answer}" != "y" ] && [ "${answer}" != "Y" ]; then
+		echo "Bye."
+		exit;
+	fi
 fi
 
 # Cleanup previous builds.
