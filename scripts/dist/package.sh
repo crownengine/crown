@@ -82,13 +82,6 @@ make clean
 rm -rf "${TARBALLNAME}"
 rm -rf "${PACKAGENAME}"
 
-# Switch to desired tag.
-if [ "${VERSION}" = "master" ]; then
-	git checkout "${VERSION}"
-else
-	git checkout v"${VERSION}"
-fi
-
 # Build engine and tools.
 if [ "${PLATFORM}" = "android" ]; then
 	export ANDROID_NDK_ROOT="$HOME"/android-sdk/ndk/23.2.8568313
