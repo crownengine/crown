@@ -4,6 +4,8 @@
 
 set -eu
 
+. scripts/dist/version.sh
+
 if [ $# -lt 1 ]; then
 	echo "Usage: $0 <platform> <arch> [version]"
 	echo ""
@@ -43,9 +45,9 @@ else
 	exit 1
 fi
 
-# If version is not specified, extract it from most recent tag name.
+# If version is not specified, extract it from config.h
 if [ -z "${VERSION}" ]; then
-	VERSION=$(git tag | tail -n 1| cut -c2-)
+	VERSION=$(crown_version)
 fi
 BUILD_JOBS=$(nproc)
 
