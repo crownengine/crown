@@ -61,13 +61,13 @@ else
 fi
 
 # Destination folder.
-PACKAGENAME=crown-"${VERSION}""${VERSION_SUFFIX}"
+VERSIONNAME=crown-"${VERSION}""${VERSION_SUFFIX}"
+PACKAGENAME="${VERSIONNAME}"-${PLATFORM}-${ARCH}
 
 # Tarball name.
 TAR="tar -cf"
-TARBALLEXTENSION=tar
-
-TARBALLNAME="${PACKAGENAME}-${PLATFORM}-${ARCH}.${TARBALLEXTENSION}"
+TARBALLEXT=tar
+TARBALLNAME="${PACKAGENAME}.${TARBALLEXT}"
 
 echo "Crown '${VERSION}' will be packaged as '${TARBALLNAME}'"
 echo "Continue? [y/N]"
@@ -177,37 +177,27 @@ find build -iname 'obj'               \
 	| xargs -0 -n1 rm -rf
 
 # Create release package from build dir.
-mv build platforms
-mkdir "${PACKAGENAME}"
-mv platforms "${PACKAGENAME}"
+PARTIALSDIR=dist/"${VERSIONNAME}"/partials
+PARTIALPACKAGE="${PARTIALSDIR}"/"${PACKAGENAME}"
+mkdir -p "${PARTIALPACKAGE}"
+mv build "${PARTIALPACKAGE}"/platforms
 
 if [ "${PLATFORM}" = "linux" ] || [ "${PLATFORM}" = "windows" ]; then
 	# Copy exporters, samples etc. to package dir.
-	cp    LICENSE   "${PACKAGENAME}"
-	cp -r exporters "${PACKAGENAME}"
-	cp -r samples   "${PACKAGENAME}"
-	mv    "${PACKAGENAME}"/samples/core "${PACKAGENAME}"
+	cp    LICENSE   "${PARTIALPACKAGE}"
+	cp -r exporters "${PARTIALPACKAGE}"
+	cp -r samples   "${PARTIALPACKAGE}"
+	mv    "${PARTIALPACKAGE}"/samples/core "${PARTIALPACKAGE}"
 
 	if [ "${PLATFORM}" = "linux" ]; then
 		# Copy crown-launcher.
-		mv "${PACKAGENAME}"/platforms/linux64/bin/crown-launcher-release "${PACKAGENAME}"/crown-launcher
+		mv "${PARTIALPACKAGE}"/platforms/linux64/bin/crown-launcher-release "${PARTIALPACKAGE}"/crown-launcher
 
 		# Copy app icon and .desktop file.
-		cp tools/level_editor/resources/org.crownengine.Crown.desktop "${PACKAGENAME}"
-		cp tools/level_editor/resources/icons/hicolor/scalable/apps/org.crownengine.Crown.svg "${PACKAGENAME}"
+		cp tools/level_editor/resources/org.crownengine.Crown.desktop "${PARTIALPACKAGE}"
+		cp tools/level_editor/resources/icons/hicolor/scalable/apps/org.crownengine.Crown.svg "${PARTIALPACKAGE}"
 	elif [ "${PLATFORM}" = "windows" ]; then
 		# Copy crown-launcher.
-		mv "${PACKAGENAME}"/platforms/windows64/bin/crown-launcher-release.exe "${PACKAGENAME}"/crown-launcher.exe
+		mv "${PARTIALPACKAGE}"/platforms/windows64/bin/crown-launcher-release.exe "${PARTIALPACKAGE}"/crown-launcher.exe
 	fi
-fi
-
-# Archive the build in a package.
-${TAR} "${TARBALLNAME}" "${PACKAGENAME}"
-
-
-# Copy package to the packages server.
-if [ ! -z "${PKG_SERVER_ADDR}" ]; then
-	PARTIALS_DIR="${PKG_SERVER_HOME}/${PACKAGENAME}"/partials
-	ssh -i "${PKG_SERVER_KEY}" "${PKG_SERVER_USER}@${PKG_SERVER_ADDR}" "mkdir -p ${PARTIALS_DIR}"
-	scp -i "${PKG_SERVER_KEY}" "${TARBALLNAME}" "${PKG_SERVER_USER}@${PKG_SERVER_ADDR}":"${PARTIALS_DIR}/${TARBALLNAME}"
 fi

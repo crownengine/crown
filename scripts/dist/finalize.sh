@@ -20,21 +20,18 @@ PARTIAL_PKG="${PARTIALS_DIR}/${PKG_NAME}"
 TARGET_PLATFORMS="android-arm android-arm64 html5-wasm"
 MASTER_PLATFORMS="linux-x64 windows-x64"
 
-concatenate_and_compress () {
+merge_and_compress () {
 	for mp in $MASTER_PLATFORMS; do
-		# Concatenate.
+		# Merge target platforms into master ones.
 		for tp in $TARGET_PLATFORMS; do
-			tar --concatenate --file       \
-				"${PARTIAL_PKG}-${mp}.tar" \
-				"${PARTIAL_PKG}-${tp}.tar"
+			cp -r "${PARTIAL_PKG}-${tp}"/* "${PARTIAL_PKG}-${mp}"
 		done
 
-		# Compress.
+		# Compress master platforms.
 		if [ "${mp}" = "windows-x64" ]; then
-			tar xf "${PARTIAL_PKG}-${mp}.tar" --directory="${PARTIALS_DIR}"
-			(cd "${PARTIALS_DIR}" && zip -rq "${PKG_NAME}-${mp}.zip" "${PKG_NAME}")
+			(cd "${PARTIALS_DIR}" && zip -rq "${PKG_NAME}-${mp}.zip" "${PKG_NAME}-${mp}")
 		else
-			gzip "${PARTIAL_PKG}-${mp}.tar"
+			(cd "${PARTIALS_DIR}" && tar -czf "${PKG_NAME}-${mp}.tar.gz" "${PKG_NAME}-${mp}")
 		fi
 	done
 }
@@ -44,7 +41,7 @@ if [ ! -d "${PARTIALS_DIR}" ]; then
 	exit 1;
 fi
 
-concatenate_and_compress
+merge_and_compress
 
 # Move to output dir.
 for zip in "${PARTIALS_DIR}"/*.gz "${PARTIALS_DIR}"/*.zip; do
