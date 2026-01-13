@@ -1,0 +1,419 @@
+name: dist
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - '*'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: crown-package-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  detect:
+    runs-on: ubuntu-22.04
+    outputs:
+      is_tag: ${{ steps.detect.outputs.is_tag }}
+      version: ${{ steps.detect.outputs.version }}
+      branch: ${{ steps.detect.outputs.branch }}
+    steps:
+      - name: prepare
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+      - name: detect
+        id: detect
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            echo "is_tag=true" >> $GITHUB_OUTPUT
+            echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+            echo "branch=" >> $GITHUB_OUTPUT
+          else
+            echo "is_tag=false" >> $GITHUB_OUTPUT
+            if [ -n "${GITHUB_HEAD_REF:-}" ]; then
+              BRANCH="${GITHUB_HEAD_REF}"
+            else
+              if [[ "${GITHUB_REF}" == refs/heads/* ]]; then
+                BRANCH="${GITHUB_REF#refs/heads/}"
+              else
+                BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
+                if [ -z "${BRANCH:-}" ] || [ "${BRANCH}" = "HEAD" ]; then
+                  BRANCH="$(git name-rev --name-only HEAD 2>/dev/null || true)"
+                fi
+                BRANCH="${BRANCH#remotes/origin/}"
+              fi
+            fi
+            echo "branch=${BRANCH}" >> $GITHUB_OUTPUT
+            if [[ "${BRANCH}" == "master" ]]; then
+              echo "version=master" >> $GITHUB_OUTPUT
+            else
+              echo "version=${BRANCH}" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+  android-arm:
+    needs: detect
+    runs-on: ubuntu-22.04
+    env:
+      IS_TAG: ${{ needs.detect.outputs.is_tag }}
+      VERSION: ${{ needs.detect.outputs.version }}
+      BRANCH: ${{ needs.detect.outputs.branch }}
+    steps:
+      - name: prepare
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+      - name: detect
+        run: |
+          set -euo pipefail
+          echo "IS_TAG=${IS_TAG}" >> $GITHUB_ENV
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "BRANCH=${BRANCH}" >> $GITHUB_ENV
+      - name: install-deps
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install libc6-dev-i386
+          ANDROID_SDK_ROOT=/usr/local/lib/android/sdk
+          SDKMANAGER=${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager
+          echo "y" | $SDKMANAGER "ndk;23.2.8568313"
+      - name: package
+        shell: bash
+        run: |
+          set -euo pipefail
+          export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/23.2.8568313
+          export ANDROID_NDK_ABI=23
+          if [ "$IS_TAG" = "true" ]; then
+            ./scripts/dist/package.sh android arm --noconfirm
+          else
+            ./scripts/dist/package.sh android arm --branch "${BRANCH}" --noconfirm
+          fi
+      - name: upload-dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-android-arm
+          path: dist-android-arm.tar.gz
+          retention-days: 1
+
+  android-arm64:
+    needs: detect
+    runs-on: ubuntu-22.04
+    env:
+      IS_TAG: ${{ needs.detect.outputs.is_tag }}
+      VERSION: ${{ needs.detect.outputs.version }}
+      BRANCH: ${{ needs.detect.outputs.branch }}
+    steps:
+      - name: prepare
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+      - name: detect
+        run: |
+          set -euo pipefail
+          echo "IS_TAG=${IS_TAG}" >> $GITHUB_ENV
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "BRANCH=${BRANCH}" >> $GITHUB_ENV
+      - name: install-deps
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install libc6-dev-i386
+          ANDROID_SDK_ROOT=/usr/local/lib/android/sdk
+          SDKMANAGER=${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager
+          echo "y" | $SDKMANAGER "ndk;23.2.8568313"
+      - name: package
+        shell: bash
+        run: |
+          set -euo pipefail
+          export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/23.2.8568313
+          export ANDROID_NDK_ABI=23
+          if [ "$IS_TAG" = "true" ]; then
+            ./scripts/dist/package.sh android arm64 --noconfirm
+          else
+            ./scripts/dist/package.sh android arm64 --branch "${BRANCH}" --noconfirm
+          fi
+      - name: upload-dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-android-arm64
+          path: dist-android-arm64.tar.gz
+          retention-days: 1
+
+  html5-wasm:
+    needs: detect
+    runs-on: ubuntu-22.04
+    env:
+      IS_TAG: ${{ needs.detect.outputs.is_tag }}
+      VERSION: ${{ needs.detect.outputs.version }}
+      BRANCH: ${{ needs.detect.outputs.branch }}
+    steps:
+      - name: prepare
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+      - name: detect
+        run: |
+          set -euo pipefail
+          echo "IS_TAG=${IS_TAG}" >> $GITHUB_ENV
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "BRANCH=${BRANCH}" >> $GITHUB_ENV
+      - name: install-deps
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone https://github.com/emscripten-core/emsdk.git "${GITHUB_WORKSPACE}/emsdk"
+          pushd "${GITHUB_WORKSPACE}/emsdk"
+          ./emsdk install latest
+          ./emsdk activate latest
+          popd
+      - name: package
+        shell: bash
+        run: |
+          set -euo pipefail
+          export EMSCRIPTEN=$GITHUB_WORKSPACE/emsdk/upstream/emscripten
+          if [ "$IS_TAG" = "true" ]; then
+            ./scripts/dist/package.sh html5 wasm --noconfirm
+          else
+            ./scripts/dist/package.sh html5 wasm --branch "${BRANCH}" --noconfirm
+          fi
+      - name: upload-dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-html5-wasm
+          path: dist-html5-wasm.tar.gz
+          retention-days: 1
+
+  linux-x64:
+    needs: detect
+    runs-on: ubuntu-22.04
+    env:
+      IS_TAG: ${{ needs.detect.outputs.is_tag }}
+      VERSION: ${{ needs.detect.outputs.version }}
+      BRANCH: ${{ needs.detect.outputs.branch }}
+    steps:
+      - name: prepare
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+      - name: detect
+        run: |
+          set -euo pipefail
+          echo "IS_TAG=${IS_TAG}" >> $GITHUB_ENV
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "BRANCH=${BRANCH}" >> $GITHUB_ENV
+      - name: install-deps
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y mesa-common-dev libgl1-mesa-dev libpulse-dev libxrandr-dev libc6-dev-i386
+          sudo apt-get install -y libgtk-3-dev
+          sudo add-apt-repository ppa:vala-team -y
+          sudo apt-get update
+          sudo apt-get install -y valac libgee-0.8-dev
+          sudo apt-get install -y libxml2-utils
+      - name: package
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "$IS_TAG" = "true" ]; then
+            ./scripts/dist/package.sh linux x64 --noconfirm
+          else
+            ./scripts/dist/package.sh linux x64 --branch "${BRANCH}" --noconfirm
+          fi
+      - name: upload-dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-linux-x64
+          path: dist-linux-x64.tar.gz
+          retention-days: 1
+
+  windows-x64:
+    needs: detect
+    runs-on: windows-latest
+    env:
+      IS_TAG: ${{ needs.detect.outputs.is_tag }}
+      VERSION: ${{ needs.detect.outputs.version }}
+      BRANCH: ${{ needs.detect.outputs.branch }}
+    steps:
+      - name: setup-msys2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: false
+      - name: prepare
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+      - name: detect
+        shell: msys2 {0}
+        run: |
+          set -euo pipefail
+          echo "IS_TAG=${IS_TAG}" >> $GITHUB_ENV
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "BRANCH=${BRANCH}" >> $GITHUB_ENV
+      - name: install-deps
+        shell: msys2 {0}
+        run: |
+          set -euo pipefail
+          pacman --noconfirm -S make mingw-w64-x86_64-gcc mingw-w64-x86_64-pkgconf mingw-w64-x86_64-gtk3 mingw-w64-x86_64-vala mingw-w64-x86_64-libgee git
+      - name: package
+        shell: msys2 {0}
+        run: |
+          set -euo pipefail
+          if [ "$IS_TAG" = "true" ]; then
+            ./scripts/dist/package.sh windows x64 --noconfirm
+          else
+            ./scripts/dist/package.sh windows x64 --branch "${BRANCH}" --noconfirm
+          fi
+      - name: upload-dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-windows-x64
+          path: dist-windows-x64.tar.gz
+          retention-days: 1
+
+  windows-x32:
+    needs: detect
+    runs-on: windows-latest
+    env:
+      IS_TAG: ${{ needs.detect.outputs.is_tag }}
+      VERSION: ${{ needs.detect.outputs.version }}
+      BRANCH: ${{ needs.detect.outputs.branch }}
+    steps:
+      - name: setup-msys2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW32
+          update: false
+      - name: prepare
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+      - name: detect
+        shell: msys2 {0}
+        run: |
+          set -euo pipefail
+          echo "IS_TAG=${IS_TAG}" >> $GITHUB_ENV
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "BRANCH=${BRANCH}" >> $GITHUB_ENV
+      - name: install-deps
+        shell: msys2 {0}
+        run: |
+          set -euo pipefail
+          pacman --noconfirm -S make mingw-w64-i686-gcc mingw-w64-i686-pkgconf git
+      - name: package
+        shell: msys2 {0}
+        run: |
+          set -euo pipefail
+          if [ "$IS_TAG" = "true" ]; then
+            ./scripts/dist/package.sh windows x32 --noconfirm
+          else
+            ./scripts/dist/package.sh windows x32 --branch "${BRANCH}" --noconfirm
+          fi
+      - name: upload-dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-windows-x32
+          path: dist-windows-x32.tar.gz
+          retention-days: 1
+
+  finalize:
+    needs:
+      - android-arm
+      - android-arm64
+      - html5-wasm
+      - linux-x64
+      - windows-x64
+      - windows-x32
+      - detect
+    runs-on: ubuntu-22.04
+    env:
+      IS_TAG: ${{ needs.detect.outputs.is_tag }}
+      VERSION: ${{ needs.detect.outputs.version }}
+      BRANCH: ${{ needs.detect.outputs.branch }}
+    steps:
+      - name: prepare
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+      - name: detect
+        run: |
+          set -euo pipefail
+          echo "IS_TAG=${IS_TAG}" >> $GITHUB_ENV
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "BRANCH=${BRANCH}" >> $GITHUB_ENV
+      - name: download-artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts_dist
+      - name: merge
+        run: |
+          set -euo pipefail
+          # Uncompress.
+          mkdir -p dist
+          for ad in ./artifacts_dist/*; do
+            if [ -d "$ad" ]; then
+              for f in "$ad"/*.tar.gz; do
+                if [ -f "$f" ]; then
+                  mkdir -p "$ad/extracted"
+                  tar -xzf "$f" -C "$ad/extracted"
+                fi
+              done
+              cp -a "$ad/extracted/dist/"* ./dist/
+            fi
+          done
+          # Merge.
+          find ./artifacts_dist -maxdepth 3 -type d -name 'crown-*' -exec cp -a {} ./dist/ \;
+      - name: detect-version
+        run: |
+          set -euo pipefail
+          . ./scripts/dist/version.sh
+          CROWN_VER=$(crown_version)
+          if [ "${IS_TAG}" = "true" ]; then
+            DIST_DIR="dist/crown-${CROWN_VER}"
+          else
+            SUFFIX="$(git rev-parse --short HEAD)"
+            DIST_DIR="dist/crown-${CROWN_VER}-${BRANCH}-${SUFFIX}"
+          fi
+          echo "DIST_DIR=$DIST_DIR" >> $GITHUB_ENV
+          echo "CROWN_VER=$CROWN_VER" >> $GITHUB_ENV
+      - name: finalize
+        run: |
+          set -euo pipefail
+          "$GITHUB_WORKSPACE/scripts/dist/finalize.sh" "${DIST_DIR}"
+      - name: sums
+        run: |
+          set -euo pipefail
+          "$GITHUB_WORKSPACE/scripts/dist/sums.sh" "${DIST_DIR}"
+      - name: unstable
+        if: env.IS_TAG == 'false'
+        run: |
+          # find "${DIST_DIR}" -maxdepth 1 -type f -print0 | xargs -0 -I{} bash -c 'gh release upload v"${CROWN_VER}"-test "{}" --clobber'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: stable
+        if: env.IS_TAG == 'true'
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ env.VERSION }}
+          files: ${{ env.DIST_DIR }}/*
+          draft: true

@@ -17,7 +17,7 @@ PKG_NAME=$(basename "${OUTPUT_DIR}")
 PARTIALS_DIR="${OUTPUT_DIR}/partials"
 PARTIAL_PKG="${PARTIALS_DIR}/${PKG_NAME}"
 
-TARGET_PLATFORMS="android-arm android-arm64 html5-wasm"
+TARGET_PLATFORMS="android-arm android-arm64 html5-wasm windows-x32"
 MASTER_PLATFORMS="linux-x64 windows-x64"
 
 merge_and_compress () {
@@ -47,3 +47,5 @@ merge_and_compress
 for zip in "${PARTIALS_DIR}"/*.gz "${PARTIALS_DIR}"/*.zip; do
 	mv "${zip}" "${OUTPUT_DIR}"
 done
+
+rm -rf "${PARTIALS_DIR}" # So that sums.sh won't complain.
