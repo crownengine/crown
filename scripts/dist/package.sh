@@ -32,7 +32,7 @@ while [ $# -gt 0 ]; do
 		exit 1
 		;;
 	*)
-		ARGS+=($1)
+		ARGS+=("$1")
 		shift
 		;;
 	esac
@@ -73,12 +73,6 @@ fi
 VERSION=$(crown_version)
 BUILD_JOBS=$(nproc)
 
-if [ "${PLATFORM}" = "windows" ]; then
-	EXE_SUFFIX=.exe
-else
-	EXE_SUFFIX=
-fi
-
 if [ "${MASTER}" = "master" ]; then
 	VERSION_SUFFIX="-master-"$(git rev-parse --short HEAD)
 else
@@ -90,7 +84,6 @@ VERSIONNAME=crown-"${VERSION}""${VERSION_SUFFIX}"
 PACKAGENAME="${VERSIONNAME}"-${PLATFORM}-${ARCH}
 
 # Tarball name.
-TAR="tar -cf"
 TARBALLEXT=tar
 TARBALLNAME="${PACKAGENAME}.${TARBALLEXT}"
 
