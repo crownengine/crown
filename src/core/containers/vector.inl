@@ -310,6 +310,8 @@ inline const T &Vector<T>::operator[](u32 index) const
 template<typename T>
 inline const Vector<T> &Vector<T>::operator=(const Vector<T> &other)
 {
+	CE_ASSERT(this != &other, "Self-assignment");
+
 	const u32 size = vector::size(other);
 	vector::resize(*this, size);
 
