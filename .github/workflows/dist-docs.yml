@@ -1,0 +1,99 @@
+name: dist-docs
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - '*'
+  pull_request: {}
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: crown-package-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  detect:
+    runs-on: ubuntu-22.04
+    outputs:
+      is_tag: ${{ steps.detect.outputs.is_tag }}
+      version: ${{ steps.detect.outputs.version }}
+      branch: ${{ steps.detect.outputs.branch }}
+    steps:
+      - name: prepare
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+      - name: detect
+        id: detect
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            echo "is_tag=true" >> $GITHUB_OUTPUT
+            echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+            echo "branch=" >> $GITHUB_OUTPUT
+          else
+            echo "is_tag=false" >> $GITHUB_OUTPUT
+            if [ -n "${GITHUB_HEAD_REF:-}" ]; then
+              BRANCH="${GITHUB_HEAD_REF}"
+            else
+              if [[ "${GITHUB_REF}" == refs/heads/* ]]; then
+                BRANCH="${GITHUB_REF#refs/heads/}"
+              else
+                BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
+                if [ -z "${BRANCH:-}" ] || [ "${BRANCH}" = "HEAD" ]; then
+                  BRANCH="$(git name-rev --name-only HEAD 2>/dev/null || true)"
+                fi
+                BRANCH="${BRANCH#remotes/origin/}"
+              fi
+            fi
+            echo "branch=${BRANCH}" >> $GITHUB_OUTPUT
+            if [[ "${BRANCH}" == "master" ]]; then
+              echo "version=master" >> $GITHUB_OUTPUT
+            else
+              echo "version=${BRANCH}" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+  docs:
+    needs: detect
+    runs-on: ubuntu-22.04
+    env:
+      IS_TAG: ${{ needs.detect.outputs.is_tag }}
+      VERSION: ${{ needs.detect.outputs.version }}
+      BRANCH: ${{ needs.detect.outputs.branch }}
+    steps:
+      - name: prepare
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+      - name: detect
+        run: |
+          set -euo pipefail
+          echo "IS_TAG=${IS_TAG}" >> $GITHUB_ENV
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "BRANCH=${BRANCH}" >> $GITHUB_ENV
+      - name: install-deps
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install python3-sphinx
+      - name: build-and-publish
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ "$IS_TAG" = "true" ]; then
+            ./scripts/dist/docs.sh --noconfirm
+          else
+            ./scripts/dist/docs.sh --noconfirm master
+          fi
+          git push origin gh-pages
