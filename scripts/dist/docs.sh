@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2012-2026 Daniele Bartolini et al.
 
@@ -6,11 +6,35 @@ set -eu
 
 . scripts/dist/version.sh
 
-if [ $# -gt 1 ]; then
-	echo "Usage: $0 [version]"
-	echo ""
-	exit;
-fi
+NOCONFIRM=0
+ARGS=()
+
+while [ $# -gt 0 ]; do
+	case "$1" in
+	-h|--help)
+		echo "Usage: $0 [options] [version]"
+		echo ""
+		echo "Options:"
+		echo "  --noconfirm  Skip any user confirmations."
+		echo ""
+		exit 0
+		;;
+	--noconfirm)
+		NOCONFIRM=1
+		shift
+		;;
+	-*)
+		echo "Unknown option $1"
+		exit 1
+		;;
+	*)
+		ARGS+=("$1")
+		shift
+		;;
+	esac
+done
+
+set -- "${ARGS[@]}"
 
 VERSION=${1-}
 VERSION_PATCH=$(crown_version_patch)
@@ -25,12 +49,14 @@ else
 	exit 1
 fi
 
-echo "Docs \`${VERSION}\` will be released"
-echo "Continue? [y/N]"
-read -r answer
-if [ "${answer}" != "y" ] && [ "${answer}" != "Y" ]; then
-	echo "Bye."
-	exit;
+if [ "${NOCONFIRM}" -eq 0 ]; then
+	echo "Docs \`${VERSION}\` will be released"
+	echo "Continue? [y/N]"
+	read -r answer
+	if [ "${answer}" != "y" ] && [ "${answer}" != "Y" ]; then
+		echo "Bye."
+		exit;
+	fi
 fi
 
 # Build docs.
