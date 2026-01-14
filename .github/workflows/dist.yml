@@ -415,4 +415,3 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: ${{ env.DIST_DIR }}/*
-          draft: true
