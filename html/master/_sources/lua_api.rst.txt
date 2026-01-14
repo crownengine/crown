@@ -5,11 +5,18 @@ Lua API reference
 AnimationStateMachine
 =====================
 
+**create** (asm, unit, state_machine_resource) : Id
+	Creates a new state machine instance for *unit* and returns its id.
+
+**destroy** (asm, state_machine)
+	Destroys the *state_machine* instance.
+
 **instance** (asm, unit) : Id
 	Returns the ID of the state machine owned by the *unit*, or ``nil``.
 
 **variable_id** (asm, state_machine, name) : Id
-	Returns the ID of the variable *name* in the *state_machine*.
+	Returns the ID of the variable *name* in the *state_machine*, or ``nil`` if
+	the variable does not exist.
 
 **variable** (asm, state_machine, variable_id) : number
 	Returns the value of the *variable_id* in the *state_machine*.
@@ -19,6 +26,9 @@ AnimationStateMachine
 
 **trigger** (asm, state_machine, event)
 	Triggers the *event* in the *state_machine*.
+
+**set_state_machine** (asm, state_machine, state_machine_resource)
+	Sets the *state_machine_resource* of *state_machine*.
 
 DebugLine
 =========
@@ -1091,8 +1101,14 @@ Mover
 **mover** (pw, unit) : Id
 	Returns the ID of the mover owned by the *unit*.
 
+**mover_set_height** (pw, mover, height)
+	Sets the *height* of the *mover* capsule.
+
 **mover_radius** (pw, mover) : number
 	Returns the radius of the *mover* capsule.
+
+**mover_set_radius** (pw, mover, radius)
+	Sets the *radius* of the *mover* capsule.
 
 **mover_max_slope_angle** (pw, mover) : number
 	Returns the max slope angle of the *mover*.
@@ -1108,6 +1124,12 @@ Mover
 
 **mover_set_position** (pw, mover, position)
 	Teleports the *mover* to the specified *position*.
+
+**mover_center** (pw, mover) : Vector3
+	Returns the center of the *mover* relative to the transform's position.
+
+**mover_set_center** (pw, mover, center)
+	Sets the center of the *mover* relative to the transform's position.
 
 **mover_move** (pw, mover, delta)
 	Attempts to move the *mover* by the specified *delta* vector.

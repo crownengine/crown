@@ -1,18 +1,41 @@
 Changelog
 =========
 
-0.60.0 --- DD MMM YYYY
+.. _v0.61.0:
+
+:ref:`0.61.0 --- DD MMM YYYY <v0.61.0>`
+---------------------------------------
+
+**New Features and Improvements**
+
+* Tools: added a new "flythrough" camera mode for navigating viewports.
+* Tools: added textual tooltips to main object types and prominent interface elements.
+* Tools: crown-launcher can now be executed from any directory.
+
+0.60.0 --- 30 Dec 2025
 ----------------------
 
 **New Features and Improvements**
 
+* Tools: added a new Unit Editor to inspect and modify Unit prefabs.
+* Tools: added a new State Machine Editor for editing 3D skeletal mesh and sprite animations.
+* Tools: added a new Object Editor to inspect and modify via a generic UI most resource types that were previously opened as text files.
 * Tools: added the ability to search any kind of resources in the Project Browser. As a consequence, the old Resource Chooser dialog has been removed.
 * Tools: double-clicking an object in the Level Tree will now frame it in the Editor Viewport.
 * Tools: units created via the FBX importer will now be named according to their corresponding node's name.
 * Tools: added a generic editor to inspect and modify all registered resource types. Previously resources with no dedicated editor were opened in a plain-text editor.
+* Tools: Windows: improved UI fonts rendering.
+* Runtime: omni lights will now render shadow maps.
+* Runtime: added the ability to reload animation state machines.
 * Runtime: added an end-of-options marker to stop the runtime from parsing game-specific command line options.
+* Runtime: the ``mesh`` shader will now expect normal maps to be encoded in the BC5 texture format.
+* Data Compiler: added ``linear`` and ``premultiply_alpha`` options to the texture resource compiler.
 * Lua: added ``Device.build()`` to retrieve the runtime's build configuration.
 * Lua: added ``PhysicsWorld.actor_debug_draw()`` and ``PhysicsWorld.mover_debug_draw()``.
+* Lua: added ``PhysicsWorld.mover_set_height()``, ``PhysicsWorld.mover_set_radius()``, ``PhysicsWorld.mover_center()`` and ``PhysicsWorld.mover_set_center()``.
+* Lua: added ``AnimationStateMachine.create()``, ``AnimationStateMachine.destroy()`` and ``AnimationStateMachine.set_state_machine()``.
+* Lua: ``AnimationStateMachine.variable_id()`` will now return ``nil`` if the variable does not exist.
+* Lua: the ``update()`` script component callback is now optional.
 
 **Fixes**
 
@@ -26,6 +49,7 @@ Changelog
 * Tools: fixed some properties unnecessarily requiring multiple undo steps to be set to their previous value.
 * Tools: fixed importing non-animated FBX files in some circumnstances.
 * Tools: duplicating objects in the Level Editor will now correctly select the duplicated objects instead of the ones being duplicated.
+* Runtime: fixed rendering of local lights with shadows disabled.
 * Runtime: fixed shading of meshes with non-uniform scaling.
 * Runtime: Windows: fixed a number of misdetected keyboard keys.
 * Runtime: Windows: fixed windows firewall popping up at startup.
@@ -37,8 +61,13 @@ Changelog
 * Runtime: fixed a crash when reloading non-trivial units.
 * Runtime: fixed imperfect spot lights' cone coverage.
 * Runtime: fixed interrupted sun shadow map when too close to the viewer.
+* Runtime: fixed destroying units with children.
+* Runtime: fixed some UnitIDs not being released when destroying units with state machines.
+* Runtime: fixed a crash when playing empty mesh animations.
+* Runtime: fixed a leak when destroying worlds with animation state machines.
+* Data Compiler: fixed a crash when compiling some mesh skeletons.
+* Data Compiler: fixed compiling funny FBX animation files.
 * Lua: fixed a memory leak when executing some script component callbacks.
-* Lua: the ``update()`` script component callback is now optional.
 
 0.59.0 --- 02 Oct 2025
 ----------------------

@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2025-10-31T16:54:02+00:00" /><meta property="og:title" content="Lua API reference" />
+    <meta property="article:modified_time" content="2025-12-14T11:11:41+00:00" /><meta property="og:title" content="Lua API reference" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/lua_api.html" />
 <meta property="og:site_name" content="Crown 0.60.0 Manual" />
-<meta property="og:description" content="AnimationStateMachine: instance(asm, unit), Id, Returns the ID of the state machine owned by the unit, or nil.,, variable_id(asm, state_machine, name), Id, Returns the ID of the variable name in the state_machine.,, variable(asm, state_machine, variable_id), number, Returns th..." />
-<meta name="description" content="AnimationStateMachine: instance(asm, unit), Id, Returns the ID of the state machine owned by the unit, or nil.,, variable_id(asm, state_machine, name), Id, Returns the ID of the variable name in the state_machine.,, variable(asm, state_machine, variable_id), number, Returns th..." />
+<meta property="og:description" content="AnimationStateMachine: create(asm, unit, state_machine_resource), Id, Creates a new state machine instance for unit and returns its id.,, destroy(asm, state_machine), Destroys the state_machine instance.,, instance(asm, unit), Id, Returns the ID of the state machine owned by t..." />
+<meta name="description" content="AnimationStateMachine: create(asm, unit, state_machine_resource), Id, Creates a new state machine instance for unit and returns its id.,, destroy(asm, state_machine), Destroys the state_machine instance.,, instance(asm, unit), Id, Returns the ID of the state machine owned by t..." />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lua API reference &mdash; Crown 0.60.0 Manual 0.60.0 documentation</title>
+  <title>Lua API reference &mdash; Crown 0.60.0 Manual 0.61.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -192,15 +192,22 @@
 <section id="animationstatemachine">
 <h2>AnimationStateMachine<a class="headerlink" href="#animationstatemachine" title="Permalink to this headline">¶</a></h2>
 <dl class="simple">
+<dt><strong>create</strong> (asm, unit, state_machine_resource)<span class="classifier">Id</span></dt><dd><p>Creates a new state machine instance for <em>unit</em> and returns its id.</p>
+</dd>
+<dt><strong>destroy</strong> (asm, state_machine)</dt><dd><p>Destroys the <em>state_machine</em> instance.</p>
+</dd>
 <dt><strong>instance</strong> (asm, unit)<span class="classifier">Id</span></dt><dd><p>Returns the ID of the state machine owned by the <em>unit</em>, or <code class="docutils literal notranslate"><span class="pre">nil</span></code>.</p>
 </dd>
-<dt><strong>variable_id</strong> (asm, state_machine, name)<span class="classifier">Id</span></dt><dd><p>Returns the ID of the variable <em>name</em> in the <em>state_machine</em>.</p>
+<dt><strong>variable_id</strong> (asm, state_machine, name)<span class="classifier">Id</span></dt><dd><p>Returns the ID of the variable <em>name</em> in the <em>state_machine</em>, or <code class="docutils literal notranslate"><span class="pre">nil</span></code> if
+the variable does not exist.</p>
 </dd>
 <dt><strong>variable</strong> (asm, state_machine, variable_id)<span class="classifier">number</span></dt><dd><p>Returns the value of the <em>variable_id</em> in the <em>state_machine</em>.</p>
 </dd>
 <dt><strong>set_variable</strong> (asm, state_machine, variable_id, value)</dt><dd><p>Sets the <em>value</em> of the <em>variable_id</em> in the <em>state_machine</em>.</p>
 </dd>
 <dt><strong>trigger</strong> (asm, state_machine, event)</dt><dd><p>Triggers the <em>event</em> in the <em>state_machine</em>.</p>
+</dd>
+<dt><strong>set_state_machine</strong> (asm, state_machine, state_machine_resource)</dt><dd><p>Sets the <em>state_machine_resource</em> of <em>state_machine</em>.</p>
 </dd>
 </dl>
 </section>
@@ -1096,7 +1103,11 @@ travelling at the given <em>velocity</em>.</p>
 </dd>
 <dt><strong>mover</strong> (pw, unit)<span class="classifier">Id</span></dt><dd><p>Returns the ID of the mover owned by the <em>unit</em>.</p>
 </dd>
+<dt><strong>mover_set_height</strong> (pw, mover, height)</dt><dd><p>Sets the <em>height</em> of the <em>mover</em> capsule.</p>
+</dd>
 <dt><strong>mover_radius</strong> (pw, mover)<span class="classifier">number</span></dt><dd><p>Returns the radius of the <em>mover</em> capsule.</p>
+</dd>
+<dt><strong>mover_set_radius</strong> (pw, mover, radius)</dt><dd><p>Sets the <em>radius</em> of the <em>mover</em> capsule.</p>
 </dd>
 <dt><strong>mover_max_slope_angle</strong> (pw, mover)<span class="classifier">number</span></dt><dd><p>Returns the max slope angle of the <em>mover</em>.</p>
 </dd>
@@ -1107,6 +1118,10 @@ travelling at the given <em>velocity</em>.</p>
 <dt><strong>mover_position</strong> (pw, mover)<span class="classifier">Vector3</span></dt><dd><p>Returns the position of the <em>mover</em>.</p>
 </dd>
 <dt><strong>mover_set_position</strong> (pw, mover, position)</dt><dd><p>Teleports the <em>mover</em> to the specified <em>position</em>.</p>
+</dd>
+<dt><strong>mover_center</strong> (pw, mover)<span class="classifier">Vector3</span></dt><dd><p>Returns the center of the <em>mover</em> relative to the transform’s position.</p>
+</dd>
+<dt><strong>mover_set_center</strong> (pw, mover, center)</dt><dd><p>Sets the center of the <em>mover</em> relative to the transform’s position.</p>
 </dd>
 <dt><strong>mover_move</strong> (pw, mover, delta)</dt><dd><p>Attempts to move the <em>mover</em> by the specified <em>delta</em> vector.
 The <em>mover</em> will slide against physical actors.</p>
@@ -1526,7 +1541,7 @@ spawned by the level are unspawned.</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Oct 31, 2025.
+      <span class="lastupdated">Last updated on Dec 14, 2025.
       </span></p>
   </div>
 
