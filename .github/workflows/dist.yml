@@ -416,4 +416,3 @@ jobs:
         with:
           tag_name: v${{ env.VERSION }}
           files: ${{ env.DIST_DIR }}/*
-          draft: true
