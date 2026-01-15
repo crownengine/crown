@@ -387,13 +387,14 @@ jobs:
           . ./scripts/dist/version.sh
           CROWN_VER=$(crown_version)
           if [ "${IS_TAG}" = "true" ]; then
-            DIST_DIR="dist/crown-${CROWN_VER}"
+            VERSIONNAME=crown-${CROWN_VER}
           else
             SUFFIX="$(git rev-parse --short HEAD)"
-            DIST_DIR="dist/crown-${CROWN_VER}-${BRANCH}-${SUFFIX}"
+            VERSIONNAME=crown-${CROWN_VER}-${BRANCH}-${SUFFIX}
           fi
+          DIST_DIR="dist/${VERSIONNAME}"
           echo "DIST_DIR=$DIST_DIR" >> $GITHUB_ENV
-          echo "CROWN_VER=$CROWN_VER" >> $GITHUB_ENV
+          echo "VERSIONNAME=$VERSIONNAME" >> $GITHUB_ENV
       - name: finalize
         run: |
           set -euo pipefail
@@ -404,10 +405,12 @@ jobs:
           "$GITHUB_WORKSPACE/scripts/dist/sums.sh" "${DIST_DIR}"
       - name: unstable
         if: env.IS_TAG == 'false'
-        run: |
-          # find "${DIST_DIR}" -maxdepth 1 -type f -print0 | xargs -0 -I{} bash -c 'gh release upload v"${CROWN_VER}"-test "{}" --clobber'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: Jumbo810/Upload_Github_Artifacts_TO_GDrive@v2.3.3
+        with:
+          target: ${{ env.DIST_DIR }}/*
+          parent_folder_id: ${{ secrets.GDRIVE_PARENT_FOLDER_ID }}
+          child_folder: ${{ env.VERSIONNAME }}
+          credentials: ${{ secrets.GDRIVE_KEY }}
       - name: stable
         if: env.IS_TAG == 'true'
         uses: softprops/action-gh-release@v2
