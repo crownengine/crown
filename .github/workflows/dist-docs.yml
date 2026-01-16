@@ -92,8 +92,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           if [ "$IS_TAG" = "true" ]; then
-            ./scripts/dist/docs.sh --noconfirm
+            ./scripts/dist/docs.sh --noconfirm --push
           else
-            ./scripts/dist/docs.sh --noconfirm master
+            ./scripts/dist/docs.sh --noconfirm --push master
           fi
-          git push origin gh-pages

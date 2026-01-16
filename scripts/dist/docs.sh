@@ -7,6 +7,7 @@ set -eu
 . scripts/dist/version.sh
 
 NOCONFIRM=0
+PUSH=0
 ARGS=()
 
 while [ $# -gt 0 ]; do
@@ -16,11 +17,16 @@ while [ $# -gt 0 ]; do
 		echo ""
 		echo "Options:"
 		echo "  --noconfirm  Skip any user confirmations."
+		echo "  --push       Push changes to remote."
 		echo ""
 		exit 0
 		;;
 	--noconfirm)
 		NOCONFIRM=1
+		shift
+		;;
+	--push)
+		PUSH=1
 		shift
 		;;
 	-*)
@@ -81,3 +87,7 @@ fi
 
 # Commit changes.
 git commit -m "Docs ${VERSION}" || exit 0
+
+if [ "${PUSH}" -eq 1 ]; then
+	git push origin gh-pages
+fi
