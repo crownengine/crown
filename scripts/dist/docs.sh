@@ -69,6 +69,8 @@ rm -rf html/"${VERSION_DIR}"
 mkdir html/"${VERSION_DIR}"
 cp -r build/docs/html/* html/"${VERSION_DIR}"
 
+git add html/"${VERSION_DIR}"
+
 # Update 'latest' only in stable releases, excluding patches.
 if [ "${VERSION}" != "master" ] && [ "${VERSION_PATCH}" -eq 0 ]; then
 	rm -rf html/latest
@@ -78,5 +80,4 @@ if [ "${VERSION}" != "master" ] && [ "${VERSION_PATCH}" -eq 0 ]; then
 fi
 
 # Commit changes.
-git add html/"${VERSION_DIR}"
-git commit -m "Docs ${VERSION}"
+git commit -m "Docs ${VERSION}" || exit 0
