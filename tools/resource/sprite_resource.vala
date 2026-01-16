@@ -337,24 +337,24 @@ public class SpriteImportDialog : Gtk.Window
 		// Slices.
 		PropertyGrid cv;
 		cv = new PropertyGrid();
-		cv.add_row("Name", _unit_name);
+		cv.add_row("Name", _unit_name, "Name of the imported unit.");
 		sprite_set.add_property_grid(cv, "Unit");
 
 		cv = new PropertyGrid();
-		cv.add_row("Resolution", resolution);
-		cv.add_row("Cells", cells);
-		cv.add_row("Auto Size", cell_wh_auto);
-		cv.add_row("Cell", cell);
-		cv.add_row("Offset", offset);
-		cv.add_row("Spacing", spacing);
-		cv.add_row("Pivot", pivot);
-		cv.add_row("Collision", collision_enabled);
+		cv.add_row("Resolution", resolution, "Resolution of the source image.");
+		cv.add_row("Cells", cells, "Split the image into X columns and Y rows.");
+		cv.add_row("Auto Size", cell_wh_auto, "Compute the cell size automatically.");
+		cv.add_row("Cell", cell, "Size of each cell.");
+		cv.add_row("Offset", offset, "Starting offset of the cells.");
+		cv.add_row("Spacing", spacing, "Spacing between the cells.");
+		cv.add_row("Pivot", pivot, "Origin of the sprite.");
+		cv.add_row("Collision", collision_enabled, "Enable collision detection.");
 		sprite_set.add_property_grid(cv, "Image");
 
 		// Sprite Renderer.
 		cv = new PropertyGrid();
-		cv.add_row("Layer", layer);
-		cv.add_row("Depth", depth);
+		cv.add_row("Layer", layer, "Sorting layer. Higher values makes the sprite appear in front.");
+		cv.add_row("Depth", depth, "Higher values make the sprite apper in front of other sprites in the same layer.");
 		sprite_set.add_property_grid(cv, "Sprite Renderer");
 
 		// Collider.
@@ -387,9 +387,9 @@ public class SpriteImportDialog : Gtk.Window
 
 		cv = new PropertyGrid();
 		cv.row_homogeneous = false;
-		cv.add_row("Shape Type", shape_switcher);
-		cv.add_row("Mirror Cell", mirror_cell);
-		cv.add_row("Shape Data", shape);
+		cv.add_row("Shape Type", shape_switcher, "Shape to use as collider.");
+		cv.add_row("Mirror Cell", mirror_cell, "Compute the shape size based on the cell size.");
+		cv.add_row("Shape Data", shape, "Set the shape size manually.");
 		sprite_set.add_property_grid(cv, "Collider");
 
 		mirror_cell.toggled.connect(() => {
@@ -401,9 +401,9 @@ public class SpriteImportDialog : Gtk.Window
 
 		// Actor.
 		cv = new PropertyGrid();
-		cv.add_row("Class", actor_class);
-		cv.add_row("Mass", mass);
-		cv.add_row("Lock Rotation", lock_rotation_z);
+		cv.add_row("Class", actor_class, "Actor class.");
+		cv.add_row("Mass", mass, "Actor physical mass.");
+		cv.add_row("Lock Rotation", lock_rotation_z, "Prevent the actor from rotating around the Z axis.");
 		sprite_set.add_property_grid(cv, "Actor");
 
 		_previous_frame = new Gtk.Button.from_icon_name("go-previous-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
