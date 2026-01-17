@@ -22,6 +22,7 @@ public class PropertyGrid : Gtk.Grid
 	public int _rows;
 	public double _order;
 	public bool _visible;
+	public int label_width_chars;
 
 	public Gee.HashMap<string, InputField> _widgets;
 	public Gee.HashMap<InputField, PropertyDefinition?> _definitions;
@@ -97,6 +98,7 @@ public class PropertyGrid : Gtk.Grid
 		this.row_spacing = 4;
 		this.row_homogeneous = true;
 		this.column_spacing = 12;
+		this.label_width_chars = 13;
 
 		// Data
 		_expander = null;
@@ -144,7 +146,7 @@ public class PropertyGrid : Gtk.Grid
 	public Gtk.Widget add_row(string label, Gtk.Widget w, string? tooltip = null)
 	{
 		Gtk.Label l = new Gtk.Label(label);
-		l.width_chars = 13;
+		l.width_chars = label_width_chars;
 		l.xalign = 1.0f;
 		l.yalign = 0.5f;
 		l.set_tooltip_text(tooltip);
