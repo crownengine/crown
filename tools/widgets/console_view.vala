@@ -160,6 +160,7 @@ public class ConsoleView : Gtk.Box
 		_text_view.can_focus = true;
 
 		Gtk.Button clear_button = new Gtk.Button.from_icon_name("edit-clear");
+		clear_button.set_tooltip_text("Clear the console.");
 		clear_button.margin_top = 8;
 		clear_button.margin_end = 16;
 		clear_button.valign = Gtk.Align.START;

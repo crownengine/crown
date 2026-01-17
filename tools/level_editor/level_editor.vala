@@ -894,6 +894,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		// Widgets
 		_combo = new Gtk.ComboBoxText();
+		_combo.set_tooltip_text("Runtime that will receive the message.");
 		_combo.append("editor", "Editor");
 		_combo.append("game", "Game");
 		_combo.set_active_id("editor");
