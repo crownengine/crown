@@ -254,16 +254,16 @@ public class FontImportDialog : Gtk.Window
 
 		PropertyGrid cv;
 		cv = new PropertyGrid();
-		cv.add_row("Source path", _font_path);
+		cv.add_row("Source", _font_path, "Source font path.");
 		sprite_set.add_property_grid(cv, "File");
 
 		cv = new PropertyGrid();
-		cv.add_row("Name", _font_name);
-		cv.add_row("Atlas size", _atlas_size);
-		cv.add_row("Size", _font_size);
-		cv.add_row("Charset", _font_chars);
-		cv.add_row("Range min", _font_range_min);
-		cv.add_row("Range max", _font_range_max);
+		cv.add_row("Name", _font_name, "Name of the imported resource.");
+		cv.add_row("Atlas size", _atlas_size, "Resolution of the generated texture.");
+		cv.add_row("Size", _font_size, "Size of characters.");
+		cv.add_row("Charset", _font_chars, "Generate characters within this set.");
+		cv.add_row("Range min", _font_range_min, "First character to generate (included).");
+		cv.add_row("Range max", _font_range_max, "Last character to generate (included).");
 		sprite_set.add_property_grid(cv, "Font");
 
 		Gtk.Box box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
