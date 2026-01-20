@@ -31,6 +31,21 @@ public struct Vector2
 		return arr;
 	}
 
+	public double dot(Vector2 b)
+	{
+		return this.x * b.x + this.y * b.y;
+	}
+
+	public double length_squared()
+	{
+		return dot(this);
+	}
+
+	public double length()
+	{
+		return Math.sqrt(length_squared());
+	}
+
 	public string to_string()
 	{
 		return "%f, %f".printf(x, y);
