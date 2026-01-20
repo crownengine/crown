@@ -233,76 +233,63 @@ namespace package_resource_internal
 		}
 		ENSURE_OR_RETURN(online_order == array::size(resources), opts);
 
-		// Write
+		// Write.
 		opts.write(RESOURCE_HEADER(RESOURCE_VERSION_PACKAGE));
 		opts.write(array::size(resources));
 
-		if (opts._bundle) {
-			Buffer bundle_data(default_allocator());
-			FileBuffer bundle_file(bundle_data);
-			BinaryWriter bundle(bundle_file);
+		Buffer bundle_data(default_allocator());
+		FileBuffer bundle_file(bundle_data);
+		BinaryWriter bw(bundle_file);
 
-			for (u32 ii = 0; ii < array::size(resources); ++ii) {
-				ResourceId id = resource_id(resources[ii].type, resources[ii].name);
+		for (u32 ii = 0; ii < array::size(resources); ++ii) {
+			ResourceId id = resource_id(resources[ii].type, resources[ii].name);
+			u32 data_offset = UINT32_MAX;
+			u32 data_size = UINT32_MAX;
 
-				{
-					// Append data to bundle.
-					TempAllocator256 ta;
-					DynamicString dest(ta);
-					destination_path(dest, id);
+			if (opts._bundle) {
+				// Append data to bundle.
+				TempAllocator256 ta;
+				DynamicString dest(ta);
+				DynamicString stream_dest(ta);
+				destination_path(dest, id);
+				stream_destination_path(stream_dest, id);
 
-					File *data_file = opts._data_filesystem.open(dest.c_str(), FileOpenMode::READ);
-					if (!data_file->is_open()) {
-						opts._data_filesystem.close(*data_file);
-						RETURN_IF_FALSE(false, opts, "Failed to open data");
-					}
-
-					// Align data to a 16-bytes boundary.
-					bundle.align(16);
-					const u32 data_offset = array::size(bundle_data);
-					const u32 data_size = data_file->size();
-
-					file::copy(bundle_file, *data_file, data_size);
+				File *data_file = opts._data_filesystem.open(dest.c_str(), FileOpenMode::READ);
+				if (!data_file->is_open()) {
 					opts._data_filesystem.close(*data_file);
-
-					// Write ResourceOffset.
-					opts.write(resources[ii].type);
-					opts.write(resources[ii].name);
-					opts.write(data_offset);
-					opts.write(data_size);
-					opts.write(resources[ii].online_order);
-					opts.write(resources[ii]._pad);
+					RETURN_IF_FALSE(false, opts, "Failed to open data");
 				}
 
-				{
-					// Copy stream data, if any, to bundle dir.
-					TempAllocator256 ta;
-					DynamicString stream_dest(ta);
-					stream_destination_path(stream_dest, id);
+				bw.align(16);
+				data_offset = array::size(bundle_data);
+				data_size = data_file->size();
+				file::copy(bundle_file, *data_file, data_size);
+				opts._data_filesystem.close(*data_file);
 
-					File *stream = opts._data_filesystem.open(stream_dest.c_str(), FileOpenMode::READ);
-					if (stream->is_open()) {
-						File *bundle_stream = opts._output_filesystem.open(stream_dest.c_str(), FileOpenMode::WRITE);
-						RETURN_IF_FALSE(bundle_stream->is_open(), opts, "Failed to open bundle stream");
-						file::copy(*bundle_stream, *stream, stream->size());
-						opts._output_filesystem.close(*bundle_stream);
-					}
-					opts._data_filesystem.close(*stream);
+				// Copy stream data to bundle dir.
+				File *stream = opts._data_filesystem.open(stream_dest.c_str(), FileOpenMode::READ);
+				if (stream->is_open()) {
+					File *bundle_stream = opts._output_filesystem.open(stream_dest.c_str(), FileOpenMode::WRITE);
+					RETURN_IF_FALSE(bundle_stream->is_open(), opts, "Failed to open bundle stream");
+					file::copy(*bundle_stream, *stream, stream->size());
+					opts._output_filesystem.close(*bundle_stream);
 				}
+				opts._data_filesystem.close(*stream);
 			}
 
-			// Write bundled data.
+			// Write ResourceOffset.
+			opts.write(resources[ii].type);
+			opts.write(resources[ii].name);
+			opts.write(data_offset);
+			opts.write(data_size);
+			opts.write(resources[ii].online_order);
+			opts.write(resources[ii]._pad);
+		}
+
+		// Write bundled data if any.
+		if (opts._bundle) {
 			opts.align(16);
 			opts.write(array::begin(bundle_data), array::size(bundle_data));
-		} else {
-			for (u32 ii = 0; ii < array::size(resources); ++ii) {
-				opts.write(resources[ii].type);
-				opts.write(resources[ii].name);
-				opts.write(UINT32_MAX);
-				opts.write(UINT32_MAX);
-				opts.write(resources[ii].online_order);
-				opts.write(resources[ii]._pad);
-			}
 		}
 
 		return 0;
