@@ -295,6 +295,8 @@ inline const T &Array<T>::operator[](u32 index) const
 template<typename T>
 inline Array<T> &Array<T>::operator=(const Array<T> &other)
 {
+	CE_ASSERT(this != &other, "Self-assignment");
+
 	const u32 size = other._size;
 	array::resize(*this, size);
 	memcpy((void *)_data, other._data, sizeof(T) * size);

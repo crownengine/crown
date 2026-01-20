@@ -363,6 +363,8 @@ inline HashMap<TKey, TValue, Hash, KeyEqual>::~HashMap()
 template<typename TKey, typename TValue, typename Hash, typename KeyEqual>
 HashMap<TKey, TValue, Hash, KeyEqual> &HashMap<TKey, TValue, Hash, KeyEqual>::operator=(const HashMap<TKey, TValue, Hash, KeyEqual> &other)
 {
+	CE_ASSERT(this != &other, "Self-assignment");
+
 	for (u32 i = 0; i < _capacity; ++i) {
 		if (_index[i].index == 0x0123abcd)
 			_data[i].~Pair();
