@@ -642,6 +642,56 @@ update_stb () {
 	git commit -m "3rdparty: update stb"
 }
 
+update_lz4 () {
+	local REPO=https://github.com/lz4/lz4
+	local DEST=3rdparty/lz4
+	local BRANCH=v1.10.0
+
+	rm -rf "${DEST}"
+	git_clone "${DEST}" "${REPO}" "${BRANCH}"
+
+	# Cleanup.
+	rm -rf "${DEST}"/.git
+	rm -rf "${DEST}"/.github
+	rm -rf "${DEST}"/.gitignore
+	rm -rf "${DEST}"/.circleci/config.yml
+	rm -rf "${DEST}"/.circleci/images/primary/Dockerfile
+	rm -rf "${DEST}"/.cirrus.yml
+	rm -rf "${DEST}"/.clang-format
+	rm -rf "${DEST}"/.gitattributes
+	rm -rf "${DEST}"/CODING_STYLE
+	rm -rf "${DEST}"/INSTALL
+	rm -rf "${DEST}"/LICENSE
+	rm -rf "${DEST}"/Makefile
+	rm -rf "${DEST}"/Makefile.inc
+	rm -rf "${DEST}"/NEWS
+	rm -rf "${DEST}"/SECURITY.md
+	rm -rf "${DEST}"/appveyor.yml
+	rm -rf "${DEST}"/build/
+	rm -rf "${DEST}"/contrib/
+	rm -rf "${DEST}"/doc/
+	rm -rf "${DEST}"/examples/
+	rm -rf "${DEST}"/lib/.gitignore
+	rm -rf "${DEST}"/lib/Makefile
+	rm -rf "${DEST}"/lib/dll
+	rm -rf "${DEST}"/lib/liblz4-dll.rc.in
+	rm -rf "${DEST}"/lib/liblz4.pc.in
+	rm -rf "${DEST}"/lib/lz4file.c
+	rm -rf "${DEST}"/lib/lz4file.h
+	rm -rf "${DEST}"/lib/lz4frame.c
+	rm -rf "${DEST}"/lib/lz4frame.h
+	rm -rf "${DEST}"/lib/lz4frame_static.h
+	rm -rf "${DEST}"/lib/xxhash.c
+	rm -rf "${DEST}"/lib/xxhash.h
+	rm -rf "${DEST}"/ossfuzz
+	rm -rf "${DEST}"/programs
+	rm -rf "${DEST}"/tests
+
+	# Add changes and commit.
+	git add -f "${DEST}"
+	git commit -m "3rdparty: update lz4"
+}
+
 print_help () {
 	echo "Usage: scripts/upgrade.sh <dependency-name>"
 }
@@ -694,6 +744,10 @@ while true; do
 		;;
 	stb)
 		update_stb
+		exit $?
+		;;
+	lz4)
+		update_lz4
 		exit $?
 		;;
 	*)
