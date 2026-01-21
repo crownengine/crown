@@ -588,7 +588,7 @@ int Device::main_loop()
 	_resource_manager->register_type(RESOURCE_TYPE_MESH,             RESOURCE_VERSION_MESH,             mesh_resource_internal::load,    mesh_resource_internal::unload,    mesh_resource_internal::online,     mesh_resource_internal::offline);
 	_resource_manager->register_type(RESOURCE_TYPE_MESH_SKELETON,    RESOURCE_VERSION_MESH_SKELETON,    NULL,                            NULL,                              NULL,                               NULL);
 	_resource_manager->register_type(RESOURCE_TYPE_MESH_ANIMATION,   RESOURCE_VERSION_MESH_ANIMATION,   NULL,                            NULL,                              NULL,                               NULL);
-	_resource_manager->register_type(RESOURCE_TYPE_PACKAGE,          RESOURCE_VERSION_PACKAGE,          NULL,                            NULL,                              NULL,                               NULL);
+	_resource_manager->register_type(RESOURCE_TYPE_PACKAGE,          RESOURCE_VERSION_PACKAGE,          package_resource_internal::load, NULL,                              NULL,                               NULL);
 	_resource_manager->register_type(RESOURCE_TYPE_PHYSICS_CONFIG,   RESOURCE_VERSION_PHYSICS_CONFIG,   NULL,                            NULL,                              NULL,                               NULL);
 	_resource_manager->register_type(RESOURCE_TYPE_RENDER_CONFIG,    RESOURCE_VERSION_RENDER_CONFIG,    NULL,                            NULL,                              NULL,                               NULL);
 	_resource_manager->register_type(RESOURCE_TYPE_SCRIPT,           RESOURCE_VERSION_SCRIPT,           NULL,                            NULL,                              NULL,                               NULL);

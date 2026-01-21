@@ -5,7 +5,6 @@
 
 #include "config.h"
 
-#if CROWN_CAN_COMPILE
 #include "core/containers/array.inl"
 #include "core/containers/hash_map.inl"
 #include "core/containers/hash_set.inl"
@@ -22,9 +21,12 @@
 #include "resource/data_compiler.h"
 #include "resource/package_resource.h"
 #include "resource/resource_id.inl"
+#include "resource/simple_resource.h"
+#include <lz4.h>
 
 namespace crown
 {
+#if CROWN_CAN_COMPILE
 template<>
 struct hash<ResourceOffset>
 {
@@ -233,13 +235,13 @@ namespace package_resource_internal
 		}
 		ENSURE_OR_RETURN(online_order == array::size(resources), opts);
 
-		// Write.
-		opts.write(RESOURCE_HEADER(RESOURCE_VERSION_PACKAGE));
-		opts.write(array::size(resources));
-
+		Buffer header_data(default_allocator());
 		Buffer bundle_data(default_allocator());
+		Buffer compressed_data(default_allocator());
+		FileBuffer header_file(header_data);
 		FileBuffer bundle_file(bundle_data);
-		BinaryWriter bw(bundle_file);
+		BinaryWriter hbw(header_file);
+		BinaryWriter bbw(bundle_file);
 
 		for (u32 ii = 0; ii < array::size(resources); ++ii) {
 			ResourceId id = resource_id(resources[ii].type, resources[ii].name);
@@ -260,7 +262,7 @@ namespace package_resource_internal
 					RETURN_IF_FALSE(false, opts, "Failed to open data");
 				}
 
-				bw.align(16);
+				bbw.align(16);
 				data_offset = array::size(bundle_data);
 				data_size = data_file->size();
 				file::copy(bundle_file, *data_file, data_size);
@@ -278,24 +280,76 @@ namespace package_resource_internal
 			}
 
 			// Write ResourceOffset.
-			opts.write(resources[ii].type);
-			opts.write(resources[ii].name);
-			opts.write(data_offset);
-			opts.write(data_size);
-			opts.write(resources[ii].online_order);
-			opts.write(resources[ii]._pad);
+			hbw.write(resources[ii].type);
+			hbw.write(resources[ii].name);
+			hbw.write(data_offset);
+			hbw.write(data_size);
+			hbw.write(resources[ii].online_order);
+			hbw.write(resources[ii]._pad);
 		}
 
-		// Write bundled data if any.
+		// Compress bundle data.
 		if (opts._bundle) {
+			int max_dst_size = LZ4_compressBound(array::size(bundle_data));
+			array::reserve(compressed_data, u32(max_dst_size));
+			int compressed_data_size = LZ4_compress_default(array::begin(bundle_data), array::begin(compressed_data), array::size(bundle_data), max_dst_size);
+			RETURN_IF_FALSE(compressed_data_size > 0, opts, "Failed to compress data");
+			array::resize(compressed_data, u32(compressed_data_size));
+		}
+
+		// Write.
+		opts.write(RESOURCE_HEADER(RESOURCE_VERSION_PACKAGE));
+		opts.write(array::size(compressed_data));
+		opts.write(array::size(bundle_data));
+		opts.write(array::size(resources));
+		opts.write(header_data);
+
+		if (array::size(compressed_data) != 0) {
 			opts.align(16);
-			opts.write(array::begin(bundle_data), array::size(bundle_data));
+			opts.write(array::begin(compressed_data), array::size(compressed_data));
 		}
 
 		return 0;
 	}
 
 } // namespace package_resource_internal
+#endif // if CROWN_CAN_COMPILE
+
+namespace package_resource_internal
+{
+	void *load(File &file, Allocator &a)
+	{
+		u32 version;
+		u32 compressed_size;
+		u32 uncompressed_size;
+		BinaryReader br(file);
+
+		br.read(version);
+		CE_ENSURE(version == RESOURCE_HEADER(RESOURCE_VERSION_PACKAGE));
+		br.read(compressed_size);
+
+		if (compressed_size == 0) {
+			file.seek(0);
+			return simple_resource::load(file, a);
+		}
+
+		br.read(uncompressed_size);
+
+		const u32 file_size = file.size(); // Compressed package.
+		const u32 header_size = file_size - compressed_size;
+		const u32 resource_size = header_size + uncompressed_size;
+		char *data = (char *)a.allocate(resource_size, 16);
+		char *compressed_data = (char *)a.allocate(compressed_size);
+
+		file.seek(0);
+		file.read(data, file_size - compressed_size);
+		file.read(compressed_data, compressed_size);
+		const int decompressed_size = LZ4_decompress_safe(compressed_data, data + header_size, compressed_size, uncompressed_size);
+		CE_ASSERT(decompressed_size >= 0 && u32(decompressed_size) == uncompressed_size, "Failed to decompress data");
+		a.deallocate(compressed_data);
+		return data;
+	}
+
+} // namespace package_resource_internal
 
 } // namespace crown
-#endif // if CROWN_CAN_COMPILE

@@ -18,6 +18,7 @@ function crown_project(_name, _kind, _defines)
 			CROWN_DIR .. "3rdparty/bullet3/src",
 			CROWN_DIR .. "3rdparty/openal/include",
 			CROWN_DIR .. "3rdparty/ufbx",
+			CROWN_DIR .. "3rdparty/lz4/lib",
 		}
 
 		defines {
@@ -135,7 +136,8 @@ function crown_project(_name, _kind, _defines)
 		files {
 			CROWN_DIR .. "src/**.h",
 			CROWN_DIR .. "src/**.cpp",
-			CROWN_DIR .. "3rdparty/ufbx/ufbx.c"
+			CROWN_DIR .. "3rdparty/ufbx/ufbx.c",
+			CROWN_DIR .. "3rdparty/lz4/lib/*.c",
 		}
 
 		strip()

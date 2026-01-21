@@ -786,3 +786,8 @@ ufbx (MIT)
 ----------
 
 Single source file FBX file loader.
+
+LZ4 (BSD 2-clause)
+----------
+
+LZ4 - Extremely fast compression.
