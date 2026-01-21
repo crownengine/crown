@@ -27,6 +27,8 @@ struct ResourceOffset
 struct PackageResource
 {
 	u32 version;
+	u32 compressed_data_size;
+	u32 uncompressed_data_size;
 	u32 num_resources;
 	// ResourceOffset offsets[num_resources]
 	// Data (16-bytes aligned)
