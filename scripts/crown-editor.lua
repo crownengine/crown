@@ -104,6 +104,18 @@ project "crown-editor"
 		CROWN_DIR .. "3rdparty/ufbx/ufbx.c",
 	}
 
+	configuration { "linux" }
+		removefiles {
+			CROWN_DIR .. "tools/widgets/gtk/gtkcolorpickerquartz.c",
+			CROWN_DIR .. "tools/widgets/gtk/gtkcolorpickerwin32.c",
+		}
+	configuration { "windows" }
+		removefiles {
+			CROWN_DIR .. "tools/widgets/gtk/gtkcolorpickerkwin.c",
+			CROWN_DIR .. "tools/widgets/gtk/gtkcolorpickerquartz.c",
+			CROWN_DIR .. "tools/widgets/gtk/gtkcolorpickershell.c",
+		}
+
 	strip()
 
 	configuration {}
