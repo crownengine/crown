@@ -9,8 +9,9 @@ format_src () {
 }
 
 format_tools_c () {
-	find tools/ -iname '*.c' \
-		| tr '\n' '\0'       \
+	find tools/ -iname '*.c'            \
+		| grep -v 'tools/widgets/gtk/*' \
+		| tr '\n' '\0'                  \
 		| xargs -0 -n1 -P"$1" ./scripts/uncrustify/uncrustify-wrapper.sh scripts/uncrustify/cpp.cfg
 }
 
