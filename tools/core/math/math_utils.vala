@@ -24,6 +24,23 @@ namespace MathUtils
 		return rad * 180.0 / Math.PI;
 	}
 
+	public double floor(double a)
+	{
+		return Math.floor(a);
+	}
+
+	public double fract(double a)
+	{
+		return a - floor(a);
+	}
+
+	public double lerp(double p0, double p1, double t)
+	{
+		return (1.0 - t) * p0 + t * p1;
+	}
+
 } /* namespace MathUtils */
+
+public const double PI_TWO = Math.PI * 2.0;
 
 } /* namespace Crown */
