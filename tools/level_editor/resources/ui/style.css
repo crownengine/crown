@@ -87,3 +87,20 @@ button.compact {
 .colorfast-link link {
 	color: @theme_fg_color;
 }
+
+.hsv-v-scale {
+	padding-top: 0px;
+	padding-bottom: 0px;
+	padding-right: 0px;
+}
+
+.hsv-v-scale trough {
+	padding-left: 6px;
+	padding-right: 6px;
+	background-image: linear-gradient(to bottom, white, black);
+}
+
+.hsv-v-scale highlight {
+	background-color: transparent;
+	border: 0px;
+}
