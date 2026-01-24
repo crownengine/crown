@@ -658,7 +658,7 @@ public static void create_object_types(Database database)
 			label = "State Machine",
 			resource_type = OBJECT_TYPE_STATE_MACHINE,
 			deffault = "core/components/noop",
-			label = "State Machine.",
+			tooltip = "State Machine.",
 		},
 		PropertyDefinition()
 		{
