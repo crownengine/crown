@@ -56,11 +56,8 @@ void *ShaderManager::load(File &file, Allocator &a)
 	array::resize(sr->_data, num);
 
 	for (u32 i = 0; i < num; ++i) {
-		u32 shader_name;
-		br.read(shader_name);
-
-		u64 render_state;
-		br.read(render_state);
+		br.read(sr->_data[i].name._id);
+		br.read(sr->_data[i].state);
 
 		u32 num_samplers;
 		br.read(num_samplers);
@@ -87,8 +84,6 @@ void *ShaderManager::load(File &file, Allocator &a)
 		const bgfx::Memory *fsmem = bgfx::alloc(fs_code_size);
 		br.read(fsmem->data, fs_code_size);
 
-		sr->_data[i].name._id = shader_name;
-		sr->_data[i].state = render_state;
 		sr->_data[i].vsmem = vsmem;
 		sr->_data[i].fsmem = fsmem;
 	}
