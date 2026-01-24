@@ -17,6 +17,8 @@ namespace crown
 static ShaderData SHADER_DATA_INVALID =
 {
 	BGFX_STATE_DEFAULT,
+	BGFX_STENCIL_NONE,
+	BGFX_STENCIL_NONE,
 	{
 		{
 			0u, BGFX_INVALID_HANDLE
@@ -58,6 +60,8 @@ void *ShaderManager::load(File &file, Allocator &a)
 	for (u32 i = 0; i < num; ++i) {
 		br.read(sr->_data[i].name._id);
 		br.read(sr->_data[i].state);
+		br.read(sr->_data[i].stencil_front);
+		br.read(sr->_data[i].stencil_back);
 
 		u32 num_samplers;
 		br.read(num_samplers);
@@ -107,6 +111,8 @@ void ShaderManager::online(StringId64 id, ResourceManager &rm)
 
 		ShaderData sd;
 		sd.state = data.state;
+		sd.stencil_front = data.stencil_front;
+		sd.stencil_back = data.stencil_back;
 		memcpy(sd.samplers, data.samplers, sizeof(sd.samplers));
 		sd.program = program;
 #if CROWN_CAN_RELOAD

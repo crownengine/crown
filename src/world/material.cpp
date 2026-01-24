@@ -56,6 +56,7 @@ void Material::bind(u8 view, u32 depth) const
 	}
 
 	bgfx::setState(_shader.state | BGFX_STATE_MSAA);
+	bgfx::setStencil(_shader.stencil_front, _shader.stencil_back);
 	bgfx::submit(view, _shader.program, depth);
 }
 
