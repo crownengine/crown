@@ -56,6 +56,8 @@ struct ShaderResource
 	{
 		StringId32 name;
 		u64 state;
+		u32 stencil_front;
+		u32 stencil_back;
 		Sampler samplers[16];
 		const bgfx::Memory *vsmem;
 		const bgfx::Memory *fsmem;
@@ -67,6 +69,8 @@ struct ShaderResource
 struct ShaderData
 {
 	u64 state;
+	u32 stencil_front;
+	u32 stencil_back;
 	ShaderResource::Sampler samplers[4];
 	bgfx::ProgramHandle program;
 #if CROWN_CAN_RELOAD

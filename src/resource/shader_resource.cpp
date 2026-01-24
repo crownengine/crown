@@ -33,6 +33,14 @@ LOG_SYSTEM(SHADER_RESOURCE, "shader_resource")
 
 namespace crown
 {
+// Returns 0 if success.
+static int from_hex(s64 &val, const char *hex)
+{
+	errno = 0;
+	val = strtol(hex, NULL, 16);
+	return !(errno != ERANGE && errno != EINVAL);
+}
+
 namespace shader_resource_internal
 {
 	void *load(File &file, Allocator &a)
@@ -193,6 +201,40 @@ namespace shader_resource_internal
 		};
 	};
 
+	struct StencilFunction
+	{
+		enum Enum
+		{
+			LESS,
+			LEQUAL,
+			EQUAL,
+			GEQUAL,
+			GREATER,
+			NOTEQUAL,
+			NEVER,
+			ALWAYS,
+
+			COUNT
+		};
+	};
+
+	struct StencilOp
+	{
+		enum Enum
+		{
+			ZERO,
+			KEEP,
+			REPLACE,
+			INCR,
+			INCRSAT,
+			DECR,
+			DECRSAT,
+			INVERT,
+
+			COUNT
+		};
+	};
+
 	struct DepthTestInfo
 	{
 		const char *name;
@@ -309,6 +351,44 @@ namespace shader_resource_internal
 	};
 	CE_STATIC_ASSERT(countof(_sampler_wrap_map) == SamplerWrap::COUNT);
 
+	struct StencilTestInfo
+	{
+		const char *name;
+		StencilFunction::Enum value;
+	};
+
+	static const StencilTestInfo _stencil_test_map[] =
+	{
+		{ "less",     StencilFunction::LESS     },
+		{ "lequal",   StencilFunction::LEQUAL   },
+		{ "equal",    StencilFunction::EQUAL    },
+		{ "gequal",   StencilFunction::GEQUAL   },
+		{ "greater",  StencilFunction::GREATER  },
+		{ "notequal", StencilFunction::NOTEQUAL },
+		{ "never",    StencilFunction::NEVER    },
+		{ "always",   StencilFunction::ALWAYS   }
+	};
+	CE_STATIC_ASSERT(countof(_stencil_test_map) == StencilFunction::COUNT);
+
+	struct StencilOpInfo
+	{
+		const char *name;
+		StencilOp::Enum value;
+	};
+
+	static const StencilOpInfo _stencil_op_map[] =
+	{
+		{ "zero",    StencilOp::ZERO    },
+		{ "keep",    StencilOp::KEEP    },
+		{ "replace", StencilOp::REPLACE },
+		{ "incr",    StencilOp::INCR    },
+		{ "incrsat", StencilOp::INCRSAT },
+		{ "decr",    StencilOp::DECR    },
+		{ "decrsat", StencilOp::DECRSAT },
+		{ "invert",  StencilOp::INVERT  }
+	};
+	CE_STATIC_ASSERT(countof(_stencil_op_map) == StencilOp::COUNT);
+
 	static const u64 _bgfx_depth_func_map[] =
 	{
 		BGFX_STATE_DEPTH_TEST_LESS,     // DepthFunction::LESS
@@ -406,6 +486,58 @@ namespace shader_resource_internal
 	};
 	CE_STATIC_ASSERT(countof(_bgfx_sampler_wrap_w_map) == SamplerWrap::COUNT);
 
+	static const u32 _bgfx_stencil_func_map[] =
+	{
+		BGFX_STENCIL_TEST_LESS,     // StencilFunction::LESS
+		BGFX_STENCIL_TEST_LEQUAL,   // StencilFunction::LEQUAL
+		BGFX_STENCIL_TEST_EQUAL,    // StencilFunction::EQUAL
+		BGFX_STENCIL_TEST_GEQUAL,   // StencilFunction::GEQUAL
+		BGFX_STENCIL_TEST_GREATER,  // StencilFunction::GREATER
+		BGFX_STENCIL_TEST_NOTEQUAL, // StencilFunction::NOTEQUAL
+		BGFX_STENCIL_TEST_NEVER,    // StencilFunction::NEVER
+		BGFX_STENCIL_TEST_ALWAYS    // StencilFunction::ALWAYS
+	};
+	CE_STATIC_ASSERT(countof(_bgfx_stencil_func_map) == StencilFunction::COUNT);
+
+	static const u32 _bgfx_stencil_fail_op_map[] =
+	{
+		BGFX_STENCIL_OP_FAIL_S_ZERO,    // StencilOp::ZERO
+		BGFX_STENCIL_OP_FAIL_S_KEEP,    // StencilOp::KEEP
+		BGFX_STENCIL_OP_FAIL_S_REPLACE, // StencilOp::REPLACE
+		BGFX_STENCIL_OP_FAIL_S_INCR,    // StencilOp::INCR
+		BGFX_STENCIL_OP_FAIL_S_INCRSAT, // StencilOp::INCRSAT
+		BGFX_STENCIL_OP_FAIL_S_DECR,    // StencilOp::DECR
+		BGFX_STENCIL_OP_FAIL_S_DECRSAT, // StencilOp::DECRSAT
+		BGFX_STENCIL_OP_FAIL_S_INVERT,  // StencilOp::INVERT
+	};
+	CE_STATIC_ASSERT(countof(_bgfx_stencil_fail_op_map) == StencilOp::COUNT);
+
+	static const u32 _bgfx_stencil_depth_fail_op_map[] =
+	{
+		BGFX_STENCIL_OP_FAIL_Z_ZERO,    // StencilOp::ZERO
+		BGFX_STENCIL_OP_FAIL_Z_KEEP,    // StencilOp::KEEP
+		BGFX_STENCIL_OP_FAIL_Z_REPLACE, // StencilOp::REPLACE
+		BGFX_STENCIL_OP_FAIL_Z_INCR,    // StencilOp::INCR
+		BGFX_STENCIL_OP_FAIL_Z_INCRSAT, // StencilOp::INCRSAT
+		BGFX_STENCIL_OP_FAIL_Z_DECR,    // StencilOp::DECR
+		BGFX_STENCIL_OP_FAIL_Z_DECRSAT, // StencilOp::DECRSAT
+		BGFX_STENCIL_OP_FAIL_Z_INVERT,  // StencilOp::INVERT
+	};
+	CE_STATIC_ASSERT(countof(_bgfx_stencil_depth_fail_op_map) == StencilOp::COUNT);
+
+	static const u32 _bgfx_stencil_depth_pass_op_map[] =
+	{
+		BGFX_STENCIL_OP_PASS_Z_ZERO,    // StencilOp::ZERO
+		BGFX_STENCIL_OP_PASS_Z_KEEP,    // StencilOp::KEEP
+		BGFX_STENCIL_OP_PASS_Z_REPLACE, // StencilOp::REPLACE
+		BGFX_STENCIL_OP_PASS_Z_INCR,    // StencilOp::INCR
+		BGFX_STENCIL_OP_PASS_Z_INCRSAT, // StencilOp::INCRSAT
+		BGFX_STENCIL_OP_PASS_Z_DECR,    // StencilOp::DECR
+		BGFX_STENCIL_OP_PASS_Z_DECRSAT, // StencilOp::DECRSAT
+		BGFX_STENCIL_OP_PASS_Z_INVERT,  // StencilOp::INVERT
+	};
+	CE_STATIC_ASSERT(countof(_bgfx_stencil_depth_pass_op_map) == StencilOp::COUNT);
+
 	static DepthFunction::Enum name_to_depth_func(const char *name)
 	{
 		for (u32 i = 0; i < countof(_depth_test_map); ++i) {
@@ -474,6 +606,26 @@ namespace shader_resource_internal
 		}
 
 		return SamplerWrap::COUNT;
+	}
+
+	static StencilFunction::Enum name_to_stencil_func(const char *name)
+	{
+		for (u32 i = 0; i < countof(_stencil_test_map); ++i) {
+			if (strcmp(name, _stencil_test_map[i].name) == 0)
+				return _stencil_test_map[i].value;
+		}
+
+		return StencilFunction::COUNT;
+	}
+
+	static StencilOp::Enum name_to_stencil_op(const char *name)
+	{
+		for (u32 i = 0; i < countof(_stencil_op_map); ++i) {
+			if (strcmp(name, _stencil_op_map[i].name) == 0)
+				return _stencil_op_map[i].value;
+		}
+
+		return StencilOp::COUNT;
 	}
 
 	struct FunctionOp
@@ -582,6 +734,21 @@ namespace shader_resource_internal
 			Option<BlendEquation::Enum> _blend_equation;
 			Option<CullMode::Enum> _cull_mode;
 			Option<PrimitiveType::Enum> _primitive_type;
+			Option<bool> _stencil_enable;
+			// Stencil front.
+			Option<StencilFunction::Enum> _stencil_func;
+			Option<u8> _stencil_ref;
+			Option<u8> _stencil_mask;
+			Option<StencilOp::Enum> _stencil_fail;
+			Option<StencilOp::Enum> _stencil_depth_fail;
+			Option<StencilOp::Enum> _stencil_depth_pass;
+			// Stencil back.
+			Option<StencilFunction::Enum> _stencil_func_back;
+			Option<u8> _stencil_ref_back;
+			Option<u8> _stencil_mask_back;
+			Option<StencilOp::Enum> _stencil_fail_back;
+			Option<StencilOp::Enum> _stencil_depth_fail_back;
+			Option<StencilOp::Enum> _stencil_depth_pass_back;
 
 			void dump()
 			{
@@ -596,6 +763,19 @@ namespace shader_resource_internal
 				logi(SHADER_RESOURCE, "blend_equation %d", _blend_equation.value());
 				logi(SHADER_RESOURCE, "cull_mode %d", _cull_mode.value());
 				logi(SHADER_RESOURCE, "primitive_type %d", _primitive_type.value());
+				logi(SHADER_RESOURCE, "stencil_enable %d", _stencil_enable.value());
+				logi(SHADER_RESOURCE, "stencil_func %d", _stencil_func.value());
+				logi(SHADER_RESOURCE, "stencil_ref 0x%.2x", _stencil_ref.value());
+				logi(SHADER_RESOURCE, "stencil_mask 0x%.2x", _stencil_mask.value());
+				logi(SHADER_RESOURCE, "stencil_fail %d", _stencil_fail.value());
+				logi(SHADER_RESOURCE, "stencil_depth_fail %d", _stencil_depth_fail.value());
+				logi(SHADER_RESOURCE, "stencil_depth_pass %d", _stencil_depth_pass.value());
+				logi(SHADER_RESOURCE, "stencil_func_back %d", _stencil_func_back.value());
+				logi(SHADER_RESOURCE, "stencil_ref_back 0x%.2x", _stencil_ref_back.value());
+				logi(SHADER_RESOURCE, "stencil_mask_back 0x%.2x", _stencil_mask_back.value());
+				logi(SHADER_RESOURCE, "stencil_fail_back %d", _stencil_fail_back.value());
+				logi(SHADER_RESOURCE, "stencil_depth_fail_back %d", _stencil_depth_fail_back.value());
+				logi(SHADER_RESOURCE, "stencil_depth_pass_back %d", _stencil_depth_pass_back.value());
 			}
 
 			State()
@@ -610,6 +790,19 @@ namespace shader_resource_internal
 				, _blend_equation(BlendEquation::ADD)
 				, _cull_mode(CullMode::CW)
 				, _primitive_type(PrimitiveType::PT_TRIANGLES)
+				, _stencil_enable(false)
+				, _stencil_func(StencilFunction::ALWAYS)
+				, _stencil_ref(0)
+				, _stencil_mask(0xff)
+				, _stencil_fail(StencilOp::KEEP)
+				, _stencil_depth_fail(StencilOp::KEEP)
+				, _stencil_depth_pass(StencilOp::KEEP)
+				, _stencil_func_back(StencilFunction::ALWAYS)
+				, _stencil_ref_back(0)
+				, _stencil_mask_back(0xff)
+				, _stencil_fail_back(StencilOp::KEEP)
+				, _stencil_depth_fail_back(StencilOp::KEEP)
+				, _stencil_depth_pass_back(StencilOp::KEEP)
 			{
 			}
 
@@ -641,6 +834,32 @@ namespace shader_resource_internal
 					_cull_mode.set_value(other._cull_mode.value());
 				if (other._primitive_type.has_changed())
 					_primitive_type.set_value(other._primitive_type.value());
+				if (other._stencil_enable.has_changed())
+					_stencil_enable.set_value(other._stencil_enable.value());
+				if (other._stencil_func.has_changed())
+					_stencil_func.set_value(other._stencil_func.value());
+				if (other._stencil_ref.has_changed())
+					_stencil_ref.set_value(other._stencil_ref.value());
+				if (other._stencil_mask.has_changed())
+					_stencil_mask.set_value(other._stencil_mask.value());
+				if (other._stencil_fail.has_changed())
+					_stencil_fail.set_value(other._stencil_fail.value());
+				if (other._stencil_depth_fail.has_changed())
+					_stencil_depth_fail.set_value(other._stencil_depth_fail.value());
+				if (other._stencil_depth_pass.has_changed())
+					_stencil_depth_pass.set_value(other._stencil_depth_pass.value());
+				if (other._stencil_func_back.has_changed())
+					_stencil_func_back.set_value(other._stencil_func_back.value());
+				if (other._stencil_ref_back.has_changed())
+					_stencil_ref_back.set_value(other._stencil_ref_back.value());
+				if (other._stencil_mask_back.has_changed())
+					_stencil_mask_back.set_value(other._stencil_mask_back.value());
+				if (other._stencil_fail_back.has_changed())
+					_stencil_fail_back.set_value(other._stencil_fail_back.value());
+				if (other._stencil_depth_fail_back.has_changed())
+					_stencil_depth_fail_back.set_value(other._stencil_depth_fail_back.value());
+				if (other._stencil_depth_pass_back.has_changed())
+					_stencil_depth_pass_back.set_value(other._stencil_depth_pass_back.value());
 			}
 
 			u64 encode() const
@@ -677,6 +896,29 @@ namespace shader_resource_internal
 				state |= primitive_type;
 
 				return state;
+			}
+
+			void encode_stencil(u32 &front, u32 &back) const
+			{
+				front = BGFX_STENCIL_NONE;
+				back  = BGFX_STENCIL_NONE;
+
+				if (!_stencil_enable.value())
+					return;
+
+				front |= _bgfx_stencil_func_map[_stencil_func.value()];
+				front |= BGFX_STENCIL_FUNC_REF(_stencil_ref.value());
+				front |= BGFX_STENCIL_FUNC_RMASK(_stencil_mask.value());
+				front |= _bgfx_stencil_fail_op_map[_stencil_fail.value()];
+				front |= _bgfx_stencil_depth_fail_op_map[_stencil_depth_fail.value()];
+				front |= _bgfx_stencil_depth_pass_op_map[_stencil_depth_pass.value()];
+
+				back |= _bgfx_stencil_func_map[_stencil_func_back.value()];
+				back |= BGFX_STENCIL_FUNC_REF(_stencil_ref_back.value());
+				back |= BGFX_STENCIL_FUNC_RMASK(_stencil_mask_back.value());
+				back |= _bgfx_stencil_fail_op_map[_stencil_fail_back.value()];
+				back |= _bgfx_stencil_depth_fail_op_map[_stencil_depth_fail_back.value()];
+				back |= _bgfx_stencil_depth_pass_op_map[_stencil_depth_pass_back.value()];
 			}
 		};
 
@@ -1142,6 +1384,76 @@ namespace shader_resource_internal
 						, "Unknown primitive type: '%s'"
 						, primitive_type.c_str()
 						);
+				} else if (cur->first == "stencil_enable") {
+					bool enable = RETURN_IF_ERROR(sjson::parse_bool(states["stencil_enable"]), _opts);
+					state._stencil_enable.set_value(enable);
+				} else if (cur->first == "stencil_func" || cur->first == "stencil_func_back") {
+					DynamicString func(ta);
+					RETURN_IF_ERROR(sjson::parse_string(func, states[cur->first]), _opts);
+					StencilFunction::Enum sf = name_to_stencil_func(func.c_str());
+					RETURN_IF_FALSE(sf != StencilFunction::COUNT
+						, _opts
+						, "Unknown stencil test: '%s'"
+						, func.c_str()
+						);
+					if (cur->first == "stencil_func")
+						state._stencil_func.set_value(sf);
+					else
+						state._stencil_func_back.set_value(sf);
+				} else if (cur->first == "stencil_ref"
+					|| cur->first == "stencil_ref_back"
+					|| cur->first == "stencil_mask"
+					|| cur->first == "stencil_mask_back") {
+					s64 value;
+					DynamicString hexstr(ta);
+					RETURN_IF_ERROR(sjson::parse_string(hexstr, states[cur->first]), _opts);
+					int err = from_hex(value, hexstr.c_str());
+					RETURN_IF_FALSE(err == 0
+						, _opts
+						, "Failed to parse '%.*s'"
+						, cur->first.length()
+						, cur->first.data()
+						);
+					RETURN_IF_FALSE(value >= 0x00 && value <= 0xff
+						, _opts
+						, "'%.*s' must be in [0x00; 0xff] range"
+						, cur->first.length()
+						, cur->first.data()
+						);
+					if (cur->first == "stencil_ref")
+						state._stencil_ref.set_value(u8(value));
+					else if (cur->first == "stencil_ref_back")
+						state._stencil_ref_back.set_value(u8(value));
+					else if (cur->first == "stencil_mask")
+						state._stencil_mask.set_value(u8(value));
+					else
+						state._stencil_mask_back.set_value(u8(value));
+				} else if (cur->first == "stencil_fail"
+					|| cur->first == "stencil_fail_back"
+					|| cur->first == "stencil_depth_fail"
+					|| cur->first == "stencil_depth_fail_back"
+					|| cur->first == "stencil_depth_pass"
+					|| cur->first == "stencil_depth_pass_back") {
+					DynamicString op(ta);
+					RETURN_IF_ERROR(sjson::parse_string(op, states[cur->first]), _opts);
+					StencilOp::Enum so = name_to_stencil_op(op.c_str());
+					RETURN_IF_FALSE(so != StencilOp::COUNT
+						, _opts
+						, "Unknown stencil op: '%s'"
+						, op.c_str()
+						);
+					if (cur->first == "stencil_fail")
+						state._stencil_fail.set_value(so);
+					else if (cur->first == "stencil_fail_back")
+						state._stencil_fail_back.set_value(so);
+					else if (cur->first == "stencil_depth_fail")
+						state._stencil_depth_fail.set_value(so);
+					else if (cur->first == "stencil_depth_fail_back")
+						state._stencil_depth_fail_back.set_value(so);
+					else if (cur->first == "stencil_depth_pass")
+						state._stencil_depth_pass.set_value(so);
+					else
+						state._stencil_depth_pass_back.set_value(so);
 				} else {
 					// Skip conditionals state objects, error out on anything else.
 					if (sjson::type(cur->second) != JsonValueType::OBJECT) {
@@ -1595,8 +1907,14 @@ namespace shader_resource_internal
 			s32 err = compile_render_state(state, render_state.c_str(), defines);
 			ENSURE_OR_RETURN(err == 0, _opts);
 
+			u32 stencil_front;
+			u32 stencil_back;
+			state.encode_stencil(stencil_front, stencil_back);
+
 			bw.write(shader_name._id);                               // Shader name
 			bw.write(state.encode());                                // Render state
+			bw.write(stencil_front);                                 // Stencil
+			bw.write(stencil_back);                                  //
 			compile_sampler_states(fb, bgfx_shader.c_str());         // Sampler states
 			return compile_bgfx_shader(fb, meta, bgfx_shader.c_str(), defines, metadata_only); // Shader code
 		}
