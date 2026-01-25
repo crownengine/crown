@@ -99,7 +99,7 @@ namespace shader_resource_internal
 		};
 	};
 
-	struct DepthFunction
+	struct DepthFunc
 	{
 		enum Enum
 		{
@@ -116,7 +116,7 @@ namespace shader_resource_internal
 		};
 	};
 
-	struct BlendFunction
+	struct BlendFunc
 	{
 		enum Enum
 		{
@@ -201,7 +201,7 @@ namespace shader_resource_internal
 		};
 	};
 
-	struct StencilFunction
+	struct StencilFunc
 	{
 		enum Enum
 		{
@@ -235,56 +235,50 @@ namespace shader_resource_internal
 		};
 	};
 
-	struct DepthTestInfo
+	static const struct
 	{
 		const char *name;
-		DepthFunction::Enum value;
-	};
-
-	static const DepthTestInfo _depth_test_map[] =
+		DepthFunc::Enum value;
+	} _depth_test_map[] =
 	{
-		{ "less",     DepthFunction::LESS     },
-		{ "lequal",   DepthFunction::LEQUAL   },
-		{ "equal",    DepthFunction::EQUAL    },
-		{ "gequal",   DepthFunction::GEQUAL   },
-		{ "greater",  DepthFunction::GREATER  },
-		{ "notequal", DepthFunction::NOTEQUAL },
-		{ "never",    DepthFunction::NEVER    },
-		{ "always",   DepthFunction::ALWAYS   }
+		{ "less",     DepthFunc::LESS     },
+		{ "lequal",   DepthFunc::LEQUAL   },
+		{ "equal",    DepthFunc::EQUAL    },
+		{ "gequal",   DepthFunc::GEQUAL   },
+		{ "greater",  DepthFunc::GREATER  },
+		{ "notequal", DepthFunc::NOTEQUAL },
+		{ "never",    DepthFunc::NEVER    },
+		{ "always",   DepthFunc::ALWAYS   }
 	};
-	CE_STATIC_ASSERT(countof(_depth_test_map) == DepthFunction::COUNT);
+	CE_STATIC_ASSERT(countof(_depth_test_map) == DepthFunc::COUNT);
 
-	struct BlendFunctionInfo
+	static const struct
 	{
 		const char *name;
-		BlendFunction::Enum value;
-	};
-
-	static const BlendFunctionInfo _blend_func_map[] =
+		BlendFunc::Enum value;
+	} _blend_func_map[] =
 	{
-		{ "zero",          BlendFunction::ZERO          },
-		{ "one",           BlendFunction::ONE           },
-		{ "src_color",     BlendFunction::SRC_COLOR     },
-		{ "inv_src_color", BlendFunction::INV_SRC_COLOR },
-		{ "src_alpha",     BlendFunction::SRC_ALPHA     },
-		{ "inv_src_alpha", BlendFunction::INV_SRC_ALPHA },
-		{ "dst_alpha",     BlendFunction::DST_ALPHA     },
-		{ "inv_dst_alpha", BlendFunction::INV_DST_ALPHA },
-		{ "dst_color",     BlendFunction::DST_COLOR     },
-		{ "inv_dst_color", BlendFunction::INV_DST_COLOR },
-		{ "src_alpha_sat", BlendFunction::SRC_ALPHA_SAT },
-		{ "factor",        BlendFunction::FACTOR        },
-		{ "inv_factor",    BlendFunction::INV_FACTOR    }
+		{ "zero",          BlendFunc::ZERO          },
+		{ "one",           BlendFunc::ONE           },
+		{ "src_color",     BlendFunc::SRC_COLOR     },
+		{ "inv_src_color", BlendFunc::INV_SRC_COLOR },
+		{ "src_alpha",     BlendFunc::SRC_ALPHA     },
+		{ "inv_src_alpha", BlendFunc::INV_SRC_ALPHA },
+		{ "dst_alpha",     BlendFunc::DST_ALPHA     },
+		{ "inv_dst_alpha", BlendFunc::INV_DST_ALPHA },
+		{ "dst_color",     BlendFunc::DST_COLOR     },
+		{ "inv_dst_color", BlendFunc::INV_DST_COLOR },
+		{ "src_alpha_sat", BlendFunc::SRC_ALPHA_SAT },
+		{ "factor",        BlendFunc::FACTOR        },
+		{ "inv_factor",    BlendFunc::INV_FACTOR    }
 	};
-	CE_STATIC_ASSERT(countof(_blend_func_map) == BlendFunction::COUNT);
+	CE_STATIC_ASSERT(countof(_blend_func_map) == BlendFunc::COUNT);
 
-	struct BlendEquationInfo
+	static const struct
 	{
 		const char *name;
 		BlendEquation::Enum value;
-	};
-
-	static const BlendEquationInfo _blend_equation_map[] =
+	} _blend_equation_map[] =
 	{
 		{ "add",    BlendEquation::ADD    },
 		{ "sub",    BlendEquation::SUB    },
@@ -294,13 +288,11 @@ namespace shader_resource_internal
 	};
 	CE_STATIC_ASSERT(countof(_blend_equation_map) == BlendEquation::COUNT);
 
-	struct CullModeInfo
+	static const struct
 	{
 		const char *name;
 		CullMode::Enum value;
-	};
-
-	static const CullModeInfo _cull_mode_map[] =
+	} _cull_mode_map[] =
 	{
 		{ "cw",   CullMode::CW   },
 		{ "ccw",  CullMode::CCW  },
@@ -308,13 +300,11 @@ namespace shader_resource_internal
 	};
 	CE_STATIC_ASSERT(countof(_cull_mode_map) == CullMode::COUNT);
 
-	struct PrimitiveTypeInfo
+	static const struct
 	{
 		const char *name;
 		PrimitiveType::Enum value;
-	};
-
-	static const PrimitiveTypeInfo _primitive_type_map[] =
+	} _primitive_type_map[] =
 	{
 		{ "pt_triangles", PrimitiveType::PT_TRIANGLES },
 		{ "pt_tristrip",  PrimitiveType::PT_TRISTRIP  },
@@ -324,26 +314,22 @@ namespace shader_resource_internal
 	};
 	CE_STATIC_ASSERT(countof(_primitive_type_map) == PrimitiveType::COUNT);
 
-	struct SamplerFilterInfo
+	static const struct
 	{
 		const char *name;
 		SamplerFilter::Enum value;
-	};
-
-	static const SamplerFilterInfo _sampler_filter_map[] =
+	} _sampler_filter_map[] =
 	{
 		{ "point",       SamplerFilter::POINT       },
 		{ "anisotropic", SamplerFilter::ANISOTROPIC }
 	};
 	CE_STATIC_ASSERT(countof(_sampler_filter_map) == SamplerFilter::COUNT);
 
-	struct SamplerWrapInfo
+	static const struct
 	{
 		const char *name;
 		SamplerWrap::Enum value;
-	};
-
-	static const SamplerWrapInfo _sampler_wrap_map[] =
+	} _sampler_wrap_map[] =
 	{
 		{ "mirror", SamplerWrap::MIRROR },
 		{ "clamp",  SamplerWrap::CLAMP  },
@@ -351,32 +337,28 @@ namespace shader_resource_internal
 	};
 	CE_STATIC_ASSERT(countof(_sampler_wrap_map) == SamplerWrap::COUNT);
 
-	struct StencilTestInfo
+	static const struct
 	{
 		const char *name;
-		StencilFunction::Enum value;
-	};
-
-	static const StencilTestInfo _stencil_test_map[] =
+		StencilFunc::Enum value;
+	} _stencil_test_map[] =
 	{
-		{ "less",     StencilFunction::LESS     },
-		{ "lequal",   StencilFunction::LEQUAL   },
-		{ "equal",    StencilFunction::EQUAL    },
-		{ "gequal",   StencilFunction::GEQUAL   },
-		{ "greater",  StencilFunction::GREATER  },
-		{ "notequal", StencilFunction::NOTEQUAL },
-		{ "never",    StencilFunction::NEVER    },
-		{ "always",   StencilFunction::ALWAYS   }
+		{ "less",     StencilFunc::LESS     },
+		{ "lequal",   StencilFunc::LEQUAL   },
+		{ "equal",    StencilFunc::EQUAL    },
+		{ "gequal",   StencilFunc::GEQUAL   },
+		{ "greater",  StencilFunc::GREATER  },
+		{ "notequal", StencilFunc::NOTEQUAL },
+		{ "never",    StencilFunc::NEVER    },
+		{ "always",   StencilFunc::ALWAYS   }
 	};
-	CE_STATIC_ASSERT(countof(_stencil_test_map) == StencilFunction::COUNT);
+	CE_STATIC_ASSERT(countof(_stencil_test_map) == StencilFunc::COUNT);
 
-	struct StencilOpInfo
+	static const struct
 	{
 		const char *name;
 		StencilOp::Enum value;
-	};
-
-	static const StencilOpInfo _stencil_op_map[] =
+	} _stencil_op_map[] =
 	{
 		{ "zero",    StencilOp::ZERO    },
 		{ "keep",    StencilOp::KEEP    },
@@ -391,34 +373,34 @@ namespace shader_resource_internal
 
 	static const u64 _bgfx_depth_func_map[] =
 	{
-		BGFX_STATE_DEPTH_TEST_LESS,     // DepthFunction::LESS
-		BGFX_STATE_DEPTH_TEST_LEQUAL,   // DepthFunction::LEQUAL
-		BGFX_STATE_DEPTH_TEST_EQUAL,    // DepthFunction::EQUAL
-		BGFX_STATE_DEPTH_TEST_GEQUAL,   // DepthFunction::GEQUAL
-		BGFX_STATE_DEPTH_TEST_GREATER,  // DepthFunction::GREATER
-		BGFX_STATE_DEPTH_TEST_NOTEQUAL, // DepthFunction::NOTEQUAL
-		BGFX_STATE_DEPTH_TEST_NEVER,    // DepthFunction::NEVER
-		BGFX_STATE_DEPTH_TEST_ALWAYS    // DepthFunction::ALWAYS
+		BGFX_STATE_DEPTH_TEST_LESS,     // DepthFunc::LESS
+		BGFX_STATE_DEPTH_TEST_LEQUAL,   // DepthFunc::LEQUAL
+		BGFX_STATE_DEPTH_TEST_EQUAL,    // DepthFunc::EQUAL
+		BGFX_STATE_DEPTH_TEST_GEQUAL,   // DepthFunc::GEQUAL
+		BGFX_STATE_DEPTH_TEST_GREATER,  // DepthFunc::GREATER
+		BGFX_STATE_DEPTH_TEST_NOTEQUAL, // DepthFunc::NOTEQUAL
+		BGFX_STATE_DEPTH_TEST_NEVER,    // DepthFunc::NEVER
+		BGFX_STATE_DEPTH_TEST_ALWAYS    // DepthFunc::ALWAYS
 	};
-	CE_STATIC_ASSERT(countof(_bgfx_depth_func_map) == DepthFunction::COUNT);
+	CE_STATIC_ASSERT(countof(_bgfx_depth_func_map) == DepthFunc::COUNT);
 
 	static const u64 _bgfx_blend_func_map[] =
 	{
-		BGFX_STATE_BLEND_ZERO,          // BlendFunction::ZERO
-		BGFX_STATE_BLEND_ONE,           // BlendFunction::ONE
-		BGFX_STATE_BLEND_SRC_COLOR,     // BlendFunction::SRC_COLOR
-		BGFX_STATE_BLEND_INV_SRC_COLOR, // BlendFunction::INV_SRC_COLOR
-		BGFX_STATE_BLEND_SRC_ALPHA,     // BlendFunction::SRC_ALPHA
-		BGFX_STATE_BLEND_INV_SRC_ALPHA, // BlendFunction::INV_SRC_ALPHA
-		BGFX_STATE_BLEND_DST_ALPHA,     // BlendFunction::DST_ALPHA
-		BGFX_STATE_BLEND_INV_DST_ALPHA, // BlendFunction::INV_DST_ALPHA
-		BGFX_STATE_BLEND_DST_COLOR,     // BlendFunction::DST_COLOR
-		BGFX_STATE_BLEND_INV_DST_COLOR, // BlendFunction::INV_DST_COLOR
-		BGFX_STATE_BLEND_SRC_ALPHA_SAT, // BlendFunction::SRC_ALPHA_SAT
-		BGFX_STATE_BLEND_FACTOR,        // BlendFunction::FACTOR
-		BGFX_STATE_BLEND_INV_FACTOR     // BlendFunction::INV_FACTOR
+		BGFX_STATE_BLEND_ZERO,          // BlendFunc::ZERO
+		BGFX_STATE_BLEND_ONE,           // BlendFunc::ONE
+		BGFX_STATE_BLEND_SRC_COLOR,     // BlendFunc::SRC_COLOR
+		BGFX_STATE_BLEND_INV_SRC_COLOR, // BlendFunc::INV_SRC_COLOR
+		BGFX_STATE_BLEND_SRC_ALPHA,     // BlendFunc::SRC_ALPHA
+		BGFX_STATE_BLEND_INV_SRC_ALPHA, // BlendFunc::INV_SRC_ALPHA
+		BGFX_STATE_BLEND_DST_ALPHA,     // BlendFunc::DST_ALPHA
+		BGFX_STATE_BLEND_INV_DST_ALPHA, // BlendFunc::INV_DST_ALPHA
+		BGFX_STATE_BLEND_DST_COLOR,     // BlendFunc::DST_COLOR
+		BGFX_STATE_BLEND_INV_DST_COLOR, // BlendFunc::INV_DST_COLOR
+		BGFX_STATE_BLEND_SRC_ALPHA_SAT, // BlendFunc::SRC_ALPHA_SAT
+		BGFX_STATE_BLEND_FACTOR,        // BlendFunc::FACTOR
+		BGFX_STATE_BLEND_INV_FACTOR     // BlendFunc::INV_FACTOR
 	};
-	CE_STATIC_ASSERT(countof(_bgfx_blend_func_map) == BlendFunction::COUNT);
+	CE_STATIC_ASSERT(countof(_bgfx_blend_func_map) == BlendFunc::COUNT);
 
 	static const u64 _bgfx_blend_equation_map[] =
 	{
@@ -488,16 +470,16 @@ namespace shader_resource_internal
 
 	static const u32 _bgfx_stencil_func_map[] =
 	{
-		BGFX_STENCIL_TEST_LESS,     // StencilFunction::LESS
-		BGFX_STENCIL_TEST_LEQUAL,   // StencilFunction::LEQUAL
-		BGFX_STENCIL_TEST_EQUAL,    // StencilFunction::EQUAL
-		BGFX_STENCIL_TEST_GEQUAL,   // StencilFunction::GEQUAL
-		BGFX_STENCIL_TEST_GREATER,  // StencilFunction::GREATER
-		BGFX_STENCIL_TEST_NOTEQUAL, // StencilFunction::NOTEQUAL
-		BGFX_STENCIL_TEST_NEVER,    // StencilFunction::NEVER
-		BGFX_STENCIL_TEST_ALWAYS    // StencilFunction::ALWAYS
+		BGFX_STENCIL_TEST_LESS,     // StencilFunc::LESS
+		BGFX_STENCIL_TEST_LEQUAL,   // StencilFunc::LEQUAL
+		BGFX_STENCIL_TEST_EQUAL,    // StencilFunc::EQUAL
+		BGFX_STENCIL_TEST_GEQUAL,   // StencilFunc::GEQUAL
+		BGFX_STENCIL_TEST_GREATER,  // StencilFunc::GREATER
+		BGFX_STENCIL_TEST_NOTEQUAL, // StencilFunc::NOTEQUAL
+		BGFX_STENCIL_TEST_NEVER,    // StencilFunc::NEVER
+		BGFX_STENCIL_TEST_ALWAYS    // StencilFunc::ALWAYS
 	};
-	CE_STATIC_ASSERT(countof(_bgfx_stencil_func_map) == StencilFunction::COUNT);
+	CE_STATIC_ASSERT(countof(_bgfx_stencil_func_map) == StencilFunc::COUNT);
 
 	static const u32 _bgfx_stencil_fail_op_map[] =
 	{
@@ -538,24 +520,24 @@ namespace shader_resource_internal
 	};
 	CE_STATIC_ASSERT(countof(_bgfx_stencil_depth_pass_op_map) == StencilOp::COUNT);
 
-	static DepthFunction::Enum name_to_depth_func(const char *name)
+	static DepthFunc::Enum name_to_depth_func(const char *name)
 	{
 		for (u32 i = 0; i < countof(_depth_test_map); ++i) {
 			if (strcmp(name, _depth_test_map[i].name) == 0)
 				return _depth_test_map[i].value;
 		}
 
-		return DepthFunction::COUNT;
+		return DepthFunc::COUNT;
 	}
 
-	static BlendFunction::Enum name_to_blend_function(const char *name)
+	static BlendFunc::Enum name_to_blend_func(const char *name)
 	{
 		for (u32 i = 0; i < countof(_blend_func_map); ++i) {
 			if (strcmp(name, _blend_func_map[i].name) == 0)
 				return _blend_func_map[i].value;
 		}
 
-		return BlendFunction::COUNT;
+		return BlendFunc::COUNT;
 	}
 
 	static BlendEquation::Enum name_to_blend_equation(const char *name)
@@ -608,14 +590,14 @@ namespace shader_resource_internal
 		return SamplerWrap::COUNT;
 	}
 
-	static StencilFunction::Enum name_to_stencil_func(const char *name)
+	static StencilFunc::Enum name_to_stencil_func(const char *name)
 	{
 		for (u32 i = 0; i < countof(_stencil_test_map); ++i) {
 			if (strcmp(name, _stencil_test_map[i].name) == 0)
 				return _stencil_test_map[i].value;
 		}
 
-		return StencilFunction::COUNT;
+		return StencilFunc::COUNT;
 	}
 
 	static StencilOp::Enum name_to_stencil_op(const char *name)
@@ -728,22 +710,22 @@ namespace shader_resource_internal
 			Option<bool> _depth_write_enable;
 			Option<bool> _depth_enable;
 			Option<bool> _blend_enable;
-			Option<DepthFunction::Enum> _depth_func;
-			Option<BlendFunction::Enum> _blend_src;
-			Option<BlendFunction::Enum> _blend_dst;
+			Option<DepthFunc::Enum> _depth_func;
+			Option<BlendFunc::Enum> _blend_src;
+			Option<BlendFunc::Enum> _blend_dst;
 			Option<BlendEquation::Enum> _blend_equation;
 			Option<CullMode::Enum> _cull_mode;
 			Option<PrimitiveType::Enum> _primitive_type;
 			Option<bool> _stencil_enable;
 			// Stencil front.
-			Option<StencilFunction::Enum> _stencil_func;
+			Option<StencilFunc::Enum> _stencil_func;
 			Option<u8> _stencil_ref;
 			Option<u8> _stencil_mask;
 			Option<StencilOp::Enum> _stencil_fail;
 			Option<StencilOp::Enum> _stencil_depth_fail;
 			Option<StencilOp::Enum> _stencil_depth_pass;
 			// Stencil back.
-			Option<StencilFunction::Enum> _stencil_func_back;
+			Option<StencilFunc::Enum> _stencil_func_back;
 			Option<u8> _stencil_ref_back;
 			Option<u8> _stencil_mask_back;
 			Option<StencilOp::Enum> _stencil_fail_back;
@@ -784,20 +766,20 @@ namespace shader_resource_internal
 				, _depth_write_enable(true)
 				, _depth_enable(true)
 				, _blend_enable(false)
-				, _depth_func(DepthFunction::LEQUAL)
-				, _blend_src(BlendFunction::SRC_ALPHA)
-				, _blend_dst(BlendFunction::INV_SRC_ALPHA)
+				, _depth_func(DepthFunc::LEQUAL)
+				, _blend_src(BlendFunc::SRC_ALPHA)
+				, _blend_dst(BlendFunc::INV_SRC_ALPHA)
 				, _blend_equation(BlendEquation::ADD)
 				, _cull_mode(CullMode::CW)
 				, _primitive_type(PrimitiveType::PT_TRIANGLES)
 				, _stencil_enable(false)
-				, _stencil_func(StencilFunction::ALWAYS)
+				, _stencil_func(StencilFunc::ALWAYS)
 				, _stencil_ref(0)
 				, _stencil_mask(0xff)
 				, _stencil_fail(StencilOp::KEEP)
 				, _stencil_depth_fail(StencilOp::KEEP)
 				, _stencil_depth_pass(StencilOp::KEEP)
-				, _stencil_func_back(StencilFunction::ALWAYS)
+				, _stencil_func_back(StencilFunc::ALWAYS)
 				, _stencil_ref_back(0)
 				, _stencil_mask_back(0xff)
 				, _stencil_fail_back(StencilOp::KEEP)
@@ -868,7 +850,7 @@ namespace shader_resource_internal
 					? _bgfx_depth_func_map[_depth_func.value()]
 					: 0
 					;
-				const u64 blend_func = _blend_enable.value() && _blend_src.value() != BlendFunction::COUNT && _blend_dst.value() != BlendFunction::COUNT
+				const u64 blend_func = _blend_enable.value() && _blend_src.value() != BlendFunc::COUNT && _blend_dst.value() != BlendFunc::COUNT
 					? BGFX_STATE_BLEND_FUNC(_bgfx_blend_func_map[_blend_src.value()], _bgfx_blend_func_map[_blend_dst.value()])
 					: 0
 					;
@@ -1222,7 +1204,7 @@ namespace shader_resource_internal
 				DynamicString depth_func(ta);
 				RETURN_IF_ERROR(sjson::parse_string(depth_func, obj["depth_func"]), _opts);
 				state._depth_func.set_value(name_to_depth_func(depth_func.c_str()));
-				RETURN_IF_FALSE(state._depth_func.value() != DepthFunction::COUNT
+				RETURN_IF_FALSE(state._depth_func.value() != DepthFunc::COUNT
 					, _opts
 					, "Unknown depth test: '%s'"
 					, depth_func.c_str()
@@ -1233,8 +1215,8 @@ namespace shader_resource_internal
 				logw(SHADER_RESOURCE, warn_msg);
 				DynamicString blend_src(ta);
 				RETURN_IF_ERROR(sjson::parse_string(blend_src, obj["blend_src"]), _opts);
-				state._blend_src.set_value(name_to_blend_function(blend_src.c_str()));
-				RETURN_IF_FALSE(state._blend_src.value() != BlendFunction::COUNT
+				state._blend_src.set_value(name_to_blend_func(blend_src.c_str()));
+				RETURN_IF_FALSE(state._blend_src.value() != BlendFunc::COUNT
 					, _opts
 					, "Unknown blend function: '%s'"
 					, blend_src.c_str()
@@ -1245,8 +1227,8 @@ namespace shader_resource_internal
 				logw(SHADER_RESOURCE, warn_msg);
 				DynamicString blend_dst(ta);
 				RETURN_IF_ERROR(sjson::parse_string(blend_dst, obj["blend_dst"]), _opts);
-				state._blend_dst.set_value(name_to_blend_function(blend_dst.c_str()));
-				RETURN_IF_FALSE(state._blend_dst.value() != BlendFunction::COUNT
+				state._blend_dst.set_value(name_to_blend_func(blend_dst.c_str()));
+				RETURN_IF_FALSE(state._blend_dst.value() != BlendFunc::COUNT
 					, _opts
 					, "Unknown blend function: '%s'"
 					, blend_dst.c_str()
@@ -1334,7 +1316,7 @@ namespace shader_resource_internal
 					DynamicString depth_func(ta);
 					RETURN_IF_ERROR(sjson::parse_string(depth_func, states["depth_func"]), _opts);
 					state._depth_func.set_value(name_to_depth_func(depth_func.c_str()));
-					RETURN_IF_FALSE(state._depth_func.value() != DepthFunction::COUNT
+					RETURN_IF_FALSE(state._depth_func.value() != DepthFunc::COUNT
 						, _opts
 						, "Unknown depth test: '%s'"
 						, depth_func.c_str()
@@ -1342,8 +1324,8 @@ namespace shader_resource_internal
 				} else if (cur->first == "blend_src") {
 					DynamicString blend_src(ta);
 					RETURN_IF_ERROR(sjson::parse_string(blend_src, states["blend_src"]), _opts);
-					state._blend_src.set_value(name_to_blend_function(blend_src.c_str()));
-					RETURN_IF_FALSE(state._blend_src.value() != BlendFunction::COUNT
+					state._blend_src.set_value(name_to_blend_func(blend_src.c_str()));
+					RETURN_IF_FALSE(state._blend_src.value() != BlendFunc::COUNT
 						, _opts
 						, "Unknown blend function: '%s'"
 						, blend_src.c_str()
@@ -1351,8 +1333,8 @@ namespace shader_resource_internal
 				} else if (cur->first == "blend_dst") {
 					DynamicString blend_dst(ta);
 					RETURN_IF_ERROR(sjson::parse_string(blend_dst, states["blend_dst"]), _opts);
-					state._blend_dst.set_value(name_to_blend_function(blend_dst.c_str()));
-					RETURN_IF_FALSE(state._blend_dst.value() != BlendFunction::COUNT
+					state._blend_dst.set_value(name_to_blend_func(blend_dst.c_str()));
+					RETURN_IF_FALSE(state._blend_dst.value() != BlendFunc::COUNT
 						, _opts
 						, "Unknown blend function: '%s'"
 						, blend_dst.c_str()
@@ -1390,8 +1372,8 @@ namespace shader_resource_internal
 				} else if (cur->first == "stencil_func" || cur->first == "stencil_func_back") {
 					DynamicString func(ta);
 					RETURN_IF_ERROR(sjson::parse_string(func, states[cur->first]), _opts);
-					StencilFunction::Enum sf = name_to_stencil_func(func.c_str());
-					RETURN_IF_FALSE(sf != StencilFunction::COUNT
+					StencilFunc::Enum sf = name_to_stencil_func(func.c_str());
+					RETURN_IF_FALSE(sf != StencilFunc::COUNT
 						, _opts
 						, "Unknown stencil test: '%s'"
 						, func.c_str()
