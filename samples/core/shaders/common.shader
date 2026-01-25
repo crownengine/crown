@@ -12,6 +12,19 @@ render_states = {
 			blend_equation = "add"
 			cull_mode = "cw"
 			primitive_type = "pt_triangles"
+			stencil_enable = false
+			stencil_func = "always"
+			stencil_ref = "0x00"
+			stencil_mask = "0xff"
+			stencil_fail = "keep"
+			stencil_depth_fail = "keep"
+			stencil_depth_pass = "keep"
+			stencil_func_back = "always"
+			stencil_ref_back = "0x00"
+			stencil_mask_back = "0xff"
+			stencil_fail_back = "keep"
+			stencil_depth_fail_back = "keep"
+			stencil_depth_pass_back = "keep"
 		}
 	}
 
