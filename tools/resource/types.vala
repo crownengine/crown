@@ -1155,11 +1155,13 @@ public static void create_object_types(Database database)
 			name = "name",
 			label = "Animation",
 			resource_type = OBJECT_TYPE_MESH_ANIMATION,
+			tooltip = "Animation to play.",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.STRING,
 			name = "weight",
+			tooltip = "Expression to evaluate the animation weight.",
 		}
 	};
 	StringId64 node_animation_type = database.create_object_type(OBJECT_TYPE_NODE_ANIMATION, properties);
@@ -1177,6 +1179,7 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.STRING,
 			name = "event",
+			tooltip = "Event that triggers this transition.",
 		},
 		PropertyDefinition()
 		{
@@ -1184,12 +1187,14 @@ public static void create_object_types(Database database)
 			name = "mode",
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "immediate", "wait_until_end" },
+			tooltip = "Enter the state immediately or wait until the animation ends.",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.REFERENCE,
 			object_type = StringId64(OBJECT_TYPE_STATE_MACHINE_NODE),
 			name = "to",
+			tooltip = "Animation state to enter to.",
 		},
 	};
 	StringId64 node_transition_type = database.create_object_type(OBJECT_TYPE_NODE_TRANSITION, properties);
@@ -1211,6 +1216,7 @@ public static void create_object_types(Database database)
 			type = PropertyType.STRING,
 			name = "name",
 			deffault = "New Node",
+			tooltip = "State name.",
 		},
 		PropertyDefinition()
 		{
@@ -1222,11 +1228,13 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.BOOL,
 			name = "loop",
+			tooltip = "Restart the animation when it ends.",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.STRING,
 			name = "speed",
+			tooltip = "Expression to evaluate the animation speed.",
 		},
 		PropertyDefinition()
 		{
@@ -1243,23 +1251,27 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.STRING,
 			name = "name",
+			tooltip = "Variable name.",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.DOUBLE,
 			name = "value",
+			tooltip = "Variable value.",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.DOUBLE,
 			name = "min",
 			deffault = -1.0,
+			tooltip = "Minimum value.",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.DOUBLE,
 			name = "max",
 			deffault = 1.0,
+			tooltip = "Maximum value.",
 		},
 	};
 	StringId64 state_machine_variable_type = database.create_object_type(OBJECT_TYPE_STATE_MACHINE_VARIABLE, properties);
@@ -1271,6 +1283,7 @@ public static void create_object_types(Database database)
 			type = PropertyType.REFERENCE,
 			object_type = StringId64(OBJECT_TYPE_STATE_MACHINE_NODE),
 			name = "initial_state",
+			tooltip = "Animation state to enter at the beginning.",
 		},
 		PropertyDefinition()
 		{
@@ -1296,6 +1309,7 @@ public static void create_object_types(Database database)
 			type = PropertyType.RESOURCE,
 			name = "skeleton_name",
 			resource_type = OBJECT_TYPE_MESH_SKELETON,
+			tooltip = "Animation skeleton to use.",
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_STATE_MACHINE, properties);
