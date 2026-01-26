@@ -2312,6 +2312,12 @@ public class LevelEditorApplication : Gtk.Application
 			app = _preferences_dialog._lua_external_tool_button.get_app_info();
 		} else if (_project.is_type_image(resource_type)) {
 			app = _preferences_dialog._image_external_tool_button.get_app_info();
+		} else if (_project.is_type_mesh(resource_path)) {
+			app = _preferences_dialog._model_external_tool_button.get_app_info();
+		} else if (_project.is_type_sound(resource_path)) {
+			app = _preferences_dialog._sound_external_tool_button.get_app_info();
+		} else if (_project.is_type_font(resource_path)) {
+			app = _preferences_dialog._font_external_tool_button.get_app_info();
 		} else if (_database.has_type(StringId64(resource_type))) {
 			activate_action("open-object", new GLib.Variant.tuple({ resource_type, resource_name }));
 			return;
