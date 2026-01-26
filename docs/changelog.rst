@@ -13,6 +13,7 @@ Changelog
 * Tools: added textual tooltips to main object types and prominent interface elements.
 * Tools: crown-launcher can now be executed from any directory.
 * Tools: added the ability to show all files (w/ or w/o extension) as well as mapped directories in the Project Browser.
+* Tools: added the ability to choose which external tool to use for opening models, sounds and fonts.
 * Runtime: added support to stencil testing in shaders.
 * Data Compile: resource packages are now LZ4-compressed.
 

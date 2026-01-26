@@ -34,6 +34,9 @@ public class PreferencesDialog : Gtk.Window
 	// External Tools page.
 	public AppChooserButton _lua_external_tool_button;
 	public AppChooserButton _image_external_tool_button;
+	public AppChooserButton _model_external_tool_button;
+	public AppChooserButton _sound_external_tool_button;
+	public AppChooserButton _font_external_tool_button;
 	public PropertyGridSet _external_tools_set;
 
 	public Gtk.Notebook _notebook;
@@ -133,11 +136,17 @@ public class PreferencesDialog : Gtk.Window
 		// External tools page.
 		_lua_external_tool_button = new AppChooserButton("text/plain");
 		_image_external_tool_button = new AppChooserButton("image/*");
+		_model_external_tool_button = new AppChooserButton("model/*");
+		_sound_external_tool_button = new AppChooserButton("audio/*");
+		_font_external_tool_button = new AppChooserButton("font/*");
 
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("External Lua editor", _lua_external_tool_button, "Program to use for opening Lua files.");
-		cv.add_row("External image editor", _image_external_tool_button, "Program to use for opening images.");
+		cv.add_row("Lua editor", _lua_external_tool_button, "Program to use for opening Lua files.");
+		cv.add_row("Image editor", _image_external_tool_button, "Program to use for opening images.");
+		cv.add_row("Model editor", _model_external_tool_button, "Program to use for opening 3D models.");
+		cv.add_row("Sound editor", _sound_external_tool_button, "Program to use for opening sound files.");
+		cv.add_row("Font editor", _font_external_tool_button, "Program to use for opening fonts.");
 		_external_tools_set.add_property_grid(cv, "External Editors");
 
 		// Add pages.
@@ -217,46 +226,57 @@ public class PreferencesDialog : Gtk.Window
 #if CROWN_PLATFORM_WINDOWS
 		_lua_external_tool_button.set_app(AppChooserButton.APP_DEFAULT, null);
 		_image_external_tool_button.set_app(AppChooserButton.APP_DEFAULT, null);
+		_model_external_tool_button.set_app(AppChooserButton.APP_DEFAULT, null);
+		_sound_external_tool_button.set_app(AppChooserButton.APP_DEFAULT, null);
+		_font_external_tool_button.set_app(AppChooserButton.APP_DEFAULT, null);
 #else
 		// External tools.
+		string editor_names[] =
+		{
+			"lua_editor",
+			"image_editor",
+			"model_editor",
+			"sound_editor",
+			"font_editor",
+		};
+		AppChooserButton editor_buttons[] =
+		{
+			_lua_external_tool_button,
+			_image_external_tool_button,
+			_model_external_tool_button,
+			_sound_external_tool_button,
+			_font_external_tool_button,
+		};
+
 		Hashtable external_tools = preferences.has_key("external_tools")
 			? (Hashtable)preferences["external_tools"]
 			: new Hashtable()
 			;
 
-		Hashtable lua_editor = external_tools.has_key("lua_editor")
-			? (Hashtable)external_tools["lua_editor"]
-			: new Hashtable()
-			;
+		for (int i = 0; i < editor_names.length; ++i) {
+			string name = editor_names[i];
+			AppChooserButton button = editor_buttons[i];
 
-		string app = "";
-		string app_id = "";
+			Hashtable editor = external_tools.has_key(name)
+				? (Hashtable)external_tools[name]
+				: new Hashtable()
+				;
 
-		if (lua_editor.has_key("app"))
-			app = (string)lua_editor["app"];
-		else
-			app = AppChooserButton.APP_DEFAULT;
+			string app = "";
+			string app_id = "";
 
-		if (lua_editor.has_key("app_id"))
-			app_id = (string)lua_editor["app_id"];
-		else
-			app_id = null;
-		_lua_external_tool_button.set_app(app, app_id);
+			if (editor.has_key("app"))
+				app = (string)editor["app"];
+			else
+				app = AppChooserButton.APP_DEFAULT;
 
-		Hashtable image_editor = external_tools.has_key("image_editor")
-			? (Hashtable)external_tools["image_editor"]
-			: new Hashtable()
-			;
-		if (image_editor.has_key("app"))
-			app = (string)image_editor["app"];
-		else
-			app = AppChooserButton.APP_DEFAULT;
+			if (editor.has_key("app_id"))
+				app_id = (string)editor["app_id"];
+			else
+				app_id = null;
 
-		if (image_editor.has_key("app_id"))
-			app_id = (string)image_editor["app_id"];
-		else
-			app_id = null;
-		_image_external_tool_button.set_app(app, app_id);
+			button.set_app(app, app_id);
+		}
 #endif /* if CROWN_PLATFORM_WINDOWS */
 	}
 
@@ -286,33 +306,43 @@ public class PreferencesDialog : Gtk.Window
 		string app;
 		string? app_id;
 
-		// FIXME: make proper interface so that we can have
-		// for example: set(settings, "preferences.foo.bar", 42);
+		string editor_names[] =
+		{
+			"lua_editor",
+			"image_editor",
+			"model_editor",
+			"sound_editor",
+			"font_editor",
+		};
+		AppChooserButton editor_buttons[] =
+		{
+			_lua_external_tool_button,
+			_image_external_tool_button,
+			_model_external_tool_button,
+			_sound_external_tool_button,
+			_font_external_tool_button,
+		};
+
 		Hashtable external_tools = preferences.has_key("external_tools")
 			? (Hashtable)preferences["external_tools"]
 			: new Hashtable()
 			;
 		preferences["external_tools"] = external_tools;
 
-		Hashtable lua_editor = external_tools.has_key("lua_editor")
-			? (Hashtable)external_tools["lua_editor"]
-			: new Hashtable()
-			;
-		external_tools["lua_editor"] = lua_editor;
+		for (int i = 0; i < editor_names.length; ++i) {
+			string name = editor_names[i];
+			AppChooserButton button = editor_buttons[i];
 
-		app = _lua_external_tool_button.selected_app(out app_id);
-		lua_editor["app"] = app;
-		lua_editor["app_id"] = app_id != null ? app_id : "";
+			Hashtable editor = external_tools.has_key(name)
+				? (Hashtable)external_tools[name]
+				: new Hashtable()
+				;
+			external_tools[name] = editor;
 
-		Hashtable image_editor = external_tools.has_key("image_editor")
-			? (Hashtable)external_tools["image_editor"]
-			: new Hashtable()
-			;
-		external_tools["image_editor"] = image_editor;
-
-		app = _image_external_tool_button.selected_app(out app_id);
-		image_editor["app"] = app;
-		image_editor["app_id"] = app_id != null ? app_id : "";
+			app = button.selected_app(out app_id);
+			editor["app"] = app;
+			editor["app_id"] = app_id != null ? app_id : "";
+		}
 	}
 
 	public void apply()
