@@ -160,6 +160,7 @@
     <file compressed="true" preprocess="xml-stripblanks">icons/scalable/actions/object-script-symbolic.svg</file>
     <file compressed="true" preprocess="xml-stripblanks">icons/scalable/actions/object-shader-symbolic.svg</file>
     <file compressed="true" preprocess="xml-stripblanks">icons/scalable/actions/object-skeleton-symbolic.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/scalable/actions/object-sound-symbolic.svg</file>
     <file compressed="true" preprocess="xml-stripblanks">icons/scalable/actions/object-sprite-symbolic.svg</file>
     <file compressed="true" preprocess="xml-stripblanks">icons/scalable/actions/object-state-machine-symbolic.svg</file>
     <file compressed="true" preprocess="xml-stripblanks">icons/scalable/actions/object-texture-symbolic.svg</file>
