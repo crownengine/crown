@@ -856,6 +856,7 @@ public class ProjectBrowser : Gtk.Box
 	public Gtk.TreeModelSort _folder_list_sort;
 	public SortMode _sort_mode;
 	public Gtk.CheckButton _show_all_files;
+	public Gtk.CheckButton _show_mapped_dirs;
 	public Gtk.Box _sort_items_box;
 	public Gtk.Popover _sort_items_popover;
 	public Gtk.MenuButton _sort_items;
@@ -1118,13 +1119,19 @@ public class ProjectBrowser : Gtk.Box
 		_show_all_files.set_active(false);
 		_show_all_files.toggled.connect(on_show_all_files_toggled);
 
+		_show_mapped_dirs = new Gtk.CheckButton.with_label("Show mapped dirs");
+		_show_mapped_dirs.set_tooltip_text("Show external mapped directories.");
+		_show_mapped_dirs.set_active(false);
+		_show_mapped_dirs.toggled.connect(on_show_mapped_dirs_toggled);
+
+		_sort_items_box.pack_start(_show_mapped_dirs, false, false);
 		_sort_items_box.pack_start(_show_all_files, false, false);
 		_sort_items_box.show_all();
 
 		_sort_items_popover = new Gtk.Popover(null);
 		_sort_items_popover.add(_sort_items_box);
 		_sort_items = new Gtk.MenuButton();
-		_sort_items.set_tooltip_text("Sort items.");
+		_sort_items.set_tooltip_text("Sort and filter items.");
 		_sort_items.add(new Gtk.Image.from_icon_name("list-sort", Gtk.IconSize.SMALL_TOOLBAR));
 		_sort_items.get_style_context().add_class("flat");
 		_sort_items.get_style_context().add_class("image-button");
@@ -1994,6 +2001,13 @@ public class ProjectBrowser : Gtk.Box
 
 	void on_show_all_files_toggled()
 	{
+		_tree_filter.refilter();
+		update_folder_view();
+	}
+
+	void on_show_mapped_dirs_toggled()
+	{
+		_hide_core_resources = !_hide_core_resources;
 		_tree_filter.refilter();
 		update_folder_view();
 	}
