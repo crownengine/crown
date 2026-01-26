@@ -714,6 +714,42 @@ public class Project
 		return find_importer_for_extension(type) != null;
 	}
 
+	public bool is_type_image(string type)
+	{
+		return type == "png"
+			|| type == "dds"
+			|| type == "exr"
+			|| type == "jpg"
+			|| type == "ktx"
+			|| type == "png"
+			|| type == "pvr"
+			|| type == "tga"
+			;
+	}
+
+	public bool is_type_mesh(string type)
+	{
+		return type == "mesh"
+			|| type == "fbx"
+			|| type == "obj"
+			;
+	}
+
+	public bool is_type_sound(string type)
+	{
+		return type == "wav"
+			|| type == "ogg"
+			|| type == "mp3"
+			;
+	}
+
+	public bool is_type_font(string type)
+	{
+		return type == "ttf"
+			|| type == "otf"
+			;
+	}
+
 	public void import_filenames(string? destination_dir
 		, GLib.SList<string> filenames
 		, Import import_result

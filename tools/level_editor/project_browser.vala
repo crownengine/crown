@@ -192,8 +192,21 @@ public void set_thumbnail(Gtk.CellRenderer cell, string type, string name, int i
 		cell.set_property("icon-name", "object-animation");
 	else if ((string)type == OBJECT_TYPE_MESH_SKELETON)
 		cell.set_property("icon-name", "object-skeleton");
-	else
-		cell.set_property("icon-name", "text-x-generic-symbolic");
+	else {
+		Project project = thumbnail_cache._project;
+		string td = type.down();
+
+		if (project.is_type_image(td))
+			cell.set_property("icon-name", "object-texture");
+		else if (project.is_type_mesh(td))
+			cell.set_property("icon-name", "object-mesh");
+		else if (project.is_type_sound(td))
+			cell.set_property("icon-name", "object-sound");
+		else if (project.is_type_font(td))
+			cell.set_property("icon-name", "object-font");
+		else
+			cell.set_property("icon-name", "text-x-generic-symbolic");
+	}
 }
 
 public enum BrowseMode
