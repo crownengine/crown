@@ -855,6 +855,7 @@ public class ProjectBrowser : Gtk.Box
 	public Gtk.ListStore _folder_list_store;
 	public Gtk.TreeModelSort _folder_list_sort;
 	public SortMode _sort_mode;
+	public Gtk.CheckButton _show_all_files;
 	public Gtk.Box _sort_items_box;
 	public Gtk.Popover _sort_items_popover;
 	public Gtk.MenuButton _sort_items;
@@ -1112,7 +1113,14 @@ public class ProjectBrowser : Gtk.Box
 		for (int i = 0; i < SortMode.COUNT; ++i)
 			button = add_sort_item(button, (SortMode)i);
 
+		_show_all_files = new Gtk.CheckButton.with_label("Show all files");
+		_show_all_files.set_tooltip_text("Show all files, not just resource files.");
+		_show_all_files.set_active(false);
+		_show_all_files.toggled.connect(on_show_all_files_toggled);
+
+		_sort_items_box.pack_start(_show_all_files, false, false);
 		_sort_items_box.show_all();
+
 		_sort_items_popover = new Gtk.Popover(null);
 		_sort_items_popover.add(_sort_items_box);
 		_sort_items = new Gtk.MenuButton();
@@ -1318,6 +1326,9 @@ public class ProjectBrowser : Gtk.Box
 					return true;
 			}
 		}
+
+		if (_show_all_files.get_active())
+			return false;
 
 		return type == "importer_settings"
 			|| name == Project.LEVEL_EDITOR_TEST_NAME
@@ -1979,6 +1990,12 @@ public class ProjectBrowser : Gtk.Box
 	void on_project_store_row_deleted(Gtk.TreePath path)
 	{
 		filter_and_update_folder_view();
+	}
+
+	void on_show_all_files_toggled()
+	{
+		_tree_filter.refilter();
+		update_folder_view();
 	}
 }
 
