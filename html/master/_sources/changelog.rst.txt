@@ -12,6 +12,7 @@ Changelog
 * Tools: added a new "flythrough" camera mode for navigating viewports.
 * Tools: added textual tooltips to main object types and prominent interface elements.
 * Tools: crown-launcher can now be executed from any directory.
+* Tools: added the ability to show all files (w/ or w/o extension) as well as mapped directories in the Project Browser.
 * Runtime: added support to stencil testing in shaders.
 * Data Compile: resource packages are now LZ4-compressed.
 
