@@ -522,10 +522,19 @@ public class ProjectFolderView : Gtk.Box
 		model.get_value(iter, ProjectStore.Column.TYPE, out type);
 		model.get_value(iter, ProjectStore.Column.NAME, out name);
 
-		if (name == "..")
-			cell.set_property("text", name);
-		else
-			cell.set_property("text", GLib.Path.get_basename((string)name));
+		string basename = GLib.Path.get_basename((string)name);
+
+		if ((string)type == "<folder>") {
+			if (name == "..")
+				cell.set_property("text", name);
+			else
+				cell.set_property("text", basename);
+		} else {
+			if (_project_browser._show_files_extension.get_active())
+				basename += "." + (string)type;
+
+			cell.set_property("text", basename);
+		}
 	}
 
 	public void list_view_pixbuf_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
@@ -856,6 +865,7 @@ public class ProjectBrowser : Gtk.Box
 	public Gtk.TreeModelSort _folder_list_sort;
 	public SortMode _sort_mode;
 	public Gtk.CheckButton _show_all_files;
+	public Gtk.CheckButton _show_files_extension;
 	public Gtk.CheckButton _show_mapped_dirs;
 	public Gtk.Box _sort_items_box;
 	public Gtk.Popover _sort_items_popover;
@@ -1119,6 +1129,11 @@ public class ProjectBrowser : Gtk.Box
 		_show_all_files.set_active(false);
 		_show_all_files.toggled.connect(on_show_all_files_toggled);
 
+		_show_files_extension = new Gtk.CheckButton.with_label("Show files extension");
+		_show_files_extension.set_tooltip_text("Do not hide files extension.");
+		_show_files_extension.set_active(false);
+		_show_files_extension.toggled.connect(on_show_files_extension_toggled);
+
 		_show_mapped_dirs = new Gtk.CheckButton.with_label("Show mapped dirs");
 		_show_mapped_dirs.set_tooltip_text("Show external mapped directories.");
 		_show_mapped_dirs.set_active(false);
@@ -1126,6 +1141,7 @@ public class ProjectBrowser : Gtk.Box
 
 		_sort_items_box.pack_start(_show_mapped_dirs, false, false);
 		_sort_items_box.pack_start(_show_all_files, false, false);
+		_sort_items_box.pack_start(_show_files_extension, false, false);
 		_sort_items_box.show_all();
 
 		_sort_items_popover = new Gtk.Popover(null);
@@ -2009,6 +2025,11 @@ public class ProjectBrowser : Gtk.Box
 	{
 		_hide_core_resources = !_hide_core_resources;
 		_tree_filter.refilter();
+		update_folder_view();
+	}
+
+	void on_show_files_extension_toggled()
+	{
 		update_folder_view();
 	}
 }
