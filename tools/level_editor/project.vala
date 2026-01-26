@@ -716,37 +716,36 @@ public class Project
 
 	public bool is_type_image(string type)
 	{
-		return type == "png"
-			|| type == "dds"
+		return type == "dds"
 			|| type == "exr"
 			|| type == "jpg"
 			|| type == "ktx"
-			|| type == "png"
 			|| type == "pvr"
 			|| type == "tga"
+			|| type == "png"
 			;
 	}
 
 	public bool is_type_mesh(string type)
 	{
-		return type == "mesh"
-			|| type == "fbx"
+		return type == "fbx"
 			|| type == "obj"
+			|| type == "mesh"
 			;
 	}
 
 	public bool is_type_sound(string type)
 	{
-		return type == "wav"
+		return type == "mp3"
 			|| type == "ogg"
-			|| type == "mp3"
+			|| type == "wav"
 			;
 	}
 
 	public bool is_type_font(string type)
 	{
-		return type == "ttf"
-			|| type == "otf"
+		return type == "otf"
+			|| type == "ttf"
 			;
 	}
 
