@@ -2284,13 +2284,6 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	public static bool is_image_file(string path)
-	{
-		return path.has_suffix(".png")
-			|| path.has_suffix(".tga")
-			;
-	}
-
 	public void on_open_resource(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		if (param == null)
@@ -2317,7 +2310,7 @@ public class LevelEditorApplication : Gtk.Application
 			return;
 		} else if (resource_type == "lua") {
 			app = _preferences_dialog._lua_external_tool_button.get_app_info();
-		} else if (is_image_file(resource_path)) {
+		} else if (_project.is_type_image(resource_type)) {
 			app = _preferences_dialog._image_external_tool_button.get_app_info();
 		} else if (_database.has_type(StringId64(resource_type))) {
 			activate_action("open-object", new GLib.Variant.tuple({ resource_type, resource_name }));
