@@ -32,11 +32,11 @@ public class PreferencesDialog : Gtk.Window
 	public PropertyGridSet _system_set;
 
 	// External Tools page.
-	public AppChooserButton _lua_external_tool_button;
-	public AppChooserButton _image_external_tool_button;
-	public AppChooserButton _model_external_tool_button;
-	public AppChooserButton _sound_external_tool_button;
-	public AppChooserButton _font_external_tool_button;
+	public AppChooserButton _external_editor_lua;
+	public AppChooserButton _external_editor_image;
+	public AppChooserButton _external_editor_model;
+	public AppChooserButton _external_editor_sound;
+	public AppChooserButton _external_editor_font;
 	public PropertyGridSet _external_tools_set;
 
 	public Gtk.Notebook _notebook;
@@ -134,19 +134,19 @@ public class PreferencesDialog : Gtk.Window
 		_system_set.add_property_grid(cv, "Memory and Limits");
 
 		// External tools page.
-		_lua_external_tool_button = new AppChooserButton("text/plain");
-		_image_external_tool_button = new AppChooserButton("image/*");
-		_model_external_tool_button = new AppChooserButton("model/*");
-		_sound_external_tool_button = new AppChooserButton("audio/*");
-		_font_external_tool_button = new AppChooserButton("font/*");
+		_external_editor_lua = new AppChooserButton("text/plain");
+		_external_editor_image = new AppChooserButton("image/*");
+		_external_editor_model = new AppChooserButton("model/*");
+		_external_editor_sound = new AppChooserButton("audio/*");
+		_external_editor_font = new AppChooserButton("font/*");
 
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("Lua editor", _lua_external_tool_button, "Program to use for opening Lua files.");
-		cv.add_row("Image editor", _image_external_tool_button, "Program to use for opening images.");
-		cv.add_row("Model editor", _model_external_tool_button, "Program to use for opening 3D models.");
-		cv.add_row("Sound editor", _sound_external_tool_button, "Program to use for opening sound files.");
-		cv.add_row("Font editor", _font_external_tool_button, "Program to use for opening fonts.");
+		cv.add_row("Lua editor", _external_editor_lua, "Program to use for opening Lua files.");
+		cv.add_row("Image editor", _external_editor_image, "Program to use for opening images.");
+		cv.add_row("Model editor", _external_editor_model, "Program to use for opening 3D models.");
+		cv.add_row("Sound editor", _external_editor_sound, "Program to use for opening sound files.");
+		cv.add_row("Font editor", _external_editor_font, "Program to use for opening fonts.");
 		_external_tools_set.add_property_grid(cv, "External Editors");
 
 		// Add pages.
@@ -224,11 +224,11 @@ public class PreferencesDialog : Gtk.Window
 			_theme_combo.value = (string)preferences["theme"];
 
 #if CROWN_PLATFORM_WINDOWS
-		_lua_external_tool_button.set_app(AppChooserButton.APP_DEFAULT, null);
-		_image_external_tool_button.set_app(AppChooserButton.APP_DEFAULT, null);
-		_model_external_tool_button.set_app(AppChooserButton.APP_DEFAULT, null);
-		_sound_external_tool_button.set_app(AppChooserButton.APP_DEFAULT, null);
-		_font_external_tool_button.set_app(AppChooserButton.APP_DEFAULT, null);
+		_external_editor_lua.set_app(AppChooserButton.APP_DEFAULT, null);
+		_external_editor_image.set_app(AppChooserButton.APP_DEFAULT, null);
+		_external_editor_model.set_app(AppChooserButton.APP_DEFAULT, null);
+		_external_editor_sound.set_app(AppChooserButton.APP_DEFAULT, null);
+		_external_editor_font.set_app(AppChooserButton.APP_DEFAULT, null);
 #else
 		// External tools.
 		string editor_names[] =
@@ -241,11 +241,11 @@ public class PreferencesDialog : Gtk.Window
 		};
 		AppChooserButton editor_buttons[] =
 		{
-			_lua_external_tool_button,
-			_image_external_tool_button,
-			_model_external_tool_button,
-			_sound_external_tool_button,
-			_font_external_tool_button,
+			_external_editor_lua,
+			_external_editor_image,
+			_external_editor_model,
+			_external_editor_sound,
+			_external_editor_font,
 		};
 
 		Hashtable external_tools = preferences.has_key("external_tools")
@@ -316,11 +316,11 @@ public class PreferencesDialog : Gtk.Window
 		};
 		AppChooserButton editor_buttons[] =
 		{
-			_lua_external_tool_button,
-			_image_external_tool_button,
-			_model_external_tool_button,
-			_sound_external_tool_button,
-			_font_external_tool_button,
+			_external_editor_lua,
+			_external_editor_image,
+			_external_editor_model,
+			_external_editor_sound,
+			_external_editor_font,
 		};
 
 		Hashtable external_tools = preferences.has_key("external_tools")
