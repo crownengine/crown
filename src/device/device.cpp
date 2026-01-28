@@ -678,7 +678,31 @@ int Device::main_loop()
 #else
 	#error "Unknown platform"
 #endif
-	bgfx::init(init);
+
+	bool bgfx_success = bgfx::init(init);
+
+	if (!bgfx_success || bgfx::getCaps()->rendererType != init.type) {
+		loge(DEVICE, "Failed to init rendering subsystem");
+
+		if (bgfx_success)
+			bgfx::shutdown();
+
+		CE_DELETE(_allocator, _bgfx_callback);
+		CE_DELETE(_allocator, _bgfx_allocator);
+
+		_window->close();
+		window::destroy(_allocator, *_window);
+		display::destroy(_allocator, *_display);
+
+		CE_DELETE(_allocator, _material_manager);
+		CE_DELETE(_allocator, _resource_manager);
+		CE_DELETE(_allocator, _resource_loader);
+		CE_DELETE(_allocator, _shader_manager);
+		CE_DELETE(_allocator, _data_filesystem);
+
+		_allocator.clear();
+		return EXIT_FAILURE;
+	}
 
 	_input_manager    = CE_NEW(_allocator, InputManager)(default_allocator());
 	_unit_manager     = CE_NEW(_allocator, UnitManager)(default_allocator());
