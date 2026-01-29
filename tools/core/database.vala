@@ -1541,26 +1541,26 @@ public class Database
 	public void add_restore_point(int id, Guid?[] data, uint32 flags = 0u)
 	{
 		if (_debug)
-			logi("add_restore_point %d, undo size = %u".printf(id, _undo_redo._undo.size()));
+			logi("add_restore_point %d, undo size = %u".printf(id, _undo_redo != null ? _undo_redo._undo.size() : 0));
 
 		if (_undo_redo != null) {
 			_undo_redo._undo.write_restore_point(id, flags, data);
 			_undo_redo._redo.clear();
+		}
 
-			switch (id) {
-			case ActionType.CREATE_OBJECTS:
-				objects_created(data, flags);
-				break;
-			case ActionType.DESTROY_OBJECTS:
-				objects_destroyed(data, flags);
-				break;
-			case ActionType.CHANGE_OBJECTS:
-				objects_changed(data, flags);
-				break;
-				default:
-				logw("Unknown action type %d".printf(id));
-				break;
-			}
+		switch (id) {
+		case ActionType.CREATE_OBJECTS:
+			objects_created(data, flags);
+			break;
+		case ActionType.DESTROY_OBJECTS:
+			objects_destroyed(data, flags);
+			break;
+		case ActionType.CHANGE_OBJECTS:
+			objects_changed(data, flags);
+			break;
+			default:
+			logw("Unknown action type %d".printf(id));
+			break;
 		}
 	}
 
