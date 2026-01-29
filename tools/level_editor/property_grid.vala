@@ -319,7 +319,7 @@ public class PropertyGrid : Gtk.Grid
 		return changed;
 	}
 
-	public void on_property_value_changed(InputField p)
+	public void on_property_value_changed(InputField p, int undo_redo)
 	{
 		if (p.is_inconsistent())
 			return;
@@ -333,11 +333,19 @@ public class PropertyGrid : Gtk.Grid
 
 		save_dynamic_properties_values(ref dynamic_properties, ref dynamic_values);
 		read_dynamic_properties_ranges_except({ def });
+
+		UndoRedo? ur = null;
+		if (undo_redo == 0)
+			ur = _db.disable_undo();
+
 		changed = restore_dynamic_properties_values_except(dynamic_properties, dynamic_values, { def }) || changed;
 		changed = write_property_if_changed(def, p.union_value()) || changed;
 
 		if (changed)
 			_db.add_restore_point(ActionType.CHANGE_OBJECTS, new Guid?[] { _id });
+
+		if (undo_redo == 0)
+			_db.restore_undo(ur);
 	}
 
 	public void read_all_properties()

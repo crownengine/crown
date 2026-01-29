@@ -15,7 +15,8 @@ public interface InputField : Gtk.Widget
 	public abstract GLib.Value union_value();
 	public abstract void set_union_value(GLib.Value v);
 
-	public signal void value_changed(InputField p);
+	/// undo_redo == 0 means the undo system is disabled.
+	public signal void value_changed(InputField p, int undo_redo = 1);
 }
 
 } /* namespace Crown */
