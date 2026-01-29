@@ -684,6 +684,11 @@ int Device::main_loop()
 	if (!bgfx_success || bgfx::getCaps()->rendererType != init.type) {
 		loge(DEVICE, "Failed to init rendering subsystem");
 
+		CE_DELETE(_allocator, _resource_manager);
+		CE_DELETE(_allocator, _resource_loader);
+		CE_DELETE(_allocator, _material_manager);
+		CE_DELETE(_allocator, _shader_manager);
+
 		if (bgfx_success)
 			bgfx::shutdown();
 
@@ -694,10 +699,6 @@ int Device::main_loop()
 		window::destroy(_allocator, *_window);
 		display::destroy(_allocator, *_display);
 
-		CE_DELETE(_allocator, _material_manager);
-		CE_DELETE(_allocator, _resource_manager);
-		CE_DELETE(_allocator, _resource_loader);
-		CE_DELETE(_allocator, _shader_manager);
 		CE_DELETE(_allocator, _data_filesystem);
 
 		_allocator.clear();
@@ -765,6 +766,10 @@ int Device::main_loop()
 	CE_DELETE(_allocator, _lua_environment);
 	CE_DELETE(_allocator, _unit_manager);
 	CE_DELETE(_allocator, _input_manager);
+	CE_DELETE(_allocator, _resource_manager);
+	CE_DELETE(_allocator, _resource_loader);
+	CE_DELETE(_allocator, _material_manager);
+	CE_DELETE(_allocator, _shader_manager);
 
 	bgfx::shutdown();
 	CE_DELETE(_allocator, _bgfx_callback);
@@ -774,10 +779,6 @@ int Device::main_loop()
 	window::destroy(_allocator, *_window);
 	display::destroy(_allocator, *_display);
 
-	CE_DELETE(_allocator, _material_manager);
-	CE_DELETE(_allocator, _resource_manager);
-	CE_DELETE(_allocator, _resource_loader);
-	CE_DELETE(_allocator, _shader_manager);
 	CE_DELETE(_allocator, _data_filesystem);
 
 	_allocator.clear();
