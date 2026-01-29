@@ -1401,10 +1401,9 @@ public class ProjectBrowser : Gtk.Box
 	{
 		exit_search();
 
-		if (name.has_prefix("core/")) {
-			_hide_core_resources = false;
-			_tree_filter.refilter();
-		}
+		if (name.has_prefix("core/"))
+			_show_mapped_dirs.set_active(true);
+
 
 		select_resource(type, name);
 		_folder_view.select_resource(type, name);
