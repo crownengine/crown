@@ -160,12 +160,12 @@ namespace memory
 
 		void *reallocate(void *data, u32 size, u32 align) override
 		{
-			if (!data)
-				return allocate((u32)size, (u32)align == 0 ? 16 : (u32)align);
-
 			if (size == 0) {
-				deallocate(data);
+				if (data != NULL)
+					deallocate(data);
 				return NULL;
+			} else if (data == NULL) {
+				return allocate((u32)size, (u32)align == 0 ? 16 : (u32)align);
 			}
 
 			// Figure out the size of data.
