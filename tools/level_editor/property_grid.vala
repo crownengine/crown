@@ -9,7 +9,8 @@ public class PropertyGrid : Gtk.Grid
 {
 	GLib.ActionEntry[] actions =
 	{
-		{ "remove", on_remove, null, null },
+		{ "remove",         on_remove,         null, null },
+		{ "reset_property", on_reset_property, "s",  null },
 	};
 
 	public Expander? _expander;
@@ -24,6 +25,7 @@ public class PropertyGrid : Gtk.Grid
 	public bool _visible;
 	public int label_width_chars;
 
+	public Gee.HashMap<string, Gtk.GestureMultiPress> _gestures;
 	public Gee.HashMap<string, InputField> _widgets;
 	public Gee.HashMap<InputField, PropertyDefinition?> _definitions;
 
@@ -71,6 +73,15 @@ public class PropertyGrid : Gtk.Grid
 		}
 	}
 
+	public void on_reset_property(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string property_name = param.get_string();
+
+		InputField field = _widgets[property_name];
+		PropertyDefinition? def = _definitions[field];
+		field.set_union_value(def.deffault);
+	}
+
 	public void on_expander_button_released(int n_press, double x, double y)
 	{
 		if (_controller_click.get_current_button() == Gdk.BUTTON_SECONDARY) {
@@ -109,6 +120,7 @@ public class PropertyGrid : Gtk.Grid
 		_order = 0.0;
 		_visible = true;
 
+		_gestures = new Gee.HashMap<string, Gtk.GestureMultiPress>();
 		_widgets = new Gee.HashMap<string, InputField>();
 		_definitions = new Gee.HashMap<InputField, PropertyDefinition?>();
 
@@ -206,6 +218,31 @@ public class PropertyGrid : Gtk.Grid
 
 			p.value_changed.connect(on_property_value_changed);
 
+			Gtk.GestureMultiPress click = new Gtk.GestureMultiPress(p);
+			click.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
+			click.set_button(Gdk.BUTTON_SECONDARY);
+			click.pressed.connect((n_press, x, y) => {
+					if (click.get_current_button() != Gdk.BUTTON_SECONDARY)
+						return;
+
+					GLib.Menu menu = new GLib.Menu();
+					GLib.MenuItem mi;
+
+					if (_db != null) {
+						mi = new GLib.MenuItem("Reset to default", null);
+						mi.set_action_and_target_value("object.reset_property", new GLib.Variant.string(def.name));
+						menu.append_item(mi);
+					}
+
+					if (menu.get_n_items() > 0) {
+						Gtk.Popover popover = new Gtk.Popover.from_model(null, menu);
+						popover.set_relative_to(p);
+						popover.set_position(Gtk.PositionType.BOTTOM);
+						popover.popup();
+					}
+				});
+
+			_gestures[def.name] = click;
 			_widgets[def.name] = p;
 			_definitions[p] = def;
 
