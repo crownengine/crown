@@ -5,24 +5,26 @@
 
 namespace Crown
 {
-public class InputBool : InputField, Gtk.CheckButton
+public class InputBool : InputField
 {
-	public new void set_inconsistent(bool inconsistent)
+	public Gtk.CheckButton _check;
+
+	public override void set_inconsistent(bool inconsistent)
 	{
-		base.set_inconsistent(inconsistent);
+		_check.set_inconsistent(inconsistent);
 	}
 
-	public bool is_inconsistent()
+	public override bool is_inconsistent()
 	{
-		return this.get_inconsistent();
+		return _check.get_inconsistent();
 	}
 
-	public GLib.Value union_value()
+	public override GLib.Value union_value()
 	{
 		return this.value;
 	}
 
-	public void set_union_value(GLib.Value v)
+	public override void set_union_value(GLib.Value v)
 	{
 		this.value = (bool)v;
 	}
@@ -31,24 +33,26 @@ public class InputBool : InputField, Gtk.CheckButton
 	{
 		get
 		{
-			return this.active;
+			return _check.active;
 		}
 		set
 		{
-			this.active = value;
+			_check.active = value;
 		}
 	}
 
 	public InputBool()
 	{
-		// Data
-		this.toggled.connect(on_value_changed);
+		_check = new Gtk.CheckButton();
+		_check.toggled.connect(on_value_changed);
+
+		this.add(_check);
 	}
 
 	public void on_value_changed()
 	{
-		if (base.get_inconsistent()) {
-			base.set_inconsistent(false);
+		if (_check.get_inconsistent()) {
+			_check.set_inconsistent(false);
 			this.value = true;
 		}
 

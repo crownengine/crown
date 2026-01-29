@@ -45,23 +45,23 @@ notebook > header tab {
 	min-height: 22px;
 }
 
-.axis {
+.axis > entry {
 	min-width: 22px;
 }
 
-.axis.x {
+.axis.x > entry {
 	background: rgba(180, 0, 0, 0.2);
 }
 
-.axis.y {
+.axis.y > entry {
 	background: rgba(0, 180, 0, 0.2);
 }
 
-.axis.z {
+.axis.z > entry {
 	background: rgba(0, 0, 180, 0.2);
 }
 
-.axis.w {
+.axis.w > entry {
 	background: rgba(180, 180, 180, 0.2);
 }
 

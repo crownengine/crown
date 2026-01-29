@@ -30,7 +30,7 @@ public class InputResourceBasename : InputString
 			|| val.index_of_char('*') != -1
 			|| val.is_ascii() == false
 			) {
-			this.text = _value;
+			this.value = _value;
 			return;
 		}
 

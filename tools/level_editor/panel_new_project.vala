@@ -69,7 +69,7 @@ public class NewProject : Gtk.Box
 		_button_create = new Gtk.Button.with_label("Create");
 		_button_create.get_style_context().add_class("suggested-action");
 		_button_create.clicked.connect(() => {
-				if (_entry_name.text == "") {
+				if (_entry_name.value == "") {
 					_label_message.label = "Choose project name";
 					return;
 				}
@@ -82,7 +82,7 @@ public class NewProject : Gtk.Box
 				}
 
 				if (_create_folder.active) {
-					string name = (string)_entry_name.text;
+					string name = (string)_entry_name.value;
 					name = name.down();
 					name = name.replace(" ", "_");
 					name = name.replace("\f", "_");
@@ -116,7 +116,7 @@ public class NewProject : Gtk.Box
 
 				_label_message.label = "";
 
-				_user.add_or_touch_recent_project(source_dir, _entry_name.text);
+				_user.add_or_touch_recent_project(source_dir, _entry_name.value);
 
 				if (_combo_box_map_template.value == "")
 					Project.create_initial_files(source_dir);

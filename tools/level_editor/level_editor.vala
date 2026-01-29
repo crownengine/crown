@@ -1685,7 +1685,7 @@ public class LevelEditorApplication : Gtk.Application
 			);
 
 		InputDouble sb = new InputDouble(_grid_size, 0.1, 1000);
-		sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
+		sb.value_changed.connect(() => { dg.response(Gtk.ResponseType.OK); });
 		dg.get_content_area().add(sb);
 
 		dg.response.connect((response_id) => {
@@ -2399,7 +2399,7 @@ public class LevelEditorApplication : Gtk.Application
 			);
 
 		InputDouble sb = new InputDouble(_rotation_snap, 1.0, 180.0);
-		sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
+		sb.value_changed.connect(() => { dg.response(Gtk.ResponseType.OK); });
 		dg.get_content_area().add(sb);
 
 		dg.response.connect((response_id) => {
@@ -2476,13 +2476,13 @@ public class LevelEditorApplication : Gtk.Application
 	public void on_console(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		if (_console_notebook.is_visible()) {
-			if (_console_view._entry.has_focus)
+			if (_console_view._entry._entry.has_focus)
 				_console_notebook.hide();
 			else
-				_console_view._entry.grab_focus_without_selecting();
+				_console_view._entry._entry.grab_focus_without_selecting();
 		} else {
 			_console_notebook.show_all();
-			_console_view._entry.grab_focus_without_selecting();
+			_console_view._entry._entry.grab_focus_without_selecting();
 		}
 	}
 
@@ -2632,13 +2632,13 @@ public class LevelEditorApplication : Gtk.Application
 				);
 
 			InputString sb = new InputString();
-			sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
+			sb.value_changed.connect(() => { dg.response(Gtk.ResponseType.OK); });
 			sb.value = _database.name(object_id);
 
 			dg.get_content_area().add(sb);
 			dg.response.connect((response_id) => {
 					if (response_id == Gtk.ResponseType.OK)
-						do_rename(object_id, sb.text.strip());
+						do_rename(object_id, sb.value.strip());
 					dg.destroy();
 				});
 			dg.show_all();
@@ -2810,12 +2810,12 @@ public class LevelEditorApplication : Gtk.Application
 				);
 
 			InputString sb = new InputString();
-			sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
+			sb.value_changed.connect(() => { dg.response(Gtk.ResponseType.OK); });
 			dg.get_content_area().add(sb);
 
 			dg.response.connect((response_id) => {
 					if (response_id == Gtk.ResponseType.OK)
-						do_create_directory(parent_dir_name, sb.text.strip());
+						do_create_directory(parent_dir_name, sb.value.strip());
 					dg.destroy();
 				});
 
@@ -2865,12 +2865,12 @@ public class LevelEditorApplication : Gtk.Application
 				);
 
 			InputString sb = new InputString();
-			sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
+			sb.value_changed.connect(() => { dg.response(Gtk.ResponseType.OK); });
 			dg.get_content_area().add(sb);
 
 			dg.response.connect((response_id) => {
 					if (response_id == Gtk.ResponseType.OK)
-						do_create_script(dir_name, sb.text.strip(), empty);
+						do_create_script(dir_name, sb.value.strip(), empty);
 					dg.destroy();
 				});
 
@@ -2911,12 +2911,12 @@ public class LevelEditorApplication : Gtk.Application
 				);
 
 			InputString sb = new InputString();
-			sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
+			sb.value_changed.connect(() => { dg.response(Gtk.ResponseType.OK); });
 			dg.get_content_area().add(sb);
 
 			dg.response.connect((response_id) => {
 					if (response_id == Gtk.ResponseType.OK)
-						do_create_unit(dir_name, sb.text.strip());
+						do_create_unit(dir_name, sb.value.strip());
 					dg.destroy();
 				});
 
@@ -2958,12 +2958,12 @@ public class LevelEditorApplication : Gtk.Application
 				);
 
 			InputString sb = new InputString();
-			sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
+			sb.value_changed.connect(() => { dg.response(Gtk.ResponseType.OK); });
 			dg.get_content_area().add(sb);
 
 			dg.response.connect((response_id) => {
 					if (response_id == Gtk.ResponseType.OK)
-						do_create_state_machine(dir_name, sb.text.strip(), skeleton_name);
+						do_create_state_machine(dir_name, sb.value.strip(), skeleton_name);
 					dg.destroy();
 				});
 
@@ -3005,12 +3005,12 @@ public class LevelEditorApplication : Gtk.Application
 				);
 
 			InputString sb = new InputString();
-			sb.activate.connect(() => { dg.response(Gtk.ResponseType.OK); });
+			sb.value_changed.connect(() => { dg.response(Gtk.ResponseType.OK); });
 			dg.get_content_area().add(sb);
 
 			dg.response.connect((response_id) => {
 					if (response_id == Gtk.ResponseType.OK)
-						do_create_material(dir_name, sb.text.strip());
+						do_create_material(dir_name, sb.value.strip());
 					dg.destroy();
 				});
 

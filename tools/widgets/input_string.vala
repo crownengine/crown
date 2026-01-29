@@ -5,36 +5,37 @@
 
 namespace Crown
 {
-public class InputString : InputField, Gtk.Entry
+public class InputString : InputField
 {
 	public bool _inconsistent;
 	public string _value;
+	public Gtk.Entry _entry;
 	public Gtk.GestureMultiPress _gesture_click;
 
-	public void set_inconsistent(bool inconsistent)
+	public override void set_inconsistent(bool inconsistent)
 	{
 		if (_inconsistent != inconsistent) {
 			_inconsistent = inconsistent;
 
 			if (_inconsistent) {
-				this.text = INCONSISTENT_LABEL;
+				_entry.text = INCONSISTENT_LABEL;
 			} else {
-				this.text = _value;
+				_entry.text = _value;
 			}
 		}
 	}
 
-	public bool is_inconsistent()
+	public override bool is_inconsistent()
 	{
 		return _inconsistent;
 	}
 
-	public GLib.Value union_value()
+	public override GLib.Value union_value()
 	{
 		return this.value;
 	}
 
-	public void set_union_value(GLib.Value v)
+	public override void set_union_value(GLib.Value v)
 	{
 		this.value = (string)v;
 	}
@@ -56,18 +57,22 @@ public class InputString : InputField, Gtk.Entry
 		_inconsistent = false;
 		_value = "";
 
-		_gesture_click = new Gtk.GestureMultiPress(this);
+		_entry = new Gtk.Entry();
+
+		_gesture_click = new Gtk.GestureMultiPress(_entry);
 		_gesture_click.pressed.connect(on_button_pressed);
 		_gesture_click.released.connect(on_button_released);
 
-		this.activate.connect(on_activate);
-		this.focus_in_event.connect(on_focus_in);
-		this.focus_out_event.connect(on_focus_out);
+		_entry.activate.connect(on_activate);
+		_entry.focus_in_event.connect(on_focus_in);
+		_entry.focus_out_event.connect(on_focus_out);
+
+		this.add(_entry);
 	}
 
 	public void on_button_pressed(int n_press, double x, double y)
 	{
-		this.grab_focus();
+		_entry.grab_focus();
 	}
 
 	public void on_button_released(int n_press, double x, double y)
@@ -76,13 +81,13 @@ public class InputString : InputField, Gtk.Entry
 
 		if (button == Gdk.BUTTON_PRIMARY) {
 			if (_inconsistent)
-				this.text = "";
+				_entry.text = "";
 			else
-				this.text = _value;
+				_entry.text = _value;
 
 			GLib.Idle.add(() => {
-					this.set_position(-1);
-					this.select_region(0, -1);
+					_entry.set_position(-1);
+					_entry.select_region(0, -1);
 					return GLib.Source.REMOVE;
 				});
 		}
@@ -90,23 +95,23 @@ public class InputString : InputField, Gtk.Entry
 
 	public void on_activate()
 	{
-		this.select_region(0, 0);
-		this.set_position(-1);
-		set_value_safe(this.text);
+		_entry.select_region(0, 0);
+		_entry.set_position(-1);
+		set_value_safe(_entry.text);
 	}
 
 	public bool on_focus_in(Gdk.EventFocus ev)
 	{
 		var app = (LevelEditorApplication)GLib.Application.get_default();
-		app.entry_any_focus_in(this);
+		app.entry_any_focus_in(_entry);
 
 		if (_inconsistent)
-			this.text = "";
+			_entry.text = "";
 		else
-			this.text = _value;
+			_entry.text = _value;
 
-		this.set_position(-1);
-		this.select_region(0, -1);
+		_entry.set_position(-1);
+		_entry.select_region(0, -1);
 
 		return Gdk.EVENT_PROPAGATE;
 	}
@@ -114,26 +119,26 @@ public class InputString : InputField, Gtk.Entry
 	public bool on_focus_out(Gdk.EventFocus ef)
 	{
 		var app = (LevelEditorApplication)GLib.Application.get_default();
-		app.entry_any_focus_out(this);
+		app.entry_any_focus_out(_entry);
 
 		if (_inconsistent) {
-			if (this.text != "") {
-				set_value_safe(this.text);
+			if (_entry.text != "") {
+				set_value_safe(_entry.text);
 			} else {
-				this.text = INCONSISTENT_LABEL;
+				_entry.text = INCONSISTENT_LABEL;
 			}
 		} else {
-			set_value_safe(this.text);
+			set_value_safe(_entry.text);
 		}
 
-		this.select_region(0, 0);
+		_entry.select_region(0, 0);
 
 		return Gdk.EVENT_PROPAGATE;
 	}
 
 	public virtual void set_value_safe(string text)
 	{
-		this.text = text;
+		_entry.text = text;
 
 		_inconsistent = false;
 

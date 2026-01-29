@@ -5,26 +5,26 @@
 
 namespace Crown
 {
-public class InputAngle : InputField, Gtk.Box
+public class InputAngle : InputField
 {
 	public double _radians;
 	public InputDouble _degrees;
 
-	public void set_inconsistent(bool inconsistent)
+	public override void set_inconsistent(bool inconsistent)
 	{
 	}
 
-	public bool is_inconsistent()
+	public override bool is_inconsistent()
 	{
 		return false;
 	}
 
-	public GLib.Value union_value()
+	public override GLib.Value union_value()
 	{
 		return this.value;
 	}
 
-	public void set_union_value(GLib.Value v)
+	public override void set_union_value(GLib.Value v)
 	{
 		this.value = (double)v;
 	}
@@ -49,12 +49,10 @@ public class InputAngle : InputField, Gtk.Box
 
 	public InputAngle(double val = 0.0, double min = 0.0, double max = 360.0)
 	{
-		Object(orientation: Gtk.Orientation.HORIZONTAL, spacing: 4);
-
 		_degrees = new InputDouble(val, min, max);
 		_degrees.value_changed.connect(on_value_changed);
 
-		this.pack_start(_degrees, true);
+		this.add(_degrees);
 	}
 
 	public void on_value_changed(InputField p)
