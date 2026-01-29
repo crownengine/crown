@@ -5,27 +5,28 @@
 
 namespace Crown
 {
-public class InputFile : InputField, Gtk.Button
+public class InputFile : InputField
 {
 	public string? _path;
 	public Gtk.FileChooserAction _action;
 	public Gtk.Label _label;
+	public Gtk.Button _button;
 
-	public void set_inconsistent(bool inconsistent)
+	public override void set_inconsistent(bool inconsistent)
 	{
 	}
 
-	public bool is_inconsistent()
+	public override bool is_inconsistent()
 	{
 		return false;
 	}
 
-	public GLib.Value union_value()
+	public override GLib.Value union_value()
 	{
 		return this.value;
 	}
 
-	public void set_union_value(GLib.Value v)
+	public override void set_union_value(GLib.Value v)
 	{
 		this.value = (string)v;
 	}
@@ -57,8 +58,11 @@ public class InputFile : InputField, Gtk.Button
 		_label = new Gtk.Label("(None)");
 		_label.xalign = 0.0f;
 
-		this.add(_label);
-		this.clicked.connect(on_selector_clicked);
+		_button = new Gtk.Button();
+		_button.add(_label);
+		_button.clicked.connect(on_selector_clicked);
+
+		this.add(_button);
 	}
 
 	public void on_selector_clicked()

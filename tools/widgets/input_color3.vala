@@ -215,7 +215,7 @@ static Cairo.MeshPattern create_circle_mesh(double cx, double cy, double r, doub
 	return mesh;
 }
 
-public class InputColor3 : Gtk.Box, InputField
+public class InputColor3 : InputField
 {
 	public bool _dragging;
 	public Vector3 _drag_start_rgb;
@@ -251,21 +251,21 @@ public class InputColor3 : Gtk.Box, InputField
 	public Gtk.Popover _popover;
 	public ColorButton _color_button;
 
-	public void set_inconsistent(bool inconsistent)
+	public override void set_inconsistent(bool inconsistent)
 	{
 	}
 
-	public bool is_inconsistent()
+	public override bool is_inconsistent()
 	{
 		return false;
 	}
 
-	public GLib.Value union_value()
+	public override GLib.Value union_value()
 	{
 		return this.value;
 	}
 
-	public void set_union_value(GLib.Value v)
+	public override void set_union_value(GLib.Value v)
 	{
 		this.value = (Vector3)v;
 	}
@@ -294,8 +294,6 @@ public class InputColor3 : Gtk.Box, InputField
 
 	public InputColor3()
 	{
-		Object(orientation: Gtk.Orientation.HORIZONTAL);
-
 		_dragging = false;
 		_drag_start_rgb = Vector3(1.0, 1.0, 1.0);
 
@@ -411,7 +409,7 @@ public class InputColor3 : Gtk.Box, InputField
 		_color_button.set_popover(_popover);
 
 		this.value_changed.connect(on_value_changed);
-		this.pack_start(_color_button);
+		this.add(_color_button);
 
 		on_value_changed();
 	}

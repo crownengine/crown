@@ -25,7 +25,7 @@ public class InputObject : InputEnum
 		get
 		{
 			Guid id;
-			string active_id = this.get_active_id();
+			string active_id = this._combo.get_active_id();
 
 			if (active_id == null)
 				return GUID_ZERO;
@@ -34,7 +34,7 @@ public class InputObject : InputEnum
 		set
 		{
 			_filter.refilter();
-			bool success = this.set_active_id(value.to_string());
+			bool success = this._combo.set_active_id(value.to_string());
 			set_inconsistent(!success);
 		}
 	}

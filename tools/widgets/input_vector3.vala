@@ -5,27 +5,28 @@
 
 namespace Crown
 {
-public class InputVector3 : InputField, Gtk.Box
+public class InputVector3 : InputField
 {
 	public InputDouble _x;
 	public InputDouble _y;
 	public InputDouble _z;
+	public Gtk.Box _box;
 
-	public void set_inconsistent(bool inconsistent)
+	public override void set_inconsistent(bool inconsistent)
 	{
 	}
 
-	public bool is_inconsistent()
+	public override bool is_inconsistent()
 	{
 		return false;
 	}
 
-	public GLib.Value union_value()
+	public override GLib.Value union_value()
 	{
 		return this.value;
 	}
 
-	public void set_union_value(GLib.Value v)
+	public override void set_union_value(GLib.Value v)
 	{
 		this.value = (Vector3)v;
 	}
@@ -54,8 +55,6 @@ public class InputVector3 : InputField, Gtk.Box
 
 	public InputVector3(Vector3 xyz, Vector3 min, Vector3 max, int preview_decimals = 4, int edit_decimals = 5)
 	{
-		Object(orientation: Gtk.Orientation.HORIZONTAL, spacing: 4);
-
 		_x = new InputDouble(xyz.x, min.x, max.x, preview_decimals, edit_decimals);
 		_x.get_style_context().add_class("axis");
 		_x.get_style_context().add_class("x");
@@ -70,9 +69,12 @@ public class InputVector3 : InputField, Gtk.Box
 		_y.value_changed.connect(on_value_changed);
 		_z.value_changed.connect(on_value_changed);
 
-		this.pack_start(_x, true);
-		this.pack_start(_y, true);
-		this.pack_start(_z, true);
+		_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 4);
+		_box.pack_start(_x, true);
+		_box.pack_start(_y, true);
+		_box.pack_start(_z, true);
+
+		this.add(_box);
 	}
 
 	public void on_value_changed()

@@ -193,8 +193,8 @@ public class ConsoleView : Gtk.Box
 		_text_view_overlay.add_overlay(clear_button);
 
 		_entry = new InputString();
-		_entry.activate.connect(on_entry_activated);
-		_entry.set_placeholder_text("Enter Command or Lua expression");
+		_entry.value_changed.connect(on_entry_activated);
+		_entry._entry.set_placeholder_text("Enter Command or Lua expression");
 
 		_entry_controller_key = new Gtk.EventControllerKey(_entry);
 		_entry_controller_key.key_pressed.connect(on_entry_key_pressed);
@@ -239,7 +239,7 @@ public class ConsoleView : Gtk.Box
 
 	public void on_entry_activated()
 	{
-		string text = _entry.text;
+		string text = _entry.value;
 		text = text.strip();
 
 		if (text.length > 0) {
@@ -266,7 +266,7 @@ public class ConsoleView : Gtk.Box
 			}
 		}
 
-		_entry.text = "";
+		_entry.value = "";
 	}
 
 	public bool on_entry_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)
@@ -274,20 +274,20 @@ public class ConsoleView : Gtk.Box
 		if (keyval == Gdk.Key.Down) {
 			if (_distance > 1) {
 				--_distance;
-				_entry.text = _entry_history.element(_distance);
+				_entry.value = _entry_history.element(_distance);
 			} else {
-				_entry.text = "";
+				_entry.value = "";
 			}
 
-			_entry.set_position(_entry.text.length);
+			_entry._entry.set_position(_entry.value.length);
 			return Gdk.EVENT_STOP;
 		} else if (keyval == Gdk.Key.Up) {
 			if (_distance < _entry_history._size) {
 				++_distance;
-				_entry.text = _entry_history.element(_distance);
+				_entry.value = _entry_history.element(_distance);
 			}
 
-			_entry.set_position(_entry.text.length);
+			_entry._entry.set_position(_entry.value.length);
 			return Gdk.EVENT_STOP;
 		}
 

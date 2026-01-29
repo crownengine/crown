@@ -130,7 +130,7 @@ public class DeployDialog : Gtk.Window
 	public Gtk.Entry _android_keystore_password;
 	public Gtk.Entry _android_key_alias;
 	public Gtk.Entry _android_key_password;
-	public Gtk.Entry _android_app_title;
+	public InputString _android_app_title;
 	public Gtk.Entry _android_app_identifier;
 	public Gtk.Entry _android_app_version_code;
 	public Gtk.Entry _android_app_version_name;
@@ -143,7 +143,7 @@ public class DeployDialog : Gtk.Window
 	public Gtk.Button _html5_deploy_button;
 	public InputFile _html5_output_path;
 	public InputEnum _html5_config;
-	public Gtk.Entry _html5_app_title;
+	public InputString _html5_app_title;
 	public PropertyGridSet _html5_set;
 	public Gtk.Box _html5_box;
 	public HTML5Deployer _html5;
@@ -153,7 +153,7 @@ public class DeployDialog : Gtk.Window
 	public Gtk.Button _linux_deploy_button;
 	public InputFile _linux_output_path;
 	public InputEnum _linux_config;
-	public Gtk.Entry _linux_app_title;
+	public InputString _linux_app_title;
 	public PropertyGridSet _linux_set;
 	public Gtk.Box _linux_box;
 	public DeployerPage _linux_page;
@@ -188,7 +188,7 @@ public class DeployDialog : Gtk.Window
 					return;
 				}
 
-				string app_title = _android_app_title.text.strip();
+				string app_title = _android_app_title.value.strip();
 				if (app_title.length == 0) {
 					loge("Enter a valid App Title");
 					return;
@@ -212,7 +212,7 @@ public class DeployDialog : Gtk.Window
 					return;
 				}
 
-				string? keystore_path = _android_use_debug_keystore.get_active()
+				string? keystore_path = _android_use_debug_keystore.value
 					? GLib.Path.build_filename(GLib.Environment.get_home_dir(), ".android", "debug.keystore")
 					: _android_keystore.value
 					;
@@ -221,7 +221,7 @@ public class DeployDialog : Gtk.Window
 					return;
 				}
 
-				string keystore_pass = _android_use_debug_keystore.get_active()
+				string keystore_pass = _android_use_debug_keystore.value
 					? "android"
 					: _android_keystore_password.text
 					;
@@ -230,7 +230,7 @@ public class DeployDialog : Gtk.Window
 					return;
 				}
 
-				string key_alias = _android_use_debug_keystore.get_active()
+				string key_alias = _android_use_debug_keystore.value
 					? "androiddebugkey"
 					: _android_key_alias.text
 					;
@@ -239,7 +239,7 @@ public class DeployDialog : Gtk.Window
 					return;
 				}
 
-				string key_pass = _android_use_debug_keystore.get_active()
+				string key_pass = _android_use_debug_keystore.value
 					? "android"
 					: _android_key_password.text
 					;
@@ -264,7 +264,7 @@ public class DeployDialog : Gtk.Window
 					GLib.Variant paramz[] =
 					{
 						(string)output_path,
-						int.parse(_android_config.get_active_id()),
+						int.parse(_android_config.value),
 						app_title,
 						app_identifier,
 						app_version_code,
@@ -299,8 +299,8 @@ public class DeployDialog : Gtk.Window
 		_android_key_password.set_visibility(false);
 		_android_key_password.input_purpose = Gtk.InputPurpose.PASSWORD;
 		_android_app_title = new InputString();
-		_android_app_title.placeholder_text = "My Application";
-		_android_app_title.text = _project.name();
+		_android_app_title._entry.placeholder_text = "My Application";
+		_android_app_title.value = _project.name();
 		_android_app_identifier = new Gtk.Entry();
 		_android_app_identifier.placeholder_text = "org.company.product";
 		_android_app_version_code = new Gtk.Entry();
@@ -360,7 +360,7 @@ public class DeployDialog : Gtk.Window
 					return;
 				}
 
-				string app_title = _html5_app_title.text.strip();
+				string app_title = _html5_app_title.value.strip();
 				if (app_title.length == 0) {
 					loge("Enter a valid Title");
 					return;
@@ -370,7 +370,7 @@ public class DeployDialog : Gtk.Window
 				GLib.Variant paramz[] =
 				{
 					(string)output_path,
-					int.parse(_html5_config.get_active_id()),
+					int.parse(_html5_config.value),
 					app_title
 				};
 
@@ -381,8 +381,8 @@ public class DeployDialog : Gtk.Window
 		_html5_output_path = new InputFile(Gtk.FileChooserAction.SELECT_FOLDER);
 		_html5_config = make_deploy_config_combo();
 		_html5_app_title = new InputString();
-		_html5_app_title.placeholder_text = "My Application";
-		_html5_app_title.text = _project.name();
+		_html5_app_title._entry.placeholder_text = "My Application";
+		_html5_app_title.value = _project.name();
 
 		_html5_set = new PropertyGridSet();
 
@@ -416,7 +416,7 @@ public class DeployDialog : Gtk.Window
 					return;
 				}
 
-				string app_title = _linux_app_title.text.strip();
+				string app_title = _linux_app_title.value.strip();
 				if (app_title.length == 0) {
 					loge("Enter a valid Title");
 					return;
@@ -426,7 +426,7 @@ public class DeployDialog : Gtk.Window
 				GLib.Variant paramz[] =
 				{
 					(string)output_path,
-					int.parse(_linux_config.get_active_id()),
+					int.parse(_linux_config.value),
 					app_title
 				};
 
@@ -437,8 +437,8 @@ public class DeployDialog : Gtk.Window
 		_linux_output_path = new InputFile(Gtk.FileChooserAction.SELECT_FOLDER);
 		_linux_config = make_deploy_config_combo();
 		_linux_app_title = new InputString();
-		_linux_app_title.placeholder_text = "My Application";
-		_linux_app_title.text = _project.name();
+		_linux_app_title._entry.placeholder_text = "My Application";
+		_linux_app_title.value = _project.name();
 
 		_linux_set = new PropertyGridSet();
 
@@ -471,7 +471,7 @@ public class DeployDialog : Gtk.Window
 					return;
 				}
 
-				string app_title = _windows_app_title.text.strip();
+				string app_title = _windows_app_title.value.strip();
 				if (app_title.length == 0) {
 					loge("Enter a valid Title");
 					return;
@@ -481,7 +481,7 @@ public class DeployDialog : Gtk.Window
 				GLib.Variant paramz[] =
 				{
 					(string)output_path,
-					int.parse(_windows_config.get_active_id()),
+					int.parse(_windows_config.value),
 					app_title
 				};
 
@@ -492,8 +492,8 @@ public class DeployDialog : Gtk.Window
 		_windows_output_path = new InputFile(Gtk.FileChooserAction.SELECT_FOLDER);
 		_windows_config = make_deploy_config_combo();
 		_windows_app_title = new InputString();
-		_windows_app_title.placeholder_text = "My Application";
-		_windows_app_title.text = _project.name();
+		_windows_app_title._entry.placeholder_text = "My Application";
+		_windows_app_title.value = _project.name();
 
 		_windows_set = new PropertyGridSet();
 
@@ -544,7 +544,7 @@ public class DeployDialog : Gtk.Window
 
 	public void android_set_debug_keystore()
 	{
-		bool sensitive = !_android_use_debug_keystore.get_active();
+		bool sensitive = !_android_use_debug_keystore.value;
 		_android_keystore.sensitive = sensitive;
 		_android_keystore_password.sensitive = sensitive;
 		_android_key_alias.sensitive = sensitive;

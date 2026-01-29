@@ -5,7 +5,7 @@
 
 namespace Crown
 {
-public class InputResource : InputField, Gtk.Box
+public class InputResource : InputField
 {
 	public const string UNSET_RESOURCE = "(None)";
 
@@ -18,22 +18,23 @@ public class InputResource : InputField, Gtk.Box
 	public Gtk.Button _selector;
 	public Gtk.Button _revealer;
 	public SelectResourceDialog _dialog;
+	public Gtk.Box _box;
 
-	public void set_inconsistent(bool inconsistent)
+	public override void set_inconsistent(bool inconsistent)
 	{
 	}
 
-	public bool is_inconsistent()
+	public override bool is_inconsistent()
 	{
 		return false;
 	}
 
-	public GLib.Value union_value()
+	public override GLib.Value union_value()
 	{
 		return this.value;
 	}
 
-	public void set_union_value(GLib.Value v)
+	public override void set_union_value(GLib.Value v)
 	{
 		this.value = (string?)v;
 	}
@@ -54,7 +55,7 @@ public class InputResource : InputField, Gtk.Box
 
 	public InputResource(string type, Database db)
 	{
-		Object(orientation: Gtk.Orientation.HORIZONTAL, spacing: 0);
+		_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
 
 		// Data
 		_type = type;
@@ -62,26 +63,28 @@ public class InputResource : InputField, Gtk.Box
 
 		// Widgets
 		_name = new InputString();
-		_name.set_editable(false);
+		_name._entry.set_editable(false);
 		_name.hexpand = true;
 		_name.value_changed.connect(on_name_value_changed);
-		this.pack_start(_name, true, true);
+		_box.pack_start(_name, true, true);
 
 		_revealer = new Gtk.Button.from_icon_name("go-jump-symbolic");
 		_revealer.clicked.connect(on_revealer_clicked);
 		_revealer.set_tooltip_text("Reveal in the project browser.");
-		this.pack_end(_revealer, false);
+		_box.pack_end(_revealer, false);
 
 		_selector = new Gtk.Button.from_icon_name("document-open-symbolic");
 		_selector.set_tooltip_text("Select a resource.");
 		_selector.clicked.connect(on_selector_clicked);
-		this.pack_end(_selector, false);
+		_box.pack_end(_selector, false);
 
 		this.value = null;
 
 		db._project.file_added.connect(on_file_added_or_changed);
 		db._project.file_changed.connect(on_file_added_or_changed);
 		db._project.file_removed.connect(on_file_removed);
+
+		this.add(_box);
 	}
 
 	public void on_selector_clicked()

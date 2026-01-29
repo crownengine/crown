@@ -5,7 +5,7 @@
 
 namespace Crown
 {
-public interface InputField : Gtk.Widget
+public abstract class InputField : Gtk.Bin
 {
 	public const string INCONSISTENT_ID = "-";
 	public const string INCONSISTENT_LABEL = "—";
