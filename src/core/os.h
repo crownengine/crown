@@ -128,7 +128,7 @@ namespace os
 	/// Sets the current working directory.
 	void setcwd(const char *cwd);
 
-	/// Returns the value of the environment variable @a name.
+	/// Returns the value of the environment variable @a name or NULL.
 	const char *getenv(const char *name);
 
 	/// Sets the environment variable @a name to @a value. If the variable
