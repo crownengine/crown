@@ -899,6 +899,11 @@ struct WindowWin : public Window
 		return (void *)(uintptr_t)s_windows_device->_hwnd;
 	}
 
+	void *native_handle_type() override
+	{
+		return (void *)(uintptr_t)bgfx::NativeWindowHandleType::Default;
+	}
+
 	void *native_display() override
 	{
 		return NULL;

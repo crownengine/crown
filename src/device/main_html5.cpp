@@ -143,6 +143,11 @@ struct WindowEmscripten : public Window
 		return (void *)"#" CROWN_HTML5_CANVAS_NAME;
 	}
 
+	void *native_handle_type() override
+	{
+		return (void *)(uintptr_t)bgfx::NativeWindowHandleType::Default;
+	}
+
 	void *native_display() override
 	{
 		return NULL;

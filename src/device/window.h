@@ -106,6 +106,9 @@ struct Window
 	/// Returns the native window handle or NULL if the platform does not support it.
 	virtual void *native_handle() = 0;
 
+	/// Return the type of the native window handle.
+	virtual void *native_handle_type() = 0;
+
 	/// Returns the native display handle or NULL if the platform does not support it.
 	virtual void *native_display() = 0;
 };

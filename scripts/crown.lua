@@ -103,6 +103,9 @@ function crown_project(_name, _kind, _defines)
 				"pthread",
 				"openal",
 			}
+			includedirs {
+				CROWN_DIR .. "3rdparty/wayland/include",
+			}
 
 		configuration { "wasm" }
 			kind "ConsoleApp"
